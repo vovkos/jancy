@@ -22,8 +22,7 @@ bool
 SocketAddress::isEqual(
 	DataPtr selfPtr,
 	DataPtr addressPtr
-	)
-{
+) {
 	axl::io::SockAddr sockAddr1 = ((SocketAddress*)selfPtr.m_p)->getSockAddr();
 	axl::io::SockAddr sockAddr2 = ((SocketAddress*)addressPtr.m_p)->getSockAddr();
 	return sockAddr1.isEqual(sockAddr2);
@@ -33,8 +32,7 @@ bool
 SocketAddress::isMatch(
 	DataPtr selfPtr,
 	DataPtr addressPtr
-	)
-{
+) {
 	axl::io::SockAddr sockAddr1 = ((SocketAddress*)selfPtr.m_p)->getSockAddr();
 	axl::io::SockAddr sockAddr2 = ((SocketAddress*)addressPtr.m_p)->getSockAddr();
 	return sockAddr1.isMatch(sockAddr2);
@@ -44,8 +42,7 @@ bool
 SocketAddress::parse(
 	DataPtr selfPtr,
 	DataPtr stringPtr
-	)
-{
+) {
 	axl::io::SockAddr sockAddr;
 
 	bool result = sockAddr.parse((const char*) stringPtr.m_p);
@@ -57,8 +54,7 @@ SocketAddress::parse(
 }
 
 axl::io::SockAddr
-SocketAddress::getSockAddr() const
-{
+SocketAddress::getSockAddr() const {
 	axl::io::SockAddr sockAddr;
 
 	ASSERT(sizeof(SocketAddress) == sizeof(sockAddr));
@@ -73,8 +69,7 @@ SocketAddress::getSockAddr() const
 }
 
 void
-SocketAddress::setSockAddr(const axl::io::SockAddr& sockAddr)
-{
+SocketAddress::setSockAddr(const axl::io::SockAddr& sockAddr) {
 	ASSERT(sizeof(SocketAddress) == sizeof(sockAddr));
 	memcpy(this, &sockAddr, sizeof(SocketAddress));
 
@@ -84,8 +79,7 @@ SocketAddress::setSockAddr(const axl::io::SockAddr& sockAddr)
 }
 
 SocketAddress
-SocketAddress::fromSockAddr(const axl::io::SockAddr& sockAddr)
-{
+SocketAddress::fromSockAddr(const axl::io::SockAddr& sockAddr) {
 	SocketAddress socketAddress;
 	socketAddress.setSockAddr(sockAddr);
 	return socketAddress;
@@ -98,7 +92,7 @@ JNC_DEFINE_TYPE(
 	"io.Address_ip4",
 	g_ioLibGuid,
 	IoLibCacheSlot_Address_ip4
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Address_ip4)
 	JNC_MAP_FUNCTION("parse",     &Address_ip4::parse)
@@ -112,7 +106,7 @@ JNC_DEFINE_TYPE(
 	"io.Address_ip6",
 	g_ioLibGuid,
 	IoLibCacheSlot_Address_ip6
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Address_ip6)
 	JNC_MAP_FUNCTION("parse",     &Address_ip6::parse)
@@ -126,7 +120,7 @@ JNC_DEFINE_TYPE(
 	"io.SocketAddress_ip4",
 	g_ioLibGuid,
 	IoLibCacheSlot_SocketAddress_ip4
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(SocketAddress_ip4)
 	JNC_MAP_FUNCTION("isEqual",   &SocketAddress_ip4::isEqual)
@@ -142,7 +136,7 @@ JNC_DEFINE_TYPE(
 	"io.SocketAddress_ip6",
 	g_ioLibGuid,
 	IoLibCacheSlot_SocketAddress_ip6
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(SocketAddress_ip6)
 	JNC_MAP_FUNCTION("isEqual",   &SocketAddress_ip6::isEqual)
@@ -158,7 +152,7 @@ JNC_DEFINE_TYPE(
 	"io.SocketAddress",
 	g_ioLibGuid,
 	IoLibCacheSlot_SocketAddress
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(SocketAddress)
 	JNC_MAP_FUNCTION("isEqual",   &SocketAddress::isEqual)

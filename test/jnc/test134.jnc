@@ -5,8 +5,7 @@ import "std_String.jnc"
 char* formatIntegerWithThousandSep(
 	uint64_t value,
 	char sep = ','
-	)
-{
+) {
 	std.StringBuilder string = $"$value";
 
 	intptr_t i = string.m_length - 3;
@@ -20,8 +19,7 @@ char* formatIntegerWithThousandSep(
 
 typedef char const* FormatFunc(int value);
 
-int main()
-{
+int main() {
 	FormatFunc* func = formatIntegerWithThousandSep;
 	char const* string = func(123456);
 

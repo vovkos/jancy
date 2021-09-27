@@ -108,8 +108,7 @@ jnc_getErrorDescription_v(const jnc_Error* error);
 
 JNC_INLINE
 const char*
-jnc_getLastErrorDescription_v()
-{
+jnc_getLastErrorDescription_v() {
 	return jnc_getErrorDescription_v(jnc_getLastError());
 }
 
@@ -125,8 +124,7 @@ namespace jnc {
 
 inline
 void
-setErrorRouter(jnc_ErrorRouter* router)
-{
+setErrorRouter(jnc_ErrorRouter* router) {
 	jnc_setErrorRouter(router);
 }
 
@@ -134,43 +132,37 @@ setErrorRouter(jnc_ErrorRouter* router)
 
 inline
 const jnc_Error*
-getLastError()
-{
+getLastError() {
 	return jnc_getLastError();
 }
 
 inline
 void
-setError(const jnc_Error* error)
-{
+setError(const jnc_Error* error) {
 	jnc_setError(error);
 }
 
 inline
 void
-setErrno(int code)
-{
+setErrno(int code) {
 	jnc_setErrno(code);
 }
 
 inline
 void
-setStringError(const char* string)
-{
+setStringError(const char* string) {
 	jnc_setStringError(string);
 }
 
 inline
 const char*
-getErrorDescription_v(const jnc_Error* error)
-{
+getErrorDescription_v(const jnc_Error* error) {
 	return jnc_getErrorDescription_v(error);
 }
 
 inline
 const char*
-getLastErrorDescription_v()
-{
+getLastErrorDescription_v() {
 	return jnc_getLastErrorDescription_v();
 }
 

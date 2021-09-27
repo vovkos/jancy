@@ -1,31 +1,29 @@
 import "io_base.jncx"
 import "io_ChildProcess.jnc"
 
-int main()
-{
-	char const* cmdLine = sys.g_systemInfo.m_osKind == sys.OsKind.Windows ? 
+int main() {
+	char const* cmdLine = sys.g_systemInfo.m_osKind == sys.OsKind.Windows ?
 		"cmd /c dir c:\\" :
 		"ls /";
 
-	printf("Running: %s\n", cmdLine);	
+	printf("Running: %s\n", cmdLine);
 
 	io.ChildProcess process;
 	process.start(cmdLine);
 
 	char buffer[256];
 
-	for (;;)
-	{
+	for (;;) {
 		io.ChildProcessEvents events = process.blockingWait(
-			io.ChildProcessEvents.IncomingData | 
-			io.ChildProcessEvents.ProcessFinished | 
+			io.ChildProcessEvents.IncomingData |
+			io.ChildProcessEvents.ProcessFinished |
 			io.ChildProcessEvents.IoError
-			);
+		);
 
 		size_t size = process.read(buffer, sizeof(buffer) - 1);
 		if (!size)
 			break;
-	
+
 		buffer[size] = 0;
 		print(buffer);
 	}
@@ -40,7 +38,7 @@ int main()
 		(process.m_activeEvents & io.ChildProcessEvents.ProcessCrashed) != 0,
 		process.m_exitCode,
 		process.m_exitCode
-		);
+	);
 
 	return 0;
 }

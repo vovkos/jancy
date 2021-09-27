@@ -27,8 +27,7 @@ namespace io {
 
 */
 
-bitflag enum SocketOptions: StreamOptions
-{
+bitflag enum SocketOptions: StreamOptions {
 	/**
 		Allow forcibly binding multiple sockets to the same local address
 		(unless there's an active listening a socket  already bound to the same

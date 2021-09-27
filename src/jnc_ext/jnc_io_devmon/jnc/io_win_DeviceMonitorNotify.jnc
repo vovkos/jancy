@@ -18,8 +18,7 @@ namespace win {
 
 //..............................................................................
 
-enum DeviceMonitorNotifyCode: uint16_t
-{
+enum DeviceMonitorNotifyCode: uint16_t {
 	Undefined = 0,
 	PnpStartDevice,
 	PnpStopDevice,
@@ -46,10 +45,8 @@ enum DeviceMonitorNotifyCode: uint16_t
 
 // unions and paddings are to ensure the same layout for x86/amd64 and regardless of pragma pack
 
-struct DeviceMonitorCreateNotifyParams
-{
-	union
-	{
+struct DeviceMonitorCreateNotifyParams {
+	union {
 		uintptr_t m_fileId;
 		uint64_t m_fileId64;
 	}
@@ -64,8 +61,7 @@ struct DeviceMonitorCreateNotifyParams
 	// followed by UTF16 file name
 }
 
-struct DeviceMonitorCreateNamedPipeNotifyParams: DeviceMonitorCreateNotifyParams
-{
+struct DeviceMonitorCreateNamedPipeNotifyParams: DeviceMonitorCreateNotifyParams {
 	uint32_t m_pipeType;
 	uint32_t m_readMode;
 	uint32_t m_completionMode;
@@ -77,8 +73,7 @@ struct DeviceMonitorCreateNamedPipeNotifyParams: DeviceMonitorCreateNotifyParams
 	// followed by UTF16 pipe name
 }
 
-struct DeviceMonitorCreateMailslotNotifyParams: DeviceMonitorCreateNotifyParams
-{
+struct DeviceMonitorCreateMailslotNotifyParams: DeviceMonitorCreateNotifyParams {
 	uint32_t m_mailslotQuota;
 	uint32_t m_maxMessageSize;
 	uint64_t m_readTimeout;
@@ -86,19 +81,15 @@ struct DeviceMonitorCreateMailslotNotifyParams: DeviceMonitorCreateNotifyParams
 	// followed by UTF16 mailslot name
 }
 
-struct DeviceMonitorCloseNotifyParams
-{
-	union
-	{
+struct DeviceMonitorCloseNotifyParams {
+	union {
 		uintptr_t m_fileId;
 		uint64_t m_fileId64;
 	}
 }
 
-struct DeviceMonitorReadWriteNotifyParams
-{
-	union
-	{
+struct DeviceMonitorReadWriteNotifyParams {
+	union {
 		uintptr_t m_fileId;
 		uint64_t m_fileId64;
 	}
@@ -110,10 +101,8 @@ struct DeviceMonitorReadWriteNotifyParams
 	// followed by read/write data
 }
 
-struct DeviceMonitorIoctlNotifyParams
-{
-	union
-	{
+struct DeviceMonitorIoctlNotifyParams {
+	union {
 		uintptr_t m_fileId;
 		uint64_t m_fileId64;
 	}
@@ -129,8 +118,7 @@ struct DeviceMonitorIoctlNotifyParams
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum DeviceMonitorMouseEventFlag
-{
+enum DeviceMonitorMouseEventFlag {
 	DeviceMonitorMouseEventFlag_RelativeCoordinates = 0x0001,
 	DeviceMonitorMouseEventFlag_AbsoluteCoordinates = 0x0002,
 	DeviceMonitorMouseEventFlag_VirtualDesktop      = 0x0004,
@@ -148,8 +136,7 @@ enum DeviceMonitorMouseEventFlag
 	DeviceMonitorMouseEventFlag_Wheel               = 0x4000,
 }
 
-enum DeviceMonitorKeyboardEventFlag
-{
+enum DeviceMonitorKeyboardEventFlag {
 	DeviceMonitorKeyboardEventFlag_Pressed           = 0x01,
 	DeviceMonitorKeyboardEventFlag_Released          = 0x02,
 	DeviceMonitorKeyboardEventFlag_ExtendedScanCode  = 0x04,
@@ -158,15 +145,13 @@ enum DeviceMonitorKeyboardEventFlag
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct DeviceMonitorKeyboardEventParams
-{
+struct DeviceMonitorKeyboardEventParams {
 	uint32_t m_inputCount;
 
 	// followed by DeviceMonitorKeyboardInput m_input [m_inputCount]
 }
 
-struct DeviceMonitorKeyboardInput // binary compatible with WDK KEYBOARD_INPUT_DATA
-{
+struct DeviceMonitorKeyboardInput { // binary compatible with WDK KEYBOARD_INPUT_DATA
 	uint16_t m_unitId;
 	uint16_t m_scanCode;
 	uint16_t m_flags;
@@ -174,24 +159,20 @@ struct DeviceMonitorKeyboardInput // binary compatible with WDK KEYBOARD_INPUT_D
 	uint32_t m_extraInformation;
 }
 
-struct DeviceMonitorMouseEventParams
-{
+struct DeviceMonitorMouseEventParams {
 	uint32_t m_inputCount;
 
 	// followed by DeviceMonitorMouseInput m_input [m_inputCount]
 }
 
-struct DeviceMonitorMouseInput // binary compatible with WDK MOUSE_INPUT_DATA
-{
+struct DeviceMonitorMouseInput { // binary compatible with WDK MOUSE_INPUT_DATA
 	uint16_t m_unitId;
 	uint16_t m_flags;
 
-	union
-	{
+	union {
 		uint32_t m_buttons;
 
-		struct
-		{
+		struct {
 			uint16_t m_buttonFlags;
 			uint16_t m_buttonData;
 		}
@@ -199,16 +180,13 @@ struct DeviceMonitorMouseInput // binary compatible with WDK MOUSE_INPUT_DATA
 
 	uint32_t  m_rawButtons;
 
-	union
-	{
-		struct
-		{
+	union {
+		struct {
 			int32_t m_absoluteX;
 			int32_t m_absoluteY;
 		}
 
-		struct
-		{
+		struct {
 			int32_t m_deltaX;
 			int32_t m_deltaY;
 		}

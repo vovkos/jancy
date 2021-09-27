@@ -4,10 +4,8 @@ bindable int g_blue;
 
 int g_all;
 
-class C
-{
-	reactor m_testReactor
-	{
+class C {
+	reactor m_testReactor {
 		int x = 10000; // bindless (evaluated once during reactor.start ())
 
 		int bindable y = g_red * 3;
@@ -16,8 +14,7 @@ class C
 	}
 }
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	C c;

@@ -14,8 +14,7 @@ namespace io {
 
 //..............................................................................
 
-struct UsbProduct
-{
+struct UsbProduct {
 	uint_t m_id;
 	char const* m_name;
 	UsbVendor* m_vendor;
@@ -23,8 +22,7 @@ struct UsbProduct
 
 //..............................................................................
 
-class UsbVendor
-{
+class UsbVendor {
 protected:
 	std.HashTable m_productMap;
 
@@ -36,10 +34,9 @@ public:
 	UsbProduct* addProduct(
 		uint_t id,
 		char const* name
-		);
+	);
 
-	UsbProduct const* findProduct(uint_t productId) const
-	{
+	UsbProduct const* findProduct(uint_t productId) const {
 		return m_productMap.findValue(productId);
 	}
 }
@@ -49,8 +46,7 @@ public:
 UsbProduct* UsbVendor.addProduct(
 	uint_t id,
 	char const* name
-	)
-{
+) {
 	UsbProduct* product = new UsbProduct;
 	product.m_id = id;
 	product.m_name = name;
@@ -62,8 +58,7 @@ UsbProduct* UsbVendor.addProduct(
 
 //..............................................................................
 
-class UsbDb
-{
+class UsbDb {
 protected:
 	std.HashTable m_vendorMap;
 
@@ -73,18 +68,16 @@ public:
 	UsbVendor* addVendor(
 		uint_t id,
 		char const* name
-		);
+	);
 
-	UsbVendor const* findVendor(uint_t vendorId) const
-	{
+	UsbVendor const* findVendor(uint_t vendorId) const {
 		return m_vendorMap.findValue(vendorId);
 	}
 
 	UsbProduct const* findProduct(
 		uint_t vendorId,
 		uint_t productId
-		)
-	{
+	) {
 		UsbVendor* vendor =  m_vendorMap.findValue(vendorId);
 		return vendor ? vendor.findProduct(productId) : null;
 	}
@@ -92,19 +85,16 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-UsbDb* getStdUsbDb()
-{
+UsbDb* getStdUsbDb() {
 	static UsbDb usbDb;
 
-	once
-	{
+	once {
 		// on debug builds, we use 0 period size trigger (to stress-test gc by forcing it
 		// to collect on each allocation). however, on allocation-heavy apps (usb.ids has 20,000+ lines)
 		// this makes everything too slow, so we better patch 0 period size trigger
 
 		jnc.GcTriggers triggers = jnc.g_gcTriggers;
-		if (!triggers.m_periodSizeTrigger)
-		{
+		if (!triggers.m_periodSizeTrigger) {
 			triggers.m_periodSizeTrigger = 2 * 1024 * 1024; // 2 MB is a reasonable period
 			jnc.g_gcTriggers = triggers;
 		}
@@ -120,8 +110,7 @@ UsbDb* getStdUsbDb()
 UsbVendor* UsbDb.addVendor(
 	uint_t id,
 	char const* name
-	)
-{
+) {
 	UsbVendor* vendor = new UsbVendor;
 	vendor.m_id = id;
 	vendor.m_name = name;
@@ -132,8 +121,7 @@ UsbVendor* UsbDb.addVendor(
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bool errorcode UsbDb.load(char const* fileName)
-{
+bool errorcode UsbDb.load(char const* fileName) {
 	m_vendorMap.clear();
 
 	disposable io.MappedFile file;
@@ -146,20 +134,17 @@ bool errorcode UsbDb.load(char const* fileName)
 	jnc.RegexState state(jnc.RegexStateFlags.Lexer);
 	UsbVendor* vendor;
 
-	while (p < end)
-	{
-		reswitch (state, p, end - p)
-		{
+	while (p < end) {
+		reswitch (state, p, end - p) {
 		case r"(\h{4})\s+([^\n]+[^\s])\s*\n":
 			vendor = addVendor(
 				strtol(state.m_subMatchArray[0].m_text,, 16),
 				state.m_subMatchArray[1].m_text
-				);
+			);
 			break;
 
 		case r"\t(\h{4})\s+([^\n]+[^\s])\s*\n":
-			if (!vendor)
-			{
+			if (!vendor) {
 				std.setError("invalid USB database file format");
 				return false;
 			}
@@ -167,7 +152,7 @@ bool errorcode UsbDb.load(char const* fileName)
 			vendor.addProduct(
 				strtol(state.m_subMatchArray[0].m_text,, 16),
 				state.m_subMatchArray[1].m_text
-				);
+			);
 			break;
 
 		case r"\s*#[^\n]*\n":

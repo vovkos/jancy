@@ -9,8 +9,7 @@
 //
 //..............................................................................
 
-class C
-{
+class C {
 	int bindable m_state;
 	char const* m_s;
 	int m_x;
@@ -18,15 +17,13 @@ class C
 	reactor m_reactor;
 }
 
-reactor C.m_reactor
-{
+reactor C.m_reactor {
 	m_s = $"state = $m_state";
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-int main()
-{
+int main() {
 	return 0;
 }
 

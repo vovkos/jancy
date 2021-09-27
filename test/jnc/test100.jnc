@@ -1,5 +1,4 @@
-int main()
-{
+int main() {
 	printf("compiling\n");
 
 	jnc.RegexState state;

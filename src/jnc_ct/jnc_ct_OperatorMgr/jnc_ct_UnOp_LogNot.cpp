@@ -22,11 +22,9 @@ bool
 UnOp_LogNot::op(
 	const Value& opValue,
 	Value* resultValue
-	)
-{
+) {
 	TypeKind srcTypeKind = opValue.getType()->getTypeKind();
-	switch (srcTypeKind)
-	{
+	switch (srcTypeKind) {
 	case TypeKind_Bool:
 	case TypeKind_Int8:
 	case TypeKind_Int8_u:
@@ -67,8 +65,7 @@ bool
 UnOp_LogNot::zeroCmpOperator(
 	const Value& opValue,
 	Value* resultValue
-	)
-{
+) {
 	Value zeroValue = opValue.getType()->getZeroValue();
 	return m_module->m_operatorMgr.binaryOperator(BinOpKind_Eq, opValue, zeroValue, resultValue);
 }
@@ -77,13 +74,11 @@ bool
 UnOp_LogNot::ptrOperator(
 	const Value& opValue,
 	Value* resultValue
-	)
-{
+) {
 	if (opValue.getType()->getSize() == sizeof(void*))
 		return zeroCmpOperator(opValue, resultValue);
 
-	if (!m_module->hasCodeGen())
-	{
+	if (!m_module->hasCodeGen()) {
 		resultValue->setType(m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool));
 		return true;
 	}
@@ -97,8 +92,7 @@ bool
 UnOp_LogNot::variantOperator(
 	const Value& opValue,
 	Value* resultValue
-	)
-{
+) {
 	Value boolValue;
 
 	return

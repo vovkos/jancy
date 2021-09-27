@@ -3,19 +3,16 @@ import "std_RbTree.jnc"
 int cmpVariant(
 	variant v1,
 	variant v2
-	)
-{
+) {
 	return v1 < v2 ? -1 : v1 > v2 ? 1 : 0;
 }
 
-int main()
-{
+int main() {
 	std.RbTree rbTree(cmpVariant);
 
 	int a[10];
 
-	for (int i = 0; i < countof(a); i++)
-	{
+	for (int i = 0; i < countof(a); i++) {
 		int n = rand() % 100;
 		a[i] = n;
 
@@ -36,8 +33,7 @@ int main()
 		print($"key: $(entry.m_key) value: $(entry.m_value)\n");
 
 	printf("validating...\n");
-	for (int i = 0; i < countof(a); i++)
-	{
+	for (int i = 0; i < countof(a); i++) {
 		int n = a[i];
 		std.MapEntry* entry = rbTree.find(n);
 		assert(entry && entry.m_key == n && entry.m_value == n);

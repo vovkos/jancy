@@ -17,16 +17,14 @@
 //..............................................................................
 
 LlvmIr::LlvmIr(QWidget *parent):
-	MonospacePlainTextEdit(parent)
-{
+	MonospacePlainTextEdit(parent) {
 	setReadOnly(true);
 	setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
 	setLineWrapMode(QPlainTextEdit::NoWrap);
 	m_highlighter = new LlvmIrHighlighter(document());
 }
 
-bool LlvmIr::build(jnc::Module* module)
-{
+bool LlvmIr::build(jnc::Module* module) {
 	clear();
 	appendPlainText(module->getLlvmIrString_v());
 	return true;

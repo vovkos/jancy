@@ -20,21 +20,19 @@ struct SslStateBase;
 
 //..............................................................................
 
-enum SslSocketEvent
-{
+enum SslSocketEvent {
 	SslSocketEvent_SslHandshakeCompleted = 0x0100,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class SslSocketBase: public SocketBase
-{
+class SslSocketBase: public SocketBase {
 protected:
 	bool
 	sslHandshakeLoop(
 		SslStateBase* sslState,
 		bool isClient
-		);
+	);
 };
 
 //..............................................................................

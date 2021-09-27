@@ -1,22 +1,18 @@
 // this test demonstrates a bug in dynamic cast
 
-struct BaseA
-{
+struct BaseA {
 	int m_a;
 }
 
-struct BaseB
-{
+struct BaseB {
 	int m_b;
 }
 
-struct Derived: BaseA, BaseB
-{
+struct Derived: BaseA, BaseB {
 	int m_c;
 }
 
-int main()
-{
+int main() {
 	Derived* d = new Derived;
 	printf("d: %p\n", d);
 

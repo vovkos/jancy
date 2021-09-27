@@ -20,7 +20,7 @@ JNC_DEFINE_CLASS_TYPE(
 	"Widget",
 	g_myLibGuid,
 	MyLibCacheSlot_Widget
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(MyWidget)
 	JNC_MAP_AUTOGET_PROPERTY("m_isVisible", &MyWidget::setVisible)
@@ -30,8 +30,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
-MyWidget::MyWidget(QWidget* widget)
-{
+MyWidget::MyWidget(QWidget* widget) {
 	m_handle = widget;
 
 	QSizePolicy sizePolicy = widget->sizePolicy();
@@ -46,23 +45,20 @@ JNC_CDECL
 MyWidget::setSizePolicy(
 	QSizePolicy::Policy hpolicy,
 	QSizePolicy::Policy vpolicy
-	)
-{
+) {
 	m_handle->setSizePolicy(hpolicy, vpolicy);
 }
 
 void
 JNC_CDECL
-MyWidget::setVisible(bool value)
-{
+MyWidget::setVisible(bool value) {
 	m_isVisible = value;
 	m_handle->setVisible(value);
 }
 
 void
 JNC_CDECL
-MyWidget::setEnabled(bool value)
-{
+MyWidget::setEnabled(bool value) {
 	m_isEnabled = value;
 	m_handle->setEnabled(value);
 }

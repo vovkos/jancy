@@ -25,10 +25,8 @@ CastKind
 Cast_DataPtr_FromArray::getCastKind(
 	const Value& opValue,
 	Type* type
-	)
-{
-	if (isArrayRefType(opValue.getType()))
-	{
+) {
+	if (isArrayRefType(opValue.getType())) {
 		Value ptrValue;
 		bool result = m_module->m_operatorMgr.prepareOperandType(opValue, &ptrValue, OpFlag_ArrayRefToPtr);
 		if (!result)
@@ -61,10 +59,8 @@ Cast_DataPtr_FromArray::constCast(
 	const Value& opValue,
 	Type* type,
 	void* dst
-	)
-{
-	if (isArrayRefType(opValue.getType()))
-	{
+) {
+	if (isArrayRefType(opValue.getType())) {
 		Value ptrValue;
 		bool result =
 			m_module->m_operatorMgr.prepareOperand(opValue, &ptrValue, OpFlag_ArrayRefToPtr) &&
@@ -88,8 +84,7 @@ Cast_DataPtr_FromArray::constCast(
 	ArrayType* srcType = (ArrayType*)opValue.getType();
 	DataPtrType* dstType = (DataPtrType*)type;
 
-	if (!(dstType->getFlags() & PtrTypeFlag_Const))
-	{
+	if (!(dstType->getFlags() & PtrTypeFlag_Const)) {
 		setCastError(opValue, type);
 		return false;
 	}
@@ -100,14 +95,11 @@ Cast_DataPtr_FromArray::constCast(
 
 	AXL_TODO("create a global constant holding the array")
 
-	if (dstType->getPtrTypeKind() == DataPtrTypeKind_Normal)
-	{
+	if (dstType->getPtrTypeKind() == DataPtrTypeKind_Normal) {
 		DataPtr* ptr = (DataPtr*)dst;
 		ptr->m_p = (void*)p;
 		ptr->m_validator = m_module->m_constMgr.createConstDataPtrValidator(p, srcType);
-	}
-	else // thin or lean
-	{
+	} else { // thin or lean
 		*(const void**) dst = p;
 	}
 
@@ -119,10 +111,8 @@ Cast_DataPtr_FromArray::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
-	if (isArrayRefType(opValue.getType()))
-	{
+) {
+	if (isArrayRefType(opValue.getType())) {
 		Value ptrValue;
 
 		return
@@ -140,8 +130,7 @@ CastKind
 Cast_DataPtr_FromClassPtr::getCastKind(
 	const Value& opValue,
 	Type* type
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_ClassPtr);
 	ASSERT(type->getTypeKind() == TypeKind_DataPtr);
 
@@ -163,8 +152,7 @@ Cast_DataPtr_FromClassPtr::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_ClassPtr);
 	ASSERT(type->getTypeKind() == TypeKind_DataPtr);
 
@@ -174,20 +162,17 @@ Cast_DataPtr_FromClassPtr::llvmCast(
 	bool isSrcConst = (srcType->getFlags() & PtrTypeFlag_Const) != 0;
 	bool isDstConst = (dstType->getFlags() & PtrTypeFlag_Const) != 0;
 
-	if (isSrcConst && !isDstConst)
-	{
+	if (isSrcConst && !isDstConst) {
 		setCastError(opValue, type);
 		return false;
 	}
 
-	if (dstType->getPtrTypeKind() == DataPtrTypeKind_Thin)
-	{
+	if (dstType->getPtrTypeKind() == DataPtrTypeKind_Thin) {
 		err::setFormatStringError("casting from class pointer to fat data pointer is not yet implemented (thin only for now)");
 		return false;
 	}
 
-	if (!m_module->m_operatorMgr.isUnsafeRgn())
-	{
+	if (!m_module->m_operatorMgr.isUnsafeRgn()) {
 		setUnsafeCastError(srcType, dstType);
 		return false;
 	}
@@ -202,8 +187,7 @@ CastKind
 Cast_DataPtr_FromFunctionPtr::getCastKind(
 	const Value& opValue,
 	Type* type
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_FunctionPtr);
 	ASSERT(type->getTypeKind() == TypeKind_DataPtr);
 
@@ -222,8 +206,7 @@ Cast_DataPtr_FromFunctionPtr::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_FunctionPtr);
 	ASSERT(type->getTypeKind() == TypeKind_DataPtr);
 
@@ -231,14 +214,12 @@ Cast_DataPtr_FromFunctionPtr::llvmCast(
 	FunctionPtrType* srcType = (FunctionPtrType*)opValue.getType();
 
 	if (srcType->getPtrTypeKind() != FunctionPtrTypeKind_Thin ||
-		dstType->getPtrTypeKind() != DataPtrTypeKind_Thin)
-	{
+		dstType->getPtrTypeKind() != DataPtrTypeKind_Thin) {
 		setCastError(opValue, type);
 		return false;
 	}
 
-	if (!m_module->m_operatorMgr.isUnsafeRgn())
-	{
+	if (!m_module->m_operatorMgr.isUnsafeRgn()) {
 		setUnsafeCastError(srcType, dstType);
 		return false;
 	}
@@ -253,8 +234,7 @@ CastKind
 Cast_DataPtr_FromPropertyPtr::getCastKind(
 	const Value& opValue,
 	Type* type
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_PropertyPtr);
 	ASSERT(type->getTypeKind() == TypeKind_DataPtr);
 
@@ -273,8 +253,7 @@ Cast_DataPtr_FromPropertyPtr::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_PropertyPtr);
 	ASSERT(type->getTypeKind() == TypeKind_DataPtr);
 
@@ -282,14 +261,12 @@ Cast_DataPtr_FromPropertyPtr::llvmCast(
 	PropertyPtrType* srcType = (PropertyPtrType*)opValue.getType();
 
 	if (srcType->getPtrTypeKind() != PropertyPtrTypeKind_Thin ||
-		dstType->getPtrTypeKind() != DataPtrTypeKind_Thin)
-	{
+		dstType->getPtrTypeKind() != DataPtrTypeKind_Thin) {
 		setCastError(opValue, type);
 		return false;
 	}
 
-	if (!m_module->m_operatorMgr.isUnsafeRgn())
-	{
+	if (!m_module->m_operatorMgr.isUnsafeRgn()) {
 		setUnsafeCastError(srcType, dstType);
 		return false;
 	}
@@ -303,8 +280,7 @@ CastKind
 Cast_DataPtr_Base::getCastKind(
 	const Value& opValue,
 	Type* type
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr);
 	ASSERT(type->getTypeKind() == TypeKind_DataPtr);
 
@@ -360,13 +336,11 @@ Cast_DataPtr_Base::getOffset(
 	DataPtrType* srcType,
 	DataPtrType* dstType,
 	BaseTypeCoord* coord
-	)
-{
+) {
 	bool isSrcConst = (srcType->getFlags() & PtrTypeFlag_Const) != 0;
 	bool isDstConst = (dstType->getFlags() & PtrTypeFlag_Const) != 0;
 
-	if (isSrcConst && !isDstConst)
-	{
+	if (isSrcConst && !isDstConst) {
 		setCastError(srcType, dstType);
 		return -1;
 	}
@@ -408,8 +382,7 @@ Cast_DataPtr_Base::getOffsetUnsafePtrValue(
 	DataPtrType* dstType,
 	bool isFat,
 	Value* resultValue
-	)
-{
+) {
 	BaseTypeCoord coord;
 
 	size_t offset = getOffset(srcType, dstType, &coord);
@@ -421,8 +394,7 @@ Cast_DataPtr_Base::getOffsetUnsafePtrValue(
 	else if (dstType->getPtrTypeKind() != DataPtrTypeKind_Thin)
 		dstType = dstType->getTargetType()->getDataPtrType_c();
 
-	if (!coord.m_llvmIndexArray.isEmpty())
-	{
+	if (!coord.m_llvmIndexArray.isEmpty()) {
 		coord.m_llvmIndexArray.insert(0, 0);
 
 		srcType = srcType->getTargetType()->getDataPtrType_c();
@@ -436,7 +408,7 @@ Cast_DataPtr_Base::getOffsetUnsafePtrValue(
 			coord.m_llvmIndexArray.getCount(),
 			dstType,
 			&tmpValue
-			);
+		);
 
 		if (isFat)
 			m_module->m_llvmIrBuilder.createBitCast(tmpValue, dstType, resultValue);
@@ -457,8 +429,7 @@ Cast_DataPtr_Normal2Normal::constCast(
 	const Value& opValue,
 	Type* type,
 	void* dst
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr);
 	ASSERT(type->getTypeKind() == TypeKind_DataPtr);
 
@@ -478,15 +449,13 @@ Cast_DataPtr_Normal2Normal::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr);
 	ASSERT(type->getTypeKind() == TypeKind_DataPtr);
 
 	bool result;
 
-	if (type->getFlags() & PtrTypeFlag_Safe)
-	{
+	if (type->getFlags() & PtrTypeFlag_Safe) {
 		result = m_module->m_operatorMgr.checkDataPtrRange(opValue);
 		if (!result)
 			return false;
@@ -497,8 +466,7 @@ Cast_DataPtr_Normal2Normal::llvmCast(
 	if (offset == -1)
 		return false;
 
-	if (!offset)
-	{
+	if (!offset) {
 		resultValue->overrideType(opValue, type);
 		return true;
 	}
@@ -521,8 +489,7 @@ Cast_DataPtr_Lean2Normal::constCast(
 	const Value& opValue,
 	Type* type,
 	void* dst
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr);
 	ASSERT(type->getTypeKind() == TypeKind_DataPtr);
 
@@ -547,8 +514,7 @@ Cast_DataPtr_Lean2Normal::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr);
 	ASSERT(type->getTypeKind() == TypeKind_DataPtr);
 
@@ -562,8 +528,7 @@ Cast_DataPtr_Lean2Normal::llvmCast(
 	if (!result)
 		return false;
 
-	if (type->getFlags() & PtrTypeFlag_Safe)
-	{
+	if (type->getFlags() & PtrTypeFlag_Safe) {
 		result = m_module->m_operatorMgr.checkDataPtrRange(opValue);
 		if (!result)
 			return false;
@@ -585,8 +550,7 @@ Cast_DataPtr_Normal2Thin::constCast(
 	const Value& opValue,
 	Type* type,
 	void* dst
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr);
 	ASSERT(type->getTypeKind() == TypeKind_DataPtr);
 
@@ -603,8 +567,7 @@ Cast_DataPtr_Normal2Thin::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr);
 	ASSERT(type->getTypeKind() == TypeKind_DataPtr);
 
@@ -620,8 +583,7 @@ Cast_DataPtr_Lean2Thin::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr);
 	ASSERT(type->getTypeKind() == TypeKind_DataPtr);
 
@@ -635,8 +597,7 @@ Cast_DataPtr_Thin2Thin::constCast(
 	const Value& opValue,
 	Type* type,
 	void* dst
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr);
 	ASSERT(type->getTypeKind() == TypeKind_DataPtr);
 
@@ -650,8 +611,7 @@ Cast_DataPtr_Thin2Thin::constCast(
 
 //..............................................................................
 
-Cast_DataPtr::Cast_DataPtr()
-{
+Cast_DataPtr::Cast_DataPtr() {
 	memset(m_operatorTable, 0, sizeof(m_operatorTable));
 
 	m_operatorTable[DataPtrTypeKind_Normal][DataPtrTypeKind_Normal] = &m_normal2Normal;
@@ -667,8 +627,7 @@ CastOperator*
 Cast_DataPtr::getCastOperator(
 	const Value& opValue,
 	Type* type
-	)
-{
+) {
 	ASSERT(type->getTypeKind() == TypeKind_DataPtr);
 
 	DataPtrType* dstPtrType = (DataPtrType*)type;
@@ -679,8 +638,7 @@ Cast_DataPtr::getCastOperator(
 		return &m_fromArray;
 
 	TypeKind typeKind = srcType->getTypeKind();
-	switch (typeKind)
-	{
+	switch (typeKind) {
 	case TypeKind_DataPtr:
 	case TypeKind_DataRef:
 		break;
@@ -724,8 +682,7 @@ CastKind
 Cast_DataRef::getCastKind(
 	const Value& opValue,
 	Type* type
-	)
-{
+) {
 	ASSERT(type->getTypeKind() == TypeKind_DataRef);
 
 	Type* intermediateSrcType = UnOp_Addr::getResultType(opValue);
@@ -737,7 +694,7 @@ Cast_DataRef::getCastKind(
 		TypeKind_DataPtr,
 		ptrType->getPtrTypeKind(),
 		ptrType->getFlags()
-		);
+	);
 
 	return m_module->m_operatorMgr.getCastKind(intermediateSrcType, intermediateDstType);
 }
@@ -747,8 +704,7 @@ Cast_DataRef::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(type->getTypeKind() == TypeKind_DataRef);
 
 	DataPtrType* ptrType = (DataPtrType*)type;
@@ -756,7 +712,7 @@ Cast_DataRef::llvmCast(
 		TypeKind_DataPtr,
 		ptrType->getPtrTypeKind(),
 		ptrType->getFlags()
-		);
+	);
 
 	Value intermediateValue;
 

@@ -13,20 +13,17 @@
 
 //..............................................................................
 
-bool errorcode foo(int x)
-{
+bool errorcode foo(int x) {
 	printf("foo ()\n");
 	return true;
 }
 
-int errorcode baz(int x)
-{
+int errorcode baz(int x) {
 	printf("baz ()\n");
 	return 0;
 }
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	foo(10);

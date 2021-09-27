@@ -18,58 +18,49 @@ class BasicBlock;
 
 //..............................................................................
 
-struct LlvmIrInsertPoint
-{
+struct LlvmIrInsertPoint {
 	llvm::BasicBlock* m_llvmBlock;
 	llvm::Instruction* m_llvmInstruction;
 
-	LlvmIrInsertPoint()
-	{
+	LlvmIrInsertPoint() {
 		clear();
 	}
 
 	LlvmIrInsertPoint(
 		llvm::BasicBlock* llvmBlock,
 		llvm::Instruction* llvmInstruction = NULL
-		)
-	{
+	) {
 		setup(llvmBlock, llvmInstruction);
 	}
 
-	operator bool() const
-	{
+	operator bool() const {
 		return !isEmpty();
 	}
 
 	bool
-	operator == (const LlvmIrInsertPoint& insertPoint) const
-	{
+	operator == (const LlvmIrInsertPoint& insertPoint) const {
 		return isEqual(insertPoint);
 	}
 
 	bool
-	operator != (const LlvmIrInsertPoint& insertPoint) const
-	{
+	operator != (const LlvmIrInsertPoint& insertPoint) const {
 		return !isEqual(insertPoint);
 	}
 
 	bool
-	isEmpty() const
-	{
+	isEmpty() const {
 		return m_llvmBlock == NULL;
 	}
 
 	bool
-	isEqual(const LlvmIrInsertPoint& insertPoint) const
-	{
+	isEqual(const LlvmIrInsertPoint& insertPoint) const {
 		return
 			m_llvmBlock == insertPoint.m_llvmBlock &&
 			m_llvmInstruction == insertPoint.m_llvmInstruction;
 	}
 
 	void
-	clear()
-	{
+	clear() {
 		setup(NULL, NULL);
 	}
 
@@ -77,8 +68,7 @@ struct LlvmIrInsertPoint
 	setup(
 		llvm::BasicBlock* llvmBlock,
 		llvm::Instruction* llvmInstruction
-		)
-	{
+	) {
 		m_llvmBlock = llvmBlock;
 		m_llvmInstruction = llvmInstruction;
 	}

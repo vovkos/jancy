@@ -11,36 +11,29 @@
 
 import "utils.jnc";
 
-class C1
-{
-	construct()
-	{
+class C1 {
+	construct() {
 		printf("C1.construct ()\n");
 	}
 
-	destruct()
-	{
+	destruct() {
 		printf("C1.destruct ()\n");
 	}
 }
 
-class C2
-{
+class C2 {
 	C1 m_c1;
 
-	construct()
-	{
+	construct() {
 		printf("C2.construct ()\n");
 	}
 
-	destruct()
-	{
+	destruct() {
 		printf("C2.destruct ()\n");
 	}
 }
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	utilsFoo();

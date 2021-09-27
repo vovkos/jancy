@@ -18,21 +18,21 @@ set(
 	jnc_rt_ExceptionMgr.h
 	jnc_rt_Runtime.h
 	jnc_rt_GcHeap.h
-	)
+)
 
 set(
 	LIB_CPP_LIST
 	jnc_rt_ExceptionMgr.cpp
 	jnc_rt_Runtime.cpp
 	jnc_rt_GcHeap.cpp
-	)
+)
 
 source_group(
 	lib
 	FILES
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -47,7 +47,7 @@ source_group(
 	FILES
 	${PCH_H}
 	${PCH_CPP}
-	)
+)
 
 #...............................................................................
 #
@@ -61,7 +61,7 @@ include_directories(
 	${JANCY_SRC_DIR}/jnc_ct/include
 	${JANCY_SRC_DIR}/jnc_ext/jnc_rtl_core
 	${GEN_DIR}
-	)
+)
 
 add_library(
 	jnc_rt
@@ -69,19 +69,19 @@ add_library(
 	${PCH_CPP}
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
-	)
+)
 
 axl_set_pch(
 	jnc_rt
 	${PCH_H}
 	${PCH_CPP}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 install(
 	TARGETS jnc_rt
 	DESTINATION ${JANCY_INSTALL_LIB_SUBDIR}
-	)
+)
 
 #...............................................................................

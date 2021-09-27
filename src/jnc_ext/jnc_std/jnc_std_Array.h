@@ -23,8 +23,7 @@ JNC_DECLARE_CLASS_TYPE(Array)
 
 //..............................................................................
 
-class Array: public IfaceHdr
-{
+class Array: public IfaceHdr {
 public:
 	DataPtr m_ptr;
 	size_t m_count;
@@ -48,7 +47,7 @@ public:
 	copy(
 		DataPtr ptr,
 		size_t count
-		);
+	);
 
 	size_t
 	JNC_CDECL
@@ -56,14 +55,14 @@ public:
 		size_t index,
 		DataPtr ptr,
 		size_t count
-		);
+	);
 
 	size_t
 	JNC_CDECL
 	remove(
 		size_t index,
 		size_t count
-		);
+	);
 };
 
 //..............................................................................

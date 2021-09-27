@@ -9,8 +9,7 @@ namespace io {
 
 //..............................................................................
 
-char const* detectJLinkLibPath()
-{
+char const* detectJLinkLibPath() {
 	static char const* fileName = sys.g_systemInfo.m_cpuKind == sys.CpuKind.Amd64 ?
 		"JLink_x64.dll" :
 		"JLinkARM.dll";
@@ -20,10 +19,9 @@ char const* detectJLinkLibPath()
 		sys.RegStdKey.CurrentUser,
 		r"Software\SEGGER\J-Link",
 		sys.RegKeyAccess.Read
-		);
+	);
 
-	if (result)
-	{
+	if (result) {
 		char const* installPath = key.readString("InstallPath");
 		if (installPath)
 			return $"$installPath\\$fileName";

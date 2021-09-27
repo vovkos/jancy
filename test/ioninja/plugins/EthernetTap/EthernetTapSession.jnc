@@ -18,11 +18,9 @@ using extension ui.ComboBoxHistory;
 
 //..............................................................................
 
-class EthernetTapSession: doc.Session
-{
+class EthernetTapSession: doc.Session {
 protected:
-	enum Defaults
-	{
+	enum Defaults {
 		ReadParallelism = 4,
 		ReadBlockSize   = 64 * 1024,
 		ReadBufferSize  = 1 * 1024 * 1024,
@@ -30,30 +28,26 @@ protected:
 		LogCacheUpdateScrollRateLimit = 16,
 	}
 
-	enum
-	{
+	enum {
 		CypressBufferSize         = 4 * 1024, // 4K (2K built-in in Cypress + 512 FPGA FIFO)
 		GracefulStopWriteTimeout  = 1000,     // 1 sec
 		CypressClearBufferTimeout = 200,      // 0.2 sec
 		FpgaUploadBaseIndex       = 0x2000,
 	}
 
-	enum State
-	{
+	enum State {
 		Closed,
 		Uploading,
 		Capturing,
 	}
 
-	char const* m_statusText[] =
-	{
+	char const* m_statusText[] = {
 		"Closed",
 		"Uploading",
 		"Capturing",
 	}
 
-	enum ActionId
-	{
+	enum ActionId {
 		ApplyFilter,
 		Refresh,
 		Capture,
@@ -61,21 +55,18 @@ protected:
 		_Count,
 	}
 
-	enum IconId
-	{
+	enum IconId {
 		Capture,
 		Stop,
 		_Count,
 	}
 
-	enum StatusPaneId
-	{
+	enum StatusPaneId {
 		State,
 		_Count,
 	}
 
-	enum Usb
-	{
+	enum Usb {
 		VendorId    = 0x326f,
 		ProductId   = 0x0003,
 		OutEndpoint = 0x02,
@@ -136,7 +127,7 @@ public:
 	override size_t errorcode transmit(
 		void const* p,
 		size_t size
-		);
+	);
 
 	override void load(doc.Storage* storage);
 	override void save(doc.Storage* storage);
@@ -149,15 +140,14 @@ protected:
 	void onExportPcap();
 	void onFileDlgCompleted(ui.StdDlgButton button);
 
-	void onSetFilter()
-	{
+	void onSetFilter() {
 		try applyFilter(true);
 	}
 
 	void onInEndpointEvent(
 		uint_t syncId,
 		io.UsbEndpointEvents triggeredEvents
-		);
+	);
 
 	void onUpdateCompleted(bool result);
 
@@ -168,7 +158,7 @@ protected:
 	void parse(
 		uint32_t const* p,
 		size_t size
-		);
+	);
 
 	bool errorcode startCapture();
 	bool errorcode gracefulStop();
@@ -177,8 +167,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-EthernetTapSession.construct(doc.PluginHost* pluginHost)
-{
+EthernetTapSession.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
 	m_uploader.construct(pluginHost);
 	m_uploader.m_onUpdateCompleted += onUpdateCompleted;
@@ -190,8 +179,7 @@ EthernetTapSession.construct(doc.PluginHost* pluginHost)
 	pluginHost.m_log.addFilter(m_filter);
 }
 
-void EthernetTapSession.createUi()
-{
+void EthernetTapSession.createUi() {
 	// toolbar
 
 	m_iconTable[IconId.Capture] = new ui.Icon("images/capture.png");
@@ -233,14 +221,14 @@ void EthernetTapSession.createUi()
 	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Connection",
 		"USB-specific connection settings"
-		);
+	);
 
 	m_deviceProp = m_pluginHost.m_propertyGrid.createEnumProperty(
 		group,,
 		"Device",
 		"Target USB device",
 		null, 0
-		);
+	);
 
 	m_filterProp = m_pluginHost.m_propertyGrid.createStringProperty(
 		group,,
@@ -248,7 +236,7 @@ void EthernetTapSession.createUi()
 		"Enter a pcap-filter...",
 		"View only packets which pass this filter\n"
 		"For a complete syntax reference, google 'pcap-filter'"
-		);
+	);
 
 	ui.BufferPropertySet.PropertyId ids =
 		ui.BufferPropertySet.PropertyId.ReadParallelism |
@@ -273,7 +261,7 @@ void EthernetTapSession.createUi()
 		ui.StdSessionInfoSet.InfoId.RxTotalSize |
 		ui.StdSessionInfoSet.InfoId.TxThroughput |
 		ui.StdSessionInfoSet.InfoId.RxThroughput
-		);
+	);
 
 	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 
@@ -283,18 +271,15 @@ void EthernetTapSession.createUi()
 	m_isTransmitEnabled = true;
 }
 
-void EthernetTapSession.onCapture()
-{
+void EthernetTapSession.onCapture() {
 	if (m_state)
 		stopCapture();
 	else
 		try capture();
 }
 
-void EthernetTapSession.onExportPcap()
-{
-	if (!m_fileDlg)
-	{
+void EthernetTapSession.onExportPcap() {
+	if (!m_fileDlg) {
 		m_fileDlg = new ui.FileDlg;
 		m_fileDlg.m_onCompleted += onFileDlgCompleted;
 	}
@@ -305,8 +290,7 @@ void EthernetTapSession.onExportPcap()
 	m_fileDlg.show();
 }
 
-void EthernetTapSession.onUpdateCompleted(bool result)
-{
+void EthernetTapSession.onUpdateCompleted(bool result) {
 	if (result)
 		try startCapture();
 	else
@@ -317,13 +301,11 @@ size_t exportLogRecordToPcap(
 	log.Record const* record,
 	io.MappedFile* pcapFile,
 	uint64_t pcapOffset
-	)
-{
+) {
 	void const* p;
 	size_t size;
 
-	switch (record.m_code)
-	{
+	switch (record.m_code) {
 	case EthernetTapLogRecordCode.Packet_ch1:
 	case EthernetTapLogRecordCode.Packet_ch2:
 		uint32_t const* idx = (uint32_t const*)(record + 1);
@@ -339,8 +321,7 @@ size_t exportLogRecordToPcap(
 	return io.writePcapPacket(pcapFile, pcapOffset, record.m_timestamp, p, size);
 }
 
-void EthernetTapSession.onFileDlgCompleted(ui.StdDlgButton button)
-{
+void EthernetTapSession.onFileDlgCompleted(ui.StdDlgButton button) {
 	if (button != ui.StdDlgButton.Ok)
 		return;
 
@@ -350,14 +331,13 @@ void EthernetTapSession.onFileDlgCompleted(ui.StdDlgButton button)
 		io.PcapLinkType.Ethernet,
 		2 * 1024, // enough for ethernet
 		exportLogRecordToPcap
-		);
+	);
 
 	if (!result)
 		m_logWriter.writeLastError(log.StdRecordCode.Error);
 }
 
-void EthernetTapSession.enumerateDevices()
-{
+void EthernetTapSession.enumerateDevices() {
 	m_deviceCombo.clear();
 
 	io.UsbDevice* const* deviceArray = io.createUsbDeviceArray();
@@ -366,8 +346,7 @@ void EthernetTapSession.enumerateDevices()
 
 	ui.EnumPropertyOption* optionTable = new ui.EnumPropertyOption[totalCount];
 
-	for (size_t i = 0; i < totalCount; i++)
-	{
+	for (size_t i = 0; i < totalCount; i++) {
 		io.UsbDevice* device = deviceArray[i];
 		io.UsbDeviceDesc const* deviceDesc = device.m_deviceDesc;
 
@@ -378,7 +357,7 @@ void EthernetTapSession.enumerateDevices()
 		char const* text = $"@%(1;03d):%(2;03d) IO Ninja Ethernet Tap"(
 			device.m_bus,
 			device.m_address
-			);
+		);
 
 		m_deviceCombo.addItem(text, device);
 
@@ -390,8 +369,7 @@ void EthernetTapSession.enumerateDevices()
 	m_deviceProp.setOptions(optionTable, actualCount);
 }
 
-bool errorcode EthernetTapSession.capture()
-{
+bool errorcode EthernetTapSession.capture() {
 	stopCapture();
 
 	if (m_deviceCombo.m_currentIndex == -1)
@@ -410,8 +388,7 @@ catch:
 	return false;
 }
 
-bool errorcode EthernetTapSession.startCapture()
-{
+bool errorcode EthernetTapSession.startCapture() {
 	m_iface = m_device.claimInterface(0);
 	m_logWriter.write(EthernetTapLogRecordCode.InterfaceClaimed);
 
@@ -449,18 +426,16 @@ catch:
 	return false;
 }
 
-bool errorcode EthernetTapSession.gracefulStop()
-{
+bool errorcode EthernetTapSession.gracefulStop() {
 	static char stopCode = 0xaa;
 	m_outEndpoint.write(&stopCode, sizeof(stopCode));
 
 	io.UsbEndpointEvents events = m_outEndpoint.blockingWait(
 		io.UsbEndpointEvents.WriteCompleted | io.UsbEndpointEvents.IoError,
 		GracefulStopWriteTimeout
-		);
+	);
 
-	if (events & io.UsbEndpointEvents.IoError)
-	{
+	if (events & io.UsbEndpointEvents.IoError) {
 		std.setError("Stop capture request failed");
 		return false;
 	}
@@ -472,8 +447,7 @@ bool errorcode EthernetTapSession.gracefulStop()
 	ep.m_options &= ~io.UsbEndpointOptions.KeepReadBlockSize;
 	ep.unsuspend();
 
-	for (;;)
-	{
+	for (;;) {
 		ep.blockingWait(io.UsbEndpointEvents.IncomingData, CypressClearBufferTimeout);
 
 		size_t size = ep.read(m_readBuffer.m_p, m_readBuffer.m_size);
@@ -489,10 +463,8 @@ bool errorcode EthernetTapSession.gracefulStop()
 	return true;
 }
 
-void EthernetTapSession.stopCapture(bool isGraceful)
-{
-	if (m_outEndpoint)
-	{
+void EthernetTapSession.stopCapture(bool isGraceful) {
+	if (m_outEndpoint) {
 		if (isGraceful)
 			try gracefulStop();
 
@@ -500,26 +472,22 @@ void EthernetTapSession.stopCapture(bool isGraceful)
 		m_outEndpoint = null;
 	}
 
-	if (m_inEndpoint)
-	{
+	if (m_inEndpoint) {
 		m_inEndpoint.close();
 		m_inEndpoint = null;
 	}
 
-	if (m_iface)
-	{
+	if (m_iface) {
 		m_iface.release();
 		m_iface = null;
 	}
 
-	if (m_device)
-	{
+	if (m_device) {
 		m_device.close();
 		m_device = null;
 	}
 
-	if (m_state)
-	{
+	if (m_state) {
 		m_stdSessionInfoSet.endSession();
 		m_logWriter.write(EthernetTapLogRecordCode.CaptureStopped);
 		m_state = State.Closed;
@@ -532,14 +500,12 @@ void EthernetTapSession.stopCapture(bool isGraceful)
 	m_syncId++;
 }
 
-bool errorcode EthernetTapSession.applyFilter(bool rebuildLog)
-{
+bool errorcode EthernetTapSession.applyFilter(bool rebuildLog) {
 	m_pluginHost.m_log.suspend();
 	bool result = try m_filter.setFilter(m_filterCombo.m_editText);
 	m_pluginHost.m_log.resume();
 
-	if (!result)
-	{
+	if (!result) {
 		m_filterCombo.m_backgroundColor = ui.StdColor.PastelRed;
 		return false;
 	}
@@ -553,8 +519,7 @@ bool errorcode EthernetTapSession.applyFilter(bool rebuildLog)
 	return true;
 }
 
-void EthernetTapSession.waitInEndpointEvents()
-{
+void EthernetTapSession.waitInEndpointEvents() {
 	io.UsbEndpointEvents eventMask =
 		io.UsbEndpointEvents.IoError |
 		io.UsbEndpointEvents.ReadBufferFull |
@@ -566,20 +531,17 @@ void EthernetTapSession.waitInEndpointEvents()
 void EthernetTapSession.onInEndpointEvent(
 	uint_t syncId,
 	io.UsbEndpointEvents triggeredEvents
-	)
-{
+) {
 	if (syncId != m_syncId)
 		return;
 
-	if (triggeredEvents & io.UsbEndpointEvents.IoError)
-	{
+	if (triggeredEvents & io.UsbEndpointEvents.IoError) {
 		m_logWriter.write(log.StdRecordCode.Error, m_inEndpoint.m_ioError);
 		stopCapture(false);
 		return;
 	}
 
-	if (triggeredEvents & io.UsbEndpointEvents.IncomingData)
-	{
+	if (triggeredEvents & io.UsbEndpointEvents.IncomingData) {
 		size_t size = m_inEndpoint.read(m_readBuffer.m_p, m_readBuffer.m_size);
 		parse((uint32_t const*)m_readBuffer.m_p, size / sizeof(uint32_t));
 	}
@@ -590,14 +552,11 @@ void EthernetTapSession.onInEndpointEvent(
 void EthernetTapSession.parse(
 	uint32_t const* p,
 	size_t count
-	)
-{
+) {
 	uint32_t const* end = p + count;
 
-	while (p < end)
-	{
-		if (!m_packetBuffer.m_size)
-		{
+	while (p < end) {
+		if (!m_packetBuffer.m_size) {
 			while (*p == -1 || *p == 0)
 				if (++p >= end)
 					break2;
@@ -613,13 +572,12 @@ void EthernetTapSession.parse(
 		assert(!(dstSize & 3)); // must be aligned
 
 		size_t srcSize = (end - p) * sizeof(uint32_t);
-		if (srcSize < dstSize)
-		{
+		if (srcSize < dstSize) {
 			memcpy(
 				m_packetBuffer.m_p + m_packetOffset,
 				p,
 				srcSize
-				);
+			);
 
 			m_packetOffset += srcSize;
 			break;
@@ -631,7 +589,7 @@ void EthernetTapSession.parse(
 			m_packetBuffer.m_p + m_packetOffset,
 			p,
 			dstSize
-			);
+		);
 
 		p += dstSize / sizeof(uint32_t);
 
@@ -641,13 +599,10 @@ void EthernetTapSession.parse(
 //		if (rand() & 1)
 //			hdr.m_flags &= ~PacketFlags.CrcValid;
 
-		if (hdr.m_flags & PacketFlags.ChannelId)
-		{
+		if (hdr.m_flags & PacketFlags.ChannelId) {
 			recordCode = EthernetTapLogRecordCode.Packet_ch2;
 			m_stdSessionInfoSet.addRxData(m_packetBuffer.m_size);
-		}
-		else
-		{
+		} else {
 			recordCode = EthernetTapLogRecordCode.Packet_ch1;
 			m_stdSessionInfoSet.addTxData(m_packetBuffer.m_size);
 		}
@@ -658,8 +613,7 @@ void EthernetTapSession.parse(
 	}
 }
 
-void EthernetTapSession.load(doc.Storage* storage)
-{
+void EthernetTapSession.load(doc.Storage* storage) {
 	m_filterCombo.loadHistory(storage, "filterHistory");
 	m_filterCombo.m_editText = storage.readString("filter");
 	m_deviceCombo.m_currentIndex = storage.readInt("deviceIdx");
@@ -667,22 +621,19 @@ void EthernetTapSession.load(doc.Storage* storage)
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 }
 
-void EthernetTapSession.save(doc.Storage* storage)
-{
+void EthernetTapSession.save(doc.Storage* storage) {
 	m_filterCombo.saveHistory(storage, "filterHistory");
 	storage.writeString("filter", m_filterCombo.m_editText);
 	storage.writeInt("deviceIdx", (int)m_deviceCombo.m_currentIndex);
 	m_bufferPropertySet.save(storage);
 }
 
-void EthernetTapSession.updateProperties()
-{
+void EthernetTapSession.updateProperties() {
 	m_deviceProp.m_currentIndex = m_deviceCombo.m_currentIndex;
 	m_filterProp.m_value = m_filterCombo.m_editText;
 }
 
-bool errorcode EthernetTapSession.applyProperties()
-{
+bool errorcode EthernetTapSession.applyProperties() {
 	m_deviceCombo.m_currentIndex = m_deviceProp.m_currentIndex;
 	m_filterCombo.m_editText = m_filterProp.m_value;
 	m_readBuffer.detach(); // drop buffer, so we re-allocate each time
@@ -699,24 +650,21 @@ bool errorcode EthernetTapSession.applyProperties()
 	return true;
 }
 
-void EthernetTapSession.restoreDefaultProperties()
-{
+void EthernetTapSession.restoreDefaultProperties() {
 	m_bufferPropertySet.restoreDefaults();
 }
 
 size_t errorcode EthernetTapSession.transmit(
 	void const* p,
 	size_t size
-	)
-{
+) {
 	m_packetBuffer.clear();
 	m_packetOffset = 0;
 	parse((uint32_t const*)p, size / 4);
 	return size;
 }
 
-reactor EthernetTapSession.m_uiReactor
-{
+reactor EthernetTapSession.m_uiReactor {
 	m_title = $"Ethernet $(m_deviceCombo.m_currentText)";
 	m_actionTable[ActionId.Capture].m_text = m_state ? "Close Device" : "Open Device";
 	m_actionTable[ActionId.Capture].m_icon = m_iconTable[m_state ? IconId.Stop : IconId.Capture];

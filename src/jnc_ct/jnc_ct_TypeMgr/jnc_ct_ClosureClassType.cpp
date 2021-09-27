@@ -20,8 +20,7 @@ namespace ct {
 
 //..............................................................................
 
-ClosureClassType::ClosureClassType()
-{
+ClosureClassType::ClosureClassType() {
 	m_namespaceStatus = NamespaceStatus_Ready;
 	m_flags |= ClassTypeFlag_Closure;
 	m_thisArgFieldIdx = -1;
@@ -35,15 +34,14 @@ ClosureClassType::createSignature(
 	const size_t* closureMap,
 	size_t argCount,
 	size_t thisArgIdx
-	)
-{
+) {
 	sl::String signature = "CF";
 
 	signature.appendFormat(
 		"%s-%s(",
 		targetType->getSignature().sz(),
 		thunkType->getSignature().sz()
-		);
+	);
 
 	for (size_t i = 0; i < argCount; i++)
 		signature.appendFormat("%d:%s", closureMap [i], argTypeArray [i]->getSignature ().sz());
@@ -58,8 +56,7 @@ ClosureClassType::buildArgValueList(
 	const Value* thunkArgValueArray,
 	size_t thunkArgCount,
 	sl::BoxList<Value>* argValueList
-	)
-{
+) {
 	size_t fieldIdx = 1; // skip function / property ptr
 
 	size_t iClosure = 0;
@@ -68,18 +65,14 @@ ClosureClassType::buildArgValueList(
 	// part 1 -- arguments come both from closure and from thunk
 
 	size_t fieldCount = m_fieldArray.getCount();
-	for (size_t i = 0; fieldIdx < fieldCount; i++)
-	{
+	for (size_t i = 0; fieldIdx < fieldCount; i++) {
 		Value argValue;
 
-		if (i == m_closureMap[iClosure])
-		{
+		if (i == m_closureMap[iClosure]) {
 			m_module->m_operatorMgr.getClassField(closureValue, m_fieldArray[fieldIdx], NULL, &argValue);
 			fieldIdx++;
 			iClosure++;
-		}
-		else
-		{
+		} else {
 			argValue = thunkArgValueArray[iThunk];
 			iThunk++;
 		}
@@ -94,8 +87,7 @@ ClosureClassType::buildArgValueList(
 }
 
 IfaceHdr*
-ClosureClassType::strengthen(IfaceHdr* p)
-{
+ClosureClassType::strengthen(IfaceHdr* p) {
 	if (m_thisArgFieldIdx == -1)
 		return p;
 
@@ -109,15 +101,13 @@ ClosureClassType::strengthen(IfaceHdr* p)
 
 //..............................................................................
 
-FunctionClosureClassType::FunctionClosureClassType()
-{
+FunctionClosureClassType::FunctionClosureClassType() {
 	m_classTypeKind = ClassTypeKind_FunctionClosure;
 	m_thunkFunction = NULL;
 }
 
 bool
-FunctionClosureClassType::compileThunkFunction(Function* function)
-{
+FunctionClosureClassType::compileThunkFunction(Function* function) {
 	ASSERT(function == m_thunkFunction);
 
 	size_t argCount = function->getType()->getArgArray().getCount();
@@ -142,8 +132,7 @@ FunctionClosureClassType::compileThunkFunction(Function* function)
 	if (!result)
 		return false;
 
-	if (function->getType()->getReturnType()->getTypeKind() != TypeKind_Void)
-	{
+	if (function->getType()->getReturnType()->getTypeKind() != TypeKind_Void) {
 		result = m_module->m_controlFlowMgr.ret(returnValue);
 		if (!result)
 			return false;
@@ -159,22 +148,19 @@ Function*
 PropertyClosureClassType::ThunkProperty::createAccessor(
 	FunctionKind functionKind,
 	FunctionType* type
-	)
-{
+) {
 	return m_module->m_functionMgr.createFunction<Accessor>(functionKind, type);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-PropertyClosureClassType::PropertyClosureClassType()
-{
+PropertyClosureClassType::PropertyClosureClassType() {
 	m_classTypeKind = ClassTypeKind_PropertyClosure;
 	m_thunkProperty = NULL;
 }
 
 bool
-PropertyClosureClassType::compileAccessor(Function* accessor)
-{
+PropertyClosureClassType::compileAccessor(Function* accessor) {
 	ASSERT(accessor->getProperty() == m_thunkProperty);
 
 	bool result;
@@ -197,8 +183,7 @@ PropertyClosureClassType::compileAccessor(Function* accessor)
 	Value pfnValue;
 
 	FunctionKind accessorKind = accessor->getFunctionKind();
-	switch (accessorKind)
-	{
+	switch (accessorKind) {
 	case FunctionKind_Binder:
 		result = m_module->m_operatorMgr.getPropertyBinder(propertyPtrValue, &pfnValue);
 		break;
@@ -227,8 +212,7 @@ PropertyClosureClassType::compileAccessor(Function* accessor)
 	if (!result)
 		return false;
 
-	if (accessor->getType()->getReturnType()->getTypeKind() != TypeKind_Void)
-	{
+	if (accessor->getType()->getReturnType()->getTypeKind() != TypeKind_Void) {
 		result = m_module->m_controlFlowMgr.ret(returnValue);
 		if (!result)
 			return false;
@@ -244,10 +228,8 @@ Function*
 DataClosureClassType::ThunkProperty::createAccessor(
 	FunctionKind functionKind,
 	FunctionType* type
-	)
-{
-	switch (functionKind)
-	{
+) {
+	switch (functionKind) {
 	case FunctionKind_Getter:
 		return m_module->m_functionMgr.createFunction<Getter>(functionKind, type);
 
@@ -261,8 +243,7 @@ DataClosureClassType::ThunkProperty::createAccessor(
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-DataClosureClassType::DataClosureClassType()
-{
+DataClosureClassType::DataClosureClassType() {
 	m_classTypeKind = ClassTypeKind_DataClosure;
 	m_thunkProperty = NULL;
 }
@@ -271,22 +252,20 @@ sl::String
 DataClosureClassType::createSignature(
 	Type* targetType,
 	PropertyType* thunkType
-	)
-{
+) {
 	sl::String signature = "CD";
 
 	signature.appendFormat(
 		"%s-%s",
 		targetType->getTypeString().sz(),
 		thunkType->getTypeString().sz()
-		);
+	);
 
 	return signature;
 }
 
 bool
-DataClosureClassType::compileGetter(Function* function)
-{
+DataClosureClassType::compileGetter(Function* function) {
 	ASSERT(function == m_thunkProperty->getGetter());
 
 	m_module->m_functionMgr.internalPrologue(function);
@@ -309,8 +288,7 @@ DataClosureClassType::compileGetter(Function* function)
 }
 
 bool
-DataClosureClassType::compileSetter(Function* function)
-{
+DataClosureClassType::compileSetter(Function* function) {
 	Value argValue;
 	m_module->m_functionMgr.internalPrologue(function, &argValue, 1);
 

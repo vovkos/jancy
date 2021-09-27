@@ -16,8 +16,7 @@ namespace io {
 
 //..............................................................................
 
-opaque class SslCipher
-{
+opaque class SslCipher {
 	char const* const property m_name;
 	char const* const property m_description;
 	size_t const property m_bitCount;

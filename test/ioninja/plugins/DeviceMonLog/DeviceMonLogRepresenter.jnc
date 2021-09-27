@@ -14,10 +14,8 @@ bool representDeviceMonLog  (
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
-	switch (recordCode)
-	{
+) {
+	switch (recordCode) {
 	case DeviceMonLogRecordCode.CaptureStarted_name:
 		char const* name = (char const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Listen;
@@ -47,8 +45,7 @@ bool representDeviceMonLog  (
 		char const* url;
 
 		if (error.m_guid == std.g_winErrorGuid)
-			switch (error.m_code)
-			{
+			switch (error.m_code) {
 			case 2: // ERROR_FILE_NOT_FOUND
 				url = "http://ioninja.com/doc/kb/tdevmon_windows_file_not_found.html";
 				break;
@@ -58,8 +55,7 @@ bool representDeviceMonLog  (
 				break;
 			}
 		else if (error.m_guid == std.g_errnoGuid)
-			switch (error.m_code)
-			{
+			switch (error.m_code) {
 			case 2: // ENOENT
 				url = "http://ioninja.com/doc/kb/tdevmon_linux_enoent.html";
 				break;

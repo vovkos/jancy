@@ -7,8 +7,7 @@ import "ui_Color.jnc"
 
 //..............................................................................
 
-bitflag enum ProtoFoldFlag: uint8_t
-{
+bitflag enum ProtoFoldFlag: uint8_t {
 	MetaLayer      = 0x01,
 	LinkLayer      = 0x02,
 	NetworkLayer   = 0x04,
@@ -20,8 +19,7 @@ bitflag enum ProtoFoldFlag: uint8_t
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum ProtoColor
-{
+enum ProtoColor {
 	MetaLayer      = ui.StdColor.PastelGreen,
 	LinkLayer      = ui.StdColor.PastelBlue,
 	NetworkLayer   = ui.StdColor.PastelPurple,
@@ -33,8 +31,7 @@ enum ProtoColor
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ProtoRange
-{
+struct ProtoRange {
 	size_t m_offset;
 	size_t m_size;
 	uint_t m_color;
@@ -42,8 +39,7 @@ struct ProtoRange
 
 //..............................................................................
 
-class AppProtoParser
-{
+class AppProtoParser {
 	abstract void representDigest(
 		log.Representation* representation,
 		char const* srcString,
@@ -51,7 +47,7 @@ class AppProtoParser
 		void const* p,
 		size_t size,
 		int payloadPreviewIconIdx = -1
-		);
+	);
 
 	abstract void representDetails(
 		log.Representation* representation,
@@ -60,7 +56,7 @@ class AppProtoParser
 		size_t size,
 		size_t baseOffset,
 		uint_t foldFlags
-		);
+	);
 }
 
 //..............................................................................

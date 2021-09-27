@@ -13,13 +13,11 @@ import "SerialLogRecordCode.jnc"
 char const* getTableString(
 	uint_t value,
 	char const* const* table
-	)
-{
+) {
 	return value < dynamic countof(table) ? table[value] : "\e[31mundefined\e[m";
 }
 
-char const* getOnOffString(uint_t line)
-{
+char const* getOnOffString(uint_t line) {
 	return line ? "\e[31mon\e[m" : "\e[90moff\e[m";
 }
 
@@ -29,8 +27,7 @@ char const* getStatusLineChangeString(
 	char const* lineKindString,
 	char const* dsrString,
 	char const* ctsString
-	)
-{
+) {
 	char const* string = $"$lineKindString line(s) changed:";
 
 	if (mask & io.SerialStatusLines.Dsr)
@@ -38,32 +35,31 @@ char const* getStatusLineChangeString(
 			string,
 			dsrString,
 			getOnOffString(lines & io.SerialStatusLines.Dsr)
-			);
+		);
 
 	if (mask & io.SerialStatusLines.Cts)
 		string = $"%1 %2: %3"(
 			string,
 			ctsString,
 			getOnOffString(lines & io.SerialStatusLines.Cts)
-			);
+		);
 
 	if (mask & io.SerialStatusLines.Dcd)
 		string = $"%1 DCD: %2"(
 			string,
 			getOnOffString(lines & io.SerialStatusLines.Dcd)
-			);
+		);
 
 	if (mask & io.SerialStatusLines.Ring)
 		string = $"%1 RI: %2"(
 			string,
 			getOnOffString(lines & io.SerialStatusLines.Ring)
-			);
+		);
 
 	return string;
 }
 
-char const* getSerialLineErrorString(io.SerialLineErrors errors)
-{
+char const* getSerialLineErrorString(io.SerialLineErrors errors) {
 	char const* string;
 
 	if (errors & io.SerialLineErrors.FramingError)
@@ -84,24 +80,20 @@ bool representSerialLog(
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
-	static char const* flowControlStringTable[] =
-	{
+) {
+	static char const* flowControlStringTable[] = {
 		"None",
 		"RTS/CTS",
 		"XON/XOFF"
 	}
 
-	static char const* stopBitsStringTable[] =
-	{
+	static char const* stopBitsStringTable[] = {
 		"\e[34m1\e[m bit",
 		"\e[34m1.5\e[m bits",
 		"\e[34m2\e[m bits"
 	}
 
-	static char const* parityStringTable[] =
-	{
+	static char const* parityStringTable[] = {
 		"None",
 		"Odd",
 		"Even",
@@ -109,15 +101,13 @@ bool representSerialLog(
 		"Space",
 	}
 
-	static char const* readModeTable[] =
-	{
+	static char const* readModeTable[] = {
 		"Check COMSTAT.cbInQue",
 		"Wait for the 1st char",
 		"Interval-based",
 	}
 
-	switch (recordCode)
-	{
+	switch (recordCode) {
 	case SerialLogRecordCode.PortOpened:
 		SerialOpenParams const* params = (SerialOpenParams const*) p;
 		char const* name = (char const*) (params + 1);
@@ -132,8 +122,7 @@ bool representSerialLog(
 
 		char const* string;
 
-		if (!(foldFlags & 1))
-		{
+		if (!(foldFlags & 1)) {
 			string =
 				$"[\e^+1\e[34m+\e[m] Opened port \e[34m$name\e[m "
 				$"baud: \e[34m$(params.m_baudRate)\e[m bps "
@@ -141,16 +130,13 @@ bool representSerialLog(
 				$"RTS: $rtsString "
 				$"DSR: $dsrString "
 				$"CTS: $ctsString ";
-		}
-		else
-		{
+		} else {
 			char const* flowControlString = getTableString(params.m_flowControl, flowControlStringTable);
 			char const* stopBitsString = getTableString(params.m_stopBits, stopBitsStringTable);
 			char const* parityString = getTableString(params.m_parity, parityStringTable);
 			char const* optionString = "";
 
-			if (params.m_osKind == sys.OsKind.Windows)
-			{
+			if (params.m_osKind == sys.OsKind.Windows) {
 				uint_t readMode =
 					params.m_options & io.SerialOptions.WinReadCheckComstat ? SerialReadMode.CheckComstat :
 					params.m_options & io.SerialOptions.WinReadWaitFirstChar ? SerialReadMode.WaitFirstChar :
@@ -202,7 +188,7 @@ bool representSerialLog(
 				getTableString(params.m_flowControl, flowControlStringTable),
 				getTableString(params.m_stopBits, stopBitsStringTable),
 				getTableString(params.m_parity, parityStringTable)
-				));
+			));
 
 		break;
 
@@ -305,7 +291,7 @@ bool representSerialLog(
 			"Status",
 			"DSR",
 			"CTS"
-			);
+		);
 
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
@@ -321,7 +307,7 @@ bool representSerialLog(
 			"Control",
 			"DTR",
 			"RTS"
-			);
+		);
 
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;

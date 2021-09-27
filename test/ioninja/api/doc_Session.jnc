@@ -12,10 +12,8 @@ namespace doc {
 
 //..............................................................................
 
-class Session: Plugin
-{
-	enum SessionConnectionState
-	{
+class Session: Plugin {
+	enum SessionConnectionState {
 		Disconnected,
 		Connecting,
 		Connected,
@@ -25,31 +23,25 @@ class Session: Plugin
 	SessionConnectionState autoget property m_sessionConnectionState;
 	bool autoget property m_isTransmitEnabled;
 
-	construct(PluginHost* host)
-	{
+	construct(PluginHost* host) {
 		basetype.construct(host);
 	}
 
 	override size_t errorcode transmit(
 		void const* p,
 		size_t size
-		)
-	{
+	) {
 		return size;
 	}
 
-	virtual bool errorcode connectSession()
-	{
+	virtual bool errorcode connectSession() {
 		std.setError("this session doesn't know how to connect");
 		return false;
 	}
 
-	virtual void disconnectSession()
-	{
-	}
+	virtual void disconnectSession() {}
 
-	void startSession()
-	{
+	void startSession() {
 		uint64_t timestamp = sys.getPreciseTimestamp();
 		m_pluginHost.m_log.m_baseTimestamp = timestamp;
 		m_logWriter.write(timestamp, log.StdRecordCode.SessionStarted);

@@ -27,16 +27,14 @@ namespace sys {
 
 char const* property g_env(char const* name);
 
-enum CpuKind
-{
+enum CpuKind {
 	Ia32,
 	Amd64,
 	Arm32,
 	Arm64,
 }
 
-enum OsKind
-{
+enum OsKind {
 	Windows,
 	Linux,
 	Solaris,
@@ -44,28 +42,24 @@ enum OsKind
 	Mac,
 }
 
-bitflag enum OsFlags
-{
+bitflag enum OsFlags {
 	Posix,
 	Bsd,
 	Darwin,
 }
 
-enum CppKind
-{
+enum CppKind {
 	Msc,
 	Gcc,
 	Icc,
 	Clang,
 }
 
-bitflag enum CppFlags
-{
+bitflag enum CppFlags {
 	Gcc,
 }
 
-struct SystemInfo
-{
+struct SystemInfo {
 	CpuKind m_cpuKind;
 	OsKind m_osKind;
 	OsFlags m_osFlags;
@@ -189,13 +183,13 @@ uint64_t getPreciseTimestamp();
 char const* formatTimestamp(
 	uint64_t timestamp,
 	char const* format
-	);
+);
 
 char const* formatTimestamp(
 	uint64_t timestamp,
 	int timeZone,
 	char const* format
-	);
+);
 
 //! @}
 

@@ -16,16 +16,13 @@
 
 // entry point
 
-int main()
-{
-	struct Color
-	{
+int main() {
+	struct Color {
 		char const* m_name;
 		uint_t m_value;
 	}
 
-	static Color colorTable[] =
-	{
+	static Color colorTable[] = {
 		{ "black",   0x000000 },
 		{ "red",     0x800000 },
 		{ "green",   0x008000 },
@@ -36,8 +33,7 @@ int main()
 		{ "white",   0xc0c0c0 },
 	}
 
-	for (size_t i = 0; i < countof(colorTable); i++)
-	{
+	for (size_t i = 0; i < countof(colorTable); i++) {
 		char const* colorName = colorTable[i].m_name;
 
 		// formatting literal produces a dynamic char array in gc-heap
@@ -63,8 +59,8 @@ int main()
 			(colorTable[i].m_value & 0xff0000) >> 16,
 			(colorTable[i].m_value & 0x00ff00) >> 8,
 			(colorTable[i].m_value & 0x0000ff)
-			)
-		);
+		)
+	);
 
 	// last but not least, it's OK to concatenate all kinds of literals
 
@@ -73,7 +69,7 @@ int main()
 		0x"e29480 e29480 e29480 e29480 e29480 e29480 e29480 e29480 e29480 0d"
 		$"size  = $(sizeof (colorTable))\n"
 		$"count = $(countof (colorTable))\n"
-		);
+	);
 
 	return 0;
 }

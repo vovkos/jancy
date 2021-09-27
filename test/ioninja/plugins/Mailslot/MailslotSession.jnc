@@ -17,31 +17,26 @@ using extension ui.ComboBoxHistory;
 
 //..............................................................................
 
-class MailslotSession: doc.Session
-{
+class MailslotSession: doc.Session {
 protected:
-	enum State
-	{
+	enum State {
 		Closed,
 		Opened,
 	}
 
 
-	enum ActionId
-	{
+	enum ActionId {
 		Open,
 		_Count,
 	}
 
-	enum IconId
-	{
+	enum IconId {
 		Open,
 		Close,
 		_Count,
 	}
 
-	enum StatusPaneId
-	{
+	enum StatusPaneId {
 		State,
 		_Count,
 	}
@@ -91,20 +86,18 @@ public:
 protected:
 	void createUi();
 
-	void onOpen()
-	{
+	void onOpen() {
 		m_state ? close() : try open();
 	}
 
-	void onNameComboEnter()
-	{
+	void onNameComboEnter() {
 		try open();
 	}
 
 	void onMailslotEvent(
 		uint_t syncId,
 		io.MailslotEvents triggeredEvents
-		);
+	);
 
 	io.MailslotOptions getMailslotOptions();
 	void waitMailslotEvents();
@@ -112,8 +105,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-MailslotSession.construct(doc.PluginHost* pluginHost)
-{
+MailslotSession.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
 
 	createUi();
@@ -123,8 +115,7 @@ MailslotSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-void MailslotSession.createUi()
-{
+void MailslotSession.createUi() {
 	// toolbar
 
 	m_pluginHost.m_toolBar.addLabel("Mailslot:");
@@ -148,14 +139,14 @@ void MailslotSession.createUi()
 	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Connection",
 		"File stream-specific connection settings"
-		);
+	);
 
 	m_nameProp = m_pluginHost.m_propertyGrid.createStringProperty(
 		group,,
 		"Mailslot name",
 		"Enter a mailslot name...",
 		"Specify the mailslot to open"
-		);
+	);
 
 	m_bufferPropertySet.createPropertiesGrouped(
 		m_pluginHost.m_propertyGrid,,,
@@ -164,7 +155,7 @@ void MailslotSession.createUi()
 		ui.BufferPropertySet.PropertyId.ReadBufferSize |
 		ui.BufferPropertySet.PropertyId.KeepReadBlockSize |
 		ui.BufferPropertySet.PropertyId.NotifyReadBufferFull
-		);
+	);
 
 	// information grid
 
@@ -175,7 +166,7 @@ void MailslotSession.createUi()
 		infoGroup,,
 		ui.StdSessionInfoSet.InfoId.SessionTime |
 		ui.StdSessionInfoSet.InfoId.RxTotalSize
-		);
+	);
 
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
@@ -186,8 +177,7 @@ void MailslotSession.createUi()
 	m_uiReactor.start();
 }
 
-bool errorcode MailslotSession.open()
-{
+bool errorcode MailslotSession.open() {
 	close();
 	startSession();
 
@@ -213,8 +203,7 @@ catch:
 	return false;
 }
 
-void MailslotSession.close()
-{
+void MailslotSession.close() {
 	if (m_state != State.Opened)
 		return;
 
@@ -224,8 +213,7 @@ void MailslotSession.close()
 	m_stdSessionInfoSet.endSession();
 }
 
-io.MailslotOptions MailslotSession.getMailslotOptions()
-{
+io.MailslotOptions MailslotSession.getMailslotOptions() {
 	io.MailslotOptions options;
 
 	if (m_bufferPropertySet.m_keepReadBlockSizeProp.m_value)
@@ -234,8 +222,7 @@ io.MailslotOptions MailslotSession.getMailslotOptions()
 	return options;
 }
 
-void MailslotSession.waitMailslotEvents()
-{
+void MailslotSession.waitMailslotEvents() {
 	io.MailslotEvents eventMask =
 		io.MailslotEvents.IoError |
 		io.MailslotEvents.ReadBufferFull |
@@ -244,8 +231,7 @@ void MailslotSession.waitMailslotEvents()
 	m_mailslot.wait(eventMask, onMailslotEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
-void MailslotSession.load(doc.Storage* storage)
-{
+void MailslotSession.load(doc.Storage* storage) {
 	m_nameCombo.loadHistory(storage, "nameHistory");
 	m_nameCombo.m_editText = storage.readString("name");
 
@@ -253,21 +239,18 @@ void MailslotSession.load(doc.Storage* storage)
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 }
 
-void MailslotSession.save(doc.Storage* storage)
-{
+void MailslotSession.save(doc.Storage* storage) {
 	m_bufferPropertySet.save(storage);
 
 	m_nameCombo.saveHistory(storage, "nameHistory");
 	storage.writeString("name", m_nameCombo.m_editText);
 }
 
-void MailslotSession.updateProperties()
-{
+void MailslotSession.updateProperties() {
 	m_nameProp.m_value = m_nameCombo.m_editText;
 }
 
-bool errorcode MailslotSession.applyProperties()
-{
+bool errorcode MailslotSession.applyProperties() {
 	m_nameCombo.m_editText = m_nameProp.m_value;
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 
@@ -281,28 +264,24 @@ bool errorcode MailslotSession.applyProperties()
 	return true;
 }
 
-void MailslotSession.restoreDefaultProperties()
-{
+void MailslotSession.restoreDefaultProperties() {
 	m_bufferPropertySet.restoreDefaults();
 }
 
 void MailslotSession.onMailslotEvent(
 	uint_t syncId,
 	io.MailslotEvents triggeredEvents
-	)
-{
+) {
 	if (syncId != m_syncId)
 		return;
 
-	if (triggeredEvents & io.MailslotEvents.IoError)
-	{
+	if (triggeredEvents & io.MailslotEvents.IoError) {
 		m_logWriter.write(log.StdRecordCode.Error, m_mailslot.m_ioError);
 		close();
 		return;
 	}
 
-	if (triggeredEvents & io.MailslotEvents.IncomingData)
-	{
+	if (triggeredEvents & io.MailslotEvents.IncomingData) {
 		size_t result = m_mailslot.read(m_readBuffer.m_p, m_readBuffer.m_size);
 		if (result)
 			m_logWriter.write(log.StdRecordCode.Rx, m_readBuffer.m_p, result);
@@ -311,8 +290,7 @@ void MailslotSession.onMailslotEvent(
 	waitMailslotEvents();
 }
 
-reactor MailslotSession.m_uiReactor
-{
+reactor MailslotSession.m_uiReactor {
 	m_title = $"Mailslot $(m_nameCombo.m_editText)";
 	m_isTransmitEnabled = m_state == State.Opened;
 	m_actionTable[ActionId.Open].m_text = m_state ? "Close" : "Open";

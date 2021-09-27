@@ -20,13 +20,11 @@ namespace ct {
 
 class GlobalNamespace:
 	public ModuleItem,
-	public Namespace
-{
+	public Namespace {
 	friend class NamespaceMgr;
 
 protected:
-	struct ExtraBody: sl::ListLink
-	{
+	struct ExtraBody: sl::ListLink {
 		Unit* m_unit;
 		const PragmaSettings* m_pragmaSettings;
 		lex::LineColOffset m_pos;
@@ -37,8 +35,7 @@ protected:
 	sl::List<ExtraBody> m_extraBodyList;
 
 public:
-	GlobalNamespace()
-	{
+	GlobalNamespace() {
 		m_itemKind = ModuleItemKind_Namespace;
 		m_namespaceKind = NamespaceKind_Global;
 	}
@@ -53,7 +50,7 @@ public:
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
-		);
+	);
 
 	void
 	addBody(
@@ -61,7 +58,7 @@ public:
 		const PragmaSettings* pragmaSettings,
 		const lex::LineColOffset& pos,
 		const sl::StringRef& body
-		);
+	);
 
 protected:
 	virtual
@@ -74,7 +71,7 @@ protected:
 		const PragmaSettings* pragmaSettings,
 		const lex::LineColOffset& pos,
 		const sl::StringRef& body
-		);
+	);
 };
 
 //..............................................................................

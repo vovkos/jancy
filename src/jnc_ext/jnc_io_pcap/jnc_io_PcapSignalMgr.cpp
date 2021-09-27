@@ -18,15 +18,13 @@ namespace io {
 
 //..............................................................................
 
-PcapSignalMgr::PcapSignalMgr()
-{
+PcapSignalMgr::PcapSignalMgr() {
 	memset(&m_prevSigAction, 0, sizeof(m_prevSigAction));
 	m_installCount = 0;
 }
 
 void
-PcapSignalMgr::install()
-{
+PcapSignalMgr::install() {
 	int32_t installCount = sys::atomicInc(&m_installCount);
 	if (installCount != 1)
 		return;
@@ -41,8 +39,7 @@ PcapSignalMgr::install()
 }
 
 void
-PcapSignalMgr::uninstall()
-{
+PcapSignalMgr::uninstall() {
 	int32_t installCount = sys::atomicDec(&m_installCount);
 	if (installCount != 0)
 		return;
@@ -58,8 +55,7 @@ PcapSignalMgr::signalHandler(
 	int signal,
 	siginfo_t* signalInfo,
 	void* context
-	)
-{
+) {
 	ASSERT(signal == Signal);
 
 	Pcap* pcap = sys::getTlsPtrSlotValue<Pcap>();

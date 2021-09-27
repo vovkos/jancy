@@ -24,8 +24,7 @@ getArithmeticOperatorResultType(Type* opType);
 
 JNC_INLINE
 Type*
-getArithmeticOperatorResultType(const Value& opValue)
-{
+getArithmeticOperatorResultType(const Value& opValue) {
 	return getArithmeticOperatorResultType(opValue.getType());
 }
 
@@ -34,8 +33,7 @@ Type*
 getArithmeticOperatorResultType(
 	Type* opType1,
 	Type* opType2
-	)
-{
+) {
 	return getArithmeticOperatorResultType(
 		opType1->getTypeKind() > opType2->getTypeKind() ?
 			opType1 :
@@ -48,19 +46,16 @@ Type*
 getArithmeticOperatorResultType(
 	const Value& opValue1,
 	const Value& opValue2
-	)
-{
+) {
 	return getArithmeticOperatorResultType(opValue1.getType(), opValue2.getType());
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 template <typename T>
-class UnOp_Arithmetic: public UnaryOperator
-{
+class UnOp_Arithmetic: public UnaryOperator {
 public:
-	enum
-	{
+	enum {
 		isIntegerOnly = false
 	};
 
@@ -70,8 +65,7 @@ public:
 	op(
 		const Value& rawOpValue,
 		Value* resultValue
-		)
-	{
+	) {
 		Type* type = getArithmeticOperatorResultType(rawOpValue);
 
 		Value opValue;
@@ -79,11 +73,9 @@ public:
 		if (!result)
 			return false;
 
-		if (opValue.getValueKind() == ValueKind_Const)
-		{
+		if (opValue.getValueKind() == ValueKind_Const) {
 			TypeKind typeKind = type->getTypeKind();
-			switch (typeKind)
-			{
+			switch (typeKind) {
 			case TypeKind_Int32:
 			case TypeKind_Int32_u:
 				resultValue->setConstInt32(T::constOpInt32(opValue.getInt32()), type);
@@ -105,17 +97,12 @@ public:
 			default:
 				ASSERT(false);
 			}
-		}
-		else if (!hasCodeGen(m_module))
-		{
+		} else if (!hasCodeGen(m_module)) {
 			resultValue->setType(type);
 			return true;
-		}
-		else
-		{
+		} else {
 			TypeKind typeKind = type->getTypeKind();
-			switch (typeKind)
-			{
+			switch (typeKind) {
 			case TypeKind_Int32:
 			case TypeKind_Int32_u:
 			case TypeKind_Int64:
@@ -140,26 +127,22 @@ public:
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 template <typename T>
-class UnOp_IntegerOnly: public UnOp_Arithmetic<T>
-{
+class UnOp_IntegerOnly: public UnOp_Arithmetic<T> {
 public:
-	enum
-	{
+	enum {
 		isIntegerOnly = true
 	};
 
 public:
 	static
 	float
-	constOpFp32(float opValue)
-	{
+	constOpFp32(float opValue) {
 		return 0;
 	}
 
 	static
 	double
-	constOpFp64(double opValue)
-	{
+	constOpFp64(double opValue) {
 		return 0;
 	}
 
@@ -168,8 +151,7 @@ public:
 		const Value& opValue,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(false);
 		return NULL;
 	}
@@ -177,39 +159,33 @@ public:
 
 //..............................................................................
 
-class UnOp_Plus: public UnOp_Arithmetic<UnOp_Plus>
-{
+class UnOp_Plus: public UnOp_Arithmetic<UnOp_Plus> {
 public:
-	UnOp_Plus()
-	{
+	UnOp_Plus() {
 		m_opKind = UnOpKind_Plus;
 	}
 
 	static
 	int32_t
-	constOpInt32(int32_t opValue)
-	{
+	constOpInt32(int32_t opValue) {
 		return +opValue;
 	}
 
 	static
 	int64_t
-	constOpInt64(int64_t opValue)
-	{
+	constOpInt64(int64_t opValue) {
 		return +opValue;
 	}
 
 	static
 	float
-	constOpFp32(float opValue)
-	{
+	constOpFp32(float opValue) {
 		return +opValue;
 	}
 
 	static
 	double
-	constOpFp64(double opValue)
-	{
+	constOpFp64(double opValue) {
 		return +opValue;
 	}
 
@@ -219,8 +195,7 @@ public:
 		const Value& opValue,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		*resultValue = opValue;
 		return resultValue->getLlvmValue();
 	}
@@ -231,8 +206,7 @@ public:
 		const Value& opValue,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		*resultValue = opValue;
 		return resultValue->getLlvmValue();
 	}
@@ -240,39 +214,33 @@ public:
 
 //..............................................................................
 
-class UnOp_Minus: public UnOp_Arithmetic<UnOp_Minus>
-{
+class UnOp_Minus: public UnOp_Arithmetic<UnOp_Minus> {
 public:
-	UnOp_Minus()
-	{
+	UnOp_Minus() {
 		m_opKind = UnOpKind_Minus;
 	}
 
 	static
 	int32_t
-	constOpInt32(int32_t opValue)
-	{
+	constOpInt32(int32_t opValue) {
 		return -opValue;
 	}
 
 	static
 	int64_t
-	constOpInt64(int64_t opValue)
-	{
+	constOpInt64(int64_t opValue) {
 		return -opValue;
 	}
 
 	static
 	float
-	constOpFp32(float opValue)
-	{
+	constOpFp32(float opValue) {
 		return -opValue;
 	}
 
 	static
 	double
-	constOpFp64(double opValue)
-	{
+	constOpFp64(double opValue) {
 		return -opValue;
 	}
 
@@ -281,37 +249,33 @@ public:
 		const Value& opValue,
 		Type* resultType,
 		Value* resultValue
-		);
+	);
 
 	llvm::Value*
 	llvmOpFp(
 		const Value& opValue,
 		Type* resultType,
 		Value* resultValue
-		);
+	);
 };
 
 //..............................................................................
 
-class UnOp_BwNot: public UnOp_IntegerOnly<UnOp_BwNot>
-{
+class UnOp_BwNot: public UnOp_IntegerOnly<UnOp_BwNot> {
 public:
-	UnOp_BwNot()
-	{
+	UnOp_BwNot() {
 		m_opKind = UnOpKind_BwNot;
 	};
 
 	static
 	int32_t
-	constOpInt32(int32_t opValue)
-	{
+	constOpInt32(int32_t opValue) {
 		return ~opValue;
 	}
 
 	static
 	int64_t
-	constOpInt64(int64_t opValue)
-	{
+	constOpInt64(int64_t opValue) {
 		return ~opValue;
 	}
 
@@ -320,7 +284,7 @@ public:
 		const Value& opValue,
 		Type* resultType,
 		Value* resultValue
-		);
+	);
 
 };
 

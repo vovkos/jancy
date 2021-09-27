@@ -28,7 +28,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	Attribute,
 	&Attribute::markOpaqueGcRoots
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Attribute)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<Attribute, ct::Attribute*>))
@@ -46,7 +46,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	AttributeBlock,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(AttributeBlock)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<AttributeBlock, ct::AttributeBlock*>))
@@ -59,8 +59,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 Variant
 JNC_CDECL
-Attribute::getValue(Attribute* self)
-{
+Attribute::getValue(Attribute* self) {
 	if (self->m_value.m_type)
 		return self->m_value;
 
@@ -71,8 +70,7 @@ Attribute::getValue(Attribute* self)
 	ct::Variable* variable;
 	void* p;
 
-	switch (valueKind)
-	{
+	switch (valueKind) {
 	case ct::ValueKind_Void:
 	case ct::ValueKind_Null:
 		return g_nullVariant;
@@ -85,8 +83,7 @@ Attribute::getValue(Attribute* self)
 		variable = value.getVariable();
 		if (
 			variable->getStorageKind() != StorageKind_Static ||
-			variable->getType()->getTypeKind() != TypeKind_Class)
-		{
+			variable->getType()->getTypeKind() != TypeKind_Class) {
 			ASSERT(false);
 			return g_nullVariant;
 		}
@@ -98,8 +95,7 @@ Attribute::getValue(Attribute* self)
 
 	case ct::ValueKind_Function:
 		function = value.getFunction();
-		if (function->getStorageKind() != StorageKind_Static)
-		{
+		if (function->getStorageKind() != StorageKind_Static) {
 			ASSERT(false);
 			return g_nullVariant;
 		}

@@ -7,8 +7,7 @@ import "log_RecordCode.jnc"
 
 //..............................................................................
 
-enum EthernetTapLogRecordCode: uint64_t
-{
+enum EthernetTapLogRecordCode: uint64_t {
 	DeviceOpened            = 0x01d4cdafa0abb0e0,
 	InterfaceClaimed        = 0x01d4cdafa0abb0e1,
 	InEndpointOpened        = 0x01d4cdafa0abb0e2,
@@ -25,8 +24,7 @@ enum EthernetTapLogRecordCode: uint64_t
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum PacketFlags: uint8_t
-{
+bitflag enum PacketFlags: uint8_t {
 	Reserved,       // 1
 	CrcValid,       // 2
 	BufferOverflow, // 4
@@ -35,15 +33,13 @@ bitflag enum PacketFlags: uint8_t
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct PacketHdr
-{
+struct PacketHdr {
 	uint16_t m_size;
 	uint8_t m_reserved;
 	PacketFlags m_flags;
 }
 
-enum
-{
+enum {
 	MetaSize = sizeof(uint32_t) + sizeof(PacketHdr)
 }
 

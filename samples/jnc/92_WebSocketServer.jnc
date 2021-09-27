@@ -11,8 +11,7 @@
 
 import "io_websocket.jncx"
 
-void processSocketEvents(io.WebSocket* socket)
-{
+void processSocketEvents(io.WebSocket* socket) {
 	io.WebSocketEvents events = socket.m_activeEvents;
 	printf("events: 0x%04x: %s\n", events, typeof(io.WebSocketEvents).getValueString(events));
 
@@ -20,8 +19,7 @@ void processSocketEvents(io.WebSocket* socket)
 		printf("error: %s\n", socket.m_ioError.m_description);
 }
 
-int main()
-{
+int main() {
 	io.SocketAddress address;
 	address.parse("8088");
 
@@ -36,7 +34,7 @@ int main()
 	io.WebSocketEvents events = server.blockingWait(
 		io.WebSocketEvents.IoError |
 		io.WebSocketEvents.IncomingConnection
-		);
+	);
 
 	processSocketEvents(server);
 
@@ -52,7 +50,7 @@ int main()
 		io.WebSocketEvents.IoError |
 		io.WebSocketEvents.TcpDisconnected |
 		io.WebSocketEvents.WebSocketHandshakeCompleted
-		);
+	);
 
 	processSocketEvents(connection);
 
@@ -64,21 +62,20 @@ int main()
 
 	printf("headers: %s\n", connection.m_handshakeRequest.m_headers.format());
 
-	for (;;)
-	{
+	for (;;) {
 		printf("waiting for incoming data...\n");
 
 		events = connection.blockingWait(
 			io.WebSocketEvents.IoError |
 			io.WebSocketEvents.TcpDisconnected |
 			io.WebSocketEvents.IncomingData
-			);
+		);
 
 		processSocketEvents(connection);
 
 		if (!(events & io.WebSocketEvents.IncomingData))
 			return -1;
-	
+
 		size_t result = connection.read(buffer, sizeof(buffer) - 1);
 		buffer[result] = 0; // ensure zero-termination
 		printf("message: %s\n", buffer);

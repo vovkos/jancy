@@ -24,7 +24,7 @@ JNC_DEFINE_CLASS_TYPE(
 	"std.Array",
 	g_stdLibGuid,
 	StdLibCacheSlot_Array
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Array)
 	JNC_MAP_FUNCTION("clear", &Array::clear)
@@ -39,26 +39,21 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 void
 JNC_CDECL
-Array::clear()
-{
+Array::clear() {
 	memset(m_ptr.m_p, 0, m_count * sizeof(Variant));
 	m_count = 0;
 }
 
 bool
 JNC_CDECL
-Array::setCount(size_t count)
-{
+Array::setCount(size_t count) {
 	if (count == m_count)
 		return true;
 
-	if (count < m_count)
-	{
+	if (count < m_count) {
 		Variant* p = (Variant*)m_ptr.m_p;
 		memset(p + count, 0, (m_count - count) * sizeof(Variant));
-	}
-	else if (count > m_maxCount)
-	{
+	} else if (count > m_maxCount) {
 		bool result = reserve(count);
 		if (!result)
 			return false;
@@ -70,8 +65,7 @@ Array::setCount(size_t count)
 
 bool
 JNC_CDECL
-Array::reserve(size_t count)
-{
+Array::reserve(size_t count) {
 	if (count <= m_maxCount)
 		return true;
 
@@ -94,8 +88,7 @@ JNC_CDECL
 Array::copy(
 	DataPtr ptr,
 	size_t count
-	)
-{
+) {
 	bool result = reserve(count);
 	if (!result)
 		return -1;
@@ -111,8 +104,7 @@ Array::insert(
 	size_t index,
 	DataPtr ptr,
 	size_t count
-	)
-{
+) {
 	size_t newCount = m_count + count;
 	bool result = reserve(newCount);
 	if (!result)
@@ -136,8 +128,7 @@ JNC_CDECL
 Array::remove(
 	size_t index,
 	size_t count
-	)
-{
+) {
 	if (index > m_count)
 		index = m_count;
 

@@ -18,8 +18,7 @@ namespace io {
 
 //..............................................................................
 
-enum SslNid
-{
+enum SslNid {
 	CommonName             = 13,
 	CountryName            = 14,
 	LocalityName           = 15,
@@ -35,16 +34,14 @@ char const* getSslNidLongName(SslNid nid);
 
 //..............................................................................
 
-enum SslCertFormat
-{
+enum SslCertFormat {
 	Pem,
 	Der,
 }
 
 //..............................................................................
 
-struct SslCertNameEntry
-{
+struct SslCertNameEntry {
 	SslNid m_nid;
 	char const* m_name;
 	char const* m_value;
@@ -52,8 +49,7 @@ struct SslCertNameEntry
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class SslCertName
-{
+opaque class SslCertName {
 	size_t readonly m_entryCount;
 	SslCertNameEntry const* const property m_entryTable(size_t i);
 	char const* const property m_oneLine;
@@ -66,8 +62,7 @@ opaque class SslCertName
 
 //..............................................................................
 
-opaque class SslCertificate
-{
+opaque class SslCertificate {
 	char const* const property m_serialNumber;
 	uint64_t const property m_validFromDate;
 	uint64_t const property m_validToDate;
@@ -80,10 +75,9 @@ opaque class SslCertificate
 	bool errorcode encode(
 		std.Buffer* buffer,
 		SslCertFormat format = SslCertFormat.Pem
-		) const;
+	) const;
 
-	char const* errorcode encode() const
-	{
+	char const* errorcode encode() const {
 		std.Buffer buffer;
 		encode(buffer, SslCertFormat.Pem);
 		buffer.append(0); // ensure zero-termination
@@ -94,22 +88,21 @@ opaque class SslCertificate
 		void const* p,
 		size_t size,
 		SslCertFormat format = SslCertFormat.Pem
-		);
+	);
 
-	bool errorcode decode(char const* p)
-	{
+	bool errorcode decode(char const* p) {
 		return decode(p, strlen(p), SslCertFormat.Pem);
 	}
 
 	bool errorcode load(
 		char const* fileName,
 		SslCertFormat format = SslCertFormat.Pem
-		);
+	);
 
 	bool errorcode save(
 		char const* fileName,
 		SslCertFormat format = SslCertFormat.Pem
-		) const;
+	) const;
 }
 
 //..............................................................................

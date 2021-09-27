@@ -25,8 +25,7 @@ namespace io {
 	via the ``m_activeEvents`` field.
 */
 
-bitflag enum ReadOnlyStreamEvents
-{
+bitflag enum ReadOnlyStreamEvents {
 	/**
 		An IO error occured on the tream; detailed information about the
 		error is available at ``m_ioError`` property.
@@ -60,8 +59,7 @@ bitflag enum ReadOnlyStreamEvents
 	via the ``m_activeEvents`` field.
 */
 
-bitflag enum StreamEvents: ReadOnlyStreamEvents
-{
+bitflag enum StreamEvents: ReadOnlyStreamEvents {
 	/**
 		The stream transmit buffer is empty.
 	*/

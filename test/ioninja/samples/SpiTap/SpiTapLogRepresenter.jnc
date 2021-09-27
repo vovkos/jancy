@@ -11,8 +11,7 @@ import "SpiTapLogRecordCode.jnc"
 char const* getTableString(
 	uint_t value,
 	char const* const* table
-	)
-{
+) {
 	return value < dynamic countof(table) ? table[value] : "\e[31mundefined\e[m";
 }
 
@@ -22,15 +21,12 @@ bool representSpiTapLog(
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
-	static char const* endiannessStringTable[] =
-	{
+) {
+	static char const* endiannessStringTable[] = {
 		"Little-endian (LSBit first)",
 		"Big-endian (MSBit first)",
 	}
-	switch (recordCode)
-	{
+	switch (recordCode) {
 	case SpiTapLogRecordCode.TapOpened:
 		SpiTapOpenParams const* params = (SpiTapOpenParams const*) p;
 		char const* name = (char const*) (params + 1);
@@ -40,15 +36,12 @@ bool representSpiTapLog(
 
 		char const* string;
 
-		if (!(foldFlags & 1))
-		{
+		if (!(foldFlags & 1)) {
 			string =
 				$"[\e^+1\e[34m+\e[m] Opened tap \e[34m$name\e[m "
 				$"\e[34m$(params.m_frequency)\e[m Hz "
 				$"SPI mode $(params.m_mode)";
-		}
-		else
-		{
+		} else {
 			char const* endiannessString = getTableString(params.m_endianness, endiannessStringTable);
 
 			string =

@@ -22,7 +22,7 @@ set(
 	jnc_io_SocketBase.h
 	jnc_io_SslStateBase.h
 	jnc_io_SslSocketBase.h
-	)
+)
 
 set(
 	LIB_CPP_LIST
@@ -33,7 +33,7 @@ set(
 	jnc_io_SocketBase.cpp
 	jnc_io_SslStateBase.cpp
 	jnc_io_SslSocketBase.cpp
-	)
+)
 
 if(NOT OPENSSL_FOUND)
 	axl_exclude_from_build(jnc_io_SslStateBase.cpp)
@@ -45,7 +45,7 @@ source_group(
 	FILES
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -60,7 +60,7 @@ source_group(
 	FILES
 	${PCH_H}
 	${PCH_CPP}
-	)
+)
 
 #...............................................................................
 #
@@ -70,7 +70,7 @@ source_group(
 include_directories(
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
-	)
+)
 
 if(OPENSSL_FOUND)
 	include_directories(${OPENSSL_INC_DIR})
@@ -83,24 +83,24 @@ add_library(
 	${PCH_CPP}
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
-	)
+)
 
 target_compile_definitions(
 	jnc_io_cmn
 	PUBLIC
 	-D_JNC_DYNAMIC_EXTENSION_LIB=1
-	)
+)
 
 axl_set_pch(
 	jnc_io_cmn
 	${PCH_H}
 	${PCH_CPP}
-	)
+)
 
 set_target_properties(
 	jnc_io_cmn
 	PROPERTIES
 	FOLDER extensions
-	)
+)
 
 #...............................................................................

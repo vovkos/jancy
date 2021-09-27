@@ -25,8 +25,7 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(EnumType)
 class EnumConst:
 	public ModuleItemBase<ct::EnumConst>,
 	public ModuleItemDecl,
-	public ModuleItemInitializer
-{
+	public ModuleItemInitializer {
 protected:
 	DataPtr m_namePtr;
 
@@ -34,9 +33,7 @@ public:
 	EnumConst(ct::EnumConst* cnst):
 		ModuleItemBase(cnst),
 		ModuleItemDecl(cnst),
-		ModuleItemInitializer(cnst)
-	{
-	}
+		ModuleItemInitializer(cnst) {}
 
 	void
 	JNC_CDECL
@@ -44,8 +41,7 @@ public:
 
 	EnumType*
 	JNC_CDECL
-	getParentType()
-	{
+	getParentType() {
 		return (EnumType*)rtl::getType(m_item->getParentEnumType());
 	}
 
@@ -56,48 +52,40 @@ public:
 
 	int64_t
 	JNC_CDECL
-	getValue()
-	{
+	getValue() {
 		return m_item->getValue();
 	}
 };
 
 //..............................................................................
 
-class EnumType: public NamedTypeBase<ct::EnumType>
-{
+class EnumType: public NamedTypeBase<ct::EnumType> {
 public:
 	EnumType(ct::EnumType* type):
-		NamedTypeBase(type)
-	{
-	}
+		NamedTypeBase(type) {}
 
 	Type*
 	JNC_CDECL
-	getBaseType()
-	{
+	getBaseType() {
 		return rtl::getType(m_item->getBaseType());
 	}
 
 	size_t
 	JNC_CDECL
-	getConstCount()
-	{
+	getConstCount() {
 		return m_item->getConstArray().getCount();
 	}
 
 	EnumConst*
 	JNC_CDECL
-	getConst(size_t index)
-	{
+	getConst(size_t index) {
 		size_t count = m_item->getConstArray().getCount();
 		return index < count ? rtl::getEnumConst(m_item->getConstArray()[index]) : NULL;
 	}
 
 	EnumConst*
 	JNC_CDECL
-	findConst(int64_t value)
-	{
+	findConst(int64_t value) {
 		jnc::EnumConst* enumConst = m_item->findConst(value);
 		return enumConst ? rtl::getEnumConst(enumConst) : NULL;
 	}

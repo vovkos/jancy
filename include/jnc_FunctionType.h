@@ -40,8 +40,7 @@
 
 //..............................................................................
 
-enum jnc_FunctionTypeFlag
-{
+enum jnc_FunctionTypeFlag {
 	jnc_FunctionTypeFlag_VarArg         = 0x010000,
 	jnc_FunctionTypeFlag_ErrorCode      = 0x020000,
 	jnc_FunctionTypeFlag_ByValArgs      = 0x040000,
@@ -61,8 +60,7 @@ jnc_getFunctionTypeFlagString(jnc_FunctionTypeFlag flag);
 
 //..............................................................................
 
-enum jnc_FunctionPtrTypeKind
-{
+enum jnc_FunctionPtrTypeKind {
 	jnc_FunctionPtrTypeKind_Normal = 0,
 	jnc_FunctionPtrTypeKind_Weak,
 	jnc_FunctionPtrTypeKind_Thin,
@@ -91,17 +89,14 @@ jnc_FunctionArg_getDefaultValueString_v(jnc_FunctionArg* arg);
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
-struct jnc_FunctionArg: jnc_ModuleItem
-{
+struct jnc_FunctionArg: jnc_ModuleItem {
 	bool
-	hasDefaultValue()
-	{
+	hasDefaultValue() {
 		return jnc_FunctionArg_hasDefaultValue(this) != 0;
 	}
 
 	const char*
-	getDefaultValueString()
-	{
+	getDefaultValueString() {
 		return jnc_FunctionArg_getDefaultValueString_v(this);
 	}
 };
@@ -123,7 +118,7 @@ jnc_FunctionArg*
 jnc_FunctionType_getArg(
 	jnc_FunctionType* type,
 	size_t index
-	);
+);
 
 JNC_EXTERN_C
 jnc_FunctionPtrType*
@@ -132,7 +127,7 @@ jnc_FunctionType_getFunctionPtrType(
 	jnc_TypeKind typeKind,
 	jnc_FunctionPtrTypeKind ptrTypeKind,
 	uint_t flags
-	);
+);
 
 JNC_EXTERN_C
 jnc_FunctionType*
@@ -142,23 +137,19 @@ jnc_FunctionType_getShortType(jnc_FunctionType* type);
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
-struct jnc_FunctionType: jnc_Type
-{
+struct jnc_FunctionType: jnc_Type {
 	jnc_Type*
-	getReturnType()
-	{
+	getReturnType() {
 		return jnc_FunctionType_getReturnType(this);
 	}
 
 	size_t
-	getArgCount()
-	{
+	getArgCount() {
 		return jnc_FunctionType_getArgCount(this);
 	}
 
 	jnc_FunctionArg*
-	getArg(size_t index)
-	{
+	getArg(size_t index) {
 		return jnc_FunctionType_getArg(this, index);
 	}
 
@@ -167,8 +158,7 @@ struct jnc_FunctionType: jnc_Type
 		jnc_TypeKind typeKind,
 		jnc_FunctionPtrTypeKind ptrTypeKind = jnc_FunctionPtrTypeKind_Normal,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return jnc_FunctionType_getFunctionPtrType(this, typeKind, ptrTypeKind, flags);
 	}
 
@@ -176,14 +166,12 @@ struct jnc_FunctionType: jnc_Type
 	getFunctionPtrType(
 		jnc_FunctionPtrTypeKind ptrTypeKind = jnc_FunctionPtrTypeKind_Normal,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return jnc_FunctionType_getFunctionPtrType(this, jnc_TypeKind_FunctionPtr, ptrTypeKind, flags);
 	}
 
 	jnc_FunctionType*
-	getShortType()
-	{
+	getShortType() {
 		return jnc_FunctionType_getShortType(this);
 	}
 };
@@ -204,17 +192,14 @@ jnc_FunctionPtrType_getTargetType(jnc_FunctionPtrType* type);
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
-struct jnc_FunctionPtrType: jnc_Type
-{
+struct jnc_FunctionPtrType: jnc_Type {
 	jnc_FunctionPtrTypeKind
-	getPtrTypeKind()
-	{
+	getPtrTypeKind() {
 		return jnc_FunctionPtrType_getPtrTypeKind(this);
 	}
 
 	jnc_FunctionType*
-	getTargetType()
-	{
+	getTargetType() {
 		return jnc_FunctionPtrType_getTargetType(this);
 	}
 };
@@ -232,23 +217,20 @@ jnc_FunctionType*
 jnc_FunctionTypeOverload_getOverload(
 	jnc_FunctionTypeOverload* typeOverload,
 	size_t index
-	);
+);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
-struct jnc_FunctionTypeOverload
-{
+struct jnc_FunctionTypeOverload {
 	size_t
-	getOverloadCount()
-	{
+	getOverloadCount() {
 		return jnc_FunctionTypeOverload_getOverloadCount(this);
 	}
 
 	jnc_FunctionType*
-	getOverload(size_t index)
-	{
+	getOverload(size_t index) {
 		return jnc_FunctionTypeOverload_getOverload(this, index);
 	}
 };
@@ -278,8 +260,7 @@ const FunctionTypeFlag
 
 inline
 const char*
-getFunctionTypeFlagString(jnc_FunctionTypeFlag flag)
-{
+getFunctionTypeFlagString(jnc_FunctionTypeFlag flag) {
 	return jnc_getFunctionTypeFlagString(flag);
 }
 
@@ -297,8 +278,7 @@ const FunctionPtrTypeKind
 
 inline
 const char*
-getFunctionPtrTypeKindString(jnc_FunctionPtrTypeKind ptrTypeKind)
-{
+getFunctionPtrTypeKindString(jnc_FunctionPtrTypeKind ptrTypeKind) {
 	return jnc_getFunctionPtrTypeKindString(ptrTypeKind);
 }
 

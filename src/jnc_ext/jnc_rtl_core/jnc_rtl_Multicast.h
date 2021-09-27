@@ -18,8 +18,7 @@ namespace rtl {
 
 //..............................................................................
 
-class MulticastImpl: public Multicast
-{
+class MulticastImpl: public Multicast {
 public:
 	void
 	destruct();
@@ -34,26 +33,22 @@ public:
 	setHandler_t(void* p);
 
 	handle_t
-	addHandler(FunctionPtr ptr)
-	{
+	addHandler(FunctionPtr ptr) {
 		return ptr.m_p ? addHandlerImpl(ptr) : NULL;
 	}
 
 	handle_t
-	addHandler_t(void* p)
-	{
+	addHandler_t(void* p) {
 		return p ? addHandlerImpl(p) : NULL;
 	}
 
 	FunctionPtr
-	removeHandler(handle_t handle)
-	{
+	removeHandler(handle_t handle) {
 		return removeHandlerImpl<FunctionPtr> (handle);
 	}
 
 	void*
-	removeHandler_t(handle_t handle)
-	{
+	removeHandler_t(handle_t handle) {
 		return removeHandlerImpl<void*> (handle);
 	}
 
@@ -68,12 +63,11 @@ protected:
 	setCount(
 		size_t count,
 		size_t ptrSize
-		);
+	);
 
 	template <typename T>
 	handle_t
-	setHandlerImpl(T ptr)
-	{
+	setHandlerImpl(T ptr) {
 		bool result = setCount(1, sizeof(T));
 		if (!result)
 			return NULL;
@@ -86,8 +80,7 @@ protected:
 
 	template <typename T>
 	handle_t
-	addHandlerImpl(T ptr)
-	{
+	addHandlerImpl(T ptr) {
 		size_t i = m_count;
 		bool result = setCount(i + 1, sizeof(T));
 		if (!result)
@@ -99,8 +92,7 @@ protected:
 
 	template <typename T>
 	T
-	removeHandlerImpl(handle_t handle)
-	{
+	removeHandlerImpl(handle_t handle) {
 		T ptr = { 0 };
 
 		if (!m_handleTable)

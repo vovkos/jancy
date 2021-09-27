@@ -19,8 +19,7 @@ namespace ct {
 
 //..............................................................................
 
-BaseTypeSlot::BaseTypeSlot()
-{
+BaseTypeSlot::BaseTypeSlot() {
 	m_itemKind = ModuleItemKind_BaseTypeSlot;
 	m_type = NULL;
 	m_offset = 0;
@@ -31,8 +30,7 @@ BaseTypeSlot::BaseTypeSlot()
 //..............................................................................
 
 BaseTypeCoord::BaseTypeCoord():
-	m_llvmIndexArray(rc::BufKind_Field, m_buffer, sizeof(m_buffer))
-{
+	m_llvmIndexArray(rc::BufKind_Field, m_buffer, sizeof(m_buffer)) {
 	m_type = NULL;
 	m_offset = 0;
 	m_vtableIndex = 0;
@@ -41,8 +39,7 @@ BaseTypeCoord::BaseTypeCoord():
 //..............................................................................
 
 DerivableType::DerivableType():
-	MemberBlock(this)
-{
+	MemberBlock(this) {
 	m_operatorVararg = NULL;
 	m_operatorCdeclVararg = NULL;
 	m_setAsType = NULL;
@@ -52,23 +49,19 @@ FunctionType*
 DerivableType::getMemberMethodType(
 	FunctionType* shortType,
 	uint_t thisArgTypeFlags
-	)
-{
+) {
 	return m_module->m_typeMgr.getMemberMethodType(this, shortType, thisArgTypeFlags);
 }
 
 PropertyType*
-DerivableType::getMemberPropertyType(PropertyType* shortType)
-{
+DerivableType::getMemberPropertyType(PropertyType* shortType) {
 	return m_module->m_typeMgr.getMemberPropertyType(this, shortType);
 }
 
 FindModuleItemResult
-DerivableType::findItemInExtensionNamespaces(const sl::StringRef& name)
-{
+DerivableType::findItemInExtensionNamespaces(const sl::StringRef& name) {
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	while (nspace)
-	{
+	while (nspace) {
 		FindModuleItemResult findResult = nspace->getUsingSet()->findExtensionItem(this, name);
 		if (!findResult.m_result || findResult.m_item)
 			return findResult;
@@ -80,17 +73,14 @@ DerivableType::findItemInExtensionNamespaces(const sl::StringRef& name)
 }
 
 Field*
-DerivableType::getFieldByIndex(size_t index)
-{
-	if (!m_baseTypeList.isEmpty())
-	{
+DerivableType::getFieldByIndex(size_t index) {
+	if (!m_baseTypeList.isEmpty()) {
 		err::setFormatStringError("'%s' has base types, cannot use indexed member operator", getTypeString().sz());
 		return NULL;
 	}
 
 	size_t count = m_fieldArray.getCount();
-	if (index >= count)
-	{
+	if (index >= count) {
 		err::setFormatStringError("index '%d' is out of bounds", index);
 		return NULL;
 	}
@@ -99,8 +89,7 @@ DerivableType::getFieldByIndex(size_t index)
 }
 
 Property*
-DerivableType::getIndexerProperty(Type* argType)
-{
+DerivableType::getIndexerProperty(Type* argType) {
 	ASSERT(!(m_flags & ModuleItemFlag_LayoutReady));
 
 	sl::StringHashTableIterator<Property*> it = m_indexerPropertyMap.visit(argType->getSignature());
@@ -114,15 +103,13 @@ DerivableType::getIndexerProperty(Type* argType)
 }
 
 Property*
-DerivableType::chooseIndexerProperty(const Value& opValue)
-{
+DerivableType::chooseIndexerProperty(const Value& opValue) {
 	CastKind bestCastKind = CastKind_None;
 	Property* bestProperty = NULL;
 	bool isAmbiguous = false;
 
 	sl::StringHashTableIterator<Property*> it = m_indexerPropertyMap.getHead();
-	for (; it; it++)
-	{
+	for (; it; it++) {
 		Property* prop = it->m_value;
 
 		FunctionArg* indexArg = prop->m_getter->getType()->getArgArray() [1];
@@ -133,22 +120,19 @@ DerivableType::chooseIndexerProperty(const Value& opValue)
 		if (castKind == bestCastKind)
 			isAmbiguous = true;
 
-		if (castKind > bestCastKind)
-		{
+		if (castKind > bestCastKind) {
 			bestProperty = prop;
 			bestCastKind = castKind;
 			isAmbiguous = false;
 		}
 	}
 
-	if (!bestProperty)
-	{
+	if (!bestProperty) {
 		err::setFormatStringError("none of the %d indexer properties accept the specified index argument", m_indexerPropertyMap.getCount());
 		return NULL;
 	}
 
-	if (isAmbiguous)
-	{
+	if (isAmbiguous) {
 		err::setFormatStringError("ambiguous call to overloaded function");
 		return NULL;
 	}
@@ -157,11 +141,9 @@ DerivableType::chooseIndexerProperty(const Value& opValue)
 }
 
 BaseTypeSlot*
-DerivableType::getBaseTypeByIndex(size_t index)
-{
+DerivableType::getBaseTypeByIndex(size_t index) {
 	size_t count = m_baseTypeArray.getCount();
-	if (index >= count)
-	{
+	if (index >= count) {
 		err::setFormatStringError("index '%d' is out of bounds", index);
 		return NULL;
 	}
@@ -170,8 +152,7 @@ DerivableType::getBaseTypeByIndex(size_t index)
 }
 
 BaseTypeSlot*
-DerivableType::addBaseType(Type* type)
-{
+DerivableType::addBaseType(Type* type) {
 	BaseTypeSlot* slot = AXL_MEM_NEW(BaseTypeSlot);
 	slot->m_module = m_module;
 	slot->m_type = (DerivableType*)type;
@@ -185,16 +166,14 @@ DerivableType::addBaseType(Type* type)
 }
 
 size_t
-DerivableType::findBaseTypeOffset(Type* type)
-{
+DerivableType::findBaseTypeOffset(Type* type) {
 	jnc::ct::BaseTypeCoord coord;
 	bool result = findBaseTypeTraverse(type, &coord);
 	return result ? coord.m_offset : -1;
 }
 
 bool
-DerivableType::addMethod(Function* function)
-{
+DerivableType::addMethod(Function* function) {
 	StorageKind storageKind = function->getStorageKind();
 	FunctionKind functionKind = function->getFunctionKind();
 	uint_t functionKindFlags = getFunctionKindFlags(functionKind);
@@ -202,11 +181,9 @@ DerivableType::addMethod(Function* function)
 
 	function->m_parentNamespace = this;
 
-	switch (storageKind)
-	{
+	switch (storageKind) {
 	case StorageKind_Static:
-		if (thisArgTypeFlags)
-		{
+		if (thisArgTypeFlags) {
 			err::setFormatStringError("static method cannot be '%s'", getPtrTypeFlagString(thisArgTypeFlags).sz());
 			return false;
 		}
@@ -232,8 +209,7 @@ DerivableType::addMethod(Function* function)
 	OverloadableFunction* targetOverloadableFunction = NULL;
 	size_t overloadIdx;
 
-	switch (functionKind)
-	{
+	switch (functionKind) {
 	case FunctionKind_StaticConstructor:
 		targetFunction = &m_staticConstructor;
 		break;
@@ -278,8 +254,7 @@ DerivableType::addMethod(Function* function)
 
 	case FunctionKind_Getter:
 		argArray = function->getType()->getArgArray();
-		if (argArray.getCount() < 2)
-		{
+		if (argArray.getCount() < 2) {
 			err::setFormatStringError("indexer property getter should take at least one index argument");
 			return false;
 		}
@@ -290,8 +265,7 @@ DerivableType::addMethod(Function* function)
 
 	case FunctionKind_Setter:
 		argArray = function->getType()->getArgArray();
-		if (argArray.getCount() < 3)
-		{
+		if (argArray.getCount() < 3) {
 			err::setFormatStringError("indexer property setter should take at least one index argument");
 			return false;
 		}
@@ -305,7 +279,7 @@ DerivableType::addMethod(Function* function)
 			"invalid %s in '%s'",
 			getFunctionKindString(functionKind),
 			getTypeString().sz()
-			);
+		);
 		return false;
 	}
 
@@ -314,8 +288,7 @@ DerivableType::addMethod(Function* function)
 }
 
 bool
-DerivableType::addProperty(Property* prop)
-{
+DerivableType::addProperty(Property* prop) {
 	ASSERT(prop->isNamed());
 
 	bool result = addItem(prop);
@@ -325,8 +298,7 @@ DerivableType::addProperty(Property* prop)
 	prop->m_parentNamespace = this;
 
 	StorageKind storageKind = prop->getStorageKind();
-	switch (storageKind)
-	{
+	switch (storageKind) {
 	case StorageKind_Static:
 		break;
 
@@ -348,8 +320,7 @@ DerivableType::addProperty(Property* prop)
 }
 
 bool
-DerivableType::parseBody()
-{
+DerivableType::parseBody() {
 	sl::ConstIterator<Variable> lastVariableIt = m_module->m_variableMgr.getVariableList().getTail();
 	sl::ConstIterator<Property> lastPropertyIt = m_module->m_functionMgr.getPropertyList().getTail();
 
@@ -365,13 +336,12 @@ DerivableType::parseBody()
 		SymbolKind_member_block_declaration_list,
 		lex::LineColOffset(m_bodyPos.m_line, m_bodyPos.m_col + 1, m_bodyPos.m_offset + 1),
 		m_body.getSubString(1, length - 2)
-		);
+	);
 
 	if (!result)
 		return false;
 
-	if (!(m_module->getCompileFlags() & ModuleCompileFlag_KeepTypedefShadow))
-	{
+	if (!(m_module->getCompileFlags() & ModuleCompileFlag_KeepTypedefShadow)) {
 		result =
 			resolveOrphans() &&
 			m_module->m_variableMgr.allocateNamespaceVariables(lastVariableIt) &&
@@ -388,11 +358,9 @@ DerivableType::parseBody()
 
 template <typename T>
 bool
-ensureArrayNoImports(const sl::Array<T*>& array)
-{
+ensureArrayNoImports(const sl::Array<T*>& array) {
 	size_t count = array.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		bool result = array[i]->getType()->ensureNoImports();
 		if (!result)
 			return false;
@@ -403,11 +371,9 @@ ensureArrayNoImports(const sl::Array<T*>& array)
 
 template <typename T>
 bool
-ensureListNoImports(const sl::List<T>& list)
-{
+ensureListNoImports(const sl::List<T>& list) {
 	sl::ConstIterator<T> it = list.getHead();
-	for (; it; it++)
-	{
+	for (; it; it++) {
 		bool result = it->getType()->ensureNoImports();
 		if (!result)
 			return false;
@@ -417,8 +383,7 @@ ensureListNoImports(const sl::List<T>& list)
 }
 
 bool
-DerivableType::resolveImports()
-{
+DerivableType::resolveImports() {
 	return
 		ensureListNoImports(m_baseTypeList) &&
 		ensureArrayNoImports(m_staticVariableArray) &&
@@ -431,16 +396,13 @@ DerivableType::resolveImports()
 }
 
 bool
-DerivableType::callBaseTypeConstructors(const Value& thisValue)
-{
+DerivableType::callBaseTypeConstructors(const Value& thisValue) {
 	bool result;
 
 	size_t count = m_baseTypeConstructArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		BaseTypeSlot* slot = m_baseTypeConstructArray[i];
-		if (slot->m_flags & ModuleItemFlag_Constructed)
-		{
+		if (slot->m_flags & ModuleItemFlag_Constructed) {
 			slot->m_flags &= ~ModuleItemFlag_Constructed;
 			continue;
 		}
@@ -457,13 +419,11 @@ DerivableType::callBaseTypeConstructors(const Value& thisValue)
 }
 
 bool
-DerivableType::callBaseTypeDestructors(const Value& thisValue)
-{
+DerivableType::callBaseTypeDestructors(const Value& thisValue) {
 	bool result;
 
 	size_t count = m_baseTypeDestructArray.getCount();
-	for (intptr_t i = count - 1; i >= 0; i--)
-	{
+	for (intptr_t i = count - 1; i >= 0; i--) {
 		BaseTypeSlot* slot = m_baseTypeDestructArray[i];
 		Function* destructor = slot->m_type->getDestructor();
 		ASSERT(destructor);
@@ -481,11 +441,9 @@ DerivableType::findBaseTypeTraverseImpl(
 	Type* type,
 	BaseTypeCoord* coord,
 	size_t level
-	)
-{
+) {
 	sl::StringHashTableIterator<BaseTypeSlot*> it = m_baseTypeMap.find(type->getSignature());
-	if (it)
-	{
+	if (it) {
 		if (!coord)
 			return true;
 
@@ -499,16 +457,13 @@ DerivableType::findBaseTypeTraverseImpl(
 	}
 
 	sl::Iterator<BaseTypeSlot> slotIt = m_baseTypeList.getHead();
-	for (; slotIt; slotIt++)
-	{
+	for (; slotIt; slotIt++) {
 		BaseTypeSlot* slot = *slotIt;
 		ASSERT(slot->m_type);
 
 		bool result = slot->m_type->findBaseTypeTraverseImpl(type, coord, level + 1);
-		if (result)
-		{
-			if (coord)
-			{
+		if (result) {
+			if (coord) {
 				coord->m_offset += slot->m_offset;
 				coord->m_vtableIndex += slot->m_vtableIndex;
 				coord->m_llvmIndexArray[level] = slot->m_llvmIndex;
@@ -527,23 +482,18 @@ DerivableType::findDirectChildItemTraverse(
 	MemberCoord* coord,
 	uint_t flags,
 	size_t level
-	)
-{
-	if (!(flags & TraverseFlag_NoThis))
-	{
+) {
+	if (!(flags & TraverseFlag_NoThis)) {
 		FindModuleItemResult findResult = findDirectChildItem(name);
 		if (!findResult.m_result)
 			return findResult;
 
-		if (findResult.m_item)
-		{
-			if (coord)
-			{
+		if (findResult.m_item) {
+			if (coord) {
 				coord->m_type = this;
 				coord->m_llvmIndexArray.setCount(level);
 
-				if (m_typeKind == TypeKind_Union)
-				{
+				if (m_typeKind == TypeKind_Union) {
 					UnionCoord unionCoord;
 					unionCoord.m_type = (UnionType*)this;
 					unionCoord.m_level = level;
@@ -558,25 +508,20 @@ DerivableType::findDirectChildItemTraverse(
 		size_t nextLevel = level + 1;
 
 		size_t count = m_unnamedFieldArray.getCount();
-		for	(size_t i = 0; i < count; i++)
-		{
+		for	(size_t i = 0; i < count; i++) {
 			Field* field = m_unnamedFieldArray[i];
-			if (field->getType()->getTypeKindFlags() & TypeKindFlag_Derivable)
-			{
+			if (field->getType()->getTypeKindFlags() & TypeKindFlag_Derivable) {
 				DerivableType* type = (DerivableType*)field->getType();
 				findResult = type->findDirectChildItemTraverse(name, coord, modFlags, nextLevel);
 				if (!findResult.m_result)
 					return findResult;
 
-				if (findResult.m_item)
-				{
-					if (coord && coord->m_type)
-					{
+				if (findResult.m_item) {
+					if (coord && coord->m_type) {
 						coord->m_offset += field->m_offset;
 						coord->m_llvmIndexArray[level] = field->m_llvmIndex;
 
-						if (m_typeKind == TypeKind_Union)
-						{
+						if (m_typeKind == TypeKind_Union) {
 							UnionCoord unionCoord;
 							unionCoord.m_type = (UnionType*)this;
 							unionCoord.m_level = level;
@@ -590,21 +535,18 @@ DerivableType::findDirectChildItemTraverse(
 		}
 	}
 
-	if (!(flags & TraverseFlag_NoExtensionNamespaces))
-	{
+	if (!(flags & TraverseFlag_NoExtensionNamespaces)) {
 		FindModuleItemResult findResult = findItemInExtensionNamespaces(name);
 		if (!findResult.m_result || findResult.m_item)
 			return findResult;
 	}
 
-	if (!(flags & TraverseFlag_NoBaseType))
-	{
+	if (!(flags & TraverseFlag_NoBaseType)) {
 		uint_t modFlags = (flags & ~TraverseFlag_NoThis) | TraverseFlag_NoParentNamespace;
 		size_t nextLevel = level + 1;
 
 		sl::Iterator<BaseTypeSlot> slotIt = m_baseTypeList.getHead();
-		for (; slotIt; slotIt++)
-		{
+		for (; slotIt; slotIt++) {
 			BaseTypeSlot* slot = *slotIt;
 			if (slot->m_type->getTypeKindFlags() & TypeKindFlag_Import) // unresolved yet
 				continue;
@@ -614,10 +556,8 @@ DerivableType::findDirectChildItemTraverse(
 			if (!findResult.m_result)
 				return findResult;
 
-			if (findResult.m_item)
-			{
-				if (coord && coord->m_type)
-				{
+			if (findResult.m_item) {
+				if (coord && coord->m_type) {
 					coord->m_offset += slot->m_offset;
 					coord->m_llvmIndexArray[level] = slot->m_llvmIndex;
 					coord->m_vtableIndex += slot->m_vtableIndex;
@@ -637,8 +577,7 @@ sl::String
 DerivableType::getValueString(
 	const void* p0,
 	const char* formatSpec
-	)
-{
+) {
 	if (m_fieldArray.isEmpty())
 		return "{}";
 
@@ -647,8 +586,7 @@ DerivableType::getValueString(
 	sl::String string = "{ " + m_fieldArray[0]->getType()->getValueString(p + m_fieldArray[0]->getOffset(), formatSpec);
 
 	size_t count = m_fieldArray.getCount();
-	for (size_t i = 1; i < count; i++)
-	{
+	for (size_t i = 1; i < count; i++) {
 		string += ", ";
 		string += m_fieldArray[i]->getType()->getValueString(p + m_fieldArray[i]->getOffset(), formatSpec);
 	}
@@ -662,8 +600,7 @@ DerivableType::generateDocumentation(
 	const sl::StringRef& outputDir,
 	sl::String* itemXml,
 	sl::String* indexXml
-	)
-{
+) {
 	bool result = ensureNoImports();
 	if (!result)
 		return false;
@@ -679,19 +616,17 @@ DerivableType::generateDocumentation(
 		kind,
 		doxyBlock->getRefId().sz(),
 		getQualifiedName().sz()
-		);
+	);
 
 	sl::String constructorXml;
 	sl::String destructorXml;
-	if (m_constructor)
-	{
+	if (m_constructor) {
 		result = m_constructor->generateDocumentation(outputDir, &constructorXml, indexXml);
 		if (!result)
 			return false;
 	}
 
-	if (m_destructor)
-	{
+	if (m_destructor) {
 		result = m_destructor->generateDocumentation(outputDir, &destructorXml, indexXml);
 		if (!result)
 			return false;
@@ -708,11 +643,10 @@ DerivableType::generateDocumentation(
 		kind,
 		doxyBlock->getRefId().sz(),
 		m_name.sz()
-		);
+	);
 
 	sl::Iterator<BaseTypeSlot> it = m_baseTypeList.getHead();
-	for (; it; it++)
-	{
+	for (; it; it++) {
 		DerivableType* baseType = it->getType();
 		dox::Block* baseTypeDoxyBlock = m_module->m_doxyHost.getItemBlock(baseType);
 		sl::String refId = baseTypeDoxyBlock->getRefId();
@@ -726,8 +660,7 @@ DerivableType::generateDocumentation(
 		itemXml->appendFormat("%s</basecompoundref>\n", baseType->getQualifiedName().sz());
 	}
 
-	if (!constructorXml.isEmpty() || !destructorXml.isEmpty())
-	{
+	if (!constructorXml.isEmpty() || !destructorXml.isEmpty()) {
 		itemXml->append("<sectiondef>\n");
 		itemXml->append(constructorXml);
 		itemXml->append(destructorXml);
@@ -737,8 +670,7 @@ DerivableType::generateDocumentation(
 	itemXml->append(memberXml);
 
 	sl::String footnoteXml = doxyBlock->getFootnoteString();
-	if (!footnoteXml.isEmpty())
-	{
+	if (!footnoteXml.isEmpty()) {
 		itemXml->append("<sectiondef>\n");
 		itemXml->append(footnoteXml);
 		itemXml->append("</sectiondef>\n");
@@ -753,24 +685,19 @@ DerivableType::generateDocumentation(
 }
 
 bool
-DerivableType::requireConstructor()
-{
+DerivableType::requireConstructor() {
 	if (!m_constructor)
 		return true;
 
-	if (m_constructor->getItemKind() == ModuleItemKind_Function)
-	{
+	if (m_constructor->getItemKind() == ModuleItemKind_Function) {
 		Function* constructor = m_constructor.getFunction();
 
 		if (constructor->canCompile())
 			m_module->markForCompile(constructor);
-	}
-	else
-	{
+	} else {
 		FunctionOverload* constructor = m_constructor.getFunctionOverload();
 		size_t count = constructor->getOverloadCount();
-		for (size_t i = 0; i < count; i++)
-		{
+		for (size_t i = 0; i < count; i++) {
 			Function* overload = constructor->getOverload(i);
 			if (overload->canCompile())
 				m_module->markForCompile(overload);
@@ -781,8 +708,7 @@ DerivableType::requireConstructor()
 }
 
 bool
-DerivableType::compileDefaultStaticConstructor()
-{
+DerivableType::compileDefaultStaticConstructor() {
 	ASSERT(m_staticConstructor);
 
 	m_module->m_namespaceMgr.openNamespace(this);
@@ -803,8 +729,7 @@ DerivableType::compileDefaultStaticConstructor()
 }
 
 bool
-DerivableType::compileDefaultConstructor()
-{
+DerivableType::compileDefaultConstructor() {
 	Function* constructor = m_constructor.getFunction();
 
 	Value thisValue;
@@ -826,8 +751,7 @@ DerivableType::compileDefaultConstructor()
 }
 
 bool
-DerivableType::compileDefaultDestructor()
-{
+DerivableType::compileDefaultDestructor() {
 	ASSERT(m_destructor);
 
 	bool result;

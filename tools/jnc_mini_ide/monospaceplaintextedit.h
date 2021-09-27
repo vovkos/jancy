@@ -11,8 +11,7 @@
 
 #pragma once
 
-class MonospacePlainTextEdit: public QPlainTextEdit
-{
+class MonospacePlainTextEdit: public QPlainTextEdit {
 	Q_OBJECT
 
 public:
@@ -21,21 +20,20 @@ public:
 	void highlightLine(
 		const QTextCursor& cursor,
 		const QTextCharFormat& format
-		);
+	);
 
 	void highlightLine(
 		const QTextCursor& cursor,
 		const QColor& backColor
-		);
+	);
 
 	void highlightLine(
 		const QTextCursor& cursor,
 		const QColor& backColor,
 		const QColor& textColor
-		);
+	);
 
-	void appendString(const QString &string)
-	{
+	void appendString(const QString &string) {
 		moveCursor(QTextCursor::End);
 		insertPlainText(string);
 	}

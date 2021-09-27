@@ -218,17 +218,14 @@ namespace jnc {
 //..............................................................................
 
 void
-JancyHighlighter::init()
-{
+JancyHighlighter::init() {
 	%% write init;
 }
 
 void
-JancyHighlighter::exec()
-{
+JancyHighlighter::exec() {
 	int prevBlockState = previousBlockState();
-	switch (prevBlockState)
-	{
+	switch (prevBlockState) {
 	case BlockState_CommentMl:
 		cs = jancy_lexer_en_comment_ml;
 		break;
@@ -242,8 +239,7 @@ JancyHighlighter::exec()
 
 	%% write exec;
 
-	switch (cs)
-	{
+	switch (cs) {
 	case jancy_lexer_en_comment_ml:
 		setCurrentBlockState(BlockState_CommentMl);
 		break;

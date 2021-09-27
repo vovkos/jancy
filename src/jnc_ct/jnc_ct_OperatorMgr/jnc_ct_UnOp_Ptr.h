@@ -18,11 +18,9 @@ namespace ct {
 
 //..............................................................................
 
-class UnOp_Addr: public UnaryOperator
-{
+class UnOp_Addr: public UnaryOperator {
 public:
-	UnOp_Addr()
-	{
+	UnOp_Addr() {
 		m_opKind = UnOpKind_Addr;
 		m_opFlags = OpFlag_KeepRef;
 	}
@@ -36,16 +34,14 @@ public:
 	op(
 		const Value& opValue,
 		Value* resultValue
-		);
+	);
 };
 
 //..............................................................................
 
-class UnOp_Indir: public UnaryOperator
-{
+class UnOp_Indir: public UnaryOperator {
 public:
-	UnOp_Indir()
-	{
+	UnOp_Indir() {
 		m_opKind = UnOpKind_Indir;
 	}
 
@@ -58,16 +54,14 @@ public:
 	op(
 		const Value& opValue,
 		Value* resultValue
-		);
+	);
 };
 
 //..............................................................................
 
-class UnOp_Ptr: public UnOp_Indir
-{
+class UnOp_Ptr: public UnOp_Indir {
 public:
-	UnOp_Ptr()
-	{
+	UnOp_Ptr() {
 		m_opKind = UnOpKind_Ptr;
 	}
 
@@ -76,7 +70,7 @@ public:
 	op(
 		const Value& opValue,
 		Value* resultValue
-		);
+	);
 };
 
 //..............................................................................

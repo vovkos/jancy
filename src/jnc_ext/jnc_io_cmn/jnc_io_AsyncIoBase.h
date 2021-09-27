@@ -16,34 +16,28 @@ namespace io {
 
 //..............................................................................
 
-enum AsyncIoBaseEvent
-{
+enum AsyncIoBaseEvent {
 	AsyncIoBaseEvent_IoError = 0x0001,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class AsyncIoBase
-{
+class AsyncIoBase {
 protected:
-	enum IoThreadFlag
-	{
+	enum IoThreadFlag {
 		IoThreadFlag_Closing   = 0x0001,
 		IoThreadFlag_Suspended = 0x0002,
 	};
 
-	struct Wait: sl::ListLink
-	{
+	struct Wait: sl::ListLink {
 		uint_t m_mask;
 	};
 
-	struct SyncWait: Wait
-	{
+	struct SyncWait: Wait {
 		sys::Event* m_event;
 	};
 
-	struct AsyncWait: Wait
-	{
+	struct AsyncWait: Wait {
 		FunctionPtr m_handlerPtr;
 		handle_t m_handle;
 	};
@@ -82,7 +76,7 @@ protected:
 	wait(
 		uint_t eventMask,
 		FunctionPtr handlerPtr
-		);
+	);
 
 	bool
 	cancelWait(handle_t handle);
@@ -91,7 +85,7 @@ protected:
 	blockingWait(
 		uint_t eventMask,
 		uint_t timeout
-		);
+	);
 
 	Promise*
 	asyncWait(uint_t eventMask);
@@ -119,10 +113,8 @@ protected:
 	setSetting(
 		T* p,
 		T value
-		)
-	{
-		if (!m_isOpen)
-		{
+	) {
+		if (!m_isOpen) {
 			*p = value;
 			return;
 		}
@@ -143,8 +135,7 @@ protected:
 	setEvents_l(uint_t events);
 
 	void
-	setEvents(uint_t events)
-	{
+	setEvents(uint_t events) {
 		m_lock.lock();
 		setEvents_l(events);
 	}
@@ -153,17 +144,15 @@ protected:
 	setIoErrorEvent_l(
 		uint_t event,
 		const err::Error& error
-		);
+	);
 
 	void
-	setIoErrorEvent_l(const err::Error& error)
-	{
+	setIoErrorEvent_l(const err::Error& error) {
 		setIoErrorEvent_l(AsyncIoBaseEvent_IoError, error);
 	}
 
 	void
-	setIoErrorEvent_l()
-	{
+	setIoErrorEvent_l() {
 		setIoErrorEvent_l(AsyncIoBaseEvent_IoError, err::getLastError());
 	}
 
@@ -171,21 +160,18 @@ protected:
 	setIoErrorEvent(
 		uint_t event,
 		const err::Error& error
-		)
-	{
+	) {
 		m_lock.lock();
 		setIoErrorEvent_l(event, error);
 	}
 
 	void
-	setIoErrorEvent(const err::Error& error)
-	{
+	setIoErrorEvent(const err::Error& error) {
 		setIoErrorEvent(AsyncIoBaseEvent_IoError, error);
 	}
 
 	void
-	setIoErrorEvent()
-	{
+	setIoErrorEvent() {
 		setIoErrorEvent(AsyncIoBaseEvent_IoError, err::getLastError());
 	}
 
@@ -194,7 +180,7 @@ protected:
 	onAsyncWaitCompleted(
 		IfaceHdr* closure,
 		uint_t triggeredEvents
-		);
+	);
 };
 
 //..............................................................................

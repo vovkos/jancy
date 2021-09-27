@@ -1,7 +1,6 @@
 import "std_Array.jnc"
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	std.Array a;

@@ -45,22 +45,19 @@ namespace io {
 
 	.. ref-code-block::
 
-		struct Hdr
-		{
+		struct Hdr {
 			uint32_t m_signature;
 			uint32_t m_version;
 			uint32_t m_sectionCount;
 			// ...
 		}
 
-		struct SectionDesc
-		{
+		struct SectionDesc {
 			uint64_t m_offset;
 			uint64_t m_size;
 		}
 
-		void foo(char const* fileName)
-		{
+		void foo(char const* fileName) {
 			disposable io.MappedFile file;
 			file.open(fileName, `io.FileOpenFlags.ReadOnly`);
 
@@ -72,17 +69,16 @@ namespace io {
 				size_t i = 0;
 				i < hdr.m_sectionCount;
 				i++, offset += sizeof(SectionDesc)
-				)
-			{
+			) {
 				SectionDesc const* sectionDesc = file.view(
 					offset,
 					sizeof(SectionDesc)
-					);
+				);
 
 				void const* section = file.view(
 					sectionDesc.m_offset,
 					sectionDesc.m_size
-					);
+				);
 				// ...
 			}
 
@@ -101,8 +97,7 @@ namespace io {
 		|footnote-disposable|
 */
 
-opaque class MappedFile
-{
+opaque class MappedFile {
 	/**
 		Holds the maximum amount of *dynamic* views maintained in
 		``io.MappedFile`` internal database. Once dynamic view limit is
@@ -151,7 +146,7 @@ opaque class MappedFile
 	bool errorcode open(
 		char const* name,
 		FileOpenFlags flags = 0
-		);
+	);
 
 	/**
 		Closes a previously opened file, does nothing if the file is not opened.
@@ -184,7 +179,7 @@ opaque class MappedFile
 		uint64_t offset,
 		size_t size,
 		bool isPermanent = false
-		);
+	);
 
 	void unmapAllViews();
 }

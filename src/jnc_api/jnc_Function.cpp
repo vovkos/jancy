@@ -24,10 +24,8 @@
 JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
-jnc_getFunctionKindString(jnc_FunctionKind functionKind)
-{
-	static const char* stringTable[jnc_FunctionKind__Count] =
-	{
+jnc_getFunctionKindString(jnc_FunctionKind functionKind) {
+	static const char* stringTable[jnc_FunctionKind__Count] = {
 		"undefined-function-kind",  // jnc_FunctionKind_Undefined,
 		"normal-function",          // jnc_FunctionKind_Normal,
 		"get",                      // jnc_FunctionKind_Getter,
@@ -59,10 +57,8 @@ jnc_getFunctionKindString(jnc_FunctionKind functionKind)
 JNC_EXTERN_C
 JNC_EXPORT_O
 uint_t
-jnc_getFunctionKindFlags(jnc_FunctionKind functionKind)
-{
-	static int flagTable[jnc_FunctionKind__Count] =
-	{
+jnc_getFunctionKindFlags(jnc_FunctionKind functionKind) {
+	static int flagTable[jnc_FunctionKind__Count] = {
 		0,                                  // jnc_FunctionKind_Undefined,
 		0,                                  // jnc_FunctionKind_Normal,
 		jnc_FunctionKindFlag_NoOverloads,   // jnc_FunctionKind_Getter,
@@ -102,29 +98,25 @@ jnc_getFunctionKindFlags(jnc_FunctionKind functionKind)
 
 JNC_EXTERN_C
 jnc_FunctionKind
-jnc_Function_getFunctionKind(jnc_Function* function)
-{
+jnc_Function_getFunctionKind(jnc_Function* function) {
 	return jnc_g_dynamicExtensionLibHost->m_functionFuncTable->m_getFunctionKindFunc(function);
 }
 
 JNC_EXTERN_C
 bool_t
-jnc_Function_isMember(jnc_Function* function)
-{
+jnc_Function_isMember(jnc_Function* function) {
 	return jnc_g_dynamicExtensionLibHost->m_functionFuncTable->m_isMemberFunc(function);
 }
 
 JNC_EXTERN_C
 bool_t
-jnc_Function_isUnusedExternal(jnc_Function* function)
-{
+jnc_Function_isUnusedExternal(jnc_Function* function) {
 	return jnc_g_dynamicExtensionLibHost->m_functionFuncTable->m_isUnusedExternalFunc(function);
 }
 
 JNC_EXTERN_C
 void*
-jnc_Function_getMachineCode(jnc_Function* function)
-{
+jnc_Function_getMachineCode(jnc_Function* function) {
 	return jnc_g_dynamicExtensionLibHost->m_functionFuncTable->m_getMachineCodeFunc(function);
 }
 
@@ -132,15 +124,13 @@ jnc_Function_getMachineCode(jnc_Function* function)
 
 JNC_EXTERN_C
 jnc_FunctionKind
-jnc_FunctionOverload_getFunctionKind(jnc_FunctionOverload* function)
-{
+jnc_FunctionOverload_getFunctionKind(jnc_FunctionOverload* function) {
 	return jnc_g_dynamicExtensionLibHost->m_functionOverloadFuncTable->m_getFunctionKindFunc(function);
 }
 
 JNC_EXTERN_C
 size_t
-jnc_FunctionOverload_getOverloadCount(jnc_FunctionOverload* function)
-{
+jnc_FunctionOverload_getOverloadCount(jnc_FunctionOverload* function) {
 	return jnc_g_dynamicExtensionLibHost->m_functionOverloadFuncTable->m_getOverloadCountFunc(function);
 }
 
@@ -149,8 +139,7 @@ jnc_Function*
 jnc_FunctionOverload_getOverload(
 	jnc_FunctionOverload* function,
 	size_t index
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_functionOverloadFuncTable->m_getOverloadFunc(function, index);
 }
 
@@ -159,32 +148,28 @@ jnc_FunctionOverload_getOverload(
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_FunctionKind
-jnc_Function_getFunctionKind(jnc_Function* function)
-{
+jnc_Function_getFunctionKind(jnc_Function* function) {
 	return function->getFunctionKind();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
-jnc_Function_isMember(jnc_Function* function)
-{
+jnc_Function_isMember(jnc_Function* function) {
 	return function->isMember();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
-jnc_Function_isUnusedExternal(jnc_Function* function)
-{
+jnc_Function_isUnusedExternal(jnc_Function* function) {
 	return function->isUnusedExternal();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 void*
-jnc_Function_getMachineCode(jnc_Function* function)
-{
+jnc_Function_getMachineCode(jnc_Function* function) {
 	return function->getMachineCode();
 }
 
@@ -193,16 +178,14 @@ jnc_Function_getMachineCode(jnc_Function* function)
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_FunctionKind
-jnc_FunctionOverload_getFunctionKind(jnc_FunctionOverload* function)
-{
+jnc_FunctionOverload_getFunctionKind(jnc_FunctionOverload* function) {
 	return function->getFunctionKind();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 size_t
-jnc_FunctionOverload_getOverloadCount(jnc_FunctionOverload* function)
-{
+jnc_FunctionOverload_getOverloadCount(jnc_FunctionOverload* function) {
 	return function->getOverloadCount();
 }
 
@@ -212,22 +195,19 @@ jnc_Function*
 jnc_FunctionOverload_getOverload(
 	jnc_FunctionOverload* function,
 	size_t index
-	)
-{
+) {
 	return index < function->getOverloadCount() ? function->getOverload(index) : NULL;
 }
 
 namespace jnc {
 
 bool
-OverloadableFunction::ensureNoImports()
-{
+OverloadableFunction::ensureNoImports() {
 	if (!m_item)
 		return true;
 
 	ModuleItemKind itemKind = m_item->getItemKind();
-	switch (itemKind)
-	{
+	switch (itemKind) {
 	case ModuleItemKind_Function:
 		return ((Function*)m_item)->getType()->ensureNoImports();
 

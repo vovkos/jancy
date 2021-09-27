@@ -22,10 +22,9 @@ namespace sys {
 JNC_DEFINE_GUID(
 	g_sysLibGuid,
 	0xd8c0847c, 0x93d5, 0x4146, 0xb7, 0x95, 0x5d, 0xb1, 0xa1, 0x11, 0x85, 0x5a
-	);
+);
 
-enum SysLibCacheSlot
-{
+enum SysLibCacheSlot {
 	SysLibCacheSlot_Lock,
 	SysLibCacheSlot_Event,
 	SysLibCacheSlot_NotificationEvent,
@@ -36,8 +35,7 @@ enum SysLibCacheSlot
 
 //..............................................................................
 
-enum CpuKind
-{
+enum CpuKind {
 	CpuKind_Ia32,
 	CpuKind_Amd64,
 	CpuKind_Arm32,
@@ -46,8 +44,7 @@ enum CpuKind
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum OsKind
-{
+enum OsKind {
 	OsKind_Windows,
 	OsKind_Linux,
 	OsKind_Solaris,
@@ -55,8 +52,7 @@ enum OsKind
 	OsKind_Mac,
 };
 
-enum OsFlag
-{
+enum OsFlag {
 	OsFlag_Posix  = 0x01,
 	OsFlag_Bsd    = 0x02,
 	OsFlag_Darwin = 0x04,
@@ -64,23 +60,20 @@ enum OsFlag
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum CppKind
-{
+enum CppKind {
 	CppKind_Msc,
 	CppKind_Gcc,
 	CppKind_Icc,
 	CppKind_Clang,
 };
 
-enum CppFlag
-{
+enum CppFlag {
 	CppFlag_Gcc = 0x01,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct SystemInfo
-{
+struct SystemInfo {
 	uint_t m_cpuKind;
 	uint_t m_osKind;
 	uint_t m_osFlags;

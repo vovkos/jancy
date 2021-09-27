@@ -15,66 +15,48 @@
 
 $state = 0;
 
-while (chomp (my $s = <>))
-{
-	if ($state == 2)
-	{
-		if ($s =~ m/\*\//)
-		{
+while (chomp(my $s = <>)) {
+	if ($state == 2) {
+		if ($s =~ m/\*\//) {
 			$s = $';
 			$state = 1; # we only handle C-comments in state 1
-		}
-		else
-		{
+		} else {
 			next;
 		}
 	}
 
-	if ($s =~ m/\/\/\//)
-	{
+	if ($s =~ m/\/\/\//) {
 		$body = $';
 
-		if ($body =~ m/^\+\+\+/)
-		{
+		if ($body =~ m/^\+\+\+/) {
 			$state = 1;
-		}
-		elsif ($body =~ m/^\-\-\-/)
-		{
+		} elsif ($body =~ m/^\-\-\-/) {
 			$state = 0;
-		}
-		else
-		{
+		} else {
 			# inject as C++ snippet
 
-			print ("$body\n");
+			print("$body\n");
 		}
-	}
-	elsif ($state == 1)
-	{
-		# get rid of comments (don't bother handling multiple /**/ per line)
+	} elsif ($state == 1) {
+		# get rid of comments(don't bother handling multiple /**/ per line)
 
-		if ($s =~ m/\/[\/*]/)
-		{
-			if ($& eq "/*")
-			{
+		if ($s =~ m/\/[\/*]/) {
+			if ($& eq "/*") {
 				$state = 2;
 				next;
-			}
-			else
-			{
+			} else {
 				$s = $`;
 			}
 		}
 
 		# if not an empty line or all-space line, make it C-literal
 
-		if ($s !~ m/^[ \t]*$/)
-		{
+		if ($s !~ m/^[ \t]*$/) {
 			$s =~ s/\s+$//;     # remove trailing whitespace
 			$s =~ s/\\/\\\\/g;  # escqape backslashes
 			$s =~ s/"/\\"/g;    # escqape quotation marks
 
-			print ("\"$s\\n\"\n");
+			print("\"$s\\n\"\n");
 		}
 	}
 }

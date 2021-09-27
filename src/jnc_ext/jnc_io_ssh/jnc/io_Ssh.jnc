@@ -31,8 +31,7 @@ namespace io {
 	\sa `io.SshChannel`
 */
 
-bitflag enum SshEvents: SocketEvents
-{
+bitflag enum SshEvents: SocketEvents {
 	/**
 		``SSH`` handshake and protocol information exchange has been completed
 		successfully; an authentication request has been set.
@@ -80,8 +79,7 @@ bitflag enum SshEvents: SocketEvents
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct SshConnectParams
-{
+struct SshConnectParams {
 	SocketAddress m_address;
 	char const* m_userName;
 	void const* m_privateKey;
@@ -132,8 +130,7 @@ struct SshConnectParams
 
 	.. ref-code-block::
 
-		class MyDialog
-		{
+		class MyDialog {
 			// ...
 
 			io.SshChannel m_ssh;
@@ -144,7 +141,7 @@ struct SshConnectParams
 			void open(
 				char const* portName,
 				uint_t baudRate
-				);
+			);
 
 			void close();
 			void waitSshEvents();
@@ -154,15 +151,14 @@ struct SshConnectParams
 			void onSshEvent(
 				uint_t syncId,
 				`io.SshEvents` triggeredEvents
-				);
+			);
 		}
 
 		MyDialog.connect(
 			char const* addrString,
 			char const* userName,
 			char const* password
-			)
-		{
+		) {
 			`io.SocketAddress` sockAddr;
 			sockAddr.parse(addrString);
 
@@ -175,14 +171,12 @@ struct SshConnectParams
 			// handle the error...
 		}
 
-		MyDialog.close()
-		{
+		MyDialog.close() {
 			m_serial.close();
 			m_syncId++; // events past this point will be discarded as 'late'
 		}
 
-		MyDialog.waitSshEvent()
-		{
+		MyDialog.waitSshEvent() {
 			`io.SshEvents` eventMask =
 				`io.SshEvents.IoError` |
 				`io.SshEvents.SshAuthenticateError` |
@@ -195,8 +189,7 @@ struct SshConnectParams
 				g_mainThreadScheduler);
 		}
 
-		MyDialog.onWriteButtonClicked()
-		{
+		MyDialog.onWriteButtonClicked() {
 			static char data[] = "a quick brown fox jumps over the lazy dog";
 			m_ssh.write(data, sizeof(data));
 		}
@@ -204,19 +197,16 @@ struct SshConnectParams
 		MyDialog.onSshEvent(
 			uint_t syncId,
 			`io.SshEvents` triggeredEvents
-			)
-		{
+		) {
 			if (syncId != m_syncId) // late event
 				return;
 
-			if (triggeredEvents & `io.SshEvents.IoError`)
-			{
+			if (triggeredEvents & `io.SshEvents.IoError`) {
 				char cont* errorString = m_ssh.m_ioError.m_description;
 				// ...
 			}
 
-			if (triggeredEvents & `io.SshEvents.SshAuthenticateError`)
-			{
+			if (triggeredEvents & `io.SshEvents.SshAuthenticateError`) {
 				// show some kind of login dialog ...
 				// ...
 				// ... then re-authenticate:
@@ -224,13 +214,11 @@ struct SshConnectParams
 				m_ssh.authenticate(userName, password);
 			}
 
-			if (triggeredEvents & `io.SshEvents.SshConnectCompleted`)
-			{
+			if (triggeredEvents & `io.SshEvents.SshConnectCompleted`) {
 				// SSH channel established
 			}
 
-			if (triggeredEvents & `io.SshEvents.IncomingData`)
-			{
+			if (triggeredEvents & `io.SshEvents.IncomingData`) {
 				char buffer[256];
 				size_t size = m_ssh.read(buffer, sizeof(buffer));
 				// ...
@@ -251,8 +239,7 @@ struct SshConnectParams
 		|footnote-disposable|
 */
 
-opaque class SshChannel
-{
+opaque class SshChannel {
 	/**
 		This property is used for getting the local address assigned to this
 		socket. If the address has not been assigned yet, returns empty address.
@@ -361,7 +348,7 @@ opaque class SshChannel
 		char const* ptyType = "xterm",       // vanilla, ansi, xterm, vt102, etc
 		uint_t ptyWidth = 80,
 		uint_t ptyHeight = 24
-		);
+	);
 
 	bool errorcode connect(SshConnectParams const* params);
 
@@ -377,7 +364,7 @@ opaque class SshChannel
 		void const* privateKey,
 		size_t privateKeySize,
 		char const* password
-		);
+	);
 
 	/**
 		Sends a request to SSH server to resize pseudo-terminal to ``width`` x
@@ -392,7 +379,7 @@ opaque class SshChannel
 	bool errorcode resizePty(
 		uint_t width,
 		uint_t height
-		);
+	);
 
 	/**
 		Attempts to receive up to ``size`` bytes from the SSH socket into the
@@ -411,7 +398,7 @@ opaque class SshChannel
 	size_t errorcode read(
 		void* p,
 		size_t size
-		);
+	);
 
 	/**
 		Attempts to send ``size`` bytes from the buffer pointed to by ``p`` over
@@ -430,19 +417,19 @@ opaque class SshChannel
 	size_t errorcode write(
 		void const* p,
 		size_t size
-		);
+	);
 
 	intptr errorcode wait(
 		SshEvents eventMask,
 		function* handler(SshEvents triggeredEvents)
-		);
+	);
 
 	bool errorcode cancelWait(intptr handle);
 
 	SshEvents blockingWait(
 		SshEvents eventMask,
 		uint_t timeout = -1
-		);
+	);
 
 	async SshEvents asyncWait(SshEvents eventMask);
 }

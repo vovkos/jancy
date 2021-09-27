@@ -25,17 +25,13 @@ GlobalNamespace::addBody(
 	const PragmaSettings* pragmaSettings,
 	const lex::LineColOffset& pos,
 	const sl::StringRef& body
-	)
-{
-	if (m_body.isEmpty())
-	{
+) {
+	if (m_body.isEmpty()) {
 		m_parentUnit = unit;
 		m_pragmaSettings = pragmaSettings;
 		m_bodyPos = pos;
 		m_body = body;
-	}
-	else
-	{
+	} else {
 		ExtraBody* extraBody = AXL_MEM_NEW(ExtraBody);
 		extraBody->m_unit = unit;
 		extraBody->m_pragmaSettings = pragmaSettings;
@@ -46,16 +42,12 @@ GlobalNamespace::addBody(
 }
 
 sl::String
-GlobalNamespace::createDoxyRefId()
-{
+GlobalNamespace::createDoxyRefId() {
 	sl::String refId;
 
-	if (this == m_module->m_namespaceMgr.getGlobalNamespace())
-	{
+	if (this == m_module->m_namespaceMgr.getGlobalNamespace()) {
 		refId = JNC_GLOBAL_NAMESPACE_DOXID;
-	}
-	else
-	{
+	} else {
 		refId.format("namespace_%s", getQualifiedName().sz());
 		refId.replace('.', '_');
 		refId.makeLowerCase();
@@ -65,8 +57,7 @@ GlobalNamespace::createDoxyRefId()
 }
 
 bool
-GlobalNamespace::parseBody()
-{
+GlobalNamespace::parseBody() {
 	sl::ConstIterator<Variable> lastVariableIt = m_module->m_variableMgr.getVariableList().getTail();
 	sl::ConstIterator<Property> lastPropertyIt = m_module->m_functionMgr.getPropertyList().getTail();
 
@@ -77,15 +68,13 @@ GlobalNamespace::parseBody()
 		return false;
 
 	sl::Iterator<ExtraBody> it = m_extraBodyList.getHead();
-	for (; it; it++)
-	{
+	for (; it; it++) {
 		result = parseBodyImpl(it->m_unit, it->m_pragmaSettings, it->m_pos, it->m_body);
 		if (!result)
 			return false;
 	}
 
-	if (!(m_module->getCompileFlags() & ModuleCompileFlag_KeepTypedefShadow))
-	{
+	if (!(m_module->getCompileFlags() & ModuleCompileFlag_KeepTypedefShadow)) {
 		result =
 			resolveOrphans() &&
 			m_module->m_variableMgr.allocateNamespaceVariables(lastVariableIt) &&
@@ -108,8 +97,7 @@ GlobalNamespace::parseBodyImpl(
 	const PragmaSettings* pragmaSettings,
 	const lex::LineColOffset& pos,
 	const sl::StringRef& body
-	)
-{
+) {
 	Unit* prevUnit = m_module->m_unitMgr.setCurrentUnit(unit);
 
 	size_t length = body.getLength();
@@ -121,7 +109,7 @@ GlobalNamespace::parseBodyImpl(
 		SymbolKind_global_declaration_list,
 		lex::LineColOffset(pos.m_line, pos.m_col + 1, pos.m_offset + 1),
 		body.getSubString(1, length - 2)
-		);
+	);
 
 	if (!result)
 		return false;
@@ -135,20 +123,16 @@ GlobalNamespace::generateDocumentation(
 	const sl::StringRef& outputDir,
 	sl::String* itemXml,
 	sl::String* indexXml
-	)
-{
+) {
 	dox::Block* doxyBlock = m_module->m_doxyHost.getItemBlock(this);
 
 	const char* kind;
 	const char* name;
 
-	if (this == m_module->m_namespaceMgr.getGlobalNamespace())
-	{
+	if (this == m_module->m_namespaceMgr.getGlobalNamespace()) {
 		kind = "file";
 		name = "global";
-	}
-	else
-	{
+	} else {
 		kind = "namespace";
 		name = getQualifiedName();
 	}
@@ -158,7 +142,7 @@ GlobalNamespace::generateDocumentation(
 		kind,
 		doxyBlock->getRefId().sz(),
 		name
-		);
+	);
 
 	itemXml->format(
 		"<compounddef kind='%s' id='%s' language='Jancy'>\n"
@@ -166,7 +150,7 @@ GlobalNamespace::generateDocumentation(
 		kind,
 		doxyBlock->getRefId().sz(),
 		name
-		);
+	);
 
 	sl::String memberXml;
 	bool result = Namespace::generateMemberDocumentation(outputDir, &memberXml, indexXml, true);
@@ -176,8 +160,7 @@ GlobalNamespace::generateDocumentation(
 	itemXml->append(memberXml);
 
 	sl::String footnoteXml = doxyBlock->getFootnoteString();
-	if (!footnoteXml.isEmpty())
-	{
+	if (!footnoteXml.isEmpty()) {
 		itemXml->append("<sectiondef>\n");
 		itemXml->append(footnoteXml);
 		itemXml->append("</sectiondef>\n");

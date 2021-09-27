@@ -23,8 +23,7 @@ namespace jnc {
 //..............................................................................
 
 axl::sl::String*
-getTlsStringBuffer()
-{
+getTlsStringBuffer() {
 	static int32_t flag = 0;
 	sys::TlsSlot* slot = sl::getSimpleSingleton<sys::TlsSlot> (&flag);
 
@@ -42,8 +41,7 @@ namespace ct {
 //..............................................................................
 
 Module::Module():
-	m_doxyModule(&m_doxyHost)
-{
+	m_doxyModule(&m_doxyHost) {
 	m_compileFlags = ModuleCompileFlag_StdFlags;
 	m_compileState = ModuleCompileState_Idle;
 	m_tryCompileLevel = 0;
@@ -60,19 +58,16 @@ Module::Module():
 	finalizeConstruction();
 }
 
-Module::~Module()
-{
+Module::~Module() {
 	clear();
 }
 
 bool
-Module::processCompileError(ModuleCompileErrorKind errorKind)
-{
+Module::processCompileError(ModuleCompileErrorKind errorKind) {
 	if (m_tryCompileLevel)
 		return false;
 
-	if (++m_compileErrorCount > m_compileErrorCountLimit)
-	{
+	if (++m_compileErrorCount > m_compileErrorCountLimit) {
 		err::setFormatStringError("%d errors; error limit reached", m_compileErrorCount);
 		return false;
 	}
@@ -87,8 +82,7 @@ Module::processCompileError(ModuleCompileErrorKind errorKind)
 	if (!result)
 		return false;
 
-	if (errorKind >= ModuleCompileErrorKind_PostParse)
-	{
+	if (errorKind >= ModuleCompileErrorKind_PostParse) {
 		m_namespaceMgr.closeAllNamespaces();
 		m_functionMgr.setCurrentFunction(NULL);
 		m_controlFlowMgr.setCurrentBlock(NULL);
@@ -100,8 +94,7 @@ Module::processCompileError(ModuleCompileErrorKind errorKind)
 }
 
 void
-Module::clear()
-{
+Module::clear() {
 	m_name.clear();
 	m_compileArray.clear();
 	m_sourceList.clear();
@@ -135,8 +128,7 @@ Module::clear()
 }
 
 void
-Module::clearLlvm()
-{
+Module::clearLlvm() {
 	m_llvmIrBuilder.clear();
 	m_llvmDiBuilder.clear();
 
@@ -156,15 +148,14 @@ Module::clearLlvm()
 		ModuleCompileFlag_DebugInfo |
 		ModuleCompileFlag_GcSafePointInPrologue |
 		ModuleCompileFlag_GcSafePointInInternalPrologue
-		);
+	);
 }
 
 void
 Module::initialize(
 	const sl::StringRef& name,
 	uint_t compileFlags
-	)
-{
+) {
 	clear();
 
 #if (_AXL_GCC_ASAN)
@@ -181,8 +172,7 @@ Module::initialize(
 	m_compileState = ModuleCompileState_Idle;
 	m_compileErrorCount = 0;
 
-	if (!(compileFlags & ModuleCompileFlag_DisableCodeGen))
-	{
+	if (!(compileFlags & ModuleCompileFlag_DisableCodeGen)) {
 		m_llvmContext = new llvm::LLVMContext;
 		m_llvmModule = new llvm::Module("jncModule", *m_llvmContext);
 		m_llvmIrBuilder.create();
@@ -191,8 +181,7 @@ Module::initialize(
 			m_llvmDiBuilder.create();
 	}
 
-	if (!(compileFlags & ModuleCompileFlag_StdLibDoc))
-	{
+	if (!(compileFlags & ModuleCompileFlag_StdLibDoc)) {
 		m_extensionLibMgr.addStaticLib(jnc_CoreLib_getLib());
 		m_extensionLibMgr.addStaticLib(jnc_IntrospectionLib_getLib());
 		m_typeMgr.createStdTypes();
@@ -207,8 +196,7 @@ Module::generateCodeAssist(
 	Module* cacheModule,
 	size_t offset,
 	const sl::StringRef& source
-	)
-{
+) {
 	m_compileFlags |=
 		ModuleCompileFlag_DisableCodeGen |
 		ModuleCompileFlag_IgnoreOpaqueClassTypeInfo |
@@ -227,8 +215,7 @@ extern "C" int64_t __moddi3(int64_t, int64_t);
 extern "C" uint64_t __udivdi3(uint64_t, uint64_t);
 extern "C" uint64_t __umoddi3(uint64_t, uint64_t);
 #		if (_JNC_CPU_ARM32)
-struct DivModRetVal
-{
+struct DivModRetVal {
 	uint64_t m_quotient;
 	uint64_t m_remainder;
 };
@@ -257,8 +244,7 @@ extern "C" int64_t _aullrem(int64_t, int64_t);
 #endif
 
 bool
-Module::createLlvmExecutionEngine()
-{
+Module::createLlvmExecutionEngine() {
 	ASSERT(!m_llvmExecutionEngine);
 
 #if (_JNC_CPU_ARM32 || _JNC_CPU_ARM64)
@@ -289,8 +275,7 @@ Module::createLlvmExecutionEngine()
 	targetOptions.FloatABIType = llvm::FloatABI::Hard;
 #endif
 
-	if (m_compileFlags & ModuleCompileFlag_McJit)
-	{
+	if (m_compileFlags & ModuleCompileFlag_McJit) {
 		JitMemoryMgr* jitMemoryMgr = new JitMemoryMgr(this);
 #if (LLVM_VERSION < 0x030600)
 		engineBuilder.setUseMCJIT(true);
@@ -339,9 +324,7 @@ Module::createLlvmExecutionEngine()
 		m_functionMap["_aullrem"] = (void*)_aullrem;
 #	endif
 #endif
-	}
-	else
-	{
+	} else {
 #if (LLVM_VERSION >= 0x030600) // legacy JIT is gone in LLVM 3.6
 		ASSERT(false); // should have been checked earlier
 #else
@@ -357,8 +340,7 @@ Module::createLlvmExecutionEngine()
 		// which would reside close enough to the generated code
 
 		void* chkstk = ::GetProcAddress(::GetModuleHandleA("ntdll.dll"), "__chkstk");
-		if (!chkstk)
-		{
+		if (!chkstk) {
 			err::setFormatStringError("__chkstk is not found");
 			return false;
 		}
@@ -400,8 +382,7 @@ Module::createLlvmExecutionEngine()
 	sys::ScopedTlsPtrSlot<Module> scopeModule(this); // for GcShadowStack
 
 	m_llvmExecutionEngine = engineBuilder.create();
-	if (!m_llvmExecutionEngine)
-	{
+	if (!m_llvmExecutionEngine) {
 		err::setFormatStringError("cannot create execution engine: %s", errorString.c_str());
 		return false;
 	}
@@ -413,10 +394,8 @@ bool
 Module::mapVariable(
 	Variable* variable,
 	void* p
-	)
-{
-	if (variable->getStorageKind() != StorageKind_Static)
-	{
+) {
+	if (variable->getStorageKind() != StorageKind_Static) {
 		err::setFormatStringError("attempt to map non-global variable: %s", variable->getQualifiedName().sz());
 		return false;
 	}
@@ -425,14 +404,12 @@ Module::mapVariable(
 		m_llvmModule->getGlobalVariable(variable->m_llvmGlobalVariableName >> toLlvm) :
 		variable->getLlvmGlobalVariable();
 
-	if (!llvmVariable) // optimized out
-	{
+	if (!llvmVariable) { // optimized out
 		variable->m_staticData = p;
 		return true;
 	}
 
-	if (m_compileFlags & ModuleCompileFlag_McJit)
-	{
+	if (m_compileFlags & ModuleCompileFlag_McJit) {
 		std::string name = llvmVariable->getName().str();
 		name += ".mapping";
 
@@ -443,7 +420,7 @@ Module::mapVariable(
 			llvm::GlobalVariable::ExternalWeakLinkage,
 			NULL,
 			name
-			);
+		);
 
 		llvmVariable->replaceAllUsesWith(llvmMapping);
 		llvmVariable->eraseFromParent();
@@ -453,17 +430,14 @@ Module::mapVariable(
 		m_llvmExecutionEngine->addGlobalMapping(llvmMapping, p);
 #else
 		sl::StringHashTableIterator<void*> it = m_functionMap.visit(llvmMapping->getName().data());
-		if (it->m_value)
-		{
+		if (it->m_value) {
 			err::setFormatStringError("attempt to re-map variable: %s", variable->getQualifiedName().sz());
 			return false;
 		}
 
 		it->m_value = p;
 #endif
-	}
-	else
-	{
+	} else {
 		ASSERT(m_llvmExecutionEngine);
 		m_llvmExecutionEngine->addGlobalMapping(llvmVariable, p);
 	}
@@ -476,10 +450,8 @@ bool
 Module::mapFunction(
 	Function* function,
 	void* p
-	)
-{
-	if (!function->hasLlvmFunction()) // never used
-	{
+) {
+	if (!function->hasLlvmFunction()) { // never used
 		function->m_machineCode = p;
 		return true;
 	}
@@ -488,25 +460,20 @@ Module::mapFunction(
 		m_llvmModule->getFunction(function->m_llvmFunctionName >> toLlvm) :
 		function->getLlvmFunction();
 
-	if (!llvmFunction) // optimized out
-	{
+	if (!llvmFunction) { // optimized out
 		function->m_machineCode = p;
 		return true;
 	}
 
-	if (m_compileFlags & ModuleCompileFlag_McJit)
-	{
+	if (m_compileFlags & ModuleCompileFlag_McJit) {
 		sl::StringHashTableIterator<void*> it = m_functionMap.visit(llvmFunction->getName().data());
-		if (it->m_value)
-		{
+		if (it->m_value) {
 			err::setFormatStringError("attempt to re-map function: %s/%s", function->getQualifiedName().sz(), llvmFunction->getName().data());
 			return false;
 		}
 
 		it->m_value = p;
-	}
-	else
-	{
+	} else {
 		ASSERT(m_llvmExecutionEngine);
 		m_llvmExecutionEngine->addGlobalMapping(llvmFunction, p);
 	}
@@ -516,8 +483,7 @@ Module::mapFunction(
 }
 
 void*
-Module::findFunctionMapping(const sl::StringRef& name)
-{
+Module::findFunctionMapping(const sl::StringRef& name) {
 	sl::StringHashTableIterator<void*> it;
 
 #if (_JNC_OS_WIN && _JNC_CPU_X86)
@@ -538,8 +504,7 @@ Module::setFunctionPointer(
 	llvm::ExecutionEngine* llvmExecutionEngine,
 	const sl::StringRef& name,
 	void* p
-	)
-{
+) {
 	QualifiedName qualifiedName;
 	qualifiedName.parse(name);
 	return setFunctionPointer(llvmExecutionEngine, qualifiedName, p);
@@ -550,20 +515,17 @@ Module::setFunctionPointer(
 	llvm::ExecutionEngine* llvmExecutionEngine,
 	const QualifiedName& name,
 	void* p
-	)
-{
+) {
 	FindModuleItemResult findResult = m_namespaceMgr.getGlobalNamespace()->findItem(name);
 	if (!findResult.m_item)
 		return false;
 
-	if (!findResult.m_item)
-	{
+	if (!findResult.m_item) {
 		err::setFormatStringError("'%s' not found", name.getFullName().sz());
 		return false;
 	}
 
-	if (findResult.m_item->getItemKind() != ModuleItemKind_Function)
-	{
+	if (findResult.m_item->getItemKind() != ModuleItemKind_Function) {
 		err::setFormatStringError("'%s' is not a function", name.getFullName().sz());
 		return false;
 	}
@@ -577,8 +539,7 @@ Module::setFunctionPointer(
 }
 
 void
-Module::markForCompile(Function* function)
-{
+Module::markForCompile(Function* function) {
 	if (function->m_flags & ModuleItemFlag_NeedCompile)
 		return;
 
@@ -591,8 +552,7 @@ Module::parseImpl(
 	ExtensionLib* lib,
 	const sl::StringRef& fileName,
 	const sl::StringRef& source
-	)
-{
+) {
 	ASSERT(m_compileState < ModuleCompileState_Compiled);
 
 	bool result;
@@ -604,11 +564,9 @@ Module::parseImpl(
 	lexer.create(fileName, source);
 
 #if (0)
-	for (;;)
-	{
+	for (;;) {
 		const Token* token = lexer.getToken();
-		switch (token->m_token)
-		{
+		switch (token->m_token) {
 		case TokenKind_Error:
 			printf("lexer error: %s\n", err::getLastErrorDescription().sz());
 			return false;
@@ -624,7 +582,7 @@ Module::parseImpl(
 			token->m_tokenKind,
 			token->m_pos.m_line + 1,
 			sl::StringRef(token->m_pos.m_p, token->m_pos.m_length).sz()
-			);
+		);
 
 		lexer.nextToken();
 	}
@@ -640,21 +598,17 @@ Module::parseImpl(
 	parser.create(fileName, Parser::StartSymbol);
 
 	CodeAssistKind codeAssistKind = m_codeAssistMgr.getCodeAssistKind();
-	if (!codeAssistKind || !unit->isRootUnit())
-	{
-		for (;;)
-		{
+	if (!codeAssistKind || !unit->isRootUnit()) {
+		for (;;) {
 			const Token* token = lexer.getToken();
-			if (token->m_token == TokenKind_Error)
-			{
+			if (token->m_token == TokenKind_Error) {
 				err::setFormatStringError("invalid character '\\x%02x'", (uchar_t) token->m_data.m_integer);
 				lex::pushSrcPosError(fileName, token->m_pos);
 				return false;
 			}
 
 			result = parser.parseToken(token);
-			if (!result)
-			{
+			if (!result) {
 				lex::ensureSrcPosError(fileName, token->m_pos);
 				return false;
 			}
@@ -664,26 +618,21 @@ Module::parseImpl(
 
 			lexer.nextToken();
 		}
-	}
-	else
-	{
+	} else {
 		size_t offset = m_codeAssistMgr.getOffset();
 		size_t autoCompleteFallbackOffset = offset;
 
-		for (;;)
-		{
+		for (;;) {
 			const Token* token = lexer.getToken();
 			if (token->m_token == TokenKind_Error)
 				return false;
 
 			bool isCodeAssist = markCodeAssistToken((Token*)token, offset);
-			if (isCodeAssist)
-			{
+			if (isCodeAssist) {
 				if (token->m_tokenKind == TokenKind_Identifier && (token->m_flags & TokenFlag_CodeAssist))
 					autoCompleteFallbackOffset = token->m_pos.m_offset;
 
-				if (token->m_flags & (TokenFlag_PostCodeAssist))
-				{
+				if (token->m_flags & (TokenFlag_PostCodeAssist)) {
 					m_codeAssistMgr.prepareAutoCompleteFallback(autoCompleteFallbackOffset);
 					offset = -1; // not needed anymore
 				}
@@ -705,8 +654,7 @@ Module::parseImpl(
 }
 
 bool
-Module::parseFile(const sl::StringRef& fileName)
-{
+Module::parseFile(const sl::StringRef& fileName) {
 	ASSERT(m_compileState < ModuleCompileState_Compiled);
 
 	sl::String filePath = io::getFullFilePath(fileName);
@@ -728,28 +676,25 @@ Module::parseFile(const sl::StringRef& fileName)
 }
 
 bool
-Module::parseImports()
-{
+Module::parseImports() {
 	ASSERT(m_compileState < ModuleCompileState_Compiled);
 
 	bool finalResult = true;
 
-	for (;;)
-	{
+	for (;;) {
 		sl::List<Import> importList;
 		m_importMgr.takeOverImports(&importList);
 		if (importList.isEmpty())
 			break;
 
 		sl::ConstIterator<Import> importIt = importList.getHead();
-		for (; importIt; importIt++)
-		{
+		for (; importIt; importIt++) {
 			bool result = importIt->m_importKind == ImportKind_Source ?
 				parseImpl(
 					importIt->m_lib,
 					importIt->m_filePath,
 					importIt->m_source
-					) :
+				) :
 				parseFile(importIt->m_filePath);
 
 			if (!result)
@@ -763,13 +708,11 @@ Module::parseImports()
 }
 
 bool
-Module::compile()
-{
+Module::compile() {
 	bool result;
 
 	ASSERT(m_compileState < ModuleCompileState_Compiled);
-	if (m_compileState < ModuleCompileState_Parsed)
-	{
+	if (m_compileState < ModuleCompileState_Parsed) {
 		result = parseImports();
 		if (!result)
 			return false;
@@ -783,8 +726,7 @@ Module::compile()
 	if (!result)
 		return false;
 
-	do // creating opaque class might require more items, hence a loop
-	{
+	do { // creating opaque class might require more items, hence a loop
 		result =
 			processRequireSet() &&
 			processCompileArray();
@@ -793,14 +735,12 @@ Module::compile()
 			return false;
 	} while (!m_requireSet.isEmpty());
 
-	if (m_compileErrorCount)
-	{
+	if (m_compileErrorCount) {
 		err::setFormatStringError("%d error(s); compilation failed", m_compileErrorCount);
 		return false;
 	}
 
-	if (hasCodeGen())
-	{
+	if (hasCodeGen()) {
 		createConstructor();
 
 		result = m_variableMgr.createTlsStructType();
@@ -823,12 +763,10 @@ Module::compile()
 }
 
 bool
-Module::optimize(uint_t level)
-{
+Module::optimize(uint_t level) {
 	// optimization requires knowledge of the DataLayout for TargetMachine
 
-	if (!m_llvmExecutionEngine)
-	{
+	if (!m_llvmExecutionEngine) {
 		bool result = createLlvmExecutionEngine();
 		if (!result)
 			return false;
@@ -844,8 +782,7 @@ Module::optimize(uint_t level)
 	// alas, we can't -- the constructor of llvm::Function is private
 
 	sl::Iterator<Function> it = m_functionMgr.m_functionList.getHead();
-	for (; it; it++)
-	{
+	for (; it; it++) {
 		if (!it->hasLlvmFunction())
 			continue;
 
@@ -855,8 +792,7 @@ Module::optimize(uint_t level)
 	}
 
 	size_t count = m_variableMgr.m_staticVariableArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		Variable* variable = m_variableMgr.m_staticVariableArray[i];
 		llvm::GlobalVariable* llvmGlobalVariable = variable->getLlvmGlobalVariable();
 		if (llvmGlobalVariable->isDeclaration())
@@ -887,20 +823,17 @@ Module::optimize(uint_t level)
 }
 
 bool
-Module::jit()
-{
+Module::jit() {
 	bool result;
 
 	ASSERT(m_compileState < ModuleCompileState_Jitted);
-	if (m_compileState < ModuleCompileState_Compiled)
-	{
+	if (m_compileState < ModuleCompileState_Compiled) {
 		result = compile();
 		if (!result)
 			return false;
 	}
 
-	if (!m_llvmExecutionEngine)
-	{
+	if (!m_llvmExecutionEngine) {
 		result = createLlvmExecutionEngine();
 		if (!result)
 			return false;
@@ -918,12 +851,10 @@ Module::jit()
 }
 
 bool
-Module::requireIntrospectionLib()
-{
+Module::requireIntrospectionLib() {
 	ASSERT(!(m_compileFlags & AuxCompileFlag_IntrospectionLib));
 
-	static StdType introspectionTypeTable[] =
-	{
+	static StdType introspectionTypeTable[] = {
 		StdType_ModuleItem,
 		StdType_ModuleItemDecl,
 		StdType_ModuleItemInitializer,
@@ -962,8 +893,7 @@ Module::requireIntrospectionLib()
 		StdType_Unit,
 	};
 
-	for (size_t i = 0; i < countof(introspectionTypeTable); i++)
-	{
+	for (size_t i = 0; i < countof(introspectionTypeTable); i++) {
 		bool result = m_typeMgr.getStdType(introspectionTypeTable[i])->require();
 		if (!result)
 			return false;
@@ -974,19 +904,16 @@ Module::requireIntrospectionLib()
 }
 
 bool
-Module::processRequireSet()
-{
+Module::processRequireSet() {
 	bool result;
 
 	sl::StringHashTableIterator<RequiredItem> requireIt = m_requireSet.getHead();
-	for (; requireIt; requireIt++)
-	{
+	for (; requireIt; requireIt++) {
 		FindModuleItemResult findResult = m_namespaceMgr.getGlobalNamespace()->findItem(requireIt->getKey());
 		if (!findResult.m_result)
 			return false;
 
-		if (!findResult.m_item)
-		{
+		if (!findResult.m_item) {
 			if (!requireIt->m_value.m_isEssential) // not essential
 				continue;
 
@@ -994,27 +921,24 @@ Module::processRequireSet()
 			return false;
 		}
 
-		if (requireIt->m_value.m_itemKind != ModuleItemKind_Undefined)
-		{
-			if (findResult.m_item->getItemKind() != requireIt->m_value.m_itemKind)
-			{
+		if (requireIt->m_value.m_itemKind != ModuleItemKind_Undefined) {
+			if (findResult.m_item->getItemKind() != requireIt->m_value.m_itemKind) {
 				err::setFormatStringError(
 					"required module item '%s' item kind mismatch: '%s'",
 					requireIt->getKey().sz(),
 					getModuleItemKindString(findResult.m_item->getItemKind())
-					);
+				);
 				return false;
 			}
 
 			if (requireIt->m_value.m_itemKind == ModuleItemKind_Type &&
 				requireIt->m_value.m_typeKind != TypeKind_Void &&
-				requireIt->m_value.m_typeKind != ((Type*)findResult.m_item)->getTypeKind())
-			{
+				requireIt->m_value.m_typeKind != ((Type*)findResult.m_item)->getTypeKind()) {
 				err::setFormatStringError(
 					"required type '%s' type mismatch: '%s'",
 					requireIt->getKey().sz(),
 					((Type*)findResult.m_item)->getTypeString().sz()
-					);
+				);
 				return false;
 			}
 		}
@@ -1034,28 +958,24 @@ Module::processRequireSet()
 }
 
 bool
-Module::processCompileArray()
-{
+Module::processCompileArray() {
 	bool result;
 
 	// new items could be added in the process, so we need a loop
 
-	while (!m_compileArray.isEmpty())
-	{
+	while (!m_compileArray.isEmpty()) {
 		sl::Array<Function*> compileArray;
 		sl::takeOver(&compileArray, &m_compileArray);
 
 		size_t count = compileArray.getCount();
-		for (size_t i = 0; i < compileArray.getCount(); i++)
-		{
+		for (size_t i = 0; i < compileArray.getCount(); i++) {
 			Function* function = compileArray[i];
 			result = function->compile();
-			if (!result)
-			{
+			if (!result) {
 				lex::ensureSrcPosError(
 					function->m_parentUnit ? function->m_parentUnit->getFilePath() : m_name,
 					function->m_pos
-					);
+				);
 
 				result = processCompileError(ModuleCompileErrorKind_PostParse);
 				if (!result)
@@ -1067,30 +987,24 @@ Module::processCompileArray()
 			ASSERT(!m_namespaceMgr.getCurrentScope());
 		}
 
-		if (hasCodeGen() && !m_variableMgr.getGlobalVariablePrimeArray().isEmpty())
-		{
+		if (hasCodeGen() && !m_variableMgr.getGlobalVariablePrimeArray().isEmpty()) {
 			Function* function = createGlobalPrimerFunction();
 			m_functionMgr.addGlobalCtorDtor(GlobalCtorDtorKind_VariablePrimer, function);
 		}
 
-		if (!m_variableMgr.getGlobalVariableInitializeArray().isEmpty())
-		{
+		if (!m_variableMgr.getGlobalVariableInitializeArray().isEmpty()) {
 			Function* function = createGlobalInitializerFunction();
-			if (!function)
-			{
+			if (!function) {
 				result = processCompileError(ModuleCompileErrorKind_PostParse);
 				if (!result)
 					return false;
-			}
-			else
-			{
+			} else {
 				m_functionMgr.addGlobalCtorDtor(GlobalCtorDtorKind_VariableInitializer, function);
 			}
 		}
 
 		result = m_typeMgr.requireExternalReturnTypes();
-		if (!result)
-		{
+		if (!result) {
 			result = processCompileError(ModuleCompileErrorKind_PostParse);
 			if (!result)
 				return false;
@@ -1103,8 +1017,7 @@ Module::processCompileArray()
 }
 
 void
-Module::createConstructor()
-{
+Module::createConstructor() {
 	ASSERT(!m_constructor);
 
 	const sl::Array<Variable*>& staticArray = m_variableMgr.getStaticVariableArray();
@@ -1130,8 +1043,7 @@ Module::createConstructor()
 	m_compileFlags = prevFlags;
 
 	size_t count = staticArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		Variable* variable = staticArray[i];
 		if (variable->getStdVariable() != StdVariable_GcSafePointTrigger &&
 			variable->getType()->getTypeKind() != TypeKind_Class &&  // classes are on primerArray anyway
@@ -1152,13 +1064,11 @@ Module::createConstructor()
 		m_llvmIrBuilder.createCall(constructorArray[i], constructorArray[i]->getType(), NULL);
 
 	count = destructorArray.getCount();
-	if (count)
-	{
+	if (count) {
 		Function* addStaticDestructor = m_functionMgr.getStdFunction(StdFunc_AddStaticDestructor);
 		Type* voidPtrType = m_typeMgr.getStdType(StdType_BytePtr);
 
-		for (size_t i = 0; i < count; i++)
-		{
+		for (size_t i = 0; i < count; i++) {
 			Value argValue;
 			m_llvmIrBuilder.createBitCast(destructorArray[i], voidPtrType, &argValue);
 			m_llvmIrBuilder.createCall(addStaticDestructor, addStaticDestructor->getType(), argValue, NULL);
@@ -1169,8 +1079,7 @@ Module::createConstructor()
 }
 
 Function*
-Module::createGlobalPrimerFunction()
-{
+Module::createGlobalPrimerFunction() {
 	FunctionType* type = (FunctionType*)m_typeMgr.getStdType(StdType_SimpleFunction);
 	Function* function = m_functionMgr.createInternalFunction("module.primeGlobals", type);
 	function->m_storageKind = StorageKind_Static;
@@ -1182,8 +1091,7 @@ Module::createGlobalPrimerFunction()
 }
 
 Function*
-Module::createGlobalInitializerFunction()
-{
+Module::createGlobalInitializerFunction() {
 	FunctionType* type = (FunctionType*)m_typeMgr.getStdType(StdType_SimpleFunction);
 	Function* function = m_functionMgr.createInternalFunction("module.initializeGlobals", type);
 	function->m_storageKind = StorageKind_Static;
@@ -1199,8 +1107,7 @@ Module::createGlobalInitializerFunction()
 }
 
 sl::String
-Module::getLlvmIrString()
-{
+Module::getLlvmIrString() {
 	::std::string string;
 	llvm::raw_string_ostream stream(string);
 	m_llvmModule->print(stream, NULL);

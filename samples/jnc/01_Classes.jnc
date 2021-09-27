@@ -15,8 +15,7 @@
 
 //..............................................................................
 
-class C1
-{
+class C1 {
 	// default access mode is public; access can be specified in C++ style...
 
 protected:
@@ -34,8 +33,7 @@ public:
 
 	static construct();
 
-	construct()
-	{
+	construct() {
 		printf("C1.construct()\n");
 	}
 
@@ -44,10 +42,9 @@ public:
 	construct(
 		int x,
 		int y
-		);
+	);
 
-	destruct()
-	{
+	destruct() {
 		printf("C1.destruct()\n");
 	}
 
@@ -60,8 +57,7 @@ public:
 
 // implementation of member methods can be out-of-class (like in C++)
 
-C1.static construct()
-{
+C1.static construct() {
 	printf("C1.static construct()\n");
 
 	for (int i = 0; i < countof(m_table); i++)
@@ -71,15 +67,13 @@ C1.static construct()
 C1.construct(
 	int x,
 	int y
-	)
-{
+) {
 	printf("C1.construct(%d, %d)\n", x, y);
 	m_x = x;
 	m_y = y;
 }
 
-C1.operator += (int d)
-{
+C1.operator += (int d) {
 	printf("C1.operator += (%d)\n", d);
 
 	m_x += d;
@@ -90,8 +84,7 @@ C1.operator += (int d)
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	// Jancy does not distinguish between reference-types and value-types.

@@ -16,8 +16,7 @@ namespace jnc {
 
 //..............................................................................
 
-enum NamespaceKind
-{
+enum NamespaceKind {
 	Undefined,
 	Global,
 	Scope,
@@ -31,8 +30,7 @@ enum NamespaceKind
 
 //..............................................................................
 
-opaque class Namespace: ModuleItemDecl
-{
+opaque class Namespace: ModuleItemDecl {
 	NamespaceKind const property m_namespaceKind;
 	size_t const property m_itemCount;
 	ModuleItem* const property m_itemArray(size_t index);
@@ -46,8 +44,7 @@ opaque class Namespace: ModuleItemDecl
 
 opaque class GlobalNamespace:
 	ModuleItem,
-	Namespace
-{
+	Namespace {
 
 	construct(intptr p);
 }

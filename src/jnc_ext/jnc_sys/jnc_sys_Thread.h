@@ -21,15 +21,12 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(Thread)
 
 //..............................................................................
 
-class Thread: public IfaceHdr
-{
+class Thread: public IfaceHdr {
 protected:
-	class ThreadImpl: public axl::sys::ThreadImpl<ThreadImpl>
-	{
+	class ThreadImpl: public axl::sys::ThreadImpl<ThreadImpl> {
 	public:
 		void
-		threadFunc()
-		{
+		threadFunc() {
 			containerof(this, Thread, m_thread)->threadFunc();
 		}
 	};
@@ -43,14 +40,12 @@ protected:
 	ThreadImpl m_thread;
 
 public:
-	Thread()
-	{
+	Thread() {
 		m_runtime = getCurrentThreadRuntime();
 		ASSERT(m_runtime);
 	}
 
-	~Thread()
-	{
+	~Thread() {
 		waitAndClose(-1);
 	}
 
@@ -68,15 +63,13 @@ public:
 
 	bool
 	JNC_CDECL
-	terminate()
-	{
+	terminate() {
 		return m_thread.terminate();
 	}
 
 protected:
 	void
-	threadFunc()
-	{
+	threadFunc() {
 		callVoidFunctionPtr(m_runtime, m_threadFuncPtr);
 	}
 };

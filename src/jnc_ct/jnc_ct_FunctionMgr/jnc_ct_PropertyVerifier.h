@@ -19,15 +19,13 @@ namespace ct {
 
 //..............................................................................
 
-class PropertyVerifier
-{
+class PropertyVerifier {
 protected:
 	sl::String m_indexArgSignature; // all accessors must have matching index arg signature
 
 public:
 	bool
-	checkGetter(FunctionType* functionType)
-	{
+	checkGetter(FunctionType* functionType) {
 		return checkIndexSignature(FunctionKind_Getter, functionType);
 	}
 
@@ -39,14 +37,14 @@ protected:
 	checkIndexSignature(
 		FunctionKind functionKind,
 		FunctionType* functionType
-		);
+	);
 
 	static
 	sl::String
 	createIndexArgSignature(
 		FunctionKind functionKind,
 		FunctionType* functionType
-		);
+	);
 };
 
 //..............................................................................

@@ -18,11 +18,9 @@ namespace ct {
 
 //..............................................................................
 
-class BinOp_Assign: public BinaryOperator
-{
+class BinOp_Assign: public BinaryOperator {
 public:
-	BinOp_Assign()
-	{
+	BinOp_Assign() {
 		m_opKind = BinOpKind_Assign;
 		m_opFlags1 = OpFlag_KeepRef;
 		m_opFlags2 = OpFlag_KeepEnum | OpFlag_KeepBool;
@@ -34,16 +32,14 @@ public:
 		const Value& opValue1,
 		const Value& opValue2,
 		Value* resultValue
-		);
+	);
 };
 
 //..............................................................................
 
-class BinOp_OpAssign: public BinaryOperator
-{
+class BinOp_OpAssign: public BinaryOperator {
 public:
-	BinOp_OpAssign()
-	{
+	BinOp_OpAssign() {
 		m_opFlags1 = OpFlag_KeepRef;
 		m_opFlags2 = OpFlag_KeepEnum;
 	}
@@ -54,16 +50,14 @@ public:
 		const Value& opValue1,
 		const Value& opValue2,
 		Value* resultValue
-		);
+	);
 };
 
 //..............................................................................
 
-class BinOp_RefAssign: public BinaryOperator
-{
+class BinOp_RefAssign: public BinaryOperator {
 public:
-	BinOp_RefAssign()
-	{
+	BinOp_RefAssign() {
 		m_opKind = BinOpKind_RefAssign;
 		m_opFlags1 = OpFlag_KeepRef;
 	}
@@ -74,8 +68,7 @@ public:
 		const Value& opValue1,
 		const Value& opValue2,
 		Value* resultValue
-		)
-	{
+	) {
 		err::setFormatStringError("'%s' has no overloaded ':=' operator", opValue1.getType ()->getTypeString().sz());
 		return false;
 	}

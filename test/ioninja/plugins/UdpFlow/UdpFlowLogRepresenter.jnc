@@ -16,10 +16,8 @@ bool representUdpFlowLog(
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
-	switch (recordCode)
-	{
+) {
+	switch (recordCode) {
 	case UdpFlowLogRecordCode.Packet:
 		UdpFlowPacketParams const* params = (UdpFlowPacketParams const*) p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Packet;
@@ -29,7 +27,7 @@ bool representUdpFlowLog(
 			params.m_srcAddress.getString(),
 			params.m_dstAddress.getString(),
 			params.m_size
-			);
+		);
 
 		if (params.m_isFragmented)
 			text = $"$text \e[31mfragmented";

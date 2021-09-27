@@ -19,11 +19,9 @@ namespace ct {
 
 //..............................................................................
 
-class ExtensionLibMgr
-{
+class ExtensionLibMgr {
 protected:
-	struct SourceFile: sl::ListLink
-	{
+	struct SourceFile: sl::ListLink {
 		ExtensionLib* m_lib;
 		sl::StringRef m_fileName;
 		sl::StringRef m_contents;
@@ -31,16 +29,14 @@ protected:
 		size_t m_zipIndex;
 	};
 
-	struct DynamicLibEntry: sl::ListLink
-	{
+	struct DynamicLibEntry: sl::ListLink {
 		ExtensionLib* m_lib;
 		zip::ZipReader m_zipReader;
 		sl::String m_dynamicLibFilePath;
 		sys::DynamicLib m_dynamicLib;
 	};
 
-	struct ItemCacheEntry: sl::ListLink
-	{
+	struct ItemCacheEntry: sl::ListLink {
 		sl::Guid m_libGuid;
 		sl::Array<ct::ModuleItem*> m_itemArray;
 	};
@@ -64,20 +60,17 @@ public:
 public:
 	ExtensionLibMgr();
 
-	~ExtensionLibMgr()
-	{
+	~ExtensionLibMgr() {
 		clear();
 	}
 
 	ct::Module*
-	getModule()
-	{
+	getModule() {
 		return m_module;
 	}
 
 	const sl::StringHashTable<SourceFile*>&
-	getSourceFileMap()
-	{
+	getSourceFileMap() {
 		return m_sourceFileMap;
 	}
 
@@ -107,11 +100,10 @@ public:
 		const sl::StringRef& fileName,
 		ExtensionLib** lib,
 		sl::StringRef* contents
-		);
+	);
 
 	const OpaqueClassTypeInfo*
-	findOpaqueClassTypeInfo(const sl::StringRef& qualifiedName)
-	{
+	findOpaqueClassTypeInfo(const sl::StringRef& qualifiedName) {
 		sl::StringHashTableIterator<const OpaqueClassTypeInfo*> it = m_opaqueClassTypeInfoMap.find(qualifiedName);
 		return it ? it->m_value : NULL;
 	}
@@ -121,21 +113,20 @@ public:
 		const sl::StringRef& name,
 		const sl::Guid& libGuid,
 		size_t cacheSlot
-		);
+	);
 
 	void
 	addSource(
 		ExtensionLib* lib,
 		const sl::StringRef& fileName,
 		const sl::StringRef& contents
-		);
+	);
 
 	void
 	addOpaqueClassTypeInfo(
 		const sl::StringRef& qualifiedName,
 		const OpaqueClassTypeInfo* info
-		)
-	{
+	) {
 		m_opaqueClassTypeInfoMap[qualifiedName] = info;
 	}
 };

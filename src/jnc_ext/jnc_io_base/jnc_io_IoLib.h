@@ -16,8 +16,7 @@ namespace io {
 
 //..............................................................................
 
-enum IoLibCapability
-{
+enum IoLibCapability {
 	IoLibCapability_File             = 0x0001,
 	IoLibCapability_FileStream       = 0x0002,
 	IoLibCapability_Serial           = 0x0004,
@@ -37,15 +36,13 @@ failWithIoLibCapabilityError(IoLibCapability capability);
 
 inline
 bool
-requireIoLibCapability(IoLibCapability capability)
-{
+requireIoLibCapability(IoLibCapability capability) {
 	return (g_ioLibCapabilities & capability) || failWithIoLibCapabilityError(capability);
 }
 
 //..............................................................................
 
-enum IoLibCacheSlot
-{
+enum IoLibCacheSlot {
 	IoLibCacheSlot_Serial,
 	IoLibCacheSlot_SerialPortDesc,
 	IoLibCacheSlot_Address_ip4,
@@ -69,7 +66,7 @@ enum IoLibCacheSlot
 JNC_DEFINE_GUID(
 	g_ioLibGuid,
 	0x362ff8e2, 0x1bdd, 0x4319, 0xaf, 0x8f, 0xad, 0x86, 0xc3, 0x91, 0x7a, 0xc5
-	);
+);
 
 //..............................................................................
 

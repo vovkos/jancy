@@ -9,16 +9,13 @@
 //
 //..............................................................................
 
-bool errorcode bar()
-{
+bool errorcode bar() {
 	printf("bar ()\n");
 	return false;
 }
 
-void foo()
-{
-	try
-	{
+void foo() {
+	try {
 		bar();
 		bar();
 		bar();
@@ -28,8 +25,7 @@ void foo()
 	}
 }
 
-int main()
-{
+int main() {
 	printf("main\n");
 
 	foo();

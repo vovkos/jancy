@@ -11,8 +11,7 @@
 
 start
 reactor_body
-	local
-	{
+	local {
 		SwitchStmt $stmt;
 	}
 	:	'{'
@@ -28,12 +27,10 @@ reactor_body
 	;
 
 reactor_stmt<SwitchStmt* $stmt>
-	enter
-	{
+	enter {
 		return m_module->m_controlFlowMgr.switchStmt_Case($stmt, m_reactionIdx, m_currentToken.m_pos, 0);
 	}
-	leave
-	{
+	leave {
 		m_reactionIdx++;
 		return m_module->m_controlFlowMgr.breakJump(1);
 	}
@@ -43,12 +40,10 @@ reactor_stmt<SwitchStmt* $stmt>
 	;
 
 reactor_onevent_stmt
-	local
-	{
+	local {
 		Declarator $declarator;
 	}
-	leave
-	{
+	leave {
 		postDeclarator(&$declarator);
 	}
 	:	TokenKind_OnEvent
@@ -63,22 +58,18 @@ reactor_onevent_stmt
 			}
 	;
 
-struct
-{
+struct {
 	sl::BoxList<Value> m_valueList;
 }
 reactor_event_name
-	local
-	{
+	local {
 		sl::BoxList<Token> $tokenList;
 	}
-	enter
-	{
+	enter {
 		ASSERT(m_mode == Mode_Reaction);
 		m_mode = Mode_Compile; // don't add implicit bindings to bindable properties inside 'onevent'
  	}
-	leave
-	{
+	leave {
 		ASSERT(m_mode == Mode_Compile);
 		m_mode = Mode_Reaction; // restore
 	}
@@ -114,8 +105,7 @@ reactor_body_0
 	;
 
 reactor_stmt_0
-	leave
-	{
+	leave {
 		m_reactionIdx++;
 	}
 	:	local_item_declaration

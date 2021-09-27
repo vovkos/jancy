@@ -24,7 +24,7 @@ JNC_DEFINE_CLASS_TYPE(
 	"std.Buffer",
 	g_stdLibGuid,
 	StdLibCacheSlot_Buffer
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Buffer)
 	JNC_MAP_FUNCTION("setSize", &Buffer::setSize)
@@ -38,19 +38,15 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 bool
 JNC_CDECL
-Buffer::setSize(size_t size)
-{
+Buffer::setSize(size_t size) {
 	if (size == m_size)
 		return true;
 
-	if (size > m_maxSize)
-	{
+	if (size > m_maxSize) {
 		bool result = reserve(size);
 		if (!result)
 			return false;
-	}
-	else if (size > m_size)
-	{
+	} else if (size > m_size) {
 		memset((char*)m_ptr.m_p + m_size, 0, size - m_size);
 	}
 
@@ -60,8 +56,7 @@ Buffer::setSize(size_t size)
 
 bool
 JNC_CDECL
-Buffer::reserve(size_t size)
-{
+Buffer::reserve(size_t size) {
 	if (size <= m_maxSize)
 		return true;
 
@@ -83,8 +78,7 @@ JNC_CDECL
 Buffer::copy(
 	DataPtr ptr,
 	size_t size
-	)
-{
+) {
 	bool result = reserve(size);
 	if (!result)
 		return -1;
@@ -100,8 +94,7 @@ Buffer::insert(
 	size_t offset,
 	DataPtr ptr,
 	size_t size
-	)
-{
+) {
 	size_t newSize = m_size + size;
 	bool result = reserve(newSize);
 	if (!result)
@@ -125,8 +118,7 @@ JNC_CDECL
 Buffer::remove(
 	size_t offset,
 	size_t size
-	)
-{
+) {
 	if (offset > m_size)
 		offset = m_size;
 

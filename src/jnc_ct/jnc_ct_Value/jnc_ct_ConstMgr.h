@@ -21,30 +21,26 @@ namespace ct {
 
 class Const:
 	public ModuleItem,
-	public ModuleItemDecl
-{
+	public ModuleItemDecl {
 	friend class ConstMgr;
 
 protected:
 	Value m_value;
 
 public:
-	Const()
-	{
+	Const() {
 		m_itemKind = ModuleItemKind_Const;
 	}
 
 	const Value&
-	getValue()
-	{
+	getValue() {
 		return m_value;
 	}
 };
 
 //..............................................................................
 
-class ConstMgr
-{
+class ConstMgr {
 	friend class Module;
 
 protected:
@@ -58,8 +54,7 @@ public:
 	ConstMgr();
 
 	Module*
-	getModule()
-	{
+	getModule() {
 		return m_module;
 	}
 
@@ -71,11 +66,10 @@ public:
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
 		const Value& value
-		);
+	);
 
 	const Value&
-	saveValue(const Value& value)
-	{
+	saveValue(const Value& value) {
 		sl::BoxIterator<Value> it = m_valueList.insertTail(value);
 		return *it;
 	}
@@ -87,7 +81,7 @@ public:
 	createConstDataPtrValidator(
 		const void* p,
 		Type* type
-		);
+	);
 };
 
 //..............................................................................

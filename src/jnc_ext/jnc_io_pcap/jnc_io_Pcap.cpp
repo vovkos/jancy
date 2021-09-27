@@ -30,7 +30,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	PcapLibCacheSlot_Pcap,
 	Pcap,
 	&Pcap::markOpaqueGcRoots
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Pcap)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<Pcap>)
@@ -64,7 +64,7 @@ JNC_DEFINE_TYPE(
 	"io.PcapAddress",
 	g_pcapLibGuid,
 	PcapLibCacheSlot_PcapAddress
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(PcapAddress)
 JNC_END_TYPE_FUNCTION_MAP()
@@ -76,23 +76,21 @@ JNC_DEFINE_TYPE(
 	"io.PcapDeviceDesc",
 	g_pcapLibGuid,
 	PcapLibCacheSlot_PcapDeviceDesc
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(PcapDeviceDesc)
 JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
-Pcap::Pcap()
-{
+Pcap::Pcap() {
 	m_readBufferSize = Def_ReadBufferSize;
 	m_readBuffer.setBufferSize(Def_ReadBufferSize);
 }
 
 bool
 JNC_CDECL
-Pcap::openDevice(DataPtr deviceNamePtr)
-{
+Pcap::openDevice(DataPtr deviceNamePtr) {
 	close();
 
 	return
@@ -112,8 +110,7 @@ Pcap::openLive(
 	uint_t snapshotSize,
 	bool isPromiscious,
 	uint_t readTimeout
-	)
-{
+) {
 	close();
 
 	bool result =
@@ -123,12 +120,12 @@ Pcap::openLive(
 			snapshotSize,
 			isPromiscious,
 			readTimeout
-			) &&
+		) &&
 		setFilter(
 			filterPtr,
 			true,
 			PCAP_NETMASK_UNKNOWN
-			);
+		);
 
 	if (!result)
 		return false;
@@ -143,8 +140,7 @@ JNC_CDECL
 Pcap::openFile(
 	DataPtr fileNamePtr,
 	DataPtr filterPtr
-	)
-{
+) {
 	close();
 
 	return
@@ -155,8 +151,7 @@ Pcap::openFile(
 }
 
 bool
-Pcap::finishOpen(uint_t ioThreadFlags)
-{
+Pcap::finishOpen(uint_t ioThreadFlags) {
 	AsyncIoDevice::open();
 
 	m_options |= AsyncIoDeviceOption_KeepReadWriteBlockSize;
@@ -167,8 +162,7 @@ Pcap::finishOpen(uint_t ioThreadFlags)
 
 void
 JNC_CDECL
-Pcap::close()
-{
+Pcap::close() {
 	if (!m_pcap.isOpen())
 		return;
 
@@ -203,8 +197,7 @@ Pcap::close()
 
 void
 JNC_CDECL
-Pcap::setPromiscious(bool isPromiscious)
-{
+Pcap::setPromiscious(bool isPromiscious) {
 	bool result = m_pcap.setPromiscious(isPromiscious);
 	if (!result)
 		dynamicThrow();
@@ -214,8 +207,7 @@ Pcap::setPromiscious(bool isPromiscious)
 
 void
 JNC_CDECL
-Pcap::setReadTimeout(uint_t timeout)
-{
+Pcap::setReadTimeout(uint_t timeout) {
 	bool result = m_pcap.setTimeout(timeout);
 	if (!result)
 		dynamicThrow();
@@ -225,8 +217,7 @@ Pcap::setReadTimeout(uint_t timeout)
 
 void
 JNC_CDECL
-Pcap::setSnapshotSize(size_t size)
-{
+Pcap::setSnapshotSize(size_t size) {
 	bool result = m_pcap.setSnapshotSize(size);
 	if (!result)
 		dynamicThrow();
@@ -234,8 +225,7 @@ Pcap::setSnapshotSize(size_t size)
 
 void
 JNC_CDECL
-Pcap::setKernelBufferSize(size_t size)
-{
+Pcap::setKernelBufferSize(size_t size) {
 	bool result = m_pcap.setBufferSize(size);
 	if (!result)
 		dynamicThrow();
@@ -245,8 +235,7 @@ Pcap::setKernelBufferSize(size_t size)
 
 bool
 JNC_CDECL
-Pcap::activate(DataPtr filterPtr)
-{
+Pcap::activate(DataPtr filterPtr) {
 	bool result =
 		m_pcap.activate() &&
 		setFilter(filterPtr, true, PCAP_NETMASK_UNKNOWN);
@@ -264,8 +253,7 @@ Pcap::setFilter(
 	DataPtr filterPtr,
 	bool isOptimized,
 	uint32_t netMask
-	)
-{
+) {
 	const char* filter = (const char*) filterPtr.m_p;
 
 	bool result = m_pcap.setFilter(filter, isOptimized, netMask);
@@ -282,16 +270,12 @@ Pcap::read(
 	DataPtr dataPtr,
 	size_t size,
 	DataPtr timestampPtr
-	)
-{
+) {
 	size_t result;
 
-	if (!timestampPtr.m_p)
-	{
+	if (!timestampPtr.m_p) {
 		result = bufferedRead(dataPtr, size);
-	}
-	else
-	{
+	} else {
 		char buffer[256];
 		sl::Array<char> params(rc::BufKind_Stack, buffer, sizeof(buffer));
 		result = bufferedRead(dataPtr, size, &params);
@@ -308,10 +292,8 @@ JNC_CDECL
 Pcap::write(
 	DataPtr ptr,
 	size_t size
-	)
-{
-	if (!m_isOpen)
-	{
+) {
+	if (!m_isOpen) {
 		jnc::setError(err::Error(err::SystemErrorCode_InvalidDeviceState));
 		return -1;
 	}
@@ -320,8 +302,7 @@ Pcap::write(
 }
 
 void
-Pcap::ioThreadFunc()
-{
+Pcap::ioThreadFunc() {
 	ASSERT(m_pcap.isOpen());
 
 #if (_JNC_OS_POSIX)
@@ -330,13 +311,11 @@ Pcap::ioThreadFunc()
 
 	m_lock.lock();
 
-	for (;;)
-	{
+	for (;;) {
 		// check for IoThreadFlag_Closing now; we might have
 		// called ::pthread_kill before setting the TLS slot
 
-		if (m_ioThreadFlags & IoThreadFlag_Closing)
-		{
+		if (m_ioThreadFlags & IoThreadFlag_Closing) {
 			m_lock.unlock();
 			return;
 		}
@@ -356,13 +335,11 @@ Pcap::ioThreadFunc()
 	sl::Array<char> readBuffer;
 	readBuffer.setCount(snapshotSize);
 
-	for (;;)
-	{
+	for (;;) {
 		uint64_t timestamp;
 
 		size_t readResult = m_pcap.read(readBuffer, snapshotSize, &timestamp);
-		if ((intptr_t)readResult < 0)
-		{
+		if ((intptr_t)readResult < 0) {
 			readResult == PCAP_ERROR_BREAK ?
 				setEvents(PcapEvent_Eof) :
 				setIoErrorEvent(m_pcap.getLastErrorDescription());
@@ -371,26 +348,22 @@ Pcap::ioThreadFunc()
 		}
 
 		m_lock.lock();
-		if (m_ioThreadFlags & IoThreadFlag_Closing)
-		{
+		if (m_ioThreadFlags & IoThreadFlag_Closing) {
 			m_lock.unlock();
 			break;
 		}
 
-		if (readResult == 0) // timeout
-		{
+		if (readResult == 0) { // timeout
 			m_lock.unlock();
 			continue;
 		}
 
-		while (m_readBuffer.isFull())
-		{
+		while (m_readBuffer.isFull()) {
 			m_lock.unlock();
 			sleepIoThread();
 			m_lock.lock();
 
-			if (m_ioThreadFlags & IoThreadFlag_Closing)
-			{
+			if (m_ioThreadFlags & IoThreadFlag_Closing) {
 				m_lock.unlock();
 				return;
 			}
@@ -414,8 +387,7 @@ Pcap::ioThreadFunc()
 
 JNC_INLINE
 uint32_t
-getIpFromSockAddr(const sockaddr* sockAddr)
-{
+getIpFromSockAddr(const sockaddr* sockAddr) {
 	return sockAddr && sockAddr->sa_family == AF_INET ?
 #if (_JNC_OS_WIN)
 		((const sockaddr_in*) sockAddr)->sin_addr.S_un.S_addr :
@@ -430,8 +402,7 @@ setupPcapAddress(
 	Runtime* runtime,
 	PcapAddress* address,
 	const pcap_addr* ifaceAddr
-	)
-{
+) {
 	for (; ifaceAddr; ifaceAddr = ifaceAddr->next)
 		if (ifaceAddr->addr && ifaceAddr->addr->sa_family == AF_INET)
 			break;
@@ -447,8 +418,7 @@ setupPcapAddress(
 	address->m_broadcast = getIpFromSockAddr(ifaceAddr->broadaddr);
 
 	PcapAddress* prevAddress = address;
-	for (ifaceAddr = ifaceAddr->next; ifaceAddr; ifaceAddr = ifaceAddr->next)
-	{
+	for (ifaceAddr = ifaceAddr->next; ifaceAddr; ifaceAddr = ifaceAddr->next) {
 		if (!ifaceAddr->addr || ifaceAddr->addr->sa_family != AF_INET)
 			continue;
 
@@ -464,16 +434,14 @@ setupPcapAddress(
 }
 
 DataPtr
-createPcapDeviceDescList(DataPtr countPtr)
-{
+createPcapDeviceDescList(DataPtr countPtr) {
 	if (countPtr.m_p)
 		*(size_t*)countPtr.m_p = 0;
 
 	pcap_if* ifaceList = NULL;
 	char errorBuffer[PCAP_ERRBUF_SIZE] = { 0 };
 	int result = pcap_findalldevs(&ifaceList, errorBuffer);
-	if (result == -1)
-	{
+	if (result == -1) {
 		err::setError(errorBuffer);
 		return g_nullDataPtr;
 	}
@@ -499,8 +467,7 @@ createPcapDeviceDescList(DataPtr countPtr)
 	DataPtr resultPtr = devicePtr;
 
 	PcapDeviceDesc* prevDevice = device;
-	for (iface = iface->next; iface; iface = iface->next, count++)
-	{
+	for (iface = iface->next; iface; iface = iface->next, count++) {
 		devicePtr = gcHeap->allocateData(deviceType);
 		device = (PcapDeviceDesc*)devicePtr.m_p;
 		device->m_namePtr = strDup(iface->name);

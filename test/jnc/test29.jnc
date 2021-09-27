@@ -9,33 +9,27 @@
 //
 //..............................................................................
 
-class C1
-{
-	static int m_table[] =
-	{
+class C1 {
+	static int m_table[] = {
 		10,
 		20,
 		30,
 	}
 
-	static construct()
-	{
+	static construct() {
 		printf("C1.static construct ()\n");
 	}
 
-	construct()
-	{
+	construct() {
 		printf("C1.construct ()\n");
 	}
 
-	void foo()
-	{
+	void foo() {
 		printf("m_table [0] = %d\n", m_table [0]);
 	}
 }
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	C1 c;

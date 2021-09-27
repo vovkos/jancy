@@ -9,22 +9,19 @@
 //
 //..............................................................................
 
-enum State
-{
+enum State {
 	Closed,
 	Opened,
 	Bridged = Opened + 1
 }
 
-bitflag enum Flags
-{
+bitflag enum Flags {
 	ReadOnly,
 	Exclusive,
 	All = ReadOnly | Exclusive
 }
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	printf("State.Bridged = %d\n", State.Bridged);

@@ -1,11 +1,8 @@
-class C
-{
-	struct S1
-	{
+class C {
+	struct S1 {
 	};
 
-	struct S2
-	{
+	struct S2 {
 	};
 
 	S1 foo();
@@ -13,23 +10,18 @@ class C
 	S1 baz(S1 a, S2 b);
 }
 
-void C.bar(S1 a)
-{
-}
+void C.bar(S1 a) {}
 
-S1 C.foo()
-{
+S1 C.foo() {
 	S1 s;
 	return s;
 }
 
-S1 C.baz(S1 a, S2 b)
-{
+S1 C.baz(S1 a, S2 b) {
 	S1 s;
 	return s;
 }
 
-int main()
-{
+int main() {
 	return 0;
 }

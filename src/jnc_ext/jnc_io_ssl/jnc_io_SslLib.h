@@ -22,8 +22,7 @@ AXL_SELECT_ANY bool g_sslCapability = true;
 
 inline
 bool
-requireSslCapability()
-{
+requireSslCapability() {
 	return g_sslCapability || jnc::failWithCapabilityError("org.jancy.io.ssl");
 }
 
@@ -33,10 +32,9 @@ requireSslCapability()
 JNC_DEFINE_GUID(
 	g_sslLibGuid,
 	0x275366fe, 0xea5d, 0x48c9, 0x94, 0x14, 0x64, 0xe, 0x1d, 0x43, 0x33, 0x9b
-	);
+);
 
-enum SslLibCacheSlot
-{
+enum SslLibCacheSlot {
 	SslLibCacheSlot_SslCertNameEntry,
 	SslLibCacheSlot_SslCertName,
 	SslLibCacheSlot_SslCipher,

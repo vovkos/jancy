@@ -14,12 +14,10 @@ import "io_SocketAddress.jnc"
 
 //..............................................................................
 
-struct Foo
-{
+struct Foo {
 	int m_foo;
 
-	char const* foo()
-	{
+	char const* foo() {
 		printf("+Foo.m_foo = %d\n", m_foo);
 		jnc.collectGarbage(); // <-- Foo was collected due to incorrect gc grame map
 		printf("-Foo.m_foo = %d\n", m_foo);
@@ -27,8 +25,7 @@ struct Foo
 	}
 }
 
-void foo()
-{
+void foo() {
 	Foo foo;
 	foo.m_foo = 137;
 
@@ -45,22 +42,19 @@ void foo()
 
 io.Address_ip4 g_address = { 0x7f000001 }
 
-void bar()
-{
+void bar() {
 	io.SocketAddress address;
 	address.m_family = io.AddressFamily.Ip4;
 	address.m_ip4.m_address = g_address;
 	address.m_ip4.m_port = 137;
 
-	for (int i = 0; i <= 255; i++)
-	{
+	for (int i = 0; i <= 255; i++) {
 		address.m_ip4.m_address.m_i8[3] = i;
 		printf($"probing $(address.getString ())...\n");
 	}
 }
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	foo();

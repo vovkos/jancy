@@ -23,8 +23,7 @@ namespace io {
 
 //..............................................................................
 
-opaque class WebSocketHandshakeHeaders
-{
+opaque class WebSocketHandshakeHeaders {
 	size_t readonly m_nameCount;
 	char const* const property m_name(size_t i);
 	char const* const property m_value(size_t i);
@@ -33,16 +32,14 @@ opaque class WebSocketHandshakeHeaders
 	construct();
 	destruct();
 
-	char const* get(char const* name) const
-	{
+	char const* get(char const* name) const {
 		return findValue(name);
 	}
 
 	size_t set(
 		char const* name,
 		char const* value
-		)
-	{
+	) {
 		add(name, value);
 	}
 
@@ -52,25 +49,24 @@ opaque class WebSocketHandshakeHeaders
 	char const* getValue(
 		size_t nameIdx,
 		size_t valueIdx
-		) const;
+	) const;
 
 	void clear();
 
 	size_t add(
 		char const* name,
 		char const* value
-		); // returns name index
+	); // returns name index
 
 	char const* format(
 		char const* delimiter = ": ",
 		char const* eol = "\r\n"
-		) const;
+	) const;
 }
 
 //..............................................................................
 
-opaque class WebSocketHandshake
-{
+opaque class WebSocketHandshake {
 	uint_t readonly m_httpVersion;
 	char const* const property m_resource;     // request only
 	uint_t readonly m_statusCode;              // response only

@@ -18,8 +18,7 @@ namespace jnc {
 //..............................................................................
 
 CodeAssistThread::CodeAssistThread(QObject* parent):
-	QThread(parent)
-{
+	QThread(parent) {
 	m_codeAssistKind = CodeAssistKind_Undefined;
 
 	rc::Ptr<AutoModule> autoModule = AXL_RC_NEW(rc::Box<AutoModule>);
@@ -33,8 +32,7 @@ CodeAssistThread::request(
 	const rc::Ptr<Module>& cacheModule,
 	int position,
 	const QString& source
-	)
-{
+) {
 	QByteArray sourceUtf8 = source.toUtf8();
 	size_t offset = source.left(position).toUtf8().count();
 	request(kind, cacheModule, offset, sl::StringRef(sourceUtf8.data(), sourceUtf8.size()));
@@ -46,8 +44,7 @@ CodeAssistThread::request(
 	const rc::Ptr<Module>& cacheModule,
 	size_t offset,
 	const sl::StringRef& source
-	)
-{
+) {
 	m_codeAssistKind = kind;
 	m_cacheModule = cacheModule;
 	m_offset = offset;
@@ -57,19 +54,17 @@ CodeAssistThread::request(
 }
 
 void
-CodeAssistThread::cancel()
-{
+CodeAssistThread::cancel() {
 	TRACE("CodeAssistThread::cancel -- not yet supported\n");
 }
 
 void
-CodeAssistThread::run()
-{
+CodeAssistThread::run() {
 	m_module->initialize(
 		"code-assist-module",
 		ModuleCompileFlag_DisableCodeGen |
 		ModuleCompileFlag_IgnoreOpaqueClassTypeInfo
-		);
+	);
 
 	m_module->setCompileErrorHandler(compileErrorHandler, this);
 	m_module->addStaticLib(jnc::StdLib_getLib());
@@ -89,7 +84,7 @@ CodeAssistThread::run()
 		m_offset,
 		m_source.cp(),
 		m_source.getLength()
-		);
+	);
 
 	emit ready();
 }
@@ -98,8 +93,7 @@ bool_t
 CodeAssistThread::compileErrorHandler(
 	void* context,
 	jnc::ModuleCompileErrorKind errorKind
-	)
-{
+) {
 	TRACE("CodeAssistThread::compileErrorHandler: %s\n", jnc::getLastErrorDescription_v());
 	return true;
 }

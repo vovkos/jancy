@@ -30,8 +30,7 @@ size_t
 printToOutput(
 	const void* p,
 	size_t length
-	)
-{
+) {
 	fwrite(p, length, 1, stdout);
 	return (int)getMainWindow()->writeOutputDirect(QString::fromUtf8((const char*) p, length));
 }
@@ -41,8 +40,7 @@ printToOutput(
 MainWindow* g_mainWindow = NULL;
 
 MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
-	: QMainWindow(parent, flags)
-{
+	: QMainWindow(parent, flags) {
 	ASSERT(!g_mainWindow);
 	g_mainWindow = this;
 
@@ -80,7 +78,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 		this, SIGNAL(outputSignal()),
 		this, SLOT(outputSlot()),
 		Qt::QueuedConnection
-		);
+	);
 
 	jnc::StdLib_setStdIo(NULL, printToOutput, printToOutput);
 }
@@ -88,15 +86,13 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 bool_t MainWindow::compileErrorHandler(
 	void* context,
 	jnc::ModuleCompileErrorKind errorKind
-	)
-{
+) {
 	MainWindow* self = (MainWindow*)context;
 	self->writeOutput("%s\n", jnc::getLastErrorDescription_v());
 	return true;
 }
 
-void MainWindow::closeEvent(QCloseEvent* e)
-{
+void MainWindow::closeEvent(QCloseEvent* e) {
 	writeSettings();
 	m_mdiArea->closeAllSubWindows();
 
@@ -106,23 +102,20 @@ void MainWindow::closeEvent(QCloseEvent* e)
 		e->accept();
 }
 
-void MainWindow::newFile()
-{
+void MainWindow::newFile() {
 	MdiChild* child = createMdiChild();
 	child->newFile();
 	child->showMaximized();
 }
 
-void MainWindow::openFile(QString filePath)
-{
-	if (filePath.isEmpty())
-	{
+void MainWindow::openFile(QString filePath) {
+	if (filePath.isEmpty()) {
 		filePath = QFileDialog::getOpenFileName(
 			this,
 			"Open File",
 			m_lastDir,
 			"Jancy Files (*.jnc);;All Files (*.*)"
-			);
+		);
 	}
 
 	if (filePath.isEmpty())
@@ -131,41 +124,32 @@ void MainWindow::openFile(QString filePath)
 	m_lastDir = QFileInfo(filePath).dir().absolutePath();
 
 	QMdiSubWindow* subWindow = findMdiSubWindow(filePath);
-	if (subWindow)
-	{
+	if (subWindow) {
 		m_mdiArea->setActiveSubWindow(subWindow);
-	}
-	else
-	{
+	} else {
 		MdiChild* child = createMdiChild();
-		if (child->loadFile(filePath))
-		{
+		if (child->loadFile(filePath)) {
 			writeStatus("File loaded", 2000);
 			child->showMaximized();
-		}
-		else
-		{
+		} else {
 			child->close();
 		}
 	}
 }
 
-void MainWindow::saveFile()
-{
+void MainWindow::saveFile() {
 	 if (MdiChild* mdiChild = activeMdiChild())
 		 if (mdiChild->save())
 			 writeStatus("File saved", 2000);
 }
 
-void MainWindow::saveAs()
-{
+void MainWindow::saveAs() {
 	if (MdiChild* mdiChild = activeMdiChild())
 		 if (mdiChild->saveAs())
 			 writeStatus("File saved", 2000);
 }
 
-void MainWindow::createActions()
-{
+void MainWindow::createActions() {
 	m_newFileAction = new QAction(QIcon(":/Images/New"), "&New", this);
 	m_newFileAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_N));
 	QObject::connect(m_newFileAction, SIGNAL(triggered()), this, SLOT(newFile()));
@@ -243,8 +227,7 @@ void MainWindow::createActions()
 	QObject::connect(m_runAction, SIGNAL(triggered()), this, SLOT(run()));
 }
 
-void MainWindow::createMenu()
-{
+void MainWindow::createMenu() {
 	m_fileMenu = menuBar()->addMenu("&File");
 	m_fileMenu->addAction(m_newFileAction);
 	m_fileMenu->addAction(m_openFileAction);
@@ -279,8 +262,7 @@ void MainWindow::createMenu()
 	m_viewMenu->addSeparator();
 }
 
-void MainWindow::createToolBars()
-{
+void MainWindow::createToolBars() {
 	m_mainToolBar = addToolBar("Main Toolbar");
 	m_mainToolBar->addAction(m_newFileAction);
 	m_mainToolBar->addAction(m_openFileAction);
@@ -292,13 +274,11 @@ void MainWindow::createToolBars()
 	m_viewMenu->addAction(m_mainToolBar->toggleViewAction());
 }
 
-void MainWindow::createStatusBar()
-{
+void MainWindow::createStatusBar() {
 	writeStatus("Ready");
 }
 
-void MainWindow::createMdiArea()
-{
+void MainWindow::createMdiArea() {
 	m_mdiArea = new QMdiArea(this);
 	m_mdiArea->setViewMode(QMdiArea::TabbedView);
 	m_mdiArea->setTabShape(QTabWidget::Triangular);
@@ -310,8 +290,7 @@ void MainWindow::createMdiArea()
 		tabBar->setExpanding(false);
 }
 
-void MainWindow::createPanes()
-{
+void MainWindow::createPanes() {
 	m_output = new Output(this);
 	m_modulePane = new ModulePane(this);
 	m_llvmIr = new LlvmIr(this);
@@ -322,8 +301,7 @@ void MainWindow::createPanes()
 }
 
 QDockWidget* MainWindow::addPane(QWidget* widget, const QString& title,
-	Qt::DockWidgetArea dockArea)
-{
+	Qt::DockWidgetArea dockArea) {
 	QDockWidget* dockWidget = new QDockWidget(title, this);
 	dockWidget->setWidget(widget);
 
@@ -334,20 +312,15 @@ QDockWidget* MainWindow::addPane(QWidget* widget, const QString& title,
 	return dockWidget;
 }
 
-void MainWindow::writeStatus(const QString& text, int timeout)
-{
+void MainWindow::writeStatus(const QString& text, int timeout) {
 	statusBar()->showMessage(text, timeout);
 }
 
-size_t MainWindow::writeOutputDirect(const QString& string)
-{
-	if (QApplication::instance()->thread() == QThread::currentThread() && m_outputQueue.empty())
-	{
+size_t MainWindow::writeOutputDirect(const QString& string) {
+	if (QApplication::instance()->thread() == QThread::currentThread() && m_outputQueue.empty()) {
 		m_output->appendString(string);
 		m_output->repaint();
-	}
-	else
-	{
+	} else {
 		m_outputMutex.lock();
 		m_outputQueue.append(string);
 		m_outputMutex.unlock();
@@ -358,26 +331,22 @@ size_t MainWindow::writeOutputDirect(const QString& string)
 	return string.length();
 }
 
-size_t MainWindow::writeOutput_va(const char* format, va_list va)
-{
+size_t MainWindow::writeOutput_va(const char* format, va_list va) {
 	QString text;
 	text.vsprintf(format, va);
 	return writeOutputDirect(text);
 }
 
-size_t MainWindow::writeOutput(const char* format, ...)
-{
+size_t MainWindow::writeOutput(const char* format, ...) {
 	va_list va;
 	va_start(va, format);
 	return writeOutput_va(format, va);
 }
 
-void MainWindow::outputSlot()
-{
+void MainWindow::outputSlot() {
 	m_outputMutex.lock();
 
-	while (!m_outputQueue.empty())
-	{
+	while (!m_outputQueue.empty()) {
 		QString string = m_outputQueue.takeFirst();
 		m_outputMutex.unlock();
 
@@ -390,29 +359,25 @@ void MainWindow::outputSlot()
 	m_outputMutex.unlock();
 }
 
-void MainWindow::onEnableSyntaxHighlighting(bool isEnabled)
-{
+void MainWindow::onEnableSyntaxHighlighting(bool isEnabled) {
 	MdiChild* child = activeMdiChild();
 	if (child)
 		child->enableSyntaxHighlighting(isEnabled);
 }
 
-void MainWindow::onEnableCurrentLineHighlighting(bool isEnabled)
-{
+void MainWindow::onEnableCurrentLineHighlighting(bool isEnabled) {
 	MdiChild* child = activeMdiChild();
 	if (child)
 		child->enableCurrentLineHighlighting(isEnabled);
 }
 
-void MainWindow::onEnableLineNumberMargin(bool isEnabled)
-{
+void MainWindow::onEnableLineNumberMargin(bool isEnabled) {
 	MdiChild* child = activeMdiChild();
 	if (child)
 		child->enableLineNumberMargin(isEnabled);
 }
 
-MdiChild* MainWindow::findMdiChild(const QString& filePath)
-{
+MdiChild* MainWindow::findMdiChild(const QString& filePath) {
 	MdiChild* child = 0;
 
 	QMdiSubWindow* subWindow = findMdiSubWindow(filePath);
@@ -422,8 +387,7 @@ MdiChild* MainWindow::findMdiChild(const QString& filePath)
 	return child;
 }
 
-void MainWindow::readSettings()
-{
+void MainWindow::readSettings() {
 	QSettings s;
 
 	m_lastDir = s.value("lastDir").toString();
@@ -433,8 +397,7 @@ void MainWindow::readSettings()
 		openFile(file);
 }
 
-void MainWindow::writeSettings()
-{
+void MainWindow::writeSettings() {
 	QSettings s;
 
 	QStringList files;
@@ -446,8 +409,7 @@ void MainWindow::writeSettings()
 	s.setValue("lastDir", m_lastDir);
 }
 
-jnc::Function* MainWindow::findGlobalFunction(const QString& name)
-{
+jnc::Function* MainWindow::findGlobalFunction(const QString& name) {
 	QByteArray nameBytes = name.toLocal8Bit();
 	jnc::FindModuleItemResult findResult = m_module->getGlobalNamespace()->getNamespace()->findItem(nameBytes.data());
 	return findResult.m_item && findResult.m_item->getItemKind() == jnc::ModuleItemKind_Function ?
@@ -455,15 +417,13 @@ jnc::Function* MainWindow::findGlobalFunction(const QString& name)
 		NULL;
 }
 
-void MainWindow::clearOutput()
-{
+void MainWindow::clearOutput() {
 	m_output->clear();
 }
 
 //..............................................................................
 
-void MainWindow::onSetCapabilities()
-{
+void MainWindow::onSetCapabilities() {
 	QInputDialog inputDialog(this, Qt::WindowSystemMenuHint | Qt::WindowTitleHint);
 	inputDialog.setWindowTitle("Set Capabilities");
 	inputDialog.setInputMode(QInputDialog::TextInput);
@@ -479,8 +439,7 @@ void MainWindow::onSetCapabilities()
 	jnc::initializeCapabilities(m_capabilities.toLatin1().data());
 }
 
-void MainWindow::onSetUsbFilter()
-{
+void MainWindow::onSetUsbFilter() {
 	QInputDialog inputDialog(this, Qt::WindowSystemMenuHint | Qt::WindowTitleHint);
 	inputDialog.setWindowTitle("Set Allowed USB Devices");
 	inputDialog.setInputMode(QInputDialog::TextInput);
@@ -498,8 +457,7 @@ void MainWindow::onSetUsbFilter()
 	QByteArray string = m_usbFilter.toLatin1();
 	const char* p = string.data();
 	const char* end = string.end();
-	while (p < end)
-	{
+	while (p < end) {
 		char* next;
 		uint16_t id = strtoul(p, &next, 16);
 		if (p == next)
@@ -513,11 +471,10 @@ void MainWindow::onSetUsbFilter()
 		"org.jancy.io.usb.devices",
 		vidPidTable.data(),
 		vidPidTable.size() * sizeof(uint16_t)
-		);
+	);
 }
 
-bool MainWindow::compile()
-{
+bool MainWindow::compile() {
 	bool result;
 
 	MdiChild* child = activeMdiChild();
@@ -548,16 +505,14 @@ bool MainWindow::compile()
 
 	m_module->initialize(sourceFilePath.data(), compileFlags);
 
-	if (m_stdlibAction->isChecked())
-	{
+	if (m_stdlibAction->isChecked()) {
 		m_module->addStaticLib(jnc::StdLib_getLib());
 		m_module->addStaticLib(jnc::SysLib_getLib());
 		m_module->addStaticLib(TestLib_getLib());
 		m_module->addImportDir(m_libDir.toUtf8().constData());
 	}
 
-	if (m_signedExtensionsAction->isChecked())
-	{
+	if (m_signedExtensionsAction->isChecked()) {
 		jnc::CodeAuthenticatorConfig config;
 #if (_JNC_OS_WIN)
 		config.m_expectedSubjectName = "Tibbo Technology Inc.";
@@ -592,18 +547,15 @@ bool MainWindow::compile()
 		m_module->parseImports() &&
 		m_module->compile();
 
-	if (!result)
-	{
+	if (!result) {
 		writeOutput("%s\n", jnc::getLastErrorDescription_v());
 		return false;
 	}
 
-	if (m_optimizeAction->isChecked())
-	{
+	if (m_optimizeAction->isChecked()) {
 		writeOutput("Optimizing...\n");
 		result = m_module->optimize(1);
-		if (!result)
-		{
+		if (!result) {
 			writeOutput("%s\n", jnc::getLastErrorDescription_v());
 			return false;
 		}
@@ -614,13 +566,11 @@ bool MainWindow::compile()
 	m_modulePane->build(m_module, child);
 	m_llvmIr->build(m_module);
 
-	if (m_jitAction->isChecked())
-	{
+	if (m_jitAction->isChecked()) {
 		writeOutput("JITting...\n");
 
 		result = m_module->jit();
-		if (!result)
-		{
+		if (!result) {
 			writeOutput("%s\n", jnc::getLastErrorDescription_v());
 			return false;
 		}
@@ -632,24 +582,21 @@ bool MainWindow::compile()
 }
 
 bool
-MainWindow::run()
-{
+MainWindow::run() {
 	bool result;
 
 	 MdiChild* mdiChild = activeMdiChild();
 	 if (!mdiChild)
 		 return true;
 
-	if (mdiChild->isCompilationNeeded())
-	{
+	if (mdiChild->isCompilationNeeded()) {
 		result = compile();
 		if (!result)
 			return false;
 	}
 
 	jnc::Function* mainFunction = findGlobalFunction("main");
-	if (!mainFunction)
-	{
+	if (!mainFunction) {
 		writeOutput("'main' is not found or not a function\n");
 		return false;
 	}
@@ -664,8 +611,7 @@ MainWindow::run()
 #endif
 
 	result = m_runtime->startup(m_module);
-	if (!result)
-	{
+	if (!result) {
 		writeOutput("Cannot startup Jancy runtime: %s\n", jnc::getLastErrorDescription_v());
 		return false;
 	}
@@ -677,8 +623,7 @@ MainWindow::run()
 	else
 		writeOutput("Runtime error: %s\n", jnc::getLastErrorDescription_v());
 
-	if (result && returnValue == -1000) // for testing some async stuff with threads
-	{
+	if (result && returnValue == -1000) { // for testing some async stuff with threads
 		writeOutput("Staying resident...\n");
 		return true;
 	}
@@ -689,8 +634,7 @@ MainWindow::run()
 	return true;
 }
 
-MdiChild* MainWindow::createMdiChild()
-{
+MdiChild* MainWindow::createMdiChild() {
 	MdiChild* child = new MdiChild(this);
 	child->setAttribute(Qt::WA_DeleteOnClose);
 	child->setImportDirList(QStringList(m_libDir));
@@ -698,8 +642,7 @@ MdiChild* MainWindow::createMdiChild()
 	return child;
 }
 
-MdiChild* MainWindow::activeMdiChild()
-{
+MdiChild* MainWindow::activeMdiChild() {
 	 QMdiSubWindow* activeSubWindow = m_mdiArea->activeSubWindow();
 
 	 if (!activeSubWindow && !m_mdiArea->subWindowList().empty())
@@ -711,8 +654,7 @@ MdiChild* MainWindow::activeMdiChild()
 	 return qobject_cast<MdiChild*>(activeSubWindow->widget());
 }
 
-QMdiSubWindow* MainWindow::findMdiSubWindow(const QString& filePath)
-{
+QMdiSubWindow* MainWindow::findMdiSubWindow(const QString& filePath) {
 	QString canonicalFilePath = QFileInfo(filePath).canonicalFilePath();
 
 	foreach(QMdiSubWindow* subWindow, m_mdiArea->subWindowList()) {

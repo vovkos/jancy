@@ -18,10 +18,9 @@
 JNC_DEFINE_GUID(
 	g_testLibGuid,
 	0x384498ac, 0x90af, 0x4634, 0xb0, 0x83, 0x2a, 0x9b, 0x2, 0xd6, 0x26, 0x80
-	);
+);
 
-enum TestLibCacheSlot
-{
+enum TestLibCacheSlot {
 	TestLibCacheSlot_Point,
 	TestLibCacheSlot_TestClassA,
 	TestLibCacheSlot_TestClassB,
@@ -30,8 +29,7 @@ enum TestLibCacheSlot
 
 //..............................................................................
 
-struct Point
-{
+struct Point {
 	int64_t m_x;
 	int64_t m_y;
 	int64_t m_z;
@@ -40,8 +38,7 @@ struct Point
 
 //..............................................................................
 
-class TestClassA: public jnc::IfaceHdr
-{
+class TestClassA: public jnc::IfaceHdr {
 public:
 	int m_x;
 
@@ -57,8 +54,7 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class TestClassB: public jnc::IfaceHdr
-{
+class TestClassB: public jnc::IfaceHdr {
 public:
 	char m_data[256];
 
@@ -76,13 +72,12 @@ public:
 		jnc::DataPtr ptr4,
 		int a,
 		int b
-		);
+	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class TestStruct
-{
+class TestStruct {
 public:
 	int m_x;
 	double m_y;
@@ -99,7 +94,7 @@ public:
 	construct_1(
 		jnc::DataPtr selfPtr,
 		int x
-		);
+	);
 
 	static
 	void
@@ -107,7 +102,7 @@ public:
 	construct_2(
 		jnc::DataPtr selfPtr,
 		double y
-		);
+	);
 
 	static
 	void
@@ -120,7 +115,7 @@ public:
 	foo_1(
 		jnc::DataPtr selfPtr,
 		int x
-		);
+	);
 
 	static
 	void
@@ -128,7 +123,7 @@ public:
 	foo_2(
 		jnc::DataPtr selfPtr,
 		double y
-		);
+	);
 };
 
 //..............................................................................

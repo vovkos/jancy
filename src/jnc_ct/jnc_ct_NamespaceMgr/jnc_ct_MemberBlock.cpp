@@ -18,8 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-MemberBlock::MemberBlock(ModuleItem* parent)
-{
+MemberBlock::MemberBlock(ModuleItem* parent) {
 	m_parent = parent;
 	m_staticConstructorOnceFlagVariable = NULL;
 	m_staticConstructor = NULL;
@@ -27,8 +26,7 @@ MemberBlock::MemberBlock(ModuleItem* parent)
 }
 
 Namespace*
-MemberBlock::getParentNamespaceImpl()
-{
+MemberBlock::getParentNamespaceImpl() {
 	ASSERT(
 		m_parent->getItemKind() == ModuleItemKind_Property ||
 		m_parent->getItemKind() == ModuleItemKind_Type &&
@@ -40,8 +38,7 @@ MemberBlock::getParentNamespaceImpl()
 }
 
 Unit*
-MemberBlock::getParentUnitImpl()
-{
+MemberBlock::getParentUnitImpl() {
 	ASSERT(
 		m_parent->getItemKind() == ModuleItemKind_Property ||
 		m_parent->getItemKind() == ModuleItemKind_Type &&
@@ -53,11 +50,9 @@ MemberBlock::getParentUnitImpl()
 }
 
 void
-MemberBlock::scanStaticVariables()
-{
+MemberBlock::scanStaticVariables() {
 	size_t count = m_staticVariableArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		Variable* variable = m_staticVariableArray[i];
 
 		if (variable->getType()->getTypeKind() == TypeKind_Class)
@@ -70,11 +65,9 @@ MemberBlock::scanStaticVariables()
 }
 
 void
-MemberBlock::scanPropertyCtorDtors()
-{
+MemberBlock::scanPropertyCtorDtors() {
 	size_t count = m_propertyArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		Property* prop = m_propertyArray[i];
 
 		if (prop->getStaticConstructor())
@@ -89,8 +82,7 @@ MemberBlock::scanPropertyCtorDtors()
 }
 
 bool
-MemberBlock::callStaticConstructor()
-{
+MemberBlock::callStaticConstructor() {
 	if (!m_staticConstructor)
 		return true;
 
@@ -114,13 +106,11 @@ MemberBlock::callStaticConstructor()
 }
 
 void
-MemberBlock::primeStaticVariables()
-{
+MemberBlock::primeStaticVariables() {
 	Module* module = m_parent->getModule();
 
 	size_t count = m_staticVariablePrimeArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		Variable* variable = m_staticVariablePrimeArray[i];
 		ASSERT(variable->getStorageKind() == StorageKind_Static && variable->getType()->getTypeKind() == TypeKind_Class);
 		module->m_variableMgr.primeStaticClassVariable(variable);
@@ -128,8 +118,7 @@ MemberBlock::primeStaticVariables()
 }
 
 bool
-MemberBlock::initializeStaticVariables()
-{
+MemberBlock::initializeStaticVariables() {
 	bool result;
 
 	Module* module = m_parent->getModule();
@@ -139,11 +128,9 @@ MemberBlock::initializeStaticVariables()
 		module->m_unitMgr.setCurrentUnit(unit);
 
 	size_t count = m_staticVariableInitializeArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		Variable* variable = m_staticVariableInitializeArray[i];
-		if (variable->m_flags & ModuleItemFlag_Constructed)
-		{
+		if (variable->m_flags & ModuleItemFlag_Constructed) {
 			variable->m_flags &= ~ModuleItemFlag_Constructed;
 			continue;
 		}
@@ -157,8 +144,7 @@ MemberBlock::initializeStaticVariables()
 }
 
 bool
-MemberBlock::initializeFields(const Value& thisValue)
-{
+MemberBlock::initializeFields(const Value& thisValue) {
 	bool result;
 
 	Module* module = m_parent->getModule();
@@ -168,11 +154,9 @@ MemberBlock::initializeFields(const Value& thisValue)
 		module->m_unitMgr.setCurrentUnit(unit);
 
 	size_t count = m_fieldInitializeArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		Field* field = m_fieldInitializeArray[i];
-		if (field->m_flags & ModuleItemFlag_Constructed)
-		{
+		if (field->m_flags & ModuleItemFlag_Constructed) {
 			field->m_flags &= ~ModuleItemFlag_Constructed;
 			continue;
 		}
@@ -186,7 +170,7 @@ MemberBlock::initializeFields(const Value& thisValue)
 			fieldValue,
 			field->m_constructor,
 			field->m_initializer
-			);
+		);
 
 		if (!result)
 			return false;
@@ -196,18 +180,15 @@ MemberBlock::initializeFields(const Value& thisValue)
 }
 
 bool
-MemberBlock::callPropertyStaticConstructors()
-{
+MemberBlock::callPropertyStaticConstructors() {
 	bool result;
 
 	Module* module = m_parent->getModule();
 
 	size_t count = m_propertyStaticConstructArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		Property* prop = m_propertyStaticConstructArray[i];
-		if (prop->m_flags & ModuleItemFlag_Constructed)
-		{
+		if (prop->m_flags & ModuleItemFlag_Constructed) {
 			prop->m_flags &= ~ModuleItemFlag_Constructed;
 			continue;
 		}
@@ -224,18 +205,15 @@ MemberBlock::callPropertyStaticConstructors()
 }
 
 bool
-MemberBlock::callPropertyConstructors(const Value& thisValue)
-{
+MemberBlock::callPropertyConstructors(const Value& thisValue) {
 	bool result;
 
 	Module* module = m_parent->getModule();
 
 	size_t count = m_propertyConstructArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		Property* prop = m_propertyConstructArray[i];
-		if (prop->m_flags & ModuleItemFlag_Constructed)
-		{
+		if (prop->m_flags & ModuleItemFlag_Constructed) {
 			prop->m_flags &= ~ModuleItemFlag_Constructed;
 			continue;
 		}
@@ -252,15 +230,13 @@ MemberBlock::callPropertyConstructors(const Value& thisValue)
 }
 
 bool
-MemberBlock::callPropertyDestructors(const Value& thisValue)
-{
+MemberBlock::callPropertyDestructors(const Value& thisValue) {
 	bool result;
 
 	Module* module = m_parent->getModule();
 
 	size_t count = m_propertyDestructArray.getCount();
-	for (intptr_t i = count - 1; i >= 0; i--)
-	{
+	for (intptr_t i = count - 1; i >= 0; i--) {
 		Function* destructor = m_propertyDestructArray[i]->getDestructor();
 		ASSERT(destructor);
 
@@ -277,30 +253,22 @@ MemberBlock::addUnnamedMethod(
 	Function* function,
 	Function** targetFunction,
 	OverloadableFunction* targetOverloadableFunction
-	)
-{
-	if (targetFunction)
-	{
+) {
+	if (targetFunction) {
 		ASSERT(!targetOverloadableFunction);
 
-		if (*targetFunction)
-		{
+		if (*targetFunction) {
 			err::setFormatStringError("'%s' already exists", (*targetFunction)->getQualifiedName().sz());
 			return false;
 		}
 
 		*targetFunction = function;
-	}
-	else
-	{
+	} else {
 		ASSERT(targetOverloadableFunction);
 
-		if (!*targetOverloadableFunction)
-		{
+		if (!*targetOverloadableFunction) {
 			*targetOverloadableFunction = function;
-		}
-		else
-		{
+		} else {
 			if ((*targetOverloadableFunction)->getItemKind() == ModuleItemKind_Function)
 				*targetOverloadableFunction = function->getModule()->m_functionMgr.createFunctionOverload(targetOverloadableFunction->getFunction());
 

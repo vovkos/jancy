@@ -23,7 +23,7 @@ set(
 	modulepane.h
 	output.h
 	testlib.h
-	)
+)
 
 set(
 	APP_CPP_LIST
@@ -36,12 +36,12 @@ set(
 	modulepane.cpp
 	output.cpp
 	testlib.cpp
-	)
+)
 
 set(
 	APP_RL_LIST
 	llvmirhighlighter.rl
-	)
+)
 
 source_group(
 	app
@@ -49,7 +49,7 @@ source_group(
 	${APP_H_LIST}
 	${APP_CPP_LIST}
 	${APP_RL_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -63,19 +63,19 @@ set(
 	res/open.png
 	res/run.png
 	res/save.png
-	)
+)
 
 set(
 	RES_QRC_LIST
 	res.qrc
-	)
+)
 
 source_group(
 	res
 	FILES
 	${RES_PNG_LIST}
 	${RES_QRC_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -93,29 +93,29 @@ set(
 	mdichild.h
 	modulepane.h
 	output.h
-	)
+)
 
 axl_push_and_set(CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
 qt5_wrap_cpp(
 	GEN_MOC_CPP_LIST
 	${MOC_H_LIST}
-	)
+)
 
 qt5_add_resources(
 	GEN_QRC_CPP_LIST
 	${RES_QRC_LIST}
-	)
+)
 
 add_ragel_step(
 	llvmirhighlighter.rl.cpp
 	llvmirhighlighter.rl
-	)
+)
 
 set(
 	GEN_RL_CPP_LIST
 	${GEN_DIR}/llvmirhighlighter.rl.cpp
-	)
+)
 
 axl_pop(CMAKE_CURRENT_BINARY_DIR)
 
@@ -129,7 +129,7 @@ source_group(
 	${GEN_RL_CPP_LIST}
 	${GEN_QRC_CPP_LIST}
 	${GEN_MOC_CPP_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -144,7 +144,7 @@ source_group(
 	FILES
 	${PCH_H}
 	${PCH_CPP}
-	)
+)
 
 #...............................................................................
 #
@@ -165,7 +165,7 @@ include_directories(
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
 	${GEN_DIR}
-	)
+)
 
 link_directories(${AXL_LIB_DIR})
 
@@ -173,7 +173,7 @@ if(BUILD_JNC_DLL)
 	link_directories(
 		${JANCY_LIB_DIR}
 		${JANCY_BIN_DIR}
-		)
+	)
 else()
 	link_directories(${LLVM_LIB_DIR})
 endif()
@@ -193,7 +193,7 @@ endif()
 add_definitions(
 	-DQT_COMPILING_QSTRING_COMPAT_CPP
 	-DQT_COMPILING_QIMAGE_COMPAT_CPP
-	)
+)
 
 add_executable(
 	jnc_mini_ide
@@ -208,7 +208,7 @@ add_executable(
 	${GEN_MOC_CPP_LIST}
 	${GEN_UI_H_LIST}
 	${GEN_RL_CPP_LIST}
-	)
+)
 
 qt5_use_modules_alt(jnc_mini_ide Widgets)
 
@@ -216,29 +216,29 @@ axl_set_pch(
 	jnc_mini_ide
 	${PCH_H}
 	${PCH_CPP}
-	)
+)
 
 set_target_properties(
 	jnc_mini_ide
 	PROPERTIES
 	FOLDER tools
-	)
+)
 
 target_link_libraries(
 	jnc_mini_ide
 	jnc_edit
-	)
+)
 
 if(BUILD_JNC_DLL)
 	add_dependencies(
 		jnc_mini_ide
 		jnc_dll
-		)
+	)
 
 	target_link_libraries(
 		jnc_mini_ide
 		${JANCY_DLL_NAME}
-		)
+	)
 else()
 	target_link_libraries(
 		jnc_mini_ide
@@ -250,7 +250,7 @@ else()
 		jnc_std
 		jnc_sys
 		jnc_api_core
-		)
+	)
 
 	target_link_llvm_jit_libraries(jnc_mini_ide)
 endif()
@@ -265,7 +265,7 @@ if(BUILD_JNC_IO_SSL)
 		axl_cry
 		${OPENSSL_SSL_LIB_NAME}
 		${OPENSSL_CRYPTO_LIB_NAME}
-		)
+	)
 endif()
 
 target_link_libraries(
@@ -275,25 +275,25 @@ target_link_libraries(
 	axl_io
 	axl_lex
 	axl_core
-	)
+)
 
 if(WIN32)
 	target_link_libraries(
 		jnc_mini_ide
 		ws2_32
-		)
+	)
 elseif(UNIX)
 	target_link_libraries(
 		jnc_mini_ide
 		pthread
-		)
+	)
 
 	if(NOT APPLE)
 		target_link_libraries(
 			jnc_mini_ide
 			rt
 			dl
-			)
+		)
 	endif()
 endif()
 
@@ -302,12 +302,12 @@ if(BUILD_JNC_IO_USB)
 		target_link_libraries(
 			jnc_mini_ide
 			libusb-1.0
-			)
+		)
 	else()
 		target_link_libraries(
 			jnc_mini_ide
 			usb-1.0
-			)
+		)
 
 		if(APPLE)
 			find_library(CORE_FOUNDATION_FRAMEWORK CoreFoundation)
@@ -317,14 +317,14 @@ if(BUILD_JNC_IO_USB)
 				jnc_mini_ide
 				${CORE_FOUNDATION_FRAMEWORK}
 				${IOKIT_FRAMEWORK}
-				)
+			)
 		endif()
 
 		if(LINUX)
 			target_link_libraries(
 				jnc_mini_ide
 				udev
-				)
+			)
 		endif()
 	endif()
 endif()
@@ -351,6 +351,6 @@ endif()
 install(
 	TARGETS jnc_mini_ide
 	DESTINATION ${JANCY_INSTALL_BIN_SUBDIR}
-	)
+)
 
 #...............................................................................

@@ -31,8 +31,7 @@
 
 //..............................................................................
 
-static jnc_ErrorFuncTable g_errorFuncTable =
-{
+static jnc_ErrorFuncTable g_errorFuncTable = {
 	sizeof(jnc_ErrorFuncTable),
 	jnc_getLastError,
 	jnc_setError,
@@ -41,8 +40,7 @@ static jnc_ErrorFuncTable g_errorFuncTable =
 	jnc_getErrorDescription_v,
 };
 
-static jnc_CapabilityFuncTable g_capabilityFuncTable =
-{
+static jnc_CapabilityFuncTable g_capabilityFuncTable = {
 	sizeof(jnc_CapabilityFuncTable ),
 	jnc_isEveryCapabilityEnabled,
 	jnc_isCapabilityEnabled,
@@ -50,8 +48,7 @@ static jnc_CapabilityFuncTable g_capabilityFuncTable =
 };
 
 
-static jnc_ModuleItemDeclFuncTable g_moduleItemDeclFuncTable =
-{
+static jnc_ModuleItemDeclFuncTable g_moduleItemDeclFuncTable = {
 	sizeof(jnc_ModuleItemDeclFuncTable),
 	jnc_ModuleItemDecl_getName,
 	jnc_ModuleItemDecl_getQualifiedName,
@@ -64,8 +61,7 @@ static jnc_ModuleItemDeclFuncTable g_moduleItemDeclFuncTable =
 	jnc_ModuleItemDecl_getCol,
 };
 
-static jnc_ModuleItemFuncTable g_moduleItemFuncTable =
-{
+static jnc_ModuleItemFuncTable g_moduleItemFuncTable = {
 	sizeof(jnc_ModuleItemFuncTable),
 	jnc_ModuleItem_getModule,
 	jnc_ModuleItem_getItemKind,
@@ -77,21 +73,18 @@ static jnc_ModuleItemFuncTable g_moduleItemFuncTable =
 	jnc_ModuleItem_require,
 };
 
-static jnc_AttributeFuncTable g_attributeFuncTable =
-{
+static jnc_AttributeFuncTable g_attributeFuncTable = {
 	sizeof(jnc_AttributeFuncTable),
 };
 
-static jnc_AttributeBlockFuncTable g_attributeBlockFuncTable =
-{
+static jnc_AttributeBlockFuncTable g_attributeBlockFuncTable = {
 	sizeof(jnc_AttributeBlockFuncTable),
 	jnc_AttributeBlock_getAttributeCount,
 	jnc_AttributeBlock_getAttribute,
 	jnc_AttributeBlock_findAttribute,
 };
 
-static jnc_NamespaceFuncTable g_namespaceFuncTable =
-{
+static jnc_NamespaceFuncTable g_namespaceFuncTable = {
 	sizeof(jnc_NamespaceFuncTable),
 	jnc_Namespace_isReady,
 	jnc_Namespace_getNamespaceKind,
@@ -102,21 +95,18 @@ static jnc_NamespaceFuncTable g_namespaceFuncTable =
 	jnc_Namespace_findItem,
 };
 
-static jnc_GlobalNamespaceFuncTable g_globalNamespaceFuncTable =
-{
+static jnc_GlobalNamespaceFuncTable g_globalNamespaceFuncTable = {
 	sizeof(jnc_GlobalNamespaceFuncTable),
 };
 
-static jnc_VariableFuncTable g_variableFuncTable =
-{
+static jnc_VariableFuncTable g_variableFuncTable = {
 	sizeof(jnc_VariableFuncTable),
 	jnc_Variable_getPtrTypeFlags,
 	jnc_Variable_hasInitializer,
 	jnc_Variable_getInitializerString_v,
 };
 
-static jnc_FunctionFuncTable g_functionFuncTable =
-{
+static jnc_FunctionFuncTable g_functionFuncTable = {
 	sizeof(jnc_FunctionFuncTable),
 	jnc_Function_getFunctionKind,
 	jnc_Function_isMember,
@@ -124,28 +114,24 @@ static jnc_FunctionFuncTable g_functionFuncTable =
 	jnc_Function_getMachineCode,
 };
 
-static jnc_FunctionOverloadFuncTable g_functionOverloadFuncTable =
-{
+static jnc_FunctionOverloadFuncTable g_functionOverloadFuncTable = {
 	sizeof(jnc_FunctionFuncTable),
 	jnc_FunctionOverload_getFunctionKind,
 	jnc_FunctionOverload_getOverloadCount,
 	jnc_FunctionOverload_getOverload,
 };
 
-static jnc_PropertyFuncTable g_propertyFuncTable =
-{
+static jnc_PropertyFuncTable g_propertyFuncTable = {
 	sizeof(jnc_PropertyFuncTable),
 	jnc_Property_getGetter,
 	jnc_Property_getSetter,
 };
 
-static jnc_TypedefFuncTable g_typedefFuncTable =
-{
+static jnc_TypedefFuncTable g_typedefFuncTable = {
 	sizeof(jnc_TypedefFuncTable),
 };
 
-static jnc_TypeFuncTable g_typeFuncTable =
-{
+static jnc_TypeFuncTable g_typeFuncTable = {
 	sizeof(jnc_TypeFuncTable),
 	jnc_Type_getTypeKind,
 	jnc_Type_getSize,
@@ -157,27 +143,23 @@ static jnc_TypeFuncTable g_typeFuncTable =
 	jnc_Type_markGcRoots,
 };
 
-static jnc_NamedTypeFuncTable g_namedTypeFuncTable =
-{
+static jnc_NamedTypeFuncTable g_namedTypeFuncTable = {
 	sizeof(jnc_NamedTypeFuncTable),
 };
 
-static jnc_BaseTypeSlotFuncTable g_baseTypeSlotFuncTable =
-{
+static jnc_BaseTypeSlotFuncTable g_baseTypeSlotFuncTable = {
 	sizeof(jnc_BaseTypeSlotFuncTable),
 	jnc_BaseTypeSlot_getOffset,
 	jnc_BaseTypeSlot_getVtableIndex,
 };
 
-static jnc_FieldFuncTable g_fieldFuncTable =
-{
+static jnc_FieldFuncTable g_fieldFuncTable = {
 	sizeof(jnc_FieldFuncTable),
 	jnc_Field_getPtrTypeFlags,
 	jnc_Field_getOffset,
 };
 
-static jnc_DerivableTypeFuncTable g_derivableTypeFuncTable =
-{
+static jnc_DerivableTypeFuncTable g_derivableTypeFuncTable = {
 	sizeof(jnc_DerivableTypeFuncTable),
 	jnc_DerivableType_getStaticConstructor,
 	jnc_DerivableType_getConstructor,
@@ -189,28 +171,24 @@ static jnc_DerivableTypeFuncTable g_derivableTypeFuncTable =
 	jnc_DerivableType_getCastOperator,
 };
 
-static jnc_ArrayTypeFuncTable g_arrayTypeFuncTable =
-{
+static jnc_ArrayTypeFuncTable g_arrayTypeFuncTable = {
 	sizeof(jnc_ArrayTypeFuncTable),
 	jnc_ArrayType_getElementType,
 	jnc_ArrayType_getElementCount,
 };
 
-static jnc_BitFieldTypeFuncTable g_bitFieldTypeFuncTable =
-{
+static jnc_BitFieldTypeFuncTable g_bitFieldTypeFuncTable = {
 	sizeof(jnc_BitFieldTypeFuncTable),
 	jnc_BitFieldType_getBaseType,
 	jnc_BitFieldType_getBitOffset,
 	jnc_BitFieldType_getBitCount,
 };
 
-static jnc_FunctionArgFuncTable g_functionArgFuncTable =
-{
+static jnc_FunctionArgFuncTable g_functionArgFuncTable = {
 	sizeof(jnc_FunctionArgFuncTable),
 };
 
-static jnc_FunctionTypeFuncTable g_functionTypeFuncTable =
-{
+static jnc_FunctionTypeFuncTable g_functionTypeFuncTable = {
 	sizeof(jnc_FunctionTypeFuncTable),
 	jnc_FunctionType_getReturnType,
 	jnc_FunctionType_getArgCount,
@@ -219,19 +197,16 @@ static jnc_FunctionTypeFuncTable g_functionTypeFuncTable =
 	jnc_FunctionType_getShortType,
 };
 
-static jnc_PropertyTypeFuncTable g_propertyTypeFuncTable =
-{
+static jnc_PropertyTypeFuncTable g_propertyTypeFuncTable = {
 	sizeof(jnc_PropertyTypeFuncTable),
 };
 
-static jnc_EnumConstFuncTable g_enumConstFuncTable =
-{
+static jnc_EnumConstFuncTable g_enumConstFuncTable = {
 	sizeof(jnc_EnumConstFuncTable),
 	jnc_EnumConst_getValue,
 };
 
-static jnc_EnumTypeFuncTable g_enumTypeFuncTable =
-{
+static jnc_EnumTypeFuncTable g_enumTypeFuncTable = {
 	sizeof(jnc_EnumTypeFuncTable),
 	jnc_EnumType_getBaseType,
 	jnc_EnumType_getRootType,
@@ -239,64 +214,54 @@ static jnc_EnumTypeFuncTable g_enumTypeFuncTable =
 	jnc_EnumType_getConst,
 };
 
-static jnc_StructTypeFuncTable g_structTypeFuncTable =
-{
+static jnc_StructTypeFuncTable g_structTypeFuncTable = {
 	sizeof(jnc_StructTypeFuncTable),
 };
 
-static jnc_UnionTypeFuncTable g_unionTypeFuncTable =
-{
+static jnc_UnionTypeFuncTable g_unionTypeFuncTable = {
 	sizeof(jnc_UnionTypeFuncTable),
 };
 
-static jnc_ClassTypeFuncTable g_classTypeFuncTable =
-{
+static jnc_ClassTypeFuncTable g_classTypeFuncTable = {
 	sizeof(jnc_ClassTypeFuncTable),
 	jnc_ClassType_getClassTypeKind,
 	jnc_ClassType_getIfaceStructType,
 	jnc_ClassType_getClassPtrType,
 };
 
-static jnc_MulticastClassTypeFuncTable g_multicastClassTypeFuncTable =
-{
+static jnc_MulticastClassTypeFuncTable g_multicastClassTypeFuncTable = {
 	sizeof(jnc_MulticastClassTypeFuncTable),
 	jnc_MulticastClassType_getTargetType,
 	jnc_MulticastClassType_getMethod,
 };
 
-static jnc_McSnapshotClassTypeFuncTable g_mcSnapshotClassTypeFuncTable =
-{
+static jnc_McSnapshotClassTypeFuncTable g_mcSnapshotClassTypeFuncTable = {
 	sizeof(jnc_McSnapshotClassTypeFuncTable),
 	jnc_McSnapshotClassType_getTargetType,
 	jnc_McSnapshotClassType_getMethod,
 };
 
-static jnc_DataPtrTypeFuncTable g_dataPtrTypeFuncTable =
-{
+static jnc_DataPtrTypeFuncTable g_dataPtrTypeFuncTable = {
 	sizeof(jnc_DataPtrTypeFuncTable),
 	jnc_DataPtrType_getPtrTypeKind,
 	jnc_DataPtrType_getTargetType,
 };
 
-static jnc_ClassPtrTypeFuncTable g_classPtrTypeFuncTable =
-{
+static jnc_ClassPtrTypeFuncTable g_classPtrTypeFuncTable = {
 	sizeof(jnc_ClassPtrTypeFuncTable),
 };
 
-static jnc_FunctionPtrTypeFuncTable g_functionPtrTypeFuncTable =
-{
+static jnc_FunctionPtrTypeFuncTable g_functionPtrTypeFuncTable = {
 	sizeof(jnc_FunctionPtrTypeFuncTable),
 	jnc_FunctionPtrType_getPtrTypeKind,
 	jnc_FunctionPtrType_getTargetType,
 };
 
-static jnc_PropertyPtrTypeFuncTable g_propertyPtrTypeFuncTable =
-{
+static jnc_PropertyPtrTypeFuncTable g_propertyPtrTypeFuncTable = {
 	sizeof(jnc_PropertyPtrTypeFuncTable),
 };
 
-static jnc_VariantFuncTable g_variantFuncTable =
-{
+static jnc_VariantFuncTable g_variantFuncTable = {
 	sizeof(jnc_VariantFuncTable),
 	jnc_Variant_cast,
 	jnc_Variant_unaryOperator,
@@ -310,20 +275,17 @@ static jnc_VariantFuncTable g_variantFuncTable =
 	jnc_Variant_format_v,
 };
 
-static jnc_PromiseFuncTable g_promiseFuncTable =
-{
+static jnc_PromiseFuncTable g_promiseFuncTable = {
 	sizeof(jnc_PromiseFuncTable),
 	jnc_createPromise,
 	jnc_Promise_complete,
 };
 
-static jnc_UnitFuncTable g_unitFuncTable =
-{
+static jnc_UnitFuncTable g_unitFuncTable = {
 	sizeof(jnc_UnitFuncTable),
 };
 
-static jnc_ModuleFuncTable g_moduleFuncTable =
-{
+static jnc_ModuleFuncTable g_moduleFuncTable = {
 	sizeof(jnc_ModuleFuncTable),
 	jnc_Module_getName,
 	jnc_Module_getGlobalNamespace,
@@ -352,8 +314,7 @@ static jnc_ModuleFuncTable g_moduleFuncTable =
 	jnc_Module_getLlvmIrString_v,
 };
 
-static jnc_RuntimeFuncTable g_runtimeFuncTable =
-{
+static jnc_RuntimeFuncTable g_runtimeFuncTable = {
 	sizeof(jnc_RuntimeFuncTable),
 	jnc_Runtime_create,
 	jnc_Runtime_destroy,
@@ -375,8 +336,7 @@ static jnc_RuntimeFuncTable g_runtimeFuncTable =
 	jnc_primeClass,
 };
 
-static jnc_GcHeapFuncTable g_gcHeapFuncTable =
-{
+static jnc_GcHeapFuncTable g_gcHeapFuncTable = {
 	sizeof(jnc_GcHeapFuncTable),
 	jnc_GcHeap_getRuntime,
 	jnc_GcHeap_getStats,
@@ -407,8 +367,7 @@ static jnc_GcHeapFuncTable g_gcHeapFuncTable =
 	jnc_GcHeap_addBoxToCallSite,
 };
 
-static jnc_StdHashTableFuncTable g_stdHashTableFuncTable =
-{
+static jnc_StdHashTableFuncTable g_stdHashTableFuncTable = {
 	sizeof(jnc_StdHashTableFuncTable),
 	jnc_createStdHashTable,
 	jnc_StdHashTable_clear,
@@ -418,8 +377,7 @@ static jnc_StdHashTableFuncTable g_stdHashTableFuncTable =
 	jnc_StdHashTable_removeKey,
 };
 
-static jnc_StdRbTreeFuncTable g_stdRbTreeFuncTable =
-{
+static jnc_StdRbTreeFuncTable g_stdRbTreeFuncTable = {
 	sizeof(jnc_StdRbTreeFuncTable),
 	jnc_createStdRbTree,
 	jnc_StdRbTree_clear,
@@ -431,8 +389,7 @@ static jnc_StdRbTreeFuncTable g_stdRbTreeFuncTable =
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl =
-{
+jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl = {
 	sizeof(jnc_DynamicExtensionLibHost),
 	err::getErrorMgr(),
 	&g_errorFuncTable,

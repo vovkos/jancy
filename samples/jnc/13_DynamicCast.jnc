@@ -26,8 +26,7 @@
 
 //..............................................................................
 
-struct Vector
-{
+struct Vector {
 	double m_x;
 	double m_y;
 	double m_z;
@@ -35,8 +34,7 @@ struct Vector
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct EulerAngles
-{
+struct EulerAngles {
 	double m_alpha;
 	double m_beta;
 	double m_gamma;
@@ -48,23 +46,19 @@ struct EulerAngles
 
 struct Transform:
 	EulerAngles,
-	Vector
-{
-}
+	Vector {}
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // non-POD
 
-struct TaggedTransform: Transform
-{
+struct TaggedTransform: Transform {
 	char const* m_tag;
 }
 
 //..............................................................................
 
-void foo(TaggedTransform* taggedTransform)
-{
+void foo(TaggedTransform* taggedTransform) {
 	// upcasts are always OK, no cast operator is needed
 
 	Transform* transform = taggedTransform;
@@ -93,13 +87,12 @@ void foo(TaggedTransform* taggedTransform)
 		angles,
 		vector,
 		c
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void bar(Vector* vector)
-{
+void bar(Vector* vector) {
 	// POD types can be cast to each other using the cast operator...
 
 	Transform* transform1 = (Transform*)vector;
@@ -136,15 +129,14 @@ void bar(Vector* vector)
 		angles1,
 		angles2,
 		taggedTransform
-		);
+	);
 }
 
 //..............................................................................
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	TaggedTransform taggedTransform;

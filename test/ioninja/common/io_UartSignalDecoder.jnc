@@ -13,8 +13,7 @@ namespace io {
 
 //..............................................................................
 
-enum UartDecodeResult
-{
+enum UartDecodeResult {
 	Continue,
 	Char,
 	FramingError,
@@ -23,11 +22,9 @@ enum UartDecodeResult
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class UartSignalDecoder
-{
+class UartSignalDecoder {
 protected:
-	enum State
-	{
+	enum State {
 		Idle,
 		Start,
 		MainLoop, // data, parity, stop
@@ -53,12 +50,12 @@ public:
 		uint_t dataBits,
 		io.SerialStopBits stopBits,
 		io.SerialParity parity
-		);
+	);
 
 	UartDecodeResult add(
 		uint64_t timestamp,
 		bool lineState
-		);
+	);
 
 	UartDecodeResult onTimer();
 
@@ -74,8 +71,7 @@ void UartSignalDecoder.start(
 	uint_t dataBits,
 	io.SerialStopBits stopBits,
 	io.SerialParity parity
-	)
-{
+) {
 	m_baudTime = 10000000 / baudRate;
 	m_dataBits = dataBits;
 	m_parity = parity;
@@ -93,10 +89,8 @@ void UartSignalDecoder.start(
 UartDecodeResult UartSignalDecoder.add(
 	uint64_t timestamp,
 	bool lineState
-	)
-{
-	if (m_state == State.Idle)
-	{
+) {
+	if (m_state == State.Idle) {
 		if (lineState)
 			return UartDecodeResult.Continue;
 
@@ -110,22 +104,16 @@ UartDecodeResult UartSignalDecoder.add(
 		return UartDecodeResult.Continue;
 
 	uint_t bit = (timestamp - m_startEdgeTimestamp + m_baudTime / 2) / m_baudTime;
-	if (m_state == State.Start)
-	{
-		if (!bit)
-		{
+	if (m_state == State.Start) {
+		if (!bit) {
 			m_lastLineState = lineState;
 			return UartDecodeResult.Continue;
 		}
 
-		if (m_lastLineState) // invalid start bit
-		{
-			if (lineState)
-			{
+		if (m_lastLineState) { // invalid start bit
+			if (lineState) {
 				m_state = State.Idle;
-			}
-			else
-			{
+			} else {
 				m_startEdgeTimestamp = timestamp; // assume this is a new start bit
 				m_lastLineState = false; // space
 			}
@@ -137,8 +125,7 @@ UartDecodeResult UartSignalDecoder.add(
 		m_frame = 0;
 	}
 
-	if (bit < m_frameBitCount)
-	{
+	if (bit < m_frameBitCount) {
 		if (lineState == m_lastLineState)
 			return UartDecodeResult.Continue;
 
@@ -158,8 +145,7 @@ UartDecodeResult UartSignalDecoder.add(
 	return result;
 }
 
-UartDecodeResult UartSignalDecoder.onTimer()
-{
+UartDecodeResult UartSignalDecoder.onTimer() {
 	if (m_state != State.MainLoop)
 		return UartDecodeResult.Continue;
 
@@ -173,8 +159,7 @@ UartDecodeResult UartSignalDecoder.onTimer()
 		UartDecodeResult.Continue;
 }
 
-UartDecodeResult UartSignalDecoder.finalizeFrame()
-{
+UartDecodeResult UartSignalDecoder.finalizeFrame() {
 	UartDecodeResult result =
 		!m_lastLineState ? UartDecodeResult.FramingError :
 		m_parity && !checkParity() ? UartDecodeResult.ParityError :
@@ -185,8 +170,7 @@ UartDecodeResult UartSignalDecoder.finalizeFrame()
 	return result;
 }
 
-bool isEvenNonZeroBitCount(uint_t c)
-{
+bool isEvenNonZeroBitCount(uint_t c) {
 	size_t count = 0;
 
 	for (; c; c >>= 1)
@@ -196,10 +180,8 @@ bool isEvenNonZeroBitCount(uint_t c)
 	return (count & 1) == 0;
 }
 
-bool UartSignalDecoder.checkParity()
-{
-	switch (m_parity)
-	{
+bool UartSignalDecoder.checkParity() {
+	switch (m_parity) {
 	case io.SerialParity.Mark:
 		return m_frame & (1 << m_dataBits);
 

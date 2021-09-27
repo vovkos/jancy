@@ -11,13 +11,13 @@ import "log_RepresentStruct.jnc"
 typedef char const* GetTutoProtoDigestFunc(
 	void const* p,
 	size_t size
-	);
+);
 
 typedef bool RepresentTutoProtoDetailFunc(
 	log.Representation* representation,
 	void const* p,
 	size_t size
-	);
+);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -26,8 +26,7 @@ bool representTutoProtoParamStruct(
 	jnc.StructType* type,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	if (size < type.m_size)
 		return false;
 
@@ -38,7 +37,7 @@ bool representTutoProtoParamStruct(
 		p,
 		sizeof(TutoProtoHdr),,
 		0
-		);
+	);
 
 	return true;
 }
@@ -51,8 +50,7 @@ bool representTutoProtoLog(
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
+) {
 	if (recordCode != TutoProtoLogRecordCode.Packet)
 		return false;
 
@@ -64,8 +62,7 @@ bool representTutoProtoLog(
 	GetTutoProtoDigestFunc thin* getDigestFunc;
 	RepresentTutoProtoDetailFunc thin* representDetailFunc;
 
-	if (!(foldFlags & 1))
-	{
+	if (!(foldFlags & 1)) {
 		if (hdr.m_flags & TutoProtoFlags.Error)
 			getDigestFunc = getTutoProtoErrorDigest;
 		else if (commandEnumConst)
@@ -79,8 +76,7 @@ bool representTutoProtoLog(
 		char const* direction = (hdr.m_flags & TutoProtoFlags.Reply) ? "reply" : "command";
 		char const* digest;
 
-		if (getDigestFunc)
-		{
+		if (getDigestFunc) {
 			 digest = getDigestFunc(hdr + 1, size - sizeof(TutoProtoHdr));
 			 if (!digest)
 				 digest = "[ \e[31mINVALID\e[m ]";
@@ -90,7 +86,7 @@ bool representTutoProtoLog(
 			command,
 			direction,
 			digest
-			));
+		));
 
 		return true;
 	}
@@ -109,8 +105,7 @@ bool representTutoProtoLog(
 				"representCommand"
 			);
 
-	if (representDetailFunc)
-	{
+	if (representDetailFunc) {
 		bool result = representDetailFunc(representation, hdr + 1, size - sizeof(TutoProtoHdr));
 		if (!result)
 			representation.addHyperText("    [ \e[31mINVALID\e[m ]");
@@ -129,8 +124,7 @@ bool representTutoProtoLog(
 char const* getTutoProtoErrorDigest(
 	void const* p,
 	size_t size
-	)
-{
+) {
 	if (size < sizeof(TutoProtoError))
 		return null;
 
@@ -142,8 +136,7 @@ bool representTutoProtoError(
 	log.Representation* representation,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	return representTutoProtoParamStruct(representation, typeof(TutoProtoError), p, size);
 }
 
@@ -152,8 +145,7 @@ bool representTutoProtoError(
 char const* getTutoProtoReplyDigest_GetVersion(
 	void const* p,
 	size_t size
-	)
-{
+) {
 	if (size < sizeof(TutoProtoVersion))
 		return null;
 
@@ -165,8 +157,7 @@ bool representTutoProtoReply_GetVersion(
 	log.Representation* representation,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	return representTutoProtoParamStruct(representation, typeof(TutoProtoVersion), p, size);
 }
 
@@ -175,8 +166,7 @@ bool representTutoProtoReply_GetVersion(
 char const* getTutoProtoCommandDigest_Write(
 	void const* p,
 	size_t size
-	)
-{
+) {
 	if (size < sizeof(TutoProtoRange))
 		return null;
 
@@ -191,8 +181,7 @@ bool representTutoProtoCommand_Write(
 	log.Representation* representation,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	bool result = representTutoProtoParamStruct(representation, typeof(TutoProtoRange), p, size);
 	if (!result)
 		return false;
@@ -216,8 +205,7 @@ bool representTutoProtoCommand_Write(
 char const* getTutoProtoCommandDigest_Read(
 	void const* p,
 	size_t size
-	)
-{
+) {
 	if (size < sizeof(TutoProtoRange))
 		return null;
 
@@ -229,8 +217,7 @@ bool representTutoProtoCommand_Read(
 	log.Representation* representation,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	return representTutoProtoParamStruct(representation, typeof(TutoProtoRange), p, size);
 }
 
@@ -239,8 +226,7 @@ bool representTutoProtoCommand_Read(
 char const* getTutoProtoReplyDigest_Read(
 	void const* p,
 	size_t size
-	)
-{
+) {
 	return $"%1 bytes"(size);
 }
 
@@ -248,8 +234,7 @@ bool representTutoProtoReply_Read(
 	log.Representation* representation,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	representation.addHyperText($"    Payload (%d bytes):"(size));
 	representation.m_lineAttr.m_textColor = log.StdLogColor.Rx;
 	representation.m_lineAttr.m_backColor = ui.StdColor.PastelYellow;

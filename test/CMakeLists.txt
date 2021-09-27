@@ -13,7 +13,7 @@ option(
 	BUILD_JNC_TESTS
 	"Build Jancy tests"
 	ON
-	)
+)
 
 if(NOT BUILD_JNC_TESTS)
 	return()

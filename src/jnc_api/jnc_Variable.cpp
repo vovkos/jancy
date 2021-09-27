@@ -24,22 +24,19 @@
 
 JNC_EXTERN_C
 uint_t
-jnc_Variable_getPtrTypeFlags(jnc_Variable* variable)
-{
+jnc_Variable_getPtrTypeFlags(jnc_Variable* variable) {
 	return jnc_g_dynamicExtensionLibHost->m_variableFuncTable->m_getPtrTypeFlagsFunc(variable);
 }
 
 JNC_EXTERN_C
 bool_t
-jnc_Variable_hasInitializer(jnc_Variable* variable)
-{
+jnc_Variable_hasInitializer(jnc_Variable* variable) {
 	return jnc_g_dynamicExtensionLibHost->m_variableFuncTable->m_hasInitializerFunc(variable);
 }
 
 JNC_EXTERN_C
 const char*
-jnc_Variable_getInitializerString_v(jnc_Variable* variable)
-{
+jnc_Variable_getInitializerString_v(jnc_Variable* variable) {
 	return jnc_g_dynamicExtensionLibHost->m_variableFuncTable->m_getInitializerStringFunc(variable);
 }
 
@@ -48,24 +45,21 @@ jnc_Variable_getInitializerString_v(jnc_Variable* variable)
 JNC_EXTERN_C
 JNC_EXPORT_O
 uint_t
-jnc_Variable_getPtrTypeFlags(jnc_Variable* variable)
-{
+jnc_Variable_getPtrTypeFlags(jnc_Variable* variable) {
 	return variable->getPtrTypeFlags();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
-jnc_Variable_hasInitializer(jnc_Variable* variable)
-{
+jnc_Variable_hasInitializer(jnc_Variable* variable) {
 	return !variable->getInitializer().isEmpty();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
-jnc_Variable_getInitializerString_v(jnc_Variable* variable)
-{
+jnc_Variable_getInitializerString_v(jnc_Variable* variable) {
 	return *jnc::getTlsStringBuffer() = variable->getInitializerString();
 }
 

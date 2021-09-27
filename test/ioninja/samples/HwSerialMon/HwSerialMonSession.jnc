@@ -14,33 +14,28 @@ import "std_Buffer.jnc"
 
 //..............................................................................
 
-class HwSerialMonSession: doc.Session
-{
+class HwSerialMonSession: doc.Session {
 protected:
-	enum State
-	{
+	enum State {
 		Closed,
 		Opened,
 		Capturing,
 	}
 
-	static char const* m_stateStringTable[] =
-	{
+	static char const* m_stateStringTable[] = {
 		"Closed",
 		"Opened",
 		"Capturing",
 	}
 
-	enum ActionId
-	{
+	enum ActionId {
 		Refresh,
 		Open,
 		Capture,
 		_Count,
 	}
 
-	enum IconId
-	{
+	enum IconId {
 		Refresh,
 		Open,
 		Close,
@@ -49,8 +44,7 @@ protected:
 		_Count,
 	}
 
-	enum StatusPaneId
-	{
+	enum StatusPaneId {
 		State,
 		_Count,
 	}
@@ -130,7 +124,7 @@ protected:
 	void onInEndpointEvent(
 		uint_t syncId,
 		io.UsbEndpointEvents triggeredEvents
-		);
+	);
 
 	void createUi();
 	void enumerateDevices();
@@ -138,7 +132,7 @@ protected:
 	size_t errorcode writeOutEndpoint(
 		void const* p,
 		size_t size
-		);
+	);
 
 	void waitInEndpointEvents();
 	void updateUsbThroughput(uint64_t timestamp = sys.getTimestamp());
@@ -146,8 +140,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-HwSerialMonSession.construct(doc.PluginHost* pluginHost)
-{
+HwSerialMonSession.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
 	m_uart.construct(pluginHost);
 	m_spi.construct(pluginHost);
@@ -160,8 +153,7 @@ HwSerialMonSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-void HwSerialMonSession.createUi()
-{
+void HwSerialMonSession.createUi() {
 	// toolbar
 
 	m_iconTable[IconId.Refresh] = new ui.Icon("images/refresh.png");
@@ -189,28 +181,27 @@ void HwSerialMonSession.createUi()
 	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Connection",
 		"Logic analyzer connection settings"
-		);
+	);
 
 	m_deviceProp = m_pluginHost.m_propertyGrid.createEnumProperty(
 		group,,
 		"Sniffer Device",
 		"Target USB device",
 		null, 0
-		);
+	);
 
 	group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Decoding",
 		"Serial interface decoding settings"
-		);
+	);
 
 	m_showRawDataProp = m_pluginHost.m_propertyGrid.createBoolProperty(
 		group,,
 		"Show Raw Data",
 		"Show raw data packets from HW sniffer"
-		);
+	);
 
-	ui.EnumPropertyOption serialIfaceTable[] =
-	{
+	ui.EnumPropertyOption serialIfaceTable[] = {
 		{ m_uart.m_name, m_uart },
 		{ m_spi.m_name,  m_spi },
 		{ m_i2c.m_name,  m_i2c },
@@ -222,7 +213,7 @@ void HwSerialMonSession.createUi()
 		"Serial interface type",
 		serialIfaceTable,
 		countof(serialIfaceTable)
-		);
+	);
 
 	m_uart.createProperties(group);
 	m_spi.createProperties(group);
@@ -259,24 +250,21 @@ void HwSerialMonSession.createUi()
 	m_uiReactor.start();
 }
 
-void HwSerialMonSession.onOpenDevice()
-{
+void HwSerialMonSession.onOpenDevice() {
 	if (m_state >= State.Opened)
 		closeDevice();
 	else
 		try openDevice();
 }
 
-void HwSerialMonSession.onCapture()
-{
+void HwSerialMonSession.onCapture() {
 	if (m_state >= State.Capturing)
 		stopCapture();
 	else
 		try capture();
 }
 
-void HwSerialMonSession.enumerateDevices()
-{
+void HwSerialMonSession.enumerateDevices() {
 	m_deviceCombo.clear();
 
 	io.UsbDevice* const* deviceArray = io.createUsbDeviceArray();
@@ -285,8 +273,7 @@ void HwSerialMonSession.enumerateDevices()
 	ui.EnumPropertyOption* optionTable = new ui.EnumPropertyOption[count];
 
 	size_t ftdiCount = 0;
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		io.UsbDevice* device = deviceArray[i];
 		io.UsbDeviceDesc const* deviceDesc = device.m_deviceDesc;
 		io.UsbProduct const* product = g_usbDb.findProduct(deviceDesc.m_vendorId, deviceDesc.m_productId);
@@ -298,7 +285,7 @@ void HwSerialMonSession.enumerateDevices()
 			device.m_address,
 			product.m_vendor.m_name,
 			product.m_name
-			);
+		);
 
 		m_deviceCombo.addItem(text, device);
 
@@ -310,8 +297,7 @@ void HwSerialMonSession.enumerateDevices()
 	m_deviceProp.setOptions(optionTable, ftdiCount);
 }
 
-bool errorcode HwSerialMonSession.openDevice()
-{
+bool errorcode HwSerialMonSession.openDevice() {
 	if (m_deviceCombo.m_currentIndex == -1)
 		return false;
 
@@ -347,41 +333,34 @@ catch:
 	return false;
 }
 
-void HwSerialMonSession.closeDevice()
-{
-	if (m_outEndpoint)
-	{
+void HwSerialMonSession.closeDevice() {
+	if (m_outEndpoint) {
 		m_outEndpoint.close();
 		m_outEndpoint = null;
 	}
 
-	if (m_inEndpoint)
-	{
+	if (m_inEndpoint) {
 		m_inEndpoint.close();
 		m_inEndpoint = null;
 	}
 
-	if (m_iface)
-	{
+	if (m_iface) {
 		m_iface.release();
 		m_iface = null;
 	}
 
-	if (m_device)
-	{
+	if (m_device) {
 		m_device.close();
 		m_device = null;
 	}
 
-	if (m_state)
-	{
+	if (m_state) {
 		m_logWriter.write(UsbLogRecordCode.DeviceClosed);
 		m_state = State.Closed;
 	}
 }
 
-bool errorcode HwSerialMonSession.capture()
-{
+bool errorcode HwSerialMonSession.capture() {
 	static char packet[] = 0x"55 55 55 55";
 	writeOutEndpoint(packet, sizeof(packet));
 	m_captureBaseTime = sys.getTimestamp();
@@ -404,8 +383,7 @@ bool errorcode HwSerialMonSession.capture()
 	return true;
 }
 
-bool errorcode HwSerialMonSession.stopCapture()
-{
+bool errorcode HwSerialMonSession.stopCapture() {
 	static char packet[] = 0x"aa aa aa aa";
 	writeOutEndpoint(packet, sizeof(packet));
 
@@ -423,8 +401,7 @@ bool errorcode HwSerialMonSession.stopCapture()
 	return true;
 }
 
-void HwSerialMonSession.waitInEndpointEvents()
-{
+void HwSerialMonSession.waitInEndpointEvents() {
 	io.UsbEndpointEvents eventMask =
 		io.UsbEndpointEvents.IoError |
 		io.UsbEndpointEvents.ReadBufferFull |
@@ -433,8 +410,7 @@ void HwSerialMonSession.waitInEndpointEvents()
 	m_inEndpoint.wait(eventMask, onInEndpointEvent~(++m_inEndpointSyncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
-void HwSerialMonSession.load(doc.Storage* storage)
-{
+void HwSerialMonSession.load(doc.Storage* storage) {
 	m_deviceCombo.m_currentIndex  = storage.readInt("deviceIdx");
 	m_showRawDataProp.m_value = storage.readBool("showRawData");
 	m_serialIfaceProp.m_currentIndex  = storage.readInt("serialInterface");
@@ -444,8 +420,7 @@ void HwSerialMonSession.load(doc.Storage* storage)
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 }
 
-void HwSerialMonSession.save(doc.Storage* storage)
-{
+void HwSerialMonSession.save(doc.Storage* storage) {
 	m_bufferPropertySet.save(storage);
 	storage.writeInt("deviceIdx", m_deviceCombo.m_currentIndex);
 	storage.writeBool("showRawData", m_showRawDataProp.m_value);
@@ -454,13 +429,11 @@ void HwSerialMonSession.save(doc.Storage* storage)
 	m_spi.saveProperties(storage);
 }
 
-void HwSerialMonSession.updateProperties()
-{
+void HwSerialMonSession.updateProperties() {
 	m_deviceProp.m_currentIndex = m_deviceCombo.m_currentIndex;
 }
 
-bool errorcode HwSerialMonSession.applyProperties()
-{
+bool errorcode HwSerialMonSession.applyProperties() {
 	m_deviceCombo.m_currentIndex = m_deviceProp.m_currentIndex;
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 
@@ -475,8 +448,7 @@ bool errorcode HwSerialMonSession.applyProperties()
 	return true;
 }
 
-void HwSerialMonSession.restoreDefaultProperties()
-{
+void HwSerialMonSession.restoreDefaultProperties() {
 	m_deviceProp.m_currentIndex = 0;
 	m_serialIfaceProp.m_currentIndex = 0;
 
@@ -487,8 +459,7 @@ void HwSerialMonSession.restoreDefaultProperties()
 size_t errorcode HwSerialMonSession.writeOutEndpoint(
 	void const* p,
 	size_t size
-	)
-{
+) {
 	size_t result = try m_outEndpoint.write(p, size);
 	if (result == -1)
 		m_logWriter.writeLastError(log.StdRecordCode.Error);
@@ -496,18 +467,15 @@ size_t errorcode HwSerialMonSession.writeOutEndpoint(
 	return result;
 }
 
-void HwSerialMonSession.onUsbThroughputTimer(uint_t syncId)
-{
+void HwSerialMonSession.onUsbThroughputTimer(uint_t syncId) {
 	if (syncId == m_usbThroughputTimerSyncId)
 		updateUsbThroughput();
 }
 
-void HwSerialMonSession.updateUsbThroughput(uint64_t timestamp)
-{
+void HwSerialMonSession.updateUsbThroughput(uint64_t timestamp) {
 	uint64_t throughput;
 
-	if (timestamp > m_usbThroughputTimestamp)
-	{
+	if (timestamp > m_usbThroughputTimestamp) {
 		uint64_t timeSpan = timestamp - m_usbThroughputTimestamp;
 		throughput = (m_usbTotalSize - m_usbPrevTotalSize) * 10000000 / timeSpan;
 		m_usbPrevTotalSize = m_usbTotalSize;
@@ -521,27 +489,23 @@ void HwSerialMonSession.updateUsbThroughput(uint64_t timestamp)
 void HwSerialMonSession.onInEndpointEvent(
 	uint_t syncId,
 	io.UsbEndpointEvents triggeredEvents
-	)
-{
+) {
 	if (syncId != m_inEndpointSyncId)
 		return;
 
-	if (triggeredEvents & io.UsbEndpointEvents.IoError)
-	{
+	if (triggeredEvents & io.UsbEndpointEvents.IoError) {
 		m_logWriter.write(log.StdRecordCode.Error, m_inEndpoint.m_ioError);
 		stopCapture();
 		return;
 	}
 
-	if (triggeredEvents & io.UsbEndpointEvents.IncomingData)
-	{
+	if (triggeredEvents & io.UsbEndpointEvents.IncomingData) {
 		size_t size = m_inEndpoint.read(m_readBuffer.m_p, m_readBuffer.m_size);
 		m_usbTotalSize += size;
 
 		uint64_t const* p = (uint64_t const*) m_readBuffer.m_p;
 		uint64_t const* end = p + size / sizeof(uint64_t);
-		for (; p < end; p++)
-		{
+		for (; p < end; p++) {
 			uint64_t frame = *p;
 			if (!frame)
 				continue; // skip padding
@@ -558,8 +522,7 @@ void HwSerialMonSession.onInEndpointEvent(
 	waitInEndpointEvents();
 }
 
-reactor HwSerialMonSession.m_uiReactor
-{
+reactor HwSerialMonSession.m_uiReactor {
 	m_title = $"HW Serial Mon $(m_deviceCombo.m_currentText)";
 	m_actionTable[ActionId.Open].m_text = m_state ? "Close Sniffer Device" : "Open Sniffer Device";
 	m_actionTable[ActionId.Open].m_icon = m_iconTable[m_state ? IconId.Close : IconId.Open];
@@ -579,8 +542,7 @@ reactor HwSerialMonSession.m_uiReactor
 
 io.UsbDb g_usbDb;
 
-construct()
-{
+construct() {
 	try g_usbDb.load("sniffers.ids");
 }
 

@@ -20,8 +20,7 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(Lock)
 
 //..............................................................................
 
-class Lock: public IfaceHdr
-{
+class Lock: public IfaceHdr {
 public:
 	axl::sys::Lock m_lock;
 
@@ -32,8 +31,7 @@ public:
 
 	void
 	JNC_CDECL
-	unlock()
-	{
+	unlock() {
 		m_lock.unlock();
 	}
 };

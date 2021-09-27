@@ -20,10 +20,8 @@ namespace ct {
 //..............................................................................
 
 const char*
-getEnumTypeFlagString(EnumTypeFlag flag)
-{
-	static const char* stringTable[] =
-	{
+getEnumTypeFlagString(EnumTypeFlag flag) {
+	static const char* stringTable[] = {
 		"exposed",   // EnumTypeFlag_Exposed = 0x0010000
 		"bitflag",   // EnumTypeFlag_BitFlag = 0x0020000
 	};
@@ -36,8 +34,7 @@ getEnumTypeFlagString(EnumTypeFlag flag)
 }
 
 sl::String
-getEnumTypeFlagString(uint_t flags)
-{
+getEnumTypeFlagString(uint_t flags) {
 	sl::String string;
 
 	if (flags & EnumTypeFlag_Exposed)
@@ -59,8 +56,7 @@ EnumConst::generateDocumentation(
 	const sl::StringRef& outputDir,
 	sl::String* itemXml,
 	sl::String* indexXml
-	)
-{
+) {
 	dox::Block* doxyBlock = m_module->m_doxyHost.getItemBlock(this);
 
 	itemXml->format(
@@ -68,13 +64,13 @@ EnumConst::generateDocumentation(
 		"<name>%s</name>\n",
 		doxyBlock->getRefId().sz(),
 		m_name.sz()
-		);
+	);
 
 	if (!m_initializer.isEmpty())
 		itemXml->appendFormat(
 			"<initializer>= %s</initializer>\n",
 			getInitializerString().sz()
-			);
+		);
 
 	itemXml->append(doxyBlock->getDescriptionString());
 	itemXml->append("</enumvalue>\n");
@@ -84,8 +80,7 @@ EnumConst::generateDocumentation(
 
 //..............................................................................
 
-EnumType::EnumType()
-{
+EnumType::EnumType() {
 	m_typeKind = TypeKind_Enum;
 	m_flags = TypeFlag_Pod;
 	m_rootType = NULL;
@@ -93,16 +88,14 @@ EnumType::EnumType()
 }
 
 bool
-EnumType::isBaseType(EnumType* type)
-{
+EnumType::isBaseType(EnumType* type) {
 	if (m_baseType->getTypeKind() != TypeKind_Enum ||
 		type->getRootType()->cmp(m_rootType) != 0) // fast-exit
 		return false;
 
 	EnumType* baseType = (EnumType*)m_baseType;
 
-	for (;;)
-{
+	for (;;) {
 		if (type->cmp(baseType) == 0)
 			return true;
 
@@ -116,8 +109,7 @@ EnumConst*
 EnumType::createConst(
 	const sl::StringRef& name,
 	sl::BoxList<Token>* initializer
-	)
-{
+) {
 	EnumConst* enumConst = AXL_MEM_NEW(EnumConst);
 	enumConst->m_module = m_module;
 	enumConst->m_parentUnit = m_parentUnit;
@@ -138,8 +130,7 @@ EnumType::createConst(
 }
 
 void
-EnumType::prepareSignature()
-{
+EnumType::prepareSignature() {
 	const char* signaturePrefix = (m_flags & EnumTypeFlag_BitFlag) ?
 		(m_flags & EnumTypeFlag_Exposed) ? "EZ" : "EF" :
 		(m_flags & EnumTypeFlag_Exposed) ? "EC" : "EE";
@@ -148,8 +139,7 @@ EnumType::prepareSignature()
 }
 
 bool
-EnumType::parseBody()
-{
+EnumType::parseBody() {
 	Unit* prevUnit = m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
 	m_module->m_namespaceMgr.openNamespace(this);
 
@@ -161,7 +151,7 @@ EnumType::parseBody()
 		SymbolKind_enum_const_list,
 		lex::LineColOffset(m_bodyPos.m_line, m_bodyPos.m_col + 1, m_bodyPos.m_offset + 1),
 		m_body.getSubString(1, length - 2)
-		);
+	);
 
 	if (!result)
 		return false;
@@ -176,10 +166,8 @@ EnumType::findDirectChildItemTraverse(
 	const sl::StringRef& name,
 	MemberCoord* coord,
 	uint_t flags
-	)
-{
-	if (!(flags & TraverseFlag_NoThis))
-	{
+) {
+	if (!(flags & TraverseFlag_NoThis)) {
 		FindModuleItemResult findResult = findDirectChildItem(name);
 		if (!findResult.m_result)
 			return findResult;
@@ -188,8 +176,7 @@ EnumType::findDirectChildItemTraverse(
 			return findResult;
 	}
 
-	if (!(flags & TraverseFlag_NoBaseType) && m_baseType->getTypeKind() == TypeKind_Enum)
-	{
+	if (!(flags & TraverseFlag_NoBaseType) && m_baseType->getTypeKind() == TypeKind_Enum) {
 		uint_t modFlags = (flags & ~TraverseFlag_NoThis) | TraverseFlag_NoParentNamespace;
 		FindModuleItemResult findResult = ((EnumType*)m_baseType)->findDirectChildItemTraverse(name, coord, modFlags);
 		if (!findResult.m_result)
@@ -205,8 +192,7 @@ EnumType::findDirectChildItemTraverse(
 }
 
 bool
-EnumType::calcLayout()
-{
+EnumType::calcLayout() {
 	bool result =
 		m_baseType->ensureLayout() &&
 		ensureNamespaceReady() &&
@@ -225,13 +211,12 @@ EnumType::calcLayout()
 	m_rootType = rootType;
 
 	if (!(m_baseType->getTypeKindFlags() & TypeKindFlag_Integer) &&
-		m_baseType->getTypeKind() != TypeKind_TypedefShadow) // typedef shadows are for documentation & code-assist
-	{
+		m_baseType->getTypeKind() != TypeKind_TypedefShadow) { // typedef shadows are for documentation & code-assist
 		err::setFormatStringError(
 			"invalid base type %s for %s (must be integer type)",
 			m_baseType->getTypeString().sz(),
 			getTypeString().sz()
-			);
+		);
 
 		return false;
 	}
@@ -256,11 +241,9 @@ EnumType::calcLayout()
 }
 
 EnumConst*
-EnumType::findBaseEnumConst()
-{
+EnumType::findBaseEnumConst() {
 	EnumType* baseType = (EnumType*)m_baseType;
-	while (baseType->getTypeKind() == TypeKind_Enum)
-	{
+	while (baseType->getTypeKind() == TypeKind_Enum) {
 		if (!baseType->m_constList.isEmpty())
 			return *baseType->m_constList.getTail();
 
@@ -271,20 +254,17 @@ EnumType::findBaseEnumConst()
 }
 
 bool
-EnumType::calcEnumConstValues(EnumConst* baseConst)
-{
+EnumType::calcEnumConstValues(EnumConst* baseConst) {
 	bool finalResult = true;
 	int64_t value = baseConst ? baseConst->m_value + 1 : 0;
 
 	sl::Iterator<EnumConst> constIt = m_constList.getHead();
-	for (; constIt; constIt++, value++)
-	{
+	for (; constIt; constIt++, value++) {
 		bool result = constIt->ensureAttributeValuesReady();
 		if (!result)
 			finalResult = false;
 
-		if (!constIt->m_initializer.isEmpty())
-		{
+		if (!constIt->m_initializer.isEmpty()) {
 			result = m_module->m_operatorMgr.parseConstIntegerExpression(constIt->m_initializer, &value);
 			if (!result)
 				finalResult = false;
@@ -299,20 +279,17 @@ EnumType::calcEnumConstValues(EnumConst* baseConst)
 }
 
 bool
-EnumType::calcBitflagEnumConstValues(EnumConst* baseConst)
-{
+EnumType::calcBitflagEnumConstValues(EnumConst* baseConst) {
 	bool finalResult = true;
 	int64_t value = baseConst ? 2 << sl::getHiBitIdx64(baseConst->m_value) : 1;
 
 	sl::Iterator<EnumConst> constIt = m_constList.getHead();
-	for (; constIt; constIt++)
-	{
+	for (; constIt; constIt++) {
 		bool result = constIt->ensureAttributeValuesReady();
 		if (!result)
 			finalResult = false;
 
-		if (!constIt->m_initializer.isEmpty())
-		{
+		if (!constIt->m_initializer.isEmpty()) {
 			result = m_module->m_operatorMgr.parseConstIntegerExpression(constIt->m_initializer, &value);
 			if (!result)
 				finalResult = false;
@@ -332,16 +309,14 @@ sl::String
 EnumType::getValueString(
 	const void* p,
 	const char* formatSpec
-	)
-{
+) {
 	Value value;
 	bool result = m_module->m_operatorMgr.castOperator(Value(p, m_baseType), TypeKind_Int64, &value);
 	ASSERT(result);
 
 	int64_t n = *(int64_t*)value.getConstData();
 
-	if (!(m_flags & EnumTypeFlag_BitFlag)) // shortcut
-	{
+	if (!(m_flags & EnumTypeFlag_BitFlag)) { // shortcut
 		EnumConst* enumConst = findConst(n);
 		return enumConst ? enumConst->m_name : m_baseType->getValueString(p, formatSpec);
 	}
@@ -350,8 +325,7 @@ EnumType::getValueString(
 
 	int64_t unnamedFlags = 0;
 
-	while (n)
-	{
+	while (n) {
 		int64_t flag = sl::getLoBit64(n);
 		if (!flag)
 			break;
@@ -359,12 +333,9 @@ EnumType::getValueString(
 		n &= ~flag;
 
 		EnumConst* enumConst = findConst(flag);
-		if (!enumConst)
-		{
+		if (!enumConst) {
 			unnamedFlags |= flag;
-		}
-		else
-		{
+		} else {
 			if (!string.isEmpty())
 				string += ", ";
 
@@ -378,8 +349,7 @@ EnumType::getValueString(
 	if (string.isEmpty())
 		return m_baseType->getValueString(p, formatSpec);
 
-	if (unnamedFlags)
-	{
+	if (unnamedFlags) {
 		string += ", ";
 		string += m_baseType->getValueString(&unnamedFlags, formatSpec);
 	}
@@ -392,8 +362,7 @@ EnumType::generateDocumentation(
 	const sl::StringRef& outputDir,
 	sl::String* itemXml,
 	sl::String* indexXml
-	)
-{
+) {
 	bool result = ensureNoImports();
 	if (!result)
 		return false;
@@ -410,7 +379,7 @@ EnumType::generateDocumentation(
 		">\n<name>%s</name>\n",
 		doxyBlock->getRefId().sz(),
 		m_name.sz()
-		);
+	);
 
 	uint_t flags = m_flags;
 	if (m_name.isEmpty())

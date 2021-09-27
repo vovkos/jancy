@@ -25,7 +25,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	SysLibCacheSlot_Thread,
 	Thread,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Thread)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<Thread>)
@@ -40,26 +40,22 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 bool
 JNC_CDECL
-Thread::start(FunctionPtr ptr)
-{
+Thread::start(FunctionPtr ptr) {
 	bool result;
 
-	if (m_thread.isOpen())
-	{
+	if (m_thread.isOpen()) {
 		err::setError(err::SystemErrorCode_InvalidDeviceState);
 		return false;
 	}
 
-	if (!ptr.m_p)
-	{
+	if (!ptr.m_p) {
 		err::setError(err::SystemErrorCode_InvalidParameter);
 		return false;
 	}
 
 	m_threadFuncPtr = ptr;
 	result = m_thread.start();
-	if (!result)
-	{
+	if (!result) {
 		m_threadFuncPtr = g_nullFunctionPtr;
 		return false;
 	}
@@ -70,8 +66,7 @@ Thread::start(FunctionPtr ptr)
 
 bool
 JNC_CDECL
-Thread::wait(uint_t timeout)
-{
+Thread::wait(uint_t timeout) {
 	bool result;
 
 	GcHeap* gcHeap = m_runtime->getGcHeap();
@@ -86,8 +81,7 @@ Thread::wait(uint_t timeout)
 
 void
 JNC_CDECL
-Thread::waitAndClose(uint_t timeout)
-{
+Thread::waitAndClose(uint_t timeout) {
 	GcHeap* gcHeap = m_runtime->getGcHeap();
 	ASSERT(gcHeap == getCurrentThreadGcHeap());
 

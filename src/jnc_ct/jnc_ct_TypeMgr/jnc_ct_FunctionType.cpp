@@ -18,8 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-FunctionType::FunctionType()
-{
+FunctionType::FunctionType() {
 	m_typeKind = TypeKind_Function;
 	m_callConv = NULL;
 	m_returnType = NULL;
@@ -31,15 +30,13 @@ FunctionType::FunctionType()
 }
 
 DerivableType*
-FunctionType::getThisTargetType()
-{
+FunctionType::getThisTargetType() {
 	Type* thisArgType = getThisArgType();
 	if (!thisArgType)
 		return NULL;
 
 	TypeKind thisArgTypeKind = thisArgType->getTypeKind();
-	switch (thisArgTypeKind)
-	{
+	switch (thisArgTypeKind) {
 	case TypeKind_ClassPtr:
 		return ((ClassPtrType*)thisArgType)->getTargetType();
 
@@ -53,8 +50,7 @@ FunctionType::getThisTargetType()
 }
 
 const sl::String&
-FunctionType::getArgSignature()
-{
+FunctionType::getArgSignature() {
 	if (m_argSignature.isEmpty())
 		m_argSignature = createArgSignature();
 
@@ -66,14 +62,12 @@ FunctionType::getFunctionPtrType(
 	TypeKind typeKind,
 	FunctionPtrTypeKind ptrTypeKind,
 	uint_t flags
-	)
-{
+) {
 	return m_module->m_typeMgr.getFunctionPtrType(this, typeKind, ptrTypeKind, flags);
 }
 
 ClassType*
-FunctionType::getMulticastType()
-{
+FunctionType::getMulticastType() {
 	return m_module->m_typeMgr.getMulticastType(this);
 }
 
@@ -81,14 +75,12 @@ FunctionType*
 FunctionType::getMemberMethodType(
 	DerivableType* parentType,
 	uint_t thisArgTypeFlags
-	)
-{
+) {
 	return m_module->m_typeMgr.getMemberMethodType(parentType, this, thisArgTypeFlags);
 }
 
 FunctionType*
-FunctionType::getStdObjectMemberMethodType()
-{
+FunctionType::getStdObjectMemberMethodType() {
 	return m_module->m_typeMgr.getStdObjectMemberMethodType(this);
 }
 
@@ -97,12 +89,10 @@ FunctionType::createArgSignature(
 	Type* const* argTypeArray,
 	size_t argCount,
 	uint_t flags
-	)
-{
+) {
 	sl::String string = '(';
 
-	for (size_t i = 0; i < argCount; i++)
-	{
+	for (size_t i = 0; i < argCount; i++) {
 		Type* type = argTypeArray[i];
 		string += type->getSignature();
 		string += ',';
@@ -120,12 +110,10 @@ FunctionType::createArgSignature(
 	FunctionArg* const* argArray,
 	size_t argCount,
 	uint_t flags
-	)
-{
+) {
 	sl::String string = '(';
 
-	for (size_t i = 0; i < argCount; i++)
-	{
+	for (size_t i = 0; i < argCount; i++) {
 		FunctionArg* arg = argArray[i];
 		string += arg->getType()->getSignature();
 		string += ',';
@@ -139,8 +127,7 @@ FunctionType::createArgSignature(
 }
 
 sl::String
-FunctionType::createFlagSignature(uint_t flags)
-{
+FunctionType::createFlagSignature(uint_t flags) {
 	sl::String string;
 
 	if (flags & FunctionTypeFlag_Unsafe)
@@ -162,8 +149,7 @@ FunctionType::createSignature(
 	Type* const* argTypeArray,
 	size_t argCount,
 	uint_t flags
-	)
-{
+) {
 	sl::String string = 'F';
 	string += createFlagSignature(flags);
 	string += getCallConvSignature(callConv->getCallConvKind());
@@ -179,8 +165,7 @@ FunctionType::createSignature(
 	FunctionArg* const* argArray,
 	size_t argCount,
 	uint_t flags
-	)
-{
+) {
 	sl::String string = 'F';
 	string += createFlagSignature(flags);
 	string += getCallConvSignature(callConv->getCallConvKind());
@@ -190,8 +175,7 @@ FunctionType::createSignature(
 }
 
 sl::String
-FunctionType::getTypeModifierString()
-{
+FunctionType::getTypeModifierString() {
 	sl::String string;
 
 	if (m_flags & (FunctionTypeFlag_ErrorCode | FunctionTypeFlag_AsyncErrorCode))
@@ -203,8 +187,7 @@ FunctionType::getTypeModifierString()
 	if (m_flags & FunctionTypeFlag_Unsafe)
 		string += "unsafe ";
 
-	if (!m_callConv->isDefault())
-	{
+	if (!m_callConv->isDefault()) {
 		string = m_callConv->getCallConvDisplayString();
 		string += ' ';
 	}
@@ -216,15 +199,13 @@ FunctionType::getTypeModifierString()
 }
 
 bool
-FunctionType::resolveImports()
-{
+FunctionType::resolveImports() {
 	bool result = m_returnType->ensureNoImports();
 	if (!result)
 		return false;
 
 	size_t count = m_argArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		result = m_argArray[i]->getType()->ensureNoImports();
 		if (!result)
 			return false;
@@ -234,22 +215,19 @@ FunctionType::resolveImports()
 }
 
 bool
-FunctionType::calcLayout()
-{
+FunctionType::calcLayout() {
 	bool result = m_returnType->ensureLayout();
 	if (!result)
 		return false;
 
 	if ((m_flags & FunctionTypeFlag_ErrorCode) &&
-		!(m_returnType->getTypeKindFlags() & TypeKindFlag_ErrorCode))
-	{
+		!(m_returnType->getTypeKindFlags() & TypeKindFlag_ErrorCode)) {
 		err::setFormatStringError("'%s' cannot be used as error code", m_returnType->getTypeString().sz());
 		return false;
 	}
 
 	size_t count = m_argArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		result = m_argArray[i]->getType()->ensureLayout();
 		if (!result)
 			return false;
@@ -259,29 +237,25 @@ FunctionType::calcLayout()
 }
 
 void
-FunctionType::prepareTypeString()
-{
+FunctionType::prepareTypeString() {
 	TypeStringTuple* tuple = getTypeStringTuple();
 	Type* returnType = (m_flags & FunctionTypeFlag_Async) ? m_asyncReturnType : m_returnType;
 
 	tuple->m_typeStringPrefix = returnType->getTypeStringPrefix();
 
 	sl::String modifierString = getTypeModifierString();
-	if (!modifierString.isEmpty())
-	{
+	if (!modifierString.isEmpty()) {
 		tuple->m_typeStringPrefix += ' ';
 		tuple->m_typeStringPrefix += modifierString;
 	}
 
 	tuple->m_typeStringSuffix = "(";
 
-	if (!m_argArray.isEmpty())
-	{
+	if (!m_argArray.isEmpty()) {
 		tuple->m_typeStringSuffix += m_argArray[0]->getArgString();
 
 		size_t count = m_argArray.getCount();
-		for (size_t i = 1; i < count; i++)
-		{
+		for (size_t i = 1; i < count; i++) {
 			tuple->m_typeStringSuffix += ", ";
 			tuple->m_typeStringSuffix += m_argArray[i]->getArgString();
 		}
@@ -299,16 +273,14 @@ FunctionType::prepareTypeString()
 }
 
 void
-FunctionType::prepareDoxyLinkedText()
-{
+FunctionType::prepareDoxyLinkedText() {
 	TypeStringTuple* tuple = getTypeStringTuple();
 	Type* returnType = (m_flags & FunctionTypeFlag_Async) ? m_asyncReturnType : m_returnType;
 
 	tuple->m_doxyLinkedTextPrefix = returnType->getDoxyLinkedTextPrefix();
 
 	sl::String modifierString = getTypeModifierString();
-	if (!modifierString.isEmpty())
-	{
+	if (!modifierString.isEmpty()) {
 		tuple->m_doxyLinkedTextPrefix += ' ';
 		tuple->m_doxyLinkedTextPrefix += getTypeModifierString();
 	}
@@ -317,13 +289,11 @@ FunctionType::prepareDoxyLinkedText()
 
 	tuple->m_doxyLinkedTextSuffix = "(";
 
-	if (!m_argArray.isEmpty())
-	{
+	if (!m_argArray.isEmpty()) {
 		tuple->m_doxyLinkedTextSuffix += m_argArray[0]->getArgDoxyLinkedText();
 
 		size_t count = m_argArray.getCount();
-		for (size_t i = 1; i < count; i++)
-		{
+		for (size_t i = 1; i < count; i++) {
 			tuple->m_doxyLinkedTextSuffix += ", ";
 			tuple->m_doxyLinkedTextSuffix += m_argArray[i]->getArgDoxyLinkedText();
 		}
@@ -341,33 +311,28 @@ FunctionType::prepareDoxyLinkedText()
 }
 
 void
-FunctionType::prepareDoxyTypeString()
-{
+FunctionType::prepareDoxyTypeString() {
 	Type::prepareDoxyTypeString();
 	getTypeStringTuple()->m_doxyTypeString += getDoxyArgString();
 }
 
 void
-FunctionType::prepareLlvmType()
-{
+FunctionType::prepareLlvmType() {
 	m_callConv->prepareFunctionType(this);
 	ASSERT(m_llvmType);
 }
 
 void
-FunctionType::prepareLlvmDiType()
-{
+FunctionType::prepareLlvmDiType() {
 	m_llvmDiType = m_module->m_llvmDiBuilder.createSubroutineType(this);
 }
 
 sl::String
-FunctionType::getDoxyArgString()
-{
+FunctionType::getDoxyArgString() {
 	sl::String string;
 
 	size_t count = m_argArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		FunctionArg* arg = m_argArray[i];
 		if (arg->getStorageKind() == StorageKind_This)
 			continue;
@@ -382,13 +347,13 @@ FunctionType::getDoxyArgString()
 			arg->getName().sz(),
 			type->getDoxyLinkedTextPrefix().sz(),
 			type->getTypeStringSuffix().sz()
-			);
+		);
 
 		if (!arg->getInitializer().isEmpty())
 			string.appendFormat(
 				"<defval>%s</defval>\n",
 				arg->getInitializerString().sz()
-				);
+			);
 
 		string.append("</param>\n");
 	}
@@ -398,7 +363,7 @@ FunctionType::getDoxyArgString()
 			"<param>\n"
 			"<type>...</type>\n"
 			"</param>\n"
-			);
+		);
 
 	return string;
 }

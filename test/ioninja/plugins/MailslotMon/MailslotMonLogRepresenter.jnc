@@ -14,10 +14,8 @@ bool representMailslotMonLog  (
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
-	switch (recordCode)
-	{
+) {
+	switch (recordCode) {
 	case MailslotMonLogRecordCode.ServerFileOpened_0:
 		uint32_t fileId = *(uint32_t const*)p;
 		char const* name = (char const*)(p + sizeof(fileId));

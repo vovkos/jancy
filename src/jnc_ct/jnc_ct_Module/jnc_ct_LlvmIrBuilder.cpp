@@ -18,8 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-LlvmIrBuilder::LlvmIrBuilder()
-{
+LlvmIrBuilder::LlvmIrBuilder() {
 	m_module = Module::getCurrentConstructedModule();
 	ASSERT(m_module);
 
@@ -28,8 +27,7 @@ LlvmIrBuilder::LlvmIrBuilder()
 }
 
 void
-LlvmIrBuilder::create()
-{
+LlvmIrBuilder::create() {
 	ASSERT(!m_llvmIrBuilder);
 
 	m_llvmIrBuilder = new LlvmIrBuilderImpl(*m_module->getLlvmContext());
@@ -37,8 +35,7 @@ LlvmIrBuilder::create()
 }
 
 void
-LlvmIrBuilder::clear()
-{
+LlvmIrBuilder::clear() {
 	if (!m_llvmIrBuilder)
 		return;
 
@@ -50,8 +47,7 @@ LlvmIrBuilder::clear()
 }
 
 void
-LlvmIrBuilder::setAllocaBlock(BasicBlock* block)
-{
+LlvmIrBuilder::setAllocaBlock(BasicBlock* block) {
 	ASSERT(m_llvmAllocaIrBuilder);
 
 	llvm::Instruction* llvmJmp = block->getLlvmBlock()->getTerminator();
@@ -66,8 +62,7 @@ LlvmIrBuilder::createSwitch(
 	BasicBlock* defaultBlock,
 	sl::HashTableIterator<intptr_t, BasicBlock*> firstCase,
 	size_t caseCount
-	)
-{
+) {
 	ASSERT(m_llvmIrBuilder);
 
 	Type* type = value.getType();
@@ -77,11 +72,10 @@ LlvmIrBuilder::createSwitch(
 		value.getLlvmValue(),
 		defaultBlock->getLlvmBlock(),
 		caseCount
-		);
+	);
 
 	sl::HashTableIterator<intptr_t, BasicBlock*> caseIt = firstCase;
-	for (; caseIt; caseIt++)
-	{
+	for (; caseIt; caseIt++) {
 		Value constValue(caseIt->getKey(), type);
 		BasicBlock* block = caseIt->m_value;
 
@@ -92,8 +86,7 @@ LlvmIrBuilder::createSwitch(
 }
 
 void
-LlvmIrBuilder::setInsertPoint(BasicBlock* block)
-{
+LlvmIrBuilder::setInsertPoint(BasicBlock* block) {
 	ASSERT(m_llvmIrBuilder);
 
 	if (!(block->getFlags() & BasicBlockFlag_Entry) || !block->hasTerminator())
@@ -103,18 +96,14 @@ LlvmIrBuilder::setInsertPoint(BasicBlock* block)
 }
 
 void
-LlvmIrBuilder::saveInsertPoint(LlvmIrInsertPoint* insertPoint)
-{
+LlvmIrBuilder::saveInsertPoint(LlvmIrInsertPoint* insertPoint) {
 	ASSERT(m_llvmIrBuilder);
 
 	insertPoint->m_llvmBlock = m_llvmIrBuilder->GetInsertBlock();
 
-	if (insertPoint->m_llvmBlock->empty())
-	{
+	if (insertPoint->m_llvmBlock->empty()) {
 		insertPoint->m_llvmInstruction = NULL;
-	}
-	else
-	{
+	} else {
 		llvm::BasicBlock::iterator llvmInstIt = m_llvmIrBuilder->GetInsertPoint();
 #if (LLVM_VERSION < 0x050000)
 		ASSERT(&*llvmInstIt);
@@ -133,8 +122,7 @@ bool
 LlvmIrBuilder::restoreInsertPoint(
 	const LlvmIrInsertPoint& insertPoint,
 	LlvmIrInsertPoint* prevInsertPoint
-	)
-{
+) {
 	ASSERT(m_llvmIrBuilder);
 
 	saveInsertPoint(prevInsertPoint);
@@ -146,19 +134,15 @@ LlvmIrBuilder::restoreInsertPoint(
 }
 
 void
-LlvmIrBuilder::restoreInsertPoint(const LlvmIrInsertPoint& insertPoint)
-{
+LlvmIrBuilder::restoreInsertPoint(const LlvmIrInsertPoint& insertPoint) {
 	ASSERT(m_llvmIrBuilder && insertPoint);
 
-	if (!insertPoint.m_llvmInstruction)
-	{
+	if (!insertPoint.m_llvmInstruction) {
 		if (insertPoint.m_llvmBlock->empty())
 			m_llvmIrBuilder->SetInsertPoint(insertPoint.m_llvmBlock);
 		else
 			m_llvmIrBuilder->SetInsertPoint(&insertPoint.m_llvmBlock->front());
-	}
-	else
-	{
+	} else {
 		if (insertPoint.m_llvmInstruction == &insertPoint.m_llvmBlock->back())
 			m_llvmIrBuilder->SetInsertPoint(insertPoint.m_llvmBlock);
 		else
@@ -171,8 +155,7 @@ LlvmIrBuilder::createIndirectBr(
 	const Value& value,
 	BasicBlock** blockArray,
 	size_t blockCount
-	)
-{
+) {
 	ASSERT(m_llvmIrBuilder);
 
 	llvm::IndirectBrInst* inst = m_llvmIrBuilder->CreateIndirectBr(value.getLlvmValue(), blockCount);
@@ -190,8 +173,7 @@ LlvmIrBuilder::createSwitch(
 	intptr_t* constArray,
 	BasicBlock** blockArray,
 	size_t caseCount
-	)
-{
+) {
 	ASSERT(m_llvmIrBuilder);
 
 	Type* type = value.getType();
@@ -201,10 +183,9 @@ LlvmIrBuilder::createSwitch(
 		value.getLlvmValue(),
 		defaultBlock->getLlvmBlock(),
 		caseCount
-		);
+	);
 
-	for (size_t i = 0; i < caseCount; i++)
-	{
+	for (size_t i = 0; i < caseCount; i++) {
 		Value constValue(constArray[i], type);
 		BasicBlock* block = blockArray[i];
 
@@ -220,12 +201,10 @@ LlvmIrBuilder::createPhi(
 	BasicBlock** blockArray,
 	size_t count,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(m_llvmIrBuilder);
 
-	if (valueArray->isEmpty())
-	{
+	if (valueArray->isEmpty()) {
 		resultValue->setVoid(m_module);
 		return NULL;
 	}
@@ -246,12 +225,10 @@ LlvmIrBuilder::createPhi(
 	const Value& value2,
 	BasicBlock* block2,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(m_llvmIrBuilder);
 
-	if (value1.isEmpty())
-	{
+	if (value1.isEmpty()) {
 		resultValue->setVoid(m_module);
 		return NULL;
 	}
@@ -270,8 +247,7 @@ LlvmIrBuilder::createGep(
 	size_t indexCount,
 	Type* resultType,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(m_llvmIrBuilder);
 
 	char buffer[256];
@@ -285,7 +261,7 @@ LlvmIrBuilder::createGep(
 			value.getLlvmValue(),
 			llvm::ArrayRef<llvm::Value*> (llvmIndexArray, indexCount),
 			"gep"
-			);
+		);
 
 	resultValue->setLlvmValue(inst, resultType);
 	return inst;
@@ -298,16 +274,14 @@ LlvmIrBuilder::createGep(
 	size_t indexCount,
 	Type* resultType,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(m_llvmIrBuilder);
 
 	char buffer[256];
 	sl::Array<llvm::Value*> llvmIndexArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	llvmIndexArray.setCount(indexCount);
 
-	for (size_t i = 0; i < indexCount; i++)
-	{
+	for (size_t i = 0; i < indexCount; i++) {
 		Value indexValue;
 		indexValue.setConstInt32(indexArray[i], m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32_u));
 		llvmIndexArray[i] = indexValue.getLlvmValue();
@@ -317,7 +291,7 @@ LlvmIrBuilder::createGep(
 			value.getLlvmValue(),
 			llvm::ArrayRef<llvm::Value*> (llvmIndexArray, indexCount),
 			"gep"
-			);
+		);
 
 	resultValue->setLlvmValue(inst, resultType);
 	return inst;
@@ -331,8 +305,7 @@ LlvmIrBuilder::createCall(
 	size_t argCount,
 	Type* resultType,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(m_llvmIrBuilder);
 
 	llvm::CallInst* llvmInst;
@@ -342,8 +315,7 @@ LlvmIrBuilder::createCall(
 	llvm::FunctionType* llvmFunctionType = llvm::cast<llvm::FunctionType>(llvmCalleeType->getPointerElementType());
 #endif
 
-	if (resultType->getTypeKind() != TypeKind_Void)
-	{
+	if (resultType->getTypeKind() != TypeKind_Void) {
 		llvmInst = m_llvmIrBuilder->CreateCall(
 #if (LLVM_VERSION_MAJOR >= 11)
 			llvmFunctionType,
@@ -351,20 +323,18 @@ LlvmIrBuilder::createCall(
 			calleeValue.getLlvmValue(),
 			llvm::ArrayRef<llvm::Value*> (llvmArgValueArray, argCount),
 			"call"
-			);
+		);
 
 		ASSERT(resultValue);
 		resultValue->setLlvmValue(llvmInst, resultType);
-	}
-	else
-	{
+	} else {
 		llvmInst = m_llvmIrBuilder->CreateCall(
 #if (LLVM_VERSION_MAJOR >= 11)
 			llvmFunctionType,
 #endif
 			calleeValue.getLlvmValue(),
 			llvm::ArrayRef<llvm::Value*> (llvmArgValueArray, argCount)
-			);
+		);
 
 		if (resultValue)
 			resultValue->setVoid(m_module);
@@ -384,8 +354,7 @@ LlvmIrBuilder::createCall(
 	const sl::BoxList<Value>& argValueList,
 	Type* resultType,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(m_llvmIrBuilder);
 
 	size_t argCount = argValueList.getCount();
@@ -395,8 +364,7 @@ LlvmIrBuilder::createCall(
 	llvmArgValueArray.setCount(argCount);
 
 	sl::ConstBoxIterator<Value> it = argValueList.getHead();
-	for (size_t i = 0; i < argCount; i++, it++)
-	{
+	for (size_t i = 0; i < argCount; i++, it++) {
 		ASSERT(it);
 		llvmArgValueArray[i] = it->getLlvmValue();
 	}
@@ -412,8 +380,7 @@ LlvmIrBuilder::createCall(
 	size_t argCount,
 	Type* resultType,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(m_llvmIrBuilder);
 
 	char buffer[256];
@@ -432,8 +399,7 @@ LlvmIrBuilder::createClosureFunctionPtr(
 	const Value& rawClosureValue,
 	FunctionPtrType* resultType,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(m_llvmIrBuilder);
 
 	Value ptrValue;
@@ -453,8 +419,7 @@ LlvmIrBuilder::createClosurePropertyPtr(
 	const Value& rawClosureValue,
 	PropertyPtrType* resultType,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(m_llvmIrBuilder);
 
 	Value ptrValue;
@@ -471,8 +436,7 @@ LlvmIrBuilder::createClosurePropertyPtr(
 //..............................................................................
 
 sl::String
-getLlvmInstructionString(llvm::Instruction* llvmInst)
-{
+getLlvmInstructionString(llvm::Instruction* llvmInst) {
 	std::string bufferString;
 	llvm::raw_string_ostream stream(bufferString);
 	llvmInst->print(stream);

@@ -9,8 +9,7 @@
 //
 //..............................................................................
 
-struct
-{
+struct {
 	sl::BoxList<Token> m_tokenList;
 }
 expression_pass1
@@ -53,8 +52,7 @@ expression_pass1_item<sl::BoxList<Token>* $tokenList>
 
 // arg_list & curly_initializer are simplier cause we only need to count one kind of braces
 
-struct
-{
+struct {
 	sl::BoxList<Token> m_tokenList;
 }
 arg_list_pass1
@@ -77,8 +75,7 @@ arg_list_pass1_item<sl::BoxList<Token>* $tokenList>
 			}
 	;
 
-struct
-{
+struct {
 	sl::BoxList<Token> m_tokenList;
 }
 curly_initializer_pass1
@@ -130,39 +127,33 @@ expression_or_empty_list_save_list
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct
-{
+struct {
 	Value m_value;
 }
 start
 expression
-	enter
-	{
+	enter {
 		m_module->m_namespaceMgr.setSourcePos(m_currentToken.m_pos);
 	}
 	:	conditional_expr<&$.m_value>
 	;
 
-struct
-{
+struct {
 	Value m_value;
 }
 start
 expression_0
-	enter
-	{
+	enter {
 		m_module->m_controlFlowMgr.lockEmission();
 	}
-	leave
-	{
+	leave {
 		m_module->m_controlFlowMgr.unlockEmission();
 	}
 	:	conditional_expr<&$.m_value>
 	;
 
 
-struct
-{
+struct {
 	Value m_value;
 }
 nullable
@@ -171,8 +162,7 @@ expression_or_empty
 	|	epsilon
 	;
 
-struct
-{
+struct {
 	sl::BoxList<Value> m_valueList;
 }
 expression_list
@@ -190,8 +180,7 @@ expression_list
 // expression_or_empty_list might seem overcomplicated but
 // this is done to avoid having a singe ValueKind_Void in case of empty list
 
-struct
-{
+struct {
 	sl::BoxList<Value> m_valueList;
 }
 nullable
@@ -226,24 +215,21 @@ expression_or_empty_list
 	|	epsilon
 	;
 
-struct
-{
+struct {
 	Value m_value;
 }
 start
 constant_expr
 	:	conditional_expr<&$.m_value>
 			{
-				if ($.m_value.getValueKind() != ValueKind_Const)
-				{
+				if ($.m_value.getValueKind() != ValueKind_Const) {
 					err::setFormatStringError("not a constant expression");
 					return false;
 				}
 			}
 	;
 
-struct
-{
+struct {
 	intptr_t m_value;
 }
 start
@@ -251,8 +237,7 @@ constant_integer_expr
 	:	expression
 			{
 				if ($1.m_value.getValueKind() != ValueKind_Const ||
-					!($1.m_value.getType()->getTypeKindFlags() & TypeKindFlag_Integer))
-				{
+					!($1.m_value.getType()->getTypeKindFlags() & TypeKindFlag_Integer)) {
 					err::setFormatStringError("expression is not integer constant");
 					return false;
 				}
@@ -267,8 +252,7 @@ constant_integer_expr
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct
-{
+struct {
 	Value m_trueValue;
 	Value m_falseValue;
 	BasicBlock* m_thenBlock;
@@ -303,8 +287,7 @@ conditional_expr<Value* $value>
 	;
 
 logical_or_expr<Value* $value>
-	local
-	{
+	local {
 		BasicBlock* $opBlock1;
 		BasicBlock* $opBlock2;
 		Value $opValue2;
@@ -327,8 +310,7 @@ logical_or_expr<Value* $value>
 	;
 
 logical_and_expr<Value* $value>
-	local
-	{
+	local {
 		BasicBlock* $opBlock1;
 		BasicBlock* $opBlock2;
 		Value $opValue2;
@@ -351,8 +333,7 @@ logical_and_expr<Value* $value>
 	;
 
 inclusive_or_expr<Value* $value>
-	local
-	{
+	local {
 		Value $opValue2;
 	}
 	:	exclusive_or_expr<$value>
@@ -364,8 +345,7 @@ inclusive_or_expr<Value* $value>
 	;
 
 exclusive_or_expr<Value* $value>
-	local
-	{
+	local {
 		Value $opValue2;
 	}
 	:	and_expr<$value>
@@ -377,8 +357,7 @@ exclusive_or_expr<Value* $value>
 	;
 
 and_expr<Value* $value>
-	local
-	{
+	local {
 		Value $opValue2;
 	}
 	:	equality_expr<$value>
@@ -390,8 +369,7 @@ and_expr<Value* $value>
 	;
 
 equality_expr<Value* $value>
-	local
-	{
+	local {
 		Value $opValue2;
 	}
 	:	relational_expr<$value>
@@ -402,8 +380,7 @@ equality_expr<Value* $value>
 		)*
 	;
 
-struct
-{
+struct {
 	BinOpKind m_opKind;
 }
 equality_operator
@@ -418,8 +395,7 @@ equality_operator
 	;
 
 relational_expr<Value* $value>
-	local
-	{
+	local {
 		Value $opValue2;
 	}
 	:	shift_expr<$value>
@@ -430,8 +406,7 @@ relational_expr<Value* $value>
 		)*
 	;
 
-struct
-{
+struct {
 	BinOpKind m_opKind;
 }
 relational_operator
@@ -454,8 +429,7 @@ relational_operator
 	;
 
 shift_expr<Value* $value>
-	local
-	{
+	local {
 		Value $opValue2;
 	}
 	:	additive_expr<$value>
@@ -466,8 +440,7 @@ shift_expr<Value* $value>
 		)*
 	;
 
-struct
-{
+struct {
 	BinOpKind m_opKind;
 }
 shift_operator
@@ -482,8 +455,7 @@ shift_operator
 	;
 
 additive_expr<Value* $value>
-	local
-	{
+	local {
 		Value $opValue2;
 	}
 	:	multiplicative_expr<$value>
@@ -494,8 +466,7 @@ additive_expr<Value* $value>
 		)*
 	;
 
-struct
-{
+struct {
 	BinOpKind m_opKind;
 }
 additive_operator
@@ -510,8 +481,7 @@ additive_operator
 	;
 
 multiplicative_expr<Value* $value>
-	local
-	{
+	local {
 		Value $opValue2;
 	}
 	:	at_expr<$value>
@@ -522,8 +492,7 @@ multiplicative_expr<Value* $value>
 		)*
 	;
 
-struct
-{
+struct {
 	BinOpKind m_opKind;
 }
 multiplicative_operator
@@ -542,8 +511,7 @@ multiplicative_operator
 	;
 
 at_expr<Value* $value>
-	local
-	{
+	local {
 		Value $opValue2;
 	}
 	:	assignment_expr<$value>
@@ -559,12 +527,10 @@ assignment_expr<Value* $value>
 	;
 
 assignment_operator_expr<Value* $value>
-	local
-	{
+	local {
 		Value $opValue2;
 	}
-	enter
-	{
+	enter {
 		if (m_mode == Mode_Reaction)  // reset on assignment (actually, not sure if it's the right thing to do)
 			return resetReactionBindings();
 	}
@@ -579,8 +545,7 @@ assignment_operator_expr<Value* $value>
 		curly_initializer
 	;
 
-struct
-{
+struct {
 	BinOpKind m_opKind;
 }
 assignment_operator
@@ -640,8 +605,7 @@ unary_expr<Value* $value>
 	;
 
 unary_operator_expr<Value* $value>
-	leave
-	{
+	leave {
 		if (m_mode == Mode_Reaction && isBindableType($value->getType()))
 			return addReactionBinding(*$value);
 	}
@@ -686,14 +650,13 @@ unary_operator_expr<Value* $value>
 					$t.m_elementCountValue,
 					&$t.m_argList,
 					$value
-					);
+				);
 			}
 		new_operator_curly_initializer<$value>?
 	;
 
 try_operator<Value* $value>
-	local
-	{
+	local {
 		TryExpr $tryExpr;
 	}
 	:	TokenKind_Try
@@ -709,8 +672,7 @@ try_operator<Value* $value>
 // cast_operator vs epsilon
 
 cast_operator_rslv
-	local
-	{
+	local {
 		TypeSpecifier $typeSpecifier;
 	}
 	:	TokenKind_Dynamic? '('
@@ -730,8 +692,7 @@ cast_operator<Value* $value>
 			}
 	;
 
-struct
-{
+struct {
 	Type* m_type;
 	Value m_elementCountValue;
 	sl::BoxList<Value> m_argList;
@@ -753,8 +714,7 @@ new_operator_type_w_constructor<Type** $type, sl::BoxList<Value>* $argList>
 	;
 
 new_operator_curly_initializer<Value* $value>
-	enter
-	{
+	enter {
 		return m_module->m_operatorMgr.unaryOperator(UnOpKind_Indir, *$value, &m_curlyInitializerTargetValue);
 	}
 	:	curly_initializer
@@ -766,8 +726,7 @@ postfix_expr<Value* $value>
 	;
 
 postfix_operator<Value* $value>
-	leave
-	{
+	leave {
 		if (m_mode == Mode_Reaction && isBindableType($value->getType()))
 			return addReactionBinding(*$value);
 	}
@@ -837,8 +796,7 @@ member_operator<Value* $value>
 // otherwise member operators could not be applied (typeof(int).m_size)
 
 primary_expr<Value* $value>
-	leave
-	{
+	leave {
 		if (m_mode == Mode_Reaction && isBindableType($value->getType()))
 			return addReactionBinding(*$value);
 	}
@@ -916,8 +874,7 @@ primary_expr<Value* $value>
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct
-{
+struct {
 	Value m_value;
 }
 type_name_or_expr
@@ -931,8 +888,7 @@ type_name_or_expr
 			}
 	;
 
-struct
-{
+struct {
 	Literal m_literal;
 }
 literal<Value* $value>
@@ -986,19 +942,16 @@ literal_atom<Literal* $literal>
 
 start
 curly_initializer
-	local
-	{
+	local {
 		CurlyInitializer $initializer;
 	}
-	enter
-	{
+	enter {
 		ASSERT(m_curlyInitializerTargetValue);
 		$initializer.m_targetValue = m_curlyInitializerTargetValue;
 	}
 	:	'{' curly_initializer_item<&$initializer> (',' curly_initializer_item<&$initializer>)* '}'
 			{
-				if (!$initializer.m_count)
-				{
+				if (!$initializer.m_count) {
 					err::setFormatStringError("empty curly initializer");
 					return false;
 				}
@@ -1007,8 +960,7 @@ curly_initializer
 
 nullable
 curly_initializer_item<CurlyInitializer* $initializer>
-	local
-	{
+	local {
 		Value prevCurlyInitializerTargetValue;
 	}
 	:	curly_initializer_named_item<$initializer>
@@ -1037,8 +989,7 @@ curly_initializer_named_item<CurlyInitializer* $initializer>
 	;
 
 curly_initializer_indexed_item<CurlyInitializer* $initializer>
-	enter
-	{
+	enter {
 		return prepareCurlyInitializerIndexedItem($initializer);
 	}
 	:	expression $e

@@ -23,20 +23,17 @@
 
 //..............................................................................
 
-size_t foo(char const* s)
-{
+size_t foo(char const* s) {
 	printf("foo (%s)\n", s);
 
 	size_t count = dynamic sizeof(s);
 
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		int c = s[i];
 		if (!c)
 			break;
 
-		if (c == '\t')
-		{
+		if (c == '\t') {
 			printf("TAB found at %d\n", i);
 			return i;
 		}
@@ -51,12 +48,10 @@ finally:
 	printf("foo () finalization\n");
 }
 
-bool errorcode bar(int a)
-{
+bool errorcode bar(int a) {
 	printf("bar (%d)\n", a);
 
-	if (a < 0)
-	{
+	if (a < 0) {
 		std.setErrno(22); // EINVAL
 		return false;
 	}
@@ -68,14 +63,12 @@ bool errorcode bar(int a)
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	// traditional usage of 'finally'
 
-	try
-	{
+	try {
 		foo("abc");
 		foo("def\tghi");
 

@@ -44,15 +44,13 @@ namespace ct {
 
 inline
 NamedType*
-TypeMgr::parseStdType(StdType stdType)
-{
+TypeMgr::parseStdType(StdType stdType) {
 	return parseStdType(stdType, m_module->m_unitMgr.getCoreLibUnit());
 }
 
 //..............................................................................
 
-TypeMgr::TypeMgr()
-{
+TypeMgr::TypeMgr() {
 	m_module = Module::getCurrentConstructedModule();
 	ASSERT(m_module);
 
@@ -65,8 +63,7 @@ TypeMgr::TypeMgr()
 }
 
 void
-TypeMgr::clear()
-{
+TypeMgr::clear() {
 	m_typeList.clear();
 	m_typedefList.clear();
 	m_functionArgList.clear();
@@ -89,8 +86,7 @@ TypeMgr::clear()
 }
 
 void
-TypeMgr::createStdTypes()
-{
+TypeMgr::createStdTypes() {
 	// these std types may be required at runtime without being referenced at compile time
 
 	getStdType(StdType_AbstractClassPtr);
@@ -100,8 +96,7 @@ TypeMgr::createStdTypes()
 
 
 Type*
-TypeMgr::getStdType(StdType stdType)
-{
+TypeMgr::getStdType(StdType stdType) {
 	ASSERT((size_t)stdType < StdType__Count);
 	if (m_stdTypeArray[stdType])
 		return m_stdTypeArray[stdType];
@@ -115,8 +110,7 @@ TypeMgr::getStdType(StdType stdType)
 
 	const char* name;
 	Type* type;
-	switch (stdType)
-	{
+	switch (stdType) {
 	case StdType_BytePtr:
 		type = getPrimitiveType(TypeKind_Int8_u)->getDataPtrType_c();
 		break;
@@ -309,8 +303,7 @@ TypeMgr::getBitFieldType(
 	Type* baseType,
 	size_t bitOffset,
 	size_t bitCount
-	)
-{
+) {
 	sl::String signature = BitFieldType::createSignature(baseType, bitOffset, bitCount);
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
 	if (it->m_value)
@@ -331,8 +324,7 @@ TypeMgr::getBitFieldType(
 }
 
 ArrayType*
-TypeMgr::createAutoSizeArrayType(Type* elementType)
-{
+TypeMgr::createAutoSizeArrayType(Type* elementType) {
 	ArrayType* type = AXL_MEM_NEW(ArrayType);
 	type->m_flags |= ArrayTypeFlag_AutoSize;
 	type->m_module = m_module;
@@ -349,8 +341,7 @@ ArrayType*
 TypeMgr::createArrayType(
 	Type* elementType,
 	sl::BoxList<Token>* elementCountInitializer
-	)
-{
+) {
 	ArrayType* type = AXL_MEM_NEW(ArrayType);
 	type->m_module = m_module;
 	type->m_elementType = elementType;
@@ -369,8 +360,7 @@ ArrayType*
 TypeMgr::getArrayType(
 	Type* elementType,
 	size_t elementCount
-	)
-{
+) {
 	sl::String signature = ArrayType::createSignature(elementType, elementCount);
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
 	if (it->m_value)
@@ -394,8 +384,7 @@ TypeMgr::createTypedef(
 	const sl::StringRef& name,
 	const sl::StringRef& qualifiedName,
 	Type* type
-	)
-{
+) {
 	Typedef* tdef = AXL_MEM_NEW(Typedef);
 	tdef->m_module = m_module;
 	tdef->m_name = name;
@@ -410,8 +399,7 @@ TypeMgr::createTypedef(
 }
 
 TypedefShadowType*
-TypeMgr::createTypedefShadowType(Typedef* tdef)
-{
+TypeMgr::createTypedefShadowType(Typedef* tdef) {
 	TypedefShadowType* type = AXL_MEM_NEW(TypedefShadowType);
 	type->m_module = m_module;
 	type->m_parentUnit = tdef->m_parentUnit;
@@ -434,8 +422,7 @@ TypeMgr::createEnumType(
 	const sl::StringRef& qualifiedName,
 	Type* baseType,
 	uint_t flags
-	)
-{
+) {
 	EnumType* type = AXL_MEM_NEW(EnumType);
 	type->m_name = name;
 	type->m_qualifiedName = qualifiedName;
@@ -461,8 +448,7 @@ TypeMgr::createStructType(
 	const sl::StringRef& qualifiedName,
 	size_t fieldAlignment,
 	uint_t flags
-	)
-{
+) {
 	StructType* type = AXL_MEM_NEW(StructType);
 	type->m_name = name;
 	type->m_qualifiedName = qualifiedName;
@@ -485,8 +471,7 @@ TypeMgr::createInternalStructType(
 	const sl::StringRef& tag,
 	size_t fieldAlignment,
 	uint_t flags
-	)
-{
+) {
 	StructType* type = createStructType(sl::StringRef(), tag, fieldAlignment, flags);
 	type->m_namespaceStatus = NamespaceStatus_Ready;
 	return type;
@@ -498,8 +483,7 @@ TypeMgr::createUnionType(
 	const sl::StringRef& qualifiedName,
 	size_t fieldAlignment,
 	uint_t flags
-	)
-{
+) {
 	UnionType* type = AXL_MEM_NEW(UnionType);
 	type->m_name = name;
 	type->m_qualifiedName = qualifiedName;
@@ -513,8 +497,7 @@ TypeMgr::createUnionType(
 	type->m_module = m_module;
 	type->m_flags |= flags;
 
-	if (!(flags & TypeFlag_Dynamic))
-	{
+	if (!(flags & TypeFlag_Dynamic)) {
 		StructType* unionStructType = createUnnamedInternalStructType(type->createQualifiedName("Struct"), fieldAlignment);
 		unionStructType->m_parentNamespace = type;
 		unionStructType->m_structTypeKind = StructTypeKind_UnionStruct;
@@ -532,8 +515,7 @@ TypeMgr::addClassType(
 	const sl::StringRef& qualifiedName,
 	size_t fieldAlignment,
 	uint_t flags
-	)
-{
+) {
 	type->m_module = m_module;
 	type->m_name = name;
 	type->m_qualifiedName = qualifiedName;
@@ -564,13 +546,11 @@ TypeMgr::addClassType(
 }
 
 bool
-TypeMgr::requireExternalReturnTypes()
-{
+TypeMgr::requireExternalReturnTypes() {
 	bool result;
 
 	sl::HashTableIterator<DerivableType*, bool> it = m_externalReturnTypeSet.getHead();
-	for (; it; it++)
-	{
+	for (; it; it++) {
 		DerivableType* type = it->getKey();
 		result = type->requireExternalReturn();
 		if (!result)
@@ -587,8 +567,7 @@ TypeMgr::createFunctionArg(
 	Type* type,
 	uint_t ptrTypeFlags,
 	sl::BoxList<Token>* initializer
-	)
-{
+) {
 	FunctionArg* functionArg = AXL_MEM_NEW(FunctionArg);
 	functionArg->m_module = m_module;
 	functionArg->m_name = name;
@@ -615,8 +594,7 @@ TypeMgr::createField(
 	uint_t ptrTypeFlags,
 	sl::BoxList<Token>* constructor,
 	sl::BoxList<Token>* initializer
-	)
-{
+) {
 	Field* field = AXL_MEM_NEW(Field);
 	field->m_module = m_module;
 	field->m_name = name;
@@ -633,8 +611,7 @@ TypeMgr::createField(
 
 	m_fieldList.insertTail(field);
 
-	if (type->getTypeKindFlags() & TypeKindFlag_Import)
-	{
+	if (type->getTypeKindFlags() & TypeKindFlag_Import) {
 		((ImportType*)type)->addFixup(&field->m_type);
 		if (bitCount)
 			((ImportType*)type)->addFixup(&field->m_bitFieldBaseType);
@@ -648,8 +625,7 @@ TypeMgr::getSimpleFunctionArg(
 	StorageKind storageKind,
 	Type* type,
 	uint_t ptrTypeFlags
-	)
-{
+) {
 	FunctionArgTuple* tuple = getFunctionArgTuple(type);
 
 	// this x const x volatile
@@ -677,8 +653,7 @@ TypeMgr::getFunctionType(
 	Type* returnType,
 	const sl::Array<FunctionArg*>& argArray,
 	uint_t flags
-	)
-{
+) {
 	ASSERT(callConv && returnType);
 
 	sl::String signature = FunctionType::createSignature(
@@ -687,7 +662,7 @@ TypeMgr::getFunctionType(
 		argArray,
 		argArray.getCount(),
 		flags
-		);
+	);
 
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
 	if (it->m_value)
@@ -715,14 +690,12 @@ TypeMgr::getFunctionType(
 	Type* const* argTypeArray,
 	size_t argCount,
 	uint_t flags
-	)
-{
+) {
 	ASSERT(callConv && returnType);
 
 	sl::Array<FunctionArg*> argArray;
 	argArray.setCount(argCount);
-	for (size_t i = 0; i < argCount; i++)
-	{
+	for (size_t i = 0; i < argCount; i++) {
 		FunctionArg* arg = getSimpleFunctionArg(argTypeArray[i]);
 		if (!arg)
 			return NULL;
@@ -736,7 +709,7 @@ TypeMgr::getFunctionType(
 		argTypeArray,
 		argCount,
 		flags
-		);
+	);
 
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
 	if (it->m_value)
@@ -763,16 +736,14 @@ TypeMgr::createUserFunctionType(
 	Type* returnType,
 	const sl::Array<FunctionArg*>& argArray,
 	uint_t flags
-	)
-{
+) {
 	ASSERT(callConv && returnType);
 
 	FunctionType* type = AXL_MEM_NEW(FunctionType);
 	type->m_module = m_module;
 	type->m_callConv = callConv;
 
-	if (flags & FunctionTypeFlag_Async)
-	{
+	if (flags & FunctionTypeFlag_Async) {
 		type->m_asyncReturnType = returnType;
 
 		uint_t compileFlags = m_module->getCompileFlags();
@@ -783,8 +754,7 @@ TypeMgr::createUserFunctionType(
 			m_module->m_typeMgr.getStdType(StdType_AbstractClassPtr) :
 			m_module->m_typeMgr.getStdType(StdType_PromisePtr);
 
-		if (flags & FunctionTypeFlag_ErrorCode)
-		{
+		if (flags & FunctionTypeFlag_ErrorCode) {
 			flags &= ~FunctionTypeFlag_ErrorCode;
 			flags |= FunctionTypeFlag_AsyncErrorCode;
 		}
@@ -806,8 +776,7 @@ TypeMgr::getMemberMethodType(
 	DerivableType* parentType,
 	FunctionType* functionType,
 	uint_t thisArgPtrTypeFlags
-	)
-{
+) {
 	if (!isClassType(parentType, ClassTypeKind_Abstract)) // std object members are miscellaneous closures
 		thisArgPtrTypeFlags |= PtrTypeFlag_Safe;
 
@@ -827,21 +796,20 @@ TypeMgr::getMemberMethodType(
 			returnType,
 			argArray,
 			functionType->m_flags
-			) :
+		) :
 		getFunctionType(
 			functionType->m_callConv,
 			returnType,
 			argArray,
 			functionType->m_flags
-			);
+		);
 
 	memberMethodType->m_shortType = functionType;
 	return memberMethodType;
 }
 
 FunctionType*
-TypeMgr::getStdObjectMemberMethodType(FunctionType* functionType)
-{
+TypeMgr::getStdObjectMemberMethodType(FunctionType* functionType) {
 	if (functionType->m_stdObjectMemberMethodType)
 		return functionType->m_stdObjectMemberMethodType;
 
@@ -855,8 +823,7 @@ TypeMgr::getPropertyType(
 	FunctionType* getterType,
 	const FunctionTypeOverload& setterType,
 	uint_t flags
-	)
-{
+) {
 	sl::String signature = PropertyType::createSignature(getterType, setterType, flags);
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
 	if (it->m_value)
@@ -871,8 +838,7 @@ TypeMgr::getPropertyType(
 	type->m_setterType = setterType;
 	type->m_flags = flags;
 
-	if (flags & PropertyTypeFlag_Bindable)
-	{
+	if (flags & PropertyTypeFlag_Bindable) {
 		FunctionType* binderType = (FunctionType*)getStdType(StdType_Binder);
 		if (getterType->isMemberMethodType())
 			binderType = binderType->getMemberMethodType(getterType->getThisTargetType(), PtrTypeFlag_Const);
@@ -890,8 +856,7 @@ TypeMgr::getSimplePropertyType(
 	CallConv* callConv,
 	Type* returnType,
 	uint_t flags
-	)
-{
+) {
 	SimplePropertyTypeTuple* tuple = getSimplePropertyTypeTuple(returnType);
 
 	uint_t callConvFlags = callConv->getFlags();
@@ -909,12 +874,9 @@ TypeMgr::getSimplePropertyType(
 	PropertyType* propertyType;
 
 	FunctionType* getterType = getFunctionType(callConv, returnType, NULL, 0, 0);
-	if (flags & PropertyTypeFlag_Const)
-	{
+	if (flags & PropertyTypeFlag_Const) {
 		propertyType = getPropertyType(getterType, NULL, flags);
-	}
-	else
-	{
+	} else {
 		Type* voidType = &m_primitiveTypeArray[TypeKind_Void];
 		FunctionType* setterType = getFunctionType(callConv, voidType, &returnType, 1, 0);
 		propertyType = getPropertyType(getterType, setterType, flags);
@@ -931,8 +893,7 @@ TypeMgr::getIndexedPropertyType(
 	Type* const* indexArgTypeArray,
 	size_t indexArgCount,
 	uint_t flags
-	)
-{
+) {
 	FunctionType* getterType = getFunctionType(callConv, returnType, indexArgTypeArray, indexArgCount, 0);
 
 	if (flags & PropertyTypeFlag_Const)
@@ -954,8 +915,7 @@ TypeMgr::getIndexedPropertyType(
 	Type* returnType,
 	const sl::Array<FunctionArg*>& argArray,
 	uint_t flags
-	)
-{
+) {
 	FunctionType* getterType = getFunctionType(callConv, returnType, argArray, 0);
 
 	if (flags & PropertyTypeFlag_Const)
@@ -975,8 +935,7 @@ TypeMgr::createIndexedPropertyType(
 	Type* returnType,
 	const sl::Array<FunctionArg*>& argArray,
 	uint_t flags
-	)
-{
+) {
 	FunctionType* getterType = createUserFunctionType(callConv, returnType, argArray, 0);
 
 	if (flags & PropertyTypeFlag_Const)
@@ -994,13 +953,12 @@ PropertyType*
 TypeMgr::getMemberPropertyType(
 	DerivableType* parentType,
 	PropertyType* propertyType
-	)
-{
+) {
 	FunctionType* getterType = getMemberMethodType(
 		parentType,
 		propertyType->m_getterType,
 		PtrTypeFlag_Const
-		);
+	);
 
 	size_t setterTypeOverloadCount = propertyType->m_setterType.getOverloadCount();
 
@@ -1008,8 +966,7 @@ TypeMgr::getMemberPropertyType(
 	sl::Array<FunctionType*> setterTypeOverloadArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	setterTypeOverloadArray.setCount(setterTypeOverloadCount);
 
-	for (size_t i = 0; i < setterTypeOverloadCount; i++)
-	{
+	for (size_t i = 0; i < setterTypeOverloadCount; i++) {
 		FunctionType* overloadType = propertyType->m_setterType.getOverload(i);
 		setterTypeOverloadArray[i] = getMemberMethodType(parentType, overloadType);
 	}
@@ -1018,15 +975,14 @@ TypeMgr::getMemberPropertyType(
 		getterType,
 		FunctionTypeOverload(setterTypeOverloadArray, setterTypeOverloadCount),
 		propertyType->m_flags
-		);
+	);
 
 	memberPropertyType->m_shortType = propertyType;
 	return memberPropertyType;
 }
 
 PropertyType*
-TypeMgr::getStdObjectMemberPropertyType(PropertyType* propertyType)
-{
+TypeMgr::getStdObjectMemberPropertyType(PropertyType* propertyType) {
 	if (propertyType->m_stdObjectMemberPropertyType)
 		return propertyType->m_stdObjectMemberPropertyType;
 
@@ -1036,13 +992,11 @@ TypeMgr::getStdObjectMemberPropertyType(PropertyType* propertyType)
 }
 
 PropertyType*
-TypeMgr::getShortPropertyType(PropertyType* propertyType)
-{
+TypeMgr::getShortPropertyType(PropertyType* propertyType) {
 	if (propertyType->m_shortType)
 		return propertyType->m_shortType;
 
-	if (!propertyType->isMemberPropertyType())
-	{
+	if (!propertyType->isMemberPropertyType()) {
 		propertyType->m_shortType = propertyType;
 		return propertyType;
 	}
@@ -1051,8 +1005,7 @@ TypeMgr::getShortPropertyType(PropertyType* propertyType)
 	FunctionTypeOverload setterType;
 
 	size_t setterCount = propertyType->m_setterType.getOverloadCount();
-	for (size_t i = 0; i < setterCount; i++)
-	{
+	for (size_t i = 0; i < setterCount; i++) {
 		FunctionType* type = propertyType->m_setterType.getOverload(i)->getShortType();
 		setterType.addOverload(type);
 	}
@@ -1062,14 +1015,12 @@ TypeMgr::getShortPropertyType(PropertyType* propertyType)
 }
 
 ClassType*
-TypeMgr::getMulticastType(FunctionPtrType* functionPtrType)
-{
+TypeMgr::getMulticastType(FunctionPtrType* functionPtrType) {
 	if (functionPtrType->m_multicastType)
 		return functionPtrType->m_multicastType;
 
 	Type* returnType = functionPtrType->getTargetType()->getReturnType();
-	if (returnType->getTypeKind() != TypeKind_Void)
-	{
+	if (returnType->getTypeKind() != TypeKind_Void) {
 		err::setFormatStringError("multicast cannot only return 'void', not '%s'", returnType->getTypeString().sz());
 		return NULL;
 	}
@@ -1165,8 +1116,7 @@ TypeMgr::getMulticastType(FunctionPtrType* functionPtrType)
 }
 
 ClassType*
-TypeMgr::createReactorBaseType()
-{
+TypeMgr::createReactorBaseType() {
 	Type* voidType = getPrimitiveType(TypeKind_Void);
 	Type* eventPtrType = getStdType(StdType_SimpleEventPtr);
 	Type* abstractPtrType = getStdType(StdType_AbstractClassPtr); // onevent statement can have different event types
@@ -1202,8 +1152,7 @@ TypeMgr::createReactorType(
 	const sl::StringRef& name,
 	const sl::StringRef& qualifiedName,
 	ClassType* parentType
-	)
-{
+) {
 	ReactorClassType* type = createClassType<ReactorClassType>(name, qualifiedName);
 	type->addBaseType(getStdType(StdType_ReactorBase));
 	type->m_parentType = parentType;
@@ -1212,14 +1161,10 @@ TypeMgr::createReactorType(
 	Type* sizeType = getPrimitiveType(TypeKind_SizeT);
 	FunctionType* reactionType;
 
-	if (!parentType)
-	{
+	if (!parentType) {
 		reactionType = getFunctionType(voidType, (Type**) &sizeType, 1);
-	}
-	else
-	{
-		Type* argTypeArray[] =
-		{
+	} else {
+		Type* argTypeArray[] = {
 			parentType->getClassPtrType(ClassPtrTypeKind_Normal, PtrTypeFlag_Safe),
 			sizeType
 		};
@@ -1234,8 +1179,7 @@ TypeMgr::createReactorType(
 }
 
 FunctionClosureClassType*
-TypeMgr::createReactorClosureType()
-{
+TypeMgr::createReactorClosureType() {
 	FunctionClosureClassType* type = createClassType<FunctionClosureClassType>("ReactorClosure", "jnc.ReactorClosure");
 	type->m_thisArgFieldIdx = 0;
 	type->createField("m_self", type->getClassPtrType ());
@@ -1252,8 +1196,7 @@ TypeMgr::getFunctionClosureClassType(
 	const size_t* closureMap,
 	size_t argCount,
 	size_t thisArgIdx
-	)
-{
+) {
 	ASSERT(m_module->getCompileState() >= ModuleCompileState_Parsed); // signatures are final
 
 	sl::String signature = ClosureClassType::createSignature(
@@ -1263,11 +1206,10 @@ TypeMgr::getFunctionClosureClassType(
 		closureMap,
 		argCount,
 		thisArgIdx
-		);
+	);
 
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
-	if (it->m_value)
-	{
+	if (it->m_value) {
 		FunctionClosureClassType* type = (FunctionClosureClassType*)it->m_value;
 		ASSERT(type->m_signature == signature);
 		return type;
@@ -1281,8 +1223,7 @@ TypeMgr::getFunctionClosureClassType(
 	type->createField("m_target", targetType->getFunctionPtrType(FunctionPtrTypeKind_Thin));
 
 	sl::String argFieldName;
-	for (size_t i = 0; i < argCount; i++)
-	{
+	for (size_t i = 0; i < argCount; i++) {
 		argFieldName.format("m_arg%d", i);
 		type->createField(argFieldName, argTypeArray[i]);
 	}
@@ -1303,8 +1244,7 @@ TypeMgr::getPropertyClosureClassType(
 	const size_t* closureMap,
 	size_t argCount,
 	size_t thisArgIdx
-	)
-{
+) {
 	ASSERT(m_module->getCompileState() >= ModuleCompileState_Parsed); // signatures are final
 
 	sl::String signature = ClosureClassType::createSignature(
@@ -1314,11 +1254,10 @@ TypeMgr::getPropertyClosureClassType(
 		closureMap,
 		argCount,
 		thisArgIdx
-		);
+	);
 
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
-	if (it->m_value)
-	{
+	if (it->m_value) {
 		PropertyClosureClassType* type = (PropertyClosureClassType*)it->m_value;
 		ASSERT(type->m_signature == signature);
 		return type;
@@ -1333,8 +1272,7 @@ TypeMgr::getPropertyClosureClassType(
 
 	sl::String argFieldName;
 
-	for (size_t i = 0; i < argCount; i++)
-	{
+	for (size_t i = 0; i < argCount; i++) {
 		argFieldName.format("m_arg%d", i);
 		type->createField(argFieldName, argTypeArray[i]);
 	}
@@ -1354,15 +1292,13 @@ DataClosureClassType*
 TypeMgr::getDataClosureClassType(
 	Type* targetType,
 	PropertyType* thunkType
-	)
-{
+) {
 	ASSERT(m_module->getCompileState() >= ModuleCompileState_Parsed); // signatures are final
 
 	sl::String signature = DataClosureClassType::createSignature(targetType, thunkType);
 
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
-	if (it->m_value)
-	{
+	if (it->m_value) {
 		DataClosureClassType* type = (DataClosureClassType*)it->m_value;
 		ASSERT(type->m_signature == signature);
 		return type;
@@ -1389,8 +1325,7 @@ TypeMgr::getDataPtrType(
 	TypeKind typeKind,
 	DataPtrTypeKind ptrTypeKind,
 	uint_t flags
-	)
-{
+) {
 	ASSERT((size_t)ptrTypeKind < DataPtrTypeKind__Count);
 	ASSERT(targetType->getTypeKind() != TypeKind_NamedImport); // for imports, getImportPtrType() should be called
 	ASSERT(typeKind != TypeKind_DataRef || targetType->m_typeKind != TypeKind_DataRef); // double reference
@@ -1440,21 +1375,17 @@ TypeMgr::getClassPtrType(
 	TypeKind typeKind,
 	ClassPtrTypeKind ptrTypeKind,
 	uint_t flags
-	)
-{
+) {
 	ASSERT((size_t)ptrTypeKind < ClassPtrTypeKind__Count);
 
 	flags |= ModuleItemFlag_LayoutReady | TypeFlag_GcRoot;
 
 	ClassPtrTypeTuple* tuple;
 
-	if (flags & (PtrTypeFlag_Event | PtrTypeFlag_DualEvent))
-	{
+	if (flags & (PtrTypeFlag_Event | PtrTypeFlag_DualEvent)) {
 		ASSERT(targetType->getClassTypeKind() == ClassTypeKind_Multicast);
 		tuple = getEventClassPtrTypeTuple((MulticastClassType*)targetType);
-	}
-	else
-	{
+	} else {
 		tuple = getClassPtrTypeTuple(targetType);
 	}
 
@@ -1487,8 +1418,7 @@ TypeMgr::getFunctionPtrType(
 	TypeKind typeKind,
 	FunctionPtrTypeKind ptrTypeKind,
 	uint_t flags
-	)
-{
+) {
 	ASSERT(typeKind == TypeKind_FunctionPtr || typeKind == TypeKind_FunctionRef);
 	ASSERT((size_t)ptrTypeKind < FunctionPtrTypeKind__Count);
 
@@ -1530,8 +1460,7 @@ TypeMgr::getPropertyPtrType(
 	TypeKind typeKind,
 	PropertyPtrTypeKind ptrTypeKind,
 	uint_t flags
-	)
-{
+) {
 	ASSERT(typeKind == TypeKind_PropertyPtr || typeKind == TypeKind_PropertyRef);
 	ASSERT((size_t)ptrTypeKind < PropertyPtrTypeKind__Count);
 
@@ -1567,8 +1496,7 @@ TypeMgr::getPropertyPtrType(
 }
 
 StructType*
-TypeMgr::getPropertyVtableStructType(PropertyType* propertyType)
-{
+TypeMgr::getPropertyVtableStructType(PropertyType* propertyType) {
 	if (propertyType->m_vtableStructType)
 		return propertyType->m_vtableStructType;
 
@@ -1582,8 +1510,7 @@ TypeMgr::getPropertyVtableStructType(PropertyType* propertyType)
 	sl::String setterFieldName;
 
 	size_t setterTypeOverloadCount = propertyType->m_setterType.getOverloadCount();
-	for (size_t i = 0; i < setterTypeOverloadCount; i++)
-	{
+	for (size_t i = 0; i < setterTypeOverloadCount; i++) {
 		setterFieldName.format("!m_setter%d", i);
 
 		FunctionType* setterType = propertyType->m_setterType.getOverload(i);
@@ -1601,15 +1528,13 @@ TypeMgr::getNamedImportType(
 	const QualifiedName& name,
 	Namespace* anchorNamespace,
 	const QualifiedName& anchorName
-	)
-{
+) {
 	ASSERT(anchorNamespace->getNamespaceKind() != NamespaceKind_Scope);
 
 	sl::String signature = NamedImportType::createSignature(name, anchorNamespace, anchorName);
 
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
-	if (it->m_value)
-	{
+	if (it->m_value) {
 		NamedImportType* type = (NamedImportType*)it->m_value;
 		ASSERT(type->m_signature == signature);
 		return type;
@@ -1622,12 +1547,9 @@ TypeMgr::getNamedImportType(
 	type->m_anchorNamespace = anchorNamespace;
 	type->m_anchorName = anchorName;
 
-	if (anchorName.isEmpty())
-	{
+	if (anchorName.isEmpty()) {
 		type->m_qualifiedName = anchorNamespace->createQualifiedName(name);
-	}
-	else
-	{
+	} else {
 		type->m_qualifiedName = anchorNamespace->createQualifiedName(anchorName);
 		type->m_qualifiedName += '.';
 		type->m_qualifiedName += name.getFullName();
@@ -1642,12 +1564,10 @@ ImportPtrType*
 TypeMgr::getImportPtrType(
 	NamedImportType* namedImportType,
 	uint_t typeModifiers
-	)
-{
+) {
 	sl::String signature = ImportPtrType::createSignature(namedImportType, typeModifiers);
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
-	if (it->m_value)
-	{
+	if (it->m_value) {
 		ImportPtrType* type = (ImportPtrType*)it->m_value;
 		ASSERT(type->m_signature == signature);
 		return type;
@@ -1668,12 +1588,10 @@ ImportIntModType*
 TypeMgr::getImportIntModType(
 	NamedImportType* namedImportType,
 	uint_t typeModifiers
-	)
-{
+) {
 	sl::String signature = ImportIntModType::createSignature(namedImportType, typeModifiers);
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
-	if (it->m_value)
-	{
+	if (it->m_value) {
 		ImportIntModType* type = (ImportIntModType*)it->m_value;
 		ASSERT(type->m_signature == signature);
 		return type;
@@ -1695,14 +1613,12 @@ TypeMgr::foldDualType(
 	Type* type,
 	bool isAlien,
 	bool isContainerConst
-	)
-{
+) {
 	ASSERT(isDualType(type));
 
 	DualTypeTuple* tuple = getDualTypeTuple(type);
 	Type* foldedType = tuple->m_typeArray[isAlien][isContainerConst];
-	if (!foldedType)
-	{
+	if (!foldedType) {
 		foldedType = type->calcFoldedDualType(isAlien, isContainerConst);
 		tuple->m_typeArray[isAlien][isContainerConst] = foldedType;
 	}
@@ -1713,8 +1629,7 @@ TypeMgr::foldDualType(
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 DualTypeTuple*
-TypeMgr::getDualTypeTuple(Type* type)
-{
+TypeMgr::getDualTypeTuple(Type* type) {
 	if (type->m_dualTypeTuple)
 		return type->m_dualTypeTuple;
 
@@ -1725,8 +1640,7 @@ TypeMgr::getDualTypeTuple(Type* type)
 }
 
 SimplePropertyTypeTuple*
-TypeMgr::getSimplePropertyTypeTuple(Type* type)
-{
+TypeMgr::getSimplePropertyTypeTuple(Type* type) {
 	if (type->m_simplePropertyTypeTuple)
 		return type->m_simplePropertyTypeTuple;
 
@@ -1737,8 +1651,7 @@ TypeMgr::getSimplePropertyTypeTuple(Type* type)
 }
 
 FunctionArgTuple*
-TypeMgr::getFunctionArgTuple(Type* type)
-{
+TypeMgr::getFunctionArgTuple(Type* type) {
 	if (type->m_functionArgTuple)
 		return type->m_functionArgTuple;
 
@@ -1749,8 +1662,7 @@ TypeMgr::getFunctionArgTuple(Type* type)
 }
 
 DataPtrTypeTuple*
-TypeMgr::getDataPtrTypeTuple(Type* type)
-{
+TypeMgr::getDataPtrTypeTuple(Type* type) {
 	if (type->m_dataPtrTypeTuple)
 		return type->m_dataPtrTypeTuple;
 
@@ -1761,8 +1673,7 @@ TypeMgr::getDataPtrTypeTuple(Type* type)
 }
 
 ClassPtrTypeTuple*
-TypeMgr::getClassPtrTypeTuple(ClassType* classType)
-{
+TypeMgr::getClassPtrTypeTuple(ClassType* classType) {
 	if (classType->m_classPtrTypeTuple)
 		return classType->m_classPtrTypeTuple;
 
@@ -1773,8 +1684,7 @@ TypeMgr::getClassPtrTypeTuple(ClassType* classType)
 }
 
 ClassPtrTypeTuple*
-TypeMgr::getEventClassPtrTypeTuple(MulticastClassType* classType)
-{
+TypeMgr::getEventClassPtrTypeTuple(MulticastClassType* classType) {
 	if (classType->m_eventClassPtrTypeTuple)
 		return classType->m_eventClassPtrTypeTuple;
 
@@ -1785,8 +1695,7 @@ TypeMgr::getEventClassPtrTypeTuple(MulticastClassType* classType)
 }
 
 FunctionPtrTypeTuple*
-TypeMgr::getFunctionPtrTypeTuple(FunctionType* functionType)
-{
+TypeMgr::getFunctionPtrTypeTuple(FunctionType* functionType) {
 	if (functionType->m_functionPtrTypeTuple)
 		return functionType->m_functionPtrTypeTuple;
 
@@ -1797,8 +1706,7 @@ TypeMgr::getFunctionPtrTypeTuple(FunctionType* functionType)
 }
 
 PropertyPtrTypeTuple*
-TypeMgr::getPropertyPtrTypeTuple(PropertyType* propertyType)
-{
+TypeMgr::getPropertyPtrTypeTuple(PropertyType* propertyType) {
 	if (propertyType->m_propertyPtrTypeTuple)
 		return propertyType->m_propertyPtrTypeTuple;
 
@@ -1811,8 +1719,7 @@ TypeMgr::getPropertyPtrTypeTuple(PropertyType* propertyType)
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
-TypeMgr::setupAllPrimitiveTypes()
-{
+TypeMgr::setupAllPrimitiveTypes() {
 	setupPrimitiveType(TypeKind_Void,      0);
 	setupPrimitiveType(TypeKind_Variant,   sizeof(Variant));
 	setupPrimitiveType(TypeKind_Bool,      1);
@@ -1841,8 +1748,7 @@ TypeMgr::setupAllPrimitiveTypes()
 }
 
 void
-TypeMgr::setupStdTypedefArray()
-{
+TypeMgr::setupStdTypedefArray() {
 	setupStdTypedef(StdTypedef_uint_t,    TypeKind_Int_u,    "uint_t");
 	setupStdTypedef(StdTypedef_intptr_t,  TypeKind_IntPtr,   "intptr_t");
 	setupStdTypedef(StdTypedef_uintptr_t, TypeKind_IntPtr_u, "uintptr_t");
@@ -1868,8 +1774,7 @@ TypeMgr::setupStdTypedefArray()
 }
 
 void
-TypeMgr::setupCallConvArray()
-{
+TypeMgr::setupCallConvArray() {
 	m_callConvArray[CallConvKind_Jnccall_msc32]  = &m_jnccallCallConv_msc32;
 	m_callConvArray[CallConvKind_Jnccall_msc64]  = &m_jnccallCallConv_msc64;
 	m_callConvArray[CallConvKind_Jnccall_gcc32]  = &m_jnccallCallConv_gcc32;
@@ -1891,8 +1796,7 @@ void
 TypeMgr::setupPrimitiveType(
 	TypeKind typeKind,
 	size_t size
-	)
-{
+) {
 	ASSERT(typeKind < TypeKind__PrimitiveTypeCount);
 
 	Type* type = &m_primitiveTypeArray[typeKind];
@@ -1919,8 +1823,7 @@ TypeMgr::setupStdTypedef(
 	StdTypedef stdTypedef,
 	TypeKind typeKind,
 	const sl::StringRef& name
-	)
-{
+) {
 	ASSERT(stdTypedef < StdTypedef__Count);
 	ASSERT(typeKind < TypeKind__PrimitiveTypeCount);
 
@@ -1935,8 +1838,7 @@ NamedType*
 TypeMgr::parseStdType(
 	StdType stdType,
 	Unit* unit
-	)
-{
+) {
 	const StdItemSource* source = getStdTypeSource(stdType);
 	ASSERT(source->m_source);
 
@@ -1944,7 +1846,7 @@ TypeMgr::parseStdType(
 		sl::StringRef(source->m_source, source->m_length),
 		source->m_stdNamespace,
 		unit
-		);
+	);
 }
 
 NamedType*
@@ -1952,8 +1854,7 @@ TypeMgr::parseStdType(
 	const sl::StringRef& source,
 	StdNamespace stdNamespace,
 	Unit* unit
-	)
-{
+) {
 	bool result;
 
 	Lexer lexer(LexerMode_Parse);
@@ -1971,14 +1872,12 @@ TypeMgr::parseStdType(
 	parser.disableRandomErrors();
 #endif
 
-	for (;;)
-	{
+	for (;;) {
 		const Token* token = lexer.getToken();
 
 		result = parser.parseToken(token);
 #if (_JNC_DEBUG)
-		if (!result)
-		{
+		if (!result) {
 			TRACE("parse std type error: %s\n", err::getLastErrorDescription().sz());
 			ASSERT(false);
 		}
@@ -2000,8 +1899,7 @@ TypeMgr::parseStdType(
 }
 
 ClassType*
-TypeMgr::createAbstractClassType()
-{
+TypeMgr::createAbstractClassType() {
 	static sl::String typeString = "class";
 
 	ClassType* type = createInternalClassType("jnc.AbstractClass");
@@ -2014,8 +1912,7 @@ TypeMgr::createAbstractClassType()
 }
 
 StructType*
-TypeMgr::createAbstractDataType()
-{
+TypeMgr::createAbstractDataType() {
 	static sl::String typeString = "anydata";
 
 	StructType* type = createInternalStructType("jnc.AbstractData");
@@ -2030,8 +1927,7 @@ TypeMgr::createAbstractDataType()
 }
 
 StructType*
-TypeMgr::createIfaceHdrType()
-{
+TypeMgr::createIfaceHdrType() {
 	StructType* type = createInternalStructType("jnc.IfaceHdr");
 	type->createField("!m_vtable", getStdType (StdType_BytePtr));
 	type->createField("!m_box", getStdType (StdType_BoxPtr));
@@ -2040,8 +1936,7 @@ TypeMgr::createIfaceHdrType()
 }
 
 StructType*
-TypeMgr::createBoxType()
-{
+TypeMgr::createBoxType() {
 	StructType* type = createInternalStructType("jnc.Box");
 	type->createField("!m_type", getStdType (StdType_BytePtr));
 	type->createField("!m_flags", getPrimitiveType (TypeKind_IntPtr_u));
@@ -2050,8 +1945,7 @@ TypeMgr::createBoxType()
 }
 
 StructType*
-TypeMgr::createDataBoxType()
-{
+TypeMgr::createDataBoxType() {
 	StructType* type = createInternalStructType("jnc.DataBox");
 	type->createField("!m_type", getStdType (StdType_BytePtr));
 	type->createField("!m_flags", getPrimitiveType (TypeKind_IntPtr_u));
@@ -2061,8 +1955,7 @@ TypeMgr::createDataBoxType()
 }
 
 StructType*
-TypeMgr::createDetachedDataBoxType()
-{
+TypeMgr::createDetachedDataBoxType() {
 	StructType* type = createInternalStructType("jnc.DetachedDataBox");
 	type->createField("!m_type", getStdType (StdType_BytePtr));
 	type->createField("!m_flags", getPrimitiveType (TypeKind_IntPtr_u));
@@ -2073,8 +1966,7 @@ TypeMgr::createDetachedDataBoxType()
 }
 
 StructType*
-TypeMgr::createDataPtrValidatorType()
-{
+TypeMgr::createDataPtrValidatorType() {
 	StructType* type = createInternalStructType("jnc.DataPtrValidator");
 	type->createField("!m_validatorBox", getStdType (StdType_BoxPtr));
 	type->createField("!m_targetBox", getStdType (StdType_BoxPtr));
@@ -2085,8 +1977,7 @@ TypeMgr::createDataPtrValidatorType()
 }
 
 StructType*
-TypeMgr::createDataPtrStructType()
-{
+TypeMgr::createDataPtrStructType() {
 	StructType* type = createInternalStructType("jnc.DataPtr");
 	type->createField("!m_p", getStdType (StdType_BytePtr));
 	type->createField("!m_validator", getStdType (StdType_DataPtrValidatorPtr));
@@ -2095,8 +1986,7 @@ TypeMgr::createDataPtrStructType()
 }
 
 StructType*
-TypeMgr::createFunctionPtrStructType()
-{
+TypeMgr::createFunctionPtrStructType() {
 	StructType* type = createInternalStructType("jnc.FunctionPtr");
 	type->createField("!m_p", getStdType (StdType_BytePtr));
 	type->createField("!m_closure", getStdType (StdType_AbstractClassPtr));
@@ -2105,8 +1995,7 @@ TypeMgr::createFunctionPtrStructType()
 }
 
 StructType*
-TypeMgr::createVariantStructType()
-{
+TypeMgr::createVariantStructType() {
 	StructType* type = createInternalStructType("jnc.Variant");
 	type->createField("!m_data1", getPrimitiveType (TypeKind_IntPtr));
 	type->createField("!m_data2", getPrimitiveType (TypeKind_IntPtr));
@@ -2119,8 +2008,7 @@ TypeMgr::createVariantStructType()
 }
 
 StructType*
-TypeMgr::createGcShadowStackFrameType()
-{
+TypeMgr::createGcShadowStackFrameType() {
 	StructType* type = createInternalStructType("jnc.GcShadowStackFrame");
 	type->createField("!m_prev", type->getDataPtrType_c ());
 	type->createField("!m_map", getStdType (StdType_BytePtr));
@@ -2130,8 +2018,7 @@ TypeMgr::createGcShadowStackFrameType()
 }
 
 StructType*
-TypeMgr::createSjljFrameType()
-{
+TypeMgr::createSjljFrameType() {
 	ArrayType* arrayType = getArrayType(getPrimitiveType(TypeKind_Char), sizeof(jmp_buf));
 	StructType* type = createInternalStructType("jnc.SjljFrame");
 	type->createField("!m_jmpBuf", arrayType);

@@ -19,10 +19,8 @@ namespace ct {
 //..............................................................................
 
 const char*
-getBinOpKindString(BinOpKind opKind)
-{
-	static const char* stringTable[BinOpKind__Count] =
-	{
+getBinOpKindString(BinOpKind opKind) {
+	static const char* stringTable[BinOpKind__Count] = {
 		"undefined-binary-operator",  // BinOpKind_Undefined = 0,
 		"+",                          // BinOpKind_Add,
 		"-",                          // BinOpKind_Sub,
@@ -66,8 +64,7 @@ getBinOpKindString(BinOpKind opKind)
 
 //..............................................................................
 
-BinaryOperator::BinaryOperator()
-{
+BinaryOperator::BinaryOperator() {
 	m_module = Module::getCurrentConstructedModule();
 	ASSERT(m_module);
 

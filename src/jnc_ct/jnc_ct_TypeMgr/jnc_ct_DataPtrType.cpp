@@ -19,8 +19,7 @@ namespace ct {
 
 //..............................................................................
 
-DataPtrType::DataPtrType()
-{
+DataPtrType::DataPtrType() {
 	m_typeKind = TypeKind_DataPtr;
 	m_ptrTypeKind = DataPtrTypeKind_Normal;
 	m_targetType = NULL;
@@ -33,12 +32,10 @@ DataPtrType::createSignature(
 	TypeKind typeKind,
 	DataPtrTypeKind ptrTypeKind,
 	uint_t flags
-	)
-{
+) {
 	sl::String signature = typeKind == TypeKind_DataRef ? "RD" : "PD";
 
-	switch (ptrTypeKind)
-	{
+	switch (ptrTypeKind) {
 	case DataPtrTypeKind_Lean:
 		signature += 'l';
 		break;
@@ -54,8 +51,7 @@ DataPtrType::createSignature(
 }
 
 bool
-DataPtrType::calcLayout()
-{
+DataPtrType::calcLayout() {
 	ASSERT(m_targetType->getTypeKindFlags() & TypeKindFlag_Import);
 
 	bool result = ((ImportType*)m_targetType)->ensureResolved();
@@ -67,35 +63,30 @@ DataPtrType::calcLayout()
 }
 
 void
-DataPtrType::prepareTypeString()
-{
+DataPtrType::prepareTypeString() {
 	TypeStringTuple* tuple = getTypeStringTuple();
 	tuple->m_typeStringPrefix = m_targetType->getTypeStringPrefix() + getPointerStringSuffix();
 	tuple->m_typeStringSuffix = m_targetType->getTypeStringSuffix();
 }
 
 void
-DataPtrType::prepareDoxyLinkedText()
-{
+DataPtrType::prepareDoxyLinkedText() {
 	TypeStringTuple* tuple = getTypeStringTuple();
 	tuple->m_doxyLinkedTextPrefix = m_targetType->getDoxyLinkedTextPrefix() + getPointerStringSuffix();
 	tuple->m_doxyLinkedTextSuffix = m_targetType->getDoxyLinkedTextSuffix();
 }
 
 sl::String
-DataPtrType::getPointerStringSuffix()
-{
+DataPtrType::getPointerStringSuffix() {
 	sl::String string;
 
 	sl::String ptrTypeFlagString = getPtrTypeFlagString(m_flags);
-	if (!ptrTypeFlagString.isEmpty())
-	{
+	if (!ptrTypeFlagString.isEmpty()) {
 		string += ' ';
 		string += ptrTypeFlagString;
 	}
 
-	if (m_ptrTypeKind != DataPtrTypeKind_Normal)
-	{
+	if (m_ptrTypeKind != DataPtrTypeKind_Normal) {
 		string += ' ';
 		string += getDataPtrTypeKindString(m_ptrTypeKind);
 	}
@@ -109,8 +100,7 @@ DataPtrType::getPointerStringSuffix()
 }
 
 void
-DataPtrType::prepareLlvmType()
-{
+DataPtrType::prepareLlvmType() {
 	m_llvmType =
 		m_ptrTypeKind == DataPtrTypeKind_Normal ? m_module->m_typeMgr.getStdType(StdType_DataPtrStruct)->getLlvmType() :
 		m_targetType->getTypeKind() != TypeKind_Void ? llvm::PointerType::get(m_targetType->getLlvmType(), 0) :
@@ -118,8 +108,7 @@ DataPtrType::prepareLlvmType()
 }
 
 void
-DataPtrType::prepareLlvmDiType()
-{
+DataPtrType::prepareLlvmDiType() {
 	m_llvmDiType =
 		m_ptrTypeKind == DataPtrTypeKind_Normal ? m_module->m_typeMgr.getStdType(StdType_DataPtrStruct)->getLlvmDiType() :
 		m_targetType->getTypeKind() != TypeKind_Void && (m_targetType->getFlags() & ModuleItemFlag_LayoutReady) ?
@@ -131,8 +120,7 @@ void
 DataPtrType::markGcRoots(
 	const void* p,
 	rt::GcHeap* gcHeap
-	)
-{
+) {
 	ASSERT(m_ptrTypeKind == DataPtrTypeKind_Normal);
 
 	DataPtr* ptr = (DataPtr*)p;
@@ -147,8 +135,7 @@ Type*
 DataPtrType::calcFoldedDualType(
 	bool isAlien,
 	bool isContainerConst
-	)
-{
+) {
 	ASSERT(isDualType(this));
 
 	Type* targetType = (m_flags & PtrTypeFlag_DualTarget) ?

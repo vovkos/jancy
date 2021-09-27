@@ -14,14 +14,12 @@
 #include "moc_mdichild.cpp"
 
 MdiChild::MdiChild(QWidget *parent):
-	jnc::Edit(parent)
-{
+	jnc::Edit(parent) {
 	m_isUntitled = true;
 	m_isCompilationNeeded = true;
 }
 
-void MdiChild::newFile()
-{
+void MdiChild::newFile() {
 	static int sequenceNumber = 1;
 
 	m_isUntitled = true;
@@ -34,8 +32,7 @@ void MdiChild::newFile()
 			this, SLOT(documentWasModified()));
 }
 
-bool MdiChild::loadFile(const QString& filePath)
-{
+bool MdiChild::loadFile(const QString& filePath) {
 	QFile file(filePath);
 
 	if (!file.open(QFile::ReadOnly | QFile::Text)) {
@@ -63,36 +60,32 @@ bool MdiChild::loadFile(const QString& filePath)
 	return true;
 }
 
-bool MdiChild::save()
-{
+bool MdiChild::save() {
 	if (m_isUntitled)
 		return saveAs();
 	else
 		return saveFile(m_filePath);
 }
 
-void MdiChild::closeEvent(QCloseEvent *e)
-{
+void MdiChild::closeEvent(QCloseEvent *e) {
 	if(canClose())
 		e->accept();
 	else
 		e->ignore();
 }
 
-void MdiChild::documentWasModified()
-{
+void MdiChild::documentWasModified() {
 	setWindowModified(true);
 	m_isCompilationNeeded = true;
 }
 
-bool MdiChild::saveAs()
-{
+bool MdiChild::saveAs() {
 	QString filePath = QFileDialog::getSaveFileName(
 		this,
 		"Save As",
 		m_filePath,
 		"Jancy Files (*.jnc);;All Files (*.*)"
-		);
+	);
 
 	if (filePath.isEmpty())
 		return false;
@@ -100,8 +93,7 @@ bool MdiChild::saveAs()
 	return saveFile(filePath);
 }
 
-bool MdiChild::saveFile(const QString& filePath)
-{
+bool MdiChild::saveFile(const QString& filePath) {
 	QFile file(filePath);
 	if (!file.open(QFile::WriteOnly | QFile::Text)) {
 		QMessageBox::warning(this, tr("Save File"),
@@ -122,8 +114,7 @@ bool MdiChild::saveFile(const QString& filePath)
 	return true;
 }
 
-void MdiChild::setFile(const QString &filePath)
- {
+void MdiChild::setFile(const QString &filePath) {
 	 m_filePath = QFileInfo(filePath).canonicalFilePath();
 	 m_isUntitled = false;
 
@@ -132,8 +123,7 @@ void MdiChild::setFile(const QString &filePath)
 	 setWindowTitle(fileName() + "[*]");
  }
 
-bool MdiChild::canClose()
-{
+bool MdiChild::canClose() {
 	if (document()->isModified()) {
 		QString message = QString("%1 has been modified.\n"
 			"Do you want to save your changes?").arg(fileName());

@@ -18,8 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-BitFieldType::BitFieldType()
-{
+BitFieldType::BitFieldType() {
 	m_typeKind = TypeKind_BitField;
 	m_flags = TypeFlag_Pod;
 	m_baseType = NULL;
@@ -28,8 +27,7 @@ BitFieldType::BitFieldType()
 }
 
 void
-BitFieldType::prepareTypeString()
-{
+BitFieldType::prepareTypeString() {
 	TypeStringTuple* tuple = getTypeStringTuple();
 
 	tuple->m_typeStringPrefix = m_baseType->getTypeStringPrefix();
@@ -37,8 +35,7 @@ BitFieldType::prepareTypeString()
 }
 
 void
-BitFieldType::prepareDoxyLinkedText()
-{
+BitFieldType::prepareDoxyLinkedText() {
 	TypeStringTuple* tuple = getTypeStringTuple();
 
 	tuple->m_doxyLinkedTextPrefix = m_baseType->getDoxyLinkedTextPrefix();
@@ -46,14 +43,12 @@ BitFieldType::prepareDoxyLinkedText()
 }
 
 bool
-BitFieldType::calcLayout()
-{
+BitFieldType::calcLayout() {
 	bool result = m_baseType->ensureLayout();
 	if (!result)
 		return false;
 
-	if (!(m_baseType->getTypeKindFlags() & TypeKindFlag_Integer))
-	{
+	if (!(m_baseType->getTypeKindFlags() & TypeKindFlag_Integer)) {
 		err::setFormatStringError("bit field can only be used with integer types");
 		return false;
 	}
@@ -67,8 +62,7 @@ sl::String
 BitFieldType::getValueString(
 	const void* p,
 	const char* formatSpec
-	)
-{
+) {
 	Value value(p, this);
 	bool result = m_module->m_operatorMgr.extractBitField(value, this, &value);
 	ASSERT(result);

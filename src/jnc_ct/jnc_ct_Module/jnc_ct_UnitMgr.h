@@ -18,8 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-class Unit: public sl::ListLink
-{
+class Unit: public sl::ListLink {
 	friend class UnitMgr;
 
 protected:
@@ -40,46 +39,39 @@ public:
 	isRootUnit();
 
 	Module*
-	getModule() const
-	{
+	getModule() const {
 		return m_module;
 	}
 
 	ExtensionLib*
-	getLib() const
-	{
+	getLib() const {
 		return m_lib;
 	}
 
 	const sl::String&
-	getFilePath() const
-	{
+	getFilePath() const {
 		return m_filePath;
 	}
 
 	const sl::String&
-	getFileName() const
-	{
+	getFileName() const {
 		return m_fileName;
 	}
 
 	const sl::String&
-	getDir() const
-	{
+	getDir() const {
 		return m_dir;
 	}
 
 	llvm::DIFile_vn
-	getLlvmDiFile() const
-	{
+	getLlvmDiFile() const {
 		return m_llvmDiFile;
 	}
 };
 
 //..............................................................................
 
-class UnitMgr
-{
+class UnitMgr {
 protected:
 	Module* m_module;
 	sl::List<Unit> m_unitList;
@@ -91,8 +83,7 @@ public:
 	UnitMgr();
 
 	Module*
-	getModule()
-	{
+	getModule() {
 		return m_module;
 	}
 
@@ -100,20 +91,17 @@ public:
 	clear();
 
 	const sl::List<Unit>&
-	getUnitList()
-	{
+	getUnitList() {
 		return m_unitList;
 	}
 
 	Unit*
-	getRootUnit()
-	{
+	getRootUnit() {
 		return *m_unitList.getHead();
 	}
 
 	Unit*
-	getCurrentUnit()
-	{
+	getCurrentUnit() {
 		return m_currentUnit;
 	}
 
@@ -130,7 +118,7 @@ public:
 	createUnit(
 		ExtensionLib* lib,
 		const sl::StringRef& filePath
-		);
+	);
 };
 
 //..............................................................................

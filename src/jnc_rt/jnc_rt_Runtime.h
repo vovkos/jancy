@@ -18,20 +18,17 @@ namespace rt {
 
 //..............................................................................
 
-class Runtime
-{
+class Runtime {
 	friend class GcHeap;
 
 protected:
-	enum State
-	{
+	enum State {
 		State_Idle,
 		State_Running,
 		State_ShuttingDown,
 	};
 
-	enum Shutdown
-	{
+	enum Shutdown {
 		Shutdown_IterationCount    = 6,
 		Shutdown_WaitThreadTimeout = 500, // 3 sec total
 	};
@@ -51,26 +48,22 @@ public:
 public:
 	Runtime();
 
-	~Runtime()
-	{
+	~Runtime() {
 		shutdown();
 	}
 
 	ct::Module*
-	getModule()
-	{
+	getModule() {
 		return m_module;
 	}
 
 	GcHeap*
-	getGcHeap()
-	{
+	getGcHeap() {
 		return &m_gcHeap;
 	}
 
 	bool
-	isAborted()
-	{
+	isAborted() {
 		return m_gcHeap.isAborted();
 	}
 
@@ -107,16 +100,14 @@ public:
 
 JNC_INLINE
 Tls*
-getCurrentThreadTls()
-{
+getCurrentThreadTls() {
 	CallSite* callSite = sys::getTlsPtrSlotValue<CallSite>();
 	return callSite ? callSite->m_tls : NULL;
 }
 
 JNC_INLINE
 Runtime*
-getCurrentThreadRuntime()
-{
+getCurrentThreadRuntime() {
 	Tls* tls = getCurrentThreadTls();
 	return tls ? tls->m_runtime : NULL;
 }

@@ -21,16 +21,14 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(HostNameResolver)
 
 //..............................................................................
 
-enum HostNameResolverEvent
-{
+enum HostNameResolverEvent {
 	HostNameResolverEvent_Error    = AsyncIoBaseEvent_IoError,
 	HostNameResolverEvent_Resolved = 0x02,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct HostNameResolverHdr: IfaceHdr
-{
+struct HostNameResolverHdr: IfaceHdr {
 	DataPtr m_addressTablePtr;
 	size_t m_addressCount;
 };
@@ -39,22 +37,18 @@ struct HostNameResolverHdr: IfaceHdr
 
 class HostNameResolver:
 	public HostNameResolverHdr,
-	public AsyncIoBase
-{
+	public AsyncIoBase {
 	friend class IoThread;
 
 protected:
-	enum IoThreadFlag
-	{
+	enum IoThreadFlag {
 		IoThreadFlag_Started = 0x0100,
 	};
 
-	class IoThread: public sys::ThreadImpl<IoThread>
-	{
+	class IoThread: public sys::ThreadImpl<IoThread> {
 	public:
 		void
-		threadFunc()
-		{
+		threadFunc() {
 			containerof(this, HostNameResolver, m_ioThread)->ioThreadFunc();
 		}
 	};
@@ -67,8 +61,7 @@ protected:
 	uint_t m_port;
 
 public:
-	~HostNameResolver()
-	{
+	~HostNameResolver() {
 		close();
 	}
 
@@ -81,7 +74,7 @@ public:
 	resolve(
 		DataPtr namePtr,
 		uint16_t addrFamily
-		);
+	);
 
 	void
 	JNC_CDECL
@@ -96,15 +89,13 @@ public:
 	wait(
 		uint_t eventMask,
 		FunctionPtr handlerPtr
-		)
-	{
+	) {
 		return AsyncIoBase::wait(eventMask, handlerPtr);
 	}
 
 	bool
 	JNC_CDECL
-	cancelWait(handle_t handle)
-	{
+	cancelWait(handle_t handle) {
 		return AsyncIoBase::cancelWait(handle);
 	}
 
@@ -113,15 +104,13 @@ public:
 	blockingWait(
 		uint_t eventMask,
 		uint_t timeout
-		)
-	{
+	) {
 		return AsyncIoBase::blockingWait(eventMask, timeout);
 	}
 
 	Promise*
 	JNC_CDECL
-	asyncWait(uint_t eventMask)
-	{
+	asyncWait(uint_t eventMask) {
 		return AsyncIoBase::asyncWait(eventMask);
 	}
 
@@ -133,14 +122,13 @@ protected:
 	complete_l(
 		const axl::io::SockAddr* addressTable,
 		size_t count
-		);
+	);
 
 	void
 	complete(
 		const axl::io::SockAddr* addressTable,
 		size_t count
-		)
-	{
+	) {
 		m_lock.lock();
 		complete_l(addressTable, count);
 	}

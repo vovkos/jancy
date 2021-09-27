@@ -25,7 +25,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	IoLibCacheSlot_MappedFile,
 	MappedFile,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(MappedFile)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<MappedFile>)
@@ -41,8 +41,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
-MappedFile::MappedFile()
-{
+MappedFile::MappedFile() {
 	m_runtime = getCurrentThreadRuntime();
 	m_dynamicViewLimit = axl::io::MappedFile::DefaultsKind_MaxDynamicViewCount;
 	m_isOpen = false;
@@ -53,8 +52,7 @@ JNC_CDECL
 MappedFile::open(
 	DataPtr namePtr,
 	uint_t flags
-	)
-{
+) {
 	return
 		requireIoLibCapability(IoLibCapability_File) &&
 		m_file.open((const char*) namePtr.m_p, flags);
@@ -67,8 +65,7 @@ MappedFile::view(
 	uint64_t offset,
 	size_t size,
 	bool isPermanent
-	)
-{
+) {
 	void* p = self->m_file.view(offset, size, isPermanent);
 	if (!p)
 		return g_nullDataPtr;
@@ -86,8 +83,7 @@ MappedFile::view(
 
 void
 JNC_CDECL
-MappedFile::setDynamicViewLimit(size_t limit)
-{
+MappedFile::setDynamicViewLimit(size_t limit) {
 	bool result = m_file.setup(limit, axl::io::MappedFile::DefaultsKind_ReadAheadSize);
 	if (result)
 		m_dynamicViewLimit = limit;

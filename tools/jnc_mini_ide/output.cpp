@@ -19,24 +19,20 @@
 #define LINE_ERROR_BACK     QColor(255, 200, 200)
 
 Output::Output(QWidget* parent):
-	MonospacePlainTextEdit(parent)
-{
+	MonospacePlainTextEdit(parent) {
 	setReadOnly(true);
 	setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
 	setLineWrapMode(QPlainTextEdit::NoWrap);
 }
 
-void Output::mouseDoubleClickEvent(QMouseEvent* e)
-{
+void Output::mouseDoubleClickEvent(QMouseEvent* e) {
 	QString filePath;
 	int line;
 	int col;
 
-	if (parseLine(&filePath, &line, &col, textCursor()))
-	{
+	if (parseLine(&filePath, &line, &col, textCursor())) {
 		MdiChild *child = getMainWindow()->findMdiChild(filePath);
-		if (child)
-		{
+		if (child) {
 			highlightLine(textCursor(), LINE_SELECTION_BACK, Qt::white);
 
 			child->setTextCursorLineCol(line, col);
@@ -45,9 +41,7 @@ void Output::mouseDoubleClickEvent(QMouseEvent* e)
 
 			e->ignore();
 		}
-	}
-	else
-	{
+	} else {
 		e->accept();
 		QPlainTextEdit::mouseDoubleClickEvent(e);
 	}
@@ -58,8 +52,7 @@ bool Output::parseLine(
 	int* line,
 	int* col,
 	const QTextCursor& cursor
-	)
-{
+) {
 	QString text = cursor.block().text();
 
 	QRegExp regexp("\\(([0-9]+),([0-9]+)\\):");

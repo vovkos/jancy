@@ -14,10 +14,8 @@ bool representOsdpLog(
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
-	switch (recordCode)
-	{
+) {
+	switch (recordCode) {
 	case OsdpLogRecordCode.Packet:
 		representPacket(representation, p, size, foldFlags);
 		break;
@@ -42,8 +40,7 @@ void representPacket(
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
+) {
 	OsdpHdr const* hdr = (OsdpHdr const*)p;
 	OsdpScbHdr const* scbHdr = (OsdpScbHdr const*)(hdr + 1);
 	OsdpCmdReply const* cmdReply = (hdr.m_ctrl & OsdpCtrl.Scb) ?
@@ -55,16 +52,13 @@ void representPacket(
 		log.StdLogIcon.RxPacket :
 		log.StdLogIcon.TxPacket;
 
-	if (!foldFlags)
-	{
+	if (!foldFlags) {
 		representation.addHyperText($"[\e^+1\e[34m+\e[m] \e[1mOSDP\e[m %1 %2 \e[34m%3"(
 			typeof(OsdpCmdReplyCode).getValueString(cmdReply.m_code),
 			hdr.m_direction ? "\u2190" : "\u2192",
 			hdr.m_address
-			));
-	}
-	else
-	{
+		));
+	} else {
 		representation.addHyperText($"[\e^-1\e[34m-\e[m] \e[1mOSDP");
 
 		size_t offset = 0;
@@ -77,12 +71,11 @@ void representPacket(
 			p,
 			offset,
 			0, 0, 0
-			);
+		);
 
 		offset += sizeof(OsdpHdr);
 
-		if (hdr.m_ctrl & OsdpCtrl.Scb)
-		{
+		if (hdr.m_ctrl & OsdpCtrl.Scb) {
 			// TODO: represent SCB
 			offset += scbHdr.m_length;
 		}
@@ -95,12 +88,11 @@ void representPacket(
 			p + offset,
 			offset,
 			0, 0, 0
-			);
+		);
 
 		offset += sizeof(OsdpCmdReply);
 
-		if (hdr.m_ctrl & OsdpCtrl.Crc)
-		{
+		if (hdr.m_ctrl & OsdpCtrl.Crc) {
 			offset = size - 2;
 
 			log.representStruct(
@@ -111,7 +103,7 @@ void representPacket(
 				p + offset,
 				offset,
 				0, 0, 0
-				);
+			);
 		}
 
 		representation.m_lineAttr.m_backColor = ui.StdColor.White;

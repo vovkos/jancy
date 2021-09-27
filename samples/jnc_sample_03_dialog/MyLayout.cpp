@@ -22,7 +22,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	MyLibCacheSlot_Layout,
 	MyLayout,
 	&MyLayout::markOpaqueGcRoots
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(MyLayout)
 	JNC_MAP_CONSTRUCTOR(&(jnc::construct<MyLayout, QBoxLayout::Direction>))
@@ -34,32 +34,27 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
-MyLayout::MyLayout(QBoxLayout::Direction direction)
-{
+MyLayout::MyLayout(QBoxLayout::Direction direction) {
 	m_qtLayout = new QBoxLayout(direction);
 	m_direction = direction;
 }
 
-MyLayout::~MyLayout()
-{
+MyLayout::~MyLayout() {
 	if (!m_qtLayout->parent())
 		delete m_qtLayout;
 }
 
 void
 JNC_CDECL
-MyLayout::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
-{
+MyLayout::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 	int count = m_childWidgetList.count();
-	for (int i = 0; i < count; i++)
-	{
+	for (int i = 0; i < count; i++) {
 		MyWidget* widget = m_childWidgetList[i];
 		gcHeap->markClass(widget->m_box);
 	}
 
 	count = m_childLayoutList.count();
-	for (int i = 0; i < count; i++)
-	{
+	for (int i = 0; i < count; i++) {
 		MyLayout* layout = m_childLayoutList[i];
 		gcHeap->markClass(layout->m_box);
 	}
@@ -67,29 +62,25 @@ MyLayout::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
 
 void
 JNC_CDECL
-MyLayout::addWidget(MyWidget* widget)
-{
+MyLayout::addWidget(MyWidget* widget) {
 	m_childWidgetList.append(widget);
 	m_qtLayout->addWidget(widget->m_handle);
 }
 
 void
 JNC_CDECL
-MyLayout::addLayout(MyLayout* layout)
-{
+MyLayout::addLayout(MyLayout* layout) {
 	m_childLayoutList.append(layout);
 	m_qtLayout->addLayout(layout->m_qtLayout);
 }
 
 void
 JNC_CDECL
-MyLayout::addSpacer()
-{
+MyLayout::addSpacer() {
 	QSizePolicy::Policy hpolicy = QSizePolicy::Minimum;
 	QSizePolicy::Policy vpolicy = QSizePolicy::Minimum;
 
-	switch (m_direction)
-	{
+	switch (m_direction) {
 	case QBoxLayout::LeftToRight:
 	case QBoxLayout::RightToLeft:
 		hpolicy = QSizePolicy::Expanding;

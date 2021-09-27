@@ -24,8 +24,7 @@ void
 OperatorMgr::callTraceFunction(
 	const sl::StringRef& functionName,
 	const sl::StringRef& string
-	)
-{
+) {
 	Function* function = (Function*)m_module->m_namespaceMgr.getGlobalNamespace()->findItem(functionName).m_item;
 	ASSERT(function && function->getItemKind() == ModuleItemKind_Function);
 
@@ -35,16 +34,14 @@ OperatorMgr::callTraceFunction(
 }
 
 void
-OperatorMgr::traceBlock(BasicBlock* block)
-{
+OperatorMgr::traceBlock(BasicBlock* block) {
 	llvm::BasicBlock* llvmBlock = block->getLlvmBlock();
 	llvm::BasicBlock::iterator it = llvmBlock->begin();
 
 	m_module->m_llvmIrBuilder.setInsertPoint(&*it);
 	m_module->m_operatorMgr.callTraceFunction("print_u", block->getName() + "\n------------\n");
 
-	for (; it != llvmBlock->end() && !it->isTerminator(); it++)
-	{
+	for (; it != llvmBlock->end() && !it->isTerminator(); it++) {
 		std::string s;
 		llvm::raw_string_ostream stream(s);
 		it->print(stream);
@@ -61,20 +58,18 @@ OperatorMgr::closureOperator(
 	const Value& rawOpValue,
 	sl::BoxList<Value>* argValueList,
 	Value* resultValue
-	)
-{
+) {
 	Value opValue;
 	bool result = prepareOperand(rawOpValue, &opValue);
 	if (!result)
 		return false;
 
 	TypeKind typeKind = opValue.getType()->getTypeKind();
-	if (typeKind != TypeKind_FunctionRef && typeKind != TypeKind_FunctionPtr)
-	{
+	if (typeKind != TypeKind_FunctionRef && typeKind != TypeKind_FunctionPtr) {
 		err::setFormatStringError(
 			"closure operator cannot be applied to '%s'",
 			opValue.getType()->getTypeString().sz()
-			);
+		);
 		return false;
 	}
 
@@ -89,15 +84,12 @@ OperatorMgr::closureOperator(
 }
 
 Type*
-OperatorMgr::getCdeclVarArgType(Type* type)
-{
-	for (;;)
-	{
+OperatorMgr::getCdeclVarArgType(Type* type) {
+	for (;;) {
 		Type* prevType = type;
 
 		TypeKind typeKind = type->getTypeKind();
-		switch (typeKind)
-		{
+		switch (typeKind) {
 		case TypeKind_DataRef:
 			type = ((DataPtrType*)type)->getTargetType();
 			break;
@@ -106,14 +98,14 @@ OperatorMgr::getCdeclVarArgType(Type* type)
 			type = ((ClassPtrType*)type)->getTargetType()->getClassPtrType(
 				((ClassPtrType*)type)->getPtrTypeKind(),
 				type->getFlags()
-				);
+			);
 			break;
 
 		case TypeKind_FunctionRef:
 			type = ((FunctionPtrType*)type)->getTargetType()->getFunctionPtrType(
 				((FunctionPtrType*)type)->getPtrTypeKind(),
 				type->getFlags()
-				);
+			);
 			break;
 
 		case TypeKind_PropertyRef:
@@ -141,8 +133,7 @@ OperatorMgr::getCdeclVarArgType(Type* type)
 			break;
 
 		default:
-			if (type->getTypeKindFlags() & TypeKindFlag_Integer)
-			{
+			if (type->getTypeKindFlags() & TypeKindFlag_Integer) {
 				type = type->getSize() > 4 ?
 					m_module->m_typeMgr.getPrimitiveType(TypeKind_Int64) :
 					m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32);
@@ -159,8 +150,7 @@ OperatorMgr::callOperator(
 	const Value& rawOpValue,
 	sl::BoxList<Value>* argValueList,
 	Value* resultValue
-	)
-{
+) {
 	bool result;
 
 	Value opValue;
@@ -177,20 +167,17 @@ OperatorMgr::callOperator(
 	if (!result)
 		return false;
 
-	if (opValue.getType()->getTypeKind() == TypeKind_ClassPtr)
-	{
+	if (opValue.getType()->getTypeKind() == TypeKind_ClassPtr) {
 		ClassPtrType* ptrType = (ClassPtrType*)opValue.getType();
 
 		OverloadableFunction callOperator = ptrType->getTargetType()->getCallOperator();
-		if (!callOperator)
-		{
+		if (!callOperator) {
 			err::setFormatStringError("cannot call '%s'", ptrType->getTypeString().sz());
 			return false;
 		}
 
 		if ((callOperator->getFlags() & MulticastMethodFlag_InaccessibleViaEventPtr) &&
-			(ptrType->getFlags() & PtrTypeFlag_Event))
-		{
+			(ptrType->getFlags() & PtrTypeFlag_Event)) {
 			err::setFormatStringError("'call' is inaccessible via 'event' pointer");
 			return false;
 		}
@@ -203,15 +190,13 @@ OperatorMgr::callOperator(
 	}
 
 	Closure* closure = opValue.getClosure();
-	if (closure)
-	{
+	if (closure) {
 		result = closure->apply(argValueList);
 		if (!result)
 			return false;
 	}
 
-	if (opValue.getValueKind() == ValueKind_FunctionOverload)
-	{
+	if (opValue.getValueKind() == ValueKind_FunctionOverload) {
 		Function* function = opValue.getFunctionOverload()->chooseOverload(*argValueList);
 		if (!function)
 			return false;
@@ -223,12 +208,10 @@ OperatorMgr::callOperator(
 		opValue.setClosure(closure);
 	}
 
-	if (opValue.getValueKind() == ValueKind_Function)
-	{
+	if (opValue.getValueKind() == ValueKind_Function) {
 		Function* function = opValue.getFunction();
 
-		if (function->isVirtual())
-		{
+		if (function->isVirtual()) {
 			result = getVirtualMethod(function, closure, &opValue);
 			if (!result)
 				return false;
@@ -239,8 +222,7 @@ OperatorMgr::callOperator(
 
 	Type* opType = opValue.getType();
 	if (!(opType->getTypeKindFlags() & TypeKindFlag_FunctionPtr) ||
-		((FunctionPtrType*)opType)->getPtrTypeKind() == FunctionPtrTypeKind_Weak)
-	{
+		((FunctionPtrType*)opType)->getPtrTypeKind() == FunctionPtrTypeKind_Weak) {
 		err::setFormatStringError("cannot call '%s'", opType->getTypeString().sz());
 		return false;
 	}
@@ -255,8 +237,7 @@ FunctionTypeOverload
 OperatorMgr::getValueFunctionTypeOverload(
 	const Value& rawOpValue,
 	size_t* baseArgumentIdx
-	)
-{
+) {
 	Value opValue;
 
 	bool result = prepareOperand(rawOpValue, &opValue);
@@ -265,8 +246,7 @@ OperatorMgr::getValueFunctionTypeOverload(
 
 	*baseArgumentIdx = 0;
 
-	if (opValue.getType()->getTypeKind() == TypeKind_ClassPtr)
-	{
+	if (opValue.getType()->getTypeKind() == TypeKind_ClassPtr) {
 		ClassPtrType* ptrType = (ClassPtrType*)opValue.getType();
 		OverloadableFunction callOperator = ptrType->getTargetType()->getCallOperator();
 		if (!callOperator)
@@ -306,21 +286,17 @@ OperatorMgr::callOperatorVararg(
 	DerivableType* type,
 	const Value& value,
 	Value* resultValue
-	)
-{
+) {
 	Value tmpValue;
 
 	Type* valueType = value.getType();
 
 	if (valueType->getTypeKind() == TypeKind_DataRef &&
-		((DataPtrType*)valueType)->getTargetType() == type)
-	{
+		((DataPtrType*)valueType)->getTargetType() == type) {
 		return
 			unaryOperator(UnOpKind_Addr, value, &tmpValue) &&
 			callOperator(operatorVararg, tmpValue, resultValue);
-	}
-	else
-	{
+	} else {
 		Variable* tmpVariable = m_module->m_variableMgr.createSimpleStackVariable("tmpStruct", type);
 
 		return
@@ -335,8 +311,7 @@ OperatorMgr::castArgValueList(
 	FunctionType* functionType,
 	Closure* closure,
 	sl::BoxList<Value>* argValueList
-	)
-{
+) {
 	bool result;
 
 	sl::Array<FunctionArg*> argArray = functionType->getArgArray();
@@ -349,16 +324,11 @@ OperatorMgr::castArgValueList(
 
 	size_t commonArgCount;
 
-	if (actualArgCount <= formalArgCount)
-	{
+	if (actualArgCount <= formalArgCount) {
 		commonArgCount = actualArgCount;
-	}
-	else if (isVarArg)
-	{
+	} else if (isVarArg) {
 		commonArgCount = formalArgCount;
-	}
-	else
-	{
+	} else {
 		err::setFormatStringError("too many arguments in a call to '%s'", functionType->getTypeString().sz());
 		return false;
 	}
@@ -368,21 +338,18 @@ OperatorMgr::castArgValueList(
 
 	// common for both formal and actual
 
-	for (; i < commonArgCount; argValueIt++, i++)
-	{
+	for (; i < commonArgCount; argValueIt++, i++) {
 		Value argValue = *argValueIt;
 
 		FunctionArg* arg = argArray[i];
-		if (argValue.isEmpty())
-		{
+		if (argValue.isEmpty()) {
 			const sl::ConstBoxList<Token>& initializer = arg->getInitializer();
-			if (initializer.isEmpty())
-			{
+			if (initializer.isEmpty()) {
 				err::setFormatStringError(
 					"argument (%d) of '%s' has no default value",
 					i + 1,
 					functionType->getTypeString().sz()
-					);
+				);
 				return false;
 			}
 
@@ -403,19 +370,17 @@ OperatorMgr::castArgValueList(
 
 	// default formal arguments
 
-	for (; i < formalArgCount; i++)
-	{
+	for (; i < formalArgCount; i++) {
 		Value argValue;
 
 		FunctionArg* arg = argArray[i];
 		const sl::ConstBoxList<Token>& initializer = arg->getInitializer();
-		if (initializer.isEmpty())
-		{
+		if (initializer.isEmpty()) {
 			err::setFormatStringError(
 				"argument (%d) of '%s' has no default value",
 				i + 1,
 				functionType->getTypeString().sz()
-				);
+			);
 			return false;
 		}
 
@@ -440,17 +405,14 @@ OperatorMgr::castArgValueList(
 
 	// vararg arguments
 
-	if (!isCdeclVarArg)
-	{
+	if (!isCdeclVarArg) {
 		err::setFormatStringError("only 'cdecl' vararg is currently supported");
 		return false;
 	}
 
-	for (; argValueIt; argValueIt++)
-	{
+	for (; argValueIt; argValueIt++) {
 		Value argValue = *argValueIt;
-		if (argValue.isEmpty())
-		{
+		if (argValue.isEmpty()) {
 			err::setFormatStringError("vararg arguments cannot be skipped");
 			return false;
 		}
@@ -461,16 +423,14 @@ OperatorMgr::castArgValueList(
 			return false;
 
 		Type* type = typeValue.getType();
-		if (type->getTypeKindFlags() & TypeKindFlag_Derivable)
-		{
+		if (type->getTypeKindFlags() & TypeKindFlag_Derivable) {
 			DerivableType* derivableType = (DerivableType*)type;
 
 			Function* operatorVararg = derivableType->getOperatorCdeclVararg();
 			if (!operatorVararg)
 				operatorVararg = derivableType->getOperatorVararg();
 
-			if (operatorVararg)
-			{
+			if (operatorVararg) {
 				result = callOperatorVararg(operatorVararg, derivableType, &argValue);
 				if (!result)
 					return false;
@@ -494,8 +454,7 @@ OperatorMgr::callClosureFunctionPtr(
 	const Value& opValue,
 	sl::BoxList<Value>* argValueList,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_FunctionPtr);
 
 	FunctionPtrType* functionPtrType = (FunctionPtrType*)opValue.getType();
@@ -506,13 +465,10 @@ OperatorMgr::callClosureFunctionPtr(
 	Value pfnValue;
 	Value ifaceValue;
 
-	if (!m_module->hasCodeGen())
-	{
+	if (!m_module->hasCodeGen()) {
 		pfnValue.setType(functionThinPtrType);
 		ifaceValue.setType(m_module->m_typeMgr.getStdType(StdType_AbstractClassPtr));
-	}
-	else
-	{
+	} else {
 		m_module->m_llvmIrBuilder.createExtractValue(opValue, 0, NULL, &pfnValue);
 		m_module->m_llvmIrBuilder.createExtractValue(opValue, 1, m_module->m_typeMgr.getStdType(StdType_AbstractClassPtr), &ifaceValue);
 		m_module->m_llvmIrBuilder.createBitCast(pfnValue, functionThinPtrType, &pfnValue);
@@ -528,12 +484,10 @@ OperatorMgr::callImpl(
 	FunctionType* functionType,
 	sl::BoxList<Value>* argValueList,
 	Value* resultValue
-	)
-{
+) {
 	uint_t flags = functionType->getFlags();
 
-	if ((flags & FunctionTypeFlag_Unsafe) && !isUnsafeRgn())
-	{
+	if ((flags & FunctionTypeFlag_Unsafe) && !isUnsafeRgn()) {
 		err::setFormatStringError("can only call unsafe functions from unsafe regions");
 		return false;
 	}
@@ -542,8 +496,7 @@ OperatorMgr::callImpl(
 	if (!result)
 		return false;
 
-	if (!m_module->hasCodeGen())
-	{
+	if (!m_module->hasCodeGen()) {
 		resultValue->setType(functionType->getReturnType());
 		return true;
 	}
@@ -553,7 +506,7 @@ OperatorMgr::callImpl(
 		functionType,
 		argValueList,
 		resultValue
-		);
+	);
 
 	if (resultValue->getType()->getFlags() & TypeFlag_GcRoot)
 		m_module->m_gcShadowStackMgr.createTmpGcRoot(*resultValue);
@@ -565,18 +518,14 @@ OperatorMgr::callImpl(
 }
 
 void
-OperatorMgr::gcSafePoint()
-{
+OperatorMgr::gcSafePoint() {
 	if (!m_module->hasCodeGen())
 		return;
 
-	if (m_module->getCompileFlags() & ModuleCompileFlag_SimpleGcSafePoint)
-	{
+	if (m_module->getCompileFlags() & ModuleCompileFlag_SimpleGcSafePoint) {
 		Function* function = m_module->m_functionMgr.getStdFunction(StdFunc_GcSafePoint);
 		m_module->m_llvmIrBuilder.createCall(function, function->getType(), NULL);
-	}
-	else
-	{
+	} else {
 		Variable* variable = m_module->m_variableMgr.getStdVariable(StdVariable_GcSafePointTrigger);
 
 		Value ptrValue;
@@ -593,7 +542,7 @@ OperatorMgr::gcSafePoint()
 #endif
 			llvm::DefaultSynchronizationScope_vn,
 			&value
-			);
+		);
 	}
 }
 

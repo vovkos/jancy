@@ -24,8 +24,7 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(Mailslot)
 
 //..............................................................................
 
-struct MailslotHdr: IfaceHdr
-{
+struct MailslotHdr: IfaceHdr {
 	uint_t m_readParallelism;
 	size_t m_readBlockSize;
 	size_t m_readBufferSize;
@@ -35,32 +34,27 @@ struct MailslotHdr: IfaceHdr
 
 class Mailslot:
 	public MailslotHdr,
-	public AsyncIoDevice
-{
+	public AsyncIoDevice {
 	friend class IoThread;
 	friend class NamedPipe;
 
 protected:
-	enum Def
-	{
+	enum Def {
 		Def_ReadParallelism = 4,
 		Def_ReadBlockSize   = 1 * 1024,
 		Def_ReadBufferSize  = 16 * 1024,
 		Def_Options         = 0,
 	};
 
-	class IoThread: public sys::ThreadImpl<IoThread>
-	{
+	class IoThread: public sys::ThreadImpl<IoThread> {
 	public:
 		void
-		threadFunc()
-		{
+		threadFunc() {
 			containerof(this, Mailslot, m_ioThread)->ioThreadFunc();
 		}
 	};
 
-	struct OverlappedIo
-	{
+	struct OverlappedIo {
 		mem::Pool<OverlappedRead> m_overlappedReadPool;
 		sl::List<OverlappedRead> m_activeOverlappedReadList;
 	};
@@ -74,22 +68,19 @@ protected:
 public:
 	Mailslot();
 
-	~Mailslot()
-	{
+	~Mailslot() {
 		close();
 	}
 
 	void
 	JNC_CDECL
-	markOpaqueGcRoots(jnc::GcHeap* gcHeap)
-	{
+	markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 		AsyncIoDevice::markOpaqueGcRoots(gcHeap);
 	}
 
 	uintptr_t
 	JNC_CDECL
-	getOsHandle()
-	{
+	getOsHandle() {
 		return (uintptr_t)(handle_t)m_file.m_file;
 	}
 
@@ -103,29 +94,25 @@ public:
 
 	void
 	JNC_CDECL
-	setReadParallelism(uint_t count)
-	{
+	setReadParallelism(uint_t count) {
 		AsyncIoDevice::setSetting(&m_readParallelism, count ? count : Def_ReadParallelism);
 	}
 
 	void
 	JNC_CDECL
-	setReadBlockSize(size_t size)
-	{
+	setReadBlockSize(size_t size) {
 		AsyncIoDevice::setSetting(&m_readBlockSize, size ? size : Def_ReadBlockSize);
 	}
 
 	bool
 	JNC_CDECL
-	setReadBufferSize(size_t size)
-	{
+	setReadBufferSize(size_t size) {
 		return AsyncIoDevice::setReadBufferSize(&m_readBufferSize, size ? size : Def_ReadBufferSize);
 	}
 
 	void
 	JNC_CDECL
-	setOptions(uint_t options)
-	{
+	setOptions(uint_t options) {
 		AsyncIoDevice::setSetting(&m_options, options);
 	}
 
@@ -134,8 +121,7 @@ public:
 	read(
 		DataPtr ptr,
 		size_t size
-		)
-	{
+	) {
 		return bufferedRead(ptr, size);
 	}
 
@@ -144,15 +130,13 @@ public:
 	wait(
 		uint_t eventMask,
 		FunctionPtr handlerPtr
-		)
-	{
+	) {
 		return AsyncIoDevice::wait(eventMask, handlerPtr);
 	}
 
 	bool
 	JNC_CDECL
-	cancelWait(handle_t handle)
-	{
+	cancelWait(handle_t handle) {
 		return AsyncIoDevice::cancelWait(handle);
 	}
 
@@ -161,15 +145,13 @@ public:
 	blockingWait(
 		uint_t eventMask,
 		uint_t timeout
-		)
-	{
+	) {
 		return AsyncIoDevice::blockingWait(eventMask, timeout);
 	}
 
 	Promise*
 	JNC_CDECL
-	asyncWait(uint_t eventMask)
-	{
+	asyncWait(uint_t eventMask) {
 		return AsyncIoDevice::asyncWait(eventMask);
 	}
 

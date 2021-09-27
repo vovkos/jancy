@@ -17,8 +17,7 @@ namespace log {
 
 //..............................................................................
 
-opaque class Log
-{
+opaque class Log {
 	size_t property m_leafLineCountLimit;
 	size_t property m_cacheUpdateScrollRateLimit;
 
@@ -39,18 +38,16 @@ opaque class Log
 		Converter* converter,
 		std.Guid const* auxClassGuidArray,
 		size_t auxClassCount
-		);
+	);
 
 	void addConverter(
 		Converter* converter,
 		std.Guid const* auxClassGuid
-		)
-	{
+	) {
 		addConverter(converter, auxClassGuid, 1);
 	}
 
-	void addConverter(Converter* converter)
-	{
+	void addConverter(Converter* converter) {
 		addConverter(converter, null, 0);
 	}
 

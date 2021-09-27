@@ -22,8 +22,7 @@ class Function;
 
 //..............................................................................
 
-class VariableMgr
-{
+class VariableMgr {
 	friend class Module;
 	friend class Variable;
 
@@ -47,8 +46,7 @@ public:
 	VariableMgr();
 
 	Module*
-	getModule()
-	{
+	getModule() {
 		return m_module;
 	}
 
@@ -62,8 +60,7 @@ public:
 	finalizeFunction();
 
 	bool
-	isStdVariableUsed(StdVariable variable)
-	{
+	isStdVariableUsed(StdVariable variable) {
 		ASSERT(variable < StdVariable__Count);
 		return m_stdVariableArray[variable] != NULL;
 	}
@@ -72,57 +69,48 @@ public:
 	getStdVariable(StdVariable variable);
 
 	const sl::List<Variable>&
-	getVariableList()
-	{
+	getVariableList() {
 		return m_variableList;
 	}
 
 	const sl::Array<Variable*>&
-	getStaticGcRootArray()
-	{
+	getStaticGcRootArray() {
 		return m_staticGcRootArray;
 	}
 
 	const sl::Array<Variable*>&
-	getStaticVariableArray()
-	{
+	getStaticVariableArray() {
 		return m_staticVariableArray;
 	}
 
 	const sl::Array<Variable*>&
-	getGlobalVariablePrimeArray()
-	{
+	getGlobalVariablePrimeArray() {
 		return m_globalVariablePrimeArray;
 	}
 
 	const sl::Array<Variable*>&
-	getGlobalVariableInitializeArray()
-	{
+	getGlobalVariableInitializeArray() {
 		return m_globalVariableInitializeArray;
 	}
 
 	const sl::Array<Variable*>&
-	getArgVariableArray()
-	{
+	getArgVariableArray() {
 		return m_argVariableArray;
 	}
 
 	const sl::Array<Variable*>&
-	getTlsVariableArray()
-	{
+	getTlsVariableArray() {
 		return m_tlsVariableArray;
 	}
 
 	StructType*
-	getTlsStructType()
-	{
+	getTlsStructType() {
 		ASSERT(m_tlsStructType);
 		return m_tlsStructType;
 	}
 
 	Variable*
-	getCurrentLiftedStackVariable()
-	{
+	getCurrentLiftedStackVariable() {
 		return m_currentLiftedStackVariable;
 	}
 
@@ -135,14 +123,14 @@ public:
 		uint_t ptrTypeFlags = 0,
 		sl::BoxList<Token>* constructor = NULL,
 		sl::BoxList<Token>* initializer = NULL
-		);
+	);
 
 	Variable*
 	createSimpleStackVariable(
 		const sl::StringRef& name,
 		Type* type,
 		uint_t ptrTypeFlags = 0
-		);
+	);
 
 	Variable*
 	createSimpleStaticVariable(
@@ -151,7 +139,7 @@ public:
 		Type* type,
 		const Value& value = Value(),
 		uint_t ptrTypeFlags = 0
-		);
+	);
 
 	Variable*
 	createOnceFlagVariable(StorageKind storageKind = StorageKind_Static);
@@ -163,14 +151,14 @@ public:
 	createArgVariable(
 		FunctionArg* arg,
 		size_t argIdx
-		);
+	);
 
 	Variable*
 	createAsyncArgVariable(
 		const sl::StringRef& name,
 		Type* type,
 		const Value& value
-		);
+	);
 
 	bool
 	createTlsStructType();
@@ -200,8 +188,7 @@ public:
 	initializeGlobalVariables();
 
 	void
-	appendGlobalVariablePrimeArray(const sl::ArrayRef<Variable*>& array)
-	{
+	appendGlobalVariablePrimeArray(const sl::ArrayRef<Variable*>& array) {
 		m_globalVariablePrimeArray.append(array);
 	}
 
@@ -211,7 +198,7 @@ protected:
 		Type* type,
 		const sl::StringRef& name,
 		const Value& initValue = Value()
-		);
+	);
 
 	bool
 	allocateHeapVariable(Variable* variable);

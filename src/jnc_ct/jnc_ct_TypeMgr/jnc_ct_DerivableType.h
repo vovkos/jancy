@@ -27,8 +27,7 @@ class Property;
 
 class BaseTypeSlot:
 	public ModuleItem,
-	public ModuleItemDecl
-{
+	public ModuleItemDecl {
 	friend class DerivableType;
 	friend class StructType;
 	friend class ClassType;
@@ -43,40 +42,34 @@ public:
 	BaseTypeSlot();
 
 	uint_t
-	getFlags() const
-	{
+	getFlags() const {
 		return m_flags;
 	}
 
 	DerivableType*
-	getType() const
-	{
+	getType() const {
 		return m_type;
 	}
 
 	size_t
-	getOffset() const
-	{
+	getOffset() const {
 		return m_offset;
 	}
 
 	size_t
-	getVtableIndex() const
-	{
+	getVtableIndex() const {
 		return m_vtableIndex;
 	}
 
 	uint_t
-	getLlvmIndex() const
-	{
+	getLlvmIndex() const {
 		return m_llvmIndex;
 	}
 };
 
 //..............................................................................
 
-class BaseTypeCoord
-{
+class BaseTypeCoord {
 	AXL_DISABLE_COPY(BaseTypeCoord)
 
 protected:
@@ -97,16 +90,14 @@ public:
 // unfortunately, LLVM does not natively support unions
 // therefore, unnamed unions on the way to a member need special handling
 
-struct UnionCoord
-{
+struct UnionCoord {
 	UnionType* m_type;
 	intptr_t m_level; // signed for simplier comparisons
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class MemberCoord: public BaseTypeCoord
-{
+class MemberCoord: public BaseTypeCoord {
 protected:
 	char m_buffer[256];
 
@@ -114,65 +105,53 @@ public:
 	sl::Array<UnionCoord> m_unionCoordArray;
 
 	MemberCoord():
-		m_unionCoordArray(rc::BufKind_Field, m_buffer, sizeof(m_buffer))
-	{
-	}
+		m_unionCoordArray(rc::BufKind_Field, m_buffer, sizeof(m_buffer)) {}
 };
 
 //..............................................................................
 
 class DerivableType:
 	public NamedType,
-	public MemberBlock
-{
+	public MemberBlock {
 	friend class Parser;
 
 protected:
-	class DefaultStaticConstructor: public CompilableFunction
-	{
+	class DefaultStaticConstructor: public CompilableFunction {
 	public:
-		DefaultStaticConstructor()
-		{
+		DefaultStaticConstructor() {
 			m_functionKind = FunctionKind_StaticConstructor;
 			m_storageKind = StorageKind_Static;
 		}
 
 		virtual
 		bool
-		compile()
-		{
+		compile() {
 			return ((DerivableType*)m_parentNamespace)->compileDefaultStaticConstructor();
 		}
 	};
 
-	class DefaultConstructor: public CompilableFunction
-	{
+	class DefaultConstructor: public CompilableFunction {
 	public:
-		DefaultConstructor()
-		{
+		DefaultConstructor() {
 			m_functionKind = FunctionKind_Constructor;
 		}
 
 		virtual
 		bool
-		compile()
-		{
+		compile() {
 			return ((DerivableType*)m_parentNamespace)->compileDefaultConstructor();
 		}
 	};
 
-	class DefaultDestructor: public CompilableFunction
-	{
+	class DefaultDestructor: public CompilableFunction {
 	public:
-		DefaultDestructor()
-		{
+		DefaultDestructor() {
 			m_functionKind = FunctionKind_Destructor;
 		}
 
 		virtual
 		bool
-		compile()
-		{
+		compile() {
 			return ((DerivableType*)m_parentNamespace)->compileDefaultDestructor();
 		}
 	};
@@ -205,8 +184,7 @@ public:
 
 	virtual
 	Type*
-	getThisArgType(uint_t ptrTypeFlags)
-	{
+	getThisArgType(uint_t ptrTypeFlags) {
 		return (Type*)getDataPtrType(DataPtrTypeKind_Normal, ptrTypeFlags);
 	}
 
@@ -214,20 +192,18 @@ public:
 	getMemberMethodType(
 		FunctionType* shortType,
 		uint_t thisArgTypeFlags = 0
-		);
+	);
 
 	PropertyType*
 	getMemberPropertyType(PropertyType* shortType);
 
 	sl::ConstList<BaseTypeSlot>
-	getBaseTypeList()
-	{
+	getBaseTypeList() {
 		return m_baseTypeList;
 	}
 
 	const sl::Array<BaseTypeSlot*>&
-	getBaseTypeArray()
-	{
+	getBaseTypeArray() {
 		return m_baseTypeArray;
 	}
 
@@ -238,8 +214,7 @@ public:
 	addBaseType(Type* type);
 
 	BaseTypeSlot*
-	findBaseType(Type* type)
-	{
+	findBaseType(Type* type) {
 		sl::StringHashTableIterator<BaseTypeSlot*> it = m_baseTypeMap.find(type->getSignature());
 		return it ? it->m_value : NULL;
 	}
@@ -248,8 +223,7 @@ public:
 	findBaseTypeTraverse(
 		Type* type,
 		BaseTypeCoord* coord = NULL
-		)
-	{
+	) {
 		return findBaseTypeTraverseImpl(type, coord, 0);
 	}
 
@@ -257,63 +231,53 @@ public:
 	findBaseTypeOffset(Type* type);
 
 	sl::Array<BaseTypeSlot*>
-	getGcRootBaseTypeArray()
-	{
+	getGcRootBaseTypeArray() {
 		return m_gcRootBaseTypeArray;
 	}
 
 	Type*
-	getSetAsType()
-	{
+	getSetAsType() {
 		return m_setAsType;
 	}
 
 	OverloadableFunction
-	getUnaryOperator(UnOpKind opKind)
-	{
+	getUnaryOperator(UnOpKind opKind) {
 		return (size_t)opKind < m_unaryOperatorTable.getCount() ? m_unaryOperatorTable[opKind] : OverloadableFunction();
 	}
 
 	OverloadableFunction
-	getBinaryOperator(BinOpKind opKind)
-	{
+	getBinaryOperator(BinOpKind opKind) {
 		return (size_t)opKind < m_binaryOperatorTable.getCount() ? m_binaryOperatorTable[opKind] : OverloadableFunction();
 	}
 
 	const sl::Array<Function*>&
-	getCastOperatorArray()
-	{
+	getCastOperatorArray() {
 		return m_castOperatorArray;
 	}
 
 	Function*
-	getCastOperator(Type* type)
-	{
+	getCastOperator(Type* type) {
 		sl::StringHashTableIterator<Function*> it = m_castOperatorMap.find(type->getSignature());
 		return it ? it->m_value : NULL;
 	}
 
 	OverloadableFunction
-	getCallOperator()
-	{
+	getCallOperator() {
 		return m_callOperator;
 	}
 
 	Function*
-	getOperatorVararg()
-	{
+	getOperatorVararg() {
 		return m_operatorVararg;
 	}
 
 	Function*
-	getOperatorCdeclVararg()
-	{
+	getOperatorCdeclVararg() {
 		return m_operatorCdeclVararg;
 	}
 
 	bool
-	hasIndexerProperties()
-	{
+	hasIndexerProperties() {
 		return !m_indexerPropertyMap.isEmpty();
 	}
 
@@ -339,15 +303,13 @@ public:
 
 	virtual
 	bool
-	require()
-	{
+	require() {
 		return ensureLayout() && requireConstructor();
 	}
 
 	virtual
 	bool
-	requireExternalReturn()
-	{
+	requireExternalReturn() {
 		return DerivableType::require();
 	}
 
@@ -356,7 +318,7 @@ public:
 	getValueString(
 		const void* p,
 		const char* formatSpec
-		);
+	);
 
 	virtual
 	bool
@@ -364,7 +326,7 @@ public:
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
-		);
+	);
 
 	virtual
 	FindModuleItemResult
@@ -372,8 +334,7 @@ public:
 		const sl::StringRef& name,
 		MemberCoord* coord = NULL,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return findDirectChildItemTraverse(name, coord, flags, 0);
 	}
 
@@ -409,7 +370,7 @@ protected:
 		Type* type,
 		BaseTypeCoord* coord,
 		size_t level
-		);
+	);
 
 	FindModuleItemResult
 	findDirectChildItemTraverse(
@@ -417,7 +378,7 @@ protected:
 		MemberCoord* coord,
 		uint_t flags,
 		size_t baseTypeLevel
-		);
+	);
 };
 
 //..............................................................................

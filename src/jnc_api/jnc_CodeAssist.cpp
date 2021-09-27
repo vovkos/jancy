@@ -23,64 +23,56 @@
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_CodeAssistKind
-jnc_CodeAssist_getCodeAssistKind(jnc_CodeAssist* codeAssist)
-{
+jnc_CodeAssist_getCodeAssistKind(jnc_CodeAssist* codeAssist) {
 	return codeAssist->getCodeAssistKind();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 uint_t
-jnc_CodeAssist_getFlags(jnc_CodeAssist* codeAssist)
-{
+jnc_CodeAssist_getFlags(jnc_CodeAssist* codeAssist) {
 	return codeAssist->getFlags();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 size_t
-jnc_CodeAssist_getOffset(jnc_CodeAssist* codeAssist)
-{
+jnc_CodeAssist_getOffset(jnc_CodeAssist* codeAssist) {
 	return codeAssist->getOffset();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Module*
-jnc_CodeAssist_getModule(jnc_CodeAssist* codeAssist)
-{
+jnc_CodeAssist_getModule(jnc_CodeAssist* codeAssist) {
 	return codeAssist->getModule();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_ModuleItem*
-jnc_CodeAssist_getModuleItem(jnc_CodeAssist* codeAssist)
-{
+jnc_CodeAssist_getModuleItem(jnc_CodeAssist* codeAssist) {
 	return codeAssist->getModuleItem();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Namespace*
-jnc_CodeAssist_getNamespace(jnc_CodeAssist* codeAssist)
-{
+jnc_CodeAssist_getNamespace(jnc_CodeAssist* codeAssist) {
 	return codeAssist->getNamespace();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_FunctionTypeOverload*
-jnc_CodeAssist_getFunctionTypeOverload(jnc_CodeAssist* codeAssist)
-{
+jnc_CodeAssist_getFunctionTypeOverload(jnc_CodeAssist* codeAssist) {
 	return codeAssist->getFunctionTypeOverload();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 size_t
-jnc_CodeAssist_getArgumentIdx(jnc_CodeAssist* codeAssist)
-{
+jnc_CodeAssist_getArgumentIdx(jnc_CodeAssist* codeAssist) {
 	return codeAssist->getArgumentIdx();
 }
 

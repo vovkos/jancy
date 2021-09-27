@@ -15,12 +15,10 @@
 
 //..............................................................................
 
-class C1
-{
+class C1 {
 	protected int m_x;
 
-	construct(int x)
-	{
+	construct(int x) {
 		printf("C1.construct (%d)\n", x);
 		m_x = x;
 	}
@@ -28,19 +26,16 @@ class C1
 
 //..............................................................................
 
-extension C1Ext: C1
-{
+extension C1Ext: C1 {
 	// extension methods have access to protected data
 
-	void foo()
-	{
+	void foo() {
 		printf("C1Ext.foo () { m_x = %d }\n", m_x);
 	}
 
 	void bar(int x);
 
-	static void baz()
-	{
+	static void baz() {
 		printf("C1Ext.baz ()\n");
 	}
 
@@ -66,8 +61,7 @@ extension C1Ext: C1
 // extension methods can be implemented outside of extension just like other
 // member methods
 
-void C1Ext.bar(int x)
-{
+void C1Ext.bar(int x) {
 	printf("C1Ext.bar (%d) { m_x = %d }\n", x, m_x);
 	m_x = x;
 
@@ -76,14 +70,12 @@ void C1Ext.bar(int x)
 	foo();
 }
 
-int C1Ext.m_prop.get()
-{
+int C1Ext.m_prop.get() {
 	printf("C1Ext.m_prop.get () { m_x = %d }\n", m_x);
 	return m_x;
 }
 
-void C1Ext.m_prop.set(int x)
-{
+void C1Ext.m_prop.set(int x) {
 	printf("C1Ext.m_prop.set (%d) { m_x = %d }\n", x, m_x);
 	m_x = x;
 }
@@ -96,8 +88,7 @@ using extension C1Ext;
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	C1 c(100);

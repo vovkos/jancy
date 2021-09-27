@@ -21,7 +21,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	MyLibCacheSlot_TestClass,
 	TestClass,
 	&TestClass::markOpaqueGcRoots
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(TestClass)
 	JNC_MAP_CONSTRUCTOR(&(jnc::construct<TestClass, int>))
@@ -36,23 +36,20 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
-TestClass::TestClass(int value)
-{
+TestClass::TestClass(int value) {
 	printf("  TestClass::TestClass (%d)\n", value);
 
 	m_internalValue = value;
 	sprintf(m_internalData, "TestClass (%p)", this);
 }
 
-TestClass::~TestClass()
-{
+TestClass::~TestClass() {
 	printf("  TestClass::~TestClass ()\n");
 }
 
 void
 JNC_CDECL
-TestClass::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
-{
+TestClass::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 	// mark opaque roots (no need to mark roots visible to jancy)
 
 	if (m_internalObject)
@@ -61,40 +58,35 @@ TestClass::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
 
 int
 JNC_CDECL
-TestClass::addAssign(int delta)
-{
+TestClass::addAssign(int delta) {
 	printf("  TestClass::addAssign (%d)\n", delta);
 	return setInternalValue(m_internalValue + delta);
 }
 
 int
 JNC_CDECL
-TestClass::subAssign(int delta)
-{
+TestClass::subAssign(int delta) {
 	printf("  TestClass::subAssign (%d)\n", delta);
 	return setInternalValue(m_internalValue - delta);
 }
 
 int
 JNC_CDECL
-TestClass::foo_0()
-{
+TestClass::foo_0() {
 	printf("  TestClass::foo_0 ()\n");
 	return m_internalValue;
 }
 
 int
 JNC_CDECL
-TestClass::foo_1(int value)
-{
+TestClass::foo_1(int value) {
 	printf("  TestClass::foo_1 (%d)\n", value);
 	return setInternalValue(value);
 }
 
 int
 JNC_CDECL
-TestClass::foo_2(TestClass* src)
-{
+TestClass::foo_2(TestClass* src) {
 	printf("  TestClass::foo_2 ()\n");
 	m_propValue = src->m_propValue;
 	return setInternalValue(src->m_internalValue);
@@ -102,15 +94,13 @@ TestClass::foo_2(TestClass* src)
 
 void
 JNC_CDECL
-TestClass::setProp(jnc::DataPtr ptr)
-{
+TestClass::setProp(jnc::DataPtr ptr) {
 	printf("  TestClass::setProp (%s)\n", ptr.m_p);
 	m_propValue = ptr;
 }
 
 int
-TestClass::setInternalValue(int value)
-{
+TestClass::setInternalValue(int value) {
 	m_internalValue = value;
 	if (m_internalValue < 0)
 		callMulticast(jnc::getCurrentThreadRuntime(), m_onNegative);

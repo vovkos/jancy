@@ -18,8 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-ExtensionLibMgr::ExtensionLibMgr()
-{
+ExtensionLibMgr::ExtensionLibMgr() {
 	m_module = Module::getCurrentConstructedModule();
 	m_dynamicLibraryDir = io::getTempDir();
 	m_codeAuthenticator = NULL;
@@ -27,16 +26,13 @@ ExtensionLibMgr::ExtensionLibMgr()
 }
 
 void
-ExtensionLibMgr::clear()
-{
+ExtensionLibMgr::clear() {
 	m_libArray.clear();
 
-	while (!m_dynamicLibList.isEmpty())
-	{
+	while (!m_dynamicLibList.isEmpty()) {
 		DynamicLibEntry* entry = m_dynamicLibList.removeHead();
 
-		if (entry->m_dynamicLib.isOpen())
-		{
+		if (entry->m_dynamicLib.isOpen()) {
 			DynamicExtensionLibUnloadFunc* unloadFunc = (DynamicExtensionLibUnloadFunc*)entry->m_dynamicLib.getFunction(jnc_g_dynamicExtensionLibUnloadFuncName);
 			if (!unloadFunc || unloadFunc())
 				entry->m_dynamicLib.close();
@@ -56,19 +52,16 @@ ExtensionLibMgr::clear()
 	m_itemCache.clear();
 	m_itemCacheMap.clear();
 
-	if (m_codeAuthenticator)
-	{
+	if (m_codeAuthenticator) {
 		AXL_MEM_DELETE(m_codeAuthenticator);
 		m_codeAuthenticator = NULL;
 	}
 }
 
 void
-ExtensionLibMgr::updateCapabilities()
-{
+ExtensionLibMgr::updateCapabilities() {
 	size_t count = m_libArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		ExtensionLib* lib = m_libArray[i];
 		if (lib->m_updateCapabilitiesFunc)
 			lib->m_updateCapabilitiesFunc();
@@ -76,16 +69,14 @@ ExtensionLibMgr::updateCapabilities()
 }
 
 void
-ExtensionLibMgr::closeDynamicLibZipReaders()
-{
+ExtensionLibMgr::closeDynamicLibZipReaders() {
 	sl::Iterator<DynamicLibEntry> it = m_dynamicLibList.getHead();
 	for (; it; it++)
 		it->m_zipReader.close();
 }
 
 void
-ExtensionLibMgr::setDynamicExtensionAuthenticatorConfig(const CodeAuthenticatorConfig* config)
-{
+ExtensionLibMgr::setDynamicExtensionAuthenticatorConfig(const CodeAuthenticatorConfig* config) {
 	m_codeAuthenticator = AXL_MEM_NEW(sys::CodeAuthenticator);
 
 #if (_JNC_OS_WIN)
@@ -96,21 +87,20 @@ ExtensionLibMgr::setDynamicExtensionAuthenticatorConfig(const CodeAuthenticatorC
 		sl::ArrayRef<char>(
 			config->m_expectedSerialNumber,
 			config->m_expectedSerialNumberSize
-			)
-		);
+		)
+	);
 #elif (_JNC_OS_LINUX)
 	m_codeAuthenticator->setup(
 		config->m_signatureSectionName,
 		config->m_publicKeyPem
-		);
+	);
 #elif (_JNC_OS_DARWIN)
 	m_codeAuthenticator->setup(config->m_expectedTeamId);
 #endif
 }
 
 void
-ExtensionLibMgr::addStaticLib(ExtensionLib* lib)
-{
+ExtensionLibMgr::addStaticLib(ExtensionLib* lib) {
 	m_libArray.append(lib);
 
 	lib->m_addSourcesFunc(m_module);
@@ -118,8 +108,7 @@ ExtensionLibMgr::addStaticLib(ExtensionLib* lib)
 }
 
 bool
-ExtensionLibMgr::loadDynamicLib(const sl::StringRef& fileName)
-{
+ExtensionLibMgr::loadDynamicLib(const sl::StringRef& fileName) {
 	static char jncxExt[] = ".jncx";
 	static char jncExt[] = ".jnc";
 	static char binExt[] = ".bin";
@@ -144,25 +133,18 @@ ExtensionLibMgr::loadDynamicLib(const sl::StringRef& fileName)
 	sl::Iterator<SourceFile> sourceFileIt = m_sourceFileList.getTail(); // save source file iterator
 
 	size_t count = entry->m_zipReader.getFileCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		sl::String fileName = entry->m_zipReader.getFileName(i);
 		if (fileName.isEmpty()) // wat?
 			continue;
 
-		if (fileName.isSuffix(binExt))
-		{
+		if (fileName.isSuffix(binExt)) {
 			dynamicLibFileName = fileName;
 			dynamicLibFileIdx = i;
-		}
-		else if (fileName.isSuffix(jncExt))
-		{
-			if (fileName[0] == '.')
-			{
+		} else if (fileName.isSuffix(jncExt)) {
+			if (fileName[0] == '.') {
 				forcedImportIdxArray.append(i);
-			}
-			else
-			{
+			} else {
 				SourceFile* sourceFile = AXL_MEM_NEW(SourceFile);
 				sourceFile->m_fileName = fileName;
 				sourceFile->m_zipReader = &entry->m_zipReader;
@@ -173,8 +155,7 @@ ExtensionLibMgr::loadDynamicLib(const sl::StringRef& fileName)
 		}
 	}
 
-	if (m_module->getCompileFlags() & ModuleCompileFlag_ExternalExtensionBin) // prefer external bin
-	{
+	if (m_module->getCompileFlags() & ModuleCompileFlag_ExternalExtensionBin) { // prefer external bin
 		dynamicLibFilePath = fileName;
 
 		if (fileName.isSuffix(jncxExt))
@@ -188,8 +169,7 @@ ExtensionLibMgr::loadDynamicLib(const sl::StringRef& fileName)
 			dynamicLibFilePath.clear();
 	}
 
-	if (dynamicLibFilePath.isEmpty() && dynamicLibFileIdx != -1) // use zipped bin
-	{
+	if (dynamicLibFilePath.isEmpty() && dynamicLibFileIdx != -1) { // use zipped bin
 		dynamicLibFilePath.format("%s/%llx-%s", m_dynamicLibraryDir.sz(), sys::getTimestamp (), dynamicLibFileName.sz());
 
 		result = entry->m_zipReader.extractFileToFile(dynamicLibFileIdx, dynamicLibFilePath);
@@ -199,11 +179,9 @@ ExtensionLibMgr::loadDynamicLib(const sl::StringRef& fileName)
 		entry->m_dynamicLibFilePath = dynamicLibFilePath;
 	}
 
-	if (dynamicLibFilePath.isEmpty()) // source-only jncx
-	{
+	if (dynamicLibFilePath.isEmpty()) { // source-only jncx
 		size_t count = forcedImportIdxArray.getCount();
-		for (size_t i = 0; i < count; i++)
-		{
+		for (size_t i = 0; i < count; i++) {
 			size_t j = forcedImportIdxArray[i];
 			sl::Array<char> contents = entry->m_zipReader.extractFileToMem(j);
 			sl::StringRef source(contents.getHdr(), contents.cp(), contents.getCount());
@@ -213,8 +191,7 @@ ExtensionLibMgr::loadDynamicLib(const sl::StringRef& fileName)
 		return true;
 	}
 
-	if (m_codeAuthenticator)
-	{
+	if (m_codeAuthenticator) {
 		result = m_codeAuthenticator->verifyFile(dynamicLibFilePath);
 		if (!result)
 			return false;
@@ -244,11 +221,9 @@ ExtensionLibMgr::loadDynamicLib(const sl::StringRef& fileName)
 }
 
 bool
-ExtensionLibMgr::mapAddresses()
-{
+ExtensionLibMgr::mapAddresses() {
 	size_t count = m_libArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		bool result = m_libArray[i]->m_mapAddressesFunc(m_module) != 0;
 		if (!result)
 			return false;
@@ -262,15 +237,13 @@ ExtensionLibMgr::findSourceFileContents(
 	const sl::StringRef& fileName,
 	ExtensionLib** lib,
 	sl::StringRef* contents
-	)
-{
+) {
 	sl::StringHashTableIterator<SourceFile*> it = m_sourceFileMap.find(fileName);
 	if (!it)
 		return false;
 
 	SourceFile* file = it->m_value;
-	if (file->m_zipIndex != -1)
-	{
+	if (file->m_zipIndex != -1) {
 		sl::Array<char> contents = file->m_zipReader->extractFileToMem(file->m_zipIndex);
 		file->m_contents = sl::StringRef(contents.getHdr(), contents.cp(), contents.getCount());
 		file->m_zipReader = NULL;
@@ -287,8 +260,7 @@ ExtensionLibMgr::findItem(
 	const sl::StringRef& name,
 	const sl::Guid& libGuid,
 	size_t cacheSlot
-	)
-{
+) {
 	ASSERT(m_module);
 
 	if (cacheSlot == -1) // no caching for this item
@@ -296,12 +268,9 @@ ExtensionLibMgr::findItem(
 
 	ItemCacheEntry* entry;
 	ItemCacheMap::Iterator it = m_itemCacheMap.visit(libGuid);
-	if (it->m_value)
-	{
+	if (it->m_value) {
 		entry = it->m_value;
-	}
-	else
-	{
+	} else {
 		entry = AXL_MEM_NEW(ItemCacheEntry);
 		m_itemCache.insertTail(entry);
 		it->m_value = entry;
@@ -326,8 +295,7 @@ ExtensionLibMgr::addSource(
 	ExtensionLib* lib,
 	const sl::StringRef& fileName,
 	const sl::StringRef& contents
-	)
-{
+) {
 	SourceFile* file = AXL_MEM_NEW(SourceFile);
 	file->m_lib = lib;
 	file->m_fileName = fileName;

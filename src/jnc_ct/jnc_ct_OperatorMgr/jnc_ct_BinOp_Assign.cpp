@@ -23,14 +23,12 @@ BinOp_Assign::op(
 	const Value& opValue1,
 	const Value& opValue2,
 	Value* resultValue
-	)
-{
+) {
 	*resultValue = opValue1;
 
 	TypeKind dstTypeKind = opValue1.getType()->getTypeKind();
 
-	switch (dstTypeKind)
-	{
+	switch (dstTypeKind) {
 	case TypeKind_DataRef:
 		return m_module->m_operatorMgr.storeDataRef(opValue1, opValue2);
 
@@ -53,8 +51,7 @@ BinOp_OpAssign::op(
 	const Value& opValue1,
 	const Value& opValue2,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(m_opKind >= BinOpKind_AddAssign && m_opKind <= BinOpKind_AtAssign);
 
 	*resultValue = opValue1;

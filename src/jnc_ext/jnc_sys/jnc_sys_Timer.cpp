@@ -25,7 +25,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	SysLibCacheSlot_Timer,
 	Timer,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Timer)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<Timer>)
@@ -42,8 +42,7 @@ Timer::start(
 	FunctionPtr ptr,
 	uint64_t dueTime,
 	uint_t interval
-	)
-{
+) {
 	bool result;
 
 	stop();
@@ -54,8 +53,7 @@ Timer::start(
 	m_stopEvent.reset();
 
 	result = m_thread.start();
-	if (!result)
-	{
+	if (!result) {
 		m_timerFuncPtr = g_nullFunctionPtr;
 		return false;
 	}
@@ -65,12 +63,10 @@ Timer::start(
 
 void
 JNC_CDECL
-Timer::stop()
-{
+Timer::stop() {
 	m_stopEvent.signal();
 
-	if (m_thread.getThreadId() != axl::sys::getCurrentThreadId())
-	{
+	if (m_thread.getThreadId() != axl::sys::getCurrentThreadId()) {
 		GcHeap* gcHeap = m_runtime->getGcHeap();
 		ASSERT(gcHeap == getCurrentThreadGcHeap());
 
@@ -85,13 +81,11 @@ Timer::stop()
 }
 
 void
-Timer::threadFunc()
-{
+Timer::threadFunc() {
 	bool result;
 
 	uint64_t timestamp = axl::sys::getTimestamp();
-	if (m_dueTime > timestamp)
-	{
+	if (m_dueTime > timestamp) {
 		uint_t delay = (uint_t)((m_dueTime - timestamp) / 10000);
 		result = m_stopEvent.wait(delay);
 		if (result)
@@ -103,8 +97,7 @@ Timer::threadFunc()
 	if (!m_interval || m_interval == -1)
 		return;
 
-	for (;;)
-	{
+	for (;;) {
 		result = m_stopEvent.wait(m_interval);
 		if (result)
 			break;

@@ -25,8 +25,7 @@ namespace ct {
 class Property:
 	public ModuleItem,
 	public Namespace,
-	public MemberBlock
-{
+	public MemberBlock {
 	friend class TypeMgr;
 	friend class MemberBlock;
 	friend class DerivableType;
@@ -36,99 +35,81 @@ class Property:
 	friend class Parser;
 
 protected:
-	class DefaultStaticConstructor: public CompilableFunction
-	{
+	class DefaultStaticConstructor: public CompilableFunction {
 	public:
-		DefaultStaticConstructor()
-		{
+		DefaultStaticConstructor() {
 			m_functionKind = FunctionKind_StaticConstructor;
 			m_storageKind = StorageKind_Static;
 		}
 
 		virtual
 		bool
-		compile()
-		{
+		compile() {
 			return ((Property*)m_parentNamespace)->compileDefaultStaticConstructor();
 		}
 	};
 
-	class DefaultConstructor: public CompilableFunction
-	{
+	class DefaultConstructor: public CompilableFunction {
 	public:
-		DefaultConstructor()
-		{
+		DefaultConstructor() {
 			m_functionKind = FunctionKind_Constructor;
 		}
 
 		virtual
 		bool
-		compile()
-		{
+		compile() {
 			return ((Property*)m_parentNamespace)->compileDefaultConstructor();
 		}
 	};
 
-	class DefaultDestructor: public CompilableFunction
-	{
+	class DefaultDestructor: public CompilableFunction {
 	public:
-		DefaultDestructor()
-		{
+		DefaultDestructor() {
 			m_functionKind = FunctionKind_Destructor;
 		}
 
 		virtual
 		bool
-		compile()
-		{
+		compile() {
 			return ((Property*)m_parentNamespace)->compileDefaultDestructor();
 		}
 	};
 
-	class AutoGetter: public CompilableFunction
-	{
+	class AutoGetter: public CompilableFunction {
 	public:
-		AutoGetter()
-		{
+		AutoGetter() {
 			m_functionKind = FunctionKind_Getter;
 		}
 
 		virtual
 		bool
-		compile()
-		{
+		compile() {
 			return ((Property*)m_parentNamespace)->compileAutoGetter();
 		}
 	};
 
-	class AutoSetter: public CompilableFunction
-	{
+	class AutoSetter: public CompilableFunction {
 	public:
-		AutoSetter()
-		{
+		AutoSetter() {
 			m_functionKind = FunctionKind_Setter;
 		}
 
 		virtual
 		bool
-		compile()
-		{
+		compile() {
 			return ((Property*)m_parentNamespace)->compileAutoSetter();
 		}
 	};
 
-	class Binder: public CompilableFunction
-	{
+	class Binder: public CompilableFunction {
 	public:
-		Binder()
-		{
+		Binder() {
 			m_functionKind = FunctionKind_Binder;
 		}
 
 		virtual
 		bool
-		compile()
-		{
+		compile() {
 			return ((Property*)m_parentNamespace)->compileBinder();
 		}
 	};
@@ -162,38 +143,32 @@ public:
 	Property();
 
 	PropertyKind
-	getPropertyKind()
-	{
+	getPropertyKind() {
 		return m_propertyKind;
 	}
 
 	PropertyType*
-	getType()
-	{
+	getType() {
 		return m_type;
 	}
 
 	Function*
-	getGetter()
-	{
+	getGetter() {
 		return m_getter;
 	}
 
 	OverloadableFunction
-	getSetter()
-	{
+	getSetter() {
 		return m_setter;
 	}
 
 	Function*
-	getBinder()
-	{
+	getBinder() {
 		return m_binder;
 	}
 
 	ModuleItem*
-	getOnChanged()
-	{
+	getOnChanged() {
 		return m_onChanged;
 	}
 
@@ -201,14 +176,13 @@ public:
 	setOnChanged(
 		ModuleItem* item,
 		bool isForced = false
-		);
+	);
 
 	bool
 	createOnChanged();
 
 	ModuleItem*
-	getAutoGetValue()
-	{
+	getAutoGetValue() {
 		return m_autoGetValue;
 	}
 
@@ -216,32 +190,28 @@ public:
 	setAutoGetValue(
 		ModuleItem* item,
 		bool isForced = false
-		); // struct-field or variable
+	); // struct-field or variable
 
 	bool
 	createAutoGetValue(Type* type);
 
 	DerivableType*
-	getParentType()
-	{
+	getParentType() {
 		return m_parentType;
 	}
 
 	bool
-	isMember()
-	{
+	isMember() {
 		return m_storageKind >= StorageKind_Member && m_storageKind <= StorageKind_Override;
 	}
 
 	bool
-	isVirtual()
-	{
+	isVirtual() {
 		return m_storageKind >= StorageKind_Abstract && m_storageKind <= StorageKind_Override;
 	}
 
 	size_t
-	getParentClassVtableIndex()
-	{
+	getParentClassVtableIndex() {
 		return m_parentClassVtableIndex;
 	}
 
@@ -260,14 +230,12 @@ public:
 	addProperty(Property* prop);
 
 	bool
-	ensureVtable()
-	{
+	ensureVtable() {
 		return m_vtable.isEmpty() ? prepareVtable() : true;
 	}
 
 	Variable*
-	getVtableVariable()
-	{
+	getVtableVariable() {
 		return m_vtableVariable || createVtableVariable() ? m_vtableVariable : NULL;
 	}
 
@@ -280,7 +248,7 @@ public:
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
-		);
+	);
 
 protected:
 	virtual
@@ -288,7 +256,7 @@ protected:
 	createAccessor(
 		FunctionKind functionKind,
 		FunctionType* type
-		);
+	);
 
 	virtual
 	Field*
@@ -299,11 +267,10 @@ protected:
 		uint_t ptrTypeFlags = 0,
 		sl::BoxList<Token>* constructor = NULL,
 		sl::BoxList<Token>* initializer = NULL
-		);
+	);
 
 	bool
-	appendVtableMethod(Function* function)
-	{
+	appendVtableMethod(Function* function) {
 		return function->getType()->ensureLayout() && m_vtable.append(function) != -1;
 	}
 

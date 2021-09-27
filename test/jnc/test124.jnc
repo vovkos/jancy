@@ -2,22 +2,17 @@
 
 //..............................................................................
 
-void foo(T* const* p) // ptr import
-{
+void foo(T* const* p) { // ptr import
 }
 
-void bar(T* p) // ptr import
-{
+void bar(T* p) { // ptr import
 }
 
-int main()
-{
+int main() {
 	T* p;
 	T* const* pp;
 	foo(pp);
 	return 0;
 }
 
-class T
-{
-}
+class T {}

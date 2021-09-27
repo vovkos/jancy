@@ -23,16 +23,14 @@ JNC_DECLARE_TYPE(SerialPortDesc)
 
 //..............................................................................
 
-enum SerialOption
-{
+enum SerialOption {
 	SerialOption_WinReadCheckComstat  = 0x04,
 	SerialOption_WinReadWaitFirstChar = 0x08,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum SerialEvent
-{
+enum SerialEvent {
 	SerialEvent_CtsOn          = 0x0010,
 	SerialEvent_CtsOff         = 0x0020,
 	SerialEvent_DsrOn          = 0x0040,
@@ -47,8 +45,7 @@ enum SerialEvent
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum SerialLineError
-{
+enum SerialLineError {
 	SerialLineError_FramingError = 0x01,
 	SerialLineError_ParityError  = 0x02,
 	SerialLineError_BreakError   = 0x04,
@@ -56,8 +53,7 @@ enum SerialLineError
 
 //..............................................................................
 
-struct SerialHdr: IfaceHdr
-{
+struct SerialHdr: IfaceHdr {
 	uint_t m_baudRate;
 	axl::io::SerialFlowControl m_flowControl;
 	uint_t m_dataBits;
@@ -82,13 +78,11 @@ struct SerialHdr: IfaceHdr
 
 class Serial:
 	public SerialHdr,
-	public AsyncIoDevice
-{
+	public AsyncIoDevice {
 	friend class IoThread;
 
 protected:
-	enum Def
-	{
+	enum Def {
 #if (_JNC_OS_DARWIN)
 		// doesn't work well with some drivers, so better disable by default
 		Def_UpdateInterval  = -1,
@@ -104,24 +98,20 @@ protected:
 		Def_Options         = SerialOption_WinReadWaitFirstChar,
 	};
 
-	enum IoThreadFlag
-	{
+	enum IoThreadFlag {
 		IoThreadFlag_Waiting = 0x0100,
 	};
 
-	class IoThread: public sys::ThreadImpl<IoThread>
-	{
+	class IoThread: public sys::ThreadImpl<IoThread> {
 	public:
 		void
-		threadFunc()
-		{
+		threadFunc() {
 			containerof(this, Serial, m_ioThread)->ioThreadFunc();
 		}
 	};
 
 #if (_AXL_OS_WIN)
-	struct OverlappedIo
-	{
+	struct OverlappedIo {
 		mem::Pool<OverlappedRead> m_overlappedReadPool;
 		sl::List<OverlappedRead> m_activeOverlappedReadList;
 		axl::io::win::StdOverlapped m_serialWaitOverlapped;
@@ -129,18 +119,15 @@ protected:
 		sl::Array<char> m_writeBlock;
 		dword_t m_serialEvents;
 
-		OverlappedIo()
-		{
+		OverlappedIo() {
 			m_serialEvents = 0;
 		}
 	};
 #elif (_AXL_OS_LINUX)
-	class WaitThread: public sys::ThreadImpl<WaitThread>
-	{
+	class WaitThread: public sys::ThreadImpl<WaitThread> {
 	public:
 		void
-		threadFunc()
-		{
+		threadFunc() {
 			containerof(this, Serial, m_waitThread)->waitThreadFunc();
 		}
 	};
@@ -162,22 +149,19 @@ protected:
 public:
 	Serial();
 
-	~Serial()
-	{
+	~Serial() {
 		close();
 	}
 
 	void
 	JNC_CDECL
-	markOpaqueGcRoots(jnc::GcHeap* gcHeap)
-	{
+	markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 		AsyncIoDevice::markOpaqueGcRoots(gcHeap);
 	}
 
 	uintptr_t
 	JNC_CDECL
-	getOsHandle()
-	{
+	getOsHandle() {
 #if (_JNC_OS_WIN)
 		return (uintptr_t)(handle_t)m_serial.m_serial;
 #else
@@ -205,29 +189,25 @@ public:
 
 	void
 	JNC_CDECL
-	setReadParallelism(uint_t count)
-	{
+	setReadParallelism(uint_t count) {
 		AsyncIoDevice::setSetting(&m_readParallelism, count ? count : Def_ReadParallelism);
 	}
 
 	void
 	JNC_CDECL
-	setReadBlockSize(size_t size)
-	{
+	setReadBlockSize(size_t size) {
 		AsyncIoDevice::setSetting(&m_readBlockSize, size ? size : Def_ReadBlockSize);
 	}
 
 	bool
 	JNC_CDECL
-	setReadBufferSize(size_t size)
-	{
+	setReadBufferSize(size_t size) {
 		return AsyncIoDevice::setReadBufferSize(&m_readBufferSize, size ? size : Def_ReadBufferSize);
 	}
 
 	bool
 	JNC_CDECL
-	setWriteBufferSize(size_t size)
-	{
+	setWriteBufferSize(size_t size) {
 		return AsyncIoDevice::setWriteBufferSize(&m_writeBufferSize, size ? size : Def_WriteBufferSize);
 	}
 
@@ -257,8 +237,7 @@ public:
 
 	uint_t
 	JNC_CDECL
-	getStatusLines()
-	{
+	getStatusLines() {
 		return m_serial.getStatusLines();
 	}
 
@@ -285,7 +264,7 @@ public:
 		uint_t readInterval,
 		bool dtr,
 		bool rts
-		);
+	);
 
 	uint_t
 	JNC_CDECL
@@ -296,8 +275,7 @@ public:
 	read(
 		DataPtr ptr,
 		size_t size
-		)
-	{
+	) {
 		return bufferedRead(ptr, size);
 	}
 
@@ -306,8 +284,7 @@ public:
 	write(
 		DataPtr ptr,
 		size_t size
-		)
-	{
+	) {
 		return bufferedWrite(ptr, size);
 	}
 
@@ -316,15 +293,13 @@ public:
 	wait(
 		uint_t eventMask,
 		FunctionPtr handlerPtr
-		)
-	{
+	) {
 		return AsyncIoDevice::wait(eventMask, handlerPtr);
 	}
 
 	bool
 	JNC_CDECL
-	cancelWait(handle_t handle)
-	{
+	cancelWait(handle_t handle) {
 		return AsyncIoDevice::cancelWait(handle);
 	}
 
@@ -333,15 +308,13 @@ public:
 	blockingWait(
 		uint_t eventMask,
 		uint_t timeout
-		)
-	{
+	) {
 		return AsyncIoDevice::blockingWait(eventMask, timeout);
 	}
 
 	Promise*
 	JNC_CDECL
-	asyncWait(uint_t eventMask)
-	{
+	asyncWait(uint_t eventMask) {
 		return AsyncIoDevice::asyncWait(eventMask);
 	}
 
@@ -363,8 +336,7 @@ protected:
 
 //..............................................................................
 
-struct SerialPortDesc
-{
+struct SerialPortDesc {
 	JNC_DECLARE_TYPE_STATIC_METHODS(SerialPortDesc)
 
 	DataPtr m_nextPtr;

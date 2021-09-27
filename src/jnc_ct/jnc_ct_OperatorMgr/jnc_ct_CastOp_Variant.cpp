@@ -24,20 +24,16 @@ Cast_Variant::constCast(
 	const Value& opValue,
 	Type* type,
 	void* dst
-	)
-{
+) {
 	ASSERT(type->getTypeKind() == TypeKind_Variant);
 
 	Variant* variant = (Variant*)dst;
 	memset(variant, 0, sizeof(Variant));
 
 	Type* opType = opValue.getType();
-	if (opType->getSize() <= sizeof(DataPtr))
-	{
+	if (opType->getSize() <= sizeof(DataPtr)) {
 		memcpy(variant, opValue.getConstData(), opType->getSize());
-	}
-	else // store it as reference
-	{
+	} else { // store it as reference
 		const void* p = m_module->m_constMgr.saveValue(opValue).getConstData();
 
 		variant->m_dataPtr.m_p = (void*)p;
@@ -47,7 +43,7 @@ Cast_Variant::constCast(
 			TypeKind_DataRef,
 			DataPtrTypeKind_Normal,
 			PtrTypeFlag_Const | PtrTypeFlag_Safe
-			);
+		);
 	}
 
 	variant->m_type = opType;
@@ -59,8 +55,7 @@ Cast_Variant::llvmCast(
 	const Value& rawOpValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(type->getTypeKind() == TypeKind_Variant);
 
 	bool result;
@@ -69,22 +64,17 @@ Cast_Variant::llvmCast(
 
 	Type* opType = rawOpValue.getType();
 	if ((opType->getTypeKindFlags() & TypeKindFlag_DataPtr) &&
-		((DataPtrType*)opType)->getPtrTypeKind() == DataPtrTypeKind_Lean)
-	{
+		((DataPtrType*)opType)->getPtrTypeKind() == DataPtrTypeKind_Lean) {
 		opType = ((DataPtrType*)opType)->getTargetType()->getDataPtrType(
 			opType->getTypeKind(),
 			DataPtrTypeKind_Normal,
 			opType->getFlags()
-			);
+		);
 
 		m_module->m_operatorMgr.castOperator(rawOpValue, opType, &opValue);
-	}
-	else if (opType->getSize() <= sizeof(DataPtr))
-	{
+	} else if (opType->getSize() <= sizeof(DataPtr)) {
 		opValue = rawOpValue;
-	}
-	else // store it as reference
-	{
+	} else { // store it as reference
 		result = m_module->m_operatorMgr.gcHeapAllocate(opType, &opValue);
 		if (!result)
 			return false;
@@ -98,7 +88,7 @@ Cast_Variant::llvmCast(
 			TypeKind_DataRef,
 			DataPtrTypeKind_Normal,
 			PtrTypeFlag_Const | PtrTypeFlag_Safe
-			);
+		);
 	}
 
 	Value opTypeValue(&opType, m_module->m_typeMgr.getStdType(StdType_BytePtr));
@@ -120,20 +110,17 @@ Cast_FromVariant::constCast(
 	const Value& opValue,
 	Type* type,
 	void* dst
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKind() == TypeKind_Variant);
 	Variant* variant = (Variant*)opValue.getConstData();
 
 	Value tmpValue;
-	if (!variant->m_type)
-	{
+	if (!variant->m_type) {
 		memset(dst, 0, type->getSize());
 		return true;
 	}
 
-	if (variant->m_type->getSize() > sizeof(DataPtr))
-	{
+	if (variant->m_type->getSize() > sizeof(DataPtr)) {
 		err::setFormatStringError("invalid variant type '%s'", variant->m_type->getTypeString().sz());
 		return false;
 	}
@@ -154,8 +141,7 @@ Cast_FromVariant::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKind() == TypeKind_Variant);
 
 	Value typeValue(&type, m_module->m_typeMgr.getStdType(StdType_BytePtr));

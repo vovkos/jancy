@@ -19,8 +19,7 @@ namespace jnc {
 opaque class Attribute:
 	ModuleItem,
 	ModuleItemDecl,
-	ModuleItemInitializer
-{
+	ModuleItemInitializer {
 	bool const property m_hasValue;
 	variant const property m_value;
 
@@ -31,8 +30,7 @@ opaque class Attribute:
 
 opaque class AttributeBlock:
 	ModuleItem,
-	ModuleItemDecl
-{
+	ModuleItemDecl {
 	size_t const property m_attributeCount;
 	Attribute* const property m_attributeArray(size_t index);
 

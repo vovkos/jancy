@@ -2,8 +2,7 @@
 
 // xmodem protocol constants and structures
 
-enum XModemChar: char
-{
+enum XModemChar: char {
 	Soh = 0x01,
 	Eot = 0x04,
 	Ack = 0x06,
@@ -11,16 +10,14 @@ enum XModemChar: char
 	Can = 0x18,
 }
 
-enum
-{
+enum {
 	XModemBlockSize = 128,
 	XModemCanCount  = 8,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct XModemBlock
-{
+struct XModemBlock {
 	uchar_t m_code;
 	uchar_t m_blockNumber;
 	uchar_t m_complement;
@@ -28,8 +25,7 @@ struct XModemBlock
 	uchar_t m_checksum;
 }
 
-uchar_t calcXModemChecksum(void const* p)
-{
+uchar_t calcXModemChecksum(void const* p) {
 	int checksum = 0;
 
 	void const* end = p + XModemBlockSize;

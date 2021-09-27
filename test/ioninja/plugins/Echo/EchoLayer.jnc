@@ -7,10 +7,8 @@ import "doc_Layer.jnc"
 
 //..............................................................................
 
-class EchoLayer: doc.Layer
-{
-	construct(doc.PluginHost* pluginHost)
-	{
+class EchoLayer: doc.Layer {
+	construct(doc.PluginHost* pluginHost) {
 		basetype.construct(pluginHost);
 		pluginHost.m_log.addListener(onLogRecord @ pluginHost.m_mainThreadScheduler);
 	}
@@ -20,8 +18,7 @@ class EchoLayer: doc.Layer
 		uint64_t recordCode,
 		void const* p,
 		size_t size
-		)
-	{
+	) {
 		if (recordCode == log.StdRecordCode.Rx)
 			try transmit(p, size);
 	}

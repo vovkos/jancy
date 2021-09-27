@@ -41,8 +41,7 @@
 
 //..............................................................................
 
-enum jnc_ArrayTypeFlag
-{
+enum jnc_ArrayTypeFlag {
 	jnc_ArrayTypeFlag_AutoSize    = 0x010000,
 };
 
@@ -62,17 +61,14 @@ jnc_ArrayType_getElementCount(jnc_ArrayType* type);
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
-struct jnc_ArrayType: jnc_Type
-{
+struct jnc_ArrayType: jnc_Type {
 	jnc_Type*
-	getElementType()
-	{
+	getElementType() {
 		return jnc_ArrayType_getElementType(this);
 	}
 
 	size_t
-	getElementCount()
-	{
+	getElementCount() {
 		return jnc_ArrayType_getElementCount(this);
 	}
 };
@@ -87,8 +83,7 @@ struct jnc_ArrayType: jnc_Type
 
 JNC_INLINE
 bool_t
-jnc_isAutoSizeArrayType(jnc_Type* type)
-{
+jnc_isAutoSizeArrayType(jnc_Type* type) {
 	return
 		jnc_Type_getTypeKind(type) == jnc_TypeKind_Array &&
 		(jnc_ModuleItem_getFlags((jnc_ModuleItem*)type) & jnc_ArrayTypeFlag_AutoSize) != 0;
@@ -96,8 +91,7 @@ jnc_isAutoSizeArrayType(jnc_Type* type)
 
 JNC_INLINE
 bool_t
-jnc_isCharArrayType(jnc_Type* type)
-{
+jnc_isCharArrayType(jnc_Type* type) {
 	return
 		jnc_Type_getTypeKind(type) == jnc_TypeKind_Array &&
 		jnc_Type_getTypeKind(jnc_ArrayType_getElementType((jnc_ArrayType*)type)) == jnc_TypeKind_Char;
@@ -105,8 +99,7 @@ jnc_isCharArrayType(jnc_Type* type)
 
 JNC_INLINE
 bool_t
-jnc_isCharArrayRefType(jnc_Type* type)
-{
+jnc_isCharArrayRefType(jnc_Type* type) {
 	return
 		jnc_Type_getTypeKind(type) == jnc_TypeKind_DataRef &&
 		jnc_isCharArrayType(jnc_DataPtrType_getTargetType((jnc_DataPtrType*)type));
@@ -129,22 +122,19 @@ const ArrayTypeFlag
 
 inline
 bool
-isAutoSizeArrayType(Type* type)
-{
+isAutoSizeArrayType(Type* type) {
 	return jnc_isAutoSizeArrayType(type) != 0;
 }
 
 inline
 bool
-isCharArrayType(Type* type)
-{
+isCharArrayType(Type* type) {
 	return jnc_isCharArrayType(type) != 0;
 }
 
 inline
 bool
-isCharArrayRefType(Type* type)
-{
+isCharArrayRefType(Type* type) {
 	return jnc_isCharArrayRefType(type) != 0;
 }
 

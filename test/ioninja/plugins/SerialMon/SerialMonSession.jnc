@@ -13,36 +13,30 @@ import "std_Buffer.jnc"
 
 //..............................................................................
 
-class SerialMonSession: doc.Session
-{
+class SerialMonSession: doc.Session {
 protected:
-	enum Defaults
-	{
+	enum Defaults {
 		PendingNotifySizeLimit = 1 * 1024 * 1024, // 1MB
 	}
 
-	enum State
-	{
+	enum State {
 		Closed,
 		Opened,
 	}
 
-	enum ActionId
-	{
+	enum ActionId {
 		Refresh,
 		Capture,
 		_Count,
 	}
 
-	enum IconId
-	{
+	enum IconId {
 		Capture,
 		StopCapture,
 		_Count,
 	}
 
-	enum StatusPaneId
-	{
+	enum StatusPaneId {
 		State,
 		_Count,
 	}
@@ -90,13 +84,11 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
-	void onCapture()
-	{
+	void onCapture() {
 		m_state ? close() : try capture();
 	}
 
-	void onPortComboEnter()
-	{
+	void onPortComboEnter() {
 		try capture();
 	}
 
@@ -106,8 +98,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-SerialMonSession.construct(doc.PluginHost* pluginHost)
-{
+SerialMonSession.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
 	m_monitor.construct(this);
 
@@ -118,8 +109,7 @@ SerialMonSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-void SerialMonSession.createUi()
-{
+void SerialMonSession.createUi() {
 	// toolbar
 
 	m_pluginHost.m_toolBar.addLabel("Port:");
@@ -146,19 +136,19 @@ void SerialMonSession.createUi()
 	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Device",
 		"Serial port monitor target device settings"
-		);
+	);
 
 	m_portProp = m_pluginHost.m_propertyGrid.createComboProperty(
 		group,,
 		"Port",
 		"Enter a serial port name...",
 		"Specify a serial port name to monitor"
-		);
+	);
 
 	group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Buffering & compatibility",
 		"Advanced options controlling performance, throughtput and compatibility"
-		);
+	);
 
 	m_bufferPropertySet.createProperties(
 		m_pluginHost.m_propertyGrid,
@@ -167,13 +157,13 @@ void SerialMonSession.createUi()
 		ui.BufferPropertySet.PropertyId.ReadBufferSize |
 		ui.BufferPropertySet.PropertyId.ReadBlockSize |
 		ui.BufferPropertySet.PropertyId.NotifyReadBufferFull
-		);
+	);
 
 	m_pendingNotifySizeLimitProp = m_pluginHost.m_propertyGrid.createIntProperty(
 		group,,
 		"Pending notification limit",
 		"Set the maximum size of kernel notification queue (exceeding notification will be dropped)"
-		);
+	);
 
 	m_bufferPropertySet.m_readBlockSizeProp.m_minValue = 1024;
 	m_bufferPropertySet.m_readBufferSizeProp.m_minValue = 1024;
@@ -195,8 +185,7 @@ void SerialMonSession.createUi()
 	m_uiReactor.start();
 }
 
-void SerialMonSession.enumeratePorts()
-{
+void SerialMonSession.enumeratePorts() {
 	char const* name = m_portCombo.m_currentText;
 	m_portCombo.clear();
 
@@ -207,8 +196,7 @@ void SerialMonSession.enumeratePorts()
 	ui.EnumPropertyOption* optionArray = new ui.EnumPropertyOption[count];
 	ui.EnumPropertyOption* option = optionArray;
 
-	for (; port; port = port.m_next, option++)
-	{
+	for (; port; port = port.m_next, option++) {
 		char const* description = $"$(port.m_deviceName) - $(port.m_description)";
 		m_portCombo.addItem(description, port.m_deviceName);
 		option.m_text = description;
@@ -219,8 +207,7 @@ void SerialMonSession.enumeratePorts()
 	m_portProp.setOptions(optionArray, count);
 }
 
-bool errorcode SerialMonSession.capture()
-{
+bool errorcode SerialMonSession.capture() {
 	close();
 	startSession();
 
@@ -242,8 +229,7 @@ catch:
 	return false;
 }
 
-void SerialMonSession.close()
-{
+void SerialMonSession.close() {
 	if (m_state != State.Opened)
 		return;
 
@@ -254,8 +240,7 @@ void SerialMonSession.close()
 	m_stdSessionInfoSet.endSession();
 }
 
-void SerialMonSession.load(doc.Storage* storage)
-{
+void SerialMonSession.load(doc.Storage* storage) {
 	m_portCombo.m_editText = storage.readString("portName");
 	m_pendingNotifySizeLimitProp.m_value = storage.readInt("pendingNotifySizeLimit", Defaults.PendingNotifySizeLimit);
 
@@ -263,21 +248,18 @@ void SerialMonSession.load(doc.Storage* storage)
 	m_monitor.setReadBufferSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 }
 
-void SerialMonSession.save(doc.Storage* storage)
-{
+void SerialMonSession.save(doc.Storage* storage) {
 	storage.writeString("portName", m_portCombo.m_editText);
 	storage.writeInt("pendingNotifySizeLimit", m_pendingNotifySizeLimitProp.m_value);
 
 	m_bufferPropertySet.save(storage);
 }
 
-void SerialMonSession.updateProperties()
-{
+void SerialMonSession.updateProperties() {
 	m_portProp.m_value = m_portCombo.m_editText;
 }
 
-bool errorcode SerialMonSession.applyProperties()
-{
+bool errorcode SerialMonSession.applyProperties() {
 	m_portCombo.m_editText = m_portProp.m_value;
 
 	if (m_state != State.Opened)
@@ -287,14 +269,12 @@ bool errorcode SerialMonSession.applyProperties()
 	return true;
 }
 
-void SerialMonSession.restoreDefaultProperties()
-{
+void SerialMonSession.restoreDefaultProperties() {
 	m_pendingNotifySizeLimitProp.m_value = Defaults.PendingNotifySizeLimit;
 	m_bufferPropertySet.restoreDefaults();
 }
 
-reactor SerialMonSession.m_uiReactor
-{
+reactor SerialMonSession.m_uiReactor {
 	m_title = m_state ?
 		$"Monitor $m_portName" :
 		$"Monitor $(m_portCombo.m_currentText)";

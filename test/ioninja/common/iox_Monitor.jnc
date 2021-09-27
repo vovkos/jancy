@@ -15,8 +15,7 @@ namespace iox {
 
 //..............................................................................
 
-class Monitor
-{
+class Monitor {
 protected:
 	doc.PluginHost* m_pluginHost;
 	io.DeviceMonitor m_monitor;
@@ -26,17 +25,14 @@ protected:
 	bool m_notifyReadBufferFull;
 	uint_t m_syncId;
 
-	property m_logWriter
-	{
-		log.Writer* get()
-		{
+	property m_logWriter {
+		log.Writer* get() {
 			return m_pluginHost.m_log.m_writer;
 		}
 	}
 
 public:
-	construct(doc.PluginHost* pluginHost)
-	{
+	construct(doc.PluginHost* pluginHost) {
 		m_pluginHost = pluginHost;
 	}
 
@@ -45,22 +41,20 @@ public:
 		char const* fileNameFilter = null,
 		io.psx.DeviceMonitorIoctlDesc const* ioctlDescTable = null,
 		size_t ioctlDescCount = 0
-		);
+	);
 
 	void close();
 
-	bool errorcode setReadBufferSize(size_t size)
-	{
+	bool errorcode setReadBufferSize(size_t size) {
 		return m_readBuffer.setSize(size);
 	}
 
 	bool errorcode applyProperties(
 		ui.BufferPropertySet* propSet,
 		size_t pendingNotifySizeLimit
-		);
+	);
 
-	void setFileNameFilter(char const* filter)
-	{
+	void setFileNameFilter(char const* filter) {
 		m_monitor.m_fileNameFilter = filter;
 	}
 
@@ -68,14 +62,14 @@ protected:
 	void onMonitorEvent(
 		uint_t syncId,
 		io.DeviceMonitorEvents triggeredEvents
-		);
+	);
 
 	void waitMonitorEvents();
 
 	bool addNotificationData(
 		void const* p,
 		size_t size
-		);
+	);
 
 	abstract processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr);
 	virtual processError(std.Error const* error);
@@ -88,8 +82,7 @@ bool errorcode Monitor.capture(
 	char const* fileNameFilter,
 	io.psx.DeviceMonitorIoctlDesc const* ioctlDescTable,
 	size_t ioctlDescCount
-	)
-{
+) {
 	m_monitor.open();
 	m_monitor.connect(deviceName);
 	m_monitor.m_fileNameFilter = fileNameFilter;
@@ -104,8 +97,7 @@ bool errorcode Monitor.capture(
 	return true;
 }
 
-void Monitor.close()
-{
+void Monitor.close() {
 	m_monitor.close();
 	m_syncId++;
 }
@@ -113,8 +105,7 @@ void Monitor.close()
 bool errorcode Monitor.applyProperties(
 	ui.BufferPropertySet* bufferPropSet,
 	size_t pendingNotifySizeLimit
-	)
-{
+) {
 	m_monitor.m_readParallelism = bufferPropSet.m_readParallelismProp.m_value;
 	m_monitor.m_readBlockSize = bufferPropSet.m_readBlockSizeProp.m_value;
 	m_monitor.m_readBufferSize = bufferPropSet.m_readBufferSizeProp.m_value;
@@ -124,8 +115,7 @@ bool errorcode Monitor.applyProperties(
 	return m_readBuffer.setSize(bufferPropSet.m_readBufferSizeProp.m_value);
 }
 
-void Monitor.waitMonitorEvents()
-{
+void Monitor.waitMonitorEvents() {
 	io.DeviceMonitorEvents eventMask =
 		io.DeviceMonitorEvents.IoError |
 		io.DeviceMonitorEvents.ReadBufferFull |
@@ -137,13 +127,11 @@ void Monitor.waitMonitorEvents()
 void Monitor.onMonitorEvent(
 	uint_t syncId,
 	io.DeviceMonitorEvents triggeredEvents
-	)
-{
+) {
 	if (syncId != m_syncId)
 		return;
 
-	if (triggeredEvents & io.DeviceMonitorEvents.IoError)
-	{
+	if (triggeredEvents & io.DeviceMonitorEvents.IoError) {
 		processError(m_monitor.m_ioError);
 		return;
 	}
@@ -151,11 +139,9 @@ void Monitor.onMonitorEvent(
 	if ((triggeredEvents & io.DeviceMonitorEvents.ReadBufferFull) && m_notifyReadBufferFull)
 		m_logWriter.write(log.StdRecordCode.RxBufferFull);
 
-	if (triggeredEvents & io.DeviceMonitorEvents.IncomingData)
-	{
+	if (triggeredEvents & io.DeviceMonitorEvents.IncomingData) {
 		size_t size = m_monitor.read(m_readBuffer.m_p, m_readBuffer.m_size);
-		if (size)
-		{
+		if (size) {
 			bool result = addNotificationData(m_readBuffer.m_p, size);
 			if (!result)
 				return;
@@ -168,15 +154,11 @@ void Monitor.onMonitorEvent(
 bool Monitor.addNotificationData(
 	void const* p,
 	size_t size
-	)
-{
-	while (size)
-	{
-		if (m_notifyBuffer.m_size < sizeof(io.DeviceMonitorNotifyHdr))
-		{
+) {
+	while (size) {
+		if (m_notifyBuffer.m_size < sizeof(io.DeviceMonitorNotifyHdr)) {
 			size_t leftoverSize = sizeof(io.DeviceMonitorNotifyHdr) - m_notifyBuffer.m_size;
-			if (size < leftoverSize)
-			{
+			if (size < leftoverSize) {
 				m_notifyBuffer.append(p, size);
 				break;
 			}
@@ -187,8 +169,7 @@ bool Monitor.addNotificationData(
 		}
 
 		io.DeviceMonitorNotifyHdr const* notifyHdr = (io.DeviceMonitorNotifyHdr const*) m_notifyBuffer.m_p;
-		if (notifyHdr.m_signature != io.DeviceMonitorNotifyHdrSignature)
-		{
+		if (notifyHdr.m_signature != io.DeviceMonitorNotifyHdrSignature) {
 			std.setError("invalid signature in notification header");
 			processError(std.getLastError());
 			return false;
@@ -200,8 +181,7 @@ bool Monitor.addNotificationData(
 		size_t notifySize = sizeof(io.DeviceMonitorNotifyHdr) + notifyHdr.m_paramSize;
 		size_t leftoverSize = notifySize - m_notifyBuffer.m_size;
 
-		if (size < leftoverSize)
-		{
+		if (size < leftoverSize) {
 			m_notifyBuffer.append(p, size);
 			break;
 		}
@@ -218,8 +198,7 @@ bool Monitor.addNotificationData(
 	return true;
 }
 
-void Monitor.processError(std.Error const* error)
-{
+void Monitor.processError(std.Error const* error) {
 	m_logWriter.write(log.StdRecordCode.Error, error);
 	close();
 }

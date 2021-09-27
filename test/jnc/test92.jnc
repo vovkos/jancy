@@ -1,7 +1,6 @@
 import "std_HashTable.jnc"
 
-size_t hashString_i(variant v)
-{
+size_t hashString_i(variant v) {
 	char const* p = v;
 	char const* end = p + strlen(p);
 
@@ -16,13 +15,11 @@ size_t hashString_i(variant v)
 bool isEqualString_i(
 	variant v1,
 	variant v2
-	)
-{
+) {
 	return stricmp(v1, v2) == 0;
 }
 
-int main()
-{
+int main() {
 	std.HashTable hashTable;
 	hashTable[1] = 100;
 	hashTable[2] = 200;

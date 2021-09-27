@@ -11,8 +11,7 @@
 
 namespace ns1 {
 
-void foo()
-{
+void foo() {
 	printf("ns1.foo ()\n");
 }
 
@@ -20,15 +19,13 @@ void foo()
 
 namespace ns2 {
 
-void foo()
-{
+void foo() {
 	printf("ns2.foo ()\n");
 }
 
 } // namespace ns2 {
 
-void bar()
-{
+void bar() {
 	using namespace ns2;
 
 	foo();
@@ -36,8 +33,7 @@ void bar()
 
 using namespace ns1;
 
-int main()
-{
+int main() {
 	printf("main\n");
 
 	foo();

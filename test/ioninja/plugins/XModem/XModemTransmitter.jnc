@@ -1,10 +1,8 @@
 //..............................................................................
 
-class XModemTransmitter
-{
+class XModemTransmitter {
 protected:
-	enum State
-	{
+	enum State {
 		Idle,
 		WaitNak,
 		Data,
@@ -25,7 +23,7 @@ public:
 	void onRx(
 		void const* p,
 		size_t size
-		);
+	);
 
 protected:
 	void onRx_WaitNak(char c);
@@ -38,14 +36,12 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-XModemTransmitter.construct(XModemLayer* parent)
-{
+XModemTransmitter.construct(XModemLayer* parent) {
 	m_state = State.Idle;
 	m_parent = parent;
 }
 
-void XModemTransmitter.start()
-{
+void XModemTransmitter.start() {
 	cancel();
 
 	m_parent.m_progressDlg.m_status = "Waiting for the peer to accept XModem transfer...";
@@ -53,8 +49,7 @@ void XModemTransmitter.start()
 	m_offset = 0;
 }
 
-void XModemTransmitter.cancel()
-{
+void XModemTransmitter.cancel() {
 	if (m_state == State.Idle)
 		return;
 
@@ -67,16 +62,14 @@ void XModemTransmitter.cancel()
 	complete();
 }
 
-void XModemTransmitter.complete()
-{
+void XModemTransmitter.complete() {
 	m_state = State.Idle;
 	m_offset = 0;
 	m_parent.m_progressDlg.m_buttons = ui.StdDlgButtons.Ok;
 	m_parent.m_file.close();
 }
 
-void XModemTransmitter.sendNextDataBlock()
-{
+void XModemTransmitter.sendNextDataBlock() {
 	if (m_offset > m_parent.m_file.m_size)
 		return;
 
@@ -107,10 +100,8 @@ catch:
 void XModemTransmitter.onRx(
 	void const* p,
 	size_t size
-	)
-{
-	switch (m_state)
-	{
+) {
+	switch (m_state) {
 	case State.WaitNak:
 		onRx_WaitNak(*(char const*) p);
 		break;
@@ -125,10 +116,8 @@ void XModemTransmitter.onRx(
 	}
 }
 
-void XModemTransmitter.onRx_WaitNak(char c)
-{
-	switch (c)
-	{
+void XModemTransmitter.onRx_WaitNak(char c) {
+	switch (c) {
 	case XModemChar.Nak:
 		m_parent.m_progressDlg.m_status = "Transferring XModem data blocks...";
 		m_state = State.Data;
@@ -141,15 +130,12 @@ void XModemTransmitter.onRx_WaitNak(char c)
 	}
 }
 
-void XModemTransmitter.onRx_Data(char c)
-{
-	switch (c)
-	{
+void XModemTransmitter.onRx_Data(char c) {
+	switch (c) {
 	case XModemChar.Ack:
 		m_parent.m_progressDlg.m_progress = (int)(m_offset * 100 / m_parent.m_file.m_size);
 
-		if (m_offset < m_parent.m_file.m_size)
-		{
+		if (m_offset < m_parent.m_file.m_size) {
 			sendNextDataBlock();
 			break;
 		}
@@ -177,10 +163,8 @@ void XModemTransmitter.onRx_Data(char c)
 	}
 }
 
-void XModemTransmitter.onRx_Eot(char c)
-{
-	switch (c)
-	{
+void XModemTransmitter.onRx_Eot(char c) {
+	switch (c) {
 	case XModemChar.Ack:
 		m_parent.m_progressDlg.m_status = "XModem transfer completed successfully";
 		complete();

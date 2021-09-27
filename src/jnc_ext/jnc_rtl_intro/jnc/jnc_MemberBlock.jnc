@@ -16,8 +16,7 @@ namespace jnc {
 
 //..............................................................................
 
-opaque class MemberBlock
-{
+opaque class MemberBlock {
 	Function* const property m_staticConstructor;
 	Function* const property m_constructor;
 	Function* const property m_destructor;

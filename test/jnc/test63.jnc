@@ -9,33 +9,27 @@
 //
 //..............................................................................
 
-class C
-{
-	construct()
-	{
+class C {
+	construct() {
 		printf("C.construct (%p)\n", this);
 	}
 
-	destruct()
-	{
+	destruct() {
 		printf("C.destruct (%p)\n", this);
 	}
 
-	void dispose()
-	{
+	void dispose() {
 		printf("C.dispose (%p)\n", this);
 	}
 }
 
-void foo()
-{
+void foo() {
 	printf("foo () is about to throw...\n");
 	std.setError("foo error");
 	throw;
 }
 
-int main()
-{
+int main() {
 	printf("main\n");
 
 	disposable C c1;

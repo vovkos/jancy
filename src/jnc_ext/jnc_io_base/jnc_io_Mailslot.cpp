@@ -26,7 +26,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	IoLibCacheSlot_Mailslot,
 	Mailslot,
 	&Mailslot::markOpaqueGcRoots
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Mailslot)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<Mailslot>)
@@ -48,8 +48,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
-Mailslot::Mailslot()
-{
+Mailslot::Mailslot() {
 	m_readParallelism = Def_ReadParallelism;
 	m_readBlockSize = Def_ReadBlockSize;
 	m_readBufferSize = Def_ReadBufferSize;
@@ -64,8 +63,7 @@ Mailslot::Mailslot()
 
 bool
 JNC_CDECL
-Mailslot::open(DataPtr namePtr)
-{
+Mailslot::open(DataPtr namePtr) {
 	close();
 
 	if (!requireIoLibCapability(IoLibCapability_Mailslot))
@@ -82,8 +80,7 @@ Mailslot::open(DataPtr namePtr)
 		deviceName += name;
 
 	HANDLE h = ::CreateMailslotW(deviceName, 0, -1, NULL);
-	if (h == INVALID_HANDLE_VALUE)
-	{
+	if (h == INVALID_HANDLE_VALUE) {
 		err::setLastSystemError();
 		return false;
 	}
@@ -100,8 +97,7 @@ Mailslot::open(DataPtr namePtr)
 
 void
 JNC_CDECL
-Mailslot::close()
-{
+Mailslot::close() {
 	if (!m_file.isOpen())
 		return;
 
@@ -119,8 +115,7 @@ Mailslot::close()
 	AsyncIoDevice::close();
 
 #if (_AXL_OS_WIN)
-	if (m_overlappedIo)
-	{
+	if (m_overlappedIo) {
 		AXL_MEM_DELETE(m_overlappedIo);
 		m_overlappedIo = NULL;
 	}
@@ -128,14 +123,12 @@ Mailslot::close()
 }
 
 void
-Mailslot::ioThreadFunc()
-{
+Mailslot::ioThreadFunc() {
 	ASSERT(m_file.isOpen() && m_overlappedIo);
 
 	bool result;
 
-	HANDLE waitTable[2] =
-	{
+	HANDLE waitTable[2] = {
 		m_ioThreadEvent.m_event,
 		NULL, // placeholder for read completion event
 	};
@@ -144,19 +137,16 @@ Mailslot::ioThreadFunc()
 
 	m_ioThreadEvent.signal(); // do initial update of active events
 
-	for (;;)
-	{
+	for (;;) {
 		DWORD waitResult = ::WaitForMultipleObjects(waitCount, waitTable, false, INFINITE);
-		if (waitResult == WAIT_FAILED)
-		{
+		if (waitResult == WAIT_FAILED) {
 			setIoErrorEvent(err::getLastSystemErrorCode());
 			return;
 		}
 
 		// do as much as we can without lock
 
-		while (!m_overlappedIo->m_activeOverlappedReadList.isEmpty())
-		{
+		while (!m_overlappedIo->m_activeOverlappedReadList.isEmpty()) {
 			OverlappedRead* read = *m_overlappedIo->m_activeOverlappedReadList.getHead();
 			result = read->m_overlapped.m_completionEvent.wait(0);
 			if (!result)
@@ -164,8 +154,7 @@ Mailslot::ioThreadFunc()
 
 			dword_t actualSize;
 			result = m_file.m_file.getOverlappedResult(&read->m_overlapped, &actualSize);
-			if (!result)
-			{
+			if (!result) {
 				setIoErrorEvent();
 				return;
 			}
@@ -182,8 +171,7 @@ Mailslot::ioThreadFunc()
 		}
 
 		m_lock.lock();
-		if (m_ioThreadFlags & IoThreadFlag_Closing)
-		{
+		if (m_ioThreadFlags & IoThreadFlag_Closing) {
 			m_lock.unlock();
 			break;
 		}
@@ -205,19 +193,16 @@ Mailslot::ioThreadFunc()
 			m_lock.unlock();
 
 		size_t activeReadCount = m_overlappedIo->m_activeOverlappedReadList.getCount();
-		if (!isReadBufferFull && activeReadCount < readParallelism)
-		{
+		if (!isReadBufferFull && activeReadCount < readParallelism) {
 			size_t newReadCount = readParallelism - activeReadCount;
-			for (size_t i = 0; i < newReadCount; i++)
-			{
+			for (size_t i = 0; i < newReadCount; i++) {
 				OverlappedRead* read = m_overlappedIo->m_overlappedReadPool.get();
 
 				result =
 					read->m_buffer.setCount(readBlockSize) &&
 					m_file.m_file.overlappedRead(read->m_buffer, readBlockSize, &read->m_overlapped);
 
-				if (!result)
-				{
+				if (!result) {
 					m_overlappedIo->m_overlappedReadPool.put(read);
 					setIoErrorEvent();
 					return;
@@ -227,12 +212,9 @@ Mailslot::ioThreadFunc()
 			}
 		}
 
-		if (m_overlappedIo->m_activeOverlappedReadList.isEmpty())
-		{
+		if (m_overlappedIo->m_activeOverlappedReadList.isEmpty()) {
 			waitCount = 1;
-		}
-		else
-		{
+		} else {
 			OverlappedRead* read = *m_overlappedIo->m_activeOverlappedReadList.getHead();
 			waitTable[1] = read->m_overlapped.m_completionEvent.m_event;
 			waitCount = 2;

@@ -36,23 +36,19 @@ jnc_Alias_getTargetItem(jnc_Alias* alias);
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
-struct jnc_Alias: jnc_ModuleItem
-{
+struct jnc_Alias: jnc_ModuleItem {
 	const char*
-	getInitializerString_v()
-	{
+	getInitializerString_v() {
 		return jnc_Alias_getInitializerString_v(this);
 	}
 
 	bool
-	isResolved()
-	{
+	isResolved() {
 		return jnc_Alias_isResolved(this) != 0;
 	}
 
 	jnc_ModuleItem*
-	getTargetItem()
-	{
+	getTargetItem() {
 		return jnc_Alias_getTargetItem(this);
 	}
 };

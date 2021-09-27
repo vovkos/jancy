@@ -23,7 +23,7 @@ JNC_DEFINE_TYPE(
 	"io.SslCertNameEntry",
 	g_sslLibGuid,
 	SslLibCacheSlot_SslCertNameEntry
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(SslCertNameEntry)
 JNC_END_TYPE_FUNCTION_MAP()
@@ -37,7 +37,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	SslLibCacheSlot_SslCertName,
 	SslCertName,
 	&SslCertName::markOpaqueGcRoots
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(SslCertName)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<SslCertName>)
@@ -58,7 +58,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	SslLibCacheSlot_SslCertificate,
 	SslCertificate,
 	&SslCertificate::markOpaqueGcRoots
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(SslCertificate)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<SslCertificate>)
@@ -80,8 +80,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 void
 JNC_CDECL
-SslCertName::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
-{
+SslCertName::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 	size_t count = m_entryArray.getCount();
 	for (size_t i = 0; i < count; i++)
 		gcHeap->markDataPtr(m_entryArray[i]);
@@ -94,8 +93,7 @@ JNC_CDECL
 SslCertName::getEntryTable(
 	SslCertName* self,
 	size_t i
-	)
-{
+) {
 	X509_NAME_ENTRY* entry = X509_NAME_get_entry(self->m_name, i);
 	if (!entry)
 		return g_nullDataPtr;
@@ -113,8 +111,7 @@ SslCertName::getEntryTable(
 
 DataPtr
 JNC_CDECL
-SslCertName::getOneLine(SslCertName* self)
-{
+SslCertName::getOneLine(SslCertName* self) {
 	if (self->m_oneLinePtr.m_p)
 		return self->m_oneLinePtr;
 
@@ -130,15 +127,13 @@ JNC_CDECL
 SslCertName::findEntry(
 	SslCertName* self,
 	int nid
-	)
-{
+) {
 	int i = X509_NAME_get_index_by_NID(self->m_name, nid, -1);
 	return i >= 0 ? getEntryTable(self, i) : g_nullDataPtr;
 }
 
 DataPtr
-SslCertName::createEntry(X509_NAME_ENTRY* srcEntry)
-{
+SslCertName::createEntry(X509_NAME_ENTRY* srcEntry) {
 	ASN1_OBJECT* object = X509_NAME_ENTRY_get_object(srcEntry);
 	ASN1_STRING* value = X509_NAME_ENTRY_get_data(srcEntry);
 
@@ -156,8 +151,7 @@ SslCertName::createEntry(X509_NAME_ENTRY* srcEntry)
 //..............................................................................
 
 SslCertificate*
-SslCertificate::create(X509* cert)
-{
+SslCertificate::create(X509* cert) {
 	Runtime* runtime = getCurrentThreadRuntime();
 	SslCertificate* self = createClass<SslCertificate>(runtime);
 	self->m_cert = cert;
@@ -166,8 +160,7 @@ SslCertificate::create(X509* cert)
 
 void
 JNC_CDECL
-SslCertificate::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
-{
+SslCertificate::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 	gcHeap->markDataPtr(m_serialNumberPtr);
 	gcHeap->markClassPtr(m_subject);
 	gcHeap->markClassPtr(m_issuer);
@@ -175,8 +168,7 @@ SslCertificate::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
 
 DataPtr
 JNC_CDECL
-SslCertificate::getSerialNumber(SslCertificate* self)
-{
+SslCertificate::getSerialNumber(SslCertificate* self) {
 	if (self->m_serialNumberPtr.m_p)
 		return self->m_serialNumberPtr;
 
@@ -192,8 +184,7 @@ SslCertificate::getSerialNumber(SslCertificate* self)
 
 uint64_t
 JNC_CDECL
-SslCertificate::getValidFromDate()
-{
+SslCertificate::getValidFromDate() {
 	return m_validFromDate ?
 		m_validFromDate :
 		m_validFromDate = getTimestamp(X509_get_notBefore(m_cert));
@@ -201,8 +192,7 @@ SslCertificate::getValidFromDate()
 
 uint64_t
 JNC_CDECL
-SslCertificate::getValidToDate()
-{
+SslCertificate::getValidToDate() {
 	return m_validToDate ?
 		m_validToDate :
 		m_validToDate = getTimestamp(X509_get_notAfter(m_cert));
@@ -210,8 +200,7 @@ SslCertificate::getValidToDate()
 
 SslCertName*
 JNC_CDECL
-SslCertificate::getSubject()
-{
+SslCertificate::getSubject() {
 	return m_subject ?
 		m_subject :
 		m_subject = createSslCertName(X509_get_subject_name(m_cert));
@@ -219,16 +208,14 @@ SslCertificate::getSubject()
 
 SslCertName*
 JNC_CDECL
-SslCertificate::getIssuer()
-{
+SslCertificate::getIssuer() {
 	return m_issuer ?
 		m_issuer :
 		m_issuer = createSslCertName(X509_get_issuer_name(m_cert));
 }
 
 SslCertName*
-SslCertificate::createSslCertName(X509_NAME* srcName)
-{
+SslCertificate::createSslCertName(X509_NAME* srcName) {
 	Runtime* runtime = getCurrentThreadRuntime();
 	SslCertName* dstName = createClass<SslCertName>(runtime);
 	dstName->m_name = srcName;
@@ -237,8 +224,7 @@ SslCertificate::createSslCertName(X509_NAME* srcName)
 }
 
 uint64_t
-SslCertificate::getTimestamp(const ASN1_TIME* time)
-{
+SslCertificate::getTimestamp(const ASN1_TIME* time) {
 	int days;
 	int secs;
 
@@ -257,8 +243,7 @@ JNC_CDECL
 SslCertificate::encode(
 	std::Buffer* jncBuffer,
 	uint_t format
-	)
-{
+) {
 	sl::Array<char> axlBuffer;
 	bool result = encodeImpl(&axlBuffer, format);
 	if (!result)
@@ -278,8 +263,7 @@ JNC_CDECL
 SslCertificate::load(
 	DataPtr fileNamePtr,
 	uint_t format
-	)
-{
+) {
 	axl::io::SimpleMappedFile file;
 
 	return
@@ -292,8 +276,7 @@ JNC_CDECL
 SslCertificate::save(
 	DataPtr fileNamePtr,
 	uint_t format
-	)
-{
+) {
 	sl::Array<char> buffer;
 	bool result = encodeImpl(&buffer, format);
 	if (!result)
@@ -313,15 +296,13 @@ bool
 SslCertificate::encodeImpl(
 	sl::Array<char>* buffer,
 	uint_t format
-	)
-{
+) {
 	bool result;
 	sl::String string;
 
 	cry::X509Cert cert = m_cert;
 
-	switch (format)
-	{
+	switch (format) {
 	case SslCertFormat_Pem:
 		result = cert.savePem(&string) != -1;
 		buffer->copy(string.cp(), string.getLength());
@@ -345,12 +326,10 @@ SslCertificate::decodeImpl(
 	const void* p,
 	size_t size,
 	uint_t format
-	)
-{
+) {
 	bool result;
 
-	switch (format)
-	{
+	switch (format) {
 	case SslCertFormat_Pem:
 		result = m_certBuffer.loadPem(p, size);
 		break;
@@ -373,15 +352,13 @@ SslCertificate::decodeImpl(
 
 DataPtr
 JNC_CDECL
-getSslNidShortName(uint_t nid)
-{
+getSslNidShortName(uint_t nid) {
 	return createForeignStringPtr(OBJ_nid2sn(nid), false);
 }
 
 DataPtr
 JNC_CDECL
-getSslNidLongName(uint_t nid)
-{
+getSslNidLongName(uint_t nid) {
 	return createForeignStringPtr(OBJ_nid2ln(nid), false);
 }
 

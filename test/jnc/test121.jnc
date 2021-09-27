@@ -2,27 +2,24 @@
 
 import "sys_Timer.jnc"
 
-class C
-{
+class C {
 	int m_a;
 	int m_b;
 
-	construct(int a, int b)
-	{
+	construct(int a, int b) {
 		printf(
 			"tid: %p C.construct(%d, %d) { this: %p }\n",
 			sys.getCurrentThreadId (),
 			a,
 			b,
 			this
-			);
+		);
 
 		m_a = a;
 		m_b = b;
 	}
 
-	int async asyncFoo(int x, int y)
-	{
+	int async asyncFoo(int x, int y) {
 		printf(
 			"tid: %p +C.asyncFoo(%p, %d): { this: %p, m_a: %d, m_b: %d }\n",
 			sys.getCurrentThreadId (),
@@ -31,7 +28,7 @@ class C
 			this,
 			m_a,
 			m_b
-			);
+		);
 
 		char const* s = $"(x: $x, y: $y)";
 		printf("  s: %s\n", s);
@@ -45,22 +42,21 @@ class C
 		await promise.asyncWait();
 
 		printf(
-			"tid: %p -C.asyncFoo(%d, %d): { this: %p, m_a: %d, m_b: %d } s: %s\n", 
+			"tid: %p -C.asyncFoo(%d, %d): { this: %p, m_a: %d, m_b: %d } s: %s\n",
 			sys.getCurrentThreadId (),
 			x,
 			y,
 			this,
 			m_a,
-			m_b, 
+			m_b,
 			s
-			);
+		);
 
 		return x + y + m_a + m_b;
 	}
 }
 
-int main()
-{
+int main() {
 	printf("tid: %p +main()\n", sys.getCurrentThreadId ());
 
 	C c(1,2);

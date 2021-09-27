@@ -17,8 +17,7 @@ class LlvmIrHighlighter;
 
 //..............................................................................
 
-class LlvmIr: public MonospacePlainTextEdit
-{
+class LlvmIr: public MonospacePlainTextEdit {
 	Q_OBJECT
 
 public:

@@ -10,8 +10,7 @@ namespace io {
 
 //..............................................................................
 
-enum Lsap: uint8_t
-{
+enum Lsap: uint8_t {
 	Null                       = 0x00,
 	LlcSublayerMgt             = 0x02,
 	SnaPathControl             = 0x04,
@@ -49,8 +48,7 @@ enum Lsap: uint8_t
 	displayName = "LLC",
 	formatDigestFunc = formatLlcDigest
 ]
-struct LlcHdr
-{
+struct LlcHdr {
 	[
 		displayName = "Destination",
 		formatSpec = "0x%02X"
@@ -76,8 +74,7 @@ struct LlcHdr
 	displayName = "LLC",
 	formatDigestFunc = formatLlcDigest
 ]
-struct LlcHdr16
-{
+struct LlcHdr16 {
 	[
 		displayName = "Destination",
 		formatSpec = "0x%02X"
@@ -99,14 +96,13 @@ struct LlcHdr16
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* formatLlcDigest(void const* p)
-{
+char const* formatLlcDigest(void const* p) {
 	LlcHdr const* hdr = (LlcHdr const*)p;
 
 	return $"%1 \u2192 %2" (
 		typeof(Lsap).getValueString(&hdr.m_ssap),
 		typeof(Lsap).getValueString(&hdr.m_dsap)
-		);
+	);
 }
 
 //..............................................................................

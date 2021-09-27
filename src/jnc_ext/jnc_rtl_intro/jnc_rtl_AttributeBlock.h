@@ -26,8 +26,7 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(AttributeBlock)
 class Attribute:
 	public ModuleItemBase<ct::Attribute>,
 	public ModuleItemDecl,
-	public ModuleItemInitializer
-{
+	public ModuleItemInitializer {
 protected:
 	Variant m_value;
 
@@ -35,21 +34,17 @@ public:
 	Attribute(ct::Attribute* attribute):
 		ModuleItemBase(attribute),
 		ModuleItemDecl(attribute),
-		ModuleItemInitializer(attribute)
-	{
-	}
+		ModuleItemInitializer(attribute) {}
 
 	void
 	JNC_CDECL
-	markOpaqueGcRoots(jnc::GcHeap* gcHeap)
-	{
+	markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 		gcHeap->markVariant(m_value);
 	}
 
 	bool
 	JNC_CDECL
-	hasValue()
-	{
+	hasValue() {
 		return !m_item->getValue().isEmpty();
 	}
 
@@ -63,34 +58,28 @@ public:
 
 class AttributeBlock:
 	public ModuleItemBase<ct::AttributeBlock>,
-	public ModuleItemDecl
-{
+	public ModuleItemDecl {
 public:
 	AttributeBlock(ct::AttributeBlock* block):
 		ModuleItemBase(block),
-		ModuleItemDecl(block)
-	{
-	}
+		ModuleItemDecl(block) {}
 
 	size_t
 	JNC_CDECL
-	getAttributeCount()
-	{
+	getAttributeCount() {
 		return m_item->getAttributeArray().getCount();
 	}
 
 	Attribute*
 	JNC_CDECL
-	getAttribute(size_t index)
-	{
+	getAttribute(size_t index) {
 		size_t count = m_item->getAttributeArray().getCount();
 		return index < count ? rtl::getAttribute(m_item->getAttributeArray()[index]) : NULL;
 	}
 
 	Attribute*
 	JNC_CDECL
-	findAttribute(DataPtr namePtr)
-	{
+	findAttribute(DataPtr namePtr) {
 		return rtl::getAttribute(m_item->findAttribute((char*)namePtr.m_p));
 	}
 };

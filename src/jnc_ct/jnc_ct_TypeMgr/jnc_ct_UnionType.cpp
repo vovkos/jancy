@@ -18,8 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-UnionType::UnionType()
-{
+UnionType::UnionType() {
 	m_typeKind = TypeKind_Union;
 	m_flags = TypeFlag_Pod;
 	m_structType = NULL;
@@ -33,8 +32,7 @@ UnionType::createFieldImpl(
 	uint_t ptrTypeFlags,
 	sl::BoxList<Token>* constructor,
 	sl::BoxList<Token>* initializer
-	)
-{
+) {
 	Field* field = m_module->m_typeMgr.createField(
 		name,
 		type,
@@ -42,16 +40,13 @@ UnionType::createFieldImpl(
 		ptrTypeFlags,
 		constructor,
 		initializer
-		);
+	);
 
 	field->m_parentNamespace = this;
 
-	if (name.isEmpty())
-	{
+	if (name.isEmpty()) {
 		m_unnamedFieldArray.append(field);
-	}
-	else if (name[0] != '!') // internal field
-	{
+	} else if (name[0] != '!') { // internal field
 		bool result = addItem(field);
 		if (!result)
 			return NULL;
@@ -62,8 +57,7 @@ UnionType::createFieldImpl(
 }
 
 bool
-UnionType::calcLayout()
-{
+UnionType::calcLayout() {
 	bool result =
 		ensureNamespaceReady() &&
 		ensureAttributeValuesReady();
@@ -75,8 +69,7 @@ UnionType::calcLayout()
 	size_t largestAlignment = 0;
 
 	size_t count = m_fieldArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		Field* field = m_fieldArray[i];
 
 		result = field->m_type->ensureLayout();
@@ -86,21 +79,17 @@ UnionType::calcLayout()
 		uint_t fieldTypeFlags = field->m_type->getFlags();
 		size_t fieldAlignment = field->m_type->getAlignment();
 
-		if (!(fieldTypeFlags & TypeFlag_Pod))
-		{
+		if (!(fieldTypeFlags & TypeFlag_Pod)) {
 			err::setFormatStringError("non-POD '%s' cannot be a union member", field->m_type->getTypeString().sz());
 			field->pushSrcPosError();
 			return false;
-		}
-		else if (fieldTypeFlags & TypeFlag_Dynamic)
-		{
+		} else if (fieldTypeFlags & TypeFlag_Dynamic) {
 			err::setFormatStringError("dynamic '%s' cannot be a union member", field->m_type->getTypeString().sz());
 			field->pushSrcPosError();
 			return false;
 		}
 
-		if (field->m_bitCount)
-		{
+		if (field->m_bitCount) {
 			field->m_type = m_module->m_typeMgr.getBitFieldType(field->m_bitFieldBaseType, 0, field->m_bitCount);
 			if (!field->m_type)
 				return false;
@@ -131,16 +120,14 @@ UnionType::calcLayout()
 	scanStaticVariables();
 	scanPropertyCtorDtors();
 
-	if (!m_propertyDestructArray.isEmpty())
-	{
+	if (!m_propertyDestructArray.isEmpty()) {
 		err::setError("invalid property destructor in 'union'");
 		return false;
 	}
 
 	if (!m_staticConstructor &&
 		(!m_staticVariableInitializeArray.isEmpty() ||
-		!m_propertyStaticConstructArray.isEmpty()))
-	{
+		!m_propertyStaticConstructArray.isEmpty())) {
 		result = createDefaultMethod<DefaultStaticConstructor>() != NULL;
 		if (!result)
 			return false;
@@ -149,8 +136,7 @@ UnionType::calcLayout()
 	if (!m_constructor &&
 		(m_staticConstructor ||
 		!m_fieldInitializeArray.isEmpty() ||
-		!m_propertyConstructArray.isEmpty()))
-	{
+		!m_propertyConstructArray.isEmpty())) {
 		result = createDefaultMethod<DefaultConstructor>() != NULL;
 		if (!result)
 			return false;
@@ -166,8 +152,7 @@ UnionType::calcLayout()
 }
 
 void
-UnionType::prepareLlvmDiType()
-{
+UnionType::prepareLlvmDiType() {
 	m_llvmDiType = m_module->m_llvmDiBuilder.createEmptyUnionType(this);
 	m_module->m_llvmDiBuilder.setUnionTypeBody(this);
 }

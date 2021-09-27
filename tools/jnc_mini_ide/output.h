@@ -13,15 +13,13 @@
 
 #include "monospaceplaintextedit.h"
 
-class Output: public MonospacePlainTextEdit
-{
+class Output: public MonospacePlainTextEdit {
 	Q_OBJECT
 
 public:
 	Output(QWidget *parent);
 
-	QSize sizeHint() const
-	{
+	QSize sizeHint() const {
 		return QSize(300, 300);
 	}
 
@@ -34,5 +32,5 @@ private:
 		int* line,
 		int* col,
 		const QTextCursor& cursor
-		);
+	);
 };

@@ -31,8 +31,7 @@ struct FunctionPtrTypeTuple;
 
 //..............................................................................
 
-class FunctionType: public Type
-{
+class FunctionType: public Type {
 	friend class TypeMgr;
 	friend class ClassType;
 	friend class CallConv;
@@ -57,33 +56,28 @@ public:
 	FunctionType();
 
 	CallConv*
-	getCallConv()
-	{
+	getCallConv() {
 		return m_callConv;
 	}
 
 	Type*
-	getReturnType()
-	{
+	getReturnType() {
 		return m_returnType;
 	}
 
 	Type*
-	getAsyncReturnType()
-	{
+	getAsyncReturnType() {
 		ASSERT(m_flags & FunctionTypeFlag_Async);
 		return m_asyncReturnType;
 	}
 
 	const sl::Array<FunctionArg*>&
-	getArgArray()
-	{
+	getArgArray() {
 		return m_argArray;
 	}
 
 	const sl::Array<uint_t>&
-	getArgFlagArray()
-	{
+	getArgFlagArray() {
 		return m_argFlagArray;
 	}
 
@@ -94,20 +88,17 @@ public:
 	getTypeModifierString();
 
 	bool
-	isMemberMethodType()
-	{
+	isMemberMethodType() {
 		return !m_argArray.isEmpty() && m_argArray[0]->getStorageKind() == StorageKind_This;
 	}
 
 	FunctionArg*
-	getThisArg()
-	{
+	getThisArg() {
 		return isMemberMethodType() ? m_argArray[0] : NULL;
 	}
 
 	Type*
-	getThisArgType()
-	{
+	getThisArgType() {
 		return isMemberMethodType() ? m_argArray[0]->getType() : NULL;
 	}
 
@@ -115,8 +106,7 @@ public:
 	getThisTargetType();
 
 	FunctionType*
-	getShortType()
-	{
+	getShortType() {
 		return m_shortType;
 	}
 
@@ -124,7 +114,7 @@ public:
 	getMemberMethodType(
 		DerivableType* type,
 		uint_t thisArgFlags = 0
-		);
+	);
 
 	FunctionType*
 	getStdObjectMemberMethodType();
@@ -134,14 +124,13 @@ public:
 		TypeKind typeKind,
 		FunctionPtrTypeKind ptrTypeKind = FunctionPtrTypeKind_Normal,
 		uint_t flags = 0
-		);
+	);
 
 	FunctionPtrType*
 	getFunctionPtrType(
 		FunctionPtrTypeKind ptrTypeKind = FunctionPtrTypeKind_Normal,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return getFunctionPtrType(TypeKind_FunctionPtr, ptrTypeKind, flags);
 	}
 
@@ -156,7 +145,7 @@ public:
 		Type* const* argTypeArray,
 		size_t argCount,
 		uint_t flags
-		);
+	);
 
 	static
 	sl::String
@@ -166,7 +155,7 @@ public:
 		FunctionArg* const* argArray,
 		size_t argCount,
 		uint_t flags
-		);
+	);
 
 	static
 	sl::String
@@ -178,7 +167,7 @@ public:
 		Type* const* argTypeArray,
 		size_t argCount,
 		uint_t flags
-		);
+	);
 
 	static
 	sl::String
@@ -186,11 +175,10 @@ public:
 		FunctionArg* const* argArray,
 		size_t argCount,
 		uint_t flags
-		);
+	);
 
 	sl::String
-	createArgSignature()
-	{
+	createArgSignature() {
 		return createArgSignature(m_argArray, m_argArray.getCount(), m_flags);
 	}
 
@@ -208,8 +196,7 @@ protected:
 
 	virtual
 	void
-	prepareSignature()
-	{
+	prepareSignature() {
 		m_signature = createSignature(m_callConv, m_returnType, m_argArray, m_argArray.getCount(), m_flags);
 	}
 
@@ -235,8 +222,7 @@ protected:
 
 	virtual
 	void
-	prepareTypeVariable()
-	{
+	prepareTypeVariable() {
 		prepareSimpleTypeVariable(StdType_FunctionType);
 	}
 };

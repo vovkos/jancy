@@ -23,8 +23,7 @@ typedef StreamOptions ChildProcessOptions;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum ChildProcessStartFlags
-{
+bitflag enum ChildProcessStartFlags {
 	Pty,
 	SeparateStderr,
 	CleanEnvironment,
@@ -32,8 +31,7 @@ bitflag enum ChildProcessStartFlags
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum ChildProcessEvents: StreamEvents
-{
+bitflag enum ChildProcessEvents: StreamEvents {
 	/**
 		End-of-file was reached on the ``stdin`` stream.
 	*/
@@ -46,16 +44,14 @@ bitflag enum ChildProcessEvents: StreamEvents
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct PtySize
-{
+struct PtySize {
 	uint_t m_rowCount;
 	uint_t m_colCount;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class ChildProcess
-{
+opaque class ChildProcess {
 	FileStream* readonly m_stderr;
 
 	uint_t autoget property m_readParallelism;
@@ -80,7 +76,7 @@ opaque class ChildProcess
 		char const* commandLine,
 		std.HashTable const* environment = null,
 		ChildProcessStartFlags flags = 0
-		);
+	);
 
 	bool errorcode terminate();
 	void close();
@@ -89,24 +85,24 @@ opaque class ChildProcess
 	size_t errorcode read(
 		void* p,
 		size_t size
-		);
+	);
 
 	size_t errorcode write(
 		void const* p,
 		size_t size
-		);
+	);
 
 	intptr errorcode wait(
 		ChildProcessEvents eventMask,
 		function* handler(ChildProcessEvents triggeredEvents)
-		);
+	);
 
 	bool errorcode cancelWait(intptr handle);
 
 	ChildProcessEvents blockingWait(
 		ChildProcessEvents eventMask,
 		uint_t timeout = -1
-		);
+	);
 
 	async ChildProcessEvents asyncWait(ChildProcessEvents eventMask);
 }

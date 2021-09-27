@@ -16,8 +16,7 @@ namespace jnc {
 
 //..............................................................................
 
-enum TypeKind
-{
+enum TypeKind {
 	// primitive types (completely identified by TypeKind)
 
 	Void,
@@ -105,8 +104,7 @@ enum TypeKind
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum TypeKindFlags
-{
+bitflag enum TypeKindFlags {
 	Integer      = 0x00000001,
 	Unsigned     = 0x00000002,
 	BigEndian    = 0x00000004,
@@ -129,8 +127,7 @@ bitflag enum TypeKindFlags
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum TypeFlags
-{
+bitflag enum TypeFlags {
 	Named     = 0x0100,
 	Pod       = 0x0200, // plain-old-data
 	GcRoot    = 0x0400, // is or contains gc-traceable pointers
@@ -141,8 +138,7 @@ bitflag enum TypeFlags
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum PtrTypeFlags
-{
+bitflag enum PtrTypeFlags {
 	Safe       = 0x0010000, // all ptr
 	Const      = 0x0020000, // class & data ptr
 	ReadOnly   = 0x0040000, // class & data ptr
@@ -163,8 +159,7 @@ bitflag enum PtrTypeFlags
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum DataPtrTypeKind
-{
+enum DataPtrTypeKind {
 	Normal = 0,
 	Lean,
 	Thin,
@@ -173,8 +168,7 @@ enum DataPtrTypeKind
 
 //..............................................................................
 
-opaque class Type: ModuleItem
-{
+opaque class Type: ModuleItem {
 	TypeKind const property m_typeKind;
 	size_t const property m_size;
 	size_t const property m_alignment;
@@ -191,12 +185,12 @@ opaque class Type: ModuleItem
 	char const* getValueString(
 		void const* value,
 		char const* formatSpec = null
-		);
+	);
 
 	char const* getValueString(
 		variant value,
 		char const* formatSpec = null
-		);
+	);
 
 	ArrayType* getArrayType(size_t elementCount);
 
@@ -204,22 +198,20 @@ opaque class Type: ModuleItem
 		TypeKind typeKind = TypeKind.DataPtr,
 		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind.Normal,
 		PtrTypeFlags flags = 0
-		);
+	);
 }
 
 //..............................................................................
 
 opaque class NamedType:
 	Type,
-	Namespace
-{
+	Namespace {
 	construct(intptr p);
 }
 
 //..............................................................................
 
-opaque class DataPtrType: Type
-{
+opaque class DataPtrType: Type {
 	DataPtrTypeKind const property m_ptrTypeKind;
 	Type* const property m_targetType;
 
@@ -230,8 +222,7 @@ opaque class DataPtrType: Type
 
 opaque class Typedef:
 	ModuleItem,
-	ModuleItemDecl
-{
+	ModuleItemDecl {
 	Type* const property m_type;
 
 	construct(intptr p);

@@ -18,8 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-class BitFieldType: public Type
-{
+class BitFieldType: public Type {
 	friend class TypeMgr;
 
 protected:
@@ -31,20 +30,17 @@ public:
 	BitFieldType();
 
 	Type*
-	getBaseType()
-	{
+	getBaseType() {
 		return m_baseType;
 	}
 
 	size_t
-	getBitOffset()
-	{
+	getBitOffset() {
 		return m_bitOffset;
 	}
 
 	size_t
-	getBitCount()
-	{
+	getBitCount() {
 		return m_bitCount;
 	}
 
@@ -54,14 +50,13 @@ public:
 		Type* baseType,
 		size_t bitOffset,
 		size_t bitCount
-		)
-	{
+	) {
 		return sl::formatString(
 			"B%s:%d:%d",
 			baseType->getSignature().sz(),
 			bitOffset,
 			bitOffset + bitCount
-			);
+		);
 	}
 
 	virtual
@@ -69,13 +64,12 @@ public:
 	getValueString(
 		const void* p,
 		const char* formatSpec
-		);
+	);
 
 protected:
 	virtual
 	void
-	prepareSignature()
-	{
+	prepareSignature() {
 		m_signature = createSignature(m_baseType, m_bitOffset, m_bitCount);
 	}
 
@@ -89,15 +83,13 @@ protected:
 
 	virtual
 	void
-	prepareLlvmType()
-	{
+	prepareLlvmType() {
 		m_llvmType = m_baseType->getLlvmType();
 	}
 
 	virtual
 	void
-	prepareLlvmDiType()
-	{
+	prepareLlvmDiType() {
 		m_llvmDiType = m_baseType->getLlvmDiType();
 	}
 
@@ -107,8 +99,7 @@ protected:
 
 	virtual
 	void
-	prepareTypeVariable()
-	{
+	prepareTypeVariable() {
 		prepareSimpleTypeVariable(StdType_BitFieldType);
 	}
 };

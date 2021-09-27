@@ -22,7 +22,7 @@ tryCheckDataPtrRangeIndirect(
 	const void* p,
 	size_t size,
 	DataPtrValidator* validator
-	);
+);
 
 } // namespace rtl
 
@@ -34,8 +34,7 @@ bool
 OperatorMgr::prepareDataPtr(
 	const Value& value,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(value.getType()->getTypeKind() == TypeKind_DataPtr || value.getType()->getTypeKind() == TypeKind_DataRef);
 
 	bool result = checkDataPtrRange(value);
@@ -46,21 +45,17 @@ OperatorMgr::prepareDataPtr(
 	DataPtrTypeKind ptrTypeKind = type->getPtrTypeKind();
 	DataPtrType* resultType = type->getTargetType()->getDataPtrType_c();
 
-	switch (ptrTypeKind)
-	{
+	switch (ptrTypeKind) {
 	case DataPtrTypeKind_Thin:
 	case DataPtrTypeKind_Lean:
 		resultValue->overrideType(value, resultType);
 		break;
 
 	case DataPtrTypeKind_Normal:
-		if (value.getValueKind() == ValueKind_Const)
-		{
+		if (value.getValueKind() == ValueKind_Const) {
 			void* p = ((DataPtr*)value.getConstData())->m_p;
 			resultValue->createConst(&p, resultType);
-		}
-		else
-		{
+		} else {
 			m_module->m_llvmIrBuilder.createExtractValue(value, 0, NULL, resultValue);
 			m_module->m_llvmIrBuilder.createBitCast(*resultValue, resultType, resultValue);
 		}
@@ -77,8 +72,7 @@ bool
 OperatorMgr::loadDataRef(
 	const Value& opValue,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKind() == TypeKind_DataRef);
 
 	bool result;
@@ -86,14 +80,12 @@ OperatorMgr::loadDataRef(
 	DataPtrType* type = (DataPtrType*)opValue.getType();
 	Type* targetType = type->getTargetType();
 
-	if (targetType->getFlags() & TypeFlag_Dynamic)
-	{
+	if (targetType->getFlags() & TypeFlag_Dynamic) {
 		err::setFormatStringError("invalid usage of dynamic type '%s'", targetType->getTypeString().sz());
 		return false;
 	}
 
-	if (opValue.getValueKind() != ValueKind_Const)
-	{
+	if (opValue.getValueKind() != ValueKind_Const) {
 		Value ptrValue;
 		result = prepareDataPtr(opValue, &ptrValue);
 		if (!result)
@@ -104,19 +96,14 @@ OperatorMgr::loadDataRef(
 			targetType,
 			resultValue,
 			(type->getFlags() & PtrTypeFlag_Volatile) != 0
-			);
-	}
-	else
-	{
+		);
+	} else {
 		const void* p;
 
 		DataPtrTypeKind ptrTypeKind = type->getPtrTypeKind();
-		if (ptrTypeKind != DataPtrTypeKind_Normal)
-		{
+		if (ptrTypeKind != DataPtrTypeKind_Normal) {
 			p = *(void**) opValue.getConstData();
-		}
-		else
-		{
+		} else {
 			DataPtr* ptr = (DataPtr*)opValue.getConstData();
 			result = rtl::tryCheckDataPtrRangeIndirect(ptr->m_p, targetType->getSize(), ptr->m_validator);
 			if (!result)
@@ -128,13 +115,12 @@ OperatorMgr::loadDataRef(
 		resultValue->createConst(p, targetType);
 	}
 
-	if (targetType->getTypeKind() == TypeKind_BitField)
-	{
+	if (targetType->getTypeKind() == TypeKind_BitField) {
 		result = extractBitField(
 			*resultValue,
 			(BitFieldType*)targetType,
 			resultValue
-			);
+		);
 
 		if (!result)
 			return false;
@@ -147,22 +133,19 @@ bool
 OperatorMgr::storeDataRef(
 	const Value& dstValue,
 	const Value& rawSrcValue
-	)
-{
+) {
 	ASSERT(dstValue.getType()->getTypeKind() == TypeKind_DataRef);
 
 	bool result;
 
 	DataPtrType* dstType = (DataPtrType*)dstValue.getType();
-	if (dstType->getFlags() & PtrTypeFlag_Const)
-	{
+	if (dstType->getFlags() & PtrTypeFlag_Const) {
 		err::setError("cannot store into const location");
 		return false;
 	}
 
 	Type* targetType = dstType->getTargetType();
-	if (targetType->getFlags() & TypeFlag_Dynamic)
-	{
+	if (targetType->getFlags() & TypeFlag_Dynamic) {
 		err::setFormatStringError("invalid usage of dynamic type '%s'", targetType->getTypeString().sz());
 		return false;
 	}
@@ -187,28 +170,26 @@ OperatorMgr::storeDataRef(
 		return true;
 
 	if (srcValue.getValueKind() != ValueKind_Const ||
-		dstValue.getValueKind() != ValueKind_Const)
-	{
+		dstValue.getValueKind() != ValueKind_Const) {
 		Value ptrValue;
 		result = prepareDataPtr(dstValue, &ptrValue);
 		if (!result)
 			return false;
 
-		if (targetTypeKind == TypeKind_BitField)
-		{
+		if (targetTypeKind == TypeKind_BitField) {
 			m_module->m_llvmIrBuilder.createLoad(
 				ptrValue,
 				castType,
 				&bfShadowValue,
 				(dstType->getFlags() & PtrTypeFlag_Volatile) != 0
-				);
+			);
 
 			result = mergeBitField(
 				srcValue,
 				bfShadowValue,
 				(BitFieldType*)targetType,
 				&srcValue
-				);
+			);
 
 			if (!result)
 				return false;
@@ -218,19 +199,14 @@ OperatorMgr::storeDataRef(
 			srcValue,
 			ptrValue,
 			(dstType->getFlags() & PtrTypeFlag_Volatile) != 0
-			);
-	}
-	else
-	{
+		);
+	} else {
 		void* p;
 
 		DataPtrTypeKind ptrTypeKind = dstType->getPtrTypeKind();
-		if (ptrTypeKind != DataPtrTypeKind_Normal)
-		{
+		if (ptrTypeKind != DataPtrTypeKind_Normal) {
 			p = *(void**) dstValue.getConstData();
-		}
-		else
-		{
+		} else {
 			DataPtr* ptr = (DataPtr*)dstValue.getConstData();
 			result = rtl::tryCheckDataPtrRangeIndirect(ptr->m_p, targetType->getSize(), ptr->m_validator);
 			if (!result)
@@ -239,15 +215,14 @@ OperatorMgr::storeDataRef(
 			p = ptr->m_p;
 		}
 
-		if (targetTypeKind == TypeKind_BitField)
-		{
+		if (targetTypeKind == TypeKind_BitField) {
 			bfShadowValue.createConst(p, castType);
 			result = mergeBitField(
 				srcValue,
 				bfShadowValue,
 				(BitFieldType*)targetType,
 				&srcValue
-				);
+			);
 
 			if (!result)
 				return false;
@@ -264,8 +239,7 @@ OperatorMgr::extractBitField(
 	const Value& rawValue,
 	BitFieldType* bitFieldType,
 	Value* resultValue
-	)
-{
+) {
 	bool result;
 
 	Type* baseType = bitFieldType->getBaseType();
@@ -287,8 +261,7 @@ OperatorMgr::extractBitField(
 	if (!result)
 		return false;
 
-	if (!(baseType->getTypeKindFlags() & TypeKindFlag_Unsigned)) // extend with sign bit
-	{
+	if (!(baseType->getTypeKindFlags() & TypeKindFlag_Unsigned)) { // extend with sign bit
 		int64_t signBit = (int64_t) 1 << (bitCount - 1);
 
 		Value signBitValue(signBit, type);
@@ -314,8 +287,7 @@ OperatorMgr::mergeBitField(
 	const Value& rawShadowValue,
 	BitFieldType* bitFieldType,
 	Value* resultValue
-	)
-{
+) {
 	bool result;
 
 	Type* baseType = bitFieldType->getBaseType();
@@ -351,8 +323,7 @@ void
 OperatorMgr::makeLeanDataPtr(
 	const Value& value,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(
 		value.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr &&
 		((DataPtrType*)value.getType())->getPtrTypeKind() == DataPtrTypeKind_Normal);

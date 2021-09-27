@@ -10,8 +10,7 @@ namespace io {
 
 //..............................................................................
 
-enum SpiDecodeResult
-{
+enum SpiDecodeResult {
 	Continue,
 	Start,
 	Stop,
@@ -22,8 +21,7 @@ enum SpiDecodeResult
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class SpiSignalDecoder
-{
+class SpiSignalDecoder {
 protected:
 	bool m_cpol;
 	bool m_cpha;
@@ -41,14 +39,14 @@ public:
 	void start(
 		uint_t spiMode,
 		bool isLittleEndian
-		);
+	);
 
 	SpiDecodeResult add(
 		bool sclk,
 		bool mosi,
 		bool miso,
 		bool ss
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -56,8 +54,7 @@ public:
 void SpiSignalDecoder.start(
 	uint_t spiMode,
 	bool isLittleEndian
-	)
-{
+) {
 	m_cpol = spiMode > 1;
 	m_cpha = spiMode & 1;
 	m_isLittleEndian = isLittleEndian;
@@ -69,10 +66,8 @@ SpiDecodeResult SpiSignalDecoder.add(
 	bool mosi,
 	bool miso,
 	bool ss
-	)
-{
-	static bool spiSelectorTable[2][2][2] =
-	{
+) {
+	static bool spiSelectorTable[2][2][2] = {
 		// CPOL 0
 		{
 			// CPHA 0
@@ -104,8 +99,7 @@ SpiDecodeResult SpiSignalDecoder.add(
 		},
 	}
 
-	if (ss)
-	{
+	if (ss) {
 		if (m_lastSs)
 			return SpiDecodeResult.Continue;
 
@@ -118,8 +112,7 @@ SpiDecodeResult SpiSignalDecoder.add(
 
 	SpiDecodeResult result = SpiDecodeResult.Continue;
 
-	if (m_lastSs)
-	{
+	if (m_lastSs) {
 		m_lastSs = false;
 		m_lastSclk = m_cpol;
 		m_bit = m_isLittleEndian ? 0x01 : 0x80;
@@ -133,10 +126,8 @@ SpiDecodeResult SpiSignalDecoder.add(
 
 	m_lastSclk = sclk;
 
-	if (spiSelectorTable[m_cpol][m_cpha][sclk])
-	{
-		if (!m_bit)
-		{
+	if (spiSelectorTable[m_cpol][m_cpha][sclk]) {
+		if (!m_bit) {
 			m_bit = m_isLittleEndian ? 0x01 : 0x80;
 			m_mosiChar = 0;
 			m_misoChar = 0;

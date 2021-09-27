@@ -24,8 +24,7 @@ BinOp_At::op(
 	const Value& opValue1,
 	const Value& opValue2,
 	Value* resultValue
-	)
-{
+) {
 	bool result;
 
 	Value schedulerValue;
@@ -33,14 +32,13 @@ BinOp_At::op(
 		opValue2,
 		m_module->m_typeMgr.getStdType(StdType_SchedulerPtr),
 		&schedulerValue
-		);
+	);
 
 	if (!result)
 		return false;
 
 	TypeKind opType1 = opValue1.getType()->getTypeKind();
-	if (opType1 != TypeKind_FunctionPtr && opType1 != TypeKind_FunctionRef)
-	{
+	if (opType1 != TypeKind_FunctionPtr && opType1 != TypeKind_FunctionRef) {
 		setOperatorError(opValue1, opValue2);
 		return false;
 	}
@@ -58,8 +56,7 @@ BinOp_At::op(
 	resultClosure->getArgValueList()->insertTail(schedulerValue);
 
 	Closure* opClosure = opValue1.getClosure();
-	if (opClosure)
-	{
+	if (opClosure) {
 		resultClosure->append(*opClosure->getArgValueList());
 
 		size_t thisArgIdx = opClosure->getThisArgIdx();

@@ -9,8 +9,7 @@
 //
 //..............................................................................
 
-enum XxxEventCode
-{
+enum XxxEventCode {
 	ConnectCompleted,
 	ConnectCancelled,
 	ConnectError,
@@ -21,21 +20,18 @@ enum XxxEventCode
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct XxxEventParams
-{
+struct XxxEventParams {
 	XxxEventCode m_eventCode;
 	int m_syncId;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct XxxErrorEventParams: XxxEventParams
-{
+struct XxxErrorEventParams: XxxEventParams {
 	std.Error const* m_error;
 }
 
-int main()
-{
+int main() {
 	XxxEventParams const* params;
 	dynamic(XxxErrorEventParams const*) params;
 

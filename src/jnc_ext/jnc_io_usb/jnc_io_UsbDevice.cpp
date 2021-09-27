@@ -29,7 +29,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	UsbLibCacheSlot_UsbDevice,
 	UsbDevice,
 	&UsbDevice::markOpaqueGcRoots
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(UsbDevice)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<UsbDevice>)
@@ -54,8 +54,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
-UsbDevice::UsbDevice()
-{
+UsbDevice::UsbDevice() {
 	m_isOpen = false;
 	m_isAutoDetachKernelDriverEnabled = false;
 	m_asyncControlEndpoint = NULL;
@@ -63,8 +62,7 @@ UsbDevice::UsbDevice()
 
 void
 JNC_CDECL
-UsbDevice::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
-{
+UsbDevice::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 	if (m_asyncControlEndpoint)
 		m_asyncControlEndpoint->markOpaqueGcRoots(gcHeap);
 
@@ -75,13 +73,11 @@ UsbDevice::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
 
 
 void
-UsbDevice::removeInterface(UsbInterface* iface)
-{
+UsbDevice::removeInterface(UsbInterface* iface) {
 	m_lock.lock();
 
 	sl::ListLink* link = UsbInterface::GetParentLink()(iface);
-	if (link->getPrev() || link->getNext())
-	{
+	if (link->getPrev() || link->getNext()) {
 		m_interfaceList.remove(iface);
 		*link = sl::g_nullListLink;
 	}
@@ -91,14 +87,12 @@ UsbDevice::removeInterface(UsbInterface* iface)
 
 void
 JNC_CDECL
-UsbDevice::close()
-{
+UsbDevice::close() {
 	if (!m_isOpen)
 		return;
 
 	m_lock.lock();
-	while (!m_interfaceList.isEmpty())
-	{
+	while (!m_interfaceList.isEmpty()) {
 		UsbInterface* iface = m_interfaceList.removeHead();
 		sl::ListLink* link = UsbInterface::GetParentLink()(iface);
 		*link = sl::g_nullListLink;
@@ -110,8 +104,7 @@ UsbDevice::close()
 	}
 	m_lock.unlock();
 
-	if (m_asyncControlEndpoint)
-	{
+	if (m_asyncControlEndpoint) {
 		AXL_MEM_DELETE(m_asyncControlEndpoint);
 		m_asyncControlEndpoint = NULL;
 	}
@@ -122,8 +115,7 @@ UsbDevice::close()
 
 bool
 JNC_CDECL
-UsbDevice::open()
-{
+UsbDevice::open() {
 	close();
 
 	bool result =
@@ -139,8 +131,7 @@ UsbDevice::open()
 
 DataPtr
 JNC_CDECL
-UsbDevice::getDeviceDesc(UsbDevice* self)
-{
+UsbDevice::getDeviceDesc(UsbDevice* self) {
 	libusb_device_descriptor desc;
 
 	bool result = self->m_device.getDeviceDescriptor(&desc);
@@ -152,8 +143,7 @@ UsbDevice::getDeviceDesc(UsbDevice* self)
 
 DataPtr
 JNC_CDECL
-UsbDevice::getActiveConfigurationDesc(UsbDevice* self)
-{
+UsbDevice::getActiveConfigurationDesc(UsbDevice* self) {
 	axl::io::UsbConfigDescriptor desc;
 
 	bool result = self->m_device.getActiveConfigDescriptor(&desc);
@@ -168,10 +158,8 @@ JNC_CDECL
 UsbDevice::getStringDesc(
 	UsbDevice* self,
 	uint8_t stringId
-	)
-{
-	if (!self->m_isOpen)
-	{
+) {
+	if (!self->m_isOpen) {
 		err::setError(err::SystemErrorCode_InvalidDeviceState);
 		return g_nullDataPtr;
 	}
@@ -185,10 +173,8 @@ JNC_CDECL
 UsbDevice::claimInterface(
 	uint8_t interfaceId,
 	uint8_t altSettingId
-	)
-{
-	if (!m_isOpen)
-	{
+) {
+	if (!m_isOpen) {
 		jnc::setError(err::Error(err::SystemErrorCode_InvalidDeviceState));
 		return NULL;
 	}
@@ -207,12 +193,9 @@ UsbDevice::claimInterface(
 	UsbConfigurationDesc* configDesc = (UsbConfigurationDesc*)configDescPtr.m_p;
 	UsbInterfaceDesc* ifaceDesc = configDesc->findInterfaceDesc(interfaceId, altSettingId);
 
-	if (!ifaceDesc)
-	{
+	if (!ifaceDesc) {
 		err::setError(err::SystemErrorCode_ObjectNameNotFound);
-	}
-	else
-	{
+	} else {
 		iface = createClass<UsbInterface> (runtime);
 		iface->m_parentDevice = this;
 		iface->m_interfaceDescPtr.m_p = ifaceDesc;
@@ -221,7 +204,7 @@ UsbDevice::claimInterface(
 			configDescPtr.m_validator->m_targetBox,
 			ifaceDesc,
 			sizeof(UsbInterfaceDesc)
-			);
+		);
 
 		iface->m_isClaimed = true;
 
@@ -245,10 +228,8 @@ UsbDevice::controlTransfer_0(
 	DataPtr ptr,
 	size_t size,
 	uint_t timeout
-	)
-{
-	if (!m_isOpen)
-	{
+) {
+	if (!m_isOpen) {
 		jnc::setError(err::Error(err::SystemErrorCode_InvalidDeviceState));
 		return -1;
 	}
@@ -267,20 +248,16 @@ UsbDevice::controlTransfer_1(
 	size_t size,
 	uint_t timeout,
 	FunctionPtr completionFuncPtr
-	)
-{
-	if (!m_isOpen)
-	{
+) {
+	if (!m_isOpen) {
 		jnc::setError(err::Error(err::SystemErrorCode_InvalidDeviceState));
 		return false;
 	}
 
-	if (!m_asyncControlEndpoint)
-	{
+	if (!m_asyncControlEndpoint) {
 		UsbAsyncControlEndpoint* endpoint = AXL_MEM_NEW_ARGS(UsbAsyncControlEndpoint, (&m_device));
 		bool result = endpoint->start();
-		if (!result)
-		{
+		if (!result) {
 			AXL_MEM_DELETE(endpoint);
 			return false;
 		}
@@ -297,20 +274,18 @@ UsbDevice::controlTransfer_1(
 		size,
 		timeout,
 		completionFuncPtr
-		);
+	);
 }
 
 void
 JNC_CDECL
-UsbDevice::cancelControlTransfers()
-{
+UsbDevice::cancelControlTransfers() {
 	if (m_asyncControlEndpoint)
 		m_asyncControlEndpoint->cancelTransfers();
 }
 
 bool
-UsbDevice::checkAccessByVidPid()
-{
+UsbDevice::checkAccessByVidPid() {
 	libusb_device_descriptor desc;
 
 	return
@@ -321,8 +296,7 @@ UsbDevice::checkAccessByVidPid()
 //..............................................................................
 
 DataPtr
-createUsbDeviceArray(DataPtr countPtr)
-{
+createUsbDeviceArray(DataPtr countPtr) {
 	axl::io::UsbDeviceList deviceList;
 	size_t count = deviceList.enumerateDevices();
 	if (count == -1)
@@ -339,8 +313,7 @@ createUsbDeviceArray(DataPtr countPtr)
 	UsbDevice** dstDeviceArray = (UsbDevice**) arrayPtr.m_p;
 	libusb_device** srcDeviceArray = deviceList;
 
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		UsbDevice* device = createClass<UsbDevice> (runtime);
 		device->setDevice(srcDeviceArray[i]);
 		dstDeviceArray[i] = device;
@@ -358,8 +331,7 @@ UsbDevice*
 openUsbDevice(
 	uint_t vendorId,
 	uint_t productId
-	)
-{
+) {
 	axl::io::UsbDevice srcDevice;
 
 	bool result =

@@ -25,7 +25,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	IoLibCacheSlot_File,
 	File,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(File)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<File>)
@@ -45,14 +45,12 @@ JNC_END_TYPE_FUNCTION_MAP()
 //..............................................................................
 
 FileKind
-getFileKind(const axl::io::File& file)
-{
+getFileKind(const axl::io::File& file) {
 	if (!file.isOpen())
 		return FileKind_Unknown;
 
 #if (_JNC_OS_WIN)
-	static FileKind fileKindTable[] =
-	{
+	static FileKind fileKindTable[] = {
 		FileKind_Unknown, // FILE_TYPE_UNKNOWN   (0x0000)
 		FileKind_Disk,    // FILE_TYPE_DISK      (0x0001)
 		FileKind_Serial,  // FILE_TYPE_CHAR      (0x0002)
@@ -81,8 +79,7 @@ JNC_CDECL
 File::open(
 	DataPtr namePtr,
 	uint_t flags
-	)
-{
+) {
 	close();
 
 	bool result =
@@ -98,8 +95,7 @@ File::open(
 
 void
 JNC_CDECL
-File::close()
-{
+File::close() {
 	m_file.close();
 	m_isOpen = false;
 }

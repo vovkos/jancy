@@ -18,14 +18,12 @@ namespace std {
 
 //! \import std_Buffer.jnc
 
-class Buffer
-{
+class Buffer {
 	char cmut* readonly m_p;
 	size_t readonly m_size;
 	size_t readonly m_maxSize;
 
-	char get(size_t offset)
-	{
+	char get(size_t offset) {
 		boundsCheck(offset);
 		return m_p[offset];
 	}
@@ -33,19 +31,16 @@ class Buffer
 	void set(
 		size_t offset,
 		char e
-		)
-	{
+	) {
 		boundsCheck(offset);
 		m_p[offset] = e;
 	}
 
-	void clear()
-	{
+	void clear() {
 		m_size = 0;
 	}
 
-	char* detach()
-	{
+	char* detach() {
 		char* p = m_p;
 		m_p = null;
 		m_size = 0;
@@ -59,33 +54,28 @@ class Buffer
 	size_t errorcode copy(
 		void const* p,
 		size_t size
-		);
+	);
 
-	size_t errorcode copy(char const* p)
-	{
+	size_t errorcode copy(char const* p) {
 		return copy(p, p ? strlen(p) : 0);
 	}
 
-	size_t errorcode copy(char c)
-	{
+	size_t errorcode copy(char c) {
 		return copy(&c, sizeof(c));
 	}
 
 	size_t errorcode append(
 		void const* p,
 		size_t size
-		)
-	{
+	) {
 		return insert(-1, p, size);
 	}
 
-	size_t errorcode append(char const* p)
-	{
+	size_t errorcode append(char const* p) {
 		return insert(-1, p);
 	}
 
-	size_t errorcode append(char c)
-	{
+	size_t errorcode append(char c) {
 		return insert(-1, c);
 	}
 
@@ -93,34 +83,30 @@ class Buffer
 		size_t offset,
 		void const* p,
 		size_t size
-		);
+	);
 
 	size_t errorcode insert(
 		size_t offset,
 		char const* p
-		)
-	{
+	) {
 		return insert(offset, p, p ? strlen(p) : 0);
 	}
 
 	size_t errorcode insert(
 		size_t offset,
 		char c
-		)
-	{
+	) {
 		return insert(offset, &c, sizeof(c));
 	}
 
 	size_t errorcode remove(
 		size_t offset,
 		size_t size = 1
-		);
+	);
 
 protected:
-	void boundsCheck(size_t offset)
-	{
-		if (offset >= m_size)
-		{
+	void boundsCheck(size_t offset) {
+		if (offset >= m_size) {
 			std.setError($"attempt to access out-of-bounds offset $offset (size: $m_size)");
 			throw;
 		}

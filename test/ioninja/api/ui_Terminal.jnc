@@ -10,8 +10,7 @@ namespace ui {
 
 //..............................................................................
 
-class Terminal
-{
+class Terminal {
 	uint_t readonly m_consoleWidth;
 	uint_t readonly m_consoleHeight;
 

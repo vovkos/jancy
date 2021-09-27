@@ -16,11 +16,9 @@ namespace io {
 
 //..............................................................................
 
-class PcapSignalMgr
-{
+class PcapSignalMgr {
 public:
-	enum
-	{
+	enum {
 		Signal = SIGUSR2
 	};
 
@@ -31,8 +29,7 @@ protected:
 public:
 	PcapSignalMgr();
 
-	~PcapSignalMgr()
-	{
+	~PcapSignalMgr() {
 		ASSERT(m_installCount == 0);
 	}
 
@@ -49,7 +46,7 @@ protected:
 		int signal,
 		siginfo_t* signalInfo,
 		void* context
-		);
+	);
 };
 
 //..............................................................................

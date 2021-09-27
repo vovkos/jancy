@@ -15,8 +15,7 @@
 
 //..............................................................................
 
-class MainWindow : public QMainWindow
-{
+class MainWindow : public QMainWindow {
 	Q_OBJECT
 
 protected:
@@ -29,8 +28,7 @@ protected:
 public:
 	MainWindow(QWidget* parent = NULL, Qt::WindowFlags flags = 0);
 
-	QSize sizeHint() const
-	{
+	QSize sizeHint() const {
 		return QSize(800, 600);
 	}
 
@@ -40,8 +38,7 @@ public:
 	int output_va(const char* format, va_list va);
 	int output(const char* format, ...);
 
-	QString readOutput()
-	{
+	QString readOutput() {
 		return m_output->toPlainText();
 	}
 

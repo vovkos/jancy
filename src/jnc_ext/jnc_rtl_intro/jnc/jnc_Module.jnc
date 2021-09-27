@@ -16,8 +16,7 @@ namespace jnc {
 
 //..............................................................................
 
-bitflag enum ModuleCompileFlags
-{
+bitflag enum ModuleCompileFlags {
 	DebugInfo                     = 0x00000001,
 	McJit                         = 0x00000002,
 	SimpleGcSafePoint             = 0x00000004,
@@ -35,8 +34,7 @@ bitflag enum ModuleCompileFlags
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum ModuleCompileState
-{
+enum ModuleCompileState {
 	Idle,
 	Linked,
 	LayoutCalculated,
@@ -46,8 +44,7 @@ enum ModuleCompileState
 
 //..............................................................................
 
-opaque class Module
-{
+opaque class Module {
 	ModuleCompileFlags const property m_compileFlags;
 	ModuleCompileState const property m_compileState;
 	GlobalNamespace* const property m_globalNamespace;
@@ -58,8 +55,7 @@ opaque class Module
 
 //..............................................................................
 
-opaque class Unit
-{
+opaque class Unit {
 	char const* const property m_filePath;
 
 	construct(intptr p);

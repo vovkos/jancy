@@ -23,8 +23,7 @@
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	int a[] = { 10, 20, 30 }

@@ -14,8 +14,7 @@ using extension ui.ComboBoxHistory;
 
 class UdpFlowLayer:
 	doc.Layer,
-	log.Converter
-{
+	log.Converter {
 protected:
 	// udp decoding
 
@@ -47,16 +46,14 @@ public:
 		uint64_t recordCode,
 		void const* p,
 		size_t size
-		);
+	);
 
-	override void reset()
-	{
+	override void reset() {
 		m_decoder.reset();
 	}
 
 protected:
-	void onSetViewFilter()
-	{
+	void onSetViewFilter() {
 		try applyViewFilter(true);
 	}
 
@@ -66,8 +63,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-UdpFlowLayer.construct(doc.PluginHost* pluginHost)
-{
+UdpFlowLayer.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
 
 	createUi();
@@ -76,8 +72,7 @@ UdpFlowLayer.construct(doc.PluginHost* pluginHost)
 	pluginHost.m_log.addFilter(m_filter);
 }
 
-void UdpFlowLayer.createUi()
-{
+void UdpFlowLayer.createUi() {
 	// toolbar
 
 	m_pluginHost.m_toolBar.addLabel("Filter:");
@@ -96,27 +91,25 @@ void UdpFlowLayer.createUi()
 		"View filter",
 		"Enter a filter address...",
 		"Only show packets matching this address"
-		);
+	);
 
 	m_ipFragmentLimitProp  = m_pluginHost.m_propertyGrid.createIntProperty(
 		"IP fragment limit",
 		"Specify the maximum number of IP fragments"
-		);
+	);
 
 	m_ipFragmentTimeoutProp  = m_pluginHost.m_propertyGrid.createIntProperty(
 		"IP fragment timeout (ms)",
 		"Specify the maximum delay between IP fragments"
-		);
+	);
 }
 
-bool errorcode UdpFlowLayer.applyViewFilter(bool rebuildLog)
-{
+bool errorcode UdpFlowLayer.applyViewFilter(bool rebuildLog) {
 	m_pluginHost.m_log.suspend();
 	bool result = try m_filter.setFilter(m_viewFilterCombo.m_editText);
 	m_pluginHost.m_log.resume();
 
-	if (!result)
-	{
+	if (!result) {
 		m_viewFilterCombo.m_backgroundColor = ui.StdColor.PastelRed;
 		return false;
 	}
@@ -130,8 +123,7 @@ bool errorcode UdpFlowLayer.applyViewFilter(bool rebuildLog)
 	return true;
 }
 
-void UdpFlowLayer.load(doc.Storage* storage)
-{
+void UdpFlowLayer.load(doc.Storage* storage) {
 	m_viewFilterCombo.loadHistory(storage, "viewFilterHistory");
 	m_viewFilterCombo.m_editText = storage.readString("viewFilter");
 	m_ipFragmentLimitProp.m_value = storage.readInt("ipFragmentLimit", io.IpDefragmenter.Defaults.FragmentLimit);
@@ -141,29 +133,25 @@ void UdpFlowLayer.load(doc.Storage* storage)
 	try applyViewFilter();
 }
 
-void UdpFlowLayer.save(doc.Storage* storage)
-{
+void UdpFlowLayer.save(doc.Storage* storage) {
 	m_viewFilterCombo.saveHistory(storage, "viewFilterHistory");
 	storage.writeString("viewFilter", m_viewFilterCombo.m_editText);
 	storage.writeInt("ipFragmentLimit", m_ipFragmentLimitProp.m_value);
 	storage.writeInt("ipFragmentTimeout", m_ipFragmentTimeoutProp.m_value);
 }
 
-void UdpFlowLayer.updateProperties()
-{
+void UdpFlowLayer.updateProperties() {
 	m_viewFilterProp.m_value = m_viewFilterCombo.m_editText;
 }
 
-bool errorcode UdpFlowLayer.applyProperties()
-{
+bool errorcode UdpFlowLayer.applyProperties() {
 	m_viewFilterCombo.m_editText = m_viewFilterProp.m_value;
 	m_decoder.setupDefragmenter(m_ipFragmentLimitProp.m_value, m_ipFragmentTimeoutProp.m_value);
 	applyViewFilter();
 	return true;
 }
 
-void UdpFlowLayer.restoreDefaultProperties()
-{
+void UdpFlowLayer.restoreDefaultProperties() {
 	m_ipFragmentLimitProp.m_value = io.IpDefragmenter.Defaults.FragmentLimit;
 	m_ipFragmentTimeoutProp.m_value = io.IpDefragmenter.Defaults.FragmentTimeout;
 }
@@ -174,15 +162,13 @@ bool UdpFlowLayer.convert(
 	uint64_t recordCode,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	g_logWriter = writer;
 	g_logTimestamp = timestamp;
 
 	bool result = true;
 
-	switch (recordCode)
-	{
+	switch (recordCode) {
 	case log.StdRecordCode.SessionStarted:
 		m_decoder.reset();
 		result = false;

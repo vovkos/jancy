@@ -16,44 +16,37 @@ namespace io {
 
 //..............................................................................
 
-union UsbVidPid
-{
+union UsbVidPid {
 	uint32_t m_vidPid;
 
-	struct
-	{
+	struct {
 		uint16_t m_vid;
 		uint16_t m_pid;
 	};
 
-	UsbVidPid()
-	{
+	UsbVidPid() {
 		m_vidPid = 0;
 	}
 
-	UsbVidPid(uint32_t vidPid)
-	{
+	UsbVidPid(uint32_t vidPid) {
 		m_vidPid = vidPid;
 	}
 
 	UsbVidPid(
 		uint16_t vid,
 		uint16_t pid
-		)
-	{
+	) {
 		m_vid = vid;
 		m_pid = pid;
 	}
 
 	size_t
-	hash() const
-	{
+	hash() const {
 		return m_vidPid;
 	}
 
 	bool
-	isEqual(const UsbVidPid& src) const
-	{
+	isEqual(const UsbVidPid& src) const {
 		return m_vidPid == src.m_vidPid;
 	}
 };
@@ -65,14 +58,13 @@ typedef sl::HashTable<
 	bool,
 	sl::HashDuckType<UsbVidPid>,
 	sl::EqDuckType<UsbVidPid>
-	> UsbVidPidSet;
+> UsbVidPidSet;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
 UsbVidPidSet*
-getEnabledUsbVidPidSet()
-{
+getEnabledUsbVidPidSet() {
 	return sl::getSingleton<UsbVidPidSet>();
 }
 
@@ -81,15 +73,13 @@ void
 enableUsbDeviceAccess(
 	uint16_t vid,
 	uint16_t pid
-	)
-{
+) {
 	getEnabledUsbVidPidSet()->add(UsbVidPid(vid, pid), true);
 }
 
 inline
 void
-enableUsbDeviceAccess(uint32_t vidPid)
-{
+enableUsbDeviceAccess(uint32_t vidPid) {
 	getEnabledUsbVidPidSet()->add(vidPid, true);
 }
 
@@ -102,8 +92,7 @@ bool
 checkUsbDeviceAccess(
 	uint16_t vid,
 	uint16_t pid
-	)
-{
+) {
 	return
 		g_canAccessAllUsbDevices ||
 		getEnabledUsbVidPidSet()->find(UsbVidPid(vid, pid)) ||

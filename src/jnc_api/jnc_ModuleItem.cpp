@@ -23,10 +23,8 @@
 JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
-jnc_getModuleItemKindString(jnc_ModuleItemKind itemKind)
-{
-	static const char* stringTable[jnc_ModuleItemKind__Count] =
-	{
+jnc_getModuleItemKindString(jnc_ModuleItemKind itemKind) {
+	static const char* stringTable[jnc_ModuleItemKind__Count] = {
 		"undefined-module-item-kind",  // ModuleItemKind_Undefined = 0,
 		"namespace",                   // ModuleItemKind_Namespace,
 		"attribute",                   // ModuleItemKind_Attribute,
@@ -57,10 +55,8 @@ jnc_getModuleItemKindString(jnc_ModuleItemKind itemKind)
 JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
-jnc_getStorageKindString(jnc_StorageKind storageKind)
-{
-	static const char* stringTable[jnc_StorageKind__Count] =
-	{
+jnc_getStorageKindString(jnc_StorageKind storageKind) {
+	static const char* stringTable[jnc_StorageKind__Count] = {
 		"undefined-storage-class",  // StorageKind_Undefined = 0,
 		"alias",                    // StorageKind_Alias,
 		"typedef",                  // StorageKind_Typedef,
@@ -85,10 +81,8 @@ jnc_getStorageKindString(jnc_StorageKind storageKind)
 JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
-jnc_getAccessKindString(jnc_AccessKind accessKind)
-{
-	static const char* stringTable[jnc_AccessKind__Count] =
-	{
+jnc_getAccessKindString(jnc_AccessKind accessKind) {
+	static const char* stringTable[jnc_AccessKind__Count] = {
 		"undefined-access-kind", // AccessKind_Undefined = 0,
 		"public",                // AccessKind_Public,
 		"protected",             // AccessKind_Protected,
@@ -105,64 +99,55 @@ jnc_getAccessKindString(jnc_AccessKind accessKind)
 
 JNC_EXTERN_C
 const char*
-jnc_ModuleItemDecl_getName(jnc_ModuleItemDecl* decl)
-{
+jnc_ModuleItemDecl_getName(jnc_ModuleItemDecl* decl) {
 	return jnc_g_dynamicExtensionLibHost->m_moduleItemDeclFuncTable->m_getNameFunc(decl);
 }
 
 JNC_EXTERN_C
 const char*
-jnc_ModuleItemDecl_getQualifiedName(jnc_ModuleItemDecl* decl)
-{
+jnc_ModuleItemDecl_getQualifiedName(jnc_ModuleItemDecl* decl) {
 	return jnc_g_dynamicExtensionLibHost->m_moduleItemDeclFuncTable->m_getQualifiedNameFunc(decl);
 }
 
 JNC_EXTERN_C
 jnc_StorageKind
-jnc_ModuleItemDecl_getStorageKind(jnc_ModuleItemDecl* decl)
-{
+jnc_ModuleItemDecl_getStorageKind(jnc_ModuleItemDecl* decl) {
 	return jnc_g_dynamicExtensionLibHost->m_moduleItemDeclFuncTable->m_getStorageKindFunc(decl);
 }
 
 JNC_EXTERN_C
 jnc_AccessKind
-jnc_ModuleItemDecl_getAccessKind(jnc_ModuleItemDecl* decl)
-{
+jnc_ModuleItemDecl_getAccessKind(jnc_ModuleItemDecl* decl) {
 	return jnc_g_dynamicExtensionLibHost->m_moduleItemDeclFuncTable->m_getAccessKindFunc(decl);
 }
 
 JNC_EXTERN_C
 jnc_AttributeBlock*
-jnc_ModuleItemDecl_getAttributeBlock(jnc_ModuleItemDecl* decl)
-{
+jnc_ModuleItemDecl_getAttributeBlock(jnc_ModuleItemDecl* decl) {
 	return jnc_g_dynamicExtensionLibHost->m_moduleItemDeclFuncTable->m_getAttributeBlockFunc(decl);
 }
 
 JNC_EXTERN_C
 jnc_Namespace*
-jnc_ModuleItemDecl_getParentNamespace(jnc_ModuleItemDecl* decl)
-{
+jnc_ModuleItemDecl_getParentNamespace(jnc_ModuleItemDecl* decl) {
 	return jnc_g_dynamicExtensionLibHost->m_moduleItemDeclFuncTable->m_getParentNamespaceFunc(decl);
 }
 
 JNC_EXTERN_C
 jnc_Unit*
-jnc_ModuleItemDecl_getParentUnit(jnc_ModuleItemDecl* decl)
-{
+jnc_ModuleItemDecl_getParentUnit(jnc_ModuleItemDecl* decl) {
 	return jnc_g_dynamicExtensionLibHost->m_moduleItemDeclFuncTable->m_getParentUnitFunc(decl);
 }
 
 JNC_EXTERN_C
 int
-jnc_ModuleItemDecl_getLine(jnc_ModuleItemDecl* decl)
-{
+jnc_ModuleItemDecl_getLine(jnc_ModuleItemDecl* decl) {
 	return jnc_g_dynamicExtensionLibHost->m_moduleItemDeclFuncTable->m_getLineFunc(decl);
 }
 
 JNC_EXTERN_C
 int
-jnc_ModuleItemDecl_getCol(jnc_ModuleItemDecl* decl)
-{
+jnc_ModuleItemDecl_getCol(jnc_ModuleItemDecl* decl) {
 	return jnc_g_dynamicExtensionLibHost->m_moduleItemDeclFuncTable->m_getColFunc(decl);
 }
 
@@ -170,43 +155,37 @@ jnc_ModuleItemDecl_getCol(jnc_ModuleItemDecl* decl)
 
 JNC_EXTERN_C
 jnc_Module*
-jnc_ModuleItem_getModule(jnc_ModuleItem* item)
-{
+jnc_ModuleItem_getModule(jnc_ModuleItem* item) {
 	return jnc_g_dynamicExtensionLibHost->m_moduleItemFuncTable->m_getModuleFunc(item);
 }
 
 JNC_EXTERN_C
 jnc_ModuleItemKind
-jnc_ModuleItem_getItemKind(jnc_ModuleItem* item)
-{
+jnc_ModuleItem_getItemKind(jnc_ModuleItem* item) {
 	return jnc_g_dynamicExtensionLibHost->m_moduleItemFuncTable->m_getItemKindFunc(item);
 }
 
 JNC_EXTERN_C
 uint_t
-jnc_ModuleItem_getFlags(jnc_ModuleItem* item)
-{
+jnc_ModuleItem_getFlags(jnc_ModuleItem* item) {
 	return jnc_g_dynamicExtensionLibHost->m_moduleItemFuncTable->m_getFlagsFunc(item);
 }
 
 JNC_EXTERN_C
 jnc_ModuleItemDecl*
-jnc_ModuleItem_getDecl(jnc_ModuleItem* item)
-{
+jnc_ModuleItem_getDecl(jnc_ModuleItem* item) {
 	return jnc_g_dynamicExtensionLibHost->m_moduleItemFuncTable->m_getDeclFunc(item);
 }
 
 JNC_EXTERN_C
 jnc_Namespace*
-jnc_ModuleItem_getNamespace(jnc_ModuleItem* item)
-{
+jnc_ModuleItem_getNamespace(jnc_ModuleItem* item) {
 	return jnc_g_dynamicExtensionLibHost->m_moduleItemFuncTable->m_getNamespaceFunc(item);
 }
 
 JNC_EXTERN_C
 jnc_Type*
-jnc_ModuleItem_getType(jnc_ModuleItem* item)
-{
+jnc_ModuleItem_getType(jnc_ModuleItem* item) {
 	return jnc_g_dynamicExtensionLibHost->m_moduleItemFuncTable->m_getTypeFunc(item);
 }
 
@@ -215,15 +194,13 @@ const char*
 jnc_ModuleItem_getSynopsis_v(
 	jnc_ModuleItem* item,
 	bool_t isQualifiedName
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_moduleItemFuncTable->m_getSynopsisFunc(item, isQualifiedName);
 }
 
 JNC_EXTERN_C
 bool_t
-jnc_ModuleItem_require(jnc_ModuleItem* item)
-{
+jnc_ModuleItem_require(jnc_ModuleItem* item) {
 	return jnc_g_dynamicExtensionLibHost->m_moduleItemFuncTable->m_requireFunc(item);
 }
 
@@ -234,72 +211,63 @@ jnc_ModuleItem_require(jnc_ModuleItem* item)
 JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
-jnc_ModuleItemDecl_getName(jnc_ModuleItemDecl* decl)
-{
+jnc_ModuleItemDecl_getName(jnc_ModuleItemDecl* decl) {
 	return decl->getName();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
-jnc_ModuleItemDecl_getQualifiedName(jnc_ModuleItemDecl* decl)
-{
+jnc_ModuleItemDecl_getQualifiedName(jnc_ModuleItemDecl* decl) {
 	return decl->getQualifiedName();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_StorageKind
-jnc_ModuleItemDecl_getStorageKind(jnc_ModuleItemDecl* decl)
-{
+jnc_ModuleItemDecl_getStorageKind(jnc_ModuleItemDecl* decl) {
 	return decl->getStorageKind();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_AccessKind
-jnc_ModuleItemDecl_getAccessKind(jnc_ModuleItemDecl* decl)
-{
+jnc_ModuleItemDecl_getAccessKind(jnc_ModuleItemDecl* decl) {
 	return decl->getAccessKind();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_AttributeBlock*
-jnc_ModuleItemDecl_getAttributeBlock(jnc_ModuleItemDecl* decl)
-{
+jnc_ModuleItemDecl_getAttributeBlock(jnc_ModuleItemDecl* decl) {
 	return decl->getAttributeBlock();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Namespace*
-jnc_ModuleItemDecl_getParentNamespace(jnc_ModuleItemDecl* decl)
-{
+jnc_ModuleItemDecl_getParentNamespace(jnc_ModuleItemDecl* decl) {
 	return decl->getParentNamespace();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Unit*
-jnc_ModuleItemDecl_getParentUnit(jnc_ModuleItemDecl* decl)
-{
+jnc_ModuleItemDecl_getParentUnit(jnc_ModuleItemDecl* decl) {
 	return decl->getParentUnit();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 int
-jnc_ModuleItemDecl_getLine(jnc_ModuleItemDecl* decl)
-{
+jnc_ModuleItemDecl_getLine(jnc_ModuleItemDecl* decl) {
 	return decl->getPos().m_line;
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 int
-jnc_ModuleItemDecl_getCol(jnc_ModuleItemDecl* decl)
-{
+jnc_ModuleItemDecl_getCol(jnc_ModuleItemDecl* decl) {
 	return decl->getPos().m_col;
 }
 
@@ -309,16 +277,14 @@ const char*
 jnc_ModuleItem_getSynopsis_v(
 	jnc_ModuleItem* item,
 	bool_t isQualifiedName
-	)
-{
+) {
 	return *jnc::getTlsStringBuffer() = item->getSynopsis(isQualifiedName != 0);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
-jnc_ModuleItem_require(jnc_ModuleItem* item)
-{
+jnc_ModuleItem_require(jnc_ModuleItem* item) {
 	return item->require();
 }
 
@@ -327,48 +293,42 @@ jnc_ModuleItem_require(jnc_ModuleItem* item)
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Module*
-jnc_ModuleItem_getModule(jnc_ModuleItem* item)
-{
+jnc_ModuleItem_getModule(jnc_ModuleItem* item) {
 	return item->getModule();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_ModuleItemKind
-jnc_ModuleItem_getItemKind(jnc_ModuleItem* item)
-{
+jnc_ModuleItem_getItemKind(jnc_ModuleItem* item) {
 	return item->getItemKind();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 uint_t
-jnc_ModuleItem_getFlags(jnc_ModuleItem* item)
-{
+jnc_ModuleItem_getFlags(jnc_ModuleItem* item) {
 	return item->getFlags();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_ModuleItemDecl*
-jnc_ModuleItem_getDecl(jnc_ModuleItem* item)
-{
+jnc_ModuleItem_getDecl(jnc_ModuleItem* item) {
 	return item->getDecl();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Namespace*
-jnc_ModuleItem_getNamespace(jnc_ModuleItem* item)
-{
+jnc_ModuleItem_getNamespace(jnc_ModuleItem* item) {
 	return item->getNamespace();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Type*
-jnc_ModuleItem_getType(jnc_ModuleItem* item)
-{
+jnc_ModuleItem_getType(jnc_ModuleItem* item) {
 	return item->getType();
 }
 

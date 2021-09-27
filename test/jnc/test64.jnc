@@ -9,8 +9,7 @@
 //
 //..............................................................................
 
-struct Foo
-{
+struct Foo {
 	char const* m_name;
 	char const* m_description;
 }
@@ -20,13 +19,11 @@ struct Foo
 void bar(
 	char const* a,
 	char const* b
-	)
-{
+) {
 	printf("a = %s; b = %s\n", a, b);
 }
 
-void baz()
-{
+void baz() {
 	Foo* foo = new Foo;
 	foo.m_name = "name";
 	foo.m_description = "description";
@@ -36,15 +33,14 @@ void baz()
 	bar(
 		b ? foo.m_name : foo.m_description,
 		b ? foo.m_description : foo.m_name
-		);
+	);
 }
 
 //..............................................................................
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	baz();

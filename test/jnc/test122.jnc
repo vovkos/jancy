@@ -1,13 +1,11 @@
 // async errorcode/exception testing
 
-bool errorcode async asyncOpen(int x)
-{
+bool errorcode async asyncOpen(int x) {
 	printf("asyncOpen(%d)\n", x);
 	return true;
 }
 
-int errorcode async asyncFoo(int x)
-{
+int errorcode async asyncFoo(int x) {
 	printf("asyncFoo(%d)\n", x);
 
 	printf("  opening...\n");
@@ -21,8 +19,7 @@ catch:
 	return -1;
 }
 
-int main()
-{
+int main() {
 	jnc.Promise* promise = asyncFoo(10);
 	int result = promise.blockingWait();
 	printf("result: %d\n", result);

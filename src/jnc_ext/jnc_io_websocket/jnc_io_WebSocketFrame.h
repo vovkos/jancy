@@ -16,8 +16,7 @@ namespace io {
 
 //..............................................................................
 
-enum WebSocketFrameOpcode
-{
+enum WebSocketFrameOpcode {
 	WebSocketFrameOpcode_Continuation = 0x0,
 	WebSocketFrameOpcode_Text         = 0x1,
 	WebSocketFrameOpcode_Binary       = 0x2,
@@ -30,12 +29,9 @@ enum WebSocketFrameOpcode
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct WebSocketFrameHdr
-{
-	union
-	{
-		struct
-		{
+struct WebSocketFrameHdr {
+	union {
+		struct {
 			uchar_t m_opcode     : 4;
 			uchar_t m_reserved   : 3;
 			uchar_t m_fin        : 1;
@@ -49,14 +45,12 @@ struct WebSocketFrameHdr
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct WebSocketFrame: WebSocketFrameHdr
-{
+struct WebSocketFrame: WebSocketFrameHdr {
 	size_t m_payloadLength;
 	uint32_t m_maskKey;
 	sl::Array<char> m_payload;
 
-	WebSocketFrame()
-	{
+	WebSocketFrame() {
 		clear();
 	}
 
@@ -66,14 +60,12 @@ struct WebSocketFrame: WebSocketFrameHdr
 
 //..............................................................................
 
-struct WebSocketMessage
-{
+struct WebSocketMessage {
 	WebSocketFrameOpcode m_opcode;
 	size_t m_frameCount;
 	sl::Array<char> m_payload;
 
-	WebSocketMessage()
-	{
+	WebSocketMessage() {
 		clear();
 	}
 
@@ -89,8 +81,7 @@ mask(
 	void* buffer,
 	size_t size,
 	uint32_t key
-	)
-{
+) {
 	uint32_t* p = (uint32_t*)buffer;
 	uint32_t* end = (uint32_t*)((char*)buffer + size);
 
@@ -106,7 +97,7 @@ buildWebSocketFrame(
 	bool isMasked,
 	const void* p,
 	size_t size
-	);
+);
 
 inline
 sl::Array<char>
@@ -116,8 +107,7 @@ buildWebSocketFrame(
 	bool isMasked,
 	const void* p,
 	size_t size
-	)
-{
+) {
 	sl::Array<char> buffer;
 	buildWebSocketFrame(&buffer, opcode, isFinal, isMasked, p, size);
 	return buffer;

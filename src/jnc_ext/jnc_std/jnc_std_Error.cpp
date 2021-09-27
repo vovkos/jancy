@@ -24,7 +24,7 @@ JNC_DEFINE_TYPE(
 	"std.Error",
 	g_stdLibGuid,
 	StdLibCacheSlot_Error
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Error)
 	JNC_MAP_CONST_PROPERTY("m_description", Error::getDescription_s)
@@ -33,8 +33,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 //..............................................................................
 
 DataPtr
-Error::getDescription()
-{
+Error::getDescription() {
 	sl::String string = err::ErrorHdr::getDescription();
 	return strDup(string, string.getLength());
 }

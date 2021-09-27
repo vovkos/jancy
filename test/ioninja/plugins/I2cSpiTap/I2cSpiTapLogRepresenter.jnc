@@ -14,10 +14,8 @@ bool representI2cSpiTapLog(
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
-	switch (recordCode)
-	{
+) {
+	switch (recordCode) {
 	case I2cSpiTapLogRecordCode.DeviceOpened:
 		char const* name = (char const*) p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
@@ -106,8 +104,8 @@ bool representI2cSpiTapLog(
 				isRead ? "read" : "write",
 				isAck ? "34" : "34;9",
 				(hdr & 0xfe) >> 1
-				)
-			);
+			)
+		);
 
 		representation.m_lineAttr.m_iconIdx = isRead ? log.StdLogIcon.Rx : log.StdLogIcon.Tx;
 		representation.m_lineAttr.m_backColor = ui.ColorFlags.Transparent;
@@ -128,8 +126,8 @@ bool representI2cSpiTapLog(
 				isRead ? "read" : "write",
 				isAck1 && isAck2 ? "34" : "34;9",
 				((hdr & 0x06) << 7) | ((hdr & 0xff00) >> 8)
-				)
-			);
+			)
+		);
 
 		representation.m_lineAttr.m_iconIdx = isRead ? log.StdLogIcon.Rx : log.StdLogIcon.Tx;
 		representation.m_lineAttr.m_backColor = ui.ColorFlags.Transparent;
@@ -139,13 +137,10 @@ bool representI2cSpiTapLog(
 		ui.FontFlags fontFlags1 = isAck1 ? 0 : ui.FontFlags.Strikeout;
 		ui.FontFlags fontFlags2 = isAck2 ? 0 : ui.FontFlags.Strikeout;
 
-		if (fontFlags1 == fontFlags2)
-		{
+		if (fontFlags1 == fontFlags2) {
 			representation.m_lineAttr.m_fontFlags = fontFlags1;
 			representation.addBin(binRecordCode, p, 2);
-		}
-		else
-		{
+		} else {
 			representation.m_lineAttr.m_fontFlags = fontFlags1;
 			representation.addBin(binRecordCode, p, 1);
 			representation.m_lineAttr.m_fontFlags = fontFlags2;

@@ -8,8 +8,7 @@ import "UdpFlowLogRecordCode.jnc"
 
 //..............................................................................
 
-class UdpFlowLogFilter: log.Filter
-{
+class UdpFlowLogFilter: log.Filter {
 protected:
 	io.SocketAddress m_filterAddress;
 	bool m_isMatch;
@@ -20,8 +19,7 @@ public:
 	bool errorcode setFilter(char const* filter);
 
 protected:
-	override void reset()
-	{
+	override void reset() {
 		m_isMatch = false;
 	}
 
@@ -30,13 +28,12 @@ protected:
 		uint64_t recordCode,
 		void const* p,
 		size_t size
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bool errorcode UdpFlowLogFilter.setFilter(char const* filter)
-{
+bool errorcode UdpFlowLogFilter.setFilter(char const* filter) {
 	if (filter)
 		return m_filterAddress.parse(filter);
 
@@ -49,13 +46,11 @@ bool UdpFlowLogFilter.filter(
 	uint64_t recordCode,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	if (!m_filterAddress.m_family) // empty address means, filtering is off
 		return true;
 
-	switch (recordCode)
-	{
+	switch (recordCode) {
 	case UdpFlowLogRecordCode.Packet:
 		UdpFlowPacketParams const* params = (UdpFlowPacketParams const*)p;
 

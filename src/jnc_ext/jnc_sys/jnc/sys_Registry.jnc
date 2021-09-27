@@ -16,8 +16,7 @@ namespace sys {
 
 //..............................................................................
 
-enum RegStdKey
-{
+enum RegStdKey {
 	ClassesRoot              = 0x80000000,
 	CurrentUser              = 0x80000001,
 	LocalMachine             = 0x80000002,
@@ -30,8 +29,7 @@ enum RegStdKey
 	CurrentUserLocalSettings = 0x80000007,
 }
 
-enum RegValueType
-{
+enum RegValueType {
 	None                     = 0,
 	Sz                       = 1,
 	ExpandSz                 = 2,
@@ -46,15 +44,13 @@ enum RegValueType
 	Qword                    = 11,
 }
 
-enum RegKeyAccess
-{
+enum RegKeyAccess {
 	All   = 0x01f003f,
 	Read  = 0x0020019,
 	Write = 0x0020006,
 }
 
-opaque class RegKey
-{
+opaque class RegKey {
 	construct();
 	destruct();
 
@@ -64,29 +60,29 @@ opaque class RegKey
 	bool errorcode create(
 		RegStdKey parent,
 		char const* path
-		);
+	);
 
 	bool errorcode create(
 		RegKey* parent,
 		char const* path
-		);
+	);
 
 	bool errorcode open(
 		RegStdKey parent,
 		char const* path,
 		RegKeyAccess access = RegKeyAccess.All
-		);
+	);
 
 	bool errorcode open(
 		RegKey* parent,
 		char const* path,
 		RegKeyAccess access = RegKeyAccess.All
-		);
+	);
 
 	void const* errorcode read(
 		char const* name,
 		RegValueType* type = null
-		);
+	);
 
 	uint32_t readDword(char const* name);
 	char const* readString(char const* name);
@@ -96,20 +92,19 @@ opaque class RegKey
 		RegValueType type,
 		void const* data,
 		size_t size
-		);
+	);
 
 	bool errorcode writeDword(
 		char const* name,
 		uint32_t value
-		)
-	{
+	) {
 		return write(name, RegValueType.Dword, &value, sizeof(value));
 	}
 
 	bool errorcode writeString(
 		char const* name,
 		char const* value
-		);
+	);
 }
 
 //..............................................................................

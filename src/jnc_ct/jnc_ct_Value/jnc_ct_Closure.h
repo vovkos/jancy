@@ -23,35 +23,30 @@ class PropertyPtrType;
 
 //..............................................................................
 
-class Closure: public rc::RefCount
-{
+class Closure: public rc::RefCount {
 protected:
 	sl::BoxList<Value> m_argValueList;
 	Value* m_thisArgValue;
 	size_t m_thisArgIdx;
 
 public:
-	Closure()
-	{
+	Closure() {
 		m_thisArgValue = NULL;
 		m_thisArgIdx = -1;
 	}
 
 	sl::BoxList<Value>*
-	getArgValueList()
-	{
+	getArgValueList() {
 		return &m_argValueList;
 	}
 
 	bool
-	isMemberClosure()
-	{
+	isMemberClosure() {
 		return m_thisArgIdx != -1;
 	}
 
 	size_t
-	getThisArgIdx()
-	{
+	getThisArgIdx() {
 		return m_thisArgIdx;
 	}
 
@@ -65,8 +60,7 @@ public:
 	insertThisArgValue(const Value& thisValue);
 
 	bool
-	isSimpleClosure()
-	{
+	isSimpleClosure() {
 		return isMemberClosure() && m_argValueList.getCount() == 1;
 	}
 
@@ -95,7 +89,7 @@ public:
 	getArgTypeArray(
 		Module* module,
 		sl::Array<FunctionArg*>* argArray
-		);
+	);
 };
 
 //..............................................................................

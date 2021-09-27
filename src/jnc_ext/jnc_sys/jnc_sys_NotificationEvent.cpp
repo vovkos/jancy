@@ -26,7 +26,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	SysLibCacheSlot_NotificationEvent,
 	NotificationEvent,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(NotificationEvent)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<NotificationEvent>)

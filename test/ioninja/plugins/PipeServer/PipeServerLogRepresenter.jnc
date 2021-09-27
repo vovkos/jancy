@@ -14,10 +14,8 @@ bool representPipeServerLog  (
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
-	switch (recordCode)
-	{
+) {
+	switch (recordCode) {
 	case PipeServerLogRecordCode.Listening:
 		char const* name = (char const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Listen;
@@ -74,7 +72,7 @@ bool representPipeServerLog  (
 			$"Client ID \e[34m0x%llX\e[m diconnected (closed by %2 node)"(
 			params.m_id,
 			initiator
-			));
+		));
 		break;
 
 	case PipeServerLogRecordCode.ClientChanged:

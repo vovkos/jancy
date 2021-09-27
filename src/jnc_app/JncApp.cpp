@@ -19,14 +19,14 @@
 JNC_DEFINE_GUID	(
 	g_jncLibGuid,
 	0x39b98823, 0xe9f, 0x4c72, 0xbc, 0x77, 0xa2, 0x54, 0xe8, 0x55, 0x92, 0x5f
-	);
+);
 
 JNC_DEFINE_LIB(
 	JncLib,
 	g_jncLibGuid,
 	"JncLib",
 	"Jancy CLI executable extension library"
-	)
+)
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE(JncLib)
 JNC_END_LIB_SOURCE_FILE_TABLE()
@@ -39,14 +39,12 @@ JNC_END_LIB_FUNCTION_MAP()
 
 //..............................................................................
 
-JncApp::JncApp(CmdLine* cmdLine)
-{
+JncApp::JncApp(CmdLine* cmdLine) {
 	m_cmdLine = cmdLine;
 	m_module->initialize("jnc_module", cmdLine->m_compileFlags);
 	m_module->setCompileErrorHandler(compileErrorHandler, this);
 
-	if (!(cmdLine->m_compileFlags & jnc::ModuleCompileFlag_StdLibDoc))
-	{
+	if (!(cmdLine->m_compileFlags & jnc::ModuleCompileFlag_StdLibDoc)) {
 		m_module->addStaticLib(jnc::StdLib_getLib());
 		m_module->addStaticLib(jnc::SysLib_getLib());
 		m_module->addStaticLib(JncLib_getLib());
@@ -74,25 +72,21 @@ bool_t
 JncApp::compileErrorHandler(
 	void* context,
 	jnc::ModuleCompileErrorKind errorKind
-	)
-{
+) {
 	JncApp* self = (JncApp*)context;
 	fprintf(stderr, "%s\n", jnc::getLastError()->getDescription().sz());
 	return true;
 }
 
 bool
-JncApp::parse()
-{
+JncApp::parse() {
 	bool result;
 
-	if (m_cmdLine->m_flags & JncFlag_StdInSrc)
-	{
+	if (m_cmdLine->m_flags & JncFlag_StdInSrc) {
 #if (_JNC_OS_WIN)
 		int stdInFile = _fileno(stdin);
 #endif
-		for (;;)
-		{
+		for (;;) {
 			char buffer[1024];
 #if (_JNC_OS_WIN)
 			int size = _read(stdInFile, buffer, sizeof(buffer));
@@ -112,14 +106,11 @@ JncApp::parse()
 		result = m_module->parse(srcName, m_stdInBuffer, m_stdInBuffer.getCount());
 		if (!result)
 			return false;
-	}
-	else
-	{
+	} else {
 		sl::BoxIterator<sl::String> fileNameIt = m_cmdLine->m_fileNameList.getHead();
 		ASSERT(fileNameIt);
 
-		for (; fileNameIt; fileNameIt++)
-		{
+		for (; fileNameIt; fileNameIt++) {
 			result = m_module->parseFile(*fileNameIt);
 			if (!result)
 				return false;
@@ -130,8 +121,7 @@ JncApp::parse()
 }
 
 bool
-JncApp::runFunction(int* returnValue)
-{
+JncApp::runFunction(int* returnValue) {
 	bool result;
 
 	jnc::FindModuleItemResult findResult = m_module->getGlobalNamespace()->getNamespace()->findItem(m_cmdLine->m_functionName);
@@ -141,8 +131,7 @@ JncApp::runFunction(int* returnValue)
 	jnc::FunctionType* functionType = function->getType();
 	jnc::TypeKind returnTypeKind = functionType->getReturnType()->getTypeKind();
 	size_t argCount = functionType->getArgCount();
-	if (returnTypeKind != jnc::TypeKind_Void && returnTypeKind != jnc::TypeKind_Int || argCount)
-	{
+	if (returnTypeKind != jnc::TypeKind_Void && returnTypeKind != jnc::TypeKind_Int || argCount) {
 		err::setFormatStringError("'%s' has invalid signature: %s\n", m_cmdLine->m_functionName.sz(), functionType->getTypeString());
 		return false;
 	}
@@ -153,12 +142,9 @@ JncApp::runFunction(int* returnValue)
 	if (!result)
 		return false;
 
-	if (returnTypeKind == jnc::TypeKind_Int)
-	{
+	if (returnTypeKind == jnc::TypeKind_Int) {
 		result = jnc::callFunction(m_runtime, function, returnValue);
-	}
-	else
-	{
+	} else {
 		result = jnc::callVoidFunction(m_runtime, function);
 		*returnValue = 0;
 	}
@@ -172,8 +158,7 @@ JncApp::runFunction(int* returnValue)
 }
 
 bool
-JncApp::generateDocumentation()
-{
+JncApp::generateDocumentation() {
 	return m_module->generateDocumentation(m_cmdLine->m_outputDir);
 }
 

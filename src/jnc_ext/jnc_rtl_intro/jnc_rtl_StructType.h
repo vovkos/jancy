@@ -21,32 +21,26 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(StructType)
 
 //..............................................................................
 
-class StructType: public DerivableTypeBase<ct::StructType>
-{
+class StructType: public DerivableTypeBase<ct::StructType> {
 public:
 	StructType(ct::StructType* type):
-		DerivableTypeBase(type)
-	{
-	}
+		DerivableTypeBase(type) {}
 
 	size_t
 	JNC_CDECL
-	getFieldAlignment()
-	{
+	getFieldAlignment() {
 		return m_item->getFieldAlignment();
 	}
 
 	size_t
 	JNC_CDECL
-	getFieldActualSize()
-	{
+	getFieldActualSize() {
 		return m_item->getFieldActualSize();
 	}
 
 	size_t
 	JNC_CDECL
-	getFieldAlignedSize()
-	{
+	getFieldAlignedSize() {
 		return m_item->getFieldAlignedSize();
 	}
 };

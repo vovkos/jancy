@@ -1,24 +1,20 @@
-size_t getSzSize1(char const* s)
-{
+size_t getSzSize1(char const* s) {
 	printf("getSzSize1 (%s)\n", s);
 	return strlen(s) + 1;
 }
 
-size_t getSzSize2(char const* s)
-{
+size_t getSzSize2(char const* s) {
 	printf("getSzSize2 (%s)\n", s);
 	return strlen(s) + 1;
 }
 
-dynamic struct Hdr
-{
+dynamic struct Hdr {
 	char m_a;
 	char m_s1[getSzSize1(m_s1)];
 	char m_b;
 }
 
-dynamic struct S
-{
+dynamic struct S {
 	Hdr m_hdr;
 	char m_c;
 	char m_s2[getSzSize2(m_s2)];
@@ -26,8 +22,7 @@ dynamic struct S
 	char m_e;
 }
 
-void printS(S const* s)
-{
+void printS(S const* s) {
 	printf("s.m_hdr.m_a = %d\n", s.m_hdr.m_a);
 	printf("s.m_hdr.m_b = %d\n", s.m_hdr.m_b);
 	printf("s.m_c = %d\n", s.m_c);
@@ -41,10 +36,8 @@ void printS(S const* s)
 	printf("countof (s.m_s2)       = %d\n", dynamic countof (s.m_s2));
 }
 
-int main()
-{
-	char buffer[] =
-	{
+int main() {
+	char buffer[] = {
 		4, 'a', 'b', 'c', 0, 10, 20, 'd', 'e', 'f', 'g', 0, 30, 40,
 		5, 'A', 'B', 0, 11, 21, 'D', 'E', 'F', 'G', 'H', 0, 31, 41,
 	}

@@ -7,8 +7,7 @@ import "log_RecordCode.jnc"
 
 //..............................................................................
 
-enum ProcessLogRecordCode: uint64_t
-{
+enum ProcessLogRecordCode: uint64_t {
 	ProcessStarted     = 0x01d5d363496d4700,
 	ProcessStartError  = 0x01d5d363496d4701,
 	ProcessFinished    = 0x01d5d363496d4702,

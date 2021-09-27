@@ -13,8 +13,7 @@ namespace log {
 
 //..............................................................................
 
-class ThroughputCalcRangeProcessor: RangeProcessor
-{
+class ThroughputCalcRangeProcessor: RangeProcessor {
 protected:
 	ui.ThroughputInfoSet* m_infoSet;
 	uint64_t m_startTimestamp;
@@ -23,34 +22,32 @@ protected:
 	uint64_t m_totalSize;
 
 public:
-	static ThroughputCalcRangeProcessor* factory(ui.ThroughputInfoSet* infoSet)
-	{
+	static ThroughputCalcRangeProcessor* factory(ui.ThroughputInfoSet* infoSet) {
 		return new ThroughputCalcRangeProcessor(infoSet);
 	}
 
 protected:
-	construct(ui.ThroughputInfoSet* infoSet)
-	{
+	construct(ui.ThroughputInfoSet* infoSet) {
 		m_infoSet = infoSet;
 	}
 
 	override processText(
 		uint64_t partCode,
 		char const* text
-		);
+	);
 
 	override processBin(
 		uint64_t partCode,
 		void const* p,
 		size_t size
-		);
+	);
 
 	override processDualBin(
 		uint64_t partCode,
 		void const* p1,
 		void const* p2,
 		size_t size
-		);
+	);
 
 	override processEndOfRange();
 }
@@ -60,8 +57,7 @@ protected:
 void ThroughputCalcRangeProcessor.processText(
 	uint64_t partCode,
 	char const* text
-	)
-{
+) {
 	if (!m_startTimestamp)
 		m_startTimestamp = m_timestamp;
 }
@@ -70,13 +66,11 @@ void ThroughputCalcRangeProcessor.processBin(
 	uint64_t partCode,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	if (!m_startTimestamp)
 		m_startTimestamp = m_timestamp;
 
-	switch (partCode)
-	{
+	switch (partCode) {
 	case StdRecordCode.Tx:
 		m_txTotalSize += size;
 		break;
@@ -94,13 +88,11 @@ void ThroughputCalcRangeProcessor.processDualBin(
 	void const* p1,
 	void const* p2,
 	size_t size
-	)
-{
+) {
 	if (!m_startTimestamp)
 		m_startTimestamp = m_timestamp;
 
-	switch (partCode)
-	{
+	switch (partCode) {
 	case StdRecordCode.TxRx:
 		m_txTotalSize += size;
 		m_rxTotalSize += size;
@@ -110,8 +102,7 @@ void ThroughputCalcRangeProcessor.processDualBin(
 	m_totalSize += size * 2;
 }
 
-void ThroughputCalcRangeProcessor.processEndOfRange()
-{
+void ThroughputCalcRangeProcessor.processEndOfRange() {
 	uint64_t timeSpan = m_timestamp - m_startTimestamp;
 
 	if (m_infoSet.m_timeSpanInfo)
@@ -126,8 +117,7 @@ void ThroughputCalcRangeProcessor.processEndOfRange()
 	if (m_infoSet.m_totalSizeInfo)
 		m_infoSet.m_totalSizeInfo.m_value = formatIntegerWithThousandSep(m_totalSize);
 
-	if (timeSpan)
-	{
+	if (timeSpan) {
 		if (m_infoSet.m_txThroughputInfo)
 			m_infoSet.m_txThroughputInfo.m_value = formatIntegerWithThousandSep(m_txTotalSize * 10000000 / timeSpan);
 
@@ -136,9 +126,7 @@ void ThroughputCalcRangeProcessor.processEndOfRange()
 
 		if (m_infoSet.m_totalThroughputInfo)
 			m_infoSet.m_totalThroughputInfo.m_value = formatIntegerWithThousandSep(m_totalSize * 10000000 / timeSpan);
-	}
-	else
-	{
+	} else {
 		char const* text = "insufficient time span";
 
 		if (m_infoSet.m_txThroughputInfo)

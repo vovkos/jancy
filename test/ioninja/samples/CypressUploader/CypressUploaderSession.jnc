@@ -19,14 +19,12 @@ import "sys_Timer.jnc"
 
 //..............................................................................
 
-enum ReqType
-{
+enum ReqType {
 	VendorIn  = 0x80,
 	VendorOut = 0x40,
 }
 
-enum ReqCode
-{
+enum ReqCode {
 	GetFlashStatus = 0xaa,
 	ReadFlash      = 0xa9,
 	WriteFlash     = 0xa8,
@@ -39,11 +37,9 @@ enum ReqCode
 
 //..............................................................................
 
-class CypressUploaderSession: doc.Session
-{
+class CypressUploaderSession: doc.Session {
 protected:
-	enum Defaults
-	{
+	enum Defaults {
 		StatusCheckInterval = 1000, // 1sec
 		FpgaCheckRetryCount = 3,
 		BlockSize           = 64,
@@ -52,8 +48,7 @@ protected:
 		ExtraStatusChecks   = true,
 	}
 
-	enum State
-	{
+	enum State {
 		Closed,
 		Opened,
 		Downloading,
@@ -63,8 +58,7 @@ protected:
 		EnablingFpga,
 	}
 
-	char const* m_statusText[] =
-	{
+	char const* m_statusText[] = {
 		"Closed",
 		"Opened",
 		"Downloading file...",
@@ -74,8 +68,7 @@ protected:
 		"Enabling FPGA...",
 	}
 
-	enum ActionId
-	{
+	enum ActionId {
 		Refresh,
 		Open,
 		Download,
@@ -83,8 +76,7 @@ protected:
 		_Count,
 	}
 
-	enum IconId
-	{
+	enum IconId {
 		Open,
 		Close,
 		Refresh,
@@ -93,8 +85,7 @@ protected:
 		_Count,
 	}
 
-	enum StatusPaneId
-	{
+	enum StatusPaneId {
 		State,
 		_Count,
 	}
@@ -181,7 +172,7 @@ protected:
 		uint_t index = 0,
 		void* p = null,
 		size_t size = 0
-		);
+	);
 
 	void onTransferCompleted(
 		uint_t syncId,
@@ -192,13 +183,12 @@ protected:
 		void const* p,
 		size_t size,
 		std.Error const* error
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-CypressUploaderSession.construct(doc.PluginHost* pluginHost)
-{
+CypressUploaderSession.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
 
 	createUi();
@@ -211,8 +201,7 @@ CypressUploaderSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-void CypressUploaderSession.createUi()
-{
+void CypressUploaderSession.createUi() {
 	// toolbar
 
 	m_iconTable[IconId.Open] = new ui.Icon("images/open.png");
@@ -248,61 +237,61 @@ void CypressUploaderSession.createUi()
 	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Connection",
 		"USB-specific connection settings"
-		);
+	);
 
 	m_deviceProp = m_pluginHost.m_propertyGrid.createEnumProperty(
 		group,,
 		"Device",
 		"Target USB device",
 		null, 0
-		);
+	);
 
 	m_autoDetachKernelDriverProp = m_pluginHost.m_propertyGrid.createBoolProperty(
 		group,,
 		"Auto-detach",
 		"Auto detach kernel driver (if present)"
-		);
+	);
 
 	group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"File transfer",
 		"File transfer-related settings"
-		);
+	);
 
 	m_statusCheckIntervalProp = m_pluginHost.m_propertyGrid.createIntProperty(
 		group,,
 		"Status check interval (ms)",
 		"Interval between status requests (in milliseconds)"
-		);
+	);
 
 	m_fpgaCheckRetryCountProp = m_pluginHost.m_propertyGrid.createIntProperty(
 		group,,
 		"FPGA check retries",
 		"Number of FPGA status check re-tries after upload"
-		);
+	);
 
 	m_blockSizeProp = m_pluginHost.m_propertyGrid.createIntProperty(
 		group,,
 		"Block size",
 		"Size of transfer block"
-		);
+	);
 
 	m_maxDownloadSizeProp = m_pluginHost.m_propertyGrid.createIntProperty(
 		group,,
 		"Max download size",
 		"Maximum size of downloaded file"
-		);
+	);
 
 	m_eraseBeforeUploadProp = m_pluginHost.m_propertyGrid.createBoolProperty(
 		group,,
 		"Erase before upload",
 		"Erase all memory before upload"
-		);
+	);
 
 	m_extraStatusCheckProp = m_pluginHost.m_propertyGrid.createBoolProperty(
 		group,,
 		"Extra status checks",
 		"Check status before each and every block"
-		);
+	);
 
 	// information grid
 
@@ -317,16 +306,14 @@ void CypressUploaderSession.createUi()
 	enumerateDevices();
 }
 
-void CypressUploaderSession.onOpenDevice()
-{
+void CypressUploaderSession.onOpenDevice() {
 	if (m_state >= State.Opened)
 		closeDevice();
 	else
 		openDevice();
 }
 
-void CypressUploaderSession.enumerateDevices()
-{
+void CypressUploaderSession.enumerateDevices() {
 	m_deviceCombo.clear();
 
 	io.UsbDevice* const* deviceArray = io.createUsbDeviceArray();
@@ -336,8 +323,7 @@ void CypressUploaderSession.enumerateDevices()
 
 	io.UsbDb* usbDb = io.getStdUsbDb();
 
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		io.UsbDevice* device = deviceArray[i];
 		io.UsbDeviceDesc const* deviceDesc = device.m_deviceDesc;
 		io.UsbVendor const* vendor = usbDb.findVendor(deviceDesc.m_vendorId);
@@ -348,7 +334,7 @@ void CypressUploaderSession.enumerateDevices()
 			device.m_address,
 			vendor ? vendor.m_name : $"VID_$(deviceDesc.m_vendorId; 04x)",
 			product ? product.m_name : $"PID_$(deviceDesc.m_productId; 04x)"
-			);
+		);
 
 		m_deviceCombo.addItem(text, device);
 
@@ -359,8 +345,7 @@ void CypressUploaderSession.enumerateDevices()
 	m_deviceProp.setOptions(optionTable, count);
 }
 
-bool CypressUploaderSession.openDevice()
-{
+bool CypressUploaderSession.openDevice() {
 	if (m_deviceCombo.m_currentIndex == -1)
 		return false;
 
@@ -388,8 +373,7 @@ catch:
 	return false;
 }
 
-void CypressUploaderSession.closeDevice()
-{
+void CypressUploaderSession.closeDevice() {
 	if (m_state == State.Closed)
 		return;
 
@@ -401,8 +385,7 @@ void CypressUploaderSession.closeDevice()
 	m_syncId++;
 }
 
-void CypressUploaderSession.load(doc.Storage* storage)
-{
+void CypressUploaderSession.load(doc.Storage* storage) {
 	m_deviceCombo.m_currentIndex  = storage.readInt("deviceIdx");
 	m_autoDetachKernelDriverProp.m_value = storage.readBool("autoDetachKernelDriver");
 	m_statusCheckIntervalProp.m_value = storage.readInt("statusCheckInterval", Defaults.StatusCheckInterval);
@@ -413,8 +396,7 @@ void CypressUploaderSession.load(doc.Storage* storage)
 	m_extraStatusCheckProp.m_value = storage.readBool("extraStatusChecks", Defaults.ExtraStatusChecks);
 }
 
-void CypressUploaderSession.save(doc.Storage* storage)
-{
+void CypressUploaderSession.save(doc.Storage* storage) {
 	storage.writeInt("deviceIdx", (int) m_deviceCombo.m_currentIndex);
 	storage.writeBool("autoDetachKernelDriver", m_autoDetachKernelDriverProp.m_value);
 	storage.writeInt("statusCheckInterval", m_statusCheckIntervalProp.m_value);
@@ -425,19 +407,16 @@ void CypressUploaderSession.save(doc.Storage* storage)
 	storage.writeBool("extraStatusChecks", m_extraStatusCheckProp.m_value);
 }
 
-void CypressUploaderSession.updateProperties()
-{
+void CypressUploaderSession.updateProperties() {
 	m_deviceProp.m_currentIndex = m_deviceCombo.m_currentIndex;
 }
 
-bool errorcode CypressUploaderSession.applyProperties()
-{
+bool errorcode CypressUploaderSession.applyProperties() {
 	m_deviceCombo.m_currentIndex = m_deviceProp.m_currentIndex;
 	return true;
 }
 
-void CypressUploaderSession.restoreDefaultProperties()
-{
+void CypressUploaderSession.restoreDefaultProperties() {
 	m_deviceProp.m_currentIndex = 0;
 	m_autoDetachKernelDriverProp.m_value = true;
 	m_statusCheckIntervalProp.m_value = Defaults.StatusCheckInterval;
@@ -448,8 +427,7 @@ void CypressUploaderSession.restoreDefaultProperties()
 	m_extraStatusCheckProp.m_value = Defaults.ExtraStatusChecks;
 }
 
-void CypressUploaderSession.cancelFileTransfer()
-{
+void CypressUploaderSession.cancelFileTransfer() {
 	m_state = State.Opened;
 	m_timer.stop();
 	m_file.close();
@@ -457,25 +435,22 @@ void CypressUploaderSession.cancelFileTransfer()
 	m_syncId++;
 }
 
-void CypressUploaderSession.setStatusCheckTimer()
-{
+void CypressUploaderSession.setStatusCheckTimer() {
 	m_state = State.WaitingReady;
 
 	m_timer.startPeriodicTimer(
 		onStatusCheckTimer @ m_pluginHost.m_mainThreadScheduler,
 		m_statusCheckIntervalProp.m_value
-		);
+	);
 }
 
-bool CypressUploaderSession.checkStatus(ReqCode code)
-{
+bool CypressUploaderSession.checkStatus(ReqCode code) {
 	char status;
 	syncControlTransfer(ReqType.VendorIn, code,,, &status, sizeof(status));
 	return status == 0;
 }
 
-void CypressUploaderSession.onDownloadFile()
-{
+void CypressUploaderSession.onDownloadFile() {
 	cancelFileTransfer();
 
 	m_logWriter.write(log.StdRecordCode.PlainText, "Disabling FPGA...");
@@ -487,8 +462,7 @@ void CypressUploaderSession.onDownloadFile()
 	nextBlock();
 }
 
-void CypressUploaderSession.onUploadFile()
-{
+void CypressUploaderSession.onUploadFile() {
 	cancelFileTransfer();
 
 	m_fileDlg.m_kind = ui.FileDlgKind.Open;
@@ -499,10 +473,8 @@ void CypressUploaderSession.onUploadFile()
 	m_state = State.FileDlg;
 }
 
-void CypressUploaderSession.onFileDlgCompleted(ui.StdDlgButton button)
-{
-	if (button != ui.StdDlgButton.Ok)
-	{
+void CypressUploaderSession.onFileDlgCompleted(ui.StdDlgButton button) {
+	if (button != ui.StdDlgButton.Ok) {
 		m_state = State.Opened;
 		return;
 	}
@@ -516,7 +488,7 @@ void CypressUploaderSession.onFileDlgCompleted(ui.StdDlgButton button)
 	m_file.open(
 		m_fileDlg.m_filePath,
 		io.FileOpenFlags.OpenExisting | io.FileOpenFlags.ReadOnly
-		);
+	);
 
 	m_logWriter.write(log.StdRecordCode.PlainText, "Disabling FPGA...");
 	syncControlTransfer(ReqType.VendorOut, ReqCode.DisableFpga);
@@ -525,14 +497,11 @@ void CypressUploaderSession.onFileDlgCompleted(ui.StdDlgButton button)
 	m_state = State.Uploading;
 	m_offset = 0;
 
-	if (m_eraseBeforeUploadProp.m_value)
-	{
+	if (m_eraseBeforeUploadProp.m_value) {
 		m_logWriter.write(log.StdRecordCode.PlainText, "Erasing flash...");
 		syncControlTransfer(ReqType.VendorOut, ReqCode.EraseFlash);
 		setStatusCheckTimer();
-	}
-	else
-	{
+	} else {
 		bool canSendNextBlock =
 			!m_extraStatusCheckProp.m_value ||
 			checkStatus(ReqCode.GetFlashStatus);
@@ -548,8 +517,7 @@ catch:
 	m_progressDlg.m_buttons = ui.StdDlgButtons.Close;
 }
 
-void CypressUploaderSession.onStatusCheckTimer()
-{
+void CypressUploaderSession.onStatusCheckTimer() {
 	bool isReady = checkStatus(ReqCode.GetFlashStatus);
 	if (!isReady) // not yet
 		return;
@@ -564,11 +532,9 @@ catch:
 	cancelFileTransfer();
 }
 
-void CypressUploaderSession.onFpgaCheckTimer()
-{
+void CypressUploaderSession.onFpgaCheckTimer() {
 	bool isReady = checkStatus(ReqCode.GetFpgaStatus);
-	if (isReady)
-	{
+	if (isReady) {
 		m_logWriter.write(log.StdRecordCode.PlainText, $"FPGA is functional");
 		cancelFileTransfer();
 	}
@@ -585,8 +551,7 @@ catch:
 	cancelFileTransfer();
 }
 
-void CypressUploaderSession.enableFpga()
-{
+void CypressUploaderSession.enableFpga() {
 	m_logWriter.write(log.StdRecordCode.PlainText, $"Enabling FPGA...");
 	m_state = State.EnablingFpga;
 	syncControlTransfer(ReqType.VendorOut, ReqCode.EnableFpga);
@@ -596,11 +561,10 @@ void CypressUploaderSession.enableFpga()
 	m_timer.startPeriodicTimer(
 		onFpgaCheckTimer @ m_pluginHost.m_mainThreadScheduler,
 		m_statusCheckIntervalProp.m_value
-		);
+	);
 }
 
-bool errorcode CypressUploaderSession.nextBlock()
-{
+bool errorcode CypressUploaderSession.nextBlock() {
 	size_t size = m_blockSizeProp.m_value;
 
 	uint_t type;
@@ -610,8 +574,7 @@ bool errorcode CypressUploaderSession.nextBlock()
 
 	uint64_t fileSize;
 
-	switch (m_state)
-	{
+	switch (m_state) {
 	case State.Downloading:
 		type = ReqType.VendorIn;
 		code = ReqCode.ReadFlash;
@@ -643,8 +606,7 @@ bool errorcode CypressUploaderSession.nextBlock()
 		assert(false);
 	}
 
-	if (!size)
-	{
+	if (!size) {
 		m_logWriter.write(log.StdRecordCode.PlainText, $"File transfer completed ($m_offset bytes).");
 		m_logWriter.write(log.StdRecordCode.Break); // separate from the next message
 
@@ -666,8 +628,8 @@ bool errorcode CypressUploaderSession.nextBlock()
 			value,
 			index,
 			m_block.m_p
-			) @ m_pluginHost.m_mainThreadScheduler
-		);
+		) @ m_pluginHost.m_mainThreadScheduler
+	);
 
 	m_progressDlg.m_progress = fileSize ? m_offset * 100 / fileSize : 0;
 	return true;
@@ -685,8 +647,7 @@ bool errorcode CypressUploaderSession.syncControlTransfer(
 	uint_t index,
 	void* p,
 	size_t size
-	)
-{
+) {
 	ControlTransferParams params;
 	params.m_type = type;
 	params.m_code = code;
@@ -702,7 +663,7 @@ bool errorcode CypressUploaderSession.syncControlTransfer(
 		index,
 		p,
 		size
-		);
+	);
 
 	if (size)
 		m_logWriter.write((type & ReqType.VendorIn) ? log.StdRecordCode.Rx : log.StdRecordCode.Tx, p, size);
@@ -724,8 +685,7 @@ void CypressUploaderSession.onTransferCompleted(
 	void const* p,
 	size_t size,
 	std.Error const* error
-	)
-{
+) {
 	if (syncId != m_syncId)
 		return;
 
@@ -737,8 +697,7 @@ void CypressUploaderSession.onTransferCompleted(
 
 	m_logWriter.write(UsbLogRecordCode.ControlTransfer, &params, sizeof(params));
 
-	if (error)
-	{
+	if (error) {
 		m_logWriter.write(log.StdRecordCode.Error, error);
 		cancelFileTransfer();
 		return;
@@ -750,12 +709,9 @@ void CypressUploaderSession.onTransferCompleted(
 
 	m_offset += size;
 
-	if (!isUpload)
-	{
+	if (!isUpload) {
 		nextBlock();
-	}
-	else
-	{
+	} else {
 		bool canSendNextBlock = !m_extraStatusCheckProp.m_value || checkStatus(ReqCode.GetFlashStatus);
 		if (canSendNextBlock)
 			nextBlock();
@@ -764,10 +720,8 @@ void CypressUploaderSession.onTransferCompleted(
 	}
 }
 
-void CypressUploaderSession.onProgressDlgButtonClicked(ui.StdDlgButton button)
-{
-	switch (button)
-	{
+void CypressUploaderSession.onProgressDlgButtonClicked(ui.StdDlgButton button) {
+	switch (button) {
 	case ui.StdDlgButton.Cancel:
 	case ui.StdDlgButton.Abort:
 		cancelFileTransfer();
@@ -780,8 +734,7 @@ void CypressUploaderSession.onProgressDlgButtonClicked(ui.StdDlgButton button)
 	}
 }
 
-reactor CypressUploaderSession.m_uiReactor
-{
+reactor CypressUploaderSession.m_uiReactor {
 	m_title = $"USB $(m_deviceCombo.m_currentText)";
 	m_actionTable[ActionId.Open].m_text = m_state ? "Close Device" : "Open Device";
 	m_actionTable[ActionId.Open].m_icon = m_iconTable[m_state ? IconId.Close : IconId.Open];

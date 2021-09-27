@@ -18,11 +18,9 @@ namespace io {
 
 //..............................................................................
 
-class WebSocketFrameParser
-{
+class WebSocketFrameParser {
 public:
-	enum State
-	{
+	enum State {
 		State_Header = 0,
 		State_PayloadLength16,
 		State_PayloadLength64,
@@ -32,8 +30,7 @@ public:
 	};
 
 protected:
-	enum Limits: uint64_t
-	{
+	enum Limits: uint64_t {
 #if (JNC_PTR_SIZE == 8)
 		MaxPayloadLength = 0x7fffffffffffffffULL,
 #else
@@ -47,21 +44,18 @@ protected:
 	State m_state;
 
 public:
-	WebSocketFrameParser(WebSocketFrame* frame)
-	{
+	WebSocketFrameParser(WebSocketFrame* frame) {
 		m_frame = frame;
 		m_state = State_Header;
 	}
 
 	State
-	getState()
-	{
+	getState() {
 		return m_state;
 	}
 
 	bool
-	isCompleted()
-	{
+	isCompleted() {
 		return m_state >= State_Completed;
 	}
 
@@ -72,18 +66,16 @@ public:
 	parse(
 		const void* p,
 		size_t size
-		);
+	);
 
 protected:
 	State
-	getPayloadState()
-	{
+	getPayloadState() {
 		return m_frame->m_payloadLength ? State_Payload : State_Completed;
 	}
 
 	State
-	getMaskState()
-	{
+	getMaskState() {
 		return m_frame->m_mask ? State_MaskKey : getPayloadState();
 	}
 };

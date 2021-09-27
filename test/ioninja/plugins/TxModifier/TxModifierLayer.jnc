@@ -12,11 +12,9 @@ import "escapeEncoding.jnc"
 
 //..............................................................................
 
-class TxModifierLayer: doc.Layer
-{
+class TxModifierLayer: doc.Layer {
 protected:
-	enum Defaults
-	{
+	enum Defaults {
 		IsPrefixEnabled = true,
 		IsSuffixEnabled = true,
 		IsInterCharDelayEnabled = false,
@@ -29,8 +27,7 @@ protected:
 	static char m_defaultPrefix[] = "\\x02";
 	static char m_defaultSuffix[] = "\\r";
 
-	struct DelayedWrite
-	{
+	struct DelayedWrite {
 		void const* m_start;
 		void const* m_end;
 		void const* m_p;
@@ -77,13 +74,13 @@ public:
 	override size_t errorcode transmit(
 		void const* p,
 		size_t size
-		);
+	);
 
 protected:
 	size_t write(
 		void const* p,
 		size_t size
-		);
+	);
 
 	void flushDelayedWriteList();
 	void setDelayedWriteTimer();
@@ -92,7 +89,7 @@ protected:
 	void scheduleRetransmission(
 		void const* p,
 		size_t size
-		);
+	);
 
 	void cancelRetransmission();
 	void onRetransmitTimer();
@@ -103,72 +100,69 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-TxModifierLayer.construct(doc.PluginHost* pluginHost)
-{
+TxModifierLayer.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
 	createUi();
 }
 
-void TxModifierLayer.createUi()
-{
+void TxModifierLayer.createUi() {
 	m_isPrefixEnabledProp = m_pluginHost.m_propertyGrid.createBoolProperty(
 		"Append prefix",
 		"Prefix each TX packet with the specified char sequence"
-		);
+	);
 
 	m_prefixProp = m_pluginHost.m_propertyGrid.createStringProperty(
 		m_isPrefixEnabledProp,,
 		"Prefix data",
 		"Enter a prefix string...",
 		"Specify the prefix char sequence (C-escapes are supported)"
-		);
+	);
 
 	m_isSuffixEnabledProp = m_pluginHost.m_propertyGrid.createBoolProperty(
 		"Append suffix",
 		"Suffix each TX packet with the specified char sequence"
-		);
+	);
 
 	m_suffixProp = m_pluginHost.m_propertyGrid.createStringProperty(
 		m_isSuffixEnabledProp,,
 		"Suffix data",
 		"Enter a suffix string...",
 		"Specify the suffix char sequence (C-escapes are supported)"
-		);
+	);
 
 	m_isInterCharDelayEnabledProp = m_pluginHost.m_propertyGrid.createBoolProperty(
 		"Insert inter-char delays",
 		"Insert inter-character delays during transmission"
-		);
+	);
 
 	m_interCharDelayProp = m_pluginHost.m_propertyGrid.createIntProperty(
 		m_isInterCharDelayEnabledProp,,
 		"Inter-char delay (ms)",
 		"Transmission inter-character delay (in millisceonds)"
-		);
+	);
 
 	m_isRetransmitEnabledProp = m_pluginHost.m_propertyGrid.createBoolProperty(
 		"Re-transmission",
 		"Re-transmit TX packet N times with the specified delay"
-		);
+	);
 
 	m_retransmitCountProp = m_pluginHost.m_propertyGrid.createIntProperty(
 		m_isRetransmitEnabledProp,,
 		"Re-transmit count",
 		"How many extra times to re-send the packet"
-		);
+	);
 
 	m_retransmitDelayProp = m_pluginHost.m_propertyGrid.createIntProperty(
 		m_isRetransmitEnabledProp,,
 		"Re-transmit delay (ms)",
 		"Specify the delay between re-transmissions (in milliseconds)"
-		);
+	);
 
 	bindingof(m_isTransmitEnabled) += onTransmitEnabledChanged;
 	m_uiReactor.start();
 }
 
-void TxModifierLayer.load(doc.Storage* storage)
-{
+void TxModifierLayer.load(doc.Storage* storage) {
 	m_isPrefixEnabledProp.m_value = storage.readBool("isPrefixEnabled", Defaults.IsPrefixEnabled);
 	m_prefixProp.m_value = storage.readString("prefix", m_defaultPrefix);
 	m_isSuffixEnabledProp.m_value = storage.readBool("isSuffixEnabled", Defaults.IsSuffixEnabled);
@@ -180,8 +174,7 @@ void TxModifierLayer.load(doc.Storage* storage)
 	m_retransmitDelayProp.m_value = storage.readInt("retransmitDelay", Defaults.RetransmitDelay);
 }
 
-void TxModifierLayer.save(doc.Storage* storage)
-{
+void TxModifierLayer.save(doc.Storage* storage) {
 	storage.writeBool("isPrefixEnabled", m_isPrefixEnabledProp.m_value);
 	storage.writeString("prefix", m_prefixProp.m_value);
 	storage.writeBool("isSuffixEnabled", m_isSuffixEnabledProp.m_value);
@@ -193,8 +186,7 @@ void TxModifierLayer.save(doc.Storage* storage)
 	storage.writeInt("retransmitDelay", m_retransmitDelayProp.m_value);
 }
 
-bool errorcode TxModifierLayer.applyProperties()
-{
+bool errorcode TxModifierLayer.applyProperties() {
 	if (!m_isInterCharDelayEnabledProp.m_value || !m_interCharDelayProp.m_value)
 		flushDelayedWriteList();
 	else if (m_delayedWriteList.m_count)
@@ -203,8 +195,7 @@ bool errorcode TxModifierLayer.applyProperties()
 	return true;
 }
 
-void TxModifierLayer.restoreDefaultProperties()
-{
+void TxModifierLayer.restoreDefaultProperties() {
 	m_isPrefixEnabledProp.m_value = Defaults.IsPrefixEnabled;
 	m_prefixProp.m_value = m_defaultPrefix;
 	m_isSuffixEnabledProp.m_value = Defaults.IsSuffixEnabled;
@@ -219,31 +210,25 @@ void TxModifierLayer.restoreDefaultProperties()
 size_t errorcode TxModifierLayer.transmit(
 	void const* p,
 	size_t size
-	)
-{
+) {
 	void const* packet;
 	size_t packetSize;
 
-	if (!m_isPrefixEnabledProp.m_value && !m_isSuffixEnabledProp.m_value)
-	{
+	if (!m_isPrefixEnabledProp.m_value && !m_isSuffixEnabledProp.m_value) {
 		packet = p;
 		packetSize = size;
-	}
-	else
-	{
+	} else {
 		std.Buffer buffer;
 		std.StringBuilder string;
 
-		if (m_isPrefixEnabledProp.m_value)
-		{
+		if (m_isPrefixEnabledProp.m_value) {
 			decodeEscapeString(&string, m_prefixProp.m_value);
 			buffer.append(string.m_p, string.m_length);
 		}
 
 		buffer.append(p, size);
 
-		if (m_isSuffixEnabledProp.m_value)
-		{
+		if (m_isSuffixEnabledProp.m_value) {
 			decodeEscapeString(&string, m_suffixProp.m_value);
 			buffer.append(string.m_p, string.m_length);
 		}
@@ -260,10 +245,8 @@ size_t errorcode TxModifierLayer.transmit(
 size_t TxModifierLayer.write(
 	void const* p,
 	size_t size
-	)
-{
-	if (!m_isInterCharDelayEnabledProp.m_value || !m_interCharDelayProp.m_value)
-	{
+) {
+	if (!m_isInterCharDelayEnabledProp.m_value || !m_interCharDelayProp.m_value) {
 		size_t result = transmitNext(p, size);
 		m_lastWriteTimestamp = sys.getTimestamp();
 		scheduleRetransmission(p, size);
@@ -286,10 +269,8 @@ size_t TxModifierLayer.write(
 	return size;
 }
 
-void TxModifierLayer.flushDelayedWriteList()
-{
-	while (m_delayedWriteList.m_count)
-	{
+void TxModifierLayer.flushDelayedWriteList() {
+	while (m_delayedWriteList.m_count) {
 		DelayedWrite* delayedWrite = m_delayedWriteList.removeHead();
 		size_t size = delayedWrite.m_end - delayedWrite.m_p;
 		transmitNext(delayedWrite.m_p, size);
@@ -301,18 +282,15 @@ void TxModifierLayer.flushDelayedWriteList()
 	m_lastWriteTimestamp = sys.getTimestamp();
 }
 
-void TxModifierLayer.setDelayedWriteTimer()
-{
+void TxModifierLayer.setDelayedWriteTimer() {
 	m_delayedWriteTimer.startPeriodicTimer(
 		onDelayedWriteTimer @ m_pluginHost.m_mainThreadScheduler,
 		m_interCharDelayProp.m_value
-		);
+	);
 }
 
-void TxModifierLayer.onDelayedWriteTimer()
-{
-	if (!m_delayedWriteList.m_count)
-	{
+void TxModifierLayer.onDelayedWriteTimer() {
+	if (!m_delayedWriteList.m_count) {
 		uint64_t timestamp = sys.getTimestamp();
 		if ((timestamp - m_lastWriteTimestamp) / 10000 >= m_interCharDelayProp.m_value)
 			m_delayedWriteTimer.stop();
@@ -324,8 +302,7 @@ void TxModifierLayer.onDelayedWriteTimer()
 	transmitNext(delayedWrite.m_p, 1);
 	delayedWrite.m_p++;
 
-	if (delayedWrite.m_p >= delayedWrite.m_end)
-	{
+	if (delayedWrite.m_p >= delayedWrite.m_end) {
 		m_delayedWriteList.removeHead();
 
 		if (!m_delayedWriteList.m_count)
@@ -338,10 +315,8 @@ void TxModifierLayer.onDelayedWriteTimer()
 void TxModifierLayer.scheduleRetransmission(
 	void const* p,
 	size_t size
-	)
-{
-	if (!m_isRetransmitEnabledProp.m_value || m_retransmitNumber >= m_retransmitCountProp.m_value)
-	{
+) {
+	if (!m_isRetransmitEnabledProp.m_value || m_retransmitNumber >= m_retransmitCountProp.m_value) {
 		m_retransmitTimer.stop();
 		return;
 	}
@@ -352,18 +327,16 @@ void TxModifierLayer.scheduleRetransmission(
 	m_retransmitTimer.startSingleShotTimer(
 		onRetransmitTimer @ m_pluginHost.m_mainThreadScheduler,
 		m_retransmitDelayProp.m_value
-		);
+	);
 }
 
-void TxModifierLayer.cancelRetransmission()
-{
+void TxModifierLayer.cancelRetransmission() {
 	m_retransmitNumber = 0;
 	m_retransmitPacket = null;
 	m_retransmitTimer.stop();
 }
 
-void TxModifierLayer.onRetransmitTimer()
-{
+void TxModifierLayer.onRetransmitTimer() {
 	if (!m_retransmitPacket) // cancelled
 		return;
 
@@ -371,8 +344,7 @@ void TxModifierLayer.onRetransmitTimer()
 	write(m_retransmitPacket, m_retransmitPacketSize);
 }
 
-void TxModifierLayer.onTransmitEnabledChanged()
-{
+void TxModifierLayer.onTransmitEnabledChanged() {
 	if (m_isTransmitEnabled)
 		return;
 
@@ -381,8 +353,7 @@ void TxModifierLayer.onTransmitEnabledChanged()
 	m_retransmitTimer.stop();
 }
 
-reactor TxModifierLayer.m_uiReactor
-{
+reactor TxModifierLayer.m_uiReactor {
 	m_prefixProp.m_isEnabled = m_isPrefixEnabledProp.m_value;
 	m_suffixProp.m_isEnabled = m_isSuffixEnabledProp.m_value;
 	m_retransmitCountProp.m_isEnabled = m_isRetransmitEnabledProp.m_value;

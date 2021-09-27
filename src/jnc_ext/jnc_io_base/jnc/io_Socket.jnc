@@ -40,8 +40,7 @@ namespace io {
 
 	.. ref-code-block::
 
-		class MyDialog
-		{
+		class MyDialog {
 			// ...
 
 			io.Socket m_socket;
@@ -56,11 +55,10 @@ namespace io {
 			void onSocketEvent(
 				uint_t syncId,
 				`io.SocketEvents` triggeredEvents
-				);
+			);
 		}
 
-		MyDialog.connect(char const* addrString)
-		{
+		MyDialog.connect(char const* addrString) {
 			`io.SocketAddress` sockAddr;
 			sockAddr.parse(addrString);
 			m_socket.open(`io.Protocol.Tcp`);
@@ -71,14 +69,12 @@ namespace io {
 			// handle the error...
 		}
 
-		MyDialog.close()
-		{
+		MyDialog.close() {
 			m_socket.close();
 			m_syncId++; // events past this point will be discarded as 'late'
 		}
 
-		MyDialog.waitSocketEvent()
-		{
+		MyDialog.waitSocketEvent() {
 			`io.SocketEvents` eventMask =
 				`io.SocketEvents.IoError` |
 				`io.SocketEvents.IncomingData`;
@@ -90,8 +86,7 @@ namespace io {
 				g_mainThreadScheduler);
 		}
 
-		MyDialog.onWriteButtonClicked()
-		{
+		MyDialog.onWriteButtonClicked() {
 			static char data[] = "a quick brown fox jumps over the lazy dog";
 			m_socket.write(data, sizeof(data));
 		}
@@ -99,24 +94,20 @@ namespace io {
 		MyDialog.onSocketEvent(
 			uint_t syncId,
 			`io.SocketEvents` triggeredEvents
-			)
-		{
+		) {
 			if (syncId != m_syncId) // late event
 				return;
 
-			if (triggeredEvents & `io.SocketEvents.IoError`)
-			{
+			if (triggeredEvents & `io.SocketEvents.IoError`) {
 				char cont* errorString = m_socket.m_ioError.m_description;
 				// ...
 			}
 
-			if (triggeredEvents & `io.SocketEvents.Connected`)
-			{
+			if (triggeredEvents & `io.SocketEvents.Connected`) {
 				// TCP connection established
 			}
 
-			if (triggeredEvents & `io.SocketEvents.IncomingData`)
-			{
+			if (triggeredEvents & `io.SocketEvents.IncomingData`) {
 				char buffer[256];
 				size_t size = m_socket.read(buffer, sizeof(buffer));
 				// ...
@@ -136,8 +127,7 @@ namespace io {
 		|footnote-disposable|
 */
 
-opaque class Socket
-{
+opaque class Socket {
 	/**
 		This property is used for getting the local address assigned to this
 		socket. If the address has not been assigned yet, returns empty address.
@@ -193,7 +183,7 @@ opaque class Socket
 	bool errorcode open(
 		AddressFamily family,
 		Protocol protocol
-		);
+	);
 
 	/**
 		Opens a new socket and binds it to the specified local address.
@@ -213,7 +203,7 @@ opaque class Socket
 	bool errorcode open(
 		Protocol protocol,
 		SocketAddress const* address
-		);
+	);
 
 	/**
 		Opens a new unbound socket.
@@ -222,8 +212,7 @@ opaque class Socket
 		with ``family`` argument set to `io.AddressFamily.Ip4`.
 	*/
 
-	bool errorcode open(Protocol protocol)
-	{
+	bool errorcode open(Protocol protocol) {
 		return open(AddressFamily.Ip4, protocol);
 	}
 
@@ -284,7 +273,7 @@ opaque class Socket
 	Socket* errorcode accept(
 		SocketAddress* address = null,
 		bool isSuspended = false
-		);
+	);
 
 	/**
 		Attempts to receive up to ``size`` bytes from the socket into the buffer
@@ -313,7 +302,7 @@ opaque class Socket
 	size_t errorcode read(
 		void* p,
 		size_t size
-		);
+	);
 
 	/**
 		Attempts to send ``size`` bytes from the buffer pointed to by ``p`` over
@@ -332,7 +321,7 @@ opaque class Socket
 	size_t errorcode write(
 		void const* p,
 		size_t size
-		);
+	);
 
 	/**
 		Attempts to read up to ``size`` bytes from the socket into the buffer
@@ -351,7 +340,7 @@ opaque class Socket
 		void* p,
 		size_t size,
 		SocketAddress* address
-		);
+	);
 
 	/**
 		Attempts to send ``size`` bytes from the buffer pointed to by ``p`` to
@@ -371,19 +360,19 @@ opaque class Socket
 		void const* p,
 		size_t size,
 		SocketAddress const* address
-		);
+	);
 
 	intptr errorcode wait(
 		SocketEvents eventMask,
 		function* handler(SocketEvents triggeredEvents)
-		);
+	);
 
 	bool errorcode cancelWait(intptr handle);
 
 	SocketEvents blockingWait(
 		SocketEvents eventMask,
 		uint_t timeout = -1
-		);
+	);
 
 	async SocketEvents asyncWait(SocketEvents eventMask);
 }

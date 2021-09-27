@@ -16,8 +16,7 @@ namespace std {
 
 //..............................................................................
 
-bitflag enum GuidStringFlags
-{
+bitflag enum GuidStringFlags {
 	UpperCase,
 	CurlyBraces,
 }
@@ -45,8 +44,7 @@ bitflag enum GuidStringFlags
 	https://en.wikipedia.org/wiki/Globally_unique_identifier
 */
 
-struct Guid
-{
+struct Guid {
 	/**
 		Specifies the first 8 hexadecimal digits of the GUID.
 	*/
@@ -73,32 +71,25 @@ struct Guid
 
 	uint8_t m_data4[8];
 
-	construct()
-	{
-	}
+	construct() {}
 
-	construct(char const* string)
-	{
+	construct(char const* string) {
 		parse(string);
 	}
 
-	bool isEqual(Guid const* op) const
-	{
+	bool isEqual(Guid const* op) const {
 		return memcmp(this, op, sizeof(Guid)) == 0;
 	}
 
-	bool operator == (Guid const* op) const
-	{
+	bool operator == (Guid const* op) const {
 		return isEqual(op);
 	}
 
-	bool operator != (Guid const* op) const
-	{
+	bool operator != (Guid const* op) const {
 		return !isEqual(op);
 	}
 
-	void operator := (char const* string)
-	{
+	void operator := (char const* string) {
 		parse(string);
 	}
 

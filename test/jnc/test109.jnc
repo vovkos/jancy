@@ -1,21 +1,18 @@
 // this test was used to fix a bug with bigendian enums
 
-enum EthernetType: bigendian uint16_t
-{
+enum EthernetType: bigendian uint16_t {
 	Ip  = 0x0800,
 	Arp = 0x0806,
 	Ip6 = 0x86dd,
 }
 
-struct EthernetHdr
-{
+struct EthernetHdr {
 	uint8_t m_dstAddress[6];
 	uint8_t m_srcAddress[6];
 	EthernetType m_type;
 }
 
-int main()
-{
+int main() {
 	char buf[] = "123456123456" 0x"08 06";
 
 	EthernetHdr const* hdr = (EthernetHdr const*) buf;
@@ -40,22 +37,16 @@ int main()
 	printf("g = %04x\n", g);
 	printf("h = %04x\n", h);
 
-	if (hdr.m_type == 0x0806)
-	{
+	if (hdr.m_type == 0x0806) {
 		printf("ARP\n");
-	}
-	else
-	{
+	} else {
 		printf("NOT ARP\n");
 		assert(false);
 	}
 
-	if (hdr.m_type == EthernetType.Arp)
-	{
+	if (hdr.m_type == EthernetType.Arp) {
 		printf("ARP\n");
-	}
-	else
-	{
+	} else {
 		printf("NOT ARP\n");
 		assert(false);
 	}

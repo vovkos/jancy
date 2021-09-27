@@ -22,8 +22,7 @@ JNC_DECLARE_CLASS_TYPE(StringBuilder)
 
 //..............................................................................
 
-class StringBuilder: public IfaceHdr
-{
+class StringBuilder: public IfaceHdr {
 public:
 	DataPtr m_ptr;
 	size_t m_length;
@@ -43,28 +42,28 @@ public:
 	copy_char(
 		utf32_t c,
 		size_t count
-		);
+	);
 
 	size_t
 	JNC_CDECL
 	copy_utf8(
 		DataPtr ptr,
 		size_t length
-		);
+	);
 
 	size_t
 	JNC_CDECL
 	copy_utf16(
 		DataPtr ptr,
 		size_t length
-		);
+	);
 
 	size_t
 	JNC_CDECL
 	copy_utf32(
 		DataPtr ptr,
 		size_t length
-		);
+	);
 
 	size_t
 	JNC_CDECL
@@ -72,7 +71,7 @@ public:
 		size_t offset,
 		utf32_t c,
 		size_t count
-		);
+	);
 
 	size_t
 	JNC_CDECL
@@ -80,7 +79,7 @@ public:
 		size_t offset,
 		DataPtr ptr,
 		size_t length
-		);
+	);
 
 	size_t
 	JNC_CDECL
@@ -88,7 +87,7 @@ public:
 		size_t offset,
 		DataPtr ptr,
 		size_t length
-		);
+	);
 
 	size_t
 	JNC_CDECL
@@ -96,14 +95,14 @@ public:
 		size_t offset,
 		DataPtr ptr,
 		size_t length
-		);
+	);
 
 	size_t
 	JNC_CDECL
 	remove(
 		size_t offset,
 		size_t length
-		);
+	);
 
 	size_t
 	JNC_CDECL
@@ -119,8 +118,7 @@ public:
 
 	size_t
 	JNC_CDECL
-	trim()
-	{
+	trim() {
 		trimLeft();
 		return trimRight();
 	}
@@ -138,14 +136,14 @@ protected:
 	copyImpl(
 		const char* p,
 		size_t length
-		);
+	);
 
 	size_t
 	insertImpl(
 		size_t offset,
 		const char* p,
 		size_t length
-		);
+	);
 };
 
 //..............................................................................

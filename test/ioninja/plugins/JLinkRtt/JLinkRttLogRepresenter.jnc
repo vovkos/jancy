@@ -14,10 +14,8 @@ bool representJLinkRttLog(
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
-	switch (recordCode)
-	{
+) {
+	switch (recordCode) {
 	case JLinkRttLogRecordCode.Connected:
 		uint_t const* serialNumber = (uint_t const*)p;
 		char const* deviceName = (char const*)(serialNumber + 1);
@@ -28,7 +26,7 @@ bool representJLinkRttLog(
 			$"Established J-Link RTT connection to \e[34m%1\e[m (S/N: \e[34m%2\e[m)"(
 			deviceName,
 			*serialNumber
-			));
+		));
 		break;
 
 	case JLinkRttLogRecordCode.ConnectError:

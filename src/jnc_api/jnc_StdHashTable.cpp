@@ -33,15 +33,13 @@ jnc_createStdHashTable(
 	jnc_Runtime* runtime,
 	jnc_StdHashFunc* hashFunc,
 	jnc_StdIsEqualFunc* isEqualFunc
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_stdHashTableFuncTable->m_createStdHashTableFunc(runtime, hashFunc, isEqualFunc);
 }
 
 JNC_EXTERN_C
 void
-jnc_StdHashTable_clear(jnc_StdHashTable* hashTable)
-{
+jnc_StdHashTable_clear(jnc_StdHashTable* hashTable) {
 	jnc_g_dynamicExtensionLibHost->m_stdHashTableFuncTable->m_clearFunc(hashTable);
 }
 
@@ -50,8 +48,7 @@ jnc_StdMapEntry*
 jnc_StdHashTable_find(
 	jnc_StdHashTable* hashTable,
 	jnc_Variant key
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_stdHashTableFuncTable->m_findFunc(hashTable, key);
 }
 
@@ -61,8 +58,7 @@ jnc_StdHashTable_add(
 	jnc_StdHashTable* hashTable,
 	jnc_Variant key,
 	jnc_Variant value
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_stdHashTableFuncTable->m_addFunc(hashTable, key, value);
 }
 
@@ -71,8 +67,7 @@ void
 jnc_StdHashTable_remove(
 	jnc_StdHashTable* hashTable,
 	jnc_StdMapEntry* entry
-	)
-{
+) {
 	jnc_g_dynamicExtensionLibHost->m_stdHashTableFuncTable->m_removeFunc(hashTable, entry);
 }
 
@@ -81,8 +76,7 @@ bool_t
 jnc_StdHashTable_removeKey(
 	jnc_StdHashTable* hashTable,
 	jnc_Variant key
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_stdHashTableFuncTable->m_removeKeyFunc(hashTable, key);
 }
 
@@ -95,16 +89,14 @@ jnc_createStdHashTable(
 	jnc_Runtime* runtime,
 	jnc_StdHashFunc* hashFunc,
 	jnc_StdIsEqualFunc* isEqualFunc
-	)
-{
+) {
 	return (jnc_StdHashTable*)jnc::createClass<jnc::std::HashTable>(runtime, hashFunc, isEqualFunc);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
-jnc_StdHashTable_clear(jnc_StdHashTable* hashTable)
-{
+jnc_StdHashTable_clear(jnc_StdHashTable* hashTable) {
 	 ((jnc::std::HashTable*)hashTable)->clear();
 }
 
@@ -114,8 +106,7 @@ jnc_StdMapEntry*
 jnc_StdHashTable_find(
 	jnc_StdHashTable* hashTable,
 	jnc_Variant key
-	)
-{
+) {
 	 return (jnc_StdMapEntry*)jnc::std::HashTable::find((jnc::std::HashTable*)hashTable, key).m_p;
 }
 
@@ -126,8 +117,7 @@ jnc_StdHashTable_add(
 	jnc_StdHashTable* hashTable,
 	jnc_Variant key,
 	jnc_Variant value
-	)
-{
+) {
 	 jnc_StdMapEntry* entry = (jnc_StdMapEntry*)jnc::std::HashTable::visit((jnc::std::HashTable*)hashTable, key).m_p;
 	 entry->m_value = value;
 	 return entry;
@@ -139,8 +129,7 @@ void
 jnc_StdHashTable_remove(
 	jnc_StdHashTable* hashTable,
 	jnc_StdMapEntry* entry
-	)
-{
+) {
 	ASSERT(entry->m_map == &hashTable->m_map);
 	((jnc::std::HashTable*)hashTable)->removeImpl((jnc::std::MapEntry*)entry);
 }
@@ -151,8 +140,7 @@ bool_t
 jnc_StdHashTable_removeKey(
 	jnc_StdHashTable* hashTable,
 	jnc_Variant key
-	)
-{
+) {
 	jnc_DataPtr itPtr = jnc::std::HashTable::find((jnc::std::HashTable*)hashTable, key);
 	if (!itPtr.m_p)
 		return false;

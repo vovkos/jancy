@@ -26,7 +26,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE_REQ(
 	StdLibCacheSlot_RbTree,
 	RbTree,
 	NULL
-	)
+)
 
 JNC_BEGIN_OPAQUE_CLASS_REQUIRE_TABLE(RbTree)
 	JNC_OPAQUE_CLASS_REQUIRE_TYPE(TypeKind_Struct, "std.MapEntry")
@@ -48,8 +48,7 @@ int
 cmpVariant(
 	Variant key1,
 	Variant key2
-	)
-{
+) {
 	bool result = 0;
 	return
 		key1.relationalOperator(&key2, BinOpKind_Eq, &result) && result ? 0 :
@@ -59,11 +58,9 @@ cmpVariant(
 //..............................................................................
 
 DataPtr
-RbTree::visitImpl(Variant key)
-{
+RbTree::visitImpl(Variant key) {
 	sl::MapIterator<Variant, DataPtr> it = m_rbTree.visit(key);
-	if (!it->m_value.m_p)
-	{
+	if (!it->m_value.m_p) {
 		it->m_value = m_map.add(it);
 		ASSERT(m_map.m_count == m_rbTree.getCount());
 	}
@@ -72,10 +69,8 @@ RbTree::visitImpl(Variant key)
 }
 
 void
-RbTree::removeImpl(MapEntry* entry)
-{
-	if (!entry || entry->m_map != &m_map)
-	{
+RbTree::removeImpl(MapEntry* entry) {
+	if (!entry || entry->m_map != &m_map) {
 		err::setError("attempt to remove an invalid map entry from the red-black tree");
 		dynamicThrow();
 	}

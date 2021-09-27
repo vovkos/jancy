@@ -23,8 +23,7 @@ namespace ct {
 
 class PropertyTemplate:
 	public ModuleItem,
-	public Namespace
-{
+	public Namespace {
 	friend class FunctionMgr;
 	friend class Parser;
 
@@ -38,14 +37,12 @@ public:
 	PropertyTemplate();
 
 	FunctionType*
-	getGetterType()
-	{
+	getGetterType() {
 		return m_getterType;
 	}
 
 	FunctionTypeOverload*
-	getSetterType()
-	{
+	getSetterType() {
 		return &m_setterType;
 	}
 
@@ -53,7 +50,7 @@ public:
 	addMethod(
 		FunctionKind functionKind,
 		FunctionType* functionType
-		);
+	);
 
 	PropertyType*
 	calcType();

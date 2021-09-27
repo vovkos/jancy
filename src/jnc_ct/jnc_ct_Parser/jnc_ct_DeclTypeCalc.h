@@ -32,15 +32,13 @@ class ImportPtrType;
 
 //..............................................................................
 
-class DeclTypeCalc: protected TypeModifiers
-{
+class DeclTypeCalc: protected TypeModifiers {
 protected:
 	Module* m_module;
 	sl::ConstIterator<DeclSuffix> m_suffix;
 
 public:
-	DeclTypeCalc()
-	{
+	DeclTypeCalc() {
 		m_module = NULL;
 	}
 
@@ -49,8 +47,7 @@ public:
 		Declarator* declarator,
 		Value* elementCountValue,
 		uint_t* flags
-		)
-	{
+	) {
 		return calcType(
 			declarator->getBaseType(),
 			declarator,
@@ -58,7 +55,7 @@ public:
 			declarator->getSuffixList(),
 			elementCountValue,
 			flags
-			);
+		);
 	}
 
 	Type*
@@ -69,19 +66,19 @@ public:
 		const sl::ConstList<DeclSuffix>& suffixList,
 		Value* elementCountValue,
 		uint_t* flags
-		);
+	);
 
 	Type*
 	calcPtrType(
 		Type* type,
 		uint_t typeModifiers
-		);
+	);
 
 	Type*
 	calcIntModType(
 		Type* type,
 		uint_t typeModifiers
-		);
+	);
 
 	FunctionType*
 	calcPropertyGetterType(Declarator* declarator);
@@ -94,7 +91,7 @@ protected:
 	getPtrTypeFlags(
 		Type* type,
 		uint_t* flags
-		);
+	);
 
 	uint_t
 	getPropertyFlags();

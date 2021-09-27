@@ -25,40 +25,33 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(FunctionOverload)
 
 class Function:
 	public ModuleItemBase<ct::Function>,
-	public ModuleItemDecl
-{
+	public ModuleItemDecl {
 public:
 	Function(ct::Function* function):
 		ModuleItemBase(function),
-		ModuleItemDecl(function)
-	{
-	}
+		ModuleItemDecl(function) {}
 
 	FunctionKind
 	JNC_CDECL
-	getFunctionKind()
-	{
+	getFunctionKind() {
 		return m_item->getFunctionKind();
 	}
 
 	FunctionType*
 	JNC_CDECL
-	getType()
-	{
+	getType() {
 		return (FunctionType*)rtl::getType(m_item->getType());
 	}
 
 	bool
 	JNC_CDECL
-	isMember()
-	{
+	isMember() {
 		return m_item->isMember();
 	}
 
 	void*
 	JNC_CDECL
-	getMachineCode()
-	{
+	getMachineCode() {
 		return m_item->getMachineCode();
 	}
 };
@@ -67,33 +60,27 @@ public:
 
 class FunctionOverload:
 	public ModuleItemBase<ct::FunctionOverload>,
-	public ModuleItemDecl
-{
+	public ModuleItemDecl {
 public:
 	FunctionOverload(ct::FunctionOverload* overload):
 		ModuleItemBase(overload),
-		ModuleItemDecl(overload)
-	{
-	}
+		ModuleItemDecl(overload) {}
 
 	FunctionKind
 	JNC_CDECL
-	getFunctionKind()
-	{
+	getFunctionKind() {
 		return m_item->getFunctionKind();
 	}
 
 	size_t
 	JNC_CDECL
-	getOverloadCount()
-	{
+	getOverloadCount() {
 		return m_item->getOverloadCount();
 	}
 
 	Function*
 	JNC_CDECL
-	getOverload(size_t index)
-	{
+	getOverload(size_t index) {
 		return rtl::getFunction(m_item->getOverload(index));
 	}
 };

@@ -23,46 +23,38 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(PropertyPtrType)
 
 //..............................................................................
 
-class PropertyType: public TypeBase<ct::PropertyType>
-{
+class PropertyType: public TypeBase<ct::PropertyType> {
 public:
 	PropertyType(ct::PropertyType* type):
-		TypeBase(type)
-	{
-	}
+		TypeBase(type) {}
 
 	bool
 	JNC_CDECL
-	isConst()
-	{
+	isConst() {
 		return m_item->isConst();
 	}
 
 	bool
 	JNC_CDECL
-	isIndexed()
-	{
+	isIndexed() {
 		return m_item->isIndexed();
 	}
 
 	FunctionType*
 	JNC_CDECL
-	getGetterType()
-	{
+	getGetterType() {
 		return (FunctionType*)rtl::getType(m_item->getGetterType());
 	}
 
 	FunctionType*
 	JNC_CDECL
-	getSetterType()
-	{
+	getSetterType() {
 		return (FunctionType*)rtl::getType(m_item->getSetterType()->getOverload(0));
 	}
 
 	FunctionType*
 	JNC_CDECL
-	getBinderType()
-	{
+	getBinderType() {
 		return (FunctionType*)rtl::getType(m_item->getBinderType());
 	}
 
@@ -72,33 +64,27 @@ public:
 		TypeKind typeKind,
 		PropertyPtrTypeKind ptrTypeKind,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return (PropertyPtrType*)rtl::getType(m_item->getPropertyPtrType(typeKind, ptrTypeKind, flags));
 	}
 };
 
 //..............................................................................
 
-class PropertyPtrType: public TypeBase<ct::PropertyPtrType>
-{
+class PropertyPtrType: public TypeBase<ct::PropertyPtrType> {
 public:
 	PropertyPtrType(ct::PropertyPtrType* type):
-		TypeBase(type)
-	{
-	}
+		TypeBase(type) {}
 
 	PropertyPtrTypeKind
 	JNC_CDECL
-	getPtrTypeKind()
-	{
+	getPtrTypeKind() {
 		return m_item->getPtrTypeKind();
 	}
 
 	PropertyType*
 	JNC_CDECL
-	getTargetType()
-	{
+	getTargetType() {
 		return (PropertyType*)rtl::getType(m_item->getTargetType());
 	}
 };

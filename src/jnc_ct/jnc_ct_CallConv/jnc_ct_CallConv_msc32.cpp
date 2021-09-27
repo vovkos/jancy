@@ -26,11 +26,9 @@ AXL_TODO("beware: structs with sizes between 16 and 24 are returned incorrectly 
 //..............................................................................
 
 void
-CallConv_msc32::prepareFunctionType(FunctionType* functionType)
-{
+CallConv_msc32::prepareFunctionType(FunctionType* functionType) {
 	Type* returnType = functionType->getReturnType();
-	if (!isStructRet(returnType))
-	{
+	if (!isStructRet(returnType)) {
 		CallConv::prepareFunctionType(functionType);
 		return;
 	}
@@ -51,15 +49,14 @@ CallConv_msc32::prepareFunctionType(FunctionType* functionType)
 		m_module->m_typeMgr.getPrimitiveType(TypeKind_Void)->getLlvmType(),
 		llvm::ArrayRef<llvm::Type*> (llvmArgTypeArray, argCount),
 		(functionType->getFlags() & FunctionTypeFlag_VarArg) != 0
-		);
+	);
 }
 
 llvm::Function*
 CallConv_msc32::createLlvmFunction(
 	FunctionType* functionType,
 	const sl::StringRef& name
-	)
-{
+) {
 	llvm::Function* llvmFunction = CallConv::createLlvmFunction(functionType, name);
 
 	Type* returnType = functionType->getReturnType();
@@ -75,11 +72,9 @@ CallConv_msc32::call(
 	FunctionType* functionType,
 	sl::BoxList<Value>* argValueList,
 	Value* resultValue
-	)
-{
+) {
 	Type* returnType = functionType->getReturnType();
-	if (!isStructRet(returnType))
-	{
+	if (!isStructRet(returnType)) {
 		CallConv::call(calleeValue, functionType, argValueList, resultValue);
 		return;
 	}
@@ -90,7 +85,7 @@ CallConv_msc32::call(
 		"tmpRetVal",
 		returnType->getDataPtrType_c(),
 		&tmpReturnValue
-		);
+	);
 
 	argValueList->insertHead(tmpReturnValue);
 
@@ -100,7 +95,7 @@ CallConv_msc32::call(
 		*argValueList,
 		m_module->m_typeMgr.getPrimitiveType(TypeKind_Void),
 		NULL
-		);
+	);
 
 	inst->addAttribute(1, llvm::Attribute::StructRet);
 	m_module->m_llvmIrBuilder.createLoad(tmpReturnValue, returnType, resultValue);
@@ -110,11 +105,9 @@ void
 CallConv_msc32::ret(
 	Function* function,
 	const Value& value
-	)
-{
+) {
 	Type* returnType = function->getType()->getReturnType();
-	if (!isStructRet(returnType))
-	{
+	if (!isStructRet(returnType)) {
 		CallConv::ret(function, value);
 		return;
 	}
@@ -128,8 +121,7 @@ CallConv_msc32::ret(
 }
 
 Value
-CallConv_msc32::getThisArgValue(Function* function)
-{
+CallConv_msc32::getThisArgValue(Function* function) {
 	ASSERT(function->isMember());
 
 	Type* returnType = function->getType()->getReturnType();
@@ -146,25 +138,23 @@ CallConv_msc32::getArgValueArray(
 	Function* function,
 	Value* argValueArray,
 	size_t count
-	)
-{
+) {
 	Type* returnType = function->getType()->getReturnType();
 	CallConv::getArgValueArrayImpl(
 		function,
 		argValueArray,
 		count,
 		isStructRet(returnType) ? 1 : 0
-		);
+	);
 }
 
 void
-CallConv_msc32::createArgVariables(Function* function)
-{
+CallConv_msc32::createArgVariables(Function* function) {
 	Type* returnType = function->getType()->getReturnType();
 	CallConv::createArgVariablesImpl(
 		function,
 		isStructRet(returnType) ? 1 : 0
-		);
+	);
 }
 
 //..............................................................................

@@ -18,18 +18,15 @@ namespace ct {
 
 //..............................................................................
 
-class MulticastClassType: public ClassType
-{
+class MulticastClassType: public ClassType {
 	friend class TypeMgr;
 
 protected:
-	class CallMethod: public CompilableFunction
-	{
+	class CallMethod: public CompilableFunction {
 	public:
 		virtual
 		bool
-		compile()
-		{
+		compile() {
 			return ((MulticastClassType*)m_parentNamespace)->compileCallMethod(this);
 		}
 	};
@@ -46,34 +43,29 @@ public:
 	MulticastClassType();
 
 	FunctionPtrType*
-	getTargetType() const
-	{
+	getTargetType() const {
 		return m_targetType;
 	}
 
 	FunctionType*
-	getFunctionType() const
-	{
+	getFunctionType() const {
 		return m_targetType->getTargetType();
 	}
 
 	Field*
-	getField(MulticastFieldKind field) const
-	{
+	getField(MulticastFieldKind field) const {
 		ASSERT(field < MulticastFieldKind__Count);
 		return m_fieldArray[field];
 	}
 
 	Function*
-	getMethod(MulticastMethodKind method) const
-	{
+	getMethod(MulticastMethodKind method) const {
 		ASSERT(method < MulticastMethodKind__Count);
 		return m_methodArray[method];
 	}
 
 	McSnapshotClassType*
-	getSnapshotType() const
-	{
+	getSnapshotType() const {
 		return m_snapshotType;
 	}
 

@@ -9,27 +9,23 @@
 //
 //..............................................................................
 
-class Hui
-{
+class Hui {
 	int m_x;
 	int m_y;
 }
 
 //..............................................................................
 
-Hui* foo()
-{
+Hui* foo() {
 	return new Hui;
 }
 
-Hui* bar()
-{
+Hui* bar() {
 	return foo();
 }
 
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 	return 0;
 }

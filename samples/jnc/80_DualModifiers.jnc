@@ -23,8 +23,7 @@
 
 //..............................................................................
 
-class C1
-{
+class C1 {
 	// read-only field declared with the dual modifier readonly
 
 	int readonly m_progress;
@@ -33,14 +32,12 @@ class C1
 
 	event m_onCompleted();
 
-	void work()
-	{
+	void work() {
 		// insiders have write-access to m_progress
 
 		m_progress += 25;
 
-		if (m_progress >= 100)
-		{
+		if (m_progress >= 100) {
 			// insiders have multicast-access to m_onCompleted
 
 			m_onCompleted();
@@ -50,8 +47,7 @@ class C1
 
 //..............................................................................
 
-void onCompleted()
-{
+void onCompleted() {
 	printf("onCompleted () -- work is finished\n");
 }
 
@@ -59,8 +55,7 @@ void onCompleted()
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	C1 c;
@@ -73,8 +68,7 @@ int main()
 
 	// c.m_onCompleted (); // <-- error
 
-	while (c.m_progress < 100)
-	{
+	while (c.m_progress < 100) {
 		c.work();
 
 		// outsiders have read-access to C1.m_x...

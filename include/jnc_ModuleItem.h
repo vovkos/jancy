@@ -52,8 +52,7 @@
 
 //..............................................................................
 
-enum jnc_ModuleItemKind
-{
+enum jnc_ModuleItemKind {
 	jnc_ModuleItemKind_Undefined = 0,
 	jnc_ModuleItemKind_Namespace,
 	jnc_ModuleItemKind_Scope,
@@ -87,8 +86,7 @@ jnc_getModuleItemKindString(jnc_ModuleItemKind itemKind);
 
 //..............................................................................
 
-enum jnc_ModuleItemFlag
-{
+enum jnc_ModuleItemFlag {
 	jnc_ModuleItemFlag_User         = 0x01,
 	jnc_ModuleItemFlag_Compilable   = 0x02,
 	jnc_ModuleItemFlag_NeedCompile  = 0x04,
@@ -105,8 +103,7 @@ typedef enum jnc_ModuleItemFlag jnc_ModuleItemFlag;
 
 //..............................................................................
 
-enum jnc_StorageKind
-{
+enum jnc_StorageKind {
 	jnc_StorageKind_Undefined = 0,
 	jnc_StorageKind_Alias,
 	jnc_StorageKind_Typedef,
@@ -134,8 +131,7 @@ jnc_getStorageKindString(jnc_StorageKind storageKind);
 
 //..............................................................................
 
-enum jnc_AccessKind
-{
+enum jnc_AccessKind {
 	jnc_AccessKind_Undefined = 0,
 	jnc_AccessKind_Public,
 	jnc_AccessKind_Protected,
@@ -196,59 +192,49 @@ jnc_ModuleItemDecl_getCol(jnc_ModuleItemDecl* decl);
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
-struct jnc_ModuleItemDecl
-{
+struct jnc_ModuleItemDecl {
 	const char*
-	getName()
-	{
+	getName() {
 		return jnc_ModuleItemDecl_getName(this);
 	}
 
 	const char*
-	getQualifiedName()
-	{
+	getQualifiedName() {
 		return jnc_ModuleItemDecl_getQualifiedName(this);
 	}
 
 	jnc_StorageKind
-	getStorageKind(jnc_ModuleItemDecl* decl)
-	{
+	getStorageKind(jnc_ModuleItemDecl* decl) {
 		return jnc_ModuleItemDecl_getStorageKind(this);
 	}
 
 	jnc_AccessKind
-	getAccessKind()
-	{
+	getAccessKind() {
 		return jnc_ModuleItemDecl_getAccessKind(this);
 	}
 
 	jnc_AttributeBlock*
-	getAttributeBlock()
-	{
+	getAttributeBlock() {
 		return jnc_ModuleItemDecl_getAttributeBlock(this);
 	}
 
 	jnc_Namespace*
-	getParentNamespace()
-	{
+	getParentNamespace() {
 		return jnc_ModuleItemDecl_getParentNamespace(this);
 	}
 
 	jnc_Unit*
-	getParentUnit()
-	{
+	getParentUnit() {
 		return jnc_ModuleItemDecl_getParentUnit(this);
 	}
 
 	int
-	getLine()
-	{
+	getLine() {
 		return jnc_ModuleItemDecl_getLine(this);
 	}
 
 	int
-	getCol()
-	{
+	getCol() {
 		return jnc_ModuleItemDecl_getCol(this);
 	}
 };
@@ -290,7 +276,7 @@ const char*
 jnc_ModuleItem_getSynopsis_v(
 	jnc_ModuleItem* item,
 	bool_t isQualifiedName
-	);
+);
 
 JNC_EXTERN_C
 bool_t
@@ -300,53 +286,44 @@ jnc_ModuleItem_require(jnc_ModuleItem* item);
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
-struct jnc_ModuleItem
-{
+struct jnc_ModuleItem {
 	jnc_Module*
-	getModule()
-	{
+	getModule() {
 		return jnc_ModuleItem_getModule(this);
 	}
 
 	jnc_ModuleItemKind
-	getItemKind()
-	{
+	getItemKind() {
 		return jnc_ModuleItem_getItemKind(this);
 	}
 
 	uint_t
-	getFlags()
-	{
+	getFlags() {
 		return jnc_ModuleItem_getFlags(this);
 	}
 
 	jnc_ModuleItemDecl*
-	getDecl()
-	{
+	getDecl() {
 		return jnc_ModuleItem_getDecl(this);
 	}
 
 	jnc_Namespace*
-	getNamespace()
-	{
+	getNamespace() {
 		return jnc_ModuleItem_getNamespace(this);
 	}
 
 	jnc_Type*
-	getType()
-	{
+	getType() {
 		return jnc_ModuleItem_getType(this);
 	}
 
 	const char*
-	getSynopsis_v(bool isQualifiedName = true)
-	{
+	getSynopsis_v(bool isQualifiedName = true) {
 		return jnc_ModuleItem_getSynopsis_v(this, isQualifiedName);
 	}
 
 	bool
-	require()
-	{
+	require() {
 		return jnc_ModuleItem_require(this) != 0;
 	}
 };
@@ -358,8 +335,7 @@ struct jnc_ModuleItem
 // since namespaces are lazy now, a find operation may fail for many reasons
 // other than just item-not-found
 
-struct jnc_FindModuleItemResult
-{
+struct jnc_FindModuleItemResult {
 	bool_t m_result; // error can be obtained via jnc_getLastError
 	jnc_ModuleItem* m_item;
 };
@@ -408,8 +384,7 @@ const ModuleItemKind
 
 inline
 const char*
-getModuleItemKindString(ModuleItemKind itemKind)
-{
+getModuleItemKindString(ModuleItemKind itemKind) {
 	return jnc_getModuleItemKindString(itemKind);
 }
 
@@ -450,8 +425,7 @@ const StorageKind
 
 inline
 const char*
-getStorageKindString(StorageKind storageKind)
-{
+getStorageKindString(StorageKind storageKind) {
 	return jnc_getStorageKindString(storageKind);
 }
 
@@ -469,24 +443,20 @@ const AccessKind
 
 inline
 const char*
-getAccessKindString(AccessKind accessKind)
-{
+getAccessKindString(AccessKind accessKind) {
 	return jnc_getAccessKindString(accessKind);
 }
 
 //..............................................................................
 
-struct FindModuleItemResult: jnc_FindModuleItemResult
-{
-	FindModuleItemResult(const jnc_FindModuleItemResult& src)
-	{
+struct FindModuleItemResult: jnc_FindModuleItemResult {
+	FindModuleItemResult(const jnc_FindModuleItemResult& src) {
 		m_result = src.m_result;
 		m_item = src.m_item;
 	}
 
 	explicit
-	FindModuleItemResult(ModuleItem* item)
-	{
+	FindModuleItemResult(ModuleItem* item) {
 		JNC_ASSERT(item);
 		m_result = true;
 		m_item = item;

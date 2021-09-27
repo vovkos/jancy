@@ -17,7 +17,6 @@ DllMain(
 	HINSTANCE hModule,
 	DWORD reason,
 	LPVOID reserved
-	)
-{
+) {
 	return TRUE;
 }

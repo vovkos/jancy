@@ -7,8 +7,7 @@ import "std_Buffer.jnc"
 
 //..............................................................................
 
-static bool isspace(char c) // we don't have these in the Jancy stdlib yet
-{
+static bool isspace(char c) { // we don't have these in the Jancy stdlib yet
 	return c == ' ' || c == '\t' || c == '\r' || c == '\n';
 }
 
@@ -16,10 +15,8 @@ size_t decodeHexString(
 	std.Buffer* buffer,
 	char const* source,
 	size_t length = -1
-	)
-{
-	enum State
-	{
+) {
+	enum State {
 		Normal = 0,
 		Hex
 	};
@@ -42,12 +39,10 @@ size_t decodeHexString(
 	char const* end = source + length;
 
 	size_t size = 0;
-	for (; p < end; p++)
-	{
+	for (; p < end; p++) {
 		bool isSpace = isspace(*p);
 
-		switch (state)
-		{
+		switch (state) {
 		case State.Normal:
 			if (isSpace)
 				break;
@@ -58,8 +53,7 @@ size_t decodeHexString(
 			break;
 
 		case State.Hex:
-			if (!isSpace)
-			{
+			if (!isSpace) {
 				hexCodeString[hexCodeLen++] = *p;
 				if (hexCodeLen < 2)
 					break;
@@ -78,8 +72,7 @@ size_t decodeHexString(
 		}
 	}
 
-	if (state == State.Hex)
-	{
+	if (state == State.Hex) {
 		hexCodeString[hexCodeLen] = 0;
 		x = (uchar_t)strtol(hexCodeString, &hexCodeEnd, 16);
 

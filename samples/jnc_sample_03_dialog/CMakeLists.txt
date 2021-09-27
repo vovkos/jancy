@@ -25,7 +25,7 @@ set(
 	MySlider.h
 	QtSignalBridge.h
 	MainWindow.h
-	)
+)
 
 set(
 	APP_CPP_LIST
@@ -40,12 +40,12 @@ set(
 	QtSignalBridge.cpp
 	MainWindow.cpp
 	main.cpp
-	)
+)
 
 set(
 	APP_JNC_LIST
 	script.jnc
-	)
+)
 
 source_group(
 	app
@@ -53,7 +53,7 @@ source_group(
 	${APP_H_LIST}
 	${APP_CPP_LIST}
 	${APP_JNC_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -67,39 +67,39 @@ set(
 	MOC_H_LIST
 	QtSignalBridge.h
 	MainWindow.h
-	)
+)
 
 axl_push_and_set(CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
 qt5_wrap_cpp(
 	GEN_MOC_CPP_LIST
 	${MOC_H_LIST}
-	)
+)
 
 add_perl_step(
 	script.jnc.cpp
 	script.jnc
 	${FILE2LITERAL_PL}
-	)
+)
 
 axl_pop(CMAKE_CURRENT_BINARY_DIR)
 
 set(
 	GEN_JNC_CPP_LIST
 	${GEN_DIR}/script.jnc.cpp
-	)
+)
 
 axl_exclude_from_build(
 	${GEN_MOC_CPP_LIST}  # include "moc_*.cpp" manually
 	${GEN_JNC_CPP_LIST}  # include "*.jnc.cpp" manually
-	)
+)
 
 source_group(
 	gen
 	FILES
 	${GEN_MOC_CPP_LIST}
 	${GEN_JNC_CPP_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -114,7 +114,7 @@ source_group(
 	FILES
 	${PCH_H}
 	${PCH_CPP}
-	)
+)
 
 #...............................................................................
 #
@@ -124,18 +124,18 @@ source_group(
 include_directories(
 	${JANCY_INC_DIR}
 	${GEN_DIR}
-	)
+)
 
 if(BUILD_JNC_DLL)
 	link_directories(
 		${JANCY_LIB_DIR}
 		${JANCY_BIN_DIR}
-		)
+	)
 else()
 	link_directories(
 		${LLVM_LIB_DIR}
 		${AXL_LIB_DIR}
-		)
+	)
 endif()
 
 if (GCC_LINK_GLIBC_WRAPPERS)
@@ -145,7 +145,7 @@ endif()
 add_definitions(
 	-DQT_COMPILING_QSTRING_COMPAT_CPP
 	-DQT_COMPILING_QIMAGE_COMPAT_CPP
-	)
+)
 
 add_executable(
 	jnc_sample_03_dialog
@@ -156,7 +156,7 @@ add_executable(
 	${APP_JNC_LIST}
 	${GEN_MOC_CPP_LIST}
 	${GEN_JNC_CPP_LIST}
-	)
+)
 
 qt5_use_modules_alt(jnc_sample_03_dialog Widgets)
 
@@ -164,24 +164,24 @@ axl_set_pch(
 	jnc_sample_03_dialog
 	${PCH_H}
 	${PCH_CPP}
-	)
+)
 
 set_target_properties(
 	jnc_sample_03_dialog
 	PROPERTIES
 	FOLDER samples
-	)
+)
 
 if(BUILD_JNC_DLL)
 	add_dependencies(
 		jnc_sample_03_dialog
 		jnc_dll
-		)
+	)
 
 	target_link_libraries(
 		jnc_sample_03_dialog
 		${JANCY_DLL_NAME}
-		)
+	)
 else()
 	target_link_libraries(
 		jnc_sample_03_dialog
@@ -198,7 +198,7 @@ else()
 		axl_io
 		axl_lex
 		axl_core
-		)
+	)
 
 	target_link_llvm_jit_libraries(jnc_sample_03_dialog)
 endif()
@@ -207,13 +207,13 @@ if(UNIX)
 	target_link_libraries(
 		jnc_sample_03_dialog
 		pthread
-		)
+	)
 
 	if(NOT APPLE)
 		target_link_libraries(
 			jnc_sample_03_dialog
 			rt
-			)
+		)
 	endif()
 endif()
 
@@ -244,7 +244,7 @@ if(WIN32 OR(LINUX AND "${TARGET_CPU}" STREQUAL "${_CPU}"))
 	add_test(
 		NAME jnc_sample_03_dialog_default
 		COMMAND $<TARGET_FILE:jnc_sample_03_dialog> --test
-		)
+	)
 
 	add_test(
 		NAME jnc_sample_03_dialog

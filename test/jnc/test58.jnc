@@ -9,14 +9,12 @@
 //
 //..............................................................................
 
-struct Test
-{
+struct Test {
 	bigendian uint16_t m_flags: 3;
 	bigendian uint16_t m_offset: 13;
 }
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	char buffer[] = 0x"03 9d";

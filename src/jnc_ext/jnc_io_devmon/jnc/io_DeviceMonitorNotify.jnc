@@ -21,8 +21,7 @@ namespace psx {
 
 //..............................................................................
 
-bitflag enum DeviceMonitorIoctlFlags
-{
+bitflag enum DeviceMonitorIoctlFlags {
 	HasArgSizeField,
 	ArgSizeField8,
 	ArgSizeField16,
@@ -31,8 +30,7 @@ bitflag enum DeviceMonitorIoctlFlags
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct DeviceMonitorIoctlDesc
-{
+struct DeviceMonitorIoctlDesc {
 	uint32_t m_code;
 	uint32_t m_argFixedSize;
 	uint32_t m_argSizeFieldOffset;
@@ -43,26 +41,22 @@ struct DeviceMonitorIoctlDesc
 
 } // namespace psx
 
-enum
-{
+enum {
 	DeviceMonitorNotifyHdrSignature = 'nomt',
 }
 
-bitflag enum DeviceMonitorNotifyFlags: uint16_t
-{
+bitflag enum DeviceMonitorNotifyFlags: uint16_t {
 	DataDropped = 0x02, // one or more notifications after this one were dropped
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct DeviceMonitorNotifyHdr
-{
+struct DeviceMonitorNotifyHdr {
 	uint32_t m_signature;
 	uint16_t m_code;
 	uint16_t m_flags;
 
-	union
-	{
+	union {
 		int32_t m_ntStatus; // Windows
 		int m_errno;        // POSIX
 	}

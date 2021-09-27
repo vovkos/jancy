@@ -31,8 +31,7 @@ std.Guid g_ntStatusGuid = { 0x81443347, 0x3bc9, 0x4d5e, { 0x8b, 0x23, 0x32, 0xd7
 	of information are required, they should follow the ``std.Error`` header.
 */
 
-struct Error
-{
+struct Error {
 	/**
 		The full size of error-describing buffer. Should always be
 		``>= sizeof(std.Error)``.
@@ -101,8 +100,7 @@ Error const* getLastError();
 		std.getLastError().`m_description<std.Error.m_description>`
 */
 
-char const* getLastErrorDescription()
-{
+char const* getLastErrorDescription() {
 	return getLastError().m_description;
 }
 

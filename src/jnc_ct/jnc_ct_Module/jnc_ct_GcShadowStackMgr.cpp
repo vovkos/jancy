@@ -19,16 +19,14 @@ namespace ct {
 
 //..............................................................................
 
-GcShadowStackFrameMap::~GcShadowStackFrameMap()
-{
+GcShadowStackFrameMap::~GcShadowStackFrameMap() {
 	if (m_mapKind != GcShadowStackFrameMapKind_Dynamic)
 		return;
 
 	// invalidate all call-site-local boxes
 
 	size_t count = m_gcRootArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		Box* box = (Box*)m_gcRootArray[i];
 		if (box->m_flags & BoxFlag_CallSiteLocal)
 			box->m_flags |= BoxFlag_Invalid;
@@ -37,8 +35,7 @@ GcShadowStackFrameMap::~GcShadowStackFrameMap()
 
 //..............................................................................
 
-GcShadowStackMgr::GcShadowStackMgr()
-{
+GcShadowStackMgr::GcShadowStackMgr() {
 	m_module = Module::getCurrentConstructedModule();
 	ASSERT(m_module);
 
@@ -47,8 +44,7 @@ GcShadowStackMgr::GcShadowStackMgr()
 }
 
 void
-GcShadowStackMgr::clear()
-{
+GcShadowStackMgr::clear() {
 	m_frameMapList.clear();
 	m_functionFrameMapArray.clear();
 	m_frameVariable = NULL;
@@ -57,8 +53,7 @@ GcShadowStackMgr::clear()
 }
 
 void
-GcShadowStackMgr::finalizeFunction()
-{
+GcShadowStackMgr::finalizeFunction() {
 	if (!m_frameVariable)
 		return;
 
@@ -72,8 +67,7 @@ GcShadowStackMgr::finalizeFunction()
 }
 
 void
-GcShadowStackMgr::finalizeScope(Scope* scope)
-{
+GcShadowStackMgr::finalizeScope(Scope* scope) {
 	if (!scope->m_gcShadowStackFrameMap ||
 		!(m_module->m_controlFlowMgr.getCurrentBlock()->getFlags() & BasicBlockFlag_Reachable))
 		return;
@@ -82,8 +76,7 @@ GcShadowStackMgr::finalizeScope(Scope* scope)
 }
 
 void
-GcShadowStackMgr::createTmpGcRoot(const Value& value)
-{
+GcShadowStackMgr::createTmpGcRoot(const Value& value) {
 	Type* type = value.getType();
 	ASSERT(type->getFlags() & TypeFlag_GcRoot);
 
@@ -97,8 +90,7 @@ void
 GcShadowStackMgr::markGcRoot(
 	const Value& ptrValue,
 	Type* type
-	)
-{
+) {
 	if (!m_frameVariable)
 		preCreateFrame();
 
@@ -124,8 +116,7 @@ GcShadowStackMgr::markGcRoot(
 }
 
 GcShadowStackFrameMap*
-GcShadowStackMgr::openFrameMap(Scope* scope)
-{
+GcShadowStackMgr::openFrameMap(Scope* scope) {
 	Scope* parentScope = scope->getParentScope();
 
 	if (scope->m_gcShadowStackFrameMap) // this scope already has its own frame map
@@ -145,7 +136,7 @@ GcShadowStackMgr::openFrameMap(Scope* scope)
 	bool isInsertPointChanged = m_module->m_llvmIrBuilder.restoreInsertPoint(
 		scope->m_gcShadowStackFrameMapInsertPoint,
 		&prevInsertPoint
-		);
+	);
 
 	setFrameMap(frameMap, GcShadowStackFrameMapOp_Open);
 
@@ -164,8 +155,7 @@ void
 GcShadowStackMgr::setFrameMap(
 	GcShadowStackFrameMap* frameMap,
 	GcShadowStackFrameMapOp op
-	)
-{
+) {
 	ASSERT(m_frameVariable);
 
 	Function* function = m_module->m_functionMgr.getStdFunction(StdFunc_SetGcShadowStackFrameMap);
@@ -177,12 +167,11 @@ GcShadowStackMgr::setFrameMap(
 		Value(&frameMap, m_module->m_typeMgr.getStdType(StdType_BytePtr)),
 		Value(op, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int)),
 		NULL
-		);
+	);
 }
 
 void
-GcShadowStackMgr::preCreateFrame()
-{
+GcShadowStackMgr::preCreateFrame() {
 	ASSERT(!m_frameVariable && !m_gcRootArrayValue);
 
 	Type* type = m_module->m_typeMgr.getStdType(StdType_GcShadowStackFrame);
@@ -195,8 +184,7 @@ GcShadowStackMgr::preCreateFrame()
 }
 
 void
-GcShadowStackMgr::finalizeFrame()
-{
+GcShadowStackMgr::finalizeFrame() {
 	ASSERT(m_frameVariable && m_gcRootArrayValue);
 
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
@@ -243,8 +231,7 @@ GcShadowStackMgr::finalizeFrame()
 	Variable* stackTopVariable;
 	bool isAsync = function->getFunctionKind() == FunctionKind_AsyncSequencer;
 
-	if (isAsync)
-	{
+	if (isAsync) {
 		Value promiseValue = m_module->m_functionMgr.getPromiseValue();
 		ASSERT(promiseValue);
 
@@ -255,9 +242,7 @@ GcShadowStackMgr::finalizeFrame()
 		Value frameValue;
 		m_module->m_llvmIrBuilder.createBitCast(m_frameVariable, m_module->m_typeMgr.getStdType(StdType_BytePtr), &frameValue);
 		m_module->m_llvmIrBuilder.createStore(frameValue, frameFieldValue);
-	}
-	else
-	{
+	} else {
 		Value prevStackTopValue;
 		stackTopVariable = m_module->m_variableMgr.getStdVariable(StdVariable_GcShadowStackTop);
 		m_module->m_llvmIrBuilder.createLoad(stackTopVariable, NULL, &prevStackTopValue);
@@ -276,8 +261,7 @@ GcShadowStackMgr::finalizeFrame()
 
 		sl::Array<BasicBlock*> returnBlockArray = m_module->m_controlFlowMgr.getReturnBlockArray();
 		size_t count = returnBlockArray.getCount();
-		for (size_t i = 0; i < count; i++)
-		{
+		for (size_t i = 0; i < count; i++) {
 			BasicBlock* block = returnBlockArray[i];
 			llvm::Instruction* llvmRet = block->getLlvmBlock()->getTerminator();
 			ASSERT(llvm::isa<llvm::ReturnInst> (llvmRet));
@@ -290,8 +274,7 @@ GcShadowStackMgr::finalizeFrame()
 	// calculate frame map m_prev field
 
 	size_t count = m_functionFrameMapArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		GcShadowStackFrameMap* map = m_functionFrameMapArray[i];
 		Scope* scope = map->m_scope->getParentScope();
 		map->m_prev = scope ? scope->findGcShadowStackFrameMap() : NULL;
@@ -301,8 +284,7 @@ GcShadowStackMgr::finalizeFrame()
 
 	sl::Array<BasicBlock*> landingPadBlockArray = m_module->m_controlFlowMgr.getLandingPadBlockArray();
 	count = landingPadBlockArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		BasicBlock* block = landingPadBlockArray[i];
 		Scope* scope = block->getLandingPadScope();
 		ASSERT(scope && !block->getLlvmBlock()->empty());

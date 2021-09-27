@@ -3,8 +3,7 @@
 // TutoProto structs & constants
 //
 
-enum TutoProtoCommand: uint8_t
-{
+enum TutoProtoCommand: uint8_t {
 	[
 		getReplyDigest = getTutoProtoReplyDigest_GetVersion,
 		representReply = representTutoProtoReply_GetVersion
@@ -27,16 +26,14 @@ enum TutoProtoCommand: uint8_t
 	Write,
 }
 
-bitflag enum TutoProtoFlags: uint8_t
-{
+bitflag enum TutoProtoFlags: uint8_t {
 	Reply,
 	Error
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct TutoProtoHdr
-{
+struct TutoProtoHdr {
 	[
 		displayName = "STX",
 		formatSpec = "0x%02x"
@@ -69,8 +66,7 @@ struct TutoProtoHdr
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct TutoProtoVersion
-{
+struct TutoProtoVersion {
 	[ displayName = "Major" ]
 	uint8_t m_major;
 
@@ -81,8 +77,7 @@ struct TutoProtoVersion
 	uint8_t m_patch;
 }
 
-struct TutoProtoRange
-{
+struct TutoProtoRange {
 	[
 		displayName = "Offset",
 		formatSpec = "0x%04x"
@@ -94,8 +89,7 @@ struct TutoProtoRange
 	bigendian uint32_t m_length;
 }
 
-struct TutoProtoError
-{
+struct TutoProtoError {
 	[
 		displayName = "Errno",
 		formatFunc = formatErrno
@@ -103,8 +97,7 @@ struct TutoProtoError
 	bigendian int32_t m_errno;
 }
 
-char const* formatErrno(void const* p)
-{
+char const* formatErrno(void const* p) {
 	std.Error error;
 	error.m_guid = std.g_errnoGuid;
 	error.m_code = *(bigendian int const*)p;

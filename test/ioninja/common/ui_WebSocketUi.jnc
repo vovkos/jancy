@@ -10,15 +10,13 @@ namespace ui {
 
 //..............................................................................
 
-enum WebSocketTransmitMode
-{
+enum WebSocketTransmitMode {
 	Auto,   // if it's valid UTF-8, send as text, otherwise as binary
 	Text,   // always send as text
 	Binary, // always send as binary
 }
 
-const ui.EnumPropertyOption TransmitModeOptionTable[] =
-{
+const ui.EnumPropertyOption TransmitModeOptionTable[] = {
 	{ "Auto",   ui.WebSocketTransmitMode.Auto },
 	{ "Text",   ui.WebSocketTransmitMode.Text },
 	{ "Binary", ui.WebSocketTransmitMode.Binary },
@@ -26,24 +24,20 @@ const ui.EnumPropertyOption TransmitModeOptionTable[] =
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum WebSocketCloseMode
-{
+enum WebSocketCloseMode {
 	Graceful, // wait for close confirmation
 	Abrupt,   // close socket immediately
 }
 
-ui.EnumPropertyOption CloseModeOptionTable[] =
-{
+ui.EnumPropertyOption CloseModeOptionTable[] = {
 	{ "Graceful", ui.WebSocketCloseMode.Graceful },
 	{ "Abrupt",   ui.WebSocketCloseMode.Abrupt },
 }
 
 //..............................................................................
 
-class WebSocketUi
-{
-	bitflag enum SettingId
-	{
+class WebSocketUi {
+	bitflag enum SettingId {
 		ExtraHeaders,
 		TransmitMode,
 		CloseMode,
@@ -56,8 +50,7 @@ class WebSocketUi
 			CloseTimeout
 	}
 
-	enum Defaults
-	{
+	enum Defaults {
 		TransmitMode = WebSocketTransmitMode.Auto,
 		CloseMode    = WebSocketCloseMode.Graceful,
 		CloseTimeout = 3000,
@@ -72,14 +65,14 @@ class WebSocketUi
 	void createCombos(
 		ui.ToolBar* toolBar,
 		SettingId settingMask = SettingId.TransmitMode
-		);
+	);
 
 	void createProperties(
 		ui.PropertyGrid* propertyGrid,
 		ui.Property* parentProp = null,
 		ui.Property* beforeProp = null,
 		SettingId settingMask = SettingId.All
-		);
+	);
 
 	void load(doc.Storage* storage);
 	void save(doc.Storage* storage);
@@ -87,8 +80,7 @@ class WebSocketUi
 	void applyProperties();
 	void restoreDefaults();
 
-	void onCloseModeChanged()
-	{
+	void onCloseModeChanged() {
 		m_closeTimeoutProp.m_isEnabled = m_closeModeProp.m_value == WebSocketCloseMode.Graceful;
 	}
 }
@@ -98,14 +90,13 @@ class WebSocketUi
 void WebSocketUi.createCombos(
 	ui.ToolBar* toolBar,
 	SettingId settingMask
-	)
-{
+) {
 	if (settingMask & SettingId.TransmitMode)
 		m_transmitModeCombo = toolBar.addComboBox(
 			"Transmit as:",
 			TransmitModeOptionTable,
 			countof(TransmitModeOptionTable)
-			);
+		);
 }
 
 void WebSocketUi.createProperties(
@@ -113,16 +104,14 @@ void WebSocketUi.createProperties(
 	ui.Property* parentProp,
 	ui.Property* beforeProp,
 	SettingId settingMask
-	)
-{
-	if (settingMask & SettingId.ExtraHeaders)
-	{
+) {
+	if (settingMask & SettingId.ExtraHeaders) {
 		m_extraHeadersProp = propertyGrid.createDictionaryProperty(
 			parentProp,
 			beforeProp,
 			"Extra headers",
 			"Extra HTTP headers for WebSocket handshake"
-			);
+		);
 
 		m_extraHeadersProp.m_editDialogTitle = "Edit Extra Headers";
 		m_extraHeadersProp.m_keyLabel = "Header";
@@ -138,10 +127,9 @@ void WebSocketUi.createProperties(
 			"Specify the WebSocket transmission mode",
 			TransmitModeOptionTable,
 			countof(TransmitModeOptionTable)
-			);
+		);
 
-	if (settingMask & SettingId.CloseMode)
-	{
+	if (settingMask & SettingId.CloseMode) {
 		m_closeModeProp = propertyGrid.createEnumProperty(
 			parentProp,
 			beforeProp,
@@ -149,30 +137,26 @@ void WebSocketUi.createProperties(
 			"Specify the WebSocket close mode",
 			CloseModeOptionTable,
 			countof(CloseModeOptionTable)
-			);
+		);
 
-		if (settingMask & SettingId.CloseTimeout)
-		{
+		if (settingMask & SettingId.CloseTimeout) {
 			m_closeTimeoutProp = propertyGrid.createIntProperty(
 				parentProp,
 				beforeProp,
 				"Close timeout",
 				"Specify the WebSocket close timeout"
-				);
+			);
 
 			m_closeModeProp.m_onChanged += onCloseModeChanged;
 		}
 	}
 }
 
-void WebSocketUi.load(doc.Storage* storage)
-{
-	if (m_extraHeadersProp)
-	{
+void WebSocketUi.load(doc.Storage* storage) {
+	if (m_extraHeadersProp) {
 		m_extraHeadersProp.m_value.clear();
 
-		for (size_t i = 0;; i++)
-		{
+		for (size_t i = 0;; i++) {
 			char const* header = storage.readString($"webSocketExtraHeader$i");
 			char const* value = storage.readString($"webSocketExtraHeaderValue$i");
 			if (!header)
@@ -192,14 +176,11 @@ void WebSocketUi.load(doc.Storage* storage)
 		m_closeTimeoutProp.m_value = storage.readInt("webSocketCloseTimeout", Defaults.CloseTimeout);
 }
 
-void WebSocketUi.save(doc.Storage* storage)
-{
-	if (m_extraHeadersProp)
-	{
+void WebSocketUi.save(doc.Storage* storage) {
+	if (m_extraHeadersProp) {
 		size_t i = 0;
 		std.MapEntry const* entry = m_extraHeadersProp.m_value.m_head;
-		for (; entry; entry = entry.m_next, i++)
-		{
+		for (; entry; entry = entry.m_next, i++) {
 			storage.writeString($"webSocketExtraHeader$i", entry.m_key);
 			storage.writeString($"webSocketExtraHeaderValue$i", entry.m_value);
 		}
@@ -217,20 +198,17 @@ void WebSocketUi.save(doc.Storage* storage)
 		storage.writeInt("webSocketCloseTimeout", m_closeTimeoutProp.m_value);
 }
 
-void WebSocketUi.updateProperties()
-{
+void WebSocketUi.updateProperties() {
 	if (m_transmitModeCombo && m_transmitModeProp)
 		m_transmitModeProp.m_value = m_transmitModeCombo.m_editText;
 }
 
-void WebSocketUi.applyProperties()
-{
+void WebSocketUi.applyProperties() {
 	if (m_transmitModeCombo && m_transmitModeProp)
 		m_transmitModeCombo.m_currentData = m_transmitModeProp.m_value;
 }
 
-void WebSocketUi.restoreDefaults()
-{
+void WebSocketUi.restoreDefaults() {
 	if (m_extraHeadersProp)
 		m_extraHeadersProp.m_value.clear();
 

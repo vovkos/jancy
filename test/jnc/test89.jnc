@@ -9,15 +9,12 @@
 //
 //..............................................................................
 
-class C2
-{
-	property m_prop
-	{
+class C2 {
+	property m_prop {
 		autoget alias m_value = m_classValue;
 		bindable alias m_onChanged = m_classOnChanged;
 
-		void set(int x)
-		{
+		void set(int x) {
 			m_value = x;
 			m_onChanged();
 		}
@@ -27,13 +24,11 @@ class C2
 	event m_classOnChanged();
 }
 
-void foo()
-{
+void foo() {
 	printf("foo ()\n");
 }
 
-int foo(int x)
-{
+int foo(int x) {
 	printf("foo (%d)\n", x);
 	return 2 * x;
 }
@@ -42,13 +37,11 @@ alias bar = foo;
 
 int baz(int) = foo;
 
-void baz()
-{
+void baz() {
 	printf("baz ()\n");
 }
 
-int main()
-{
+int main() {
 	bar();
 	bar(100);
 

@@ -26,7 +26,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE_REQ(
 	StdLibCacheSlot_HashTable,
 	HashTable,
 	NULL
-	)
+)
 
 JNC_BEGIN_OPAQUE_CLASS_REQUIRE_TABLE(HashTable)
 	JNC_OPAQUE_CLASS_REQUIRE_TYPE(TypeKind_Struct, "std.MapEntry")
@@ -44,11 +44,9 @@ JNC_END_TYPE_FUNCTION_MAP()
 //..............................................................................
 
 DataPtr
-HashTable::visitImpl(Variant key)
-{
+HashTable::visitImpl(Variant key) {
 	sl::MapIterator<Variant, DataPtr> it = m_hashTable.visit(key);
-	if (!it->m_value.m_p)
-	{
+	if (!it->m_value.m_p) {
 		it->m_value = m_map.add(it);
 		ASSERT(m_map.m_count == m_hashTable.getCount());
 	}
@@ -57,10 +55,8 @@ HashTable::visitImpl(Variant key)
 }
 
 void
-HashTable::removeImpl(MapEntry* entry)
-{
-	if (!entry || entry->m_map != &m_map)
-	{
+HashTable::removeImpl(MapEntry* entry) {
+	if (!entry || entry->m_map != &m_map) {
 		err::setError("attempt to remove an invalid map entry from the hash table");
 		dynamicThrow();
 	}

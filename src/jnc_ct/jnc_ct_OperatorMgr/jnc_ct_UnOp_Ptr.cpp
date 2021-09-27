@@ -19,17 +19,14 @@ namespace ct {
 //..............................................................................
 
 Type*
-UnOp_Addr::getResultType(const Value& opValue)
-{
+UnOp_Addr::getResultType(const Value& opValue) {
 	if (opValue.getValueKind() == ValueKind_Variable &&
-		opValue.getVariable()->getStorageKind() == StorageKind_Tls)
-	{
+		opValue.getVariable()->getStorageKind() == StorageKind_Tls) {
 		err::setFormatStringError("cannot take address of a 'threadlocal' variable");
 		return NULL;
 	}
 
-	union
-	{
+	union {
 		Type* m_type;
 		DataPtrType* m_dataPtrType;
 		ClassPtrType* m_classPtrType;
@@ -38,35 +35,34 @@ UnOp_Addr::getResultType(const Value& opValue)
 	} t = { opValue.getType() };
 
 	TypeKind opTypeKind = t.m_type->getTypeKind();
-	switch (opTypeKind)
-	{
+	switch (opTypeKind) {
 	case TypeKind_DataRef:
 		return t.m_dataPtrType->getTargetType()->getDataPtrType(
 			TypeKind_DataPtr,
 			t.m_dataPtrType->getPtrTypeKind(),
 			t.m_dataPtrType->getFlags()
-			);
+		);
 
 	case TypeKind_ClassRef:
 		return t.m_classPtrType->getTargetType()->getClassPtrType(
 			TypeKind_ClassPtr,
 			t.m_classPtrType->getPtrTypeKind(),
 			t.m_classPtrType->getFlags()
-			);
+		);
 
 	case TypeKind_FunctionRef:
 		return t.m_functionPtrType->getTargetType()->getFunctionPtrType(
 			TypeKind_FunctionPtr,
 			t.m_functionPtrType->getPtrTypeKind(),
 			t.m_functionPtrType->getFlags()
-			);
+		);
 
 	case TypeKind_PropertyRef:
 		return t.m_propertyPtrType->getTargetType()->getPropertyPtrType(
 			TypeKind_PropertyPtr,
 			t.m_propertyPtrType->getPtrTypeKind(),
 			t.m_propertyPtrType->getFlags()
-			);
+		);
 
 	default:
 		err::setFormatStringError("can only apply unary '&' to a reference");
@@ -78,8 +74,7 @@ bool
 UnOp_Addr::op(
 	const Value& opValue,
 	Value* resultValue
-	)
-{
+) {
 	Type* resultType = getResultType(opValue);
 	if (!resultType)
 		return false;
@@ -91,10 +86,8 @@ UnOp_Addr::op(
 //..............................................................................
 
 Type*
-UnOp_Indir::getResultType(const Value& opValue)
-{
-	union
-	{
+UnOp_Indir::getResultType(const Value& opValue) {
+	union {
 		Type* m_type;
 		DataPtrType* m_dataPtrType;
 		ClassPtrType* m_classPtrType;
@@ -103,35 +96,34 @@ UnOp_Indir::getResultType(const Value& opValue)
 	} t = { opValue.getType() };
 
 	TypeKind opTypeKind = t.m_type->getTypeKind();
-	switch (opTypeKind)
-	{
+	switch (opTypeKind) {
 	case TypeKind_DataPtr:
 		return t.m_dataPtrType->getTargetType()->getDataPtrType(
 			TypeKind_DataRef,
 			t.m_dataPtrType->getPtrTypeKind(),
 			t.m_dataPtrType->getFlags()
-			);
+		);
 
 	case TypeKind_ClassPtr:
 		return t.m_classPtrType->getTargetType()->getClassPtrType(
 			TypeKind_ClassRef,
 			t.m_classPtrType->getPtrTypeKind(),
 			t.m_classPtrType->getFlags()
-			);
+		);
 
 	case TypeKind_FunctionPtr:
 		return t.m_functionPtrType->getTargetType()->getFunctionPtrType(
 			TypeKind_FunctionRef,
 			t.m_functionPtrType->getPtrTypeKind(),
 			t.m_functionPtrType->getFlags()
-			);
+		);
 
 	case TypeKind_PropertyPtr:
 		return t.m_propertyPtrType->getTargetType()->getPropertyPtrType(
 			TypeKind_PropertyRef,
 			t.m_propertyPtrType->getPtrTypeKind(),
 			t.m_propertyPtrType->getFlags()
-			);
+		);
 
 	default:
 		err::setFormatStringError("can only apply unary '*' to a pointer");
@@ -143,8 +135,7 @@ bool
 UnOp_Indir::op(
 	const Value& opValue,
 	Value* resultValue
-	)
-{
+) {
 	Type* resultType = getResultType(opValue);
 	if (!resultType)
 		return false;
@@ -160,8 +151,7 @@ bool
 UnOp_Ptr::op(
 	const Value& opValue,
 	Value* resultValue
-	)
-{
+) {
 	return isClassPtrType(opValue.getType(), ClassTypeKind_DynamicLib) ?
 		m_module->m_operatorMgr.memberOperator(opValue, "lib", resultValue) :
 		UnOp_Indir::op(opValue, resultValue);

@@ -116,42 +116,35 @@
 // therefore, we define and use version-neutral typedefs
 
 template <typename T>
-class InitializedPtr
-{
+class InitializedPtr {
 protected:
 	T* m_p;
 
 public:
-	InitializedPtr()
-	{
+	InitializedPtr() {
 		m_p = NULL;
 	}
 
-	InitializedPtr(T* p)
-	{
+	InitializedPtr(T* p) {
 		m_p = p;
 	}
 
-	operator bool() const
-	{
+	operator bool() const {
 		return m_p != NULL;
 	}
 
 	template <typename T2>
-	operator T2* () const
-	{
+	operator T2* () const {
 		return (T2*)m_p;
 	}
 
 	T*
-	operator -> () const
-	{
+	operator -> () const {
 		return m_p;
 	}
 
 	InitializedPtr&
-	operator = (T* p)
-	{
+	operator = (T* p) {
 		m_p = p;
 		return *this;
 	}
@@ -296,8 +289,7 @@ std::string
 operator >> (
 	const sl::StringRef& string,
 	const ToStl*
-	)
-{
+) {
 	return std::string(string.cp(), string.getLength());
 }
 
@@ -306,8 +298,7 @@ llvm::StringRef
 operator >> (
 	const sl::StringRef& string,
 	const ToLlvm*
-	)
-{
+) {
 	return llvm::StringRef(string.cp(), string.getLength());
 }
 
@@ -316,8 +307,7 @@ sl::String
 operator >> (
 	const llvm::StringRef& string,
 	const ToAxl*
-	)
-{
+) {
 	return sl::String(string.data(), string.size());
 }
 

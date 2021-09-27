@@ -27,7 +27,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	ModuleItemDecl,
 	&ModuleItemDecl::markOpaqueGcRoots
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(ModuleItemDecl)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<ModuleItemDecl, ct::ModuleItemDecl*>))
@@ -52,7 +52,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	ModuleItemInitializer,
 	&ModuleItemInitializer::markOpaqueGcRoots
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(ModuleItemInitializer)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<ModuleItemInitializer, ct::ModuleItemInitializer*>))
@@ -67,7 +67,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	ModuleItem,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(ModuleItem)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<ModuleItem, ct::ModuleItem*>))
@@ -81,8 +81,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 void
 JNC_CDECL
-ModuleItemDecl::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
-{
+ModuleItemDecl::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 	if (!m_cache)
 		return;
 
@@ -92,8 +91,7 @@ ModuleItemDecl::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
 
 DataPtr
 JNC_CDECL
-ModuleItemDecl::getName(ModuleItemDecl* self)
-{
+ModuleItemDecl::getName(ModuleItemDecl* self) {
 	Cache* cache = self->getCache();
 	if (!cache->m_namePtr.m_p)
 		cache->m_namePtr = createForeignStringPtr(self->m_decl->getName(), false);
@@ -103,8 +101,7 @@ ModuleItemDecl::getName(ModuleItemDecl* self)
 
 DataPtr
 JNC_CDECL
-ModuleItemDecl::getQualifiedName(ModuleItemDecl* self)
-{
+ModuleItemDecl::getQualifiedName(ModuleItemDecl* self) {
 	Cache* cache = self->getCache();
 	if (!cache->m_namePtr.m_p)
 		cache->m_namePtr = createForeignStringPtr(self->m_decl->getQualifiedName(), false);
@@ -116,15 +113,13 @@ ModuleItemDecl::getQualifiedName(ModuleItemDecl* self)
 
 void
 JNC_CDECL
-ModuleItemInitializer::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
-{
+ModuleItemInitializer::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 	gcHeap->markDataPtr(m_initializerPtr);
 }
 
 DataPtr
 JNC_CDECL
-ModuleItemInitializer::getInitializer(ModuleItemInitializer* self)
-{
+ModuleItemInitializer::getInitializer(ModuleItemInitializer* self) {
 	if (!self->m_initializerPtr.m_p)
 		self->m_initializerPtr = createForeignStringPtr(self->m_initializer->getInitializerString(), false);
 
@@ -135,13 +130,11 @@ ModuleItemInitializer::getInitializer(ModuleItemInitializer* self)
 
 ModuleItem*
 JNC_CDECL
-getModuleItem(ct::ModuleItem* item)
-{
+getModuleItem(ct::ModuleItem* item) {
 	if (!item)
 		return NULL;
 
-	static StdType stdTypeTable[ModuleItemKind__Count] =
-	{
+	static StdType stdTypeTable[ModuleItemKind__Count] = {
 		StdType_ModuleItem,       // ModuleItemKind_Undefined
 		StdType_GlobalNamespace,  // ModuleItemKind_Namespace
 		StdType_Attribute,        // ModuleItemKind_Attribute

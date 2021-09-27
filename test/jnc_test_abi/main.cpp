@@ -17,13 +17,13 @@ int
 wmain(
 	int argc,
 	wchar_t* argv[]
-	)
+)
 #else
 int
 main(
 	int argc,
 	char* argv[]
-	)
+)
 #endif
 {
 #if _AXL_OS_POSIX
@@ -32,8 +32,7 @@ main(
 
 	printf("Initializing...\n");
 
-	if (argc < 2)
-	{
+	if (argc < 2) {
 		printf("usage: jnc_test_abi <script.jnc>\n");
 		return -1;
 	}
@@ -61,8 +60,7 @@ main(
 	module->addStaticLib(jnc::StdLib_getLib());
 	module->addStaticLib(TestLib_getLib());
 
-	static const char* requiredFuncSet[] =
-	{
+	static const char* requiredFuncSet[] = {
 		"c2jnc.funcInt32",
 		"c2jnc.funcInt64",
 		"c2jnc.funcStruct32",
@@ -91,8 +89,7 @@ main(
 		module->parseFile(sourceFileName) &&
 		module->parseImports();
 
-	if (!result)
-	{
+	if (!result) {
 		printf("Error: %s\n", err::getLastErrorDescription().sz());
 		return -1;
 	}
@@ -103,8 +100,7 @@ main(
 		module->compile() &&
 		module->jit();
 
-	if (!result)
-	{
+	if (!result) {
 		printf("Error: %s\n", err::getLastErrorDescription().sz());
 		return -1;
 	}
@@ -112,8 +108,7 @@ main(
 	printf("Starting up runtime...\n");
 
 	result = runtime->startup(module);
-	if (!result)
-	{
+	if (!result) {
 		printf("Error: %s\n", err::getLastErrorDescription().sz());
 		return -1;
 	}

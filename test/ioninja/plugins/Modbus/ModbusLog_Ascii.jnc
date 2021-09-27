@@ -12,8 +12,7 @@ import "hexEncoding.jnc"
 uint8_t lrc(
 	void const* p,
 	size_t size
-	)
-{
+) {
 	uint8_t const* b = (uint8_t const*) p;
 	int result = 0;
 
@@ -29,8 +28,7 @@ void representModbusAsciiAdu(
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
+) {
 	assert(size > 3);
 
 	std.Buffer aduBuffer;
@@ -49,8 +47,7 @@ void representModbusAsciiAdu(
 	uint8_t actualChecksum = aduBuffer.m_p[checksumOffset];
 	uint16_t expectedChecksum = lrc(aduBuffer.m_p, checksumOffset);
 
-	if (!(foldFlags & 1))
-	{
+	if (!(foldFlags & 1)) {
 		representation.addHyperText(
 			$"[\e^+1\e[34m+\e[m] \e[1mMODBUS-ASCII\e[m Dev: \e[34m%1\e[m %2" (
 			aduHdr.m_deviceAddress,
@@ -58,9 +55,7 @@ void representModbusAsciiAdu(
 				getModbusPduDigest(role, pduHdr) :
 				"[\e[31mLRC ERROR\e[m]"
 			));
-	}
-	else
-	{
+	} else {
 		representation.addHyperText(
 			"[\e^-1\e[34m-\e[m]\n"
 			"\e[1mADU-ASCII\e[m\n"
@@ -68,26 +63,23 @@ void representModbusAsciiAdu(
 			1,
 			2,
 			aduHdr.m_deviceAddress
-			));
+		));
 
-		if (actualChecksum == expectedChecksum)
-		{
+		if (actualChecksum == expectedChecksum) {
 			representation.addHyperText(
 				$"    Checksum:  \e^!%1,%2\e[34m0x%(3; 04x)\e[m [\e[32mOK\e[m]" (
 				size - 4, // xx\r\n
 				2,
 				actualChecksum
-				));
-		}
-		else
-		{
+			));
+		} else {
 			representation.addHyperText(
 				$"    Checksum:  \e^!%1,%2\e[34m0x%(3; 04x)\e[m [\e[31mERROR\e[m] \e[90m(expected: 0x%(4; 04X))\e[m" (
 				checksumOffset,
 				2,
 				actualChecksum,
 				expectedChecksum
-				));
+			));
 		}
 
 		representModbusPdu(
@@ -97,7 +89,7 @@ void representModbusAsciiAdu(
 			1 + sizeof(io.ModbusRtuAduHdr) * 2,
 			2,
 			foldFlags
-			);
+		);
 
 		representation.m_lineAttr.m_backColor = ui.ColorFlags.Transparent;
 		representation.m_lineAttr.m_textColor = ui.StdColor.Gray;

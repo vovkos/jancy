@@ -18,15 +18,13 @@ namespace ct {
 
 //..............................................................................
 
-ConstMgr::ConstMgr()
-{
+ConstMgr::ConstMgr() {
 	m_module = Module::getCurrentConstructedModule();
 	ASSERT(m_module);
 }
 
 void
-ConstMgr::clear()
-{
+ConstMgr::clear() {
 	m_valueList.clear();
 	m_constList.clear();
 	m_constBoxList.clear();
@@ -37,8 +35,7 @@ ConstMgr::createConst(
 	const sl::StringRef& name,
 	const sl::StringRef& qualifiedName,
 	const Value& value
-	)
-{
+) {
 	Const* cnst = AXL_MEM_NEW(Const);
 	cnst->m_name = name;
 	cnst->m_qualifiedName = qualifiedName;
@@ -49,8 +46,7 @@ ConstMgr::createConst(
 }
 
 const Value&
-ConstMgr::saveLiteral(const sl::StringRef& string)
-{
+ConstMgr::saveLiteral(const sl::StringRef& string) {
 	Value value;
 	value.setCharArray(string, m_module);
 	return saveValue(value);
@@ -60,8 +56,7 @@ DataPtrValidator*
 ConstMgr::createConstDataPtrValidator(
 	const void* p,
 	Type* type
-	)
-{
+) {
 	DetachedDataBox* box = m_constBoxList.insertTail().p();
 	box->m_box.m_type = type;
 	box->m_box.m_flags = BoxFlag_Detached | BoxFlag_Static | BoxFlag_DataMark | BoxFlag_WeakMark;

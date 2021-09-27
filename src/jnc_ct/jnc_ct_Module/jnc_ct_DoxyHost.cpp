@@ -18,22 +18,19 @@ namespace ct {
 
 //..............................................................................
 
-DoxyHost::DoxyHost()
-{
+DoxyHost::DoxyHost() {
 	m_module = Module::getCurrentConstructedModule();
 	ASSERT(m_module);
 }
 
 dox::Block*
-DoxyHost::findItemBlock(handle_t item0)
-{
+DoxyHost::findItemBlock(handle_t item0) {
 	ModuleItem* item = (ModuleItem*) item0;
 	return item->getDecl()->m_doxyBlock;
 }
 
 dox::Block*
-DoxyHost::getItemBlock(handle_t item0)
-{
+DoxyHost::getItemBlock(handle_t item0) {
 	ModuleItem* item = (ModuleItem*) item0;
 	return getItemBlock(item, item->getDecl());
 }
@@ -42,8 +39,7 @@ void
 DoxyHost::setItemBlock(
 	handle_t item0,
 	dox::Block* block
-	)
-{
+) {
 	ModuleItem* item = (ModuleItem*) item0;
 	setItemBlock(item, item->getDecl(), block);
 }
@@ -52,8 +48,7 @@ dox::Block*
 DoxyHost::getItemBlock(
 	ModuleItem* item,
 	ModuleItemDecl* itemDecl
-	)
-{
+) {
 	if (!itemDecl->m_doxyBlock)
 		itemDecl->m_doxyBlock = m_module->m_doxyModule.createBlock(item);
 
@@ -65,22 +60,19 @@ DoxyHost::setItemBlock(
 	ModuleItem* item,
 	ModuleItemDecl* itemDecl,
 	dox::Block* block
-	)
-{
+) {
 	itemDecl->m_doxyBlock = block;
 	if (block)
 		block->m_item = item;
 }
 
 sl::String
-DoxyHost::createItemRefId(handle_t item)
-{
+DoxyHost::createItemRefId(handle_t item) {
 	return ((ModuleItem*)item)->createDoxyRefId();
 }
 
 sl::StringRef
-DoxyHost::getItemCompoundElementName(handle_t item)
-{
+DoxyHost::getItemCompoundElementName(handle_t item) {
 	ModuleItemKind itemKind = ((ModuleItem*) item)->getItemKind();
 
 	bool isCompoundFile =
@@ -94,15 +86,13 @@ handle_t
 DoxyHost::findItem(
 	const sl::StringRef& name,
 	size_t overloadIdx
-	)
-{
+) {
 	FindModuleItemResult findResult = m_module->m_namespaceMgr.getGlobalNamespace()->findItem(name);
 	if (!findResult.m_item)
 		return NULL;
 
 	ModuleItem* item = findResult.m_item;
-	if (overloadIdx && item->getItemKind() == ModuleItemKind_FunctionOverload)
-	{
+	if (overloadIdx && item->getItemKind() == ModuleItemKind_FunctionOverload) {
 		Function* overload = ((FunctionOverload*)item)->getOverload(overloadIdx);
 		if (overload)
 			item = overload;
@@ -112,8 +102,7 @@ DoxyHost::findItem(
 }
 
 handle_t
-DoxyHost::getCurrentNamespace()
-{
+DoxyHost::getCurrentNamespace() {
 	return m_module->m_namespaceMgr.getCurrentNamespace();
 }
 
@@ -122,8 +111,7 @@ DoxyHost::generateGlobalNamespaceDocumentation(
 	const sl::StringRef& outputDir,
 	sl::String* itemXml,
 	sl::String* indexXml
-	)
-{
+) {
 	return m_module->m_namespaceMgr.getGlobalNamespace()->generateDocumentation(outputDir, itemXml, indexXml);
 }
 

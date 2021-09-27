@@ -13,15 +13,13 @@ pragma(Alignment, 1);
 
 //..............................................................................
 
-struct ModbusRtuReadFrame
-{
+struct ModbusRtuReadFrame {
 	uint8_t m_deviceAddress;
 	io.ModbusReadPdu m_read;
 	uint16_t m_crc;
 
 	[ packetTemplateAction ]
-	void initialize()
-	{
+	void initialize() {
 		*this = null;
 		m_deviceAddress = 1;
 		m_read.m_func = io.ModbusFunc.ReadHoldingRegisters;
@@ -29,22 +27,19 @@ struct ModbusRtuReadFrame
 	}
 
 	[ packetTemplateAction ]
-	void calcChecksum()
-	{
+	void calcChecksum() {
 		updateModbusRtuChecksum(this);
 	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ModbusTcpReadFrame
-{
+struct ModbusTcpReadFrame {
 	io.ModbusTcpAduHdr m_adu;
 	io.ModbusReadPdu m_read;
 
 	[ packetTemplateAction ]
-	void initialize()
-	{
+	void initialize() {
 		*this = null;
 		initializeModbusTcpAdu(&m_adu);
 		m_read.m_func = io.ModbusFunc.ReadHoldingRegisters;
@@ -52,67 +47,58 @@ struct ModbusTcpReadFrame
 	}
 
 	[ packetTemplateAction ]
-	void updateLength()
-	{
+	void updateLength() {
 		updateModbusTcpLength(this);
 	}
 }
 
 //..............................................................................
 
-struct ModbusRtuWriteFrame
-{
+struct ModbusRtuWriteFrame {
 	uint8_t m_deviceAddress;
 	io.ModbusWritePdu m_write;
 	uint16_t m_crc;
 
 	[ packetTemplateAction ]
-	void initialize()
-	{
+	void initialize() {
 		*this = null;
 		m_deviceAddress = 1;
 		m_write.m_func = io.ModbusFunc.WriteRegister;
 	}
 
 	[ packetTemplateAction ]
-	void calcChecksum()
-	{
+	void calcChecksum() {
 		updateModbusRtuChecksum(this);
 	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ModbusTcpWriteFrame
-{
+struct ModbusTcpWriteFrame {
 	io.ModbusTcpAduHdr m_adu;
 	io.ModbusWritePdu m_write;
 
 	[ packetTemplateAction ]
-	void initialize()
-	{
+	void initialize() {
 		*this = null;
 		initializeModbusTcpAdu(&m_adu);
 		m_write.m_func = io.ModbusFunc.WriteRegister;
 	}
 
 	[ packetTemplateAction ]
-	void updateLength()
-	{
+	void updateLength() {
 		updateModbusTcpLength(this);
 	}
 }
 
 //..............................................................................
 
-struct ModbusRtuWriteMultipleFrame
-{
+struct ModbusRtuWriteMultipleFrame {
 	uint8_t m_deviceAddress;
 	io.ModbusWriteMultiplePdu m_write;
 
 	[ packetTemplateAction ]
-	void initialize()
-	{
+	void initialize() {
 		*this = null;
 		m_deviceAddress = 1;
 		m_write.m_func = io.ModbusFunc.WriteMultipleRegisters;
@@ -120,30 +106,26 @@ struct ModbusRtuWriteMultipleFrame
 	}
 
 	[ packetTemplateAction ]
-	void updateSize()
-	{
+	void updateSize() {
 		size_t extra = dynamic sizeof(this) - sizeof(ModbusRtuWriteMultipleFrame);
 		m_write.m_count = extra > sizeof(uint16_t) ? (extra - sizeof(uint16_t)) / sizeof(uint16_t) : 0;
 		m_write.m_size = m_write.m_count * sizeof(uint16_t);
 	}
 
 	[ packetTemplateAction ]
-	void calcChecksum()
-	{
+	void calcChecksum() {
 		updateModbusRtuChecksum(this);
 	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ModbusTcpWriteMultipleFrame
-{
+struct ModbusTcpWriteMultipleFrame {
 	io.ModbusTcpAduHdr m_adu;
 	io.ModbusWriteMultiplePdu m_write;
 
 	[ packetTemplateAction ]
-	void initialize()
-	{
+	void initialize() {
 		*this = null;
 		initializeModbusTcpAdu(&m_adu);
 		m_write.m_func = io.ModbusFunc.WriteMultipleRegisters;
@@ -151,8 +133,7 @@ struct ModbusTcpWriteMultipleFrame
 	}
 
 	[ packetTemplateAction ]
-	void updateLength()
-	{
+	void updateLength() {
 		m_write.m_count = (dynamic sizeof(this) - sizeof(ModbusTcpWriteMultipleFrame)) / sizeof(uint16_t);
 		m_write.m_size = m_write.m_count * sizeof(uint16_t);
 		updateModbusTcpLength(this);
@@ -161,14 +142,12 @@ struct ModbusTcpWriteMultipleFrame
 
 //..............................................................................
 
-struct ModbusRtuReadWriteMultipleFrame
-{
+struct ModbusRtuReadWriteMultipleFrame {
 	uint8_t m_deviceAddress;
 	io.ModbusReadWriteMultiplePdu m_readWrite;
 
 	[ packetTemplateAction ]
-	void initialize()
-	{
+	void initialize() {
 		*this = null;
 		m_deviceAddress = 1;
 		m_readWrite.m_func = io.ModbusFunc.ReadWriteMultipleRegisters;
@@ -177,30 +156,26 @@ struct ModbusRtuReadWriteMultipleFrame
 	}
 
 	[ packetTemplateAction ]
-	void updateSize()
-	{
+	void updateSize() {
 		size_t extra = dynamic sizeof(this) - sizeof(ModbusRtuReadWriteMultipleFrame);
 		m_readWrite.m_writeCount = extra > sizeof(uint16_t) ? (extra - sizeof(uint16_t)) / sizeof(uint16_t) : 0;
 		m_readWrite.m_writeSize = m_readWrite.m_writeCount * sizeof(uint16_t);
 	}
 
 	[ packetTemplateAction ]
-	void calcChecksum()
-	{
+	void calcChecksum() {
 		updateModbusRtuChecksum(this);
 	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ModbusTcpReadWriteMultipleFrame
-{
+struct ModbusTcpReadWriteMultipleFrame {
 	io.ModbusTcpAduHdr m_adu;
 	io.ModbusReadWriteMultiplePdu m_readWrite;
 
 	[ packetTemplateAction ]
-	void initialize()
-	{
+	void initialize() {
 		*this = null;
 		initializeModbusTcpAdu(&m_adu);
 		m_readWrite.m_func = io.ModbusFunc.ReadWriteMultipleRegisters;
@@ -209,8 +184,7 @@ struct ModbusTcpReadWriteMultipleFrame
 	}
 
 	[ packetTemplateAction ]
-	void updateLength()
-	{
+	void updateLength() {
 		m_readWrite.m_writeCount = (dynamic sizeof(this) - sizeof(ModbusTcpReadWriteMultipleFrame)) / sizeof(uint16_t);
 		m_readWrite.m_writeSize = m_readWrite.m_writeCount * sizeof(uint16_t);
 		updateModbusTcpLength(this);
@@ -219,8 +193,7 @@ struct ModbusTcpReadWriteMultipleFrame
 
 //..............................................................................
 
-void updateModbusRtuChecksum(void* p)
-{
+void updateModbusRtuChecksum(void* p) {
 	size_t size = dynamic sizeof(p);
 	if (size < 2)
 		return;
@@ -229,16 +202,14 @@ void updateModbusRtuChecksum(void* p)
 	*(uint16_t*)(p + size) = crc16_ansi(p, size, 0xffff);
 }
 
-void initializeModbusTcpAdu(io.ModbusTcpAduHdr* adu)
-{
+void initializeModbusTcpAdu(io.ModbusTcpAduHdr* adu) {
 	adu.m_deviceAddress = 1;
 	adu.m_protocol = 0;
 	adu.m_transactionId = sys.getPreciseTimestamp() / 10000000; // count in seconds
 	adu.m_length = dynamic sizeof(adu) - offsetof(io.ModbusTcpAduHdr.m_deviceAddress);
 }
 
-void updateModbusTcpLength(void* p)
-{
+void updateModbusTcpLength(void* p) {
 	size_t size = dynamic sizeof(p);
 	if (size < sizeof(io.ModbusTcpAduHdr))
 		return;

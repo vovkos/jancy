@@ -25,7 +25,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	IoLibCacheSlot_HostNameResolver,
 	HostNameResolver,
 	&HostNameResolver::markOpaqueGcRoots
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(HostNameResolver)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<HostNameResolver>)
@@ -43,8 +43,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 void
 JNC_CDECL
-HostNameResolver::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
-{
+HostNameResolver::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 	AsyncIoBase::markOpaqueGcRoots(gcHeap);
 	gcHeap->markDataPtr(m_pendingAddressTablePtr);
 }
@@ -54,8 +53,7 @@ JNC_CDECL
 HostNameResolver::resolve(
 	DataPtr namePtr,
 	uint16_t addrFamily
-	)
-{
+) {
 	cancel();
 
 	if (!requireIoLibCapability(IoLibCapability_HostNameResolver))
@@ -68,8 +66,7 @@ HostNameResolver::resolve(
 
 	axl::io::SockAddr sockAddr;
 	bool result = sockAddr.parse(name);
-	if (result)
-	{
+	if (result) {
 		complete(&sockAddr, 1);
 		return true;
 	}
@@ -78,17 +75,13 @@ HostNameResolver::resolve(
 	uint_t port;
 
 	const char* p = strchr(name, ':');
-	if (!p)
-	{
+	if (!p) {
 		nameString = name;
 		port = 0;
-	}
-	else
-	{
+	} else {
 		char* end;
 		port = (ushort_t)strtol(p + 1, &end, 10);
-		if (end == p)
-		{
+		if (end == p) {
 			setIoErrorEvent("invalid port string");
 			return false;
 		}
@@ -101,8 +94,7 @@ HostNameResolver::resolve(
 	m_addrFamily = addrFamily;
 	m_port = sl::swapByteOrder16(port);
 
-	if (m_ioThreadFlags & IoThreadFlag_Started)
-	{
+	if (m_ioThreadFlags & IoThreadFlag_Started) {
 		wakeIoThread();
 		m_lock.unlock();
 		return true;
@@ -117,8 +109,7 @@ HostNameResolver::resolve(
 
 void
 JNC_CDECL
-HostNameResolver::cancel()
-{
+HostNameResolver::cancel() {
 	m_lock.lock();
 	m_name.clear();
 	// currently, no need to wakeIoThread() -- ::getaddrinfo is not cancellable anyway
@@ -129,8 +120,7 @@ HostNameResolver::cancel()
 
 void
 JNC_CDECL
-HostNameResolver::close()
-{
+HostNameResolver::close() {
 	m_lock.lock();
 	m_name.clear();
 	m_ioThreadFlags |= IoThreadFlag_Closing;
@@ -148,25 +138,21 @@ HostNameResolver::close()
 }
 
 void
-HostNameResolver::ioThreadFunc()
-{
+HostNameResolver::ioThreadFunc() {
 	wakeIoThread();
 
 	sl::Array<axl::io::SockAddr> addrArray;
 
-	for (;;)
-	{
+	for (;;) {
 		sleepIoThread();
 
 		m_lock.lock();
-		if (m_ioThreadFlags & IoThreadFlag_Closing)
-		{
+		if (m_ioThreadFlags & IoThreadFlag_Closing) {
 			m_lock.unlock();
 			break;
 		}
 
-		if (m_name.isEmpty())
-		{
+		if (m_name.isEmpty()) {
 			m_lock.unlock();
 			continue;
 		}
@@ -179,8 +165,7 @@ HostNameResolver::ioThreadFunc()
 		bool result = axl::io::resolveHostName(&addrArray, name, addrFamily);
 
 		m_lock.lock();
-		if (m_ioThreadFlags & IoThreadFlag_Closing)
-		{
+		if (m_ioThreadFlags & IoThreadFlag_Closing) {
 			m_lock.unlock();
 			break;
 		}
@@ -200,8 +185,7 @@ void
 HostNameResolver::complete_l(
 	const axl::io::SockAddr* addressTable,
 	size_t count
-	)
-{
+) {
 	sl::StringRef name = m_name;
 	uint_t addrFamily = m_addrFamily;
 	uint_t port = m_port;
@@ -215,16 +199,14 @@ HostNameResolver::complete_l(
 
 	if (name != m_name ||
 		addrFamily != m_addrFamily ||
-		port != m_port)
-	{
+		port != m_port) {
 		m_lock.unlock(); // cancelled during memDup
 		return;
 	}
 
 	SocketAddress* p = (SocketAddress*)m_pendingAddressTablePtr.m_p;
 	SocketAddress* end = p + count;
-	for (; p < end; p++)
-	{
+	for (; p < end; p++) {
 		int family = ((axl::io::SockAddr*)p)->m_addr.sa_family;
 		p->m_family = family == AF_INET6 ? AddressFamily_Ip6 : family;
 		p->m_port = port;

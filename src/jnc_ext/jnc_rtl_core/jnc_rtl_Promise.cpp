@@ -27,7 +27,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	PromiseImpl,
 	&PromiseImpl::markOpaqueGcRoots
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Promise)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<PromiseImpl>)
@@ -47,7 +47,7 @@ JNC_DEFINE_CLASS_TYPE(
 	"jnc.Promisifier",
 	sl::g_nullGuid,
 	-1
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Promisifier)
 	JNC_MAP_FUNCTION("complete", &PromiseImpl::complete_0)
@@ -57,8 +57,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
-PromiseImpl::PromiseImpl()
-{
+PromiseImpl::PromiseImpl() {
 	// claim scheduler (if any)
 
 	Tls* tls = getCurrentThreadTls();
@@ -69,8 +68,7 @@ PromiseImpl::PromiseImpl()
 
 void
 JNC_CDECL
-PromiseImpl::markOpaqueGcRoots(GcHeap* gcHeap)
-{
+PromiseImpl::markOpaqueGcRoots(GcHeap* gcHeap) {
 	m_lock.lock();
 
 	if (m_result.m_type && (m_result.m_type->getFlags() & TypeFlag_GcRoot))
@@ -89,8 +87,7 @@ PromiseImpl::markOpaqueGcRoots(GcHeap* gcHeap)
 
 uintptr_t
 JNC_CDECL
-PromiseImpl::wait_0(FunctionPtr handlerPtr)
-{
+PromiseImpl::wait_0(FunctionPtr handlerPtr) {
 	m_lock.lock();
 
 	if (m_state != State_Completed)
@@ -103,8 +100,7 @@ PromiseImpl::wait_0(FunctionPtr handlerPtr)
 
 uintptr_t
 JNC_CDECL
-PromiseImpl::wait_1(FunctionPtr handlerPtr)
-{
+PromiseImpl::wait_1(FunctionPtr handlerPtr) {
 	m_lock.lock();
 
 	if (m_state != State_Completed)
@@ -117,8 +113,7 @@ PromiseImpl::wait_1(FunctionPtr handlerPtr)
 
 uintptr_t
 JNC_CDECL
-PromiseImpl::wait_2(FunctionPtr handlerPtr)
-{
+PromiseImpl::wait_2(FunctionPtr handlerPtr) {
 	m_lock.lock();
 
 	if (m_state != State_Completed)
@@ -131,13 +126,11 @@ PromiseImpl::wait_2(FunctionPtr handlerPtr)
 
 bool
 JNC_CDECL
-PromiseImpl::cancelWait(uintptr_t handle)
-{
+PromiseImpl::cancelWait(uintptr_t handle) {
 	m_lock.lock();
 
 	sl::HandleTableIterator<AsyncWait*> it = m_asyncWaitMap.find((uintptr_t)handle);
-	if (!it)
-	{
+	if (!it) {
 		m_lock.unlock();
 		err::setError(err::Error(err::SystemErrorCode_InvalidParameter));
 		return false; // not found
@@ -155,11 +148,9 @@ JNC_CDECL
 PromiseImpl::complete_2(
 	Variant result,
 	DataPtr errorPtr
-	)
-{
+) {
 	m_lock.lock();
-	if (m_state == State_Completed)
-	{
+	if (m_state == State_Completed) {
 		m_lock.unlock();
 		TRACE("-- WARNING: ignoring repetitve completion for jnc.Promise: %p\n", this);
 		return;
@@ -173,8 +164,7 @@ PromiseImpl::complete_2(
 	for (; syncIt; syncIt++)
 		syncIt->m_event->signal();
 
-	while (!m_asyncWaitList.isEmpty())
-	{
+	while (!m_asyncWaitList.isEmpty()) {
 		AsyncWait* wait = *m_asyncWaitList.getHead();
 		m_asyncWaitMap.eraseKey(wait->m_handle);
 		m_lock.unlock();
@@ -192,8 +182,7 @@ uintptr_t
 PromiseImpl::addAsyncWait_l(
 	AsyncWaitKind waitKind,
 	FunctionPtr handlerPtr
-	)
-{
+) {
 	AsyncWait* wait = AXL_MEM_NEW(AsyncWait);
 	wait->m_waitKind = waitKind;
 	wait->m_handlerPtr = handlerPtr;
@@ -206,12 +195,10 @@ PromiseImpl::addAsyncWait_l(
 }
 
 Variant
-PromiseImpl::blockingWaitImpl()
-{
+PromiseImpl::blockingWaitImpl() {
 	m_lock.lock();
 
-	if (m_state != State_Completed)
-	{
+	if (m_state != State_Completed) {
 		sys::Event event;
 
 		SyncWait wait;
@@ -233,8 +220,7 @@ PromiseImpl::blockingWaitImpl()
 	ASSERT(m_state == State_Completed);
 	m_lock.unlock();
 
-	if (m_errorPtr.m_p)
-	{
+	if (m_errorPtr.m_p) {
 		err::setError((const err::ErrorHdr*)m_errorPtr.m_p);
 
 		GcHeap* gcHeap = getCurrentThreadGcHeap();

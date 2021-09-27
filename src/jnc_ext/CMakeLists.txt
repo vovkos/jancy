@@ -22,7 +22,7 @@ option(
 	BUILD_JNC_IO_BASE
 	"Build jancy base IO(sockets, serial ports, files) extension library "
 	ON
-	)
+)
 
 if(BUILD_JNC_IO_BASE)
 	add_subdirectory(jnc_io_base)
@@ -33,7 +33,7 @@ if(OPENSSL_FOUND)
 		BUILD_JNC_IO_SSL
 		"Build jancy SSL IO extension library"
 		ON
-		)
+	)
 
 	if(BUILD_JNC_IO_SSL)
 		add_subdirectory(jnc_io_ssl)
@@ -43,7 +43,7 @@ if(OPENSSL_FOUND)
 		BUILD_JNC_IO_WEBSOCKET
 		"Build jancy WebSocket IO extension library"
 		ON
-		)
+	)
 
 	if(BUILD_JNC_IO_WEBSOCKET)
 		add_subdirectory(jnc_io_websocket)
@@ -55,7 +55,7 @@ if(LIBSSH2_FOUND AND OPENSSL_FOUND)
 		BUILD_JNC_IO_SSH
 		"Build jancy SSH IO extension library"
 		ON
-		)
+	)
 
 	if(BUILD_JNC_IO_SSH)
 		add_subdirectory(jnc_io_ssh)
@@ -67,7 +67,7 @@ if(PCAP_FOUND)
 		BUILD_JNC_IO_PCAP
 		"Build jancy PCAP IO extension library"
 		ON
-		)
+	)
 
 	if(BUILD_JNC_IO_PCAP)
 		add_subdirectory(jnc_io_pcap)
@@ -79,7 +79,7 @@ if(LIBUSB_FOUND)
 		BUILD_JNC_IO_USB
 		"Build jancy USB IO extension library"
 		ON
-		)
+	)
 
 	if(BUILD_JNC_IO_USB)
 		add_subdirectory(jnc_io_usb)
@@ -92,7 +92,7 @@ option(
 	BUILD_JNC_IO_DEVMON
 	"Build jancy IO device monitoring extension library"
 	ON
-	)
+)
 
 if(BUILD_JNC_IO_DEVMON)
 	add_subdirectory(jnc_io_devmon)
@@ -102,6 +102,6 @@ option(
 	BUILD_IDE_STDLIB
 	"Build jancy stdlib (rtl, std, sys) extension library for IDE"
 	ON
-	)
+)
 
 #...............................................................................

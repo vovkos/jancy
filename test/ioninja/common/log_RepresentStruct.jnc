@@ -10,10 +10,9 @@ typedef char const* FormatFunc(void const* p);
 typedef char const* FormatExFunc(
 	void const* p,
 	size_t size
-	);
+);
 
-char const* getDisplayName(jnc.ModuleItemDecl* decl)
-{
+char const* getDisplayName(jnc.ModuleItemDecl* decl) {
 	char const* displayName = decl.findAttributeValue("displayName");
 	return displayName ? displayName : decl.m_name;
 }
@@ -21,8 +20,7 @@ char const* getDisplayName(jnc.ModuleItemDecl* decl)
 char const* getStructDigest(
 	jnc.StructType* type,
 	void const* p
-	)
-{
+) {
 	FormatFunc thin* formatDigestFunc = type.findAttributeValue("formatDigestFunc");
 	return formatDigestFunc ? formatDigestFunc(p) : null;
 }
@@ -39,18 +37,15 @@ void representStruct(
 	uint_t foldFlags = 1,
 	uint_t structFoldFlag = 1, // 0 to exclude the folding header
 	size_t indentLevel = 0
-	)
-{
+) {
 	std.StringBuilder indent;
 	indent.copy(' ', indentLevel * 4);
 
-	if (structFoldFlag)
-	{
+	if (structFoldFlag) {
 		if (!name)
 			name = getDisplayName(type);
 
-		if (!(foldFlags & structFoldFlag))
-		{
+		if (!(foldFlags & structFoldFlag)) {
 			char const* digest = getStructDigest(type, p);
 
 			representation.addHyperText($"%1[\e^+%2\e[34m+\e[m] \e[1m%3%4%5"(
@@ -59,7 +54,7 @@ void representStruct(
 				name,
 				digest ? "\e[m " : null,
 				digest
-				));
+			));
 
 			return;
 		}
@@ -68,14 +63,13 @@ void representStruct(
 			indent.m_sz,
 			structFoldFlag,
 			name
-			));
+		));
 	}
 
 	indent.append(' ', 4);
 
 	size_t count = type.m_fieldCount;
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		jnc.Field* field = type.m_fieldArray[i];
 		char const* displayName = getDisplayName(field);
 		size_t length = strlen(displayName);
@@ -83,25 +77,17 @@ void representStruct(
 		char const* valueString;
 
 		FormatFunc thin* formatFunc = field.findAttributeValue("formatFunc");
-		if (formatFunc)
-		{
+		if (formatFunc) {
 			valueString = formatFunc(p + field.m_offset);
-		}
-		else
-		{
+		} else {
 			char const* formatSpec = field.findAttributeValue("formatSpec");
 			jnc.Type* displayType = field.findAttributeValue("displayType");
 
-			if (!displayType)
-			{
+			if (!displayType) {
 				valueString = field.m_type.getValueString(p + field.m_offset, formatSpec);
-			}
-			else if (field.m_type.m_typeKind != jnc.TypeKind.BitField)
-			{
+			} else if (field.m_type.m_typeKind != jnc.TypeKind.BitField) {
 				valueString = displayType.getValueString(p + field.m_offset, formatSpec);
-			}
-			else
-			{
+			} else {
 				variant value = (dynamic (jnc.BitFieldType*)field.m_type).extract(p + field.m_offset);
 				valueString = displayType.getValueString(value, formatSpec);
 			}
@@ -114,7 +100,7 @@ void representStruct(
 			baseOffset + field.m_offset,
 			field.m_type.m_size,
 			valueString
-			));
+		));
 	}
 }
 

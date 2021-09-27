@@ -20,22 +20,19 @@ namespace ct {
 
 //..............................................................................
 
-class ArrayType: public Type
-{
+class ArrayType: public Type {
 	friend class TypeMgr;
 	friend class Parser;
 
 protected:
-	class GetDynamicSizeFunction: public CompilableFunction
-	{
+	class GetDynamicSizeFunction: public CompilableFunction {
 	public:
 		ArrayType* m_arrayType;
 
 	public:
 		virtual
 		bool
-		compile()
-		{
+		compile() {
 			return m_arrayType->compileGetDynamicSizeFunction(this);
 		}
 	};
@@ -55,8 +52,7 @@ public:
 	ArrayType();
 
 	Type*
-	getElementType()
-	{
+	getElementType() {
 		return m_elementType;
 	}
 
@@ -64,19 +60,16 @@ public:
 	getRootType();
 
 	size_t
-	getElementCount()
-	{
+	getElementCount() {
 		return m_elementCount;
 	}
 
 	sl::ConstBoxList<Token>
-	getElementCountInitializer()
-	{
+	getElementCountInitializer() {
 		return m_elementCountInitializer;
 	}
 
-	Function* getGetDynamicSizeFunction()
-	{
+	Function* getGetDynamicSizeFunction() {
 		return m_getDynamicSizeFunction;
 	}
 
@@ -85,13 +78,12 @@ public:
 	createSignature(
 		Type* elementType,
 		size_t elementCount
-		)
-	{
+	) {
 		return sl::formatString(
 			"A%d%s",
 			elementCount,
 			elementType->getSignature().sz()
-			);
+		);
 	}
 
 	virtual
@@ -99,40 +91,37 @@ public:
 	getValueString(
 		const void* p,
 		const char* formatSpec
-		);
+	);
 
 	virtual
 	void
 	markGcRoots(
 		const void* p,
 		rt::GcHeap* gcHeap
-		);
+	);
 
 	bool
 	ensureDynamicLayout(
 		StructType* dynamicStruct,
 		Field* dynamicField
-		);
+	);
 
 protected:
 	virtual
 	void
-	prepareSignature()
-	{
+	prepareSignature() {
 		m_signature = createSignature(m_elementType, m_elementCount);
 	}
 
 	virtual
 	bool
-	resolveImports()
-	{
+	resolveImports() {
 		return m_elementType->ensureNoImports();
 	}
 
 	virtual
 	bool
-	calcLayout()
-	{
+	calcLayout() {
 		return calcLayoutImpl(NULL, NULL);
 	}
 
@@ -140,7 +129,7 @@ protected:
 	calcLayoutImpl(
 		StructType* dynamicStruct,
 		Field* dynamicField
-		);
+	);
 
 	virtual
 	void
@@ -155,8 +144,7 @@ protected:
 
 	virtual
 	void
-	prepareLlvmType()
-	{
+	prepareLlvmType() {
 		ASSERT(m_elementCount != -1);
 		m_llvmType = llvm::ArrayType::get(m_elementType->getLlvmType(), m_elementCount);
 	}
@@ -167,8 +155,7 @@ protected:
 
 	virtual
 	void
-	prepareTypeVariable()
-	{
+	prepareTypeVariable() {
 		prepareSimpleTypeVariable(StdType_ArrayType);
 	}
 

@@ -9,20 +9,17 @@
 //
 //..............................................................................
 
-bool foo()
-{
+bool foo() {
 	printf("foo ()\n");
 	return false;
 }
 
-bool bar()
-{
+bool bar() {
 	printf("bar ()\n");
 	return true;
 }
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	if (foo() && bar())

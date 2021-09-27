@@ -16,8 +16,7 @@ namespace jnc {
 
 //..............................................................................
 
-opaque class BitFieldType: Type
-{
+opaque class BitFieldType: Type {
 	Type* const property m_baseType;
 	size_t const property m_bitOffset;
 	size_t const property m_bitCount;

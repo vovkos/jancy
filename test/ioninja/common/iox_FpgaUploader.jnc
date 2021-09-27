@@ -22,11 +22,9 @@ namespace iox {
 
 //..............................................................................
 
-class FpgaUploader
-{
+class FpgaUploader {
 protected:
-	enum State
-	{
+	enum State {
 		Idle,
 		PreErase,
 		Erasing,
@@ -34,14 +32,12 @@ protected:
 		Loading,
 	}
 
-	enum UsbControlReqType
-	{
+	enum UsbControlReqType {
 		VendorIn  = 0x80,
 		VendorOut = 0x40,
 	}
 
-	enum UsbControlReqCode
-	{
+	enum UsbControlReqCode {
 		GetVersion = 0x50,
 		GetStatus  = 0x51,
 		Erase      = 0x52,
@@ -49,8 +45,7 @@ protected:
 		Load       = 0x54,
 	}
 
-	bitflag enum Status: uint16_t
-	{
+	bitflag enum Status: uint16_t {
 		InvalidApp      = 0x0100,
 		FlashWriteError = 0x0200,
 		FlashBusy       = 0x0400,
@@ -58,8 +53,7 @@ protected:
 		FpgaBusy        = 0x1000,
 	}
 
-	enum
-	{
+	enum {
 		AtomSize           = 4,
 		BlockSize          = 64,
 		TimerInterval      = 100,
@@ -95,7 +89,7 @@ public:
 		io.UsbDevice* device,
 		char const* fileName,
 		size_t baseIndex
-		);
+	);
 
 protected:
 	io.RpdVersion getVersion();
@@ -116,20 +110,18 @@ protected:
 		uint_t syncId,
 		size_t size,
 		std.Error const* error
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-FpgaUploader.construct(doc.PluginHost* pluginHost)
-{
+FpgaUploader.construct(doc.PluginHost* pluginHost) {
 	m_logWriter = pluginHost.m_log.m_writer;
 	m_mainThreadScheduler = pluginHost.m_mainThreadScheduler;
 	m_progressDlg.m_onButtonClicked += onProgressDlgButtonClicked;
 }
 
-void FpgaUploader.cancel()
-{
+void FpgaUploader.cancel() {
 	if (!m_state)
 		return;
 
@@ -141,8 +133,7 @@ bool errorcode FpgaUploader.update(
 	io.UsbDevice* device,
 	char const* fileName,
 	size_t baseIndex
-	)
-{
+) {
 	cancel();
 
 	m_device = device;
@@ -159,8 +150,7 @@ bool errorcode FpgaUploader.update(
 		version.m_firmwareType == m_fileVersion.m_firmwareType &&
 		version.m_firmwareVersion >= m_fileVersion.m_firmwareVersion;
 
-	if (isUpToDate)
-	{
+	if (isUpToDate) {
 		m_logWriter.write(FpgaUploaderLogRecordCode.FirmwareUpToDate);
 		m_onUpdateCompleted(true);
 		return true;
@@ -188,8 +178,7 @@ catch:
 	return false;
 }
 
-io.RpdVersion FpgaUploader.getVersion()
-{
+io.RpdVersion FpgaUploader.getVersion() {
 	io.RpdVersion version;
 
 	m_device.controlTransfer(
@@ -199,13 +188,12 @@ io.RpdVersion FpgaUploader.getVersion()
 		0,
 		&version,
 		sizeof(version)
-		);
+	);
 
 	return version;
 }
 
-Status FpgaUploader.getStatus()
-{
+Status FpgaUploader.getStatus() {
 	Status status;
 
 	m_device.controlTransfer(
@@ -215,13 +203,12 @@ Status FpgaUploader.getStatus()
 		0,
 		&status,
 		sizeof(status)
-		);
+	);
 
 	return status;
 }
 
-void FpgaUploader.erase(bool isCheckRequired)
-{
+void FpgaUploader.erase(bool isCheckRequired) {
 	if (isCheckRequired && !checkStatus())
 		return;
 
@@ -236,14 +223,13 @@ void FpgaUploader.erase(bool isCheckRequired)
 		0,
 		null,
 		0
-		);
+	);
 
 	if (checkStatus())
 		sendFirstBlock(false);
 }
 
-void FpgaUploader.load(bool isCheckRequired)
-{
+void FpgaUploader.load(bool isCheckRequired) {
 	if (isCheckRequired && !checkStatus())
 		return;
 
@@ -258,14 +244,13 @@ void FpgaUploader.load(bool isCheckRequired)
 		0,
 		null,
 		0
-		);
+	);
 
 	if (checkStatus())
 		finalizeLoad();
 }
 
-void FpgaUploader.sendFirstBlock(bool isCheckRequired)
-{
+void FpgaUploader.sendFirstBlock(bool isCheckRequired) {
 	if (isCheckRequired && !checkStatus())
 		return;
 
@@ -279,13 +264,11 @@ void FpgaUploader.sendFirstBlock(bool isCheckRequired)
 	sendNextBlock(false);
 }
 
-void FpgaUploader.sendNextBlock(bool isCheckRequired)
-{
+void FpgaUploader.sendNextBlock(bool isCheckRequired) {
 	if (isCheckRequired && !checkStatus())
 		return;
 
-	if (m_fileOffset >= m_fileSize)
-	{
+	if (m_fileOffset >= m_fileSize) {
 		load(false); // already checked
 		return;
 	}
@@ -311,30 +294,25 @@ void FpgaUploader.sendNextBlock(bool isCheckRequired)
 		m_block.m_p,
 		size,,
 		onTransferCompleted~(m_syncId) @ m_mainThreadScheduler
-		);
+	);
 
 	m_progressDlg.m_progress = m_fileOffset * 100 / m_fileSize;
 	m_fileOffset += size;
 }
 
-void FpgaUploader.finalizeLoad()
-{
+void FpgaUploader.finalizeLoad() {
 	io.RpdVersion version = getVersion();
 
 	if (version.m_firmwareType == m_fileVersion.m_firmwareType &&
-		version.m_firmwareVersion == m_fileVersion.m_firmwareVersion)
-	{
+		version.m_firmwareVersion == m_fileVersion.m_firmwareVersion) {
 		complete(true);
-	}
-	else
-	{
+	} else {
 		m_logWriter.write(FpgaUploaderLogRecordCode.FirmwareBootFailed);
 		complete(false);
 	}
 }
 
-void FpgaUploader.complete(bool result)
-{
+void FpgaUploader.complete(bool result) {
 	if (result)
 		m_logWriter.write(FpgaUploaderLogRecordCode.FirmwareUploadCompleted);
 
@@ -347,10 +325,8 @@ void FpgaUploader.complete(bool result)
 	m_onUpdateCompleted(result);
 }
 
-bool FpgaUploader.checkStatus()
-{
-	for (size_t i = 0; i < StatusCheckCount; i++)
-	{
+bool FpgaUploader.checkStatus() {
+	for (size_t i = 0; i < StatusCheckCount; i++) {
 		Status status = getStatus();
 		if (!(status & (Status.FlashBusy | Status.FpgaBusy)))
 			return true;
@@ -361,19 +337,17 @@ bool FpgaUploader.checkStatus()
 	m_timer.startPeriodicTimer(
 		onTimer~(++m_syncId) @ m_mainThreadScheduler,
 		TimerInterval
-		);
+	);
 
 	return false;
 }
 
-void FpgaUploader.onTimer(uint_t syncId)
-{
+void FpgaUploader.onTimer(uint_t syncId) {
 	if (syncId != m_syncId)
 		return;
 
 	Status status = getStatus();
-	if (status & (Status.FlashBusy | Status.FpgaBusy))
-	{
+	if (status & (Status.FlashBusy | Status.FpgaBusy)) {
 		if (++m_statusCheckIdx % StillWaitingFactor == 0)
 			m_logWriter.write(FpgaUploaderLogRecordCode.StillWaiting);
 
@@ -383,8 +357,7 @@ void FpgaUploader.onTimer(uint_t syncId)
 	m_timer.stop();
 	m_syncId++;
 
-	switch (m_state)
-	{
+	switch (m_state) {
 	case State.PreErase:
 		erase(false);
 		break;
@@ -407,10 +380,8 @@ catch:
 	cancel();
 }
 
-void FpgaUploader.onProgressDlgButtonClicked(ui.StdDlgButton button)
-{
-	switch (button)
-	{
+void FpgaUploader.onProgressDlgButtonClicked(ui.StdDlgButton button) {
+	switch (button) {
 	case ui.StdDlgButton.Cancel:
 	case ui.StdDlgButton.Abort:
 		cancel();
@@ -422,13 +393,11 @@ void FpgaUploader.onTransferCompleted(
 	uint_t syncId,
 	size_t size,
 	std.Error const* error
-	)
-{
+) {
 	if (syncId != m_syncId)
 		return;
 
-	if (error)
-	{
+	if (error) {
 		std.setError(error);
 		throw;
 	}

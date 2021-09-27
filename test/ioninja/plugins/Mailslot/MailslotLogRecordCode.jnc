@@ -7,8 +7,7 @@ import "log_RecordCode.jnc"
 
 //..............................................................................
 
-enum MailslotLogRecordCode: uint64_t
-{
+enum MailslotLogRecordCode: uint64_t {
 	Opened    = 0x01d48562dc4294c7,
 	OpenError = 0x01d48562dc4294c8,
 	Closed    = 0x01d48562dc4294c9,

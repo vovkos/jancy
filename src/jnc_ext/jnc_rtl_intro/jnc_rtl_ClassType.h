@@ -24,32 +24,26 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(ClassPtrType)
 
 //..............................................................................
 
-class ClassType: public DerivableTypeBase<ct::ClassType>
-{
+class ClassType: public DerivableTypeBase<ct::ClassType> {
 public:
 	ClassType(ct::ClassType* type):
-		DerivableTypeBase(type)
-	{
-	}
+		DerivableTypeBase(type) {}
 
 	uint_t
 	JNC_CDECL
-	getClassTypeKind()
-	{
+	getClassTypeKind() {
 		return m_item->getClassTypeKind();
 	}
 
 	StructType*
 	JNC_CDECL
-	getIfaceStructType()
-	{
+	getIfaceStructType() {
 		return (StructType*)rtl::getType(m_item->getIfaceStructType());
 	}
 
 	StructType*
 	JNC_CDECL
-	getClassStructType()
-	{
+	getClassStructType() {
 		return (StructType*)rtl::getType(m_item->getClassStructType());
 	}
 
@@ -59,33 +53,27 @@ public:
 		TypeKind typeKind,
 		ClassPtrTypeKind ptrTypeKind,
 		uint_t flags
-		)
-	{
+	) {
 		return (ClassPtrType*)rtl::getType(m_item->getClassPtrType(typeKind, ptrTypeKind, flags));
 	}
 };
 
 //..............................................................................
 
-class ClassPtrType: public TypeBase<ct::ClassPtrType>
-{
+class ClassPtrType: public TypeBase<ct::ClassPtrType> {
 public:
 	ClassPtrType(ct::ClassPtrType* type):
-		TypeBase(type)
-	{
-	}
+		TypeBase(type) {}
 
 	ClassPtrTypeKind
 	JNC_CDECL
-	getPtrTypeKind()
-	{
+	getPtrTypeKind() {
 		return m_item->getPtrTypeKind();
 	}
 
 	ClassType*
 	JNC_CDECL
-	getTargetType()
-	{
+	getTargetType() {
 		return (ClassType*)rtl::getType(m_item->getTargetType());
 	}
 };

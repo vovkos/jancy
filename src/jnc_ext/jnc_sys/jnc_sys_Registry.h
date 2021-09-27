@@ -21,14 +21,12 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(RegKey)
 
 //..............................................................................
 
-class RegKey: public IfaceHdr
-{
+class RegKey: public IfaceHdr {
 protected:
 	HKEY m_key;
 
 public:
-	~RegKey()
-	{
+	~RegKey() {
 		close();
 	}
 
@@ -41,8 +39,7 @@ public:
 	create0(
 		uint_t parent,
 		DataPtr pathPtr
-		)
-	{
+	) {
 		return createImpl((HKEY)(uintptr_t)parent, (char*)pathPtr.m_p);
 	}
 
@@ -51,8 +48,7 @@ public:
 	create1(
 		RegKey* parent,
 		DataPtr pathPtr
-		)
-	{
+	) {
 		return parent && parent->m_key ?
 			createImpl(parent->m_key, (char*)pathPtr.m_p) :
 			err::fail(err::SystemErrorCode_InvalidParameter);
@@ -64,8 +60,7 @@ public:
 		uint_t parent,
 		DataPtr pathPtr,
 		uint_t access
-		)
-	{
+	) {
 		return openImpl((HKEY)(uintptr_t)parent, (char*)pathPtr.m_p, (REGSAM)access);
 	}
 
@@ -75,8 +70,7 @@ public:
 		RegKey* parent,
 		DataPtr pathPtr,
 		uint_t access
-		)
-	{
+	) {
 		return parent && parent->m_key ?
 			openImpl(parent->m_key, (char*)pathPtr.m_p, access) :
 			err::fail(err::SystemErrorCode_InvalidParameter);
@@ -89,7 +83,7 @@ public:
 		RegKey* self,
 		DataPtr namePtr,
 		DataPtr typePtr
-		);
+	);
 
 	uint32_t
 	JNC_CDECL
@@ -101,7 +95,7 @@ public:
 	readString(
 		RegKey* self,
 		DataPtr namePtr
-		);
+	);
 
 	bool
 	JNC_CDECL
@@ -110,8 +104,7 @@ public:
 		uint_t type,
 		DataPtr dataPtr,
 		size_t size
-		)
-	{
+	) {
 		return writeImpl((char*)namePtr.m_p, type, dataPtr.m_p, size);
 	}
 
@@ -120,28 +113,28 @@ public:
 	writeString(
 		DataPtr namePtr,
 		DataPtr valuePtr
-		);
+	);
 
 protected:
 	bool
 	createImpl(
 		HKEY parent,
 		const char* path
-		);
+	);
 
 	bool
 	openImpl(
 		HKEY parent,
 		const char* path,
 		REGSAM access
-		);
+	);
 
 	size_t
 	readImpl(
 		sl::Array<byte_t>* buffer,
 		const char* name,
 		dword_t* type
-		);
+	);
 
 	bool
 	writeImpl(
@@ -149,7 +142,7 @@ protected:
 		dword_t type,
 		const void* p,
 		size_t size
-		);
+	);
 };
 
 //..............................................................................

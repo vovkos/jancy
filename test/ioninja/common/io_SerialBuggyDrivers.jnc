@@ -14,8 +14,7 @@ namespace io {
 
 //..............................................................................
 
-char const* detectSerialBuggyDriver(char const* portName)
-{
+char const* detectSerialBuggyDriver(char const* portName) {
 	if (sys.g_systemInfo.m_osKind != sys.OsKind.Windows)
 		return null;
 
@@ -36,8 +35,7 @@ char const* detectSerialBuggyDriver(char const* portName)
 		null;
 }
 
-void setConservativeSerialSettings(io.Serial* serial)
-{
+void setConservativeSerialSettings(io.Serial* serial) {
 	io.SerialOptions options = serial.m_options;
 	options &= io.SerialOptions.WinReadWaitFirstChar;
 	options |= io.SerialOptions.WinReadCheckComstat;

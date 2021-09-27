@@ -20,8 +20,7 @@ namespace ct {
 //..............................................................................
 
 BasicBlock*
-ControlFlowMgr::getDynamicThrowBlock()
-{
+ControlFlowMgr::getDynamicThrowBlock() {
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
 	ASSERT(function->getFunctionKind() != FunctionKind_AsyncSequencer); // async functions always can static-throw
 
@@ -40,8 +39,7 @@ ControlFlowMgr::getDynamicThrowBlock()
 }
 
 Variable*
-ControlFlowMgr::getFinallyRouteIdxVariable()
-{
+ControlFlowMgr::getFinallyRouteIdxVariable() {
 	if (m_finallyRouteIdxVariable)
 		return m_finallyRouteIdxVariable;
 
@@ -57,8 +55,7 @@ ControlFlowMgr::markLandingPad(
 	BasicBlock* block,
 	Scope* scope,
 	uint_t flags
-	)
-{
+) {
 	ASSERT(flags >= (block->m_flags & BasicBlockFlag_LandingPadMask));
 
 	if (!(block->m_flags & BasicBlockFlag_LandingPadMask))
@@ -69,30 +66,23 @@ ControlFlowMgr::markLandingPad(
 }
 
 void
-ControlFlowMgr::throwException()
-{
+ControlFlowMgr::throwException() {
 	if (!m_module->hasCodeGen())
 		return;
 
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
-	if (!scope->canStaticThrow())
-	{
+	if (!scope->canStaticThrow()) {
 		jump(getDynamicThrowBlock());
-	}
-	else
-	{
+	} else {
 		Scope* catchScope = m_module->m_namespaceMgr.findCatchScope();
-		if (catchScope)
-		{
+		if (catchScope) {
 			escapeScope(
 				catchScope,
 				catchScope->m_tryExpr ?
 					catchScope->m_tryExpr->m_catchBlock :
 					catchScope->m_catchBlock
 				);
-		}
-		else
-		{
+		} else {
 			FunctionType* currentFunctionType = m_module->m_functionMgr.getCurrentFunction()->getType();
 			ASSERT(currentFunctionType->getFlags() & FunctionTypeFlag_ErrorCode);
 
@@ -106,8 +96,7 @@ void
 ControlFlowMgr::setJmp(
 	BasicBlock* catchBlock,
 	size_t sjljFrameIdx
-	)
-{
+) {
 	if (!m_module->hasCodeGen())
 		return;
 
@@ -148,8 +137,7 @@ ControlFlowMgr::setJmp(
 	jump(catchBlock, followBlock);
 #endif
 
-	if (sjljFrameIdx >= m_sjljFrameCount)
-	{
+	if (sjljFrameIdx >= m_sjljFrameCount) {
 		ASSERT(m_sjljFrameCount == sjljFrameIdx);
 		m_sjljFrameCount = sjljFrameIdx + 1;
 	}
@@ -159,8 +147,7 @@ void
 ControlFlowMgr::setJmpFinally(
 	BasicBlock* finallyBlock,
 	size_t sjljFrameIdx
-	)
-{
+) {
 	if (!m_module->hasCodeGen())
 		return;
 
@@ -177,8 +164,7 @@ ControlFlowMgr::setJmpFinally(
 }
 
 void
-ControlFlowMgr::beginTryOperator(TryExpr* tryExpr)
-{
+ControlFlowMgr::beginTryOperator(TryExpr* tryExpr) {
 	if (!m_module->hasCodeGen())
 		return;
 
@@ -197,21 +183,15 @@ bool
 ControlFlowMgr::endTryOperator(
 	TryExpr* tryExpr,
 	Value* value
-	)
-{
+) {
 	Value errorValue;
 	Type* type = value->getType();
-	if (type->getTypeKind() == TypeKind_Void)
-	{
+	if (type->getTypeKind() == TypeKind_Void) {
 		value->setConstBool(true, m_module);
 		errorValue.setConstBool(false, m_module);
-	}
-	else if (type->getTypeKindFlags() & TypeKindFlag_ErrorCode)
-	{
+	} else if (type->getTypeKindFlags() & TypeKindFlag_ErrorCode) {
 		errorValue = type->getErrorCodeValue();
-	}
-	else
-	{
+	} else {
 		err::setFormatStringError("'%s' cannot be used as error code", type->getTypeString().sz());
 		return false;
 	}
@@ -242,19 +222,15 @@ ControlFlowMgr::checkErrorCode(
 	const Value& returnValue,
 	Type* returnType,
 	BasicBlock* throwBlock
-	)
-{
+) {
 	bool result;
 
 	ASSERT(returnType->getTypeKindFlags() & TypeKindFlag_ErrorCode);
 
 	Value indicatorValue;
-	if (returnType->getTypeKind() == TypeKind_Bool || !(returnType->getTypeKindFlags() & TypeKindFlag_Integer))
-	{
+	if (returnType->getTypeKind() == TypeKind_Bool || !(returnType->getTypeKindFlags() & TypeKindFlag_Integer)) {
 		indicatorValue = returnValue;
-	}
-	else
-	{
+	} else {
 		uint64_t minusOne = -1;
 		Value minusOneValue;
 		minusOneValue.createConst(&minusOne, returnType);
@@ -265,23 +241,19 @@ ControlFlowMgr::checkErrorCode(
 
 	BasicBlock* followBlock = createBlock("follow_block");
 
-	if (throwBlock)
-	{
+	if (throwBlock) {
 		result = conditionalJump(indicatorValue, followBlock, throwBlock, followBlock);
 		ASSERT(result);
 		return;
 	}
 
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
-	if (!scope->canStaticThrow())
-	{
+	if (!scope->canStaticThrow()) {
 		throwBlock = getDynamicThrowBlock();
 
 		result = conditionalJump(indicatorValue, followBlock, throwBlock, followBlock);
 		ASSERT(result);
-	}
-	else
-	{
+	} else {
 		throwBlock = createBlock("static_throw_block");
 
 		result = conditionalJump(indicatorValue, followBlock, throwBlock, throwBlock);
@@ -293,8 +265,7 @@ ControlFlowMgr::checkErrorCode(
 }
 
 void
-ControlFlowMgr::finalizeTryScope(Scope* scope)
-{
+ControlFlowMgr::finalizeTryScope(Scope* scope) {
 	scope->m_flags |= ScopeFlag_CatchAhead;
 
 	bool result = catchLabel(Token::Pos());
@@ -304,26 +275,22 @@ ControlFlowMgr::finalizeTryScope(Scope* scope)
 }
 
 bool
-ControlFlowMgr::catchLabel(const lex::LineCol& pos)
-{
+ControlFlowMgr::catchLabel(const lex::LineCol& pos) {
 	bool result;
 
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
-	if ((scope->m_flags & ScopeFlag_Function) && !(scope->m_flags & ScopeFlag_FinallyAhead))
-	{
+	if ((scope->m_flags & ScopeFlag_Function) && !(scope->m_flags & ScopeFlag_FinallyAhead)) {
 		result = checkReturn();
 		if (!result)
 			return false;
 	}
 
-	if (scope->m_flags & ScopeFlag_Disposable)
-	{
+	if (scope->m_flags & ScopeFlag_Disposable) {
 		m_module->m_namespaceMgr.closeScope();
 		scope = m_module->m_namespaceMgr.getCurrentScope();
 	}
 
-	if (!(scope->m_flags & ScopeFlag_CatchAhead))
-	{
+	if (!(scope->m_flags & ScopeFlag_CatchAhead)) {
 		err::setFormatStringError("'catch' is already defined");
 		return false;
 	}
@@ -332,15 +299,11 @@ ControlFlowMgr::catchLabel(const lex::LineCol& pos)
 
 	m_module->m_namespaceMgr.closeScope();
 
-	if (m_currentBlock->m_flags & BasicBlockFlag_Reachable)
-	{
-		if (scope->m_flags & ScopeFlag_FinallyAhead)
-		{
+	if (m_currentBlock->m_flags & BasicBlockFlag_Reachable) {
+		if (scope->m_flags & ScopeFlag_FinallyAhead) {
 			ASSERT(scope->m_finallyBlock);
 			normalFinallyFlow(scope->m_finallyBlock);
-		}
-		else
-		{
+		} else {
 			m_catchFinallyFollowBlock = createBlock("catch_follow");
 
 			ASSERT(scope->m_sjljFrameIdx != -1);
@@ -356,8 +319,7 @@ ControlFlowMgr::catchLabel(const lex::LineCol& pos)
 	catchScope->m_flags |= scope->m_flags & (ScopeFlag_Nested | ScopeFlag_FinallyAhead | ScopeFlag_Finalizable); // propagate
 	markLandingPad(scope->m_catchBlock, catchScope, BasicBlockFlag_ExceptionLandingPad);
 
-	if (scope->m_flags & ScopeFlag_FinallyAhead)
-	{
+	if (scope->m_flags & ScopeFlag_FinallyAhead) {
 		catchScope->m_finallyBlock = scope->m_finallyBlock;
 		catchScope->m_sjljFrameIdx++;
 		setJmpFinally(catchScope->m_finallyBlock, catchScope->m_sjljFrameIdx);
@@ -367,39 +329,32 @@ ControlFlowMgr::catchLabel(const lex::LineCol& pos)
 }
 
 void
-ControlFlowMgr::finalizeCatchScope(Scope* scope)
-{
-	if (m_catchFinallyFollowBlock)
-	{
+ControlFlowMgr::finalizeCatchScope(Scope* scope) {
+	if (m_catchFinallyFollowBlock) {
 		follow(m_catchFinallyFollowBlock);
 		m_catchFinallyFollowBlock = NULL; // used already
 	}
 }
 
 bool
-ControlFlowMgr::finallyLabel(const lex::LineCol& pos)
-{
+ControlFlowMgr::finallyLabel(const lex::LineCol& pos) {
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
-	if (scope->m_flags & ScopeFlag_Disposable)
-	{
+	if (scope->m_flags & ScopeFlag_Disposable) {
 		m_module->m_namespaceMgr.closeScope();
 		scope = m_module->m_namespaceMgr.getCurrentScope();
 	}
 
-	if (scope->m_flags & ScopeFlag_CatchAhead)
-	{
+	if (scope->m_flags & ScopeFlag_CatchAhead) {
 		err::setFormatStringError("'finally' should follow 'catch'");
 		return false;
 	}
 
-	if (!(scope->m_flags & ScopeFlag_FinallyAhead))
-	{
+	if (!(scope->m_flags & ScopeFlag_FinallyAhead)) {
 		err::setFormatStringError("'finally' is already defined");
 		return false;
 	}
 
-	if (scope->m_flags & ScopeFlag_Try)
-	{
+	if (scope->m_flags & ScopeFlag_Try) {
 		scope->m_flags |= ScopeFlag_CatchAhead;
 		bool result = catchLabel(pos);
 		ASSERT(result);
@@ -423,12 +378,10 @@ ControlFlowMgr::finallyLabel(const lex::LineCol& pos)
 	return true;
 }
 
-void ControlFlowMgr::finalizeFinallyScope(Scope* scope)
-{
+void ControlFlowMgr::finalizeFinallyScope(Scope* scope) {
 	ASSERT(scope && scope->m_finallyBlock && m_finallyRouteIdxVariable);
 
-	if (!(m_currentBlock->m_flags & BasicBlockFlag_Reachable))
-	{
+	if (!(m_currentBlock->m_flags & BasicBlockFlag_Reachable)) {
 		m_catchFinallyFollowBlock = NULL;
 		return;
 	}
@@ -439,8 +392,7 @@ void ControlFlowMgr::finalizeFinallyScope(Scope* scope)
 	BasicBlock* throwBlock = getDynamicThrowBlock();
 
 	size_t count = scope->m_finallyBlock->m_finallyRouteMap.getCount();
-	if (!count)
-	{
+	if (!count) {
 		ASSERT(false);
 		jump(throwBlock);
 		return;
@@ -455,8 +407,7 @@ void ControlFlowMgr::finalizeFinallyScope(Scope* scope)
 	blockArray.setCount(count);
 
 	sl::HashTableIterator<size_t, BasicBlock*> it = scope->m_finallyBlock->m_finallyRouteMap.getHead();
-	for (size_t i = 0; it; it++, i++)
-	{
+	for (size_t i = 0; it; it++, i++) {
 		ASSERT(i < count);
 
 		routeIdxArray[i] = it->getKey();
@@ -470,22 +421,18 @@ void ControlFlowMgr::finalizeFinallyScope(Scope* scope)
 		routeIdxArray,
 		blockArray,
 		count
-		);
+	);
 
-	if (m_catchFinallyFollowBlock)
-	{
+	if (m_catchFinallyFollowBlock) {
 		setCurrentBlock(m_catchFinallyFollowBlock);
 		m_catchFinallyFollowBlock = NULL;
-	}
-	else
-	{
+	} else {
 		setCurrentBlock(getUnreachableBlock());
 	}
 }
 
 bool
-ControlFlowMgr::disposeVariable(Variable* variable)
-{
+ControlFlowMgr::disposeVariable(Variable* variable) {
 	bool result;
 
 	Value disposableValue = variable;
@@ -500,8 +447,7 @@ ControlFlowMgr::disposeVariable(Variable* variable)
 	ASSERT(type->getTypeKind() == TypeKind_ClassPtr || type->getTypeKind() == TypeKind_DataPtr);
 
 	if (type->getTypeKind() == TypeKind_DataPtr &&
-		(((DataPtrType*)type)->getTargetType()->getTypeKindFlags() & TypeKindFlag_Ptr))
-	{
+		(((DataPtrType*)type)->getTargetType()->getTypeKindFlags() & TypeKindFlag_Ptr)) {
 		disposeBlock = createBlock("dispose_ptr_block");
 		followBlock = createBlock("dispose_ptr_follow_block");
 
@@ -529,8 +475,7 @@ ControlFlowMgr::disposeVariable(Variable* variable)
 }
 
 void
-ControlFlowMgr::finalizeDisposableScope(Scope* scope)
-{
+ControlFlowMgr::finalizeDisposableScope(Scope* scope) {
 	size_t count = scope->m_disposableVariableArray.getCount();
 	ASSERT(scope && count && scope->m_disposeLevelVariable);
 
@@ -547,8 +492,7 @@ ControlFlowMgr::finalizeDisposableScope(Scope* scope)
 	sl::Array<BasicBlock*> blockArray(rc::BufKind_Stack, buffer2, sizeof(buffer2));
 	blockArray.setCount(count + 1);
 
-	for (size_t i = 0, j = count; i < count; i++, j--)
-	{
+	for (size_t i = 0, j = count; i < count; i++, j--) {
 		BasicBlock* block = createBlock("dispose_variable_block", BasicBlockFlag_Reachable);
 		levelArray[i] = j;
 		blockArray[i] = block;
@@ -557,8 +501,7 @@ ControlFlowMgr::finalizeDisposableScope(Scope* scope)
 	BasicBlock* followBlock = createBlock("dispose_finally_follow_block");
 	blockArray[count] = followBlock;
 
-	for (intptr_t i = count - 1, j = 0; i >= 0; i--, j++)
-	{
+	for (intptr_t i = count - 1, j = 0; i >= 0; i--, j++) {
 		setCurrentBlock(blockArray[j]);
 
 		Variable* variable = scope->m_disposableVariableArray[i];
@@ -575,7 +518,7 @@ ControlFlowMgr::finalizeDisposableScope(Scope* scope)
 		scope->m_disposeLevelVariable,
 		scope->m_disposeLevelVariable->getType(),
 		&disposeLevelValue
-		);
+	);
 
 	m_module->m_llvmIrBuilder.createSwitch(
 		disposeLevelValue,
@@ -583,7 +526,7 @@ ControlFlowMgr::finalizeDisposableScope(Scope* scope)
 		levelArray,
 		blockArray,
 		count
-		);
+	);
 
 	setCurrentBlock(followBlock);
 
@@ -594,8 +537,7 @@ ControlFlowMgr::finalizeDisposableScope(Scope* scope)
 }
 
 void
-ControlFlowMgr::normalFinallyFlow(BasicBlock* finallyBlock)
-{
+ControlFlowMgr::normalFinallyFlow(BasicBlock* finallyBlock) {
 	if (!m_module->hasCodeGen())
 		return;
 
@@ -614,8 +556,7 @@ ControlFlowMgr::normalFinallyFlow(BasicBlock* finallyBlock)
 }
 
 void
-ControlFlowMgr::setSjljFrame(size_t index)
-{
+ControlFlowMgr::setSjljFrame(size_t index) {
 	if (!m_module->hasCodeGen())
 		return;
 
@@ -623,12 +564,9 @@ ControlFlowMgr::setSjljFrame(size_t index)
 
 	Variable* sjljFrameVariable = m_module->m_variableMgr.getStdVariable(StdVariable_SjljFrame);
 
-	if (index == -1)
-	{
+	if (index == -1) {
 		m_module->m_llvmIrBuilder.createStore(m_prevSjljFrameValue, sjljFrameVariable);
-	}
-	else
-	{
+	} else {
 		Value sjljFrameValue;
 		m_module->m_llvmIrBuilder.createGep(m_sjljFrameArrayValue, index, NULL, &sjljFrameValue);
 		m_module->m_llvmIrBuilder.createStore(sjljFrameValue, sjljFrameVariable);
@@ -636,8 +574,7 @@ ControlFlowMgr::setSjljFrame(size_t index)
 }
 
 void
-ControlFlowMgr::preCreateSjljFrameArray()
-{
+ControlFlowMgr::preCreateSjljFrameArray() {
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
 	BasicBlock* prologueBlock = function->getPrologueBlock();
 	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock(prologueBlock);
@@ -649,7 +586,7 @@ ControlFlowMgr::preCreateSjljFrameArray()
 		"sjljFrameArray_tmp",
 		type->getDataPtrType_c(),
 		&m_sjljFrameArrayValue
-		);
+	);
 
 	Variable* variable = m_module->m_variableMgr.getStdVariable(StdVariable_SjljFrame);
 	m_module->m_llvmIrBuilder.createLoad(variable, variable->getType(), &m_prevSjljFrameValue);
@@ -658,8 +595,7 @@ ControlFlowMgr::preCreateSjljFrameArray()
 }
 
 void
-ControlFlowMgr::finalizeSjljFrameArray()
-{
+ControlFlowMgr::finalizeSjljFrameArray() {
 	ASSERT(m_sjljFrameArrayValue);
 
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
@@ -704,8 +640,7 @@ ControlFlowMgr::finalizeSjljFrameArray()
 	Value prevGcShadowStackFrameValue;
 
 	bool hasGcShadowStackFrame = m_module->m_gcShadowStackMgr.hasFrame() && function->getFunctionKind() != FunctionKind_AsyncSequencer;
-	if (!hasGcShadowStackFrame)
-	{
+	if (!hasGcShadowStackFrame) {
 		gcShadowStackTopVariable = m_module->m_variableMgr.getStdVariable(StdVariable_GcShadowStackTop);
 		m_module->m_llvmIrBuilder.createLoad(gcShadowStackTopVariable, NULL, &prevGcShadowStackFrameValue);
 	}
@@ -713,8 +648,7 @@ ControlFlowMgr::finalizeSjljFrameArray()
 	// restore sjlj frame at every landing pad
 
 	size_t count = m_landingPadBlockArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		BasicBlock* block = m_landingPadBlockArray[i];
 		ASSERT(block->m_landingPadScope && !block->m_llvmBlock->empty());
 

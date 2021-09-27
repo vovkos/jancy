@@ -27,18 +27,16 @@ int
 cmpVariant(
 	Variant key1,
 	Variant key2
-	);
+);
 
 //..............................................................................
 
-class CmpIndirect
-{
+class CmpIndirect {
 protected:
 	CmpFunc* m_func;
 
 public:
-	CmpIndirect(CmpFunc* func = NULL)
-	{
+	CmpIndirect(CmpFunc* func = NULL) {
 		m_func = func ? func : cmpVariant;
 	}
 
@@ -46,8 +44,7 @@ public:
 	operator () (
 		const Variant& key1,
 		const Variant& key2
-		) const
-	{
+	) const {
 		ASSERT(m_func);
 		return m_func(key1, key2);
 	}
@@ -55,8 +52,7 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class RbTree: public IfaceHdr
-{
+class RbTree: public IfaceHdr {
 public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(RbTree)
 
@@ -68,14 +64,11 @@ protected:
 
 public:
 	RbTree(CmpFunc* cmpFunc):
-		m_rbTree(CmpIndirect(cmpFunc))
-	{
-	}
+		m_rbTree(CmpIndirect(cmpFunc)) {}
 
 	void
 	JNC_CDECL
-	clear()
-	{
+	clear() {
 		m_map.clear();
 		m_rbTree.clear();
 	}
@@ -85,8 +78,7 @@ public:
 	visit(
 		RbTree* self,
 		Variant key
-		)
-	{
+	) {
 		return self->visitImpl(key);
 	}
 
@@ -95,8 +87,7 @@ public:
 	find(
 		RbTree* self,
 		Variant key
-		)
-	{
+	) {
 		return self->m_rbTree.findValue(key, g_nullDataPtr);
 	}
 
@@ -106,15 +97,13 @@ public:
 		RbTree* self,
 		sl::BinTreeFindRelOp relOp,
 		Variant key
-		)
-	{
+	) {
 		return self->m_rbTree.findValue(key, relOp, g_nullDataPtr);
 	}
 
 	void
 	JNC_CDECL
-	remove(DataPtr entryPtr)
-	{
+	remove(DataPtr entryPtr) {
 		removeImpl((MapEntry*)entryPtr.m_p);
 	}
 

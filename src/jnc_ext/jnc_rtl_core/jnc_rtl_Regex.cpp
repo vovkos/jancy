@@ -28,7 +28,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	RegexState,
 	&RegexState::markOpaqueGcRoots
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(RegexState)
 	JNC_MAP_CONSTRUCTOR(&RegexState::construct)
@@ -47,7 +47,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	RegexDfa,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(RegexDfa)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<RegexDfa>)
@@ -62,8 +62,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 void
 JNC_CDECL
-RegexState::construct(uint_t flags)
-{
+RegexState::construct(uint_t flags) {
 	m_flags = flags;
 	m_lastAcceptStateId = -1;
 	m_matchLengthLimit = 256;
@@ -76,16 +75,13 @@ RegexState::construct(uint_t flags)
 
 void
 JNC_CDECL
-RegexState::markOpaqueGcRoots(GcHeap* gcHeap)
-{
-	if (m_matchBufferPtr.m_validator)
-	{
+RegexState::markOpaqueGcRoots(GcHeap* gcHeap) {
+	if (m_matchBufferPtr.m_validator) {
 		gcHeap->weakMark(m_matchBufferPtr.m_validator->m_validatorBox);
 		gcHeap->markData(m_matchBufferPtr.m_validator->m_targetBox);
 	}
 
-	if (m_groupOffsetArrayPtr.m_validator)
-	{
+	if (m_groupOffsetArrayPtr.m_validator) {
 		gcHeap->weakMark(m_groupOffsetArrayPtr.m_validator->m_validatorBox);
 		gcHeap->markData(m_groupOffsetArrayPtr.m_validator->m_targetBox);
 	}
@@ -93,8 +89,7 @@ RegexState::markOpaqueGcRoots(GcHeap* gcHeap)
 
 void
 JNC_CDECL
-RegexState::setMatchLengthLimit(size_t length)
-{
+RegexState::setMatchLengthLimit(size_t length) {
 	if (length <= m_matchLengthLimit)
 		return;
 
@@ -111,8 +106,7 @@ RegexState::setMatchLengthLimit(size_t length)
 
 void
 JNC_CDECL
-RegexState::setCurrentOffset(size_t offset)
-{
+RegexState::setCurrentOffset(size_t offset) {
 	if (offset == m_currentOffset)
 		return;
 
@@ -123,8 +117,7 @@ RegexState::setCurrentOffset(size_t offset)
 
 void
 JNC_CDECL
-RegexState::reset()
-{
+RegexState::reset() {
 	m_currentOffset = 0;
 	m_consumedLength = 0;
 	m_subMatchArrayPtr = g_nullDataPtr;
@@ -151,8 +144,7 @@ RegexState::exec(
 	ct::Dfa* dfa,
 	DataPtr ptr,
 	size_t length
-	)
-{
+) {
 	if (dfa != m_dfa)
 		setDfa(dfa);
 
@@ -163,8 +155,7 @@ RegexState::exec(
 
 	size_t result;
 
-	if (m_replayLength) // replay is only available after a match
-	{
+	if (m_replayLength) { // replay is only available after a match
 		ASSERT(m_flags & Flag_Incremental);
 
 		size_t replayBufferOffset = m_replayBufferOffset;
@@ -174,8 +165,7 @@ RegexState::exec(
 		m_replayLength = 0;
 
 		result = writeData((uchar_t*)m_matchBufferPtr.m_p + replayBufferOffset, replayLength);
-		switch (result)
-		{
+		switch (result) {
 		case RegexResult_Continue:
 			break;
 
@@ -193,15 +183,14 @@ RegexState::exec(
 			if ((intptr_t)consumedLength < 0)
 				consumedLength = 0;
 
-			if (consumedLength < replayLength)
-			{
+			if (consumedLength < replayLength) {
 				size_t extraLength = replayLength - consumedLength;
 
 				memmove(
 					(uchar_t*)m_matchBufferPtr.m_p + m_replayBufferOffset + m_replayLength,
 					(uchar_t*)m_matchBufferPtr.m_p + replayBufferOffset + consumedLength,
 					extraLength
-					);
+				);
 
 				m_replayLength += extraLength;
 			}
@@ -214,26 +203,20 @@ RegexState::exec(
 		prevOffset = m_currentOffset;
 	}
 
-	if (!length)
-	{
+	if (!length) {
 		result = eof();
-	}
-	else
-	{
+	} else {
 		result = writeData((uchar_t*)ptr.m_p, length);
 		if (result == RegexResult_Continue && !(m_flags & Flag_Incremental))
 			result = eof();
 	}
 
-	if (result == RegexResult_Error)
-	{
+	if (result == RegexResult_Error) {
 		m_currentOffset = m_matchOffset; // rewind to the very beginning (not prevOffset!)
 		m_replayBufferOffset = 0;
 		m_replayLength = 0;
 		softReset();
-	}
-	else if (!(m_flags & Flag_Incremental))
-	{
+	} else if (!(m_flags & Flag_Incremental)) {
 		m_replayBufferOffset = 0;
 		m_replayLength = 0;
 	}
@@ -246,8 +229,7 @@ RegexState::exec(
 }
 
 void
-RegexState::setDfa(ct::Dfa* dfa)
-{
+RegexState::setDfa(ct::Dfa* dfa) {
 	m_dfa = dfa;
 	m_groupCount = dfa->getGroupCount();
 	m_maxSubMatchCount = dfa->getMaxSubMatchCount();
@@ -266,13 +248,11 @@ RegexState::setDfa(ct::Dfa* dfa)
 }
 
 void
-RegexState::processGroupSet(ct::DfaGroupSet* groupSet)
-{
+RegexState::processGroupSet(ct::DfaGroupSet* groupSet) {
 	size_t* offsetArray = (size_t*)m_groupOffsetArrayPtr.m_p;
 
 	size_t count = groupSet->m_openArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		size_t groupId = groupSet->m_openArray[i];
 		ASSERT(groupId < m_groupCount);
 
@@ -282,8 +262,7 @@ RegexState::processGroupSet(ct::DfaGroupSet* groupSet)
 	}
 
 	count = groupSet->m_closeArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		size_t groupId = groupSet->m_closeArray[i];
 		ASSERT(groupId < m_groupCount);
 
@@ -292,8 +271,7 @@ RegexState::processGroupSet(ct::DfaGroupSet* groupSet)
 }
 
 void
-RegexState::softReset()
-{
+RegexState::softReset() {
 	m_stateId = 0;
 	m_lastAcceptStateId = -1;
 	m_lastAcceptMatchLength = 0;
@@ -302,8 +280,7 @@ RegexState::softReset()
 
 	memset(m_groupOffsetArrayPtr.m_p, -1, m_groupCount * sizeof(size_t)* 2);
 
-	if (m_dfa)
-	{
+	if (m_dfa) {
 		ct::DfaStateInfo* state = m_dfa->getStateInfo(0);
 		if (state->m_groupSet)
 			processGroupSet(state->m_groupSet);
@@ -311,16 +288,14 @@ RegexState::softReset()
 }
 
 size_t
-RegexState::eof()
-{
+RegexState::eof() {
 	if (!m_matchLength) // just matched
 		return RegexResult_Continue;
 
 	if (m_lastAcceptStateId == -1)
 		return RegexResult_Error;
 
-	if (m_lastAcceptMatchLength == m_matchLength)
-	{
+	if (m_lastAcceptMatchLength == m_matchLength) {
 		size_t result = m_lastAcceptStateId;
 		match(m_lastAcceptStateId);
 		return result;
@@ -340,12 +315,10 @@ size_t
 RegexState::writeData(
 	uchar_t* p,
 	size_t length
-	)
-{
+) {
 	uchar_t* end = p + length;
 
-	while (p < end)
-	{
+	while (p < end) {
 		uchar_t c = *p++;
 
 		// while it might seem counter-intuitive to increment offset first,
@@ -362,8 +335,7 @@ RegexState::writeData(
 }
 
 size_t
-RegexState::writeChar(uchar_t c)
-{
+RegexState::writeChar(uchar_t c) {
 	((uchar_t*)m_matchBufferPtr.m_p) [m_matchLength++] = c;
 	if (m_matchLength >= m_matchLengthLimit)
 		return RegexResult_Error;
@@ -381,8 +353,7 @@ RegexState::writeChar(uchar_t c)
 }
 
 size_t
-RegexState::gotoState(size_t stateId)
-{
+RegexState::gotoState(size_t stateId) {
 	m_stateId = stateId;
 
 	ct::DfaStateInfo* state = m_dfa->getStateInfo(stateId);
@@ -392,8 +363,7 @@ RegexState::gotoState(size_t stateId)
 	if (!(state->m_flags & ct::DfaStateFlag_Accept))
 		return RegexResult_Continue;
 
-	if ((state->m_flags & ct::DfaStateFlag_Final) && (m_flags & Flag_Lexer))
-	{
+	if ((state->m_flags & ct::DfaStateFlag_Final) && (m_flags & Flag_Lexer)) {
 		match(stateId);
 		return stateId;
 	}
@@ -404,8 +374,7 @@ RegexState::gotoState(size_t stateId)
 }
 
 void
-RegexState::match(size_t stateId)
-{
+RegexState::match(size_t stateId) {
 	ASSERT((intptr_t)stateId >= 0);
 
 	size_t replayBufferOffset = m_matchLength;
@@ -428,21 +397,17 @@ RegexState::match(size_t stateId)
 	m_subMatchCount = state->m_acceptInfo->m_groupCount;
 
 	size_t j = state->m_acceptInfo->m_firstGroupId * 2;
-	for (size_t i = 0; i < state->m_acceptInfo->m_groupCount; i++)
-	{
+	for (size_t i = 0; i < state->m_acceptInfo->m_groupCount; i++) {
 		RegexMatch* subLexeme = &subMatchArray[i];
 
 		size_t offset = offsetArray[j++];
 		size_t length = offsetArray[j++] - offset;
-		if (offset != -1 && length != 0)
-		{
+		if (offset != -1 && length != 0) {
 			ASSERT(offset + length <= m_matchLength);
 			subLexeme->m_textPtr = jnc::strDup((char*)m_matchBufferPtr.m_p + offset, length);
 			subLexeme->m_offset = offset;
 			subLexeme->m_length = length;
-		}
-		else // enforce empty sub-lexeme
-		{
+		} else { // enforce empty sub-lexeme
 			subLexeme->m_textPtr = g_nullDataPtr;
 			subLexeme->m_offset = -1;
 			subLexeme->m_length = 0;
@@ -455,8 +420,7 @@ RegexState::match(size_t stateId)
 }
 
 void
-RegexState::rollback()
-{
+RegexState::rollback() {
 	ASSERT(
 		(m_flags & Flag_Lexer) &&
 		m_lastAcceptStateId != -1 &&
@@ -469,19 +433,15 @@ RegexState::rollback()
 	// rollback groups
 
 	size_t* offsetArray = (size_t*)m_groupOffsetArrayPtr.m_p;
-	for (size_t i = 0; i < m_groupCount; i++)
-	{
+	for (size_t i = 0; i < m_groupCount; i++) {
 		size_t j = i * 2;
 		if (offsetArray[j] == -1)
 			continue;
 
-		if (offsetArray[j] >= m_matchLength)
-		{
+		if (offsetArray[j] >= m_matchLength) {
 			offsetArray[j] = -1;
 			offsetArray[j + 1] = -1;
-		}
-		else if (offsetArray[j + 1] > m_matchLength)
-		{
+		} else if (offsetArray[j + 1] > m_matchLength) {
 			ASSERT(offsetArray[j] < m_matchLength);
 			offsetArray[j + 1] = m_matchLength;
 		}
@@ -496,8 +456,7 @@ RegexState::rollback()
 
 void
 JNC_CDECL
-RegexDfa::clear()
-{
+RegexDfa::clear() {
 	m_regex.clear();
 	m_acceptContextList.clear();
 	m_dfa.clear();
@@ -508,10 +467,8 @@ JNC_CDECL
 RegexDfa::incrementalCompile(
 	DataPtr regexStringPtr,
 	size_t length
-	)
-{
-	if (!m_dfa.isEmpty())
-	{
+) {
+	if (!m_dfa.isEmpty()) {
 		err::setError(err::SystemErrorCode_InvalidDeviceState);
 		return false;
 	}
@@ -531,10 +488,8 @@ RegexDfa::incrementalCompile(
 
 bool
 JNC_CDECL
-RegexDfa::finalize()
-{
-	if (!m_dfa.isEmpty())
-	{
+RegexDfa::finalize() {
+	if (!m_dfa.isEmpty()) {
 		err::setError(err::SystemErrorCode_InvalidDeviceState);
 		return false;
 	}
@@ -544,14 +499,12 @@ RegexDfa::finalize()
 
 	sl::Iterator<ct::ReSwitchAcceptContext> prev = m_acceptContextList.getHead();
 	sl::Iterator<ct::ReSwitchAcceptContext> next = prev.getNext();
-	while (next)
-	{
+	while (next) {
 		prev->m_groupCount = next->m_firstGroupId - prev->m_firstGroupId;
 		prev = next++;
 	}
 
-	if (!prev)
-	{
+	if (!prev) {
 		err::setError("empty regular expression");
 		return false;
 	}
@@ -567,11 +520,9 @@ RegexDfa::match(
 	RegexState* state,
 	DataPtr ptr,
 	size_t length
-	)
-{
+) {
 	size_t stateId = state->exec(&m_dfa, ptr, length);
-	if ((intptr_t)stateId <= 0)
-	{
+	if ((intptr_t)stateId <= 0) {
 		err::setError("regular expression mismatch");
 		return -1;
 	}

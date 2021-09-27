@@ -18,11 +18,9 @@ namespace ct {
 
 //..............................................................................
 
-class BinOp_LogAnd: public BinaryOperator
-{
+class BinOp_LogAnd: public BinaryOperator {
 public:
-	BinOp_LogAnd()
-	{
+	BinOp_LogAnd() {
 		m_opKind = BinOpKind_LogAnd;
 	}
 
@@ -32,8 +30,7 @@ public:
 		const Value& rawOpValue1,
 		const Value& rawOpValue2,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(false); // special handling in COperator::LogicalOrOperator
 		return true;
 	}
@@ -41,11 +38,9 @@ public:
 
 //..............................................................................
 
-class BinOp_LogOr: public BinaryOperator
-{
+class BinOp_LogOr: public BinaryOperator {
 public:
-	BinOp_LogOr()
-	{
+	BinOp_LogOr() {
 		m_opKind = BinOpKind_LogOr;
 	}
 
@@ -55,8 +50,7 @@ public:
 		const Value& rawOpValue1,
 		const Value& rawOpValue2,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(false); // special handling in COperator::LogicalOrOperator
 		return true;
 	}

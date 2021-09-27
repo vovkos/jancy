@@ -11,8 +11,7 @@ import "std_Buffer.jnc"
 
 //..............................................................................
 
-class SerialMonitor_mi
-{
+class SerialMonitor_mi {
 protected:
 	log.Writer* m_logWriter;
 	SerialMonProcessor* m_processor;
@@ -23,8 +22,7 @@ public:
 	size_t readonly m_msgCount;
 
 public:
-	construct(log.Writer* logWriter)
-	{
+	construct(log.Writer* logWriter) {
 		m_logWriter = logWriter;
 		reset();
 	}
@@ -34,7 +32,7 @@ public:
 	bool errorcode write(
 		void const* p,
 		size_t size
-		);
+	);
 
 protected:
 	bool errorcode processMsg(io.DeviceMonitorMiMsgHdr const* hdr);
@@ -42,13 +40,12 @@ protected:
 	void handleUndefinedMessageCode(
 		void const* p,
 		size_t size
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void SerialMonitor_mi.reset()
-{
+void SerialMonitor_mi.reset() {
 	m_expectedMsgSize = sizeof(io.DeviceMonitorMiMsgHdr);
 	m_buffer.clear();
 	m_processor = null;
@@ -58,15 +55,11 @@ void SerialMonitor_mi.reset()
 bool errorcode SerialMonitor_mi.write(
 	void const* p,
 	size_t size
-	)
-{
-	while (size)
-	{
-		if (m_buffer.m_size < m_expectedMsgSize)
-		{
+) {
+	while (size) {
+		if (m_buffer.m_size < m_expectedMsgSize) {
 			size_t leftover = m_expectedMsgSize - m_buffer.m_size;
-			if (size < leftover)
-			{
+			if (size < leftover) {
 				m_buffer.append(p, size);
 				break;
 			}
@@ -77,15 +70,13 @@ bool errorcode SerialMonitor_mi.write(
 		}
 
 		io.DeviceMonitorMiMsgHdr const* hdr = (io.DeviceMonitorMiMsgHdr const*) m_buffer.m_p;
-		if (hdr.m_code > io.DeviceMonitorMiMsgCode._Last)
-		{
+		if (hdr.m_code > io.DeviceMonitorMiMsgCode._Last) {
 			handleUndefinedMessageCode(p, size);
 			return false;
 		}
 
 		size_t msgSize = sizeof(io.DeviceMonitorMiMsgHdr) + hdr.m_paramSize;
-		if (m_expectedMsgSize < msgSize)
-		{
+		if (m_expectedMsgSize < msgSize) {
 			m_expectedMsgSize = msgSize;
 			continue;
 		}
@@ -98,15 +89,12 @@ bool errorcode SerialMonitor_mi.write(
 	return true;
 }
 
-bool errorcode SerialMonitor_mi.processMsg(io.DeviceMonitorMiMsgHdr const* hdr)
-{
-	switch (hdr.m_code)
-	{
+bool errorcode SerialMonitor_mi.processMsg(io.DeviceMonitorMiMsgHdr const* hdr) {
+	switch (hdr.m_code) {
 	case io.DeviceMonitorMiMsgCode.Error:
 		std.Error const* error = (std.Error const*) (hdr + 1);
 		if (hdr.m_paramSize < sizeof(std.Error) ||
-			hdr.m_paramSize < error.m_size)
-		{
+			hdr.m_paramSize < error.m_size) {
 			std.setError("tdevmon MI error: ERROR message too small");
 			return false;
 		}
@@ -115,8 +103,7 @@ bool errorcode SerialMonitor_mi.processMsg(io.DeviceMonitorMiMsgHdr const* hdr)
 		return false;
 
 	case io.DeviceMonitorMiMsgCode.Start:
-		if (hdr.m_paramSize < sizeof(io.DeviceMonitorMiStartParams))
-		{
+		if (hdr.m_paramSize < sizeof(io.DeviceMonitorMiStartParams)) {
 			std.setError("tdevmon MI error: START message too small");
 			return false;
 		}
@@ -126,8 +113,7 @@ bool errorcode SerialMonitor_mi.processMsg(io.DeviceMonitorMiMsgHdr const* hdr)
 			m_processor = new SerialMonProcessor_win(m_logWriter);
 		else if (params.m_flags & io.DeviceMonitorMiStartFlags.Linux)
 			m_processor = new SerialMonProcessor_lnx(m_logWriter);
-		else
-		{
+		else {
 			std.setError("unsupported target OS");
 			return false;
 		}
@@ -135,16 +121,14 @@ bool errorcode SerialMonitor_mi.processMsg(io.DeviceMonitorMiMsgHdr const* hdr)
 		break;
 
 	case io.DeviceMonitorMiMsgCode.Notification:
-		if (!m_processor)
-		{
+		if (!m_processor) {
 			std.setError("tdevmon MI error: NOTIFY before START");
 			return false;
 		}
 
 		io.DeviceMonitorNotifyHdr const* notifyHdr = (io.DeviceMonitorNotifyHdr const*) (hdr + 1);
 		if (hdr.m_paramSize < sizeof(io.DeviceMonitorNotifyHdr) ||
-			hdr.m_paramSize < sizeof(io.DeviceMonitorNotifyHdr) + notifyHdr.m_paramSize)
-		{
+			hdr.m_paramSize < sizeof(io.DeviceMonitorNotifyHdr) + notifyHdr.m_paramSize) {
 			std.setError("tdevmon MI error: NOTIFY message too small");
 			return false;
 		}
@@ -164,8 +148,7 @@ bool errorcode SerialMonitor_mi.processMsg(io.DeviceMonitorMiMsgHdr const* hdr)
 void SerialMonitor_mi.handleUndefinedMessageCode(
 	void const* p,
 	size_t size
-	)
-{
+) {
 	if (m_buffer.m_size)
 		m_logWriter.write(log.StdRecordCode.Bin, m_buffer.m_p, m_buffer.m_size);
 

@@ -36,8 +36,7 @@ typedef llvm::IRBuilder<> LlvmIrBuilderImpl;
 
 //..............................................................................
 
-class LlvmIrBuilder
-{
+class LlvmIrBuilder {
 	friend class Module;
 
 protected:
@@ -48,31 +47,26 @@ protected:
 public:
 	LlvmIrBuilder();
 
-	~LlvmIrBuilder()
-	{
+	~LlvmIrBuilder() {
 		clear();
 	}
 
-	operator bool ()
-	{
+	operator bool () {
 		return m_llvmIrBuilder != NULL;
 	}
 
 	Module*
-	getModule()
-	{
+	getModule() {
 		return m_module;
 	}
 
 	LlvmIrBuilderImpl*
-	getLlvmIrBuilder()
-	{
+	getLlvmIrBuilder() {
 		return m_llvmIrBuilder;
 	}
 
 	LlvmIrBuilderImpl*
-	getLlvmAllocaIrBuilder()
-	{
+	getLlvmAllocaIrBuilder() {
 		return m_llvmAllocaIrBuilder;
 	}
 
@@ -86,22 +80,19 @@ public:
 	setAllocaBlock(BasicBlock* block);
 
 	llvm::DebugLoc
-	getCurrentDebugLoc()
-	{
+	getCurrentDebugLoc() {
 		ASSERT(m_llvmIrBuilder);
 		return m_llvmIrBuilder->getCurrentDebugLocation();
 	}
 
 	void
-	setCurrentDebugLoc(const llvm::DebugLoc& llvmDebugLoc)
-	{
+	setCurrentDebugLoc(const llvm::DebugLoc& llvmDebugLoc) {
 		ASSERT(m_llvmIrBuilder);
 		m_llvmIrBuilder->SetCurrentDebugLocation(llvmDebugLoc);
 	}
 
 	void
-	setInstDebugLoc(llvm::Instruction* llvmInst)
-	{
+	setInstDebugLoc(llvm::Instruction* llvmInst) {
 		ASSERT(m_llvmIrBuilder);
 		m_llvmIrBuilder->SetInstDebugLocation(llvmInst);
 	}
@@ -109,8 +100,7 @@ public:
 	// branches
 
 	llvm::Instruction*
-	getInsertPoint()
-	{
+	getInsertPoint() {
 		ASSERT(m_llvmIrBuilder);
 		return &*m_llvmIrBuilder->GetInsertPoint();
 	}
@@ -119,8 +109,7 @@ public:
 	setInsertPoint(BasicBlock* block);
 
 	void
-	setInsertPoint(llvm::Instruction* llvmInst)
-	{
+	setInsertPoint(llvm::Instruction* llvmInst) {
 		ASSERT(m_llvmIrBuilder);
 		m_llvmIrBuilder->SetInsertPoint(llvmInst);
 	}
@@ -135,17 +124,15 @@ public:
 	restoreInsertPoint(
 		const LlvmIrInsertPoint& insertPoint,
 		LlvmIrInsertPoint* prevInsertPoint
-		);
+	);
 
 	llvm::UnreachableInst*
-	createUnreachable()
-	{
+	createUnreachable() {
 		return m_llvmIrBuilder->CreateUnreachable();
 	}
 
 	llvm::BranchInst*
-	createBr(BasicBlock* block)
-	{
+	createBr(BasicBlock* block) {
 		return m_llvmIrBuilder->CreateBr(block->getLlvmBlock());
 	}
 
@@ -154,15 +141,14 @@ public:
 		const Value& value,
 		BasicBlock* trueBlock,
 		BasicBlock* falseBlock
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		return m_llvmIrBuilder->CreateCondBr(
 			value.getLlvmValue(),
 			trueBlock->getLlvmBlock(),
 			falseBlock->getLlvmBlock()
-			);
+		);
 	}
 
 	llvm::IndirectBrInst*
@@ -170,7 +156,7 @@ public:
 		const Value& value,
 		BasicBlock** blockArray,
 		size_t blockCount
-		);
+	);
 
 	llvm::SwitchInst*
 	createSwitch(
@@ -178,7 +164,7 @@ public:
 		BasicBlock* defaultBlock,
 		sl::HashTableIterator<intptr_t, BasicBlock*> firstCase,
 		size_t caseCount
-		);
+	);
 
 	llvm::SwitchInst*
 	createSwitch(
@@ -187,18 +173,16 @@ public:
 		intptr_t* constArray,
 		BasicBlock** blockArray,
 		size_t caseCount
-		);
+	);
 
 	llvm::ReturnInst*
-	createRet()
-	{
+	createRet() {
 		ASSERT(m_llvmIrBuilder);
 		return m_llvmIrBuilder->CreateRetVoid();
 	}
 
 	llvm::ReturnInst*
-	createRet(const Value& value)
-	{
+	createRet(const Value& value) {
 		ASSERT(m_llvmIrBuilder);
 		return m_llvmIrBuilder->CreateRet(value.getLlvmValue());
 	}
@@ -209,7 +193,7 @@ public:
 		BasicBlock** blockArray,
 		size_t count,
 		Value* resultValue
-		);
+	);
 
 	llvm::PHINode*
 	createPhi(
@@ -218,7 +202,7 @@ public:
 		const Value& value2,
 		BasicBlock* block2,
 		Value* resultValue
-		);
+	);
 
 	// memory access
 
@@ -228,8 +212,7 @@ public:
 		const sl::StringRef& name,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmAllocaIrBuilder);
 
 		llvm::AllocaInst* inst = m_llvmAllocaIrBuilder->CreateAlloca(type->getLlvmType(), NULL, name >> toLlvm);
@@ -243,8 +226,7 @@ public:
 		Type* resultType,
 		Value* resultValue,
 		bool isVolatile = false
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::LoadInst* inst = m_llvmIrBuilder->CreateLoad(value.getLlvmValue(), isVolatile, "loa");
@@ -257,8 +239,7 @@ public:
 		const Value& srcValue,
 		const Value& dstValue,
 		bool isVolatile = false
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 		return m_llvmIrBuilder->CreateStore(srcValue.getLlvmValue(), dstValue.getLlvmValue(), isVolatile);
 	}
@@ -272,7 +253,7 @@ public:
 		size_t indexCount,
 		Type* resultType,
 		Value* resultValue
-		);
+	);
 
 
 	llvm::Value*
@@ -282,7 +263,7 @@ public:
 		size_t indexCount,
 		Type* resultType,
 		Value* resultValue
-		);
+	);
 
 	llvm::Value*
 	createGep(
@@ -290,8 +271,7 @@ public:
 		const Value& indexValue,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateGEP(value.getLlvmValue(), indexValue.getLlvmValue(), "gep");
@@ -305,8 +285,7 @@ public:
 		int32_t index,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		Value indexValue;
@@ -321,10 +300,8 @@ public:
 		const Value& indexValue2,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
-		Value indexArray[] =
-		{
+	) {
+		Value indexArray[] = {
 			indexValue1,
 			indexValue2,
 		};
@@ -339,8 +316,7 @@ public:
 		int32_t index2,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		Value indexValue1;
 		Value indexValue2;
 		indexValue1.setConstInt32(index1, getSimpleType(TypeKind_Int32, m_module));
@@ -354,8 +330,7 @@ public:
 		const Value& indexValue2,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		Value indexValue1;
 		indexValue1.setConstInt32(0, getSimpleType(TypeKind_Int32, m_module));
 		return createGep2(value, indexValue1, indexValue2, resultType, resultValue);
@@ -367,8 +342,7 @@ public:
 		int32_t index2,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		Value indexValue1;
 		Value indexValue2;
 		indexValue1.setConstInt32(0, getSimpleType(TypeKind_Int32, m_module));
@@ -382,8 +356,7 @@ public:
 		int32_t index,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateExtractValue(value.getLlvmValue(), index, "extract");
@@ -398,15 +371,14 @@ public:
 		size_t indexCount,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateExtractValue(
 			value.getLlvmValue(),
 			llvm::ArrayRef<uint_t> ((uint_t*)indexArray, indexCount),
 			"extract"
-			);
+		);
 
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
@@ -419,8 +391,7 @@ public:
 		int32_t index,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateInsertValue(
@@ -428,7 +399,7 @@ public:
 			memberValue.getLlvmValue(),
 			index,
 			"insert"
-			);
+		);
 
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
@@ -442,8 +413,7 @@ public:
 		size_t indexCount,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateInsertValue(
@@ -451,7 +421,7 @@ public:
 			memberValue.getLlvmValue(),
 			llvm::ArrayRef<uint_t> ((uint_t*)indexArray, indexCount),
 			"insert"
-			);
+		);
 
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
@@ -464,8 +434,7 @@ public:
 		const Value& opValue,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateNeg(opValue.getLlvmValue(), "neg_i");
@@ -478,8 +447,7 @@ public:
 		const Value& opValue,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateFNeg(opValue.getLlvmValue(), "neg_f");
@@ -492,8 +460,7 @@ public:
 		const Value& opValue,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateNot(opValue.getLlvmValue(), "not");
@@ -509,8 +476,7 @@ public:
 		const Value& opValue2,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateAdd(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "add_i");
@@ -524,8 +490,7 @@ public:
 		const Value& opValue2,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateFAdd(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "add_f");
@@ -539,8 +504,7 @@ public:
 		const Value& opValue2,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateSub(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "sub_i");
@@ -554,8 +518,7 @@ public:
 		const Value& opValue2,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateFSub(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "sub_f");
@@ -569,8 +532,7 @@ public:
 		const Value& opValue2,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateMul(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "mul_i");
@@ -584,8 +546,7 @@ public:
 		const Value& opValue2,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateFMul(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "mul_f");
@@ -599,8 +560,7 @@ public:
 		const Value& opValue2,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateSDiv(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "div_i");
@@ -614,8 +574,7 @@ public:
 		const Value& opValue2,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateUDiv(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "div_u");
@@ -629,8 +588,7 @@ public:
 		const Value& opValue2,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateFDiv(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "div_f");
@@ -644,8 +602,7 @@ public:
 		const Value& opValue2,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateSRem(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "mod_i");
@@ -659,8 +616,7 @@ public:
 		const Value& opValue2,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateURem(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "mod_u");
@@ -674,8 +630,7 @@ public:
 		const Value& opValue2,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateShl(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "shl");
@@ -689,8 +644,7 @@ public:
 		const Value& opValue2,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateLShr(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "shr");
@@ -704,8 +658,7 @@ public:
 		const Value& opValue2,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		llvm::Value* inst = m_llvmIrBuilder->CreateAnd(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "and");
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
@@ -717,8 +670,7 @@ public:
 		const Value& opValue2,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateOr(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "or");
@@ -732,8 +684,7 @@ public:
 		const Value& opValue2,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateXor(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "xor");
@@ -748,8 +699,7 @@ public:
 		const Value& opValue1,
 		const Value& opValue2,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpEQ(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "eq_i");
@@ -762,8 +712,7 @@ public:
 		const Value& opValue1,
 		const Value& opValue2,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateFCmpOEQ(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "eq_f");
@@ -776,8 +725,7 @@ public:
 		const Value& opValue1,
 		const Value& opValue2,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpNE(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "ne_i");
@@ -790,8 +738,7 @@ public:
 		const Value& opValue1,
 		const Value& opValue2,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateFCmpONE(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "ne_f");
@@ -804,8 +751,7 @@ public:
 		const Value& opValue1,
 		const Value& opValue2,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpSLT(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "lt_i");
@@ -818,8 +764,7 @@ public:
 		const Value& opValue1,
 		const Value& opValue2,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpULT(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "lt_u");
@@ -832,8 +777,7 @@ public:
 		const Value& opValue1,
 		const Value& opValue2,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateFCmpOLT(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "lt_f");
@@ -846,8 +790,7 @@ public:
 		const Value& opValue1,
 		const Value& opValue2,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpSLE(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "le_i");
@@ -860,8 +803,7 @@ public:
 		const Value& opValue1,
 		const Value& opValue2,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpULE(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "le_u");
@@ -874,8 +816,7 @@ public:
 		const Value& opValue1,
 		const Value& opValue2,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateFCmpOLE(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "le_f");
@@ -888,8 +829,7 @@ public:
 		const Value& opValue1,
 		const Value& opValue2,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpSGT(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "gt_i");
@@ -902,8 +842,7 @@ public:
 		const Value& opValue1,
 		const Value& opValue2,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpUGT(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "gt_u");
@@ -916,8 +855,7 @@ public:
 		const Value& opValue1,
 		const Value& opValue2,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateFCmpOGT(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "gt_f");
@@ -930,8 +868,7 @@ public:
 		const Value& opValue1,
 		const Value& opValue2,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpSGE(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "ge_i");
@@ -944,8 +881,7 @@ public:
 		const Value& opValue1,
 		const Value& opValue2,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpUGE(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "ge_u");
@@ -958,8 +894,7 @@ public:
 		const Value& opValue1,
 		const Value& opValue2,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateFCmpOGE(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "ge_f");
@@ -975,8 +910,7 @@ public:
 		llvm::AtomicOrdering orderingKind,
 		llvm::SynchronizationScope_vn syncKind,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::AtomicCmpXchgInst* inst = m_llvmIrBuilder->CreateAtomicCmpXchg(
@@ -988,7 +922,7 @@ public:
 			orderingKind,
 #endif
 			syncKind
-			);
+		);
 
 		resultValue->setLlvmValue(inst, newValue.getType());
 		return inst;
@@ -1004,8 +938,7 @@ public:
 		llvm::AtomicOrdering failureOrderingKind,
 		llvm::SynchronizationScope_vn syncKind,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::AtomicCmpXchgInst* inst = m_llvmIrBuilder->CreateAtomicCmpXchg(
@@ -1015,7 +948,7 @@ public:
 			successOrderingKind,
 			failureOrderingKind,
 			syncKind
-			);
+		);
 
 		resultValue->setLlvmValue(inst, newValue.getType());
 		return inst;
@@ -1030,8 +963,7 @@ public:
 		llvm::AtomicOrdering orderingKind,
 		llvm::SynchronizationScope_vn syncKind,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::AtomicRMWInst* inst = m_llvmIrBuilder->CreateAtomicRMW(
@@ -1040,7 +972,7 @@ public:
 			newValue.getLlvmValue(),
 			orderingKind,
 			syncKind
-			);
+		);
 
 		resultValue->setLlvmValue(inst, newValue.getType());
 		return inst;
@@ -1053,8 +985,7 @@ public:
 		const Value& opValue,
 		llvm::Type* type,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 		llvm::Value* inst = m_llvmIrBuilder->CreateBitCast(opValue.getLlvmValue(), type, "bitcast");
 		resultValue->setLlvmValue(inst, NULL);
@@ -1066,8 +997,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateBitCast(opValue.getLlvmValue(), type->getLlvmType(), "bitcast");
@@ -1080,8 +1010,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateIntToPtr(opValue.getLlvmValue(), type->getLlvmType(), "int2ptr");
@@ -1094,8 +1023,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreatePtrToInt(opValue.getLlvmValue(), type->getLlvmType(), "ptr2int");
@@ -1108,8 +1036,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateTrunc(opValue.getLlvmValue(), type->getLlvmType(), "trunc_i");
@@ -1122,8 +1049,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateFPTrunc(opValue.getLlvmValue(), type->getLlvmType(), "trunc_f");
@@ -1136,8 +1062,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateSExt(opValue.getLlvmValue(), type->getLlvmType(), "ext_i");
@@ -1150,8 +1075,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateZExt(opValue.getLlvmValue(), type->getLlvmType(), "ext_u");
@@ -1164,8 +1088,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateFPExt(opValue.getLlvmValue(), type->getLlvmType(), "ext_f");
@@ -1178,8 +1101,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateSIToFP(opValue.getLlvmValue(), type->getLlvmType(), "i2f");
@@ -1192,8 +1114,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateUIToFP(opValue.getLlvmValue(), type->getLlvmType(), "u2f");
@@ -1206,8 +1127,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(m_llvmIrBuilder);
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateFPToSI(opValue.getLlvmValue(), type->getLlvmType(), "f2i");
@@ -1225,7 +1145,7 @@ public:
 		size_t argCount,
 		Type* resultType,
 		Value* resultValue
-		);
+	);
 
 	llvm::CallInst*
 	createCall(
@@ -1235,7 +1155,7 @@ public:
 		size_t argCount,
 		Type* resultType,
 		Value* resultValue
-		);
+	);
 
 	llvm::CallInst*
 	createCall(
@@ -1244,7 +1164,7 @@ public:
 		const sl::BoxList<Value>& argValueList,
 		Type* resultType,
 		Value* resultValue
-		);
+	);
 
 	// the following functions are convenient but be sure they don't need
 	// special handing by CallConv (e.g. struct-ret, arg splitting/reconstruction etc)
@@ -1256,8 +1176,7 @@ public:
 		const Value* argValueArray,
 		size_t argCount,
 		Value* resultValue
-		)
-	{
+	) {
 		return createCall(
 			calleeValue,
 			functionType->getCallConv(),
@@ -1265,7 +1184,7 @@ public:
 			argCount,
 			functionType->getReturnType(),
 			resultValue
-			);
+		);
 	}
 
 	llvm::CallInst*
@@ -1274,15 +1193,14 @@ public:
 		FunctionType* functionType,
 		const sl::BoxList<Value>& argValueList,
 		Value* resultValue
-		)
-	{
+	) {
 		return createCall(
 			calleeValue,
 			functionType->getCallConv(),
 			argValueList,
 			functionType->getReturnType(),
 			resultValue
-			);
+		);
 	}
 
 	llvm::CallInst*
@@ -1290,8 +1208,7 @@ public:
 		const Value& calleeValue,
 		FunctionType* functionType,
 		Value* resultValue
-		)
-	{
+	) {
 		return createCall(calleeValue, functionType, NULL, 0, resultValue);
 	}
 
@@ -1301,8 +1218,7 @@ public:
 		FunctionType* functionType,
 		const Value& argValue,
 		Value* resultValue
-		)
-	{
+	) {
 		return createCall(calleeValue, functionType, &argValue, 1, resultValue);
 	}
 
@@ -1313,10 +1229,8 @@ public:
 		const Value& argValue1,
 		const Value& argValue2,
 		Value* resultValue
-		)
-	{
-		Value argArray[] =
-		{
+	) {
+		Value argArray[] = {
 			argValue1,
 			argValue2,
 		};
@@ -1332,10 +1246,8 @@ public:
 		const Value& argValue2,
 		const Value& argValue3,
 		Value* resultValue
-		)
-	{
-		Value argArray[] =
-		{
+	) {
+		Value argArray[] = {
 			argValue1,
 			argValue2,
 			argValue3,
@@ -1353,10 +1265,8 @@ public:
 		const Value& argValue3,
 		const Value& argValue4,
 		Value* resultValue
-		)
-	{
-		Value argArray[] =
-		{
+	) {
+		Value argArray[] = {
 			argValue1,
 			argValue2,
 			argValue3,
@@ -1374,7 +1284,7 @@ public:
 		const Value& closureValue,
 		FunctionPtrType* resultType,
 		Value* resultValue
-		);
+	);
 
 	void
 	createClosurePropertyPtr(
@@ -1382,7 +1292,7 @@ public:
 		const Value& closureValue,
 		PropertyPtrType* resultType,
 		Value* resultValue
-		);
+	);
 };
 
 //..............................................................................

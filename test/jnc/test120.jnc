@@ -2,8 +2,7 @@
 
 import "sys_Timer.jnc"
 
-int async asyncBar(int x, int y)
-{
+int async asyncBar(int x, int y) {
 	printf("+bar (%d, %d): tid: %p\n", x, y, sys.getCurrentThreadId ());
 
 	char const* s = $"(x: $x, y: $y)";
@@ -21,8 +20,7 @@ int async asyncBar(int x, int y)
 	return x + y;
 }
 
-int async asyncFoo(int x, int y)
-{
+int async asyncFoo(int x, int y) {
 	printf("+foo (%d, %d): tid: %p\n", x, y, sys.getCurrentThreadId ());
 
 	char const* s = $"(x: $x, y: $y)";
@@ -39,8 +37,7 @@ int async asyncFoo(int x, int y)
 	return x + y + result1 + result2;
 }
 
-int main()
-{
+int main() {
 	printf("+main: tid: %p\n", sys.getCurrentThreadId ());
 
 	jnc.Promise* promise = asyncFoo(1, 2);

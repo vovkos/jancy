@@ -17,10 +17,8 @@
 JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
-jnc_getUnOpKindString(jnc_UnOpKind opKind)
-{
-	static const char* stringTable[jnc_UnOpKind__Count] =
-	{
+jnc_getUnOpKindString(jnc_UnOpKind opKind) {
+	static const char* stringTable[jnc_UnOpKind__Count] = {
 		"undefined-unary-operator",  // jnc_UnOpKind_Undefined = 0,
 		"+",                         // jnc_UnOpKind_Plus,
 		"-",                         // jnc_UnOpKind_Minus,
@@ -43,10 +41,8 @@ jnc_getUnOpKindString(jnc_UnOpKind opKind)
 JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
-jnc_getBinOpKindString(jnc_BinOpKind opKind)
-{
-	static const char* stringTable[jnc_BinOpKind__Count] =
-	{
+jnc_getBinOpKindString(jnc_BinOpKind opKind) {
+	static const char* stringTable[jnc_BinOpKind__Count] = {
 		"undefined-binary-operator",  // jnc_BinOpKind_Undefined = 0,
 		"+",                          // jnc_BinOpKind_Add,
 		"-",                          // jnc_BinOpKind_Sub,

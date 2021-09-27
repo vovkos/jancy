@@ -25,33 +25,27 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(DerivableType)
 
 class BaseTypeSlot:
 	public ModuleItemBase<ct::BaseTypeSlot>,
-	public ModuleItemDecl
-{
+	public ModuleItemDecl {
 public:
 	BaseTypeSlot(ct::BaseTypeSlot* slot):
 		ModuleItemBase(slot),
-		ModuleItemDecl(slot)
-	{
-	}
+		ModuleItemDecl(slot) {}
 
 	DerivableType*
 	JNC_CDECL
-	getType()
-	{
+	getType() {
 		return (DerivableType*)rtl::getType(m_item->getType());
 	}
 
 	size_t
 	JNC_CDECL
-	getOffset()
-	{
+	getOffset() {
 		return m_item->getOffset();
 	}
 
 	size_t
 	JNC_CDECL
-	getVtableIndex()
-	{
+	getVtableIndex() {
 		return m_item->getVtableIndex();
 	}
 };
@@ -61,80 +55,66 @@ public:
 template <typename T>
 class DerivableTypeBase:
 	public NamedTypeBase<T>,
-	public MemberBlock
-{
+	public MemberBlock {
 public:
 	DerivableTypeBase(T* type):
 		NamedTypeBase<T>(type),
-		MemberBlock(type)
-	{
-	}
+		MemberBlock(type) {}
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class DerivableType: public DerivableTypeBase<ct::DerivableType>
-{
+class DerivableType: public DerivableTypeBase<ct::DerivableType> {
 public:
 	DerivableType(ct::DerivableType* type):
-		DerivableTypeBase(type)
-	{
-	}
+		DerivableTypeBase(type) {}
 
 	size_t
 	JNC_CDECL
-	getBaseTypeCount()
-	{
+	getBaseTypeCount() {
 		return m_item->getBaseTypeArray().getCount();
 	}
 
 	BaseTypeSlot*
 	JNC_CDECL
-	getBaseType(size_t index)
-	{
+	getBaseType(size_t index) {
 		size_t count = m_item->getBaseTypeArray().getCount();
 		return index < count ? rtl::getBaseTypeSlot(m_item->getBaseTypeArray()[index]) : NULL;
 	}
 
 	size_t
 	JNC_CDECL
-	findBaseTypeOffset(DerivableType* baseType)
-	{
+	findBaseTypeOffset(DerivableType* baseType) {
 		return m_item->findBaseTypeOffset(baseType->m_item);
 	}
 
 	Function*
 	JNC_CDECL
-	getUnaryOperator(UnOpKind opKind)
-	{
+	getUnaryOperator(UnOpKind opKind) {
 		return rtl::getFunction(m_item->getUnaryOperator(opKind));
 	}
 
 	Function*
 	JNC_CDECL
-	getBinaryOperator(BinOpKind opKind)
-	{
+	getBinaryOperator(BinOpKind opKind) {
 		return rtl::getFunction(m_item->getBinaryOperator(opKind));
 	}
 
 	Function*
 	JNC_CDECL
-	getCallOperator()
-	{
+	getCallOperator() {
 		return rtl::getFunction(m_item->getCallOperator());
 	}
 
 	size_t
 	JNC_CDECL
-	getCastOperatorCount()
-	{
+	getCastOperatorCount() {
 		return m_item->getCastOperatorArray().getCount();
 	}
 
 	Function*
 	JNC_CDECL
-	getCastOperator(size_t index)
-	{
+	getCastOperator(size_t index) {
 		size_t count = m_item->getCastOperatorArray().getCount();
 		return index < count ? rtl::getFunction(m_item->getCastOperatorArray()[index]) : NULL;
 	}

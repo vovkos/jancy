@@ -1,16 +1,13 @@
-void foo()
-{
+void foo() {
 	print("foo\n");
 }
 
-int bar()
-{
+int bar() {
 	print("bar\n");
 	return 0;
 }
 
-int main()
-{
+int main() {
 	uint64_t x = 0x12345678abcdef0a;
 	print($"$(x; 02llx)\n");
 

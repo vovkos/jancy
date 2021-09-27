@@ -8,8 +8,7 @@ namespace jnc {
 //..............................................................................
 
 CodeTip::CodeTip(QWidget* parent):
-	QLabel(parent, Qt::ToolTip | Qt::BypassGraphicsProxyWidget)
-{
+	QLabel(parent, Qt::ToolTip | Qt::BypassGraphicsProxyWidget) {
 	m_functionTypeOverload = NULL;
 	m_functionTypeOverloadIdx = 0;
 	m_argumentIdx = 0;
@@ -28,8 +27,7 @@ CodeTip::CodeTip(QWidget* parent):
 }
 
 void
-CodeTip::nextFunctionTypeOverload()
-{
+CodeTip::nextFunctionTypeOverload() {
 	ASSERT(isFunctionTypeOverload());
 
 	size_t lastIdx = m_functionTypeOverload->getOverloadCount() - 1;
@@ -42,8 +40,7 @@ CodeTip::nextFunctionTypeOverload()
 }
 
 void
-CodeTip::prevFunctionTypeOverload()
-{
+CodeTip::prevFunctionTypeOverload() {
 	ASSERT(isFunctionTypeOverload());
 
 	if (m_functionTypeOverloadIdx)
@@ -58,8 +55,7 @@ void
 CodeTip::showQuickInfoTip(
 	const QPoint& pos,
 	ModuleItem* item
-	)
-{
+) {
 	m_functionTypeOverload = NULL;
 	m_functionTypeOverloadIdx = 0;
 	m_argumentIdx = 0;
@@ -72,8 +68,7 @@ CodeTip::showArgumentTip(
 	const QPoint& pos,
 	FunctionTypeOverload* overload,
 	size_t argumentIdx
-	)
-{
+) {
 	m_functionTypeOverload = overload;
 	m_argumentIdx = argumentIdx;
 
@@ -85,8 +80,7 @@ CodeTip::showArgumentTip(
 }
 
 QString
-CodeTip::getArgumentTipText()
-{
+CodeTip::getArgumentTipText() {
 	ASSERT(m_functionTypeOverload);
 
 	size_t overloadCount = m_functionTypeOverload->getOverloadCount();
@@ -108,14 +102,12 @@ QString
 CodeTip::getArgumentTipText(
 	FunctionType* type,
 	size_t argumentIdx
-	)
-{
+) {
 	#define ML_ARG_INDENT "&nbsp;&nbsp;&nbsp;&nbsp;"
 
 	bool isConst = false;
 	FunctionType* shortType = type->getShortType();
-	if (shortType != type) // a member function
-	{
+	if (shortType != type) { // a member function
 		isConst = type->getArgCount() && (type->getArg(0)->getType()->getFlags() & PtrTypeFlag_Const);
 		type = shortType;
 
@@ -132,8 +124,7 @@ CodeTip::getArgumentTipText(
 	QString text = highlightJancySource(returnType->getTypeString());
 	text += isMl ? " (<br>" ML_ARG_INDENT : " (";
 
-	for (size_t i = 0; i < argCount; i++)
-	{
+	for (size_t i = 0; i < argCount; i++) {
 		FunctionArg* arg = type->getArg(i);
 		Type* argType = arg->getType();
 
@@ -145,8 +136,7 @@ CodeTip::getArgumentTipText(
 		text += arg->getDecl()->getName();
 		text += highlightJancySource(argType->getTypeStringSuffix());
 
-		if (arg->hasDefaultValue())
-		{
+		if (arg->hasDefaultValue()) {
 			text += " = ";
 			text += highlightJancySource(arg->getDefaultValueString());
 		}
@@ -173,10 +163,8 @@ void
 CodeTip::showText(
 	const QPoint& pos,
 	const QString& text
-	)
-{
-	if (text.isEmpty())
-	{
+) {
+	if (text.isEmpty()) {
 		close();
 		return;
 	}
@@ -195,10 +183,8 @@ bool
 CodeTip::eventFilter(
 	QObject* o,
 	QEvent* e
-	)
-{
-	switch (e->type())
-	{
+) {
+	switch (e->type()) {
 	case QEvent::Leave:
 		onLeave();
 		break;
@@ -221,8 +207,7 @@ CodeTip::eventFilter(
 }
 
 void
-CodeTip::paintEvent(QPaintEvent* e)
-{
+CodeTip::paintEvent(QPaintEvent* e) {
 	QStyleOptionFrame option;
 	option.init(this);
 
@@ -234,8 +219,7 @@ CodeTip::paintEvent(QPaintEvent* e)
 }
 
 void
-CodeTip::resizeEvent(QResizeEvent* e)
-{
+CodeTip::resizeEvent(QResizeEvent* e) {
 	QStyleOption option;
 	option.init(this);
 
@@ -247,15 +231,13 @@ CodeTip::resizeEvent(QResizeEvent* e)
 }
 
 void
-CodeTip::leaveEvent(QEvent* e)
-{
+CodeTip::leaveEvent(QEvent* e) {
 	QLabel::leaveEvent(e);
 	onLeave();
 }
 
 int
-CodeTip::getTipScreen(const QPoint& pos)
-{
+CodeTip::getTipScreen(const QPoint& pos) {
 	if (QApplication::desktop()->isVirtualDesktop())
 		return QApplication::desktop()->screenNumber(pos);
 	else
@@ -263,8 +245,7 @@ CodeTip::getTipScreen(const QPoint& pos)
 }
 
 void
-CodeTip::setTipText(const QString& text)
-{
+CodeTip::setTipText(const QString& text) {
 	setText(text);
 
 	QFontMetrics fm(font());
@@ -279,8 +260,7 @@ CodeTip::setTipText(const QString& text)
 }
 
 void
-CodeTip::placeTip(const QPoint& pos)
-{
+CodeTip::placeTip(const QPoint& pos) {
 	QRect screen = QApplication::desktop()->screenGeometry(getTipScreen(pos));
 
 	QPoint p = pos;
@@ -307,13 +287,11 @@ CodeTip::placeTip(const QPoint& pos)
 }
 
 void
-CodeTip::onLeave()
-{
+CodeTip::onLeave() {
 	QWidget* widget = qApp->widgetAt(QCursor::pos());
 	QWidget* edit = parentWidget();
 
-	while (widget)
-	{
+	while (widget) {
 		if (widget == edit)
 			return;
 

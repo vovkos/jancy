@@ -7,8 +7,7 @@ import "log_RecordCode.jnc"
 
 //..............................................................................
 
-enum NetSnifferLogRecordCode: uint64_t
-{
+enum NetSnifferLogRecordCode: uint64_t {
 	EthernetPacket         = 0x01d4856b81a408c7 | log.RecordCodeFlags.Foldable,
 	InjectedEthernetPacket = 0x01d4856b81a408c8 | log.RecordCodeFlags.Foldable,
 	DefragmentedIp         = 0x01d4856b81a408c9 | log.RecordCodeFlags.Foldable,
@@ -20,8 +19,7 @@ enum NetSnifferLogRecordCode: uint64_t
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum NetSnifferLogPartCode
-{
+enum NetSnifferLogPartCode {
 	RawPacket = 1,
 }
 

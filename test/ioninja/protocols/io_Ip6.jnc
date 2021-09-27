@@ -12,16 +12,14 @@ namespace io {
 
 //..............................................................................
 
-bitflag enum IpOptionTypeFlag: uint8_t
-{
+bitflag enum IpOptionTypeFlag: uint8_t {
 	Copy  = 0x80,
 	Debug = 0x40,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum IpOptionNumber: uint8_t
-{
+enum IpOptionNumber: uint8_t {
 	Eool    = 0, // no length field
 	Nop     = 1, // no length field
 	Sec     = 2,
@@ -51,8 +49,7 @@ enum IpOptionNumber: uint8_t
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum IpOptionType: uint8_t
-{
+enum IpOptionType: uint8_t {
 	Eool    = IpOptionNumber.Eool,
 	Nop     = IpOptionNumber.Nop,
 	Sec     = IpOptionNumber.Sec    | IpOptionTypeFlag.Copy,
@@ -86,8 +83,7 @@ enum IpOptionType: uint8_t
 	displayName = "IPv6",
 	formatDigestFunc = formatIp6Digest
 ]
-struct Ip6Hdr
-{
+struct Ip6Hdr {
 	[ displayName = "Version" ]
 	bigendian uint32_t m_version      : 4;
 
@@ -124,18 +120,16 @@ struct Ip6Hdr
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* formatIp6Digest(void const* p)
-{
+char const* formatIp6Digest(void const* p) {
 	Ip6Hdr const* hdr = (Ip6Hdr const*)p;
 
 	return $"%1 \u2192 %2" (
 		formatIp6Address(&hdr.m_srcAddress),
 		formatIp6Address(&hdr.m_dstAddress)
-		);
+	);
 }
 
-char const* formatIp6Address(void const* p)
-{
+char const* formatIp6Address(void const* p) {
 	return ((io.Address_ip6 const*)p).getString();
 }
 

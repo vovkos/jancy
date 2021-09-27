@@ -39,8 +39,7 @@
 
 //..............................................................................
 
-enum jnc_EnumTypeFlag
-{
+enum jnc_EnumTypeFlag {
 	jnc_EnumTypeFlag_Exposed = 0x010000,
 	jnc_EnumTypeFlag_BitFlag = 0x020000,
 };
@@ -57,11 +56,9 @@ jnc_EnumConst_getValue(jnc_EnumConst* enumConst);
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
-struct jnc_EnumConst: jnc_ModuleItem
-{
+struct jnc_EnumConst: jnc_ModuleItem {
 	int64_t
-	getValue()
-	{
+	getValue() {
 		return jnc_EnumConst_getValue(this);
 	}
 };
@@ -87,33 +84,28 @@ jnc_EnumConst*
 jnc_EnumType_getConst(
 	jnc_EnumType* type,
 	size_t index
-	);
+);
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
-struct jnc_EnumType: jnc_NamedType
-{
+struct jnc_EnumType: jnc_NamedType {
 	jnc_Type*
-	getBaseType()
-	{
+	getBaseType() {
 		return jnc_EnumType_getBaseType(this);
 	}
 
 	jnc_Type*
-	getRootType()
-	{
+	getRootType() {
 		return jnc_EnumType_getRootType(this);
 	}
 
 	size_t
-	getConstCount()
-	{
+	getConstCount() {
 		return jnc_EnumType_getConstCount(this);
 	}
 
 	jnc_EnumConst*
-	getConst(size_t index)
-	{
+	getConst(size_t index) {
 		return jnc_EnumType_getConst(this, index);
 	}
 };

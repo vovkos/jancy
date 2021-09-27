@@ -19,10 +19,8 @@ namespace ct {
 //..............................................................................
 
 const char*
-getUnOpKindString(UnOpKind opKind)
-{
-	static const char* stringTable[UnOpKind__Count] =
-	{
+getUnOpKindString(UnOpKind opKind) {
+	static const char* stringTable[UnOpKind__Count] = {
 		"undefined-unary-operator",  // UnOpKind_Undefined = 0,
 		"+",                         // UnOpKind_Plus,
 		"-",                         // UnOpKind_Minus,
@@ -45,8 +43,7 @@ getUnOpKindString(UnOpKind opKind)
 //..............................................................................
 
 bool
-hasCodeGen(Module* module)
-{
+hasCodeGen(Module* module) {
 	return module->hasCodeGen();
 }
 
@@ -54,15 +51,13 @@ Type*
 getPrimitiveType(
 	Module* module,
 	TypeKind typeKind
-	)
-{
+) {
 	return module->m_typeMgr.getPrimitiveType(typeKind);
 }
 
 //..............................................................................
 
-UnaryOperator::UnaryOperator()
-{
+UnaryOperator::UnaryOperator() {
 	m_module = Module::getCurrentConstructedModule();
 	ASSERT(m_module);
 

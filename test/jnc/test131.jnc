@@ -2,20 +2,17 @@
 
 import "sys_Registry.jnc"
 
-int main()
-{
+int main() {
 	static char const* installerKey = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Installer";
 	static char const* policiesKey = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System";
 
-	static char const* installerValueNames[] = 
-	{
+	static char const* installerValueNames[] = {
 		"InstallerLocation",
 		"MsiExecCA32",
 		"MsiExecCA64",
 	}
 
-	static char const* policiesValueNames[] = 
-	{
+	static char const* policiesValueNames[] = {
 		"ConsentPromptBehaviorAdmin",
 		"ConsentPromptBehaviorUser",
 		"EnableLUA",
@@ -26,8 +23,7 @@ int main()
 	sys.RegKey key;
 	key.open(sys.RegStdKey.LocalMachine, installerKey, sys.RegKeyAccess.Read);
 
-	for (size_t i = 0; i < countof(installerValueNames); i++)
-	{
+	for (size_t i = 0; i < countof(installerValueNames); i++) {
 		char const* name = installerValueNames[i];
 		char const* string = key.readString(name);
 		printf("%s: %s\n", name, string);
@@ -35,8 +31,7 @@ int main()
 
 	key.open(sys.RegStdKey.LocalMachine, policiesKey, sys.RegKeyAccess.Read);
 
-	for (size_t i = 0; i < countof(policiesValueNames); i++)
-	{
+	for (size_t i = 0; i < countof(policiesValueNames); i++) {
 		char const* name = policiesValueNames[i];
 		uint32_t dword = key.readDword(name);
 		char const* string = key.readString(name);
@@ -46,6 +41,6 @@ int main()
 	return 0;
 
 catch:
-	print($"error: $!\n");	
+	print($"error: $!\n");
 	return -1;
 }

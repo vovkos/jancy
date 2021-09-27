@@ -28,8 +28,7 @@
 
 JNC_EXTERN_C
 jnc_Promise*
-jnc_createPromise(jnc_Runtime* runtime)
-{
+jnc_createPromise(jnc_Runtime* runtime) {
 	return jnc_g_dynamicExtensionLibHost->m_promiseFuncTable->m_createFunc(runtime);
 }
 
@@ -39,8 +38,7 @@ jnc_Promise_complete(
 	jnc_Promise* promise,
 	jnc_Variant result,
 	jnc_DataPtr errorPtr
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_promiseFuncTable->m_completeFunc(promise, result, errorPtr);
 }
 
@@ -49,8 +47,7 @@ jnc_Promise_complete(
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Promise*
-jnc_createPromise(jnc_Runtime* runtime)
-{
+jnc_createPromise(jnc_Runtime* runtime) {
 	return jnc::createClass<jnc::rtl::PromiseImpl>(runtime);
 }
 
@@ -61,8 +58,7 @@ jnc_Promise_complete(
 	jnc_Promise* promise,
 	jnc_Variant result,
 	jnc_DataPtr errorPtr
-	)
-{
+) {
 	((jnc::rtl::PromiseImpl*)promise)->complete_2(result, errorPtr);
 }
 

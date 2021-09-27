@@ -23,57 +23,49 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(Unit)
 
 //..............................................................................
 
-class Module: public IfaceHdr
-{
+class Module: public IfaceHdr {
 protected:
 	ct::Module* m_module;
 
 public:
-	Module(ct::Module* module)
-	{
+	Module(ct::Module* module) {
 		m_module = module;
 	}
 
 	uint_t
 	JNC_CDECL
-	getCompileFlags()
-	{
+	getCompileFlags() {
 		return m_module->getCompileFlags();
 	}
 
 	ModuleCompileState
 	JNC_CDECL
-	getCompileState()
-	{
+	getCompileState() {
 		return m_module->getCompileState();
 	}
 
 	GlobalNamespace*
 	JNC_CDECL
-	getGlobalNamespace()
-	{
+	getGlobalNamespace() {
 		return rtl::getGlobalNamespace(m_module->m_namespaceMgr.getGlobalNamespace());
 	}
 
 	Type*
 	JNC_CDECL
-	getPrimitiveType(TypeKind typeKind)
-	{
+	getPrimitiveType(TypeKind typeKind) {
 		return rtl::getType(m_module->m_typeMgr.getPrimitiveType(typeKind));
 	}
 };
 
 //..............................................................................
 
-class Unit: public IfaceHdr
-{
+class Unit: public IfaceHdr {
 protected:
 	ct::Unit* m_unit;
 	DataPtr m_filePathPtr;
 
 public:
-	Unit(ct::Unit* unit)
-	{
+	Unit(ct::Unit* unit) {
 		m_unit = unit;
 	}
 

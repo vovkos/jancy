@@ -3,33 +3,27 @@
 
 int g_objectCount;
 
-class A
-{
-	construct()
-	{
+class A {
+	construct() {
 		printf("A.construct (%p)\n", this);
 		g_objectCount++;
 	}
 
-	destruct()
-	{
+	destruct() {
 		printf("A.destruct (%p)\n", this);
 		g_objectCount--;
 	}
 }
 
-class B: A
-{
+class B: A {
 	A m_a;
 
-	construct()
-	{
+	construct() {
 		printf("B.construct (%p)\n", this);
 		g_objectCount++;
 	}
 
-	destruct()
-	{
+	destruct() {
 		printf("B.destruct (%p)\n", this);
 		g_objectCount--;
 	}
@@ -37,8 +31,7 @@ class B: A
 
 B g_b;
 
-int main()
-{
+int main() {
 	printf("file: " __FILE__ "\n");
 	printf("dir: " __DIR__ "\n");
 
@@ -51,8 +44,7 @@ int main()
 	return 0;
 }
 
-destruct()
-{
+destruct() {
 	printf("module.destruct: g_counter: %d\n", g_objectCount);
 	assert(g_objectCount == 3); // global B g_b;
 }

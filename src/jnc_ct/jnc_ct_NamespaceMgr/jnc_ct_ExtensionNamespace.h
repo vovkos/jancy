@@ -18,8 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-class ExtensionNamespace: public GlobalNamespace
-{
+class ExtensionNamespace: public GlobalNamespace {
 	friend class Parser;
 
 protected:
@@ -28,14 +27,12 @@ protected:
 	sl::Array<Property*> m_fixupPropertyArray;
 
 public:
-	ExtensionNamespace()
-	{
+	ExtensionNamespace() {
 		m_namespaceKind = NamespaceKind_Extension;
 		m_type = NULL;
 	}
 
-	Type* getType()
-	{
+	Type* getType() {
 		return m_type;
 	}
 

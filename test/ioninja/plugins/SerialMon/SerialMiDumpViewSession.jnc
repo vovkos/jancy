@@ -20,31 +20,26 @@ using extension ui.ComboBoxHistory;
 
 //..............................................................................
 
-class SerialMiDumpViewSession: doc.Session
-{
+class SerialMiDumpViewSession: doc.Session {
 protected:
-	enum State
-	{
+	enum State {
 		Closed,
 		Opened,
 	}
 
-	enum ActionId
-	{
+	enum ActionId {
 		Open,
 		Browse,
 		_Count,
 	}
 
-	enum IconId
-	{
+	enum IconId {
 		Open,
 		Close,
 		_Count,
 	}
 
-	enum
-	{
+	enum {
 		ViewSize = 4 * 1024, // 4K views
 	}
 
@@ -93,16 +88,14 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
-	void onOpen()
-	{
+	void onOpen() {
 		m_state ? close() : try open();
 	}
 
 	void onBrowse();
 	void onFileDlgCompleted(ui.StdDlgButton button);
 
-	void onComboEnter()
-	{
+	void onComboEnter() {
 		try open();
 	}
 
@@ -112,8 +105,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-SerialMiDumpViewSession.construct(doc.PluginHost* pluginHost)
-{
+SerialMiDumpViewSession.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
 	m_monitor.construct(pluginHost.m_log.m_writer);
 
@@ -126,8 +118,7 @@ SerialMiDumpViewSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-void SerialMiDumpViewSession.createUi()
-{
+void SerialMiDumpViewSession.createUi() {
 	// toolbar
 
 	m_pluginHost.m_toolBar.addLabel("File:");
@@ -151,7 +142,7 @@ void SerialMiDumpViewSession.createUi()
 		"File name",
 		"Enter a MI dump file name...",
 		"Device Monitor MI dump file"
-		);
+	);
 
 	// information grid
 
@@ -167,8 +158,7 @@ void SerialMiDumpViewSession.createUi()
 	m_uiReactor.start();
 }
 
-bool errorcode SerialMiDumpViewSession.open()
-{
+bool errorcode SerialMiDumpViewSession.open() {
 	close();
 	startSession();
 
@@ -186,8 +176,7 @@ catch:
 	return false;
 }
 
-void SerialMiDumpViewSession.close()
-{
+void SerialMiDumpViewSession.close() {
 	if (!m_state)
 		return;
 
@@ -199,54 +188,44 @@ void SerialMiDumpViewSession.close()
 	m_stdSessionInfoSet.endSession();
 }
 
-void SerialMiDumpViewSession.onBrowse()
-{
+void SerialMiDumpViewSession.onBrowse() {
 	m_fileDlg.m_kind = ui.FileDlgKind.Open;
 	m_fileDlg.m_title = "Open Device Monitor MI Dump...";
 	m_fileDlg.m_filter = "All files (*.*)";
 	m_fileDlg.show();
 }
 
-void SerialMiDumpViewSession.onFileDlgCompleted(ui.StdDlgButton button)
-{
+void SerialMiDumpViewSession.onFileDlgCompleted(ui.StdDlgButton button) {
 	if (button == ui.StdDlgButton.Ok)
 		m_fileNameCombo.m_editText = m_fileDlg.m_filePath;
 }
 
-void SerialMiDumpViewSession.load(doc.Storage* storage)
-{
+void SerialMiDumpViewSession.load(doc.Storage* storage) {
 	m_fileNameCombo.loadHistory(storage, "fileNameHistory");
 	m_fileNameCombo.m_editText = storage.readString("fileName");
 }
 
-void SerialMiDumpViewSession.save(doc.Storage* storage)
-{
+void SerialMiDumpViewSession.save(doc.Storage* storage) {
 	m_fileNameCombo.saveHistory(storage, "fileNameHistory");
 	storage.writeString("fileName", m_fileNameCombo.m_editText);
 }
 
-void SerialMiDumpViewSession.updateProperties()
-{
+void SerialMiDumpViewSession.updateProperties() {
 	m_fileNameProp.m_value = m_fileNameCombo.m_editText;
 }
 
-bool errorcode SerialMiDumpViewSession.applyProperties()
-{
+bool errorcode SerialMiDumpViewSession.applyProperties() {
 	m_fileNameCombo.m_editText = m_fileNameProp.m_value;
 	return true;
 }
 
-void SerialMiDumpViewSession.restoreDefaultProperties()
-{
-}
+void SerialMiDumpViewSession.restoreDefaultProperties() {}
 
-void SerialMiDumpViewSession.readThreadFunc()
-{
+void SerialMiDumpViewSession.readThreadFunc() {
 	uint64_t offset = 0;
 	uint64_t end = m_file.m_size;
 
-	while (!m_readThreadStopFlag && offset < end)
-	{
+	while (!m_readThreadStopFlag && offset < end) {
 		uint64_t leftover = end - offset;
 		size_t size = ViewSize < leftover ? ViewSize : leftover;
 		void const* p = m_file.view(offset, size);
@@ -261,8 +240,7 @@ finally:
 	(close @ m_pluginHost.m_mainThreadScheduler)();
 }
 
-reactor SerialMiDumpViewSession.m_uiReactor
-{
+reactor SerialMiDumpViewSession.m_uiReactor {
 	m_title = $"MI Dump $(m_fileNameCombo.m_currentText)";
 	m_actionTable[ActionId.Open].m_text = m_state ? "Close" : "Open";
 	m_actionTable[ActionId.Open].m_icon = m_iconTable[m_state ? IconId.Close : IconId.Open];

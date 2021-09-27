@@ -57,8 +57,7 @@ btm_construct_name_rslv
 	:	TokenKind_Identifier '.' (TokenKind_Identifier '.')* TokenKind_Construct
 	;
 
-struct
-{
+struct {
 	QualifiedName m_name;
 }
 resolver(btm_construct_name_rslv, 2) // higher priority than qualified_type_name_rslv
@@ -76,8 +75,7 @@ btm_construct_name
 	;
 
 statement
-	enter
-	{
+	enter {
 		m_module->m_namespaceMgr.setSourcePos(m_currentToken.m_pos);
 	}
 	:	compound_stmt
@@ -124,12 +122,10 @@ expression_stmt
 	;
 
 if_stmt
-	local
-	{
+	local {
 		IfStmt $stmt;
 	}
-	enter
-	{
+	enter {
 		m_module->m_controlFlowMgr.ifStmt_Create(&$stmt);
 	}
 	:	TokenKind_If '(' expression $e ')' $a
@@ -150,12 +146,10 @@ if_stmt
 	;
 
 switch_stmt
-	local
-	{
+	local {
 		SwitchStmt $stmt;
 	}
-	enter
-	{
+	enter {
 		m_module->m_controlFlowMgr.switchStmt_Create(&$stmt);
 	}
 	:	TokenKind_Switch '(' expression $e ')'
@@ -184,12 +178,10 @@ switch_block_stmt<SwitchStmt* $stmt>
 
 
 reswitch_stmt
-	local
-	{
+	local {
 		ReSwitchStmt $stmt;
 	}
-	enter
-	{
+	enter {
 		m_module->m_controlFlowMgr.reSwitchStmt_Create(&$stmt);
 	}
 	:	TokenKind_ReSwitch '(' expression $r ',' expression $e (',' expression $s)? ')'
@@ -223,14 +215,12 @@ reswitch_block_stmt<ReSwitchStmt* $stmt>
 	;
 
 
-struct
-{
+struct {
 	sl::StringRef m_data;
 }
 start
 reswitch_case_literal
-	local
-	{
+	local {
 		Value $value;
 	}
 	:	literal<&$value>
@@ -240,12 +230,10 @@ reswitch_case_literal
 	;
 
 while_stmt
-	local
-	{
+	local {
 		WhileStmt $stmt;
 	}
-	enter
-	{
+	enter {
 		m_module->m_controlFlowMgr.whileStmt_Create(&$stmt);
 	}
 	:	TokenKind_While '(' expression $e ')' $a
@@ -259,12 +247,10 @@ while_stmt
 	;
 
 do_stmt
-	local
-	{
+	local {
 		DoStmt $stmt;
 	}
-	enter
-	{
+	enter {
 		m_module->m_controlFlowMgr.doStmt_Create(&$stmt);
 	}
 	:	TokenKind_Do
@@ -282,12 +268,10 @@ do_stmt
 	;
 
 for_stmt
-	local
-	{
+	local {
 		ForStmt $stmt;
 	}
-	enter
-	{
+	enter {
 		m_module->m_controlFlowMgr.forStmt_Create(&$stmt);
 	}
 	:	TokenKind_For '('
@@ -351,8 +335,7 @@ return_stmt
 	;
 
 once_stmt
-	local
-	{
+	local {
 		OnceStmt $stmt;
 	}
 	:	storage_specifier? TokenKind_Once
@@ -404,8 +387,7 @@ unsafe_stmt
 	;
 
 assert_stmt
-	local
-	{
+	local {
 		BasicBlock* $continueBlock;
 	}
 	:	TokenKind_Assert '(' expression_pass1 $c

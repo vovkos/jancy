@@ -18,8 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-Scope::Scope()
-{
+Scope::Scope() {
 	m_itemKind = ModuleItemKind_Scope;
 	m_namespaceKind = NamespaceKind_Scope;
 	m_namespaceStatus = NamespaceStatus_Ready;
@@ -36,8 +35,7 @@ Scope::Scope()
 }
 
 bool
-Scope::canStaticThrow()
-{
+Scope::canStaticThrow() {
 	return
 		m_tryExpr != NULL ||
 		(m_flags & ScopeFlag_HasCatch)  ||
@@ -45,17 +43,14 @@ Scope::canStaticThrow()
 }
 
 GcShadowStackFrameMap*
-Scope::findGcShadowStackFrameMap()
-{
+Scope::findGcShadowStackFrameMap() {
 	if (m_flags & ScopeFlag_FrameMapCached)
 		return m_gcShadowStackFrameMap;
 
-	if (!m_gcShadowStackFrameMap)
-	{
+	if (!m_gcShadowStackFrameMap) {
 		Scope* scope = getParentScope();
 		for (; scope; scope = scope->getParentScope())
-			if (scope->m_gcShadowStackFrameMap)
-			{
+			if (scope->m_gcShadowStackFrameMap) {
 				m_gcShadowStackFrameMap = scope->m_gcShadowStackFrameMap;
 				break;
 			}

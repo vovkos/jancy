@@ -7,8 +7,7 @@ import "log_RecordCode.jnc"
 
 //..............................................................................
 
-enum ModbusLogRecordCode: uint64_t
-{
+enum ModbusLogRecordCode: uint64_t {
 	MasterPacket_Rtu   = 0x01d485febc418db8 | log.RecordCodeFlags.Foldable,
 	SlavePacket_Rtu    = 0x01d485febc418db9 | log.RecordCodeFlags.Foldable,
 	MasterPacket_Ascii = 0x01d485febc418dba | log.RecordCodeFlags.Foldable,

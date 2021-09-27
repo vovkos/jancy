@@ -30,8 +30,7 @@ namespace ct {
 
 //..............................................................................
 
-FunctionMgr::FunctionMgr()
-{
+FunctionMgr::FunctionMgr() {
 	m_module = Module::getCurrentConstructedModule();
 	ASSERT(m_module);
 
@@ -42,8 +41,7 @@ FunctionMgr::FunctionMgr()
 }
 
 void
-FunctionMgr::clear()
-{
+FunctionMgr::clear() {
 	m_functionList.clear();
 	m_functionOverloadList.clear();
 	m_propertyList.clear();
@@ -65,8 +63,7 @@ FunctionMgr::clear()
 }
 
 Value
-FunctionMgr::overrideThisValue(const Value& value)
-{
+FunctionMgr::overrideThisValue(const Value& value) {
 	Value prevThisValue = m_thisValue;
 	m_thisValue = value;
 	return prevThisValue;
@@ -76,12 +73,10 @@ bool
 FunctionMgr::addGlobalCtorDtor(
 	GlobalCtorDtorKind kind,
 	Function* function
-	)
-{
+) {
 	ASSERT((size_t)kind < countof(m_globalCtorDtorArrayTable));
 
-	if (!function->getType()->getArgArray().isEmpty())
-	{
+	if (!function->getType()->getArgArray().isEmpty()) {
 		err::setFormatStringError("global constructor cannot have arguments");
 		return false;
 	}
@@ -100,8 +95,7 @@ FunctionMgr::addFunction(
 	const sl::StringRef& name,
 	const sl::StringRef& qualifiedName,
 	FunctionType* type
-	)
-{
+) {
 	function->m_module = m_module;
 	function->m_name = name;
 	function->m_qualifiedName = qualifiedName;
@@ -110,8 +104,7 @@ FunctionMgr::addFunction(
 }
 
 FunctionOverload*
-FunctionMgr::createFunctionOverload(Function* function)
-{
+FunctionMgr::createFunctionOverload(Function* function) {
 	FunctionOverload* overload = AXL_MEM_NEW(FunctionOverload);
 	*(ModuleItemDecl*)overload = *(ModuleItemDecl*)function;
 	*(FunctionName*)overload = *(FunctionName*)function;
@@ -127,8 +120,7 @@ FunctionMgr::addProperty(
 	Property* prop,
 	const sl::StringRef& name,
 	const sl::StringRef& qualifiedName
-	)
-{
+) {
 	prop->m_module = m_module;
 	prop->m_name = name;
 	prop->m_qualifiedName = qualifiedName;
@@ -136,8 +128,7 @@ FunctionMgr::addProperty(
 }
 
 PropertyTemplate*
-FunctionMgr::createPropertyTemplate()
-{
+FunctionMgr::createPropertyTemplate() {
 	PropertyTemplate* propertyTemplate = AXL_MEM_NEW(PropertyTemplate);
 	propertyTemplate->m_module = m_module;
 	m_propertyTemplateList.insertTail(propertyTemplate);
@@ -145,20 +136,18 @@ FunctionMgr::createPropertyTemplate()
 }
 
 bool
-FunctionMgr::fireOnChanged()
-{
+FunctionMgr::fireOnChanged() {
 	Function* function = m_currentFunction;
 
 	ASSERT(
 		function->m_functionKind == FunctionKind_Setter &&
 		function->m_property &&
 		function->m_property->getType()->getFlags() & PropertyTypeFlag_Bindable
-		);
+	);
 
 	Value propertyValue = function->m_property;
 
-	if (function->m_thisType)
-	{
+	if (function->m_thisType) {
 		ASSERT(m_thisValue);
 
 		Closure* closure = propertyValue.createClosure();
@@ -174,8 +163,7 @@ FunctionMgr::fireOnChanged()
 }
 
 Function*
-FunctionMgr::setCurrentFunction(Function* function)
-{
+FunctionMgr::setCurrentFunction(Function* function) {
 	Function* prevFunction = m_currentFunction;
 	m_currentFunction = function;
 	return prevFunction;
@@ -185,8 +173,7 @@ void
 FunctionMgr::prologue(
 	Function* function,
 	const lex::LineCol& pos
-	)
-{
+) {
 	m_currentFunction = function;
 
 	// create entry blocks
@@ -211,8 +198,7 @@ FunctionMgr::prologue(
 
 	function->m_scope = m_module->m_namespaceMgr.openScope(pos);
 
-	if (function->m_extensionNamespace)
-	{
+	if (function->m_extensionNamespace) {
 		function->m_scope->m_usingSet.addGlobalNamespace(function->m_extensionNamespace);
 		function->m_scope->m_usingSet.addExtensionNamespace(function->m_extensionNamespace);
 	}
@@ -220,16 +206,12 @@ FunctionMgr::prologue(
 	if (function->m_type->getFlags() & FunctionTypeFlag_Unsafe)
 		m_module->m_operatorMgr.enterUnsafeRgn();
 
-	if (m_module->hasCodeGen())
-	{
+	if (m_module->hasCodeGen()) {
 		function->getType()->getCallConv()->createArgVariables(function);
-	}
-	else
-	{
+	} else {
 		sl::Array<FunctionArg*> argArray = function->getType()->getArgArray();
 		size_t argCount = argArray.getCount();
-		for (size_t i = 0; i < argCount; i++)
-		{
+		for (size_t i = 0; i < argCount; i++) {
 			FunctionArg* arg = argArray[i];
 			if (!arg->isNamed())
 				continue;
@@ -252,35 +234,27 @@ FunctionMgr::prologue(
 }
 
 void
-FunctionMgr::createThisValue()
-{
+FunctionMgr::createThisValue() {
 	Function* function = m_currentFunction;
 	ASSERT(function && function->isMember());
 
-	if (!m_module->hasCodeGen())
-	{
+	if (!m_module->hasCodeGen()) {
 		m_thisValue = function->m_thisType;
 		return;
 	}
 
 	Value thisArgValue = function->getType()->getCallConv()->getThisArgValue(function);
-	if (function->m_thisArgType->cmp(function->m_thisType) == 0)
-	{
+	if (function->m_thisArgType->cmp(function->m_thisType) == 0) {
 		if (function->m_thisType->getTypeKind() != TypeKind_DataPtr)
 			m_thisValue = thisArgValue;
 		else
 			m_module->m_operatorMgr.makeLeanDataPtr(thisArgValue, &m_thisValue);
-	}
-	else
-	{
+	} else {
 		ASSERT(function->m_storageKind == StorageKind_Override);
 
-		if (function->m_thisArgDelta == 0)
-		{
+		if (function->m_thisArgDelta == 0) {
 			m_module->m_llvmIrBuilder.createBitCast(thisArgValue, function->m_thisType, &m_thisValue);
-		}
-		else
-		{
+		} else {
 			Value ptrValue;
 			m_module->m_llvmIrBuilder.createBitCast(thisArgValue, m_module->m_typeMgr.getStdType(StdType_BytePtr), &ptrValue);
 			m_module->m_llvmIrBuilder.createGep(ptrValue, (int32_t)function->m_thisArgDelta, NULL, &ptrValue);
@@ -290,8 +264,7 @@ FunctionMgr::createThisValue()
 }
 
 bool
-FunctionMgr::epilogue()
-{
+FunctionMgr::epilogue() {
 	bool result;
 
 	Function* function = m_currentFunction;
@@ -300,17 +273,13 @@ FunctionMgr::epilogue()
 	ASSERT(m_currentFunction && scope);
 
 	if (function->m_functionKind == FunctionKind_Destructor &&
-		function->m_storageKind == StorageKind_Member)
-	{
+		function->m_storageKind == StorageKind_Member) {
 		ASSERT(m_thisValue);
 
-		if (function->getProperty())
-		{
+		if (function->getProperty()) {
 			Property* prop = function->getProperty();
 			result = prop->callPropertyDestructors(m_thisValue);
-		}
-		else
-		{
+		} else {
 			ASSERT(function->getParentType()->getTypeKind() == TypeKind_Class && m_thisValue);
 			ClassType* classType = (ClassType*)function->getParentType();
 
@@ -339,12 +308,11 @@ FunctionMgr::epilogue()
 	bool isBroken = llvm::verifyFunction(*function->getLlvmFunction());
 #	endif
 
-	if (isBroken)
-	{
+	if (isBroken) {
 		err::setFormatStringError(
 			"LLVM verification fail for '%s'",
 			function->getQualifiedName().sz()
-			);
+		);
 
 		return false;
 	}
@@ -357,8 +325,7 @@ void
 FunctionMgr::finalizeFunction(
 	Function* function,
 	bool wasNamespaceOpened
-	)
-{
+) {
 	ASSERT(function == m_currentFunction);
 
 	m_module->m_namespaceMgr.closeScope();
@@ -386,8 +353,7 @@ FunctionMgr::internalPrologue(
 	Value* argValueArray,
 	size_t argCount,
 	const lex::LineCol* pos
-	)
-{
+) {
 	m_currentFunction = function;
 
 	if (m_module->hasCodeGen())
@@ -414,8 +380,7 @@ FunctionMgr::internalPrologue(
 	if (argCount)
 		if (m_module->hasCodeGen())
 			function->getType()->getCallConv()->getArgValueArray(function, argValueArray, argCount);
-		else
-		{
+		else {
 			sl::Array<FunctionArg*> argArray = function->getType()->getArgArray();
 			ASSERT(argCount <= argArray.getCount());
 
@@ -431,13 +396,11 @@ FunctionMgr::internalPrologue(
 }
 
 void
-FunctionMgr::internalEpilogue()
-{
+FunctionMgr::internalEpilogue() {
 	Function* function = m_currentFunction;
 
 	BasicBlock* currentBlock = m_module->m_controlFlowMgr.getCurrentBlock();
-	if (m_module->hasCodeGen() && !currentBlock->hasTerminator())
-	{
+	if (m_module->hasCodeGen() && !currentBlock->hasTerminator()) {
 		Type* returnType = function->getType()->getReturnType();
 
 		Value returnValue;
@@ -455,15 +418,13 @@ FunctionMgr::getDirectThunkFunction(
 	Function* targetFunction,
 	FunctionType* thunkFunctionType,
 	bool hasUnusedClosure
-	)
-{
+) {
 	if (!hasUnusedClosure && targetFunction->m_type->cmp(thunkFunctionType) == 0)
 		return targetFunction;
 
 	char signatureChar = 'D';
 
-	if (hasUnusedClosure)
-	{
+	if (hasUnusedClosure) {
 		signatureChar = 'U';
 		thunkFunctionType = thunkFunctionType->getStdObjectMemberMethodType();
 	}
@@ -474,7 +435,7 @@ FunctionMgr::getDirectThunkFunction(
 		signatureChar,
 		targetFunction,
 		thunkFunctionType->getSignature().sz()
-		);
+	);
 
 	sl::StringHashTableIterator<Function*> it = m_thunkFunctionMap.visit(signature);
 	if (it->m_value)
@@ -484,7 +445,7 @@ FunctionMgr::getDirectThunkFunction(
 		sl::String(),
 		"jnc.directThunkFunction",
 		thunkFunctionType
-		);
+	);
 
 	thunkFunction->m_storageKind = StorageKind_Static;
 	thunkFunction->m_targetFunction = targetFunction;
@@ -498,8 +459,7 @@ FunctionMgr::getDirectThunkProperty(
 	Property* targetProperty,
 	PropertyType* thunkPropertyType,
 	bool hasUnusedClosure
-	)
-{
+) {
 	if (!hasUnusedClosure && targetProperty->m_type->cmp(thunkPropertyType) == 0)
 		return targetProperty;
 
@@ -509,7 +469,7 @@ FunctionMgr::getDirectThunkProperty(
 		hasUnusedClosure ? 'U' : 'D',
 		targetProperty,
 		thunkPropertyType->getSignature().sz()
-		);
+	);
 
 	sl::StringHashTableIterator<Property*> it = m_thunkPropertyMap.visit(signature);
 	if (it->m_value)
@@ -518,7 +478,7 @@ FunctionMgr::getDirectThunkProperty(
 	ThunkProperty* thunkProperty = createProperty<ThunkProperty>(
 		sl::String(),
 		"jnc.g_directThunkProperty"
-		);
+	);
 
 	thunkProperty->m_storageKind = StorageKind_Static;
 
@@ -534,8 +494,7 @@ FunctionMgr::getDirectDataThunkProperty(
 	Variable* targetVariable,
 	PropertyType* thunkPropertyType,
 	bool hasUnusedClosure
-	)
-{
+) {
 	bool result;
 
 	sl::String signature;
@@ -544,7 +503,7 @@ FunctionMgr::getDirectDataThunkProperty(
 		hasUnusedClosure ? 'U' : 'D',
 		targetVariable,
 		thunkPropertyType->getSignature().sz()
-		);
+	);
 
 	sl::StringHashTableIterator<Property*> it = m_thunkPropertyMap.visit(signature);
 	if (it->m_value)
@@ -553,7 +512,7 @@ FunctionMgr::getDirectDataThunkProperty(
 	DataThunkProperty* thunkProperty = createProperty<DataThunkProperty>(
 		sl::String(),
 		"jnc.g_directDataThunkProperty"
-		);
+	);
 
 	thunkProperty->m_storageKind = StorageKind_Static;
 	thunkProperty->m_targetVariable = targetVariable;
@@ -569,8 +528,7 @@ FunctionMgr::getDirectDataThunkProperty(
 }
 
 Function*
-FunctionMgr::getSchedLauncherFunction(FunctionPtrType* targetFunctionPtrType)
-{
+FunctionMgr::getSchedLauncherFunction(FunctionPtrType* targetFunctionPtrType) {
 	sl::String signature = targetFunctionPtrType->getSignature();
 	sl::StringHashTableIterator<Function*> it = m_schedLauncherFunctionMap.visit(signature);
 	if (it->m_value)
@@ -584,8 +542,7 @@ FunctionMgr::getSchedLauncherFunction(FunctionPtrType* targetFunctionPtrType)
 
 	Function* launcherFunction;
 
-	if (targetFunctionType->getFlags() & FunctionTypeFlag_Async)
-	{
+	if (targetFunctionType->getFlags() & FunctionTypeFlag_Async) {
 		Type* returnType = m_module->m_typeMgr.getStdType(StdType_PromisePtr);
 		FunctionType* launcherFunctionType = m_module->m_typeMgr.getFunctionType(returnType, argArray);
 
@@ -593,17 +550,15 @@ FunctionMgr::getSchedLauncherFunction(FunctionPtrType* targetFunctionPtrType)
 			sl::String(),
 			"jnc.asyncSchedLauncher",
 			launcherFunctionType
-			);
-	}
-	else
-	{
+		);
+	} else {
 		FunctionType* launcherFunctionType = m_module->m_typeMgr.getFunctionType(argArray);
 
 		launcherFunction = createFunction<SchedLauncherFunction>(
 			sl::String(),
 			"jnc.schedLauncher",
 			launcherFunctionType
-			);
+		);
 	}
 
 	launcherFunction->m_storageKind = StorageKind_Static;
@@ -613,13 +568,11 @@ FunctionMgr::getSchedLauncherFunction(FunctionPtrType* targetFunctionPtrType)
 }
 
 bool
-FunctionMgr::finalizeNamespaceProperties(const sl::ConstIterator<Property>& prevIt)
-{
+FunctionMgr::finalizeNamespaceProperties(const sl::ConstIterator<Property>& prevIt) {
 	bool result;
 
 	sl::Iterator<Property> it = prevIt ? (Property*)prevIt.getNext().p() : m_propertyList.getHead();
-	for (; it; it++)
-	{
+	for (; it; it++) {
 		result = it->finalize();
 		if (!result)
 			return false;
@@ -629,8 +582,7 @@ FunctionMgr::finalizeNamespaceProperties(const sl::ConstIterator<Property>& prev
 }
 
 void
-FunctionMgr::injectTlsPrologues()
-{
+FunctionMgr::injectTlsPrologues() {
 	sl::Iterator<Function> it = m_functionList.getHead();
 	for (; it; it++)
 		if (it->isTlsRequired())
@@ -638,8 +590,7 @@ FunctionMgr::injectTlsPrologues()
 }
 
 void
-FunctionMgr::injectTlsPrologue(Function* function)
-{
+FunctionMgr::injectTlsPrologue(Function* function) {
 	BasicBlock* block = function->getPrologueBlock();
 	ASSERT(block);
 
@@ -655,8 +606,7 @@ FunctionMgr::injectTlsPrologue(Function* function)
 
 	sl::Array<TlsVariable> tlsVariableArray = function->getTlsVariableArray();
 	size_t count = tlsVariableArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		Field* field = tlsVariableArray[i].m_variable->getTlsField();
 		ASSERT(field);
 
@@ -674,8 +624,7 @@ FunctionMgr::injectTlsPrologue(Function* function)
 }
 
 void
-FunctionMgr::replaceAsyncAllocas()
-{
+FunctionMgr::replaceAsyncAllocas() {
 	size_t count = m_asyncSequencerFunctionArray.getCount();
 	for (size_t i = 0; i < count; i++)
 		m_asyncSequencerFunctionArray[i]->replaceAllocas();
@@ -686,14 +635,12 @@ llvmFatalErrorHandler(
 	void* context,
 	const std::string& errorString,
 	bool shouldGenerateCrashDump
-	)
-{
+) {
 	throw err::Error(errorString.c_str());
 }
 
 bool
-FunctionMgr::jitFunctions()
-{
+FunctionMgr::jitFunctions() {
 #if (_JNC_LLVM_NO_JIT)
 	err::setFormatStringError("LLVM jitting is disabled");
 	return false;
@@ -702,17 +649,14 @@ FunctionMgr::jitFunctions()
 	llvm::ScopedFatalErrorHandler scopeErrorHandler(llvmFatalErrorHandler);
 	llvm::ExecutionEngine* llvmExecutionEngine = m_module->getLlvmExecutionEngine();
 
-	try
-	{
+	try {
 		sl::Iterator<Function> it = m_functionList.getHead();
 		for (; it; it++)
 			if (!it->isEmpty())
 				it->m_machineCode = llvmExecutionEngine->getPointerToFunction(it->getLlvmFunction());
 
 		llvmExecutionEngine->finalizeObject();
-	}
-	catch(err::Error error)
-	{
+	} catch (err::Error error) {
 		err::setFormatStringError("LLVM jitting failed: %s", error->getDescription().sz());
 		return false;
 	}
@@ -721,8 +665,7 @@ FunctionMgr::jitFunctions()
 }
 
 Function*
-FunctionMgr::getStdFunction(StdFunc func)
-{
+FunctionMgr::getStdFunction(StdFunc func) {
 	ASSERT((size_t)func < StdFunc__Count);
 
 	if (m_stdFunctionArray[func])
@@ -737,8 +680,7 @@ FunctionMgr::getStdFunction(StdFunc func)
 	FunctionType* functionType;
 	Function* function;
 
-	switch (func)
-	{
+	switch (func) {
 	case StdFunc_PrimeStaticClass:
 		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Void);
 		argTypeArray[0] = m_module->m_typeMgr.getStdType(StdType_BoxPtr);
@@ -835,7 +777,7 @@ FunctionMgr::getStdFunction(StdFunc func)
 			m_module->getLlvmModule(),
 			llvm::Intrinsic::memcpy,
 			llvm::ArrayRef<llvm::Type*> (llvmArgTypeArray, 3)
-			);
+		);
 		break;
 
 	case StdFunc_LlvmMemmove:
@@ -855,7 +797,7 @@ FunctionMgr::getStdFunction(StdFunc func)
 			m_module->getLlvmModule(),
 			llvm::Intrinsic::memmove,
 			llvm::ArrayRef<llvm::Type*> (llvmArgTypeArray, 3)
-			);
+		);
 		break;
 
 	case StdFunc_LlvmMemset:
@@ -874,7 +816,7 @@ FunctionMgr::getStdFunction(StdFunc func)
 			m_module->getLlvmModule(),
 			llvm::Intrinsic::memset,
 			llvm::ArrayRef<llvm::Type*> (llvmArgTypeArray, 2)
-			);
+		);
 
 		break;
 
@@ -1052,23 +994,21 @@ FunctionMgr::getStdFunction(StdFunc func)
 }
 
 Function*
-FunctionMgr::parseStdFunction(StdFunc func)
-{
+FunctionMgr::parseStdFunction(StdFunc func) {
 	const StdItemSource* source = getStdFunctionSource(func);
 	ASSERT(source->m_source);
 
 	return parseStdFunction(
 		source->m_stdNamespace,
 		sl::StringRef(source->m_source, source->m_length)
-		);
+	);
 }
 
 Function*
 FunctionMgr::parseStdFunction(
 	StdNamespace stdNamespace,
 	const sl::StringRef& source
-	)
-{
+) {
 	bool result;
 
 	Lexer lexer;
@@ -1083,13 +1023,11 @@ FunctionMgr::parseStdFunction(
 	parser.disableRandomErrors();
 #endif
 
-	for (;;)
-	{
+	for (;;) {
 		const Token* token = lexer.getToken();
 
 		result = parser.parseToken(token);
-		if (!result)
-		{
+		if (!result) {
 			TRACE("parse std function error: %s\n", err::getLastErrorDescription().sz());
 			ASSERT(false);
 		}
@@ -1113,16 +1051,14 @@ FunctionMgr::parseStdFunction(
 }
 
 Property*
-FunctionMgr::getStdProperty(StdProp stdProp)
-{
+FunctionMgr::getStdProperty(StdProp stdProp) {
 	ASSERT((size_t)stdProp < StdProp__Count);
 
 	if (m_stdPropertyArray[stdProp])
 		return m_stdPropertyArray[stdProp];
 
 	Property* prop;
-	switch (stdProp)
-	{
+	switch (stdProp) {
 	case StdProp_VariantMember:
 		prop = createInternalProperty("jnc.g_variantMember");
 		prop->m_storageKind = StorageKind_Static;

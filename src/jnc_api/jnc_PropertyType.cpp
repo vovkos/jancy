@@ -23,10 +23,8 @@
 JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
-jnc_getPropertyTypeFlagString(jnc_PropertyTypeFlag flag)
-{
-	static const char* stringTable[] =
-	{
+jnc_getPropertyTypeFlagString(jnc_PropertyTypeFlag flag) {
+	static const char* stringTable[] = {
 		"const",     // PropertyTypeFlag_Const    = 0x010000,
 		"bindable",  // PropertyTypeFlag_Bindable = 0x020000,
 	};
@@ -40,10 +38,8 @@ jnc_getPropertyTypeFlagString(jnc_PropertyTypeFlag flag)
 JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
-jnc_getPropertyPtrTypeKindString(jnc_PropertyPtrTypeKind ptrTypeKind)
-{
-	static const char* stringTable[jnc_PropertyPtrTypeKind__Count] =
-	{
+jnc_getPropertyPtrTypeKindString(jnc_PropertyPtrTypeKind ptrTypeKind) {
+	static const char* stringTable[jnc_PropertyPtrTypeKind__Count] = {
 		"closure",  // PropertyPtrTypeKind_Normal = 0,
 		"weak",     // PropertyPtrTypeKind_Weak,
 		"thin",     // PropertyPtrTypeKind_Thin,

@@ -19,8 +19,7 @@ namespace ct {
 
 //..............................................................................
 
-enum StructTypeKind
-{
+enum StructTypeKind {
 	StructTypeKind_Normal,
 	StructTypeKind_IfaceStruct,
 	StructTypeKind_ClassStruct,
@@ -29,8 +28,7 @@ enum StructTypeKind
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class StructType: public DerivableType
-{
+class StructType: public DerivableType {
 	friend class TypeMgr;
 	friend class ClassType;
 	friend class UnionType;
@@ -53,32 +51,27 @@ public:
 	StructType();
 
 	StructTypeKind
-	getStructTypeKind()
-	{
+	getStructTypeKind() {
 		return m_structTypeKind;
 	}
 
 	size_t
-	getFieldAlignment()
-	{
+	getFieldAlignment() {
 		return m_fieldAlignment;
 	}
 
 	size_t
-	getFieldActualSize()
-	{
+	getFieldActualSize() {
 		return m_fieldActualSize;
 	}
 
 	size_t
-	getFieldAlignedSize()
-	{
+	getFieldAlignedSize() {
 		return m_fieldAlignedSize;
 	}
 
 	sl::Array<Field*>
-	getDynamicFieldArray()
-	{
+	getDynamicFieldArray() {
 		return m_dynamicFieldArray;
 	}
 
@@ -90,7 +83,7 @@ public:
 	markGcRoots(
 		const void* p,
 		rt::GcHeap* gcHeap
-		);
+	);
 
 protected:
 	virtual
@@ -102,12 +95,11 @@ protected:
 		uint_t ptrTypeFlags = 0,
 		sl::BoxList<Token>* constructor = NULL,
 		sl::BoxList<Token>* initializer = NULL
-		);
+	);
 
 	virtual
 	void
-	prepareSignature()
-	{
+	prepareSignature() {
 		m_signature = 'S' + m_qualifiedName;
 	}
 
@@ -121,8 +113,7 @@ protected:
 
 	virtual
 	void
-	prepareTypeVariable()
-	{
+	prepareTypeVariable() {
 		prepareSimpleTypeVariable(StdType_StructType);
 	}
 
@@ -138,7 +129,7 @@ protected:
 		Type* type,
 		size_t* offset,
 		uint_t* llvmIndex
-		);
+	);
 
 	bool
 	layoutBitField(
@@ -147,7 +138,7 @@ protected:
 		Type** type,
 		size_t* offset,
 		uint_t* llvmIndex
-		);
+	);
 
 	size_t
 	getFieldOffset(size_t alignment);

@@ -20,8 +20,7 @@ JNC_DECLARE_TYPE(Guid)
 
 //..............................................................................
 
-struct Guid: sl::Guid
-{
+struct Guid: sl::Guid {
 	JNC_DECLARE_TYPE_STATIC_METHODS(Guid)
 
 	static
@@ -30,7 +29,7 @@ struct Guid: sl::Guid
 	getString(
 		DataPtr selfPtr,
 		uint_t flags
-		);
+	);
 
 	static
 	bool
@@ -38,7 +37,7 @@ struct Guid: sl::Guid
 	parse(
 		DataPtr selfPtr,
 		DataPtr stringPtr
-		);
+	);
 };
 
 //..............................................................................

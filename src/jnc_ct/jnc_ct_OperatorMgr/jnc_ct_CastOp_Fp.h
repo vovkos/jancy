@@ -20,16 +20,14 @@ namespace ct {
 
 // floating point truncation
 
-class Cast_FpTrunc: public CastOperator
-{
+class Cast_FpTrunc: public CastOperator {
 public:
 	virtual
 	CastKind
 	getCastKind(
 		const Value& opValue,
 		Type* type
-		)
-	{
+	) {
 		return CastKind_Explicit;
 	}
 
@@ -39,8 +37,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		void* dst
-		)
-	{
+	) {
 		*(float*)dst = (float)*(double*)opValue.getConstData();
 		return true;
 	}
@@ -51,23 +48,21 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		);
+	);
 };
 
 //..............................................................................
 
 // floating point extension
 
-class Cast_FpExt: public CastOperator
-{
+class Cast_FpExt: public CastOperator {
 public:
 	virtual
 	CastKind
 	getCastKind(
 		const Value& opValue,
 		Type* type
-		)
-	{
+	) {
 		return CastKind_Implicit;
 	}
 
@@ -77,8 +72,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		void* dst
-		)
-	{
+	) {
 		*(double*)dst = *(float*)opValue.getConstData();
 		return true;
 	}
@@ -89,23 +83,21 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		);
+	);
 };
 
 //..............................................................................
 
 // signed integer -> floating point
 
-class Cast_FpFromInt: public CastOperator
-{
+class Cast_FpFromInt: public CastOperator {
 public:
 	virtual
 	CastKind
 	getCastKind(
 		const Value& opValue,
 		Type* type
-		)
-	{
+	) {
 		return CastKind_ImplicitCrossFamily;
 	}
 
@@ -115,7 +107,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		);
+	);
 
 	virtual
 	bool
@@ -123,36 +115,34 @@ public:
 		const Value& opValue,
 		Type* type,
 		void* dst
-		);
+	);
 
 protected:
 	void
 	constCast_Fp32(
 		const Value& srcValue,
 		float* fp32
-		);
+	);
 
 	void
 	constCast_Fp64(
 		const Value& srcValue,
 		double* fp64
-		);
+	);
 };
 
 //..............................................................................
 
 // unsigned integer -> floating point
 
-class Cast_FpFromInt_u: public CastOperator
-{
+class Cast_FpFromInt_u: public CastOperator {
 public:
 	virtual
 	CastKind
 	getCastKind(
 		const Value& opValue,
 		Type* type
-		)
-	{
+	) {
 		return CastKind_ImplicitCrossFamily;
 	}
 
@@ -162,7 +152,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		);
+	);
 
 	virtual
 	bool
@@ -170,28 +160,27 @@ public:
 		const Value& opValue,
 		Type* type,
 		void* dst
-		);
+	);
 
 protected:
 	void
 	constCast_Fp32(
 		const Value& srcValue,
 		float* fp32
-		);
+	);
 
 	void
 	constCast_Fp64(
 		const Value& srcValue,
 		double* fp64
-		);
+	);
 };
 
 //..............................................................................
 
 // bigendian integer -> floating point
 
-class Cast_FpFromBeInt: public Cast_SuperMaster
-{
+class Cast_FpFromBeInt: public Cast_SuperMaster {
 public:
 	virtual
 	bool
@@ -201,15 +190,14 @@ public:
 		CastOperator** firstOperator,
 		CastOperator** secondOperator,
 		Type** intermediateType
-		);
+	);
 };
 
 //..............................................................................
 
 // enum -> floating point
 
-class Cast_FpFromEnum: public Cast_SuperMaster
-{
+class Cast_FpFromEnum: public Cast_SuperMaster {
 public:
 	virtual
 	bool
@@ -219,15 +207,14 @@ public:
 		CastOperator** firstOperator,
 		CastOperator** secondOperator,
 		Type** intermediateType
-		);
+	);
 };
 
 //..............................................................................
 
 // floating point master cast
 
-class Cast_Fp: public Cast_Master
-{
+class Cast_Fp: public Cast_Master {
 protected:
 	Cast_FpTrunc m_trunc;
 	Cast_FpExt m_ext;
@@ -242,7 +229,7 @@ public:
 	getCastOperator(
 		const Value& opValue,
 		Type* type
-		);
+	);
 };
 
 //..............................................................................

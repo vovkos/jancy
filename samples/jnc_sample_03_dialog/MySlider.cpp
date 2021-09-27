@@ -22,7 +22,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	MyLibCacheSlot_Slider,
 	MySlider,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(MySlider)
 	JNC_MAP_CONSTRUCTOR(&(jnc::construct<MySlider, int, int>))
@@ -37,9 +37,8 @@ JNC_END_TYPE_FUNCTION_MAP()
 MySlider::MySlider(
 	int minimum,
 	int maximum
-	):
-	MyWidget(new QSlider)
-{
+):
+	MyWidget(new QSlider) {
 	m_qtSlider = (QSlider*)m_handle;
 	m_qtSlider->setOrientation(Qt::Horizontal);
 	setMinimum(minimum);
@@ -49,8 +48,7 @@ MySlider::MySlider(
 	m_onValueChangedBridge->connect(m_qtSlider, SIGNAL(valueChanged(int)), m_onValueChanged);
 }
 
-MySlider::~MySlider()
-{
+MySlider::~MySlider() {
 	if (!m_qtSlider)
 		delete m_qtSlider;
 

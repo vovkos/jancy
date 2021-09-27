@@ -17,8 +17,7 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(MyLayout)
 
 //..............................................................................
 
-class MyLayout: public jnc::IfaceHdr
-{
+class MyLayout: public jnc::IfaceHdr {
 public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(MyLayout)
 

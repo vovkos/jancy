@@ -23,8 +23,7 @@ OperatorMgr::getClassVtable(
 	const Value& opValue,
 	ClassType* classType,
 	Value* resultValue
-	)
-{
+) {
 	StructType* vtableType = classType->getVtableStructType();
 	ASSERT(vtableType);
 
@@ -41,12 +40,10 @@ OperatorMgr::getVirtualMethod(
 	Function* function,
 	Closure* closure,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(function->isVirtual());
 
-	if (!closure || !closure->isMemberClosure())
-	{
+	if (!closure || !closure->isMemberClosure()) {
 		err::setFormatStringError("virtual function requires an object pointer");
 		return false;
 	}
@@ -72,7 +69,7 @@ OperatorMgr::getVirtualMethod(
 		VtableIndex,
 		NULL,
 		&ptrValue
-		);
+	);
 
 	// p
 
@@ -80,12 +77,12 @@ OperatorMgr::getVirtualMethod(
 		ptrValue,
 		NULL,
 		&ptrValue
-		);
+	);
 
 	resultValue->setLlvmValue(
 		ptrValue.getLlvmValue(),
 		function->getType()->getFunctionPtrType(FunctionPtrTypeKind_Thin)
-		);
+	);
 
 	resultValue->setClosure(closure);
 	return true;
@@ -96,12 +93,10 @@ OperatorMgr::getVirtualProperty(
 	Property* prop,
 	Closure* closure,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(prop->isVirtual());
 
-	if (!closure || !closure->isMemberClosure())
-	{
+	if (!closure || !closure->isMemberClosure()) {
 		err::setFormatStringError("virtual property requires an object pointer");
 		return false;
 	}
@@ -126,13 +121,13 @@ OperatorMgr::getVirtualProperty(
 		VtableIndex,
 		NULL,
 		&ptrValue
-		);
+	);
 
 	m_module->m_llvmIrBuilder.createBitCast(
 		ptrValue,
 		prop->getType()->getVtableStructType()->getDataPtrType_c(),
 		&ptrValue
-		);
+	);
 
 	resultValue->overrideType(ptrValue, prop->getType()->getPropertyPtrType(PropertyPtrTypeKind_Thin));
 	resultValue->setClosure(closure);

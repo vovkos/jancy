@@ -20,8 +20,7 @@ namespace io {
 
 //..............................................................................
 
-enum PcapLinkType
-{
+enum PcapLinkType {
 	Loopback    = 0,
 	Ethernet    = 1,
 	TokenRing   = 6,
@@ -46,8 +45,7 @@ enum PcapLinkType
 	\sa `io.Pcap`
 */
 
-bitflag enum PcapEvents: ReadOnlyStreamEvents
-{
+bitflag enum PcapEvents: ReadOnlyStreamEvents {
 	/**
 		End-of-file was reached on the Pcap file.
 	*/
@@ -85,8 +83,7 @@ bitflag enum PcapEvents: ReadOnlyStreamEvents
 
 	.. ref-code-block::
 
-		class MyDialog
-		{
+		class MyDialog {
 			// ...
 
 			io.Pcap m_pcap;
@@ -95,7 +92,7 @@ bitflag enum PcapEvents: ReadOnlyStreamEvents
 			void startCapture(
 				char const* device,
 				char const* filter = null
-				);
+			);
 
 			void close();
 			void waitPcapEvents();
@@ -103,31 +100,27 @@ bitflag enum PcapEvents: ReadOnlyStreamEvents
 			void onPcapEvent(
 				uint_t syncId,
 				`io.PcapEvents` triggeredEvents
-				);
+			);
 		}
 
 		MyDialog.startCapture(
 			char const* device,
 			char const* filter = null
-			)
-		{
+		) {
 			bool result = try m_pcap.openDevice(device, filter);
-			if (!result)
-			{
+			if (!result) {
 				// handle the error...
 			}
 
 			waitPcapEvents();
 		}
 
-		MyDialog.close()
-		{
+		MyDialog.close() {
 			m_serial.close();
 			m_syncId++; // events past this point will be discarded as 'late'
 		}
 
-		MyDialog.waitPcapEvent()
-		{
+		MyDialog.waitPcapEvent() {
 			`io.PcapEvents` eventMask =
 				`io.PcapEvents.IoError` |
 				`io.PcapEvents.IncomingData`;
@@ -139,19 +132,16 @@ bitflag enum PcapEvents: ReadOnlyStreamEvents
 		MyDialog.onPcapEvent(
 			uint_t syncId,
 			`io.PcapEvents` triggeredEvents
-			)
-		{
+		) {
 			if (syncId != m_syncId) // late event
 				return;
 
-			if (triggeredEvents & `io.PcapEvents.IoError`)
-			{
+			if (triggeredEvents & `io.PcapEvents.IoError`) {
 				char cont* errorString = m_pcap.m_ioError.m_description;
 				// ...
 			}
 
-			if (triggeredEvents & `io.PcapEvents.IncomingData`)
-			{
+			if (triggeredEvents & `io.PcapEvents.IncomingData`) {
 				char buffer[256];
 				size_t size = m_pcap.read(buffer, sizeof(buffer));
 				// ...
@@ -176,10 +166,8 @@ bitflag enum PcapEvents: ReadOnlyStreamEvents
 		expressions refer to: http://www.tcpdump.org/manpages/pcap-filter.7.html
 */
 
-opaque class Pcap
-{
-	enum Defaults
-	{
+opaque class Pcap {
+	enum Defaults {
 		IsPromiscious = false,
 		ReadTimeout   = 200,
 		SnapshotSize  = 64 * 1024,
@@ -250,7 +238,7 @@ opaque class Pcap
 		uint_t snapshotSize = Defaults.SnapshotSize,
 		bool isPromiscious = Defaults.IsPromiscious,
 		uint_t readTimeout = Defaults.ReadTimeout
-		);
+	);
 
 	/**
 		Opens a previously captured \*.pcap file specified by ``fileName``
@@ -266,7 +254,7 @@ opaque class Pcap
 	bool errorcode openFile(
 		char const* fileName,
 		char const* filter = null
-		);
+	);
 
 	/**
 		Closes a previously opened live capture or a capture file, does nothing
@@ -298,7 +286,7 @@ opaque class Pcap
 		char const* filter,
 		bool isOptimized = true,
 		uint32_t netMask = -1
-		);
+	);
 
 	/**
 		Reads the next packet into the buffer pointed to by ``p`` and ``size``
@@ -319,7 +307,7 @@ opaque class Pcap
 		void* p,
 		size_t size,
 		uint64_t* timestamp = null
-		);
+	);
 
 	/**
 		Attempts to inject ``size`` bytes from the buffer pointed to by ``p`` as
@@ -333,27 +321,26 @@ opaque class Pcap
 	size_t errorcode write(
 		void const* p,
 		size_t size
-		);
+	);
 
 	intptr errorcode wait(
 		PcapEvents eventMask,
 		function* handler(PcapEvents triggeredEvents)
-		);
+	);
 
 	bool errorcode cancelWait(intptr handle);
 
 	PcapEvents blockingWait(
 		PcapEvents eventMask,
 		uint_t timeout = -1
-		);
+	);
 
 	async PcapEvents asyncWait(PcapEvents eventMask);
 }
 
 //..............................................................................
 
-opaque class PcapFilter
-{
+opaque class PcapFilter {
 	bool const property m_isEmpty;
 
 	bool errorcode compile(
@@ -361,7 +348,7 @@ opaque class PcapFilter
 		char const* filter,
 		bool isOptimized = true,
 		uint32_t netMask = -1
-		);
+	);
 
 	bool errorcode compile(
 		PcapLinkType linkType,
@@ -369,21 +356,20 @@ opaque class PcapFilter
 		char const* filter,
 		bool isOptimized = true,
 		uint32_t netMask = -1
-		);
+	);
 
 	bool errorcode compile(
 		char const* filter,
 		bool isOptimized = true,
 		uint32_t netMask = -1
-		)
-	{
+	) {
 		return compile(PcapLinkType.Ethernet, Pcap.Defaults.SnapshotSize, filter, isOptimized, netMask);
 	}
 
 	bool match(
 		void const* p,
 		size_t size
-		);
+	);
 }
 
 //..............................................................................
@@ -400,8 +386,7 @@ opaque class PcapFilter
 	\sa `io.PcapDeviceDesc`, `io.createPcapDeviceDescList`
 */
 
-struct PcapAddress
-{
+struct PcapAddress {
 	/**
 		Holds a pointer to the next Pcap device or ``null`` if this is the last
 		address.
@@ -439,8 +424,7 @@ struct PcapAddress
 	\sa `io.createPcapDeviceDescList`
 */
 
-struct PcapDeviceDesc
-{
+struct PcapDeviceDesc {
 	/**
 		Holds a pointer to the next Pcap device description or ``null`` if this
 		is the last adapter.
@@ -490,8 +474,7 @@ struct PcapDeviceDesc
 	.. ref-code-block::
 
 		`io.PcapDeviceDesc` const* deviceDesc = io.createPcapDeviceDescList();
-		for (; deviceDesc; deviceDesc = deviceDesc.m_next)
-		{
+		for (; deviceDesc; deviceDesc = deviceDesc.m_next) {
 			// add device to the combo box...
 		}
 */

@@ -20,8 +20,7 @@ class Function;
 
 //..............................................................................
 
-enum BasicBlockFlag
-{
+enum BasicBlockFlag {
 	BasicBlockFlag_Reachable  = 0x01,
 	BasicBlockFlag_Jumped     = 0x02,
 	BasicBlockFlag_Entry      = 0x04,
@@ -36,8 +35,7 @@ enum BasicBlockFlag
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class BasicBlock: public sl::ListLink
-{
+class BasicBlock: public sl::ListLink {
 	friend class ControlFlowMgr;
 	friend class LlvmIrBuilder;
 
@@ -58,67 +56,57 @@ public:
 	BasicBlock();
 
 	Module*
-	getModule()
-	{
+	getModule() {
 		return m_module;
 	}
 
 	int
-	getFlags()
-	{
+	getFlags() {
 		return m_flags;
 	}
 
 	bool
-	isEmpty()
-	{
+	isEmpty() {
 		ASSERT(m_llvmBlock);
 		return m_llvmBlock->getInstList().empty();
 	}
 
 	size_t
-	getInstructionCount()
-	{
+	getInstructionCount() {
 		ASSERT(m_llvmBlock);
 		return m_llvmBlock->getInstList().size();
 	}
 
 	bool
-	hasTerminator()
-	{
+	hasTerminator() {
 		ASSERT(m_llvmBlock);
 		return m_llvmBlock->getTerminator() != NULL;
 	}
 
 	bool
-	hasReturn()
-	{
+	hasReturn() {
 		ASSERT(m_llvmBlock);
 		llvm::Instruction* inst = m_llvmBlock->getTerminator();
 		return inst && inst->getOpcode() == llvm::Instruction::Ret;
 	}
 
 	const sl::String&
-	getName()
-	{
+	getName() {
 		return m_name;
 	}
 
 	Function*
-	getFunction()
-	{
+	getFunction() {
 		return m_function;
 	}
 
 	Scope*
-	getLandingPadScope()
-	{
+	getLandingPadScope() {
 		return m_landingPadScope;
 	}
 
 	llvm::BasicBlock*
-	getLlvmBlock()
-	{
+	getLlvmBlock() {
 		ASSERT(m_llvmBlock);
 		return m_llvmBlock;
 	}
@@ -127,14 +115,12 @@ public:
 	getBlockAddressValue();
 
 	void
-	markEntry()
-	{
+	markEntry() {
 		m_flags |= (BasicBlockFlag_Entry | BasicBlockFlag_Reachable);
 	}
 
 	void
-	markReachable()
-	{
+	markReachable() {
 		m_flags |= BasicBlockFlag_Reachable;
 	}
 };

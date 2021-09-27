@@ -25,8 +25,7 @@ struct PropertyPtrTypeTuple;
 
 //..............................................................................
 
-class PropertyType: public Type
-{
+class PropertyType: public Type {
 	friend class TypeMgr;
 
 protected:
@@ -44,56 +43,47 @@ public:
 	PropertyType();
 
 	bool
-	isConst()
-	{
+	isConst() {
 		return m_setterType.isEmpty();
 	}
 
 	bool
-	isIndexed()
-	{
+	isIndexed() {
 		return !m_getterType->getArgArray().isEmpty();
 	}
 
 	bool
-	isMemberPropertyType()
-	{
+	isMemberPropertyType() {
 		return m_getterType->isMemberMethodType();
 	}
 
 	Type*
-	getThisArgType()
-	{
+	getThisArgType() {
 		return m_getterType->getThisArgType();
 	}
 
 	DerivableType*
-	getThisTargetType()
-	{
+	getThisTargetType() {
 		return m_getterType->getThisTargetType();
 	}
 
 	FunctionType*
-	getGetterType()
-	{
+	getGetterType() {
 		return m_getterType;
 	}
 
 	FunctionTypeOverload*
-	getSetterType()
-	{
+	getSetterType() {
 		return &m_setterType;
 	}
 
 	FunctionType*
-	getBinderType()
-	{
+	getBinderType() {
 		return m_binderType;
 	}
 
 	Type*
-	getReturnType()
-	{
+	getReturnType() {
 		ASSERT(m_getterType);
 		return m_getterType->getReturnType();
 	}
@@ -112,14 +102,13 @@ public:
 		TypeKind typeKind,
 		PropertyPtrTypeKind ptrTypeKind = PropertyPtrTypeKind_Normal,
 		uint_t flags = 0
-		);
+	);
 
 	PropertyPtrType*
 	getPropertyPtrType(
 		PropertyPtrTypeKind ptrTypeKind = PropertyPtrTypeKind_Normal,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return getPropertyPtrType(TypeKind_PropertyPtr, ptrTypeKind, flags);
 	}
 
@@ -127,8 +116,7 @@ public:
 	getVtableStructType();
 
 	const sl::String&
-	getBindableEventName()
-	{
+	getBindableEventName() {
 		return m_bindableEventName;
 	}
 
@@ -141,13 +129,12 @@ public:
 		FunctionType* getterType,
 		const FunctionTypeOverload& setterType,
 		uint_t flags
-		);
+	);
 
 protected:
 	virtual
 	void
-	prepareSignature()
-	{
+	prepareSignature() {
 		m_signature = createSignature(m_getterType, m_setterType, m_flags);
 	}
 
@@ -165,15 +152,13 @@ protected:
 
 	virtual
 	void
-	prepareLlvmType()
-	{
+	prepareLlvmType() {
 		ASSERT(false);
 	}
 
 	virtual
 	void
-	prepareTypeVariable()
-	{
+	prepareTypeVariable() {
 		prepareSimpleTypeVariable(StdType_PropertyType);
 	}
 
@@ -184,8 +169,7 @@ protected:
 
 //..............................................................................
 
-struct SimplePropertyTypeTuple: sl::ListLink
-{
+struct SimplePropertyTypeTuple: sl::ListLink {
 	PropertyType* m_propertyTypeArray[3][2][2]; // call-conv-family x const x bindable
 };
 

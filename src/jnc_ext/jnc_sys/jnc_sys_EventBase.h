@@ -20,12 +20,10 @@ namespace sys {
 //..............................................................................
 
 template <typename T>
-class EventBase: public IfaceHdr
-{
+class EventBase: public IfaceHdr {
 #if (_JNC_OS_POSIX)
 protected:
-	enum
-	{
+	enum {
 		WaitGranularity = 500,
 	};
 #endif
@@ -36,15 +34,13 @@ public:
 public:
 	void
 	JNC_CDECL
-	signal()
-	{
+	signal() {
 		m_event.signal();
 	}
 
 	void
 	JNC_CDECL
-	reset()
-	{
+	reset() {
 		m_event.reset();
 	}
 
@@ -56,8 +52,7 @@ public:
 
 	bool
 	JNC_CDECL
-	wait(uint_t timeout)
-	{
+	wait(uint_t timeout) {
 		bool result;
 
 		uint64_t endTimestamp = timeout != -1 ?	axl::sys::getTimestamp() + (uint64_t)timeout * 10000 : -1;
@@ -67,15 +62,13 @@ public:
 		GcHeap* gcHeap = runtime->getGcHeap();
 		gcHeap->enterWaitRegion();
 
-		for (;;)
-		{
+		for (;;) {
 #if (_JNC_OS_WIN)
 			axl::sys::win::WaitResult waitResult;
 
 			if (endTimestamp == -1)
 				waitResult = m_event.m_event.wait(-1, true);
-			else
-			{
+			else {
 				uint64_t timestamp = axl::sys::getTimestamp();
 				timeout = timestamp >= endTimestamp ? 0 : (uint_t)((endTimestamp - timestamp) / 10000);
 				waitResult = m_event.m_event.wait(timeout, true);
@@ -90,8 +83,7 @@ public:
 			uint64_t timestamp = axl::sys::getTimestamp();
 			if (timestamp >= endTimestamp)
 				timeout = 0;
-			else
-			{
+			else {
 				timeout = (uint_t)((endTimestamp - timestamp) / 10000);
 				if (timeout > WaitGranularity)
 					timeout = WaitGranularity;

@@ -25,10 +25,8 @@
 JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
-jnc_getClassPtrTypeKindString(jnc_ClassPtrTypeKind ptrTypeKind)
-{
-	static const char* stringTable[jnc_ClassPtrTypeKind__Count] =
-	{
+jnc_getClassPtrTypeKindString(jnc_ClassPtrTypeKind ptrTypeKind) {
+	static const char* stringTable[jnc_ClassPtrTypeKind__Count] = {
 		"strong", // ClassPtrTypeKind_Normal = 0,
 		"weak",   // ClassPtrTypeKind_Weak,
 	};
@@ -44,15 +42,13 @@ jnc_getClassPtrTypeKindString(jnc_ClassPtrTypeKind ptrTypeKind)
 
 JNC_EXTERN_C
 jnc_ClassTypeKind
-jnc_ClassType_getClassTypeKind(jnc_ClassType* type)
-{
+jnc_ClassType_getClassTypeKind(jnc_ClassType* type) {
 	return jnc_g_dynamicExtensionLibHost->m_classTypeFuncTable->m_getClassTypeKindFunc(type);
 }
 
 JNC_EXTERN_C
 jnc_StructType*
-jnc_ClassType_getIfaceStructType(jnc_ClassType* type)
-{
+jnc_ClassType_getIfaceStructType(jnc_ClassType* type) {
 	return jnc_g_dynamicExtensionLibHost->m_classTypeFuncTable->m_getIfaceStructTypeFunc(type);
 }
 
@@ -63,8 +59,7 @@ jnc_ClassType_getClassPtrType(
 	jnc_TypeKind typeKind,
 	jnc_ClassPtrTypeKind ptrTypeKind,
 	uint_t flags
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_classTypeFuncTable->m_getClassPtrTypeFunc(type, typeKind, ptrTypeKind, flags);
 }
 
@@ -72,8 +67,7 @@ jnc_ClassType_getClassPtrType(
 
 JNC_EXTERN_C
 jnc_FunctionPtrType*
-jnc_MulticastClassType_getTargetType(jnc_MulticastClassType* type)
-{
+jnc_MulticastClassType_getTargetType(jnc_MulticastClassType* type) {
 	return jnc_g_dynamicExtensionLibHost->m_multicastClassTypeFuncTable->m_getTargetTypeFunc(type);
 }
 
@@ -82,8 +76,7 @@ jnc_Function*
 jnc_MulticastClassType_getMethod(
 	jnc_MulticastClassType* type,
 	jnc_MulticastMethodKind method
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_multicastClassTypeFuncTable->m_getMethodFunc(type, method);
 }
 
@@ -91,8 +84,7 @@ jnc_MulticastClassType_getMethod(
 
 JNC_EXTERN_C
 jnc_FunctionPtrType*
-jnc_McSnapshotClassType_getTargetType(jnc_McSnapshotClassType* type)
-{
+jnc_McSnapshotClassType_getTargetType(jnc_McSnapshotClassType* type) {
 	return jnc_g_dynamicExtensionLibHost->m_mcSnapshotClassTypeFuncTable->m_getTargetTypeFunc(type);
 }
 
@@ -101,8 +93,7 @@ jnc_Function*
 jnc_McSnapshotClassType_getMethod(
 	jnc_McSnapshotClassType* type,
 	jnc_McSnapshotMethodKind method
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_mcSnapshotClassTypeFuncTable->m_getMethodFunc(type, method);
 }
 
@@ -111,16 +102,14 @@ jnc_McSnapshotClassType_getMethod(
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_ClassTypeKind
-jnc_ClassType_getClassTypeKind(jnc_ClassType* type)
-{
+jnc_ClassType_getClassTypeKind(jnc_ClassType* type) {
 	return type->getClassTypeKind();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_StructType*
-jnc_ClassType_getIfaceStructType(jnc_ClassType* type)
-{
+jnc_ClassType_getIfaceStructType(jnc_ClassType* type) {
 	return type->getIfaceStructType();
 }
 
@@ -132,8 +121,7 @@ jnc_ClassType_getClassPtrType(
 	jnc_TypeKind typeKind,
 	jnc_ClassPtrTypeKind ptrTypeKind,
 	uint_t flags
-	)
-{
+) {
 	return type->getClassPtrType(typeKind, ptrTypeKind, flags);
 }
 
@@ -142,8 +130,7 @@ jnc_ClassType_getClassPtrType(
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_FunctionPtrType*
-jnc_MulticastClassType_getTargetType(jnc_MulticastClassType* type)
-{
+jnc_MulticastClassType_getTargetType(jnc_MulticastClassType* type) {
 	return type->getTargetType();
 }
 
@@ -153,8 +140,7 @@ jnc_Function*
 jnc_MulticastClassType_getMethod(
 	jnc_MulticastClassType* type,
 	jnc_MulticastMethodKind method
-	)
-{
+) {
 	return type->getMethod(method);
 }
 
@@ -163,8 +149,7 @@ jnc_MulticastClassType_getMethod(
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_FunctionPtrType*
-jnc_McSnapshotClassType_getTargetType(jnc_McSnapshotClassType* type)
-{
+jnc_McSnapshotClassType_getTargetType(jnc_McSnapshotClassType* type) {
 	return type->getTargetType();
 }
 
@@ -174,8 +159,7 @@ jnc_Function*
 jnc_McSnapshotClassType_getMethod(
 	jnc_McSnapshotClassType* type,
 	jnc_McSnapshotMethodKind method
-	)
-{
+) {
 	return type->getMethod(method);
 }
 

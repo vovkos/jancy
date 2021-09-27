@@ -23,8 +23,7 @@
 JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
-jnc_failWithCapabilityError(const char* capability)
-{
+jnc_failWithCapabilityError(const char* capability) {
 	err::setFormatStringError("capability '%s' is required but not enabled", capability);
 	return false;
 }
@@ -35,15 +34,13 @@ jnc_failWithCapabilityError(const char* capability)
 
 JNC_EXTERN_C
 bool_t
-jnc_isEveryCapabilityEnabled()
-{
+jnc_isEveryCapabilityEnabled() {
 	return jnc_g_dynamicExtensionLibHost->m_capabilityFuncTable->m_isEveryCapabilityEnabledFunc();
 }
 
 JNC_EXTERN_C
 bool_t
-jnc_isCapabilityEnabled(const char* capability)
-{
+jnc_isCapabilityEnabled(const char* capability) {
 	return jnc_g_dynamicExtensionLibHost->m_capabilityFuncTable->m_isCapabilityEnabledFunc(capability);
 }
 
@@ -53,8 +50,7 @@ jnc_readCapabilityParam(
 	const char* param,
 	void* value,
 	size_t size
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_capabilityFuncTable->m_readCapabilityParamFunc(param, value, size);
 }
 
@@ -63,16 +59,14 @@ jnc_readCapabilityParam(
 JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
-jnc_isEveryCapabilityEnabled()
-{
+jnc_isEveryCapabilityEnabled() {
 	return jnc::ct::getCapabilityMgr()->isEverythingEnabled();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
-jnc_isCapabilityEnabled(const char* capability)
-{
+jnc_isCapabilityEnabled(const char* capability) {
 	return jnc::ct::getCapabilityMgr()->isCapabilityEnabled(capability);
 }
 
@@ -83,8 +77,7 @@ jnc_readCapabilityParam(
 	const char* param,
 	void* value,
 	size_t size
-	)
-{
+) {
 	return jnc::ct::getCapabilityMgr()->readCapabilityParam(param, value, size);
 }
 
@@ -95,8 +88,7 @@ jnc_writeCapabilityParam(
 	const char* param,
 	const void* value,
 	size_t size
-	)
-{
+) {
 	return jnc::ct::getCapabilityMgr()->writeCapabilityParam(param, value, size);
 }
 
@@ -106,16 +98,14 @@ void
 jnc_enableCapability(
 	const char* capability,
 	bool_t isEnabled
-	)
-{
+) {
 	jnc::ct::getCapabilityMgr()->enableCapability(capability, isEnabled != 0);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
-jnc_initializeCapabilities(const char* initializer)
-{
+jnc_initializeCapabilities(const char* initializer) {
 	jnc::ct::getCapabilityMgr()->initializeCapabilities(initializer);
 }
 

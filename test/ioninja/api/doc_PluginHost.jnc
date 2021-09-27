@@ -19,8 +19,7 @@ namespace doc {
 
 //..............................................................................
 
-opaque class PluginHost
-{
+opaque class PluginHost {
 	ui.Menu m_menu;
 	ui.ToolBar m_toolBar;
 	ui.StatusBar m_statusBar;

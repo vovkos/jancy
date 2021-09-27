@@ -12,10 +12,9 @@
 typedef int stdcall SndPlaySound(
 	char const thin* name,
 	int flags
-	);
+);
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	jnc.DynamicLib lib;
@@ -23,8 +22,7 @@ int main()
 
 	SndPlaySound thin* sndPlaySound;
 
-	unsafe
-	{
+	unsafe {
 		sndPlaySound = (SndPlaySound thin*) lib.getFunction("sndPlaySoundA");
 	}
 

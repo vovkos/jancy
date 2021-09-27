@@ -16,8 +16,7 @@ namespace jnc {
 
 //..............................................................................
 
-enum ClassTypeKind
-{
+enum ClassTypeKind {
 	Normal = 0,
 	Abstract, // class*
 	Multicast,
@@ -30,8 +29,7 @@ enum ClassTypeKind
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum ClassTypeFlags
-{
+bitflag enum ClassTypeFlags {
 	HasAbstractMethods = 0x010000,
 	Closure            = 0x020000,
 	Opaque             = 0x040000,
@@ -40,8 +38,7 @@ bitflag enum ClassTypeFlags
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum ClassPtrTypeKind
-{
+enum ClassPtrTypeKind {
 	Normal = 0,
 	Weak,
 	_Count,
@@ -49,8 +46,7 @@ enum ClassPtrTypeKind
 
 //..............................................................................
 
-opaque class ClassType: DerivableType
-{
+opaque class ClassType: DerivableType {
 	ClassTypeKind const property m_classTypeKind;
 	StructType* const property m_ifaceStructType;
 	StructType* const property m_classStructType;
@@ -61,13 +57,12 @@ opaque class ClassType: DerivableType
 		TypeKind typeKind = TypeKind.ClassPtr,
 		ClassPtrTypeKind ptrTypeKind = ClassPtrTypeKind.Normal,
 		PtrTypeFlags flags = 0
-		);
+	);
 }
 
 //..............................................................................
 
-opaque class ClassPtrType: Type
-{
+opaque class ClassPtrType: Type {
 	ClassPtrTypeKind const property m_ptrTypeKind;
 	ClassType* const property m_targetType;
 

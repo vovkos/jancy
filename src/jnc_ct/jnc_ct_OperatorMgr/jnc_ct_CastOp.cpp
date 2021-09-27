@@ -19,13 +19,11 @@ namespace ct {
 //..............................................................................
 
 sl::String
-getConstTypeString(Type* type)
-{
+getConstTypeString(Type* type) {
 	sl::String string = type->getTypeStringPrefix() + " const";
 
 	const sl::String& suffix = type->getTypeStringSuffix();
-	if (!suffix.isEmpty())
-	{
+	if (!suffix.isEmpty()) {
 		string += ' ';
 		string += suffix;
 	}
@@ -38,12 +36,10 @@ setCastError(
 	const Value& opValue,
 	Type* dstType,
 	CastKind castKind
-	)
-{
+) {
 	const char* format;
 
-	switch (castKind)
-	{
+	switch (castKind) {
 	case CastKind_Explicit:
 		format = "explicit cast is needed to convert from '%s' to '%s'";
 		break;
@@ -59,8 +55,7 @@ setCastError(
 
 	sl::StringRef opValueString;
 	ValueKind valueKind = opValue.getValueKind();
-	switch (valueKind)
-	{
+	switch (valueKind) {
 	case ValueKind_Void:
 		opValueString = "void";
 		break;
@@ -90,13 +85,12 @@ err::Error
 setUnsafeCastError(
 	Type* srcType,
 	Type* dstType
-	)
-{
+) {
 	return err::setFormatStringError(
 		"'%s' to '%s' cast is only permitted in unsafe regions",
 		srcType->getTypeString().sz(),
 		dstType->getTypeString().sz()
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -107,15 +101,13 @@ castOperator(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	return module->m_operatorMgr.castOperator(opValue, type, resultValue);
 }
 
 //..............................................................................
 
-CastOperator::CastOperator()
-{
+CastOperator::CastOperator() {
 	m_module = Module::getCurrentConstructedModule();
 	ASSERT(m_module);
 
@@ -127,13 +119,11 @@ CastOperator::cast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	if (opValue.getValueKind() != ValueKind_Const)
 		return llvmCast(opValue, type, resultValue);
 
-	if (type->getTypeKind() == TypeKind_Void)
-	{
+	if (type->getTypeKind() == TypeKind_Void) {
 		resultValue->setVoid(m_module);
 		return true;
 	}
@@ -143,8 +133,7 @@ CastOperator::cast(
 	constData.setCount(type->getSize());
 
 	bool result = constCast(opValue, type, constData);
-	if (result)
-	{
+	if (result) {
 		resultValue->createConst(constData, type);
 		return true;
 	}
@@ -164,8 +153,7 @@ CastKind
 Cast_Typedef::getCastKind(
 	const Value& opValue,
 	Type* type
-	)
-{
+) {
 	ASSERT(type->getTypeKind() == TypeKind_TypedefShadow);
 	TypedefShadowType* shadowType = (TypedefShadowType*)type;
 	return m_module->m_operatorMgr.getCastKind(opValue, shadowType->getActualType());
@@ -176,8 +164,7 @@ Cast_Typedef::constCast(
 	const Value& opValue,
 	Type* type,
 	void* dst
-	)
-{
+) {
 	ASSERT(type->getTypeKind() == TypeKind_TypedefShadow);
 	TypedefShadowType* shadowType = (TypedefShadowType*)type;
 
@@ -186,8 +173,7 @@ Cast_Typedef::constCast(
 	if (!result)
 		return false;
 
-	if (value.getValueKind() == ValueKind_Const)
-	{
+	if (value.getValueKind() == ValueKind_Const) {
 		ASSERT(type->getSize() == value.getType()->getSize());
 		memcpy(dst, value.getConstData(), type->getSize());
 	}
@@ -200,8 +186,7 @@ Cast_Typedef::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(type->getTypeKind() == TypeKind_TypedefShadow);
 	TypedefShadowType* shadowType = (TypedefShadowType*)type;
 	return m_module->m_operatorMgr.castOperator(opValue, shadowType->getActualType(), resultValue);
@@ -214,8 +199,7 @@ Cast_Copy::constCast(
 	const Value& opValue,
 	Type* type,
 	void* dst
-	)
-{
+) {
 	size_t srcSize = opValue.getType()->getSize();
 	size_t dstSize = type->getSize();
 
@@ -230,8 +214,7 @@ Cast_Copy::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	m_module->m_llvmIrBuilder.createBitCast(opValue, type, resultValue);
 	return true;
 }
@@ -242,8 +225,7 @@ CastKind
 Cast_Master::getCastKind(
 	const Value& rawOpValue,
 	Type* type
-	)
-{
+) {
 	if (!rawOpValue.getType())
 		return CastKind_None;
 
@@ -254,8 +236,7 @@ Cast_Master::getCastKind(
 	Value opValue = rawOpValue;
 
 	uint_t opFlags = op->getOpFlags();
-	if (opFlags != m_opFlags)
-	{
+	if (opFlags != m_opFlags) {
 		bool result = m_module->m_operatorMgr.prepareOperandType(&opValue, opFlags);
 		if (!result)
 			return CastKind_None;
@@ -269,8 +250,7 @@ Cast_Master::constCast(
 	const Value& rawOpValue,
 	Type* type,
 	void* dst
-	)
-{
+) {
 	CastOperator* op = getCastOperator(rawOpValue, type);
 	if (!op)
 		return false;
@@ -278,8 +258,7 @@ Cast_Master::constCast(
 	Value opValue = rawOpValue;
 
 	uint_t opFlags = op->getOpFlags();
-	if (opFlags != m_opFlags)
-	{
+	if (opFlags != m_opFlags) {
 		bool result = m_module->m_operatorMgr.prepareOperand(&opValue, opFlags);
 		if (!result)
 			return false;
@@ -293,11 +272,9 @@ Cast_Master::llvmCast(
 	const Value& rawOpValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	CastOperator* op = getCastOperator(rawOpValue, type);
-	if (!op)
-	{
+	if (!op) {
 		setCastError(rawOpValue, type);
 		return false;
 	}
@@ -305,8 +282,7 @@ Cast_Master::llvmCast(
 	Value opValue = rawOpValue;
 
 	uint_t opFlags = op->getOpFlags();
-	if (opFlags != m_opFlags)
-	{
+	if (opFlags != m_opFlags) {
 		bool result = m_module->m_operatorMgr.prepareOperand(&opValue, opFlags);
 		if (!result)
 			return false;
@@ -321,8 +297,7 @@ CastKind
 Cast_SuperMaster::getCastKind(
 	const Value& rawOpValue,
 	Type* type
-	)
-{
+) {
 	if (!rawOpValue.getType())
 		return CastKind_None;
 
@@ -336,7 +311,7 @@ Cast_SuperMaster::getCastKind(
 		&operator1,
 		&operator2,
 		&intermediateType
-		);
+	);
 
 	if (!result)
 		return CastKind_None;
@@ -346,8 +321,7 @@ Cast_SuperMaster::getCastKind(
 	Value opValue = rawOpValue;
 
 	uint_t opFlags1 = operator1->getOpFlags();
-	if (opFlags1 != m_opFlags)
-	{
+	if (opFlags1 != m_opFlags) {
 		result = m_module->m_operatorMgr.prepareOperandType(&opValue, opFlags1);
 		if (!result)
 			return CastKind_None;
@@ -366,8 +340,7 @@ Cast_SuperMaster::constCast(
 	const Value& rawOpValue,
 	Type* type,
 	void* dst
-	)
-{
+) {
 	CastOperator* operator1 = NULL;
 	CastOperator* operator2 = NULL;
 	Type* intermediateType = NULL;
@@ -378,7 +351,7 @@ Cast_SuperMaster::constCast(
 		&operator1,
 		&operator2,
 		&intermediateType
-		);
+	);
 
 	if (!result)
 		return false;
@@ -388,8 +361,7 @@ Cast_SuperMaster::constCast(
 	Value srcValue = rawOpValue;
 
 	uint_t opFlags1 = operator1->getOpFlags();
-	if (opFlags1 != m_opFlags)
-	{
+	if (opFlags1 != m_opFlags) {
 		bool result = m_module->m_operatorMgr.prepareOperand(&srcValue, opFlags1);
 		if (!result)
 			return false;
@@ -410,8 +382,7 @@ Cast_SuperMaster::llvmCast(
 	const Value& rawOpValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	CastOperator* operator1 = NULL;
 	CastOperator* operator2 = NULL;
 	Type* intermediateType = NULL;
@@ -422,10 +393,9 @@ Cast_SuperMaster::llvmCast(
 		&operator1,
 		&operator2,
 		&intermediateType
-		);
+	);
 
-	if (!result)
-	{
+	if (!result) {
 		setCastError(rawOpValue, type);
 		return false;
 	}
@@ -435,8 +405,7 @@ Cast_SuperMaster::llvmCast(
 	Value opValue = rawOpValue;
 
 	uint_t opFlags1 = operator1->getOpFlags();
-	if (opFlags1 != m_opFlags)
-	{
+	if (opFlags1 != m_opFlags) {
 		bool result = m_module->m_operatorMgr.prepareOperand(&opValue, opFlags1);
 		if (!result)
 			return false;

@@ -10,8 +10,7 @@ namespace io {
 
 //..............................................................................
 
-enum IgmpType: uint8_t
-{
+enum IgmpType: uint8_t {
 	MembershipQuery     = 0x11,
 	MembershipReport_v1 = 0x12,
 	MembershipReport_v2 = 0x16,
@@ -25,8 +24,7 @@ enum IgmpType: uint8_t
 	displayName = "IGMP",
 	formatDigestFunc = formatIgmpDigest
 ]
-struct IgmpHdr
-{
+struct IgmpHdr {
 	[ displayName = "Type" ]
 	IgmpType m_type;
 
@@ -48,8 +46,7 @@ struct IgmpHdr
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* formatIgmpDigest(void const* p)
-{
+char const* formatIgmpDigest(void const* p) {
 	IgmpHdr const* hdr = (IgmpHdr const*)p;
 	return typeof(IgmpType).getValueString(&hdr.m_type);
 }

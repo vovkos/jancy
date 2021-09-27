@@ -17,8 +17,7 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(TestClass)
 
 //..............................................................................
 
-class TestClass: public jnc::IfaceHdr
-{
+class TestClass: public jnc::IfaceHdr {
 public: // these fields are accessible from Jancy
 	jnc::ClassBox<jnc::Multicast> m_onNegative;
 	jnc::DataPtr m_propValue;

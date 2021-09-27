@@ -14,8 +14,7 @@ namespace log {
 
 // each record is represented as a sequence of 'parts'
 
-enum PartKind
-{
+enum PartKind {
 	PlainText = 0,
 	HyperText,
 	Bin,
@@ -29,8 +28,7 @@ enum PartKind
 
 // visual attributes of representation
 
-enum StdLogIcon
-{
+enum StdLogIcon {
 	Info = 0,
 	Warning,
 	Error,
@@ -53,8 +51,7 @@ enum StdLogIcon
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum StdLogColor
-{
+enum StdLogColor {
 	Start      = ui.StdColor.PastelPurple,
 	Connect    = ui.StdColor.PastelGreen,
 	Disconnect = ui.StdColor.PastelGreen,
@@ -68,8 +65,7 @@ enum StdLogColor
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum LineAttrFlags
-{
+bitflag enum LineAttrFlags {
 	TileIcon,
 	Delimiter,
 	Override,
@@ -78,16 +74,14 @@ bitflag enum LineAttrFlags
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct LineAttr: ui.TextAttr
-{
+struct LineAttr: ui.TextAttr {
 	LineAttrFlags m_flags;
 	uint_t m_iconIdx;
 }
 
 //..............................................................................
 
-opaque class Representation
-{
+opaque class Representation {
 	uint64_t readonly m_timestamp;
 	uint64_t readonly m_recordCode;
 	LineAttr m_lineAttr;
@@ -98,43 +92,38 @@ opaque class Representation
 		uint64_t partCode,
 		void const* p,
 		size_t size
-		);
+	);
 
 	void retroColorize(
 		intptr_t retroOffset,
 		size_t length,
 		ui.TextAttr attr,
 		RetroColorizeFlags flags = 0
-		);
+	);
 
-	void addBreak()
-	{
+	void addBreak() {
 		addPart(PartKind.Break, 0, null, 0);
 	}
 
 	void addPlainText(
 		uint64_t partCode,
 		char const* text
-		)
-	{
+	) {
 		addPart(PartKind.PlainText, partCode, text, strlen(text));
 	}
 
-	void addPlainText(char const* text)
-	{
+	void addPlainText(char const* text) {
 		addPart(PartKind.PlainText, m_recordCode, text, strlen(text));
 	}
 
 	void addHyperText(
 		uint64_t partCode,
 		char const* text
-		)
-	{
+	) {
 		addPart(PartKind.HyperText, partCode, text, strlen(text));
 	}
 
-	void addHyperText(char const* text)
-	{
+	void addHyperText(char const* text) {
 		addPart(PartKind.HyperText, m_recordCode, text, strlen(text));
 	}
 
@@ -142,16 +131,14 @@ opaque class Representation
 		uint64_t partCode,
 		void const* p,
 		size_t size
-		)
-	{
+	) {
 		addPart(PartKind.Bin, partCode, p, size);
 	}
 
 	void addBin(
 		void const* p,
 		size_t size
-		)
-	{
+	) {
 		addPart(PartKind.Bin, m_recordCode, p, size);
 	}
 
@@ -159,16 +146,14 @@ opaque class Representation
 		uint64_t partCode,
 		void const* p,
 		size_t size
-		)
-	{
+	) {
 		addPart(PartKind.BinPreview, partCode, p, size);
 	}
 
 	void addBinPreview(
 		void const* p,
 		size_t size
-		)
-	{
+	) {
 		addPart(PartKind.BinPreview, m_recordCode, p, size);
 	}
 
@@ -177,8 +162,7 @@ opaque class Representation
 		void const* p1,
 		void const* p2,
 		size_t size
-		)
-	{
+	) {
 		void const* p = memcat(p1, size, p2, size);
 		addPart(PartKind.DualBin, partCode, p, size * 2);
 	}
@@ -187,8 +171,7 @@ opaque class Representation
 		void const* p1,
 		void const* p2,
 		size_t size
-		)
-	{
+	) {
 		addDualBin(m_recordCode, p1, p2, size);
 	}
 
@@ -197,8 +180,7 @@ opaque class Representation
 		void const* p1,
 		void const* p2,
 		size_t size
-		)
-	{
+	) {
 		void const* p = memcat(p1, size, p2, size);
 		addPart(PartKind.DualBinPreview, partCode, p, size * 2);
 	}
@@ -207,8 +189,7 @@ opaque class Representation
 		void const* p1,
 		void const* p2,
 		size_t size
-		)
-	{
+	) {
 		addDualBinPreview(m_recordCode, p1, p2, size);
 	}
 }
@@ -223,7 +204,7 @@ typedef bool RepresenterFunc(
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	);
+);
 
 //..............................................................................
 

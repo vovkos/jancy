@@ -1,17 +1,14 @@
 import "utils.jnc"
 
-construct()
-{
+construct() {
 	printf("module.construct ()\n");
 }
 
-destruct()
-{
+destruct() {
 	printf("module.destruct ()\n");
 }
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	jnc.GcTriggers triggers = jnc.g_gcTriggers;

@@ -19,12 +19,12 @@ namespace jnc {
 void* createDataPtr(
 	void thin* p,
 	size_t length = -1
-	);
+);
 
 void const* createDataPtr(
 	void const thin* p,
 	size_t length = -1
-	);
+);
 
 /**
 	Clears the cache of dynamically calculated offsets inside a
@@ -45,13 +45,11 @@ void const* createDataPtr(
 
 	.. ref-code-block::
 
-		dynamic struct HeaderA
-		{
+		dynamic struct HeaderA {
 			// ...
 		};
 
-		dynamic struct HeaderB
-		{
+		dynamic struct HeaderB {
 			// ...
 		};
 

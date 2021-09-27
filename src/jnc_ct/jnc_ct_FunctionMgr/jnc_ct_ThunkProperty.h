@@ -18,8 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-class ThunkProperty: public Property
-{
+class ThunkProperty: public Property {
 	friend class FunctionMgr;
 
 protected:
@@ -33,44 +32,37 @@ public:
 		Property* targetProperty,
 		PropertyType* thunkPropertyType,
 		bool hasUnusedClosure
-		);
+	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class DataThunkProperty: public Property
-{
+class DataThunkProperty: public Property {
 	friend class FunctionMgr;
 
 protected:
-	class Getter: public CompilableFunction
-	{
+	class Getter: public CompilableFunction {
 	public:
-		Getter()
-		{
+		Getter() {
 			m_functionKind = FunctionKind_Getter;
 		}
 
 		virtual
 		bool
-		compile()
-		{
+		compile() {
 			return ((DataThunkProperty*)m_parentNamespace)->compileGetter(this);
 		}
 	};
 
-	class Setter: public CompilableFunction
-	{
+	class Setter: public CompilableFunction {
 	public:
-		Setter()
-		{
+		Setter() {
 			m_functionKind = FunctionKind_Setter;
 		}
 
 		virtual
 		bool
-		compile()
-		{
+		compile() {
 			return ((DataThunkProperty*)m_parentNamespace)->compileSetter(this);
 		}
 	};
@@ -93,7 +85,7 @@ protected:
 	createAccessor(
 		FunctionKind functionKind,
 		FunctionType* type
-		);
+	);
 };
 
 //..............................................................................

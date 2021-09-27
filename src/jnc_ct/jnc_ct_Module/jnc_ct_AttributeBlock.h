@@ -18,8 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-enum AttributeBlockFlag
-{
+enum AttributeBlockFlag {
 	AttributeBlockFlag_ValuesReady = 0x010000,
 };
 
@@ -28,22 +27,19 @@ enum AttributeBlockFlag
 class Attribute:
 	public ModuleItem,
 	public ModuleItemDecl,
-	public ModuleItemInitializer
-{
+	public ModuleItemInitializer {
 	friend class AttributeBlock;
 
 protected:
 	Value m_value;
 
 public:
-	Attribute()
-	{
+	Attribute() {
 		m_itemKind = ModuleItemKind_Attribute;
 	}
 
 	const Value&
-	getValue()
-	{
+	getValue() {
 		return m_value;
 	}
 
@@ -55,8 +51,7 @@ public:
 
 class AttributeBlock:
 	public ModuleItem,
-	public ModuleItemDecl
-{
+	public ModuleItemDecl {
 	friend class AttributeMgr;
 
 protected:
@@ -65,20 +60,17 @@ protected:
 	sl::StringHashTable<Attribute*> m_attributeMap;
 
 public:
-	AttributeBlock()
-	{
+	AttributeBlock() {
 		m_itemKind = ModuleItemKind_AttributeBlock;
 	}
 
 	const sl::Array<Attribute*>&
-	getAttributeArray()
-	{
+	getAttributeArray() {
 		return m_attributeArray;
 	}
 
 	Attribute*
-	findAttribute(const sl::StringRef& name)
-	{
+	findAttribute(const sl::StringRef& name) {
 		sl::StringHashTableIterator<Attribute*> it = m_attributeMap.find(name);
 		return it ? it->m_value : NULL;
 	}
@@ -87,11 +79,10 @@ public:
 	createAttribute(
 		const sl::StringRef& name,
 		sl::BoxList<Token>* initializer = NULL
-		);
+	);
 
 	bool
-	ensureAttributeValuesReady()
-	{
+	ensureAttributeValuesReady() {
 		return (m_flags & AttributeBlockFlag_ValuesReady) || prepareAttributeValues();
 	}
 
@@ -104,8 +95,7 @@ protected:
 
 inline
 bool
-ModuleItemDecl::ensureAttributeValuesReady()
-{
+ModuleItemDecl::ensureAttributeValuesReady() {
 	return m_attributeBlock ? m_attributeBlock->ensureAttributeValuesReady() : true;
 }
 

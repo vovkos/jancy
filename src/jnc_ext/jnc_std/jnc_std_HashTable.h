@@ -26,8 +26,7 @@ typedef StdIsEqualFunc IsEqualFunc;
 
 inline
 size_t
-hashVariant(Variant key)
-{
+hashVariant(Variant key) {
 	return key.hash();
 }
 
@@ -36,27 +35,23 @@ bool_t
 isEqualVariant(
 	Variant key1,
 	Variant key2
-	)
-{
+) {
 	return key1.isEqual(key2);
 }
 
 //..............................................................................
 
-class HashIndirect
-{
+class HashIndirect {
 protected:
 	HashFunc* m_func;
 
 public:
-	HashIndirect(HashFunc* func = NULL)
-	{
+	HashIndirect(HashFunc* func = NULL) {
 		m_func = func ? func : hashVariant;
 	}
 
 	size_t
-	operator () (const Variant& key) const
-	{
+	operator () (const Variant& key) const {
 		ASSERT(m_func);
 		return m_func(key);
 	}
@@ -64,14 +59,12 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class IsEqualIndirect
-{
+class IsEqualIndirect {
 protected:
 	IsEqualFunc* m_func;
 
 public:
-	IsEqualIndirect(IsEqualFunc* func = NULL)
-	{
+	IsEqualIndirect(IsEqualFunc* func = NULL) {
 		m_func = func ? func : isEqualVariant;
 	}
 
@@ -79,8 +72,7 @@ public:
 	operator () (
 		const Variant& key1,
 		const Variant& key2
-		) const
-	{
+	) const {
 		ASSERT(m_func);
 		return m_func(key1, key2) != 0;
 	}
@@ -88,8 +80,7 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class HashTable: public IfaceHdr
-{
+class HashTable: public IfaceHdr {
 public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(HashTable)
 
@@ -103,15 +94,12 @@ public:
 	HashTable(
 		HashFunc* hashFunc,
 		IsEqualFunc* isEqualFunc
-		):
-		m_hashTable(HashIndirect(hashFunc), IsEqualIndirect(isEqualFunc))
-	{
-	}
+	):
+		m_hashTable(HashIndirect(hashFunc), IsEqualIndirect(isEqualFunc)) {}
 
 	void
 	JNC_CDECL
-	clear()
-	{
+	clear() {
 		m_map.clear();
 		m_hashTable.clear();
 	}
@@ -121,8 +109,7 @@ public:
 	visit(
 		HashTable* self,
 		Variant key
-		)
-	{
+	) {
 		return self->visitImpl(key);
 	}
 
@@ -131,15 +118,13 @@ public:
 	find(
 		HashTable* self,
 		Variant key
-		)
-	{
+	) {
 		return self->m_hashTable.findValue(key, g_nullDataPtr);
 	}
 
 	void
 	JNC_CDECL
-	remove(DataPtr entryPtr)
-	{
+	remove(DataPtr entryPtr) {
 		removeImpl((MapEntry*)entryPtr.m_p);
 	}
 

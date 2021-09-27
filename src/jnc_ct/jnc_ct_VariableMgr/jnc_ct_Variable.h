@@ -23,8 +23,7 @@ class LeanDataPtrValidator;
 
 //..............................................................................
 
-enum StdVariable
-{
+enum StdVariable {
 	StdVariable_SjljFrame,
 	StdVariable_GcShadowStackTop,
 	StdVariable_GcSafePointTrigger,
@@ -38,8 +37,7 @@ enum StdVariable
 class Variable:
 	public ModuleItem,
 	public ModuleItemDecl,
-	public ModuleItemInitializer
-{
+	public ModuleItemInitializer {
 	friend class VariableMgr;
 	friend class FunctionMgr;
 	friend class MemberBlock;
@@ -73,38 +71,32 @@ public:
 	Variable();
 
 	Type*
-	getType()
-	{
+	getType() {
 		return m_type;
 	}
 
 	uint_t
-	getPtrTypeFlags()
-	{
+	getPtrTypeFlags() {
 		return m_ptrTypeFlags;
 	}
 
 	StdVariable
-	getStdVariable()
-	{
+	getStdVariable() {
 		return m_stdVariable;
 	}
 
 	sl::ConstBoxList<Token>
-	getConstructor()
-	{
+	getConstructor() {
 		return m_constructor;
 	}
 
 	Scope*
-	getScope()
-	{
+	getScope() {
 		return m_scope;
 	}
 
 	Field*
-	getTlsField()
-	{
+	getTlsField() {
 		ASSERT(m_storageKind == StorageKind_Tls);
 		return m_tlsField;
 	}
@@ -116,8 +108,7 @@ public:
 	getLeanDataPtrValidator();
 
 	llvm::GlobalVariable*
-	getLlvmGlobalVariable()
-	{
+	getLlvmGlobalVariable() {
 		ASSERT(m_llvmGlobalVariable);
 		return m_llvmGlobalVariable;
 	}
@@ -126,8 +117,7 @@ public:
 	getLlvmValue();
 
 	llvm::DIVariable_vn
-	getLlvmDiDescriptor()
-	{
+	getLlvmDiDescriptor() {
 		return m_llvmDiDescriptor;
 	}
 
@@ -137,7 +127,7 @@ public:
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
-		);
+	);
 
 protected:
 	void
@@ -154,8 +144,7 @@ protected:
 
 inline
 llvm::Value*
-Variable::getLlvmValue()
-{
+Variable::getLlvmValue() {
 	if (!m_llvmValue)
 		prepareLlvmValue();
 
@@ -164,8 +153,7 @@ Variable::getLlvmValue()
 
 inline
 void*
-Variable::getStaticData()
-{
+Variable::getStaticData() {
 	if (!m_staticData)
 		prepareStaticData();
 
@@ -174,8 +162,7 @@ Variable::getStaticData()
 
 inline
 LeanDataPtrValidator*
-Variable::getLeanDataPtrValidator()
-{
+Variable::getLeanDataPtrValidator() {
 	if (!m_leanDataPtrValidator)
 		prepareLeanDataPtrValidator();
 
@@ -188,8 +175,7 @@ Variable::getLeanDataPtrValidator()
 // then we can insert instructions to get TLS block in every function and then replace
 // all alloca's temporarily representing TLS variables with GEPs into this TLS block
 
-struct TlsVariable
-{
+struct TlsVariable {
 	Variable* m_variable;
 	llvm::AllocaInst* m_llvmAlloca;
 };

@@ -16,8 +16,7 @@ namespace jnc {
 
 //..............................................................................
 
-enum UnOpKind
-{
+enum UnOpKind {
 	Undefined = 0,
 	Plus,
 	Minus,
@@ -35,8 +34,7 @@ enum UnOpKind
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum BinOpKind
-{
+enum BinOpKind {
 	Undefined = 0,
 
 	// arithmetic

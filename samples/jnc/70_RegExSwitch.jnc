@@ -25,18 +25,15 @@ bool errorcode fooBar(
 	jnc.RegexState* state,
 	char const* p,
 	size_t length = -1
-	)
-{
+) {
 	if (length == -1)
 		length = strlen(p);
 
 	char const* end = p + length;
 
 	// post-condition loop allows passing 'null' as eof
-	do
-	{
-		reswitch (state, p, end - p)
-		{
+	do {
+		reswitch (state, p, end - p) {
 		case "foo":
 			printf("lexeme found: foo\n");
 			break;
@@ -77,8 +74,7 @@ bool errorcode fooBar(
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	// we need a jnc.RegexState object to store the state of DFA
@@ -98,8 +94,7 @@ int main()
 	state.reset();
 	state.m_flags |= jnc.RegexStateFlags.Incremental;
 
-	try
-	{
+	try {
 		fooBar(state, " ba");
 		fooBar(state, "r f");
 		fooBar(state, "oo ");

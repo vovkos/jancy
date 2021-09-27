@@ -31,13 +31,11 @@ jnc_Variant_create(
 	jnc_Variant* variant,
 	const void* p,
 	jnc_Type* type
-	)
-{
+) {
 	using namespace jnc;
 
 	size_t size = type->getSize();
-	if (size <= sizeof(jnc::DataPtr))
-	{
+	if (size <= sizeof(jnc::DataPtr)) {
 		memcpy(variant, p, size);
 		variant->m_type = type;
 		return true;
@@ -67,8 +65,7 @@ jnc_Variant_cast(
 	const jnc_Variant* variant,
 	jnc_Type* type,
 	void* buffer
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_variantFuncTable->m_castFunc(variant, type, buffer);
 }
 
@@ -78,8 +75,7 @@ jnc_Variant_unaryOperator(
 	const jnc_Variant* variant,
 	jnc_UnOpKind opKind,
 	jnc_Variant* result
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_variantFuncTable->m_unaryOperatorFunc(variant, opKind, result);
 }
 
@@ -90,8 +86,7 @@ jnc_Variant_binaryOperator(
 	const jnc_Variant* variant2,
 	jnc_BinOpKind opKind,
 	jnc_Variant* result
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_variantFuncTable->m_binaryOperatorFunc(variant, variant2, opKind, result);
 }
 
@@ -102,8 +97,7 @@ jnc_Variant_relationalOperator(
 	const jnc_Variant* variant2,
 	jnc_BinOpKind opKind,
 	bool_t* result
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_variantFuncTable->m_relationalOperatorFunc(variant, variant2, opKind, result);
 }
 
@@ -113,8 +107,7 @@ jnc_Variant_getMember(
 	const jnc_Variant* variant,
 	const char* name,
 	jnc_Variant* result
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_variantFuncTable->m_getMemberFunc(variant, name, result);
 }
 
@@ -124,8 +117,7 @@ jnc_Variant_setMember(
 	jnc_Variant* variant,
 	const char* name,
 	jnc_Variant value
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_variantFuncTable->m_setMemberFunc(variant, name, value);
 }
 
@@ -135,8 +127,7 @@ jnc_Variant_getElement(
 	const jnc_Variant* variant,
 	size_t index,
 	jnc_Variant* result
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_variantFuncTable->m_getElementFunc(variant, index, result);
 }
 
@@ -146,15 +137,13 @@ jnc_Variant_setElement(
 	jnc_Variant* variant,
 	size_t index,
 	jnc_Variant value
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_variantFuncTable->m_setElementFunc(variant, index, value);
 }
 
 JNC_EXTERN_C
 size_t
-jnc_Variant_hash(const jnc_Variant* variant)
-{
+jnc_Variant_hash(const jnc_Variant* variant) {
 	return jnc_g_dynamicExtensionLibHost->m_variantFuncTable->m_hashFunc(variant);
 }
 
@@ -163,8 +152,7 @@ const char*
 jnc_Variant_format_v(
 	const jnc_Variant* variant,
 	const char* fmtSpecifier
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_variantFuncTable->m_formatFunc(variant, fmtSpecifier);
 }
 
@@ -177,8 +165,7 @@ jnc_Variant_cast(
 	const jnc_Variant* variant,
 	jnc_Type* type,
 	void* buffer
-	)
-{
+) {
 	using namespace jnc;
 	ct::Module* module = type->getModule();
 
@@ -196,17 +183,13 @@ jnc_Variant_unaryOperator(
 	const jnc_Variant* variant,
 	jnc_UnOpKind opKind,
 	jnc_Variant* resultVariant
-	)
-{
+) {
 	using namespace jnc;
 	ct::Value opValue;
 
-	if (variant->m_type)
-	{
+	if (variant->m_type) {
 		opValue.createConst(variant, variant->m_type);
-	}
-	else
-	{
+	} else {
 		*resultVariant = *variant;
 		return true;
 	}
@@ -218,7 +201,7 @@ jnc_Variant_unaryOperator(
 		opKind,
 		opValue,
 		&resultValue
-		) &&
+	) &&
 		module->m_operatorMgr.castOperator(&resultValue, TypeKind_Variant);
 
 	if (!result)
@@ -236,33 +219,24 @@ jnc_Variant_binaryOperator(
 	const jnc_Variant* variant2,
 	jnc_BinOpKind opKind,
 	jnc_Variant* resultVariant
-	)
-{
+) {
 	using namespace jnc;
 	ct::Value opValue1;
 
-	if (variant->m_type)
-	{
+	if (variant->m_type) {
 		opValue1.createConst(variant, variant->m_type);
-	}
-	else if (variant2->m_type)
-	{
+	} else if (variant2->m_type) {
 		opValue1.createConst(NULL, variant2->m_type);
-	}
-	else
-	{
+	} else {
 		*resultVariant = *variant;
 		return true;
 	}
 
 	ct::Value opValue2;
 
-	if (variant2->m_type)
-	{
+	if (variant2->m_type) {
 		opValue2.createConst(variant2, variant2->m_type);
-	}
-	else
-	{
+	} else {
 		ASSERT(variant->m_type);
 		opValue2.createConst(NULL, variant->m_type);
 	}
@@ -275,7 +249,7 @@ jnc_Variant_binaryOperator(
 		opValue1,
 		opValue2,
 		&resultValue
-		) &&
+	) &&
 		module->m_operatorMgr.castOperator(&resultValue, TypeKind_Variant);
 
 	if (!result)
@@ -293,35 +267,26 @@ jnc_Variant_relationalOperator(
 	const jnc_Variant* variant2,
 	jnc_BinOpKind opKind,
 	bool_t* resultBool
-	)
-{
+) {
 	using namespace jnc;
 	ASSERT(opKind >= BinOpKind_Eq && opKind <= BinOpKind_Ge);
 
 	ct::Value opValue1;
 
-	if (variant->m_type)
-	{
+	if (variant->m_type) {
 		opValue1.createConst(variant, variant->m_type);
-	}
-	else if (variant2->m_type)
-	{
+	} else if (variant2->m_type) {
 		opValue1.createConst(NULL, variant2->m_type);
-	}
-	else
-	{
+	} else {
 		*resultBool = opKind == jnc_BinOpKind_Eq;
 		return true;
 	}
 
 	ct::Value opValue2;
 
-	if (variant2->m_type)
-	{
+	if (variant2->m_type) {
 		opValue2.createConst(variant2, variant2->m_type);
-	}
-	else
-	{
+	} else {
 		ASSERT(variant->m_type);
 		opValue2.createConst(NULL, variant->m_type);
 	}
@@ -334,11 +299,10 @@ jnc_Variant_relationalOperator(
 		opValue1,
 		opValue2,
 		&resultValue
-		) &&
+	) &&
 		module->m_operatorMgr.castOperator(&resultValue, TypeKind_Bool);
 
-	if (result)
-	{
+	if (result) {
 		*resultBool = *(bool*)resultValue.getConstData();
 		return true;
 	}
@@ -354,14 +318,11 @@ jnc_Variant_relationalOperator(
 	size_t size;
 
 	Type* type = variant->m_type;
-	if (type->getTypeKind() == TypeKind_DataRef)
-	{
+	if (type->getTypeKind() == TypeKind_DataRef) {
 		p1 = variant->m_p;
 		p2 = variant2->m_p;
 		size = ((ct::DataPtrType*)type)->getTargetType()->getSize();
-	}
-	else
-	{
+	} else {
 		p1 = variant;
 		p2 = variant2;
 		size = type->getSize();
@@ -379,12 +340,10 @@ jnc_Variant_getMember(
 	const jnc_Variant* variant,
 	const char* name,
 	jnc_Variant* resultVariant
-	)
-{
+) {
 	using namespace jnc;
 
-	if (!variant->m_type)
-	{
+	if (!variant->m_type) {
 		err::setError("cannot apply member operator to 'null'");
 		return false;
 	}
@@ -411,12 +370,10 @@ jnc_Variant_setMember(
 	jnc_Variant* variant,
 	const char* name,
 	jnc_Variant valueVariant
-	)
-{
+) {
 	using namespace jnc;
 
-	if (!variant->m_type)
-	{
+	if (!variant->m_type) {
 		err::setError("cannot apply member operator to 'null'");
 		return true;
 	}
@@ -424,12 +381,9 @@ jnc_Variant_setMember(
 	ct::Module* module = variant->m_type->getModule();
 
 	ct::Value opValue;
-	if (variant->m_type->getTypeKindFlags() & TypeKindFlag_Ptr)
-	{
+	if (variant->m_type->getTypeKindFlags() & TypeKindFlag_Ptr) {
 		opValue.createConst(variant, variant->m_type);
-	}
-	else
-	{
+	} else {
 		ASSERT(variant->m_type->getSize() <= sizeof(DataPtr));
 		opValue.createConst(&variant, variant->m_type->getDataPtrType_c(TypeKind_DataRef));
 	}
@@ -449,12 +403,10 @@ jnc_Variant_getElement(
 	const jnc_Variant* variant,
 	size_t index,
 	jnc_Variant* resultVariant
-	)
-{
+) {
 	using namespace jnc;
 
-	if (!variant->m_type)
-	{
+	if (!variant->m_type) {
 		err::setError("cannot apply index operator to 'null'");
 		return true;
 	}
@@ -464,12 +416,9 @@ jnc_Variant_getElement(
 	// turning it into ref is only necessary because of current implementation of OperatorMgr::memberOperator (size_t)
 
 	ct::Value opValue;
-	if (variant->m_type->getTypeKindFlags() & TypeKindFlag_Ptr)
-	{
+	if (variant->m_type->getTypeKindFlags() & TypeKindFlag_Ptr) {
 		opValue.createConst(variant, variant->m_type);
-	}
-	else
-	{
+	} else {
 		ASSERT(variant->m_type->getSize() <= sizeof(DataPtr));
 		opValue.createConst(&variant, variant->m_type->getDataPtrType_c(TypeKind_DataRef));
 	}
@@ -493,12 +442,10 @@ jnc_Variant_setElement(
 	jnc_Variant* variant,
 	size_t index,
 	jnc_Variant valueVariant
-	)
-{
+) {
 	using namespace jnc;
 
-	if (!variant->m_type)
-	{
+	if (!variant->m_type) {
 		err::setError("cannot apply index operator to 'null'");
 		return true;
 	}
@@ -506,12 +453,9 @@ jnc_Variant_setElement(
 	ct::Module* module = variant->m_type->getModule();
 
 	ct::Value opValue;
-	if (variant->m_type->getTypeKindFlags() & TypeKindFlag_Ptr)
-	{
+	if (variant->m_type->getTypeKindFlags() & TypeKindFlag_Ptr) {
 		opValue.createConst(variant, variant->m_type);
-	}
-	else
-	{
+	} else {
 		ASSERT(variant->m_type->getSize() <= sizeof(DataPtr));
 		opValue.createConst(&variant, variant->m_type->getDataPtrType_c(TypeKind_DataRef));
 	}
@@ -527,16 +471,14 @@ jnc_Variant_setElement(
 JNC_EXTERN_C
 JNC_EXPORT_O
 size_t
-jnc_Variant_hash(const jnc_Variant* variant)
-{
+jnc_Variant_hash(const jnc_Variant* variant) {
 	using namespace jnc;
 	if (!variant->m_type)
 		return 0;
 
 	size_t size = variant->m_type->getSize();
 
-	if (variant->m_type->getTypeKindFlags() & TypeKindFlag_BigEndian)
-	{
+	if (variant->m_type->getTypeKindFlags() & TypeKindFlag_BigEndian) {
 		uint64_t result = 0;
 		axl::sl::swapByteOrder(&result, &variant->m_int64, size);
 		return (uintptr_t)result;
@@ -546,8 +488,7 @@ jnc_Variant_hash(const jnc_Variant* variant)
 		return variant->m_uintptr;
 
 	const void* p = variant;
-	if (variant->m_type->getTypeKind() == TypeKind_DataRef)
-	{
+	if (variant->m_type->getTypeKind() == TypeKind_DataRef) {
 		p = variant->m_p;
 		size = ((ct::DataPtrType*)variant->m_type)->getTargetType()->getSize();
 	}
@@ -565,7 +506,7 @@ prepareFormatString(
 	sl::String* formatString,
 	const char* fmtSpecifier,
 	const char* defaultType
-	);
+);
 
 } // namespace rtl
 } // namespace jnc
@@ -577,8 +518,7 @@ formatImpl(
 	const char* fmtSpecifier,
 	const char* defaultType,
 	...
-	)
-{
+) {
 	AXL_VA_DECL(va, defaultType);
 
 	char buffer[256];
@@ -595,8 +535,7 @@ formatStringImpl(
 	const char* fmtSpecifier,
 	const char* p,
 	size_t length
-	)
-{
+) {
 	if (!fmtSpecifier)
 		return string->copy(p, length);
 
@@ -617,8 +556,7 @@ formatCharPtr(
 	sl::String* string,
 	const char* fmtSpecifier,
 	const jnc::DataPtr& ptr
-	)
-{
+) {
 	if (!ptr.m_p) // shortcut
 		return string->getLength();
 
@@ -632,8 +570,7 @@ jnc_Variant_format(
 	const jnc_Variant* variant,
 	sl::String* string,
 	const char* fmtSpecifier
-	)
-{
+) {
 	bool result;
 
 	string->clear();
@@ -644,31 +581,25 @@ jnc_Variant_format(
 	jnc::TypeKind typeKind = variant->m_type->getTypeKind();
 	uint_t typeKindFlags = variant->m_type->getTypeKindFlags();
 
-	if (typeKindFlags & jnc::TypeKindFlag_Integer)
-	{
+	if (typeKindFlags & jnc::TypeKindFlag_Integer) {
 		jnc::Module* module = variant->m_type->getModule();
 
 		char buffer[sizeof(int64_t)];
 
-		if (variant->m_type->getSize() > 4)
-		{
+		if (variant->m_type->getSize() > 4) {
 			jnc::Type* targetType = module->m_typeMgr.getPrimitiveType(jnc::TypeKind_Int64);
 			result = variant->cast(targetType, buffer);
-			if (!result)
-			{
+			if (!result) {
 				ASSERT(false);
 				return 0;
 			}
 
 			const char* defaultType = (typeKindFlags & jnc::TypeKindFlag_Unsigned) ? "llu" : "lld";
 			return formatImpl(string, fmtSpecifier, defaultType, *(int64_t*)buffer);
-		}
-		else
-		{
+		} else {
 			jnc::Type* targetType = module->m_typeMgr.getPrimitiveType(jnc::TypeKind_Int32);
 			result = variant->cast(targetType, buffer);
-			if (!result)
-			{
+			if (!result) {
 				ASSERT(false);
 				return 0;
 			}
@@ -676,9 +607,7 @@ jnc_Variant_format(
 			const char* defaultType = (typeKindFlags & jnc::TypeKindFlag_Unsigned) ? "llu" : "lld";
 			return formatImpl(string, fmtSpecifier,	defaultType, *(int32_t*)buffer);
 		}
-	}
-	else if (typeKindFlags & jnc::TypeKindFlag_Fp)
-	{
+	} else if (typeKindFlags & jnc::TypeKindFlag_Fp) {
 		double x = jnc::TypeKind_Float ? *(float*)&variant : *(double*)&variant;
 		return formatImpl(string, fmtSpecifier, "f", x);
 	}
@@ -686,19 +615,15 @@ jnc_Variant_format(
 	jnc::Type* type;
 	const void* p;
 
-	if (typeKind != jnc::TypeKind_DataRef)
-	{
+	if (typeKind != jnc::TypeKind_DataRef) {
 		type = variant->m_type;
 		p = variant;
-	}
-	else
-	{
+	} else {
 		type = ((jnc::DataPtrType*)variant->m_type)->getTargetType();
 		p = variant->m_dataPtr.m_p;
 	}
 
-	if (jnc::isCharArrayType(type))
-	{
+	if (jnc::isCharArrayType(type)) {
 		jnc::ArrayType* arrayType = (jnc::ArrayType*)type;
 		size_t count = arrayType->getElementCount();
 		const char* c = (char*)p;
@@ -709,11 +634,8 @@ jnc_Variant_format(
 			count--;
 
 		return string->copy(c, count);
-	}
-	else if (type->getTypeKindFlags() & jnc::TypeKindFlag_Ptr)
-	{
-		if (jnc::isCharPtrType(type))
-		{
+	} else if (type->getTypeKindFlags() & jnc::TypeKindFlag_Ptr) {
+		if (jnc::isCharPtrType(type)) {
 			jnc::DataPtrType* ptrType = (jnc::DataPtrType*)type;
 			jnc::DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind();
 
@@ -723,14 +645,10 @@ jnc_Variant_format(
 			const char* c = *(char**)p;
 			size_t length = strlen_s(c);
 			return formatStringImpl(string, fmtSpecifier, c, length);
-		}
-		else // generic pointer
-		{
+		} else { // generic pointer
 			return string->format("%p", variant->m_p);
 		}
-	}
-	else // don't know how to format
-	{
+	} else { // don't know how to format
 		return string->format("(variant:%s)", type->getTypeString().sz());
 	}
 
@@ -743,8 +661,7 @@ const char*
 jnc_Variant_format_v(
 	const jnc_Variant* variant,
 	const char* fmtSpecifier
-	)
-{
+) {
 	sl::String* string = jnc::getTlsStringBuffer();
 	jnc_Variant_format(variant, string, fmtSpecifier);
 	return *string;
@@ -759,8 +676,7 @@ jnc::Variant::relationalOperator(
 	const jnc_Variant* variant2,
 	jnc_BinOpKind opKind,
 	bool* result
-	) const
-{
+) const {
 	bool_t intResult;
 	if (!jnc_Variant_relationalOperator(this, variant2, opKind, &intResult))
 		return false;

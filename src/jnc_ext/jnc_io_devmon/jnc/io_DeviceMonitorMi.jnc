@@ -16,8 +16,7 @@ namespace io {
 
 //..............................................................................
 
-enum DeviceMonitorMiMsgCode
-{
+enum DeviceMonitorMiMsgCode {
 	Error,
 	Start,
 	Notification,
@@ -26,16 +25,14 @@ enum DeviceMonitorMiMsgCode
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct DeviceMonitorMiMsgHdr
-{
+struct DeviceMonitorMiMsgHdr {
 	uint32_t m_code;
 	uint32_t m_paramSize;
 };
 
 //..............................................................................
 
-bitflag enum DeviceMonitorMiStartFlags
-{
+bitflag enum DeviceMonitorMiStartFlags {
 	Windows,
 	Posix,
 	Linux,
@@ -50,8 +47,7 @@ bitflag enum DeviceMonitorMiStartFlags
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct DeviceMonitorMiStartParams
-{
+struct DeviceMonitorMiStartParams {
 	uint32_t m_version;
 	uint32_t m_flags;
 

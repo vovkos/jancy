@@ -14,8 +14,7 @@ namespace log {
 
 //..............................................................................
 
-class ChecksumCalcRangeProcessor: RangeProcessor
-{
+class ChecksumCalcRangeProcessor: RangeProcessor {
 protected:
 	ui.ChecksumInfoSet* m_infoSet;
 	uint64_t m_sum8;
@@ -29,14 +28,12 @@ protected:
 	size_t m_totalSize;
 
 public:
-	static ChecksumCalcRangeProcessor* factory(ui.ChecksumInfoSet* infoSet)
-	{
+	static ChecksumCalcRangeProcessor* factory(ui.ChecksumInfoSet* infoSet) {
 		return new ChecksumCalcRangeProcessor(infoSet);
 	}
 
 protected:
-	construct(ui.ChecksumInfoSet* infoSet)
-	{
+	construct(ui.ChecksumInfoSet* infoSet) {
 		m_infoSet = infoSet;
 		m_crc16_modbus = -1;
 	}
@@ -45,7 +42,7 @@ protected:
 		uint64_t partCode,
 		void const* p,
 		size_t size
-		);
+	);
 
 	override processEndOfRange();
 }
@@ -56,8 +53,7 @@ void ChecksumCalcRangeProcessor.processBin(
 	uint64_t partCode,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	m_sum8 = sum8(p, size, m_sum8);
 
 	m_crc16_ansi = crc16_ansi(p, size, m_crc16_ansi);
@@ -67,8 +63,7 @@ void ChecksumCalcRangeProcessor.processBin(
 
 	// do all 16-bit calculations in a single loop
 
-	if (m_totalSize & 1)
-	{
+	if (m_totalSize & 1) {
 		uint16_t be = *(uint8_t const*) p;
 		uint16_t le = be << 8;
 
@@ -86,8 +81,7 @@ void ChecksumCalcRangeProcessor.processBin(
 
 	void const* end = p + (size & ~1);
 
-	for (; p < end; p += 2)
-	{
+	for (; p < end; p += 2) {
 		uint16_t le = *(uint16_t const*) p;
 		uint16_t be = *(bigendian uint16_t const*) p;
 
@@ -99,8 +93,7 @@ void ChecksumCalcRangeProcessor.processBin(
 			m_ip4Checksum -= 0xffff;
 	}
 
-	if (size & 1)
-	{
+	if (size & 1) {
 		uint16_t le = *(uint8_t const*) p;
 		uint16_t be = le << 8;
 
@@ -115,8 +108,7 @@ void ChecksumCalcRangeProcessor.processBin(
 	m_totalSize += size;
 }
 
-void ChecksumCalcRangeProcessor.processEndOfRange()
-{
+void ChecksumCalcRangeProcessor.processEndOfRange() {
 	if (m_infoSet.m_crc16Info_ansi)
 		m_infoSet.m_crc16Info_ansi.m_value = $"$(m_crc16_ansi; 04X)";
 
@@ -161,8 +153,7 @@ uint64_t sum8(
 	void const* p,
 	size_t size,
 	uint64_t seed = 0
-	)
-{
+) {
 	uint8_t const* b = (uint8_t const*) p;
 	uint32_t sum = seed;
 

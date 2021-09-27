@@ -18,16 +18,14 @@ namespace ct {
 
 //..............................................................................
 
-Unit::Unit()
-{
+Unit::Unit() {
 	m_module = NULL;
 	m_lib = NULL;
 }
 
 //..............................................................................
 
-UnitMgr::UnitMgr()
-{
+UnitMgr::UnitMgr() {
 	m_module = Module::getCurrentConstructedModule();
 	ASSERT(m_module);
 
@@ -37,8 +35,7 @@ UnitMgr::UnitMgr()
 }
 
 void
-UnitMgr::clear()
-{
+UnitMgr::clear() {
 	m_unitList.clear();
 	m_currentUnit = NULL;
 	m_coreLibUnit = NULL;
@@ -46,8 +43,7 @@ UnitMgr::clear()
 }
 
 Unit*
-UnitMgr::setCurrentUnit(Unit* unit)
-{
+UnitMgr::setCurrentUnit(Unit* unit) {
 	ASSERT(unit);
 
 	Unit* prevUnit = m_currentUnit;
@@ -56,8 +52,7 @@ UnitMgr::setCurrentUnit(Unit* unit)
 }
 
 Unit*
-UnitMgr::getCoreLibUnit()
-{
+UnitMgr::getCoreLibUnit() {
 	if (!m_coreLibUnit)
 		m_coreLibUnit = createUnit(jnc_CoreLib_getLib(), "jnc_rtl_core.jnc");
 
@@ -65,8 +60,7 @@ UnitMgr::getCoreLibUnit()
 }
 
 Unit*
-UnitMgr::getIntrospectionLibUnit()
-{
+UnitMgr::getIntrospectionLibUnit() {
 	if (!m_introspectionLibUnit)
 		m_introspectionLibUnit = createUnit(jnc_IntrospectionLib_getLib(), "jnc_rtl_intro.jnc");
 
@@ -77,8 +71,7 @@ Unit*
 UnitMgr::createUnit(
 	ExtensionLib* lib,
 	const sl::StringRef& filePath
-	)
-{
+) {
 	Unit* unit = AXL_MEM_NEW(Unit);
 
 	unit->m_module = m_module;

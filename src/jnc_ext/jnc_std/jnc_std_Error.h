@@ -20,8 +20,7 @@ JNC_DECLARE_TYPE(Error)
 
 //..............................................................................
 
-struct Error: err::ErrorHdr
-{
+struct Error: err::ErrorHdr {
 	JNC_DECLARE_TYPE_STATIC_METHODS(Error)
 
 	DataPtr
@@ -29,8 +28,7 @@ struct Error: err::ErrorHdr
 
 	static
 	DataPtr
-	getDescription_s(DataPtr selfPtr)
-	{
+	getDescription_s(DataPtr selfPtr) {
 		return ((Error*)selfPtr.m_p)->getDescription();
 	}
 };

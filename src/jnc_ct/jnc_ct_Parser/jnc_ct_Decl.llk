@@ -11,8 +11,7 @@
 
 pragma
 doxy_comment
-	enter
-	{
+	enter {
 		addDoxyComment(m_currentToken);
 	}
 	:	TokenKind_DoxyComment1
@@ -72,8 +71,7 @@ member_block_declaration_sync
 	;
 
 local_declaration
-	enter
-	{
+	enter {
 		m_module->m_namespaceMgr.setSourcePos(m_currentToken.m_pos);
 	}
 	:	common_declaration
@@ -143,8 +141,7 @@ using_declaration
 			}
 	;
 
-struct
-{
+struct {
 	NamespaceKind m_namespaceKind;
 }
 using_namespace_kind
@@ -176,13 +173,11 @@ pragma_declaration
 			}
 	;
 
-class
-{
+class {
 	int m_value;
 }
 pragma_value
-	enter
-	{
+	enter {
 		$.m_value = 0;
 	}
 	:	TokenKind_Integer
@@ -221,8 +216,7 @@ setas_value
 
 //..............................................................................
 
-struct
-{
+struct {
 	QualifiedName m_name
 }
 qualified_name
@@ -248,8 +242,7 @@ qualified_name_impl<QualifiedName* $name>
 		)*
 	;
 
-struct
-{
+struct {
 	sl::BoxList<QualifiedName> m_nameList;
 }
 qualified_name_list
@@ -279,12 +272,10 @@ qualified_name_save_name
 // item declarations
 
 global_item_declaration
-	enter
-	{
+	enter {
 		preDeclaration();
 	}
-	leave
-	{
+	leave {
 		checkUnusedAttributeBlock();
 	}
 	:	normal_item_declaration
@@ -293,12 +284,10 @@ global_item_declaration
 	;
 
 member_item_declaration
-	enter
-	{
+	enter {
 		preDeclaration();
 	}
-	leave
-	{
+	leave {
 		checkUnusedAttributeBlock();
 	}
 	:	normal_item_declaration
@@ -306,12 +295,10 @@ member_item_declaration
 	;
 
 local_item_declaration
-	enter
-	{
+	enter {
 		preDeclaration();
 	}
-	leave
-	{
+	leave {
 		checkUnusedAttributeBlock();
 	}
 	:	normal_item_declaration
@@ -340,8 +327,7 @@ item_declaration_sync
 
 //..............................................................................
 
-struct
-{
+struct {
 	sl::BoxList<Token> m_tokenList;
 }
 declaration_body_pass1
@@ -349,8 +335,7 @@ declaration_body_pass1
 	;
 
 compound_stmt_pass1<sl::BoxList<Token>* $tokenList>
-	local
-	{
+	local {
 		StmtPass1 $stmt;
 	}
 	:	'{'
@@ -403,8 +388,7 @@ type_name_impl<
 	Type** $type,
 	Value* $countValue
 	>
-	local
-	{
+	local {
 		Declarator $declarator;
 	}
 	:	type_specifier_modifier_list
@@ -422,16 +406,14 @@ type_name_impl<
 			}
 	;
 
-struct
-{
+struct {
 	Type* m_type;
 }
 type_name
 	: type_name_impl<&$.m_type, NULL>
 	;
 
-struct
-{
+struct {
 	sl::BoxList<Type*> m_typeList;
 }
 type_name_list

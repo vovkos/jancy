@@ -9,15 +9,13 @@
 //
 //..............................................................................
 
-bitflag enum OpenFlags
-{
+bitflag enum OpenFlags {
 	ReadOnly,
 	Exclusive,
 	Temporary,
 }
 
-int main()
-{
+int main() {
 	OpenFlags flags = OpenFlags.ReadOnly | OpenFlags.Exclusive;
 
 	flags &= ~OpenFlags.ReadOnly;

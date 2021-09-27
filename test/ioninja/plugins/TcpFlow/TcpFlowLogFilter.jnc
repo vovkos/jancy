@@ -8,8 +8,7 @@ import "TcpFlowLogRecordCode.jnc"
 
 //..............................................................................
 
-class TcpFlowLogFilter: log.Filter
-{
+class TcpFlowLogFilter: log.Filter {
 protected:
 	io.SocketAddress m_filterAddress;
 	io.SocketAddress m_lastVisibleClientAddress;
@@ -29,13 +28,12 @@ protected:
 		uint64_t recordCode,
 		void const* p,
 		size_t size
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bool errorcode TcpFlowLogFilter.setFilter(char const* filter)
-{
+bool errorcode TcpFlowLogFilter.setFilter(char const* filter) {
 	if (filter)
 		return m_filterAddress.parse(filter);
 
@@ -43,8 +41,7 @@ bool errorcode TcpFlowLogFilter.setFilter(char const* filter)
 	return true;
 }
 
-void TcpFlowLogFilter.reset()
-{
+void TcpFlowLogFilter.reset() {
 	m_isVisible = false;
 	m_lastVisibleClientAddress = null;
 	m_lastVisibleServerAddress = null;
@@ -55,13 +52,11 @@ bool TcpFlowLogFilter.filter(
 	uint64_t recordCode,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	if (!m_filterAddress.m_family) // empty address means, filtering is off
 		return true;
 
-	switch (recordCode)
-	{
+	switch (recordCode) {
 	case SocketLogRecordCode.ConnectingFrom:
 	case TcpFlowLogRecordCode.ConnectionPickedUp:
 	case TcpFlowLogRecordCode.ConnectionChanged:
@@ -93,8 +88,7 @@ bool TcpFlowLogFilter.filter(
 			remoteAddress.isMatch(m_filterAddress) ||
 			localAddress.isMatch(m_filterAddress);
 
-		if (result)
-		{
+		if (result) {
 			m_lastVisibleClientAddress = null;
 			m_lastVisibleServerAddress = null;
 		}

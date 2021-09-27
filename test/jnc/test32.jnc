@@ -9,68 +9,41 @@
 //
 //..............................................................................
 
-class TestClass
-{
+class TestClass {
 	int m_x;
 	double m_y;
 
-	construct()
-	{
-	}
+	construct() {}
 
-	construct(int x)
-	{
-	}
+	construct(int x) {}
 
-	construct(double y)
-	{
-	}
+	construct(double y) {}
 
-	void foo()
-	{
-	}
+	void foo() {}
 
-	void foo(int x)
-	{
-	}
+	void foo(int x) {}
 
-	void foo(double y)
-	{
-	}
+	void foo(double y) {}
 }
 
-struct TestStruct
-{
+struct TestStruct {
 	int m_x;
 	double m_y;
 
-	construct()
-	{
-	}
+	construct() {}
 
-	construct(int x)
-	{
-	}
+	construct(int x) {}
 
-	construct(double y)
-	{
-	}
+	construct(double y) {}
 
-	void foo()
-	{
-	}
+	void foo() {}
 
-	void foo(int x)
-	{
-	}
+	void foo(int x) {}
 
-	void foo(double y)
-	{
-	}
+	void foo(double y) {}
 }
 
-int main()
-{
+int main() {
 	printf("main\n");
 
 	TestClass t1;

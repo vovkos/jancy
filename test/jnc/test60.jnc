@@ -9,22 +9,19 @@
 //
 //..............................................................................
 
-struct Pod
-{
+struct Pod {
 	int m_a;
 	int m_b;
 }
 
-struct NonPod
-{
+struct NonPod {
 	char* m_p1;
 	char* m_p2;
 }
 
 //..............................................................................
 
-int main()
-{
+int main() {
 	Pod pod;
 	NonPod nonPod;
 

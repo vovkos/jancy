@@ -24,8 +24,7 @@ OperatorMgr::getPropertyThinPtr(
 	Closure* closure,
 	PropertyPtrType* ptrType,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(prop->getType()->cmp(ptrType->getTargetType()) == 0);
 
 	bool result = getPropertyVtable(prop, closure, resultValue);
@@ -41,8 +40,7 @@ OperatorMgr::getPropertyVtable(
 	Property* prop,
 	Closure* closure,
 	Value* resultValue
-	)
-{
+) {
 	if (prop->isVirtual())
 		return getVirtualProperty(prop, closure, resultValue);
 
@@ -54,15 +52,13 @@ bool
 OperatorMgr::getPropertyVtable(
 	const Value& opValue,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_PropertyPtr);
 
 	PropertyPtrType* ptrType = (PropertyPtrType*)opValue.getType();
 	PropertyPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind();
 
-	switch (ptrTypeKind)
-	{
+	switch (ptrTypeKind) {
 	case PropertyPtrTypeKind_Normal:
 		break;
 
@@ -89,13 +85,10 @@ OperatorMgr::getPropertyVtable(
 
 	Value closureValue;
 
-	if (!m_module->hasCodeGen())
-	{
+	if (!m_module->hasCodeGen()) {
 		resultValue->setType(resultType);
 		closureValue.setType(closureType);
-	}
-	else
-	{
+	} else {
 		Value vtableValue;
 		m_module->m_llvmIrBuilder.createExtractValue(opValue, 0, NULL, &vtableValue);
 		m_module->m_llvmIrBuilder.createExtractValue(opValue, 1, closureType, &closureValue);
@@ -117,8 +110,7 @@ bool
 OperatorMgr::getPropertyGetter(
 	const Value& rawOpValue,
 	Value* resultValue
-	)
-{
+) {
 	bool result;
 
 	Value opValue;
@@ -126,8 +118,7 @@ OperatorMgr::getPropertyGetter(
 	if (!result)
 		return false;
 
-	if (opValue.getValueKind() == ValueKind_Property)
-	{
+	if (opValue.getValueKind() == ValueKind_Property) {
 		*resultValue = opValue.getProperty()->getGetter();
 		resultValue->setClosure(opValue.getClosure());
 		return true;
@@ -153,7 +144,7 @@ OperatorMgr::getPropertyGetter(
 		pfnValue,
 		propertyType->getGetterType()->getFunctionPtrType(FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe),
 		resultValue
-		);
+	);
 
 	resultValue->setClosure(VtableValue.getClosure());
 	return true;
@@ -164,8 +155,7 @@ OperatorMgr::getPropertySetter(
 	const Value& rawOpValue,
 	const Value& argValue,
 	Value* resultValue
-	)
-{
+) {
 	bool result;
 
 	Value opValue;
@@ -180,19 +170,15 @@ OperatorMgr::getPropertySetter(
 		ptrType->getTargetType()->getStdObjectMemberPropertyType() :
 		ptrType->getTargetType();
 
-	if (propertyType->isConst())
-	{
+	if (propertyType->isConst()) {
 		err::setFormatStringError("const '%s' has no setter", propertyType->getTypeString().sz());
 		return false;
-	}
-	else if (ptrType->getFlags() & PtrTypeFlag_Const)
-	{
+	} else if (ptrType->getFlags() & PtrTypeFlag_Const) {
 		err::setFormatStringError("'set' is inaccessible via 'const' property pointer");
 		return false;
 	}
 
-	if (opValue.getValueKind() == ValueKind_Property)
-	{
+	if (opValue.getValueKind() == ValueKind_Property) {
 		*resultValue = opValue.getProperty()->getSetter();
 		resultValue->setClosure(opValue.getClosure());
 		return true;
@@ -201,17 +187,14 @@ OperatorMgr::getPropertySetter(
 	FunctionTypeOverload* setterTypeOverload = propertyType->getSetterType();
 	size_t i = 0;
 
-	if (setterTypeOverload->isOverloaded())
-	{
-		if (!argValue)
-		{
+	if (setterTypeOverload->isOverloaded()) {
+		if (!argValue) {
 			err::setFormatStringError("no argument value to help choose one of '%d' setter overloads", setterTypeOverload->getOverloadCount ());
 			return false;
 		}
 
 		i = setterTypeOverload->chooseSetterOverload(argValue);
-		if (i == -1)
-		{
+		if (i == -1) {
 			err::setFormatStringError("cannot choose one of '%d' setter overloads", setterTypeOverload->getOverloadCount ());
 			return false;
 		}
@@ -225,12 +208,9 @@ OperatorMgr::getPropertySetter(
 	if (!result)
 		return false;
 
-	if (!m_module->hasCodeGen())
-	{
+	if (!m_module->hasCodeGen()) {
 		resultValue->setType(setterPtrType);
-	}
-	else
-	{
+	} else {
 		size_t index = (propertyType->getFlags() & PropertyTypeFlag_Bindable) ? 2 : 1;
 		index += i;
 
@@ -248,8 +228,7 @@ bool
 OperatorMgr::getPropertyBinder(
 	const Value& rawOpValue,
 	Value* resultValue
-	)
-{
+) {
 	bool result;
 
 	Value opValue;
@@ -262,14 +241,12 @@ OperatorMgr::getPropertyBinder(
 	PropertyPtrType* ptrType = (PropertyPtrType*)opValue.getType();
 	PropertyType* propertyType = ptrType->getTargetType();
 
-	if (!(propertyType->getFlags() & PropertyTypeFlag_Bindable))
-	{
+	if (!(propertyType->getFlags() & PropertyTypeFlag_Bindable)) {
 		err::setFormatStringError("'%s' has no 'onchanged' binder", propertyType->getTypeString().sz());
 		return false;
 	}
 
-	if (opValue.getValueKind() == ValueKind_Property)
-	{
+	if (opValue.getValueKind() == ValueKind_Property) {
 		*resultValue = opValue.getProperty()->getBinder();
 		resultValue->setClosure(opValue.getClosure());
 		return true;
@@ -289,7 +266,7 @@ OperatorMgr::getPropertyBinder(
 		pfnValue,
 		propertyType->getBinderType()->getFunctionPtrType(FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe),
 		resultValue
-		);
+	);
 
 	resultValue->setClosure(VtableValue.getClosure());
 	return true;
@@ -299,12 +276,10 @@ bool
 OperatorMgr::getProperty(
 	const Value& opValue,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKind() == TypeKind_PropertyRef);
 
-	if (opValue.getValueKind() == ValueKind_Property)
-	{
+	if (opValue.getValueKind() == ValueKind_Property) {
 		Property* prop = opValue.getProperty();
 		if (prop->getFlags() & PropertyFlag_AutoGet)
 			return getPropertyAutoGetValue(opValue, resultValue);
@@ -320,8 +295,7 @@ bool
 OperatorMgr::setProperty(
 	const Value& opValue,
 	const Value& srcValue
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKind() == TypeKind_PropertyRef);
 
 	Value setterValue;
@@ -331,11 +305,9 @@ OperatorMgr::setProperty(
 }
 
 Type*
-OperatorMgr::getPropertyAutoGetValueType(const Value& opValue)
-{
+OperatorMgr::getPropertyAutoGetValueType(const Value& opValue) {
 	if (opValue.getValueKind() != ValueKind_Property ||
-		!(opValue.getProperty()->getFlags() & PropertyFlag_AutoGet))
-	{
+		!(opValue.getProperty()->getFlags() & PropertyFlag_AutoGet)) {
 		err::setFormatStringError("'%s' has no autoget field", opValue.getType ()->getTypeString().sz());
 		return NULL;
 	}
@@ -354,8 +326,7 @@ bool
 OperatorMgr::getPropertyAutoGetValueType(
 	const Value& opValue,
 	Value* resultValue
-	)
-{
+) {
 	Type* type = getPropertyAutoGetValueType(opValue);
 	if (!type)
 		return false;
@@ -368,11 +339,9 @@ bool
 OperatorMgr::getPropertyAutoGetValue(
 	const Value& opValue,
 	Value* resultValue
-	)
-{
+) {
 	if (opValue.getValueKind() != ValueKind_Property ||
-		!(opValue.getProperty()->getFlags() & PropertyFlag_AutoGet))
-	{
+		!(opValue.getProperty()->getFlags() & PropertyFlag_AutoGet)) {
 		err::setFormatStringError("'%s' has no autoget field", opValue.getType ()->getTypeString().sz());
 		return false;
 	}
@@ -381,16 +350,14 @@ OperatorMgr::getPropertyAutoGetValue(
 }
 
 Type*
-OperatorMgr::getPropertyOnChangedType(const Value& rawOpValue)
-{
+OperatorMgr::getPropertyOnChangedType(const Value& rawOpValue) {
 	Value opValue;
 	bool result = prepareOperandType(rawOpValue, &opValue, OpFlag_KeepPropertyRef);
 	if (!result)
 		return NULL;
 
 	if (!(opValue.getType()->getTypeKindFlags() & TypeKindFlag_PropertyPtr) ||
-		!(((PropertyPtrType*)opValue.getType())->getTargetType()->getFlags() & PropertyTypeFlag_Bindable))
-	{
+		!(((PropertyPtrType*)opValue.getType())->getTargetType()->getFlags() & PropertyTypeFlag_Bindable)) {
 		err::setFormatStringError("'%s' has no bindable event", opValue.getType ()->getTypeString().sz());
 		return NULL;
 	}
@@ -402,8 +369,7 @@ bool
 OperatorMgr::getPropertyOnChangedType(
 	const Value& opValue,
 	Value* resultValue
-	)
-{
+) {
 	Type* type = getPropertyOnChangedType(opValue);
 	if (!type)
 		return false;
@@ -416,16 +382,14 @@ bool
 OperatorMgr::getPropertyOnChanged(
 	const Value& rawOpValue,
 	Value* resultValue
-	)
-{
+) {
 	Value opValue;
 	bool result = prepareOperand(rawOpValue, &opValue, OpFlag_KeepPropertyRef);
 	if (!result)
 		return false;
 
 	if (!(opValue.getType()->getTypeKindFlags() & TypeKindFlag_PropertyPtr) ||
-		!(((PropertyPtrType*)opValue.getType())->getTargetType()->getFlags() & PropertyTypeFlag_Bindable))
-	{
+		!(((PropertyPtrType*)opValue.getType())->getTargetType()->getFlags() & PropertyTypeFlag_Bindable)) {
 		err::setFormatStringError("'%s' has no bindable event", opValue.getType ()->getTypeString().sz());
 		return false;
 	}

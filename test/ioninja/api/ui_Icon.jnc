@@ -12,8 +12,7 @@ namespace ui {
 
 //..............................................................................
 
-opaque class Icon
-{
+opaque class Icon {
 	construct(char const* fileName);
 }
 

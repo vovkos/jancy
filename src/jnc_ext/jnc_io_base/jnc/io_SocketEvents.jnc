@@ -29,8 +29,7 @@ namespace io {
 	\sa `io.Socket`
 */
 
-bitflag enum SocketEvents: StreamEvents
-{
+bitflag enum SocketEvents: StreamEvents {
 	/**
 		New incoming client connection is pending on the listening server
 		socket. The new client can be accepted using the ``accept`` method

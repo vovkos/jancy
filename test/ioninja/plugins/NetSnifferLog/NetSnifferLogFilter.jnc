@@ -9,8 +9,7 @@ import "io_pcap.jncx"
 
 //..............................................................................
 
-class NetSnifferLogFilter: log.Filter
-{
+class NetSnifferLogFilter: log.Filter {
 protected:
 	char const* m_filter;
 	bool m_isOptimized;
@@ -22,7 +21,7 @@ public:
 	bool errorcode setFilter(
 		char const* filter,
 		bool isOptimized = true
-		);
+	);
 
 protected:
 	io.PcapFilter* getPcapFilter(io.PcapLinkType linkType);
@@ -32,7 +31,7 @@ protected:
 		uint64_t recordCode,
 		void const* p,
 		size_t size
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -40,8 +39,7 @@ protected:
 bool errorcode NetSnifferLogFilter.setFilter(
 	char const* filter,
 	bool isOptimized
-	)
-{
+) {
 	io.PcapFilter pcapFilter;
 
 	pcapFilter.compile(
@@ -49,7 +47,7 @@ bool errorcode NetSnifferLogFilter.setFilter(
 		io.Pcap.Defaults.SnapshotSize,
 		filter,
 		isOptimized
-		);
+	);
 
 	m_filter = strdup(filter);
 	m_isOptimized = isOptimized;
@@ -58,8 +56,7 @@ bool errorcode NetSnifferLogFilter.setFilter(
 	return true;
 }
 
-io.PcapFilter* NetSnifferLogFilter.getPcapFilter(io.PcapLinkType linkType)
-{
+io.PcapFilter* NetSnifferLogFilter.getPcapFilter(io.PcapLinkType linkType) {
 	std.MapEntry* entry = m_pcapFilterMap.visit(linkType);
 	io.PcapFilter* pcapFilter = entry.m_value;
 	if (pcapFilter)
@@ -74,7 +71,7 @@ io.PcapFilter* NetSnifferLogFilter.getPcapFilter(io.PcapLinkType linkType)
 		io.Pcap.Defaults.SnapshotSize,
 		m_filter,
 		m_isOptimized
-		);
+	);
 
 	entry.m_value = pcapFilter;
 	return pcapFilter;
@@ -85,15 +82,13 @@ bool NetSnifferLogFilter.filter(
 	uint64_t recordCode,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	if (!m_filter)
 		return true;
 
 	io.PcapFilter* pcapFilter;
 
-	switch (recordCode)
-	{
+	switch (recordCode) {
 	case NetSnifferLogRecordCode.EthernetPacket:
 	case NetSnifferLogRecordCode.InjectedEthernetPacket:
 		pcapFilter = getPcapFilter(io.PcapLinkType.Ethernet);

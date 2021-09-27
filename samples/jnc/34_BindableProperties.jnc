@@ -26,8 +26,7 @@ int autoget bindable property g_simpleProp;
 
 // setter implementation
 
-void g_simpleProp.set(int x)
-{
+void g_simpleProp.set(int x) {
 	printf("g_simpleProp.set (%d)\n", x);
 
 	if (m_value == x)
@@ -44,8 +43,7 @@ void g_simpleProp.set(int x)
 
 // similar property declared using the full syntax
 
-property g_prop
-{
+property g_prop {
 	// declaring a field with 'autoget' modifier implicitly makes the whole
 	// property autoget
 
@@ -64,8 +62,7 @@ property g_prop
 
 // setters implementation
 
-void g_prop.set(int x)
-{
+void g_prop.set(int x) {
 	printf("g_prop.set (int %d)\n", x);
 
 	if (m_x == x)
@@ -75,8 +72,7 @@ void g_prop.set(int x)
 	m_e();
 }
 
-void g_prop.set(double x)
-{
+void g_prop.set(double x) {
 	printf("g_prop.set (double %f)\n", x);
 
 	if (m_x == (int)x)
@@ -97,18 +93,15 @@ int bindable g_data;
 
 // onChanged event handlers
 
-void onSimplePropChanged()
-{
+void onSimplePropChanged() {
 	printf("g_simpleProp has changed (new value = %d)\n", g_simpleProp);
 }
 
-void onPropChanged()
-{
+void onPropChanged() {
 	printf("g_prop has changed (new value = %d)\n", g_prop);
 }
 
-void onDataChanged()
-{
+void onDataChanged() {
 	printf("g_data has changed (new value = %d)\n", g_data);
 }
 
@@ -116,8 +109,7 @@ void onDataChanged()
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	// use 'bindingof' to access a bindable event of a property

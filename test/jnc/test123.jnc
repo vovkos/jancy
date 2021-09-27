@@ -1,28 +1,23 @@
 // async schedulers testing
 
-class MyScheduler: jnc.Scheduler
-{
-	construct()
-	{
+class MyScheduler: jnc.Scheduler {
+	construct() {
 		printf("MyScheduler.construct(%p)\n", this);
 	}
 
-	override schedule(function* f())
-	{
+	override schedule(function* f()) {
 		printf("+MyScheduler.schedule(%p)\n", this);
 		f();
 		printf("-MyScheduler.schedule(%p)\n", this);
 	}
 }
 
-int async asyncOpen(int x)
-{
+int async asyncOpen(int x) {
 	printf("asyncOpen(%d)\n", x);
 	return x * 2;
 }
 
-int async asyncFoo(int x)
-{
+int async asyncFoo(int x) {
 	printf("asyncFoo(%d)\n", x);
 
 	printf("  opening...\n");
@@ -32,8 +27,7 @@ int async asyncFoo(int x)
 	return x * 3;
 }
 
-int main()
-{
+int main() {
 	MyScheduler scheduler;
 	jnc.Promise* promise = (asyncFoo @ scheduler)(10);
 	int result = promise.blockingWait();

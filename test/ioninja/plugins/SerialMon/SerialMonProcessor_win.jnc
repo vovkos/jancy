@@ -13,8 +13,7 @@ namespace wdk {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum
-{
+enum {
 	FILE_DEVICE_SERIAL_PORT = 0x001b0000,
 
 	IOCTL_SERIAL_SET_BAUD_RATE      = FILE_DEVICE_SERIAL_PORT | (1 << 2),
@@ -67,15 +66,13 @@ enum
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct SERIAL_LINE_CONTROL
-{
+struct SERIAL_LINE_CONTROL {
     uint8_t StopBits;
     uint8_t Parity;
     uint8_t WordLength;
 }
 
-struct SERIAL_HANDFLOW
-{
+struct SERIAL_HANDFLOW {
     uint32_t ControlHandShake;
     uint32_t FlowReplace;
     uint32_t XonLimit;
@@ -86,10 +83,8 @@ struct SERIAL_HANDFLOW
 
 //..............................................................................
 
-class SerialMonProcessor_win: SerialMonProcessor
-{
-	construct(log.Writer* logWriter)
-	{
+class SerialMonProcessor_win: SerialMonProcessor {
+	construct(log.Writer* logWriter) {
 		basetype.construct(logWriter);
 	}
 
@@ -104,15 +99,13 @@ protected:
 		size_t inDataSize,
 		const void* outData,
 		size_t outDataSize
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void SerialMonProcessor_win.processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr)
-{
-	switch (notifyHdr.m_code)
-	{
+void SerialMonProcessor_win.processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr) {
+	switch (notifyHdr.m_code) {
 	case io.win.DeviceMonitorNotifyCode.Create:
 		io.win.DeviceMonitorCreateNotifyParams const* params = (io.win.DeviceMonitorCreateNotifyParams const*)(notifyHdr + 1);
 
@@ -120,12 +113,9 @@ void SerialMonProcessor_win.processNotification(io.DeviceMonitorNotifyHdr const*
 		std.Buffer logParams;
 		logParams.append(&notifyHdr.m_processId, sizeof(notifyHdr.m_processId));
 
-		if (notifyHdr.m_ntStatus == 0)
-		{
+		if (notifyHdr.m_ntStatus == 0) {
 			recordCode = SerialMonLogRecordCode.DeviceOpened;
-		}
-		else
-		{
+		} else {
 			recordCode = SerialMonLogRecordCode.DeviceOpenError;
 
 			std.Error error;
@@ -142,7 +132,7 @@ void SerialMonProcessor_win.processNotification(io.DeviceMonitorNotifyHdr const*
 			recordCode,
 			logParams.m_p,
 			logParams.m_size
-			);
+		);
 
 		break;
 
@@ -159,7 +149,7 @@ void SerialMonProcessor_win.processNotification(io.DeviceMonitorNotifyHdr const*
 				log.StdRecordCode.Rx,
 				params + 1,
 				params.m_dataSize
-				);
+			);
 		break;
 
 	case io.win.DeviceMonitorNotifyCode.Write:
@@ -171,7 +161,7 @@ void SerialMonProcessor_win.processNotification(io.DeviceMonitorNotifyHdr const*
 				log.StdRecordCode.Tx,
 				params + 1,
 				params.m_dataSize
-				);
+			);
 		break;
 
 	case io.win.DeviceMonitorNotifyCode.Ioctl:
@@ -187,7 +177,7 @@ void SerialMonProcessor_win.processNotification(io.DeviceMonitorNotifyHdr const*
 			params.m_inDataSize,
 			p + params.m_inDataSize,
 			params.m_outDataSize
-			);
+		);
 
 		break;
 	}
@@ -201,10 +191,8 @@ void SerialMonProcessor_win.processIoctlNotification(
 	size_t inDataSize,
 	const void* outData,
 	size_t outDataSize
-	)
-{
-	switch (code)
-	{
+) {
+	switch (code) {
 	case wdk.IOCTL_SERIAL_SET_BAUD_RATE:
 		if (inDataSize < sizeof(uint32_t))
 			break;
@@ -214,7 +202,7 @@ void SerialMonProcessor_win.processIoctlNotification(
 			SerialLogRecordCode.BaudRateChanged,
 			inData,
 			sizeof(uint32_t)
-			);
+		);
 		break;
 
 	case wdk.IOCTL_SERIAL_SET_LINE_CONTROL:
@@ -232,21 +220,21 @@ void SerialMonProcessor_win.processIoctlNotification(
 			SerialLogRecordCode.DataBitsChanged,
 			&dataBits,
 			sizeof(dataBits)
-			);
+		);
 
 		m_logWriter.write(
 			timestamp,
 			SerialLogRecordCode.StopBitsChanged,
 			&stopBits,
 			sizeof(stopBits)
-			);
+		);
 
 		m_logWriter.write(
 			timestamp,
 			SerialLogRecordCode.ParityChanged,
 			&parity,
 			sizeof(parity)
-			);
+		);
 
 		break;
 
@@ -268,7 +256,7 @@ void SerialMonProcessor_win.processIoctlNotification(
 			SerialLogRecordCode.FlowControlChanged,
 			&flowControl,
 			sizeof(flowControl)
-			);
+		);
 
 		break;
 
@@ -297,8 +285,7 @@ void SerialMonProcessor_win.processIoctlNotification(
 		if (mask != -1)
 			mask ^= lines;
 
-		if (mask)
-		{
+		if (mask) {
 			SerialStatusLineChangedParams params = { lines, mask };
 
 			m_logWriter.write(
@@ -306,7 +293,7 @@ void SerialMonProcessor_win.processIoctlNotification(
 				SerialLogRecordCode.StatusLineChanged,
 				&params,
 				sizeof(params)
-				);
+			);
 		}
 
 		break;
@@ -320,7 +307,7 @@ void SerialMonProcessor_win.processIoctlNotification(
 			log.StdRecordCode.Tx,
 			inData,
 			inDataSize
-			);
+		);
 
 		break;
 
@@ -333,7 +320,7 @@ void SerialMonProcessor_win.processIoctlNotification(
 			SerialLogRecordCode.DtrChanged,
 			&dtr,
 			sizeof(dtr)
-			);
+		);
 		break;
 
 	case wdk.IOCTL_SERIAL_SET_RTS:
@@ -345,7 +332,7 @@ void SerialMonProcessor_win.processIoctlNotification(
 			SerialLogRecordCode.RtsChanged,
 			&rts,
 			sizeof(rts)
-			);
+		);
 		break;
 
 	case wdk.IOCTL_SERIAL_SET_BREAK_ON:
@@ -357,7 +344,7 @@ void SerialMonProcessor_win.processIoctlNotification(
 			SerialLogRecordCode.BreakConditionChanged,
 			&brk,
 			sizeof(brk)
-			);
+		);
 		break;
 
 	}

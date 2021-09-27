@@ -22,8 +22,7 @@ class UnionType;
 
 // union cannot be a child, but it can be a parent
 
-class UnionType: public DerivableType
-{
+class UnionType: public DerivableType {
 	friend class TypeMgr;
 	friend class Parser;
 
@@ -34,8 +33,7 @@ public:
 	UnionType();
 
 	StructType*
-	getStructType()
-	{
+	getStructType() {
 		ASSERT(m_structType);
 		return m_structType;
 	}
@@ -45,8 +43,7 @@ public:
 	markGcRoots(
 		const void* p,
 		rt::GcHeap* gcHeap
-		)
-	{
+	) {
 		ASSERT(false); // unions are POD and hence are never GC roots
 	}
 
@@ -60,20 +57,18 @@ protected:
 		uint_t ptrTypeFlags = 0,
 		sl::BoxList<Token>* constructor = NULL,
 		sl::BoxList<Token>* initializer = NULL
-		);
+	);
 
 	virtual
 	void
-	prepareSignature()
-	{
+	prepareSignature() {
 		ASSERT(m_signature.isEmpty());
 		m_signature = 'U' + m_qualifiedName;
 	}
 
 	virtual
 	void
-	prepareLlvmType()
-	{
+	prepareLlvmType() {
 		m_llvmType = getStructType()->getLlvmType();
 	}
 
@@ -83,8 +78,7 @@ protected:
 
 	virtual
 	void
-	prepareTypeVariable()
-	{
+	prepareTypeVariable() {
 		prepareSimpleTypeVariable(StdType_UnionType);
 	}
 

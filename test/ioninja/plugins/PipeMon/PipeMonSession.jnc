@@ -14,37 +14,31 @@ using extension ui.ComboBoxHistory;
 
 //..............................................................................
 
-class PipeMonSession: doc.Session
-{
+class PipeMonSession: doc.Session {
 protected:
-	enum Defaults
-	{
+	enum Defaults {
 		PendingNotifySizeLimit = 1 * 1024 * 1024, // 1MB
 		UseLanmanMonitor       = true,
 	}
 
-	enum State
-	{
+	enum State {
 		Closed,
 		Opened,
 	}
 
-	enum ActionId
-	{
+	enum ActionId {
 		ApplyFilter,
 		Capture,
 		_Count,
 	}
 
-	enum IconId
-	{
+	enum IconId {
 		Capture,
 		StopCapture,
 		_Count,
 	}
 
-	enum StatusPaneId
-	{
+	enum StatusPaneId {
 		State,
 		_Count,
 	}
@@ -98,20 +92,17 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
-	void onCapture()
-	{
+	void onCapture() {
 		m_state ? close() : try capture();
 	}
 
-	void onSetViewFilter()
-	{
+	void onSetViewFilter() {
 		applyViewFilter(true);
 	}
 
 	void onMonitorError();
 
-	char const* createCaptureFilter()
-	{
+	char const* createCaptureFilter() {
 		char const* name = m_captureFilterProp.m_value;
 		return name && *name ? strdup(name) : "*"; // null wildcard means we also receive notifications from already-opened "nameless" files
 	}
@@ -122,8 +113,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-PipeMonSession.construct(doc.PluginHost* pluginHost)
-{
+PipeMonSession.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
 	m_npfsMonitor.construct(this);
 	m_lanmanMonitor.construct(this);
@@ -136,12 +126,10 @@ PipeMonSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-void PipeMonSession.createUi()
-{
+void PipeMonSession.createUi() {
 	// toolbar
 
-	static ui.EnumPropertyOption viewFilterKindTable[] =
-	{
+	static ui.EnumPropertyOption viewFilterKindTable[] = {
 		{ "None",         log.MonitorFilterKind.None },
 		{ "File name",    log.MonitorFilterKind.FileName },
 		{ "File ID",  log.MonitorFilterKind.FileId },
@@ -153,7 +141,7 @@ void PipeMonSession.createUi()
 		"Filter:",
 		viewFilterKindTable,
 		countof(viewFilterKindTable)
-		);
+	);
 
 	m_viewFilterCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_viewFilterCombo.m_isEditable = true;
@@ -177,14 +165,14 @@ void PipeMonSession.createUi()
 	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Connection",
 		"Named pipe monitor connection settings"
-		);
+	);
 
 	m_captureFilterProp = m_pluginHost.m_propertyGrid.createStringProperty(
 		group,,
 		"Capture filter",
 		"Enter a pipe name wildcard...",
 		"Specify name wildcard capture filter (supported masks: * and ?; leave empty for no filter)"
-		);
+	);
 
 	m_viewFilterKindProp = m_pluginHost.m_propertyGrid.createEnumProperty(
 		group,,
@@ -192,25 +180,25 @@ void PipeMonSession.createUi()
 		"Show only data which pass this filter",
 		viewFilterKindTable,
 		countof(viewFilterKindTable)
-		);
+	);
 
 	m_viewFilterProp = m_pluginHost.m_propertyGrid.createStringProperty(
 		group,,
 		"View filter",
 		"Enter a view filter...",
 		"Show only data which pass this filter"
-		);
+	);
 
 	m_useLanmanMonitorProp = m_pluginHost.m_propertyGrid.createBoolProperty(
 		group,,
 		"Monitor remote connections",
 		"Attach and monitor pipe connections redirected over Windows LANMAN"
-		);
+	);
 
 	group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Buffering & compatibility",
 		"Advanced options controlling performance, throughtput and compatibility"
-		);
+	);
 
 	m_bufferPropertySet.createProperties(
 		m_pluginHost.m_propertyGrid,
@@ -219,13 +207,13 @@ void PipeMonSession.createUi()
 		ui.BufferPropertySet.PropertyId.ReadBufferSize |
 		ui.BufferPropertySet.PropertyId.ReadBlockSize |
 		ui.BufferPropertySet.PropertyId.NotifyReadBufferFull
-		);
+	);
 
 	m_pendingNotifySizeLimitProp = m_pluginHost.m_propertyGrid.createIntProperty(
 		group,,
 		"Pending notification limit",
 		"Set the maximum size of kernel notification queue (exceeding notification will be dropped)"
-		);
+	);
 
 	m_bufferPropertySet.m_readBlockSizeProp.m_minValue = 1024;
 	m_bufferPropertySet.m_readBufferSizeProp.m_minValue = 1024;
@@ -246,8 +234,7 @@ void PipeMonSession.createUi()
 	m_uiReactor.start();
 }
 
-bool errorcode PipeMonSession.capture()
-{
+bool errorcode PipeMonSession.capture() {
 	close();
 	startSession();
 
@@ -255,8 +242,7 @@ bool errorcode PipeMonSession.capture()
 	m_npfsMonitor.applyProperties(m_bufferPropertySet, m_pendingNotifySizeLimitProp.m_value);
 	m_npfsMonitor.capture(r"\device\namedpipe", m_captureFilter);
 
-	if (m_useLanmanMonitorProp.m_value)
-	{
+	if (m_useLanmanMonitorProp.m_value) {
 		m_lanmanMonitor.applyProperties(m_bufferPropertySet, m_pendingNotifySizeLimitProp.m_value);
 		m_lanmanMonitor.capture(r"\device\lanmanredirector", m_captureFilter);
 	}
@@ -274,8 +260,7 @@ catch:
 	return false;
 }
 
-void PipeMonSession.close()
-{
+void PipeMonSession.close() {
 	if (m_state != State.Opened)
 		return;
 
@@ -287,8 +272,7 @@ void PipeMonSession.close()
 	m_stdSessionInfoSet.endSession();
 }
 
-void PipeMonSession.load(doc.Storage* storage)
-{
+void PipeMonSession.load(doc.Storage* storage) {
 	m_viewFilterCombo.loadHistory(storage, "viewFilterHistory");
 	m_viewFilterCombo.m_editText = storage.readString("viewFilter");
 	m_viewFilterKindCombo.m_currentIndex = storage.readInt("viewFilterKind");
@@ -301,8 +285,7 @@ void PipeMonSession.load(doc.Storage* storage)
 	m_lanmanMonitor.setReadBufferSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 }
 
-void PipeMonSession.save(doc.Storage* storage)
-{
+void PipeMonSession.save(doc.Storage* storage) {
 	m_viewFilterCombo.saveHistory(storage, "viewFilterHistory");
 	storage.writeString("captureFilter", m_captureFilterProp.m_value);
 	storage.writeString("viewFilter", m_viewFilterCombo.m_currentText);
@@ -313,14 +296,12 @@ void PipeMonSession.save(doc.Storage* storage)
 	m_bufferPropertySet.save(storage);
 }
 
-void PipeMonSession.updateProperties()
-{
+void PipeMonSession.updateProperties() {
 	m_viewFilterKindProp.m_currentIndex = m_viewFilterKindCombo.m_currentIndex;
 	m_viewFilterProp.m_value = m_viewFilterCombo.m_editText;
 }
 
-bool errorcode PipeMonSession.applyProperties()
-{
+bool errorcode PipeMonSession.applyProperties() {
 	m_viewFilterKindCombo.m_currentIndex = m_viewFilterKindProp.m_currentIndex;
 	m_viewFilterCombo.m_editText = m_viewFilterProp.m_value;
 
@@ -333,8 +314,7 @@ bool errorcode PipeMonSession.applyProperties()
 	m_lanmanMonitor.applyProperties(m_bufferPropertySet, m_pendingNotifySizeLimitProp.m_value);
 
 	char const* captureFilter = createCaptureFilter();
-	if (strcmp(m_captureFilter, captureFilter))
-	{
+	if (strcmp(m_captureFilter, captureFilter)) {
 		m_captureFilter = captureFilter;
 		m_npfsMonitor.setFileNameFilter(captureFilter);
 		m_lanmanMonitor.setFileNameFilter(captureFilter);
@@ -344,16 +324,14 @@ bool errorcode PipeMonSession.applyProperties()
 	return true;
 }
 
-void PipeMonSession.restoreDefaultProperties()
-{
+void PipeMonSession.restoreDefaultProperties() {
 	m_viewFilterKindProp.m_currentIndex = 0;
 	m_pendingNotifySizeLimitProp.m_value = Defaults.PendingNotifySizeLimit;
 	m_useLanmanMonitorProp.m_value = Defaults.UseLanmanMonitor;
 	m_bufferPropertySet.restoreDefaults();
 }
 
-void PipeMonSession.applyViewFilter(bool rebuildLog)
-{
+void PipeMonSession.applyViewFilter(bool rebuildLog) {
 	m_viewFilterCombo.addEditTextToHistory();
 
 	m_pluginHost.m_log.suspend();
@@ -364,8 +342,7 @@ void PipeMonSession.applyViewFilter(bool rebuildLog)
 		m_pluginHost.m_log.rebuild();
 }
 
-reactor PipeMonSession.m_uiReactor
-{
+reactor PipeMonSession.m_uiReactor {
 	m_title = $"NPFS mon $(m_captureFilterProp.m_value)";
 	m_actionTable[ActionId.Capture].m_text = m_state ? "Stop Capture" : "Capture";
 	m_actionTable[ActionId.Capture].m_icon = m_iconTable[m_state ? IconId.StopCapture : IconId.Capture];

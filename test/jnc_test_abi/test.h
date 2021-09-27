@@ -9,18 +9,15 @@
 //
 //..............................................................................
 
-struct struct32
-{
+struct struct32 {
 	int32_t m_a;
 };
 
-struct struct64
-{
+struct struct64 {
 	int64_t m_a;
 };
 
-struct struct128
-{
+struct struct128 {
 	int64_t m_a;
 	int64_t m_b;
 };
@@ -36,7 +33,7 @@ FuncInt32(
 	int32_t a6,
 	int32_t a7,
 	int32_t a8
-	);
+);
 
 typedef
 int64_t
@@ -49,7 +46,7 @@ FuncInt64(
 	int64_t a6,
 	int64_t a7,
 	int64_t a8
-	);
+);
 
 typedef
 struct32
@@ -62,7 +59,7 @@ FuncStruct32(
 	struct32 s6,
 	struct32 s7,
 	struct32 s8
-	);
+);
 
 typedef
 struct64
@@ -75,7 +72,7 @@ FuncStruct64(
 	struct64 s6,
 	struct64 s7,
 	struct64 s8
-	);
+);
 
 typedef
 struct128
@@ -84,7 +81,7 @@ FuncStruct128(
 	struct128 s2,
 	struct128 s3,
 	struct128 s4
-	);
+);
 
 typedef
 jnc::Variant
@@ -93,28 +90,28 @@ FuncVariant(
 	jnc::Variant v2,
 	jnc::Variant v3,
 	jnc::Variant v4
-	);
+);
 
 typedef
 jnc::DataPtr
 FuncPtr(
 	jnc::DataPtr p1,
 	char* p2
-	);
+);
 
 typedef
 float
 FuncFloat(
 	float x,
 	float y
-	);
+);
 
 typedef
 double
 FuncDouble(
 	double x,
 	double y
-	);
+);
 
 typedef
 void
@@ -160,7 +157,7 @@ void
 test(
 	jnc::Module* module,
 	const char* funcName
-	);
+);
 
 //..............................................................................
 

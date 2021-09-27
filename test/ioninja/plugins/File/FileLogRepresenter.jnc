@@ -16,10 +16,8 @@ bool representFileLog(
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
-	switch (recordCode)
-	{
+) {
+	switch (recordCode) {
 	case FileLogRecordCode.Opened_0:
 		io.FileKind const* kind = (io.FileKind const*)p;
 		char const* fileName = (char const*)(kind + 1);

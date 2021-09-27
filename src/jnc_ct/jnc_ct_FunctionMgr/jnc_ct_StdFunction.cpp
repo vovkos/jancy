@@ -19,12 +19,10 @@ namespace ct {
 //..............................................................................
 
 const StdItemSource*
-getStdFunctionSource(StdFunc stdFunc)
-{
+getStdFunctionSource(StdFunc stdFunc) {
 	#include "jnc_StdFunctions.jnc.cpp"
 
-	static StdItemSource sourceTable[StdFunc__Count] =
-	{
+	static StdItemSource sourceTable[StdFunc__Count] = {
 		{                                        // StdFunc_DynamicSizeOf,
 			dynamicSizeOfSrc,
 			lengthof(dynamicSizeOfSrc),

@@ -55,23 +55,19 @@ jnc_BitFieldType_getBitCount(jnc_BitFieldType* type);
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
-struct jnc_BitFieldType: jnc_Type
-{
+struct jnc_BitFieldType: jnc_Type {
 	jnc_Type*
-	getBaseType()
-	{
+	getBaseType() {
 		return jnc_BitFieldType_getBaseType(this);
 	}
 
 	size_t
-	getBitOffset()
-	{
+	getBitOffset() {
 		return jnc_BitFieldType_getBitOffset(this);
 	}
 
 	size_t
-	getBitCount()
-	{
+	getBitCount() {
 		return jnc_BitFieldType_getBitCount(this);
 	}
 };

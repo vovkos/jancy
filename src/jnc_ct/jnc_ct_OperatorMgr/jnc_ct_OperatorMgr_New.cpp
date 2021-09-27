@@ -26,16 +26,14 @@ OperatorMgr::newOperator(
 	const Value& elementCountValue,
 	sl::BoxList<Value>* argValueList,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(!(type->getTypeKindFlags() & TypeKindFlag_Import));
 
 	bool result = type->ensureLayout();
 	if (!result)
 		return false;
 
-	if (type->getTypeKind() == TypeKind_Class)
-	{
+	if (type->getTypeKind() == TypeKind_Class) {
 		result = ((ClassType*)type)->ensureCreatable();
 		if (!result)
 			return false;
@@ -52,8 +50,7 @@ OperatorMgr::memSet(
 	char c,
 	size_t size,
 	bool isVolatile
-	)
-{
+) {
 	Value ptrValue;
 
 	bool result = castOperator(value, m_module->m_typeMgr.getStdType(StdType_BytePtr), &ptrValue);
@@ -63,8 +60,7 @@ OperatorMgr::memSet(
 	if (!m_module->hasCodeGen())
 		return true;
 
-	Value argValueArray[] =
-	{
+	Value argValueArray[] = {
 		ptrValue,
 		Value(c, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int8)),
 		Value(size, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32)),
@@ -81,7 +77,7 @@ OperatorMgr::memSet(
 		argValueArray,
 		countof(argValueArray),
 		NULL
-		);
+	);
 
 	return true;
 }
@@ -93,8 +89,7 @@ OperatorMgr::memCpy(
 	const Value& srcValue,
 	size_t size,
 	bool isVolatile
-	)
-{
+) {
 	Value dstPtrValue;
 	Value srcPtrValue;
 
@@ -108,8 +103,7 @@ OperatorMgr::memCpy(
 	if (!m_module->hasCodeGen())
 		return true;
 
-	Value argValueArray[] =
-	{
+	Value argValueArray[] = {
 		dstPtrValue,
 		srcPtrValue,
 		Value(size, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32)),
@@ -126,14 +120,13 @@ OperatorMgr::memCpy(
 		argValueArray,
 		countof(argValueArray),
 		NULL
-		);
+	);
 
 	return true;
 }
 
 void
-OperatorMgr::zeroInitialize(const Value& value)
-{
+OperatorMgr::zeroInitialize(const Value& value) {
 	if (!m_module->hasCodeGen())
 		return;
 
@@ -150,13 +143,11 @@ bool
 OperatorMgr::construct(
 	const Value& rawOpValue,
 	sl::BoxList<Value>* argList
-	)
-{
+) {
 	Type* type = rawOpValue.getType();
 	TypeKind ptrTypeKind = type->getTypeKind();
 
-	switch (ptrTypeKind)
-	{
+	switch (ptrTypeKind) {
 	case TypeKind_DataRef:
 	case TypeKind_DataPtr:
 		type = ((DataPtrType*)type)->getTargetType();
@@ -177,10 +168,8 @@ OperatorMgr::construct(
 	if (type->getTypeKindFlags() & TypeKindFlag_Derivable)
 		constructor = ((DerivableType*)type)->getConstructor();
 
-	if (!constructor)
-	{
-		if (argList && !argList->isEmpty())
-		{
+	if (!constructor) {
+		if (argList && !argList->isEmpty()) {
 			err::setFormatStringError("'%s' has no constructor", type->getTypeString().sz());
 			return false;
 		}
@@ -191,8 +180,7 @@ OperatorMgr::construct(
 	DerivableType* derivableType = (DerivableType*)type;
 	if (constructor->getItemKind() == ModuleItemKind_Function &&
 		constructor.getFunction()->getAccessKind() != AccessKind_Public &&
-		m_module->m_namespaceMgr.getAccessKind(derivableType) == AccessKind_Public)
-	{
+		m_module->m_namespaceMgr.getAccessKind(derivableType) == AccessKind_Public) {
 		err::setFormatStringError("'%s.construct' is protected", derivableType->getQualifiedName().sz());
 		return false;
 	}
@@ -202,8 +190,7 @@ OperatorMgr::construct(
 		argList = &emptyArgList;
 
 	Value opValue = rawOpValue;
-	if (ptrTypeKind == TypeKind_DataRef || ptrTypeKind == TypeKind_ClassRef)
-	{
+	if (ptrTypeKind == TypeKind_DataRef || ptrTypeKind == TypeKind_ClassRef) {
 		bool result = unaryOperator(UnOpKind_Addr, &opValue);
 		if (!result)
 			return false;
@@ -219,8 +206,7 @@ OperatorMgr::parseInitializer(
 	const Value& rawValue,
 	const sl::ConstBoxList<Token>& constructorTokenList,
 	const sl::ConstBoxList<Token>& initializerTokenList
-	)
-{
+) {
 	bool result;
 
 	Value value = rawValue;
@@ -231,8 +217,7 @@ OperatorMgr::parseInitializer(
 		value.overrideType(((ClassPtrType*)rawValue.getType())->getUnConstPtrType());
 
 	sl::BoxList<Value> argList;
-	if (!constructorTokenList.isEmpty())
-	{
+	if (!constructorTokenList.isEmpty()) {
 		Parser parser(m_module, NULL, Parser::Mode_Compile);
 
 		result = parser.parseTokenList(SymbolKind_expression_or_empty_list_save_list, constructorTokenList);
@@ -246,13 +231,11 @@ OperatorMgr::parseInitializer(
 	if (!result)
 		return false;
 
-	if (!initializerTokenList.isEmpty())
-	{
+	if (!initializerTokenList.isEmpty()) {
 		Parser parser(m_module, NULL, Parser::Mode_Compile);
 		sl::ConstBoxIterator<Token> tokenIt = initializerTokenList.getHead();
 
-		switch (tokenIt->m_token)
-		{
+		switch (tokenIt->m_token) {
 		case TokenKind_Body:
 			parser.m_curlyInitializerTargetValue = value;
 			result = parser.parseBody(SymbolKind_curly_initializer, tokenIt->m_pos, tokenIt->m_data.m_string);
@@ -282,8 +265,7 @@ OperatorMgr::parseFunctionArgDefaultValue(
 	const Value& thisValue,
 	const sl::ConstBoxList<Token>& tokenList,
 	Value* resultValue
-	)
-{
+) {
 	Value prevThisValue = m_module->m_functionMgr.overrideThisValue(thisValue);
 	bool result = parseFunctionArgDefaultValue(decl, tokenList, resultValue);
 	if (!result)
@@ -298,8 +280,7 @@ OperatorMgr::parseFunctionArgDefaultValue(
 	ModuleItemDecl* decl,
 	const sl::ConstBoxList<Token>& tokenList,
 	Value* resultValue
-	)
-{
+) {
 	Parser parser(m_module, decl->getPragmaSettings(), Parser::Mode_Compile);
 	m_module->m_namespaceMgr.openNamespace(decl->getParentNamespace());
 	m_module->m_namespaceMgr.lockSourcePos();
@@ -319,8 +300,7 @@ bool
 OperatorMgr::parseExpression(
 	const sl::ConstBoxList<Token>& expressionTokenList,
 	Value* resultValue
-	)
-{
+) {
 	Parser parser(m_module, NULL, Parser::Mode_Compile);
 
 	bool result = parser.parseTokenList(SymbolKind_expression_save_value, expressionTokenList);
@@ -334,16 +314,14 @@ bool
 OperatorMgr::parseConstIntegerExpression(
 	const sl::ConstBoxList<Token>& expressionTokenList,
 	int64_t* integer
-	)
-{
+) {
 	Value value;
 	bool result = parseExpression(expressionTokenList, &value);
 	if (!result)
 		return false;
 
 	if (value.getValueKind() != ValueKind_Const ||
-		!(value.getType()->getTypeKindFlags() & TypeKindFlag_Integer))
-	{
+		!(value.getType()->getTypeKindFlags() & TypeKindFlag_Integer)) {
 		err::setFormatStringError("expression is not integer constant");
 		return false;
 	}
@@ -357,11 +335,9 @@ size_t
 OperatorMgr::parseAutoSizeArrayInitializer(
 	ArrayType* arrayType,
 	const sl::ConstBoxList<Token>& initializerTokenList
-	)
-{
+) {
 	const Token* token = initializerTokenList.getHead().p();
-	switch (token->m_token)
-	{
+	switch (token->m_token) {
 	case TokenKind_Literal:
 	case TokenKind_BinLiteral:
 		return parseAutoSizeArrayLiteralInitializer(initializerTokenList);
@@ -381,15 +357,12 @@ OperatorMgr::parseAutoSizeArrayInitializer(
 // it's both more efficient AND easier to parse these by hand
 
 size_t
-OperatorMgr::parseAutoSizeArrayLiteralInitializer(const sl::ConstBoxList<Token>& initializerTokenList)
-{
+OperatorMgr::parseAutoSizeArrayLiteralInitializer(const sl::ConstBoxList<Token>& initializerTokenList) {
 	size_t elementCount = 0;
 
 	sl::ConstBoxIterator<Token> token = initializerTokenList.getHead();
-	for (; token; token++)
-	{
-		switch (token->m_token)
-		{
+	for (; token; token++) {
+		switch (token->m_token) {
 		case TokenKind_Literal:
 			elementCount += token->m_data.m_string.getLength();
 			break;
@@ -411,8 +384,7 @@ OperatorMgr::parseAutoSizeArrayCurlyInitializer(
 	ArrayType* arrayType,
 	const lex::LineColOffset& pos,
 	const sl::StringRef& initializer
-	)
-{
+) {
 	Unit* unit = m_module->m_unitMgr.getCurrentUnit();
 	ASSERT(unit);
 
@@ -422,11 +394,9 @@ OperatorMgr::parseAutoSizeArrayCurlyInitializer(
 
 	sl::BoxList<Token> tokenList;
 
-	for (;;)
-	{
+	for (;;) {
 		const Token* token = lexer.getToken();
-		switch (token->m_token)
-		{
+		switch (token->m_token) {
 		case TokenKind_Eof: // no need to add EOF token
 			return parseAutoSizeArrayCurlyInitializer(arrayType, tokenList);
 
@@ -445,8 +415,7 @@ size_t
 OperatorMgr::parseAutoSizeArrayCurlyInitializer(
 	ArrayType* arrayType,
 	const sl::ConstBoxList<Token>& initializerTokenList
-	)
-{
+) {
 	intptr_t level = 0;
 	size_t elementCount = 0;
 
@@ -454,10 +423,8 @@ OperatorMgr::parseAutoSizeArrayCurlyInitializer(
 	bool isElement = false;
 
 	sl::ConstBoxIterator<Token> token = initializerTokenList.getHead();
-	for (; token; token++)
-	{
-		switch (token->m_token)
-		{
+	for (; token; token++) {
+		switch (token->m_token) {
 		case '{':
 			if (level == 1)
 				isElement = true;
@@ -466,8 +433,7 @@ OperatorMgr::parseAutoSizeArrayCurlyInitializer(
 			break;
 
 		case '}':
-			if (level == 1 && isElement)
-			{
+			if (level == 1 && isElement) {
 				elementCount++;
 				isElement = false;
 			}
@@ -476,8 +442,7 @@ OperatorMgr::parseAutoSizeArrayCurlyInitializer(
 			break;
 
 		case ',':
-			if (level == 1 && isElement)
-			{
+			if (level == 1 && isElement) {
 				elementCount++;
 				isElement = false;
 			}
@@ -485,8 +450,7 @@ OperatorMgr::parseAutoSizeArrayCurlyInitializer(
 			break;
 
 		case TokenKind_Literal:
-			if (level == 1)
-			{
+			if (level == 1) {
 				if (isCharArray)
 					elementCount += token->m_data.m_string.getLength();
 
@@ -496,15 +460,11 @@ OperatorMgr::parseAutoSizeArrayCurlyInitializer(
 			break;
 
 		case TokenKind_BinLiteral:
-			if (level == 1)
-			{
-				if (isCharArray)
-				{
+			if (level == 1) {
+				if (isCharArray) {
 					elementCount += token->m_data.m_binData.getCount();
 					isElement = false;
-				}
-				else
-				{
+				} else {
 					isElement = true;
 				}
 			}
@@ -525,12 +485,10 @@ OperatorMgr::gcHeapAllocate(
 	Type* type,
 	const Value& rawElementCountValue,
 	Value* resultValue
-	)
-{
+) {
 	bool result;
 
-	if (!m_module->hasCodeGen())
-	{
+	if (!m_module->hasCodeGen()) {
 		resultValue->setType(
 			type->getTypeKind() == TypeKind_Class ?
 				(Type*)((ClassType*)type)->getClassPtrType() :
@@ -548,22 +506,16 @@ OperatorMgr::gcHeapAllocate(
 
 	Value ptrValue;
 
-	if (type->getTypeKind() == TypeKind_Class)
-	{
-		if (type->getFlags() & (ClassTypeFlag_HasAbstractMethods | ClassTypeFlag_OpaqueNonCreatable))
-		{
+	if (type->getTypeKind() == TypeKind_Class) {
+		if (type->getFlags() & (ClassTypeFlag_HasAbstractMethods | ClassTypeFlag_OpaqueNonCreatable)) {
 			err::setFormatStringError("cannot instantiate '%s'", type->getTypeString().sz());
 			return false;
 		}
 
 		allocate = m_module->m_functionMgr.getStdFunction(StdFunc_AllocateClass);
-	}
-	else if (!rawElementCountValue)
-	{
+	} else if (!rawElementCountValue) {
 		allocate = m_module->m_functionMgr.getStdFunction(StdFunc_AllocateData);
-	}
-	else
-	{
+	} else {
 		allocate = m_module->m_functionMgr.getStdFunction(StdFunc_AllocateArray);
 
 		Value countValue;
@@ -578,7 +530,7 @@ OperatorMgr::gcHeapAllocate(
 		allocate,
 		&allocateArgValueList,
 		&ptrValue
-		);
+	);
 
 
 	if (type->getTypeKind() == TypeKind_Class)

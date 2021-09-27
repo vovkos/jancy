@@ -18,8 +18,7 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(SslCipher)
 
 //..............................................................................
 
-class SslCipher: public IfaceHdr
-{
+class SslCipher: public IfaceHdr {
 	friend class SslSocket;
 
 public:

@@ -15,8 +15,7 @@ void representModbusRtuAdu(
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
+) {
 	io.ModbusRtuAduHdr const* aduHdr = (io.ModbusRtuAduHdr const*) p;
 	io.ModbusPduHdr const* pduHdr = (io.ModbusPduHdr const*) (aduHdr + 1);
 
@@ -29,8 +28,7 @@ void representModbusRtuAdu(
 	uint16_t actualChecksum = *(uint16_t const*) (p + checksumOffset);
 	uint16_t expectedChecksum = crc16_ansi(p, checksumOffset, 0xffff);
 
-	if (!(foldFlags & 1))
-	{
+	if (!(foldFlags & 1)) {
 		representation.addHyperText(
 			$"[\e^+1\e[34m+\e[m] \e[1mMODBUS-RTU\e[m Dev: \e[34m%1\e[m %2" (
 			aduHdr.m_deviceAddress,
@@ -38,9 +36,7 @@ void representModbusRtuAdu(
 				getModbusPduDigest(role, pduHdr) :
 				"[\e[31mCRC ERROR\e[m]"
 			));
-	}
-	else
-	{
+	} else {
 		representation.addHyperText(
 			"[\e^-1\e[34m-\e[m]\n"
 			"\e[1mADU-RTU\e[m\n"
@@ -48,26 +44,23 @@ void representModbusRtuAdu(
 			offsetof(aduHdr.m_deviceAddress),
 			sizeof(aduHdr.m_deviceAddress),
 			aduHdr.m_deviceAddress
-			));
+		));
 
-		if (actualChecksum == expectedChecksum)
-		{
+		if (actualChecksum == expectedChecksum) {
 			representation.addHyperText(
 				$"    Checksum:  \e^!%1,%2\e[34m0x%(3; 04x)\e[m [\e[32mOK\e[m]" (
 				checksumOffset,
 				sizeof(uint16_t),
 				actualChecksum
-				));
-		}
-		else
-		{
+			));
+		} else {
 			representation.addHyperText(
 				$"    Checksum:  \e^!%1,%2\e[34m0x%(3; 04x)\e[m [\e[31mERROR\e[m] \e[90m(expected: 0x%(4; 04X))\e[m" (
 				checksumOffset,
 				sizeof(uint16_t),
 				actualChecksum,
 				expectedChecksum
-				));
+			));
 		}
 
 		representModbusPdu(
@@ -76,7 +69,7 @@ void representModbusRtuAdu(
 			pduHdr,
 			sizeof(io.ModbusRtuAduHdr),,
 			foldFlags
-			);
+		);
 
 		representation.m_lineAttr.m_backColor = ui.ColorFlags.Transparent;
 		representation.m_lineAttr.m_textColor = ui.StdColor.Gray;

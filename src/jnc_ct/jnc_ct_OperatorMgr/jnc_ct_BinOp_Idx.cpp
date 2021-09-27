@@ -24,20 +24,17 @@ BinOp_Idx::op(
 	const Value& rawOpValue1,
 	const Value& rawOpValue2,
 	Value* resultValue
-	)
-{
+) {
 	bool result;
 
 	Value opValue1 = rawOpValue1;
 	Value opValue2 = rawOpValue2;
 
 	Type* opType1 = rawOpValue1.getType();
-	if (opType1->getTypeKind() == TypeKind_DataRef)
-	{
+	if (opType1->getTypeKind() == TypeKind_DataRef) {
 		Type* targetType = ((DataPtrType*)opType1)->getTargetType();
 		TypeKind targetTypeKind = targetType->getTypeKind();
-		switch (targetTypeKind)
-		{
+		switch (targetTypeKind) {
 		case TypeKind_Array:
 			return
 				m_module->m_operatorMgr.castOperator(&opValue2, TypeKind_IntPtr) &&
@@ -55,8 +52,7 @@ BinOp_Idx::op(
 	}
 
 	TypeKind typeKind = opType1->getTypeKind();
-	switch (typeKind)
-	{
+	switch (typeKind) {
 	case TypeKind_DataPtr:
 		return
 			m_module->m_operatorMgr.castOperator(&opValue2, TypeKind_IntPtr) &&
@@ -94,34 +90,26 @@ BinOp_Idx::arrayIndexOperator(
 	ArrayType* arrayType,
 	const Value& opValue2,
 	Value* resultValue
-	)
-{
+) {
 	Type* elementType = arrayType->getElementType();
 
 	if (opValue1.getValueKind() == ValueKind_Const &&
-		opValue2.getValueKind() == ValueKind_Const)
-	{
+		opValue2.getValueKind() == ValueKind_Const) {
 		size_t elementOffset = opValue2.getSizeT() * elementType->getSize();
 		Type* type = opValue1.getType();
-		if (!(type->getTypeKindFlags() & TypeKindFlag_Ptr))
-		{
+		if (!(type->getTypeKindFlags() & TypeKindFlag_Ptr)) {
 			resultValue->createConst((char*)opValue1.getConstData() + elementOffset, elementType);
-		}
-		else
-		{
+		} else {
 			ASSERT(type->getTypeKindFlags() & TypeKindFlag_DataPtr);
 
 			DataPtrType* ptrType = (DataPtrType*)type;
 			DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind();
 
-			if (ptrTypeKind == DataPtrTypeKind_Normal)
-			{
+			if (ptrTypeKind == DataPtrTypeKind_Normal) {
 				DataPtr ptr = *(DataPtr*)opValue1.getConstData();
 				ptr.m_p = (char*)ptr.m_p + elementOffset;
 				resultValue->createConst(&ptr, elementType->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Normal, type->getFlags()));
-			}
-			else
-			{
+			} else {
 				ASSERT(ptrTypeKind == DataPtrTypeKind_Thin);
 				char* p = *(char**) opValue1.getConstData();
 				p += elementOffset;
@@ -134,8 +122,7 @@ BinOp_Idx::arrayIndexOperator(
 
 	TypeKind opTypeKind1 = opValue1.getType()->getTypeKind();
 
-	if (opTypeKind1 != TypeKind_DataRef)
-	{
+	if (opTypeKind1 != TypeKind_DataRef) {
 		ASSERT(opTypeKind1 == TypeKind_Array);
 		err::setFormatStringError("indexing register-based arrays is not supported yet");
 		return false;
@@ -144,24 +131,19 @@ BinOp_Idx::arrayIndexOperator(
 	DataPtrType* opType1 = (DataPtrType*)opValue1.getType();
 	uint_t ptrTypeFlags = opType1->getFlags();
 
-	if (ptrTypeFlags & PtrTypeFlag_Safe)
-	{
-		if (opValue2.getValueKind() == ValueKind_Const)
-		{
+	if (ptrTypeFlags & PtrTypeFlag_Safe) {
+		if (opValue2.getValueKind() == ValueKind_Const) {
 			Value idxValue;
 			bool result = m_module->m_operatorMgr.castOperator(opValue2, TypeKind_IntPtr, &idxValue);
 			if (!result)
 				return false;
 
 			intptr_t i = idxValue.getSizeT();
-			if (i < 0 || i >= (intptr_t)arrayType->getElementCount())
-			{
+			if (i < 0 || i >= (intptr_t)arrayType->getElementCount()) {
 				err::setFormatStringError("index '%d' is out of bounds in '%s'", i, arrayType->getTypeString().sz());
 				return false;
 			}
-		}
-		else
-		{
+		} else {
 			ptrTypeFlags &= ~PtrTypeFlag_Safe;
 		}
 	}
@@ -170,10 +152,8 @@ BinOp_Idx::arrayIndexOperator(
 	DataPtrTypeKind ptrTypeKind = opType1->getPtrTypeKind();
 	DataPtrType* ptrType;
 
-	if (!m_module->hasCodeGen())
-	{
-		switch (ptrTypeKind)
-		{
+	if (!m_module->hasCodeGen()) {
+		switch (ptrTypeKind) {
 		case DataPtrTypeKind_Thin:
 			ptrType = elementType->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Thin, ptrTypeFlags);
 			break;
@@ -187,11 +167,8 @@ BinOp_Idx::arrayIndexOperator(
 		}
 
 		resultValue->setType(ptrType);
-	}
-	else
-	{
-		switch (ptrTypeKind)
-		{
+	} else {
+		switch (ptrTypeKind) {
 		case DataPtrTypeKind_Thin:
 			ptrType = elementType->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Thin, ptrTypeFlags);
 			m_module->m_llvmIrBuilder.createGep2(opValue1, opValue2, ptrType, resultValue);
@@ -220,8 +197,7 @@ BinOp_Idx::variantIndexOperator(
 	const Value& opValue1,
 	const Value& opValue2,
 	Value* resultValue
-	)
-{
+) {
 	Property* prop = m_module->m_functionMgr.getStdProperty(StdProp_VariantIndex);
 	resultValue->setProperty(prop);
 
@@ -241,8 +217,7 @@ BinOp_Idx::propertyIndexOperator(
 	const Value& rawOpValue1,
 	const Value& rawOpValue2,
 	Value* resultValue
-	)
-{
+) {
 	*resultValue = rawOpValue1;
 
 	Closure* closure = resultValue->getClosure();
@@ -259,8 +234,7 @@ BinOp_Idx::derivableTypeIndexOperator(
 	const Value& opValue1,
 	const Value& opValue2,
 	Value* resultValue
-	)
-{
+) {
 	Property* prop = getDerivableTypeIndexerProperty(derivableType, opValue2);
 	if (!prop)
 		return false;
@@ -277,15 +251,13 @@ Property*
 BinOp_Idx::getDerivableTypeIndexerProperty(
 	DerivableType* derivableType,
 	const Value& opValue2
-	)
-{
+) {
 	if (derivableType->hasIndexerProperties())
 		return derivableType->chooseIndexerProperty(opValue2);
 
 	sl::Array<BaseTypeSlot*> baseTypeArray = derivableType->getBaseTypeArray();
 	size_t count = baseTypeArray.getCount();
-	for (size_t i = 0; i < count; i ++)
-	{
+	for (size_t i = 0; i < count; i ++) {
 		DerivableType* baseType = baseTypeArray[i]->getType();
 		if (baseType->hasIndexerProperties())
 			return baseType->chooseIndexerProperty(opValue2);

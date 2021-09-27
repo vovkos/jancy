@@ -18,8 +18,7 @@ namespace io {
 
 //..............................................................................
 
-struct UsbConfigurationDesc
-{
+struct UsbConfigurationDesc {
 	UsbInterfaceDesc const* m_interfaceTable;
 	size_t m_interfaceCount;
 
@@ -31,8 +30,7 @@ struct UsbConfigurationDesc
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct UsbDeviceDesc
-{
+struct UsbDeviceDesc {
 	UsbConfigurationDesc const* m_configurationTable;
 	size_t m_configurationCount;
 
@@ -50,8 +48,7 @@ struct UsbDeviceDesc
 
 //..............................................................................
 
-opaque class UsbDevice
-{
+opaque class UsbDevice {
 	UsbDeviceDesc const* const property m_deviceDesc;
 	UsbConfigurationDesc const* const property m_activeConfigurationDesc;
 	uint8_t property m_configurationId;
@@ -78,7 +75,7 @@ opaque class UsbDevice
 	UsbInterface* errorcode claimInterface(
 		uint8_t interfaceId,
 		uint8_t altSettingId = 0
-		);
+	);
 
 	size_t errorcode controlTransfer(
 		uint_t requestType,
@@ -88,7 +85,7 @@ opaque class UsbDevice
 		void* p,
 		size_t size,
 		uint_t timeout = -1
-		);
+	);
 
 	bool errorcode controlTransfer(
 		uint_t requestType,
@@ -101,8 +98,8 @@ opaque class UsbDevice
 		function* onCompleted(
 			size_t size,
 			std.Error const* error
-			)
-		);
+		)
+	);
 
 	void cancelControlTransfers();
 }
@@ -114,7 +111,7 @@ UsbDevice* const* errorcode createUsbDeviceArray(size_t* count = null);
 UsbDevice* errorcode openUsbDevice(
 	uint_t vendorId,
 	uint_t productId
-	);
+);
 
 //..............................................................................
 

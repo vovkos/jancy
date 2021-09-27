@@ -26,7 +26,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	PcapLibCacheSlot_PcapFilter,
 	PcapFilter,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(PcapFilter)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<PcapFilter>)
@@ -46,10 +46,8 @@ PcapFilter::compile_0(
 	DataPtr filterPtr,
 	bool isOptimized,
 	uint_t netMask
-	)
-{
-	if (!filterPtr.m_p)
-	{
+) {
+	if (!filterPtr.m_p) {
 		m_filter.free();
 		return true;
 	}
@@ -65,10 +63,8 @@ PcapFilter::compile_1(
 	DataPtr filterPtr,
 	bool isOptimized,
 	uint_t netMask
-	)
-{
-	if (!filterPtr.m_p)
-	{
+) {
+	if (!filterPtr.m_p) {
 		m_filter.free();
 		return true;
 	}

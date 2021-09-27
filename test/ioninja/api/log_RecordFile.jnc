@@ -10,16 +10,14 @@ namespace log {
 
 //..............................................................................
 
-enum
-{
+enum {
 	RecordFileSignature = ':gol',
 	RecordSignature     = ':cr\n',
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct RecordFileHdr
-{
+struct RecordFileHdr {
 	uint32_t m_signature; // RecordFileSignature
 	uint32_t m_version;
 	uint64_t m_recordCount;
@@ -38,8 +36,7 @@ struct RecordFileHdr
 
 // record code is 64-bit now -- no need to worry about collisions anymore
 
-struct Record
-{
+struct Record {
 	uint32_t m_signature; // RecordSignature
 	uint32_t m_dataSize;
 	uint64_t m_code;

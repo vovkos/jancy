@@ -51,7 +51,7 @@ set(
 	${JANCY_INC_DIR}/jnc_CodeAssist.h
 	${JANCY_INC_DIR}/jnc_Capability.h
 	${JANCY_INC_DIR}/jnc_WarningSuppression.h
-	)
+)
 
 set(
 	LIB_DYNAMIC_CPP_LIST
@@ -83,20 +83,20 @@ set(
 	jnc_StdRbTree.cpp
 	jnc_CodeAssist.cpp
 	jnc_Capability.cpp
-	)
+)
 
 set(
 	LIB_STATIC_CPP_LIST
 	${LIB_DYNAMIC_CPP_LIST}
 	jnc_DynamicExtensionLibHost.cpp
-	)
+)
 
 source_group(
 	lib
 	FILES
 	${LIB_H_LIST}
 	${LIB_STATIC_CPP_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -112,7 +112,7 @@ set(
 	PCH_H_LIST
 	${PCH_H}
 	${JANCY_INC_DIR}/jnc_Pch.h
-	)
+)
 
 source_group(
 	pch
@@ -121,7 +121,7 @@ source_group(
 	${PCH_STATIC_CPP}
 	${PCH_STATIC_O_CPP}
 	${PCH_DYNAMIC_CPP}
-	)
+)
 
 #...............................................................................
 #
@@ -136,7 +136,7 @@ include_directories(
 	${JANCY_SRC_DIR}/jnc_rt
 	${JANCY_SRC_DIR}/jnc_ext/jnc_rtl_core
 	${JANCY_SRC_DIR}/jnc_ext/jnc_std
-	)
+)
 
 add_library(
 	jnc_api_core
@@ -144,13 +144,13 @@ add_library(
 	${PCH_STATIC_CPP}
 	${LIB_H_LIST}
 	${LIB_STATIC_CPP_LIST}
-	)
+)
 
 axl_set_pch(
 	jnc_api_core
 	${PCH_H}
 	${PCH_STATIC_CPP}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -163,19 +163,19 @@ if(UNIX)
 		${PCH_STATIC_O_CPP}
 		${LIB_H_LIST}
 		${LIB_STATIC_CPP_LIST}
-		)
+	)
 
 	target_compile_definitions(
 		jnc_api_core_o
 		PUBLIC
 		-D_JNC_OBJECT_LIB=1
-		)
+	)
 
 	axl_set_pch(
 		jnc_api_core_o
 		${PCH_H}
 		${PCH_STATIC_O_CPP}
-		)
+	)
 endif()
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -186,30 +186,30 @@ add_library(
 	${PCH_DYNAMIC_CPP}
 	${LIB_H_LIST}
 	${LIB_DYNAMIC_CPP_LIST}
-	)
+)
 
 target_compile_definitions(
 	jnc_api_ext
 	PUBLIC
 	-D_JNC_DYNAMIC_EXTENSION_LIB=1
-	)
+)
 
 axl_set_pch(
 	jnc_api_ext
 	${PCH_H}
 	${PCH_DYNAMIC_CPP}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 install(
 	TARGETS jnc_api_core
 	DESTINATION ${JANCY_INSTALL_LIB_SUBDIR}
-	)
+)
 
 install(
 	TARGETS jnc_api_ext
 	DESTINATION ${JANCY_INSTALL_LIB_SUBDIR}
-	)
+)
 
 #...............................................................................

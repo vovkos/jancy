@@ -20,16 +20,14 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(SslCertificate)
 
 //..............................................................................
 
-enum SslCertFormat
-{
+enum SslCertFormat {
 	SslCertFormat_Pem,
 	SslCertFormat_Der,
 };
 
 //..............................................................................
 
-struct SslCertNameEntry
-{
+struct SslCertNameEntry {
 	JNC_DECLARE_TYPE_STATIC_METHODS(SslCertNameEntry)
 
 	uint_t m_nid;
@@ -39,8 +37,7 @@ struct SslCertNameEntry
 
 //..............................................................................
 
-class SslCertName: public IfaceHdr
-{
+class SslCertName: public IfaceHdr {
 	friend class SslCertificate;
 
 public:
@@ -66,7 +63,7 @@ public:
 	getEntryTable(
 		SslCertName* self,
 		size_t i
-		);
+	);
 
 	static
 	DataPtr
@@ -79,7 +76,7 @@ public:
 	findEntry(
 		SslCertName* self,
 		int nid
-		);
+	);
 
 protected:
 	static
@@ -89,8 +86,7 @@ protected:
 
 //..............................................................................
 
-class SslCertificate: public IfaceHdr
-{
+class SslCertificate: public IfaceHdr {
 	friend class SslSocket;
 
 public:
@@ -141,7 +137,7 @@ public:
 	encode(
 		std::Buffer* buffer,
 		uint_t format
-		);
+	);
 
 	bool
 	JNC_CDECL
@@ -149,8 +145,7 @@ public:
 		DataPtr ptr,
 		size_t size,
 		uint_t format
-		)
-	{
+	) {
 		return decodeImpl(ptr.m_p, size, format);
 	}
 
@@ -159,14 +154,14 @@ public:
 	load(
 		DataPtr fileNamePtr,
 		uint_t format
-		);
+	);
 
 	bool
 	JNC_CDECL
 	save(
 		DataPtr fileNamePtr,
 		uint_t format
-		);
+	);
 
 protected:
 	SslCertName*
@@ -179,14 +174,14 @@ protected:
 	encodeImpl(
 		sl::Array<char>* buffer,
 		uint_t format
-		);
+	);
 
 	bool
 	decodeImpl(
 		const void* p,
 		size_t size,
 		uint_t format
-		);
+	);
 };
 
 //..............................................................................

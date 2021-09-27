@@ -16,8 +16,7 @@
 
 import "crc16.jnc"
 
-enum MyEnum: int8_t
-{
+enum MyEnum: int8_t {
 	Value1,
 	Value2,
 	Value3,
@@ -25,8 +24,7 @@ enum MyEnum: int8_t
 
 pragma(Alignment, 1);
 
-struct MyPacket
-{
+struct MyPacket {
 	MyEnum m_field1;
 	int16_t m_field2;
 	bigendian int32_t m_field3;
@@ -36,8 +34,7 @@ struct MyPacket
 	uint16_t m_checksum;
 
 	[ packetTemplateAction ]
-	void initialize(char const* name)
-	{
+	void initialize(char const* name) {
 		m_field1 = MyEnum.Value1;
 		m_field2 = 2;
 		m_field3 = 3;
@@ -50,14 +47,12 @@ struct MyPacket
 	}
 
 	[ packetTemplateAction ]
-	void updateLength()
-	{
+	void updateLength() {
 		m_length = dynamic sizeof(this);
 	}
 
 	[ packetTemplateAction ]
-	void calcChecksum()
-	{
+	void calcChecksum() {
 		m_checksum = crc16_ansi(this, dynamic sizeof(this));
 	}
 }

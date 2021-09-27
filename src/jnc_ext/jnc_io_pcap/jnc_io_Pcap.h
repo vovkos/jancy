@@ -22,15 +22,13 @@ JNC_DECLARE_TYPE(PcapDeviceDesc)
 
 //..............................................................................
 
-enum PcapEvent
-{
+enum PcapEvent {
 	PcapEvent_Eof = 0x010,
 };
 
 //..............................................................................
 
-struct PcapHdr: IfaceHdr
-{
+struct PcapHdr: IfaceHdr {
 	bool m_isPromiscious;
 	uint_t m_readTimeout;
 	size_t m_kernelBufferSize;
@@ -42,31 +40,26 @@ struct PcapHdr: IfaceHdr
 
 class Pcap:
 	public PcapHdr,
-	public AsyncIoDevice
-{
+	public AsyncIoDevice {
 	friend class IoThread;
 
 protected:
-	enum Def
-	{
+	enum Def {
 		Def_IsPromiscious = false,
 		Def_ReadTimeout   = 200,
 		Def_SnapshotSize  = 64 * 1024,
 		Def_ReadBufferSize = 64 * 1024,
 	};
 
-	class IoThread: public sys::ThreadImpl<IoThread>
-	{
+	class IoThread: public sys::ThreadImpl<IoThread> {
 	public:
 		void
-		threadFunc()
-		{
+		threadFunc() {
 			containerof(this, Pcap, m_ioThread)->ioThreadFunc();
 		}
 	};
 
-	struct Read: sl::ListLink
-	{
+	struct Read: sl::ListLink {
 		void* m_p;
 		size_t m_size;
 		size_t m_result;
@@ -80,21 +73,18 @@ protected:
 public:
 	Pcap();
 
-	~Pcap()
-	{
+	~Pcap() {
 		close();
 	}
 
 	pcap_t*
-	getPcap()
-	{
+	getPcap() {
 		return m_pcap;
 	}
 
 	void
 	JNC_CDECL
-	markOpaqueGcRoots(jnc::GcHeap* gcHeap)
-	{
+	markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 		AsyncIoDevice::markOpaqueGcRoots(gcHeap);
 	}
 
@@ -110,14 +100,14 @@ public:
 		uint_t snapshotSize,
 		bool isPromiscious,
 		uint_t readTimeout
-		);
+	);
 
 	bool
 	JNC_CDECL
 	openFile(
 		DataPtr fileNamePtr,
 		DataPtr filterPtr
-		);
+	);
 
 	void
 	JNC_CDECL
@@ -125,8 +115,7 @@ public:
 
 	int
 	JNC_CDECL
-	getLinkType()
-	{
+	getLinkType() {
 		return m_pcap.getLinkType();
 	}
 
@@ -140,8 +129,7 @@ public:
 
 	size_t
 	JNC_CDECL
-	getSnapshotSize()
-	{
+	getSnapshotSize() {
 		return m_pcap.getSnapshotSize();
 	}
 
@@ -155,8 +143,7 @@ public:
 
 	bool
 	JNC_CDECL
-	setReadBufferSize(size_t size)
-	{
+	setReadBufferSize(size_t size) {
 		return AsyncIoDevice::setReadBufferSize(&m_readBufferSize, size ? size : Def_ReadBufferSize);
 	}
 
@@ -170,7 +157,7 @@ public:
 		DataPtr filterPtr,
 		bool isOptimized,
 		uint32_t netMask
-		);
+	);
 
 	size_t
 	JNC_CDECL
@@ -178,29 +165,27 @@ public:
 		DataPtr dataPtr,
 		size_t size,
 		DataPtr timestampPtr
-		);
+	);
 
 	size_t
 	JNC_CDECL
 	write(
 		DataPtr ptr,
 		size_t size
-		);
+	);
 
 	handle_t
 	JNC_CDECL
 	wait(
 		uint_t eventMask,
 		FunctionPtr handlerPtr
-		)
-	{
+	) {
 		return AsyncIoDevice::wait(eventMask, handlerPtr);
 	}
 
 	bool
 	JNC_CDECL
-	cancelWait(handle_t handle)
-	{
+	cancelWait(handle_t handle) {
 		return AsyncIoDevice::cancelWait(handle);
 	}
 
@@ -209,15 +194,13 @@ public:
 	blockingWait(
 		uint_t eventMask,
 		uint_t timeout
-		)
-	{
+	) {
 		return AsyncIoDevice::blockingWait(eventMask, timeout);
 	}
 
 	Promise*
 	JNC_CDECL
-	asyncWait(uint_t eventMask)
-	{
+	asyncWait(uint_t eventMask) {
 		return AsyncIoDevice::asyncWait(eventMask);
 	}
 
@@ -231,8 +214,7 @@ protected:
 
 //..............................................................................
 
-struct PcapAddress
-{
+struct PcapAddress {
 	DataPtr m_nextPtr;
 
 	uint32_t m_address;
@@ -242,8 +224,7 @@ struct PcapAddress
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct PcapDeviceDesc
-{
+struct PcapDeviceDesc {
 	DataPtr m_nextPtr;
 	DataPtr m_namePtr;
 	DataPtr m_descriptionPtr;

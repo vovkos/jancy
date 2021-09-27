@@ -13,8 +13,7 @@
 
 class MdiChild;
 
-class ModulePane : public QTreeWidget
-{
+class ModulePane : public QTreeWidget {
 	Q_OBJECT
 
 public:
@@ -47,8 +46,7 @@ private:
 	void addEnumTypeMembers(QTreeWidgetItem* parent, jnc::EnumType* type);
 	void addDerivableTypeMembers(QTreeWidgetItem* parent, jnc::DerivableType* type);
 
-	void addField(QTreeWidgetItem* parent, jnc::Field* field)
-	{
+	void addField(QTreeWidgetItem* parent, jnc::Field* field) {
 		addValue(parent, field->getDecl()->getName(), field->getType(), field);
 	}
 

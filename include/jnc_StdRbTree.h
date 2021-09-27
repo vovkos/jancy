@@ -24,7 +24,7 @@ int
 jnc_StdCmpFunc(
 	jnc_Variant key1,
 	jnc_Variant key2
-	);
+);
 
 //..............................................................................
 
@@ -33,7 +33,7 @@ jnc_StdRbTree*
 jnc_createStdRbTree(
 	jnc_Runtime* runtime,
 	jnc_StdCmpFunc* cmpFunc
-	);
+);
 
 JNC_EXTERN_C
 void
@@ -44,7 +44,7 @@ jnc_StdMapEntry*
 jnc_StdRbTree_find(
 	jnc_StdRbTree* RbTree,
 	jnc_Variant key
-	);
+);
 
 JNC_EXTERN_C
 jnc_StdMapEntry*
@@ -52,39 +52,36 @@ jnc_StdRbTree_add(
 	jnc_StdRbTree* RbTree,
 	jnc_Variant key,
 	jnc_Variant value
-	);
+);
 
 JNC_EXTERN_C
 void
 jnc_StdRbTree_remove(
 	jnc_StdRbTree* RbTree,
 	jnc_StdMapEntry* entry
-	);
+);
 
 JNC_EXTERN_C
 bool_t
 jnc_StdRbTree_removeKey(
 	jnc_StdRbTree* RbTree,
 	jnc_Variant key
-	);
+);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct jnc_StdRbTree
-{
+struct jnc_StdRbTree {
 	jnc_IfaceHdr m_ifaceHdr;
 	jnc_StdMap m_map;
 
 #ifdef __cplusplus
 	void
-	clear()
-	{
+	clear() {
 		jnc_StdRbTree_clear(this);
 	}
 
 	jnc_StdMapEntry*
-	find(jnc_Variant key)
-	{
+	find(jnc_Variant key) {
 		return jnc_StdRbTree_find(this, key);
 	}
 
@@ -92,20 +89,17 @@ struct jnc_StdRbTree
 	add(
 		jnc_Variant key,
 		jnc_Variant value
-		)
-	{
+	) {
 		return jnc_StdRbTree_add(this, key, value);
 	}
 
 	void
-	remove(jnc_StdMapEntry* entry)
-	{
+	remove(jnc_StdMapEntry* entry) {
 		jnc_StdRbTree_remove(this, entry);
 	}
 
 	bool
-	removeKey(jnc_Variant key)
-	{
+	removeKey(jnc_Variant key) {
 		return jnc_StdRbTree_removeKey(this, key) != 0;
 	}
 #endif
@@ -129,8 +123,7 @@ StdRbTree*
 createStdRbTree(
 	Runtime* runtime,
 	StdCmpFunc* cmpFunc = NULL
-	)
-{
+) {
 	return jnc_createStdRbTree(runtime, cmpFunc);
 }
 

@@ -14,8 +14,7 @@
 
 //..............................................................................
 
-struct Point
-{
+struct Point {
 	int m_x;
 	int m_y;
 }
@@ -25,8 +24,7 @@ struct Point
 void transpose(
 	Point* dst,
 	Point const* src
-	)
-{
+) {
 	printf("transpose (%d, %d)\n", src.m_x, src.m_y);
 
 	int x = src.m_x;
@@ -44,20 +42,17 @@ void transpose(
 
 //..............................................................................
 
-class C1
-{
+class C1 {
 	int m_field;
 	mutable int m_mutableField;
 
 	// Jancy uses C++ syntax for declaring const methods
 
-	void foo() const
-	{
+	void foo() const {
 		printf("C1.foo () { m_field = %d }\n", m_field);
 	}
 
-	void bar(int x)
-	{
+	void bar(int x) {
 		printf("C1.bar (%d)\n", x);
 		m_field = x;
 	}
@@ -65,8 +60,7 @@ class C1
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void baz(C1 const* p)
-{
+void baz(C1 const* p) {
 	printf("p.m_x = %d\n", p.m_field);
 
 	// OK to call const methods via a const pointer
@@ -87,8 +81,7 @@ void baz(C1 const* p)
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	Point srcPoint = { 10, 20 }

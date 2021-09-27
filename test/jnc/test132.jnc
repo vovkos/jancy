@@ -1,23 +1,21 @@
 // this test was used during development of introspection facilities
 
-void printTypeInfo(jnc.Type* type)
-{
+void printTypeInfo(jnc.Type* type) {
 	printf(
 		"typeid:    %p\n"
 		"typename:  %s\n"
 		"signature: %s\n"
 		"size:      %d\n"
 		"alignment: %d\n\n",
-		type, 
+		type,
 		type.m_typeString,
 		type.m_signature,
 		type.m_size,
 		type.m_alignment
-		);
+	);
 }
 
-void printPtrTypeInfo(jnc.DataPtrType* type)
-{
+void printPtrTypeInfo(jnc.DataPtrType* type) {
 	printf(
 		"typeid:     %p\n"
 		"typename:   %s\n"
@@ -27,7 +25,7 @@ void printPtrTypeInfo(jnc.DataPtrType* type)
 		"ptrkind:    %d\n"
 		"targetid:   %p\n"
 		"targettype: %s\n\n",
-		type, 
+		type,
 		type.m_typeString,
 		type.m_signature,
 		type.m_size,
@@ -35,11 +33,10 @@ void printPtrTypeInfo(jnc.DataPtrType* type)
 		type.m_ptrTypeKind,
 		type.m_targetType,
 		type.m_targetType.m_typeString
-		);
+	);
 }
 
-void printAttributeBlock(jnc.ModuleItemDecl* decl)
-{
+void printAttributeBlock(jnc.ModuleItemDecl* decl) {
 	jnc.AttributeBlock* block = decl.m_attributeBlock;
 	if (!block)
 		return;
@@ -50,16 +47,14 @@ void printAttributeBlock(jnc.ModuleItemDecl* decl)
 
 	print("[ ");
 
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		if (i)
 			print(", ");
 
 		jnc.Attribute* attr = block.m_attributeArray[i];
 		print(attr.m_name);
 
-		if (attr.m_hasValue)
-		{
+		if (attr.m_hasValue) {
 			print(" = ");
 			print(attr.m_value);
 		}
@@ -68,8 +63,7 @@ void printAttributeBlock(jnc.ModuleItemDecl* decl)
 	print(" ]\n");
 }
 
-void printStructTypeInfo(jnc.StructType* type)
-{
+void printStructTypeInfo(jnc.StructType* type) {
 	printf(
 		"typeid:     %p\n"
 		"typename:   %s\n"
@@ -79,7 +73,7 @@ void printStructTypeInfo(jnc.StructType* type)
 		"name:       %s\n"
 		"qname:      %s\n"
 		"pos:        %s(%d:%d)\n\n",
-		type, 
+		type,
 		type.m_typeString,
 		type.m_signature,
 		type.m_size,
@@ -89,11 +83,10 @@ void printStructTypeInfo(jnc.StructType* type)
 		type.m_parentUnit.m_filePath,
 		type.m_line + 1,
 		type.m_col + 1
-		);
+	);
 
 	size_t count = type.m_fieldCount;
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		jnc.Field* field = type.m_fieldArray[i];
 		printAttributeBlock(field);
 
@@ -108,12 +101,11 @@ void printStructTypeInfo(jnc.StructType* type)
 			field.m_type.m_typeString,
 			field.m_offset,
 			field.m_type.m_size
-			);
+		);
 	}
 }
 
-int main()
-{
+int main() {
 	printf("main\n");
 
 	printTypeInfo(typeof(char));
@@ -123,12 +115,11 @@ int main()
 	printPtrTypeInfo(typeof(long*));
 	printPtrTypeInfo(typeof(double*));
 	printPtrTypeInfo(typeof(float*));
-		
+
 	printPtrTypeInfo(typeof(double*));
 	printPtrTypeInfo(typeof(float*));
 
-	struct Point
-	{
+	struct Point {
 		[ XAttr = "hui", XAttr2 ]
 		char m_x;
 

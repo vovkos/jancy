@@ -22,7 +22,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	MyLibCacheSlot_CheckBox,
 	MyCheckBox,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(MyCheckBox)
 	JNC_MAP_CONSTRUCTOR(&(jnc::construct<MyCheckBox, jnc::DataPtr>))
@@ -34,8 +34,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 //..............................................................................
 
 MyCheckBox::MyCheckBox(jnc::DataPtr textPtr):
-	MyWidget(new QCheckBox)
-{
+	MyWidget(new QCheckBox) {
 	m_qtCheckBox = (QCheckBox*)m_handle;
 	setText(textPtr);
 
@@ -43,8 +42,7 @@ MyCheckBox::MyCheckBox(jnc::DataPtr textPtr):
 	m_onIsCheckedChangedBridge->connect(m_qtCheckBox, SIGNAL(stateChanged(int)), m_onIsCheckedChanged);
 }
 
-MyCheckBox::~MyCheckBox()
-{
+MyCheckBox::~MyCheckBox() {
 	if (!m_qtCheckBox->parent())
 		delete m_qtCheckBox;
 

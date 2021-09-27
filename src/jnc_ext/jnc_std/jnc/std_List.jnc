@@ -24,8 +24,7 @@ namespace std {
 	\sa `std.List`
 */
 
-struct ListEntry
-{
+struct ListEntry {
 	/**
 		Holds a pointer to the next list entry on the list or ``null`` if this
 		is the last entry.
@@ -89,16 +88,14 @@ struct ListEntry
 		// iterate over list...
 
 		std.ListEntry* e = list.m_head;
-		for (; e; e = e.m_next)
-		{
+		for (; e; e = e.m_next) {
 			// access e.m_data...
 		}
 
 	\sa `std.ListEntry`
 */
 
-class List
-{
+class List {
 	/**
 		Holds a pointer to the *list head* (the first element of the list) or
 		``null`` if the list is empty.
@@ -146,8 +143,7 @@ class List
 		Equivalent to ``insertTail``.
 	*/
 
-	ListEntry* errorcode add(variant data)
-	{
+	ListEntry* errorcode add(variant data) {
 		return insertTail(data);
 	}
 
@@ -179,7 +175,7 @@ class List
 	ListEntry* errorcode insertBefore(
 		variant item,
 		ListEntry* before
-		);
+	);
 
 	/**
 		Inserts item ``data`` after the item entry pointed to by ``entry``
@@ -193,7 +189,7 @@ class List
 	ListEntry* errorcode insertAfter(
 		variant item,
 		ListEntry* before
-		);
+	);
 
 	/**
 		Moves item entry pointed to by ``entry`` to the head of the list.
@@ -221,7 +217,7 @@ class List
 	void moveBefore(
 		ListEntry* entry,
 		ListEntry* before
-		);
+	);
 
 	/**
 		Moves item entry pointed to by  ``entry`` after item entry pointed to by
@@ -233,7 +229,7 @@ class List
 	void moveAfter(
 		ListEntry* entry,
 		ListEntry* before
-		);
+	);
 
 	/**
 		Removes head item entry.

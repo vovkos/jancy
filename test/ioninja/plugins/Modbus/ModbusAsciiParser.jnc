@@ -3,11 +3,9 @@
 // Modbus ASCII stream parser
 //
 
-class ModbusAsciiParser: ModbusParserBase
-{
+class ModbusAsciiParser: ModbusParserBase {
 protected:
-	enum State
-	{
+	enum State {
 		Idle,
 		Adu,
 		Cr,
@@ -17,8 +15,7 @@ protected:
 	State m_state;
 
 public:
-	construct(ModbusInfoSet* infoSet)
-	{
+	construct(ModbusInfoSet* infoSet) {
 		basetype.construct(io.ModbusProtocol.Ascii, infoSet);
 	}
 
@@ -28,13 +25,12 @@ public:
 		uint64_t originalRecordCode,
 		void const* p,
 		size_t size
-		);
+	);
 
 	override reset();
 
 protected:
-	ModbusLogRecordCode getPacketRecordCode()
-	{
+	ModbusLogRecordCode getPacketRecordCode() {
 		return m_modbusRole == io.ModbusRole.Master ?
 			ModbusLogRecordCode.MasterPacket_Ascii :
 			ModbusLogRecordCode.SlavePacket_Ascii;
@@ -49,8 +45,7 @@ void ModbusAsciiParser.parse(
 	uint64_t originalRecordCode,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	updateLastTimestamp(timestamp);
 
 	// write the original data first
@@ -61,10 +56,8 @@ void ModbusAsciiParser.parse(
 
 	void const* adu = p;
 	void const* end = p + size;
-	while (p < end)
-	{
-		switch (m_state)
-		{
+	while (p < end) {
+		switch (m_state) {
 		case State.Idle:
 			p = memchr(p, ':', end - p);
 			if (!p)
@@ -86,8 +79,7 @@ void ModbusAsciiParser.parse(
 			break;
 
 		case State.Cr:
-			if (*(char const*) p != '\n')
-			{
+			if (*(char const*) p != '\n') {
 				std.setError("Missing '\\n' in Modbus ASCII frame");
 				writer.writeLastError(timestamp, ModbusLogRecordCode.ParseError);
 				m_infoSet.addError();
@@ -102,8 +94,7 @@ void ModbusAsciiParser.parse(
 			m_infoSet.addAdu(m_modbusRole);
 			p++;
 
-			if (m_mode == ModbusParserMode.Alternate)
-			{
+			if (m_mode == ModbusParserMode.Alternate) {
 				m_modbusRole = (io.ModbusRole) !m_modbusRole;
 				recordCode = getPacketRecordCode();
 			}
@@ -112,11 +103,9 @@ void ModbusAsciiParser.parse(
 		}
 	}
 
-	if (m_state && adu < end)
-	{
+	if (m_state && adu < end) {
 		m_dataBuffer.append(adu, end - adu);
-		if (m_dataBuffer.m_size > io.ModbusMaxAsciiAduSize)
-		{
+		if (m_dataBuffer.m_size > io.ModbusMaxAsciiAduSize) {
 			std.setError("Modbus ASCII frame is too big and still incomplete");
 			writer.writeLastError(timestamp, ModbusLogRecordCode.ParseError);
 			m_infoSet.addError();
@@ -125,8 +114,7 @@ void ModbusAsciiParser.parse(
 	}
 }
 
-void ModbusAsciiParser.reset()
-{
+void ModbusAsciiParser.reset() {
 	m_dataBuffer.clear();
 	m_state = State.Idle;
 

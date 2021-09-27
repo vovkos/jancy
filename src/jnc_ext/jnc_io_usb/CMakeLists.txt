@@ -22,7 +22,7 @@ set(
 	jnc_io_UsbDeviceFilter.h
 	jnc_io_UsbAsyncControlEndpoint.h
 	jnc_io_UsbLib.h
-	)
+)
 
 set(
 	LIB_CPP_LIST
@@ -32,14 +32,14 @@ set(
 	jnc_io_UsbDevice.cpp
 	jnc_io_UsbAsyncControlEndpoint.cpp
 	jnc_io_UsbLib.cpp
-	)
+)
 
 source_group(
 	lib
 	FILES
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -51,13 +51,13 @@ set(
 	jnc/io_UsbDevice.jnc
 	jnc/io_UsbInterface.jnc
 	jnc/io_UsbEndpoint.jnc
-	)
+)
 
 source_group(
 	jnc
 	FILES
 	${JNC_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -72,7 +72,7 @@ source_group(
 	FILES
 	${PCH_H}
 	${PCH_CPP}
-	)
+)
 
 #...............................................................................
 #
@@ -84,12 +84,12 @@ include_directories(
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
 	../jnc_io_cmn
-	)
+)
 
 link_directories(
 	${LIBUSB_LIB_DIR}
 	${AXL_LIB_DIR}
-	)
+)
 
 add_library(
 	jnc_io_usb
@@ -99,26 +99,26 @@ add_library(
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
 	${JNC_LIST}
-	)
+)
 
 target_compile_definitions(
 	jnc_io_usb
 	PUBLIC
 	-D_JNC_DYNAMIC_EXTENSION_LIB=1
-	)
+)
 
 if(GCC AND NOT APPLE)
 	axl_set_export_version_script_gcc(
 		jnc_io_usb
 		jncDynamicExtensionLibMain
-		)
+	)
 endif()
 
 axl_set_pch(
 	jnc_io_usb
 	${PCH_H}
 	${PCH_CPP}
-	)
+)
 
 set(CMAKE_SHARED_LIBRARY_PREFIX)
 
@@ -127,7 +127,7 @@ set_target_properties(
 	PROPERTIES
 	OUTPUT_NAME io_usb-${TARGET_CPU}
 	SUFFIX .bin
-	)
+)
 
 target_link_libraries(
 	jnc_io_usb
@@ -136,7 +136,7 @@ target_link_libraries(
 	axl_io_usb
 	axl_io
 	axl_core
-	)
+)
 
 if(UNIX)
 	if(APPLE)
@@ -147,32 +147,32 @@ if(UNIX)
 			jnc_io_usb
 			${CORE_FOUNDATION_FRAMEWORK}
 			${IOKIT_FRAMEWORK}
-			)
+		)
 	else()
 		target_link_libraries(
 			jnc_io_usb
 			rt
-			)
+		)
 	endif()
 endif()
 
 target_link_libraries(
 	jnc_io_usb
 	${LIBUSB_LIB_NAME}
-	)
+)
 
 if(LINUX)
 	target_link_libraries(
 		jnc_io_usb
 		udev
-		)
+	)
 endif()
 
 set_target_properties(
 	jnc_io_usb
 	PROPERTIES
 	FOLDER extensions
-	)
+)
 
 if(WIN32 AND LIBUSB_DLL_DIR)
 	add_custom_command(
@@ -217,6 +217,6 @@ add_custom_command(
 install(
 	FILES ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION>/io_usb.jncx
 	DESTINATION ${JANCY_INSTALL_JNCX_SUBDIR}
-	)
+)
 
 #...............................................................................

@@ -36,7 +36,7 @@ set(
 	jnc_rtl_UnionType.h
 	jnc_rtl_Variable.h
 	jnc_rtl_IntrospectionLib.h
-	)
+)
 
 set(
 	LIB_CPP_LIST
@@ -61,14 +61,14 @@ set(
 	jnc_rtl_UnionType.cpp
 	jnc_rtl_Variable.cpp
 	jnc_rtl_IntrospectionLib.cpp
-	)
+)
 
 source_group(
 	lib
 	FILES
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -99,13 +99,13 @@ set(
 	jnc/jnc_Type.jnc
 	jnc/jnc_UnionType.jnc
 	jnc/jnc_Variable.jnc
-	)
+)
 
 source_group(
 	jnc
 	FILES
 	${JNC_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -121,7 +121,7 @@ source_group(
 	FILES
 	${PCH_H}
 	${PCH_CPP}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -140,7 +140,7 @@ foreach(_JNC ${JNC_LIST})
 		${_NAME}.cpp
 		${_JNC}
 		${FILE2LITERAL_PL}
-		)
+	)
 
 	list(APPEND GEN_JNC_CPP_LIST ${GEN_DIR}/${_NAME}.cpp)
 endforeach()
@@ -153,7 +153,7 @@ source_group(
 	gen
 	FILES
 	${GEN_JNC_CPP_LIST}
-	)
+)
 
 #...............................................................................
 #
@@ -167,7 +167,7 @@ include_directories(
 	${JANCY_SRC_DIR}/jnc_ct/include
 	${JANCY_SRC_DIR}/jnc_rt
 	${GEN_DIR}
-	)
+)
 
 add_library(
 	jnc_rtl_intro
@@ -177,19 +177,19 @@ add_library(
 	${LIB_CPP_LIST}
 	${JNC_LIST}
 	${GEN_JNC_CPP_LIST}
-	)
+)
 
 axl_set_pch(
 	jnc_rtl_intro
 	${PCH_H}
 	${PCH_CPP}
-	)
+)
 
 set_target_properties(
 	jnc_rtl_intro
 	PROPERTIES
 	FOLDER extensions
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -203,25 +203,25 @@ if(UNIX)
 		${LIB_H_LIST}
 		${LIB_CPP_LIST}
 		${GEN_JNC_CPP_LIST}
-		)
+	)
 
 	target_compile_definitions(
 		jnc_rtl_intro_o
 		PUBLIC
 		-D_JNC_OBJECT_LIB=1
-		)
+	)
 
 	axl_set_pch(
 		jnc_rtl_intro_o
 		${PCH_H}
 		${PCH_O_CPP}
-		)
+	)
 
 	set_target_properties(
 		jnc_rtl_intro_o
 		PROPERTIES
 		FOLDER extensions
-		)
+	)
 endif()
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -229,6 +229,6 @@ endif()
 install(
 	TARGETS jnc_rtl_intro
 	DESTINATION ${JANCY_INSTALL_LIB_SUBDIR}
-	)
+)
 
 #...............................................................................

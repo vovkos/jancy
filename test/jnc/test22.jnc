@@ -12,8 +12,7 @@
 void write(
 	int recordCode,
 	int foldFlags = 0
-	)
-{
+) {
 	printf("write (%d, %d)\n", recordCode, foldFlags);
 }
 
@@ -22,13 +21,11 @@ void write(
 	int p,
 	int size,
 	int foldFlags = 0
-	)
-{
+) {
 	printf("write (%d, %d, %d, %d)\n", recordCode, p, size, foldFlags);
 }
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	write(10);

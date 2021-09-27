@@ -23,17 +23,14 @@ Cast_BoolFromZeroCmp::constCast(
 	const Value& opValue,
 	Type* type,
 	void* dst
-	)
-{
+) {
 	const char* p = (const char*) opValue.getConstData();
 	const char* end = p + opValue.getType()->getSize();
 
 	bool result = false;
 
-	for (; p < end; p++)
-	{
-		if (*p)
-		{
+	for (; p < end; p++) {
+		if (*p) {
 			result = true;
 			break;
 		}
@@ -48,8 +45,7 @@ Cast_BoolFromZeroCmp::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	Value zeroValue = opValue.getType()->getZeroValue();
 	return m_module->m_operatorMgr.binaryOperator(BinOpKind_Ne, opValue, zeroValue, resultValue);
 }
@@ -61,8 +57,7 @@ Cast_BoolFromPtr::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	if (opValue.getType()->getSize() == sizeof(void*))
 		return Cast_BoolFromZeroCmp::llvmCast(opValue, type, resultValue);
 
@@ -79,8 +74,7 @@ Cast_IntFromBool::constCast(
 	const Value& opValue,
 	Type* type,
 	void* dst
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKind() == TypeKind_Bool);
 
 	memset(dst, 0, type->getSize());
@@ -96,8 +90,7 @@ Cast_IntFromBool::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKind() == TypeKind_Bool);
 	m_module->m_llvmIrBuilder.createExt_u(opValue, type, resultValue);
 	return true;
@@ -109,11 +102,9 @@ CastOperator*
 Cast_Bool::getCastOperator(
 	const Value& opValue,
 	Type* type
-	)
-{
+) {
 	TypeKind srcTypeKind = opValue.getType()->getTypeKind();
-	switch (srcTypeKind)
-	{
+	switch (srcTypeKind) {
 	case TypeKind_Bool:
 	case TypeKind_Int8:
 	case TypeKind_Int8_u:

@@ -7,8 +7,7 @@ import "log_RecordCode.jnc"
 
 //..............................................................................
 
-enum HwSerialMonRecordCode: uint64_t
-{
+enum HwSerialMonRecordCode: uint64_t {
 	CaptureStarted     = 0x01d487bf52f4c9f6,
 	CaptureStopped     = 0x01d487bf52f4c9f7,
 	RawPacket          = 0x01d487bf52f4c9f8,

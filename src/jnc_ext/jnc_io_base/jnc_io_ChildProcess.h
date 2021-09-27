@@ -21,8 +21,7 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(ChildProcess)
 
 //..............................................................................
 
-enum ChildProcessFlag
-{
+enum ChildProcessFlag {
 	ChildProcessFlag_Pty              = 0x01,
 	ChildProcessFlag_SeparateStderr   = 0x02,
 	ChildProcessFlag_CleanEnvironment = 0x04,
@@ -30,30 +29,26 @@ enum ChildProcessFlag
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum ChildProcessEvent
-{
+enum ChildProcessEvent {
 	ChildProcessEvent_Finished = 0x0020,
 	ChildProcessEvent_Crashed  = 0x0040,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct PtySize
-{
+struct PtySize {
 	uint_t m_rowCount;
 	uint_t m_colCount;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class ChildProcess: public FileStream
-{
+class ChildProcess: public FileStream {
 public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(ChildProcess)
 
 public:
-	enum Default
-	{
+	enum Default {
 		Default_PtyColCount = 80,
 		Default_PtyRowCount = 24,
 	};
@@ -75,8 +70,7 @@ protected:
 public:
 	ChildProcess();
 
-	~ChildProcess()
-	{
+	~ChildProcess() {
 		close();
 	}
 
@@ -90,8 +84,7 @@ public:
 
 	PtySize
 	JNC_CDECL
-	getPtySize(ChildProcess* self)
-	{
+	getPtySize(ChildProcess* self) {
 		return self->m_ptySize;
 	}
 
@@ -105,7 +98,7 @@ public:
 		DataPtr commandLinePtr,
 		StdHashTable* environment,
 		uint_t flags
-		);
+	);
 
 	bool
 	JNC_CDECL
@@ -126,8 +119,7 @@ protected:
 
 	static
 	void
-	finalizeIoThread(FileStream* self)
-	{
+	finalizeIoThread(FileStream* self) {
 		((ChildProcess*)self)->finalizeIoThreadImpl();
 	}
 

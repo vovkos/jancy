@@ -11,30 +11,25 @@
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct Params
-{
+struct Params {
 	int8_t m_a;
 
-	union
-	{
+	union {
 		int16_t m_b;
 
-		struct
-		{
+		struct {
 			int32_t m_c;
 			int64_t m_d;
 		}
 	}
 }
 
-	union Xxx
-	{
+	union Xxx {
 		int32_t m_c;
 		int64_t m_d;
 	}
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	Params params;

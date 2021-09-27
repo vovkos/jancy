@@ -11,8 +11,7 @@
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-int main()
-{
+int main() {
 //	printf ("main ()\n");
 
 	void const* p = "suka";

@@ -13,17 +13,14 @@ bool errorcode scanPacket(
 	jnc.RegexState* state,
 	char const* p,
 	size_t length = -1
-	)
-{
+) {
 	if (length == -1)
 		length = strlen(p);
 
 	char const* end = p + length;
 
-	do
-	{
-		reswitch (state, p, end - p)
-		{
+	do {
+		reswitch (state, p, end - p) {
 		case r"open[ \t]*\d*[\r\n]":
 			printf("command = open\n%s\n", state.m_match.m_text);
 			break;
@@ -52,16 +49,14 @@ bool errorcode scanPacket(
 	return true;
 }
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	jnc.RegexState state(jnc.RegexStateFlags.Lexer | jnc.RegexStateFlags.Incremental);
 
 	int l = 0;
 
-	try
-	{
+	try {
 		scanPacket(state, "op");
 		scanPacket(state, "en 12\ncon");
 		scanPacket(state, "nect5\r cl");

@@ -16,14 +16,12 @@ import "sys_Timer.jnc"
 
 sys.Event g_event;
 
-void foo()
-{
+void foo() {
 	printf("foo ()\n");
 	g_event.signal();
 }
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 

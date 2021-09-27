@@ -20,40 +20,34 @@ using extension ui.ComboBoxHistory;
 
 //..............................................................................
 
-class TcpFlowMonSession: doc.Session
-{
+class TcpFlowMonSession: doc.Session {
 protected:
-	enum Defaults
-	{
+	enum Defaults {
 		Promiscious      = false,
 		SnapshotSize     = 64 * 1024,
 		KernelBufferSise = 0,
 		BufferSise       = 1 * 1024 * 1024,
 	}
 
-	enum State
-	{
+	enum State {
 		Idle,
 		Capturing,
 	}
 
-	enum ActionId
-	{
+	enum ActionId {
 		ApplyFilter,
 		Capture,
 		OpenPcap,
 		_Count,
 	}
 
-	enum IconId
-	{
+	enum IconId {
 		Capture,
 		StopCapture,
 		_Count,
 	}
 
-	enum StatusPaneId
-	{
+	enum StatusPaneId {
 		State,
 		_Count,
 	}
@@ -115,18 +109,15 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
-	void onCapture()
-	{
+	void onCapture() {
 		m_state ? stopCapture() : try capture();
 	}
 
-	void onSetViewFilter()
-	{
+	void onSetViewFilter() {
 		try applyViewFilter(true);
 	}
 
-	void onDeviceComboEnter()
-	{
+	void onDeviceComboEnter() {
 		try capture();
 	}
 
@@ -136,7 +127,7 @@ protected:
 	void onPcapEvent(
 		uint_t syncId,
 		io.PcapEvents triggeredEvents
-		);
+	);
 
 	char const* createCaptureFilterString(io.SocketAddress const* filterAddress);
 	bool errorcode applyCaptureFilter();
@@ -148,8 +139,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-TcpFlowMonSession.construct(doc.PluginHost* pluginHost)
-{
+TcpFlowMonSession.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
 
 	createUi();
@@ -160,8 +150,7 @@ TcpFlowMonSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-void TcpFlowMonSession.createUi()
-{
+void TcpFlowMonSession.createUi() {
 	// toolbar
 
 	m_pluginHost.m_toolBar.addLabel("Filter:");
@@ -198,68 +187,68 @@ void TcpFlowMonSession.createUi()
 	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Connection",
 		"Pcap-specific connection settings"
-		);
+	);
 
 	m_deviceProp = ui.createPcapDeviceProperty(
 		m_pluginHost.m_propertyGrid,
 		group,,
 		"Device",
 		"Specify the device to capture on"
-		);
+	);
 
 	m_promisciousProp = m_pluginHost.m_propertyGrid.createBoolProperty(
 		group,,
 		"Promiscious mode",
 		"Put the capturing interface into promiscious mode"
-		);
+	);
 
 	m_captureFilterProp = m_pluginHost.m_propertyGrid.createStringProperty(
 		group,,
 		"Capture filter",
 		"Enter a filter address...",
 		"Only capture packets matching this address"
-		);
+	);
 
 	m_viewFilterProp = m_pluginHost.m_propertyGrid.createStringProperty(
 		group,,
 		"View filter",
 		"Enter a filter address...",
 		"Only show packets matching this address"
-		);
+	);
 
 	group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"TCP defragmenter",
 		"TCP defragmentation settings"
-		);
+	);
 
 	m_ipFragmentLimitProp  = m_pluginHost.m_propertyGrid.createIntProperty(
 		group,,
 		"IP fragment limit",
 		"Specify the maximum number of IP fragments"
-		);
+	);
 
 	m_ipFragmentTimeoutProp  = m_pluginHost.m_propertyGrid.createIntProperty(
 		group,,
 		"IP fragment timeout (ms)",
 		"Specify the maximum delay between IP fragments"
-		);
+	);
 
 	m_tcpOutOfSeqLimitProp = m_pluginHost.m_propertyGrid.createIntProperty(
 		group,,
 		"TCP out-of-seq limit",
 		"Specify the maximum number of out-of-order TCP segments"
-		);
+	);
 
 	group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Buffering",
 		"Advanced buffering options affecting throughtput and compatibility"
-		);
+	);
 
 	m_snapshotSizeProp = m_pluginHost.m_propertyGrid.createIntProperty(
 		group,,
 		"Snapshot size",
 		"Specify the Pcap snapshot size"
-		);
+	);
 
 	m_snapshotSizeProp.m_spinBoxStep = 1024;
 
@@ -267,7 +256,7 @@ void TcpFlowMonSession.createUi()
 		group,,
 		"Kernel buffer size",
 		"Specify the Pcap kernel buffer size (0 = default)"
-		);
+	);
 
 	m_kernelBufferSizeProp.m_spinBoxStep = 1024;
 
@@ -292,10 +281,8 @@ void TcpFlowMonSession.createUi()
 	m_uiReactor.start();
 }
 
-void TcpFlowMonSession.onOpenPcap()
-{
-	if (!m_fileDlg)
-	{
+void TcpFlowMonSession.onOpenPcap() {
+	if (!m_fileDlg) {
 		m_fileDlg = new ui.FileDlg;
 		m_fileDlg.m_onCompleted += onFileDlgCompleted;
 	}
@@ -306,14 +293,12 @@ void TcpFlowMonSession.onOpenPcap()
 	m_fileDlg.show();
 }
 
-void TcpFlowMonSession.onFileDlgCompleted(ui.StdDlgButton button)
-{
+void TcpFlowMonSession.onFileDlgCompleted(ui.StdDlgButton button) {
 	if (button == ui.StdDlgButton.Ok)
 		try openPcapFile(m_fileDlg.m_filePath);
 }
 
-bool errorcode TcpFlowMonSession.capture()
-{
+bool errorcode TcpFlowMonSession.capture() {
 	stopCapture();
 	startSession();
 
@@ -350,8 +335,7 @@ catch:
 	return false;
 }
 
-bool errorcode TcpFlowMonSession.openPcapFile(char const* fileName)
-{
+bool errorcode TcpFlowMonSession.openPcapFile(char const* fileName) {
 	stopCapture();
 	startSession();
 
@@ -382,8 +366,7 @@ catch:
 	return false;
 }
 
-void TcpFlowMonSession.stopCapture()
-{
+void TcpFlowMonSession.stopCapture() {
 	if (!m_state)
 		return;
 
@@ -397,8 +380,7 @@ void TcpFlowMonSession.stopCapture()
 	m_stdSessionInfoSet.endSession();
 }
 
-bool errorcode TcpFlowMonSession.applyCaptureFilter()
-{
+bool errorcode TcpFlowMonSession.applyCaptureFilter() {
 	if (!m_state)
 		return true;
 
@@ -408,15 +390,13 @@ bool errorcode TcpFlowMonSession.applyCaptureFilter()
 
 	char const* filterString = createCaptureFilterString(filterAddress);
 
-	if (strcmp(filterString, m_captureFilterString))
-	{
+	if (strcmp(filterString, m_captureFilterString)) {
 		m_pcap.setFilter(filterString);
 		m_captureFilterString = filterString;
 		m_logWriter.write(PcapLogRecordCode.SetCaptureFilter, filterString);
 	}
 
-	if (!filterAddress.isEqual(&m_decoder.m_filterAddress))
-	{
+	if (!filterAddress.isEqual(&m_decoder.m_filterAddress)) {
 		m_decoder.m_filterAddress = filterAddress;
 		m_logWriter.write(PcapLogRecordCode.SetAddressFilter, filterAddress, sizeof(filterAddress));
 	}
@@ -428,14 +408,12 @@ catch:
 	return false;
 }
 
-bool errorcode TcpFlowMonSession.applyViewFilter(bool rebuildLog)
-{
+bool errorcode TcpFlowMonSession.applyViewFilter(bool rebuildLog) {
 	m_pluginHost.m_log.suspend();
 	bool result = try m_filter.setFilter(m_viewFilterCombo.m_editText);
 	m_pluginHost.m_log.resume();
 
-	if (!result)
-	{
+	if (!result) {
 		m_viewFilterCombo.m_backgroundColor = ui.StdColor.PastelRed;
 		return false;
 	}
@@ -449,8 +427,7 @@ bool errorcode TcpFlowMonSession.applyViewFilter(bool rebuildLog)
 	return true;
 }
 
-char const* TcpFlowMonSession.createCaptureFilterString(io.SocketAddress const* filterAddress)
-{
+char const* TcpFlowMonSession.createCaptureFilterString(io.SocketAddress const* filterAddress) {
 	char const* filterString =
 		filterAddress.m_family == io.AddressFamily.Ip6 ? $"tcp and host $(filterAddress.m_ip6.m_address.getString())" :
 		filterAddress.m_ip4.m_address.m_i32 ? $"tcp and host $(filterAddress.m_ip4.m_address.getString())" :
@@ -465,8 +442,7 @@ char const* TcpFlowMonSession.createCaptureFilterString(io.SocketAddress const* 
 	return filterString;
 }
 
-void TcpFlowMonSession.waitPcapEvents()
-{
+void TcpFlowMonSession.waitPcapEvents() {
 	io.PcapEvents eventMask =
 		io.PcapEvents.IoError |
 		io.PcapEvents.ReadBufferFull |
@@ -476,8 +452,7 @@ void TcpFlowMonSession.waitPcapEvents()
 	m_pcap.wait(eventMask, onPcapEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
-void TcpFlowMonSession.load(doc.Storage* storage)
-{
+void TcpFlowMonSession.load(doc.Storage* storage) {
 	m_viewFilterCombo.loadHistory(storage, "viewFilterHistory");
 	m_deviceCombo.m_currentIndex = storage.readInt("deviceIdx");
 	m_promisciousProp.m_value = storage.readBool("promiscious");
@@ -493,8 +468,7 @@ void TcpFlowMonSession.load(doc.Storage* storage)
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 }
 
-void TcpFlowMonSession.save(doc.Storage* storage)
-{
+void TcpFlowMonSession.save(doc.Storage* storage) {
 	m_bufferPropertySet.save(storage);
 	m_viewFilterCombo.saveHistory(storage, "viewFilterHistory");
 	storage.writeInt("deviceIdx", (int) m_deviceCombo.m_currentIndex);
@@ -508,14 +482,12 @@ void TcpFlowMonSession.save(doc.Storage* storage)
 	storage.writeInt("kernelBufferSize", m_kernelBufferSizeProp.m_value);
 }
 
-void TcpFlowMonSession.updateProperties()
-{
+void TcpFlowMonSession.updateProperties() {
 	m_deviceProp.m_currentIndex = m_deviceCombo.m_currentIndex;
 	m_viewFilterProp.m_value = m_viewFilterCombo.m_editText;
 }
 
-bool errorcode TcpFlowMonSession.applyProperties()
-{
+bool errorcode TcpFlowMonSession.applyProperties() {
 	m_deviceCombo.m_currentIndex = m_deviceProp.m_currentIndex;
 	m_viewFilterCombo.m_editText = m_viewFilterProp.m_value;
 
@@ -524,7 +496,7 @@ bool errorcode TcpFlowMonSession.applyProperties()
 		m_ipFragmentTimeoutProp.m_value,
 		m_tcpOutOfSeqLimitProp.m_value,
 		TcpDecoder.Defaults.ConnectionTimeout
-		);
+	);
 
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 
@@ -538,8 +510,7 @@ bool errorcode TcpFlowMonSession.applyProperties()
 	return true;
 }
 
-void TcpFlowMonSession.restoreDefaultProperties()
-{
+void TcpFlowMonSession.restoreDefaultProperties() {
 	m_promisciousProp.m_value = Defaults.Promiscious;
 	m_ipFragmentLimitProp.m_value = io.IpDefragmenter.Defaults.FragmentLimit;
 	m_ipFragmentTimeoutProp.m_value = io.IpDefragmenter.Defaults.FragmentTimeout;
@@ -552,13 +523,11 @@ void TcpFlowMonSession.restoreDefaultProperties()
 void TcpFlowMonSession.onPcapEvent(
 	uint_t syncId,
 	io.PcapEvents triggeredEvents
-	)
-{
+) {
 	if (syncId != m_syncId)
 		return;
 
-	if (triggeredEvents & io.PcapEvents.IoError)
-	{
+	if (triggeredEvents & io.PcapEvents.IoError) {
 		m_logWriter.write(log.StdRecordCode.Error, m_pcap.m_ioError);
 		stopCapture();
 		return;
@@ -568,20 +537,17 @@ void TcpFlowMonSession.onPcapEvent(
 		m_bufferPropertySet.m_notifyReadBufferFullProp.m_value)
 		m_logWriter.write(log.StdRecordCode.RxBufferFull);
 
-	if (triggeredEvents & io.PcapEvents.IncomingData)
-	{
+	if (triggeredEvents & io.PcapEvents.IncomingData) {
 		uint64_t timestamp;
 		size_t result = m_pcap.read(m_readBuffer.m_p, m_readBuffer.m_size, &timestamp);
-		if (result)
-		{
+		if (result) {
 			g_logWriter = m_pluginHost.m_log.m_writer;
 			g_logTimestamp = timestamp;
 			m_decoder.decodeLinkHdr(m_pcap.m_linkType, m_readBuffer.m_p, result);
 		}
 	}
 
-	if (triggeredEvents & io.PcapEvents.Eof)
-	{
+	if (triggeredEvents & io.PcapEvents.Eof) {
 		stopCapture();
 		return;
 	}
@@ -589,8 +555,7 @@ void TcpFlowMonSession.onPcapEvent(
 	waitPcapEvents();
 }
 
-reactor TcpFlowMonSession.m_uiReactor
-{
+reactor TcpFlowMonSession.m_uiReactor {
 	m_title = $"TCP Mon $(m_viewFilterCombo.m_currentText)";
 	m_actionTable[ActionId.Capture].m_text = m_state ? "Stop Capture" : "Capture";
 	m_actionTable[ActionId.Capture].m_icon = m_iconTable[m_state ? IconId.StopCapture : IconId.Capture];

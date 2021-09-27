@@ -24,10 +24,8 @@
 JNC_EXTERN_C
 JNC_EXPORT_O
 uint_t
-jnc_getTypeKindFlags(jnc_TypeKind typeKind)
-{
-	static uint_t flagTable[jnc_TypeKind__Count] =
-	{
+jnc_getTypeKindFlags(jnc_TypeKind typeKind) {
+	static uint_t flagTable[jnc_TypeKind__Count] = {
 		0,                              // jnc_TypeKind_Void
 		jnc_TypeKindFlag_Nullable,      // jnc_TypeKind_Variant
 
@@ -195,10 +193,8 @@ jnc_getTypeKindFlags(jnc_TypeKind typeKind)
 JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
-jnc_getDataPtrTypeKindString(jnc_DataPtrTypeKind ptrTypeKind)
-{
-	static const char* stringTable[jnc_DataPtrTypeKind__Count] =
-	{
+jnc_getDataPtrTypeKindString(jnc_DataPtrTypeKind ptrTypeKind) {
+	static const char* stringTable[jnc_DataPtrTypeKind__Count] = {
 		"normal", // DataPtrTypeKind_Normal = 0,
 		"lean",   // DataPtrTypeKind_Lean,
 		"thin",   // DataPtrTypeKind_Thin,
@@ -215,22 +211,19 @@ jnc_getDataPtrTypeKindString(jnc_DataPtrTypeKind ptrTypeKind)
 
 JNC_EXTERN_C
 jnc_TypeKind
-jnc_Type_getTypeKind(jnc_Type* type)
-{
+jnc_Type_getTypeKind(jnc_Type* type) {
 	return jnc_g_dynamicExtensionLibHost->m_typeFuncTable->m_getTypeKindFunc(type);
 }
 
 JNC_EXTERN_C
 size_t
-jnc_Type_getSize(jnc_Type* type)
-{
+jnc_Type_getSize(jnc_Type* type) {
 	return jnc_g_dynamicExtensionLibHost->m_typeFuncTable->m_getSizeFunc(type);
 }
 
 JNC_EXTERN_C
 const char*
-jnc_Type_getTypeString(jnc_Type* type)
-{
+jnc_Type_getTypeString(jnc_Type* type) {
 	return jnc_g_dynamicExtensionLibHost->m_typeFuncTable->m_getTypeStringFunc(type);
 }
 
@@ -239,8 +232,7 @@ int
 jnc_Type_cmp(
 	jnc_Type* type,
 	jnc_Type* type2
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_typeFuncTable->m_cmpFunc(type, type2);
 }
 
@@ -251,22 +243,19 @@ jnc_Type_getDataPtrType(
 	jnc_TypeKind typeKind,
 	jnc_DataPtrTypeKind ptrTypeKind,
 	uint_t flags
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_typeFuncTable->m_getDataPtrTypeFunc(type, typeKind, ptrTypeKind, flags);
 }
 
 JNC_EXTERN_C
 bool_t
-jnc_Type_ensureLayout(jnc_Type* type)
-{
+jnc_Type_ensureLayout(jnc_Type* type) {
 	return jnc_g_dynamicExtensionLibHost->m_typeFuncTable->m_ensureLayoutFunc(type);
 }
 
 JNC_EXTERN_C
 bool_t
-jnc_Type_ensureNoImports(jnc_Type* type)
-{
+jnc_Type_ensureNoImports(jnc_Type* type) {
 	return jnc_g_dynamicExtensionLibHost->m_typeFuncTable->m_ensureNoImportsFunc(type);
 }
 
@@ -276,22 +265,19 @@ jnc_Type_markGcRoots(
 	jnc_Type* type,
 	const void* p,
 	jnc_GcHeap* gcHeap
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_typeFuncTable->m_markGcRootsFunc(type, p, gcHeap);
 }
 
 JNC_EXTERN_C
 jnc_DataPtrTypeKind
-jnc_DataPtrType_getPtrTypeKind(jnc_DataPtrType* type)
-{
+jnc_DataPtrType_getPtrTypeKind(jnc_DataPtrType* type) {
 	return jnc_g_dynamicExtensionLibHost->m_dataPtrTypeFuncTable->m_getPtrTypeKindFunc(type);
 }
 
 JNC_EXTERN_C
 jnc_Type*
-jnc_DataPtrType_getTargetType(jnc_DataPtrType* type)
-{
+jnc_DataPtrType_getTargetType(jnc_DataPtrType* type) {
 	return jnc_g_dynamicExtensionLibHost->m_dataPtrTypeFuncTable->m_getTargetTypeFunc(type);
 }
 
@@ -300,40 +286,35 @@ jnc_DataPtrType_getTargetType(jnc_DataPtrType* type)
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_TypeKind
-jnc_Type_getTypeKind(jnc_Type* type)
-{
+jnc_Type_getTypeKind(jnc_Type* type) {
 	return type->getTypeKind();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 size_t
-jnc_Type_getSize(jnc_Type* type)
-{
+jnc_Type_getSize(jnc_Type* type) {
 	return type->getSize();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
-jnc_Type_getTypeString(jnc_Type* type)
-{
+jnc_Type_getTypeString(jnc_Type* type) {
 	return type->getTypeString();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
-jnc_Type_getTypeStringPrefix(jnc_Type* type)
-{
+jnc_Type_getTypeStringPrefix(jnc_Type* type) {
 	return type->getTypeStringPrefix();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
-jnc_Type_getTypeStringSuffix(jnc_Type* type)
-{
+jnc_Type_getTypeStringSuffix(jnc_Type* type) {
 	return type->getTypeStringSuffix();
 }
 
@@ -343,8 +324,7 @@ int
 jnc_Type_cmp(
 	jnc_Type* type,
 	jnc_Type* type2
-	)
-{
+) {
 	return type->cmp(type2);
 }
 
@@ -356,24 +336,21 @@ jnc_Type_getDataPtrType(
 	jnc_TypeKind typeKind,
 	jnc_DataPtrTypeKind ptrTypeKind,
 	uint_t flags
-	)
-{
+) {
 	return type->getDataPtrType(typeKind, ptrTypeKind, flags);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
-jnc_Type_ensureLayout(jnc_Type* type)
-{
+jnc_Type_ensureLayout(jnc_Type* type) {
 	return type->ensureLayout();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
-jnc_Type_ensureNoImports(jnc_Type* type)
-{
+jnc_Type_ensureNoImports(jnc_Type* type) {
 	return type->ensureNoImports();
 }
 
@@ -384,8 +361,7 @@ jnc_Type_markGcRoots(
 	jnc_Type* type,
 	const void* p,
 	jnc_GcHeap* gcHeap
-	)
-{
+) {
 	return type->markGcRoots(p, gcHeap);
 }
 
@@ -394,16 +370,14 @@ jnc_Type_markGcRoots(
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_DataPtrTypeKind
-jnc_DataPtrType_getPtrTypeKind(jnc_DataPtrType* type)
-{
+jnc_DataPtrType_getPtrTypeKind(jnc_DataPtrType* type) {
 	return type->getPtrTypeKind();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Type*
-jnc_DataPtrType_getTargetType(jnc_DataPtrType* type)
-{
+jnc_DataPtrType_getTargetType(jnc_DataPtrType* type) {
 	return type->getTargetType();
 }
 

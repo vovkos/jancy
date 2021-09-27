@@ -16,10 +16,8 @@ bool representPcapLog(
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
-	switch (recordCode)
-	{
+) {
+	switch (recordCode) {
 	case PcapLogRecordCode.StartingCapture:
 		char const* filter = p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;

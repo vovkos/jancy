@@ -1,5 +1,4 @@
-struct MapEntry
-{
+struct MapEntry {
 	MapEntry cmut* m_next;
 	variant m_value;
 }
@@ -7,8 +6,7 @@ struct MapEntry
 variant findValue(
 	variant key,
 	variant undefinedValue = null
-	)
-{
+) {
 	MapEntry e;
 	MapEntry* entry = &e;
 
@@ -17,8 +15,7 @@ variant findValue(
 	return entry ? entry.m_value : undefinedValue;
 }
 
-int main()
-{
+int main() {
 	findValue(100);
 	return 0;
 }

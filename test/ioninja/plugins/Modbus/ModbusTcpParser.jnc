@@ -3,14 +3,12 @@
 // Modbus TCP stream parser
 //
 
-class ModbusTcpParser: ModbusParserBase
-{
+class ModbusTcpParser: ModbusParserBase {
 protected:
 	size_t m_expectedSize;
 
 public:
-	construct(ModbusInfoSet* infoSet)
-	{
+	construct(ModbusInfoSet* infoSet) {
 		basetype.construct(io.ModbusProtocol.Tcp, infoSet);
 	}
 
@@ -20,7 +18,7 @@ public:
 		uint64_t originalRecordCode,
 		void const* p,
 		size_t size
-		);
+	);
 
 	override reset();
 }
@@ -33,8 +31,7 @@ void ModbusTcpParser.parse(
 	uint64_t originalRecordCode,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	// write the original data first
 
 	writer.write(timestamp, originalRecordCode, p, size);
@@ -43,14 +40,12 @@ void ModbusTcpParser.parse(
 		ModbusLogRecordCode.MasterPacket_Tcp :
 		ModbusLogRecordCode.SlavePacket_Tcp;
 
-	while (size)
-	{
+	while (size) {
 		if (!m_expectedSize)
 			m_expectedSize = sizeof(io.ModbusTcpAduHdr);
 
 		size_t leftoverSize = m_expectedSize - m_dataBuffer.m_size;
-		if (size < leftoverSize)
-		{
+		if (size < leftoverSize) {
 			m_dataBuffer.append(p, size);
 			break;
 		}
@@ -64,8 +59,7 @@ void ModbusTcpParser.parse(
 		io.ModbusTcpAduHdr const* aduHdr = (io.ModbusTcpAduHdr const*) m_dataBuffer.m_p;
 
 		size_t expectedSize = offsetof(io.ModbusTcpAduHdr.m_deviceAddress) + aduHdr.m_length;
-		if (expectedSize > m_expectedSize)
-		{
+		if (expectedSize > m_expectedSize) {
 			m_expectedSize = expectedSize;
 			continue; // ADU has grown, try again
 		}
@@ -76,8 +70,7 @@ void ModbusTcpParser.parse(
 	}
 }
 
-void ModbusTcpParser.reset()
-{
+void ModbusTcpParser.reset() {
 	m_dataBuffer.clear();
 	m_expectedSize = 0;
 }

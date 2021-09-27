@@ -8,8 +8,7 @@ import "io_pcap.jncx"
 
 //..............................................................................
 
-class EthernetTapLogFilter: log.Filter
-{
+class EthernetTapLogFilter: log.Filter {
 protected:
 	io.PcapFilter m_pcapFilter;
 
@@ -21,8 +20,7 @@ public:
 		char const* filter,
 		bool isOptimized = true,
 		uint32_t netMask = -1
-		)
-	{
+	) {
 		return m_pcapFilter.compile(pcap, filter, isOptimized, netMask);
 	}
 
@@ -30,8 +28,7 @@ public:
 		char const* filter,
 		bool isOptimized = true,
 		uint32_t netMask = -1
-		)
-	{
+	) {
 		return m_pcapFilter.compile(filter, isOptimized, netMask);
 	}
 
@@ -41,7 +38,7 @@ protected:
 		uint64_t recordCode,
 		void const* p,
 		size_t size
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -51,10 +48,8 @@ bool EthernetTapLogFilter.filter(
 	uint64_t recordCode,
 	void const* p,
 	size_t size
-	)
-{
-	switch (recordCode)
-	{
+) {
+	switch (recordCode) {
 	case EthernetTapLogRecordCode.Packet_ch1:
 	case EthernetTapLogRecordCode.Packet_ch2:
 		return m_pcapFilter.match(p + MetaSize, size - MetaSize);

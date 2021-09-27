@@ -20,27 +20,22 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(DynamicLayout)
 
 //..............................................................................
 
-class DynamicLayout: public IfaceHdr
-{
+class DynamicLayout: public IfaceHdr {
 protected:
-	struct Key
-	{
+	struct Key {
 		void* m_base;
 		DerivableType* m_type;
 
-		size_t hash() const
-		{
+		size_t hash() const {
 			return sl::djb2(this, sizeof(Key));
 		}
 
-		bool isEqual(const Key& key) const
-		{
+		bool isEqual(const Key& key) const {
 			return m_base == key.m_base && m_type == key.m_type;
 		}
 	};
 
-	struct Entry: sl::ListLink
-	{
+	struct Entry: sl::ListLink {
 		sl::Array<size_t> m_endOffsetArray;
 	};
 
@@ -59,14 +54,14 @@ public:
 		DataPtr ptr,
 		size_t offset,
 		Field* field
-		);
+	);
 
 	size_t
 	getDynamicFieldEndOffset(
 		DataPtr ptr,
 		DerivableType* type,
 		size_t fieldIndex // dynamic
-		);
+	);
 };
 
 //..............................................................................

@@ -22,8 +22,7 @@ class FunctionType;
 
 //..............................................................................
 
-struct IfStmt
-{
+struct IfStmt {
 	BasicBlock* m_thenBlock;
 	BasicBlock* m_elseBlock;
 	BasicBlock* m_followBlock;
@@ -31,8 +30,7 @@ struct IfStmt
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct SwitchStmt
-{
+struct SwitchStmt {
 	Value m_value;
 	BasicBlock* m_switchBlock;
 	BasicBlock* m_defaultBlock;
@@ -42,8 +40,7 @@ struct SwitchStmt
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ReSwitchStmt
-{
+struct ReSwitchStmt {
 	Value m_regexStateValue;
 	Value m_dataValue;
 	Value m_sizeValue;
@@ -57,8 +54,7 @@ struct ReSwitchStmt
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct WhileStmt
-{
+struct WhileStmt {
 	BasicBlock* m_conditionBlock;
 	BasicBlock* m_bodyBlock;
 	BasicBlock* m_followBlock;
@@ -66,8 +62,7 @@ struct WhileStmt
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct DoStmt
-{
+struct DoStmt {
 	BasicBlock* m_conditionBlock;
 	BasicBlock* m_bodyBlock;
 	BasicBlock* m_followBlock;
@@ -75,8 +70,7 @@ struct DoStmt
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ForStmt
-{
+struct ForStmt {
 	Scope* m_scope;
 	BasicBlock* m_conditionBlock;
 	BasicBlock* m_bodyBlock;
@@ -86,16 +80,14 @@ struct ForStmt
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct OnceStmt
-{
+struct OnceStmt {
 	Variable* m_flagVariable;
 	BasicBlock* m_followBlock;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct TryExpr
-{
+struct TryExpr {
 	TryExpr* m_prev;
 	BasicBlock* m_catchBlock;
 	size_t m_sjljFrameIdx;
@@ -103,8 +95,7 @@ struct TryExpr
 
 //..............................................................................
 
-class ControlFlowMgr
-{
+class ControlFlowMgr {
 	friend class Module;
 
 protected:
@@ -132,8 +123,7 @@ public:
 	ControlFlowMgr();
 
 	Module*
-	getModule()
-	{
+	getModule() {
 		return m_module;
 	}
 
@@ -141,8 +131,7 @@ public:
 	clear();
 
 	bool
-	isEmissionLocked()
-	{
+	isEmissionLocked() {
 		return m_emissionLockCount != 0;
 	}
 
@@ -156,14 +145,13 @@ public:
 	createBlock(
 		const sl::StringRef& name,
 		uint_t flags = 0
-		);
+	);
 
 	BasicBlock*
 	createAsyncBlock(Scope* scope);
 
 	BasicBlock*
-	getCurrentBlock()
-	{
+	getCurrentBlock() {
 		return m_currentBlock;
 	}
 
@@ -178,7 +166,7 @@ public:
 		BasicBlock* block,
 		Scope* scope,
 		uint_t flags
-		);
+	);
 
 	bool
 	deleteUnreachableBlocks();
@@ -189,20 +177,17 @@ public:
 #endif
 
 	sl::Array<BasicBlock*>
-	getAsyncBlockArray()
-	{
+	getAsyncBlockArray() {
 		return m_asyncBlockArray;
 	}
 
 	sl::Array<BasicBlock*>
-	getReturnBlockArray()
-	{
+	getReturnBlockArray() {
 		return m_returnBlockArray;
 	}
 
 	sl::Array<BasicBlock*>
-	getLandingPadBlockArray()
-	{
+	getLandingPadBlockArray() {
 		return m_landingPadBlockArray;
 	}
 
@@ -215,7 +200,7 @@ public:
 	jump(
 		BasicBlock* block,
 		BasicBlock* followBlock = NULL
-		);
+	);
 
 	void
 	follow(BasicBlock* block);
@@ -226,7 +211,7 @@ public:
 		BasicBlock* thenBlock,
 		BasicBlock* elseBlock,
 		BasicBlock* followBlock = NULL // if NULL then follow with pThenBlock
-		);
+	);
 
 	bool
 	breakJump(size_t level);
@@ -238,8 +223,7 @@ public:
 	ret(const Value& value);
 
 	bool
-	ret()
-	{
+	ret() {
 		return ret(Value());
 	}
 
@@ -258,7 +242,7 @@ public:
 	endTryOperator(
 		TryExpr* tryExpr,
 		Value* value
-		);
+	);
 
 	void
 	throwException();
@@ -268,19 +252,19 @@ public:
 		const Value& returnValue,
 		Type* returnType,
 		BasicBlock* throwBlock = NULL
-		);
+	);
 
 	void
 	setJmp(
 		BasicBlock* catchBlock,
 		size_t sjljFrameIdx
-		);
+	);
 
 	void
 	setJmpFinally(
 		BasicBlock* finallyBlock,
 		size_t sjljFrameIdx
-		);
+	);
 
 	void
 	finalizeTryScope(Scope* scope);
@@ -313,13 +297,13 @@ public:
 		IfStmt* stmt,
 		const Value& value,
 		const lex::LineCol& pos
-		);
+	);
 
 	void
 	ifStmt_Else(
 		IfStmt* stmt,
 		const lex::LineCol& pos
-		);
+	);
 
 	void
 	ifStmt_Follow(IfStmt* stmt);
@@ -334,7 +318,7 @@ public:
 		SwitchStmt* stmt,
 		const Value& value,
 		const lex::LineCol& pos
-		);
+	);
 
 	bool
 	switchStmt_Case(
@@ -342,14 +326,14 @@ public:
 		intptr_t value,
 		const lex::LineCol& pos,
 		uint_t scopeFlags
-		);
+	);
 
 	bool
 	switchStmt_Default(
 		SwitchStmt* stmt,
 		const lex::LineCol& pos,
 		uint_t scopeFlags
-		);
+	);
 
 	void
 	switchStmt_Follow(SwitchStmt* stmt);
@@ -366,7 +350,7 @@ public:
 		const Value& dataValue,
 		const Value& sizeValue,
 		const lex::LineCol& pos
-		);
+	);
 
 	bool
 	reSwitchStmt_Case(
@@ -374,14 +358,14 @@ public:
 		const sl::StringRef& regexSource,
 		const lex::LineCol& pos,
 		uint_t scopeFlags
-		);
+	);
 
 	bool
 	reSwitchStmt_Default(
 		ReSwitchStmt* stmt,
 		const lex::LineCol& pos,
 		uint_t scopeFlags
-		);
+	);
 
 	bool
 	reSwitchStmt_Finalize(ReSwitchStmt* stmt);
@@ -396,7 +380,7 @@ public:
 		WhileStmt* stmt,
 		const Value& value,
 		const lex::LineCol& pos
-		);
+	);
 
 	void
 	whileStmt_Follow(WhileStmt* stmt);
@@ -410,7 +394,7 @@ public:
 	doStmt_PreBody(
 		DoStmt* stmt,
 		const lex::LineCol& pos
-		);
+	);
 
 	void
 	doStmt_PostBody(DoStmt* stmt);
@@ -419,7 +403,7 @@ public:
 	doStmt_Condition(
 		DoStmt* stmt,
 		const Value& value
-		);
+	);
 
 	// for stmt
 
@@ -430,7 +414,7 @@ public:
 	forStmt_PreInit(
 		ForStmt* stmt,
 		const lex::LineCol& pos
-		);
+	);
 
 	void
 	forStmt_NoCondition(ForStmt* stmt);
@@ -442,7 +426,7 @@ public:
 	forStmt_PostCondition(
 		ForStmt* stmt,
 		const Value& value
-		);
+	);
 
 	void
 	forStmt_PreLoop(ForStmt* stmt);
@@ -463,25 +447,25 @@ public:
 		OnceStmt* stmt,
 		const lex::LineCol& pos,
 		StorageKind storageKind = StorageKind_Static
-		);
+	);
 
 	void
 	onceStmt_Create(
 		OnceStmt* stmt,
 		Variable* flagVariable
-		);
+	);
 
 	bool
 	onceStmt_PreBody(
 		OnceStmt* stmt,
 		const lex::LineCol& pos
-		);
+	);
 
 	void
 	onceStmt_PostBody(
 		OnceStmt* stmt,
 		const lex::LineCol& pos
-		);
+	);
 
 	Variable*
 	getFinallyRouteIdxVariable();
@@ -491,7 +475,7 @@ protected:
 	escapeScope(
 		Scope* targetScope,
 		BasicBlock* targetBlock
-		);
+	);
 
 	BasicBlock*
 	getUnreachableBlock();

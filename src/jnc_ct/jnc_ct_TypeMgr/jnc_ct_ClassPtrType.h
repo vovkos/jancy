@@ -18,8 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-class ClassPtrType: public Type
-{
+class ClassPtrType: public Type {
 	friend class TypeMgr;
 
 protected:
@@ -30,60 +29,52 @@ public:
 	ClassPtrType();
 
 	ClassPtrTypeKind
-	getPtrTypeKind()
-	{
+	getPtrTypeKind() {
 		return m_ptrTypeKind;
 	}
 
 	ClassType*
-	getTargetType()
-	{
+	getTargetType() {
 		return m_targetType;
 	}
 
 	ClassPtrType*
-	getCheckedPtrType()
-	{
+	getCheckedPtrType() {
 		return !(m_flags & PtrTypeFlag_Safe) ?
 			m_targetType->getClassPtrType(m_typeKind, m_ptrTypeKind, m_flags | PtrTypeFlag_Safe) :
 			this;
 	}
 
 	ClassPtrType*
-	getUnCheckedPtrType()
-	{
+	getUnCheckedPtrType() {
 		return (m_flags & PtrTypeFlag_Safe) ?
 			m_targetType->getClassPtrType(m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Safe) :
 			this;
 	}
 
 	ClassPtrType*
-	getUnConstPtrType()
-	{
+	getUnConstPtrType() {
 		return (m_flags & PtrTypeFlag_Const) ?
 			m_targetType->getClassPtrType(m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Const) :
 			this;
 	}
 
 	ClassPtrType*
-	getNormalPtrType()
-	{
+	getNormalPtrType() {
 		return (m_ptrTypeKind != ClassPtrTypeKind_Normal) ?
 			m_targetType->getClassPtrType(ClassPtrTypeKind_Normal, m_flags) :
 			this;
 	}
 
 	ClassPtrType*
-	getWeakPtrType()
-	{
+	getWeakPtrType() {
 		return (m_ptrTypeKind != ClassPtrTypeKind_Weak) ?
 			m_targetType->getClassPtrType(ClassPtrTypeKind_Weak, m_flags) :
 			this;
 	}
 
 	ClassPtrType*
-	getUnWeakPtrType()
-	{
+	getUnWeakPtrType() {
 		return (m_ptrTypeKind == ClassPtrTypeKind_Weak) ?
 			m_targetType->getClassPtrType(ClassPtrTypeKind_Normal, m_flags) :
 			this;
@@ -96,34 +87,31 @@ public:
 		TypeKind typeKind,
 		ClassPtrTypeKind ptrTypeKind,
 		uint_t flags
-		);
+	);
 
 	virtual
 	void
 	markGcRoots(
 		const void* p,
 		rt::GcHeap* gcHeap
-		);
+	);
 
 protected:
 	virtual
 	void
-	prepareSignature()
-	{
+	prepareSignature() {
 		m_signature = createSignature(m_targetType, m_typeKind, m_ptrTypeKind, m_flags);
 	}
 
 	virtual
 	void
-	prepareTypeString()
-	{
+	prepareTypeString() {
 		getTypeStringTuple()->m_typeStringPrefix = m_targetType->getTypeString() + getPointerStringSuffix();
 	}
 
 	virtual
 	void
-	prepareDoxyLinkedText()
-	{
+	prepareDoxyLinkedText() {
 		getTypeStringTuple()->m_doxyLinkedTextPrefix = m_targetType->getDoxyLinkedTextPrefix() + getPointerStringSuffix();
 	}
 
@@ -137,8 +125,7 @@ protected:
 
 	virtual
 	void
-	prepareTypeVariable()
-	{
+	prepareTypeVariable() {
 		prepareSimpleTypeVariable(StdType_ClassPtrType);
 	}
 
@@ -147,7 +134,7 @@ protected:
 	calcFoldedDualType(
 		bool isAlien,
 		bool isContainerConst
-		);
+	);
 
 	sl::String
 	getPointerStringSuffix();
@@ -155,8 +142,7 @@ protected:
 
 //..............................................................................
 
-struct ClassPtrTypeTuple: sl::ListLink
-{
+struct ClassPtrTypeTuple: sl::ListLink {
 	ClassPtrType* m_ptrTypeArray[2][2][3][2][2]; // ref x kind x const x volatile x checked
 };
 
@@ -167,8 +153,7 @@ bool
 isClassPtrType(
 	Type* type,
 	ClassTypeKind classTypeKind
-	)
-{
+) {
 	return
 		(type->getTypeKindFlags() & TypeKindFlag_ClassPtr) &&
 		((ClassPtrType*)type)->getTargetType()->getClassTypeKind() == classTypeKind;

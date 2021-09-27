@@ -9,12 +9,10 @@
 //
 //..............................................................................
 
-class C1
-{
+class C1 {
 	int m_Int;
 
-	reactor m_MyAutoEv
-	{
+	reactor m_MyAutoEv {
 		m_Int = gx_MyProp * 2;
 	}
 }
@@ -22,8 +20,7 @@ class C1
 int bindable gx_MyProp;
 
 int
-main()
-{
+main() {
 	printf("main ()\n");
 
 	C1 c;
@@ -36,13 +33,11 @@ main()
 	return 0;
 }
 
-void foo()
-{
+void foo() {
 	printf("foo ()\n");
 }
 
-void bar()
-{
+void bar() {
 	printf("bar ()\n");
 }
 

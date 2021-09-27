@@ -1,12 +1,10 @@
-bitflag enum Flags
-{
+bitflag enum Flags {
 	A,
 	B,
 	C = false
 }
 
-int main()
-{
+int main() {
 	Flags a = Flags.A;
 	Flags b = Flags.B;
 	Flags c = a ^ b;

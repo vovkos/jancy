@@ -25,7 +25,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	Field,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Field)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<Field, ct::Field*>))

@@ -17,10 +17,8 @@ bool representModbusGatewayMonLog(
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
-	switch (recordCode)
-	{
+) {
+	switch (recordCode) {
 	case ModbusGatewayMonLogRecordCode.CommandError:
 		representation.m_lineAttr.m_flags = log.LineAttrFlags.Override;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
@@ -160,17 +158,14 @@ bool representModbusGatewayMonLog(
                 uint16_t actualChecksum = *(uint16_t const*) (aduHdr + checksumOffset);
                 uint16_t expectedChecksum = crc16_ansi(aduHdr, checksumOffset, 0xffff);
 
-                if (actualChecksum == expectedChecksum)
-                {
+                if (actualChecksum == expectedChecksum) {
                     representation.addHyperText(
                         $"Checksum:    \e^!-%1,%2\e[34m0x%(3; 04X)/%3\e[m [\e[32mOK\e[m]" (
                         _base + checksumOffset,
                         sizeof(uint16_t),
                         actualChecksum
                         ));
-                }
-                else
-                {
+                } else {
                     representation.addHyperText(
                         $"Checksum:    \e^!-%1,%2\e[34m0x%(3; 04X)/%3\e[m [\e[31mERROR\e[m] \e[90m(expected: 0x%(4; 04X)/%4)\e[m" (
                         _base + checksumOffset,
@@ -189,9 +184,7 @@ bool representModbusGatewayMonLog(
                     1,
                     foldFlags
                     );
-            }
-            else
-            {
+            } else {
                 representModbusMbap(
                     representation,
                     role,
@@ -211,8 +204,7 @@ bool representModbusGatewayMonLog(
                     foldFlags
                     );
             }
-        }
-        else
+        } else
         {   // ASCII
             static uint8_t rtu_buffer[256];
             size_t rtu_size;
@@ -238,17 +230,14 @@ bool representModbusGatewayMonLog(
             expectedChecksum = 0 - expectedChecksum;
 
            	representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
-            if (expectedChecksum == actualChecksum)
-            {
+            if (expectedChecksum == actualChecksum) {
                 representation.addHyperText(
                     $"Checksum:    \e^!-%1,%2\e[34m0x%(3; 02X)/%3\e[m [\e[32mOK\e[m]" (
                     checksumOffset,
                     sizeof(uint8_t)* 2,
                     actualChecksum
                         ));
-            }
-            else
-            {
+            } else {
                 representation.addHyperText(
                     $"Checksum:      \e^!-%1,%2\e[34m0x%(3; 02X)/%3\e[m [\e[31mERROR\e[m] \e[90m(expected: 0x%(4; 02X)/%4)\e[m" (
                     checksumOffset,
@@ -258,8 +247,7 @@ bool representModbusGatewayMonLog(
                     ));
             }
 
-            if (rtu_size != 0)
-            {
+            if (rtu_size != 0) {
                 representation.addHyperText(
                     $"SlaveId:     \e^!-%1,%2\e[34m0x%(3; 02X)/%3\e[m" (
                     offsetof(aduHdr.m_deviceAddress) + 1,
@@ -299,8 +287,7 @@ size_t representerModbusAsciiConvertRtu(
     void const* bufferIn,
 	size_t size,
     void* bufferOut
-    )
-{
+    ) {
     char _i = 0;
     char _ch;
     uint8_t _byte;
@@ -310,45 +297,30 @@ size_t representerModbusAsciiConvertRtu(
 
     if ((*(char const*)(bufferIn + 2) == ':')
         && (*(char const*)(bufferIn + size - 1) == 0x0a)
-        && (*(char const*)(bufferIn + size - 2) == 0x0d))
-    {
-        if (((size - 5) % 2) == 0)
-        {
-            while (_i < size - 5)
-            {
+        && (*(char const*)(bufferIn + size - 2) == 0x0d)) {
+        if (((size - 5) % 2) == 0) {
+            while (_i < size - 5) {
                 _ch = *(char const*)(bufferIn + _i + 3);
-                if ((_ch >= '0') && (_ch <= '9'))
-                {
-                    if (_b_part == false)
-                    {
+                if ((_ch >= '0') && (_ch <= '9')) {
+                    if (_b_part == false) {
                         _byte = (_ch - '0') << 4;
                         _b_part = true;
-                    }
-                    else
-                    {
+                    } else {
                         _byte = _byte + (_ch - '0');
                         *(uint8_t*)(bufferOut + _index++) = _byte;
                         _b_part = false;
                     }
-                }
-                else
-                {
-                    if ((_ch >= 'A') && (_ch <= 'F'))
-                    {
-                        if (_b_part == false)
-                        {
+                } else {
+                    if ((_ch >= 'A') && (_ch <= 'F')) {
+                        if (_b_part == false) {
                             _byte = (_ch - 'A' + 10) << 4;
                             _b_part = true;
-                        }
-                        else
-                        {
+                        } else {
                             _byte = _byte + (_ch - 'A' + 10);
                             *(uint8_t*)(bufferOut + _index++) = _byte;
                             _b_part = false;
                         }
-                    }
-                    else
-                    {
+                    } else {
                         // bad symbol in ASCII packet
                         _b_fail = true;
                         _i = size;  // end cycle
@@ -359,18 +331,14 @@ size_t representerModbusAsciiConvertRtu(
                 }
                 _i++;
             }
-        }
-        else
-        {
+        } else {
             // Wrong ASCII packet size
             _b_fail = true;
             representation.m_lineAttr.m_backColor = ui.StdColor.PastelYellow;
             representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
             representation.addHyperText($"Wrong ASCII packet size");
         }
-    }
-    else
-    {
+    } else {
         // Wrong ASCII packet format
         _b_fail = true;
 		representation.m_lineAttr.m_backColor = ui.StdColor.PastelYellow;
@@ -395,10 +363,8 @@ void representModbusCoils(
 	size_t baseOffset,
     uint8_t mult,
 	uint_t foldFlags
-	)
-{
-	switch (count)
-	{
+) {
+	switch (count) {
 	case 0:
 		representation.addHyperText("Value:       [\e[31mNONE\e[m]");
 		break;
@@ -409,7 +375,7 @@ void representModbusCoils(
 			baseOffset,
 			sizeof(uint8_t)* mult,
 			*p & 1
-			));
+		));
 		break;
 
 	case 2:
@@ -420,13 +386,10 @@ void representModbusCoils(
 		break;
 
 	default:
-		if (foldFlags)
-		{
+		if (foldFlags) {
 			representation.addHyperText($"[\e^-1\e[34m-\e[m] Values [$count]");
 			representModbusCoilValues(representation, p, count, baseOffset, mult);
-		}
-		else
-		{
+		} else {
 			representation.addHyperText($"[\e^+1\e[34m+\e[m] Values [$count]");
 		}
 	}
@@ -438,19 +401,16 @@ void representModbusCoilValues(
 	size_t count,
 	size_t baseOffset,
     uint8_t mult
-	)
-{
+	) {
 	size_t size = count / 8;
 	if (count & 7)
 		size++;
 
 	size_t i = 0;
-	for (size_t j = 0; i < count && j < size; j++)
-	{
+	for (size_t j = 0; i < count && j < size; j++) {
 		uint8_t c = p[j];
 
-		for (uint8_t mask = 1; i < count && mask; i++, mask <<= 1)
-		{
+		for (uint8_t mask = 1; i < count && mask; i++, mask <<= 1) {
 			bool value = (c & mask) != 0;
 			representation.addHyperText(
 				$"    #%(1; -3d): \e^!-%2,%3\e[34m%4\e[m" (
@@ -458,7 +418,7 @@ void representModbusCoilValues(
 				baseOffset + j * mult,
 				sizeof(uint8_t)* mult,
 				value
-				));
+			));
 		}
 	}
 }
@@ -472,10 +432,8 @@ void representModbusRegisters(
 	size_t baseOffset,
     uint8_t mult,
 	uint_t foldFlags
-	)
-{
-	switch (count)
-	{
+) {
+	switch (count) {
 	case 0:
 		representation.addHyperText("Value:       [\e[31mNONE\e[m]");
 		break;
@@ -486,7 +444,7 @@ void representModbusRegisters(
 			baseOffset,
 			sizeof(uint16_t)* mult,
 			p[0]
-			));
+		));
 		break;
 
 	case 2:
@@ -497,13 +455,10 @@ void representModbusRegisters(
 		break;
 
 	default:
-		if (foldFlags)
-		{
+		if (foldFlags) {
 			representation.addHyperText($"[\e^-1\e[34m-\e[m] Values [$count]");
 			representModbusRegisterValues(representation, p, count, baseOffset, mult);
-		}
-		else
-		{
+		} else {
 			representation.addHyperText($"[\e^+1\e[34m+\e[m] Values [$count]");
 		}
 	}
@@ -515,8 +470,7 @@ void representModbusRegisterValues(
 	size_t count,
 	size_t baseOffset,
     uint8_t mult
-	)
-{
+	) {
 	for (size_t i = 0; i < count; i++)
 		representation.addHyperText(
 			$"    #%(1; -3d): \e^!-%2,%3\e[34m0x%(4; 04X)/%4\e[m" (
@@ -524,7 +478,7 @@ void representModbusRegisterValues(
 			baseOffset + i * sizeof(uint16_t)* mult,
 			sizeof(uint16_t)* mult,
 			p[i]
-			));
+		));
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -537,24 +491,21 @@ void representModbusPdu(
 	size_t baseOffset,
     uint8_t mult,
 	uint_t foldFlags
-	)
-{
+) {
 	representation.addHyperText(
 		$"Function:    \e^!-%1,%2\e[34m0x%(3; 02X)/%3\e[m - %4" (
 		baseOffset + offsetof(hdr.m_func) * mult,
 		sizeof(hdr.m_func) * mult,
 		hdr.m_func,
 		io.getModbusFuncString(hdr.m_func)
-		));
+	));
 
-	switch (hdr.m_func)
-	{
+	switch (hdr.m_func) {
 	case io.ModbusFunc.ReadCoils:
 	case io.ModbusFunc.ReadDiscreteInputs:
 	case io.ModbusFunc.ReadHoldingRegisters:
 	case io.ModbusFunc.ReadInputRegisters:
-		if (role == io.ModbusRole.Master)
-		{
+		if (role == io.ModbusRole.Master) {
 			io.ModbusReadPdu const* pdu = (io.ModbusReadPdu const*) hdr;
 			representation.addHyperText(
 				$"Address:     \e^!-%1,%2\e[34m0x%(3; 04X)/%3\e[m\n"
@@ -567,20 +518,17 @@ void representModbusPdu(
 				baseOffset + offsetof(pdu.m_count) * mult,
 				sizeof(pdu.m_count) * mult,
 				pdu.m_count
-				));
-		}
-		else
-		{
+			));
+		} else {
 			io.ModbusReadReplyPdu const* pdu = (io.ModbusReadReplyPdu const*) hdr;
 
-			if (hdr.m_func <= io.ModbusFunc.ReadDiscreteInputs)
-			{
+			if (hdr.m_func <= io.ModbusFunc.ReadDiscreteInputs) {
 				representation.addHyperText(
 					$"Size:        \e^!-%1,%2\e[34m%3\e[m" (
 					baseOffset + offsetof(pdu.m_size) * mult,
 					sizeof(pdu.m_size) * mult,
 					pdu.m_size
-					));
+				));
 
 				representModbusCoils(
 					representation,
@@ -589,17 +537,15 @@ void representModbusPdu(
 					baseOffset + sizeof(io.ModbusReadReplyPdu) * mult,
                     mult,
 					foldFlags
-					);
-			}
-			else
-			{
+				);
+			} else {
 				representation.addHyperText(
 					$"Size:        \e^!-%1,%2\e[34m%3\e[m%4" (
 					baseOffset + offsetof(pdu.m_size) * mult,
 					sizeof(pdu.m_size) * mult,
 					pdu.m_size,
 					(pdu.m_size & 1) ? " [\e[31mINVALID\e[m] \e[90m(expected: a multiple of 2)" : ""
-					));
+				));
 
 				representModbusRegisters(
 					representation, (bigendian uint16_t const*) (pdu + 1),
@@ -607,7 +553,7 @@ void representModbusPdu(
 					baseOffset + sizeof(io.ModbusReadReplyPdu) * mult,
                     mult,
 					foldFlags
-					);
+				);
 			}
 		}
 		break;
@@ -626,13 +572,12 @@ void representModbusPdu(
 			baseOffset + offsetof(pdu.m_value) * mult,
 			sizeof(pdu.m_value) * mult,
 			pdu.m_value
-			));
+		));
 		break;
 
 	case io.ModbusFunc.WriteMultipleCoils:
 	case io.ModbusFunc.WriteMultipleRegisters:
-		if (role == io.ModbusRole.Master)
-		{
+		if (role == io.ModbusRole.Master) {
 			io.ModbusWriteMultiplePdu const* pdu = (io.ModbusWriteMultiplePdu const*) hdr;
 			representation.addHyperText(
 				$"Address:     \e^!-%1,%2\e[34m0x%(3; 04X)/%3\e[m\n"
@@ -650,7 +595,7 @@ void representModbusPdu(
 				baseOffset + offsetof(pdu.m_size) * mult,
 				sizeof(pdu.m_size) * mult,
 				pdu.m_size
-				));
+			));
 
 			if (hdr.m_func == io.ModbusFunc.WriteMultipleCoils)
 				representModbusCoils(
@@ -660,7 +605,7 @@ void representModbusPdu(
 					baseOffset + sizeof(io.ModbusWriteMultiplePdu),
                     mult,
 					foldFlags
-					);
+				);
 			else
 				representModbusRegisters(
 					representation,
@@ -669,10 +614,8 @@ void representModbusPdu(
 					baseOffset + sizeof(io.ModbusWriteMultiplePdu),
                     mult,
 					foldFlags
-					);
-		}
-		else
-		{
+				);
+		} else {
 			io.ModbusWriteMultipleReplyPdu const* pdu = (io.ModbusWriteMultipleReplyPdu const*) hdr;
 			representation.addHyperText(
 				$"Address:     \e^!-%1,%2\e[34m0x%(3; 04X)/%3\n"
@@ -685,7 +628,7 @@ void representModbusPdu(
 				baseOffset + offsetof(pdu.m_count) * mult,
 				sizeof(pdu.m_count) * mult,
 				pdu.m_count
-				));
+			));
 		}
 		break;
 
@@ -703,8 +646,7 @@ void representModbusPdu(
 		break; // not supported yet
 
 	default:
-		if (hdr.m_func & io.ModbusFunc.ExceptionFlag)
-		{
+		if (hdr.m_func & io.ModbusFunc.ExceptionFlag) {
             io.ModbusExceptionPdu const* pdu = (io.ModbusExceptionPdu const*) hdr;
 
             representation.addHyperText(
@@ -718,8 +660,7 @@ void representModbusPdu(
 	}
 }
 
-struct ModbusMbapHdr
-{
+struct ModbusMbapHdr {
     bigendian uint16_t m_transactId;
     bigendian uint16_t m_protocolId;
     bigendian uint16_t m_sizePdu;
@@ -733,8 +674,7 @@ void representModbusMbap(
 	size_t size,
 	size_t baseOffset,
 	uint_t foldFlags
-	)
-{
+) {
     representation.addHyperText(
         $"Transact Id: \e^!-%1,%2\e[34m0x%(3; 04X)/%3\e[m\n"
         $"Protocol Id: \e^!-%4,%5\e[34m%6\e[m\n"

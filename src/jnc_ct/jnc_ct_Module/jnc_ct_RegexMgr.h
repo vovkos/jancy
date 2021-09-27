@@ -19,32 +19,28 @@ class BasicBlock;
 
 //..............................................................................
 
-struct DfaGroupSet: sl::ListLink
-{
+struct DfaGroupSet: sl::ListLink {
 	sl::Array<size_t> m_openArray;
 	sl::Array<size_t> m_closeArray;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct DfaAcceptInfo: sl::ListLink
-{
+struct DfaAcceptInfo: sl::ListLink {
 	size_t m_firstGroupId;
 	size_t m_groupCount;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum DfaStateFlag
-{
+enum DfaStateFlag {
 	DfaStateFlag_Accept = 0x01,
 	DfaStateFlag_Final  = 0x02,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct DfaStateInfo
-{
+struct DfaStateInfo {
 	uintptr_t m_flags;
 	DfaAcceptInfo* m_acceptInfo;
 	DfaGroupSet* m_groupSet;
@@ -52,8 +48,7 @@ struct DfaStateInfo
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class Dfa: public sl::ListLink
-{
+class Dfa: public sl::ListLink {
 protected:
 	size_t m_stateCount;
 	size_t m_groupCount;
@@ -67,26 +62,22 @@ public:
 	Dfa();
 
 	bool
-	isEmpty()
-	{
+	isEmpty() {
 		return m_stateCount == 0;
 	}
 
 	size_t
-	getStateCount()
-	{
+	getStateCount() {
 		return m_stateCount;
 	}
 
 	size_t
-	getGroupCount()
-	{
+	getGroupCount() {
 		return m_groupCount;
 	}
 
 	size_t
-	getMaxSubMatchCount()
-	{
+	getMaxSubMatchCount() {
 		return m_maxSubMatchCount;
 	}
 
@@ -100,23 +91,20 @@ public:
 	getTransition(
 		uintptr_t stateId,
 		uchar_t c
-		)
-	{
+	) {
 		ASSERT(stateId < m_stateCount);
 		return m_transitionTable[stateId * 256 + c];
 	}
 
 	DfaStateInfo*
-	getStateInfo(uintptr_t stateId)
-	{
+	getStateInfo(uintptr_t stateId) {
 		return &m_stateInfoTable[stateId];
 	}
 };
 
 //.............................................................................
 
-class RegexMgr
-{
+class RegexMgr {
 	friend class Module;
 
 protected:
@@ -127,14 +115,12 @@ public:
 	RegexMgr();
 
 	Module*
-	getModule()
-	{
+	getModule() {
 		return m_module;
 	}
 
 	void
-	clear()
-	{
+	clear() {
 		m_dfaList.clear();
 	}
 

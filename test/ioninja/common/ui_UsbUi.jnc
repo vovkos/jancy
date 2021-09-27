@@ -20,14 +20,12 @@ void populateUsbDeviceListUi(
 	EnumProperty* deviceProp,
 	io.UsbDevice* const* deviceArray,
 	size_t deviceCount
-	)
-{
+) {
 	io.UsbDb* usbDb = io.getStdUsbDb();
 	EnumPropertyOption* optionTable = new EnumPropertyOption[deviceCount];
 	deviceCombo.clear();
 
-	for (size_t i = 0; i < deviceCount; i++)
-	{
+	for (size_t i = 0; i < deviceCount; i++) {
 		io.UsbDevice* device = deviceArray[i];
 		io.UsbDeviceDesc const* deviceDesc = device.m_deviceDesc;
 		io.UsbVendor const* vendor = usbDb.findVendor(deviceDesc.m_vendorId);
@@ -38,7 +36,7 @@ void populateUsbDeviceListUi(
 			device.m_address,
 			vendor ? vendor.m_name : $"VID_$(deviceDesc.m_vendorId; 04x)",
 			product ? product.m_name : $"PID_$(deviceDesc.m_productId; 04x)"
-			);
+		);
 
 		deviceCombo.addItem(text, device);
 
@@ -52,8 +50,7 @@ void populateUsbDeviceListUi(
 void refreshUsbDeviceListUi(
 	ComboBox* deviceCombo,
 	EnumProperty* deviceProp
-	)
-{
+) {
 	size_t deviceCount;
 	io.UsbDevice* const* deviceArray = io.createUsbDeviceArray(&deviceCount);
 	io.UsbDevice* prevDevice = deviceCombo.m_currentData;
@@ -63,7 +60,7 @@ void refreshUsbDeviceListUi(
 		deviceProp,
 		deviceArray,
 		deviceCount
-		);
+	);
 
 	if (!prevDevice)
 		return;
@@ -74,15 +71,12 @@ void refreshUsbDeviceListUi(
 		prevDevice.m_deviceDesc.m_productId,
 		prevDevice.m_bus,
 		prevDevice.m_address
-		);
+	);
 
-	if (i != -1)
-	{
+	if (i != -1) {
 		deviceCombo.m_currentIndex = i;
 		deviceProp.m_currentIndex = i;
-	}
-	else
-	{
+	} else {
 		deviceCombo.m_currentIndex = 0;
 		deviceProp.m_currentIndex = 0;
 	}
@@ -94,17 +88,14 @@ size_t findUsbDeviceComboIndex(
 	uint_t pid,
 	uint_t bus = -1,
 	uint_t address = -1
-	)
-{
+) {
 	size_t bestIndex = -1;
 
 	size_t itemCount = deviceCombo.m_itemCount;
-	for (size_t i = 0; i < itemCount; i++)
-	{
+	for (size_t i = 0; i < itemCount; i++) {
 		io.UsbDevice* device = deviceCombo.m_itemData[i];
 		if (device.m_deviceDesc.m_vendorId == vid &&
-			device.m_deviceDesc.m_productId == pid)
-		{
+			device.m_deviceDesc.m_productId == pid) {
 			if ((bus == -1 || device.m_bus == bus) &&
 				(address == -1 || device.m_address == address))
 				return i; // exact match

@@ -43,8 +43,7 @@
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
-struct jnc_UnionType: jnc_DerivableType
-{
+struct jnc_UnionType: jnc_DerivableType {
 };
 
 #endif // _JNC_CORE

@@ -19,8 +19,7 @@ namespace ct {
 
 //..............................................................................
 
-Orphan::Orphan()
-{
+Orphan::Orphan() {
 	m_itemKind = ModuleItemKind_Orphan;
 	m_orphanKind = OrphanKind_Undefined;
 	m_functionType = NULL;
@@ -28,17 +27,14 @@ Orphan::Orphan()
 }
 
 void
-Orphan::addUsingSet(Namespace* anchorNamespace)
-{
+Orphan::addUsingSet(Namespace* anchorNamespace) {
 	for (Namespace* nspace = anchorNamespace; nspace; nspace = nspace->getParentNamespace())
 		m_usingSet.append(nspace->getUsingSet());
 }
 
 ModuleItem*
-Orphan::resolveForCodeAssist(Namespace* nspace)
-{
-	if (m_functionKind != FunctionKind_Normal && m_declaratorName.isEmpty())
-	{
+Orphan::resolveForCodeAssist(Namespace* nspace) {
+	if (m_functionKind != FunctionKind_Normal && m_declaratorName.isEmpty()) {
 		adopt(nspace->getParentItem());
 		return m_origin;
 	}
@@ -48,8 +44,7 @@ Orphan::resolveForCodeAssist(Namespace* nspace)
 	if (!findResult.m_result || !findResult.m_item)
 		return NULL;
 
-	if (m_functionKind == FunctionKind_Normal && m_declaratorName.isEmpty())
-	{
+	if (m_functionKind == FunctionKind_Normal && m_declaratorName.isEmpty()) {
 		adopt(findResult.m_item);
 		return m_origin;
 	}
@@ -59,10 +54,8 @@ Orphan::resolveForCodeAssist(Namespace* nspace)
 }
 
 bool
-Orphan::adopt(ModuleItem* item)
-{
-	switch (m_orphanKind)
-	{
+Orphan::adopt(ModuleItem* item) {
+	switch (m_orphanKind) {
 	case OrphanKind_Function:
 		return adoptOrphanFunction(item);
 
@@ -76,13 +69,10 @@ Orphan::adopt(ModuleItem* item)
 }
 
 OverloadableFunction
-Orphan::getItemUnnamedMethod(ModuleItem* item)
-{
-	if (item->getItemKind() == ModuleItemKind_Property)
-	{
+Orphan::getItemUnnamedMethod(ModuleItem* item) {
+	if (item->getItemKind() == ModuleItemKind_Property) {
 		Property* prop = (Property*)item;
-		switch (m_functionKind)
-		{
+		switch (m_functionKind) {
 		case FunctionKind_Constructor:
 			return prop->getConstructor();
 
@@ -98,14 +88,11 @@ Orphan::getItemUnnamedMethod(ModuleItem* item)
 		case FunctionKind_Setter:
 			return prop->getSetter();
 		}
-	}
-	else if (
+	} else if (
 		item->getItemKind() == ModuleItemKind_Type &&
-		(((Type*)item)->getTypeKindFlags() & TypeKindFlag_Derivable))
-	{
+		(((Type*)item)->getTypeKindFlags() & TypeKindFlag_Derivable)) {
 		DerivableType* type = (DerivableType*)item;
-		switch (m_functionKind)
-		{
+		switch (m_functionKind) {
 		case FunctionKind_Constructor:
 			return type->getConstructor();
 
@@ -130,17 +117,14 @@ Orphan::getItemUnnamedMethod(ModuleItem* item)
 }
 
 bool
-Orphan::adoptOrphanFunction(ModuleItem* item)
-{
+Orphan::adoptOrphanFunction(ModuleItem* item) {
 	bool result;
 	OverloadableFunction origin;
 
 	ModuleItemKind itemKind = item->getItemKind();
 
-	if (m_functionKind == FunctionKind_Normal)
-	{
-		switch (itemKind)
-		{
+	if (m_functionKind == FunctionKind_Normal) {
+		switch (itemKind) {
 		case ModuleItemKind_Function:
 			origin = (Function*)item;
 			break;
@@ -153,12 +137,9 @@ Orphan::adoptOrphanFunction(ModuleItem* item)
 			err::setFormatStringError("'%s' is not a function", getQualifiedName().sz());
 			return false;
 		}
-	}
-	else
-	{
+	} else {
 		origin = getItemUnnamedMethod(item);
-		if (!origin)
-		{
+		if (!origin) {
 			ModuleItemDecl* decl = item->getDecl();
 			ASSERT(decl);
 
@@ -166,7 +147,7 @@ Orphan::adoptOrphanFunction(ModuleItem* item)
 				"'%s' has no '%s'",
 				decl->getQualifiedName().sz(),
 				getFunctionKindString(m_functionKind)
-				);
+			);
 
 			return false;
 		}
@@ -178,26 +159,21 @@ Orphan::adoptOrphanFunction(ModuleItem* item)
 
 	Function* originFunction;
 
-	if (origin->getItemKind() == ModuleItemKind_Function)
-	{
+	if (origin->getItemKind() == ModuleItemKind_Function) {
 		FunctionTypeOverload type = origin.getFunction()->getType();
 		originFunction = type.findShortOverload(m_functionType) != -1 ? origin.getFunction() : NULL;
-	}
-	else
-	{
+	} else {
 		originFunction = origin.getFunctionOverload()->findShortOverload(m_functionType);
 	}
 
-	if (!originFunction)
-	{
+	if (!originFunction) {
 		err::setFormatStringError("'%s': overload not found", getQualifiedName().sz());
 		return false;
 	}
 
 	m_origin = originFunction;
 
-	if (!(originFunction->m_flags & ModuleItemFlag_User))
-	{
+	if (!(originFunction->m_flags & ModuleItemFlag_User)) {
 		err::setFormatStringError("'%s' is a compiler-generated function", getQualifiedName().sz());
 		return false;
 	}
@@ -208,14 +184,11 @@ Orphan::adoptOrphanFunction(ModuleItem* item)
 	originFunction->addUsingSet(&m_usingSet);
 
 	FunctionType* originType = originFunction->getType();
-	if (originType->getFlags() & ModuleItemFlag_User)
-	{
+	if (originType->getFlags() & ModuleItemFlag_User) {
 		result = copyArgNames(originType);
 		if (!result)
 			return false;
-	}
-	else
-	{
+	} else {
 		sl::Array<FunctionArg*> argArray = m_functionType->getArgArray();
 		if (originType->isMemberMethodType())
 			argArray.insert(0, originType->getThisArg());
@@ -225,7 +198,7 @@ Orphan::adoptOrphanFunction(ModuleItem* item)
 			originType->getReturnType(),
 			argArray,
 			originType->getFlags()
-			);
+		);
 	}
 
 	return
@@ -234,13 +207,11 @@ Orphan::adoptOrphanFunction(ModuleItem* item)
 }
 
 bool
-Orphan::adoptOrphanReactor(ModuleItem* item)
-{
+Orphan::adoptOrphanReactor(ModuleItem* item) {
 	Type* itemType = NULL;
 
 	ModuleItemKind itemKind = item->getItemKind();
-	switch (itemKind)
-	{
+	switch (itemKind) {
 	case ModuleItemKind_Variable:
 		itemType = ((Variable*)item)->getType();
 		break;
@@ -250,8 +221,7 @@ Orphan::adoptOrphanReactor(ModuleItem* item)
 		break;
 	}
 
-	if (!itemType || !isClassType(itemType, ClassTypeKind_Reactor))
-	{
+	if (!itemType || !isClassType(itemType, ClassTypeKind_Reactor)) {
 		err::setFormatStringError("'%s' is not a reactor", getQualifiedName().sz());
 		return false;
 	}
@@ -270,8 +240,7 @@ Orphan::adoptOrphanReactor(ModuleItem* item)
 }
 
 bool
-Orphan::copyArgNames(FunctionType* targetFunctionType)
-{
+Orphan::copyArgNames(FunctionType* targetFunctionType) {
 	ASSERT(targetFunctionType->getFlags() & ModuleItemFlag_User);
 
 	// copy arg names and make sure orphan funciton does not override default values
@@ -287,13 +256,11 @@ Orphan::copyArgNames(FunctionType* targetFunctionType)
 	if (targetFunctionType->isMemberMethodType())
 		iDst++;
 
-	for (; iDst < argCount; iDst++, iSrc++)
-	{
+	for (; iDst < argCount; iDst++, iSrc++) {
 		FunctionArg* dstArg = dstArgArray[iDst];
 		FunctionArg* srcArg = srcArgArray[iSrc];
 
-		if (!srcArg->m_initializer.isEmpty())
-		{
+		if (!srcArg->m_initializer.isEmpty()) {
 			err::setFormatStringError("redefinition of default value for '%s'", srcArg->m_name.sz());
 			return false;
 		}
@@ -306,8 +273,7 @@ Orphan::copyArgNames(FunctionType* targetFunctionType)
 }
 
 bool
-Orphan::verifyStorageKind(ModuleItemDecl* targetDecl)
-{
+Orphan::verifyStorageKind(ModuleItemDecl* targetDecl) {
 	if (!m_storageKind || m_storageKind == targetDecl->getStorageKind())
 		return true;
 
@@ -316,8 +282,7 @@ Orphan::verifyStorageKind(ModuleItemDecl* targetDecl)
 }
 
 void
-Orphan::copySrcPos(ModuleItemDecl* targetDecl)
-{
+Orphan::copySrcPos(ModuleItemDecl* targetDecl) {
 	targetDecl->m_parentUnit = m_parentUnit;
 	targetDecl->m_pos = m_pos;
 }

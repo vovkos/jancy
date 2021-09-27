@@ -7,8 +7,7 @@ import "log_RecordCode.jnc"
 
 //..............................................................................
 
-enum SshLogRecordCode: uint64_t
-{
+enum SshLogRecordCode: uint64_t {
 	TcpConnectCompleted   = 0x01d4840c424a4d00,
 	SshHandshakeCompleted = 0x01d4840c424a4d01,
 	SshAuthenticating     = 0x01d4840c424a4d02,

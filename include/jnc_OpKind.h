@@ -27,8 +27,7 @@
 
 //..............................................................................
 
-enum jnc_UnOpKind
-{
+enum jnc_UnOpKind {
 	jnc_UnOpKind_Undefined = 0,
 	jnc_UnOpKind_Plus,
 	jnc_UnOpKind_Minus,
@@ -54,8 +53,7 @@ jnc_getUnOpKindString(jnc_UnOpKind opKind);
 
 //..............................................................................
 
-enum jnc_BinOpKind
-{
+enum jnc_BinOpKind {
 	jnc_BinOpKind_Undefined = 0,
 
 	// arithmetic
@@ -188,15 +186,13 @@ const BinOpKind
 
 inline
 const char*
-getUnOpKindString(UnOpKind opKind)
-{
+getUnOpKindString(UnOpKind opKind) {
 	return jnc_getUnOpKindString(opKind);
 }
 
 inline
 const char*
-getBinOpKindString(BinOpKind opKind)
-{
+getBinOpKindString(BinOpKind opKind) {
 	return jnc_getBinOpKindString(opKind);
 }
 

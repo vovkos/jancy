@@ -9,40 +9,35 @@
 //
 //..............................................................................
 
-struct Point
-{
+struct Point {
 	int m_x;
 	int m_y;
 	int m_z;
 	int m_w;
 }
 
-class OpaqueTest
-{
+class OpaqueTest {
 /*	OpaqueTest* operator new(
 		int x,
 		int y
-		); */
+	); */
 
 	int m_x;
 	int m_y;
 
-	construct(int x, int y)
-	{
+	construct(int x, int y) {
 		m_x = x;
 		m_y = y;
 	}
 
-	void foo()
-	{
+	void foo() {
 		printf("C1.foo () { m_x = %d, m_y = %d }\n", m_x, m_y);
 	}
 
 	Point thiscall bar(
 		int x,
 		int y
-		)
-	{
+	) {
 		printf("C1.bar (%d, %d) { m_x = %d, m_y = %d }\n", x, y, m_x, m_y);
 
 		Point point = { 100, 200, 300, 400 }
@@ -50,8 +45,7 @@ class OpaqueTest
 	}
 }
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	OpaqueTest* a = new OpaqueTest(1, 2);
@@ -65,7 +59,7 @@ int main()
 		point.m_y,
 		point.m_z,
 		point.m_w
-		);
+	);
 
 	return 0;
 }

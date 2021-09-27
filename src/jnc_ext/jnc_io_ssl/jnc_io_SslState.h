@@ -22,8 +22,7 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(SslState)
 
 //..............................................................................
 
-enum SslStdDh
-{
+enum SslStdDh {
 	SslStdDh_Dh1024x160,
 	SslStdDh_Dh2048x224,
 	SslStdDh_Dh2048x256,
@@ -31,8 +30,7 @@ enum SslStdDh
 
 //..............................................................................
 
-class SslState: public SslStateBase
-{
+class SslState: public SslStateBase {
 public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(SslState)
 
@@ -49,7 +47,7 @@ public:
 	openSsl(
 		Runtime* runtime,
 		axl::io::Socket* socket
-		);
+	);
 
 	static
 	SslState*
@@ -81,52 +79,45 @@ public:
 
 	int
 	JNC_CDECL
-	getVerifyMode()
-	{
+	getVerifyMode() {
 		return m_ssl.getVerifyMode();
 	}
 
 	void
 	JNC_CDECL
-	setVerifyMode(int mode)
-	{
+	setVerifyMode(int mode) {
 		m_ssl.setVerifyMode(mode);
 	}
 
 	size_t
 	JNC_CDECL
-	getVerifyDepth()
-	{
+	getVerifyDepth() {
 		return m_ssl.getVerifyDepth();
 	}
 
 	void
 	JNC_CDECL
-	setVerifyDepth(size_t depth)
-	{
+	setVerifyDepth(size_t depth) {
 		m_ssl.setVerifyDepth((int)depth);
 	}
 
 	static
 	DataPtr
 	JNC_CDECL
-	getStateString(SslState* self)
-	{
+	getStateString(SslState* self) {
 		return strDup(self->m_ssl.getStateString());
 	}
 
 	static
 	DataPtr
 	JNC_CDECL
-	getStateStringLong(SslState* self)
-	{
+	getStateStringLong(SslState* self) {
 		return strDup(self->m_ssl.getStateStringLong());
 	}
 
 	bool
 	JNC_CDECL
-	enableCiphers(DataPtr ciphersPtr)
-	{
+	enableCiphers(DataPtr ciphersPtr) {
 		return
 			m_sslCtx.setCipherList((char*)ciphersPtr.m_p) &&
 			m_ssl.setCipherList((char*)ciphersPtr.m_p);
@@ -137,7 +128,7 @@ public:
 	setEphemeralDhParams(
 		DataPtr pemPtr,
 		size_t length
-		);
+	);
 
 	bool
 	JNC_CDECL
@@ -156,29 +147,25 @@ public:
 	loadVerifyLocations(
 		DataPtr caFileNamePtr,
 		DataPtr caDirPtr
-		)
-	{
+	) {
 		return m_sslCtx.loadVerifyLocations((char*)caFileNamePtr.m_p, (char*)caDirPtr.m_p);
 	}
 
 	bool
 	JNC_CDECL
-	loadCertificate(DataPtr fileNamePtr)
-	{
+	loadCertificate(DataPtr fileNamePtr) {
 		return m_ssl.useCertificateFile((char*)fileNamePtr.m_p, SSL_FILETYPE_PEM);
 	}
 
 	bool
 	JNC_CDECL
-	loadPrivateKey(DataPtr fileNamePtr)
-	{
+	loadPrivateKey(DataPtr fileNamePtr) {
 		return m_ssl.usePrivateKeyFile((char*)fileNamePtr.m_p, SSL_FILETYPE_PEM);
 	}
 
 	bool
 	JNC_CDECL
-	shutdown()
-	{
+	shutdown() {
 		return m_ssl.shutdown();
 	}
 
@@ -189,7 +176,7 @@ protected:
 		const SSL* ssl,
 		int where,
 		int ret
-		);
+	);
 };
 
 //..............................................................................

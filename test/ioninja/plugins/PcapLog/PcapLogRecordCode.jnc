@@ -7,8 +7,7 @@ import "log_RecordCode.jnc"
 
 //..............................................................................
 
-enum PcapLogRecordCode: uint64_t
-{
+enum PcapLogRecordCode: uint64_t {
 	StartingCapture       = 0x01d485681832d000,
 	CaptureStarted        = 0x01d485681832d001,
 	CaptureError          = 0x01d485681832d002,
@@ -20,8 +19,7 @@ enum PcapLogRecordCode: uint64_t
 	SetAddressFilter      = 0x01d485681832d008,
 }
 
-enum PcapLogPartCode: uint64_t
-{
+enum PcapLogPartCode: uint64_t {
 	StartingCapture        = 0x01d485681832d000 | log.PartCodeFlags.MergeableForward,
 	CaptureCompleted       = 0x01d485681832d000 | log.PartCodeFlags.MergeableBackward,
 	ChangingCaptureFilter  = 0x01d485681832d004 | log.PartCodeFlags.MergeableForward,

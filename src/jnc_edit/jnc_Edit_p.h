@@ -23,19 +23,16 @@ class CodeTip;
 
 //..............................................................................
 
-class EditPrivate: public QObject
-{
+class EditPrivate: public QObject {
 	Q_OBJECT
 	Q_DECLARE_PUBLIC(Edit)
 
 public:
-	enum Timeout
-	{
+	enum Timeout {
 		Timeout_QuickInfo = 500,
 	};
 
-	enum Color
-	{
+	enum Color {
 		Color_SelectionBack         = 0x99c9ef,
 		Color_SelectionBackInactive = 0xe0e0e0,
 		Color_CurrentLineBack       = 0xe8eff8,
@@ -43,28 +40,24 @@ public:
 		Color_BraceMatch            = 0xfff080,
 	};
 
-	enum Column
-	{
+	enum Column {
 		Column_Name     = 0,
 		Column_Synopsis = 1,
 	};
 
-	enum Limit
-	{
+	enum Limit {
 		Limit_MaxVisibleItemCount = 16,
 		Limit_MaxNameWidth        = 256,
 		Limit_MaxSynopsisWidth    = 512,
 	};
 
 protected:
-	enum Role
-	{
+	enum Role {
 		Role_CaseInsensitiveSort = Qt::UserRole + 1,
 		Role_ModuleItem,
 	};
 
-	enum Icon
-	{
+	enum Icon {
 		Icon_Object,
 		Icon_Namespace,
 		Icon_Event,
@@ -78,8 +71,7 @@ protected:
 		Icon__Count,
 	};
 
-	enum HighlightKind
-	{
+	enum HighlightKind {
 		HighlightKind_CurrentLine,
 		HighlightKind_AnchorBrace,
 		HighlightKind_PairBrace,
@@ -142,8 +134,7 @@ protected:
 	requestCodeAssist(
 		CodeAssistKind kind,
 		const QTextCursor& cursor
-		)
-	{
+	) {
 		requestCodeAssist(kind, cursor.position());
 	}
 
@@ -151,7 +142,7 @@ protected:
 	requestCodeAssist(
 		CodeAssistKind kind,
 		int position
-		);
+	);
 
 	void
 	requestQuickInfoTip(const QPoint& pos);
@@ -163,14 +154,12 @@ protected:
 	ensureCodeTip();
 
 	bool
-	isCompleterVisible()
-	{
+	isCompleterVisible() {
 		return m_completer && m_completer->popup()->isVisible();
 	}
 
 	bool
-	isCodeTipVisible()
-	{
+	isCodeTipVisible() {
 		return m_codeTip && m_codeTip->isVisible();
 	}
 
@@ -190,13 +179,13 @@ protected:
 	createArgumentTip(
 		FunctionTypeOverload* typeOverload,
 		size_t argumentIdx
-		);
+	);
 
 	void
 	createAutoComplete(
 		Namespace* nspace,
 		uint_t flags
-		);
+	);
 
 	void
 	createImportAutoComplete(Module* module);
@@ -205,13 +194,13 @@ protected:
 	addAutoCompleteNamespace(
 		QStandardItemModel* model,
 		Namespace* nspace
-		);
+	);
 
 	void
 	addFile(
 		QStandardItemModel* model,
 		const QString& fileName
-		);
+	);
 
 	size_t
 	getItemIconIdx(ModuleItem* item);
@@ -220,7 +209,7 @@ protected:
 	getCursorFromLineCol(
 		int line,
 		int col
-		);
+	);
 
 	QTextCursor
 	getCursorFromOffset(size_t offset);
@@ -235,8 +224,7 @@ protected:
 	getLastCodeAssistCursorRect();
 
 	int
-	getLastCodeAssistPosition()
-	{
+	getLastCodeAssistPosition() {
 		return m_lastCodeAssistPosition != -1 ? m_lastCodeAssistPosition : calcLastCodeAssistPosition();
 	}
 
@@ -293,13 +281,10 @@ private slots:
 
 //..............................................................................
 
-class CompleterItemDelegate: public QStyledItemDelegate
-{
+class CompleterItemDelegate: public QStyledItemDelegate {
 public:
 	CompleterItemDelegate(QObject* parent = NULL):
-		QStyledItemDelegate(parent)
-	{
-	}
+		QStyledItemDelegate(parent) {}
 
 	virtual
 	void
@@ -307,32 +292,28 @@ public:
 		QPainter* painter,
 		const QStyleOptionViewItem& option0,
 		const QModelIndex& index
-		) const;
+	) const;
 };
 
 //..............................................................................
 
-struct PairBrace
-{
+struct PairBrace {
 	QChar m_c;
 	bool m_isBackwardSearch;
 
-	PairBrace()
-	{
+	PairBrace() {
 		m_isBackwardSearch = false;
 	}
 
 	PairBrace(
 		QChar c,
 		bool isBackwardSearch = false
-		)
-	{
+	) {
 		m_c = c;
 		m_isBackwardSearch = isBackwardSearch;
 	}
 
-	operator bool () const
-	{
+	operator bool () const {
 		return !m_c.isNull();
 	}
 };

@@ -23,7 +23,7 @@ set(
 	GRACO_CMD_LINE
 	${JANCY_SRC_DIR}/jnc_ct/jnc_ct_Parser/jnc_ct_Parser.llk
 	-b ${CMAKE_CURRENT_BINARY_DIR}/jancy.llk
-	)
+)
 
 set(
 	SPHINX_HTML_CMD_LINE
@@ -32,14 +32,14 @@ set(
 	-c ${CMAKE_CURRENT_BINARY_DIR}
 	${RST_DIR}
 	${HTML_DIR}
-	)
+)
 
 set(
 	CMD_LINE_VAR_LIST
 
 	GRACO_CMD_LINE
 	SPHINX_HTML_CMD_LINE
-	)
+)
 
 foreach(_VAR ${CMD_LINE_VAR_LIST})
 	string(
@@ -47,7 +47,7 @@ foreach(_VAR ${CMD_LINE_VAR_LIST})
 		";" " "
 		${_VAR}
 		"${${_VAR}}"
-		)
+	)
 endforeach()
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -55,13 +55,13 @@ endforeach()
 configure_file(
 	conf.py.in
 	conf.py
-	)
+)
 
 configure_file(
 	index.rst
 	index.rst
 	COPYONLY
-	)
+)
 
 if(WIN32)
 	string(REPLACE "$(Configuration)" "%1" GRACO_EXE ${GRACO_EXE})
@@ -69,12 +69,12 @@ if(WIN32)
 	configure_file(
 		build-llk.bat.in
 		build-llk.bat
-		)
+	)
 
 	configure_file(
 		${AXL_DOC_SHARE_DIR}/sh/build-html.bat.in
 		build-html.bat
-		)
+	)
 else()
 	axl_configure_file_w_permissions(
 		build-llk.sh.in
@@ -82,7 +82,7 @@ else()
 		OWNER_READ OWNER_WRITE OWNER_EXECUTE
 		GROUP_READ GROUP_WRITE GROUP_EXECUTE
 		WORLD_READ WORLD_WRITE WORLD_EXECUTE
-		)
+	)
 
 	axl_configure_file_w_permissions(
 		${AXL_DOC_SHARE_DIR}/sh/build-html.sh.in
@@ -90,7 +90,7 @@ else()
 		OWNER_READ OWNER_WRITE OWNER_EXECUTE
 		GROUP_READ GROUP_WRITE GROUP_EXECUTE
 		WORLD_READ WORLD_WRITE WORLD_EXECUTE
-		)
+	)
 endif()
 
 #...............................................................................

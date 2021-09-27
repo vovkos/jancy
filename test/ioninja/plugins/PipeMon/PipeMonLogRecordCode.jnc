@@ -7,8 +7,7 @@ import "log_RecordCode.jnc"
 
 //..............................................................................
 
-enum PipeMonLogRecordCode: uint64_t
-{
+enum PipeMonLogRecordCode: uint64_t {
 	ServerFileOpened_0     = 0x01d48717897030a1,
 	ServerFileOpenError_0  = 0x01d48717897030a2,
 	ClientFileOpened_0     = 0x01d48717897030a3,
@@ -32,16 +31,14 @@ enum PipeMonLogRecordCode: uint64_t
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum PipeMonLogPartCode: uint64_t
-{
+enum PipeMonLogPartCode: uint64_t {
 	Prefix = 0x01d48717897030ae | log.PartCodeFlags.MergeableForward,
 	Suffix = 0x01d48717897030ae | log.PartCodeFlags.MergeableBackward,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct PipeMonLogTransactionParams
-{
+struct PipeMonLogTransactionParams {
 	uint32_t _m_unused; // previously, fileId
 	uint32_t m_txDataSize;
 	uint32_t m_rxDataSize;

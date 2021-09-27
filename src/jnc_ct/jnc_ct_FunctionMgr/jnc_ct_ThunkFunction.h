@@ -18,8 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-class ThunkFunction: public CompilableFunction
-{
+class ThunkFunction: public CompilableFunction {
 	friend class FunctionMgr;
 
 protected:

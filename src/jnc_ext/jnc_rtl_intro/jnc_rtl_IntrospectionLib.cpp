@@ -92,14 +92,14 @@ namespace rtl {
 JNC_DEFINE_GUID(
 	jnc_g_introspectionLibGuid,
 	0xa6a0cd47, 0x577d, 0x4bf0, 0x80, 0x95, 0xd0, 0x0, 0xf7, 0xcd, 0x38, 0xa1
-	);
+);
 
 JNC_DEFINE_LIB(
 	jnc_IntrospectionLib,
 	jnc_g_introspectionLibGuid,
 	"IntrospectionLib",
 	"Jancy introspection RTL extension library"
-	)
+)
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE(jnc_IntrospectionLib)
 	JNC_LIB_SOURCE_FILE("jnc_intro.jnc",          g_jnc_introSrc)
@@ -211,8 +211,7 @@ JNC_CDECL
 getIntrospectionClass(
 	void* item,
 	StdType stdType
-	)
-{
+) {
 	if (!item)
 		return NULL;
 
@@ -221,8 +220,7 @@ getIntrospectionClass(
 }
 
 Function*
-getFunction(OverloadableFunction function)
-{
+getFunction(OverloadableFunction function) {
 	return function ?
 		function->getItemKind() == ModuleItemKind_Function ?
 			getFunction(function.getFunction()) :

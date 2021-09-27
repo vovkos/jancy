@@ -55,8 +55,7 @@ typedef struct jnc_CallSite jnc_CallSite;
 // every class instance, every gc-allocated block and every static variable
 // whose address has been used by a safe pointer needs a box
 
-enum jnc_BoxFlag
-{
+enum jnc_BoxFlag {
 	jnc_BoxFlag_WeakMark        = 0x0001,
 	jnc_BoxFlag_ClosureWeakMark = 0x0002,
 	jnc_BoxFlag_DataMark        = 0x0004,
@@ -74,8 +73,7 @@ typedef enum jnc_BoxFlag jnc_BoxFlag;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct jnc_Box
-{
+struct jnc_Box {
 	jnc_Type* m_type;
 
 	uintptr_t m_flags      : 10;
@@ -92,8 +90,7 @@ struct jnc_Box
 // structure backing up fat data pointer, e.g.:
 // int* p;
 
-struct jnc_DataPtr
-{
+struct jnc_DataPtr {
 	void* m_p;
 	jnc_DataPtrValidator* m_validator;
 };
@@ -102,8 +99,7 @@ struct jnc_DataPtr
 
 // metainfo used for range checking, dynamic casts etc
 
-struct jnc_DataPtrValidator
-{
+struct jnc_DataPtrValidator {
 	jnc_Box* m_validatorBox;
 	jnc_Box* m_targetBox;
 	const void* m_rangeBegin;
@@ -111,8 +107,7 @@ struct jnc_DataPtrValidator
 
 #ifdef __cplusplus
 	size_t
-	getRangeLength()
-	{
+	getRangeLength() {
 		return (char*)m_rangeEnd - (char*)m_rangeBegin;
 	}
 #endif
@@ -124,8 +119,7 @@ struct jnc_DataPtrValidator
 // int function* pfTest (int, int);
 // int function weak* pfTest (int, int);
 
-struct jnc_FunctionPtr
-{
+struct jnc_FunctionPtr {
 	void* m_p;
 	jnc_IfaceHdr* m_closure;
 };
@@ -136,8 +130,7 @@ struct jnc_FunctionPtr
 // int property* pxTest;
 // int property weak* pxTest;
 
-struct jnc_PropertyPtr
-{
+struct jnc_PropertyPtr {
 	const void* const* m_vtable;
 	jnc_IfaceHdr* m_closure;
 };
@@ -146,16 +139,14 @@ struct jnc_PropertyPtr
 
 // specialized boxes
 
-struct jnc_DataBox
-{
+struct jnc_DataBox {
 	jnc_Box m_box;
 	jnc_DataPtrValidator m_validator;
 
 	// followed by actual data
 };
 
-struct jnc_DetachedDataBox
-{
+struct jnc_DetachedDataBox {
 	jnc_Box m_box;
 	jnc_DataPtrValidator m_validator;
 	void* m_p; // detached from the actual data (for static & foreign data)
@@ -165,8 +156,7 @@ struct jnc_DetachedDataBox
 
 // header of class iface
 
-struct jnc_IfaceHdr
-{
+struct jnc_IfaceHdr {
 	const void* m_vtable;
 	jnc_Box* m_box;
 
@@ -178,8 +168,7 @@ struct jnc_IfaceHdr
 // structure backing up multicasts, e.g.:
 // multicast f ();
 
-struct jnc_Multicast
-{
+struct jnc_Multicast {
 	jnc_IfaceHdr m_ifaceHdr;
 	volatile intptr_t m_lock;
 	jnc_DataPtr m_ptr; // array of function closure, weak or unsafe pointers
@@ -192,8 +181,7 @@ struct jnc_Multicast
 
 // multicast.getSnapshot method returns an instance of this class:
 
-struct jnc_McSnapshot
-{
+struct jnc_McSnapshot {
 	jnc_IfaceHdr m_ifaceHdr;
 	jnc_DataPtr m_ptr; // array of function closure or unsafe pointers
 	size_t m_count;
@@ -208,17 +196,15 @@ void
 jnc_Scheduler_ScheduleFunc(
 	jnc_Scheduler* scheduler,
 	jnc_FunctionPtr functionPtr
-	);
+);
 
-struct jnc_SchedulerVtable
-{
+struct jnc_SchedulerVtable {
 	jnc_Scheduler_ScheduleFunc* m_scheduleFunc;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct jnc_Scheduler
-{
+struct jnc_Scheduler {
 	jnc_IfaceHdr m_ifaceHdr;
 };
 
@@ -226,8 +212,7 @@ struct jnc_Scheduler
 
 // each reactor is represented by this class:
 
-struct jnc_Reactor
-{
+struct jnc_Reactor {
 	jnc_IfaceHdr m_ifaceHdr;
 	size_t m_activationCountLimit; // freely adjustible
 
@@ -236,8 +221,7 @@ struct jnc_Reactor
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct jnc_ReactorClosure
-{
+struct jnc_ReactorClosure {
 	jnc_IfaceHdr m_ifaceHdr;
 	jnc_Reactor* m_self;
 	void* m_binding; // jnc::rtl::ReactorImpl::Binding*
@@ -247,8 +231,7 @@ struct jnc_ReactorClosure
 
 // structure backing up formatting literal
 
-struct jnc_FmtLiteral
-{
+struct jnc_FmtLiteral {
 	jnc_DataPtr m_ptr;
 	size_t m_length;
 	size_t m_maxLength;
@@ -256,8 +239,7 @@ struct jnc_FmtLiteral
 
 //..............................................................................
 
-struct jnc_GcShadowStackFrame
-{
+struct jnc_GcShadowStackFrame {
 	jnc_GcShadowStackFrame* m_prev;
 	jnc_GcShadowStackFrameMap* m_map;
 	void** m_gcRootArray; // stack array
@@ -265,8 +247,7 @@ struct jnc_GcShadowStackFrame
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct jnc_GcShadowStackFrameMapBuffer
-{
+struct jnc_GcShadowStackFrameMapBuffer {
 	jnc_ListLink m_link;
 	jnc_GcShadowStackFrameMap* m_prev;
 	intptr_t m_mapKind;
@@ -276,8 +257,7 @@ struct jnc_GcShadowStackFrameMapBuffer
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct jnc_GcMutatorThread
-{
+struct jnc_GcMutatorThread {
 	jnc_ListLink m_link;
 	uint64_t m_threadId;
 	volatile bool_t m_isSafePoint;
@@ -296,7 +276,7 @@ void
 jnc_MarkOpaqueGcRootsFunc(
 	jnc_IfaceHdr* iface,
 	jnc_GcHeap* gcHeap
-	);
+);
 
 typedef
 void
@@ -304,8 +284,7 @@ jnc_RequireOpaqueItemsFunc(jnc_Module* module);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct jnc_OpaqueClassTypeInfo
-{
+struct jnc_OpaqueClassTypeInfo {
 	size_t m_size;
 	jnc_MarkOpaqueGcRootsFunc* m_markOpaqueGcRootsFunc;
 	jnc_RequireOpaqueItemsFunc* m_requireOpaqueItemsFunc;
@@ -315,8 +294,7 @@ struct jnc_OpaqueClassTypeInfo
 //..............................................................................
 
 #if (_JNC_OS_POSIX)
-struct jnc_SignalInfo
-{
+struct jnc_SignalInfo {
 	int m_signal;
 	int m_code;
 	uintptr_t m_codeAddress;
@@ -329,8 +307,7 @@ struct jnc_SignalInfo
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct jnc_SjljFrame
-{
+struct jnc_SjljFrame {
 	jmp_buf m_jmpBuf;
 #if (_JNC_OS_POSIX)
 	jnc_SignalInfo m_signalInfo;
@@ -339,8 +316,7 @@ struct jnc_SjljFrame
 
 //..............................................................................
 
-struct jnc_Tls
-{
+struct jnc_Tls {
 	jnc_ListLink m_link;
 	jnc_Runtime* m_runtime;
 	jnc_GcMutatorThread m_gcMutatorThread;
@@ -350,8 +326,7 @@ struct jnc_Tls
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct jnc_TlsVariableTable
-{
+struct jnc_TlsVariableTable {
 	jnc_SjljFrame* m_sjljFrame;
 	jnc_GcShadowStackFrame* m_gcShadowStackTop;
 	jnc_IfaceHdr* m_asyncScheduler;
@@ -361,8 +336,7 @@ struct jnc_TlsVariableTable
 
 //..............................................................................
 
-struct jnc_CallSite
-{
+struct jnc_CallSite {
 	jnc_CallSite* m_prev;
 	jnc_Tls* m_tls;
 	jnc_GcShadowStackFrame m_gcShadowStackDynamicFrame;
@@ -461,22 +435,18 @@ JNC_SELECT_ANY PropertyPtr g_nullPropertyPtr = { 0 };
 
 //..............................................................................
 
-class GetGcMutatorThreadLink
-{
+class GetGcMutatorThreadLink {
 public:
 	ListLink*
-	operator () (GcMutatorThread* thread)
-	{
+	operator () (GcMutatorThread* thread) {
 		return &thread->m_link;
 	}
 };
 
-class GetTlsLink
-{
+class GetTlsLink {
 public:
 	ListLink*
-	operator () (Tls* tls)
-	{
+	operator () (Tls* tls) {
 		return &tls->m_link;
 	}
 };
@@ -489,21 +459,17 @@ public:
 // all kinds of alignments (1, 2, 4, 8)
 
 template <typename T>
-class ClassBoxBase: public Box
-{
+class ClassBoxBase: public Box {
 public:
-	T* p()
-	{
+	T* p() {
 		return (T*)(this + 1);
 	}
 
-	operator T* ()
-	{
+	operator T* () {
 		return p();
 	}
 
-	T* operator -> ()
-	{
+	T* operator -> () {
 		return p();
 	}
 };
@@ -511,8 +477,7 @@ public:
 #pragma pack(push, 1)
 
 template <typename T>
-class ClassBox_align1: public ClassBoxBase<T>
-{
+class ClassBox_align1: public ClassBoxBase<T> {
 protected:
 	char m_buffer[sizeof(T)];
 } JNC_GCC_MSC_STRUCT;
@@ -520,8 +485,7 @@ protected:
 #pragma pack(2)
 
 template <typename T>
-class ClassBox_align2: public ClassBoxBase<T>
-{
+class ClassBox_align2: public ClassBoxBase<T> {
 protected:
 	char m_buffer[sizeof(T)];
 } JNC_GCC_MSC_STRUCT;
@@ -529,8 +493,7 @@ protected:
 #pragma pack(4)
 
 template <typename T>
-class ClassBox_align4: public ClassBoxBase<T>
-{
+class ClassBox_align4: public ClassBoxBase<T> {
 protected:
 	char m_buffer[sizeof(T)];
 } JNC_GCC_MSC_STRUCT;
@@ -538,14 +501,12 @@ protected:
 #pragma pack(8)
 
 template <typename T>
-class ClassBox_align8: public ClassBoxBase<T>
-{
+class ClassBox_align8: public ClassBoxBase<T> {
 protected:
 #if (JNC_PTR_SIZE == 8) // 8-byte alignment will be forced by Box/IfaceHdr
 	char m_buffer[sizeof(T)];
 #else
-	union
-	{
+	union {
 		/// \unnamed{union}
 		char m_buffer[sizeof(T)];
 		int64_t m_align8; // otherwise, we need an 8-byte field
@@ -558,8 +519,7 @@ protected:
 // default alignment
 
 template <typename T>
-class ClassBox: public ClassBoxBase<T>
-{
+class ClassBox: public ClassBoxBase<T> {
 protected:
 	char m_buffer[sizeof(T)];
 };

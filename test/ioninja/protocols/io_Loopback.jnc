@@ -10,8 +10,7 @@ namespace io {
 
 //..............................................................................
 
-enum LoopbackProtocolFamily: uint32_t
-{
+enum LoopbackProtocolFamily: uint32_t {
 	Ip  = 2,
 	Ip6 = 24,
 }
@@ -21,8 +20,7 @@ enum LoopbackProtocolFamily: uint32_t
 [
 	displayName = "LOOPBACK",
 ]
-struct LoopbackHdr
-{
+struct LoopbackHdr {
 	[ displayName = "Protocol family" ]
 	LoopbackProtocolFamily m_protocolFamily;
 }

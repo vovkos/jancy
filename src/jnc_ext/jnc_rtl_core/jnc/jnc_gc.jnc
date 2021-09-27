@@ -16,8 +16,7 @@ namespace jnc {
 
 //..............................................................................
 
-struct GcStats
-{
+struct GcStats {
 	size_t m_currentAllocSize;
 	size_t m_totalAllocSize;
 	size_t m_peakAllocSize;
@@ -35,8 +34,7 @@ GcStats getGcStats();
 
 //..............................................................................
 
-struct GcTriggers
-{
+struct GcTriggers {
 	size_t m_allocSizeTrigger;
 	size_t m_periodSizeTrigger;
 }

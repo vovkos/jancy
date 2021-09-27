@@ -46,8 +46,7 @@
 
 //..............................................................................
 
-enum jnc_TypeKind
-{
+enum jnc_TypeKind {
 	// primitive types (completely identified by TypeKind)
 
 	jnc_TypeKind_Void,                // v
@@ -158,8 +157,7 @@ typedef enum jnc_TypeKind jnc_TypeKind;
 
 // useful for simple checks
 
-enum jnc_TypeKindFlag
-{
+enum jnc_TypeKindFlag {
 	jnc_TypeKindFlag_Integer      = 0x00000001,
 	jnc_TypeKindFlag_Unsigned     = 0x00000002,
 	jnc_TypeKindFlag_BigEndian    = 0x00000004,
@@ -190,8 +188,7 @@ jnc_getTypeKindFlags(jnc_TypeKind typeKind);
 
 //..............................................................................
 
-enum jnc_TypeFlag
-{
+enum jnc_TypeFlag {
 	jnc_TypeFlag_Named     = 0x0100,
 	jnc_TypeFlag_Pod       = 0x0200, // plain-old-data
 	jnc_TypeFlag_GcRoot    = 0x0400, // is or contains gc-traceable pointers
@@ -203,8 +200,7 @@ enum jnc_TypeFlag
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum jnc_PtrTypeFlag
-{
+enum jnc_PtrTypeFlag {
 	jnc_PtrTypeFlag_Safe       = 0x0010000, // all ptr
 	jnc_PtrTypeFlag_Const      = 0x0020000, // class & data ptr
 	jnc_PtrTypeFlag_ReadOnly   = 0x0040000, // class & data ptr
@@ -227,8 +223,7 @@ enum jnc_PtrTypeFlag
 
 // commonly used non-primitive types
 
-enum jnc_StdType
-{
+enum jnc_StdType {
 	jnc_StdType_BytePtr,
 	jnc_StdType_CharConstPtr,
 	jnc_StdType_IfaceHdr,
@@ -326,8 +321,7 @@ typedef enum jnc_StdType jnc_StdType;
 
 // data ptr
 
-enum jnc_DataPtrTypeKind
-{
+enum jnc_DataPtrTypeKind {
 	jnc_DataPtrTypeKind_Normal = 0,
 	jnc_DataPtrTypeKind_Lean,
 	jnc_DataPtrTypeKind_Thin,
@@ -350,8 +344,7 @@ jnc_Type_getTypeKind(jnc_Type* type);
 
 JNC_INLINE
 uint_t
-jnc_Type_getTypeKindFlags(jnc_Type* type)
-{
+jnc_Type_getTypeKindFlags(jnc_Type* type) {
 	jnc_TypeKind typeKind = jnc_Type_getTypeKind(type);
 	return jnc_getTypeKindFlags(typeKind);
 }
@@ -377,7 +370,7 @@ int
 jnc_Type_cmp(
 	jnc_Type* type,
 	jnc_Type* type2
-	);
+);
 
 JNC_EXTERN_C
 jnc_DataPtrType*
@@ -386,7 +379,7 @@ jnc_Type_getDataPtrType(
 	jnc_TypeKind typeKind,
 	jnc_DataPtrTypeKind ptrTypeKind,
 	uint_t flags
-	);
+);
 
 JNC_EXTERN_C
 bool_t
@@ -402,53 +395,45 @@ jnc_Type_markGcRoots(
 	jnc_Type* type,
 	const void* p,
 	jnc_GcHeap* gcHeap
-	);
+);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
-struct jnc_Type: jnc_ModuleItem
-{
+struct jnc_Type: jnc_ModuleItem {
 	jnc_TypeKind
-	getTypeKind()
-	{
+	getTypeKind() {
 		return jnc_Type_getTypeKind(this);
 	}
 
 	uint_t
-	getTypeKindFlags()
-	{
+	getTypeKindFlags() {
 		return jnc_Type_getTypeKindFlags(this);
 	}
 
 	size_t
-	getSize()
-	{
+	getSize() {
 		return jnc_Type_getSize(this);
 	}
 
 	const char*
-	getTypeString()
-	{
+	getTypeString() {
 		return jnc_Type_getTypeString(this);
 	}
 
 	const char*
-	getTypeStringPrefix()
-	{
+	getTypeStringPrefix() {
 		return jnc_Type_getTypeStringPrefix(this);
 	}
 
 	const char*
-	getTypeStringSuffix()
-	{
+	getTypeStringSuffix() {
 		return jnc_Type_getTypeStringSuffix(this);
 	}
 
 	int
-	cmp(jnc_Type* type)
-	{
+	cmp(jnc_Type* type) {
 		return jnc_Type_cmp(this, type);
 	}
 
@@ -457,8 +442,7 @@ struct jnc_Type: jnc_ModuleItem
 		jnc_TypeKind typeKind,
 		jnc_DataPtrTypeKind ptrTypeKind = jnc_DataPtrTypeKind_Normal,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return jnc_Type_getDataPtrType(this, typeKind, ptrTypeKind, flags);
 	}
 
@@ -466,20 +450,17 @@ struct jnc_Type: jnc_ModuleItem
 	getDataPtrType(
 		jnc_DataPtrTypeKind ptrTypeKind = jnc_DataPtrTypeKind_Normal,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return jnc_Type_getDataPtrType(this, jnc_TypeKind_DataPtr, ptrTypeKind, flags);
 	}
 
 	bool
-	ensureLayout()
-	{
+	ensureLayout() {
 		return jnc_Type_ensureLayout(this) != 0;
 	}
 
 	bool
-	ensureNoImports()
-	{
+	ensureNoImports() {
 		return jnc_Type_ensureNoImports(this) != 0;
 	}
 
@@ -487,8 +468,7 @@ struct jnc_Type: jnc_ModuleItem
 	markGcRoots(
 		const void* p,
 		jnc_GcHeap* gcHeap
-		)
-	{
+	) {
 		jnc_Type_markGcRoots(this, p, gcHeap);
 	}
 };
@@ -499,8 +479,7 @@ struct jnc_Type: jnc_ModuleItem
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
-struct jnc_NamedType: jnc_Type
-{
+struct jnc_NamedType: jnc_Type {
 };
 
 #endif // _JNC_CORE
@@ -519,17 +498,14 @@ jnc_DataPtrType_getTargetType(jnc_DataPtrType* type);
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
-struct jnc_DataPtrType: jnc_Type
-{
+struct jnc_DataPtrType: jnc_Type {
 	jnc_DataPtrTypeKind
-	getPtrTypeKind()
-	{
+	getPtrTypeKind() {
 		return jnc_DataPtrType_getPtrTypeKind(this);
 	}
 
 	jnc_Type*
-	getTargetType()
-	{
+	getTargetType() {
 		return jnc_DataPtrType_getTargetType(this);
 	}
 };
@@ -540,8 +516,7 @@ struct jnc_DataPtrType: jnc_Type
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
-struct jnc_Typedef: jnc_ModuleItem
-{
+struct jnc_Typedef: jnc_ModuleItem {
 };
 
 #endif // _JNC_CORE
@@ -550,8 +525,7 @@ struct jnc_Typedef: jnc_ModuleItem
 
 JNC_INLINE
 bool_t
-jnc_isCharPtrType(jnc_Type* type)
-{
+jnc_isCharPtrType(jnc_Type* type) {
 	return
 		jnc_Type_getTypeKind(type) == jnc_TypeKind_DataPtr &&
 		jnc_Type_getTypeKind(jnc_DataPtrType_getTargetType((jnc_DataPtrType*)type)) == jnc_TypeKind_Char;
@@ -559,8 +533,7 @@ jnc_isCharPtrType(jnc_Type* type)
 
 JNC_INLINE
 bool_t
-jnc_isDerivableTypePtrType(jnc_Type* type)
-{
+jnc_isDerivableTypePtrType(jnc_Type* type) {
 	return
 		jnc_Type_getTypeKind(type) == jnc_TypeKind_DataPtr &&
 		(jnc_Type_getTypeKindFlags(jnc_DataPtrType_getTargetType((jnc_DataPtrType*)type)) & jnc_TypeKindFlag_Derivable);
@@ -568,8 +541,7 @@ jnc_isDerivableTypePtrType(jnc_Type* type)
 
 JNC_INLINE
 bool_t
-jnc_isArrayRefType(jnc_Type* type)
-{
+jnc_isArrayRefType(jnc_Type* type) {
 	return
 		jnc_Type_getTypeKind(type) == jnc_TypeKind_DataRef &&
 		jnc_Type_getTypeKind(jnc_DataPtrType_getTargetType((jnc_DataPtrType*)type)) == jnc_TypeKind_Array;
@@ -580,8 +552,7 @@ bool_t
 jnc_isDataPtrType(
 	jnc_Type* type,
 	jnc_DataPtrTypeKind kind
-	)
-{
+) {
 	return
 		(jnc_Type_getTypeKindFlags(type) & jnc_TypeKindFlag_DataPtr) &&
 		jnc_DataPtrType_getPtrTypeKind(((jnc_DataPtrType*)type)) == kind;
@@ -686,8 +657,7 @@ const TypeKindFlag
 
 inline
 uint_t
-getTypeKindFlags(TypeKind typeKind)
-{
+getTypeKindFlags(TypeKind typeKind) {
 	return jnc_getTypeKindFlags(typeKind);
 }
 
@@ -824,8 +794,7 @@ const DataPtrTypeKind
 
 inline
 const char*
-getDataPtrTypeKindString(DataPtrTypeKind ptrTypeKind)
-{
+getDataPtrTypeKindString(DataPtrTypeKind ptrTypeKind) {
 	return jnc_getDataPtrTypeKindString(ptrTypeKind);
 }
 
@@ -833,22 +802,19 @@ getDataPtrTypeKindString(DataPtrTypeKind ptrTypeKind)
 
 inline
 bool
-isCharPtrType(Type* type)
-{
+isCharPtrType(Type* type) {
 	return jnc_isCharPtrType(type) != 0;
 }
 
 inline
 bool
-isDerivableTypePtrType(Type* type)
-{
+isDerivableTypePtrType(Type* type) {
 	return jnc_isDerivableTypePtrType(type) != 0;
 }
 
 inline
 bool
-isArrayRefType(Type* type)
-{
+isArrayRefType(Type* type) {
 	return jnc_isArrayRefType(type) != 0;
 }
 
@@ -857,8 +823,7 @@ bool
 isDataPtrType(
 	Type* type,
 	DataPtrTypeKind kind
-	)
-{
+) {
 	return jnc_isDataPtrType(type, kind) != 0;
 }
 

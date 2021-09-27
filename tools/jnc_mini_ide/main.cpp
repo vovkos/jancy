@@ -14,8 +14,7 @@
 
 //..............................................................................
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
 #if (_JNC_OS_WIN)
 	WSADATA WsaData;
 	WSAStartup(0x0202, &WsaData);

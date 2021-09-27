@@ -27,15 +27,13 @@ class Function;
 
 //..............................................................................
 
-enum
-{
+enum {
 	DW_LANG_Jancy = llvm::dwarf::DW_LANG_lo_user + 1,
 };
 
 //..............................................................................
 
-class LlvmDiBuilder
-{
+class LlvmDiBuilder {
 	friend class Module;
 
 protected:
@@ -45,20 +43,17 @@ protected:
 public:
 	LlvmDiBuilder();
 
-	~LlvmDiBuilder()
-	{
+	~LlvmDiBuilder() {
 		clear();
 	}
 
 	Module*
-	getModule()
-	{
+	getModule() {
 		return m_module;
 	}
 
 	llvm::DIBuilder*
-	getLlvmDiBuilder()
-	{
+	getLlvmDiBuilder() {
 		return m_llvmDiBuilder;
 	}
 
@@ -69,8 +64,7 @@ public:
 	clear();
 
 	void
-	finalize()
-	{
+	finalize() {
 		m_llvmDiBuilder->finalize();
 	}
 
@@ -78,8 +72,7 @@ public:
 	getDebugLoc(
 		Scope* scope,
 		const lex::LineCol& pos
-		)
-	{
+	) {
 		return llvm::DebugLoc::get(pos.m_line + 1, pos.m_col + 1, scope->getLlvmDiScope());
 	}
 
@@ -90,8 +83,7 @@ public:
 	createFile(
 		const sl::StringRef& fileName,
 		const sl::StringRef& dir
-		)
-	{
+	) {
 		return m_llvmDiBuilder->createFile(fileName >> toLlvm, dir >> toLlvm);
 	}
 
@@ -101,8 +93,7 @@ public:
 		size_t size,
 		size_t alignment,
 		uint_t code
-		)
-	{
+	) {
 #if (LLVM_VERSION < 0x040000)
 		return m_llvmDiBuilder->createBasicType(name >> toLlvm, size * 8, alignment * 8, code);
 #else
@@ -141,7 +132,7 @@ public:
 	createParameterVariable(
 		Variable* variable,
 		size_t argIdx
-		);
+	);
 
 	llvm::DISubprogram_vn
 	createFunction(Function* function);
@@ -150,7 +141,7 @@ public:
 	createLexicalBlock(
 		Scope* parentScope,
 		const lex::LineCol& pos
-		);
+	);
 
 	llvm::Instruction*
 	createDeclare(Variable* variable);

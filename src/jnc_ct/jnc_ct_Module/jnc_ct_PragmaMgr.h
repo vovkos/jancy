@@ -16,8 +16,7 @@ namespace ct {
 
 //..............................................................................
 
-enum Pragma
-{
+enum Pragma {
 	Pragma_Undefined = 0,
 	Pragma_Alignment,
 	Pragma_ThinPointers,
@@ -34,8 +33,7 @@ AXL_SL_END_STRING_HASH_TABLE()
 
 //..............................................................................
 
-enum PragmaDefault
-{
+enum PragmaDefault {
 	PragmaDefault_Alignment        = 8,
 	PragmaDefault_PointerModifiers = 0,
 	PragmaDefault_EnumFlags        = 0,
@@ -43,8 +41,7 @@ enum PragmaDefault
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct PragmaSettings
-{
+struct PragmaSettings {
 	size_t m_fieldAlignment;
 	uint_t m_pointerModifiers;
 	uint_t m_enumFlags;
@@ -52,35 +49,30 @@ struct PragmaSettings
 	PragmaSettings();
 
 	size_t
-	hash() const
-	{
+	hash() const {
 		return sl::HashDjb2<PragmaSettings>()(this);
 	}
 
 	bool
-	isEqual(const PragmaSettings& src) const
-	{
+	isEqual(const PragmaSettings& src) const {
 		return sl::CmpBin<PragmaSettings>()(this, &src) == 0;
 	}
 };
 
 //..............................................................................
 
-class PragmaMgr
-{
+class PragmaMgr {
 protected:
 	sl::DuckTypeHashTable<PragmaSettings, bool> m_cache;
 
 public:
 	void
-	clear()
-	{
+	clear() {
 		m_cache.clear();
 	}
 
 	const PragmaSettings*
-	getCachedSettings(const PragmaSettings& settings)
-	{
+	getCachedSettings(const PragmaSettings& settings) {
 		return &m_cache.visit(settings)->getKey();
 	}
 };

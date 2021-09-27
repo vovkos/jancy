@@ -25,7 +25,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	BaseTypeSlot,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(BaseTypeSlot)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<BaseTypeSlot, ct::BaseTypeSlot*>))
@@ -43,7 +43,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	DerivableType,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(DerivableType)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<DerivableType, ct::DerivableType*>))

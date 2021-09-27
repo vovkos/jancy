@@ -22,39 +22,32 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(ArrayType)
 
 //..............................................................................
 
-class ArrayType: public TypeBase<ct::ArrayType>
-{
+class ArrayType: public TypeBase<ct::ArrayType> {
 public:
 	ArrayType(ct::ArrayType* type):
-		TypeBase(type)
-	{
-	}
+		TypeBase(type) {}
 
 	Type*
 	JNC_CDECL
-	getElementType()
-	{
+	getElementType() {
 		return rtl::getType(m_item->getElementType());
 	}
 
 	Type*
 	JNC_CDECL
-	getRootType()
-	{
+	getRootType() {
 		return rtl::getType(m_item->getRootType());
 	}
 
 	size_t
 	JNC_CDECL
-	getElementCount()
-	{
+	getElementCount() {
 		return m_item->getElementCount();
 	}
 
 	Function*
 	JNC_CDECL
-	getGetDynamicSizeFunction()
-	{
+	getGetDynamicSizeFunction() {
 		return (Function*)rtl::getModuleItem(m_item->getGetDynamicSizeFunction());
 	}
 };

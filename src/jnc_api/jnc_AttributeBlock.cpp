@@ -24,8 +24,7 @@
 
 JNC_EXTERN_C
 size_t
-jnc_AttributeBlock_getAttributeCount(jnc_AttributeBlock* block)
-{
+jnc_AttributeBlock_getAttributeCount(jnc_AttributeBlock* block) {
 	return jnc_g_dynamicExtensionLibHost->m_attributeBlockFuncTable->m_getAttributeCountFunc(block);
 }
 
@@ -34,8 +33,7 @@ jnc_Attribute*
 jnc_AttributeBlock_getAttribute(
 	jnc_AttributeBlock* block,
 	size_t index
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_attributeBlockFuncTable->m_getAttributeFunc(block, index);
 }
 
@@ -44,8 +42,7 @@ jnc_Attribute*
 jnc_AttributeBlock_findAttribute(
 	jnc_AttributeBlock* block,
 	const char* name
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_attributeBlockFuncTable->m_findAttributeFunc(block, name);
 }
 
@@ -56,8 +53,7 @@ jnc_AttributeBlock_findAttribute(
 JNC_EXTERN_C
 JNC_EXPORT_O
 size_t
-jnc_AttributeBlock_getAttributeCount(jnc_AttributeBlock* block)
-{
+jnc_AttributeBlock_getAttributeCount(jnc_AttributeBlock* block) {
 	return block->getAttributeArray().getCount();
 }
 
@@ -67,8 +63,7 @@ jnc_Attribute*
 jnc_AttributeBlock_getAttribute(
 	jnc_AttributeBlock* block,
 	size_t index
-	)
-{
+) {
 	return block->getAttributeArray() [index];
 }
 
@@ -78,8 +73,7 @@ jnc_Attribute*
 jnc_AttributeBlock_findAttribute(
 	jnc_AttributeBlock* block,
 	const char* name
-	)
-{
+) {
 	return block->findAttribute(name);
 }
 

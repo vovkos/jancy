@@ -23,7 +23,7 @@ set(
 	jnc_io_WebSocketFrameParser.h
 	jnc_io_WebSocketState.h
 	jnc_io_WebSocketLib.h
-	)
+)
 
 set(
 	LIB_CPP_LIST
@@ -35,14 +35,14 @@ set(
 	jnc_io_WebSocketFrameParser.cpp
 	jnc_io_WebSocketState.cpp
 	jnc_io_WebSocketLib.cpp
-	)
+)
 
 source_group(
 	lib
 	FILES
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -53,13 +53,13 @@ set(
 	JNC_LIST
 	jnc/io_WebSocket.jnc
 	jnc/io_WebSocketHandshake.jnc
-	)
+)
 
 source_group(
 	jnc
 	FILES
 	${JNC_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -74,7 +74,7 @@ source_group(
 	FILES
 	${PCH_H}
 	${PCH_CPP}
-	)
+)
 
 #...............................................................................
 #
@@ -87,12 +87,12 @@ include_directories(
 	${JANCY_INC_DIR}
 	../jnc_io_cmn
 	../jnc_std
-	)
+)
 
 link_directories(
 	${OPENSSL_LIB_DIR}
 	${AXL_LIB_DIR}
-	)
+)
 
 add_library(
 	jnc_io_websocket
@@ -103,26 +103,26 @@ add_library(
 	${LIB_CPP_LIST}
 	${JNC_LIST}
 	${GEN_JNC_CPP_LIST}
-	)
+)
 
 target_compile_definitions(
 	jnc_io_websocket
 	PUBLIC
 	-D_JNC_DYNAMIC_EXTENSION_LIB=1
-	)
+)
 
 if(GCC AND NOT APPLE)
 	axl_set_export_version_script_gcc(
 		jnc_io_websocket
 		jncDynamicExtensionLibMain
-		)
+	)
 endif()
 
 axl_set_pch(
 	jnc_io_websocket
 	${PCH_H}
 	${PCH_CPP}
-	)
+)
 
 set(CMAKE_SHARED_LIBRARY_PREFIX)
 
@@ -131,7 +131,7 @@ set_target_properties(
 	PROPERTIES
 	OUTPUT_NAME io_websocket-${TARGET_CPU}
 	SUFFIX .bin
-	)
+)
 
 target_link_libraries(
 	jnc_io_websocket
@@ -144,20 +144,20 @@ target_link_libraries(
 	axl_core
 	${OPENSSL_SSL_LIB_NAME}
 	${OPENSSL_CRYPTO_LIB_NAME}
-	)
+)
 
 if(LINUX)
 	target_link_libraries(
 		jnc_io_websocket
 		rt
-		)
+	)
 endif()
 
 set_target_properties(
 	jnc_io_websocket
 	PROPERTIES
 	FOLDER extensions
-	)
+)
 
 if(WIN32)
 	set(_DLL_LIST)
@@ -168,7 +168,7 @@ if(WIN32)
 			_DLL_LIST
 			${OPENSSL_DLL_DIR}/${OPENSSL_SSL_DLL_NAME}.dll
 			${OPENSSL_DLL_DIR}/${OPENSSL_CRYPTO_DLL_NAME}.dll
-			)
+		)
 	endif()
 
 	if(_DLL_LIST)
@@ -215,6 +215,6 @@ add_custom_command(
 install(
 	FILES ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION>/io_websocket.jncx
 	DESTINATION ${JANCY_INSTALL_JNCX_SUBDIR}
-	)
+)
 
 #...............................................................................

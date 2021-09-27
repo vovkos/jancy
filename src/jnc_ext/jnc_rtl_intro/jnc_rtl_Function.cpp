@@ -25,7 +25,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	Function,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Function)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<Function, ct::Function*>))
@@ -44,7 +44,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	FunctionOverload,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(FunctionOverload)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<FunctionOverload, ct::FunctionOverload*>))

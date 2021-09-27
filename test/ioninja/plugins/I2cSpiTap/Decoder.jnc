@@ -7,10 +7,8 @@ import "std_Buffer.jnc"
 
 //..............................................................................
 
-class Decoder
-{
-	enum Defaults
-	{
+class Decoder {
+	enum Defaults {
 		BufferSize = 1024, // 8 * 1024, // 8K
 	}
 
@@ -19,8 +17,7 @@ protected:
 	std.Buffer m_buffer;
 
 public:
-	construct(log.Writer* logWriter)
-	{
+	construct(log.Writer* logWriter) {
 		m_logWriter = logWriter;
 		m_buffer.setSize(Defaults.BufferSize);
 	}
@@ -31,14 +28,14 @@ public:
 		uint64_t timestamp,
 		void const thin* p,
 		size_t size
-		);
+	);
 
 protected:
 	void writeLogUnexpectedCode(
 		uint64_t timestamp,
 		uint_t code,
 		uint_t state
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -47,10 +44,8 @@ void Decoder.writeLogUnexpectedCode(
 	uint64_t timestamp,
 	uint_t code,
 	uint_t state
-	)
-{
-	struct Params
-	{
+) {
+	struct Params {
 		uint_t m_code;
 		uint_t m_state;
 	}

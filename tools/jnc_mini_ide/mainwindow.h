@@ -18,8 +18,7 @@ class MdiChild;
 
 //..............................................................................
 
-class MainWindow : public QMainWindow
-{
+class MainWindow : public QMainWindow {
 	Q_OBJECT
 
 public:
@@ -77,7 +76,7 @@ private:
 	static bool_t compileErrorHandler(
 		void* context,
 		jnc::ModuleCompileErrorKind errorKind
-		);
+	);
 
 private:
 	QMdiArea* m_mdiArea;
@@ -127,8 +126,7 @@ private:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_INLINE MainWindow* getMainWindow()
-{
+JNC_INLINE MainWindow* getMainWindow() {
 	extern MainWindow* g_mainWindow;
 	return g_mainWindow;
 }

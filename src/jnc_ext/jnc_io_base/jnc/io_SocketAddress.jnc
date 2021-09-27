@@ -29,8 +29,7 @@ namespace io {
 	\sa `io.SocketAddress`
 */
 
-enum AddressFamily: uint16_t
-{
+enum AddressFamily: uint16_t {
 	//!	Used to designate an uninitialized value.
 
 	Undefined = 0,
@@ -60,8 +59,7 @@ enum AddressFamily: uint16_t
 	\sa `io.Socket`
 */
 
-enum Protocol
-{
+enum Protocol {
 	//! ``ICMP`` protocol; maps to ``IPPROTO_ICMP`` platform constant.
 
 	Icmp = 1,
@@ -96,8 +94,7 @@ enum Protocol
 		|footnote-errorcode|
 */
 
-union Address_ip4
-{
+union Address_ip4 {
 	/**
 		Holds 32-bit representation of ``IP4`` address. There is no need to
 		change the byte order of the address before assignment -- this field is
@@ -147,8 +144,7 @@ union Address_ip4
 		|footnote-errorcode|
 */
 
-union Address_ip6
-{
+union Address_ip6 {
 	/**
 		Holds eight 16-bit words of ``IP6`` address.
 	*/
@@ -198,8 +194,7 @@ pragma(Alignment, 2);
 		|footnote-errorcode|
 */
 
-struct SocketAddress_ip4
-{
+struct SocketAddress_ip4 {
 	/**
 		Holds the address family of the socket address; should be set to
 		`io.AddressFamily.Ip4`.
@@ -286,8 +281,7 @@ struct SocketAddress_ip4
 		|footnote-errorcode|
 */
 
-struct SocketAddress_ip6
-{
+struct SocketAddress_ip6 {
 	/**
 		Holds the address family of the socket address; should be set to
 		`io.AddressFamily.Ip6`.
@@ -378,10 +372,8 @@ struct SocketAddress_ip6
 		|footnote-errorcode|
 */
 
-union SocketAddress
-{
-	struct
-	{
+union SocketAddress {
+	struct {
 		/**
 			Holds the address family of the socket address. Depending on the value
 			of this field, the actual address is stored in either ``m_ip4`` or in

@@ -10,8 +10,7 @@ import "crc32.jnc"
 
 //..............................................................................
 
-char const* getValidityString(bool isValid)
-{
+char const* getValidityString(bool isValid) {
 	return isValid ? "\e[32mOK\e[m" : "\e[31mINVALID\e[m";
 }
 
@@ -21,10 +20,8 @@ bool representEthernetTapLog(
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
-	switch (recordCode)
-	{
+) {
+	switch (recordCode) {
 	case EthernetTapLogRecordCode.DeviceOpened:
 		char const* name = (char const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
@@ -104,10 +101,8 @@ bool detailizeEthernetTapLog(
 	uint64_t recordCode,
 	void const* p,
 	size_t size
-	)
-{
-	switch (recordCode)
-	{
+) {
+	switch (recordCode) {
 	case EthernetTapLogRecordCode.Packet_ch1:
 		writer.write(timestamp, EthernetTapLogRecordCode.PacketDetails_ch1, p, size);
 		break;
@@ -130,18 +125,15 @@ bool checkPacketHdrConsistency(
 	uint_t channel,
 	PacketHdr const* hdr,
 	size_t size
-	)
-{
-	if (hdr.m_flags & PacketFlags.BufferOverflow)
-	{
+) {
+	if (hdr.m_flags & PacketFlags.BufferOverflow) {
 		representation.m_lineAttr.m_backColor = ui.StdColor.PastelOrange;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
 		representation.addHyperText($"Hardware buffer overflow on channel \e[34m$(channel + 1)");
 		return false;
 	}
 
-	if (hdr.m_size < sizeof(uint32_t))
-	{
+	if (hdr.m_size < sizeof(uint32_t)) {
 		representation.m_lineAttr.m_backColor = ui.StdColor.PastelRed;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
 		representation.addHyperText($"Invalid packet size: \e[34m$(hdr.m_size)");
@@ -156,8 +148,7 @@ void representPacketDigest(
 	uint_t channel,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	PacketHdr const* hdr = (PacketHdr const*)(p + sizeof(uint32_t));
 	bool result = checkPacketHdrConsistency(representation, channel, hdr, size);
 	if (!result)
@@ -165,13 +156,10 @@ void representPacketDigest(
 
 	uint_t payloadPreviewIconIdx;
 
-	if (channel)
-	{
+	if (channel) {
 		payloadPreviewIconIdx = log.StdLogIcon.Tx;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.TxPacket;
-	}
-	else
-	{
+	} else {
 		payloadPreviewIconIdx = log.StdLogIcon.Rx;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.RxPacket;
 	}
@@ -179,8 +167,7 @@ void representPacketDigest(
 	representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
 	representEthernetDigest(representation, hdr + 1, hdr.m_size, payloadPreviewIconIdx);
 
-	if (!(hdr.m_flags & PacketFlags.CrcValid))
-	{
+	if (!(hdr.m_flags & PacketFlags.CrcValid)) {
 		representation.m_lineAttr.m_iconIdx = -1;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Warning;
 		representation.addHyperText("\e[31mINVALID CRC");
@@ -193,8 +180,7 @@ void representPacketDetails(
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
+) {
 	std.Array protoRangeArray;
 	size = representPacketMeta(representation, protoRangeArray, channel, p, size, foldFlags);
 	representation.addBreak();
@@ -208,8 +194,7 @@ size_t representPacketMeta(
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
+) {
 	PacketHdr const* hdr = (PacketHdr const*)(p + sizeof(uint32_t));
 	bool result = checkPacketHdrConsistency(representation, channel, hdr, size);
 	if (!result)
@@ -221,18 +206,15 @@ size_t representPacketMeta(
 	uint32_t packetId = *(uint32_t const*)p;
 	size_t dataSize = hdr.m_size - sizeof(uint32_t);
 
-	if (!(foldFlags & ProtoFoldFlag.MetaLayer))
-	{
+	if (!(foldFlags & ProtoFoldFlag.MetaLayer)) {
 		representation.addHyperText(
 			$"[\e^+%1\e[34m+\e[m] \e[1mMETA\e[m Frame #%2 (%3 bytes)%4"(
 			ProtoFoldFlag.MetaLayer,
 			packetId,
 			hdr.m_size,
 			(hdr.m_flags & PacketFlags.CrcValid) ? "" : " [\e[31mINVALID CRC\e[m]"
-			));
-	}
-	else
-	{
+		));
+	} else {
 		uint32_t actualCrc = *(uint32_t const*)(p + sizeof(uint32_t) + hdr.m_size);
 		uint32_t expectedCrc = crc32(hdr + 1, dataSize);
 
@@ -272,7 +254,7 @@ size_t representPacketMeta(
 
 			expectedCrc,
 			getValidityString(actualCrc == expectedCrc)
-			));
+		));
 	}
 
 	ProtoRange range = { 0, MetaSize, ProtoColor.MetaLayer };

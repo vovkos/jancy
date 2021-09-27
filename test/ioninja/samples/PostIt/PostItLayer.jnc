@@ -10,8 +10,7 @@ using extension ui.ComboBoxHistory;
 
 //..............................................................................
 
-class PostItLayer: doc.Layer
-{
+class PostItLayer: doc.Layer {
 protected:
 	ui.ComboBox* m_tagCombo;
 	uint64_t m_syncId;
@@ -25,8 +24,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-PostItLayer.construct(doc.PluginHost* pluginHost)
-{
+PostItLayer.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
 
 	m_pluginHost.m_toolBar.addLabel("Tag:");
@@ -41,8 +39,7 @@ PostItLayer.construct(doc.PluginHost* pluginHost)
 	m_syncId = sys.getTimestamp();
 }
 
-void PostItLayer.onPostIt()
-{
+void PostItLayer.onPostIt() {
 	m_tagCombo.addEditTextToHistory();
 
 	if (m_pluginHost.m_log.m_syncId == m_syncId)

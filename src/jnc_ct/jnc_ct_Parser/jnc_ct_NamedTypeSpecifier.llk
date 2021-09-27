@@ -11,13 +11,11 @@
 
 // root
 
-struct
-{
+struct {
 	NamedType* m_type;
 }
 named_type_specifier
-	leave
-	{
+	leave {
 		if (m_mode == Mode_Compile)
 			return $.m_type->ensureLayout();
 	}
@@ -64,18 +62,15 @@ named_type_specifier_save_type
 
 // enum
 
-struct
-{
+struct {
 	EnumType* m_type;
 	uint_t m_flags;
 }
 enum_specifier
-	enter
-	{
+	enter {
 		$.m_flags = 0;
 	}
-	leave
-	{
+	leave {
 		if ($.m_type->getFlags() & EnumTypeFlag_Exposed)
 			return m_module->m_namespaceMgr.getCurrentNamespace()->exposeEnumConsts($.m_type);
 	}
@@ -148,13 +143,11 @@ enum_const_sync
 
 // struct
 
-struct
-{
+struct {
 	StructType* m_type;
 }
 struct_specifier
-	leave
-	{
+	leave {
 		if ($.m_type->getName().isEmpty())
 			return declareUnnamedStructOrUnion($.m_type);
 	}
@@ -180,13 +173,11 @@ struct_specifier
 
 // union
 
-struct
-{
+struct {
 	UnionType* m_type;
 }
 union_specifier
-	leave
-	{
+	leave {
 		if ($.m_type->getName().isEmpty())
 			return declareUnnamedStructOrUnion($.m_type);
 	}
@@ -216,8 +207,7 @@ class_specifier_rslv
 	:	TokenKind_Opaque? TokenKind_Class TokenKind_Identifier
 	;
 
-struct
-{
+struct {
 	ClassType* m_type;
 }
 resolver(class_specifier_rslv)
@@ -244,8 +234,7 @@ class_specifier
 
 // class
 
-struct
-{
+struct {
 	DynamicLibClassType* m_type;
 }
 library_specifier

@@ -56,10 +56,8 @@ struct PropertyPtrTypeTuple;
 
 //..............................................................................
 
-struct DualPtrTypeTuple: sl::ListLink
-{
-	union
-	{
+struct DualPtrTypeTuple: sl::ListLink {
+	union {
 		DataPtrTypeTuple* m_readOnlyDataPtrTypeTuple;
 		ClassPtrTypeTuple* m_readOnlyClassPtrTypeTuple;
 		PropertyPtrTypeTuple* m_readOnlyPropertyPtrTypeTuple;
@@ -70,8 +68,7 @@ struct DualPtrTypeTuple: sl::ListLink
 
 //..............................................................................
 
-class TypeMgr
-{
+class TypeMgr {
 	friend class Module;
 
 protected:
@@ -121,8 +118,7 @@ public:
 	TypeMgr();
 
 	Module*
-	getModule()
-	{
+	getModule() {
 		return m_module;
 	}
 
@@ -130,33 +126,28 @@ public:
 	clear();
 
 	const sl::List<Type>&
-	getTypeList()
-	{
+	getTypeList() {
 		return m_typeList;
 	}
 
 	const sl::List<Typedef>&
-	getTypedefList()
-	{
+	getTypedefList() {
 		return m_typedefList;
 	}
 
 	const sl::Array<MulticastClassType*>&
-	getMulticastClassTypeArray()
-	{
+	getMulticastClassTypeArray() {
 		return m_multicastClassTypeArray;
 	}
 
 	Type*
-	getPrimitiveType(TypeKind typeKind)
-	{
+	getPrimitiveType(TypeKind typeKind) {
 		ASSERT(typeKind < TypeKind__PrimitiveTypeCount);
 		return &m_primitiveTypeArray[typeKind];
 	}
 
 	bool
-	isStdTypeUsed(StdType stdType)
-	{
+	isStdTypeUsed(StdType stdType) {
 		ASSERT(stdType < StdType__Count);
 		return m_stdTypeArray[stdType] != NULL;
 	}
@@ -165,8 +156,7 @@ public:
 	getStdType(StdType stdType);
 
 	Typedef*
-	getStdTypedef(StdTypedef stdTypedef)
-	{
+	getStdTypedef(StdTypedef stdTypedef) {
 		ASSERT(stdTypedef < StdTypedef__Count);
 		return &m_stdTypedefArray[stdTypedef];
 	}
@@ -175,26 +165,22 @@ public:
 	createStdTypes();
 
 	Type*
-	getInt32Type(int32_t integer)
-	{
+	getInt32Type(int32_t integer) {
 		return getPrimitiveType(getInt32TypeKind(integer));
 	}
 
 	Type*
-	getUInt32Type(uint32_t integer)
-	{
+	getUInt32Type(uint32_t integer) {
 		return getPrimitiveType(getInt32TypeKind_u(integer));
 	}
 
 	Type*
-	getInt64Type(int64_t integer)
-	{
+	getInt64Type(int64_t integer) {
 		return getPrimitiveType(getInt64TypeKind(integer));
 	}
 
 	Type*
-	getInt64Type_u(uint64_t integer)
-	{
+	getInt64Type_u(uint64_t integer) {
 		return getPrimitiveType(getInt64TypeKind_u(integer));
 	}
 
@@ -203,7 +189,7 @@ public:
 		Type* baseType,
 		size_t bitOffset,
 		size_t bitCount
-		);
+	);
 
 	ArrayType*
 	createAutoSizeArrayType(Type* elementType);
@@ -212,20 +198,20 @@ public:
 	createArrayType(
 		Type* elementType,
 		sl::BoxList<Token>* elementCountInitializer
-		);
+	);
 
 	ArrayType*
 	getArrayType(
 		Type* elementType,
 		size_t elementCount
-		);
+	);
 
 	Typedef*
 	createTypedef(
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
 		Type* type
-		);
+	);
 
 	TypedefShadowType*
 	createTypedefShadowType(Typedef* tdef);
@@ -236,20 +222,19 @@ public:
 		const sl::StringRef& qualifiedName,
 		Type* baseType = NULL,
 		uint_t flags = 0
-		);
+	);
 
 	EnumType*
 	createUnnamedEnumType(
 		Type* baseType = NULL,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return createEnumType(
 			sl::StringRef(),
 			sl::formatString("enum.%d", ++m_unnamedTypeCounter),
 			baseType,
 			flags
-			);
+		);
 	}
 
 	StructType*
@@ -258,27 +243,26 @@ public:
 		const sl::StringRef& qualifiedName,
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
-		);
+	);
 
 	StructType*
 	createInternalStructType(
 		const sl::StringRef& tag,
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
-		);
+	);
 
 	StructType*
 	createUnnamedStructType(
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return createStructType(
 			sl::StringRef(),
 			sl::formatString("struct.%d", ++m_unnamedTypeCounter),
 			fieldAlignment,
 			flags
-			);
+		);
 	}
 
 	StructType*
@@ -286,13 +270,12 @@ public:
 		const sl::StringRef& tag,
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return createInternalStructType(
 			sl::formatString("struct.%s.%d", tag.sz(), ++m_unnamedTypeCounter),
 			fieldAlignment,
 			flags
-			);
+		);
 	}
 
 	UnionType*
@@ -301,20 +284,19 @@ public:
 		const sl::StringRef& qualifiedName,
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
-		);
+	);
 
 	UnionType*
 	createUnnamedUnionType(
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return createUnionType(
 			sl::StringRef(),
 			sl::formatString("union.%d", ++m_unnamedTypeCounter),
 			fieldAlignment,
 			flags
-			);
+		);
 	}
 
 	template <typename T>
@@ -324,7 +306,7 @@ public:
 		const sl::StringRef& qualifiedName,
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
-		);
+	);
 
 	ClassType*
 	createClassType(
@@ -332,8 +314,7 @@ public:
 		const sl::StringRef& qualifiedName,
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return createClassType<ClassType>(name, qualifiedName, fieldAlignment, flags);
 	}
 
@@ -342,22 +323,20 @@ public:
 	createUnnamedClassType(
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return createClassType<T>(
 			sl::StringRef(),
 			sl::formatString("class.%d", ++m_unnamedTypeCounter),
 			fieldAlignment,
 			flags
-			);
+		);
 	}
 
 	ClassType*
 	createUnnamedClassType(
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return createUnnamedClassType<ClassType>(fieldAlignment, flags);
 	}
 
@@ -367,15 +346,14 @@ public:
 		const sl::StringRef& tag,
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
-		);
+	);
 
 	ClassType*
 	createInternalClassType(
 		const sl::StringRef& tag,
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return createInternalClassType<ClassType>(tag, fieldAlignment, flags);
 	}
 
@@ -385,13 +363,12 @@ public:
 		const sl::StringRef& tag,
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return createInternalClassType<T>(
 			sl::formatString("class.%s.%d", tag.sz(), ++m_unnamedTypeCounter),
 			fieldAlignment,
 			flags
-			);
+		);
 	}
 
 	ClassType*
@@ -399,14 +376,12 @@ public:
 		const sl::StringRef& tag,
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return createUnnamedInternalClassType<ClassType>(tag, fieldAlignment, flags);
 	}
 
 	void
-	addExternalReturnType(DerivableType* type)
-	{
+	addExternalReturnType(DerivableType* type) {
 		m_externalReturnTypeSet.visit(type);
 	}
 
@@ -419,21 +394,20 @@ public:
 		Type* type,
 		uint_t ptrTypeFlags = 0,
 		sl::BoxList<Token>* initializer = NULL
-		);
+	);
 
 	FunctionArg*
 	getSimpleFunctionArg(
 		StorageKind storageKind,
 		Type* type,
 		uint_t ptrTypeFlags = 0
-		);
+	);
 
 	FunctionArg*
 	getSimpleFunctionArg(
 		Type* type,
 		uint_t ptrTypeFlags = 0
-		)
-	{
+	) {
 		return getSimpleFunctionArg(StorageKind_Stack, type, ptrTypeFlags);
 	}
 
@@ -445,11 +419,10 @@ public:
 		uint_t ptrTypeFlags = 0,
 		sl::BoxList<Token>* constructor = NULL,
 		sl::BoxList<Token>* initializer = NULL
-		);
+	);
 
 	CallConv*
-	getCallConv(CallConvKind callConvKind)
-	{
+	getCallConv(CallConvKind callConvKind) {
 		ASSERT(callConvKind < CallConvKind__Count);
 		return m_callConvArray[callConvKind];
 	}
@@ -460,15 +433,14 @@ public:
 		Type* returnType,
 		const sl::Array<FunctionArg*>& argArray,
 		uint_t flags = 0
-		);
+	);
 
 	FunctionType*
 	getFunctionType(
 		Type* returnType,
 		const sl::Array<FunctionArg*>& argArray,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return getFunctionType(m_callConvArray[CallConvKind_Default], returnType, argArray, flags);
 	}
 
@@ -476,14 +448,13 @@ public:
 	getFunctionType(
 		const sl::Array<FunctionArg*>& argArray,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return getFunctionType(
 			m_callConvArray[CallConvKind_Default],
 			&m_primitiveTypeArray[TypeKind_Void],
 			argArray,
 			flags
-			);
+		);
 	}
 
 	FunctionType*
@@ -493,7 +464,7 @@ public:
 		Type* const* argType,
 		size_t argCount,
 		uint_t flags = 0
-		);
+	);
 
 	FunctionType*
 	getFunctionType(
@@ -501,8 +472,7 @@ public:
 		Type* const* argType,
 		size_t argCount,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return getFunctionType(m_callConvArray[CallConvKind_Default], returnType, argType, argCount, flags);
 	}
 
@@ -511,20 +481,18 @@ public:
 		Type* const* argType,
 		size_t argCount,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return getFunctionType(
 			m_callConvArray[CallConvKind_Default],
 			&m_primitiveTypeArray[TypeKind_Void],
 			argType,
 			argCount,
 			flags
-			);
+		);
 	}
 
 	FunctionType*
-	getFunctionType()
-	{
+	getFunctionType() {
 		return (FunctionType*)getStdType(StdType_SimpleFunction);
 	}
 
@@ -534,15 +502,14 @@ public:
 		Type* returnType,
 		const sl::Array<FunctionArg*>& argArray,
 		uint_t flags = 0
-		);
+	);
 
 	FunctionType*
 	createUserFunctionType(
 		Type* returnType,
 		const sl::Array<FunctionArg*>& argArray,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return createUserFunctionType(m_callConvArray[CallConvKind_Default], returnType, argArray, flags);
 	}
 
@@ -550,14 +517,13 @@ public:
 	createUserFunctionType(
 		const sl::Array<FunctionArg*>& argArray,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return createUserFunctionType(
 			m_callConvArray[CallConvKind_Default],
 			&m_primitiveTypeArray[TypeKind_Void],
 			argArray,
 			flags
-			);
+		);
 	}
 
 	FunctionType*
@@ -565,7 +531,7 @@ public:
 		DerivableType* parentType,
 		FunctionType* functionType,
 		uint_t thisArgPtrTypeFlags = 0
-		);
+	);
 
 	FunctionType*
 	getStdObjectMemberMethodType(FunctionType* functionType);
@@ -575,26 +541,25 @@ public:
 		FunctionType* getterType,
 		const FunctionTypeOverload& setterType,
 		uint_t flags = 0
-		);
+	);
 
 	PropertyType*
 	getSimplePropertyType(
 		CallConv* callConv,
 		Type* returnType,
 		uint_t flags = 0
-		);
+	);
 
 	PropertyType*
 	getSimplePropertyType(
 		Type* returnType,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return getSimplePropertyType(
 			m_callConvArray[CallConvKind_Default],
 			returnType,
 			flags
-			);
+		);
 	}
 
 	PropertyType*
@@ -604,7 +569,7 @@ public:
 		Type* const* indexArgType,
 		size_t indexArgCount,
 		uint_t flags = 0
-		);
+	);
 
 	PropertyType*
 	getIndexedPropertyType(
@@ -612,8 +577,7 @@ public:
 		Type* const* indexArgType,
 		size_t indexArgCount,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return getIndexedPropertyType(NULL, returnType, indexArgType, indexArgCount, flags);
 	}
 
@@ -623,15 +587,14 @@ public:
 		Type* returnType,
 		const sl::Array<FunctionArg*>& argArray,
 		uint_t flags = 0
-		);
+	);
 
 	PropertyType*
 	getIndexedPropertyType(
 		Type* returnType,
 		const sl::Array<FunctionArg*>& argArray,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return getIndexedPropertyType(NULL, returnType, argArray, flags);
 	}
 
@@ -641,15 +604,14 @@ public:
 		Type* returnType,
 		const sl::Array<FunctionArg*>& argArray,
 		uint_t flags = 0
-		);
+	);
 
 	PropertyType*
 	createIndexedPropertyType(
 		Type* returnType,
 		const sl::Array<FunctionArg*>& argArray,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return createIndexedPropertyType(NULL, returnType, argArray, flags);
 	}
 
@@ -657,7 +619,7 @@ public:
 	getMemberPropertyType(
 		DerivableType* parentType,
 		PropertyType* propertyType
-		);
+	);
 
 	PropertyType*
 	getStdObjectMemberPropertyType(PropertyType* propertyType);
@@ -669,8 +631,7 @@ public:
 	getMulticastType(
 		FunctionType* functionType,
 		FunctionPtrTypeKind ptrTypeKind = FunctionPtrTypeKind_Normal
-		)
-	{
+	) {
 		return getMulticastType(getFunctionPtrType(functionType, ptrTypeKind));
 	}
 
@@ -685,7 +646,7 @@ public:
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
 		ClassType* parentType
-		);
+	);
 
 	FunctionClosureClassType*
 	createReactorClosureType();
@@ -698,7 +659,7 @@ public:
 		const size_t* closureMap,
 		size_t argCount,
 		size_t thisArgIdx
-		);
+	);
 
 	PropertyClosureClassType*
 	getPropertyClosureClassType(
@@ -708,13 +669,13 @@ public:
 		const size_t* closureMap,
 		size_t argCount,
 		size_t thisArgIdx
-		);
+	);
 
 	DataClosureClassType*
 	getDataClosureClassType(
 		Type* targetType,
 		PropertyType* thunkType
-		);
+	);
 
 	DataPtrType*
 	getDataPtrType(
@@ -722,15 +683,14 @@ public:
 		TypeKind typeKind,
 		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal,
 		uint_t flags = 0
-		);
+	);
 
 	DataPtrType*
 	getDataPtrType(
 		Type* targetType,
 		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return getDataPtrType(targetType, TypeKind_DataPtr, ptrTypeKind, flags);
 	}
 
@@ -740,15 +700,14 @@ public:
 		TypeKind typeKind,
 		ClassPtrTypeKind ptrTypeKind = ClassPtrTypeKind_Normal,
 		uint_t flags = 0
-		);
+	);
 
 	ClassPtrType*
 	getClassPtrType(
 		ClassType* targetType,
 		ClassPtrTypeKind ptrTypeKind = ClassPtrTypeKind_Normal,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return getClassPtrType(targetType, TypeKind_ClassPtr, ptrTypeKind, flags);
 	}
 
@@ -758,15 +717,14 @@ public:
 		TypeKind typeKind,
 		FunctionPtrTypeKind ptrTypeKind = FunctionPtrTypeKind_Normal,
 		uint_t flags = 0
-		);
+	);
 
 	FunctionPtrType*
 	getFunctionPtrType(
 		FunctionType* targetType,
 		FunctionPtrTypeKind ptrTypeKind = FunctionPtrTypeKind_Normal,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return getFunctionPtrType(targetType, TypeKind_FunctionPtr, ptrTypeKind, flags);
 	}
 
@@ -776,15 +734,14 @@ public:
 		TypeKind typeKind,
 		PropertyPtrTypeKind ptrTypeKind = PropertyPtrTypeKind_Normal,
 		uint_t flags = 0
-		);
+	);
 
 	PropertyPtrType*
 	getPropertyPtrType(
 		PropertyType* targetType,
 		PropertyPtrTypeKind ptrTypeKind = PropertyPtrTypeKind_Normal,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return getPropertyPtrType(targetType, TypeKind_PropertyPtr, ptrTypeKind, flags);
 	}
 
@@ -796,26 +753,26 @@ public:
 		const QualifiedName& name,
 		Namespace* anchorNamespace,
 		const QualifiedName& anchorName = QualifiedName()
-		);
+	);
 
 	ImportPtrType*
 	getImportPtrType(
 		NamedImportType* importType,
 		uint_t typeModifiers
-		);
+	);
 
 	ImportIntModType*
 	getImportIntModType(
 		NamedImportType* importType,
 		uint_t typeModifiers
-		);
+	);
 
 	Type*
 	foldDualType(
 		Type* type,
 		bool isAlien,
 		bool isContainerConst
-		);
+	);
 
 protected:
 	void
@@ -825,7 +782,7 @@ protected:
 		const sl::StringRef& qualifiedName,
 		size_t fieldAlignment,
 		uint_t flags
-		);
+	);
 
 	DualTypeTuple*
 	getDualTypeTuple(Type* type);
@@ -864,14 +821,14 @@ protected:
 	setupPrimitiveType(
 		TypeKind typeKind,
 		size_t size
-		);
+	);
 
 	void
 	setupStdTypedef(
 		StdTypedef stdTypedef,
 		TypeKind typeKind,
 		const sl::StringRef& name
-		);
+	);
 
 	NamedType*
 	parseStdType(StdType stdType);
@@ -880,14 +837,14 @@ protected:
 	parseStdType(
 		StdType stdType,
 		Unit* unit
-		);
+	);
 
 	NamedType*
 	parseStdType(
 		const sl::StringRef& source,
 		StdNamespace stdNamespace,
 		Unit* unit
-		);
+	);
 
 	ClassType*
 	createAbstractClassType();
@@ -935,8 +892,7 @@ TypeMgr::createClassType(
 	const sl::StringRef& qualifiedName,
 	size_t fieldAlignment,
 	uint_t flags
-	)
-{
+) {
 	T* type = AXL_MEM_NEW(T);
 	addClassType(type, name, qualifiedName, fieldAlignment, flags);
 	return type;
@@ -948,8 +904,7 @@ TypeMgr::createInternalClassType(
 	const sl::StringRef& tag,
 	size_t fieldAlignment,
 	uint_t flags
-	)
-{
+) {
 	T* type = createClassType<T>(sl::StringRef(), tag, fieldAlignment, flags);
 	type->m_namespaceStatus = NamespaceStatus_Ready;
 	return type;

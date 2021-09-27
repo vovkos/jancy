@@ -23,14 +23,14 @@ JNC_DEFINE_TYPE(
 	"io.NetworkAdapterAddress",
 	g_ioLibGuid,
 	IoLibCacheSlot_NetworkAdapterAddress
-	)
+)
 
 JNC_DEFINE_TYPE(
 	NetworkAdapterDesc,
 	"io.NetworkAdapterDesc",
 	g_ioLibGuid,
 	IoLibCacheSlot_NetworkAdapterDesc
-	)
+)
 
 //..............................................................................
 
@@ -39,8 +39,7 @@ createNetworkAdapterAddress(
 	Runtime* runtime,
 	const axl::io::NetworkAdapterAddress* srcAddress,
 	NetworkAdapterAddress* prevAddress
-	)
-{
+) {
 	DataPtr addressPtr = createData<NetworkAdapterAddress> (runtime);
 	NetworkAdapterAddress* address = (NetworkAdapterAddress*)addressPtr.m_p;
 	address->m_address = srcAddress->m_address;
@@ -57,8 +56,7 @@ createNetworkAdapterDesc(
 	Runtime* runtime,
 	const axl::io::NetworkAdapterDesc* srcAdapter,
 	NetworkAdapterDesc* prevAdapter
-	)
-{
+) {
 	DataPtr adapterPtr = createData<NetworkAdapterDesc> (runtime);
 	NetworkAdapterDesc* adapter = (NetworkAdapterDesc*)adapterPtr.m_p;
 	adapter->m_type = srcAdapter->getType();
@@ -90,8 +88,7 @@ DataPtr
 createNetworkAdapterDescList(
 	DataPtr adapterCountPtr,
 	DataPtr addressCountPtr
-	)
-{
+) {
 	Runtime* runtime = getCurrentThreadRuntime();
 
 	if (!requireIoLibCapability(IoLibCapability_NetworkAdapter))
@@ -100,8 +97,7 @@ createNetworkAdapterDescList(
 	sl::List<axl::io::NetworkAdapterDesc> adapterList;
 	size_t adapterCount = axl::io::createNetworkAdapterDescList(&adapterList);
 
-	if (adapterList.isEmpty())
-	{
+	if (adapterList.isEmpty()) {
 		if (adapterCountPtr.m_p)
 			*(size_t*)adapterCountPtr.m_p = 0;
 
@@ -124,8 +120,7 @@ createNetworkAdapterDescList(
 
 	DataPtr resultPtr = adapterPtr;
 
-	for (it++; it; it++)
-	{
+	for (it++; it; it++) {
 		adapterPtr = createNetworkAdapterDesc(runtime, *it, adapter);
 		adapter = (NetworkAdapterDesc*)adapterPtr.m_p;
 		addressCount += adapter->m_addressCount;

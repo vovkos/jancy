@@ -10,8 +10,7 @@ namespace doc {
 
 //..............................................................................
 
-opaque class Storage
-{
+opaque class Storage {
 	char const* autoget property m_directory;
 
 	destruct();
@@ -20,38 +19,36 @@ opaque class Storage
 	bool readBool(
 		char const* name,
 		bool defaultValue = false
-		)
-	{
+	) {
 		return readInt(name, defaultValue) != 0;
 	}
 
 	void writeBool(
 		char const* name,
 		bool value
-		)
-	{
+	) {
 		return writeInt(name, value);
 	}
 
 	int readInt(
 		char const* name,
 		int defaultValue = 0
-		);
+	);
 
 	void writeInt(
 		char const* name,
 		int value
-		);
+	);
 
 	char const* readString(
 		char const* name,
 		char const* defaultValue = null
-		);
+	);
 
 	void writeString(
 		char const* name,
 		char const* value
-		);
+	);
 }
 
 //..............................................................................

@@ -9,8 +9,7 @@
 //
 //..............................................................................
 
-struct TestStruct
-{
+struct TestStruct {
 	char m_a0:1;
 	char m_a1:1;
 	char m_a2:1;
@@ -21,8 +20,7 @@ struct TestStruct
 	char m_a7:1;
 }
 
-int main()
-{
+int main() {
 	TestStruct s;
 	s.m_a7 = 1;
 

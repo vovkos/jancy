@@ -18,15 +18,13 @@ namespace ct {
 
 //..............................................................................
 
-ImportMgr::ImportMgr()
-{
+ImportMgr::ImportMgr() {
 	m_module = Module::getCurrentConstructedModule();
 	ASSERT(m_module);
 }
 
 void
-ImportMgr::clear()
-{
+ImportMgr::clear() {
 	m_importList.clear();
 	m_lazyImportList.clear();
 	m_importFilePathMap.clear();
@@ -34,16 +32,14 @@ ImportMgr::clear()
 }
 
 bool
-ImportMgr::addImport(const sl::StringRef& fileName)
-{
+ImportMgr::addImport(const sl::StringRef& fileName) {
 	sl::String filePath;
 
 	if (m_ignoredImportSet.find(fileName))
 		return true;
 
 	bool isExtensionLib = fileName.isSuffix(".jncx");
-	if (isExtensionLib)
-	{
+	if (isExtensionLib) {
 		FindResult findResult = findImportFile(fileName, &filePath);
 		if (findResult == FindResult_NotFound)
 			return false;
@@ -58,8 +54,7 @@ ImportMgr::addImport(const sl::StringRef& fileName)
 	ExtensionLib* lib;
 	sl::StringRef source;
 	bool isFound = m_module->m_extensionLibMgr.findSourceFileContents(fileName, &lib, &source);
-	if (isFound)
-	{
+	if (isFound) {
 		addImport(lib, fileName, source);
 		return true;
 	}
@@ -85,12 +80,10 @@ ImportMgr::addImport(
 	ExtensionLib* lib,
 	const sl::StringRef& filePath,
 	const sl::StringRef& source
-	)
-{
+) {
 	sl::StringHashTableIterator<bool> it;
 
-	if (!filePath.isEmpty())
-	{
+	if (!filePath.isEmpty()) {
 		it = m_importFilePathMap.visit(filePath);
 		if (it->m_value)
 			return; // already added
@@ -111,16 +104,14 @@ ImportMgr::FindResult
 ImportMgr::findImportFile(
 	const sl::StringRef& fileName,
 	sl::String* filePath_o
-	)
-{
+) {
 	Unit* unit = m_module->m_unitMgr.getCurrentUnit();
 
 	sl::String filePath = unit ?
 		io::findFilePath(fileName, unit->getDir(), &m_importDirList, false) :
 		io::findFilePath(fileName, &m_importDirList, false);
 
-	if (filePath.isEmpty())
-	{
+	if (filePath.isEmpty()) {
 		err::setFormatStringError("import '%s' not found", fileName.sz());
 		return FindResult_NotFound;
 	}
@@ -139,8 +130,7 @@ ImportMgr::createLazyImport(
 	ExtensionLib* lib,
 	const sl::StringRef& fileName,
 	const sl::StringRef& source
-	)
-{
+) {
 	LazyImport* import = AXL_MEM_NEW(LazyImport);
 	import->m_module = m_module;
 	import->m_lib = lib;
@@ -151,8 +141,7 @@ ImportMgr::createLazyImport(
 }
 
 bool
-ImportMgr::parseLazyImport(LazyImport* import)
-{
+ImportMgr::parseLazyImport(LazyImport* import) {
 	ASSERT(m_module->getCompileState() < ModuleCompileState_Compiled);
 
 	sl::ConstIterator<Variable> lastVariableIt = m_module->m_variableMgr.getVariableList().getTail();

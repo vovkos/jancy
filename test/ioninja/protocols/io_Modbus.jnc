@@ -14,8 +14,7 @@ pragma(Alignment, 1);
 
 // Modbus protocol variations
 
-enum ModbusProtocol: uint8_t
-{
+enum ModbusProtocol: uint8_t {
 	Rtu,
 	Ascii,
 	Tcp,
@@ -26,8 +25,7 @@ enum ModbusProtocol: uint8_t
 
 // Modbus node roles
 
-enum ModbusRole: uint8_t
-{
+enum ModbusRole: uint8_t {
 	Master,
 	Slave,
 }
@@ -36,8 +34,7 @@ enum ModbusRole: uint8_t
 
 // function codes
 
-enum ModbusFunc: uint8_t
-{
+enum ModbusFunc: uint8_t {
 	ReadCoils                  = 1,
 	ReadDiscreteInputs         = 2,
 	ReadHoldingRegisters       = 3,
@@ -63,10 +60,8 @@ enum ModbusFunc: uint8_t
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* getModbusFuncString(ModbusFunc func)
-{
-	static char const* stringTable[] =
-	{
+char const* getModbusFuncString(ModbusFunc func) {
+	static char const* stringTable[] = {
 		"Unknown",                       // 0
 		"Read Coils",                    // ReadCoils                  = 1,
 		"Read Discrete Inputs",          // ReadDiscreteInputs         = 2,
@@ -108,8 +103,7 @@ char const* getModbusFuncString(ModbusFunc func)
 
 // exception codes
 
-enum ModbusException: uint8_t
-{
+enum ModbusException: uint8_t {
 	IllegalFunction         = 1,
 	IllegalDataAddress      = 2,
 	IllegalDataValue        = 3,
@@ -123,10 +117,8 @@ enum ModbusException: uint8_t
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* getModbusExceptionString(ModbusException exception)
-{
-	static char const* stringTable[] =
-	{
+char const* getModbusExceptionString(ModbusException exception) {
+	static char const* stringTable[] = {
 		"Unknown",                    // 0
 		"Illegal Function",           // IllegalFunction               = 1,
 		"Illegal Data Address",       // IllegalDataAddress            = 2,
@@ -148,30 +140,26 @@ char const* getModbusExceptionString(ModbusException exception)
 
 // particular function code PDUs
 
-struct ModbusPduHdr
-{
+struct ModbusPduHdr {
 	io.ModbusFunc m_func;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ModbusExceptionPdu: ModbusPduHdr
-{
+struct ModbusExceptionPdu: ModbusPduHdr {
 	ModbusException m_exception;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ModbusReadPdu: ModbusPduHdr
-{
+struct ModbusReadPdu: ModbusPduHdr {
 	bigendian uint16_t m_address;
 	bigendian uint16_t m_count;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ModbusReadReplyPdu: ModbusPduHdr
-{
+struct ModbusReadReplyPdu: ModbusPduHdr {
 	uint8_t m_size;
 
 	// followed by read data
@@ -179,31 +167,27 @@ struct ModbusReadReplyPdu: ModbusPduHdr
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ModbusWritePdu: ModbusPduHdr
-{
+struct ModbusWritePdu: ModbusPduHdr {
 	bigendian uint16_t m_address;
 	bigendian uint16_t m_value;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ModbusReadExceptionStatusReplyPdu: ModbusPduHdr
-{
+struct ModbusReadExceptionStatusReplyPdu: ModbusPduHdr {
 	uint8_t m_status;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ModbusGetCommEventCounterReplyPdu: ModbusPduHdr
-{
+struct ModbusGetCommEventCounterReplyPdu: ModbusPduHdr {
 	bigendian uint16_t m_status;
 	bigendian uint16_t m_eventCount;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ModbusGetCommEventLogReplyPdu: ModbusReadReplyPdu
-{
+struct ModbusGetCommEventLogReplyPdu: ModbusReadReplyPdu {
 	bigendian uint16_t m_status;
 	bigendian uint16_t m_eventCount;
 	bigendian uint16_t m_messageCount;
@@ -213,8 +197,7 @@ struct ModbusGetCommEventLogReplyPdu: ModbusReadReplyPdu
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ModbusWriteMultiplePdu: ModbusPduHdr
-{
+struct ModbusWriteMultiplePdu: ModbusPduHdr {
 	bigendian uint16_t m_address;
 	bigendian uint16_t m_count;
 	uint8_t m_size;
@@ -224,16 +207,14 @@ struct ModbusWriteMultiplePdu: ModbusPduHdr
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ModbusWriteMultipleReplyPdu: ModbusPduHdr
-{
+struct ModbusWriteMultipleReplyPdu: ModbusPduHdr {
 	bigendian uint16_t m_address;
 	bigendian uint16_t m_count;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ModbusMaskWritePdu: ModbusPduHdr
-{
+struct ModbusMaskWritePdu: ModbusPduHdr {
 	bigendian uint16_t m_address;
 	bigendian uint16_t m_andMask;
 	bigendian uint16_t m_orMask;
@@ -241,8 +222,7 @@ struct ModbusMaskWritePdu: ModbusPduHdr
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ModbusReadWriteMultiplePdu: ModbusPduHdr
-{
+struct ModbusReadWriteMultiplePdu: ModbusPduHdr {
 	bigendian uint16_t m_readAddress;
 	bigendian uint16_t m_readCount;
 	bigendian uint16_t m_writeAddress;
@@ -252,15 +232,13 @@ struct ModbusReadWriteMultiplePdu: ModbusPduHdr
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ModbusReadFifoPdu: ModbusPduHdr
-{
+struct ModbusReadFifoPdu: ModbusPduHdr {
 	bigendian uint16_t m_address;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ModbusReadFifoReplyPdu: ModbusPduHdr
-{
+struct ModbusReadFifoReplyPdu: ModbusPduHdr {
 	bigendian uint16_t m_byteCount;
 	bigendian uint16_t m_fifoCount;
 
@@ -269,8 +247,7 @@ struct ModbusReadFifoReplyPdu: ModbusPduHdr
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum
-{
+enum {
 	ModbusMaxPduSize = sizeof(ModbusWriteMultiplePdu) + 255,
 }
 
@@ -282,13 +259,11 @@ size_t errorcode getModbusPduSize(
 	ModbusRole role,
 	ModbusPduHdr const* pduHdr,
 	size_t size
-	)
-{
+) {
 	if (size < sizeof(ModbusPduHdr))
 		return sizeof(ModbusPduHdr);
 
-	switch (pduHdr.m_func)
-	{
+	switch (pduHdr.m_func) {
 	case io.ModbusFunc.ReadCoils:
 	case io.ModbusFunc.ReadDiscreteInputs:
 	case io.ModbusFunc.ReadHoldingRegisters:
@@ -370,22 +345,19 @@ size_t errorcode getModbusPduSize(
 
 // Modbus ADUs
 
-struct ModbusRtuAduHdr
-{
+struct ModbusRtuAduHdr {
 	uint8_t m_deviceAddress;
 
 	// followed by PDU and CRC16 checksum
 }
 
-struct ModbusAsciiAduHdr
-{
+struct ModbusAsciiAduHdr {
 	char m_deviceAddress[2];
 
 	// followed by hex-encoded PDU, LRC8 checksum, and then \r\n
 }
 
-struct ModbusTcpAduHdr
-{
+struct ModbusTcpAduHdr {
 	bigendian uint16_t m_transactionId;
 	bigendian uint16_t m_protocol;
 	bigendian uint16_t m_length; // length of data following this field
@@ -396,8 +368,7 @@ struct ModbusTcpAduHdr
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum
-{
+enum {
 	ModbusMaxRtuAduSize   = sizeof(ModbusRtuAduHdr) + ModbusMaxPduSize + 2,
 	ModbusMaxAsciiAduSize = 1 + sizeof(ModbusAsciiAduHdr) + ModbusMaxPduSize * 2 + 4,
 	ModbusMaxTcpAduSize = sizeof(ModbusTcpAduHdr) + ModbusMaxPduSize,
@@ -411,8 +382,7 @@ size_t errorcode getModbusRtuAduSize(
 	ModbusRole role,
 	ModbusRtuAduHdr const* aduHdr,
 	size_t size
-	)
-{
+) {
 	if (size < sizeof(ModbusRtuAduHdr))
 		return sizeof(ModbusRtuAduHdr);
 

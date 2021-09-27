@@ -7,15 +7,13 @@ import "log_RecordCode.jnc"
 
 //..............................................................................
 
-enum UdpFlowLogRecordCode: uint64_t
-{
+enum UdpFlowLogRecordCode: uint64_t {
 	Packet = 0x01d487c65087ebca,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct UdpFlowPacketParams
-{
+struct UdpFlowPacketParams {
 	io.SocketAddress m_srcAddress;
 	io.SocketAddress m_dstAddress;
 	uint32_t m_size;

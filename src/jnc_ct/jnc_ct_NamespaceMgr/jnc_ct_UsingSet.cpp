@@ -20,22 +20,19 @@ namespace ct {
 //..............................................................................
 
 void
-UsingSet::clear()
-{
+UsingSet::clear() {
 	m_globalNamespaceArray.clear();
 	m_extensionNamespaceArray.clear();
 	m_importNamespaceList.clear();
 }
 
 void
-UsingSet::append(const UsingSet* src)
-{
+UsingSet::append(const UsingSet* src) {
 	m_globalNamespaceArray.append(src->m_globalNamespaceArray);
 	m_extensionNamespaceArray.append(src->m_extensionNamespaceArray);
 
 	sl::ConstIterator<ImportNamespace> it = src->m_importNamespaceList.getHead();
-	for (; it; it++)
-	{
+	for (; it; it++) {
 		ImportNamespace* importNamespace = AXL_MEM_NEW(ImportNamespace);
 		*importNamespace = **it;
 		m_importNamespaceList.insertTail(importNamespace);
@@ -43,15 +40,13 @@ UsingSet::append(const UsingSet* src)
 }
 
 FindModuleItemResult
-UsingSet::findItem(const sl::StringRef& name)
-{
+UsingSet::findItem(const sl::StringRef& name) {
 	bool result = ensureResolved();
 	if (!result)
 		return g_errorFindModuleItemResult;
 
 	size_t count = m_globalNamespaceArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		FindModuleItemResult findResult = m_globalNamespaceArray[i]->findDirectChildItem(name);
 		if (!findResult.m_result || findResult.m_item)
 			return findResult;
@@ -64,22 +59,19 @@ FindModuleItemResult
 UsingSet::findExtensionItem(
 	NamedType* type,
 	const sl::StringRef& name
-	)
-{
+) {
 	bool result = ensureResolved();
 	if (!result)
 		return g_errorFindModuleItemResult;
 
 	size_t count = m_extensionNamespaceArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		ExtensionNamespace* nspace = m_extensionNamespaceArray[i];
 		result = nspace->ensureNamespaceReady();
 		if (!result)
 			return g_errorFindModuleItemResult;
 
-		if (nspace->getType()->cmp(type) == 0)
-		{
+		if (nspace->getType()->cmp(type) == 0) {
 			FindModuleItemResult findResult = nspace->findDirectChildItem(name);
 			if (!findResult.m_result || findResult.m_item)
 				return findResult;
@@ -94,17 +86,14 @@ UsingSet::addNamespace(
 	Namespace* anchorNamespace,
 	NamespaceKind namespaceKind,
 	const QualifiedName& name
-	)
-{
+) {
 	FindModuleItemResult findResult = anchorNamespace->findItemTraverse(name);
 	if (!findResult.m_result)
 		return false;
 
-	if (!findResult.m_item)
-	{
+	if (!findResult.m_item) {
 		Module* module = anchorNamespace->getParentItem()->getModule();
-		if (module->getCompileState() >= ModuleCompileState_Parsed)
-		{
+		if (module->getCompileState() >= ModuleCompileState_Parsed) {
 			err::setFormatStringError("namespace '%s' not found", name.getFullName().sz());
 			return false;
 		}
@@ -117,21 +106,18 @@ UsingSet::addNamespace(
 		return true;
 	}
 
-	if (findResult.m_item->getItemKind() != ModuleItemKind_Namespace)
-	{
+	if (findResult.m_item->getItemKind() != ModuleItemKind_Namespace) {
 		err::setFormatStringError("'%s' is a %s, not a namespace", name.getFullName ().sz(), getModuleItemKindString(findResult.m_item->getItemKind()));
 		return false;
 	}
 
 	GlobalNamespace* nspace = (GlobalNamespace*)findResult.m_item;
-	if (nspace->getNamespaceKind() != namespaceKind)
-	{
+	if (nspace->getNamespaceKind() != namespaceKind) {
 		err::setFormatStringError("'%s' is not %s", name.getFullName ().sz(), getNamespaceKindString(namespaceKind));
 		return false;
 	}
 
-	switch (namespaceKind)
-	{
+	switch (namespaceKind) {
 	case NamespaceKind_Global:
 		m_globalNamespaceArray.append(nspace);
 		break;
@@ -149,18 +135,16 @@ UsingSet::addNamespace(
 }
 
 bool
-UsingSet::resolve()
-{
+UsingSet::resolve() {
 	bool result;
 
-	while (!m_importNamespaceList.isEmpty())
-	{
+	while (!m_importNamespaceList.isEmpty()) {
 		ImportNamespace* importNamespace = m_importNamespaceList.removeHead();
 		result = addNamespace(
 			importNamespace->m_anchorNamespace,
 			importNamespace->m_namespaceKind,
 			importNamespace->m_name
-			);
+		);
 
 		if (!result)
 			return false;

@@ -27,24 +27,21 @@
 JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
-jnc_Alias_getInitializerString_v(jnc_Alias* alias)
-{
+jnc_Alias_getInitializerString_v(jnc_Alias* alias) {
 	return *jnc::getTlsStringBuffer() = alias->getInitializerString();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
-jnc_Alias_isResolved(jnc_Alias* alias)
-{
+jnc_Alias_isResolved(jnc_Alias* alias) {
 	return alias->isResolved();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_ModuleItem*
-jnc_Alias_getTargetItem(jnc_Alias* alias)
-{
+jnc_Alias_getTargetItem(jnc_Alias* alias) {
 	return alias->getTargetItem();
 }
 

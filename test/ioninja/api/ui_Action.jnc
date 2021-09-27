@@ -12,12 +12,11 @@ namespace ui {
 
 //..............................................................................
 
-opaque class Action
-{
+opaque class Action {
 	construct(
 		char const* text,
 		Icon* icon = null
-		);
+	);
 
 	bool autoget property m_isVisible;
 	bool autoget property m_isEnabled;

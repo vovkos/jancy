@@ -23,8 +23,7 @@ bool
 isMulticastToMulticast(
 	ClassPtrType* srcType,
 	ClassPtrType* dstType
-	)
-{
+) {
 	if (srcType->getTargetType()->getClassTypeKind() != ClassTypeKind_Multicast ||
 		dstType->getTargetType()->getClassTypeKind() != ClassTypeKind_Multicast)
 		return false;
@@ -46,8 +45,7 @@ CastKind
 Cast_ClassPtr::getCastKind(
 	const Value& opValue,
 	Type* type
-	)
-{
+) {
 	ASSERT(type->getTypeKind() == TypeKind_ClassPtr);
 
 	if (opValue.getType()->getTypeKind() != TypeKind_ClassPtr)
@@ -81,8 +79,7 @@ Cast_ClassPtr::constCast(
 	const Value& opValue,
 	Type* type,
 	void* dst
-	)
-{
+) {
 	ASSERT(type->getTypeKind() == TypeKind_ClassPtr);
 
 	bool result;
@@ -103,8 +100,7 @@ Cast_ClassPtr::constCast(
 	if (srcIface == NULL ||
 		dstClassType->getClassTypeKind() == ClassTypeKind_Abstract ||
 		isMulticastToMulticast(srcType, dstType) ||
-		srcClassType->cmp(dstClassType) == 0)
-	{
+		srcClassType->cmp(dstClassType) == 0) {
 		*(void**) dst = srcIface;
 		return true;
 	}
@@ -123,14 +119,12 @@ Cast_ClassPtr::llvmCast(
 	const Value& rawOpValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(type->getTypeKind() == TypeKind_ClassPtr);
 
 	bool result;
 
-	if (rawOpValue.getType()->getTypeKind() != TypeKind_ClassPtr)
-	{
+	if (rawOpValue.getType()->getTypeKind() != TypeKind_ClassPtr) {
 		setCastError(rawOpValue, type);
 		return false; // TODO: user conversions via constructors -- only if target ptr is PtrTypeFlag_Const
 	}
@@ -141,8 +135,7 @@ Cast_ClassPtr::llvmCast(
 	ClassPtrType* dstType = (ClassPtrType*)type;
 
 	if (srcType->getPtrTypeKind() == ClassPtrTypeKind_Weak &&
-		dstType->getPtrTypeKind() != ClassPtrTypeKind_Weak)
-	{
+		dstType->getPtrTypeKind() != ClassPtrTypeKind_Weak) {
 		Function* strengthen = m_module->m_functionMgr.getStdFunction(StdFunc_StrengthenClassPtr);
 
 		m_module->m_llvmIrBuilder.createBitCast(opValue, m_module->m_typeMgr.getStdType(StdType_AbstractClassPtr), &opValue);
@@ -151,7 +144,7 @@ Cast_ClassPtr::llvmCast(
 			strengthen->getType(),
 			opValue,
 			&opValue
-			);
+		);
 
 		m_module->m_llvmIrBuilder.createBitCast(opValue, srcType, &opValue);
 	}
@@ -163,28 +156,24 @@ Cast_ClassPtr::llvmCast(
 		m_module->m_operatorMgr.checkNullPtr(opValue);
 
 	if (dstClassType->getClassTypeKind() == ClassTypeKind_Abstract ||
-		isMulticastToMulticast(srcType, dstType))
-	{
+		isMulticastToMulticast(srcType, dstType)) {
 		m_module->m_llvmIrBuilder.createBitCast(opValue, dstType, resultValue);
 		return true;
 	}
 
-	if (srcClassType->cmp(dstClassType) == 0)
-	{
+	if (srcClassType->cmp(dstClassType) == 0) {
 		resultValue->overrideType(opValue, type);
 		return true;
 	}
 
 	BaseTypeCoord coord;
 	result = srcClassType->findBaseTypeTraverse(dstClassType, &coord);
-	if (!result)
-	{
+	if (!result) {
 		setCastError(opValue, type, CastKind_Dynamic);
 		return false;
 	}
 
-	if (srcType->getFlags() & PtrTypeFlag_Safe) // non-null guarantee
-	{
+	if (srcType->getFlags() & PtrTypeFlag_Safe) { // non-null guarantee
 		coord.m_llvmIndexArray.insert(0, 0);
 
 		Value ptrValue;
@@ -194,7 +183,7 @@ Cast_ClassPtr::llvmCast(
 			coord.m_llvmIndexArray.getCount(),
 			dstType,
 			resultValue
-			);
+		);
 
 		return true;
 	}
@@ -223,7 +212,7 @@ Cast_ClassPtr::llvmCast(
 		coord.m_llvmIndexArray.getCount(),
 		NULL,
 		&ptrValue
-		);
+	);
 
 	m_module->m_controlFlowMgr.follow(phiBlock);
 

@@ -19,8 +19,7 @@ namespace ct {
 
 //..............................................................................
 
-PropertyPtrType::PropertyPtrType()
-{
+PropertyPtrType::PropertyPtrType() {
 	m_typeKind = TypeKind_PropertyPtr;
 	m_ptrTypeKind = PropertyPtrTypeKind_Normal;
 	m_alignment = sizeof(void*);
@@ -33,12 +32,10 @@ PropertyPtrType::createSignature(
 	TypeKind typeKind,
 	PropertyPtrTypeKind ptrTypeKind,
 	uint_t flags
-	)
-{
+) {
 	sl::String signature = typeKind == TypeKind_PropertyRef ? "RX" : "PX";
 
-	switch (ptrTypeKind)
-	{
+	switch (ptrTypeKind) {
 	case PropertyPtrTypeKind_Thin:
 		signature += 't';
 		break;
@@ -54,22 +51,19 @@ PropertyPtrType::createSignature(
 }
 
 void
-PropertyPtrType::prepareTypeString()
-{
+PropertyPtrType::prepareTypeString() {
 	TypeStringTuple* tuple = getTypeStringTuple();
 	Type* returnType = m_targetType->getReturnType();
 
 	tuple->m_typeStringPrefix = returnType->getTypeStringPrefix();
 
 	sl::String ptrTypeFlagString = getPtrTypeFlagString(m_flags);
-	if (!ptrTypeFlagString.isEmpty())
-	{
+	if (!ptrTypeFlagString.isEmpty()) {
 		tuple->m_typeStringPrefix += ' ';
 		tuple->m_typeStringPrefix += ptrTypeFlagString;
 	}
 
-	if (m_ptrTypeKind != PropertyPtrTypeKind_Normal)
-	{
+	if (m_ptrTypeKind != PropertyPtrTypeKind_Normal) {
 		tuple->m_typeStringPrefix += ' ';
 		tuple->m_typeStringPrefix += getPropertyPtrTypeKindString(m_ptrTypeKind);
 	}
@@ -83,22 +77,19 @@ PropertyPtrType::prepareTypeString()
 }
 
 void
-PropertyPtrType::prepareDoxyLinkedText()
-{
+PropertyPtrType::prepareDoxyLinkedText() {
 	TypeStringTuple* tuple = getTypeStringTuple();
 	Type* returnType = m_targetType->getReturnType();
 
 	tuple->m_doxyLinkedTextPrefix = returnType->getDoxyLinkedTextPrefix();
 
 	sl::String ptrTypeFlagString = getPtrTypeFlagString(m_flags);
-	if (!ptrTypeFlagString.isEmpty())
-	{
+	if (!ptrTypeFlagString.isEmpty()) {
 		tuple->m_doxyLinkedTextPrefix += ' ';
 		tuple->m_doxyLinkedTextPrefix += ptrTypeFlagString;
 	}
 
-	if (m_ptrTypeKind != PropertyPtrTypeKind_Normal)
-	{
+	if (m_ptrTypeKind != PropertyPtrTypeKind_Normal) {
 		tuple->m_doxyLinkedTextPrefix += ' ';
 		tuple->m_doxyLinkedTextPrefix += getPropertyPtrTypeKindString(m_ptrTypeKind);
 	}
@@ -112,8 +103,7 @@ PropertyPtrType::prepareDoxyLinkedText()
 }
 
 void
-PropertyPtrType::prepareDoxyTypeString()
-{
+PropertyPtrType::prepareDoxyTypeString() {
 	Type::prepareDoxyTypeString();
 
 	if (m_targetType->isIndexed())
@@ -121,16 +111,14 @@ PropertyPtrType::prepareDoxyTypeString()
 }
 
 void
-PropertyPtrType::prepareLlvmType()
-{
+PropertyPtrType::prepareLlvmType() {
 	m_llvmType = m_ptrTypeKind != PropertyPtrTypeKind_Thin ?
 		m_module->m_typeMgr.getStdType(StdType_PropertyPtrStruct)->getLlvmType() :
 		m_targetType->getVtableStructType()->getDataPtrType_c()->getLlvmType();
 }
 
 void
-PropertyPtrType::prepareLlvmDiType()
-{
+PropertyPtrType::prepareLlvmDiType() {
 	m_llvmDiType = m_ptrTypeKind != PropertyPtrTypeKind_Thin ?
 		m_module->m_typeMgr.getStdType(StdType_PropertyPtrStruct)->getLlvmDiType() :
 		m_targetType->getVtableStructType()->getDataPtrType_c()->getLlvmDiType();
@@ -140,8 +128,7 @@ void
 PropertyPtrType::markGcRoots(
 	const void* p,
 	rt::GcHeap* gcHeap
-	)
-{
+) {
 	ASSERT(m_ptrTypeKind == PropertyPtrTypeKind_Normal || m_ptrTypeKind == PropertyPtrTypeKind_Weak);
 
 	PropertyPtr* ptr = (PropertyPtr*)p;

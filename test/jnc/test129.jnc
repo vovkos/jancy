@@ -4,14 +4,12 @@ namespace a {
 
 typedef uint32_t U32;
 
-struct S
-{
+struct S {
 	U32 m_x;
 }
 
 } // namespace a
 
-int main()
-{
+int main() {
 	return 0;
 }

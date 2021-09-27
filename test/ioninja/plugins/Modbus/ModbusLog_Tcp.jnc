@@ -15,8 +15,7 @@ void representModbusTcpAdu(
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
+) {
 	io.ModbusTcpAduHdr const* aduHdr = (io.ModbusTcpAduHdr const*) p;
 	io.ModbusPduHdr const* pduHdr = (io.ModbusPduHdr const*) (aduHdr + 1);
 
@@ -29,17 +28,14 @@ void representModbusTcpAdu(
 	uint16_t actualChecksum = *(uint16_t const*) (p + checksumOffset);
 	uint16_t expectedChecksum = crc16_ansi(p, checksumOffset, 0xffff);
 
-	if (!(foldFlags & 1))
-	{
+	if (!(foldFlags & 1)) {
 		representation.addHyperText(
 			$"[\e^+1\e[34m+\e[m] \e[1mMODBUS-TCP\e[m TID: \e[34m%1\e[m Dev: \e[34m%2\e[m %3" (
 			aduHdr.m_transactionId,
 			aduHdr.m_deviceAddress,
 			getModbusPduDigest(role, pduHdr)
-			));
-	}
-	else
-	{
+		));
+	} else {
 		representation.addHyperText(
 			"[\e^-1\e[34m-\e[m]\n"
 			"\e[1mADU-TCP\e[m\n"
@@ -62,7 +58,7 @@ void representModbusTcpAdu(
 			offsetof(aduHdr.m_deviceAddress),
 			sizeof(aduHdr.m_deviceAddress),
 			aduHdr.m_deviceAddress
-			));
+		));
 
 		representModbusPdu(
 			representation,
@@ -70,7 +66,7 @@ void representModbusTcpAdu(
 			pduHdr,
 			sizeof(io.ModbusTcpAduHdr),,
 			foldFlags
-			);
+		);
 
 		representation.m_lineAttr.m_backColor = ui.ColorFlags.Transparent;
 		representation.m_lineAttr.m_textColor = ui.StdColor.Gray;

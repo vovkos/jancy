@@ -26,8 +26,7 @@ class Property;
 
 //..............................................................................
 
-class ClassType: public DerivableType
-{
+class ClassType: public DerivableType {
 	friend class TypeMgr;
 	friend class Parser;
 	friend class Property;
@@ -57,21 +56,18 @@ public:
 	ClassType();
 
 	ClassTypeKind
-	getClassTypeKind()
-	{
+	getClassTypeKind() {
 		return m_classTypeKind;
 	}
 
 	StructType*
-	getIfaceStructType()
-	{
+	getIfaceStructType() {
 		ASSERT(m_ifaceStructType);
 		return m_ifaceStructType;
 	}
 
 	StructType*
-	getClassStructType()
-	{
+	getClassStructType() {
 		ASSERT(m_classStructType);
 		return m_classStructType;
 	}
@@ -81,27 +77,24 @@ public:
 		TypeKind typeKind,
 		ClassPtrTypeKind ptrTypeKind = ClassPtrTypeKind_Normal,
 		uint_t flags = 0
-		);
+	);
 
 	ClassPtrType*
 	getClassPtrType(
 		ClassPtrTypeKind ptrTypeKind = ClassPtrTypeKind_Normal,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return getClassPtrType(TypeKind_ClassPtr, ptrTypeKind, flags);
 	}
 
 	virtual
 	Type*
-	getThisArgType(uint_t ptrTypeFlags)
-	{
+	getThisArgType(uint_t ptrTypeFlags) {
 		return (Type*)getClassPtrType(ClassPtrTypeKind_Normal, ptrTypeFlags);
 	}
 
 	const OpaqueClassTypeInfo*
-	getOpaqueClassTypeInfoFunc()
-	{
+	getOpaqueClassTypeInfoFunc() {
 		return m_opaqueClassTypeInfo;
 	}
 
@@ -114,32 +107,27 @@ public:
 	addProperty(Property* prop);
 
 	bool
-	hasVtable()
-	{
+	hasVtable() {
 		return !m_vtable.isEmpty();
 	}
 
 	sl::Array<BaseTypeSlot*>
-	getClassBaseTypeArray()
-	{
+	getClassBaseTypeArray() {
 		return m_classBaseTypeArray;
 	}
 
 	sl::Array<Field*>
-	getClassFieldArray()
-	{
+	getClassFieldArray() {
 		return m_classFieldArray;
 	}
 
 	sl::Array<Function*>
-	getVirtualMethodArray()
-	{
+	getVirtualMethodArray() {
 		return m_virtualMethodArray;
 	}
 
 	sl::Array<Property*>
-	getVirtualPropertyArray()
-	{
+	getVirtualPropertyArray() {
 		return m_virtualPropertyArray;
 	}
 
@@ -147,22 +135,19 @@ public:
 	getVtableStructType();
 
 	Variable*
-	getVtableVariable()
-	{
+	getVtableVariable() {
 		return m_vtableVariable;
 	}
 
 	virtual
 	bool
-	require()
-	{
+	require() {
 		return ensureLayout() && ensureCreatable() && requireConstructor();
 	}
 
 	virtual
 	bool
-	requireExternalReturn()
-	{
+	requireExternalReturn() {
 		return ensureLayout() &&
 			((m_flags & ClassTypeFlag_HasAbstractMethods) || // OK to return abstract classes
 			ensureCreatable() && requireConstructor());
@@ -173,11 +158,10 @@ public:
 	markGcRoots(
 		const void* p,
 		rt::GcHeap* gcHeap
-		);
+	);
 
 	bool
-	ensureCreatable()
-	{
+	ensureCreatable() {
 		return (m_flags & ClassTypeFlag_Creatable) ? true : prepareForOperatorNew();
 	}
 
@@ -186,7 +170,7 @@ protected:
 	markGcRootsImpl(
 		IfaceHdr* iface,
 		rt::GcHeap* gcHeap
-		);
+	);
 
 	virtual
 	Field*
@@ -197,12 +181,11 @@ protected:
 		uint_t ptrTypeFlags = 0,
 		sl::BoxList<Token>* constructor = NULL,
 		sl::BoxList<Token>* initializer = NULL
-		);
+	);
 
 	virtual
 	void
-	prepareSignature()
-	{
+	prepareSignature() {
 		m_signature = "CC" + m_qualifiedName;
 	}
 
@@ -216,8 +199,7 @@ protected:
 
 	virtual
 	void
-	prepareTypeVariable()
-	{
+	prepareTypeVariable() {
 		prepareSimpleTypeVariable(StdType_ClassType);
 	}
 

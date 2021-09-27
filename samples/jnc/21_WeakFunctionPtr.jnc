@@ -14,12 +14,10 @@
 
 //..............................................................................
 
-class C1
-{
+class C1 {
 	int m_x = -1;
 
-	construct()
-	{
+	construct() {
 		printf("C1.construct ()\n");
 	}
 
@@ -27,8 +25,7 @@ class C1
 		int a,
 		int b,
 		int c
-		)
-	{
+	) {
 		printf("C1.foo (%d, %d, %d) { m_x = %d }\n", a, b, c, m_x);
 	}
 }
@@ -37,17 +34,16 @@ class C1
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	C1* c;
 	function weak* wf(int, int);
 
 	{ // get rid of tmp gc roots
-		c = new C1;  
+		c = new C1;
 		wf = c.foo ~(,, 3);
-	}	
+	}
 
 	// weak function pointers cannot be called
 
@@ -64,13 +60,10 @@ int main()
 	// try to recover the strong pointer
 
 	function* f(int, int) = wf;
-	if (f)
-	{
+	if (f) {
 		printf("object survived the GC run\n");
 		f(1, 2);
-	}
-	else
-	{
+	} else {
 		printf("object was collected during the GC run\n");
 	}
 

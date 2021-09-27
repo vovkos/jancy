@@ -22,8 +22,7 @@ namespace ct {
 //..............................................................................
 
 TypeKind
-getInt32TypeKind(int32_t integer)
-{
+getInt32TypeKind(int32_t integer) {
 	return
 		integer >= INT8_MIN && integer <= INT8_MAX ? TypeKind_Int8 :
 		(uint32_t)integer <= UINT8_MAX ? TypeKind_Int8_u :
@@ -32,8 +31,7 @@ getInt32TypeKind(int32_t integer)
 }
 
 TypeKind
-getInt32TypeKind_u(uint32_t integer)
-{
+getInt32TypeKind_u(uint32_t integer) {
 	return
 		integer <= INT8_MAX ? TypeKind_Int8 :
 		integer <= UINT8_MAX ? TypeKind_Int8_u :
@@ -43,8 +41,7 @@ getInt32TypeKind_u(uint32_t integer)
 }
 
 TypeKind
-getInt64TypeKind(int64_t integer)
-{
+getInt64TypeKind(int64_t integer) {
 	return
 		integer >= INT8_MIN && integer <= INT8_MAX ? TypeKind_Int8 :
 		(uint64_t)integer <= UINT8_MAX ? TypeKind_Int8_u :
@@ -55,8 +52,7 @@ getInt64TypeKind(int64_t integer)
 }
 
 TypeKind
-getInt64TypeKind_u(uint64_t integer)
-{
+getInt64TypeKind_u(uint64_t integer) {
 	return
 		integer <= INT8_MAX ? TypeKind_Int8 :
 		integer <= UINT8_MAX ? TypeKind_Int8_u :
@@ -70,8 +66,7 @@ getInt64TypeKind_u(uint64_t integer)
 //..............................................................................
 
 sl::String
-getLlvmTypeString(llvm::Type* llvmType)
-{
+getLlvmTypeString(llvm::Type* llvmType) {
 	std::string s;
 	llvm::raw_string_ostream stream(s);
 	llvmType->print(stream);
@@ -81,10 +76,8 @@ getLlvmTypeString(llvm::Type* llvmType)
 //..............................................................................
 
 const char*
-getPtrTypeFlagString(PtrTypeFlag flag)
-{
-	static const char* stringTable[] =
-	{
+getPtrTypeFlagString(PtrTypeFlag flag) {
+	static const char* stringTable[] = {
 		"safe",      // PtrTypeFlag_Safe      = 0x0010000
 		"const",     // PtrTypeFlag_Const     = 0x0020000
 		"readonly",  // PtrTypeFlag_ReadOnly  = 0x0040000
@@ -104,8 +97,7 @@ getPtrTypeFlagString(PtrTypeFlag flag)
 }
 
 sl::String
-getPtrTypeFlagString(uint_t flags)
-{
+getPtrTypeFlagString(uint_t flags) {
 	sl::String string;
 
 	if (flags & PtrTypeFlag_Safe)
@@ -139,8 +131,7 @@ getPtrTypeFlagString(uint_t flags)
 }
 
 sl::String
-getPtrTypeFlagSignature(uint_t flags)
-{
+getPtrTypeFlagSignature(uint_t flags) {
 	sl::String signature;
 
 	if (flags & PtrTypeFlag_Safe)
@@ -165,8 +156,7 @@ getPtrTypeFlagSignature(uint_t flags)
 }
 
 uint_t
-getPtrTypeFlagsFromModifiers(uint_t modifiers)
-{
+getPtrTypeFlagsFromModifiers(uint_t modifiers) {
 	uint_t flags = 0;
 
 	if (modifiers & TypeModifier_Safe)
@@ -190,8 +180,7 @@ getPtrTypeFlagsFromModifiers(uint_t modifiers)
 
 //..............................................................................
 
-Type::Type()
-{
+Type::Type() {
 	m_itemKind = ModuleItemKind_Type;
 	m_typeKind = TypeKind_Void;
 	m_stdType = (StdType)-1;
@@ -206,15 +195,13 @@ Type::Type()
 	m_dualTypeTuple = NULL;
 }
 
-Type::~Type()
-{
+Type::~Type() {
 	if (m_typeStringTuple)
 		AXL_MEM_DELETE(m_typeStringTuple);
 }
 
 TypeStringTuple*
-Type::getTypeStringTuple()
-{
+Type::getTypeStringTuple() {
 	if (!m_typeStringTuple)
 		m_typeStringTuple = AXL_MEM_NEW(TypeStringTuple);
 
@@ -222,8 +209,7 @@ Type::getTypeStringTuple()
 }
 
 const sl::String&
-Type::getTypeString()
-{
+Type::getTypeString() {
 	TypeStringTuple* tuple = getTypeStringTuple();
 	if (!tuple->m_typeString.isEmpty())
 		return tuple->m_typeString;
@@ -232,8 +218,7 @@ Type::getTypeString()
 	ASSERT(!tuple->m_typeStringPrefix.isEmpty());
 
 	tuple->m_typeString = tuple->m_typeStringPrefix;
-	if (!tuple->m_typeStringSuffix.isEmpty())
-	{
+	if (!tuple->m_typeStringSuffix.isEmpty()) {
 		tuple->m_typeString += ' ';
 		tuple->m_typeString += tuple->m_typeStringSuffix;
 	}
@@ -242,11 +227,9 @@ Type::getTypeString()
 }
 
 const sl::String&
-Type::getTypeStringPrefix()
-{
+Type::getTypeStringPrefix() {
 	TypeStringTuple* tuple = getTypeStringTuple();
-	if (tuple->m_typeStringPrefix.isEmpty())
-	{
+	if (tuple->m_typeStringPrefix.isEmpty()) {
 		prepareTypeString();
 		ASSERT(!tuple->m_typeStringPrefix.isEmpty());
 	}
@@ -255,11 +238,9 @@ Type::getTypeStringPrefix()
 }
 
 const sl::String&
-Type::getTypeStringSuffix()
-{
+Type::getTypeStringSuffix() {
 	TypeStringTuple* tuple = getTypeStringTuple();
-	if (tuple->m_typeStringPrefix.isEmpty()) // this is not a typo, we still need to check prefix string!
-	{
+	if (tuple->m_typeStringPrefix.isEmpty()) { // this is not a typo, we still need to check prefix string!
 		prepareTypeString();
 		ASSERT(!tuple->m_typeStringPrefix.isEmpty());
 	}
@@ -268,11 +249,9 @@ Type::getTypeStringSuffix()
 }
 
 const sl::String&
-Type::getDoxyTypeString()
-{
+Type::getDoxyTypeString() {
 	TypeStringTuple* tuple = getTypeStringTuple();
-	if (tuple->m_doxyTypeString.isEmpty())
-	{
+	if (tuple->m_doxyTypeString.isEmpty()) {
 		prepareDoxyTypeString();
 		ASSERT(!tuple->m_doxyTypeString.isEmpty());
 	}
@@ -281,11 +260,9 @@ Type::getDoxyTypeString()
 }
 
 const sl::String&
-Type::getDoxyLinkedTextPrefix()
-{
+Type::getDoxyLinkedTextPrefix() {
 	TypeStringTuple* tuple = getTypeStringTuple();
-	if (tuple->m_doxyLinkedTextPrefix.isEmpty())
-	{
+	if (tuple->m_doxyLinkedTextPrefix.isEmpty()) {
 		prepareDoxyLinkedText();
 		ASSERT(!tuple->m_doxyLinkedTextPrefix.isEmpty());
 	}
@@ -294,11 +271,9 @@ Type::getDoxyLinkedTextPrefix()
 }
 
 const sl::String&
-Type::getDoxyLinkedTextSuffix()
-{
+Type::getDoxyLinkedTextSuffix() {
 	TypeStringTuple* tuple = getTypeStringTuple();
-	if (tuple->m_doxyLinkedTextPrefix.isEmpty()) // this is not a typo, we still need to check prefix string!
-	{
+	if (tuple->m_doxyLinkedTextPrefix.isEmpty()) { // this is not a typo, we still need to check prefix string!
 		prepareDoxyLinkedText();
 		ASSERT(!tuple->m_doxyLinkedTextPrefix.isEmpty());
 	}
@@ -307,19 +282,16 @@ Type::getDoxyLinkedTextSuffix()
 }
 
 Value
-Type::getUndefValue()
-{
+Type::getUndefValue() {
 	llvm::Value* llvmValue = llvm::UndefValue::get(getLlvmType());
 	return Value(llvmValue, this);
 }
 
 Value
-Type::getZeroValue()
-{
+Type::getZeroValue() {
 	AXL_TODO("Type::getZeroValue () probably should return ValueKind_Const")
 
-	if (!m_module->hasCodeGen())
-	{
+	if (!m_module->hasCodeGen()) {
 		Value value;
 		value.createConst(NULL, this);
 		return value;
@@ -330,8 +302,7 @@ Type::getZeroValue()
 }
 
 Value
-Type::getErrorCodeValue()
-{
+Type::getErrorCodeValue() {
 	uint_t typeKindFlags = getTypeKindFlags();
 	ASSERT(typeKindFlags & TypeKindFlag_ErrorCode);
 
@@ -345,8 +316,7 @@ Type::getErrorCodeValue()
 }
 
 ArrayType*
-Type::getArrayType(size_t elementCount)
-{
+Type::getArrayType(size_t elementCount) {
 	return m_module->m_typeMgr.getArrayType(this, elementCount);
 }
 
@@ -355,20 +325,17 @@ Type::getDataPtrType(
 	TypeKind typeKind,
 	DataPtrTypeKind ptrTypeKind,
 	uint_t flags
-	)
-{
+) {
 	return m_module->m_typeMgr.getDataPtrType(this, typeKind, ptrTypeKind, flags);
 }
 
 FunctionArg*
-Type::getSimpleFunctionArg(uint_t ptrTypeFlags)
-{
+Type::getSimpleFunctionArg(uint_t ptrTypeFlags) {
 	return m_module->m_typeMgr.getSimpleFunctionArg(this, ptrTypeFlags);
 }
 
 bool
-Type::prepareImports()
-{
+Type::prepareImports() {
 	ASSERT(!(m_flags & (ModuleItemFlag_LayoutReady | TypeFlag_NoImports)));
 
 	bool result = resolveImports();
@@ -380,12 +347,10 @@ Type::prepareImports()
 }
 
 bool
-Type::prepareLayout()
-{
+Type::prepareLayout() {
 	ASSERT(!(m_flags & ModuleItemFlag_LayoutReady));
 
-	if (m_flags & ModuleItemFlag_InCalcLayout)
-	{
+	if (m_flags & ModuleItemFlag_InCalcLayout) {
 		ModuleItemDecl* decl = getDecl();
 		ASSERT(decl); // recursion is only possible with named types
 
@@ -404,10 +369,8 @@ Type::prepareLayout()
 }
 
 void
-Type::prepareTypeString()
-{
-	static const char* stringTable[TypeKind__PrimitiveTypeCount] =
-	{
+Type::prepareTypeString() {
+	static const char* stringTable[TypeKind__PrimitiveTypeCount] = {
 		"void",
 		"variant",
 		"bool",
@@ -434,16 +397,14 @@ Type::prepareTypeString()
 }
 
 void
-Type::prepareDoxyLinkedText()
-{
+Type::prepareDoxyLinkedText() {
 	TypeStringTuple* tuple = getTypeStringTuple();
 	tuple->m_doxyLinkedTextPrefix = getTypeStringPrefix();
 	tuple->m_doxyLinkedTextSuffix = getTypeStringSuffix();
 }
 
 void
-Type::prepareDoxyTypeString()
-{
+Type::prepareDoxyTypeString() {
 	TypeStringTuple* tuple = getTypeStringTuple();
 	tuple->m_doxyTypeString = "<type>";
 	tuple->m_doxyTypeString += getDoxyLinkedTextPrefix();
@@ -452,8 +413,7 @@ Type::prepareDoxyTypeString()
 	AXL_TODO("add compile-option for whether to use doxy-linked-text instead of plain-text")
 
 	sl::String suffix = getTypeStringSuffix();
-	if (!suffix.isEmpty()) // suffix should be ready by now
-	{
+	if (!suffix.isEmpty()) { // suffix should be ready by now
 		tuple->m_doxyTypeString += "<argsstring>";
 		tuple->m_doxyTypeString += suffix;
 		tuple->m_doxyTypeString += "</argsstring>\n";
@@ -461,10 +421,8 @@ Type::prepareDoxyTypeString()
 }
 
 void
-Type::prepareSignature()
-{
-	static const char* primitiveTypeSignatureTable[TypeKind_Double + 1] =
-	{
+Type::prepareSignature() {
+	static const char* primitiveTypeSignatureTable[TypeKind_Double + 1] = {
 		"v",    // TypeKind_Void,
 		"z",    // TypeKind_Variant,
 		"b",    // TypeKind_Bool,
@@ -495,70 +453,59 @@ Type::prepareSignature()
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 llvm::Type*
-getLlvmType_void(Module* module)
-{
+getLlvmType_void(Module* module) {
 	return llvm::Type::getVoidTy(*module->getLlvmContext());
 }
 
 llvm::Type*
-getLlvmType_variant(Module* module)
-{
+getLlvmType_variant(Module* module) {
 	return module->m_typeMgr.getStdType(StdType_VariantStruct)->getLlvmType();
 }
 
 llvm::Type*
-getLlvmType_bool(Module* module)
-{
+getLlvmType_bool(Module* module) {
 	return llvm::Type::getInt1Ty(*module->getLlvmContext());
 }
 
 llvm::Type*
-getLlvmType_int8(Module* module)
-{
+getLlvmType_int8(Module* module) {
 	return llvm::Type::getInt8Ty(*module->getLlvmContext());
 }
 
 llvm::Type*
-getLlvmType_int16(Module* module)
-{
+getLlvmType_int16(Module* module) {
 	return llvm::Type::getInt16Ty(*module->getLlvmContext());
 }
 
 llvm::Type*
-getLlvmType_int32(Module* module)
-{
+getLlvmType_int32(Module* module) {
 	return llvm::Type::getInt32Ty(*module->getLlvmContext());
 }
 
 llvm::Type*
-getLlvmType_int64(Module* module)
-{
+getLlvmType_int64(Module* module) {
 	return llvm::Type::getInt64Ty(*module->getLlvmContext());
 }
 
 llvm::Type*
-getLlvmType_float(Module* module)
-{
+getLlvmType_float(Module* module) {
 	return llvm::Type::getFloatTy(*module->getLlvmContext());
 }
 
 llvm::Type*
-getLlvmType_double(Module* module)
-{
+getLlvmType_double(Module* module) {
 	return llvm::Type::getDoubleTy(*module->getLlvmContext());
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
-Type::prepareLlvmType()
-{
+Type::prepareLlvmType() {
 	ASSERT(!m_llvmType && (size_t)m_typeKind < TypeKind__PrimitiveTypeCount);
 
 	typedef llvm::Type* GetLlvmTypeFunc(Module* module);
 
-	GetLlvmTypeFunc* getLlvmTypeFuncTable[TypeKind__PrimitiveTypeCount] =
-	{
+	GetLlvmTypeFunc* getLlvmTypeFuncTable[TypeKind__PrimitiveTypeCount] = {
 		getLlvmType_void,    // TypeKind_Void
 		getLlvmType_variant, // TypeKind_Variant
 		getLlvmType_bool,    // TypeKind_Bool
@@ -584,25 +531,21 @@ Type::prepareLlvmType()
 }
 
 void
-Type::prepareLlvmDiType()
-{
+Type::prepareLlvmDiType() {
 	ASSERT(m_typeKind && m_typeKind < TypeKind__PrimitiveTypeCount);
 
-	if (m_typeKind == TypeKind_Variant)
-	{
+	if (m_typeKind == TypeKind_Variant) {
 		m_llvmDiType = m_module->m_typeMgr.getStdType(StdType_VariantStruct)->getLlvmDiType();
 		return;
 	}
 
-	struct LlvmDiType
-	{
+	struct LlvmDiType {
 		const char* m_name;
 		uint_t m_code;
 		size_t m_size;
 	};
 
-	LlvmDiType llvmDiTypeTable[TypeKind__PrimitiveTypeCount] =
-	{
+	LlvmDiType llvmDiTypeTable[TypeKind__PrimitiveTypeCount] = {
 		{ 0 }, // TypeKind_Void,
 		{ 0 }, // TypeKind_Variant,
 
@@ -734,12 +677,11 @@ Type::prepareLlvmDiType()
 		diType->m_size,
 		diType->m_size,
 		diType->m_code
-		);
+	);
 }
 
 void
-Type::prepareSimpleTypeVariable(StdType stdType)
-{
+Type::prepareSimpleTypeVariable(StdType stdType) {
 	ASSERT(!m_typeVariable && m_module->getCompileState() < ModuleCompileState_Compiled);
 
 	sl::String qualifiedName = "jnc.g_type_" + getSignature();
@@ -757,7 +699,7 @@ Type::prepareSimpleTypeVariable(StdType stdType)
 		type,
 		0,
 		&constructor
-		);
+	);
 
 	m_typeVariable->m_parentNamespace = m_module->m_namespaceMgr.getStdNamespace(StdNamespace_Jnc);
 	m_typeVariable->m_flags |= VariableFlag_Type;
@@ -772,8 +714,7 @@ sl::String
 getValueString_void(
 	const void* p,
 	const char* formatSpec
-	)
-{
+) {
 	return "void";
 }
 
@@ -781,8 +722,7 @@ sl::String
 getValueString_variant(
 	const void* p,
 	const char* formatSpec
-	)
-{
+) {
 	return ((Variant*)p)->m_type ? ((Variant*)p)->m_type->getValueString(p, formatSpec) : "<empty-variant>";
 }
 
@@ -790,8 +730,7 @@ sl::String
 getValueString_bool(
 	const void* p,
 	const char* formatSpec
-	)
-{
+) {
 	return
 		formatSpec ? sl::formatString(formatSpec, *(bool*)p) :
 		*(bool*)p ? sl::String("true") : sl::String("false");
@@ -801,8 +740,7 @@ sl::String
 getValueString_int8(
 	const void* p,
 	const char* formatSpec
-	)
-{
+) {
 	return sl::formatString(formatSpec ? formatSpec : "%d", *(int8_t*)p);
 }
 
@@ -810,8 +748,7 @@ sl::String
 getValueString_int8_u(
 	const void* p,
 	const char* formatSpec
-	)
-{
+) {
 	return sl::formatString(formatSpec ? formatSpec : "%u", *(uint8_t*)p);
 }
 
@@ -819,8 +756,7 @@ sl::String
 getValueString_int16(
 	const void* p,
 	const char* formatSpec
-	)
-{
+) {
 	return sl::formatString(formatSpec ? formatSpec : "%d", *(int16_t*)p);
 }
 
@@ -828,8 +764,7 @@ sl::String
 getValueString_int16_u(
 	const void* p,
 	const char* formatSpec
-	)
-{
+) {
 	return sl::formatString(formatSpec ? formatSpec : "%u", *(uint16_t*)p);
 }
 
@@ -837,8 +772,7 @@ sl::String
 getValueString_int32(
 	const void* p,
 	const char* formatSpec
-	)
-{
+) {
 	return sl::formatString(formatSpec ? formatSpec : "%d", *(int32_t*)p);
 }
 
@@ -846,8 +780,7 @@ sl::String
 getValueString_int32_u(
 	const void* p,
 	const char* formatSpec
-	)
-{
+) {
 	return sl::formatString(formatSpec ? formatSpec : "%u", *(uint32_t*)p);
 }
 
@@ -855,8 +788,7 @@ sl::String
 getValueString_int64(
 	const void* p,
 	const char* formatSpec
-	)
-{
+) {
 	return sl::formatString(formatSpec ? formatSpec : "%lld", *(int64_t*)p);
 }
 
@@ -864,8 +796,7 @@ sl::String
 getValueString_int64_u(
 	const void* p,
 	const char* formatSpec
-	)
-{
+) {
 	return sl::formatString(formatSpec ? formatSpec : "%llu", *(uint64_t*)p);
 }
 
@@ -873,8 +804,7 @@ sl::String
 getValueString_int16_be(
 	const void* p,
 	const char* formatSpec
-	)
-{
+) {
 	return sl::formatString(formatSpec ? formatSpec : "%d", (int16_t)sl::swapByteOrder16(*(uint16_t*)p));
 }
 
@@ -882,8 +812,7 @@ sl::String
 getValueString_int16_beu(
 	const void* p,
 	const char* formatSpec
-	)
-{
+) {
 	return sl::formatString(formatSpec ? formatSpec : "%u", (uint16_t)sl::swapByteOrder16(*(uint16_t*)p));
 }
 
@@ -891,8 +820,7 @@ sl::String
 getValueString_int32_be(
 	const void* p,
 	const char* formatSpec
-	)
-{
+) {
 	return sl::formatString(formatSpec ? formatSpec : "%d", (int32_t)sl::swapByteOrder32(*(uint32_t*)p));
 }
 
@@ -900,8 +828,7 @@ sl::String
 getValueString_int32_beu(
 	const void* p,
 	const char* formatSpec
-	)
-{
+) {
 	return sl::formatString(formatSpec ? formatSpec : "%u", (uint32_t)sl::swapByteOrder32(*(uint32_t*)p));
 }
 
@@ -909,8 +836,7 @@ sl::String
 getValueString_int64_be(
 	const void* p,
 	const char* formatSpec
-	)
-{
+) {
 	return sl::formatString(formatSpec ? formatSpec : "%lld", (int64_t)sl::swapByteOrder64(*(uint64_t*)p));
 }
 
@@ -918,8 +844,7 @@ sl::String
 getValueString_int64_beu(
 	const void* p,
 	const char* formatSpec
-	)
-{
+) {
 	return sl::formatString(formatSpec ? formatSpec : "%llu", (uint64_t)sl::swapByteOrder64(*(uint64_t*)p));
 }
 
@@ -927,8 +852,7 @@ sl::String
 getValueString_float(
 	const void* p,
 	const char* formatSpec
-	)
-{
+) {
 	return sl::formatString(formatSpec ? formatSpec : "%f", *(float*)p);
 }
 
@@ -936,8 +860,7 @@ sl::String
 getValueString_double(
 	const void* p,
 	const char* formatSpec
-	)
-{
+) {
 	return sl::formatString(formatSpec ? formatSpec : "%f", *(double*)p);
 }
 
@@ -947,17 +870,15 @@ sl::String
 Type::getValueString(
 	const void* p,
 	const char* formatSpec
-	)
-{
+) {
 	typedef
 	sl::String
 	GetValueStringFunc(
 		const void* p,
 		const char* formatSpec
-		);
+	);
 
-	GetValueStringFunc* getValueStringFuncTable[TypeKind__PrimitiveTypeCount] =
-	{
+	GetValueStringFunc* getValueStringFuncTable[TypeKind__PrimitiveTypeCount] = {
 		getValueString_void,       // TypeKind_Void
 		getValueString_variant,    // TypeKind_Variant
 		getValueString_bool,       // TypeKind_Bool
@@ -988,8 +909,7 @@ void
 Type::markGcRoots(
 	const void* p,
 	rt::GcHeap* gcHeap
-	)
-{
+) {
 	ASSERT(m_typeKind == TypeKind_Variant);
 	gcHeap->markVariant(*(Variant*)p);
 }
@@ -997,10 +917,8 @@ Type::markGcRoots(
 //..............................................................................
 
 void
-NamedType::prepareDoxyLinkedText()
-{
-	if (!m_parentUnit || m_parentUnit->getLib()) // don't reference imported libraries
-	{
+NamedType::prepareDoxyLinkedText() {
+	if (!m_parentUnit || m_parentUnit->getLib()) { // don't reference imported libraries
 		Type::prepareDoxyLinkedText();
 		return;
 	}
@@ -1011,21 +929,19 @@ NamedType::prepareDoxyLinkedText()
 		"<ref refid=\"%s\">%s</ref>",
 		refId.sz(),
 		getQualifiedName().sz()
-		);
+	);
 }
 
 //..............................................................................
 
-Typedef::Typedef()
-{
+Typedef::Typedef() {
 	m_itemKind = ModuleItemKind_Typedef;
 	m_type = NULL;
 	m_shadowType = NULL;
 }
 
 TypedefShadowType*
-Typedef::getShadowType()
-{
+Typedef::getShadowType() {
 	if (!m_shadowType)
 		m_shadowType = m_module->m_typeMgr.createTypedefShadowType(this);
 
@@ -1037,8 +953,7 @@ Typedef::generateDocumentation(
 	const sl::StringRef& outputDir,
 	sl::String* itemXml,
 	sl::String* indexXml
-	)
-{
+) {
 	bool result = m_type->ensureNoImports();
 	if (!result)
 		return false;
@@ -1050,7 +965,7 @@ Typedef::generateDocumentation(
 		"<name>%s</name>\n",
 		doxyBlock->getRefId().sz(),
 		m_name.sz()
-		);
+	);
 
 	itemXml->append(m_type->getDoxyTypeString());
 	itemXml->append(doxyBlock->getImportString());
@@ -1064,8 +979,7 @@ Typedef::generateDocumentation(
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool
-TypedefShadowType::calcLayout()
-{
+TypedefShadowType::calcLayout() {
 	Type* type = m_typedef->getType();
 
 	bool result = type->ensureLayout();
@@ -1079,11 +993,9 @@ TypedefShadowType::calcLayout()
 }
 
 void
-TypedefShadowType::prepareDoxyLinkedText()
-{
+TypedefShadowType::prepareDoxyLinkedText() {
 	Unit* unit = m_typedef->getParentUnit();
-	if (!unit || unit->getLib()) // don't reference imported libraries
-	{
+	if (!unit || unit->getLib()) { // don't reference imported libraries
 		Type::prepareDoxyLinkedText();
 		return;
 	}
@@ -1094,7 +1006,7 @@ TypedefShadowType::prepareDoxyLinkedText()
 		"<ref refid=\"%s\">%s</ref>",
 		refId.sz(),
 		getQualifiedName().sz()
-		);
+	);
 }
 
 //..............................................................................
@@ -1103,8 +1015,7 @@ Type*
 getSimpleType(
 	TypeKind typeKind,
 	Module* module
-	)
-{
+) {
 	return module->m_typeMgr.getPrimitiveType(typeKind);
 }
 
@@ -1112,8 +1023,7 @@ Type*
 getSimpleType(
 	StdType stdType,
 	Module* module
-	)
-{
+) {
 	return module->m_typeMgr.getStdType(stdType);
 }
 
@@ -1121,26 +1031,24 @@ Type*
 getDirectRefType(
 	Type* type,
 	uint_t ptrTypeFlags
-	)
-{
+) {
 	return type->getTypeKind() == TypeKind_Class ?
 		(Type*)((ClassType*)type)->getClassPtrType(
 			TypeKind_ClassRef,
 			ClassPtrTypeKind_Normal,
 			ptrTypeFlags
-			) :
+		) :
 		(Type*)type->getDataPtrType(
 			TypeKind_DataRef,
 			DataPtrTypeKind_Lean,
 			ptrTypeFlags
-			);
+		);
 }
 
 //..............................................................................
 
 bool
-isDisposableType(Type* type)
-{
+isDisposableType(Type* type) {
 	if (type->getTypeKindFlags() & TypeKindFlag_ClassPtr)
 		type = ((ClassPtrType*)type)->getTargetType();
 	else if (type->getTypeKindFlags() & TypeKindFlag_DataPtr)
@@ -1158,18 +1066,15 @@ isDisposableType(Type* type)
 	ModuleItem* item = findResult.m_item;
 	ModuleItemKind itemKind = item->getItemKind();
 
-	switch (itemKind)
-	{
+	switch (itemKind) {
 	case ModuleItemKind_Function:
 		functionType = ((Function*)item)->getType();
 		break;
 
 	case ModuleItemKind_Alias:
 		functionType = (FunctionType*)((Alias*)item)->getType();
-		if (functionType->getTypeKind() != TypeKind_Function)
-		{
-			if (functionType->getTypeKind() == TypeKind_Void)
-			{
+		if (functionType->getTypeKind() != TypeKind_Function) {
+			if (functionType->getTypeKind() == TypeKind_Void) {
 				// alias was declared like this: alias dispose = close;
 				// since we don't do strict checks now anyway, let it go
 				break;
@@ -1189,19 +1094,16 @@ isDisposableType(Type* type)
 }
 
 bool
-isSafePtrType(Type* type)
-{
+isSafePtrType(Type* type) {
 	return
 		(type->getTypeKindFlags() & TypeKindFlag_Ptr) &&
 		(type->getFlags() & PtrTypeFlag_Safe);
 }
 
 bool
-isWeakPtrType(Type* type)
-{
+isWeakPtrType(Type* type) {
 	TypeKind typeKind = type->getTypeKind();
-	switch (typeKind)
-	{
+	switch (typeKind) {
 	case TypeKind_ClassPtr:
 		return ((ClassPtrType*)type)->getPtrTypeKind() == ClassPtrTypeKind_Weak;
 
@@ -1217,11 +1119,9 @@ isWeakPtrType(Type* type)
 }
 
 Type*
-getWeakPtrType(Type* type)
-{
+getWeakPtrType(Type* type) {
 	TypeKind typeKind = type->getTypeKind();
-	switch (typeKind)
-	{
+	switch (typeKind) {
 	case TypeKind_ClassPtr:
 		return ((ClassPtrType*)type)->getWeakPtrType();
 

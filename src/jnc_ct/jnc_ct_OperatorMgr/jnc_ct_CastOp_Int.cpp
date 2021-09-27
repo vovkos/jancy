@@ -23,8 +23,7 @@ Cast_IntTrunc::constCast(
 	const Value& opValue,
 	Type* type,
 	void* dst
-	)
-{
+) {
 	size_t srcSize = opValue.getType()->getSize();
 	size_t dstSize = type->getSize();
 
@@ -39,8 +38,7 @@ Cast_IntTrunc::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	m_module->m_llvmIrBuilder.createTrunc_i(opValue, type, resultValue);
 	return true;
 }
@@ -52,8 +50,7 @@ Cast_IntExt::constCast(
 	const Value& opValue,
 	Type* type,
 	void* dst
-	)
-{
+) {
 	size_t srcSize = opValue.getType()->getSize();
 	size_t dstSize = type->getSize();
 
@@ -75,8 +72,7 @@ Cast_IntExt::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	m_module->m_llvmIrBuilder.createExt_i(opValue, type, resultValue);
 	return true;
 }
@@ -88,8 +84,7 @@ Cast_IntExt_u::constCast(
 	const Value& opValue,
 	Type* type,
 	void* dst
-	)
-{
+) {
 	size_t srcSize = opValue.getType()->getSize();
 	size_t dstSize = type->getSize();
 
@@ -107,8 +102,7 @@ Cast_IntExt_u::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	m_module->m_llvmIrBuilder.createExt_u(opValue, type, resultValue);
 	return true;
 }
@@ -120,8 +114,7 @@ Cast_SwapByteOrder::constCast(
 	const Value& opValue,
 	Type* type,
 	void* dst
-	)
-{
+) {
 	size_t srcSize = opValue.getType()->getSize();
 	size_t dstSize = type->getSize();
 
@@ -138,15 +131,14 @@ Cast_SwapByteOrder::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	llvm::Type* llvmType = type->getLlvmType();
 
 	llvm::Function* llvmSwap = llvm::Intrinsic::getDeclaration(
 		m_module->getLlvmModule(),
 		llvm::Intrinsic::bswap,
 		llvm::ArrayRef<llvm::Type*> (llvmType)
-		);
+	);
 
 	Value swapFunctionValue;
 	swapFunctionValue.setLlvmValue(llvmSwap, NULL);
@@ -156,7 +148,7 @@ Cast_SwapByteOrder::llvmCast(
 		&opValue, 1,
 		type,
 		resultValue
-		);
+	);
 
 	return true;
 }
@@ -170,14 +162,12 @@ Cast_IntFromBeInt::getCastOperators(
 	CastOperator** firstOperator,
 	CastOperator** secondOperator,
 	Type** intermediateType
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_BigEndian);
 
 	TypeKind intermediateTypeKind = getLittleEndianIntegerTypeKind(opValue.getType()->getTypeKind());
 
-	if (isEquivalentIntegerTypeKind(type->getTypeKind(), intermediateTypeKind))
-	{
+	if (isEquivalentIntegerTypeKind(type->getTypeKind(), intermediateTypeKind)) {
 		*firstOperator = m_module->m_operatorMgr.getStdCastOperator(StdCast_SwapByteOrder);
 		return true;
 	}
@@ -197,14 +187,12 @@ Cast_BeInt::getCastOperators(
 	CastOperator** firstOperator,
 	CastOperator** secondOperator,
 	Type** intermediateType
-	)
-{
+) {
 	ASSERT(type->getTypeKindFlags() & TypeKindFlag_BigEndian);
 
 	TypeKind intermediateTypeKind = getLittleEndianIntegerTypeKind(type->getTypeKind());
 
-	if (isEquivalentIntegerTypeKind(opValue.getType()->getTypeKind(), intermediateTypeKind))
-	{
+	if (isEquivalentIntegerTypeKind(opValue.getType()->getTypeKind(), intermediateTypeKind)) {
 		*firstOperator = m_module->m_operatorMgr.getStdCastOperator(StdCast_SwapByteOrder);
 		return true;
 	}
@@ -222,8 +210,7 @@ Cast_IntFromFp::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	m_module->m_llvmIrBuilder.createFpToInt(opValue, type, resultValue);
 	return true;
 }
@@ -235,15 +222,13 @@ Cast_IntFromFp32::constCast(
 	const Value& opValue,
 	Type* type,
 	void* dst
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKind() == TypeKind_Float);
 
 	float fp32 = *(float*)opValue.getConstData();
 
 	size_t dstSize = type->getSize();
-	switch (dstSize)
-	{
+	switch (dstSize) {
 	case 1:
 		*(int8_t*)dst = (int8_t)fp32;
 		break;
@@ -274,15 +259,13 @@ Cast_IntFromFp64::constCast(
 	const Value& opValue,
 	Type* type,
 	void* dst
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKind() == TypeKind_Double);
 
 	double fp64 = *(double*)opValue.getConstData();
 
 	size_t dstSize = type->getSize();
-	switch (dstSize)
-	{
+	switch (dstSize) {
 	case 1:
 		*(int8_t*)dst = (int8_t)fp64;
 		break;
@@ -313,8 +296,7 @@ Cast_IntFromPtr::constCast(
 	const Value& opValue,
 	Type* type,
 	void* dst
-	)
-{
+) {
 	ASSERT(opValue.getType()->getSize() >= sizeof(intptr_t));
 
 	size_t size = type->getSize();
@@ -330,8 +312,7 @@ Cast_IntFromPtr::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	Value ptrValue;
 
 	if (opValue.getType()->getSize() > sizeof(intptr_t))
@@ -350,8 +331,7 @@ Cast_PtrFromInt::constCast(
 	const Value& rawOpValue,
 	Type* type,
 	void* dst
-	)
-{
+) {
 	Value opValue;
 	bool result = m_module->m_operatorMgr.castOperator(rawOpValue, TypeKind_IntPtr, &opValue);
 	if (!result)
@@ -370,8 +350,7 @@ Cast_PtrFromInt::llvmCast(
 	const Value& rawOpValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	Value opValue;
 	bool result = m_module->m_operatorMgr.castOperator(rawOpValue, TypeKind_IntPtr, &opValue);
 	if (!result)
@@ -390,14 +369,12 @@ Cast_IntFromEnum::getCastOperators(
 	CastOperator** firstOperator,
 	CastOperator** secondOperator,
 	Type** intermediateType_o
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKind() == TypeKind_Enum);
 
 	Type* intermediateType = ((EnumType*)opValue.getType())->getRootType();
 
-	if (isEquivalentIntegerTypeKind(type->getTypeKind(), intermediateType->getTypeKind()))
-	{
+	if (isEquivalentIntegerTypeKind(type->getTypeKind(), intermediateType->getTypeKind())) {
 		*firstOperator = m_module->m_operatorMgr.getStdCastOperator(StdCast_Copy);
 		return true;
 	}
@@ -416,8 +393,7 @@ CastKind
 Cast_Enum::getCastKind(
 	const Value& opValue,
 	Type* type
-	)
-{
+) {
 	ASSERT(type->getTypeKind() == TypeKind_Enum);
 	ASSERT(type->cmp(opValue.getType()) != 0); // identity should have been handled earlier
 
@@ -439,14 +415,12 @@ Cast_Enum::getCastOperators(
 	CastOperator** firstOperator,
 	CastOperator** secondOperator,
 	Type** intermediateType_o
-	)
-{
+) {
 	ASSERT(type->getTypeKind() == TypeKind_Enum);
 
 	Type* intermediateType = ((EnumType*)type)->getRootType();
 
-	if (isEquivalentIntegerTypeKind(opValue.getType()->getTypeKind(), intermediateType->getTypeKind()))
-	{
+	if (isEquivalentIntegerTypeKind(opValue.getType()->getTypeKind(), intermediateType->getTypeKind())) {
 		*firstOperator = m_module->m_operatorMgr.getStdCastOperator(StdCast_Copy);
 		return true;
 	}
@@ -465,8 +439,7 @@ CastOperator*
 Cast_Int::getCastOperator(
 	const Value& opValue,
 	Type* type
-	)
-{
+) {
 	Type* srcType = opValue.getType();
 
 	TypeKind srcTypeKind = srcType->getTypeKind();
@@ -477,8 +450,7 @@ Cast_Int::getCastOperator(
 
 	ASSERT(dstTypeKind >= TypeKind_Int8 && dstTypeKind <= TypeKind_Int64_u);
 
-	switch (srcTypeKind)
-	{
+	switch (srcTypeKind) {
 	case TypeKind_Bool:
 		return &m_ext_u; // 1 bit -- could only be extended
 

@@ -14,10 +14,8 @@ void representIpDigest(
 	void const* p,
 	size_t size,
 	int payloadPreviewIconIdx = -1
-	)
-{
-	if (size < sizeof(io.IpHdr))
-	{
+) {
+	if (size < sizeof(io.IpHdr)) {
 		representation.addHyperText("\e[1nIP\e[m [INCOMPLETE]");
 		return;
 	}
@@ -25,8 +23,7 @@ void representIpDigest(
 	io.IpHdr const* ipHdr = (io.IpHdr const*)p;
 	size_t ipHdrSize = ipHdr.m_headerLength * 4;
 
-	if (size < ipHdr.m_totalLength || ipHdr.m_totalLength < ipHdrSize)
-	{
+	if (size < ipHdr.m_totalLength || ipHdr.m_totalLength < ipHdrSize) {
 		representation.addHyperText(formatIpDigest(ipHdr, " [BROKEN]"));
 		return;
 	}
@@ -34,8 +31,7 @@ void representIpDigest(
 	p += ipHdrSize;
 	size = ipHdr.m_totalLength - ipHdrSize;
 
-	if ((ipHdr.m_flags & io.IpFlags.Mf) || ipHdr.m_fragmentOffset)
-	{
+	if ((ipHdr.m_flags & io.IpFlags.Mf) || ipHdr.m_fragmentOffset) {
 		representation.addHyperText(formatIpDigest(ipHdr, " [FRAGMENTED]"));
 		representPayloadPreview(representation, p, size, payloadPreviewIconIdx);
 		return;
@@ -44,8 +40,7 @@ void representIpDigest(
 	char const* srcString = io.formatIpAddress(&ipHdr.m_srcAddress);
 	char const* dstString = io.formatIpAddress(&ipHdr.m_dstAddress);
 
-	switch (ipHdr.m_protocol)
-	{
+	switch (ipHdr.m_protocol) {
 	case io.IpProtocol.Icmp:
 		representSimpleProtoDigest(
 			representation,
@@ -55,7 +50,7 @@ void representIpDigest(
 			p,
 			size,
 			payloadPreviewIconIdx
-			);
+		);
 
 		break;
 
@@ -68,7 +63,7 @@ void representIpDigest(
 			p,
 			size,
 			payloadPreviewIconIdx
-			);
+		);
 
 		break;
 
@@ -89,14 +84,13 @@ void representIpDigest(
 char const* formatIpDigest(
 	io.IpHdr const* hdr,
 	char const* extra = null
-	)
-{
+) {
 	return $"\e[1mIP \e[10;34m%1\e[m \u2192 \e[34m%2\e[m (proto: \e[34m%3\e[m)%4"(
 		io.formatIpAddress(&hdr.m_srcAddress),
 		io.formatIpAddress(&hdr.m_dstAddress),
 		typeof(io.IpProtocol).getValueString(&hdr.m_protocol),
 		extra
-		);
+	);
 }
 
 void representIpDetails(
@@ -106,12 +100,10 @@ void representIpDetails(
 	size_t size,
 	size_t baseOffset,
 	uint_t foldFlags
-	)
-{
+) {
 	representation.m_lineAttr.m_backColor = ProtoColor.NetworkLayer;
 
-	if (size < sizeof(io.IpHdr))
-	{
+	if (size < sizeof(io.IpHdr)) {
 		representation.addHyperText("\e[1nIP\e[m [INCOMPLETE]");
 		return;
 	}
@@ -124,7 +116,7 @@ void representIpDetails(
 		baseOffset,
 		foldFlags,
 		ProtoFoldFlag.NetworkLayer
-		);
+	);
 
 	ProtoRange range = { baseOffset, sizeof(io.IpHdr), ProtoColor.NetworkLayer }
 	protoRangeArray.append(range);
@@ -132,14 +124,12 @@ void representIpDetails(
 	io.IpHdr const* ipHdr = (io.IpHdr const*)p;
 	size_t ipHdrSize = ipHdr.m_headerLength * 4;
 
-	if (size < ipHdr.m_totalLength || ipHdr.m_totalLength < ipHdrSize)
-	{
+	if (size < ipHdr.m_totalLength || ipHdr.m_totalLength < ipHdrSize) {
 		representation.addHyperText("[BROKEN]");
 		return;
 	}
 
-	if ((ipHdr.m_flags & io.IpFlags.Mf) || ipHdr.m_fragmentOffset)
-	{
+	if ((ipHdr.m_flags & io.IpFlags.Mf) || ipHdr.m_fragmentOffset) {
 		representation.addHyperText("[FRAGMENTED]");
 		return;
 	}
@@ -152,14 +142,13 @@ void representIpDetails(
 			ipHdrSize - sizeof(io.IpHdr),
 			baseOffset + sizeof(io.IpHdr),
 			foldFlags
-			);
+		);
 
 	p += ipHdrSize;
 	size = ipHdr.m_totalLength - ipHdrSize;
 	baseOffset += ipHdrSize;
 
-	switch (ipHdr.m_protocol)
-	{
+	switch (ipHdr.m_protocol) {
 	case io.IpProtocol.Icmp:
 		representSimpleProtoDetails(
 			representation,
@@ -173,7 +162,7 @@ void representIpDetails(
 			ProtoColor.TransportLayer,
 			ProtoFoldFlag.Payload,
 			ProtoColor.Payload
-			);
+		);
 		break;
 
 	case io.IpProtocol.Igmp:
@@ -187,7 +176,7 @@ void representIpDetails(
 			foldFlags,
 			ProtoFoldFlag.TransportLayer,
 			ProtoColor.TransportLayer
-			);
+		);
 		break;
 
 	case io.IpProtocol.Tcp:
@@ -207,22 +196,19 @@ void representIpOptions(
 	size_t size,
 	size_t baseOffset,
 	uint_t foldFlags
-	)
-{
+) {
 	representation.m_lineAttr.m_backColor = ProtoColor.Options;
 
-	if (foldFlags & ProtoFoldFlag.Options)
-	{
+	if (foldFlags & ProtoFoldFlag.Options) {
 		representation.addHyperText(
 			$"[\e^-%1\e[34m-\e[m] \e[1mIP\e[m Options"(
 			ProtoFoldFlag.Options
-			));
+		));
 
 		size_t offset = baseOffset;
 		void const* end = p + size;
 
-		while (p < end)
-		{
+		while (p < end) {
 			uint8_t type = *(uint8_t const*)p;
 			uint8_t length = type <= io.IpOptionType.Nop ? 1 : *(uint8_t const*)(p + 1);
 
@@ -232,19 +218,17 @@ void representIpOptions(
 				offset,
 				length,
 				typeof(io.IpOptionType).getValueString(p)
-				));
+			));
 
 			offset += length;
 			p += length;
 		}
-	}
-	else
-	{
+	} else {
 		representation.addHyperText(
 			$"[\e^+%1\e[34m+\e[m] \e[1mIP\e[m Options (%2 bytes)"(
 			ProtoFoldFlag.Options,
 			size
-			));
+		));
 	}
 
 	ProtoRange range = { baseOffset, size, ProtoColor.Options };
@@ -257,8 +241,7 @@ void representDefragmentedIpDigest(
 	log.Representation* representation,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	representation.m_lineAttr.m_backColor = ui.StdColor.PastelCyan;
 	representation.addPlainText("Defragmented IP packet");
 	representIpDigest(representation, p, size);
@@ -269,8 +252,7 @@ void representDefragmentedIpDetails(
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
+) {
 	std.Array protoRangeArray;
 	representIpDetails(representation, protoRangeArray, p, size, 0, foldFlags);
 	representRawPacketData(representation, protoRangeArray, p, size);

@@ -23,7 +23,7 @@ typedef size_t HashFunc(variant key);
 typedef bool IsEqualFunc(
 	variant key1,
 	variant key2
-	);
+);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -49,8 +49,7 @@ typedef bool IsEqualFunc(
 
 	.. ref-code-block::
 
-		enum State
-		{
+		enum State {
 			Idle,
 			Running,
 			Stopping,
@@ -68,8 +67,7 @@ typedef bool IsEqualFunc(
 		printf($"state: $(hashTable [state])\n");
 */
 
-opaque class HashTable
-{
+opaque class HashTable {
 	MapEntry cmut* readonly m_head;
 	MapEntry cmut* readonly m_tail;
 	size_t readonly m_count;
@@ -77,7 +75,7 @@ opaque class HashTable
 	construct(
 		HashFunc thin* hashFunc = null,
 		IsEqualFunc thin* isEqualFunc = null
-		);
+	);
 
 	destruct();
 
@@ -87,8 +85,7 @@ opaque class HashTable
 
 	bool const property m_isEmpty;
 
-	bool m_isEmpty.get()
-	{
+	bool m_isEmpty.get() {
 		return m_count == 0;
 	}
 
@@ -98,16 +95,14 @@ opaque class HashTable
 		results in calling ``insert`` method.
 	*/
 
-	variant get(variant key)
-	{
+	variant get(variant key) {
 		return findValue(key, null);
 	}
 
 	void set(
 		variant key,
 		variant value
-		)
-	{
+	) {
 		add(key, value);
 	}
 
@@ -142,8 +137,7 @@ opaque class HashTable
 	variant findValue(
 		variant key,
 		variant undefinedValue = null
-		) const
-	{
+	) const {
 		MapEntry* entry = find(key);
 		return entry ? entry.m_value : undefinedValue;
 	}
@@ -159,8 +153,7 @@ opaque class HashTable
 	MapEntry* errorcode add(
 		variant key,
 		variant value
-		)
-	{
+	) {
 		MapEntry* entry = visit(key);
 		entry.m_value = value;
 		return entry;
@@ -177,8 +170,7 @@ opaque class HashTable
 		Returns ``false`` if ``key`` was not found.
 	*/
 
-	bool removeKey(variant key)
-	{
+	bool removeKey(variant key) {
 		MapEntry* entry = find(key);
 		if (!entry)
 			return false;
@@ -190,18 +182,14 @@ opaque class HashTable
 
 //..............................................................................
 
-class StringHashTable: HashTable
-{
-	construct()
-	{
+class StringHashTable: HashTable {
+	construct() {
 		basetype.construct(strdjb2, streq);
 	}
 }
 
-class StringHashTableIgnoreCase: HashTable
-{
-	construct()
-	{
+class StringHashTableIgnoreCase: HashTable {
+	construct() {
 		basetype.construct(stridjb2, strieq);
 	}
 }

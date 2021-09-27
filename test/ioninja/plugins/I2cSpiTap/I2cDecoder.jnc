@@ -7,11 +7,9 @@ import "Decoder.jnc"
 
 //..............................................................................
 
-class I2cDecoder: Decoder
-{
+class I2cDecoder: Decoder {
 protected:
-	enum Code
-	{
+	enum Code {
 		Padding         = 0xff,
 		BufferOverflow  = 0xaa,
 		Start           = 0,
@@ -24,15 +22,13 @@ protected:
 		Stop,           // 7
 	}
 
-	enum State
-	{
+	enum State {
 		Idle,
 		Transaction,
 		DataHi,
 	}
 
-	enum AddressState
-	{
+	enum AddressState {
 		Idle,
 		PreAddress,
 		Address10BitHi,
@@ -56,26 +52,23 @@ public:
 		uint64_t timestamp,
 		void const thin* p,
 		size_t size
-		);
+	);
 
 protected:
-	static bool isAddress10Bit(uchar_t c)
-	{
+	static bool isAddress10Bit(uchar_t c) {
 		return (c & 0xf8) == 0xf0;
 	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-I2cDecoder.construct(log.Writer* logWriter)
-{
+I2cDecoder.construct(log.Writer* logWriter) {
 	basetype.construct(logWriter);
 	m_transactionHdr = new uint_t;
 	m_bitCount = new uint_t;
 }
 
-override I2cDecoder.reset()
-{
+override I2cDecoder.reset() {
 	m_state = State.Idle;
 	m_addressState = AddressState.Idle;
 }
@@ -84,10 +77,8 @@ void I2cDecoder.decode(
 	uint64_t timestamp,
 	void const thin* p0,
 	size_t size
-	)
-{
-	static uint64_t dataRecordCodeTable[2][2] =
-	{
+) {
+	static uint64_t dataRecordCodeTable[2][2] = {
 		{ I2cSpiTapLogRecordCode.I2cTxNack, log.StdRecordCode.Tx, },
 		{ I2cSpiTapLogRecordCode.I2cRxNack, log.StdRecordCode.Rx, },
 	}
@@ -98,12 +89,10 @@ void I2cDecoder.decode(
 	uchar_t thin* data = m_buffer.m_p;
 	uchar_t thin* lastData = m_buffer.m_p + m_buffer.m_size - 1;
 
-	for (; p < end; p++)
-	{
+	for (; p < end; p++) {
 		uchar_t c = *p;
 
-		switch (c)
-		{
+		switch (c) {
 		case Code.Padding:
 			continue;
 
@@ -113,16 +102,14 @@ void I2cDecoder.decode(
 		}
 
 		uchar_t code = (c & 0xf0) >> 4;
-		switch (code)
-		{
+		switch (code) {
 		case Code.Start:
 			size = data - (uchar_t*)m_buffer.m_p;
 			if (size)
 				m_logWriter.write(timestamp, dataRecordCodeTable[m_isRead][m_ack], m_buffer.m_p, size);
 
 			uint_t bitCount = c & 0x0f;
-			if (bitCount)
-			{
+			if (bitCount) {
 				*m_bitCount = bitCount;
 				m_logWriter.write(timestamp, I2cSpiTapLogRecordCode.IncompleteByte, m_bitCount, sizeof(uint_t));
 			}
@@ -154,11 +141,9 @@ void I2cDecoder.decode(
 		case Code.DataLoNack:
 		case Code.DataLoAckStop:
 		case Code.DataLoNackStop:
-			if (m_state != State.DataHi)
-			{
+			if (m_state != State.DataHi) {
 				size = data - (uchar_t*)m_buffer.m_p;
-				if (size)
-				{
+				if (size) {
 					m_logWriter.write(timestamp, dataRecordCodeTable[m_isRead][m_ack], m_buffer.m_p, size);
 					data = m_buffer.m_p;
 				}
@@ -172,18 +157,14 @@ void I2cDecoder.decode(
 
 			m_data |= (c & 0x0f);
 
-			switch (m_addressState)
-			{
+			switch (m_addressState) {
 			case AddressState.PreAddress:
 				m_isRead = m_data & 1;
 
-				if (isAddress10Bit(m_data))
-				{
+				if (isAddress10Bit(m_data)) {
 					*m_transactionHdr = m_data | (ack << 16);
 					m_addressState = AddressState.Address10BitHi;
-				}
-				else
-				{
+				} else {
 					*m_transactionHdr = m_data | (ack << 8);
 					m_logWriter.write(timestamp, I2cSpiTapLogRecordCode.I2cFinalizeStart7Bit, m_transactionHdr, sizeof(uint16_t));
 					m_addressState = AddressState.Idle;
@@ -198,15 +179,11 @@ void I2cDecoder.decode(
 				break;
 
 			default:
-				if (data < lastData && ack == m_ack)
-				{
+				if (data < lastData && ack == m_ack) {
 					*data++ = m_data;
-				}
-				else
-				{
+				} else {
 					size = data - (uchar_t*)m_buffer.m_p;
-					if (size)
-					{
+					if (size) {
 						m_logWriter.write(timestamp, dataRecordCodeTable[m_isRead][m_ack], m_buffer.m_p, size);
 						data = m_buffer.m_p;
 					}
@@ -216,15 +193,11 @@ void I2cDecoder.decode(
 				}
 			}
 
-			if (!stop)
-			{
+			if (!stop) {
 				m_state = State.Transaction;
-			}
-			else
-			{
+			} else {
 				size = data - (uchar_t*)m_buffer.m_p;
-				if (size)
-				{
+				if (size) {
 					m_logWriter.write(timestamp, dataRecordCodeTable[m_isRead][m_ack], m_buffer.m_p, size);
 					data = m_buffer.m_p;
 				}
@@ -237,21 +210,17 @@ void I2cDecoder.decode(
 
 		case Code.Stop:
 			size = data - (uchar_t*)m_buffer.m_p;
-			if (size)
-			{
+			if (size) {
 				m_logWriter.write(timestamp, dataRecordCodeTable[m_isRead][m_ack], m_buffer.m_p, size);
 				data = m_buffer.m_p;
 			}
 
 			uint_t bitCount = c & 0x0f;
-			if (bitCount)
-			{
+			if (bitCount) {
 				*m_bitCount = bitCount;
 				m_logWriter.write(timestamp, I2cSpiTapLogRecordCode.IncompleteByte, m_bitCount, sizeof(uint_t));
 				m_logWriter.write(timestamp, I2cSpiTapLogRecordCode.I2cStop);
-			}
-			else
-			{
+			} else {
 				m_logWriter.write(
 					timestamp,
 					m_state == State.Transaction ?

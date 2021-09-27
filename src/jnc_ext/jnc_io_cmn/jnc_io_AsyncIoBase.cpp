@@ -17,8 +17,7 @@ namespace io {
 
 //..............................................................................
 
-AsyncIoBase::AsyncIoBase()
-{
+AsyncIoBase::AsyncIoBase() {
 	m_runtime = getCurrentThreadRuntime();
 	ASSERT(m_runtime);
 
@@ -32,8 +31,7 @@ AsyncIoBase::AsyncIoBase()
 }
 
 void
-AsyncIoBase::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
-{
+AsyncIoBase::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 	if (!m_runtime) // not constructed yet
 		return;
 
@@ -55,8 +53,7 @@ AsyncIoBase::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
 }
 
 void
-AsyncIoBase::open()
-{
+AsyncIoBase::open() {
 	m_ioErrorPtr = g_nullDataPtr;
 	m_pendingIoErrorPtr = g_nullDataPtr;
 	m_isOpen = true;
@@ -72,8 +69,7 @@ AsyncIoBase::open()
 }
 
 void
-AsyncIoBase::close()
-{
+AsyncIoBase::close() {
 	cancelAllWaits();
 
 #if (_JNC_OS_POSIX)
@@ -87,10 +83,8 @@ handle_t
 AsyncIoBase::wait(
 	uint_t eventMask,
 	FunctionPtr handlerPtr
-	)
-{
-	if (!m_isOpen)
-	{
+) {
+	if (!m_isOpen) {
 		jnc::setError(err::Error(err::SystemErrorCode_InvalidDeviceState));
 		return (handle_t)(intptr_t) -1;
 	}
@@ -98,8 +92,7 @@ AsyncIoBase::wait(
 	m_lock.lock();
 
 	uint_t triggeredEvents = eventMask & m_activeEvents;
-	if (triggeredEvents)
-	{
+	if (triggeredEvents) {
 		m_lock.unlock();
 		callVoidFunctionPtr(handlerPtr, triggeredEvents);
 		return 0; // not added
@@ -117,13 +110,11 @@ AsyncIoBase::wait(
 }
 
 bool
-AsyncIoBase::cancelWait(handle_t handle)
-{
+AsyncIoBase::cancelWait(handle_t handle) {
 	m_lock.lock();
 
 	sl::HandleTableIterator<AsyncWait*> it = m_asyncWaitMap.find((uintptr_t)handle);
-	if (!it)
-	{
+	if (!it) {
 		m_lock.unlock();
 		jnc::setError(err::Error(err::SystemErrorCode_InvalidParameter));
 		return false; // not found
@@ -140,13 +131,11 @@ uint_t
 AsyncIoBase::blockingWait(
 	uint_t eventMask,
 	uint_t timeout
-	)
-{
+) {
 	m_lock.lock();
 
 	uint_t triggeredEvents = eventMask & m_activeEvents;
-	if (triggeredEvents)
-	{
+	if (triggeredEvents) {
 		m_lock.unlock();
 		return triggeredEvents;
 	}
@@ -175,8 +164,7 @@ AsyncIoBase::blockingWait(
 }
 
 Promise*
-AsyncIoBase::asyncWait(uint_t eventMask)
-{
+AsyncIoBase::asyncWait(uint_t eventMask) {
 	NoCollectRegion noCollectRegion(false);
 	Promise* promise = createPromise(m_runtime);
 
@@ -185,8 +173,7 @@ AsyncIoBase::asyncWait(uint_t eventMask)
 	ptr.m_closure = &promise->m_ifaceHdr;
 
 	handle_t handle = wait(eventMask, ptr);
-	if (handle == (handle_t)-1)
-	{
+	if (handle == (handle_t)-1) {
 		const jnc::Error* error = jnc::getLastError();
 		DataPtr errorPtr = memDup(error, error->m_size);
 		promise->complete(g_nullVariant, errorPtr);
@@ -199,8 +186,7 @@ void
 AsyncIoBase::onAsyncWaitCompleted(
 	IfaceHdr* closure,
 	uint_t triggeredEvents
-	)
-{
+) {
 	Runtime* runtime = getCurrentThreadRuntime();
 	Promise* promise = (Promise*)closure;
 
@@ -212,8 +198,7 @@ AsyncIoBase::onAsyncWaitCompleted(
 }
 
 void
-AsyncIoBase::wakeIoThread()
-{
+AsyncIoBase::wakeIoThread() {
 #if (_JNC_OS_WIN)
 	m_ioThreadEvent.signal();
 #else
@@ -222,8 +207,7 @@ AsyncIoBase::wakeIoThread()
 }
 
 void
-AsyncIoBase::sleepIoThread()
-{
+AsyncIoBase::sleepIoThread() {
 #if (_JNC_OS_WIN)
 	m_ioThreadEvent.wait();
 #elif (_JNC_OS_POSIX)
@@ -233,8 +217,7 @@ AsyncIoBase::sleepIoThread()
 }
 
 void
-AsyncIoBase::unsuspendIoThread()
-{
+AsyncIoBase::unsuspendIoThread() {
 	m_lock.lock();
 	m_ioThreadFlags &= ~IoThreadFlag_Suspended;
 	wakeIoThread();
@@ -242,20 +225,16 @@ AsyncIoBase::unsuspendIoThread()
 }
 
 bool
-AsyncIoBase::suspendLoop()
-{
-	for (;;)
-	{
+AsyncIoBase::suspendLoop() {
+	for (;;) {
 		m_lock.lock();
 
-		if (m_ioThreadFlags & IoThreadFlag_Closing)
-		{
+		if (m_ioThreadFlags & IoThreadFlag_Closing) {
 			m_lock.unlock();
 			return false;
 		}
 
-		if (!(m_ioThreadFlags & IoThreadFlag_Suspended))
-		{
+		if (!(m_ioThreadFlags & IoThreadFlag_Suspended)) {
 			m_lock.unlock();
 			return true;
 		}
@@ -266,8 +245,7 @@ AsyncIoBase::suspendLoop()
 }
 
 void
-AsyncIoBase::cancelAllWaits()
-{
+AsyncIoBase::cancelAllWaits() {
 	m_lock.lock();
 
 	sl::List<AsyncWait> asyncWaitList; // will be cleared upon exiting the scope
@@ -282,18 +260,13 @@ AsyncIoBase::cancelAllWaits()
 }
 
 size_t
-AsyncIoBase::processWaitLists_l()
-{
+AsyncIoBase::processWaitLists_l() {
 	sl::Iterator<AsyncWait> asyncIt = m_asyncWaitList.getHead();
-	while (asyncIt)
-	{
+	while (asyncIt) {
 		uint_t triggeredEvents = asyncIt->m_mask & m_activeEvents;
-		if (!triggeredEvents)
-		{
+		if (!triggeredEvents) {
 			asyncIt++;
-		}
-		else
-		{
+		} else {
 			sl::Iterator<AsyncWait> nextIt = asyncIt.getNext();
 			AsyncWait* wait = *asyncIt;
 			wait->m_mask = triggeredEvents;
@@ -305,16 +278,14 @@ AsyncIoBase::processWaitLists_l()
 	}
 
 	sl::Iterator<SyncWait> syncIt = m_syncWaitList.getHead();
-	for (; syncIt; syncIt++)
-	{
+	for (; syncIt; syncIt++) {
 		if (syncIt->m_mask & m_activeEvents)
 			syncIt->m_event->signal();
 	}
 
 	size_t count = m_pendingAsyncWaitList.getCount();
 
-	while (!m_pendingAsyncWaitList.isEmpty())
-	{
+	while (!m_pendingAsyncWaitList.isEmpty()) {
 		AsyncWait* wait = *m_pendingAsyncWaitList.getHead();
 		m_lock.unlock();
 
@@ -329,10 +300,8 @@ AsyncIoBase::processWaitLists_l()
 }
 
 void
-AsyncIoBase::setEvents_l(uint_t events)
-{
-	if ((m_activeEvents & events) == events) // was set already
-	{
+AsyncIoBase::setEvents_l(uint_t events) {
+	if ((m_activeEvents & events) == events) { // was set already
 		m_lock.unlock();
 		return;
 	}
@@ -345,8 +314,7 @@ void
 AsyncIoBase::setIoErrorEvent_l(
 	uint_t event,
 	const err::Error& error
-	)
-{
+) {
 	m_lock.unlock();
 
 	JNC_BEGIN_CALL_SITE(m_runtime)

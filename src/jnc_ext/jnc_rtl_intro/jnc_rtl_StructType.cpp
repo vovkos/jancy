@@ -25,7 +25,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	StructType,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(StructType)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<StructType, ct::StructType*>))

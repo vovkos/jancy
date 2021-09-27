@@ -21,16 +21,14 @@ class Module;
 
 //..............................................................................
 
-enum ImportKind
-{
+enum ImportKind {
 	ImportKind_File,
 	ImportKind_Source
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct Import: sl::ListLink
-{
+struct Import: sl::ListLink {
 	ImportKind m_importKind;
 	ExtensionLib* m_lib;
 	sl::String m_filePath;
@@ -39,15 +37,13 @@ struct Import: sl::ListLink
 
 //..............................................................................
 
-enum LazyImportFlag
-{
+enum LazyImportFlag {
 	LazyImportFlag_Used = 0x010000,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class LazyImport: public ModuleItem
-{
+class LazyImport: public ModuleItem {
 	friend class ImportMgr;
 
 protected:
@@ -56,39 +52,33 @@ protected:
 	sl::StringRef m_source;
 
 public:
-	LazyImport()
-	{
+	LazyImport() {
 		m_itemKind = ModuleItemKind_LazyImport;
 	}
 
 	ExtensionLib*
-	getLib()
-	{
+	getLib() {
 		return m_lib;
 	}
 
 	const sl::String&
-	getFileName()
-	{
+	getFileName() {
 		return m_fileName;
 	}
 
 	const sl::StringRef&
-	getSource()
-	{
+	getSource() {
 		return m_source;
 	}
 };
 
 //..............................................................................
 
-class ImportMgr
-{
+class ImportMgr {
 	friend class Module;
 
 protected:
-	enum FindResult
-	{
+	enum FindResult {
 		FindResult_NotFound,
 		FindResult_Found,
 		FindResult_AlreadyImported,
@@ -109,8 +99,7 @@ public:
 	ImportMgr();
 
 	Module*
-	getModule()
-	{
+	getModule() {
 		return m_module;
 	}
 
@@ -125,17 +114,15 @@ public:
 		ExtensionLib* lib,
 		const sl::StringRef& filePath,
 		const sl::StringRef& source
-		);
+	);
 
 	void
-	addIgnoredImport(const sl::StringRef& fileName)
-	{
+	addIgnoredImport(const sl::StringRef& fileName) {
 		m_ignoredImportSet.visit(fileName);
 	}
 
 	void
-	takeOverImports(sl::List<Import>* list)
-	{
+	takeOverImports(sl::List<Import>* list) {
 		sl::takeOver(list, &m_importList);
 	}
 
@@ -144,7 +131,7 @@ public:
 		ExtensionLib* lib,
 		const sl::StringRef& fileName,
 		const sl::StringRef& source
-		);
+	);
 
 	bool
 	parseLazyImport(LazyImport* import);
@@ -154,7 +141,7 @@ protected:
 	findImportFile(
 		const sl::StringRef& fileName,
 		sl::String* filePath
-		);
+	);
 };
 
 //..............................................................................

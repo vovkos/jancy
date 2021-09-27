@@ -25,8 +25,7 @@ struct FmtLiteral;
 class Field:
 	public ModuleItem,
 	public ModuleItemDecl,
-	public ModuleItemInitializer
-{
+	public ModuleItemInitializer {
 	friend class TypeMgr;
 	friend class MemberBlock;
 	friend class DerivableType;
@@ -44,8 +43,7 @@ protected:
 	size_t m_bitCount;
 	size_t m_offset;
 
-	union
-	{
+	union {
 		uint_t m_llvmIndex;
 		size_t m_prevDynamicFieldIndex;
 	};
@@ -54,38 +52,32 @@ public:
 	Field();
 
 	Type*
-	getType()
-	{
+	getType() {
 		return m_type;
 	}
 
 	int
-	getPtrTypeFlags()
-	{
+	getPtrTypeFlags() {
 		return m_ptrTypeFlags;
 	}
 
 	sl::ConstBoxList<Token>
-	getConstructor()
-	{
+	getConstructor() {
 		return m_constructor;
 	}
 
 	size_t
-	getOffset()
-	{
+	getOffset() {
 		return m_offset;
 	}
 
 	uint_t
-	getLlvmIndex()
-	{
+	getLlvmIndex() {
 		return m_llvmIndex;
 	}
 
 	size_t
-	getPrevDynamicFieldIndex()
-	{
+	getPrevDynamicFieldIndex() {
 		return m_prevDynamicFieldIndex;
 	}
 
@@ -95,7 +87,7 @@ public:
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
-		);
+	);
 };
 
 //..............................................................................

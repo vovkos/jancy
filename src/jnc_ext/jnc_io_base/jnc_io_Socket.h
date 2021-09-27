@@ -20,8 +20,7 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(Socket)
 
 //..............................................................................
 
-struct SocketHdr: IfaceHdr
-{
+struct SocketHdr: IfaceHdr {
 	uint_t m_readParallelism;
 	size_t m_readBlockSize;
 	size_t m_readBufferSize;
@@ -32,16 +31,14 @@ struct SocketHdr: IfaceHdr
 
 class Socket:
 	public SocketHdr,
-	public SocketBase
-{
+	public SocketBase {
 	friend class IoThread;
 
 public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(Socket)
 
 protected:
-	enum Def
-	{
+	enum Def {
 		Def_ReadParallelism = 2,
 		Def_ReadBlockSize   = 4 * 1024,
 		Def_ReadBufferSize  = 16 * 1024,
@@ -49,37 +46,31 @@ protected:
 		Def_Options         = 0,
 	};
 
-	enum IoThreadFlag
-	{
+	enum IoThreadFlag {
 		IoThreadFlag_Connecting         = 0x0100,
 		IoThreadFlag_Listening          = 0x0200,
 		IoThreadFlag_IncomingConnection = 0x0400,
 	};
 
-	class IoThread: public sys::ThreadImpl<IoThread>
-	{
+	class IoThread: public sys::ThreadImpl<IoThread> {
 	public:
 		void
-		threadFunc()
-		{
+		threadFunc() {
 			containerof(this, Socket, m_ioThread)->ioThreadFunc();
 		}
 	};
 
 #if (_AXL_OS_WIN)
-	struct OverlappedRecv: OverlappedRead
-	{
+	struct OverlappedRecv: OverlappedRead {
 		axl::io::SockAddr m_sockAddr;
 		socklen_t m_sockAddrSize;
 
-		OverlappedRecv()
-		{
+		OverlappedRecv() {
 			m_sockAddrSize = 0;
 		}
 	};
 
-	struct OverlappedIo
-	{
+	struct OverlappedIo {
 		mem::Pool<OverlappedRecv> m_overlappedRecvPool;
 		sl::List<OverlappedRecv> m_activeOverlappedRecvList;
 		axl::io::win::StdOverlapped m_sendOverlapped;
@@ -98,73 +89,63 @@ protected:
 public:
 	Socket();
 
-	~Socket()
-	{
+	~Socket() {
 		close();
 	}
 
 	void
 	JNC_CDECL
-	markOpaqueGcRoots(jnc::GcHeap* gcHeap)
-	{
+	markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 		AsyncIoDevice::markOpaqueGcRoots(gcHeap);
 	}
 
 	uintptr_t
 	JNC_CDECL
-	getOsHandle()
-	{
+	getOsHandle() {
 		return SocketBase::getOsHandle();
 	}
 
 	static
 	SocketAddress
 	JNC_CDECL
-	getAddress(Socket* self)
-	{
+	getAddress(Socket* self) {
 		return self->SocketBase::getAddress();
 	}
 
 	static
 	SocketAddress
 	JNC_CDECL
-	getPeerAddress(Socket* self)
-	{
+	getPeerAddress(Socket* self) {
 		return self->SocketBase::getPeerAddress();
 	}
 
 	void
 	JNC_CDECL
-	setReadParallelism(uint_t count)
-	{
+	setReadParallelism(uint_t count) {
 		AsyncIoDevice::setSetting(&m_readParallelism, count ? count : Def_ReadParallelism);
 	}
 
 	void
 	JNC_CDECL
-	setReadBlockSize(size_t size)
-	{
+	setReadBlockSize(size_t size) {
 		AsyncIoDevice::setSetting(&m_readBlockSize, size ? size : Def_ReadBlockSize);
 	}
 
 	bool
 	JNC_CDECL
-	setReadBufferSize(size_t size)
-	{
+	setReadBufferSize(size_t size) {
 		return AsyncIoDevice::setReadBufferSize(&m_readBufferSize, size ? size : Def_ReadBufferSize);
 	}
 
 	bool
 	JNC_CDECL
-	setWriteBufferSize(size_t size)
-	{
+	setWriteBufferSize(size_t size) {
 		return AsyncIoDevice::setWriteBufferSize(&m_writeBufferSize, size ? size : Def_WriteBufferSize);
 	}
 
 	bool
 	JNC_CDECL
-	setOptions(uint_t options)
-	{
+	setOptions(uint_t options) {
 		return SocketBase::setOptions(options);
 	}
 
@@ -173,8 +154,7 @@ public:
 	open_0(
 		uint16_t family,
 		int protocol
-		)
-	{
+	) {
 		return openImpl(family, protocol, NULL);
 	}
 
@@ -183,8 +163,7 @@ public:
 	open_1(
 		int protocol,
 		DataPtr addressPtr
-		)
-	{
+	) {
 		const SocketAddress* address = (const SocketAddress*) addressPtr.m_p;
 		return openImpl(address ? address->m_family : AddressFamily_Ip4, protocol, address);
 	}
@@ -206,12 +185,11 @@ public:
 	accept(
 		DataPtr addressPtr,
 		bool isSuspended
-		);
+	);
 
 	void
 	JNC_CDECL
-	unsuspend()
-	{
+	unsuspend() {
 		unsuspendIoThread();
 	}
 
@@ -220,8 +198,7 @@ public:
 	read(
 		DataPtr ptr,
 		size_t size
-		)
-	{
+	) {
 		return bufferedRead(ptr, size);
 	}
 
@@ -230,8 +207,7 @@ public:
 	write(
 		DataPtr ptr,
 		size_t size
-		)
-	{
+	) {
 		return bufferedWrite(ptr, size);
 	}
 
@@ -241,7 +217,7 @@ public:
 		DataPtr dataPtr,
 		size_t dataSize,
 		DataPtr addressPtr
-		);
+	);
 
 	size_t
 	JNC_CDECL
@@ -249,22 +225,20 @@ public:
 		DataPtr dataPtr,
 		size_t dataSize,
 		DataPtr addressPtr
-		);
+	);
 
 	handle_t
 	JNC_CDECL
 	wait(
 		uint_t eventMask,
 		FunctionPtr handlerPtr
-		)
-	{
+	) {
 		return AsyncIoDevice::wait(eventMask, handlerPtr);
 	}
 
 	bool
 	JNC_CDECL
-	cancelWait(handle_t handle)
-	{
+	cancelWait(handle_t handle) {
 		return AsyncIoDevice::cancelWait(handle);
 	}
 
@@ -273,15 +247,13 @@ public:
 	blockingWait(
 		uint_t eventMask,
 		uint_t timeout
-		)
-	{
+	) {
 		return AsyncIoDevice::blockingWait(eventMask, timeout);
 	}
 
 	Promise*
 	JNC_CDECL
-	asyncWait(uint_t eventMask)
-	{
+	asyncWait(uint_t eventMask) {
 		return AsyncIoDevice::asyncWait(eventMask);
 	}
 
@@ -291,7 +263,7 @@ protected:
 		uint16_t family,
 		int protocol,
 		const SocketAddress* address
-		);
+	);
 
 	void
 	ioThreadFunc();
@@ -300,7 +272,7 @@ protected:
 	sendRecvLoop(
 		uint_t baseEvents,
 		bool isDatagram
-		);
+	);
 
 #if (_JNC_OS_WIN)
 	void

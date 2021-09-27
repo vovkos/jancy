@@ -12,8 +12,7 @@ namespace io {
 
 //..............................................................................
 
-class FileIdMgr
-{
+class FileIdMgr {
 protected:
 	uint32_t m_hiFileIdCounter;
 	std.HashTable m_fileIdMap;
@@ -31,22 +30,19 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void FileIdMgr.reset()
-{
+void FileIdMgr.reset() {
 	m_fileIdMap.clear();
 	m_lastLoFileId = 0;
 	m_lastHiFileId = 0;
 	m_hiFileIdCounter = 0;
 }
 
-uint32_t FileIdMgr.getHiFileId(intptr_t loFileId)
-{
+uint32_t FileIdMgr.getHiFileId(intptr_t loFileId) {
 	if (loFileId == m_lastLoFileId)
 		return m_lastHiFileId;
 
 	uint32_t hiFileId = m_fileIdMap.findValue(loFileId, 0);
-	if (!hiFileId)
-	{
+	if (!hiFileId) {
 		m_hiFileIdCounter++;
 		if (!m_hiFileIdCounter)
 			m_hiFileIdCounter++; // never 0
@@ -60,10 +56,8 @@ uint32_t FileIdMgr.getHiFileId(intptr_t loFileId)
 	return hiFileId;
 }
 
-void FileIdMgr.removeLowFileId(intptr_t lowFileId)
-{
-	if (lowFileId == m_lastLoFileId)
-	{
+void FileIdMgr.removeLowFileId(intptr_t lowFileId) {
+	if (lowFileId == m_lastLoFileId) {
 		m_lastLoFileId = 0;
 		m_lastHiFileId = 0;
 	}

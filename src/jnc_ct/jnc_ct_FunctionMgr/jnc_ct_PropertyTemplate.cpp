@@ -18,8 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-PropertyTemplate::PropertyTemplate()
-{
+PropertyTemplate::PropertyTemplate() {
 	m_itemKind = ModuleItemKind_PropertyTemplate;
 	m_namespaceKind = NamespaceKind_PropertyTemplate;
 	m_namespaceStatus = NamespaceStatus_Ready;
@@ -31,32 +30,26 @@ bool
 PropertyTemplate::addMethod(
 	FunctionKind functionKind,
 	FunctionType* functionType
-	)
-{
+) {
 	bool result;
 
-	if (functionKind != FunctionKind_Getter && functionKind != FunctionKind_Setter)
-	{
+	if (functionKind != FunctionKind_Getter && functionKind != FunctionKind_Setter) {
 		err::setFormatStringError("property templates can only have accessors");
 		return false;
 	}
 
-	if (functionKind == FunctionKind_Getter)
-	{
+	if (functionKind == FunctionKind_Getter) {
 		result = m_verifier.checkGetter(functionType);
 		if (!result)
 			return false;
 
-		if (m_getterType)
-		{
+		if (m_getterType) {
 			err::setFormatStringError("property template already has a getter");
 			return false;
 		}
 
 		m_getterType = functionType;
-	}
-	else
-	{
+	} else {
 		result =
 			m_verifier.checkSetter(functionType) &&
 			m_setterType.addOverload(functionType) != -1;
@@ -69,10 +62,8 @@ PropertyTemplate::addMethod(
 }
 
 PropertyType*
-PropertyTemplate::calcType()
-{
-	if (!m_getterType)
-	{
+PropertyTemplate::calcType() {
+	if (!m_getterType) {
 		err::setFormatStringError("incomplete property: no 'get' method or 'autoget' field");
 		return NULL;
 	}

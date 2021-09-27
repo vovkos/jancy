@@ -17,39 +17,33 @@ using extension ui.ComboBoxHistory;
 
 //..............................................................................
 
-class FileSession: doc.Session
-{
+class FileSession: doc.Session {
 protected:
-	enum State
-	{
+	enum State {
 		Closed,
 		Opened,
 	}
 
-	enum Access
-	{
+	enum Access {
 		ReadWrite,
 		ReadOnly,
 		WriteOnly,
 	}
 
-	enum ActionId
-	{
+	enum ActionId {
 		Open,
 		Clear,
 		_Count,
 	}
 
-	enum IconId
-	{
+	enum IconId {
 		Open,
 		Close,
 		Clear,
 		_Count,
 	}
 
-	enum StatusPaneId
-	{
+	enum StatusPaneId {
 		State,
 		_Count,
 	}
@@ -102,33 +96,29 @@ public:
 	override size_t errorcode transmit(
 		void const* p,
 		size_t size
-		);
+	);
 
-	override bool errorcode connectSession()
-	{
+	override bool errorcode connectSession() {
 		return m_sessionConnectionState ? true : open();
 	}
 
-	override void disconnectSession()
-	{
+	override void disconnectSession() {
 		close();
 	}
 
 protected:
-	void onOpen()
-	{
+	void onOpen() {
 		m_state ? close() : try open();
 	}
 
-	void onFileNameComboEnter()
-	{
+	void onFileNameComboEnter() {
 		try open();
 	}
 
 	void onFileStreamEvent(
 		uint_t syncId,
 		io.FileStreamEvents triggeredEvents
-		);
+	);
 
 	io.FileStreamOptions getFileStreamOptions();
 	void waitFileStreamEvents();
@@ -137,8 +127,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-FileSession.construct(doc.PluginHost* pluginHost)
-{
+FileSession.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
 
 	createUi();
@@ -148,10 +137,8 @@ FileSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-void FileSession.createUi()
-{
-	static ui.EnumPropertyOption accessModeTable[] =
-	{
+void FileSession.createUi() {
+	static ui.EnumPropertyOption accessModeTable[] = {
 		{ "Read/Write",  Access.ReadWrite },
 		{ "Read-only",   Access.ReadOnly  },
 		{ "Write-only",  Access.WriteOnly },
@@ -187,14 +174,14 @@ void FileSession.createUi()
 	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Connection",
 		"File stream-specific connection settings"
-		);
+	);
 
 	m_fileNameProp = m_pluginHost.m_propertyGrid.createStringProperty(
 		group,,
 		"File name",
 		"Enter a file name...",
 		"Specify a file name to open"
-		);
+	);
 
 	m_accessProp = m_pluginHost.m_propertyGrid.createEnumProperty(
 		group,,
@@ -202,7 +189,7 @@ void FileSession.createUi()
 		"Access mode for the file",
 		accessModeTable,
 		countof(accessModeTable)
-		);
+	);
 
 	m_bufferPropertySet.createPropertiesGrouped(m_pluginHost.m_propertyGrid);
 
@@ -220,8 +207,7 @@ void FileSession.createUi()
 	m_uiReactor.start();
 }
 
-bool errorcode FileSession.open()
-{
+bool errorcode FileSession.open() {
 	close();
 	startSession();
 
@@ -252,7 +238,7 @@ bool errorcode FileSession.open()
 		sizeof(params),
 		fileName,
 		strlen(fileName) + 1
-		);
+	);
 
 	m_state = State.Opened;
 	m_sessionConnectionState = SessionConnectionState.Connected;
@@ -268,8 +254,7 @@ catch:
 	return false;
 }
 
-void FileSession.close()
-{
+void FileSession.close() {
 	if (m_state != State.Opened)
 		return;
 
@@ -282,8 +267,7 @@ void FileSession.close()
 	m_stdSessionInfoSet.endSession();
 }
 
-void FileSession.clear()
-{
+void FileSession.clear() {
 	if (m_state != State.Opened)
 		return;
 
@@ -291,8 +275,7 @@ void FileSession.clear()
 	m_logWriter.write(FileLogRecordCode.Cleared);
 }
 
-io.FileStreamOptions FileSession.getFileStreamOptions()
-{
+io.FileStreamOptions FileSession.getFileStreamOptions() {
 	io.FileStreamOptions options;
 
 	if (m_bufferPropertySet.m_keepReadBlockSizeProp.m_value)
@@ -304,8 +287,7 @@ io.FileStreamOptions FileSession.getFileStreamOptions()
 	return options;
 }
 
-void FileSession.waitFileStreamEvents()
-{
+void FileSession.waitFileStreamEvents() {
 	io.FileStreamEvents eventMask =
 		io.FileStreamEvents.IoError |
 		io.FileStreamEvents.ReadBufferFull |
@@ -318,8 +300,7 @@ void FileSession.waitFileStreamEvents()
 	m_file.wait(eventMask, onFileStreamEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
-void FileSession.load(doc.Storage* storage)
-{
+void FileSession.load(doc.Storage* storage) {
 	m_fileNameCombo.loadHistory(storage, "fileNameHistory");
 	m_fileNameCombo.m_editText = storage.readString("fileName");
 	m_accessCombo.m_currentData = storage.readInt("access");
@@ -328,8 +309,7 @@ void FileSession.load(doc.Storage* storage)
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 }
 
-void FileSession.save(doc.Storage* storage)
-{
+void FileSession.save(doc.Storage* storage) {
 	m_bufferPropertySet.save(storage);
 
 	m_fileNameCombo.saveHistory(storage, "fileNameHistory");
@@ -337,14 +317,12 @@ void FileSession.save(doc.Storage* storage)
 	storage.writeInt("access", m_accessCombo.m_currentData);
 }
 
-void FileSession.updateProperties()
-{
+void FileSession.updateProperties() {
 	m_fileNameProp.m_value = m_fileNameCombo.m_editText;
 	m_accessProp.m_value = m_accessCombo.m_currentData;
 }
 
-bool errorcode FileSession.applyProperties()
-{
+bool errorcode FileSession.applyProperties() {
 	m_fileNameCombo.m_editText = m_fileNameProp.m_value;
 	m_accessCombo.m_currentData = m_accessProp.m_value;
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
@@ -360,8 +338,7 @@ bool errorcode FileSession.applyProperties()
 	return true;
 }
 
-void FileSession.restoreDefaultProperties()
-{
+void FileSession.restoreDefaultProperties() {
 	m_accessProp.m_value = Access.ReadWrite;
 	m_bufferPropertySet.restoreDefaults();
 }
@@ -369,8 +346,7 @@ void FileSession.restoreDefaultProperties()
 size_t errorcode FileSession.transmit(
 	void const* p,
 	size_t size
-	)
-{
+) {
 	if (m_state != State.Opened)
 		return -1;
 
@@ -384,13 +360,11 @@ size_t errorcode FileSession.transmit(
 void FileSession.onFileStreamEvent(
 	uint_t syncId,
 	io.FileStreamEvents triggeredEvents
-	)
-{
+) {
 	if (syncId != m_syncId)
 		return;
 
-	if (triggeredEvents & io.FileStreamEvents.IoError)
-	{
+	if (triggeredEvents & io.FileStreamEvents.IoError) {
 		m_logWriter.write(log.StdRecordCode.Error, m_file.m_ioError);
 		close();
 		return;
@@ -400,17 +374,14 @@ void FileSession.onFileStreamEvent(
 		m_bufferPropertySet.m_notifyReadBufferFullProp.m_value)
 		m_logWriter.write(log.StdRecordCode.RxBufferFull);
 
-	if (triggeredEvents & io.FileStreamEvents.IncomingData)
-	{
+	if (triggeredEvents & io.FileStreamEvents.IncomingData) {
 		size_t result = m_file.read(m_readBuffer.m_p, m_readBuffer.m_size);
 		if (result)
 			m_logWriter.write(log.StdRecordCode.Rx, m_readBuffer.m_p, result);
 	}
 
-	if (triggeredEvents & io.FileStreamEvents.Eof)
-	{
-		for (;;) // read all the buffered data
-		{
+	if (triggeredEvents & io.FileStreamEvents.Eof) {
+		for (;;) { // read all the buffered data
 			size_t result = m_file.read(m_readBuffer.m_p, m_readBuffer.m_size);
 			if (!result)
 				break;
@@ -429,8 +400,7 @@ void FileSession.onFileStreamEvent(
 	waitFileStreamEvents();
 }
 
-reactor FileSession.m_uiReactor
-{
+reactor FileSession.m_uiReactor {
 	m_title = $"File $(m_fileNameCombo.m_editText)";
 	m_accessCombo.m_isEnabled = !m_state;
 	m_accessProp.m_isEnabled = !m_state;

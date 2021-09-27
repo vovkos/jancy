@@ -7,15 +7,14 @@ import "log_MonitorFilter.jnc"
 
 //..............................................................................
 
-class MailslotMonLogFilter: log.MonitorFilter
-{
+class MailslotMonLogFilter: log.MonitorFilter {
 public:
 	override bool filter(
 		uint64_t timestamp,
 		uint64_t recordCode,
 		void const* p,
 		size_t size
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -25,12 +24,10 @@ bool MailslotMonLogFilter.filter(
 	uint64_t recordCode,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	bool result = false;
 
-	switch (recordCode)
-	{
+	switch (recordCode) {
 	case MailslotMonLogRecordCode.ServerFileOpened_0:
 	case MailslotMonLogRecordCode.ClientFileOpened_0:
 		m_fileId = *(uint32_t const*)p;

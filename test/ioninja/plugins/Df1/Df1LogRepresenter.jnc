@@ -14,8 +14,7 @@ import "crc16.jnc"
 uchar_t bcc(
 	void const* p0,
 	size_t size
-	)
-{
+) {
 	uchar_t sum = 0;
 	uchar_t const* p = p0;
 	uchar_t const* end = p + size;
@@ -30,8 +29,7 @@ uint16_t extractChecksum(
 	io.Df1ChecksumKind checksumKind,
 	uchar_t const* p,
 	size_t size
-	)
-{
+) {
 	return checksumKind == io.Df1ChecksumKind.Bcc ? *(p + size - 1) : *(uint16_t const*)(p + size - 2);
 }
 
@@ -39,21 +37,18 @@ uint16_t calcChecksum(
 	io.Df1ChecksumKind checksumKind,
 	uchar_t const* p,
 	size_t size
-	)
-{
+) {
 	return checksumKind == io.Df1ChecksumKind.Bcc ? bcc(p, size - 1) : crc16_ansi(p, size - 2);
 }
 
-size_t getChecksumSize(io.Df1ChecksumKind checksumKind)
-{
+size_t getChecksumSize(io.Df1ChecksumKind checksumKind) {
 	return checksumKind == io.Df1ChecksumKind.Bcc ? 1 : 2;
 }
 
 char const* getChecksumString(
 	io.Df1ChecksumKind checksumKind,
 	uint16_t checksum
-	)
-{
+) {
 	return checksumKind == io.Df1ChecksumKind.Bcc ? $"0x%02X"(checksum) : $"0x%04X"(checksum);
 }
 
@@ -62,23 +57,20 @@ getChecksumValidityString(
 	io.Df1ChecksumKind checksumKind,
 	uchar_t const* p,
 	size_t size
-	)
-{
+) {
 	uint_t actualChecksum = extractChecksum(checksumKind, p, size);
 	uint_t expectedChecksum = calcChecksum(checksumKind, p, size);
 
 	return getValidityString(actualChecksum == expectedChecksum);
 }
 
-char const* getValidityString(bool isValid)
-{
+char const* getValidityString(bool isValid) {
 	return isValid ? "\e[32mOK\e[m" : "\e[31mINVALID\e[m";
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* getStationDetailString(void const* p)
-{
+char const* getStationDetailString(void const* p) {
 	uchar_t stn = *(uchar_t const*)p;
 	return $"\e^!%1,0,1\e[34m%2\e[m"(Df1LogPartCode.RawDataLinkData, stn);
 }
@@ -87,8 +79,7 @@ char const* getChecksumDetailString(
 	io.Df1ChecksumKind checksumKind,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	size_t checksumSize = getChecksumSize(checksumKind);
 	size_t checksumOffset = size - checksumSize;
 	uint_t actualChecksum = extractChecksum(checksumKind, p, size);
@@ -102,21 +93,19 @@ char const* getChecksumDetailString(
 		getChecksumString(checksumKind, actualChecksum),
 		getValidityString(isValid),
 		isValid ? "" : $" - expected %1"(getChecksumString(checksumKind, expectedChecksum))
-		);
+	);
 }
 
-char const* getCmdString(io.Df1AppMsgHdr const* hdr)
-{
+char const* getCmdString(io.Df1AppMsgHdr const* hdr) {
 	return hdr.m_direction != io.Df1CmdDirection.Command ?
 		$"%1 %2"(
 			typeof(io.Df1CmdPrefix).getValueString(hdr.m_command, "0x%02X"),
 			typeof(io.Df1CmdDirection).getValueString(hdr.m_direction)
-			) :
+		) :
 		typeof(io.Df1CmdPrefix).getValueString(hdr.m_command, "0x%02X");
 }
 
-char const* getStatusString(io.Df1AppMsgHdr const* hdr)
-{
+char const* getStatusString(io.Df1AppMsgHdr const* hdr) {
 	return hdr.m_localStatus ?
 		typeof(io.Df1LocalStatus).getValueString(hdr.m_localStatus) :
 		typeof(io.Df1RemoteStatus).getValueString(hdr.m_remoteStatus);
@@ -127,8 +116,7 @@ void addColorRange(
 	size_t offset,
 	size_t size,
 	uint_t color
-	)
-{
+) {
 	Df1ColorRange range = { offset, size, color }
 	rangeArray.append(range);
 }
@@ -138,16 +126,14 @@ void representRawDataLinkData(
 	std.Array const* rangeArray,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	representation.addBreak();
 	representation.m_lineAttr.m_textColor = ui.StdColor.Gray;
 	representation.m_lineAttr.m_backColor = ui.ColorFlags.Transparent;
 	representation.addBin(Df1LogPartCode.RawDataLinkData, p, size);
 
 	size_t count = rangeArray.m_count;
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		Df1ColorRange range = rangeArray[i];
 		ui.TextAttr attr = { m_backColor = range.m_color }
 		representation.retroColorize(range.m_offset - size, range.m_size, attr);
@@ -162,10 +148,8 @@ bool representDf1Log(
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
-	switch (recordCode)
-	{
+) {
+	switch (recordCode) {
 	case Df1LogRecordCode.Eot:
 		representSimpleFrame(representation, "EOT", "Poll response", foldFlags);
 		break;
@@ -222,8 +206,7 @@ void representSimpleFrame(
 	char const* name,
 	char const* description,
 	uint_t foldFlags
-	)
-{
+) {
 	representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
 	representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Packet;
 
@@ -231,9 +214,8 @@ void representSimpleFrame(
 		representation.addHyperText($"[\e^+%1\e[34m+\e[m] \e[1mDF1\e[m %2"(
 			Df1FoldFlag.Master,
 			name
-			));
-	else
-	{
+		));
+	else {
 		representation.addHyperText($"[\e^-%1\e[34m-\e[m] \e[1mDF1"(Df1FoldFlag.Master));
 		representation.m_lineAttr.m_backColor = Df1Color.DataLinkLayer;
 
@@ -242,7 +224,7 @@ void representSimpleFrame(
 			$"    Frame type: %2"(
 			name,
 			description
-			));
+		));
 	}
 }
 
@@ -251,8 +233,7 @@ void representEnqStnFrame(
 	uchar_t const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
+) {
 	representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
 	representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Packet;
 
@@ -262,9 +243,8 @@ void representEnqStnFrame(
 			Df1FoldFlag.Master,
 			p[0],
 			getChecksumValidityString(io.Df1ChecksumKind.Bcc, p, size)
-			));
-	else
-	{
+		));
+	else {
 		representation.addHyperText($"[\e^-%1\e[34m-\e[m] \e[1mDF1"(Df1FoldFlag.Master));
 		representation.m_lineAttr.m_backColor = Df1Color.DataLinkLayer;
 
@@ -275,7 +255,7 @@ void representEnqStnFrame(
 			$"    BCC:\t%2"(
 			getStationDetailString(p),
 			getChecksumDetailString(io.Df1ChecksumKind.Bcc, p, size)
-			));
+		));
 
 		std.Array rangeArray;
 		addColorRange(rangeArray, 0, size, Df1Color.DataLinkLayer);
@@ -289,8 +269,7 @@ void representSohFrame(
 	uchar_t const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
+) {
 	representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
 	representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Packet;
 
@@ -308,9 +287,8 @@ void representSohFrame(
 			io.getDf1ChecksumKindString(checksumKind),
 			getChecksumValidityString(checksumKind, p, size),
 			getAppMsgDigest(p + baseOffset, appMsgSize)
-			));
-	else
-	{
+		));
+	else {
 		representation.addHyperText($"[\e^-%1\e[34m-\e[m] \e[1mDF1"(Df1FoldFlag.Master));
 		representation.m_lineAttr.m_backColor = Df1Color.DataLinkLayer;
 
@@ -321,7 +299,7 @@ void representSohFrame(
 				p[0],
 				io.getDf1ChecksumKindString(checksumKind),
 				getChecksumValidityString(checksumKind, p, size)
-				));
+			));
 		else
 			representation.addHyperText(
 				$"[\e^-%1\e[34m-\e[m] \e[1mSOH\n"
@@ -332,7 +310,7 @@ void representSohFrame(
 				getStationDetailString(p),
 				io.getDf1ChecksumKindString(checksumKind),
 				getChecksumDetailString(checksumKind, p, size)
-				));
+			));
 
 		std.Array rangeArray;
 
@@ -349,8 +327,7 @@ void representStxFrame(
 	uchar_t const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
+) {
 	representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
 	representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Packet;
 
@@ -366,9 +343,8 @@ void representStxFrame(
 			io.getDf1ChecksumKindString(checksumKind),
 			getChecksumValidityString(checksumKind, p, size),
 			getAppMsgDigest(p, appMsgSize)
-			));
-	else
-	{
+		));
+	else {
 		representation.addHyperText($"[\e^-%1\e[34m-\e[m] \e[1mDF1"(Df1FoldFlag.Master));
 		representation.m_lineAttr.m_backColor = Df1Color.DataLinkLayer;
 
@@ -378,7 +354,7 @@ void representStxFrame(
 				Df1FoldFlag.DataLinkLayer,
 				io.getDf1ChecksumKindString(checksumKind),
 				getChecksumValidityString(checksumKind, p, size)
-				));
+			));
 		else
 			representation.addHyperText(
 				$"[\e^-%1\e[34m-\e[m] \e[1mSTX\n"
@@ -387,7 +363,7 @@ void representStxFrame(
 				Df1FoldFlag.DataLinkLayer,
 				io.getDf1ChecksumKindString(checksumKind),
 				getChecksumDetailString(checksumKind, p, size)
-				));
+			));
 
 		std.Array rangeArray;
 		addColorRange(rangeArray, appMsgSize, size - appMsgSize, Df1Color.DataLinkLayer);
@@ -401,8 +377,7 @@ void representStxFrame(
 char const* getAppMsgDigest(
 	uchar_t const* p,
 	size_t size
-	)
-{
+) {
 	if (size < sizeof(io.Df1AppMsgHdr))
 		return"[\e[31mINCOMPLETE\e[m]";
 
@@ -412,8 +387,7 @@ char const* getAppMsgDigest(
 
 	char const* cmdString;
 
-	switch (hdr.m_command)
-	{
+	switch (hdr.m_command) {
 	case io.Df1CmdPrefix.ProtectedWrite:
 	case io.Df1CmdPrefix.UnprotectedRead:
 	case io.Df1CmdPrefix.ProtectedBitWrite:
@@ -426,8 +400,7 @@ char const* getAppMsgDigest(
 	case io.Df1CmdPrefix.Command06:
 	case io.Df1CmdPrefix.Command07:
 	case io.Df1CmdPrefix.Command0F:
-		if (hdr.m_direction != io.Df1CmdDirection.Command)
-		{
+		if (hdr.m_direction != io.Df1CmdDirection.Command) {
 			cmdString = typeof(io.Df1CmdDirection).getValueString(hdr.m_direction);
 			break;
 		}
@@ -448,7 +421,7 @@ char const* getAppMsgDigest(
 		hdr.m_source,
 		hdr.m_destination,
 		getStatusString(hdr)
-		);
+	);
 }
 
 void representAppMsg(
@@ -458,20 +431,17 @@ void representAppMsg(
 	size_t size,
 	size_t baseOffset,
 	uint_t foldFlags
-	)
-{
+) {
 	representation.m_lineAttr.m_backColor = Df1Color.AppMsgLayer;
 
-	if (size < sizeof(io.Df1AppMsgHdr))
-	{
+	if (size < sizeof(io.Df1AppMsgHdr)) {
 		representation.addHyperText("[\e[31mINCOMPLETE\e[m]");
 		return;
 	}
 
 	io.Df1AppMsgHdr const* hdr = (io.Df1AppMsgHdr const*)p;
 
-	if (!(foldFlags & Df1FoldFlag.AppMsgLayer))
-	{
+	if (!(foldFlags & Df1FoldFlag.AppMsgLayer)) {
 		representation.addHyperText(
 			$"[\e^+%1\e[34m+\e[m] \e[1mCMD\e[m %2 %3 \u2192 %4: %5"(
 			Df1FoldFlag.AppMsgLayer,
@@ -479,9 +449,8 @@ void representAppMsg(
 			hdr.m_source,
 			hdr.m_destination,
 			getStatusString(hdr)
-			));
-	}
-	else
+		));
+	} else
 		log.representStruct(
 			representation,
 			typeof(io.Df1AppMsgHdr),
@@ -491,7 +460,7 @@ void representAppMsg(
 			baseOffset,
 			foldFlags,
 			Df1FoldFlag.AppMsgLayer
-			);
+		);
 
 	addColorRange(rangeArray, baseOffset, sizeof(io.Df1AppMsgHdr), Df1Color.AppMsgLayer);
 
@@ -499,16 +468,14 @@ void representAppMsg(
 	size -= sizeof(io.Df1AppMsgHdr);
 	baseOffset += sizeof(io.Df1AppMsgHdr);
 
-	switch (hdr.m_command)
-	{
+	switch (hdr.m_command) {
 	case io.Df1CmdPrefix.ProtectedWrite:
 	case io.Df1CmdPrefix.UnprotectedRead:
 	case io.Df1CmdPrefix.ProtectedBitWrite:
 	case io.Df1CmdPrefix.PhysicalRead:
 	case io.Df1CmdPrefix.UnprotectedBitWrite:
 	case io.Df1CmdPrefix.UnprotectedWrite:
-		if (hdr.m_direction != io.Df1CmdDirection.Command)
-		{
+		if (hdr.m_direction != io.Df1CmdDirection.Command) {
 			representPayload(representation, rangeArray,, p, size, baseOffset, foldFlags);
 			break;
 		}
@@ -522,16 +489,14 @@ void representAppMsg(
 	case io.Df1CmdPrefix.Command06:
 	case io.Df1CmdPrefix.Command07:
 	case io.Df1CmdPrefix.Command0F:
-		if (hdr.m_direction != io.Df1CmdDirection.Command)
-		{
+		if (hdr.m_direction != io.Df1CmdDirection.Command) {
 			representPayload(representation, rangeArray,, p, size, baseOffset, foldFlags);
 			break;
 		}
 
 		representation.m_lineAttr.m_backColor = Df1Color.FuncLayer;
 
-		if (!size)
-		{
+		if (!size) {
 			representation.addHyperText("[\e[31mINCOMPLETE\e[m]");
 			break;
 		}
@@ -539,16 +504,13 @@ void representAppMsg(
 		io.Df1CmdFnc fnc = (io.Df1CmdFnc)(hdr.m_command << 8 | *p);
 		jnc.EnumType* type = typeof(io.Df1CmdFnc);
 
-		if (!(foldFlags & Df1FoldFlag.FuncLayer))
-		{
+		if (!(foldFlags & Df1FoldFlag.FuncLayer)) {
 			representation.addHyperText(
 				$"[\e^+%1\e[34m+\e[m] \e[1mFNC\e[m %2"(
 				Df1FoldFlag.FuncLayer,
 				type.getValueString(fnc, "0x%04X")
-				));
-		}
-		else
-		{
+			));
+		} else {
 			representation.addHyperText(
 				$"[\e^-%1\e[34m-\e[m] \e[1mFNC\n"
 				$"    Function:\t\e^!%2,%3,1\e[34m%4"(
@@ -556,7 +518,7 @@ void representAppMsg(
 				Df1LogPartCode.RawDataLinkData,
 				baseOffset,
 				type.getValueString(fnc, "0x%04X")
-				));
+			));
 		}
 
 		addColorRange(rangeArray, baseOffset, 1, Df1Color.FuncLayer);
@@ -565,8 +527,7 @@ void representAppMsg(
 		size -= 1;
 		baseOffset += 1;
 
-		if (fnc == io.Df1CmdFnc.ProtectedTypedLogicalWrite) // special case
-		{
+		if (fnc == io.Df1CmdFnc.ProtectedTypedLogicalWrite) { // special case
 			representProtectedTypedLogicalWrite(
 				representation,
 				rangeArray,
@@ -574,14 +535,13 @@ void representAppMsg(
 				size,
 				baseOffset,
 				foldFlags
-				);
+			);
 
 			break;
 		}
 
 		jnc.EnumConst* enumConst = type.findConst(fnc);
-		if (enumConst)
-		{
+		if (enumConst) {
 			jnc.StructType* structType = enumConst.findAttributeValue("structType");
 			if (structType)
 				representStruct(representation, rangeArray, structType, p, size, baseOffset, foldFlags);
@@ -601,30 +561,26 @@ void representPayload(
 	size_t size,
 	size_t baseOffset,
 	uint_t foldFlags
-	)
-{
+) {
 	if (!size)
 		return;
 
 	representation.m_lineAttr.m_backColor = Df1Color.Payload;
 	addColorRange(rangeArray, baseOffset, size, Df1Color.Payload);
 
-	if (!(foldFlags & Df1FoldFlag.Payload))
-	{
+	if (!(foldFlags & Df1FoldFlag.Payload)) {
 		representation.addHyperText(
 			$"[\e^+%1\e[34m+\e[m] \e[1m%2\e[m (%3 bytes)"(
 			Df1FoldFlag.Payload,
 			name,
 			size
-			));
-	}
-	else
-	{
+		));
+	} else {
 		representation.addHyperText(
 			$"[\e^-%1\e[34m-\e[m] \e[1m%2\e[m"(
 			Df1FoldFlag.Payload,
 			name
-			));
+		));
 		representation.addBin(Df1LogPartCode.Payload, p, size);
 	}
 }
@@ -637,10 +593,8 @@ void representStruct(
 	size_t size,
 	size_t baseOffset,
 	uint_t foldFlags
-	)
-{
-	if (size < type.m_size)
-	{
+) {
+	if (size < type.m_size) {
 		representation.addHyperText("[\e[31mINCOMPLETE\e[m]");
 		return;
 	}
@@ -653,7 +607,7 @@ void representStruct(
 			p,
 			baseOffset,,
 			0 // no folding/unfolding
-			);
+		);
 
 	addColorRange(rangeArray, baseOffset, type.m_size, Df1Color.FuncLayer);
 
@@ -671,10 +625,8 @@ void representProtectedTypedLogicalWrite(
 	size_t size,
 	size_t baseOffset,
 	uint_t foldFlags
-	)
-{
-	if (size < sizeof(io.Df1ProtectedTypedLogicalReadWrite))
-	{
+) {
+	if (size < sizeof(io.Df1ProtectedTypedLogicalReadWrite)) {
 		representation.addHyperText("[\e[31mINCOMPLETE\e[m]");
 		return;
 	}
@@ -687,7 +639,7 @@ void representProtectedTypedLogicalWrite(
 			p,
 			baseOffset,,
 			0 // no folding/unfolding
-			);
+		);
 
 	addColorRange(rangeArray, baseOffset, sizeof(io.Df1ProtectedTypedLogicalReadWrite), Df1Color.FuncLayer);
 
@@ -696,8 +648,7 @@ void representProtectedTypedLogicalWrite(
 	size -= sizeof(io.Df1ProtectedTypedLogicalReadWrite);
 	baseOffset += sizeof(io.Df1ProtectedTypedLogicalReadWrite);
 
-	if (size < write.m_dataSize)
-	{
+	if (size < write.m_dataSize) {
 		representation.addHyperText($"[\e[31mINCOMPLETE\e[m]");
 		return;
 	}

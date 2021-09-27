@@ -19,8 +19,7 @@ namespace jnc {
 opaque class Alias:
 	ModuleItem,
 	ModuleItemDecl,
-	ModuleItemInitializer
-{
+	ModuleItemInitializer {
 	ModuleItem* const property m_targetItem;
 
 	construct(intptr p);

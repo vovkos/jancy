@@ -16,15 +16,13 @@
 
 //..............................................................................
 
-void foo(char const* s)
-{
+void foo(char const* s) {
 	// 'dynamic sizeof' is only applicable to fat data pointers
 
 	printf("s = '%s'; length = %d\n", s, dynamic sizeof (s) - 1);
 }
 
-int calcSum(int const* a)
-{
+int calcSum(int const* a) {
 	// 'dynamic countof' is only applicable to fat data pointers
 
 	size_t count = dynamic countof(a);
@@ -41,8 +39,7 @@ int calcSum(int const* a)
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	foo("dynamic!");

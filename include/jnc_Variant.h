@@ -36,7 +36,7 @@ jnc_Variant_cast(
 	const jnc_Variant* variant,
 	jnc_Type* type,
 	void* buffer
-	);
+);
 
 JNC_EXTERN_C
 bool_t
@@ -44,7 +44,7 @@ jnc_Variant_unaryOperator(
 	const jnc_Variant* variant,
 	jnc_UnOpKind opKind,
 	jnc_Variant* result
-	);
+);
 
 JNC_EXTERN_C
 bool_t
@@ -53,7 +53,7 @@ jnc_Variant_binaryOperator(
 	const jnc_Variant* variant2,
 	jnc_BinOpKind opKind,
 	jnc_Variant* result
-	);
+);
 
 JNC_EXTERN_C
 bool_t
@@ -62,7 +62,7 @@ jnc_Variant_relationalOperator(
 	const jnc_Variant* variant2,
 	jnc_BinOpKind opKind,
 	bool_t* result
-	);
+);
 
 JNC_EXTERN_C
 bool_t
@@ -70,7 +70,7 @@ jnc_Variant_getMember(
 	const jnc_Variant* variant,
 	const char* name,
 	jnc_Variant* result
-	);
+);
 
 JNC_EXTERN_C
 bool_t
@@ -78,7 +78,7 @@ jnc_Variant_setMember(
 	jnc_Variant* variant,
 	const char* name,
 	jnc_Variant value
-	);
+);
 
 JNC_EXTERN_C
 bool_t
@@ -86,7 +86,7 @@ jnc_Variant_getElement(
 	const jnc_Variant* variant,
 	size_t index,
 	jnc_Variant* result
-	);
+);
 
 JNC_EXTERN_C
 bool_t
@@ -94,7 +94,7 @@ jnc_Variant_setElement(
 	jnc_Variant* variant,
 	size_t index,
 	jnc_Variant value
-	);
+);
 
 JNC_INLINE
 bool_t
@@ -105,8 +105,7 @@ bool_t
 jnc_Variant_isEqual(
 	const jnc_Variant* variant,
 	const jnc_Variant* variant2
-	)
-{
+) {
 	bool_t result = 0;
 	return jnc_Variant_relationalOperator(variant, variant2, jnc_BinOpKind_Eq, &result) && result;
 }
@@ -121,14 +120,14 @@ jnc_Variant_create(
 	jnc_Variant* variant,
 	const void* p,
 	jnc_Type* type
-	);
+);
 
 JNC_EXTERN_C
 const char*
 jnc_Variant_format_v(
 	const jnc_Variant* variant,
 	const char* fmtSpecifier
-	);
+);
 
 #ifdef _JNC_CORE
 
@@ -138,16 +137,14 @@ jnc_Variant_format(
 	const jnc_Variant* variant,
 	sl::String* string,
 	const char* fmtSpecifier
-	);
+);
 
 #endif
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct jnc_Variant
-{
-	union
-	{
+struct jnc_Variant {
+	union {
 		/// \unnamed{union}
 		int8_t m_int8;
 		uint8_t m_uint8;
@@ -178,8 +175,7 @@ struct jnc_Variant
 
 #ifdef __cplusplus
 	bool
-	isNull() const
-	{
+	isNull() const {
 		return jnc_Variant_isNull(this) != 0;
 	}
 
@@ -187,8 +183,7 @@ struct jnc_Variant
 	create(
 		const void* p,
 		jnc_Type* type
-		)
-	{
+	) {
 		return jnc_Variant_create(this, p, type) != 0;
 	}
 
@@ -196,8 +191,7 @@ struct jnc_Variant
 	cast(
 		jnc_Type* type,
 		void* buffer
-		) const
-	{
+	) const {
 		return jnc_Variant_cast(this, type, buffer) != 0;
 	}
 
@@ -205,14 +199,12 @@ struct jnc_Variant
 	unaryOperator(
 		jnc_UnOpKind opKind,
 		jnc_Variant* result
-		) const
-	{
+	) const {
 		return jnc_Variant_unaryOperator(this, opKind, result) != 0;
 	}
 
 	bool
-	unaryOperator(jnc_UnOpKind opKind)
-	{
+	unaryOperator(jnc_UnOpKind opKind) {
 		return jnc_Variant_unaryOperator(this, opKind, this) != 0;
 	}
 
@@ -221,8 +213,7 @@ struct jnc_Variant
 		const jnc_Variant* variant2,
 		jnc_BinOpKind opKind,
 		jnc_Variant* result
-		) const
-	{
+	) const {
 		return jnc_Variant_binaryOperator(this, variant2, opKind, result) != 0;
 	}
 
@@ -230,8 +221,7 @@ struct jnc_Variant
 	binaryOperator(
 		const jnc_Variant* variant2,
 		jnc_BinOpKind opKind
-		)
-	{
+	) {
 		return jnc_Variant_binaryOperator(this, variant2, opKind, this) != 0;
 	}
 
@@ -240,14 +230,13 @@ struct jnc_Variant
 		const jnc_Variant* variant2,
 		jnc_BinOpKind opKind,
 		bool* result
-		) const;
+	) const;
 
 	bool
 	getMember(
 		const char* name,
 		jnc_Variant* result
-		) const
-	{
+	) const {
 		return jnc_Variant_getMember(this, name, result) != 0;
 	}
 
@@ -255,8 +244,7 @@ struct jnc_Variant
 	setMember(
 		const char* name,
 		jnc_Variant value
-		)
-	{
+	) {
 		return jnc_Variant_setMember(this, name, value) != 0;
 	}
 
@@ -264,8 +252,7 @@ struct jnc_Variant
 	getElement(
 		size_t index,
 		jnc_Variant* result
-		) const
-	{
+	) const {
 		return jnc_Variant_getElement(this, index, result) != 0;
 	}
 
@@ -273,32 +260,27 @@ struct jnc_Variant
 	setElement(
 		size_t index,
 		jnc_Variant value
-		)
-	{
+	) {
 		return jnc_Variant_setElement(this, index, value) != 0;
 	}
 
 	bool
-	isEqual(const jnc_Variant* variant2) const
-	{
+	isEqual(const jnc_Variant* variant2) const {
 		return jnc_Variant_isEqual(this, variant2) != 0;
 	}
 
 	bool
-	isEqual(const jnc_Variant& variant2) const
-	{
+	isEqual(const jnc_Variant& variant2) const {
 		return jnc_Variant_isEqual(this, &variant2) != 0;
 	}
 
 	size_t
-	hash() const
-	{
+	hash() const {
 		return jnc_Variant_hash(this);
 	}
 
 	const char*
-	format_v(const char* fmtSpecifier = NULL) const
-	{
+	format_v(const char* fmtSpecifier = NULL) const {
 		return jnc_Variant_format_v(this, fmtSpecifier);
 	}
 
@@ -308,8 +290,7 @@ struct jnc_Variant
 	format(
 		sl::String* string,
 		const char* fmtSpecifier
-		)
-	{
+	) {
 		return jnc_Variant_format(this, string, fmtSpecifier);
 	}
 
@@ -321,8 +302,7 @@ struct jnc_Variant
 
 JNC_INLINE
 bool_t
-jnc_Variant_isNull(const jnc_Variant* variant)
-{
+jnc_Variant_isNull(const jnc_Variant* variant) {
 	return variant->m_type == NULL;
 }
 

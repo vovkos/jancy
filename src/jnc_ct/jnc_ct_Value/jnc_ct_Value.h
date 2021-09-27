@@ -30,8 +30,7 @@ class LeanDataPtrValidator;
 
 //..............................................................................
 
-enum ValueKind
-{
+enum ValueKind {
 	ValueKind_Void = 0,
 	ValueKind_Null,
 	ValueKind_Namespace,
@@ -59,16 +58,14 @@ getValueKindString(ValueKind valueKind);
 
 struct DynamicFieldValueInfo;
 
-class Value
-{
+class Value {
 	friend class Parser;
 
 protected:
 	ValueKind m_valueKind;
 	Type* m_type;
 
-	union
-	{
+	union {
 		ModuleItem* m_item;
 		Namespace* m_namespace;
 		Variable* m_variable;
@@ -89,16 +86,14 @@ protected:
 	mutable llvm::Value* m_llvmValue;
 
 public:
-	Value()
-	{
+	Value() {
 		init();
 	}
 
 	Value(
 		const Value& value,
 		Type* type
-		)
-	{
+	) {
 		init();
 		overrideType(value, type);
 	}
@@ -106,8 +101,7 @@ public:
 	Value(
 		int64_t value,
 		Type* type
-		)
-	{
+	) {
 		init();
 		createConst(&value, type);
 	}
@@ -115,62 +109,52 @@ public:
 	Value(
 		const void* p,
 		Type* type
-		)
-	{
+	) {
 		init();
 		createConst(p, type);
 	}
 
-	Value(Type* type)
-	{
+	Value(Type* type) {
 		init();
 		setType(type);
 	}
 
-	Value(GlobalNamespace* nspace)
-	{
+	Value(GlobalNamespace* nspace) {
 		init();
 		setNamespace(nspace);
 	}
 
-	Value(Variable* variable)
-	{
+	Value(Variable* variable) {
 		init();
 		setVariable(variable);
 	}
 
-	Value(Function* function)
-	{
+	Value(Function* function) {
 		init();
 		setFunction(function);
 	}
 
-	Value(FunctionOverload* functionOverload)
-	{
+	Value(FunctionOverload* functionOverload) {
 		init();
 		setFunctionOverload(functionOverload);
 	}
 
-	Value(OverloadableFunction function)
-	{
+	Value(OverloadableFunction function) {
 		init();
 		setOverloadableFunction(function);
 	}
 
-	Value(FunctionTypeOverload* functionTypeOverload)
-	{
+	Value(FunctionTypeOverload* functionTypeOverload) {
 		init();
 		setFunctionTypeOverload(functionTypeOverload);
 	}
 
-	Value(Property* prop)
-	{
+	Value(Property* prop) {
 		init();
 		setProperty(prop);
 	}
 
-	Value(EnumConst* enumConst)
-	{
+	Value(EnumConst* enumConst) {
 		init();
 		setEnumConst(enumConst);
 	}
@@ -179,170 +163,145 @@ public:
 		llvm::Value* llvmValue,
 		Type* type = NULL,
 		ValueKind valueKind = ValueKind_LlvmRegister
-		)
-	{
+	) {
 		init();
 		setLlvmValue(llvmValue, type, valueKind);
 	}
 
-	operator bool() const
-	{
+	operator bool() const {
 		return !isEmpty();
 	}
 
 	ValueKind
-	getValueKind() const
-	{
+	getValueKind() const {
 		return m_valueKind;
 	}
 
 	bool
-	isEmpty() const
-	{
+	isEmpty() const {
 		return m_valueKind == ValueKind_Void;
 	}
 
 	Type*
-	getType() const
-	{
+	getType() const {
 		return m_type;
 	}
 
 	Namespace*
-	getNamespace() const
-	{
+	getNamespace() const {
 		ASSERT(m_valueKind == ValueKind_Namespace);
 		return m_namespace;
 	}
 
 	Variable*
-	getVariable() const
-	{
+	getVariable() const {
 		ASSERT(m_valueKind == ValueKind_Variable);
 		return m_variable;
 	}
 
 	Function*
-	getFunction() const
-	{
+	getFunction() const {
 		ASSERT(m_valueKind == ValueKind_Function);
 		return m_function;
 	}
 
 	FunctionOverload*
-	getFunctionOverload() const
-	{
+	getFunctionOverload() const {
 		ASSERT(m_valueKind == ValueKind_FunctionOverload);
 		return m_functionOverload;
 	}
 
 	FunctionTypeOverload*
-	getFunctionTypeOverload() const
-	{
+	getFunctionTypeOverload() const {
 		ASSERT(m_valueKind == ValueKind_FunctionTypeOverload);
 		return m_functionTypeOverload;
 	}
 
 	Property*
-	getProperty() const
-	{
+	getProperty() const {
 		ASSERT(m_valueKind == ValueKind_Property);
 		return m_property;
 	}
 
 	Field*
-	getField() const
-	{
+	getField() const {
 		ASSERT(m_valueKind == ValueKind_Field);
 		return m_field;
 	}
 
 	sl::Array<char>
-	getConstDataArray() const
-	{
+	getConstDataArray() const {
 		return m_constData;
 	}
 
 	const void*
-	getConstData() const
-	{
+	getConstData() const {
 		ASSERT(m_valueKind == ValueKind_Const || m_valueKind == ValueKind_Field);
 		return m_constData.cp();
 	}
 
 	void*
-	getConstData()
-	{
+	getConstData() {
 		ASSERT(m_valueKind == ValueKind_Const);
 		return m_constData.p();
 	}
 
 	bool
-	getBool() const
-	{
+	getBool() const {
 		ASSERT(m_valueKind == ValueKind_Const && m_type->getSize() >= sizeof(bool));
 		return *(const bool*)m_constData.cp();
 	}
 
 	int
-	getInt() const
-	{
+	getInt() const {
 		ASSERT(m_valueKind == ValueKind_Const && m_type->getSize() >= sizeof(int));
 		return *(const int*)m_constData.cp();
 	}
 
 	intptr_t
-	getIntPtr() const
-	{
+	getIntPtr() const {
 		ASSERT(m_valueKind == ValueKind_Const && m_type->getSize() >= sizeof(intptr_t));
 		return *(const intptr_t*)m_constData.cp();
 	}
 
 	int32_t
-	getInt32() const
-	{
+	getInt32() const {
 		ASSERT(m_valueKind == ValueKind_Const && m_type->getSize() >= sizeof(int32_t));
 		return *(const int32_t*)m_constData.cp();
 	}
 
 	int64_t
-	getInt64() const
-	{
+	getInt64() const {
 		ASSERT(m_valueKind == ValueKind_Const && m_type->getSize() >= sizeof(int64_t));
 		return *(const int64_t*)m_constData.cp();
 	}
 
 	size_t
-	getSizeT() const
-	{
+	getSizeT() const {
 		ASSERT(m_valueKind == ValueKind_Const && m_type->getSize() >= sizeof(size_t));
 		return *(const size_t*)m_constData.cp();
 	}
 
 	float
-	getFloat() const
-	{
+	getFloat() const {
 		ASSERT(m_valueKind == ValueKind_Const && m_type->getSize() >= sizeof(float));
 		return *(const float*)m_constData.cp();
 	}
 
 	double
-	getDouble() const
-	{
+	getDouble() const {
 		ASSERT(m_valueKind == ValueKind_Const && m_type->getSize() >= sizeof(double));
 		return *(const double*)m_constData.cp();
 	}
 
 	size_t
-	getFieldOffset() const
-	{
+	getFieldOffset() const {
 		ASSERT(m_valueKind == ValueKind_Field && m_constData.getCount() >= sizeof(size_t));
 		return *(const size_t*)m_constData.cp();
 	}
 
 	bool
-	hasLlvmValue() const
-	{
+	hasLlvmValue() const {
 		return m_llvmValue != NULL || m_valueKind == ValueKind_Const;
 	}
 
@@ -350,8 +309,7 @@ public:
 	getLlvmValue() const;
 
 	sl::String
-	getLlvmTypeString() const
-	{
+	getLlvmTypeString() const {
 		llvm::Value* llvmValue = getLlvmValue();
 		return llvmValue ? ct::getLlvmTypeString(llvmValue->getType()) : sl::String();
 	}
@@ -361,11 +319,10 @@ public:
 	getLlvmConst(
 		Type* type,
 		const void* p
-		);
+	);
 
 	Closure*
-	getClosure() const
-	{
+	getClosure() const {
 		return m_closure;
 	}
 
@@ -376,8 +333,7 @@ public:
 	setClosure(Closure* closure);
 
 	void
-	clearClosure()
-	{
+	clearClosure() {
 		m_closure = rc::g_nullPtr;
 	}
 
@@ -385,8 +341,7 @@ public:
 	getClosureAwareType() const;
 
 	DynamicFieldValueInfo*
-	getDynamicFieldInfo() const
-	{
+	getDynamicFieldInfo() const {
 		return m_dynamicFieldInfo;
 	}
 
@@ -395,17 +350,15 @@ public:
 		const Value& parentValue,
 		DerivableType* parentType,
 		Field* field
-		);
+	);
 
 	void
-	clearDynamicFieldInfo()
-	{
+	clearDynamicFieldInfo() {
 		m_closure = rc::g_nullPtr;
 	}
 
 	void
-	overrideType(Type* type)
-	{
+	overrideType(Type* type) {
 		m_type = type;
 	}
 
@@ -413,8 +366,7 @@ public:
 	overrideType(
 		const Value& value,
 		Type* type
-		)
-	{
+	) {
 		*this = value;
 		overrideType(type);
 	}
@@ -423,8 +375,7 @@ public:
 	clear();
 
 	bool
-	isZero() const
-	{
+	isZero() const {
 		return
 			m_valueKind == ValueKind_Const &&
 			m_type->getTypeKind() == TypeKind_Int8 &&
@@ -450,8 +401,7 @@ public:
 	setVariable(Variable* variable);
 
 	void
-	setFunction(Function* function)
-	{
+	setFunction(Function* function) {
 		bool result = trySetFunction(function);
 		ASSERT(result);
 	}
@@ -463,8 +413,7 @@ public:
 	setFunctionOverload(FunctionOverload* functionOverload);
 
 	void
-	setOverloadableFunction(OverloadableFunction function)
-	{
+	setOverloadableFunction(OverloadableFunction function) {
 		bool result = trySetOverloadableFunction(function);
 		ASSERT(result);
 	}
@@ -479,8 +428,7 @@ public:
 	setProperty(Property* prop);
 
 	void
-	setEnumConst(EnumConst* enumConst)
-	{
+	setEnumConst(EnumConst* enumConst) {
 		bool result = trySetEnumConst(enumConst);
 		ASSERT(result);
 	}
@@ -492,14 +440,14 @@ public:
 	setField(
 		Field* field,
 		size_t baseOffset
-		);
+	);
 
 	void
 	setLlvmValue(
 		llvm::Value* llvmValue,
 		Type* type,
 		ValueKind valueKind = ValueKind_LlvmRegister
-		);
+	);
 
 	LeanDataPtrValidator*
 	getLeanDataPtrValidator() const;
@@ -515,15 +463,14 @@ public:
 		const Value& originValue,
 		const Value& rangeBeginValue,
 		size_t rangeLength
-		);
+	);
 
 	void
 	setLeanDataPtr(
 		llvm::Value* llvmValue,
 		DataPtrType* type,
 		LeanDataPtrValidator* validator
-		)
-	{
+	) {
 		setLlvmValue(llvmValue, (Type*)type);
 		setLeanDataPtrValidator(validator);
 	}
@@ -533,8 +480,7 @@ public:
 		llvm::Value* llvmValue,
 		DataPtrType* type,
 		const Value& originValue
-		)
-	{
+	) {
 		setLlvmValue(llvmValue, (Type*)type);
 		setLeanDataPtrValidator(originValue);
 	}
@@ -546,8 +492,7 @@ public:
 		const Value& originValue,
 		const Value& rangeBeginValue,
 		size_t rangeLength
-		)
-	{
+	) {
 		setLlvmValue(llvmValue, (Type*)type);
 		setLeanDataPtrValidator(originValue, rangeBeginValue, rangeLength);
 	}
@@ -556,14 +501,13 @@ public:
 	createConst(
 		const void* p,
 		Type* type
-		);
+	);
 
 	void
 	setConstBool(
 		bool value,
 		Module* module
-		)
-	{
+	) {
 		createConst(&value, getSimpleType(TypeKind_Bool, module));
 	}
 
@@ -571,8 +515,7 @@ public:
 	setConstInt32(
 		int32_t value,
 		Type* type
-		)
-	{
+	) {
 		createConst(&value, type);
 	}
 
@@ -580,8 +523,7 @@ public:
 	setConstInt32(
 		int32_t value,
 		Module* module
-		)
-	{
+	) {
 		Type* type = getSimpleType(getInt32TypeKind(value), module);
 		setConstInt32(value, type);
 	}
@@ -590,8 +532,7 @@ public:
 	setConstInt32_u(
 		uint32_t value,
 		Module* module
-		)
-	{
+	) {
 		Type* type = getSimpleType(getInt32TypeKind_u(value), module);
 		setConstInt32(value, type);
 	}
@@ -600,8 +541,7 @@ public:
 	setConstInt64(
 		int64_t value,
 		Type* type
-		)
-	{
+	) {
 		createConst(&value, type);
 	}
 
@@ -609,8 +549,7 @@ public:
 	setConstInt64(
 		int64_t value,
 		Module* module
-		)
-	{
+	) {
 		Type* type = getSimpleType(getInt64TypeKind(value), module);
 		setConstInt64(value, type);
 	}
@@ -619,8 +558,7 @@ public:
 	setConstInt64_u(
 		uint64_t value,
 		Module* module
-		)
-	{
+	) {
 		Type* type = getSimpleType(getInt64TypeKind_u(value), module);
 		setConstInt64(value, type);
 	}
@@ -629,8 +567,7 @@ public:
 	setConstSizeT(
 		size_t value,
 		Type* type
-		)
-	{
+	) {
 		createConst(&value, type);
 	}
 
@@ -638,8 +575,7 @@ public:
 	setConstSizeT(
 		size_t value,
 		Module* module
-		)
-	{
+	) {
 		createConst(&value, getSimpleType(TypeKind_SizeT, module));
 	}
 
@@ -647,8 +583,7 @@ public:
 	setConstFloat(
 		float value,
 		Module* module
-		)
-	{
+	) {
 		createConst(&value, getSimpleType(TypeKind_Float, module));
 	}
 
@@ -656,14 +591,12 @@ public:
 	setConstDouble(
 		double value,
 		Module* module
-		)
-	{
+	) {
 		createConst(&value, getSimpleType(TypeKind_Double, module));
 	}
 
 	void
-	setEmptyCharArray(Module* module)
-	{
+	setEmptyCharArray(Module* module) {
 		setCharArray("", 1, module);
 	}
 
@@ -671,8 +604,7 @@ public:
 	setCharArray(
 		const sl::StringRef& string,
 		Module* module
-		)
-	{
+	) {
 		if (string.isEmpty())
 			setEmptyCharArray(module);
 		else
@@ -684,15 +616,14 @@ public:
 		const void* p,
 		size_t count,
 		Module* module
-		);
+	);
 
 protected:
 	void
 	init();
 
 	void
-	prepareLlvmValue() const
-	{
+	prepareLlvmValue() const {
 		ASSERT(!m_llvmValue && m_valueKind == ValueKind_Const);
 		m_llvmValue = getLlvmConst(m_type, getConstData()); // mutable
 	}
@@ -702,8 +633,7 @@ protected:
 
 inline
 llvm::Value*
-Value::getLlvmValue() const
-{
+Value::getLlvmValue() const {
 	if (!m_llvmValue)
 		prepareLlvmValue();
 
@@ -712,8 +642,7 @@ Value::getLlvmValue() const
 
 //..............................................................................
 
-struct DynamicFieldValueInfo: rc::RefCount
-{
+struct DynamicFieldValueInfo: rc::RefCount {
 	Value m_parentValue;
 	DerivableType* m_parentType;
 	Field* m_field;

@@ -10,8 +10,7 @@ namespace ui {
 
 //..............................................................................
 
-bitflag enum ColorFlags
-{
+bitflag enum ColorFlags {
 	Transparent  = 0x80000000,
 	Index        = 0x40000000,
 	IndexMask    = 0x0fffffff,
@@ -19,8 +18,7 @@ bitflag enum ColorFlags
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum StdColor
-{
+enum StdColor {
 	Black        = 0x000000,
 	White        = 0xffffff,
 	Gray         = 0x808080,
@@ -52,8 +50,7 @@ uint_t rgb(
 	uint8_t r,
 	uint8_t g,
 	uint8_t b
-	)
-{
+) {
 	return (r << 16) + (g << 8) + b;
 }
 

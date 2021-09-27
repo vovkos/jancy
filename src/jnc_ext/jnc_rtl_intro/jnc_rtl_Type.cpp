@@ -28,7 +28,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	Type,
 	&Type::markOpaqueGcRoots
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Type)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<Type, ct::Type*>))
@@ -56,7 +56,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	NamedType,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(NamedType)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<NamedType, ct::NamedType*>))
@@ -71,7 +71,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	DataPtrType,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(DataPtrType)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<DataPtrType, ct::DataPtrType*>))
@@ -88,7 +88,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	Typedef,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Typedef)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<Typedef, ct::Typedef*>))
@@ -99,8 +99,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 void
 JNC_CDECL
-Type::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
-{
+Type::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 	if (!m_cache)
 		return;
 
@@ -112,8 +111,7 @@ Type::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
 
 DataPtr
 JNC_CDECL
-Type::getSignature(Type* self)
-{
+Type::getSignature(Type* self) {
 	Cache* cache = self->getCache();
 	if (!cache->m_signaturePtr.m_p)
 		cache->m_signaturePtr = createForeignStringPtr(self->m_item->getSignature(), false);
@@ -123,8 +121,7 @@ Type::getSignature(Type* self)
 
 DataPtr
 JNC_CDECL
-Type::getTypeString(Type* self)
-{
+Type::getTypeString(Type* self) {
 	Cache* cache = self->getCache();
 	if (!cache->m_typeStringPtr.m_p)
 		cache->m_typeStringPtr = createForeignStringPtr(self->m_item->getTypeString(), false);
@@ -134,8 +131,7 @@ Type::getTypeString(Type* self)
 
 DataPtr
 JNC_CDECL
-Type::getTypeStringPrefix(Type* self)
-{
+Type::getTypeStringPrefix(Type* self) {
 	Cache* cache = self->getCache();
 	if (!cache->m_typeStringPrefixPtr.m_p)
 		cache->m_typeStringPrefixPtr = createForeignStringPtr(self->m_item->getTypeStringPrefix(), false);
@@ -145,8 +141,7 @@ Type::getTypeStringPrefix(Type* self)
 
 DataPtr
 JNC_CDECL
-Type::getTypeStringSuffix(Type* self)
-{
+Type::getTypeStringSuffix(Type* self) {
 	Cache* cache = self->getCache();
 	if (!cache->m_typeStringSuffixPtr.m_p)
 		cache->m_typeStringSuffixPtr = createForeignStringPtr(self->m_item->getTypeStringSuffix(), false);
@@ -160,8 +155,7 @@ Type::getValueString_0(
 	Type* self,
 	DataPtr valuePtr,
 	DataPtr formatSpecPtr
-	)
-{
+) {
 	return valuePtr.m_p ?
 		strDup(self->m_item->getValueString(valuePtr.m_p, (char*)formatSpecPtr.m_p)) :
 		g_nullDataPtr;
@@ -173,8 +167,7 @@ Type::getValueString_1(
 	Type* self,
 	Variant value,
 	DataPtr formatSpecPtr
-	)
-{
+) {
 	char buffer[256];
 	sl::Array<char> valueBuffer(rc::BufKind_Stack, buffer, sizeof(buffer));
 	valueBuffer.setCount(self->m_item->getSize());
@@ -189,16 +182,13 @@ Type::getValueString_1(
 
 Type*
 JNC_CDECL
-getType(ct::Type* type)
-{
-	if (type->hasTypeVariable())
-	{
+getType(ct::Type* type) {
+	if (type->hasTypeVariable()) {
 		ct::Variable* typeVar = type->getTypeVariable();
 		return (Type*)((Box*)typeVar->getStaticData() + 1);
 	}
 
-	static StdType stdTypeTable[TypeKind__Count] =
-	{
+	static StdType stdTypeTable[TypeKind__Count] = {
 		StdType_Type,             // TypeKind_Void
 		StdType_Type,             // TypeKind_Variant
 		StdType_Type,             // TypeKind_Bool

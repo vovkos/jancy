@@ -24,20 +24,16 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(Alias)
 class Alias:
 	public ModuleItemBase<ct::Alias>,
 	public ModuleItemDecl,
-	public ModuleItemInitializer
-{
+	public ModuleItemInitializer {
 public:
 	Alias(ct::Alias* alias):
 		ModuleItemBase(alias),
 		ModuleItemDecl(alias),
-		ModuleItemInitializer(alias)
-	{
-	}
+		ModuleItemInitializer(alias) {}
 
 	ModuleItem*
 	JNC_CDECL
-	getTargetItem()
-	{
+	getTargetItem() {
 		return rtl::getModuleItem(m_item->getTargetItem());
 	}
 };

@@ -21,7 +21,7 @@ set(
 	jnc_rtl_Promise.h
 	jnc_rtl_Reactor.h
 	jnc_rtl_Regex.h
-	)
+)
 
 set(
 	LIB_CPP_LIST
@@ -33,14 +33,14 @@ set(
 	jnc_rtl_Reactor.cpp
 	jnc_rtl_Reactor.cpp
 	jnc_rtl_Regex.cpp
-	)
+)
 
 source_group(
 	lib
 	FILES
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -58,13 +58,13 @@ set(
 	jnc/jnc_StdFunctions.jnc
 	jnc/jnc_StdTypes.jnc
 	jnc/jnc_StdTypedefs.jnc
-	)
+)
 
 source_group(
 	jnc
 	FILES
 	${JNC_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -80,7 +80,7 @@ source_group(
 	FILES
 	${PCH_H}
 	${PCH_CPP}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -99,7 +99,7 @@ foreach(_JNC ${JNC_LIST})
 		${_NAME}.cpp
 		${_JNC}
 		${FILE2LITERAL_PL}
-		)
+	)
 
 	list(APPEND GEN_JNC_CPP_LIST ${GEN_DIR}/${_NAME}.cpp)
 endforeach()
@@ -112,7 +112,7 @@ source_group(
 	gen
 	FILES
 	${GEN_JNC_CPP_LIST}
-	)
+)
 
 #...............................................................................
 #
@@ -126,7 +126,7 @@ include_directories(
 	${JANCY_SRC_DIR}/jnc_ct/include
 	${JANCY_SRC_DIR}/jnc_rt
 	${GEN_DIR}
-	)
+)
 
 add_library(
 	jnc_rtl_core
@@ -136,19 +136,19 @@ add_library(
 	${LIB_CPP_LIST}
 	${JNC_LIST}
 	${GEN_JNC_CPP_LIST}
-	)
+)
 
 axl_set_pch(
 	jnc_rtl_core
 	${PCH_H}
 	${PCH_CPP}
-	)
+)
 
 set_target_properties(
 	jnc_rtl_core
 	PROPERTIES
 	FOLDER extensions
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -162,25 +162,25 @@ if(UNIX)
 		${LIB_H_LIST}
 		${LIB_CPP_LIST}
 		${GEN_JNC_CPP_LIST}
-		)
+	)
 
 	target_compile_definitions(
 		jnc_rtl_core_o
 		PUBLIC
 		-D_JNC_OBJECT_LIB=1
-		)
+	)
 
 	axl_set_pch(
 		jnc_rtl_core_o
 		${PCH_H}
 		${PCH_O_CPP}
-		)
+	)
 
 	set_target_properties(
 		jnc_rtl_core_o
 		PROPERTIES
 		FOLDER extensions
-		)
+	)
 endif()
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -188,6 +188,6 @@ endif()
 install(
 	TARGETS jnc_rtl_core
 	DESTINATION ${JANCY_INSTALL_LIB_SUBDIR}
-	)
+)
 
 #...............................................................................

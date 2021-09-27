@@ -19,13 +19,11 @@
 
 // jnc.Scheduler is a built-in jancy class
 
-class LockScheduler: jnc.Scheduler
-{
+class LockScheduler: jnc.Scheduler {
 	// note how schedule () has no information about argument signature of the
 	// target function
 
-	override schedule(function* f())
-	{
+	override schedule(function* f()) {
 		printf("lock before call...\n");
 		f();
 		printf("unlock after call...\n");
@@ -40,13 +38,11 @@ void foo(
 	function* completionFunc(
 		int,
 		int
-		)
 	)
-{
+) {
 	// do some work
 
-	for (int i = 0; i < 100; i += 10)
-	{
+	for (int i = 0; i < 100; i += 10) {
 		printf("working, %2d%%...\n", i);
 	}
 
@@ -55,16 +51,14 @@ void foo(
 	completionFunc(a, b);
 }
 
-void bar(int x)
-{
+void bar(int x) {
 	printf("bar (%d)\n", x);
 }
 
 void onComplete(
 	int a,
 	int b
-	)
-{
+) {
 	printf("onComplete (%d, %d)\n", a, b);
 }
 
@@ -72,8 +66,7 @@ void onComplete(
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	LockScheduler scheduler;
@@ -84,7 +77,7 @@ int main()
 	function* completionFunc(
 		int,
 		int
-		) = onComplete @ scheduler;
+	) = onComplete @ scheduler;
 
 	// pass a scheduled function pointer as a completion routine and you can be
 	// sure that the target function will be called in the proper environment

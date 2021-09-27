@@ -18,8 +18,7 @@ class SocketBase;
 
 //..............................................................................
 
-struct SslStateBase: public IfaceHdr
-{
+struct SslStateBase: public IfaceHdr {
 	ClassBox<Multicast> m_onStateChanged;
 
 	axl::io::SslCtx m_sslCtx;
@@ -36,7 +35,7 @@ struct SslStateBase: public IfaceHdr
 		const Guid& libGuid,
 		size_t cacheSlotIdx,
 		axl::io::Socket* socket
-		);
+	);
 };
 
 //..............................................................................

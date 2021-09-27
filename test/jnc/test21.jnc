@@ -11,22 +11,18 @@
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class MyScheduler: jnc.Scheduler
-{
-	override schedule(function* f())
-	{
+class MyScheduler: jnc.Scheduler {
+	override schedule(function* f()) {
 		printf("MyScheduler.schedule ()\n");
 		f();
 	}
 }
 
-void foo(int x)
-{
+void foo(int x) {
 	printf("foo (%d)\n", x);
 }
 
-int main()
-{
+int main() {
 	static MyScheduler scheduler;
 
 	printf("main ()\n");

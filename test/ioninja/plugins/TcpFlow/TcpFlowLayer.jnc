@@ -14,8 +14,7 @@ using extension ui.ComboBoxHistory;
 
 class TcpFlowLayer:
 	doc.Layer,
-	log.Converter
-{
+	log.Converter {
 protected:
 	// tcp decoding
 
@@ -49,16 +48,14 @@ public:
 		uint64_t recordCode,
 		void const* p,
 		size_t size
-		);
+	);
 
-	override void reset()
-	{
+	override void reset() {
 		m_decoder.reset();
 	}
 
 protected:
-	void onSetViewFilter()
-	{
+	void onSetViewFilter() {
 		try applyViewFilter(true);
 	}
 
@@ -68,8 +65,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-TcpFlowLayer.construct(doc.PluginHost* pluginHost)
-{
+TcpFlowLayer.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
 
 	createUi();
@@ -77,8 +73,7 @@ TcpFlowLayer.construct(doc.PluginHost* pluginHost)
 	pluginHost.m_log.addFilter(m_filter);
 }
 
-void TcpFlowLayer.createUi()
-{
+void TcpFlowLayer.createUi() {
 	// toolbar
 
 	m_pluginHost.m_toolBar.addLabel("Filter:");
@@ -97,32 +92,30 @@ void TcpFlowLayer.createUi()
 		"View filter",
 		"Enter a filter address...",
 		"Only show packets matching this address"
-		);
+	);
 
 	m_ipFragmentLimitProp  = m_pluginHost.m_propertyGrid.createIntProperty(
 		"IP fragment limit",
 		"Specify the maximum number of IP fragments"
-		);
+	);
 
 	m_ipFragmentTimeoutProp  = m_pluginHost.m_propertyGrid.createIntProperty(
 		"IP fragment timeout (ms)",
 		"Specify the maximum delay between IP fragments"
-		);
+	);
 
 	m_tcpOutOfSeqLimitProp = m_pluginHost.m_propertyGrid.createIntProperty(
 		"TCP out-of-seq limit",
 		"Specify the maximum number of out-of-order TCP segments"
-		);
+	);
 }
 
-bool errorcode TcpFlowLayer.applyViewFilter(bool rebuildLog)
-{
+bool errorcode TcpFlowLayer.applyViewFilter(bool rebuildLog) {
 	m_pluginHost.m_log.suspend();
 	bool result = try m_filter.setFilter(m_viewFilterCombo.m_editText);
 	m_pluginHost.m_log.resume();
 
-	if (!result)
-	{
+	if (!result) {
 		m_viewFilterCombo.m_backgroundColor = ui.StdColor.PastelRed;
 		return false;
 	}
@@ -136,8 +129,7 @@ bool errorcode TcpFlowLayer.applyViewFilter(bool rebuildLog)
 	return true;
 }
 
-void TcpFlowLayer.load(doc.Storage* storage)
-{
+void TcpFlowLayer.load(doc.Storage* storage) {
 	m_viewFilterCombo.loadHistory(storage, "viewFilterHistory");
 	m_viewFilterCombo.m_editText = storage.readString("viewFilter");
 	m_ipFragmentLimitProp.m_value = storage.readInt("ipFragmentLimit", io.IpDefragmenter.Defaults.FragmentLimit);
@@ -149,13 +141,12 @@ void TcpFlowLayer.load(doc.Storage* storage)
 		m_ipFragmentTimeoutProp.m_value,
 		m_tcpOutOfSeqLimitProp.m_value,
 		TcpDecoder.Defaults.ConnectionTimeout
-		);
+	);
 
 	try applyViewFilter();
 }
 
-void TcpFlowLayer.save(doc.Storage* storage)
-{
+void TcpFlowLayer.save(doc.Storage* storage) {
 	m_viewFilterCombo.saveHistory(storage, "viewFilterHistory");
 	storage.writeString("viewFilter", m_viewFilterCombo.m_editText);
 	storage.writeInt("ipFragmentLimit", m_ipFragmentLimitProp.m_value);
@@ -163,13 +154,11 @@ void TcpFlowLayer.save(doc.Storage* storage)
 	storage.writeInt("tcpOutOfSeqLimit", m_tcpOutOfSeqLimitProp.m_value);
 }
 
-void TcpFlowLayer.updateProperties()
-{
+void TcpFlowLayer.updateProperties() {
 	m_viewFilterProp.m_value = m_viewFilterCombo.m_editText;
 }
 
-bool errorcode TcpFlowLayer.applyProperties()
-{
+bool errorcode TcpFlowLayer.applyProperties() {
 	m_viewFilterCombo.m_editText = m_viewFilterProp.m_value;
 
 	m_decoder.setup(
@@ -177,14 +166,13 @@ bool errorcode TcpFlowLayer.applyProperties()
 		m_ipFragmentTimeoutProp.m_value,
 		m_tcpOutOfSeqLimitProp.m_value,
 		TcpDecoder.Defaults.ConnectionTimeout
-		);
+	);
 
 	applyViewFilter();
 	return true;
 }
 
-void TcpFlowLayer.restoreDefaultProperties()
-{
+void TcpFlowLayer.restoreDefaultProperties() {
 	m_ipFragmentLimitProp.m_value = io.IpDefragmenter.Defaults.FragmentLimit;
 	m_ipFragmentTimeoutProp.m_value = io.IpDefragmenter.Defaults.FragmentTimeout;
 	m_tcpOutOfSeqLimitProp.m_value = TcpSequencer.Defaults.OutOfSeqLimit;
@@ -196,15 +184,13 @@ bool TcpFlowLayer.convert(
 	uint64_t recordCode,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	g_logWriter = writer;
 	g_logTimestamp = timestamp;
 
 	bool result = true;
 
-	switch (recordCode)
-	{
+	switch (recordCode) {
 	case log.StdRecordCode.SessionStarted:
 		m_decoder.reset();
 		result = false;

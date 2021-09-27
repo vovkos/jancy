@@ -8,8 +8,7 @@ import "std_String.jnc"
 
 //..............................................................................
 
-class MailslotMonitor: iox.Monitor
-{
+class MailslotMonitor: iox.Monitor {
 protected:
 	MailslotMonSession* m_session;
 
@@ -23,13 +22,12 @@ protected:
 	void setFileId(
 		uint64_t timestamp,
 		uint64_t fileId
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-MailslotMonitor.construct(MailslotMonSession* session)
-{
+MailslotMonitor.construct(MailslotMonSession* session) {
 	basetype.construct(session.m_pluginHost);
 	m_session = session;
 }
@@ -37,8 +35,7 @@ MailslotMonitor.construct(MailslotMonSession* session)
 void MailslotMonitor.setFileId(
 	uint64_t timestamp,
 	uint64_t fileId
-	)
-{
+) {
 	if (fileId == m_lastFileId)
 		return;
 
@@ -46,24 +43,19 @@ void MailslotMonitor.setFileId(
 	m_logWriter.write(timestamp, MailslotMonLogRecordCode.FileIdChanged, &m_lastFileId, sizeof(m_lastFileId));
 }
 
-void MailslotMonitor.processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr)
-{
-	switch (notifyHdr.m_code)
-	{
+void MailslotMonitor.processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr) {
+	switch (notifyHdr.m_code) {
 	case io.win.DeviceMonitorNotifyCode.Create:
 		io.win.DeviceMonitorCreateNotifyParams const* params = (io.win.DeviceMonitorCreateNotifyParams const*)(notifyHdr + 1);
 
 		uint64_t recordCode;
 		std.Buffer logParams;
 
-		if (notifyHdr.m_ntStatus == 0)
-		{
+		if (notifyHdr.m_ntStatus == 0) {
 			recordCode = MailslotMonLogRecordCode.ClientFileOpened;
 			logParams.append(&params.m_fileId64, sizeof(params.m_fileId64));
 			logParams.append(&notifyHdr.m_processId, sizeof(notifyHdr.m_processId));
-		}
-		else
-		{
+		} else {
 			recordCode = MailslotMonLogRecordCode.ClientFileOpenError;
 
 			std.Error error;
@@ -85,7 +77,7 @@ void MailslotMonitor.processNotification(io.DeviceMonitorNotifyHdr const* notify
 			recordCode,
 			logParams.m_p,
 			logParams.m_size
-			);
+		);
 
 		break;
 
@@ -95,14 +87,11 @@ void MailslotMonitor.processNotification(io.DeviceMonitorNotifyHdr const* notify
 		uint64_t recordCode;
 		std.Buffer logParams;
 
-		if (notifyHdr.m_ntStatus == 0)
-		{
+		if (notifyHdr.m_ntStatus == 0) {
 			recordCode = MailslotMonLogRecordCode.ServerFileOpened;
 			logParams.append(&params.m_fileId64, sizeof(params.m_fileId64));
 			logParams.append(&notifyHdr.m_processId, sizeof(notifyHdr.m_processId));
-		}
-		else
-		{
+		} else {
 			recordCode = MailslotMonLogRecordCode.ServerFileOpenError;
 
 			std.Error error;
@@ -124,7 +113,7 @@ void MailslotMonitor.processNotification(io.DeviceMonitorNotifyHdr const* notify
 			recordCode,
 			logParams.m_p,
 			logParams.m_size
-			);
+		);
 
 		break;
 
@@ -147,7 +136,7 @@ void MailslotMonitor.processNotification(io.DeviceMonitorNotifyHdr const* notify
 			log.StdRecordCode.Rx,
 			params + 1,
 			params.m_dataSize
-			);
+		);
 		break;
 
 	case io.win.DeviceMonitorNotifyCode.Write:
@@ -163,13 +152,12 @@ void MailslotMonitor.processNotification(io.DeviceMonitorNotifyHdr const* notify
 			log.StdRecordCode.Tx,
 			params + 1,
 			params.m_dataSize
-			);
+		);
 		break;
 	}
 }
 
-void MailslotMonitor.processError(std.Error const* error)
-{
+void MailslotMonitor.processError(std.Error const* error) {
 	m_logWriter.write(log.StdRecordCode.Error, error);
 	m_session.close();
 }

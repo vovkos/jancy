@@ -1,7 +1,6 @@
 // this test was used to debug string <-> guid conversions
 
-int main()
-{
+int main() {
 	std.Guid guid("{d74419a1-789c-4d9a-8d92-bd44ee19c971}");
 	printf("guid: %s\n", guid.getString ());
 

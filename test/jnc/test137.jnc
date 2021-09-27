@@ -1,12 +1,9 @@
-class C
-{
+class C {
 };
 
-int main()
-{
+int main() {
 	{
 		C* c1;
-
 		{
 			C* c2;
 

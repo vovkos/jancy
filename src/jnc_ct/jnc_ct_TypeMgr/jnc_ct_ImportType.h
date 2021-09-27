@@ -22,15 +22,13 @@ class ImportPtrType;
 
 //..............................................................................
 
-enum ImportTypeFlag
-{
+enum ImportTypeFlag {
 	ImportTypeFlag_InResolve = 0x010000, // used for detection of import/typedef loops
 };
 
 //..............................................................................
 
-class ImportType: public Type
-{
+class ImportType: public Type {
 	friend class TypeMgr;
 
 protected:
@@ -38,33 +36,28 @@ protected:
 	sl::Array<Type**> m_fixupArray;
 
 public:
-	ImportType()
-	{
+	ImportType() {
 		m_actualType = NULL;
 	}
 
 	bool
-	isResolved()
-	{
+	isResolved() {
 		return m_actualType != NULL;
 	}
 
 	Type*
-	getActualType()
-	{
+	getActualType() {
 		ASSERT(m_actualType);
 		return m_actualType;
 	}
 
 	sl::Array<Type**>
-	getFixupArray()
-	{
+	getFixupArray() {
 		return m_fixupArray;
 	}
 
 	void
-	addFixup(Type** type)
-	{
+	addFixup(Type** type) {
 		m_fixupArray.append(type);
 	}
 
@@ -77,22 +70,19 @@ public:
 protected:
 	virtual
 	void
-	prepareLlvmType()
-	{
+	prepareLlvmType() {
 		ASSERT(false);
 	}
 
 	virtual
 	void
-	prepareLlvmDiType()
-	{
+	prepareLlvmDiType() {
 		ASSERT(false);
 	}
 
 	virtual
 	bool
-	calcLayout()
-	{
+	calcLayout() {
 		return ensureResolved() && m_actualType->ensureLayout();
 	}
 };
@@ -101,8 +91,7 @@ protected:
 
 class NamedImportType:
 	public ImportType,
-	public ModuleItemPos
-{
+	public ModuleItemPos {
 	friend class TypeMgr;
 	friend class Parser;
 
@@ -116,26 +105,22 @@ public:
 	NamedImportType();
 
 	const QualifiedName&
-	getName()
-	{
+	getName() {
 		return m_name;
 	}
 
 	Namespace*
-	getAnchorNamespace()
-	{
+	getAnchorNamespace() {
 		return m_anchorNamespace;
 	}
 
 	const QualifiedName&
-	getAnchorName()
-	{
+	getAnchorName() {
 		return m_anchorName;
 	}
 
 	const sl::String&
-	getQualifiedName()
-	{
+	getQualifiedName() {
 		return m_qualifiedName;
 	}
 
@@ -148,13 +133,12 @@ public:
 		const QualifiedName& name,
 		Namespace* anchorNamespace,
 		const QualifiedName& orphanName
-		);
+	);
 
 protected:
 	virtual
 	void
-	prepareTypeString()
-	{
+	prepareTypeString() {
 		getTypeStringTuple()->m_typeStringPrefix.format("import %s", getQualifiedName().sz());
 	}
 
@@ -165,8 +149,7 @@ protected:
 
 //..............................................................................
 
-class ImportPtrType: public ImportType
-{
+class ImportPtrType: public ImportType {
 	friend class TypeMgr;
 
 protected:
@@ -177,14 +160,12 @@ public:
 	ImportPtrType();
 
 	NamedImportType*
-	getTargetType()
-	{
+	getTargetType() {
 		return m_targetType;
 	}
 
 	uint_t
-	getTypeModifiers()
-	{
+	getTypeModifiers() {
 		return m_typeModifiers;
 	}
 
@@ -193,13 +174,12 @@ public:
 	createSignature(
 		NamedImportType* importType,
 		uint_t typeModifiers
-		)
-	{
+	) {
 		return sl::formatString(
 			"ZP%s:%d",
 			importType->getQualifiedName().sz(),
 			typeModifiers
-			);
+		);
 	}
 
 protected:
@@ -214,8 +194,7 @@ protected:
 
 //..............................................................................
 
-class ImportIntModType: public ImportType
-{
+class ImportIntModType: public ImportType {
 	friend class TypeMgr;
 
 protected:
@@ -226,14 +205,12 @@ public:
 	ImportIntModType();
 
 	NamedImportType*
-	getImportType()
-	{
+	getImportType() {
 		return m_importType;
 	}
 
 	uint_t
-	getTypeModifiers()
-	{
+	getTypeModifiers() {
 		return m_typeModifiers;
 	}
 
@@ -242,13 +219,12 @@ public:
 	createSignature(
 		NamedImportType* importType,
 		uint_t typeModifiers
-		)
-	{
+	) {
 		return sl::formatString(
 			"ZI%s:%d:%d",
 			importType->getQualifiedName().sz(),
 			typeModifiers
-			);
+		);
 	}
 
 protected:

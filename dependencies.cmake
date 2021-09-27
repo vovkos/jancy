@@ -34,7 +34,7 @@ set(
 	DOXYGEN_EXE
 	SPHINX_BUILD_EXE
 	PDFLATEX_EXE
-	)
+)
 
 set(
 	AXL_IMPORT_LIST
@@ -70,6 +70,6 @@ set(
 	${GRACO_CMAKE_DIR}
 	${DEVMON_CMAKE_DIR}
 	${DOXYREST_CMAKE_DIR}
-	)
+)
 
 #...............................................................................

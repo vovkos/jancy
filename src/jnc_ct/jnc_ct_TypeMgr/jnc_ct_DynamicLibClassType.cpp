@@ -20,16 +20,14 @@ namespace ct {
 
 //..............................................................................
 
-DynamicLibClassType::DynamicLibClassType()
-{
+DynamicLibClassType::DynamicLibClassType() {
 	m_libNamespace = NULL;
 	m_classTypeKind = ClassTypeKind_DynamicLib;
 	m_namespaceStatus = NamespaceStatus_Ready;
 }
 
 DynamicLibNamespace*
-DynamicLibClassType::createLibNamespace()
-{
+DynamicLibClassType::createLibNamespace() {
 	m_libNamespace = m_module->m_namespaceMgr.createGlobalNamespace<DynamicLibNamespace>("lib", this);
 
 	bool result = addItem(m_libNamespace);
@@ -39,8 +37,7 @@ DynamicLibClassType::createLibNamespace()
 }
 
 bool
-DynamicLibClassType::ensureFunctionTable()
-{
+DynamicLibClassType::ensureFunctionTable() {
 	if (m_flags & DynamicLibClassTypeFlag_FunctionTableReady)
 		return true;
 
@@ -49,8 +46,7 @@ DynamicLibClassType::ensureFunctionTable()
 		return false;
 
 	size_t functionCount = m_libNamespace->getFunctionCount();
-	if (!functionCount)
-	{
+	if (!functionCount) {
 		err::setFormatStringError("dynamiclib '%s' has no functions", getQualifiedName().sz());
 		return false;
 	}

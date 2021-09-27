@@ -19,12 +19,10 @@ namespace ct {
 //..............................................................................
 
 Type*
-getArithmeticOperatorResultType(Type* opType)
-{
+getArithmeticOperatorResultType(Type* opType) {
 	TypeKind typeKind = opType->getTypeKind();
 
-	switch (typeKind)
-	{
+	switch (typeKind) {
 	case TypeKind_Int8:
 	case TypeKind_Int8_u:
 	case TypeKind_Int16:
@@ -73,8 +71,7 @@ UnOp_Minus::llvmOpInt(
 	const Value& opValue,
 	Type* resultType,
 	Value* resultValue
-	)
-{
+) {
 	return m_module->m_llvmIrBuilder.createNeg_i(opValue, resultType, resultValue);
 }
 
@@ -83,8 +80,7 @@ UnOp_Minus::llvmOpFp(
 	const Value& opValue,
 	Type* resultType,
 	Value* resultValue
-	)
-{
+) {
 	return m_module->m_llvmIrBuilder.createNeg_f(opValue, resultType, resultValue);
 }
 
@@ -95,8 +91,7 @@ UnOp_BwNot::llvmOpInt(
 	const Value& opValue,
 	Type* resultType,
 	Value* resultValue
-	)
-{
+) {
 	return m_module->m_llvmIrBuilder.createNot(opValue, resultType, resultValue);
 }
 

@@ -22,8 +22,7 @@ AXL_SELECT_ANY bool g_webSocketCapability = true;
 
 inline
 bool
-requireWebSocketCapability()
-{
+requireWebSocketCapability() {
 	return g_webSocketCapability || jnc::failWithCapabilityError("org.jancy.io.websocket");
 }
 
@@ -33,10 +32,9 @@ requireWebSocketCapability()
 JNC_DEFINE_GUID(
 	g_webSocketLibGuid,
 	0x012e10bc, 0x5a2e, 0x412e, 0xae, 0xaa, 0xbb, 0xc0, 0x44, 0x63, 0xfa, 0x7f
-	);
+);
 
-enum WebSocketLibCacheSlot
-{
+enum WebSocketLibCacheSlot {
 	WebSocketLibCacheSlot_WebSocket,
 	WebSocketLibCacheSlot_WebSocketHandshake,
 	WebSocketLibCacheSlot_WebSocketHandshakeHeaders,

@@ -8,8 +8,7 @@ import "HwSerialMonLogRecordCode.jnc"
 
 //..............................................................................
 
-char const* getLineString(uint_t line)
-{
+char const* getLineString(uint_t line) {
 	return line ? "\e[31mon\e[m" : "\e[90moff\e[m";
 }
 
@@ -21,10 +20,8 @@ bool representHwSerialMonLog(
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
-	switch (recordCode)
-	{
+) {
+	switch (recordCode) {
 	case HwSerialMonRecordCode.CaptureStarted:
 		char const* ifaceName = p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;

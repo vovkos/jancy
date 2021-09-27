@@ -7,11 +7,9 @@ import "std_Buffer.jnc"
 
 //..............................................................................
 
-class OsdpParser
-{
+class OsdpParser {
 protected:
-	enum ParserState
-	{
+	enum ParserState {
 		Idle,
 		Hdr,
 		Packet,
@@ -27,7 +25,7 @@ public:
 		uint64_t originalRecordCode,
 		char const* p,
 		size_t size
-		);
+	);
 
 	void reset();
 
@@ -38,7 +36,7 @@ protected:
 		uint64_t originalRecordCode,
 		char const* thin* base,
 		char const* p
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -49,22 +47,19 @@ void OsdpParser.parse(
 	uint64_t originalRecordCode,
 	char const* p,
 	size_t size
-	)
-{
+) {
 	char const* base = p;
 	char const* end = p + size;
 
-	while (p < end)
-	{
-		switch (m_parserState)
-		{
+	while (p < end) {
+		switch (m_parserState) {
 		case ParserState.Idle:
 			p = memchr(p, OsdpChar.Som, end - p);
 			if (!p)
 				break2; // out of the while loop
 
 			// uncomment the following lines to insert a break before SOM
-			
+
 			// flush(writer, timestamp, originalRecordCode, &base, p);
 			// writer.write(timestamp, log.StdRecordCode.Break);
 
@@ -75,8 +70,7 @@ void OsdpParser.parse(
 
 		case ParserState.Hdr:
 			size_t leftover = sizeof(OsdpHdr) - m_packet.m_size;
-			if (end - p < leftover)
-			{
+			if (end - p < leftover) {
 				m_packet.append(p, end - p);
 				break2; // out of the while loop
 			}
@@ -85,8 +79,7 @@ void OsdpParser.parse(
 			p += leftover;
 
 			OsdpHdr const* hdr = (OsdpHdr const*)m_packet.m_p;
-			if (hdr.m_length < sizeof(OsdpHdr)) // invalid length
-			{
+			if (hdr.m_length < sizeof(OsdpHdr)) { // invalid length
 				flush(writer, timestamp, originalRecordCode, &base, p);
 				writer.write(timestamp, OsdpLogRecordCode.InvalidPacketLength);
 				m_parserState = ParserState.Idle;
@@ -100,8 +93,7 @@ void OsdpParser.parse(
 		case ParserState.Packet:
 			OsdpHdr const* hdr = (OsdpHdr const*)m_packet.m_p;
 			size_t leftover = hdr.m_length - m_packet.m_size;
-			if (end - p < leftover)
-			{
+			if (end - p < leftover) {
 				m_packet.append(p, end - p);
 				break2; // out of the while loop
 			}
@@ -120,8 +112,7 @@ void OsdpParser.parse(
 	flush(writer, timestamp, originalRecordCode, &base, end);
 }
 
-void OsdpParser.reset()
-{
+void OsdpParser.reset() {
 	m_parserState = ParserState.Idle;
 	m_packet.clear();
 }
@@ -132,11 +123,9 @@ void OsdpParser.flush(
 	uint64_t originalRecordCode,
 	char const* thin* base,
 	char const* p
-	)
-{
+) {
 	char const* p0 = *base;
-	if (p != p0)
-	{
+	if (p != p0) {
 		writer.write(timestamp, originalRecordCode, p0, p - p0);
 		*base = p;
 	}

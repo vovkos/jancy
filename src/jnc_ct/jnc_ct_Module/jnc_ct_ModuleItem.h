@@ -31,8 +31,7 @@ struct PragmaSettings;
 
 //..............................................................................
 
-class ModuleItemInitializer
-{
+class ModuleItemInitializer {
 	friend class Parser;
 
 protected:
@@ -40,28 +39,24 @@ protected:
 
 public:
 	bool
-	hasInitializer()
-	{
+	hasInitializer() {
 		return !m_initializer.isEmpty();
 	}
 
 	const sl::BoxList<Token>&
-	getInitializer()
-	{
+	getInitializer() {
 		return m_initializer;
 	}
 
 	sl::String
-	getInitializerString()
-	{
+	getInitializerString() {
 		return Token::getTokenListString(m_initializer);
 	}
 };
 
 //..............................................................................
 
-class ModuleItemPos
-{
+class ModuleItemPos {
 	friend class Parser;
 
 protected:
@@ -69,40 +64,34 @@ protected:
 	lex::LineCol m_pos;
 
 public:
-	ModuleItemPos()
-	{
+	ModuleItemPos() {
 		m_parentUnit = NULL;
 	}
 
 	Unit*
-	getParentUnit() const
-	{
+	getParentUnit() const {
 		return m_parentUnit;
 	}
 
 	const lex::LineCol&
-	getPos() const
-	{
+	getPos() const {
 		return m_pos;
 	}
 
 	void
-	pushSrcPosError()
-	{
+	pushSrcPosError() {
 		lex::pushSrcPosError(m_parentUnit->getFilePath(), m_pos);
 	}
 
 	void
-	ensureSrcPosError()
-	{
+	ensureSrcPosError() {
 		lex::ensureSrcPosError(m_parentUnit->getFilePath(), m_pos);
 	}
 };
 
 //..............................................................................
 
-class ModuleItemDecl: public ModuleItemPos
-{
+class ModuleItemDecl: public ModuleItemPos {
 	friend class ModuleItem;
 	friend class DoxyHost;
 	friend class Parser;
@@ -124,26 +113,22 @@ public:
 	ModuleItemDecl();
 
 	StorageKind
-	getStorageKind()
-	{
+	getStorageKind() {
 		return m_storageKind;
 	}
 
 	AccessKind
-	getAccessKind()
-	{
+	getAccessKind() {
 		return m_accessKind;
 	}
 
 	bool
-	isNamed()
-	{
+	isNamed() {
 		return !m_name.isEmpty();
 	}
 
 	const sl::String&
-	getName()
-	{
+	getName() {
 		return m_name;
 	}
 
@@ -151,26 +136,22 @@ public:
 	getQualifiedName();
 
 	Namespace*
-	getParentNamespace()
-	{
+	getParentNamespace() {
 		return m_parentNamespace;
 	}
 
 	const PragmaSettings*
-	getPragmaSettings()
-	{
+	getPragmaSettings() {
 		return m_pragmaSettings;
 	}
 
 	AttributeBlock*
-	getAttributeBlock()
-	{
+	getAttributeBlock() {
 		return m_attributeBlock;
 	}
 
 	dox::Block*
-	getDoxyBlock()
-	{
+	getDoxyBlock() {
 		return m_doxyBlock;
 	}
 
@@ -189,8 +170,7 @@ protected:
 
 inline
 const sl::String&
-ModuleItemDecl::getQualifiedName()
-{
+ModuleItemDecl::getQualifiedName() {
 	if (m_qualifiedName.isEmpty())
 		prepareQualifiedName();
 
@@ -199,8 +179,7 @@ ModuleItemDecl::getQualifiedName()
 
 //..............................................................................
 
-class ModuleItemBodyDecl: public ModuleItemDecl
-{
+class ModuleItemBodyDecl: public ModuleItemDecl {
 	friend class Parser;
 
 protected:
@@ -210,20 +189,17 @@ protected:
 
 public:
 	bool
-	hasBody() const
-	{
+	hasBody() const {
 		return !m_body.isEmpty() || !m_bodyTokenList.isEmpty();
 	}
 
 	const lex::LineColOffset&
-	getBodyPos() const
-	{
+	getBodyPos() const {
 		return m_bodyPos;
 	}
 
 	const sl::StringRef&
-	getBody() const
-	{
+	getBody() const {
 		return m_body;
 	}
 
@@ -232,7 +208,7 @@ public:
 		const PragmaSettings* pragmaSettings,
 		const lex::LineColOffset& pos,
 		const sl::StringRef& body
-		);
+	);
 
 	bool
 	setBody(sl::BoxList<Token>* tokenList);
@@ -244,8 +220,7 @@ protected:
 
 //..............................................................................
 
-class ModuleItem: public sl::ListLink
-{
+class ModuleItem: public sl::ListLink {
 	friend class Module;
 	friend class Parser;
 
@@ -258,25 +233,20 @@ public:
 	ModuleItem();
 
 	virtual
-	~ModuleItem ()
-	{
-	}
+	~ModuleItem () {}
 
 	Module*
-	getModule()
-	{
+	getModule() {
 		return m_module;
 	}
 
 	ModuleItemKind
-	getItemKind()
-	{
+	getItemKind() {
 		return m_itemKind;
 	}
 
 	uint_t
-	getFlags()
-	{
+	getFlags() {
 		return m_flags;
 	}
 
@@ -294,8 +264,7 @@ public:
 
 	virtual
 	bool
-	require()
-	{
+	require() {
 		err::setFormatStringError("don't know how to require '%s'", getModuleItemKindString(m_itemKind));
 		return false;
 	}
@@ -306,8 +275,7 @@ public:
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
-		)
-	{
+	) {
 		return true;
 	}
 

@@ -13,10 +13,8 @@ namespace ui {
 
 //..............................................................................
 
-class BufferPropertySet
-{
-	enum Defaults
-	{
+class BufferPropertySet {
+	enum Defaults {
 		ReadParallelism      = 4,
 		ReadBlockSize        = 4 * 1024,
 		ReadBufferSize       = 16 * 1024,
@@ -26,8 +24,7 @@ class BufferPropertySet
 		NotifyReadBufferFull = false,
 	}
 
-	bitflag enum PropertyId
-	{
+	bitflag enum PropertyId {
 		ReadParallelism,
 		ReadBlockSize,
 		ReadBufferSize,
@@ -64,14 +61,14 @@ class BufferPropertySet
 		GroupProperty* group = null,
 		Property* insertBefore = null,
 		PropertyId mask = PropertyId.All
-		);
+	);
 
 	GroupProperty* createPropertiesGrouped(
 		PropertyGrid* propertyGrid,
 		GroupProperty* group = null,
 		Property* insertBefore = null,
 		PropertyId mask = PropertyId.All
-		);
+	);
 
 	void load(doc.Storage* storage);
 	void save(doc.Storage* storage);
@@ -85,62 +82,55 @@ void BufferPropertySet.createProperties(
 	GroupProperty* group,
 	Property* insertBefore,
 	PropertyId mask
-	)
-{
+) {
 	// read parallelism is only applicable on Windows (simultaneous OVERLAPPED read requests)
 	// still, we want a valid m_readParallelismProp pointer, so there's less checking in plugins
 
 	if (mask & PropertyId.ReadParallelism)
-		if (sys.g_systemInfo.m_osKind == sys.OsKind.Windows)
-		{
+		if (sys.g_systemInfo.m_osKind == sys.OsKind.Windows) {
 			m_readParallelismProp  = propertyGrid.createIntProperty(
 				group,
 				insertBefore,
 				"Read parallelism",
 				"Maximum number of read requests to issue in parallel (affects throughput)"
-				);
+			);
 
 			m_readParallelismProp.m_minValue = 1;
-		}
-		else
-		{
+		} else {
 			m_readParallelismProp  = new IntProperty(null);
 		}
 
-	if (mask & PropertyId.ReadBlockSize)
-	{
+	if (mask & PropertyId.ReadBlockSize) {
 		m_readBlockSizeProp = propertyGrid.createIntProperty(
 			group,
 			insertBefore,
 			"Read block size (B)",
 			"Size of each individual read block passed to the driver (affects throughput)"
-			);
+		);
 
 		m_readBlockSizeProp.m_minValue = 1;
 		m_readBlockSizeProp.m_spinBoxStep = 1024; // 1K step
 	}
 
-	if (mask & PropertyId.ReadBufferSize)
-	{
+	if (mask & PropertyId.ReadBufferSize) {
 		m_readBufferSizeProp = propertyGrid.createIntProperty(
 			group,
 			insertBefore,
 			"RX buffer size (B)",
 			"Total size of the read buffer (increase if data is dropped)"
-			);
+		);
 
 		m_readBufferSizeProp.m_minValue = 1;
 		m_readBufferSizeProp.m_spinBoxStep = 1024; // 1K step
 	}
 
-	if (mask & PropertyId.WriteBufferSize)
-	{
+	if (mask & PropertyId.WriteBufferSize) {
 		m_writeBufferSizeProp = propertyGrid.createIntProperty(
 			group,
 			insertBefore,
 			"TX buffer size (B)",
 			"Total size of the write buffer"
-			);
+		);
 
 		m_writeBufferSizeProp.m_minValue = 1;
 		m_writeBufferSizeProp.m_spinBoxStep = 1024; // 1K step
@@ -152,7 +142,7 @@ void BufferPropertySet.createProperties(
 			insertBefore,
 			"Keep read block size",
 			"Don't merge read blocks in RX buffer (keep the original size returned by lower IO provider)"
-			);
+		);
 
 	if (mask & PropertyId.KeepWriteBlockSize)
 		m_keepWriteBlockSizeProp = propertyGrid.createBoolProperty(
@@ -160,7 +150,7 @@ void BufferPropertySet.createProperties(
 			insertBefore,
 			"Keep write block size",
 			"Don't merge write blocks in TX buffer (submit the original size to lower IO provider)"
-			);
+		);
 
 	if (mask & PropertyId.NotifyReadBufferFull)
 		m_notifyReadBufferFullProp = propertyGrid.createBoolProperty(
@@ -168,7 +158,7 @@ void BufferPropertySet.createProperties(
 			insertBefore,
 			"RX buffer full notifications",
 			"Write warnings in log whenever RX buffer gets completely full"
-			);
+		);
 }
 
 GroupProperty* BufferPropertySet.createPropertiesGrouped(
@@ -176,21 +166,19 @@ GroupProperty* BufferPropertySet.createPropertiesGrouped(
 	GroupProperty* group,
 	Property* insertBefore,
 	PropertyId mask
-	)
-{
+) {
 	GroupProperty* subGroup = propertyGrid.createGroupProperty(
 		group,
 		insertBefore,
 		"Buffering",
 		"Advanced buffering options affecting throughtput and compatibility"
-		);
+	);
 
 	createProperties(propertyGrid, subGroup,, mask);
 	return subGroup;
 }
 
-void BufferPropertySet.load(doc.Storage* storage)
-{
+void BufferPropertySet.load(doc.Storage* storage) {
 	if (m_readParallelismProp)
 		m_readParallelismProp.m_value = storage.readInt("readParallelism", m_defaultReadParallelism);
 
@@ -213,8 +201,7 @@ void BufferPropertySet.load(doc.Storage* storage)
 		m_notifyReadBufferFullProp.m_value = storage.readBool("notifyReadBufferFull", Defaults.NotifyReadBufferFull);
 }
 
-void BufferPropertySet.save(doc.Storage* storage)
-{
+void BufferPropertySet.save(doc.Storage* storage) {
 	if (m_readParallelismProp)
 		storage.writeInt("readParallelism", m_readParallelismProp.m_value);
 
@@ -237,8 +224,7 @@ void BufferPropertySet.save(doc.Storage* storage)
 		storage.writeBool("notifyReadBufferFull", m_notifyReadBufferFullProp.m_value);
 }
 
-void BufferPropertySet.restoreDefaults()
-{
+void BufferPropertySet.restoreDefaults() {
 	if (m_readParallelismProp)
 		m_readParallelismProp.m_value = m_defaultReadParallelism;
 

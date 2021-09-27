@@ -14,8 +14,7 @@
 #include "moc_monospaceplaintextedit.cpp"
 
 MonospacePlainTextEdit::MonospacePlainTextEdit(QWidget* parent):
-	QPlainTextEdit(parent)
-{
+	QPlainTextEdit(parent) {
 #if (_JNC_OS_DARWIN)
 	QFont font("Menlo", 11);
 #else
@@ -26,7 +25,7 @@ MonospacePlainTextEdit::MonospacePlainTextEdit(QWidget* parent):
 	font.setStyleHint(
 		QFont::Monospace,
 		(QFont::StyleStrategy)(QFont::NoFontMerging | QFont::ForceIntegerMetrics)
-		);
+	);
 
 	setFont(font);
 	setTabStopWidth(fontMetrics().width(' ') * 4);
@@ -36,8 +35,7 @@ MonospacePlainTextEdit::MonospacePlainTextEdit(QWidget* parent):
 void MonospacePlainTextEdit::highlightLine(
 	const QTextCursor& cursor,
 	const QTextCharFormat& format
-	)
-{
+) {
 	QTextEdit::ExtraSelection selection;
 	selection.format = format;
 	selection.cursor = cursor;
@@ -51,8 +49,7 @@ void MonospacePlainTextEdit::highlightLine(
 void MonospacePlainTextEdit::highlightLine(
 	const QTextCursor& cursor,
 	const QColor& backColor
-	)
-{
+) {
 	QTextCharFormat format;
 	format.setBackground(backColor);
 	format.setProperty(QTextFormat::FullWidthSelection, true);
@@ -63,8 +60,7 @@ void MonospacePlainTextEdit::highlightLine(
 	const QTextCursor& cursor,
 	const QColor& backColor,
 	const QColor& textColor
-	)
-{
+) {
 	QTextCharFormat format;
 	format.setBackground(backColor);
 	format.setForeground(textColor);

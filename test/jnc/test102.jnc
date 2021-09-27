@@ -1,18 +1,15 @@
 using extension E;
 
-class C2
-{
+class C2 {
 	void baz();
 }
 
-void C2.baz()
-{
+void C2.baz() {
 	C c;
 	c.bar();
 }
 
-int main()
-{
+int main() {
 	printf("main\n");
 
 	C c;
@@ -24,21 +21,17 @@ int main()
 	return 0;
 }
 
-extension E: C
-{
+extension E: C {
 	void bar();
 }
 
-class C
-{
-	void foo()
-	{
+class C {
+	void foo() {
 		printf("C.foo (%p)\n", this);
 	}
 }
 
-void E.bar()
-{
+void E.bar() {
 	printf("E.bar (%p)\n", this);
 	foo();
 }

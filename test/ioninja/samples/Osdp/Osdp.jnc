@@ -5,15 +5,13 @@
 
 //..............................................................................
 
-enum OsdpChar: char
-{
+enum OsdpChar: char {
 	Som = 0x53,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum OsdpCtrl: uint8_t
-{
+bitflag enum OsdpCtrl: uint8_t {
 	Crc,
 	Scb,
 	Multi = 0x20, // 0x80 >> 2
@@ -21,8 +19,7 @@ bitflag enum OsdpCtrl: uint8_t
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum OsdpDirection: uint8_t
-{
+enum OsdpDirection: uint8_t {
 	Command,
 	Response,
 }
@@ -31,8 +28,7 @@ enum OsdpDirection: uint8_t
 
 pragma(Alignment, 1);
 
-struct OsdpHdr
-{
+struct OsdpHdr {
 	[ displayName = "SOM" ]
 	OsdpChar m_som;
 
@@ -60,16 +56,14 @@ struct OsdpHdr
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct OsdpScbHdr
-{
+struct OsdpScbHdr {
 	uchar_t m_length;
 	uchar_t m_type;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum OsdpCmdReplyCode: uchar_t
-{
+enum OsdpCmdReplyCode: uchar_t {
 	osdp_POLL     = 0x60,
 	osdp_ID       = 0x61,
 	osdp_CAP      = 0x62,
@@ -125,16 +119,14 @@ enum OsdpCmdReplyCode: uchar_t
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct OsdpCmdReply
-{
+struct OsdpCmdReply {
 	[ displayName = "Command/Reply Code" ]
 	OsdpCmdReplyCode m_code;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct OsdpCrc
-{
+struct OsdpCrc {
 	[
 		displayName = "CRC",
 		formatSpec  = "0x%04X"

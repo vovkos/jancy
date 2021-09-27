@@ -14,10 +14,8 @@ bool representSerialMonLog  (
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
-	switch (recordCode)
-	{
+) {
+	switch (recordCode) {
 	case SerialMonLogRecordCode.DeviceOpened_0:
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
@@ -43,7 +41,7 @@ bool representSerialMonLog  (
 			$"\e[90mPID:\t\e[34m%2"(
 			processName,
 			pid
-			));
+		));
 		break;
 
 	case SerialMonLogRecordCode.DeviceOpenError:
@@ -61,7 +59,7 @@ bool representSerialMonLog  (
 			processName,
 			pid,
 			error.m_description
-			));
+		));
 		break;
 
 	case SerialMonLogRecordCode.DeviceClosed:

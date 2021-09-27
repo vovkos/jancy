@@ -23,19 +23,16 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(UsbInterface)
 
 //..............................................................................
 
-class UsbInterface: public IfaceHdr
-{
+class UsbInterface: public IfaceHdr {
 	friend class GetParentLink;
 
 public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(UsbInterface)
 
 public:
-	class GetParentLink
-	{
+	class GetParentLink {
 	public:
-		sl::ListLink* operator()(UsbInterface* self)
-		{
+		sl::ListLink* operator()(UsbInterface* self) {
 			return &self->m_parentLink;
 		}
 	};
@@ -53,8 +50,7 @@ protected:
 public:
 	UsbInterface();
 
-	~UsbInterface()
-	{
+	~UsbInterface() {
 		release();
 	}
 
@@ -74,7 +70,7 @@ public:
 	openEndpoint(
 		uint8_t endpointId,
 		bool isSuspended
-		);
+	);
 };
 
 //..............................................................................

@@ -20,8 +20,7 @@
 
 // entry point
 
-int main()
-{
+int main() {
 	// hex literals produce static const char array (non-zero-terminated)
 
 	char a[] = 0x"61 62 63 64 65 66 67 68 00";

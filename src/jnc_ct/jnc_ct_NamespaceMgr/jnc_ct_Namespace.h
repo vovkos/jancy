@@ -30,8 +30,7 @@ struct DualPtrTypeTuple;
 
 //..............................................................................
 
-enum
-{
+enum {
 	TraverseFlag_NoThis                = 0x01,
 	TraverseFlag_NoBaseType            = 0x04,
 	TraverseFlag_NoParentNamespace     = 0x08,
@@ -41,8 +40,7 @@ enum
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum NamespaceStatus
-{
+enum NamespaceStatus {
 	NamespaceStatus_ParseRequired = 0,
 	NamespaceStatus_Parsing       = 1,
 	NamespaceStatus_ParseError    = -1,
@@ -51,8 +49,7 @@ enum NamespaceStatus
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class Namespace: public ModuleItemBodyDecl
-{
+class Namespace: public ModuleItemBodyDecl {
 	friend class NamespaceMgr;
 	friend class TypeMgr;
 	friend class Parser;
@@ -69,21 +66,18 @@ protected:
 	UsingSet m_usingSet;
 
 public:
-	Namespace()
-	{
+	Namespace() {
 		m_namespaceKind = NamespaceKind_Undefined;
 		m_namespaceStatus = NamespaceStatus_ParseRequired; // most namespaces are lazily parsed
 	}
 
 	NamespaceKind
-	getNamespaceKind()
-	{
+	getNamespaceKind() {
 		return m_namespaceKind;
 	}
 
 	bool
-	isNamespaceReady()
-	{
+	isNamespaceReady() {
 		return m_namespaceStatus == NamespaceStatus_Ready;
 	}
 
@@ -100,8 +94,7 @@ public:
 	getParentItem();
 
 	UsingSet*
-	getUsingSet()
-	{
+	getUsingSet() {
 		return &m_usingSet;
 	}
 
@@ -109,14 +102,12 @@ public:
 	createQualifiedName(const sl::StringRef& name);
 
 	sl::String
-	createQualifiedName(const QualifiedName& name)
-	{
+	createQualifiedName(const QualifiedName& name) {
 		return createQualifiedName(name.getFullName());
 	}
 
 	bool
-	isFriend(Namespace* nspace)
-	{
+	isFriend(Namespace* nspace) {
 		return m_friendSet.find(nspace->getQualifiedName()) != NULL;
 	}
 
@@ -135,19 +126,18 @@ public:
 		const sl::StringRef& name,
 		MemberCoord* coord = NULL,
 		uint_t flags = 0
-		);
+	);
 
 	FindModuleItemResult
 	findItemTraverse(
 		const QualifiedName& name,
 		MemberCoord* coord = NULL,
 		uint_t flags = 0
-		);
+	);
 
 	template <typename T>
 	bool
-	addItem(T* item)
-	{
+	addItem(T* item) {
 		return addItem(item->getName(), item);
 	}
 
@@ -155,8 +145,7 @@ public:
 	replaceItem(
 		const sl::StringRef& name,
 		ModuleItem* item
-		)
-	{
+	) {
 		m_itemMap.visit(name)->m_value = item;
 	}
 
@@ -164,8 +153,7 @@ public:
 	addFunction(Function* function); // returns overload idx or -1 on error
 
 	void
-	addOrphan(Orphan* orphan)
-	{
+	addOrphan(Orphan* orphan) {
 		m_orphanArray.append(orphan);
 	}
 
@@ -173,11 +161,10 @@ public:
 	createConst(
 		const sl::StringRef& name,
 		const Value& value
-		);
+	);
 
 	const sl::Array<ModuleItem*>&
-	getItemArray()
-	{
+	getItemArray() {
 		return m_itemArray;
 	}
 
@@ -195,12 +182,11 @@ protected:
 	addItem(
 		const sl::StringRef& name,
 		ModuleItem* item
-		);
+	);
 
 	virtual
 	bool
-	parseBody()
-	{
+	parseBody() {
 		ASSERT(false);
 		return true;
 	}
@@ -211,15 +197,14 @@ protected:
 		sl::String* itemXml,
 		sl::String* indexXml,
 		bool useSectionDef
-		);
+	);
 };
 
 //..............................................................................
 
 JNC_INLINE
 err::Error
-setRedefinitionError(const sl::StringRef& name)
-{
+setRedefinitionError(const sl::StringRef& name) {
 	return err::setFormatStringError("redefinition of '%s'", name.sz());
 }
 

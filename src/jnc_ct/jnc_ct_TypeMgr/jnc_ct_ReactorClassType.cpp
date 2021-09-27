@@ -23,10 +23,8 @@ Function*
 getReactorMethod(
 	Module* module,
 	ReactorMethod method
-	)
-{
-	static const char* nameTable[ReactorMethod__Count] =
-	{
+) {
+	static const char* nameTable[ReactorMethod__Count] = {
 		"start",                   // ReactorMethod_Start,
 		"stop",                    // ReactorMethod_Stop,
 		"restart",                 // ReactorMethod_Restart,
@@ -46,8 +44,7 @@ getReactorMethod(
 
 //..............................................................................
 
-ReactorClassType::ReactorClassType()
-{
+ReactorClassType::ReactorClassType() {
 	m_classTypeKind = ClassTypeKind_Reactor;
 	m_namespaceStatus = NamespaceStatus_Ready;
 	m_parentType = NULL;
@@ -60,8 +57,7 @@ Function*
 ReactorClassType::createOnEventHandler(
 	size_t reactionIdx,
 	FunctionType* type
-	)
-{
+) {
 	Function* function = createUnnamedMethod(FunctionKind_Internal, type);
 
 	sl::HashTableIterator<size_t, Function*> it = m_onEventMap.visit(reactionIdx);
@@ -73,12 +69,10 @@ ReactorClassType::createOnEventHandler(
 }
 
 bool
-ReactorClassType::calcLayout()
-{
+ReactorClassType::calcLayout() {
 	bool result;
 
-	if (m_body.isEmpty())
-	{
+	if (m_body.isEmpty()) {
 		err::setFormatStringError("reactor '%s' has no body", getQualifiedName().sz());
 		return false;
 	}
@@ -105,8 +99,7 @@ ReactorClassType::calcLayout()
 }
 
 bool
-ReactorClassType::prepareForOperatorNew()
-{
+ReactorClassType::prepareForOperatorNew() {
 	bool result = ClassType::prepareForOperatorNew();
 	if (!result)
 		return false;
@@ -119,8 +112,7 @@ ReactorClassType::prepareForOperatorNew()
 }
 
 bool
-ReactorClassType::compileReaction(Function* function)
-{
+ReactorClassType::compileReaction(Function* function) {
 	ASSERT(function == m_reaction);
 	ASSERT(!m_body.isEmpty());
 

@@ -7,8 +7,7 @@ import "log_RecordCode.jnc"
 
 //..............................................................................
 
-enum MailslotMonLogRecordCode: uint64_t
-{
+enum MailslotMonLogRecordCode: uint64_t {
 	ServerFileOpened_0    = 0x01d4871750ac2a7b,
 	ServerFileOpenError_0 = 0x01d4871750ac2a7c,
 	ClientFileOpened_0    = 0x01d4871750ac2a7d,
@@ -29,8 +28,7 @@ enum MailslotMonLogRecordCode: uint64_t
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum MailslotMonLogPartCode: uint64_t
-{
+enum MailslotMonLogPartCode: uint64_t {
 	Prefix = 0x01d4871750ac2a85 | log.PartCodeFlags.MergeableForward,
 	Suffix = 0x01d4871750ac2a85 | log.PartCodeFlags.MergeableBackward,
 }

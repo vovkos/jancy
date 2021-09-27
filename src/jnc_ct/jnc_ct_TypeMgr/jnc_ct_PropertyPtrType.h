@@ -19,8 +19,7 @@ namespace ct {
 
 //..............................................................................
 
-class PropertyPtrType: public Type
-{
+class PropertyPtrType: public Type {
 	friend class TypeMgr;
 
 protected:
@@ -31,58 +30,50 @@ public:
 	PropertyPtrType();
 
 	PropertyPtrTypeKind
-	getPtrTypeKind()
-	{
+	getPtrTypeKind() {
 		return m_ptrTypeKind;
 	}
 
 	PropertyType*
-	getTargetType()
-	{
+	getTargetType() {
 		return m_targetType;
 	}
 
 	bool
-	hasClosure()
-	{
+	hasClosure() {
 		return m_ptrTypeKind == PropertyPtrTypeKind_Normal || m_ptrTypeKind == PropertyPtrTypeKind_Weak;
 	}
 
 	PropertyPtrType*
-	getCheckedPtrType()
-	{
+	getCheckedPtrType() {
 		return !(m_flags & PtrTypeFlag_Safe) ?
 			m_targetType->getPropertyPtrType(m_typeKind, m_ptrTypeKind, m_flags | PtrTypeFlag_Safe) :
 			this;
 	}
 
 	PropertyPtrType*
-	getUnCheckedPtrType()
-	{
+	getUnCheckedPtrType() {
 		return (m_flags & PtrTypeFlag_Safe) ?
 			m_targetType->getPropertyPtrType(m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Safe) :
 			this;
 	}
 
 	PropertyPtrType*
-	getNormalPtrType()
-	{
+	getNormalPtrType() {
 		return (m_ptrTypeKind != PropertyPtrTypeKind_Normal) ?
 			m_targetType->getPropertyPtrType(PropertyPtrTypeKind_Normal, m_flags) :
 			this;
 	}
 
 	PropertyPtrType*
-	getWeakPtrType()
-	{
+	getWeakPtrType() {
 		return (m_ptrTypeKind != PropertyPtrTypeKind_Weak) ?
 			m_targetType->getPropertyPtrType(PropertyPtrTypeKind_Weak, m_flags) :
 			this;
 	}
 
 	PropertyPtrType*
-	getUnWeakPtrType()
-	{
+	getUnWeakPtrType() {
 		return (m_ptrTypeKind == PropertyPtrTypeKind_Weak) ?
 			m_targetType->getPropertyPtrType(PropertyPtrTypeKind_Normal, m_flags) :
 			this;
@@ -95,27 +86,25 @@ public:
 		TypeKind typeKind,
 		PropertyPtrTypeKind ptrTypeKind,
 		uint_t flags
-		);
+	);
 
 	virtual
 	void
 	markGcRoots(
 		const void* p,
 		rt::GcHeap* gcHeap
-		);
+	);
 
 protected:
 	virtual
 	bool
-	resolveImports()
-	{
+	resolveImports() {
 		return m_targetType->ensureNoImports();
 	}
 
 	virtual
 	void
-	prepareSignature()
-	{
+	prepareSignature() {
 		m_signature = createSignature(m_targetType, m_typeKind, m_ptrTypeKind, m_flags);
 	}
 
@@ -141,16 +130,14 @@ protected:
 
 	virtual
 	void
-	prepareTypeVariable()
-	{
+	prepareTypeVariable() {
 		prepareSimpleTypeVariable(StdType_PropertyPtrType);
 	}
 };
 
 //..............................................................................
 
-struct PropertyPtrTypeTuple: sl::ListLink
-{
+struct PropertyPtrTypeTuple: sl::ListLink {
 	PropertyPtrType* m_ptrTypeArray[2][3][3]; // ref x kind x unsafe / checked
 };
 
@@ -158,8 +145,7 @@ struct PropertyPtrTypeTuple: sl::ListLink
 
 JNC_INLINE
 bool
-isBindableType(Type* type)
-{
+isBindableType(Type* type) {
 	return
 		type->getTypeKind() == TypeKind_PropertyRef &&
 		(((PropertyPtrType*)type)->getTargetType()->getFlags() & PropertyTypeFlag_Bindable) != 0;

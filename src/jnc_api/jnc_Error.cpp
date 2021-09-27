@@ -22,36 +22,31 @@
 
 JNC_EXTERN_C
 const jnc_Error*
-jnc_getLastError()
-{
+jnc_getLastError() {
 	return jnc_g_dynamicExtensionLibHost->m_errorFuncTable->m_getLastErrorFunc();
 }
 
 JNC_EXTERN_C
 void
-jnc_setError(const jnc_Error* error)
-{
+jnc_setError(const jnc_Error* error) {
 	jnc_g_dynamicExtensionLibHost->m_errorFuncTable->m_setErrorFunc(error);
 }
 
 JNC_EXTERN_C
 void
-jnc_setErrno(int code)
-{
+jnc_setErrno(int code) {
 	jnc_g_dynamicExtensionLibHost->m_errorFuncTable->m_setErrnoFunc(code);
 }
 
 JNC_EXTERN_C
 void
-jnc_setStringError(const char* string)
-{
+jnc_setStringError(const char* string) {
 	jnc_g_dynamicExtensionLibHost->m_errorFuncTable->m_setStringErrorFunc(string);
 }
 
 JNC_EXTERN_C
 const char*
-jnc_getErrorDescription_v(const jnc_Error* error)
-{
+jnc_getErrorDescription_v(const jnc_Error* error) {
 	return jnc_g_dynamicExtensionLibHost->m_errorFuncTable->m_getErrorDescriptionFunc(error);
 }
 
@@ -60,48 +55,42 @@ jnc_getErrorDescription_v(const jnc_Error* error)
 JNC_EXTERN_C
 JNC_EXPORT_O
 const jnc_Error*
-jnc_getLastError()
-{
+jnc_getLastError() {
 	return err::getLastError();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
-jnc_setError(const jnc_Error* error)
-{
+jnc_setError(const jnc_Error* error) {
 	err::setError(error);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
-jnc_setErrno(int code)
-{
+jnc_setErrno(int code) {
 	err::setErrno(code);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
-jnc_setStringError(const char* string)
-{
+jnc_setStringError(const char* string) {
 	err::setError(string);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
-jnc_getErrorDescription_v(const jnc_Error* error)
-{
+jnc_getErrorDescription_v(const jnc_Error* error) {
 	return *jnc::getTlsStringBuffer() = error->getDescription();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
-jnc_setErrorRouter(jnc_ErrorRouter* router)
-{
+jnc_setErrorRouter(jnc_ErrorRouter* router) {
 	err::ErrorMgr* errorMgr = err::getErrorMgr();
 	if (router != errorMgr)
 		errorMgr->setRouter(router);

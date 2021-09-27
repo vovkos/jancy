@@ -19,8 +19,7 @@ namespace ct {
 
 //..............................................................................
 
-ClassPtrType::ClassPtrType()
-{
+ClassPtrType::ClassPtrType() {
 	m_typeKind = TypeKind_ClassPtr;
 	m_ptrTypeKind = ClassPtrTypeKind_Normal;
 	m_targetType = NULL;
@@ -34,8 +33,7 @@ ClassPtrType::createSignature(
 	TypeKind typeKind,
 	ClassPtrTypeKind ptrTypeKind,
 	uint_t flags
-	)
-{
+) {
 	sl::String signature = typeKind == TypeKind_ClassRef ? "RC" : "PC";
 
 	if (ptrTypeKind == ClassPtrTypeKind_Weak)
@@ -47,19 +45,16 @@ ClassPtrType::createSignature(
 }
 
 sl::String
-ClassPtrType::getPointerStringSuffix()
-{
+ClassPtrType::getPointerStringSuffix() {
 	sl::String string;
 
 	sl::String ptrTypeFlagString = getPtrTypeFlagString(m_flags);
-	if (!ptrTypeFlagString.isEmpty())
-	{
+	if (!ptrTypeFlagString.isEmpty()) {
 		string += ' ';
 		string += ptrTypeFlagString;
 	}
 
-	if (m_ptrTypeKind != ClassPtrTypeKind_Normal)
-	{
+	if (m_ptrTypeKind != ClassPtrTypeKind_Normal) {
 		string += ' ';
 		string += getClassPtrTypeKindString(m_ptrTypeKind);
 	}
@@ -69,14 +64,12 @@ ClassPtrType::getPointerStringSuffix()
 }
 
 void
-ClassPtrType::prepareLlvmType()
-{
+ClassPtrType::prepareLlvmType() {
 	m_llvmType = llvm::PointerType::get(m_targetType->getIfaceStructType()->getLlvmType(), 0);
 }
 
 void
-ClassPtrType::prepareLlvmDiType()
-{
+ClassPtrType::prepareLlvmDiType() {
 	m_llvmDiType = (m_targetType->getFlags() & ModuleItemFlag_LayoutReady) ?
 		m_module->m_llvmDiBuilder.createPointerType(m_targetType->getIfaceStructType()) :
 		m_module->m_typeMgr.getStdType(StdType_BytePtr)->getLlvmDiType();
@@ -86,8 +79,7 @@ void
 ClassPtrType::markGcRoots(
 	const void* p,
 	rt::GcHeap* gcHeap
-	)
-{
+) {
 	IfaceHdr* iface = *(IfaceHdr**) p;
 	if (!iface)
 		return;
@@ -102,14 +94,12 @@ Type*
 ClassPtrType::calcFoldedDualType(
 	bool isAlien,
 	bool isContainerConst
-	)
-{
+) {
 	ASSERT(isDualType(this));
 
 	uint_t flags = m_flags & ~(PtrTypeFlag_ReadOnly | PtrTypeFlag_CMut | PtrTypeFlag_DualEvent);
 
-	if (isAlien)
-	{
+	if (isAlien) {
 		if (m_flags & PtrTypeFlag_ReadOnly)
 			flags |= PtrTypeFlag_Const;
 

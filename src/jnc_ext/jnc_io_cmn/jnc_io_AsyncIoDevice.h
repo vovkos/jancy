@@ -18,8 +18,7 @@ namespace io {
 
 //..............................................................................
 
-enum AsyncIoDeviceEvent
-{
+enum AsyncIoDeviceEvent {
 	AsyncIoDeviceEvent_IncomingData     = 0x0002,
 	AsyncIoDeviceEvent_ReadBufferFull   = 0x0004,
 	AsyncIoDeviceEvent_WriteBufferEmpty = 0x0008,
@@ -27,8 +26,7 @@ enum AsyncIoDeviceEvent
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum AsyncIoDeviceOption
-{
+enum AsyncIoDeviceOption {
 	AsyncIoDeviceOption_KeepReadBlockSize      = 0x01,
 	AsyncIoDeviceOption_KeepWriteBlockSize     = 0x02,
 	AsyncIoDeviceOption_KeepReadWriteBlockSize = 0x03,
@@ -36,16 +34,13 @@ enum AsyncIoDeviceOption
 
 //..............................................................................
 
-class AsyncIoDevice: public AsyncIoBase
-{
+class AsyncIoDevice: public AsyncIoBase {
 protected:
-	enum IoThreadFlag
-	{
+	enum IoThreadFlag {
 		IoThreadFlag_Datagram = 0x0004,
 	};
 
-	struct ReadWriteMeta: sl::ListLink
-	{
+	struct ReadWriteMeta: sl::ListLink {
 		size_t m_dataSize;
 		sl::Array<char> m_params;
 	};
@@ -71,13 +66,13 @@ protected:
 	setReadBufferSize(
 		size_t* targetField,
 		size_t size
-		);
+	);
 
 	bool
 	setWriteBufferSize(
 		size_t* targetField,
 		size_t size
-		);
+	);
 
 	static
 	size_t
@@ -94,7 +89,7 @@ protected:
 		DataPtr ptr,
 		size_t size,
 		sl::Array<char>* params = NULL
-		);
+	);
 
 	size_t
 	bufferedWrite(
@@ -102,8 +97,7 @@ protected:
 		size_t dataSize,
 		const void* params = NULL,
 		size_t paramSize = 0
-		)
-	{
+	) {
 		return bufferedWrite(dataPtr.m_p, dataSize, params, paramSize);
 	}
 
@@ -113,7 +107,7 @@ protected:
 		size_t dataSize,
 		const void* params = NULL,
 		size_t paramSize = 0
-		);
+	);
 
 	void
 	addToReadBuffer(
@@ -121,7 +115,7 @@ protected:
 		size_t dataSize,
 		const void* params = NULL,
 		size_t paramSize = 0
-		);
+	);
 
 	size_t
 	addToWriteBuffer(
@@ -129,13 +123,13 @@ protected:
 		size_t dataSize,
 		const void* params = NULL,
 		size_t paramSize = 0
-		);
+	);
 
 	void
 	getNextWriteBlock(
 		sl::Array<char>* data,
 		sl::Array<char>* params = NULL
-		);
+	);
 
 	void
 	updateReadWriteBufferEvents();
@@ -145,15 +139,14 @@ protected:
 		size_t dataSize,
 		const void* params,
 		size_t paramSize
-		);
+	);
 };
 
 //..............................................................................
 
 #if (_AXL_OS_WIN)
 
-struct OverlappedRead: sl::ListLink
-{
+struct OverlappedRead: sl::ListLink {
 	axl::io::win::StdOverlapped m_overlapped;
 	sl::Array<char> m_buffer;
 };

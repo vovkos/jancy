@@ -16,16 +16,14 @@
 
 // a class with a method to be called through a function pointer
 
-class C1
-{
+class C1 {
 	int m_x = -1;
 
 	void foo(
 		int a,
 		int b,
 		int c
-		)
-	{
+	) {
 		printf("C1.foo (%d, %d, %d) { m_x = %d }\n", a, b, c, m_x);
 	}
 }
@@ -37,8 +35,7 @@ class C1
 void bar(
 	int a,
 	int b
-	)
-{
+) {
 	printf("bar (%d, %d)\n", a, b);
 }
 
@@ -46,8 +43,7 @@ void bar(
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	// 'thin' function pointer is just like a function pointer in C/C++
@@ -55,7 +51,7 @@ int main()
 	function thin* f1(
 		int,
 		int
-		) = bar;
+	) = bar;
 
 	f1(10, 20);
 
@@ -65,7 +61,7 @@ int main()
 	typedef function FpFunc(
 		double,
 		double
-		);
+	);
 
 	FpFunc thin* f2 = (FpFunc thin*) bar;
 	f2(15.8, 7.1);
@@ -82,7 +78,7 @@ int main()
 		int,
 		int,
 		int
-		) = c.foo;
+	) = c.foo;
 
 	f3(100, 200, 300);
 
@@ -99,7 +95,7 @@ int main()
 	function* f5(
 		int,
 		int
-		) = c.foo ~(,, 3);
+	) = c.foo ~(,, 3);
 
 	f5(1, 2);
 

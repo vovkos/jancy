@@ -10,8 +10,7 @@ namespace ui {
 
 //..............................................................................
 
-opaque class StatusPane
-{
+opaque class StatusPane {
 	bool autoget property m_isVisible;
 	bool autoget property m_isEnabled;
 	char const* autoget property m_text;
@@ -21,14 +20,13 @@ opaque class StatusPane
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class StatusBar
-{
+opaque class StatusBar {
 	destruct();
 
 	void displayMessage(
 		char const* text,
 		uint_t timeout = 3000
-		);
+	);
 
 	size_t readonly m_paneCount;
 	StatusPane* const property m_pane(size_t index);
@@ -36,7 +34,7 @@ opaque class StatusBar
 	StatusPane* addPane(
 		char const* text = null,
 		uint_t width = 0 // 0 = default
-		);
+	);
 }
 
 //..............................................................................

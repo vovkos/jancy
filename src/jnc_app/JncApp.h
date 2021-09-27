@@ -15,8 +15,7 @@
 
 //..............................................................................
 
-class JncApp
-{
+class JncApp {
 protected:
 	CmdLine* m_cmdLine;
 	jnc::AutoModule m_module;
@@ -30,8 +29,7 @@ public:
 	parse();
 
 	bool
-	compile()
-	{
+	compile() {
 		return
 			m_module->compile() &&
 			((m_cmdLine->m_compileFlags & jnc::ModuleCompileFlag_DisableCodeGen) ||
@@ -39,14 +37,12 @@ public:
 	}
 
 	bool
-	jit()
-	{
+	jit() {
 		return m_module->jit();
 	}
 
 	void
-	printLlvmIr()
-	{
+	printLlvmIr() {
 		printf("%s", m_module->getLlvmIrString_v ());
 	}
 
@@ -62,7 +58,7 @@ protected:
 	compileErrorHandler(
 		void* context,
 		jnc::ModuleCompileErrorKind errorKind
-		);
+	);
 };
 
 //..............................................................................

@@ -12,10 +12,8 @@ namespace ui {
 
 //..............................................................................
 
-class ThroughputInfoSet
-{
-	bitflag enum InfoId
-	{
+class ThroughputInfoSet {
+	bitflag enum InfoId {
 		TimeSpan,
 		TxTotalSize,
 		TxThroughput,
@@ -45,14 +43,14 @@ class ThroughputInfoSet
 		InformationGroup* group = null,
 		InformationValue* insertBefore = null,
 		InfoId mask = InfoId.Default
-		);
+	);
 
 	void createInformationValuesGrouped(
 		InformationGrid* informationGrid,
 		InformationGroup* group = null,
 		InformationValue* insertBefore = null,
 		InfoId mask = InfoId.Default
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -62,8 +60,7 @@ void ThroughputInfoSet.createInformationValues(
 	InformationGroup* group,
 	InformationValue* insertBefore,
 	InfoId mask
-	)
-{
+) {
 	if (mask & InfoId.TimeSpan)
 		m_timeSpanInfo = informationGrid.createValue(group, insertBefore, true, "Time span");
 
@@ -91,14 +88,13 @@ void ThroughputInfoSet.createInformationValuesGrouped(
 	InformationGroup* group,
 	InformationValue* insertBefore,
 	InfoId mask
-	)
-{
+) {
 	InformationGroup* subGroup = informationGrid.createGroup(
 		group,
 		insertBefore,
 		"Throughput calculator",
 		"Make a selection in the log to calculate throughput"
-		);
+	);
 
 	createInformationValues(informationGrid, subGroup,, mask);
 }

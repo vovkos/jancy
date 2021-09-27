@@ -21,8 +21,7 @@ namespace ct {
 //..............................................................................
 
 bool
-AsyncLauncherFunction::compile()
-{
+AsyncLauncherFunction::compile() {
 	bool result;
 
 	// prepare promise class type
@@ -46,8 +45,7 @@ AsyncLauncherFunction::compile()
 
 	sl::Array<Variable*> argVariableArray = m_module->m_variableMgr.getArgVariableArray();
 	size_t argCount = argVariableArray.getCount();
-	for (size_t i = 0; i < argCount; i++)
-	{
+	for (size_t i = 0; i < argCount; i++) {
 		Variable* argVar = argVariableArray[i];
 		promiseType->createField(argVar->getName(), argVar->getType());
 	}
@@ -64,8 +62,7 @@ AsyncLauncherFunction::compile()
 
 	size_t j = 0;
 
-	if (isMember())
-	{
+	if (isMember()) {
 		Field* argField = argFieldArray[0];
 		Value argFieldValue;
 
@@ -78,8 +75,7 @@ AsyncLauncherFunction::compile()
 		j = 1;
 	}
 
-	for (size_t i = 0; i < argCount; i++, j++)
-	{
+	for (size_t i = 0; i < argCount; i++, j++) {
 		Variable* argVar = argVariableArray[i];
 		Field* argField = argFieldArray[j];
 		Value argFieldValue;
@@ -100,7 +96,7 @@ AsyncLauncherFunction::compile()
 		sl::String(),
 		sequencerName,
 		functionType
-		);
+	);
 
 	m_module->m_functionMgr.m_asyncSequencerFunctionArray.append(sequencerFunc);
 

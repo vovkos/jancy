@@ -22,13 +22,11 @@ char g_script[] =
 
 static MainWindow* g_mainWindow = NULL;
 
-MainWindow* getMainWindow()
-{
+MainWindow* getMainWindow() {
 	return g_mainWindow;
 }
 
-size_t printToMainWindow(const void* p, size_t size)
-{
+size_t printToMainWindow(const void* p, size_t size) {
 	return getMainWindow()->outputDirect(QString::fromUtf8((const char*) p, size));
 }
 
@@ -37,9 +35,8 @@ size_t printToMainWindow(const void* p, size_t size)
 MainWindow::MainWindow(
 	QWidget *parent,
 	Qt::WindowFlags flags
-	):
-	QMainWindow(parent, flags)
-{
+):
+	QMainWindow(parent, flags) {
 	Q_ASSERT(!g_mainWindow);
 	g_mainWindow = this;
 	m_layout = NULL;
@@ -64,29 +61,25 @@ MainWindow::MainWindow(
 	jnc::StdLib_setStdIo(NULL, printToMainWindow, printToMainWindow);
 }
 
-int MainWindow::outputDirect(const QString& string)
-{
+int MainWindow::outputDirect(const QString& string) {
 	m_output->moveCursor(QTextCursor::End);
 	m_output->insertPlainText(string);
 	return string.length();
 }
 
-int MainWindow::output_va(const char* format, va_list va)
-{
+int MainWindow::output_va(const char* format, va_list va) {
 	QString string;
 	string.vsprintf(format, va);
 	return outputDirect(string);
 }
 
-int MainWindow::output(const char* format, ...)
-{
+int MainWindow::output(const char* format, ...) {
 	va_list va;
 	va_start(va, format);
 	return output_va(format, va);
 }
 
-bool MainWindow::runScript(const QString& fileName)
-{
+bool MainWindow::runScript(const QString& fileName) {
 	bool result;
 
 	m_module->initialize("jnc_sample_03_dialog");
@@ -94,13 +87,10 @@ bool MainWindow::runScript(const QString& fileName)
 	m_module->addStaticLib(MyLib_getLib());
 	m_module->require(jnc::ModuleItemKind_Function, "main");
 
-	if (fileName.isEmpty())
-	{
+	if (fileName.isEmpty()) {
 		output("Parsing default script...\n");
 		result = m_module->parse("script.jnc", g_script, sizeof(g_script) - 1);
-	}
-	else
-	{
+	} else {
 		QByteArray fileName_utf8 = fileName.toUtf8();
 
 		output("Parsing %s...\n", fileName_utf8.constData());
@@ -111,8 +101,7 @@ bool MainWindow::runScript(const QString& fileName)
 		result &&
 		m_module->parseImports();
 
-	if (!result)
-	{
+	if (!result) {
 		output("%s\n", jnc::getLastErrorDescription_v ());
 		return false;
 	}
@@ -124,8 +113,7 @@ bool MainWindow::runScript(const QString& fileName)
 		m_module->optimize() &&
 		m_module->jit();
 
-	if (!result)
-	{
+	if (!result) {
 		output("%s\n", jnc::getLastErrorDescription_v ());
 		return false;
 	}
@@ -137,8 +125,7 @@ bool MainWindow::runScript(const QString& fileName)
 	output("Running...\n");
 
 	result = m_runtime->startup(m_module);
-	if (!result)
-	{
+	if (!result) {
 		output("%s\n", jnc::getLastErrorDescription_v ());
 		return false;
 	}
@@ -147,8 +134,7 @@ bool MainWindow::runScript(const QString& fileName)
 
 	int returnValue;
 	result = jnc::callFunction(m_runtime, mainFunction, &returnValue, m_layout);
-	if (!result)
-	{
+	if (!result) {
 		output("Runtime error: %s\n", jnc::getLastErrorDescription_v ());
 		return false;
 	}
@@ -157,8 +143,7 @@ bool MainWindow::runScript(const QString& fileName)
 	return true;
 }
 
-void MainWindow::createLayout()
-{
+void MainWindow::createLayout() {
 	m_runtime->getGcHeap()->addStaticRoot(&m_layout, m_module->getStdType(jnc::StdType_AbstractClassPtr));
 
 	JNC_BEGIN_CALL_SITE(m_runtime)
@@ -169,8 +154,7 @@ void MainWindow::createLayout()
 	JNC_END_CALL_SITE()
 }
 
-void MainWindow::closeEvent(QCloseEvent* e)
-{
+void MainWindow::closeEvent(QCloseEvent* e) {
 	output("Shutting down...\n");
 	m_runtime->shutdown();
 }

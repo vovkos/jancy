@@ -48,8 +48,7 @@ class DynamicLibNamespace;
 
 //..............................................................................
 
-enum StdCast
-{
+enum StdCast {
 	StdCast_Copy,
 	StdCast_SwapByteOrder,
 	StdCast_PtrFromInt,
@@ -62,16 +61,14 @@ enum StdCast
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum OperatorDynamism
-{
+enum OperatorDynamism {
 	OperatorDynamism_Static = 0,
 	OperatorDynamism_Dynamic,
 };
 
 //..............................................................................
 
-class OperatorMgr
-{
+class OperatorMgr {
 	friend class Module;
 	friend class VariableMgr;
 	friend class FunctionMgr;
@@ -190,8 +187,7 @@ public:
 	OperatorMgr();
 
 	Module*
-	getModule()
-	{
+	getModule() {
 		return m_module;
 	}
 
@@ -199,26 +195,22 @@ public:
 	clear();
 
 	void
-	enterUnsafeRgn()
-	{
+	enterUnsafeRgn() {
 		m_unsafeEnterCount++;
 	}
 
 	void
-	leaveUnsafeRgn()
-	{
+	leaveUnsafeRgn() {
 		m_unsafeEnterCount--;
 	}
 
 	void
-	resetUnsafeRgn()
-	{
+	resetUnsafeRgn() {
 		m_unsafeEnterCount = 0;
 	}
 
 	bool
-	isUnsafeRgn()
-	{
+	isUnsafeRgn() {
 		return m_unsafeEnterCount > 0;
 	}
 
@@ -230,14 +222,13 @@ public:
 		const Value& opValue,
 		Value* resultValue,
 		uint_t opFlags = 0
-		);
+	);
 
 	bool
 	prepareOperandType(
 		Value* opValue,
 		uint_t opFlags = 0
-		)
-	{
+	) {
 		return prepareOperandType(*opValue, opValue, opFlags);
 	}
 
@@ -246,14 +237,13 @@ public:
 		const Value& opValue,
 		Value* resultValue,
 		uint_t opFlags = 0
-		);
+	);
 
 	bool
 	prepareOperand(
 		Value* opValue,
 		uint_t opFlags = 0
-		)
-	{
+	) {
 		return prepareOperand(*opValue, opValue, opFlags);
 	}
 
@@ -261,11 +251,10 @@ public:
 	prepareDataPtr(
 		const Value& value,
 		Value* resultValue
-		);
+	);
 
 	bool
-	prepareDataPtr(Value* value)
-	{
+	prepareDataPtr(Value* value) {
 		return prepareDataPtr(*value, value);
 	}
 
@@ -273,11 +262,10 @@ public:
 	prepareArrayRef(
 		const Value& value,
 		Value* resultValue
-		);
+	);
 
 	void
-	prepareArrayRef(Value* value)
-	{
+	prepareArrayRef(Value* value) {
 		prepareArrayRef(*value, value);
 	}
 
@@ -285,11 +273,10 @@ public:
 	makeLeanDataPtr(
 		const Value& value,
 		Value* resultValue
-		);
+	);
 
 	void
-	makeLeanDataPtr(Value* value)
-	{
+	makeLeanDataPtr(Value* value) {
 		makeLeanDataPtr(*value, value);
 	}
 
@@ -300,14 +287,13 @@ public:
 		UnOpKind opKind,
 		const Value& opValue,
 		Value* resultValue = NULL
-		);
+	);
 
 	bool
 	unaryOperator(
 		UnOpKind opKind,
 		Value* value
-		)
-	{
+	) {
 		return unaryOperator(opKind, *value, value);
 	}
 
@@ -319,7 +305,7 @@ public:
 		const Value& opValue1,
 		const Value& opValue2,
 		Value* resultValue = NULL
-		);
+	);
 
 	bool
 	logicalOrOperator(
@@ -328,7 +314,7 @@ public:
 		const Value& opValue1,
 		const Value& opValue2,
 		Value* resultValue = NULL
-		);
+	);
 
 	bool
 	logicalAndOperator(
@@ -337,15 +323,14 @@ public:
 		const Value& opValue1,
 		const Value& opValue2,
 		Value* resultValue = NULL
-		);
+	);
 
 	bool
 	binaryOperator(
 		BinOpKind opKind,
 		Value* value,
 		const Value& opValue2
-		)
-	{
+	) {
 		return binaryOperator(opKind, *value, opValue2, value);
 	}
 
@@ -355,8 +340,7 @@ public:
 		BasicBlock* opBlock2,
 		Value* value,
 		const Value& opValue2
-		)
-	{
+	) {
 		return logicalOrOperator(opBlock1, opBlock2, *value, opValue2, value);
 	}
 
@@ -366,8 +350,7 @@ public:
 		BasicBlock* opBlock2,
 		Value* value,
 		const Value& opValue2
-		)
-	{
+	) {
 		return logicalAndOperator(opBlock1, opBlock2, *value, opValue2, value);
 	}
 
@@ -377,7 +360,7 @@ public:
 	getConditionalOperatorResultType(
 		const Value& trueValue,
 		const Value& falseValue
-		);
+	);
 
 	bool
 	conditionalOperator(
@@ -386,7 +369,7 @@ public:
 		BasicBlock* thenBlock,
 		BasicBlock* phiBlock,
 		Value* resultValue = NULL
-		);
+	);
 
 	// cast operators
 
@@ -395,20 +378,18 @@ public:
 		const Value& value,
 		Type* type,
 		Value* resultValue
-		);
+	);
 
 	void
 	forceCast(
 		Value* value,
 		Type* type
-		)
-	{
+	) {
 		forceCast(*value, type, value);
 	}
 
 	CastOperator*
-	getStdCastOperator(StdCast castKind)
-	{
+	getStdCastOperator(StdCast castKind) {
 		ASSERT((size_t)castKind < StdCast__Count);
 		return m_stdCastOperatorTable[castKind];
 	}
@@ -417,13 +398,13 @@ public:
 	getCastKind(
 		const Value& opValue,
 		Type* type
-		);
+	);
 
 	bool
 	checkCastKind(
 		const Value& opValue,
 		Type* type
-		);
+	);
 
 	CastKind
 	getArgCastKind(
@@ -431,15 +412,14 @@ public:
 		FunctionType* functionType,
 		FunctionArg* const* argArray,
 		size_t argCount
-		);
+	);
 
 	CastKind
 	getArgCastKind(
 		FunctionType* functionType,
 		FunctionArg* const* argArray,
 		size_t argCount
-		)
-	{
+	) {
 		return getArgCastKind(NULL, functionType, argArray, argCount);
 	}
 
@@ -448,15 +428,14 @@ public:
 		FunctionType* functionType,
 		const Value* argValueArray,
 		size_t argCount
-		);
+	);
 
 	CastKind
 	getArgCastKind(
 		Closure* closure,
 		FunctionType* functionType,
 		const sl::Array<FunctionArg*>& argArray
-		)
-	{
+	) {
 		return getArgCastKind(closure, functionType, argArray, argArray.getCount());
 	}
 
@@ -464,8 +443,7 @@ public:
 	getArgCastKind(
 		FunctionType* functionType,
 		const sl::Array<FunctionArg*>& argArray
-		)
-	{
+	) {
 		return getArgCastKind(NULL, functionType, argArray, argArray.getCount());
 	}
 
@@ -473,19 +451,19 @@ public:
 	getArgCastKind(
 		FunctionType* functionType,
 		const sl::ConstBoxList<Value>& argValueList
-		);
+	);
 
 	CastKind
 	getFunctionCastKind(
 		FunctionType* srcType,
 		FunctionType* dstType
-		);
+	);
 
 	CastKind
 	getPropertyCastKind(
 		PropertyType* srcType,
 		PropertyType* dstType
-		);
+	);
 
 	bool
 	castOperator(
@@ -493,15 +471,14 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue = NULL
-		);
+	);
 
 	bool
 	castOperator(
 		OperatorDynamism dynamism,
 		Value* value,
 		Type* type
-		)
-	{
+	) {
 		return castOperator(dynamism, *value, type, value);
 	}
 
@@ -511,15 +488,14 @@ public:
 		const Value& opValue,
 		TypeKind typeKind,
 		Value* resultValue = NULL
-		);
+	);
 
 	bool
 	castOperator(
 		OperatorDynamism dynamism,
 		Value* value,
 		TypeKind typeKind
-		)
-	{
+	) {
 		return castOperator(dynamism, *value, typeKind, value);
 	}
 
@@ -528,8 +504,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue = NULL
-		)
-	{
+	) {
 		return castOperator(OperatorDynamism_Static, opValue, type, resultValue);
 	}
 
@@ -537,8 +512,7 @@ public:
 	castOperator(
 		Value* value,
 		Type* type
-		)
-	{
+	) {
 		return castOperator(OperatorDynamism_Static, *value, type, value);
 	}
 
@@ -547,8 +521,7 @@ public:
 		const Value& opValue,
 		TypeKind typeKind,
 		Value* resultValue = NULL
-		)
-	{
+	) {
 		return castOperator(OperatorDynamism_Static, opValue, typeKind, resultValue);
 	}
 
@@ -556,8 +529,7 @@ public:
 	castOperator(
 		Value* value,
 		TypeKind typeKind
-		)
-	{
+	) {
 		return castOperator(OperatorDynamism_Static, *value, typeKind, value);
 	}
 
@@ -568,14 +540,13 @@ public:
 		OperatorDynamism dynamism,
 		const Value& opValue,
 		Value* resultValue = NULL
-		);
+	);
 
 	bool
 	sizeofOperator(
 		OperatorDynamism dynamism,
 		Value* value
-		)
-	{
+	) {
 		return sizeofOperator(dynamism, *value, value);
 	}
 
@@ -583,14 +554,12 @@ public:
 	sizeofOperator(
 		const Value& opValue,
 		Value* resultValue = NULL
-		)
-	{
+	) {
 		return sizeofOperator(OperatorDynamism_Static, opValue, resultValue);
 	}
 
 	bool
-	sizeofOperator(Value* value)
-	{
+	sizeofOperator(Value* value) {
 		return sizeofOperator(OperatorDynamism_Static, *value, value);
 	}
 
@@ -601,14 +570,13 @@ public:
 		OperatorDynamism dynamism,
 		const Value& opValue,
 		Value* resultValue = NULL
-		);
+	);
 
 	bool
 	countofOperator(
 		OperatorDynamism dynamism,
 		Value* value
-		)
-	{
+	) {
 		return countofOperator(dynamism, *value, value);
 	}
 
@@ -616,14 +584,12 @@ public:
 	countofOperator(
 		const Value& opValue,
 		Value* resultValue = NULL
-		)
-	{
+	) {
 		return countofOperator(OperatorDynamism_Static, opValue, resultValue);
 	}
 
 	bool
-	countofOperator(Value* value)
-	{
+	countofOperator(Value* value) {
 		return countofOperator(OperatorDynamism_Static, *value, value);
 	}
 
@@ -634,14 +600,13 @@ public:
 		OperatorDynamism dynamism,
 		const Value& opValue,
 		Value* resultValue = NULL
-		);
+	);
 
 	bool
 	typeofOperator(
 		OperatorDynamism dynamism,
 		Value* value
-		)
-	{
+	) {
 		return typeofOperator(dynamism, *value, value);
 	}
 
@@ -649,14 +614,12 @@ public:
 	typeofOperator(
 		const Value& opValue,
 		Value* resultValue = NULL
-		)
-	{
+	) {
 		return typeofOperator(OperatorDynamism_Static, opValue, resultValue);
 	}
 
 	bool
-	typeofOperator(Value* value)
-	{
+	typeofOperator(Value* value) {
 		return typeofOperator(OperatorDynamism_Static, *value, value);
 	}
 
@@ -666,11 +629,10 @@ public:
 	offsetofOperator(
 		const Value& value,
 		Value* resultValue
-		);
+	);
 
 	bool
-	offsetofOperator(Value* value)
-	{
+	offsetofOperator(Value* value) {
 		return offsetofOperator(*value, value);
 	}
 
@@ -683,11 +645,10 @@ public:
 	awaitOperator(
 		const Value& value,
 		Value* resultValue
-		);
+	);
 
 	bool
-	awaitOperator(Value* value)
-	{
+	awaitOperator(Value* value) {
 		return awaitOperator(*value, value);
 	}
 
@@ -700,7 +661,7 @@ public:
 		char c,
 		size_t size,
 		bool isVolatile = false
-		);
+	);
 
 	bool
 	memCpy(
@@ -709,7 +670,7 @@ public:
 		const Value& srcValue,
 		size_t size,
 		bool isVolatile = false
-		);
+	);
 
 	bool
 	memCpy(
@@ -717,8 +678,7 @@ public:
 		const Value& srcValue,
 		size_t size,
 		bool isVolatile = false
-		)
-	{
+	) {
 		return memCpy(StdFunc_LlvmMemcpy, dstValue, srcValue, size, isVolatile);
 	}
 
@@ -728,8 +688,7 @@ public:
 		const Value& srcValue,
 		size_t size,
 		bool isVolatile = false
-		)
-	{
+	) {
 		return memCpy(StdFunc_LlvmMemmove, dstValue, srcValue, size, isVolatile);
 	}
 
@@ -737,21 +696,21 @@ public:
 	construct(
 		const Value& opValue,
 		sl::BoxList<Value>* argValueList = NULL
-		);
+	);
 
 	bool
 	parseInitializer(
 		const Value& value,
 		const sl::ConstBoxList<Token>& constructorTokenList,
 		const sl::ConstBoxList<Token>& initializerTokenList
-		);
+	);
 
 	bool
 	parseFunctionArgDefaultValue(
 		ModuleItemDecl* decl,
 		const sl::ConstBoxList<Token>& tokenList,
 		Value* resultValue
-		);
+	);
 
 	bool
 	parseFunctionArgDefaultValue(
@@ -759,7 +718,7 @@ public:
 		const Value& thisValue,
 		const sl::ConstBoxList<Token>& tokenList,
 		Value* resultValue
-		);
+	);
 
 	bool
 	parseFunctionArgDefaultValue(
@@ -767,8 +726,7 @@ public:
 		Closure* closure,
 		const sl::ConstBoxList<Token>& tokenList,
 		Value* resultValue
-		)
-	{
+	) {
 		return closure && closure->isMemberClosure() ?
 			parseFunctionArgDefaultValue(decl, closure->getThisArgValue(), tokenList, resultValue) :
 			parseFunctionArgDefaultValue(decl, Value(), tokenList, resultValue);
@@ -778,19 +736,19 @@ public:
 	parseExpression(
 		const sl::ConstBoxList<Token>& expressionTokenList,
 		Value* resultValue
-		);
+	);
 
 	bool
 	parseConstIntegerExpression(
 		const sl::ConstBoxList<Token>& expressionTokenList,
 		int64_t* integer
-		);
+	);
 
 	size_t
 	parseAutoSizeArrayInitializer(
 		ArrayType* arrayType,
 		const sl::ConstBoxList<Token>& initializerTokenList
-		);
+	);
 
 	size_t
 	parseAutoSizeArrayLiteralInitializer(const sl::ConstBoxList<Token>& initializerTokenList);
@@ -799,28 +757,27 @@ public:
 	parseAutoSizeArrayCurlyInitializer(
 		ArrayType* arrayType,
 		const sl::ConstBoxList<Token>& initializerTokenList
-		);
+	);
 
 	size_t
 	parseAutoSizeArrayCurlyInitializer(
 		ArrayType* arrayType,
 		const lex::LineColOffset& pos,
 		const sl::StringRef& initializer
-		);
+	);
 
 	bool
 	gcHeapAllocate(
 		Type* type,
 		const Value& rawElementCountValue,
 		Value* resultValue
-		);
+	);
 
 	bool
 	gcHeapAllocate(
 		Type* type,
 		Value* resultValue
-		)
-	{
+	) {
 		return gcHeapAllocate(type, Value(), resultValue);
 	}
 
@@ -830,14 +787,13 @@ public:
 		const Value& elementCountValue,
 		sl::BoxList<Value>* argValueList,
 		Value* resultValue
-		);
+	);
 
 	bool
 	newOperator(
 		Type* type,
 		Value* resultValue
-		)
-	{
+	) {
 		return newOperator(type, Value(), NULL, resultValue);
 	}
 
@@ -846,8 +802,7 @@ public:
 		Type* type,
 		const Value& elementCountValue,
 		Value* resultValue
-		)
-	{
+	) {
 		return newOperator(type, elementCountValue, NULL, resultValue);
 	}
 
@@ -856,8 +811,7 @@ public:
 		Type* type,
 		sl::BoxList<Value>* argValueList,
 		Value* resultValue
-		)
-	{
+	) {
 		return newOperator(type, Value(), argValueList, resultValue);
 	}
 
@@ -867,19 +821,19 @@ public:
 	createMemberClosure(
 		Value* value,
 		ModuleItemDecl* itemDecl = NULL
-		);
+	);
 
 	bool
 	getThisValue(
 		Value* value,
 		ModuleItemDecl* itemDecl = NULL
-		);
+	);
 
 	bool
 	getThisValueType(
 		Value* value,
 		ModuleItemDecl* itemDecl = NULL
-		);
+	);
 
 	Namespace*
 	getValueNamespace(const Value& opValue);
@@ -889,14 +843,13 @@ public:
 		const Value& opValue,
 		size_t index,
 		Value* resultValue
-		);
+	);
 
 	bool
 	memberOperator(
 		Value* value,
 		size_t index
-		)
-	{
+	) {
 		return memberOperator(*value, index, value);
 	}
 
@@ -905,14 +858,13 @@ public:
 		const Value& opValue,
 		const sl::StringRef& name,
 		Value* resultValue
-		);
+	);
 
 	bool
 	memberOperator(
 		Value* value,
 		const sl::StringRef& name
-		)
-	{
+	) {
 		return memberOperator(*value, name, value);
 	}
 
@@ -923,7 +875,7 @@ public:
 	callTraceFunction(
 		const sl::StringRef& functionName,
 		const sl::StringRef& string
-		);
+	);
 
 	void
 	traceBlock(BasicBlock* block);
@@ -933,21 +885,20 @@ public:
 	getValueFunctionTypeOverload(
 		const Value& opValue,
 		size_t* baseArgumentIdx
-		);
+	);
 
 	bool
 	callOperator(
 		const Value& opValue,
 		sl::BoxList<Value>* argValueList,
 		Value* resultValue = NULL
-		);
+	);
 
 	bool
 	callOperator(
 		Value* value,
 		sl::BoxList<Value>* argValueList
-		)
-	{
+	) {
 		return callOperator(*value, argValueList, value);
 	}
 
@@ -955,8 +906,7 @@ public:
 	callOperator(
 		const Value& opValue,
 		Value* resultValue = NULL
-		)
-	{
+	) {
 		sl::BoxList<Value> argValueList;
 		return callOperator(opValue, &argValueList, resultValue);
 	}
@@ -966,8 +916,7 @@ public:
 		const Value& opValue,
 		const Value& argValue,
 		Value* resultValue = NULL
-		)
-	{
+	) {
 		sl::BoxList<Value> argValueList;
 		argValueList.insertTail(argValue);
 		return callOperator(opValue, &argValueList, resultValue);
@@ -979,8 +928,7 @@ public:
 		const Value& argValue1,
 		const Value& argValue2,
 		Value* resultValue = NULL
-		)
-	{
+	) {
 		sl::BoxList<Value> argValueList;
 		argValueList.insertTail(argValue1);
 		argValueList.insertTail(argValue2);
@@ -994,8 +942,7 @@ public:
 		const Value& argValue2,
 		const Value& argValue3,
 		Value* resultValue = NULL
-		)
-	{
+	) {
 		sl::BoxList<Value> argValueList;
 		argValueList.insertTail(argValue1);
 		argValueList.insertTail(argValue2);
@@ -1011,8 +958,7 @@ public:
 		const Value& argValue3,
 		const Value& argValue4,
 		Value* resultValue = NULL
-		)
-	{
+	) {
 		sl::BoxList<Value> argValueList;
 		argValueList.insertTail(argValue1);
 		argValueList.insertTail(argValue2);
@@ -1031,14 +977,13 @@ public:
 		const Value& opValue,
 		sl::BoxList<Value>* argValueList,
 		Value* resultValue
-		);
+	);
 
 	bool
 	closureOperator(
 		Value* value,
 		sl::BoxList<Value>* argValueList
-		)
-	{
+	) {
 		return closureOperator(*value,  argValueList, value);
 	}
 
@@ -1046,8 +991,7 @@ public:
 	closureOperator(
 		const Value& opValue,
 		Value* resultValue
-		)
-	{
+	) {
 		sl::BoxList<Value> argValueList;
 		return closureOperator(opValue, &argValueList, resultValue);
 	}
@@ -1057,8 +1001,7 @@ public:
 		const Value& opValue,
 		const Value& argValue,
 		Value* resultValue
-		)
-	{
+	) {
 		sl::BoxList<Value> argValueList;
 		argValueList.insertTail(argValue);
 		return closureOperator(opValue, &argValueList, resultValue);
@@ -1070,8 +1013,7 @@ public:
 		const Value& argValue1,
 		const Value& argValue2,
 		Value* resultValue
-		)
-	{
+	) {
 		sl::BoxList<Value> argValueList;
 		argValueList.insertTail(argValue1);
 		argValueList.insertTail(argValue2);
@@ -1084,11 +1026,10 @@ public:
 	getPropertyGetter(
 		const Value& opValue,
 		Value* resultValue
-		);
+	);
 
 	bool
-	getPropertyGetter(Value* value)
-	{
+	getPropertyGetter(Value* value) {
 		return getPropertyGetter(*value, value);
 	}
 
@@ -1099,14 +1040,13 @@ public:
 		const Value& opValue,
 		const Value& argValue,
 		Value* resultValue
-		);
+	);
 
 	bool
 	getPropertySetter(
 		Value* value,
 		const Value& argValue
-		)
-	{
+	) {
 		return getPropertySetter(*value, argValue, value);
 	}
 
@@ -1114,14 +1054,12 @@ public:
 	getPropertySetter(
 		const Value& opValue,
 		Value* resultValue
-		)
-	{
+	) {
 		return getPropertySetter(opValue, Value(), resultValue);
 	}
 
 	bool
-	getPropertySetter(Value* value)
-	{
+	getPropertySetter(Value* value) {
 		return getPropertySetter(*value, Value(), value);
 	}
 
@@ -1131,11 +1069,10 @@ public:
 	getPropertyBinder(
 		const Value& opValue,
 		Value* resultValue
-		);
+	);
 
 	bool
-	getPropertyBinder(Value* value)
-	{
+	getPropertyBinder(Value* value) {
 		return getPropertyBinder(*value, value);
 	}
 
@@ -1148,11 +1085,10 @@ public:
 	getPropertyAutoGetValueType(
 		const Value& opValue,
 		Value* resultValue
-		);
+	);
 
 	bool
-	getPropertyAutoGetValueType(Value* value)
-	{
+	getPropertyAutoGetValueType(Value* value) {
 		return getPropertyAutoGetValueType(*value, value);
 	}
 
@@ -1160,11 +1096,10 @@ public:
 	getPropertyAutoGetValue(
 		const Value& opValue,
 		Value* resultValue
-		);
+	);
 
 	bool
-	getPropertyAutoGetValue(Value* value)
-	{
+	getPropertyAutoGetValue(Value* value) {
 		return getPropertyAutoGetValue(*value, value);
 	}
 
@@ -1175,11 +1110,10 @@ public:
 	getPropertyOnChangedType(
 		const Value& opValue,
 		Value* resultValue
-		);
+	);
 
 	bool
-	getPropertyOnChangedType(Value* value)
-	{
+	getPropertyOnChangedType(Value* value) {
 		return getPropertyOnChangedType(*value, value);
 	}
 
@@ -1187,11 +1121,10 @@ public:
 	getPropertyOnChanged(
 		const Value& opValue,
 		Value* resultValue
-		);
+	);
 
 	bool
-	getPropertyOnChanged(Value* value)
-	{
+	getPropertyOnChanged(Value* value) {
 		return getPropertyOnChanged(*value, value);
 	}
 
@@ -1201,13 +1134,13 @@ public:
 	getProperty(
 		const Value& opValue,
 		Value* resultValue
-		);
+	);
 
 	bool
 	setProperty(
 		const Value& opValue,
 		const Value& srcValue
-		);
+	);
 
 	bool
 	getPropertyThinPtr(
@@ -1215,21 +1148,20 @@ public:
 		Closure* closure,
 		PropertyPtrType* ptrType,
 		Value* resultValue
-		);
+	);
 
 	bool
 	getPropertyThinPtr(
 		Property* prop,
 		Closure* closure,
 		Value* resultValue
-		)
-	{
+	) {
 		return getPropertyThinPtr(
 			prop,
 			closure,
 			prop->getType()->getPropertyPtrType(PropertyPtrTypeKind_Thin),
 			resultValue
-			);
+		);
 	}
 
 	bool
@@ -1237,13 +1169,13 @@ public:
 		Property* prop,
 		Closure* closure,
 		Value* resultValue
-		);
+	);
 
 	bool
 	getPropertyVtable(
 		const Value& opValue,
 		Value* resultValue
-		);
+	);
 
 	// load & store operators
 
@@ -1251,11 +1183,10 @@ public:
 	loadDataRef(
 		const Value& opValue,
 		Value* resultValue
-		);
+	);
 
 	bool
-	loadDataRef(Value* value)
-	{
+	loadDataRef(Value* value) {
 		return loadDataRef(*value, value);
 	}
 
@@ -1263,7 +1194,7 @@ public:
 	storeDataRef(
 		const Value& dstValue,
 		const Value& srcValue
-		);
+	);
 
 	// bit fields
 
@@ -1272,7 +1203,7 @@ public:
 		const Value& value,
 		BitFieldType* bitFieldType,
 		Value* resultValue
-		);
+	);
 
 	bool
 	mergeBitField(
@@ -1280,7 +1211,7 @@ public:
 		const Value& shadowValue,
 		BitFieldType* bitFieldType,
 		Value* resultValue
-		);
+	);
 
 	// fields
 
@@ -1290,15 +1221,14 @@ public:
 		Field* member,
 		MemberCoord* coord,
 		Value* resultValue
-		);
+	);
 
 	bool
 	getField(
 		const Value& opValue,
 		Field* member,
 		Value* resultValue
-		)
-	{
+	) {
 		return getField(opValue, member, NULL, resultValue);
 	}
 
@@ -1306,8 +1236,7 @@ public:
 	getField(
 		Value* value,
 		Field* member
-		)
-	{
+	) {
 		return getField(*value, member, NULL, value);
 	}
 
@@ -1316,7 +1245,7 @@ public:
 		const Value& promiseValue,
 		const sl::String& name,
 		Value* resultValue
-		);
+	);
 
 	// impl
 
@@ -1326,7 +1255,7 @@ public:
 		MemberCoord* coord,
 		Type* resultType,
 		Value* resultValue
-		);
+	);
 
 	bool
 	getStructField(
@@ -1334,7 +1263,7 @@ public:
 		Field* field,
 		MemberCoord* coord,
 		Value* resultValue
-		);
+	);
 
 	bool
 	getDynamicField(
@@ -1342,14 +1271,14 @@ public:
 		DerivableType* type,
 		Field* field,
 		Value* resultValue
-		);
+	);
 
 	bool
 	getUnionField(
 		const Value& opValue,
 		Field* field,
 		Value* resultValue
-		);
+	);
 
 	bool
 	getClassField(
@@ -1357,14 +1286,14 @@ public:
 		Field* field,
 		MemberCoord* coord,
 		Value* resultValue
-		);
+	);
 
 	bool
 	getPropertyField(
 		const Value& opValue,
 		ModuleItem* member,
 		Value* resultValue
-		);
+	);
 
 	// misc
 
@@ -1373,14 +1302,14 @@ public:
 		Function* function,
 		Closure* closure,
 		Value* resultValue
-		);
+	);
 
 	bool
 	getVirtualProperty(
 		Property* prop,
 		Closure* closure,
 		Value* resultValue
-		);
+	);
 
 	// closures
 
@@ -1390,14 +1319,14 @@ public:
 		Type* thunkType, // function or property type
 		bool isWeak,
 		Value* resultValue
-		);
+	);
 
 	bool
 	createDataClosureObject(
 		const Value& opValue, // data ptr
 		PropertyType* thunkType, // function or property type
 		Value* resultValue
-		);
+	);
 
 	// pointer checks
 
@@ -1407,7 +1336,7 @@ public:
 		StdFunc stdTryCheckFunction,
 		const Value* argValueArray,
 		size_t argCount
-		);
+	);
 
 	bool
 	checkDataPtrRange(const Value& value);
@@ -1425,8 +1354,7 @@ public:
 		const Value& opValue,
 		ModuleItemDecl* decl,
 		Value* resultValue
-		)
-	{
+	) {
 		if (isDualType(resultValue->getType()))
 			foldDualType(opValue, decl, resultValue);
 	}
@@ -1438,13 +1366,13 @@ protected:
 	getOverloadedUnaryOperator(
 		UnOpKind opKind,
 		const Value& opValue
-		);
+	);
 
 	OverloadableFunction
 	getOverloadedBinaryOperator(
 		BinOpKind opKind,
 		const Value& opValue1
-		);
+	);
 
 	// member operators
 
@@ -1454,7 +1382,7 @@ protected:
 		const sl::StringRef& name,
 		size_t baseFieldOffset,
 		Value* resultValue
-		);
+	);
 
 	bool
 	getNamedTypeMember(
@@ -1462,7 +1390,7 @@ protected:
 		NamedType* namedType,
 		const sl::StringRef& name,
 		Value* resultValue
-		);
+	);
 
 	bool
 	getEnumTypeMember(
@@ -1470,21 +1398,21 @@ protected:
 		EnumType* enumType,
 		const sl::StringRef& name,
 		Value* resultValue
-		);
+	);
 
 	bool
 	getVariantMember(
 		const Value& opValue,
 		size_t index,
 		Value* resultValue
-		);
+	);
 
 	bool
 	getVariantMember(
 		const Value& opValue,
 		const sl::StringRef& name,
 		Value* resultValue
-		);
+	);
 
 	bool
 	getLibraryMember(
@@ -1492,15 +1420,14 @@ protected:
 		Closure* closure,
 		const sl::StringRef& name,
 		Value* resultValue
-		);
+	);
 
 	bool
 	finalizeMemberOperator(
 		const Value& opValue,
 		ModuleItemDecl* decl,
 		Value* resultValue
-		)
-	{
+	) {
 		finalizeDualType(opValue, decl, resultValue);
 		return checkAccess(decl);
 	}
@@ -1510,7 +1437,7 @@ protected:
 		const Value& opValue,
 		ClassType* classType,
 		Value* resultValue
-		);
+	);
 
 	bool
 	callImpl(
@@ -1518,21 +1445,21 @@ protected:
 		FunctionType* functionType,
 		sl::BoxList<Value>* argValueList,
 		Value* resultValue
-		);
+	);
 
 	bool
 	callClosureFunctionPtr(
 		const Value& opValue,
 		sl::BoxList<Value>* argValueList,
 		Value* resultValue
-		);
+	);
 
 	bool
 	castArgValueList(
 		FunctionType* functionType,
 		Closure* closure,
 		sl::BoxList<Value>* argValueList
-		);
+	);
 
 	Type*
 	getCdeclVarArgType(Type* type);
@@ -1543,15 +1470,14 @@ protected:
 		DerivableType* type,
 		const Value& value,
 		Value* resultValue
-		);
+	);
 
 	bool
 	callOperatorVararg(
 		Function* operatorVararg,
 		DerivableType* type,
 		Value* value
-		)
-	{
+	) {
 		return callOperatorVararg(operatorVararg, type, *value, value);
 	}
 
@@ -1560,21 +1486,21 @@ protected:
 		const Value& opValue,
 		DataPtrType* type,
 		Value* resultValue
-		);
+	);
 
 	bool
 	dynamicCastClassPtr(
 		const Value& opValue,
 		ClassPtrType* type,
 		Value* resultValue
-		);
+	);
 
 	void
 	foldDualType(
 		const Value& opValue,
 		ModuleItemDecl* decl,
 		Value* resultValue
-		);
+	);
 };
 
 //..............................................................................

@@ -11,8 +11,7 @@ namespace log {
 
 //..............................................................................
 
-enum MonitorFilterKind
-{
+enum MonitorFilterKind {
 	None,
 	FileName,
 	FileId,
@@ -22,10 +21,8 @@ enum MonitorFilterKind
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* getMonitorFilterPlaceholderText(MonitorFilterKind filterKind)
-{
-	static char const* placeholderTextTable[] =
-	{
+char const* getMonitorFilterPlaceholderText(MonitorFilterKind filterKind) {
+	static char const* placeholderTextTable[] = {
 		null,
 		"Enter a file name wildcard...",
 		"Enter a file ID...",
@@ -40,8 +37,7 @@ char const* getMonitorFilterPlaceholderText(MonitorFilterKind filterKind)
 
 //..............................................................................
 
-class MonitorFilter: log.Filter
-{
+class MonitorFilter: log.Filter {
 protected:
 	MonitorFilterKind m_filterKind;
 	char const* m_wildcard;
@@ -56,7 +52,7 @@ public:
 	void setFilter(
 		MonitorFilterKind filterKind,
 		char const* filter
-		);
+	);
 
 	override void reset();
 
@@ -68,7 +64,7 @@ protected:
 		char const* processName,
 		uint64_t pid,
 		bool addFileIdOnMatch
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -76,17 +72,14 @@ protected:
 void MonitorFilter.setFilter(
 	MonitorFilterKind filterKind,
 	char const* filter
-	)
-{
+) {
 	m_filterKind = filterKind;
 
-	switch (filterKind)
-	{
+	switch (filterKind) {
 	case MonitorFilterKind.FileName:
 	case MonitorFilterKind.ProcessName:
 		char* wildcard = strdup(filter);
-		if (!wildcard)
-		{
+		if (!wildcard) {
 			m_wildcard = ""; // should not be null
 			break;
 		}
@@ -106,8 +99,7 @@ void MonitorFilter.setFilter(
 	}
 }
 
-bool MonitorFilter.finalizeFilter(bool result)
-{
+bool MonitorFilter.finalizeFilter(bool result) {
 	result =
 		result ||
 		m_filterKind == MonitorFilterKind.None ||
@@ -120,8 +112,7 @@ bool MonitorFilter.finalizeFilter(bool result)
 	return result;
 }
 
-void MonitorFilter.reset()
-{
+void MonitorFilter.reset() {
 	m_fileIdSet.clear();
 	m_fileId = 0;
 	m_lastVisibleFileId = 0;
@@ -132,12 +123,10 @@ bool MonitorFilter.match(
 	char const* processName,
 	uint64_t pid,
 	bool addFileIdIfMatch
-	)
-{
+) {
 	bool result;
 
-	switch (m_filterKind)
-	{
+	switch (m_filterKind) {
 	case MonitorFilterKind.None:
 		return true;
 

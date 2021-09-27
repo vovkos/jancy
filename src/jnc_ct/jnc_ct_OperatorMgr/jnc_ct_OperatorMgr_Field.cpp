@@ -25,8 +25,7 @@ OperatorMgr::getField(
 	Field* field,
 	MemberCoord* coord,
 	Value* resultValue
-	)
-{
+) {
 	Type* type = opValue.getType();
 
 	if (type->getTypeKindFlags() & TypeKindFlag_DataPtr)
@@ -34,8 +33,7 @@ OperatorMgr::getField(
 	else if (opValue.getType()->getTypeKindFlags() & TypeKindFlag_ClassPtr)
 		type = ((ClassPtrType*)opValue.getType())->getTargetType();
 
-	if (type->getFlags() & TypeFlag_Dynamic)
-	{
+	if (type->getFlags() & TypeFlag_Dynamic) {
 		ASSERT(type->getTypeKindFlags() & TypeKindFlag_Derivable);
 		return getDynamicField(opValue, (DerivableType*)type, field, resultValue);
 	}
@@ -45,8 +43,7 @@ OperatorMgr::getField(
 		 return false;
 
 	TypeKind typeKind = type->getTypeKind();
-	switch (typeKind)
-	{
+	switch (typeKind) {
 	case TypeKind_Struct:
 		return getStructField(opValue, field, coord, resultValue);
 
@@ -69,8 +66,7 @@ OperatorMgr::getPromiseField(
 	const Value& promiseValue,
 	const sl::String& name,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(((ClassPtrType*)promiseValue.getType())->getTargetType()->getBaseTypeArray() [0]->getType()->getStdType() == StdType_Promise);
 
 	ClassType* promiseType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_Promise);
@@ -89,19 +85,17 @@ OperatorMgr::getFieldPtrImpl(
 	MemberCoord* coord,
 	Type* resultType,
 	Value* resultValue
-	)
-{
+) {
 	AXL_TODO("double check multiple levels of nested unnamed structs/unions")
 
-	if (coord->m_unionCoordArray.isEmpty())
-	{
+	if (coord->m_unionCoordArray.isEmpty()) {
 		m_module->m_llvmIrBuilder.createGep(
 			opValueRaw,
 			coord->m_llvmIndexArray,
 			coord->m_llvmIndexArray.getCount(),
 			resultType,
 			resultValue
-			);
+		);
 
 		return true;
 	}
@@ -116,20 +110,18 @@ OperatorMgr::getFieldPtrImpl(
 
 	size_t unionCount = coord->m_unionCoordArray.getCount();
 	UnionCoord* unionCoord = coord->m_unionCoordArray;
-	for (size_t i = 0; i < unionCount; i++, unionCoord++)
-	{
+	for (size_t i = 0; i < unionCount; i++, unionCoord++) {
 		ASSERT(unionCoord->m_level >= unionLevel);
 		size_t llvmIndexDelta = unionCoord->m_level - unionLevel;
 
-		if (llvmIndexDelta)
-		{
+		if (llvmIndexDelta) {
 			m_module->m_llvmIrBuilder.createGep(
 				opValue,
 				llvmIndex,
 				llvmIndexDelta,
 				NULL,
 				&opValue
-				);
+			);
 		}
 
 		Field* field = unionCoord->m_type->getFieldByIndex(llvmIndex[llvmIndexDelta]);
@@ -141,8 +133,7 @@ OperatorMgr::getFieldPtrImpl(
 		unionLevel = unionCoord->m_level + 1;
 	}
 
-	if (llvmIndexEnd > llvmIndex)
-	{
+	if (llvmIndexEnd > llvmIndex) {
 		ASSERT(llvmIndex > coord->m_llvmIndexArray);
 
 		llvmIndex--;
@@ -154,10 +145,8 @@ OperatorMgr::getFieldPtrImpl(
 			llvmIndexEnd - llvmIndex,
 			resultType,
 			resultValue
-			);
-	}
-	else
-	{
+		);
+	} else {
 		resultValue->overrideType(opValue, resultType);
 	}
 
@@ -170,8 +159,7 @@ OperatorMgr::getStructField(
 	Field* field,
 	MemberCoord* coord,
 	Value* resultValue
-	)
-{
+) {
 	MemberCoord dummyCoord;
 	if (!coord)
 		coord = &dummyCoord;
@@ -180,31 +168,24 @@ OperatorMgr::getStructField(
 	coord->m_offset += field->getOffset();
 
 	ValueKind opValueKind = opValue.getValueKind();
-	if (opValueKind == ValueKind_Const)
-	{
+	if (opValueKind == ValueKind_Const) {
 		Type* type = opValue.getType();
-		if (!(type->getTypeKindFlags() & TypeKindFlag_Ptr))
-		{
+		if (!(type->getTypeKindFlags() & TypeKindFlag_Ptr)) {
 			resultValue->createConst(
 				(char*)opValue.getConstData() + coord->m_offset,
 				field->getType()
-				);
-		}
-		else
-		{
+			);
+		} else {
 			ASSERT(type->getTypeKindFlags() & TypeKindFlag_DataPtr);
 
 			DataPtrType* ptrType = (DataPtrType*)type;
 			DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind();
 
-			if (ptrTypeKind == DataPtrTypeKind_Normal)
-			{
+			if (ptrTypeKind == DataPtrTypeKind_Normal) {
 				DataPtr ptr = *(DataPtr*)opValue.getConstData();
 				ptr.m_p = (char*)ptr.m_p + field->getOffset();
 				resultValue->createConst(&ptr, field->getType()->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Normal, type->getFlags()));
-			}
-			else
-			{
+			} else {
 				ASSERT(ptrTypeKind == DataPtrTypeKind_Thin);
 				char* p = *(char**) opValue.getConstData();
 				p += field->getOffset();
@@ -215,10 +196,8 @@ OperatorMgr::getStructField(
 		return true;
 	}
 
-	if (!(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr))
-	{
-		if (!coord->m_unionCoordArray.isEmpty())
-		{
+	if (!(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr)) {
+		if (!coord->m_unionCoordArray.isEmpty()) {
 			err::setFormatStringError("union member operator on registers is not implemented yet");
 			return false;
 		}
@@ -229,7 +208,7 @@ OperatorMgr::getStructField(
 			coord->m_llvmIndexArray.getCount(),
 			field->getType(),
 			resultValue
-			);
+		);
 
 		return true;
 	}
@@ -244,49 +223,41 @@ OperatorMgr::getStructField(
 
 	DataPtrType* resultType;
 
-	if (!m_module->hasCodeGen())
-	{
+	if (!m_module->hasCodeGen()) {
 		resultType = field->getType()->getDataPtrType(TypeKind_DataRef, ptrTypeKind, ptrTypeFlags);
 		resultValue->setType(resultType);
 		return true;
 	}
 
-	if (ptrTypeKind == DataPtrTypeKind_Thin)
-	{
+	if (ptrTypeKind == DataPtrTypeKind_Thin) {
 		resultType = field->getType()->getDataPtrType(
 			TypeKind_DataRef,
 			DataPtrTypeKind_Thin,
 			ptrTypeFlags
-			);
+		);
 
 		getFieldPtrImpl(opValue, coord, resultType, resultValue);
 		return true;
 	}
 
 	Value ptrValue;
-	if (ptrTypeKind == DataPtrTypeKind_Lean)
-	{
+	if (ptrTypeKind == DataPtrTypeKind_Lean) {
 		getFieldPtrImpl(opValue, coord, NULL, &ptrValue);
-	}
-	else
-	{
+	} else {
 		m_module->m_llvmIrBuilder.createExtractValue(opValue, 0, NULL, &ptrValue);
 		m_module->m_llvmIrBuilder.createBitCast(ptrValue, opType->getTargetType()->getDataPtrType_c(), &ptrValue);
 		getFieldPtrImpl(ptrValue, coord, NULL, &ptrValue);
 	}
 
-	if (opType->getTargetType()->getFlags() & TypeFlag_Pod)
-	{
+	if (opType->getTargetType()->getFlags() & TypeFlag_Pod) {
 		resultType = field->getType()->getDataPtrType(
 			TypeKind_DataRef,
 			DataPtrTypeKind_Lean,
 			ptrTypeFlags
-			);
+		);
 
 		resultValue->setLeanDataPtr(ptrValue.getLlvmValue(), resultType, opValue);
-	}
-	else
-	{
+	} else {
 		bool result = checkDataPtrRange(opValue);
 		if (!result)
 			return false;
@@ -296,7 +267,7 @@ OperatorMgr::getStructField(
 			TypeKind_DataRef,
 			DataPtrTypeKind_Lean,
 			ptrTypeFlags
-			);
+		);
 
 		resultValue->setLeanDataPtr(
 			ptrValue.getLlvmValue(),
@@ -304,7 +275,7 @@ OperatorMgr::getStructField(
 			opValue,
 			ptrValue,
 			field->getType()->getSize()
-			);
+		);
 	}
 
 	return true;
@@ -316,8 +287,7 @@ OperatorMgr::getDynamicField(
 	DerivableType* type,
 	Field* field,
 	Value* resultValue
-	)
-{
+) {
 	bool result;
 
 	Function* getDynamicFieldFunc = m_module->m_functionMgr.getStdFunction(StdFunc_GetDynamicField);
@@ -331,7 +301,7 @@ OperatorMgr::getDynamicField(
 		typeValue,
 		fieldValue,
 		&ptrValue
-		);
+	);
 
 	if (!result)
 		return false;
@@ -351,10 +321,9 @@ OperatorMgr::getDynamicField(
 		TypeKind_DataRef,
 		DataPtrTypeKind_Lean,
 		ptrTypeFlags
-		);
+	);
 
-	if (!m_module->hasCodeGen())
-	{
+	if (!m_module->hasCodeGen()) {
 		resultValue->setType(resultType);
 		return true;
 	}
@@ -370,17 +339,14 @@ OperatorMgr::getUnionField(
 	const Value& opValue,
 	Field* field,
 	Value* resultValue
-	)
-{
+) {
 	ValueKind opValueKind = opValue.getValueKind();
-	if (opValueKind == ValueKind_Const)
-	{
+	if (opValueKind == ValueKind_Const) {
 		resultValue->createConst(opValue.getConstData(), field->getType());
 		return true;
 	}
 
-	if (opValue.getType()->getTypeKind() != TypeKind_DataRef)
-	{
+	if (opValue.getType()->getTypeKind() != TypeKind_DataRef) {
 		err::setFormatStringError("union member operator on registers is not implemented yet");
 		return false;
 	}
@@ -397,23 +363,18 @@ OperatorMgr::getUnionField(
 		TypeKind_DataRef,
 		ptrTypeKind == DataPtrTypeKind_Thin ? DataPtrTypeKind_Thin : DataPtrTypeKind_Lean,
 		ptrTypeFlags
-		);
+	);
 
-	if (ptrTypeKind == DataPtrTypeKind_Thin)
-	{
+	if (ptrTypeKind == DataPtrTypeKind_Thin) {
 		m_module->m_llvmIrBuilder.createBitCast(opValue, ptrType, resultValue);
-	}
-	else if (ptrTypeKind == DataPtrTypeKind_Lean)
-	{
+	} else if (ptrTypeKind == DataPtrTypeKind_Lean) {
 		m_module->m_llvmIrBuilder.createBitCast(opValue, ptrType, resultValue);
 
 		if (opValue.getValueKind() == ValueKind_Variable)
 			resultValue->setLeanDataPtrValidator(opValue);
 		else
 			resultValue->setLeanDataPtrValidator(opValue.getLeanDataPtrValidator());
-	}
-	else
-	{
+	} else {
 		Value ptrValue;
 		m_module->m_llvmIrBuilder.createExtractValue(opValue, 0, NULL, &ptrValue);
 		m_module->m_llvmIrBuilder.createBitCast(opValue, field->getType()->getDataPtrType_c(), &ptrValue);
@@ -422,7 +383,7 @@ OperatorMgr::getUnionField(
 			ptrValue.getLlvmValue(),
 			ptrType,
 			opValue
-			);
+		);
 	}
 
 	return true;
@@ -434,8 +395,7 @@ OperatorMgr::getClassField(
 	Field* field,
 	MemberCoord* coord,
 	Value* resultValue
-	)
-{
+) {
 	Value opValue;
 	bool result = prepareOperand(rawOpValue, &opValue);
 	if (!result)
@@ -448,19 +408,18 @@ OperatorMgr::getClassField(
 	if (field->getStorageKind() == StorageKind_Mutable)
 		ptrTypeFlags &= ~PtrTypeFlag_Const;
 
-	if (!m_module->hasCodeGen())
-	{
+	if (!m_module->hasCodeGen()) {
 		Type* resultType = field->getType()->getTypeKind() == TypeKind_Class ?
 			(Type*)((ClassType*)field->getType())->getClassPtrType(
 				TypeKind_ClassRef,
 				ClassPtrTypeKind_Normal,
 				ptrTypeFlags
-				) :
+			) :
 			field->getType()->getDataPtrType(
 				TypeKind_DataRef,
 				DataPtrTypeKind_Lean,
 				ptrTypeFlags
-				);
+			);
 
 		resultValue->setType(resultType);
 		return true;
@@ -487,25 +446,22 @@ OperatorMgr::getClassField(
 		coord->m_llvmIndexArray.getCount(),
 		NULL,
 		&ptrValue
-		);
+	);
 
-	if (field->getType()->getTypeKind() == TypeKind_Class)
-	{
+	if (field->getType()->getTypeKind() == TypeKind_Class) {
 		ClassPtrType* ptrType = ((ClassType*)field->getType())->getClassPtrType(
 			TypeKind_ClassRef,
 			ClassPtrTypeKind_Normal,
 			ptrTypeFlags
-			);
+		);
 
 		resultValue->setLlvmValue(ptrValue.getLlvmValue(), ptrType);
-	}
-	else
-	{
+	} else {
 		DataPtrType* ptrType = field->getType()->getDataPtrType(
 			TypeKind_DataRef,
 			DataPtrTypeKind_Lean,
 			ptrTypeFlags
-			);
+		);
 
 		resultValue->setLeanDataPtr(
 			ptrValue.getLlvmValue(),
@@ -513,7 +469,7 @@ OperatorMgr::getClassField(
 			opValue,
 			ptrValue,
 			field->getType()->getSize()
-			);
+		);
 	}
 
 	return true;
@@ -524,12 +480,10 @@ OperatorMgr::getPropertyField(
 	const Value& opValue,
 	ModuleItem* member,
 	Value* resultValue
-	)
-{
+) {
 	ModuleItemKind itemKind = member->getItemKind();
 
-	switch (itemKind)
-	{
+	switch (itemKind) {
 	case ModuleItemKind_Field:
 		break;
 
@@ -556,15 +510,12 @@ OperatorMgr::getPropertyField(
 	ASSERT(parentType);
 
 	Type* parentPtrType;
-	if (parentType->getTypeKind() == TypeKind_Class)
-	{
+	if (parentType->getTypeKind() == TypeKind_Class) {
 		parentPtrType = ((ClassType*)parentType)->getClassPtrType(
 			ClassPtrTypeKind_Normal,
 			parentValueType->getFlags()
-			);
-	}
-	else
-	{
+		);
+	} else {
 		DataPtrTypeKind ptrTypeKind = (parentValueType->getTypeKindFlags() & TypeKindFlag_DataPtr) ?
 			((DataPtrType*)parentValueType)->getPtrTypeKind() :
 			DataPtrTypeKind_Normal;
@@ -572,7 +523,7 @@ OperatorMgr::getPropertyField(
 		parentPtrType = parentType->getDataPtrType(
 			ptrTypeKind,
 			parentValueType->getFlags()
-			);
+		);
 	}
 
 	return

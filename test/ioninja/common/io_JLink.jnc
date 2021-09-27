@@ -10,8 +10,7 @@ namespace io {
 
 //..............................................................................
 
-enum
-{
+enum {
 	JLINKARM_TIF_JTAG         = 0,
 	JLINKARM_TIF_SWD          = 1,
 	JLINKARM_TIF_BDM3         = 2,  // Do NOT use. Not supported anymore. Only there for backward compatbility inside the DLL
@@ -26,8 +25,7 @@ enum
 	JLINKARM_TIF_NUMTIFS      = 11,
 }
 
-enum
-{
+enum {
 	JLINKARM_RTTERMINAL_CMD_START     = 0,
 	JLINKARM_RTTERMINAL_CMD_STOP      = 1,
 	JLINKARM_RTTERMINAL_CMD_GETDESC   = 2,
@@ -35,26 +33,22 @@ enum
 	JLINKARM_RTTERMINAL_CMD_GETSTAT   = 4,
 }
 
-enum
-{
+enum {
 	JLINKARM_RTTERMINAL_BUFFER_DIR_UP   = 0,
 	JLINKARM_RTTERMINAL_BUFFER_DIR_DOWN = 1,
 }
 
-enum
-{
+enum {
 	JLINK_MRU_GROUP_DEVICE       = 0,
 	JLINK_MRU_GROUP_SETTINGSFILE = 1,
 	JLINK_MRU_GROUP_SCRIPTFILE   = 2,
 }
 
-enum
-{
+enum {
 	JLINKARM_DEVICE_MAX_NUM_FLASH_BANKS = 16,
 }
 
-enum JLINK_FUNC_INDEX
-{
+enum JLINK_FUNC_INDEX {
 	JLINK_IFUNC_SET_HOOK_DIALOG_UNLOCK_IDCODE = 0,
 	JLINK_IFUNC_SPI_TRANSFER_MULTIPLE,
 	JLINK_IFUNC_PIN_OVERRIDE,                 // Internal use. Not explained in SDK manual
@@ -106,20 +100,18 @@ typedef int stdcall JLINK_FUNC_MRU_GETLIST(
 	U32 Group,
 	char thin* sList,
 	U32 BufferSize
-	);
+);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct JLINK_RTTERMINAL_START
-{
+struct JLINK_RTTERMINAL_START {
 	U32 ConfigBlockAddress;
 	U32 Dummy0; // Future use. SBZ
 	U32 Dummy1; // Future use. SBZ
 	U32 Dummy2; // Future use. SBZ
 }
 
-struct JLINK_RTTERMINAL_STOP
-{
+struct JLINK_RTTERMINAL_STOP {
 	U8 InvalidateTargetCB;
 	U8 acDummy[3]; // Future use. SBZ
 	U32 Dummy0;    // Future use. SBZ
@@ -127,8 +119,7 @@ struct JLINK_RTTERMINAL_STOP
 	U32 Dummy2;    // Future use. SBZ
 }
 
-struct JLINK_RTTERMINAL_BUFDESC
-{
+struct JLINK_RTTERMINAL_BUFDESC {
 	int BufferIndex;
 	U32 Direction;
 	char acName[32];
@@ -136,8 +127,7 @@ struct JLINK_RTTERMINAL_BUFDESC
 	U32 Flags;
 }
 
-struct JLINK_RTTERMINAL_STATUS
-{
+struct JLINK_RTTERMINAL_STATUS {
 	U32 NumBytesTransferred; // Total number of bytes sent to client application(s)
 	U32 NumBytesRead;        // Total number of bytes read from the target
 	int HostOverflowCount;   // Indicates a buffer overflow on the host system
@@ -148,26 +138,22 @@ struct JLINK_RTTERMINAL_STATUS
 	U32 Dummy1;              // Future use. SBZ
 }
 
-struct JLINK_FLASH_AREA_INFO
-{
+struct JLINK_FLASH_AREA_INFO {
 	U32 Addr;
 	U32 Size;
 }
 
-struct JLINK_RAM_AREA_INFO
-{
+struct JLINK_RAM_AREA_INFO {
 	U32 Addr;
 	U32 Size;
 }
 
-struct JLINK_PCODE_INFO
-{
+struct JLINK_PCODE_INFO {
 	const U8 thin* pPCode; // Pointer to PCode.
 	U32 NumBytes;          // Length of PCode in bytes.
 }
 
-struct JLINK_FLASH_BANK_INFO
-{
+struct JLINK_FLASH_BANK_INFO {
 	const char thin* sBankName;
 	const char thin* sAlgoFile;
 	U32 AlgoType;                 // Really of type MAIN_FLASH_ALGO_TYPE but to avoid mutual inclusion, we choose U32 here for now...
@@ -176,8 +162,7 @@ struct JLINK_FLASH_BANK_INFO
 	const void thin* pAlgoInfo;
 }
 
-struct JLINK_FLASH_BANK_INFO_EXT
-{
+struct JLINK_FLASH_BANK_INFO_EXT {
 	//
 	// Needed for algos that are implemented via RAMCode + PCode or PCode only
 	// For these algos, pAlgoInfo is == NULL and needs to be constructed at runtime
@@ -195,8 +180,7 @@ struct JLINK_FLASH_BANK_INFO_EXT
 	U32 SizePCode;
 }
 
-struct JLINKARM_DEVICE_INFO
-{
+struct JLINKARM_DEVICE_INFO {
 	U32 SizeOfStruct;           // Required. Use SizeofStruct = sizeof(JLINKARM_DEVICE_INFO)
 	const char thin* sName;
 	U32 CoreId;
@@ -221,8 +205,7 @@ struct JLINKARM_DEVICE_INFO
 
 //..............................................................................
 
-dynamiclib JLinkLib
-{
+dynamiclib JLinkLib {
 	int stdcall JLINK_GetSN();
 	char stdcall JLINK_IsOpen();
 	char stdcall JLINK_IsHalted();
@@ -230,14 +213,14 @@ dynamiclib JLinkLib
 	int stdcall JLINKARM_DEVICE_GetInfo(
 		int DeviceIndex,
 		JLINKARM_DEVICE_INFO thin* pDeviceInfo
-		);
+	);
 
 	const char thin* stdcall JLINK_Open();
 
 	const char thin* stdcall JLINK_OpenEx(
 		JLINK_LOG thin* pfLog,
 		JLINK_LOG thin* pfErrorOut
-		);
+	);
 
 	void stdcall JLINK_Close();
 
@@ -249,7 +232,7 @@ dynamiclib JLinkLib
 		const char thin* pIn,
 		char thin* pOut,
 		int BufferSize
-		);
+	);
 
 	void stdcall JLINK_Go();
 	void stdcall JLINK_SetSpeed(U32 Speed);
@@ -257,7 +240,7 @@ dynamiclib JLinkLib
 	char stdcall JLINK_SelectIP(
 		const char thin* sHost,
 		int Port
-		);
+	);
 
 	// TIF
 
@@ -271,26 +254,26 @@ dynamiclib JLinkLib
 	void stdcall JLINK_EMU_GetProductName(
 		char thin* pBuffer,
 		U32 BufferSize
-		);
+	);
 
 	// RTT
 
 	int stdcall JLINK_RTTERMINAL_Control(
 		U32 Cmd,
 		void thin* p
-		);
+	);
 
 	int stdcall JLINK_RTTERMINAL_Read(
 		U32 BufferIndex,
 		char thin* sBuffer,
 		U32 BufferSize
-		);
+	);
 
 	int stdcall JLINK_RTTERMINAL_Write(
 		U32 BufferIndex,
 		const void thin* sBuffer,
 		U32 BufferSize
-		);
+	);
 }
 
 //..............................................................................

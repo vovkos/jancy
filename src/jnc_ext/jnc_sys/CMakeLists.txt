@@ -22,7 +22,7 @@ set(
 	jnc_sys_Thread.h
 	jnc_sys_Timer.h
 	jnc_sys_SysLib.h
-	)
+)
 
 set(
 	LIB_CPP_LIST
@@ -32,20 +32,20 @@ set(
 	jnc_sys_Thread.cpp
 	jnc_sys_Timer.cpp
 	jnc_sys_SysLib.cpp
-	)
+)
 
 if(WIN32)
 	set(
 		LIB_H_LIST
 		${LIB_H_LIST}
 		jnc_sys_Registry.h
-		)
+	)
 
 	set(
 		LIB_CPP_LIST
 		${LIB_CPP_LIST}
 		jnc_sys_Registry.cpp
-		)
+	)
 endif()
 
 source_group(
@@ -53,7 +53,7 @@ source_group(
 	FILES
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -69,13 +69,13 @@ set(
 	jnc/sys_Thread.jnc
 	jnc/sys_Timer.jnc
 	jnc/sys_Registry.jnc
-	)
+)
 
 source_group(
 	jnc
 	FILES
 	${JNC_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -94,7 +94,7 @@ foreach(_JNC ${JNC_LIST})
 		${_NAME}.cpp
 		${_JNC}
 		${FILE2LITERAL_PL}
-		)
+	)
 
 	list(APPEND GEN_JNC_CPP_LIST ${GEN_DIR}/${_NAME}.cpp)
 endforeach()
@@ -107,7 +107,7 @@ source_group(
 	gen
 	FILES
 	${GEN_JNC_CPP_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -123,7 +123,7 @@ source_group(
 	FILES
 	${PCH_H}
 	${PCH_CPP}
-	)
+)
 
 #...............................................................................
 #
@@ -134,7 +134,7 @@ include_directories(
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
 	${GEN_DIR}
-	)
+)
 
 add_library(
 	jnc_sys
@@ -144,19 +144,19 @@ add_library(
 	${LIB_CPP_LIST}
 	${JNC_LIST}
 	${GEN_JNC_CPP_LIST}
-	)
+)
 
 axl_set_pch(
 	jnc_sys
 	${PCH_H}
 	${PCH_CPP}
-	)
+)
 
 set_target_properties(
 	jnc_sys
 	PROPERTIES
 	FOLDER extensions
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -171,25 +171,25 @@ if(UNIX)
 		${LIB_CPP_LIST}
 		${JNC_LIST}
 		${GEN_JNC_CPP_LIST}
-		)
+	)
 
 	target_compile_definitions(
 		jnc_sys_o
 		PUBLIC
 		-D_JNC_OBJECT_LIB=1
-		)
+	)
 
 	axl_set_pch(
 		jnc_sys_o
 		${PCH_H}
 		${PCH_O_CPP}
-		)
+	)
 
 	set_target_properties(
 		jnc_sys_o
 		PROPERTIES
 		FOLDER extensions
-		)
+	)
 endif()
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -197,6 +197,6 @@ endif()
 install(
 	TARGETS jnc_sys
 	DESTINATION ${JANCY_INSTALL_LIB_SUBDIR}
-	)
+)
 
 #...............................................................................

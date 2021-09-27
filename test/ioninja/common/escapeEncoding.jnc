@@ -7,10 +7,8 @@ import "std_String.jnc"
 
 //..............................................................................
 
-char findEscapeReplaceChar(char x)
-{
-	switch (x)
-	{
+char findEscapeReplaceChar(char x) {
+	switch (x) {
 	case '0':
 		return '\0';
 
@@ -47,10 +45,8 @@ size_t decodeEscapeString(
 	std.StringBuilder* string,
 	char const* source,
 	size_t length = -1
-	)
-{
-	enum State
-	{
+) {
+	enum State {
 		Normal = 0,
 		Escape,
 		Hex,
@@ -75,13 +71,10 @@ size_t decodeEscapeString(
 	char const* end = source + length;
 	char const* base = p;
 
-	for (; p < end; p++)
-	{
-		switch (state)
-		{
+	for (; p < end; p++) {
+		switch (state) {
 		case State.Normal:
-			if (*p == '\\')
-			{
+			if (*p == '\\') {
 				string.append(base, p - base);
 				state = State.Escape;
 			}
@@ -89,8 +82,7 @@ size_t decodeEscapeString(
 			break;
 
 		case State.Escape:
-			switch (*p)
-			{
+			switch (*p) {
 			case 'x':
 				state = State.Hex;
 				hexCodeLen = 0;
@@ -111,13 +103,10 @@ size_t decodeEscapeString(
 
 			default:
 				replace = findEscapeReplaceChar(*p);
-				if (replace != *p)
-				{
+				if (replace != *p) {
 					string.append(replace);
 					base = p + 1;
-				}
-				else
-				{
+				} else {
 					base = p;
 				}
 
@@ -130,25 +119,19 @@ size_t decodeEscapeString(
 			char c = *p;
 			if (c >= '0' && c <= '9' ||
 				c >= 'a' && c <= 'f' ||
-				c >= 'A' && c <= 'F')
-			{
+				c >= 'A' && c <= 'F') {
 				hexCodeString[hexCodeLen++] = c;
 				if (hexCodeLen < hexCodeMaxLen)
 					break;
 
 				base = p + 1;
-			}
-			else
-			{
+			} else {
 				base = p;
 			}
 
-			if (!hexCodeLen)
-			{
+			if (!hexCodeLen) {
 				string.append('?');
-			}
-			else
-			{
+			} else {
 				hexCodeString[hexCodeLen] = 0;
 				hexCode = strtol(hexCodeString, null, 16);
 

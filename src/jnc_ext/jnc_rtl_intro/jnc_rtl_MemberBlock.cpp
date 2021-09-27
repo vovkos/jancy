@@ -25,7 +25,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	MemberBlock,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(MemberBlock)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<MemberBlock, ct::MemberBlock*>))

@@ -22,15 +22,13 @@ namespace io {
 
 //..............................................................................
 
-bitflag enum SslSocketEvents: SocketEvents
-{
+bitflag enum SslSocketEvents: SocketEvents {
 	SslHandshakeCompleted,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class SslSocket: SslState
-{
+opaque class SslSocket: SslState {
 	SocketAddress const property m_address;
 	SocketAddress const property m_peerAddress;
 
@@ -59,31 +57,31 @@ opaque class SslSocket: SslState
 	SslSocket* errorcode accept(
 		SocketAddress* address = null,
 		bool isSuspended = false
-		);
+	);
 
 	void unsuspend();
 
 	size_t errorcode read(
 		void* p,
 		size_t size
-		);
+	);
 
 	size_t errorcode write(
 		void const* p,
 		size_t size
-		);
+	);
 
 	intptr errorcode wait(
 		SslSocketEvents eventMask,
 		function* handler(SslSocketEvents triggeredEvents)
-		);
+	);
 
 	bool errorcode cancelWait(intptr handle);
 
 	SslSocketEvents blockingWait(
 		SslSocketEvents eventMask,
 		uint_t timeout = -1
-		);
+	);
 
 	async SslSocketEvents asyncWait(SslSocketEvents eventMask);
 }

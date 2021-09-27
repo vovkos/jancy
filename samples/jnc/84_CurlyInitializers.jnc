@@ -16,8 +16,7 @@
 
 // something type to curly-initialize
 
-struct Point
-{
+struct Point {
 	int m_x;
 	int m_y;
 	int m_z;
@@ -27,8 +26,7 @@ struct Point
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	// classic C-style curly-initializers

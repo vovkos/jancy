@@ -13,8 +13,7 @@
 
 #include "jnc_Edit.h"
 
-class MdiChild: public jnc::Edit
-{
+class MdiChild: public jnc::Edit {
 	Q_OBJECT
 
 public:
@@ -25,23 +24,19 @@ public:
 	bool save();
 	bool saveAs();
 
-	QString filePath()
-	{
+	QString filePath() {
 		return m_filePath;
 	}
 
-	QString fileName()
-	{
+	QString fileName() {
 		return QFileInfo(m_filePath).fileName();
 	}
 
-	bool isCompilationNeeded()
-	{
+	bool isCompilationNeeded() {
 		return m_isCompilationNeeded;
 	}
 
-	void setCompilationNeeded(bool isNeeded = true)
-	{
+	void setCompilationNeeded(bool isNeeded = true) {
 		m_isCompilationNeeded = isNeeded;
 	}
 

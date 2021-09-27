@@ -14,10 +14,8 @@ namespace ui {
 
 //..............................................................................
 
-class SshPropertySet
-{
-	bitflag enum PropertyId
-	{
+class SshPropertySet {
+	bitflag enum PropertyId {
 		UserName,
 		AuthenticationMethod,
 		PrivateKeyFile,
@@ -34,8 +32,7 @@ class SshPropertySet
 			PtyType,
 	}
 
-	enum Defaults
-	{
+	enum Defaults {
 		AuthenticationMethod = ui.AuthenticationMethod.Password,
 		RememberLastPassword = false,
 		ProcessTypeIndex     = 0,
@@ -57,7 +54,7 @@ class SshPropertySet
 		GroupProperty* group = null,
 		Property* insertBefore = null,
 		PropertyId mask = PropertyId.All
-		);
+	);
 
 	void load(doc.Storage* storage);
 	void save(doc.Storage* storage);
@@ -73,10 +70,8 @@ void SshPropertySet.createProperties(
 	GroupProperty* group,
 	Property* insertBefore,
 	PropertyId mask
-	)
-{
-	static EnumPropertyOption authenticationMethodTable[] =
-	{
+) {
+	static EnumPropertyOption authenticationMethodTable[] = {
 		{ "Password",    AuthenticationMethod.Password },
 		{ "Private key", AuthenticationMethod.PrivateKey },
 	}
@@ -87,7 +82,7 @@ void SshPropertySet.createProperties(
 			"User name",
 			"Enter a user name...",
 			"User name for SSH authentification"
-			);
+		);
 
 	if (mask & PropertyId.AuthenticationMethod)
 		m_authenticationMethodProp = propertyGrid.createEnumProperty(
@@ -96,15 +91,14 @@ void SshPropertySet.createProperties(
 			"How to authentify a user (password / private key)",
 			authenticationMethodTable,
 			countof(authenticationMethodTable)
-			);
+		);
 
-	if (mask & PropertyId.PrivateKeyFile)
-	{
+	if (mask & PropertyId.PrivateKeyFile) {
 		m_privateKeyFileProp = propertyGrid.createFileProperty(
 			group,,
 			"Private key file",
 			"Private key file (PEM) for SSH authentification"
-			);
+		);
 
 		m_privateKeyFileProp.m_fileDialogTitle = "Select Private Key File";
 		m_privateKeyFileProp.m_filter = "SSH identity files (id_dsa id_rsa);;PEM files (*.pem);;All files (*.*)";
@@ -115,12 +109,10 @@ void SshPropertySet.createProperties(
 			group,,
 			"Remember last password",
 			"Re-use the last entered password during subsequent connect attempts"
-			);
+		);
 
-	if (mask & PropertyId.Process)
-	{
-		static ui.EnumPropertyOption processTypeTable[] =
-		{
+	if (mask & PropertyId.Process) {
+		static ui.EnumPropertyOption processTypeTable[] = {
 			{ "shell",     "shell" },
 			{ "exec",      "exec" },
 			{ "subsystem", "subsystem" },
@@ -132,14 +124,14 @@ void SshPropertySet.createProperties(
 			"Type of requested SSH process",
 			processTypeTable,
 			countof(processTypeTable)
-			);
+		);
 
 		m_processParamProp = propertyGrid.createStringProperty(
 			group,,
 			"Process parameter",
 			"Enter remote process parameters...",
 			"Parameter to pass to the remote process"
-			);
+		);
 	}
 
 	if (mask & PropertyId.PtyType)
@@ -148,11 +140,10 @@ void SshPropertySet.createProperties(
 			"Pseudoterminal",
 			"Enter a PTY type...",
 			"Type of requested pseudoterminal (PTY)"
-			);
+		);
 }
 
-void SshPropertySet.load(doc.Storage* storage)
-{
+void SshPropertySet.load(doc.Storage* storage) {
 	if (m_userNameProp)
 		m_userNameProp.m_value = storage.readString("userName");
 
@@ -175,8 +166,7 @@ void SshPropertySet.load(doc.Storage* storage)
 		m_ptyTypeProp.m_value = storage.readString("ptyType", DefaultPtyType);
 }
 
-void SshPropertySet.save(doc.Storage* storage)
-{
+void SshPropertySet.save(doc.Storage* storage) {
 	if (m_userNameProp)
 		storage.writeString("userName", m_userNameProp.m_value);
 
@@ -199,8 +189,7 @@ void SshPropertySet.save(doc.Storage* storage)
 		storage.writeString("ptyType", m_ptyTypeProp.m_value);
 }
 
-void SshPropertySet.restoreDefaults()
-{
+void SshPropertySet.restoreDefaults() {
 	if (m_rememberLastPasswordProp)
 		m_rememberLastPasswordProp.m_value = Defaults.RememberLastPassword;
 
@@ -211,8 +200,7 @@ void SshPropertySet.restoreDefaults()
 		m_ptyTypeProp.m_value = DefaultPtyType;
 }
 
-reactor SshPropertySet.m_uiReactor
-{
+reactor SshPropertySet.m_uiReactor {
 	m_authenticationMethodProp && m_privateKeyFileProp ?
 		m_privateKeyFileProp.m_isEnabled = m_authenticationMethodProp.m_value == ui.AuthenticationMethod.PrivateKey :
 		0;

@@ -9,14 +9,12 @@
 //
 //..............................................................................
 
-struct Foo
-{
+struct Foo {
 	char m_c;
 	int m_a[10];
 }
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	Foo foo;

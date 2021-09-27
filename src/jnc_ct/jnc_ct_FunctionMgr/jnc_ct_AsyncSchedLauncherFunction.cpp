@@ -19,8 +19,7 @@ namespace ct {
 //..............................................................................
 
 bool
-AsyncSchedLauncherFunction::compile()
-{
+AsyncSchedLauncherFunction::compile() {
 	bool result;
 
 	size_t argCount = m_type->getArgArray().getCount();
@@ -34,8 +33,7 @@ AsyncSchedLauncherFunction::compile()
 	Value functionPtrValue = argValueArray[0];
 	Value schedulerValue = argValueArray[1];
 
-	if (argCount > 2)
-	{
+	if (argCount > 2) {
 		sl::BoxList<Value> argList;
 		for (size_t i = 2; i < argCount; i++)
 			argList.insertTail(argValueArray[i]);

@@ -22,14 +22,12 @@ int property g_simpleProp;
 
 // accessors implementation
 
-int g_simpleProp.get()
-{
+int g_simpleProp.get() {
 	printf("g_simpleProp.get ()\n");
 	return rand() % 3;
 }
 
-void g_simpleProp.set(int x)
-{
+void g_simpleProp.set(int x) {
 	printf("g_simpleProp.set (%d)\n", x);
 }
 
@@ -42,8 +40,7 @@ int const property g_simpleReadOnlyProp;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-int g_simpleReadOnlyProp.get()
-{
+int g_simpleReadOnlyProp.get() {
 	printf("g_simpleReadOnlyProp.get ()\n");
 	return rand() % 3;
 }
@@ -52,8 +49,7 @@ int g_simpleReadOnlyProp.get()
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	int x = g_simpleProp;

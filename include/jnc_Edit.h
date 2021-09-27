@@ -26,8 +26,7 @@ class LineNumberMargin;
 
 //..............................................................................
 
-class JNC_EDIT_EXPORT Edit: public QPlainTextEdit
-{
+class JNC_EDIT_EXPORT Edit: public QPlainTextEdit {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(Edit)
 	Q_DISABLE_COPY(Edit)
@@ -42,8 +41,7 @@ class JNC_EDIT_EXPORT Edit: public QPlainTextEdit
 	friend class LineNumberMargin;
 
 public:
-    enum CodeAssistTrigger
-	{
+    enum CodeAssistTrigger {
 		QuickInfoTipOnMouseOverIdentifier      = 0x0001,
 		QuickInfoTipOnCursorOverIdentifier     = 0x0002,
 		ArgumentTipOnCtrlShiftSpace            = 0x0004,
@@ -89,13 +87,13 @@ public:
 	void setTextCursorLineCol(
 		int line,
 		int col
-		);
+	);
 
 	void highlightLineTemp(
 		int line,
 		const QColor& backColor,
 		const QColor& textColor = QColor::Invalid
-		);
+	);
 
 public slots:
 	// code-assist

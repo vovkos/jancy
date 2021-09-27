@@ -25,7 +25,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	SslLibCacheSlot_SslCipher,
 	SslCipher,
 	&SslCipher::markOpaqueGcRoots
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(SslCipher)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<SslCipher>)
@@ -38,8 +38,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 //..............................................................................
 
 SslCipher*
-SslCipher::create(const SSL_CIPHER* cipher)
-{
+SslCipher::create(const SSL_CIPHER* cipher) {
 	Runtime* runtime = getCurrentThreadRuntime();
 	SslCipher* self = createClass<SslCipher>(runtime);
 	self->m_cipher = cipher;
@@ -48,16 +47,14 @@ SslCipher::create(const SSL_CIPHER* cipher)
 
 void
 JNC_CDECL
-SslCipher::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
-{
+SslCipher::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 	gcHeap->markDataPtr(m_namePtr);
 	gcHeap->markDataPtr(m_descriptionPtr);
 }
 
 DataPtr
 JNC_CDECL
-SslCipher::getName(SslCipher* self)
-{
+SslCipher::getName(SslCipher* self) {
 	if (!self->m_namePtr.m_p)
 		self->m_namePtr = strDup(::SSL_CIPHER_get_name(self->m_cipher));
 
@@ -66,8 +63,7 @@ SslCipher::getName(SslCipher* self)
 
 DataPtr
 JNC_CDECL
-SslCipher::getDescription(SslCipher* self)
-{
+SslCipher::getDescription(SslCipher* self) {
 	if (self->m_descriptionPtr.m_p)
 		return self->m_descriptionPtr;
 
@@ -79,8 +75,7 @@ SslCipher::getDescription(SslCipher* self)
 
 uint_t
 JNC_CDECL
-SslCipher::getBitCount()
-{
+SslCipher::getBitCount() {
 	int bitCount = 0;
 	::SSL_CIPHER_get_bits(m_cipher, &bitCount);
 	return bitCount;

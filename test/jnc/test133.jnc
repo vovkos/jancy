@@ -2,26 +2,20 @@
 
 bool g_destructFlag;
 
-class A
-{
-	destruct()
-	{
+class A {
+	destruct() {
 		printf("A.destruct();\n");
 		g_destructFlag = true;
 	}
 }
 
-class B
-{
+class B {
 	A m_a;
 }
 
-class C: B
-{
-}
+class C: B {}
 
-int main()
-{
+int main() {
 	C c;
 
 	printf("collecting...\n");

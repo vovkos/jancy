@@ -19,8 +19,7 @@ namespace ct {
 //..............................................................................
 
 Value
-LeanDataPtrValidator::getValidatorValue()
-{
+LeanDataPtrValidator::getValidatorValue() {
 	if (m_validatorValue)
 		return m_validatorValue;
 
@@ -30,11 +29,9 @@ LeanDataPtrValidator::getValidatorValue()
 }
 
 void
-LeanDataPtrValidator::createValidator()
-{
+LeanDataPtrValidator::createValidator() {
 	ASSERT(m_originValue);
-	if (m_originValue.getType()->getTypeKindFlags() & TypeKindFlag_ClassPtr)
-	{
+	if (m_originValue.getType()->getTypeKindFlags() & TypeKindFlag_ClassPtr) {
 		createClassFieldValidator();
 		return;
 	}
@@ -45,16 +42,13 @@ LeanDataPtrValidator::createValidator()
 
 	Value originValidatorValue;
 
-	if (m_originValue.getValueKind() == ValueKind_Variable)
-	{
+	if (m_originValue.getValueKind() == ValueKind_Variable) {
 		Variable* variable = m_originValue.getVariable();
 		LeanDataPtrValidator* originValidator = variable->getLeanDataPtrValidator();
 
-		if (!originValidator->m_validatorValue)
-		{
+		if (!originValidator->m_validatorValue) {
 			StorageKind storageKind = variable->getStorageKind();
-			switch (storageKind)
-			{
+			switch (storageKind) {
 			case StorageKind_Static:
 				module->m_variableMgr.createStaticDataPtrValidator(variable);
 				break;
@@ -70,35 +64,25 @@ LeanDataPtrValidator::createValidator()
 
 		originValidatorValue = originValidator->m_validatorValue;
 		ASSERT(originValidatorValue);
-	}
-	else
-	{
-		if (originType->getTargetType()->getStdType() == StdType_DataPtrValidator)
-		{
+	} else {
+		if (originType->getTargetType()->getStdType() == StdType_DataPtrValidator) {
 			originValidatorValue = m_originValue;
-		}
-		else if (originType->getPtrTypeKind() == DataPtrTypeKind_Lean)
-		{
+		} else if (originType->getPtrTypeKind() == DataPtrTypeKind_Lean) {
 			originValidatorValue = m_originValue.getLeanDataPtrValidator()->getValidatorValue();
-		}
-		else
-		{
+		} else {
 			ASSERT(originType->getPtrTypeKind() == DataPtrTypeKind_Normal);
 			module->m_llvmIrBuilder.createExtractValue(
 				m_originValue,
 				1,
 				module->m_typeMgr.getStdType(StdType_DataPtrValidatorPtr),
 				&originValidatorValue
-				);
+			);
 		}
 	}
 
-	if (!m_rangeBeginValue || m_rangeBeginValue.getLlvmValue() == m_originValue.getLlvmValue())
-	{
+	if (!m_rangeBeginValue || m_rangeBeginValue.getLlvmValue() == m_originValue.getLlvmValue()) {
 		m_validatorValue = originValidatorValue;
-	}
-	else
-	{
+	} else {
 		Value boxValue;
 		module->m_llvmIrBuilder.createGep2(originValidatorValue, 1, NULL, &boxValue);
 		module->m_llvmIrBuilder.createLoad(boxValue, module->m_typeMgr.getStdType(StdType_BoxPtr), &boxValue);
@@ -107,8 +91,7 @@ LeanDataPtrValidator::createValidator()
 }
 
 void
-LeanDataPtrValidator::createValidator(const Value& boxValue)
-{
+LeanDataPtrValidator::createValidator(const Value& boxValue) {
 	ASSERT(m_originValue && m_rangeBeginValue && m_rangeLength);
 
 	Module* module = m_originValue.getType()->getModule();
@@ -125,30 +108,26 @@ LeanDataPtrValidator::createValidator(const Value& boxValue)
 		argValueArray,
 		3,
 		&m_validatorValue
-		);
+	);
 
 	module->m_gcShadowStackMgr.markGcRoot(
 		m_validatorValue,
 		module->m_typeMgr.getStdType(StdType_DataPtrValidatorPtr)
-		);
+	);
 }
 
 void
-LeanDataPtrValidator::createClassFieldValidator()
-{
+LeanDataPtrValidator::createClassFieldValidator() {
 	ASSERT(m_originValue);
 
 	Module* module = m_originValue.getType()->getModule();
 
 	Value boxValue;
-	if (m_originValue.getValueKind() == ValueKind_Variable)
-	{
+	if (m_originValue.getValueKind() == ValueKind_Variable) {
 		Value tmpValue;
 		module->m_llvmIrBuilder.createBitCast(m_originValue, module->m_typeMgr.getStdType(StdType_BoxPtr), &tmpValue);
 		module->m_llvmIrBuilder.createGep(tmpValue, -1, module->m_typeMgr.getStdType(StdType_BoxPtr), &boxValue);
-	}
-	else
-	{
+	} else {
 		Value tmpValue;
 		module->m_llvmIrBuilder.createBitCast(m_originValue, module->m_typeMgr.getStdType(StdType_IfaceHdrPtr), &tmpValue);
 		module->m_llvmIrBuilder.createGep2(tmpValue, 1, NULL, &tmpValue);

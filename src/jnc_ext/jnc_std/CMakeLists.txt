@@ -25,7 +25,7 @@ set(
 	jnc_std_HashTable.h
 	jnc_std_RbTree.h
 	jnc_std_StdLib.h
-	)
+)
 
 set(
 	LIB_CPP_LIST
@@ -39,14 +39,14 @@ set(
 	jnc_std_HashTable.cpp
 	jnc_std_RbTree.cpp
 	jnc_std_StdLib.cpp
-	)
+)
 
 source_group(
 	lib
 	FILES
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -65,13 +65,13 @@ set(
 	jnc/std_MapEntry.jnc
 	jnc/std_HashTable.jnc
 	jnc/std_RbTree.jnc
-	)
+)
 
 source_group(
 	jnc
 	FILES
 	${JNC_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -90,7 +90,7 @@ foreach(_JNC ${JNC_LIST})
 		${_NAME}.cpp
 		${_JNC}
 		${FILE2LITERAL_PL}
-		)
+	)
 
 	list(APPEND GEN_JNC_CPP_LIST ${GEN_DIR}/${_NAME}.cpp)
 endforeach()
@@ -103,7 +103,7 @@ source_group(
 	gen
 	FILES
 	${GEN_JNC_CPP_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -119,7 +119,7 @@ source_group(
 	FILES
 	${PCH_H}
 	${PCH_CPP}
-	)
+)
 
 #...............................................................................
 #
@@ -130,7 +130,7 @@ include_directories(
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
 	${GEN_DIR}
-	)
+)
 
 add_library(
 	jnc_std
@@ -140,19 +140,19 @@ add_library(
 	${LIB_CPP_LIST}
 	${JNC_LIST}
 	${GEN_JNC_CPP_LIST}
-	)
+)
 
 axl_set_pch(
 	jnc_std
 	${PCH_H}
 	${PCH_CPP}
-	)
+)
 
 set_target_properties(
 	jnc_std
 	PROPERTIES
 	FOLDER extensions
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -167,25 +167,25 @@ if(UNIX)
 		${LIB_CPP_LIST}
 		${JNC_LIST}
 		${GEN_JNC_CPP_LIST}
-		)
+	)
 
 	target_compile_definitions(
 		jnc_std_o
 		PUBLIC
 		-D_JNC_OBJECT_LIB=1
-		)
+	)
 
 	axl_set_pch(
 		jnc_std_o
 		${PCH_H}
 		${PCH_O_CPP}
-		)
+	)
 
 	set_target_properties(
 		jnc_std_o
 		PROPERTIES
 		FOLDER extensions
-		)
+	)
 endif()
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -193,6 +193,6 @@ endif()
 install(
 	TARGETS jnc_std
 	DESTINATION ${JANCY_INSTALL_LIB_SUBDIR}
-	)
+)
 
 #...............................................................................

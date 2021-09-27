@@ -30,8 +30,7 @@ int autoget property g_foo;
 
 // accessor implementation
 
-void g_foo.set(int x)
-{
+void g_foo.set(int x) {
 	printf("g_foo.set (%d)\n", x);
 	m_value = x;
 }
@@ -43,7 +42,7 @@ void g_foo.set(int x)
 int property g_baz(
 	size_t i,
 	size_t j
-	);
+);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -52,8 +51,7 @@ int property g_baz(
 int g_baz.get(
 	size_t i,
 	size_t j
-	)
-{
+) {
 	printf("g_baz.get (%d, %d)\n", i, j);
 	return g_bazTable[i] [j];
 }
@@ -62,8 +60,7 @@ void g_baz.set(
 	size_t i,
 	size_t j,
 	int x
-	)
-{
+) {
 	printf("g_baz.set (%d, %d, %d)\n", i, j, x);
 	g_bazTable[i] [j] = x;
 }
@@ -79,13 +76,11 @@ int g_bazTable[2] [2];
 // a class containing a property (which might look simple but is, in fact,
 // indexed because of the implicit 'this' argument)
 
-class C1
-{
+class C1 {
 	int autoget property m_bar;
 }
 
-void C1.m_bar.set(int x)
-{
+void C1.m_bar.set(int x) {
 	printf("C1.m_bar.set (%d)\n", x);
 	m_value = x;
 }
@@ -94,8 +89,7 @@ void C1.m_bar.set(int x)
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	// thin property pointer is a pointer to the property accessor table

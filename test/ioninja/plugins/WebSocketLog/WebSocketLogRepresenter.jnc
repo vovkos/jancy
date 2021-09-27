@@ -13,11 +13,9 @@ bool representHttpFirstLine(
 	log.Representation* representation,
 	char const* p,
 	char const* end
-	)
-{
+) {
 	jnc.RegexState state(jnc.RegexStateFlags.Lexer);
-	reswitch (state, p, end - p)
-	{
+	reswitch (state, p, end - p) {
 	case r"([A-Z]+)\s+([^\s]+)\s+HTTP/([0-9\.]+)\r?\n":
 		representation.addHyperText(
 			$"    HTTP version:\t\e[34m%1\n"
@@ -53,14 +51,11 @@ bool representHttpHeaders(
 	log.Representation* representation,
 	char const* p,
 	char const* end
-	)
-{
+) {
 	jnc.RegexState state(jnc.RegexStateFlags.Lexer);
 
-	while (p < end)
-	{
-		reswitch (state, p, end - p)
-		{
+	while (p < end) {
+		reswitch (state, p, end - p) {
 		case r"([^:\r\n]+):\s+([^\r\n]+)\r?\n":
 			representation.addHyperText(
 				$"    %1:\t\e[34m%2"
@@ -89,15 +84,13 @@ void representWebSocketHandshake(
 	char const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
+) {
 	char const* eol = strchr(p, '\n');
 
 	representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 	representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
 
-	if (!(foldFlags & 1))
-	{
+	if (!(foldFlags & 1)) {
 		char const* httpFirstLine = eol ? jnc.createDataPtr(p, eol - p) : p;
 		representation.addHyperText($"[\e^+1\e[34m+\e[m] $text: \e[34m$httpFirstLine");
 		return;
@@ -105,19 +98,15 @@ void representWebSocketHandshake(
 
 	representation.addHyperText($"[\e^-1\e[34m-\e[m] $text");
 
-	if (eol)
-	{
+	if (eol) {
 		eol++; // include \n
 		representHttpFirstLine(representation, p, eol);
 		representHttpHeaders(representation, eol, p + size);
 	}
 
-	if (!(foldFlags & 2))
-	{
+	if (!(foldFlags & 2)) {
 		representation.addHyperText("[\e^+2\e[34m+\e[m] Raw data");
-	}
-	else
-	{
+	} else {
 		representation.addHyperText("[\e^-2\e[34m-\e[m] Raw data");
 		representation.m_lineAttr.m_backColor = ui.StdColor.White;
 		representation.addBin(p, size);
@@ -131,21 +120,15 @@ void representWebSocketPingPong(
 	char const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
+) {
 	representation.m_lineAttr.m_iconIdx = icon;
 	representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 
-	if (!size)
-	{
+	if (!size) {
 		representation.addPlainText(text);
-	}
-	else if (!(foldFlags & 1))
-	{
+	} else if (!(foldFlags & 1)) {
 		representation.addHyperText($"[\e^+1\e[34m+\e[m] $text");
-	}
-	else
-	{
+	} else {
 		representation.addHyperText($"[\e^-1\e[34m-\e[m] $text");
 		representation.m_lineAttr.m_textColor = ui.StdColor.Gray;
 		representation.m_lineAttr.m_backColor = ui.StdColor.White;
@@ -161,10 +144,8 @@ bool representWebSocketLog(
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
-	switch (recordCode)
-	{
+) {
+	switch (recordCode) {
 	case WebSocketLogRecordCode.WebSocketHandshakeRequest:
 		representWebSocketHandshake(representation, "WebSocket handshake request", p, size, foldFlags);
 		break;
@@ -190,7 +171,7 @@ bool representWebSocketLog(
 			p,
 			size,
 			foldFlags
-			);
+		);
 		break;
 
 	case WebSocketLogRecordCode.TxPong:
@@ -204,7 +185,7 @@ bool representWebSocketLog(
 			p,
 			size,
 			foldFlags
-			);
+		);
 		break;
 
 	case WebSocketLogRecordCode.TxClose:

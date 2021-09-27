@@ -29,7 +29,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	UsbLibCacheSlot_UsbInterface,
 	UsbInterface,
 	&UsbInterface::markOpaqueGcRoots
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(UsbInterface)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<UsbInterface>)
@@ -40,8 +40,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
-UsbInterface::UsbInterface()
-{
+UsbInterface::UsbInterface() {
 	m_parentDevice = NULL;
 	m_interfaceDescPtr = g_nullDataPtr;
 	m_isClaimed = false;
@@ -49,20 +48,17 @@ UsbInterface::UsbInterface()
 
 void
 JNC_CDECL
-UsbInterface::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
-{
+UsbInterface::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 	sl::Iterator<UsbEndpoint, UsbEndpoint::GetParentLink> it = m_endpointList.getHead();
 	for (; it; it++)
 		gcHeap->markClassPtr(*it);
 }
 
 void
-UsbInterface::removeEndpoint(UsbEndpoint* endpoint)
-{
+UsbInterface::removeEndpoint(UsbEndpoint* endpoint) {
 	m_lock.lock();
 	sl::ListLink* link = UsbEndpoint::GetParentLink()(endpoint);
-	if (link->getPrev() || link->getNext())
-	{
+	if (link->getPrev() || link->getNext()) {
 		m_endpointList.remove(endpoint);
 		*link = sl::g_nullListLink;
 	}
@@ -72,22 +68,19 @@ UsbInterface::removeEndpoint(UsbEndpoint* endpoint)
 
 void
 JNC_CDECL
-UsbInterface::release()
-{
+UsbInterface::release() {
 	// we do force-release ifaces from UsbDevice::~UsbDevice
 	// therefore, we need to prevent multi-release
 
 	m_lock.lock();
-	if (!m_isClaimed)
-	{
+	if (!m_isClaimed) {
 		m_lock.unlock();
 		return;
 	}
 
 	m_isClaimed = false;
 
-	while (!m_endpointList.isEmpty())
-	{
+	while (!m_endpointList.isEmpty()) {
 		UsbEndpoint* endpoint = m_endpointList.removeHead();
 		sl::ListLink* link = UsbEndpoint::GetParentLink()(endpoint);
 		*link = sl::g_nullListLink;
@@ -109,12 +102,10 @@ JNC_CDECL
 UsbInterface::openEndpoint(
 	uint8_t endpointId,
 	bool isSuspended
-	)
-{
+) {
 	UsbInterfaceDesc* interfaceDesc = (UsbInterfaceDesc*)m_interfaceDescPtr.m_p;
 	UsbEndpointDesc* endpointDesc = interfaceDesc->findEndpointDesc(endpointId);
-	if (!endpointDesc)
-	{
+	if (!endpointDesc) {
 		err::setError(err::SystemErrorCode_ObjectNameNotFound);
 		return NULL;
 	}
@@ -131,7 +122,7 @@ UsbInterface::openEndpoint(
 		m_interfaceDescPtr.m_validator->m_targetBox,
 		endpointDesc,
 		sizeof(UsbEndpointDesc)
-		);
+	);
 
 	gcHeap->leaveNoCollectRegion(false);
 

@@ -18,8 +18,7 @@
 
 //..............................................................................
 
-class I1
-{
+class I1 {
 	// virtual methods are declared using traditional keywords 'virtual',
 	// 'abstract' and 'override'
 
@@ -28,58 +27,49 @@ class I1
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class C1: I1
-{
-	construct(int a)
-	{
+class C1: I1 {
+	construct(int a) {
 		printf("C1.construct (%d)\n", a);
 	}
 
-	override void foo()
-	{
+	override void foo() {
 		printf("C1.foo ()\n");
 	}
 }
 
 //..............................................................................
 
-class I2
-{
+class I2 {
 	abstract void bar();
 
 	abstract void baz(
 		int x,
 		int y
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class C2: I2
-{
-	construct(int a)
-	{
+class C2: I2 {
+	construct(int a) {
 		printf("C2.construct (%d)\n", a);
 	}
 
-	override void bar()
-	{
+	override void bar() {
 		printf("C2.bar ()\n");
 	}
 
 	override void baz(
 		int x,
 		int y
-		)
-	{
+	) {
 		printf("C2.baz (%d, %d)\n", x, y);
 	}
 }
 
 //..............................................................................
 
-struct Point
-{
+struct Point {
 	int m_x;
 	int m_y;
 }
@@ -88,8 +78,7 @@ struct Point
 
 // structs can be inherited from other structs or unions
 
-struct Point3D: Point
-{
+struct Point3D: Point {
 	int m_z;
 }
 
@@ -108,20 +97,18 @@ struct Point3D: Point
 class C3:
 	C1,
 	C2,
-	Point
-{
+	Point {
 	construct(int a);
 
 	override baz(
 		int x,
 		int y
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-C3.construct(int a)
-{
+C3.construct(int a) {
 	// if a base type requires construction this must be done in the beginning
 	// of the derived type constructor
 
@@ -143,8 +130,7 @@ C3.construct(int a)
 override C3.baz(
 	int x,
 	int y
-	)
-{
+) {
 	printf("C3.baz (%d, %d)\n", x, y);
 	m_x = x;
 	m_y = y;
@@ -154,8 +140,7 @@ override C3.baz(
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	C3 c(7);

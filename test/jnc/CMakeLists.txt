@@ -14,7 +14,7 @@ file(
 	TEST_JNC_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	test*.jnc
-	)
+)
 
 if(NOT BUILD_JNC_IO_USB)
 	list(
@@ -22,7 +22,7 @@ if(NOT BUILD_JNC_IO_USB)
 		TEST_JNC_LIST
 		test82.jnc
 		test83.jnc
-		)
+	)
 endif()
 
 if (NOT WIN32)
@@ -32,21 +32,21 @@ if (NOT WIN32)
 		test131.jnc   # sys.RegKey test
 		test50.jnc    # winmm.dll:sndPlaySoundA
 		test51.jnc    # user32.dll:MessageBeep
-		)
+	)
 endif()
 
 source_group(
 	jnc
 	FILES
 	${TEST_JNC_LIST}
-	)
+)
 
 if(${BUILD_JNC_APP})
 	add_jancy_tests(
 		NAME_PREFIX "jnc-test-"
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
 		TESTS ${TEST_JNC_LIST}
-		)
+	)
 endif()
 
 #...............................................................................

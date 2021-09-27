@@ -23,8 +23,7 @@ class Declarator;
 
 //..............................................................................
 
-enum TypeModifier
-{
+enum TypeModifier {
 	TypeModifier_Unsigned    = 0x00000001,
 	TypeModifier_BigEndian   = 0x00000002,
 	TypeModifier_Const       = 0x00000004,
@@ -55,8 +54,7 @@ enum TypeModifier
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum TypeModifierMaskKind
-{
+enum TypeModifierMaskKind {
 	TypeModifierMaskKind_Integer =
 		TypeModifier_Unsigned |
 		TypeModifier_BigEndian,
@@ -153,8 +151,7 @@ enum TypeModifierMaskKind
 
 JNC_INLINE
 TypeModifier
-getFirstTypeModifier(uint_t modifiers)
-{
+getFirstTypeModifier(uint_t modifiers) {
 	return (TypeModifier)(1 << sl::getLoBitIdx(modifiers));
 }
 
@@ -166,27 +163,23 @@ getTypeModifierString(uint_t modifiers);
 
 JNC_INLINE
 const char*
-getFirstTypeModifierString(uint_t modifiers)
-{
+getFirstTypeModifierString(uint_t modifiers) {
 	return getTypeModifierString(getFirstTypeModifier(modifiers));
 }
 
 //..............................................................................
 
-class TypeModifiers
-{
+class TypeModifiers {
 protected:
 	uint_t m_typeModifiers;
 
 public:
-	TypeModifiers()
-	{
+	TypeModifiers() {
 		m_typeModifiers = 0;
 	}
 
 	int
-	getTypeModifiers() const
-	{
+	getTypeModifiers() const {
 		return m_typeModifiers;
 	}
 
@@ -194,8 +187,7 @@ public:
 	addTypeModifier(TypeModifier modifier);
 
 	void
-	clearTypeModifiers()
-	{
+	clearTypeModifiers() {
 		m_typeModifiers = 0;
 	}
 
@@ -203,8 +195,7 @@ public:
 	clearTypeModifiers(int modifierMask);
 
 	void
-	takeOverTypeModifiers(TypeModifiers* modifiers)
-	{
+	takeOverTypeModifiers(TypeModifiers* modifiers) {
 		m_typeModifiers = modifiers->m_typeModifiers;
 		modifiers->m_typeModifiers = 0;
 	}
@@ -216,20 +207,17 @@ protected:
 
 //..............................................................................
 
-class TypeSpecifier: public TypeModifiers
-{
+class TypeSpecifier: public TypeModifiers {
 protected:
 	Type* m_type;
 
 public:
-	TypeSpecifier()
-	{
+	TypeSpecifier() {
 		m_type = NULL;
 	}
 
 	Type*
-	getType()
-	{
+	getType() {
 		return m_type;
 	}
 
@@ -241,15 +229,13 @@ public:
 
 class DeclPointerPrefix:
 	public TypeModifiers,
-	public sl::ListLink
-{
+	public sl::ListLink {
 	friend class Declarator;
 };
 
 //..............................................................................
 
-enum DeclSuffixKind
-{
+enum DeclSuffixKind {
 	DeclSuffixKind_Undefined = 0,
 	DeclSuffixKind_Array,
 	DeclSuffixKind_Function,
@@ -258,8 +244,7 @@ enum DeclSuffixKind
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class DeclSuffix: public sl::ListLink
-{
+class DeclSuffix: public sl::ListLink {
 	friend class Declarator;
 	friend class DeclTypeCalc;
 
@@ -268,34 +253,28 @@ protected:
 	Declarator* m_declarator;
 
 public:
-	DeclSuffix()
-	{
+	DeclSuffix() {
 		m_suffixKind = DeclSuffixKind_Undefined;
 		m_declarator = NULL;
 	}
 
 	virtual
-	~DeclSuffix()
-	{
-	}
+	~DeclSuffix() {}
 
 	DeclSuffixKind
-	getSuffixKind() const
-	{
+	getSuffixKind() const {
 		return m_suffixKind;
 	}
 
 	Declarator*
-	getDeclarator() const
-	{
+	getDeclarator() const {
 		return m_declarator;
 	}
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class DeclArraySuffix: public DeclSuffix
-{
+class DeclArraySuffix: public DeclSuffix {
 	friend class Declarator;
 
 protected:
@@ -303,29 +282,25 @@ protected:
 	sl::BoxList<Token> m_elementCountInitializer;
 
 public:
-	DeclArraySuffix()
-	{
+	DeclArraySuffix() {
 		m_suffixKind = DeclSuffixKind_Array;
 		m_elementCount = 0;
 	}
 
 	size_t
-	getElementCount()
-	{
+	getElementCount() {
 		return m_elementCount;
 	}
 
 	sl::BoxList<Token>*
-	getElementCountInitializer()
-	{
+	getElementCountInitializer() {
 		return &m_elementCountInitializer;
 	}
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class DeclFunctionSuffix: public DeclSuffix
-{
+class DeclFunctionSuffix: public DeclSuffix {
 	friend class Declarator;
 	friend class DeclTypeCalc;
 	friend class Parser;
@@ -335,21 +310,18 @@ protected:
 	uint_t m_functionTypeFlags;
 
 public:
-	DeclFunctionSuffix()
-	{
+	DeclFunctionSuffix() {
 		m_suffixKind = DeclSuffixKind_Function;
 		m_functionTypeFlags = 0;
 	}
 
 	sl::Array<FunctionArg*>
-	getArgArray()
-	{
+	getArgArray() {
 		return m_argArray;
 	}
 
 	int
-	getFunctionTypeFlags()
-	{
+	getFunctionTypeFlags() {
 		return m_functionTypeFlags;
 	}
 
@@ -359,8 +331,7 @@ public:
 
 //..............................................................................
 
-enum PostDeclaratorModifier
-{
+enum PostDeclaratorModifier {
 	PostDeclaratorModifier_Const = 0x01,
 };
 
@@ -368,8 +339,7 @@ enum PostDeclaratorModifier
 
 JNC_INLINE
 PostDeclaratorModifier
-getFirstPostDeclaratorModifier(uint_t modifiers)
-{
+getFirstPostDeclaratorModifier(uint_t modifiers) {
 	return (PostDeclaratorModifier)(1 << sl::getLoBitIdx(modifiers));
 }
 
@@ -381,15 +351,13 @@ getPostDeclaratorModifierString(uint_t modifiers);
 
 JNC_INLINE
 const char*
-getFirstPostDeclaratorModifierString(uint_t modifiers)
-{
+getFirstPostDeclaratorModifierString(uint_t modifiers) {
 	return getPostDeclaratorModifierString(getFirstPostDeclaratorModifier(modifiers));
 }
 
 //..............................................................................
 
-enum DeclaratorKind
-{
+enum DeclaratorKind {
 	DeclaratorKind_Undefined = 0,
 	DeclaratorKind_Name,
 	DeclaratorKind_UnnamedMethod,
@@ -398,8 +366,7 @@ enum DeclaratorKind
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class Declarator: public TypeModifiers
-{
+class Declarator: public TypeModifiers {
 	friend class Parser;
 	friend class DeclTypeCalc;
 
@@ -426,44 +393,37 @@ public:
 	Declarator();
 
 	bool
-	isSimple()
-	{
+	isSimple() {
 		return m_declaratorKind == DeclaratorKind_Name && m_name.isSimple();
 	}
 
 	bool
-	isQualified()
-	{
+	isQualified() {
 		return m_declaratorKind == DeclaratorKind_Name ? !m_name.isSimple() : !m_name.isEmpty();
 	}
 
 	DeclaratorKind
-	getDeclaratorKind()
-	{
+	getDeclaratorKind() {
 		return m_declaratorKind;
 	}
 
 	FunctionKind
-	getFunctionKind()
-	{
+	getFunctionKind() {
 		return m_functionKind;
 	}
 
 	UnOpKind
-	getUnOpKind()
-	{
+	getUnOpKind() {
 		return m_unOpKind;
 	}
 
 	BinOpKind
-	getBinOpKind()
-	{
+	getBinOpKind() {
 		return m_binOpKind;
 	}
 
 	Type*
-	getCastOpType()
-	{
+	getCastOpType() {
 		return m_castOpType;
 	}
 
@@ -471,59 +431,50 @@ public:
 	setTypeSpecifier(
 		TypeSpecifier* typeSpecifier,
 		Module* module
-		);
+	);
 
 	const QualifiedName&
-	getName()
-	{
+	getName() {
 		return m_name;
 	}
 
 	const lex::LineCol&
-	getPos()
-	{
+	getPos() {
 		return m_pos;
 	}
 
 	size_t
-	getBitCount()
-	{
+	getBitCount() {
 		return m_bitCount;
 	}
 
 	int
-	getPostDeclaratorModifiers()
-	{
+	getPostDeclaratorModifiers() {
 		return m_postDeclaratorModifiers;
 	}
 
 	Type*
-	getBaseType()
-	{
+	getBaseType() {
 		return m_baseType;
 	}
 
 	AttributeBlock*
-	getAttributeBlock()
-	{
+	getAttributeBlock() {
 		return m_attributeBlock;
 	}
 
 	dox::Block*
-	getDoxyBlock()
-	{
+	getDoxyBlock() {
 		return m_doxyBlock;
 	}
 
 	sl::ConstList<DeclPointerPrefix>
-	getPointerPrefixList()
-	{
+	getPointerPrefixList() {
 		return m_pointerPrefixList;
 	}
 
 	sl::ConstList<DeclSuffix>
-	getSuffixList()
-	{
+	getSuffixList() {
 		return m_suffixList;
 	}
 
@@ -531,27 +482,23 @@ public:
 	setPostDeclaratorModifier(PostDeclaratorModifier modifier);
 
 	DeclFunctionSuffix*
-	getFunctionSuffix()
-	{
+	getFunctionSuffix() {
 		sl::Iterator<DeclSuffix> suffix = m_suffixList.getHead();
 		return suffix && suffix->getSuffixKind() == DeclSuffixKind_Function ? (DeclFunctionSuffix*)*suffix : NULL;
 	}
 
 	Type*
-	calcType()
-	{
+	calcType() {
 		return calcTypeImpl(NULL, NULL);
 	}
 
 	Type*
-	calcType(Value* elementCountValue)
-	{
+	calcType(Value* elementCountValue) {
 		return calcTypeImpl(elementCountValue, NULL);
 	}
 
 	Type*
-	calcType(uint_t* flags)
-	{
+	calcType(uint_t* flags) {
 		return calcTypeImpl(NULL, flags);
 	}
 
@@ -568,7 +515,7 @@ public:
 	addUnaryBinaryOperator(
 		UnOpKind unOpKind,
 		BinOpKind binOpKind
-		);
+	);
 
 	void
 	addPointerPrefix(uint_t modifiers = 0);
@@ -589,8 +536,7 @@ public:
 	addBitFieldSuffix(size_t bitCount);
 
 	void
-	deleteSuffix(DeclSuffix* suffix)
-	{
+	deleteSuffix(DeclSuffix* suffix) {
 		m_suffixList.erase(suffix);
 	}
 
@@ -599,7 +545,7 @@ protected:
 	calcTypeImpl(
 		Value* elementCountValue,
 		uint_t* flags
-		);
+	);
 };
 
 //..............................................................................

@@ -2,14 +2,11 @@ void scanStream(
 	jnc.RegexState* state,
 	char const* p,
 	size_t length
-	)
-{
+) {
 	char const* p0 = p;
 	char const* end = p + length;
-	while (p < end || state.m_replayLength)
-	{
-		reswitch (state, p, end - p)
-		{
+	while (p < end || state.m_replayLength) {
+		reswitch (state, p, end - p) {
 		case "[0-9]+":
 			printf(
 				"match#1: offset: %d state.m_currentOffset: %d state.m_consumedLength: %d match.m_offset: %d match.m_length: %d\n",
@@ -18,7 +15,7 @@ void scanStream(
 				state.m_consumedLength,
 				state.m_match.m_offset,
 				state.m_match.m_length
-				);
+			);
 
 			break;
 
@@ -30,7 +27,7 @@ void scanStream(
 				state.m_consumedLength,
 				state.m_match.m_offset,
 				state.m_match.m_length
-				);
+			);
 
 			// ignore the rest
 			break;
@@ -43,8 +40,7 @@ void scanStream(
 }
 
 
-int main()
-{
+int main() {
 	jnc.RegexState state(jnc.RegexStateFlags.Lexer | jnc.RegexStateFlags.Incremental);
 
 	scanStream(state, "abc123d", 7);

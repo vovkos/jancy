@@ -56,12 +56,10 @@ namespace jnc {
 
 		import "sys_Lock.jnc"
 
-		class LockScheduler
-		{
+		class LockScheduler {
 			sys.Lock* m_lock;
 
-			override schedule(void function* f())
-			{
+			override schedule(void function* f()) {
 				m_lock.lock();
 				f();
 				m_lock.unlock();
@@ -71,19 +69,16 @@ namespace jnc {
 		sys.Lock g_lock;
 		typedef OnComplete(int x);
 
-		void work(OnComplete* onComplete)
-		{
+		void work(OnComplete* onComplete) {
 			// ...
 			onComplete(100);
 		}
 
-		void bar(int a, int b, int c)
-		{
+		void bar(int a, int b, int c) {
 			printf($"bar ($a, $b, $c) -- MUST be called under g_lock");
 		}
 
-		void foo()
-		{
+		void foo() {
 			LockScheduler scheduler;
 			scheduler.m_lock = g_lock; // initialize scheduler
 
@@ -92,8 +87,7 @@ namespace jnc {
 		}
 */
 
-class Scheduler
-{
+class Scheduler {
 	/**
 		Implement this abstract function to perform the required scheduling.
 		Note that even though the argument has type of simple function pointer

@@ -3,15 +3,13 @@
 int bindable autoget property g_a;
 int bindable autoget property g_b;
 
-void g_a.set(int x)
-{
+void g_a.set(int x) {
 	printf("g_a.set (%d)\n", x);
 	m_value = x;
 	m_onChanged();
 }
 
-void g_b.set(int x)
-{
+void g_b.set(int x) {
 	printf("g_b.set (%d)\n", x);
 	m_value = x;
 	m_onChanged();
@@ -20,36 +18,31 @@ void g_b.set(int x)
 event g_onClicked(
 	int x,
 	int y
-	);
+);
 
-reactor g_reactor
-{
+reactor g_reactor {
 	g_a = g_b + 1;
 	g_b = g_a + 1;
 
 	onevent g_onClicked(
 		int x,
 		int y
-		)
-	{
+	) {
 		printf("g_onClicked (%d, %d)\n", x, y);
 	}
 }
 
-class C
-{
+class C {
 	event m_onClicked(
 		int x,
 		int y
-		);
+	);
 
-	construct()
-	{
+	construct() {
 		printf("C.construct (this: %p)\n", this);
 	}
 
-	reactor m_reactor
-	{
+	reactor m_reactor {
 		printf("C.m_reactor (this: %p)\n", this);
 
 		m_a = m_b + 1;
@@ -58,8 +51,7 @@ class C
 		onevent m_onClicked(
 			int x,
 			int y
-			)
-		{
+		) {
 			printf("m_onClicked (%d, %d)\n", x, y);
 		}
 	}
@@ -70,28 +62,24 @@ class C
 	void fireOnClickedEvent(
 		int x,
 		int y
-		) // we can't fire from the outside
-	{
+	) { // we can't fire from the outside
 		m_onClicked(x, y);
 	}
 }
 
-void C.m_a.set(int x)
-{
+void C.m_a.set(int x) {
 	printf("C.m_a.set (%d)\n", x);
 	m_value = x;
 	m_onChanged();
 }
 
-void C.m_b.set(int x)
-{
+void C.m_b.set(int x) {
 	printf("C.m_b.set (%d)\n", x);
 	m_value = x;
 	m_onChanged();
 }
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	g_reactor.start();

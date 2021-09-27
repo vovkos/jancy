@@ -20,16 +20,14 @@ namespace ct {
 
 //..............................................................................
 
-AsyncSequencerFunction::AsyncSequencerFunction()
-{
+AsyncSequencerFunction::AsyncSequencerFunction() {
 	m_functionKind = FunctionKind_AsyncSequencer;
 	m_promiseType = NULL;
 	m_catchBlock = NULL;
 }
 
 bool
-AsyncSequencerFunction::compile()
-{
+AsyncSequencerFunction::compile() {
 	ASSERT(m_parentUnit && m_parentNamespace);
 
 	if (!m_module->hasCodeGen())
@@ -47,7 +45,7 @@ AsyncSequencerFunction::compile()
 	Scope* scope = m_module->m_namespaceMgr.openScope(
 		m_bodyPos,
 		ScopeFlag_CatchAhead | ScopeFlag_HasCatch
-		);
+	);
 
 	m_catchBlock = scope->m_catchBlock;
 
@@ -59,8 +57,7 @@ AsyncSequencerFunction::compile()
 
 	size_t i = 0;
 
-	if (isMember())
-	{
+	if (isMember()) {
 		// add this arg
 
 		Field* argField = promiseFieldArray[0];
@@ -81,8 +78,7 @@ AsyncSequencerFunction::compile()
 
 	scope->createConst("thisPromise", promiseValue);
 
-	for (; i < argCount; i++)
-	{
+	for (; i < argCount; i++) {
 		Field* argField = promiseFieldArray[i];
 
 		Value argFieldValue;
@@ -93,7 +89,7 @@ AsyncSequencerFunction::compile()
 			argField->getName(),
 			argField->getType(),
 			argFieldValue
-			);
+		);
 
 		scope->addItem(argVar);
 	}
@@ -138,8 +134,7 @@ AsyncSequencerFunction::compile()
 	if (!result)
 		return false;
 
-	if (!m_module->hasCodeGen()) // codegen was gone while parsing the body
-	{
+	if (!m_module->hasCodeGen()) { // codegen was gone while parsing the body
 		m_module->m_namespaceMgr.closeScope();
 		m_module->m_functionMgr.internalEpilogue();
 		m_module->m_namespaceMgr.closeNamespace();
@@ -172,7 +167,7 @@ AsyncSequencerFunction::compile()
 		stateIdArray,
 		asyncBlockArray,
 		count
-		);
+	);
 
 	// sync-catch and async-throw
 
@@ -197,8 +192,7 @@ AsyncSequencerFunction::compile()
 }
 
 void
-AsyncSequencerFunction::replaceAllocas()
-{
+AsyncSequencerFunction::replaceAllocas() {
 	// replace all alloca's with GEPs
 
 	llvm::Function::arg_iterator llvmArg = m_llvmFunction->arg_begin();
@@ -213,10 +207,8 @@ AsyncSequencerFunction::replaceAllocas()
 
 	size_t offset = m_promiseType->m_ifaceStructType->m_size;
 
-	while (it != llvmAllocaBlock->end())
-	{
-		if (!llvm::isa<llvm::AllocaInst> (it))
-		{
+	while (it != llvmAllocaBlock->end()) {
+		if (!llvm::isa<llvm::AllocaInst> (it)) {
 			it++;
 			continue;
 		}

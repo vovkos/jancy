@@ -6,8 +6,7 @@
 long parseInteger(
 	char const* p,
 	size_t length = -1
-	)
-{
+) {
 	if (length == -1)
 		length = strlen(p);
 

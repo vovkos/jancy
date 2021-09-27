@@ -16,10 +16,8 @@ bool representUdpLog(
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
-	switch (recordCode)
-	{
+) {
+	switch (recordCode) {
 	case UdpLogRecordCode.TxPacket:
 		io.SocketAddress const* address = (io.SocketAddress const*)p;
 
@@ -45,7 +43,7 @@ bool representUdpLog(
 		representation.addHyperText($"To \e[34m%1\e[m (%2 bytes)"(
 			address.getString(),
 			packetSize
-			));
+		));
 		break;
 
 	case UdpLogRecordCode.RxPacketEx:
@@ -57,7 +55,7 @@ bool representUdpLog(
 		representation.addHyperText($"From \e[34m%1\e[m (%2 bytes)"(
 			address.getString(),
 			packetSize
-			));
+		));
 		break;
 
 	default:

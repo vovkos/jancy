@@ -18,10 +18,8 @@ namespace io {
 //..............................................................................
 
 void
-initializeSocketCapabilities()
-{
-	if (isEveryCapabilityEnabled())
-	{
+initializeSocketCapabilities() {
+	if (isEveryCapabilityEnabled()) {
 		g_socketCapabilities = -1;
 		return;
 	}
@@ -51,10 +49,8 @@ initializeSocketCapabilities()
 }
 
 bool
-failWithSocketCapabilityError(SocketCapability capability)
-{
-	const char* stringTable[] =
-	{
+failWithSocketCapabilityError(SocketCapability capability) {
+	const char* stringTable[] = {
 		"org.jancy.io.server", // SocketCapability_Server
 		"org.jancy.io.ip4",    // SocketCapability_Ip4
 		"org.jancy.io.ip6",    // SocketCapability_Ip6

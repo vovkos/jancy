@@ -18,8 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-BasicBlock::BasicBlock()
-{
+BasicBlock::BasicBlock() {
 	m_module = NULL;
 	m_flags = 0;
 	m_llvmBlock = NULL;
@@ -28,8 +27,7 @@ BasicBlock::BasicBlock()
 }
 
 Value
-BasicBlock::getBlockAddressValue()
-{
+BasicBlock::getBlockAddressValue() {
 	ASSERT(m_llvmBlock);
 	llvm::BlockAddress* llvmAddress = llvm::BlockAddress::get(m_function->getLlvmFunction(), m_llvmBlock);
 

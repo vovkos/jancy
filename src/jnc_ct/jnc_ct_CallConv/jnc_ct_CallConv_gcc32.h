@@ -18,8 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-class CallConv_gcc32: public CallConv
-{
+class CallConv_gcc32: public CallConv {
 public:
 	virtual
 	void
@@ -30,7 +29,7 @@ public:
 	createLlvmFunction(
 		FunctionType* functionType,
 		const sl::StringRef& name
-		);
+	);
 
 	virtual
 	void
@@ -39,14 +38,14 @@ public:
 		FunctionType* functionType,
 		sl::BoxList<Value>* argValueList,
 		Value* resultValue
-		);
+	);
 
 	virtual
 	void
 	ret(
 		Function* function,
 		const Value& value
-		);
+	);
 
 	virtual
 	Value
@@ -58,7 +57,7 @@ public:
 		Function* function,
 		Value* argValueArray,
 		size_t count
-		);
+	);
 
 	virtual
 	void
@@ -67,22 +66,18 @@ public:
 
 //..............................................................................
 
-class CdeclCallConv_gcc32: public CallConv_gcc32
-{
+class CdeclCallConv_gcc32: public CallConv_gcc32 {
 public:
-	CdeclCallConv_gcc32()
-	{
+	CdeclCallConv_gcc32() {
 		m_callConvKind = CallConvKind_Cdecl_gcc32;
 	}
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class StdcallCallConv_gcc32: public CallConv_gcc32
-{
+class StdcallCallConv_gcc32: public CallConv_gcc32 {
 public:
-	StdcallCallConv_gcc32()
-	{
+	StdcallCallConv_gcc32() {
 		m_callConvKind = CallConvKind_Stdcall_gcc32;
 	}
 };

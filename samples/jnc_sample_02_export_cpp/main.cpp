@@ -18,8 +18,7 @@ char g_script[] =
 
 //..............................................................................
 
-enum Error
-{
+enum Error {
 	Error_Success = 0,
 	Error_CmdLine = -1,
 	Error_Io      = -2,
@@ -35,8 +34,7 @@ std::auto_ptr<char>
 convertToUtf8(
 	const wchar_t* string,
 	size_t length = -1
-	)
-{
+) {
 	int requiredLength = ::WideCharToMultiByte(CP_UTF8, 0, string, (int)length, NULL, 0, NULL, NULL);
 	if (!requiredLength)
 		return std::auto_ptr<char> ();
@@ -57,13 +55,13 @@ int
 wmain(
 	int argc,
 	wchar_t* argv[]
-	)
+)
 #else
 int
 main(
 	int argc,
 	char* argv[]
-	)
+)
 #endif
 {
 	bool result;
@@ -77,13 +75,10 @@ main(
 	module->addStaticLib(MyLib_getLib());
 	module->require(jnc::ModuleItemKind_Function, "main");
 
-	if (argc < 2)
-	{
+	if (argc < 2) {
 		printf("Parsing default script...\n");
 		result = module->parse("script.jnc", g_script, sizeof(g_script) - 1);
-	}
-	else
-	{
+	} else {
 #if (_JNC_OS_WIN)
 		std::auto_ptr<char> fileName_utf8 = convertToUtf8(argv[1]);
 		const char* fileName = fileName_utf8.get();
@@ -95,8 +90,7 @@ main(
 	}
 
 	result = result && module->parseImports();
-	if (!result)
-	{
+	if (!result) {
 		printf("%s\n", jnc::getLastErrorDescription_v ());
 		return Error_Compile;
 	}
@@ -108,8 +102,7 @@ main(
 		module->optimize() &&
 		module->jit();
 
-	if (!result)
-	{
+	if (!result) {
 		printf("%s\n", jnc::getLastErrorDescription_v ());
 		return Error_Compile;
 	}
@@ -123,8 +116,7 @@ main(
 	jnc::AutoRuntime runtime;
 
 	result = runtime->startup(module);
-	if (!result)
-	{
+	if (!result) {
 		printf("%s\n", jnc::getLastErrorDescription_v ());
 		return Error_Runtime;
 	}
@@ -133,8 +125,7 @@ main(
 
 	int returnValue;
 	result = jnc::callFunction(runtime, mainFunction, &returnValue);
-	if (!result)
-	{
+	if (!result) {
 		printf("Runtime error: %s\n", jnc::getLastErrorDescription_v ());
 		finalResult = Error_Runtime;
 	}

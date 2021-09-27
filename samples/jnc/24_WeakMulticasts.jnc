@@ -19,22 +19,18 @@
 
 //..............................................................................
 
-class C1
-{
+class C1 {
 	int m_x = -1;
 
-	construct()
-	{
+	construct() {
 		printf("C1.construct ()\n");
 	}
 
-	destruct()
-	{
+	destruct() {
 		printf("C1.destruct ()\n");
 	}
 
-	void foo()
-	{
+	void foo() {
 		printf("C1.foo () { m_x = %d }\n", m_x);
 	}
 }
@@ -43,8 +39,7 @@ class C1
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	weak multicast wm();

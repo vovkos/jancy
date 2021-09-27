@@ -16,8 +16,7 @@ namespace jnc {
 
 //..............................................................................
 
-opaque class Promise
-{
+opaque class Promise {
 protected:
 	size_t m_state;
 	Scheduler* m_scheduler;
@@ -30,8 +29,7 @@ public:
 	construct();
 	destruct();
 
-	async asyncSetScheduler(Scheduler* scheduler)
-	{
+	async asyncSetScheduler(Scheduler* scheduler) {
 		m_scheduler = scheduler;
 	}
 
@@ -41,7 +39,7 @@ public:
 	intptr errorcode wait(function* handler(
 		variant result,
 		std.Error const* error
-		));
+	));
 
 	bool errorcode cancelWait(intptr handle);
 
@@ -51,8 +49,7 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class Promisifier: Promise
-{
+class Promisifier: Promise {
 	// pass those as completion routines
 
 	void complete();
@@ -61,7 +58,7 @@ class Promisifier: Promise
 	void complete(
 		variant result,
 		std.Error const* error
-		);
+	);
 }
 
 //..............................................................................

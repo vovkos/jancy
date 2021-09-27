@@ -17,15 +17,13 @@
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	int result;
 
 	int a = rand() % 3;
-	switch (a)
-	{
+	switch (a) {
 	case 0:
 		int i = 10;
 		result = i * 2;

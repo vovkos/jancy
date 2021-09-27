@@ -9,24 +9,20 @@
 //
 //..............................................................................
 
-struct A
-{
+struct A {
 	int m_x;
 
-	construct(int x)
-	{
+	construct(int x) {
 		printf("A.construct (%d)\n", x);
 		m_x = x;
 	}
 }
 
-void foo(A a)
-{
+void foo(A a) {
 	printf("foo (A {%d})\n", a.m_x);
 }
 
-int main()
-{
+int main() {
 	printf("main\n");
 
 	foo(10);

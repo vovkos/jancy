@@ -22,14 +22,12 @@ void*
 JitMemoryMgr::getPointerToNamedFunction(
 	const std::string& name,
 	bool abortOnFailure
-	)
-{
+) {
 	void* p = m_module->findFunctionMapping(name.c_str());
 	if (p)
 		return p;
 
-	if (abortOnFailure)
-	{
+	if (abortOnFailure) {
 		std::string errorString = "JitMemoryManager::getPointerToNamedFunction: unresolved external function '" + name + "'";
 		llvm::report_fatal_error(errorString);
 	}
@@ -38,8 +36,7 @@ JitMemoryMgr::getPointerToNamedFunction(
 }
 
 uint64_t
-JitMemoryMgr::getSymbolAddress(const std::string &name)
-{
+JitMemoryMgr::getSymbolAddress(const std::string &name) {
 	void* p = m_module->findFunctionMapping(name.c_str());
 	if (p)
 		return (uint64_t)p;

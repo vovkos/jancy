@@ -20,8 +20,7 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(WebSocketHandshake)
 
 //..............................................................................
 
-class WebSocketHandshake: IfaceHdr
-{
+class WebSocketHandshake: IfaceHdr {
 	friend class WebSocketHandshakeParser;
 
 public:
@@ -48,24 +47,21 @@ public:
 	static
 	DataPtr
 	JNC_CDECL
-	getResource(WebSocketHandshake* self)
-	{
+	getResource(WebSocketHandshake* self) {
 		return self->m_resource.getPtr();
 	}
 
 	static
 	DataPtr
 	JNC_CDECL
-	getReasonPhrase(WebSocketHandshake* self)
-	{
+	getReasonPhrase(WebSocketHandshake* self) {
 		return self->m_reasonPhrase.getPtr();
 	}
 
 	static
 	DataPtr
 	JNC_CDECL
-	getRawData(WebSocketHandshake* self)
-	{
+	getRawData(WebSocketHandshake* self) {
 		return self->m_rawData.getPtr();
 	}
 
@@ -79,14 +75,14 @@ public:
 		const sl::StringRef& host,
 		const sl::StringRef& key,
 		WebSocketHandshakeHeaders* extraHeaders = NULL
-		);
+	);
 
 	size_t
 	buildResponse(
 		sl::String* resultString,
 		WebSocketHandshake* handshake,
 		WebSocketHandshakeHeaders* extraHeaders = NULL
-		);
+	);
 
 	sl::String
 	buildRequest(
@@ -94,8 +90,7 @@ public:
 		const sl::StringRef& host,
 		const sl::StringRef& key,
 		WebSocketHandshakeHeaders* extraHeaders = NULL
-		)
-	{
+	) {
 		sl::String string;
 		buildRequest(&string, resource, host, key, extraHeaders);
 		return string;
@@ -105,8 +100,7 @@ public:
 	buildResponse(
 		WebSocketHandshake* handshake,
 		WebSocketHandshakeHeaders* extraHeaders = NULL
-		)
-	{
+	) {
 		sl::String string;
 		buildResponse(&string, handshake, extraHeaders);
 		return string;
@@ -117,7 +111,7 @@ protected:
 	finalizeBuild(
 		sl::String* resultString,
 		WebSocketHandshakeHeaders* extraHeaders
-		);
+	);
 };
 
 //..............................................................................
@@ -127,8 +121,7 @@ generateWebSocketHandshakeKey(sl::String* key);
 
 inline
 sl::String
-generateWebSocketHandshakeKey()
-{
+generateWebSocketHandshakeKey() {
 	sl::String key;
 	generateWebSocketHandshakeKey(&key);
 	return key;
@@ -138,7 +131,7 @@ void
 calcWebSocketHandshakeKeyHash(
 	uchar_t hash[SHA_DIGEST_LENGTH],
 	const sl::StringRef& key
-	);
+);
 
 //..............................................................................
 

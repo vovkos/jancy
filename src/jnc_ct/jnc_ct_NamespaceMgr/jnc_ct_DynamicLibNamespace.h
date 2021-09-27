@@ -21,28 +21,24 @@ class DynamicLibClassType;
 
 //..............................................................................
 
-class DynamicLibNamespace: public GlobalNamespace
-{
+class DynamicLibNamespace: public GlobalNamespace {
 	friend class Parser;
 
 protected:
 	size_t m_functionCount;
 
 public:
-	DynamicLibNamespace()
-	{
+	DynamicLibNamespace() {
 		m_namespaceKind = NamespaceKind_DynamicLib;
 		m_functionCount = 0;
 	}
 
-	DynamicLibClassType* getLibraryType()
-	{
+	DynamicLibClassType* getLibraryType() {
 		return (DynamicLibClassType*)m_parentNamespace;
 	}
 
 	size_t
-	getFunctionCount()
-	{
+	getFunctionCount() {
 		return m_functionCount;
 	}
 };

@@ -19,18 +19,15 @@ namespace ct {
 
 //..............................................................................
 
-class CdeclCallConv_gcc64: public CallConv
-{
+class CdeclCallConv_gcc64: public CallConv {
 protected:
-	enum ArgFlag
-	{
+	enum ArgFlag {
 		ArgFlag_ByVal   = 0x01,
 		ArgFlag_Coerced = 0x02,
 	};
 
 public:
-	CdeclCallConv_gcc64()
-	{
+	CdeclCallConv_gcc64() {
 		m_callConvKind = CallConvKind_Cdecl_gcc64;
 	}
 
@@ -43,7 +40,7 @@ public:
 	createLlvmFunction(
 		FunctionType* functionType,
 		const sl::StringRef& name
-		);
+	);
 
 	virtual
 	void
@@ -52,14 +49,14 @@ public:
 		FunctionType* functionType,
 		sl::BoxList<Value>* argValueList,
 		Value* resultValue
-		);
+	);
 
 	virtual
 	void
 	ret(
 		Function* function,
 		const Value& value
-		);
+	);
 
 	virtual
 	Value
@@ -71,7 +68,7 @@ public:
 		llvm::Value* llvmValue,
 		FunctionType* functionType,
 		size_t argIdx
-		);
+	);
 
 	virtual
 	void
@@ -79,7 +76,7 @@ public:
 		Function* function,
 		Value* argValueArray,
 		size_t count
-		);
+	);
 
 	virtual
 	void

@@ -16,8 +16,7 @@
 //..............................................................................
 
 QtSignalBridge::QtSignalBridge(QObject* parent):
-	QObject(parent)
-{
+	QObject(parent) {
 	m_runtime = jnc::getCurrentThreadRuntime();
 	Q_ASSERT(m_runtime);
 
@@ -25,8 +24,7 @@ QtSignalBridge::QtSignalBridge(QObject* parent):
 }
 
 void
-QtSignalBridge::onQtSignal()
-{
+QtSignalBridge::onQtSignal() {
 	jnc::callMulticast(m_runtime, m_jncEvent);
 }
 

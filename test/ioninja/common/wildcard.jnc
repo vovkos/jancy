@@ -9,10 +9,8 @@
 bool wildcardCompareStringLowerCase(
 	const char thin* string0,
 	const char thin* wildcard
-	)
-{
-	if (!*string0) // empty input shortcut
-	{
+) {
+	if (!*string0) { // empty input shortcut
 		while (*wildcard == '*')
 			wildcard++;
 
@@ -24,20 +22,16 @@ bool wildcardCompareStringLowerCase(
 	const char thin* wildcardBookmark = null;
 	char c;
 
-	for (;;)
-	{
-		if (*wildcard == '*')
-		{
+	for (;;) {
+		if (*wildcard == '*') {
 			while (*++wildcard == '*')
 				;
 
 			if (!*wildcard)
 				return true;
 
-			if (*wildcard != '?')
-			{
-				while ((char)tolower(*string) != *wildcard)
-				{
+			if (*wildcard != '?') {
+				while ((char)tolower(*string) != *wildcard) {
 					if (!(*(++string)))
 						return false;
 				}
@@ -45,32 +39,23 @@ bool wildcardCompareStringLowerCase(
 
 			wildcardBookmark = wildcard;
 			stringBookmark = string;
-		}
-		else
-		{
+		} else {
 			c = (char)tolower(*string);
 
-			if (c != *wildcard && *wildcard != '?')
-			{
-				if (wildcardBookmark)
-				{
-					if (wildcard != wildcardBookmark)
-					{
+			if (c != *wildcard && *wildcard != '?') {
+				if (wildcardBookmark) {
+					if (wildcard != wildcardBookmark) {
 						wildcard = wildcardBookmark;
 
-						if (c != *wildcard)
-						{
+						if (c != *wildcard) {
 							string = ++stringBookmark;
 							continue;
-						}
-						else
-						{
+						} else {
 							wildcard++;
 						}
 					}
 
-					if (*string)
-					{
+					if (*string) {
 						string++;
 						continue;
 					}
@@ -83,8 +68,7 @@ bool wildcardCompareStringLowerCase(
 		string++;
 		wildcard++;
 
-		if (!*string)
-		{
+		if (!*string) {
 			while (*wildcard == '*')
 				wildcard++;
 

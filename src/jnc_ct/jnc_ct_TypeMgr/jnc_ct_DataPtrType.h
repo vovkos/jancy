@@ -18,8 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-class DataPtrType: public Type
-{
+class DataPtrType: public Type {
 	friend class TypeMgr;
 
 protected:
@@ -30,36 +29,31 @@ public:
 	DataPtrType();
 
 	DataPtrTypeKind
-	getPtrTypeKind()
-	{
+	getPtrTypeKind() {
 		return m_ptrTypeKind;
 	}
 
 	Type*
-	getTargetType()
-	{
+	getTargetType() {
 		return m_targetType;
 	}
 
 	DataPtrType*
-	getCheckedPtrType()
-	{
+	getCheckedPtrType() {
 		return !(m_flags & PtrTypeFlag_Safe) ?
 			m_targetType->getDataPtrType(m_typeKind, m_ptrTypeKind, m_flags | PtrTypeFlag_Safe) :
 			this;
 	}
 
 	DataPtrType*
-	getUnCheckedPtrType()
-	{
+	getUnCheckedPtrType() {
 		return (m_flags & PtrTypeFlag_Safe) ?
 			m_targetType->getDataPtrType(m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Safe) :
 			this;
 	}
 
 	DataPtrType*
-	getUnConstPtrType()
-	{
+	getUnConstPtrType() {
 		return (m_flags & PtrTypeFlag_Const) ?
 			m_targetType->getDataPtrType(m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Const) :
 			this;
@@ -72,20 +66,19 @@ public:
 		TypeKind typeKind,
 		DataPtrTypeKind ptrTypeKind,
 		uint_t flags
-		);
+	);
 
 	virtual
 	void
 	markGcRoots(
 		const void* p,
 		rt::GcHeap* gcHeap
-		);
+	);
 
 protected:
 	virtual
 	bool
-	resolveImports()
-	{
+	resolveImports() {
 		return m_targetType->ensureNoImports();
 	}
 
@@ -95,8 +88,7 @@ protected:
 
 	virtual
 	void
-	prepareSignature()
-	{
+	prepareSignature() {
 		m_signature = createSignature(m_targetType, m_typeKind, m_ptrTypeKind, m_flags);
 	}
 
@@ -118,8 +110,7 @@ protected:
 
 	virtual
 	void
-	prepareTypeVariable()
-	{
+	prepareTypeVariable() {
 		prepareSimpleTypeVariable(StdType_DataPtrType);
 	}
 
@@ -128,7 +119,7 @@ protected:
 	calcFoldedDualType(
 		bool isAlien,
 		bool isContainerConst
-		);
+	);
 
 	sl::String
 	getPointerStringSuffix();
@@ -136,8 +127,7 @@ protected:
 
 //..............................................................................
 
-struct DataPtrTypeTuple: sl::ListLink
-{
+struct DataPtrTypeTuple: sl::ListLink {
 	DataPtrType* m_ptrTypeArray[2][3][3][2][2]; // ref x kind x const x volatile x safe
 };
 

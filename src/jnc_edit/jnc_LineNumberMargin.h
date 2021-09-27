@@ -17,13 +17,11 @@ class Edit;
 
 //..............................................................................
 
-class LineNumberMargin: public QWidget
-{
+class LineNumberMargin: public QWidget {
 	Q_OBJECT
 
 protected:
-	enum Color
-	{
+	enum Color {
 		Color_Back = 0xffffff,
 		Color_Text = 0x2b91af,
 	};

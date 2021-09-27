@@ -22,8 +22,7 @@ bool
 UnOp_PreInc::op(
 	const Value& opValue,
 	Value* resultValue
-	)
-{
+) {
 	Value oneValue;
 	oneValue.setConstInt32(1, m_module);
 	BinOpKind binOpKind = m_opKind == UnOpKind_PreInc ? BinOpKind_AddAssign : BinOpKind_SubAssign;
@@ -42,8 +41,7 @@ bool
 UnOp_PostInc::op(
 	const Value& opValue,
 	Value* resultValue
-	)
-{
+) {
 	bool result;
 
 	Value oldValue;

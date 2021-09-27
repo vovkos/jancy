@@ -19,18 +19,15 @@ namespace ct {
 
 //..............................................................................
 
-class McSnapshotClassType: public ClassType
-{
+class McSnapshotClassType: public ClassType {
 	friend class TypeMgr;
 
 protected:
-	class CallMethod: public CompilableFunction
-	{
+	class CallMethod: public CompilableFunction {
 	public:
 		virtual
 		bool
-		compile()
-		{
+		compile() {
 			return ((McSnapshotClassType*)m_parentNamespace)->compileCallMethod(this);
 		}
 	};
@@ -44,27 +41,23 @@ public:
 	McSnapshotClassType();
 
 	FunctionPtrType*
-	getTargetType()
-	{
+	getTargetType() {
 		return m_targetType;
 	}
 
 	FunctionType*
-	getFunctionType()
-	{
+	getFunctionType() {
 		return m_targetType->getTargetType();
 	}
 
 	Field*
-	getField(McSnapshotFieldKind field)
-	{
+	getField(McSnapshotFieldKind field) {
 		ASSERT(field < McSnapshotFieldKind__Count);
 		return m_fieldArray[field];
 	}
 
 	Function*
-	getMethod(McSnapshotMethodKind method)
-	{
+	getMethod(McSnapshotMethodKind method) {
 		ASSERT(method < McSnapshotMethodKind__Count);
 		return m_methodArray[method];
 	}

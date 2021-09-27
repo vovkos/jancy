@@ -21,40 +21,34 @@ using extension ui.ComboBoxHistory;
 
 //..............................................................................
 
-class UdpFlowMonSession: doc.Session
-{
+class UdpFlowMonSession: doc.Session {
 protected:
-	enum Defaults
-	{
+	enum Defaults {
 		Promiscious      = false,
 		SnapshotSize     = 64 * 1024,
 		KernelBufferSise = 0,
 		BufferSise       = 1 * 1024 * 1024,
 	}
 
-	enum State
-	{
+	enum State {
 		Idle,
 		Capturing,
 	}
 
-	enum ActionId
-	{
+	enum ActionId {
 		ApplyFilter,
 		Capture,
 		OpenPcap,
 		_Count,
 	}
 
-	enum IconId
-	{
+	enum IconId {
 		Capture,
 		StopCapture,
 		_Count,
 	}
 
-	enum StatusPaneId
-	{
+	enum StatusPaneId {
 		State,
 		_Count,
 	}
@@ -115,18 +109,15 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
-	void onCapture()
-	{
+	void onCapture() {
 		m_state ? stopCapture() : try capture();
 	}
 
-	void onSetViewFilter()
-	{
+	void onSetViewFilter() {
 		try applyViewFilter(true);
 	}
 
-	void onDeviceComboEnter()
-	{
+	void onDeviceComboEnter() {
 		try capture();
 	}
 
@@ -136,7 +127,7 @@ protected:
 	void onPcapEvent(
 		uint_t syncId,
 		io.PcapEvents triggeredEvents
-		);
+	);
 
 	char const* errorcode createCaptureFilterString(io.SocketAddress const* address);
 	bool errorcode applyCaptureFilter();
@@ -148,8 +139,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-UdpFlowMonSession.construct(doc.PluginHost* pluginHost)
-{
+UdpFlowMonSession.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
 
 	createUi();
@@ -160,8 +150,7 @@ UdpFlowMonSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-void UdpFlowMonSession.createUi()
-{
+void UdpFlowMonSession.createUi() {
 	// toolbar
 
 	m_pluginHost.m_toolBar.addLabel("Filter:");
@@ -198,55 +187,55 @@ void UdpFlowMonSession.createUi()
 	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Pcap",
 		"Pcap-specific settings"
-		);
+	);
 
 	m_deviceProp = ui.createPcapDeviceProperty(
 		m_pluginHost.m_propertyGrid,
 		group,,
 		"Device",
 		"Specify the device to capture on"
-		);
+	);
 
 	m_promisciousProp = m_pluginHost.m_propertyGrid.createBoolProperty(
 		group,,
 		"Promiscious mode",
 		"Put the capturing interface into promiscious mode"
-		);
+	);
 
 	m_captureFilterProp = m_pluginHost.m_propertyGrid.createStringProperty(
 		group,,
 		"Capture filter",
 		"Enter a filter address...",
 		"Only capture packets matching this address"
-		);
+	);
 
 	m_viewFilterProp = m_pluginHost.m_propertyGrid.createStringProperty(
 		group,,
 		"View filter",
 		"Enter a filter address...",
 		"Only show packets matching this address"
-		);
+	);
 
 	m_ipFragmentLimitProp  = m_pluginHost.m_propertyGrid.createIntProperty(
 		"IP fragment limit",
 		"Specify the maximum number of IP fragments"
-		);
+	);
 
 	m_ipFragmentTimeoutProp  = m_pluginHost.m_propertyGrid.createIntProperty(
 		"IP fragment timeout (ms)",
 		"Specify the maximum delay between IP fragments"
-		);
+	);
 
 	group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Buffering",
 		"Advanced buffering options affecting throughtput and compatibility"
-		);
+	);
 
 	m_snapshotSizeProp = m_pluginHost.m_propertyGrid.createIntProperty(
 		group,,
 		"Snapshot size",
 		"Specify the Pcap snapshot size"
-		);
+	);
 
 	m_snapshotSizeProp.m_spinBoxStep = 1024;
 
@@ -254,7 +243,7 @@ void UdpFlowMonSession.createUi()
 		group,,
 		"Kernel buffer size",
 		"Specify the Pcap kernel buffer size (0 = default)"
-		);
+	);
 
 	m_kernelBufferSizeProp.m_spinBoxStep = 1024;
 
@@ -279,10 +268,8 @@ void UdpFlowMonSession.createUi()
 	m_uiReactor.start();
 }
 
-void UdpFlowMonSession.onOpenPcap()
-{
-	if (!m_fileDlg)
-	{
+void UdpFlowMonSession.onOpenPcap() {
+	if (!m_fileDlg) {
 		m_fileDlg = new ui.FileDlg;
 		m_fileDlg.m_onCompleted += onFileDlgCompleted;
 	}
@@ -293,14 +280,12 @@ void UdpFlowMonSession.onOpenPcap()
 	m_fileDlg.show();
 }
 
-void UdpFlowMonSession.onFileDlgCompleted(ui.StdDlgButton button)
-{
+void UdpFlowMonSession.onFileDlgCompleted(ui.StdDlgButton button) {
 	if (button == ui.StdDlgButton.Ok)
 		try openPcapFile(m_fileDlg.m_filePath);
 }
 
-bool errorcode UdpFlowMonSession.capture()
-{
+bool errorcode UdpFlowMonSession.capture() {
 	stopCapture();
 	startSession();
 
@@ -337,8 +322,7 @@ catch:
 	return false;
 }
 
-bool errorcode UdpFlowMonSession.openPcapFile(char const* fileName)
-{
+bool errorcode UdpFlowMonSession.openPcapFile(char const* fileName) {
 	stopCapture();
 	startSession();
 
@@ -368,8 +352,7 @@ catch:
 	return false;
 }
 
-void UdpFlowMonSession.stopCapture()
-{
+void UdpFlowMonSession.stopCapture() {
 	if (!m_state)
 		return;
 
@@ -383,8 +366,7 @@ void UdpFlowMonSession.stopCapture()
 	m_stdSessionInfoSet.endSession();
 }
 
-bool errorcode UdpFlowMonSession.applyCaptureFilter()
-{
+bool errorcode UdpFlowMonSession.applyCaptureFilter() {
 	if (!m_state)
 		return true;
 
@@ -394,15 +376,13 @@ bool errorcode UdpFlowMonSession.applyCaptureFilter()
 
 	char const* filterString = createCaptureFilterString(filterAddress);
 
-	if (strcmp(filterString, m_captureFilterString))
-	{
+	if (strcmp(filterString, m_captureFilterString)) {
 		m_pcap.setFilter(filterString);
 		m_captureFilterString = filterString;
 		m_logWriter.write(PcapLogRecordCode.SetCaptureFilter, filterString);
 	}
 
-	if (!filterAddress.isEqual(&m_decoder.m_filterAddress))
-	{
+	if (!filterAddress.isEqual(&m_decoder.m_filterAddress)) {
 		m_decoder.m_filterAddress = filterAddress;
 		m_logWriter.write(PcapLogRecordCode.SetAddressFilter, filterAddress, sizeof(filterAddress));
 	}
@@ -414,14 +394,12 @@ catch:
 	return false;
 }
 
-bool errorcode UdpFlowMonSession.applyViewFilter(bool rebuildLog)
-{
+bool errorcode UdpFlowMonSession.applyViewFilter(bool rebuildLog) {
 	m_pluginHost.m_log.suspend();
 	bool result = try m_filter.setFilter(m_viewFilterCombo.m_editText);
 	m_pluginHost.m_log.resume();
 
-	if (!result)
-	{
+	if (!result) {
 		m_viewFilterCombo.m_backgroundColor = ui.StdColor.PastelRed;
 		return false;
 	}
@@ -435,8 +413,7 @@ bool errorcode UdpFlowMonSession.applyViewFilter(bool rebuildLog)
 	return true;
 }
 
-char const* errorcode UdpFlowMonSession.createCaptureFilterString(io.SocketAddress const* address)
-{
+char const* errorcode UdpFlowMonSession.createCaptureFilterString(io.SocketAddress const* address) {
 	char const* filterString =
 		address.m_family == io.AddressFamily.Ip6 ? $"udp and host $(address.m_ip6.m_address.getString())" :
 		address.m_ip4.m_address.m_i32 ? $"udp and host $(address.m_ip4.m_address.getString())" :
@@ -451,8 +428,7 @@ char const* errorcode UdpFlowMonSession.createCaptureFilterString(io.SocketAddre
 	return filterString;
 }
 
-void UdpFlowMonSession.waitPcapEvents()
-{
+void UdpFlowMonSession.waitPcapEvents() {
 	io.PcapEvents eventMask =
 		io.PcapEvents.IoError |
 		io.PcapEvents.ReadBufferFull |
@@ -462,8 +438,7 @@ void UdpFlowMonSession.waitPcapEvents()
 	m_pcap.wait(eventMask, onPcapEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
-void UdpFlowMonSession.load(doc.Storage* storage)
-{
+void UdpFlowMonSession.load(doc.Storage* storage) {
 	m_viewFilterCombo.loadHistory(storage, "viewFilterHistory");
 	m_deviceCombo.m_currentIndex = storage.readInt("deviceIdx");
 	m_promisciousProp.m_value = storage.readBool("promiscious");
@@ -478,8 +453,7 @@ void UdpFlowMonSession.load(doc.Storage* storage)
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 }
 
-void UdpFlowMonSession.save(doc.Storage* storage)
-{
+void UdpFlowMonSession.save(doc.Storage* storage) {
 	m_bufferPropertySet.save(storage);
 	m_viewFilterCombo.saveHistory(storage, "viewFilterHistory");
 	storage.writeInt("deviceIdx", (int) m_deviceCombo.m_currentIndex);
@@ -492,14 +466,12 @@ void UdpFlowMonSession.save(doc.Storage* storage)
 	storage.writeInt("kernelBufferSize", m_kernelBufferSizeProp.m_value);
 }
 
-void UdpFlowMonSession.updateProperties()
-{
+void UdpFlowMonSession.updateProperties() {
 	m_deviceProp.m_currentIndex = m_deviceCombo.m_currentIndex;
 	m_viewFilterProp.m_value = m_viewFilterCombo.m_editText;
 }
 
-bool errorcode UdpFlowMonSession.applyProperties()
-{
+bool errorcode UdpFlowMonSession.applyProperties() {
 	m_deviceCombo.m_currentIndex = m_deviceProp.m_currentIndex;
 	m_viewFilterCombo.m_editText = m_viewFilterProp.m_value;
 	m_decoder.setupDefragmenter(m_ipFragmentLimitProp.m_value, m_ipFragmentTimeoutProp.m_value);
@@ -515,8 +487,7 @@ bool errorcode UdpFlowMonSession.applyProperties()
 	return true;
 }
 
-void UdpFlowMonSession.restoreDefaultProperties()
-{
+void UdpFlowMonSession.restoreDefaultProperties() {
 	m_promisciousProp.m_value = Defaults.Promiscious;
 	m_ipFragmentLimitProp.m_value = io.IpDefragmenter.Defaults.FragmentLimit;
 	m_ipFragmentTimeoutProp.m_value = io.IpDefragmenter.Defaults.FragmentTimeout;
@@ -528,13 +499,11 @@ void UdpFlowMonSession.restoreDefaultProperties()
 void UdpFlowMonSession.onPcapEvent(
 	uint_t syncId,
 	io.PcapEvents triggeredEvents
-	)
-{
+) {
 	if (syncId != m_syncId)
 		return;
 
-	if (triggeredEvents & io.PcapEvents.IoError)
-	{
+	if (triggeredEvents & io.PcapEvents.IoError) {
 		m_logWriter.write(log.StdRecordCode.Error, m_pcap.m_ioError);
 		stopCapture();
 		return;
@@ -544,20 +513,17 @@ void UdpFlowMonSession.onPcapEvent(
 		m_bufferPropertySet.m_notifyReadBufferFullProp.m_value)
 		m_logWriter.write(log.StdRecordCode.RxBufferFull);
 
-	if (triggeredEvents & io.PcapEvents.IncomingData)
-	{
+	if (triggeredEvents & io.PcapEvents.IncomingData) {
 		uint64_t timestamp;
 		size_t result = m_pcap.read(m_readBuffer.m_p, m_readBuffer.m_size, &timestamp);
-		if (result)
-		{
+		if (result) {
 			g_logWriter = m_pluginHost.m_log.m_writer;
 			g_logTimestamp = timestamp;
 			m_decoder.decodeLinkHdr(m_pcap.m_linkType, m_readBuffer.m_p, result);
 		}
 	}
 
-	if (triggeredEvents & io.PcapEvents.Eof)
-	{
+	if (triggeredEvents & io.PcapEvents.Eof) {
 		stopCapture();
 		return;
 	}
@@ -565,8 +531,7 @@ void UdpFlowMonSession.onPcapEvent(
 	waitPcapEvents();
 }
 
-reactor UdpFlowMonSession.m_uiReactor
-{
+reactor UdpFlowMonSession.m_uiReactor {
 	m_title = $"UDP Mon $(m_viewFilterCombo.m_currentText)";
 	m_actionTable[ActionId.Capture].m_text = m_state ? "Stop Capture" : "Capture";
 	m_actionTable[ActionId.Capture].m_icon = m_iconTable[m_state ? IconId.StopCapture : IconId.Capture];

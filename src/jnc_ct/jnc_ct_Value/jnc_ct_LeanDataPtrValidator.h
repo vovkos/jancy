@@ -21,8 +21,7 @@ class OperatorMgr;
 
 //..............................................................................
 
-class LeanDataPtrValidator: public rc::RefCount
-{
+class LeanDataPtrValidator: public rc::RefCount {
 	friend class Value;
 	friend class Variable;
 	friend class VariableMgr;
@@ -35,38 +34,32 @@ protected:
 	Value m_validatorValue;
 
 public:
-	LeanDataPtrValidator()
-	{
+	LeanDataPtrValidator() {
 		m_rangeLength = 0;
 	}
 
 	bool
-	isDynamicRange()
-	{
+	isDynamicRange() {
 		return m_rangeLength == 0;
 	}
 
 	bool
-	hasValidatorValue()
-	{
+	hasValidatorValue() {
 		return m_validatorValue;
 	}
 
 	Value
-	getOriginValue()
-	{
+	getOriginValue() {
 		return m_originValue;
 	}
 
 	Value
-	getRangeBeginValue()
-	{
+	getRangeBeginValue() {
 		return m_rangeBeginValue;
 	}
 
 	size_t
-	getRangeLength()
-	{
+	getRangeLength() {
 		ASSERT(m_rangeLength); // should be checked with isDynamicRange ()
 		return m_rangeLength;
 	}

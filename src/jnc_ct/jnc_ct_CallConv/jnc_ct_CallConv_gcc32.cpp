@@ -19,11 +19,9 @@ namespace ct {
 //..............................................................................
 
 void
-CallConv_gcc32::prepareFunctionType(FunctionType* functionType)
-{
+CallConv_gcc32::prepareFunctionType(FunctionType* functionType) {
 	Type* returnType = functionType->getReturnType();
-	if (!(returnType->getFlags() & TypeFlag_StructRet))
-	{
+	if (!(returnType->getFlags() & TypeFlag_StructRet)) {
 		CallConv::prepareFunctionType(functionType);
 		return;
 	}
@@ -44,15 +42,14 @@ CallConv_gcc32::prepareFunctionType(FunctionType* functionType)
 		m_module->m_typeMgr.getPrimitiveType(TypeKind_Void)->getLlvmType(),
 		llvm::ArrayRef<llvm::Type*> (llvmArgTypeArray, argCount),
 		(functionType->getFlags() & FunctionTypeFlag_VarArg) != 0
-		);
+	);
 }
 
 llvm::Function*
 CallConv_gcc32::createLlvmFunction(
 	FunctionType* functionType,
 	const sl::StringRef& name
-	)
-{
+) {
 	llvm::Function* llvmFunction = CallConv::createLlvmFunction(functionType, name);
 
 	Type* returnType = functionType->getReturnType();
@@ -68,11 +65,9 @@ CallConv_gcc32::call(
 	FunctionType* functionType,
 	sl::BoxList<Value>* argValueList,
 	Value* resultValue
-	)
-{
+) {
 	Type* returnType = functionType->getReturnType();
-	if (!(returnType->getFlags() & TypeFlag_StructRet))
-	{
+	if (!(returnType->getFlags() & TypeFlag_StructRet)) {
 		CallConv::call(calleeValue, functionType, argValueList, resultValue);
 		return;
 	}
@@ -83,7 +78,7 @@ CallConv_gcc32::call(
 		"tmpRetVal",
 		returnType->getDataPtrType_c(),
 		&tmpReturnValue
-		);
+	);
 
 	argValueList->insertHead(tmpReturnValue);
 
@@ -93,7 +88,7 @@ CallConv_gcc32::call(
 		*argValueList,
 		m_module->m_typeMgr.getPrimitiveType(TypeKind_Void),
 		NULL
-		);
+	);
 
 	inst->addAttribute(1, llvm::Attribute::StructRet);
 	m_module->m_llvmIrBuilder.createLoad(tmpReturnValue, returnType, resultValue);
@@ -103,11 +98,9 @@ void
 CallConv_gcc32::ret(
 	Function* function,
 	const Value& value
-	)
-{
+) {
 	Type* returnType = function->getType()->getReturnType();
-	if (!(returnType->getFlags() & TypeFlag_StructRet))
-	{
+	if (!(returnType->getFlags() & TypeFlag_StructRet)) {
 		CallConv::ret(function, value);
 		return;
 	}
@@ -121,8 +114,7 @@ CallConv_gcc32::ret(
 }
 
 Value
-CallConv_gcc32::getThisArgValue(Function* function)
-{
+CallConv_gcc32::getThisArgValue(Function* function) {
 	ASSERT(function->isMember());
 
 	Type* returnType = function->getType()->getReturnType();
@@ -139,25 +131,23 @@ CallConv_gcc32::getArgValueArray(
 	Function* function,
 	Value* argValueArray,
 	size_t count
-	)
-{
+) {
 	Type* returnType = function->getType()->getReturnType();
 	CallConv::getArgValueArrayImpl(
 		function,
 		argValueArray,
 		count,
 		(returnType->getFlags() & TypeFlag_StructRet) ? 1 : 0
-		);
+	);
 }
 
 void
-CallConv_gcc32::createArgVariables(Function* function)
-{
+CallConv_gcc32::createArgVariables(Function* function) {
 	Type* returnType = function->getType()->getReturnType();
 	CallConv::createArgVariablesImpl(
 		function,
 		(returnType->getFlags() & TypeFlag_StructRet) ? 1 : 0
-		);
+	);
 }
 
 //..............................................................................

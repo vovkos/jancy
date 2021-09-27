@@ -20,16 +20,14 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(PcapFilter)
 
 //..............................................................................
 
-class PcapFilter: public IfaceHdr
-{
+class PcapFilter: public IfaceHdr {
 protected:
 	axl::io::PcapFilter m_filter;
 
 public:
 	bool
 	JNC_CDECL
-	isEmpty()
-	{
+	isEmpty() {
 		return m_filter.isEmpty();
 	}
 
@@ -40,7 +38,7 @@ public:
 		DataPtr filterPtr,
 		bool isOptimized,
 		uint_t netMask
-		);
+	);
 
 	bool
 	JNC_CDECL
@@ -50,15 +48,14 @@ public:
 		DataPtr filterPtr,
 		bool isOptimized,
 		uint_t netMask
-		);
+	);
 
 	bool
 	JNC_CDECL
 	match(
 		DataPtr dataPtr,
 		size_t size
-		)
-	{
+	) {
 		return m_filter.isEmpty() ? true : m_filter.match(dataPtr.m_p, size);
 	}
 };

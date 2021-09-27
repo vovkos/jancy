@@ -4,8 +4,7 @@
 
 pragma(Alignment, 1)
 
-struct Alignment1
-{
+struct Alignment1 {
 	char m_c;
 	int m_i;
 	short m_s;
@@ -14,8 +13,7 @@ struct Alignment1
 
 namespace a {
 
-struct Alignment1
-{
+struct Alignment1 {
 	char m_c;
 	int m_i;
 	short m_s;
@@ -26,8 +24,7 @@ struct Alignment1
 
 pragma(Alignment, default)
 
-struct Alignment8
-{
+struct Alignment8 {
 	char m_c;
 	int m_i;
 	short m_s;
@@ -38,15 +35,13 @@ struct Alignment8
 
 pragma(ExposedEnums, true)
 
-enum Enum1
-{
+enum Enum1 {
 	Enum1_Value1,
 }
 
 namespace b {
 
-enum Enum1
-{
+enum Enum1 {
 	Enum1_Value1,
 }
 
@@ -54,8 +49,7 @@ enum Enum1
 
 pragma(ExposedEnums, default)
 
-enum Enum2
-{
+enum Enum2 {
 	Value2,
 }
 
@@ -73,8 +67,7 @@ void function* g_p2();
 
 } // namespace c
 
-void foo()
-{
+void foo() {
 	char* p1;
 	void function* p2();
 
@@ -92,8 +85,7 @@ void function* g_p4();
 
 //..............................................................................
 
-int main()
-{
+int main() {
 	printf("sizeof(Alignment1) %d\n", sizeof(Alignment1));
 	printf("sizeof(a.Alignment1) %d\n", sizeof(a.Alignment1));
 	printf("sizeof(Alignment8) %d\n", sizeof(Alignment8));

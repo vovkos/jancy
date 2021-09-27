@@ -18,14 +18,12 @@
 
 //..............................................................................
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
 	jnc::initialize("jnc_sample_03_dialog");
 
 	bool isTest = false;
 	QString fileName;
-	for (int i = 1; i < argc; i++)
-	{
+	for (int i = 1; i < argc; i++) {
 		const char* arg = argv[i];
 
 		if (arg[0] != '-')
@@ -43,8 +41,7 @@ int main(int argc, char* argv[])
 	mainWindow.show();
 	bool result = mainWindow.runScript(fileName);
 
-	if (isTest)
-	{
+	if (isTest) {
 		printf("%s\n", mainWindow.readOutput ().toUtf8 ().constData ());
 		return result ? 0 : -1;
 	}

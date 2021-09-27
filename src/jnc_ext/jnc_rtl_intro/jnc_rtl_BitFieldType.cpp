@@ -27,7 +27,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	BitFieldType,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(BitFieldType)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<BitFieldType, ct::BitFieldType*>))
@@ -43,8 +43,7 @@ Variant
 BitFieldType::extract(
 	BitFieldType* self,
 	DataPtr ptr
-	)
-{
+) {
 	if (!ptr.m_p)
 		return g_nullVariant;
 

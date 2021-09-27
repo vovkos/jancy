@@ -21,32 +21,26 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(BitFieldType)
 
 //..............................................................................
 
-class BitFieldType: public TypeBase<ct::BitFieldType>
-{
+class BitFieldType: public TypeBase<ct::BitFieldType> {
 public:
 	BitFieldType(ct::BitFieldType* type):
-		TypeBase(type)
-	{
-	}
+		TypeBase(type) {}
 
 	Type*
 	JNC_CDECL
-	getBaseType()
-	{
+	getBaseType() {
 		return rtl::getType(m_item->getBaseType());
 	}
 
 	size_t
 	JNC_CDECL
-	getBitOffset()
-	{
+	getBitOffset() {
 		return m_item->getBitOffset();
 	}
 
 	size_t
 	JNC_CDECL
-	getBitCount()
-	{
+	getBitCount() {
 		return m_item->getBitCount();
 	}
 
@@ -55,7 +49,7 @@ public:
 	extract(
 		BitFieldType* self,
 		DataPtr ptr
-		);
+	);
 };
 
 //..............................................................................

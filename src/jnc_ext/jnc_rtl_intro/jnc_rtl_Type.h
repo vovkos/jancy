@@ -28,11 +28,9 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(Typedef)
 //..............................................................................
 
 template <typename T>
-class TypeBase: public ModuleItemBase<T>
-{
+class TypeBase: public ModuleItemBase<T> {
 protected:
-	struct Cache
-	{
+	struct Cache {
 		DataPtr m_signaturePtr;
 		DataPtr m_typeStringPtr;
 		DataPtr m_typeStringPrefixPtr;
@@ -44,12 +42,9 @@ protected:
 
 public:
 	TypeBase(T* type):
-		ModuleItemBase<T>(type)
-	{
-	}
+		ModuleItemBase<T>(type) {}
 
-	~TypeBase()
-	{
+	~TypeBase() {
 		if (m_cache)
 			AXL_MEM_DELETE(m_cache);
 	}
@@ -57,13 +52,10 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class Type: public TypeBase<ct::Type>
-{
+class Type: public TypeBase<ct::Type> {
 public:
 	Type(ct::Type* type):
-		TypeBase(type)
-	{
-	}
+		TypeBase(type) {}
 
 	void
 	JNC_CDECL
@@ -71,22 +63,19 @@ public:
 
 	TypeKind
 	JNC_CDECL
-	getTypeKind()
-	{
+	getTypeKind() {
 		return m_item->getTypeKind();
 	}
 
 	size_t
 	JNC_CDECL
-	getSize()
-	{
+	getSize() {
 		return m_item->getSize();
 	}
 
 	size_t
 	JNC_CDECL
-	getAlignment()
-	{
+	getAlignment() {
 		return m_item->getAlignment();
 	}
 
@@ -112,8 +101,7 @@ public:
 
 	int
 	JNC_CDECL
-	cmp(Type* type)
-	{
+	cmp(Type* type) {
 		return m_item->cmp(type->m_item);
 	}
 
@@ -124,7 +112,7 @@ public:
 		Type* self,
 		DataPtr valuePtr,
 		DataPtr formatSpecPtr
-		);
+	);
 
 	static
 	DataPtr
@@ -133,12 +121,11 @@ public:
 		Type* self,
 		Variant value,
 		DataPtr formatSpecPtr
-		);
+	);
 
 	ArrayType*
 	JNC_CDECL
-	getArrayType(size_t elementCount)
-	{
+	getArrayType(size_t elementCount) {
 		return (ArrayType*)rtl::getType(m_item->getArrayType(elementCount));
 	}
 
@@ -148,15 +135,13 @@ public:
 		TypeKind typeKind,
 		DataPtrTypeKind ptrTypeKind,
 		uint_t flags
-		)
-	{
+	) {
 		return (DataPtrType*)rtl::getType(m_item->getDataPtrType(typeKind, ptrTypeKind, flags));
 	}
 
 protected:
 	Cache*
-	getCache()
-	{
+	getCache() {
 		return m_cache ? m_cache : m_cache = AXL_MEM_ZERO_NEW(Cache);
 	}
 };
@@ -166,48 +151,37 @@ protected:
 template <typename T>
 class NamedTypeBase:
 	public TypeBase<T>,
-	public Namespace
-{
+	public Namespace {
 public:
 	NamedTypeBase(T* type):
 		TypeBase<T>(type),
-		Namespace(type)
-	{
-	}
+		Namespace(type) {}
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class NamedType: public NamedTypeBase<ct::NamedType>
-{
+class NamedType: public NamedTypeBase<ct::NamedType> {
 public:
 	NamedType(ct::NamedType* type):
-		NamedTypeBase(type)
-	{
-	}
+		NamedTypeBase(type) {}
 };
 
 //..............................................................................
 
-class DataPtrType: public TypeBase<ct::DataPtrType>
-{
+class DataPtrType: public TypeBase<ct::DataPtrType> {
 public:
 	DataPtrType(ct::DataPtrType* type):
-		TypeBase(type)
-	{
-	}
+		TypeBase(type) {}
 
 	DataPtrTypeKind
 	JNC_CDECL
-	getPtrTypeKind()
-	{
+	getPtrTypeKind() {
 		return m_item->getPtrTypeKind();
 	}
 
 	Type*
 	JNC_CDECL
-	getTargetType()
-	{
+	getTargetType() {
 		return rtl::getType(m_item->getTargetType());
 	}
 };
@@ -216,19 +190,15 @@ public:
 
 class Typedef:
 	public ModuleItemBase<ct::Typedef>,
-	public ModuleItemDecl
-{
+	public ModuleItemDecl {
 public:
 	Typedef(ct::Typedef* tdef):
 		ModuleItemBase(tdef),
-		ModuleItemDecl(tdef)
-	{
-	}
+		ModuleItemDecl(tdef) {}
 
 	Type*
 	JNC_CDECL
-	getType()
-	{
+	getType() {
 		return rtl::getType(m_item->getType());
 	}
 };

@@ -8,16 +8,13 @@ import "log_Writer.jnc"
 
 //..............................................................................
 
-class TcpSequencer
-{
-	enum Defaults
-	{
+class TcpSequencer {
+	enum Defaults {
 		OutOfSeqLimit = 8
 	}
 
 protected:
-	struct OutOfSeqSegment
-	{
+	struct OutOfSeqSegment {
 		OutOfSeqSegment* m_next;
 		uint32_t m_seqNumber;
 		void* m_p;
@@ -36,10 +33,9 @@ public:
 		uint32_t seqNumber,
 		void const* p,
 		size_t size
-		);
+	);
 
-	void flush()
-	{
+	void flush() {
 		flushOutOfSeqSegments(0);
 	}
 
@@ -50,13 +46,13 @@ protected:
 		uint32_t seqNumber,
 		void const* p,
 		size_t size
-		);
+	);
 
 	void addOutOfSeqSegment(
 		uint32_t seqNumber,
 		void const* p,
 		size_t size
-		);
+	);
 
 	void flushOutOfSeqSegments(size_t limit);
 	void writeAlignedOutOfSeqSegments();
@@ -68,25 +64,19 @@ void TcpSequencer.write(
 	uint32_t seqNumber,
 	void const* p,
 	size_t size
-	)
-{
-	if ((int32_t)(seqNumber - m_seqNumber) > 0)
-	{
+) {
+	if ((int32_t)(seqNumber - m_seqNumber) > 0) {
 		addOutOfSeqSegment(seqNumber, p, size);
-	}
-	else
-	{
+	} else {
 		writeInSeqSegment(seqNumber, p, size);
 		writeAlignedOutOfSeqSegments();
 	}
 }
 
-void TcpSequencer.finalize(uint32_t seqNumber)
-{
+void TcpSequencer.finalize(uint32_t seqNumber) {
 	flushOutOfSeqSegments(0);
 
-	if (seqNumber > m_seqNumber)
-	{
+	if (seqNumber > m_seqNumber) {
 		size_t lostSize = seqNumber - m_seqNumber;
 		g_logWriter.write(g_logTimestamp, TcpFlowLogRecordCode.DataLost, &lostSize, sizeof(lostSize));
 		m_totalLostSize += lostSize;
@@ -97,14 +87,12 @@ void TcpSequencer.writeInSeqSegment(
 	uint32_t seqNumber,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	uint32_t newSeqNumber = seqNumber + size;
 	if ((int32_t)(newSeqNumber - m_seqNumber) <= 0) // retransmission
 		return;
 
-	if ((int32_t)(seqNumber - m_seqNumber) < 0) // partial retransmission
-	{
+	if ((int32_t)(seqNumber - m_seqNumber) < 0) { // partial retransmission
 		size_t skip = m_seqNumber - seqNumber;
 		p += skip;
 		size -= skip;
@@ -118,13 +106,11 @@ void TcpSequencer.addOutOfSeqSegment(
 	uint32_t seqNumber,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	// find location to insert it
 
 	std.ListEntry* it = m_outOfSeqList.m_tail;
-	for (; it; it = it.m_prev)
-	{
+	for (; it; it = it.m_prev) {
 		OutOfSeqSegment* segment = it.m_data;
 		if ((int32_t)(seqNumber - segment.m_seqNumber) >= 0)
 			break;
@@ -142,10 +128,8 @@ void TcpSequencer.addOutOfSeqSegment(
 	flushOutOfSeqSegments(m_outOfSeqLimit);
 }
 
-void TcpSequencer.flushOutOfSeqSegments(size_t limit)
-{
-	while (m_outOfSeqList.m_count > limit)
-	{
+void TcpSequencer.flushOutOfSeqSegments(size_t limit) {
+	while (m_outOfSeqList.m_count > limit) {
 		OutOfSeqSegment* segment = m_outOfSeqList.removeHead();
 		uint32_t lostSize = segment.m_seqNumber - m_seqNumber;
 		m_totalLostSize += lostSize;
@@ -155,10 +139,8 @@ void TcpSequencer.flushOutOfSeqSegments(size_t limit)
 	}
 }
 
-void TcpSequencer.writeAlignedOutOfSeqSegments()
-{
-	while (m_outOfSeqList.m_count)
-	{
+void TcpSequencer.writeAlignedOutOfSeqSegments() {
+	while (m_outOfSeqList.m_count) {
 		OutOfSeqSegment* segment = m_outOfSeqList.m_head.m_data;
 		if ((int32_t)(segment.m_seqNumber - m_seqNumber) > 0)
 			break;

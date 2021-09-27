@@ -32,15 +32,13 @@ jnc_StdRbTree*
 jnc_createStdRbTree(
 	jnc_Runtime* runtime,
 	jnc_StdCmpFunc* cmpFunc
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_stdRbTreeFuncTable->m_createStdRbTreeFunc(runtime, cmpFunc);
 }
 
 JNC_EXTERN_C
 void
-jnc_StdRbTree_clear(jnc_StdRbTree* RbTree)
-{
+jnc_StdRbTree_clear(jnc_StdRbTree* RbTree) {
 	jnc_g_dynamicExtensionLibHost->m_stdRbTreeFuncTable->m_clearFunc(RbTree);
 }
 
@@ -49,8 +47,7 @@ jnc_StdMapEntry*
 jnc_StdRbTree_find(
 	jnc_StdRbTree* RbTree,
 	jnc_Variant key
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_stdRbTreeFuncTable->m_findFunc(RbTree, key);
 }
 
@@ -60,8 +57,7 @@ jnc_StdRbTree_add(
 	jnc_StdRbTree* RbTree,
 	jnc_Variant key,
 	jnc_Variant value
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_stdRbTreeFuncTable->m_addFunc(RbTree, key, value);
 }
 
@@ -70,8 +66,7 @@ void
 jnc_StdRbTree_remove(
 	jnc_StdRbTree* RbTree,
 	jnc_StdMapEntry* entry
-	)
-{
+) {
 	jnc_g_dynamicExtensionLibHost->m_stdRbTreeFuncTable->m_removeFunc(RbTree, entry);
 }
 
@@ -80,8 +75,7 @@ bool_t
 jnc_StdRbTree_removeKey(
 	jnc_StdRbTree* RbTree,
 	jnc_Variant key
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_stdRbTreeFuncTable->m_removeKeyFunc(RbTree, key);
 }
 
@@ -93,16 +87,14 @@ jnc_StdRbTree*
 jnc_createStdRbTree(
 	jnc_Runtime* runtime,
 	jnc_StdCmpFunc* cmpFunc
-	)
-{
+) {
 	return (jnc_StdRbTree*)jnc::createClass<jnc::std::RbTree>(runtime, cmpFunc);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
-jnc_StdRbTree_clear(jnc_StdRbTree* RbTree)
-{
+jnc_StdRbTree_clear(jnc_StdRbTree* RbTree) {
 	 ((jnc::std::RbTree*)RbTree)->clear();
 }
 
@@ -112,8 +104,7 @@ jnc_StdMapEntry*
 jnc_StdRbTree_find(
 	jnc_StdRbTree* RbTree,
 	jnc_Variant key
-	)
-{
+) {
 	 return (jnc_StdMapEntry*)jnc::std::RbTree::find((jnc::std::RbTree*)RbTree, key).m_p;
 }
 
@@ -124,8 +115,7 @@ jnc_StdRbTree_add(
 	jnc_StdRbTree* RbTree,
 	jnc_Variant key,
 	jnc_Variant value
-	)
-{
+) {
 	 jnc_StdMapEntry* entry = (jnc_StdMapEntry*)jnc::std::RbTree::visit((jnc::std::RbTree*)RbTree, key).m_p;
 	 entry->m_value = value;
 	 return entry;
@@ -137,8 +127,7 @@ void
 jnc_StdRbTree_remove(
 	jnc_StdRbTree* RbTree,
 	jnc_StdMapEntry* entry
-	)
-{
+) {
 	ASSERT(entry->m_map == &RbTree->m_map);
 	((jnc::std::RbTree*)RbTree)->removeImpl((jnc::std::MapEntry*)entry);
 }
@@ -149,8 +138,7 @@ bool_t
 jnc_StdRbTree_removeKey(
 	jnc_StdRbTree* RbTree,
 	jnc_Variant key
-	)
-{
+) {
 	jnc_DataPtr itPtr = jnc::std::RbTree::find((jnc::std::RbTree*)RbTree, key);
 	if (!itPtr.m_p)
 		return false;

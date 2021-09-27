@@ -19,8 +19,7 @@ namespace io {
 //..............................................................................
 
 void
-WebSocketFrame::clear()
-{
+WebSocketFrame::clear() {
 	m_header = 0;
 	m_payloadLength = 0;
 	m_maskKey = 0;
@@ -30,8 +29,7 @@ WebSocketFrame::clear()
 //..............................................................................
 
 void
-WebSocketMessage::clear()
-{
+WebSocketMessage::clear() {
 	m_opcode = WebSocketFrameOpcode_Undefined;
 	m_frameCount = 0;
 	m_payload.clear();
@@ -47,8 +45,7 @@ buildWebSocketFrame(
 	bool isMasked,
 	const void* payload,
 	size_t payloadSize
-	)
-{
+) {
 	size_t reserveSize =
 		sizeof(WebSocketFrameHdr) +
 		sizeof(uint64_t) +
@@ -66,29 +63,21 @@ buildWebSocketFrame(
 
 	char* p = (char*)(hdr + 1);
 
-	if (payloadSize < 126)
-	{
+	if (payloadSize < 126) {
 		hdr->m_lengthCode = (uint8_t) payloadSize;
-	}
-	else if (payloadSize < 65536)
-	{
+	} else if (payloadSize < 65536) {
 		hdr->m_lengthCode = 126;
 		*(uint16_t*)p = sl::swapByteOrder16((uint16_t)payloadSize);
 		p += sizeof(uint16_t);
-	}
-	else
-	{
+	} else {
 		hdr->m_lengthCode = 127;
 		*(uint64_t*)p = sl::swapByteOrder64(payloadSize);
 		p += sizeof(uint64_t);
 	}
 
-	if (!isMasked)
-	{
+	if (!isMasked) {
 		memcpy(p, payload, payloadSize);
-	}
-	else
-	{
+	} else {
 		::RAND_bytes((uchar_t*)p, sizeof(uint32_t));
 		uint32_t key = *(uint32_t*)p;
 		p += sizeof(uint32_t);

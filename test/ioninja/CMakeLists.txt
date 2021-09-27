@@ -204,7 +204,7 @@ add_jancy_tests(
 		XModemTransmitter.jnc
 		XModemReceiver.jnc
 	FINALIZE_TEST XModem
-	)
+)
 
 if(BUILD_JNC_IO_SSH)
 	add_jancy_tests(
@@ -246,7 +246,7 @@ if(BUILD_JNC_IO_SSH)
 			../SocketLog/SocketLogRecordCode.jnc
 			../SocketLog/SocketLogRepresenter.jnc
 		FINALIZE_TEST SshSerialMon
-		)
+	)
 endif()
 
 if(BUILD_JNC_IO_SSL)
@@ -311,7 +311,7 @@ if(BUILD_JNC_IO_SSL)
 			../WebSocketLog/WebSocketLogRecordCode.jnc
 			../WebSocketLog/WebSocketLogRepresenter.jnc
 		FINALIZE_TEST WebSocketServer
-		)
+	)
 endif()
 
 if(BUILD_JNC_IO_PCAP)
@@ -437,7 +437,7 @@ if(BUILD_JNC_IO_PCAP)
 			../SocketLog/SocketLogRecordCode.jnc
 			../SocketLog/SocketLogRepresenter.jnc
 		FINALIZE_TEST UdpFlowAnalyzer
-		)
+	)
 endif()
 
 if(BUILD_JNC_IO_USB)
@@ -551,7 +551,7 @@ if(BUILD_JNC_IO_USB)
 			SpiTapLogRecordCode.jnc
 			SpiTapLogRepresenter.jnc
 		FINALIZE_TEST SpiTap
-		)
+	)
 endif()
 
 if(BUILD_JNC_IO_DEVMON AND DEVMON_FOUND)
@@ -628,7 +628,7 @@ if(BUILD_JNC_IO_DEVMON AND DEVMON_FOUND)
 			../DeviceMonLog/DeviceMonLogRecordCode.jnc
 			../DeviceMonLog/DeviceMonLogRepresenter.jnc
 		FINALIZE_TEST MailslotMon
-		)
+	)
 endif()
 
 add_jancy_tests(

@@ -20,14 +20,12 @@ namespace rt {
 
 #if (_JNC_OS_POSIX)
 
-class ExceptionMgr
-{
+class ExceptionMgr {
 protected:
 	struct sigaction m_prevSigActionTable[32]; // we will get a compile-time error if not enough
 
 public:
-	ExceptionMgr()
-	{
+	ExceptionMgr() {
 		memset(m_prevSigActionTable, 0, sizeof(m_prevSigActionTable));
 	}
 
@@ -41,7 +39,7 @@ protected:
 		int signal,
 		siginfo_t* signalInfo,
 		void* context
-		);
+	);
 
 	static
 	void
@@ -49,20 +47,19 @@ protected:
 		int signal,
 		siginfo_t* signalInfo,
 		void* context
-		);
+	);
 
 	void
 	invokePrevSignalHandler(
 		int signal,
 		siginfo_t* signalInfo,
 		void* context
-		);
+	);
 };
 
 #elif (_JNC_OS_WIN)
 
-class ExceptionMgr
-{
+class ExceptionMgr {
 public:
 	void
 	install();

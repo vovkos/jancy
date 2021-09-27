@@ -24,8 +24,7 @@
 
 JNC_EXTERN_C
 int64_t
-jnc_EnumConst_getValue(jnc_EnumConst* enumConst)
-{
+jnc_EnumConst_getValue(jnc_EnumConst* enumConst) {
 	return jnc_g_dynamicExtensionLibHost->m_enumConstFuncTable->m_getValueFunc(enumConst);
 }
 
@@ -33,22 +32,19 @@ jnc_EnumConst_getValue(jnc_EnumConst* enumConst)
 
 JNC_EXTERN_C
 jnc_Type*
-jnc_EnumType_getBaseType(jnc_EnumType* type)
-{
+jnc_EnumType_getBaseType(jnc_EnumType* type) {
 	return jnc_g_dynamicExtensionLibHost->m_enumTypeFuncTable->m_getBaseTypeFunc(type);
 }
 
 JNC_EXTERN_C
 jnc_Type*
-jnc_EnumType_getRootType(jnc_EnumType* type)
-{
+jnc_EnumType_getRootType(jnc_EnumType* type) {
 	return jnc_g_dynamicExtensionLibHost->m_enumTypeFuncTable->m_getRootTypeFunc(type);
 }
 
 JNC_EXTERN_C
 size_t
-jnc_EnumType_getConstCount(jnc_EnumType* type)
-{
+jnc_EnumType_getConstCount(jnc_EnumType* type) {
 	return jnc_g_dynamicExtensionLibHost->m_enumTypeFuncTable->m_getConstCountFunc(type);
 }
 
@@ -57,8 +53,7 @@ jnc_EnumConst*
 jnc_EnumType_getConst(
 	jnc_EnumType* type,
 	size_t index
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_enumTypeFuncTable->m_getConstFunc(type, index);
 }
 
@@ -67,8 +62,7 @@ jnc_EnumType_getConst(
 JNC_EXTERN_C
 JNC_EXPORT_O
 int64_t
-jnc_EnumConst_getValue(jnc_EnumConst* enumConst)
-{
+jnc_EnumConst_getValue(jnc_EnumConst* enumConst) {
 	return enumConst->getValue();
 }
 
@@ -77,24 +71,21 @@ jnc_EnumConst_getValue(jnc_EnumConst* enumConst)
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Type*
-jnc_EnumType_getBaseType(jnc_EnumType* type)
-{
+jnc_EnumType_getBaseType(jnc_EnumType* type) {
 	return type->getBaseType();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Type*
-jnc_EnumType_getRootType(jnc_EnumType* type)
-{
+jnc_EnumType_getRootType(jnc_EnumType* type) {
 	return type->getRootType();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 size_t
-jnc_EnumType_getConstCount(jnc_EnumType* type)
-{
+jnc_EnumType_getConstCount(jnc_EnumType* type) {
 	return type->getConstArray().getCount();
 }
 
@@ -104,8 +95,7 @@ jnc_EnumConst*
 jnc_EnumType_getConst(
 	jnc_EnumType* type,
 	size_t index
-	)
-{
+) {
 	return type->getConstArray() [index];
 }
 

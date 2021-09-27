@@ -37,8 +37,7 @@ class Function:
 	public ModuleItem,
 	public ModuleItemBodyDecl,
 	public ModuleItemInitializer,
-	public FunctionName
-{
+	public FunctionName {
 	friend class Module;
 	friend class Unit;
 	friend class FunctionMgr;
@@ -66,8 +65,7 @@ protected:
 
 	ClassType* m_virtualOriginClassType;
 
-	union
-	{
+	union {
 		size_t m_classVtableIndex;
 		size_t m_libraryTableIndex;
 	};
@@ -92,105 +90,88 @@ public:
 	Function();
 
 	FunctionType*
-	getType()
-	{
+	getType() {
 		return m_type;
 	}
 
 	bool
-	isEmpty()
-	{
+	isEmpty() {
 		return !m_prologueBlock;
 	}
 
 	bool
-	isTlsRequired()
-	{
+	isTlsRequired() {
 		return !m_tlsVariableArray.isEmpty();
 	}
 
 	bool
-	isAccessor()
-	{
+	isAccessor() {
 		return m_functionKind == FunctionKind_Getter || m_functionKind == FunctionKind_Setter;
 	}
 
 	bool
-	isVoid()
-	{
+	isVoid() {
 		return m_type->getReturnType()->getTypeKind() == TypeKind_Void;
 	}
 
 	bool
-	isMember()
-	{
+	isMember() {
 		return m_thisType != NULL;
 	}
 
 	bool
-	isVirtual()
-	{
+	isVirtual() {
 		return m_storageKind >= StorageKind_Abstract && m_storageKind <= StorageKind_Override;
 	}
 
 	bool
-	isPrototype()
-	{
+	isPrototype() {
 		return m_attributeBlock && m_attributeBlock->findAttribute("prototype");
 	}
 
 	bool
-	isUnusedExternal()
-	{
+	isUnusedExternal() {
 		return m_llvmFunction == NULL;
 	}
 
 	ClassType*
-	getVirtualOriginClassType()
-	{
+	getVirtualOriginClassType() {
 		return m_virtualOriginClassType;
 	}
 
 	DerivableType*
-	getParentType()
-	{
+	getParentType() {
 		return m_parentNamespace->getNamespaceKind() == NamespaceKind_Type ?
 			(DerivableType*)(NamedType*)m_parentNamespace : NULL;
 	}
 
 	Type*
-	getThisArgType()
-	{
+	getThisArgType() {
 		return m_thisArgType;
 	}
 
 	Type*
-	getThisType()
-	{
+	getThisType() {
 		return m_thisType;
 	}
 
 	intptr_t
-	getThisArgDelta()
-	{
+	getThisArgDelta() {
 		return m_thisArgDelta;
 	}
 
 	size_t
-	getClassVtableIndex()
-	{
+	getClassVtableIndex() {
 		return m_classVtableIndex;
 	}
 
 	size_t
-	getLibraryTableIndex()
-	{
+	getLibraryTableIndex() {
 		return m_libraryTableIndex;
 	}
 
 	Property*
-	getProperty()
-	{
+	getProperty() {
 		return m_property;
 	}
 
@@ -204,26 +185,22 @@ public:
 	addUsingSet(Namespace* anchorNamespace);
 
 	Scope*
-	getScope()
-	{
+	getScope() {
 		return m_scope;
 	}
 
 	BasicBlock*
-	getAllocaBlock()
-	{
+	getAllocaBlock() {
 		return m_allocaBlock;
 	}
 
 	BasicBlock*
-	getPrologueBlock()
-	{
+	getPrologueBlock() {
 		return m_prologueBlock;
 	}
 
 	bool
-	hasLlvmFunction()
-	{
+	hasLlvmFunction() {
 		return m_llvmFunction != NULL;
 	}
 
@@ -234,14 +211,12 @@ public:
 	getLlvmDiSubprogram();
 
 	void*
-	getMachineCode()
-	{
+	getMachineCode() {
 		return m_machineCode;
 	}
 
 	sl::Array<TlsVariable>
-	getTlsVariableArray()
-	{
+	getTlsVariableArray() {
 		return m_tlsVariableArray;
 	}
 
@@ -249,8 +224,7 @@ public:
 	addTlsVariable(Variable* variable);
 
 	bool
-	canCompile()
-	{
+	canCompile() {
 		return hasBody() || hasInitializer() || (m_flags & (m_flags & ModuleItemFlag_Compilable));
 	}
 
@@ -268,7 +242,7 @@ public:
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
-		);
+	);
 
 protected:
 	void
@@ -282,8 +256,7 @@ protected:
 
 inline
 llvm::Function*
-Function::getLlvmFunction()
-{
+Function::getLlvmFunction() {
 	if (!m_llvmFunction)
 		prepareLlvmFunction();
 
@@ -292,8 +265,7 @@ Function::getLlvmFunction()
 
 inline
 llvm::DISubprogram_vn
-Function::getLlvmDiSubprogram()
-{
+Function::getLlvmDiSubprogram() {
 	if (!m_llvmDiSubprogram)
 		prepareLlvmDiSubprogram();
 
@@ -302,11 +274,9 @@ Function::getLlvmDiSubprogram()
 
 //..............................................................................
 
-class CompilableFunction: public Function
-{
+class CompilableFunction: public Function {
 public:
-	CompilableFunction()
-	{
+	CompilableFunction() {
 		m_flags |= ModuleItemFlag_Compilable;
 	}
 };

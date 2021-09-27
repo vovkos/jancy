@@ -50,26 +50,22 @@ namespace sys {
 //..............................................................................
 
 uint_t
-getCurrentProcessId()
-{
+getCurrentProcessId() {
 	return axl::sys::getCurrentProcessId();
 }
 
 uintptr_t
-getCurrentThreadId()
-{
+getCurrentThreadId() {
 	return (uintptr_t)axl::sys::getCurrentThreadId();
 }
 
 DataPtr
-getProcessImageName(uint_t pid)
-{
+getProcessImageName(uint_t pid) {
 	return strDup(axl::sys::getProcessImageName(pid));
 }
 
 DataPtr
-getEnv(DataPtr namePtr)
-{
+getEnv(DataPtr namePtr) {
 	if (!namePtr.m_p)
 		return g_nullDataPtr;
 
@@ -81,8 +77,7 @@ void
 setEnv(
 	DataPtr namePtr,
 	DataPtr valuePtr
-	)
-{
+) {
 #if (_AXL_OS_WIN)
 	char buffer[256];
 	sl::String envString(rc::BufKind_Stack, buffer, sizeof(buffer));
@@ -93,13 +88,12 @@ setEnv(
 		(const char*) namePtr.m_p,
 		(const char*) valuePtr.m_p,
 		true
-		);
+	);
 #endif
 }
 
 void
-sleep(uint32_t msCount)
-{
+sleep(uint32_t msCount) {
 	GcHeap* gcHeap = getCurrentThreadGcHeap();
 	ASSERT(gcHeap);
 
@@ -115,8 +109,7 @@ sleep(uint32_t msCount)
 }
 
 void
-initSystemInfo(SystemInfo* systemInfo)
-{
+initSystemInfo(SystemInfo* systemInfo) {
 #if (_JNC_CPU_X86)
 	systemInfo->m_cpuKind = CpuKind_Ia32;
 #elif (_JNC_CPU_AMD64)
@@ -172,8 +165,7 @@ initSystemInfo(SystemInfo* systemInfo)
 
 inline
 SystemInfo*
-getSystemInfo()
-{
+getSystemInfo() {
 	static SystemInfo systemInfo;
 	axl::sl::callOnce(initSystemInfo, &systemInfo);
 	return &systemInfo;
@@ -183,8 +175,7 @@ DataPtr
 formatTimestamp_0(
 	uint64_t timestamp,
 	DataPtr format
-	)
-{
+) {
 	axl::sys::Time time(timestamp);
 	sl::String string = time.format((const char*) format.m_p);
 	return strDup(string);
@@ -195,8 +186,7 @@ formatTimestamp_1(
 	uint64_t timestamp,
 	int timeZone,
 	DataPtr format
-	)
-{
+) {
 	axl::sys::Time time(timestamp, timeZone);
 	sl::String string = time.format((const char*) format.m_p);
 	return strDup(string);
@@ -214,7 +204,7 @@ JNC_DEFINE_LIB(
 	g_sysLibGuid,
 	"SysLib",
 	"Jancy standard extension library"
-	)
+)
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE(jnc_SysLib)
 	JNC_LIB_SOURCE_FILE("sys_globals.jnc",  g_sys_globalsSrc)

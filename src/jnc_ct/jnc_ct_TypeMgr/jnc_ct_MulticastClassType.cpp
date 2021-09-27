@@ -19,8 +19,7 @@ namespace ct {
 
 //..............................................................................
 
-MulticastClassType::MulticastClassType()
-{
+MulticastClassType::MulticastClassType() {
 	m_classTypeKind = ClassTypeKind_Multicast;
 	m_namespaceStatus = NamespaceStatus_Ready;
 	m_targetType = NULL;
@@ -31,8 +30,7 @@ MulticastClassType::MulticastClassType()
 }
 
 void
-MulticastClassType::prepareTypeString()
-{
+MulticastClassType::prepareTypeString() {
 	TypeStringTuple* tuple = getTypeStringTuple();
 	tuple->m_typeStringPrefix = m_targetType->getTypeModifierString();
 	tuple->m_typeStringPrefix += "multicast";
@@ -40,8 +38,7 @@ MulticastClassType::prepareTypeString()
 }
 
 void
-MulticastClassType::prepareDoxyLinkedText()
-{
+MulticastClassType::prepareDoxyLinkedText() {
 	TypeStringTuple* tuple = getTypeStringTuple();
 	tuple->m_doxyLinkedTextPrefix = m_targetType->getTypeModifierString();
 	tuple->m_doxyLinkedTextPrefix += "multicast";
@@ -49,15 +46,13 @@ MulticastClassType::prepareDoxyLinkedText()
 }
 
 void
-MulticastClassType::prepareDoxyTypeString()
-{
+MulticastClassType::prepareDoxyTypeString() {
 	Type::prepareDoxyTypeString();
 	getTypeStringTuple()->m_doxyTypeString += m_targetType->getTargetType()->getDoxyArgString();
 }
 
 bool
-MulticastClassType::calcLayout()
-{
+MulticastClassType::calcLayout() {
 	bool result =
 		ClassType::calcLayout() &&
 		m_snapshotType->ensureLayout();
@@ -77,8 +72,7 @@ MulticastClassType::calcLayout()
 }
 
 bool
-MulticastClassType::compileCallMethod(Function* function)
-{
+MulticastClassType::compileCallMethod(Function* function) {
 	ASSERT(function == m_methodArray[MulticastMethodKind_Call]);
 
 	bool result = m_methodArray[MulticastMethodKind_Call]->getType()->ensureLayout();

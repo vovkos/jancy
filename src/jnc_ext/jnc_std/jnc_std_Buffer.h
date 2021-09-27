@@ -22,8 +22,7 @@ JNC_DECLARE_CLASS_TYPE(Buffer)
 
 //..............................................................................
 
-class Buffer: public IfaceHdr
-{
+class Buffer: public IfaceHdr {
 public:
 	DataPtr m_ptr;
 	size_t m_size;
@@ -43,7 +42,7 @@ public:
 	copy(
 		DataPtr ptr,
 		size_t size
-		);
+	);
 
 	size_t
 	JNC_CDECL
@@ -51,14 +50,14 @@ public:
 		size_t offset,
 		DataPtr ptr,
 		size_t size
-		);
+	);
 
 	size_t
 	JNC_CDECL
 	remove(
 		size_t offset,
 		size_t size
-		);
+	);
 };
 
 //..............................................................................

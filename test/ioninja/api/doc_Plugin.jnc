@@ -13,63 +13,49 @@ namespace doc {
 
 //..............................................................................
 
-class Plugin
-{
+class Plugin {
 	PluginHost* readonly m_pluginHost;
 
-	property m_logWriter
-	{
-		log.Writer* get()
-		{
+	property m_logWriter {
+		log.Writer* get() {
 			return m_pluginHost.m_log.m_writer;
 		}
 	}
 
-	construct(PluginHost* host)
-	{
+	construct(PluginHost* host) {
 		m_pluginHost = host;
 	}
 
-	virtual void load(Storage* storage)
-	{
-	}
+	virtual void load(Storage* storage) {}
 
-	virtual void save(Storage* storage)
-	{
-	}
+	virtual void save(Storage* storage) {}
 
-	virtual void updateProperties()
-	{
-	}
+	virtual void updateProperties() {}
 
-	virtual bool errorcode applyProperties()
-	{
+	virtual bool errorcode applyProperties() {
 		return true;
 	}
 
-	virtual void restoreDefaultProperties()
-	{
-	}
+	virtual void restoreDefaultProperties() {}
 
 	abstract size_t errorcode transmit(
 		void const* p,
 		size_t size
-		);
+	);
 
 	ui.Action* createAction(
 		char const* text,
 		ui.Icon* icon = null,
 		bool isCheckable = false,
 		bool isChecked = false
-		);
+	);
 
 	ui.Action* createAction(
 		char const* text,
 		char const* iconFileName,
 		bool isCheckable = false,
 		bool isChecked = false
-		)
-	{
+	) {
 		return createAction(text, new ui.Icon(iconFileName), isCheckable, isChecked);
 	}
 }
@@ -81,8 +67,7 @@ ui.Action* Plugin.createAction(
 	ui.Icon* icon,
 	bool isCheckable,
 	bool isChecked
-	)
-{
+) {
 	ui.Action* action = new ui.Action(text, icon);
 	action.m_isCheckable = isCheckable;
 	if (isCheckable)

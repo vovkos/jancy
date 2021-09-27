@@ -21,11 +21,9 @@ namespace ct {
 //..............................................................................
 
 template <typename T>
-class BinOp_Arithmetic: public BinaryOperator
-{
+class BinOp_Arithmetic: public BinaryOperator {
 public:
-	enum
-	{
+	enum {
 		isIntegerOnly = false
 	};
 
@@ -36,8 +34,7 @@ public:
 		const Value& rawOpValue1,
 		const Value& rawOpValue2,
 		Value* resultValue
-		)
-	{
+	) {
 		// BwOr overrides GetResultType, but here we need original one
 
 		Type* type = getArithmeticResultType(rawOpValue1, rawOpValue2);
@@ -54,11 +51,9 @@ public:
 		if (!result)
 			return false;
 
-		if (opValue1.getValueKind() == ValueKind_Const && opValue2.getValueKind() == ValueKind_Const)
-		{
+		if (opValue1.getValueKind() == ValueKind_Const && opValue2.getValueKind() == ValueKind_Const) {
 			TypeKind typeKind = type->getTypeKind();
-			switch (typeKind)
-			{
+			switch (typeKind) {
 			case TypeKind_Int32:
 			case TypeKind_Int32_u:
 				resultValue->setConstInt32(
@@ -66,9 +61,9 @@ public:
 						opValue1.getInt32(),
 						opValue2.getInt32(),
 						(type->getTypeKindFlags() & TypeKindFlag_Unsigned) != 0
-						),
+					),
 					type
-					);
+				);
 				break;
 
 			case TypeKind_Int64:
@@ -78,9 +73,9 @@ public:
 						opValue1.getInt64(),
 						opValue2.getInt64(),
 						(type->getTypeKindFlags() & TypeKindFlag_Unsigned) != 0
-						),
+					),
 					type
-					);
+				);
 				break;
 
 			case TypeKind_Float:
@@ -94,17 +89,12 @@ public:
 			default:
 				ASSERT(false);
 			}
-		}
-		else if (!hasCodeGen(m_module))
-		{
+		} else if (!hasCodeGen(m_module)) {
 			resultValue->setType(type);
 			return true;
-		}
-		else
-		{
+		} else {
 			TypeKind typeKind = type->getTypeKind();
-			switch (typeKind)
-			{
+			switch (typeKind) {
 			case TypeKind_Int32:
 			case TypeKind_Int32_u:
 			case TypeKind_Int64:
@@ -115,7 +105,7 @@ public:
 					type,
 					resultValue,
 					(type->getTypeKindFlags() & TypeKindFlag_Unsigned) != 0
-					);
+				);
 				break;
 
 			case TypeKind_Float:
@@ -125,7 +115,7 @@ public:
 					opValue2,
 					type,
 					resultValue
-					);
+				);
 				break;
 
 			default:
@@ -141,11 +131,9 @@ protected:
 	getArithmeticResultType(
 		const Value& opValue1,
 		const Value& opValue2
-		)
-	{
+	) {
 		Type* type = getArithmeticOperatorResultType(opValue1, opValue2);
-		if (!type || T::isIntegerOnly && !(type->getTypeKindFlags() & TypeKindFlag_Integer))
-		{
+		if (!type || T::isIntegerOnly && !(type->getTypeKindFlags() & TypeKindFlag_Integer)) {
 			setOperatorError(opValue1, opValue2);
 			return NULL;
 		}
@@ -158,11 +146,9 @@ protected:
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 template <typename T>
-class BinOp_IntegerOnly: public BinOp_Arithmetic<T>
-{
+class BinOp_IntegerOnly: public BinOp_Arithmetic<T> {
 public:
-	enum
-	{
+	enum {
 		isIntegerOnly = true
 	};
 
@@ -172,8 +158,7 @@ public:
 	constOpFp32(
 		float opValue1,
 		float opValue2
-		)
-	{
+	) {
 		return 0;
 	}
 
@@ -182,8 +167,7 @@ public:
 	constOpFp64(
 		double opValue1,
 		double opValue2
-		)
-	{
+	) {
 		return 0;
 	}
 
@@ -193,8 +177,7 @@ public:
 		const Value& opValue2,
 		Type* resultType,
 		Value* resultValue
-		)
-	{
+	) {
 		ASSERT(false);
 		return NULL;
 	}
@@ -202,11 +185,9 @@ public:
 
 //..............................................................................
 
-class BinOp_Add: public BinOp_Arithmetic<BinOp_Add>
-{
+class BinOp_Add: public BinOp_Arithmetic<BinOp_Add> {
 public:
-	BinOp_Add()
-	{
+	BinOp_Add() {
 		m_opKind = BinOpKind_Add;
 		m_opFlags1 = m_opFlags2 = OpFlag_EnsurePtrTargetLayout;
 	}
@@ -217,7 +198,7 @@ public:
 		const Value& opValue1,
 		const Value& opValue2,
 		Value* resultValue
-		);
+	);
 
 	static
 	int32_t
@@ -225,8 +206,7 @@ public:
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
-		)
-	{
+	) {
 		return opValue1 + opValue2;
 	}
 
@@ -236,8 +216,7 @@ public:
 		int64_t opValue1,
 		int64_t opValue2,
 		bool isUnsigned
-		)
-	{
+	) {
 		return opValue1 + opValue2;
 	}
 
@@ -246,8 +225,7 @@ public:
 	constOpFp32(
 		float opValue1,
 		float opValue2
-		)
-	{
+	) {
 		return opValue1 + opValue2;
 	}
 
@@ -256,8 +234,7 @@ public:
 	constOpFp64(
 		double opValue1,
 		double opValue2
-		)
-	{
+	) {
 		return opValue1 + opValue2;
 	}
 
@@ -268,7 +245,7 @@ public:
 		Type* resultType,
 		Value* resultValue,
 		bool isUnsigned
-		);
+	);
 
 	llvm::Value*
 	llvmOpFp(
@@ -276,16 +253,14 @@ public:
 		const Value& opValue2,
 		Type* resultType,
 		Value* resultValue
-		);
+	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class BinOp_Sub: public BinOp_Arithmetic<BinOp_Sub>
-{
+class BinOp_Sub: public BinOp_Arithmetic<BinOp_Sub> {
 public:
-	BinOp_Sub()
-	{
+	BinOp_Sub() {
 		m_opKind = BinOpKind_Sub;
 		m_opFlags1 = m_opFlags2 = OpFlag_EnsurePtrTargetLayout;
 	}
@@ -296,7 +271,7 @@ public:
 		const Value& opValue1,
 		const Value& opValue2,
 		Value* resultValue
-		);
+	);
 
 	static
 	int32_t
@@ -304,8 +279,7 @@ public:
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
-		)
-	{
+	) {
 		return opValue1 - opValue2;
 	}
 
@@ -315,8 +289,7 @@ public:
 		int64_t opValue1,
 		int64_t opValue2,
 		bool isUnsigned
-		)
-	{
+	) {
 		return opValue1 - opValue2;
 	}
 
@@ -325,8 +298,7 @@ public:
 	constOpFp32(
 		float opValue1,
 		float opValue2
-		)
-	{
+	) {
 		return opValue1 - opValue2;
 	}
 
@@ -335,8 +307,7 @@ public:
 	constOpFp64(
 		double opValue1,
 		double opValue2
-		)
-	{
+	) {
 		return opValue1 - opValue2;
 	}
 
@@ -347,7 +318,7 @@ public:
 		Type* resultType,
 		Value* resultValue,
 		bool isUnsigned
-		);
+	);
 
 	llvm::Value*
 	llvmOpFp(
@@ -355,16 +326,14 @@ public:
 		const Value& opValue2,
 		Type* resultType,
 		Value* resultValue
-		);
+	);
 };
 
 //..............................................................................
 
-class BinOp_Mul: public BinOp_Arithmetic<BinOp_Mul>
-{
+class BinOp_Mul: public BinOp_Arithmetic<BinOp_Mul> {
 public:
-	BinOp_Mul()
-	{
+	BinOp_Mul() {
 		m_opKind = BinOpKind_Mul;
 	}
 
@@ -374,8 +343,7 @@ public:
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
-		)
-	{
+	) {
 		return opValue1 * opValue2;
 	}
 
@@ -385,8 +353,7 @@ public:
 		int64_t opValue1,
 		int64_t opValue2,
 		bool isUnsigned
-		)
-	{
+	) {
 		return opValue1 * opValue2;
 	}
 
@@ -395,8 +362,7 @@ public:
 	constOpFp32(
 		float opValue1,
 		float opValue2
-		)
-	{
+	) {
 		return opValue1 * opValue2;
 	}
 
@@ -405,8 +371,7 @@ public:
 	constOpFp64(
 		double opValue1,
 		double opValue2
-		)
-	{
+	) {
 		return opValue1 * opValue2;
 	}
 
@@ -417,7 +382,7 @@ public:
 		Type* resultType,
 		Value* resultValue,
 		bool isUnsigned
-		);
+	);
 
 	llvm::Value*
 	llvmOpFp(
@@ -425,16 +390,14 @@ public:
 		const Value& opValue2,
 		Type* resultType,
 		Value* resultValue
-		);
+	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class BinOp_Div: public BinOp_Arithmetic<BinOp_Div>
-{
+class BinOp_Div: public BinOp_Arithmetic<BinOp_Div> {
 public:
-	BinOp_Div()
-	{
+	BinOp_Div() {
 		m_opKind = BinOpKind_Div;
 	}
 
@@ -444,8 +407,7 @@ public:
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
-		)
-	{
+	) {
 		return isUnsigned ? (uint32_t)opValue1 / (uint32_t)opValue2 : opValue1 / opValue2;
 	}
 
@@ -455,8 +417,7 @@ public:
 		int64_t opValue1,
 		int64_t opValue2,
 		bool isUnsigned
-		)
-	{
+	) {
 		return isUnsigned ? (uint64_t)opValue1 / (uint64_t)opValue2 : opValue1 / opValue2;
 	}
 
@@ -465,8 +426,7 @@ public:
 	constOpFp32(
 		float opValue1,
 		float opValue2
-		)
-	{
+	) {
 		return opValue1 / opValue2;
 	}
 
@@ -475,8 +435,7 @@ public:
 	constOpFp64(
 		double opValue1,
 		double opValue2
-		)
-	{
+	) {
 		return opValue1 / opValue2;
 	}
 
@@ -487,7 +446,7 @@ public:
 		Type* resultType,
 		Value* resultValue,
 		bool isUnsigned
-		);
+	);
 
 	llvm::Value*
 	llvmOpFp(
@@ -495,16 +454,14 @@ public:
 		const Value& opValue2,
 		Type* resultType,
 		Value* resultValue
-		);
+	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class BinOp_Mod: public BinOp_IntegerOnly<BinOp_Mod>
-{
+class BinOp_Mod: public BinOp_IntegerOnly<BinOp_Mod> {
 public:
-	BinOp_Mod()
-	{
+	BinOp_Mod() {
 		m_opKind = BinOpKind_Mod;
 	}
 
@@ -514,8 +471,7 @@ public:
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
-		)
-	{
+	) {
 		return isUnsigned ? (uint32_t)opValue1 % (uint32_t)opValue2 : opValue1 % opValue2;
 	}
 
@@ -525,8 +481,7 @@ public:
 		int64_t opValue1,
 		int64_t opValue2,
 		bool isUnsigned
-		)
-	{
+	) {
 		return isUnsigned ? (uint64_t)opValue1 % (uint64_t)opValue2 : opValue1 % opValue2;
 	}
 
@@ -537,16 +492,14 @@ public:
 		Type* resultType,
 		Value* resultValue,
 		bool isUnsigned
-		);
+	);
 };
 
 //..............................................................................
 
-class BinOp_Shl: public BinOp_IntegerOnly<BinOp_Shl>
-{
+class BinOp_Shl: public BinOp_IntegerOnly<BinOp_Shl> {
 public:
-	BinOp_Shl()
-	{
+	BinOp_Shl() {
 		m_opKind = BinOpKind_Shl;
 	}
 
@@ -556,8 +509,7 @@ public:
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
-		)
-	{
+	) {
 		return opValue1 << opValue2;
 	}
 
@@ -567,8 +519,7 @@ public:
 		int64_t opValue1,
 		int64_t opValue2,
 		bool isUnsigned
-		)
-	{
+	) {
 		return opValue1 << opValue2;
 	}
 
@@ -579,16 +530,14 @@ public:
 		Type* resultType,
 		Value* resultValue,
 		bool isUnsigned
-		);
+	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class BinOp_Shr: public BinOp_IntegerOnly<BinOp_Shr>
-{
+class BinOp_Shr: public BinOp_IntegerOnly<BinOp_Shr> {
 public:
-	BinOp_Shr()
-	{
+	BinOp_Shr() {
 		m_opKind = BinOpKind_Shr;
 	}
 
@@ -598,8 +547,7 @@ public:
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
-		)
-	{
+	) {
 		return opValue1 >> opValue2;
 	}
 
@@ -609,8 +557,7 @@ public:
 		int64_t opValue1,
 		int64_t opValue2,
 		bool isUnsigned
-		)
-	{
+	) {
 		return opValue1 >> opValue2;
 	}
 
@@ -621,13 +568,12 @@ public:
 		Type* resultType,
 		Value* resultValue,
 		bool isUnsigned
-		);
+	);
 };
 
 //..............................................................................
 
-class BinOp_BwAnd: public BinOp_IntegerOnly<BinOp_BwAnd>
-{
+class BinOp_BwAnd: public BinOp_IntegerOnly<BinOp_BwAnd> {
 public:
 	BinOp_BwAnd();
 
@@ -637,7 +583,7 @@ public:
 		const Value& rawOpValue1,
 		const Value& rawOpValue2,
 		Value* resultValue
-		);
+	);
 
 	static
 	int32_t
@@ -645,8 +591,7 @@ public:
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
-		)
-	{
+	) {
 		return opValue1 & opValue2;
 	}
 
@@ -656,8 +601,7 @@ public:
 		int64_t opValue1,
 		int64_t opValue2,
 		bool isUnsigned
-		)
-	{
+	) {
 		return opValue1 & opValue2;
 	}
 
@@ -668,13 +612,12 @@ public:
 		Type* resultType,
 		Value* resultValue,
 		bool isUnsigned
-		);
+	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class BinOp_BwOr: public BinOp_IntegerOnly<BinOp_BwOr>
-{
+class BinOp_BwOr: public BinOp_IntegerOnly<BinOp_BwOr> {
 public:
 	BinOp_BwOr();
 
@@ -684,7 +627,7 @@ public:
 		const Value& rawOpValue1,
 		const Value& rawOpValue2,
 		Value* resultValue
-		);
+	);
 
 	static
 	int32_t
@@ -692,8 +635,7 @@ public:
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
-		)
-	{
+	) {
 		return opValue1 | opValue2;
 	}
 
@@ -703,8 +645,7 @@ public:
 		int64_t opValue1,
 		int64_t opValue2,
 		bool isUnsigned
-		)
-	{
+	) {
 		return opValue1 | opValue2;
 	}
 
@@ -715,13 +656,12 @@ public:
 		Type* resultType,
 		Value* resultValue,
 		bool isUnsigned
-		);
+	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class BinOp_BwXor: public BinOp_IntegerOnly<BinOp_BwXor>
-{
+class BinOp_BwXor: public BinOp_IntegerOnly<BinOp_BwXor> {
 public:
 	BinOp_BwXor();
 
@@ -731,7 +671,7 @@ public:
 		const Value& rawOpValue1,
 		const Value& rawOpValue2,
 		Value* resultValue
-		);
+	);
 
 	static
 	int32_t
@@ -739,8 +679,7 @@ public:
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
-		)
-	{
+	) {
 		return opValue1 ^ opValue2;
 	}
 
@@ -750,8 +689,7 @@ public:
 		int64_t opValue1,
 		int64_t opValue2,
 		bool isUnsigned
-		)
-	{
+	) {
 		return opValue1 ^ opValue2;
 	}
 
@@ -762,7 +700,7 @@ public:
 		Type* resultType,
 		Value* resultValue,
 		bool isUnsigned
-		);
+	);
 };
 
 //..............................................................................

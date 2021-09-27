@@ -24,7 +24,7 @@ JNC_DEFINE_TYPE(
 	"std.Guid",
 	g_stdLibGuid,
 	StdLibCacheSlot_Guid
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Guid)
 	JNC_MAP_FUNCTION("getString", &Guid::getString)
@@ -38,8 +38,7 @@ JNC_CDECL
 Guid::getString(
 	DataPtr selfPtr,
 	uint_t flags
-	)
-{
+) {
 	Guid* self = (Guid*)selfPtr.m_p;
 	sl::String string = self->sl::Guid::getString(flags);
 	return strDup(string);
@@ -50,8 +49,7 @@ JNC_CDECL
 Guid::parse(
 	DataPtr selfPtr,
 	DataPtr stringPtr
-	)
-{
+) {
 	Guid* self = (Guid*)selfPtr.m_p;
 	return self->sl::Guid::parse((const char*) stringPtr.m_p);
 }

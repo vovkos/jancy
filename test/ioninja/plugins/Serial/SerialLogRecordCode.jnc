@@ -7,8 +7,7 @@ import "log_RecordCode.jnc"
 
 //..............................................................................
 
-enum SerialLogRecordCode: uint64_t
-{
+enum SerialLogRecordCode: uint64_t {
 	PortOpened            = 0x01d47c8fc7b0f700 | log.RecordCodeFlags.Foldable,
 	PortOpened_old        = 0x01d47c8fc7b0f701 | log.RecordCodeFlags.Foldable,
 	PortOpenError         = 0x01d47c8fc7b0f702,
@@ -32,15 +31,13 @@ enum SerialLogRecordCode: uint64_t
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum SerialReadMode
-{
+enum SerialReadMode {
 	CheckComstat,
 	WaitFirstChar,
 	IntervalBased
 }
 
-struct SerialOpenParams
-{
+struct SerialOpenParams {
 	uint_t m_baudRate;
 	uint_t m_flowControl;
 	uint_t m_dataBits;
@@ -56,8 +53,7 @@ struct SerialOpenParams
 	// followed by port name
 }
 
-struct SerialOpenParams_old
-{
+struct SerialOpenParams_old {
 	uint_t m_baudRate;
 	uint_t m_flowControl;
 	uint_t m_dataBits;
@@ -67,8 +63,7 @@ struct SerialOpenParams_old
 	// followed by port name
 }
 
-struct SerialStatusLineChangedParams
-{
+struct SerialStatusLineChangedParams {
 	io.SerialStatusLines m_lines;
 	io.SerialStatusLines m_mask;
 }

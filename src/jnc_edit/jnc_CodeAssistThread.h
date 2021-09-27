@@ -15,8 +15,7 @@ namespace jnc {
 
 //..............................................................................
 
-class CodeAssistThread: public QThread
-{
+class CodeAssistThread: public QThread {
 	Q_OBJECT
 
 protected:
@@ -33,20 +32,17 @@ public:
 public:
 	CodeAssistThread(QObject* parent = NULL);
 
-	~CodeAssistThread()
-	{
+	~CodeAssistThread() {
 		wait();
 	}
 
 	const rc::Ptr<Module>&
-	getModule()
-	{
+	getModule() {
 		return m_module;
 	}
 
 	CodeAssistKind
-	getCodeAssistKind()
-	{
+	getCodeAssistKind() {
 		return m_codeAssistKind;
 	}
 
@@ -56,7 +52,7 @@ public:
 		const rc::Ptr<Module>& cacheModule,
 		int position,
 		const QString& source
-		);
+	);
 
 	void
 	request(
@@ -64,7 +60,7 @@ public:
 		const rc::Ptr<Module>& cacheModule,
 		size_t offset,
 		const sl::StringRef& source
-		);
+	);
 
 	void
 	cancel();
@@ -79,7 +75,7 @@ protected:
 	compileErrorHandler(
 		void* context,
 		jnc::ModuleCompileErrorKind errorKind
-		);
+	);
 
 signals:
 	void error(const lex::LineCol& lineCol, size_t length);

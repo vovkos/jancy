@@ -1,17 +1,14 @@
 //..............................................................................
 
-struct struct32
-{
+struct struct32 {
 	int32_t m_a;
 }
 
-struct struct64
-{
+struct struct64 {
 	int64_t m_a;
 }
 
-struct struct128
-{
+struct struct128 {
 	int64_t m_a;
 	int64_t m_b;
 }
@@ -30,8 +27,7 @@ funcInt32(
 	int32_t a6,
 	int32_t a7,
 	int32_t a8
-	)
-{
+) {
 	assert(a1 == -1);
 	assert(a2 == -2);
 	assert(a3 == -3);
@@ -54,8 +50,7 @@ funcInt64(
 	int64_t a6,
 	int64_t a7,
 	int64_t a8
-	)
-{
+) {
 	assert(a1 == -1);
 	assert(a2 == -2);
 	assert(a3 == -3);
@@ -78,8 +73,7 @@ funcStruct32(
 	struct32 s6,
 	struct32 s7,
 	struct32 s8
-	)
-{
+) {
 	assert(s1.m_a == -1);
 	assert(s2.m_a == -2);
 	assert(s3.m_a == -3);
@@ -108,8 +102,7 @@ funcStruct64(
 	struct64 s6,
 	struct64 s7,
 	struct64 s8
-	)
-{
+) {
 	assert(s1.m_a == -1);
 	assert(s2.m_a == -2);
 	assert(s3.m_a == -3);
@@ -134,8 +127,7 @@ funcStruct128(
 	struct128 s2,
 	struct128 s3,
 	struct128 s4
-	)
-{
+) {
 	assert(s1.m_a == -1);
 	assert(s1.m_b == -2);
 	assert(s2.m_a == -3);
@@ -157,8 +149,7 @@ funcVariant(
 	variant v2,
 	variant v3,
 	variant v4
-	)
-{
+) {
 	assert(v1 == -1);
 	assert(v2 == -2);
 	assert(v3 == -3);
@@ -171,8 +162,7 @@ float
 funcFloat(
 	float x,
 	float y
-	)
-{
+) {
 	assert(x > (float) 3.1414 && x < (float) 3.1416);
 	assert(y > (float) 2.7181 && y < (float) 2.7183);
 
@@ -183,8 +173,7 @@ double
 funcDouble(
 	double x,
 	double y
-	)
-{
+) {
 	assert(x > 3.1414 && x < 3.1416);
 	assert(y > 2.7181 && y < 2.7183);
 
@@ -209,7 +198,7 @@ funcInt32(
 	int32_t a6,
 	int32_t a7,
 	int32_t a8
-	);
+);
 
 int64_t
 funcInt64(
@@ -221,7 +210,7 @@ funcInt64(
 	int64_t a6,
 	int64_t a7,
 	int64_t a8
-	);
+);
 
 struct32
 funcStruct32(
@@ -233,7 +222,7 @@ funcStruct32(
 	struct32 s6,
 	struct32 s7,
 	struct32 s8
-	);
+);
 
 struct64
 funcStruct64(
@@ -245,7 +234,7 @@ funcStruct64(
 	struct64 s6,
 	struct64 s7,
 	struct64 s8
-	);
+);
 
 struct128
 funcStruct128(
@@ -253,7 +242,7 @@ funcStruct128(
 	struct128 s2,
 	struct128 s3,
 	struct128 s4
-	);
+);
 
 variant
 funcVariant(
@@ -261,42 +250,39 @@ funcVariant(
 	variant v2,
 	variant v3,
 	variant v4
-	);
+);
 
 char const*
 funcPtr(
 	char const* p1,
 	char const thin* p2
-	);
+);
 
 float
 funcFloat(
 	float x,
 	float y
-	);
+);
 
 double
 funcDouble(
 	double x,
 	double y
-	);
+);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void testInt32()
-{
+void testInt32() {
 	int32_t retval = funcInt32(-1, -2, -3, -4, -5, -6, -7, -8);
 	assert(retval == -36);
 }
 
-void testInt64()
-{
+void testInt64() {
 	int64_t retval = funcInt64(-1, -2, -3, -4, -5, -6, -7, -8);
 	assert(retval == -36);
 }
 
-void testStruct32()
-{
+void testStruct32() {
 	struct32 s1 = { -1 };
 	struct32 s2 = { -2 };
 	struct32 s3 = { -3 };
@@ -310,8 +296,7 @@ void testStruct32()
 	assert(retval.m_a == -36);
 }
 
-void testStruct64()
-{
+void testStruct64() {
 	struct64 s1 = { -1 };
 	struct64 s2 = { -2 };
 	struct64 s3 = { -3 };
@@ -325,8 +310,7 @@ void testStruct64()
 	assert(retval.m_a == -36);
 }
 
-void testStruct128()
-{
+void testStruct128() {
 	struct128 s1 = { -1, -2 };
 	struct128 s2 = { -3, -4 };
 	struct128 s3 = { -5, -6 };
@@ -336,8 +320,7 @@ void testStruct128()
 	assert(retval.m_a == -16 && retval.m_b == -20);
 }
 
-void testVariant()
-{
+void testVariant() {
 	variant v1 = -1;
 	variant v2 = -2;
 	variant v3 = -3;
@@ -347,20 +330,17 @@ void testVariant()
 	assert(retval == -10);
 }
 
-void testPtr()
-{
+void testPtr() {
 	char const* retval = funcPtr("abc", "def");
 	assert(strcmp(retval, "abc") == 0);
 }
 
-void testFloat()
-{
+void testFloat() {
 	float retval = funcFloat((float) 3.1415, (float) 2.7182);
 	assert(retval > (float) 2.7182 && retval < (float) 3.1415)
 }
 
-void testDouble()
-{
+void testDouble() {
 	double retval = funcDouble(3.1415, 2.7182);
 	assert(retval > 2.7182 && retval < 3.1415)
 }

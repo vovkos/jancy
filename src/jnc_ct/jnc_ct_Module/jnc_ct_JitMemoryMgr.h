@@ -21,14 +21,12 @@ class Module;
 
 //..............................................................................
 
-class JitMemoryMgr: public llvm::SectionMemoryManager
-{
+class JitMemoryMgr: public llvm::SectionMemoryManager {
 protected:
 	Module* m_module;
 
 public:
-	JitMemoryMgr(Module* module)
-	{
+	JitMemoryMgr(Module* module) {
 		m_module = module;
 	}
 
@@ -37,7 +35,7 @@ public:
 	getPointerToNamedFunction(
 		const std::string &name,
 		bool abortOnFailure
-		);
+	);
 
 	virtual
 	uint64_t

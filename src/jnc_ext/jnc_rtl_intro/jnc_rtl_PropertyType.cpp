@@ -25,7 +25,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	PropertyType,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(PropertyType)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<PropertyType, ct::PropertyType*>))
@@ -46,7 +46,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	PropertyPtrType,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(PropertyPtrType)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<PropertyPtrType, ct::PropertyPtrType*>))

@@ -6,10 +6,8 @@ namespace b {
 
 int g_x;
 
-class Foo
-{
-	void foo()
-	{
+class Foo {
+	void foo() {
 		g_x = 10;
 	}
 }
@@ -23,15 +21,12 @@ int g_y;
 
 }
 
-class Bar: a.b.Foo
-{
-	void bar()
-	{
+class Bar: a.b.Foo {
+	void bar() {
 		b.g_y = 20;
 	}
 }
 
-int main()
-{
+int main() {
 	return 0;
 }

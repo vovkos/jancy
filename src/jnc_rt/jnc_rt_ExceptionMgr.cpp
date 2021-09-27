@@ -24,8 +24,7 @@ namespace rt {
 #if (_JNC_OS_POSIX)
 
 void
-ExceptionMgr::install()
-{
+ExceptionMgr::install() {
 	int result;
 	sigset_t signalMask;
 	sigemptyset(&signalMask);
@@ -61,10 +60,8 @@ ExceptionMgr::signalHandler(
 	int signal,
 	siginfo_t* signalInfo,
 	void* context
-	)
-{
-	enum
-	{
+) {
+	enum {
 #if (_JNC_OS_DARWIN)
 		GcGuardPageHitSignal = SIGBUS
 #else
@@ -75,17 +72,14 @@ ExceptionMgr::signalHandler(
 	// while POSIX does not require pthread_getspecific to be async-signal-safe, in practice it is
 
 	Tls* tls = getCurrentThreadTls();
-	if (!tls)
-	{
+	if (!tls) {
 		sl::getSimpleSingleton<ExceptionMgr> ()->invokePrevSignalHandler(signal, signalInfo, context);
 		return;
 	}
 
-	if (signal == GcGuardPageHitSignal)
-	{
+	if (signal == GcGuardPageHitSignal) {
 		GcHeap* gcHeap = tls->m_runtime->getGcHeap();
-		if (signalInfo->si_addr == gcHeap->getGuardPage())
-		{
+		if (signalInfo->si_addr == gcHeap->getGuardPage()) {
 			gcHeap->handleGuardPageHit(&tls->m_gcMutatorThread);
 			return;
 		}
@@ -95,12 +89,9 @@ ExceptionMgr::signalHandler(
 	sl::getSimpleSingleton<ExceptionMgr> ()->invokePrevSignalHandler(signal, signalInfo, context);
 #else
 	TlsVariableTable* tlsVariableTable = (TlsVariableTable*)(tls + 1);
-	if (!tlsVariableTable->m_sjljFrame)
-	{
+	if (!tlsVariableTable->m_sjljFrame) {
 		sl::getSimpleSingleton<ExceptionMgr> ()->invokePrevSignalHandler(signal, signalInfo, context);
-	}
-	else
-	{
+	} else {
 		const ucontext_t* ucontext = (ucontext_t *)context;
 #	if (_JNC_OS_DARWIN)
 		tlsVariableTable->m_sjljFrame->m_signalInfo.m_codeAddress = ucontext->uc_mcontext->__ss.__rip;
@@ -127,8 +118,7 @@ ExceptionMgr::signalHandler_SIGUSR(
 	int signal,
 	siginfo_t* signalInfo,
 	void* context
-	)
-{
+) {
 	// while POSIX does not require pthread_getspecific to be async-signal-safe, in practice it is
 
 	Tls* tls = getCurrentThreadTls();
@@ -143,26 +133,18 @@ ExceptionMgr::invokePrevSignalHandler(
 	int signal,
 	siginfo_t* signalInfo,
 	void* context
-	)
-{
+) {
 	const struct sigaction* prevSigAction = &m_prevSigActionTable[signal];
 
-	if (prevSigAction->sa_handler == SIG_IGN)
-	{
+	if (prevSigAction->sa_handler == SIG_IGN) {
 		return;
-	}
-	else if (prevSigAction->sa_handler == SIG_DFL)
-	{
+	} else if (prevSigAction->sa_handler == SIG_DFL) {
 		// no other choice but to restore and re-raise
 		sigaction(signal, &m_prevSigActionTable[signal], NULL);
 		raise(signal);
-	}
-	else if (!(prevSigAction->sa_flags & SA_SIGINFO))
-	{
+	} else if (!(prevSigAction->sa_flags & SA_SIGINFO)) {
 		prevSigAction->sa_handler(signal);
-	}
-	else if (prevSigAction->sa_sigaction)
-	{
+	} else if (prevSigAction->sa_sigaction) {
 		prevSigAction->sa_sigaction(signal, signalInfo, context);
 	}
 }
@@ -170,15 +152,13 @@ ExceptionMgr::invokePrevSignalHandler(
 #elif (_AXL_OS_WIN)
 
 void
-ExceptionMgr::install()
-{
+ExceptionMgr::install() {
 	::AddVectoredExceptionHandler(true, vectoredExceptionHandler);
 }
 
 LONG
 WINAPI
-ExceptionMgr::vectoredExceptionHandler(EXCEPTION_POINTERS* exceptionPointers)
-{
+ExceptionMgr::vectoredExceptionHandler(EXCEPTION_POINTERS* exceptionPointers) {
 	LONG status = exceptionPointers->ExceptionRecord->ExceptionCode;
 	if (status >= 0) // we only care about NT error conditions
 		return EXCEPTION_CONTINUE_SEARCH;
@@ -190,8 +170,7 @@ ExceptionMgr::vectoredExceptionHandler(EXCEPTION_POINTERS* exceptionPointers)
 	GcHeap* gcHeap = tls->m_runtime->getGcHeap();
 
 	if (status == EXCEPTION_ACCESS_VIOLATION &&
-		exceptionPointers->ExceptionRecord->ExceptionInformation[1] == (uintptr_t)gcHeap->getGuardPage())
-	{
+		exceptionPointers->ExceptionRecord->ExceptionInformation[1] == (uintptr_t)gcHeap->getGuardPage()) {
 		gcHeap->handleGuardPageHit(&tls->m_gcMutatorThread);
 		return EXCEPTION_CONTINUE_EXECUTION;
 	}
@@ -200,14 +179,13 @@ ExceptionMgr::vectoredExceptionHandler(EXCEPTION_POINTERS* exceptionPointers)
 	return EXCEPTION_CONTINUE_SEARCH;
 #else
 	TlsVariableTable* tlsVariableTable = (TlsVariableTable*)(tls + 1);
-	if (tlsVariableTable->m_sjljFrame)
-	{
+	if (tlsVariableTable->m_sjljFrame) {
 		sys::setWinExceptionError(
 			status,
 			(uintptr_t)exceptionPointers->ExceptionRecord->ExceptionAddress,
 			(const uintptr_t*)exceptionPointers->ExceptionRecord->ExceptionInformation,
 			exceptionPointers->ExceptionRecord->NumberParameters
-			);
+		);
 
 		jnc_longJmp(tlsVariableTable->m_sjljFrame->m_jmpBuf, -1);
 		ASSERT(false);

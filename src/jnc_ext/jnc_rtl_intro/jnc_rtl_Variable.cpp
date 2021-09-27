@@ -25,7 +25,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	Variable,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Variable)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<Variable, ct::Variable*>))
@@ -42,7 +42,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	Const,
 	&Const::markOpaqueGcRoots
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Const)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<Const, ct::Const*>))
@@ -53,8 +53,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 Variant
 JNC_CDECL
-Const::getValue(Const* self)
-{
+Const::getValue(Const* self) {
 	if (self->m_value.m_type)
 		return self->m_value;
 

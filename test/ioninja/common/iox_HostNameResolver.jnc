@@ -14,11 +14,9 @@ namespace iox {
 
 //..............................................................................
 
-class HostNameResolver
-{
+class HostNameResolver {
 public:
-	enum State
-	{
+	enum State {
 		Idle,
 		Error,
 		Resolving,
@@ -31,10 +29,8 @@ protected:
 	char const* m_addressString;
 	uint_t m_syncId;
 
-	property m_logWriter
-	{
-		log.Writer* get()
-		{
+	property m_logWriter {
+		log.Writer* get() {
 			return m_pluginHost.m_log.m_writer;
 		}
 	}
@@ -46,15 +42,14 @@ public:
 	event m_onCompleted();
 
 public:
-	construct(doc.PluginHost* pluginHost)
-	{
+	construct(doc.PluginHost* pluginHost) {
 		m_pluginHost = pluginHost;
 	}
 
 	bool errorcode resolve(
 		char const* addressString,
 		io.AddressFamily addressFamily = io.AddressFamily.Undefined
-		);
+	);
 
 	void cancel();
 	void updateStatusPane(ui.StatusPane* pane);
@@ -65,7 +60,7 @@ protected:
 	void onResolverEvent(
 		uint_t syncId,
 		io.HostNameResolverEvents triggeredEvents
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -73,14 +68,12 @@ protected:
 bool errorcode HostNameResolver.resolve(
 	char const* addressString,
 	io.AddressFamily addressFamily
-	)
-{
+) {
 	cancel();
 
 	io.SocketAddress address;
 	bool isDirectAddress = try address.parse(addressString);
-	if (isDirectAddress)
-	{
+	if (isDirectAddress) {
 		if (!address.m_port)
 			address.m_port = m_defaultPort;
 
@@ -98,7 +91,7 @@ bool errorcode HostNameResolver.resolve(
 	m_resolver.wait(
 		io.HostNameResolverEvents.Resolved | io.HostNameResolverEvents.Error,
 		onResolverEvent~(m_syncId) @ m_pluginHost.m_mainThreadScheduler
-		);
+	);
 
 	m_state = State.Resolving;
 	return true;
@@ -108,10 +101,8 @@ catch:
 	return false;
 }
 
-void HostNameResolver.cancel()
-{
-	if (m_state != State.Resolving)
-	{
+void HostNameResolver.cancel() {
+	if (m_state != State.Resolving) {
 		m_state = State.Idle;
 		return;
 	}
@@ -126,10 +117,8 @@ void HostNameResolver.cancel()
 	m_onCompleted();
 }
 
-void HostNameResolver.updateStatusPane(ui.StatusPane* pane)
-{
-	switch (m_state)
-	{
+void HostNameResolver.updateStatusPane(ui.StatusPane* pane) {
+	switch (m_state) {
 	case State.Resolving:
 		pane.m_text = "Resolving...";
 		pane.m_color = ui.StdColor.Black;
@@ -151,8 +140,7 @@ void HostNameResolver.updateStatusPane(ui.StatusPane* pane)
 	}
 }
 
-void HostNameResolver.handleResolveError(std.Error const* error)
-{
+void HostNameResolver.handleResolveError(std.Error const* error) {
 	m_logWriter.write(SocketLogRecordCode.ResolveError, error);
 	m_resolver.cancel();
 	m_state = State.Error;
@@ -161,16 +149,14 @@ void HostNameResolver.handleResolveError(std.Error const* error)
 void HostNameResolver.onResolverEvent(
 	uint_t syncId,
 	io.HostNameResolverEvents triggeredEvents
-	)
-{
+) {
 	if (syncId != m_syncId)
 		return;
 
 	if (syncId != m_pluginHost.m_log.m_syncId)
 		m_logWriter.write(SocketLogRecordCode.ResolveCompletedPrefix, m_addressString);
 
-	if (triggeredEvents & io.HostNameResolverEvents.Error)
-	{
+	if (triggeredEvents & io.HostNameResolverEvents.Error) {
 		handleResolveError(m_resolver.m_error);
 		m_onCompleted();
 		return;
@@ -180,7 +166,7 @@ void HostNameResolver.onResolverEvent(
 		SocketLogRecordCode.ResolveCompleted,
 		m_resolver.m_addressTable,
 		sizeof(io.SocketAddress)
-		);
+	);
 
 	m_address = m_resolver.m_addressTable[0];
 	if (!m_address.m_port)

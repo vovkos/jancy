@@ -1,29 +1,22 @@
 bool bindable autoget property g_p;
 
-void g_p.set(bool)
-{
-}
+void g_p.set(bool) {}
 
 bool g_b;
 
-class C1
-{
-	reactor m_reactor
-	{
+class C1 {
+	reactor m_reactor {
 		g_b = g_p;
 	}
 }
 
-class C2
-{
-	reactor m_reactor
-	{
+class C2 {
+	reactor m_reactor {
 		g_b = g_p;
 	}
 }
 
-int main()
-{
+int main() {
 	printf("main\n");
 	return 0;
 }

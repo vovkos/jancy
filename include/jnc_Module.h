@@ -54,8 +54,7 @@
 
 //..............................................................................
 
-enum jnc_ModuleCompileFlag
-{
+enum jnc_ModuleCompileFlag {
 	jnc_ModuleCompileFlag_DebugInfo                     = 0x00000001,
 	jnc_ModuleCompileFlag_McJit                         = 0x00000002,
 	jnc_ModuleCompileFlag_SimpleGcSafePoint             = 0x00000004,
@@ -83,8 +82,7 @@ typedef enum jnc_ModuleCompileFlag jnc_ModuleCompileFlag;
 
 //..............................................................................
 
-enum jnc_ModuleCompileState
-{
+enum jnc_ModuleCompileState {
 	jnc_ModuleCompileState_Idle,
 	jnc_ModuleCompileState_Parsed,    // all files are parsed; global namespace is ready
 	jnc_ModuleCompileState_Compiled,  // all required functions are compiled into LLVM IR
@@ -95,8 +93,7 @@ typedef enum jnc_ModuleCompileState jnc_ModuleCompileState;
 
 //..............................................................................
 
-enum jnc_ModuleCompileErrorKind
-{
+enum jnc_ModuleCompileErrorKind {
 	jnc_ModuleCompileErrorKind_ParseSyntax,   // -> llk::Parser::ErrorKind_Syntax
 	jnc_ModuleCompileErrorKind_ParseSemantic, // -> llk::Parser::ErrorKind_Semantic
 	jnc_ModuleCompileErrorKind_PostParse,     // post-parse stage
@@ -114,14 +111,13 @@ bool_t
 jnc_ModuleCompileErrorHandlerFunc(
 	void* context,
 	jnc_ModuleCompileErrorKind errorKind
-	);
+);
 
 //..............................................................................
 
 // platform specific (authenticode on windows, codesign on osx, custom-made elf signer on linux)
 
-struct jnc_CodeAuthenticatorConfig
-{
+struct jnc_CodeAuthenticatorConfig {
 #if (_JNC_OS_WIN)
 	const char* m_expectedSubjectName;
 	const char* m_expectedIssuerName;
@@ -135,8 +131,7 @@ struct jnc_CodeAuthenticatorConfig
 #endif
 
 #ifdef __cplusplus
-	jnc_CodeAuthenticatorConfig()
-	{
+	jnc_CodeAuthenticatorConfig() {
 		memset(this, 0, sizeof(jnc_CodeAuthenticatorConfig));
 	}
 #endif
@@ -164,7 +159,7 @@ jnc_Module_initialize(
 	jnc_Module* module,
 	const char* name,
 	uint_t compileFlags
-	);
+);
 
 JNC_EXTERN_C
 void
@@ -175,7 +170,7 @@ void
 jnc_Module_setDynamicExtensionAuthenticatorConfig(
 	jnc_Module* module,
 	const jnc_CodeAuthenticatorConfig* config
-	);
+);
 
 JNC_EXTERN_C
 const char*
@@ -198,7 +193,7 @@ void
 jnc_Module_setCompileErrorCountLimit(
 	jnc_Module* module,
 	size_t limit
-	);
+);
 
 JNC_EXTERN_C
 size_t
@@ -210,7 +205,7 @@ jnc_Module_setCompileErrorHandler(
 	jnc_Module* module,
 	jnc_ModuleCompileErrorHandlerFunc* handler,
 	void* context
-	);
+);
 
 JNC_EXTERN_C
 jnc_GlobalNamespace*
@@ -221,21 +216,21 @@ jnc_GlobalNamespace*
 jnc_Module_getStdNamespace(
 	jnc_Module* module,
 	jnc_StdNamespace stdNamespace
-	);
+);
 
 JNC_EXTERN_C
 jnc_Type*
 jnc_Module_getPrimitiveType(
 	jnc_Module* module,
 	jnc_TypeKind typeKind
-	);
+);
 
 JNC_EXTERN_C
 jnc_Type*
 jnc_Module_getStdType(
 	jnc_Module* module,
 	jnc_StdType stdType
-	);
+);
 
 JNC_EXTERN_C
 handle_t
@@ -246,7 +241,7 @@ const char*
 jnc_Module_getNextExtensionSourceFile(
 	jnc_Module* module,
 	handle_t* iterator
-	);
+);
 
 JNC_EXTERN_C
 jnc_FindModuleItemResult
@@ -255,7 +250,7 @@ jnc_Module_findExtensionLibItem(
 	const char* name,
 	const jnc_Guid* libGuid,
 	size_t itemCacheSlot
-	);
+);
 
 JNC_EXTERN_C
 bool_t
@@ -263,7 +258,7 @@ jnc_Module_mapVariable(
 	jnc_Module* module,
 	jnc_Variable* variable,
 	void* p
-	);
+);
 
 JNC_EXTERN_C
 bool_t
@@ -271,7 +266,7 @@ jnc_Module_mapFunction(
 	jnc_Module* module,
 	jnc_Function* function,
 	void* p
-	);
+);
 
 JNC_EXTERN_C
 void
@@ -281,7 +276,7 @@ jnc_Module_addSource(
 	const char* fileName,
 	const char* source,
 	size_t length
-	);
+);
 
 JNC_EXTERN_C
 handle_t
@@ -292,28 +287,28 @@ const char*
 jnc_Module_getNextImportDir(
 	jnc_Module* module,
 	handle_t* iterator
-	);
+);
 
 JNC_EXTERN_C
 void
 jnc_Module_addImportDir(
 	jnc_Module* module,
 	const char* dir
-	);
+);
 
 JNC_EXTERN_C
 bool_t
 jnc_Module_addImport(
 	jnc_Module* module,
 	const char* fileName
-	);
+);
 
 JNC_EXTERN_C
 void
 jnc_Module_addIgnoredImport(
 	jnc_Module* module,
 	const char* fileName
-	);
+);
 
 JNC_EXTERN_C
 void
@@ -321,14 +316,14 @@ jnc_Module_addOpaqueClassTypeInfo(
 	jnc_Module* module,
 	const char* qualifiedName,
 	const jnc_OpaqueClassTypeInfo* info
-	);
+);
 
 JNC_EXTERN_C
 void
 jnc_Module_addStaticLib(
 	jnc_Module* module,
 	jnc_ExtensionLib* lib
-	);
+);
 
 JNC_EXTERN_C
 void
@@ -337,7 +332,7 @@ jnc_Module_require(
 	jnc_ModuleItemKind itemKind,
 	const char* name,
 	bool_t isEssential
-	);
+);
 
 JNC_EXTERN_C
 void
@@ -346,7 +341,7 @@ jnc_Module_requireType(
 	jnc_TypeKind typeKind,
 	const char* name,
 	bool_t isEssential
-	);
+);
 
 JNC_EXTERN_C
 bool_t
@@ -355,14 +350,14 @@ jnc_Module_parse(
 	const char* fileName,
 	const char* source,
 	size_t length
-	);
+);
 
 JNC_EXTERN_C
 bool_t
 jnc_Module_parseFile(
 	jnc_Module* module,
 	const char* fileName
-	);
+);
 
 JNC_EXTERN_C
 bool_t
@@ -377,7 +372,7 @@ bool_t
 jnc_Module_optimize(
 	jnc_Module* module,
 	uint_t level
-	);
+);
 
 JNC_EXTERN_C
 bool_t
@@ -388,7 +383,7 @@ bool_t
 jnc_Module_generateDocumentation(
 	jnc_Module* module,
 	const char* outputDir
-	);
+);
 
 JNC_EXTERN_C
 const char*
@@ -403,7 +398,7 @@ jnc_Module_generateCodeAssist(
 	size_t offset,
 	const char* source,
 	size_t length
-	);
+);
 
 JNC_EXTERN_C
 jnc_CodeAssist*
@@ -412,24 +407,20 @@ jnc_Module_getCodeAssist(jnc_Module* module);
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
-struct jnc_Module
-{
+struct jnc_Module {
 	static
 	jnc_Module*
-	create()
-	{
+	create() {
 		return jnc_Module_create();
 	}
 
 	void
-	destroy()
-	{
+	destroy() {
 		jnc_Module_destroy(this);
 	}
 
 	void
-	clear()
-	{
+	clear() {
 		jnc_Module_clear(this);
 	}
 
@@ -437,56 +428,47 @@ struct jnc_Module
 	initialize(
 		const char* name,
 		uint_t compileFlags = jnc_ModuleCompileFlag_StdFlags
-		)
-	{
+	) {
 		jnc_Module_initialize(this, name, compileFlags);
 	}
 
 	void
-	updateCapabilities()
-	{
+	updateCapabilities() {
 		jnc_Module_updateCapabilities(this);
 	}
 
 	void
-	setDynamicExtensionAuthenticatorConfig(const jnc_CodeAuthenticatorConfig* config)
-	{
+	setDynamicExtensionAuthenticatorConfig(const jnc_CodeAuthenticatorConfig* config) {
 		jnc_Module_setDynamicExtensionAuthenticatorConfig(this, config);
 	}
 
 	const char*
-	getName()
-	{
+	getName() {
 		return jnc_Module_getName(this);
 	}
 
 	uint_t
-	getCompileFlags()
-	{
+	getCompileFlags() {
 		return jnc_Module_getCompileFlags(this);
 	}
 
 	jnc_ModuleCompileState
-	getCompileState()
-	{
+	getCompileState() {
 		return jnc_Module_getCompileState(this);
 	}
 
 	size_t
-	getCompileErrorCountLimit()
-	{
+	getCompileErrorCountLimit() {
 		return jnc_Module_getCompileErrorCountLimit(this);
 	}
 
 	void
-	setCompileErrorCountLimit(size_t limit)
-	{
+	setCompileErrorCountLimit(size_t limit) {
 		return jnc_Module_setCompileErrorCountLimit(this, limit);
 	}
 
 	size_t
-	getCompileErrorCount()
-	{
+	getCompileErrorCount() {
 		return jnc_Module_getCompileErrorCount(this);
 	}
 
@@ -494,44 +476,37 @@ struct jnc_Module
 	setCompileErrorHandler(
 		jnc_ModuleCompileErrorHandlerFunc* errorHandler,
 		void* context
-		)
-	{
+	) {
 		jnc_Module_setCompileErrorHandler(this, errorHandler, context);
 	}
 
 	jnc_GlobalNamespace*
-	getGlobalNamespace()
-	{
+	getGlobalNamespace() {
 		return jnc_Module_getGlobalNamespace(this);
 	}
 
 	jnc_GlobalNamespace*
-	getStdNamespace(jnc_StdNamespace stdNamespace)
-	{
+	getStdNamespace(jnc_StdNamespace stdNamespace) {
 		return jnc_Module_getStdNamespace(this, stdNamespace);
 	}
 
 	jnc_Type*
-	getPrimitiveType(jnc_TypeKind typeKind)
-	{
+	getPrimitiveType(jnc_TypeKind typeKind) {
 		return jnc_Module_getPrimitiveType(this, typeKind);
 	}
 
 	jnc_Type*
-	getStdType(jnc_StdType stdType)
-	{
+	getStdType(jnc_StdType stdType) {
 		return jnc_Module_getStdType(this, stdType);
 	}
 
 	handle_t
-	getExtensionSourceFileIterator()
-	{
+	getExtensionSourceFileIterator() {
 		return jnc_Module_getExtensionSourceFileIterator(this);
 	}
 
 	const char*
-	getNextExtensionSourceFile(handle_t* iterator)
-	{
+	getNextExtensionSourceFile(handle_t* iterator) {
 		return jnc_Module_getNextExtensionSourceFile(this, iterator);
 	}
 
@@ -540,8 +515,7 @@ struct jnc_Module
 		const char* name,
 		const jnc_Guid* libGuid,
 		size_t itemCacheSlot
-		)
-	{
+	) {
 		return jnc_Module_findExtensionLibItem(this, name, libGuid, itemCacheSlot);
 	}
 
@@ -549,8 +523,7 @@ struct jnc_Module
 	mapVariable(
 		jnc_Variable* variable,
 		void* p
-		)
-	{
+	) {
 		return jnc_Module_mapVariable(this, variable, p) != 0;
 	}
 
@@ -558,8 +531,7 @@ struct jnc_Module
 	mapFunction(
 		jnc_Function* function,
 		void* p
-		)
-	{
+	) {
 		return jnc_Module_mapFunction(this, function, p) != 0;
 	}
 
@@ -569,38 +541,32 @@ struct jnc_Module
 		const char* fileName,
 		const char* source,
 		size_t length = -1
-		)
-	{
+	) {
 		jnc_Module_addSource(this, lib, fileName, source, length);
 	}
 
 	handle_t
-	getImportDirIterator()
-	{
+	getImportDirIterator() {
 		return jnc_Module_getImportDirIterator(this);
 	}
 
 	const char*
-	getNextImportDir(handle_t* iterator)
-	{
+	getNextImportDir(handle_t* iterator) {
 		return jnc_Module_getNextImportDir(this, iterator);
 	}
 
 	void
-	addImportDir(const char* dir)
-	{
+	addImportDir(const char* dir) {
 		jnc_Module_addImportDir(this, dir);
 	}
 
 	bool
-	addImport(const char* fileName)
-	{
+	addImport(const char* fileName) {
 		return jnc_Module_addImport(this, fileName) != 0;
 	}
 
 	void
-	addIgnoredImport(const char* fileName)
-	{
+	addIgnoredImport(const char* fileName) {
 		jnc_Module_addIgnoredImport(this, fileName);
 	}
 
@@ -608,14 +574,12 @@ struct jnc_Module
 	addOpaqueClassTypeInfo(
 		const char* qualifiedName,
 		const jnc_OpaqueClassTypeInfo* info
-		)
-	{
+	) {
 		jnc_Module_addOpaqueClassTypeInfo(this, qualifiedName, info);
 	}
 
 	void
-	addStaticLib(jnc_ExtensionLib* lib)
-	{
+	addStaticLib(jnc_ExtensionLib* lib) {
 		jnc_Module_addStaticLib(this, lib);
 	}
 
@@ -624,8 +588,7 @@ struct jnc_Module
 		jnc_ModuleItemKind itemKind,
 		const char* name,
 		bool isEssential = true
-		)
-	{
+	) {
 		jnc_Module_require(this, itemKind, name, isEssential);
 	}
 
@@ -634,8 +597,7 @@ struct jnc_Module
 		jnc_TypeKind typeKind,
 		const char* name,
 		bool isEssential = true
-		)
-	{
+	) {
 		jnc_Module_requireType(this, typeKind, name, isEssential);
 	}
 
@@ -644,50 +606,42 @@ struct jnc_Module
 		const char* fileName,
 		const char* source,
 		size_t length = -1
-		)
-	{
+	) {
 		return jnc_Module_parse(this, fileName, source, length) != 0;
 	}
 
 	bool
-	parseFile(const char* fileName)
-	{
+	parseFile(const char* fileName) {
 		return jnc_Module_parseFile(this, fileName) != 0;
 	}
 
 	bool
-	parseImports()
-	{
+	parseImports() {
 		return jnc_Module_parseImports(this) != 0;
 	}
 
 	bool
-	compile()
-	{
+	compile() {
 		return jnc_Module_compile(this) != 0;
 	}
 
 	bool
-	optimize(uint_t level = 2)
-	{
+	optimize(uint_t level = 2) {
 		return jnc_Module_optimize(this, level) != 0;
 	}
 
 	bool
-	jit()
-	{
+	jit() {
 		return jnc_Module_jit(this) != 0;
 	}
 
 	const char*
-	getLlvmIrString_v()
-	{
+	getLlvmIrString_v() {
 		return jnc_Module_getLlvmIrString_v(this);
 	}
 
 	bool
-	generateDocumentation(const char* outputDir)
-	{
+	generateDocumentation(const char* outputDir) {
 		return jnc_Module_generateDocumentation(this, outputDir) != 0;
 	}
 
@@ -698,14 +652,12 @@ struct jnc_Module
 		size_t offset,
 		const char* source,
 		size_t length = -1
-		)
-	{
+	) {
 		return jnc_Module_generateCodeAssist(this, kind, cacheModule, offset, source, length);
 	}
 
 	jnc_CodeAssist*
-	getCodeAssist()
-	{
+	getCodeAssist() {
 		return jnc_Module_getCodeAssist(this);
 	}
 };
@@ -759,37 +711,31 @@ typedef jnc_CodeAuthenticatorConfig CodeAuthenticatorConfig;
 
 //..............................................................................
 
-class AutoModule
-{
+class AutoModule {
 protected:
 	Module* m_module;
 
 public:
-	AutoModule()
-	{
+	AutoModule() {
 		m_module = jnc_Module_create();
 	}
 
-	~AutoModule()
-	{
+	~AutoModule() {
 		if (m_module)
 			jnc_Module_destroy(m_module);
 	}
 
-	operator Module* () const
-	{
+	operator Module* () const {
 		return m_module;
 	}
 
 	Module*
-	operator -> () const
-	{
+	operator -> () const {
 		return m_module;
 	}
 
 	Module*
-	p() const
-	{
+	p() const {
 		return m_module;
 	}
 };

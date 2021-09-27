@@ -18,8 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-CodeAssist::CodeAssist()
-{
+CodeAssist::CodeAssist() {
 	m_codeAssistKind = CodeAssistKind_Undefined;
 	m_offset = 0;
 	m_module = NULL;
@@ -31,16 +30,14 @@ CodeAssist::CodeAssist()
 //..............................................................................
 
 void
-CodeAssistMgr::AutoCompleteFallback::clear()
-{
+CodeAssistMgr::AutoCompleteFallback::clear() {
 	m_offset = -1;
 	m_namespace = NULL;
 	m_prefix.clear();
 	m_flags = 0;
 }
 
-CodeAssistMgr::CodeAssistMgr()
-{
+CodeAssistMgr::CodeAssistMgr() {
 	m_module = Module::getCurrentConstructedModule();
 	ASSERT(m_module);
 
@@ -52,8 +49,7 @@ CodeAssistMgr::CodeAssistMgr()
 }
 
 void
-CodeAssistMgr::clear()
-{
+CodeAssistMgr::clear() {
 	freeCodeAssist();
 	m_codeAssistKind = CodeAssistKind_Undefined;
 	m_cacheModule = NULL;
@@ -69,8 +65,7 @@ CodeAssistMgr::initialize(
 	jnc_CodeAssistKind kind,
 	Module* cacheModule,
 	size_t offset
-	)
-{
+) {
 	clear();
 
 	m_codeAssistKind = kind;
@@ -79,13 +74,11 @@ CodeAssistMgr::initialize(
 }
 
 CodeAssist*
-CodeAssistMgr::generateCodeAssist()
-{
+CodeAssistMgr::generateCodeAssist() {
 	if (m_codeAssist)
 		return m_codeAssist;
 
-	if (m_containerItem)
-	{
+	if (m_containerItem) {
 		ModuleItem* item = m_containerItem;
 		m_containerItem = NULL;
 		generateCodeAssistImpl(item);
@@ -98,8 +91,7 @@ CodeAssistMgr::generateCodeAssist()
 }
 
 void
-CodeAssistMgr::freeCodeAssist()
-{
+CodeAssistMgr::freeCodeAssist() {
 	if (m_codeAssist)
 		AXL_MEM_DELETE(m_codeAssist);
 
@@ -107,11 +99,9 @@ CodeAssistMgr::freeCodeAssist()
 }
 
 CodeAssist*
-CodeAssistMgr::generateCodeAssistImpl(ModuleItem* item)
-{
+CodeAssistMgr::generateCodeAssistImpl(ModuleItem* item) {
 	ModuleItemKind itemKind = item->getItemKind();
-	switch (itemKind)
-	{
+	switch (itemKind) {
 	case ModuleItemKind_Orphan:
 		item = ((Orphan*)item)->resolveForCodeAssist();
 		if (item)
@@ -142,8 +132,7 @@ CodeAssistMgr::createModuleItemCodeAssist(
 	CodeAssistKind kind,
 	size_t offset,
 	ModuleItem* item
-	)
-{
+) {
 	freeCodeAssist();
 
 	m_codeAssist = AXL_MEM_NEW(CodeAssist);
@@ -159,8 +148,7 @@ CodeAssistMgr::createArgumentTip(
 	size_t offset,
 	FunctionType* functionType,
 	size_t argumentIdx
-	)
-{
+) {
 	freeCodeAssist();
 
 	m_codeAssist = AXL_MEM_NEW(CodeAssist);
@@ -177,8 +165,7 @@ CodeAssistMgr::createArgumentTip(
 	size_t offset,
 	const FunctionTypeOverload& typeOverload,
 	size_t argumentIdx
-	)
-{
+) {
 	freeCodeAssist();
 
 	size_t overloadCount = typeOverload.getOverloadCount();
@@ -195,8 +182,7 @@ CodeAssistMgr::createArgumentTip(
 }
 
 CodeAssist*
-CodeAssistMgr::createArgumentTipFromStack()
-{
+CodeAssistMgr::createArgumentTipFromStack() {
 	if (m_argumentTipStack.isEmpty())
 		return NULL;
 
@@ -206,7 +192,7 @@ CodeAssistMgr::createArgumentTipFromStack()
 	FunctionTypeOverload typeOverload = m_module->m_operatorMgr.getValueFunctionTypeOverload(
 		argumentTip->m_value,
 		&baseArgumentIdx
-		);
+	);
 
 	if (!typeOverload.getOverloadCount())
 		return NULL;
@@ -215,7 +201,7 @@ CodeAssistMgr::createArgumentTipFromStack()
 		argumentTip->m_pos.m_offset,
 		typeOverload,
 		baseArgumentIdx + argumentTip->m_argumentIdx
-		);
+	);
 }
 
 CodeAssist*
@@ -223,17 +209,13 @@ CodeAssistMgr::createAutoComplete(
 	size_t offset,
 	Namespace* nspace,
 	uint_t flags
-	)
-{
+) {
 	freeCodeAssist();
 
 	NamespaceKind nspaceKind = nspace->getNamespaceKind();
-	if (nspaceKind == NamespaceKind_Type)
-	{
+	if (nspaceKind == NamespaceKind_Type) {
 		((NamedType*)nspace)->ensureLayout();
-	}
-	else
-	{
+	} else {
 		if (nspace == m_module->m_namespaceMgr.getStdNamespace(StdNamespace_Jnc))
 			nspace->parseLazyImports();
 
@@ -250,8 +232,7 @@ CodeAssistMgr::createAutoComplete(
 }
 
 CodeAssist*
-CodeAssistMgr::createAutoCompleteFallback()
-{
+CodeAssistMgr::createAutoCompleteFallback() {
 	ASSERT(m_autoCompleteFallback.m_namespace);
 
 	if (m_autoCompleteFallback.m_prefix.isEmpty())
@@ -261,7 +242,7 @@ CodeAssistMgr::createAutoCompleteFallback()
 			m_autoCompleteFallback.m_flags |
 			CodeAssistFlag_AutoCompleteFallback |
 			CodeAssistFlag_IncludeParentNamespace
-			);
+		);
 
 	FindModuleItemResult findItemResult = m_autoCompleteFallback.m_namespace->findItemTraverse(m_autoCompleteFallback.m_prefix, NULL);
 	Namespace* nspace = findItemResult.m_item ? findItemResult.m_item->getNamespace() : NULL;
@@ -276,12 +257,11 @@ CodeAssistMgr::createAutoCompleteFallback()
 		m_autoCompleteFallback.m_flags |
 		CodeAssistFlag_AutoCompleteFallback |
 		CodeAssistFlag_QualifiedName
-		);
+	);
 }
 
 CodeAssist*
-CodeAssistMgr::createImportAutoComplete(size_t offset)
-{
+CodeAssistMgr::createImportAutoComplete(size_t offset) {
 	freeCodeAssist();
 
 	m_codeAssist = AXL_MEM_NEW(CodeAssist);

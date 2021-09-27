@@ -16,8 +16,7 @@ namespace jnc {
 
 //..............................................................................
 
-bitflag enum FunctionTypeFlags
-{
+bitflag enum FunctionTypeFlags {
 	VarArg         = 0x010000,
 	ErrorCode      = 0x020000,
 	ByValArgs      = 0x040000,
@@ -29,8 +28,7 @@ bitflag enum FunctionTypeFlags
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum FunctionPtrTypeKind
-{
+enum FunctionPtrTypeKind {
 	Normal = 0,
 	Weak,
 	Thin,
@@ -42,8 +40,7 @@ enum FunctionPtrTypeKind
 class FunctionArg:
 	ModuleItem,
 	ModuleItemDecl,
-	ModuleItemInitializer
-{
+	ModuleItemInitializer {
 	Type* const property m_type;
 	PtrTypeFlags const property m_ptrTypeFlags;
 
@@ -52,8 +49,7 @@ class FunctionArg:
 
 //..............................................................................
 
-opaque class FunctionType: Type
-{
+opaque class FunctionType: Type {
 	Type* const property m_returnType;
 	size_t const property m_argCount;
 	FunctionArg* const property m_argArray(size_t index);
@@ -65,13 +61,12 @@ opaque class FunctionType: Type
 		TypeKind typeKind = TypeKind.FunctionPtr,
 		FunctionPtrTypeKind ptrTypeKind = FunctionPtrTypeKind.Normal,
 		PtrTypeFlags flags = 0
-		);
+	);
 }
 
 //..............................................................................
 
-opaque class FunctionPtrType: Type
-{
+opaque class FunctionPtrType: Type {
 	FunctionPtrTypeKind const property m_ptrTypeKind;
 	FunctionType* const property m_targetType;
 

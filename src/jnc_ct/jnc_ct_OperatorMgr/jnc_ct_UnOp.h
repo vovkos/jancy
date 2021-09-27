@@ -19,8 +19,7 @@ namespace ct {
 
 //..............................................................................
 
-enum OpFlag
-{
+enum OpFlag {
 	OpFlag_KeepDataRef           = 0x0001,
 	OpFlag_KeepClassRef	         = 0x0002,
 	OpFlag_KeepFunctionRef       = 0x0004,
@@ -49,12 +48,11 @@ Type*
 getPrimitiveType(
 	Module* module,
 	TypeKind typeKind
-	);
+);
 
 //..............................................................................
 
-class UnaryOperator
-{
+class UnaryOperator {
 	friend class OperatorMgr;
 
 protected:
@@ -66,20 +64,17 @@ public:
 	UnaryOperator();
 
 	Module*
-	getModule()
-	{
+	getModule() {
 		return m_module;
 	}
 
 	UnOpKind
-	getOpKind()
-	{
+	getOpKind() {
 		return m_opKind;
 	}
 
 	int
-	getOpFlags()
-	{
+	getOpFlags() {
 		return m_opFlags;
 	}
 
@@ -88,21 +83,19 @@ public:
 	op(
 		const Value& opValue,
 		Value* resultValue
-		) = 0;
+	) = 0;
 
 	err::Error
-	setOperatorError(Type* opType)
-	{
+	setOperatorError(Type* opType) {
 		return err::setFormatStringError(
 			"unary '%s' cannot be applied to '%s'",
 			getUnOpKindString(m_opKind),
 			opType->getTypeString().sz()
-			);
+		);
 	}
 
 	err::Error
-	setOperatorError(const Value& opValue)
-	{
+	setOperatorError(const Value& opValue) {
 		return setOperatorError(opValue.getType());
 	}
 };

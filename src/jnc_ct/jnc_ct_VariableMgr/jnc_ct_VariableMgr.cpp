@@ -20,8 +20,7 @@ namespace ct {
 
 //..............................................................................
 
-VariableMgr::VariableMgr()
-{
+VariableMgr::VariableMgr() {
 	m_module = Module::getCurrentConstructedModule();
 	ASSERT(m_module);
 
@@ -32,8 +31,7 @@ VariableMgr::VariableMgr()
 }
 
 void
-VariableMgr::clear()
-{
+VariableMgr::clear() {
 	m_variableList.clear();
 	m_staticGcRootArray.clear();
 	m_staticVariableArray.clear();
@@ -49,8 +47,7 @@ VariableMgr::clear()
 }
 
 void
-VariableMgr::createStdVariables()
-{
+VariableMgr::createStdVariables() {
 	// these variables are required even if not used (so the layout of TLS remains the same)
 
 	getStdVariable(StdVariable_SjljFrame);
@@ -59,8 +56,7 @@ VariableMgr::createStdVariables()
 }
 
 Variable*
-VariableMgr::getStdVariable(StdVariable stdVariable)
-{
+VariableMgr::getStdVariable(StdVariable stdVariable) {
 	ASSERT((size_t)stdVariable < StdVariable__Count);
 
 	if (m_stdVariableArray[stdVariable])
@@ -69,15 +65,14 @@ VariableMgr::getStdVariable(StdVariable stdVariable)
 	bool result;
 	Variable* variable;
 
-	switch (stdVariable)
-	{
+	switch (stdVariable) {
 	case StdVariable_SjljFrame:
 		variable = createVariable(
 			StorageKind_Tls,
 			sl::String(),
 			"jnc.g_sjljFrame",
 			m_module->m_typeMgr.getStdType(StdType_SjljFrame)->getDataPtrType_c()
-			);
+		);
 		break;
 
 	case StdVariable_GcShadowStackTop:
@@ -86,7 +81,7 @@ VariableMgr::getStdVariable(StdVariable stdVariable)
 			sl::String(),
 			"jnc.g_gcShadowStackTop",
 			m_module->m_typeMgr.getStdType(StdType_GcShadowStackFrame)->getDataPtrType_c()
-			);
+		);
 		break;
 
 	case StdVariable_GcSafePointTrigger:
@@ -95,7 +90,7 @@ VariableMgr::getStdVariable(StdVariable stdVariable)
 			sl::String(),
 			"jnc.g_gcSafePointTrigger",
 			m_module->m_typeMgr.getPrimitiveType(TypeKind_IntPtr)->getDataPtrType_c()
-			);
+		);
 		break;
 
 	case StdVariable_NullPtrCheckSink:
@@ -104,7 +99,7 @@ VariableMgr::getStdVariable(StdVariable stdVariable)
 			sl::String(),
 			"jnc.g_nullPtrCheckSink",
 			m_module->m_typeMgr.getPrimitiveType(TypeKind_Char)
-			);
+		);
 		break;
 
 	case StdVariable_AsyncScheduler:
@@ -113,7 +108,7 @@ VariableMgr::getStdVariable(StdVariable stdVariable)
 			sl::String(),
 			"jnc.g_asyncScheduler",
 			m_module->m_typeMgr.getStdType(StdType_AbstractClassPtr)
-			);
+		);
 		break;
 
 	default:
@@ -138,8 +133,7 @@ VariableMgr::createVariable(
 	uint_t ptrTypeFlags,
 	sl::BoxList<Token>* constructor,
 	sl::BoxList<Token>* initializer
-	)
-{
+) {
 	Variable* variable = AXL_MEM_NEW(Variable);
 	variable->m_module = m_module;
 	variable->m_name = name;
@@ -163,13 +157,11 @@ VariableMgr::createVariable(
 }
 
 bool
-VariableMgr::allocateNamespaceVariables(const sl::ConstIterator<Variable>& prevIt)
-{
+VariableMgr::allocateNamespaceVariables(const sl::ConstIterator<Variable>& prevIt) {
 	bool result;
 
 	sl::Iterator<Variable> it = prevIt ? (Variable*)prevIt.getNext().p() : m_variableList.getHead();
-	for (; it; it++)
-	{
+	for (; it; it++) {
 		ASSERT(it->m_storageKind == StorageKind_Static || it->m_storageKind == StorageKind_Tls);
 		if (it->m_flags & VariableFlag_Allocated) // already
 			continue;
@@ -183,8 +175,7 @@ VariableMgr::allocateNamespaceVariables(const sl::ConstIterator<Variable>& prevI
 }
 
 bool
-VariableMgr::allocateVariable(Variable* variable)
-{
+VariableMgr::allocateVariable(Variable* variable) {
 	ASSERT(!(variable->m_flags & VariableFlag_Allocated) && !variable->m_llvmValue);
 
 	bool result = variable->m_type->ensureLayout();
@@ -192,22 +183,19 @@ VariableMgr::allocateVariable(Variable* variable)
 		return false;
 
 	bool isClassType = variable->m_type->getTypeKind() == TypeKind_Class;
-	if (isClassType)
-	{
+	if (isClassType) {
 		result = ((ClassType*)variable->m_type)->ensureCreatable();
 		if (!result)
 			return false;
 	}
 
-	if (!m_module->hasCodeGen())
-	{
+	if (!m_module->hasCodeGen()) {
 		variable->m_flags |= VariableFlag_Allocated;
 		return true;
 	}
 
 	Value ptrValue;
-	switch (variable->m_storageKind)
-	{
+	switch (variable->m_storageKind) {
 	case StorageKind_Static:
 		ASSERT(!variable->m_llvmGlobalVariable);
 		variable->m_llvmGlobalVariable = createLlvmGlobalVariable(variable->m_type, variable->m_qualifiedName);
@@ -222,8 +210,7 @@ VariableMgr::allocateVariable(Variable* variable)
 		m_staticVariableArray.append(variable);
 
 		if (variable->m_parentNamespace &&
-			variable->m_parentNamespace->getNamespaceKind() == NamespaceKind_Global)
-		{
+			variable->m_parentNamespace->getNamespaceKind() == NamespaceKind_Global) {
 			if (isClassType)
 				m_globalVariablePrimeArray.append(variable);
 
@@ -268,8 +255,7 @@ VariableMgr::createSimpleStackVariable(
 	const sl::StringRef& name,
 	Type* type,
 	uint_t ptrTypeFlags
-	)
-{
+) {
 	Variable* variable = createVariable(StorageKind_Stack, name, name, type, ptrTypeFlags);
 	bool result = allocateVariable(variable);
 	ASSERT(result);
@@ -283,8 +269,7 @@ VariableMgr::createSimpleStaticVariable(
 	Type* type,
 	const Value& value,
 	uint_t ptrTypeFlags
-	)
-{
+) {
 	ASSERT(type->getTypeKind() != TypeKind_Class);
 
 	Variable* variable = AXL_MEM_NEW(Variable);
@@ -307,23 +292,20 @@ VariableMgr::createSimpleStaticVariable(
 }
 
 bool
-VariableMgr::initializeVariable(Variable* variable)
-{
-	if (variable->m_type->getFlags() & TypeFlag_Dynamic)
-	{
+VariableMgr::initializeVariable(Variable* variable) {
+	if (variable->m_type->getFlags() & TypeFlag_Dynamic) {
 		err::setFormatStringError(
 			"'%s' uses dynamic type '%s'",
 			variable->getQualifiedName().sz(),
 			variable->m_type->getTypeString().sz()
-			);
+		);
 
 		variable->pushSrcPosError();
 		return false;
 	}
 
 	if (m_module->hasCodeGen())
-		switch (variable->m_storageKind)
-		{
+		switch (variable->m_storageKind) {
 		case StorageKind_Static:
 			// only local class statics need to be primed (globals are primed in module constructor,
 			// type/property member static variables are primed in static constructor)
@@ -338,13 +320,10 @@ VariableMgr::initializeVariable(Variable* variable)
 			break;
 
 		case StorageKind_Stack:
-			if (variable->m_type->getFlags() & TypeFlag_GcRoot)
-			{
+			if (variable->m_type->getFlags() & TypeFlag_GcRoot) {
 				m_module->m_operatorMgr.zeroInitialize(variable);
 				m_module->m_gcShadowStackMgr.markGcRoot(variable, variable->m_type);
-			}
-			else if ((variable->m_type->getTypeKindFlags() & TypeKindFlag_Aggregate) || variable->m_initializer.isEmpty())
-			{
+			} else if ((variable->m_type->getTypeKindFlags() & TypeKindFlag_Aggregate) || variable->m_initializer.isEmpty()) {
 				m_module->m_operatorMgr.zeroInitialize(variable);
 			}
 
@@ -360,7 +339,7 @@ VariableMgr::initializeVariable(Variable* variable)
 		variable,
 		variable->m_constructor,
 		variable->m_initializer
-		);
+	);
 
 	if (!result)
 		return false;
@@ -372,8 +351,7 @@ VariableMgr::initializeVariable(Variable* variable)
 }
 
 bool
-VariableMgr::finalizeDisposableVariable(Variable* variable)
-{
+VariableMgr::finalizeDisposableVariable(Variable* variable) {
 	ASSERT(variable->m_scope && (variable->m_scope->getFlags() & ScopeFlag_Disposable));
 
 	bool result;
@@ -399,14 +377,13 @@ VariableMgr::finalizeDisposableVariable(Variable* variable)
 
 	size_t count = variable->m_scope->addDisposableVariable(ptrVariable);
 
-	if (m_module->hasCodeGen())
-	{
+	if (m_module->hasCodeGen()) {
 		Variable* disposeLevelVariable = variable->m_scope->getDisposeLevelVariable();
 
 		m_module->m_llvmIrBuilder.createStore(
 			Value(&count, disposeLevelVariable->m_type),
 			disposeLevelVariable
-			);
+		);
 	}
 
 	return true;
@@ -417,21 +394,17 @@ VariableMgr::createLlvmGlobalVariable(
 	Type* type,
 	const sl::StringRef& name,
 	const Value& initValue
-	)
-{
+) {
 	llvm::Constant* llvmInitConstant = initValue ?
 		(llvm::Constant*)initValue.getLlvmValue() :
 		(llvm::Constant*)type->getZeroValue().getLlvmValue();
 
 	sl::String llvmName;
 
-	if (m_module->getCompileFlags() & ModuleCompileFlag_McJit)
-	{
+	if (m_module->getCompileFlags() & ModuleCompileFlag_McJit) {
 		llvmName = "?"; // as to avoid linking conflicts
 		llvmName += name;
-	}
-	else
-	{
+	} else {
 		llvmName = name;
 	}
 
@@ -442,12 +415,11 @@ VariableMgr::createLlvmGlobalVariable(
 		llvm::GlobalVariable::ExternalLinkage, //InternalLinkage,
 		llvmInitConstant,
 		llvmName >> toLlvm
-		);
+	);
 }
 
 void
-VariableMgr::primeStaticClassVariable(Variable* variable)
-{
+VariableMgr::primeStaticClassVariable(Variable* variable) {
 	ASSERT(variable->m_storageKind == StorageKind_Static && variable->m_type->getTypeKind() == TypeKind_Class);
 
 	Function* primeStaticClass = m_module->m_functionMgr.getStdFunction(StdFunc_PrimeStaticClass);
@@ -457,12 +429,12 @@ VariableMgr::primeStaticClassVariable(Variable* variable)
 		variable->m_llvmGlobalVariable,
 		m_module->m_typeMgr.getStdType(StdType_BoxPtr),
 		&argValueArray[0]
-		);
+	);
 
 	argValueArray[1].createConst(
 		&variable->m_type,
 		m_module->m_typeMgr.getStdType(StdType_BytePtr)
-		);
+	);
 
 	m_module->m_llvmIrBuilder.createCall(
 		primeStaticClass,
@@ -470,11 +442,10 @@ VariableMgr::primeStaticClassVariable(Variable* variable)
 		argValueArray,
 		2,
 		NULL
-		);
+	);
 
 	Function* destructor = ((ClassType*)variable->m_type)->getDestructor();
-	if (destructor)
-	{
+	if (destructor) {
 		Function* addDestructor = m_module->m_functionMgr.getStdFunction(StdFunc_AddStaticClassDestructor);
 
 		Value argValueArray[2];
@@ -486,15 +457,14 @@ VariableMgr::primeStaticClassVariable(Variable* variable)
 }
 
 Variable*
-VariableMgr::createOnceFlagVariable(StorageKind storageKind)
-{
+VariableMgr::createOnceFlagVariable(StorageKind storageKind) {
 	Variable* variable = createVariable(
 		storageKind,
 		sl::String(),
 		"onceFlag",
 		m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32),
 		storageKind == StorageKind_Static ? PtrTypeFlag_Volatile : 0
-		);
+	);
 
 	bool result = allocateVariable(variable);
 	ASSERT(result);
@@ -502,8 +472,7 @@ VariableMgr::createOnceFlagVariable(StorageKind storageKind)
 }
 
 LeanDataPtrValidator*
-VariableMgr::createStaticDataPtrValidator(Variable* variable)
-{
+VariableMgr::createStaticDataPtrValidator(Variable* variable) {
 	ASSERT(variable->m_storageKind == StorageKind_Static);
 
 	// create detached static data box
@@ -520,7 +489,7 @@ VariableMgr::createStaticDataPtrValidator(Variable* variable)
 		llvm::GlobalVariable::InternalLinkage,
 		NULL,
 		boxName >> toLlvm
-		);
+	);
 
 	Value variablePtrValue;
 	Value variableEndPtrValue;
@@ -529,14 +498,14 @@ VariableMgr::createStaticDataPtrValidator(Variable* variable)
 		variable,
 		m_module->m_typeMgr.getStdType(StdType_BytePtr),
 		&variablePtrValue
-		);
+	);
 
 	m_module->m_llvmIrBuilder.createGep(
 		variablePtrValue,
 		variable->m_type->getSize(),
 		m_module->m_typeMgr.getStdType(StdType_BytePtr),
 		&variableEndPtrValue
-		);
+	);
 
 	ASSERT(llvm::isa<llvm::Constant> (variablePtrValue.getLlvmValue()));
 	ASSERT(llvm::isa<llvm::Constant> (variableEndPtrValue.getLlvmValue()));
@@ -550,7 +519,7 @@ VariableMgr::createStaticDataPtrValidator(Variable* variable)
 		llvmBoxVariable,
 		m_module->m_typeMgr.getStdType(StdType_BoxPtr),
 		&boxPtrValue
-		);
+	);
 
 	ASSERT(llvm::isa<llvm::Constant> (boxPtrValue.getLlvmValue()));
 
@@ -562,7 +531,7 @@ VariableMgr::createStaticDataPtrValidator(Variable* variable)
 	llvm::Constant* llvmValidatorConst = llvm::ConstantStruct::get(
 		(llvm::StructType*)validatorType->getLlvmType(),
 		llvm::ArrayRef<llvm::Constant*> (llvmMemberArray, 4)
-		);
+	);
 
 	// box initializer
 
@@ -576,7 +545,7 @@ VariableMgr::createStaticDataPtrValidator(Variable* variable)
 	llvm::Constant* llvmBoxConst = llvm::ConstantStruct::get(
 		(llvm::StructType*)boxType->getLlvmType(),
 		llvm::ArrayRef<llvm::Constant*> (llvmMemberArray, 4)
-		);
+	);
 
 	llvmBoxVariable->setInitializer(llvmBoxConst);
 
@@ -586,7 +555,7 @@ VariableMgr::createStaticDataPtrValidator(Variable* variable)
 		2,
 		m_module->m_typeMgr.getStdType(StdType_DataPtrValidatorPtr),
 		&validatorPtrValue
-		);
+	);
 
 	LeanDataPtrValidator* validator = variable->getLeanDataPtrValidator();
 	validator->m_validatorValue = validatorPtrValue;
@@ -594,20 +563,16 @@ VariableMgr::createStaticDataPtrValidator(Variable* variable)
 }
 
 bool
-VariableMgr::allocateHeapVariable(Variable* variable)
-{
+VariableMgr::allocateHeapVariable(Variable* variable) {
 	Value ptrValue;
 
 	bool result = m_module->m_operatorMgr.gcHeapAllocate(variable->m_type, &ptrValue);
 	if (!result)
 		return false;
 
-	if (variable->m_type->getTypeKind() == TypeKind_Class)
-	{
+	if (variable->m_type->getTypeKind() == TypeKind_Class) {
 		variable->m_llvmValue = ptrValue.getLlvmValue();
-	}
-	else
-	{
+	} else {
 		Value variableValue;
 		Value validatorValue;
 
@@ -625,8 +590,7 @@ VariableMgr::allocateHeapVariable(Variable* variable)
 }
 
 void
-VariableMgr::liftStackVariable(Variable* variable)
-{
+VariableMgr::liftStackVariable(Variable* variable) {
 	ASSERT(variable->m_storageKind == StorageKind_Stack);
 	ASSERT(llvm::isa<llvm::AllocaInst>(variable->m_llvmValue));
 	ASSERT(variable->m_liftInsertPoint);
@@ -638,7 +602,7 @@ VariableMgr::liftStackVariable(Variable* variable)
 	bool isInsertPointChanged = m_module->m_llvmIrBuilder.restoreInsertPoint(
 		variable->m_liftInsertPoint,
 		&prevInsertPoint
-		);
+	);
 
 	m_currentLiftedStackVariable = variable;
 	bool result = allocateHeapVariable(variable);
@@ -652,13 +616,10 @@ VariableMgr::liftStackVariable(Variable* variable)
 }
 
 void
-VariableMgr::finalizeFunction()
-{
-	if (m_module->hasCodeGen())
-	{
+VariableMgr::finalizeFunction() {
+	if (m_module->hasCodeGen()) {
 		size_t count = m_liftedStackVariableArray.getCount();
-		for (size_t i = 0; i < count; i++)
-		{
+		for (size_t i = 0; i < count; i++) {
 			Variable* variable = m_liftedStackVariableArray[i];
 			ASSERT(variable->m_llvmPreLiftValue);
 			variable->m_llvmPreLiftValue->replaceAllUsesWith(variable->m_llvmValue);
@@ -675,21 +636,19 @@ Variable*
 VariableMgr::createArgVariable(
 	FunctionArg* arg,
 	size_t argIdx
-	)
-{
+) {
 	Variable* variable = createSimpleStackVariable(
 		arg->getName(),
 		arg->getType(),
 		arg->getPtrTypeFlags()
-		);
+	);
 
 	variable->m_parentUnit = arg->getParentUnit();
 	variable->m_pos = arg->getPos();
 	variable->m_flags |= ModuleItemFlag_User | VariableFlag_Arg;
 
 	if ((m_module->getCompileFlags() & ModuleCompileFlag_DebugInfo) &&
-		(variable->getFlags() & ModuleItemFlag_User))
-	{
+		(variable->getFlags() & ModuleItemFlag_User)) {
 		variable->m_llvmDiDescriptor = m_module->m_llvmDiBuilder.createParameterVariable(variable, argIdx);
 		m_module->m_llvmDiBuilder.createDeclare(variable);
 	}
@@ -708,8 +667,7 @@ VariableMgr::createAsyncArgVariable(
 	const sl::StringRef& name,
 	Type* type,
 	const Value& value
-	)
-{
+) {
 	ASSERT(value.getLlvmValue());
 	Variable* variable = createVariable(StorageKind_Member, name, name, type);
 	variable->m_flags |= ModuleItemFlag_User | VariableFlag_Arg;
@@ -718,22 +676,19 @@ VariableMgr::createAsyncArgVariable(
 }
 
 bool
-VariableMgr::createTlsStructType()
-{
+VariableMgr::createTlsStructType() {
 	bool result;
 
 	StructType* type = m_module->m_typeMgr.createInternalStructType("jnc.Tls");
 
 	size_t count = m_tlsVariableArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		Variable* variable = m_tlsVariableArray[i];
 		result = variable->m_type->ensureLayout();
 		if (!result)
 			return false;
 
-		if (variable->m_type->getTypeKindFlags() & TypeKindFlag_Aggregate)
-		{
+		if (variable->m_type->getTypeKindFlags() & TypeKindFlag_Aggregate) {
 			err::setFormatStringError("'threadlocal' variables cannot have aggregate type '%s'",  variable->m_type->getTypeString().sz());
 			return false;
 		}
@@ -750,11 +705,9 @@ VariableMgr::createTlsStructType()
 }
 
 void
-VariableMgr::primeGlobalVariables()
-{
+VariableMgr::primeGlobalVariables() {
 	size_t count = m_globalVariablePrimeArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		Variable* variable = m_globalVariablePrimeArray[i];
 		ASSERT(variable->m_storageKind == StorageKind_Static && variable->m_type->getTypeKind() == TypeKind_Class);
 
@@ -765,13 +718,11 @@ VariableMgr::primeGlobalVariables()
 }
 
 bool
-VariableMgr::initializeGlobalVariables()
-{
+VariableMgr::initializeGlobalVariables() {
 	bool result;
 
 	size_t count = m_globalVariableInitializeArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		Variable* variable = m_globalVariableInitializeArray[i];
 		ASSERT(variable->m_storageKind == StorageKind_Static);
 

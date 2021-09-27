@@ -19,8 +19,7 @@ namespace ct {
 
 //..............................................................................
 
-Variable::Variable()
-{
+Variable::Variable() {
 	m_itemKind = ModuleItemKind_Variable;
 	m_type = NULL;
 	m_ptrTypeFlags = 0;
@@ -34,8 +33,7 @@ Variable::Variable()
 }
 
 void
-Variable::prepareLlvmValue()
-{
+Variable::prepareLlvmValue() {
 	ASSERT(!m_llvmValue && m_storageKind == StorageKind_Tls);
 
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
@@ -48,15 +46,14 @@ Variable::prepareLlvmValue()
 		getQualifiedName(),
 		NULL,
 		&ptrValue
-		);
+	);
 
 	m_module->m_controlFlowMgr.setCurrentBlock(prevBlock);
 	function->addTlsVariable(this);
 }
 
 void
-Variable::prepareLeanDataPtrValidator()
-{
+Variable::prepareLeanDataPtrValidator() {
 	ASSERT(!m_leanDataPtrValidator);
 
 	Value originValue(this);
@@ -67,16 +64,14 @@ Variable::prepareLeanDataPtrValidator()
 }
 
 void
-Variable::prepareStaticData()
-{
+Variable::prepareStaticData() {
 	ASSERT(!m_staticData && m_storageKind == StorageKind_Static);
 
 	llvm::GlobalVariable* llvmGlobalVariable = !m_llvmGlobalVariableName.isEmpty() ?
 		m_module->getLlvmModule()->getGlobalVariable(m_llvmGlobalVariableName >> toLlvm) :
 		m_llvmGlobalVariable;
 
-	if (!llvmGlobalVariable) // optimized out
-	{
+	if (!llvmGlobalVariable) { // optimized out
 		Value value((void*) NULL, m_type);
 		m_module->m_constMgr.saveValue(value);
 		m_staticData = value.getConstData();
@@ -95,8 +90,7 @@ Variable::generateDocumentation(
 	const sl::StringRef& outputDir,
 	sl::String* itemXml,
 	sl::String* indexXml
-	)
-{
+) {
 	bool result = m_type->ensureNoImports();
 	if (!result)
 		return false;

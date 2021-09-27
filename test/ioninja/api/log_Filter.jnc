@@ -10,34 +10,28 @@ namespace log {
 
 //..............................................................................
 
-class Filter
-{
+class Filter {
 	abstract bool filter(
 		uint64_t timestamp,
 		uint64_t recordCode,
 		void const* p,
 		size_t size
-		);
+	);
 
-	virtual void reset()
-	{
-	}
+	virtual void reset() {}
 }
 
 //..............................................................................
 
-class FoldingFilter
-{
+class FoldingFilter {
 	abstract uint8_t filter(
 		uint64_t timestamp,
 		uint64_t recordCode,
 		void const* p,
 		size_t size
-		);
+	);
 
-	virtual void reset()
-	{
-	}
+	virtual void reset() {}
 }
 
 //..............................................................................

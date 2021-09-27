@@ -27,7 +27,7 @@ JNC_DEFINE_LIB(
 	g_myLibGuid,
 	"MyLib",
 	"Sample extension library"
-	)
+)
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE(MyLib)
 JNC_END_LIB_SOURCE_FILE_TABLE()

@@ -11,8 +11,7 @@
 
 // NetBios Name Service
 
-enum NbnsOpcode
-{
+enum NbnsOpcode {
 	Query        = 0,
 	Registration = 5,
 	Release      = 6,
@@ -20,8 +19,7 @@ enum NbnsOpcode
 	Refresh      = 8,
 }
 
-bitflag enum NbnsFlags
-{
+bitflag enum NbnsFlags {
 	Broadcast           = 0x01,
 	RecursionAvilable   = 0x08,
 	RecursionDesired    = 0x10,
@@ -29,8 +27,7 @@ bitflag enum NbnsFlags
 	AuthoritativeAnswer = 0x40,
 }
 
-struct NbnsHdr
-{
+struct NbnsHdr {
 	bigendian uint16_t m_transactionId;
 	bigendian uint16_t m_isResponse : 1;
 	bigendian uint16_t m_opcode     : 4;
@@ -42,19 +39,16 @@ struct NbnsHdr
 	bigendian uint16_t m_additionalRecordCount;
 }
 
-enum NbnsQuestionType
-{
+enum NbnsQuestionType {
 	General    = 0x0020,
 	NodeStatus = 0x0021,
 }
 
-enum NbnsQuestionClass
-{
+enum NbnsQuestionClass {
 	Internet = 0x0001,
 }
 
-struct NbnsQuestion
-{
+struct NbnsQuestion {
 	uint8_t m_nameLength; // 32 (0x20)
 	char m_name[32];
 	char m_null;
@@ -66,13 +60,11 @@ struct NbnsQuestion
 void encodeNetBiosName(
 	char* buffer,
 	const char* name
-	)
-{
+) {
 	size_t i = 0;
 	size_t j = 0;
 
-	for (; i < 16; i++)
-	{
+	for (; i < 16; i++) {
 		uchar_t c = name[i];
 		if (!c)
 			break;
@@ -81,21 +73,18 @@ void encodeNetBiosName(
 		buffer[j++] = 'A' + (c & 0x0f);
 	}
 
-	while (j < 32)
-	{
+	while (j < 32) {
 		buffer[j++] = 'A' + (' ' >> 4);
 		buffer[j++] = 'A' + (' ' & 0x0f);
 	}
 }
 
-struct NbnsNameQueryReq
-{
+struct NbnsNameQueryReq {
 	NbnsHdr m_hdr;
 	NbnsQuestion m_question;
 
 	[ packetTemplateAction ]
-	void initialize(char const* name)
-	{
+	void initialize(char const* name) {
 		m_hdr = null;
 		m_hdr.m_isResponse = true;
 		m_hdr.m_flags = NbnsFlags.Broadcast | NbnsFlags.RecursionDesired;
@@ -111,8 +100,7 @@ struct NbnsNameQueryReq
 
 //..............................................................................
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 	return 0;
 }

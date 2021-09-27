@@ -7,15 +7,14 @@ import "log_MonitorFilter.jnc"
 
 //..............................................................................
 
-class PipeMonLogFilter: log.MonitorFilter
-{
+class PipeMonLogFilter: log.MonitorFilter {
 public:
 	override bool filter(
 		uint64_t timestamp,
 		uint64_t recordCode,
 		void const* p,
 		size_t size
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -25,12 +24,10 @@ bool PipeMonLogFilter.filter(
 	uint64_t recordCode,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	bool result = false;
 
-	switch (recordCode)
-	{
+	switch (recordCode) {
 	case PipeMonLogRecordCode.ServerFileOpened_0:
 	case PipeMonLogRecordCode.ClientFileOpened_0:
 		m_fileId = *(uint32_t const*)p;

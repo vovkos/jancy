@@ -23,8 +23,7 @@ class Type;
 class FunctionArg:
 	public ModuleItem,
 	public ModuleItemDecl,
-	public ModuleItemInitializer
-{
+	public ModuleItemInitializer {
 	friend class TypeMgr;
 	friend class Function;
 	friend class ClassType;
@@ -38,14 +37,12 @@ public:
 	FunctionArg();
 
 	Type*
-	getType()
-	{
+	getType() {
 		return m_type;
 	}
 
 	uint_t
-	getPtrTypeFlags()
-	{
+	getPtrTypeFlags() {
 		return m_ptrTypeFlags;
 	}
 
@@ -58,8 +55,7 @@ public:
 
 //..............................................................................
 
-struct FunctionArgTuple: sl::ListLink
-{
+struct FunctionArgTuple: sl::ListLink {
 	FunctionArg* m_argArray[2][2][2]; // this x const x volatile
 };
 

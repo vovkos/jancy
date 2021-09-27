@@ -26,8 +26,7 @@ bufferUntil(
 	size_t targetSize,
 	const void* p,
 	size_t size
-	)
-{
+) {
 	size_t bufferSize = buffer->getCount();
 	ASSERT(bufferSize < targetSize);
 
@@ -45,8 +44,7 @@ void
 mask(
 	sl::Array<char>* buffer,
 	uint32_t key
-	)
-{
+) {
 	size_t size = buffer->getCount();
 	buffer->reserve(sl::align<4>(size));
 	mask(buffer->p(), size, key);
@@ -55,8 +53,7 @@ mask(
 //..............................................................................
 
 void
-WebSocketFrameParser::reset()
-{
+WebSocketFrameParser::reset() {
 	m_state = State_Header;
 	m_buffer.clear();
 }
@@ -65,15 +62,12 @@ size_t
 WebSocketFrameParser::parse(
 	const void* p0,
 	size_t size
-	)
-{
+) {
 	const char* p = (char*)p0;
 	const char* end = p + size;
 
-	while (p < end && m_state != State_Completed)
-	{
-		switch (m_state)
-		{
+	while (p < end && m_state != State_Completed) {
+		switch (m_state) {
 		case State_Header:
 			p += bufferUntil(&m_buffer, sizeof(WebSocketFrameHdr), p, end - p);
 			if (m_buffer.getCount() < sizeof(WebSocketFrameHdr))
@@ -82,8 +76,7 @@ WebSocketFrameParser::parse(
 			m_frame->clear();
 			*(WebSocketFrameHdr*)m_frame = *(WebSocketFrameHdr*)m_buffer.cp();
 
-			switch (m_frame->m_opcode)
-			{
+			switch (m_frame->m_opcode) {
 			case WebSocketFrameOpcode_Continuation:
 			case WebSocketFrameOpcode_Text:
 			case WebSocketFrameOpcode_Binary:
@@ -101,8 +94,7 @@ WebSocketFrameParser::parse(
 				return err::fail<size_t>(-1, "unknown frame opcode");
 			}
 
-			switch (m_frame->m_lengthCode)
-			{
+			switch (m_frame->m_lengthCode) {
 			case 126:
 				m_state = State_PayloadLength16;
 				break;

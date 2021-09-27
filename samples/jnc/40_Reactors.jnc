@@ -33,8 +33,7 @@ void updatePurple(
 	int red,
 	int blue,
 	int alpha
-	)
-{
+) {
 	printf("updatePurple (%x, %x, %x)\n", red, blue, alpha);
 }
 
@@ -42,8 +41,7 @@ void updateYellow(
 	int red,
 	int green,
 	int alpha
-	)
-{
+) {
 	printf("updateYellow (%x, %x, %x)\n", red, green, alpha);
 }
 
@@ -51,8 +49,7 @@ void updateCyan(
 	int green,
 	int blue,
 	int alpha
-	)
-{
+) {
 	printf("updateCyan (%x, %x, %x)\n", green, blue, alpha);
 }
 
@@ -81,8 +78,7 @@ int g_rgb;
 // if the required logic cannot be expressed by a simple expression, the
 // 'onevent' statement can be used (see the next sample)
 
-reactor g_colorReactor
-{
+reactor g_colorReactor {
 	updatePurple(g_red, g_blue, g_alpha);
 	updateYellow(g_red, g_green, g_alpha);
 	updateCyan(g_green, g_blue, g_alpha);
@@ -94,8 +90,7 @@ reactor g_colorReactor
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	// starting the reactor executes all expressions in this reactor block one

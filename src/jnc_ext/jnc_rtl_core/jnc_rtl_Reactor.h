@@ -21,26 +21,22 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(ReactorImpl)
 
 //..............................................................................
 
-class ReactorImpl: public Reactor
-{
+class ReactorImpl: public Reactor {
 protected:
-	enum State
-	{
+	enum State {
 		State_Stopped,
 		State_Running,
 		State_Reacting,
 	};
 
-	struct Binding: sl::ListLink
-	{
+	struct Binding: sl::ListLink {
 		Multicast* m_multicast;
 		handle_t m_handler;
 		sl::HashTableIterator<Multicast*, Binding*> m_bindingMapIt;
 		sl::BitMap m_reactionMap;
 	};
 
-	struct Reaction
-	{
+	struct Reaction {
 		size_t m_activationCount;
 		sl::Array<Binding*> m_bindingArray;
 	};
@@ -50,7 +46,7 @@ protected:
 	ReactionFunc(
 		Reactor* reactor,
 		size_t index
-		);
+	);
 
 protected:
 	State m_state;
@@ -64,8 +60,7 @@ protected:
 public:
 	ReactorImpl();
 
-	~ReactorImpl()
-	{
+	~ReactorImpl() {
 		stop();
 	}
 
@@ -79,32 +74,28 @@ public:
 
 	void
 	JNC_CDECL
-	restart()
-	{
+	restart() {
 		stop();
 		start();
 	}
 
 	void
 	JNC_CDECL
-	addOnChangedBinding(Multicast* multicast)
-	{
+	addOnChangedBinding(Multicast* multicast) {
 		ASSERT(m_state == State_Reacting);
 		m_pendingOnChangedBindingArray.append(multicast);
 	}
 
 	void
 	JNC_CDECL
-	addOnEventBinding(Multicast* multicast)
-	{
+	addOnEventBinding(Multicast* multicast) {
 		ASSERT(m_state == State_Reacting);
 		m_pendingOnEventBindingArray.append(multicast);
 	}
 
 	void
 	JNC_CDECL
-	resetOnChangedBindings()
-	{
+	resetOnChangedBindings() {
 		ASSERT(m_state == State_Reacting);
 		m_pendingOnChangedBindingArray.clear();
 	}
@@ -118,8 +109,7 @@ protected:
 
 	static
 	void
-	onChangedThunk(ReactorClosure* closure)
-	{
+	onChangedThunk(ReactorClosure* closure) {
 		((ReactorImpl*)closure->m_self)->onChanged((Binding*)closure->m_binding);
 	}
 
@@ -130,7 +120,7 @@ protected:
 	subscribe(
 		Multicast* multicast,
 		FunctionPtr functionPtr
-		);
+	);
 };
 
 //..............................................................................

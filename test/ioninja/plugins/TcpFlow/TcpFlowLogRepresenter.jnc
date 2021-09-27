@@ -16,10 +16,8 @@ bool representTcpFlowLog(
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
-	switch (recordCode)
-	{
+) {
+	switch (recordCode) {
 	case TcpFlowLogRecordCode.Connecting:
 		char const* srcAddressString = ((io.SocketAddress const*) p).getString();
 		char const* dstAddressString = ((io.SocketAddress const*) p + 1).getString();
@@ -43,7 +41,7 @@ bool representTcpFlowLog(
 		representation.addHyperText(
 			$"Picked up connection between \e[34m$(clientAddress.getString())\e[m and "
 			$"\e[34m$(serverAddress.getString())"
-			);
+		);
 		break;
 
 	case TcpFlowLogRecordCode.Disconnected_old:
@@ -62,7 +60,7 @@ bool representTcpFlowLog(
 		representation.addHyperText(
 			$"Connection between \e[34m$(clientAddress.getString())\e[m and "
 			$"\e[34m$(serverAddress.getString())\e[m:"
-			);
+		);
 		break;
 
 	case TcpFlowLogRecordCode.Disconnected:
@@ -76,7 +74,7 @@ bool representTcpFlowLog(
 		representation.addHyperText(
 			$"Disconnected from \e[34m$(remoteAddress.getString())\e[m "
 			$"($closeKindString by \e[34m$(localAddress.getString())\e[m)"
-			);
+		);
 		break;
 
 	case TcpFlowLogRecordCode.OutOfOrderDataDropped:

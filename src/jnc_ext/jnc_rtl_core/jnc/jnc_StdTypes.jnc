@@ -19,8 +19,7 @@ namespace jnci {
 
 ///; static char fmtLiteralSrc[] =
 
-struct FmtLiteral
-{
+struct FmtLiteral {
 	char const* m_p;
 	unsigned intptr m_length;
 	unsigned intptr m_maxLength;
@@ -30,8 +29,7 @@ struct FmtLiteral
 
 ///; static char int64Int64Src[] =
 
-struct Int64Int64
-{
+struct Int64Int64 {
 	long m_a;
 	long m_b;
 }
@@ -40,8 +38,7 @@ struct Int64Int64
 
 ///; static char fp64Fp64Src[] =
 
-struct Fp64Fp64
-{
+struct Fp64Fp64 {
 	double m_a;
 	double m_b;
 }
@@ -50,8 +47,7 @@ struct Fp64Fp64
 
 ///; static char int64Fp64Src[] =
 
-struct Int64Fp64
-{
+struct Int64Fp64 {
 	long m_a;
 	double m_b;
 }
@@ -60,8 +56,7 @@ struct Int64Fp64
 
 ///; static char fp64Int64Src[] =
 
-struct Fp64Int64
-{
+struct Fp64Int64 {
 	double m_a;
 	long m_b;
 }
@@ -72,8 +67,7 @@ struct Fp64Int64
 
 ///; static char dynamicLayoutSrc[] =
 
-opaque class DynamicLayout
-{
+opaque class DynamicLayout {
 	destruct();
 }
 

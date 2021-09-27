@@ -4,29 +4,25 @@ void onStateChanged(
 	io.SslSocket* socket,
 	io.SslSocketState state,
 	int alertInfo
-	)
-{
+) {
 	if (alertInfo > 0)
 		printf("SSL state: 0x%x, alert: %d, info: %s\n", state, alertInfo, socket.m_stateStringLong);
 }
 
-void printCertName(io.SslCertName const* name)
-{
+void printCertName(io.SslCertName const* name) {
 	size_t count = name.m_entryCount;
-	for (int i = 0; i < count; i++)
-	{
+	for (int i = 0; i < count; i++) {
 		io.SslCertNameEntry const* entry = name.m_entryTable[i];
 		printf(
 			"    %3d: %s: %s\n",
 			entry.m_nid,
 			entry.m_name,
 			entry.m_value
-			);
+		);
 	}
 }
 
-void printCertificate(io.SslCertificate const* cert)
-{
+void printCertificate(io.SslCertificate const* cert) {
 	printf("%s", cert.encode()); // print PEM first
 	printf("  serial: %s\n", cert.m_serialNumber);
 	printf("  valid from: %s\n", sys.formatTimestamp(cert.m_validFromDate, "%Y-%M-%D"));
@@ -39,8 +35,7 @@ void printCertificate(io.SslCertificate const* cert)
 	printCertName(cert.m_issuer);
 }
 
-int main()
-{
+int main() {
 	io.SocketAddress addr;
 	addr.m_family = io.AddressFamily.Ip4;
 	addr.m_port = 8443;
@@ -55,10 +50,9 @@ int main()
 	sslServer.blockingWait(
 		io.SslSocketEvents.IncomingConnection |
 		io.SslSocketEvents.IoError
-		);
+	);
 
-	if (sslServer.m_activeEvents & io.SslSocketEvents.IoError)
-	{
+	if (sslServer.m_activeEvents & io.SslSocketEvents.IoError) {
 		printf("error: %s\n", sslServer.m_ioError.m_description);
 		return -1;
 	}
@@ -77,17 +71,15 @@ int main()
 		io.SslSocketEvents.SslHandshakeCompleted |
 		io.SslSocketEvents.TcpDisconnected |
 		io.SslSocketEvents.IoError
-		);
+	);
 
-	if (ssl.m_activeEvents & io.SslSocketEvents.IoError)
-	{
+	if (ssl.m_activeEvents & io.SslSocketEvents.IoError) {
 		printf("error: %s\n", ssl.m_ioError.m_description);
 		return -1;
 	}
 
 	size_t count = ssl.m_peerCertificateChainLength;
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		printf("certificate[%d]:\n", i);
 		printCertificate(ssl.m_peerCertificateChain[i]);
 	}
@@ -99,14 +91,13 @@ int main()
 
 	char buffer[256];
 
-	for (;;)
-	{
+	for (;;) {
 		ssl.blockingWait(
 			io.SslSocketEvents.IncomingData |
 			io.SslSocketEvents.TcpDisconnected |
 			io.SslSocketEvents.IoError,
 			3000 // in case a server ignores Connection: close
-			);
+		);
 
 		size_t size = ssl.read(buffer, sizeof(buffer) - 1);
 		if (!size)

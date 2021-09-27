@@ -19,8 +19,7 @@ namespace jnc {
 opaque class Variable:
 	ModuleItem,
 	ModuleItemDecl,
-	ModuleItemInitializer
-{
+	ModuleItemInitializer {
 	Type* const property m_type;
 	PtrTypeFlags const property m_ptrTypeFlags;
 
@@ -31,8 +30,7 @@ opaque class Variable:
 
 opaque class Const:
 	ModuleItem,
-	ModuleItemDecl
-{
+	ModuleItemDecl {
 	variant const property m_value;
 
 	construct(intptr p);

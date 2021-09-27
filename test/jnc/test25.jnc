@@ -9,29 +9,24 @@
 //
 //..............................................................................
 
-class OpaqueTest
-{
+class OpaqueTest {
 	construct(
 		int x,
 		int y
-		)
-	{
+	) {
 		printf("OpaqueTest.construct (%d, %d)\n", x, y);
 	}
 
-	void foo()
-	{
+	void foo() {
 		printf("OpaqueTest.foo ()\n");
 	}
 
-	void bar()
-	{
+	void bar() {
 		printf("OpaqueTest.bar ()\n");
 	}
 }
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	OpaqueTest* p = new OpaqueTest(100, 200);

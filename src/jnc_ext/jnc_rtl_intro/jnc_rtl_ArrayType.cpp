@@ -25,7 +25,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	ArrayType,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(ArrayType)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<ArrayType, ct::ArrayType*>))

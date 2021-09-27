@@ -18,13 +18,13 @@ file(
 	INC_H_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	include/*.h
-	)
+)
 
 source_group(
 	include
 	FILES
 	${INC_H_LIST}
-	)
+)
 
 #...............................................................................
 #
@@ -36,21 +36,21 @@ file(
 	CALLCONV_H_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_CallConv/*.h
-	)
+)
 
 file(
 	GLOB
 	CALLCONV_CPP_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_CallConv/*.cpp
-	)
+)
 
 source_group(
 	jnc_ct_CallConv
 	FILES
 	${CALLCONV_H_LIST}
 	${CALLCONV_CPP_LIST}
-	)
+)
 
 #...............................................................................
 #
@@ -62,21 +62,21 @@ file(
 	CONTROLFLOWMGR_H_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_ControlFlowMgr/*.h
-	)
+)
 
 file(
 	GLOB
 	CONTROLFLOWMGR_CPP_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_ControlFlowMgr/*.cpp
-	)
+)
 
 source_group(
 	jnc_ct_ControlFlowMgr
 	FILES
 	${CONTROLFLOWMGR_H_LIST}
 	${CONTROLFLOWMGR_CPP_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -88,21 +88,21 @@ file(
 	FUNCTIONMGR_H_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_FunctionMgr/*.h
-	)
+)
 
 file(
 	GLOB
 	FUNCTIONMGR_CPP_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_FunctionMgr/*.cpp
-	)
+)
 
 source_group(
 	jnc_ct_FunctionMgr
 	FILES
 	${FUNCTIONMGR_H_LIST}
 	${FUNCTIONMGR_CPP_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -114,21 +114,21 @@ file(
 	NAMESPACEMGR_H_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_NamespaceMgr/*.h
-	)
+)
 
 file(
 	GLOB
 	NAMESPACEMGR_CPP_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_NamespaceMgr/*.cpp
-	)
+)
 
 source_group(
 	jnc_ct_NamespaceMgr
 	FILES
 	${NAMESPACEMGR_H_LIST}
 	${NAMESPACEMGR_CPP_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -140,21 +140,21 @@ file(
 	OPERATORMGR_H_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_OperatorMgr/*.h
-	)
+)
 
 file(
 	GLOB
 	OPERATORMGR_CPP_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_OperatorMgr/*.cpp
-	)
+)
 
 source_group(
 	jnc_ct_OperatorMgr
 	FILES
 	${OPERATORMGR_H_LIST}
 	${OPERATORMGR_CPP_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -166,21 +166,21 @@ file(
 	TYPEMGR_H_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_TypeMgr/*.h
-	)
+)
 
 file(
 	GLOB
 	TYPEMGR_CPP_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_TypeMgr/*.cpp
-	)
+)
 
 source_group(
 	jnc_ct_TypeMgr
 	FILES
 	${TYPEMGR_H_LIST}
 	${TYPEMGR_CPP_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -192,21 +192,21 @@ file(
 	VARIABLEMGR_H_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_VariableMgr/*.h
-	)
+)
 
 file(
 	GLOB
 	VARIABLEMGR_CPP_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_VariableMgr/*.cpp
-	)
+)
 
 source_group(
 	jnc_ct_VariableMgr
 	FILES
 	${VARIABLEMGR_H_LIST}
 	${VARIABLEMGR_CPP_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -218,21 +218,21 @@ file(
 	VALUE_H_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_Value/*.h
-	)
+)
 
 file(
 	GLOB
 	VALUE_CPP_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_Value/*.cpp
-	)
+)
 
 source_group(
 	jnc_ct_Value
 	FILES
 	${VALUE_H_LIST}
 	${VALUE_CPP_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -244,21 +244,21 @@ file(
 	MODULE_H_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_Module/*.h
-	)
+)
 
 file(
 	GLOB
 	MODULE_CPP_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_Module/*.cpp
-	)
+)
 
 source_group(
 	jnc_ct_Module
 	FILES
 	${MODULE_H_LIST}
 	${MODULE_CPP_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -270,28 +270,28 @@ file(
 	PARSER_H_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_Parser/*.h
-	)
+)
 
 file(
 	GLOB
 	PARSER_CPP_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_Parser/*.cpp
-	)
+)
 
 file(
 	GLOB
 	PARSER_RL_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_Parser/*.rl
-	)
+)
 
 file(
 	GLOB
 	PARSER_LLK_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_Parser/*.llk
-	)
+)
 
 source_group(
 	jnc_ct_Parser
@@ -300,7 +300,7 @@ source_group(
 	${PARSER_CPP_LIST}
 	${PARSER_RL_LIST}
 	${PARSER_LLK_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -311,13 +311,13 @@ set(
 	PERL_PL_LIST
 	${JNC2CPP_PL}
 	${FILE2LITERAL_PL}
-	)
+)
 
 source_group(
 	perl
 	FILES
 	${PERL_PL_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -334,20 +334,20 @@ set(
 	${RTL_CORE_JNC_DIR}/jnc_Promise.jnc
 	${RTL_CORE_JNC_DIR}/jnc_Regex.jnc
 	${RTL_CORE_JNC_DIR}/jnc_Scheduler.jnc
-	)
+)
 
 set(
 	RTL_CORE_LEGACY_JNC_LIST
 	${RTL_CORE_JNC_DIR}/jnc_StdTypes.jnc
 	${RTL_CORE_JNC_DIR}/jnc_StdFunctions.jnc
-	)
+)
 
 source_group(
 	jnc_rtl_core_jnc
 	FILES
 	${RTL_CORE_JNC_LIST}
 	${RTL_CORE_LEGACY_JNC_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -380,13 +380,13 @@ set(
 	${RTL_INTRO_JNC_DIR}/jnc_Type.jnc
 	${RTL_INTRO_JNC_DIR}/jnc_UnionType.jnc
 	${RTL_INTRO_JNC_DIR}/jnc_Variable.jnc
-	)
+)
 
 source_group(
 	jnc_rtl_intro_jnc
 	FILES
 	${RTL_INTRO_JNC_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -407,7 +407,7 @@ foreach(_JNC ${RTL_CORE_LEGACY_JNC_LIST})
 		${_NAME}.cpp
 		${_JNC}
 		${JNC2CPP_PL}
-		)
+	)
 
 	list(APPEND GEN_JNC_CPP_LIST ${GEN_DIR}/${_NAME}.cpp)
 endforeach()
@@ -419,7 +419,7 @@ foreach(_JNC ${RTL_CORE_JNC_LIST} ${RTL_INTRO_JNC_LIST})
 		${_NAME}.cpp
 		${_JNC}
 		${FILE2LITERAL_PL}
-		)
+	)
 
 	list(APPEND GEN_JNC_CPP_LIST ${GEN_DIR}/${_NAME}.cpp)
 endforeach()
@@ -427,7 +427,7 @@ endforeach()
 add_ragel_step(
 	jnc_ct_Lexer.rl.cpp
 	jnc_ct_Parser/jnc_ct_Lexer.rl
-	)
+)
 
 add_graco_double_step(
 	jnc_ct_Parser.llk.h
@@ -443,24 +443,24 @@ add_graco_double_step(
 	jnc_ct_Parser/jnc_ct_NamedTypeSpecifier.llk
 	jnc_ct_Parser/jnc_ct_Reactor.llk
 	jnc_ct_Parser/jnc_ct_Stmt.llk
-	)
+)
 
 axl_pop(CMAKE_CURRENT_BINARY_DIR)
 
 set(
 	GEN_RL_CPP_LIST
 	${GEN_DIR}/jnc_ct_Lexer.rl.cpp
-	)
+)
 
 set(
 	GEN_LLK_H_LIST
 	${GEN_DIR}/jnc_ct_Parser.llk.h
-	)
+)
 
 set(
 	GEN_LLK_CPP_LIST
 	${GEN_DIR}/jnc_ct_Parser.llk.cpp
-	)
+)
 
 axl_exclude_from_build(${GEN_JNC_CPP_LIST}) # include "*.jnc.cpp" manually
 axl_exclude_from_build(${GEN_RL_CPP_LIST})  # include "*.rl.cpp" manually
@@ -473,7 +473,7 @@ source_group(
 	${GEN_RL_CPP_LIST}
 	${GEN_LLK_H_LIST}
 	${GEN_LLK_CPP_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -488,7 +488,7 @@ source_group(
 	FILES
 	${PCH_H}
 	${PCH_CPP}
-	)
+)
 
 #...............................................................................
 #
@@ -505,7 +505,7 @@ include_directories(
 	${JANCY_SRC_DIR}/jnc_ct/include
 	${JANCY_SRC_DIR}/jnc_ext/jnc_rtl_core
 	${GEN_DIR}
-	)
+)
 
 add_library(
 	jnc_ct
@@ -541,19 +541,19 @@ add_library(
 	${GEN_RL_CPP_LIST}
 	${GEN_LLK_H_LIST}
 	# ${GEN_LLK_CPP_LIST} # currently, cmake can't handle double-file output
-	)
+)
 
 axl_set_pch(
 	jnc_ct
 	${PCH_H}
 	${PCH_CPP}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 install(
 	TARGETS jnc_ct
 	DESTINATION ${JANCY_INSTALL_LIB_SUBDIR}
-	)
+)
 
 #...............................................................................

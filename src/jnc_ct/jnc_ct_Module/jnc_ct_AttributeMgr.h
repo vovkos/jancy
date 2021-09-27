@@ -20,8 +20,7 @@ class Module;
 
 //..............................................................................
 
-class AttributeMgr
-{
+class AttributeMgr {
 	friend class Module;
 
 protected:
@@ -33,14 +32,12 @@ public:
 	AttributeMgr();
 
 	Module*
-	getModule()
-	{
+	getModule() {
 		return m_module;
 	}
 
 	void
-	clear()
-	{
+	clear() {
 		m_attributeBlockList.clear();
 	}
 
@@ -51,7 +48,7 @@ public:
 	createAttribute(
 		const sl::StringRef& name,
 		Value* value = NULL
-		);
+	);
 };
 
 //..............................................................................

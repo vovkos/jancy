@@ -18,10 +18,8 @@ namespace ct {
 //..............................................................................
 
 bool
-PropertyVerifier::checkSetter(FunctionType* functionType)
-{
-	if (functionType->getArgArray().isEmpty())
-	{
+PropertyVerifier::checkSetter(FunctionType* functionType) {
+	if (functionType->getArgArray().isEmpty()) {
 		err::setFormatStringError("'set' must have at least one argument");
 		return false;
 	}
@@ -33,17 +31,13 @@ bool
 PropertyVerifier::checkIndexSignature(
 	FunctionKind functionKind,
 	FunctionType* functionType
-	)
-{
+) {
 	ASSERT(functionKind == FunctionKind_Getter || functionKind == FunctionKind_Setter);
 
 	sl::String indexArgSignature = createIndexArgSignature(functionKind, functionType);
-	if (m_indexArgSignature.isEmpty())
-	{
+	if (m_indexArgSignature.isEmpty()) {
 		m_indexArgSignature = indexArgSignature;
-	}
-	else if (m_indexArgSignature != indexArgSignature)
-	{
+	} else if (m_indexArgSignature != indexArgSignature) {
 		err::setFormatStringError("index arguments mismatch in property accessors");
 		return false;
 	}
@@ -55,8 +49,7 @@ sl::String
 PropertyVerifier::createIndexArgSignature(
 	FunctionKind functionKind,
 	FunctionType* functionType
-	)
-{
+) {
 	ASSERT(functionKind == FunctionKind_Getter || functionKind == FunctionKind_Setter);
 
 	// refine!!!

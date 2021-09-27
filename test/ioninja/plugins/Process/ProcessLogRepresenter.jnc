@@ -15,10 +15,8 @@ bool representProcessLog(
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
-	switch (recordCode)
-	{
+) {
+	switch (recordCode) {
 	case ProcessLogRecordCode.ProcessStarted:
 		uint_t pid = *(uint_t const*)p;
 		char const* fileName = (char const*)(p + sizeof(uint_t));

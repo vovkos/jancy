@@ -24,7 +24,7 @@ JNC_DEFINE_TYPE(
 	"std.MapEntry",
 	g_stdLibGuid,
 	StdLibCacheSlot_MapEntry
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(MapEntry)
 JNC_END_TYPE_FUNCTION_MAP()
@@ -32,16 +32,14 @@ JNC_END_TYPE_FUNCTION_MAP()
 //..............................................................................
 
 void
-Map::clear()
-{
+Map::clear() {
 	m_headPtr = g_nullDataPtr;
 	m_tailPtr = g_nullDataPtr;
 	m_count = 0;
 }
 
 DataPtr
-Map::add(const sl::MapIterator<Variant, DataPtr>& it)
-{
+Map::add(const sl::MapIterator<Variant, DataPtr>& it) {
 	Runtime* runtime = getCurrentThreadRuntime();
 	Type* entryType = MapEntry::getType(runtime->getModule());
 	DataPtr entryPtr = runtime->getGcHeap()->allocateData(entryType);
@@ -72,8 +70,7 @@ Map::add(const sl::MapIterator<Variant, DataPtr>& it)
 }
 
 void
-Map::remove(MapEntry* entry)
-{
+Map::remove(MapEntry* entry) {
 	ASSERT(entry->m_map == this);
 	ASSERT(entry->m_prevPtr.m_p || m_headPtr.m_p == entry);
 	ASSERT(entry->m_nextPtr.m_p || m_tailPtr.m_p == entry);

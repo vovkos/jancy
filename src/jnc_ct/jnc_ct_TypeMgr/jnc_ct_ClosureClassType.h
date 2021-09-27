@@ -19,8 +19,7 @@ namespace ct {
 
 //..............................................................................
 
-class ClosureClassType: public ClassType
-{
+class ClosureClassType: public ClassType {
 	friend class TypeMgr;
 
 public:
@@ -31,8 +30,7 @@ public:
 	ClosureClassType();
 
 	size_t
-	getThisArgFieldIdx()
-	{
+	getThisArgFieldIdx() {
 		return m_thisArgFieldIdx;
 	}
 
@@ -45,7 +43,7 @@ public:
 		const size_t* closureMap,
 		size_t closureArgCount,
 		size_t thisArgIdx
-		);
+	);
 
 	IfaceHdr*
 	strengthen(IfaceHdr* p);
@@ -57,23 +55,20 @@ protected:
 		const Value* thunkArgValueArray,
 		size_t thunkArgCount,
 		sl::BoxList<Value>* argValueList
-		);
+	);
 };
 
 //..............................................................................
 
-class FunctionClosureClassType: public ClosureClassType
-{
+class FunctionClosureClassType: public ClosureClassType {
 	friend class TypeMgr;
 
 protected:
-	class ThunkFunction: public CompilableFunction
-	{
+	class ThunkFunction: public CompilableFunction {
 	public:
 		virtual
 		bool
-		compile()
-		{
+		compile() {
 			return ((FunctionClosureClassType*)m_parentNamespace)->compileThunkFunction(this);
 		}
 	};
@@ -85,8 +80,7 @@ public:
 	FunctionClosureClassType();
 
 	Function*
-	getThunkFunction()
-	{
+	getThunkFunction() {
 		return m_thunkFunction;
 	}
 
@@ -97,29 +91,25 @@ protected:
 
 //..............................................................................
 
-class PropertyClosureClassType: public ClosureClassType
-{
+class PropertyClosureClassType: public ClosureClassType {
 	friend class TypeMgr;
 
 protected:
-	class ThunkProperty: public Property
-	{
+	class ThunkProperty: public Property {
 	protected:
 		virtual
 		Function*
 		createAccessor(
 			FunctionKind functionKind,
 			FunctionType* type
-			);
+		);
 	};
 
-	class Accessor: public CompilableFunction
-	{
+	class Accessor: public CompilableFunction {
 	public:
 		virtual
 		bool
-		compile()
-		{
+		compile() {
 			return ((PropertyClosureClassType*)((Property*)m_parentNamespace)->getParentNamespace())->compileAccessor(this);
 		}
 	};
@@ -131,8 +121,7 @@ public:
 	PropertyClosureClassType();
 
 	Property*
-	getThunkProperty()
-	{
+	getThunkProperty() {
 		return m_thunkProperty;
 	}
 
@@ -143,40 +132,34 @@ protected:
 
 //..............................................................................
 
-class DataClosureClassType: public ClassType
-{
+class DataClosureClassType: public ClassType {
 	friend class TypeMgr;
 
 protected:
-	class ThunkProperty: public Property
-	{
+	class ThunkProperty: public Property {
 	protected:
 		virtual
 		Function*
 		createAccessor(
 			FunctionKind functionKind,
 			FunctionType* type
-			);
+		);
 	};
 
-	class Getter: public CompilableFunction
-	{
+	class Getter: public CompilableFunction {
 	public:
 		virtual
 		bool
-		compile()
-		{
+		compile() {
 			return ((DataClosureClassType*)((Property*)m_parentNamespace)->getParentNamespace())->compileGetter(this);
 		}
 	};
 
-	class Setter: public CompilableFunction
-	{
+	class Setter: public CompilableFunction {
 	public:
 		virtual
 		bool
-		compile()
-		{
+		compile() {
 			return ((DataClosureClassType*)((Property*)m_parentNamespace)->getParentNamespace())->compileSetter(this);
 		}
 	};
@@ -188,8 +171,7 @@ public:
 	DataClosureClassType();
 
 	Property*
-	getThunkProperty()
-	{
+	getThunkProperty() {
 		return m_thunkProperty;
 	}
 
@@ -198,7 +180,7 @@ public:
 	createSignature(
 		Type* targetType,
 		PropertyType* thunkType
-		);
+	);
 
 protected:
 	bool

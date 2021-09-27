@@ -42,8 +42,7 @@
 
 JNC_INLINE
 jnc_DerivableType*
-jnc_BaseTypeSlot_getType(jnc_BaseTypeSlot* baseType)
-{
+jnc_BaseTypeSlot_getType(jnc_BaseTypeSlot* baseType) {
 	return (jnc_DerivableType*)jnc_ModuleItem_getType((jnc_ModuleItem*)baseType);
 }
 
@@ -59,23 +58,19 @@ jnc_BaseTypeSlot_getVtableIndex(jnc_BaseTypeSlot* baseType);
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
-struct jnc_BaseTypeSlot: jnc_ModuleItem
-{
+struct jnc_BaseTypeSlot: jnc_ModuleItem {
 	jnc_DerivableType*
-	getType()
-	{
+	getType() {
 		return jnc_BaseTypeSlot_getType(this);
 	}
 
 	size_t
-	getOffset()
-	{
+	getOffset() {
 		return jnc_BaseTypeSlot_getOffset(this);
 	}
 
 	size_t
-	getVtableIndex()
-	{
+	getVtableIndex() {
 		return jnc_BaseTypeSlot_getVtableIndex(this);
 	}
 };
@@ -96,17 +91,14 @@ jnc_Field_getOffset(jnc_Field* field);
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
-struct jnc_Field: jnc_ModuleItem
-{
+struct jnc_Field: jnc_ModuleItem {
 	uint_t
-	getPtrTypeFlags()
-	{
+	getPtrTypeFlags() {
 		return jnc_Field_getPtrTypeFlags(this);
 	}
 
 	size_t
-	getOffset()
-	{
+	getOffset() {
 		return jnc_Field_getOffset(this);
 	}
 };
@@ -132,14 +124,14 @@ jnc_OverloadableFunction
 jnc_DerivableType_getUnaryOperator(
 	jnc_DerivableType* type,
 	jnc_UnOpKind opKind
-	);
+);
 
 JNC_EXTERN_C
 jnc_OverloadableFunction
 jnc_DerivableType_getBinaryOperator(
 	jnc_DerivableType* type,
 	jnc_BinOpKind opKind
-	);
+);
 
 JNC_EXTERN_C
 jnc_OverloadableFunction
@@ -154,7 +146,7 @@ jnc_Function*
 jnc_DerivableType_getCastOperator(
 	jnc_DerivableType* type,
 	size_t index
-	);
+);
 
 JNC_EXTERN_C
 size_t
@@ -165,14 +157,14 @@ jnc_BaseTypeSlot*
 jnc_DerivableType_getBaseType(
 	jnc_DerivableType* type,
 	size_t index
-	);
+);
 
 JNC_EXTERN_C
 size_t
 jnc_DerivableType_findBaseTypeOffset(
 	jnc_DerivableType* type,
 	jnc_Type* baseType
-	);
+);
 
 JNC_EXTERN_C
 size_t
@@ -183,7 +175,7 @@ jnc_Variable*
 jnc_DerivableType_getStaticVariable(
 	jnc_DerivableType* type,
 	size_t index
-	);
+);
 
 JNC_EXTERN_C
 size_t
@@ -194,7 +186,7 @@ jnc_Field*
 jnc_DerivableType_getField(
 	jnc_DerivableType* type,
 	size_t index
-	);
+);
 
 JNC_EXTERN_C
 size_t
@@ -205,7 +197,7 @@ jnc_Function*
 jnc_DerivableType_getMethod(
 	jnc_DerivableType* type,
 	size_t index
-	);
+);
 
 JNC_EXTERN_C
 size_t
@@ -216,125 +208,105 @@ jnc_Property*
 jnc_DerivableType_getProperty(
 	jnc_DerivableType* type,
 	size_t index
-	);
+);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
-struct jnc_DerivableType: jnc_NamedType
-{
+struct jnc_DerivableType: jnc_NamedType {
 	jnc_Function*
-	getStaticConstructor()
-	{
+	getStaticConstructor() {
 		return jnc_DerivableType_getStaticConstructor(this);
 	}
 
 	jnc::OverloadableFunction
-	getConstructor()
-	{
+	getConstructor() {
 		return jnc_DerivableType_getConstructor(this);
 	}
 
 	jnc_Function*
-	getDestructor()
-	{
+	getDestructor() {
 		return jnc_DerivableType_getDestructor(this);
 	}
 
 	jnc::OverloadableFunction
-	getUnaryOperator(jnc_UnOpKind opKind)
-	{
+	getUnaryOperator(jnc_UnOpKind opKind) {
 		return jnc_DerivableType_getUnaryOperator(this, opKind);
 	}
 
 	jnc::OverloadableFunction
-	getBinaryOperator(jnc_BinOpKind opKind)
-	{
+	getBinaryOperator(jnc_BinOpKind opKind) {
 		return jnc_DerivableType_getBinaryOperator(this, opKind);
 	}
 
 	jnc::OverloadableFunction
-	getCallOperator()
-	{
+	getCallOperator() {
 		return jnc_DerivableType_getCallOperator(this);
 	}
 
 	size_t
-	getCastOperatorCount()
-	{
+	getCastOperatorCount() {
 		return jnc_DerivableType_getCastOperatorCount(this);
 	}
 
 	jnc_Function*
-	getCastOperator(size_t index)
-	{
+	getCastOperator(size_t index) {
 		return jnc_DerivableType_getCastOperator(this, index);
 	}
 
 	size_t
-	getBaseTypeCount()
-	{
+	getBaseTypeCount() {
 		return jnc_DerivableType_getBaseTypeCount(this);
 	}
 
 	jnc_BaseTypeSlot*
-	getBaseType(size_t index)
-	{
+	getBaseType(size_t index) {
 		return jnc_DerivableType_getBaseType(this, index);
 	}
 
 	size_t
-	findBaseTypeOffset(jnc_Type* baseType)
-	{
+	findBaseTypeOffset(jnc_Type* baseType) {
 		return jnc_DerivableType_findBaseTypeOffset(this, baseType);
 	}
 
 	size_t
-	getStaticVariableCount()
-	{
+	getStaticVariableCount() {
 		return jnc_DerivableType_getStaticVariableCount(this);
 	}
 
 	jnc_Variable*
-	getStaticVariable(size_t index)
-	{
+	getStaticVariable(size_t index) {
 		return jnc_DerivableType_getStaticVariable(this, index);
 	}
 
 	size_t
-	getFieldCount()
-	{
+	getFieldCount() {
 		return jnc_DerivableType_getFieldCount(this);
 	}
 
 	jnc_Field*
-	getField(size_t index)
-	{
+	getField(size_t index) {
 		return jnc_DerivableType_getField(this, index);
 	}
 
 	size_t
-	getMethodCount()
-	{
+	getMethodCount() {
 		return jnc_DerivableType_getMethodCount(this);
 	}
 
 	jnc_Function*
-	getMethod(size_t index)
-	{
+	getMethod(size_t index) {
 		return jnc_DerivableType_getMethod(this, index);
 	}
 
 	size_t
-	getPropertyCount()
-	{
+	getPropertyCount() {
 		return jnc_DerivableType_getPropertyCount(this);
 	}
 
 	jnc_Property*
-	getProperty(size_t index)
-	{
+	getProperty(size_t index) {
 		return jnc_DerivableType_getProperty(this, index);
 	}
 };
@@ -349,8 +321,7 @@ struct jnc_DerivableType: jnc_NamedType
 
 JNC_INLINE
 bool_t
-jnc_isConstructibleType(jnc_Type* type)
-{
+jnc_isConstructibleType(jnc_Type* type) {
 	return
 		(jnc_Type_getTypeKindFlags(type) & jnc_TypeKindFlag_Derivable) &&
 		jnc_DerivableType_getConstructor((jnc_DerivableType*)type).m_item;
@@ -366,8 +337,7 @@ namespace jnc {
 
 inline
 bool
-isConstructibleType(Type* type)
-{
+isConstructibleType(Type* type) {
 	return jnc_isConstructibleType(type) != 0;
 }
 

@@ -8,11 +8,9 @@ import "std_Array.jnc"
 
 //..............................................................................
 
-class RegexColorizerHighlighter
-{
+class RegexColorizerHighlighter {
 protected:
-	enum StickyMode
-	{
+	enum StickyMode {
 		None = 0,
 		SlComment,
 		MlComment,
@@ -29,8 +27,7 @@ public:
 	log.RetroColorizeFlags m_retroColorizerFlags;
 
 public:
-	construct()
-	{
+	construct() {
 		m_regexState.m_flags = jnc.RegexStateFlags.Lexer | jnc.RegexStateFlags.Incremental;
 	}
 
@@ -41,7 +38,7 @@ public:
 	bool errorcode addRegexPattern_s(
 		char const* regexString,
 		ui.TextAttr attr
-		);
+	);
 
 	bool errorcode finalizeRegex_s();
 
@@ -51,10 +48,9 @@ public:
 		log.Writer* writer,
 		void const* p,
 		size_t size
-		);
+	);
 
-	void finalizeWrite_l(log.Writer* writer)
-	{
+	void finalizeWrite_l(log.Writer* writer) {
 		write_l(writer, null, 0); // send eof
 		m_regexState.reset();
 	}
@@ -62,8 +58,7 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void RegexColorizerHighlighter.clearRegex_s()
-{
+void RegexColorizerHighlighter.clearRegex_s() {
 	m_regexDfa.clear();
 	m_attrArray.clear();
 }
@@ -71,17 +66,14 @@ void RegexColorizerHighlighter.clearRegex_s()
 bool errorcode RegexColorizerHighlighter.addRegexPattern_s(
 	char const* regexString,
 	ui.TextAttr attr
-	)
-{
+) {
 	m_regexDfa.incrementalCompile(regexString);
 	m_attrArray.append(attr);
 	return true;
 }
 
-bool errorcode RegexColorizerHighlighter.finalizeRegex_s()
-{
-	if (m_attrArray.m_count)
-	{
+bool errorcode RegexColorizerHighlighter.finalizeRegex_s() {
+	if (m_attrArray.m_count) {
 		m_regexDfa.incrementalCompile(".");
 		m_regexDfa.finalize();
 	}
@@ -94,8 +86,7 @@ void RegexColorizerHighlighter.write_l(
 	log.Writer* writer,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	if (!m_attrArray.m_count)
 		return;
 
@@ -104,8 +95,7 @@ void RegexColorizerHighlighter.write_l(
 	void const* end = p + size;
 	size_t result;
 
-	do
-	{
+	do {
 		result = try m_regexDfa.match(m_regexState, p, end - p);
 		if (result < m_attrArray.m_count)
 			writer.retroColorize(
@@ -113,7 +103,7 @@ void RegexColorizerHighlighter.write_l(
 				m_regexState.m_match.m_length,
 				(ui.TextAttr) m_attrArray[result],
 				m_retroColorizerFlags
-				);
+			);
 
 		p += m_regexState.m_consumedLength;
 	} while (result != -1 && p < end);

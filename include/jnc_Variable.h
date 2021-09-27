@@ -37,8 +37,7 @@
 
 //..............................................................................
 
-enum jnc_VariableFlag
-{
+enum jnc_VariableFlag {
 	jnc_VariableFlag_Allocated = 0x010000, // for TLS values we can't rely on m_llvmValue being NULL
 	jnc_VariableFlag_Arg       = 0x020000,
 	jnc_VariableFlag_Type      = 0x040000, // static introspection type variable
@@ -64,23 +63,19 @@ jnc_Variable_getInitializerString_v(jnc_Variable* variable);
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
-struct jnc_Variable: jnc_ModuleItem
-{
+struct jnc_Variable: jnc_ModuleItem {
 	uint_t
-	getPtrTypeFlags()
-	{
+	getPtrTypeFlags() {
 		return jnc_Variable_getPtrTypeFlags(this);
 	}
 
 	bool
-	hasInitializer()
-	{
+	hasInitializer() {
 		return jnc_Variable_hasInitializer(this) != 0;
 	}
 
 	const char*
-	getInitializerString_v()
-	{
+	getInitializerString_v() {
 		return jnc_Variable_getInitializerString_v(this);
 	}
 };

@@ -18,8 +18,7 @@ namespace jnc {
 //..............................................................................
 
 QString
-highlightJancySource(const QString& source)
-{
+highlightJancySource(const QString& source) {
 	QTextDocument document;
 	document.setPlainText(source);
 
@@ -29,8 +28,7 @@ highlightJancySource(const QString& source)
 	QString html;
 
 	QTextBlock block = document.firstBlock();
-	for (; block.isValid(); block = block.next())
-	{
+	for (; block.isValid(); block = block.next()) {
 		QString blockText = block.text();
 
 #if (QT_VERSION >= 0x050600)
@@ -41,8 +39,7 @@ highlightJancySource(const QString& source)
 
 		int pos = 0;
 		int count = formats.count();
-		for (int i = 0; i < count; i++)
-		{
+		for (int i = 0; i < count; i++) {
 			QTextLayout::FormatRange range = formats[i];
 			uint_t color = range.format.foreground().color().rgb();
 			if (!color)

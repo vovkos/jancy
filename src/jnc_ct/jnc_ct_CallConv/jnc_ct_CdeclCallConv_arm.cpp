@@ -20,8 +20,7 @@ namespace ct {
 //..............................................................................
 
 Type*
-CdeclCallConv_arm::getArgCoerceType(Type* type)
-{
+CdeclCallConv_arm::getArgCoerceType(Type* type) {
 	size_t size = type->getSize();
 	size_t atomSize = m_regType->getSize();
 
@@ -30,12 +29,9 @@ CdeclCallConv_arm::getArgCoerceType(Type* type)
 
 	Type* atomType;
 
-	if (type->getAlignment() <= atomSize)
-	{
+	if (type->getAlignment() <= atomSize) {
 		atomType = m_regType;
-	}
-	else
-	{
+	} else {
 		atomType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int64);
 		atomSize = sizeof(int64_t);
 	}
@@ -51,8 +47,7 @@ CdeclCallConv_arm::getArgCoerceType(Type* type)
 }
 
 void
-CdeclCallConv_arm::prepareFunctionType(FunctionType* functionType)
-{
+CdeclCallConv_arm::prepareFunctionType(FunctionType* functionType) {
 	size_t regSize = m_regType->getSize();
 
 	Type* returnType = functionType->getReturnType();
@@ -66,36 +61,28 @@ CdeclCallConv_arm::prepareFunctionType(FunctionType* functionType)
 
 	size_t j = 0;
 
-	if (returnType->getFlags() & TypeFlag_StructRet)
-	{
-		if (returnType->getSize() > regSize) // return in memory
-		{
+	if (returnType->getFlags() & TypeFlag_StructRet) {
+		if (returnType->getSize() > regSize) { // return in memory
 			argCount++;
 			llvmArgTypeArray.setCount(argCount);
 			llvmArgTypeArray[0] = returnType->getDataPtrType_c()->getLlvmType();
 			j = 1;
 
 			returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Void);
-		}
-		else // coerce
-		{
+		} else { // coerce
 			returnType = getArgCoerceType(returnType);
 		}
 	}
 
 	bool hasCoercedArgs = false;
 
-	for (size_t i = 0; j < argCount; i++, j++)
-	{
+	for (size_t i = 0; j < argCount; i++, j++) {
 		Type* type = argArray[i]->getType();
 		llvm::Type* llvmType;
 
-		if (!(type->getFlags() & TypeFlag_StructRet))
-		{
+		if (!(type->getFlags() & TypeFlag_StructRet)) {
 			llvmType = type->getLlvmType();
-		}
-		else // coerce
-		{
+		} else { // coerce
 			llvmType = getArgCoerceType(type)->getLlvmType();
 			functionType->m_argFlagArray[i] = ArgFlag_Coerced;
 			hasCoercedArgs = true;
@@ -111,15 +98,14 @@ CdeclCallConv_arm::prepareFunctionType(FunctionType* functionType)
 		returnType->getLlvmType(),
 		llvm::ArrayRef<llvm::Type*> (llvmArgTypeArray, argCount),
 		(functionType->getFlags() & FunctionTypeFlag_VarArg) != 0
-		);
+	);
 }
 
 llvm::Function*
 CdeclCallConv_arm::createLlvmFunction(
 	FunctionType* functionType,
 	const sl::StringRef& name
-	)
-{
+) {
 	llvm::Function* llvmFunction = CallConv::createLlvmFunction(functionType, name);
 
 	Type* returnType = functionType->getReturnType();
@@ -137,14 +123,12 @@ CdeclCallConv_arm::call(
 	FunctionType* functionType,
 	sl::BoxList<Value>* argValueList,
 	Value* resultValue
-	)
-{
+) {
 	size_t regSize = m_regType->getSize();
 	Type* returnType = functionType->getReturnType();
 
 	if (!(returnType->getFlags() & TypeFlag_StructRet) &&
-		!(functionType->getFlags() & (FunctionTypeFlag_CoercedArgs | FunctionTypeFlag_VarArg)))
-	{
+		!(functionType->getFlags() & (FunctionTypeFlag_CoercedArgs | FunctionTypeFlag_VarArg))) {
 		CallConv::call(calleeValue, functionType, argValueList, resultValue);
 		return;
 	}
@@ -152,14 +136,13 @@ CdeclCallConv_arm::call(
 	Value tmpReturnValue;
 
 	if ((returnType->getFlags() & TypeFlag_StructRet) &&
-		returnType->getSize() > regSize) // return in memory
-	{
+		returnType->getSize() > regSize) { // return in memory
 		m_module->m_llvmIrBuilder.createAlloca(
 			returnType,
 			"tmpRetVal",
 			returnType->getDataPtrType_c(),
 			&tmpReturnValue
-			);
+		);
 
 		argValueList->insertHead(tmpReturnValue);
 	}
@@ -167,8 +150,7 @@ CdeclCallConv_arm::call(
 	unsigned j = 1;
 
 	sl::BoxIterator<Value> it = argValueList->getHead();
-	for (; it; it++, j++)
-	{
+	for (; it; it++, j++) {
 		Type* type = it->getType();
 		if (!(type->getFlags() & TypeFlag_StructRet))
 			continue;
@@ -185,17 +167,13 @@ CdeclCallConv_arm::call(
 			m_module->m_typeMgr.getPrimitiveType(TypeKind_Void) :
 			returnType,
 		resultValue
-		);
+	);
 
-	if (returnType->getFlags() & TypeFlag_StructRet)
-	{
-		if (returnType->getSize() > regSize) // return in memory
-		{
+	if (returnType->getFlags() & TypeFlag_StructRet) {
+		if (returnType->getSize() > regSize) { // return in memory
 			llvmInst->addAttribute(1, llvm::Attribute::StructRet);
 			m_module->m_llvmIrBuilder.createLoad(tmpReturnValue, returnType, resultValue);
-		}
-		else // coerce
-		{
+		} else { // coerce
 			Type* coerceType = getArgCoerceType(returnType);
 			resultValue->overrideType(coerceType);
 			m_module->m_operatorMgr.forceCast(resultValue, returnType);
@@ -207,24 +185,19 @@ void
 CdeclCallConv_arm::ret(
 	Function* function,
 	const Value& value
-	)
-{
+) {
 	Type* returnType = function->getType()->getReturnType();
-	if (!(returnType->getFlags() & TypeFlag_StructRet))
-	{
+	if (!(returnType->getFlags() & TypeFlag_StructRet)) {
 		CallConv::ret(function, value);
 		return;
 	}
 
-	if (returnType->getSize() > m_regType->getSize()) // return in memory
-	{
+	if (returnType->getSize() > m_regType->getSize()) { // return in memory
 		Value returnPtrValue(&*function->getLlvmFunction()->arg_begin());
 
 		m_module->m_llvmIrBuilder.createStore(value, returnPtrValue);
 		m_module->m_llvmIrBuilder.createRet();
-	}
-	else // coerce
-	{
+	} else { // coerce
 		Type* coerceType = getArgCoerceType(returnType);
 
 		Value tmpValue;
@@ -234,8 +207,7 @@ CdeclCallConv_arm::ret(
 }
 
 Value
-CdeclCallConv_arm::getThisArgValue(Function* function)
-{
+CdeclCallConv_arm::getThisArgValue(Function* function) {
 	ASSERT(function->isMember());
 
 	FunctionType* functionType = function->getType();
@@ -254,19 +226,15 @@ CdeclCallConv_arm::getArgValue(
 	llvm::Value* llvmValue,
 	FunctionType* functionType,
 	size_t argIdx
-	)
-{
+) {
 	Type* type = functionType->m_argArray[argIdx]->getType();
 	uint_t flags = functionType->m_argFlagArray[argIdx];
 
 	Value value;
-	if (flags & ArgFlag_Coerced)
-	{
+	if (flags & ArgFlag_Coerced) {
 		Type* coerceType = getArgCoerceType(type);
 		m_module->m_operatorMgr.forceCast(Value(llvmValue, coerceType), type, &value);
-	}
-	else
-	{
+	} else {
 		value.setLlvmValue(llvmValue, type);
 	}
 
@@ -278,8 +246,7 @@ CdeclCallConv_arm::getArgValueArray(
 	Function* function,
 	Value* argValueArray,
 	size_t count
-	)
-{
+) {
 	Type* returnType = function->getType()->getReturnType();
 	CallConv::getArgValueArrayImpl(
 		function,
@@ -287,12 +254,11 @@ CdeclCallConv_arm::getArgValueArray(
 		count,
 		(returnType->getFlags() & TypeFlag_StructRet) &&
 		returnType->getSize() > m_regType->getSize() ? 1 : 0
-		);
+	);
 }
 
 void
-CdeclCallConv_arm::createArgVariables(Function* function)
-{
+CdeclCallConv_arm::createArgVariables(Function* function) {
 	FunctionType* functionType = function->getType();
 	Type* returnType = functionType->getReturnType();
 
@@ -302,8 +268,7 @@ CdeclCallConv_arm::createArgVariables(Function* function)
 		llvmArg++;
 
 	size_t i = 0;
-	if (function->isMember()) // skip this
-	{
+	if (function->isMember()) { // skip this
 		i++;
 		llvmArg++;
 	}
@@ -311,8 +276,7 @@ CdeclCallConv_arm::createArgVariables(Function* function)
 	sl::Array<FunctionArg*> argArray = functionType->getArgArray();
 	size_t argCount = argArray.getCount();
 
-	for (; i < argCount; i++, llvmArg++)
-	{
+	for (; i < argCount; i++, llvmArg++) {
 		FunctionArg* arg = argArray[i];
 		if (!arg->isNamed())
 			continue;
@@ -327,14 +291,12 @@ CdeclCallConv_arm::createArgVariables(Function* function)
 
 //..............................................................................
 
-CdeclCallConv_arm32::CdeclCallConv_arm32()
-{
+CdeclCallConv_arm32::CdeclCallConv_arm32() {
 	m_callConvKind = CallConvKind_Cdecl_arm32;
 	m_regType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32);
 }
 
-CdeclCallConv_arm64::CdeclCallConv_arm64()
-{
+CdeclCallConv_arm64::CdeclCallConv_arm64() {
 	m_callConvKind = CallConvKind_Cdecl_arm32;
 	m_regType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int64);
 }

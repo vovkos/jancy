@@ -37,8 +37,7 @@ namespace io {
 	\sa `io.Serial`
 */
 
-enum SerialFlowControl
-{
+enum SerialFlowControl {
 	/**
 		No flow control protocol is employed. If the receiving end is not
 		capable of handling arriving data fast enough, the data is
@@ -83,8 +82,7 @@ enum SerialFlowControl
 	re-synchronize the receiver; normally 1 stop bit is used.
 */
 
-enum SerialStopBits
-{
+enum SerialStopBits {
 	//! One stop bit.
 
 	_1  = 0,
@@ -122,8 +120,7 @@ enum SerialStopBits
 	\sa `io.Serial`
 */
 
-enum SerialParity
-{
+enum SerialParity {
 	/**
 		No parity bit is sent alongside the data.
 	*/
@@ -171,8 +168,7 @@ enum SerialParity
 	\sa `io.Serial`
 */
 
-bitflag enum SerialStatusLines
-{
+bitflag enum SerialStatusLines {
 	//! ``CTS`` status line (clear-to-send).
 
 	Cts,
@@ -192,8 +188,7 @@ bitflag enum SerialStatusLines
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum SerialOptions: StreamOptions
-{
+bitflag enum SerialOptions: StreamOptions {
 	WinReadCheckComstat,
 	WinReadWaitFirstChar,
 }
@@ -211,8 +206,7 @@ bitflag enum SerialOptions: StreamOptions
 	\sa `io.Serial`
 */
 
-bitflag enum SerialEvents: StreamEvents
-{
+bitflag enum SerialEvents: StreamEvents {
 	CtsOn,
 	CtsOff,
 	DsrOn,
@@ -227,8 +221,7 @@ bitflag enum SerialEvents: StreamEvents
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum SerialLineErrors
-{
+bitflag enum SerialLineErrors {
 	FramingError,
 	ParityError,
 	BreakError,
@@ -269,8 +262,7 @@ bitflag enum SerialLineErrors
 
 	.. ref-code-block::
 
-		class MyDialog
-		{
+		class MyDialog {
 			// ...
 
 			io.Serial m_serial;
@@ -279,7 +271,7 @@ bitflag enum SerialLineErrors
 			void open(
 				char const* portName,
 				uint_t baudRate
-				);
+			);
 
 			void close();
 			void waitSerialEvents();
@@ -289,14 +281,13 @@ bitflag enum SerialLineErrors
 			void onSerialEvent(
 				uint_t syncId,
 				`io.SerialEvents` triggeredEvents
-				);
+			);
 		}
 
 		MyDialog.open(
 			char const* portName,
 			uint_t baudRate
-			)
-		{
+		) {
 			m_serial.open(portName);
 			m_serial.m_baudRate = baudRate;
 			m_serial.m_dataBits = 8;
@@ -309,14 +300,12 @@ bitflag enum SerialLineErrors
 			// handle the error...
 		}
 
-		MyDialog.close()
-		{
+		MyDialog.close() {
 			m_serial.close();
 			m_syncId++; // events past this point will be discarded as 'late'
 		}
 
-		MyDialog.waitSerialEvent()
-		{
+		MyDialog.waitSerialEvent() {
 			`io.SerialEvents` eventMask =
 				`io.SerialEvents.IoError` |
 				`io.SerialEvents.IncomingData`;
@@ -325,8 +314,7 @@ bitflag enum SerialLineErrors
 				g_mainThreadScheduler);
 		}
 
-		MyDialog.onWriteButtonClicked()
-		{
+		MyDialog.onWriteButtonClicked() {
 			static char data[] = "a quick brown fox jumps over the lazy dog";
 			m_serial.write(data, sizeof(data));
 		}
@@ -334,19 +322,16 @@ bitflag enum SerialLineErrors
 		MyDialog.onSerialEvent(
 			uint_t syncId,
 			`io.SerialEvents` triggeredEvents
-			)
-		{
+		) {
 			if (syncId != m_syncId) // late event
 				return;
 
-			if (triggeredEvents & `io.SerialEvents.IoError`)
-			{
+			if (triggeredEvents & `io.SerialEvents.IoError`) {
 				char cont* errorString = m_fileStream.m_ioError.m_description;
 				// ...
 			}
 
-			if (triggeredEvents & `io.SerialEvents.IncomingData`)
-			{
+			if (triggeredEvents & `io.SerialEvents.IncomingData`) {
 				char buffer[256];
 				size_t size = m_fileStream.read(buffer, sizeof(buffer));
 				// ...
@@ -370,8 +355,7 @@ bitflag enum SerialLineErrors
 		|footnote-disposable|
 */
 
-opaque class Serial
-{
+opaque class Serial {
 	/**
 		This property is used for getting and setting [#f4]_ baud rate, i.e. the
 		number of signal changes per second, which directly affects the speed of
@@ -530,7 +514,7 @@ opaque class Serial
 		uint_t readInterval = 0,
 		bool dtr = false,
 		bool rts = false
-		);
+	);
 
 	SerialLineErrors clearLineErrors();
 
@@ -551,7 +535,7 @@ opaque class Serial
 	size_t errorcode read(
 		void* p,
 		size_t size
-		);
+	);
 
 	/**
 		Attempts to write ``size`` bytes from the buffer pointed to by ``p``
@@ -570,19 +554,19 @@ opaque class Serial
 	size_t errorcode write(
 		void const* p,
 		size_t size
-		);
+	);
 
 	intptr errorcode wait(
 		SerialEvents eventMask,
 		function* handler(SerialEvents triggeredEvents)
-		);
+	);
 
 	bool errorcode cancelWait(intptr handle);
 
 	SerialEvents blockingWait(
 		SerialEvents eventMask,
 		uint_t timeout = -1
-		);
+	);
 
 	async SerialEvents asyncWait(SerialEvents eventMask);
 }
@@ -601,8 +585,7 @@ opaque class Serial
 	\sa `io.createSerialPortDescList`
 */
 
-struct SerialPortDesc
-{
+struct SerialPortDesc {
 	/**
 		Holds a pointer to the next serial port description or ``null`` if this
 		is the last adapter.
@@ -639,8 +622,7 @@ struct SerialPortDesc
 	.. ref-code-block::
 
 		`io.SerialPortDesc` const* portDesc = io.createSerialPortDescList();
-		for (; portDesc; portDesc = portDesc.m_next)
-		{
+		for (; portDesc; portDesc = portDesc.m_next) {
 			// add port to the combo box...
 		}
 */

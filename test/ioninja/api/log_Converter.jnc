@@ -12,19 +12,16 @@ namespace log {
 
 //..............................................................................
 
-class Converter
-{
+class Converter {
 	abstract bool convert(
 		Writer* writer,
 		uint64_t timestamp,
 		uint64_t recordCode,
 		void const* p,
 		size_t size
-		);
+	);
 
-	virtual void reset()
-	{
-	}
+	virtual void reset() {}
 }
 
 //..............................................................................

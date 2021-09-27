@@ -41,8 +41,7 @@ struct FunctionArgTuple;
 
 //..............................................................................
 
-enum TypeSizeLimit
-{
+enum TypeSizeLimit {
 	TypeSizeLimit_StoreSize      = 64,
 	TypeSizeLimit_StackAllocSize = 128,
 };
@@ -51,8 +50,7 @@ enum TypeSizeLimit
 
 JNC_INLINE
 PtrTypeFlag
-getFirstPtrTypeFlag(uint_t flags)
-{
+getFirstPtrTypeFlag(uint_t flags) {
 	return (PtrTypeFlag)(1 << sl::getLoBitIdx(flags));
 }
 
@@ -67,8 +65,7 @@ getPtrTypeFlagSignature(uint_t flags);
 
 JNC_INLINE
 const char*
-getFirstPtrTypeFlagString(uint_t flags)
-{
+getFirstPtrTypeFlagString(uint_t flags) {
 	return getPtrTypeFlagString(getFirstPtrTypeFlag(flags));
 }
 
@@ -77,8 +74,7 @@ getPtrTypeFlagsFromModifiers(uint_t modifiers);
 
 //..............................................................................
 
-enum VariantField
-{
+enum VariantField {
 	VariantField_Data1,
 	VariantField_Data2,
 #if (JNC_PTR_SIZE == 4)
@@ -107,8 +103,7 @@ getInt64TypeKind_u(uint64_t integer);
 
 JNC_INLINE
 TypeKind
-getBigEndianIntegerTypeKind(TypeKind typeKind)
-{
+getBigEndianIntegerTypeKind(TypeKind typeKind) {
 	return !(getTypeKindFlags(typeKind) & TypeKindFlag_BigEndian) ?
 		(TypeKind)(typeKind + TypeKind__EndianDelta) :
 		typeKind;
@@ -116,8 +111,7 @@ getBigEndianIntegerTypeKind(TypeKind typeKind)
 
 JNC_INLINE
 TypeKind
-getLittleEndianIntegerTypeKind(TypeKind typeKind)
-{
+getLittleEndianIntegerTypeKind(TypeKind typeKind) {
 	return (getTypeKindFlags(typeKind) & TypeKindFlag_BigEndian) ?
 		(TypeKind)(typeKind - TypeKind__EndianDelta) :
 		typeKind;
@@ -125,8 +119,7 @@ getLittleEndianIntegerTypeKind(TypeKind typeKind)
 
 JNC_INLINE
 TypeKind
-getUnsignedIntegerTypeKind(TypeKind typeKind)
-{
+getUnsignedIntegerTypeKind(TypeKind typeKind) {
 	return !(getTypeKindFlags(typeKind) & TypeKindFlag_Unsigned) ?
 		(TypeKind)(typeKind + 1) :
 		typeKind;
@@ -134,8 +127,7 @@ getUnsignedIntegerTypeKind(TypeKind typeKind)
 
 JNC_INLINE
 TypeKind
-getSignedIntegerTypeKind(TypeKind typeKind)
-{
+getSignedIntegerTypeKind(TypeKind typeKind) {
 	return (getTypeKindFlags(typeKind) & TypeKindFlag_Unsigned) ?
 		(TypeKind)(typeKind - 1) :
 		typeKind;
@@ -146,8 +138,7 @@ bool
 isEquivalentIntegerTypeKind(
 	TypeKind typeKind1,
 	TypeKind typeKind2
-	)
-{
+) {
 	return getSignedIntegerTypeKind(typeKind1) == getSignedIntegerTypeKind(typeKind2);
 }
 
@@ -158,8 +149,7 @@ getLlvmTypeString(llvm::Type* llvmType);
 
 //..............................................................................
 
-struct TypeStringTuple
-{
+struct TypeStringTuple {
 	sl::String m_typeString;
 	sl::String m_typeStringPrefix;
 	sl::String m_typeStringSuffix;
@@ -170,15 +160,13 @@ struct TypeStringTuple
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct DualTypeTuple: sl::ListLink
-{
+struct DualTypeTuple: sl::ListLink {
 	Type* m_typeArray[2][2]; // alien-friend x container-const-non-const
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class Type: public ModuleItem
-{
+class Type: public ModuleItem {
 	friend class TypeMgr;
 	friend class CdeclCallConv_gcc64;
 
@@ -206,33 +194,28 @@ public:
 	~Type();
 
 	TypeKind
-	getTypeKind()
-	{
+	getTypeKind() {
 		return m_typeKind;
 	}
 
 	uint_t
-	getTypeKindFlags()
-	{
+	getTypeKindFlags() {
 		return jnc::getTypeKindFlags(m_typeKind);
 	}
 
 	StdType
-	getStdType()
-	{
+	getStdType() {
 		return m_stdType;
 	}
 
 	size_t
-	getSize()
-	{
+	getSize() {
 		ASSERT(m_flags & ModuleItemFlag_LayoutReady);
 		return m_size;
 	}
 
 	size_t
-	getAlignment()
-	{
+	getAlignment() {
 		ASSERT(m_flags & ModuleItemFlag_LayoutReady);
 		return m_alignment;
 	}
@@ -259,8 +242,7 @@ public:
 	getDoxyLinkedTextSuffix();
 
 	sl::String
-	getLlvmTypeString()
-	{
+	getLlvmTypeString() {
 		return ct::getLlvmTypeString(getLlvmType());
 	}
 
@@ -271,8 +253,7 @@ public:
 	getLlvmDiType();
 
 	bool
-	hasTypeVariable()
-	{
+	hasTypeVariable() {
 		return m_typeVariable != NULL;
 	}
 
@@ -289,20 +270,17 @@ public:
 	getErrorCodeValue();
 
 	int
-	cmp(Type* type)
-	{
+	cmp(Type* type) {
 		return type != this ? getSignature().cmp(type->getSignature()) : 0;
 	}
 
 	bool
-	ensureLayout()
-	{
+	ensureLayout() {
 		return (m_flags & ModuleItemFlag_LayoutReady) ? true : prepareLayout();
 	}
 
 	bool
-	ensureNoImports()
-	{
+	ensureNoImports() {
 		return (m_flags & (TypeFlag_NoImports | ModuleItemFlag_LayoutReady)) ? true : prepareImports();
 	}
 
@@ -314,14 +292,13 @@ public:
 		TypeKind typeKind,
 		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal,
 		uint_t flags = 0
-		);
+	);
 
 	DataPtrType*
 	getDataPtrType(
 		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return getDataPtrType(TypeKind_DataPtr, ptrTypeKind, flags);
 	}
 
@@ -329,8 +306,7 @@ public:
 	getDataPtrType_c(
 		TypeKind typeKind = TypeKind_DataPtr,
 		uint_t flags = 0
-		)
-	{
+	) {
 		return getDataPtrType(typeKind, DataPtrTypeKind_Thin, flags);
 	}
 
@@ -341,19 +317,18 @@ public:
 	foldDualType(
 		bool isAlien,
 		bool isContainerConst
-		);
+	);
 
 	virtual
 	sl::String
 	getValueString(
 		const void* p,
 		const char* formatSpec = NULL
-		);
+	);
 
 	virtual
 	bool
-	require()
-	{
+	require() {
 		return ensureLayout();
 	}
 
@@ -362,7 +337,7 @@ public:
 	markGcRoots(
 		const void* p,
 		rt::GcHeap* gcHeap
-		);
+	);
 
 protected:
 	TypeStringTuple*
@@ -400,24 +375,21 @@ protected:
 
 	virtual
 	void
-	prepareTypeVariable()
-	{
+	prepareTypeVariable() {
 		ASSERT(m_typeKind < TypeKind__PrimitiveTypeCount);
 		prepareSimpleTypeVariable(StdType_Type);
 	}
 
 	virtual
 	bool
-	calcLayout()
-	{
+	calcLayout() {
 		ASSERT(false); // shouldn't be called unless required
 		return true;
 	}
 
 	virtual
 	bool
-	resolveImports()
-	{
+	resolveImports() {
 		ASSERT(false); // shouldn't be called unless required
 		return true;
 	}
@@ -427,8 +399,7 @@ protected:
 	calcFoldedDualType(
 		bool isAlien,
 		bool isContainerConst
-		)
-	{
+	) {
 		ASSERT(false);
 		return this;
 	}
@@ -441,8 +412,7 @@ protected:
 
 inline
 const sl::String&
-Type::getSignature()
-{
+Type::getSignature() {
 	if (m_signature.isEmpty())
 		prepareSignature();
 
@@ -451,8 +421,7 @@ Type::getSignature()
 
 inline
 llvm::Type*
-Type::getLlvmType()
-{
+Type::getLlvmType() {
 	if (!m_llvmType)
 		prepareLlvmType();
 
@@ -461,8 +430,7 @@ Type::getLlvmType()
 
 inline
 llvm::DIType_vn
-Type::getLlvmDiType()
-{
+Type::getLlvmDiType() {
 	if (!m_llvmDiType && m_typeKind)
 		prepareLlvmDiType();
 
@@ -471,8 +439,7 @@ Type::getLlvmDiType()
 
 inline
 Variable*
-Type::getTypeVariable()
-{
+Type::getTypeVariable() {
 	if (!m_typeVariable)
 		prepareTypeVariable();
 
@@ -483,21 +450,18 @@ Type::getTypeVariable()
 
 class NamedType:
 	public Type,
-	public Namespace
-{
+	public Namespace {
 	friend class Parser;
 
 public:
-	NamedType()
-	{
+	NamedType() {
 		m_namespaceKind = NamespaceKind_Type;
 	}
 
 protected:
 	virtual
 	void
-	prepareTypeString()
-	{
+	prepareTypeString() {
 		getTypeStringTuple()->m_typeStringPrefix = getQualifiedName();
 	}
 
@@ -510,8 +474,7 @@ protected:
 
 class Typedef:
 	public ModuleItem,
-	public ModuleItemDecl
-{
+	public ModuleItemDecl {
 	friend class TypeMgr;
 
 protected:
@@ -522,8 +485,7 @@ public:
 	Typedef();
 
 	Type*
-	getType()
-	{
+	getType() {
 		return m_type;
 	}
 
@@ -536,51 +498,45 @@ public:
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
-		);
+	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class TypedefShadowType:
 	public Type,
-	public ModuleItemDecl
-{
+	public ModuleItemDecl {
 	friend class TypeMgr;
 
 protected:
 	Typedef* m_typedef;
 
 public:
-	TypedefShadowType()
-	{
+	TypedefShadowType() {
 		m_typeKind = TypeKind_TypedefShadow;
 		m_typedef = NULL;
 	}
 
 	Typedef*
-	getTypedef()
-	{
+	getTypedef() {
 		return m_typedef;
 	}
 
 	Type*
-	getActualType()
-	{
+	getActualType() {
 		return m_typedef->getType();
 	}
 
 protected:
 	virtual
 	void
-	prepareSignature()
-	{
+	prepareSignature() {
 		m_signature = "T" + m_typedef->getQualifiedName();
 	}
 
 	virtual
 	void
-	prepareTypeString()
-	{
+	prepareTypeString() {
 		getTypeStringTuple()->m_typeStringPrefix = getQualifiedName();
 	}
 
@@ -590,22 +546,19 @@ protected:
 
 	virtual
 	void
-	prepareLlvmType()
-	{
+	prepareLlvmType() {
 		m_llvmType = m_typedef->getType()->getLlvmType();
 	}
 
 	virtual
 	void
-	prepareLlvmDiType()
-	{
+	prepareLlvmDiType() {
 		m_llvmDiType = m_typedef->getType()->getLlvmDiType();
 	}
 
 	virtual
 	bool
-	resolveImports()
-	{
+	resolveImports() {
 		return m_typedef->getType()->ensureNoImports();
 	}
 
@@ -620,26 +573,25 @@ Type*
 getSimpleType(
 	TypeKind typeKind,
 	Module* module
-	);
+);
 
 Type*
 getSimpleType(
 	StdType stdType,
 	Module* module
-	);
+);
 
 Type*
 getDirectRefType(
 	Type* type,
 	uint_t ptrTypeFlags = 0
-	); // returns class ref or lean data ref
+); // returns class ref or lean data ref
 
 //..............................................................................
 
 inline
 bool
-isDualType(Type* type)
-{
+isDualType(Type* type) {
 	return (type->getFlags() & PtrTypeFlag__Dual) != 0;
 }
 

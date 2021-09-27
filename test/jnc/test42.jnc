@@ -9,33 +9,27 @@
 //
 //..............................................................................
 
-class C1
-{
+class C1 {
 	protected int m_x = 10;
 
-	void foo()
-	{
+	void foo() {
 		printf("C1.foo () { m_x = %d }\n", m_x);
 	}
 }
 
-extension C1Ext: C1
-{
-	void bar()
-	{
+extension C1Ext: C1 {
+	void bar() {
 		printf("C1Ext.bar () { m_x = %d }\n", m_x);
 	}
 
 	int property m_prop;
 
-	int m_prop.get()
-	{
+	int m_prop.get() {
 		printf("C1Ext.m_prop.get () { m_x = %d }\n", m_x);
 		return m_x;
 	}
 
-	void m_prop.set(int x)
-	{
+	void m_prop.set(int x) {
 		printf("C1Ext.set (%d) { m_x = %d }\n", x, m_x);
 		m_x = x;
 	}
@@ -44,8 +38,7 @@ extension C1Ext: C1
 
 using extension C1Ext;
 
-int main()
-{
+int main() {
 	printf("main\n");
 
 	C1 c;

@@ -11,30 +11,26 @@ void representArpDigest(
 	log.Representation* representation,
 	void const* p,
 	size_t size
-	)
-{
-	if (size < sizeof(io.ArpHdr))
-	{
+) {
+	if (size < sizeof(io.ArpHdr)) {
 		representation.addHyperText("\e[1mARP\e[m [INCOMPLETE]");
 		return;
 	}
 
 	io.ArpHdr const* arpHdr = (io.ArpHdr const*)p;
 	size_t arpSize = sizeof(io.ArpHdr) + 2 * (arpHdr.m_hardwareLength + arpHdr.m_protocolLength);
-	if (size < arpSize)
-	{
+	if (size < arpSize) {
 		representation.addHyperText($"\e[1mARP\e[m %1 [BROKEN]"(typeof(io.ArpOpcode).getValueString(&arpHdr.m_opcode)));
 		return;
 	}
 
-	switch (arpHdr.m_opcode)
-	{
+	switch (arpHdr.m_opcode) {
 	case io.ArpOpcode.Request:
 		representation.addHyperText(
 			$"\e[1mARP\e[m \e[34m%1\e[m \u2192 request: who-has \e[34m%2"(
 			getArpProtocolAddressString(arpHdr, 0),
 			getArpProtocolAddressString(arpHdr, 1)
-			));
+		));
 		break;
 
 	case io.ArpOpcode.Reply:
@@ -43,7 +39,7 @@ void representArpDigest(
 			getArpProtocolAddressString(arpHdr, 0),
 			getArpProtocolAddressString(arpHdr, 1),
 			getArpHardwareAddressString(arpHdr, 0)
-			));
+		));
 		break;
 
 	case io.ArpOpcode.RequestReverse:
@@ -51,7 +47,7 @@ void representArpDigest(
 			$"\e[1mRARP\e[m \e[34m%1\e[m \u2192 request: who-has \e[34m%2"(
 			getArpProtocolAddressString(arpHdr, 0),
 			getArpHardwareAddressString(arpHdr, 1)
-			));
+		));
 
 	case io.ArpOpcode.ReplyReverese:
 		representation.addHyperText(
@@ -59,7 +55,7 @@ void representArpDigest(
 			getArpHardwareAddressString(arpHdr, 0),
 			getArpProtocolAddressString(arpHdr, 1),
 			getArpProtocolAddressString(arpHdr, 0)
-			));
+		));
 
 	default:
 		representation.addHyperText($"\e[1mARP\e[m [INVALID]");
@@ -73,12 +69,10 @@ void representArpDetails(
 	size_t size,
 	size_t baseOffset,
 	uint_t foldFlags
-	)
-{
+) {
 	representation.m_lineAttr.m_backColor = ProtoColor.NetworkLayer;
 
-	if (size < sizeof(io.ArpHdr))
-	{
+	if (size < sizeof(io.ArpHdr)) {
 		representation.addHyperText("\e[1mARP\e[m [INCOMPLETE]");
 		return;
 	}
@@ -91,7 +85,7 @@ void representArpDetails(
 		baseOffset,
 		foldFlags,
 		ProtoFoldFlag.NetworkLayer
-		);
+	);
 
 	ProtoRange range = { baseOffset, sizeof(io.ArpHdr), ProtoColor.NetworkLayer }
 	protoRangeArray.append(range);
@@ -106,20 +100,17 @@ void representArpPayload(
 	size_t size,
 	size_t baseOffset,
 	uint_t foldFlags
-	)
-{
+) {
 	io.ArpHdr const* arpHdr = (io.ArpHdr const*)p;
 	size_t payloadSize = 2 * (arpHdr.m_hardwareLength + arpHdr.m_protocolLength);
-	if (size < sizeof(io.ArpHdr) + payloadSize)
-	{
+	if (size < sizeof(io.ArpHdr) + payloadSize) {
 		representation.addHyperText("\e[1mARP\e[m Payload [INCOMPLETE]");
 		return;
 	}
 
 	representation.m_lineAttr.m_backColor = ProtoColor.Payload;
 
-	if (foldFlags & ProtoFoldFlag.Payload)
-	{
+	if (foldFlags & ProtoFoldFlag.Payload) {
 		representation.addHyperText(
 			$"[\e^-%1\e[34m-\e[m] \e[1mARP\e[m Payload\n"
 			$"    Sender hardware address: %2\n"
@@ -131,15 +122,13 @@ void representArpPayload(
 			formatArpProtocolAddress(arpHdr, baseOffset, 0),
 			formatArpHardwareAddress(arpHdr, baseOffset, 1),
 			formatArpProtocolAddress(arpHdr, baseOffset, 1)
-			));
-	}
-	else
-	{
+		));
+	} else {
 		representation.addHyperText(
 			$"[\e^+%1\e[34m+\e[m] \e[1mARP\e[m Payload (%2 bytes)"(
 			ProtoFoldFlag.Payload,
 			payloadSize
-			));
+		));
 	}
 
 	baseOffset += sizeof(io.ArpHdr);
@@ -151,13 +140,11 @@ void representArpPayload(
 char const* getArpHardwareAddressString(
 	io.ArpHdr const* hdr,
 	size_t index
-	)
-{
+) {
 	void const* p = hdr + 1;
 	p += index * (hdr.m_hardwareLength + hdr.m_protocolLength);
 
-	switch (hdr.m_hardwareType)
-	{
+	switch (hdr.m_hardwareType) {
 	case io.ArpHardwareType.Ethernet:
 		return hdr.m_hardwareLength >= 6 ? io.formatEthernetAddress(p) : "[INCOMPLETE-MAC]";
 
@@ -169,13 +156,11 @@ char const* getArpHardwareAddressString(
 char const* getArpProtocolAddressString(
 	io.ArpHdr const* hdr,
 	size_t index
-	)
-{
+) {
 	void const* p = hdr + 1;
 	p += index * (hdr.m_hardwareLength + hdr.m_protocolLength) + hdr.m_hardwareLength;
 
-	switch (hdr.m_protocolType)
-	{
+	switch (hdr.m_protocolType) {
 	case io.EthernetType.Ip:
 		return hdr.m_protocolLength >= sizeof(io.Address_ip4) ? io.formatIpAddress(p) : "[INCOMPLETE-IPv4]";
 
@@ -191,30 +176,28 @@ char const* formatArpHardwareAddress(
 	io.ArpHdr const* arpHdr,
 	size_t baseOffset,
 	size_t index
-	)
-{
+) {
 	size_t offset = sizeof(io.ArpHdr) +  index * (arpHdr.m_hardwareLength + arpHdr.m_protocolLength);
 
 	return $"\e^!%1,%2\e[34m%3\e[m"(
 		baseOffset + offset,
 		arpHdr.m_hardwareLength,
 		getArpHardwareAddressString(arpHdr, index)
-		);
+	);
 }
 
 char const* formatArpProtocolAddress(
 	io.ArpHdr const* arpHdr,
 	size_t baseOffset,
 	size_t index
-	)
-{
+) {
 	size_t offset = sizeof(io.ArpHdr) +  index * (arpHdr.m_hardwareLength + arpHdr.m_protocolLength) + arpHdr.m_hardwareLength;
 
 	return $"\e^!%1,%2\e[34m%3\e[m"(
 		baseOffset + offset,
 		arpHdr.m_hardwareLength,
 		getArpProtocolAddressString(arpHdr, index)
-		);
+	);
 }
 
 //..............................................................................

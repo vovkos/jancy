@@ -20,11 +20,9 @@ namespace rt {
 
 //..............................................................................
 
-class GcHeap
-{
+class GcHeap {
 protected:
-	enum State
-	{
+	enum State {
 		State_Idle,
 		State_StopTheWorld,
 		State_Mark,
@@ -32,24 +30,20 @@ protected:
 		State_ResumeTheWorld,
 	};
 
-	enum Flag
-	{
+	enum Flag {
 		Flag_SimpleSafePoint         = 0x01,
 		Flag_ShuttingDown            = 0x02,
 		Flag_TerminateDestructThread = 0x04,
 		Flag_Abort                   = 0x10,
 	};
 
-	struct Root
-	{
+	struct Root {
 		const void* m_p;
 		ct::Type* m_type;
 	};
 
-	struct StaticDestructor: sl::ListLink
-	{
-		union
-		{
+	struct StaticDestructor: sl::ListLink {
+		union {
 			StaticDestructFunc* m_staticDestructFunc;
 			DestructFunc* m_destructFunc;
 		};
@@ -57,12 +51,10 @@ protected:
 		IfaceHdr* m_iface;
 	};
 
-	class DestructThread: public axl::sys::ThreadImpl<DestructThread>
-	{
+	class DestructThread: public axl::sys::ThreadImpl<DestructThread> {
 	public:
 		void
-		threadFunc()
-		{
+		threadFunc() {
 			containerof(this, GcHeap, m_destructThread)->destructThreadFunc();
 		}
 	};
@@ -122,34 +114,29 @@ protected:
 public:
 	GcHeap();
 
-	~GcHeap()
-	{
+	~GcHeap() {
 		ASSERT(isEmpty()); // should be collected during runtime shutdown
 	}
 
 	// informational methods
 
 	bool
-	isEmpty()
-	{
+	isEmpty() {
 		return m_allocBoxArray.isEmpty();
 	}
 
 	bool
-	isAborted()
-	{
+	isAborted() {
 		return (m_flags & Flag_Abort) != 0;
 	}
 
 	Runtime*
-	getRuntime()
-	{
+	getRuntime() {
 		return m_runtime;
 	}
 
 	void*
-	getGuardPage()
-	{
+	getGuardPage() {
 		return m_guardPage;
 	}
 
@@ -171,13 +158,13 @@ public:
 	tryAllocateArray(
 		ct::Type* type,
 		size_t count
-		);
+	);
 
 	DataPtr
 	allocateArray(
 		ct::Type* type,
 		size_t count
-		);
+	);
 
 	DataPtr
 	tryAllocateBuffer(size_t size);
@@ -190,7 +177,7 @@ public:
 		Box* box,
 		const void* rangeBegin,
 		size_t rangeLength
-		);
+	);
 
 	DetachedDataBox*
 	createForeignDataBox(
@@ -198,21 +185,20 @@ public:
 		size_t elementCount,
 		const void* p,
 		bool isCallSiteLocal = true
-		);
+	);
 
 	DataPtr
 	createForeignBufferPtr(
 		const void* p,
 		size_t size,
 		bool isCallSiteLocal = true
-		);
+	);
 
 	void
 	invalidateDataPtrValidator(DataPtrValidator* validator);
 
 	void
-	invalidateDataPtr(DataPtr ptr)
-	{
+	invalidateDataPtr(DataPtr ptr) {
 		invalidateDataPtrValidator(ptr.m_validator);
 	}
 
@@ -230,7 +216,7 @@ public:
 	getIntrospectionClass(
 		void* item,
 		StdType stdType
-		);
+	);
 
 	// management methods
 
@@ -238,8 +224,7 @@ public:
 	getStats(GcStats* stats);
 
 	void
-	getSizeTriggers(GcSizeTriggers* triggers)
-	{
+	getSizeTriggers(GcSizeTriggers* triggers) {
 		triggers->m_allocSizeTrigger = m_allocSizeTrigger;
 		triggers->m_periodSizeTrigger = m_periodSizeTrigger;
 	}
@@ -248,11 +233,10 @@ public:
 	setSizeTriggers(
 		size_t allocSizeTrigger,
 		size_t periodSizeTrigger
-		);
+	);
 
 	void
-	setSizeTriggers(const GcSizeTriggers& triggers)
-	{
+	setSizeTriggers(const GcSizeTriggers& triggers) {
 		setSizeTriggers(triggers.m_allocSizeTrigger, triggers.m_periodSizeTrigger);
 	}
 
@@ -278,11 +262,10 @@ public:
 	addStaticRootVariables(
 		ct::Variable* const* variableArray,
 		size_t count
-		);
+	);
 
 	void
-	addStaticRootVariables(const sl::Array<ct::Variable*>& variableArray)
-	{
+	addStaticRootVariables(const sl::Array<ct::Variable*>& variableArray) {
 		addStaticRootVariables(variableArray, variableArray.getCount());
 	}
 
@@ -290,7 +273,7 @@ public:
 	addStaticRoot(
 		const void* p,
 		ct::Type* type
-		);
+	);
 
 	void
 	addStaticDestructor(StaticDestructFunc* destructFunc);
@@ -299,7 +282,7 @@ public:
 	addStaticClassDestructor(
 		DestructFunc* destructFunc,
 		IfaceHdr* iface
-		);
+	);
 
 	void
 	enterWaitRegion();
@@ -324,7 +307,7 @@ public:
 		GcShadowStackFrame* frame,
 		GcShadowStackFrameMap* map,
 		GcShadowStackFrameMapOp op
-		);
+	);
 
 	// marking
 
@@ -344,8 +327,7 @@ public:
 	markClass(Box* box);
 
 	void
-	markClassPtr(IfaceHdr* iface)
-	{
+	markClassPtr(IfaceHdr* iface) {
 		if (iface)
 			markClass(iface->m_box);
 	}
@@ -357,14 +339,14 @@ public:
 	addRoot(
 		const void* p,
 		ct::Type* type
-		);
+	);
 
 	void
 	addRootArray(
 		const void* p,
 		ct::Type* type,
 		size_t count
-		);
+	);
 
 	void
 	handleGuardPageHit(GcMutatorThread* thread);
@@ -411,37 +393,37 @@ protected:
 	addBaseTypeClassFieldBoxes_l(
 		ClassType* type,
 		IfaceHdr* ifaceHdr
-		);
+	);
 
 	void
 	addClassFieldBoxes_l(
 		ClassType* type,
 		IfaceHdr* ifaceHdr
-		);
+	);
 
 	void
 	addStaticClassDestructor_l(
 		DestructFunc* destructFunc,
 		IfaceHdr* iface
-		);
+	);
 
 	void
 	addStaticBaseTypeClassFieldDestructors_l(
 		ClassType* type,
 		IfaceHdr* ifaceHdr
-		);
+	);
 
 	void
 	addStaticClassFieldDestructors_l(
 		ClassType* type,
 		IfaceHdr* ifaceHdr
-		);
+	);
 
 	void
 	markClassFields(
 		ClassType* type,
 		IfaceHdr* ifaceHdr
-		);
+	);
 
 	void
 	runMarkCycle();

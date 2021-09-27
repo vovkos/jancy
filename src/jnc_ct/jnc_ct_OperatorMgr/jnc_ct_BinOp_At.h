@@ -18,11 +18,9 @@ namespace ct {
 
 //..............................................................................
 
-class BinOp_At: public BinaryOperator
-{
+class BinOp_At: public BinaryOperator {
 public:
-	BinOp_At()
-	{
+	BinOp_At() {
 		m_opKind = BinOpKind_At;
 	}
 
@@ -32,7 +30,7 @@ public:
 		const Value& rawOpValue1,
 		const Value& rawOpValue2,
 		Value* resultValue
-		);
+	);
 };
 
 //..............................................................................

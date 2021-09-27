@@ -22,34 +22,29 @@ JNC_DECLARE_CLASS_TYPE(Promisifier)
 
 //..............................................................................
 
-class PromiseImpl: public Promise
-{
+class PromiseImpl: public Promise {
 public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(Promise)
 
 protected:
-	enum State
-	{
+	enum State {
 		State_Initial   = 0,
 		State_Completed = -1,
 	};
 
-	enum AsyncWaitKind
-	{
+	enum AsyncWaitKind {
 		AsyncWaitKind_NoArgs,
 		AsyncWaitKind_ErrorArg,
 		AsyncWaitKind_ResultErrorArgs,
 	};
 
-	struct AsyncWait: sl::ListLink
-	{
+	struct AsyncWait: sl::ListLink {
 		AsyncWaitKind m_waitKind;
 		FunctionPtr m_handlerPtr;
 		uintptr_t m_handle;
 	};
 
-	struct SyncWait: sl::ListLink
-	{
+	struct SyncWait: sl::ListLink {
 		sys::Event* m_event;
 	};
 
@@ -89,15 +84,13 @@ public:
 
 	static
 	Variant
-	blockingWait(PromiseImpl* self)
-	{
+	blockingWait(PromiseImpl* self) {
 		return self->blockingWaitImpl();
 	}
 
 	Promise*
 	JNC_CDECL
-	asyncWait()
-	{
+	asyncWait() {
 		return this;
 	}
 
@@ -105,15 +98,13 @@ public:
 
 	void
 	JNC_CDECL
-	complete_0()
-	{
+	complete_0() {
 		complete_2(g_nullVariant, g_nullDataPtr);
 	}
 
 	void
 	JNC_CDECL
-	complete_1(DataPtr errorPtr)
-	{
+	complete_1(DataPtr errorPtr) {
 		complete_2(g_nullVariant, errorPtr);
 	}
 
@@ -122,14 +113,14 @@ public:
 	complete_2(
 		Variant result,
 		DataPtr errorPtr
-		);
+	);
 
 protected:
 	uintptr_t
 	addAsyncWait_l(
 		AsyncWaitKind waitKind,
 		FunctionPtr handlerPtr
-		);
+	);
 
 	Variant
 	blockingWaitImpl();

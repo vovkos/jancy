@@ -19,8 +19,7 @@ namespace ct {
 //..............................................................................
 
 size_t
-FunctionTypeOverload::findOverload(FunctionType* type) const
-{
+FunctionTypeOverload::findOverload(FunctionType* type) const {
 	if (!m_type)
 		return -1;
 
@@ -32,8 +31,7 @@ FunctionTypeOverload::findOverload(FunctionType* type) const
 		return 0;
 
 	size_t count = m_overloadArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		FunctionType* overloadType = m_overloadArray[i];
 		if (type->cmp(overloadType) == 0)
 			return i + 1;
@@ -43,8 +41,7 @@ FunctionTypeOverload::findOverload(FunctionType* type) const
 }
 
 size_t
-FunctionTypeOverload::findShortOverload(FunctionType* type) const
-{
+FunctionTypeOverload::findShortOverload(FunctionType* type) const {
 	if (!m_type)
 		return -1;
 
@@ -56,8 +53,7 @@ FunctionTypeOverload::findShortOverload(FunctionType* type) const
 		return 0;
 
 	size_t count = m_overloadArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		FunctionType* overloadType = m_overloadArray[i];
 		if (type->cmp(overloadType->getShortType()) == 0)
 			return i + 1;
@@ -72,8 +68,7 @@ FunctionTypeOverload::chooseOverload(
 	FunctionArg* const* argArray,
 	size_t argCount,
 	CastKind* castKind
-	) const
-{
+) const {
 	ASSERT(m_type);
 
 	bool result = ensureLayout();
@@ -86,8 +81,7 @@ FunctionTypeOverload::chooseOverload(
 	bool isAmbiguous = false;
 
 	size_t count = m_overloadArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		FunctionType* overloadType = m_overloadArray[i];
 		CastKind castKind = module->m_operatorMgr.getArgCastKind(closure, overloadType, argArray, argCount);
 		if (!castKind)
@@ -96,22 +90,19 @@ FunctionTypeOverload::chooseOverload(
 		if (castKind == bestCastKind)
 			isAmbiguous = true;
 
-		if (castKind > bestCastKind)
-		{
+		if (castKind > bestCastKind) {
 			bestOverload = i + 1;
 			bestCastKind = castKind;
 			isAmbiguous = false;
 		}
 	}
 
-	if (bestOverload == -1)
-	{
+	if (bestOverload == -1) {
 		err::setFormatStringError("none of the %d overloads accept the specified argument list", count + 1);
 		return -1;
 	}
 
-	if (isAmbiguous)
-	{
+	if (isAmbiguous) {
 		err::setFormatStringError("ambiguous call to overloaded function");
 		return -1;
 	}
@@ -127,8 +118,7 @@ FunctionTypeOverload::chooseOverload(
 	const Value* argValueArray,
 	size_t argCount,
 	CastKind* castKind
-	) const
-{
+) const {
 	ASSERT(m_type);
 
 	bool result = ensureLayout();
@@ -141,8 +131,7 @@ FunctionTypeOverload::chooseOverload(
 	bool isAmbiguous = false;
 
 	size_t count = m_overloadArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		FunctionType* overloadType = m_overloadArray[i];
 		CastKind castKind = module->m_operatorMgr.getArgCastKind(overloadType, argValueArray, argCount);
 		if (!castKind)
@@ -151,22 +140,19 @@ FunctionTypeOverload::chooseOverload(
 		if (castKind == bestCastKind)
 			isAmbiguous = true;
 
-		if (castKind > bestCastKind)
-		{
+		if (castKind > bestCastKind) {
 			bestOverload = i + 1;
 			bestCastKind = castKind;
 			isAmbiguous = false;
 		}
 	}
 
-	if (bestOverload == -1)
-	{
+	if (bestOverload == -1) {
 		err::setFormatStringError("none of the %d overloads accept the specified argument list", count + 1);
 		return -1;
 	}
 
-	if (isAmbiguous)
-	{
+	if (isAmbiguous) {
 		err::setFormatStringError("ambiguous call to overloaded function");
 		return -1;
 	}
@@ -181,8 +167,7 @@ size_t
 FunctionTypeOverload::chooseOverload(
 	const sl::ConstBoxList<Value>& argList,
 	CastKind* castKind
-	) const
-{
+) const {
 	ASSERT(m_type);
 
 	bool result = ensureLayout();
@@ -195,8 +180,7 @@ FunctionTypeOverload::chooseOverload(
 	bool isAmbiguous = false;
 
 	size_t count = m_overloadArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		FunctionType* overloadType = m_overloadArray[i];
 		CastKind castKind = module->m_operatorMgr.getArgCastKind(overloadType, argList);
 		if (!castKind)
@@ -205,22 +189,19 @@ FunctionTypeOverload::chooseOverload(
 		if (castKind == bestCastKind)
 			isAmbiguous = true;
 
-		if (castKind > bestCastKind)
-		{
+		if (castKind > bestCastKind) {
 			bestOverload = i + 1;
 			bestCastKind = castKind;
 			isAmbiguous = false;
 		}
 	}
 
-	if (bestOverload == -1)
-	{
+	if (bestOverload == -1) {
 		err::setFormatStringError("none of the %d overloads accept the specified argument list", count + 1);
 		return -1;
 	}
 
-	if (isAmbiguous)
-	{
+	if (isAmbiguous) {
 		err::setFormatStringError("ambiguous call to overloaded function");
 		return -1;
 	}
@@ -235,8 +216,7 @@ size_t
 FunctionTypeOverload::chooseSetterOverload(
 	const Value& value,
 	CastKind* castKind
-	) const
-{
+) const {
 	ASSERT(m_type);
 
 	bool result = ensureLayout();
@@ -252,8 +232,7 @@ FunctionTypeOverload::chooseSetterOverload(
 	bool isAmbiguous = false;
 
 	size_t count = m_overloadArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		FunctionType* overloadType = m_overloadArray[i];
 		Type* setterValueArgType = overloadType->getArgArray() [setterValueIdx]->getType();
 
@@ -264,22 +243,19 @@ FunctionTypeOverload::chooseSetterOverload(
 		if (castKind == bestCastKind)
 			isAmbiguous = true;
 
-		if (castKind > bestCastKind)
-		{
+		if (castKind > bestCastKind) {
 			bestOverload = i + 1;
 			bestCastKind = castKind;
 			isAmbiguous = false;
 		}
 	}
 
-	if (bestOverload == -1)
-	{
+	if (bestOverload == -1) {
 		err::setFormatStringError("none of the %d overloads accept the specified argument list", count + 1);
 		return -1;
 	}
 
-	if (isAmbiguous)
-	{
+	if (isAmbiguous) {
 		err::setFormatStringError("ambiguous call to overloaded function");
 		return -1;
 	}
@@ -291,26 +267,20 @@ FunctionTypeOverload::chooseSetterOverload(
 }
 
 size_t
-FunctionTypeOverload::addOverload(FunctionType* type)
-{
-	if (!m_type)
-	{
+FunctionTypeOverload::addOverload(FunctionType* type) {
+	if (!m_type) {
 		m_type = type;
 		return 0;
-	}
-	else if (type->getArgSignature().cmp(m_type->getArgSignature()) == 0)
-	{
+	} else if (type->getArgSignature().cmp(m_type->getArgSignature()) == 0) {
 		err::setFormatStringError("illegal function overload: duplicate argument signature");
 		return -1;
 	}
 
 	size_t count = m_overloadArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		FunctionType* overloadType = m_overloadArray[i];
 
-		if (type->getArgSignature().cmp(overloadType->getArgSignature()) == 0)
-		{
+		if (type->getArgSignature().cmp(overloadType->getArgSignature()) == 0) {
 			err::setFormatStringError("illegal function overload: duplicate argument signature");
 			return -1;
 		}
@@ -324,23 +294,18 @@ void
 FunctionTypeOverload::copy(
 	FunctionType* const* typeArray,
 	size_t count
-	)
-{
-	if (count)
-	{
+) {
+	if (count) {
 		m_type = typeArray[0];
 		m_overloadArray.copy(typeArray + 1, count - 1);
-	}
-	else
-	{
+	} else {
 		m_type = NULL;
 		m_overloadArray.clear();
 	}
 }
 
 bool
-FunctionTypeOverload::prepareImports() const
-{
+FunctionTypeOverload::prepareImports() const {
 	ASSERT(!(m_flags & (ModuleItemFlag_LayoutReady | TypeFlag_NoImports)));
 	ASSERT(m_type);
 
@@ -349,8 +314,7 @@ FunctionTypeOverload::prepareImports() const
 		return false;
 
 	size_t count = m_overloadArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		result = m_overloadArray[i]->ensureNoImports();
 		if (!result)
 			return false;
@@ -361,8 +325,7 @@ FunctionTypeOverload::prepareImports() const
 }
 
 bool
-FunctionTypeOverload::prepareLayout() const
-{
+FunctionTypeOverload::prepareLayout() const {
 	ASSERT(!(m_flags & ModuleItemFlag_LayoutReady));
 	ASSERT(m_type);
 
@@ -371,8 +334,7 @@ FunctionTypeOverload::prepareLayout() const
 		return false;
 
 	size_t count = m_overloadArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		result = m_overloadArray[i]->ensureLayout();
 		if (!result)
 			return false;

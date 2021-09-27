@@ -13,19 +13,17 @@ void representSimpleProtoDigestNoPayload(
 	char const* dstString,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	if (!name)
 		name = log.getDisplayName(type);
 
-	if (size < type.m_size)
-	{
+	if (size < type.m_size) {
 		representation.addHyperText(
 			$"\e[1m%1 \e[10;34m%2\e[m \u2192 \e[34m%3\e[m [INCOMPLETE]"(
 			name,
 			srcString,
 			dstString
-			));
+		));
 		return;
 	}
 
@@ -38,7 +36,7 @@ void representSimpleProtoDigestNoPayload(
 		dstString,
 		digest ? "\e[m " : null,
 		digest
-		));
+	));
 }
 
 void representSimpleProtoDigest(
@@ -50,8 +48,7 @@ void representSimpleProtoDigest(
 	void const* p,
 	size_t size,
 	int payloadPreviewIconIdx = -1
-	)
-{
+) {
 	representSimpleProtoDigestNoPayload(
 		representation,
 		type,
@@ -60,7 +57,7 @@ void representSimpleProtoDigest(
 		dstString,
 		p,
 		size
-		);
+	);
 
 	size_t typeSize = type.m_size;
 	if (size > typeSize)
@@ -69,7 +66,7 @@ void representSimpleProtoDigest(
 			p + typeSize,
 			size - typeSize,
 			payloadPreviewIconIdx
-			);
+		);
 }
 
 void representSimpleProtoDetails(
@@ -85,16 +82,14 @@ void representSimpleProtoDetails(
 	uint_t headerColor,
 	uint_t payloadFoldFlag = 0,
 	uint_t payloadColor = ui.ColorFlags.Transparent
-	)
-{
+) {
 	if (!name)
 		name = log.getDisplayName(type);
 
 	representation.m_lineAttr.m_backColor = headerColor;
 
 	size_t typeSize = type.m_size;
-	if (size < typeSize)
-	{
+	if (size < typeSize) {
 		representation.addHyperText($"\e[1m%1\e[m [INCOMPLETE]"(name));
 		return;
 	}
@@ -108,7 +103,7 @@ void representSimpleProtoDetails(
 		baseOffset,
 		foldFlags,
 		headerFoldFlag
-		);
+	);
 
 	ProtoRange range = { baseOffset, typeSize, headerColor }
 	protoRangeArray.append(range);
@@ -124,7 +119,7 @@ void representSimpleProtoDetails(
 			foldFlags,
 			payloadFoldFlag,
 			payloadColor
-			);
+		);
 }
 
 //..............................................................................

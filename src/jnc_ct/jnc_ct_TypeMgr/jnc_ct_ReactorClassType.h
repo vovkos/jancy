@@ -18,8 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-enum ReactorMethod
-{
+enum ReactorMethod {
 	ReactorMethod_Start,
 	ReactorMethod_Stop,
 	ReactorMethod_Restart,
@@ -35,24 +34,21 @@ Function*
 getReactorMethod(
 	Module* module,
 	ReactorMethod method
-	);
+);
 
 //..............................................................................
 
-class ReactorClassType: public ClassType
-{
+class ReactorClassType: public ClassType {
 	friend class TypeMgr;
 	friend class ClassType;
 	friend class Parser;
 
 protected:
-	class Reaction: public CompilableFunction
-	{
+	class Reaction: public CompilableFunction {
 	public:
 		virtual
 		bool
-		compile()
-		{
+		compile() {
 			return ((ReactorClassType*)m_parentNamespace)->compileReaction(this);
 		}
 	};
@@ -68,26 +64,22 @@ public:
 	ReactorClassType();
 
 	ClassType*
-	getParentType()
-	{
+	getParentType() {
 		return m_parentType;
 	}
 
 	size_t
-	getParentOffset()
-	{
+	getParentOffset() {
 		return m_parentOffset;
 	}
 
 	size_t
-	getReactionCount()
-	{
+	getReactionCount() {
 		return m_reactionCount;
 	}
 
 	Function*
-	getReaction()
-	{
+	getReaction() {
 		return m_reaction;
 	}
 
@@ -95,11 +87,10 @@ public:
 	createOnEventHandler(
 		size_t reactionIdx,
 		FunctionType* type
-		);
+	);
 
 	Function*
-	findOnEventHandler(size_t reactionIdx)
-	{
+	findOnEventHandler(size_t reactionIdx) {
 		return m_onEventMap.findValue(reactionIdx, NULL);
 	}
 
@@ -110,15 +101,13 @@ protected:
 
 	virtual
 	void
-	prepareTypeString()
-	{
+	prepareTypeString() {
 		getTypeStringTuple()->m_typeStringPrefix = "reactor";
 	}
 
 	virtual
 	void
-	prepareDoxyLinkedText()
-	{
+	prepareDoxyLinkedText() {
 		getTypeStringTuple()->m_doxyLinkedTextPrefix = "reactor";
 	}
 
@@ -134,8 +123,7 @@ protected:
 
 inline
 bool
-isReactorClassTypeMember(ModuleItemDecl* itemDecl)
-{
+isReactorClassTypeMember(ModuleItemDecl* itemDecl) {
 	Namespace* nspace = itemDecl->getParentNamespace();
 	return
 		nspace->getNamespaceKind() == NamespaceKind_Type &&

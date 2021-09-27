@@ -24,8 +24,7 @@ namespace io {
 	of `io.File` or `io.FileStream` object.
 */
 
-enum FileKind
-{
+enum FileKind {
 	//! Denotes undefined (or generic) file stream.
 
 	Unknown,
@@ -53,10 +52,8 @@ enum FileKind
 	``unknown device`` is returned.
 */
 
-char const* getFileStreamKindString(FileKind kind)
-{
-	static char const* stringTable[] =
-	{
+char const* getFileStreamKindString(FileKind kind) {
+	static char const* stringTable[] = {
 		"unknown device", // FileKind.Unknown,
 		"disk file",      // FileKind.Disk,
 		"serial device",  // FileKind.Serial,
@@ -83,8 +80,7 @@ char const* getFileStreamKindString(FileKind kind)
 	\sa `io.File`, `io.FileStream`, `io.MappedFile`
 */
 
-bitflag enum FileOpenFlags
-{
+bitflag enum FileOpenFlags {
 	/**
 		File or device should be opened in read-only mode. When file is opened
 		in read-only mode, trying to perform modifying operations such as
@@ -199,8 +195,7 @@ bitflag enum FileOpenFlags
 
 	.. ref-code-block::
 
-		void foo(void const* data)
-		{
+		void foo(void const* data) {
 			disposable io.File file;
 			file.open("data.txt");
 			file.write(data, dynamic sizeof(data));
@@ -223,8 +218,7 @@ bitflag enum FileOpenFlags
 		|footnote-disposable|
 */
 
-opaque class File
-{
+opaque class File {
 	/**
 		Holds the open status for the file, i.e. ``true`` if opened; ``false``
 		otherwise.
@@ -276,7 +270,7 @@ opaque class File
 	bool errorcode open(
 		char const* name,
 		FileOpenFlags flags = 0
-		);
+	);
 
 	/**
 		Closes a previously opened file, does nothing if the file is not opened.
@@ -312,7 +306,7 @@ opaque class File
 	size_t errorcode read(
 		void* p,
 		size_t size
-		);
+	);
 
 	/**
 		Attempts to write ``size`` bytes from the buffer pointed to by ``p``
@@ -326,7 +320,7 @@ opaque class File
 	size_t errorcode write(
 		void const* p,
 		size_t size
-		);
+	);
 
 	bool errorcode flush();
 }

@@ -13,12 +13,12 @@ if(WIN32)
 	configure_file(
 		sign-jncx.bat.in
 		sign-jncx.bat
-		)
+	)
 
 	configure_file(
 		sign-all-jncx.bat.in
 		sign-all-jncx.bat
-		)
+	)
 else()
 	set(DOLLAR $)
 
@@ -28,7 +28,7 @@ else()
 		OWNER_READ OWNER_WRITE OWNER_EXECUTE
 		GROUP_READ GROUP_WRITE GROUP_EXECUTE
 		WORLD_READ WORLD_WRITE WORLD_EXECUTE
-		)
+	)
 
 	axl_configure_file_w_permissions(
 		sign-all-jncx.sh.in
@@ -36,7 +36,7 @@ else()
 		OWNER_READ OWNER_WRITE OWNER_EXECUTE
 		GROUP_READ GROUP_WRITE GROUP_EXECUTE
 		WORLD_READ WORLD_WRITE WORLD_EXECUTE
-		)
+	)
 endif()
 
 #...............................................................................

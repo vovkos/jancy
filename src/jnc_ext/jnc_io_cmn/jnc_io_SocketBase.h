@@ -22,8 +22,7 @@ struct SslStateBase;
 
 //..............................................................................
 
-enum SocketOption
-{
+enum SocketOption {
 	SocketOption_ReuseAddr    = 0x04,
 	SocketOption_TcpKeepAlive = 0x08,
 	SocketOption_TcpNagle     = 0x10,
@@ -34,8 +33,7 @@ enum SocketOption
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum SocketEvent
-{
+enum SocketEvent {
 	SocketEvent_IncomingConnection = 0x0010,
 	SocketEvent_TcpConnected       = 0x0020,
 	SocketEvent_TcpDisconnected    = 0x0040,
@@ -44,11 +42,9 @@ enum SocketEvent
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class SocketBase: public AsyncIoDevice
-{
+class SocketBase: public AsyncIoDevice {
 protected:
-	struct IncomingConnection: sl::ListLink
-	{
+	struct IncomingConnection: sl::ListLink {
 		axl::io::Socket m_socket;
 		axl::io::SockAddr m_sockAddr;
 	};
@@ -62,8 +58,7 @@ protected:
 
 protected:
 	uintptr_t
-	getOsHandle()
-	{
+	getOsHandle() {
 		return m_socket.m_socket;
 	}
 
@@ -80,14 +75,14 @@ protected:
 	checkAccess(
 		uint16_t family,
 		int protocol
-		);
+	);
 
 	bool
 	open(
 		uint16_t family,
 		int protocol,
 		const SocketAddress* address
-		);
+	);
 
 	void
 	close();

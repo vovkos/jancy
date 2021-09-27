@@ -18,8 +18,7 @@ char g_script[] =
 
 //..............................................................................
 
-enum Error
-{
+enum Error {
 	Error_Success = 0,
 	Error_CmdLine = -1,
 	Error_Io      = -2,
@@ -37,8 +36,7 @@ const char*
 convertToUtf8(
 	const wchar_t* string,
 	size_t length
-	)
-{
+) {
 	char* p;
 	int requiredLength;
 
@@ -62,13 +60,13 @@ int
 wmain(
 	int argc,
 	wchar_t* argv[]
-	)
+)
 #else
 int
 main(
 	int argc,
 	char* argv[]
-	)
+)
 #endif
 {
 	typedef
@@ -95,13 +93,10 @@ main(
 	jnc_Module_addStaticLib(module, MyLib_getLib());
 	jnc_Module_require(module, jnc_ModuleItemKind_Function, "main", 1);
 
-	if (argc < 2)
-	{
+	if (argc < 2) {
 		printf("Parsing default script...\n");
 		result = jnc_Module_parse(module, "script.jnc", g_script, sizeof(g_script) - 1);
-	}
-	else
-	{
+	} else {
 #if (_JNC_OS_WIN)
 		fileName = convertToUtf8(argv[1], -1);
 #else
@@ -113,8 +108,7 @@ main(
 
 	result = result && jnc_Module_parseImports(module);
 
-	if (!result)
-	{
+	if (!result) {
 		printf("%s\n", jnc_getLastErrorDescription_v ());
 		finalResult = Error_Compile;
 		goto exit;
@@ -127,8 +121,7 @@ main(
 		jnc_Module_optimize(module, 2) &&
 		jnc_Module_jit(module);
 
-	if (!result)
-	{
+	if (!result) {
 		printf("%s\n", jnc_getLastErrorDescription_v ());
 		finalResult = Error_Compile;
 		goto exit;
@@ -142,8 +135,7 @@ main(
 
 	runtime = jnc_Runtime_create();
 	result = jnc_Runtime_startup(runtime, module);
-	if (!result)
-	{
+	if (!result) {
 		printf("%s\n", jnc_getLastErrorDescription_v ());
 		finalResult = Error_Runtime;
 		goto exit;
@@ -155,8 +147,7 @@ main(
 	returnValue = mc();
 	JNC_END_CALL_SITE_EX(&result)
 
-	if (!result)
-	{
+	if (!result) {
 		printf("Runtime error: %s\n", jnc_getLastErrorDescription_v ());
 		finalResult = Error_Runtime;
 		goto exit;

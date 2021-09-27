@@ -22,11 +22,9 @@ class BasicBlock;
 
 //..............................................................................
 
-class AsyncRegionMgr
-{
+class AsyncRegionMgr {
 protected:
-	struct Region: sl::ListLink
-	{
+	struct Region: sl::ListLink {
 		llvm::BasicBlock* m_llvmEntryBlock;
 		Region* m_parentRegion;
 #if (_JNC_DEBUG)
@@ -41,8 +39,7 @@ protected:
 	sl::SimpleHashTable<llvm::Instruction*, llvm::AllocaInst*> m_crossRegionValueMap;
 
 public:
-	AsyncRegionMgr(Module* module)
-	{
+	AsyncRegionMgr(Module* module) {
 		m_module = module;
 	}
 
@@ -57,14 +54,14 @@ protected:
 	createRegion(
 		llvm::BasicBlock* llvmEntryBlock,
 		Region* parentRegion = NULL
-		);
+	);
 
 	void
 	preserveCrossRegionValue(
 		llvm::Instruction* llvmOpInst,
 		llvm::Instruction* llvmTargetInst,
 		size_t opIdx
-		);
+	);
 };
 
 

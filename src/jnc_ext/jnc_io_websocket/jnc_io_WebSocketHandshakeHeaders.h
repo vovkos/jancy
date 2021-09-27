@@ -18,8 +18,7 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(WebSocketHandshakeHeaders)
 
 //..............................................................................
 
-enum WebSocketHandshakeStdHeader
-{
+enum WebSocketHandshakeStdHeader {
 	WebSocketHandshakeStdHeader_UserAgent,
 	WebSocketHandshakeStdHeader_Host,
 	WebSocketHandshakeStdHeader_Origin,
@@ -52,16 +51,14 @@ AXL_SL_END_STRING_HASH_TABLE_IGNORE_CASE_PCU()
 
 //..............................................................................
 
-struct WebSocketHandshakeHeader
-{
+struct WebSocketHandshakeHeader {
 	size_t m_nameIdx;
 	DualString m_name;
 	DualString m_firstValue;
 	sl::BoxList<DualString> m_extraValueList;
 	sl::Array<DualString*> m_extraValueArray;
 
-	WebSocketHandshakeHeader()
-	{
+	WebSocketHandshakeHeader() {
 		m_nameIdx = -1;
 	}
 
@@ -69,7 +66,7 @@ struct WebSocketHandshakeHeader
 	add(
 		const sl::StringRef& value,
 		DataPtr valuePtr
-		);
+	);
 
 	void
 	markGcRoots(jnc::GcHeap* gcHeap);
@@ -77,8 +74,7 @@ struct WebSocketHandshakeHeader
 
 //..............................................................................
 
-class WebSocketHandshakeHeaders: public IfaceHdr
-{
+class WebSocketHandshakeHeaders: public IfaceHdr {
 	friend class WebSocketHandshake;
 	friend class WebSocketHandshakeParser;
 
@@ -94,26 +90,22 @@ protected:
 	WebSocketHandshakeHeader* m_stdHeaderTable[WebSocketHandshakeStdHeader__Count];
 
 public:
-	WebSocketHandshakeHeaders()
-	{
+	WebSocketHandshakeHeaders() {
 		m_nameCount = 0;
 	}
 
 	const sl::StringHashTable<WebSocketHandshakeHeader>&
-	getHeaderMap() const
-	{
+	getHeaderMap() const {
 		return m_headerMap;
 	}
 
 	const WebSocketHandshakeHeader* const*
-	getStdHeaderTable() const
-	{
+	getStdHeaderTable() const {
 		return m_stdHeaderTable;
 	}
 
 	WebSocketHandshakeHeader*
-	getStdHeader(WebSocketHandshakeStdHeader stdHeader) const
-	{
+	getStdHeader(WebSocketHandshakeStdHeader stdHeader) const {
 		ASSERT((size_t)stdHeader < WebSocketHandshakeStdHeader__Count);
 		return m_stdHeaderTable[stdHeader];
 	}
@@ -132,7 +124,7 @@ public:
 	getName(
 		WebSocketHandshakeHeaders* self,
 		size_t nameIdx
-		);
+	);
 
 	size_t
 	JNC_CDECL
@@ -144,7 +136,7 @@ public:
 	getFirstValue(
 		WebSocketHandshakeHeaders* self,
 		size_t nameIdx
-		);
+	);
 
 	static
 	DataPtr
@@ -153,7 +145,7 @@ public:
 		WebSocketHandshakeHeaders* self,
 		size_t nameIdx,
 		size_t valueIdx
-		);
+	);
 
 	size_t
 	JNC_CDECL
@@ -165,21 +157,20 @@ public:
 	findValue(
 		WebSocketHandshakeHeaders* self,
 		DataPtr namePtr
-		);
+	);
 
 	size_t
 	JNC_CDECL
 	add(
 		DataPtr namePtr,
 		DataPtr valuePtr
-		)
-	{
+	) {
 		return addImpl(
 			sl::StringRef((char*)namePtr.m_p, strLen(namePtr)),
 			namePtr,
 			sl::StringRef((char*)valuePtr.m_p, strLen(valuePtr)),
 			valuePtr
-			)->m_nameIdx;
+		)->m_nameIdx;
 	}
 
 	static
@@ -189,7 +180,7 @@ public:
 		WebSocketHandshakeHeaders* self,
 		DataPtr delimiterPtr,
 		DataPtr eolPtr
-		);
+	);
 
 protected:
 	WebSocketHandshakeHeader*
@@ -198,14 +189,13 @@ protected:
 		DataPtr namePtr,
 		const sl::StringRef& value,
 		DataPtr valuePtr
-		);
+	);
 
 	WebSocketHandshakeHeader*
 	addImpl(
 		const sl::StringRef& name,
 		const sl::StringRef& value
-		)
-	{
+	) {
 		return addImpl(name, g_nullDataPtr, value, g_nullDataPtr);
 	}
 
@@ -217,7 +207,7 @@ protected:
 		sl::String* string,
 		const sl::StringRef& delimiter = ": ",
 		const sl::StringRef& eol = "\r\n"
-		);
+	);
 };
 
 //..............................................................................

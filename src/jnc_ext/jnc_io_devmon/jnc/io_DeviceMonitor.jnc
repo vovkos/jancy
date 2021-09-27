@@ -24,8 +24,7 @@ typedef ReadOnlyStreamEvents DeviceMonitorEvents;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class DeviceMonitor
-{
+opaque class DeviceMonitor {
 	uint_t autoget property m_readParallelism;
 	size_t autoget property m_readBlockSize;
 	size_t autoget property m_readBufferSize;
@@ -54,24 +53,24 @@ opaque class DeviceMonitor
 	void setIoctlDescTable(
 		psx.DeviceMonitorIoctlDesc const* ioctlDesc,
 		size_t count
-		);
+	);
 
 	size_t errorcode read(
 		void* p,
 		size_t size
-		);
+	);
 
 	intptr errorcode wait(
 		DeviceMonitorEvents eventMask,
 		function* handler(DeviceMonitorEvents triggeredEvents)
-		);
+	);
 
 	bool errorcode cancelWait(intptr handle);
 
 	DeviceMonitorEvents blockingWait(
 		DeviceMonitorEvents eventMask,
 		uint_t timeout = -1
-		);
+	);
 
 	async DeviceMonitorEvents asyncWait(DeviceMonitorEvents eventMask);
 }

@@ -25,11 +25,9 @@ class NamedType;
 
 //..............................................................................
 
-class UsingSet
-{
+class UsingSet {
 protected:
-	struct ImportNamespace: sl::ListLink
-	{
+	struct ImportNamespace: sl::ListLink {
 		Namespace* m_anchorNamespace;
 		NamespaceKind m_namespaceKind;
 		QualifiedName m_name;
@@ -52,17 +50,15 @@ public:
 		Namespace* anchorNamespace,
 		NamespaceKind namespaceKind,
 		const QualifiedName& name
-		);
+	);
 
 	void
-	addGlobalNamespace(GlobalNamespace* nspace)
-	{
+	addGlobalNamespace(GlobalNamespace* nspace) {
 		m_globalNamespaceArray.append(nspace);
 	}
 
 	void
-	addExtensionNamespace(ExtensionNamespace* nspace)
-	{
+	addExtensionNamespace(ExtensionNamespace* nspace) {
 		m_extensionNamespaceArray.append(nspace);
 	}
 
@@ -73,12 +69,11 @@ public:
 	findExtensionItem(
 		NamedType* type,
 		const sl::StringRef& name
-		);
+	);
 
 protected:
 	bool
-	ensureResolved()
-	{
+	ensureResolved() {
 		return m_importNamespaceList.isEmpty() ? true : resolve();
 	}
 

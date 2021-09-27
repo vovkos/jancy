@@ -29,8 +29,7 @@ namespace io {
 	\sa `io.NamedPipe`
 */
 
-bitflag enum NamedPipeEvents
-{
+bitflag enum NamedPipeEvents {
 	/**
 		An IO error occured on the named pipe server; detailed information about
 		the error is available at `io.NamedPipe.m_ioError`.
@@ -80,8 +79,7 @@ bitflag enum NamedPipeEvents
 		|footnote-disposable|
 */
 
-opaque class NamedPipe
-{
+opaque class NamedPipe {
 	uint_t autoget property m_backLogLimit;
 	uint_t autoget property m_readParallelism;
 	size_t autoget property m_readBlockSize;
@@ -152,14 +150,14 @@ opaque class NamedPipe
 	intptr errorcode wait(
 		NamedPipeEvents eventMask,
 		function* handler(NamedPipeEvents triggeredEvents)
-		);
+	);
 
 	bool errorcode cancelWait(intptr handle);
 
 	NamedPipeEvents blockingWait(
 		NamedPipeEvents eventMask,
 		uint_t timeout = -1
-		);
+	);
 
 	async NamedPipeEvents asyncWait(NamedPipeEvents eventMask);
 }

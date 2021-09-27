@@ -30,8 +30,7 @@ namespace io {
 	`io.NetworkAdapterDesc.m_type` field.
 */
 
-enum NetworkAdapterType
-{
+enum NetworkAdapterType {
 	//! Denotes uninitialized value (or undetected type of the network adapter)
 
 	Unknown = 0,
@@ -69,10 +68,8 @@ enum NetworkAdapterType
 		denoting the total count  of adapter types. Should you need a table
 		indexed by adapter type, you could write something like::
 
-			char const* getNetworkAdapterTypeString(io.NetworkAdapterType type)
-			{
-				static char const stringTable[io.NetworkAdapterType._Count] =
-				{
+			char const* getNetworkAdapterTypeString(io.NetworkAdapterType type) {
+				static char const stringTable[io.NetworkAdapterType._Count] = {
 					"<unknown>",
 					"loopback",
 					// ...
@@ -101,8 +98,7 @@ enum NetworkAdapterType
 	\sa `io.createNetworkAdapterDescList`, `io.NetworkAdapterDesc`
 */
 
-bitflag enum NetworkAdapterFlags
-{
+bitflag enum NetworkAdapterFlags {
 	/**
 		``DHCP`` (Dynamic Host Configuration Protocol) is enabled on this
 		adapter.
@@ -147,8 +143,7 @@ bitflag enum NetworkAdapterFlags
 
 */
 
-struct NetworkAdapterAddress
-{
+struct NetworkAdapterAddress {
 	/**
 		Holds a pointer to the next newtwork adatper address or ``null`` if this
 		is the last address.
@@ -187,8 +182,7 @@ struct NetworkAdapterAddress
 	\sa `io.createNetworkAdapterDescList`
 */
 
-struct NetworkAdapterDesc
-{
+struct NetworkAdapterDesc {
 	/**
 		Holds a pointer to the next nextwork adapter description or ``null`` if
 		this is the last adapter.
@@ -261,8 +255,7 @@ struct NetworkAdapterDesc
 
 		`io.NetworkAdapterDesc` const* adapterDesc =
 			io.createNetworkAdapterDescList();
-		for (; adapterDesc; adapterDesc = adapterDesc.m_next)
-		{
+		for (; adapterDesc; adapterDesc = adapterDesc.m_next) {
 			// add adapter to the combo box...
 		}
 */
@@ -270,7 +263,7 @@ struct NetworkAdapterDesc
 NetworkAdapterDesc const* createNetworkAdapterDescList(
 	size_t* adapterCount = null,
 	size_t* addressCount = null
-	);
+);
 
 //..............................................................................
 

@@ -23,8 +23,7 @@
 
 // sample error code enumeration
 
-enum Error
-{
+enum Error {
 	Success  = 0,
 	TooHigh  = -2,
 	TooLow   = -3,
@@ -37,18 +36,15 @@ enum Error
 // 'false' for bools, negative for signed integers, '-1' for unsigned integers.
 // Other types will be cast to 'bool' for error condition checking.
 
-int errorcode foo(int a)
-{
+int errorcode foo(int a) {
 	printf("foo (%d)\n", a);
 
-	if (a > 100)
-	{
+	if (a > 100) {
 		printf("argument too high\n");
 		return Error.TooHigh;
 	}
 
-	if (a < -100)
-	{
+	if (a < -100) {
 		printf("argument too low\n");
 		return Error.TooLow;
 	}
@@ -64,8 +60,7 @@ int errorcode foo(int a)
 int errorcode bar(
 	int a,
 	int b
-	)
-{
+) {
 	printf("bar (%d, %d)\n", a, b);
 
 	foo(a);
@@ -78,15 +73,13 @@ int errorcode bar(
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	// use 'try' operator to handle the error code manually...
 
 	int error = try bar(1, -150);
-	if (error < 0)
-	{
+	if (error < 0) {
 		printf("bar returned error %d\n", error);
 	}
 

@@ -57,7 +57,7 @@ JNC_CDECL
 getIntrospectionClass(
 	void* item,
 	StdType stdType
-	);
+);
 
 ModuleItem*
 JNC_CDECL
@@ -65,30 +65,26 @@ getModuleItem(ct::ModuleItem* item);
 
 inline
 AttributeBlock*
-getAttributeBlock(ct::AttributeBlock* block)
-{
+getAttributeBlock(ct::AttributeBlock* block) {
 	return (AttributeBlock*)getIntrospectionClass(block, StdType_AttributeBlock);
 }
 
 inline
 Attribute*
-getAttribute(ct::Attribute* attribute)
-{
+getAttribute(ct::Attribute* attribute) {
 	return (Attribute*)getIntrospectionClass(attribute, StdType_Attribute);
 }
 
 inline
 BaseTypeSlot*
-getBaseTypeSlot(ct::BaseTypeSlot* slot)
-{
+getBaseTypeSlot(ct::BaseTypeSlot* slot) {
 	return (BaseTypeSlot*)getIntrospectionClass(slot, StdType_BaseTypeSlot);
 }
 
 inline
 Field*
 JNC_CDECL
-getField(ct::Field* field)
-{
+getField(ct::Field* field) {
 	return (Field*)getIntrospectionClass(field, StdType_Field);
 }
 
@@ -98,22 +94,19 @@ getType(ct::Type* type);
 
 inline
 EnumConst*
-getEnumConst(ct::EnumConst* cnst)
-{
+getEnumConst(ct::EnumConst* cnst) {
 	return (EnumConst*)getIntrospectionClass(cnst, StdType_EnumConst);
 }
 
 inline
 Variable*
-getVariable(ct::Variable* function)
-{
+getVariable(ct::Variable* function) {
 	return (Variable*)getIntrospectionClass(function, StdType_Variable);
 }
 
 inline
 Function*
-getFunction(ct::Function* function)
-{
+getFunction(ct::Function* function) {
 	return (Function*)getIntrospectionClass(function, StdType_Function);
 }
 
@@ -122,22 +115,19 @@ getFunction(OverloadableFunction function);
 
 inline
 FunctionOverload*
-getFunctionOverload(ct::FunctionOverload* overload)
-{
+getFunctionOverload(ct::FunctionOverload* overload) {
 	return (FunctionOverload*)getIntrospectionClass(overload, StdType_FunctionOverload);
 }
 
 inline
 FunctionArg*
-getFunctionArg(ct::FunctionArg* arg)
-{
+getFunctionArg(ct::FunctionArg* arg) {
 	return (FunctionArg*)getIntrospectionClass(arg, StdType_FunctionArg);
 }
 
 inline
 Property*
-getProperty(ct::Property* property)
-{
+getProperty(ct::Property* property) {
 	return (Property*)getIntrospectionClass(property, StdType_Property);
 }
 
@@ -146,22 +136,19 @@ getNamespace(ct::Namespace* nspace);
 
 inline
 GlobalNamespace*
-getGlobalNamespace(ct::GlobalNamespace* nspace)
-{
+getGlobalNamespace(ct::GlobalNamespace* nspace) {
 	return (GlobalNamespace*)getIntrospectionClass(nspace, StdType_GlobalNamespace);
 }
 
 inline
 Module*
-getModule(ct::Module* module)
-{
+getModule(ct::Module* module) {
 	return (Module*)getIntrospectionClass(module, StdType_Module);
 }
 
 inline
 Unit*
-getUnit(ct::Unit* unit)
-{
+getUnit(ct::Unit* unit) {
 	return (Unit*)getIntrospectionClass(unit, StdType_Unit);
 }
 

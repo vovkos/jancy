@@ -23,15 +23,13 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(UsbEndpoint)
 
 //..............................................................................
 
-enum UsbEndpointEvent
-{
+enum UsbEndpointEvent {
 	UsbEndpointEvent_WriteCompleted = 0x0010,
 };
 
 //..............................................................................
 
-struct UsbEndpointHdr: IfaceHdr
-{
+struct UsbEndpointHdr: IfaceHdr {
 	UsbInterface* m_parentInterface;
 	DataPtr m_endpointDescPtr;
 
@@ -46,8 +44,7 @@ struct UsbEndpointHdr: IfaceHdr
 
 class UsbEndpoint:
 	public UsbEndpointHdr,
-	public AsyncIoDevice
-{
+	public AsyncIoDevice {
 	friend class IoThread;
 	friend class GetParentLink;
 
@@ -55,8 +52,7 @@ public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(UsbEndpoint)
 
 public:
-	enum Def
-	{
+	enum Def {
 		Def_TransferTimeout = -1,
 		Def_ReadBlockSize   = 4 * 1024,
 		Def_ReadParallelism = 4,
@@ -65,28 +61,23 @@ public:
 		Def_Options         = AsyncIoDeviceOption_KeepReadWriteBlockSize,
 	};
 
-	class GetParentLink
-	{
+	class GetParentLink {
 	public:
-		sl::ListLink* operator()(UsbEndpoint* self)
-		{
+		sl::ListLink* operator()(UsbEndpoint* self) {
 			return &self->m_parentLink;
 		}
 	};
 
 protected:
-	class IoThread: public sys::ThreadImpl<IoThread>
-	{
+	class IoThread: public sys::ThreadImpl<IoThread> {
 	public:
 		void
-		threadFunc()
-		{
+		threadFunc() {
 			containerof(this, UsbEndpoint, m_ioThread)->ioThreadFunc();
 		}
 	};
 
-	struct Transfer: sl::ListLink
-	{
+	struct Transfer: sl::ListLink {
 		UsbEndpoint* m_self;
 		axl::io::UsbTransfer m_usbTransfer;
 		sl::Array<char> m_buffer;
@@ -105,57 +96,49 @@ protected:
 public:
 	UsbEndpoint();
 
-	~UsbEndpoint()
-	{
+	~UsbEndpoint() {
 		close();
 	}
 
 	void
 	JNC_CDECL
-	markOpaqueGcRoots(jnc::GcHeap* gcHeap)
-	{
+	markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 		AsyncIoDevice::markOpaqueGcRoots(gcHeap);
 	}
 
 	void
 	JNC_CDECL
-	setTransferTimeout(uint_t timeout)
-	{
+	setTransferTimeout(uint_t timeout) {
 		AsyncIoDevice::setSetting(&m_transferTimeout, timeout ? timeout : Def_TransferTimeout);
 	}
 
 	void
 	JNC_CDECL
-	setReadParallelism(uint_t count)
-	{
+	setReadParallelism(uint_t count) {
 		AsyncIoDevice::setSetting(&m_readParallelism, count ? count : Def_ReadParallelism);
 	}
 
 	bool
 	JNC_CDECL
-	setReadBufferSize(size_t size)
-	{
+	setReadBufferSize(size_t size) {
 		return AsyncIoDevice::setReadBufferSize(&m_readBufferSize, size ? size : Def_ReadBufferSize);
 	}
 
 	void
 	JNC_CDECL
-	setReadBlockSize(size_t size)
-	{
+	setReadBlockSize(size_t size) {
 		AsyncIoDevice::setSetting(&m_readBlockSize, size ? size : Def_ReadBlockSize);
 	}
 
 	bool
 	JNC_CDECL
-	setWriteBufferSize(size_t size)
-	{
+	setWriteBufferSize(size_t size) {
 		return AsyncIoDevice::setWriteBufferSize(&m_writeBufferSize, size ? size : Def_WriteBufferSize);
 	}
 
 	void
 	JNC_CDECL
-	setOptions(uint_t options)
-	{
+	setOptions(uint_t options) {
 		AsyncIoDevice::setSetting(&m_options, options);
 	}
 
@@ -168,8 +151,7 @@ public:
 
 	void
 	JNC_CDECL
-	unsuspend()
-	{
+	unsuspend() {
 		unsuspendIoThread();
 	}
 
@@ -178,29 +160,27 @@ public:
 	read(
 		DataPtr ptr,
 		size_t size
-		);
+	);
 
 	size_t
 	JNC_CDECL
 	write(
 		DataPtr ptr,
 		size_t size
-		);
+	);
 
 	handle_t
 	JNC_CDECL
 	wait(
 		uint_t eventMask,
 		FunctionPtr handlerPtr
-		)
-	{
+	) {
 		return AsyncIoDevice::wait(eventMask, handlerPtr);
 	}
 
 	bool
 	JNC_CDECL
-	cancelWait(handle_t handle)
-	{
+	cancelWait(handle_t handle) {
 		return AsyncIoDevice::cancelWait(handle);
 	}
 
@@ -209,28 +189,24 @@ public:
 	blockingWait(
 		uint_t eventMask,
 		uint_t timeout
-		)
-	{
+	) {
 		return AsyncIoDevice::blockingWait(eventMask, timeout);
 	}
 
 	Promise*
 	JNC_CDECL
-	asyncWait(uint_t eventMask)
-	{
+	asyncWait(uint_t eventMask) {
 		return AsyncIoDevice::asyncWait(eventMask);
 	}
 
 protected:
 	bool
-	isInEndpoint()
-	{
+	isInEndpoint() {
 		return (((UsbEndpointDesc*)m_endpointDescPtr.m_p)->m_endpointId & LIBUSB_ENDPOINT_IN) != 0;
 	}
 
 	bool
-	isOutEndpoint()
-	{
+	isOutEndpoint() {
 		return (((UsbEndpointDesc*)m_endpointDescPtr.m_p)->m_endpointId & LIBUSB_ENDPOINT_IN) == 0;
 	}
 
@@ -252,7 +228,7 @@ protected:
 		void* p,
 		size_t size,
 		uint_t timeout
-		);
+	);
 
 	static
 	void

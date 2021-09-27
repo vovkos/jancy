@@ -23,7 +23,7 @@ JNC_DEFINE_TYPE(
 	"io.UsbEndpointDesc",
 	g_usbLibGuid,
 	UsbLibCacheSlot_UsbEndpointDesc
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(UsbEndpointDesc)
 JNC_END_TYPE_FUNCTION_MAP()
@@ -35,7 +35,7 @@ JNC_DEFINE_TYPE(
 	"io.UsbInterfaceDesc",
 	g_usbLibGuid,
 	UsbLibCacheSlot_UsbInterfaceDesc
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(UsbInterfaceDesc)
 JNC_END_TYPE_FUNCTION_MAP()
@@ -47,7 +47,7 @@ JNC_DEFINE_TYPE(
 	"io.UsbConfigurationDesc",
 	g_usbLibGuid,
 	UsbLibCacheSlot_UsbConfigurationDesc
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(UsbConfigurationDesc)
 JNC_END_TYPE_FUNCTION_MAP()
@@ -59,7 +59,7 @@ JNC_DEFINE_TYPE(
 	"io.UsbDeviceDesc",
 	g_usbLibGuid,
 	UsbLibCacheSlot_UsbDeviceDesc
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(UsbDeviceDesc)
 JNC_END_TYPE_FUNCTION_MAP()
@@ -67,16 +67,13 @@ JNC_END_TYPE_FUNCTION_MAP()
 //..............................................................................
 
 DataPtr
-getUsbClassString(uint8_t cls)
-{
+getUsbClassString(uint8_t cls) {
 	return jnc::strDup(axl::io::getUsbClassCodeString((libusb_class_code)cls));
 }
 
 DataPtr
-getUsbSpeedString(libusb_speed speed)
-{
-	const char* stringTable[] =
-	{
+getUsbSpeedString(libusb_speed speed) {
+	const char* stringTable[] = {
 		"<unknown>",   // LIBUSB_SPEED_UNKNOWN = 0,
 		"low-speed",   // LIBUSB_SPEED_LOW     = 1,
 		"full-speed",  // LIBUSB_SPEED_FULL    = 2,
@@ -92,10 +89,8 @@ getUsbSpeedString(libusb_speed speed)
 }
 
 DataPtr
-getUsbTransferTypeString(libusb_transfer_type type)
-{
-	const char* stringTable[] =
-	{
+getUsbTransferTypeString(libusb_transfer_type type) {
+	const char* stringTable[] = {
 		"control",     // LIBUSB_TRANSFER_TYPE_CONTROL     = 0,
 		"isochronous", // LIBUSB_TRANSFER_TYPE_ISOCHRONOUS = 1,
 		"bulk",        // LIBUSB_TRANSFER_TYPE_BULK        = 2,
@@ -117,8 +112,7 @@ void
 initUsbEndpointDesc(
 	UsbEndpointDesc* dstDesc,
 	const libusb_endpoint_descriptor* srcDesc
-	)
-{
+) {
 	dstDesc->m_endpointId = srcDesc->bEndpointAddress;
 	dstDesc->m_transferType = (srcDesc->bmAttributes & LIBUSB_TRANSFER_TYPE_MASK);
 	dstDesc->m_isoSyncType = (srcDesc->bmAttributes & LIBUSB_ISO_SYNC_TYPE_MASK);
@@ -132,10 +126,8 @@ initUsbEndpointDesc(
 //..............................................................................
 
 UsbEndpointDesc*
-UsbInterfaceDesc::findEndpointDesc(uint8_t endpointId)
-{
-	for (size_t i = 0; i < m_endpointCount; i++)
-	{
+UsbInterfaceDesc::findEndpointDesc(uint8_t endpointId) {
+	for (size_t i = 0; i < m_endpointCount; i++) {
 		UsbEndpointDesc* endpointDesc = &((UsbEndpointDesc*)m_endpointTable.m_p) [i];
 		if (endpointDesc->m_endpointId == endpointId)
 			return endpointDesc;
@@ -151,8 +143,7 @@ initUsbInterfaceDesc(
 	Runtime* runtime,
 	UsbInterfaceDesc* dstDesc,
 	const libusb_interface_descriptor* srcDesc
-	)
-{
+) {
 	Type* endpointDescType = UsbEndpointDesc::getType(runtime->getModule());
 
 	dstDesc->m_nextAltSettingInterfacePtr = g_nullDataPtr;
@@ -176,8 +167,7 @@ initUsbInterfaceDesc(
 	Runtime* runtime,
 	UsbInterfaceDesc* dstDesc,
 	const libusb_interface* srcDesc
-	)
-{
+) {
 	if (!srcDesc->num_altsetting)
 		return;
 
@@ -186,8 +176,7 @@ initUsbInterfaceDesc(
 	initUsbInterfaceDesc(runtime, dstDesc, &srcDesc->altsetting[0]);
 
 	UsbInterfaceDesc* prevDesc = dstDesc;
-	for (size_t i = 1; i < (size_t)srcDesc->num_altsetting; i++)
-	{
+	for (size_t i = 1; i < (size_t)srcDesc->num_altsetting; i++) {
 		DataPtr descPtr = createData<UsbInterfaceDesc> (runtime);
 		dstDesc = (UsbInterfaceDesc*)descPtr.m_p;
 		initUsbInterfaceDesc(runtime, dstDesc, &srcDesc->altsetting[i]);
@@ -205,14 +194,12 @@ UsbInterfaceDesc*
 UsbConfigurationDesc::findInterfaceDesc(
 	uint8_t interfaceId,
 	uint8_t altSettingId
-	)
-{
+) {
 	if (interfaceId >= m_interfaceCount)
 		return NULL;
 
 	UsbInterfaceDesc* ifaceDesc = &((UsbInterfaceDesc*)m_interfaceTable.m_p) [interfaceId];
-	for (size_t i = 0; i < altSettingId; i++)
-	{
+	for (size_t i = 0; i < altSettingId; i++) {
 		if (!ifaceDesc->m_nextAltSettingInterfacePtr.m_p)
 			return NULL;
 
@@ -229,8 +216,7 @@ initUsbConfigurationDesc(
 	Runtime* runtime,
 	UsbConfigurationDesc* dstDesc,
 	const libusb_config_descriptor* srcDesc
-	)
-{
+) {
 	JNC_BEGIN_CALL_SITE(runtime)
 
 	Type* ifaceDescType = UsbInterfaceDesc::getType(runtime->getModule());
@@ -253,8 +239,7 @@ DataPtr
 createUsbConfigurationDesc(
 	Runtime* runtime,
 	const libusb_config_descriptor* srcDesc
-	)
-{
+) {
 	DataPtr resultPtr = g_nullDataPtr;
 
 	JNC_BEGIN_CALL_SITE(runtime)
@@ -275,8 +260,7 @@ createUsbDeviceDesc(
 	Runtime* runtime,
 	const libusb_device_descriptor* srcDesc,
 	axl::io::UsbDevice* srcDevice
-	)
-{
+) {
 	DataPtr resultPtr = g_nullDataPtr;
 
 	JNC_BEGIN_CALL_SITE(runtime)
@@ -289,8 +273,7 @@ createUsbDeviceDesc(
 	deviceDesc->m_configurationCount = srcDesc->bNumConfigurations;
 
 	UsbConfigurationDesc* dstConfigDescTable = (UsbConfigurationDesc*)deviceDesc->m_configurationTable.m_p;
-	for (size_t i = 0; i < srcDesc->bNumConfigurations; i++)
-	{
+	for (size_t i = 0; i < srcDesc->bNumConfigurations; i++) {
 		axl::io::UsbConfigDescriptor srcConfigDesc;
 		bool result = srcDevice->getConfigDescriptor(i, &srcConfigDesc);
 		if (result) // LIBUSB_ERROR_NOT_FOUND may happen with libusb-incompatible drivers

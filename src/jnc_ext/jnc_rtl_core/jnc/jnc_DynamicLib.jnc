@@ -26,16 +26,14 @@ namespace jnc {
 
 	.. ref-code-block::
 
-		void foo()
-		{
+		void foo() {
 			jnc.DynamicLib lib;
 			lib.open("libname"); // load library
 			void thin* p = lib.getFunction("foo"); // resolve function by name
 
 			typedef void stdcall FooFunc(int); // specify function type
 
-			unsafe
-			{
+			unsafe {
 				FooFunc thin* foo = (FooFunc thin*) p; // cast to the proper type
 			}
 
@@ -58,13 +56,11 @@ namespace jnc {
 
 	.. ref-code-block::
 
-		dynamiclib MyLib // will use jnc.DynamicLib behind the scene
-		{
+		dynamiclib MyLib { // will use jnc.DynamicLib behind the scene
 			void stdcall foo(int);
 		}
 
-		void foo()
-		{
+		void foo() {
 			MyLib myLib;
 			myLib.open("libname"); // load library
 			myLib.lib.foo(100); // resolve, cache and call
@@ -87,8 +83,7 @@ namespace jnc {
 		|footnote-disposable|
 */
 
-class DynamicLib
-{
+class DynamicLib {
 	/**
 		This field holds the native handle of the dynamic library(``HMODULE``
 		returned by  ``LoadLibraryW`` on Windows, ``void*`` returned by
@@ -105,16 +100,13 @@ class DynamicLib
 		``false`` otherwise.
 	*/
 
-	property m_isOpen
-	{
-		bool get()
-		{
+	property m_isOpen {
+		bool get() {
 			return m_handle != null;
 		}
 	}
 
-	destruct()
-	{
+	destruct() {
 		close();
 	}
 

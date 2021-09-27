@@ -21,8 +21,7 @@ namespace ct {
 //..............................................................................
 
 void
-ImportType::applyFixups()
-{
+ImportType::applyFixups() {
 	ASSERT(m_actualType);
 
 	size_t count = m_fixupArray.getCount();
@@ -31,13 +30,11 @@ ImportType::applyFixups()
 }
 
 bool
-ImportType::ensureResolved()
-{
+ImportType::ensureResolved() {
 	if (m_actualType)
 		return true;
 
-	if (m_flags & ImportTypeFlag_InResolve)
-	{
+	if (m_flags & ImportTypeFlag_InResolve) {
 		err::setFormatStringError("can't resolve '%s' due to recursion", getTypeString().sz());
 		return false;
 	}
@@ -48,15 +45,13 @@ ImportType::ensureResolved()
 
 //..............................................................................
 
-NamedImportType::NamedImportType()
-{
+NamedImportType::NamedImportType() {
 	m_typeKind = TypeKind_NamedImport;
 	m_anchorNamespace = NULL;
 }
 
 ImportPtrType*
-NamedImportType::getImportPtrType(uint_t typeModifiers)
-{
+NamedImportType::getImportPtrType(uint_t typeModifiers) {
 	return m_module->m_typeMgr.getImportPtrType(this, typeModifiers);
 }
 
@@ -65,12 +60,10 @@ NamedImportType::createSignature(
 	const QualifiedName& name,
 	Namespace* anchorNamespace,
 	const QualifiedName& orphanName
-	)
-{
+) {
 	sl::String signature = sl::formatString("ZN%s", anchorNamespace->createQualifiedName (name).sz());
 
-	if (!orphanName.isEmpty())
-	{
+	if (!orphanName.isEmpty()) {
 		signature += '-';
 		signature += orphanName.getFullName();
 	}
@@ -79,14 +72,11 @@ NamedImportType::createSignature(
 }
 
 bool
-NamedImportType::resolveImports()
-{
+NamedImportType::resolveImports() {
 	Namespace* anchorNamespace = m_anchorNamespace;
-	if (!m_anchorName.isEmpty())
-	{
+	if (!m_anchorName.isEmpty()) {
 		FindModuleItemResult findResult = anchorNamespace->findItemTraverse(m_anchorName);
-		if (!findResult.m_result)
-		{
+		if (!findResult.m_result) {
 			pushSrcPosError();
 			return false;
 		}
@@ -95,14 +85,12 @@ NamedImportType::resolveImports()
 	}
 
 	FindModuleItemResult findResult = anchorNamespace ? anchorNamespace->findItemTraverse(m_name) : g_nullFindModuleItemResult;
-	if (!findResult.m_result)
-	{
+	if (!findResult.m_result) {
 		pushSrcPosError();
 		return false;
 	}
 
-	if (!findResult.m_item)
-	{
+	if (!findResult.m_item) {
 		err::setFormatStringError("unresolved import '%s'", getTypeString().sz());
 		pushSrcPosError();
 		return false;
@@ -110,8 +98,7 @@ NamedImportType::resolveImports()
 
 	ModuleItem* item = findResult.m_item;
 	ModuleItemKind itemKind = item->getItemKind();
-	switch (itemKind)
-	{
+	switch (itemKind) {
 	case ModuleItemKind_Type:
 		m_actualType = (Type*)item;
 		break;
@@ -128,8 +115,7 @@ NamedImportType::resolveImports()
 		return false;
 	}
 
-	if (m_actualType->getTypeKindFlags() & TypeKindFlag_Import)
-	{
+	if (m_actualType->getTypeKindFlags() & TypeKindFlag_Import) {
 		ImportType* type = (ImportType*)m_actualType;
 		bool result = ((ImportType*)type)->ensureResolved();
 		if (!result)
@@ -145,21 +131,18 @@ NamedImportType::resolveImports()
 
 //..............................................................................
 
-ImportPtrType::ImportPtrType()
-{
+ImportPtrType::ImportPtrType() {
 	m_typeKind = TypeKind_ImportPtr;
 	m_targetType = NULL;
 	m_typeModifiers = 0;
 }
 
 void
-ImportPtrType::prepareTypeString()
-{
+ImportPtrType::prepareTypeString() {
 	ASSERT(m_targetType);
 	TypeStringTuple* tuple = getTypeStringTuple();
 
-	if (m_actualType)
-	{
+	if (m_actualType) {
 		tuple->m_typeStringPrefix = m_actualType->getTypeStringPrefix();
 		tuple->m_typeStringSuffix = m_actualType->getTypeStringSuffix();
 		return;
@@ -167,8 +150,7 @@ ImportPtrType::prepareTypeString()
 
 	tuple->m_typeStringPrefix = "import ";
 
-	if (m_typeModifiers)
-	{
+	if (m_typeModifiers) {
 		tuple->m_typeStringPrefix += getTypeModifierString(m_typeModifiers);
 		tuple->m_typeStringPrefix += ' ';
 	}
@@ -178,8 +160,7 @@ ImportPtrType::prepareTypeString()
 }
 
 bool
-ImportPtrType::resolveImports()
-{
+ImportPtrType::resolveImports() {
 	bool result = m_targetType->ensureResolved();
 	if (!result)
 		return false;
@@ -195,28 +176,24 @@ ImportPtrType::resolveImports()
 
 //..............................................................................
 
-ImportIntModType::ImportIntModType()
-{
+ImportIntModType::ImportIntModType() {
 	m_typeKind = TypeKind_ImportPtr;
 	m_importType = NULL;
 	m_typeModifiers = 0;
 }
 
 void
-ImportIntModType::prepareTypeString()
-{
+ImportIntModType::prepareTypeString() {
 	TypeStringTuple* tuple = getTypeStringTuple();
 
-	if (m_actualType)
-	{
+	if (m_actualType) {
 		tuple->m_typeStringPrefix = m_actualType->getTypeStringPrefix();
 		return;
 	}
 
 	tuple->m_typeStringPrefix = "import ";
 
-	if (m_typeModifiers)
-	{
+	if (m_typeModifiers) {
 		tuple->m_typeStringPrefix += getTypeModifierString(m_typeModifiers);
 		tuple->m_typeStringPrefix += ' ';
 	}
@@ -225,8 +202,7 @@ ImportIntModType::prepareTypeString()
 }
 
 bool
-ImportIntModType::resolveImports()
-{
+ImportIntModType::resolveImports() {
 	bool result = m_importType->ensureResolved();
 	if (!result)
 		return false;

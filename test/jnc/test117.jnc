@@ -1,29 +1,24 @@
 import "std_HashTable.jnc"
 
-class C
-{
+class C {
 	std.HashTable m_hashTable;
 
-	construct()
-	{
+	construct() {
 		printf("C.construct (%p)\n", this);
 	}
 
-	destruct()
-	{
+	destruct() {
 		printf("C.destruct (%p)\n", this);
 	}
 }
 
-void foo()
-{
+void foo() {
 	static C staticC;
 }
 
 static C g_globalC;
 
-int main()
-{
+int main() {
 	int* p = new int;
 
 	printf("main ()\n");
@@ -31,7 +26,6 @@ int main()
 	return 0;
 }
 
-construct()
-{
+construct() {
 	printf("module.construct ()\n");
 }

@@ -16,16 +16,14 @@ namespace jnc {
 
 //..............................................................................
 
-bitflag enum PropertyTypeFlags
-{
+bitflag enum PropertyTypeFlags {
 	Const    = 0x010000,
 	Bindable = 0x020000,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum PropertyPtrTypeKind
-{
+enum PropertyPtrTypeKind {
 	Normal = 0,
 	Weak,
 	Thin,
@@ -34,8 +32,7 @@ enum PropertyPtrTypeKind
 
 //..............................................................................
 
-opaque class PropertyType: Type
-{
+opaque class PropertyType: Type {
 	bool const property m_isConst;
 	bool const property m_isIndexed;
 	FunctionType* const property m_getterType;
@@ -48,13 +45,12 @@ opaque class PropertyType: Type
 		TypeKind typeKind = TypeKind.PropertyPtr,
 		PropertyPtrTypeKind ptrTypeKind = PropertyPtrTypeKind.Normal,
 		PtrTypeFlags flags = 0
-		);
+	);
 }
 
 //..............................................................................
 
-opaque class PropertyPtrType: Type
-{
+opaque class PropertyPtrType: Type {
 	PropertyPtrTypeKind const property m_ptrTypeKind;
 	PropertyType* const property m_targetType;
 

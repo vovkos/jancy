@@ -18,8 +18,7 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(File)
 
 //..............................................................................
 
-enum FileKind
-{
+enum FileKind {
 	FileKind_Unknown,
 	FileKind_Disk,
 	FileKind_Serial,
@@ -33,8 +32,7 @@ getFileKind(const axl::io::File& file);
 
 //..............................................................................
 
-class File: public IfaceHdr
-{
+class File: public IfaceHdr {
 	friend class IoThread;
 
 public:
@@ -46,8 +44,7 @@ protected:
 public:
 	uintptr_t
 	JNC_CDECL
-	getOsHandle()
-	{
+	getOsHandle() {
 #if (_JNC_OS_WIN)
 		return (uintptr_t)(handle_t)m_file.m_file;
 #else
@@ -57,36 +54,31 @@ public:
 
 	FileKind
 	JNC_CDECL
-	getKind()
-	{
+	getKind() {
 		return getFileKind(m_file);
 	}
 
 	uint64_t
 	JNC_CDECL
-	getSize()
-	{
+	getSize() {
 		return m_file.getSize();
 	}
 
 	bool
 	JNC_CDECL
-	setSize(uint64_t size)
-	{
+	setSize(uint64_t size) {
 		return m_file.setSize(size);
 	}
 
 	uint64_t
 	JNC_CDECL
-	getPosition()
-	{
+	getPosition() {
 		return m_file.getPosition();
 	}
 
 	bool
 	JNC_CDECL
-	setPosition(uint64_t offset)
-	{
+	setPosition(uint64_t offset) {
 		return m_file.setPosition(offset);
 	}
 
@@ -95,7 +87,7 @@ public:
 	open(
 		DataPtr namePtr,
 		uint_t flags
-		);
+	);
 
 	void
 	JNC_CDECL
@@ -106,8 +98,7 @@ public:
 	read(
 		DataPtr ptr,
 		size_t size
-		)
-	{
+	) {
 		return m_file.read(ptr.m_p, size);
 	}
 
@@ -116,15 +107,13 @@ public:
 	write(
 		DataPtr ptr,
 		size_t size
-		)
-	{
+	) {
 		return m_file.write(ptr.m_p, size);
 	}
 
 	bool
 	JNC_CDECL
-	flush()
-	{
+	flush() {
 		return m_file.flush();
 	}
 };

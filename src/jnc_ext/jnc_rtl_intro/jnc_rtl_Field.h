@@ -24,34 +24,28 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(Field)
 class Field:
 	public ModuleItemBase<ct::Field>,
 	public ModuleItemDecl,
-	public ModuleItemInitializer
-{
+	public ModuleItemInitializer {
 public:
 	Field(ct::Field* field):
 		ModuleItemBase(field),
 		ModuleItemDecl(field),
-		ModuleItemInitializer(field)
-	{
-	}
+		ModuleItemInitializer(field) {}
 
 	Type*
 	JNC_CDECL
-	getType()
-	{
+	getType() {
 		return rtl::getType(m_item->getType());
 	}
 
 	uint_t
 	JNC_CDECL
-	getPtrTypeFlags()
-	{
+	getPtrTypeFlags() {
 		return m_item->getPtrTypeFlags();
 	}
 
 	size_t
 	JNC_CDECL
-	getOffset()
-	{
+	getOffset() {
 		return m_item->getOffset();
 	}
 };

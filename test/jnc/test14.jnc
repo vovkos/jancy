@@ -11,10 +11,8 @@
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class C1
-{
-	enum Def
-	{
+class C1 {
+	enum Def {
 		X = 10,
 		Y = 20
 	}
@@ -24,49 +22,40 @@ class C1
 	void foo(
 		int x = Def.X,
 		int y = bar()
-		)
-	{
+	) {
 		printf("C1.foo (%d, %d)\n", x, y);
 	}
 
-	int bar()
-	{
+	int bar() {
 		return m_member;
 	}
 }
 
-class C2
-{
+class C2 {
 	int m_classValue;
 	event m_classOnChanged();
 
-	property m_prop
-	{
-		int get()
-		{
+	property m_prop {
+		int get() {
 			return m_classValue;
 		}
 
-		void set(int x)
-		{
+		void set(int x) {
 			m_classValue = x;
 			m_classOnChanged();
 		}
 
-		event* getbinding() ()
-		{
+		event* getbinding() () {
 			return &m_classOnChanged;
 		}
 	}
 }
 
-void foo()
-{
+void foo() {
 	printf("foo ()\n");
 }
 
-int main()
-{
+int main() {
 	C1 c1;
 	c1.foo(1);
 

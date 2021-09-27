@@ -20,15 +20,13 @@ class DynamicLibNamespace;
 
 //..............................................................................
 
-enum DynamicLibClassTypeFlag
-{
+enum DynamicLibClassTypeFlag {
 	DynamicLibClassTypeFlag_FunctionTableReady = 0x01000000,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class DynamicLibClassType: public ClassType
-{
+class DynamicLibClassType: public ClassType {
 protected:
 	DynamicLibNamespace* m_libNamespace;
 
@@ -36,8 +34,7 @@ public:
 	DynamicLibClassType();
 
 	DynamicLibNamespace*
-	getLibNamespace()
-	{
+	getLibNamespace() {
 		return m_libNamespace;
 	}
 
@@ -50,8 +47,7 @@ public:
 protected:
 	virtual
 	bool
-	calcLayout()
-	{
+	calcLayout() {
 		return ensureFunctionTable() && ClassType::calcLayout();
 	}
 };

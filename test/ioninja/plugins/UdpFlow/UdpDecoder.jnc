@@ -11,8 +11,7 @@ threadlocal uint64_t g_logTimestamp;
 
 //..............................................................................
 
-class UdpDecoder: io.IpDecoder
-{
+class UdpDecoder: io.IpDecoder {
 public:
 	io.SocketAddress m_filterAddress; // freely adjustible
 
@@ -23,7 +22,7 @@ protected:
 		io.IpProtocol protocol,
 		void const* p,
 		size_t size
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -34,8 +33,7 @@ bool UdpDecoder.decodeTransportHdr(
 	io.IpProtocol protocol,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	if (protocol != io.IpProtocol.Udp || size < sizeof(io.UdpHdr))
 		return false;
 

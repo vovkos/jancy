@@ -36,8 +36,7 @@ namespace sys {
 
 		sys.NotificationEvent g_event;
 
-		thread1()
-		{
+		thread1() {
 			// ...
 
 			g_event.wait(); // thread sleeps here until event is signalled
@@ -45,8 +44,7 @@ namespace sys {
 			// continue...
 		}
 
-		thread2()
-		{
+		thread2() {
 			// ...
 
 			g_event.wait(); // thread sleeps here until event is signalled
@@ -54,8 +52,7 @@ namespace sys {
 			// continue...
 		}
 
-		thread3()
-		{
+		thread3() {
 			// ...
 
 			g_event.signal(); // thread1 and thread2 wake up and continue;
@@ -71,8 +68,7 @@ namespace sys {
 	\sa `sys.Event`, `sys.Lock`, `sys.Thread`
 */
 
-opaque class NotificationEvent
-{
+opaque class NotificationEvent {
 	construct();
 	destruct();
 

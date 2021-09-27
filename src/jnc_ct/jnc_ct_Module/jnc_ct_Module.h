@@ -37,11 +37,9 @@ namespace ct {
 
 // makes it convenient to initialize childs (especially operators)
 
-class PreModule
-{
+class PreModule {
 protected:
-	PreModule()
-	{
+	PreModule() {
 		Module* prevModule = sys::setTlsPtrSlotValue<Module> ((Module*)this);
 		ASSERT(prevModule == NULL);
 	}
@@ -49,36 +47,30 @@ protected:
 public:
 	static
 	Module*
-	getCurrentConstructedModule()
-	{
+	getCurrentConstructedModule() {
 		return sys::getTlsPtrSlotValue<Module> ();
 	}
 
 protected:
 	void
-	finalizeConstruction()
-	{
+	finalizeConstruction() {
 		sys::setTlsPtrSlotValue<Module> (NULL);
 	}
 };
 
 //..............................................................................
 
-class Module: public PreModule
-{
+class Module: public PreModule {
 protected:
-	enum AuxCompileFlag
-	{
+	enum AuxCompileFlag {
 		AuxCompileFlag_IntrospectionLib = 0x80000000,
 	};
 
-	enum
-	{
+	enum {
 		DefaultErrorCountLimit = 100,
 	};
 
-	struct RequiredItem
-	{
+	struct RequiredItem {
 		ModuleItemKind m_itemKind;
 		TypeKind m_typeKind;
 		bool m_isEssential;
@@ -88,12 +80,12 @@ protected:
 		RequiredItem(
 			ModuleItemKind itemKind,
 			bool isEssential
-			);
+		);
 
 		RequiredItem(
 			TypeKind typeKind,
 			bool isEssential
-			);
+		);
 	};
 
 protected:
@@ -151,44 +143,37 @@ public:
 	~Module();
 
 	bool
-	hasCodeGen()
-	{
+	hasCodeGen() {
 		return m_llvmIrBuilder;
 	}
 
 	const sl::String&
-	getName()
-	{
+	getName() {
 		return m_name;
 	}
 
 	uint_t
-	getCompileFlags()
-	{
+	getCompileFlags() {
 		return m_compileFlags;
 	}
 
 	ModuleCompileState
-	getCompileState()
-	{
+	getCompileState() {
 		return m_compileState;
 	}
 
 	size_t
-	getCompileErrorCount()
-	{
+	getCompileErrorCount() {
 		return m_compileErrorCount;
 	}
 
 	void
-	enterTryCompile()
-	{
+	enterTryCompile() {
 		m_tryCompileLevel++;
 	}
 
 	void
-	leaveTryCompile()
-	{
+	leaveTryCompile() {
 		m_tryCompileLevel--;
 	}
 
@@ -199,36 +184,31 @@ public:
 	setCompileErrorHandler(
 		ModuleCompileErrorHandlerFunc* handler,
 		void* context
-		)
-	{
+	) {
 		m_compileErrorHandler = handler;
 		m_compileErrorHandlerContext = context;
 	}
 
 	llvm::LLVMContext*
-	getLlvmContext()
-	{
+	getLlvmContext() {
 		ASSERT(m_llvmModule);
 		return &m_llvmModule->getContext();
 	}
 
 	llvm::Module*
-	getLlvmModule()
-	{
+	getLlvmModule() {
 		ASSERT(m_llvmModule);
 		return m_llvmModule;
 	}
 
 	llvm::ExecutionEngine*
-	getLlvmExecutionEngine()
-	{
+	getLlvmExecutionEngine() {
 		ASSERT(m_llvmExecutionEngine);
 		return m_llvmExecutionEngine;
 	}
 
 	Function*
-	getConstructor()
-	{
+	getConstructor() {
 		return m_constructor;
 	}
 
@@ -237,8 +217,7 @@ public:
 		llvm::ExecutionEngine* llvmExecutionEngine,
 		Function* function,
 		void* p
-		)
-	{
+	) {
 		llvmExecutionEngine->addGlobalMapping(function->getLlvmFunction(), p);
 	}
 
@@ -247,8 +226,7 @@ public:
 		llvm::ExecutionEngine* llvmExecutionEngine,
 		StdFunc funcKind,
 		void* p
-		)
-	{
+	) {
 		setFunctionPointer(llvmExecutionEngine, m_functionMgr.getStdFunction(funcKind), p);
 	}
 
@@ -257,14 +235,14 @@ public:
 		llvm::ExecutionEngine* llvmExecutionEngine,
 		const sl::StringRef& name,
 		void* p
-		);
+	);
 
 	bool
 	setFunctionPointer(
 		llvm::ExecutionEngine* llvmExecutionEngine,
 		const QualifiedName& name,
 		void* p
-		);
+	);
 
 	void
 	markForCompile(Function* function);
@@ -276,7 +254,7 @@ public:
 	initialize(
 		const sl::StringRef& name,
 		uint_t compileFlags = ModuleCompileFlag_StdFlags
-		);
+	);
 
 	CodeAssist*
 	generateCodeAssist(
@@ -284,14 +262,13 @@ public:
 		Module* cacheModule,
 		size_t offset,
 		const sl::StringRef& source
-		);
+	);
 
 	bool
 	parse(
 		const sl::StringRef& fileName,
 		const sl::StringRef& source
-		)
-	{
+	) {
 		return parseImpl(NULL, fileName, source);
 	}
 
@@ -306,8 +283,7 @@ public:
 		ModuleItemKind itemKind,
 		const sl::StringRef& name,
 		bool isEssential = true
-		)
-	{
+	) {
 		m_requireSet[name] = RequiredItem(itemKind, isEssential);
 	}
 
@@ -316,8 +292,7 @@ public:
 		TypeKind typeKind,
 		const sl::StringRef& name,
 		bool isEssential = true
-		)
-	{
+	) {
 		m_requireSet[name] = RequiredItem(typeKind, isEssential);
 	}
 
@@ -331,8 +306,7 @@ public:
 	jit();
 
 	bool
-	ensureIntrospectionLibRequired()
-	{
+	ensureIntrospectionLibRequired() {
 		return (m_compileFlags & AuxCompileFlag_IntrospectionLib) || requireIntrospectionLib();
 	}
 
@@ -340,13 +314,13 @@ public:
 	mapVariable(
 		Variable* variable,
 		void* p
-		);
+	);
 
 	bool
 	mapFunction(
 		Function* function,
 		void* p
-		);
+	);
 
 	void*
 	findFunctionMapping(const sl::StringRef& name);
@@ -363,7 +337,7 @@ protected:
 		ExtensionLib* lib,
 		const sl::StringRef& fileName,
 		const sl::StringRef& source
-		);
+	);
 
 	bool
 	requireIntrospectionLib();
@@ -390,8 +364,7 @@ protected:
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
-Module::RequiredItem::RequiredItem()
-{
+Module::RequiredItem::RequiredItem() {
 	m_itemKind = ModuleItemKind_Undefined;
 	m_typeKind = TypeKind_Void;
 	m_isEssential = false;
@@ -401,8 +374,7 @@ inline
 Module::RequiredItem::RequiredItem(
 	ModuleItemKind itemKind,
 	bool isEssential
-	)
-{
+) {
 	m_itemKind = itemKind;
 	m_typeKind = TypeKind_Void;
 	m_isEssential = isEssential;
@@ -412,8 +384,7 @@ inline
 Module::RequiredItem::RequiredItem(
 	TypeKind typeKind,
 	bool isEssential
-	)
-{
+) {
 	m_itemKind = ModuleItemKind_Type;
 	m_typeKind = typeKind;
 	m_isEssential = isEssential;
@@ -426,8 +397,7 @@ T*
 MemberBlock::createMethod(
 	const sl::StringRef& name,
 	FunctionType* shortType
-	)
-{
+) {
 	sl::String qualifedName = getParentNamespaceImpl()->createQualifiedName(name);
 	T* function = m_parent->getModule()->m_functionMgr.createFunction<T>(name, qualifedName, shortType);
 	return addMethod(function) ? function : NULL;
@@ -438,8 +408,7 @@ T*
 MemberBlock::createUnnamedMethod(
 	FunctionKind functionKind,
 	FunctionType* shortType
-	)
-{
+) {
 	T* function = m_parent->getModule()->m_functionMgr.createFunction<T>(shortType);
 	function->m_functionKind = functionKind;
 	return addMethod(function) ? function : NULL;
@@ -447,8 +416,7 @@ MemberBlock::createUnnamedMethod(
 
 template <typename T>
 T*
-MemberBlock::createDefaultMethod()
-{
+MemberBlock::createDefaultMethod() {
 	Module* module = m_parent->getModule();
 	FunctionType* type = (FunctionType*)module->m_typeMgr.getStdType(StdType_SimpleFunction);
 	T* function = module->m_functionMgr.createFunction<T>(sl::StringRef(), sl::StringRef(), type);
@@ -461,8 +429,7 @@ MemberBlock::createDefaultMethod()
 
 inline
 bool
-Unit::isRootUnit()
-{
+Unit::isRootUnit() {
 	return this == m_module->m_unitMgr.getRootUnit();
 }
 
@@ -470,10 +437,8 @@ Unit::isRootUnit()
 
 inline
 void
-CodeAssistMgr::prepareAutoCompleteFallback(size_t offset)
-{
-	if (m_codeAssistKind == CodeAssistKind_AutoComplete && !m_codeAssist && !m_containerItem)
-	{
+CodeAssistMgr::prepareAutoCompleteFallback(size_t offset) {
+	if (m_codeAssistKind == CodeAssistKind_AutoComplete && !m_codeAssist && !m_containerItem) {
 		m_autoCompleteFallback.m_namespace = m_module->m_namespaceMgr.getCurrentNamespace();
 		m_autoCompleteFallback.m_offset = offset;
 	}

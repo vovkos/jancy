@@ -13,8 +13,7 @@ import "std_HashTable.jnc"
 
 //..............................................................................
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	std.StringHashTableIgnoreCase hashTable;
@@ -26,8 +25,8 @@ int main()
 			hashTable.findValue("FIRST-NAME"),
 			hashTable["LAST-NAME"],
 			(bool)hashTable.find("MIDDLE-NAME")
-			)
-		);
+		)
+	);
 
 	std.HashTable hashTable2;
 	hashTable2.add(1, "Vladimir");
@@ -38,8 +37,8 @@ int main()
 			hashTable2.findValue(1),
 			hashTable2[2],
 			(bool)hashTable2.find(3)
-			)
-		);
+		)
+	);
 
 	return 0;
 }

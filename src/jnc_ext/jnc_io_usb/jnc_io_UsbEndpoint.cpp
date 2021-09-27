@@ -28,7 +28,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	UsbLibCacheSlot_UsbEndpoint,
 	UsbEndpoint,
 	&UsbEndpoint::markOpaqueGcRoots
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(UsbEndpoint)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<UsbEndpoint>)
@@ -53,8 +53,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
-UsbEndpoint::UsbEndpoint()
-{
+UsbEndpoint::UsbEndpoint() {
 	m_transferTimeout = Def_TransferTimeout;
 	m_readParallelism = Def_ReadParallelism;
 	m_readBlockSize = Def_ReadBlockSize;
@@ -67,8 +66,7 @@ UsbEndpoint::UsbEndpoint()
 }
 
 bool
-UsbEndpoint::open(bool isSuspended)
-{
+UsbEndpoint::open(bool isSuspended) {
 	AsyncIoDevice::open();
 
 	if (isSuspended)
@@ -80,14 +78,12 @@ UsbEndpoint::open(bool isSuspended)
 
 void
 JNC_CDECL
-UsbEndpoint::close()
-{
+UsbEndpoint::close() {
 	// we do force-close endpoints from UsbInterface::~UsbInterface
 	// therefore, we need to prevent multi-close
 
 	m_lock.lock();
-	if (!m_isOpen)
-	{
+	if (!m_isOpen) {
 		m_lock.unlock();
 		return;
 	}
@@ -111,10 +107,8 @@ JNC_CDECL
 UsbEndpoint::read(
 	DataPtr ptr,
 	size_t size
-	)
-{
-	if (isOutEndpoint())
-	{
+) {
+	if (isOutEndpoint()) {
 		err::setError("Cannot read from a USB OUT-endpoint");
 		return -1;
 	}
@@ -127,10 +121,8 @@ JNC_CDECL
 UsbEndpoint::write(
 	DataPtr ptr,
 	size_t size
-	)
-{
-	if (isInEndpoint())
-	{
+) {
+	if (isInEndpoint()) {
 		err::setError("Cannot write to a USB IN-endpoint");
 		return -1;
 	}
@@ -153,8 +145,7 @@ UsbEndpoint::write(
 }
 
 void
-UsbEndpoint::ioThreadFunc()
-{
+UsbEndpoint::ioThreadFunc() {
 	if (isInEndpoint())
 		readLoop();
 	else
@@ -164,8 +155,7 @@ UsbEndpoint::ioThreadFunc()
 }
 
 void
-UsbEndpoint::cancelAllActiveTransfers()
-{
+UsbEndpoint::cancelAllActiveTransfers() {
 	char buffer[256];
 	sl::Array<Transfer*> activeTransferArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 
@@ -185,8 +175,7 @@ UsbEndpoint::cancelAllActiveTransfers()
 
 	m_lock.lock();
 
-	while (!m_activeTransferList.isEmpty())
-	{
+	while (!m_activeTransferList.isEmpty()) {
 		m_lock.unlock();
 		sleepIoThread();
 		m_lock.lock();
@@ -194,58 +183,48 @@ UsbEndpoint::cancelAllActiveTransfers()
 
 	// put all completed transfer back to the free pool
 
-	while (!m_completedTransferList.isEmpty())
-	{
+	while (!m_completedTransferList.isEmpty()) {
 		Transfer* transfer = m_completedTransferList.removeHead();
 		m_transferPool.put(transfer);
 	}
 
-	if (isInEndpoint() || (m_activeEvents & UsbEndpointEvent_WriteCompleted))
-	{
+	if (isInEndpoint() || (m_activeEvents & UsbEndpointEvent_WriteCompleted)) {
 		m_lock.unlock();
-	}
-	else
-	{
+	} else {
 		m_activeEvents |= UsbEndpointEvent_WriteCompleted;
 		processWaitLists_l();
 	}
 }
 
 void
-UsbEndpoint::readLoop()
-{
+UsbEndpoint::readLoop() {
 	ASSERT(isInEndpoint());
 
 	bool result;
 
 	UsbEndpointDesc* desc = (UsbEndpointDesc*)m_endpointDescPtr.m_p;
 
-	for (;;)
-	{
+	for (;;) {
 		sleepIoThread();
 
 		m_lock.lock();
-		if (m_ioThreadFlags & IoThreadFlag_Closing)
-		{
+		if (m_ioThreadFlags & IoThreadFlag_Closing) {
 			m_lock.unlock();
 			break;
 		}
 
-		if (m_ioThreadFlags & IoThreadFlag_Suspended)
-		{
+		if (m_ioThreadFlags & IoThreadFlag_Suspended) {
 			m_lock.unlock();
 			continue;
 		}
 
-		while (!m_completedTransferList.isEmpty())
-		{
+		while (!m_completedTransferList.isEmpty()) {
 			Transfer* transfer = m_completedTransferList.removeHead();
 
 			if (transfer->m_usbTransfer->status != LIBUSB_TRANSFER_COMPLETED &&
 				transfer->m_usbTransfer->status != LIBUSB_TRANSFER_TIMED_OUT && // <- not really an error
 				transfer->m_usbTransfer->status != LIBUSB_TRANSFER_CANCELLED    // <- not really an error
-				)
-			{
+			) {
 				m_transferPool.put(transfer);
 				setIoErrorEvent_l(axl::io::UsbError(LIBUSB_ERROR_IO));
 				return;
@@ -256,19 +235,16 @@ UsbEndpoint::readLoop()
 		}
 
 		size_t activeReadCount = m_activeTransferList.getCount();
-		if (!m_readBuffer.isFull() && activeReadCount < m_readParallelism)
-		{
+		if (!m_readBuffer.isFull() && activeReadCount < m_readParallelism) {
 			UsbEndpointDesc* endpointDesc = (UsbEndpointDesc*)m_endpointDescPtr.m_p;
 			size_t readBlockSize = m_readBlockSize;
 			size_t newReadCount = m_readParallelism - activeReadCount;
 			uint_t timeout = m_transferTimeout;
 
-			for (size_t i = 0; i < newReadCount; i++)
-			{
+			for (size_t i = 0; i < newReadCount; i++) {
 				Transfer* transfer = m_transferPool.get();
 				result = transfer->m_buffer.setCount(readBlockSize);
-				if (!result)
-				{
+				if (!result) {
 					m_transferPool.put(transfer);
 					setIoErrorEvent_l();
 					return;
@@ -282,8 +258,7 @@ UsbEndpoint::readLoop()
 
 				m_lock.lock();
 
-				if (!result)
-				{
+				if (!result) {
 					m_activeTransferList.remove(transfer);
 					m_transferPool.put(transfer);
 					setIoErrorEvent_l();
@@ -305,29 +280,24 @@ UsbEndpoint::readLoop()
 }
 
 void
-UsbEndpoint::writeLoop()
-{
+UsbEndpoint::writeLoop() {
 	ASSERT(isOutEndpoint());
 
 	bool result;
 
-	for (;;)
-	{
+	for (;;) {
 		sleepIoThread();
 
 		m_lock.lock();
-		if (m_ioThreadFlags & IoThreadFlag_Closing)
-		{
+		if (m_ioThreadFlags & IoThreadFlag_Closing) {
 			m_lock.unlock();
 			break;
 		}
 
-		if (!m_completedTransferList.isEmpty())
-		{
+		if (!m_completedTransferList.isEmpty()) {
 			Transfer* transfer = m_completedTransferList.removeHead();
 
-			if (transfer->m_usbTransfer->status != LIBUSB_TRANSFER_COMPLETED)
-			{
+			if (transfer->m_usbTransfer->status != LIBUSB_TRANSFER_COMPLETED) {
 				m_transferPool.put(transfer);
 				setIoErrorEvent_l(axl::io::UsbError(LIBUSB_ERROR_IO));
 				break;
@@ -344,8 +314,7 @@ UsbEndpoint::writeLoop()
 
 		getNextWriteBlock(&m_writeBlock);
 
-		if (m_activeTransferList.isEmpty() && !m_writeBlock.isEmpty())
-		{
+		if (m_activeTransferList.isEmpty() && !m_writeBlock.isEmpty()) {
 			uint_t timeout = m_transferTimeout;
 
 			Transfer* transfer = m_transferPool.get();
@@ -357,8 +326,7 @@ UsbEndpoint::writeLoop()
 
 			m_lock.lock();
 
-			if (!result)
-			{
+			if (!result) {
 				m_activeTransferList.remove(transfer);
 				m_transferPool.put(transfer);
 				setIoErrorEvent_l();
@@ -389,8 +357,7 @@ UsbEndpoint::submitTransfer(
 	void* p,
 	size_t size,
 	uint_t timeout
-	)
-{
+) {
 	UsbEndpointDesc* desc = (UsbEndpointDesc*)m_endpointDescPtr.m_p;
 
 	bool result = transfer->m_usbTransfer.create();
@@ -398,8 +365,7 @@ UsbEndpoint::submitTransfer(
 		return false;
 
 	axl::io::UsbDevice* device = m_parentInterface->m_parentDevice->getDevice();
-	switch (desc->m_transferType)
-	{
+	switch (desc->m_transferType) {
 	case LIBUSB_TRANSFER_TYPE_BULK:
 		transfer->m_usbTransfer.fillBulkTransfer(
 			device->getOpenHandle(),
@@ -409,7 +375,7 @@ UsbEndpoint::submitTransfer(
 			onTransferCompleted,
 			transfer,
 			timeout
-			);
+		);
 
 		break;
 
@@ -422,7 +388,7 @@ UsbEndpoint::submitTransfer(
 			onTransferCompleted,
 			transfer,
 			timeout
-			);
+		);
 
 		break;
 
@@ -443,8 +409,7 @@ UsbEndpoint::submitTransfer(
 
 void
 LIBUSB_CALL
-UsbEndpoint::onTransferCompleted(libusb_transfer* usbTransfer)
-{
+UsbEndpoint::onTransferCompleted(libusb_transfer* usbTransfer) {
 	Transfer* transfer = (Transfer*)usbTransfer->user_data;
 	ASSERT(transfer->m_usbTransfer == usbTransfer);
 
@@ -454,14 +419,10 @@ UsbEndpoint::onTransferCompleted(libusb_transfer* usbTransfer)
 
 	// surprisingly enough, libusb may deliver completions out-of-order
 
-	if (transfer != *self->m_activeTransferList.getHead())
-	{
+	if (transfer != *self->m_activeTransferList.getHead()) {
 		transfer->m_isCompletedOutOfOrder = true;
-	}
-	else
-	{
-		do
-		{
+	} else {
+		do {
 			self->m_activeTransferList.remove(transfer);
 			self->m_completedTransferList.insertTail(transfer);
 			transfer = *self->m_activeTransferList.getHead();

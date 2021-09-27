@@ -16,8 +16,7 @@ namespace jnc {
 
 //..............................................................................
 
-opaque class UnionType: DerivableType
-{
+opaque class UnionType: DerivableType {
 	StructType* const property m_structType;
 
 	construct(intptr p);

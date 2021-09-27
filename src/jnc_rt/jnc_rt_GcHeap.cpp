@@ -55,16 +55,14 @@ namespace rt {
 
 inline
 size_t
-getDynamicArrayElementCount(DataBox* box)
-{
+getDynamicArrayElementCount(DataBox* box) {
 	ASSERT(box->m_box.m_flags & BoxFlag_DynamicArray);
 	return box->m_validator.getRangeLength() / box->m_box.m_type->getSize();
 }
 
 //..............................................................................
 
-GcHeap::GcHeap()
-{
+GcHeap::GcHeap() {
 	m_runtime = containerof(this, Runtime, m_gcHeap);
 	m_state = State_Idle;
 	m_flags = 0;
@@ -87,21 +85,19 @@ GcHeap::GcHeap()
 		MAP_PRIVATE | MAP_ANONYMOUS,
 		-1,
 		0
-		);
+	);
 #endif
 }
 
 void
-GcHeap::getStats(GcStats* stats)
-{
+GcHeap::getStats(GcStats* stats) {
 	m_lock.lock(); // no need to wait for idle to just get stats
 	*stats = m_stats;
 	m_lock.unlock();
 }
 
 GcMutatorThread*
-GcHeap::getCurrentGcMutatorThread()
-{
+GcHeap::getCurrentGcMutatorThread() {
 	Tls* tls = getCurrentThreadTls();
 	return tls && tls->m_runtime == m_runtime ? &tls->m_gcMutatorThread : NULL;
 }
@@ -110,8 +106,7 @@ void
 GcHeap::setSizeTriggers(
 	size_t allocSizeTrigger,
 	size_t periodSizeTrigger
-	)
-{
+) {
 	bool isMutatorThread = waitIdleAndLock();
 
 	m_allocSizeTrigger = allocSizeTrigger;
@@ -124,19 +119,15 @@ GcHeap::setSizeTriggers(
 }
 
 bool
-GcHeap::startup(ct::Module* module)
-{
+GcHeap::startup(ct::Module* module) {
 	ASSERT(m_state == State_Idle);
 
 	memset(&m_stats, 0, sizeof(m_stats));
 	m_flags = 0;
 
-	if (module->getCompileFlags() & ModuleCompileFlag_SimpleGcSafePoint)
-	{
+	if (module->getCompileFlags() & ModuleCompileFlag_SimpleGcSafePoint) {
 		m_flags |= Flag_SimpleSafePoint;
-	}
-	else if (module->m_variableMgr.isStdVariableUsed(ct::StdVariable_GcSafePointTrigger))
-	{
+	} else if (module->m_variableMgr.isStdVariableUsed(ct::StdVariable_GcSafePointTrigger)) {
 		ct::Variable* safePointTriggerVariable = module->m_variableMgr.getStdVariable(ct::StdVariable_GcSafePointTrigger);
 		*(void**)safePointTriggerVariable->getStaticData() = m_guardPage;
 	}
@@ -149,14 +140,11 @@ GcHeap::startup(ct::Module* module)
 static
 VOID
 CALLBACK
-abortApc(ULONG_PTR context)
-{
-}
+abortApc(ULONG_PTR context) {}
 #endif
 
 void
-GcHeap::abort()
-{
+GcHeap::abort() {
 	bool isMutatorThread = waitIdleAndLock();
 	size_t handshakeCount = stopTheWorld_l(isMutatorThread);
 
@@ -165,8 +153,7 @@ GcHeap::abort()
 	// try to interrupt all blocked threads (not guaranteed to succeed)
 
 	MutatorThreadList::Iterator threadIt = m_mutatorThreadList.getHead();
-	for (; threadIt; threadIt++)
-	{
+	for (; threadIt; threadIt++) {
 		if (!threadIt->m_waitRegionLevel)
 			continue;
 
@@ -195,42 +182,34 @@ GcHeap::abort()
 // locking
 
 bool
-GcHeap::waitIdleAndLock()
-{
+GcHeap::waitIdleAndLock() {
 	GcMutatorThread* thread = getCurrentGcMutatorThread();
 
 	bool isMutatorThread = thread && !thread->m_waitRegionLevel;
-	if (!isMutatorThread)
-	{
+	if (!isMutatorThread) {
 		m_lock.lock();
-		while (m_state != State_Idle)
-		{
+		while (m_state != State_Idle) {
 			m_lock.unlock();
 			m_idleEvent.wait();
 			m_lock.lock();
 		}
-	}
-	else
-	{
+	} else {
 		m_lock.lock();
 
-		while (m_state == State_StopTheWorld)
-		{
+		while (m_state == State_StopTheWorld) {
 			m_lock.unlock();
 			safePoint();
 			m_lock.lock();
 		}
 
-		if (m_state != State_Idle)
-		{
+		if (m_state != State_Idle) {
 			// some collection phase other than stop the world
 			// we can safely mark ourselves as waiting-mutator
 
 			thread->m_waitRegionLevel = 1;
 			m_waitingMutatorThreadCount++;
 
-			do
-			{
+			do {
 				m_lock.unlock();
 				m_idleEvent.wait();
 				m_lock.lock();
@@ -245,16 +224,14 @@ GcHeap::waitIdleAndLock()
 }
 
 bool
-GcHeap::isCollectionTriggered_l()
-{
+GcHeap::isCollectionTriggered_l() {
 	return
 		m_noCollectMutatorThreadCount == 0 &&
 		(m_stats.m_currentPeriodSize > m_periodSizeTrigger || m_stats.m_currentAllocSize > m_allocSizeTrigger);
 }
 
 void
-GcHeap::incrementAllocSize_l(size_t size)
-{
+GcHeap::incrementAllocSize_l(size_t size) {
 	m_stats.m_totalAllocSize += size;
 	m_stats.m_currentAllocSize += size;
 	m_stats.m_currentPeriodSize += size;
@@ -264,8 +241,7 @@ GcHeap::incrementAllocSize_l(size_t size)
 }
 
 void
-GcHeap::incrementAllocSizeAndLock(size_t size)
-{
+GcHeap::incrementAllocSizeAndLock(size_t size) {
 	// allocations should only be done in registered mutator threads
 	// otherwise there is risk of loosing new object
 
@@ -274,16 +250,14 @@ GcHeap::incrementAllocSizeAndLock(size_t size)
 
 	incrementAllocSize_l(size);
 
-	if (isCollectionTriggered_l())
-	{
+	if (isCollectionTriggered_l()) {
 		collect_l(isMutatorThread);
 		waitIdleAndLock();
 	}
 }
 
 bool
-GcHeap::addBoxIfDynamicFrame(Box* box)
-{
+GcHeap::addBoxIfDynamicFrame(Box* box) {
 	Tls* tls = rt::getCurrentThreadTls();
 	ASSERT(tls);
 
@@ -301,12 +275,10 @@ GcHeap::addBoxIfDynamicFrame(Box* box)
 // allocation methods
 
 IfaceHdr*
-GcHeap::tryAllocateClass(ct::ClassType* type)
-{
+GcHeap::tryAllocateClass(ct::ClassType* type) {
 	size_t size = type->getSize();
 	Box* box = (Box*)AXL_MEM_ALLOCATE(size);
-	if (!box)
-	{
+	if (!box) {
 		err::setFormatStringError("not enough memory for '%s'", type->getTypeString().sz());
 		return NULL;
 	}
@@ -323,11 +295,9 @@ GcHeap::tryAllocateClass(ct::ClassType* type)
 }
 
 IfaceHdr*
-GcHeap::allocateClass(ct::ClassType* type)
-{
+GcHeap::allocateClass(ct::ClassType* type) {
 	IfaceHdr* iface = tryAllocateClass(type);
-	if (!iface)
-	{
+	if (!iface) {
 		Runtime::dynamicThrow();
 		ASSERT(false);
 	}
@@ -336,8 +306,7 @@ GcHeap::allocateClass(ct::ClassType* type)
 }
 
 void
-GcHeap::addClassBox_l(Box* box)
-{
+GcHeap::addClassBox_l(Box* box) {
 	ASSERT(box->m_type->getTypeKind() == TypeKind_Class);
 	ct::ClassType* classType = (ct::ClassType*)box->m_type;
 	IfaceHdr* ifaceHdr = (IfaceHdr*)(box + 1);
@@ -346,8 +315,7 @@ GcHeap::addClassBox_l(Box* box)
 	addClassFieldBoxes_l(classType, ifaceHdr);
 	m_classBoxArray.append(box); // after all the fields
 
-	if (classType->getDestructor())
-	{
+	if (classType->getDestructor()) {
 		JNC_TRACE_GC_DESTRUCT("GcHeap::addClassBox_l: adding destructible %s(%p)\n", classType->getQualifiedName().sz(), ifaceHdr);
 		m_destructibleClassBoxArray.append(box);
 	}
@@ -357,14 +325,12 @@ void
 GcHeap::addBaseTypeClassFieldBoxes_l(
 	ClassType* type,
 	IfaceHdr* ifaceHdr
-	)
-{
+) {
 	char* p = (char*)ifaceHdr;
 
 	sl::Array<ct::BaseTypeSlot*> baseTypeArray = type->getBaseTypeArray();
 	size_t count = baseTypeArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		ct::BaseTypeSlot* slot = baseTypeArray[i];
 		ct::Type* baseType = slot->getType();
 		if (baseType->getTypeKind() != TypeKind_Class)
@@ -381,14 +347,12 @@ void
 GcHeap::addClassFieldBoxes_l(
 	ClassType* type,
 	IfaceHdr* ifaceHdr
-	)
-{
+) {
 	char* p = (char*)ifaceHdr;
 
 	const sl::Array<ct::Field*>& classFieldArray = type->getClassFieldArray();
 	size_t count = classFieldArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		ct::Field* field = classFieldArray[i];
 		Box* childBox = (Box*)(p + field->getOffset());
 
@@ -404,8 +368,7 @@ void
 GcHeap::addStaticClassDestructor_l(
 	DestructFunc* func,
 	IfaceHdr* iface
-	)
-{
+) {
 	ASSERT(iface->m_box->m_type->getTypeKind() == TypeKind_Class);
 	ct::ClassType* classType = (ct::ClassType*)iface->m_box->m_type;
 
@@ -422,14 +385,12 @@ void
 GcHeap::addStaticBaseTypeClassFieldDestructors_l(
 	ClassType* type,
 	IfaceHdr* ifaceHdr
-	)
-{
+) {
 	char* p = (char*)ifaceHdr;
 
 	sl::Array<ct::BaseTypeSlot*> baseTypeArray = type->getBaseTypeArray();
 	size_t count = baseTypeArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		ct::BaseTypeSlot* slot = baseTypeArray[i];
 		ct::Type* baseType = slot->getType();
 		if (baseType->getTypeKind() != TypeKind_Class)
@@ -446,14 +407,12 @@ void
 GcHeap::addStaticClassFieldDestructors_l(
 	ClassType* type,
 	IfaceHdr* ifaceHdr
-	)
-{
+) {
 	char* p = (char*)ifaceHdr;
 
 	const sl::Array<ct::Field*>& classFieldArray = type->getClassFieldArray();
 	size_t count = classFieldArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		ct::Field* field = classFieldArray[i];
 		ct::ClassType* fieldType = (ct::ClassType*)field->getType();
 		ASSERT(fieldType->getTypeKind() == TypeKind_Class);
@@ -471,13 +430,11 @@ GcHeap::addStaticClassFieldDestructors_l(
 }
 
 DataPtr
-GcHeap::tryAllocateData(ct::Type* type)
-{
+GcHeap::tryAllocateData(ct::Type* type) {
 	size_t size = type->getSize();
 
 	DataBox* box = AXL_MEM_NEW_EXTRA(DataBox, size);
-	if (!box)
-	{
+	if (!box) {
 		err::setFormatStringError("not enough memory for '%s'", type->getTypeString().sz());
 		return g_nullDataPtr;
 	}
@@ -505,11 +462,9 @@ GcHeap::tryAllocateData(ct::Type* type)
 }
 
 DataPtr
-GcHeap::allocateData(ct::Type* type)
-{
+GcHeap::allocateData(ct::Type* type) {
 	DataPtr ptr = tryAllocateData(type);
-	if (!ptr.m_p)
-	{
+	if (!ptr.m_p) {
 		Runtime::dynamicThrow();
 		ASSERT(false);
 	}
@@ -521,13 +476,11 @@ DataPtr
 GcHeap::tryAllocateArray(
 	ct::Type* type,
 	size_t count
-	)
-{
+) {
 	size_t size = type->getSize() * count;
 
 	DataBox* box = AXL_MEM_NEW_EXTRA(DataBox, size);
-	if (!box)
-	{
+	if (!box) {
 		err::setFormatStringError("not enough memory for '%s [%d]'", type->getTypeString().sz(), count);
 		return g_nullDataPtr;
 	}
@@ -558,11 +511,9 @@ DataPtr
 GcHeap::allocateArray(
 	ct::Type* type,
 	size_t count
-	)
-{
+) {
 	DataPtr ptr = tryAllocateArray(type, count);
-	if (!ptr.m_p)
-	{
+	if (!ptr.m_p) {
 		Runtime::dynamicThrow();
 		ASSERT(false);
 	}
@@ -571,8 +522,7 @@ GcHeap::allocateArray(
 }
 
 DataPtr
-GcHeap::tryAllocateBuffer(size_t size)
-{
+GcHeap::tryAllocateBuffer(size_t size) {
 	ct::Module* module = m_runtime->getModule();
 	ASSERT(module);
 
@@ -581,8 +531,7 @@ GcHeap::tryAllocateBuffer(size_t size)
 }
 
 DataPtr
-GcHeap::allocateBuffer(size_t size)
-{
+GcHeap::allocateBuffer(size_t size) {
 	ct::Module* module = m_runtime->getModule();
 	ASSERT(module);
 
@@ -595,30 +544,23 @@ GcHeap::createDataPtrValidator(
 	Box* box,
 	const void* rangeBegin,
 	size_t rangeLength
-	)
-{
+) {
 	DataPtrValidator* validator;
 
 	GcMutatorThread* thread = getCurrentGcMutatorThread();
 	ASSERT(thread && !thread->m_waitRegionLevel);
 
-	if (thread->m_dataPtrValidatorPoolBegin)
-	{
+	if (thread->m_dataPtrValidatorPoolBegin) {
 		validator = thread->m_dataPtrValidatorPoolBegin;
 		thread->m_dataPtrValidatorPoolBegin++;
 
-		if (thread->m_dataPtrValidatorPoolBegin < thread->m_dataPtrValidatorPoolEnd)
-		{
+		if (thread->m_dataPtrValidatorPoolBegin < thread->m_dataPtrValidatorPoolEnd) {
 			thread->m_dataPtrValidatorPoolBegin->m_validatorBox = validator->m_validatorBox;
-		}
-		else
-		{
+		} else {
 			thread->m_dataPtrValidatorPoolBegin = NULL;
 			thread->m_dataPtrValidatorPoolEnd = NULL;
 		}
-	}
-	else
-	{
+	} else {
 		ASSERT(GcDef_DataPtrValidatorPoolSize >= 1);
 
 		jnc::Type* validatorType = m_runtime->getModule()->m_typeMgr.getStdType(StdType_DataPtrValidator);
@@ -627,8 +569,7 @@ GcHeap::createDataPtrValidator(
 		validator = (DataPtrValidator*) ptr.m_p;
 		validator->m_validatorBox = ptr.m_validator->m_validatorBox;
 
-		if (GcDef_DataPtrValidatorPoolSize >= 2)
-		{
+		if (GcDef_DataPtrValidatorPoolSize >= 2) {
 			thread->m_dataPtrValidatorPoolBegin = validator + 1;
 			thread->m_dataPtrValidatorPoolBegin->m_validatorBox = ptr.m_validator->m_validatorBox;
 			thread->m_dataPtrValidatorPoolEnd = (DataPtrValidator*)ptr.m_validator->m_rangeEnd;
@@ -647,30 +588,23 @@ GcHeap::createForeignDataBox(
 	size_t elementCount,
 	const void* p,
 	bool isCallSiteLocal
-	)
-{
+) {
 	DetachedDataBox* resultBox;
 
 	GcMutatorThread* thread = getCurrentGcMutatorThread();
 	ASSERT(thread && !thread->m_waitRegionLevel);
 
-	if (thread->m_foreignDataBoxPoolBegin)
-	{
+	if (thread->m_foreignDataBoxPoolBegin) {
 		resultBox = thread->m_foreignDataBoxPoolBegin;
 		thread->m_foreignDataBoxPoolBegin++;
 
-		if (thread->m_foreignDataBoxPoolBegin < thread->m_foreignDataBoxPoolEnd)
-		{
+		if (thread->m_foreignDataBoxPoolBegin < thread->m_foreignDataBoxPoolEnd) {
 			thread->m_foreignDataBoxPoolBegin->m_validator.m_validatorBox = resultBox->m_validator.m_validatorBox;
-		}
-		else
-		{
+		} else {
 			thread->m_foreignDataBoxPoolBegin = NULL;
 			thread->m_foreignDataBoxPoolEnd = NULL;
 		}
-	}
-	else
-	{
+	} else {
 		ASSERT(GcDef_ForeignDataBoxPoolSize >= 1);
 
 		Type* boxType = m_runtime->getModule()->m_typeMgr.getStdType(StdType_DetachedDataBox);
@@ -679,8 +613,7 @@ GcHeap::createForeignDataBox(
 		resultBox = (DetachedDataBox*) ptr.m_p;
 		resultBox->m_validator.m_validatorBox = ptr.m_validator->m_validatorBox;
 
-		if (GcDef_DataPtrValidatorPoolSize >= 2)
-		{
+		if (GcDef_DataPtrValidatorPoolSize >= 2) {
 			thread->m_foreignDataBoxPoolBegin = resultBox + 1;
 			thread->m_foreignDataBoxPoolBegin->m_validator.m_validatorBox = ptr.m_validator->m_validatorBox;
 			thread->m_foreignDataBoxPoolEnd = (DetachedDataBox*)ptr.m_validator->m_rangeEnd;
@@ -692,8 +625,7 @@ GcHeap::createForeignDataBox(
 	resultBox->m_box.m_rootOffset = 0;
 
 	size_t size = type->getSize();
-	if (elementCount != 1)
-	{
+	if (elementCount != 1) {
 		size *= elementCount;
 		resultBox->m_box.m_flags |= BoxFlag_DynamicArray;
 	}
@@ -716,8 +648,7 @@ GcHeap::createForeignBufferPtr(
 	const void* p,
 	size_t size,
 	bool isCallSiteLocal
-	)
-{
+) {
 	Type* type = m_runtime->getModule()->m_typeMgr.getPrimitiveType(TypeKind_Char);
 	DetachedDataBox* box = createForeignDataBox(type, size, p, isCallSiteLocal);
 	DataPtr ptr = { (void*)p, &box->m_validator };
@@ -725,8 +656,7 @@ GcHeap::createForeignBufferPtr(
 }
 
 void
-GcHeap::invalidateDataPtrValidator(DataPtrValidator* validator)
-{
+GcHeap::invalidateDataPtrValidator(DataPtrValidator* validator) {
 	waitIdleAndLock();
 	validator->m_targetBox->m_flags |= BoxFlag_Invalid;
 	m_lock.unlock();
@@ -735,14 +665,12 @@ GcHeap::invalidateDataPtrValidator(DataPtrValidator* validator)
 // dynamic layout methods
 
 IfaceHdr*
-GcHeap::getDynamicLayout(Box* box)
-{
+GcHeap::getDynamicLayout(Box* box) {
 	IfaceHdr* dynamicLayout;
 
 	waitIdleAndLock();
 	sl::HashTableIterator<Box*, IfaceHdr*> it = m_dynamicLayoutMap.find(box);
-	if (it)
-	{
+	if (it) {
 		dynamicLayout = it->m_value;
 		m_lock.unlock();
 		return dynamicLayout;
@@ -773,8 +701,7 @@ GcHeap::getDynamicLayout(Box* box)
 }
 
 void
-GcHeap::resetDynamicLayout(Box* box)
-{
+GcHeap::resetDynamicLayout(Box* box) {
 	waitIdleAndLock();
 	m_dynamicLayoutMap.eraseKey(box);
 	m_lock.unlock();
@@ -784,16 +711,14 @@ IfaceHdr*
 GcHeap::getIntrospectionClass(
 	void* item,
 	StdType stdType
-	)
-{
+) {
 	ASSERT(item);
 
 	IfaceHdr* introClass;
 
 	waitIdleAndLock();
 	sl::HashTableIterator<void*, IfaceHdr*> it = m_introspectionMap.find(item);
-	if (it)
-	{
+	if (it) {
 		introClass = it->m_value;
 		m_lock.unlock();
 		return introClass;
@@ -818,12 +743,9 @@ GcHeap::getIntrospectionClass(
 	waitIdleAndLock();
 
 	it = m_introspectionMap.visit(item);
-	if (it->m_value)
-	{
+	if (it->m_value) {
 		introClass = it->m_value;
-	}
-	else
-	{
+	} else {
 		it->m_value = introClass;
 
 		Type* ptrType = m_runtime->getModule()->m_typeMgr.getStdType(StdType_AbstractClassPtr);
@@ -841,8 +763,7 @@ GcHeap::getIntrospectionClass(
 // management
 
 void
-GcHeap::beginShutdown()
-{
+GcHeap::beginShutdown() {
 	bool isMutatorThread = waitIdleAndLock();
 	ASSERT(!isMutatorThread);
 
@@ -853,8 +774,7 @@ GcHeap::beginShutdown()
 }
 
 void
-GcHeap::finalizeShutdown()
-{
+GcHeap::finalizeShutdown() {
 	bool isMutatorThread = waitIdleAndLock();
 	ASSERT(!isMutatorThread && (m_flags & Flag_ShuttingDown));
 
@@ -895,7 +815,7 @@ GcHeap::finalizeShutdown()
 		m_allocBoxArray.isEmpty() &&
 		m_classBoxArray.isEmpty() &&
 		m_dynamicLayoutMap.isEmpty()
-		);
+	);
 
 	// force-clear anyway
 
@@ -915,8 +835,7 @@ void
 GcHeap::addStaticRootVariables(
 	ct::Variable* const* variableArray,
 	size_t count
-	)
-{
+) {
 	if (!count)
 		return;
 
@@ -924,8 +843,7 @@ GcHeap::addStaticRootVariables(
 	sl::Array<Root> rootArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	rootArray.setCount(count);
 
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		ct::Variable* variable = variableArray[i];
 
 		rootArray[i].m_p = variable->getStaticData();
@@ -941,8 +859,7 @@ void
 GcHeap::addStaticRoot(
 	const void* p,
 	ct::Type* type
-	)
-{
+) {
 	Root root = { p, type };
 
 	waitIdleAndLock();
@@ -951,8 +868,7 @@ GcHeap::addStaticRoot(
 }
 
 void
-GcHeap::addStaticDestructor(StaticDestructFunc* func)
-{
+GcHeap::addStaticDestructor(StaticDestructFunc* func) {
 	StaticDestructor* destruct = AXL_MEM_NEW(StaticDestructor);
 	destruct->m_staticDestructFunc = func;
 	destruct->m_iface = NULL;
@@ -966,16 +882,14 @@ void
 GcHeap::addStaticClassDestructor(
 	DestructFunc* func,
 	IfaceHdr* iface
-	)
-{
+) {
 	waitIdleAndLock();
 	addStaticClassDestructor_l(func, iface);
 	m_lock.unlock();
 }
 
 void
-GcHeap::registerMutatorThread(GcMutatorThread* thread)
-{
+GcHeap::registerMutatorThread(GcMutatorThread* thread) {
 	bool isMutatorThread = waitIdleAndLock();
 	ASSERT(!isMutatorThread); // we are in the process of registering this thread
 
@@ -993,8 +907,7 @@ GcHeap::registerMutatorThread(GcMutatorThread* thread)
 }
 
 void
-GcHeap::unregisterMutatorThread(GcMutatorThread* thread)
-{
+GcHeap::unregisterMutatorThread(GcMutatorThread* thread) {
 	ASSERT(thread->m_threadId == sys::getCurrentThreadId());
 
 	bool isMutatorThread = waitIdleAndLock();
@@ -1011,13 +924,11 @@ GcHeap::unregisterMutatorThread(GcMutatorThread* thread)
 }
 
 void
-GcHeap::enterWaitRegion()
-{
+GcHeap::enterWaitRegion() {
 	GcMutatorThread* thread = getCurrentGcMutatorThread();
 	ASSERT(thread);
 
-	if (thread->m_waitRegionLevel) // already there
-	{
+	if (thread->m_waitRegionLevel) { // already there
 		thread->m_waitRegionLevel++;
 		return;
 	}
@@ -1037,13 +948,11 @@ GcHeap::enterWaitRegion()
 }
 
 void
-GcHeap::leaveWaitRegion()
-{
+GcHeap::leaveWaitRegion() {
 	GcMutatorThread* thread = getCurrentGcMutatorThread();
 	ASSERT(thread && thread->m_waitRegionLevel);
 
-	if (thread->m_waitRegionLevel > 1) // still there
-	{
+	if (thread->m_waitRegionLevel > 1) { // still there
 		thread->m_waitRegionLevel--;
 		return;
 	}
@@ -1063,13 +972,11 @@ GcHeap::leaveWaitRegion()
 }
 
 void
-GcHeap::enterNoCollectRegion()
-{
+GcHeap::enterNoCollectRegion() {
 	GcMutatorThread* thread = getCurrentGcMutatorThread();
 	ASSERT(thread && !thread->m_waitRegionLevel);
 
-	if (thread->m_noCollectRegionLevel) // already there
-	{
+	if (thread->m_noCollectRegionLevel) { // already there
 		thread->m_noCollectRegionLevel++;
 		return;
 	}
@@ -1086,13 +993,11 @@ GcHeap::enterNoCollectRegion()
 }
 
 void
-GcHeap::leaveNoCollectRegion(bool canCollectNow)
-{
+GcHeap::leaveNoCollectRegion(bool canCollectNow) {
 	GcMutatorThread* thread = getCurrentGcMutatorThread();
 	ASSERT(thread && !thread->m_waitRegionLevel && thread->m_noCollectRegionLevel);
 
-	if (thread->m_noCollectRegionLevel > 1) // still there
-	{
+	if (thread->m_noCollectRegionLevel > 1) { // still there
 		thread->m_noCollectRegionLevel--;
 		return;
 	}
@@ -1111,8 +1016,7 @@ GcHeap::leaveNoCollectRegion(bool canCollectNow)
 }
 
 void
-GcHeap::safePoint()
-{
+GcHeap::safePoint() {
 #ifdef _JNC_DEBUG
 	GcMutatorThread* thread = getCurrentGcMutatorThread();
 	ASSERT(thread && thread->m_waitRegionLevel == 0); // otherwise we may finish handshake prematurely
@@ -1125,15 +1029,13 @@ GcHeap::safePoint()
 }
 
 void
-GcHeap::weakMark(Box* box)
-{
+GcHeap::weakMark(Box* box) {
 	if (box->m_flags & BoxFlag_WeakMark)
 		return;
 
 	box->m_flags |= BoxFlag_WeakMark;
 
-	if (box->m_rootOffset)
-	{
+	if (box->m_rootOffset) {
 		Box* root = (Box*)((char*)box - box->m_rootOffset);
 		if (!(root->m_flags & BoxFlag_WeakMark))
 			root->m_flags |= BoxFlag_WeakMark;
@@ -1141,8 +1043,7 @@ GcHeap::weakMark(Box* box)
 }
 
 void
-GcHeap::markData(Box* box)
-{
+GcHeap::markData(Box* box) {
 	if (box->m_flags & BoxFlag_DataMark)
 		return;
 
@@ -1155,24 +1056,18 @@ GcHeap::markData(Box* box)
 	if (!(box->m_type->getFlags() & TypeFlag_GcRoot) || (box->m_flags & BoxFlag_Invalid))
 		return;
 
-	if (box->m_type->getTypeKind() == TypeKind_Class)
-	{
+	if (box->m_type->getTypeKind() == TypeKind_Class) {
 		addRoot(box, box->m_type);
-	}
-	else if (!(box->m_flags & BoxFlag_DynamicArray))
-	{
+	} else if (!(box->m_flags & BoxFlag_DynamicArray)) {
 		addRoot((DataBox*)box + 1, box->m_type);
-	}
-	else
-	{
+	} else {
 		size_t count = getDynamicArrayElementCount((DataBox*)box);
 		addRootArray((DataBox*)box + 1, box->m_type, count);
 	}
 }
 
 void
-GcHeap::markDataPtr(const DataPtr& ptr)
-{
+GcHeap::markDataPtr(const DataPtr& ptr) {
 	if (!ptr.m_validator)
 		return;
 
@@ -1181,15 +1076,13 @@ GcHeap::markDataPtr(const DataPtr& ptr)
 }
 
 void
-GcHeap::markVariant(const Variant& variant)
-{
+GcHeap::markVariant(const Variant& variant) {
 	if (variant.m_type && (variant.m_type->getFlags() & TypeFlag_GcRoot))
 		variant.m_type->markGcRoots(&variant, this);
 }
 
 void
-GcHeap::markClass(Box* box)
-{
+GcHeap::markClass(Box* box) {
 	ASSERT(box->m_type->getTypeKind() == TypeKind_Class);
 
 	if (box->m_flags & BoxFlag_ClassMark)
@@ -1210,16 +1103,14 @@ void
 GcHeap::markClassFields(
 	ClassType* type,
 	IfaceHdr* ifaceHdr
-	)
-{
+) {
 	char* p = (char*)ifaceHdr;
 
 	// mark class fields in base classes
 
 	sl::Array<ct::BaseTypeSlot*> classBaseTypeArray = type->getClassBaseTypeArray();
 	size_t count = classBaseTypeArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		ct::BaseTypeSlot* slot = classBaseTypeArray[i];
 		markClassFields((ClassType*)slot->getType(), (IfaceHdr*)(p + slot->getOffset()));
 	}
@@ -1228,8 +1119,7 @@ GcHeap::markClassFields(
 
 	const sl::Array<ct::Field*>& classFieldArray = type->getClassFieldArray();
 	count = classFieldArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		ct::Field* field = classFieldArray[i];
 		Box* fieldBox = (Box*)(p + field->getOffset());
 		ASSERT(fieldBox->m_type == field->getType());
@@ -1244,8 +1134,7 @@ GcHeap::markClassFields(
 }
 
 void
-GcHeap::weakMarkClosureClass(Box* box)
-{
+GcHeap::weakMarkClosureClass(Box* box) {
 	ASSERT(!box->m_rootOffset && box->m_type->getTypeKind() == TypeKind_Class);
 
 	if (box->m_flags & (BoxFlag_ClassMark | BoxFlag_ClosureWeakMark))
@@ -1254,8 +1143,7 @@ GcHeap::weakMarkClosureClass(Box* box)
 	ASSERT(isClosureClassType(box->m_type));
 	ct::ClosureClassType* closureClassType = (ct::ClosureClassType*)box->m_type;
 	size_t thisArgFieldIdx = closureClassType->getThisArgFieldIdx();
-	if (thisArgFieldIdx == -1)
-	{
+	if (thisArgFieldIdx == -1) {
 		markClass(box);
 		return;
 	}
@@ -1275,8 +1163,7 @@ GcHeap::weakMarkClosureClass(Box* box)
 	const sl::Array<ct::Field*>& gcRootFieldArray = closureClassType->getGcRootFieldArray();
 	size_t count = gcRootFieldArray.getCount();
 
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		ct::Field* field = gcRootFieldArray[i];
 		if (field != thisArgField)
 			addRoot(p0 + field->getOffset(), field->getType());
@@ -1287,34 +1174,25 @@ void
 GcHeap::addRoot(
 	const void* p,
 	ct::Type* type
-	)
-{
+) {
 	ASSERT(m_state == State_Mark && p);
 
-	if (type->getFlags() & TypeFlag_GcRoot)
-	{
+	if (type->getFlags() & TypeFlag_GcRoot) {
 		Root root = { p, type };
 		m_markRootArray[m_currentMarkRootArrayIdx].append(root);
-	}
-	else // dynamic validator or heap variable
-	{
+	} else { // dynamic validator or heap variable
 		ASSERT(isDataPtrType(type, DataPtrTypeKind_Thin));
 		ct::Type* targetType = ((ct::DataPtrType*)type)->getTargetType();
 
-		if (targetType->getStdType() == StdType_DataPtrValidator)
-		{
+		if (targetType->getStdType() == StdType_DataPtrValidator) {
 			DataPtrValidator* validator = (DataPtrValidator*)p;
 			ASSERT(validator->m_validatorBox->m_type == targetType);
 			weakMark(validator->m_validatorBox);
-		}
-		else if (targetType->getTypeKind() == TypeKind_Class)
-		{
+		} else if (targetType->getTypeKind() == TypeKind_Class) {
 			Box* box = ((Box*)p) - 1;
 			ASSERT(box->m_type == targetType);
 			markClass(box);
-		}
-		else
-		{
+		} else {
 			DataBox* box = ((DataBox*)p) - 1;
 			ASSERT(box->m_box.m_type == targetType);
 			markData((Box*)box);
@@ -1327,8 +1205,7 @@ GcHeap::addRootArray(
 	const void* p0,
 	ct::Type* type,
 	size_t count
-	)
-{
+) {
 	ASSERT(type->getTypeKind() != TypeKind_Class && (type->getFlags() & TypeFlag_GcRoot));
 
 	sl::Array<Root>* markRootArray = &m_markRootArray[m_currentMarkRootArrayIdx];
@@ -1336,8 +1213,7 @@ GcHeap::addRootArray(
 	markRootArray->setCount(baseCount + count);
 
 	const char* p = (const char*) p0;
-	for (size_t i = 0, j = baseCount; i < count; i++, j++)
-	{
+	for (size_t i = 0, j = baseCount; i < count; i++, j++) {
 		(*markRootArray) [j].m_p = p;
 		(*markRootArray) [j].m_type = type;
 		p += type->getSize();
@@ -1349,10 +1225,8 @@ GcHeap::setFrameMap(
 	GcShadowStackFrame* frame,
 	GcShadowStackFrameMap* map,
 	GcShadowStackFrameMapOp op
-	)
-{
-	switch (op)
-	{
+) {
+	switch (op) {
 		size_t count;
 		const size_t* indexArray;
 
@@ -1361,8 +1235,7 @@ GcHeap::setFrameMap(
 		ASSERT(map && count);
 
 		indexArray = map->getGcRootIndexArray();
-		for (size_t i = 0; i < count; i++)
-		{
+		for (size_t i = 0; i < count; i++) {
 			size_t j = indexArray[i];
 			frame->m_gcRootArray[j] = NULL;
 		}
@@ -1385,8 +1258,7 @@ GcHeap::setFrameMap(
 }
 
 void
-GcHeap::collect()
-{
+GcHeap::collect() {
 	bool isMutatorThread = waitIdleAndLock();
 
 	if (!m_noCollectMutatorThreadCount)
@@ -1396,11 +1268,9 @@ GcHeap::collect()
 }
 
 size_t
-GcHeap::stopTheWorld_l(bool isMutatorThread)
-{
+GcHeap::stopTheWorld_l(bool isMutatorThread) {
 	size_t handshakeCount = m_mutatorThreadList.getCount() - m_waitingMutatorThreadCount;
-	if (isMutatorThread)
-	{
+	if (isMutatorThread) {
 		ASSERT(handshakeCount);
 		handshakeCount--; // minus this thread
 	}
@@ -1412,25 +1282,21 @@ GcHeap::stopTheWorld_l(bool isMutatorThread)
 		m_mutatorThreadList.getCount(),
 		m_waitingMutatorThreadCount,
 		handshakeCount
-		);
+	);
 
 	MutatorThreadList::Iterator threadIt = m_mutatorThreadList.getHead();
-	for (; threadIt; threadIt++)
-	{
+	for (; threadIt; threadIt++) {
 		JNC_TRACE_GC_COLLECT("   *** mutator (tid = %x; wait = %d)\n",
 			(uint_t)threadIt->m_threadId,
 			threadIt->m_waitRegionLevel
-			);
+		);
 	}
 
-	if (!handshakeCount)
-	{
+	if (!handshakeCount) {
 		m_state = State_StopTheWorld;
 		m_idleEvent.reset();
 		m_lock.unlock();
-	}
-	else if (m_flags & Flag_SimpleSafePoint)
-	{
+	} else if (m_flags & Flag_SimpleSafePoint) {
 		m_resumeEvent.reset();
 		sys::atomicXchg(&m_handshakeCount, handshakeCount);
 		m_state = State_StopTheWorld;
@@ -1438,9 +1304,7 @@ GcHeap::stopTheWorld_l(bool isMutatorThread)
 		m_lock.unlock();
 
 		m_handshakeEvent.wait();
-	}
-	else
-	{
+	} else {
 #if (_JNC_OS_WIN)
 		m_resumeEvent.reset();
 		sys::atomicXchg(&m_handshakeCount, handshakeCount);
@@ -1465,20 +1329,16 @@ GcHeap::stopTheWorld_l(bool isMutatorThread)
 }
 
 void
-GcHeap::resumeTheWorld(size_t handshakeCount)
-{
+GcHeap::resumeTheWorld(size_t handshakeCount) {
 	if (!handshakeCount)
 		return;
 
-	if (m_flags & Flag_SimpleSafePoint)
-	{
+	if (m_flags & Flag_SimpleSafePoint) {
 		sys::atomicXchg(&m_handshakeCount, handshakeCount);
 		m_state = State_ResumeTheWorld;
 		m_resumeEvent.signal();
 		m_handshakeEvent.wait();
-	}
-	else
-	{
+	} else {
 #if (_JNC_OS_WIN)
 		m_guardPage.protect(PAGE_READWRITE);
 		sys::atomicXchg(&m_handshakeCount, handshakeCount);
@@ -1490,13 +1350,11 @@ GcHeap::resumeTheWorld(size_t handshakeCount)
 		sys::atomicXchg(&m_handshakeCount, handshakeCount);
 		m_state = State_ResumeTheWorld;
 
-		for (;;) // we need a loop -- sigsuspend can lose per-thread signals
-		{
+		for (;;) { // we need a loop -- sigsuspend can lose per-thread signals
 			bool result;
 
 			MutatorThreadList::Iterator threadIt = m_mutatorThreadList.getHead();
-			for (; threadIt; threadIt++)
-			{
+			for (; threadIt; threadIt++) {
 				if (threadIt->m_isSafePoint)
 					::pthread_kill((pthread_t)threadIt->m_threadId, SIGUSR1); // resume
 			}
@@ -1510,8 +1368,7 @@ GcHeap::resumeTheWorld(size_t handshakeCount)
 }
 
 void
-GcHeap::collect_l(bool isMutatorThread)
-{
+GcHeap::collect_l(bool isMutatorThread) {
 	ASSERT(!m_noCollectMutatorThreadCount && m_waitingMutatorThreadCount <= m_mutatorThreadList.getCount());
 
 	m_stats.m_totalCollectCount++;
@@ -1542,13 +1399,12 @@ GcHeap::collect_l(bool isMutatorThread)
 	// add static roots
 
 	count = m_staticRootArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		ASSERT(m_staticRootArray[i].m_type->getFlags() & TypeFlag_GcRoot);
 		addRoot(
 			m_staticRootArray[i].m_p,
 			m_staticRootArray[i].m_type
-			);
+		);
 	}
 
 	// add stack and tls roots and validator pools
@@ -1558,8 +1414,7 @@ GcHeap::collect_l(bool isMutatorThread)
 	size_t tlsRootFieldCount = tlsRootFieldArray.getCount();
 
 	MutatorThreadList::Iterator threadIt = m_mutatorThreadList.getHead();
-	for (; threadIt; threadIt++)
-	{
+	for (; threadIt; threadIt++) {
 		GcMutatorThread* thread = *threadIt;
 
 		// stack roots
@@ -1571,8 +1426,7 @@ GcHeap::collect_l(bool isMutatorThread)
 
 		// tls roots
 
-		for (size_t i = 0; i < tlsRootFieldCount; i++)
-		{
+		for (size_t i = 0; i < tlsRootFieldCount; i++) {
 			ct::Field* field = tlsRootFieldArray[i];
 			addRoot((char*)tlsVariableTable + field->getOffset(), field->getType());
 		}
@@ -1596,8 +1450,7 @@ GcHeap::collect_l(bool isMutatorThread)
 
 	sl::HashTableIterator<Box*, IfaceHdr*> it = m_dynamicLayoutMap.getHead();
 	sl::HashTableIterator<Box*, IfaceHdr*> nextIt;
-	for (; it; it = nextIt)
-	{
+	for (; it; it = nextIt) {
 		nextIt = it.getNext();
 
 		if (it->getKey()->m_flags & BoxFlag_WeakMark)
@@ -1614,17 +1467,13 @@ GcHeap::collect_l(bool isMutatorThread)
 
 	size_t dstIdx = 0;
 	count = m_destructibleClassBoxArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		Box* box = m_destructibleClassBoxArray[i];
 		ASSERT(!(box->m_flags & BoxFlag_Destructed) && ((ct::ClassType*)box->m_type)->getDestructor());
 
-		if (box->m_flags & (BoxFlag_ClassMark | BoxFlag_ClosureWeakMark))
-		{
+		if (box->m_flags & (BoxFlag_ClassMark | BoxFlag_ClosureWeakMark)) {
 			m_destructibleClassBoxArray[dstIdx++] = box;
-		}
-		else
-		{
+		} else {
 			IfaceHdr* iface = (IfaceHdr*)(box + 1);
 			ASSERT(iface->m_box == box);
 
@@ -1642,8 +1491,7 @@ GcHeap::collect_l(bool isMutatorThread)
 
 	// mark all class boxes scheduled for destruction
 
-	if (!m_dynamicDestructArray.isEmpty())
-	{
+	if (!m_dynamicDestructArray.isEmpty()) {
 		size_t count = m_dynamicDestructArray.getCount();
 		IfaceHdr** iface = m_dynamicDestructArray;
 
@@ -1659,8 +1507,7 @@ GcHeap::collect_l(bool isMutatorThread)
 
 	dstIdx = 0;
 	count = m_classBoxArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		Box* box = m_classBoxArray[i];
 		if (box->m_flags & (BoxFlag_ClassMark | BoxFlag_ClosureWeakMark))
 			m_classBoxArray[dstIdx++] = box;
@@ -1675,16 +1522,12 @@ GcHeap::collect_l(bool isMutatorThread)
 
 	dstIdx = 0;
 	count = m_allocBoxArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		Box* box = m_allocBoxArray[i];
-		if (box->m_flags & BoxFlag_WeakMark)
-		{
+		if (box->m_flags & BoxFlag_WeakMark) {
 			m_allocBoxArray[dstIdx] = box;
 			dstIdx++;
-		}
-		else
-		{
+		} else {
 			size_t size = box->m_type->getSize();
 			if (box->m_flags & BoxFlag_DynamicArray)
 				size *= getDynamicArrayElementCount((DataBox*)box);
@@ -1726,36 +1569,29 @@ GcHeap::collect_l(bool isMutatorThread)
 }
 
 void
-GcHeap::addShadowStackFrame(GcShadowStackFrame* frame)
-{
+GcHeap::addShadowStackFrame(GcShadowStackFrame* frame) {
 	GcShadowStackFrameMap* frameMap = frame->m_map;
-	for (; frameMap; frameMap = frameMap->getPrev())
-	{
+	for (; frameMap; frameMap = frameMap->getPrev()) {
 		size_t gcRootCount = frameMap->getGcRootCount();
 		if (!gcRootCount)
 			continue;
 
 		ct::GcShadowStackFrameMapKind mapKind = frameMap->getMapKind();
-		if (mapKind == ct::GcShadowStackFrameMapKind_Dynamic)
-		{
+		if (mapKind == ct::GcShadowStackFrameMapKind_Dynamic) {
 			Box* const* boxArray = frameMap->getBoxArray();
-			for (size_t i = 0; i < gcRootCount; i++)
-			{
+			for (size_t i = 0; i < gcRootCount; i++) {
 				Box* box = boxArray[i];
 				if (box->m_type->getTypeKind() == TypeKind_Class)
 					markClass(box);
 				else
 					markData(box);
 			}
-		}
-		else
-		{
+		} else {
 			ASSERT(mapKind == ct::GcShadowStackFrameMapKind_Static);
 			Type* const* typeArray = frameMap->getGcRootTypeArray();
 
 			const size_t* indexArray = frameMap->getGcRootIndexArray();
-			for (size_t i = 0; i < gcRootCount; i++)
-			{
+			for (size_t i = 0; i < gcRootCount; i++) {
 				size_t j = indexArray[i];
 				void* p = frame->m_gcRootArray[j];
 				if (p)
@@ -1766,19 +1602,16 @@ GcHeap::addShadowStackFrame(GcShadowStackFrame* frame)
 }
 
 void
-GcHeap::runMarkCycle()
-{
+GcHeap::runMarkCycle() {
 	// mark breadth first
 
-	while (!m_markRootArray[m_currentMarkRootArrayIdx].isEmpty())
-	{
+	while (!m_markRootArray[m_currentMarkRootArrayIdx].isEmpty()) {
 		size_t prevGcRootArrayIdx = m_currentMarkRootArrayIdx;
 		m_currentMarkRootArrayIdx = !m_currentMarkRootArrayIdx;
 		m_markRootArray[m_currentMarkRootArrayIdx].clear();
 
 		size_t count = m_markRootArray[prevGcRootArrayIdx].getCount();
-		for (size_t i = 0; i < count; i++)
-		{
+		for (size_t i = 0; i < count; i++) {
 			const Root* root = &m_markRootArray[prevGcRootArrayIdx][i];
 #if (_JNC_TRACE_GC_MARK)
 			sl::String dump = enc::HexEncoding::encode(root->m_p, root->m_type->getSize(), enc::HexEncodingFlag_Multiline);
@@ -1788,7 +1621,7 @@ GcHeap::runMarkCycle()
 				root->m_type->getTypeString().sz(),
 				root->m_p,
 				dump.sz()
-				);
+			);
 #endif
 			root->m_type->markGcRoots(root->m_p, this);
 		}
@@ -1796,10 +1629,8 @@ GcHeap::runMarkCycle()
 }
 
 void
-GcHeap::runDestructCycle_l()
-{
-	while (!m_dynamicDestructArray.isEmpty())
-	{
+GcHeap::runDestructCycle_l() {
+	while (!m_dynamicDestructArray.isEmpty()) {
 		size_t i = m_dynamicDestructArray.getCount() - 1;
 		IfaceHdr* iface = m_dynamicDestructArray[i];
 		m_lock.unlock();
@@ -1821,7 +1652,7 @@ GcHeap::runDestructCycle_l()
 				"-- WARNING: runtime error in %s.destruct(): %s\n",
 				classType->getQualifiedName().sz(),
 				err::getLastErrorDescription().sz()
-				);
+			);
 
 #ifdef JNC_DESTRUCT_DELAY
 		sys::sleep(JNC_DESTRUCT_DELAY);
@@ -1833,10 +1664,8 @@ GcHeap::runDestructCycle_l()
 }
 
 void
-GcHeap::destructThreadFunc()
-{
-	for (;;)
-	{
+GcHeap::destructThreadFunc() {
+	for (;;) {
 		m_destructEvent.wait();
 
 		waitIdleAndLock();
@@ -1847,24 +1676,19 @@ GcHeap::destructThreadFunc()
 		m_lock.unlock();
 	}
 
-	for (size_t i = 0; i < GcDef_ShutdownIterationLimit; i++)
-	{
+	for (size_t i = 0; i < GcDef_ShutdownIterationLimit; i++) {
 		runDestructCycle_l();
 
-		while (!m_staticDestructorList.isEmpty())
-		{
+		while (!m_staticDestructorList.isEmpty()) {
 			StaticDestructor* destructor = m_staticDestructorList.removeTail();
 			m_lock.unlock();
 
 			bool result;
 			JNC_BEGIN_CALL_SITE(m_runtime);
 
-			if (!destructor->m_iface)
-			{
+			if (!destructor->m_iface) {
 				callFunctionImpl_u<void>((void*)destructor->m_staticDestructFunc);
-			}
-			else
-			{
+			} else {
 				callFunctionImpl_u<void>((void*)destructor->m_destructFunc, destructor->m_iface);
 				destructor->m_iface->m_box->m_flags |= BoxFlag_Invalid;
 			}
@@ -1875,7 +1699,7 @@ GcHeap::destructThreadFunc()
 				TRACE(
 					"-- WARNING: runtime error in a static destructor: %s\n",
 					err::getLastErrorDescription().sz()
-					);
+				);
 
 			AXL_MEM_DELETE(destructor);
 			waitIdleAndLock();
@@ -1894,8 +1718,7 @@ GcHeap::destructThreadFunc()
 }
 
 void
-GcHeap::parkAtSafePoint()
-{
+GcHeap::parkAtSafePoint() {
 	GcMutatorThread* thread = getCurrentGcMutatorThread();
 	ASSERT(thread);
 
@@ -1903,8 +1726,7 @@ GcHeap::parkAtSafePoint()
 }
 
 void
-GcHeap::parkAtSafePoint(GcMutatorThread* thread)
-{
+GcHeap::parkAtSafePoint(GcMutatorThread* thread) {
 	ASSERT(m_state == State_StopTheWorld); // shouldn't be here otherwise
 	ASSERT(!thread->m_waitRegionLevel && !thread->m_isSafePoint);
 
@@ -1931,8 +1753,7 @@ GcHeap::parkAtSafePoint(GcMutatorThread* thread)
 }
 
 bool
-GcHeap::abortThrow()
-{
+GcHeap::abortThrow() {
 	// we may end up here during initializing/uninitializing a call-site (there is a
 	// safe-point inside waitIdleAndLock) -- so don't abort-throw unless there is a
 	// non-external SJLJ frame (so we are inside a call-site in a "stable" state)
@@ -1953,16 +1774,14 @@ GcHeap::abortThrow()
 #if (_JNC_OS_WIN)
 
 void
-GcHeap::handleGuardPageHit(GcMutatorThread* thread)
-{
+GcHeap::handleGuardPageHit(GcMutatorThread* thread) {
 	parkAtSafePoint(thread);
 }
 
 #elif (_JNC_OS_POSIX)
 
 void
-GcHeap::handleGuardPageHit(GcMutatorThread* thread)
-{
+GcHeap::handleGuardPageHit(GcMutatorThread* thread) {
 	ASSERT(m_state == State_StopTheWorld); // shouldn't be here otherwise
 	ASSERT(!thread->m_waitRegionLevel && !thread->m_isSafePoint);
 
@@ -1973,8 +1792,7 @@ GcHeap::handleGuardPageHit(GcMutatorThread* thread)
 	if (!count)
 		m_handshakeSem.signal();
 
-	do
-	{
+	do {
 		static sigset_t signalWaitMask = { 0 }; // the triggering signal is already excluded
 		sigsuspend(&signalWaitMask);
 	} while (m_state != State_ResumeTheWorld);

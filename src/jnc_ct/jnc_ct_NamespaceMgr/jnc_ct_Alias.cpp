@@ -19,21 +19,18 @@ namespace ct {
 
 //..............................................................................
 
-Alias::Alias()
-{
+Alias::Alias() {
 	m_itemKind = ModuleItemKind_Alias;
 	m_targetItem = NULL;
 }
 
 bool
-Alias::resolveImpl()
-{
+Alias::resolveImpl() {
 	bool result;
 
 	ASSERT(!m_targetItem);
 
-	if (m_flags & AliasFlag_InResolve)
-	{
+	if (m_flags & AliasFlag_InResolve) {
 		err::setFormatStringError("can't resolve '%s' due to recursion", getQualifiedName().sz());
 		return false;
 	}
@@ -49,15 +46,13 @@ Alias::resolveImpl()
 	if (!findResult.m_result)
 		return false;
 
-	if (!findResult.m_item)
-	{
+	if (!findResult.m_item) {
 		err::setFormatStringError("name '%s' is not found", parser.getLastQualifiedName().getFullName().sz());
 		return false;
 	}
 
 	m_targetItem = findResult.m_item;
-	if (m_targetItem->getItemKind() == ModuleItemKind_Alias)
-	{
+	if (m_targetItem->getItemKind() == ModuleItemKind_Alias) {
 		Alias* alias = (Alias*)m_targetItem;
 		result = alias->ensureResolved();
 		if (!result)
@@ -76,8 +71,7 @@ Alias::generateDocumentation(
 	const sl::StringRef& outputDir,
 	sl::String* itemXml,
 	sl::String* indexXml
-	)
-{
+) {
 	dox::Block* doxyBlock = m_module->m_doxyHost.getItemBlock(this);
 
 	itemXml->format("<memberdef kind='alias' id='%s'", doxyBlock->getRefId ().sz());
@@ -90,7 +84,7 @@ Alias::generateDocumentation(
 	itemXml->appendFormat(
 		"<initializer>= %s</initializer>\n",
 		getInitializerString().sz()
-		);
+	);
 
 	itemXml->append(doxyBlock->getImportString());
 	itemXml->append(doxyBlock->getDescriptionString());

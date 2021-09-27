@@ -4,22 +4,18 @@ bool autoget property g_a;
 bool autoget property g_b;
 bool autoget property g_c;
 
-void g_a.set(bool a)
-{
+void g_a.set(bool a) {
 	m_value = a;
 }
 
-void g_b.set(bool b)
-{
+void g_b.set(bool b) {
 	m_value = b;
 }
 
-void g_c.set(bool c)
-{
+void g_c.set(bool c) {
 	m_value = c;
 }
 
-int main()
-{
+int main() {
 	return 0;
 }

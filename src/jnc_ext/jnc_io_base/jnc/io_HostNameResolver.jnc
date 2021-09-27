@@ -18,16 +18,14 @@ namespace io {
 
 //..............................................................................
 
-bitflag enum HostNameResolverEvents
-{
+bitflag enum HostNameResolverEvents {
 	Error,
 	Resolved,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class HostNameResolver
-{
+opaque class HostNameResolver {
 	SocketAddress const* readonly volatile m_addressTable;
 	size_t readonly volatile m_addressCount;
 
@@ -43,7 +41,7 @@ opaque class HostNameResolver
 	bool errorcode resolve(
 		char const* name,
 		AddressFamily family = AddressFamily.Undefined
-		);
+	);
 
 	void cancel();
 	void close();
@@ -52,14 +50,14 @@ opaque class HostNameResolver
 	intptr errorcode wait(
 		HostNameResolverEvents eventMask,
 		function* handler(HostNameResolverEvents triggeredEvents)
-		);
+	);
 
 	bool errorcode cancelWait(intptr handle);
 
 	HostNameResolverEvents blockingWait(
 		HostNameResolverEvents eventMask,
 		uint_t timeout = -1
-		);
+	);
 
 	async HostNameResolverEvents asyncWait(HostNameResolverEvents eventMask);
 }

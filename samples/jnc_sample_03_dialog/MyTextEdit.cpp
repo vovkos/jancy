@@ -32,13 +32,11 @@ JNC_END_TYPE_FUNCTION_MAP()
 //..............................................................................
 
 MyTextEdit::MyTextEdit():
-	MyWidget(new QLineEdit)
-{
+	MyWidget(new QLineEdit) {
 	m_qtLineEdit = (QLineEdit*)m_handle;
 }
 
-MyTextEdit::~MyTextEdit()
-{
+MyTextEdit::~MyTextEdit() {
 	if (!m_qtLineEdit->parent())
 		delete m_qtLineEdit;
 

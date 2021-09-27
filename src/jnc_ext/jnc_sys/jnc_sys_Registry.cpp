@@ -25,7 +25,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	SysLibCacheSlot_RegKey,
 	RegKey,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(RegKey)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<RegKey>)
@@ -46,8 +46,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 void
 JNC_CDECL
-RegKey::close()
-{
+RegKey::close() {
 	if (!m_key)
 		return;
 
@@ -61,8 +60,7 @@ RegKey::read(
 	RegKey* self,
 	DataPtr namePtr,
 	DataPtr typePtr
-	)
-{
+) {
 	char buffer[256];
 	sl::Array<byte_t> value(rc::BufKind_Stack, buffer, sizeof(buffer));
 
@@ -76,8 +74,7 @@ RegKey::read(
 
 uint32_t
 JNC_CDECL
-RegKey::readDword(DataPtr namePtr)
-{
+RegKey::readDword(DataPtr namePtr) {
 	char buffer[256];
 	sl::Array<byte_t> value(rc::BufKind_Stack, buffer, sizeof(buffer));
 
@@ -88,8 +85,7 @@ RegKey::readDword(DataPtr namePtr)
 
 	sl::String string;
 
-	switch (type)
-	{
+	switch (type) {
 	case REG_DWORD:
 	case REG_QWORD:
 		return *(uint32_t*)value.cp();
@@ -113,8 +109,7 @@ JNC_CDECL
 RegKey::readString(
 	RegKey* self,
 	DataPtr namePtr
-	)
-{
+) {
 	char buffer[256];
 	sl::Array<byte_t> value(rc::BufKind_Stack, buffer, sizeof(buffer));
 
@@ -126,8 +121,7 @@ RegKey::readString(
 	uint32_t dword;
 	sl::String string;
 
-	switch (type)
-	{
+	switch (type) {
 	case REG_DWORD:
 	case REG_QWORD:
 		dword = *(uint32_t*)value.cp();
@@ -158,8 +152,7 @@ JNC_CDECL
 RegKey::writeString(
 	DataPtr namePtr,
 	DataPtr valuePtr
-	)
-{
+) {
 	sl::String_w string((char*)valuePtr.m_p);
 	return writeImpl((char*)namePtr.m_p, REG_SZ, string.sz(), (string.getLength() + 1) * sizeof(wchar_t));
 }
@@ -168,8 +161,7 @@ bool
 RegKey::createImpl(
 	HKEY parent,
 	const char* path
-	)
-{
+) {
 	close();
 
 	long result = ::RegCreateKeyExW(
@@ -182,7 +174,7 @@ RegKey::createImpl(
 		NULL,
 		&m_key,
 		NULL
-		);
+	);
 
 	return err::complete(result == ERROR_SUCCESS);
 }
@@ -192,8 +184,7 @@ RegKey::openImpl(
 	HKEY parent,
 	const char* path,
 	REGSAM access
-	)
-{
+) {
 	close();
 
 	long result = ::RegOpenKeyExW(
@@ -202,7 +193,7 @@ RegKey::openImpl(
 		0,
 		access,
 		&m_key
-		);
+	);
 
 	return err::complete(result == ERROR_SUCCESS);
 }
@@ -212,8 +203,7 @@ RegKey::readImpl(
 	sl::Array<byte_t>* buffer,
 	const char* name,
 	dword_t* type
-	)
-{
+) {
 	dword_t size = 0;
 
 	long result = ::RegQueryValueExW(
@@ -223,10 +213,9 @@ RegKey::readImpl(
 		type,
 		NULL,
 		&size
-		);
+	);
 
-	if (result != ERROR_SUCCESS)
-	{
+	if (result != ERROR_SUCCESS) {
 		err::setError(result);
 		return -1;
 	}
@@ -242,10 +231,9 @@ RegKey::readImpl(
 		type,
 		buffer->p(),
 		&size
-		);
+	);
 
-	if (result != ERROR_SUCCESS)
-	{
+	if (result != ERROR_SUCCESS) {
 		err::setError(result);
 		return -1;
 	}
@@ -259,8 +247,7 @@ RegKey::writeImpl(
 	dword_t type,
 	const void* p,
 	size_t size
-	)
-{
+) {
 	long result = ::RegSetValueExW(
 		m_key,
 		sl::String_w(name),
@@ -268,7 +255,7 @@ RegKey::writeImpl(
 		type,
 		(const byte_t*)p,
 		size
-		);
+	);
 
 	return err::complete(result == ERROR_SUCCESS);
 }

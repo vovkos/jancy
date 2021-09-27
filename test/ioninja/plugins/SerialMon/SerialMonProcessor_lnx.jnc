@@ -13,8 +13,7 @@ namespace psx {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum
-{
+enum {
 	// termios IOCTL codes
 
 	TCSETS    = 0x5402,
@@ -108,14 +107,12 @@ typedef unsigned char cc_t;
 typedef unsigned int speed_t;
 typedef unsigned int tcflag_t;
 
-enum
-{
+enum {
 	NCC  = 8,  // 10 on PowerPC (unsupported at the moment)
 	NCCS = 19, // 23 on MIPS, 17 on SPARC (both unsupported at the moment)
 }
 
-struct termio
-{
+struct termio {
 	unsigned short c_iflag;
 	unsigned short c_oflag;
 	unsigned short c_cflag;
@@ -124,8 +121,7 @@ struct termio
 	unsigned char c_cc[NCC];
 }
 
-struct termios
-{
+struct termios {
 	tcflag_t c_iflag;
 	tcflag_t c_oflag;
 	tcflag_t c_cflag;
@@ -134,8 +130,7 @@ struct termios
 	cc_t c_cc[NCCS];
 }
 
-struct termios2: termios
-{
+struct termios2: termios {
 	speed_t c_ispeed;
 	speed_t c_ospeed;
 }
@@ -144,10 +139,8 @@ struct termios2: termios
 
 //..............................................................................
 
-class SerialMonProcessor_lnx: SerialMonProcessor
-{
-	construct(log.Writer* logWriter)
-	{
+class SerialMonProcessor_lnx: SerialMonProcessor {
+	construct(log.Writer* logWriter) {
 		basetype.construct(logWriter);
 	}
 
@@ -161,7 +154,7 @@ protected:
 		long arg,
 		const void* argData,
 		size_t argDataSize
-		);
+	);
 
 	void processTermiosSetAttr(
 		uint64_t timestamp,
@@ -169,15 +162,13 @@ protected:
 		uint_t iflags,
 		uint_t ispeed = 0,
 		uint_t ospeed = 0
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void SerialMonProcessor_lnx.processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr)
-{
-	switch (notifyHdr.m_code)
-	{
+void SerialMonProcessor_lnx.processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr) {
+	switch (notifyHdr.m_code) {
 	case io.lnx.DeviceMonitorNotifyCode.Open:
 		io.lnx.DeviceMonitorOpenNotifyParams const* params = (io.lnx.DeviceMonitorOpenNotifyParams const*)(notifyHdr + 1);
 
@@ -185,12 +176,9 @@ void SerialMonProcessor_lnx.processNotification(io.DeviceMonitorNotifyHdr const*
 		std.Buffer logParams;
 		logParams.append(&notifyHdr.m_processId, sizeof(notifyHdr.m_processId));
 
-		if (notifyHdr.m_errno == 0)
-		{
+		if (notifyHdr.m_errno == 0) {
 			recordCode = SerialMonLogRecordCode.DeviceOpened;
-		}
-		else
-		{
+		} else {
 			recordCode = SerialMonLogRecordCode.DeviceOpenError;
 
 			std.Error error;
@@ -207,7 +195,7 @@ void SerialMonProcessor_lnx.processNotification(io.DeviceMonitorNotifyHdr const*
 			recordCode,
 			logParams.m_p,
 			logParams.m_size
-			);
+		);
 
 		break;
 
@@ -224,7 +212,7 @@ void SerialMonProcessor_lnx.processNotification(io.DeviceMonitorNotifyHdr const*
 				log.StdRecordCode.Rx,
 				params + 1,
 				params.m_dataSize
-				);
+			);
 		break;
 
 	case io.lnx.DeviceMonitorNotifyCode.Write:
@@ -236,7 +224,7 @@ void SerialMonProcessor_lnx.processNotification(io.DeviceMonitorNotifyHdr const*
 				log.StdRecordCode.Tx,
 				params + 1,
 				params.m_dataSize
-				);
+			);
 		break;
 
 
@@ -251,7 +239,7 @@ void SerialMonProcessor_lnx.processNotification(io.DeviceMonitorNotifyHdr const*
 			params.m_arg,
 			params + 1,
 			params.m_argSize
-			);
+		);
 
 		break;
 	}
@@ -264,10 +252,8 @@ void SerialMonProcessor_lnx.processIoctlNotification(
 	long arg,
 	const void* argData,
 	size_t argDataSize
-	)
-{
-	switch (code)
-	{
+) {
+	switch (code) {
 	case psx.TCSETA:
 	case psx.TCSETAW:
 	case psx.TCSETAF:
@@ -320,8 +306,7 @@ void SerialMonProcessor_lnx.processIoctlNotification(
 		if (mask != -1)
 			mask ^= lines;
 
-		if (mask)
-		{
+		if (mask) {
 			SerialStatusLineChangedParams params = { lines, mask };
 
 			m_logWriter.write(
@@ -329,7 +314,7 @@ void SerialMonProcessor_lnx.processIoctlNotification(
 				SerialLogRecordCode.StatusLineChanged,
 				&params,
 				sizeof(params)
-				);
+			);
 		}
 
 		break;
@@ -348,7 +333,7 @@ void SerialMonProcessor_lnx.processIoctlNotification(
 				SerialLogRecordCode.DtrChanged,
 				&value,
 				sizeof(value)
-				);
+			);
 
 		if (lines & psx.TIOCM_RTS)
 			m_logWriter.write(
@@ -356,7 +341,7 @@ void SerialMonProcessor_lnx.processIoctlNotification(
 				SerialLogRecordCode.RtsChanged,
 				&value,
 				sizeof(value)
-				);
+			);
 
 		break;
 	};
@@ -368,8 +353,7 @@ void SerialMonProcessor_lnx.processTermiosSetAttr(
 	uint_t iflags,
 	uint_t ispeed,
 	uint_t ospeed
-	)
-{
+) {
 	uint_t baudRate;
 	uint_t dataBits;
 	uint_t stopBits;
@@ -377,8 +361,7 @@ void SerialMonProcessor_lnx.processTermiosSetAttr(
 	uint_t flowControl;
 
 	uint_t speed = cflags & (psx.CBAUD | psx.CBAUDEX);
-	switch (speed)
-	{
+	switch (speed) {
 	case psx.B0:
 		baudRate = 0;
 		break;
@@ -512,8 +495,7 @@ void SerialMonProcessor_lnx.processTermiosSetAttr(
 	}
 
 	uint_t byteSize = cflags & psx.CSIZE;
-	switch (byteSize)
-	{
+	switch (byteSize) {
 	case psx.CS5:
 		dataBits = 5;
 		break;
@@ -553,35 +535,35 @@ void SerialMonProcessor_lnx.processTermiosSetAttr(
 		SerialLogRecordCode.BaudRateChanged,
 		&baudRate,
 		sizeof(baudRate)
-		);
+	);
 
 	m_logWriter.write(
 		timestamp,
 		SerialLogRecordCode.DataBitsChanged,
 		&dataBits,
 		sizeof(dataBits)
-		);
+	);
 
 	m_logWriter.write(
 		timestamp,
 		SerialLogRecordCode.StopBitsChanged,
 		&stopBits,
 		sizeof(stopBits)
-		);
+	);
 
 	m_logWriter.write(
 		timestamp,
 		SerialLogRecordCode.ParityChanged,
 		&parity,
 		sizeof(parity)
-		);
+	);
 
 	m_logWriter.write(
 		timestamp,
 		SerialLogRecordCode.FlowControlChanged,
 		&flowControl,
 		sizeof(flowControl)
-		);
+	);
 }
 
 //..............................................................................

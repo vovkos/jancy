@@ -29,7 +29,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	Namespace,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Namespace)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<Namespace, ct::Namespace*>))
@@ -48,7 +48,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	GlobalNamespace,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(GlobalNamespace)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<GlobalNamespace, ct::GlobalNamespace*>))
@@ -58,12 +58,10 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 Namespace*
 JNC_CDECL
-getNamespace(ct::Namespace* nspace)
-{
+getNamespace(ct::Namespace* nspace) {
 	NamespaceKind nspaceKind = nspace->getNamespaceKind();
 
-	switch (nspaceKind)
-	{
+	switch (nspaceKind) {
 	case NamespaceKind_Global:
 		return getGlobalNamespace((ct::GlobalNamespace*)nspace);
 

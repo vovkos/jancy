@@ -26,8 +26,7 @@ class AsyncSequencerFunction;
 
 //..............................................................................
 
-enum GlobalCtorDtorKind
-{
+enum GlobalCtorDtorKind {
 	GlobalCtorDtorKind_VariablePrimer,
 	GlobalCtorDtorKind_VariableInitializer,
 	GlobalCtorDtorKind_Constructor,
@@ -37,8 +36,7 @@ enum GlobalCtorDtorKind
 
 //..............................................................................
 
-class FunctionMgr
-{
+class FunctionMgr {
 	friend class Module;
 	friend class DerivableType;
 	friend class ClassType;
@@ -73,14 +71,12 @@ public:
 	FunctionMgr();
 
 	Module*
-	getModule()
-	{
+	getModule() {
 		return m_module;
 	}
 
 	Function*
-	getCurrentFunction()
-	{
+	getCurrentFunction() {
 		return m_currentFunction;
 	}
 
@@ -88,20 +84,17 @@ public:
 	setCurrentFunction(Function* function);
 
 	Property*
-	getCurrentProperty()
-	{
+	getCurrentProperty() {
 		return m_currentFunction ? m_currentFunction->getProperty() : NULL;
 	}
 
 	Value
-	getThisValue()
-	{
+	getThisValue() {
 		return m_thisValue;
 	}
 
 	Value
-	getPromiseValue()
-	{
+	getPromiseValue() {
 		return m_promiseValue;
 	}
 
@@ -112,20 +105,17 @@ public:
 	clear();
 
 	const sl::List<Function>&
-	getFunctionList()
-	{
+	getFunctionList() {
 		return m_functionList;
 	}
 
 	const sl::List<Property>&
-	getPropertyList()
-	{
+	getPropertyList() {
 		return m_propertyList;
 	}
 
 	const sl::Array<Function*>&
-	getGlobalCtorDtorArray(GlobalCtorDtorKind kind)
-	{
+	getGlobalCtorDtorArray(GlobalCtorDtorKind kind) {
 		ASSERT((size_t)kind < countof(m_globalCtorDtorArrayTable));
 		return m_globalCtorDtorArrayTable[kind];
 	}
@@ -134,7 +124,7 @@ public:
 	addGlobalCtorDtor(
 		GlobalCtorDtorKind kind,
 		Function* function
-		);
+	);
 
 	template <typename T>
 	T*
@@ -142,15 +132,14 @@ public:
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
 		FunctionType* type
-		);
+	);
 
 	Function*
 	createFunction(
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
 		FunctionType* type
-		)
-	{
+	) {
 		return createFunction<Function>(name, qualifiedName, type);
 	}
 
@@ -159,27 +148,24 @@ public:
 	createFunction(
 		FunctionKind functionKind,
 		FunctionType* type
-		);
+	);
 
 	Function*
 	createFunction(
 		FunctionKind functionKind,
 		FunctionType* type
-		)
-	{
+	) {
 		return createFunction<Function>(functionKind, type);
 	}
 
 	template <typename T>
 	T*
-	createFunction(FunctionType* type)
-	{
+	createFunction(FunctionType* type) {
 		return createFunction<T>(sl::String(), sl::String(), type);
 	}
 
 	Function*
-	createFunction(FunctionType* type)
-	{
+	createFunction(FunctionType* type) {
 		return createFunction<Function>(type);
 	}
 
@@ -188,14 +174,13 @@ public:
 	createInternalFunction(
 		const sl::StringRef& tag,
 		FunctionType* type
-		);
+	);
 
 	Function*
 	createInternalFunction(
 		const sl::StringRef& tag,
 		FunctionType* type
-		)
-	{
+	) {
 		return createInternalFunction<Function>(tag, type);
 	}
 
@@ -207,14 +192,13 @@ public:
 	createProperty(
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName
-		);
+	);
 
 	Property*
 	createProperty(
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName
-		)
-	{
+	) {
 		return createProperty<Property>(name, qualifiedName);
 	}
 
@@ -223,8 +207,7 @@ public:
 	createInternalProperty(const sl::StringRef& tag);
 
 	Property*
-	createInternalProperty(const sl::StringRef& tag)
-	{
+	createInternalProperty(const sl::StringRef& tag) {
 		return createInternalProperty<Property>(tag);
 	}
 
@@ -235,7 +218,7 @@ public:
 	prologue(
 		Function* function,
 		const lex::LineCol& pos
-		);
+	);
 
 	bool
 	epilogue();
@@ -249,7 +232,7 @@ public:
 		Value* argValueArray = NULL,
 		size_t argCount = 0,
 		const lex::LineCol* pos = NULL
-		);
+	);
 
 	void
 	internalEpilogue();
@@ -266,8 +249,7 @@ public:
 	// std functions & properties
 
 	bool
-	isStdFunctionUsed(StdFunc func)
-	{
+	isStdFunctionUsed(StdFunc func) {
 		ASSERT(func < StdFunc__Count);
 		return m_stdFunctionArray[func] != NULL;
 	}
@@ -276,8 +258,7 @@ public:
 	getStdFunction(StdFunc func);
 
 	bool
-	isStdPropertyUsed(StdProp prop)
-	{
+	isStdPropertyUsed(StdProp prop) {
 		ASSERT(prop < StdProp__Count);
 		return m_stdPropertyArray[prop] != NULL;
 	}
@@ -290,21 +271,21 @@ public:
 		Function* targetFunction,
 		FunctionType* thunkFunctionType,
 		bool hasUnusedClosure = false
-		);
+	);
 
 	Property*
 	getDirectThunkProperty(
 		Property* targetProperty,
 		PropertyType* thunkPropertyType,
 		bool hasUnusedClosure = false
-		);
+	);
 
 	Property*
 	getDirectDataThunkProperty(
 		Variable* targetVariable,
 		PropertyType* thunkPropertyType,
 		bool hasUnusedClosure = false
-		);
+	);
 
 	Function*
 	getSchedLauncherFunction(FunctionPtrType* targetFunctionPtrType);
@@ -323,7 +304,7 @@ protected:
 	finalizeFunction(
 		Function* function,
 		bool wasNamespaceOpened
-		);
+	);
 
 	Function*
 	parseStdFunction(StdFunc func);
@@ -332,7 +313,7 @@ protected:
 	parseStdFunction(
 		StdNamespace stdNamespace,
 		const sl::StringRef& source
-		);
+	);
 
 	void
 	addFunction(
@@ -340,14 +321,14 @@ protected:
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
 		FunctionType* type
-		);
+	);
 
 	void
 	addProperty(
 		Property* prop,
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName
-		);
+	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -358,8 +339,7 @@ FunctionMgr::createFunction(
 	const sl::StringRef& name,
 	const sl::StringRef& qualifiedName,
 	FunctionType* type
-	)
-{
+) {
 	T* function = AXL_MEM_NEW(T);
 	addFunction(function, name, qualifiedName, type);
 	return function;
@@ -370,8 +350,7 @@ T*
 FunctionMgr::createFunction(
 	FunctionKind functionKind,
 	FunctionType* type
-	)
-{
+) {
 	T* function = createFunction<T>(sl::String(), sl::String(), type);
 	function->m_functionKind = functionKind;
 	return function;
@@ -382,8 +361,7 @@ T*
 FunctionMgr::createInternalFunction(
 	const sl::StringRef& tag,
 	FunctionType* type
-	)
-{
+) {
 	T* function = createFunction<T>(sl::StringRef(), tag, type);
 	function->m_functionKind = FunctionKind_Internal;
 	return function;
@@ -394,8 +372,7 @@ T*
 FunctionMgr::createProperty(
 	const sl::StringRef& name,
 	const sl::StringRef& qualifiedName
-	)
-{
+) {
 	T* prop = AXL_MEM_NEW(T);
 	addProperty(prop, name, qualifiedName);
 	return prop;
@@ -403,8 +380,7 @@ FunctionMgr::createProperty(
 
 template <typename T>
 T*
-FunctionMgr::createInternalProperty(const sl::StringRef& tag)
-{
+FunctionMgr::createInternalProperty(const sl::StringRef& tag) {
 	T* prop = createProperty<T>(sl::StringRef(), tag);
 	prop->m_propertyKind = PropertyKind_Internal;
 	return prop;

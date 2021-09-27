@@ -20,16 +20,14 @@ JNC_DECLARE_CLASS_TYPE(DynamicLib)
 
 //..............................................................................
 
-class DynamicLib: public IfaceHdr
-{
+class DynamicLib: public IfaceHdr {
 public:
 	handle_t m_handle;
 
 public:
 	bool
 	JNC_CDECL
-	open(DataPtr fileNamePtr)
-	{
+	open(DataPtr fileNamePtr) {
 		return openImpl((const char*) fileNamePtr.m_p);
 	}
 
@@ -38,15 +36,13 @@ public:
 
 	void
 	JNC_CDECL
-	close()
-	{
+	close() {
 		getDynamicLib()->close();
 	}
 
 	void*
 	JNC_CDECL
-	getFunction(DataPtr namePtr)
-	{
+	getFunction(DataPtr namePtr) {
 		return getFunctionImpl((const char*) namePtr.m_p);
 	}
 
@@ -55,8 +51,7 @@ public:
 
 protected:
 	sys::DynamicLib*
-	getDynamicLib()
-	{
+	getDynamicLib() {
 		ASSERT(sizeof(sys::DynamicLib) == sizeof(m_handle));
 		return (sys::DynamicLib*) &m_handle;
 	}

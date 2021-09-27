@@ -16,8 +16,7 @@ namespace jnc {
 
 //..............................................................................
 
-enum PropertyKind
-{
+enum PropertyKind {
 	Undefined = 0,
 	Normal,
 	Thunk,
@@ -28,8 +27,7 @@ enum PropertyKind
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum PropertyFlag
-{
+bitflag enum PropertyFlag {
 	Const    = 0x010000,
 	Bindable = 0x020000,
 	AutoGet  = 0x100000,
@@ -41,8 +39,7 @@ bitflag enum PropertyFlag
 opaque class Property:
 	ModuleItem,
 	Namespace,
-	MemberBlock
-{
+	MemberBlock {
 	PropertyKind const property m_propertyKind;
 	PropertyType* const property m_type;
 	Function* const property m_getter;

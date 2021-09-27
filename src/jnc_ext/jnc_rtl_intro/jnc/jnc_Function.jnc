@@ -16,8 +16,7 @@ namespace jnc {
 
 //..............................................................................
 
-enum FunctionKind
-{
+enum FunctionKind {
 	Undefined = 0,
 	Normal,
 	Getter,
@@ -43,8 +42,7 @@ enum FunctionKind
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum FunctionKindFlags
-{
+bitflag enum FunctionKindFlags {
 	NoStorage   = 0x01,
 	NoOverloads = 0x02,
 	NoArgs      = 0x04,
@@ -54,8 +52,7 @@ bitflag enum FunctionKindFlags
 
 opaque class Function:
 	ModuleItem,
-	ModuleItemDecl
-{
+	ModuleItemDecl {
 	FunctionKind const property m_functionKind;
 	FunctionType* const property m_type;
 	bool const property m_isMember;
@@ -68,8 +65,7 @@ opaque class Function:
 
 opaque class FunctionOverload:
 	ModuleItem,
-	ModuleItemDecl
-{
+	ModuleItemDecl {
 	FunctionKind const property m_functionKind;
 	size_t const property m_overloadCount;
 	Function* const property m_overloadArray(size_t index);

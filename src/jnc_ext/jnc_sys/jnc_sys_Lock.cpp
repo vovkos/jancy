@@ -26,7 +26,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	SysLibCacheSlot_Lock,
 	Lock,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Lock)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<Lock>)
@@ -39,8 +39,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 void
 JNC_CDECL
-Lock::lock()
-{
+Lock::lock() {
 	GcHeap* gcHeap = getCurrentThreadGcHeap();
 	ASSERT(gcHeap);
 

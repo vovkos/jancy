@@ -33,25 +33,21 @@
 
 //..............................................................................
 
-class Resource
-{
+class Resource {
 	protected int m_resource;
 
-	construct(int resource)
-	{
+	construct(int resource) {
 		if (resource)
 			printf("acquire resource #%d...\n", resource);
 
 		m_resource = resource;
 	}
 
-	destruct()
-	{
+	destruct() {
 		release();
 	}
 
-	void release()
-	{
+	void release() {
 		if (!m_resource)
 			return;
 
@@ -64,16 +60,14 @@ class Resource
 
 //..............................................................................
 
-void foo()
-{
+void foo() {
 	printf("foo is about to throw...\n");
 	throw;
 }
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	disposable Resource resource1(1);

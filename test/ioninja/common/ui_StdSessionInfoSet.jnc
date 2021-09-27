@@ -16,11 +16,9 @@ namespace ui {
 
 //..............................................................................
 
-class StdSessionInfoSet
-{
+class StdSessionInfoSet {
 public:
-	bitflag enum InfoId
-	{
+	bitflag enum InfoId {
 		SessionTime,
 		TxTotalSize,
 		TxThroughput,
@@ -67,10 +65,9 @@ public:
 		InformationGroup* group = null,
 		InformationValue* insertBefore = null,
 		InfoId mask = InfoId.Default
-		);
+	);
 
-	void addLogListener(log.Log* log)
-	{
+	void addLogListener(log.Log* log) {
 		log.addListener(onLogRecord);
 	}
 
@@ -80,15 +77,13 @@ public:
 	void addData(
 		size_t txSize,
 		size_t rxSize
-		);
+	);
 
-	void addTxData(size_t size)
-	{
+	void addTxData(size_t size) {
 		addData(size, 0);
 	}
 
-	void addRxData(size_t size)
-	{
+	void addRxData(size_t size) {
 		addData(0, size);
 	}
 
@@ -103,7 +98,7 @@ protected:
 		uint64_t recordCode,
 		void const* p,
 		size_t size
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -113,81 +108,73 @@ void StdSessionInfoSet.createInformationValues(
 	InformationGroup* group,
 	InformationValue* insertBefore,
 	InfoId mask
-	)
-{
-	if (mask & InfoId.SessionTime)
-	{
+) {
+	if (mask & InfoId.SessionTime) {
 		m_sessionTimeInfo = informationGrid.createValue(
 			group,
 			insertBefore,,
 			"Session time"
-			);
+		);
 
 		m_sessionTimeInfo.m_isEnabled = false;
 	}
 
-	if (mask & InfoId.TxTotalSize)
-	{
+	if (mask & InfoId.TxTotalSize) {
 		m_txTotalSizeInfo = informationGrid.createValue(
 			group,
 			insertBefore,,
 			"TX total bytes"
-			);
+		);
 
 		m_txTotalSizeInfo.m_isEnabled = false;
 	}
 
-	if (mask & InfoId.TxThroughput)
-	{
+	if (mask & InfoId.TxThroughput) {
 		m_txThroughputInfo = informationGrid.createValue(
 			group,
 			insertBefore,,
 			"TX throughput"
-			);
+		);
 
 		m_txThroughputInfo.m_isEnabled = false;
 	}
 
-	if (mask & InfoId.RxTotalSize)
-	{
+	if (mask & InfoId.RxTotalSize) {
 		m_rxTotalSizeInfo = informationGrid.createValue(
 			group,
 			insertBefore,,
 			"RX total bytes"
-			);
+		);
 
 		m_rxTotalSizeInfo.m_isEnabled = false;
 	}
 
-	if (mask & InfoId.RxThroughput)
-	{
+	if (mask & InfoId.RxThroughput) {
 		m_rxThroughputInfo = informationGrid.createValue(
 			group,
 			insertBefore,,
 			"RX throughput"
-			);
+		);
 
 		m_rxThroughputInfo.m_isEnabled = false;
 	}
 
-	if (mask & InfoId.TotalSize)
-	{
+	if (mask & InfoId.TotalSize) {
 		m_totalSizeInfo = informationGrid.createValue(
 			group,
 			insertBefore,,
 			"Total bytes"
-			);
+		);
 
 		m_totalSizeInfo.m_isEnabled = false;
 	}
 
-	if (mask & InfoId.TotalThroughput)
-	{
+	if (mask & InfoId.TotalThroughput) {
 		m_totalThroughputInfo = informationGrid.createValue(
 			group,
 			insertBefore,,
 			"Total throughput"
-			);
+		);
 
 		m_totalThroughputInfo.m_isEnabled = false;
 	}
@@ -195,8 +182,7 @@ void StdSessionInfoSet.createInformationValues(
 	initialUpdate();
 }
 
-void StdSessionInfoSet.startSession(jnc.Scheduler* mainThreadScheduler)
-{
+void StdSessionInfoSet.startSession(jnc.Scheduler* mainThreadScheduler) {
 	if (m_sessionTimeInfo)
 		m_sessionTimeInfo.m_isEnabled = true;
 
@@ -232,8 +218,7 @@ void StdSessionInfoSet.startSession(jnc.Scheduler* mainThreadScheduler)
 	initialUpdate();
 }
 
-void StdSessionInfoSet.endSession()
-{
+void StdSessionInfoSet.endSession() {
 	m_timer.stop();
 
 	update(); // final update
@@ -265,8 +250,7 @@ void StdSessionInfoSet.endSession()
 void StdSessionInfoSet.addData(
 	size_t txSize,
 	size_t rxSize
-	)
-{
+) {
 	m_lock.lock();
 	m_txTotalSize += txSize;
 	m_rxTotalSize += rxSize;
@@ -278,10 +262,8 @@ void StdSessionInfoSet.onLogRecord(
 	uint64_t recordCode,
 	void const* p,
 	size_t size
-	)
-{
-	switch (recordCode)
-	{
+) {
+	switch (recordCode) {
 	case log.StdRecordCode.Tx:
 		addTxData(size);
 		break;
@@ -297,22 +279,19 @@ void StdSessionInfoSet.onLogRecord(
 	}
 }
 
-void StdSessionInfoSet.onTimer(uint_t syncId)
-{
+void StdSessionInfoSet.onTimer(uint_t syncId) {
 	if (syncId == m_syncId)
 		update();
 }
 
-void StdSessionInfoSet.initialUpdate()
-{
+void StdSessionInfoSet.initialUpdate() {
 	uint64_t timestamp = sys.getTimestamp();
 	m_sessionTimestamp = timestamp;
 	m_throughputTimestamp = timestamp;
 	update(timestamp);
 }
 
-void StdSessionInfoSet.update(uint64_t timestamp)
-{
+void StdSessionInfoSet.update(uint64_t timestamp) {
 	uint64_t txTotalSize;
 	uint64_t rxTotalSize;
 	size_t txThroughput;
@@ -323,8 +302,7 @@ void StdSessionInfoSet.update(uint64_t timestamp)
 	rxTotalSize = m_rxTotalSize;
 	m_lock.unlock();
 
-	if (timestamp > m_throughputTimestamp)
-	{
+	if (timestamp > m_throughputTimestamp) {
 		uint64_t timeSpan = timestamp - m_throughputTimestamp;
 		txThroughput = (txTotalSize - m_txPrevTotalSize) * 10000000 / timeSpan;
 		rxThroughput = (rxTotalSize - m_rxPrevTotalSize) * 10000000 / timeSpan;

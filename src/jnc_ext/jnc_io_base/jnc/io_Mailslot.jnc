@@ -51,8 +51,7 @@ typedef ReadOnlyStreamEvents  MailslotEvents;
 
 	.. ref-code-block::
 
-		class MyDialog
-		{
+		class MyDialog {
 			// ...
 
 			io.Mailslot m_mailslot;
@@ -65,14 +64,12 @@ typedef ReadOnlyStreamEvents  MailslotEvents;
 			void onMailslotEvent(
 				uint_t syncId,
 				`io.MailslotEvents` triggeredEvents
-				);
+			);
 		}
 
-		MyDialog.open(char const* fileName)
-		{
+		MyDialog.open(char const* fileName) {
 			bool result = try m_mailslot.open(fileName);
-			if (!result)
-			{
+			if (!result) {
 				char const* errorString = std.getLastError().m_description;
 				// ...
 			}
@@ -80,14 +77,12 @@ typedef ReadOnlyStreamEvents  MailslotEvents;
 			waitMailslotEvents();
 		}
 
-		MyDialog.close()
-		{
+		MyDialog.close() {
 			m_mailslot.close();
 			m_syncId++; // events past this point will be discarded as 'late'
 		}
 
-		MyDialog.waitMailslotEvent()
-		{
+		MyDialog.waitMailslotEvent() {
 			`io.MailslotEvents` eventMask =
 				`io.MailslotEvents.IoError` |
 				`io.MailslotEvents.IncomingData`;
@@ -99,19 +94,16 @@ typedef ReadOnlyStreamEvents  MailslotEvents;
 		MyDialog.onMailslotEvent(
 			uint_t syncId,
 			`io.FileStreamEvents` triggeredEvents
-			)
-		{
+		) {
 			if (syncId != m_syncId) // late event
 				return;
 
-			if (triggeredEvents & `io.MailslotEvents.IoError`)
-			{
+			if (triggeredEvents & `io.MailslotEvents.IoError`) {
 				char const* errorString = m_mailslot.m_ioError.m_description;
 				// ...
 			}
 
-			if (triggeredEvents & `io.MailslotEvents.IncomingData`)
-			{
+			if (triggeredEvents & `io.MailslotEvents.IncomingData`) {
 				char buffer[256];
 				size_t size = m_mailslot.read(buffer, sizeof(buffer));
 				// ...
@@ -132,8 +124,7 @@ typedef ReadOnlyStreamEvents  MailslotEvents;
 		|footnote-disposable|
 */
 
-opaque class Mailslot
-{
+opaque class Mailslot {
 	uint_t autoget property m_readParallelism;
 	size_t autoget property m_readBlockSize;
 	size_t autoget property m_readBufferSize;
@@ -199,19 +190,19 @@ opaque class Mailslot
 	size_t errorcode read(
 		void* p,
 		size_t size
-		);
+	);
 
 	intptr errorcode wait(
 		MailslotEvents eventMask,
 		function* handler(MailslotEvents triggeredEvents)
-		);
+	);
 
 	bool errorcode cancelWait(intptr handle);
 
 	MailslotEvents blockingWait(
 		MailslotEvents eventMask,
 		uint_t timeout = -1
-		);
+	);
 
 	async MailslotEvents asyncWait(MailslotEvents eventMask);
 }

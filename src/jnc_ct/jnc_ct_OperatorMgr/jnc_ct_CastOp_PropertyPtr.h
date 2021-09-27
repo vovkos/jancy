@@ -19,15 +19,14 @@ namespace ct {
 
 //..............................................................................
 
-class Cast_PropertyPtr_FromDataPtr: public CastOperator
-{
+class Cast_PropertyPtr_FromDataPtr: public CastOperator {
 public:
 	virtual
 	CastKind
 	getCastKind(
 		const Value& opValue,
 		Type* type
-		);
+	);
 
 	virtual
 	bool
@@ -35,7 +34,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		);
+	);
 
 protected:
 	bool
@@ -43,33 +42,31 @@ protected:
 		Variable* variable,
 		PropertyPtrType* dstPtrType,
 		Value* resultValue
-		);
+	);
 
 	bool
 	llvmCast_FullClosure(
 		const Value& opValue,
 		PropertyPtrType* dstPtrType,
 		Value* resultValue
-		);
+	);
 };
 
 //..............................................................................
 
-class Cast_PropertyPtr_Base: public CastOperator
-{
+class Cast_PropertyPtr_Base: public CastOperator {
 public:
 	virtual
 	CastKind
 	getCastKind(
 		const Value& opValue,
 		Type* type
-		);
+	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class Cast_PropertyPtr_FromFat: public Cast_PropertyPtr_Base
-{
+class Cast_PropertyPtr_FromFat: public Cast_PropertyPtr_Base {
 public:
 	virtual
 	bool
@@ -77,13 +74,12 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		);
+	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class Cast_PropertyPtr_Thin2Fat: public Cast_PropertyPtr_Base
-{
+class Cast_PropertyPtr_Thin2Fat: public Cast_PropertyPtr_Base {
 public:
 	virtual
 	bool
@@ -91,7 +87,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		);
+	);
 
 protected:
 	bool
@@ -101,14 +97,14 @@ protected:
 		PropertyType* srcPropertyType,
 		PropertyPtrType* dstPtrType,
 		Value* resultValue
-		);
+	);
 
 	bool
 	llvmCast_DirectThunkNoClosure(
 		Property* prop,
 		PropertyPtrType* dstPtrType,
 		Value* resultValue
-		);
+	);
 
 	bool
 	llvmCast_DirectThunkSimpleClosure(
@@ -116,7 +112,7 @@ protected:
 		const Value& simpleClosureObjValue,
 		PropertyPtrType* dstPtrType,
 		Value* resultValue
-		);
+	);
 
 	bool
 	llvmCast_FullClosure(
@@ -124,7 +120,7 @@ protected:
 		PropertyType* srcPropertyType,
 		PropertyPtrType* dstPtrType,
 		Value* resultValue
-		);
+	);
 
 	bool
 	createClosurePropertyPtr(
@@ -132,13 +128,12 @@ protected:
 		const Value& closureValue,
 		PropertyPtrType* ptrType,
 		Value* resultValue
-		);
+	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class Cast_PropertyPtr_Weak2Normal: public Cast_PropertyPtr_Base
-{
+class Cast_PropertyPtr_Weak2Normal: public Cast_PropertyPtr_Base {
 public:
 	virtual
 	bool
@@ -146,13 +141,12 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		);
+	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class Cast_PropertyPtr_Thin2Thin: public Cast_PropertyPtr_Base
-{
+class Cast_PropertyPtr_Thin2Thin: public Cast_PropertyPtr_Base {
 public:
 	virtual
 	bool
@@ -160,15 +154,14 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		);
+	);
 };
 
 //..............................................................................
 
 // safe / unsafe fn pointer -> safe fn pointer
 
-class Cast_PropertyPtr: public Cast_Master
-{
+class Cast_PropertyPtr: public Cast_Master {
 protected:
 	Cast_PropertyPtr_FromDataPtr m_fromDataPtr;
 	Cast_PropertyPtr_FromFat m_fromFat;
@@ -187,25 +180,23 @@ public:
 		const Value& opValue,
 		Type* type,
 		void* dst
-		);
+	);
 
 	virtual
 	CastOperator*
 	getCastOperator(
 		const Value& opValue,
 		Type* type
-		);
+	);
 };
 
 //..............................................................................
 
 // data ref (UnOpKind_Indir => data ptr cast => UnOpKind_Addr)
 
-class Cast_PropertyRef: public CastOperator
-{
+class Cast_PropertyRef: public CastOperator {
 public:
-	Cast_PropertyRef()
-	{
+	Cast_PropertyRef() {
 		m_opFlags = OpFlag_KeepRef;
 	}
 
@@ -214,7 +205,7 @@ public:
 	getCastKind(
 		const Value& opValue,
 		Type* type
-		);
+	);
 
 	virtual
 	bool
@@ -222,7 +213,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		);
+	);
 };
 
 //..............................................................................

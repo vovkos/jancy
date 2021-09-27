@@ -23,10 +23,8 @@ namespace rtl {
 //..............................................................................
 
 void
-MulticastImpl::destruct()
-{
-	if (m_handleTable)
-	{
+MulticastImpl::destruct() {
+	if (m_handleTable) {
 		AXL_MEM_DELETE((sl::HandleTable<size_t>*)m_handleTable);
 		m_handleTable = NULL;
 	}
@@ -35,8 +33,7 @@ MulticastImpl::destruct()
 }
 
 void
-MulticastImpl::clear()
-{
+MulticastImpl::clear() {
 	if (m_handleTable)
 		((sl::HandleTable<size_t>*)m_handleTable)->clear();
 
@@ -44,8 +41,7 @@ MulticastImpl::clear()
 }
 
 handle_t
-MulticastImpl::setHandler(FunctionPtr ptr)
-{
+MulticastImpl::setHandler(FunctionPtr ptr) {
 	if (ptr.m_p)
 		return setHandlerImpl(ptr);
 
@@ -54,8 +50,7 @@ MulticastImpl::setHandler(FunctionPtr ptr)
 }
 
 handle_t
-MulticastImpl::setHandler_t(void* p)
-{
+MulticastImpl::setHandler_t(void* p) {
 	if (p)
 		return setHandlerImpl(p);
 
@@ -64,8 +59,7 @@ MulticastImpl::setHandler_t(void* p)
 }
 
 sl::HandleTable<size_t>*
-MulticastImpl::getHandleTable()
-{
+MulticastImpl::getHandleTable() {
 	if (m_handleTable)
 		return (sl::HandleTable<size_t>*)m_handleTable;
 
@@ -78,10 +72,8 @@ bool
 MulticastImpl::setCount(
 	size_t count,
 	size_t ptrSize
-	)
-{
-	if (m_maxCount >= count)
-	{
+) {
+	if (m_maxCount >= count) {
 		m_count = count;
 		return true;
 	}
@@ -106,8 +98,7 @@ MulticastImpl::setCount(
 }
 
 FunctionPtr
-MulticastImpl::getSnapshot()
-{
+MulticastImpl::getSnapshot() {
 	GcHeap* gcHeap = getCurrentThreadGcHeap();
 	ASSERT(gcHeap);
 
@@ -129,8 +120,7 @@ MulticastImpl::getSnapshot()
 
 	snapshot->m_ptr = gcHeap->allocateArray(targetType, m_count);
 
-	if (targetType->getPtrTypeKind() != FunctionPtrTypeKind_Weak)
-	{
+	if (targetType->getPtrTypeKind() != FunctionPtrTypeKind_Weak) {
 		size_t targetTypeSize = targetType->getSize();
 		snapshot->m_count = m_count;
 		memcpy(snapshot->m_ptr.m_p, m_ptr.m_p, m_count * targetTypeSize);
@@ -142,18 +132,15 @@ MulticastImpl::getSnapshot()
 	FunctionPtr* srcPtrEnd = srcPtr + m_count;
 
 	size_t aliveCount = 0;
-	for (; srcPtr < srcPtrEnd; srcPtr++)
-	{
-		if (strengthenClassPtr(srcPtr->m_closure))
-		{
+	for (; srcPtr < srcPtrEnd; srcPtr++) {
+		if (strengthenClassPtr(srcPtr->m_closure)) {
 			*dstPtr = *srcPtr;
 			dstPtr++;
 			aliveCount++;
 		}
 	}
 
-	if (aliveCount != m_count) // remove dead pointers from multicast
-	{
+	if (aliveCount != m_count) { // remove dead pointers from multicast
 		size_t oldSize = m_count * sizeof(FunctionPtr);
 		size_t aliveSize = aliveCount * sizeof(FunctionPtr);
 

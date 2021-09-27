@@ -15,21 +15,18 @@
 
 //..............................................................................
 
-void foo(int x)
-{
+void foo(int x) {
 	printf("foo (%d)\n", x);
 }
 
 void bar(
 	int x,
 	int y
-	)
-{
+) {
 	printf("bar (%d, %d)\n", x, y);
 }
 
-void baz(int x)
-{
+void baz(int x) {
 	printf("baz (%d)\n", x);
 }
 
@@ -37,8 +34,7 @@ void baz(int x)
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	// add 2 function pointers ('add' and '+=' may be used interchangeably)

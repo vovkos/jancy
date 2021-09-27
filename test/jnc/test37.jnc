@@ -9,21 +9,18 @@
 //
 //..............................................................................
 
-struct Point
-{
+struct Point {
 	int m_x;
 	int m_y;
 }
 
-void foo(Point* point)
-{
+void foo(Point* point) {
 	printf("foo ({%d, %d})\n", point.m_x, point.m_y);
 }
 
 //..............................................................................
 
-int main()
-{
+int main() {
 	printf("main\n");
 
 	Point point = { 10, 20 }

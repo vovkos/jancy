@@ -15,18 +15,15 @@
 
 // basic widget classes
 
-class Widget
-{
-	bitflag enum SizePolicyFlag
-	{
+class Widget {
+	bitflag enum SizePolicyFlag {
 		Grow,
 		Expand,
 		Shrink,
 		Ignore,
 	}
 
-	enum SizePolicy
-	{
+	enum SizePolicy {
 		Fixed = 0,
 		Minimum = SizePolicyFlag.Grow,
 		Maximum = SizePolicyFlag.Shrink,
@@ -44,7 +41,7 @@ class Widget
 	void setSizePolicy(
 		SizePolicy hpolicy,
 		SizePolicy vpolicy
-		);
+	);
 
 	bool autoget property m_isVisible;
 	bool autoget property m_isEnabled;
@@ -52,10 +49,8 @@ class Widget
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class Layout
-{
-	enum Direction
-	{
+opaque class Layout {
+	enum Direction {
 		LeftToRight,
 		RightToLeft,
 		TopToBottom,
@@ -74,10 +69,8 @@ opaque class Layout
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class Label: Widget
-{
-	bitflag enum Alignment
-	{
+opaque class Label: Widget {
+	bitflag enum Alignment {
 		Left,
 		Right,
 		HCenter,
@@ -99,8 +92,7 @@ opaque class Label: Widget
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class Button: Widget
-{
+opaque class Button: Widget {
 	char const* autoget property m_text;
 	event m_onClicked();
 
@@ -110,8 +102,7 @@ opaque class Button: Widget
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class CheckBox: Widget
-{
+opaque class CheckBox: Widget {
 	char const* autoget property m_text;
 	bool bindable property m_isChecked;
 
@@ -121,8 +112,7 @@ opaque class CheckBox: Widget
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class TextEdit: Widget
-{
+opaque class TextEdit: Widget {
 	char const* property m_text;
 
 	construct();
@@ -131,8 +121,7 @@ opaque class TextEdit: Widget
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class Slider: Widget
-{
+opaque class Slider: Widget {
 	int autoget property m_minimum;
 	int autoget property m_maximum;
 	int bindable property m_value;
@@ -140,7 +129,7 @@ opaque class Slider: Widget
 	construct(
 		int minimum = 0,
 		int maximum = 100
-		);
+	);
 
 	destruct();
 }
@@ -165,16 +154,14 @@ Button* g_printButton;
 
 // ui reactor
 
-int calcColorVolume(int color)
-{
+int calcColorVolume(int color) {
 	return
 		(color & 0xff) +
 		((color >> 8) & 0xff) +
 		((color >> 16) & 0xff);
 }
 
-reactor g_uiReactor
-{
+reactor g_uiReactor {
 	g_color =
 		(g_redSlider.m_value << 16) |
 		(g_greenSlider.m_value << 8) |
@@ -187,8 +174,7 @@ reactor g_uiReactor
 	g_textEdit.m_isEnabled = g_enablePrintCheckBox.m_isChecked;
 	g_printButton.m_isEnabled = g_enablePrintCheckBox.m_isChecked;
 
-	onevent g_printButton.m_onClicked()
-	{
+	onevent g_printButton.m_onClicked() {
 		printf("> %s\n", g_textEdit.m_text);
 	}
 }
@@ -197,8 +183,7 @@ reactor g_uiReactor
 
 // entry point
 
-int main(Layout* mainLayout)
-{
+int main(Layout* mainLayout) {
 	printf("Creating widgets...\n");
 
 	Layout* hlayout;

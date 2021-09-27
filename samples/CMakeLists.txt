@@ -15,13 +15,13 @@ option(
 	BUILD_C_SAMPLES
 	"Build C samples"
 	ON
-	)
+)
 
 option(
 	BUILD_CPP_SAMPLES
 	"Build C++ samples"
 	ON
-	)
+)
 
 if(BUILD_C_SAMPLES)
 	add_subdirectory(jnc_sample_01_export_c)

@@ -41,8 +41,7 @@ Each property in Jancy has one getter and zero or more setters. Property type ha
 
 //..............................................................................
 
-enum jnc_PropertyTypeFlag
-{
+enum jnc_PropertyTypeFlag {
 	jnc_PropertyTypeFlag_Const    = 0x010000,
 	jnc_PropertyTypeFlag_Bindable = 0x020000,
 };
@@ -57,8 +56,7 @@ jnc_getPropertyTypeFlagString(jnc_PropertyTypeFlag flag);
 
 //..............................................................................
 
-enum jnc_PropertyPtrTypeKind
-{
+enum jnc_PropertyPtrTypeKind {
 	jnc_PropertyPtrTypeKind_Normal = 0,
 	jnc_PropertyPtrTypeKind_Weak,
 	jnc_PropertyPtrTypeKind_Thin,
@@ -91,8 +89,7 @@ const PropertyTypeFlag
 
 inline
 const char*
-getPropertyTypeFlagString(jnc_PropertyTypeFlag flag)
-{
+getPropertyTypeFlagString(jnc_PropertyTypeFlag flag) {
 	return jnc_getPropertyTypeFlagString(flag);
 }
 
@@ -110,8 +107,7 @@ const PropertyPtrTypeKind
 
 inline
 const char*
-getPropertyPtrTypeKindString(jnc_PropertyPtrTypeKind ptrTypeKind)
-{
+getPropertyPtrTypeKindString(jnc_PropertyPtrTypeKind ptrTypeKind) {
 	return jnc_getPropertyPtrTypeKindString(ptrTypeKind);
 }
 

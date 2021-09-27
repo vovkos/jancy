@@ -12,14 +12,13 @@ namespace log {
 
 //..............................................................................
 
-opaque class Writer
-{
+opaque class Writer {
 	void write(
 		uint64_t timestamp,
 		uint64_t recordCode,
 		void const* p,
 		size_t size
-		);
+	);
 
 	// when jnccdecl vararg is functional, we can remove this overload
 
@@ -30,14 +29,13 @@ opaque class Writer
 		size_t size1,
 		void const* p2,
 		size_t size2
-		);
+	);
 
 	void write(
 		uint64_t recordCode,
 		void const* p,
 		size_t size
-		)
-	{
+	) {
 		write(sys.getPreciseTimestamp(), recordCode, p, size);
 	}
 
@@ -47,21 +45,18 @@ opaque class Writer
 		size_t size1,
 		void const* p2,
 		size_t size2
-		)
-	{
+	) {
 		write(sys.getPreciseTimestamp(), recordCode, p1, size1, p2, size2);
 	}
 
 	void write(
 		uint64_t timestamp,
 		uint64_t recordCode
-		)
-	{
+	) {
 		write(timestamp, recordCode, null, 0);
 	}
 
-	void write(uint64_t recordCode)
-	{
+	void write(uint64_t recordCode) {
 		write(sys.getPreciseTimestamp(), recordCode, null, 0);
 	}
 
@@ -69,21 +64,18 @@ opaque class Writer
 		uint64_t timestamp,
 		uint64_t recordCode,
 		char const* p
-		)
-	{
+	) {
 		write(timestamp, recordCode, p, strlen(p));
 	}
 
 	void write(
 		uint64_t recordCode,
 		char const* p
-		)
-	{
+	) {
 		write(sys.getPreciseTimestamp(), recordCode, p, strlen(p));
 	}
 
-	void write(char const* p)
-	{
+	void write(char const* p) {
 		write(sys.getPreciseTimestamp(), log.StdRecordCode.PlainText, p, strlen(p));
 	}
 
@@ -91,29 +83,25 @@ opaque class Writer
 		uint64_t timestamp,
 		uint64_t recordCode,
 		std.Error const* error
-		)
-	{
+	) {
 		write(timestamp, recordCode, error, error.m_size);
 	}
 
 	void write(
 		uint64_t recordCode,
 		std.Error const* error
-		)
-	{
+	) {
 		write(sys.getPreciseTimestamp(), recordCode, error, error.m_size);
 	}
 
 	void writeLastError(
 		uint64_t timestamp,
 		uint64_t recordCode
-		)
-	{
+	) {
 		write(timestamp, recordCode, std.getLastError());
 	}
 
-	void writeLastError(uint64_t recordCode)
-	{
+	void writeLastError(uint64_t recordCode) {
 		write(sys.getPreciseTimestamp(), recordCode, std.getLastError());
 	}
 
@@ -122,8 +110,7 @@ opaque class Writer
 		size_t length,
 		ui.TextAttr attr,
 		RetroColorizeFlags flags = 0
-		)
-	{
+	) {
 		RetroColorizeParams params;
 		params.m_retroOffset = retroOffset;
 		params.m_length = length;
@@ -137,8 +124,7 @@ opaque class Writer
 		intptr_t retroOffset,
 		size_t length,
 		uint_t color
-		)
-	{
+	) {
 		ui.TextAttr attr;
 		attr.m_textColor = color;
 		attr.m_backColor = ui.ColorFlags.Transparent;
@@ -146,16 +132,14 @@ opaque class Writer
 		retroColorize(retroOffset, length, attr);
 	}
 
-	void sync(uint64_t syncId)
-	{
+	void sync(uint64_t syncId) {
 		write(StdRecordCode.SyncId, &syncId, sizeof(syncId));
 	}
 }
 
 //..............................................................................
 
-class ProxyWriter: Writer
-{
+class ProxyWriter: Writer {
 	Writer* autoget property m_target;
 }
 

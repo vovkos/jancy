@@ -35,11 +35,9 @@ jnc_Unit_getLib(jnc_Unit* unit);
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
-struct jnc_Unit
-{
+struct jnc_Unit {
 	jnc_ExtensionLib*
-	getLib()
-	{
+	getLib() {
 		return jnc_Unit_getLib(this);
 	}
 };

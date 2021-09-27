@@ -9,21 +9,18 @@
 //
 //..............................................................................
 
-class C1
-{
+class C1 {
 	int bindable m_x;
 	int bindable m_y;
 
 	bool m_b;
 
-	reactor m_reactor
-	{
+	reactor m_reactor {
 		m_b = m_x != 0 && m_y != 0;
 	}
 }
 
-int main()
-{
+int main() {
 	return 0;
 }
 

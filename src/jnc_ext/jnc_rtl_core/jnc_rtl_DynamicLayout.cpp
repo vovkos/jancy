@@ -24,7 +24,7 @@ size_t
 dynamicTypeSizeOf(
 	DataPtr ptr,
 	DerivableType* type
-	);
+);
 
 //..............................................................................
 
@@ -32,24 +32,20 @@ dynamicTypeSizeOf(
 
 JNC_EXTERN_C
 jnc_ClassType*
-DynamicLayout_getType(jnc_Module* module)
-{
+DynamicLayout_getType(jnc_Module* module) {
 	return (jnc_ClassType*)module->m_typeMgr.getStdType(StdType_DynamicLayout);
 }
 
 JNC_EXTERN_C
 const char*
-DynamicLayout_getQualifiedName()
-{
+DynamicLayout_getQualifiedName() {
 	return "jnc.DynamicLayout";
 }
 
 JNC_EXTERN_C
 const jnc_OpaqueClassTypeInfo*
-DynamicLayout_getOpaqueClassTypeInfo()
-{
-	static jnc_OpaqueClassTypeInfo typeInfo =
-	{
+DynamicLayout_getOpaqueClassTypeInfo() {
+	static jnc_OpaqueClassTypeInfo typeInfo = {
 		sizeof(DynamicLayout),  // m_size
 		NULL,                   // m_markOpaqueGcRootsFunc
 		NULL,                   // m_requireOpaqueItemsFunc
@@ -65,8 +61,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 //..............................................................................
 
 ClassType*
-DynamicLayout::getType(Module* module)
-{
+DynamicLayout::getType(Module* module) {
 	return (ClassType*)module->m_typeMgr.getStdType(StdType_DynamicLayout);
 }
 
@@ -75,20 +70,16 @@ DynamicLayout::getDynamicFieldSize(
 	DataPtr ptr,
 	size_t offset,
 	Field* field
-	)
-{
+) {
 	size_t size = 0;
 
 	Type* type = field->getType();
 	ASSERT(type->getFlags() & TypeFlag_Dynamic);
 
-	if (type->getTypeKindFlags() & TypeKindFlag_Derivable)
-	{
+	if (type->getTypeKindFlags() & TypeKindFlag_Derivable) {
 		ptr.m_p = (char*)ptr.m_p + offset;
 		size = dynamicTypeSizeOf(ptr, (DerivableType*)type);
-	}
-	else if (type->getTypeKind() == TypeKind_Array)
-	{
+	} else if (type->getTypeKind() == TypeKind_Array) {
 		Function* getDynamicSizeFunc = ((ArrayType*)type)->getGetDynamicSizeFunction();
 		ASSERT(getDynamicSizeFunc);
 
@@ -98,9 +89,7 @@ DynamicLayout::getDynamicFieldSize(
 
 		GetDynamicSize* getDynamicSize = (GetDynamicSize*)getDynamicSizeFunc->getMachineCode();
 		size = getDynamicSize(ptr);
-	}
-	else
-	{
+	} else {
 		err::setFormatStringError("invalid dynamic type: %s", type->getTypeString().sz());
 		dynamicThrow();
 	}
@@ -113,20 +102,16 @@ DynamicLayout::getDynamicFieldEndOffset(
 	DataPtr ptr,
 	DerivableType* type,
 	size_t fieldIndex // dynamic
-	)
-{
+) {
 	Key key = { ptr.m_p, type };
 
 	Entry* entry;
 
 	m_lock.lock();
 	sl::MapIterator<Key, Entry*> it = m_map.visit(key);
-	if (it->m_value)
-	{
+	if (it->m_value) {
 		entry = it->m_value;
-	}
-	else
-	{
+	} else {
 		entry = AXL_MEM_NEW(Entry);
 		m_list.insertTail(entry);
 		it->m_value = entry;
@@ -140,8 +125,7 @@ DynamicLayout::getDynamicFieldEndOffset(
 	size_t offset;
 
 	size_t count = entry->m_endOffsetArray.getCount();
-	if (fieldIndex < count)
-	{
+	if (fieldIndex < count) {
 		offset = entry->m_endOffsetArray[fieldIndex];
 		m_lock.unlock();
 
@@ -151,8 +135,7 @@ DynamicLayout::getDynamicFieldEndOffset(
 	entry->m_endOffsetArray.reserve(dynamicFieldArray.getCount());
 	offset = count ? entry->m_endOffsetArray[count - 1] : 0;
 
-	for (size_t i = count; i <= fieldIndex; i++)
-	{
+	for (size_t i = count; i <= fieldIndex; i++) {
 		m_lock.unlock();
 
 		Field* field = dynamicFieldArray[i];

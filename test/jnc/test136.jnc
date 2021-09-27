@@ -17,29 +17,25 @@ void onStateChanged(
 	io.SslSocket* socket,
 	io.SslStateFlags stateFlags,
 	int alertInfo
-	)
-{
+) {
 	if (alertInfo > 0)
 		printf("SSL state: 0x%x, alert: %d, info: %s\n", stateFlags, alertInfo, socket.m_stateStringLong);
 }
 
-void printCertName(io.SslCertName const* name)
-{
+void printCertName(io.SslCertName const* name) {
 	size_t count = name.m_entryCount;
-	for (int i = 0; i < count; i++)
-	{
+	for (int i = 0; i < count; i++) {
 		io.SslCertNameEntry const* entry = name.m_entryTable[i];
 		printf(
 			"    %3d: %s: %s\n",
 			entry.m_nid,
 			entry.m_name,
 			entry.m_value
-			);
+		);
 	}
 }
 
-void printCertificate(io.SslCertificate const* cert)
-{
+void printCertificate(io.SslCertificate const* cert) {
 	printf("  serial: %s\n", cert.m_serialNumber);
 	printf("  valid from: %s\n", sys.formatTimestamp(cert.m_validFromDate, "%Y-%M-%D"));
 	printf("  valid to: %s\n", sys.formatTimestamp(cert.m_validToDate, "%Y-%M-%D"));
@@ -51,15 +47,13 @@ void printCertificate(io.SslCertificate const* cert)
 	printCertName(cert.m_issuer);
 }
 
-int async asyncRun(char const* hostName)
-{
+int async asyncRun(char const* hostName) {
 	printf("Resolving %s...\n", hostName);
 
 	io.HostNameResolver resolver;
 	resolver.resolve(hostName);
 	await resolver.asyncWait(io.HostNameResolverEvents.Error | io.HostNameResolverEvents.Resolved);
-	if (resolver.m_activeEvents & io.HostNameResolverEvents.Error)
-	{
+	if (resolver.m_activeEvents & io.HostNameResolverEvents.Error) {
 		printf("error: %s\n", resolver.m_error.m_description);
 		return -1;
 	}
@@ -76,10 +70,9 @@ int async asyncRun(char const* hostName)
 	await ssl.asyncWait(
 		io.SslSocketEvents.TcpConnected |
 		io.SslSocketEvents.IoError
-		);
+	);
 
-	if (ssl.m_activeEvents & io.SslSocketEvents.IoError)
-	{
+	if (ssl.m_activeEvents & io.SslSocketEvents.IoError) {
 		printf("error: %s\n", ssl.m_ioError.m_description);
 		return -1;
 	}
@@ -90,17 +83,15 @@ int async asyncRun(char const* hostName)
 		io.SslSocketEvents.SslHandshakeCompleted |
 		io.SslSocketEvents.TcpDisconnected |
 		io.SslSocketEvents.IoError
-		);
+	);
 
-	if (ssl.m_activeEvents & io.SslSocketEvents.IoError)
-	{
+	if (ssl.m_activeEvents & io.SslSocketEvents.IoError) {
 		printf("error: %s\n", ssl.m_ioError.m_description);
 		return -1;
 	}
 
 	size_t count = ssl.m_peerCertificateChainLength;
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		printf("certificate[%d]:\n", i);
 		printCertificate(ssl.m_peerCertificateChain[i]);
 	}
@@ -116,13 +107,12 @@ int async asyncRun(char const* hostName)
 
 	char buffer[256];
 
-	for (;;)
-	{
+	for (;;) {
 		await ssl.asyncWait(
 			io.SslSocketEvents.IncomingData |
 			io.SslSocketEvents.TcpDisconnected |
 			io.SslSocketEvents.IoError
-			);
+		);
 
 		size_t size = ssl.read(buffer, sizeof(buffer) - 1);
 		if (!size)
@@ -135,8 +125,7 @@ int async asyncRun(char const* hostName)
 	return 0;
 }
 
-int main()
-{
+int main() {
 	char const* hostName = "ioninja.com";
 //	char const* hostName = "www.google.com";
 

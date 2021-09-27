@@ -57,8 +57,7 @@ size_t
 stdGets(
 	void* buffer,
 	size_t size
-	)
-{
+) {
 	char* p = (char*)buffer;
 	fgets(p, size, stdin);
 	return strnlen(p, size);
@@ -68,8 +67,7 @@ size_t
 stdPrintOut(
 	const void* p,
 	size_t size
-	)
-{
+) {
 	return fwrite(p, size, 1, stdout);
 }
 
@@ -77,8 +75,7 @@ size_t
 stdPrintErr(
 	const void* p,
 	size_t size
-	)
-{
+) {
 	return fwrite(p, size, 1, stderr);
 }
 
@@ -91,36 +88,32 @@ jnc_StdLib_StdOutputFunc* g_printErrFunc = stdPrintErr;
 //..............................................................................
 
 int
-atoi(DataPtr ptr)
-{
+atoi(DataPtr ptr) {
 	return ptr.m_p ? ::atoi((char*)ptr.m_p) : 0;
 }
 
 int64_t
-atol(DataPtr ptr)
-{
+atol(DataPtr ptr) {
 	return ptr.m_p ? ::_atoi64((char*)ptr.m_p) : 0;
 }
 
 template <
 	typename T,
 	typename F
-	>
+>
 T
 strtot(
 	const F& f,
 	DataPtr ptr,
 	DataPtr endPtr,
 	int radix
-	)
-{
+) {
 	T result = 0;
 	char* end = (char*)ptr.m_p;
 	if (ptr.m_p)
 		result = f((char*)ptr.m_p, &end, radix);
 
-	if (endPtr.m_p)
-	{
+	if (endPtr.m_p) {
 		((DataPtr*)endPtr.m_p)->m_p = end;
 		((DataPtr*)endPtr.m_p)->m_validator = ptr.m_validator;
 	}
@@ -133,8 +126,7 @@ strtol(
 	DataPtr ptr,
 	DataPtr endPtr,
 	int radix
-	)
-{
+) {
 	return strtot<int64_t>(::_strtoi64, ptr, endPtr, radix);
 }
 
@@ -143,26 +135,22 @@ strtoul(
 	DataPtr ptr,
 	DataPtr endPtr,
 	int radix
-	)
-{
+) {
 	return strtot<uint64_t>(::_strtoui64, ptr, endPtr, radix);
 }
 
 uint32_t
-toUpper(uint32_t c)
-{
+toUpper(uint32_t c) {
 	return enc::utfToUpperCase(c);
 }
 
 uint32_t
-toLower(uint32_t c)
-{
+toLower(uint32_t c) {
 	return enc::utfToLowerCase(c);
 }
 
 DataPtr
-getErrorPtr(const err::ErrorHdr* error)
-{
+getErrorPtr(const err::ErrorHdr* error) {
 	GcHeap* gcHeap = getCurrentThreadGcHeap();
 	ASSERT(gcHeap);
 
@@ -172,26 +160,22 @@ getErrorPtr(const err::ErrorHdr* error)
 }
 
 DataPtr
-getLastError()
-{
+getLastError() {
 	return getErrorPtr(err::getLastError());
 }
 
 void
-setErrno(int code)
-{
+setErrno(int code) {
 	err::setErrno(code);
 }
 
 void
-setError_0(DataPtr errorPtr)
-{
+setError_0(DataPtr errorPtr) {
 	err::setError((const err::ErrorHdr*) errorPtr.m_p);
 }
 
 void
-setError_1(DataPtr stringPtr)
-{
+setError_1(DataPtr stringPtr) {
 	err::setError((const char*) stringPtr.m_p);
 }
 
@@ -200,8 +184,7 @@ memCmp(
 	DataPtr ptr1,
 	DataPtr ptr2,
 	size_t size
-	)
-{
+) {
 	if (ptr1.m_p == ptr2.m_p)
 		return 0;
 
@@ -216,8 +199,7 @@ memChr(
 	DataPtr ptr,
 	int c,
 	size_t size
-	)
-{
+) {
 	if (!ptr.m_p)
 		return g_nullDataPtr;
 
@@ -237,8 +219,7 @@ memMem(
 	size_t size1,
 	DataPtr ptr2,
 	size_t size2
-	)
-{
+) {
 	if (!ptr1.m_p)
 		return g_nullDataPtr;
 
@@ -260,8 +241,7 @@ memCpy(
 	DataPtr dstPtr,
 	DataPtr srcPtr,
 	size_t size
-	)
-{
+) {
 	if (dstPtr.m_p && srcPtr.m_p)
 		memcpy(dstPtr.m_p, srcPtr.m_p, size);
 }
@@ -271,8 +251,7 @@ memMove(
 	DataPtr dstPtr,
 	DataPtr srcPtr,
 	size_t size
-	)
-{
+) {
 	if (dstPtr.m_p && srcPtr.m_p)
 		memmove(dstPtr.m_p, srcPtr.m_p, size);
 }
@@ -282,8 +261,7 @@ memSet(
 	DataPtr ptr,
 	int c,
 	size_t size
-	)
-{
+) {
 	if (ptr.m_p)
 		memset(ptr.m_p, c, size);
 }
@@ -294,8 +272,7 @@ memCat(
 	size_t size1,
 	DataPtr ptr2,
 	size_t size2
-	)
-{
+) {
 	GcHeap* gcHeap = getCurrentThreadGcHeap();
 	ASSERT(gcHeap);
 
@@ -316,8 +293,7 @@ DataPtr
 memDup(
 	DataPtr ptr,
 	size_t size
-	)
-{
+) {
 	GcHeap* gcHeap = getCurrentThreadGcHeap();
 	ASSERT(gcHeap);
 
@@ -334,8 +310,7 @@ size_t
 memDjb2(
 	DataPtr ptr,
 	size_t size
-	)
-{
+) {
 	return sl::djb2(ptr.m_p, size);
 }
 
@@ -343,8 +318,7 @@ int
 strCmp(
 	DataPtr ptr1,
 	DataPtr ptr2
-	)
-{
+) {
 	if (ptr1.m_p == ptr2.m_p)
 		return 0;
 
@@ -359,8 +333,7 @@ strnCmp(
 	DataPtr ptr1,
 	DataPtr ptr2,
 	size_t length
-	)
-{
+) {
 	if (ptr1.m_p == ptr2.m_p)
 		return 0;
 
@@ -374,8 +347,7 @@ int
 striCmp(
 	DataPtr ptr1,
 	DataPtr ptr2
-	)
-{
+) {
 	if (ptr1.m_p == ptr2.m_p)
 		return 0;
 
@@ -390,8 +362,7 @@ strniCmp(
 	DataPtr ptr1,
 	DataPtr ptr2,
 	size_t length
-	)
-{
+) {
 	if (ptr1.m_p == ptr2.m_p)
 		return 0;
 
@@ -405,8 +376,7 @@ DataPtr
 strChr(
 	DataPtr ptr,
 	char c
-	)
-{
+) {
 	if (!ptr.m_p)
 		return g_nullDataPtr;
 
@@ -424,8 +394,7 @@ DataPtr
 strrChr(
 	DataPtr ptr,
 	char c
-	)
-{
+) {
 	if (!ptr.m_p)
 		return g_nullDataPtr;
 
@@ -443,8 +412,7 @@ DataPtr
 striChr(
 	DataPtr ptr,
 	char c
-	)
-{
+) {
 	if (!ptr.m_p)
 		return g_nullDataPtr;
 
@@ -466,8 +434,7 @@ DataPtr
 strpBrk(
 	DataPtr ptr1,
 	DataPtr ptr2
-	)
-{
+) {
 	if (!ptr1.m_p || !ptr2.m_p)
 		return g_nullDataPtr;
 
@@ -485,8 +452,7 @@ DataPtr
 strStr(
 	DataPtr ptr1,
 	DataPtr ptr2
-	)
-{
+) {
 	if (!ptr1.m_p)
 		return g_nullDataPtr;
 
@@ -507,8 +473,7 @@ DataPtr
 striStr(
 	DataPtr ptr1,
 	DataPtr ptr2
-	)
-{
+) {
 	if (!ptr1.m_p)
 		return g_nullDataPtr;
 
@@ -535,10 +500,8 @@ strCpy(
 	DataPtr dstPtr,
 	DataPtr srcPtr,
 	size_t size
-	)
-{
-	if (!dstPtr.m_validator)
-	{
+) {
+	if (!dstPtr.m_validator) {
 		err::setError("null data pointer access");
 		dynamicThrow();
 	}
@@ -546,12 +509,9 @@ strCpy(
 	size_t dstLength = dstPtr.m_p < dstPtr.m_validator->m_rangeEnd ? (char*)dstPtr.m_validator->m_rangeEnd - (char*)dstPtr.m_p : 0;
 	size_t srcLength = strLen(srcPtr);
 
-	if (dstLength <= srcLength)
-	{
+	if (dstLength <= srcLength) {
 		memcpy(dstPtr.m_p, srcPtr.m_p, dstLength);
-	}
-	else
-	{
+	} else {
 		memcpy(dstPtr.m_p, srcPtr.m_p, srcLength);
 		((char*)dstPtr.m_p) [srcLength] = 0;
 	}
@@ -561,8 +521,7 @@ DataPtr
 strCat(
 	DataPtr ptr1,
 	DataPtr ptr2
-	)
-{
+) {
 	size_t length1 = strLen(ptr1);
 	size_t length2 = strLen(ptr2);
 
@@ -573,8 +532,7 @@ DataPtr
 strDup(
 	DataPtr ptr,
 	size_t length
-	)
-{
+) {
 	if (length == -1)
 		length = strLen(ptr);
 
@@ -582,15 +540,13 @@ strDup(
 }
 
 size_t
-strDjb2(DataPtr ptr)
-{
+strDjb2(DataPtr ptr) {
 	size_t length = strLen(ptr);
 	return sl::djb2(ptr.m_p, length);
 }
 
 size_t
-striDjb2(DataPtr ptr)
-{
+striDjb2(DataPtr ptr) {
 	size_t length = strLen(ptr);
 	return sl::djb2_op(::tolower, (char*)ptr.m_p, length);
 }
@@ -599,8 +555,7 @@ DataPtr
 format(
 	DataPtr formatStringPtr,
 	...
-	)
-{
+) {
 	AXL_VA_DECL(va, formatStringPtr);
 
 	char buffer[256];
@@ -619,29 +574,25 @@ format(
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 DataPtr
-gets()
-{
+gets() {
 	char buffer[1024];
 	size_t length = g_getsFunc(buffer, sizeof(buffer));
 	return jnc::strDup(buffer, length);
 }
 
 size_t
-print(DataPtr ptr)
-{
+print(DataPtr ptr) {
 	size_t length = strLen(ptr);
 	return g_printOutFunc(ptr.m_p, length);
 }
 
 size_t
-print_u(const char* s)
-{
+print_u(const char* s) {
 	return s ? g_printOutFunc(s, strlen(s)) : 0;
 }
 
 size_t
-perror(DataPtr ptr)
-{
+perror(DataPtr ptr) {
 	size_t length = strLen(ptr);
 	return g_printErrFunc(ptr.m_p, length);
 }
@@ -650,8 +601,7 @@ int
 printf(
 	const char* formatString,
 	...
-	)
-{
+) {
 	AXL_VA_DECL(va, formatString);
 
 	sl::String string = sl::formatString_va(formatString, va);
@@ -670,7 +620,7 @@ JNC_DEFINE_LIB(
 	g_stdLibGuid,
 	"StdLib",
 	"Jancy standard extension library"
-	)
+)
 
 JNC_BEGIN_LIB_FUNCTION_MAP(jnc_StdLib)
 	JNC_MAP_FUNCTION("std.getLastError", getLastError)
@@ -759,8 +709,7 @@ jnc_StdLib_setStdIo(
 	jnc_StdLib_StdInputFunc* getsFunc,
 	jnc_StdLib_StdOutputFunc* printOutFunc,
 	jnc_StdLib_StdOutputFunc* printErrFunc
-	)
-{
+) {
 	g_getsFunc = getsFunc ? getsFunc : stdGets;
 	g_printOutFunc = printOutFunc ? printOutFunc : stdPrintOut;
 	g_printErrFunc = printErrFunc ? printErrFunc : stdPrintErr;

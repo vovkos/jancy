@@ -32,10 +32,8 @@ event g_onApplyIpSettings();
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-reactor g_ipReactor
-{
-	onevent bindingof(g_useDhcp)()
-	{
+reactor g_ipReactor {
+	onevent bindingof(g_useDhcp)() {
 		if (g_useDhcp)
 			printf("using DHCP, disable IP-edit\n");
 		else
@@ -44,8 +42,7 @@ reactor g_ipReactor
 
 	// it's OK to specify multiple events to subscribe to
 
-	onevent (bindingof(g_ip4), bindingof(g_routerIp4)) ()
-	{
+	onevent (bindingof(g_ip4), bindingof(g_routerIp4)) () {
 		printf("IP or router IP has changed\n");
 		g_useDhcp = false;
 	}
@@ -53,8 +50,7 @@ reactor g_ipReactor
 	// the 'onevent' statement allows subscribing to any events, not just
 	// bindable ones
 
-	onevent g_onApplyIpSettings()
-	{
+	onevent g_onApplyIpSettings() {
 		for (int i = 0; i < 100; i += 10)
 			printf("applying %d%%...\n", i);
 
@@ -66,8 +62,7 @@ reactor g_ipReactor
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	g_ipReactor.start();

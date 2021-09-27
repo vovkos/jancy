@@ -8,11 +8,9 @@ import "std_String.jnc"
 
 //..............................................................................
 
-class DnsProtoParser: AppProtoParser
-{
+class DnsProtoParser: AppProtoParser {
 protected:
-	enum
-	{
+	enum {
 		PreviewLineCount = 2,
 	}
 
@@ -20,8 +18,7 @@ protected:
 	char const* m_name;
 
 public:
-	construct(char const* name = "DNS")
-	{
+	construct(char const* name = "DNS") {
 		m_name = name;
 	}
 
@@ -32,7 +29,7 @@ public:
 		void const* p,
 		size_t size,
 		int payloadPreviewIconIdx
-		);
+	);
 
 	override void representDetails(
 		log.Representation* representation,
@@ -41,19 +38,17 @@ public:
 		size_t size,
 		size_t baseOffset,
 		uint_t foldFlags
-		);
+	);
 
 protected:
-	virtual decodeName(std.StringBuilder* string)
-	{
-	}
+	virtual decodeName(std.StringBuilder* string) {}
 
 	void const* formatName(
 		std.StringBuilder* string,
 		void const* p,
 		void const* end,
 		void const* base
-		);
+	);
 
 	void const* formatNameLink(
 		std.StringBuilder* string,
@@ -61,7 +56,7 @@ protected:
 		void const* end,
 		void const* base,
 		size_t baseOffset
-		);
+	);
 
 	char const* getAnswerRrValueString(
 		std.StringBuilder* string,
@@ -69,7 +64,7 @@ protected:
 		void const* p,
 		void const* end,
 		void const* base
-		);
+	);
 
 	void const* representQuestionRrTableDigest(
 		log.Representation* representation,
@@ -78,7 +73,7 @@ protected:
 		void const* p,
 		void const* end,
 		void const* base
-		);
+	);
 
 	void const* representAnswerRrTableDigest(
 		log.Representation* representation,
@@ -88,7 +83,7 @@ protected:
 		void const* p,
 		void const* end,
 		void const* base
-		);
+	);
 
 	void const* representQuestionRrTableDetails(
 		log.Representation* representation,
@@ -99,7 +94,7 @@ protected:
 		void const* end,
 		void const* base,
 		size_t baseOffset
-		);
+	);
 
 	void const* representAnswerRrTableDetails(
 		log.Representation* representation,
@@ -110,7 +105,7 @@ protected:
 		void const* end,
 		void const* base,
 		size_t baseOffset
-		);
+	);
 
 	void const* representQuestionRrDigest(
 		log.Representation* representation,
@@ -118,7 +113,7 @@ protected:
 		void const* p,
 		void const* end,
 		void const* base
-		);
+	);
 
 	void const* representAnswerRrDigest(
 		log.Representation* representation,
@@ -126,7 +121,7 @@ protected:
 		void const* p,
 		void const* end,
 		void const* base
-		);
+	);
 
 	void const* representQuestionRrDetails(
 		log.Representation* representation,
@@ -136,7 +131,7 @@ protected:
 		void const* end,
 		void const* base,
 		size_t baseOffset
-		);
+	);
 
 	void const* representAnswerRrDetails(
 		log.Representation* representation,
@@ -146,7 +141,7 @@ protected:
 		void const* end,
 		void const* base,
 		size_t baseOffset
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -158,8 +153,7 @@ void DnsProtoParser.representDigest(
 	void const* p,
 	size_t size,
 	int payloadPreviewIconIdx
-	)
-{
+) {
 	representSimpleProtoDigestNoPayload(
 		representation,
 		typeof(io.DnsHdr),
@@ -168,7 +162,7 @@ void DnsProtoParser.representDigest(
 		dstString,
 		p,
 		size
-		);
+	);
 
 	if (size <= sizeof(io.DnsHdr))
 		return;
@@ -189,7 +183,7 @@ void DnsProtoParser.representDigest(
 			p,
 			end,
 			hdr
-			);
+		);
 
 	size_t answerCount = hdr.m_answerRrCount + hdr.m_authorityRrCount + hdr.m_additionalRrCount;
 	if (answerCount)
@@ -201,7 +195,7 @@ void DnsProtoParser.representDigest(
 			p,
 			end,
 			hdr
-			);
+		);
 }
 
 void DnsProtoParser.representDetails(
@@ -211,12 +205,10 @@ void DnsProtoParser.representDetails(
 	size_t size,
 	size_t baseOffset,
 	uint_t foldFlags
-	)
-{
+) {
 	representation.m_lineAttr.m_backColor = ProtoColor.AppLayer;
 
-	if (size < sizeof(io.DnsHdr))
-	{
+	if (size < sizeof(io.DnsHdr)) {
 		representation.addHyperText("\e[1mDNS\e[m [INCOMPLETE]");
 		return;
 	}
@@ -230,7 +222,7 @@ void DnsProtoParser.representDetails(
 		baseOffset,
 		foldFlags,
 		ProtoFoldFlag.AppLayer
-		);
+	);
 
 	ProtoRange range = { baseOffset, sizeof(io.DnsHdr), ProtoColor.AppLayer }
 	protoRangeArray.append(range);
@@ -245,8 +237,7 @@ void DnsProtoParser.representDetails(
 	void const* end = p + size;
 	size_t payloadOffset = baseOffset + sizeof(io.DnsHdr);
 
-	if (foldFlags & ProtoFoldFlag.Payload)
-	{
+	if (foldFlags & ProtoFoldFlag.Payload) {
 		representation.addHyperText($"[\e^-%1\e[34m-\e[m] \e[1mDNS\e[m RRs"(ProtoFoldFlag.Payload));
 
 		std.StringBuilder string;
@@ -261,7 +252,7 @@ void DnsProtoParser.representDetails(
 				end,
 				hdr,
 				baseOffset
-				);
+			);
 
 		if (hdr.m_answerRrCount)
 			p = representAnswerRrTableDetails(
@@ -273,7 +264,7 @@ void DnsProtoParser.representDetails(
 				end,
 				hdr,
 				baseOffset
-				);
+			);
 
 		if (hdr.m_authorityRrCount)
 			p = representAnswerRrTableDetails(
@@ -285,7 +276,7 @@ void DnsProtoParser.representDetails(
 				end,
 				hdr,
 				baseOffset
-				);
+			);
 
 		if (hdr.m_additionalRrCount)
 			p = representAnswerRrTableDetails(
@@ -297,10 +288,8 @@ void DnsProtoParser.representDetails(
 				end,
 				hdr,
 				baseOffset
-				);
-	}
-	else
-	{
+			);
+	} else {
 		for (size_t i = 0; p < end && i < hdr.m_questionRrCount; i++)
 			p = scanDnsQuestionRr(p, end);
 
@@ -317,7 +306,7 @@ void DnsProtoParser.representDetails(
 			ProtoFoldFlag.Payload,
 			hdr.m_questionRrCount + answerCount,
 			p - payload
-			));
+		));
 	}
 
 	range = { payloadOffset, p - payload, ProtoColor.Payload };
@@ -329,8 +318,7 @@ void const* DnsProtoParser.formatName(
 	void const* p,
 	void const* end,
 	void const* base
-	)
-{
+) {
 	string.clear();
 	p = io.formatDnsName(string, p, end, base);
 	decodeName(string);
@@ -343,8 +331,7 @@ void const* DnsProtoParser.formatNameLink(
 	void const* end,
 	void const* base,
 	size_t baseOffset
-	)
-{
+) {
 	void const* p0 = p;
 	p = formatName(string, p, end, base);
 	size_t offset = baseOffset + p0 - base;
@@ -360,12 +347,10 @@ char const* DnsProtoParser.getAnswerRrValueString(
 	void const* p,
 	void const* end,
 	void const* base
-	)
-{
+) {
 	char const* resultString;
 
-	switch (type)
-	{
+	switch (type) {
 	case io.DnsType.A:
 		resultString = ((io.Address_ip4 const*)p).getString();
 		break;
@@ -386,8 +371,7 @@ char const* DnsProtoParser.getAnswerRrValueString(
 void const* scanDnsQuestionRr(
 	void const* p,
 	void const* end
-	)
-{
+) {
 	p = io.scanDnsName(p, end);
 	return end - p < sizeof(io.DnsQuestionRrSuffix) ? end : p + sizeof(io.DnsQuestionRrSuffix);
 }
@@ -395,8 +379,7 @@ void const* scanDnsQuestionRr(
 void const* scanDnsAnswerRr(
 	void const* p,
 	void const* end
-	)
-{
+) {
 	p = io.scanDnsName(p, end);
 	return end - p < sizeof(io.DnsAnswerRrSuffix) ? end : p + sizeof(io.DnsAnswerRrSuffix);
 }
@@ -408,17 +391,14 @@ void const* DnsProtoParser.representQuestionRrTableDigest(
 	void const* p,
 	void const* end,
 	void const* base
-	)
-{
+) {
 	size_t previewLineIdx = -1;
-	if (count > PreviewLineCount)
-	{
+	if (count > PreviewLineCount) {
 		count = PreviewLineCount;
 		previewLineIdx = PreviewLineCount - 1;
 	}
 
-	for (size_t i = 0; p < end && i < count; i++)
-	{
+	for (size_t i = 0; p < end && i < count; i++) {
 		if (i == previewLineIdx)
 			representation.m_lineAttr.m_flags |= log.LineAttrFlags.Preview;
 
@@ -436,19 +416,16 @@ void const* DnsProtoParser.representAnswerRrTableDigest(
 	void const* p,
 	void const* end,
 	void const* base
-	)
-{
+) {
 	size_t endIdx = questionCount + answerCount;
 	size_t previewLineIdx = -1;
 
-	if (endIdx > PreviewLineCount)
-	{
+	if (endIdx > PreviewLineCount) {
 		endIdx = PreviewLineCount;
 		previewLineIdx = PreviewLineCount - 1;
 	}
 
-	for (size_t i = questionCount; p < end && i < endIdx; i++)
-	{
+	for (size_t i = questionCount; p < end && i < endIdx; i++) {
 		if (i == previewLineIdx)
 			representation.m_lineAttr.m_flags |= log.LineAttrFlags.Preview;
 
@@ -467,8 +444,7 @@ void const* DnsProtoParser.representQuestionRrTableDetails(
 	void const* end,
 	void const* base,
 	size_t baseOffset
-	)
-{
+) {
 	representation.addHyperText($"    $name:");
 
 	for (size_t i = 0; p < end && i < count; i++)
@@ -486,8 +462,7 @@ void const* DnsProtoParser.representAnswerRrTableDetails(
 	void const* end,
 	void const* base,
 	size_t baseOffset
-	)
-{
+) {
 	representation.addHyperText($"    $name:");
 
 	for (size_t i = 0; p < end && i < count; i++)
@@ -502,14 +477,12 @@ void const* DnsProtoParser.representQuestionRrDigest(
 	void const* p,
 	void const* end,
 	void const* base
-	)
-{
+) {
 	if (p >= end)
 		return end;
 
 	p = formatName(string, p, end, base);
-	if (end - p < sizeof(io.DnsQuestionRrSuffix))
-	{
+	if (end - p < sizeof(io.DnsQuestionRrSuffix)) {
 		representation.addHyperText($"Question:\t%1"(string.m_sz));
 		return end;
 	}
@@ -519,7 +492,7 @@ void const* DnsProtoParser.representQuestionRrDigest(
 	representation.addHyperText($"Question:\t%1 (%2)"(
 		string.m_sz,
 		typeof(io.DnsType).getValueString(&suffix.m_type)
-		));
+	));
 
 	return p + sizeof(io.DnsQuestionRrSuffix);
 }
@@ -532,25 +505,22 @@ void const* DnsProtoParser.representQuestionRrDetails(
 	void const* end,
 	void const* base,
 	size_t baseOffset
-	)
-{
-	if (p >= end)
-	{
+) {
+	if (p >= end) {
 		representation.addHyperText($"%(1;10d): [INCOMPLETE-RR]"(i + 1));
 		return end;
 	}
 
 	p = formatNameLink(string, p, end, base, baseOffset);
 
-	if (end - p < sizeof(io.DnsQuestionRrSuffix))
-	{
+	if (end - p < sizeof(io.DnsQuestionRrSuffix)) {
 		representation.addHyperText(
 			$"%(1;10d): Name: %2\n"
 			$"%(3;10c)  [INCOMPLETE-RR]"(
 			i + 1,
 			string.m_sz,
 			' '
-			));
+		));
 
 		return end;
 	}
@@ -566,7 +536,7 @@ void const* DnsProtoParser.representQuestionRrDetails(
 		0,
 		0,
 		2
-		);
+	);
 
 	return p + sizeof(io.DnsQuestionRrSuffix);
 }
@@ -577,15 +547,13 @@ void const* DnsProtoParser.representAnswerRrDigest(
 	void const* p,
 	void const* end,
 	void const* base
-	)
-{
+) {
 	if (p >= end)
 		return end;
 
 	p = formatName(string, p, end, base);
 
-	if (end - p < sizeof(io.DnsAnswerRrSuffix))
-	{
+	if (end - p < sizeof(io.DnsAnswerRrSuffix)) {
 		representation.addHyperText($"Answer:\t%1"(string.m_sz));
 		return end;
 	}
@@ -593,12 +561,11 @@ void const* DnsProtoParser.representAnswerRrDigest(
 	io.DnsAnswerRrSuffix const* suffix = (io.DnsAnswerRrSuffix const*)p;
 	p += sizeof(io.DnsAnswerRrSuffix);
 
-	if (end - p < suffix.m_dataLength)
-	{
+	if (end - p < suffix.m_dataLength) {
 		representation.addHyperText($"Answer:\t%1 (%2)"(
 			string.m_sz,
 			typeof(io.DnsType).getValueString(&suffix.m_type)
-			));
+		));
 
 		return end;
 	}
@@ -610,7 +577,7 @@ void const* DnsProtoParser.representAnswerRrDigest(
 		typeof(io.DnsType).getValueString(&suffix.m_type),
 		valueString ? ": " : null,
 		valueString
-		));
+	));
 
 	return p + suffix.m_dataLength;
 }
@@ -623,25 +590,22 @@ void const* DnsProtoParser.representAnswerRrDetails(
 	void const* end,
 	void const* base,
 	size_t baseOffset
-	)
-{
-	if (p >= end)
-	{
+) {
+	if (p >= end) {
 		representation.addHyperText($"%(1;10d): [INCOMPLETE-RR]"(i + 1));
 		return end;
 	}
 
 	p = formatNameLink(string, p, end, base, baseOffset);
 
-	if (end - p < sizeof(io.DnsAnswerRrSuffix))
-	{
+	if (end - p < sizeof(io.DnsAnswerRrSuffix)) {
 		representation.addHyperText(
 			$"%(1;10d): Name: %2\n"
 			$"%(3;10c)  [INCOMPLETE-RR]"(
 			i + 1,
 			string.m_sz,
 			' '
-			));
+		));
 
 		return end;
 	}
@@ -657,13 +621,12 @@ void const* DnsProtoParser.representAnswerRrDetails(
 		0,
 		0,
 		2
-		);
+	);
 
 	io.DnsAnswerRrSuffix const* suffix = (io.DnsAnswerRrSuffix const*)p;
 	p += sizeof(io.DnsAnswerRrSuffix);
 
-	if (end - p < suffix.m_dataLength)
-	{
+	if (end - p < suffix.m_dataLength) {
 		representation.addHyperText($"%(1;12c)[INCOMPLETE-RR]"(' '));
 		return end;
 	}
@@ -678,15 +641,14 @@ void const* DnsProtoParser.representAnswerRrDetails(
 			baseOffset + p - base,
 			suffix.m_dataLength,
 			valueString
-			));
+		));
 
 	return p + suffix.m_dataLength;
 }
 
 //..............................................................................
 
-enum NetBiosNameType: char
-{
+enum NetBiosNameType: char {
 	Workstation               = 0x00,
 	MessengerService          = 0x03,
 	RemoteAccessService       = 0x06,
@@ -697,16 +659,13 @@ enum NetBiosNameType: char
 	RemoteAccessServiceClient = 0x21,
 }
 
-class NbnsProtoParser: DnsProtoParser
-{
-	construct()
-	{
+class NbnsProtoParser: DnsProtoParser {
+	construct() {
 		basetype.construct("NBNS");
 	}
 
 protected:
-	override decodeName(std.StringBuilder* string)
-	{
+	override decodeName(std.StringBuilder* string) {
 		size_t originalLength = string.m_length;
 		size_t length = originalLength / 2;
 		string.append(' ',  length);
@@ -716,8 +675,7 @@ protected:
 
 		string.remove(0, originalLength);
 
-		if (length == 16) // last character is the type
-		{
+		if (length == 16) { // last character is the type
 			char type = string[15];
 			string.chop(1);
 			string.trimRight();
@@ -728,8 +686,7 @@ protected:
 
 //..............................................................................
 
-construct()
-{
+construct() {
 	static DnsProtoParser dns;
 	static NbnsProtoParser nbns;
 	static DnsProtoParser mdns("MDNS");

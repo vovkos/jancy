@@ -38,8 +38,7 @@
 
 //..............................................................................
 
-enum jnc_PropertyKind
-{
+enum jnc_PropertyKind {
 	jnc_PropertyKind_Undefined = 0,
 	jnc_PropertyKind_Normal,
 	jnc_PropertyKind_Thunk,
@@ -52,8 +51,7 @@ typedef enum jnc_PropertyKind jnc_PropertyKind;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum jnc_PropertyFlag
-{
+enum jnc_PropertyFlag {
 	jnc_PropertyFlag_Const     = 0x010000,
 	jnc_PropertyFlag_Bindable  = 0x020000,
 	jnc_PropertyFlag_AutoGet   = 0x100000,
@@ -67,8 +65,7 @@ typedef enum jnc_PropertyFlag jnc_PropertyFlag;
 
 JNC_INLINE
 jnc_PropertyType*
-jnc_Property_getType(jnc_Property* prop)
-{
+jnc_Property_getType(jnc_Property* prop) {
 	return (jnc_PropertyType*)jnc_ModuleItem_getType((jnc_ModuleItem*)prop);
 }
 
@@ -84,23 +81,19 @@ jnc_Property_getSetter(jnc_Property* prop);
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
-struct jnc_Property: jnc_ModuleItem
-{
+struct jnc_Property: jnc_ModuleItem {
 	jnc_PropertyType*
-	getType()
-	{
+	getType() {
 		return jnc_Property_getType(this);
 	}
 
 	jnc_Function*
-	getGetter()
-	{
+	getGetter() {
 		return jnc_Property_getGetter(this);
 	}
 
 	jnc::OverloadableFunction
-	getSetter()
-	{
+	getSetter() {
 		return jnc_Property_getSetter(this);
 	}
 };

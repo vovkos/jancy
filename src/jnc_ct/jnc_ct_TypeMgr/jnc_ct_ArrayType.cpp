@@ -19,8 +19,7 @@ namespace ct {
 
 //..............................................................................
 
-ArrayType::ArrayType()
-{
+ArrayType::ArrayType() {
 	m_typeKind = TypeKind_Array;
 	m_flags = TypeFlag_StructRet;
 	m_elementType = NULL;
@@ -32,8 +31,7 @@ ArrayType::ArrayType()
 }
 
 Type*
-ArrayType::getRootType()
-{
+ArrayType::getRootType() {
 	if (!m_rootType)
 		m_rootType = m_elementType->getTypeKind() == TypeKind_Array ?
 			((ArrayType*)m_elementType)->getRootType() :
@@ -43,24 +41,21 @@ ArrayType::getRootType()
 }
 
 void
-ArrayType::prepareTypeString()
-{
+ArrayType::prepareTypeString() {
 	TypeStringTuple* tuple = getTypeStringTuple();
 	tuple->m_typeStringPrefix = getRootType()->getTypeString();
 	tuple->m_typeStringSuffix = createDimensionString();
 }
 
 void
-ArrayType::prepareDoxyLinkedText()
-{
+ArrayType::prepareDoxyLinkedText() {
 	TypeStringTuple* tuple = getTypeStringTuple();
 	tuple->m_doxyLinkedTextPrefix = getRootType()->getDoxyLinkedTextPrefix();
 	tuple->m_doxyLinkedTextSuffix = createDimensionString();
 }
 
 sl::String
-ArrayType::createDimensionString()
-{
+ArrayType::createDimensionString() {
 	sl::String string;
 
 	if (m_elementCount == -1)
@@ -69,8 +64,7 @@ ArrayType::createDimensionString()
 		string.format("[%d]", m_elementCount);
 
 	Type* elementType = m_elementType;
-	while (elementType->getTypeKind() == TypeKind_Array)
-	{
+	while (elementType->getTypeKind() == TypeKind_Array) {
 		ArrayType* arrayType = (ArrayType*)elementType;
 		string.appendFormat(" [%d]", arrayType->m_elementCount);
 		elementType = arrayType->m_elementType;
@@ -83,8 +77,7 @@ bool
 ArrayType::ensureDynamicLayout(
 	StructType* dynamicStruct,
 	Field* dynamicField
-	)
-{
+) {
 	bool result;
 
 	if (m_flags & ModuleItemFlag_LayoutReady)
@@ -102,15 +95,13 @@ bool
 ArrayType::calcLayoutImpl(
 	StructType* dynamicStruct,
 	Field* dynamicField
-	)
-{
+) {
 	bool result = m_elementType->ensureLayout();
 	if (!result)
 		return false;
 
 	if (m_elementType->getTypeKind() == TypeKind_Class ||
-		m_elementType->getFlags() & TypeFlag_Dynamic)
-	{
+		m_elementType->getFlags() & TypeFlag_Dynamic) {
 		err::setFormatStringError("'%s' cannot be an element of an array", m_elementType->getTypeString().sz());
 		return false;
 	}
@@ -118,8 +109,7 @@ ArrayType::calcLayoutImpl(
 	// ensure update
 
 	m_rootType = NULL;
-	if (m_typeStringTuple)
-	{
+	if (m_typeStringTuple) {
 		AXL_MEM_DELETE(m_typeStringTuple);
 		m_typeStringTuple = NULL;
 	}
@@ -134,8 +124,7 @@ ArrayType::calcLayoutImpl(
 
 	// calculate size
 
-	if (!m_elementCountInitializer.isEmpty())
-	{
+	if (!m_elementCountInitializer.isEmpty()) {
 		ASSERT(m_parentUnit && m_parentNamespace);
 
 		Unit* prevUnit = m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
@@ -143,17 +132,14 @@ ArrayType::calcLayoutImpl(
 
 		int64_t value = 0;
 
-		if (!dynamicStruct)
-		{
+		if (!dynamicStruct) {
 			result = m_module->m_operatorMgr.parseConstIntegerExpression(m_elementCountInitializer, &value);
 			m_module->m_namespaceMgr.closeNamespace();
 			m_module->m_unitMgr.setCurrentUnit(prevUnit);
 
 			if (!result)
 				return false;
-		}
-		else
-		{
+		} else {
 			// try parsing it as a const-integer expression first...
 
 			m_module->enterTryCompile();
@@ -163,13 +149,12 @@ ArrayType::calcLayoutImpl(
 			m_module->m_namespaceMgr.closeNamespace();
 			m_module->m_unitMgr.setCurrentUnit(prevUnit);
 
-			if (!result) // nope, create a runtime function...
-			{
+			if (!result) { // nope, create a runtime function...
 				sl::String qualifiedName = sl::formatString(
 					"%s.%s.getDynamicSize",
 					dynamicStruct->getQualifiedName().sz(),
 					dynamicField->getName().sz()
-					);
+				);
 
 				Type* returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT);
 				FunctionType* type = m_module->m_typeMgr.getFunctionType(returnType, NULL, 0);
@@ -177,7 +162,7 @@ ArrayType::calcLayoutImpl(
 				m_getDynamicSizeFunction = m_module->m_functionMgr.createInternalFunction<GetDynamicSizeFunction>(
 					qualifiedName,
 					type
-					);
+				);
 
 				m_getDynamicSizeFunction->m_arrayType = this;
 				m_getDynamicSizeFunction->m_storageKind = StorageKind_Member;
@@ -191,25 +176,23 @@ ArrayType::calcLayoutImpl(
 			}
 		}
 
-		if (value <= 0)
-		{
+		if (value <= 0) {
 			err::setFormatStringError("invalid array size '%lld'\n", value);
 			lex::pushSrcPosError(
 				m_parentUnit->getFilePath(),
 				m_elementCountInitializer.getHead()->m_pos
-				);
+			);
 
 			return false;
 		}
 
 #if (JNC_PTR_SIZE == 4)
-		if (value >= (uint32_t) -1)
-		{
+		if (value >= (uint32_t) -1) {
 			err::setFormatStringError("array size '%lld' is too big\n", value);
 			lex::pushSrcPosError(
 				m_parentUnit->getFilePath(),
 				m_elementCountInitializer.getHead()->m_pos
-				);
+			);
 
 			return false;
 		}
@@ -229,18 +212,15 @@ sl::String
 ArrayType::getValueString(
 	const void* p0,
 	const char* formatSpec
-	)
-{
-	if (m_flags & TypeFlag_Dynamic)
-	{
+) {
+	if (m_flags & TypeFlag_Dynamic) {
 		AXL_TODO("format dynamic arrays")
 		return "{ dynamic-array }";
 	}
 
 	const char* p = (char*)p0;
 
-	if (m_elementType->getTypeKind() == TypeKind_Char)
-	{
+	if (m_elementType->getTypeKind() == TypeKind_Char) {
 		const char* null = (const char*)memchr(p, 0, m_elementCount);
 		sl::String string(p, null ? null - p : m_elementCount);
 		return formatSpec ? sl::formatString(formatSpec, string.sz()) : string;
@@ -251,8 +231,7 @@ ArrayType::getValueString(
 
 	sl::String string = "{ " + m_elementType->getValueString(p);
 
-	for (size_t i = 1; i < m_elementCount; i++)
-	{
+	for (size_t i = 1; i < m_elementCount; i++) {
 		p += m_elementType->getSize();
 
 		string += ", ";
@@ -267,21 +246,18 @@ void
 ArrayType::markGcRoots(
 	const void* p,
 	rt::GcHeap* gcHeap
-	)
-{
+) {
 	ASSERT(m_flags & TypeFlag_GcRoot);
 	gcHeap->addRootArray(p, m_elementType, m_elementCount);
 }
 
 void
-ArrayType::prepareLlvmDiType()
-{
+ArrayType::prepareLlvmDiType() {
 	m_llvmDiType = m_module->m_llvmDiBuilder.createArrayType(this);
 }
 
 bool
-ArrayType::compileGetDynamicSizeFunction(Function* function)
-{
+ArrayType::compileGetDynamicSizeFunction(Function* function) {
 	ASSERT(function == m_getDynamicSizeFunction);
 
 	bool result;
@@ -300,14 +276,13 @@ ArrayType::compileGetDynamicSizeFunction(Function* function)
 		return false;
 
 	size_t size = m_elementType->getSize();
-	if (size != 1)
-	{
+	if (size != 1) {
 		Value sizeValue(size, m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT));
 		result = m_module->m_operatorMgr.binaryOperator(
 			BinOpKind_Mul,
 			&resultValue,
 			sizeValue
-			);
+		);
 
 		if (!result)
 			return false;

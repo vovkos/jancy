@@ -7,8 +7,7 @@ import "log_RecordCode.jnc"
 
 //..............................................................................
 
-enum SpiTapLogRecordCode: uint64_t
-{
+enum SpiTapLogRecordCode: uint64_t {
 	TapOpened         = 0x01d487b3c025af1c | log.RecordCodeFlags.Foldable,
 	TapOpenError      = 0x01d487b3c025af1d,
 	TapClosed         = 0x01d487b3c025af1e,
@@ -21,8 +20,7 @@ enum SpiTapLogRecordCode: uint64_t
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct SpiTapOpenParams
-{
+struct SpiTapOpenParams {
 	uint_t m_frequency;
 	uint_t m_mode;
 	uint_t m_dataBits;

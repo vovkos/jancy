@@ -23,8 +23,7 @@ namespace io {
 //..............................................................................
 
 void
-initializeUsbLibCapabilities()
-{
+initializeUsbLibCapabilities() {
 	g_canAccessAllUsbDevices = isCapabilityEnabled("org.jancy.io.usb");
 	if (g_canAccessAllUsbDevices)
 		return;
@@ -51,7 +50,7 @@ JNC_DEFINE_LIB_EX(
 	"UsbLib",
 	"Jancy libusb wrapper extension library",
 	initializeUsbLibCapabilities
-	)
+)
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE(UsbLib)
 	JNC_LIB_IMPORT("io_UsbDevice.jnc")
@@ -88,8 +87,7 @@ jnc_DynamicExtensionLibHost* jnc_g_dynamicExtensionLibHost;
 JNC_EXTERN_C
 JNC_EXPORT
 jnc_ExtensionLib*
-jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
-{
+jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host) {
 	g::getModule()->setTag("jnc_io_usb");
 	err::getErrorMgr()->setRouter(host->m_errorRouter);
 	jnc_g_dynamicExtensionLibHost = host;
@@ -103,8 +101,7 @@ jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
 JNC_EXTERN_C
 JNC_EXPORT
 bool_t
-jncDynamicExtensionLibUnload()
-{
+jncDynamicExtensionLibUnload() {
 	axl::io::getUsbDefaultContextEventThread()->stop();
 	axl::io::getUsbDefaultContext()->close();
 	return true;

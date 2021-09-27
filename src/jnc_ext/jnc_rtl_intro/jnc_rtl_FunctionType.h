@@ -27,67 +27,55 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(FunctionPtrType)
 class FunctionArg:
 	public ModuleItemBase<ct::FunctionArg>,
 	public ModuleItemDecl,
-	public ModuleItemInitializer
-{
+	public ModuleItemInitializer {
 public:
 	FunctionArg(ct::FunctionArg* variable):
 		ModuleItemBase(variable),
 		ModuleItemDecl(variable),
-		ModuleItemInitializer(variable)
-	{
-	}
+		ModuleItemInitializer(variable) {}
 
 	Type*
 	JNC_CDECL
-	getType()
-	{
+	getType() {
 		return rtl::getType(m_item->getType());
 	}
 
 	uint_t
 	JNC_CDECL
-	getPtrTypeFlags()
-	{
+	getPtrTypeFlags() {
 		return m_item->getPtrTypeFlags();
 	}
 };
 
 //..............................................................................
 
-class FunctionType: public TypeBase<ct::FunctionType>
-{
+class FunctionType: public TypeBase<ct::FunctionType> {
 public:
 	FunctionType(ct::FunctionType* type):
-		TypeBase(type)
-	{
-	}
+		TypeBase(type) {}
 
 	Type*
 	JNC_CDECL
-	getReturnType()
-	{
+	getReturnType() {
 		return rtl::getType(m_item->getReturnType());
 	}
 
 	size_t
 	JNC_CDECL
-	getArgCount()
-	{
+	getArgCount() {
 		return m_item->getArgArray().getCount();
 	}
 
 	FunctionArg*
 	JNC_CDECL
-	getArg(size_t index)
-	{
+	getArg(size_t index) {
 		size_t count = m_item->getArgArray().getCount();
 		return index < count ? rtl::getFunctionArg(m_item->getArgArray()[index]) : NULL;
 	}
 
 	FunctionType*
 	JNC_CDECL
-	getShortType()
-	{
+	getShortType() {
 		return (FunctionType*)rtl::getType(m_item->getShortType());
 	}
 
@@ -97,33 +85,27 @@ public:
 		TypeKind typeKind,
 		FunctionPtrTypeKind ptrTypeKind,
 		uint_t flags
-		)
-	{
+	) {
 		return (FunctionPtrType*)rtl::getType(m_item->getFunctionPtrType(typeKind, ptrTypeKind, flags));
 	}
 };
 
 //..............................................................................
 
-class FunctionPtrType: public TypeBase<ct::FunctionPtrType>
-{
+class FunctionPtrType: public TypeBase<ct::FunctionPtrType> {
 public:
 	FunctionPtrType(ct::FunctionPtrType* type):
-		TypeBase(type)
-	{
-	}
+		TypeBase(type) {}
 
 	FunctionPtrTypeKind
 	JNC_CDECL
-	getPtrTypeKind()
-	{
+	getPtrTypeKind() {
 		return m_item->getPtrTypeKind();
 	}
 
 	FunctionType*
 	JNC_CDECL
-	getTargetType()
-	{
+	getTargetType() {
 		return (FunctionType*)rtl::getType(m_item->getTargetType());
 	}
 };

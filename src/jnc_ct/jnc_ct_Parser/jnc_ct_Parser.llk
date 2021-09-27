@@ -19,8 +19,7 @@ import "jnc_ct_NamedTypeSpecifier.llk";
 
 //..............................................................................
 
-HeaderFileBegin
-{.
+HeaderFileBegin {.
 #include "jnc_ct_Lexer.h"
 #include "jnc_ct_Module.h"
 #include "jnc_ct_Decl.h"
@@ -29,83 +28,70 @@ namespace jnc {
 namespace ct {
 .}
 
-HeaderFileEnd
-{.
+HeaderFileEnd {.
 } // namespace ct
 } // namespace jnc
 .}
 
-CppFileBegin
-{.
+CppFileBegin {.
 namespace jnc {
 namespace ct {
 .}
 
-CppFileEnd
-{.
+CppFileEnd {.
 } // namespace ct
 } // namespace jnc
 .}
 
-Members
-{
+Members {
 public:
-	enum Mode
-	{
+	enum Mode {
 		Mode_Parse,    // parsing declarations (global/namespaces/type members)
 		Mode_Compile,  // compiling statements and expressions
 		Mode_Reaction, // compiling the 'reaction' method of a reactor (w/ implicit bindings)
 	};
 
-	struct CurlyInitializer
-	{
+	struct CurlyInitializer {
 		Value m_targetValue;
 		Value m_memberValue;
 		size_t m_index;
 		size_t m_count;
 
-		CurlyInitializer()
-		{
+		CurlyInitializer() {
 			m_index = 0;
 			m_count = 0;
 		}
 	};
 
-	struct FmtSite: sl::ListLink
-	{
+	struct FmtSite: sl::ListLink {
 		size_t m_offset;
 		size_t m_index;
 		Value m_value;
 		sl::String m_fmtSpecifierString;
 
-		FmtSite()
-		{
+		FmtSite() {
 			m_offset = 0;
 			m_index = -1;
 		}
 	};
 
-	struct Literal
-	{
+	struct Literal {
 		sl::Array<char> m_binData;
 		sl::List<FmtSite> m_fmtSiteList;
 		size_t m_lastIndex;
 		bool m_isZeroTerminated;
 
-		Literal()
-		{
+		Literal() {
 			m_lastIndex = 0;
 			m_isZeroTerminated = false;
 		}
 	};
 
-	struct StmtPass1
-	{
+	struct StmtPass1 {
 		sl::BoxList<Token> m_tokenList;
 		Token* m_scopeAnchorToken;
 
-		StmtPass1 ()
-		{
+		StmtPass1() {
 			m_scopeAnchorToken = NULL;
 		}
 	};
@@ -148,61 +134,52 @@ public:
 		Module* module,
 		const PragmaSettings* pragmaSettings = NULL,
 		Mode mode = Mode_Parse
-		);
+	);
 
 	const PragmaSettings*
-	getCachedPragmaSettings()
-	{
+	getCachedPragmaSettings() {
 		return m_cachedPragmaSettings ?
 			m_cachedPragmaSettings :
 			(m_cachedPragmaSettings = m_module->m_pragmaMgr.getCachedSettings(m_pragmaSettings));
 	}
 
 	Declarator*
-	getTopDeclarator()
-	{
+	getTopDeclarator() {
 		return m_topDeclarator;
 	}
 
 	ModuleItem*
-	getLastDeclaredItem()
-	{
+	getLastDeclaredItem() {
 		return m_lastDeclaredItem;
 	}
 
 	NamedType*
-	getLastNamedType()
-	{
+	getLastNamedType() {
 		return m_lastNamedType;
 	}
 
 	const QualifiedName&
-	getLastQualifiedName()
-	{
+	getLastQualifiedName() {
 		return m_lastQualifiedName;
 	}
 
 	const Value&
-	getLastExpressionValue()
-	{
+	getLastExpressionValue() {
 		return m_lastExpressionValue;
 	}
 
 	const sl::BoxList<Value>&
-	getLastExpressionValueList()
-	{
+	getLastExpressionValueList() {
 		return m_lastExpressionValueList;
 	}
 
 	void
-	takeOverLastExpressionValueList(sl::BoxList<Value>* list)
-	{
+	takeOverLastExpressionValueList(sl::BoxList<Value>* list) {
 		sl::takeOver(list, &m_lastExpressionValueList);
 	}
 
 	size_t
-	getReactionCount()
-	{
+	getReactionCount() {
 		return m_reactionIdx;
 	}
 
@@ -211,33 +188,31 @@ public:
 		sl::BoxList<Token>* tokenList,
 		const lex::LineColOffset& pos,
 		const sl::StringRef& body
-		);
+	);
 
 	bool
 	parseBody(
 		SymbolKind symbol,
 		const lex::LineColOffset& pos,
 		const sl::StringRef& source
-		);
+	);
 
 	bool
 	parseTokenList(
 		SymbolKind symbol,
 		const sl::ConstBoxList<Token>& tokenList
-		);
+	);
 
 protected:
 	RecoverAction
-	processError(ErrorKind errorKind)
-	{
+	processError(ErrorKind errorKind) {
 		return m_module->processCompileError((ModuleCompileErrorKind)errorKind) ?
 			RecoverAction_Synchronize :
 			RecoverAction_Fail;
 	}
 
 	void
-	onSynchronized(const Token* token)
-	{
+	onSynchronized(const Token* token) {
 		m_module->m_codeAssistMgr.resetArgumentTipStackIf(token->m_pos);
 	}
 
@@ -245,7 +220,7 @@ protected:
 	parseEofToken(
 		const lex::LineColOffset& pos,
 		size_t length
-		);
+	);
 
 	void
 	addDoxyComment(const Token& token);
@@ -254,33 +229,33 @@ protected:
 	pragma(
 		const sl::StringRef& name,
 		int value
-		);
+	);
 
 	NamedImportType*
 	getNamedImportType(
 		const QualifiedName& name,
 		const lex::LineCol& pos
-		);
+	);
 
 	sl::String
 	getQualifiedTypeNameString(
 		size_t baseTypeIdx,
 		const QualifiedName& name
-		);
+	);
 
 	Type*
 	findType(
 		size_t baseTypeIdx,
 		const QualifiedName& name,
 		const lex::LineCol& pos
-		);
+	);
 
 	Type*
 	getType(
 		size_t baseTypeIdx,
 		const QualifiedName& name,
 		const lex::LineCol& pos
-		);
+	);
 
 	DerivableType*
 	findBaseType(size_t baseTypeIdx);
@@ -292,7 +267,7 @@ protected:
 	getBaseType(
 		size_t baseTypeIdx,
 		Value* resultValue
-		);
+	);
 
 	bool
 	setSetAsType(Type* type);
@@ -310,20 +285,17 @@ protected:
 	postDeclarator(Declarator* declarator);
 
 	void
-	pushTypeSpecifier(TypeSpecifier* typeSpecifier)
-	{
+	pushTypeSpecifier(TypeSpecifier* typeSpecifier) {
 		m_typeSpecifierStack.append(typeSpecifier);
 	}
 
 	TypeSpecifier*
-	getTypeSpecifier()
-	{
+	getTypeSpecifier() {
 		return m_typeSpecifierStack.getBack();
 	}
 
 	void
-	popTypeSpecifier(TypeSpecifier* typeSpecifier)
-	{
+	popTypeSpecifier(TypeSpecifier* typeSpecifier) {
 		m_typeSpecifierStack.pop();
 	}
 
@@ -338,7 +310,7 @@ protected:
 		const lex::LineCol& pos,
 		const sl::StringRef& name,
 		sl::BoxList<Token>* initializer
-		);
+	);
 
 	void
 	preDeclaration();
@@ -354,8 +326,7 @@ protected:
 	setBody(
 		T* item,
 		const Token& bodyToken
-		)
-	{
+	) {
 		if (bodyToken.m_flags & TokenFlag_CodeAssist)
 			m_module->m_codeAssistMgr.m_containerItem = item;
 
@@ -369,15 +340,14 @@ protected:
 		const lex::LineCol& pos,
 		AttributeBlock* attributeBlock = NULL,
 		dox::Block* doxyBlock = NULL
-		);
+	);
 
 	void
 	assignDeclarationAttributes(
 		ModuleItem* item,
 		ModuleItemDecl* itemDecl,
 		Declarator* declarator
-		)
-	{
+	) {
 		assignDeclarationAttributes(item, itemDecl, declarator->m_pos, declarator->m_attributeBlock, declarator->m_doxyBlock);
 	}
 
@@ -389,14 +359,14 @@ protected:
 		GlobalNamespace* parentNamespace,
 		const sl::StringRef& name,
 		const lex::LineCol& pos
-		);
+	);
 
 	bool
 	useNamespace(
 		const sl::BoxList<QualifiedName>& nameList,
 		NamespaceKind namespaceKind,
 		const lex::LineCol& pos
-		);
+	);
 
 	AttributeBlock*
 	popAttributeBlock();
@@ -412,7 +382,7 @@ protected:
 		const lex::LineCol& pos,
 		const QualifiedName& name,
 		const Token& bodyToken
-		);
+	);
 
 	ExtensionNamespace*
 	declareExtensionNamespace(
@@ -420,40 +390,40 @@ protected:
 		const sl::StringRef& name,
 		Type* type,
 		const Token& bodyToken
-		);
+	);
 
 	bool
 	declareTypedef(
 		Declarator* declarator,
 		Type* type
-		);
+	);
 
 	bool
 	declareAlias(
 		Declarator* declarator,
 		Type* type,
 		uint_t ptrTypeFlags
-		);
+	);
 
 	bool
 	declareFunction(
 		Declarator* declarator,
 		FunctionType* type
-		);
+	);
 
 	bool
 	declareProperty(
 		Declarator* declarator,
 		PropertyType* type,
 		uint_t flags
-		);
+	);
 
 	bool
 	declareData(
 		Declarator* declarator,
 		Type* type,
 		uint_t ptrTypeFlags
-		);
+	);
 
 	bool
 	declareUnnamedStructOrUnion(DerivableType* type);
@@ -462,33 +432,33 @@ protected:
 	declareReactor(
 		Declarator* declarator,
 		uint_t ptrTypeFlags
-		);
+	);
 
 	FunctionArg*
 	createFormalArg(
 		DeclFunctionSuffix* argSuffix,
 		Declarator* declarator
-		);
+	);
 
 	bool
 	addEnumFlag(
 		uint_t* flags,
 		EnumTypeFlag flag
-		);
+	);
 
 	EnumType*
 	createEnumType(
 		const sl::StringRef& name,
 		Type* baseType,
 		uint_t flags
-		);
+	);
 
 	EnumConst*
 	createEnumConst(
 		const sl::StringRef& name,
 		const lex::LineCol& pos,
 		sl::BoxList<Token>* initializer
-		);
+	);
 
 	StructType*
 	createStructType(
@@ -496,14 +466,14 @@ protected:
 		sl::BoxList<Type*>* baseTypeList,
 		size_t fieldAlignment,
 		uint_t flags
-		);
+	);
 
 	UnionType*
 	createUnionType(
 		const sl::StringRef& name,
 		size_t fieldAlignment,
 		uint_t flags
-		);
+	);
 
 	ClassType*
 	createClassType(
@@ -511,7 +481,7 @@ protected:
 		sl::BoxList<Type*>* baseTypeList,
 		size_t fieldAlignment,
 		uint_t flags
-		);
+	);
 
 	DynamicLibClassType*
 	createDynamicLibType(const sl::StringRef& name);
@@ -545,7 +515,7 @@ protected:
 		const sl::ConstBoxList<Value>& valueList,
 		Declarator* declarator,
 		sl::BoxList<Token>* tokenList
-		);
+	);
 
 	bool
 	initializeReaction();
@@ -557,31 +527,31 @@ protected:
 	callBaseTypeMemberConstructor(
 		const QualifiedName& name,
 		sl::BoxList<Value>* argList
-		);
+	);
 
 	bool
 	callBaseTypeConstructor(
 		size_t baseTypeIdx,
 		sl::BoxList<Value>* argList
-		);
+	);
 
 	bool
 	callBaseTypeConstructor(
 		Type* type,
 		sl::BoxList<Value>* argList
-		);
+	);
 
 	bool
 	callBaseTypeConstructorImpl(
 		BaseTypeSlot* baseTypeSlot,
 		sl::BoxList<Value>* argList
-		);
+	);
 
 	bool
 	callFieldConstructor(
 		Field* field,
 		sl::BoxList<Value>* argList
-		);
+	);
 
 	bool
 	finalizeBaseTypeMemberConstructBlock();
@@ -590,13 +560,13 @@ protected:
 	lookupIdentifier(
 		const Token& token,
 		Value* value
-		);
+	);
 
 	bool
 	prepareCurlyInitializerNamedItem(
 		CurlyInitializer* initializer,
 		const sl::StringRef& name
-		);
+	);
 
 	bool
 	prepareCurlyInitializerIndexedItem(CurlyInitializer* initializer);
@@ -608,7 +578,7 @@ protected:
 	assignCurlyInitializerItem(
 		CurlyInitializer* initializer,
 		const Value& value
-		);
+	);
 
 	bool
 	addFmtSite(
@@ -617,55 +587,55 @@ protected:
 		const Value& value,
 		bool isIndex,
 		const sl::StringRef& fmtSpecifierString
-		);
+	);
 
 	void
 	addFmtSite(
 		Literal* literal,
 		const sl::StringRef& string,
 		size_t index
-		);
+	);
 
 	void
 	addFmtSite(
 		Literal* literal,
 		const sl::StringRef& string,
 		const sl::StringRef& fmtSpecifierString
-		);
+	);
 
 	bool
 	finalizeLiteral(
 		Literal* literal,
 		sl::BoxList<Value>* argValueList,
 		Value* resultValue
-		);
+	);
 
 	void
 	appendFmtLiteralRawData(
 		const Value& fmtLiteralValue,
 		const void* p,
 		size_t size
-		);
+	);
 
 	bool
 	appendFmtLiteralValue(
 		const Value& fmtLiteralValue,
 		const Value& rawSrcValue,
 		const sl::StringRef& fmtSpecifierString
-		);
+	);
 
 	bool
 	appendFmtLiteralBinValue(
 		const Value& fmtLiteralValue,
 		const Value& rawSrcValue
-		);
+	);
 
 	bool
 	finalizeReSwitchCaseLiteral(
 		sl::StringRef* data,
 		const Value& value,
 		bool isZeroTerminated
-		);
+	);
 
 	BasicBlock*
 	assertCondition(const sl::BoxList<Token>& tokenList);
@@ -675,21 +645,20 @@ protected:
 		const sl::BoxList<Token>& conditionTokenList,
 		const Value& messageValue,
 		BasicBlock* continueBlock
-		);
+	);
 
 	static
 	void
 	addScopeAnchorToken(
 		StmtPass1* stmt,
 		const Token& token
-		);
+	);
 
 	void
 	generateAutoCompleteIf(
 		const Token& token,
 		const Value& value
-		)
-	{
+	) {
 		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_AutoComplete &&
 			(token.m_flags & TokenFlag_CodeAssist))
 			generateAutoComplete(token, value);
@@ -699,18 +668,17 @@ protected:
 	generateAutoComplete(
 		const Token& token,
 		const Value& value
-		);
+	);
 
 	void
 	generateAutoComplete(
 		const Token& token,
 		Namespace* nspace,
 		uint_t flags = 0
-		);
+	);
 
 	void
-	generateImportAutoCompleteIf(const Token& token)
-	{
+	generateImportAutoCompleteIf(const Token& token) {
 		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_AutoComplete &&
 			(token.m_flags & TokenFlag_CodeAssist))
 			m_module->m_codeAssistMgr.createImportAutoComplete(token.m_pos.m_offset);
@@ -721,8 +689,7 @@ protected:
 		const Token& token,
 		const QualifiedName& prefix,
 		uint_t flags = 0
-		)
-	{
+	) {
 		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_AutoComplete &&
 			(token.m_flags & TokenFlag_CodeAssist))
 			prepareAutoCompleteFallback(token, prefix, flags);
@@ -733,15 +700,14 @@ protected:
 		const Token& token,
 		const QualifiedName& prefix,
 		uint_t flags = 0
-		);
+	);
 
 	void
 	generateMemberInfoIf(
 		const Token& token,
 		const Value& value,
 		const sl::StringRef& name
-		)
-	{
+	) {
 		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_QuickInfoTip &&
 			(token.m_flags & TokenFlag_CodeAssist))
 			generateMemberInfo(token, value, name);
@@ -752,7 +718,7 @@ protected:
 		const Token& token,
 		const Value& value,
 		const sl::StringRef& name
-		);
+	);
 }
 
 //..............................................................................

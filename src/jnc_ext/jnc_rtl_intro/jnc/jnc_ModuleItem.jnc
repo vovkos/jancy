@@ -16,8 +16,7 @@ namespace jnc {
 
 //..............................................................................
 
-enum ModuleItemKind
-{
+enum ModuleItemKind {
 	Undefined = 0,
 	Namespace,
 	Scope,
@@ -40,8 +39,7 @@ enum ModuleItemKind
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum ModuleItemFlags
-{
+bitflag enum ModuleItemFlags {
 	User         = 0x01,
 	NeedLayout   = 0x02,
 	NeedCompile  = 0x04,
@@ -53,8 +51,7 @@ bitflag enum ModuleItemFlags
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum StorageKind
-{
+enum StorageKind {
 	Undefined = 0,
 	Alias,
 	Typedef,
@@ -74,8 +71,7 @@ enum StorageKind
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum AccessKind
-{
+enum AccessKind {
 	Undefined = 0,
 	Public,
 	Protected,
@@ -84,8 +80,7 @@ enum AccessKind
 
 //..............................................................................
 
-opaque class ModuleItemDecl
-{
+opaque class ModuleItemDecl {
 	char const* const property m_name;
 	char const* const property m_qualifiedName;
 	StorageKind const property m_storageKind;
@@ -99,13 +94,11 @@ opaque class ModuleItemDecl
 	construct(intptr p);
 	destruct();
 
-	Attribute* findAttribute(char const* name)
-	{
+	Attribute* findAttribute(char const* name) {
 		return m_attributeBlock ? m_attributeBlock.findAttribute(name) : null;
 	}
 
-	variant findAttributeValue(char const* name)
-	{
+	variant findAttributeValue(char const* name) {
 		Attribute* attribute = findAttribute(name);
 		return attribute ? attribute.m_value : null;
 	}
@@ -113,8 +106,7 @@ opaque class ModuleItemDecl
 
 //..............................................................................
 
-opaque class ModuleItemInitializer
-{
+opaque class ModuleItemInitializer {
 	char const* const property m_initializer;
 
 	construct(intptr p);
@@ -122,8 +114,7 @@ opaque class ModuleItemInitializer
 
 //..............................................................................
 
-opaque class ModuleItem
-{
+opaque class ModuleItem {
 	Module* const property m_module;
 	ModuleItemKind const property m_itemKind;
 	uint_t const property m_flags;

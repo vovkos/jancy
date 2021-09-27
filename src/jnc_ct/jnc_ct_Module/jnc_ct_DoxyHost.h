@@ -20,8 +20,7 @@ class ModuleItemDecl;
 
 //..............................................................................
 
-class DoxyHost: public dox::Host
-{
+class DoxyHost: public dox::Host {
 protected:
 	Module* m_module;
 
@@ -29,8 +28,7 @@ public:
 	DoxyHost();
 
 	Module*
-	getModule()
-	{
+	getModule() {
 		return m_module;
 	}
 
@@ -49,7 +47,7 @@ public:
 	setItemBlock(
 		handle_t item,
 		dox::Block* block
-		);
+	);
 
 	virtual
 	sl::String
@@ -64,7 +62,7 @@ public:
 	findItem(
 		const sl::StringRef& name,
 		size_t overloadIdx
-		);
+	);
 
 	virtual
 	handle_t
@@ -76,7 +74,7 @@ public:
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
-		);
+	);
 
 	// micro optimization for getItemBlock/setItemBlock
 
@@ -84,12 +82,11 @@ public:
 	getItemBlock(
 		ModuleItem* item,
 		ModuleItemDecl* itemDecl
-		);
+	);
 
 	template <typename T>
 	dox::Block*
-	getItemBlock(T* item)
-	{
+	getItemBlock(T* item) {
 		return getItemBlock(item, item);
 	}
 
@@ -98,15 +95,14 @@ public:
 		ModuleItem* item,
 		ModuleItemDecl* itemDecl,
 		dox::Block* block
-		);
+	);
 
 	template <typename T>
 	void
 	setItemBlock(
 		T* item,
 		dox::Block* block
-		)
-	{
+	) {
 		setItemBlock(item, item, block);
 	}
 };

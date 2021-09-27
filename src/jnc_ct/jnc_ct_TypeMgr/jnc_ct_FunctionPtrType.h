@@ -18,8 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-class FunctionPtrType: public Type
-{
+class FunctionPtrType: public Type {
 	friend class TypeMgr;
 
 protected:
@@ -31,58 +30,50 @@ public:
 	FunctionPtrType();
 
 	FunctionPtrTypeKind
-	getPtrTypeKind()
-	{
+	getPtrTypeKind() {
 		return m_ptrTypeKind;
 	}
 
 	FunctionType*
-	getTargetType()
-	{
+	getTargetType() {
 		return m_targetType;
 	}
 
 	bool
-	hasClosure()
-	{
+	hasClosure() {
 		return m_ptrTypeKind == FunctionPtrTypeKind_Normal || m_ptrTypeKind == FunctionPtrTypeKind_Weak;
 	}
 
 	FunctionPtrType*
-	getCheckedPtrType()
-	{
+	getCheckedPtrType() {
 		return !(m_flags & PtrTypeFlag_Safe) ?
 			m_targetType->getFunctionPtrType(m_typeKind, m_ptrTypeKind, m_flags | PtrTypeFlag_Safe) :
 			this;
 	}
 
 	FunctionPtrType*
-	getUnCheckedPtrType()
-	{
+	getUnCheckedPtrType() {
 		return (m_flags & PtrTypeFlag_Safe) ?
 			m_targetType->getFunctionPtrType(m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Safe) :
 			this;
 	}
 
 	FunctionPtrType*
-	getNormalPtrType()
-	{
+	getNormalPtrType() {
 		return (m_ptrTypeKind != FunctionPtrTypeKind_Normal) ?
 			m_targetType->getFunctionPtrType(FunctionPtrTypeKind_Normal, m_flags) :
 			this;
 	}
 
 	FunctionPtrType*
-	getWeakPtrType()
-	{
+	getWeakPtrType() {
 		return (m_ptrTypeKind != FunctionPtrTypeKind_Weak) ?
 			m_targetType->getFunctionPtrType(FunctionPtrTypeKind_Weak, m_flags) :
 			this;
 	}
 
 	FunctionPtrType*
-	getUnWeakPtrType()
-	{
+	getUnWeakPtrType() {
 		return (m_ptrTypeKind == FunctionPtrTypeKind_Weak) ?
 			m_targetType->getFunctionPtrType(FunctionPtrTypeKind_Normal, m_flags) :
 			this;
@@ -101,34 +92,31 @@ public:
 		TypeKind typeKind,
 		FunctionPtrTypeKind ptrTypeKind,
 		uint_t flags
-		);
+	);
 
 	virtual
 	void
 	markGcRoots(
 		const void* p,
 		rt::GcHeap* gcHeap
-		);
+	);
 
 protected:
 	virtual
 	bool
-	resolveImports()
-	{
+	resolveImports() {
 		return m_targetType->ensureNoImports();
 	}
 
 	virtual
 	bool
-	calcLayout()
-	{
+	calcLayout() {
 		return m_targetType->ensureLayout();
 	}
 
 	virtual
 	void
-	prepareSignature()
-	{
+	prepareSignature() {
 		m_signature = createSignature(m_targetType, m_typeKind, m_ptrTypeKind, m_flags);
 	}
 
@@ -154,16 +142,14 @@ protected:
 
 	virtual
 	void
-	prepareTypeVariable()
-	{
+	prepareTypeVariable() {
 		prepareSimpleTypeVariable(StdType_FunctionPtrType);
 	}
 };
 
 //..............................................................................
 
-struct FunctionPtrTypeTuple: sl::ListLink
-{
+struct FunctionPtrTypeTuple: sl::ListLink {
 	FunctionPtrType* m_ptrTypeArray[2][3][2]; // ref x kind x checked
 };
 

@@ -17,12 +17,10 @@
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
-	enum Language
-	{
+	enum Language {
 		Foo, // the first language recognizes lexeme 'foo'
 		Bar  // the second language recognizes lexeme 'bar'
 	}
@@ -36,13 +34,10 @@ int main()
 
 	jnc.RegexState state(jnc.RegexStateFlags.Lexer);
 
-	while (p < end)
-	{
-		switch (language)
-		{
+	while (p < end) {
+		switch (language) {
 		case Language.Foo:
-			reswitch (state, p, end - p)
-			{
+			reswitch (state, p, end - p) {
 			case "foo":
 				printf("lexeme found: foo\n");
 				break;
@@ -58,8 +53,7 @@ int main()
 			break;
 
 		case Language.Bar:
-			reswitch (state, p, end - p)
-			{
+			reswitch (state, p, end - p) {
 			case "bar":
 				printf("lexeme found: bar\n");
 				break;
@@ -82,8 +76,7 @@ int main()
 			assert(false);
 		}
 
-		if (!state.m_consumedLength)
-		{
+		if (!state.m_consumedLength) {
 			printf("recognition error\n");
 			return -1;
 		}

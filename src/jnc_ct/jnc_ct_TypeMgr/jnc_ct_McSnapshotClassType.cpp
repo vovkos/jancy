@@ -19,8 +19,7 @@ namespace ct {
 
 //..............................................................................
 
-McSnapshotClassType::McSnapshotClassType()
-{
+McSnapshotClassType::McSnapshotClassType() {
 	m_classTypeKind = ClassTypeKind_McSnapshot;
 	m_namespaceStatus = NamespaceStatus_Ready;
 	m_targetType = NULL;
@@ -29,8 +28,7 @@ McSnapshotClassType::McSnapshotClassType()
 }
 
 void
-McSnapshotClassType::prepareTypeString()
-{
+McSnapshotClassType::prepareTypeString() {
 	TypeStringTuple* tuple = getTypeStringTuple();
 	tuple->m_typeStringPrefix = "mcsnapshot ";
 	tuple->m_typeStringPrefix += m_targetType->getTypeModifierString();
@@ -38,8 +36,7 @@ McSnapshotClassType::prepareTypeString()
 }
 
 void
-McSnapshotClassType::prepareDoxyLinkedText()
-{
+McSnapshotClassType::prepareDoxyLinkedText() {
 	TypeStringTuple* tuple = getTypeStringTuple();
 	tuple->m_doxyLinkedTextPrefix = "mcsnapshot ";
 	tuple->m_doxyLinkedTextPrefix += m_targetType->getTypeModifierString();
@@ -47,15 +44,13 @@ McSnapshotClassType::prepareDoxyLinkedText()
 }
 
 void
-McSnapshotClassType::prepareDoxyTypeString()
-{
+McSnapshotClassType::prepareDoxyTypeString() {
 	Type::prepareDoxyTypeString();
 	getTypeStringTuple()->m_doxyTypeString += m_targetType->getTargetType()->getDoxyArgString();
 }
 
 bool
-McSnapshotClassType::compileCallMethod(Function* function)
-{
+McSnapshotClassType::compileCallMethod(Function* function) {
 	ASSERT(function == m_methodArray[McSnapshotMethodKind_Call]);
 
 	bool result = function->getType()->ensureLayout();

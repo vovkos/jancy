@@ -18,15 +18,13 @@ namespace ct {
 
 //..............................................................................
 
-ThunkFunction::ThunkFunction()
-{
+ThunkFunction::ThunkFunction() {
 	m_functionKind = FunctionKind_Thunk;
 	m_targetFunction = NULL;
 }
 
 bool
-ThunkFunction::compile()
-{
+ThunkFunction::compile() {
 	ASSERT(m_targetFunction);
 
 	bool result;
@@ -52,15 +50,14 @@ ThunkFunction::compile()
 	ASSERT(thunkArgCount - j <= targetArgCount); // this should have been checked in cast operator
 
 	sl::BoxList<Value> targetArgValueList;
-	for (size_t i = 0; j < thunkArgCount; i++, j++)
-	{
+	for (size_t i = 0; j < thunkArgCount; i++, j++) {
 		Value* argValue = targetArgValueList.insertTail().p();
 
 		result = m_module->m_operatorMgr.castOperator(
 			thunkArgValueArray[j],
 			targetArgArray[i]->getType(),
 			argValue
-			);
+		);
 
 		if (!result)
 			return false;
@@ -71,10 +68,9 @@ ThunkFunction::compile()
 		m_targetFunction,
 		&targetArgValueList,
 		&returnValue
-		);
+	);
 
-	if (m_type->getReturnType()->getTypeKind() != TypeKind_Void)
-	{
+	if (m_type->getReturnType()->getTypeKind() != TypeKind_Void) {
 		result = m_module->m_controlFlowMgr.ret(returnValue);
 		if (!result)
 			return false;

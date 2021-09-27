@@ -10,8 +10,7 @@ namespace io {
 
 //..............................................................................
 
-enum I2cDecodeResult
-{
+enum I2cDecodeResult {
 	Continue,
 	Start,
 	Stop,
@@ -24,8 +23,7 @@ enum I2cDecodeResult
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class I2cSignalDecoder
-{
+class I2cSignalDecoder {
 protected:
 	bool m_lastScl;
 	bool m_lastSda;
@@ -41,13 +39,12 @@ public:
 	I2cDecodeResult add(
 		bool scl,
 		bool sda
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void I2cSignalDecoder.start()
-{
+void I2cSignalDecoder.start() {
 	m_lastScl = true;
 	m_lastSda = true;
 	m_bit = 0x80;
@@ -56,8 +53,7 @@ void I2cSignalDecoder.start()
 I2cDecodeResult I2cSignalDecoder.add(
 	bool scl,
 	bool sda
-	)
-{
+) {
 	bool lastScl = m_lastScl;
 	bool lastSda = m_lastSda;
 
@@ -67,10 +63,8 @@ I2cDecodeResult I2cSignalDecoder.add(
 	if (!scl) // SCL low -- no actions to take
 		return I2cDecodeResult.Continue;
 
-	if (lastScl) // SCL steady high
-	{
-		if (lastSda && !sda) // start
-		{
+	if (lastScl) { // SCL steady high
+		if (lastSda && !sda) { // start
 			if (m_bit == 0x80)
 				return I2cDecodeResult.Start;
 
@@ -78,8 +72,7 @@ I2cDecodeResult I2cSignalDecoder.add(
 			return I2cDecodeResult.PreemptiveStart;
 		}
 
-		if (!lastSda && sda) // stop
-		{
+		if (!lastSda && sda) { // stop
 			I2cDecodeResult result =
 				m_bit == 0x80 ? I2cDecodeResult.EmptyMessage :
 				m_bit == 0x40 ? I2cDecodeResult.Stop :
@@ -94,8 +87,7 @@ I2cDecodeResult I2cSignalDecoder.add(
 
 	// SCL raised
 
-	switch (m_bit)
-	{
+	switch (m_bit) {
 	case 0:
 		m_bit = 0x80;
 		return sda ? I2cDecodeResult.CharNack : I2cDecodeResult.CharAck;

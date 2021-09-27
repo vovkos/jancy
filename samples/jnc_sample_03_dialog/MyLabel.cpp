@@ -22,7 +22,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	MyLibCacheSlot_Label,
 	MyLabel,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(MyLabel)
 	JNC_MAP_CONSTRUCTOR(&(jnc::construct<MyLabel, jnc::DataPtr>))
@@ -36,8 +36,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 //..............................................................................
 
 MyLabel::MyLabel(jnc::DataPtr textPtr):
-	MyWidget(new QLabel)
-{
+	MyWidget(new QLabel) {
 	m_qtLabel = (QLabel*)m_handle;
 	m_color = -1;
 	m_backColor = -1;
@@ -45,15 +44,13 @@ MyLabel::MyLabel(jnc::DataPtr textPtr):
 	setText(textPtr);
 }
 
-MyLabel::~MyLabel()
-{
+MyLabel::~MyLabel() {
 	if (!m_qtLabel->parent())
 		delete m_qtLabel;
 }
 
 void
-MyLabel::updateStyleSheet()
-{
+MyLabel::updateStyleSheet() {
 	QString styleSheet = "QLabel { ";
 
 	if (m_color != -1)

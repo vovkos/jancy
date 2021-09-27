@@ -19,8 +19,7 @@ namespace ct {
 //..............................................................................
 
 bool
-SchedLauncherFunction::compile()
-{
+SchedLauncherFunction::compile() {
 	bool result;
 
 	size_t argCount = m_type->getArgArray().getCount();
@@ -39,8 +38,7 @@ SchedLauncherFunction::compile()
 	if (!result)
 		return false;
 
-	if (argCount > 2)
-	{
+	if (argCount > 2) {
 		sl::BoxList<Value> argList;
 		for (size_t i = 2; i < argCount; i++)
 			argList.insertTail(argValueArray[i]);

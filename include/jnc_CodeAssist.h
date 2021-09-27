@@ -15,8 +15,7 @@
 
 //..............................................................................
 
-enum jnc_CodeAssistKind
-{
+enum jnc_CodeAssistKind {
 	jnc_CodeAssistKind_Undefined,
 	jnc_CodeAssistKind_QuickInfoTip,
 	jnc_CodeAssistKind_ArgumentTip,
@@ -29,8 +28,7 @@ typedef enum jnc_CodeAssistKind jnc_CodeAssistKind;
 
 //..............................................................................
 
-enum jnc_CodeAssistFlag
-{
+enum jnc_CodeAssistFlag {
 	jnc_CodeAssistFlag_IncludeParentNamespace = 0x01,
 	jnc_CodeAssistFlag_AutoCompleteFallback   = 0x02,
 	jnc_CodeAssistFlag_QualifiedName          = 0x04,
@@ -76,53 +74,44 @@ jnc_CodeAssist_getArgumentIdx(jnc_CodeAssist* codeAssist);
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
-struct jnc_CodeAssist
-{
+struct jnc_CodeAssist {
 	jnc_CodeAssistKind
-	getCodeAssistKind()
-	{
+	getCodeAssistKind() {
 		return jnc_CodeAssist_getCodeAssistKind(this);
 	}
 
 	uint_t
-	getOffset()
-	{
+	getOffset() {
 		return jnc_CodeAssist_getOffset(this);
 	}
 
 	size_t
-	getFlags()
-	{
+	getFlags() {
 		return jnc_CodeAssist_getFlags(this);
 	}
 
 	jnc_Module*
-	getModule()
-	{
+	getModule() {
 		return jnc_CodeAssist_getModule(this);
 	}
 
 	jnc_ModuleItem*
-	getModuleItem()
-	{
+	getModuleItem() {
 		return jnc_CodeAssist_getModuleItem(this);
 	}
 
 	jnc_Namespace*
-	getNamespace()
-	{
+	getNamespace() {
 		return jnc_CodeAssist_getNamespace(this);
 	}
 
 	jnc_FunctionTypeOverload*
-	getFunctionTypeOverload()
-	{
+	getFunctionTypeOverload() {
 		return jnc_CodeAssist_getFunctionTypeOverload(this);
 	}
 
 	size_t
-	getArgumentIdx()
-	{
+	getArgumentIdx() {
 		return jnc_CodeAssist_getArgumentIdx(this);
 	}
 };

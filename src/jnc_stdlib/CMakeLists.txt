@@ -45,7 +45,7 @@ set_target_properties(
 	jnc_stdlib_jncx
 	PROPERTIES
 	FOLDER extensions
-	)
+)
 
 # no need to install (this is for IO Ninja/Jancy IDE only)
 

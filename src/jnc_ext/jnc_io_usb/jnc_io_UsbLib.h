@@ -16,8 +16,7 @@ namespace io {
 
 //..............................................................................
 
-enum UsbLibCacheSlot
-{
+enum UsbLibCacheSlot {
 	UsbLibCacheSlot_UsbEndpointDesc,
 	UsbLibCacheSlot_UsbInterfaceDesc,
 	UsbLibCacheSlot_UsbConfigurationDesc,
@@ -31,7 +30,7 @@ enum UsbLibCacheSlot
 JNC_DEFINE_GUID(
 	g_usbLibGuid,
 	0x2cc2fe82, 0x652f, 0x4fe4, 0x95, 0x73, 0x5d, 0xa7, 0xd5, 0xd5, 0x3b, 0x72
-	);
+);
 
 //..............................................................................
 

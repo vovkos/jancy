@@ -32,8 +32,7 @@ getUsbTransferTypeString(libusb_transfer_type type);
 
 //..............................................................................
 
-struct UsbEndpointDesc
-{
+struct UsbEndpointDesc {
 	JNC_DECLARE_TYPE_STATIC_METHODS(UsbEndpointDesc)
 
 	uint8_t m_endpointId;
@@ -52,12 +51,11 @@ void
 initUsbEndpointDesc(
 	UsbEndpointDesc* dstDesc,
 	const libusb_endpoint_descriptor* srcDesc
-	);
+);
 
 //..............................................................................
 
-struct UsbInterfaceDesc
-{
+struct UsbInterfaceDesc {
 	JNC_DECLARE_TYPE_STATIC_METHODS(UsbInterfaceDesc)
 
 	DataPtr m_nextAltSettingInterfacePtr;
@@ -82,19 +80,18 @@ initUsbInterfaceDesc(
 	Runtime* runtime,
 	UsbInterfaceDesc* dstDesc,
 	const libusb_interface_descriptor* srcDesc
-	);
+);
 
 void
 initUsbInterfaceDesc(
 	Runtime* runtime,
 	UsbInterfaceDesc* dstDesc,
 	const libusb_interface* srcDesc
-	);
+);
 
 //..............................................................................
 
-struct UsbConfigurationDesc
-{
+struct UsbConfigurationDesc {
 	JNC_DECLARE_TYPE_STATIC_METHODS(UsbConfigurationDesc)
 
 	DataPtr m_interfaceTable;
@@ -109,7 +106,7 @@ struct UsbConfigurationDesc
 	findInterfaceDesc(
 		uint8_t interfaceId,
 		uint8_t altSettingId
-		);
+	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -119,18 +116,17 @@ initUsbConfigurationDesc(
 	Runtime* runtime,
 	UsbConfigurationDesc* dstDesc,
 	const libusb_config_descriptor* srcDesc
-	);
+);
 
 DataPtr
 createUsbConfigurationDesc(
 	Runtime* runtime,
 	const libusb_config_descriptor* srcDesc
-	);
+);
 
 //..............................................................................
 
-struct UsbDeviceDesc
-{
+struct UsbDeviceDesc {
 	JNC_DECLARE_TYPE_STATIC_METHODS(UsbDeviceDesc)
 
 	DataPtr m_configurationTable;
@@ -155,7 +151,7 @@ createUsbDeviceDesc(
 	Runtime* runtime,
 	const libusb_device_descriptor* srcDesc,
 	axl::io::UsbDevice* srcDevice
-	);
+);
 
 //..............................................................................
 

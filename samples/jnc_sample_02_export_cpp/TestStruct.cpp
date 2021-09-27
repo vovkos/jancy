@@ -19,7 +19,7 @@ JNC_DEFINE_TYPE(
 	"TestStruct",
 	g_myLibGuid,
 	MyLibCacheSlot_TestStruct
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(TestStruct)
 	JNC_MAP_CONSTRUCTOR(&TestStruct::construct_0)
@@ -32,8 +32,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 //..............................................................................
 
 void
-TestStruct::construct_0(jnc::DataPtr selfPtr)
-{
+TestStruct::construct_0(jnc::DataPtr selfPtr) {
 	TestStruct* self = (TestStruct*)selfPtr.m_p;
 
 	printf("  TestStruct::construct_0 ()\n");
@@ -46,8 +45,7 @@ TestStruct::construct_1(
 	jnc::DataPtr selfPtr,
 	int x,
 	int y
-	)
-{
+) {
 	TestStruct* self = (TestStruct*)selfPtr.m_p;
 
 	printf("  TestStruct::construct_1 (%d, %d)\n", x, y);
@@ -56,8 +54,7 @@ TestStruct::construct_1(
 }
 
 void
-TestStruct::foo_0(jnc::DataPtr selfPtr)
-{
+TestStruct::foo_0(jnc::DataPtr selfPtr) {
 	TestStruct* self = (TestStruct*)selfPtr.m_p;
 
 	printf("  TestStruct::foo_0 ()\n");
@@ -71,8 +68,7 @@ TestStruct::foo_1(
 	jnc::DataPtr selfPtr,
 	int x,
 	int y
-	)
-{
+) {
 	TestStruct* self = (TestStruct*)selfPtr.m_p;
 
 	printf("  TestStruct::foo_1 (%d, %d)\n", x, y);
@@ -84,8 +80,7 @@ void
 TestStruct::foo_2(
 	jnc::DataPtr selfPtr,
 	jnc::DataPtr srcPtr
-	)
-{
+) {
 	TestStruct* self = (TestStruct*)selfPtr.m_p;
 	TestStruct* src = (TestStruct*)srcPtr.m_p;
 

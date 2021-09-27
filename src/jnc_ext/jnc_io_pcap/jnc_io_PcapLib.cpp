@@ -24,8 +24,7 @@ namespace io {
 //..............................................................................
 
 void
-initializePcapLibCapabilities()
-{
+initializePcapLibCapabilities() {
 	g_pcapCapability = jnc::isCapabilityEnabled("org.jancy.io.pcap");
 }
 
@@ -37,7 +36,7 @@ JNC_DEFINE_LIB_EX(
 	"PcapLib",
 	"Jancy libPcap wrapper extension library",
 	initializePcapLibCapabilities
-	)
+)
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE(PcapLib)
 	JNC_LIB_IMPORT("io_Pcap.jnc")
@@ -63,16 +62,12 @@ jnc_DynamicExtensionLibHost* jnc_g_dynamicExtensionLibHost;
 
 #if (_JNC_OS_WIN)
 const char*
-getPcapVersion()
-{
+getPcapVersion() {
 	const char* version;
 
-	__try
-	{
+	__try {
 		version = ::pcap_lib_version();
-	}
-	__except(EXCEPTION_EXECUTE_HANDLER)
-	{
+	} __except(EXCEPTION_EXECUTE_HANDLER) {
 		version = NULL;
 	}
 
@@ -83,8 +78,7 @@ getPcapVersion()
 JNC_EXTERN_C
 JNC_EXPORT
 jnc_ExtensionLib*
-jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
-{
+jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host) {
 	g::getModule()->setTag("jnc_io_pcap");
 	err::getErrorMgr()->setRouter(host->m_errorRouter);
 	jnc_g_dynamicExtensionLibHost = host;
@@ -98,8 +92,7 @@ jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
 		::SetDllDirectoryW(io::win::getSystemDir() + L"\\npcap");
 
 	const char* pcapVersion = getPcapVersion();
-	if (!pcapVersion)
-	{
+	if (!pcapVersion) {
 		err::setError("can't delay-load pcap (wpcap.dll is missing or invalid)");
 		return NULL;
 	}

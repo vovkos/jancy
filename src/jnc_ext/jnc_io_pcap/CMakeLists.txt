@@ -19,7 +19,7 @@ set(
 	jnc_io_PcapFilter.h
 	jnc_io_PcapSignalMgr.h
 	jnc_io_PcapLib.h
-	)
+)
 
 set(
 	LIB_CPP_LIST
@@ -27,7 +27,7 @@ set(
 	jnc_io_PcapFilter.cpp
 	jnc_io_PcapSignalMgr.cpp
 	jnc_io_PcapLib.cpp
-	)
+)
 
 if(NOT UNIX)
 	axl_exclude_from_build(jnc_io_PcapSignalMgr.cpp)
@@ -38,7 +38,7 @@ source_group(
 	FILES
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -48,13 +48,13 @@ source_group(
 set(
 	JNC_LIST
 	jnc/io_Pcap.jnc
-	)
+)
 
 source_group(
 	jnc
 	FILES
 	${JNC_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -69,7 +69,7 @@ source_group(
 	FILES
 	${PCH_H}
 	${PCH_CPP}
-	)
+)
 
 #...............................................................................
 #
@@ -81,12 +81,12 @@ include_directories(
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
 	../jnc_io_cmn
-	)
+)
 
 link_directories(
 	${PCAP_LIB_DIR}
 	${AXL_LIB_DIR}
-	)
+)
 
 add_library(
 	jnc_io_pcap
@@ -96,26 +96,26 @@ add_library(
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
 	${JNC_LIST}
-	)
+)
 
 if(GCC AND NOT APPLE)
 	axl_set_export_version_script_gcc(
 		jnc_io_pcap
 		jncDynamicExtensionLibMain
-		)
+	)
 endif()
 
 target_compile_definitions(
 	jnc_io_pcap
 	PUBLIC
 	-D_JNC_DYNAMIC_EXTENSION_LIB=1
-	)
+)
 
 axl_set_pch(
 	jnc_io_pcap
 	${PCH_H}
 	${PCH_CPP}
-	)
+)
 
 set(CMAKE_SHARED_LIBRARY_PREFIX)
 
@@ -124,7 +124,7 @@ set_target_properties(
 	PROPERTIES
 	OUTPUT_NAME io_pcap-${TARGET_CPU}
 	SUFFIX .bin
-	)
+)
 
 target_link_libraries(
 	jnc_io_pcap
@@ -133,31 +133,31 @@ target_link_libraries(
 	axl_io_pcap
 	axl_io
 	axl_core
-	)
+)
 
 if(WIN32)
 	target_link_libraries(
 		jnc_io_pcap
 		wpcap
-		)
+	)
 
 	set_target_properties(
 		jnc_io_pcap
 		PROPERTIES
 		LINK_FLAGS "/DELAYLOAD:wpcap.dll"
-		)
+	)
 elseif(UNIX)
 	target_link_libraries(
 		jnc_io_pcap
 		pthread
 		pcap
-		)
+	)
 
 	if(NOT APPLE)
 		target_link_libraries(
 			jnc_io_pcap
 			rt
-			)
+		)
 	endif()
 endif()
 
@@ -165,7 +165,7 @@ set_target_properties(
 	jnc_io_pcap
 	PROPERTIES
 	FOLDER extensions
-	)
+)
 
 #...............................................................................
 #
@@ -197,6 +197,6 @@ add_custom_command(
 install(
 	FILES ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION>/io_pcap.jncx
 	DESTINATION ${JANCY_INSTALL_JNCX_SUBDIR}
-	)
+)
 
 #...............................................................................

@@ -18,19 +18,19 @@ option(
 	BUILD_JNC_APP
 	"Build jancy command line application"
 	ON
-	)
+)
 
 option(
 	BUILD_JNC_DLL
 	"Build jancy shared library"
 	ON
-	)
+)
 
 option(
 	BUILD_JNC_STDLIB
 	"Build jnc_stdlib.jncx (for IDE)"
 	ON
-	)
+)
 
 if(BUILD_JNC_APP)
 	add_subdirectory(jnc_app)
@@ -52,8 +52,8 @@ if (QT_FOUND)
 		BUILD_JNC_EDIT
 		"Build jnc_edit (QT-based code-assisting editor)"
 		ON
-		)
-	
+	)
+
 	if(BUILD_JNC_EDIT)
 		add_subdirectory(jnc_edit)
 	endif()

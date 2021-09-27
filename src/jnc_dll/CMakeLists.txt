@@ -20,7 +20,7 @@ link_directories(
 	${LLVM_LIB_DIR}
 	${OPENSSL_LIB_DIR}
 	${AXL_LIB_DIR}
-	)
+)
 
 if(WIN32)
 	configure_file(jnc_dll.def.in jnc_dll.def)
@@ -30,7 +30,7 @@ if(WIN32)
 		dllmain.c
 		jnc_dll.def.in
 		${CMAKE_CURRENT_BINARY_DIR}/jnc_dll.def
-		)
+	)
 else()
 	set(
 		DLL_SRC_LIST
@@ -40,14 +40,14 @@ else()
 		$<TARGET_OBJECTS:jnc_std_o>
 		$<TARGET_OBJECTS:jnc_sys_o>
 		jnc_dll.version
-		)
+	)
 
 	if(CMAKE_GENERATOR MATCHES "Xcode")
 		set(
 			DLL_SRC_LIST
 			${DLL_SRC_LIST}
 			xcode.cpp
-			)
+		)
 	endif()
 endif()
 
@@ -55,12 +55,12 @@ source_group(
 	dll
 	FILES
 	${DLL_SRC_LIST}
-	)
+)
 
 add_library(
 	jnc_dll SHARED
 	${DLL_SRC_LIST}
-	)
+)
 
 if(LINUX)
 	set(AXL_CA_LIB_LIST axl_sys_ca axl_cry)
@@ -79,7 +79,7 @@ target_link_libraries(
 	axl_lex
 	axl_dox
 	axl_core
-	)
+)
 
 if(WIN32)
 	target_link_libraries(
@@ -91,12 +91,12 @@ if(WIN32)
 		jnc_sys
 		wintrust
 		crypt32
-		)
+	)
 else()
 	target_link_libraries(
 		jnc_dll
 		pthread
-		)
+	)
 
 	if(APPLE)
 		find_library(CORE_FOUNDATION_FRAMEWORK CoreFoundation)
@@ -108,21 +108,21 @@ else()
 			axl_cf
 			${CORE_FOUNDATION_FRAMEWORK}
 			${SECURITY_FRAMEWORK}
-			)
+		)
 	elseif(LINUX)
 		target_link_libraries(
 			jnc_dll
 			${OPENSSL_CRYPTO_LIB_NAME}
 			rt
 			dl
-			)
+		)
 
 		set_property(
 			TARGET jnc_dll
 			APPEND_STRING
 			PROPERTY LINK_FLAGS
 			" -Wl,--version-script='${CMAKE_CURRENT_LIST_DIR}/jnc_dll.version'"
-			)
+		)
 	endif()
 endif()
 
@@ -142,6 +142,6 @@ set_target_properties(
 install(
 	TARGETS jnc_dll
 	DESTINATION ${JANCY_INSTALL_DLL_SUBDIR}
-	)
+)
 
 #...............................................................................

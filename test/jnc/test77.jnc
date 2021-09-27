@@ -12,16 +12,14 @@
 import "io_base.jncx"
 import "io_Socket.jnc"
 
-class TcpConnectionSession
-{
+class TcpConnectionSession {
 	io.Socket m_socket;
 	io.SocketAddress m_remoteAddress;
 
 	void foo(io.SocketAddress const* remoteAddress);
 }
 
-void TcpConnectionSession.foo(io.SocketAddress const* remoteAddress)
-{
+void TcpConnectionSession.foo(io.SocketAddress const* remoteAddress) {
 	printf("foo - 1\n");
 
 	{
@@ -51,8 +49,7 @@ void TcpConnectionSession.foo(io.SocketAddress const* remoteAddress)
 	printf("foo - 6\n");
 }
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	io.SocketAddress remoteAddress;

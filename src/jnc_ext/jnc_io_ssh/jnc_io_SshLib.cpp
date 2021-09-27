@@ -20,8 +20,7 @@ namespace io {
 //..............................................................................
 
 void
-initializeSshLibCapabilities()
-{
+initializeSshLibCapabilities() {
 	g_sshCapability = jnc::isCapabilityEnabled("org.jancy.io.ssh");
 	initializeSocketCapabilities();
 }
@@ -34,7 +33,7 @@ JNC_DEFINE_LIB_EX(
 	"SshLib",
 	"Jancy libSSH2 wrapper extension library",
 	initializeSshLibCapabilities
-	)
+)
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE(SshLib)
 	JNC_LIB_IMPORT("io_Ssh.jnc")
@@ -59,8 +58,7 @@ jnc_DynamicExtensionLibHost* jnc_g_dynamicExtensionLibHost;
 JNC_EXTERN_C
 JNC_EXPORT
 jnc_ExtensionLib*
-jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
-{
+jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host) {
 #if (_JNC_OS_WIN)
 	WSADATA WsaData;
 	WSAStartup(0x0202, &WsaData);

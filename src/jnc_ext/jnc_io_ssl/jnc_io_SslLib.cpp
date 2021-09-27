@@ -22,8 +22,7 @@ namespace io {
 //..............................................................................
 
 void
-initializeSslLibCapabilities()
-{
+initializeSslLibCapabilities() {
 	g_sslCapability = jnc::isCapabilityEnabled("org.jancy.io.ssl");
 	initializeSocketCapabilities();
 }
@@ -36,7 +35,7 @@ JNC_DEFINE_LIB_EX(
 	"SslLib",
 	"Jancy libSsl2 wrapper extension library",
 	initializeSslLibCapabilities
-	)
+)
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE(SslLib)
 	JNC_LIB_IMPORT("io_SslSocket.jnc")
@@ -72,8 +71,7 @@ jnc_DynamicExtensionLibHost* jnc_g_dynamicExtensionLibHost;
 JNC_EXTERN_C
 JNC_EXPORT
 jnc_ExtensionLib*
-jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
-{
+jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host) {
 #if (_JNC_OS_WIN)
 	WSADATA WsaData;
 	WSAStartup(0x0202, &WsaData);

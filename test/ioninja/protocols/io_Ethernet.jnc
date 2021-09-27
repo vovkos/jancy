@@ -10,8 +10,7 @@ namespace io {
 
 //..............................................................................
 
-enum EthernetType: bigendian uint16_t
-{
+enum EthernetType: bigendian uint16_t {
 	Ieee8023      = 0x5dc,
 
 	Ip            = 0x0800, // Internet Protocol version 4 (IPv4)
@@ -78,8 +77,7 @@ enum EthernetType: bigendian uint16_t
 	displayName = "ETHERNET II",
 	formatDigestFunc = formatEthernetDigest
 ]
-struct EthernetHdr
-{
+struct EthernetHdr {
 	[
 		displayName = "Destination",
 		formatFunc = formatEthernetAddress
@@ -102,8 +100,7 @@ struct EthernetHdr
 	displayName = "ETHERNET IEEE 802.3",
 	formatDigestFunc = formatEthernetDigest
 ]
-struct EthernetHdr_ieee8023
-{
+struct EthernetHdr_ieee8023 {
 	[
 		displayName = "Destination",
 		formatFunc = formatEthernetAddress
@@ -122,24 +119,22 @@ struct EthernetHdr_ieee8023
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* formatEthernetDigest(void const* p)
-{
+char const* formatEthernetDigest(void const* p) {
 	EthernetHdr const* hdr = (EthernetHdr const*)p;
 
 	return $"%1 \u2192 %2" (
 		formatEthernetAddress(&hdr.m_srcAddress),
 		formatEthernetAddress(&hdr.m_dstAddress)
-		);
+	);
 }
 
-char const* formatEthernetAddress(void const* p)
-{
+char const* formatEthernetAddress(void const* p) {
 	uchar_t const* mac = (uchar_t const*)p;
 
 	return $"%02X:%02X:%02X:%02X:%02X:%02X"(
 		mac[0], mac[1], mac[2],
 		mac[3], mac[4], mac[5]
-		);
+	);
 }
 
 //..............................................................................

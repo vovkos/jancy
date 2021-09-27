@@ -17,8 +17,7 @@ JNC_DECLARE_CLASS_TYPE(MyWidget)
 
 //..............................................................................
 
-class MyWidget: public jnc::IfaceHdr
-{
+class MyWidget: public jnc::IfaceHdr {
 public:
 	QWidget* m_handle;
 	QSizePolicy::Policy m_hpolicy;
@@ -34,7 +33,7 @@ public:
 	setSizePolicy(
 		QSizePolicy::Policy hpolicy,
 		QSizePolicy::Policy vpolicy
-		);
+	);
 
 	void
 	JNC_CDECL

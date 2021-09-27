@@ -9,27 +9,23 @@
 //
 //..............................................................................
 
-void foo(bool isError)
-{
+void foo(bool isError) {
 	printf("foo ()\n");
 
-	if (isError)
-	{
+	if (isError) {
 		printf("foo is about to throw...\n");
 		std.setError("foo-error");
 		throw;
 	}
 }
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	bool result = try foo(true);
 	printf("result = %d\n", result);
 
-	try
-	{
+	try {
 		printf("before calling foo...\n");
 		foo(false);
 		foo(false);

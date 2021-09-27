@@ -43,13 +43,11 @@ namespace sys {
 		workerThread(
 			int param1,
 			int param2
-			)
-		{
+		) {
 			// ...
 		}
 
-		int main()
-		{
+		int main() {
 			// ...
 
 			sys.Thread thread1;
@@ -66,8 +64,7 @@ namespace sys {
 		|footnote-errorcode|
 */
 
-opaque class Thread
-{
+opaque class Thread {
 	protected function* m_threadFunc();
 
 	/**

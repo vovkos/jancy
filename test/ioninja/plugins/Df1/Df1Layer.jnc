@@ -10,10 +10,8 @@ import "io_Df1.jnc"
 
 class Df1Layer:
 	doc.Layer,
-	log.Converter
-{
-	enum Defaults
-	{
+	log.Converter {
+	enum Defaults {
 		Mode         = io.Df1Mode.FullDuplex,
 		ChecksumKind = io.Df1ChecksumKind.Crc,
 	}
@@ -48,7 +46,7 @@ public:
 		uint64_t recordCode,
 		void const* p,
 		size_t size
-		);
+	);
 
 	override void reset();
 
@@ -58,23 +56,19 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-Df1Layer.construct(doc.PluginHost* pluginHost)
-{
+Df1Layer.construct(doc.PluginHost* pluginHost) {
 	basetype1.construct(pluginHost);
 	createUi();
 	pluginHost.m_log.addConverter(this, &m_logGuid);
 }
 
-void Df1Layer.createUi()
-{
-	static ui.EnumPropertyOption modeTable[] =
-	{
+void Df1Layer.createUi() {
+	static ui.EnumPropertyOption modeTable[] = {
 		{ "Full-duplex", io.Df1Mode.FullDuplex },
 		{ "Half-duplex", io.Df1Mode.HalfDuplex },
 	}
 
-	static ui.EnumPropertyOption checksumKindTable[] =
-	{
+	static ui.EnumPropertyOption checksumKindTable[] = {
 		{ "BCC", io.Df1ChecksumKind.Bcc },
 		{ "CRC", io.Df1ChecksumKind.Crc },
 	}
@@ -83,13 +77,13 @@ void Df1Layer.createUi()
 		"Mode:",
 		modeTable,
 		countof(modeTable)
-		);
+	);
 
 	m_checksumKindCombo = m_pluginHost.m_toolBar.addComboBox(
 		"Checksum:",
 		checksumKindTable,
 		countof(checksumKindTable)
-		);
+	);
 
 	m_modeProp = m_pluginHost.m_propertyGrid.createEnumProperty(
 		,,
@@ -97,7 +91,7 @@ void Df1Layer.createUi()
 		"DF1 duplexing mode",
 		modeTable,
 		countof(modeTable)
-		);
+	);
 
 	m_checksumKindProp = m_pluginHost.m_propertyGrid.createEnumProperty(
 		,,
@@ -105,34 +99,30 @@ void Df1Layer.createUi()
 		"DF1 checksum kind",
 		checksumKindTable,
 		countof(checksumKindTable)
-		);
+	);
 
 	m_applyCombosAction = createAction("Apply && rebuild", "images/apply.png");
 
 	m_uiReactor.start();
 }
 
-void Df1Layer.load(doc.Storage* storage)
-{
+void Df1Layer.load(doc.Storage* storage) {
 	m_modeProp.m_value = storage.readInt("mode", Defaults.Mode);
 	m_checksumKindProp.m_value = storage.readInt("checksumKind", Defaults.ChecksumKind);
 	applyProperties();
 }
 
-void Df1Layer.save(doc.Storage* storage)
-{
+void Df1Layer.save(doc.Storage* storage) {
 	storage.writeInt("mode", m_modeCombo.m_currentData);
 	storage.writeInt("checksumKind", m_checksumKindCombo.m_currentData);
 }
 
-void Df1Layer.updateProperties()
-{
+void Df1Layer.updateProperties() {
 	m_modeProp.m_value = m_modeCombo.m_currentData;
 	m_checksumKindProp.m_value = m_checksumKindCombo.m_currentData;
 }
 
-bool errorcode Df1Layer.applyProperties()
-{
+bool errorcode Df1Layer.applyProperties() {
 	m_pluginHost.m_log.suspend();
 
 	m_modeCombo.m_currentData =
@@ -147,8 +137,7 @@ bool errorcode Df1Layer.applyProperties()
 	return true;
 }
 
-void Df1Layer.restoreDefaultProperties()
-{
+void Df1Layer.restoreDefaultProperties() {
 	m_modeProp.m_value = Defaults.Mode;
 	m_checksumKindProp.m_value = Defaults.ChecksumKind;
 }
@@ -159,13 +148,11 @@ bool Df1Layer.convert(
 	uint64_t recordCode,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	bool result;
 	Df1Parser* parser;
 
-	switch (recordCode)
-	{
+	switch (recordCode) {
 	case log.StdRecordCode.SessionStarted:
 		reset();
 		break;
@@ -186,19 +173,16 @@ bool Df1Layer.convert(
 	return true;
 }
 
-void Df1Layer.reset()
-{
+void Df1Layer.reset() {
 	m_txParser.reset();
 	m_rxParser.reset();
 }
 
-reactor Df1Layer.m_uiReactor
-{
+reactor Df1Layer.m_uiReactor {
 	m_txParser.m_mode = m_rxParser.m_mode = m_modeCombo.m_currentData;
 	m_txParser.m_checksumKind = m_rxParser.m_checksumKind = m_checksumKindCombo.m_currentData;
 
-	onevent m_applyCombosAction.m_onTriggered()
-	{
+	onevent m_applyCombosAction.m_onTriggered() {
 		m_txParser.m_mode = m_rxParser.m_mode = m_modeCombo.m_currentData;
 		m_txParser.m_checksumKind = m_rxParser.m_checksumKind = m_checksumKindCombo.m_currentData;
 		m_pluginHost.m_log.rebuild();

@@ -17,8 +17,7 @@ char g_script[] =
 
 //..............................................................................
 
-enum Error
-{
+enum Error {
 	Error_Success = 0,
 	Error_CmdLine = -1,
 	Error_Io      = -2,
@@ -34,8 +33,7 @@ std::auto_ptr<char>
 convertToUtf8(
 	const wchar_t* string,
 	size_t length = -1
-	)
-{
+) {
 	int requiredLength = ::WideCharToMultiByte(CP_UTF8, 0, string, (int)length, NULL, 0, NULL, NULL);
 	if (!requiredLength)
 		return std::auto_ptr<char> ();
@@ -56,13 +54,13 @@ int
 wmain(
 	int argc,
 	wchar_t* argv[]
-	)
+)
 #else
 int
 main(
 	int argc,
 	char* argv[]
-	)
+)
 #endif
 {
 	bool result;
@@ -75,13 +73,10 @@ main(
 	module->addStaticLib(jnc::StdLib_getLib());
 	module->require(jnc::ModuleItemKind_Function, "foo");
 
-	if (argc < 2)
-	{
+	if (argc < 2) {
 		printf("Parsing default script...\n");
 		result = module->parse("script.jnc", g_script, sizeof(g_script) - 1);
-	}
-	else
-	{
+	} else {
 
 #if (_JNC_OS_WIN)
 		std::auto_ptr<char> fileName_utf8 = convertToUtf8(argv[1]);
@@ -94,8 +89,7 @@ main(
 	}
 
 	result = result && module->parseImports();
-	if (!result)
-	{
+	if (!result) {
 		printf("%s\n", jnc::getLastErrorDescription_v ());
 		return Error_Compile;
 	}
@@ -107,8 +101,7 @@ main(
 		module->optimize() &&
 		module->jit();
 
-	if (!result)
-	{
+	if (!result) {
 		printf("%s\n", jnc::getLastErrorDescription_v ());
 		return Error_Compile;
 	}
@@ -123,8 +116,7 @@ main(
 	jnc::GcHeap* gcHeap = runtime->getGcHeap();
 
 	result = runtime->startup(module);
-	if (!result)
-	{
+	if (!result) {
 		printf("%s\n", jnc::getLastErrorDescription_v ());
 		return Error_Runtime;
 	}
@@ -144,8 +136,7 @@ main(
 		jnc::callVoidFunction(fooFunction, ptr);
 	JNC_END_CALL_SITE_EX(&result)
 
-	if (!result)
-	{
+	if (!result) {
 		printf("Runtime error: %s\n", jnc::getLastErrorDescription_v ());
 		return Error_Runtime;
 	}
@@ -153,12 +144,9 @@ main(
 	// here, ptr cannot be accessed anymore
 
 	result = jnc::callVoidFunction(runtime, fooFunction, ptr);
-	if (!result)
-	{
+	if (!result) {
 		printf("Exprected error: %s\n", jnc::getLastErrorDescription_v ());
-	}
-	else
-	{
+	} else {
 		printf("Unexpected success accessing an invalidated pointer\n");
 		return Error_Runtime;
 	}
@@ -174,8 +162,7 @@ main(
 		jnc::callVoidFunction(fooFunction, ptr);
 	JNC_END_CALL_SITE_EX(&result)
 
-	if (!result)
-	{
+	if (!result) {
 		printf("Runtime error: %s\n", jnc::getLastErrorDescription_v ());
 		return Error_Runtime;
 	}
@@ -183,8 +170,7 @@ main(
 	// we still can access ptr here
 
 	result = jnc::callVoidFunction(runtime, fooFunction, ptr);
-	if (!result)
-	{
+	if (!result) {
 		printf("Runtime error: %s\n", jnc::getLastErrorDescription_v ());
 		return Error_Runtime;
 	}
@@ -196,12 +182,9 @@ main(
 	// now, we can't access it
 
 	result = jnc::callVoidFunction(runtime, fooFunction, ptr);
-	if (!result)
-	{
+	if (!result) {
 		printf("Expected error: %s\n", jnc::getLastErrorDescription_v ());
-	}
-	else
-	{
+	} else {
 		printf("Unexpected success accessing an invalidated pointer\n");
 		return Error_Runtime;
 	}

@@ -10,8 +10,7 @@ namespace ui {
 
 //..............................................................................
 
-enum StdDlgIcon
-{
+enum StdDlgIcon {
 	None,
 	Info,
 	Warning,
@@ -20,8 +19,7 @@ enum StdDlgIcon
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum StdDlgButton
-{
+enum StdDlgButton {
 	Ok,
 	Cancel,
 	Yes,
@@ -33,8 +31,7 @@ enum StdDlgButton
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum StdDlgButtons
-{
+bitflag enum StdDlgButtons {
 	Ok,
 	Cancel,
 	Yes,
@@ -46,16 +43,14 @@ bitflag enum StdDlgButtons
 
 //..............................................................................
 
-enum FileDlgKind
-{
+enum FileDlgKind {
 	Open,
 	Save,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class FileDlg
-{
+opaque class FileDlg {
 	FileDlgKind autoget property m_kind;
 	char const* autoget property m_title;
 	char const* autoget property m_filter;
@@ -70,16 +65,14 @@ opaque class FileDlg
 
 //..............................................................................
 
-enum AuthenticationMethod
-{
+enum AuthenticationMethod {
 	Password,
 	PrivateKey,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class LoginDlg
-{
+opaque class LoginDlg {
 	char const* autoget property m_title;
 	char const* autoget property m_message;
 	char const* autoget property m_userName;
@@ -98,8 +91,7 @@ opaque class LoginDlg
 
 //..............................................................................
 
-opaque class MessageDlg
-{
+opaque class MessageDlg {
 	char const* autoget property m_title;
 	char const* autoget property m_message;
 	StdDlgIcon autoget property m_icon;
@@ -114,8 +106,7 @@ opaque class MessageDlg
 
 //..............................................................................
 
-opaque class ProgressDlg
-{
+opaque class ProgressDlg {
 	char const* autoget property m_title;
 	char const* autoget property m_status;
 	int autoget property m_progress;

@@ -26,48 +26,40 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(Property)
 class Property:
 	public ModuleItemBase<ct::Property>,
 	public Namespace,
-	public MemberBlock
-{
+	public MemberBlock {
 public:
 	Property(ct::Property* prop):
 		ModuleItemBase(prop),
 		Namespace(prop),
-		MemberBlock(prop)
-	{
-	}
+		MemberBlock(prop) {}
 
 	PropertyKind
 	JNC_CDECL
-	getPropertyKind()
-	{
+	getPropertyKind() {
 		return m_item->getPropertyKind();
 	}
 
 	PropertyType*
 	JNC_CDECL
-	getType()
-	{
+	getType() {
 		return (PropertyType*)rtl::getType(m_item->getType());
 	}
 
 	Function*
 	JNC_CDECL
-	getGetter()
-	{
+	getGetter() {
 		return (Function*)rtl::getFunction(m_item->getGetter());
 	}
 
 	Function*
 	JNC_CDECL
-	getSetter()
-	{
+	getSetter() {
 		return (Function*)rtl::getFunction(m_item->getSetter());
 	}
 
 	Function*
 	JNC_CDECL
-	getBinder()
-	{
+	getBinder() {
 		return (Function*)rtl::getFunction(m_item->getBinder());
 	}
 };

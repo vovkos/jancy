@@ -18,21 +18,21 @@ set(
 	CmdLine.h
 	JncApp.h
 	version.h.in
-	)
+)
 
 set(
 	APP_CPP_LIST
 	main.cpp
 	CmdLine.cpp
 	JncApp.cpp
-	)
+)
 
 source_group(
 	app
 	FILES
 	${APP_H_LIST}
 	${APP_CPP_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -42,13 +42,13 @@ source_group(
 set(
 	RES_RC_LIST
 	res.rc
-	)
+)
 
 source_group(
 	res
 	FILES
 	${RES_RC_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -63,12 +63,12 @@ axl_push_and_set(CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 configure_file(
 	version.h.in
 	${GEN_DIR}/version.h
-	)
+)
 
 set(
 	GEN_H_LIST
 	${GEN_DIR}/version.h
-	)
+)
 
 axl_pop(CMAKE_CURRENT_BINARY_DIR)
 
@@ -76,7 +76,7 @@ source_group(
 	gen
 	FILES
 	${GEN_H_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -91,7 +91,7 @@ source_group(
 	FILES
 	${PCH_H}
 	${PCH_CPP}
-	)
+)
 
 #...............................................................................
 #
@@ -102,7 +102,7 @@ include_directories(
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
 	${GEN_DIR}
-	)
+)
 
 link_directories(${AXL_LIB_DIR})
 
@@ -110,7 +110,7 @@ if(BUILD_JNC_DLL)
 	link_directories(
 		${JANCY_LIB_DIR}
 		${JANCY_BIN_DIR}
-		)
+	)
 else()
 	link_directories(${LLVM_LIB_DIR})
 endif()
@@ -123,31 +123,31 @@ add_executable(
 	${APP_CPP_LIST}
 	${RES_RC_LIST}
 	${GEN_H_LIST}
-	)
+)
 
 axl_set_pch(
 	jnc_app
 	${PCH_H}
 	${PCH_CPP}
-	)
+)
 
 set_target_properties(
 	jnc_app
 	PROPERTIES
 	OUTPUT_NAME jancy
 	FOLDER tools
-	)
+)
 
 if(BUILD_JNC_DLL)
 	add_dependencies(
 		jnc_app
 		jnc_dll
-		)
+	)
 
 	target_link_libraries(
 		jnc_app
 		${JANCY_DLL_NAME}
-		)
+	)
 else()
 	target_link_libraries(
 		jnc_app
@@ -159,7 +159,7 @@ else()
 		jnc_std
 		jnc_sys
 		jnc_api_core
-		)
+	)
 
 	target_link_llvm_jit_libraries(jnc_app)
 endif()
@@ -171,24 +171,24 @@ target_link_libraries(
 	axl_io
 	axl_lex
 	axl_core
-	)
+)
 
 if(WIN32)
 	target_link_libraries(
 		jnc_app
 		ws2_32
-		)
+	)
 elseif(UNIX)
 	target_link_libraries(
 		jnc_app
 		pthread
-		)
+	)
 
 	if(NOT APPLE)
 		target_link_libraries(
 			jnc_app
 			rt
-			)
+		)
 	endif()
 endif()
 
@@ -199,7 +199,7 @@ if(UNIX AND OPENSSL_DLL_DIR)
 		jnc_app
 		PROPERTIES
 		BUILD_RPATH ${OPENSSL_DLL_DIR}
-		)
+	)
 endif()
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -207,7 +207,7 @@ endif()
 install(
 	TARGETS jnc_app
 	DESTINATION ${JANCY_INSTALL_BIN_SUBDIR}
-	)
+)
 
 #...............................................................................
 
@@ -216,7 +216,7 @@ axl_create_setting(
 	DESCRIPTION "Disable code generation when running tests"
 	" "
 	"--disable-code-gen"
-	)
+)
 
 axl_create_setting(
 	JANCY_TEST_OPT_LEVEL
@@ -226,12 +226,12 @@ axl_create_setting(
 	"-O1"
 	"-O2"
 	"-O3"
-	)
+)
 
 macro(
 add_jancy_tests
 	# ...
-	)
+)
 
 	set(_ARG_LIST ${ARGN})
 
@@ -240,7 +240,7 @@ add_jancy_tests
 		--import-dir ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION>
 		${JANCY_TEST_DISABLE_CODE_GEN}
 		${JANCY_TEST_OPT_LEVEL}
-		)
+	)
 
 	if(UNIX)
 		list(APPEND _BASE_FLAG_LIST --debug-info)
@@ -276,13 +276,13 @@ add_jancy_tests
 				NAME ${_NAME_PREFIX}${_ARG}
 				WORKING_DIRECTORY ${_WORKING_DIRECTORY}
 				COMMAND jnc_app ${_BASE_FLAG_LIST} ${_FLAG_LIST} ${_ARG}
-				)
+			)
 		elseif("${_COMMAND}" STREQUAL "FINALIZE_TEST")
 			add_test(
 				NAME ${_NAME_PREFIX}${_ARG}
 				WORKING_DIRECTORY ${_WORKING_DIRECTORY}
 				COMMAND jnc_app ${_BASE_FLAG_LIST} ${_FLAG_LIST} ${_REQUIRE_LIST} ${_FILE_LIST}
-				)
+			)
 
 			set(_COMMAND)
 		else()

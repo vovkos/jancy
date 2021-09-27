@@ -22,8 +22,7 @@ class WebSocketFrameParser;
 
 //..............................................................................
 
-enum WebSocketState
-{
+enum WebSocketState {
 	WebSocketState_Idle = 0,
 	WebSocketState_WaitingHandshake,
 	WebSocketState_WaitingHandshakeResponse,
@@ -36,8 +35,7 @@ enum WebSocketState
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class WebSocketStateMachine
-{
+class WebSocketStateMachine {
 protected:
 	WebSocketState m_state;
 	WebSocketHandshakeParser* m_handshakeParser;
@@ -53,26 +51,22 @@ public:
 	~WebSocketStateMachine();
 
 	WebSocketState
-	getState()
-	{
+	getState() {
 		return m_state;
 	}
 
 	const WebSocketFrame&
-	getFrame()
-	{
+	getFrame() {
 		return m_frame;
 	}
 
 	const WebSocketMessage&
-	getMessage()
-	{
+	getMessage() {
 		return m_message;
 	}
 
 	void
-	waitHandshake(WebSocketHandshake* handshake)
-	{
+	waitHandshake(WebSocketHandshake* handshake) {
 		setHandshake(handshake, sl::StringRef());
 	}
 
@@ -80,8 +74,7 @@ public:
 	waitHandshakeResponse(
 		WebSocketHandshake* handshakeResponse,
 		const sl::StringRef& handshakeKey
-		)
-	{
+	) {
 		setHandshake(handshakeResponse, handshakeKey);
 	}
 
@@ -92,14 +85,14 @@ public:
 	parse(
 		const void* p,
 		size_t size
-		);
+	);
 
 protected:
 	void
 	setHandshake(
 		WebSocketHandshake* handshake,
 		const sl::StringRef& handshakeKey
-		);
+	);
 
 	bool
 	processFrame();

@@ -16,8 +16,7 @@ namespace io {
 
 //..............................................................................
 
-enum SocketCapability
-{
+enum SocketCapability {
 	SocketCapability_Server = 0x01,
 	SocketCapability_Ip4    = 0x02,
 	SocketCapability_Ip6    = 0x04,
@@ -39,8 +38,7 @@ failWithSocketCapabilityError(SocketCapability capability);
 
 inline
 bool
-requireSocketCapability(SocketCapability capability)
-{
+requireSocketCapability(SocketCapability capability) {
 	return (g_socketCapabilities & capability) || failWithSocketCapabilityError(capability);
 }
 

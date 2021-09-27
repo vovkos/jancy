@@ -10,8 +10,7 @@ namespace io {
 
 //..............................................................................
 
-enum
-{
+enum {
 	PcapFileSignature    = '\xa1\xb2\xc3\xd4',
 	PcapFileMajorVersion = 2,
 	PcapFileMinorVersion = 4,
@@ -19,8 +18,7 @@ enum
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct PcapFileHdr
-{
+struct PcapFileHdr {
 	uint32_t m_signature;
 	uint16_t m_majorVersion;
 	uint16_t m_minorVersion;
@@ -32,8 +30,7 @@ struct PcapFileHdr
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct PcapPacketHdr
-{
+struct PcapPacketHdr {
 	uint32_t m_timestampSeconds;
 	uint32_t m_timestampMicroseconds;
 	uint32_t m_savedPacketSize;

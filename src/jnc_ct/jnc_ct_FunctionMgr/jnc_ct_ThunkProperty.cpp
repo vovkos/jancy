@@ -18,8 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-ThunkProperty::ThunkProperty()
-{
+ThunkProperty::ThunkProperty() {
 	m_propertyKind = PropertyKind_Thunk;
 	m_targetProperty = NULL;
 }
@@ -29,8 +28,7 @@ ThunkProperty::create(
 	Property* targetProperty,
 	PropertyType* thunkPropertyType,
 	bool hasUnusedClosure
-	)
-{
+) {
 	bool result;
 
 	m_targetProperty = targetProperty;
@@ -42,33 +40,28 @@ ThunkProperty::create(
 		targetProperty->getGetter(),
 		thunkPropertyType->getGetterType(),
 		hasUnusedClosure
-		);
+	);
 
 	OverloadableFunction targetSetter = targetProperty->getSetter();
 	FunctionTypeOverload* thunkSetterType = thunkPropertyType->getSetterType();
 
 	size_t setterCount = thunkSetterType->getOverloadCount();
-	if (setterCount && !targetSetter)
-	{
+	if (setterCount && !targetSetter) {
 		setCastError(targetProperty, thunkPropertyType);
 		return false;
 	}
 
-	for (size_t i = 0; i < setterCount; i++)
-	{
+	for (size_t i = 0; i < setterCount; i++) {
 		FunctionType* thunkFunctionType = thunkSetterType->getOverload(i);
 
 		Function* overload;
 
-		if (targetSetter->getItemKind() == ModuleItemKind_Function)
-		{
+		if (targetSetter->getItemKind() == ModuleItemKind_Function) {
 			overload = targetSetter.getFunction();
 			FunctionTypeOverload targetSetterType(overload->getType());
 			if (targetSetterType.chooseSetterOverload(thunkFunctionType) == -1)
 				return false;
-		}
-		else
-		{
+		} else {
 			overload = targetSetter.getFunctionOverload()->chooseSetterOverload(thunkFunctionType);
 			if (!overload)
 				return false;
@@ -78,14 +71,11 @@ ThunkProperty::create(
 			overload,
 			thunkFunctionType,
 			hasUnusedClosure
-			);
+		);
 
-		if (!m_setter)
-		{
+		if (!m_setter) {
 			m_setter = thunkFunction;
-		}
-		else
-		{
+		} else {
 			if (m_setter->getItemKind() == ModuleItemKind_Function)
 				m_setter = m_module->m_functionMgr.createFunctionOverload(m_setter.getFunction());
 
@@ -100,8 +90,7 @@ ThunkProperty::create(
 
 //..............................................................................
 
-DataThunkProperty::DataThunkProperty()
-{
+DataThunkProperty::DataThunkProperty() {
 	m_propertyKind = PropertyKind_DataThunk;
 	m_targetVariable = NULL;
 }
@@ -110,10 +99,8 @@ Function*
 DataThunkProperty::createAccessor(
 	FunctionKind functionKind,
 	FunctionType* type
-	)
-{
-	switch (functionKind)
-	{
+) {
+	switch (functionKind) {
 	case FunctionKind_Getter:
 		return m_module->m_functionMgr.createFunction<Getter>(type);
 
@@ -126,8 +113,7 @@ DataThunkProperty::createAccessor(
 }
 
 bool
-DataThunkProperty::compileGetter(Function* getter)
-{
+DataThunkProperty::compileGetter(Function* getter) {
 	m_module->m_functionMgr.internalPrologue(getter);
 
 	bool result = m_module->m_controlFlowMgr.ret(m_targetVariable);
@@ -139,8 +125,7 @@ DataThunkProperty::compileGetter(Function* getter)
 }
 
 bool
-DataThunkProperty::compileSetter(Function* setter)
-{
+DataThunkProperty::compileSetter(Function* setter) {
 	Value srcValue;
 
 	size_t argCount = setter->getType()->getArgArray().getCount();

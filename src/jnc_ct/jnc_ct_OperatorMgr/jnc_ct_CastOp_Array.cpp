@@ -23,8 +23,7 @@ CastKind
 Cast_Array::getCastKind(
 	const Value& opValue,
 	Type* type
-	)
-{
+) {
 	ASSERT(type->getTypeKind() == TypeKind_Array);
 	ArrayType* dstArrayType = (ArrayType*)type;
 	Type* dstElementType = dstArrayType->getElementType();
@@ -58,8 +57,7 @@ Cast_Array::constCast(
 	const Value& opValue,
 	Type* type,
 	void* dst
-	)
-{
+) {
 	ASSERT(type->getTypeKind() == TypeKind_Array);
 	ArrayType* dstArrayType = (ArrayType*)type;
 	Type* dstElementType = dstArrayType->getElementType();
@@ -75,8 +73,7 @@ Cast_Array::constCast(
 	if (dstElementType->cmp(srcElementType) == 0 ||
 		(dstElementType->getTypeKindFlags() & TypeKindFlag_Integer) &&
 		(srcElementType->getTypeKindFlags() & TypeKindFlag_Integer) &&
-		dstElementType->getSize() == srcElementType->getSize())
-	{
+		dstElementType->getSize() == srcElementType->getSize()) {
 		size_t dstSize = type->getSize();
 		size_t srcSize = srcArrayType->getSize();
 
@@ -95,8 +92,7 @@ Cast_Array::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	err::setFormatStringError("CCast_Array::LlvmCast is not yet implemented");
 	return false;
 }

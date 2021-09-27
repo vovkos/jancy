@@ -20,8 +20,7 @@ namespace ct {
 
 //..............................................................................
 
-ClassType::ClassType()
-{
+ClassType::ClassType() {
 	m_typeKind = TypeKind_Class;
 	m_classTypeKind = ClassTypeKind_Normal;
 	m_flags = TypeFlag_NoStack;
@@ -38,14 +37,12 @@ ClassType::getClassPtrType(
 	TypeKind typeKind,
 	ClassPtrTypeKind ptrTypeKind,
 	uint_t flags
-	)
-{
+) {
 	return m_module->m_typeMgr.getClassPtrType(this, typeKind, ptrTypeKind, flags);
 }
 
 StructType*
-ClassType::getVtableStructType()
-{
+ClassType::getVtableStructType() {
 	if (m_vtableStructType)
 		return m_vtableStructType;
 
@@ -61,8 +58,7 @@ ClassType::createFieldImpl(
 	uint_t ptrTypeFlags,
 	sl::BoxList<Token>* constructor,
 	sl::BoxList<Token>* initializer
-	)
-{
+) {
 	Field* field = m_ifaceStructType->createField(name, type, bitCount, ptrTypeFlags, constructor, initializer);
 	if (!field)
 		return NULL;
@@ -71,12 +67,9 @@ ClassType::createFieldImpl(
 
 	field->m_parentNamespace = this;
 
-	if (name.isEmpty())
-	{
+	if (name.isEmpty()) {
 		m_unnamedFieldArray.append(field);
-	}
-	else if (name[0] != '!') // internal field
-	{
+	} else if (name[0] != '!') { // internal field
 		bool result = addItem(field);
 		if (!result)
 			return NULL;
@@ -87,8 +80,7 @@ ClassType::createFieldImpl(
 }
 
 bool
-ClassType::addMethod(Function* function)
-{
+ClassType::addMethod(Function* function) {
 	StorageKind storageKind = function->getStorageKind();
 	FunctionKind functionKind = function->getFunctionKind();
 	uint_t functionKindFlags = getFunctionKindFlags(functionKind);
@@ -96,11 +88,9 @@ ClassType::addMethod(Function* function)
 
 	function->m_parentNamespace = this;
 
-	switch (storageKind)
-	{
+	switch (storageKind) {
 	case StorageKind_Static:
-		if (thisArgTypeFlags)
-		{
+		if (thisArgTypeFlags) {
 			err::setFormatStringError("static method cannot be '%s'", getPtrTypeFlagString(thisArgTypeFlags).sz());
 			return false;
 		}
@@ -137,8 +127,7 @@ ClassType::addMethod(Function* function)
 	OverloadableFunction* targetOverloadableFunction = NULL;
 	size_t overloadIdx;
 
-	switch (functionKind)
-	{
+	switch (functionKind) {
 	case FunctionKind_Internal:
 		return true;
 
@@ -182,8 +171,7 @@ ClassType::addMethod(Function* function)
 
 	case FunctionKind_Getter:
 		argArray = function->getType()->getArgArray();
-		if (argArray.getCount() < 2)
-		{
+		if (argArray.getCount() < 2) {
 			err::setFormatStringError("indexer property getter should take at least one index argument");
 			return false;
 		}
@@ -194,8 +182,7 @@ ClassType::addMethod(Function* function)
 
 	case FunctionKind_Setter:
 		argArray = function->getType()->getArgArray();
-		if (argArray.getCount() < 3)
-		{
+		if (argArray.getCount() < 3) {
 			err::setFormatStringError("indexer property setter should take at least one index argument");
 			return false;
 		}
@@ -209,7 +196,7 @@ ClassType::addMethod(Function* function)
 			"invalid %s in '%s'",
 			getFunctionKindString(functionKind),
 			getTypeString().sz()
-			);
+		);
 		return false;
 	}
 
@@ -218,10 +205,8 @@ ClassType::addMethod(Function* function)
 }
 
 bool
-ClassType::addProperty(Property* prop)
-{
-	if (prop->isNamed())
-	{
+ClassType::addProperty(Property* prop) {
+	if (prop->isNamed()) {
 		bool result = addItem(prop);
 		if (!result)
 			return false;
@@ -230,8 +215,7 @@ ClassType::addProperty(Property* prop)
 	prop->m_parentNamespace = this;
 
 	StorageKind storageKind = prop->getStorageKind();
-	switch (storageKind)
-	{
+	switch (storageKind) {
 	case StorageKind_Static:
 		break;
 
@@ -256,20 +240,17 @@ ClassType::addProperty(Property* prop)
 }
 
 void
-ClassType::prepareLlvmType()
-{
+ClassType::prepareLlvmType() {
 	m_llvmType = getClassStructType()->getLlvmType();
 }
 
 void
-ClassType::prepareLlvmDiType()
-{
+ClassType::prepareLlvmDiType() {
 	m_llvmDiType = getClassStructType()->getLlvmDiType();
 }
 
 bool
-ClassType::calcLayout()
-{
+ClassType::calcLayout() {
 	bool result =
 		ensureNamespaceReady() &&
 		ensureAttributeValuesReady();
@@ -279,12 +260,9 @@ ClassType::calcLayout()
 
 	// IfaceHdr (unless we can re-use the very first base class)
 
-	if (m_baseTypeList.isEmpty())
-	{
+	if (m_baseTypeList.isEmpty()) {
 		m_ifaceStructType->addBaseType(m_module->m_typeMgr.getStdType(StdType_IfaceHdr));
-	}
-	else
-	{
+	} else {
 		BaseTypeSlot* slot = *m_baseTypeList.getHead();
 
 		result = slot->m_type->ensureLayout();
@@ -304,27 +282,24 @@ ClassType::calcLayout()
 	ifaceBaseTypeArray.setCount(baseTypeCount);
 
 	sl::Iterator<BaseTypeSlot> slotIt = m_baseTypeList.getHead();
-	for (size_t i = 0; slotIt; i++, slotIt++)
-	{
+	for (size_t i = 0; slotIt; i++, slotIt++) {
 		BaseTypeSlot* slot = *slotIt;
 		result = slot->m_type->ensureLayout();
 		if (!result)
 			return false;
 
 		if (!(slot->m_type->getTypeKindFlags() & TypeKindFlag_Derivable) ||
-			(slot->m_type->getFlags() & TypeFlag_Dynamic))
-		{
+			(slot->m_type->getFlags() & TypeFlag_Dynamic)) {
 			err::setFormatStringError("'%s' cannot be a base type of a class", slot->m_type->getTypeString().sz());
 			return false;
 		}
 
 		sl::StringHashTableIterator<BaseTypeSlot*> it = m_baseTypeMap.visit(slot->m_type->getSignature());
-		if (it->m_value)
-		{
+		if (it->m_value) {
 			err::setFormatStringError(
 				"'%s' is already a base type",
 				slot->m_type->getTypeString().sz()
-				);
+			);
 			return false;
 		}
 
@@ -335,8 +310,7 @@ ClassType::calcLayout()
 		if (!result)
 			return false;
 
-		if (slot->m_type->getFlags() & TypeFlag_GcRoot)
-		{
+		if (slot->m_type->getFlags() & TypeFlag_GcRoot) {
 			m_gcRootBaseTypeArray.append(slot);
 			m_flags |= TypeFlag_GcRoot;
 		}
@@ -344,15 +318,13 @@ ClassType::calcLayout()
 		if (slot->m_type->getConstructor())
 			m_baseTypeConstructArray.append(slot);
 
-		if (slot->m_type->getTypeKind() != TypeKind_Class)
-		{
+		if (slot->m_type->getTypeKind() != TypeKind_Class) {
 			ifaceBaseTypeArray[i] = m_ifaceStructType->addBaseType(slot->m_type);
 			continue;
 		}
 
 		ClassType* baseClassType = (ClassType*)slot->m_type;
-		if (baseClassType->m_flags & ClassTypeFlag_OpaqueNonCreatable)
-		{
+		if (baseClassType->m_flags & ClassTypeFlag_OpaqueNonCreatable) {
 			err::setFormatStringError("cannot derive from non-creatable opaque '%s'", baseClassType->getTypeString().sz());
 			return false;
 		}
@@ -379,22 +351,18 @@ ClassType::calcLayout()
 	// scan members for gcroots and constructors
 
 	size_t count = m_fieldArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		Field* field = m_fieldArray[i];
 		Type* type = field->getType();
 
-		if (type->getFlags() & TypeFlag_GcRoot)
-		{
+		if (type->getFlags() & TypeFlag_GcRoot) {
 			m_gcRootFieldArray.append(field);
 			m_flags |= TypeFlag_GcRoot;
 		}
 
-		if (type->getTypeKind() == TypeKind_Class)
-		{
+		if (type->getTypeKind() == TypeKind_Class) {
 			ClassType* classType = (ClassType*)type;
-			if (classType->m_flags & (ClassTypeFlag_HasAbstractMethods | ClassTypeFlag_OpaqueNonCreatable))
-			{
+			if (classType->m_flags & (ClassTypeFlag_HasAbstractMethods | ClassTypeFlag_OpaqueNonCreatable)) {
 				err::setFormatStringError("cannot instantiate '%s'", type->getTypeString().sz());
 				return false;
 			}
@@ -416,8 +384,7 @@ ClassType::calcLayout()
 	// update base type llvm indexes & offsets
 
 	slotIt = m_baseTypeList.getHead();
-	for (size_t i = 0; slotIt; i++, slotIt++)
-	{
+	for (size_t i = 0; slotIt; i++, slotIt++) {
 		BaseTypeSlot* slot = *slotIt;
 		BaseTypeSlot* ifaceSlot = ifaceBaseTypeArray[i];
 
@@ -433,8 +400,7 @@ ClassType::calcLayout()
 		getVtableStructType(); // ensure Vtable struct
 
 	count = m_virtualPropertyArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		Property* prop = m_virtualPropertyArray[i];
 		ASSERT(prop->m_storageKind == StorageKind_Abstract || prop->m_storageKind == StorageKind_Virtual);
 
@@ -449,8 +415,7 @@ ClassType::calcLayout()
 		m_vtableStructType->append(prop->m_type->getVtableStructType());
 
 		size_t accessorCount = prop->m_vtable.getCount();
-		for (size_t j = 0; j < accessorCount; j++)
-		{
+		for (size_t j = 0; j < accessorCount; j++) {
 			Function* accessor = prop->m_vtable[j];
 			accessor->m_virtualOriginClassType = this;
 			accessor->m_classVtableIndex = VtableIndex + j;
@@ -460,8 +425,7 @@ ClassType::calcLayout()
 	// layout virtual methods
 
 	count = m_virtualMethodArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		Function* function = m_virtualMethodArray[i];
 		ASSERT(function->m_storageKind == StorageKind_Abstract || function->m_storageKind == StorageKind_Virtual);
 
@@ -471,8 +435,7 @@ ClassType::calcLayout()
 	}
 
 	count = m_overrideMethodArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		Function* function = m_overrideMethodArray[i];
 		ASSERT(function->m_storageKind == StorageKind_Override);
 
@@ -481,8 +444,7 @@ ClassType::calcLayout()
 			return false;
 	}
 
-	if (m_vtableStructType)
-	{
+	if (m_vtableStructType) {
 		result = m_vtableStructType->ensureLayout();
 		if (!result)
 			return false;
@@ -492,8 +454,7 @@ ClassType::calcLayout()
 
 	if (!m_staticConstructor &&
 		(!m_staticVariableInitializeArray.isEmpty() ||
-		!m_propertyStaticConstructArray.isEmpty()))
-	{
+		!m_propertyStaticConstructArray.isEmpty())) {
 		result = createDefaultMethod<DefaultStaticConstructor>() != NULL;
 		if (!result)
 			return false;
@@ -503,8 +464,7 @@ ClassType::calcLayout()
 		(m_staticConstructor ||
 		!m_baseTypeConstructArray.isEmpty() ||
 		!m_fieldInitializeArray.isEmpty() ||
-		!m_propertyConstructArray.isEmpty()))
-	{
+		!m_propertyConstructArray.isEmpty())) {
 		result = createDefaultMethod<DefaultConstructor>() != NULL;
 		if (!result)
 			return false;
@@ -512,8 +472,7 @@ ClassType::calcLayout()
 
 	if (!m_destructor &&
 		(!m_baseTypeDestructArray.isEmpty() ||
-		!m_propertyDestructArray.isEmpty()))
-	{
+		!m_propertyDestructArray.isEmpty())) {
 		result = createDefaultMethod<DefaultDestructor>() != NULL;
 		if (!result)
 			return false;
@@ -525,8 +484,7 @@ ClassType::calcLayout()
 }
 
 bool
-ClassType::addVirtualFunction(Function* function)
-{
+ClassType::addVirtualFunction(Function* function) {
 	ASSERT(function->m_storageKind == StorageKind_Abstract || function->m_storageKind == StorageKind_Virtual);
 	ASSERT(function->m_virtualOriginClassType == NULL); // not layed out yet
 
@@ -547,8 +505,7 @@ ClassType::addVirtualFunction(Function* function)
 }
 
 bool
-ClassType::overrideVirtualFunction(Function* function)
-{
+ClassType::overrideVirtualFunction(Function* function) {
 	ASSERT(function->m_storageKind == StorageKind_Override);
 	ASSERT(function->m_virtualOriginClassType == NULL); // not layed out yet
 
@@ -566,13 +523,12 @@ ClassType::overrideVirtualFunction(Function* function)
 		TraverseFlag_NoParentNamespace |
 		TraverseFlag_NoUsingNamespaces |
 		TraverseFlag_NoThis
-		);
+	);
 
 	if (!findResult.m_result)
 		return false;
 
-	if (!findResult.m_item)
-	{
+	if (!findResult.m_item) {
 		err::setFormatStringError("cannot override '%s': method not found", function->getQualifiedName().sz());
 		return false;
 	}
@@ -583,8 +539,7 @@ ClassType::overrideVirtualFunction(Function* function)
 	ModuleItem* member = findResult.m_item;
 	ModuleItemKind itemKind = member->getItemKind();
 
-	switch (itemKind)
-	{
+	switch (itemKind) {
 	case ModuleItemKind_FunctionOverload:
 		overridenOverload = (FunctionOverload*)member;
 		break;
@@ -594,16 +549,14 @@ ClassType::overrideVirtualFunction(Function* function)
 		break;
 
 	case ModuleItemKind_Property:
-		switch (functionKind)
-		{
+		switch (functionKind) {
 		case FunctionKind_Getter:
 			overridenFunction = ((Property*)member)->getGetter();
 			break;
 
 		case FunctionKind_Setter:
 			setter = ((Property*)member)->getSetter();
-			if (!setter)
-			{
+			if (!setter) {
 				err::setFormatStringError("cannot override '%s': property has no setter", function->getQualifiedName().sz());
 				return false;
 			}
@@ -627,26 +580,21 @@ ClassType::overrideVirtualFunction(Function* function)
 		return false;
 	}
 
-	if (overridenFunction)
-	{
+	if (overridenFunction) {
 		ASSERT(!overridenOverload);
 		result = overridenFunction->getType()->getShortType()->cmp(function->getType()->getShortType()) == 0;
-	}
-	else
-	{
+	} else {
 		ASSERT(overridenOverload);
 		overridenFunction = overridenOverload->findShortOverload(function->getType()->getShortType());
 		result = overridenFunction != NULL;
 	}
 
-	if (!result)
-	{
+	if (!result) {
 		err::setFormatStringError("cannot override '%s': method signature mismatch", function->getQualifiedName().sz());
 		return false;
 	}
 
-	if (!overridenFunction->isVirtual())
-	{
+	if (!overridenFunction->isVirtual()) {
 		err::setFormatStringError("cannot override '%s': method is not virtual", function->getQualifiedName().sz());
 		return false;
 	}
@@ -659,12 +607,9 @@ ClassType::overrideVirtualFunction(Function* function)
 	FunctionArg* origThisArg = function->m_type->m_argArray[0];
 	FunctionArg* thisArg = m_module->m_typeMgr.getSimpleFunctionArg(StorageKind_This, thisArgType, origThisArg->getPtrTypeFlags());
 
-	if (function->m_type->getFlags() & ModuleItemFlag_User)
-	{
+	if (function->m_type->getFlags() & ModuleItemFlag_User) {
 		function->m_type->m_argArray[0] = thisArg;
-	}
-	else
-	{
+	} else {
 		sl::Array<FunctionArg*> argArray = function->m_type->m_argArray;
 		argArray.ensureExclusive();
 		argArray[0] = thisArg;
@@ -673,7 +618,7 @@ ClassType::overrideVirtualFunction(Function* function)
 			function->m_type->getReturnType(),
 			argArray,
 			function->m_type->getFlags()
-			);
+		);
 	}
 
 	function->m_thisArgType = thisArgType;
@@ -688,8 +633,7 @@ ClassType::overrideVirtualFunction(Function* function)
 }
 
 bool
-ClassType::prepareForOperatorNew()
-{
+ClassType::prepareForOperatorNew() {
 	ASSERT(m_flags & ModuleItemFlag_LayoutReady);
 
 	bool result;
@@ -701,15 +645,13 @@ ClassType::prepareForOperatorNew()
 		m_opaqueClassTypeInfo->m_requireOpaqueItemsFunc(m_module);
 
 	size_t count = m_classFieldArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		result = ((ClassType*)m_classFieldArray[i]->getType())->ensureCreatable();
 		if (!result)
 			return false;
 	}
 
-	if (!m_module->hasCodeGen() || !m_vtableStructType)
-	{
+	if (!m_module->hasCodeGen() || !m_vtableStructType) {
 		m_flags |= ClassTypeFlag_Creatable;
 		return true;
 	}
@@ -720,11 +662,9 @@ ClassType::prepareForOperatorNew()
 	sl::Array<llvm::Constant*> llvmVtable(rc::BufKind_Stack, buffer, sizeof(buffer));
 	llvmVtable.setCount(count);
 
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		Function* function = m_vtable[i];
-		if (function->getStorageKind() == StorageKind_Abstract)
-		{
+		if (function->getStorageKind() == StorageKind_Abstract) {
 			err::setFormatStringError("abstract class '%s'", getQualifiedName().sz());
 			return false;
 		}
@@ -735,14 +675,14 @@ ClassType::prepareForOperatorNew()
 	llvm::Constant* llvmVtableConst = llvm::ConstantStruct::get(
 		(llvm::StructType*)m_vtableStructType->getLlvmType(),
 		llvm::ArrayRef<llvm::Constant*> (llvmVtable, count)
-		);
+	);
 
 	m_vtableVariable = m_module->m_variableMgr.createSimpleStaticVariable(
 		sl::String(),
 		createQualifiedName("m_vtable"),
 		m_vtableStructType,
 		Value(llvmVtableConst, m_vtableStructType)
-		);
+	);
 
 	m_flags |= ClassTypeFlag_Creatable;
 	return true;
@@ -752,13 +692,11 @@ void
 ClassType::markGcRoots(
 	const void* p,
 	rt::GcHeap* gcHeap
-	)
-{
+) {
 	Box* box = (Box*)p;
 	IfaceHdr* iface = (IfaceHdr*)(box + 1);
 
-	if (!iface->m_box) // an unprimed static -- better make a shortcut exit
-	{
+	if (!iface->m_box) { // an unprimed static -- better make a shortcut exit
 		ASSERT(!iface->m_vtable);
 		return;
 	}
@@ -777,16 +715,14 @@ void
 ClassType::markGcRootsImpl(
 	IfaceHdr* iface,
 	rt::GcHeap* gcHeap
-	)
-{
+) {
 	ClassType* boxType = (ClassType*)iface->m_box->m_type;
 	ASSERT(boxType == this || boxType->findBaseTypeTraverse(this));
 
 	char* p = (char*)iface;
 
 	size_t count = m_gcRootBaseTypeArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		BaseTypeSlot* slot = m_gcRootBaseTypeArray[i];
 		Type* type = slot->getType();
 		char* p2  = p + slot->getOffset();
@@ -798,8 +734,7 @@ ClassType::markGcRootsImpl(
 	}
 
 	count = m_gcRootFieldArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		Field* field = m_gcRootFieldArray[i];
 		Type* type = field->getType();
 		char* p2 = p + field->getOffset();

@@ -18,8 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-class AsyncSequencerFunction: public CompilableFunction
-{
+class AsyncSequencerFunction: public CompilableFunction {
 	friend class AsyncLauncherFunction;
 
 protected:
@@ -30,20 +29,17 @@ public:
 	AsyncSequencerFunction();
 
 	Type*
-	getAsyncReturnType()
-	{
+	getAsyncReturnType() {
 		return m_asyncLauncher->getType()->getAsyncReturnType();
 	}
 
 	ClassType*
-	getPromiseType()
-	{
+	getPromiseType() {
 		return m_promiseType;
 	}
 
 	BasicBlock*
-	getCatchBlock()
-	{
+	getCatchBlock() {
 		return m_catchBlock;
 	}
 

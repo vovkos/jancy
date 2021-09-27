@@ -16,17 +16,14 @@ bool errorcode scanCommand(
 	jnc.RegexState* state,
 	char const* p,
 	size_t length = -1
-	)
-{
+) {
 	if (length == -1)
 		length = strlen(p);
 
 	char const* end = p + length;
 
-	do
-	{
-		reswitch (state, p, end - p)
-		{
+	do {
+		reswitch (state, p, end - p) {
 		case "<[^>]+>":
 			size_t length = state.m_currentOffset - g_dataOffset;
 
@@ -50,14 +47,12 @@ bool errorcode scanCommand(
 	return true;
 }
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	jnc.RegexState state(jnc.RegexStateFlags.Lexer | jnc.RegexStateFlags.Incremental);
 
-	try
-	{
+	try {
 		g_data = "abc <ab";
 		g_dataOffset = 0;
 		scanCommand(state, g_data, strlen(g_data));

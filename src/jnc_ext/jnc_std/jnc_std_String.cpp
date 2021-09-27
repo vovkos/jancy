@@ -24,7 +24,7 @@ JNC_DEFINE_CLASS_TYPE(
 	"std.StringBuilder",
 	g_stdLibGuid,
 	StdLibCacheSlot_StringBuilder
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(StringBuilder)
 	JNC_MAP_FUNCTION("clear", &StringBuilder::clear)
@@ -49,8 +49,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 void
 JNC_CDECL
-StringBuilder::clear()
-{
+StringBuilder::clear() {
 	if (m_length)
 		*(char*)m_ptr.m_p = 0;
 
@@ -59,8 +58,7 @@ StringBuilder::clear()
 
 bool
 JNC_CDECL
-StringBuilder::reserve(size_t length)
-{
+StringBuilder::reserve(size_t length) {
 	if (length < m_bufferSize)
 		return true;
 
@@ -83,8 +81,7 @@ JNC_CDECL
 StringBuilder::copy_char(
 	utf32_t c,
 	size_t count
-	)
-{
+) {
 	sl::String string(c, count);
 	return copyImpl(string.cp(), string.getLength());
 }
@@ -94,8 +91,7 @@ JNC_CDECL
 StringBuilder::copy_utf8(
 	DataPtr ptr,
 	size_t length
-	)
-{
+) {
 	if (length == -1)
 		length = strLen(ptr);
 
@@ -107,8 +103,7 @@ JNC_CDECL
 StringBuilder::copy_utf16(
 	DataPtr ptr,
 	size_t length
-	)
-{
+) {
 	char buffer[256];
 	sl::String string(rc::BufKind_Stack, buffer, sizeof(buffer));
 	string.copy((utf16_t*)ptr.m_p, length);
@@ -120,8 +115,7 @@ JNC_CDECL
 StringBuilder::copy_utf32(
 	DataPtr ptr,
 	size_t length
-	)
-{
+) {
 	char buffer[256];
 	sl::String string(rc::BufKind_Stack, buffer, sizeof(buffer));
 	string.copy((utf32_t*)ptr.m_p, length);
@@ -134,8 +128,7 @@ StringBuilder::insert_char(
 	size_t offset,
 	utf32_t c,
 	size_t count
-	)
-{
+) {
 	sl::String string(c, count);
 	return insertImpl(offset, string.cp(), string.getLength());
 }
@@ -146,8 +139,7 @@ StringBuilder::insert_utf8(
 	size_t offset,
 	DataPtr ptr,
 	size_t length
-	)
-{
+) {
 	if (length == -1)
 		length = strLen(ptr);
 
@@ -160,8 +152,7 @@ StringBuilder::insert_utf16(
 	size_t offset,
 	DataPtr ptr,
 	size_t length
-	)
-{
+) {
 	char buffer[256];
 	sl::String string(rc::BufKind_Stack, buffer, sizeof(buffer));
 	string.copy((utf16_t*)ptr.m_p, length);
@@ -174,8 +165,7 @@ StringBuilder::insert_utf32(
 	size_t offset,
 	DataPtr ptr,
 	size_t length
-	)
-{
+) {
 	char buffer[256];
 	sl::String string(rc::BufKind_Stack, buffer, sizeof(buffer));
 	string.copy((utf32_t*)ptr.m_p, length);
@@ -187,8 +177,7 @@ JNC_CDECL
 StringBuilder::remove(
 	size_t offset,
 	size_t length
-	)
-{
+) {
 	if (offset >= m_length)
 		return m_length;
 
@@ -210,10 +199,8 @@ StringBuilder::remove(
 
 size_t
 JNC_CDECL
-StringBuilder::chop(size_t length)
-{
-	if (length >= m_length)
-	{
+StringBuilder::chop(size_t length) {
+	if (length >= m_length) {
 		clear();
 		return 0;
 	}
@@ -225,12 +212,10 @@ StringBuilder::chop(size_t length)
 
 size_t
 JNC_CDECL
-StringBuilder::trimLeft()
-{
+StringBuilder::trimLeft() {
 	sl::StringRef string((char*)m_ptr.m_p, m_length);
 	size_t i = string.findNotOneOf(sl::StringRef::Details::getWhitespace());
-	if (i == -1)
-	{
+	if (i == -1) {
 		clear();
 		return 0;
 	}
@@ -240,13 +225,11 @@ StringBuilder::trimLeft()
 
 size_t
 JNC_CDECL
-StringBuilder::trimRight()
-{
+StringBuilder::trimRight() {
 	sl::StringRef string((char*)m_ptr.m_p, m_length);
 	size_t i = string.reverseFindNotOneOf(sl::StringRef::Details::getWhitespace());
 
-	if (i == -1)
-	{
+	if (i == -1) {
 		clear();
 		return 0;
 	}
@@ -257,10 +240,8 @@ StringBuilder::trimRight()
 }
 
 DataPtr
-StringBuilder::detachString(StringBuilder* self)
-{
-	if (!self->m_bufferSize)
-	{
+StringBuilder::detachString(StringBuilder* self) {
+	if (!self->m_bufferSize) {
 		GcHeap* gcHeap = getCurrentThreadGcHeap();
 		return gcHeap->tryAllocateBuffer(1); // empty string + null
 	}
@@ -275,8 +256,7 @@ StringBuilder::detachString(StringBuilder* self)
 }
 
 DataPtr
-StringBuilder::cloneString(StringBuilder* self)
-{
+StringBuilder::cloneString(StringBuilder* self) {
 	GcHeap* gcHeap = getCurrentThreadGcHeap();
 	if (!self->m_bufferSize)
 		return gcHeap->tryAllocateBuffer(1); // empty string + null
@@ -295,8 +275,7 @@ size_t
 StringBuilder::copyImpl(
 	const char* p,
 	size_t length
-	)
-{
+) {
 	ASSERT(length != -1);
 
 	bool result = reserve(length);
@@ -314,8 +293,7 @@ StringBuilder::insertImpl(
 	size_t offset,
 	const char* src,
 	size_t length
-	)
-{
+) {
 	ASSERT(length != -1);
 
 	size_t newLength = m_length + length;

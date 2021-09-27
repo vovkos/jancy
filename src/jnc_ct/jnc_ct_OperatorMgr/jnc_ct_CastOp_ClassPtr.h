@@ -18,11 +18,9 @@ namespace ct {
 
 //..............................................................................
 
-class Cast_ClassPtr: public CastOperator
-{
+class Cast_ClassPtr: public CastOperator {
 public:
-	Cast_ClassPtr()
-	{
+	Cast_ClassPtr() {
 		m_opFlags = OpFlag_EnsurePtrTargetLayout;
 	}
 
@@ -31,7 +29,7 @@ public:
 	getCastKind(
 		const Value& opValue,
 		Type* type
-		);
+	);
 
 	virtual
 	bool
@@ -39,7 +37,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		void* dst
-		);
+	);
 
 	virtual
 	bool
@@ -47,7 +45,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		);
+	);
 };
 
 //..............................................................................

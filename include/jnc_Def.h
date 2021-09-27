@@ -205,8 +205,7 @@ typedef struct jnc_ListLink jnc_ListLink;
 
 	.. code-block:: c
 
-		struct IntEntry
-		{
+		struct IntEntry {
 			jnc_ListLink m_link; // <-- list link
 			int m_value;
 		};
@@ -215,8 +214,7 @@ typedef struct jnc_ListLink jnc_ListLink;
 
 	.. code-block:: c
 
-		struct MyItem
-		{
+		struct MyItem {
 			jnc_ListLink m_link; // <-- list link
 
 			const char* m_name;
@@ -229,8 +227,7 @@ typedef struct jnc_ListLink jnc_ListLink;
 	\endverbatim
 */
 
-struct jnc_ListLink
-{
+struct jnc_ListLink {
 	jnc_ListLink* m_next; ///< Holds a pointer to the *next* list entry on the list or ``NULL`` if this is the *last* entry.
 	jnc_ListLink* m_prev; ///< Holds a pointer to the *previous* list entry on the list or ``NULL`` if this is the *first* entry.
 };
@@ -264,12 +261,9 @@ typedef struct jnc_Guid jnc_Guid;
 	\endverbatim
 */
 
-struct jnc_Guid
-{
-	union
-	{
-		struct
-		{
+struct jnc_Guid {
+	union {
+		struct {
 			/**
 				\unnamed{union/struct:4}
 				\subgroup
@@ -283,8 +277,7 @@ struct jnc_Guid
 			uint8_t m_data4[8];
 		};
 
-		struct
-		{
+		struct {
 			/**
 				\unnamed{struct:4}
 				\subgroup
@@ -331,7 +324,7 @@ struct jnc_Guid
 		JNC_DEFINE_GUID(
 			g_testLibGuid,
 			0x384498ac, 0x90af, 0x4634, 0xb0, 0x83, 0x2a, 0x9b, 0x2, 0xd6, 0x26, 0x80
-			);
+		);
 
 	\endverbatim
 */
@@ -349,8 +342,7 @@ typedef axl::err::ErrorHdr jnc_Error;
 
 typedef struct jnc_Error jnc_Error;
 
-struct jnc_Error
-{
+struct jnc_Error {
 	uint32_t m_size;
 	jnc_Guid m_guid;
 	uint32_t m_code;
@@ -442,8 +434,7 @@ typedef jnc_CodeAssist CodeAssist;
 
 inline
 void
-initialize(const char* tag = NULL)
-{
+initialize(const char* tag = NULL) {
 	jnc_initialize(tag);
 }
 

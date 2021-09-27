@@ -39,12 +39,11 @@ jnc_Promise_complete(
 	jnc_Promise* promise,
 	jnc_Variant result,
 	jnc_DataPtr errorPtr
-	);
+);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct jnc_Promise
-{
+struct jnc_Promise {
 	jnc_IfaceHdr m_ifaceHdr;
 	size_t m_state;
 	jnc_IfaceHdr* m_scheduler;
@@ -60,8 +59,7 @@ struct jnc_Promise
 	complete(
 		jnc_Variant result,
 		jnc_DataPtr errorPtr
-		)
-	{
+	) {
 		jnc_Promise_complete(this, result, errorPtr);
 	}
 #endif
@@ -81,8 +79,7 @@ typedef jnc_Promise Promise;
 
 inline
 Promise*
-createPromise(jnc_Runtime* runtime)
-{
+createPromise(jnc_Runtime* runtime) {
 	return jnc_createPromise(runtime);
 }
 

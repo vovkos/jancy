@@ -17,10 +17,8 @@ namespace ui {
 
 //..............................................................................
 
-class SerialSettingUi
-{
-	bitflag enum SettingId
-	{
+class SerialSettingUi {
+	bitflag enum SettingId {
 		BaudRate,
 		DataBits,
 		StopBits,
@@ -35,8 +33,7 @@ class SerialSettingUi
 			FlowControl,
 	}
 
-	enum Defaults
-	{
+	enum Defaults {
 		BaudRate    = 38400,
 		DataBits    = 8,
 		StopBits    = io.SerialStopBits._1,
@@ -56,18 +53,15 @@ class SerialSettingUi
 	ui.EnumProperty* m_parityProp;
 	ui.EnumProperty* m_flowControlProp;
 
-	property m_baudRate
-	{
-		uint_t get()
-		{
+	property m_baudRate {
+		uint_t get() {
 			return
 				m_baudRateCombo ? atoi(m_baudRateCombo.m_editText) :
 				m_baudRateProp ? atoi(m_baudRateProp.m_value) :
 				Defaults.BaudRate;
 		}
 
-		void set(uint_t value)
-		{
+		void set(uint_t value) {
 			if (m_baudRateCombo)
 				m_baudRateCombo.m_editText = $"$value bps";
 			else if (m_baudRateProp)
@@ -75,18 +69,15 @@ class SerialSettingUi
 		}
 	}
 
-	property m_dataBits
-	{
-		uint_t get()
-		{
+	property m_dataBits {
+		uint_t get() {
 			return
 				m_dataBitsCombo ? m_dataBitsCombo.m_currentData :
 				m_dataBitsProp ? m_dataBitsProp.m_value :
 				Defaults.DataBits;
 		}
 
-		void set(uint_t value)
-		{
+		void set(uint_t value) {
 			if (m_dataBitsCombo)
 				m_dataBitsCombo.m_currentData = value;
 			else if (m_dataBitsProp)
@@ -94,18 +85,15 @@ class SerialSettingUi
 		}
 	}
 
-	property m_stopBits
-	{
-		io.SerialStopBits get()
-		{
+	property m_stopBits {
+		io.SerialStopBits get() {
 			return
 				m_stopBitsCombo ? m_stopBitsCombo.m_currentData :
 				m_stopBitsProp ? m_stopBitsProp.m_value :
 				Defaults.StopBits;
 		}
 
-		void set(io.SerialStopBits value)
-		{
+		void set(io.SerialStopBits value) {
 			if (m_stopBitsCombo)
 				m_stopBitsCombo.m_currentData = value;
 			else if (m_stopBitsProp)
@@ -113,18 +101,15 @@ class SerialSettingUi
 		}
 	}
 
-	property m_parity
-	{
-		io.SerialParity get()
-		{
+	property m_parity {
+		io.SerialParity get() {
 			return
 				m_parityCombo ? m_parityCombo.m_currentData :
 				m_parityProp ? m_parityProp.m_value :
 				Defaults.Parity;
 		}
 
-		void set(io.SerialParity value)
-		{
+		void set(io.SerialParity value) {
 			if (m_parityCombo)
 				m_parityCombo.m_currentData = value;
 			else if (m_parityProp)
@@ -132,18 +117,15 @@ class SerialSettingUi
 		}
 	}
 
-	property m_flowControl
-	{
-		io.SerialFlowControl get()
-		{
+	property m_flowControl {
+		io.SerialFlowControl get() {
 			return
 				m_flowControlCombo ? m_flowControlCombo.m_currentData :
 				m_flowControlProp ? m_flowControlProp.m_value :
 				Defaults.FlowControl;
 		}
 
-		void set(io.SerialFlowControl value)
-		{
+		void set(io.SerialFlowControl value) {
 			if (m_flowControlCombo)
 				m_flowControlCombo.m_currentData = value;
 			else if (m_flowControlProp)
@@ -158,7 +140,7 @@ public:
 		ui.GroupProperty* groupProp = null,
 		SettingId comboMask = SettingId.All,
 		SettingId propertyMask = SettingId.All
-		);
+	);
 
 	void load(doc.Storage* storage);
 	void save(doc.Storage* storage);
@@ -175,10 +157,8 @@ void SerialSettingUi.create(
 	ui.GroupProperty* groupProp,
 	SettingId comboMask,
 	SettingId propMask
-	)
-{
-	static ui.EnumPropertyOption baudRateTable[] =
-	{
+) {
+	static ui.EnumPropertyOption baudRateTable[] = {
 		{ "110 bps" },
 		{ "300 bps" },
 		{ "600 bps" },
@@ -200,21 +180,18 @@ void SerialSettingUi.create(
 		{ "921600 bps" },
 	}
 
-	static ui.EnumPropertyOption dataBitsTable[] =
-	{
+	static ui.EnumPropertyOption dataBitsTable[] = {
 		{ "7 bits", 7 },
 		{ "8 bits", 8 },
 	}
 
-	static ui.EnumPropertyOption stopBitsTable[] =
-	{
+	static ui.EnumPropertyOption stopBitsTable[] = {
 		{ "1 bit",    io.SerialStopBits._1 },
 		{ "1.5 bits", io.SerialStopBits._15 },
 		{ "2 bits",   io.SerialStopBits._2 },
 	}
 
-	static ui.EnumPropertyOption parityTable[] =
-	{
+	static ui.EnumPropertyOption parityTable[] = {
 		{ "None",  io.SerialParity.None },
 		{ "Odd",   io.SerialParity.Odd },
 		{ "Even",  io.SerialParity.Even },
@@ -222,20 +199,18 @@ void SerialSettingUi.create(
 		{ "Space", io.SerialParity.Space },
 	}
 
-	static ui.EnumPropertyOption flowControlTable[] =
-	{
+	static ui.EnumPropertyOption flowControlTable[] = {
 		{ "None",     io.SerialFlowControl.None },
 		{ "RTS/CTS",  io.SerialFlowControl.RtsCts },
 		{ "XON/XOFF", io.SerialFlowControl.XonXoff },
 	}
 
-	if (comboMask & SettingId.BaudRate)
-	{
+	if (comboMask & SettingId.BaudRate) {
 		m_baudRateCombo = toolBar.addComboBox(
 			"Baud:",
 			baudRateTable,
 			countof(baudRateTable)
-			);
+		);
 
 		m_baudRateCombo.m_isEditable = true;
 	}
@@ -248,14 +223,14 @@ void SerialSettingUi.create(
 			"Specify a serial baud rate",
 			baudRateTable,
 			countof(baudRateTable)
-			);
+		);
 
 	if (comboMask & SettingId.DataBits)
 		m_dataBitsCombo = toolBar.addComboBox(
 			"Data:",
 			dataBitsTable,
 			countof(dataBitsTable)
-			);
+		);
 
 	if (propMask & SettingId.DataBits)
 		m_dataBitsProp = propertyGrid.createEnumProperty(
@@ -264,14 +239,14 @@ void SerialSettingUi.create(
 			"Serial data bit count (word size)",
 			dataBitsTable,
 			countof(dataBitsTable)
-			);
+		);
 
 	if (comboMask & SettingId.StopBits)
 		m_stopBitsCombo = toolBar.addComboBox(
 			"Stop:",
 			stopBitsTable,
 			countof(stopBitsTable)
-			);
+		);
 
 	if (propMask & SettingId.StopBits)
 		m_stopBitsProp = propertyGrid.createEnumProperty(
@@ -280,14 +255,14 @@ void SerialSettingUi.create(
 			"Serial stop bit count",
 			stopBitsTable,
 			countof(stopBitsTable)
-			);
+		);
 
 	if (comboMask & SettingId.Parity)
 		m_parityCombo = toolBar.addComboBox(
 			"Parity:",
 			parityTable,
 			countof(parityTable)
-			);
+		);
 
 	if (propMask & SettingId.Parity)
 		m_parityProp = propertyGrid.createEnumProperty(
@@ -296,14 +271,14 @@ void SerialSettingUi.create(
 			"Serial parity check",
 			parityTable,
 			countof(parityTable)
-			);
+		);
 
 	if (comboMask & SettingId.FlowControl)
 		m_flowControlCombo = toolBar.addComboBox(
 			"Flow:",
 			flowControlTable,
 			countof(flowControlTable)
-			);
+		);
 
 	if (propMask & SettingId.FlowControl)
 		m_flowControlProp = propertyGrid.createEnumProperty(
@@ -312,11 +287,10 @@ void SerialSettingUi.create(
 			"Serial flow control",
 			flowControlTable,
 			countof(flowControlTable)
-			);
+		);
 }
 
-void SerialSettingUi.load(doc.Storage* storage)
-{
+void SerialSettingUi.load(doc.Storage* storage) {
 	m_baudRate = storage.readInt("baudRateVal", Defaults.BaudRate);
 	m_dataBits = storage.readInt("dataBitsVal", Defaults.DataBits); // 8 bits
 	m_stopBits = (io.SerialStopBits) storage.readInt("stopBitsVal", Defaults.StopBits);
@@ -324,8 +298,7 @@ void SerialSettingUi.load(doc.Storage* storage)
 	m_flowControl = (io.SerialFlowControl) storage.readInt("flowControlVal", Defaults.FlowControl);
 }
 
-void SerialSettingUi.save(doc.Storage* storage)
-{
+void SerialSettingUi.save(doc.Storage* storage) {
 	storage.writeInt("baudRateVal", m_baudRate);
 	storage.writeInt("dataBitsVal", m_dataBits);
 	storage.writeInt("stopBitsVal", m_stopBits);
@@ -333,8 +306,7 @@ void SerialSettingUi.save(doc.Storage* storage)
 	storage.writeInt("flowControlVal", m_flowControl);
 }
 
-void SerialSettingUi.updateProperties()
-{
+void SerialSettingUi.updateProperties() {
 	if (m_baudRateProp && m_baudRateCombo)
 		m_baudRateProp.m_value = m_baudRateCombo.m_editText;
 
@@ -351,8 +323,7 @@ void SerialSettingUi.updateProperties()
 		m_flowControlProp.m_currentIndex = m_flowControlCombo.m_currentIndex;
 }
 
-void SerialSettingUi.applyProperties()
-{
+void SerialSettingUi.applyProperties() {
 	if (m_baudRateProp && m_baudRateCombo)
 		m_baudRateCombo.m_editText = m_baudRateProp.m_value;
 
@@ -369,8 +340,7 @@ void SerialSettingUi.applyProperties()
 		m_flowControlCombo.m_currentIndex = m_flowControlProp.m_currentIndex;
 }
 
-void SerialSettingUi.restoreDefaultProperties()
-{
+void SerialSettingUi.restoreDefaultProperties() {
 	if (m_baudRateProp)
 		m_baudRateProp.m_value = $"$(Defaults.BaudRate) bps";
 

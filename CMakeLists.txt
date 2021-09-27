@@ -82,30 +82,30 @@ add_subdirectory(doc)
 install(
 	DIRECTORY include/
 	DESTINATION ${JANCY_INSTALL_INC_SUBDIR}
-	)
+)
 
 install(
 	DIRECTORY tools/
 	DESTINATION ${JANCY_INSTALL_TOOL_SUBDIR}
-	)
+)
 
 install(
 	DIRECTORY samples/
 	DESTINATION ${JANCY_INSTALL_SAMPLE_SUBDIR}
 	PATTERN "CMakeLists.txt" EXCLUDE
-	)
+)
 
 install(
 	DIRECTORY sphinx/
 	DESTINATION ${JANCY_INSTALL_SPHINX_SUBDIR}
 	PATTERN "*.pyc" EXCLUDE
 	PATTERN "__pycache__" EXCLUDE
-	)
+)
 
 install(
 	DIRECTORY license/
 	DESTINATION ${JANCY_INSTALL_LICENSE_SUBDIR}
-	)
+)
 
 #...............................................................................
 

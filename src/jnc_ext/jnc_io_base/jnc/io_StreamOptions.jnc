@@ -24,8 +24,7 @@ namespace io {
 	stream object.
 */
 
-bitflag enum ReadOnlyStreamOptions
-{
+bitflag enum ReadOnlyStreamOptions {
 	/**
 		Don't merge incoming blocks inside the *read* buffer.
 	*/
@@ -43,8 +42,7 @@ bitflag enum ReadOnlyStreamOptions
 	stream object.
 */
 
-bitflag enum StreamOptions: ReadOnlyStreamOptions
-{
+bitflag enum StreamOptions: ReadOnlyStreamOptions {
 	/**
 		Don't merge outgoing blocks inside the *write* buffer.
 	*/

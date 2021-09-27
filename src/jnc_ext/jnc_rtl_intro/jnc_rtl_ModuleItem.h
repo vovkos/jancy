@@ -24,11 +24,9 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(ModuleItem)
 
 //..............................................................................
 
-class ModuleItemDecl: public IfaceHdr
-{
+class ModuleItemDecl: public IfaceHdr {
 protected:
-	struct Cache
-	{
+	struct Cache {
 		DataPtr m_namePtr;
 		DataPtr m_qualifiedNamePtr;
 	};
@@ -40,13 +38,11 @@ protected:
 	ct::ModuleItemDecl* m_decl;
 
 public:
-	ModuleItemDecl(ct::ModuleItemDecl* decl)
-	{
+	ModuleItemDecl(ct::ModuleItemDecl* decl) {
 		m_decl = decl;
 	}
 
-	~ModuleItemDecl()
-	{
+	~ModuleItemDecl() {
 		if (m_cache)
 			AXL_MEM_DELETE(m_cache);
 	}
@@ -67,65 +63,56 @@ public:
 
 	StorageKind
 	JNC_CDECL
-	getStorageKind()
-	{
+	getStorageKind() {
 		return m_decl->getStorageKind();
 	}
 
 	AccessKind
 	JNC_CDECL
-	getAccessKind()
-	{
+	getAccessKind() {
 		return m_decl->getAccessKind();
 	}
 
 	AttributeBlock*
 	JNC_CDECL
-	getAttributeBlock()
-	{
+	getAttributeBlock() {
 		return rtl::getAttributeBlock(m_decl->getAttributeBlock());
 	}
 
 	Namespace*
 	JNC_CDECL
-	getParentNamespace()
-	{
+	getParentNamespace() {
 		return rtl::getNamespace(m_decl->getParentNamespace());
 	}
 
 	Unit*
 	JNC_CDECL
-	getParentUnit()
-	{
+	getParentUnit() {
 		return rtl::getUnit(m_decl->getParentUnit());
 	}
 
 	int
 	JNC_CDECL
-	getLine()
-	{
+	getLine() {
 		return m_decl->getPos().m_line;
 	}
 
 	int
 	JNC_CDECL
-	getCol()
-	{
+	getCol() {
 		return m_decl->getPos().m_col;
 	}
 
 protected:
 	Cache*
-	getCache()
-	{
+	getCache() {
 		return m_cache ? m_cache : m_cache = AXL_MEM_ZERO_NEW(Cache);
 	}
 };
 
 //..............................................................................
 
-class ModuleItemInitializer: public IfaceHdr
-{
+class ModuleItemInitializer: public IfaceHdr {
 protected:
 	DataPtr m_initializerPtr;
 
@@ -133,8 +120,7 @@ protected:
 	ct::ModuleItemInitializer* m_initializer;
 
 public:
-	ModuleItemInitializer(ct::ModuleItemInitializer* initializer)
-	{
+	ModuleItemInitializer(ct::ModuleItemInitializer* initializer) {
 		m_initializer = initializer;
 	}
 
@@ -151,53 +137,44 @@ public:
 //..............................................................................
 
 template <typename T>
-class ModuleItemBase: public IfaceHdr
-{
+class ModuleItemBase: public IfaceHdr {
 protected:
 	T* m_item;
 
 public:
-	ModuleItemBase(T* moduleItem)
-	{
+	ModuleItemBase(T* moduleItem) {
 		m_item = moduleItem;
 	}
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class ModuleItem: public ModuleItemBase<ct::ModuleItem>
-{
+class ModuleItem: public ModuleItemBase<ct::ModuleItem> {
 public:
 	ModuleItem(ct::ModuleItem* item):
-		ModuleItemBase(item)
-	{
-	}
+		ModuleItemBase(item) {}
 
 	Module*
 	JNC_CDECL
-	getModule()
-	{
+	getModule() {
 		return rtl::getModule(m_item->getModule());
 	}
 
 	ModuleItemKind
 	JNC_CDECL
-	getItemKind()
-	{
+	getItemKind() {
 		return m_item->getItemKind();
 	}
 
 	uint_t
 	JNC_CDECL
-	getFlags()
-	{
+	getFlags() {
 		return m_item->getFlags();
 	}
 
 	Type*
 	JNC_CDECL
-	getType()
-	{
+	getType() {
 		return rtl::getType(m_item->getType());
 	}
 };

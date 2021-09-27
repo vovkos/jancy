@@ -19,34 +19,25 @@ namespace iox {
 bool isValidUtf8(
 	char const* p,
 	size_t size
-	)
-{
+) {
 	char const* end = p + size;
-	while (p < end)
-	{
-		if ((*p & 0x80) == 0)         // 0xxxxxxx
-		{
+	while (p < end) {
+		if ((*p & 0x80) == 0) { // 0xxxxxxx
 			p++;
-		}
-		else if ((*p & 0xe0) == 0xc0) // 110xxxxx 10xxxxxx
-		{
+		} else if ((*p & 0xe0) == 0xc0) { // 110xxxxx 10xxxxxx
 			if (p + 2 > end ||
 				(p[1] & 0xc0) != 0x80)
 				return false;
 
 			p += 2;
-		}
-		else if ((*p & 0xf0) == 0xe0) // 1110xxxx 10xxxxxx 10xxxxxx
-		{
+		} else if ((*p & 0xf0) == 0xe0) { // 1110xxxx 10xxxxxx 10xxxxxx
 			if (p + 3 > end ||
 				(p[1] & 0xc0) != 0x80 ||
 				(p[2] & 0xc0) != 0x80)
 				return false;
 
 			p += 3;
-		}
-		else if ((*p & 0xf8) == 0xf0) // 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
-		{
+		} else if ((*p & 0xf8) == 0xf0) { // 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
 			if (p + 4 > end ||
 				(p[1] & 0xc0) != 0x80 ||
 				(p[2] & 0xc0) != 0x80 ||
@@ -54,9 +45,7 @@ bool isValidUtf8(
 				return false;
 
 			p += 4;
-		}
-		else
-		{
+		} else {
 			return false;
 		}
 	}
@@ -70,11 +59,9 @@ size_t errorcode transmitWebSocketData(
 	log.Writer* logWriter,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	size_t result;
-	switch (mode)
-	{
+	switch (mode) {
 	case ui.WebSocketTransmitMode.Auto:
 		result = isValidUtf8(p, size) ?
 			socket.writeText(p, size) :
@@ -101,13 +88,11 @@ bool processWebSocketIncomingData(
 	log.Writer* logWriter,
 	void* readBuffer,
 	size_t readBufferSize
-	)
-{
+) {
 	io.WebSocketFrameOpcode opcode;
 	size_t result = socket.read(&opcode, readBuffer, readBufferSize);
 
-	switch (opcode)
-	{
+	switch (opcode) {
 	case io.WebSocketFrameOpcode.Text:
 	case io.WebSocketFrameOpcode.Binary:
 		if (!result)
@@ -119,8 +104,7 @@ bool processWebSocketIncomingData(
 	case io.WebSocketFrameOpcode.Ping:
 		logWriter.write(WebSocketLogRecordCode.RxPing, readBuffer, result);
 
-		if (!(socket.m_activeEvents & io.WebSocketEvents.TcpDisconnected)) // still connected
-		{
+		if (!(socket.m_activeEvents & io.WebSocketEvents.TcpDisconnected)) { // still connected
 			socket.writePong(readBuffer, result);
 			logWriter.write(WebSocketLogRecordCode.TxPong, readBuffer, result);
 		}
@@ -137,8 +121,7 @@ bool processWebSocketIncomingData(
 		if (!(socket.m_activeEvents & (
 			io.WebSocketEvents.WebSocketCloseCompleted | // close request
 			io.WebSocketEvents.TcpDisconnected           // still connected
-			)))
-		{
+		))) {
 			socket.writeClose();
 			logWriter.write(WebSocketLogRecordCode.TxClose);
 		}
@@ -152,8 +135,7 @@ bool processWebSocketIncomingData(
 	return true;
 }
 
-io.WebSocketHandshakeHeaders const* buildWebSocketExtraHeaders(std.HashTable const* hashTable)
-{
+io.WebSocketHandshakeHeaders const* buildWebSocketExtraHeaders(std.HashTable const* hashTable) {
 	std.MapEntry const* entry = hashTable.m_head;
 	if (!entry)
 		return null;

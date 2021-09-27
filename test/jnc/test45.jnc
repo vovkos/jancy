@@ -9,57 +9,47 @@
 //
 //..............................................................................
 
-class C1
-{
+class C1 {
 	static int m_x = 10;
 	int m_y = 20;
 
-	property m_prop
-	{
+	property m_prop {
 		static int m_px = 100;
 		int m_py = 200;
 
-		static construct()
-		{
+		static construct() {
 			printf("C1.m_prop.static construct () { m_x = %d, m_px = %d }\n", m_x, m_px);
 		}
 
-		construct()
-		{
+		construct() {
 			printf("C1.m_prop.construct () { m_x = %d, m_y = %d, m_px = %d, m_py = %d  }\n", m_x, m_y, m_px, m_py);
 		}
 
-		destruct()
-		{
+		destruct() {
 			printf("C1.m_prop.destruct () { m_x = %d, m_y = %d, m_px = %d, m_py = %d  }\n", m_x, m_y, m_px, m_py);
 		}
 
-		int get()
-		{
+		int get() {
 			return 0;
 		}
 	}
 
-	static construct()
-	{
+	static construct() {
 		printf("C1.static construct () { m_x = %d }\n", m_x);
 	}
 
-	construct()
-	{
+	construct() {
 		printf("C1.construct () { m_x = %d, m_y = %d }\n", m_x, m_y);
 	}
 
-	destruct()
-	{
+	destruct() {
 		printf("C1.destruct () { m_x = %d, m_y = %d }\n", m_x, m_y);
 	}
 }
 
 //..............................................................................
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	C1 c;

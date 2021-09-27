@@ -18,8 +18,7 @@ namespace io {
 
 //..............................................................................
 
-enum UsbClass: uint8_t
-{
+enum UsbClass: uint8_t {
 	PerInterface       = 0,
 	Audio              = 1,
 	Comm               = 2,
@@ -40,8 +39,7 @@ enum UsbClass: uint8_t
 	VendorSpec         = 0xff
 }
 
-enum UsbSpeed: uint8_t
-{
+enum UsbSpeed: uint8_t {
 	Unknown = 0,
 	Low     = 1,
 	Full    = 2,
@@ -58,8 +56,7 @@ getUsbSpeedString(UsbSpeed speed);
 
 //..............................................................................
 
-struct UsbInterfaceDesc
-{
+struct UsbInterfaceDesc {
 	UsbInterfaceDesc const* m_nextAltSettingInterface;
 	UsbEndpointDesc const* m_endpointTable;
 	size_t m_endpointCount;
@@ -74,8 +71,7 @@ struct UsbInterfaceDesc
 
 //..............................................................................
 
-opaque class UsbInterface
-{
+opaque class UsbInterface {
 	UsbDevice* const m_parentDevice;
 	UsbInterfaceDesc const* const m_interfaceDesc;
 
@@ -90,7 +86,7 @@ opaque class UsbInterface
 	UsbEndpoint* errorcode openEndpoint(
 		uint8_t endpointId,
 		bool isSuspended = false
-		);
+	);
 }
 
 //..............................................................................

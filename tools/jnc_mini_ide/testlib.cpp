@@ -20,7 +20,7 @@ JNC_DEFINE_TYPE(
 	"Point",
 	g_testLibGuid,
 	TestLibCacheSlot_Point
-	)
+)
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -29,7 +29,7 @@ JNC_DEFINE_TYPE(
 	"TestClassA",
 	g_testLibGuid,
 	TestLibCacheSlot_TestClassA
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(TestClassA)
 	JNC_MAP_FUNCTION("foo", &TestClassA::foo)
@@ -44,7 +44,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	TestLibCacheSlot_TestClassB,
 	TestClassB,
 	&TestClassB::markOpaqueGcRoots
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(TestClassB)
 	JNC_MAP_FUNCTION("bar", &TestClassB::bar)
@@ -68,8 +68,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 void
 JNC_CDECL
-TestClassA::foo(int x)
-{
+TestClassA::foo(int x) {
 	printf("TestClassA::foo (%d)\n", x);
 	m_x = x;
 }
@@ -78,8 +77,7 @@ TestClassA::foo(int x)
 
 void
 JNC_CDECL
-TestClassB::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
-{
+TestClassB::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 //	if (self->m_hiddenIface)
 //		self->m_hiddenIface->m_box->gcMarkObject (gcHeap);
 }
@@ -93,8 +91,7 @@ TestClassB::bar(
 	jnc::DataPtr ptr4,
 	int a,
 	int b
-	)
-{
+) {
 	const char* p1 = (const char*) ptr1.m_p;
 	const char* p2 = (const char*) ptr2.m_p;
 	const char* p3 = (const char*) ptr3.m_p;
@@ -109,16 +106,14 @@ TestClassB::bar(
 
 void
 JNC_CDECL
-TestStruct::construct_0(jnc::DataPtr selfPtr)
-{
+TestStruct::construct_0(jnc::DataPtr selfPtr) {
 	TestStruct* self = (TestStruct*)selfPtr.m_p;
 	printf("TestStruct::construct () { m_x = %d, m_y = %f }\n", self->m_x, self->m_y);
 }
 
 void
 JNC_CDECL
-TestStruct::construct_1(jnc::DataPtr selfPtr, int x)
-{
+TestStruct::construct_1(jnc::DataPtr selfPtr, int x) {
 	TestStruct* self = (TestStruct*)selfPtr.m_p;
 	printf("TestStruct::construct (int x = %d) { m_x = %d, m_y = %f }\n", x, self->m_x, self->m_y);
 	self->m_x = x;
@@ -126,8 +121,7 @@ TestStruct::construct_1(jnc::DataPtr selfPtr, int x)
 
 void
 JNC_CDECL
-TestStruct::construct_2(jnc::DataPtr selfPtr, double y)
-{
+TestStruct::construct_2(jnc::DataPtr selfPtr, double y) {
 	TestStruct* self = (TestStruct*)selfPtr.m_p;
 	printf("TestStruct::construct (double y = %f) { m_x = %d, m_y = %f }\n", y, self->m_x, self->m_y);
 	self->m_y = y;
@@ -135,24 +129,21 @@ TestStruct::construct_2(jnc::DataPtr selfPtr, double y)
 
 void
 JNC_CDECL
-TestStruct::foo_0(jnc::DataPtr selfPtr)
-{
+TestStruct::foo_0(jnc::DataPtr selfPtr) {
 	TestStruct* self = (TestStruct*)selfPtr.m_p;
 	printf("TestStruct::foo () { m_x = %d, m_y = %f }\n", self->m_x, self->m_y);
 }
 
 void
 JNC_CDECL
-TestStruct::foo_1(jnc::DataPtr selfPtr, int x)
-{
+TestStruct::foo_1(jnc::DataPtr selfPtr, int x) {
 	TestStruct* self = (TestStruct*)selfPtr.m_p;
 	printf("TestStruct::foo (int x = %d) { m_x = %d, m_y = %f }\n", x, self->m_x, self->m_y);
 }
 
 void
 JNC_CDECL
-TestStruct::foo_2(jnc::DataPtr selfPtr, double y)
-{
+TestStruct::foo_2(jnc::DataPtr selfPtr, double y) {
 	TestStruct* self = (TestStruct*)selfPtr.m_p;
 	printf("TestStruct::foo (double y = %f) { m_x = %d, m_y = %f }\n", y, self->m_x, self->m_y);
 }
@@ -163,20 +154,17 @@ void
 testPtr(
 	jnc::DataPtr ptr,
 	jnc::DataPtr ptr2
-	)
-{
+) {
 	printf("TestLib::testPtr\n");
 }
 
 void
-testVariant(jnc::Variant variant)
-{
+testVariant(jnc::Variant variant) {
 	printf("TestLib::testVariant\n");
 }
 
 void
-testAlloc()
-{
+testAlloc() {
 	jnc::Runtime* runtime = jnc::getCurrentThreadRuntime();
 	ASSERT(runtime);
 
@@ -205,8 +193,7 @@ testAlloc()
 }
 
 void
-testCallSite()
-{
+testCallSite() {
 	jnc::Runtime* runtime = jnc::getCurrentThreadRuntime();
 	ASSERT(runtime);
 
@@ -228,7 +215,7 @@ JNC_DEFINE_LIB(
 	g_testLibGuid,
 	"TestLib",
 	"Jancy QT-based test utility extension library"
-	)
+)
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE(TestLib)
 JNC_END_LIB_SOURCE_FILE_TABLE()

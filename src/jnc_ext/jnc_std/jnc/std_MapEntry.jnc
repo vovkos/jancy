@@ -18,8 +18,7 @@ namespace std {
 
 //! \import std_MapEntry.jnc
 
-struct MapEntry
-{
+struct MapEntry {
 	MapEntry cmut* readonly m_next;
 	MapEntry cmut* readonly m_prev;
 

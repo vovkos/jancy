@@ -9,14 +9,12 @@
 //
 //..............................................................................
 
-struct Point
-{
+struct Point {
 	int m_x;
 	int m_y;
 }
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	Point point = null;

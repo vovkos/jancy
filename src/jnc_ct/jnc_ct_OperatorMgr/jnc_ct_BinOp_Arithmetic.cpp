@@ -24,8 +24,7 @@ dataPtrIncrementOperator(
 	const Value& opValue1,
 	const Value& opValue2,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(opValue1.getType()->getTypeKind() == TypeKind_DataPtr);
 
 	bool result;
@@ -33,14 +32,12 @@ dataPtrIncrementOperator(
 	DataPtrType* opType = (DataPtrType*)opValue1.getType();
 	DataPtrType* resultType = opType->getUnCheckedPtrType();
 	Type* targetType = opType->getTargetType();
-	if (targetType->getStdType() == StdType_AbstractData)
-	{
+	if (targetType->getStdType() == StdType_AbstractData) {
 		err::setError("pointer arithmetic is not applicable to 'anydata' pointers");
 		return false;
 	}
 
-	if (!module->hasCodeGen())
-	{
+	if (!module->hasCodeGen()) {
 		resultValue->setType(resultType);
 		return true;
 	}
@@ -48,8 +45,7 @@ dataPtrIncrementOperator(
 	DataPtrTypeKind ptrTypeKind = opType->getPtrTypeKind();
 
 	if (opValue1.getValueKind() == ValueKind_Const &&
-		opValue2.getValueKind() == ValueKind_Const)
-	{
+		opValue2.getValueKind() == ValueKind_Const) {
 		Value deltaValue;
 		result = module->m_operatorMgr.castOperator(opValue2, TypeKind_IntPtr, &deltaValue);
 		if (!result)
@@ -57,31 +53,22 @@ dataPtrIncrementOperator(
 
 		intptr_t delta = deltaValue.getIntPtr() * targetType->getSize();
 
-		if (ptrTypeKind == DataPtrTypeKind_Thin)
-		{
+		if (ptrTypeKind == DataPtrTypeKind_Thin) {
 			char* p = *(char**) opValue1.getConstData() + delta;
 			resultValue->createConst(&p, opValue1.getType());
-		}
-		else
-		{
+		} else {
 			ASSERT(ptrTypeKind == DataPtrTypeKind_Normal); // lean is compile-time-only
 
 			DataPtr ptr = *(DataPtr*)opValue1.getConstData();
 			ptr.m_p = (char*)ptr.m_p + delta;
 			resultValue->createConst(&ptr, opValue1.getType());
 		}
-	}
-	else if (ptrTypeKind == DataPtrTypeKind_Thin)
-	{
+	} else if (ptrTypeKind == DataPtrTypeKind_Thin) {
 		module->m_llvmIrBuilder.createGep(opValue1, opValue2, resultType, resultValue);
-	}
-	else if (ptrTypeKind == DataPtrTypeKind_Lean)
-	{
+	} else if (ptrTypeKind == DataPtrTypeKind_Lean) {
 		module->m_llvmIrBuilder.createGep(opValue1, opValue2, resultType, resultValue);
 		resultValue->setLeanDataPtr(resultValue->getLlvmValue(), resultType, opValue1);
-	}
-	else if (!(targetType->getFlags() & TypeFlag_Dynamic)) // DataPtrTypeKind_Normal
-	{
+	} else if (!(targetType->getFlags() & TypeFlag_Dynamic)) { // DataPtrTypeKind_Normal
 		size_t size = targetType->getSize();
 		Value sizeValue(size ? size : 1, module->m_typeMgr.getPrimitiveType(TypeKind_SizeT));
 
@@ -92,11 +79,8 @@ dataPtrIncrementOperator(
 		module->m_llvmIrBuilder.createExtractValue(opValue1, 0, NULL, &ptrValue);
 		module->m_llvmIrBuilder.createGep(ptrValue, incValue, NULL, &ptrValue);
 		module->m_llvmIrBuilder.createInsertValue(opValue1, ptrValue, 0, resultType, resultValue);
-	}
-	else // DataPtrTypeKind_Normal, TypeFlag_Dynamic
-	{
-		if (targetType->getTypeKind() != TypeKind_Struct)
-		{
+	} else { // DataPtrTypeKind_Normal, TypeFlag_Dynamic
+		if (targetType->getTypeKind() != TypeKind_Struct) {
 			err::setError("pointer increments are only supported for dynamic structs");
 			return false;
 		}
@@ -106,8 +90,7 @@ dataPtrIncrementOperator(
 		if (!result)
 			return false;
 
-		if (incValue.getValueKind() != ValueKind_Const || incValue.getSizeT() != 1)
-		{
+		if (incValue.getValueKind() != ValueKind_Const || incValue.getSizeT() != 1) {
 			err::setError("invalid pointer increment on a dynamic pointer (+1 only)");
 			return false;
 		}
@@ -123,7 +106,7 @@ dataPtrIncrementOperator(
 			Value(&targetType, ptrType),
 			ptrType->getZeroValue(), // field = null
 			&ptrValue
-			);
+		);
 
 		if (!result)
 			return false;
@@ -140,26 +123,20 @@ dataPtrDifferenceOperator(
 	const Value& rawOpValue1,
 	const Value& rawOpValue2,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(rawOpValue1.getType()->getTypeKind() == TypeKind_DataPtr);
 	ASSERT(rawOpValue2.getType()->getTypeKind() == TypeKind_DataPtr);
 
 	Type* targetType1 = ((DataPtrType*)rawOpValue1.getType())->getTargetType();
 	Type* targetType2 = ((DataPtrType*)rawOpValue2.getType())->getTargetType();
 
-	if (targetType1->cmp(targetType2) != 0)
-	{
+	if (targetType1->cmp(targetType2) != 0) {
 		err::setFormatStringError("pointer difference target types mismatch");
 		return false;
-	}
-	else if (targetType1->getStdType() == StdType_AbstractData)
-	{
+	} else if (targetType1->getStdType() == StdType_AbstractData) {
 		err::setError("pointer arithmetic is not applicable to 'anydata' pointers");
 		return false;
-	}
-	else if (targetType1->getFlags() & TypeFlag_Dynamic)
-	{
+	} else if (targetType1->getFlags() & TypeFlag_Dynamic) {
 		err::setError("pointer subtraction is not applicable to dynamic pointers");
 		return false;
 	}
@@ -183,20 +160,15 @@ dataPtrDifferenceOperator(
 	Type* type = module->m_typeMgr.getPrimitiveType(TypeKind_IntPtr);
 
 	if (opValue1.getValueKind() == ValueKind_Const &&
-		opValue2.getValueKind() == ValueKind_Const)
-	{
+		opValue2.getValueKind() == ValueKind_Const) {
 		char* p1 = *(char**)opValue1.getConstData();
 		char* p2 = *(char**)opValue2.getConstData();
 		intptr_t diff = (p1 - p2) / size;
 
 		resultValue->setConstSizeT(diff, type);
-	}
-	else if (!module->hasCodeGen())
-	{
+	} else if (!module->hasCodeGen()) {
 		resultValue->setType(type);
-	}
-	else
-	{
+	} else {
 		Value diffValue;
 		Value sizeValue;
 		sizeValue.setConstSizeT(size, module);
@@ -216,8 +188,7 @@ BinOp_Add::op(
 	const Value& opValue1,
 	const Value& opValue2,
 	Value* resultValue
-	)
-{
+) {
 	if (opValue1.getType()->getTypeKind() == TypeKind_DataPtr &&
 		(opValue2.getType()->getTypeKindFlags() & TypeKindFlag_Integer))
 		return dataPtrIncrementOperator(m_module, opValue1, opValue2, resultValue);
@@ -236,8 +207,7 @@ BinOp_Add::llvmOpInt(
 	Type* resultType,
 	Value* resultValue,
 	bool isUnsigned
-	)
-{
+) {
 	return m_module->m_llvmIrBuilder.createAdd_i(opValue1, opValue2, resultType, resultValue);
 }
 
@@ -247,8 +217,7 @@ BinOp_Add::llvmOpFp(
 	const Value& opValue2,
 	Type* resultType,
 	Value* resultValue
-	)
-{
+) {
 	return m_module->m_llvmIrBuilder.createAdd_f(opValue1, opValue2, resultType, resultValue);
 }
 
@@ -259,11 +228,9 @@ BinOp_Sub::op(
 	const Value& opValue1,
 	const Value& opValue2,
 	Value* resultValue
-	)
-{
+) {
 	if (opValue1.getType()->getTypeKind() == TypeKind_DataPtr &&
-		(opValue2.getType()->getTypeKindFlags() & TypeKindFlag_Integer))
-	{
+		(opValue2.getType()->getTypeKindFlags() & TypeKindFlag_Integer)) {
 		Value negOpValue2;
 		return
 			m_module->m_operatorMgr.unaryOperator(UnOpKind_Minus, opValue2, &negOpValue2) &&
@@ -284,8 +251,7 @@ BinOp_Sub::llvmOpInt(
 	Type* resultType,
 	Value* resultValue,
 	bool isUnsigned
-	)
-{
+) {
 	return m_module->m_llvmIrBuilder.createSub_i(opValue1, opValue2, resultType, resultValue);
 }
 
@@ -296,8 +262,7 @@ BinOp_Sub::llvmOpFp(
 	const Value& opValue2,
 	Type* resultType,
 	Value* resultValue
-	)
-{
+) {
 	return m_module->m_llvmIrBuilder.createSub_f(opValue1, opValue2, resultType, resultValue);
 }
 
@@ -310,8 +275,7 @@ BinOp_Mul::llvmOpInt(
 	Type* resultType,
 	Value* resultValue,
 	bool isUnsigned
-	)
-{
+) {
 	return m_module->m_llvmIrBuilder.createMul_i(opValue1, opValue2, resultType, resultValue);
 }
 
@@ -321,8 +285,7 @@ BinOp_Mul::llvmOpFp(
 	const Value& opValue2,
 	Type* resultType,
 	Value* resultValue
-	)
-{
+) {
 	return m_module->m_llvmIrBuilder.createMul_f(opValue1, opValue2, resultType, resultValue);
 }
 
@@ -335,8 +298,7 @@ BinOp_Div::llvmOpInt(
 	Type* resultType,
 	Value* resultValue,
 	bool isUnsigned
-	)
-{
+) {
 	return isUnsigned ?
 		m_module->m_llvmIrBuilder.createDiv_u(opValue1, opValue2, resultType, resultValue) :
 		m_module->m_llvmIrBuilder.createDiv_i(opValue1, opValue2, resultType, resultValue);
@@ -349,8 +311,7 @@ BinOp_Div::llvmOpFp(
 	const Value& opValue2,
 	Type* resultType,
 	Value* resultValue
-	)
-{
+) {
 	return m_module->m_llvmIrBuilder.createDiv_f(opValue1, opValue2, resultType, resultValue);
 }
 
@@ -363,8 +324,7 @@ BinOp_Mod::llvmOpInt(
 	Type* resultType,
 	Value* resultValue,
 	bool isUnsigned
-	)
-{
+) {
 	return isUnsigned ?
 		m_module->m_llvmIrBuilder.createMod_u(opValue1, opValue2, resultType, resultValue) :
 		m_module->m_llvmIrBuilder.createMod_i(opValue1, opValue2, resultType, resultValue);
@@ -379,8 +339,7 @@ BinOp_Shl::llvmOpInt(
 	Type* resultType,
 	Value* resultValue,
 	bool isUnsigned
-	)
-{
+) {
 	return m_module->m_llvmIrBuilder.createShl(opValue1, opValue2, resultType, resultValue);
 }
 
@@ -393,8 +352,7 @@ BinOp_Shr::llvmOpInt(
 	Type* resultType,
 	Value* resultValue,
 	bool isUnsigned
-	)
-{
+) {
 	return m_module->m_llvmIrBuilder.createShr(opValue1, opValue2, resultType, resultValue);
 }
 
@@ -404,8 +362,7 @@ EnumType*
 getBitFlagEnumBwAndResultType(
 	const Value& opValue1,
 	const Value& opValue2
-	)
-{
+) {
 	EnumType* opType1 = (EnumType*)opValue1.getType();
 	EnumType* opType2 = (EnumType*)opValue2.getType();
 
@@ -421,8 +378,7 @@ EnumType*
 getBitFlagEnumBwOrXorResultType(
 	const Value& opValue1,
 	const Value& opValue2
-	)
-{
+) {
 	EnumType* opType1 = (EnumType*)opValue1.getType();
 	EnumType* opType2 = (EnumType*)opValue2.getType();
 
@@ -438,8 +394,7 @@ getBitFlagEnumBwOrXorResultType(
 
 //..............................................................................
 
-BinOp_BwAnd::BinOp_BwAnd()
-{
+BinOp_BwAnd::BinOp_BwAnd() {
 	m_opKind = BinOpKind_BwAnd;
 	m_opFlags1 = OpFlag_KeepEnum;
 	m_opFlags2 = OpFlag_KeepEnum;
@@ -450,8 +405,7 @@ BinOp_BwAnd::op(
 	const Value& rawOpValue1,
 	const Value& rawOpValue2,
 	Value* resultValue
-	)
-{
+) {
 	Value opValue1;
 	Value opValue2;
 	Value tmpValue;
@@ -479,15 +433,13 @@ BinOp_BwAnd::llvmOpInt(
 	Type* resultType,
 	Value* resultValue,
 	bool isUnsigned
-	)
-{
+) {
 	return m_module->m_llvmIrBuilder.createAnd(opValue1, opValue2, resultType, resultValue);
 }
 
 //..............................................................................
 
-BinOp_BwOr::BinOp_BwOr()
-{
+BinOp_BwOr::BinOp_BwOr() {
 	m_opKind = BinOpKind_BwOr;
 	m_opFlags1 = OpFlag_KeepEnum;
 	m_opFlags2 = OpFlag_KeepEnum;
@@ -498,8 +450,7 @@ BinOp_BwOr::op(
 	const Value& rawOpValue1,
 	const Value& rawOpValue2,
 	Value* resultValue
-	)
-{
+) {
 	Value opValue1;
 	Value opValue2;
 
@@ -530,15 +481,13 @@ BinOp_BwOr::llvmOpInt(
 	Type* resultType,
 	Value* resultValue,
 	bool isUnsigned
-	)
-{
+) {
 	return m_module->m_llvmIrBuilder.createOr(opValue1, opValue2, resultType, resultValue);
 }
 
 //..............................................................................
 
-BinOp_BwXor::BinOp_BwXor()
-{
+BinOp_BwXor::BinOp_BwXor() {
 	m_opKind = BinOpKind_BwXor;
 	m_opFlags1 = OpFlag_KeepEnum;
 	m_opFlags2 = OpFlag_KeepEnum;
@@ -549,8 +498,7 @@ BinOp_BwXor::op(
 	const Value& rawOpValue1,
 	const Value& rawOpValue2,
 	Value* resultValue
-	)
-{
+) {
 	Value opValue1;
 	Value opValue2;
 
@@ -581,8 +529,7 @@ BinOp_BwXor::llvmOpInt(
 	Type* resultType,
 	Value* resultValue,
 	bool isUnsigned
-	)
-{
+) {
 	return m_module->m_llvmIrBuilder.createXor(opValue1, opValue2, resultType, resultValue);
 }
 

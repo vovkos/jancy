@@ -18,11 +18,9 @@ namespace ct {
 
 //..............................................................................
 
-class UnOp_LogNot: public UnaryOperator
-{
+class UnOp_LogNot: public UnaryOperator {
 public:
-	UnOp_LogNot()
-	{
+	UnOp_LogNot() {
 		m_opKind = UnOpKind_LogNot;
 	}
 
@@ -31,26 +29,26 @@ public:
 	op(
 		const Value& opValue,
 		Value* resultValue
-		);
+	);
 
 protected:
 	bool
 	zeroCmpOperator(
 		const Value& opValue,
 		Value* resultValue
-		);
+	);
 
 	bool
 	ptrOperator(
 		const Value& opValue,
 		Value* resultValue
-		);
+	);
 
 	bool
 	variantOperator(
 		const Value& opValue,
 		Value* resultValue
-		);
+	);
 };
 
 //..............................................................................

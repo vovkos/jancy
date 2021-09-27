@@ -23,7 +23,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	MyLibCacheSlot_Button,
 	MyButton,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(MyButton)
 	JNC_MAP_CONSTRUCTOR(&(jnc::construct<MyButton, jnc::DataPtr>))
@@ -34,16 +34,14 @@ JNC_END_TYPE_FUNCTION_MAP()
 //..............................................................................
 
 MyButton::MyButton(jnc::DataPtr textPtr):
-	MyWidget(new QPushButton)
-{
+	MyWidget(new QPushButton) {
 	m_qtButton = (QPushButton*)m_handle;
 	setText(textPtr);
 	m_onClickedBridge = new QtSignalBridge;
 	m_onClickedBridge->connect(m_qtButton, SIGNAL(clicked()), m_onClicked);
 }
 
-MyButton::~MyButton()
-{
+MyButton::~MyButton() {
 	if (!m_qtButton->parent())
 		delete m_qtButton;
 

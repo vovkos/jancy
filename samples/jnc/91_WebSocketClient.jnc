@@ -11,8 +11,7 @@
 
 import "io_websocket.jncx"
 
-void processSocketEvents(io.WebSocket* socket)
-{
+void processSocketEvents(io.WebSocket* socket) {
 	io.WebSocketEvents events = socket.m_activeEvents;
 	printf("events: 0x%04x: %s\n", events, typeof(io.WebSocketEvents).getValueString(events));
 
@@ -20,8 +19,7 @@ void processSocketEvents(io.WebSocket* socket)
 		printf("error: %s\n", socket.m_ioError.m_description);
 }
 
-int main()
-{
+int main() {
 	char const* host = "127.0.0.1:8088";
 	char const* resource = "/resource";
 
@@ -37,7 +35,7 @@ int main()
 	io.WebSocketEvents events = socket.blockingWait(
 		io.WebSocketEvents.IoError |
 		io.WebSocketEvents.WebSocketHandshakeCompleted
-		);
+	);
 
 	processSocketEvents(socket);
 
@@ -52,7 +50,7 @@ int main()
 		io.WebSocketEvents.IoError |
 		io.WebSocketEvents.IncomingData |
 		io.WebSocketEvents.TcpDisconnected
-		);
+	);
 
 	processSocketEvents(socket);
 

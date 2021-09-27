@@ -14,37 +14,31 @@ using extension ui.ComboBoxHistory;
 
 //..............................................................................
 
-class MailslotMonSession: doc.Session
-{
+class MailslotMonSession: doc.Session {
 protected:
-	enum Defaults
-	{
+	enum Defaults {
 		PendingNotifySizeLimit = 1 * 1024 * 1024, // 1MB
 		UseLanmanMonitor       = true,
 	}
 
-	enum State
-	{
+	enum State {
 		Closed,
 		Opened,
 	}
 
-	enum ActionId
-	{
+	enum ActionId {
 		ApplyFilter,
 		Capture,
 		_Count,
 	}
 
-	enum IconId
-	{
+	enum IconId {
 		Capture,
 		StopCapture,
 		_Count,
 	}
 
-	enum StatusPaneId
-	{
+	enum StatusPaneId {
 		State,
 		_Count,
 	}
@@ -98,18 +92,15 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
-	void onCapture()
-	{
+	void onCapture() {
 		m_state ? close() : try capture();
 	}
 
-	void onSetViewFilter()
-	{
+	void onSetViewFilter() {
 		applyViewFilter(true);
 	}
 
-	char const* createCaptureFilter()
-	{
+	char const* createCaptureFilter() {
 		char const* name = m_captureFilterProp.m_value;
 		return name && *name ? strdup(name) : "*"; // null wildcard means we also receive notifications from already-opened "nameless" files
 	}
@@ -120,8 +111,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-MailslotMonSession.construct(doc.PluginHost* pluginHost)
-{
+MailslotMonSession.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
 	m_msfsMonitor.construct(this);
 	m_lanmanMonitor.construct(this);
@@ -134,12 +124,10 @@ MailslotMonSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-void MailslotMonSession.createUi()
-{
+void MailslotMonSession.createUi() {
 	// toolbar
 
-	static ui.EnumPropertyOption viewFilterKindTable[] =
-	{
+	static ui.EnumPropertyOption viewFilterKindTable[] = {
 		{ "None",         log.MonitorFilterKind.None },
 		{ "File name",    log.MonitorFilterKind.FileName },
 		{ "File ID",      log.MonitorFilterKind.FileId },
@@ -151,7 +139,7 @@ void MailslotMonSession.createUi()
 		"Filter:",
 		viewFilterKindTable,
 		countof(viewFilterKindTable)
-		);
+	);
 
 	m_viewFilterCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_viewFilterCombo.m_isEditable = true;
@@ -175,14 +163,14 @@ void MailslotMonSession.createUi()
 	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Connection",
 		"Named pipe monitor connection settings"
-		);
+	);
 
 	m_captureFilterProp = m_pluginHost.m_propertyGrid.createStringProperty(
 		group,,
 		"Capture filter",
 		"Enter a mailslot name wildcard...",
 		"Specify name wildcard capture filter (supported masks: * and ?; leave empty for no filter)"
-		);
+	);
 
 	m_viewFilterKindProp = m_pluginHost.m_propertyGrid.createEnumProperty(
 		group,,
@@ -190,25 +178,25 @@ void MailslotMonSession.createUi()
 		"Show only data which pass this filter",
 		viewFilterKindTable,
 		countof(viewFilterKindTable)
-		);
+	);
 
 	m_viewFilterProp = m_pluginHost.m_propertyGrid.createStringProperty(
 		group,,
 		"View filter",
 		"Enter a view filter...",
 		"Show only data which pass this filter"
-		);
+	);
 
 	m_useLanmanMonitorProp = m_pluginHost.m_propertyGrid.createBoolProperty(
 		group,,
 		"Monitor remote connection",
 		"Attach and monitor pipe connections redirected over Windows LANMAN"
-		);
+	);
 
 	group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Buffering & compatibility",
 		"Advanced options controlling performance, throughtput and compatibility"
-		);
+	);
 
 	m_bufferPropertySet.createProperties(
 		m_pluginHost.m_propertyGrid,
@@ -217,13 +205,13 @@ void MailslotMonSession.createUi()
 		ui.BufferPropertySet.PropertyId.ReadBufferSize |
 		ui.BufferPropertySet.PropertyId.ReadBlockSize |
 		ui.BufferPropertySet.PropertyId.NotifyReadBufferFull
-		);
+	);
 
 	m_pendingNotifySizeLimitProp = m_pluginHost.m_propertyGrid.createIntProperty(
 		group,,
 		"Pending notification limit",
 		"Set the maximum size of kernel notification queue (exceeding notification will be dropped)"
-		);
+	);
 
 	m_bufferPropertySet.m_readBlockSizeProp.m_minValue = 1024;
 	m_bufferPropertySet.m_readBufferSizeProp.m_minValue = 1024;
@@ -239,7 +227,7 @@ void MailslotMonSession.createUi()
 		infoGroup,,
 		ui.StdSessionInfoSet.InfoId.SessionTime |
 		ui.StdSessionInfoSet.InfoId.RxTotalSize
-		);
+	);
 
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
@@ -250,8 +238,7 @@ void MailslotMonSession.createUi()
 	m_uiReactor.start();
 }
 
-bool errorcode MailslotMonSession.capture()
-{
+bool errorcode MailslotMonSession.capture() {
 	close();
 	startSession();
 
@@ -259,8 +246,7 @@ bool errorcode MailslotMonSession.capture()
 	m_msfsMonitor.applyProperties(m_bufferPropertySet, m_pendingNotifySizeLimitProp.m_value);
 	m_msfsMonitor.capture(r"\device\mailslot", m_captureFilter);
 
-	if (m_useLanmanMonitorProp.m_value)
-	{
+	if (m_useLanmanMonitorProp.m_value) {
 		m_lanmanMonitor.applyProperties(m_bufferPropertySet, m_pendingNotifySizeLimitProp.m_value);
 		m_lanmanMonitor.capture(r"\device\lanmanredirector", m_captureFilter);
 	}
@@ -279,8 +265,7 @@ catch:
 	return false;
 }
 
-void MailslotMonSession.close()
-{
+void MailslotMonSession.close() {
 	if (m_state != State.Opened)
 		return;
 
@@ -292,8 +277,7 @@ void MailslotMonSession.close()
 	m_stdSessionInfoSet.endSession();
 }
 
-void MailslotMonSession.load(doc.Storage* storage)
-{
+void MailslotMonSession.load(doc.Storage* storage) {
 	m_viewFilterCombo.loadHistory(storage, "viewFilterHistory");
 	m_viewFilterCombo.m_editText = storage.readString("viewFilter");
 	m_viewFilterKindCombo.m_currentIndex = storage.readInt("viewFilterKind");
@@ -306,8 +290,7 @@ void MailslotMonSession.load(doc.Storage* storage)
 	m_lanmanMonitor.setReadBufferSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 }
 
-void MailslotMonSession.save(doc.Storage* storage)
-{
+void MailslotMonSession.save(doc.Storage* storage) {
 	m_viewFilterCombo.saveHistory(storage, "viewFilterHistory");
 	storage.writeString("captureFilter", m_captureFilterProp.m_value);
 	storage.writeString("viewFilter", m_viewFilterCombo.m_currentText);
@@ -318,14 +301,12 @@ void MailslotMonSession.save(doc.Storage* storage)
 	m_bufferPropertySet.save(storage);
 }
 
-void MailslotMonSession.updateProperties()
-{
+void MailslotMonSession.updateProperties() {
 	m_viewFilterKindProp.m_currentIndex = m_viewFilterKindCombo.m_currentIndex;
 	m_viewFilterProp.m_value = m_viewFilterCombo.m_editText;
 }
 
-bool errorcode MailslotMonSession.applyProperties()
-{
+bool errorcode MailslotMonSession.applyProperties() {
 	m_viewFilterKindCombo.m_currentIndex = m_viewFilterKindProp.m_currentIndex;
 	m_viewFilterCombo.m_editText = m_viewFilterProp.m_value;
 
@@ -338,8 +319,7 @@ bool errorcode MailslotMonSession.applyProperties()
 	m_lanmanMonitor.applyProperties(m_bufferPropertySet, m_pendingNotifySizeLimitProp.m_value);
 
 	char const* captureFilter = createCaptureFilter();
-	if (strcmp(m_captureFilter, captureFilter))
-	{
+	if (strcmp(m_captureFilter, captureFilter)) {
 		m_captureFilter = captureFilter;
 		m_msfsMonitor.setFileNameFilter(captureFilter);
 		m_lanmanMonitor.setFileNameFilter(captureFilter);
@@ -349,16 +329,14 @@ bool errorcode MailslotMonSession.applyProperties()
 	return true;
 }
 
-void MailslotMonSession.restoreDefaultProperties()
-{
+void MailslotMonSession.restoreDefaultProperties() {
 	m_viewFilterKindProp.m_currentIndex = 0;
 	m_pendingNotifySizeLimitProp.m_value = Defaults.PendingNotifySizeLimit;
 	m_useLanmanMonitorProp.m_value = Defaults.UseLanmanMonitor;
 	m_bufferPropertySet.restoreDefaults();
 }
 
-void MailslotMonSession.applyViewFilter(bool rebuildLog)
-{
+void MailslotMonSession.applyViewFilter(bool rebuildLog) {
 	m_viewFilterCombo.addEditTextToHistory();
 
 	m_pluginHost.m_log.suspend();
@@ -369,8 +347,7 @@ void MailslotMonSession.applyViewFilter(bool rebuildLog)
 		m_pluginHost.m_log.rebuild();
 }
 
-reactor MailslotMonSession.m_uiReactor
-{
+reactor MailslotMonSession.m_uiReactor {
 	m_title = $"MSFS mon $(m_captureFilterProp.m_value)";
 	m_actionTable[ActionId.Capture].m_text = m_state ? "Stop Capture" : "Capture";
 	m_actionTable[ActionId.Capture].m_icon = m_iconTable[m_state ? IconId.StopCapture : IconId.Capture];

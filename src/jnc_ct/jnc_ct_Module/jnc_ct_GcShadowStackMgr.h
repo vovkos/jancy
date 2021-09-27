@@ -25,21 +25,18 @@ class GcShadowStackMgr;
 
 //..............................................................................
 
-enum GcShadowStackFrameMapKind
-{
+enum GcShadowStackFrameMapKind {
 	GcShadowStackFrameMapKind_Static = 0,
 	GcShadowStackFrameMapKind_Dynamic,
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class GcShadowStackFrameMap: public sl::ListLink
-{
+class GcShadowStackFrameMap: public sl::ListLink {
 	friend class GcShadowStackMgr;
 
 protected:
-	union
-	{
+	union {
 		Scope* m_scope; // before a function is finalized
 		GcShadowStackFrameMap* m_prev;
 	};
@@ -49,8 +46,7 @@ protected:
 	sl::Array<Type*> m_gcRootTypeArray;
 
 public:
-	GcShadowStackFrameMap()
-	{
+	GcShadowStackFrameMap() {
 		m_prev = NULL;
 		m_mapKind = GcShadowStackFrameMapKind_Static;
 	}
@@ -58,47 +54,40 @@ public:
 	~GcShadowStackFrameMap();
 
 	GcShadowStackFrameMap*
-	getPrev()
-	{
+	getPrev() {
 		return m_prev;
 	}
 
 	GcShadowStackFrameMapKind
-	getMapKind()
-	{
+	getMapKind() {
 		return m_mapKind;
 	}
 
 	size_t
-	getGcRootCount()
-	{
+	getGcRootCount() {
 		return m_gcRootArray.getCount();
 	}
 
 	const size_t*
-	getGcRootIndexArray()
-	{
+	getGcRootIndexArray() {
 		ASSERT(m_mapKind == GcShadowStackFrameMapKind_Static);
 		return (const size_t*)m_gcRootArray.cp();
 	}
 
 	Type* const*
-	getGcRootTypeArray()
-	{
+	getGcRootTypeArray() {
 		ASSERT(m_mapKind == GcShadowStackFrameMapKind_Static);
 		return m_gcRootTypeArray.cp();
 	}
 
 	Box* const*
-	getBoxArray()
-	{
+	getBoxArray() {
 		ASSERT(m_mapKind == GcShadowStackFrameMapKind_Dynamic);
 		return (Box* const*)m_gcRootArray.cp();
 	}
 
 	void
-	addBox(Box* box)
-	{
+	addBox(Box* box) {
 		ASSERT(m_mapKind == GcShadowStackFrameMapKind_Dynamic);
 		m_gcRootArray.append((intptr_t)box);
 	}
@@ -106,8 +95,7 @@ public:
 
 //..............................................................................
 
-class GcShadowStackMgr
-{
+class GcShadowStackMgr {
 	friend class Module;
 
 protected:
@@ -124,13 +112,11 @@ public:
 	GcShadowStackMgr();
 
 	Module*
-	getModule()
-	{
+	getModule() {
 		return m_module;
 	}
 
-	bool hasFrame()
-	{
+	bool hasFrame() {
 		return m_frameVariable != NULL;
 	}
 
@@ -150,7 +136,7 @@ public:
 	markGcRoot(
 		const Value& ptrValue,
 		Type* type
-		);
+	);
 
 protected:
 	GcShadowStackFrameMap*
@@ -160,7 +146,7 @@ protected:
 	setFrameMap(
 		GcShadowStackFrameMap* frameMap,
 		GcShadowStackFrameMapOp op
-		);
+	);
 
 	void
 	preCreateFrame();

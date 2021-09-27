@@ -19,16 +19,13 @@ namespace ct {
 //..............................................................................
 
 bool
-ExtensionNamespace::addMethod(Function* function)
-{
-	if (function->isVirtual())
-	{
+ExtensionNamespace::addMethod(Function* function) {
+	if (function->isVirtual()) {
 		err::setFormatStringError("invalid storage '%s' in type extension", getStorageKindString(function->getStorageKind ()));
 		return false;
 	}
 
-	if (function->getFunctionKind() != FunctionKind_Normal)
-	{
+	if (function->getFunctionKind() != FunctionKind_Normal) {
 		err::setFormatStringError("'%s' cannot be a part of type extension", getFunctionKindString(function->getFunctionKind ()));
 		return false;
 	}
@@ -46,10 +43,8 @@ ExtensionNamespace::addMethod(Function* function)
 }
 
 bool
-ExtensionNamespace::addProperty(Property* prop)
-{
-	if (prop->isVirtual())
-	{
+ExtensionNamespace::addProperty(Property* prop) {
+	if (prop->isVirtual()) {
 		err::setFormatStringError("invalid storage '%s' in type extension", getStorageKindString(prop->m_storageKind));
 		return false;
 	}
@@ -67,8 +62,7 @@ ExtensionNamespace::addProperty(Property* prop)
 }
 
 bool
-ExtensionNamespace::parseBody()
-{
+ExtensionNamespace::parseBody() {
 	bool result = (m_module->getCompileFlags() & ModuleCompileFlag_KeepTypedefShadow) ?
 		m_type->ensureNoImports() :
 		m_type->ensureLayout();
@@ -80,8 +74,7 @@ ExtensionNamespace::parseBody()
 	if (!result)
 		return false;
 
-	if (!(m_type->getTypeKindFlags() & TypeKindFlag_Derivable))
-	{
+	if (!(m_type->getTypeKindFlags() & TypeKindFlag_Derivable)) {
 		err::setFormatStringError("'%s' cannot have a type extension", m_type->getTypeString().sz());
 		return false;
 	}
@@ -98,13 +91,11 @@ ExtensionNamespace::parseBody()
 }
 
 void
-ExtensionNamespace::fixupMethod(Function* function)
-{
+ExtensionNamespace::fixupMethod(Function* function) {
 	ASSERT(m_type->getTypeKindFlags() & TypeKindFlag_Derivable);
 	DerivableType* derivableType = (DerivableType*)m_type;
 
-	if (function->m_storageKind != StorageKind_Static)
-	{
+	if (function->m_storageKind != StorageKind_Static) {
 		function->m_storageKind = StorageKind_Member;
 		function->convertToMemberMethod(derivableType);
 	}
@@ -114,13 +105,11 @@ ExtensionNamespace::fixupMethod(Function* function)
 }
 
 void
-ExtensionNamespace::fixupProperty(Property* prop)
-{
+ExtensionNamespace::fixupProperty(Property* prop) {
 	ASSERT(m_type->getTypeKindFlags() & TypeKindFlag_Derivable);
 	DerivableType* derivableType = (DerivableType*)m_type;
 
-	if (prop->m_storageKind != StorageKind_Static)
-	{
+	if (prop->m_storageKind != StorageKind_Static) {
 		prop->m_storageKind = StorageKind_Member;
 		prop->m_parentType = derivableType;
 	}

@@ -22,12 +22,10 @@ findInCsvStringIgnoreCase(
 	const sl::StringRef& string0,
 	const sl::StringRef& value,
 	char c = ','
-	)
-{
+) {
 	sl::StringRef string = string0;
 
-	for (size_t i = 0;; i++)
-	{
+	for (size_t i = 0;; i++) {
 		size_t delim = string.find(c);
 		if (delim == -1)
 			return string.cmpIgnoreCase(value) == 0 ? i : -1;
@@ -44,8 +42,7 @@ findInCsvStringIgnoreCase(
 WebSocketHandshakeParser::WebSocketHandshakeParser(
 	WebSocketHandshake* handshake,
 	const sl::StringRef& key
-	)
-{
+) {
 	handshake->clear();
 	m_handshake = handshake;
 	m_key = key;
@@ -56,8 +53,7 @@ size_t
 WebSocketHandshakeParser::bufferLine(
 	const char* p,
 	size_t size
-	)
-{
+) {
 	char* lf = (char*)memchr(p, '\n', size);
 	if (lf)
 		size = lf - p + 1;
@@ -73,13 +69,11 @@ size_t
 WebSocketHandshakeParser::parse(
 	const void* p0,
 	size_t size
-	)
-{
+) {
 	const char* p = (char*)p0;
 	const char* end = p + size;
 
-	while (p < end && m_state != State_Completed)
-	{
+	while (p < end && m_state != State_Completed) {
 		size_t result = bufferLine(p, end - p);
 		if (result == -1)
 			return -1;
@@ -91,8 +85,7 @@ WebSocketHandshakeParser::parse(
 
 		m_line.trim();
 
-		switch (m_state)
-		{
+		switch (m_state) {
 		case State_RequestLine:
 			result = parseRequestLine();
 			break;
@@ -121,8 +114,7 @@ WebSocketHandshakeParser::parse(
 }
 
 bool
-WebSocketHandshakeParser::parseRequestLine()
-{
+WebSocketHandshakeParser::parseRequestLine() {
 	size_t delim = m_line.find(' ');
 	if (delim == -1)
 		return err::fail("invalid HTTP request line: missing resource");
@@ -150,8 +142,7 @@ WebSocketHandshakeParser::parseRequestLine()
 	m_handshake->m_httpVersion = strtoul(m_line, NULL, 10) << 8;
 
 	delim = m_line.find('.');
-	if (delim != -1)
-	{
+	if (delim != -1) {
 		m_line.remove(0, delim + 1);
 		m_handshake->m_httpVersion |= strtoul(m_line, NULL, 10);
 	}
@@ -161,8 +152,7 @@ WebSocketHandshakeParser::parseRequestLine()
 }
 
 bool
-WebSocketHandshakeParser::parseResponseLine()
-{
+WebSocketHandshakeParser::parseResponseLine() {
 	if (!m_line.isPrefix("HTTP/"))
 		return err::fail("invalid HTTP response line: unexpected version prefix");
 
@@ -170,8 +160,7 @@ WebSocketHandshakeParser::parseResponseLine()
 	m_handshake->m_httpVersion = strtoul(m_line, NULL, 10) << 8;
 
 	size_t delim = m_line.find('.');
-	if (delim != -1)
-	{
+	if (delim != -1) {
 		m_line.remove(0, delim + 1);
 		m_handshake->m_httpVersion |= strtoul(m_line, NULL, 10);
 	}
@@ -197,8 +186,7 @@ WebSocketHandshakeParser::parseResponseLine()
 }
 
 bool
-WebSocketHandshakeParser::parseHeaderLine()
-{
+WebSocketHandshakeParser::parseHeaderLine() {
 	if (m_line.isEmpty())
 		return finalize();
 
@@ -213,8 +201,7 @@ WebSocketHandshakeParser::parseHeaderLine()
 }
 
 bool
-WebSocketHandshakeParser::finalize()
-{
+WebSocketHandshakeParser::finalize() {
 	if (m_handshake->m_httpVersion < 0x0101) // HTTP/1.1
 		return err::fail("unsupported HTTP version");
 
@@ -249,18 +236,16 @@ WebSocketHandshakeParser::finalize()
 }
 
 bool
-WebSocketHandshakeParser::verifyAccept()
-{
+WebSocketHandshakeParser::verifyAccept() {
 	const WebSocketHandshakeHeader* accept = m_handshake->m_headers->getStdHeader(WebSocketHandshakeStdHeader_WebSocketAccept);
 	ASSERT(!m_key.isEmpty() && accept);
 
-	if (m_handshake->m_statusCode != 101)
-	{
+	if (m_handshake->m_statusCode != 101) {
 		err::setFormatStringError(
 			"failure to switch HTTP protocol: %d %s",
 			m_handshake->m_statusCode,
 			m_handshake->m_reasonPhrase.sz()
-			);
+		);
 
 		return false;
 	}

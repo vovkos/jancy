@@ -15,16 +15,14 @@
 
 char g_a[Color.Count];
 
-enum Color
-{
+enum Color {
 	Red,
 	Green,
 	Blue,
 	Count
 }
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 	return 0;
 }

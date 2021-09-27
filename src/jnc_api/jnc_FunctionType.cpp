@@ -25,10 +25,8 @@
 JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
-jnc_getFunctionTypeFlagString(jnc_FunctionTypeFlag flag)
-{
-	static const char* stringTable[] =
-	{
+jnc_getFunctionTypeFlagString(jnc_FunctionTypeFlag flag) {
+	static const char* stringTable[] = {
 		"vararg",     // jnc_FunctionTypeFlag_VarArg         = 0x010000,
 		"errorcode",  // jnc_FunctionTypeFlag_ErrorCode      = 0x020000,
 		"byval",      // jnc_FunctionTypeFlag_ByValArgs      = 0x040000,
@@ -50,15 +48,13 @@ jnc_getFunctionTypeFlagString(jnc_FunctionTypeFlag flag)
 
 JNC_EXTERN_C
 jnc_Type*
-jnc_FunctionType_getReturnType(jnc_FunctionType* type)
-{
+jnc_FunctionType_getReturnType(jnc_FunctionType* type) {
 	return jnc_g_dynamicExtensionLibHost->m_functionTypeFuncTable->m_getReturnTypeFunc(type);
 }
 
 JNC_EXTERN_C
 size_t
-jnc_FunctionType_getArgCount(jnc_FunctionType* type)
-{
+jnc_FunctionType_getArgCount(jnc_FunctionType* type) {
 	return jnc_g_dynamicExtensionLibHost->m_functionTypeFuncTable->m_getArgCountFunc(type);
 }
 
@@ -67,8 +63,7 @@ jnc_FunctionArg*
 jnc_FunctionType_getArg(
 	jnc_FunctionType* type,
 	size_t index
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_functionTypeFuncTable->m_getArgFunc(type, index);
 }
 
@@ -79,15 +74,13 @@ jnc_FunctionType_getFunctionPtrType(
 	jnc_TypeKind typeKind,
 	jnc_FunctionPtrTypeKind ptrTypeKind,
 	uint_t flags
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_functionTypeFuncTable->m_getFunctionPtrTypeFunc(type, typeKind, ptrTypeKind, flags);
 }
 
 JNC_EXTERN_C
 jnc_FunctionType*
-jnc_FunctionType_getShortType(jnc_FunctionType* type)
-{
+jnc_FunctionType_getShortType(jnc_FunctionType* type) {
 	return jnc_g_dynamicExtensionLibHost->m_functionTypeFuncTable->m_getShortTypeFunc(type);
 }
 
@@ -95,15 +88,13 @@ jnc_FunctionType_getShortType(jnc_FunctionType* type)
 
 JNC_EXTERN_C
 jnc_FunctionPtrTypeKind
-jnc_FunctionPtrType_getPtrTypeKind(jnc_FunctionPtrType* type)
-{
+jnc_FunctionPtrType_getPtrTypeKind(jnc_FunctionPtrType* type) {
 	return jnc_g_dynamicExtensionLibHost->m_functionPtrTypeFuncTable->m_getPtrTypeKindFunc(type);
 }
 
 JNC_EXTERN_C
 jnc_FunctionType*
-jnc_FunctionPtrType_getTargetType(jnc_FunctionPtrType* type)
-{
+jnc_FunctionPtrType_getTargetType(jnc_FunctionPtrType* type) {
 	return jnc_g_dynamicExtensionLibHost->m_functionPtrTypeFuncTable->m_getTargetTypeFunc(type);
 }
 
@@ -112,16 +103,14 @@ jnc_FunctionPtrType_getTargetType(jnc_FunctionPtrType* type)
 JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
-jnc_FunctionArg_hasDefaultValue(jnc_FunctionArg* arg)
-{
+jnc_FunctionArg_hasDefaultValue(jnc_FunctionArg* arg) {
 	return !arg->getInitializer().isEmpty();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
-jnc_FunctionArg_getDefaultValueString_v(jnc_FunctionArg* arg)
-{
+jnc_FunctionArg_getDefaultValueString_v(jnc_FunctionArg* arg) {
 	return *jnc::getTlsStringBuffer() = arg->getInitializerString();
 }
 
@@ -130,16 +119,14 @@ jnc_FunctionArg_getDefaultValueString_v(jnc_FunctionArg* arg)
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Type*
-jnc_FunctionType_getReturnType(jnc_FunctionType* type)
-{
+jnc_FunctionType_getReturnType(jnc_FunctionType* type) {
 	return type->getReturnType();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 size_t
-jnc_FunctionType_getArgCount(jnc_FunctionType* type)
-{
+jnc_FunctionType_getArgCount(jnc_FunctionType* type) {
 	return type->getArgArray().getCount();
 }
 
@@ -149,8 +136,7 @@ jnc_FunctionArg*
 jnc_FunctionType_getArg(
 	jnc_FunctionType* type,
 	size_t index
-	)
-{
+) {
 	return type->getArgArray() [index];
 }
 
@@ -159,8 +145,7 @@ jnc_FunctionType_getArg(
 JNC_EXTERN_C
 JNC_EXPORT_O
 size_t
-jnc_FunctionTypeOverload_getOverloadCount(jnc_FunctionTypeOverload* typeOverload)
-{
+jnc_FunctionTypeOverload_getOverloadCount(jnc_FunctionTypeOverload* typeOverload) {
 	return typeOverload->getOverloadCount();
 }
 
@@ -170,8 +155,7 @@ jnc_FunctionType*
 jnc_FunctionTypeOverload_getOverload(
 	jnc_FunctionTypeOverload* typeOverload,
 	size_t index
-	)
-{
+) {
 	return typeOverload->getOverload(index);
 }
 
@@ -180,16 +164,14 @@ jnc_FunctionTypeOverload_getOverload(
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_FunctionPtrTypeKind
-jnc_FunctionPtrType_getPtrTypeKind(jnc_FunctionPtrType* type)
-{
+jnc_FunctionPtrType_getPtrTypeKind(jnc_FunctionPtrType* type) {
 	return type->getPtrTypeKind();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_FunctionType*
-jnc_FunctionPtrType_getTargetType(jnc_FunctionPtrType* type)
-{
+jnc_FunctionPtrType_getTargetType(jnc_FunctionPtrType* type) {
 	return type->getTargetType();
 }
 
@@ -201,16 +183,14 @@ jnc_FunctionType_getFunctionPtrType(
 	jnc_TypeKind typeKind,
 	jnc_FunctionPtrTypeKind ptrTypeKind,
 	uint_t flags
-	)
-{
+) {
 	return type->getFunctionPtrType(typeKind, ptrTypeKind, flags);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_FunctionType*
-jnc_FunctionType_getShortType(jnc_FunctionType* type)
-{
+jnc_FunctionType_getShortType(jnc_FunctionType* type) {
 	return type->getShortType();
 }
 

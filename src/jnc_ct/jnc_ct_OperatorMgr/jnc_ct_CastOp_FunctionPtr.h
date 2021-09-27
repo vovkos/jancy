@@ -19,15 +19,14 @@ namespace ct {
 
 //..............................................................................
 
-class Cast_FunctionPtr_FromOverload: public CastOperator
-{
+class Cast_FunctionPtr_FromOverload: public CastOperator {
 public:
 	virtual
 	CastKind
 	getCastKind(
 		const Value& opValue,
 		Type* type
-		);
+	);
 
 	virtual
 	bool
@@ -35,20 +34,19 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		);
+	);
 };
 
 //..............................................................................
 
-class Cast_FunctionPtr_FromMulticast: public CastOperator
-{
+class Cast_FunctionPtr_FromMulticast: public CastOperator {
 public:
 	virtual
 	CastKind
 	getCastKind(
 		const Value& opValue,
 		Type* type
-		);
+	);
 
 	virtual
 	bool
@@ -56,20 +54,19 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		);
+	);
 };
 
 //..............................................................................
 
-class Cast_FunctionPtr_FromDataPtr: public CastOperator
-{
+class Cast_FunctionPtr_FromDataPtr: public CastOperator {
 public:
 	virtual
 	CastKind
 	getCastKind(
 		const Value& opValue,
 		Type* type
-		);
+	);
 
 	virtual
 	bool
@@ -77,26 +74,24 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		);
+	);
 };
 
 //..............................................................................
 
-class Cast_FunctionPtr_Base: public CastOperator
-{
+class Cast_FunctionPtr_Base: public CastOperator {
 public:
 	virtual
 	CastKind
 	getCastKind(
 		const Value& opValue,
 		Type* type
-		);
+	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class Cast_FunctionPtr_FromFat: public Cast_FunctionPtr_Base
-{
+class Cast_FunctionPtr_FromFat: public Cast_FunctionPtr_Base {
 public:
 	virtual
 	bool
@@ -104,13 +99,12 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		);
+	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class Cast_FunctionPtr_Weak2Normal: public Cast_FunctionPtr_Base
-{
+class Cast_FunctionPtr_Weak2Normal: public Cast_FunctionPtr_Base {
 public:
 	virtual
 	bool
@@ -118,13 +112,12 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		);
+	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class Cast_FunctionPtr_Thin2Fat: public Cast_FunctionPtr_Base
-{
+class Cast_FunctionPtr_Thin2Fat: public Cast_FunctionPtr_Base {
 public:
 	virtual
 	bool
@@ -132,7 +125,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		);
+	);
 
 protected:
 	bool
@@ -142,14 +135,14 @@ protected:
 		FunctionType* srcFunctionType,
 		FunctionPtrType* dstPtrType,
 		Value* resultValue
-		);
+	);
 
 	bool
 	llvmCast_DirectThunkNoClosure(
 		Function* function,
 		FunctionPtrType* dstPtrType,
 		Value* resultValue
-		);
+	);
 
 	bool
 	llvmCast_DirectThunkSimpleClosure(
@@ -157,7 +150,7 @@ protected:
 		const Value& simpleClosureObjValue,
 		FunctionPtrType* dstPtrType,
 		Value* resultValue
-		);
+	);
 
 	bool
 	llvmCast_FullClosure(
@@ -165,13 +158,12 @@ protected:
 		FunctionType* srcFunctionType,
 		FunctionPtrType* dstPtrType,
 		Value* resultValue
-		);
+	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class Cast_FunctionPtr_Thin2Thin: public Cast_FunctionPtr_Base
-{
+class Cast_FunctionPtr_Thin2Thin: public Cast_FunctionPtr_Base {
 public:
 	virtual
 	bool
@@ -179,13 +171,12 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		);
+	);
 };
 
 //..............................................................................
 
-class Cast_FunctionPtr: public Cast_Master
-{
+class Cast_FunctionPtr: public Cast_Master {
 protected:
 	Cast_FunctionPtr_FromOverload m_fromOverload;
 	Cast_FunctionPtr_FromMulticast m_fromMulticast;
@@ -206,29 +197,28 @@ public:
 		const Value& opValue,
 		Type* type,
 		void* dst
-		);
+	);
 
 	virtual
 	CastOperator*
 	getCastOperator(
 		const Value& opValue,
 		Type* type
-		);
+	);
 };
 
 //..............................................................................
 
 // function ref (UnOpKind_Indir => function ptr cast => UnOpKind_Addr)
 
-class Cast_FunctionRef: public CastOperator
-{
+class Cast_FunctionRef: public CastOperator {
 public:
 	virtual
 	CastKind
 	getCastKind(
 		const Value& opValue,
 		Type* type
-		);
+	);
 
 	virtual
 	bool
@@ -236,7 +226,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		);
+	);
 };
 
 //..............................................................................

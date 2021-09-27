@@ -21,49 +21,42 @@
 jnc_DataPtr g_propValue = { 0 };
 
 void
-foo_0(int x)
-{
+foo_0(int x) {
 	printf("  foo_0 (%d)\n", x);
 }
 
 void
-foo_1(double x)
-{
+foo_1(double x) {
 	printf("  foo_1 (%f)\n", x);
 }
 
 void
-foo_2(jnc_DataPtr ptr)
-{
+foo_2(jnc_DataPtr ptr) {
 	printf("  foo_2 (%s)\n", ptr.m_p);
 }
 
 static int g_simplePropValue = 0;
 
 int
-getSimpleProp()
-{
+getSimpleProp() {
 	printf("  getSimpleProp () => %d\n", g_simplePropValue);
 	return g_simplePropValue;
 }
 
 void
-setSimpleProp(int x)
-{
+setSimpleProp(int x) {
 	printf("  setSimpleProp (%d)\n", x);
 	g_simplePropValue = x;
 }
 
 jnc_DataPtr
-getProp()
-{
+getProp() {
 	printf("  getProp () => %s\n", g_propValue.m_p);
 	return g_propValue;
 }
 
 void
-setProp_0(int x)
-{
+setProp_0(int x) {
 	char buffer[32];
 	size_t length;
 
@@ -74,8 +67,7 @@ setProp_0(int x)
 }
 
 void
-setProp_1(double x)
-{
+setProp_1(double x) {
 	char buffer[32];
 	size_t length;
 
@@ -86,8 +78,7 @@ setProp_1(double x)
 }
 
 void
-setProp_2(jnc_DataPtr ptr)
-{
+setProp_2(jnc_DataPtr ptr) {
 	printf("  setProp_2 (%s)\n", ptr.m_p);
 	g_propValue = ptr;
 }
@@ -99,7 +90,7 @@ JNC_DEFINE_LIB(
 	g_myLibGuid,
 	"MyLib",
 	"Sample extension library"
-	)
+)
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE(MyLib)
 JNC_END_LIB_SOURCE_FILE_TABLE()

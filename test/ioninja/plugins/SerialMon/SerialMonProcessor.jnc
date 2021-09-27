@@ -9,21 +9,18 @@ import "io_Serial.jnc"
 
 //..............................................................................
 
-class SerialMonProcessor
-{
+class SerialMonProcessor {
 protected:
 	log.Writer* m_logWriter;
 	io.SerialStatusLines m_statusLines;
 
 public:
-	construct(log.Writer* logWriter)
-	{
+	construct(log.Writer* logWriter) {
 		m_logWriter = logWriter;
 		reset();
 	}
 
-	void reset()
-	{
+	void reset() {
 		m_statusLines = (io.SerialStatusLines) -1; // special meaning: unintitalized
 	}
 

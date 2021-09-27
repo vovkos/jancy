@@ -24,14 +24,12 @@
 
 //..............................................................................
 
-struct Section
-{
+struct Section {
 	uint32_t m_offset;
 	uint32_t m_size;
 }
 
-dynamic struct FileHdr
-{
+dynamic struct FileHdr {
 	uint32_t m_signature;
 	uint32_t m_sectionCount;
 	Section m_sectionTable[m_sectionCount];
@@ -40,8 +38,7 @@ dynamic struct FileHdr
 	char m_authorEmail[strlen(m_authorEmail) + 1];
 }
 
-void printFileHdr(FileHdr const* hdr)
-{
+void printFileHdr(FileHdr const* hdr) {
 	printf(
 		"signature:   %.4s (0x%08x)\n"
 		"sections:    %d\n"
@@ -59,23 +56,20 @@ void printFileHdr(FileHdr const* hdr)
 		hdr.m_authorName,
 		hdr.m_authorEmail,
 		dynamic sizeof(*hdr)
-		);
+	);
 
 	// dynamic structs can only be incremented by 1 (one)
 
 	char const* data = (char const*) (hdr + 1);
 
-	for (size_t i = 0; i < hdr.m_sectionCount; i++)
-	{
+	for (size_t i = 0; i < hdr.m_sectionCount; i++) {
 		char const* section = data + hdr.m_sectionTable[i].m_offset;
 		printf("section[%d]:  %s\n", i, section);
 	}
 }
 
-int main()
-{
-	char buffer[] =
-	{
+int main() {
+	char buffer[] = {
 		"ABCD" 0x"",        // 00: m_signature
 		3,  0, 0, 0,        // 04: m_sectionCount
 		0,  0, 0, 0,        // 08: m_sectionTable [0].m_offset

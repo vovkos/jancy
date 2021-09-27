@@ -25,7 +25,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	ClassType,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(ClassType)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<ClassType, ct::ClassType*>))
@@ -44,7 +44,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	ClassPtrType,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(ClassPtrType)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<ClassPtrType, ct::ClassPtrType*>))

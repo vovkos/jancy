@@ -17,20 +17,20 @@ set(
 	LIB_H_LIST
 	jnc_io_Ssh.h
 	jnc_io_SshLib.h
-	)
+)
 
 set(
 	LIB_CPP_LIST
 	jnc_io_Ssh.cpp
 	jnc_io_SshLib.cpp
-	)
+)
 
 source_group(
 	lib
 	FILES
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -40,13 +40,13 @@ source_group(
 set(
 	JNC_LIST
 	jnc/io_Ssh.jnc
-	)
+)
 
 source_group(
 	jnc
 	FILES
 	${JNC_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -61,7 +61,7 @@ source_group(
 	FILES
 	${PCH_H}
 	${PCH_CPP}
-	)
+)
 
 #...............................................................................
 #
@@ -74,13 +74,13 @@ include_directories(
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
 	../jnc_io_cmn
-	)
+)
 
 link_directories(
 	${LIBSSH2_LIB_DIR}
 	${OPENSSL_LIB_DIR}
 	${AXL_LIB_DIR}
-	)
+)
 
 add_library(
 	jnc_io_ssh
@@ -91,26 +91,26 @@ add_library(
 	${LIB_CPP_LIST}
 	${JNC_LIST}
 	${GEN_JNC_CPP_LIST}
-	)
+)
 
 target_compile_definitions(
 	jnc_io_ssh
 	PUBLIC
 	-D_JNC_DYNAMIC_EXTENSION_LIB=1
-	)
+)
 
 if(GCC AND NOT APPLE)
 	axl_set_export_version_script_gcc(
 		jnc_io_ssh
 		jncDynamicExtensionLibMain
-		)
+	)
 endif()
 
 axl_set_pch(
 	jnc_io_ssh
 	${PCH_H}
 	${PCH_CPP}
-	)
+)
 
 set(CMAKE_SHARED_LIBRARY_PREFIX)
 
@@ -119,7 +119,7 @@ set_target_properties(
 	PROPERTIES
 	OUTPUT_NAME io_ssh-${TARGET_CPU}
 	SUFFIX .bin
-	)
+)
 
 target_link_libraries(
 	jnc_io_ssh
@@ -129,25 +129,25 @@ target_link_libraries(
 	axl_core
 	${OPENSSL_SSL_LIB_NAME}
 	${OPENSSL_CRYPTO_LIB_NAME}
-	)
+)
 
 if(WIN32)
 	target_link_libraries(
 		jnc_io_ssh
 		libssh2
-		)
+	)
 elseif(UNIX)
 	target_link_libraries(
 		jnc_io_ssh
 		ssh2
-		)
+	)
 
 	if(NOT APPLE)
 		target_link_libraries(
 			jnc_io_ssh
 			crypto
 			rt
-			)
+		)
 	endif()
 endif()
 
@@ -155,7 +155,7 @@ set_target_properties(
 	jnc_io_ssh
 	PROPERTIES
 	FOLDER extensions
-	)
+)
 
 if(WIN32)
 	set(_DLL_LIST)
@@ -170,7 +170,7 @@ if(WIN32)
 			_DLL_LIST
 			${OPENSSL_DLL_DIR}/${OPENSSL_SSL_DLL_NAME}.dll
 			${OPENSSL_DLL_DIR}/${OPENSSL_CRYPTO_DLL_NAME}.dll
-			)
+		)
 	endif()
 
 	if(_DLL_LIST)
@@ -217,6 +217,6 @@ add_custom_command(
 install(
 	FILES ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION>/io_ssh.jncx
 	DESTINATION ${JANCY_INSTALL_JNCX_SUBDIR}
-	)
+)
 
 #...............................................................................

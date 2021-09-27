@@ -35,13 +35,11 @@ namespace sys {
 
 		import "sys_Timer.jnc"
 
-		onTimer(int param)
-		{
+		onTimer(int param) {
 			// ...
 		}
 
-		int main()
-		{
+		int main() {
 			// ...
 
 			disposable sys.Timer timer;
@@ -61,8 +59,7 @@ namespace sys {
 		|footnote-errorcode|
 */
 
-opaque class Timer
-{
+opaque class Timer {
 	protected function* m_timerFunc();
 
 	construct();
@@ -90,7 +87,7 @@ opaque class Timer
 		function* func(),
 		uint64_t dueTime,
 		uint_t interval
-		);
+	);
 
 	/**
 		Stops a previously started timer, does nothing if the timer is not
@@ -118,8 +115,7 @@ opaque class Timer
 	bool errorcode startDueTimer(
 		function* func(),
 		uint64_t dueTime
-		)
-	{
+	) {
 		return start(func, dueTime, 0);
 	}
 
@@ -135,8 +131,7 @@ opaque class Timer
 	bool errorcode startPeriodicTimer(
 		function* func(),
 		uint_t interval
-		)
-	{
+	) {
 		uint64_t dueTime = sys.getTimestamp() + interval * 10000;
 		return start(func, dueTime, interval);
 	}
@@ -153,8 +148,7 @@ opaque class Timer
 	bool errorcode startSingleShotTimer(
 		function* func(),
 		uint_t delay
-		)
-	{
+	) {
 		uint64_t dueTime = sys.getTimestamp() + delay * 10000;
 		return start(func, dueTime, 0);
 	}

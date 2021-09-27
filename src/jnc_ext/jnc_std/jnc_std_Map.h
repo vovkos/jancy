@@ -23,15 +23,13 @@ JNC_DECLARE_TYPE(MapEntry)
 
 //..............................................................................
 
-struct MapEntry: StdMapEntry
-{
+struct MapEntry: StdMapEntry {
 	JNC_DECLARE_TYPE_STATIC_METHODS(MapEntry)
 };
 
 //..............................................................................
 
-struct Map: StdMap
-{
+struct Map: StdMap {
 	void
 	clear();
 

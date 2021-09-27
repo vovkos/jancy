@@ -26,8 +26,7 @@ void foo(char const*);
 
 int property g_simpleProp;
 
-property g_prop
-{
+property g_prop {
 	char const* get();
 
 	void set(int);
@@ -39,8 +38,7 @@ property g_prop
 
 // struct export demo
 
-struct TestStruct
-{
+struct TestStruct {
 	int m_x;
 	int m_y;
 
@@ -48,14 +46,14 @@ struct TestStruct
 	construct(
 		int x,
 		int y
-		);
+	);
 
 	void foo();
 
 	void foo(
 		int x,
 		int y
-		);
+	);
 
 	void foo(TestStruct* src);
 }
@@ -64,8 +62,7 @@ struct TestStruct
 
 // opaque class export demo
 
-opaque class TestClass
-{
+opaque class TestClass {
 	event m_onNegative();
 
 	construct(int value);
@@ -85,15 +82,13 @@ opaque class TestClass
 
 // event handler
 
-void onNegative()
-{
+void onNegative() {
 	printf("onNegative ()\n");
 }
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	foo(10);

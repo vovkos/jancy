@@ -22,16 +22,14 @@ namespace ct {
 
 //..............................................................................
 
-class LlvmPodArray: public llvm::ConstantDataSequential
-{
+class LlvmPodArray: public llvm::ConstantDataSequential {
 public:
 	static
 	llvm::Constant*
 	get(
 		ArrayType* type,
 		const void* p
-		)
-	{
+	) {
 		llvm::Type* llvmType = type->getLlvmType();
 		return getImpl(llvm::StringRef((char*)p, type->getSize()), llvmType);
 	}
@@ -39,16 +37,14 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class LlvmPodStruct
-{
+class LlvmPodStruct {
 public:
 	static
 	llvm::Constant*
 	get(
 		StructType* type,
 		const void* p
-		)
-	{
+	) {
 		llvm::Type* llvmType = type->getLlvmType();
 
 		char buffer[256];
@@ -57,8 +53,7 @@ public:
 		const sl::Array<Field*>& fieldArray = type->getFieldArray();
 		size_t count = fieldArray.getCount();
 
-		for (size_t i = 0; i < count; i++)
-		{
+		for (size_t i = 0; i < count; i++) {
 			Field* field = fieldArray[i];
 			jnc::ct::Value memberConst((char*)p + field->getOffset(), field->getType());
 			llvmMemberArray.append((llvm::Constant*)memberConst.getLlvmValue());
@@ -67,17 +62,15 @@ public:
 		return llvm::ConstantStruct::get(
 			(llvm::StructType*)llvmType,
 			llvm::ArrayRef<llvm::Constant*> (llvmMemberArray, llvmMemberArray.getCount())
-			);
+		);
 	}
 };
 
 //..............................................................................
 
 const char*
-getValueKindString(ValueKind valueKind)
-{
-	static const char* stringTable[ValueKind__Count] =
-	{
+getValueKindString(ValueKind valueKind) {
+	static const char* stringTable[ValueKind__Count] = {
 		"void",                   // ValueKind_Void = 0,
 		"null",                   // ValueKind_Null,
 		"namespace",              // ValueKind_Namespace,
@@ -102,8 +95,7 @@ getValueKindString(ValueKind valueKind)
 //..............................................................................
 
 void
-Value::init()
-{
+Value::init() {
 	m_valueKind = ValueKind_Void;
 	m_type = NULL;
 	m_variable = NULL;
@@ -111,8 +103,7 @@ Value::init()
 }
 
 void
-Value::clear()
-{
+Value::clear() {
 	m_valueKind = ValueKind_Void;
 	m_type = NULL;
 	m_item = NULL;
@@ -125,14 +116,13 @@ llvm::Constant*
 getLlvmPtrConst(
 	Type* type,
 	const void* p
-	)
-{
+) {
 	int64_t integer = *(int64_t*)p;
 
 	llvm::Constant* llvmConst = llvm::ConstantInt::get(
 		type->getModule()->m_typeMgr.getPrimitiveType(TypeKind_IntPtr_u)->getLlvmType(),
 		llvm::APInt(sizeof(void*)* 8, integer, false)
-		);
+	);
 
 	return llvm::ConstantExpr::getIntToPtr(llvmConst, type->getLlvmType());
 }
@@ -141,8 +131,7 @@ llvm::Constant*
 Value::getLlvmConst(
 	Type* type,
 	const void* p
-	)
-{
+) {
 	int64_t integer;
 	double doubleValue;
 	llvm::Constant* llvmConst = NULL;
@@ -153,14 +142,13 @@ Value::getLlvmConst(
 	Module* module = type->getModule();
 
 	TypeKind typeKind = type->getTypeKind();
-	switch (typeKind)
-	{
+	switch (typeKind) {
 	case TypeKind_Bool:
 		integer = *(int8_t*)p != 0;
 		llvmConst = llvm::ConstantInt::get(
 			type->getLlvmType(),
 			llvm::APInt(1, integer)
-			);
+		);
 		break;
 
 	case TypeKind_Int8:
@@ -169,7 +157,7 @@ Value::getLlvmConst(
 		llvmConst = llvm::ConstantInt::get(
 			type->getLlvmType(),
 			llvm::APInt(8, integer, !(type->getTypeKindFlags() & TypeKindFlag_Unsigned))
-			);
+		);
 		break;
 
 	case TypeKind_Int16:
@@ -180,7 +168,7 @@ Value::getLlvmConst(
 		llvmConst = llvm::ConstantInt::get(
 			type->getLlvmType(),
 			llvm::APInt(16, integer, !(type->getTypeKindFlags() & TypeKindFlag_Unsigned))
-			);
+		);
 		break;
 
 	case TypeKind_Int32:
@@ -191,7 +179,7 @@ Value::getLlvmConst(
 		llvmConst = llvm::ConstantInt::get(
 			type->getLlvmType(),
 			llvm::APInt(32, integer, !(type->getTypeKindFlags() & TypeKindFlag_Unsigned))
-			);
+		);
 		break;
 
 	case TypeKind_Int64:
@@ -202,7 +190,7 @@ Value::getLlvmConst(
 		llvmConst = llvm::ConstantInt::get(
 			type->getLlvmType(),
 			llvm::APInt(64, integer, !(type->getTypeKindFlags() & TypeKindFlag_Unsigned))
-			);
+		);
 		break;
 
 	case TypeKind_Float:
@@ -229,12 +217,9 @@ Value::getLlvmConst(
 
 	case TypeKind_DataPtr:
 	case TypeKind_DataRef:
-		if (((DataPtrType*)type)->getPtrTypeKind() == DataPtrTypeKind_Normal)
-		{
+		if (((DataPtrType*)type)->getPtrTypeKind() == DataPtrTypeKind_Normal) {
 			llvmConst = LlvmPodStruct::get((StructType*)module->m_typeMgr.getStdType(StdType_DataPtrStruct), p);
-		}
-		else // thin or unsafe
-		{
+		} else { // thin or unsafe
 			llvmConst = getLlvmPtrConst(type, p);
 		}
 		break;
@@ -251,21 +236,18 @@ Value::getLlvmConst(
 }
 
 Closure*
-Value::createClosure()
-{
+Value::createClosure() {
 	m_closure = AXL_RC_NEW(Closure);
 	return m_closure;
 }
 
 void
-Value::setClosure(Closure* closure)
-{
+Value::setClosure(Closure* closure) {
 	m_closure = closure;
 }
 
 Type*
-Value::getClosureAwareType() const
-{
+Value::getClosureAwareType() const {
 	return m_closure ? m_closure->getClosureType(m_type) : m_type;
 }
 
@@ -274,8 +256,7 @@ Value::setDynamicFieldInfo(
 	const Value& parentValue,
 	DerivableType* parentType,
 	Field* field
-	)
-{
+) {
 	m_dynamicFieldInfo = AXL_RC_NEW(DynamicFieldValueInfo);
 	m_dynamicFieldInfo->m_parentValue = parentValue;
 	m_dynamicFieldInfo->m_parentType = parentType;
@@ -283,8 +264,7 @@ Value::setDynamicFieldInfo(
 }
 
 void
-Value::setVoid(Module* module)
-{
+Value::setVoid(Module* module) {
 	clear();
 
 	m_valueKind = ValueKind_Void;
@@ -292,8 +272,7 @@ Value::setVoid(Module* module)
 }
 
 void
-Value::setNull(Module* module)
-{
+Value::setNull(Module* module) {
 	clear();
 
 	m_valueKind = ValueKind_Null;
@@ -301,8 +280,7 @@ Value::setNull(Module* module)
 }
 
 void
-Value::setType(Type* type)
-{
+Value::setType(Type* type) {
 	clear();
 
 	m_valueKind = type->getTypeKind() != TypeKind_Void ? ValueKind_Type : ValueKind_Void;
@@ -310,8 +288,7 @@ Value::setType(Type* type)
 }
 
 void
-Value::setNamespace(GlobalNamespace* nspace)
-{
+Value::setNamespace(GlobalNamespace* nspace) {
 	clear();
 
 	Module* module = nspace->getModule();
@@ -322,8 +299,7 @@ Value::setNamespace(GlobalNamespace* nspace)
 }
 
 void
-Value::setNamespace(NamedType* type)
-{
+Value::setNamespace(NamedType* type) {
 	clear();
 
 	Module* module = type->getModule();
@@ -334,17 +310,14 @@ Value::setNamespace(NamedType* type)
 }
 
 void
-Value::setVariable(Variable* variable)
-{
+Value::setVariable(Variable* variable) {
 	clear();
 
 	Module* module = variable->getModule();
 
-	if (!module->hasCodeGen())
-	{
+	if (!module->hasCodeGen()) {
 		bool result = variable->getType()->ensureLayout();
-		if (!result)
-		{
+		if (!result) {
 			setVoid(module);
 			return;
 		}
@@ -352,7 +325,7 @@ Value::setVariable(Variable* variable)
 		Type* resultType = getDirectRefType(
 			variable->getType(),
 			variable->getPtrTypeFlags() | PtrTypeFlag_Safe
-			);
+		);
 
 		setType(resultType);
 		return;
@@ -361,7 +334,7 @@ Value::setVariable(Variable* variable)
 	Type* resultType = getDirectRefType(
 		variable->getType(),
 		variable->getPtrTypeFlags() | PtrTypeFlag_Safe
-		);
+	);
 
 	m_valueKind = ValueKind_Variable;
 	m_variable = variable;
@@ -370,8 +343,7 @@ Value::setVariable(Variable* variable)
 }
 
 bool
-Value::trySetFunction(Function* function)
-{
+Value::trySetFunction(Function* function) {
 	bool result = function->getType()->ensureLayout();
 	if (!result)
 		return false;
@@ -380,10 +352,9 @@ Value::trySetFunction(Function* function)
 		TypeKind_FunctionRef,
 		FunctionPtrTypeKind_Thin,
 		PtrTypeFlag_Safe
-		);
+	);
 
-	if (!function->getModule()->hasCodeGen())
-	{
+	if (!function->getModule()->hasCodeGen()) {
 		setType(resultType);
 		return true;
 	}
@@ -401,8 +372,7 @@ Value::trySetFunction(Function* function)
 }
 
 void
-Value::setFunctionOverload(FunctionOverload* functionOverload)
-{
+Value::setFunctionOverload(FunctionOverload* functionOverload) {
 	clear();
 
 	m_valueKind = ValueKind_FunctionOverload;
@@ -411,8 +381,7 @@ Value::setFunctionOverload(FunctionOverload* functionOverload)
 }
 
 bool
-Value::trySetOverloadableFunction(OverloadableFunction function)
-{
+Value::trySetOverloadableFunction(OverloadableFunction function) {
 	if (function->getItemKind() == ModuleItemKind_Function)
 		return trySetFunction(function.getFunction());
 
@@ -421,8 +390,7 @@ Value::trySetOverloadableFunction(OverloadableFunction function)
 }
 
 void
-Value::setFunctionTypeOverload(FunctionTypeOverload* functionTypeOverload)
-{
+Value::setFunctionTypeOverload(FunctionTypeOverload* functionTypeOverload) {
 	clear();
 
 	m_valueKind = ValueKind_FunctionTypeOverload;
@@ -431,8 +399,7 @@ Value::setFunctionTypeOverload(FunctionTypeOverload* functionTypeOverload)
 }
 
 void
-Value::setProperty(Property* prop)
-{
+Value::setProperty(Property* prop) {
 	clear();
 
 	m_valueKind = ValueKind_Property;
@@ -441,17 +408,15 @@ Value::setProperty(Property* prop)
 		TypeKind_PropertyRef,
 		PropertyPtrTypeKind_Thin,
 		PtrTypeFlag_Safe
-		);
+	);
 
 	// don't assign LlvmValue (property LlvmValue is only needed for pointers)
 }
 
 bool
-Value::trySetEnumConst(EnumConst* enumConst)
-{
+Value::trySetEnumConst(EnumConst* enumConst) {
 	EnumType* enumType = enumConst->getParentEnumType();
-	if (!(enumConst->getFlags() & EnumConstFlag_ValueReady))
-	{
+	if (!(enumConst->getFlags() & EnumConstFlag_ValueReady)) {
 		bool result = enumType->ensureLayout();
 		if (!result)
 			return false;
@@ -459,8 +424,7 @@ Value::trySetEnumConst(EnumConst* enumConst)
 
 	Type* baseType = enumType->getBaseType();
 	uint64_t enumValue = enumConst->getValue();
-	if (enumType->getBaseType()->getTypeKindFlags() & TypeKindFlag_BigEndian)
-	{
+	if (enumType->getBaseType()->getTypeKindFlags() & TypeKindFlag_BigEndian) {
 		enumValue = sl::swapByteOrder64(enumValue);
 
 		size_t size = baseType->getSize();
@@ -480,8 +444,7 @@ void
 Value::setField(
 	Field* field,
 	size_t baseOffset
-	)
-{
+) {
 	clear();
 
 	m_valueKind = ValueKind_Field;
@@ -496,8 +459,7 @@ Value::setLlvmValue(
 	llvm::Value* llvmValue,
 	Type* type,
 	ValueKind valueKind
-	)
-{
+) {
 	clear();
 
 	m_valueKind = valueKind;
@@ -506,8 +468,7 @@ Value::setLlvmValue(
 }
 
 LeanDataPtrValidator*
-Value::getLeanDataPtrValidator() const
-{
+Value::getLeanDataPtrValidator() const {
 	if (m_leanDataPtrValidator)
 		return m_leanDataPtrValidator;
 
@@ -517,27 +478,20 @@ Value::getLeanDataPtrValidator() const
 }
 
 void
-Value::setLeanDataPtrValidator(LeanDataPtrValidator* validator)
-{
+Value::setLeanDataPtrValidator(LeanDataPtrValidator* validator) {
 	ASSERT(isDataPtrType(m_type, DataPtrTypeKind_Lean));
 	m_leanDataPtrValidator = validator;
 }
 
 void
-Value::setLeanDataPtrValidator(const Value& originValue)
-{
+Value::setLeanDataPtrValidator(const Value& originValue) {
 	ASSERT(isDataPtrType(m_type, DataPtrTypeKind_Lean));
 
-	if (originValue.m_leanDataPtrValidator)
-	{
+	if (originValue.m_leanDataPtrValidator) {
 		m_leanDataPtrValidator = originValue.m_leanDataPtrValidator;
-	}
-	else if (originValue.m_valueKind == ValueKind_Variable)
-	{
+	} else if (originValue.m_valueKind == ValueKind_Variable) {
 		m_leanDataPtrValidator = originValue.m_variable->getLeanDataPtrValidator();
-	}
-	else
-	{
+	} else {
 		m_leanDataPtrValidator = AXL_RC_NEW(LeanDataPtrValidator);
 		m_leanDataPtrValidator->m_originValue = originValue;
 	}
@@ -548,8 +502,7 @@ Value::setLeanDataPtrValidator(
 	const Value& originValue,
 	const Value& rangeBeginValue,
 	size_t rangeLength
-	)
-{
+) {
 	ASSERT(isDataPtrType(m_type, DataPtrTypeKind_Lean));
 
 	rc::Ptr<LeanDataPtrValidator> validator = AXL_RC_NEW(LeanDataPtrValidator);
@@ -563,8 +516,7 @@ bool
 Value::createConst(
 	const void* p,
 	Type* type
-	)
-{
+) {
 	bool result;
 
 	clear();
@@ -596,15 +548,14 @@ Value::setCharArray(
 	const void* p,
 	size_t size,
 	Module* module
-	)
-{
+) {
 	if (!size)
 		size = 1;
 
 	Type* type = module->m_typeMgr.getArrayType(
 		module->m_typeMgr.getPrimitiveType(TypeKind_Char),
 		size
-		);
+	);
 
 	createConst(p, type);
 }

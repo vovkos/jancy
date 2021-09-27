@@ -7,8 +7,7 @@ import "log_RecordCode.jnc"
 
 //..............................................................................
 
-enum UsbLogRecordCode: uint64_t
-{
+enum UsbLogRecordCode: uint64_t {
 	DeviceOpened         = 0x01d485f4acbf80b7,
 	DeviceOpenError      = 0x01d485f4acbf80b8,
 	DeviceClosed         = 0x01d485f4acbf80b9,
@@ -24,8 +23,7 @@ enum UsbLogRecordCode: uint64_t
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct DeviceParams
-{
+struct DeviceParams {
 	uint8_t m_bus;
 	uint8_t m_address;
 	uint16_t m_vendorId;
@@ -34,16 +32,14 @@ struct DeviceParams
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct InterfaceParams
-{
+struct InterfaceParams {
 	uint8_t m_interfaceId;
 	uint8_t m_altSettingId;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ControlTransferParams
-{
+struct ControlTransferParams {
 	uint8_t m_type;
 	uint8_t m_code;
 	uint16_t m_value;

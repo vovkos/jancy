@@ -23,46 +23,38 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(GlobalNamespace)
 
 //..............................................................................
 
-class Namespace: public ModuleItemDecl
-{
+class Namespace: public ModuleItemDecl {
 public:
 	Namespace(ct::Namespace* nspace):
-		ModuleItemDecl(nspace)
-	{
-	}
+		ModuleItemDecl(nspace) {}
 
 	NamespaceKind
 	JNC_CDECL
-	getNamespaceKind()
-	{
+	getNamespaceKind() {
 		return n()->getNamespaceKind();
 	}
 
 	size_t
 	JNC_CDECL
-	getItemCount()
-	{
+	getItemCount() {
 		return n()->getItemArray().getCount();
 	}
 
 	ModuleItem*
 	JNC_CDECL
-	getItem(size_t index)
-	{
+	getItem(size_t index) {
 		return rtl::getModuleItem(n()->getItemArray()[index]);
 	}
 
 	ModuleItem*
 	JNC_CDECL
-	findItem(DataPtr namePtr)
-	{
+	findItem(DataPtr namePtr) {
 		return rtl::getModuleItem(n()->findItem((char*)namePtr.m_p).m_item);
 	}
 
 protected:
 	ct::Namespace*
-	n()
-	{
+	n() {
 		return (ct::Namespace*)m_decl;
 	}
 };
@@ -71,14 +63,11 @@ protected:
 
 class GlobalNamespace:
 	public ModuleItemBase<ct::GlobalNamespace>,
-	public Namespace
-{
+	public Namespace {
 public:
 	GlobalNamespace(ct::GlobalNamespace* nspace):
 		ModuleItemBase(nspace),
-		Namespace(nspace)
-	{
-	}
+		Namespace(nspace) {}
 };
 
 //..............................................................................

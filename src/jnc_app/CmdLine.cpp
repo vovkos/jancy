@@ -14,8 +14,7 @@
 
 //..............................................................................
 
-CmdLine::CmdLine()
-{
+CmdLine::CmdLine() {
 	m_flags = JncFlag_Run;
 	m_compileFlags = jnc::ModuleCompileFlag_StdFlags;
 	m_optLevel = 0;
@@ -28,8 +27,7 @@ CmdLine::CmdLine()
 //..............................................................................
 
 size_t
-parseSizeString(const sl::StringRef& string)
-{
+parseSizeString(const sl::StringRef& string) {
 	size_t length = string.getLength();
 	if (!length)
 		return 0;
@@ -37,10 +35,8 @@ parseSizeString(const sl::StringRef& string)
 	size_t multiplier = 1;
 
 	char c = string[length - 1];
-	if (isalpha(c))
-	{
-		switch (c)
-		{
+	if (isalpha(c)) {
+		switch (c) {
 		case 'K':
 			multiplier = 1024;
 			break;
@@ -60,8 +56,7 @@ parseSizeString(const sl::StringRef& string)
 //..............................................................................
 
 bool
-CmdLineParser::onValue(const sl::StringRef& value)
-{
+CmdLineParser::onValue(const sl::StringRef& value) {
 	m_cmdLine->m_fileNameList.insertTail(value);
 	return true;
 }
@@ -70,10 +65,8 @@ bool
 CmdLineParser::onSwitch(
 	SwitchKind switchKind,
 	const sl::StringRef& value
-	)
-{
-	switch (switchKind)
-	{
+) {
+	switch (switchKind) {
 	case CmdLineSwitch_Help:
 		m_cmdLine->m_flags |= JncFlag_Help;
 		break;
@@ -166,12 +159,9 @@ CmdLineParser::onSwitch(
 		break;
 
 	case CmdLineSwitch_Exclude:
-		if (m_cmdLine->m_excludeRegex.isEmpty())
-		{
+		if (m_cmdLine->m_excludeRegex.isEmpty()) {
 			m_cmdLine->m_excludeRegex = value;
-		}
-		else
-		{
+		} else {
 			m_cmdLine->m_excludeRegex += '|';
 			m_cmdLine->m_excludeRegex += value;
 		}
@@ -209,8 +199,7 @@ CmdLineParser::onSwitch(
 }
 
 bool
-CmdLineParser::finalize()
-{
+CmdLineParser::finalize() {
 	bool result = scanSourceDirs();
 	if (!result)
 		return false;
@@ -219,9 +208,8 @@ CmdLineParser::finalize()
 		JncFlag_Help |
 		JncFlag_Version |
 		JncFlag_StdInSrc
-		)) &&
-		m_cmdLine->m_fileNameList.isEmpty())
-	{
+	)) &&
+		m_cmdLine->m_fileNameList.isEmpty()) {
 		err::setFormatStringError("missing input (file-name or --stdin)");
 		return false;
 	}
@@ -233,8 +221,7 @@ CmdLineParser::finalize()
 		m_cmdLine->m_flags |= JncFlag_Compile;
 
 	if ((m_cmdLine->m_compileFlags & jnc::ModuleCompileFlag_Documentation) &&
-		!(m_cmdLine->m_flags & JncFlag_Compile))
-	{
+		!(m_cmdLine->m_flags & JncFlag_Compile)) {
 		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_IgnoreOpaqueClassTypeInfo;
 		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_KeepTypedefShadow;
 	}
@@ -243,21 +230,18 @@ CmdLineParser::finalize()
 }
 
 bool
-CmdLineParser::scanSourceDirs()
-{
+CmdLineParser::scanSourceDirs() {
 	static char jncSuffix[] = ".jnc";
 	static char doxSuffix[] = ".dox";
 
-	enum
-	{
+	enum {
 		SuffixLength = lengthof(jncSuffix)
 	};
 
 	bool result;
 
 	re::Regex excludeRegex;
-	if (!m_cmdLine->m_excludeRegex.isEmpty())
-	{
+	if (!m_cmdLine->m_excludeRegex.isEmpty()) {
 		re::RegexCompiler compiler(&excludeRegex);
 		result = compiler.compile(m_cmdLine->m_excludeRegex);
 		if (!result)
@@ -267,8 +251,7 @@ CmdLineParser::scanSourceDirs()
 	bool isDoc = (m_cmdLine->m_compileFlags & jnc::ModuleCompileFlag_Documentation) != 0;
 
 	sl::BoxIterator<sl::String> it = m_cmdLine->m_sourceDirList.getHead();
-	for (; it; it++)
-	{
+	for (; it; it++) {
 		sl::String dir = *it;
 		if (dir.isEmpty())
 			continue;
@@ -278,14 +261,12 @@ CmdLineParser::scanSourceDirs()
 
 		io::FileEnumerator fileEnum;
 		result = fileEnum.openDir(dir);
-		if (!result)
-		{
+		if (!result) {
 			printf("warning: source dir %s: %s\n", dir.sz(), err::getLastErrorDescription().sz());
 			continue;
 		}
 
-		while (fileEnum.hasNextFile())
-		{
+		while (fileEnum.hasNextFile()) {
 			sl::String filePath = dir + fileEnum.getNextFileName();
 			if (io::isDir(filePath))
 				continue;
@@ -297,10 +278,8 @@ CmdLineParser::scanSourceDirs()
 			const char* suffix = filePath.sz() + length - SuffixLength;
 
 			if ((memcmp(suffix, jncSuffix, SuffixLength) == 0 ||
-				isDoc && memcmp(suffix, doxSuffix, SuffixLength) == 0))
-			{
-				if (!excludeRegex.isEmpty() && excludeRegex.match(filePath))
-				{
+				isDoc && memcmp(suffix, doxSuffix, SuffixLength) == 0)) {
+				if (!excludeRegex.isEmpty() && excludeRegex.match(filePath)) {
 					printf("excluding: %s\n", filePath.sz());
 					continue;
 				}

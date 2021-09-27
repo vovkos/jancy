@@ -19,8 +19,7 @@ namespace ct {
 
 //..............................................................................
 
-PropertyType::PropertyType()
-{
+PropertyType::PropertyType() {
 	m_typeKind = TypeKind_Property;
 
 	m_getterType = NULL;
@@ -36,32 +35,27 @@ PropertyType::getPropertyPtrType(
 	TypeKind typeKind,
 	PropertyPtrTypeKind ptrTypeKind,
 	uint_t flags
-	)
-{
+) {
 	return m_module->m_typeMgr.getPropertyPtrType(this, typeKind, ptrTypeKind, flags);
 }
 
 PropertyType*
-PropertyType::getMemberPropertyType(ClassType* classType)
-{
+PropertyType::getMemberPropertyType(ClassType* classType) {
 	return m_module->m_typeMgr.getMemberPropertyType(classType, this);
 }
 
 PropertyType*
-PropertyType::getStdObjectMemberPropertyType()
-{
+PropertyType::getStdObjectMemberPropertyType() {
 	return m_module->m_typeMgr.getStdObjectMemberPropertyType(this);
 }
 
 PropertyType*
-PropertyType::getShortType  ()
-{
+PropertyType::getShortType  () {
 	return m_module->m_typeMgr.getShortPropertyType(this);
 }
 
 StructType*
-PropertyType::getVtableStructType()
-{
+PropertyType::getVtableStructType() {
 	return m_module->m_typeMgr.getPropertyVtableStructType(this);
 }
 
@@ -70,8 +64,7 @@ PropertyType::createSignature(
 	FunctionType* getterType,
 	const FunctionTypeOverload& setterType,
 	uint_t flags
-	)
-{
+) {
 	sl::String string = "X";
 
 	if (flags & PropertyTypeFlag_Bindable)
@@ -80,8 +73,7 @@ PropertyType::createSignature(
 	string += getterType->getSignature();
 
 	size_t overloadCount = setterType.getOverloadCount();
-	for (size_t i = 0; i < overloadCount; i++)
-	{
+	for (size_t i = 0; i < overloadCount; i++) {
 		FunctionType* overloadType = setterType.getOverload(i);
 		string += overloadType->getSignature();
 	}
@@ -90,8 +82,7 @@ PropertyType::createSignature(
 }
 
 sl::String
-PropertyType::getTypeModifierString()
-{
+PropertyType::getTypeModifierString() {
 	sl::String string;
 
 	if (m_flags & PropertyTypeFlag_Const)
@@ -114,16 +105,14 @@ PropertyType::getTypeModifierString()
 }
 
 void
-PropertyType::prepareTypeString()
-{
+PropertyType::prepareTypeString() {
 	TypeStringTuple* tuple = getTypeStringTuple();
 	Type* returnType = getReturnType();
 
 	tuple->m_typeStringPrefix = returnType->getTypeStringPrefix();
 
 	sl::String modifierString = getTypeModifierString();
-	if (!modifierString.isEmpty())
-	{
+	if (!modifierString.isEmpty()) {
 		tuple->m_typeStringPrefix += ' ';
 		tuple->m_typeStringPrefix += modifierString;
 	}
@@ -137,16 +126,14 @@ PropertyType::prepareTypeString()
 }
 
 void
-PropertyType::prepareDoxyLinkedText()
-{
+PropertyType::prepareDoxyLinkedText() {
 	TypeStringTuple* tuple = getTypeStringTuple();
 	Type* returnType = getReturnType();
 
 	tuple->m_doxyLinkedTextPrefix = returnType->getDoxyLinkedTextPrefix();
 
 	sl::String modifierString = getTypeModifierString();
-	if (!modifierString.isEmpty())
-	{
+	if (!modifierString.isEmpty()) {
 		tuple->m_doxyLinkedTextPrefix += ' ';
 		tuple->m_doxyLinkedTextPrefix += modifierString;
 	}
@@ -160,8 +147,7 @@ PropertyType::prepareDoxyLinkedText()
 }
 
 void
-PropertyType::prepareDoxyTypeString()
-{
+PropertyType::prepareDoxyTypeString() {
 	Type::prepareDoxyTypeString();
 
 	if (isIndexed())
@@ -169,15 +155,13 @@ PropertyType::prepareDoxyTypeString()
 }
 
 bool
-PropertyType::resolveImports()
-{
+PropertyType::resolveImports() {
 	bool result = m_getterType->ensureNoImports();
 	if (!result)
 		return false;
 
 	size_t count = m_setterType.getOverloadCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		bool result = m_setterType.getOverload(i)->ensureNoImports();
 		if (!result)
 			return false;

@@ -16,38 +16,31 @@ namespace ct {
 
 //..............................................................................
 
-class QualifiedName
-{
+class QualifiedName {
 protected:
 	sl::StringRef m_first;
 	sl::BoxList<sl::StringRef> m_list;
 
 public:
-	QualifiedName()
-	{
-	}
+	QualifiedName() {}
 
 	explicit
-	QualifiedName(const sl::StringRef& name)
-	{
+	QualifiedName(const sl::StringRef& name) {
 		m_first = name;
 	}
 
-	QualifiedName(const QualifiedName& name)
-	{
+	QualifiedName(const QualifiedName& name) {
 		copy(name);
 	}
 
 	QualifiedName&
-	operator = (const QualifiedName& name)
-	{
+	operator = (const QualifiedName& name) {
 		copy(name);
 		return *this;
 	}
 
 	void
-	clear()
-	{
+	clear() {
 		m_first.clear();
 		m_list.clear();
 	}
@@ -65,39 +58,33 @@ public:
 	removeLastName();
 
 	bool
-	isEmpty() const
-	{
+	isEmpty() const {
 		return m_first.isEmpty();
 	}
 
 	bool
-	isSimple() const
-	{
+	isSimple() const {
 		return m_list.isEmpty();
 	}
 
 	const sl::StringRef&
-	getFirstName() const
-	{
+	getFirstName() const {
 		return m_first;
 	}
 
 	const sl::StringRef&
-	getPrevName(const sl::ConstBoxIterator<sl::StringRef>& it) const
-	{
+	getPrevName(const sl::ConstBoxIterator<sl::StringRef>& it) const {
 		sl::ConstBoxIterator<sl::StringRef> prevIt = it.getPrev();
 		return prevIt ? *prevIt : m_first;
 	}
 
 	sl::ConstBoxList<sl::StringRef>
-	getNameList() const
-	{
+	getNameList() const {
 		return m_list;
 	}
 
 	const sl::StringRef&
-	getShortName() const
-	{
+	getShortName() const {
 		return !m_list.isEmpty() ? *m_list.getTail() : m_first;
 	}
 

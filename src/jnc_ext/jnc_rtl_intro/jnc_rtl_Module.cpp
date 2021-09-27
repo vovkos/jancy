@@ -27,7 +27,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	Module,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Module)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<Module, ct::Module*>))
@@ -46,7 +46,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	Unit,
 	&Unit::markOpaqueGcRoots
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Unit)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<Unit, ct::Unit*>))
@@ -57,15 +57,13 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 void
 JNC_CDECL
-Unit::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
-{
+Unit::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 	gcHeap->markDataPtr(m_filePathPtr);
 }
 
 DataPtr
 JNC_CDECL
-Unit::getFilePath(Unit* self)
-{
+Unit::getFilePath(Unit* self) {
 	if (!self->m_filePathPtr.m_p)
 		self->m_filePathPtr = createForeignStringPtr(self->m_unit->getFilePath(), false);
 

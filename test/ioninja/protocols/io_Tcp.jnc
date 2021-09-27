@@ -10,8 +10,7 @@ namespace io {
 
 //..............................................................................
 
-bitflag enum TcpFlags: uint8_t
-{
+bitflag enum TcpFlags: uint8_t {
 	Fin,
 	Syn,
 	Rst,
@@ -23,8 +22,7 @@ bitflag enum TcpFlags: uint8_t
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* formatTcpFlagString(TcpFlags flags)
-{
+char const* formatTcpFlagString(TcpFlags flags) {
 	return $"%c%c%c%c%c%c%c"(
 		(flags & TcpFlags.Fin) ? 'F' : '.',
 		(flags & TcpFlags.Syn) ? 'S' : '.',
@@ -33,7 +31,7 @@ char const* formatTcpFlagString(TcpFlags flags)
 		(flags & TcpFlags.Ack) ? 'A' : '.',
 		(flags & TcpFlags.Urg) ? 'U' : '.',
 		(flags & TcpFlags.Bog) ? 'B' : '.'
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -42,8 +40,7 @@ char const* formatTcpFlagString(TcpFlags flags)
 	displayName = "TCP",
 	formatDigestFunc = formatTcpDigest
 ]
-struct TcpHdr
-{
+struct TcpHdr {
 	[ displayName = "Source port" ]
 	bigendian uint16_t m_srcPort;
 
@@ -80,14 +77,13 @@ struct TcpHdr
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* formatTcpDigest(void const* p)
-{
+char const* formatTcpDigest(void const* p) {
 	TcpHdr const* hdr = (TcpHdr const*)p;
 	return $"%1 \u2192 %2 [%3]" (
 		hdr.m_srcPort,
 		hdr.m_dstPort,
 		formatTcpFlagString(hdr.m_flags)
-		);
+	);
 }
 
 //..............................................................................

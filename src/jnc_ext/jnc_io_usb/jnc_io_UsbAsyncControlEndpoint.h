@@ -16,13 +16,11 @@ namespace io {
 
 //..............................................................................
 
-class UsbAsyncControlEndpoint
-{
+class UsbAsyncControlEndpoint {
 	friend class IoThread;
 
 protected:
-	struct Transfer: sl::ListLink
-	{
+	struct Transfer: sl::ListLink {
 		UsbAsyncControlEndpoint* m_self;
 		axl::io::UsbTransfer m_usbTransfer;
 		axl::rc::Buf<libusb_control_setup> m_buffer;
@@ -30,18 +28,15 @@ protected:
 		jnc::FunctionPtr m_completionFuncPtr;
 	};
 
-	enum Flag
-	{
+	enum Flag {
 		Flag_Stop            = 0x01,
 		Flag_CancelTransfers = 0x02,
 	};
 
-	class CompletionThread: public sys::ThreadImpl<CompletionThread>
-	{
+	class CompletionThread: public sys::ThreadImpl<CompletionThread> {
 	public:
 		void
-		threadFunc()
-		{
+		threadFunc() {
 			containerof(this, UsbAsyncControlEndpoint, m_completionThread)->completionThreadFunc();
 		}
 	};
@@ -63,8 +58,7 @@ protected:
 public:
 	UsbAsyncControlEndpoint(axl::io::UsbDevice* device);
 
-	~UsbAsyncControlEndpoint()
-	{
+	~UsbAsyncControlEndpoint() {
 		stop();
 	}
 
@@ -88,15 +82,14 @@ public:
 		size_t size,
 		uint_t timeout,
 		FunctionPtr completionFuncPtr
-		);
+	);
 
 	void
 	cancelTransfers();
 
 protected:
 	bool
-	isIdle()
-	{
+	isIdle() {
 		return m_activeTransferList.isEmpty() && m_completedTransferList.isEmpty();
 	}
 
@@ -105,7 +98,7 @@ protected:
 	markTransferGcRoots(
 		GcHeap* gcHeap,
 		Transfer* transfer
-		);
+	);
 
 	void
 	completionThreadFunc();
@@ -121,7 +114,7 @@ protected:
 		FunctionPtr completionFuncPtr,
 		size_t resultSize,
 		const err::ErrorRef& error = err::ErrorRef()
-		);
+	);
 
 	static
 	void

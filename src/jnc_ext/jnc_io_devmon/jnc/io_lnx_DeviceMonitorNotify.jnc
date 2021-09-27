@@ -17,8 +17,7 @@ namespace lnx {
 
 //..............................................................................
 
-enum DeviceMonitorNotifyCode: uint16_t
-{
+enum DeviceMonitorNotifyCode: uint16_t {
 	Undefined = 0,
 	Open,
 	Close,
@@ -34,8 +33,7 @@ enum DeviceMonitorNotifyCode: uint16_t
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct DeviceMonitorOpenNotifyParams
-{
+struct DeviceMonitorOpenNotifyParams {
 	uint64_t m_fileId;
 	uint32_t m_flags;
 	uint32_t m_mode;
@@ -45,13 +43,11 @@ struct DeviceMonitorOpenNotifyParams
 	// followed by file name
 }
 
-struct DeviceMonitorCloseNotifyParams
-{
+struct DeviceMonitorCloseNotifyParams {
 	uint64_t m_fileId;
 }
 
-struct DeviceMonitorReadWriteNotifyParams
-{
+struct DeviceMonitorReadWriteNotifyParams {
 	uint64_t m_fileId;
 	uint64_t m_offset;
 	uint32_t m_bufferSize;
@@ -60,8 +56,7 @@ struct DeviceMonitorReadWriteNotifyParams
 	// followed by read/write data
 }
 
-struct DeviceMonitorIoctlNotifyParams
-{
+struct DeviceMonitorIoctlNotifyParams {
 	uint64_t m_fileId;
 	uint32_t m_code;
 	uint32_t m_argSize;

@@ -19,8 +19,7 @@ namespace ct {
 
 //..............................................................................
 
-enum StdFunc
-{
+enum StdFunc {
 	StdFunc_DynamicSizeOf,
 	StdFunc_DynamicCountOf,
 	StdFunc_DynamicTypeSizeOf,
@@ -99,8 +98,7 @@ getStdFunctionSource(StdFunc stdFunction);
 
 //..............................................................................
 
-enum StdProp
-{
+enum StdProp {
 	StdProp_VariantMember,
 	StdProp_VariantIndex,
 
@@ -110,16 +108,14 @@ enum StdProp
 //..............................................................................
 
 #define JNC_MAP_STD_FUNCTION(stdFunc, proc) \
-	if (module->m_functionMgr.isStdFunctionUsed(stdFunc)) \
-	{ \
+	if (module->m_functionMgr.isStdFunctionUsed(stdFunc)) { \
 		function = module->m_functionMgr.getStdFunction(stdFunc); \
 		ASSERT(function); \
 		JNC_MAP_FUNCTION_IMPL(function, proc); \
 	}
 
 #define JNC_MAP_STD_PROPERTY(stdProp, getter, setter) \
-	if (module->m_functionMgr.isStdPropertyUsed(stdProp)) \
-	{ \
+	if (module->m_functionMgr.isStdPropertyUsed(stdProp)) { \
 		prop = module->m_functionMgr.getStdProperty(stdProp); \
 		ASSERT(prop); \
 		JNC_MAP_PROPERTY_GETTER(prop, getter); \

@@ -9,24 +9,20 @@
 //
 //..............................................................................
 
-struct A
-{
+struct A {
 	int m_a;
 	int m_b;
 }
 
-struct B: A
-{
+struct B: A {
 	int m_x;
 	int m_y;
 	void* m_p;
 }
 
-void foo(void const* p)
-{
+void foo(void const* p) {
 	B const* b = dynamic(B const*) p;
-	if (!b)
-	{
+	if (!b) {
 		printf("p is NOT B\n");
 		return;
 	}
@@ -37,8 +33,7 @@ void foo(void const* p)
 	printf("p is B: sizeof = %d, countof = %d\n", size, count);
 }
 
-int main()
-{
+int main() {
 	printf("main\n");
 
 	A a;

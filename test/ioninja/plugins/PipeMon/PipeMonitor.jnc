@@ -12,8 +12,7 @@ namespace wdk {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum
-{
+enum {
 	FILE_DEVICE_NAMED_PIPE  = 0x00110000,
 
 	FILE_READ_DATA          = 1,
@@ -31,8 +30,7 @@ enum
 
 } // namespace wdk
 
-class PipeMonitor: iox.Monitor
-{
+class PipeMonitor: iox.Monitor {
 protected:
 	PipeMonSession* m_session;
 
@@ -46,7 +44,7 @@ protected:
 	void setFileId(
 		uint64_t timestamp,
 		uint64_t fileId
-		);
+	);
 
 	void processFsctlNotification(
 		int ntStatus,
@@ -58,13 +56,12 @@ protected:
 		size_t inDataSize,
 		const void* outData,
 		size_t outDataSize
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-PipeMonitor.construct(PipeMonSession* session)
-{
+PipeMonitor.construct(PipeMonSession* session) {
 	basetype.construct(session.m_pluginHost);
 	m_session = session;
 }
@@ -72,8 +69,7 @@ PipeMonitor.construct(PipeMonSession* session)
 void PipeMonitor.setFileId(
 	uint64_t timestamp,
 	uint64_t fileId
-	)
-{
+) {
 	if (fileId == m_lastFileId)
 		return;
 
@@ -81,25 +77,20 @@ void PipeMonitor.setFileId(
 	m_logWriter.write(timestamp, PipeMonLogRecordCode.FileIdChanged, &m_lastFileId, sizeof(m_lastFileId));
 }
 
-void PipeMonitor.processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr)
-{
-	switch (notifyHdr.m_code)
-	{
+void PipeMonitor.processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr) {
+	switch (notifyHdr.m_code) {
 	case io.win.DeviceMonitorNotifyCode.Create:
 		io.win.DeviceMonitorCreateNotifyParams const* params = (io.win.DeviceMonitorCreateNotifyParams const*)(notifyHdr + 1);
 
 		uint64_t recordCode;
 		std.Buffer logParams;
 
-		if (notifyHdr.m_ntStatus == 0)
-		{
+		if (notifyHdr.m_ntStatus == 0) {
 			recordCode = PipeMonLogRecordCode.ClientFileOpened;
 			logParams.append(&params.m_fileId64, sizeof(params.m_fileId64));
 			logParams.append(&notifyHdr.m_processId, sizeof(notifyHdr.m_processId));
 			m_lastFileId = params.m_fileId64;
-		}
-		else
-		{
+		} else {
 			std.Error error;
 			error.m_size = sizeof(error);
 			error.m_guid = std.g_ntStatusGuid;
@@ -121,7 +112,7 @@ void PipeMonitor.processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr)
 			recordCode,
 			logParams.m_p,
 			logParams.m_size
-			);
+		);
 
 		break;
 
@@ -131,15 +122,12 @@ void PipeMonitor.processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr)
 		uint64_t recordCode;
 		std.Buffer logParams;
 
-		if (notifyHdr.m_ntStatus == 0)
-		{
+		if (notifyHdr.m_ntStatus == 0) {
 			recordCode = PipeMonLogRecordCode.ServerFileOpened;
 			logParams.append(&params.m_fileId64, sizeof(params.m_fileId64));
 			logParams.append(&notifyHdr.m_processId, sizeof(notifyHdr.m_processId));
 			m_lastFileId = params.m_fileId64;
-		}
-		else
-		{
+		} else {
 			std.Error error;
 			error.m_size = sizeof(error);
 			error.m_guid = std.g_ntStatusGuid;
@@ -161,7 +149,7 @@ void PipeMonitor.processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr)
 			recordCode,
 			logParams.m_p,
 			logParams.m_size
-			);
+		);
 
 		break;
 
@@ -184,7 +172,7 @@ void PipeMonitor.processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr)
 			log.StdRecordCode.Rx,
 			params + 1,
 			params.m_dataSize
-			);
+		);
 		break;
 
 	case io.win.DeviceMonitorNotifyCode.Write:
@@ -200,7 +188,7 @@ void PipeMonitor.processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr)
 			log.StdRecordCode.Tx,
 			params + 1,
 			params.m_dataSize
-			);
+		);
 		break;
 
 	case io.win.DeviceMonitorNotifyCode.Fsctl:
@@ -218,7 +206,7 @@ void PipeMonitor.processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr)
 			params.m_inDataSize,
 			p + params.m_inDataSize,
 			params.m_outDataSize
-			);
+		);
 
 		break;
 	}
@@ -234,10 +222,8 @@ void PipeMonitor.processFsctlNotification(
 	size_t inDataSize,
 	const void* outData,
 	size_t outDataSize
-	)
-{
-	switch (code)
-	{
+) {
+	switch (code) {
 	case wdk.FSCTL_PIPE_LISTEN:
 		if (ntStatus != 0)
 			break;
@@ -274,7 +260,7 @@ void PipeMonitor.processFsctlNotification(
 				log.StdRecordCode.Tx,
 				inData,
 				inDataSize
-				);
+			);
 
 		if (outDataSize)
 			m_logWriter.write(
@@ -282,14 +268,13 @@ void PipeMonitor.processFsctlNotification(
 				log.StdRecordCode.Rx,
 				outData,
 				outDataSize
-				);
+			);
 
 		break;
 	}
 }
 
-void PipeMonitor.processError(std.Error const* error)
-{
+void PipeMonitor.processError(std.Error const* error) {
 	m_logWriter.write(log.StdRecordCode.Error, error);
 	m_session.close();
 }

@@ -16,8 +16,7 @@ namespace ct {
 
 //..............................................................................
 
-class CapabilityMgr
-{
+class CapabilityMgr {
 	friend class Module;
 
 protected:
@@ -26,20 +25,17 @@ protected:
 	bool m_isEverythingEnabled;
 
 public:
-	CapabilityMgr()
-	{
+	CapabilityMgr() {
 		m_isEverythingEnabled = true; // everything enabled by default
 	}
 
 	bool
-	isEverythingEnabled()
-	{
+	isEverythingEnabled() {
 		return m_isEverythingEnabled;
 	}
 
 	bool
-	isCapabilityEnabled(const sl::StringRef& capability)
-	{
+	isCapabilityEnabled(const sl::StringRef& capability) {
 		return m_isEverythingEnabled || m_capabilitySet.findValue(capability, false);
 	}
 
@@ -48,21 +44,20 @@ public:
 		const char* param,
 		void* value,
 		size_t size
-		);
+	);
 
 	size_t
 	writeCapabilityParam(
 		const char* param,
 		const void* value,
 		size_t size
-		);
+	);
 
 	void
 	enableCapability(
 		const sl::StringRef& capability,
 		bool isEnabled = true
-		)
-	{
+	) {
 		m_isEverythingEnabled = false;
 		m_capabilitySet[capability] = isEnabled;
 	}
@@ -75,8 +70,7 @@ public:
 
 inline
 CapabilityMgr*
-getCapabilityMgr()
-{
+getCapabilityMgr() {
 	return sl::getSingleton<CapabilityMgr>();
 }
 

@@ -118,14 +118,12 @@ any                 { };
 //..............................................................................
 
 void
-LlvmIrHighlighter::init()
-{
+LlvmIrHighlighter::init() {
 	%% write init;
 }
 
 void
-LlvmIrHighlighter::exec()
-{
+LlvmIrHighlighter::exec() {
 	%% write exec;
 }
 

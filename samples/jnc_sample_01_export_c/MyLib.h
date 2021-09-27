@@ -23,10 +23,9 @@
 JNC_DEFINE_GUID(
 	g_myLibGuid,
 	0x1d64ef25, 0x4da8, 0x41a2, 0xb6, 0xe7, 0x0, 0x74, 0x5, 0xd3, 0xac, 0x39
-	);
+);
 
-enum MyLibCacheSlot
-{
+enum MyLibCacheSlot {
 	MyLibCacheSlot_TestStruct,
 	MyLibCacheSlot_TestClass,
 };

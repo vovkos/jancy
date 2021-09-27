@@ -30,8 +30,7 @@ jnc_StdMapEntry_getPrev(jnc_StdMapEntry* entry);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct jnc_StdMapEntry
-{
+struct jnc_StdMapEntry {
 	jnc_DataPtr m_nextPtr;
 	jnc_DataPtr m_prevPtr;
 	jnc_Variant m_key;
@@ -41,14 +40,12 @@ struct jnc_StdMapEntry
 
 #ifdef __cplusplus
 	jnc_StdMapEntry*
-	getNext()
-	{
+	getNext() {
 		return jnc_StdMapEntry_getNext(this);
 	}
 
 	jnc_StdMapEntry*
-	getPrev()
-	{
+	getPrev() {
 		return jnc_StdMapEntry_getPrev(this);
 	}
 #endif
@@ -58,15 +55,13 @@ struct jnc_StdMapEntry
 
 JNC_INLINE
 jnc_StdMapEntry*
-jnc_StdMapEntry_getNext(jnc_StdMapEntry* entry)
-{
+jnc_StdMapEntry_getNext(jnc_StdMapEntry* entry) {
 	return (jnc_StdMapEntry*)entry->m_nextPtr.m_p;
 }
 
 JNC_INLINE
 jnc_StdMapEntry*
-jnc_StdMapEntry_getPrev(jnc_StdMapEntry* entry)
-{
+jnc_StdMapEntry_getPrev(jnc_StdMapEntry* entry) {
 	return (jnc_StdMapEntry*)entry->m_prevPtr.m_p;
 }
 
@@ -90,8 +85,7 @@ jnc_StdMap_getTail(jnc_StdMap* map);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct jnc_StdMap
-{
+struct jnc_StdMap {
 	jnc_DataPtr m_headPtr;
 	jnc_DataPtr m_tailPtr;
 	size_t m_count;
@@ -101,29 +95,25 @@ struct jnc_StdMap
 #ifdef __cplusplus
 	JNC_INLINE
 	size_t
-	getItemCount()
-	{
+	getItemCount() {
 		return jnc_StdMap_getItemCount(this);
 	}
 
 	JNC_INLINE
 	bool_t
-	isEmpty()
-	{
+	isEmpty() {
 		return jnc_StdMap_isEmpty(this);
 	}
 
 	JNC_INLINE
 	jnc_StdMapEntry*
-	getHead()
-	{
+	getHead() {
 		return jnc_StdMap_getHead(this);
 	}
 
 	JNC_INLINE
 	jnc_StdMapEntry*
-	getTail()
-	{
+	getTail() {
 		return jnc_StdMap_getTail(this);
 	}
 #endif
@@ -133,29 +123,25 @@ struct jnc_StdMap
 
 JNC_INLINE
 size_t
-jnc_StdMap_getItemCount(jnc_StdMap* map)
-{
+jnc_StdMap_getItemCount(jnc_StdMap* map) {
 	return map->m_count;
 }
 
 JNC_INLINE
 bool_t
-jnc_StdMap_isEmpty(jnc_StdMap* map)
-{
+jnc_StdMap_isEmpty(jnc_StdMap* map) {
 	return map->m_count == 0;
 }
 
 JNC_INLINE
 jnc_StdMapEntry*
-jnc_StdMap_getHead(jnc_StdMap* map)
-{
+jnc_StdMap_getHead(jnc_StdMap* map) {
 	return (jnc_StdMapEntry*)map->m_headPtr.m_p;
 }
 
 JNC_INLINE
 jnc_StdMapEntry*
-jnc_StdMap_getTail(jnc_StdMap* map)
-{
+jnc_StdMap_getTail(jnc_StdMap* map) {
 	return (jnc_StdMapEntry*)map->m_tailPtr.m_p;
 }
 

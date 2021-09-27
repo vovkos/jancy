@@ -28,7 +28,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	SslLibCacheSlot_SslState,
 	SslState,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(SslState)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<SslState>)
@@ -60,8 +60,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 //..............................................................................
 
 void
-SslState::initAppData()
-{
+SslState::initAppData() {
 	m_runtimeIdx = ::SSL_get_ex_new_index(0, NULL, NULL, NULL, NULL);
 	m_selfIdx = ::SSL_get_ex_new_index(0, NULL, NULL, NULL, NULL);
 }
@@ -70,8 +69,7 @@ bool
 SslState::openSsl(
 	Runtime* runtime,
 	axl::io::Socket* socket
-	)
-{
+) {
 	ASSERT(m_selfIdx != -1 && m_runtimeIdx != -1);
 	ASSERT(socket->isOpen());
 
@@ -92,8 +90,7 @@ SslState::openSsl(
 
 SslState*
 JNC_CDECL
-SslState::createSslState(axl::io::Socket* socket)
-{
+SslState::createSslState(axl::io::Socket* socket) {
 	Runtime* runtime = getCurrentThreadRuntime();
 	ASSERT(runtime);
 
@@ -104,16 +101,14 @@ SslState::createSslState(axl::io::Socket* socket)
 
 size_t
 JNC_CDECL
-SslState::getPeerCertificateChainLength()
-{
+SslState::getPeerCertificateChainLength() {
 	STACK_OF(X509)* chain = ::SSL_get_peer_cert_chain(m_ssl);
 	return chain ? sk_X509_num(chain) : 0;
 }
 
 SslCertificate*
 JNC_CDECL
-SslState::getPeerCertificateChainEntry(size_t i)
-{
+SslState::getPeerCertificateChainEntry(size_t i) {
 	STACK_OF(X509)* chain = ::SSL_get_peer_cert_chain(m_ssl);
 	X509* cert = sk_X509_value(chain, i);
 	return cert ? SslCertificate::create(cert) : NULL;
@@ -121,24 +116,21 @@ SslState::getPeerCertificateChainEntry(size_t i)
 
 SslCertificate*
 JNC_CDECL
-SslState::getPeerCertificate()
-{
+SslState::getPeerCertificate() {
 	X509* cert = ::SSL_get_peer_certificate(m_ssl);
 	return cert ? SslCertificate::create(cert) : NULL;
 }
 
 size_t
 JNC_CDECL
-SslState::getAvailableCipherCount()
-{
+SslState::getAvailableCipherCount() {
 	STACK_OF(SSL_CIPHER)* stack = ::SSL_get_ciphers(m_ssl);
 	return stack ? sk_SSL_CIPHER_num(stack) : 0;
 }
 
 SslCipher*
 JNC_CDECL
-SslState::getAvailableCipherSetEntry(size_t i)
-{
+SslState::getAvailableCipherSetEntry(size_t i) {
 	STACK_OF(SSL_CIPHER)* stack = ::SSL_get_ciphers(m_ssl);
 	const SSL_CIPHER* cipher = sk_SSL_CIPHER_value(stack, i);
 	return cipher ? SslCipher::create(cipher) : NULL;
@@ -146,8 +138,7 @@ SslState::getAvailableCipherSetEntry(size_t i)
 
 SslCipher*
 JNC_CDECL
-SslState::getCurrentCipher()
-{
+SslState::getCurrentCipher() {
 	const SSL_CIPHER* cipher = ::SSL_get_current_cipher(m_ssl);
 	return cipher ? SslCipher::create(cipher) : NULL;
 }
@@ -157,8 +148,7 @@ JNC_CDECL
 SslState::setEphemeralDhParams(
 	DataPtr pemPtr,
 	size_t length
-	)
-{
+) {
 	if (length == -1)
 		length = strLen(pemPtr);
 
@@ -170,8 +160,7 @@ SslState::setEphemeralDhParams(
 
 bool
 JNC_CDECL
-SslState::loadEphemeralDhParams(DataPtr fileNamePtr)
-{
+SslState::loadEphemeralDhParams(DataPtr fileNamePtr) {
 	axl::io::SimpleMappedFile file;
 	cry::Bio bio;
 	cry::Dh dh;
@@ -185,14 +174,12 @@ SslState::loadEphemeralDhParams(DataPtr fileNamePtr)
 
 bool
 JNC_CDECL
-SslState::setEphemeralDhStdParams(uint_t stdDh)
-{
+SslState::setEphemeralDhStdParams(uint_t stdDh) {
 	cry::Dh dh;
 
 	bool result;
 
-	switch (stdDh)
-	{
+	switch (stdDh) {
 	case SslStdDh_Dh1024x160:
 		result = dh.create1024x160();
 		break;
@@ -217,11 +204,9 @@ SslState::setEphemeralDhStdParams(uint_t stdDh)
 
 bool
 JNC_CDECL
-SslState::setEphemeralEcdhCurve(DataPtr curveNamePtr)
-{
+SslState::setEphemeralEcdhCurve(DataPtr curveNamePtr) {
 	int curveId = OBJ_sn2nid((char*)curveNamePtr.m_p);
-	if (curveId == NID_undef)
-	{
+	if (curveId == NID_undef) {
 		err::setFormatStringError("invalid curve '%s'", curveNamePtr.m_p);
 		return false;
 	}
@@ -238,8 +223,7 @@ SslState::sslInfoCallback(
 	const SSL* ssl,
 	int where,
 	int ret
-	)
-{
+) {
 	ASSERT(m_selfIdx != -1 && m_runtimeIdx != -1);
 	SslState* self = (SslState*)::SSL_get_ex_data(ssl, m_selfIdx);
 	Runtime* runtime = (Runtime*)::SSL_get_ex_data(ssl, m_runtimeIdx);

@@ -9,20 +9,17 @@
 //
 //..............................................................................
 
-struct Point
-{
+struct Point {
 	int m_x;
 	int m_y;
 }
 
-struct MultiPoint
-{
+struct MultiPoint {
 	Point m_a;
 	Point m_b;
 }
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	MultiPoint* p = new MultiPoint;
@@ -31,7 +28,7 @@ int main()
 		"sizeof (a) = %d; sizeof (b) = %d\n",
 		dynamic sizeof(&p.m_a),
 		dynamic sizeof(&p.m_b)
-		);
+	);
 
 	return 0;
 }

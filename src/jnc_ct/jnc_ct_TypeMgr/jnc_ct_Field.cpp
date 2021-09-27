@@ -18,8 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-Field::Field()
-{
+Field::Field() {
 	m_itemKind = ModuleItemKind_Field;
 	m_type = NULL;
 	m_ptrTypeFlags = 0;
@@ -35,8 +34,7 @@ Field::generateDocumentation(
 	const sl::StringRef& outputDir,
 	sl::String* itemXml,
 	sl::String* indexXml
-	)
-{
+) {
 	bool result = m_type->ensureNoImports();
 	if (!result)
 		return false;

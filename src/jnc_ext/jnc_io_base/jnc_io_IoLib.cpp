@@ -32,8 +32,7 @@ namespace io {
 
 //..............................................................................
 
-DataPtr getSymbolicLinkTarget(DataPtr namePtr)
-{
+DataPtr getSymbolicLinkTarget(DataPtr namePtr) {
 	sl::String linkTarget;
 	bool result = axl::io::getSymbolicLinkTarget(&linkTarget, (const char*) namePtr.m_p);
 	if (!result)
@@ -42,23 +41,19 @@ DataPtr getSymbolicLinkTarget(DataPtr namePtr)
 	return strDup(linkTarget);
 }
 
-DataPtr getTempDir()
-{
+DataPtr getTempDir() {
 	return strDup(axl::io::getTempDir());
 }
 
-DataPtr getHomeDir()
-{
+DataPtr getHomeDir() {
 	return strDup(axl::io::getHomeDir());
 }
 
 //..............................................................................
 
 void
-initializeIoLibCapabilities()
-{
-	if (isEveryCapabilityEnabled())
-	{
+initializeIoLibCapabilities() {
+	if (isEveryCapabilityEnabled()) {
 		g_ioLibCapabilities = -1;
 		initializeSocketCapabilities();
 		return;
@@ -95,10 +90,8 @@ initializeIoLibCapabilities()
 }
 
 bool
-failWithIoLibCapabilityError(IoLibCapability capability)
-{
-	const char* stringTable[] =
-	{
+failWithIoLibCapabilityError(IoLibCapability capability) {
+	const char* stringTable[] = {
 		"org.jancy.io.file",            // IoLibCapability_File
 		"org.jancy.io.file-stream",     // IoLibCapability_FileStream
 		"org.jancy.io.serial",          // IoLibCapability_Serial
@@ -133,7 +126,7 @@ JNC_DEFINE_LIB_EX(
 	"IoLib",
 	"Jancy standard IO extension library",
 	initializeIoLibCapabilities
-	)
+)
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE(IoLib)
 JNC_END_LIB_SOURCE_FILE_TABLE()
@@ -186,8 +179,7 @@ jnc_DynamicExtensionLibHost* jnc_g_dynamicExtensionLibHost;
 JNC_EXTERN_C
 JNC_EXPORT
 jnc_ExtensionLib*
-jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
-{
+jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host) {
 #if (_JNC_OS_WIN)
 	WSADATA WsaData;
 	WSAStartup(0x0202, &WsaData);

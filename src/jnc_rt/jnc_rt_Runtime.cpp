@@ -19,8 +19,7 @@ namespace rt {
 
 //..............................................................................
 
-Runtime::Runtime()
-{
+Runtime::Runtime() {
 	m_tlsSize = 0;
 	m_state = State_Idle;
 	m_module = NULL;
@@ -29,8 +28,7 @@ Runtime::Runtime()
 }
 
 bool
-Runtime::startup(ct::Module* module)
-{
+Runtime::startup(ct::Module* module) {
 	shutdown();
 
 	m_tlsSize = module->m_variableMgr.getTlsStructType()->getSize();
@@ -46,11 +44,9 @@ Runtime::startup(ct::Module* module)
 }
 
 void
-Runtime::shutdown()
-{
+Runtime::shutdown() {
 	m_lock.lock();
-	if (m_state == State_Idle)
-	{
+	if (m_state == State_Idle) {
 		m_lock.unlock();
 		return;
 	}
@@ -61,8 +57,7 @@ Runtime::shutdown()
 
 	m_gcHeap.beginShutdown();
 
-	for (size_t i = 0; i < Shutdown_IterationCount; i++)
-	{
+	for (size_t i = 0; i < Shutdown_IterationCount; i++) {
 		m_gcHeap.collect();
 
 		bool result = m_noThreadEvent.wait(Shutdown_WaitThreadTimeout); // wait for other threads
@@ -77,12 +72,10 @@ Runtime::shutdown()
 }
 
 void
-Runtime::abort()
-{
+Runtime::abort() {
 	m_lock.lock();
 
-	if (m_state != State_Running)
-	{
+	if (m_state != State_Running) {
 		m_lock.unlock();
 		return;
 	}
@@ -92,8 +85,7 @@ Runtime::abort()
 }
 
 void
-Runtime::initializeCallSite(CallSite* callSite)
-{
+Runtime::initializeCallSite(CallSite* callSite) {
 	memset(callSite, 0, sizeof(CallSite));
 	callSite->m_prev = sys::getTlsPtrSlotValue<CallSite>();
 
@@ -107,16 +99,14 @@ Runtime::initializeCallSite(CallSite* callSite)
 	// try to find TLS of *this* runtime
 
 	CallSite* prevCallSite = callSite->m_prev;
-	while (prevCallSite)
-	{
+	while (prevCallSite) {
 		if (prevCallSite->m_tls->m_runtime == this)
 			break;
 
 		prevCallSite = prevCallSite->m_prev;
 	}
 
-	if (prevCallSite) // found!
-	{
+	if (prevCallSite) { // found!
 		callSite->m_tls = prevCallSite->m_tls;
 		TlsVariableTable* tlsVariableTable = (TlsVariableTable*)(callSite->m_tls + 1);
 		ASSERT(tlsVariableTable->m_gcShadowStackTop > &callSite->m_gcShadowStackDynamicFrame);
@@ -134,9 +124,7 @@ Runtime::initializeCallSite(CallSite* callSite)
 		if (!tlsVariableTable->m_gcShadowStackTop->m_map ||
 			tlsVariableTable->m_gcShadowStackTop->m_map->getMapKind() != ct::GcShadowStackFrameMapKind_Dynamic)
 			tlsVariableTable->m_gcShadowStackTop = &callSite->m_gcShadowStackDynamicFrame;
-	}
-	else // not found, create a new one
-	{
+	} else { // not found, create a new one
 		callSite->m_tls = AXL_MEM_ZERO_NEW_EXTRA(Tls, m_tlsSize);
 		callSite->m_tls->m_runtime = this;
 		m_gcHeap.registerMutatorThread(&callSite->m_tls->m_gcMutatorThread); // register with GC heap first
@@ -156,8 +144,7 @@ Runtime::initializeCallSite(CallSite* callSite)
 }
 
 void
-Runtime::uninitializeCallSite(CallSite* callSite)
-{
+Runtime::uninitializeCallSite(CallSite* callSite) {
 	ASSERT(callSite == sys::getTlsPtrSlotValue<CallSite>());
 	ASSERT(callSite->m_tls->m_runtime == this);
 	ASSERT(callSite->m_waitRegionLevel == callSite->m_tls->m_gcMutatorThread.m_waitRegionLevel);
@@ -165,7 +152,7 @@ Runtime::uninitializeCallSite(CallSite* callSite)
 	ASSERT(
 		callSite->m_noCollectRegionLevel == callSite->m_tls->m_gcMutatorThread.m_noCollectRegionLevel ||
 		!callSite->m_result && callSite->m_noCollectRegionLevel < callSite->m_tls->m_gcMutatorThread.m_noCollectRegionLevel
-		);
+	);
 
 	TlsVariableTable* tlsVariableTable = (TlsVariableTable*)(callSite->m_tls + 1);
 	GcShadowStackFrame* prevGcShadowStackTop = callSite->m_gcShadowStackDynamicFrame.m_prev;
@@ -177,7 +164,7 @@ Runtime::uninitializeCallSite(CallSite* callSite)
 		prevGcShadowStackTop->m_map->getMapKind() == ct::GcShadowStackFrameMapKind_Dynamic ||
 		!callSite->m_result &&
 		tlsVariableTable->m_gcShadowStackTop < &callSite->m_gcShadowStackDynamicFrame
-		);
+	);
 
 	// restore exception recovery snapshot
 
@@ -187,8 +174,7 @@ Runtime::uninitializeCallSite(CallSite* callSite)
 
 	((GcShadowStackFrameMap*) &callSite->m_gcShadowStackDynamicFrameMap)->~GcShadowStackFrameMap();
 
-	if (callSite->m_nestLevel) // this thread was nested-initialized
-	{
+	if (callSite->m_nestLevel) { // this thread was nested-initialized
 		sys::setTlsPtrSlotValue<CallSite>(callSite->m_prev);
 		return;
 	}
@@ -197,7 +183,7 @@ Runtime::uninitializeCallSite(CallSite* callSite)
 		!callSite->m_waitRegionLevel &&
 		!callSite->m_noCollectRegionLevel &&
 		!prevGcShadowStackTop
-		);
+	);
 
 	m_gcHeap.unregisterMutatorThread(&callSite->m_tls->m_gcMutatorThread);
 	sys::setTlsPtrSlotValue<CallSite>(callSite->m_prev);
@@ -213,11 +199,9 @@ Runtime::uninitializeCallSite(CallSite* callSite)
 }
 
 SjljFrame*
-Runtime::setSjljFrame(SjljFrame* frame)
-{
+Runtime::setSjljFrame(SjljFrame* frame) {
 	Tls* tls = rt::getCurrentThreadTls();
-	if (!tls)
-	{
+	if (!tls) {
 		TRACE("-- WARNING: set external SJLJ frame: %p\n", frame);
 		return sys::setTlsPtrSlotValue<SjljFrame>(frame);
 	}
@@ -231,18 +215,14 @@ Runtime::setSjljFrame(SjljFrame* frame)
 }
 
 void
-Runtime::dynamicThrow()
-{
+Runtime::dynamicThrow() {
 	Tls* tls = rt::getCurrentThreadTls();
 	ASSERT(tls);
 
 	TlsVariableTable* tlsVariableTable = (TlsVariableTable*)(tls + 1);
-	if (tlsVariableTable->m_sjljFrame)
-	{
+	if (tlsVariableTable->m_sjljFrame) {
 		jnc_longJmp(tlsVariableTable->m_sjljFrame->m_jmpBuf, -1);
-	}
-	else
-	{
+	} else {
 		SjljFrame* frame = sys::getTlsPtrSlotValue<SjljFrame> ();
 		TRACE("-- WARNING: jump to external SJLJ frame: %p\n", frame);
 
@@ -255,8 +235,7 @@ Runtime::dynamicThrow()
 
 #if (_JNC_OS_POSIX)
 void
-Runtime::saveSignalInfo(SjljFrame* sjljFrame)
-{
+Runtime::saveSignalInfo(SjljFrame* sjljFrame) {
 	if (!sjljFrame->m_signalInfo.m_signal) // there was no signal or it's already saved
 		return;
 
@@ -265,7 +244,7 @@ Runtime::saveSignalInfo(SjljFrame* sjljFrame)
 		sjljFrame->m_signalInfo.m_code,
 		sjljFrame->m_signalInfo.m_codeAddress,
 		sjljFrame->m_signalInfo.m_faultAddress
-		);
+	);
 
 	sjljFrame->m_signalInfo.m_signal = 0; // save only once
 }

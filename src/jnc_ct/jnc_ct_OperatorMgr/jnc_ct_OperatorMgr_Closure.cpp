@@ -26,8 +26,7 @@ OperatorMgr::createClosureObject(
 	Type* thunkType, // function or property type
 	bool isWeak,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(thunkType->getTypeKind() == TypeKind_Function || thunkType->getTypeKind() == TypeKind_Property);
 
 	bool result;
@@ -35,13 +34,10 @@ OperatorMgr::createClosureObject(
 	// choose reference function type
 
 	FunctionType* srcFunctionType;
-	if (opValue.getType()->getTypeKindFlags() & TypeKindFlag_FunctionPtr)
-	{
+	if (opValue.getType()->getTypeKindFlags() & TypeKindFlag_FunctionPtr) {
 		ASSERT(((FunctionPtrType*)opValue.getType())->getPtrTypeKind() == FunctionPtrTypeKind_Thin);
 		srcFunctionType = ((FunctionPtrType*)opValue.getType())->getTargetType();
-	}
-	else
-	{
+	} else {
 		ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_PropertyPtr);
 		ASSERT(((PropertyPtrType*)opValue.getType())->getPtrTypeKind() == PropertyPtrTypeKind_Thin);
 		srcFunctionType = ((PropertyPtrType*)opValue.getType())->getTargetType()->getGetterType();
@@ -58,16 +54,14 @@ OperatorMgr::createClosureObject(
 	// build closure arg type array & closure map
 
 	Closure* closure = opValue.getClosure();
-	if (closure)
-	{
+	if (closure) {
 		closureArgCount = closure->getArgValueList()->getCount();
 		closureThisArgIdx = closure->getThisArgIdx();
 
 		sl::Array<FunctionArg*> srcArgArray = srcFunctionType->getArgArray();
 		size_t srcArgCount = srcArgArray.getCount();
 
-		if (closureArgCount > srcArgCount)
-		{
+		if (closureArgCount > srcArgCount) {
 			err::setFormatStringError("closure is too big for '%s'", srcFunctionType->getTypeString().sz());
 			return false;
 		}
@@ -79,8 +73,7 @@ OperatorMgr::createClosureObject(
 
 		size_t j = 0;
 
-		for (size_t i = 0; i < closureArgCount; closureArgValue++, i++)
-		{
+		for (size_t i = 0; i < closureArgCount; closureArgValue++, i++) {
 			if (closureArgValue->isEmpty())
 				continue;
 
@@ -96,8 +89,7 @@ OperatorMgr::createClosureObject(
 
 	ClosureClassType* closureType;
 
-	if (thunkType->getTypeKind() == TypeKind_Function)
-	{
+	if (thunkType->getTypeKind() == TypeKind_Function) {
 		closureType = m_module->m_typeMgr.getFunctionClosureClassType(
 			((FunctionPtrType*)opValue.getType())->getTargetType(),
 			(FunctionType*)thunkType,
@@ -105,10 +97,8 @@ OperatorMgr::createClosureObject(
 			closureMap,
 			closureArgCount,
 			closureThisArgIdx
-			);
-	}
-	else
-	{
+		);
+	} else {
 		ASSERT(thunkType->getTypeKind() == TypeKind_Property);
 
 		closureType = m_module->m_typeMgr.getPropertyClosureClassType(
@@ -118,7 +108,7 @@ OperatorMgr::createClosureObject(
 			closureMap,
 			closureArgCount,
 			closureThisArgIdx
-			);
+		);
 	}
 
 	if (!closureType)
@@ -151,11 +141,9 @@ OperatorMgr::createClosureObject(
 
 	// save closure arguments (if any)
 
-	if (closure)
-	{
+	if (closure) {
 		sl::BoxIterator<Value> closureArgValue = closure->getArgValueList()->getHead();
-		for (; closureArgValue; closureArgValue++)
-		{
+		for (; closureArgValue; closureArgValue++) {
 			if (closureArgValue->isEmpty())
 				continue;
 
@@ -180,8 +168,7 @@ OperatorMgr::createDataClosureObject(
 	const Value& opValue, // data ptr
 	PropertyType* thunkType, // function or property type
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKind() == TypeKind_DataPtr);
 
 	bool result;
@@ -191,7 +178,7 @@ OperatorMgr::createDataClosureObject(
 	DataClosureClassType* closureType = m_module->m_typeMgr.getDataClosureClassType(
 		((DataPtrType*)opValue.getType())->getTargetType(),
 		thunkType
-		);
+	);
 
 	// create instance
 

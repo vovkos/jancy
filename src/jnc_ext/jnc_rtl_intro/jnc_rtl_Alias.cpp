@@ -25,7 +25,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	Alias,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Alias)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<Alias, ct::Alias*>))

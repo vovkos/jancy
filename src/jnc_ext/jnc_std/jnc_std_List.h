@@ -24,8 +24,7 @@ JNC_DECLARE_CLASS_TYPE(List)
 
 //..............................................................................
 
-struct ListEntry
-{
+struct ListEntry {
 	JNC_DECLARE_TYPE_STATIC_METHODS(ListEntry)
 
 	DataPtr m_nextPtr;
@@ -37,8 +36,7 @@ struct ListEntry
 
 //..............................................................................
 
-class List: public IfaceHdr
-{
+class List: public IfaceHdr {
 public:
 	DataPtr m_headPtr;
 	DataPtr m_tailPtr;
@@ -58,14 +56,14 @@ public:
 	insertHead(
 		List* self,
 		Variant data
-		);
+	);
 
 	static
 	DataPtr
 	insertTail(
 		List* self,
 		Variant data
-		);
+	);
 
 	static
 	DataPtr
@@ -73,7 +71,7 @@ public:
 		List* self,
 		Variant data,
 		DataPtr beforePtr
-		);
+	);
 
 	static
 	DataPtr
@@ -81,7 +79,7 @@ public:
 		List* self,
 		Variant data,
 		DataPtr afterPtr
-		);
+	);
 
 	void
 	JNC_CDECL
@@ -96,26 +94,24 @@ public:
 	moveBefore(
 		DataPtr entryPtr,
 		DataPtr beforePtr
-		);
+	);
 
 	void
 	JNC_CDECL
 	moveAfter(
 		DataPtr entryPtr,
 		DataPtr afterPtr
-		);
+	);
 
 	static
 	Variant
-	removeHead(List* self)
-	{
+	removeHead(List* self) {
 		return remove(self, self->m_headPtr);
 	}
 
 	static
 	Variant
-	removeTail(List* self)
-	{
+	removeTail(List* self) {
 		return remove(self, self->m_tailPtr);
 	}
 
@@ -124,7 +120,7 @@ public:
 	remove(
 		List* self,
 		DataPtr entryPtr
-		);
+	);
 
 protected:
 	static
@@ -141,13 +137,13 @@ protected:
 	insertBeforeImpl(
 		DataPtr entryPtr,
 		DataPtr beforePtr
-		);
+	);
 
 	void
 	insertAfterImpl(
 		DataPtr entryPtr,
 		DataPtr afterPtr
-		);
+	);
 
 	void
 	removeImpl(ListEntry* entry);

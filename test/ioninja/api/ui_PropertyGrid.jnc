@@ -13,8 +13,7 @@ namespace ui {
 
 //..............................................................................
 
-opaque class Property
-{
+opaque class Property {
 	Property* readonly m_parent;
 	char const* autoget property m_name;
 	char const* autoget property m_toolTipText;
@@ -24,22 +23,20 @@ opaque class Property
 	void addChildProperty(
 		Property* prop,
 		Property* beforeProp = null
-		);
+	);
 
 	void removeChildProperty(Property* prop);
 }
 
 //..............................................................................
 
-opaque class GroupProperty: Property
-{
+opaque class GroupProperty: Property {
 	construct(char const* name);
 }
 
 //..............................................................................
 
-opaque class BoolProperty: Property
-{
+opaque class BoolProperty: Property {
 	construct(char const* name);
 
 	bool bindable autoget property m_value;
@@ -48,8 +45,7 @@ opaque class BoolProperty: Property
 
 //..............................................................................
 
-opaque class IntProperty: Property
-{
+opaque class IntProperty: Property {
 	construct(char const* name);
 
 	int bindable autoget property m_value;
@@ -60,8 +56,7 @@ opaque class IntProperty: Property
 
 //..............................................................................
 
-opaque class StringProperty: Property
-{
+opaque class StringProperty: Property {
 	construct(char const* name);
 
 	char const* bindable autoget property m_value;
@@ -75,24 +70,20 @@ typedef ComboItem EnumPropertyOption;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class EnumProperty: Property
-{
-	property m_value
-	{
+opaque class EnumProperty: Property {
+	property m_value {
 		variant autoget m_value;
 		void set(variant value);
 		bindable alias m_onPropChanged = m_onChanged;
 	}
 
-	property m_currentIndex
-	{
+	property m_currentIndex {
 		size_t autoget m_value;
 		void set(size_t value);
 		bindable alias m_onPropChanged = m_onChanged;
 	}
 
-	property m_currentText
-	{
+	property m_currentText {
 		char const* get();
 		bindable alias m_onPropChanged = m_onChanged;
 	}
@@ -103,15 +94,14 @@ opaque class EnumProperty: Property
 	void setOptions(
 		EnumPropertyOption const* optionArray,
 		size_t count
-		);
+	);
 
 	event m_onChanged();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class ComboProperty: Property
-{
+opaque class ComboProperty: Property {
 	char const* bindable autoget property m_value;
 	char const* autoget property m_placeholderText;
 
@@ -121,23 +111,21 @@ opaque class ComboProperty: Property
 	void setOptions(
 		EnumPropertyOption const* optionArray, // option.value should be 'null' or string value
 		size_t count
-		);
+	);
 
 	void selectOption(size_t index);
 }
 
 //..............................................................................
 
-struct FlagPropertyOption
-{
+struct FlagPropertyOption {
 	char const* m_text;
 	uint_t m_value;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class FlagProperty: Property
-{
+opaque class FlagProperty: Property {
 	uint_t bindable autoget property m_value;
 
 	construct(char const* name);
@@ -146,13 +134,12 @@ opaque class FlagProperty: Property
 	void setOptions(
 		FlagPropertyOption const* optionArray,
 		size_t count
-		);
+	);
 }
 
 //..............................................................................
 
-opaque class ColorProperty: Property
-{
+opaque class ColorProperty: Property {
 	construct(char const* name);
 
 	uint_t bindable autoget property m_value;
@@ -160,8 +147,7 @@ opaque class ColorProperty: Property
 
 //..............................................................................
 
-opaque class ActionProperty: Property
-{
+opaque class ActionProperty: Property {
 	construct(char const* name);
 
 	function* m_onAction();
@@ -169,8 +155,7 @@ opaque class ActionProperty: Property
 
 //..............................................................................
 
-enum FilePropertyMode
-{
+enum FilePropertyMode {
 	AnyFile,
 	ExistingFile,
 	Directory,
@@ -179,8 +164,7 @@ enum FilePropertyMode
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum FilePropertyOptions
-{
+bitflag enum FilePropertyOptions {
     ShowDirsOnly                = 0x00000001,
     DontResolveSymlinks         = 0x00000002,
     DontConfirmOverwrite        = 0x00000004,
@@ -193,8 +177,7 @@ bitflag enum FilePropertyOptions
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class FileProperty: Property
-{
+opaque class FileProperty: Property {
 	construct(char const* name);
 
 	char const* bindable autoget property m_value;
@@ -208,8 +191,7 @@ opaque class FileProperty: Property
 
 //..............................................................................
 
-opaque class DictionaryProperty: Property
-{
+opaque class DictionaryProperty: Property {
 	construct(char const* name);
 
 	std.HashTable* bindable autoget property m_value; // onChanged is also fired when contents changes
@@ -224,12 +206,11 @@ opaque class DictionaryProperty: Property
 
 //..............................................................................
 
-opaque class PropertyGrid
-{
+opaque class PropertyGrid {
 	void addProperty(
 		Property* prop,
 		Property* beforeProp = null
-		);
+	);
 
 	void removeProperty(Property* prop);
 
@@ -238,13 +219,12 @@ opaque class PropertyGrid
 		Property* beforeProp = null,
 		char const* name,
 		char const* toolTipText
-		);
+	);
 
 	GroupProperty* createGroupProperty(
 		char const* name,
 		char const* toolTipText
-		)
-	{
+	) {
 		return createGroupProperty(,, name, toolTipText);
 	}
 
@@ -253,13 +233,12 @@ opaque class PropertyGrid
 		Property* beforeProp = null,
 		char const* name,
 		char const* toolTipText
-		);
+	);
 
 	BoolProperty* createBoolProperty(
 		char const* name,
 		char const* toolTipText
-		)
-	{
+	) {
 		return createBoolProperty(,, name, toolTipText);
 	}
 
@@ -268,13 +247,12 @@ opaque class PropertyGrid
 		Property* beforeProp = null,
 		char const* name,
 		char const* toolTipText
-		);
+	);
 
 	IntProperty* createIntProperty(
 		char const* name,
 		char const* toolTipText
-		)
-	{
+	) {
 		return createIntProperty(,, name, toolTipText);
 	}
 
@@ -284,14 +262,13 @@ opaque class PropertyGrid
 		char const* name,
 		char const* placeholderText,
 		char const* toolTipText
-		);
+	);
 
 	StringProperty* createStringProperty(
 		char const* name,
 		char const* placeholderText,
 		char const* toolTipText
-		)
-	{
+	) {
 		return createStringProperty(,, name, placeholderText, toolTipText);
 	}
 
@@ -302,15 +279,14 @@ opaque class PropertyGrid
 		char const* toolTipText,
 		EnumPropertyOption const* optionArray,
 		size_t count
-		);
+	);
 
 	EnumProperty* createEnumProperty(
 		char const* name,
 		char const* toolTipText,
 		EnumPropertyOption const* optionArray,
 		size_t count
-		)
-	{
+	) {
 		return createEnumProperty(,, name, toolTipText, optionArray, count);
 	}
 
@@ -322,7 +298,7 @@ opaque class PropertyGrid
 		char const* toolTipText,
 		EnumPropertyOption const* optionArray = null,
 		size_t count = 0
-		);
+	);
 
 	ComboProperty* createComboProperty(
 		char const* name,
@@ -330,8 +306,7 @@ opaque class PropertyGrid
 		char const* toolTipText,
 		EnumPropertyOption const* optionArray = null,
 		size_t count = 0
-		)
-	{
+	) {
 		return createComboProperty(,, name, placeholderText, toolTipText, optionArray, count);
 	}
 
@@ -342,15 +317,14 @@ opaque class PropertyGrid
 		char const* toolTipText,
 		FlagPropertyOption const* optionArray,
 		size_t count
-		);
+	);
 
 	FlagProperty* createFlagProperty(
 		char const* name,
 		char const* toolTipText,
 		FlagPropertyOption const* optionArray,
 		size_t count
-		)
-	{
+	) {
 		return createFlagProperty(,, name, toolTipText, optionArray, count);
 	}
 
@@ -359,13 +333,12 @@ opaque class PropertyGrid
 		Property* beforeProp = null,
 		char const* name,
 		char const* toolTipText
-		);
+	);
 
 	ColorProperty* createColorProperty(
 		char const* name,
 		char const* toolTipText
-		)
-	{
+	) {
 		return createColorProperty(,, name, toolTipText);
 	}
 
@@ -374,13 +347,12 @@ opaque class PropertyGrid
 		Property* beforeProp = null,
 		char const* name,
 		char const* toolTipText
-		);
+	);
 
 	ActionProperty* createActionProperty(
 		char const* name,
 		char const* toolTipText
-		)
-	{
+	) {
 		return createActionProperty(,, name, toolTipText);
 	}
 
@@ -389,13 +361,12 @@ opaque class PropertyGrid
 		Property* beforeProp = null,
 		char const* name,
 		char const* toolTipText
-		);
+	);
 
 	FileProperty* createFileProperty(
 		char const* name,
 		char const* toolTipText
-		)
-	{
+	) {
 		return createFileProperty(,, name, toolTipText);
 	}
 
@@ -404,13 +375,12 @@ opaque class PropertyGrid
 		Property* beforeProp = null,
 		char const* name,
 		char const* toolTipText
-		);
+	);
 
 	DictionaryProperty* createDictionaryProperty(
 		char const* name,
 		char const* toolTipText
-		)
-	{
+	) {
 		return createDictionaryProperty(,, name, toolTipText);
 	}
 
@@ -422,7 +392,7 @@ protected:
 		Property* parentProp,
 		Property* beforeProp,
 		char const* toolTipText
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -432,8 +402,7 @@ GroupProperty* PropertyGrid.createGroupProperty(
 	Property* beforeProp,
 	char const* name,
 	char const* toolTipText
-	)
-{
+) {
 	GroupProperty* prop = new GroupProperty(name);
 	finalizeCreateProperty(prop, parentProp, beforeProp, toolTipText);
 	return prop;
@@ -444,8 +413,7 @@ BoolProperty* PropertyGrid.createBoolProperty(
 	Property* beforeProp,
 	char const* name,
 	char const* toolTipText
-	)
-{
+) {
 	BoolProperty* prop = new BoolProperty(name);
 	finalizeCreateProperty(prop, parentProp, beforeProp, toolTipText);
 	return prop;
@@ -456,8 +424,7 @@ IntProperty* PropertyGrid.createIntProperty(
 	Property* beforeProp,
 	char const* name,
 	char const* toolTipText
-	)
-{
+) {
 	IntProperty* prop = new IntProperty(name);
 	finalizeCreateProperty(prop, parentProp, beforeProp, toolTipText);
 	return prop;
@@ -469,8 +436,7 @@ StringProperty* PropertyGrid.createStringProperty(
 	char const* name,
 	char const* placeholderText,
 	char const* toolTipText
-	)
-{
+) {
 	StringProperty* prop = new StringProperty(name);
 	prop.m_placeholderText = placeholderText;
 	finalizeCreateProperty(prop, parentProp, beforeProp, toolTipText);
@@ -484,8 +450,7 @@ EnumProperty* PropertyGrid.createEnumProperty(
 	char const* toolTipText,
 	EnumPropertyOption const* optionArray,
 	size_t count
-	)
-{
+) {
 	EnumProperty* prop = new EnumProperty(name);
 	prop.setOptions(optionArray, count);
 	finalizeCreateProperty(prop, parentProp, beforeProp, toolTipText);
@@ -500,8 +465,7 @@ ComboProperty* PropertyGrid.createComboProperty(
 	char const* toolTipText,
 	EnumPropertyOption const* optionArray,
 	size_t count
-	)
-{
+) {
 	ComboProperty* prop = new ComboProperty(name);
 	prop.m_placeholderText = placeholderText;
 
@@ -519,8 +483,7 @@ FlagProperty* PropertyGrid.createFlagProperty(
 	char const* toolTipText,
 	FlagPropertyOption const* optionArray,
 	size_t count
-	)
-{
+) {
 	FlagProperty* prop = new FlagProperty(name);
 	prop.setOptions(optionArray, count);
 	finalizeCreateProperty(prop, parentProp, beforeProp, toolTipText);
@@ -532,8 +495,7 @@ ColorProperty* PropertyGrid.createColorProperty(
 	Property* beforeProp,
 	char const* name,
 	char const* toolTipText
-	)
-{
+) {
 	ColorProperty* prop = new ColorProperty(name);
 	finalizeCreateProperty(prop, parentProp, beforeProp, toolTipText);
 	return prop;
@@ -544,8 +506,7 @@ ActionProperty* PropertyGrid.createActionProperty(
 	Property* beforeProp,
 	char const* name,
 	char const* toolTipText
-	)
-{
+) {
 	ActionProperty* prop = new ActionProperty(name);
 	finalizeCreateProperty(prop, parentProp, beforeProp, toolTipText);
 	return prop;
@@ -556,8 +517,7 @@ FileProperty* PropertyGrid.createFileProperty(
 	Property* beforeProp,
 	char const* name,
 	char const* toolTipText
-	)
-{
+) {
 	FileProperty* prop = new FileProperty(name);
 	finalizeCreateProperty(prop, parentProp, beforeProp, toolTipText);
 	return prop;
@@ -568,8 +528,7 @@ DictionaryProperty* PropertyGrid.createDictionaryProperty(
 	Property* beforeProp,
 	char const* name,
 	char const* toolTipText
-	)
-{
+) {
 	DictionaryProperty* prop = new DictionaryProperty(name);
 	finalizeCreateProperty(prop, parentProp, beforeProp, toolTipText);
 	return prop;
@@ -580,8 +539,7 @@ void PropertyGrid.finalizeCreateProperty(
 	Property* parentProp,
 	Property* beforeProp,
 	char const* toolTipText
-	)
-{
+) {
 	prop.m_toolTipText = toolTipText;
 
 	parentProp ?

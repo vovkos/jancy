@@ -18,8 +18,7 @@ namespace cy {
 
 //..............................................................................
 
-enum
-{
+enum {
 	// request types
 
 	CY_VENDOR_REQUEST_DEVICE_TO_HOST = 0xC0,
@@ -36,8 +35,7 @@ enum
 	CY_SCB_INDEX_POS = 15,
 }
 
-struct CyUsSpiConfig
-{
+struct CyUsSpiConfig {
 	uint32_t frequency;
 	uint8_t dataWidth;
 	uchar_t mode;
@@ -56,8 +54,7 @@ struct CyUsSpiConfig
 
 } // namespace cy
 
-class SpiIface
-{
+class SpiIface {
 	io.UsbInterface* m_interface;
 	io.UsbEndpoint* m_endpoint;
 	uint_t m_syncId;
@@ -66,7 +63,7 @@ class SpiIface
 	bool errorcode claim(
 		io.UsbDevice* device,
 		uint_t ifaceId
-		);
+	);
 
 	void release();
 
@@ -78,31 +75,26 @@ class SpiIface
 bool errorcode SpiIface.claim(
 	io.UsbDevice* device,
 	uint_t ifaceId
-	)
-{
+) {
 	m_interface = device.claimInterface(ifaceId);
 	m_endpoint = m_interface.openEndpoint(ifaceId ? 0x85 : 0x82);
 	return true;
 }
 
-void SpiIface.release()
-{
-	if (m_endpoint)
-	{
+void SpiIface.release() {
+	if (m_endpoint) {
 		m_endpoint.close();
 		m_endpoint = null;
 		m_syncId++;
 	}
 
-	if (m_interface)
-	{
+	if (m_interface) {
 		m_interface.release();
 		m_interface = null;
 	}
 }
 
-bool errorcode SpiIface.setBufferProperties(ui.BufferPropertySet* bufferPropertySet)
-{
+bool errorcode SpiIface.setBufferProperties(ui.BufferPropertySet* bufferPropertySet) {
 	m_endpoint.m_readParallelism = bufferPropertySet.m_readParallelismProp.m_value;
 	m_endpoint.m_readBlockSize = bufferPropertySet.m_readBlockSizeProp.m_value;
 	m_endpoint.m_readBufferSize = bufferPropertySet.m_readBufferSizeProp.m_value;
@@ -111,11 +103,9 @@ bool errorcode SpiIface.setBufferProperties(ui.BufferPropertySet* bufferProperty
 
 //..............................................................................
 
-class SpiTapSession: doc.Session
-{
+class SpiTapSession: doc.Session {
 protected:
-	enum Defaults
-	{
+	enum Defaults {
 		Frequency      = 3000000,
 		Mode           = 0,
 		DataBits       = 8,
@@ -124,29 +114,25 @@ protected:
 		FlushTimeout   = 5000,
 	}
 
-	enum State
-	{
+	enum State {
 		Closed,
 		Opened,
 	}
 
-	enum ActionId
-	{
+	enum ActionId {
 		Refresh,
 		Capture,
 		Flip,
 		_Count,
 	}
 
-	enum IconId
-	{
+	enum IconId {
 		Capture,
 		StopCapture,
 		_Count,
 	}
 
-	enum UsbId
-	{
+	enum UsbId {
 		VendorId  = 0x16D0,
 		ProductId = 0x0E27,
 	}
@@ -215,13 +201,11 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
-	void onCapture()
-	{
+	void onCapture() {
 		m_state ? stopCapture() : try capture();
 	}
 
-	void onDeviceComboEnter()
-	{
+	void onDeviceComboEnter() {
 		try capture();
 	}
 
@@ -231,7 +215,7 @@ protected:
 		SpiIface* iface,
 		uint_t syncId,
 		io.UsbEndpointEvents triggeredEvents
-		);
+	);
 
 	void onFlushTimer(uint_t syncId);
 	bool flush(bool isForced);
@@ -240,13 +224,13 @@ protected:
 		uint64_t recordCode,
 		void const* p,
 		size_t size
-		);
+	);
 
 	void writeLogTextOnly(
 		void const* tx,
 		void const* rx,
 		size_t size
-		);
+	);
 
 	void createUi();
 	void enumerateDevices();
@@ -257,8 +241,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-SpiTapSession.construct(doc.PluginHost* pluginHost)
-{
+SpiTapSession.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
 
 	m_readBuffer.setSize(ui.BufferPropertySet.Defaults.ReadBufferSize);
@@ -275,18 +258,15 @@ SpiTapSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-void SpiTapSession.createUi()
-{
-	static ui.EnumPropertyOption modeTable[] =
-	{
+void SpiTapSession.createUi() {
+	static ui.EnumPropertyOption modeTable[] = {
 		{ "SPI 0 (CPOL 0, CPHA 0)",  0 },
 		{ "SPI 1 (CPOL 0, CPHA 1)",  1 },
 		{ "SPI 2 (CPOL 1, CPHA 0)",  2 },
 		{ "SPI 3 (CPOL 1, CPHA 1)",  3 },
 	}
 
-	static ui.EnumPropertyOption endiannessTable[] =
-	{
+	static ui.EnumPropertyOption endiannessTable[] = {
 		{ "Big-endian (MSBit first)",    true },
 		{ "Little-endian (LSBit first)", false },
 	}
@@ -328,20 +308,20 @@ void SpiTapSession.createUi()
 	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Connection",
 		"USB-specific connection settings"
-		);
+	);
 
 	m_deviceProp = m_pluginHost.m_propertyGrid.createEnumProperty(
 		group,,
 		"Tap",
 		"Target USB-connected tap device",
 		null, 0
-		);
+	);
 
 	m_frequencyProp = m_pluginHost.m_propertyGrid.createIntProperty(
 		group,,
 		"Frequency (Hz)",
 		"SPI clock frequency"
-		);
+	);
 
 	m_frequencyProp.m_minValue = 1000;
 	m_frequencyProp.m_maxValue = 3000000;
@@ -352,7 +332,7 @@ void SpiTapSession.createUi()
 		"SPI CPOL/CPHA mode",
 		modeTable,
 		countof(modeTable)
-		);
+	);
 
 	m_endiannessProp = m_pluginHost.m_propertyGrid.createEnumProperty(
 		group,,
@@ -360,13 +340,13 @@ void SpiTapSession.createUi()
 		"SPI bit endianness",
 		endiannessTable,
 		countof(endiannessTable)
-		);
+	);
 
 	m_dataBitsProp = m_pluginHost.m_propertyGrid.createIntProperty(
 		group,,
 		"Data bits",
 		"Serial data bit count (word size)"
-		);
+	);
 
 	m_dataBitsProp.m_minValue = 4;
 	m_dataBitsProp.m_maxValue = 16;
@@ -375,36 +355,36 @@ void SpiTapSession.createUi()
 		group,,
 		"Flip Master/Slave roles",
 		"Flip logical sides of the tap cable"
-		);
+	);
 
 	m_useDualHexViewProp = m_pluginHost.m_propertyGrid.createBoolProperty(
 		group,,
 		"Use dual hex-view",
 		"Display MOSI and MISO next to each other in dual hex-view"
-		);
+	);
 
 	m_useTextFilter = m_pluginHost.m_propertyGrid.createBoolProperty(
 		group,,
 		"Text-only filter",
 		"Only display text data (demo mode)"
-		);
+	);
 
 	m_flushTimeoutProp = m_pluginHost.m_propertyGrid.createIntProperty(
 		group,,
 		"TX/RX sync delay (ms)",
 		"TX/RX stream synchronization timeout"
-		);
+	);
 
 	group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Buffering & compatibility",
 		"Advanced options controlling performance, throughtput and compatibility"
-		);
+	);
 
 	ui.BufferPropertySet.PropertyId mask = ui.BufferPropertySet.PropertyId.All;
 	mask &= ~(
 		ui.BufferPropertySet.PropertyId.WriteBufferSize |
 		ui.BufferPropertySet.PropertyId.KeepWriteBlockSize
-		);
+	);
 
 	m_bufferPropertySet.createProperties(m_pluginHost.m_propertyGrid, group,, mask);
 
@@ -424,8 +404,7 @@ void SpiTapSession.createUi()
 	m_uiReactor.start();
 }
 
-void SpiTapSession.enumerateDevices()
-{
+void SpiTapSession.enumerateDevices() {
 	m_deviceCombo.clear();
 
 	io.UsbDevice* const* deviceArray = io.createUsbDeviceArray();
@@ -434,8 +413,7 @@ void SpiTapSession.enumerateDevices()
 	ui.EnumPropertyOption* optionTable = new ui.EnumPropertyOption[count];
 
 	size_t ftdiCount = 0;
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		io.UsbDevice* device = deviceArray[i];
 		io.UsbDeviceDesc const* deviceDesc = device.m_deviceDesc;
 
@@ -446,7 +424,7 @@ void SpiTapSession.enumerateDevices()
 		char const* text = $"@%(1;03d):%(2;03d) IO Ninja SPI Tap" (
 			device.m_bus,
 			device.m_address
-			);
+		);
 
 		m_deviceCombo.addItem(text, device);
 
@@ -458,8 +436,7 @@ void SpiTapSession.enumerateDevices()
 	m_deviceProp.setOptions(optionTable, ftdiCount);
 }
 
-void SpiTapSession.flipAB()
-{
+void SpiTapSession.flipAB() {
 	if (!m_state)
 		return;
 
@@ -468,8 +445,7 @@ void SpiTapSession.flipAB()
 	m_ifaceB = tmp;
 }
 
-bool errorcode SpiTapSession.configureSpiIface(uint_t ifaceId)
-{
+bool errorcode SpiTapSession.configureSpiIface(uint_t ifaceId) {
 	cy.CyUsSpiConfig spiConfig;
 	spiConfig.frequency = m_frequencyProp.m_value;
 	spiConfig.isMaster = false;
@@ -483,7 +459,7 @@ bool errorcode SpiTapSession.configureSpiIface(uint_t ifaceId)
 		0,
 		&spiConfig,
 		sizeof(spiConfig)
-		);
+	);
 
 	m_device.controlTransfer(
 		cy.CY_VENDOR_REQUEST_HOST_TO_DEVICE,
@@ -492,13 +468,12 @@ bool errorcode SpiTapSession.configureSpiIface(uint_t ifaceId)
 		0,
 		null,
 		0
-		);
+	);
 
 	return true;
 }
 
-bool errorcode SpiTapSession.capture()
-{
+bool errorcode SpiTapSession.capture() {
 	if (m_deviceCombo.m_currentIndex == -1)
 		return false;
 
@@ -515,13 +490,10 @@ bool errorcode SpiTapSession.capture()
 
 	// have to claim iface #0 before iface #1 (LIBUSB_ERROR_ACCESS otherwise)
 
-	if (m_actionTable[ActionId.Flip].m_isChecked)
-	{
+	if (m_actionTable[ActionId.Flip].m_isChecked) {
 		m_ifaceB.claim(m_device, 0);
 		m_ifaceA.claim(m_device, 1);
-	}
-	else
-	{
+	} else {
 		m_ifaceA.claim(m_device, 0);
 		m_ifaceB.claim(m_device, 1);
 	}
@@ -554,8 +526,7 @@ catch:
 	m_ifaceA.release();
 	m_ifaceB.release();
 
-	if (m_device)
-	{
+	if (m_device) {
 		m_device.close();
 		m_device = null;
 	}
@@ -563,8 +534,7 @@ catch:
 	return false;
 }
 
-void SpiTapSession.stopCapture()
-{
+void SpiTapSession.stopCapture() {
 	if (m_state != State.Opened)
 		return;
 
@@ -579,8 +549,7 @@ void SpiTapSession.stopCapture()
 	m_flushTimerSyncId++;
 }
 
-void SpiTapSession.waitEndpointEvents(SpiIface* iface)
-{
+void SpiTapSession.waitEndpointEvents(SpiIface* iface) {
 	iface.m_endpoint.wait(
 		io.UsbEndpointEvents.IoError |
 		io.UsbEndpointEvents.ReadBufferFull |
@@ -588,59 +557,46 @@ void SpiTapSession.waitEndpointEvents(SpiIface* iface)
 		onEndpointEvent~(
 			iface,
 			++iface.m_syncId
-			) @ m_pluginHost.m_mainThreadScheduler
-		);
+		) @ m_pluginHost.m_mainThreadScheduler
+	);
 }
 
-bool SpiTapSession.flush(bool isForced)
-{
+bool SpiTapSession.flush(bool isForced) {
 	size_t commonSize;
 	size_t deltaSize;
 
-	if (m_ifaceA.m_buffer.m_size <= m_ifaceB.m_buffer.m_size)
-	{
+	if (m_ifaceA.m_buffer.m_size <= m_ifaceB.m_buffer.m_size) {
 		commonSize = m_ifaceA.m_buffer.m_size;
 		deltaSize = m_ifaceB.m_buffer.m_size - commonSize;
-	}
-	else
-	{
+	} else {
 		commonSize = m_ifaceB.m_buffer.m_size;
 		deltaSize = m_ifaceA.m_buffer.m_size - commonSize;
 	}
 
-	if (commonSize)
-	{
-		if (m_useTextFilter.m_value)
-		{
+	if (commonSize) {
+		if (m_useTextFilter.m_value) {
 			writeLogTextOnly(m_ifaceA.m_buffer.m_p, m_ifaceB.m_buffer.m_p, commonSize);
-		}
-		else
-		{
+		} else {
 			char const* p = memcat(m_ifaceA.m_buffer.m_p, commonSize, m_ifaceB.m_buffer.m_p, commonSize);
 			m_logWriter.write(log.StdRecordCode.TxRx, p, commonSize * 2);
 		}
 	}
 
-	if (!isForced)
-	{
+	if (!isForced) {
 		m_ifaceA.m_buffer.remove(0, commonSize);
 		m_ifaceB.m_buffer.remove(0, commonSize);
 
-		if (deltaSize)
-		{
+		if (deltaSize) {
 			m_flushTimer.startSingleShotTimer(onFlushTimer~(++m_flushTimerSyncId), m_flushTimeoutProp.m_value);
 			return false;
-		}
-		else
-		{
+		} else {
 			m_flushTimer.stop();
 			m_flushTimerSyncId++;
 			return true;
 		}
 	}
 
-	if (deltaSize)
-	{
+	if (deltaSize) {
 		m_logWriter.write(SpiTapLogRecordCode.TxRxOutOfSync);
 
 		char* p = new char[deltaSize * 2];
@@ -659,8 +615,7 @@ bool SpiTapSession.flush(bool isForced)
 	return true;
 }
 
-void SpiTapSession.onFlushTimer(uint_t syncId)
-{
+void SpiTapSession.onFlushTimer(uint_t syncId) {
 	if (syncId != m_flushTimerSyncId)
 		return;
 
@@ -671,13 +626,11 @@ void SpiTapSession.onEndpointEvent(
 	SpiIface* iface,
 	uint_t syncId,
 	io.UsbEndpointEvents triggeredEvents
-	)
-{
+) {
 	if (syncId != iface.m_syncId)
 		return;
 
-	if (triggeredEvents & io.UsbEndpointEvents.IoError)
-	{
+	if (triggeredEvents & io.UsbEndpointEvents.IoError) {
 		m_logWriter.write(log.StdRecordCode.Error, iface.m_endpoint.m_ioError);
 		stopCapture();
 		return;
@@ -687,18 +640,13 @@ void SpiTapSession.onEndpointEvent(
 		m_bufferPropertySet.m_notifyReadBufferFullProp.m_value)
 		m_logWriter.write(log.StdRecordCode.RxBufferFull);
 
-	if (triggeredEvents & io.UsbEndpointEvents.IncomingData)
-	{
+	if (triggeredEvents & io.UsbEndpointEvents.IncomingData) {
 		size_t result = iface.m_endpoint.read(m_readBuffer.m_p, m_readBuffer.m_size);
-		if (result)
-		{
-			if (m_useDualHexViewProp.m_value)
-			{
+		if (result) {
+			if (m_useDualHexViewProp.m_value) {
 				iface.m_buffer.append(m_readBuffer.m_p, result);
 				flush(false);
-			}
-			else
-			{
+			} else {
 				uint64_t code = iface == m_ifaceA ? log.StdRecordCode.Tx : log.StdRecordCode.Rx;
 
 				if (m_useTextFilter.m_value)
@@ -716,13 +664,11 @@ void SpiTapSession.writeLogTextOnly(
 	uint64_t recordCode,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	jnc.RegexState state(jnc.RegexStateFlags.Lexer);
 
 	void const* end = p + size;
-	while (p < end)
-	{
+	while (p < end) {
 		size_t result = try m_textDfa.match(state, p, end - p);
 		if (result == -1)
 			break;
@@ -731,7 +677,7 @@ void SpiTapSession.writeLogTextOnly(
 			recordCode,
 			state.m_subMatchArray[0].m_text,
 			state.m_subMatchArray[0].m_length
-			);
+		);
 
 		p += state.m_consumedLength;
 	}
@@ -741,13 +687,11 @@ void SpiTapSession.writeLogTextOnly(
 	void const* tx,
 	void const* rx,
 	size_t size
-	)
-{
+) {
 	jnc.RegexState state(jnc.RegexStateFlags.Lexer);
 
 	void const* end = rx + size;
-	while (rx < end)
-	{
+	while (rx < end) {
 		size_t result = try m_textDfa.match(state, rx, end - rx);
 		if (result == -1)
 			break;
@@ -757,20 +701,19 @@ void SpiTapSession.writeLogTextOnly(
 			state.m_subMatchArray[0].m_length,
 			state.m_subMatchArray[0].m_text,
 			state.m_subMatchArray[0].m_length
-			);
+		);
 
 		m_logWriter.write(
 			log.StdRecordCode.TxRx,
 			cut,
 			state.m_subMatchArray[0].m_length * 2
-			);
+		);
 
 		rx += state.m_consumedLength;
 	}
 }
 
-void SpiTapSession.load(doc.Storage* storage)
-{
+void SpiTapSession.load(doc.Storage* storage) {
 	m_deviceCombo.m_currentIndex  = storage.readInt("deviceIdx");
 	m_frequencyProp.m_value = storage.readInt("frequency", Defaults.Frequency);
 	m_modeCombo.m_currentIndex = storage.readInt("mode", Defaults.Mode);
@@ -784,8 +727,7 @@ void SpiTapSession.load(doc.Storage* storage)
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 }
 
-void SpiTapSession.save(doc.Storage* storage)
-{
+void SpiTapSession.save(doc.Storage* storage) {
 	storage.writeInt("deviceIdx", (int) m_deviceCombo.m_currentIndex);
 	storage.writeInt("frequency", m_frequencyProp.m_value);
 	storage.writeInt("mode", m_modeCombo.m_currentIndex);
@@ -798,15 +740,13 @@ void SpiTapSession.save(doc.Storage* storage)
 	m_bufferPropertySet.save(storage);
 }
 
-void SpiTapSession.updateProperties()
-{
+void SpiTapSession.updateProperties() {
 	m_deviceProp.m_currentIndex = m_deviceCombo.m_currentIndex;
 	m_modeProp.m_currentIndex = m_modeCombo.m_currentIndex;
 	m_flipProp.m_value = m_actionTable[ActionId.Flip].m_isChecked;
 }
 
-bool errorcode SpiTapSession.applyProperties()
-{
+bool errorcode SpiTapSession.applyProperties() {
 	m_deviceCombo.m_currentIndex = m_deviceProp.m_currentIndex;
 	m_modeCombo.m_currentIndex = m_modeProp.m_currentIndex;
 	m_actionTable[ActionId.Flip].m_isChecked = m_flipProp.m_value;
@@ -821,20 +761,17 @@ bool errorcode SpiTapSession.applyProperties()
 
 	// baud rate change will be handled inside onBaudRateChanged ()
 
-	if (m_frequency != frequency)
-	{
+	if (m_frequency != frequency) {
 		m_logWriter.write(SpiTapLogRecordCode.FrequencyChanged, &frequency, sizeof(frequency));
 		m_frequency = frequency;
 	}
 
-	if (m_dataBits != dataBits)
-	{
+	if (m_dataBits != dataBits) {
 		m_logWriter.write(SpiTapLogRecordCode.DataBitsChanged, &dataBits, sizeof(dataBits));
 		m_dataBits = dataBits;
 	}
 
-	if (m_endianness != endianness)
-	{
+	if (m_endianness != endianness) {
 		m_logWriter.write(SpiTapLogRecordCode.EndiannessChanged, &endianness, sizeof(endianness));
 		m_endianness = endianness;
 	}
@@ -845,8 +782,7 @@ bool errorcode SpiTapSession.applyProperties()
 	configureSpiIface(0);
 	configureSpiIface(1);
 
-	if (!m_useDualHexViewProp.m_value)
-	{
+	if (!m_useDualHexViewProp.m_value) {
 		flush(true);
 		m_flushTimer.stop();
 		m_flushTimerSyncId++;
@@ -855,8 +791,7 @@ bool errorcode SpiTapSession.applyProperties()
 	return true;
 }
 
-void SpiTapSession.restoreDefaultProperties()
-{
+void SpiTapSession.restoreDefaultProperties() {
 	m_frequencyProp.m_value = Defaults.Frequency;
 	m_modeProp.m_value = Defaults.Mode;
 	m_dataBitsProp.m_value = Defaults.DataBits;
@@ -868,8 +803,7 @@ void SpiTapSession.restoreDefaultProperties()
 	m_bufferPropertySet.restoreDefaults();
 }
 
-void SpiTapSession.onModeChanged()
-{
+void SpiTapSession.onModeChanged() {
 	if (m_state != State.Opened)
 		return;
 
@@ -883,8 +817,7 @@ catch:
 	m_logWriter.writeLastError(log.StdRecordCode.Error);
 }
 
-reactor SpiTapSession.m_uiReactor
-{
+reactor SpiTapSession.m_uiReactor {
 	m_title = $"SPI tap $(m_deviceCombo.m_currentText)";
 	m_actionTable[ActionId.Capture].m_text = m_state ? "Stop capture" : "Capture";
 	m_actionTable[ActionId.Capture].m_icon = m_iconTable[m_state ? IconId.StopCapture : IconId.Capture];

@@ -18,8 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-class CallConv_msc32: public CallConv
-{
+class CallConv_msc32: public CallConv {
 public:
 	virtual
 	void
@@ -30,7 +29,7 @@ public:
 	createLlvmFunction(
 		FunctionType* functionType,
 		const sl::StringRef& name
-		);
+	);
 
 	virtual
 	void
@@ -39,14 +38,14 @@ public:
 		FunctionType* functionType,
 		sl::BoxList<Value>* argValueList,
 		Value* resultValue
-		);
+	);
 
 	virtual
 	void
 	ret(
 		Function* function,
 		const Value& value
-		);
+	);
 
 	virtual
 	Value
@@ -58,7 +57,7 @@ public:
 		Function* function,
 		Value* argValueArray,
 		size_t count
-		);
+	);
 
 	virtual
 	void
@@ -66,8 +65,7 @@ public:
 
 protected:
 	bool
-	isStructRet(Type* type)
-	{
+	isStructRet(Type* type) {
 		return
 			(type->getFlags() & TypeFlag_StructRet) &&
 			type->getSize() > sizeof(uint64_t);
@@ -76,33 +74,27 @@ protected:
 
 //..............................................................................
 
-class CdeclCallConv_msc32: public CallConv_msc32
-{
+class CdeclCallConv_msc32: public CallConv_msc32 {
 public:
-	CdeclCallConv_msc32()
-	{
+	CdeclCallConv_msc32() {
 		m_callConvKind = CallConvKind_Cdecl_msc32;
 	}
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class StdcallCallConv_msc32: public CallConv_msc32
-{
+class StdcallCallConv_msc32: public CallConv_msc32 {
 public:
-	StdcallCallConv_msc32()
-	{
+	StdcallCallConv_msc32() {
 		m_callConvKind = CallConvKind_Stdcall_msc32;
 	}
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class ThiscallCallConv_msc32: public CallConv_msc32
-{
+class ThiscallCallConv_msc32: public CallConv_msc32 {
 public:
-	ThiscallCallConv_msc32()
-	{
+	ThiscallCallConv_msc32() {
 		m_callConvKind = CallConvKind_Thiscall_msc32;
 	}
 };

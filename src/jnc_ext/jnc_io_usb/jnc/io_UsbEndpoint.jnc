@@ -20,8 +20,7 @@ namespace io {
 
 //..............................................................................
 
-enum UsbTransferType: uint8_t
-{
+enum UsbTransferType: uint8_t {
 	Control     = 0,
 	Isochronous = 1,
 	Bulk        = 2,
@@ -29,16 +28,14 @@ enum UsbTransferType: uint8_t
 	BulkStream  = 4,
 }
 
-enum UsbIsoSyncType: uint8_t
-{
+enum UsbIsoSyncType: uint8_t {
 	None     = 0,
 	Async    = 1,
 	Adaptive = 2,
 	Sync     = 3,
 }
 
-enum UsbIsoUsage: uint8_t
-{
+enum UsbIsoUsage: uint8_t {
 	Data     = 0,
 	Feedback = 1,
 	Implicit = 2,
@@ -51,8 +48,7 @@ getUsbTransferTypeString(UsbTransferType type);
 
 //..............................................................................
 
-struct UsbEndpointDesc
-{
+struct UsbEndpointDesc {
 	uint8_t m_endpointId;
 	UsbTransferType m_transferType;
 	UsbIsoSyncType m_isoSyncType;
@@ -69,8 +65,7 @@ typedef StreamOptions UsbEndpointOptions;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum UsbEndpointEvents: StreamEvents
-{
+bitflag enum UsbEndpointEvents: StreamEvents {
 	/**
 		OUT-endpoint has no active or pending USB transfers. Useful when you
 		need to wait for all outbound transfers to complete before closing an
@@ -82,8 +77,7 @@ bitflag enum UsbEndpointEvents: StreamEvents
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class UsbEndpoint
-{
+opaque class UsbEndpoint {
 	UsbInterface* const m_parentInterface;
 	UsbEndpointDesc const* const m_endpointDesc;
 
@@ -110,24 +104,24 @@ opaque class UsbEndpoint
 	size_t errorcode read(
 		void* p,
 		size_t size
-		);
+	);
 
 	size_t errorcode write(
 		void const* p,
 		size_t size
-		);
+	);
 
 	intptr errorcode wait(
 		UsbEndpointEvents eventMask,
 		function* handler(UsbEndpointEvents triggeredEvents)
-		);
+	);
 
 	bool errorcode cancelWait(intptr handle);
 
 	UsbEndpointEvents blockingWait(
 		UsbEndpointEvents eventMask,
 		uint_t timeout = -1
-		);
+	);
 
 	async UsbEndpointEvents asyncWait(UsbEndpointEvents eventMask);
 }

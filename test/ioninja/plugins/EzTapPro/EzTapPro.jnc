@@ -9,16 +9,14 @@ pragma(Alignment, 1)
 
 //..............................................................................
 
-enum EzTapCommandCode: uint8_t
-{
+enum EzTapCommandCode: uint8_t {
 	AcquisitionControl = 1,
 	SetDteUartParams   = 2,
 	GetControlLines    = 8,
 	SetDceUartParams   = 9,
 }
 
-enum EzTapResponseCode: uint8_t
-{
+enum EzTapResponseCode: uint8_t {
 	Mask                  = 0x1f,
 	ClockMsbsChanged      = 1,
 	DceData               = 2,
@@ -30,30 +28,26 @@ enum EzTapResponseCode: uint8_t
 	Error                 = 11,
 }
 
-enum EzTapSignalLevel: uint8_t
-{
+enum EzTapSignalLevel: uint8_t {
 	Rs232OrTtl,
 	Rs422Or485,
 	InvertedRs232OrTtl,
 }
 
-enum EzTapDataBits
-{
+enum EzTapDataBits {
 	_5 = 0,
 	_6 = 1,
 	_7 = 2,
 	_8 = 3,
 }
 
-enum EzTapStopBits
-{
+enum EzTapStopBits {
 	_1  = 0,
 	_15 = 1,
 	_2  = 2,
 }
 
-enum EzTapParity
-{
+enum EzTapParity {
 	None   = 0,
 	Odd    = 1,
 	Even   = 2,
@@ -62,8 +56,7 @@ enum EzTapParity
 	Ignore = 5,
 }
 
-enum EzTapErrorCode
-{
+enum EzTapErrorCode {
 	BufferOverflow = 1,
 }
 
@@ -71,13 +64,11 @@ enum EzTapErrorCode
 
 // PC to EZ-Tap
 
-struct EzTapGenericCommandParams
-{
+struct EzTapGenericCommandParams {
 	uint8_t m_code;
 }
 
-struct EzTapAcquisitionParams
-{
+struct EzTapAcquisitionParams {
 	uint8_t m_code;
 	uint8_t m_dceData         : 1;
 	uint8_t m_dceControlLines : 1;
@@ -88,8 +79,7 @@ struct EzTapAcquisitionParams
 	uint8_t m_reset           : 1;
 }
 
-struct EzTapUartParams
-{
+struct EzTapUartParams {
 	uint8_t m_code;
 	uint8_t m_dataBits  : 2;
 	uint8_t m_stopBits  : 2;
@@ -102,23 +92,20 @@ struct EzTapUartParams
 
 // EZ-Tap to PC
 
-struct EzTapClockMsbsChangedParams
-{
+struct EzTapClockMsbsChangedParams {
 	uint8_t m_code   : 5;
 	uint8_t m_unused : 3;
 	uint16_t m_timeMsbs;
 }
 
-struct EzTapDataParams
-{
+struct EzTapDataParams {
 	uint8_t m_code   : 5;
 	uint8_t m_unused : 3;
 	uint16_t m_timeLsbs;
 	uint8_t m_data;
 }
 
-struct EzTapControlLineChangedParams
-{
+struct EzTapControlLineChangedParams {
 	uint8_t m_code   : 5;
 	uint8_t m_unused : 3;
 	uint16_t m_timeLsbs;
@@ -128,16 +115,14 @@ struct EzTapControlLineChangedParams
 	uint8_t m_ring : 1;
 }
 
-struct EzTapGenericReplyParams
-{
+struct EzTapGenericReplyParams {
 	uint8_t m_replyCode : 5;
 	uint8_t m_unused    : 3;
 	uint8_t m_originalCode;
 	uint8_t m_status;
 }
 
-struct EzTapGetContorlLinesReplyParams
-{
+struct EzTapGetContorlLinesReplyParams {
 	uint8_t m_code    : 5;
 	uint8_t m_unused1 : 3;
 	uint8_t m_rts     : 1;
@@ -150,8 +135,7 @@ struct EzTapGetContorlLinesReplyParams
 	uint8_t m_unused3 : 4;
 }
 
-struct EzTapErrorParams
-{
+struct EzTapErrorParams {
 	uint8_t m_code   : 5;
 	uint8_t m_unused : 3;
 	uint8_t m_error;
@@ -161,8 +145,7 @@ struct EzTapErrorParams
 
 std.HashTable g_ezTapResponseSizeMap;
 
-construct()
-{
+construct() {
 	g_ezTapResponseSizeMap[EzTapResponseCode.ClockMsbsChanged] = sizeof(EzTapClockMsbsChangedParams);
 	g_ezTapResponseSizeMap[EzTapResponseCode.DceData] = sizeof(EzTapDataParams);
 	g_ezTapResponseSizeMap[EzTapResponseCode.DceControlLineChanged] = sizeof(EzTapControlLineChangedParams);

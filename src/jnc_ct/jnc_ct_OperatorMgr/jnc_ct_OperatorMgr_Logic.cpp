@@ -25,15 +25,13 @@ OperatorMgr::logicalOrOperator(
 	const Value& rawOpValue1,
 	const Value& rawOpValue2,
 	Value* resultValue
-	)
-{
+) {
 	bool result;
 
 	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock(opBlock1);
 
 	OverloadableFunction function = getOverloadedBinaryOperator(BinOpKind_LogOr, rawOpValue1);
-	if (function)
-	{
+	if (function) {
 		m_module->m_controlFlowMgr.follow(opBlock2);
 		m_module->m_controlFlowMgr.setCurrentBlock(prevBlock);
 
@@ -72,15 +70,13 @@ OperatorMgr::logicalOrOperator(
 	Value trueValue(true, type);
 	Value falseValue((int64_t)false, type);
 
-	Value valueArray[] =
-	{
+	Value valueArray[] = {
 		trueValue,
 		trueValue,
 		falseValue,
 	};
 
-	BasicBlock* blockArray[] =
-	{
+	BasicBlock* blockArray[] = {
 		jumpBlock1,
 		jumpBlock2,
 		falseBlock2,
@@ -103,15 +99,13 @@ OperatorMgr::logicalAndOperator(
 	const Value& rawOpValue1,
 	const Value& rawOpValue2,
 	Value* resultValue
-	)
-{
+) {
 	bool result;
 
 	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock(opBlock1);
 
 	OverloadableFunction function = getOverloadedBinaryOperator(BinOpKind_LogAnd, rawOpValue1);
-	if (function)
-	{
+	if (function) {
 		m_module->m_controlFlowMgr.follow(opBlock2);
 		m_module->m_controlFlowMgr.setCurrentBlock(prevBlock);
 
@@ -151,15 +145,13 @@ OperatorMgr::logicalAndOperator(
 	Value trueValue(true, type);
 	Value falseValue((int64_t)false, type);
 
-	Value valueArray[] =
-	{
+	Value valueArray[] = {
 		falseValue,
 		falseValue,
 		trueValue,
 	};
 
-	BasicBlock* blockArray[] =
-	{
+	BasicBlock* blockArray[] = {
 		jumpBlock1,
 		jumpBlock2,
 		trueBlock2,

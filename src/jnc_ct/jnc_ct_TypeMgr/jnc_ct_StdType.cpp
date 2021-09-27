@@ -19,10 +19,8 @@ namespace ct {
 //..............................................................................
 
 const char*
-getStdTypeName(StdType stdType)
-{
-	static const char* nameTable[StdType__Count] =
-	{
+getStdTypeName(StdType stdType) {
+	static const char* nameTable[StdType__Count] = {
 		NULL,  // StdType_BytePtr,
 		NULL,  // StdType_CharConstPtr,
 		NULL,  // StdType_IfaceHdr,
@@ -116,12 +114,10 @@ getStdTypeName(StdType stdType)
 }
 
 const StdItemSource*
-getStdTypeSource(StdType stdType)
-{
+getStdTypeSource(StdType stdType) {
 	#include "jnc_StdTypes.jnc.cpp"
 
-	static StdItemSource sourceTable[StdType__Count] =
-	{
+	static StdItemSource sourceTable[StdType__Count] = {
 		{ NULL },  // StdType_BytePtr,
 		{ NULL },  // StdType_CharConstPtr,
 		{ NULL },  // StdType_IfaceHdr,

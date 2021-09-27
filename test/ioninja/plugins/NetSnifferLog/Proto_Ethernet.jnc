@@ -13,10 +13,8 @@ void representEthernetDigest(
 	void const* p,
 	size_t size,
 	int payloadPreviewIconIdx = -1
-	)
-{
-	if (size < sizeof(io.EthernetHdr))
-	{
+) {
+	if (size < sizeof(io.EthernetHdr)) {
 		representation.addHyperText("\e[1mETHERNET\e[m [INCOMPLETE]");
 		return;
 	}
@@ -25,8 +23,7 @@ void representEthernetDigest(
 	p += sizeof(io.EthernetHdr);
 	size -= sizeof(io.EthernetHdr);
 
-	switch (ethernetHdr.m_type)
-	{
+	switch (ethernetHdr.m_type) {
 	case io.EthernetType.Ip:
 		representIpDigest(representation, p, size, payloadPreviewIconIdx);
 		return;
@@ -46,12 +43,12 @@ void representEthernetDigest(
 					io.formatEthernetAddress(ethernetHdr.m_srcAddress),
 					io.formatEthernetAddress(ethernetHdr.m_dstAddress),
 					(uint16_t)ethernetHdr.m_type
-					) :
+				) :
 				$"\e[1mETHERNET II \e[10;34m%1\e[m \u2192 \e[34m%2\e[m (type: \e[34m%3\e[m)"(
 					io.formatEthernetAddress(ethernetHdr.m_srcAddress),
 					io.formatEthernetAddress(ethernetHdr.m_dstAddress),
 					typeof(io.EthernetType).getValueString(&ethernetHdr.m_type, "0x%04X")
-					)
+				)
 			);
 
 		representPayloadPreview(representation, p, size, payloadPreviewIconIdx);
@@ -65,12 +62,10 @@ void representEthernetDetails(
 	size_t size,
 	size_t baseOffset,
 	uint_t foldFlags
-	)
-{
+) {
 	representation.m_lineAttr.m_backColor = ProtoColor.LinkLayer;
 
-	if (size < sizeof(io.EthernetHdr))
-	{
+	if (size < sizeof(io.EthernetHdr)) {
 		representation.addHyperText("\e[1nETHERNET\e[m [INCOMPLETE]");
 		return;
 	}
@@ -88,7 +83,7 @@ void representEthernetDetails(
 		baseOffset,
 		foldFlags,
 		ProtoFoldFlag.LinkLayer
-		);
+	);
 
 	ProtoRange range = { baseOffset, sizeof(io.EthernetHdr), ProtoColor.LinkLayer };
 	protoRangeArray.append(range);
@@ -97,8 +92,7 @@ void representEthernetDetails(
 	size -= sizeof(io.EthernetHdr);
 	baseOffset += sizeof(io.EthernetHdr);
 
-	switch (ethernetHdr.m_type)
-	{
+	switch (ethernetHdr.m_type) {
 	case io.EthernetType.Ip:
 		representIpDetails(representation, protoRangeArray, p, size, baseOffset, foldFlags);
 		break;
@@ -126,12 +120,10 @@ void representLlcHdr(
 	size_t size,
 	size_t baseOffset,
 	uint_t foldFlags
-	)
-{
+) {
 	representation.m_lineAttr.m_backColor = ProtoColor.NetworkLayer;
 
-	if (size < sizeof(io.LlcHdr))
-	{
+	if (size < sizeof(io.LlcHdr)) {
 		representation.addHyperText("\e[1mLLC\e[m [INCOMPLETE]");
 		return;
 	}
@@ -149,7 +141,7 @@ void representLlcHdr(
 		baseOffset,
 		foldFlags,
 		ProtoFoldFlag.NetworkLayer
-		);
+	);
 
 	ProtoRange range = { baseOffset, type.m_size, ProtoColor.NetworkLayer }
 	protoRangeArray.append(range);

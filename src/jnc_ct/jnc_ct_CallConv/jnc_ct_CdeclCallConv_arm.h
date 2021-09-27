@@ -18,11 +18,9 @@ namespace ct {
 
 //..............................................................................
 
-class CdeclCallConv_arm: public CallConv
-{
+class CdeclCallConv_arm: public CallConv {
 protected:
-	enum ArgFlag
-	{
+	enum ArgFlag {
 		ArgFlag_Coerced = 0x01,
 	};
 
@@ -30,8 +28,7 @@ protected:
 	Type* m_regType;
 
 public:
-	CdeclCallConv_arm()
-	{
+	CdeclCallConv_arm() {
 		m_regType = NULL;
 	}
 
@@ -44,7 +41,7 @@ public:
 	createLlvmFunction(
 		FunctionType* functionType,
 		const sl::StringRef& name
-		);
+	);
 
 	virtual
 	void
@@ -53,14 +50,14 @@ public:
 		FunctionType* functionType,
 		sl::BoxList<Value>* argValueList,
 		Value* resultValue
-		);
+	);
 
 	virtual
 	void
 	ret(
 		Function* function,
 		const Value& value
-		);
+	);
 
 	virtual
 	Value
@@ -68,7 +65,7 @@ public:
 		llvm::Value* llvmValue,
 		FunctionType* functionType,
 		size_t argIdx
-		);
+	);
 
 	virtual
 	Value
@@ -80,7 +77,7 @@ public:
 		Function* function,
 		Value* argValueArray,
 		size_t count
-		);
+	);
 
 	virtual
 	void
@@ -93,16 +90,14 @@ protected:
 
 //..............................................................................
 
-class CdeclCallConv_arm32: public CdeclCallConv_arm
-{
+class CdeclCallConv_arm32: public CdeclCallConv_arm {
 public:
 	CdeclCallConv_arm32();
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class CdeclCallConv_arm64: public CdeclCallConv_arm
-{
+class CdeclCallConv_arm64: public CdeclCallConv_arm {
 public:
 	CdeclCallConv_arm64();
 };

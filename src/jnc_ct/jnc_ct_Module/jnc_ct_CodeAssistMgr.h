@@ -20,8 +20,7 @@ namespace ct {
 
 //..............................................................................
 
-class CodeAssist
-{
+class CodeAssist {
 	friend class CodeAssistMgr;
 
 protected:
@@ -31,14 +30,12 @@ protected:
 	Module* m_module;
 	FunctionTypeOverload m_functionTypeOverload;
 
-	union
-	{
+	union {
 		ModuleItem* m_item;
 		Namespace* m_namespace;
 	};
 
-	union
-	{
+	union {
 		size_t m_itemParam;
 		size_t m_argumentIdx;
 	};
@@ -47,53 +44,45 @@ public:
 	CodeAssist();
 
 	CodeAssistKind
-	getCodeAssistKind()
-	{
+	getCodeAssistKind() {
 		return m_codeAssistKind;
 	}
 
 	uint_t
-	getFlags()
-	{
+	getFlags() {
 		return m_flags;
 	}
 
 	size_t
-	getOffset()
-	{
+	getOffset() {
 		return m_offset;
 	}
 
 	Module*
-	getModule()
-	{
+	getModule() {
 		return m_module;
 	}
 
 	ModuleItem*
-	getModuleItem()
-	{
+	getModuleItem() {
 		ASSERT(m_codeAssistKind == CodeAssistKind_QuickInfoTip || m_codeAssistKind == CodeAssistKind_GotoDefinition);
 		return m_item;
 	}
 
 	Namespace*
-	getNamespace()
-	{
+	getNamespace() {
 		ASSERT(m_codeAssistKind == CodeAssistKind_AutoComplete);
 		return m_namespace;
 	}
 
 	FunctionTypeOverload*
-	getFunctionTypeOverload()
-	{
+	getFunctionTypeOverload() {
 		ASSERT(m_codeAssistKind == CodeAssistKind_ArgumentTip);
 		return &m_functionTypeOverload;
 	}
 
 	size_t
-	getArgumentIdx()
-	{
+	getArgumentIdx() {
 		ASSERT(m_codeAssistKind == CodeAssistKind_ArgumentTip);
 		return m_argumentIdx;
 	}
@@ -101,21 +90,18 @@ public:
 
 //..............................................................................
 
-class CodeAssistMgr
-{
+class CodeAssistMgr {
 	friend class Parser;
 	friend class Module;
 
 protected:
-	struct AutoCompleteFallback
-	{
+	struct AutoCompleteFallback {
 		size_t m_offset;
 		Namespace* m_namespace;
 		QualifiedName m_prefix;
 		uint_t m_flags;
 
-		AutoCompleteFallback()
-		{
+		AutoCompleteFallback() {
 			clear();
 		}
 
@@ -123,8 +109,7 @@ protected:
 		clear();
 	};
 
-	struct ArgumentTip: sl::ListLink
-	{
+	struct ArgumentTip: sl::ListLink {
 		lex::LineColOffset m_pos;
 		Value m_value;
 		size_t m_argumentIdx;
@@ -132,8 +117,7 @@ protected:
 		ArgumentTip(
 			const lex::LineColOffset& pos,
 			const Value& value
-			)
-		{
+		) {
 			m_pos = pos;
 			m_value = value;
 			m_argumentIdx = 0;
@@ -153,26 +137,22 @@ protected:
 public:
 	CodeAssistMgr();
 
-	~CodeAssistMgr()
-	{
+	~CodeAssistMgr() {
 		freeCodeAssist();
 	}
 
 	CodeAssistKind
-	getCodeAssistKind()
-	{
+	getCodeAssistKind() {
 		return m_codeAssistKind;
 	}
 
 	CodeAssist*
-	getCodeAssist()
-	{
+	getCodeAssist() {
 		return m_codeAssist;
 	}
 
 	size_t
-	getOffset()
-	{
+	getOffset() {
 		return m_offset;
 	}
 
@@ -184,7 +164,7 @@ public:
 		CodeAssistKind kind,
 		Module* cacheModule,
 		size_t offset
-		);
+	);
 
 	CodeAssist*
 	generateCodeAssist();
@@ -196,8 +176,7 @@ public:
 	createQuickInfoTip(
 		size_t offset,
 		ModuleItem* item
-		)
-	{
+	) {
 		return createModuleItemCodeAssist(CodeAssistKind_QuickInfoTip, offset, item);
 	}
 
@@ -205,8 +184,7 @@ public:
 	createGotoDefinition(
 		size_t offset,
 		ModuleItem* item
-		)
-	{
+	) {
 		return createModuleItemCodeAssist(CodeAssistKind_GotoDefinition, offset, item);
 	}
 
@@ -214,14 +192,12 @@ public:
 	createAutoComplete(
 		size_t offset,
 		ModuleItem* item
-		)
-	{
+	) {
 		return createModuleItemCodeAssist(CodeAssistKind_AutoComplete, offset, item);
 	}
 
 	CodeAssist*
-	createEmptyCodeAssist(size_t offset)
-	{
+	createEmptyCodeAssist(size_t offset) {
 		return createModuleItemCodeAssist(CodeAssistKind_Undefined, offset, NULL);
 	}
 
@@ -230,14 +206,14 @@ public:
 		size_t offset,
 		FunctionType* functionType,
 		size_t arugmentIdx
-		);
+	);
 
 	CodeAssist*
 	createArgumentTip(
 		size_t offset,
 		const FunctionTypeOverload& typeOverload,
 		size_t argumentIdx
-		);
+	);
 
 	CodeAssist*
 	createArgumentTipFromStack();
@@ -247,26 +223,23 @@ public:
 		size_t offset,
 		Namespace* nspace,
 		uint_t flags = 0
-		);
+	);
 
 	CodeAssist*
 	createImportAutoComplete(size_t offset);
 
 	bool
-	hasArgumentTipStack()
-	{
+	hasArgumentTipStack() {
 		return !m_argumentTipStack.isEmpty();
 	}
 
 	void
-	resetArgumentTipStack()
-	{
+	resetArgumentTipStack() {
 		m_argumentTipStack.clear();
 	}
 
 	void
-	resetArgumentTipStackIf(const lex::LineColOffset& pos)
-	{
+	resetArgumentTipStackIf(const lex::LineColOffset& pos) {
 		if (!m_argumentTipStack.isEmpty() && pos.m_offset < m_offset)
 			m_argumentTipStack.clear();
 	}
@@ -275,22 +248,19 @@ public:
 	pushArgumentTipIf(
 		const lex::LineColOffset& pos,
 		const Value& value
-		)
-	{
+	) {
 		if (m_codeAssistKind == CodeAssistKind_ArgumentTip && pos.m_offset < m_offset)
 			m_argumentTipStack.insertTail(AXL_MEM_NEW_ARGS(ArgumentTip, (pos, value)));
 	}
 
 	void
-	popArgumentTipIf(const lex::LineColOffset& pos)
-	{
+	popArgumentTipIf(const lex::LineColOffset& pos) {
 		if (!m_argumentTipStack.isEmpty() && pos.m_offset < m_offset)
 			m_argumentTipStack.eraseTail();
 	}
 
 	void
-	bumpArgumentTipIdxIf(const lex::LineColOffset& pos)
-	{
+	bumpArgumentTipIdxIf(const lex::LineColOffset& pos) {
 		if (!m_argumentTipStack.isEmpty() && pos.m_offset < m_offset)
 			m_argumentTipStack.getTail()->m_argumentIdx++;
 	}
@@ -307,7 +277,7 @@ protected:
 		CodeAssistKind kind,
 		size_t offset,
 		ModuleItem* item
-		);
+	);
 
 	CodeAssist*
 	createAutoCompleteFallback();

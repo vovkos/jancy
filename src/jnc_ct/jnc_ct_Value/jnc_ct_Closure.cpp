@@ -19,8 +19,7 @@ namespace ct {
 //..............................................................................
 
 Value
-Closure::getThisArgValue()
-{
+Closure::getThisArgValue() {
 	ASSERT(m_thisArgIdx != -1);
 
 	if (m_thisArgValue)
@@ -35,8 +34,7 @@ Closure::getThisArgValue()
 }
 
 void
-Closure::setThisArgIdx(size_t thisArgIdx)
-{
+Closure::setThisArgIdx(size_t thisArgIdx) {
 	ASSERT(m_thisArgIdx == -1 && !m_thisArgValue); // only once
 	ASSERT(thisArgIdx < m_argValueList.getCount());
 
@@ -45,8 +43,7 @@ Closure::setThisArgIdx(size_t thisArgIdx)
 }
 
 void
-Closure::insertThisArgValue(const Value& value)
-{
+Closure::insertThisArgValue(const Value& value) {
 	ASSERT(m_thisArgIdx == -1 && !m_thisArgValue); // only once
 
 	sl::BoxIterator<Value> it = m_argValueList.insertHead(value);
@@ -55,8 +52,7 @@ Closure::insertThisArgValue(const Value& value)
 }
 
 size_t
-Closure::append(const Value& argValue)
-{
+Closure::append(const Value& argValue) {
 	sl::BoxIterator<Value> internalArg = m_argValueList.getHead();
 	while (internalArg && !internalArg->isEmpty())
 		internalArg++;
@@ -70,15 +66,13 @@ Closure::append(const Value& argValue)
 }
 
 size_t
-Closure::append(const sl::ConstBoxList<Value>& argValueList)
-{
+Closure::append(const sl::ConstBoxList<Value>& argValueList) {
 	ASSERT(!argValueList.isEmpty());
 
 	sl::BoxIterator<Value> internalArg = m_argValueList.getHead();
 	sl::ConstBoxIterator<Value> externalArg = argValueList.getHead();
 
-	for (;;)
-	{
+	for (;;) {
 		while (internalArg && !internalArg->isEmpty())
 			internalArg++;
 
@@ -101,26 +95,19 @@ Closure::append(const sl::ConstBoxList<Value>& argValueList)
 }
 
 bool
-Closure::apply(sl::BoxList<Value>* argValueList)
-{
+Closure::apply(sl::BoxList<Value>* argValueList) {
 	if (m_argValueList.isEmpty())
 		return true;
 
 	sl::ConstBoxIterator<Value> closureArg = m_argValueList.getHead();
 	sl::BoxIterator<Value> targetArg = argValueList->getHead();
 
-	for (size_t i = 0; closureArg; closureArg++, i++)
-	{
-		if (!closureArg->isEmpty())
-		{
+	for (size_t i = 0; closureArg; closureArg++, i++) {
+		if (!closureArg->isEmpty()) {
 			argValueList->insertBefore(*closureArg, targetArg);
-		}
-		else if (targetArg)
-		{
+		} else if (targetArg) {
 			targetArg++;
-		}
-		else
-		{
+		} else {
 			err::setFormatStringError("closure call misses argument #%d", i + 1);
 			return false;
 		}
@@ -130,12 +117,10 @@ Closure::apply(sl::BoxList<Value>* argValueList)
 }
 
 Type*
-Closure::getClosureType(Type* type)
-{
+Closure::getClosureType(Type* type) {
 	TypeKind typeKind = type->getTypeKind();
 
-	switch (typeKind)
-	{
+	switch (typeKind) {
 	case TypeKind_FunctionPtr:
 	case TypeKind_FunctionRef:
 		return getFunctionClosureType((FunctionPtrType*)type);
@@ -150,8 +135,7 @@ Closure::getClosureType(Type* type)
 }
 
 FunctionPtrType*
-Closure::getFunctionClosureType(Function* function)
-{
+Closure::getFunctionClosureType(Function* function) {
 	return getFunctionClosureType(function->getType()->getFunctionPtrType(TypeKind_FunctionRef, FunctionPtrTypeKind_Thin));
 }
 
@@ -159,24 +143,20 @@ bool
 Closure::getArgTypeArray(
 	Module* module,
 	sl::Array<FunctionArg*>* argArray
-	)
-{
+) {
 	bool result;
 
 	size_t closureArgCount = m_argValueList.getCount();
 	size_t argCount = argArray->getCount();
 
-	if (closureArgCount > argCount)
-	{
+	if (closureArgCount > argCount) {
 		err::setFormatStringError("closure with %d arguments for function with %d arguments", closureArgCount, argCount);
 		return false;
 	}
 
 	sl::BoxIterator<Value> closureArg = m_argValueList.getHead();
-	for (size_t i = 0; closureArg; closureArg++)
-	{
-		if (closureArg->isEmpty())
-		{
+	for (size_t i = 0; closureArg; closureArg++) {
+		if (closureArg->isEmpty()) {
 			i++;
 			continue;
 		}
@@ -195,15 +175,13 @@ Closure::getArgTypeArray(
 }
 
 FunctionPtrType*
-Closure::getFunctionClosureType(FunctionPtrType* ptrType)
-{
+Closure::getFunctionClosureType(FunctionPtrType* ptrType) {
 	bool result;
 
 	Module* module = ptrType->getModule();
 	FunctionType* type = ptrType->getTargetType();
 
-	if (type->getFlags() & FunctionTypeFlag_VarArg)
-	{
+	if (type->getFlags() & FunctionTypeFlag_VarArg) {
 		err::setFormatStringError("function closures cannot be applied to vararg functions");
 		return NULL;
 	}
@@ -217,18 +195,17 @@ Closure::getFunctionClosureType(FunctionPtrType* ptrType)
 		type->getCallConv(),
 		type->getReturnType(),
 		argArray
-		);
+	);
 
 	return closureType->getFunctionPtrType(
 		ptrType->getTypeKind(),
 		ptrType->getPtrTypeKind(),
 		ptrType->getFlags()
-		);
+	);
 }
 
 PropertyPtrType*
-Closure::getPropertyClosureType(PropertyPtrType* ptrType)
-{
+Closure::getPropertyClosureType(PropertyPtrType* ptrType) {
 	bool result;
 
 	Module* module = ptrType->getModule();
@@ -248,12 +225,11 @@ Closure::getPropertyClosureType(PropertyPtrType* ptrType)
 		getterType->getCallConv(),
 		getterType->getReturnType(),
 		argArray
-		);
+	);
 
 	FunctionTypeOverload closureSetterType;
 	size_t setterCount = setterType->getOverloadCount();
-	for (size_t i = 0; i < setterCount; i++)
-	{
+	for (size_t i = 0; i < setterCount; i++) {
 		FunctionType* overloadType = setterType->getOverload(i);
 		ASSERT(!overloadType->getArgArray().isEmpty());
 
@@ -267,7 +243,7 @@ Closure::getPropertyClosureType(PropertyPtrType* ptrType)
 			overloadType->getCallConv(),
 			overloadType->getReturnType(),
 			argArray
-			);
+		);
 
 		argArray.pop();
 
@@ -280,13 +256,13 @@ Closure::getPropertyClosureType(PropertyPtrType* ptrType)
 		closureGetterType,
 		closureSetterType,
 		type->getFlags()
-		);
+	);
 
 	return closureType->getPropertyPtrType(
 		ptrType->getTypeKind(),
 		ptrType->getPtrTypeKind(),
 		ptrType->getFlags()
-		);
+	);
 }
 
 //..............................................................................

@@ -1,35 +1,28 @@
-struct Foo
-{
+struct Foo {
 	alias dispose = close;
 
-	construct()
-	{
+	construct() {
 		printf("Foo.construct (%p)\n", this);
 	}
 
-	void close()
-	{
+	void close() {
 		printf("Foo.close (%p)\n", this);
 	}
 }
 
-class Bar
-{
+class Bar {
 	alias dispose = close;
 
-	construct()
-	{
+	construct() {
 		printf("Bar.construct (%p)\n", this);
 	}
 
-	void close()
-	{
+	void close() {
 		printf("Bar.close (%p)\n", this);
 	}
 }
 
-int main()
-{
+int main() {
 	printf("before\n");
 
 	{

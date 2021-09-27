@@ -10,8 +10,7 @@ import "std_Buffer.jnc"
 
 class TutoProtoLayer:
 	doc.Layer,
-	log.Converter
-{
+	log.Converter {
 	static const std.Guid m_guid = "1e4a28b5-387e-4a3f-bb59-9e0bbdf21020";
 
 protected:
@@ -27,13 +26,12 @@ public:
 		uint64_t recordCode,
 		void const* p,
 		size_t size
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-TutoProtoLayer.construct(doc.PluginHost* pluginHost)
-{
+TutoProtoLayer.construct(doc.PluginHost* pluginHost) {
 	basetype1.construct(pluginHost);
 	pluginHost.m_log.addConverter(this, &m_guid);
 }
@@ -44,12 +42,10 @@ bool TutoProtoLayer.convert(
 	uint64_t recordCode,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	std.Buffer* buffer;
 
-	switch (recordCode)
-	{
+	switch (recordCode) {
 	case log.StdRecordCode.Tx:
 		buffer = &m_txBuffer;
 		break;
@@ -64,12 +60,10 @@ bool TutoProtoLayer.convert(
 
 	void const* p0 = p;
 	void const* end = p + size;
-	while (p < end)
-	{
+	while (p < end) {
 		// first, we need to buffer the header
 
-		if (!buffer.m_size) // scan for STX
-		{
+		if (!buffer.m_size) { // scan for STX
 			char const* stx = memchr(p, 0x02, end - p);
 			if (!stx) // no more packets in this log record
 				break;
@@ -78,13 +72,11 @@ bool TutoProtoLayer.convert(
 			p = stx + 1;
 		}
 
-		if (buffer.m_size < sizeof(TutoProtoHdr))
-		{
+		if (buffer.m_size < sizeof(TutoProtoHdr)) {
 			size_t leftoverRx = end - p;
 			size_t leftoverHdr = sizeof(TutoProtoHdr) - buffer.m_size;
 
-			if (leftoverRx < leftoverHdr) // not yet
-			{
+			if (leftoverRx < leftoverHdr) { // not yet
 				buffer.append(p, leftoverRx);
 				break;
 			}
@@ -94,13 +86,11 @@ bool TutoProtoLayer.convert(
 		}
 
 		TutoProtoHdr const* hdr = (TutoProtoHdr const*)buffer.m_p;
-		if (hdr.m_size > sizeof(TutoProtoHdr))
-		{
+		if (hdr.m_size > sizeof(TutoProtoHdr)) {
 			size_t leftoverRx = end - p;
 			size_t leftoverPacket = hdr.m_size - buffer.m_size;
 
-			if (leftoverRx < leftoverPacket) // not yet
-			{
+			if (leftoverRx < leftoverPacket) { // not yet
 				buffer.append(p, leftoverRx);
 				break;
 			}
@@ -111,8 +101,7 @@ bool TutoProtoLayer.convert(
 
 		// OK, packet is fully buffered! First, write the original data...
 
-		if (p0 < p)
-		{
+		if (p0 < p) {
 			writer.write(timestamp, recordCode, p0, p - p0);
 			p0 = p;
 		}
@@ -124,7 +113,7 @@ bool TutoProtoLayer.convert(
 			TutoProtoLogRecordCode.Packet,
 			buffer.m_p,
 			buffer.m_size
-			);
+		);
 
 		// prepare for the next packet
 

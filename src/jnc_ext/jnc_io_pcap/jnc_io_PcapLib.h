@@ -22,8 +22,7 @@ AXL_SELECT_ANY bool g_pcapCapability = true;
 
 inline
 bool
-requirePcapCapability()
-{
+requirePcapCapability() {
 	return g_pcapCapability || jnc::failWithCapabilityError("org.jancy.io.pcap");
 }
 
@@ -33,10 +32,9 @@ requirePcapCapability()
 JNC_DEFINE_GUID(
 	g_pcapLibGuid,
 	0x72c7158b, 0xf297, 0x4f88, 0x83, 0xa7, 0x96, 0xe7, 0xfb, 0x54, 0x8b, 0x29
-	);
+);
 
-enum PcapLibCacheSlot
-{
+enum PcapLibCacheSlot {
 	PcapLibCacheSlot_Pcap,
 	PcapLibCacheSlot_PcapFilter,
 	PcapLibCacheSlot_PcapAddress,

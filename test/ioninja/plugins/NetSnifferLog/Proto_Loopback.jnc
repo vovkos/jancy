@@ -12,10 +12,8 @@ void representLoopbackDigest(
 	void const* p,
 	size_t size,
 	int payloadPreviewIconIdx = -1
-	)
-{
-	if (size < sizeof(int32_t))
-	{
+) {
+	if (size < sizeof(int32_t)) {
 		representation.addHyperText("\e[1mLOOPBACK\e[m [INCOMPLETE]");
 		return;
 	}
@@ -24,8 +22,7 @@ void representLoopbackDigest(
 	p += sizeof(int32_t);
 	size -= sizeof(int32_t);
 
-	switch (family)
-	{
+	switch (family) {
 	case io.LoopbackProtocolFamily.Ip:
 		representIpDigest(representation, p, size, payloadPreviewIconIdx);
 		return;
@@ -38,7 +35,7 @@ void representLoopbackDigest(
 		representation.addHyperText(
 			$"\e[1mLOOPBACK\e[m (address family: \e[34m%(1;d)/0x%(1;x)\e[m)"(
 			family
-			));
+		));
 
 		representPayloadPreview(representation, p, size, payloadPreviewIconIdx);
 	}
@@ -51,12 +48,10 @@ void representLoopbackDetails(
 	size_t size,
 	size_t baseOffset,
 	uint_t foldFlags
-	)
-{
+) {
 	representation.m_lineAttr.m_backColor = ProtoColor.LinkLayer;
 
-	if (size < sizeof(int32_t))
-	{
+	if (size < sizeof(int32_t)) {
 		representation.addHyperText("\e[1mLOOPBACK\e[m [INCOMPLETE]");
 		return;
 	}
@@ -69,7 +64,7 @@ void representLoopbackDetails(
 		baseOffset,
 		foldFlags,
 		ProtoFoldFlag.LinkLayer
-		);
+	);
 
 	ProtoRange range = { baseOffset, sizeof(io.EthernetHdr), ProtoColor.LinkLayer };
 	protoRangeArray.append(range);
@@ -79,8 +74,7 @@ void representLoopbackDetails(
 	size -= sizeof(int32_t);
 	baseOffset += sizeof(int32_t);
 
-	switch (family)
-	{
+	switch (family) {
 	case io.LoopbackProtocolFamily.Ip:
 		representIpDetails(representation, protoRangeArray, p, size, baseOffset, foldFlags);
 		break;

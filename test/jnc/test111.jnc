@@ -1,7 +1,6 @@
 // this test was used to test std.Guid comparison operators
 
-int main()
-{
+int main() {
 	std.setErrno(2);
 	std.Error const* error = std.getLastError();
 	printf("error: %s\n", error.m_description);

@@ -26,7 +26,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	SysLibCacheSlot_Event,
 	Event,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Event)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<Event>)

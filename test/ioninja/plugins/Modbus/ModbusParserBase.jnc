@@ -5,8 +5,7 @@
 
 //..............................................................................
 
-enum ModbusParserMode
-{
+enum ModbusParserMode {
 	None,
 	Master,
 	Slave,
@@ -15,8 +14,7 @@ enum ModbusParserMode
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class ModbusParserBase
-{
+class ModbusParserBase {
 protected:
 	ModbusInfoSet* m_infoSet;
 	std.Buffer m_dataBuffer;
@@ -32,7 +30,7 @@ public:
 	construct(
 		io.ModbusProtocol readonly protocol,
 		ModbusInfoSet* infoSet
-		);
+	);
 
 	abstract void parse(
 		log.Writer* writer,
@@ -40,7 +38,7 @@ public:
 		uint64_t originalRecordCode,
 		void const* p,
 		size_t size
-		);
+	);
 
 	abstract void reset();
 
@@ -53,14 +51,12 @@ protected:
 ModbusParserBase.construct(
 	io.ModbusProtocol readonly protocol,
 	ModbusInfoSet* infoSet
-	)
-{
+) {
 	m_protocol = protocol;
 	m_infoSet = infoSet;
 }
 
-void ModbusParserBase.m_mode.set(ModbusParserMode mode)
-{
+void ModbusParserBase.m_mode.set(ModbusParserMode mode) {
 	if (mode == m_value)
 		return;
 
@@ -73,8 +69,7 @@ void ModbusParserBase.m_mode.set(ModbusParserMode mode)
 	reset();
 }
 
-void ModbusParserBase.updateLastTimestamp(uint64_t timestamp)
-{
+void ModbusParserBase.updateLastTimestamp(uint64_t timestamp) {
 	if (m_mode == ModbusParserMode.Alternate &&
 		timestamp - m_lastTimestamp > m_alternateTimeout)
 		reset();

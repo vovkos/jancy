@@ -19,11 +19,9 @@ using extension ui.ComboBoxHistory;
 
 //..............................................................................
 
-class TcpConnectionSession: doc.Session
-{
+class TcpConnectionSession: doc.Session {
 protected:
-	enum State
-	{
+	enum State {
 		Closed,
 		Resolving,
 		ReconnectDelay,
@@ -31,8 +29,7 @@ protected:
 		Connected,
 	}
 
-	static char const* m_stateStringTable[] =
-	{
+	static char const* m_stateStringTable[] = {
 		"Closed",
 		"Resolving...",
 		"Waiting...",
@@ -40,28 +37,24 @@ protected:
 		"Connected",
 	}
 
-	enum ActionId
-	{
+	enum ActionId {
 		Connect,
 		_Count,
 	}
 
-	enum IconId
-	{
+	enum IconId {
 		Connect,
 		Disconnect,
 		_Count,
 	}
 
-	enum StatusPaneId
-	{
+	enum StatusPaneId {
 		RemoteAddress,
 		State,
 		_Count,
 	}
 
-	enum InfoId
-	{
+	enum InfoId {
 		LocalAddress,
 		RemoteAddress,
 		_Count,
@@ -119,15 +112,13 @@ public:
 	override size_t errorcode transmit(
 		void const* p,
 		size_t size
-		);
+	);
 
-	override bool errorcode connectSession()
-	{
+	override bool errorcode connectSession() {
 		return m_sessionConnectionState ? true : connect();
 	}
 
-	override void disconnectSession()
-	{
+	override void disconnectSession() {
 		disconnect();
 	}
 
@@ -135,25 +126,23 @@ protected:
 	void close();
 	void handleSocketError(std.Error const* error);
 
-	void onConnect()
-	{
+	void onConnect() {
 		m_state ? disconnect() : try connect();
 	}
 
-	void onAddressComboEnter()
-	{
+	void onAddressComboEnter() {
 		try connect();
 	}
 
 	void onResolverEvent(
 		uint_t syncId,
 		io.HostNameResolverEvents triggeredEvents
-		);
+	);
 
 	void onSocketEvent(
 		uint_t syncId,
 		io.SocketEvents triggeredEvents
-		);
+	);
 
 	void onReconnectTimer(uint_t syncId);
 
@@ -164,8 +153,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-TcpConnectionSession.construct(doc.PluginHost* pluginHost)
-{
+TcpConnectionSession.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
 
 	createUi();
@@ -175,8 +163,7 @@ TcpConnectionSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-void TcpConnectionSession.createUi()
-{
+void TcpConnectionSession.createUi() {
 	// toolbar
 
 	m_pluginHost.m_toolBar.addLabel("Address:");
@@ -202,14 +189,14 @@ void TcpConnectionSession.createUi()
 	ui.GroupProperty* propGroup = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"TCP",
 		"TCP-specific connection settings"
-		);
+	);
 
 	m_socketPropertySet.createProperties(
 		m_pluginHost.m_propertyGrid,
 		propGroup,,
 		ui.SocketPropertySet.PropertyId.AllTcpClient |
 		ui.SocketPropertySet.PropertyId.Reconnect
-		);
+	);
 
 	m_bufferPropertySet.createPropertiesGrouped(m_pluginHost.m_propertyGrid);
 
@@ -230,8 +217,7 @@ void TcpConnectionSession.createUi()
 	m_uiReactor.start();
 }
 
-bool errorcode TcpConnectionSession.connect()
-{
+bool errorcode TcpConnectionSession.connect() {
 	disconnect();
 
 	startSession();
@@ -241,8 +227,7 @@ bool errorcode TcpConnectionSession.connect()
 
 	io.SocketAddress address;
 	bool isDirectAddress = try address.parse(addressString);
-	if (isDirectAddress)
-	{
+	if (isDirectAddress) {
 		if (!address.m_port)
 			address.m_port = m_socketPropertySet.m_remotePortProp.m_value;
 
@@ -256,11 +241,10 @@ bool errorcode TcpConnectionSession.connect()
 		SocketLogRecordCode.Resolving,
 		addressString,
 		strlen(addressString)
-		);
+	);
 
 	io.AddressFamily addressFamily = io.AddressFamily.Undefined;
-	if (m_socketPropertySet.m_useLocalAddressProp.m_value)
-	{
+	if (m_socketPropertySet.m_useLocalAddressProp.m_value) {
 		io.SocketAddress const* adapterAddress = m_socketPropertySet.m_adapterProp.m_value;
 		if (adapterAddress)
 			addressFamily = adapterAddress.m_family;
@@ -271,7 +255,7 @@ bool errorcode TcpConnectionSession.connect()
 	m_resolver.wait(
 		io.HostNameResolverEvents.Resolved | io.HostNameResolverEvents.Error,
 		onResolverEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler
-		);
+	);
 
 	return true;
 
@@ -280,8 +264,7 @@ catch:
 	return false;
 }
 
-bool errorcode TcpConnectionSession.connect(io.SocketAddress const* remoteAddress)
-{
+bool errorcode TcpConnectionSession.connect(io.SocketAddress const* remoteAddress) {
 	disconnect();
 
 	m_socket.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
@@ -290,17 +273,13 @@ bool errorcode TcpConnectionSession.connect(io.SocketAddress const* remoteAddres
 	m_socket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
 	m_socket.m_options = ui.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
 
-	if (!m_socketPropertySet.m_useLocalAddressProp.m_value)
-	{
+	if (!m_socketPropertySet.m_useLocalAddressProp.m_value) {
 		m_socket.open(remoteAddress.m_family, io.Protocol.Tcp);
-	}
-	else
-	{
+	} else {
 		io.SocketAddress const* adapterAddress = m_socketPropertySet.m_adapterProp.m_value;
 		if (adapterAddress)
 			m_localAddress = *adapterAddress;
-		else
-		{
+		else {
 			m_localAddress = null;
 			m_localAddress.m_family = remoteAddress.m_family;
 		}
@@ -324,12 +303,9 @@ bool errorcode TcpConnectionSession.connect(io.SocketAddress const* remoteAddres
 	return true;
 
 catch:
-	if (!m_socketPropertySet.m_useLocalAddressProp.m_value)
-	{
+	if (!m_socketPropertySet.m_useLocalAddressProp.m_value) {
 		m_logWriter.write(SocketLogRecordCode.Connecting, remoteAddress, sizeof(io.SocketAddress));
-	}
-	else
-	{
+	} else {
 		char const* p = $"$(*remoteAddress; B)$(m_localAddress; B)";
 		m_logWriter.write(SocketLogRecordCode.ConnectingFrom, p, dynamic sizeof(p));
 	}
@@ -338,12 +314,10 @@ catch:
 	return false;
 }
 
-void TcpConnectionSession.waitSocketEvents()
-{
+void TcpConnectionSession.waitSocketEvents() {
 	io.SocketEvents eventMask = io.SocketEvents.IoError;
 
-	switch (m_state)
-	{
+	switch (m_state) {
 	case State.Connecting:
 		eventMask |= io.SocketEvents.TcpConnected;
 		break;
@@ -363,8 +337,7 @@ void TcpConnectionSession.waitSocketEvents()
 	m_socket.wait(eventMask, onSocketEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
-void TcpConnectionSession.handleSocketError(std.Error const* error)
-{
+void TcpConnectionSession.handleSocketError(std.Error const* error) {
 	uint64_t recordCode = m_state < State.Connected ?
 		SocketLogRecordCode.ConnectError :
 		log.StdRecordCode.Error;
@@ -373,8 +346,7 @@ void TcpConnectionSession.handleSocketError(std.Error const* error)
 	close();
 }
 
-void TcpConnectionSession.close()
-{
+void TcpConnectionSession.close() {
 	m_stdSessionInfoSet.endSession();
 	m_isTransmitEnabled = false;
 	m_socket.close();
@@ -383,10 +355,8 @@ void TcpConnectionSession.close()
 	m_syncId++;
 }
 
-void TcpConnectionSession.disconnect()
-{
-	switch (m_state)
-	{
+void TcpConnectionSession.disconnect() {
+	switch (m_state) {
 	case State.Closed:
 		return;
 
@@ -407,7 +377,7 @@ void TcpConnectionSession.disconnect()
 			SocketLogRecordCode.Disconnected,
 			&params,
 			sizeof(params)
-			);
+		);
 
 		break;
 	}
@@ -415,8 +385,7 @@ void TcpConnectionSession.disconnect()
 	close();
 }
 
-void TcpConnectionSession.load(doc.Storage* storage)
-{
+void TcpConnectionSession.load(doc.Storage* storage) {
 	m_addressCombo.loadHistory(storage, "addressHistory");
 	m_addressCombo.m_editText = storage.readString("address");
 
@@ -425,8 +394,7 @@ void TcpConnectionSession.load(doc.Storage* storage)
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 }
 
-void TcpConnectionSession.save(doc.Storage* storage)
-{
+void TcpConnectionSession.save(doc.Storage* storage) {
 	m_socketPropertySet.save(storage);
 	m_bufferPropertySet.save(storage);
 
@@ -434,13 +402,11 @@ void TcpConnectionSession.save(doc.Storage* storage)
 	storage.writeString("address", m_addressCombo.m_editText); // overwrite
 }
 
-void TcpConnectionSession.updateProperties()
-{
+void TcpConnectionSession.updateProperties() {
 	m_socketPropertySet.m_remoteAddressProp.m_value = m_addressCombo.m_editText;
 }
 
-bool errorcode TcpConnectionSession.applyProperties()
-{
+bool errorcode TcpConnectionSession.applyProperties() {
 	m_addressCombo.m_editText = m_socketPropertySet.m_remoteAddressProp.m_value;
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 
@@ -455,8 +421,7 @@ bool errorcode TcpConnectionSession.applyProperties()
 	return true;
 }
 
-void TcpConnectionSession.restoreDefaultProperties()
-{
+void TcpConnectionSession.restoreDefaultProperties() {
 	m_socketPropertySet.restoreDefaults();
 	m_bufferPropertySet.restoreDefaults();
 }
@@ -464,8 +429,7 @@ void TcpConnectionSession.restoreDefaultProperties()
 size_t errorcode TcpConnectionSession.transmit(
 	void const* p,
 	size_t size
-	)
-{
+) {
 	if (m_state != State.Connected)
 		return -1;
 
@@ -473,8 +437,7 @@ size_t errorcode TcpConnectionSession.transmit(
 	if (result)
 		m_logWriter.write(log.StdRecordCode.Tx, p, result);
 
-	if (result < size && m_isTransmitEnabled)
-	{
+	if (result < size && m_isTransmitEnabled) {
 		m_isTransmitEnabled = false;
 		waitSocketEvents();
 	}
@@ -482,13 +445,11 @@ size_t errorcode TcpConnectionSession.transmit(
 	return result;
 }
 
-void TcpConnectionSession.startReconnectTimer(bool isForced)
-{
+void TcpConnectionSession.startReconnectTimer(bool isForced) {
 	uint64_t delay = m_socketPropertySet.m_reconnectTimeoutProp.m_value;
 	uint64_t dueTime = m_lastReconnectTime + delay * 10000;
 
-	if (!isForced && sys.getTimestamp() >= dueTime) // immediate
-	{
+	if (!isForced && sys.getTimestamp() >= dueTime) { // immediate
 		onReconnectTimer(m_syncId);
 		return;
 	}
@@ -499,25 +460,22 @@ void TcpConnectionSession.startReconnectTimer(bool isForced)
 	m_reconnectTimer.startDueTimer(
 		onReconnectTimer~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler,
 		dueTime
-		);
+	);
 }
 
 void TcpConnectionSession.onSocketEvent(
 	uint_t syncId,
 	io.SocketEvents triggeredEvents
-	)
-{
+) {
 	if (syncId != m_syncId)
 		return;
 
-	if (triggeredEvents & io.SocketEvents.IoError)
-	{
+	if (triggeredEvents & io.SocketEvents.IoError) {
 		handleSocketError(m_socket.m_ioError);
 		return;
 	}
 
-	if (triggeredEvents & io.SocketEvents.TcpConnected)
-	{
+	if (triggeredEvents & io.SocketEvents.TcpConnected) {
 		m_logWriter.write(SocketLogRecordCode.ConnectCompleted);
 		m_infoTable[InfoId.LocalAddress].m_value = m_localAddress.getString();
 		m_infoTable[InfoId.RemoteAddress].m_value = m_remoteAddress.getString();
@@ -527,10 +485,8 @@ void TcpConnectionSession.onSocketEvent(
 		m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
 	}
 
-	if (triggeredEvents & io.SocketEvents.TcpDisconnected)
-	{
-		for (;;) // read all the buffered data
-		{
+	if (triggeredEvents & io.SocketEvents.TcpDisconnected) {
+		for (;;) { // read all the buffered data
 			size_t result = m_socket.read(m_readBuffer.m_p, m_readBuffer.m_size);
 			if (!result)
 				break;
@@ -549,7 +505,7 @@ void TcpConnectionSession.onSocketEvent(
 			SocketLogRecordCode.Disconnected,
 			&recordParams,
 			sizeof(recordParams)
-			);
+		);
 
 		close();
 
@@ -563,8 +519,7 @@ void TcpConnectionSession.onSocketEvent(
 		m_bufferPropertySet.m_notifyReadBufferFullProp.m_value)
 		m_logWriter.write(log.StdRecordCode.RxBufferFull);
 
-	if (triggeredEvents & io.SocketEvents.IncomingData)
-	{
+	if (triggeredEvents & io.SocketEvents.IncomingData) {
 		size_t result = m_socket.read(m_readBuffer.m_p, m_readBuffer.m_size);
 		if (result)
 			m_logWriter.write(log.StdRecordCode.Rx, m_readBuffer.m_p, result);
@@ -579,13 +534,11 @@ void TcpConnectionSession.onSocketEvent(
 void TcpConnectionSession.onResolverEvent(
 	uint_t syncId,
 	io.HostNameResolverEvents triggeredEvents
-	)
-{
+) {
 	if (syncId != m_syncId)
 		return;
 
-	if (triggeredEvents & io.HostNameResolverEvents.Error)
-	{
+	if (triggeredEvents & io.HostNameResolverEvents.Error) {
 		handleSocketError(m_resolver.m_error);
 		return;
 	}
@@ -594,7 +547,7 @@ void TcpConnectionSession.onResolverEvent(
 		SocketLogRecordCode.ResolveCompleted,
 		m_resolver.m_addressTable,
 		sizeof(io.SocketAddress)
-		);
+	);
 
 	m_state = State.Closed;
 
@@ -605,8 +558,7 @@ void TcpConnectionSession.onResolverEvent(
 	try connect(address);
 }
 
-void TcpConnectionSession.onReconnectTimer(uint_t syncId)
-{
+void TcpConnectionSession.onReconnectTimer(uint_t syncId) {
 	if (syncId != m_syncId)
 		return;
 
@@ -617,8 +569,7 @@ void TcpConnectionSession.onReconnectTimer(uint_t syncId)
 		startReconnectTimer(false);
 }
 
-reactor TcpConnectionSession.m_uiReactor
-{
+reactor TcpConnectionSession.m_uiReactor {
 	m_title = $"TCP $(m_addressCombo.m_editText)";
 	m_actionTable[ActionId.Connect].m_text = m_state ? "Disconnect" : "Connect";
 	m_actionTable[ActionId.Connect].m_icon = m_iconTable[m_state ? IconId.Disconnect : IconId.Connect];
@@ -628,8 +579,7 @@ reactor TcpConnectionSession.m_uiReactor
 	m_infoTable[InfoId.LocalAddress].m_isEnabled = m_state == State.Connected;
 	m_infoTable[InfoId.RemoteAddress].m_isEnabled = m_state == State.Connected;
 
-	onevent bindingof(m_addressCombo.m_editText)()
-	{
+	onevent bindingof(m_addressCombo.m_editText)() {
 		m_reconnectTimer.stop();
 	}
 }

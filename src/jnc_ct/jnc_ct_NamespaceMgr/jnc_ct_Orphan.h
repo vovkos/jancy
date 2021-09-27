@@ -20,8 +20,7 @@ class FunctionType;
 
 //..............................................................................
 
-enum OrphanKind
-{
+enum OrphanKind {
 	OrphanKind_Undefined,
 	OrphanKind_Function,
 	OrphanKind_Reactor
@@ -32,8 +31,7 @@ enum OrphanKind
 class Orphan:
 	public ModuleItem,
 	public ModuleItemBodyDecl,
-	public FunctionName
-{
+	public FunctionName {
 	friend class NamespaceMgr;
 	friend class Namespace;
 	friend class Parser;
@@ -49,26 +47,22 @@ public:
 	Orphan();
 
 	OrphanKind
-	getOrphanKind()
-	{
+	getOrphanKind() {
 		return m_orphanKind;
 	}
 
 	const QualifiedName&
-	getDeclaratorName()
-	{
+	getDeclaratorName() {
 		return m_declaratorName;
 	}
 
 	FunctionType*
-	getFunctionType()
-	{
+	getFunctionType() {
 		return m_functionType;
 	}
 
 	ModuleItem*
-	getOrigin() // after adopted
-	{
+	getOrigin() { // after adopted
 		return m_origin;
 	}
 
@@ -79,8 +73,7 @@ public:
 	adopt(ModuleItem* item);
 
 	ModuleItem*
-	resolveForCodeAssist()
-	{
+	resolveForCodeAssist() {
 		return resolveForCodeAssist(m_parentNamespace);
 	}
 

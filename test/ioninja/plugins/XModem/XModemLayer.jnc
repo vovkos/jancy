@@ -10,11 +10,9 @@ import "ui_Dialog.jnc"
 
 //..............................................................................
 
-class XModemLayer: doc.Layer
-{
+class XModemLayer: doc.Layer {
 protected:
-	enum State
-	{
+	enum State {
 		Idle,
 		TransmitFileDlg,
 		Transmitting,
@@ -22,8 +20,7 @@ protected:
 		Receiving,
 	}
 
-	enum ActionId
-	{
+	enum ActionId {
 		Transmit,
 		Receive,
 		_Count,
@@ -56,7 +53,7 @@ protected:
 		uint64_t recordCode,
 		void const* p,
 		size_t size
-		);
+	);
 
 	void onFileDlgCompleted(ui.StdDlgButton button);
 	void onProgressDlgButtonClicked(ui.StdDlgButton button);
@@ -64,8 +61,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-XModemLayer.construct(doc.PluginHost* pluginHost)
-{
+XModemLayer.construct(doc.PluginHost* pluginHost) {
 	basetype1.construct(pluginHost);
 	m_transmitter.construct(this);
 	m_receiver.construct(this);
@@ -79,8 +75,7 @@ XModemLayer.construct(doc.PluginHost* pluginHost)
 	createUi();
 }
 
-void XModemLayer.createUi()
-{
+void XModemLayer.createUi() {
 	m_pluginHost.m_toolBar.addSeparator();
 
 	m_actionTable[ActionId.Transmit]  = createAction("Transmit File with XModem", "images/transmit.png");
@@ -90,8 +85,7 @@ void XModemLayer.createUi()
 	m_actionTable[ActionId.Receive].m_onTriggered += receiveFile;
 }
 
-void XModemLayer.transmitFile()
-{
+void XModemLayer.transmitFile() {
 	cancelFileTranfer();
 
 	m_fileDlg.m_kind = ui.FileDlgKind.Open;
@@ -102,8 +96,7 @@ void XModemLayer.transmitFile()
 	m_state = State.TransmitFileDlg;
 }
 
-void XModemLayer.receiveFile()
-{
+void XModemLayer.receiveFile() {
 	cancelFileTranfer();
 
 	m_fileDlg.m_kind = ui.FileDlgKind.Save;
@@ -114,10 +107,8 @@ void XModemLayer.receiveFile()
 	m_state = State.ReceiveFileDlg;
 }
 
-void XModemLayer.cancelFileTranfer()
-{
-	switch (m_state)
-	{
+void XModemLayer.cancelFileTranfer() {
+	switch (m_state) {
 	case State.Idle:
 		return;
 
@@ -135,10 +126,8 @@ void XModemLayer.cancelFileTranfer()
 	m_progressDlg.hide();
 }
 
-void XModemLayer.onFileDlgCompleted(ui.StdDlgButton button)
-{
-	if (button != ui.StdDlgButton.Ok)
-	{
+void XModemLayer.onFileDlgCompleted(ui.StdDlgButton button) {
+	if (button != ui.StdDlgButton.Ok) {
 		m_state = State.Idle;
 		return;
 	}
@@ -149,14 +138,13 @@ void XModemLayer.onFileDlgCompleted(ui.StdDlgButton button)
 	m_progressDlg.m_buttons = ui.StdDlgButtons.Abort;
 	m_progressDlg.show();
 
-	switch (m_state)
-	{
+	switch (m_state) {
 	case State.TransmitFileDlg:
 		m_state = State.Transmitting;
 		m_file.open(
 			m_fileDlg.m_filePath,
 			io.FileOpenFlags.OpenExisting | io.FileOpenFlags.ReadOnly
-			);
+		);
 		m_transmitter.start();
 		break;
 
@@ -172,10 +160,8 @@ catch:
 	m_progressDlg.m_buttons = ui.StdDlgButtons.Close;
 }
 
-void XModemLayer.onProgressDlgButtonClicked(ui.StdDlgButton button)
-{
-	switch (button)
-	{
+void XModemLayer.onProgressDlgButtonClicked(ui.StdDlgButton button) {
+	switch (button) {
 	case ui.StdDlgButton.Cancel:
 	case ui.StdDlgButton.Abort:
 		cancelFileTranfer();
@@ -193,11 +179,9 @@ void XModemLayer.onLogRecord(
 	uint64_t recordCode,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	if (recordCode == log.StdRecordCode.Rx)
-		switch (m_state)
-		{
+		switch (m_state) {
 		case State.Transmitting:
 			m_transmitter.onRx(p, size);
 			break;

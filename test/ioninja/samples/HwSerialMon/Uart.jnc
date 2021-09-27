@@ -8,11 +8,9 @@ import "sys_Timer.jnc"
 
 //..............................................................................
 
-class Uart: SerialIface
-{
+class Uart: SerialIface {
 protected:
-	bitflag enum Lines: uint16_t
-	{
+	bitflag enum Lines: uint16_t {
 		Tx  = 0x0100,
 		Rx  = 0x0200,
 		Rts = 0x0400,
@@ -32,8 +30,7 @@ protected:
 	ui.EnumProperty* m_parityProp;
 
 public:
-	construct(doc.PluginHost* pluginHost)
-	{
+	construct(doc.PluginHost* pluginHost) {
 		basetype.construct(pluginHost);
 		m_name = "UART";
 	}
@@ -41,7 +38,7 @@ public:
 	override createProperties(
 		ui.GroupProperty* group = null,
 		ui.Property* beforeProp = null
-		);
+	);
 
 	override loadProperties(doc.Storage* storage);
 	override saveProperties(doc.Storage* storage);
@@ -49,15 +46,14 @@ public:
 
 	override start();
 
-	override stop()
-	{
+	override stop() {
 		m_timer.stop();
 	}
 
 	override processSignal(
 		uint64_t timestamp,
 		uint16_t lines
-		);
+	);
 
 protected:
 	void finalizeFrame(
@@ -65,7 +61,7 @@ protected:
 		uint64_t timestamp,
 		uint64_t recordCode,
 		uchar_t data
-		);
+	);
 
 	void onTimer();
 }
@@ -75,10 +71,8 @@ protected:
 void Uart.createProperties(
 	ui.GroupProperty* group,
 	ui.Property* beforeProp
-	)
-{
-	static ui.EnumPropertyOption baudRateTable[] =
-	{
+) {
+	static ui.EnumPropertyOption baudRateTable[] = {
 		{ "110 bps",    110 },
 		{ "300 bps",    300 },
 		{ "600 bps",    600 },
@@ -100,21 +94,18 @@ void Uart.createProperties(
 		{ "921600 bps", 921600 },
 	}
 
-	static ui.EnumPropertyOption dataBitsTable[] =
-	{
+	static ui.EnumPropertyOption dataBitsTable[] = {
 		{ "7 bits", 7 },
 		{ "8 bits", 8 },
 	}
 
-	static ui.EnumPropertyOption stopBitsTable[] =
-	{
+	static ui.EnumPropertyOption stopBitsTable[] = {
 		{ "1 bit",    io.SerialStopBits._1 },
 		{ "1.5 bits", io.SerialStopBits._15 },
 		{ "2 bits",   io.SerialStopBits._2 },
 	}
 
-	static ui.EnumPropertyOption parityTable[] =
-	{
+	static ui.EnumPropertyOption parityTable[] = {
 		{ "None",  io.SerialParity.None },
 		{ "Odd",   io.SerialParity.Odd },
 		{ "Even",  io.SerialParity.Even },
@@ -127,7 +118,7 @@ void Uart.createProperties(
 		beforeProp,
 		"UART",
 		"UART (Universal Asynchronous Receiver/Transmitter)"
-		);
+	);
 
 	m_baudRateProp = m_pluginHost.m_propertyGrid.createEnumProperty(
 		m_groupProp,,
@@ -135,7 +126,7 @@ void Uart.createProperties(
 		"Serial baud rate",
 		baudRateTable,
 		countof(baudRateTable)
-		);
+	);
 
 	m_dataBitsProp = m_pluginHost.m_propertyGrid.createEnumProperty(
 		m_groupProp,,
@@ -143,7 +134,7 @@ void Uart.createProperties(
 		"Serial data bit count (word size)",
 		dataBitsTable,
 		countof(dataBitsTable)
-		);
+	);
 
 	m_stopBitsProp = m_pluginHost.m_propertyGrid.createEnumProperty(
 		m_groupProp,,
@@ -151,7 +142,7 @@ void Uart.createProperties(
 		"Serial stop bit count",
 		stopBitsTable,
 		countof(stopBitsTable)
-		);
+	);
 
 	m_parityProp = m_pluginHost.m_propertyGrid.createEnumProperty(
 		m_groupProp,,
@@ -159,48 +150,44 @@ void Uart.createProperties(
 		"Serial parity check",
 		parityTable,
 		countof(parityTable)
-		);
+	);
 }
 
-void Uart.loadProperties(doc.Storage* storage)
-{
+void Uart.loadProperties(doc.Storage* storage) {
 	m_baudRateProp.m_currentIndex = storage.readInt("baudRate");
 	m_dataBitsProp.m_currentIndex = storage.readInt("dataBits");
 	m_stopBitsProp.m_currentIndex = storage.readInt("stopBits");
 	m_parityProp.m_currentIndex = storage.readInt("parity");
 }
 
-void Uart.saveProperties(doc.Storage* storage)
-{
+void Uart.saveProperties(doc.Storage* storage) {
 	storage.writeInt("baudRate", m_baudRateProp.m_currentIndex);
 	storage.writeInt("dataBits", m_dataBitsProp.m_currentIndex);
 	storage.writeInt("stopBits", m_stopBitsProp.m_currentIndex);
 	storage.writeInt("parity", m_parityProp.m_currentIndex);
 }
 
-void Uart.restoreDefaultProperties()
-{
+void Uart.restoreDefaultProperties() {
 	m_baudRateProp.m_value = 38400;
 	m_dataBitsProp.m_value = 8;
 	m_stopBitsProp.m_value = io.SerialStopBits._1;
 	m_parityProp.m_value = io.SerialParity.None;
 }
 
-void Uart.start()
-{
+void Uart.start() {
 	m_txDecoder.start(
 		m_baudRateProp.m_value,
 		m_dataBitsProp.m_value,
 		m_stopBitsProp.m_value,
 		m_parityProp.m_value
-		);
+	);
 
 	m_rxDecoder.start(
 		m_baudRateProp.m_value,
 		m_dataBitsProp.m_value,
 		m_stopBitsProp.m_value,
 		m_parityProp.m_value
-		);
+	);
 
 	// resolution of UART timer doesn't have to be bound to baudrate --
 	// the main purpose of this timer is to finalize data without stop-bit-start-bit edge
@@ -212,8 +199,7 @@ void Uart.start()
 void Uart.processSignal(
 	uint64_t timestamp,
 	uint16_t lines
-	)
-{
+) {
 	uint16_t changedLines = m_lastLines ^ lines;
 	m_lastLines = lines;
 
@@ -221,20 +207,17 @@ void Uart.processSignal(
 
 	// logWriter.write (timestamp, log.StdRecordCode.Rx, p, sizeof (Snapshot));
 
-	if (changedLines & Lines.Rts)
-	{
+	if (changedLines & Lines.Rts) {
 		bool state = !(lines & Lines.Rts);
 		logWriter.write(timestamp, HwSerialMonRecordCode.UartRtsChanged, &state, sizeof(state));
 	}
 
-	if (changedLines & Lines.Cts)
-	{
+	if (changedLines & Lines.Cts) {
 		bool state = !(lines & Lines.Cts);
 		logWriter.write(timestamp, HwSerialMonRecordCode.UartCtsChanged, &state, sizeof(state));
 	}
 
-	if (changedLines & Lines.Tx)
-	{
+	if (changedLines & Lines.Tx) {
 		io.UartDecodeResult result = m_txDecoder.add(timestamp, lines & Lines.Tx);
 		if (result != io.UartDecodeResult.Continue)
 			finalizeFrame(
@@ -242,11 +225,10 @@ void Uart.processSignal(
 				timestamp,
 				log.StdRecordCode.Tx,
 				m_txDecoder.m_char
-				);
+			);
 	}
 
-	if (changedLines & Lines.Rx)
-	{
+	if (changedLines & Lines.Rx) {
 		io.UartDecodeResult result = m_rxDecoder.add(timestamp, lines & Lines.Rx);
 		if (result != io.UartDecodeResult.Continue)
 			finalizeFrame(
@@ -254,7 +236,7 @@ void Uart.processSignal(
 				timestamp,
 				log.StdRecordCode.Rx,
 				m_rxDecoder.m_char
-				);
+			);
 	}
 }
 
@@ -263,15 +245,13 @@ void Uart.finalizeFrame(
 	uint64_t timestamp,
 	uint64_t recordCode,
 	uchar_t data
-	)
-{
+) {
 	log.Writer* logWriter = m_pluginHost.m_log.m_writer;
 
 	// write data byte even in case of framing/parity errors
 	logWriter.write(timestamp, recordCode, &data, 1);
 
-	switch (result)
-	{
+	switch (result) {
 	case io.UartDecodeResult.FramingError:
 		logWriter.write(timestamp, HwSerialMonRecordCode.UartFramingError);
 		break;
@@ -282,8 +262,7 @@ void Uart.finalizeFrame(
 	}
 }
 
-void Uart.onTimer()
-{
+void Uart.onTimer() {
 	io.UartDecodeResult result;
 
 	result = m_txDecoder.onTimer();
@@ -293,7 +272,7 @@ void Uart.onTimer()
 			sys.getTimestamp(),
 			log.StdRecordCode.Tx,
 			m_txDecoder.m_char
-			);
+		);
 
 	result = m_rxDecoder.onTimer();
 	if (result != io.UartDecodeResult.Continue)
@@ -302,7 +281,7 @@ void Uart.onTimer()
 			sys.getTimestamp(),
 			log.StdRecordCode.Rx,
 			m_rxDecoder.m_char
-			);
+		);
 }
 
 //..............................................................................

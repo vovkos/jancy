@@ -15,19 +15,17 @@ namespace ui {
 
 //..............................................................................
 
-EnumPropertyOption const* createPcapDeviceOptionArray()
-{
+EnumPropertyOption const* createPcapDeviceOptionArray() {
 	size_t count;
 	io.PcapDeviceDesc const* device = io.createPcapDeviceDescList(&count);
 	EnumPropertyOption* optionArray = new EnumPropertyOption[count];
 	EnumPropertyOption* option = optionArray;
 
-	for (; device; device = device.m_next, option++)
-	{
+	for (; device; device = device.m_next, option++) {
 		option.m_text = $"%1 - %2" (
 			device.m_description ? device.m_description : device.m_name,
 			device.m_address.m_address.getString()
-			);
+		);
 
 		option.m_value = device;
 	}
@@ -43,8 +41,7 @@ EnumProperty* createPcapDeviceProperty(
 	Property* beforeProp = null,
 	char const* name,
 	char const* toolTipText
-	)
-{
+) {
 	EnumPropertyOption const* optionArray = createPcapDeviceOptionArray();
 	size_t optionCount = dynamic countof(optionArray);
 
@@ -55,7 +52,7 @@ EnumProperty* createPcapDeviceProperty(
 		toolTipText,
 		optionArray,
 		optionCount
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -63,8 +60,7 @@ EnumProperty* createPcapDeviceProperty(
 ComboBox* createPcapDeviceComboBox(
 	ToolBar* toolBar,
 	uint_t width = -1
-	)
-{
+) {
 	EnumPropertyOption const* optionArray = createPcapDeviceOptionArray();
 	size_t optionCount = dynamic countof(optionArray);
 
@@ -74,7 +70,7 @@ ComboBox* createPcapDeviceComboBox(
 		comboBox.addItem(
 			optionArray[i].m_text,
 			optionArray[i].m_value
-			);
+		);
 
 	return comboBox;
 }

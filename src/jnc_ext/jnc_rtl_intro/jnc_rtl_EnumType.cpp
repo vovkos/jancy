@@ -27,7 +27,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	EnumConst,
 	&EnumConst::markOpaqueGcRoots
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(EnumConst)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<EnumConst, ct::EnumConst*>))
@@ -45,7 +45,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	EnumType,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(EnumType)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<EnumType, ct::EnumType*>))
@@ -59,15 +59,13 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 void
 JNC_CDECL
-EnumConst::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
-{
+EnumConst::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 	gcHeap->markDataPtr(m_namePtr);
 }
 
 DataPtr
 JNC_CDECL
-EnumConst::getName(EnumConst* self)
-{
+EnumConst::getName(EnumConst* self) {
 	if (!self->m_namePtr.m_p)
 		self->m_namePtr = createForeignStringPtr(self->m_item->getName(), false);
 

@@ -19,8 +19,7 @@ namespace ct {
 //..............................................................................
 
 size_t
-FunctionOverload::addOverload(Function* function)
-{
+FunctionOverload::addOverload(Function* function) {
 	size_t overloadIdx = m_typeOverload.addOverload(function->getType());
 	if (overloadIdx == -1)
 		return -1;
@@ -34,14 +33,11 @@ FunctionOverload::addOverload(Function* function)
 }
 
 bool
-FunctionOverload::require()
-{
+FunctionOverload::require() {
 	size_t count = m_overloadArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		Function* overload = m_overloadArray[i];
-		if (!overload->canCompile())
-		{
+		if (!overload->canCompile()) {
 			err::setFormatStringError("required '%s' (overload #%d) is external", getQualifiedName().sz(), i);
 			return false;
 		}
@@ -57,13 +53,11 @@ FunctionOverload::generateDocumentation(
 	const sl::StringRef& outputDir,
 	sl::String* itemXml,
 	sl::String* indexXml
-	)
-{
+) {
 	sl::String overloadXml;
 
 	size_t overloadCount = m_overloadArray.getCount();
-	for (size_t i = 0; i < overloadCount; i++)
-	{
+	for (size_t i = 0; i < overloadCount; i++) {
 		Function* overload = m_overloadArray[i];
 		overload->generateDocumentation(outputDir, &overloadXml, indexXml);
 		itemXml->append('\n');

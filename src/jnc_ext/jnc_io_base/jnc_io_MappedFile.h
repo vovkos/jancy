@@ -18,8 +18,7 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(MappedFile)
 
 //..............................................................................
 
-class MappedFile: public IfaceHdr
-{
+class MappedFile: public IfaceHdr {
 	friend class IoThread;
 
 protected:
@@ -40,15 +39,13 @@ public:
 
 	uint64_t
 	JNC_CDECL
-	getSize()
-	{
+	getSize() {
 		return m_file.getSize();
 	}
 
 	bool
 	JNC_CDECL
-	setSize(uint64_t size)
-	{
+	setSize(uint64_t size) {
 		return m_file.setSize(size);
 	}
 
@@ -57,12 +54,11 @@ public:
 	open(
 		DataPtr namePtr,
 		uint_t flags
-		);
+	);
 
 	void
 	JNC_CDECL
-	close()
-	{
+	close() {
 		m_file.close();
 	}
 
@@ -74,12 +70,11 @@ public:
 		uint64_t offset,
 		size_t size,
 		bool isPermanent
-		);
+	);
 
 	void
 	JNC_CDECL
-	unmapAllViews()
-	{
+	unmapAllViews() {
 		m_file.unmapAllViews();
 	}
 };

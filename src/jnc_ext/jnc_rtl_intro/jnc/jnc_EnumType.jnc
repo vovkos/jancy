@@ -16,8 +16,7 @@ namespace jnc {
 
 //..............................................................................
 
-bitflag enum EnumTypeFlags
-{
+bitflag enum EnumTypeFlags {
 	Exposed = 0x010000,
 	BitFlag = 0x020000,
 }
@@ -27,8 +26,7 @@ bitflag enum EnumTypeFlags
 opaque class EnumConst:
 	ModuleItem,
 	ModuleItemDecl,
-	ModuleItemInitializer
-{
+	ModuleItemInitializer {
 	EnumType* const property m_parentType;
 	char* const property m_name;
 	int64_t const property m_value;
@@ -38,8 +36,7 @@ opaque class EnumConst:
 
 //..............................................................................
 
-opaque class EnumType: NamedType
-{
+opaque class EnumType: NamedType {
 	Type* const property m_baseType;
 	size_t const property m_constCount;
 	EnumConst* const property m_constArray(size_t index);

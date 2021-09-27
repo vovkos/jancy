@@ -18,8 +18,7 @@ namespace io {
 //..............................................................................
 
 void
-AsyncIoDevice::open()
-{
+AsyncIoDevice::open() {
 	AsyncIoBase::open();
 
 	m_readBuffer.clear();
@@ -28,8 +27,7 @@ AsyncIoDevice::open()
 }
 
 void
-AsyncIoDevice::close()
-{
+AsyncIoDevice::close() {
 	AsyncIoBase::close();
 
 #if (_JNC_OS_WIN)
@@ -42,12 +40,10 @@ bool
 AsyncIoDevice::setReadBufferSize(
 	size_t* targetField,
 	size_t size
-	)
-{
+) {
 	m_lock.lock();
 
-	if (m_readBuffer.getBufferSize() == size)
-	{
+	if (m_readBuffer.getBufferSize() == size) {
 		m_lock.unlock();
 		return true;
 	}
@@ -58,15 +54,13 @@ AsyncIoDevice::setReadBufferSize(
 	m_readBuffer.clear();
 	m_readOverflowBuffer.clear();
 
-	if (m_activeEvents & (AsyncIoDeviceEvent_ReadBufferFull | AsyncIoDeviceEvent_IncomingData))
-	{
+	if (m_activeEvents & (AsyncIoDeviceEvent_ReadBufferFull | AsyncIoDeviceEvent_IncomingData)) {
 		m_activeEvents &= ~(AsyncIoDeviceEvent_ReadBufferFull | AsyncIoDeviceEvent_IncomingData);
 		wakeIoThread();
 	}
 
 	bool result = m_readBuffer.setBufferSize(size);
-	if (!result)
-	{
+	if (!result) {
 		m_lock.unlock();
 		return false;
 	}
@@ -80,12 +74,10 @@ bool
 AsyncIoDevice::setWriteBufferSize(
 	size_t* targetField,
 	size_t size
-	)
-{
+) {
 	m_lock.lock();
 
-	if (m_writeBuffer.getBufferSize() == size)
-	{
+	if (m_writeBuffer.getBufferSize() == size) {
 		m_lock.unlock();
 		return true;
 	}
@@ -99,8 +91,7 @@ AsyncIoDevice::setWriteBufferSize(
 		wakeIoThread();
 
 	bool result = m_writeBuffer.setBufferSize(size);
-	if (!result)
-	{
+	if (!result) {
 		m_lock.unlock();
 		return false;
 	}
@@ -111,8 +102,7 @@ AsyncIoDevice::setWriteBufferSize(
 }
 
 size_t
-AsyncIoDevice::getMetaListDataSize(const sl::ConstList<ReadWriteMeta>& metaList)
-{
+AsyncIoDevice::getMetaListDataSize(const sl::ConstList<ReadWriteMeta>& metaList) {
 	size_t size = 0;
 
 	sl::ConstIterator<ReadWriteMeta> it = metaList.getHead();
@@ -123,8 +113,7 @@ AsyncIoDevice::getMetaListDataSize(const sl::ConstList<ReadWriteMeta>& metaList)
 }
 
 bool
-AsyncIoDevice::isReadBufferValid()
-{
+AsyncIoDevice::isReadBufferValid() {
 	return
 		m_readBuffer.isValid() &&
 		(m_readBuffer.isFull() || m_readOverflowBuffer.isEmpty()) &&
@@ -133,8 +122,7 @@ AsyncIoDevice::isReadBufferValid()
 }
 
 bool
-AsyncIoDevice::isWriteBufferValid()
-{
+AsyncIoDevice::isWriteBufferValid() {
 	return
 		m_writeBuffer.isValid() &&
 		(m_writeBuffer.isFull() || m_writeOverflowBuffer.isEmpty()) &&
@@ -147,10 +135,8 @@ AsyncIoDevice::bufferedRead(
 	DataPtr ptr,
 	size_t size,
 	sl::Array<char>* params
-	)
-{
-	if (!m_isOpen)
-	{
+) {
+	if (!m_isOpen) {
 		jnc::setError(err::Error(err::SystemErrorCode_InvalidDeviceState));
 		return -1;
 	}
@@ -159,47 +145,35 @@ AsyncIoDevice::bufferedRead(
 	char* p = (char*)ptr.m_p;
 
 	m_lock.lock();
-	if (m_readMetaList.isEmpty())
-	{
+	if (m_readMetaList.isEmpty()) {
 		if (params)
 			params->clear();
-	}
-	else
-	{
+	} else {
 		ReadWriteMeta* meta = *m_readMetaList.getHead();
 		if (params)
 			params->copy(meta->m_params, meta->m_params.getCount());
 
-		if (size >= meta->m_dataSize)
-		{
+		if (size >= meta->m_dataSize) {
 			size = meta->m_dataSize;
 			m_readMetaList.remove(meta);
 			m_freeReadWriteMetaList.insertHead(meta);
-		}
-		else if (m_ioThreadFlags & IoThreadFlag_Datagram)
-		{
+		} else if (m_ioThreadFlags & IoThreadFlag_Datagram) {
 			m_readMetaList.remove(meta);
 			m_freeReadWriteMetaList.insertHead(meta);
-		}
-		else
-		{
+		} else {
 			meta->m_dataSize -= size;
 		}
 	}
 
 	result = m_readBuffer.read(p, size);
 
-	if (result && !m_readOverflowBuffer.isEmpty())
-	{
+	if (result && !m_readOverflowBuffer.isEmpty()) {
 		size_t overflowSize = m_readOverflowBuffer.getCount();
 
-		if (!m_readBuffer.isEmpty()) // refill the main buffer first
-		{
+		if (!m_readBuffer.isEmpty()) { // refill the main buffer first
 			size_t movedSize = m_readBuffer.write(m_readOverflowBuffer, overflowSize);
 			m_readOverflowBuffer.remove(0, movedSize);
-		}
-		else // we can read some extra data directly from the overflow buffer
-		{
+		} else { // we can read some extra data directly from the overflow buffer
 			p += result;
 			size -= result;
 
@@ -234,10 +208,8 @@ AsyncIoDevice::bufferedWrite(
 	size_t dataSize,
 	const void* params,
 	size_t paramSize
-	)
-{
-	if (!m_isOpen)
-	{
+) {
+	if (!m_isOpen) {
 		jnc::setError(err::Error(err::SystemErrorCode_InvalidDeviceState));
 		return -1;
 	}
@@ -258,22 +230,19 @@ AsyncIoDevice::addToReadBuffer(
 	size_t dataSize,
 	const void* params,
 	size_t paramSize
-	)
-{
+) {
 	ASSERT((m_options & AsyncIoDeviceOption_KeepReadBlockSize) || paramSize == 0);
 
 	if (!dataSize && !(m_options & AsyncIoDeviceOption_KeepReadBlockSize))
 		return;
 
 	size_t addedSize = m_readBuffer.write(p, dataSize);
-	if (addedSize < dataSize)
-	{
+	if (addedSize < dataSize) {
 		size_t overflowSize = dataSize - addedSize;
 		m_readOverflowBuffer.append((char*)p + addedSize, overflowSize);
 	}
 
-	if (m_options & AsyncIoDeviceOption_KeepReadBlockSize)
-	{
+	if (m_options & AsyncIoDeviceOption_KeepReadBlockSize) {
 		ReadWriteMeta* meta = createReadWriteMeta(dataSize, params, paramSize);
 		m_readMetaList.insertTail(meta);
 	}
@@ -287,22 +256,19 @@ AsyncIoDevice::addToWriteBuffer(
 	size_t dataSize,
 	const void* params,
 	size_t paramSize
-	)
-{
+) {
 	ASSERT((m_options & AsyncIoDeviceOption_KeepWriteBlockSize) || paramSize == 0);
 
 	if (m_writeBuffer.isFull())
 		return 0;
 
 	size_t result = m_writeBuffer.write(p, dataSize);
-	if (result < dataSize && (m_ioThreadFlags & IoThreadFlag_Datagram))
-	{
+	if (result < dataSize && (m_ioThreadFlags & IoThreadFlag_Datagram)) {
 		m_writeOverflowBuffer.append((char*)p + result, dataSize - result);
 		result = dataSize;
 	}
 
-	if (m_options & AsyncIoDeviceOption_KeepWriteBlockSize)
-	{
+	if (m_options & AsyncIoDeviceOption_KeepWriteBlockSize) {
 		ReadWriteMeta* meta = createReadWriteMeta(result, params, paramSize);
 		m_writeMetaList.insertTail(meta);
 	}
@@ -319,8 +285,7 @@ AsyncIoDevice::createReadWriteMeta(
 	size_t dataSize,
 	const void* params,
 	size_t paramSize
-	)
-{
+) {
 	ReadWriteMeta* meta = !m_freeReadWriteMetaList.isEmpty() ?
 		m_freeReadWriteMetaList.removeHead() :
 		AXL_MEM_NEW(ReadWriteMeta);
@@ -334,36 +299,30 @@ void
 AsyncIoDevice::getNextWriteBlock(
 	sl::Array<char>* data,
 	sl::Array<char>* params
-	)
-{
+) {
 	if (!data->isEmpty())
 		return;
 
-	if (m_writeMetaList.isEmpty())
-	{
+	if (m_writeMetaList.isEmpty()) {
 		m_writeBuffer.readAll(data);
 
-		if (!m_writeOverflowBuffer.isEmpty())
-		{
+		if (!m_writeOverflowBuffer.isEmpty()) {
 			data->append(m_writeOverflowBuffer);
 			m_writeOverflowBuffer.clear();
 		}
 
 		if (params)
 			params->clear();
-	}
-	else
-	{
+	} else {
 		ReadWriteMeta* meta = m_writeMetaList.removeHead();
 		ASSERT(
 			meta->m_dataSize <= m_writeBuffer.getDataSize() ||
 			meta->m_dataSize == m_writeBuffer.getDataSize() + m_writeOverflowBuffer.getCount()
-			);
+		);
 
 		data->setCount(meta->m_dataSize);
 		size_t result = m_writeBuffer.read(*data, meta->m_dataSize);
-		if (result < meta->m_dataSize)
-		{
+		if (result < meta->m_dataSize) {
 			size_t overflowSize = meta->m_dataSize - result;
 			ASSERT(overflowSize == m_writeOverflowBuffer.getCount());
 
@@ -381,8 +340,7 @@ AsyncIoDevice::getNextWriteBlock(
 }
 
 void
-AsyncIoDevice::updateReadWriteBufferEvents()
-{
+AsyncIoDevice::updateReadWriteBufferEvents() {
 	if (m_readBuffer.isFull())
 		m_activeEvents |= AsyncIoDeviceEvent_ReadBufferFull;
 

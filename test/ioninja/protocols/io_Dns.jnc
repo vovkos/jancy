@@ -14,8 +14,7 @@ pragma(Alignment, 1);
 
 //..............................................................................
 
-enum DnsOpcode
-{
+enum DnsOpcode {
 	StandardQuery       = 0,
 	InverseQuery        = 1,
 	ServerStatusRequest = 2,
@@ -26,8 +25,7 @@ enum DnsOpcode
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum DnsClass: bigendian uint16_t
-{
+enum DnsClass: bigendian uint16_t {
 	Internet   = 0x01,
 	Chaos      = 0x03,
 	Hesiod     = 0x04,
@@ -37,8 +35,7 @@ enum DnsClass: bigendian uint16_t
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum DnsType: bigendian uint16_t
-{
+enum DnsType: bigendian uint16_t {
 	A          = 1,
 	NS         = 2,
 	MD         = 3,
@@ -130,8 +127,7 @@ enum DnsType: bigendian uint16_t
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum DnsFlags
-{
+bitflag enum DnsFlags {
 	CheckingDisabled,
 	AuthenticData,
 	Reserved,
@@ -143,8 +139,7 @@ bitflag enum DnsFlags
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum DnsResponseCode
-{
+enum DnsResponseCode {
 	NoError               = 0,
 	FormatError           = 1,
 	ServerFailure         = 2,
@@ -165,8 +160,7 @@ enum DnsResponseCode
 	displayName = "DNS",
 	formatDigestFunc = formatDnsDigest
 ]
-struct DnsHdr
-{
+struct DnsHdr {
 	[
 		displayName = "Identifier",
 		formatSpec = "0x%04X"
@@ -212,8 +206,7 @@ struct DnsHdr
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct DnsQuestionRrSuffix
-{
+struct DnsQuestionRrSuffix {
 	[ displayName = "Type" ]
 	DnsType m_type;
 
@@ -223,8 +216,7 @@ struct DnsQuestionRrSuffix
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct DnsAnswerRrSuffix
-{
+struct DnsAnswerRrSuffix {
 	[ displayName = "Type" ]
 	DnsType m_type;
 
@@ -240,8 +232,7 @@ struct DnsAnswerRrSuffix
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* formatDnsDigest(void const* p)
-{
+char const* formatDnsDigest(void const* p) {
 	DnsHdr const* hdr = (DnsHdr const*)p;
 	uint_t opcode = hdr.m_opcode;
 
@@ -249,30 +240,26 @@ char const* formatDnsDigest(void const* p)
 		typeof(DnsOpcode).getValueString(&opcode),
 		hdr.m_id,
 		hdr.m_isReply ? ", reply" : null
-		);
+	);
 }
 
 size_t scanDnsName(
 	void const* p,
 	size_t size
-	)
-{
+) {
 	return scanDnsName(p, p + size) - p;
 }
 
 void const* scanDnsName(
 	void const* p,
 	void const* end
-	)
-{
-	while (p < end)
-	{
+) {
+	while (p < end) {
 		uchar_t c = *(uchar_t const*)p++;
 		if (!c)
 			break;
 
-		if (c & 0xc0) // pointer
-		{
+		if (c & 0xc0) { // pointer
 			p++;
 			break;
 		}
@@ -290,8 +277,7 @@ char const* formatDnsName(
 	void const* p,
 	size_t size,
 	void const* base
-	)
-{
+) {
 	return formatDnsName(p, p + size, base);
 }
 
@@ -299,8 +285,7 @@ char const* formatDnsName(
 	void const* p,
 	void const* end,
 	void const* base
-	)
-{
+) {
 	std.StringBuilder string;
 	formatDnsName(string, p, end, base);
 	return string.detachString();
@@ -311,8 +296,7 @@ size_t formatDnsName(
 	void const* p,
 	size_t size,
 	void const* base
-	)
-{
+) {
 	return formatDnsName(string, p, p + size, base) - p;
 }
 
@@ -321,16 +305,13 @@ void const* formatDnsName(
 	void const* p,
 	void const* end,
 	void const* base
-	)
-{
-	while (p < end)
-	{
+) {
+	while (p < end) {
 		uchar_t c = *(uchar_t const*)p++;
 		if (!c)
 			break;
 
-		if (c & 0xc0) // pointer
-		{
+		if (c & 0xc0) { // pointer
 			size_t offset = ((c & ~0xc0) << 8) | *(uchar_t const*)p++;
 			if (offset >= end - base)
 				string.append("[INVALID-DNS-NAME-OFFSET]");
@@ -340,8 +321,7 @@ void const* formatDnsName(
 			break;
 		}
 
-		if (c > end - p)
-		{
+		if (c > end - p) {
 			string.append("[INVALID-DNS-NAME-LENGTH]");
 			break;
 		}

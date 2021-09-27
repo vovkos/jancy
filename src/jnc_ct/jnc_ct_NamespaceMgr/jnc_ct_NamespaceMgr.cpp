@@ -43,8 +43,7 @@ namespace ct {
 
 //..............................................................................
 
-NamespaceMgr::NamespaceMgr()
-{
+NamespaceMgr::NamespaceMgr() {
 	m_module = Module::getCurrentConstructedModule();
 	ASSERT(m_module);
 
@@ -76,8 +75,7 @@ NamespaceMgr::NamespaceMgr()
 }
 
 void
-NamespaceMgr::clear()
-{
+NamespaceMgr::clear() {
 	for (size_t i = 0; i < StdNamespace__Count; i++)
 		m_stdNamespaceArray[i].clear();
 
@@ -94,8 +92,7 @@ NamespaceMgr::clear()
 }
 
 void
-NamespaceMgr::addStdItems()
-{
+NamespaceMgr::addStdItems() {
 	GlobalNamespace* globalNspace = &m_stdNamespaceArray[StdNamespace_Global];
 	GlobalNamespace* jncNspace = &m_stdNamespaceArray[StdNamespace_Jnc];
 
@@ -218,8 +215,7 @@ Orphan*
 NamespaceMgr::createOrphan(
 	OrphanKind orphanKind,
 	FunctionType* functionType
-	)
-{
+) {
 	Orphan* orphan = AXL_MEM_NEW(Orphan);
 	orphan->m_module = m_module;
 	orphan->m_orphanKind = orphanKind;
@@ -233,8 +229,7 @@ NamespaceMgr::createAlias(
 	const sl::StringRef& name,
 	const sl::StringRef& qualifiedName,
 	sl::BoxList<Token>* initializer
-	)
-{
+) {
 	Alias* alias = AXL_MEM_NEW(Alias);
 	alias->m_module = m_module;
 	alias->m_name = name;
@@ -245,8 +240,7 @@ NamespaceMgr::createAlias(
 }
 
 void
-NamespaceMgr::setSourcePos(const lex::LineCol& pos)
-{
+NamespaceMgr::setSourcePos(const lex::LineCol& pos) {
 	if (!(m_module->getCompileFlags() & ModuleCompileFlag_DebugInfo) ||
 		!m_currentScope ||
 		m_sourcePosLockCount)
@@ -257,10 +251,8 @@ NamespaceMgr::setSourcePos(const lex::LineCol& pos)
 }
 
 void
-NamespaceMgr::openNamespace(Namespace* nspace)
-{
-	NamespaceStackEntry entry =
-	{
+NamespaceMgr::openNamespace(Namespace* nspace) {
+	NamespaceStackEntry entry = {
 		m_currentNamespace,
 		m_currentScope,
 		m_currentAccessKind
@@ -273,8 +265,7 @@ NamespaceMgr::openNamespace(Namespace* nspace)
 }
 
 void
-NamespaceMgr::closeNamespace()
-{
+NamespaceMgr::closeNamespace() {
 	if (m_namespaceStack.isEmpty())
 		return;
 
@@ -289,8 +280,7 @@ NamespaceMgr::closeNamespace()
 }
 
 void
-NamespaceMgr::closeAllNamespaces()
-{
+NamespaceMgr::closeAllNamespaces() {
 	m_namespaceStack.clear();
 	m_currentNamespace = &m_stdNamespaceArray[StdNamespace_Global];
 	m_currentScope = NULL;
@@ -299,8 +289,7 @@ NamespaceMgr::closeAllNamespaces()
 }
 
 Scope*
-NamespaceMgr::openInternalScope()
-{
+NamespaceMgr::openInternalScope() {
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
 	ASSERT(function);
 
@@ -309,14 +298,11 @@ NamespaceMgr::openInternalScope()
 	scope->m_function = function;
 	scope->m_parentNamespace = m_currentNamespace;
 
-	if (m_currentScope)
-	{
+	if (m_currentScope) {
 		// propagate parent scope traits
 		scope->m_flags |= m_currentScope->m_flags & (ScopeFlag_Finalizable | ScopeFlag_HasCatch);
 		scope->m_sjljFrameIdx = m_currentScope->m_sjljFrameIdx;
-	}
-	else
-	{
+	} else {
 		scope->m_flags = ScopeFlag_Function;
 	}
 
@@ -335,8 +321,7 @@ Scope*
 NamespaceMgr::openScope(
 	const lex::LineCol& pos,
 	uint_t flags
-	)
-{
+) {
 	Scope* parentScope = m_currentScope;
 	Scope* scope = openInternalScope();
 	scope->m_pos = pos;
@@ -346,8 +331,7 @@ NamespaceMgr::openScope(
 	if (isFunctionScope)
 		scope->m_flags |= ScopeFlag_Function;
 
-	if (m_module->getCompileFlags() & ModuleCompileFlag_DebugInfo)
-	{
+	if (m_module->getCompileFlags() & ModuleCompileFlag_DebugInfo) {
 		scope->m_llvmDiScope = isFunctionScope ?
 			(llvm::DIScope_vn)scope->m_function->getLlvmDiSubprogram() :
 			(llvm::DIScope_vn)m_module->m_llvmDiBuilder.createLexicalBlock(parentScope, pos);
@@ -355,8 +339,7 @@ NamespaceMgr::openScope(
 
 	setSourcePos(pos);
 
-	if (flags & ScopeFlag_Disposable)
-	{
+	if (flags & ScopeFlag_Disposable) {
 		scope->m_finallyBlock = m_module->m_controlFlowMgr.createBlock("dispose_block");
 		scope->m_sjljFrameIdx++;
 		m_module->m_controlFlowMgr.setJmpFinally(scope->m_finallyBlock, scope->m_sjljFrameIdx);
@@ -366,27 +349,21 @@ NamespaceMgr::openScope(
 
 		if (m_module->hasCodeGen())
 			m_module->m_llvmIrBuilder.createStore(type->getZeroValue(), scope->m_disposeLevelVariable);
-	}
-	else if (flags & (ScopeFlag_Try | ScopeFlag_CatchAhead))
-	{
+	} else if (flags & (ScopeFlag_Try | ScopeFlag_CatchAhead)) {
 		scope->m_catchBlock = m_module->m_controlFlowMgr.createBlock("catch_block");
 		scope->m_sjljFrameIdx++;
 		m_module->m_controlFlowMgr.setJmp(scope->m_catchBlock, scope->m_sjljFrameIdx);
 
 		if (flags & ScopeFlag_FinallyAhead)
 			scope->m_finallyBlock = m_module->m_controlFlowMgr.createBlock("catch_finally_block");
-	}
-	else if (flags & ScopeFlag_FinallyAhead)
-	{
+	} else if (flags & ScopeFlag_FinallyAhead) {
 		scope->m_finallyBlock = m_module->m_controlFlowMgr.createBlock("finally_block");
 		scope->m_sjljFrameIdx++;
 		m_module->m_controlFlowMgr.setJmpFinally(scope->m_finallyBlock, scope->m_sjljFrameIdx);
 	}
 
-	if (flags & ScopeFlag_Nested)
-	{
-		if (parentScope->m_flags & (ScopeFlag_Catch | ScopeFlag_Finally | ScopeFlag_Nested))
-		{
+	if (flags & ScopeFlag_Nested) {
+		if (parentScope->m_flags & (ScopeFlag_Catch | ScopeFlag_Finally | ScopeFlag_Nested)) {
 			err::setFormatStringError("'nestedscope' can only be used before other scope labels");
 			return NULL;
 		}
@@ -398,36 +375,27 @@ NamespaceMgr::openScope(
 }
 
 void
-NamespaceMgr::closeScope()
-{
+NamespaceMgr::closeScope() {
 	ASSERT(m_currentScope);
 	uint_t flags = m_currentScope->m_flags;
 
 	if (m_module->hasCodeGen())
-		if (flags & ScopeFlag_Disposable)
-		{
+		if (flags & ScopeFlag_Disposable) {
 			m_currentScope->m_flags &= ~ScopeFlag_Disposable; // prevent recursion
 			m_module->m_controlFlowMgr.finalizeDisposableScope(m_currentScope);
-		}
-		else if ((flags & ScopeFlag_Try) && !(flags & (ScopeFlag_CatchAhead | ScopeFlag_FinallyAhead)))
-		{
+		} else if ((flags & ScopeFlag_Try) && !(flags & (ScopeFlag_CatchAhead | ScopeFlag_FinallyAhead))) {
 			m_currentScope->m_flags &= ~ScopeFlag_Try; // prevent recursion
 			m_module->m_controlFlowMgr.finalizeTryScope(m_currentScope);
-		}
-		else
-		{
+		} else {
 			// the above two cases introduce implicit finally/catch labels
 			// as such, they will finalize this scope and open a new one
 
 			m_module->m_gcShadowStackMgr.finalizeScope(m_currentScope);
 
-			if ((flags & ScopeFlag_Catch) && !(flags & ScopeFlag_FinallyAhead))
-			{
+			if ((flags & ScopeFlag_Catch) && !(flags & ScopeFlag_FinallyAhead)) {
 				m_currentScope->m_flags &= ~ScopeFlag_Catch; // prevent recursion
 				m_module->m_controlFlowMgr.finalizeCatchScope(m_currentScope);
-			}
-			else if (flags & ScopeFlag_Finally)
-			{
+			} else if (flags & ScopeFlag_Finally) {
 				m_currentScope->m_flags &= ~ScopeFlag_Finally; // prevent recursion
 				m_module->m_controlFlowMgr.finalizeFinallyScope(m_currentScope);
 			}
@@ -440,14 +408,11 @@ NamespaceMgr::closeScope()
 }
 
 AccessKind
-NamespaceMgr::getAccessKind(Namespace* targetNamespace)
-{
+NamespaceMgr::getAccessKind(Namespace* targetNamespace) {
 	Namespace* nspace = m_currentNamespace;
 
-	if (!targetNamespace->isNamed())
-	{
-		for (; nspace; nspace = nspace->m_parentNamespace)
-		{
+	if (!targetNamespace->isNamed()) {
+		for (; nspace; nspace = nspace->m_parentNamespace) {
 			if (nspace == targetNamespace)
 				return AccessKind_Protected;
 		}
@@ -455,10 +420,8 @@ NamespaceMgr::getAccessKind(Namespace* targetNamespace)
 		return AccessKind_Public;
 	}
 
-	if (targetNamespace->m_namespaceKind != NamespaceKind_Type)
-	{
-		for (; nspace; nspace = nspace->m_parentNamespace)
-		{
+	if (targetNamespace->m_namespaceKind != NamespaceKind_Type) {
+		for (; nspace; nspace = nspace->m_parentNamespace) {
 			if (!nspace->isNamed())
 				continue;
 
@@ -473,8 +436,7 @@ NamespaceMgr::getAccessKind(Namespace* targetNamespace)
 
 	NamedType* targetType = (NamedType*)targetNamespace;
 
-	for (; nspace; nspace = nspace->m_parentNamespace)
-	{
+	for (; nspace; nspace = nspace->m_parentNamespace) {
 		if (!nspace->isNamed())
 			continue;
 
@@ -483,12 +445,10 @@ NamespaceMgr::getAccessKind(Namespace* targetNamespace)
 			targetNamespace->m_friendSet.find(nspace->getQualifiedName()))
 			return AccessKind_Protected;
 
-		if (nspace->m_namespaceKind == NamespaceKind_Type)
-		{
+		if (nspace->m_namespaceKind == NamespaceKind_Type) {
 			NamedType* type = (NamedType*)nspace;
 			TypeKind typeKind = type->getTypeKind();
-			if (typeKind == TypeKind_Class || typeKind == TypeKind_Struct)
-			{
+			if (typeKind == TypeKind_Class || typeKind == TypeKind_Struct) {
 				bool result = ((DerivableType*)type)->findBaseTypeTraverse(targetType);
 				if (result)
 					return AccessKind_Protected;
@@ -504,8 +464,7 @@ NamespaceMgr::addGlobalNamespace(
 	GlobalNamespace* nspace,
 	const sl::StringRef& name,
 	Namespace* parentNamespace
-	)
-{
+) {
 	if (!parentNamespace)
 		parentNamespace = &m_stdNamespaceArray[StdNamespace_Global];
 
@@ -516,14 +475,11 @@ NamespaceMgr::addGlobalNamespace(
 }
 
 Scope*
-NamespaceMgr::findBreakScope(size_t level)
-{
+NamespaceMgr::findBreakScope(size_t level) {
 	size_t i = 0;
 	Scope* scope = m_currentScope;
-	for (; scope; scope = scope->getParentScope())
-	{
-		if (scope->m_breakBlock)
-		{
+	for (; scope; scope = scope->getParentScope()) {
+		if (scope->m_breakBlock) {
 			i++;
 			if (i >= level)
 				break;
@@ -534,14 +490,11 @@ NamespaceMgr::findBreakScope(size_t level)
 }
 
 Scope*
-NamespaceMgr::findContinueScope(size_t level)
-{
+NamespaceMgr::findContinueScope(size_t level) {
 	size_t i = 0;
 	Scope* scope = m_currentScope;
-	for (; scope; scope = scope->getParentScope())
-	{
-		if (scope->m_continueBlock)
-		{
+	for (; scope; scope = scope->getParentScope()) {
+		if (scope->m_continueBlock) {
 			i++;
 			if (i >= level)
 				break;
@@ -552,11 +505,9 @@ NamespaceMgr::findContinueScope(size_t level)
 }
 
 Scope*
-NamespaceMgr::findCatchScope()
-{
+NamespaceMgr::findCatchScope() {
 	Scope* scope = m_currentScope;
-	for (; scope; scope = scope->getParentScope())
-	{
+	for (; scope; scope = scope->getParentScope()) {
 		if (scope->m_tryExpr || scope->m_catchBlock)
 			break;
 	}

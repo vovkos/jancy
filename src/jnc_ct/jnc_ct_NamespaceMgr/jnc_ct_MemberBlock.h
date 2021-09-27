@@ -23,8 +23,7 @@ class Value;
 
 //..............................................................................
 
-class MemberBlock
-{
+class MemberBlock {
 	friend class VariableMgr;
 
 protected:
@@ -53,56 +52,47 @@ public:
 	MemberBlock(ModuleItem* parent);
 
 	const sl::Array<Variable*>&
-	getStaticVariableArray() const
-	{
+	getStaticVariableArray() const {
 		return m_staticVariableArray;
 	}
 
 	const sl::Array<Field*>&
-	getFieldArray() const
-	{
+	getFieldArray() const {
 		return m_fieldArray;
 	}
 
 	const sl::Array<Field*>&
-	getUnnamedFieldArray() const
-	{
+	getUnnamedFieldArray() const {
 		return m_unnamedFieldArray;
 	}
 
 	const sl::Array<Field*>&
-	getGcRootFieldArray() const
-	{
+	getGcRootFieldArray() const {
 		return m_gcRootFieldArray;
 	}
 
 	const sl::Array<Function*>&
-	getMethodArray() const
-	{
+	getMethodArray() const {
 		return m_methodArray;
 	}
 
 	const sl::Array<Property*>&
-	getPropertyArray() const
-	{
+	getPropertyArray() const {
 		return m_propertyArray;
 	}
 
 	Function*
-	getStaticConstructor() const
-	{
+	getStaticConstructor() const {
 		return m_staticConstructor;
 	}
 
 	OverloadableFunction
-	getConstructor() const
-	{
+	getConstructor() const {
 		return m_constructor;
 	}
 
 	Function*
-	getDestructor() const
-	{
+	getDestructor() const {
 		return m_destructor;
 	}
 
@@ -114,8 +104,7 @@ public:
 		uint_t ptrTypeFlags = 0,
 		sl::BoxList<Token>* constructor = NULL,
 		sl::BoxList<Token>* initializer = NULL
-		)
-	{
+	) {
 		return createFieldImpl(name, type, bitCount, ptrTypeFlags, constructor, initializer);
 	}
 
@@ -124,8 +113,7 @@ public:
 		Type* type,
 		size_t bitCount = 0,
 		uint_t ptrTypeFlags = 0
-		)
-	{
+	) {
 		return createFieldImpl(sl::String(), type, bitCount, ptrTypeFlags);
 	}
 
@@ -134,14 +122,13 @@ public:
 	createMethod(
 		const sl::StringRef& name,
 		FunctionType* shortType
-		);
+	);
 
 	Function*
 	createMethod(
 		const sl::StringRef& name,
 		FunctionType* shortType
-		)
-	{
+	) {
 		return createMethod<Function>(name, shortType);
 	}
 
@@ -150,14 +137,13 @@ public:
 	createUnnamedMethod(
 		FunctionKind functionKind,
 		FunctionType* shortType
-		);
+	);
 
 	Function*
 	createUnnamedMethod(
 		FunctionKind functionKind,
 		FunctionType* shortType
-		)
-	{
+	) {
 		return createUnnamedMethod<Function>(functionKind, shortType);
 	}
 
@@ -207,7 +193,7 @@ protected:
 		uint_t ptrTypeFlags = 0,
 		sl::BoxList<Token>* constructor = NULL,
 		sl::BoxList<Token>* initializer = NULL
-		) = 0;
+	) = 0;
 
 	void
 	scanStaticVariables();
@@ -223,7 +209,7 @@ protected:
 		Function* function,
 		Function** targetFunction,
 		OverloadableFunction* targetOverloadableFunction
-		);
+	);
 };
 
 //..............................................................................

@@ -39,8 +39,7 @@
 
 //..............................................................................
 
-enum jnc_NamespaceKind
-{
+enum jnc_NamespaceKind {
 	jnc_NamespaceKind_Undefined,
 	jnc_NamespaceKind_Global,
 	jnc_NamespaceKind_Scope,
@@ -62,8 +61,7 @@ jnc_getNamespaceKindString(jnc_NamespaceKind namespaceKind);
 
 //..............................................................................
 
-enum jnc_StdNamespace
-{
+enum jnc_StdNamespace {
 	jnc_StdNamespace_Global,
 	jnc_StdNamespace_Jnc,
 	jnc_StdNamespace_Internal,
@@ -99,59 +97,51 @@ jnc_ModuleItem*
 jnc_Namespace_getItem(
 	jnc_Namespace* nspace,
 	size_t index
-	);
+);
 
 JNC_EXTERN_C
 jnc_FindModuleItemResult
 jnc_Namespace_findItem(
 	jnc_Namespace* nspace,
 	const char* name
-	);
+);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
-struct jnc_Namespace
-{
+struct jnc_Namespace {
 	bool
-	isReady()
-	{
+	isReady() {
 		return jnc_Namespace_isReady(this) != 0;
 	}
 
 	jnc_NamespaceKind
-	getNamespaceKind()
-	{
+	getNamespaceKind() {
 		return jnc_Namespace_getNamespaceKind(this);
 	}
 
 	jnc_Namespace*
-	getParentNamespace()
-	{
+	getParentNamespace() {
 		return jnc_Namespace_getParentNamespace(this);
 	}
 
 	jnc_ModuleItem*
-	getParentItem()
-	{
+	getParentItem() {
 		return jnc_Namespace_getParentItem(this);
 	}
 
 	size_t
-	getItemCount()
-	{
+	getItemCount() {
 		return jnc_Namespace_getItemCount(this);
 	}
 
 	jnc_ModuleItem*
-	getItem(size_t index)
-	{
+	getItem(size_t index) {
 		return jnc_Namespace_getItem(this, index);
 	}
 
 	jnc_FindModuleItemResult
-	findItem(const char* name)
-	{
+	findItem(const char* name) {
 		return jnc_Namespace_findItem(this, name);
 	}
 };
@@ -160,8 +150,7 @@ struct jnc_Namespace
 //..............................................................................
 
 #if (!defined _JNC_CORE && defined __cplusplus)
-struct jnc_GlobalNamespace: jnc_ModuleItem
-{
+struct jnc_GlobalNamespace: jnc_ModuleItem {
 };
 #endif // _JNC_CORE
 
@@ -190,8 +179,7 @@ const NamespaceKind
 
 inline
 const char*
-getNamespaceKindString(NamespaceKind namespaceKind)
-{
+getNamespaceKindString(NamespaceKind namespaceKind) {
 	return jnc_getNamespaceKindString(namespaceKind);
 }
 

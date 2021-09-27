@@ -16,37 +16,32 @@
 multicast g_onMouseMove(
 	int x,
 	int y
-	);
+);
 
 int bindable g_a;
 int bindable g_b;
 int g_c;
 
-reactor g_reactor
-{
+reactor g_reactor {
 	g_c = g_a + g_b;
 
-	onevent(bindingof(g_a)) ()
-	{
+	onevent(bindingof(g_a)) () {
 		printf("g_a changed to %d\n", g_a);
 	}
 
 	onevent g_onMouseMove(
 		int x,
 		int y
-		)
-	{
+	) {
 		printf("g_reactor.g_onMouseMove (%d, %d)\n", x, y);
 	}
 }
 
-void foo()
-{
+void foo() {
 	printf("foo ()\n");
 }
 
-int main()
-{
+int main() {
 	g_reactor.start();
 	g_onMouseMove(10, 20);
 	g_a = 10;

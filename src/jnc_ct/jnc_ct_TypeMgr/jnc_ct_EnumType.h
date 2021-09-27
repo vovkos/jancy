@@ -23,8 +23,7 @@ class EnumType;
 
 JNC_INLINE
 EnumTypeFlag
-getFirstEnumTypeFlag(uint_t flags)
-{
+getFirstEnumTypeFlag(uint_t flags) {
 	return (EnumTypeFlag)(1 << sl::getLoBitIdx(flags));
 }
 
@@ -36,8 +35,7 @@ getEnumTypeFlagString(uint_t flags);
 
 //..............................................................................
 
-enum EnumConstFlag
-{
+enum EnumConstFlag {
 	EnumConstFlag_ValueReady = 0x010000,
 };
 
@@ -46,8 +44,7 @@ enum EnumConstFlag
 class EnumConst:
 	public ModuleItem,
 	public ModuleItemDecl,
-	public ModuleItemInitializer
-{
+	public ModuleItemInitializer {
 	friend class EnumType;
 	friend class Namespace;
 
@@ -56,22 +53,19 @@ protected:
 	int64_t m_value;
 
 public:
-	EnumConst()
-	{
+	EnumConst() {
 		m_itemKind = ModuleItemKind_EnumConst;
 		m_parentEnumType = NULL;
 		m_value = 0;
 	}
 
 	EnumType*
-	getParentEnumType()
-	{
+	getParentEnumType() {
 		return m_parentEnumType;
 	}
 
 	int64_t
-	getValue()
-	{
+	getValue() {
 		return m_value;
 	}
 
@@ -81,13 +75,12 @@ public:
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
-		);
+	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class EnumType: public NamedType
-{
+class EnumType: public NamedType {
 	friend class TypeMgr;
 	friend class Parser;
 
@@ -102,14 +95,12 @@ public:
 	EnumType();
 
 	Type*
-	getBaseType()
-	{
+	getBaseType() {
 		return m_baseType;
 	}
 
 	Type*
-	getRootType()
-	{
+	getRootType() {
 		ASSERT(m_rootType);
 		return m_rootType;
 	}
@@ -118,8 +109,7 @@ public:
 	isBaseType(EnumType* type);
 
 	const sl::Array<EnumConst*>&
-	getConstArray()
-	{
+	getConstArray() {
 		return m_constArray;
 	}
 
@@ -127,11 +117,10 @@ public:
 	createConst(
 		const sl::StringRef& name,
 		sl::BoxList<Token>* initializer = NULL
-		);
+	);
 
 	EnumConst*
-	findConst(int64_t value)
-	{
+	findConst(int64_t value) {
 		return m_constMap.findValue(value, NULL);
 	}
 
@@ -140,7 +129,7 @@ public:
 	getValueString(
 		const void* p,
 		const char* formatSpec
-		);
+	);
 
 	virtual
 	bool
@@ -148,7 +137,7 @@ public:
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
-		);
+	);
 
 	virtual
 	FindModuleItemResult
@@ -156,7 +145,7 @@ public:
 		const sl::StringRef& name,
 		MemberCoord* coord = NULL,
 		uint_t flags = 0
-		);
+	);
 
 protected:
 	virtual
@@ -165,22 +154,19 @@ protected:
 
 	virtual
 	void
-	prepareLlvmType()
-	{
+	prepareLlvmType() {
 		m_llvmType = m_baseType->getLlvmType();
 	}
 
 	virtual
 	void
-	prepareLlvmDiType()
-	{
+	prepareLlvmDiType() {
 		m_llvmDiType = m_baseType->getLlvmDiType();
 	}
 
 	virtual
 	void
-	prepareTypeVariable()
-	{
+	prepareTypeVariable() {
 		prepareSimpleTypeVariable(StdType_EnumType);
 	}
 
@@ -190,8 +176,7 @@ protected:
 
 	virtual
 	bool
-	resolveImports()
-	{
+	resolveImports() {
 		return m_baseType->ensureNoImports();
 	}
 
@@ -213,8 +198,7 @@ protected:
 
 JNC_INLINE
 bool
-isBitFlagEnumType(Type* type)
-{
+isBitFlagEnumType(Type* type) {
 	return
 		type->getTypeKind() == TypeKind_Enum &&
 		(((EnumType*)type)->getFlags() & EnumTypeFlag_BitFlag);

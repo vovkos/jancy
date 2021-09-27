@@ -14,30 +14,26 @@ pragma(Alignment, 1);
 
 //..............................................................................
 
-enum DhcpOpcode: uint8_t
-{
+enum DhcpOpcode: uint8_t {
 	BootRequest = 1,
 	BootReply   = 2,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum DhcpHardwareType: uint8_t
-{
+enum DhcpHardwareType: uint8_t {
 	Ethernet = 1,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum DhcpFlags: uint16_t
-{
+enum DhcpFlags: uint16_t {
 	Broadcast = 1,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum DhcpCookie: bigendian uint32_t
-{
+enum DhcpCookie: bigendian uint32_t {
 	Dhcp = 0x63825363
 }
 
@@ -47,8 +43,7 @@ enum DhcpCookie: bigendian uint32_t
 	displayName = "DHCP",
 	formatDigestFunc = formatDhcpDigest
 ]
-struct DhcpHdr
-{
+struct DhcpHdr {
 	[ displayName = "Operation" ]
 	DhcpOpcode m_opcode;
 
@@ -127,8 +122,7 @@ struct DhcpHdr
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* formatDhcpDigest(void const* p)
-{
+char const* formatDhcpDigest(void const* p) {
 	DhcpHdr const* hdr = (DhcpHdr const*)p;
 	void const* options = hdr + 1;
 	void const* end = p + dynamic sizeof(p);
@@ -145,19 +139,16 @@ DhcpOptionHdr const* findDhcpOption(
 	DhcpOptionType type,
 	void const* options,
 	size_t size
-	)
-{
+) {
 	void const* p = options;
 	void const* end = options + size;
 
-	while (p < end)
-	{
+	while (p < end) {
 		DhcpOptionHdr const* optionHdr = (DhcpOptionHdr const*)p;
 		if (optionHdr.m_type == type)
 			return optionHdr;
 
-		switch (optionHdr.m_type)
-		{
+		switch (optionHdr.m_type) {
 		case io.DhcpOptionType.Pad:
 			p++;
 			break;
@@ -176,8 +167,7 @@ DhcpOptionHdr const* findDhcpOption(
 
 //..............................................................................
 
-enum DhcpOptionType: uint8_t
-{
+enum DhcpOptionType: uint8_t {
 	// RFC 1497 Vendor Extensions
 
 	Pad                     = 0,
@@ -330,16 +320,14 @@ enum DhcpOptionType: uint8_t
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct DhcpOptionHdr
-{
+struct DhcpOptionHdr {
 	DhcpOptionType m_type;
 	uint8_t m_length;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum DhcpMessageType: uint8_t
-{
+enum DhcpMessageType: uint8_t {
 	Discover = 1,
 	Offer    = 2,
 	Request  = 3,
@@ -352,8 +340,7 @@ enum DhcpMessageType: uint8_t
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum DhcpOptionOverload: uint8_t
-{
+bitflag enum DhcpOptionOverload: uint8_t {
 	File,
 	Sname,
 }
@@ -363,16 +350,14 @@ bitflag enum DhcpOptionOverload: uint8_t
 char const* formatString(
 	void const* p,
 	size_t size
-	)
-{
+) {
 	return strdup(p, size);
 }
 
 char const* formatDhcpParameterRequestList(
 	void const* p,
 	size_t size
-	)
-{
+) {
 	if (!size)
 		return null;
 
@@ -382,8 +367,7 @@ char const* formatDhcpParameterRequestList(
 	jnc.EnumType* type = typeof(DhcpOptionType);
 
 	void const* end = p + size;
-	for (; p < end; p++)
-	{
+	for (; p < end; p++) {
 		string.append("\n\t");
 		string.append(type.getValueString(p));
 	}
@@ -394,8 +378,7 @@ char const* formatDhcpParameterRequestList(
 char const* formatDhcpClientIdentifier(
 	void const* p,
 	size_t size
-	)
-{
+) {
 	return *(DhcpHardwareType const*)p == DhcpHardwareType.Ethernet ?
 		formatEthernetAddress(p + 1) :
 		null;

@@ -22,8 +22,7 @@ namespace ct {
 //..............................................................................
 
 Namespace*
-OperatorMgr::getValueNamespace(const Value& rawOpValue)
-{
+OperatorMgr::getValueNamespace(const Value& rawOpValue) {
 	if (rawOpValue.getValueKind() == ValueKind_Namespace)
 		return rawOpValue.getNamespace();
 
@@ -32,8 +31,7 @@ OperatorMgr::getValueNamespace(const Value& rawOpValue)
 
 	Type* type = opValue.getType();
 	TypeKind typeKind = type->getTypeKind();
-	switch (typeKind)
-	{
+	switch (typeKind) {
 	case TypeKind_DataPtr:
 	case TypeKind_DataRef:
 		type = ((DataPtrType*)type)->getTargetType();
@@ -53,15 +51,13 @@ OperatorMgr::memberOperator(
 	const Value& rawOpValue,
 	const sl::StringRef& name,
 	Value* resultValue
-	)
-{
+) {
 	bool result;
 	Namespace* nspace;
 	Field* field;
 
 	ValueKind valueKind = rawOpValue.getValueKind();
-	switch (valueKind)
-	{
+	switch (valueKind) {
 	case ValueKind_Namespace:
 		nspace = rawOpValue.getNamespace();
 		return nspace->getNamespaceKind() == NamespaceKind_DynamicLib ?
@@ -74,8 +70,7 @@ OperatorMgr::memberOperator(
 		if (!result)
 			return false;
 
-		if (!(field->getType()->getTypeKindFlags() & TypeKindFlag_Named))
-		{
+		if (!(field->getType()->getTypeKindFlags() & TypeKindFlag_Named)) {
 			err::setFormatStringError("member operator cannot be applied to '%s'", field->getType()->getTypeString().sz());
 			return false;
 		}
@@ -94,8 +89,7 @@ OperatorMgr::memberOperator(
 	if (type->getTypeKind() == TypeKind_DataRef)
 		type = ((DataPtrType*)type)->getTargetType();
 
-	if (type->getTypeKind() == TypeKind_DataPtr)
-	{
+	if (type->getTypeKind() == TypeKind_DataPtr) {
 		result = unaryOperator(UnOpKind_Indir, &opValue);
 		if (!result)
 			return false;
@@ -109,8 +103,7 @@ OperatorMgr::memberOperator(
 	}
 
 	TypeKind typeKind = type->getTypeKind();
-	switch (typeKind)
-	{
+	switch (typeKind) {
 	case TypeKind_Struct:
 	case TypeKind_Union:
 		return getNamedTypeMember(opValue, (NamedType*)type, name, resultValue);
@@ -138,8 +131,7 @@ bool
 OperatorMgr::createMemberClosure(
 	Value* value,
 	ModuleItemDecl* itemDecl
-	)
-{
+) {
 	ValueKind valueKind = value->getValueKind();
 
 	Value thisValue;
@@ -160,33 +152,27 @@ bool
 OperatorMgr::getThisValue(
 	Value* value,
 	ModuleItemDecl* itemDecl
-	)
-{
+) {
 	Value thisValue = m_module->m_functionMgr.getThisValue();
-	if (!thisValue)
-	{
+	if (!thisValue) {
 		err::setFormatStringError(
 			"function '%s' has no 'this' pointer",
 			m_module->m_functionMgr.getCurrentFunction ()->getQualifiedName().sz()
-			);
+		);
 
 		return false;
 	}
 
 	if (!(itemDecl && isReactorClassTypeMember(itemDecl)) &&
-		isClassPtrType(thisValue.getType(), ClassTypeKind_Reactor))
-	{
+		isClassPtrType(thisValue.getType(), ClassTypeKind_Reactor)) {
 		ClassType* classType = ((ClassPtrType*)thisValue.getType())->getTargetType();
 		ReactorClassType* reactorType = (ReactorClassType*)classType;
 		ClassType* parentType = reactorType->getParentType();
 
 		if (parentType)
-			if (!m_module->hasCodeGen())
-			{
+			if (!m_module->hasCodeGen()) {
 				thisValue.setType(parentType->getClassPtrType());
-			}
-			else
-			{
+			} else {
 				size_t parentOffset = reactorType->getParentOffset();
 				ASSERT(parentOffset);
 
@@ -204,23 +190,20 @@ bool
 OperatorMgr::getThisValueType(
 	Value* value,
 	ModuleItemDecl* itemDecl
-	)
-{
+) {
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
-	if (!function->isMember())
-	{
+	if (!function->isMember()) {
 		err::setFormatStringError(
 			"function '%s' has no 'this' pointer",
 			m_module->m_functionMgr.getCurrentFunction()->getQualifiedName().sz()
-			);
+		);
 
 		return false;
 	}
 
 	Type* thisType = function->getThisType();
 	if (!(itemDecl && isReactorClassTypeMember(itemDecl)) &&
-		isClassPtrType(thisType, ClassTypeKind_Reactor))
-	{
+		isClassPtrType(thisType, ClassTypeKind_Reactor)) {
 		ClassType* classType = ((ClassPtrType*)thisType)->getTargetType();
 		ReactorClassType* reactorType = (ReactorClassType*)classType;
 		ClassType* parentType = reactorType->getParentType();
@@ -234,12 +217,10 @@ OperatorMgr::getThisValueType(
 }
 
 bool
-OperatorMgr::checkAccess(ModuleItemDecl* decl)
-{
+OperatorMgr::checkAccess(ModuleItemDecl* decl) {
 	Namespace* nspace = decl->getParentNamespace();
 	if (decl->getAccessKind() != AccessKind_Public &&
-		m_module->m_namespaceMgr.getAccessKind(nspace) == AccessKind_Public)
-	{
+		m_module->m_namespaceMgr.getAccessKind(nspace) == AccessKind_Public) {
 		err::setFormatStringError("'%s.%s' is protected", nspace->getQualifiedName().sz(), decl->getName().sz());
 		return false;
 	}
@@ -252,8 +233,7 @@ OperatorMgr::foldDualType(
 	const Value& opValue,
 	ModuleItemDecl* decl,
 	Value* resultValue
-	)
-{
+) {
 	Type* type = resultValue->getType();
 	ASSERT(isDualType(type));
 
@@ -271,16 +251,14 @@ OperatorMgr::getNamespaceMember(
 	const sl::StringRef& name,
 	size_t baseFieldOffset,
 	Value* resultValue
-	)
-{
+) {
 	bool result;
 
 	FindModuleItemResult findResult = nspace->findDirectChildItemTraverse(name, NULL, TraverseFlag_NoParentNamespace);
 	if (!findResult.m_result)
 		return false;
 
-	if (!findResult.m_item)
-	{
+	if (!findResult.m_item) {
 		err::setFormatStringError("'%s' is not a member of '%s'", name.sz(), nspace->getQualifiedName().sz());
 		return false;
 	}
@@ -289,15 +267,13 @@ OperatorMgr::getNamespaceMember(
 	ModuleItem* item = findResult.m_item;
 	ModuleItemKind itemKind = item->getItemKind();
 
-	if (itemKind == ModuleItemKind_Alias)
-	{
+	if (itemKind == ModuleItemKind_Alias) {
 		item = ((Alias*)item)->getTargetItem();
 		itemKind = item->getItemKind();
 		ASSERT(itemKind != ModuleItemKind_Alias); // should have been resolved at calclayout stage
 	}
 
-	switch (itemKind)
-	{
+	switch (itemKind) {
 	case ModuleItemKind_Namespace:
 		resultValue->setNamespace((GlobalNamespace*)item);
 		decl = (GlobalNamespace*)item;
@@ -313,8 +289,7 @@ OperatorMgr::getNamespaceMember(
 		// and fall through
 
 	case ModuleItemKind_Type:
-		if (!(((Type*)item)->getTypeKindFlags() & TypeKindFlag_Named))
-		{
+		if (!(((Type*)item)->getTypeKindFlags() & TypeKindFlag_Named)) {
 			err::setFormatStringError("'%s' cannot be used as expression", ((Type*) item)->getTypeString().sz());
 			return false;
 		}
@@ -331,10 +306,8 @@ OperatorMgr::getNamespaceMember(
 	case ModuleItemKind_Function:
 		Function* function;
 		function = (Function*)item;
-		if (function->isVirtual())
-		{
-			if (function->getStorageKind() == StorageKind_Abstract)
-			{
+		if (function->isVirtual()) {
+			if (function->getStorageKind() == StorageKind_Abstract) {
 				err::setFormatStringError("'%s' is abstract", function->getQualifiedName().sz());
 				return false;
 			}
@@ -346,20 +319,17 @@ OperatorMgr::getNamespaceMember(
 			resultValue->setLlvmValue(
 				function->getLlvmFunction(),
 				function->getType()->getFunctionPtrType(FunctionPtrTypeKind_Thin)
-				);
+			);
 
 			result = createMemberClosure(resultValue);
 			if (!result)
 				return false;
-		}
-		else
-		{
+		} else {
 			result = resultValue->trySetFunction((Function*)item);
 			if (!result)
 				return false;
 
-			if (function->isMember())
-			{
+			if (function->isMember()) {
 				result = createMemberClosure(resultValue);
 				if (!result)
 					return false;
@@ -372,8 +342,7 @@ OperatorMgr::getNamespaceMember(
 	case ModuleItemKind_FunctionOverload:
 		resultValue->setFunctionOverload((FunctionOverload*)item);
 
-		if (((FunctionOverload*)item)->getFlags() & FunctionOverloadFlag_HasMembers)
-		{
+		if (((FunctionOverload*)item)->getFlags() & FunctionOverloadFlag_HasMembers) {
 			result = createMemberClosure(resultValue);
 			if (!result)
 				return false;
@@ -384,8 +353,7 @@ OperatorMgr::getNamespaceMember(
 
 	case ModuleItemKind_Property:
 		resultValue->setProperty((Property*)item);
-		if (((Property*)item)->isMember())
-		{
+		if (((Property*)item)->isMember()) {
 			result = createMemberClosure(resultValue);
 			if (!result)
 				return false;
@@ -403,8 +371,7 @@ OperatorMgr::getNamespaceMember(
 		break;
 
 	case ModuleItemKind_Field:
-		if (nspace->getNamespaceKind() != NamespaceKind_Type)
-		{
+		if (nspace->getNamespaceKind() != NamespaceKind_Type) {
 			err::setFormatStringError("'%s.%s' cannot be used as expression", nspace->getQualifiedName().sz(), name.sz());
 			return false;
 		}
@@ -431,8 +398,7 @@ OperatorMgr::getNamedTypeMember(
 	NamedType* namedType,
 	const sl::StringRef& name,
 	Value* resultValue
-	)
-{
+) {
 	bool result = namedType->ensureLayout();
 	if (!result)
 		return false;
@@ -442,8 +408,7 @@ OperatorMgr::getNamedTypeMember(
 	if (!findResult.m_result)
 		return false;
 
-	if (!findResult.m_item)
-	{
+	if (!findResult.m_item) {
 		err::setFormatStringError("'%s' is not a member of '%s'", name.sz(), namedType->getTypeString().sz());
 		return false;
 	}
@@ -452,16 +417,14 @@ OperatorMgr::getNamedTypeMember(
 	ModuleItem* member = findResult.m_item;
 	ModuleItemKind memberKind = member->getItemKind();
 
-	switch (memberKind)
-	{
+	switch (memberKind) {
 	case ModuleItemKind_Namespace:
 		resultValue->setNamespace((GlobalNamespace*)member);
 		decl = (GlobalNamespace*)member;
 		break;
 
 	case ModuleItemKind_Field:
-		if (m_module->m_controlFlowMgr.isEmissionLocked()) // sizeof/countof/offsetof/typeof operators, keep Field
-		{
+		if (m_module->m_controlFlowMgr.isEmissionLocked()) { // sizeof/countof/offsetof/typeof operators, keep Field
 			resultValue->setField((Field*)member, coord.m_offset);
 			return true;
 		}
@@ -508,19 +471,16 @@ OperatorMgr::getNamedTypeMember(
 	AXL_TODO("remove explicit addr operator and instead allow implicit cast named_type& -> named_type*")
 
 	Value thisArgValue = opValue;
-	if (namedType->getTypeKind() != TypeKind_Class)
-	{
+	if (namedType->getTypeKind() != TypeKind_Class) {
 		result = unaryOperator(UnOpKind_Addr, &thisArgValue);
 		if (!result)
 			return false;
 	}
 
-	if (isClassType(namedType, ClassTypeKind_Multicast))
-	{
+	if (isClassType(namedType, ClassTypeKind_Multicast)) {
 		ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_ClassPtr);
 		if ((member->getFlags() & MulticastMethodFlag_InaccessibleViaEventPtr) &&
-			(opValue.getType()->getFlags() & PtrTypeFlag_Event))
-		{
+			(opValue.getType()->getFlags() & PtrTypeFlag_Event)) {
 			err::setFormatStringError("'%s' is inaccessible via 'event' pointer", name.sz());
 			return false;
 		}
@@ -537,14 +497,12 @@ OperatorMgr::getEnumTypeMember(
 	EnumType* enumType,
 	const sl::StringRef& name,
 	Value* resultValue
-	)
-{
+) {
 	FindModuleItemResult findResult = enumType->findDirectChildItemTraverse(name, NULL, TraverseFlag_NoParentNamespace);
 	if (!findResult.m_result)
 		return false;
 
-	if (!findResult.m_item)
-	{
+	if (!findResult.m_item) {
 		err::setFormatStringError("'%s' is not a member of '%s'", name.sz(), enumType->getTypeString().sz());
 		return false;
 	}
@@ -559,7 +517,7 @@ OperatorMgr::getEnumTypeMember(
 		opValue,
 		memberValue,
 		resultValue
-		);
+	);
 }
 
 bool
@@ -567,8 +525,7 @@ OperatorMgr::getVariantMember(
 	const Value& opValue,
 	size_t index,
 	Value* resultValue
-	)
-{
+) {
 	Property* prop = m_module->m_functionMgr.getStdProperty(StdProp_VariantIndex);
 	resultValue->setProperty(prop);
 
@@ -590,8 +547,7 @@ OperatorMgr::getVariantMember(
 	const Value& opValue,
 	const sl::StringRef& name,
 	Value* resultValue
-	)
-{
+) {
 	Property* prop = m_module->m_functionMgr.getStdProperty(StdProp_VariantMember);
 	resultValue->setProperty(prop);
 
@@ -613,8 +569,7 @@ OperatorMgr::memberOperator(
 	const Value& rawOpValue,
 	size_t index,
 	Value* resultValue
-	)
-{
+) {
 	Value opValue;
 
 	bool result = prepareOperand(
@@ -623,7 +578,7 @@ OperatorMgr::memberOperator(
 		OpFlag_KeepDataRef |
 		OpFlag_KeepClassRef |
 		OpFlag_EnsurePtrTargetLayout
-		);
+	);
 
 	if (!result)
 		return false;
@@ -633,21 +588,19 @@ OperatorMgr::memberOperator(
 
 	Field* field;
 
-	switch (typeKind)
-	{
+	switch (typeKind) {
 	case TypeKind_DataPtr:
 	case TypeKind_DataRef:
 		type = ((DataPtrType*)type)->getTargetType();
 		typeKind = type->getTypeKind();
-		switch (typeKind)
-		{
+		switch (typeKind) {
 		case TypeKind_Array:
 			return binaryOperator(
 				BinOpKind_Idx,
 				opValue,
 				Value(index, m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT)),
 				resultValue
-				);
+			);
 
 		case TypeKind_Struct:
 			field = ((StructType*)type)->getFieldByIndex(index);
@@ -683,8 +636,7 @@ OperatorMgr::getLibraryMember(
 	Closure* closure,
 	const sl::StringRef& name,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(closure && closure->isMemberClosure());
 
 	Value memberValue;
@@ -692,8 +644,7 @@ OperatorMgr::getLibraryMember(
 	if (!result)
 		return false;
 
-	if (memberValue.getValueKind() != ValueKind_Function)
-	{
+	if (memberValue.getValueKind() != ValueKind_Function) {
 		*resultValue = memberValue;
 		return true;
 	}
@@ -702,8 +653,7 @@ OperatorMgr::getLibraryMember(
 	size_t index = function->getLibraryTableIndex();
 	const char* namePtr = function->getName(); // make sure name pointer stays valid (points to function, not token string)
 
-	Value argValueArray[] =
-	{
+	Value argValueArray[] = {
 		closure->getThisArgValue(),
 		Value(index, m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT)),
 		Value(&namePtr, m_module->m_typeMgr.getStdType(StdType_CharConstPtr)),
@@ -713,7 +663,7 @@ OperatorMgr::getLibraryMember(
 		argValueArray[0],
 		((ClassType*)m_module->m_typeMgr.getStdType(StdType_DynamicLib))->getClassPtrType(),
 		&argValueArray[0]
-		);
+	);
 
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
 	ASSERT(scope);
@@ -729,7 +679,7 @@ OperatorMgr::getLibraryMember(
 		argValueArray,
 		countof(argValueArray),
 		&ptrValue
-		);
+	);
 
 	m_module->m_controlFlowMgr.checkErrorCode(ptrValue, getterFunctionType->getReturnType());
 

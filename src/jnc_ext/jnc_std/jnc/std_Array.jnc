@@ -18,14 +18,12 @@ namespace std {
 
 //! \import std_Array.jnc
 
-class Array
-{
+class Array {
 	variant cmut* readonly m_p;
 	size_t readonly m_count;
 	size_t readonly m_maxCount;
 
-	variant get(size_t index) const
-	{
+	variant get(size_t index) const {
 		boundsCheck(index);
 		return m_p[index];
 	}
@@ -33,16 +31,14 @@ class Array
 	void set(
 		size_t index,
 		variant e
-		)
-	{
+	) {
 		boundsCheck(index);
 		m_p[index] = e;
 	}
 
 	void clear();
 
-	void detach()
-	{
+	void detach() {
 		m_p = null;
 		m_count = 0;
 		m_maxCount = 0;
@@ -54,23 +50,20 @@ class Array
 	size_t errorcode copy(
 		variant const* p,
 		size_t count
-		);
+	);
 
-	size_t errorcode copy(variant e)
-	{
+	size_t errorcode copy(variant e) {
 		return copy(&e, 1);
 	}
 
-	size_t errorcode append(variant e)
-	{
+	size_t errorcode append(variant e) {
 		return insert(-1, &e, 1);
 	}
 
 	size_t errorcode append(
 		variant const* p,
 		size_t count
-		)
-	{
+	) {
 		return insert(-1, p, count);
 	}
 
@@ -78,26 +71,23 @@ class Array
 		size_t index,
 		variant const* p,
 		size_t count
-		);
+	);
 
 	size_t errorcode insert(
 		size_t index,
 		variant e
-		)
-	{
+	) {
 		return insert(index, &e, 1);
 	}
 
 	size_t remove(
 		size_t index,
 		size_t count = 1
-		);
+	);
 
 protected:
-	void boundsCheck(size_t index) const
-	{
-		if (index >= m_count)
-		{
+	void boundsCheck(size_t index) const {
+		if (index >= m_count) {
 			std.setError($"attempt to access out-of-bounds index $index (count: $m_count)");
 			throw;
 		}

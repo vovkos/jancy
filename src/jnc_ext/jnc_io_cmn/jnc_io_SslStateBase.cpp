@@ -19,8 +19,7 @@ namespace io {
 //..............................................................................
 
 void
-SslStateBase::closeSsl()
-{
+SslStateBase::closeSsl() {
 	m_ssl.close();
 	m_sslBio.close();
 	m_sslCtx.close();
@@ -32,8 +31,7 @@ SslStateBase::createExternal(
 	const Guid& libGuid,
 	size_t cacheSlotIdx,
 	axl::io::Socket* socket
-	)
-{
+) {
 	Module* module = runtime->getModule();
 	FindModuleItemResult findResult = module->findExtensionLibItem("io.SslState.createSslState", &libGuid, cacheSlotIdx);
 	if (!findResult.m_item || findResult.m_item->getItemKind() != ModuleItemKind_Function)

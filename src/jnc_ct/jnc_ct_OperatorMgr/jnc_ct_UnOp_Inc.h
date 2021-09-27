@@ -18,11 +18,9 @@ namespace ct {
 
 //..............................................................................
 
-class UnOp_PreInc: public UnaryOperator
-{
+class UnOp_PreInc: public UnaryOperator {
 public:
-	UnOp_PreInc()
-	{
+	UnOp_PreInc() {
 		m_opFlags = OpFlag_KeepRef;
 	}
 
@@ -31,16 +29,14 @@ public:
 	op(
 		const Value& opValue,
 		Value* resultValue
-		);
+	);
 };
 
 //..............................................................................
 
-class UnOp_PostInc: public UnaryOperator
-{
+class UnOp_PostInc: public UnaryOperator {
 public:
-	UnOp_PostInc()
-	{
+	UnOp_PostInc() {
 		m_opFlags = OpFlag_KeepRef;
 	}
 
@@ -49,7 +45,7 @@ public:
 	op(
 		const Value& opValue,
 		Value* resultValue
-		);
+	);
 };
 
 //..............................................................................

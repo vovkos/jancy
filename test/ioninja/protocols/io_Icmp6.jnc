@@ -10,8 +10,7 @@ namespace io {
 
 //..............................................................................
 
-enum Icmp6Type: uint8_t
-{
+enum Icmp6Type: uint8_t {
 	DestinationUnreachable                = 1,
 	PacketTooBig                          = 2,
 	TimeExceeded                          = 3,
@@ -50,8 +49,7 @@ enum Icmp6Type: uint8_t
 	displayName = "ICMPv6",
 	formatDigestFunc = formatIcmp6Digest
 ]
-struct Icmp6Hdr
-{
+struct Icmp6Hdr {
 	[ displayName = "Type" ]
 	IcmpType m_type;
 
@@ -73,8 +71,7 @@ struct Icmp6Hdr
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* formatIcmp6Digest(void const* p)
-{
+char const* formatIcmp6Digest(void const* p) {
 	Icmp6Hdr const* hdr = (Icmp6Hdr const*)p;
 	return typeof(Icmp6Type).getValueString(&hdr.m_type);
 }

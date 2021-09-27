@@ -8,16 +8,14 @@ import "PipeServerLogRecordCode.jnc"
 
 //..............................................................................
 
-class PipeClientLogFilter: log.Filter
-{
+class PipeClientLogFilter: log.Filter {
 protected:
 	bool m_isVisible;
 	uint64_t m_filterId;
 	uint64_t m_lastVisibleId;
 
 public:
-	construct()
-	{
+	construct() {
 		m_filterId = -1;
 	}
 
@@ -33,23 +31,20 @@ protected:
 		uint64_t recordCode,
 		void const* p,
 		size_t size
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bool errorcode PipeClientLogFilter.setFilter(char const* filter)
-{
-	if (!filter)
-	{
+bool errorcode PipeClientLogFilter.setFilter(char const* filter) {
+	if (!filter) {
 		m_filterId = -1;
 		return true;
 	}
 
 	char const* end;
 	uint64_t id = strtoul(filter, &end, 0);
-	if (end == filter)
-	{
+	if (end == filter) {
 		std.setError("invalid pipe client ID");
 		return false;
 	}
@@ -58,8 +53,7 @@ bool errorcode PipeClientLogFilter.setFilter(char const* filter)
 	return true;
 }
 
-void PipeClientLogFilter.reset()
-{
+void PipeClientLogFilter.reset() {
 	m_isVisible = false;
 	m_lastVisibleId = -1;
 }
@@ -69,13 +63,11 @@ bool PipeClientLogFilter.filter(
 	uint64_t recordCode,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	if (m_filterId == -1) // means, filtering is off
 		return true;
 
-	switch (recordCode)
-	{
+	switch (recordCode) {
 	case PipeServerLogRecordCode.ClientConnected:
 	case PipeServerLogRecordCode.ClientChanged:
 		uint64_t id = *(uint64_t const*)p;

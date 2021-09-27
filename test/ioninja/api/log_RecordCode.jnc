@@ -14,15 +14,13 @@ namespace log {
 
 // foldable records must be marked to avoid unintentional merging with neighbors
 
-bitflag enum RecordCodeFlags: uint64_t
-{
+bitflag enum RecordCodeFlags: uint64_t {
 	Foldable = 0x8000000000000000,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum PartCodeFlags: uint64_t
-{
+bitflag enum PartCodeFlags: uint64_t {
 	MergeableBackward = 0x2000000000000000, // don't interfere with RecordCodeFlags
 	MergeableForward  = 0x4000000000000000,
 	Mergeable         = 0x6000000000000000,
@@ -30,8 +28,7 @@ bitflag enum PartCodeFlags: uint64_t
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum StdRecordCode: uint64_t
-{
+enum StdRecordCode: uint64_t {
     Tx                = 0x01d47ff1fc334a10 | PartCodeFlags.Mergeable,
 	Rx                = 0x01d47ff1fc334a11 | PartCodeFlags.Mergeable,
 	TxRx              = 0x01d47ff1fc334a12 | PartCodeFlags.Mergeable,
@@ -49,15 +46,13 @@ enum StdRecordCode: uint64_t
 
 //..............................................................................
 
-bitflag enum RetroColorizeFlags
-{
+bitflag enum RetroColorizeFlags {
 	Aux
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct RetroColorizeParams
-{
+struct RetroColorizeParams {
 	int m_retroOffset;
 	uint_t m_length;
 	ui.TextAttr m_attr;

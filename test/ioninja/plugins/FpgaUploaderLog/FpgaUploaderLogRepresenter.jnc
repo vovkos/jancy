@@ -14,10 +14,8 @@ bool representFpgaUploaderLog(
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
-	switch (recordCode)
-	{
+) {
+	switch (recordCode) {
 	case FpgaUploaderLogRecordCode.StillWaiting:
 		representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
 		representation.addHyperText("...still waiting...");
@@ -46,7 +44,7 @@ bool representFpgaUploaderLog(
 			fileName,
 			(version >> 8) & 0xff,
 			version & 0xff
-			));
+		));
 		break;
 
 	case FpgaUploaderLogRecordCode.ErasingFlash:

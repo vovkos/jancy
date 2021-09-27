@@ -24,30 +24,26 @@ bool
 SslSocketBase::sslHandshakeLoop(
 	SslStateBase* sslState,
 	bool isClient
-	)
-{
+) {
 	if (isClient)
 		sslState->m_ssl.setConnectState();
 	else
 		sslState->m_ssl.setAcceptState();
 
 	sys::NotificationEvent socketEvent;
-	HANDLE waitTable[] =
-	{
+	HANDLE waitTable[] = {
 		m_ioThreadEvent.m_event,
 		socketEvent.m_event,
 	};
 
-	for (;;)
-	{
+	for (;;) {
 		bool result = sslState->m_ssl.doHandshake();
 		if (result)
 			break;
 
 		uint_t socketEventMask = FD_CLOSE;
 		uint_t error = err::getLastError()->m_code;
-		switch (error)
-		{
+		switch (error) {
 		case SSL_ERROR_WANT_READ:
 			socketEventMask |= FD_READ;
 			break;
@@ -66,29 +62,25 @@ SslSocketBase::sslHandshakeLoop(
 			return false;
 
 		DWORD waitResult = ::WaitForMultipleObjects(countof(waitTable), waitTable, false, INFINITE);
-		if (waitResult == WAIT_FAILED)
-		{
+		if (waitResult == WAIT_FAILED) {
 			setIoErrorEvent(err::getLastSystemErrorCode());
 			return false;
 		}
 
 		WSANETWORKEVENTS networkEvents;
 		result = m_socket.m_socket.wsaEnumEvents(&networkEvents);
-		if (!result)
-		{
+		if (!result) {
 			setIoErrorEvent();
 			return false;
 		}
 
-		if ((networkEvents.lNetworkEvents & FD_CLOSE) && !(networkEvents.lNetworkEvents & FD_READ))
-		{
+		if ((networkEvents.lNetworkEvents & FD_CLOSE) && !(networkEvents.lNetworkEvents & FD_READ)) {
 			processFdClose(networkEvents.iErrorCode[FD_CLOSE_BIT]);
 			return false;
 		}
 
 		m_lock.lock();
-		if (m_ioThreadFlags & IoThreadFlag_Closing)
-		{
+		if (m_ioThreadFlags & IoThreadFlag_Closing) {
 			m_lock.unlock();
 			return false;
 		}
@@ -108,8 +100,7 @@ bool
 SslSocketBase::sslHandshakeLoop(
 	SslStateBase* sslState,
 	bool isClient
-	)
-{
+) {
 	if (isClient)
 		sslState->m_ssl.setConnectState();
 	else
@@ -117,8 +108,7 @@ SslSocketBase::sslHandshakeLoop(
 
 	int selectFd = AXL_MAX(m_socket.m_socket, m_ioThreadSelfPipe.m_readFile) + 1;
 
-	for (;;)
-	{
+	for (;;) {
 		int result = sslState->m_ssl.doHandshake();
 		if (result)
 			break;
@@ -129,8 +119,7 @@ SslSocketBase::sslHandshakeLoop(
 		FD_SET(m_ioThreadSelfPipe.m_readFile, &readSet);
 
 		uint_t error = err::getLastError()->m_code;
-		switch (error)
-		{
+		switch (error) {
 		case SSL_ERROR_WANT_READ:
 			FD_SET(m_socket.m_socket, &readSet);
 			break;
@@ -148,15 +137,13 @@ SslSocketBase::sslHandshakeLoop(
 		if (result == -1)
 			break;
 
-		if (FD_ISSET(m_ioThreadSelfPipe.m_readFile, &readSet))
-		{
+		if (FD_ISSET(m_ioThreadSelfPipe.m_readFile, &readSet)) {
 			char buffer[256];
 			m_ioThreadSelfPipe.read(buffer, sizeof(buffer));
 		}
 
 		m_lock.lock();
-		if (m_ioThreadFlags & IoThreadFlag_Closing)
-		{
+		if (m_ioThreadFlags & IoThreadFlag_Closing) {
 			m_lock.unlock();
 			return false;
 		}

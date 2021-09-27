@@ -9,20 +9,17 @@
 //
 //..............................................................................
 
-struct Point
-{
+struct Point {
 	char m_x;
 	char m_y;
 }
 
-struct Line
-{
+struct Line {
 	Point m_a;
 	Point m_b;
 }
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	char const* p = std.format("offset = %d", offsetof(Line.m_b.m_y));

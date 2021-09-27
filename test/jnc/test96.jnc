@@ -1,21 +1,12 @@
-class A
-{
-}
+class A {}
 
-class B
-{
-}
+class B {}
 
-class C: A, B
-{
-}
+class C: A, B {}
 
-class D
-{
-}
+class D {}
 
-int main()
-{
+int main() {
 	C c;
 
 	variant v = c;
@@ -30,7 +21,7 @@ int main()
 		"b = %p\n"
 		"d = %p\n",
 		c, a, b, d
-		);
+	);
 
 	assert(a == c && b != c && d == null);
 	return 0;

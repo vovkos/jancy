@@ -9,16 +9,14 @@
 //
 //..............................................................................
 
-struct IpHdr
-{
+struct IpHdr {
 	uint8_t m_a : 4;
 	uint8_t m_b : 4;
 }
 
 typedef unsigned char uint8_t;
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 	return 0;
 }

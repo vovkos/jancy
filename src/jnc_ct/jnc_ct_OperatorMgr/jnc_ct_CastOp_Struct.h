@@ -18,14 +18,12 @@ namespace ct {
 
 //..............................................................................
 
-class Cast_Struct: public CastOperator
-{
+class Cast_Struct: public CastOperator {
 protected:
 	bool m_recursionStopper;
 
 public:
-	Cast_Struct()
-	{
+	Cast_Struct() {
 		m_recursionStopper = false;
 	}
 
@@ -34,7 +32,7 @@ public:
 	getCastKind(
 		const Value& opValue,
 		Type* type
-		);
+	);
 
 	virtual
 	bool
@@ -42,7 +40,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		void* dst
-		);
+	);
 
 	virtual
 	bool
@@ -50,7 +48,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		);
+	);
 };
 
 //..............................................................................

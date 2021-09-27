@@ -23,8 +23,7 @@ Cast_FpTrunc::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	m_module->m_llvmIrBuilder.createTrunc_f(opValue, type, resultValue);
 	return true;
 }
@@ -36,8 +35,7 @@ Cast_FpExt::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	m_module->m_llvmIrBuilder.createExt_f(opValue, type, resultValue);
 	return true;
 }
@@ -49,8 +47,7 @@ Cast_FpFromInt::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	m_module->m_llvmIrBuilder.createIntToFp(opValue, type, resultValue);
 	return true;
 }
@@ -60,11 +57,9 @@ Cast_FpFromInt::constCast(
 	const Value& opValue,
 	Type* type,
 	void* dst
-	)
-{
+) {
 	TypeKind dstTypeKind = type->getTypeKind();
-	switch (dstTypeKind)
-	{
+	switch (dstTypeKind) {
 	case TypeKind_Float:
 		constCast_Fp32(opValue, (float*)dst);
 		break;
@@ -84,13 +79,11 @@ void
 Cast_FpFromInt::constCast_Fp32(
 	const Value& opValue,
 	float* fp32
-	)
-{
+) {
 	const void* src = opValue.getConstData();
 
 	size_t srcSize = opValue.getType()->getSize();
-	switch (srcSize)
-	{
+	switch (srcSize) {
 	case 1:
 		*fp32 = *(char*)src;
 		break;
@@ -116,13 +109,11 @@ void
 Cast_FpFromInt::constCast_Fp64(
 	const Value& opValue,
 	double* fp64
-	)
-{
+) {
 	const void* src = opValue.getConstData();
 
 	size_t srcSize = opValue.getType()->getSize();
-	switch (srcSize)
-	{
+	switch (srcSize) {
 	case 1:
 		*fp64 = *(char*)src;
 		break;
@@ -151,8 +142,7 @@ Cast_FpFromInt_u::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	m_module->m_llvmIrBuilder.createIntToFp_u(opValue, type, resultValue);
 	return true;
 }
@@ -162,11 +152,9 @@ Cast_FpFromInt_u::constCast(
 	const Value& opValue,
 	Type* type,
 	void* dst
-	)
-{
+) {
 	TypeKind dstTypeKind = type->getTypeKind();
-	switch (dstTypeKind)
-	{
+	switch (dstTypeKind) {
 	case TypeKind_Float:
 		constCast_Fp32(opValue, (float*)dst);
 		break;
@@ -186,13 +174,11 @@ void
 Cast_FpFromInt_u::constCast_Fp32(
 	const Value& opValue,
 	float* fp32
-	)
-{
+) {
 	const void* src = opValue.getConstData();
 
 	size_t srcSize = opValue.getType()->getSize();
-	switch (srcSize)
-	{
+	switch (srcSize) {
 	case 1:
 		*fp32 = *(uint8_t*)src;
 		break;
@@ -218,13 +204,11 @@ void
 Cast_FpFromInt_u::constCast_Fp64(
 	const Value& opValue,
 	double* fp64
-	)
-{
+) {
 	const void* src = opValue.getConstData();
 
 	size_t srcSize = opValue.getType()->getSize();
-	switch (srcSize)
-	{
+	switch (srcSize) {
 	case 1:
 		*fp64 = *(uint8_t*)src;
 		break;
@@ -255,8 +239,7 @@ Cast_FpFromBeInt::getCastOperators(
 	CastOperator** firstOperator,
 	CastOperator** secondOperator,
 	Type** intermediateType
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_BigEndian);
 
 	TypeKind intermediateTypeKind = getLittleEndianIntegerTypeKind(opValue.getType()->getTypeKind());
@@ -276,8 +259,7 @@ Cast_FpFromEnum::getCastOperators(
 	CastOperator** firstOperator,
 	CastOperator** secondOperator,
 	Type** intermediateType_o
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKind() == TypeKind_Enum);
 
 	Type* intermediateType = ((EnumType*)opValue.getType())->getBaseType();
@@ -294,8 +276,7 @@ CastOperator*
 Cast_Fp::getCastOperator(
 	const Value& opValue,
 	Type* type
-	)
-{
+) {
 	Type* srcType = opValue.getType();
 
 	TypeKind srcTypeKind = srcType->getTypeKind();
@@ -306,8 +287,7 @@ Cast_Fp::getCastOperator(
 
 	ASSERT(dstTypeKind == TypeKind_Float || dstTypeKind == TypeKind_Double);
 
-	switch (srcTypeKind)
-	{
+	switch (srcTypeKind) {
 	case TypeKind_Int8:
 	case TypeKind_Int16:
 	case TypeKind_Int32:

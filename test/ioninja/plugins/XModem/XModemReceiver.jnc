@@ -1,10 +1,8 @@
 //..............................................................................
 
-class XModemReceiver
-{
+class XModemReceiver {
 protected:
-	enum State
-	{
+	enum State {
 		Idle,
 		Data,
 		Eot,
@@ -24,7 +22,7 @@ public:
 	void onRx(
 		void const* p,
 		size_t size
-		);
+	);
 
 protected:
 	void onRx_Data(XModemBlock const* block);
@@ -35,14 +33,12 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-XModemReceiver.construct(XModemLayer* parent)
-{
+XModemReceiver.construct(XModemLayer* parent) {
 	m_state = State.Idle;
 	m_parent = parent;
 }
 
-void XModemReceiver.start()
-{
+void XModemReceiver.start() {
 	cancel();
 
 	static char c = XModemChar.Nak;
@@ -54,8 +50,7 @@ void XModemReceiver.start()
 	m_parent.m_file.setSize(0);
 }
 
-void XModemReceiver.cancel()
-{
+void XModemReceiver.cancel() {
 	if (m_state == State.Idle)
 		return;
 
@@ -67,8 +62,7 @@ void XModemReceiver.cancel()
 	complete();
 }
 
-void XModemReceiver.complete()
-{
+void XModemReceiver.complete() {
 	m_parent.m_progressDlg.m_buttons = ui.StdDlgButtons.Ok;
 	m_parent.m_file.unmapAllViews();
 	m_parent.m_file.setSize(m_offset);
@@ -80,12 +74,10 @@ void XModemReceiver.complete()
 void XModemReceiver.onRx(
 	void const* p,
 	size_t size
-	)
-{
+) {
 	char c = *(char const*) p;
 
-	switch (c)
-	{
+	switch (c) {
 	case XModemChar.Soh:
 		if (m_state == State.Data && size == sizeof(XModemBlock))
 			onRx_Data((XModemBlock const*) p);
@@ -107,22 +99,19 @@ void XModemReceiver.onRx(
 	}
 }
 
-void XModemReceiver.onRx_Data(XModemBlock const* block)
-{
+void XModemReceiver.onRx_Data(XModemBlock const* block) {
 	static char ack = XModemChar.Ack;
 	static char nak = XModemChar.Nak;
 
 	uchar_t blockNumber = (uchar_t)(m_offset / XModemBlockSize + 1);
-	if (block.m_blockNumber != blockNumber)
-	{
+	if (block.m_blockNumber != blockNumber) {
 		m_parent.transmit(&nak, sizeof(nak));
 		m_parent.m_progressDlg.m_status = "Out-of-sequence XModem block";
 		return; // and ignore it
 	}
 
 	uchar_t checksum = calcXModemChecksum(block.m_data);
-	if (block.m_checksum != checksum)
-	{
+	if (block.m_checksum != checksum) {
 		m_parent.transmit(&nak, sizeof(nak));
 		m_parent.m_progressDlg.m_status = "Bad checksum of XModem block";
 		return; // and ignore it

@@ -37,8 +37,7 @@
 
 //..............................................................................
 
-enum Color
-{
+enum Color {
 	Red,    // = 0
 	Orange,
 	Yellow,
@@ -47,28 +46,24 @@ enum Color
 	Purple,
 }
 
-exposed enum State
-{
+exposed enum State {
 	State_Idle, // = 0
 	State_Connecting,
 	State_Connected,
 	State_Disconnecting,
 }
 
-bitflag enum OpenFlags: uint8_t
-{
+bitflag enum OpenFlags: uint8_t {
 	ReadOnly,      // = 0x01
 	Exclusive         = 0x20,
 	DeleteOnClose, // = 0x40
 }
 
-bitflag enum OpenFlagsEx: OpenFlags
-{
+bitflag enum OpenFlagsEx: OpenFlags {
 	Asynchronous,  // = 0x80
 }
 
-enum PastelColor: Color
-{
+enum PastelColor: Color {
 	PastelRed,    // = 18
 	PastelPurple,
 }
@@ -77,8 +72,7 @@ enum PastelColor: Color
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	// enum members must be qualified (unqualified names are not visible)

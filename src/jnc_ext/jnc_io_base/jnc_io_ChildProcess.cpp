@@ -22,8 +22,7 @@ jnc_execvpe(
 	const char* program,
 	char** argv,
 	char** envp
-	)
-{
+) {
 	// this simple implementation is only OK to be used right after fork
 
 	char** prevEnviron = environ;
@@ -47,7 +46,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	IoLibCacheSlot_ChildProcess,
 	ChildProcess,
 	&ChildProcess::markOpaqueGcRoots
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(ChildProcess)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<ChildProcess>)
@@ -78,8 +77,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 #if (_JNC_OS_WIN)
 
 size_t
-getPipeId()
-{
+getPipeId() {
 	static int32_t pipeId = 0;
 	return sys::atomicInc(&pipeId);
 }
@@ -90,15 +88,14 @@ createStdioPipe(
 	handle_t* writeHandle,
 	dword_t readMode,
 	dword_t writeMode
-	)
-{
+) {
 	char buffer[256];
 	sl::String_w pipeName(rc::BufKind_Stack, buffer, sizeof(buffer));
 	pipeName.format(
 		L"\\\\.\\pipe\\jnc.ChildProcess.%p.%p",
 		sys::getCurrentProcessId(),
 		getPipeId()
-		);
+	);
 
 	axl::io::win::NamedPipe pipe;
 	axl::io::win::File file;
@@ -115,7 +112,7 @@ createStdioPipe(
 			1,
 			0, 0, 0,
 			&secAttr
-			) &&
+		) &&
 		file.create(
 			pipeName,
 			GENERIC_WRITE,
@@ -123,7 +120,7 @@ createStdioPipe(
 			&secAttr,
 			OPEN_EXISTING,
 			writeMode
-			);
+		);
 
 	if (!result)
 		return false;
@@ -138,10 +135,8 @@ buildEnvironmentBlock(
 	sl::Array<wchar_t>* block,
 	StdHashTable* environment,
 	uint_t flags
-	)
-{
-	if (!environment)
-	{
+) {
+	if (!environment) {
 		if (flags & ChildProcessFlag_CleanEnvironment)
 			return block->copy(L"\0\0", 2);
 
@@ -151,12 +146,10 @@ buildEnvironmentBlock(
 
 	block->clear();
 
-	if (!(flags & ChildProcessFlag_CleanEnvironment))
-	{
+	if (!(flags & ChildProcessFlag_CleanEnvironment)) {
 		wchar_t* parentEnvironment = ::GetEnvironmentStringsW();
 		wchar_t* p = parentEnvironment;
-		for (;;)
-		{
+		for (;;) {
 			p++;
 			if (!p[0] && !p[-1]) // double-zero-termination
 				break;
@@ -170,8 +163,7 @@ buildEnvironmentBlock(
 	sl::String_w variableDef(rc::BufKind_Stack, buffer, sizeof(buffer));
 
 	StdMapEntry* entry = environment->m_map.getHead();
-	for (; entry; entry = entry->getNext())
-	{
+	for (; entry; entry = entry->getNext()) {
 		variableDef = entry->m_key.format_v();
 		variableDef += L'=';
 		variableDef += entry->m_value.format_v();
@@ -192,13 +184,11 @@ buildArgvArray(
 	sl::Array<char*>* argv,
 	sl::String* string,
 	const char* commandLine
-	)
-{
+) {
 	argv->clear();
 	*string = commandLine;
 
-	for (;;)
-	{
+	for (;;) {
 		string->trimLeft();
 		if (string->isEmpty())
 			break;
@@ -213,8 +203,7 @@ buildArgvArray(
 		string->setSubString(pos + 1);
 	}
 
-	if (argv->isEmpty())
-	{
+	if (argv->isEmpty()) {
 		err::setError("empty command line");
 		return -1;
 	}
@@ -229,20 +218,17 @@ buildEnvpArray(
 	sl::Array<char>* block,
 	StdHashTable* environment,
 	uint_t flags
-	)
-{
+) {
 	envp->clear();
 
-	if (!environment)
-	{
+	if (!environment) {
 		if (flags & ChildProcessFlag_CleanEnvironment)
 			envp->append(NULL);
 
 		return 0;
 	}
 
-	if (!(flags & ChildProcessFlag_CleanEnvironment))
-	{
+	if (!(flags & ChildProcessFlag_CleanEnvironment)) {
 		char* const* p = environ;
 		for (; *p; p++)
 			envp->append(*p);
@@ -254,8 +240,7 @@ buildEnvpArray(
 	block->clear();
 
 	StdMapEntry* entry = environment->m_map.getHead();
-	for (; entry; entry = entry->getNext())
-	{
+	for (; entry; entry = entry->getNext()) {
 		envpIndexArray.append(block->getCount());
 
 		sl::StringRef string = entry->m_key.format_v();
@@ -280,8 +265,7 @@ exec(
 	const char* commandLine,
 	StdHashTable* environment,
 	uint_t flags
-	) // returns on failure only
-{
+) { // returns on failure only
 	char buffer[4][256];
 	sl::String argvString(rc::BufKind_Stack, buffer[0], sizeof(buffer[0]));
 	sl::Array<char> envpBlock(rc::BufKind_Stack, buffer[1], sizeof(buffer[1]));
@@ -307,8 +291,7 @@ exec(
 //..............................................................................
 
 ChildProcess::ChildProcess():
-	m_stderr((FileStream*&)m_reserved)
-{
+	m_stderr((FileStream*&)m_reserved) {
 	m_writeFile = &m_stdin;
 	m_finalizeIoThreadFunc = finalizeIoThread;
 	m_ptySize.m_rowCount = Default_PtyRowCount;
@@ -321,8 +304,7 @@ ChildProcess::start(
 	DataPtr commandLinePtr,
 	StdHashTable* environment,
 	uint_t flags
-	)
-{
+) {
 	close();
 
 	if (!requireIoLibCapability(IoLibCapability_ChildProcess))
@@ -373,7 +355,7 @@ ChildProcess::start(
 		NULL,
 		&startupInfo,
 		NULL
-		);
+	);
 
 	if (!result)
 		return false;
@@ -422,15 +404,13 @@ ChildProcess::start(
 	err::Error error;
 
 	pid_t pid = ::fork();
-	switch (pid)
-	{
+	switch (pid) {
 	case -1:
 		err::setLastSystemError();
 		return false;
 
 	case 0:
-		if (isPty)
-		{
+		if (isPty) {
 			::setsid();
 			::dup2(slavePty, STDIN_FILENO);
 			::dup2(slavePty, STDOUT_FILENO);
@@ -438,9 +418,7 @@ ChildProcess::start(
 
 			slavePty.ioctl(TIOCSCTTY, (int)0);
 			slavePty.close();
-		}
-		else
-		{
+		} else {
 			::dup2(stdinPipe.m_readFile, STDIN_FILENO);
 			::dup2(stdoutPipe.m_writeFile, STDOUT_FILENO);
 			::dup2(isSeparateStderr ? stderrPipe.m_writeFile : stdoutPipe.m_writeFile, STDERR_FILENO);
@@ -464,8 +442,7 @@ ChildProcess::start(
 
 		char buffer[256];
 		size_t size = execPipe.m_readFile.read(buffer, sizeof(buffer));
-		if (size == 0 || size == -1)
-		{
+		if (size == 0 || size == -1) {
 			m_pid = pid;
 			break;
 		}
@@ -478,14 +455,11 @@ ChildProcess::start(
 		return false;
 	}
 
-	if (isPty)
-	{
+	if (isPty) {
 		m_stdin.m_file.attach(::dup(m_masterPty));
 		m_file.m_file.attach(::dup(m_masterPty));
 		updatePtySize();
-	}
-	else
-	{
+	} else {
 		m_stdin.m_file.attach(stdinPipe.m_writeFile.detach());
 		m_file.m_file.attach(stdoutPipe.m_readFile.detach());
 
@@ -501,13 +475,11 @@ ChildProcess::start(
 
 void
 JNC_CDECL
-ChildProcess::close()
-{
+ChildProcess::close() {
 	FileStream::close();
 	m_stdin.close();
 
-	if (m_reserved)
-	{
+	if (m_reserved) {
 		((FileStream*)m_reserved)->close();
 		m_reserved = NULL;
 	}
@@ -524,8 +496,7 @@ ChildProcess::close()
 
 uint_t
 JNC_CDECL
-ChildProcess::getPid()
-{
+ChildProcess::getPid() {
 #if (_JNC_OS_WIN)
 	return m_process.getProcessId();
 #else
@@ -535,11 +506,9 @@ ChildProcess::getPid()
 
 uint_t
 JNC_CDECL
-ChildProcess::getExitCode()
-{
+ChildProcess::getExitCode() {
 	m_lock.lock();
-	if (!(m_activeEvents & ChildProcessEvent_Finished))
-	{
+	if (!(m_activeEvents & ChildProcessEvent_Finished)) {
 		m_lock.unlock();
 		return 0;
 	}
@@ -551,8 +520,7 @@ ChildProcess::getExitCode()
 
 void
 JNC_CDECL
-ChildProcess::setPtySize(PtySize size)
-{
+ChildProcess::setPtySize(PtySize size) {
 	m_ptySize = size;
 
 #if (_JNC_OS_POSIX)
@@ -563,14 +531,12 @@ ChildProcess::setPtySize(PtySize size)
 
 #if (_JNC_OS_POSIX)
 bool
-ChildProcess::updatePtySize()
-{
+ChildProcess::updatePtySize() {
 	struct winsize winSize;
 	winSize.ws_row = m_ptySize.m_rowCount;
 	winSize.ws_col = m_ptySize.m_colCount;
 	int result = m_masterPty.ioctl(TIOCSWINSZ, &winSize);
-	if (result < 0)
-	{
+	if (result < 0) {
 		err::setLastSystemError();
 		return false;
 	}
@@ -581,8 +547,7 @@ ChildProcess::updatePtySize()
 
 bool
 JNC_CDECL
-ChildProcess::terminate()
-{
+ChildProcess::terminate() {
 #if (_JNC_OS_WIN)
 	return m_process.terminate(STATUS_CONTROL_C_EXIT);
 #else
@@ -592,8 +557,7 @@ ChildProcess::terminate()
 }
 
 FileStream*
-ChildProcess::createFileStream(AxlOsFile* file)
-{
+ChildProcess::createFileStream(AxlOsFile* file) {
 	FileStream* fileStream = jnc::createClass<FileStream> (m_runtime);
 	fileStream->m_file.m_file.attach(file->detach());
 	fileStream->setReadParallelism(m_readParallelism);
@@ -613,11 +577,9 @@ ChildProcess::createFileStream(AxlOsFile* file)
 }
 
 void
-ChildProcess::finalizeIoThreadImpl()
-{
+ChildProcess::finalizeIoThreadImpl() {
 	m_lock.lock();
-	if (m_ioThreadFlags & IoThreadFlag_Closing)
-	{
+	if (m_ioThreadFlags & IoThreadFlag_Closing) {
 		m_lock.unlock();
 		return;
 	}
@@ -644,7 +606,7 @@ ChildProcess::finalizeIoThreadImpl()
 	setEvents_l(isCrashed ?
 		ChildProcessEvent_Finished | ChildProcessEvent_Crashed :
 		ChildProcessEvent_Finished
-		);
+	);
 }
 
 //..............................................................................

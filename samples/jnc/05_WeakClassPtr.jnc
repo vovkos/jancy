@@ -15,12 +15,10 @@
 
 //..............................................................................
 
-class C1
-{
+class C1 {
 	int m_x;
 
-	construct(int x)
-	{
+	construct(int x) {
 		printf("C1.construct (%d)\n", x);
 		m_x = x;
 	}
@@ -30,8 +28,7 @@ class C1
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	C1* c;
@@ -55,7 +52,7 @@ int main()
 	jnc.collectGarbage();
 
 	printf("gc run completed.\n");
-	
+
 	// try to recover the strong pointer
 
 	c = wc;

@@ -27,27 +27,22 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(Const)
 class Variable:
 	public ModuleItemBase<ct::Variable>,
 	public ModuleItemDecl,
-	public ModuleItemInitializer
-{
+	public ModuleItemInitializer {
 public:
 	Variable(ct::Variable* variable):
 		ModuleItemBase(variable),
 		ModuleItemDecl(variable),
-		ModuleItemInitializer(variable)
-	{
-	}
+		ModuleItemInitializer(variable) {}
 
 	Type*
 	JNC_CDECL
-	getType()
-	{
+	getType() {
 		return rtl::getType(m_item->getType());
 	}
 
 	uint_t
 	JNC_CDECL
-	getPtrTypeFlags()
-	{
+	getPtrTypeFlags() {
 		return m_item->getPtrTypeFlags();
 	}
 };
@@ -56,22 +51,18 @@ public:
 
 class Const:
 	public ModuleItemBase<ct::Const>,
-	public ModuleItemDecl
-{
+	public ModuleItemDecl {
 protected:
 	Variant m_value;
 
 public:
 	Const(ct::Const* cnst):
 		ModuleItemBase(cnst),
-		ModuleItemDecl(cnst)
-	{
-	}
+		ModuleItemDecl(cnst) {}
 
 	void
 	JNC_CDECL
-	markOpaqueGcRoots(jnc::GcHeap* gcHeap)
-	{
+	markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 		gcHeap->markVariant(m_value);
 	}
 

@@ -23,8 +23,7 @@ class FunctionPtrType;
 
 // ordered from the worst to the best
 
-enum CastKind
-{
+enum CastKind {
 	CastKind_None,
 	CastKind_Dynamic,
 	CastKind_Explicit,
@@ -41,13 +40,13 @@ setCastError(
 	const Value& opValue,
 	Type* type,
 	CastKind castKind = CastKind_None
-	);
+);
 
 err::Error
 setUnsafeCastError(
 	Type* srcType,
 	Type* dstType
-	);
+);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -59,7 +58,7 @@ castOperator(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	);
+);
 
 JNC_INLINE
 bool
@@ -67,15 +66,13 @@ castOperator(
 	Module* module,
 	Value* opValue,
 	Type* type
-	)
-{
+) {
 	return castOperator(module, *opValue, type, opValue);
 }
 
 //..............................................................................
 
-class CastOperator
-{
+class CastOperator {
 	friend class OperatorMgr;
 
 protected:
@@ -86,14 +83,12 @@ public:
 	CastOperator();
 
 	Module*
-	getModule()
-	{
+	getModule() {
 		return m_module;
 	}
 
 	int
-	getOpFlags()
-	{
+	getOpFlags() {
 		return m_opFlags;
 	}
 
@@ -102,7 +97,7 @@ public:
 	getCastKind(
 		const Value& opValue,
 		Type* type
-		) = 0;
+	) = 0;
 
 	virtual
 	bool
@@ -110,8 +105,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		void* dst
-		)
-	{
+	) {
 		return false;
 	}
 
@@ -121,30 +115,28 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		) = 0;
+	) = 0;
 
 	bool
 	cast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		);
+	);
 };
 
 //..............................................................................
 
 // fail by default
 
-class Cast_Default: public CastOperator
-{
+class Cast_Default: public CastOperator {
 public:
 	virtual
 	CastKind
 	getCastKind(
 		const Value& opValue,
 		Type* type
-		)
-	{
+	) {
 		return CastKind_None;
 	}
 
@@ -154,8 +146,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		)
-	{
+	) {
 		setCastError(opValue, type);
 		return false;
 	}
@@ -165,15 +156,14 @@ public:
 
 // we keep typedef shadows during code-assist
 
-class Cast_Typedef: public CastOperator
-{
+class Cast_Typedef: public CastOperator {
 public:
 	virtual
 	CastKind
 	getCastKind(
 		const Value& opValue,
 		Type* type
-		);
+	);
 
 	virtual
 	bool
@@ -181,7 +171,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		void* dst
-		);
+	);
 
 	virtual
 	bool
@@ -189,23 +179,21 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		);
+	);
 };
 
 //..............................................................................
 
 // cast to void
 
-class Cast_Void: public CastOperator
-{
+class Cast_Void: public CastOperator {
 public:
 	virtual
 	CastKind
 	getCastKind(
 		const Value& opValue,
 		Type* type
-		)
-	{
+	) {
 		return opValue.getType()->cmp(type) == 0 ? CastKind_Identitiy : CastKind_Implicit;
 	}
 
@@ -215,8 +203,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		void* dst
-		)
-	{
+	) {
 		return true;
 	}
 
@@ -226,8 +213,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		)
-	{
+	) {
 		resultValue->setVoid(m_module);
 		return true;
 	}
@@ -237,16 +223,14 @@ public:
 
 // simple copy
 
-class Cast_Copy: public CastOperator
-{
+class Cast_Copy: public CastOperator {
 public:
 	virtual
 	CastKind
 	getCastKind(
 		const Value& opValue,
 		Type* type
-		)
-	{
+	) {
 		return opValue.getType()->cmp(type) == 0 ? CastKind_Identitiy : CastKind_Implicit;
 	}
 
@@ -256,7 +240,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		void* dst
-		);
+	);
 
 	virtual
 	bool
@@ -264,22 +248,21 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		);
+	);
 };
 
 //..............................................................................
 
 // master cast chooses particular implementation
 
-class Cast_Master: public CastOperator
-{
+class Cast_Master: public CastOperator {
 public:
 	virtual
 	CastKind
 	getCastKind(
 		const Value& opValue,
 		Type* type
-		);
+	);
 
 	virtual
 	bool
@@ -287,7 +270,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		void* dst
-		);
+	);
 
 	virtual
 	bool
@@ -295,29 +278,28 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		);
+	);
 
 	virtual
 	CastOperator*
 	getCastOperator(
 		const Value& opValue,
 		Type* type
-		) = 0;
+	) = 0;
 };
 
 //..............................................................................
 
 // master cast capable of performing superposition of casts
 
-class Cast_SuperMaster: public CastOperator
-{
+class Cast_SuperMaster: public CastOperator {
 public:
 	virtual
 	CastKind
 	getCastKind(
 		const Value& opValue,
 		Type* type
-		);
+	);
 
 	virtual
 	bool
@@ -325,7 +307,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		void* dst
-		);
+	);
 
 	virtual
 	bool
@@ -333,7 +315,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		);
+	);
 
 	virtual
 	bool
@@ -343,7 +325,7 @@ public:
 		CastOperator** operator1,
 		CastOperator** operator2,
 		Type** intermediateType
-		) = 0;
+	) = 0;
 };
 
 //..............................................................................

@@ -18,11 +18,9 @@ namespace ct {
 
 //..............................................................................
 
-class Cast_Variant: public CastOperator
-{
+class Cast_Variant: public CastOperator {
 public:
-	Cast_Variant()
-	{
+	Cast_Variant() {
 		m_opFlags = OpFlag_LoadArrayRef;
 	}
 
@@ -31,8 +29,7 @@ public:
 	getCastKind(
 		const Value& opValue,
 		Type* type
-		)
-	{
+	) {
 		return CastKind_ImplicitCrossFamily;
 	}
 
@@ -42,7 +39,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		void* dst
-		);
+	);
 
 	virtual
 	bool
@@ -50,21 +47,19 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		);
+	);
 };
 
 //..............................................................................
 
-class Cast_FromVariant: public CastOperator
-{
+class Cast_FromVariant: public CastOperator {
 public:
 	virtual
 	CastKind
 	getCastKind(
 		const Value& opValue,
 		Type* type
-		)
-	{
+	) {
 		return CastKind_ImplicitCrossFamily;
 	}
 
@@ -74,7 +69,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		void* dst
-		);
+	);
 
 	virtual
 	bool
@@ -82,7 +77,7 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-		);
+	);
 };
 
 //..............................................................................

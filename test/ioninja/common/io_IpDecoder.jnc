@@ -17,8 +17,7 @@ namespace io {
 
 //..............................................................................
 
-class IpDecoder
-{
+class IpDecoder {
 protected:
 	IpDefragmenter m_defragmenter;
 
@@ -26,10 +25,9 @@ public:
 	void setupDefragmenter(
 		size_t fragmentLimit,
 		uint_t timeout
-		);
+	);
 
-	void reset()
-	{
+	void reset() {
 		m_defragmenter.reset();
 	}
 
@@ -37,18 +35,18 @@ public:
 		PcapLinkType linkType,
 		void const* p,
 		size_t size
-		);
+	);
 
 protected:
 	bool decodeIpHdr(
 		void const* p,
 		size_t size
-		);
+	);
 
 	bool decodeIp6Hdr(
 		void const* p,
 		size_t size
-		);
+	);
 
 	abstract bool decodeTransportHdr(
 		io.SocketAddress* srcAddress,
@@ -56,7 +54,7 @@ protected:
 		io.IpProtocol protocol,
 		void const* p,
 		size_t size
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -64,8 +62,7 @@ protected:
 void IpDecoder.setupDefragmenter(
 	size_t fragmentLimit,
 	uint_t timeout
-	)
-{
+) {
 	m_defragmenter.m_fragmentLimit = fragmentLimit;
 	m_defragmenter.m_timeout = timeout;
 }
@@ -74,10 +71,8 @@ bool IpDecoder.decodeLinkHdr(
 	PcapLinkType linkType,
 	void const* p,
 	size_t size
-	)
-{
-	switch (linkType)
-	{
+) {
+	switch (linkType) {
 	case io.PcapLinkType.Loopback:
 		if (size < sizeof(io.LoopbackHdr))
 			return false;
@@ -86,8 +81,7 @@ bool IpDecoder.decodeLinkHdr(
 		p += sizeof(io.LoopbackHdr);
 		size -= sizeof(io.LoopbackHdr);
 
-		switch (loopbackHdr.m_protocolFamily)
-		{
+		switch (loopbackHdr.m_protocolFamily) {
 		case io.LoopbackProtocolFamily.Ip:
 			return decodeIpHdr(p, size);
 
@@ -105,8 +99,7 @@ bool IpDecoder.decodeLinkHdr(
 		p += sizeof(io.EthernetHdr);
 		size -= sizeof(io.EthernetHdr);
 
-		switch (ethernetHdr.m_type)
-		{
+		switch (ethernetHdr.m_type) {
 		case io.EthernetType.Ip:
 			return decodeIpHdr(p, size);
 
@@ -123,8 +116,7 @@ bool IpDecoder.decodeLinkHdr(
 bool IpDecoder.decodeIpHdr(
 	void const* p,
 	size_t size
-	)
-{
+) {
 	if (size < sizeof(io.IpHdr))
 		return false;
 
@@ -136,17 +128,14 @@ bool IpDecoder.decodeIpHdr(
 		ipHdr.m_totalLength > size)
 		return false;
 
-	if ((ipHdr.m_flags & io.IpFlags.Mf) || ipHdr.m_fragmentOffset) // fragmented ip
-	{
+	if ((ipHdr.m_flags & io.IpFlags.Mf) || ipHdr.m_fragmentOffset) { // fragmented ip
 		ipHdr = m_defragmenter.defragment(ipHdr, size);
 		if (!ipHdr)
 			return false;
 
 		p = ipHdr + 1; // defragmented IP headers don't have options
 		size = dynamic sizeof(p);
-	}
-	else
-	{
+	} else {
 		p += ipHdrSize;
 		size = ipHdr.m_totalLength - ipHdrSize;
 	}
@@ -165,8 +154,7 @@ bool IpDecoder.decodeIpHdr(
 bool IpDecoder.decodeIp6Hdr(
 	void const* p,
 	size_t size
-	)
-{
+) {
 	if (size < sizeof(io.Ip6Hdr))
 		return false;
 

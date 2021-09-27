@@ -24,15 +24,13 @@
 
 JNC_EXTERN_C
 jnc_Type*
-jnc_ArrayType_getElementType(jnc_ArrayType* type)
-{
+jnc_ArrayType_getElementType(jnc_ArrayType* type) {
 	return jnc_g_dynamicExtensionLibHost->m_arrayTypeFuncTable->m_getElementTypeFunc(type);
 }
 
 JNC_EXTERN_C
 size_t
-jnc_ArrayType_getElementCount(jnc_ArrayType* type)
-{
+jnc_ArrayType_getElementCount(jnc_ArrayType* type) {
 	return jnc_g_dynamicExtensionLibHost->m_arrayTypeFuncTable->m_GetElementCountFunc(type);
 }
 
@@ -41,16 +39,14 @@ jnc_ArrayType_getElementCount(jnc_ArrayType* type)
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Type*
-jnc_ArrayType_getElementType(jnc_ArrayType* type)
-{
+jnc_ArrayType_getElementType(jnc_ArrayType* type) {
 	return type->getElementType();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 size_t
-jnc_ArrayType_getElementCount(jnc_ArrayType* type)
-{
+jnc_ArrayType_getElementCount(jnc_ArrayType* type) {
 	return type->getElementCount();
 }
 

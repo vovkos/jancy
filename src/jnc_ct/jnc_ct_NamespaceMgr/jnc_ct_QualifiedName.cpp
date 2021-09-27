@@ -18,8 +18,7 @@ namespace ct {
 //..............................................................................
 
 void
-QualifiedName::addName(const sl::StringRef& name)
-{
+QualifiedName::addName(const sl::StringRef& name) {
 	if (m_first.isEmpty())
 		m_first = name;
 	else
@@ -27,8 +26,7 @@ QualifiedName::addName(const sl::StringRef& name)
 }
 
 sl::StringRef
-QualifiedName::removeFirstName()
-{
+QualifiedName::removeFirstName() {
 	sl::StringRef name = m_first;
 
 	if (m_list.isEmpty())
@@ -40,17 +38,13 @@ QualifiedName::removeFirstName()
 }
 
 sl::StringRef
-QualifiedName::removeLastName()
-{
+QualifiedName::removeLastName() {
 	sl::StringRef name;
 
-	if (m_list.isEmpty())
-	{
+	if (m_list.isEmpty()) {
 		name = m_first;
 		m_first.clear();
-	}
-	else
-	{
+	} else {
 		name = m_list.removeTail();
 	}
 
@@ -58,15 +52,13 @@ QualifiedName::removeLastName()
 }
 
 sl::String
-QualifiedName::getFullName() const
-{
+QualifiedName::getFullName() const {
 	if (m_list.isEmpty())
 		return m_first;
 
 	sl::String name = m_first;
 	sl::ConstBoxIterator<sl::StringRef> it = m_list.getHead();
-	for (; it; it++)
-	{
+	for (; it; it++) {
 		name.append('.');
 		name.append(*it);
 	}
@@ -75,19 +67,16 @@ QualifiedName::getFullName() const
 }
 
 void
-QualifiedName::parse(const sl::StringRef& name)
-{
+QualifiedName::parse(const sl::StringRef& name) {
 	clear();
 
 	const char* p = name.cp();
 	const char* end = name.getEnd();
 
-	for (;;)
-	{
+	for (;;) {
 		size_t length = end - p;
 		const char* dot = (const char*)memchr(p, '.', length);
-		if (!dot)
-		{
+		if (!dot) {
 			addName(sl::StringRef(p, length));
 			break;
 		}
@@ -98,8 +87,7 @@ QualifiedName::parse(const sl::StringRef& name)
 }
 
 void
-QualifiedName::copy(const QualifiedName& name)
-{
+QualifiedName::copy(const QualifiedName& name) {
 	m_first = name.m_first;
 	m_list.clear();
 

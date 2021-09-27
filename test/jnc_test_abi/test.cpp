@@ -17,8 +17,7 @@
 namespace c2jnc {
 
 void
-testInt32(jnc::Module* module)
-{
+testInt32(jnc::Module* module) {
 	printf("Running c2jnc.testInt32...\n");
 
 	jnc::Function* jncFunc = (jnc::Function*)module->getGlobalNamespace()->getNamespace()->findItem("c2jnc.funcInt32").m_item;
@@ -30,8 +29,7 @@ testInt32(jnc::Module* module)
 }
 
 void
-testInt64(jnc::Module* module)
-{
+testInt64(jnc::Module* module) {
 	printf("Running c2jnc.testInt64...\n");
 
 	jnc::Function* jncFunc = (jnc::Function*)module->getGlobalNamespace()->getNamespace()->findItem("c2jnc.funcInt64").m_item;
@@ -43,8 +41,7 @@ testInt64(jnc::Module* module)
 }
 
 void
-testStruct32(jnc::Module* module)
-{
+testStruct32(jnc::Module* module) {
 	printf("Running c2jnc.testStruct32...\n");
 
 	struct32 s1 = { -1 };
@@ -65,8 +62,7 @@ testStruct32(jnc::Module* module)
 }
 
 void
-testStruct64(jnc::Module* module)
-{
+testStruct64(jnc::Module* module) {
 	printf("Running c2jnc.testStruct64...\n");
 
 	struct64 s1 = { -1 };
@@ -87,8 +83,7 @@ testStruct64(jnc::Module* module)
 }
 
 void
-testStruct128(jnc::Module* module)
-{
+testStruct128(jnc::Module* module) {
 	printf("Running c2jnc.testStruct128...\n");
 
 	struct128 s1 = { -1, -2 };
@@ -105,8 +100,7 @@ testStruct128(jnc::Module* module)
 }
 
 void
-testVariant(jnc::Module* module)
-{
+testVariant(jnc::Module* module) {
 	printf("Running c2jnc.testVariant...\n");
 
 	jnc::Type* type = module->getPrimitiveType(jnc::TypeKind_Int);
@@ -131,8 +125,7 @@ testVariant(jnc::Module* module)
 }
 
 void
-testFloat(jnc::Module* module)
-{
+testFloat(jnc::Module* module) {
 	printf("Running c2jnc.testFloat...\n");
 
 	jnc::Function* jncFunc = (jnc::Function*)module->getGlobalNamespace()->getNamespace()->findItem("c2jnc.funcFloat").m_item;
@@ -144,8 +137,7 @@ testFloat(jnc::Module* module)
 }
 
 void
-testDouble(jnc::Module* module)
-{
+testDouble(jnc::Module* module) {
 	printf("Running c2jnc.testDouble...\n");
 
 	jnc::Function* jncFunc = (jnc::Function*)module->getGlobalNamespace()->getNamespace()->findItem("c2jnc.funcDouble").m_item;
@@ -174,8 +166,7 @@ funcInt32(
 	int32_t a6,
 	int32_t a7,
 	int32_t a8
-	)
-{
+) {
 	ASSERT(a1 == -1);
 	ASSERT(a2 == -2);
 	ASSERT(a3 == -3);
@@ -198,8 +189,7 @@ funcInt64(
 	int64_t a6,
 	int64_t a7,
 	int64_t a8
-	)
-{
+) {
 	ASSERT(a1 == -1);
 	ASSERT(a2 == -2);
 	ASSERT(a3 == -3);
@@ -222,8 +212,7 @@ funcStruct32(
 	struct32 s6,
 	struct32 s7,
 	struct32 s8
-	)
-{
+) {
 	ASSERT(s1.m_a == -1);
 	ASSERT(s2.m_a == -2);
 	ASSERT(s3.m_a == -3);
@@ -252,8 +241,7 @@ funcStruct64(
 	struct64 s6,
 	struct64 s7,
 	struct64 s8
-	)
-{
+) {
 	ASSERT(s1.m_a == -1);
 	ASSERT(s2.m_a == -2);
 	ASSERT(s3.m_a == -3);
@@ -278,8 +266,7 @@ funcStruct128(
 	struct128 s2,
 	struct128 s3,
 	struct128 s4
-	)
-{
+) {
 	ASSERT(s1.m_a == -1);
 	ASSERT(s1.m_b == -2);
 	ASSERT(s2.m_a == -3);
@@ -301,8 +288,7 @@ funcVariant(
 	jnc::Variant v2,
 	jnc::Variant v3,
 	jnc::Variant v4
-	)
-{
+) {
 	ASSERT(v1.m_type->getTypeKind() == jnc::TypeKind_Int && v1.m_int32 == -1);
 	ASSERT(v2.m_type->getTypeKind() == jnc::TypeKind_Int && v2.m_int32 == -2);
 	ASSERT(v3.m_type->getTypeKind() == jnc::TypeKind_Int && v3.m_int32 == -3);
@@ -318,8 +304,7 @@ jnc::DataPtr
 funcPtr(
 	jnc::DataPtr ptr1,
 	char* ptr2
-	)
-{
+) {
 	ASSERT(strcmp((char*)ptr1.m_p, "abc") == 0);
 	ASSERT(strcmp(ptr2, "def") == 0);
 
@@ -330,8 +315,7 @@ float
 funcFloat(
 	float x,
 	float y
-	)
-{
+) {
 	ASSERT(x > 3.1414 && x < 3.1416);
 	ASSERT(y > 2.7181 && y < 2.7183);
 
@@ -342,8 +326,7 @@ double
 funcDouble(
 	double x,
 	double y
-	)
-{
+) {
 	ASSERT(x > 3.1414 && x < 3.1416);
 	ASSERT(y > 2.7181 && y < 2.7183);
 
@@ -356,8 +339,7 @@ void
 test(
 	jnc::Module* module,
 	const char* funcName
-	)
-{
+) {
 	printf("Running %s...\n", funcName);
 
 	jnc::Function* jncFunc = (jnc::Function*)module->getGlobalNamespace()->getNamespace()->findItem(funcName).m_item;
@@ -378,7 +360,7 @@ JNC_DEFINE_LIB(
 	sl::g_nullGuid,
 	"TestLib",
 	"Jancy ABI-compatibility test library"
-	)
+)
 
 JNC_BEGIN_LIB_FUNCTION_MAP(TestLib)
 	JNC_MAP_FUNCTION("jnc2c.funcInt32",     &jnc2c::funcInt32)

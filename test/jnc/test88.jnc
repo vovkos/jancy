@@ -1,11 +1,9 @@
-struct Point
-{
+struct Point {
 	int m_x;
 	int m_y;
 }
 
-int main()
-{
+int main() {
 	int a[4] = { 10, 20, 30, 40 }
 
 	variant v1 = &a[0];

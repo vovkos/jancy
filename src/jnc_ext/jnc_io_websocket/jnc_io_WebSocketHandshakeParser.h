@@ -18,11 +18,9 @@ namespace io {
 
 //..............................................................................
 
-class WebSocketHandshakeParser
-{
+class WebSocketHandshakeParser {
 public:
-	enum State
-	{
+	enum State {
 		State_Idle = 0,
 		State_RequestLine,
 		State_ResponseLine,
@@ -31,8 +29,7 @@ public:
 	};
 
 protected:
-	enum // limits from Apache, QWebSocket
-	{
+	enum { // limits from Apache, QWebSocket
 		MaxLineLength  = 8 * 1024,
 		MaxHeaderCount = 100,
 	};
@@ -47,17 +44,15 @@ public:
 	WebSocketHandshakeParser(
 		WebSocketHandshake* handshake,
 		const sl::StringRef& key
-		);
+	);
 
 	State
-	getState()
-	{
+	getState() {
 		return m_state;
 	}
 
 	bool
-	isCompleted()
-	{
+	isCompleted() {
 		return m_state >= State_Completed;
 	}
 
@@ -65,14 +60,14 @@ public:
 	parse(
 		const void* p,
 		size_t size
-		);
+	);
 
 protected:
 	size_t
 	bufferLine(
 		const char* p,
 		size_t size
-		);
+	);
 
 	bool
 	parseRequestLine();

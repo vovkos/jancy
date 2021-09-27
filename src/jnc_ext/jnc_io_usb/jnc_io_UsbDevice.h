@@ -23,8 +23,7 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(UsbDevice)
 
 //..............................................................................
 
-class UsbDevice: public IfaceHdr
-{
+class UsbDevice: public IfaceHdr {
 	friend class UsbInterface;
 
 public:
@@ -44,8 +43,7 @@ protected:
 public:
 	UsbDevice();
 
-	~UsbDevice()
-	{
+	~UsbDevice() {
 		close();
 	}
 
@@ -54,20 +52,17 @@ public:
 	markOpaqueGcRoots(jnc::GcHeap* gcHeap);
 
 	axl::io::UsbDevice*
-	getDevice()
-	{
+	getDevice() {
 		return &m_device;
 	}
 
 	void
-	setDevice(libusb_device* srcDevice)
-	{
+	setDevice(libusb_device* srcDevice) {
 		m_device.setDevice(srcDevice);
 	}
 
 	void
-	takeOver(axl::io::UsbDevice* srcDevice)
-	{
+	takeOver(axl::io::UsbDevice* srcDevice) {
 		m_isOpen = srcDevice->isOpen();
 		sl::takeOver(&m_device, srcDevice);
 	}
@@ -95,36 +90,31 @@ public:
 
 	uint8_t
 	JNC_CDECL
-	getConfigurationId()
-	{
+	getConfigurationId() {
 		return m_isOpen ? m_device.getConfiguration() : 0;
 	}
 
 	bool
 	JNC_CDECL
-	setConfigurationId(uint8_t configurationId)
-	{
+	setConfigurationId(uint8_t configurationId) {
 		return m_isOpen ? m_device.setConfiguration(configurationId) : false;
 	}
 
 	uint8_t
 	JNC_CDECL
-	getBus()
-	{
+	getBus() {
 		return m_device.getBusNumber();
 	}
 
 	uint8_t
 	JNC_CDECL
-	getAddress()
-	{
+	getAddress() {
 		return m_device.getDeviceAddress();
 	}
 
 	uint8_t
 	JNC_CDECL
-	getSpeed()
-	{
+	getSpeed() {
 		return m_device.getDeviceSpeed();
 	}
 
@@ -134,33 +124,29 @@ public:
 	getStringDesc(
 		UsbDevice* self,
 		uint8_t stringId
-		);
+	);
 
 	bool
 	JNC_CDECL
-	setAutoDetachKernelDriverEnabled(bool isEnabled)
-	{
+	setAutoDetachKernelDriverEnabled(bool isEnabled) {
 		return m_device.setAutoDetachKernelDriver(isEnabled);
 	}
 
 	bool
 	JNC_CDECL
-	isKernelDriverActive(uint_t interfaceId)
-	{
+	isKernelDriverActive(uint_t interfaceId) {
 		return m_device.isKernelDriverActive(interfaceId);
 	}
 
 	bool
 	JNC_CDECL
-	attachKernelDriver(uint_t interfaceId)
-	{
+	attachKernelDriver(uint_t interfaceId) {
 		return m_device.attachKernelDriver(interfaceId);
 	}
 
 	bool
 	JNC_CDECL
-	detachKernelDriver(uint_t interfaceId)
-	{
+	detachKernelDriver(uint_t interfaceId) {
 		return m_device.detachKernelDriver(interfaceId);
 	}
 
@@ -169,7 +155,7 @@ public:
 	claimInterface(
 		uint8_t interfaceId,
 		uint8_t altSettingId
-		);
+	);
 
 	size_t
 	JNC_CDECL
@@ -181,7 +167,7 @@ public:
 		DataPtr ptr,
 		size_t size,
 		uint_t timeout
-		);
+	);
 
 	bool
 	JNC_CDECL
@@ -194,7 +180,7 @@ public:
 		size_t size,
 		uint_t timeout,
 		FunctionPtr onCompletedPtr
-		);
+	);
 
 	void
 	JNC_CDECL
@@ -202,8 +188,7 @@ public:
 
 protected:
 	bool
-	checkAccess()
-	{
+	checkAccess() {
 		return g_canAccessAllUsbDevices || checkAccessByVidPid();
 	}
 
@@ -220,7 +205,7 @@ UsbDevice*
 openUsbDevice(
 	uint_t vendorId,
 	uint_t productId
-	);
+);
 
 //..............................................................................
 

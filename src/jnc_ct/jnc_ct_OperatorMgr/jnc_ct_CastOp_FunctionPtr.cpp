@@ -24,8 +24,7 @@ CastKind
 Cast_FunctionPtr_FromOverload::getCastKind(
 	const Value& opValue,
 	Type* type
-	)
-{
+) {
 	ValueKind valueKind = opValue.getValueKind();
 	ASSERT(valueKind == ValueKind_FunctionOverload || valueKind == ValueKind_FunctionTypeOverload);
 
@@ -46,8 +45,7 @@ Cast_FunctionPtr_FromOverload::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(opValue.getValueKind() == ValueKind_FunctionOverload);
 	ASSERT(type->getTypeKind() == TypeKind_FunctionPtr);
 
@@ -69,8 +67,7 @@ CastKind
 Cast_FunctionPtr_FromMulticast::getCastKind(
 	const Value& opValue,
 	Type* type
-	)
-{
+) {
 	ASSERT(isClassPtrType(opValue.getType(), ClassTypeKind_Multicast));
 	ASSERT(type->getTypeKind() == TypeKind_FunctionPtr);
 
@@ -86,8 +83,7 @@ Cast_FunctionPtr_FromMulticast::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(isClassPtrType(opValue.getType(), ClassTypeKind_Multicast));
 	ASSERT(type->getTypeKind() == TypeKind_FunctionPtr);
 
@@ -104,8 +100,7 @@ CastKind
 Cast_FunctionPtr_FromDataPtr::getCastKind(
 	const Value& opValue,
 	Type* type
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr);
 	ASSERT(type->getTypeKind() == TypeKind_FunctionPtr);
 
@@ -124,8 +119,7 @@ Cast_FunctionPtr_FromDataPtr::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr);
 	ASSERT(type->getTypeKind() == TypeKind_FunctionPtr);
 
@@ -133,14 +127,12 @@ Cast_FunctionPtr_FromDataPtr::llvmCast(
 	DataPtrType* srcType = (DataPtrType*)opValue.getType();
 
 	if (srcType->getPtrTypeKind() != DataPtrTypeKind_Thin ||
-		dstType->getPtrTypeKind() != FunctionPtrTypeKind_Thin)
-	{
+		dstType->getPtrTypeKind() != FunctionPtrTypeKind_Thin) {
 		setCastError(opValue, type);
 		return false;
 	}
 
-	if (!m_module->m_operatorMgr.isUnsafeRgn())
-	{
+	if (!m_module->m_operatorMgr.isUnsafeRgn()) {
 		setUnsafeCastError(srcType, dstType);
 		return false;
 	}
@@ -155,8 +147,7 @@ CastKind
 Cast_FunctionPtr_Base::getCastKind(
 	const Value& opValue,
 	Type* type
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_FunctionPtr);
 	ASSERT(type->getTypeKind() == TypeKind_FunctionPtr);
 
@@ -169,7 +160,7 @@ Cast_FunctionPtr_Base::getCastKind(
 	CastKind castKind = m_module->m_operatorMgr.getFunctionCastKind(
 		srcPtrType->getTargetType(),
 		dstPtrType->getTargetType()
-		);
+	);
 
 	if (castKind != CastKind_None)
 		return castKind;
@@ -180,7 +171,7 @@ Cast_FunctionPtr_Base::getCastKind(
 	return m_module->m_operatorMgr.getFunctionCastKind(
 		srcPtrType->getTargetType(),
 		dstPtrType->getTargetType()
-		);
+	);
 }
 
 //..............................................................................
@@ -190,8 +181,7 @@ Cast_FunctionPtr_FromFat::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_FunctionPtr);
 	ASSERT(type->getTypeKind() == TypeKind_FunctionPtr);
 
@@ -223,8 +213,7 @@ Cast_FunctionPtr_Weak2Normal::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_FunctionPtr);
 	ASSERT(type->getTypeKind() == TypeKind_FunctionPtr && ((FunctionPtrType*)type)->getPtrTypeKind() == FunctionPtrTypeKind_Normal);
 
@@ -252,7 +241,7 @@ Cast_FunctionPtr_Weak2Normal::llvmCast(
 		strengthenFunction->getType(),
 		closureValue,
 		&strengthenedClosureValue
-		);
+	);
 
 	m_module->m_operatorMgr.binaryOperator(BinOpKind_Ne, strengthenedClosureValue, nullClosureValue, &cmpValue);
 	m_module->m_controlFlowMgr.conditionalJump(cmpValue, aliveBlock, deadBlock);
@@ -261,15 +250,13 @@ Cast_FunctionPtr_Weak2Normal::llvmCast(
 	m_module->m_controlFlowMgr.setCurrentBlock(deadBlock);
 	m_module->m_controlFlowMgr.follow(phiBlock);
 
-	Value valueArray[3] =
-	{
+	Value valueArray[3] = {
 		opValue,
 		opValue,
 		opValue.getType()->getZeroValue()
 	};
 
-	BasicBlock* blockArray[3] =
-	{
+	BasicBlock* blockArray[3] = {
 		initialBlock,
 		aliveBlock,
 		deadBlock
@@ -290,8 +277,7 @@ Cast_FunctionPtr_Thin2Fat::llvmCast(
 	const Value& rawOpValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(rawOpValue.getType()->getTypeKindFlags() & TypeKindFlag_FunctionPtr);
 	ASSERT(type->getTypeKind() == TypeKind_FunctionPtr);
 
@@ -311,8 +297,7 @@ Cast_FunctionPtr_Thin2Fat::llvmCast(
 	if (isSimpleClosure)
 		simpleClosureValue = *closure->getArgValueList()->getHead();
 
-	if (opValue.getValueKind() == ValueKind_Function && opValue.getFunction()->isVirtual())
-	{
+	if (opValue.getValueKind() == ValueKind_Function && opValue.getFunction()->isVirtual()) {
 		bool result = m_module->m_operatorMgr.getVirtualMethod(opValue.getFunction(), closure, &opValue);
 		if (!result)
 			return false;
@@ -322,19 +307,17 @@ Cast_FunctionPtr_Thin2Fat::llvmCast(
 
 	if (isSimpleClosure &&
 		srcFunctionType->isMemberMethodType() &&
-		srcFunctionType->getShortType()->cmp(dstFunctionType) == 0)
-	{
+		srcFunctionType->getShortType()->cmp(dstFunctionType) == 0) {
 		return llvmCast_NoThunkSimpleClosure(
 			opValue,
 			simpleClosureValue,
 			srcFunctionType,
 			dstPtrType,
 			resultValue
-			);
+		);
 	}
 
-	if (opValue.getValueKind() == ValueKind_Function)
-	{
+	if (opValue.getValueKind() == ValueKind_Function) {
 		Function* function = opValue.getFunction();
 		ASSERT(!function->isVirtual());
 
@@ -345,7 +328,7 @@ Cast_FunctionPtr_Thin2Fat::llvmCast(
 				function,
 				dstPtrType,
 				resultValue
-				);
+			);
 
 		// case 2.2: same as above, but simple closure is passed as closure arg
 
@@ -355,7 +338,7 @@ Cast_FunctionPtr_Thin2Fat::llvmCast(
 				simpleClosureValue,
 				dstPtrType,
 				resultValue
-				);
+			);
 	}
 
 	// case 3: closure object needs to be created (so conversion is required even if function signatures match)
@@ -365,7 +348,7 @@ Cast_FunctionPtr_Thin2Fat::llvmCast(
 		srcFunctionType,
 		dstPtrType,
 		resultValue
-		);
+	);
 }
 
 bool
@@ -375,8 +358,7 @@ Cast_FunctionPtr_Thin2Fat::llvmCast_NoThunkSimpleClosure(
 	FunctionType* srcFunctionType,
 	FunctionPtrType* dstPtrType,
 	Value* resultValue
-	)
-{
+) {
 	Type* thisArgType = srcFunctionType->getThisArgType();
 
 	Value thisArgValue;
@@ -393,13 +375,12 @@ Cast_FunctionPtr_Thin2Fat::llvmCast_DirectThunkNoClosure(
 	Function* function,
 	FunctionPtrType* dstPtrType,
 	Value* resultValue
-	)
-{
+) {
 	Function* thunkFunction = m_module->m_functionMgr.getDirectThunkFunction(
 		function,
 		((FunctionPtrType*)dstPtrType)->getTargetType(),
 		true
-		);
+	);
 
 	Value nullValue = m_module->m_typeMgr.getStdType(StdType_AbstractClassPtr)->getZeroValue();
 	m_module->m_llvmIrBuilder.createClosureFunctionPtr(thunkFunction, nullValue, dstPtrType, resultValue);
@@ -412,8 +393,7 @@ Cast_FunctionPtr_Thin2Fat::llvmCast_DirectThunkSimpleClosure(
 	const Value& simpleClosureObjValue,
 	FunctionPtrType* dstPtrType,
 	Value* resultValue
-	)
-{
+) {
 	Type* thisArgType = function->getType()->getThisArgType();
 	DerivableType* thisTargetType = function->getType()->getThisTargetType();
 
@@ -425,7 +405,7 @@ Cast_FunctionPtr_Thin2Fat::llvmCast_DirectThunkSimpleClosure(
 	Function* thunkFunction = m_module->m_functionMgr.getDirectThunkFunction(
 		function,
 		m_module->m_typeMgr.getMemberMethodType(thisTargetType, dstPtrType->getTargetType())
-		);
+	);
 
 	m_module->m_llvmIrBuilder.createClosureFunctionPtr(thunkFunction, thisArgValue, dstPtrType, resultValue);
 	return true;
@@ -437,15 +417,14 @@ Cast_FunctionPtr_Thin2Fat::llvmCast_FullClosure(
 	FunctionType* srcFunctionType,
 	FunctionPtrType* dstPtrType,
 	Value* resultValue
-	)
-{
+) {
 	Value closureValue;
 	bool result = m_module->m_operatorMgr.createClosureObject(
 		opValue,
 		dstPtrType->getTargetType(),
 		dstPtrType->getPtrTypeKind() == FunctionPtrTypeKind_Weak,
 		&closureValue
-		);
+	);
 
 	if (!result)
 		return false;
@@ -464,13 +443,11 @@ Cast_FunctionPtr_Thin2Thin::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_FunctionPtr);
 	ASSERT(type->getTypeKind() == TypeKind_FunctionPtr);
 
-	if (opValue.getClosure())
-	{
+	if (opValue.getClosure()) {
 		err::setFormatStringError("cannot create thin function pointer to a closure");
 		return false;
 	}
@@ -478,14 +455,12 @@ Cast_FunctionPtr_Thin2Thin::llvmCast(
 	FunctionPtrType* srcPtrType = (FunctionPtrType*)opValue.getType();
 	FunctionPtrType* dstPtrType = (FunctionPtrType*)type;
 
-	if (srcPtrType->getTargetType()->cmp(dstPtrType->getTargetType()) == 0)
-	{
+	if (srcPtrType->getTargetType()->cmp(dstPtrType->getTargetType()) == 0) {
 		resultValue->overrideType(opValue, type);
 		return true;
 	}
 
-	if (opValue.getValueKind() != ValueKind_Function)
-	{
+	if (opValue.getValueKind() != ValueKind_Function) {
 		err::setFormatStringError("can only create thin pointer thunk to a function, not a function pointer");
 		return false;
 	}
@@ -493,7 +468,7 @@ Cast_FunctionPtr_Thin2Thin::llvmCast(
 	Function* thunkFunction = m_module->m_functionMgr.getDirectThunkFunction(
 		opValue.getFunction(),
 		dstPtrType->getTargetType()
-		);
+	);
 
 	resultValue->setFunction(thunkFunction);
 	resultValue->overrideType(type);
@@ -502,8 +477,7 @@ Cast_FunctionPtr_Thin2Thin::llvmCast(
 
 //..............................................................................
 
-Cast_FunctionPtr::Cast_FunctionPtr()
-{
+Cast_FunctionPtr::Cast_FunctionPtr() {
 	memset(m_operatorTable, 0, sizeof(m_operatorTable));
 
 	m_operatorTable[FunctionPtrTypeKind_Normal][FunctionPtrTypeKind_Normal] = &m_fromFat;
@@ -520,8 +494,7 @@ Cast_FunctionPtr::constCast(
 	const Value& opValue,
 	Type* type,
 	void* dst
-	)
-{
+) {
 	ASSERT(type->getTypeKind() == TypeKind_FunctionPtr);
 
 	TypeKind typeKind = opValue.getType()->getTypeKind();
@@ -547,14 +520,12 @@ CastOperator*
 Cast_FunctionPtr::getCastOperator(
 	const Value& opValue,
 	Type* type
-	)
-{
+) {
 	ASSERT(type->getTypeKind() == TypeKind_FunctionPtr);
 
 	Type* srcType = opValue.getType();
 	TypeKind typeKind = srcType->getTypeKind();
-	switch (typeKind)
-	{
+	switch (typeKind) {
 	case TypeKind_Void:
 		ASSERT(opValue.getValueKind() == ValueKind_FunctionOverload || opValue.getValueKind() == ValueKind_FunctionTypeOverload);
 		return &m_fromOverload;
@@ -590,8 +561,7 @@ CastKind
 Cast_FunctionRef::getCastKind(
 	const Value& opValue,
 	Type* type
-	)
-{
+) {
 	ASSERT(type->getTypeKind() == TypeKind_FunctionRef);
 
 	Type* intermediateSrcType = UnOp_Addr::getResultType(opValue);
@@ -603,7 +573,7 @@ Cast_FunctionRef::getCastKind(
 		TypeKind_FunctionPtr,
 		ptrType->getPtrTypeKind(),
 		ptrType->getFlags()
-		);
+	);
 
 	return m_module->m_operatorMgr.getCastKind(intermediateSrcType, intermediateDstType);
 }
@@ -613,8 +583,7 @@ Cast_FunctionRef::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
-	)
-{
+) {
 	ASSERT(type->getTypeKind() == TypeKind_FunctionRef);
 
 	FunctionPtrType* ptrType = (FunctionPtrType*)type;
@@ -622,7 +591,7 @@ Cast_FunctionRef::llvmCast(
 		TypeKind_FunctionPtr,
 		ptrType->getPtrTypeKind(),
 		ptrType->getFlags()
-		);
+	);
 
 	Value intermediateValue;
 

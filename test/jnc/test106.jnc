@@ -1,20 +1,16 @@
-class Foo
-{
-	enum Defaults
-	{
+class Foo {
+	enum Defaults {
 		Value = 100,
 	}
 
 	int m_value = Defaults.Value; // BUG: undeclared identifier
 }
 
-void foo()
-{
+void foo() {
 	return (void) -1;
 }
 
-int main()
-{
+int main() {
 	Foo f;
 	printf("f.m_value = %d\n", f.m_value);
 	return 0;

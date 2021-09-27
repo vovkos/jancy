@@ -19,8 +19,7 @@ namespace ct {
 
 //..............................................................................
 
-ControlFlowMgr::ControlFlowMgr()
-{
+ControlFlowMgr::ControlFlowMgr() {
 	m_module = Module::getCurrentConstructedModule();
 	ASSERT(m_module);
 
@@ -38,8 +37,7 @@ ControlFlowMgr::ControlFlowMgr()
 }
 
 void
-ControlFlowMgr::clear()
-{
+ControlFlowMgr::clear() {
 	m_blockList.clear();
 	m_asyncBlockArray.clear();
 	m_returnBlockArray.clear();
@@ -60,8 +58,7 @@ ControlFlowMgr::clear()
 }
 
 void
-ControlFlowMgr::lockEmission()
-{
+ControlFlowMgr::lockEmission() {
 	if (++m_emissionLockCount != 1)
 		return;
 
@@ -70,8 +67,7 @@ ControlFlowMgr::lockEmission()
 }
 
 void
-ControlFlowMgr::unlockEmission()
-{
+ControlFlowMgr::unlockEmission() {
 	if (--m_emissionLockCount)
 		return;
 
@@ -81,8 +77,7 @@ ControlFlowMgr::unlockEmission()
 }
 
 void
-ControlFlowMgr::finalizeFunction()
-{
+ControlFlowMgr::finalizeFunction() {
 	if (m_sjljFrameArrayValue && m_module->hasCodeGen())
 		finalizeSjljFrameArray();
 
@@ -105,8 +100,7 @@ BasicBlock*
 ControlFlowMgr::createBlock(
 	const sl::StringRef& name,
 	uint_t flags
-	)
-{
+) {
 	BasicBlock* block = AXL_MEM_NEW(BasicBlock);
 	block->m_module = m_module;
 	block->m_name = name;
@@ -117,15 +111,14 @@ ControlFlowMgr::createBlock(
 			*m_module->getLlvmContext(),
 			name >> toLlvm,
 			NULL
-			);
+		);
 
 	m_blockList.insertTail(block);
 	return block;
 }
 
 BasicBlock*
-ControlFlowMgr::createAsyncBlock(Scope* scope)
-{
+ControlFlowMgr::createAsyncBlock(Scope* scope) {
 	BasicBlock* block = createBlock("async_block");
 	block->m_flags |= BasicBlockFlag_Jumped | BasicBlockFlag_Reachable | BasicBlockFlag_AsyncLandingPad;
 	block->m_landingPadScope = scope;
@@ -135,8 +128,7 @@ ControlFlowMgr::createAsyncBlock(Scope* scope)
 }
 
 BasicBlock*
-ControlFlowMgr::setCurrentBlock(BasicBlock* block)
-{
+ControlFlowMgr::setCurrentBlock(BasicBlock* block) {
 	if (m_currentBlock == block)
 		return block;
 
@@ -152,8 +144,7 @@ ControlFlowMgr::setCurrentBlock(BasicBlock* block)
 	if (!block)
 		return prevCurrentBlock;
 
-	if (!block->m_function)
-	{
+	if (!block->m_function) {
 		Function* function = m_module->m_functionMgr.getCurrentFunction();
 		ASSERT(function);
 
@@ -176,28 +167,22 @@ ControlFlowMgr::setCurrentBlock(BasicBlock* block)
 }
 
 bool
-ControlFlowMgr::deleteUnreachableBlocks()
-{
+ControlFlowMgr::deleteUnreachableBlocks() {
 	// llvm blocks may have references even when they are unreachable
 
 	sl::List<BasicBlock> pendingDeleteList;
 
 	sl::Iterator<BasicBlock> it = m_blockList.getHead();
-	while (it)
-	{
+	while (it) {
 		BasicBlock* block = *it;
 		it++;
 
-		if (!(block->m_flags & BasicBlockFlag_Reachable))
-		{
+		if (!(block->m_flags & BasicBlockFlag_Reachable)) {
 			m_blockList.remove(block);
 
-			if (!block->m_llvmBlock->use_empty())
-			{
+			if (!block->m_llvmBlock->use_empty()) {
 				pendingDeleteList.insertTail(block);
-			}
-			else
-			{
+			} else {
 				if (block->m_function)
 					block->m_llvmBlock->eraseFromParent();
 				else
@@ -211,13 +196,11 @@ ControlFlowMgr::deleteUnreachableBlocks()
 	m_unreachableBlock = NULL;
 	m_currentBlock = NULL;
 
-	while (!pendingDeleteList.isEmpty())
-	{
+	while (!pendingDeleteList.isEmpty()) {
 		bool isFixedPoint = true;
 
 		it = pendingDeleteList.getHead();
-		while (it)
-		{
+		while (it) {
 			BasicBlock* block = *it;
 			it++;
 
@@ -233,12 +216,11 @@ ControlFlowMgr::deleteUnreachableBlocks()
 			isFixedPoint = false;
 		}
 
-		if (isFixedPoint && !pendingDeleteList.isEmpty())
-		{
+		if (isFixedPoint && !pendingDeleteList.isEmpty()) {
 			err::setFormatStringError(
 				"invalid control flow graph: %s is unreachable but has uses",
 				pendingDeleteList.getHead()->m_llvmBlock->getName().begin()
-				);
+			);
 			return false;
 		}
 	}
@@ -248,8 +230,7 @@ ControlFlowMgr::deleteUnreachableBlocks()
 
 #if (_JNC_DEBUG)
 void
-ControlFlowMgr::traceAllBlocks()
-{
+ControlFlowMgr::traceAllBlocks() {
 	sl::Iterator<BasicBlock> it = m_blockList.getHead();
 	for (; it; it++)
 		m_module->m_operatorMgr.traceBlock(*it);
@@ -257,8 +238,7 @@ ControlFlowMgr::traceAllBlocks()
 #endif
 
 BasicBlock*
-ControlFlowMgr::getUnreachableBlock()
-{
+ControlFlowMgr::getUnreachableBlock() {
 	if (m_unreachableBlock)
 		return m_unreachableBlock;
 
@@ -268,8 +248,7 @@ ControlFlowMgr::getUnreachableBlock()
 }
 
 BasicBlock*
-ControlFlowMgr::getReturnBlock()
-{
+ControlFlowMgr::getReturnBlock() {
 	if (m_returnBlock)
 		return m_returnBlock;
 
@@ -279,8 +258,7 @@ ControlFlowMgr::getReturnBlock()
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
 	FunctionType* functionType = function->getType();
 
-	if (function->getFunctionKind() == FunctionKind_AsyncSequencer)
-	{
+	if (function->getFunctionKind() == FunctionKind_AsyncSequencer) {
 		Type* returnType = function->getAsyncLauncher()->getType()->getAsyncReturnType();
 		Value returnValue = returnType->getTypeKind() == TypeKind_Void ?
 			m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant)->getZeroValue() :
@@ -292,13 +270,9 @@ ControlFlowMgr::getReturnBlock()
 		ASSERT(result);
 
 		m_module->m_llvmIrBuilder.createRet();
-	}
-	else if (functionType->getReturnType()->getTypeKind() == TypeKind_Void)
-	{
+	} else if (functionType->getReturnType()->getTypeKind() == TypeKind_Void) {
 		m_module->m_llvmIrBuilder.createRet();
-	}
-	else
-	{
+	} else {
 		Value returnValue;
 		m_module->m_llvmIrBuilder.createLoad(getReturnValueVariable(), NULL, &returnValue);
 		functionType->getCallConv()->ret(function, returnValue);
@@ -312,8 +286,7 @@ ControlFlowMgr::getReturnBlock()
 }
 
 Variable*
-ControlFlowMgr::getReturnValueVariable()
-{
+ControlFlowMgr::getReturnValueVariable() {
 	if (m_returnValueVariable)
 		return m_returnValueVariable;
 
@@ -331,8 +304,7 @@ ControlFlowMgr::getReturnValueVariable()
 }
 
 void
-ControlFlowMgr::markUnreachable(BasicBlock* block)
-{
+ControlFlowMgr::markUnreachable(BasicBlock* block) {
 	if (!m_module->hasCodeGen())
 		return;
 
@@ -346,8 +318,7 @@ void
 ControlFlowMgr::jump(
 	BasicBlock* block,
 	BasicBlock* followBlock
-	)
-{
+) {
 	block->m_flags |= BasicBlockFlag_Jumped | (m_currentBlock->m_flags & BasicBlockFlag_Reachable);
 
 	if (m_module->hasCodeGen())
@@ -360,10 +331,8 @@ ControlFlowMgr::jump(
 }
 
 void
-ControlFlowMgr::follow(BasicBlock* block)
-{
-	if (m_module->hasCodeGen() && !m_currentBlock->hasTerminator())
-	{
+ControlFlowMgr::follow(BasicBlock* block) {
+	if (m_module->hasCodeGen() && !m_currentBlock->hasTerminator()) {
 		m_module->m_llvmIrBuilder.createBr(block);
 		block->m_flags |= BasicBlockFlag_Jumped | (m_currentBlock->m_flags & BasicBlockFlag_Reachable);
 	}
@@ -377,8 +346,7 @@ ControlFlowMgr::conditionalJump(
 	BasicBlock* thenBlock,
 	BasicBlock* elseBlock,
 	BasicBlock* followBlock
-	)
-{
+) {
 	Value boolValue;
 	bool result = m_module->m_operatorMgr.castOperator(value, TypeKind_Bool, &boolValue);
 	if (!result)
@@ -400,11 +368,9 @@ ControlFlowMgr::conditionalJump(
 }
 
 bool
-ControlFlowMgr::breakJump(size_t level)
-{
+ControlFlowMgr::breakJump(size_t level) {
 	Scope* targetScope = m_module->m_namespaceMgr.findBreakScope(level);
-	if (!targetScope)
-	{
+	if (!targetScope) {
 		err::setFormatStringError("illegal break");
 		return false;
 	}
@@ -414,11 +380,9 @@ ControlFlowMgr::breakJump(size_t level)
 }
 
 bool
-ControlFlowMgr::continueJump(size_t level)
-{
+ControlFlowMgr::continueJump(size_t level) {
 	Scope* targetScope = m_module->m_namespaceMgr.findContinueScope(level);
-	if (!targetScope)
-	{
+	if (!targetScope) {
 		err::setFormatStringError("illegal continue");
 		return false;
 	}
@@ -431,8 +395,7 @@ void
 ControlFlowMgr::escapeScope(
 	Scope* targetScope,
 	BasicBlock* targetBlock
-	)
-{
+) {
 	if (!m_module->hasCodeGen())
 		return;
 
@@ -442,18 +405,13 @@ ControlFlowMgr::escapeScope(
 	BasicBlock* prevFinallyBlock = NULL;
 
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
-	while (scope && scope != targetScope)
-	{
-		if (scope->m_flags & ScopeFlag_FinallyAhead)
-		{
+	while (scope && scope != targetScope) {
+		if (scope->m_flags & ScopeFlag_FinallyAhead) {
 			ASSERT(scope->m_finallyBlock);
 
-			if (!firstFinallyBlock)
-			{
+			if (!firstFinallyBlock) {
 				firstFinallyBlock = scope->m_finallyBlock;
-			}
-			else
-			{
+			} else {
 				ASSERT(prevFinallyBlock);
 				prevFinallyBlock->m_finallyRouteMap[routeIdx] = scope->m_finallyBlock;
 			}
@@ -464,8 +422,7 @@ ControlFlowMgr::escapeScope(
 		scope = scope->getParentScope();
 	}
 
-	if (!targetBlock) // escape before normal return
-	{
+	if (!targetBlock) { // escape before normal return
 		ASSERT(!firstFinallyBlock); // if we have finally then we return via return-block
 
 		scope = m_module->m_namespaceMgr.getCurrentScope();
@@ -477,8 +434,7 @@ ControlFlowMgr::escapeScope(
 
 	markLandingPad(targetBlock, targetScope, BasicBlockFlag_EscapeScopeLandingPad);
 
-	if (!firstFinallyBlock)
-	{
+	if (!firstFinallyBlock) {
 		jump(targetBlock);
 		return;
 	}
@@ -493,10 +449,8 @@ ControlFlowMgr::escapeScope(
 }
 
 void
-ControlFlowMgr::asyncRet(BasicBlock* nextBlock)
-{
-	if (nextBlock)
-	{
+ControlFlowMgr::asyncRet(BasicBlock* nextBlock) {
+	if (nextBlock) {
 		ASSERT(m_module->m_namespaceMgr.getCurrentScope()->m_sjljFrameIdx != -1);
 		setSjljFrame(-1);
 	}
@@ -510,8 +464,7 @@ ControlFlowMgr::asyncRet(BasicBlock* nextBlock)
 }
 
 bool
-ControlFlowMgr::ret(const Value& value)
-{
+ControlFlowMgr::ret(const Value& value) {
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
 	ASSERT(function);
 
@@ -525,20 +478,17 @@ ControlFlowMgr::ret(const Value& value)
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
 	ASSERT(scope);
 
-	if (!value)
-	{
-		if (returnType->getTypeKind() != TypeKind_Void)
-		{
+	if (!value) {
+		if (returnType->getTypeKind() != TypeKind_Void) {
 			err::setFormatStringError(
 				"function '%s' must return '%s' value",
 				function->getQualifiedName().sz(),
 				returnType->getTypeString().sz()
-				);
+			);
 			return false;
 		}
 
-		if ((scope->m_flags & ScopeFlag_Finalizable) || isAsync)
-		{
+		if ((scope->m_flags & ScopeFlag_Finalizable) || isAsync) {
 			escapeScope(function->getScope(), getReturnBlock());
 			return true;
 		}
@@ -547,16 +497,13 @@ ControlFlowMgr::ret(const Value& value)
 
 		if (m_module->hasCodeGen())
 			m_module->m_llvmIrBuilder.createRet();
-	}
-	else
-	{
-		if (returnType->getTypeKind() == TypeKind_Void)
-		{
+	} else {
+		if (returnType->getTypeKind() == TypeKind_Void) {
 			err::setFormatStringError(
 				"void function '%s' returning '%s' value",
 				function->getQualifiedName().sz(),
 				value.getType()->getTypeString().sz()
-				);
+			);
 			return false;
 		}
 
@@ -570,10 +517,9 @@ ControlFlowMgr::ret(const Value& value)
 				returnValue,
 				returnType,
 				((AsyncSequencerFunction*) function)->getCatchBlock()
-				);
+			);
 
-		if ((scope->getFlags() & ScopeFlag_Finalizable) || isAsync)
-		{
+		if ((scope->getFlags() & ScopeFlag_Finalizable) || isAsync) {
 			if (!m_module->hasCodeGen())
 				return true;
 
@@ -596,47 +542,36 @@ ControlFlowMgr::ret(const Value& value)
 }
 
 bool
-ControlFlowMgr::checkReturn()
-{
+ControlFlowMgr::checkReturn() {
 	if (!m_module->hasCodeGen() || m_currentBlock->hasTerminator())
 		return true;
 
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
 	Type* returnType;
 
-	if (function->getFunctionKind() == FunctionKind_AsyncSequencer)
-	{
+	if (function->getFunctionKind() == FunctionKind_AsyncSequencer) {
 		function = function->getAsyncLauncher();
 		returnType = function->getType()->getAsyncReturnType();
-	}
-	else
-	{
+	} else {
 		returnType = function->getType()->getReturnType();
 	}
 
-	if (!(m_currentBlock->m_flags & BasicBlockFlag_Reachable))
-	{
+	if (!(m_currentBlock->m_flags & BasicBlockFlag_Reachable)) {
 		m_module->m_llvmIrBuilder.createUnreachable(); // just to make LLVM happy
-	}
-	else if (returnType->getTypeKind() == TypeKind_Void)
-	{
+	} else if (returnType->getTypeKind() == TypeKind_Void) {
 		ret();
-	}
-	else if (m_returnBlockArray.isEmpty())
-	{
+	} else if (m_returnBlockArray.isEmpty()) {
 		err::setFormatStringError(
 			"function '%s' must return '%s' value",
 			function->getQualifiedName().sz(),
 			returnType->getTypeString().sz()
-			);
+		);
 		return false;
-	}
-	else
-	{
+	} else {
 		err::setFormatStringError(
 			"not all control paths in function '%s' return a value",
 			function->getQualifiedName().sz()
-			);
+		);
 		return false;
 	}
 

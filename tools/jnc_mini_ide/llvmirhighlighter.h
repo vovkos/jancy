@@ -13,11 +13,9 @@
 
 //..............................................................................
 
-class LlvmIrHighlighter: public gui::QtRagelSyntaxHighlighter<LlvmIrHighlighter>
-{
+class LlvmIrHighlighter: public gui::QtRagelSyntaxHighlighter<LlvmIrHighlighter> {
 public:
-	enum Color
-	{
+	enum Color {
 		Color_Keyword  = 0x0000ff,
 		Color_Constant = 0xce7b00,
 		Color_Comment  = 0x969696,
@@ -25,9 +23,7 @@ public:
 
 public:
 	LlvmIrHighlighter(QTextDocument *parent):
-		gui::QtRagelSyntaxHighlighter<LlvmIrHighlighter>(parent)
-	{
-	}
+		gui::QtRagelSyntaxHighlighter<LlvmIrHighlighter>(parent) {}
 
 	void
 	init();

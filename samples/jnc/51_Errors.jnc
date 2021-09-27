@@ -23,18 +23,15 @@
 
 //..............................................................................
 
-bool errorcode foo(int a)
-{
+bool errorcode foo(int a) {
 	printf("foo (%d)\n", a);
 
-	if (a < 0)
-	{
+	if (a < 0) {
 		std.setErrno(1); // EPERM
 		return false;
 	}
 
-	if (a > 100)
-	{
+	if (a > 100) {
 		std.setError("invalid argument");
 		return false;
 	}
@@ -46,13 +43,11 @@ bool errorcode foo(int a)
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	bool result = try foo(-1);
-	if (!result)
-	{
+	if (!result) {
 		printf("foo failed (%s)\n", std.getLastError ().m_description);
 	}
 

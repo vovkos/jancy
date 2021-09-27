@@ -21,46 +21,39 @@ using extension ui.ComboBoxHistory;
 
 //..............................................................................
 
-class JLinkRttSession: doc.Session
-{
+class JLinkRttSession: doc.Session {
 protected:
-	enum State
-	{
+	enum State {
 		Closed,
 		SocketConnecting,
 		SocketConnected,
 		JlinkConnected,
 	}
 
-	enum ActionId
-	{
+	enum ActionId {
 		Refresh,
 		Open,
 		_Count,
 	}
 
-	enum IconId
-	{
+	enum IconId {
 		Open,
 		Close,
 		_Count,
 	}
 
-	enum StatusPaneId
-	{
+	enum StatusPaneId {
 		State,
 		_Count,
 	}
 
-	enum ConnectionType
-	{
+	enum ConnectionType {
 		Usb,
 		TcpIp,
 		Attach,
 	}
 
-	enum Defaults
-	{
+	enum Defaults {
 		ConnectionType       = JLinkRttSession.ConnectionType.Usb,
 		Interface            = io.JLINKARM_TIF_SWD,
 		Speed                = 4000,
@@ -70,8 +63,7 @@ protected:
 		ReconnectDelay       = 3000,
 	}
 
-	enum Const
-	{
+	enum Const {
 		TcpPort        = 19021,
 		ReconnectDelay = 3000, // 3 sec
 	}
@@ -149,7 +141,7 @@ public:
 	override size_t errorcode transmit(
 		void const* p,
 		size_t size
-		);
+	);
 
 protected:
 	void createUi();
@@ -157,13 +149,11 @@ protected:
 	bool errorcode connectJlink();
 	bool errorcode connectSocket();
 
-	void onOpen()
-	{
+	void onOpen() {
 		m_state ? close() : try open();
 	}
 
-	void onDeviceComboEnter()
-	{
+	void onDeviceComboEnter() {
 		try open();
 	}
 
@@ -171,12 +161,11 @@ protected:
 	void waitSocketEvents();
 	void handleSocketError(std.Error const* error);
 
-	void startSocketReconnectTimer()
-	{
+	void startSocketReconnectTimer() {
 		m_socketReconnectTimer.startSingleShotTimer(
 			onSocketReconnectTimer~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler,
 			Defaults.ReconnectDelay
-			);
+		);
 	}
 
 	void onSocketReconnectTimer(uint_t syncId);
@@ -184,26 +173,23 @@ protected:
 	void onSocketEvent(
 		uint_t syncId,
 		io.SocketEvents triggeredEvents
-		);
+	);
 
 
 	void jlinkReadThreadFunc();
 
-	static void jlinkTraceInfo(char const thin* p)
-	{
+	static void jlinkTraceInfo(char const thin* p) {
 		m_singleton.m_logWriter.write(JLinkRttLogRecordCode.TraceInfo, jnc.createDataPtr(p));
 	}
 
-	static void jlinkTraceError(char const thin* p)
-	{
+	static void jlinkTraceError(char const thin* p) {
 		m_singleton.m_logWriter.write(JLinkRttLogRecordCode.TraceError, jnc.createDataPtr(p));
 	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JLinkRttSession.construct(doc.PluginHost* pluginHost)
-{
+JLinkRttSession.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
 
 	createUi();
@@ -218,31 +204,26 @@ JLinkRttSession.construct(doc.PluginHost* pluginHost)
 	m_singleton = this;
 }
 
-JLinkRttSession.destruct()
-{
+JLinkRttSession.destruct() {
 	m_jlinkReadThreadStopFlag = true;
 	m_jlinkReadThread.waitAndClose();
 
-	if (m_jlinkLib.m_isOpen)
-	{
+	if (m_jlinkLib.m_isOpen) {
 		m_jlinkLib.lib.JLINK_Close();
 		m_jlinkLib.close();
 	}
 }
 
-void JLinkRttSession.createUi()
-{
+void JLinkRttSession.createUi() {
 	// toolbar
 
-	ui.EnumPropertyOption connectionTypeTable[] =
-	{
+	ui.EnumPropertyOption connectionTypeTable[] = {
 		{ "USB",    ConnectionType.Usb },
 		{ "TCP/IP", ConnectionType.TcpIp },
 		{ "Attach", ConnectionType.Attach },
 	}
 
-	ui.EnumPropertyOption interfaceTypeTable[] =
-	{
+	ui.EnumPropertyOption interfaceTypeTable[] = {
 		{ "JTAG",  io.JLINKARM_TIF_JTAG },
 		{ "SWD",   io.JLINKARM_TIF_SWD },
 		{ "FINE",  io.JLINKARM_TIF_FINE },
@@ -253,7 +234,7 @@ void JLinkRttSession.createUi()
 		"Connection:",
 		connectionTypeTable,
 		countof(connectionTypeTable)
-		);
+	);
 
 	m_pluginHost.m_toolBar.addLabel("Address:");
 	m_addressCombo = m_pluginHost.m_toolBar.addComboBox(-1);
@@ -283,12 +264,11 @@ void JLinkRttSession.createUi()
 	m_jlinkLibPathProp = m_pluginHost.m_propertyGrid.createFileProperty(
 		"J-Link library",
 		"Specify the path to J-Link library"
-		);
+	);
 
 	m_jlinkLibPathProp.m_fileDialogTitle = "Locate J-Link Library";
 
-	switch (sys.g_systemInfo.m_osKind)
-	{
+	switch (sys.g_systemInfo.m_osKind) {
 	case sys.OsKind.Windows:
 		char const* cpuSuffix = sys.g_systemInfo.m_cpuKind == sys.CpuKind.Amd64 ? "_x64" : "ARM";
 		m_jlinkLibPathProp.m_filter = $"J-Link library (JLink$cpuSuffix.dll);;Dynamic-link libraries (*.dll);;All files (*.*)";
@@ -306,7 +286,7 @@ void JLinkRttSession.createUi()
 	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Connection",
 		"J-Link connection settings"
-		);
+	);
 
 	m_connectionTypeProp = m_pluginHost.m_propertyGrid.createEnumProperty(
 		group,,
@@ -314,21 +294,21 @@ void JLinkRttSession.createUi()
 		"Specify the whether to use USB connection or TCP/IP server",
 		connectionTypeTable,
 		countof(connectionTypeTable)
-		);
+	);
 
 	m_addressProp = m_pluginHost.m_propertyGrid.createStringProperty(
 		group,,
 		"TCP/IP server",
 		"Enter a remote IP/hostname...",
 		"Specify the address of a remote TCP/IP server"
-		);
+	);
 
 	m_deviceProp = m_pluginHost.m_propertyGrid.createComboProperty(
 		group,,
 		"Device type",
 		"Enter a target device type...",
 		"Specify the type of a target device"
-		);
+	);
 
 	m_interfaceProp = m_pluginHost.m_propertyGrid.createEnumProperty(
 		group,,
@@ -336,49 +316,49 @@ void JLinkRttSession.createUi()
 		"Specify the J-Link-to-device communication interface type",
 		interfaceTypeTable,
 		countof(interfaceTypeTable)
-		);
+	);
 
 	m_speedProp = m_pluginHost.m_propertyGrid.createIntProperty(
 		group,,
 		"Interface speed (kHz)",
 		"Specify the J-Link-to-device communication speed"
-		);
+	);
 
 	group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"RTT",
 		"Segger J-Link RTT settings"
-		);
+	);
 
 	m_autoDetectRttAddressProp = m_pluginHost.m_propertyGrid.createBoolProperty(
 		group,,
 		"Auto-detect RTT address",
 		"J-Link automatically detects the RTT control block"
-		);
+	);
 
 	m_rttAddressProp = m_pluginHost.m_propertyGrid.createStringProperty(
 		group,,
 		"RTT address",
 		"Enter an RTT address...",
 		"Specify the address of RTT control block"
-		);
+	);
 
 	m_rttChannelProp = m_pluginHost.m_propertyGrid.createIntProperty(
 		group,,
 		"RTT channel",
 		"Specify the index of RTT channel"
-		);
+	);
 
 	group = m_bufferPropertySet.createPropertiesGrouped(
 		m_pluginHost.m_propertyGrid,,,
 		ui.BufferPropertySet.PropertyId.ReadBlockSize |
 		ui.BufferPropertySet.PropertyId.ReadBufferSize
-		);
+	);
 
 	m_readThreadDelayProp = m_pluginHost.m_propertyGrid.createIntProperty(
 		group,,
 		"Read thread delay (ms)",
 		"Specify the sleep time between read requests"
-		);
+	);
 
 	// information grid
 
@@ -389,7 +369,7 @@ void JLinkRttSession.createUi()
 		infoGroup,,
 		ui.StdSessionInfoSet.InfoId.SessionTime |
 		ui.StdSessionInfoSet.InfoId.RxTotalSize
-		);
+	);
 
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
@@ -400,8 +380,7 @@ void JLinkRttSession.createUi()
 	m_uiReactor.start();
 }
 
-reactor JLinkRttSession.m_uiReactor
-{
+reactor JLinkRttSession.m_uiReactor {
 	m_title = $"J-Link RTT $(m_connectionTypeCombo.m_currentText)";
 	m_isTransmitEnabled = m_state != State.Closed;
 	m_actionTable[ActionId.Open].m_text = m_state ? "Close" : "Open";
@@ -421,8 +400,7 @@ reactor JLinkRttSession.m_uiReactor
 		!m_autoDetectRttAddressProp.m_value;
 }
 
-void JLinkRttSession.enumerateDevices()
-{
+void JLinkRttSession.enumerateDevices() {
 	if (!m_jlinkLib.m_isOpen)
 		m_jlinkLib.open(m_jlinkLibPathProp.m_value);
 
@@ -430,8 +408,7 @@ void JLinkRttSession.enumerateDevices()
 	ui.ComboItem* itemArray = new ui.ComboItem[count];
 
 	io.JLINKARM_DEVICE_INFO info;
-	for (int i = 0; i < count; i++)
-	{
+	for (int i = 0; i < count; i++) {
 		info.SizeOfStruct = sizeof(info);
 		info.sName = null;
 
@@ -449,8 +426,7 @@ catch:
 	m_logWriter.writeLastError(log.StdRecordCode.Error);
 }
 
-bool errorcode JLinkRttSession.open()
-{
+bool errorcode JLinkRttSession.open() {
 	close();
 	startSession();
 
@@ -459,21 +435,17 @@ bool errorcode JLinkRttSession.open()
 		connectSocket();
 }
 
-void JLinkRttSession.close()
-{
+void JLinkRttSession.close() {
 	if (!m_state)
 		return;
 
 	m_jlinkReadThreadStopFlag = true;
 	m_jlinkReadThread.waitAndClose();
 
-	if (m_state == State.JlinkConnected)
-	{
+	if (m_state == State.JlinkConnected) {
 		m_jlinkLib.lib.JLINK_Close();
 		m_jlinkLib.close();
-	}
-	else
-	{
+	} else {
 		m_socket.close();
 		m_syncId++;
 	}
@@ -483,8 +455,7 @@ void JLinkRttSession.close()
 	m_stdSessionInfoSet.endSession();
 }
 
-bool errorcode JLinkRttSession.connectSocket()
-{
+bool errorcode JLinkRttSession.connectSocket() {
 	m_socket.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
 	m_socket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 	m_socket.open(io.Protocol.Tcp);
@@ -499,8 +470,7 @@ catch:
 	return false;
 }
 
-bool errorcode JLinkRttSession.connectJlink()
-{
+bool errorcode JLinkRttSession.connectJlink() {
 	m_addressCombo.addEditTextToHistory();
 	m_jlinkLib.open(m_jlinkLibPathProp.m_value);
 
@@ -508,8 +478,7 @@ bool errorcode JLinkRttSession.connectJlink()
 		m_jlinkLib.lib.JLINK_SelectIP(m_addressCombo.m_currentText, 0);
 
 	char const thin* errorString = m_jlinkLib.lib.JLINK_OpenEx(jlinkTraceInfo, jlinkTraceError);
-	if (errorString)
-	{
+	if (errorString) {
 		std.setError(std.format("J-Link open failed: %s", errorString));
 		throw;
 	}
@@ -519,10 +488,9 @@ bool errorcode JLinkRttSession.connectJlink()
 		$"Device = $(m_deviceCombo.m_currentText)",
 		buffer,
 		sizeof(buffer) - 1
-		);
+	);
 
-	if (buffer[0])
-	{
+	if (buffer[0]) {
 		std.setError(buffer);
 		throw;
 	}
@@ -531,8 +499,7 @@ bool errorcode JLinkRttSession.connectJlink()
 	m_jlinkLib.lib.JLINK_SetSpeed(m_speedProp.m_value);
 
 	result = m_jlinkLib.lib.JLINK_Connect();
-	if (result)
-	{
+	if (result) {
 		std.setError("J-Link connect failed");
 		throw;
 	}
@@ -544,8 +511,7 @@ bool errorcode JLinkRttSession.connectJlink()
 
 	if (m_autoDetectRttAddressProp.m_value)
 		m_jlinkLib.lib.JLINK_RTTERMINAL_Control(io.JLINKARM_RTTERMINAL_CMD_START, null);
-	else
-	{
+	else {
 		io.JLINK_RTTERMINAL_START params;
 		params.ConfigBlockAddress = strtoul(m_rttAddressProp.m_value);
 		m_jlinkLib.lib.JLINK_RTTERMINAL_Control(io.JLINKARM_RTTERMINAL_CMD_START, &params);
@@ -578,8 +544,7 @@ catch:
 	return false;
 }
 
-void JLinkRttSession.load(doc.Storage* storage)
-{
+void JLinkRttSession.load(doc.Storage* storage) {
 	m_addressCombo.loadHistory(storage, "addressHistory");
 	m_jlinkLibPathProp.m_value = storage.readString("jlinkLibPath");
 	m_connectionTypeCombo.m_currentData = storage.readInt("connectionType", Defaults.ConnectionType);
@@ -595,8 +560,7 @@ void JLinkRttSession.load(doc.Storage* storage)
 	m_socketReadBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 }
 
-void JLinkRttSession.save(doc.Storage* storage)
-{
+void JLinkRttSession.save(doc.Storage* storage) {
 	m_bufferPropertySet.save(storage);
 	m_addressCombo.saveHistory(storage, "addressHistory");
 	storage.writeString("jlinkLibPath", m_jlinkLibPathProp.m_value);
@@ -611,15 +575,13 @@ void JLinkRttSession.save(doc.Storage* storage)
 	storage.writeInt("readDelay", m_readThreadDelayProp.m_value);
 }
 
-void JLinkRttSession.updateProperties()
-{
+void JLinkRttSession.updateProperties() {
 	m_connectionTypeProp.m_currentIndex = m_connectionTypeCombo.m_currentIndex;
 	m_addressProp.m_value = m_addressCombo.m_editText;
 	m_deviceProp.m_value = m_deviceCombo.m_editText;
 }
 
-bool errorcode JLinkRttSession.applyProperties()
-{
+bool errorcode JLinkRttSession.applyProperties() {
 	m_connectionTypeCombo.m_currentIndex = m_connectionTypeProp.m_currentIndex;
 	m_addressCombo.m_editText = m_addressProp.m_value;
 	m_deviceCombo.m_editText = m_deviceProp.m_value;
@@ -631,8 +593,7 @@ bool errorcode JLinkRttSession.applyProperties()
 	return true;
 }
 
-void JLinkRttSession.restoreDefaultProperties()
-{
+void JLinkRttSession.restoreDefaultProperties() {
 	if (strlen(m_jlinkLibPathProp.m_value) == 0) // re-write only if empty
 		m_jlinkLibPathProp.m_value = io.detectJLinkLibPath();
 
@@ -650,20 +611,17 @@ void JLinkRttSession.restoreDefaultProperties()
 size_t errorcode JLinkRttSession.transmit(
 	void const* p,
 	size_t size
-	)
-{
+) {
 	return
 		m_state == State.JlinkConnected ? m_jlinkLib.lib.JLINK_RTTERMINAL_Write(m_jlinkRttChannel, p, size) :
 		m_state == State.SocketConnected ? m_socket.write(p, size) :
 		-1;
 }
 
-void JLinkRttSession.waitSocketEvents()
-{
+void JLinkRttSession.waitSocketEvents() {
 	io.SocketEvents eventMask = io.SocketEvents.IoError;
 
-	switch (m_state)
-	{
+	switch (m_state) {
 	case State.SocketConnecting:
 		eventMask |= io.SocketEvents.TcpConnected;
 		break;
@@ -683,8 +641,7 @@ void JLinkRttSession.waitSocketEvents()
 	m_socket.wait(eventMask, onSocketEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
-void JLinkRttSession.handleSocketError(std.Error const* error)
-{
+void JLinkRttSession.handleSocketError(std.Error const* error) {
 	uint64_t recordCode = m_state < State.SocketConnected ?
 		SocketLogRecordCode.ConnectError :
 		log.StdRecordCode.Error;
@@ -697,29 +654,24 @@ void JLinkRttSession.handleSocketError(std.Error const* error)
 void JLinkRttSession.onSocketEvent(
 	uint_t syncId,
 	io.SocketEvents triggeredEvents
-	)
-{
+) {
 	if (syncId != m_syncId)
 		return;
 
-	if (triggeredEvents & io.SocketEvents.IoError)
-	{
+	if (triggeredEvents & io.SocketEvents.IoError) {
 		handleSocketError(m_socket.m_ioError);
 		return;
 	}
 
-	if (triggeredEvents & io.SocketEvents.TcpConnected)
-	{
+	if (triggeredEvents & io.SocketEvents.TcpConnected) {
 		m_logWriter.write(SocketLogRecordCode.ConnectCompleted);
 		m_state = State.SocketConnected;
 		m_isTransmitEnabled = true;
 		m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
 	}
 
-	if (triggeredEvents & io.SocketEvents.TcpDisconnected)
-	{
-		for (;;) // read all the buffered data
-		{
+	if (triggeredEvents & io.SocketEvents.TcpDisconnected) {
+		for (;;) { // read all the buffered data
 			size_t result = m_socket.read(m_socketReadBuffer.m_p, m_socketReadBuffer.m_size);
 			if (!result)
 				break;
@@ -738,7 +690,7 @@ void JLinkRttSession.onSocketEvent(
 			SocketLogRecordCode.Disconnected,
 			&recordParams,
 			sizeof(recordParams)
-			);
+		);
 
 		m_socket.close();
 		startSocketReconnectTimer();
@@ -749,8 +701,7 @@ void JLinkRttSession.onSocketEvent(
 		m_bufferPropertySet.m_notifyReadBufferFullProp.m_value)
 		m_logWriter.write(log.StdRecordCode.RxBufferFull);
 
-	if (triggeredEvents & io.SocketEvents.IncomingData)
-	{
+	if (triggeredEvents & io.SocketEvents.IncomingData) {
 		size_t result = m_socket.read(m_socketReadBuffer.m_p, m_socketReadBuffer.m_size);
 		if (result)
 			m_logWriter.write(log.StdRecordCode.Rx, m_socketReadBuffer.m_p, result);
@@ -762,20 +713,17 @@ void JLinkRttSession.onSocketEvent(
 	waitSocketEvents();
 }
 
-void JLinkRttSession.onSocketReconnectTimer(uint_t syncId)
-{
+void JLinkRttSession.onSocketReconnectTimer(uint_t syncId) {
 	if (syncId == m_syncId)
 		try connectSocket();
 }
 
-void JLinkRttSession.jlinkReadThreadFunc()
-{
+void JLinkRttSession.jlinkReadThreadFunc() {
 	int result;
 	std.Buffer readBuffer;
 	readBuffer.setSize(m_jlinkReadBufferSize);
 
-	while (!m_jlinkReadThreadStopFlag)
-	{
+	while (!m_jlinkReadThreadStopFlag) {
 		if (readBuffer.m_size != m_jlinkReadBufferSize)
 			readBuffer.setSize(m_jlinkReadBufferSize);
 
@@ -783,10 +731,9 @@ void JLinkRttSession.jlinkReadThreadFunc()
 			m_jlinkRttChannel,
 			readBuffer.m_p,
 			readBuffer.m_size
-			);
+		);
 
-		if (result < 0)
-		{
+		if (result < 0) {
 			std.setError("Error reading RTT data");
 			m_logWriter.writeLastError(log.StdRecordCode.Error);
 			break;

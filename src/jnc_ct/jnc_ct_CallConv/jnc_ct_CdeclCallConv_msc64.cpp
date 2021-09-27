@@ -19,8 +19,7 @@ namespace ct {
 //..............................................................................
 
 void
-CdeclCallConv_msc64::prepareFunctionType(FunctionType* functionType)
-{
+CdeclCallConv_msc64::prepareFunctionType(FunctionType* functionType) {
 	Type* returnType = functionType->getReturnType();
 	sl::Array<FunctionArg*> argArray = functionType->getArgArray();
 	size_t argCount = argArray.getCount();
@@ -31,14 +30,10 @@ CdeclCallConv_msc64::prepareFunctionType(FunctionType* functionType)
 
 	size_t j = 0;
 
-	if (returnType->getFlags() & TypeFlag_StructRet)
-	{
-		if (returnType->getSize() <= sizeof(uint64_t))
-		{
+	if (returnType->getFlags() & TypeFlag_StructRet) {
+		if (returnType->getSize() <= sizeof(uint64_t)) {
 			returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int64);
-		}
-		else
-		{
+		} else {
 			returnType = returnType->getDataPtrType_c();
 
 			argCount++;
@@ -50,20 +45,14 @@ CdeclCallConv_msc64::prepareFunctionType(FunctionType* functionType)
 
 	bool hasCoercedArgs = false;
 
-	for (size_t i = 0; j < argCount; i++, j++)
-	{
+	for (size_t i = 0; j < argCount; i++, j++) {
 		Type* type = argArray[i]->getType();
-		if (!(type->getFlags() & TypeFlag_StructRet))
-		{
+		if (!(type->getFlags() & TypeFlag_StructRet)) {
 			llvmArgTypeArray[j] = type->getLlvmType();
-		}
-		else if (type->getSize() <= sizeof(uint64_t))
-		{
+		} else if (type->getSize() <= sizeof(uint64_t)) {
 			llvmArgTypeArray[j] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int64)->getLlvmType();
 			hasCoercedArgs = true;
-		}
-		else
-		{
+		} else {
 			llvmArgTypeArray[j] = type->getDataPtrType_c()->getLlvmType();
 			hasCoercedArgs = true;
 		}
@@ -76,7 +65,7 @@ CdeclCallConv_msc64::prepareFunctionType(FunctionType* functionType)
 		returnType->getLlvmType(),
 		llvm::ArrayRef<llvm::Type*> (llvmArgTypeArray, argCount),
 		(functionType->getFlags() & FunctionTypeFlag_VarArg) != 0
-		);
+	);
 }
 
 void
@@ -85,50 +74,42 @@ CdeclCallConv_msc64::call(
 	FunctionType* functionType,
 	sl::BoxList<Value>* argValueList,
 	Value* resultValue
-	)
-{
+) {
 	Type* returnType = functionType->getReturnType();
 
 	if (!(functionType->getFlags() & FunctionTypeFlag_CoercedArgs) &&
-		!(returnType->getFlags() & TypeFlag_StructRet))
-	{
+		!(returnType->getFlags() & TypeFlag_StructRet)) {
 		CallConv::call(calleeValue, functionType, argValueList, resultValue);
 		return;
 	}
 
 	Value tmpReturnValue;
 
-	if (returnType->getFlags() & TypeFlag_StructRet)
-	{
+	if (returnType->getFlags() & TypeFlag_StructRet) {
 		m_module->m_llvmIrBuilder.createAlloca(
 			returnType,
 			"tmpRetVal",
 			returnType->getDataPtrType_c(),
 			&tmpReturnValue
-			);
+		);
 
 		if (returnType->getSize() > sizeof(uint64_t))
 			argValueList->insertHead(tmpReturnValue);
 	}
 
-	if (functionType->getFlags() & FunctionTypeFlag_CoercedArgs)
-	{
+	if (functionType->getFlags() & FunctionTypeFlag_CoercedArgs) {
 		sl::BoxIterator<Value> it = argValueList->getHead();
-		for (; it; it++)
-		{
+		for (; it; it++) {
 			Type* type = it->getType();
 			if (!(type->getFlags() & TypeFlag_StructRet))
 				continue;
 
-			if (type->getSize() > sizeof(uint64_t))
-			{
+			if (type->getSize() > sizeof(uint64_t)) {
 				Value tmpValue;
 				m_module->m_llvmIrBuilder.createAlloca(type, "tmpArg", NULL, &tmpValue);
 				m_module->m_llvmIrBuilder.createStore(*it, tmpValue);
 				*it = tmpValue;
-			}
-			else
-			{
+			} else {
 				Type* coerceType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int64);
 
 				Value tmpValue, tmpValue2;
@@ -146,12 +127,10 @@ CdeclCallConv_msc64::call(
 		functionType,
 		*argValueList,
 		resultValue
-		);
+	);
 
-	if (returnType->getFlags() & TypeFlag_StructRet)
-	{
-		if (returnType->getSize() <= sizeof(uint64_t))
-		{
+	if (returnType->getFlags() & TypeFlag_StructRet) {
+		if (returnType->getSize() <= sizeof(uint64_t)) {
 			Value tmpValue;
 			Type* type = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int64)->getDataPtrType_c();
 			m_module->m_llvmIrBuilder.createBitCast(tmpReturnValue, type, &tmpValue);
@@ -166,24 +145,19 @@ void
 CdeclCallConv_msc64::ret(
 	Function* function,
 	const Value& value
-	)
-{
+) {
 	Type* returnType = function->getType()->getReturnType();
-	if (!(returnType->getFlags() & TypeFlag_StructRet))
-	{
+	if (!(returnType->getFlags() & TypeFlag_StructRet)) {
 		CallConv::ret(function, value);
 		return;
 	}
 
-	if (returnType->getSize() > sizeof(uint64_t))
-	{
+	if (returnType->getSize() > sizeof(uint64_t)) {
 		Value returnPtrValue(&*function->getLlvmFunction()->arg_begin());
 
 		m_module->m_llvmIrBuilder.createStore(value, returnPtrValue);
 		m_module->m_llvmIrBuilder.createRet(returnPtrValue);
-	}
-	else
-	{
+	} else {
 		Type* type = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int64);
 
 		Value tmpValue, tmpValue2;
@@ -196,8 +170,7 @@ CdeclCallConv_msc64::ret(
 }
 
 Value
-CdeclCallConv_msc64::getThisArgValue(Function* function)
-{
+CdeclCallConv_msc64::getThisArgValue(Function* function) {
 	ASSERT(function->isMember());
 
 	FunctionType* functionType = function->getType();
@@ -216,15 +189,13 @@ CdeclCallConv_msc64::getArgValue(
 	llvm::Value* llvmValue,
 	FunctionType* functionType,
 	size_t argIdx
-	)
-{
+) {
 	Type* type = functionType->m_argArray[argIdx]->getType();
 
 	if (!(type->getFlags() & TypeFlag_StructRet))
 		return Value(llvmValue, type);
 
-	if (type->getSize() > sizeof(uint64_t))
-	{
+	if (type->getSize() > sizeof(uint64_t)) {
 		Value value;
 		m_module->m_llvmIrBuilder.createLoad(llvmValue, type, &value);
 		return value;
@@ -246,8 +217,7 @@ CdeclCallConv_msc64::getArgValueArray(
 	Function* function,
 	Value* argValueArray,
 	size_t count
-	)
-{
+) {
 	Type* returnType = function->getType()->getReturnType();
 	CallConv::getArgValueArrayImpl(
 		function,
@@ -255,12 +225,11 @@ CdeclCallConv_msc64::getArgValueArray(
 		count,
 		(returnType->getFlags() & TypeFlag_StructRet) &&
 		returnType->getSize() > sizeof(uint64_t) ? 1 : 0
-		);
+	);
 }
 
 void
-CdeclCallConv_msc64::createArgVariables(Function* function)
-{
+CdeclCallConv_msc64::createArgVariables(Function* function) {
 	Type* returnType = function->getType()->getReturnType();
 
 	llvm::Function::arg_iterator llvmArg = function->getLlvmFunction()->arg_begin();
@@ -269,16 +238,14 @@ CdeclCallConv_msc64::createArgVariables(Function* function)
 		llvmArg++;
 
 	size_t i = 0;
-	if (function->isMember()) // skip this
-	{
+	if (function->isMember()) { // skip this
 		i++;
 		llvmArg++;
 	}
 
 	sl::Array<FunctionArg*> argArray = function->getType()->getArgArray();
 	size_t argCount = argArray.getCount();
-	for (; i < argCount; i++, llvmArg++)
-	{
+	for (; i < argCount; i++, llvmArg++) {
 		FunctionArg* arg = argArray[i];
 		if (!arg->isNamed())
 			continue;
@@ -286,26 +253,20 @@ CdeclCallConv_msc64::createArgVariables(Function* function)
 		Type* type = arg->getType();
 		llvm::Value* llvmArgValue = &*llvmArg;
 
-		if (!(type->getFlags() & TypeFlag_StructRet))
-		{
+		if (!(type->getFlags() & TypeFlag_StructRet)) {
 			Variable* argVariable = m_module->m_variableMgr.createArgVariable(arg, i);
 			function->getScope()->addItem(argVariable);
 
 			m_module->m_llvmIrBuilder.createStore(llvmArgValue, argVariable);
-		}
-		else
-		{
+		} else {
 			Variable* argVariable = m_module->m_variableMgr.createArgVariable(arg, i);
 			function->getScope()->addItem(argVariable);
 
-			if (type->getSize() > sizeof(uint64_t))
-			{
+			if (type->getSize() > sizeof(uint64_t)) {
 				Value tmpValue;
 				m_module->m_llvmIrBuilder.createLoad(llvmArgValue, NULL, &tmpValue);
 				m_module->m_llvmIrBuilder.createStore(tmpValue, argVariable);
-			}
-			else
-			{
+			} else {
 				Type* int64Type = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int64);
 
 				Value tmpValue;

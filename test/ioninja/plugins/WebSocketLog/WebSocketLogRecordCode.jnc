@@ -7,8 +7,7 @@ import "log_RecordCode.jnc"
 
 //..............................................................................
 
-enum WebSocketLogRecordCode: uint64_t
-{
+enum WebSocketLogRecordCode: uint64_t {
 	WebSocketHandshakeRequest   = 0x01d72934a7ab9200 | log.RecordCodeFlags.Foldable,
 	WebSocketHandshakeResponse  = 0x01d72934a7ab9201 | log.RecordCodeFlags.Foldable,
 	WebSocketConnectCompleted   = 0x01d72934a7ab9202,

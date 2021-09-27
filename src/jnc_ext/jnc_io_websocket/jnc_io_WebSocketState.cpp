@@ -19,15 +19,13 @@ namespace io {
 
 //..............................................................................
 
-WebSocketStateMachine::WebSocketStateMachine()
-{
+WebSocketStateMachine::WebSocketStateMachine() {
 	m_state = WebSocketState_Idle;
 	m_handshakeParser = NULL;
 	m_frameParser = NULL;
 }
 
-WebSocketStateMachine::~WebSocketStateMachine()
-{
+WebSocketStateMachine::~WebSocketStateMachine() {
 	if (m_handshakeParser)
 		AXL_MEM_DELETE(m_handshakeParser);
 
@@ -39,16 +37,13 @@ void
 WebSocketStateMachine::setHandshake(
 	WebSocketHandshake* handshake,
 	const sl::StringRef& handshakeKey
-	)
-{
-	if (m_handshakeParser)
-	{
+) {
+	if (m_handshakeParser) {
 		AXL_MEM_DELETE(m_handshakeParser);
 		m_handshakeParser = NULL;
 	}
 
-	if (m_frameParser)
-	{
+	if (m_frameParser) {
 		AXL_MEM_DELETE(m_frameParser);
 		m_frameParser = NULL;
 	}
@@ -64,14 +59,13 @@ WebSocketStateMachine::setHandshake(
 }
 
 void
-WebSocketStateMachine::setConnectedState()
-{
+WebSocketStateMachine::setConnectedState() {
 	ASSERT(
 		m_state == WebSocketState_HandshakeReady ||
 		m_state == WebSocketState_HandshakeResponseReady ||
 		m_state == WebSocketState_ControlFrameReady ||
 		m_state == WebSocketState_MessageReady
-		);
+	);
 
 	if (m_frameParser)
 		m_frameParser->reset();
@@ -85,13 +79,11 @@ size_t
 WebSocketStateMachine::parse(
 	const void* p0,
 	size_t size
-	)
-{
+) {
 	size_t result;
 
 	if (m_state == WebSocketState_WaitingHandshake ||
-		m_state == WebSocketState_WaitingHandshakeResponse)
-	{
+		m_state == WebSocketState_WaitingHandshakeResponse) {
 		if (!m_handshakeParser)
 			m_handshakeParser = AXL_MEM_NEW_ARGS(WebSocketHandshakeParser, (m_handshake, m_handshakeKey));
 
@@ -99,8 +91,7 @@ WebSocketStateMachine::parse(
 		if (result == -1)
 			return -1;
 
-		if (m_handshakeParser->isCompleted())
-		{
+		if (m_handshakeParser->isCompleted()) {
 			m_state = (WebSocketState)(m_state + 2); // WebSocketState_HandshakeReady/ResponseReady
 			AXL_MEM_DELETE(m_handshakeParser);
 			m_handshakeParser = NULL;
@@ -117,8 +108,7 @@ WebSocketStateMachine::parse(
 	const char* p = (char*)p0;
 	const char* end = p + size;
 
-	while (p < end && m_state == WebSocketState_Connected)
-	{
+	while (p < end && m_state == WebSocketState_Connected) {
 		result = m_frameParser->parse(p, end - p);
 		if (result == -1)
 			return -1;
@@ -138,24 +128,19 @@ WebSocketStateMachine::parse(
 }
 
 bool
-WebSocketStateMachine::processFrame()
-{
-	if (m_frame.m_opcode >= WebSocketFrameOpcode_FirstControl)
-	{
+WebSocketStateMachine::processFrame() {
+	if (m_frame.m_opcode >= WebSocketFrameOpcode_FirstControl) {
 		m_state = WebSocketState_ControlFrameReady;
 		return true;
 	}
 
-	if (m_frame.m_opcode == WebSocketFrameOpcode_Continuation)
-	{
+	if (m_frame.m_opcode == WebSocketFrameOpcode_Continuation) {
 		if (m_message.m_opcode == WebSocketFrameOpcode_Undefined)
 			return err::fail("continuation frame without initial data frame");
 
 		m_message.m_frameCount++;
 		m_message.m_payload.append(m_frame.m_payload);
-	}
-	else
-	{
+	} else {
 		if (m_message.m_opcode != WebSocketFrameOpcode_Undefined)
 			return err::fail("incomplete fragmented message");
 

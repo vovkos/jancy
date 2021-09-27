@@ -4,8 +4,7 @@ namespace jnc {
 
 //..............................................................................
 
-class CodeTip: public QLabel
-{
+class CodeTip: public QLabel {
 	Q_OBJECT
 
 protected:
@@ -17,8 +16,7 @@ public:
 	CodeTip(QWidget* parent);
 
 	bool
-	isFunctionTypeOverload()
-	{
+	isFunctionTypeOverload() {
 		return m_functionTypeOverload && m_functionTypeOverload->getOverloadCount() > 1;
 	}
 
@@ -32,14 +30,14 @@ public:
 	showQuickInfoTip(
 		const QPoint& pos,
 		ModuleItem* item
-		);
+	);
 
 	void
 	showArgumentTip(
 		const QPoint& pos,
 		FunctionTypeOverload* typeOverload,
 		size_t argumentIdx
-		);
+	);
 
 protected:
 	virtual
@@ -47,7 +45,7 @@ protected:
 	eventFilter(
 		QObject* o,
 		QEvent* e
-		);
+	);
 
 	virtual
 	void
@@ -67,7 +65,7 @@ protected:
 	getArgumentTipText(
 		FunctionType* type,
 		size_t argumentIdx
-		);
+	);
 
 	QString
 	getArgumentTipText();
@@ -76,7 +74,7 @@ protected:
 	showText(
 		const QPoint& pos,
 		const QString& text
-		);
+	);
 
 	int
 	getTipScreen(const QPoint &pos);

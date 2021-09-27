@@ -15,10 +15,8 @@ bool representSshLog(
 	void const* p,
 	size_t size,
 	uint_t foldFlags
-	)
-{
-	switch (recordCode)
-	{
+) {
+	switch (recordCode) {
 	case SshLogRecordCode.TcpConnectCompleted:
 		representation.m_lineAttr.m_flags = log.LineAttrFlags.TileIcon;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;

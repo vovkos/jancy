@@ -25,7 +25,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	SslLibCacheSlot_SslSocket,
 	SslSocket,
 	&SslSocket::markOpaqueGcRoots
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(SslSocket)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<SslSocket>)
@@ -55,8 +55,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
-SslSocket::SslSocket()
-{
+SslSocket::SslSocket() {
 	m_readBlockSize = Def_ReadBlockSize;
 	m_readBufferSize = Def_ReadBufferSize;
 	m_writeBufferSize = Def_WriteBufferSize;
@@ -68,8 +67,7 @@ SslSocket::SslSocket()
 
 bool
 JNC_CDECL
-SslSocket::open_0(uint16_t family)
-{
+SslSocket::open_0(uint16_t family) {
 	close();
 
 	return
@@ -81,8 +79,7 @@ SslSocket::open_0(uint16_t family)
 
 bool
 JNC_CDECL
-SslSocket::open_1(DataPtr addressPtr)
-{
+SslSocket::open_1(DataPtr addressPtr) {
 	close();
 
 	SocketAddress* address = (SocketAddress*)addressPtr.m_p;
@@ -96,8 +93,7 @@ SslSocket::open_1(DataPtr addressPtr)
 
 void
 JNC_CDECL
-SslSocket::close()
-{
+SslSocket::close() {
 	if (!m_socket.isOpen())
 		return;
 
@@ -117,8 +113,7 @@ SslSocket::close()
 
 bool
 JNC_CDECL
-SslSocket::connect(DataPtr addressPtr)
-{
+SslSocket::connect(DataPtr addressPtr) {
 	SocketAddress* address = (SocketAddress*)addressPtr.m_p;
 	bool result = m_socket.connect(address->getSockAddr());
 	if (!result)
@@ -133,8 +128,7 @@ SslSocket::connect(DataPtr addressPtr)
 
 bool
 JNC_CDECL
-SslSocket::listen(size_t backLogLimit)
-{
+SslSocket::listen(size_t backLogLimit) {
 	bool result =
 		requireSocketCapability(SocketCapability_Server) &&
 		m_socket.listen(backLogLimit);
@@ -154,14 +148,12 @@ JNC_CDECL
 SslSocket::accept(
 	DataPtr addressPtr,
 	bool isSuspended
-	)
-{
+) {
 	SocketAddress* address = ((SocketAddress*)addressPtr.m_p);
 	SslSocket* connectionSocket = createClass<SslSocket>(m_runtime);
 
 	m_lock.lock();
-	if (m_pendingIncomingConnectionList.isEmpty())
-	{
+	if (m_pendingIncomingConnectionList.isEmpty()) {
 		m_lock.unlock();
 		setError(err::Error(err::SystemErrorCode_InvalidDeviceState));
 		return NULL;
@@ -199,52 +191,40 @@ SslSocket::accept(
 }
 
 void
-SslSocket::ioThreadFunc()
-{
+SslSocket::ioThreadFunc() {
 	ASSERT(m_socket.isOpen());
 
 	sleepIoThread();
 
 	m_lock.lock();
-	if (m_ioThreadFlags & IoThreadFlag_Closing)
-	{
+	if (m_ioThreadFlags & IoThreadFlag_Closing) {
 		m_lock.unlock();
-	}
-	else if (m_ioThreadFlags & IoThreadFlag_Connecting)
-	{
+	} else if (m_ioThreadFlags & IoThreadFlag_Connecting) {
 		m_lock.unlock();
 
 		bool result =
 			connectLoop(SocketEvent_TcpConnected) &&
 			sslHandshakeLoop(this, true);
 
-		if (result)
-		{
+		if (result) {
 			wakeIoThread();
 			sslReadWriteLoop();
 		}
-	}
-	else if (m_ioThreadFlags & IoThreadFlag_Listening)
-	{
+	} else if (m_ioThreadFlags & IoThreadFlag_Listening) {
 		m_lock.unlock();
 		acceptLoop(SocketEvent_IncomingConnection);
-	}
-	else if (m_ioThreadFlags & IoThreadFlag_IncomingConnection)
-	{
+	} else if (m_ioThreadFlags & IoThreadFlag_IncomingConnection) {
 		m_lock.unlock();
 
 		bool result =
 			suspendLoop() &&
 			sslHandshakeLoop(this, false);
 
-		if (result)
-		{
+		if (result) {
 			wakeIoThread();
 			sslReadWriteLoop();
 		}
-	}
-	else
-	{
+	} else {
 		m_lock.unlock();
 		ASSERT(false); // shouldn't normally happen
 	}
@@ -253,13 +233,11 @@ SslSocket::ioThreadFunc()
 #if (_JNC_OS_WIN)
 
 void
-SslSocket::sslReadWriteLoop()
-{
+SslSocket::sslReadWriteLoop() {
 	bool result;
 
 	sys::NotificationEvent socketEvent;
-	HANDLE waitTable[] =
-	{
+	HANDLE waitTable[] = {
 		m_ioThreadEvent.m_event,
 		socketEvent.m_event,
 	};
@@ -272,8 +250,7 @@ SslSocket::sslReadWriteLoop()
 
 	uint_t prevSocketEventMask = 0;
 
-	for (;;)
-	{
+	for (;;) {
 		uint_t socketEventMask = FD_CLOSE;
 
 		if (!canReadSocket)
@@ -282,11 +259,9 @@ SslSocket::sslReadWriteLoop()
 		if (!canWriteSocket)
 			socketEventMask |= FD_WRITE;
 
-		if (socketEventMask != prevSocketEventMask)
-		{
+		if (socketEventMask != prevSocketEventMask) {
 			result = m_socket.m_socket.wsaEventSelect(socketEvent.m_event, socketEventMask);
-			if (!result)
-			{
+			if (!result) {
 				setIoErrorEvent(err::getLastError());
 				return;
 			}
@@ -295,27 +270,22 @@ SslSocket::sslReadWriteLoop()
 		}
 
 		DWORD waitResult = ::WaitForMultipleObjects(countof(waitTable), waitTable, false, INFINITE);
-		if (waitResult == WAIT_FAILED)
-		{
+		if (waitResult == WAIT_FAILED) {
 			setIoErrorEvent(err::getLastSystemErrorCode());
 			return;
 		}
 
-		if (socketEvent.wait(0))
-		{
+		if (socketEvent.wait(0)) {
 			WSANETWORKEVENTS networkEvents;
 			result = m_socket.m_socket.wsaEnumEvents(&networkEvents);
-			if (!result)
-			{
+			if (!result) {
 				setIoErrorEvent();
 				return;
 			}
 
-			if (networkEvents.lNetworkEvents & FD_READ)
-			{
+			if (networkEvents.lNetworkEvents & FD_READ) {
 				int error = networkEvents.iErrorCode[FD_READ_BIT];
-				if (error)
-				{
+				if (error) {
 					setIoErrorEvent(error);
 					return;
 				}
@@ -323,11 +293,9 @@ SslSocket::sslReadWriteLoop()
 				canReadSocket = true;
 			}
 
-			if (networkEvents.lNetworkEvents & FD_WRITE)
-			{
+			if (networkEvents.lNetworkEvents & FD_WRITE) {
 				int error = networkEvents.iErrorCode[FD_WRITE_BIT];
-				if (error)
-				{
+				if (error) {
 					setIoErrorEvent(error);
 					return;
 				}
@@ -335,8 +303,7 @@ SslSocket::sslReadWriteLoop()
 				canWriteSocket = true;
 			}
 
-			if (!canReadSocket && (networkEvents.lNetworkEvents & FD_CLOSE))
-			{
+			if (!canReadSocket && (networkEvents.lNetworkEvents & FD_CLOSE)) {
 				processFdClose(networkEvents.iErrorCode[FD_CLOSE_BIT]);
 				return;
 			}
@@ -345,8 +312,7 @@ SslSocket::sslReadWriteLoop()
 		}
 
 		m_lock.lock();
-		if (m_ioThreadFlags & IoThreadFlag_Closing)
-		{
+		if (m_ioThreadFlags & IoThreadFlag_Closing) {
 			m_lock.unlock();
 			return;
 		}
@@ -356,16 +322,13 @@ SslSocket::sslReadWriteLoop()
 
 		readBlock.setCount(m_readBlockSize); // update read block size
 
-		while (canReadSocket && !m_readBuffer.isFull())
-		{
+		while (canReadSocket && !m_readBuffer.isFull()) {
 			m_lock.unlock();
 
 			size_t actualSize = m_ssl.read(readBlock, readBlock.getCount());
-			if (actualSize == -1)
-			{
+			if (actualSize == -1) {
 				uint_t error = err::getLastError()->m_code;
-				switch (error)
-				{
+				switch (error) {
 				case SSL_ERROR_WANT_READ:
 					canReadSocket = false;
 					break;
@@ -380,21 +343,16 @@ SslSocket::sslReadWriteLoop()
 				}
 
 				m_lock.lock();
-			}
-			else if (actualSize == 0) // disconnect by remote node
-			{
+			} else if (actualSize == 0) { // disconnect by remote node
 				setEvents(SocketEvent_TcpDisconnected);
 				return;
-			}
-			else
-			{
+			} else {
 				m_lock.lock();
 				addToReadBuffer(readBlock, actualSize);
 			}
 		}
 
-		while (canWriteSocket)
-		{
+		while (canWriteSocket) {
 			getNextWriteBlock(&writeBlock);
 			if (writeBlock.isEmpty())
 				break;
@@ -403,11 +361,9 @@ SslSocket::sslReadWriteLoop()
 
 			size_t blockSize = writeBlock.getCount();
 			size_t actualSize = m_ssl.write(writeBlock, blockSize);
-			if (actualSize == -1)
-			{
+			if (actualSize == -1) {
 				uint_t error = err::getLastError()->m_code;
-				switch (error)
-				{
+				switch (error) {
 				case SSL_ERROR_WANT_READ:
 					canReadSocket = false;
 					break;
@@ -420,13 +376,9 @@ SslSocket::sslReadWriteLoop()
 					setIoErrorEvent();
 					return;
 				}
-			}
-			else if ((size_t)actualSize < blockSize)
-			{
+			} else if ((size_t)actualSize < blockSize) {
 				writeBlock.remove(0, actualSize);
-			}
-			else
-			{
+			} else {
 				writeBlock.clear();
 			}
 
@@ -445,8 +397,7 @@ SslSocket::sslReadWriteLoop()
 #elif (_JNC_OS_POSIX)
 
 void
-SslSocket::sslReadWriteLoop()
-{
+SslSocket::sslReadWriteLoop() {
 	int result;
 	int selectFd = AXL_MAX(m_socket.m_socket, m_ioThreadSelfPipe.m_readFile) + 1;
 
@@ -461,8 +412,7 @@ SslSocket::sslReadWriteLoop()
 	bool canReadSocket = true;
 	bool canWriteSocket = true;
 
-	for (;;)
-	{
+	for (;;) {
 		fd_set readSet = { 0 };
 		fd_set writeSet = { 0 };
 
@@ -478,8 +428,7 @@ SslSocket::sslReadWriteLoop()
 		if (result == -1)
 			break;
 
-		if (FD_ISSET(m_ioThreadSelfPipe.m_readFile, &readSet))
-		{
+		if (FD_ISSET(m_ioThreadSelfPipe.m_readFile, &readSet)) {
 			char buffer[256];
 			m_ioThreadSelfPipe.read(buffer, sizeof(buffer));
 		}
@@ -491,8 +440,7 @@ SslSocket::sslReadWriteLoop()
 			canWriteSocket = true;
 
 		m_lock.lock();
-		if (m_ioThreadFlags & IoThreadFlag_Closing)
-		{
+		if (m_ioThreadFlags & IoThreadFlag_Closing) {
 			m_lock.unlock();
 			return;
 		}
@@ -502,16 +450,13 @@ SslSocket::sslReadWriteLoop()
 
 		readBlock.setCount(m_readBlockSize); // update read block size
 
-		while (canReadSocket && !m_readBuffer.isFull())
-		{
+		while (canReadSocket && !m_readBuffer.isFull()) {
 			m_lock.unlock();
 
 			ssize_t actualSize = m_ssl.read(readBlock, readBlock.getCount());
-			if (actualSize == -1)
-			{
+			if (actualSize == -1) {
 				uint_t error = err::getLastError()->m_code;
-				switch (error)
-				{
+				switch (error) {
 				case SSL_ERROR_WANT_READ:
 					canReadSocket = false;
 					break;
@@ -526,21 +471,16 @@ SslSocket::sslReadWriteLoop()
 				}
 
 				m_lock.lock();
-			}
-			else if (actualSize == 0) // disconnect by remote node
-			{
+			} else if (actualSize == 0) { // disconnect by remote node
 				setEvents(SocketEvent_TcpDisconnected);
 				return;
-			}
-			else
-			{
+			} else {
 				m_lock.lock();
 				addToReadBuffer(readBlock, actualSize);
 			}
 		}
 
-		while (canWriteSocket)
-		{
+		while (canWriteSocket) {
 			getNextWriteBlock(&writeBlock);
 			if (writeBlock.isEmpty())
 				break;
@@ -549,11 +489,9 @@ SslSocket::sslReadWriteLoop()
 
 			size_t blockSize = writeBlock.getCount();
 			ssize_t actualSize = m_ssl.write(writeBlock, blockSize);
-			if (actualSize == -1)
-			{
+			if (actualSize == -1) {
 				uint_t error = err::getLastError()->m_code;
-				switch (error)
-				{
+				switch (error) {
 				case SSL_ERROR_WANT_READ:
 					canReadSocket = false;
 					break;
@@ -566,13 +504,9 @@ SslSocket::sslReadWriteLoop()
 					setIoErrorEvent();
 					return;
 				}
-			}
-			else if ((size_t)actualSize < blockSize)
-			{
+			} else if ((size_t)actualSize < blockSize) {
 				writeBlock.remove(0, actualSize);
-			}
-			else
-			{
+			} else {
 				writeBlock.clear();
 			}
 

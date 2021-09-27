@@ -26,16 +26,14 @@ class DynamicLibNamespace;
 
 //..............................................................................
 
-class NamespaceMgr
-{
+class NamespaceMgr {
 	friend class Module;
 	friend class Parser;
 	friend class FunctionMgr;
 	friend class VariableMgr;
 
 protected:
-	struct NamespaceStackEntry
-	{
+	struct NamespaceStackEntry {
 		Namespace* m_namespace;
 		Scope* m_scope;
 		AccessKind m_accessKind;
@@ -64,14 +62,12 @@ protected:
 public:
 	NamespaceMgr();
 
-	~NamespaceMgr()
-	{
+	~NamespaceMgr() {
 		clear();
 	}
 
 	Module*
-	getModule()
-	{
+	getModule() {
 		return m_module;
 	}
 
@@ -85,30 +81,27 @@ public:
 	createOrphan(
 		OrphanKind orphanKind,
 		FunctionType* functionType
-		);
+	);
 
 	Alias*
 	createAlias(
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
 		sl::BoxList<Token>* initializer
-		);
+	);
 
 	void
-	lockSourcePos()
-	{
+	lockSourcePos() {
 		m_sourcePosLockCount++;
 	}
 
 	void
-	unlockSourcePos()
-	{
+	unlockSourcePos() {
 		m_sourcePosLockCount--;
 	}
 
 	const lex::LineCol&
-	getSourcePos()
-	{
+	getSourcePos() {
 		return m_sourcePos;
 	}
 
@@ -116,39 +109,33 @@ public:
 	setSourcePos(const lex::LineCol& pos);
 
 	GlobalNamespace*
-	getGlobalNamespace()
-	{
+	getGlobalNamespace() {
 		return &m_stdNamespaceArray[StdNamespace_Global];
 	}
 
 	GlobalNamespace*
-	getStdNamespace(StdNamespace stdNamespace)
-	{
+	getStdNamespace(StdNamespace stdNamespace) {
 		ASSERT(stdNamespace < StdNamespace__Count);
 		return &m_stdNamespaceArray[stdNamespace];
 	}
 
 	bool
-	isGlobalNamespace()
-	{
+	isGlobalNamespace() {
 		return m_currentNamespace->m_namespaceKind == NamespaceKind_Global;
 	}
 
 	Namespace*
-	getCurrentNamespace()
-	{
+	getCurrentNamespace() {
 		return m_currentNamespace;
 	}
 
 	Scope*
-	getCurrentScope()
-	{
+	getCurrentScope() {
 		return m_currentScope;
 	}
 
 	AccessKind
-	getCurrentAccessKind()
-	{
+	getCurrentAccessKind() {
 		return m_currentAccessKind;
 	}
 
@@ -156,8 +143,7 @@ public:
 	openNamespace(Namespace* nspace);
 
 	void
-	openStdNamespace(StdNamespace stdNamepace)
-	{
+	openStdNamespace(StdNamespace stdNamepace) {
 		ASSERT(stdNamepace < StdNamespace__Count);
 		openNamespace(&m_stdNamespaceArray[stdNamepace]);
 	}
@@ -175,7 +161,7 @@ public:
 	openScope(
 		const lex::LineCol& pos,
 		uint_t flags = 0
-		);
+	);
 
 	void
 	closeScope();
@@ -184,8 +170,7 @@ public:
 	getAccessKind(Namespace* nspace);
 
 	sl::String
-	createQualifiedName(const sl::StringRef& name)
-	{
+	createQualifiedName(const sl::StringRef& name) {
 		return m_currentNamespace->createQualifiedName(name);
 	}
 
@@ -194,14 +179,13 @@ public:
 	createGlobalNamespace(
 		const sl::StringRef& name,
 		Namespace* parentNamespace = NULL
-		);
+	);
 
 	GlobalNamespace*
 	createGlobalNamespace(
 		const sl::StringRef& name,
 		Namespace* parentNamespace = NULL
-		)
-	{
+	) {
 		return createGlobalNamespace<GlobalNamespace>(name, parentNamespace);
 	}
 
@@ -220,7 +204,7 @@ protected:
 		GlobalNamespace* nspace,
 		const sl::StringRef& name,
 		Namespace* parentNamespace
-		);
+	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -230,8 +214,7 @@ T*
 NamespaceMgr::createGlobalNamespace(
 	const sl::StringRef& name,
 	Namespace* parentNamespace
-	)
-{
+) {
 	T* nspace = AXL_MEM_NEW(T);
 	addGlobalNamespace(nspace, name, parentNamespace);
 	return nspace;

@@ -14,8 +14,7 @@
 
 //..............................................................................
 
-class C1
-{
+class C1 {
 	// for member fields the default storage is parent memory block
 
 	int m_memberField;
@@ -27,29 +26,25 @@ class C1
 	// threadlocal int m_threadField2 = 3; // <-- error
 	// threadlocal int m_threadField3 [4]; // <-- error
 
-	construct(int x)
-	{
+	construct(int x) {
 		printf("C1.construct (%d)\n", x);
 		m_memberField = x;
 	}
 
-	destruct()
-	{
+	destruct() {
 		printf("C1.destruct (%d)\n", m_memberField);
 	}
 }
 
 //..............................................................................
 
-class C2
-{
+class C2 {
 	// Jancy allows to allocate multiple class objects at once and on the same
 	// memory block (like in C++)
 
 	C1 m_classField;
 
-	construct(int x)
-	{
+	construct(int x) {
 		// if a member field requires construction this must be done in the
 		// beginning of the constructor (much like with base type constructors)
 
@@ -58,8 +53,7 @@ class C2
 		printf("C2.construct (%d)\n", x);
 	}
 
-	destruct()
-	{
+	destruct() {
 		printf("C2.destruct (%d)\n", m_classField.m_memberField);
 	}
 }
@@ -88,8 +82,7 @@ C1 g_classGlobal construct(10);
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	// for local non-class variables the default storage is 'stack'

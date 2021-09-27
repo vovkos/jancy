@@ -67,7 +67,7 @@ bool_t
 jnc_Runtime_startup(
 	jnc_Runtime* runtime,
 	jnc_Module* module
-	);
+);
 
 JNC_EXTERN_C
 void
@@ -82,21 +82,21 @@ void
 jnc_Runtime_initializeCallSite(
 	jnc_Runtime* runtime,
 	jnc_CallSite* callSite
-	);
+);
 
 JNC_EXTERN_C
 void
 jnc_Runtime_uninitializeCallSite(
 	jnc_Runtime* runtime,
 	jnc_CallSite* callSite
-	);
+);
 
 JNC_EXTERN_C
 jnc_SjljFrame*
 jnc_Runtime_setSjljFrame(
 	jnc_Runtime* runtime,
 	jnc_SjljFrame* frame
-	);
+);
 
 JNC_EXTERN_C
 void*
@@ -107,83 +107,70 @@ void*
 jnc_Runtime_setUserData(
 	jnc_Runtime* runtime,
 	void* data
-	);
+);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
-struct jnc_Runtime
-{
+struct jnc_Runtime {
 	static
 	jnc_Runtime*
-	create()
-	{
+	create() {
 		return jnc_Runtime_create();
 	}
 
 	void
-	destroy()
-	{
+	destroy() {
 		jnc_Runtime_destroy(this);
 	}
 
 	jnc_Module*
-	getModule()
-	{
+	getModule() {
 		return jnc_Runtime_getModule(this);
 	}
 
 	jnc_GcHeap*
-	getGcHeap()
-	{
+	getGcHeap() {
 		return jnc_Runtime_getGcHeap(this);
 	}
 
 	bool
-	isAborted()
-	{
+	isAborted() {
 		return jnc_Runtime_isAborted(this) != 0;
 	}
 
 	bool
-	startup(jnc_Module* module)
-	{
+	startup(jnc_Module* module) {
 		return jnc_Runtime_startup(this, module) != 0;
 	}
 
 	void
-	shutdown()
-	{
+	shutdown() {
 		jnc_Runtime_shutdown(this);
 	}
 
 	void
-	abort()
-	{
+	abort() {
 		jnc_Runtime_abort(this);
 	}
 
 	void
-	initializeCallSite(jnc_CallSite* callSite)
-	{
+	initializeCallSite(jnc_CallSite* callSite) {
 		jnc_Runtime_initializeCallSite(this, callSite);
 	}
 
 	void
-	uninitializeCallSite(jnc_CallSite* callSite)
-	{
+	uninitializeCallSite(jnc_CallSite* callSite) {
 		jnc_Runtime_uninitializeCallSite(this, callSite);
 	}
 
 	void*
-	getUserData()
-	{
+	getUserData() {
 		return jnc_Runtime_getUserData(this);
 	}
 
 	void*
-	setUserData(void* data)
-	{
+	setUserData(void* data) {
 		return jnc_Runtime_setUserData(this, data);
 	}
 };
@@ -197,8 +184,7 @@ jnc_getCurrentThreadRuntime();
 
 JNC_INLINE
 jnc_GcHeap*
-jnc_getCurrentThreadGcHeap()
-{
+jnc_getCurrentThreadGcHeap() {
 	jnc_Runtime* runtime = jnc_getCurrentThreadRuntime();
 	return runtime ? jnc_Runtime_getGcHeap(runtime) : NULL;
 }
@@ -222,7 +208,7 @@ jnc_primeClass(
 	jnc_Box* root,
 	jnc_ClassType* type,
 	const void* vtable // if null then vtable of class type will be used
-	);
+);
 
 JNC_EXTERN_C
 jnc_IfaceHdr*
@@ -237,14 +223,14 @@ jnc_DataPtr
 jnc_strDup(
 	const char* p,
 	size_t length
-	);
+);
 
 JNC_EXTERN_C
 jnc_DataPtr
 jnc_memDup(
 	const void* p,
 	size_t size
-	);
+);
 
 JNC_EXTERN_C
 jnc_DataPtr
@@ -252,14 +238,14 @@ jnc_createForeignBufferPtr(
 	const void* p,
 	size_t size,
 	bool_t isCallSiteLocal
-	);
+);
 
 JNC_EXTERN_C
 jnc_DataPtr
 jnc_createForeignStringPtr(
 	const char* p,
 	bool_t isCallSiteLocal
-	);
+);
 
 // we want to make sure there is no unwinding during SJLJ -- alas,
 // unwinding doesn't work too well with the LLVM-generated JIT-code
@@ -278,7 +264,7 @@ void
 jnc_longJmp(
 	jmp_buf jmpBuf,
 	int retVal
-	);
+);
 
 #else
 #	define jnc_setJmp  setjmp
@@ -295,36 +281,31 @@ namespace jnc {
 
 inline
 Runtime*
-getCurrentThreadRuntime()
-{
+getCurrentThreadRuntime() {
 	return jnc_getCurrentThreadRuntime();
 }
 
 inline
 GcHeap*
-getCurrentThreadGcHeap()
-{
+getCurrentThreadGcHeap() {
 	return jnc_getCurrentThreadGcHeap();
 }
 
 inline
 Tls*
-getCurrentThreadTls()
-{
+getCurrentThreadTls() {
 	return jnc_getCurrentThreadTls();
 }
 
 inline
 void
-dynamicThrow()
-{
+dynamicThrow() {
 	return jnc_dynamicThrow();
 }
 
 inline
 void
-saveSignalInfo(SjljFrame* sjljFrame)
-{
+saveSignalInfo(SjljFrame* sjljFrame) {
 	jnc_saveSignalInfo(sjljFrame);
 }
 
@@ -338,8 +319,7 @@ primeClass(
 	Box* root,
 	ClassType* type,
 	const void* vtable = NULL // if null then vtable of class type will be used
-	)
-{
+) {
 	jnc_primeClass(box, root, type, vtable);
 }
 
@@ -349,8 +329,7 @@ primeClass(
 	Box* box,
 	ClassType* type,
 	const void* vtable = NULL // if null then vtable of class type will be used
-	)
-{
+) {
 	jnc_primeClass(box, box, type, vtable);
 }
 
@@ -360,8 +339,7 @@ primeClass(
 	Module* module,
 	ClassBoxBase<T>* p,
 	Box* root
-	)
-{
+) {
 	jnc_primeClass(p, root, T::getType(module), T::getVtable());
 }
 
@@ -370,8 +348,7 @@ void
 primeClass(
 	Module* module,
 	ClassBoxBase<T>* p
-	)
-{
+) {
 	primeClass(p, p, T::getType(module), T::getVtable());
 }
 
@@ -379,15 +356,13 @@ primeClass(
 
 inline
 IfaceHdr*
-strengthenClassPtr(IfaceHdr* iface)
-{
+strengthenClassPtr(IfaceHdr* iface) {
 	return jnc_strengthenClassPtr(iface);
 }
 
 template <typename T>
 T*
-createClass(Runtime* runtime)
-{
+createClass(Runtime* runtime) {
 	ClassType* type = T::getType(runtime->getModule());
 	T* p = (T*)runtime->getGcHeap()->allocateClass(type);
 	construct(p);
@@ -397,13 +372,12 @@ createClass(Runtime* runtime)
 template <
 	typename T,
 	typename Arg
-	>
+>
 T*
 createClass(
 	Runtime* runtime,
 	Arg arg
-	)
-{
+) {
 	ClassType* type = T::getType(runtime->getModule());
 	T* p = (T*)runtime->getGcHeap()->allocateClass(type);
 	construct(p, arg);
@@ -414,14 +388,13 @@ template <
 	typename T,
 	typename Arg1,
 	typename Arg2
-	>
+>
 T*
 createClass(
 	Runtime* runtime,
 	Arg1 arg1,
 	Arg2 arg2
-	)
-{
+) {
 	ClassType* type = T::getType(runtime->getModule());
 	T* p = (T*)runtime->getGcHeap()->allocateClass(type);
 	construct(p, arg1, arg2);
@@ -433,15 +406,14 @@ template <
 	typename Arg1,
 	typename Arg2,
 	typename Arg3
-	>
+>
 T*
 createClass(
 	Runtime* runtime,
 	Arg1 arg1,
 	Arg2 arg2,
 	Arg3 arg3
-	)
-{
+) {
 	ClassType* type = T::getType(runtime->getModule());
 	T* p = (T*)runtime->getGcHeap()->allocateClass(type);
 	construct(p, arg1, arg2, arg3);
@@ -454,7 +426,7 @@ template <
 	typename Arg2,
 	typename Arg3,
 	typename Arg4
-	>
+>
 T*
 createClass(
 	Runtime* runtime,
@@ -462,8 +434,7 @@ createClass(
 	Arg2 arg2,
 	Arg3 arg3,
 	Arg4 arg4
-	)
-{
+) {
 	ClassType* type = T::getType(runtime->getModule());
 	T* p = (T*)runtime->getGcHeap()->allocateClass(type);
 	construct(p, arg1, arg2, arg3, arg4);
@@ -474,8 +445,7 @@ createClass(
 
 template <typename T>
 DataPtr
-createData(Runtime* runtime)
-{
+createData(Runtime* runtime) {
 	Type* type = T::getType(runtime->getModule());
 	DataPtr ptr = runtime->getGcHeap()->allocateData(type);
 	construct((T*)ptr.m_p);
@@ -486,13 +456,12 @@ createData(Runtime* runtime)
 template <
 	typename T,
 	typename Arg
-	>
+>
 DataPtr
 createData(
 	Runtime* runtime,
 	Arg arg
-	)
-{
+) {
 	Type* type = T::getType(runtime->getModule());
 	DataPtr ptr = runtime->getGcHeap()->allocateData(type);
 	construct((T*)ptr.m_p, arg);
@@ -504,14 +473,13 @@ template <
 	typename T,
 	typename Arg1,
 	typename Arg2
-	>
+>
 DataPtr
 createData(
 	Runtime* runtime,
 	Arg1 arg1,
 	Arg2 arg2
-	)
-{
+) {
 	Type* type = T::getType(runtime->getModule());
 	DataPtr ptr = runtime->getGcHeap()->allocateData(type);
 	construct((T*)ptr.m_p, arg1, arg2);
@@ -524,15 +492,14 @@ template <
 	typename Arg1,
 	typename Arg2,
 	typename Arg3
-	>
+>
 DataPtr
 createData(
 	Runtime* runtime,
 	Arg1 arg1,
 	Arg2 arg2,
 	Arg3 arg3
-	)
-{
+) {
 	Type* type = T::getType(runtime->getModule());
 	DataPtr ptr = runtime->getGcHeap()->allocateData(type);
 	construct((T*)ptr.m_p, arg1, arg2, arg3);
@@ -546,7 +513,7 @@ template <
 	typename Arg2,
 	typename Arg3,
 	typename Arg4
-	>
+>
 DataPtr
 createData(
 	Runtime* runtime,
@@ -554,8 +521,7 @@ createData(
 	Arg2 arg2,
 	Arg3 arg3,
 	Arg4 arg4
-	)
-{
+) {
 	Type* type = T::getType(runtime->getModule());
 	DataPtr ptr = runtime->getGcHeap()->allocateData(type);
 	construct((T*)ptr.m_p, arg1, arg2, arg3, arg4);
@@ -567,8 +533,7 @@ createData(
 
 inline
 size_t
-strLen(DataPtr ptr)
-{
+strLen(DataPtr ptr) {
 	return jnc_strLen(ptr);
 }
 
@@ -577,8 +542,7 @@ DataPtr
 strDup(
 	const char* p,
 	size_t length = -1
-	)
-{
+) {
 	return jnc_strDup(p, length);
 }
 
@@ -587,8 +551,7 @@ DataPtr
 memDup(
 	const void* p,
 	size_t size
-	)
-{
+) {
 	return jnc_memDup(p, size);
 }
 
@@ -598,8 +561,7 @@ createForeignBufferPtr(
 	const void* p,
 	size_t size,
 	bool isCallSiteLocal = true
-	)
-{
+) {
 	return jnc_createForeignBufferPtr(p, size, isCallSiteLocal);
 }
 
@@ -608,8 +570,7 @@ DataPtr
 createForeignStringPtr(
 	const char* p,
 	bool isCallSiteLocal = true
-	)
-{
+) {
 	return jnc_createForeignStringPtr(p, isCallSiteLocal);
 }
 
@@ -617,8 +578,7 @@ createForeignStringPtr(
 
 inline
 DataPtr
-strDup(const axl::sl::StringRef& string)
-{
+strDup(const axl::sl::StringRef& string) {
 	return jnc_strDup(string.cp(), string.getLength());
 }
 
@@ -627,28 +587,24 @@ DataPtr
 createForeignStringPtr(
 	const axl::sl::StringRef& string,
 	bool isCallSiteLocal = true
-	)
-{
+) {
 	const char* p = string.cp();
 	return jnc_createForeignBufferPtr(p, p ? string.getLength() + 1 : 0, isCallSiteLocal);
 }
 
-struct DualString
-{
+struct DualString {
 	axl::sl::StringRef m_string;
 	DataPtr m_ptr;
 
-	DualString()
-	{
+	DualString() {
 		m_ptr = g_nullDataPtr;
 	}
 
 	DualString(
 		const axl::sl::StringRef& string,
 		DataPtr ptr = g_nullDataPtr
-		):
-		m_string(string)
-	{
+	):
+		m_string(string) {
 		m_ptr = ptr;
 	}
 
@@ -656,9 +612,8 @@ struct DualString
 	DualString(
 		axl::sl::StringRef&& string,
 		DataPtr ptr = g_nullDataPtr
-		):
-		m_string(string)
-	{
+	):
+		m_string(string) {
 		m_ptr = ptr;
 	}
 #endif
@@ -666,25 +621,21 @@ struct DualString
 	DualString(
 		const char* string,
 		DataPtr ptr = g_nullDataPtr
-		):
-		m_string(string)
-	{
+	):
+		m_string(string) {
 		m_ptr = ptr;
 	}
 
-	operator const axl::sl::StringRef& () const
-	{
+	operator const axl::sl::StringRef& () const {
 		return m_string;
 	}
 
-	operator DataPtr () const
-	{
+	operator DataPtr () const {
 		return m_ptr;
 	}
 
 	DualString&
-	operator = (const axl::sl::StringRef& string)
-	{
+	operator = (const axl::sl::StringRef& string) {
 		m_string = string;
 		m_ptr = g_nullDataPtr;
 		return *this;
@@ -692,8 +643,7 @@ struct DualString
 
 #if (_AXL_CPP_HAS_RVALUE_REF)
 	DualString&
-	operator = (axl::sl::StringRef&& string)
-	{
+	operator = (axl::sl::StringRef&& string) {
 		m_string = string;
 		m_ptr = g_nullDataPtr;
 		return *this;
@@ -701,41 +651,35 @@ struct DualString
 #endif
 
 	DualString&
-	operator = (const char* string)
-	{
+	operator = (const char* string) {
 		m_string = string;
 		m_ptr = g_nullDataPtr;
 		return *this;
 	}
 
 	bool
-	isEmpty() const
-	{
+	isEmpty() const {
 		return m_string.isEmpty();
 	}
 
 	const char*
-	sz() const
-	{
+	sz() const {
 		return m_string.sz();
 	}
 
 	DataPtr
-	getPtr()
-	{
+	getPtr() {
 		return m_ptr.m_p || m_string.isEmpty() ? m_ptr : (m_ptr = strDup(m_string));
 	}
 
 	void
-	clear()
-	{
+	clear() {
 		m_string.clear();
 		m_ptr = g_nullDataPtr;
 	}
 
 	void
-	markGcRoots(jnc::GcHeap* gcHeap)
-	{
+	markGcRoots(jnc::GcHeap* gcHeap) {
 		gcHeap->markDataPtr(m_ptr);
 	}
 };
@@ -744,45 +688,38 @@ struct DualString
 
 //..............................................................................
 
-class AutoRuntime
-{
+class AutoRuntime {
 protected:
 	Runtime* m_runtime;
 
 public:
-	AutoRuntime()
-	{
+	AutoRuntime() {
 		m_runtime = jnc_Runtime_create();
 	}
 
-	~AutoRuntime()
-	{
+	~AutoRuntime() {
 		if (m_runtime)
 			jnc_Runtime_destroy(m_runtime);
 	}
 
-	operator Runtime* () const
-	{
+	operator Runtime* () const {
 		return m_runtime;
 	}
 
 	Runtime*
-	operator -> () const
-	{
+	operator -> () const {
 		return m_runtime;
 	}
 
 	Runtime*
-	p() const
-	{
+	p() const {
 		return m_runtime;
 	}
 };
 
 //..............................................................................
 
-class NoCollectRegion
-{
+class NoCollectRegion {
 protected:
 	GcHeap* m_gcHeap;
 	bool m_canCollectOnLeave;
@@ -791,29 +728,25 @@ public:
 	NoCollectRegion(
 		GcHeap* gcHeap,
 		bool canCollectOnLeave
-		)
-	{
+	) {
 		init(gcHeap, canCollectOnLeave);
 	}
 
 	NoCollectRegion(
 		Runtime* runtime,
 		bool canCollectOnLeave
-		)
-	{
+	) {
 		init(runtime->getGcHeap(), canCollectOnLeave);
 	}
 
-	NoCollectRegion(bool canCollectOnLeave)
-	{
+	NoCollectRegion(bool canCollectOnLeave) {
 		GcHeap* gcHeap = getCurrentThreadGcHeap();
 		JNC_ASSERT(gcHeap);
 
 		init(gcHeap, canCollectOnLeave);
 	}
 
-	~NoCollectRegion()
-	{
+	~NoCollectRegion() {
 		m_gcHeap->leaveNoCollectRegion(m_canCollectOnLeave);
 	}
 
@@ -822,8 +755,7 @@ protected:
 	init(
 		GcHeap* gcHeap,
 		bool canCollectOnLeave
-		)
-	{
+	) {
 		JNC_ASSERT(gcHeap);
 		m_gcHeap = gcHeap;
 		m_canCollectOnLeave = canCollectOnLeave;
@@ -833,36 +765,30 @@ protected:
 
 //..............................................................................
 
-class WaitRegion
-{
+class WaitRegion {
 protected:
 	GcHeap* m_gcHeap;
 
 public:
-	WaitRegion(GcHeap* gcHeap)
-	{
+	WaitRegion(GcHeap* gcHeap) {
 		init(gcHeap);
 	}
 
-	WaitRegion(Runtime* runtime)
-	{
+	WaitRegion(Runtime* runtime) {
 		init(runtime->getGcHeap());
 	}
 
-	WaitRegion()
-	{
+	WaitRegion() {
 		init(getCurrentThreadGcHeap());
 	}
 
-	~WaitRegion()
-	{
+	~WaitRegion() {
 		m_gcHeap->leaveWaitRegion();
 	}
 
 protected:
 	void
-	init(GcHeap* gcHeap)
-	{
+	init(GcHeap* gcHeap) {
 		JNC_ASSERT(gcHeap);
 		m_gcHeap = gcHeap;
 		gcHeap->enterWaitRegion();

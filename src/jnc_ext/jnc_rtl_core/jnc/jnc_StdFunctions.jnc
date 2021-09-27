@@ -24,14 +24,14 @@ size_t dynamicSizeOf(void const* p);
 size_t dynamicCountOf(
 	void const* p,
 	void thin* type
-	);
+);
 
 ///; static char dynamicTypeSizeOfSrc[] =
 
 size_t dynamicTypeSizeOf(
 	void const* p,
 	void thin* type
-	);
+);
 
 ///; static char dynamicFieldSizeOfSrc[] =
 
@@ -39,7 +39,7 @@ size_t dynamicFieldSizeOf(
 	void const* p,
 	void thin* type,
 	void thin* field
-	);
+);
 
 ///; static char dynamicFieldCountOfSrc[] =
 
@@ -47,7 +47,7 @@ size_t dynamicFieldCountOf(
 	void const* p,
 	void thin* type,
 	void thin* field
-	);
+);
 
 
 ///; static char dynamicCastDataPtrSrc[] =
@@ -55,14 +55,14 @@ size_t dynamicFieldCountOf(
 void* dynamicCastDataPtr(
 	void const* p,
 	void thin* type
-	);
+);
 
 ///; static char dynamicCastClassPtrSrc[] =
 
 class* dynamicCastClassPtr(
 	class const* p,
 	void thin* type
-	);
+);
 
 ///; static char dynamicCastVariantSrc[] =
 
@@ -70,7 +70,7 @@ bool dynamicCastVariant(
 	variant v,
 	void thin* type,
 	void thin* buffer
-	);
+);
 
 ///; static char strengthenClassPtrSrc[] =
 
@@ -83,7 +83,7 @@ void assertionFailure(
 	int line,
 	char const thin* condition,
 	char const thin* message
-	);
+);
 
 ///; static char addStaticDestructorSrc[] =
 
@@ -94,7 +94,7 @@ void addStaticDestructor(void thin* dtor);
 void addStaticClassDestructor(
 	void thin* dtor,
 	class* obj
-	);
+);
 
 ///; static char appendFmtLiteralSrc_a [] =
 
@@ -102,7 +102,7 @@ size_t appendFmtLiteral_a(
 	FmtLiteral thin* fmtLiteral,
 	char const thin* p,
 	size_t length
-	);
+);
 
 ///; static char appendFmtLiteralSrc_p [] =
 
@@ -110,7 +110,7 @@ size_t appendFmtLiteral_p(
 	FmtLiteral thin* fmtLiteral,
 	char const thin* fmtSpecifier,
 	char const* p
-	);
+);
 
 ///; static char appendFmtLiteralSrc_i32 [] =
 
@@ -118,7 +118,7 @@ size_t appendFmtLiteral_i32(
 	FmtLiteral thin* fmtLiteral,
 	char const thin* fmtSpecifier,
 	int32_t value
-	);
+);
 
 ///; static char appendFmtLiteralSrc_ui32 [] =
 
@@ -126,7 +126,7 @@ size_t appendFmtLiteral_ui32(
 	FmtLiteral thin* fmtLiteral,
 	char const thin* fmtSpecifier,
 	uint32_t value
-	);
+);
 
 ///; static char appendFmtLiteralSrc_i64 [] =
 
@@ -134,7 +134,7 @@ size_t appendFmtLiteral_i64(
 	FmtLiteral thin* fmtLiteral,
 	char const thin* fmtSpecifier,
 	int64_t value
-	);
+);
 
 ///; static char appendFmtLiteralSrc_ui64 [] =
 
@@ -142,7 +142,7 @@ size_t appendFmtLiteral_ui64(
 	FmtLiteral thin* fmtLiteral,
 	char const thin* fmtSpecifier,
 	uint64_t value
-	);
+);
 
 ///; static char appendFmtLiteralSrc_f [] =
 
@@ -150,7 +150,7 @@ size_t appendFmtLiteral_f(
 	FmtLiteral thin* fmtLiteral,
 	char const thin* fmtSpecifier,
 	double value
-	);
+);
 
 ///; static char appendFmtLiteralSrc_v [] =
 
@@ -158,7 +158,7 @@ size_t appendFmtLiteral_v(
 	FmtLiteral thin* fmtLiteral,
 	char const thin* fmtSpecifier,
 	variant v
-	);
+);
 
 ///; static char tryCheckDataPtrRangeDirectSrc[] =
 
@@ -166,7 +166,7 @@ bool errorcode tryCheckDataPtrRangeDirect(
 	void thin const* p,
 	void thin const* rangeBegin,
 	size_t rangeLength
-	);
+);
 
 ///; static char checkDataPtrRangeDirectSrc[] =
 
@@ -174,7 +174,7 @@ void checkDataPtrRangeDirect(
 	void thin const* p,
 	void thin const* rangeBegin,
 	size_t rangeLength
-	);
+);
 
 ///; static char tryLazyGetDynamicLibFunctionSrc[] =
 
@@ -182,7 +182,7 @@ void thin* errorcode tryLazyGetDynamicLibFunction(
 	jnc.DynamicLib* lib,
 	size_t index,
 	char thin const* name
-	);
+);
 
 ///; static char lazyGetDynamicLibFunctionSrc[] =
 
@@ -190,7 +190,7 @@ void thin* lazyGetDynamicLibFunction(
 	jnc.DynamicLib* lib,
 	size_t index,
 	char thin const* name
-	);
+);
 
 ///; static char getDynamicFieldSrc[] =
 
@@ -198,7 +198,7 @@ void thin* getDynamicField(
 	void const* p,
 	void thin* type,
 	void thin* field
-	);
+);
 
 ///;
 

@@ -9,13 +9,11 @@
 //
 //..............................................................................
 
-unsigned int errorcode foo(int x)
-{
+unsigned int errorcode foo(int x) {
 	return x;
 }
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	foo(-1);

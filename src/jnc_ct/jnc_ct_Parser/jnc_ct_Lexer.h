@@ -16,8 +16,7 @@ namespace ct {
 
 //..............................................................................
 
-enum TokenKind
-{
+enum TokenKind {
 	// common tokens
 
 	TokenKind_Eof = 0,
@@ -199,8 +198,7 @@ enum TokenKind
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum TokenChannelMask
-{
+enum TokenChannelMask {
 	TokenChannelMask_Main        = lex::TokenChannelMask_Main, // 0x01,
 	TokenChannelMask_DoxyComment = 0x02,
 	TokenChannelMask_All         = 0x03,
@@ -208,8 +206,7 @@ enum TokenChannelMask
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum TokenFlag
-{
+enum TokenFlag {
 	TokenFlag_CodeAssistLeft  = 0x10,
 	TokenFlag_CodeAssistMid   = 0x20,
 	TokenFlag_CodeAssistRight = 0x40,
@@ -404,8 +401,7 @@ AXL_LEX_END_TOKEN_NAME_MAP();
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class TokenData: public lex::StdTokenData
-{
+class TokenData: public lex::StdTokenData {
 public:
 	sl::Array<char> m_binData;
 };
@@ -419,8 +415,7 @@ bool
 isOffsetInsideTokenList(
 	const sl::ConstBoxList<Token>& tokenList,
 	size_t offset
-	)
-{
+) {
 	return
 		!tokenList.isEmpty() &&
 		tokenList.getHead()->m_pos.m_offset <= offset &&
@@ -432,8 +427,7 @@ bool
 markCodeAssistToken(
 	Token* token,
 	size_t offset
-	)
-{
+) {
 	size_t end = token->m_pos.m_offset + token->m_pos.m_length;
 	if (end < offset)
 		return false;
@@ -448,16 +442,14 @@ markCodeAssistToken(
 
 //..............................................................................
 
-enum LexerMode
-{
+enum LexerMode {
 	LexerMode_Parse,   // don't tokenize bodies
 	LexerMode_Compile,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class Lexer: public lex::RagelLexer<Lexer, Token>
-{
+class Lexer: public lex::RagelLexer<Lexer, Token> {
 	friend class lex::RagelLexer<Lexer, Token>;
 
 protected:
@@ -474,8 +466,7 @@ protected:
 public:
 	Lexer(LexerMode mode = LexerMode_Compile);
 	LexerMode
-	getMode()
-	{
+	getMode() {
 		return m_mode;
 	}
 
@@ -484,16 +475,14 @@ protected:
 	createKeywordTokenEx(
 		TokenKind tokenKind,
 		int param
-		)
-	{
+	) {
 		Token* token = createToken(tokenKind);
 		token->m_data.m_integer = param;
 		return token;
 	}
 
 	Token*
-	createStringToken(TokenKind tokenKind)
-	{
+	createStringToken(TokenKind tokenKind) {
 		Token* token = createToken(tokenKind);
 		token->m_data.m_string = sl::StringRef(ts, token->m_pos.m_length);
 		return token;
@@ -504,19 +493,19 @@ protected:
 		TokenKind tokenKind,
 		size_t prefix,
 		size_t suffix
-		);
+	);
 
 	Token*
 	createCharToken(
 		size_t prefix,
 		bool useEscapeEncoding = false
-		);
+	);
 
 	Token*
 	createLiteralToken(
 		size_t prefix,
 		bool useEscapeEncoding = false
-		);
+	);
 
 	Token*
 	createSourceFileToken();
@@ -532,14 +521,13 @@ protected:
 		TokenKind tokenKind,
 		int radix = 10,
 		size_t left = 0
-		);
+	);
 
 	Token*
 	createIntegerToken(
 		int radix = 10,
 		size_t left = 0
-		)
-	{
+	) {
 		return createIntegerToken(TokenKind_Integer, radix, left);
 	}
 
@@ -566,7 +554,7 @@ protected:
 	createFmtLiteralToken(
 		TokenKind tokenKind,
 		int param = 0
-		);
+	);
 
 	void
 	createFmtSimpleIdentifierTokens();

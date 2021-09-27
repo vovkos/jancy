@@ -26,8 +26,7 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(RegexDfa)
 
 //..............................................................................
 
-struct RegexMatch
-{
+struct RegexMatch {
 	DataPtr m_textPtr;
 	size_t m_offset;
 	size_t m_length;
@@ -35,19 +34,16 @@ struct RegexMatch
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum RegexResult
-{
+enum RegexResult {
 	RegexResult_Error    = -1,
 	RegexResult_Continue = -2, // incremental regex result depends on upcoming data
 };
 
 //..............................................................................
 
-class RegexState: public IfaceHdr
-{
+class RegexState: public IfaceHdr {
 public:
-	enum Flag
-	{
+	enum Flag {
 		Flag_Incremental = 0x01,
 		Flag_Lexer       = 0x02,
 	};
@@ -107,7 +103,7 @@ public:
 		ct::Dfa* dfa,
 		DataPtr ptr,
 		size_t length
-		);
+	);
 
 protected:
 	void
@@ -126,7 +122,7 @@ protected:
 	writeData(
 		uchar_t* p,
 		size_t length
-		);
+	);
 
 	size_t
 	writeChar(uchar_t c);
@@ -143,8 +139,7 @@ protected:
 
 //..............................................................................
 
-class RegexDfa: public IfaceHdr
-{
+class RegexDfa: public IfaceHdr {
 protected:
 	re::Regex m_regex;
 	sl::List<ct::ReSwitchAcceptContext> m_acceptContextList;
@@ -160,7 +155,7 @@ public:
 	incrementalCompile(
 		DataPtr regexStringPtr,
 		size_t length
-		);
+	);
 
 	bool
 	JNC_CDECL
@@ -172,7 +167,7 @@ public:
 		RegexState* state,
 		DataPtr ptr,
 		size_t length
-		);
+	);
 };
 
 //..............................................................................

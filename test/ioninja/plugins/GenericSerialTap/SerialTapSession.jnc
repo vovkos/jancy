@@ -16,8 +16,7 @@ import "std_Buffer.jnc"
 
 //..............................................................................
 
-class SerialPort
-{
+class SerialPort {
 	char const* m_name;
 	io.Serial m_serial;
 	io.SerialStatusLines bindable m_serialStatusLines;
@@ -26,11 +25,9 @@ class SerialPort
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class SerialTapSession: doc.Session
-{
+class SerialTapSession: doc.Session {
 protected:
-	enum Defaults
-	{
+	enum Defaults {
 		BaudRate     = 38400,
 		DataBits     = 8,
 		StopBits     = io.SerialStopBits._1,
@@ -39,29 +36,25 @@ protected:
 		ReadInterval = 10,
 	}
 
-	enum State
-	{
+	enum State {
 		Closed,
 		Opened,
 	}
 
-	enum ActionId
-	{
+	enum ActionId {
 		Refresh,
 		Capture,
 		Flip,
 		_Count,
 	}
 
-	enum IconId
-	{
+	enum IconId {
 		Capture,
 		StopCapture,
 		_Count,
 	}
 
-	enum InfoId
-	{
+	enum InfoId {
 		Dtr,
 		Rts,
 		Dsr,
@@ -123,13 +116,11 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
-	void onOpen()
-	{
+	void onOpen() {
 		m_state ? close() : try open();
 	}
 
-	void onPortComboEnter()
-	{
+	void onPortComboEnter() {
 		try open();
 	}
 
@@ -139,7 +130,7 @@ protected:
 		SerialPort* port,
 		uint_t syncId,
 		io.SerialEvents triggeredEvents
-		);
+	);
 
 	void createUi();
 	void enumeratePorts();
@@ -150,14 +141,13 @@ protected:
 		ui.EnumPropertyOption const* optionTable,
 		size_t optionCount,
 		function* onChanged()
-		);
+	);
 
 	bool errorcode configurePort(SerialPort* port);
 	void waitSerialEvents(SerialPort* port);
 	io.SerialOptions getSerialOptions();
 
-	uint_t getReadInterval()
-	{
+	uint_t getReadInterval() {
 		return
 			sys.g_systemInfo.m_osKind != sys.OsKind.Windows ||
 			m_readModeProp.m_value != SerialReadMode.IntervalBased ? 0 : m_readIntervalProp.m_value;
@@ -166,13 +156,12 @@ protected:
 	void updateLineInfoValue(
 		InfoId infoId,
 		bool line
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-SerialTapSession.construct(doc.PluginHost* pluginHost)
-{
+SerialTapSession.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
 
 	m_readBuffer.setSize(ui.BufferPropertySet.Defaults.ReadBufferSize);
@@ -187,10 +176,8 @@ SerialTapSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-void SerialTapSession.createUi()
-{
-	static ui.EnumPropertyOption readModeTable[] =
-	{
+void SerialTapSession.createUi() {
+	static ui.EnumPropertyOption readModeTable[] = {
 		{ "Check COMSTAT.cbInQue", SerialReadMode.CheckComstat },
 		{ "Wait for the 1st char", SerialReadMode.WaitFirstChar },
 		{ "Interval-based",        SerialReadMode.IntervalBased },
@@ -214,8 +201,7 @@ void SerialTapSession.createUi()
 	size_t portCount;
 	io.SerialPortDesc const* portList = io.createSerialPortDescList(&portCount);
 	io.SerialPortDesc const* port = portList;
-	for (; port; port = port.m_next)
-	{
+	for (; port; port = port.m_next) {
 		m_dtePortCombo.addItem(port.m_deviceName, null);
 		m_dcePortCombo.addItem(port.m_deviceName, null);
 	}
@@ -234,21 +220,21 @@ void SerialTapSession.createUi()
 	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Connection",
 		"Serial port-specific connection settings"
-		);
+	);
 
 	m_dtePortProp = m_pluginHost.m_propertyGrid.createComboProperty(
 		group,,
 		"DTE",
 		"Enter a serial port name...",
 		"Specify DTE serial port"
-		);
+	);
 
 	m_dcePortProp = m_pluginHost.m_propertyGrid.createComboProperty(
 		group,,
 		"DCE",
 		"Enter a serial port name...",
 		"Specify DCE serial port"
-		);
+	);
 
 	m_serialSettingUi.create(
 		m_pluginHost.m_toolBar,
@@ -259,7 +245,7 @@ void SerialTapSession.createUi()
 		ui.SerialSettingUi.SettingId.DataBits |
 		ui.SerialSettingUi.SettingId.StopBits |
 		ui.SerialSettingUi.SettingId.Parity
-		);
+	);
 
 	m_serialSettingUi.m_baudRateCombo.m_onEnter += onBaudRateChanged;
 	bindingof(m_serialSettingUi.m_baudRateCombo.m_currentIndex) += onBaudRateChanged;
@@ -273,7 +259,7 @@ void SerialTapSession.createUi()
 		group,,
 		"Flip DTE/DCE",
 		"Flip logical sides of the tap cable"
-		);
+	);
 
 	// status bar (only one pane)
 
@@ -284,10 +270,9 @@ void SerialTapSession.createUi()
 	group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Buffering & compatibility",
 		"Advanced options controlling performance, throughtput and compatibility"
-		);
+	);
 
-	if (sys.g_systemInfo.m_osKind == sys.OsKind.Windows)
-	{
+	if (sys.g_systemInfo.m_osKind == sys.OsKind.Windows) {
 		// these settings only make sense on Windows
 
 		m_readModeProp = m_pluginHost.m_propertyGrid.createEnumProperty(
@@ -296,18 +281,16 @@ void SerialTapSession.createUi()
 			"Advanced read request-specific options",
 			readModeTable,
 			countof(readModeTable)
-			);
+		);
 
 		m_readIntervalProp = m_pluginHost.m_propertyGrid.createIntProperty(
 			group,,
 			"Read max inter-char interval (ms)",
 			"Maximum inter-character delay during read request (in millisceonds)"
-			);
+		);
 
 		m_readIntervalProp.m_minValue = 1;
-	}
-	else
-	{
+	} else {
 		// still, we want valid property pointers, so there's less checking
 
 		m_readModeProp = new ui.EnumProperty(null);
@@ -320,7 +303,7 @@ void SerialTapSession.createUi()
 		ui.BufferPropertySet.PropertyId.All &
 		~ui.BufferPropertySet.PropertyId.WriteBufferSize &
 		~ui.BufferPropertySet.PropertyId.KeepWriteBlockSize
-		);
+	);
 
 	// information grid
 
@@ -348,8 +331,7 @@ ui.ComboBox* SerialTapSession.createSerialSettingComboBox(
 	ui.EnumPropertyOption const* optionTable,
 	size_t optionCount,
 	function* onChanged()
-	)
-{
+) {
 	m_pluginHost.m_toolBar.addLabel(labelText);
 	ui.ComboBox* comboBox = m_pluginHost.m_toolBar.addComboBox();
 
@@ -362,8 +344,7 @@ ui.ComboBox* SerialTapSession.createSerialSettingComboBox(
 	return comboBox;
 }
 
-void SerialTapSession.enumeratePorts()
-{
+void SerialTapSession.enumeratePorts() {
 	char const* dteName = m_dtePortCombo.m_currentText;
 	char const* dceName = m_dcePortCombo.m_currentText;
 
@@ -377,8 +358,7 @@ void SerialTapSession.enumeratePorts()
 	ui.EnumPropertyOption* optionArray = new ui.EnumPropertyOption[count];
 	ui.EnumPropertyOption* option = optionArray;
 
-	for (; port; port = port.m_next, option++)
-	{
+	for (; port; port = port.m_next, option++) {
 		char const* description = $"$(port.m_deviceName) - $(port.m_description)";
 		m_dtePortCombo.addItem(description, port.m_deviceName);
 		m_dcePortCombo.addItem(description, port.m_deviceName);
@@ -394,8 +374,7 @@ void SerialTapSession.enumeratePorts()
 	m_dcePortProp.setOptions(optionArray, count);
 }
 
-void SerialTapSession.flipDteDce()
-{
+void SerialTapSession.flipDteDce() {
 	char const* tmpName = m_dtePortCombo.m_editText;
 	m_dtePortCombo.m_editText = m_dcePortCombo.m_editText;
 	m_dcePortCombo.m_editText = tmpName;
@@ -410,8 +389,7 @@ void SerialTapSession.flipDteDce()
 	m_uiReactor.restart(); // need to re-bind DTE/DCE
 }
 
-io.SerialOptions SerialTapSession.getSerialOptions()
-{
+io.SerialOptions SerialTapSession.getSerialOptions() {
 	io.SerialOptions options;
 
 	if (m_bufferPropertySet.m_keepReadBlockSizeProp.m_value)
@@ -425,8 +403,7 @@ io.SerialOptions SerialTapSession.getSerialOptions()
 	return options;
 }
 
-bool errorcode SerialTapSession.configurePort(SerialPort* port)
-{
+bool errorcode SerialTapSession.configurePort(SerialPort* port) {
 	uint_t readInterval = getReadInterval();
 
 	port.m_serial.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
@@ -441,11 +418,10 @@ bool errorcode SerialTapSession.configurePort(SerialPort* port)
 		m_serialSettingUi.m_parity,
 		io.SerialFlowControl.None,
 		readInterval
-		);
+	);
 }
 
-bool errorcode SerialTapSession.open()
-{
+bool errorcode SerialTapSession.open() {
 	close();
 	startSession();
 
@@ -454,8 +430,7 @@ bool errorcode SerialTapSession.open()
 	m_dtePort.m_name = m_dtePortCombo.m_currentText;
 	m_dcePort.m_name = m_dcePortCombo.m_currentText;
 
-	if (strcmp(m_dtePort.m_name, m_dcePort.m_name) == 0)
-	{
+	if (strcmp(m_dtePort.m_name, m_dcePort.m_name) == 0) {
 		std.setError("ports A and B cannot be the same");
 		throw;
 	}
@@ -465,8 +440,7 @@ bool errorcode SerialTapSession.open()
 
 	char const* driverNameA = io.detectSerialBuggyDriver(m_dtePort.m_name);
 	char const* driverNameB = io.detectSerialBuggyDriver(m_dcePort.m_name);
-	if (driverNameA || driverNameB)
-	{
+	if (driverNameA || driverNameB) {
 		m_logWriter.write(SerialLogRecordCode.BuggyDriverDetected, driverNameA ? driverNameA : driverNameB);
 		io.setConservativeSerialSettings(m_dtePort.m_serial);
 		io.setConservativeSerialSettings(m_dcePort.m_serial);
@@ -508,8 +482,7 @@ catch:
 	return false;
 }
 
-void SerialTapSession.close()
-{
+void SerialTapSession.close() {
 	if (m_state != State.Opened)
 		return;
 
@@ -523,8 +496,7 @@ void SerialTapSession.close()
 	m_stdSessionInfoSet.endSession();
 }
 
-void SerialTapSession.load(doc.Storage* storage)
-{
+void SerialTapSession.load(doc.Storage* storage) {
 	m_serialSettingUi.load(storage);
 
 	m_dtePortCombo.m_editText = storage.readString("dtePortName");
@@ -538,8 +510,7 @@ void SerialTapSession.load(doc.Storage* storage)
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 }
 
-void SerialTapSession.save(doc.Storage* storage)
-{
+void SerialTapSession.save(doc.Storage* storage) {
 	m_serialSettingUi.save(storage);
 
 	storage.writeString("dtePortName", m_dtePortCombo.m_editText);
@@ -552,8 +523,7 @@ void SerialTapSession.save(doc.Storage* storage)
 	m_bufferPropertySet.save(storage);
 }
 
-void SerialTapSession.updateProperties()
-{
+void SerialTapSession.updateProperties() {
 	m_serialSettingUi.updateProperties();
 
 	m_dtePortProp.m_value = m_dtePortCombo.m_editText;
@@ -561,8 +531,7 @@ void SerialTapSession.updateProperties()
 	m_flipProp.m_value = m_actionTable[ActionId.Flip].m_isChecked;
 }
 
-bool errorcode SerialTapSession.applyProperties()
-{
+bool errorcode SerialTapSession.applyProperties() {
 	m_serialSettingUi.applyProperties();
 
 	m_dtePortCombo.m_editText = m_dtePortProp.m_value;
@@ -603,8 +572,7 @@ bool errorcode SerialTapSession.applyProperties()
 		m_logWriter.write(SerialLogRecordCode.ParityChanged, &parity, sizeof(parity));
 
 	io.SerialOptions optionMask = prevOptions ^ options;
-	if (optionMask & (io.SerialOptions.WinReadCheckComstat | io.SerialOptions.WinReadWaitFirstChar))
-	{
+	if (optionMask & (io.SerialOptions.WinReadCheckComstat | io.SerialOptions.WinReadWaitFirstChar)) {
 		uint_t mode = m_readModeProp.m_value;
 		m_logWriter.write(SerialLogRecordCode.ReadModeChanged, &mode, sizeof(mode));
 	}
@@ -619,16 +587,14 @@ catch:
 	return false;
 }
 
-void SerialTapSession.restoreDefaultProperties()
-{
+void SerialTapSession.restoreDefaultProperties() {
 	m_serialSettingUi.restoreDefaultProperties();
 	m_readModeProp.m_value = Defaults.ReadMode;
 	m_readIntervalProp.m_value = Defaults.ReadInterval;
 	m_bufferPropertySet.restoreDefaults();
 }
 
-void SerialTapSession.waitSerialEvents(SerialPort* port)
-{
+void SerialTapSession.waitSerialEvents(SerialPort* port) {
 	io.SerialEvents eventMask =
 		io.SerialEvents.IoError |
 		io.SerialEvents.ReadBufferFull |
@@ -645,20 +611,18 @@ void SerialTapSession.waitSerialEvents(SerialPort* port)
 	port.m_serial.wait(
 		eventMask,
 		onSerialEvent~(port, ++port.m_syncId) @ m_pluginHost.m_mainThreadScheduler
-		);
+	);
 }
 
 void SerialTapSession.onSerialEvent(
 	SerialPort* port,
 	uint_t syncId,
 	io.SerialEvents triggeredEvents
-	)
-{
+) {
 	if (syncId != port.m_syncId)
 		return;
 
-	if (triggeredEvents & io.SerialEvents.IoError)
-	{
+	if (triggeredEvents & io.SerialEvents.IoError) {
 		m_logWriter.write(log.StdRecordCode.Error, port.m_serial.m_ioError);
 		close();
 		return;
@@ -668,11 +632,9 @@ void SerialTapSession.onSerialEvent(
 		m_bufferPropertySet.m_notifyReadBufferFullProp.m_value)
 		m_logWriter.write(log.StdRecordCode.RxBufferFullLossy);
 
-	if (triggeredEvents & io.SerialEvents.IncomingData)
-	{
+	if (triggeredEvents & io.SerialEvents.IncomingData) {
 		size_t result = port.m_serial.read(m_readBuffer.m_p, m_readBuffer.m_size);
-		if (result)
-		{
+		if (result) {
 			uint64_t code = port == m_dtePort ? log.StdRecordCode.Rx : log.StdRecordCode.Tx;
 			m_logWriter.write(code, m_readBuffer.m_p, result);
 		}
@@ -681,8 +643,7 @@ void SerialTapSession.onSerialEvent(
 	io.SerialStatusLines statusLines = port.m_serial.m_statusLines;
 	io.SerialStatusLines statusLineMask = statusLines ^ port.m_serialStatusLines;
 
-	if (statusLineMask)
-	{
+	if (statusLineMask) {
 		uint64_t recordCode = port == m_dtePort ?
 			SerialLogRecordCode.StatusLineChanged :
 			SerialLogRecordCode.ControlLineChanged;
@@ -696,8 +657,7 @@ void SerialTapSession.onSerialEvent(
 	waitSerialEvents(port);
 }
 
-void SerialTapSession.onBaudRateChanged()
-{
+void SerialTapSession.onBaudRateChanged() {
 	if (m_state != State.Opened)
 		return;
 
@@ -719,14 +679,12 @@ catch:
 void SerialTapSession.updateLineInfoValue(
 	InfoId infoId,
 	bool line
-	)
-{
+) {
 	m_infoTable[infoId].m_value = line ? "on" : "off";
 	m_infoTable[infoId].m_valueColor = line ? ui.StdColor.LightRed : ui.StdColor.Gray;
 }
 
-reactor SerialTapSession.m_uiReactor
-{
+reactor SerialTapSession.m_uiReactor {
 	m_title = m_state ?
 		$"Tap $(m_dtePort.m_name):$(m_dcePort.m_name) $m_serialBaudRate bps" :
 		$"Tap $(m_dtePortCombo.m_currentText):$(m_dcePortCombo.m_currentText) $(m_serialSettingUi.m_baudRateCombo.m_currentText)";

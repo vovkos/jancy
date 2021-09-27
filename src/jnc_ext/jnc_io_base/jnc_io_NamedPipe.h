@@ -24,15 +24,13 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(NamedPipe)
 
 //..............................................................................
 
-enum NamedPipeEvent
-{
+enum NamedPipeEvent {
 	NamedPipeEvent_IncomingConnection = 0x0002,
 };
 
 //..............................................................................
 
-struct NamedPipeHdr: IfaceHdr
-{
+struct NamedPipeHdr: IfaceHdr {
 	uint_t m_backLogLimit;
 	uint_t m_readParallelism;
 	size_t m_readBlockSize;
@@ -44,13 +42,11 @@ struct NamedPipeHdr: IfaceHdr
 
 class NamedPipe:
 	public NamedPipeHdr,
-	public AsyncIoDevice
-{
+	public AsyncIoDevice {
 	friend class IoThread;
 
 protected:
-	enum Def
-	{
+	enum Def {
 		Def_BackLogLimit    = 4,
 		Def_ReadParallelism = 4,
 		Def_ReadBlockSize   = 4 * 1024,
@@ -60,29 +56,24 @@ protected:
 		Def_Timeout         = 0,
 	};
 
-	class IoThread: public sys::ThreadImpl<IoThread>
-	{
+	class IoThread: public sys::ThreadImpl<IoThread> {
 	public:
 		void
-		threadFunc()
-		{
+		threadFunc() {
 			containerof(this, NamedPipe, m_ioThread)->ioThreadFunc();
 		}
 	};
 
-	struct IncomingConnection: sl::ListLink
-	{
+	struct IncomingConnection: sl::ListLink {
 		axl::io::win::NamedPipe m_pipe;
 	};
 
-	struct OverlappedConnect: sl::ListLink
-	{
+	struct OverlappedConnect: sl::ListLink {
 		axl::io::win::NamedPipe m_pipe;
 		axl::io::win::StdOverlapped m_overlapped;
 	};
 
-	struct OverlappedIo
-	{
+	struct OverlappedIo {
 		mem::Pool<OverlappedConnect> m_overlappedConnectPool;
 		sl::List<OverlappedConnect> m_pipeList;
 		sl::List<OverlappedConnect> m_activeOverlappedConnectList;
@@ -99,15 +90,13 @@ protected:
 public:
 	NamedPipe();
 
-	~NamedPipe()
-	{
+	~NamedPipe() {
 		close();
 	}
 
 	void
 	JNC_CDECL
-	markOpaqueGcRoots(jnc::GcHeap* gcHeap)
-	{
+	markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 		AsyncIoDevice::markOpaqueGcRoots(gcHeap);
 	}
 
@@ -121,36 +110,31 @@ public:
 
 	void
 	JNC_CDECL
-	setBackLogLimit(uint_t limit)
-	{
+	setBackLogLimit(uint_t limit) {
 		AsyncIoDevice::setSetting(&m_backLogLimit, limit ? limit : Def_BackLogLimit);
 	}
 
 	void
 	JNC_CDECL
-	setReadParallelism(uint_t count)
-	{
+	setReadParallelism(uint_t count) {
 		AsyncIoDevice::setSetting(&m_readParallelism, count ? count : Def_ReadParallelism);
 	}
 
 	void
 	JNC_CDECL
-	setReadBlockSize(size_t size)
-	{
+	setReadBlockSize(size_t size) {
 		AsyncIoDevice::setSetting(&m_readBlockSize, size ? size : Def_ReadBlockSize);
 	}
 
 	bool
 	JNC_CDECL
-	setReadBufferSize(size_t size)
-	{
+	setReadBufferSize(size_t size) {
 		return AsyncIoDevice::setReadBufferSize(&m_readBufferSize, size ? size : Def_ReadBufferSize);
 	}
 
 	bool
 	JNC_CDECL
-	setWriteBufferSize(size_t size)
-	{
+	setWriteBufferSize(size_t size) {
 		return AsyncIoDevice::setWriteBufferSize(&m_writeBufferSize, size ? size : Def_WriteBufferSize);
 	}
 
@@ -167,15 +151,13 @@ public:
 	wait(
 		uint_t eventMask,
 		FunctionPtr handlerPtr
-		)
-	{
+	) {
 		return AsyncIoDevice::wait(eventMask, handlerPtr);
 	}
 
 	bool
 	JNC_CDECL
-	cancelWait(handle_t handle)
-	{
+	cancelWait(handle_t handle) {
 		return AsyncIoDevice::cancelWait(handle);
 	}
 
@@ -184,15 +166,13 @@ public:
 	blockingWait(
 		uint_t eventMask,
 		uint_t timeout
-		)
-	{
+	) {
 		return AsyncIoDevice::blockingWait(eventMask, timeout);
 	}
 
 	Promise*
 	JNC_CDECL
-	asyncWait(uint_t eventMask)
-	{
+	asyncWait(uint_t eventMask) {
 		return AsyncIoDevice::asyncWait(eventMask);
 	}
 

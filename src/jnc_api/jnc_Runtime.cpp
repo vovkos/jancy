@@ -27,8 +27,7 @@
 JNC_EXTERN_C
 JNC_EXPORT_O
 size_t
-jnc_strLen(jnc_DataPtr ptr)
-{
+jnc_strLen(jnc_DataPtr ptr) {
 	if (!ptr.m_validator ||
 		ptr.m_p < ptr.m_validator->m_rangeBegin ||
 		(ptr.m_validator->m_targetBox->m_flags & jnc_BoxFlag_Invalid))
@@ -50,8 +49,7 @@ jnc_DataPtr
 jnc_strDup(
 	const char* p,
 	size_t length
-	)
-{
+) {
 	using namespace jnc;
 
 	if (length == -1)
@@ -76,8 +74,7 @@ jnc_DataPtr
 jnc_memDup(
 	const void* p,
 	size_t size
-	)
-{
+) {
 	using namespace jnc;
 
 	if (!size)
@@ -100,8 +97,7 @@ jnc_createForeignBufferPtr(
 	const void* p,
 	size_t size,
 	bool_t isCallSiteLocal
-	)
-{
+) {
 	using namespace jnc;
 
 	GcHeap* gcHeap = getCurrentThreadGcHeap();
@@ -116,8 +112,7 @@ jnc_DataPtr
 jnc_createForeignStringPtr(
 	const char* p,
 	bool_t isCallSiteLocal
-	)
-{
+) {
 	using namespace jnc;
 
 	GcHeap* gcHeap = getCurrentThreadGcHeap();
@@ -133,36 +128,31 @@ jnc_createForeignStringPtr(
 
 JNC_EXTERN_C
 jnc_Runtime*
-jnc_Runtime_create()
-{
+jnc_Runtime_create() {
 	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_createFunc();
 }
 
 JNC_EXTERN_C
 void
-jnc_Runtime_destroy(jnc_Runtime* runtime)
-{
+jnc_Runtime_destroy(jnc_Runtime* runtime) {
 	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_destroyFunc(runtime);
 }
 
 JNC_EXTERN_C
 jnc_Module*
-jnc_Runtime_getModule(jnc_Runtime* runtime)
-{
+jnc_Runtime_getModule(jnc_Runtime* runtime) {
 	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_getModuleFunc(runtime);
 }
 
 JNC_EXTERN_C
 jnc_GcHeap*
-jnc_Runtime_getGcHeap(jnc_Runtime* runtime)
-{
+jnc_Runtime_getGcHeap(jnc_Runtime* runtime) {
 	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_getGcHeapFunc(runtime);
 }
 
 JNC_EXTERN_C
 bool_t
-jnc_Runtime_isAborted(jnc_Runtime* runtime)
-{
+jnc_Runtime_isAborted(jnc_Runtime* runtime) {
 	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_isAbortedFunc(runtime);
 }
 
@@ -171,22 +161,19 @@ bool_t
 jnc_Runtime_startup(
 	jnc_Runtime* runtime,
 	jnc_Module* module
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_startupFunc(runtime, module);
 }
 
 JNC_EXTERN_C
 void
-jnc_Runtime_shutdown(jnc_Runtime* runtime)
-{
+jnc_Runtime_shutdown(jnc_Runtime* runtime) {
 	jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_shutdownFunc(runtime);
 }
 
 JNC_EXTERN_C
 void
-jnc_Runtime_abort(jnc_Runtime* runtime)
-{
+jnc_Runtime_abort(jnc_Runtime* runtime) {
 	jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_abortFunc(runtime);
 }
 
@@ -195,8 +182,7 @@ void
 jnc_Runtime_initializeCallSite(
 	jnc_Runtime* runtime,
 	jnc_CallSite* callSite
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_initializeCallSiteFunc(runtime, callSite);
 }
 
@@ -205,8 +191,7 @@ void
 jnc_Runtime_uninitializeCallSite(
 	jnc_Runtime* runtime,
 	jnc_CallSite* callSite
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_uninitializeCallSiteFunc(runtime, callSite);
 }
 
@@ -215,15 +200,13 @@ jnc_SjljFrame*
 jnc_Runtime_setSjljFrame(
 	jnc_Runtime* runtime,
 	jnc_SjljFrame* frame
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_setSjljFrameFunc(runtime, frame);
 }
 
 JNC_EXTERN_C
 void*
-jnc_Runtime_getUserData(jnc_Runtime* runtime)
-{
+jnc_Runtime_getUserData(jnc_Runtime* runtime) {
 	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_getUserDataFunc(runtime);
 }
 
@@ -232,36 +215,31 @@ void*
 jnc_Runtime_setUserData(
 	jnc_Runtime* runtime,
 	void* data
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_setUserDataFunc(runtime, data);
 }
 
 JNC_EXTERN_C
 jnc_Runtime*
-jnc_getCurrentThreadRuntime()
-{
+jnc_getCurrentThreadRuntime() {
 	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_getCurrentThreadRuntimeFunc();
 }
 
 JNC_EXTERN_C
 jnc_Tls*
-jnc_getCurrentThreadTls()
-{
+jnc_getCurrentThreadTls() {
 	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_getCurrentThreadTlsFunc();
 }
 
 JNC_EXTERN_C
 void
-jnc_dynamicThrow()
-{
+jnc_dynamicThrow() {
 	jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_dynamicThrowFunc();
 }
 
 JNC_EXTERN_C
 void
-jnc_saveSignalInfo(jnc_SjljFrame* sjljFrame)
-{
+jnc_saveSignalInfo(jnc_SjljFrame* sjljFrame) {
 	jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_saveSignalInfoFunc(sjljFrame);
 }
 
@@ -272,8 +250,7 @@ jnc_primeClass(
 	jnc_Box* root,
 	jnc_ClassType* type,
 	const void* vtable
-	)
-{
+) {
 	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_primeClassFunc(box, root, type, vtable);
 }
 
@@ -282,40 +259,35 @@ jnc_primeClass(
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Runtime*
-jnc_Runtime_create()
-{
+jnc_Runtime_create() {
 	return AXL_MEM_NEW(jnc_Runtime);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
-jnc_Runtime_destroy(jnc_Runtime* runtime)
-{
+jnc_Runtime_destroy(jnc_Runtime* runtime) {
 	return AXL_MEM_DELETE(runtime);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Module*
-jnc_Runtime_getModule(jnc_Runtime* runtime)
-{
+jnc_Runtime_getModule(jnc_Runtime* runtime) {
 	return runtime->getModule();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_GcHeap*
-jnc_Runtime_getGcHeap(jnc_Runtime* runtime)
-{
+jnc_Runtime_getGcHeap(jnc_Runtime* runtime) {
 	return runtime->getGcHeap();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
-jnc_Runtime_isAborted(jnc_Runtime* runtime)
-{
+jnc_Runtime_isAborted(jnc_Runtime* runtime) {
 	return runtime->isAborted();
 }
 
@@ -325,24 +297,21 @@ bool_t
 jnc_Runtime_startup(
 	jnc_Runtime* runtime,
 	jnc_Module* module
-	)
-{
+) {
 	return runtime->startup(module);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
-jnc_Runtime_shutdown(jnc_Runtime* runtime)
-{
+jnc_Runtime_shutdown(jnc_Runtime* runtime) {
 	return runtime->shutdown();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
-jnc_Runtime_abort(jnc_Runtime* runtime)
-{
+jnc_Runtime_abort(jnc_Runtime* runtime) {
 	return runtime->abort();
 }
 
@@ -352,8 +321,7 @@ void
 jnc_Runtime_initializeCallSite(
 	jnc_Runtime* runtime,
 	jnc_CallSite* callSite
-	)
-{
+) {
 	runtime->initializeCallSite(callSite);
 }
 
@@ -363,8 +331,7 @@ void
 jnc_Runtime_uninitializeCallSite(
 	jnc_Runtime* runtime,
 	jnc_CallSite* callSite
-	)
-{
+) {
 	runtime->uninitializeCallSite(callSite);
 }
 
@@ -374,16 +341,14 @@ jnc_SjljFrame*
 jnc_Runtime_setSjljFrame(
 	jnc_Runtime* runtime,
 	jnc_SjljFrame* frame
-	)
-{
+) {
 	return runtime->setSjljFrame(frame);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 void*
-jnc_Runtime_getUserData(jnc_Runtime* runtime)
-{
+jnc_Runtime_getUserData(jnc_Runtime* runtime) {
 	return runtime->m_userData;
 }
 
@@ -393,40 +358,35 @@ void*
 jnc_Runtime_setUserData(
 	jnc_Runtime* runtime,
 	void* data
-	)
-{
+) {
 	return (void*)sys::atomicXchg((size_t volatile*) &runtime->m_userData, (size_t)data);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Runtime*
-jnc_getCurrentThreadRuntime()
-{
+jnc_getCurrentThreadRuntime() {
 	return jnc::rt::getCurrentThreadRuntime();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Tls*
-jnc_getCurrentThreadTls()
-{
+jnc_getCurrentThreadTls() {
 	return jnc::rt::getCurrentThreadTls();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
-jnc_dynamicThrow()
-{
+jnc_dynamicThrow() {
 	jnc::rt::Runtime::dynamicThrow();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
-jnc_saveSignalInfo(jnc_SjljFrame* sjljFrame)
-{
+jnc_saveSignalInfo(jnc_SjljFrame* sjljFrame) {
 #if (_JNC_OS_POSIX)
 	jnc::rt::Runtime::saveSignalInfo(sjljFrame);
 #endif
@@ -440,8 +400,7 @@ primeIface(
 	jnc_IfaceHdr* iface,
 	jnc_ClassType* type,
 	const void* vtable
-	)
-{
+) {
 	using namespace jnc;
 
 	iface->m_vtable = vtable;
@@ -451,8 +410,7 @@ primeIface(
 
 	sl::Array<ct::BaseTypeSlot*> classBaseTypeArray = type->getClassBaseTypeArray();
 	size_t count = classBaseTypeArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		ct::BaseTypeSlot* slot = classBaseTypeArray[i];
 		ASSERT(slot->getType()->getTypeKind() == TypeKind_Class);
 
@@ -462,15 +420,14 @@ primeIface(
 			(IfaceHdr*)((char*)iface + slot->getOffset()),
 			(ct::ClassType*)slot->getType(),
 			(void**) vtable + slot->getVtableIndex()
-			);
+		);
 	}
 
 	// primeClass all the class fields
 
 	const sl::Array<ct::Field*>& fieldPrimeArray = type->getClassFieldArray();
 	count = fieldPrimeArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		ct::Field* field = fieldPrimeArray[i];
 		ASSERT(field->getType()->getTypeKind() == TypeKind_Class);
 
@@ -481,7 +438,7 @@ primeIface(
 			fieldBox,
 			root,
 			fieldType
-			);
+		);
 	}
 }
 
@@ -493,12 +450,10 @@ jnc_primeClass(
 	jnc_Box* root,
 	jnc_ClassType* type,
 	const void* vtable
-	)
-{
+) {
 	ASSERT(root <= box);
 
-	if (!vtable)
-	{
+	if (!vtable) {
 		jnc_Variable* vtableVariable = type->getVtableVariable();
 		if (vtableVariable)
 			vtable = vtableVariable->getStaticData();
@@ -516,8 +471,7 @@ jnc_primeClass(
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_IfaceHdr*
-jnc_strengthenClassPtr(jnc_IfaceHdr* iface)
-{
+jnc_strengthenClassPtr(jnc_IfaceHdr* iface) {
 	using namespace jnc;
 
 	if (!iface)
@@ -558,10 +512,8 @@ jnc_strengthenClassPtr(jnc_IfaceHdr* iface)
 EXTERN_C
 int
 __declspec(naked)
-jnc_setJmp(jmp_buf jmpBuf)
-{
-	__asm
-	{
+jnc_setJmp(jmp_buf jmpBuf) {
+	__asm {
 		xor eax, eax
 		mov edx, JMPBUF[esp]
 
@@ -589,10 +541,8 @@ __declspec(naked)
 jnc_longJmp(
 	jmp_buf jmpBuf,
 	int retVal
-	)
-{
-	__asm
-	{
+) {
+	__asm {
 		mov ecx, JMPBUF[esp]   /* User's jmp_buf in %ecx.  */
 		mov eax, [esp + 8]      /* Second argument is return value.  */
 		/* Restore EXCEPTION_REGISTRATION */
@@ -615,8 +565,7 @@ jnc_longJmp(
 #		undef jnc_setJmp
 
 int
-jnc_setJmp(jmp_buf jmpBuf)
-{
+jnc_setJmp(jmp_buf jmpBuf) {
 	ASSERT(false);
 	return 0;
 }
@@ -625,8 +574,7 @@ void
 jnc_longJmp(
 	jmp_buf jmpBuf,
 	int retVal
-	)
-{
+) {
 	_JUMP_BUFFER* buffer = (_JUMP_BUFFER*)jmpBuf;
 	buffer->Frame = 0;
 	longjmp(jmpBuf, retVal);

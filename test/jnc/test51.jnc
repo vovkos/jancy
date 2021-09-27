@@ -9,33 +9,29 @@
 //
 //..............................................................................
 
-dynamiclib User32
-{
+dynamiclib User32 {
 	int stdcall MessageBoxA(
 		intptr_t hwnd,
 		char const thin* text,
 		char const thin* caption,
 		int flags
-		);
+	);
 
 	int stdcall MessageBeep(int type);
 }
 
-dynamiclib Msvcrt
-{
+dynamiclib Msvcrt {
 	int cdecl printf(
 		char const thin* format,
 		...
-		);
+	);
 }
 
-void foo(Msvcrt* msvcrt)
-{
+void foo(Msvcrt* msvcrt) {
 	msvcrt.lib.printf("hui govno i muravei!\n");
 }
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	User32 user32;

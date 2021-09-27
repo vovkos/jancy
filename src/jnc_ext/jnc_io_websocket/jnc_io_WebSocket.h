@@ -22,8 +22,7 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(WebSocket)
 
 //..............................................................................
 
-enum WebSocketOption
-{
+enum WebSocketOption {
 	WebSocketOption_IncludeControlFrames           = 0x0100,
 	WebSocketOption_DisableServerHandshakeResponse = 0x0200,
 	WebSocketOption_DisableCloseResponse           = 0x0400,
@@ -32,8 +31,7 @@ enum WebSocketOption
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum WebSocketEvent
-{
+enum WebSocketEvent {
 	WebSocketEvent_WebSocketHandshakeRequested = 0x0200,
 	WebSocketEvent_WebSocketHandshakeCompleted = 0x0400,
 	WebSocketEvent_WebSocketCloseRequested     = 0x0800,
@@ -42,8 +40,7 @@ enum WebSocketEvent
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct WebSocketHdr: IfaceHdr
-{
+struct WebSocketHdr: IfaceHdr {
 	SslStateBase* m_sslState;
 	WebSocketHandshakeHeaders* m_extraHeaders;
 	WebSocketHandshake* m_publicHandshakeRequest;
@@ -62,16 +59,14 @@ struct WebSocketHdr: IfaceHdr
 
 class WebSocket:
 	public WebSocketHdr,
-	public SslSocketBase
-{
+	public SslSocketBase {
 	friend class IoThread;
 
 public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(WebSocket)
 
 protected:
-	enum Def
-	{
+	enum Def {
 		Def_ReadParallelism = 2,
 		Def_ReadBlockSize   = 4 * 1024,
 		Def_ReadBufferSize  = 16 * 1024,
@@ -81,20 +76,17 @@ protected:
 			AsyncIoDeviceOption_KeepWriteBlockSize,
 	};
 
-	enum IoThreadFlag
-	{
+	enum IoThreadFlag {
 		IoThreadFlag_Connecting          = 0x0100,
 		IoThreadFlag_Listening           = 0x0200,
 		IoThreadFlag_IncomingConnection  = 0x0400,
 		IoThreadFlag_WebSocketCloseAdded = 0x0800,
 	};
 
-	class IoThread: public sys::ThreadImpl<IoThread>
-	{
+	class IoThread: public sys::ThreadImpl<IoThread> {
 	public:
 		void
-		threadFunc()
-		{
+		threadFunc() {
 			containerof(this, WebSocket, m_ioThread)->ioThreadFunc();
 		}
 	};
@@ -102,8 +94,7 @@ protected:
 #if (_AXL_OS_WIN)
 	typedef OverlappedRead OverlappedRecv;
 
-	struct OverlappedIo
-	{
+	struct OverlappedIo {
 		mem::Pool<OverlappedRecv> m_overlappedRecvPool;
 		sl::List<OverlappedRecv> m_activeOverlappedRecvList;
 		axl::io::win::StdOverlapped m_sendOverlapped;
@@ -135,46 +126,40 @@ public:
 	static
 	SocketAddress
 	JNC_CDECL
-	getAddress(WebSocket* self)
-	{
+	getAddress(WebSocket* self) {
 		return self->SocketBase::getAddress();
 	}
 
 	static
 	SocketAddress
 	JNC_CDECL
-	getPeerAddress(WebSocket* self)
-	{
+	getPeerAddress(WebSocket* self) {
 		return self->SocketBase::getPeerAddress();
 	}
 
 	void
 	JNC_CDECL
-	setReadBlockSize(size_t size)
-	{
+	setReadBlockSize(size_t size) {
 		AsyncIoDevice::setSetting(&m_readBlockSize, size ? size : Def_ReadBlockSize);
 	}
 
 	bool
 	JNC_CDECL
-	setReadBufferSize(size_t size)
-	{
+	setReadBufferSize(size_t size) {
 		AsyncIoDevice::setSetting(&m_readBufferSize, size ? size : Def_ReadBufferSize);
 		return true;
 	}
 
 	bool
 	JNC_CDECL
-	setWriteBufferSize(size_t size)
-	{
+	setWriteBufferSize(size_t size) {
 		AsyncIoDevice::setSetting(&m_writeBufferSize, size ? size : Def_WriteBufferSize);
 		return true;
 	}
 
 	bool
 	JNC_CDECL
-	setOptions(uint_t options)
-	{
+	setOptions(uint_t options) {
 		options |= AsyncIoDeviceOption_KeepReadBlockSize | AsyncIoDeviceOption_KeepWriteBlockSize;
 		return SocketBase::setOptions(options);
 	}
@@ -188,8 +173,7 @@ public:
 	open_0(
 		uint16_t family,
 		bool isSecure
-		)
-	{
+	) {
 		return openImpl(family, NULL, isSecure);
 	}
 
@@ -198,8 +182,7 @@ public:
 	open_1(
 		DataPtr addressPtr,
 		bool isSecure
-		)
-	{
+	) {
 		SocketAddress* address = (SocketAddress*)addressPtr.m_p;
 		return openImpl(address ? address->m_family : AddressFamily_Ip4, address, isSecure);
 	}
@@ -214,7 +197,7 @@ public:
 		DataPtr addressPtr,
 		DataPtr resourcePtr,
 		DataPtr hostPtr
-		);
+	);
 
 	bool
 	JNC_CDECL
@@ -225,12 +208,11 @@ public:
 	accept(
 		DataPtr addressPtr,
 		bool isSuspended
-		);
+	);
 
 	void
 	JNC_CDECL
-	unsuspend()
-	{
+	unsuspend() {
 		unsuspendIoThread();
 	}
 
@@ -239,7 +221,7 @@ public:
 	serverHandshake(
 		uint_t statusCode,
 		DataPtr statusTextPtr
-		);
+	);
 
 	size_t
 	JNC_CDECL
@@ -247,7 +229,7 @@ public:
 		DataPtr opcodePtr,
 		DataPtr dataPtr,
 		size_t size
-		);
+	);
 
 	size_t
 	JNC_CDECL
@@ -255,22 +237,20 @@ public:
 		uint_t opcode,
 		DataPtr ptr,
 		size_t size
-		);
+	);
 
 	handle_t
 	JNC_CDECL
 	wait(
 		uint_t eventMask,
 		FunctionPtr handlerPtr
-		)
-	{
+	) {
 		return AsyncIoDevice::wait(eventMask, handlerPtr);
 	}
 
 	bool
 	JNC_CDECL
-	cancelWait(handle_t handle)
-	{
+	cancelWait(handle_t handle) {
 		return AsyncIoDevice::cancelWait(handle);
 	}
 
@@ -279,15 +259,13 @@ public:
 	blockingWait(
 		uint_t eventMask,
 		uint_t timeout
-		)
-	{
+	) {
 		return AsyncIoDevice::blockingWait(eventMask, timeout);
 	}
 
 	Promise*
 	JNC_CDECL
-	asyncWait(uint_t eventMask)
-	{
+	asyncWait(uint_t eventMask) {
 		return AsyncIoDevice::asyncWait(eventMask);
 	}
 
@@ -300,7 +278,7 @@ protected:
 		uint16_t family,
 		const SocketAddress* address,
 		bool isSecure
-		);
+	);
 
 	bool
 	openSsl();
@@ -321,13 +299,13 @@ protected:
 	processIncomingData(
 		const void* p,
 		size_t size
-		);
+	);
 
 	void
 	updateCloseEvents(
 		const void* p,
 		size_t size
-		);
+	);
 };
 
 //..............................................................................

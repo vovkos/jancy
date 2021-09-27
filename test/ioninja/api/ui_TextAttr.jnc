@@ -12,8 +12,7 @@ namespace ui {
 
 //..............................................................................
 
-bitflag enum FontFlags
-{
+bitflag enum FontFlags {
 	Bold,
 	Italic,
 	Underline,
@@ -24,8 +23,7 @@ bitflag enum FontFlags
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct TextAttr
-{
+struct TextAttr {
 	uint_t m_textColor;
 	uint_t m_backColor;
 	FontFlags m_fontFlags;

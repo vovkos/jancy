@@ -8,8 +8,7 @@ import "SocketLogRecordCode.jnc"
 
 //..............................................................................
 
-class SocketClientLogFilter: log.Filter
-{
+class SocketClientLogFilter: log.Filter {
 protected:
 	bool m_isVisible;
 	io.SocketAddress m_filterAddress;
@@ -28,13 +27,12 @@ protected:
 		uint64_t recordCode,
 		void const* p,
 		size_t size
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bool errorcode SocketClientLogFilter.setFilter(char const* filter)
-{
+bool errorcode SocketClientLogFilter.setFilter(char const* filter) {
 	if (filter)
 		return m_filterAddress.parse(filter);
 
@@ -42,8 +40,7 @@ bool errorcode SocketClientLogFilter.setFilter(char const* filter)
 	return true;
 }
 
-void SocketClientLogFilter.reset()
-{
+void SocketClientLogFilter.reset() {
 	m_isVisible = false;
 	m_lastVisibleAddress = null;
 }
@@ -53,13 +50,11 @@ bool SocketClientLogFilter.filter(
 	uint64_t recordCode,
 	void const* p,
 	size_t size
-	)
-{
+) {
 	if (!m_filterAddress.m_family) // empty address means, filtering is off
 		return true;
 
-	switch (recordCode)
-	{
+	switch (recordCode) {
 	case SocketLogRecordCode.ClientConnected:
 	case SocketLogRecordCode.ClientChanged:
 		io.SocketAddress const* address = (io.SocketAddress const*)p;
@@ -76,8 +71,7 @@ bool SocketClientLogFilter.filter(
 	case SocketLogRecordCode.ClientDisconnected:
 		TcpDisconnectLogRecordParams const* params = (TcpDisconnectLogRecordParams const*)p;
 		bool result = params.m_address.isMatch(m_filterAddress);
-		if (params.m_flags & TcpDisconnectLogRecordFlags.KeepClient)
-		{
+		if (params.m_flags & TcpDisconnectLogRecordFlags.KeepClient) {
 			if (result)
 				m_lastVisibleAddress = params.m_address;
 

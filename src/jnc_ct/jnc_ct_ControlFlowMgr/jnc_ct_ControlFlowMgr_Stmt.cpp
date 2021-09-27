@@ -20,8 +20,7 @@ namespace ct {
 //..............................................................................
 
 void
-ControlFlowMgr::ifStmt_Create(IfStmt* stmt)
-{
+ControlFlowMgr::ifStmt_Create(IfStmt* stmt) {
 	stmt->m_thenBlock = createBlock("if_then");
 	stmt->m_elseBlock = createBlock("if_else");
 	stmt->m_followBlock = stmt->m_elseBlock;
@@ -32,8 +31,7 @@ ControlFlowMgr::ifStmt_Condition(
 	IfStmt* stmt,
 	const Value& value,
 	const lex::LineCol& pos
-	)
-{
+) {
 	bool result = conditionalJump(value, stmt->m_thenBlock, stmt->m_elseBlock);
 	if (!result)
 		return false;
@@ -46,8 +44,7 @@ void
 ControlFlowMgr::ifStmt_Else(
 	IfStmt* stmt,
 	const lex::LineCol& pos
-	)
-{
+) {
 	m_module->m_namespaceMgr.closeScope();
 	stmt->m_followBlock = createBlock("if_follow");
 	jump(stmt->m_followBlock, stmt->m_elseBlock);
@@ -55,8 +52,7 @@ ControlFlowMgr::ifStmt_Else(
 }
 
 void
-ControlFlowMgr::ifStmt_Follow(IfStmt* stmt)
-{
+ControlFlowMgr::ifStmt_Follow(IfStmt* stmt) {
 	m_module->m_namespaceMgr.closeScope();
 	follow(stmt->m_followBlock);
 }
@@ -64,8 +60,7 @@ ControlFlowMgr::ifStmt_Follow(IfStmt* stmt)
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
-ControlFlowMgr::switchStmt_Create(SwitchStmt* stmt)
-{
+ControlFlowMgr::switchStmt_Create(SwitchStmt* stmt) {
 	stmt->m_switchBlock = NULL;
 	stmt->m_defaultBlock = NULL;
 	stmt->m_followBlock = createBlock("switch_follow");
@@ -76,8 +71,7 @@ ControlFlowMgr::switchStmt_Condition(
 	SwitchStmt* stmt,
 	const Value& value,
 	const lex::LineCol& pos
-	)
-{
+) {
 	bool result = m_module->m_operatorMgr.castOperator(value, TypeKind_Int, &stmt->m_value);
 	if (!result)
 		return false;
@@ -101,11 +95,9 @@ ControlFlowMgr::switchStmt_Case(
 	intptr_t value,
 	const lex::LineCol& pos,
 	uint_t scopeFlags
-	)
-{
+) {
 	sl::HashTableIterator<intptr_t, BasicBlock*> it = stmt->m_caseMap.visit(value);
-	if (it->m_value)
-	{
+	if (it->m_value) {
 		err::setFormatStringError("redefinition of label (%d) of 'switch' statement", value);
 		return false;
 	}
@@ -126,10 +118,8 @@ ControlFlowMgr::switchStmt_Default(
 	SwitchStmt* stmt,
 	const lex::LineCol& pos,
 	uint_t scopeFlags
-	)
-{
-	if (stmt->m_defaultBlock)
-	{
+) {
+	if (stmt->m_defaultBlock) {
 		err::setFormatStringError("redefinition of 'default' label of 'switch' statement");
 		return false;
 	}
@@ -146,8 +136,7 @@ ControlFlowMgr::switchStmt_Default(
 }
 
 void
-ControlFlowMgr::switchStmt_Follow(SwitchStmt* stmt)
-{
+ControlFlowMgr::switchStmt_Follow(SwitchStmt* stmt) {
 	m_module->m_namespaceMgr.closeScope();
 	m_module->m_namespaceMgr.closeScope();
 	follow(stmt->m_followBlock);
@@ -163,7 +152,7 @@ ControlFlowMgr::switchStmt_Follow(SwitchStmt* stmt)
 			defaultBlock,
 			stmt->m_caseMap.getHead(),
 			stmt->m_caseMap.getCount()
-			);
+		);
 
 	setCurrentBlock(stmt->m_followBlock);
 }
@@ -171,8 +160,7 @@ ControlFlowMgr::switchStmt_Follow(SwitchStmt* stmt)
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
-ControlFlowMgr::reSwitchStmt_Create(ReSwitchStmt* stmt)
-{
+ControlFlowMgr::reSwitchStmt_Create(ReSwitchStmt* stmt) {
 	stmt->m_switchBlock = NULL;
 	stmt->m_defaultBlock = NULL;
 	stmt->m_followBlock = createBlock("reswitch_follow");
@@ -185,8 +173,7 @@ ControlFlowMgr::reSwitchStmt_Condition(
 	const Value& dataValue,
 	const Value& sizeValue,
 	const lex::LineCol& pos
-	)
-{
+) {
 	ClassType* regexStateType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_RegexState);
 	ClassPtrType* regexStatePtrType = regexStateType->getClassPtrType(ClassPtrTypeKind_Normal, PtrTypeFlag_Safe);
 	Type* charPtrType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Char)->getDataPtrType(DataPtrTypeKind_Normal, PtrTypeFlag_Const);
@@ -198,12 +185,9 @@ ControlFlowMgr::reSwitchStmt_Condition(
 	if (!result)
 		return false;
 
-	if (!sizeValue)
-	{
+	if (!sizeValue) {
 		stmt->m_sizeValue.setConstSizeT(-1, m_module);
-	}
-	else
-	{
+	} else {
 		result = m_module->m_operatorMgr.castOperator(sizeValue, TypeKind_SizeT, &stmt->m_sizeValue);
 		if (!result)
 			return false;
@@ -228,8 +212,7 @@ ControlFlowMgr::reSwitchStmt_Case(
 	const sl::StringRef& regexSource,
 	const lex::LineCol& pos,
 	uint_t scopeFlags
-	)
-{
+) {
 	m_module->m_namespaceMgr.closeScope();
 
 	BasicBlock* block = createBlock("reswitch_case");
@@ -252,10 +235,8 @@ ControlFlowMgr::reSwitchStmt_Default(
 	ReSwitchStmt* stmt,
 	const lex::LineCol& pos,
 	uint_t scopeFlags
-	)
-{
-	if (stmt->m_defaultBlock)
-	{
+) {
+	if (stmt->m_defaultBlock) {
 		err::setFormatStringError("redefinition of 'default' label of 'regex switch' statement");
 		return false;
 	}
@@ -272,8 +253,7 @@ ControlFlowMgr::reSwitchStmt_Default(
 }
 
 bool
-ControlFlowMgr::reSwitchStmt_Finalize(ReSwitchStmt* stmt)
-{
+ControlFlowMgr::reSwitchStmt_Finalize(ReSwitchStmt* stmt) {
 	bool result;
 
 	m_module->m_namespaceMgr.closeScope();
@@ -292,14 +272,12 @@ ControlFlowMgr::reSwitchStmt_Finalize(ReSwitchStmt* stmt)
 
 	sl::Iterator<ReSwitchAcceptContext> prev = stmt->m_acceptContextList.getHead();
 	sl::Iterator<ReSwitchAcceptContext> next = prev.getNext();
-	while (next)
-	{
+	while (next) {
 		prev->m_groupCount = next->m_firstGroupId - prev->m_firstGroupId;
 		prev = next++;
 	}
 
-	if (!prev)
-	{
+	if (!prev) {
 		err::setError("empty regex switch");
 		return false;
 	}
@@ -319,12 +297,10 @@ ControlFlowMgr::reSwitchStmt_Finalize(ReSwitchStmt* stmt)
 	sl::SimpleHashTable<intptr_t, BasicBlock*> caseMap;
 
 	size_t stateCount = stateArray.getCount();
-	for (size_t i = 0; i < stateCount; i++)
-	{
+	for (size_t i = 0; i < stateCount; i++) {
 		re::DfaState* state = stateArray[i];
 
-		if (state->m_isAccept)
-		{
+		if (state->m_isAccept) {
 			ReSwitchAcceptContext* context = (ReSwitchAcceptContext*)state->m_acceptContext;
 			caseMap[state->m_id] = context->m_actionBlock;
 		}
@@ -350,7 +326,7 @@ ControlFlowMgr::reSwitchStmt_Finalize(ReSwitchStmt* stmt)
 		stmt->m_dataValue,
 		stmt->m_sizeValue,
 		&resultValue
-		);
+	);
 
 	if (!result)
 		return false;
@@ -361,7 +337,7 @@ ControlFlowMgr::reSwitchStmt_Finalize(ReSwitchStmt* stmt)
 			defaultBlock,
 			caseMap.getHead(),
 			caseMap.getCount()
-			);
+		);
 
 	setCurrentBlock(stmt->m_followBlock);
 	return true;
@@ -370,8 +346,7 @@ ControlFlowMgr::reSwitchStmt_Finalize(ReSwitchStmt* stmt)
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
-ControlFlowMgr::whileStmt_Create(WhileStmt* stmt)
-{
+ControlFlowMgr::whileStmt_Create(WhileStmt* stmt) {
 	stmt->m_conditionBlock = createBlock("while_condition");
 	stmt->m_bodyBlock = createBlock("while_body");
 	stmt->m_followBlock = createBlock("while_follow");
@@ -383,8 +358,7 @@ ControlFlowMgr::whileStmt_Condition(
 	WhileStmt* stmt,
 	const Value& value,
 	const lex::LineCol& pos
-	)
-{
+) {
 	m_module->m_operatorMgr.gcSafePoint();
 
 	Scope* scope = m_module->m_namespaceMgr.openScope(pos);
@@ -394,8 +368,7 @@ ControlFlowMgr::whileStmt_Condition(
 }
 
 void
-ControlFlowMgr::whileStmt_Follow(WhileStmt* stmt)
-{
+ControlFlowMgr::whileStmt_Follow(WhileStmt* stmt) {
 	m_module->m_namespaceMgr.closeScope();
 	jump(stmt->m_conditionBlock, stmt->m_followBlock);
 }
@@ -403,8 +376,7 @@ ControlFlowMgr::whileStmt_Follow(WhileStmt* stmt)
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
-ControlFlowMgr::doStmt_Create(DoStmt* stmt)
-{
+ControlFlowMgr::doStmt_Create(DoStmt* stmt) {
 	stmt->m_conditionBlock = createBlock("do_condition");
 	stmt->m_bodyBlock = createBlock("do_body");
 	stmt->m_followBlock = createBlock("do_follow");
@@ -415,8 +387,7 @@ void
 ControlFlowMgr::doStmt_PreBody(
 	DoStmt* stmt,
 	const lex::LineCol& pos
-	)
-{
+) {
 	m_module->m_operatorMgr.gcSafePoint();
 
 	Scope* scope = m_module->m_namespaceMgr.openScope(pos);
@@ -425,8 +396,7 @@ ControlFlowMgr::doStmt_PreBody(
 }
 
 void
-ControlFlowMgr::doStmt_PostBody(DoStmt* stmt)
-{
+ControlFlowMgr::doStmt_PostBody(DoStmt* stmt) {
 	m_module->m_namespaceMgr.closeScope();
 	follow(stmt->m_conditionBlock);
 }
@@ -435,16 +405,14 @@ bool
 ControlFlowMgr::doStmt_Condition(
 	DoStmt* stmt,
 	const Value& value
-	)
-{
+) {
 	return conditionalJump(value, stmt->m_bodyBlock, stmt->m_followBlock, stmt->m_followBlock);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
-ControlFlowMgr::forStmt_Create(ForStmt* stmt)
-{
+ControlFlowMgr::forStmt_Create(ForStmt* stmt) {
 	stmt->m_bodyBlock = createBlock("for_body");
 	stmt->m_followBlock = createBlock("for_follow");
 	stmt->m_conditionBlock = stmt->m_bodyBlock;
@@ -455,20 +423,17 @@ void
 ControlFlowMgr::forStmt_PreInit(
 	ForStmt* stmt,
 	const lex::LineCol& pos
-	)
-{
+) {
 	stmt->m_scope = m_module->m_namespaceMgr.openScope(pos);
 }
 
 void
-ControlFlowMgr::forStmt_NoCondition(ForStmt* stmt)
-{
+ControlFlowMgr::forStmt_NoCondition(ForStmt* stmt) {
 	follow(stmt->m_bodyBlock);
 }
 
 void
-ControlFlowMgr::forStmt_PreCondition(ForStmt* stmt)
-{
+ControlFlowMgr::forStmt_PreCondition(ForStmt* stmt) {
 	stmt->m_conditionBlock = createBlock("for_condition");
 	stmt->m_loopBlock = stmt->m_conditionBlock;
 	follow(stmt->m_conditionBlock);
@@ -478,27 +443,23 @@ bool
 ControlFlowMgr::forStmt_PostCondition(
 	ForStmt* stmt,
 	const Value& value
-	)
-{
+) {
 	return conditionalJump(value, stmt->m_bodyBlock, stmt->m_followBlock);
 }
 
 void
-ControlFlowMgr::forStmt_PreLoop(ForStmt* stmt)
-{
+ControlFlowMgr::forStmt_PreLoop(ForStmt* stmt) {
 	stmt->m_loopBlock = createBlock("for_loop", m_currentBlock->m_flags & BasicBlockFlag_Reachable);
 	setCurrentBlock(stmt->m_loopBlock);
 }
 
 void
-ControlFlowMgr::forStmt_PostLoop(ForStmt* stmt)
-{
+ControlFlowMgr::forStmt_PostLoop(ForStmt* stmt) {
 	jump(stmt->m_conditionBlock, stmt->m_bodyBlock);
 }
 
 void
-ControlFlowMgr::forStmt_PreBody(ForStmt* stmt)
-{
+ControlFlowMgr::forStmt_PreBody(ForStmt* stmt) {
 	stmt->m_scope->m_breakBlock = stmt->m_followBlock;
 	stmt->m_scope->m_continueBlock = stmt->m_loopBlock;
 
@@ -506,8 +467,7 @@ ControlFlowMgr::forStmt_PreBody(ForStmt* stmt)
 }
 
 void
-ControlFlowMgr::forStmt_PostBody(ForStmt* stmt)
-{
+ControlFlowMgr::forStmt_PostBody(ForStmt* stmt) {
 	jump(stmt->m_loopBlock, stmt->m_followBlock);
 	m_module->m_namespaceMgr.closeScope();
 
@@ -522,12 +482,10 @@ ControlFlowMgr::onceStmt_Create(
 	OnceStmt* stmt,
 	const lex::LineCol& pos,
 	StorageKind storageKind
-	)
-{
+) {
 	Variable* flagVariable;
 
-	if (storageKind != StorageKind_Static && storageKind != StorageKind_Tls)
-	{
+	if (storageKind != StorageKind_Static && storageKind != StorageKind_Tls) {
 		err::setFormatStringError("'%s once' is illegal (only 'static' or 'threadlocal' is allowed)", getStorageKindString(storageKind));
 		return false;
 	}
@@ -543,8 +501,7 @@ void
 ControlFlowMgr::onceStmt_Create(
 	OnceStmt* stmt,
 	Variable* flagVariable
-	)
-{
+) {
 	stmt->m_flagVariable = flagVariable;
 	stmt->m_followBlock = createBlock("once_follow");
 }
@@ -553,8 +510,7 @@ bool
 ControlFlowMgr::onceStmt_PreBody(
 	OnceStmt* stmt,
 	const lex::LineCol& pos
-	)
-{
+) {
 	bool result;
 
 	if (!m_module->hasCodeGen())
@@ -569,8 +525,7 @@ ControlFlowMgr::onceStmt_PreBody(
 
 	Value value;
 
-	if (storageKind == StorageKind_Tls)
-	{
+	if (storageKind == StorageKind_Tls) {
 		BasicBlock* bodyBlock = createBlock("once_body");
 
 		result =
@@ -579,9 +534,7 @@ ControlFlowMgr::onceStmt_PreBody(
 
 		if (!result)
 			return false;
-	}
-	else
-	{
+	} else {
 		result = m_module->m_operatorMgr.loadDataRef(stmt->m_flagVariable, &value);
 		if (!result)
 			return false;
@@ -625,7 +578,7 @@ ControlFlowMgr::onceStmt_PreBody(
 #endif
 			llvm::DefaultSynchronizationScope_vn,
 			&value
-			);
+		);
 
 #if (LLVM_VERSION < 0x030500)
 		result =
@@ -648,8 +601,7 @@ void
 ControlFlowMgr::onceStmt_PostBody(
 	OnceStmt* stmt,
 	const lex::LineCol& pos
-	)
-{
+) {
 	if (!m_module->hasCodeGen())
 		return;
 
@@ -661,15 +613,12 @@ ControlFlowMgr::onceStmt_PostBody(
 	m_module->m_namespaceMgr.closeScope();
 	m_module->m_namespaceMgr.setSourcePos(pos);
 
-	if (storageKind == StorageKind_Tls)
-	{
+	if (storageKind == StorageKind_Tls) {
 		m_module->m_llvmIrBuilder.createStore(
 			Value((int64_t) 2, type),
 			stmt->m_flagVariable
-			);
-	}
-	else
-	{
+		);
+	} else {
 		Value tmpValue;
 		m_module->m_llvmIrBuilder.createRmw(
 			llvm::AtomicRMWInst::Xchg,
@@ -682,7 +631,7 @@ ControlFlowMgr::onceStmt_PostBody(
 #endif
 			llvm::DefaultSynchronizationScope_vn,
 			&tmpValue
-			);
+		);
 	}
 
 	follow(stmt->m_followBlock);

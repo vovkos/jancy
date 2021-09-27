@@ -9,32 +9,26 @@
 //
 //..............................................................................
 
-class Resource
-{
-	construct()
-	{
+class Resource {
+	construct() {
 		printf("Resource.construct (%p)\n", this);
 	}
 
-	destruct()
-	{
+	destruct() {
 		printf("Resource.destruct (%p)\n", this);
 	}
 
-	void close()
-	{
+	void close() {
 		printf("Resource.close (%p)\n", this);
 	}
 
 	alias dispose = close;
 }
 
-int main()
-{
+int main() {
 	printf("main\n");
 
-	try
-	{
+	try {
 		disposable Resource resource1;
 		disposable Resource resource2;
 

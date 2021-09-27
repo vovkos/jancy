@@ -24,8 +24,7 @@ class Function;
 class FunctionOverload:
 	public ModuleItem,
 	public ModuleItemDecl,
-	public FunctionName
-{
+	public FunctionName {
 	friend class FunctionMgr;
 
 protected:
@@ -33,39 +32,33 @@ protected:
 	sl::Array<Function*> m_overloadArray;
 
 public:
-	FunctionOverload()
-	{
+	FunctionOverload() {
 		m_itemKind = ModuleItemKind_FunctionOverload;
 	}
 
 	const FunctionTypeOverload&
-	getTypeOverload()
-	{
+	getTypeOverload() {
 		return m_typeOverload;
 	}
 
 	size_t
-	getOverloadCount()
-	{
+	getOverloadCount() {
 		return m_overloadArray.getCount();
 	}
 
 	Function*
-	getOverload(size_t overloadIdx)
-	{
+	getOverload(size_t overloadIdx) {
 		return m_overloadArray[overloadIdx];
 	}
 
 	Function*
-	findOverload(FunctionType* type)
-	{
+	findOverload(FunctionType* type) {
 		size_t i = m_typeOverload.findOverload(type);
 		return i != -1 ? getOverload(i) : NULL;
 	}
 
 	Function*
-	findShortOverload(FunctionType* type)
-	{
+	findShortOverload(FunctionType* type) {
 		size_t i = m_typeOverload.findShortOverload(type);
 		return i != -1 ? getOverload(i) : NULL;
 	}
@@ -76,8 +69,7 @@ public:
 		FunctionArg* const* argArray,
 		size_t argCount,
 		CastKind* castKind = NULL
-		)
-	{
+	) {
 		size_t i = m_typeOverload.chooseOverload(closure, argArray, argCount, castKind);
 		return i != -1 ? getOverload(i) : NULL;
 	}
@@ -87,8 +79,7 @@ public:
 		FunctionArg* const* argArray,
 		size_t argCount,
 		CastKind* castKind = NULL
-		)
-	{
+	) {
 		size_t i = m_typeOverload.chooseOverload(argArray, argCount, castKind);
 		return i != -1 ? getOverload(i) : NULL;
 	}
@@ -98,8 +89,7 @@ public:
 		Closure* closure,
 		const sl::ArrayRef<FunctionArg*>& argArray,
 		CastKind* castKind = NULL
-		)
-	{
+	) {
 		return chooseOverload(closure, argArray, argArray.getCount(), castKind);
 	}
 
@@ -107,8 +97,7 @@ public:
 	chooseOverload(
 		const sl::ArrayRef<FunctionArg*>& argArray,
 		CastKind* castKind = NULL
-		)
-	{
+	) {
 		return chooseOverload(argArray, argArray.getCount(), castKind);
 	}
 
@@ -117,8 +106,7 @@ public:
 		const Value* argValueArray,
 		size_t argCount,
 		CastKind* castKind = NULL
-		)
-	{
+	) {
 		size_t i = m_typeOverload.chooseOverload(argValueArray, argCount, castKind);
 		return i != -1 ? getOverload(i) : NULL;
 	}
@@ -127,8 +115,7 @@ public:
 	chooseOverload(
 		const sl::ConstBoxList<Value>& argList,
 		CastKind* castKind = NULL
-		)
-	{
+	) {
 		size_t i = m_typeOverload.chooseOverload(argList, castKind);
 		return i != -1 ? getOverload(i) : NULL;
 	}
@@ -137,8 +124,7 @@ public:
 	chooseSetterOverload(
 		Type* argType,
 		CastKind* castKind = NULL
-		)
-	{
+	) {
 		size_t i = m_typeOverload.chooseSetterOverload(argType, castKind);
 		return i != -1 ? getOverload(i) : NULL;
 	}
@@ -147,8 +133,7 @@ public:
 	chooseSetterOverload(
 		const Value& argValue,
 		CastKind* castKind = NULL
-		)
-	{
+	) {
 		size_t i = m_typeOverload.chooseSetterOverload(argValue, castKind);
 		return i != -1 ? getOverload(i) : NULL;
 	}
@@ -157,8 +142,7 @@ public:
 	chooseSetterOverload(
 		FunctionType* functionType,
 		CastKind* castKind = NULL
-		)
-	{
+	) {
 		size_t i = m_typeOverload.chooseSetterOverload(functionType, castKind);
 		return i != -1 ? getOverload(i) : NULL;
 	}
@@ -176,7 +160,7 @@ public:
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
-		);
+	);
 };
 
 //..............................................................................

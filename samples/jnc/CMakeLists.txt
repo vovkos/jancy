@@ -14,27 +14,27 @@ file(
 	SAMPLE_JNC_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	*.jnc
-	)
+)
 
 list(
 	REMOVE_ITEM
 	SAMPLE_JNC_LIST
 	91_WebSocketClient.jnc
 	92_WebSocketServer.jnc
-	)
-	
+)
+
 source_group(
 	jnc
 	FILES
 	${SAMPLE_JNC_LIST}
-	)
+)
 
 if(${BUILD_JNC_APP})
 	add_jancy_tests(
 		NAME_PREFIX "jnc-sample-"
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
 		TESTS ${SAMPLE_JNC_LIST}
-		)
+	)
 endif()
 
 #...............................................................................

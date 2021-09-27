@@ -19,16 +19,14 @@ namespace ct {
 
 //.............................................................................
 
-Dfa::Dfa()
-{
+Dfa::Dfa() {
 	m_stateCount = 0;
 	m_groupCount = 0;
 	m_maxSubMatchCount = 0;
 }
 
 void
-Dfa::clear()
-{
+Dfa::clear() {
 	m_stateCount = 0;
 	m_groupCount = 0;
 	m_maxSubMatchCount = 0;
@@ -39,8 +37,7 @@ Dfa::clear()
 }
 
 bool
-Dfa::build(re::Regex* regex)
-{
+Dfa::build(re::Regex* regex) {
 	sl::Array<re::DfaState*> stateArray = regex->getDfaStateArray();
 	m_stateCount = stateArray.getCount();
 	m_groupCount = regex->getGroupCount();
@@ -54,11 +51,9 @@ Dfa::build(re::Regex* regex)
 	DfaStateInfo* stateInfo = m_stateInfoTable;
 	uintptr_t* transitionRow = m_transitionTable;
 
-	for (size_t i = 0; i < m_stateCount; i++)
-	{
+	for (size_t i = 0; i < m_stateCount; i++) {
 		re::DfaState* state = stateArray[i];
-		if (state->m_isAccept)
-		{
+		if (state->m_isAccept) {
 			ReSwitchAcceptContext* context = (ReSwitchAcceptContext*)state->m_acceptContext;
 			ASSERT(context->m_firstGroupId + context->m_groupCount <= m_groupCount);
 
@@ -80,19 +75,16 @@ Dfa::build(re::Regex* regex)
 		size_t j = state->m_openCaptureIdSet.findBit(0);
 		size_t k = state->m_closeCaptureIdSet.findBit(0);
 
-		if (j != -1 || k != -1)
-		{
+		if (j != -1 || k != -1) {
 			DfaGroupSet* groupSet = AXL_MEM_NEW(DfaGroupSet);
 
-			while (j != -1)
-			{
+			while (j != -1) {
 				ASSERT(j < m_groupCount);
 				groupSet->m_openArray.append(j);
 				j = state->m_openCaptureIdSet.findBit(j + 1);
 			}
 
-			while (k != -1)
-			{
+			while (k != -1) {
 				ASSERT(k < m_groupCount);
 				groupSet->m_closeArray.append(k);
 				k = state->m_closeCaptureIdSet.findBit(k + 1);
@@ -103,11 +95,9 @@ Dfa::build(re::Regex* regex)
 		}
 
 		sl::Iterator<re::DfaTransition> transitionIt = state->m_transitionList.getHead();
-		for (; transitionIt; transitionIt++)
-		{
+		for (; transitionIt; transitionIt++) {
 			re::DfaTransition* transition = *transitionIt;
-			switch (transition->m_matchCondition.m_conditionKind)
-			{
+			switch (transition->m_matchCondition.m_conditionKind) {
 			case re::MatchConditionKind_Char:
 				ASSERT(transition->m_matchCondition.m_char < 256);
 				transitionRow[transition->m_matchCondition.m_char] = transition->m_outState->m_id;
@@ -135,15 +125,13 @@ Dfa::build(re::Regex* regex)
 
 //..............................................................................
 
-RegexMgr::RegexMgr()
-{
+RegexMgr::RegexMgr() {
 	m_module = Module::getCurrentConstructedModule();
 	ASSERT(m_module);
 }
 
 Dfa*
-RegexMgr::createDfa()
-{
+RegexMgr::createDfa() {
 	Dfa* attributeBlock = AXL_MEM_NEW(Dfa);
 	m_dfaList.insertTail(attributeBlock);
 	return attributeBlock;

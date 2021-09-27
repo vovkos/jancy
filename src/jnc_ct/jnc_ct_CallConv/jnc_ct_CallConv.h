@@ -24,8 +24,7 @@ class FunctionType;
 // - arrays are passed by value (like if it were wrapped in a struct)
 // - varargs are wrapped into variants and prepended with vararg count
 
-enum CallConvKind
-{
+enum CallConvKind {
 	CallConvKind_Undefined = 0,
 	CallConvKind_Jnccall_msc32,
 	CallConvKind_Jnccall_msc64,
@@ -77,8 +76,7 @@ enum CallConvKind
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum CallConvFlag
-{
+enum CallConvFlag {
 	// vararg
 
 	CallConvFlag_NoVarArg     = 0x0001,
@@ -118,8 +116,7 @@ getCallConvKindFromModifiers(uint_t modifiers);
 
 //..............................................................................
 
-class CallConv
-{
+class CallConv {
 protected:
 	Module* m_module;
 	CallConvKind m_callConvKind;
@@ -128,38 +125,32 @@ public:
 	CallConv();
 
 	CallConvKind
-	getCallConvKind()
-	{
+	getCallConvKind() {
 		return m_callConvKind;
 	}
 
 	uint_t
-	getFlags()
-	{
+	getFlags() {
 		return ct::getCallConvFlags(m_callConvKind);
 	}
 
 	llvm::CallingConv::ID
-	getLlvmCallConv()
-	{
+	getLlvmCallConv() {
 		return ct::getLlvmCallConv(m_callConvKind);
 	}
 
 	const char*
-	getCallConvString()
-	{
+	getCallConvString() {
 		return ct::getCallConvString(m_callConvKind);
 	}
 
 	const char*
-	getCallConvDisplayString()
-	{
+	getCallConvDisplayString() {
 		return ct::getCallConvDisplayString(m_callConvKind);
 	}
 
 	bool
-	isDefault()
-	{
+	isDefault() {
 		return m_callConvKind == CallConvKind_Default;
 	}
 
@@ -172,7 +163,7 @@ public:
 	createLlvmFunction(
 		FunctionType* functionType,
 		const sl::StringRef& name
-		);
+	);
 
 	virtual
 	void
@@ -181,14 +172,14 @@ public:
 		FunctionType* functionType,
 		sl::BoxList<Value>* argValueList,
 		Value* resultValue
-		);
+	);
 
 	virtual
 	void
 	ret(
 		Function* function,
 		const Value& value
-		);
+	);
 
 	virtual
 	Value
@@ -200,7 +191,7 @@ public:
 		llvm::Value* llvmValue,
 		FunctionType* functionType,
 		size_t argIdx
-		);
+	);
 
 	virtual
 	void
@@ -208,15 +199,13 @@ public:
 		Function* function,
 		Value* argValueArray,
 		size_t count
-		)
-	{
+	) {
 		getArgValueArrayImpl(function, argValueArray, count, 0);
 	}
 
 	virtual
 	void
-	createArgVariables(Function* function)
-	{
+	createArgVariables(Function* function) {
 		createArgVariablesImpl(function, 0);
 	}
 
@@ -227,13 +216,13 @@ protected:
 		Value* argValueArray,
 		size_t argCount,
 		size_t baseLlvmArgIdx = 0
-		);
+	);
 
 	void
 	createArgVariablesImpl(
 		Function* function,
 		size_t baseLlvmArgIdx = 0
-		);
+	);
 };
 
 //..............................................................................

@@ -21,22 +21,19 @@ namespace jnc {
 //..............................................................................
 
 LineNumberMargin::LineNumberMargin(Edit* edit):
-	QWidget(edit)
-{
+	QWidget(edit) {
 	updateFontMetrics();
 }
 
 void
-LineNumberMargin::updateFontMetrics()
-{
+LineNumberMargin::updateFontMetrics() {
 	int digitWidth = parentWidget()->fontMetrics().width('0');
 	m_anchorPos = digitWidth * 4;
 	setFixedWidth(digitWidth * 5);
 }
 
 void
-LineNumberMargin::paintEvent(QPaintEvent* e)
-{
+LineNumberMargin::paintEvent(QPaintEvent* e) {
 	QPainter painter(this);
 	QRectF paintRect = e->rect();
 
@@ -56,8 +53,7 @@ LineNumberMargin::paintEvent(QPaintEvent* e)
 	painter.fillRect(paintRect, Color_Back);
 #endif
 
-	while (block.isValid() && top <= paintRect.bottom())
-	{
+	while (block.isValid() && top <= paintRect.bottom()) {
 		if (block.isVisible() && bottom >= paintRect.top())
 			painter.drawText(
 				0,
@@ -66,7 +62,7 @@ LineNumberMargin::paintEvent(QPaintEvent* e)
 				lineHeight,
 				Qt::AlignRight,
 				QString::number(blockNumber)
-				);
+			);
 
 		block = block.next();
 		top = bottom;

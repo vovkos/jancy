@@ -14,17 +14,14 @@ declarator_list<TypeSpecifier* $typeSpecifier>
 		declarator_list_terminator<$typeSpecifier, &$1.m_declarator>
 	;
 
-struct
-{
+struct {
 	Declarator m_declarator;
 }
 declarator<TypeSpecifier* $typeSpecifier>
-	enter
-	{
+	enter {
 		$.m_declarator.setTypeSpecifier($typeSpecifier, m_module);
 	}
-	leave
-	{
+	leave {
 		postDeclarator(&$.m_declarator);
 	}
 	:	declarator_prefix<&$.m_declarator>*
@@ -33,17 +30,14 @@ declarator<TypeSpecifier* $typeSpecifier>
 		declarator_constructor<&$.m_declarator>?
 	;
 
-struct
-{
+struct {
 	Declarator m_declarator;
 }
 special_void_method_declarator
-	enter
-	{
+	enter {
 		$.m_declarator.setTypeSpecifier(NULL, m_module);
 	}
-	leave
-	{
+	leave {
 		postDeclarator(&$.m_declarator);
 	}
 	:	special_void_method_declarator_qualifier<&$.m_declarator>
@@ -119,8 +113,7 @@ declarator_wo_curly_initializer<
 //..............................................................................
 
 declarator_name<Declarator* $declarator>
-	leave
-	{
+	leave {
 		postDeclaratorName($declarator);
 	}
 	:	declarator_qualifier<$declarator>
@@ -152,16 +145,13 @@ declarator_qualifier<Declarator* $declarator>
 	;
 
 special_void_method_declarator_qualifier<Declarator* $declarator>
-	:	TokenKind_Construct
-			{
+	:	TokenKind_Construct {
 				return $declarator->addUnnamedMethod(FunctionKind_Constructor);
 			}
-	|	TokenKind_StaticConstruct
-			{
+	|	TokenKind_StaticConstruct {
 				return $declarator->addUnnamedMethod(FunctionKind_StaticConstructor);
 			}
-	|	TokenKind_Destruct
-			{
+	|	TokenKind_Destruct {
 				return $declarator->addUnnamedMethod(FunctionKind_Destructor);
 			}
 	|	TokenKind_Set
@@ -208,14 +198,12 @@ special_void_method_declarator_sync
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct
-{
+struct {
 	UnOpKind m_unOpKind;
 	BinOpKind m_binOpKind;
 }
 operator_name
-	enter
-	{
+	enter {
 		$.m_unOpKind = UnOpKind_Undefined;
 		$.m_binOpKind = BinOpKind_Undefined;
 	}
@@ -434,18 +422,15 @@ function_suffix_rslv
 
 resolver(function_suffix_rslv)
 function_suffix<Declarator* $declarator>
-	local
-	{
+	local {
 		DeclFunctionSuffix* $functionSuffix;
 		StorageKind $prevStorageKind;
 	}
-	enter
-	{
+	enter {
 		$functionSuffix = $declarator->addFunctionSuffix();
 		$prevStorageKind = m_storageKind;
 	}
-	leave
-	{
+	leave {
 		m_storageKind = $prevStorageKind;
 	}
 	:	'(' function_formal_argument_list<$functionSuffix>? ')' function_modifier<$functionSuffix>*
@@ -457,12 +442,10 @@ function_formal_argument_list<DeclFunctionSuffix* $functionSuffix>
 	;
 
 function_formal_argument<DeclFunctionSuffix* $functionSuffix>
-	local
-	{
+	local {
 		Declarator $declarator;
 	}
-	enter
-	{
+	enter {
 		m_storageKind = StorageKind_Undefined;
 	}
 	:	declaration_specifier_list $s

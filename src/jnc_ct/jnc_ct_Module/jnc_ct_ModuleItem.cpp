@@ -18,8 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-ModuleItemDecl::ModuleItemDecl()
-{
+ModuleItemDecl::ModuleItemDecl() {
 	m_storageKind = StorageKind_Undefined;
 	m_accessKind = AccessKind_Public; // public by default
 	m_parentNamespace = NULL;
@@ -29,15 +28,13 @@ ModuleItemDecl::ModuleItemDecl()
 }
 
 void
-ModuleItemDecl::prepareQualifiedName()
-{
+ModuleItemDecl::prepareQualifiedName() {
 	ASSERT(m_qualifiedName.isEmpty());
 	m_qualifiedName = m_parentNamespace ? m_parentNamespace->createQualifiedName(m_name) : m_name;
 }
 
 sl::String
-ModuleItemDecl::getDoxyLocationString()
-{
+ModuleItemDecl::getDoxyLocationString() {
 	if (!m_parentUnit)
 		return sl::String();
 
@@ -47,7 +44,7 @@ ModuleItemDecl::getDoxyLocationString()
 		m_parentUnit->getFileName().sz(),
 		m_pos.m_line + 1,
 		m_pos.m_col + 1
-		);
+	);
 
 	return string;
 }
@@ -59,8 +56,7 @@ ModuleItemBodyDecl::setBody(
 	const PragmaSettings* pragmaSettings,
 	const lex::LineColOffset& pos,
 	const sl::StringRef& body
-	)
-{
+) {
 	if (!canSetBody())
 		return false;
 
@@ -71,8 +67,7 @@ ModuleItemBodyDecl::setBody(
 }
 
 bool
-ModuleItemBodyDecl::setBody(sl::BoxList<Token>* tokenList)
-{
+ModuleItemBodyDecl::setBody(sl::BoxList<Token>* tokenList) {
 	if (!canSetBody())
 		return false;
 
@@ -82,16 +77,13 @@ ModuleItemBodyDecl::setBody(sl::BoxList<Token>* tokenList)
 }
 
 bool
-ModuleItemBodyDecl::canSetBody()
-{
-	if (!m_body.isEmpty() || !m_bodyTokenList.isEmpty())
-	{
+ModuleItemBodyDecl::canSetBody() {
+	if (!m_body.isEmpty() || !m_bodyTokenList.isEmpty()) {
 		err::setFormatStringError("'%s' already has a body", getQualifiedName().sz());
 		return false;
 	}
 
-	if (m_storageKind == StorageKind_Abstract)
-	{
+	if (m_storageKind == StorageKind_Abstract) {
 		err::setFormatStringError("'%s' is abstract and hence cannot have a body", getQualifiedName().sz());
 		return false;
 	}
@@ -102,246 +94,206 @@ ModuleItemBodyDecl::canSetBody()
 //..............................................................................
 
 ModuleItemDecl*
-getNullDecl(ModuleItem* item)
-{
+getNullDecl(ModuleItem* item) {
 	return NULL;
 }
 
 ModuleItemDecl*
-getNamespaceDecl(ModuleItem* item)
-{
+getNamespaceDecl(ModuleItem* item) {
 	return (GlobalNamespace*)item;
 }
 
 ModuleItemDecl*
-getScopeDecl(ModuleItem* item)
-{
+getScopeDecl(ModuleItem* item) {
 	return (Scope*)item;
 }
 
 ModuleItemDecl*
-getAttributeDecl(ModuleItem* item)
-{
+getAttributeDecl(ModuleItem* item) {
 	return (Attribute*)item;
 }
 
 ModuleItemDecl*
-getAttributeBlockDecl(ModuleItem* item)
-{
+getAttributeBlockDecl(ModuleItem* item) {
 	return (AttributeBlock*)item;
 }
 
 ModuleItemDecl*
-getTypeDecl(ModuleItem* item)
-{
+getTypeDecl(ModuleItem* item) {
 	return (((Type*)item)->getTypeKindFlags() & TypeKindFlag_Named) ? (NamedType*)item : NULL;
 }
 
 ModuleItemDecl*
-getTypedefDecl(ModuleItem* item)
-{
+getTypedefDecl(ModuleItem* item) {
 	return (Typedef*)item;
 }
 
 ModuleItemDecl*
-getAliasDecl(ModuleItem* item)
-{
+getAliasDecl(ModuleItem* item) {
 	return (Alias*)item;
 }
 
 ModuleItemDecl*
-getConstDecl(ModuleItem* item)
-{
+getConstDecl(ModuleItem* item) {
 	return (Const*)item;
 }
 
 ModuleItemDecl*
-getVariableDecl(ModuleItem* item)
-{
+getVariableDecl(ModuleItem* item) {
 	return (Variable*)item;
 }
 
 ModuleItemDecl*
-getFunctionDecl(ModuleItem* item)
-{
+getFunctionDecl(ModuleItem* item) {
 	return (Function*)item;
 }
 
 ModuleItemDecl*
-getFunctionArgDecl(ModuleItem* item)
-{
+getFunctionArgDecl(ModuleItem* item) {
 	return (FunctionArg*)item;
 }
 
 ModuleItemDecl*
-getFunctionOverloadDecl(ModuleItem* item)
-{
+getFunctionOverloadDecl(ModuleItem* item) {
 	return (FunctionOverload*)item;
 }
 
 ModuleItemDecl*
-getPropertyDecl(ModuleItem* item)
-{
+getPropertyDecl(ModuleItem* item) {
 	return (Property*)item;
 }
 
 ModuleItemDecl*
-getPropertyTemplateDecl(ModuleItem* item)
-{
+getPropertyTemplateDecl(ModuleItem* item) {
 	return (PropertyTemplate*)item;
 }
 
 ModuleItemDecl*
-getEnumConstDecl(ModuleItem* item)
-{
+getEnumConstDecl(ModuleItem* item) {
 	return (EnumConst*)item;
 }
 
 ModuleItemDecl*
-getFieldDecl(ModuleItem* item)
-{
+getFieldDecl(ModuleItem* item) {
 	return (Field*)item;
 }
 
 ModuleItemDecl*
-getBaseTypeSlotDecl(ModuleItem* item)
-{
+getBaseTypeSlotDecl(ModuleItem* item) {
 	return (BaseTypeSlot*)item;
 }
 
 ModuleItemDecl*
-getOrphanDecl(ModuleItem* item)
-{
+getOrphanDecl(ModuleItem* item) {
 	return (Orphan*)item;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 Namespace*
-getNullNamespace(ModuleItem* item)
-{
+getNullNamespace(ModuleItem* item) {
 	return NULL;
 }
 
 Namespace*
-getNamespaceNamespace(ModuleItem* item)
-{
+getNamespaceNamespace(ModuleItem* item) {
 	return (GlobalNamespace*)item;
 }
 
 Namespace*
-getScopeNamespace(ModuleItem* item)
-{
+getScopeNamespace(ModuleItem* item) {
 	return (Scope*)item;
 }
 
 Namespace*
-getTypeNamespace(ModuleItem* item)
-{
+getTypeNamespace(ModuleItem* item) {
 	return (((Type*)item)->getTypeKindFlags() & TypeKindFlag_Named) ? (NamedType*)item : NULL;
 }
 
 Namespace*
-getTypedefNamespace(ModuleItem* item)
-{
+getTypedefNamespace(ModuleItem* item) {
 	return getTypeNamespace(((Typedef*)item)->getType());
 }
 
 Namespace*
-getPropertyNamespace(ModuleItem* item)
-{
+getPropertyNamespace(ModuleItem* item) {
 	return (Property*)item;
 }
 
 Namespace*
-getPropertyTemplateNamespace(ModuleItem* item)
-{
+getPropertyTemplateNamespace(ModuleItem* item) {
 	return (PropertyTemplate*)item;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 Type*
-getNullType(ModuleItem* item)
-{
+getNullType(ModuleItem* item) {
 	return NULL;
 }
 
 Type*
-getTypeType(ModuleItem* item)
-{
+getTypeType(ModuleItem* item) {
 	return (Type*)item;
 }
 
 Type*
-getTypedefType(ModuleItem* item)
-{
+getTypedefType(ModuleItem* item) {
 	return ((Typedef*)item)->getType();
 }
 
 Type*
-getAliasType(ModuleItem* item)
-{
+getAliasType(ModuleItem* item) {
 	return ((Alias*)item)->getType();
 }
 
 Type*
-getConstType(ModuleItem* item)
-{
+getConstType(ModuleItem* item) {
 	return ((Const*)item)->getValue().getType();
 }
 
 Type*
-getVariableType(ModuleItem* item)
-{
+getVariableType(ModuleItem* item) {
 	return ((Variable*)item)->getType();
 }
 
 Type*
-getFunctionType(ModuleItem* item)
-{
+getFunctionType(ModuleItem* item) {
 	return ((Function*)item)->getType();
 }
 
 Type*
-getFunctionArgType(ModuleItem* item)
-{
+getFunctionArgType(ModuleItem* item) {
 	return ((FunctionArg*)item)->getType();
 }
 
 Type*
-getPropertyType(ModuleItem* item)
-{
+getPropertyType(ModuleItem* item) {
 	return ((Property*)item)->getType();
 }
 
 Type*
-getPropertyTemplateType(ModuleItem* item)
-{
+getPropertyTemplateType(ModuleItem* item) {
 	return ((PropertyTemplate*)item)->calcType();
 }
 
 Type*
-getEnumConstType(ModuleItem* item)
-{
+getEnumConstType(ModuleItem* item) {
 	return ((EnumConst*)item)->getParentEnumType();
 }
 
 Type*
-getFieldType(ModuleItem* item)
-{
+getFieldType(ModuleItem* item) {
 	return ((Field*)item)->getType();
 }
 
 Type*
-getBaseTypeSlotType(ModuleItem* item)
-{
+getBaseTypeSlotType(ModuleItem* item) {
 	return ((BaseTypeSlot*)item)->getType();
 }
 
 Type*
-getOrphanType(ModuleItem* item)
-{
+getOrphanType(ModuleItem* item) {
 	return ((Orphan*)item)->getFunctionType();
 }
 
@@ -351,12 +303,10 @@ sl::String
 getDefaultSynopsis(
 	ModuleItem* item,
 	bool isQualifiedName
-	)
-{
+) {
 	sl::String synopsis = getModuleItemKindString(item->getItemKind());
 	ModuleItemDecl* decl = item->getDecl();
-	if (decl)
-	{
+	if (decl) {
 		synopsis += ' ';
 		synopsis += isQualifiedName ? decl->getQualifiedName() : decl->getName();
 	}
@@ -368,14 +318,12 @@ sl::String
 getTypeSynopsis(
 	ModuleItem* item,
 	bool isQualifiedName
-	)
-{
+) {
 	Type* type = (Type*)item;
 	if (!(type->getTypeKindFlags() & TypeKindFlag_Named))
 		return type->getTypeString();
 
-	static const char* namedTypeKindStringTable[] =
-	{
+	static const char* namedTypeKindStringTable[] = {
 		"enum",   // TypeKind_Enum,
 		"struct", // TypeKind_Struct,
 		"union",  // TypeKind_Union,
@@ -387,8 +335,7 @@ getTypeSynopsis(
 	TypeKind typeKind = type->getTypeKind();
 	ASSERT(typeKind >= TypeKind_Enum && typeKind <= TypeKind_Class);
 
-	switch (typeKind)
-	{
+	switch (typeKind) {
 	case TypeKind_Enum:
 		synopsis = getEnumTypeFlagString(type->getFlags());
 		if (!synopsis.isEmpty())
@@ -416,8 +363,7 @@ getTypedItemSynopsisImpl(
 	bool isQualifiedName,
 	const char* prefix = NULL,
 	uint_t ptrTypeFlags = 0
-	)
-{
+) {
 	ASSERT(decl && type);
 
 	type->ensureNoImports();
@@ -427,8 +373,7 @@ getTypedItemSynopsisImpl(
 	synopsis += ' ';
 
 	sl::String ptrTypeFlagsString = getPtrTypeFlagString(ptrTypeFlags);
-	if (!ptrTypeFlagsString.isEmpty())
-	{
+	if (!ptrTypeFlagsString.isEmpty()) {
 		synopsis += ptrTypeFlagsString;
 		synopsis += ' ';
 	}
@@ -442,8 +387,7 @@ sl::String
 getTypedItemSynopsis(
 	ModuleItem* item,
 	bool isQualifiedName
-	)
-{
+) {
 	return getTypedItemSynopsisImpl(item->getDecl(), item->getType(), isQualifiedName);
 }
 
@@ -451,8 +395,7 @@ sl::String
 getTypedefSynopsis(
 	ModuleItem* item,
 	bool isQualifiedName
-	)
-{
+) {
 	Typedef* tdef = (Typedef*)item;
 
 	return getTypedItemSynopsisImpl(tdef, tdef->getType(), isQualifiedName, "typedef ");
@@ -462,8 +405,7 @@ sl::String
 getAliasSynopsis(
 	ModuleItem* item,
 	bool isQualifiedName
-	)
-{
+) {
 	Alias* alias = (Alias*)item;
 
 	sl::String synopsis = "alias ";
@@ -477,8 +419,7 @@ sl::String
 getVariableSynopsis(
 	ModuleItem* item,
 	bool isQualifiedName
-	)
-{
+) {
 	Variable* variable = (Variable*)item;
 
 	return getTypedItemSynopsisImpl(
@@ -487,15 +428,14 @@ getVariableSynopsis(
 		isQualifiedName,
 		NULL,
 		variable->getPtrTypeFlags()
-		);
+	);
 }
 
 sl::String
 getFunctionSynopsis(
 	ModuleItem* item,
 	bool isQualifiedName
-	)
-{
+) {
 	Function* function = (Function*)item;
 
 	if (!function->isMember())
@@ -503,7 +443,7 @@ getFunctionSynopsis(
 			function,
 			function->getType(),
 			isQualifiedName
-			);
+		);
 
 	FunctionType* type = function->getType();
 	type->ensureNoImports();
@@ -524,8 +464,7 @@ sl::String
 getPropertySynopsis(
 	ModuleItem* item,
 	bool isQualifiedName
-	)
-{
+) {
 	Property* prop = (Property*)item;
 
 	if (!prop->isMember())
@@ -533,15 +472,14 @@ getPropertySynopsis(
 			prop,
 			prop->getType(),
 			isQualifiedName
-			);
+		);
 
 	PropertyType* type = prop->getType();
 	type->ensureNoImports();
 
 	sl::String synopsis = type->getReturnType()->getTypeString();
 	sl::String typeModifierString = type->getShortType()->getTypeModifierString();
-	if (!typeModifierString.isEmpty())
-	{
+	if (!typeModifierString.isEmpty()) {
 		synopsis += ' ';
 		synopsis += typeModifierString;
 	}
@@ -556,8 +494,7 @@ sl::String
 getFieldSynopsis(
 	ModuleItem* item,
 	bool isQualifiedName
-	)
-{
+) {
 	Field* field = (Field*)item;
 
 	return getTypedItemSynopsisImpl(
@@ -566,15 +503,14 @@ getFieldSynopsis(
 		isQualifiedName,
 		NULL,
 		field->getPtrTypeFlags()
-		);
+	);
 }
 
 sl::String
 getEnumConstSynopsis(
 	ModuleItem* item,
 	bool isQualifiedName
-	)
-{
+) {
 	EnumConst* enumConst = (EnumConst*)item;
 
 	sl::String synopsis = "const ";
@@ -584,22 +520,19 @@ getEnumConstSynopsis(
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-ModuleItem::ModuleItem()
-{
+ModuleItem::ModuleItem() {
 	m_module = NULL;
 	m_itemKind = ModuleItemKind_Undefined;
 	m_flags = 0;
 }
 
 ModuleItemDecl*
-ModuleItem::getDecl()
-{
+ModuleItem::getDecl() {
 	typedef
 	ModuleItemDecl*
 	GetDeclFunc(ModuleItem* item);
 
-	static GetDeclFunc* funcTable[ModuleItemKind__Count] =
-	{
+	static GetDeclFunc* funcTable[ModuleItemKind__Count] = {
 		getNullDecl,             // ModuleItemKind_Undefined = 0,
 		getNamespaceDecl,        // ModuleItemKind_Namespace,
 		getScopeDecl,            // ModuleItemKind_Scope,
@@ -627,14 +560,12 @@ ModuleItem::getDecl()
 }
 
 Namespace*
-ModuleItem::getNamespace()
-{
+ModuleItem::getNamespace() {
 	typedef
 	Namespace*
 	GetNamespaceFunc(ModuleItem* item);
 
-	static GetNamespaceFunc* funcTable[ModuleItemKind__Count] =
-	{
+	static GetNamespaceFunc* funcTable[ModuleItemKind__Count] = {
 		getNullNamespace,             // ModuleItemKind_Undefined = 0,
 		getNamespaceNamespace,        // ModuleItemKind_Namespace,
 		getScopeNamespace,            // ModuleItemKind_Scope,
@@ -662,14 +593,12 @@ ModuleItem::getNamespace()
 }
 
 Type*
-ModuleItem::getType()
-{
+ModuleItem::getType() {
 	typedef
 	Type*
 	GetTypeFunc(ModuleItem* item);
 
-	static GetTypeFunc* funcTable[ModuleItemKind__Count] =
-	{
+	static GetTypeFunc* funcTable[ModuleItemKind__Count] = {
 		getNullType,             // ModuleItemKind_Undefined = 0,
 		getNullType,             // ModuleItemKind_Namespace,
 		getNullType,             // ModuleItemKind_Scope,
@@ -697,17 +626,15 @@ ModuleItem::getType()
 }
 
 sl::String
-ModuleItem::getSynopsis(bool isQualifiedName)
-{
+ModuleItem::getSynopsis(bool isQualifiedName) {
 	typedef
 	sl::String
 	GetSynopsisFunc(
 		ModuleItem* item,
 		bool isQualifiedName
-		);
+	);
 
-	static GetSynopsisFunc* funcTable[ModuleItemKind__Count] =
-	{
+	static GetSynopsisFunc* funcTable[ModuleItemKind__Count] = {
 		getDefaultSynopsis,    // ModuleItemKind_Undefined = 0,
 		getDefaultSynopsis,    // ModuleItemKind_Namespace,
 		getDefaultSynopsis,    // ModuleItemKind_Scope,
@@ -735,8 +662,7 @@ ModuleItem::getSynopsis(bool isQualifiedName)
 }
 
 sl::String
-ModuleItem::createDoxyRefId()
-{
+ModuleItem::createDoxyRefId() {
 	sl::String refId = getModuleItemKindString(m_itemKind);
 	refId.replace('-', '_');
 
@@ -744,8 +670,7 @@ ModuleItem::createDoxyRefId()
 	ASSERT(decl);
 
 	sl::String name = decl->getQualifiedName();
-	if (!name.isEmpty())
-	{
+	if (!name.isEmpty()) {
 		refId.appendFormat("_%s", name.sz());
 		refId.replace('.', '_');
 	}

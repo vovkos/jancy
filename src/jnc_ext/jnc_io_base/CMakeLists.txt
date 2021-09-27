@@ -24,7 +24,7 @@ set(
 	jnc_io_FileStream.h
 	jnc_io_ChildProcess.h
 	jnc_io_IoLib.h
-	)
+)
 
 set(
 	LIB_CPP_LIST
@@ -37,7 +37,7 @@ set(
 	jnc_io_FileStream.cpp
 	jnc_io_ChildProcess.cpp
 	jnc_io_IoLib.cpp
-	)
+)
 
 if(WIN32)
 	set(
@@ -45,14 +45,14 @@ if(WIN32)
 		${LIB_H_LIST}
 		jnc_io_NamedPipe.h
 		jnc_io_Mailslot.h
-		)
+	)
 
 	set(
 		LIB_CPP_LIST
 		${LIB_CPP_LIST}
 		jnc_io_NamedPipe.cpp
 		jnc_io_Mailslot.cpp
-		)
+	)
 endif()
 
 source_group(
@@ -60,7 +60,7 @@ source_group(
 	FILES
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -82,7 +82,7 @@ set(
 	jnc/io_MappedFile.jnc
 	jnc/io_FileStream.jnc
 	jnc/io_ChildProcess.jnc
-	)
+)
 
 if(WIN32)
 	set(
@@ -90,14 +90,14 @@ if(WIN32)
 		${JNC_LIST}
 		jnc/io_NamedPipe.jnc
 		jnc/io_Mailslot.jnc
-		)
+	)
 endif()
 
 source_group(
 	jnc
 	FILES
 	${JNC_LIST}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -112,7 +112,7 @@ source_group(
 	FILES
 	${PCH_H}
 	${PCH_CPP}
-	)
+)
 
 #...............................................................................
 #
@@ -123,11 +123,11 @@ include_directories(
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
 	../jnc_io_cmn
-	)
+)
 
 link_directories(
 	${AXL_LIB_DIR}
-	)
+)
 
 add_library(
 	jnc_io_base
@@ -137,26 +137,26 @@ add_library(
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
 	${JNC_LIST}
-	)
+)
 
 target_compile_definitions(
 	jnc_io_base
 	PUBLIC
 	-D_JNC_DYNAMIC_EXTENSION_LIB=1
-	)
+)
 
 if(GCC AND NOT APPLE)
 	axl_set_export_version_script_gcc(
 		jnc_io_base
 		jncDynamicExtensionLibMain
-		)
+	)
 endif()
 
 axl_set_pch(
 	jnc_io_base
 	${PCH_H}
 	${PCH_CPP}
-	)
+)
 
 set(CMAKE_SHARED_LIBRARY_PREFIX)
 
@@ -165,7 +165,7 @@ set_target_properties(
 	PROPERTIES
 	OUTPUT_NAME io_base-${TARGET_CPU}
 	SUFFIX .bin
-	)
+)
 
 target_link_libraries(
 	jnc_io_base
@@ -173,18 +173,18 @@ target_link_libraries(
 	jnc_api_ext
 	axl_io
 	axl_core
-	)
+)
 
 if(WIN32)
 	target_link_libraries(
 		jnc_io_base
 		ws2_32
-		)
+	)
 elseif(UNIX)
 	target_link_libraries(
 		jnc_io_base
 		pthread
-		)
+	)
 
 	if(APPLE)
 		find_library(CORE_FOUNDATION_FRAMEWORK CoreFoundation)
@@ -196,12 +196,12 @@ elseif(UNIX)
 			axl_cf
 			${CORE_FOUNDATION_FRAMEWORK}
 			${IOKIT_FRAMEWORK}
-			)
+		)
 	else()
 		target_link_libraries(
 			jnc_io_base
 			rt
-			)
+		)
 	endif()
 endif()
 
@@ -209,7 +209,7 @@ set_target_properties(
 	jnc_io_base
 	PROPERTIES
 	FOLDER extensions
-	)
+)
 
 #...............................................................................
 #
@@ -241,6 +241,6 @@ add_custom_command(
 install(
 	FILES ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION>/io_base.jncx
 	DESTINATION ${JANCY_INSTALL_JNCX_SUBDIR}
-	)
+)
 
 #...............................................................................

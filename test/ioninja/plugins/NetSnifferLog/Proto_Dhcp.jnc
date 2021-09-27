@@ -7,8 +7,7 @@ import "io_Dhcp.jnc"
 
 //..............................................................................
 
-class DhcpProtoParser: AppProtoParser
-{
+class DhcpProtoParser: AppProtoParser {
 public:
 	override void representDigest(
 		log.Representation* representation,
@@ -17,7 +16,7 @@ public:
 		void const* p,
 		size_t size,
 		int payloadPreviewIconIdx
-		);
+	);
 
 	override void representDetails(
 		log.Representation* representation,
@@ -26,7 +25,7 @@ public:
 		size_t size,
 		size_t baseOffset,
 		uint_t foldFlags
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -38,8 +37,7 @@ void DhcpProtoParser.representDigest(
 	void const* p,
 	size_t size,
 	int payloadPreviewIconIdx
-	)
-{
+) {
 	representSimpleProtoDigestNoPayload(
 		representation,
 		typeof(io.DhcpHdr),,
@@ -47,11 +45,10 @@ void DhcpProtoParser.representDigest(
 		dstString,
 		p,
 		size
-		);
+	);
 }
 
-char const* getDhcpOptionValueString(io.DhcpOptionHdr const* optionHdr)
-{
+char const* getDhcpOptionValueString(io.DhcpOptionHdr const* optionHdr) {
 	jnc.EnumConst* optionConst = typeof(io.DhcpOptionType).findConst(optionHdr.m_type);
 	if (!optionConst)
 		return null;
@@ -76,12 +73,10 @@ size_t representDhcpOption(
 	size_t i,
 	io.DhcpOptionHdr const* optionHdr,
 	size_t baseOffset
-	)
-{
+) {
 	size_t size;
 
-	switch (optionHdr.m_type)
-	{
+	switch (optionHdr.m_type) {
 	case io.DhcpOptionType.Pad:
 	case io.DhcpOptionType.End:
 		size = 1;
@@ -96,7 +91,7 @@ size_t representDhcpOption(
 		baseOffset,
 		sizeof(io.DhcpOptionHdr.m_type),
 		typeof(io.DhcpOptionType).getValueString(&optionHdr.m_type, "0x%02X")
-		));
+	));
 
 	if (size >= sizeof(io.DhcpOptionHdr))
 		representation.addHyperText(
@@ -105,7 +100,7 @@ size_t representDhcpOption(
 			baseOffset + offsetof(io.DhcpOptionHdr.m_length),
 			sizeof(io.DhcpOptionHdr.m_length),
 			optionHdr.m_length
-			));
+		));
 
 	char const* valueString = getDhcpOptionValueString(optionHdr);
 	if (valueString)
@@ -115,7 +110,7 @@ size_t representDhcpOption(
 			baseOffset + sizeof(io.DhcpOptionHdr),
 			optionHdr.m_length,
 			valueString
-			));
+		));
 
 	return size;
 }
@@ -127,12 +122,10 @@ void DhcpProtoParser.representDetails(
 	size_t size,
 	size_t baseOffset,
 	uint_t foldFlags
-	)
-{
+) {
 	representation.m_lineAttr.m_backColor = ProtoColor.AppLayer;
 
-	if (size < sizeof(io.DnsHdr))
-	{
+	if (size < sizeof(io.DnsHdr)) {
 		representation.addHyperText("\e[1mDHCP\e[m [INCOMPLETE]");
 		return;
 	}
@@ -145,7 +138,7 @@ void DhcpProtoParser.representDetails(
 		baseOffset,
 		foldFlags,
 		ProtoFoldFlag.AppLayer
-		);
+	);
 
 	ProtoRange range = { baseOffset, sizeof(io.DhcpHdr), ProtoColor.AppLayer }
 	protoRangeArray.append(range);
@@ -164,15 +157,13 @@ void DhcpProtoParser.representDetails(
 	size_t optionOffset = baseOffset;
 	size_t optionSize;
 
-	if (foldFlags & ProtoFoldFlag.Payload)
-	{
+	if (foldFlags & ProtoFoldFlag.Payload) {
 		representation.addHyperText(
 			$"[\e^-%1\e[34m-\e[m] \e[1mDHCP\e[m Options"(
 			ProtoFoldFlag.Payload
-			));
+		));
 
-		for (size_t i = 1; p < end; i++)
-		{
+		for (size_t i = 1; p < end; i++) {
 			io.DhcpOptionHdr const* optionHdr = (io.DhcpOptionHdr const*)p;
 			p += representDhcpOption(representation, i, optionHdr, baseOffset + p - options);
 			if (optionHdr.m_type == io.DhcpOptionType.End)
@@ -180,17 +171,13 @@ void DhcpProtoParser.representDetails(
 		}
 
 		optionSize = p - options;
-	}
-	else
-	{
+	} else {
 		size_t optionCount = 0;
-		while (p < end)
-		{
+		while (p < end) {
 			optionCount++;
 
 			io.DhcpOptionHdr const* optionHdr = (io.DhcpOptionHdr const*)p;
-			switch (optionHdr.m_type)
-			{
+			switch (optionHdr.m_type) {
 			case io.DhcpOptionType.Pad:
 				p++;
 				break;
@@ -211,7 +198,7 @@ void DhcpProtoParser.representDetails(
 			ProtoFoldFlag.Payload,
 			optionCount,
 			optionSize
-			));
+		));
 	}
 
 	range = { optionOffset, optionSize, ProtoColor.Payload };
@@ -220,8 +207,7 @@ void DhcpProtoParser.representDetails(
 
 //..............................................................................
 
-construct()
-{
+construct() {
 	static DhcpProtoParser dhcp;
 
 	g_udpPortAppProtoParserMap[67] = dhcp;

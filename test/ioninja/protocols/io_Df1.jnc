@@ -13,8 +13,7 @@ namespace io {
 
 //..............................................................................
 
-enum Df1Char: char
-{
+enum Df1Char: char {
 	Soh = 0x01,
 	Stx = 0x02,
 	Etx = 0x03,
@@ -27,24 +26,20 @@ enum Df1Char: char
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum Df1Mode
-{
+enum Df1Mode {
 	FullDuplex,
 	HalfDuplex,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum Df1ChecksumKind: uchar_t
-{
+enum Df1ChecksumKind: uchar_t {
 	Bcc,
 	Crc,
 }
 
-char const* getDf1ChecksumKindString(Df1ChecksumKind kind)
-{
-	static char const* stringTable[] =
-	{
+char const* getDf1ChecksumKindString(Df1ChecksumKind kind) {
+	static char const* stringTable[] = {
 		"BCC",
 		"CRC",
 	}
@@ -54,20 +49,17 @@ char const* getDf1ChecksumKindString(Df1ChecksumKind kind)
 
 //..............................................................................
 
-enum Df1CmdDirection: uchar_t
-{
+enum Df1CmdDirection: uchar_t {
 	Command, // 0
 	Reply,   // 1
 }
 
-enum Df1CmdPriority: uchar_t
-{
+enum Df1CmdPriority: uchar_t {
 	Normal, // 0
 	High,   // 1
 }
 
-enum Df1CmdPrefix: uchar_t
-{
+enum Df1CmdPrefix: uchar_t {
 	[ structType = typeof(Df1Write) ]
 	ProtectedWrite      = 0,
 
@@ -94,8 +86,7 @@ enum Df1CmdPrefix: uchar_t
 	Command0F = 0x0f,
 }
 
-enum Df1CmdFnc: uint16_t
-{
+enum Df1CmdFnc: uint16_t {
 	[ structType = typeof(Df1ApplyPortConfiguration) ]
 	ApplyPortConfiguration      = 0x0f8f,
 
@@ -212,8 +203,7 @@ enum Df1CmdFnc: uint16_t
 	WriteBytesPhysical          = 0x0f18,
 }
 
-enum Df1LocalStatus: uchar_t
-{
+enum Df1LocalStatus: uchar_t {
 	Success,                   // 00
 	DstNodeOutOfBuffer,        // 01
 	CannotGuaranteeDelivery,   // 02
@@ -225,8 +215,7 @@ enum Df1LocalStatus: uchar_t
 	HardwareFault,             // 08
 }
 
-enum Df1RemoteStatus: uchar_t
-{
+enum Df1RemoteStatus: uchar_t {
 	Success,                       // 00
 	IllegalCommand,                // 01
 	HostProblem,                   // 02
@@ -247,8 +236,7 @@ enum Df1RemoteStatus: uchar_t
 
 // App message layer
 
-struct Df1AppMsgHdr
-{
+struct Df1AppMsgHdr {
 	[ displayName = "Destination"]
 	uchar_t m_destination;
 
@@ -299,14 +287,12 @@ struct Df1AppMsgHdr
 
 // CMD + FNC layer
 
-struct Df1ApplyPortConfiguration
-{
+struct Df1ApplyPortConfiguration {
 	[ displayName = "Port count"]
 	uchar_t m_count;
 }
 
-enum Df1PlcMode: uchar_t
-{
+enum Df1PlcMode: uchar_t {
 	Program             = 1,
 	RunMicroLogix1000   = 2,
 	Run                 = 6,
@@ -315,20 +301,17 @@ enum Df1PlcMode: uchar_t
 	TestDebugSingleStep = 9,
 }
 
-struct Df1ChangeMode
-{
+struct Df1ChangeMode {
 	[ displayName = "Mode"]
 	Df1PlcMode m_mode;
 }
 
-struct Df1CloseFile
-{
+struct Df1CloseFile {
 	[ displayName = "Tag"]
 	uint16_t m_tag;
 }
 
-struct Df1ModifyPlc2CompatibilityFile
-{
+struct Df1ModifyPlc2CompatibilityFile {
 	[ displayName = "Link ID"]
 	uchar_t m_linkId;
 
@@ -339,14 +322,12 @@ struct Df1ModifyPlc2CompatibilityFile
 	uint16_t m_fileNumber;
 }
 
-enum Df1FileProtection: uchar_t
-{
+enum Df1FileProtection: uchar_t {
 	Read      = 0x01,
 	ReadWrite = 0x03,
 }
 
-enum Df1FileType: uchar_t
-{
+enum Df1FileType: uchar_t {
 	Status              = 0x84,
 	Bit                 = 0x85,
 	Timer               = 0x86,
@@ -361,8 +342,7 @@ enum Df1FileType: uchar_t
 	Bcd                 = 0x8f,
 }
 
-struct Df1OpenFile
-{
+struct Df1OpenFile {
 	[ displayName = "Protection"]
 	Df1FileProtection m_protection;
 
@@ -373,8 +353,7 @@ struct Df1OpenFile
 	Df1FileType m_fileType;
 }
 
-struct Df1FileReadWrite
-{
+struct Df1FileReadWrite {
 	[ displayName = "Packet offset"]
 	uint16_t m_offset;
 
@@ -382,8 +361,7 @@ struct Df1FileReadWrite
 	uint16_t m_total;
 }
 
-struct Df1Read
-{
+struct Df1Read {
 	[ displayName = "Address"]
 	uint16_t m_address;
 
@@ -391,14 +369,12 @@ struct Df1Read
 	uchar_t m_dataSize;
 }
 
-struct Df1Write
-{
+struct Df1Write {
 	[ displayName = "Address"]
 	uint16_t m_address;
 }
 
-struct Df1PhysicalRead
-{
+struct Df1PhysicalRead {
 	[ displayName = "Physical address"]
 	uint32_t m_address;
 
@@ -406,14 +382,12 @@ struct Df1PhysicalRead
 	uchar_t m_dataSize;
 }
 
-struct Df1PhysicalWrite
-{
+struct Df1PhysicalWrite {
 	[ displayName = "Physical address"]
 	uint32_t m_address;
 }
 
-struct Df1ProtectedTypedReadWrite
-{
+struct Df1ProtectedTypedReadWrite {
 	[ displayName = "Data size"]
 	uchar_t m_dataSize;
 
@@ -427,8 +401,7 @@ struct Df1ProtectedTypedReadWrite
 	Df1FileType m_fileType;
 }
 
-struct Df1ProtectedTypedLogicalReadWrite
-{
+struct Df1ProtectedTypedLogicalReadWrite {
 	[ displayName = "Data size"]
 	uchar_t m_dataSize;
 
@@ -445,16 +418,14 @@ struct Df1ProtectedTypedLogicalReadWrite
 	uchar_t m_subElementNumber;
 }
 
-enum Df1CpuMode: uchar_t
-{
+enum Df1CpuMode: uchar_t {
 	ProgramLoad,
 	RemoteTest,
 	RemoteRun,
 	NoChange,
 }
 
-struct Df1SetCpuMode
-{
+struct Df1SetCpuMode {
 	[
 		displayName = "CPU mode",
 		displayType = typeof(Df1CpuMode)
@@ -465,26 +436,22 @@ struct Df1SetCpuMode
 	uchar_t m_unused : 6;
 }
 
-struct Df1SetEnqs
-{
+struct Df1SetEnqs {
 	[ displayName = "Maximum number of ENQs" ]
 	uchar_t m_enqLimit;
 }
 
-struct Df1SetNaks
-{
+struct Df1SetNaks {
 	[ displayName = "Maximum number of NAKs" ]
 	uchar_t m_nakLimit;
 }
 
-struct Df1SetTimeout
-{
+struct Df1SetTimeout {
 	[ displayName = "Maximum ACK timeout" ]
 	uchar_t m_timeout;
 }
 
-struct Df1SetVariables
-{
+struct Df1SetVariables {
 	[ displayName = "Maximum ACK timeout" ]
 	uchar_t m_timeout;
 

@@ -22,8 +22,7 @@ CapabilityMgr::readCapabilityParam(
 	const char* param,
 	void* value,
 	size_t size
-	)
-{
+) {
 	sl::StringHashTableIterator<sl::Array<char> > it = m_paramSet.find(param);
 	if (!it)
 		return 0;
@@ -44,23 +43,20 @@ CapabilityMgr::writeCapabilityParam(
 	const char* param,
 	const void* value,
 	size_t size
-	)
-{
+) {
 	sl::StringHashTableIterator<sl::Array<char> > it = m_paramSet.visit(param);
 	it->m_value.copy((char*)value, size);
 	return size;
 }
 
 void
-CapabilityMgr::initializeCapabilities(const sl::StringRef& initializer)
-{
+CapabilityMgr::initializeCapabilities(const sl::StringRef& initializer) {
 	sl::StringRef delimiters(",;/ \t\r\n");
 
 	m_capabilitySet.clear();
 	m_isEverythingEnabled = false;
 
-	for (size_t i = 0;;)
-	{
+	for (size_t i = 0;;) {
 		i = initializer.findNotOneOf(delimiters, i);
 		if (i == -1)
 			break;
@@ -70,8 +66,7 @@ CapabilityMgr::initializeCapabilities(const sl::StringRef& initializer)
 			end = initializer.getLength();
 
 		sl::StringRef capability = initializer.getSubString(i, end - i);
-		if (capability == "*")
-		{
+		if (capability == "*") {
 			m_isEverythingEnabled = true;
 			break;
 		}

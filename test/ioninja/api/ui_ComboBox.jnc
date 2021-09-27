@@ -12,8 +12,7 @@ namespace ui {
 
 //..............................................................................
 
-opaque class ComboBox
-{
+opaque class ComboBox {
 	bool autoget property m_isVisible;
 	bool autoget property m_isEnabled;
 	bool autoget property m_isEditable; // for editable combo boxes: if itemData is non-null, it's used as the actual value
@@ -40,16 +39,14 @@ opaque class ComboBox
 	size_t addItem(
 		char const* text,
 		variant data = null
-		)
-	{
+	) {
 		return insertItem(-1, text, data);
 	}
 
 	size_t addItemSetCurrent(
 		char const* text,
 		variant data = null
-		)
-	{
+	) {
 		return insertItemSetCurrent(-1, text, data);
 	}
 
@@ -57,14 +54,13 @@ opaque class ComboBox
 		size_t index,
 		char const* text,
 		variant data = null
-		);
+	);
 
 	size_t insertItemSetCurrent(
 		size_t index,
 		char const* text,
 		variant data = null
-		)
-	{
+	) {
 		return m_currentIndex = insertItem(index, text, data);
 	}
 
@@ -73,7 +69,7 @@ opaque class ComboBox
 	void setItems(
 		ComboItem const* itemArray,
 		size_t count
-		);
+	);
 
 	void clear();
 }

@@ -21,18 +21,14 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(UnionType)
 
 //..............................................................................
 
-class UnionType: public DerivableTypeBase<ct::UnionType>
-{
+class UnionType: public DerivableTypeBase<ct::UnionType> {
 public:
 	UnionType(ct::UnionType* type):
-		DerivableTypeBase(type)
-	{
-	}
+		DerivableTypeBase(type) {}
 
 	StructType*
 	JNC_CDECL
-	getStructType()
-	{
+	getStructType() {
 		return (StructType*)rtl::getType(m_item->getStructType());
 	}
 };

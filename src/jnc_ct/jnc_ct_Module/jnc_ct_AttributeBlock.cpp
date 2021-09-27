@@ -19,8 +19,7 @@ namespace ct {
 //..............................................................................
 
 bool
-Attribute::parseInitializer()
-{
+Attribute::parseInitializer() {
 	ASSERT(!m_initializer.isEmpty());
 
 	bool result = m_module->m_operatorMgr.parseExpression(m_initializer, &m_value);
@@ -28,30 +27,27 @@ Attribute::parseInitializer()
 		return false;
 
 	ValueKind valueKind = m_value.getValueKind();
-	switch (valueKind)
-	{
+	switch (valueKind) {
 	case ValueKind_Null:
 	case ValueKind_Const:
 		break;
 
 	case ValueKind_Variable:
-		if (!(m_value.getVariable()->getFlags() & VariableFlag_Type))
-		{
+		if (!(m_value.getVariable()->getFlags() & VariableFlag_Type)) {
 			err::setFormatStringError(
 				"non-type variable '%s' used as an attribute value",
 				m_value.getVariable()->getQualifiedName().sz()
-				);
+			);
 		}
 
 		break;
 
 	case ValueKind_Function:
-		if (m_value.getFunction()->getStorageKind() != StorageKind_Static)
-		{
+		if (m_value.getFunction()->getStorageKind() != StorageKind_Static) {
 			err::setFormatStringError(
 				"non-static function '%s' used in a const expression",
 				m_value.getFunction()->getQualifiedName().sz()
-				);
+			);
 
 			return false;
 		}
@@ -76,11 +72,9 @@ Attribute*
 AttributeBlock::createAttribute(
 	const sl::StringRef& name,
 	sl::BoxList<Token>* initializer
-	)
-{
+) {
 	sl::StringHashTableIterator<Attribute*> it = m_attributeMap.visit(name);
-	if (it->m_value)
-	{
+	if (it->m_value) {
 		err::setFormatStringError("redefinition of attribute '%s'", name.sz());
 		return NULL;
 	}
@@ -99,8 +93,7 @@ AttributeBlock::createAttribute(
 }
 
 bool
-AttributeBlock::prepareAttributeValues()
-{
+AttributeBlock::prepareAttributeValues() {
 	ASSERT(!(m_flags & AttributeBlockFlag_ValuesReady));
 
 	Unit* prevUnit = m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
@@ -109,11 +102,9 @@ AttributeBlock::prepareAttributeValues()
 	bool finalResult = true;
 
 	size_t count = m_attributeArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
+	for (size_t i = 0; i < count; i++) {
 		Attribute* attribute = m_attributeArray[i];
-		if (attribute->hasInitializer())
-		{
+		if (attribute->hasInitializer()) {
 			bool result = attribute->parseInitializer();
 			if (!result)
 				finalResult = false;

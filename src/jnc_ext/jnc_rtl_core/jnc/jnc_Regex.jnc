@@ -20,8 +20,7 @@ namespace jnc {
 	\brief This struct holds the information about matched lexeme or sub-lexeme.
 */
 
-struct RegexMatch
-{
+struct RegexMatch {
 	//! Holds a pointer to the match (guaranteed to be null-terminated).
 
 	char const* m_text;
@@ -41,8 +40,7 @@ struct RegexMatch
 	\brief This enum describes available option flags for `jnc.RegexState`.
 */
 
-bitflag enum RegexStateFlags
-{
+bitflag enum RegexStateFlags {
 	//! Makes it possible to match input incrementally, i.e. chunk-by-chunk.
 
 	Incremental,
@@ -80,8 +78,7 @@ bitflag enum RegexStateFlags
 	.. ref-code-block::
 
 		jnc.RegexState state;
-		reswitch (state, p, length)
-		{
+		reswitch (state, p, length) {
 		case "foo":
 			// ...
 			break;
@@ -107,15 +104,12 @@ bitflag enum RegexStateFlags
 			jnc.RegexState* state,
 			const char* p,
 			size_t length
-			)
-		{
+		) {
 			const char* end = p + length;
 
 			// post-condition loop allows passing 'null' as eof
-			do
-			{
-				reswitch (state, p, end - p)
-				{
+			do {
+				reswitch (state, p, end - p) {
 				case "foo":
 					// ...
 					break;
@@ -176,8 +170,7 @@ bitflag enum RegexStateFlags
 
 */
 
-opaque class RegexState
-{
+opaque class RegexState {
 	/**
 		Holds the matching options. Normally, you set it during (or immediately
 		after) the construction. But it's freely adjustible at any moment.
@@ -268,13 +261,12 @@ protected:
 		void thin* dfa,
 		char const* p,
 		size_t length
-		);
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class RegexDfa
-{
+opaque class RegexDfa {
 	construct();
 	destruct();
 
@@ -283,8 +275,7 @@ opaque class RegexDfa
 	bool errorcode compile(
 		char const* regexString,
 		size_t length = -1
-		)
-	{
+	) {
 		clear();
 		return incrementalCompile(regexString, length) && finalize();
 	}
@@ -292,7 +283,7 @@ opaque class RegexDfa
 	bool errorcode incrementalCompile(
 		char const* regexString,
 		size_t length = -1
-		);
+	);
 
 	bool errorcode finalize();
 
@@ -300,7 +291,7 @@ opaque class RegexDfa
 		RegexState* state,
 		char const* p,
 		size_t length = -1
-		) const;
+	) const;
 }
 
 //..............................................................................

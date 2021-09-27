@@ -28,8 +28,7 @@ getStdTypeSource(StdType stdType);
 
 //..............................................................................
 
-enum StdTypedef
-{
+enum StdTypedef {
 	StdTypedef_uint_t,
 	StdTypedef_intptr_t,
 	StdTypedef_uintptr_t,
@@ -58,8 +57,7 @@ enum StdTypedef
 //..............................................................................
 
 #define JNC_MAP_STD_TYPE(stdType, Type) \
-	if (module->m_typeMgr.isStdTypeUsed(stdType)) \
-	{ \
+	if (module->m_typeMgr.isStdTypeUsed(stdType)) { \
 		JNC_MAP_TYPE(Type); \
 	}
 

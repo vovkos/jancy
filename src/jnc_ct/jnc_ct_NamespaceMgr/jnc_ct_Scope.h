@@ -26,8 +26,7 @@ struct TryExpr;
 
 //..............................................................................
 
-enum ScopeFlag
-{
+enum ScopeFlag {
 	ScopeFlag_Function       = 0x000100,
 	ScopeFlag_Unsafe         = 0x000200,
 	ScopeFlag_Nested         = 0x000400,
@@ -46,8 +45,7 @@ enum ScopeFlag
 
 class Scope:
 	public ModuleItem,
-	public Namespace
-{
+	public Namespace {
 	friend class NamespaceMgr;
 	friend class ControlFlowMgr;
 	friend class FunctionMgr;
@@ -76,14 +74,12 @@ public:
 	Scope();
 
 	Function*
-	getFunction()
-	{
+	getFunction() {
 		return m_function;
 	}
 
 	Scope*
-	getParentScope()
-	{
+	getParentScope() {
 		return m_parentNamespace && m_parentNamespace->getNamespaceKind() == NamespaceKind_Scope ? (Scope*)m_parentNamespace : NULL;
 	}
 
@@ -91,27 +87,23 @@ public:
 	findGcShadowStackFrameMap();
 
 	Variable*
-	getDisposeLevelVariable()
-	{
+	getDisposeLevelVariable() {
 		return m_disposeLevelVariable;
 	}
 
 	sl::Array<Variable*>
-	getDisposableVariableArray()
-	{
+	getDisposableVariableArray() {
 		return m_disposableVariableArray;
 	}
 
 	size_t
-	addDisposableVariable(Variable* variable)
-	{
+	addDisposableVariable(Variable* variable) {
 		m_disposableVariableArray.append(variable);
 		return m_disposableVariableArray.getCount();
 	}
 
 	llvm::DIScope_vn
-	getLlvmDiScope()
-	{
+	getLlvmDiScope() {
 		return m_llvmDiScope;
 	}
 
@@ -121,8 +113,7 @@ public:
 protected:
 	virtual
 	bool
-	parseBody()
-	{
+	parseBody() {
 		ASSERT(false);
 		return true;
 	}

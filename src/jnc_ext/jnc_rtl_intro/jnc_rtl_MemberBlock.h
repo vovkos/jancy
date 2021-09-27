@@ -22,95 +22,82 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(MemberBlock)
 
 //..............................................................................
 
-class MemberBlock: public IfaceHdr
-{
+class MemberBlock: public IfaceHdr {
 protected:
 	ct::MemberBlock* m_block;
 
 public:
-	MemberBlock(ct::MemberBlock* block)
-	{
+	MemberBlock(ct::MemberBlock* block) {
 		m_block = block;
 	}
 
 public:
 	Function*
 	JNC_CDECL
-	getStaticConstructor()
-	{
+	getStaticConstructor() {
 		return rtl::getFunction(m_block->getStaticConstructor());
 	}
 
 	Function*
 	JNC_CDECL
-	getConstructor()
-	{
+	getConstructor() {
 		return rtl::getFunction(m_block->getConstructor());
 	}
 
 	Function*
 	JNC_CDECL
-	getDestructor()
-	{
+	getDestructor() {
 		return rtl::getFunction(m_block->getDestructor());
 	}
 
 	size_t
 	JNC_CDECL
-	getStaticVariableCount()
-	{
+	getStaticVariableCount() {
 		return m_block->getStaticVariableArray().getCount();
 	}
 
 	Variable*
 	JNC_CDECL
-	getStaticVariable(size_t index)
-	{
+	getStaticVariable(size_t index) {
 		size_t count = m_block->getStaticVariableArray().getCount();
 		return index < count ? rtl::getVariable(m_block->getStaticVariableArray()[index]) : NULL;
 	}
 
 	size_t
 	JNC_CDECL
-	getFieldCount()
-	{
+	getFieldCount() {
 		return m_block->getFieldArray().getCount();
 	}
 
 	Field*
 	JNC_CDECL
-	getField(size_t index)
-	{
+	getField(size_t index) {
 		size_t count = m_block->getFieldArray().getCount();
 		return index < count ? rtl::getField(m_block->getFieldArray()[index]) : NULL;
 	}
 
 	size_t
 	JNC_CDECL
-	getMethodCount()
-	{
+	getMethodCount() {
 		return m_block->getMethodArray().getCount();
 	}
 
 	Function*
 	JNC_CDECL
-	getMethod(size_t index)
-	{
+	getMethod(size_t index) {
 		size_t count = m_block->getMethodArray().getCount();
 		return index < count ? rtl::getFunction(m_block->getMethodArray()[index]) : NULL;
 	}
 
 	size_t
 	JNC_CDECL
-	getPropertyCount()
-	{
+	getPropertyCount() {
 		return m_block->getPropertyArray().getCount();
 	}
 
 	Property*
 	JNC_CDECL
-	getProperty(size_t index)
-	{
+	getProperty(size_t index) {
 		size_t count = m_block->getPropertyArray().getCount();
 		return index < count ? rtl::getProperty(m_block->getPropertyArray()[index]) : NULL;
 	}

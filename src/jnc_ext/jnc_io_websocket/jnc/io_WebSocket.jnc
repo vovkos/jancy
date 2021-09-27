@@ -24,8 +24,7 @@ namespace io {
 
 //..............................................................................
 
-bitflag enum WebSocketOptions: SocketOptions
-{
+bitflag enum WebSocketOptions: SocketOptions {
 	/**
 		Make incoming control frames such as ``Close``, ``Ping`` & ``Pong``
 		available via `io.WebSocket.read`
@@ -62,8 +61,7 @@ bitflag enum WebSocketOptions: SocketOptions
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum WebSocketEvents: SslSocketEvents
-{
+bitflag enum WebSocketEvents: SslSocketEvents {
 	WebSocketHandshakeRequested,
 	WebSocketHandshakeCompleted,
 	WebSocketCloseRequested,
@@ -72,8 +70,7 @@ bitflag enum WebSocketEvents: SslSocketEvents
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum WebSocketFrameOpcode
-{
+enum WebSocketFrameOpcode {
 	Continuation = 0,
 	Text         = 1,
 	Binary       = 2,
@@ -84,8 +81,7 @@ enum WebSocketFrameOpcode
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class WebSocket
-{
+opaque class WebSocket {
 	SocketAddress const property m_address;
 	SocketAddress const property m_peerAddress;
 	SslState* readonly m_sslState; // valid only after secure-open
@@ -113,12 +109,12 @@ opaque class WebSocket
 	bool errorcode open(
 		AddressFamily family,
 		bool isSecure = false
-		);
+	);
 
 	bool errorcode open(
 		SocketAddress const* address,
 		bool isSecure = false
-		);
+	);
 
 	void close();
 
@@ -128,24 +124,23 @@ opaque class WebSocket
 		SocketAddress const* address,
 		char const* resource,
 		char const* host
-		);
+	);
 
 	bool errorcode listen(size_t backlog = 0); // 0 -- default
 
 	WebSocket* errorcode accept(
 		SocketAddress* address = null,
 		bool isSuspended = false
-		);
+	);
 
 	void unsuspend();
 
 	bool errorcode serverHandshake(
 		uint_t statusCode,
 		char const* statusText
-		);
+	);
 
-	bool errorcode serverHandshake(WebSocketHandshakeHeaders const* extraHeaders = null)
-	{
+	bool errorcode serverHandshake(WebSocketHandshakeHeaders const* extraHeaders = null) {
 		return handshake(101, "Switching Protocols", extraHeaders);
 	}
 
@@ -153,13 +148,12 @@ opaque class WebSocket
 		WebSocketFrameOpcode* opcode,
 		void* p,
 		size_t size
-		);
+	);
 
 	size_t errorcode read(
 		void* p,
 		size_t size
-		)
-	{
+	) {
 		return read(null, p, size);
 	}
 
@@ -167,66 +161,59 @@ opaque class WebSocket
 		WebSocketFrameOpcode opcode,
 		void const* p,
 		size_t size
-		);
+	);
 
 	size_t errorcode writeText(
 		char const* p,
 		size_t length = -1
-		)
-	{
+	) {
 		return write(WebSocketFrameOpcode.Text, p, length != -1 ? length : strlen(p));
 	}
 
 	size_t errorcode writeBinary(
 		void const* p,
 		size_t size
-		)
-	{
+	) {
 		return write(WebSocketFrameOpcode.Binary, p, size);
 	}
 
 	size_t errorcode writePing(
 		void const* p,
 		size_t size
-		)
-	{
+	) {
 		return write(WebSocketFrameOpcode.Ping, p, size);
 	}
 
-	size_t errorcode writePing()
-	{
+	size_t errorcode writePing() {
 		return writePing(null, 0);
 	}
 
 	size_t errorcode writePong(
 		void const* p,
 		size_t size
-		)
-	{
+	) {
 		return write(WebSocketFrameOpcode.Pong, p, size);
 	}
 
-	size_t errorcode writePong()
-	{
+	size_t errorcode writePong() {
 		return writePong(null, 0);
 	}
 
-	size_t errorcode writeClose()
-	{
+	size_t errorcode writeClose() {
 		return write(WebSocketFrameOpcode.Close, null, 0);
 	}
 
 	intptr errorcode wait(
 		WebSocketEvents eventMask,
 		function* handler(WebSocketEvents triggeredEvents)
-		);
+	);
 
 	bool errorcode cancelWait(intptr handle);
 
 	WebSocketEvents blockingWait(
 		WebSocketEvents eventMask,
 		uint_t timeout = -1
-		);
+	);
 
 	async WebSocketEvents asyncWait(WebSocketEvents eventMask);
 }

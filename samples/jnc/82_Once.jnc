@@ -22,12 +22,10 @@
 
 //..............................................................................
 
-class C1
-{
+class C1 {
 	int m_x;
 
-	construct()
-	{
+	construct() {
 		printf("C1.construct ()\n");
 		m_x = rand() % 10;
 	}
@@ -35,24 +33,20 @@ class C1
 
 //..............................................................................
 
-int foo()
-{
+int foo() {
 	printf("foo ()\n");
 	return rand() % 10;
 }
 
-void initSomethingElse()
-{
+void initSomethingElse() {
 	printf("initSomethingElse ()\n");
 }
 
-void baz(int x)
-{
+void baz(int x) {
 	printf("baz (%d)\n", x);
 }
 
-void bar()
-{
+void bar() {
 	printf("bar ()\n");
 
 	// static variable construction
@@ -67,8 +61,7 @@ void bar()
 
 	static int a[3];
 
-	once
-	{
+	once {
 		printf("foo.static once\n");
 		for (size_t i = 0; i < countof(a); i++)
 			a[i] = (int)i * 10;
@@ -96,8 +89,7 @@ void bar()
 
 // entry point
 
-int main()
-{
+int main() {
 	printf("main ()\n");
 
 	bar();

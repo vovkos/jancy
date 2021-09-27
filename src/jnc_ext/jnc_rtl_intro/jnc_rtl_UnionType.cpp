@@ -25,7 +25,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	-1,
 	UnionType,
 	NULL
-	)
+)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(UnionType)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<UnionType, ct::UnionType*>))
