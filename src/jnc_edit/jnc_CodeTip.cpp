@@ -151,7 +151,7 @@ CodeTip::getArgumentTipText(
 	if (type->getFlags() & FunctionTypeFlag_VarArg)
 		text += isMl ? ",<br>" ML_ARG_INDENT "..." : ", ...";
 
-	text += isMl ? "<br>" ML_ARG_INDENT ")" : ")";
+	text += isMl ? "<br>)" : ")";
 
 	if (isConst)
 		text += highlightJancySource(" const");

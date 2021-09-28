@@ -1761,9 +1761,9 @@ getPrototypeDeclString(
 		text += isMl ? ",\n\t..." : ", ...";
 
 	if (isMl)
-		text += "\n\t";
+		text += "\n";
 
-	text += ")\n{\n\t\n}";
+	text += ") {\n\t\n}";
 
 	if (!isNextLineEmpty)
 		text += '\n';
