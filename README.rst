@@ -61,12 +61,10 @@ Use pointer arithmetic -- the most elegant and the most efficient way of parsing
 	IpHdr const* ipHdr = (IpHdr const*)p;
 	p += ipHdr.m_headerLength * 4;
 
-	switch (ipHdr.m_protocol)
-	{
+	switch (ipHdr.m_protocol) {
 	case Proto.Icmp:
 		IcmpHdr const* icmpHdr = (IcmpHdr const*)p;
-		switch (icmpHdr.m_type)
-		{
+		switch (icmpHdr.m_type) {
 		case IcmpType.EchoReply:
 			...
 		}
@@ -82,8 +80,7 @@ You can also safely pass buffers from C/C++ to Jancy without creating a copy on 
 	void thisIsCpp(
 		jnc::Runtime* runtime,
 		jnc::Function* function
-		)
-	{
+		) {
 		char buffer[] = "I'm on stack but still safe!";
 
 		JNC_BEGIN_CALL_SITE(runtime)
@@ -100,8 +97,7 @@ Write auto-evaluating *formulas* just like you do in Excel -- and stay in full c
 
 .. code:: cpp
 
-	reactor m_uiReactor
-	{
+	reactor m_uiReactor {
 		m_title = $"Target address: $(m_addressCombo.m_editText)";
 		m_localAddressProp.m_isEnabled = m_useLocalAddressProp.m_isChecked;
 		m_isTransmitEnabled = m_state == State.Connected;
@@ -123,10 +119,8 @@ Scheduled Function Pointers
 
 .. code:: cpp
 
-	class WorkerThread: jnc.Scheduler
-	{
-		override schedule(function* f())
-		{
+	class WorkerThread: jnc.Scheduler {
+		override schedule(function* f()) {
 			// enqueue f and signal worker thread event
 		}
 		...
@@ -136,8 +130,7 @@ Apply a binary operator ``@`` (reads *"at"*) to create a *scheduled* pointer to 
 
 .. code:: cpp
 
-	void onComplete(bool status)
-	{
+	void onComplete(bool status) {
 		// we are in the worker thread
 	}
 
@@ -153,8 +146,7 @@ The async-await paradigm is becoming increasingly popular during recent years --
 
 .. code:: cpp
 
-	async transact(char const* address)
-	{
+	async void transact(char const* address) {
 		await connect(address);
 		await modify();
 		await disconnect();
@@ -177,8 +169,7 @@ You can even switch contexts during the execution of your ``async`` procedure:
 
 .. code:: cpp
 
-	async foo()
-	{
+	async void foo() {
 		await thisPromise.asyncSetScheduler(m_workerThread);
 		// we are in the worker thread
 
@@ -194,8 +185,7 @@ Create *efficient* regex-based switches for tokenizing string streams:
 .. code:: cpp
 
 	jnc.RegexState state;
-	reswitch (state, p, length)
-	{
+	reswitch (state, p, length) {
 	case "foo":
 		...
 		break;
@@ -222,8 +212,7 @@ Define dynamically laid-out structures with non-constant sizes of array fields -
 
 .. code:: cpp
 
-	dynamic struct FileHdr
-	{
+	dynamic struct FileHdr {
 		...
 		char m_authorName[strlen(m_authorName) + 1];
 		char m_authorEmail[strlen(m_authorEmail) + 1];
@@ -241,9 +230,7 @@ In Jancy you can describe a dynamic struct, overlap your buffer with a pointer t
 	displayAuthorInfo(hdr.m_authorName, hdr.m_authorEmail);
 
 	for (size_t i = 0; i < hdr.m_sectionCount; i++)
-	{
 		processSection(hdr.m_sectionTable[i].m_offset, hdr.m_sectionTable[i].m_size);
-	}
 
 You can write to dynamic structs, too -- just make sure you fill it sequentially from top to bottom. And yes, dynamically calculated offsets are cached, so there is no significant performance penalty for using this facility.
 
@@ -256,8 +243,7 @@ In Jancy you can write methods which can be *both* error-checked and caught exce
 
 .. code:: cpp
 
-	class File
-	{
+	class File {
 		bool errorcode open(char const* fileName);
 		close();
 		alias dispose = close;
@@ -267,8 +253,7 @@ Use *throw-catch* semantics:
 
 .. code:: cpp
 
-	foo(File* file)
-	{
+	void foo(File* file) {
 		file.open("data.bin");
 		file.write(hdr, sizeof(hdr));
 		file.write(data, dataSize);
@@ -285,12 +270,10 @@ Use *throw-catch* semantics:
 
 .. code:: cpp
 
-	bar()
-	{
+	void bar() {
 		disposable File file;
 		bool result = try file.open("data.bin");
-		if (!result)
-		{
+		if (!result) {
 			print($"can't open: $!\n");
 			...
 		}
@@ -306,23 +289,20 @@ Jancy introduces yet another cool feature called *dual type modifiers* -- i.e. m
 
 .. code:: cpp
 
-	class C
-	{
+	class C {
 		int readonly m_readOnly;
-		foo();
+		void foo();
 	}
 
 The ``readonly`` modifier's meaning depends on whether a call-site belongs to the *private-circle* of the namespace:
 
 .. code:: cpp
 
-	C.foo()
-	{
+	void C.foo() {
 		m_readOnly = 10; // ok
 	}
 
-	bar(C* c)
-	{
+	void bar(C* c) {
 		print($"c.m_readOnly = $(c.m_readOnly)\n"); // ok
 		c.m_readOnly = 20; // error: cannot store to const-location
 	}
@@ -333,8 +313,7 @@ Another common pattern is a pointer field which *inherits mutability* from its c
 
 .. code:: cpp
 
-	struct ListEntry
-	{
+	struct ListEntry {
 		ListEntry cmut* m_next;
 		variant m_value;
 	}
@@ -343,11 +322,10 @@ The ``cmut`` modifier must be used on the type of a member -- field, method, pro
 
 .. code:: cpp
 
-	bar(
+	void bar(
 		ListEntry* a,
 		ListEntry const* b
-		)
-	{
+	) {
 		a.m_next.m_value = 10; // ok
 		b.m_next.m_value = 10; // error: cannot store to const-location
 	}
@@ -358,24 +336,21 @@ Finally, the most obvious application for dual modifiers -- *event fields*:
 
 .. code:: cpp
 
-	class C1
-	{
+	class C1 {
 		event m_onCompleted();
-		work();
+		void work();
 	}
 
 The ``event`` modifier limits access to the methods of the underlying ``multicast`` depending on whether a call-site belongs to the *private-circle* of the namespace:
 
 .. code:: cpp
 
-	C.work()
-	{
+	void C.work() {
 		...
 		m_onCompleted(); // ok
 	}
 
-	foo(C* c)
-	{
+	void foo(C* c) {
 		c.m_onCompleted += onCompleted; // adding/remove handlers is ok
 		c.m_onCompleted(); // error: non-friends can't fire events
 	}
