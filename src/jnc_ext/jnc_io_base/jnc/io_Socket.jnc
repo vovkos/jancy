@@ -79,8 +79,8 @@ namespace io {
 				`io.SocketEvents.IoError` |
 				`io.SocketEvents.IncomingData`;
 
-			if (!(m_socket.m_activeEvents & `io.SocketEvents.Connected`))
-				eventMask |= `io.SocketEvents.Connected`;
+			if (!(m_socket.m_activeEvents & `io.SocketEvents.TcpConnected`))
+				eventMask |= `io.SocketEvents.TcpConnected`;
 
 			m_socket.wait(eventMask, onSocketEvent ~(++m_syncId) @
 				g_mainThreadScheduler);
@@ -103,7 +103,7 @@ namespace io {
 				// ...
 			}
 
-			if (triggeredEvents & `io.SocketEvents.Connected`) {
+			if (triggeredEvents & `io.SocketEvents.TcpConnected`) {
 				// TCP connection established
 			}
 
@@ -237,7 +237,7 @@ opaque class Socket {
 		valid for ``TCP`` sockets.
 
 		This method initiates a connection request and returns immediatly.
-		After connection request completes, an event `io.SocketEvents.Connected`
+		After connection request completes, an event `io.SocketEvents.TcpConnected`
 		(on success) or `io.SocketEvents.IoError` (on failure) gets fired.
 
 		Returns ``true`` on success. If a connection could not be established,

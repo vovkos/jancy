@@ -43,8 +43,8 @@ typedef ReadOnlyStreamEvents  MailslotEvents;
 	  want to *schedule* your event handler to be run in particular
 	  environment(e.g., in a specific thread) and partially apply some
 	  syncrhonization ID to discard late events;
-	* When `io.MailslotEvents.IncomingData` event is fired, read from the
-	  mailslot using ``read`` method;
+	* When `io.MailslotEvents.IncomingData <io.ReadOnlyStreamEvents.IncomingData>`
+	  event is fired, read from the mailslot using ``read`` method;
 	* Close the mailslot when no longer needed with ``close`` method.
 
 	.. rubric:: Sample code:
@@ -84,8 +84,8 @@ typedef ReadOnlyStreamEvents  MailslotEvents;
 
 		MyDialog.waitMailslotEvent() {
 			`io.MailslotEvents` eventMask =
-				`io.MailslotEvents.IoError` |
-				`io.MailslotEvents.IncomingData`;
+				`io.MailslotEvents.IoError <io.ReadOnlyStreamEvents.IoError>` |
+				`io.MailslotEvents.IncomingData <io.ReadOnlyStreamEvents.IoError>`;
 
 			m_mailslot.wait(eventMask, onMailslotEvent ~(++m_syncId) @
 				g_mainThreadScheduler);
@@ -98,12 +98,12 @@ typedef ReadOnlyStreamEvents  MailslotEvents;
 			if (syncId != m_syncId) // late event
 				return;
 
-			if (triggeredEvents & `io.MailslotEvents.IoError`) {
+			if (triggeredEvents & `io.MailslotEvents.IoError <io.ReadOnlyStreamEvents.IoError>`) {
 				char const* errorString = m_mailslot.m_ioError.m_description;
 				// ...
 			}
 
-			if (triggeredEvents & `io.MailslotEvents.IncomingData`) {
+			if (triggeredEvents & `io.MailslotEvents.IncomingData <io.ReadOnlyStreamEvents.IoError>`) {
 				char buffer[256];
 				size_t size = m_mailslot.read(buffer, sizeof(buffer));
 				// ...

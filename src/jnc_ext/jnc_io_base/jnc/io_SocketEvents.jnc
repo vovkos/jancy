@@ -56,7 +56,7 @@ bitflag enum SocketEvents: StreamEvents {
 
 	/**
 		Connection has been abruptly reset by the remote node. Whenever this
-		event is set, `io.SocketEvents.Disconnected` is also set. Note that if
+		event is set, `io.SocketEvents.TcpDisconnected` is also set. Note that if
 		connection was terminated by the local node(using `io.Socket.close`),
 		``Disconnect`` event is **not** fired.
 	*/
