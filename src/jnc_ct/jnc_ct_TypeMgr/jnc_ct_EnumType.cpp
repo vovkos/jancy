@@ -381,6 +381,9 @@ EnumType::generateDocumentation(
 		m_name.sz()
 	);
 
+	if (m_baseType->getTypeKind() != TypeKind_Int)
+		itemXml->append(m_baseType->getDoxyTypeString());
+
 	uint_t flags = m_flags;
 	if (m_name.isEmpty())
 		flags &= ~EnumTypeFlag_Exposed; // unnamed enums imply 'exposed' anyway
