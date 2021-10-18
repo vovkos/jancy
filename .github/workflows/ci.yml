@@ -24,6 +24,9 @@ jobs:
                 -   3.4.2
                 -   8.0.0
 
+        env:
+            RELEASE: ${{ startsWith(github.ref, 'refs/tags/') && matrix.CONFIGURATION == 'Release' }}
+
         defaults:
             run:
                 shell: cmd
@@ -72,6 +75,29 @@ jobs:
                 cmake --build . %CMAKE_BUILD_FLAGS% || exit
                 ctest --output-on-failure -C %CONFIGURATION% || exit
 
+        -   name: Package
+            id: PACKAGE
+            if: ${{ env.RELEASE == 'true' }}
+            run: |
+                set THIS_DIR=%CD%
+                set THIS_DIR_CMAKE=%THIS_DIR:\=/%
+
+                cd build
+                cpack -G 7Z -C Release
+
+                for /f "usebackq tokens=*" %%i in (`cmake -P print-package-file-name.cmake 2^>^&1`) do (set CPACK_PACKAGE_FILE_NAME=%%i)
+                set DEPLOY_FILE=build/%CPACK_PACKAGE_FILE_NAME%.7z
+
+                echo ::set-output name=DEPLOY_FILE::%DEPLOY_FILE%
+
+        -   name: Deploy to GitHub Releases
+            uses: softprops/action-gh-release@v1
+            if: ${{ env.RELEASE == 'true' }}
+            env:
+                GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+            with:
+                files: ${{steps.PACKAGE.outputs.DEPLOY_FILE}}
+
     linuxBuild:
         name: Linux Build
         runs-on: ubuntu-18.04
@@ -92,6 +118,7 @@ jobs:
                 -   clang
 
         env:
+            RELEASE: ${{ startsWith(github.ref, 'refs/tags/') && matrix.CONFIGURATION == 'Release' && matrix.COMPILER == 'gcc' }}
             DEPLOY_BINARIES: ${{ github.ref == 'refs/heads/master' && matrix.CONFIGURATION == 'Release' && matrix.COMPILER == 'gcc' }}
             BUILD_DOC: ${{ github.ref == 'refs/heads/master' && matrix.CONFIGURATION == 'Release' && matrix.TARGET_CPU == 'amd64' && matrix.COMPILER == 'gcc' }}
 
@@ -139,13 +166,6 @@ jobs:
                 ctest --output-on-failure
                 popd
 
-        -   name: Build and deploy binary package
-            if: ${{ env.DEPLOY_BINARIES == 'true' }}
-            env:
-                JANCY_PACKAGE_ID_RSA: ${{secrets.JANCY_PACKAGE_ID_RSA}}
-            run: |
-                source ci/github-actions/deploy-package.sh linux-${{matrix.TARGET_CPU}}
-
         -   name: Build documentation tools
             if: ${{ env.BUILD_DOC == 'true' }}
             run: |
@@ -182,6 +202,29 @@ jobs:
                 touch html/.nojekyll
                 popd
 
+        -   name: Package
+            id: PACKAGE
+            if: ${{ env.RELEASE == 'true' }}
+            run: |
+                set THIS_DIR=%CD%
+                set THIS_DIR_CMAKE=%THIS_DIR:\=/%
+
+                cd build
+                cpack -G TXZ
+
+                CPACK_PACKAGE_FILE_NAME=$(cmake -P print-package-file-name.cmake)
+                DEPLOY_FILE=build/%CPACK_PACKAGE_FILE_NAME.tar.xz
+
+                echo ::set-output name=DEPLOY_FILE::$DEPLOY_FILE
+
+        -   name: Deploy to GitHub Releases
+            if: ${{ env.RELEASE == 'true' }}
+            uses: softprops/action-gh-release@v1
+            env:
+                GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+            with:
+                files: ${{steps.PACKAGE.outputs.DEPLOY_FILE}}
+
         -   name: Deploy to GitHub pages
             if: ${{ env.BUILD_DOC == 'true' }}
             uses: peaceiris/actions-gh-pages@v3
@@ -189,6 +232,13 @@ jobs:
                 github_token: ${{secrets.GITHUB_TOKEN}}
                 publish_dir: build/doc/html
                 force_orphan: true
+
+        -   name: Build and deploy binary package
+            if: ${{ env.DEPLOY_BINARIES == 'true' }}
+            env:
+                JANCY_PACKAGE_ID_RSA: ${{secrets.JANCY_PACKAGE_ID_RSA}}
+            run: |
+                source ci/github-actions/deploy-package.sh linux-${{matrix.TARGET_CPU}}
 
     macOsBuild:
         name: macOS Build
@@ -202,6 +252,7 @@ jobs:
                 -   Release
 
         env:
+            RELEASE: ${{ startsWith(github.ref, 'refs/tags/') && matrix.CONFIGURATION == 'Release' }}
             DEPLOY_BINARIES: ${{ github.ref == 'refs/heads/master' && matrix.CONFIGURATION == 'Release' }}
 
         defaults:
@@ -245,6 +296,29 @@ jobs:
                 make
                 ctest --output-on-failure
                 popd
+
+        -   name: Package
+            id: PACKAGE
+            if: ${{ env.RELEASE == 'true' }}
+            run: |
+                set THIS_DIR=%CD%
+                set THIS_DIR_CMAKE=%THIS_DIR:\=/%
+
+                cd build
+                cpack -G TXZ
+
+                CPACK_PACKAGE_FILE_NAME=$(cmake -P print-package-file-name.cmake)
+                DEPLOY_FILE=build/%CPACK_PACKAGE_FILE_NAME.tar.xz
+
+                echo ::set-output name=DEPLOY_FILE::$DEPLOY_FILE
+
+        -   name: Deploy to GitHub Releases
+            if: ${{ env.RELEASE == 'true' }}
+            uses: softprops/action-gh-release@v1
+            env:
+                GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+            with:
+                files: ${{steps.PACKAGE.outputs.DEPLOY_FILE}}
 
         -   name: Build and deploy binary package
             if: ${{ env.DEPLOY_BINARIES == 'true' }}
