@@ -24,6 +24,7 @@ else
 	sudo apt-get install -y liblua5.2-dev:i386
 	sudo apt-get install -y libpcap-dev:i386
 	sudo apt-get install -y libudev-dev:i386
+	sudo apt-get remove -y llvm
 	sudo apt-get install -y llvm:i386
 	sudo apt-get install -y libz-dev:i386
 
