@@ -212,8 +212,8 @@ jobs:
                 cd build
                 cpack -G TXZ
 
-                CPACK_PACKAGE_FILE_NAME=$(cmake -P print-package-file-name.cmake)
-                DEPLOY_FILE=build/%CPACK_PACKAGE_FILE_NAME.tar.xz
+                CPACK_PACKAGE_FILE_NAME=$(cmake -P print-package-file-name.cmake 2>&1)
+                DEPLOY_FILE=build/$CPACK_PACKAGE_FILE_NAME.tar.xz
 
                 echo ::set-output name=DEPLOY_FILE::$DEPLOY_FILE
 
@@ -307,8 +307,8 @@ jobs:
                 cd build
                 cpack -G TXZ
 
-                CPACK_PACKAGE_FILE_NAME=$(cmake -P print-package-file-name.cmake)
-                DEPLOY_FILE=build/%CPACK_PACKAGE_FILE_NAME.tar.xz
+                CPACK_PACKAGE_FILE_NAME=$(cmake -P print-package-file-name.cmake 2>&1)
+                DEPLOY_FILE=build/$CPACK_PACKAGE_FILE_NAME.tar.xz
 
                 echo ::set-output name=DEPLOY_FILE::$DEPLOY_FILE
 
