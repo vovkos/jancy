@@ -91,16 +91,6 @@ public:
 		return self->m_rbTree.findValue(key, g_nullDataPtr);
 	}
 
-	static
-	DataPtr
-	findEx(
-		RbTree* self,
-		sl::BinTreeFindRelOp relOp,
-		Variant key
-	) {
-		return self->m_rbTree.findValue(key, relOp, g_nullDataPtr);
-	}
-
 	void
 	JNC_CDECL
 	remove(DataPtr entryPtr) {
