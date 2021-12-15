@@ -1091,7 +1091,7 @@ Parser::declareFunction(
 
 	case FunctionKind_UnaryOperator:
 		functionName->m_unOpKind = declarator->getUnOpKind();
-		functionItemDecl->m_qualifiedName.format(
+		functionItemDecl->m_qualifiedName = sl::formatString(
 			"%s.unary operator %s",
 			nspace->getQualifiedName().sz(),
 			getUnOpKindString(functionName->m_unOpKind)
@@ -1100,7 +1100,7 @@ Parser::declareFunction(
 
 	case FunctionKind_BinaryOperator:
 		functionName->m_binOpKind = declarator->getBinOpKind();
-		functionItemDecl->m_qualifiedName.format(
+		functionItemDecl->m_qualifiedName = sl::formatString(
 			"%s.binary operator %s",
 			nspace->getQualifiedName().sz(),
 			getBinOpKindString(functionName->m_binOpKind)
@@ -1109,7 +1109,7 @@ Parser::declareFunction(
 
 	case FunctionKind_CastOperator:
 		functionName->m_castOpType = declarator->getCastOpType();
-		functionItemDecl->m_qualifiedName.format(
+		functionItemDecl->m_qualifiedName = sl::formatString(
 			"%s.cast operator %s",
 			nspace->getQualifiedName().sz(),
 			functionName->m_castOpType->getTypeString().sz()
@@ -1117,7 +1117,7 @@ Parser::declareFunction(
 		break;
 
 	default:
-		functionItemDecl->m_qualifiedName.format(
+		functionItemDecl->m_qualifiedName = sl::formatString(
 			"%s.%s",
 			nspace->getQualifiedName().sz(),
 			getFunctionKindString(functionKind)
@@ -2729,7 +2729,7 @@ Parser::finalizeLiteral(
 			return false;
 	}
 
-	size_t unusedArgIdx = argUsageMap.findBit(0, false);
+	size_t unusedArgIdx = argUsageMap.findZeroBit(0);
 	if (unusedArgIdx < argCount) {
 		err::setFormatStringError("formatting literal argument %%%d is not used", unusedArgIdx + 1);
 		return false;

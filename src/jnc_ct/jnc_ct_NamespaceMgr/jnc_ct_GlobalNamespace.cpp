@@ -134,7 +134,7 @@ GlobalNamespace::generateDocumentation(
 		name = "global";
 	} else {
 		kind = "namespace";
-		name = getQualifiedName();
+		name = getQualifiedName().sz();
 	}
 
 	indexXml->appendFormat(

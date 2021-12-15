@@ -651,7 +651,7 @@ OperatorMgr::getLibraryMember(
 
 	Function* function = memberValue.getFunction();
 	size_t index = function->getLibraryTableIndex();
-	const char* namePtr = function->getName(); // make sure name pointer stays valid (points to function, not token string)
+	const char* namePtr = function->getName().sz();
 
 	Value argValueArray[] = {
 		closure->getThisArgValue(),

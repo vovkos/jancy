@@ -102,8 +102,8 @@ class ModuleItemDecl: public ModuleItemPos {
 protected:
 	StorageKind m_storageKind;
 	AccessKind m_accessKind;
-	sl::String m_name;
-	sl::String m_qualifiedName;
+	sl::StringRef m_name;
+	sl::StringRef m_qualifiedName;
 	Namespace* m_parentNamespace;
 	const PragmaSettings* m_pragmaSettings;
 	AttributeBlock* m_attributeBlock;
@@ -127,12 +127,12 @@ public:
 		return !m_name.isEmpty();
 	}
 
-	const sl::String&
+	const sl::StringRef&
 	getName() {
 		return m_name;
 	}
 
-	const sl::String&
+	const sl::StringRef&
 	getQualifiedName();
 
 	Namespace*
@@ -169,7 +169,7 @@ protected:
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
-const sl::String&
+const sl::StringRef&
 ModuleItemDecl::getQualifiedName() {
 	if (m_qualifiedName.isEmpty())
 		prepareQualifiedName();
