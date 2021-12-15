@@ -63,7 +63,7 @@ getStdTypeName(StdType stdType) {
 		NULL,                     // StdType_SchedulerPtr,
 		"RegexMatch",             // StdType_RegexMatch,
 		"RegexState",             // StdType_RegexState,
-		"RegexDfa",               // StdType_RegexDfa,
+		"Regex",                  // StdType_Regex,
 		"Promise",                // StdType_Promise,
 		NULL,                     // StdType_PromisePtr,
 		"Promisifier",            // StdType_Promisifier,

@@ -231,7 +231,7 @@ TypeMgr::getStdType(StdType stdType) {
 	case StdType_GcStats:
 	case StdType_RegexMatch:
 	case StdType_RegexState:
-	case StdType_RegexDfa:
+	case StdType_Regex:
 	case StdType_Promise:
 	case StdType_Promisifier:
 	case StdType_DynamicLib:

@@ -242,8 +242,7 @@ CmdLineParser::scanSourceDirs() {
 
 	re::Regex excludeRegex;
 	if (!m_cmdLine->m_excludeRegex.isEmpty()) {
-		re::RegexCompiler compiler(&excludeRegex);
-		result = compiler.compile(m_cmdLine->m_excludeRegex);
+		result = excludeRegex.compile(m_cmdLine->m_excludeRegex);
 		if (!result)
 			return false;
 	}
@@ -279,7 +278,7 @@ CmdLineParser::scanSourceDirs() {
 
 			if ((memcmp(suffix, jncSuffix, SuffixLength) == 0 ||
 				isDoc && memcmp(suffix, doxSuffix, SuffixLength) == 0)) {
-				if (!excludeRegex.isEmpty() && excludeRegex.match(filePath)) {
+				if (!excludeRegex.isEmpty() && excludeRegex.exec(filePath)) {
 					printf("excluding: %s\n", filePath.sz());
 					continue;
 				}

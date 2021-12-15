@@ -124,7 +124,7 @@ ReactorImpl::stop() {
 
 void
 ReactorImpl::onChanged(Binding* binding) {
-	m_pendingReactionMap.merge(binding->m_reactionMap, sl::BitOpKind_Or);
+	m_pendingReactionMap.merge<sl::BitMapOr>(binding->m_reactionMap);
 
 	if (m_state != State_Running)
 		return;
@@ -173,7 +173,7 @@ ReactorImpl::reactionLoop() {
 				break;
 		}
 
-		m_pendingReactionMap.setBit(i, false);
+		m_pendingReactionMap.clearBit(i);
 
 		Reaction* reaction = m_reactionArray[i];
 		ASSERT(reaction);

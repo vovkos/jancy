@@ -141,12 +141,12 @@ strtoul(
 
 uint32_t
 toUpper(uint32_t c) {
-	return enc::utfToUpperCase(c);
+	return enc::toUpperCase(c);
 }
 
 uint32_t
 toLower(uint32_t c) {
-	return enc::utfToLowerCase(c);
+	return enc::toLowerCase(c);
 }
 
 DataPtr

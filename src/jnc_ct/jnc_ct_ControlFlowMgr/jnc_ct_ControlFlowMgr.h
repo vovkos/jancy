@@ -11,7 +11,6 @@
 
 #pragma once
 
-#include "jnc_ct_ReSwitchAcceptContext.h"
 #include "jnc_ct_Value.h"
 #include "jnc_ct_BasicBlock.h"
 
@@ -49,7 +48,7 @@ struct ReSwitchStmt {
 	BasicBlock* m_switchBlock;
 	BasicBlock* m_defaultBlock;
 	BasicBlock* m_followBlock;
-	sl::List<ReSwitchAcceptContext> m_acceptContextList;
+	sl::SimpleHashTable<intptr_t, BasicBlock*> m_caseMap;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

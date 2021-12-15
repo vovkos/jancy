@@ -12,162 +12,178 @@
 #pragma once
 
 #include "jnc_ExtensionLib.h"
-#include "jnc_ct_RegexMgr.h"
-#include "jnc_ct_ReSwitchAcceptContext.h"
 
 namespace jnc {
 namespace rtl {
 
+class RegexMatch;
 class RegexState;
-class RegexDfa;
+class Regex;
 
+JNC_DECLARE_OPAQUE_CLASS_TYPE(RegexMatch)
 JNC_DECLARE_OPAQUE_CLASS_TYPE(RegexState)
-JNC_DECLARE_OPAQUE_CLASS_TYPE(RegexDfa)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(Regex)
 
 //..............................................................................
 
-struct RegexMatch {
-	DataPtr m_textPtr;
-	size_t m_offset;
-	size_t m_length;
-};
+typedef re::MatchPos RegexMatchPos;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum RegexResult {
-	RegexResult_Error    = -1,
-	RegexResult_Continue = -2, // incremental regex result depends on upcoming data
+class RegexMatch: public IfaceHdr {
+public:
+	RegexMatchPos m_pos; // maps to public fields
+
+protected:
+	DataPtr m_textPtr;
+	enc::CharCodec* m_codec;
+
+public:
+	void
+	JNC_CDECL
+	markOpaqueGcRoots(GcHeap* gcHeap);
+
+	static
+	DataPtr
+	getText(RegexMatch* self);
 };
 
 //..............................................................................
 
 class RegexState: public IfaceHdr {
-public:
-	enum Flag {
-		Flag_Incremental = 0x01,
-		Flag_Lexer       = 0x02,
-	};
-
-public:
-	uint_t m_flags;
-
-	size_t m_matchLengthLimit;
-	size_t m_currentOffset;
-	size_t m_consumedLength;
-	size_t m_replayLength;
-
-	RegexMatch m_match;
-	DataPtr m_subMatchArrayPtr;
-	size_t m_subMatchCount;
+	friend class Regex;
 
 protected:
-	ct::Dfa* m_dfa;
-
-	uintptr_t m_stateId;
-	uintptr_t m_lastAcceptStateId;
-	size_t m_lastAcceptMatchLength;
-
-	DataPtr m_matchBufferPtr;
-	size_t m_matchOffset;
-	size_t m_matchLength;
-	size_t m_replayBufferOffset;
-
-	DataPtr m_groupOffsetArrayPtr;
-	size_t m_groupCount;
-	size_t m_maxSubMatchCount;
+	re::State m_state;
+	RegexMatch* m_match;
+	sl::Array<RegexMatch*> m_subMatchArray;
 
 public:
-	void
-	JNC_CDECL
-	construct(uint_t flags);
+	RegexState(uint_t execFlags):
+		m_state(execFlags) {}
 
 	void
 	JNC_CDECL
 	markOpaqueGcRoots(GcHeap* gcHeap);
 
-	void
+	uint_t
 	JNC_CDECL
-	setMatchLengthLimit(size_t length);
-
-	void
-	JNC_CDECL
-	setCurrentOffset(size_t offset);
-
-	void
-	JNC_CDECL
-	reset();
+	getExecFlags() {
+		return m_state.getExecFlags();
+	}
 
 	size_t
 	JNC_CDECL
-	exec(
-		ct::Dfa* dfa,
-		DataPtr ptr,
-		size_t length
-	);
+	getOffset() {
+		return m_state.getOffset();
+	}
 
-protected:
-	void
-	processGroupSet(ct::DfaGroupSet* groupSet);
-
-	void
-	setDfa(ct::Dfa* dfa);
-
-	void
-	softReset();
+	re::ExecResult
+	JNC_CDECL
+	getLastExecResult() {
+		return m_state.getLastExecResult();
+	}
 
 	size_t
-	eof();
+	JNC_CDECL
+	getMatchSwitchCaseId() {
+		return m_state.getMatchSwitchCaseId();
+	}
+
+	RegexMatch*
+	JNC_CDECL
+	getMatch();
 
 	size_t
-	writeData(
-		uchar_t* p,
-		size_t length
-	);
+	JNC_CDECL
+	getSubMatchCount() {
+		return m_state.getSubMatchCount();
+	}
 
-	size_t
-	writeChar(uchar_t c);
-
-	size_t
-	gotoState(size_t stateId);
+	RegexMatch*
+	JNC_CDECL
+	getSubMatch(size_t i);
 
 	void
-	match(size_t stateId);
+	JNC_CDECL
+	initialize(uint_t execFlags) {
+		m_state.initialize(execFlags);
+	}
 
 	void
-	rollback();
+	JNC_CDECL
+	reset(size_t offset) {
+		m_state.reset(offset);
+	}
 };
 
 //..............................................................................
 
-class RegexDfa: public IfaceHdr {
+class Regex: public IfaceHdr {
 protected:
 	re::Regex m_regex;
-	sl::List<ct::ReSwitchAcceptContext> m_acceptContextList;
-	ct::Dfa m_dfa;
 
 public:
 	void
 	JNC_CDECL
-	clear();
-
-	bool
-	JNC_CDECL
-	incrementalCompile(
-		DataPtr regexStringPtr,
-		size_t length
-	);
-
-	bool
-	JNC_CDECL
-	finalize();
+	clear() {
+		m_regex.clear();
+	}
 
 	size_t
 	JNC_CDECL
-	match(
+	load(
+		DataPtr ptr,
+		size_t size
+	) {
+		return m_regex.load(ptr.m_p, size);
+	}
+
+	size_t
+	JNC_CDECL
+	save(IfaceHdr* buffer);
+
+	bool
+	JNC_CDECL
+	compile(
+		uint_t flags,
+		DataPtr sourcePtr,
+		size_t length
+	);
+
+	void
+	JNC_CDECL
+	createSwitch() {
+		m_regex.createSwitch();
+	}
+
+	bool
+	JNC_CDECL
+	compileSwitchCase(
+		uint_t flags,
+		DataPtr sourcePtr,
+		size_t length
+	);
+
+	void
+	JNC_CDECL
+	finalizeSwitch(uint_t flags)  {
+		m_regex.finalizeSwitch(flags);
+	}
+
+	re::ExecResult
+	JNC_CDECL
+	exec(
 		RegexState* state,
 		DataPtr ptr,
 		size_t length
 	);
+
+	re::ExecResult
+	JNC_CDECL
+	eof(RegexState* state) {
+		return m_regex.eof(&state->m_state);
+	}
 };
 
 //..............................................................................

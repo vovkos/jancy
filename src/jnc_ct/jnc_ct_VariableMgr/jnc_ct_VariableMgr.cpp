@@ -69,7 +69,7 @@ VariableMgr::getStdVariable(StdVariable stdVariable) {
 	case StdVariable_SjljFrame:
 		variable = createVariable(
 			StorageKind_Tls,
-			sl::String(),
+			"g_sjljFrame",
 			"jnc.g_sjljFrame",
 			m_module->m_typeMgr.getStdType(StdType_SjljFrame)->getDataPtrType_c()
 		);
@@ -78,7 +78,7 @@ VariableMgr::getStdVariable(StdVariable stdVariable) {
 	case StdVariable_GcShadowStackTop:
 		variable = createVariable(
 			StorageKind_Tls,
-			sl::String(),
+			"g_gcShadowStackTop",
 			"jnc.g_gcShadowStackTop",
 			m_module->m_typeMgr.getStdType(StdType_GcShadowStackFrame)->getDataPtrType_c()
 		);
@@ -87,7 +87,7 @@ VariableMgr::getStdVariable(StdVariable stdVariable) {
 	case StdVariable_GcSafePointTrigger:
 		variable = createVariable(
 			StorageKind_Static,
-			sl::String(),
+			"g_gcSafePointTrigger",
 			"jnc.g_gcSafePointTrigger",
 			m_module->m_typeMgr.getPrimitiveType(TypeKind_IntPtr)->getDataPtrType_c()
 		);
@@ -96,7 +96,7 @@ VariableMgr::getStdVariable(StdVariable stdVariable) {
 	case StdVariable_NullPtrCheckSink:
 		variable = createVariable(
 			StorageKind_Static,
-			sl::String(),
+			"g_nullPtrCheckSink",
 			"jnc.g_nullPtrCheckSink",
 			m_module->m_typeMgr.getPrimitiveType(TypeKind_Char)
 		);
@@ -105,7 +105,7 @@ VariableMgr::getStdVariable(StdVariable stdVariable) {
 	case StdVariable_AsyncScheduler:
 		variable = createVariable(
 			StorageKind_Tls,
-			sl::String(),
+			"g_asyncScheduler",
 			"jnc.g_asyncScheduler",
 			m_module->m_typeMgr.getStdType(StdType_AbstractClassPtr)
 		);
@@ -265,29 +265,20 @@ VariableMgr::createSimpleStackVariable(
 Variable*
 VariableMgr::createSimpleStaticVariable(
 	const sl::StringRef& name,
-	const sl::StringRef& qualifiedName,
 	Type* type,
 	const Value& value,
 	uint_t ptrTypeFlags
 ) {
 	ASSERT(type->getTypeKind() != TypeKind_Class);
 
-	Variable* variable = AXL_MEM_NEW(Variable);
-	variable->m_module = m_module;
-	variable->m_name = name;
-	variable->m_qualifiedName = qualifiedName;
-	variable->m_type = type;
-	variable->m_storageKind = StorageKind_Static;
-	variable->m_ptrTypeFlags = ptrTypeFlags;
-	variable->m_scope = m_module->m_namespaceMgr.getCurrentScope();
-	variable->m_llvmGlobalVariable = createLlvmGlobalVariable(type, qualifiedName, value);
+	Variable* variable = createVariable(StorageKind_Static, name, type, ptrTypeFlags);
+	variable->m_llvmGlobalVariable = createLlvmGlobalVariable(type, name, value);
 	variable->m_llvmValue = variable->m_llvmGlobalVariable;
-	variable->m_flags = VariableFlag_Allocated;
+	variable->m_flags |= VariableFlag_Allocated;
 
 	if (type->getFlags() & TypeFlag_GcRoot)
 		m_staticGcRootArray.append(variable);
 
-	m_variableList.insertTail(variable);
 	return variable;
 }
 
@@ -460,7 +451,6 @@ Variable*
 VariableMgr::createOnceFlagVariable(StorageKind storageKind) {
 	Variable* variable = createVariable(
 		storageKind,
-		sl::String(),
 		"onceFlag",
 		m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32),
 		storageKind == StorageKind_Static ? PtrTypeFlag_Volatile : 0
@@ -669,7 +659,7 @@ VariableMgr::createAsyncArgVariable(
 	const Value& value
 ) {
 	ASSERT(value.getLlvmValue());
-	Variable* variable = createVariable(StorageKind_Member, name, name, type);
+	Variable* variable = createVariable(StorageKind_Member, name, type);
 	variable->m_flags |= ModuleItemFlag_User | VariableFlag_Arg;
 	variable->m_llvmValue = value.getLlvmValue();
 	return variable;

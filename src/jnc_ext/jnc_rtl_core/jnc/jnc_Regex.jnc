@@ -9,6 +9,8 @@
 //
 //..............................................................................
 
+import "std_Buffer.jnc"
+
 namespace jnc {
 
 //! \addtogroup rtl-regex
@@ -16,282 +18,160 @@ namespace jnc {
 
 //..............................................................................
 
-/**
-	\brief This struct holds the information about matched lexeme or sub-lexeme.
-*/
+struct RegexMatchPos {
+	size_t readonly m_offset;
+	size_t readonly m_endOffset;
 
-struct RegexMatch {
-	//! Holds a pointer to the match (guaranteed to be null-terminated).
-
-	char const* m_text;
-
-	//! Holds offset of the match relative the beginning of input stream.
-
-	size_t m_offset;
-
-	//! Holds length of the match.
-
-	size_t m_length;
+	size_t property m_length {
+		size_t get() {
+			return m_endOffset - m_offset;
+		}
+	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-/**
-	\brief This enum describes available option flags for `jnc.RegexState`.
-*/
+opaque class RegexMatch: RegexMatchPos {
+	char const* const property m_text;
 
-bitflag enum RegexStateFlags {
-	//! Makes it possible to match input incrementally, i.e. chunk-by-chunk.
-
-	Incremental,
-
-	/**
-		When a *final DFA state* is reached, it's condidered a successful match
-		even when subsequent characters don't match the regular expression. This
-		behavior is typically required in *lexers* -- hence, the name.
-	*/
-
-	Lexer,
+	construct();
+	destruct();
 }
+
+//..............................................................................
+
+bitflag enum RegexExecFlags {
+	Stream,          // feed data chunk-by-chunk, then call jnc.Regex.eof()
+	DisableCapture,  // don't capture sub-matches
+	AnchorDataBegin, // match must start on the first byte of data
+	AnchorDataEnd,   // match must end on the last byte of data
+	ExactMatch = AnchorDataBegin | AnchorDataEnd,
+};
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-/**
-	\brief This class holds the lexeme buffer and the state of DFA constructed
-	from an ``reswitch`` statement.
+enum RegexExecResult {
+	Match            = 2,
+	MatchOffsetsOnly = 1,
+	NoMatch          = 0,
+	Continue         = -1, // continue feeding data
+	ContinueBackward = -2, // continue feeding backward data
+};
 
-	Jancy ``reswitch`` statements allow for convenient creation of lexers and/or
-	scanners.
-
-	The idea is taken from well-known tools like *Lex*, *Flex*, *Ragel* etc.
-
-	1. Define a list of recognized lexemes in the form of regular expressions.
-	2. Specify which actions to execute when these lexemes are found in the
-	   input stream.
-	3. Jancy compiler automatically builds a DFA to recognize your language and
-	   perform correspondig actions.
-
-	To *execute* the resulting DFA you need a ``jnc.RegexState`` object -- it
-	will hold the state of DFA and buffer matched lexemes. In its simplest form
-	recognizer looks like this:
-
-	.. ref-code-block::
-
-		jnc.RegexState state;
-		reswitch (state, p, length) {
-		case "foo":
-			// ...
-			break;
-
-		case r"bar\(d+)":
-			print($"bar id: $(state.m_subMatchArray [0].m_text)\n");
-			break;
-
-		case r"\s+":
-			// ignore whitespace
-			break;
-
-		// ...
-		}
-
-	To employ incremental recognition, you would want to create some kind of a
-	*match* function and call it each time the next chunk of data becomes
-	available:
-
-	.. ref-code-block::
-
-		bool errorcode match(
-			jnc.RegexState* state,
-			const char* p,
-			size_t length
-		) {
-			const char* end = p + length;
-
-			// post-condition loop allows passing 'null' as eof
-			do {
-				reswitch (state, p, end - p) {
-				case "foo":
-					// ...
-					break;
-
-				case r"bar\(d+)":
-					print($"bar id: $(state.m_subMatchArray [0].m_text)\n");
-					break;
-
-				case r"\s+":
-					// ignore whitespace
-					break;
-
-				// ...
-
-				default:
-					// we can get here for two reasons only:
-					//   1) mismatch
-					//   2) incremental recognition
-
-					if (!state.m_consumedLength)
-						return false;
-
-					assert(
-						(state.m_flags & jnc.RegexStateFlags.Incremental) &&
-						state.m_consumedLength == end - p);
-				}
-
-				p += state.m_consumedLength;
-			} while (p < end || state.m_replayLength);
-
-			return true;
-		}
-
-	Recognizer must be aware of the fact it is being fed the date chunk-by-chunk
-	(and not as the whole). You do so by setting the `jnc.RegexStateFlags.Incremental`
-	bit in the `jnc.RegexState.m_flags` field:
-
-	.. ref-code-block::
-
-		jnc.RegexState state(jnc.RegexStateFlags.Incremental);
-
-		// alternatively, assign:
-		// state.m_flags |= jnc.RegexStateFlags.Incremental;
-
-	Now, whenever the next portion of data becomes available, simply call:
-
-	.. ref-code-block::
-
-		size_t length = getNextPortionOfData(buffer);
-
-		match(state, buffer, length);
-
-	Pass zero-sized buffer to trigger ``eof`` processing:
-
-	.. ref-code-block::
-
-		match(state, null, 0);
-
-*/
+//..............................................................................
 
 opaque class RegexState {
-	/**
-		Holds the matching options. Normally, you set it during (or immediately
-		after) the construction. But it's freely adjustible at any moment.
-	*/
+	RegexExecFlags const property m_execFlags;
+	RegexExecResult const property m_lastExecResult;
+	size_t const property m_offset;
+	size_t const property m_matchSwitchCaseId;
+	RegexMatch const* const property m_match;
+	size_t const property m_subMatchCount;
+	RegexMatch const* const property m_subMatch(size_t i);
 
-	RegexStateFlags m_flags;
+	construct(RegexExecFlags execFlags = 0);
+	destruct();
 
-	/**
-		Holds the maximum buffer size for lexemes. Set before starting
-		recognition.
-
-		What happends when lexeme in the input stream does not fit inside
-		the buffer, depends on the whether the captured part of lexeme *already*
-		matches some rule. If yes, recognizer will execute corresponding action
-		and then reset its state to initial value.
-
-		If captured part of lexeme does not match any rules, ``write`` or
-		``recognize`` will return error.
-	*/
-
-	size_t autoget property m_matchLengthLimit;
-
-	/**
-		Holds the current offset of recognizer.
-
-		Could be adjusted manually. For example, you can adjust
-		``m_currentOffset`` before starting recognition; when a lexeme is found,
-		``m_lexemeOffset`` will account for the initial offset(offset relative
-		the beginning of the stream plus initial offset set before starting
-		recognition).
-	*/
-
-	size_t autoget property m_currentOffset;
-
-	/**
-		Holds the actual length of data consumed during the last invokation of
-		the DFA. When non-incremental recognizer discovers a match,
-		``m_consumedLength`` will always be the same as ``m_match.m_length``. In
-		case of a incremental recognizer, ``m_consumedLength`` may be smaller
-		than ``m_match.m_length`` (the match may be spread across multiple
-		blocks of input data).
-	*/
-
-	size_t readonly m_consumedLength;
-
-	/**
-		Holds the length of buffered *replay data*. During incremental
-		recognition, replay data will be processed prior to any user-supplied
-		data.
-
-		Replays can only happen after a successful match.
-	*/
-
-	size_t readonly m_replayLength;
-
-	/**
-		\subgroup
-
-		These fields hold information about the matched lexeme and, possibly,
-		sub-lexemes(if capturing regular expressions groups were used).
-
-		These fields should only be accessed from within **action** inside
-		``automaton`` function.
-	*/
-
-	RegexMatch readonly m_match;
-	RegexMatch const* readonly m_subMatchArray;
-	size_t readonly m_subMatchCount;
-
-public:
-	/**
-		Constructor of ``jnc.RegexState`` class. Accepts a single optional
-		argument ``flags`` which will be used to initialize the
-		`jnc.RegexState.m_flags` field.
-	*/
-
-	construct(RegexStateFlags flags = 0);
-
-	/**
-		Resets state of recognizer including all offsets and captured lexeme
-		bytes.
-	*/
-
-	void reset();
-
-protected:
-	size_t exec(
-		void thin* dfa,
-		char const* p,
-		size_t length
-	);
+	void initialize(RegexExecFlags execFlags = 0);
+	void reset(size_t offset = 0);
 }
+
+//..............................................................................
+
+enum RegexCompileFlag {
+	CaseInsensitive = 0x01,
+	MatchOnly       = 0x02, // don't demux NFA and no search start states
+	DisableCapture  = 0x04, // same as ExecFlag_NoCapture
+};
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class RegexDfa {
+enum RegexKind {
+	Undefined,
+	Single,
+	Switch,
+};
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class Regex {
+	RegexKind readonly m_regexKind;
+
 	construct();
 	destruct();
 
 	void clear();
 
-	bool errorcode compile(
-		char const* regexString,
-		size_t length = -1
-	) {
-		clear();
-		return incrementalCompile(regexString, length) && finalize();
+	size_t errorcode load(
+		void const* p,
+		size_t size
+	);
+
+	size_t errorcode load(std.Buffer const* buffer) {
+		return load(buffer.m_p, buffer.m_size);x
 	}
 
-	bool errorcode incrementalCompile(
-		char const* regexString,
+	size_t errorcode save(std.Buffer* buffer);
+
+	std.Buffer* errorcode save() {
+		std.Buffer buffer;
+		save(buffer);
+		return buffer;
+	}
+
+	bool errorcode compile(
+		uint_t flags,
+		char const* source,
 		size_t length = -1
 	);
 
-	bool errorcode finalize();
+	bool errorcode compile(
+		char const* source,
+		size_t length = -1
+	) {
+		return compile(0, source, length);
+	}
 
-	size_t errorcode match(
+	void createSwitch();
+
+	size_t errorcode compileSwitchCase(
+		uint_t flags,
+		char const* source,
+		size_t length = -1
+	);
+
+	size_t errorcode compileSwitchCase(
+		char const* source,
+		size_t length = -1
+	) {
+		return compile(0, source, length);
+	}
+
+	void finalizeSwitch(uint_t flags = 0);
+
+	RegexExecResult errorcode exec(
 		RegexState* state,
 		char const* p,
 		size_t length = -1
 	) const;
+
+	RegexState* errorcode exec(
+		uint_t flags,
+		char const* p,
+		size_t length = -1
+	) const {
+		RegexState state(flags);
+		exec(state, p, length);
+		return state;
+	}
+
+	RegexState* errorcode exec(
+		char const* p,
+		size_t length = -1
+	) const {
+		return exec(0, p, length);
+	}
+
+	RegexExecResult errorcode eof(RegexState* state);
 }
 
 //..............................................................................

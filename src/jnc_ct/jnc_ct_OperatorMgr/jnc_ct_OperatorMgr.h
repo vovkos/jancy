@@ -1131,6 +1131,11 @@ public:
 	// misc property functions
 
 	bool
+	getProperty(Value* value) {
+		return getProperty(*value, value);
+	}
+
+	bool
 	getProperty(
 		const Value& opValue,
 		Value* resultValue

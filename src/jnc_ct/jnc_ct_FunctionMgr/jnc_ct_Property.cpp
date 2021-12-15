@@ -679,7 +679,6 @@ Property::createVtableVariable() {
 	);
 
 	m_vtableVariable = m_module->m_variableMgr.createSimpleStaticVariable(
-		sl::String(),
 		getQualifiedName() + ".m_vtable",
 		vtableStructType,
 		Value(llvmVtableConst, vtableStructType)

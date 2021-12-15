@@ -678,7 +678,6 @@ ClassType::prepareForOperatorNew() {
 	);
 
 	m_vtableVariable = m_module->m_variableMgr.createSimpleStaticVariable(
-		sl::String(),
 		createQualifiedName("m_vtable"),
 		m_vtableStructType,
 		Value(llvmVtableConst, m_vtableStructType)

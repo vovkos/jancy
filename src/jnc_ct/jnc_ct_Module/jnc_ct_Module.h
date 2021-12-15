@@ -20,7 +20,6 @@
 #include "jnc_ct_ControlFlowMgr.h"
 #include "jnc_ct_OperatorMgr.h"
 #include "jnc_ct_GcShadowStackMgr.h"
-#include "jnc_ct_RegexMgr.h"
 #include "jnc_ct_UnitMgr.h"
 #include "jnc_ct_PragmaMgr.h"
 #include "jnc_ct_ImportMgr.h"
@@ -122,7 +121,6 @@ public:
 	ControlFlowMgr m_controlFlowMgr;
 	OperatorMgr m_operatorMgr;
 	GcShadowStackMgr m_gcShadowStackMgr;
-	RegexMgr m_regexMgr;
 	UnitMgr m_unitMgr;
 	PragmaMgr m_pragmaMgr;
 	ImportMgr m_importMgr;

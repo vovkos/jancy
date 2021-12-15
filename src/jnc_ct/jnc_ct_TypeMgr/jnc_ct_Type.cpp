@@ -361,10 +361,12 @@ Type::prepareLayout() {
 	m_flags |= ModuleItemFlag_InCalcLayout;
 
 	bool result = calcLayout();
-	if (!result)
+	if (!result) {
+		m_flags &= ~ModuleItemFlag_InCalcLayout;
 		return false;
+	}
 
-	m_flags |= ModuleItemFlag_LayoutReady;
+	m_flags |= ModuleItemFlag_LayoutReady; // no need to clear ModuleItemFlag_InCalcLayout
 	return true;
 }
 

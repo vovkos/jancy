@@ -115,7 +115,6 @@ Module::clear() {
 	m_doxyModule.clear();
 	m_controlFlowMgr.clear();
 	m_gcShadowStackMgr.clear();
-	m_regexMgr.clear();
 	m_codeAssistMgr.clear();
 
 	clearLlvm();

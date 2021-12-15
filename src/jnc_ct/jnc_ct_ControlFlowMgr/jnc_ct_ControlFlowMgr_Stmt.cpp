@@ -220,14 +220,12 @@ ControlFlowMgr::reSwitchStmt_Case(
 	follow(block);
 	m_module->m_namespaceMgr.openScope(pos);
 
-	ReSwitchAcceptContext* context = AXL_MEM_NEW(ReSwitchAcceptContext);
-	context->m_firstGroupId = stmt->m_regex.getGroupCount();
-	context->m_groupCount = 0;
-	context->m_actionBlock = block;
-	stmt->m_acceptContextList.insertTail(context);
+	size_t result = stmt->m_regex.compileSwitchCase(regexSource);
+	if (result == -1)
+		return false;
 
-	re::RegexCompiler regexCompiler(&stmt->m_regex);
-	return regexCompiler.incrementalCompile(regexSource, context);
+	stmt->m_caseMap[result] = block;
+	return true;
 }
 
 bool
@@ -260,83 +258,97 @@ ControlFlowMgr::reSwitchStmt_Finalize(ReSwitchStmt* stmt) {
 	m_module->m_namespaceMgr.closeScope();
 	follow(stmt->m_followBlock);
 
+	if (stmt->m_regex.isEmpty()) {
+		err::setError("empty regex switch");
+		return false;
+	}
+
 	setCurrentBlock(stmt->m_switchBlock);
 
 	BasicBlock* defaultBlock = stmt->m_defaultBlock ? stmt->m_defaultBlock : stmt->m_followBlock;
 	defaultBlock->m_flags |= (stmt->m_switchBlock->m_flags & BasicBlockFlag_Reachable);
 
-	// finalize regexp
+	// serialize regex and save the storage value
 
-	re::RegexCompiler regexCompiler(&stmt->m_regex);
-	regexCompiler.finalize();
+	stmt->m_regex.finalizeSwitch();
+	sl::Array<char> regexStorage = stmt->m_regex.save();
 
-	sl::Iterator<ReSwitchAcceptContext> prev = stmt->m_acceptContextList.getHead();
-	sl::Iterator<ReSwitchAcceptContext> next = prev.getNext();
-	while (next) {
-		prev->m_groupCount = next->m_firstGroupId - prev->m_firstGroupId;
-		prev = next++;
-	}
+	Value storageSizeValue;
+	storageSizeValue.setConstSizeT(regexStorage.getCount(), m_module);
 
-	if (!prev) {
-		err::setError("empty regex switch");
-		return false;
-	}
+	Value storageValue;
+	storageValue.setCharArray(regexStorage, regexStorage.getCount(), m_module);
+	storageValue = m_module->m_constMgr.saveValue(storageValue);
 
-	prev->m_groupCount = stmt->m_regex.getGroupCount() - prev->m_firstGroupId;
+	// create the regex variable
 
-	// build dfa tables
+	ClassType* regexType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_Regex);
+	Variable* regexVariable = m_module->m_variableMgr.createVariable(StorageKind_Static, "regex", regexType);
+	regexVariable->m_parentNamespace = m_module->m_namespaceMgr.getCurrentScope();
 
-	Dfa* dfa = m_module->m_regexMgr.createDfa();
-	result = dfa->build(&stmt->m_regex);
+	// initialize and load the regex variable inside a once-block
+
+	lex::LineCol pos = m_module->m_namespaceMgr.getSourcePos();
+
+	OnceStmt onceStmt;
+	onceStmt_Create(&onceStmt, pos);
+	onceStmt_PreBody(&onceStmt, pos);
+
+	Value loadValue;
+
+	result =
+		m_module->m_variableMgr.allocateVariable(regexVariable) &&
+		m_module->m_variableMgr.initializeVariable(regexVariable) &&
+		m_module->m_operatorMgr.memberOperator(regexVariable, "load", &loadValue) &&
+		m_module->m_operatorMgr.callOperator(loadValue, storageValue, storageSizeValue);
+
 	if (!result)
 		return false;
 
-	// build case map
+	onceStmt_PostBody(&onceStmt, pos);
 
-	sl::Array<re::DfaState*> stateArray = stmt->m_regex.getDfaStateArray();
-	sl::SimpleHashTable<intptr_t, BasicBlock*> caseMap;
+	// execute regex with the supplied state and data;
+	// on match, jump to the corresponding case-id
 
-	size_t stateCount = stateArray.getCount();
-	for (size_t i = 0; i < stateCount; i++) {
-		re::DfaState* state = stateArray[i];
+	Value execValue;
+	Value execResultValue;
+	Value cmpResultValue;
+	Value caseIdValue;
 
-		if (state->m_isAccept) {
-			ReSwitchAcceptContext* context = (ReSwitchAcceptContext*)state->m_acceptContext;
-			caseMap[state->m_id] = context->m_actionBlock;
-		}
-	}
+	BasicBlock* matchBlock = createBlock("regex_match");
 
-	caseMap[rtl::RegexResult_Continue] = defaultBlock;
-
-	// execute dfa and generate switch
-
-	m_module->m_controlFlowMgr.setCurrentBlock(stmt->m_switchBlock);
-
-	ClassType* regexStateType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_RegexState);
-	Function* execFunc = (Function*)regexStateType->findItem("exec").m_item;
-	ASSERT(execFunc && execFunc->getItemKind() == ModuleItemKind_Function);
-
-	Value dfaValue(&dfa, m_module->m_typeMgr.getStdType(StdType_BytePtr));
-	Value resultValue;
-
-	result = m_module->m_operatorMgr.callOperator(
-		execFunc,
-		stmt->m_regexStateValue,
-		dfaValue,
-		stmt->m_dataValue,
-		stmt->m_sizeValue,
-		&resultValue
-	);
+	result =
+		m_module->m_operatorMgr.memberOperator(regexVariable, "exec", &execValue) &&
+		m_module->m_operatorMgr.callOperator(
+			execValue,
+			stmt->m_regexStateValue,
+			stmt->m_dataValue,
+			stmt->m_sizeValue,
+			&execResultValue
+		) &&
+		m_module->m_operatorMgr.binaryOperator(
+			BinOpKind_Gt,
+			execResultValue,
+			Value((int64_t)0, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int)),
+			&cmpResultValue
+		) &&
+		conditionalJump(cmpResultValue, matchBlock, defaultBlock, matchBlock) &&
+		m_module->m_operatorMgr.memberOperator(
+			stmt->m_regexStateValue,
+			"m_matchSwitchCaseId",
+			&caseIdValue
+		) &&
+		m_module->m_operatorMgr.getProperty(&caseIdValue);
 
 	if (!result)
 		return false;
 
 	if (m_module->hasCodeGen())
 		m_module->m_llvmIrBuilder.createSwitch(
-			resultValue,
+			caseIdValue,
 			defaultBlock,
-			caseMap.getHead(),
-			caseMap.getCount()
+			stmt->m_caseMap.getHead(),
+			stmt->m_caseMap.getCount()
 		);
 
 	setCurrentBlock(stmt->m_followBlock);

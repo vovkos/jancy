@@ -212,14 +212,14 @@ JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
 jnc_ModuleItemDecl_getName(jnc_ModuleItemDecl* decl) {
-	return decl->getName();
+	return decl->getName().sz();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
 jnc_ModuleItemDecl_getQualifiedName(jnc_ModuleItemDecl* decl) {
-	return decl->getQualifiedName();
+	return decl->getQualifiedName().sz();
 }
 
 JNC_EXTERN_C
