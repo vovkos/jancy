@@ -18,24 +18,20 @@ namespace jnc {
 
 //..............................................................................
 
-struct RegexMatchPos {
+opaque class RegexMatch {
 	size_t readonly m_offset;
 	size_t readonly m_endOffset;
-
-	size_t property m_length {
-		size_t get() {
-			return m_endOffset - m_offset;
-		}
-	}
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-opaque class RegexMatch: RegexMatchPos {
+	size_t const property m_length;
 	char const* const property m_text;
 
 	construct();
 	destruct();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+size_t RegexMatch.m_length.get() const {
+	return m_endOffset - m_offset;
 }
 
 //..............................................................................
@@ -58,12 +54,11 @@ enum RegexExecResult {
 	ContinueBackward = -2, // continue feeding backward data
 };
 
-//..............................................................................
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 opaque class RegexState {
 	RegexExecFlags const property m_execFlags;
 	RegexExecResult const property m_lastExecResult;
-	size_t const property m_offset;
 	size_t const property m_matchSwitchCaseId;
 	RegexMatch const* const property m_match;
 	size_t const property m_subMatchCount;
@@ -91,6 +86,7 @@ enum RegexKind {
 	Single,
 	Switch,
 };
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 opaque class Regex {
@@ -148,13 +144,13 @@ opaque class Regex {
 
 	void finalizeSwitch(uint_t flags = 0);
 
-	RegexExecResult errorcode exec(
+	RegexExecResult exec(
 		RegexState* state,
 		char const* p,
 		size_t length = -1
 	) const;
 
-	RegexState* errorcode exec(
+	RegexState* exec(
 		uint_t flags,
 		char const* p,
 		size_t length = -1
@@ -164,14 +160,14 @@ opaque class Regex {
 		return state;
 	}
 
-	RegexState* errorcode exec(
+	RegexState* exec(
 		char const* p,
 		size_t length = -1
 	) const {
 		return exec(0, p, length);
 	}
 
-	RegexExecResult errorcode eof(RegexState* state);
+	RegexExecResult eof(RegexState* state);
 }
 
 //..............................................................................

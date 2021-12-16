@@ -1351,6 +1351,9 @@ bool
 Parser::parseLastPropertyBody(const sl::ConstBoxList<Token>& body) {
 	ASSERT(m_lastDeclaredItem && m_lastDeclaredItem->getItemKind() == ModuleItemKind_Property);
 
+	if (body.isEmpty())
+		return finalizeLastProperty(true);
+
 	Parser parser(m_module, getCachedPragmaSettings(), Mode_Parse);
 	m_module->m_namespaceMgr.openNamespace((Property*)m_lastDeclaredItem);
 

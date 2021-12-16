@@ -31,6 +31,8 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 )
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(RegexMatch)
+	JNC_MAP_CONSTRUCTOR(&jnc::construct<RegexMatch>)
+	JNC_MAP_DESTRUCTOR(&jnc::destruct<RegexMatch>)
 	JNC_MAP_CONST_PROPERTY("m_text", &RegexMatch::getText)
 JNC_END_TYPE_FUNCTION_MAP()
 
@@ -49,7 +51,6 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(RegexState)
 	JNC_MAP_CONSTRUCTOR(&(jnc::construct<RegexState, uint_t>))
 	JNC_MAP_DESTRUCTOR(&jnc::destruct<RegexState>)
 	JNC_MAP_CONST_PROPERTY("m_execFlags", &RegexState::getExecFlags)
-	JNC_MAP_CONST_PROPERTY("m_offset", &RegexState::getOffset)
 	JNC_MAP_CONST_PROPERTY("m_lastExecResult", &RegexState::getLastExecResult)
 	JNC_MAP_CONST_PROPERTY("m_matchSwitchCaseId", &RegexState::getMatchSwitchCaseId)
 	JNC_MAP_CONST_PROPERTY("m_match", &RegexState::getMatch)
@@ -94,14 +95,18 @@ RegexMatch::markOpaqueGcRoots(GcHeap* gcHeap)  {
 
 DataPtr
 RegexMatch::getText(RegexMatch* self) {
-	if (self->m_textPtr.m_p)
-		return self->m_textPtr;
+	if (!self->m_textPtr.m_p)
+		self->m_textPtr = strDup(self->m_match.getText());
 
-	err::setError("RegexMatch::getText is not yet implemented");
-	return g_nullDataPtr;
+	return self->m_textPtr;
 }
 
 //..............................................................................
+
+RegexState::RegexState(uint_t execFlags):
+	m_state(execFlags) {
+	m_runtime = getCurrentThreadRuntime();
+}
 
 void
 JNC_CDECL
@@ -115,15 +120,44 @@ RegexState::markOpaqueGcRoots(GcHeap* gcHeap) {
 RegexMatch*
 JNC_CDECL
 RegexState::getMatch() {
-	err::setError("Regex::getMatch is not yet implemented");
-	return NULL;
+	const re::Match* match = m_state.getMatch();
+	if (!match)
+		return NULL;
+
+	if (!m_match)
+		m_match = jnc::createClass<RegexMatch>(getCurrentThreadRuntime());
+
+	m_match->m_match = *match;
+	return m_match;
 }
 
 RegexMatch*
 JNC_CDECL
 RegexState::getSubMatch(size_t i) {
-	err::setError("Regex::getSubMatch is not yet implemented");
-	return NULL;
+	const re::Match* match = m_state.getSubMatch(i);
+	if (!match)
+		return NULL;
+
+	size_t count = m_subMatchArray.getCount();
+	if (i >= count)
+		m_subMatchArray.setCountZeroConstruct(i + 1);
+
+	RegexMatch* matchObject = m_subMatchArray[i];
+	if (!matchObject) {
+		matchObject = jnc::createClass<RegexMatch>(getCurrentThreadRuntime());
+		m_subMatchArray[i] = matchObject;
+	}
+
+	matchObject->m_match = *match;
+	return matchObject;
+}
+
+void
+JNC_CDECL
+RegexState::reset(size_t offset) {
+	m_state.reset(offset);
+	m_match = NULL;
+	m_subMatchArray.clear();
 }
 
 //..............................................................................

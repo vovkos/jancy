@@ -1,0 +1,73 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+// Jancy features 'reswitch' statement as a built-in support for creating
+// protocol analyzers, programming language lexers and other recognizers.
+
+// If you ever used tools like Lex, Flex, Ragel etc then you are already
+// familiar with the idea. If not, then it is pretty simple, actually. First,
+// you define a list of recognized lexemes in form of regular expressions. Then
+// you specify which actions to execute when these lexemes are found in the
+// input stream. Jancy compiler will then automatically build a DFA to
+// recognize your language.
+
+
+//..............................................................................
+
+// entry point
+
+int main() {
+	printf("main()\n");
+
+	// we need a jnc.RegexState object to store the state of DFA
+
+	jnc.RegexState state(jnc.RegexExecFlags.AnchorDataBegin);
+
+	char const* text = " foo bar 123 baz";
+	char const* p = text;
+	char const* end = p + strlen(p);
+	
+	while (p < end) {
+		reswitch (state, p, end - p) {
+		case "foo":
+			printf("@%04x: foo\n", state.m_match.m_offset);
+			break;
+
+		case "bar":
+			printf("@%04x: bar\n", state.m_match.m_offset);
+			break;
+
+		case r"\d+":
+			// you can access matched lexeme via jnc.RegexState.m_match field
+			printf(
+				"@%04x: %s\n",
+				state.m_match.m_offset,
+				state.m_match.m_text
+			);
+			break;
+
+		case r"\s+":
+			// ignore whitespace
+			break;
+
+		default:
+			printf("@%04x: unrecognized lexeme: %s\n", p - text, p);
+			return -1;
+		}
+
+		assert(state.m_lastExecResult > 0);
+		p += state.m_match.m_length;
+	}
+
+	return 0;
+}
+
+//..............................................................................

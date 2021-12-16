@@ -31,12 +31,16 @@ typedef re::MatchPos RegexMatchPos;
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class RegexMatch: public IfaceHdr {
+	friend class RegexState;
+
 public:
-	RegexMatchPos m_pos; // maps to public fields
+	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(RegexMatch)
+
+public:
+	re::Match m_match; // maps to public fields
 
 protected:
-	DataPtr m_textPtr;
-	enc::CharCodec* m_codec;
+	DataPtr m_textPtr; // cache
 
 public:
 	void
@@ -54,13 +58,13 @@ class RegexState: public IfaceHdr {
 	friend class Regex;
 
 protected:
+	Runtime* m_runtime;
 	re::State m_state;
 	RegexMatch* m_match;
 	sl::Array<RegexMatch*> m_subMatchArray;
 
 public:
-	RegexState(uint_t execFlags):
-		m_state(execFlags) {}
+	RegexState(uint_t execFlags);
 
 	void
 	JNC_CDECL
@@ -70,12 +74,6 @@ public:
 	JNC_CDECL
 	getExecFlags() {
 		return m_state.getExecFlags();
-	}
-
-	size_t
-	JNC_CDECL
-	getOffset() {
-		return m_state.getOffset();
 	}
 
 	re::ExecResult
@@ -112,9 +110,7 @@ public:
 
 	void
 	JNC_CDECL
-	reset(size_t offset) {
-		m_state.reset(offset);
-	}
+	reset(size_t offset);
 };
 
 //..............................................................................
