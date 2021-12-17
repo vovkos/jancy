@@ -140,7 +140,7 @@ NamespaceMgr::addStdItems() {
 		jncNspace->addItem("Scheduler", schedulerImport) &&
 		jncNspace->addItem("RegexMatch", regexImport) &&
 		jncNspace->addItem("RegexState", regexImport) &&
-		jncNspace->addItem("RegexDfa", regexImport) &&
+		jncNspace->addItem("Regex", regexImport) &&
 		jncNspace->addItem("Promise", promiseImport) &&
 		jncNspace->addItem("Promisifier", promiseImport) &&
 		jncNspace->addItem("DynamicLib", dynamicLibImport) &&

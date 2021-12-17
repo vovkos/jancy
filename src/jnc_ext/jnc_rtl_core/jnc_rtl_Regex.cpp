@@ -48,16 +48,17 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 )
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(RegexState)
-	JNC_MAP_CONSTRUCTOR(&(jnc::construct<RegexState, uint_t>))
+	JNC_MAP_CONSTRUCTOR(&jnc::construct<RegexState>)
+	JNC_MAP_OVERLOAD(&(jnc::construct<RegexState, uint_t, size_t>))
 	JNC_MAP_DESTRUCTOR(&jnc::destruct<RegexState>)
 	JNC_MAP_CONST_PROPERTY("m_execFlags", &RegexState::getExecFlags)
 	JNC_MAP_CONST_PROPERTY("m_lastExecResult", &RegexState::getLastExecResult)
 	JNC_MAP_CONST_PROPERTY("m_matchSwitchCaseId", &RegexState::getMatchSwitchCaseId)
+	JNC_MAP_CONST_PROPERTY("m_matchEndOffset", &RegexState::getMatchEndOffset)
 	JNC_MAP_CONST_PROPERTY("m_match", &RegexState::getMatch)
 	JNC_MAP_CONST_PROPERTY("m_subMatchCount", &RegexState::getSubMatchCount)
-	JNC_MAP_CONST_PROPERTY("m_subMatch", &RegexState::getSubMatch)
+	JNC_MAP_CONST_PROPERTY("m_subMatchArray", &RegexState::getSubMatch)
 	JNC_MAP_FUNCTION("initialize", &RegexState::initialize)
-	JNC_MAP_FUNCTION("reset", &RegexState::reset)
 JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -103,8 +104,11 @@ RegexMatch::getText(RegexMatch* self) {
 
 //..............................................................................
 
-RegexState::RegexState(uint_t execFlags):
-	m_state(execFlags) {
+RegexState::RegexState(
+	uint_t execFlags,
+	size_t offset
+):
+	m_state(re::StateInit(execFlags, enc::CharCodecKind_Utf8, 0, offset)) {
 	m_runtime = getCurrentThreadRuntime();
 }
 
@@ -125,9 +129,13 @@ RegexState::getMatch() {
 		return NULL;
 
 	if (!m_match)
-		m_match = jnc::createClass<RegexMatch>(getCurrentThreadRuntime());
+		m_match = jnc::createClass<RegexMatch>(m_runtime);
 
-	m_match->m_match = *match;
+	if (!m_match->m_match.isEqual(*match)) {
+		m_match->m_match = *match;
+		m_match->m_textPtr = g_nullDataPtr;
+	}
+
 	return m_match;
 }
 
@@ -144,7 +152,7 @@ RegexState::getSubMatch(size_t i) {
 
 	RegexMatch* matchObject = m_subMatchArray[i];
 	if (!matchObject) {
-		matchObject = jnc::createClass<RegexMatch>(getCurrentThreadRuntime());
+		matchObject = jnc::createClass<RegexMatch>(m_runtime);
 		m_subMatchArray[i] = matchObject;
 	}
 
@@ -154,8 +162,11 @@ RegexState::getSubMatch(size_t i) {
 
 void
 JNC_CDECL
-RegexState::reset(size_t offset) {
-	m_state.reset(offset);
+RegexState::initialize(
+	uint_t execFlags,
+	size_t offset
+) {
+	m_state.initialize(execFlags);
 	m_match = NULL;
 	m_subMatchArray.clear();
 }
@@ -185,7 +196,7 @@ Regex::compile(
 	);
 }
 
-bool
+size_t
 JNC_CDECL
 Regex::compileSwitchCase(
 	uint_t flags,

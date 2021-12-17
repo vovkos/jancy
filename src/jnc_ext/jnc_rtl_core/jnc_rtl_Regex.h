@@ -64,7 +64,12 @@ protected:
 	sl::Array<RegexMatch*> m_subMatchArray;
 
 public:
-	RegexState(uint_t execFlags);
+	RegexState() {}
+
+	RegexState(
+		uint_t execFlags,
+		size_t offset
+	);
 
 	void
 	JNC_CDECL
@@ -88,6 +93,12 @@ public:
 		return m_state.getMatchSwitchCaseId();
 	}
 
+	size_t
+	JNC_CDECL
+	getMatchEndOffset() {
+		return m_state.getMatchEndOffset();
+	}
+
 	RegexMatch*
 	JNC_CDECL
 	getMatch();
@@ -104,13 +115,10 @@ public:
 
 	void
 	JNC_CDECL
-	initialize(uint_t execFlags) {
-		m_state.initialize(execFlags);
-	}
-
-	void
-	JNC_CDECL
-	reset(size_t offset);
+	initialize(
+		uint_t execFlags,
+		size_t offset
+	);
 };
 
 //..............................................................................
@@ -153,7 +161,7 @@ public:
 		m_regex.createSwitch();
 	}
 
-	bool
+	size_t
 	JNC_CDECL
 	compileSwitchCase(
 		uint_t flags,

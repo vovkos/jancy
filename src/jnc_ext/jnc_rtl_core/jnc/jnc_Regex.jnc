@@ -9,8 +9,6 @@
 //
 //..............................................................................
 
-import "std_Buffer.jnc"
-
 namespace jnc {
 
 //! \addtogroup rtl-regex
@@ -60,15 +58,24 @@ opaque class RegexState {
 	RegexExecFlags const property m_execFlags;
 	RegexExecResult const property m_lastExecResult;
 	size_t const property m_matchSwitchCaseId;
+	size_t const property m_matchEndOffset;
 	RegexMatch const* const property m_match;
 	size_t const property m_subMatchCount;
-	RegexMatch const* const property m_subMatch(size_t i);
+	RegexMatch const* const property m_subMatchArray(size_t i);
 
-	construct(RegexExecFlags execFlags = 0);
+	construct();
+
+	construct(
+		RegexExecFlags execFlags = 0,
+		size_t offset = 0
+	);
+
 	destruct();
 
-	void initialize(RegexExecFlags execFlags = 0);
-	void reset(size_t offset = 0);
+	void initialize(
+		RegexExecFlags execFlags = 0,
+		size_t offset = 0
+	);
 }
 
 //..............................................................................
@@ -102,12 +109,6 @@ opaque class Regex {
 		size_t size
 	);
 
-	size_t errorcode load(std.Buffer const* buffer) {
-		return load(buffer.m_p, buffer.m_size);x
-	}
-
-	size_t errorcode save(std.Buffer* buffer);
-
 	std.Buffer* errorcode save() {
 		std.Buffer buffer;
 		save(buffer);
@@ -139,7 +140,7 @@ opaque class Regex {
 		char const* source,
 		size_t length = -1
 	) {
-		return compile(0, source, length);
+		return compileSwitchCase(0, source, length);
 	}
 
 	void finalizeSwitch(uint_t flags = 0);
