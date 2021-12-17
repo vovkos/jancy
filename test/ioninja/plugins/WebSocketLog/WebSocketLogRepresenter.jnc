@@ -14,7 +14,7 @@ bool representHttpFirstLine(
 	char const* p,
 	char const* end
 ) {
-	jnc.RegexState state(jnc.RegexStateFlags.Lexer);
+	jnc.RegexState state(jnc.RegexExecFlags.AnchorDataBegin);
 	reswitch (state, p, end - p) {
 	case r"([A-Z]+)\s+([^\s]+)\s+HTTP/([0-9\.]+)\r?\n":
 		representation.addHyperText(
@@ -22,9 +22,9 @@ bool representHttpFirstLine(
 			$"    Verb:\t\e[34m%2\n"
 			$"    Resource:\t\e[34m%3"
 			(
-				state.m_subMatchArray[2].m_text,
-				state.m_subMatchArray[0].m_text,
-				state.m_subMatchArray[1].m_text
+				state.m_captureArray[2].m_text,
+				state.m_captureArray[0].m_text,
+				state.m_captureArray[1].m_text
 			));
 		break;
 
@@ -34,9 +34,9 @@ bool representHttpFirstLine(
 			$"    Status code:\t\e[34m%2\n"
 			$"    Reason phrase:\t\e[34m%3"
 			(
-				state.m_subMatchArray[0].m_text,
-				state.m_subMatchArray[1].m_text,
-				state.m_subMatchArray[2].m_text
+				state.m_captureArray[0].m_text,
+				state.m_captureArray[1].m_text,
+				state.m_captureArray[2].m_text
 			));
 		break;
 
@@ -52,7 +52,7 @@ bool representHttpHeaders(
 	char const* p,
 	char const* end
 ) {
-	jnc.RegexState state(jnc.RegexStateFlags.Lexer);
+	jnc.RegexState state(jnc.RegexExecFlags.AnchorDataBegin);
 
 	while (p < end) {
 		reswitch (state, p, end - p) {
@@ -60,8 +60,8 @@ bool representHttpHeaders(
 			representation.addHyperText(
 				$"    %1:\t\e[34m%2"
 				(
-					state.m_subMatchArray[0].m_text,
-					state.m_subMatchArray[1].m_text
+					state.m_captureArray[0].m_text,
+					state.m_captureArray[1].m_text
 				));
 			break;
 
@@ -72,7 +72,7 @@ bool representHttpHeaders(
 			return false;
 		}
 
-		p += state.m_consumedLength;
+		p += state.m_match.m_length;
 	}
 
 	return true;

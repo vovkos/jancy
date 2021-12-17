@@ -95,14 +95,6 @@ add_jancy_tests(
 		PipeServerLogRepresenter.jnc
 	FINALIZE_TEST PipeServer
 
-	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/RegexColorizer
-	REQUIRES RegexColorizerLayer
-	FILES
-		RegexPattern.jnc
-		RegexColorizerLayer.jnc
-		RegexColorizerHighlighter.jnc
-	FINALIZE_TEST RegexColorizer
-
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/Serial
 	REQUIRES
 		SerialSession

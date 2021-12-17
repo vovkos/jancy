@@ -11,40 +11,43 @@
 
 bool errorcode scanPacket(
 	jnc.RegexState* state,
-	char const* p,
-	size_t length = -1
+	char const* buffer,
+	size_t from, 
+	size_t to
 ) {
-	if (length == -1)
-		length = strlen(p);
+	char const* p = buffer + from;
+	char const* end = buffer + to;
 
-	char const* end = p + length;
+	printf("scanning %s\n", strdup(p, end - p));
 
 	do {
 		reswitch (state, p, end - p) {
 		case r"open[ \t]*\d*[\r\n]":
-			printf("command = open\n%s\n", state.m_match.m_text);
+			printf("@%04x(%d): command = open\n", state.m_match.m_offset, state.m_match.m_length);
 			break;
 
 		case r"close[ \t]*\d*[\r\n]":
-			printf("command = close\n%s\n", state.m_match.m_text);
+			printf("@%04x(%d): command = close\n", state.m_match.m_offset, state.m_match.m_length);
 			break;
 
 		case r"connect[ \t]*\d*[\r\n]":
-			printf("command = connect\n%s\n", state.m_match.m_text);
+			printf("@%04x(%d): command = connect\n", state.m_match.m_offset, state.m_match.m_length);
 			break;
 
 		case r"\s+":
 			break;
 
 		default:
-			if (!state.m_consumedLength)
-				return false;
-
-			assert(state.m_consumedLength == end - p);
+			assert(
+				state.m_lastExecResult == jnc.RegexExecResult.NoMatch ||
+				state.m_lastExecResult == jnc.RegexExecResult.Continue
+			);
+			
+			return state.m_lastExecResult;
 		}
 
-		p += state.m_consumedLength;
-	} while (p < end || state.m_replayLength);
+		p = buffer + state.m_match.m_endOffset;
+	} while (p < end);
 
 	return true;
 }
@@ -52,21 +55,22 @@ bool errorcode scanPacket(
 int main() {
 	printf("main ()\n");
 
-	jnc.RegexState state(jnc.RegexStateFlags.Lexer | jnc.RegexStateFlags.Incremental);
+	jnc.RegexState state(jnc.RegexExecFlags.AnchorDataBegin | jnc.RegexExecFlags.Stream);
 
 	int l = 0;
 
+	const char text[] = "open 12\n connect5\r close\t7777";
+
 	try {
-		scanPacket(state, "op");
-		scanPacket(state, "en 12\ncon");
-		scanPacket(state, "nect5\r cl");
-		scanPacket(state, "ose\t7777");
+		scanPacket(state, text, 0,  2);
+		scanPacket(state, text, 2,  12);
+		scanPacket(state, text, 12, 22);
+		scanPacket(state, text, 22, strlen(text));
 
 		l = 10;
 
 		printf("the following will fail ('close' has no [\\r\\n]\n");
-
-		scanPacket(state, null);
+		scanPacket(state, null, 0, 0); // simulate eof
 		assert(false); // shouldn't get here
 
 	catch:

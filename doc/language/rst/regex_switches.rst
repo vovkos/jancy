@@ -28,7 +28,7 @@ Jancy compiler will then automatically build a DFA to find these lexemes in an i
 	    break;
 
 	case r"bar(\d+)":
-	    print ($"bar id: $(state.m_subMatchArray [0].m_text)\n");
+	    print ($"bar id: $(state.m_captureArray[0].m_text)\n");
 	    break;
 
 	case r"\s+":
@@ -65,7 +65,7 @@ To employ incremental recognition, you would want to create some *match* functio
 	            break;
 
 	        case r"bar\(d+)":
-	            print ($"bar id: $(state.m_subMatchArray [0].m_text)\n");
+	            print ($"bar id: $(state.m_captureArray[0].m_text)\n");
 	            break;
 
 	        case r"\s+":

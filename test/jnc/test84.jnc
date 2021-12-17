@@ -1,13 +1,13 @@
 int main() {
 	char const* packet = " foo123 bar567 ";
 
-	jnc.RegexState state(jnc.RegexStateFlags.Lexer);
+	jnc.RegexState state(jnc.RegexExecFlags.AnchorDataBegin);
 	reswitch (state, packet) {
 	case r"\s*(foo\d*)\s+(bar\d*)?\s*":
 		printf("detected foobar: '%s'\n", state.m_match.m_text);
-		printf("foo: '%s'\n", state.m_subMatchArray [0].m_text);
-		printf("bar: '%s'\n", state.m_subMatchArray [1].m_text);
-		printf("offset: %d\n", state.m_currentOffset);
+		printf("foo: '%s'\n", state.m_captureArray[0].m_text);
+		printf("bar: '%s'\n", state.m_captureArray[1].m_text);
+		printf("offset: %d\n", state.m_match.m_endOffset);
 		break;
 
 	default:

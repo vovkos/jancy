@@ -1,40 +1,31 @@
 int main() {
 	printf("compiling\n");
 
-	jnc.RegexState state;
-	state.m_flags = jnc.RegexStateFlags.Lexer | jnc.RegexStateFlags.Incremental;
-
-	jnc.RegexDfa dfa;
-	dfa.incrementalCompile(r"\x02[^\r]+\r");
-	dfa.incrementalCompile(r"[a-z]+");
-	dfa.incrementalCompile(r"[0-9]+");
-	dfa.incrementalCompile(r".");
-	dfa.finalize();
+	jnc.Regex regex;
+	regex.createSwitch();
+	regex.compileSwitchCase(r"\x02[^\r]+\r");
+	regex.compileSwitchCase(r"[a-z]+");
+	regex.compileSwitchCase(r"[0-9]+");
+	regex.compileSwitchCase(r".");
+	regex.finalizeSwitch();
 
 	printf("matching\n");
 
-	size_t result;
+	char const* text = "\x02ab123cdef45678\xff";
 
-	result = try dfa.match(state, "\x02ab123cdef45678\xff");
-	printf("regex result: %d, consumed length: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_consumedLength, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
+	jnc.RegexExecResult result;
+	jnc.RegexState state(jnc.RegexExecFlags.AnchorDataBegin | jnc.RegexExecFlags.Stream);
 
-	result = try dfa.match(state, null, 0);
-	printf("regex result: %d, consumed length: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_consumedLength, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
+	result = regex.exec(state, text);
+	printf("regex result: %d\n", result);
 
-	result = try dfa.match(state, null, 0);
-	printf("regex result: %d, consumed length: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_consumedLength, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
+	result = regex.eof(state);
+	printf("regex result: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
 
-	result = try dfa.match(state, null, 0);
-	printf("regex result: %d, consumed length: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_consumedLength, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
-
-	result = try dfa.match(state, null, 0);
-	printf("regex result: %d, consumed length: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_consumedLength, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
-
-	result = try dfa.match(state, null, 0);
-	printf("regex result: %d, consumed length: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_consumedLength, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
-
-	result = try dfa.match(state, null, 0);
-	printf("regex result: %d, consumed length: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_consumedLength, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
+	for (size_t i = 0; i < 5; i++) {
+		result = regex.exec(state, text + state.m_match.m_endOffset);
+		printf("regex result: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
+	}
 
 	return 0;
 

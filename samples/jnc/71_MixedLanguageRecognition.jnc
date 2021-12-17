@@ -78,7 +78,7 @@ int main() {
 
 		if (!state.m_lastExecResult) {
 			printf("recognition error\n");
-			return -1;
+			break;
 		}
 
 		p += state.m_match.m_length; // advance to the next lexeme

@@ -68,7 +68,7 @@ int main() {
 		
 		case jnc.RegexExecResult.NoMatch:
 			printf("recognition error\n");
-			return -1;
+			break2;
 
 		case jnc.RegexExecResult.Continue:
 			p += chunkSize;

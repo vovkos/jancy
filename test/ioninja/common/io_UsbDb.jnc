@@ -131,15 +131,15 @@ bool errorcode UsbDb.load(char const* fileName) {
 	char const* p = file.view(0, size, false);
 	char const* end = p + size;
 
-	jnc.RegexState state(jnc.RegexStateFlags.Lexer);
+	jnc.RegexState state(jnc.RegexExecFlags.AnchorDataBegin);
 	UsbVendor* vendor;
 
 	while (p < end) {
 		reswitch (state, p, end - p) {
 		case r"(\h{4})\s+([^\n]+[^\s])\s*\n":
 			vendor = addVendor(
-				strtol(state.m_subMatchArray[0].m_text,, 16),
-				state.m_subMatchArray[1].m_text
+				strtol(state.m_captureArray[0].m_text,, 16),
+				state.m_captureArray[1].m_text
 			);
 			break;
 
@@ -150,8 +150,8 @@ bool errorcode UsbDb.load(char const* fileName) {
 			}
 
 			vendor.addProduct(
-				strtol(state.m_subMatchArray[0].m_text,, 16),
-				state.m_subMatchArray[1].m_text
+				strtol(state.m_captureArray[0].m_text,, 16),
+				state.m_captureArray[1].m_text
 			);
 			break;
 
@@ -165,7 +165,7 @@ bool errorcode UsbDb.load(char const* fileName) {
 			break2; // any other line stops parsing
 		}
 
-		p += state.m_consumedLength;
+		p += state.m_match.m_length;
 	}
 
 	return true;

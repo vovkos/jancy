@@ -191,7 +191,7 @@ Create *efficient* regex-based switches for tokenizing string streams:
 		break;
 
 	case r"bar(\d+)":
-		print($"bar id: $(state.m_subMatchArray[0].m_text)\n");
+		print($"bar id: $(state.m_captureArray[0].m_text)\n");
 		break;
 
 	case r"\s+":

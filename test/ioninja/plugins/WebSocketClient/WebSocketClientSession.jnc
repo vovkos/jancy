@@ -299,11 +299,11 @@ bool errorcode WebSocketClientSession.connect() {
 	jnc.RegexState regexState;
 	reswitch (regexState, addressString) {
 	case r"(ws|wss)://([^/?]+)(.*)":
-		isSecure = regexState.m_subMatchArray[0].m_length == 3;
-		host = regexState.m_subMatchArray[1].m_text;
+		isSecure = regexState.m_captureArray[0].m_length == 3;
+		host = regexState.m_captureArray[1].m_text;
 
-		jnc.RegexMatch const* resourceSubMatch = &regexState.m_subMatchArray[2];
-		resource = resourceSubMatch.m_length && resourceSubMatch.m_text[0] == '/' ?
+		jnc.RegexMatch const* resourceSubMatch = regexState.m_captureArray[2];
+		resource = resourceSubMatch.m_length && *resourceSubMatch.m_text == '/' ?
 			resourceSubMatch.m_text :
 			strcat("/", resourceSubMatch.m_text);
 		break;

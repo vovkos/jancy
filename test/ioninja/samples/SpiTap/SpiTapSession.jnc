@@ -186,7 +186,7 @@ protected:
 
 	// ASCII printables filtering (demo mode)
 
-	jnc.RegexDfa m_textDfa;
+	jnc.Regex m_textRegex;
 
 public:
 	construct(doc.PluginHost* pluginHost);
@@ -249,7 +249,7 @@ SpiTapSession.construct(doc.PluginHost* pluginHost) {
 	m_ifaceA = new SpiIface;
 	m_ifaceB = new SpiIface;
 
-	m_textDfa.compile(r"[^\r\n\t -~]*([\r\n\t -~]+)"); // extract ASCII printables
+	m_textRegex.compile(r"[^\r\n\t -~]*([\r\n\t -~]+)"); // extract ASCII printables
 
 	createUi();
 
@@ -665,21 +665,21 @@ void SpiTapSession.writeLogTextOnly(
 	void const* p,
 	size_t size
 ) {
-	jnc.RegexState state(jnc.RegexStateFlags.Lexer);
+	jnc.RegexState state(jnc.RegexExecFlags.AnchorDataBegin);
 
 	void const* end = p + size;
 	while (p < end) {
-		size_t result = try m_textDfa.match(state, p, end - p);
-		if (result == -1)
+		jnc.RegexExecResult result = m_textRegex.exec(state, p, end - p);
+		if (!result)
 			break;
 
 		m_logWriter.write(
 			recordCode,
-			state.m_subMatchArray[0].m_text,
-			state.m_subMatchArray[0].m_length
+			state.m_captureArray[0].m_text,
+			state.m_captureArray[0].m_length
 		);
 
-		p += state.m_consumedLength;
+		p += state.m_match.m_length;
 	}
 }
 
@@ -688,28 +688,28 @@ void SpiTapSession.writeLogTextOnly(
 	void const* rx,
 	size_t size
 ) {
-	jnc.RegexState state(jnc.RegexStateFlags.Lexer);
+	jnc.RegexState state(jnc.RegexExecFlags.AnchorDataBegin);
 
 	void const* end = rx + size;
 	while (rx < end) {
-		size_t result = try m_textDfa.match(state, rx, end - rx);
-		if (result == -1)
+		jnc.RegexExecResult result = m_textRegex.exec(state, rx, end - rx);
+		if (!result)
 			break;
 
 		char const* cut = memcat(
-			tx + state.m_subMatchArray[0].m_offset,
-			state.m_subMatchArray[0].m_length,
-			state.m_subMatchArray[0].m_text,
-			state.m_subMatchArray[0].m_length
+			tx + state.m_captureArray[0].m_offset,
+			state.m_captureArray[0].m_length,
+			state.m_captureArray[0].m_text,
+			state.m_captureArray[0].m_length
 		);
 
 		m_logWriter.write(
 			log.StdRecordCode.TxRx,
 			cut,
-			state.m_subMatchArray[0].m_length * 2
+			state.m_captureArray[0].m_length * 2
 		);
 
-		rx += state.m_consumedLength;
+		rx += state.m_match.m_length;
 	}
 }
 

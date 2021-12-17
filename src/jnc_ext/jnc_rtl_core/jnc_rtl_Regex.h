@@ -61,7 +61,7 @@ protected:
 	Runtime* m_runtime;
 	re::State m_state;
 	RegexMatch* m_match;
-	sl::Array<RegexMatch*> m_subMatchArray;
+	sl::Array<RegexMatch*> m_captureArray;
 
 public:
 	RegexState() {}
@@ -105,13 +105,19 @@ public:
 
 	size_t
 	JNC_CDECL
-	getSubMatchCount() {
-		return m_state.getSubMatchCount();
+	getCaptureCount() {
+		return m_state.getCaptureCount();
 	}
 
 	RegexMatch*
 	JNC_CDECL
-	getSubMatch(size_t i);
+	getCapture(size_t i);
+
+	RegexMatch*
+	JNC_CDECL
+	getGroup(size_t i) {
+		return i == 0 ? getMatch() : getCapture(i - 1);
+	}
 
 	void
 	JNC_CDECL

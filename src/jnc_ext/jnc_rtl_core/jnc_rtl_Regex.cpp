@@ -56,8 +56,9 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(RegexState)
 	JNC_MAP_CONST_PROPERTY("m_matchSwitchCaseId", &RegexState::getMatchSwitchCaseId)
 	JNC_MAP_CONST_PROPERTY("m_matchEndOffset", &RegexState::getMatchEndOffset)
 	JNC_MAP_CONST_PROPERTY("m_match", &RegexState::getMatch)
-	JNC_MAP_CONST_PROPERTY("m_subMatchCount", &RegexState::getSubMatchCount)
-	JNC_MAP_CONST_PROPERTY("m_subMatchArray", &RegexState::getSubMatch)
+	JNC_MAP_CONST_PROPERTY("m_captureCount", &RegexState::getCaptureCount)
+	JNC_MAP_CONST_PROPERTY("m_captureArray", &RegexState::getCapture)
+	JNC_MAP_CONST_PROPERTY("m_groupArray", &RegexState::getGroup)
 	JNC_MAP_FUNCTION("initialize", &RegexState::initialize)
 JNC_END_TYPE_FUNCTION_MAP()
 
@@ -116,9 +117,9 @@ void
 JNC_CDECL
 RegexState::markOpaqueGcRoots(GcHeap* gcHeap) {
 	gcHeap->markClassPtr(m_match);
-	size_t count = m_subMatchArray.getCount();
+	size_t count = m_captureArray.getCount();
 	for (size_t i = 0; i < count; i++)
-		gcHeap->markClassPtr(m_subMatchArray[i]);
+		gcHeap->markClassPtr(m_captureArray[i]);
 }
 
 RegexMatch*
@@ -141,19 +142,19 @@ RegexState::getMatch() {
 
 RegexMatch*
 JNC_CDECL
-RegexState::getSubMatch(size_t i) {
-	const re::Match* match = m_state.getSubMatch(i);
+RegexState::getCapture(size_t i) {
+	const re::Match* match = m_state.getCapture(i);
 	if (!match)
 		return NULL;
 
-	size_t count = m_subMatchArray.getCount();
+	size_t count = m_captureArray.getCount();
 	if (i >= count)
-		m_subMatchArray.setCountZeroConstruct(i + 1);
+		m_captureArray.setCountZeroConstruct(i + 1);
 
-	RegexMatch* matchObject = m_subMatchArray[i];
+	RegexMatch* matchObject = m_captureArray[i];
 	if (!matchObject) {
 		matchObject = jnc::createClass<RegexMatch>(m_runtime);
-		m_subMatchArray[i] = matchObject;
+		m_captureArray[i] = matchObject;
 	}
 
 	matchObject->m_match = *match;
@@ -168,7 +169,7 @@ RegexState::initialize(
 ) {
 	m_state.initialize(execFlags);
 	m_match = NULL;
-	m_subMatchArray.clear();
+	m_captureArray.clear();
 }
 
 //..............................................................................

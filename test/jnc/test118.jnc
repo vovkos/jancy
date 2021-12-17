@@ -1,30 +1,23 @@
 void scanStream(
 	jnc.RegexState* state,
-	char const* p,
-	size_t length
+	char const* p
 ) {
-	char const* p0 = p;
-	char const* end = p + length;
-	while (p < end || state.m_replayLength) {
+	char const* end = p + strlen(p);
+	while (p < end) {
 		reswitch (state, p, end - p) {
 		case "[0-9]+":
 			printf(
-				"match#1: offset: %d state.m_currentOffset: %d state.m_consumedLength: %d match.m_offset: %d match.m_length: %d\n",
-				p - p0,
-				state.m_currentOffset,
-				state.m_consumedLength,
+				"match#1: match.m_offset: %d match.m_length: %d match.m_text: %s\n",
 				state.m_match.m_offset,
-				state.m_match.m_length
+				state.m_match.m_length,
+				state.m_match.m_text
 			);
 
 			break;
 
 		case ".":
 			printf(
-				"match#2: offset: %d state.m_currentOffset: %d state.m_consumedLength: %d match.m_offset: %d match.m_length: %d\n",
-				p - p0,
-				state.m_currentOffset,
-				state.m_consumedLength,
+				"match#2: match.m_offset: %d match.m_length: %d\n",
 				state.m_match.m_offset,
 				state.m_match.m_length
 			);
@@ -33,17 +26,15 @@ void scanStream(
 			break;
 		}
 
-		p += state.m_consumedLength;
+		p += state.m_match.m_length;
 	}
-
-	printf("final: offset: %d state.m_currentOffset: %d state.m_consumedLength: %d\n", p - p0, state.m_currentOffset, state.m_consumedLength);
 }
 
 
 int main() {
-	jnc.RegexState state(jnc.RegexStateFlags.Lexer | jnc.RegexStateFlags.Incremental);
+	jnc.RegexState state(jnc.RegexExecFlags.AnchorDataBegin | jnc.RegexExecFlags.Stream);
 
-	scanStream(state, "abc123d", 7);
+	scanStream(state, "abc123d");
 
 	return 0;
 }

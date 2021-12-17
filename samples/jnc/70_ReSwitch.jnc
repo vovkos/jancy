@@ -60,7 +60,7 @@ int main() {
 
 		default:
 			printf("@%04x: unrecognized lexeme: %s\n", p - text, p);
-			return -1;
+			break2;
 		}
 
 		assert(state.m_lastExecResult > 0);

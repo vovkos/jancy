@@ -60,13 +60,14 @@ opaque class RegexState {
 	size_t const property m_matchSwitchCaseId;
 	size_t const property m_matchEndOffset;
 	RegexMatch const* const property m_match;
-	size_t const property m_subMatchCount;
-	RegexMatch const* const property m_subMatchArray(size_t i);
+	size_t const property m_captureCount;
+	RegexMatch const* const property m_captureArray(size_t i); // 0 .. m_captureCount - 1
+	RegexMatch const* const property m_groupArray(size_t i);   // 0 .. m_captureCount (0 yields the full match)
 
 	construct();
 
 	construct(
-		RegexExecFlags execFlags = 0,
+		RegexExecFlags execFlags,
 		size_t offset = 0
 	);
 

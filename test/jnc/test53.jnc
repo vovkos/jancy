@@ -14,7 +14,7 @@ int main() {
 
 	char const* packet = "_[0.36.119.81.150.141]PC|12345";
 
-	jnc.RegexState state(jnc.RegexStateFlags.Lexer);
+	jnc.RegexState state(jnc.RegexExecFlags.AnchorDataBegin);
 	reswitch (state, packet) {
 	case r"_\?":
 		printf("echo\n");
@@ -23,7 +23,7 @@ int main() {
 	case r"_\[(\d+\.)*\d+\]":
 		printf("MAC: %s\n", state.m_match.m_text);
 
-		reswitch (state, packet + state.m_consumedLength) {
+		reswitch (state, packet + state.m_match.m_endOffset) {
 		case r"X(\|.*)?":
 			printf("<IONJ-3.4.0>/ec8ec901-bb4b-4468-bfb9-bf482589cc17/test!\n");
 			break;
