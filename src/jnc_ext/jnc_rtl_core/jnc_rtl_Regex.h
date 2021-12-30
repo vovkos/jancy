@@ -89,14 +89,8 @@ public:
 
 	size_t
 	JNC_CDECL
-	getMatchSwitchCaseId() {
-		return m_state.getMatchSwitchCaseId();
-	}
-
-	size_t
-	JNC_CDECL
-	getMatchEndOffset() {
-		return m_state.getMatchEndOffset();
+	getMatchAcceptId() {
+		return m_state.getMatchAcceptId();
 	}
 
 	RegexMatch*

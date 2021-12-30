@@ -45,11 +45,12 @@ bitflag enum RegexExecFlags {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum RegexExecResult {
-	Match            = 2,
-	MatchOffsetsOnly = 1,
-	NoMatch          = 0,
-	Continue         = -1, // continue feeding data
-	ContinueBackward = -2, // continue feeding backward data
+	Match              = 3,
+	MatchOffsetsOnly   = 2,
+	MatchEndOffsetOnly = 1,
+	NoMatch            = 0,
+	Continue           = -1, // continue feeding data
+	ContinueBackward   = -2, // continue feeding backward data
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -57,8 +58,7 @@ enum RegexExecResult {
 opaque class RegexState {
 	RegexExecFlags const property m_execFlags;
 	RegexExecResult const property m_lastExecResult;
-	size_t const property m_matchSwitchCaseId;
-	size_t const property m_matchEndOffset;
+	size_t const property m_matchAcceptId;
 	RegexMatch const* const property m_match;
 	size_t const property m_captureCount;
 	RegexMatch const* const property m_captureArray(size_t i); // 0 .. m_captureCount - 1

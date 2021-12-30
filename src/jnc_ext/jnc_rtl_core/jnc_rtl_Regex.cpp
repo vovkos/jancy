@@ -53,8 +53,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(RegexState)
 	JNC_MAP_DESTRUCTOR(&jnc::destruct<RegexState>)
 	JNC_MAP_CONST_PROPERTY("m_execFlags", &RegexState::getExecFlags)
 	JNC_MAP_CONST_PROPERTY("m_lastExecResult", &RegexState::getLastExecResult)
-	JNC_MAP_CONST_PROPERTY("m_matchSwitchCaseId", &RegexState::getMatchSwitchCaseId)
-	JNC_MAP_CONST_PROPERTY("m_matchEndOffset", &RegexState::getMatchEndOffset)
+	JNC_MAP_CONST_PROPERTY("m_matchAcceptId", &RegexState::getMatchAcceptId)
 	JNC_MAP_CONST_PROPERTY("m_match", &RegexState::getMatch)
 	JNC_MAP_CONST_PROPERTY("m_captureCount", &RegexState::getCaptureCount)
 	JNC_MAP_CONST_PROPERTY("m_captureArray", &RegexState::getCapture)
@@ -109,7 +108,7 @@ RegexState::RegexState(
 	uint_t execFlags,
 	size_t offset
 ):
-	m_state(re::StateInit(execFlags, enc::CharCodecKind_Utf8, 0, offset)) {
+	m_state(re::StateInit(execFlags, offset, enc::CharCodecKind_Utf8)) {
 	m_runtime = getCurrentThreadRuntime();
 }
 
