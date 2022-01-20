@@ -55,6 +55,7 @@ static jnc_ModuleItemDeclFuncTable g_moduleItemDeclFuncTable = {
 	jnc_ModuleItemDecl_getStorageKind,
 	jnc_ModuleItemDecl_getAccessKind,
 	jnc_ModuleItemDecl_getAttributeBlock,
+	jnc_ModuleItemDecl_findAttribute,
 	jnc_ModuleItemDecl_getParentNamespace,
 	jnc_ModuleItemDecl_getParentUnit,
 	jnc_ModuleItemDecl_getLine,

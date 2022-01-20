@@ -104,7 +104,9 @@ AttributeBlock::prepareAttributeValues() {
 	size_t count = m_attributeArray.getCount();
 	for (size_t i = 0; i < count; i++) {
 		Attribute* attribute = m_attributeArray[i];
-		if (attribute->hasInitializer()) {
+		if (!attribute->hasInitializer()) {
+			attribute->m_value.setVoid(m_module);
+		} else {
 			bool result = attribute->parseInitializer();
 			if (!result)
 				finalResult = false;

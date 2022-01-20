@@ -150,6 +150,9 @@ public:
 		return m_attributeBlock;
 	}
 
+	Attribute*
+	findAttribute(const sl::StringRef& name);
+
 	dox::Block*
 	getDoxyBlock() {
 		return m_doxyBlock;

@@ -66,14 +66,12 @@ public:
 
 	const sl::Array<Attribute*>&
 	getAttributeArray() {
+		ensureAttributeValuesReady();
 		return m_attributeArray;
 	}
 
 	Attribute*
-	findAttribute(const sl::StringRef& name) {
-		sl::StringHashTableIterator<Attribute*> it = m_attributeMap.find(name);
-		return it ? it->m_value : NULL;
-	}
+	findAttribute(const sl::StringRef& name);
 
 	Attribute*
 	createAttribute(
@@ -91,7 +89,26 @@ protected:
 	prepareAttributeValues();
 };
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+Attribute*
+AttributeBlock::findAttribute(const sl::StringRef& name) {
+	sl::StringHashTableIterator<Attribute*> it = m_attributeMap.find(name);
+	if (!it)
+		return NULL;
+
+	ensureAttributeValuesReady();
+	return it->m_value;
+}
+
 //..............................................................................
+
+inline
+Attribute*
+ModuleItemDecl::findAttribute(const sl::StringRef& name) {
+	return m_attributeBlock ? m_attributeBlock->findAttribute(name) : NULL;
+}
 
 inline
 bool

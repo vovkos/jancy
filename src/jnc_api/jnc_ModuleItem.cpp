@@ -16,6 +16,7 @@
 #	include "jnc_ExtensionLib.h"
 #elif defined(_JNC_CORE)
 #	include "jnc_ct_ModuleItem.h"
+#	include "jnc_ct_AttributeBlock.h"
 #endif
 
 //..............................................................................
@@ -125,6 +126,15 @@ JNC_EXTERN_C
 jnc_AttributeBlock*
 jnc_ModuleItemDecl_getAttributeBlock(jnc_ModuleItemDecl* decl) {
 	return jnc_g_dynamicExtensionLibHost->m_moduleItemDeclFuncTable->m_getAttributeBlockFunc(decl);
+}
+
+JNC_EXTERN_C
+jnc_Attribute*
+jnc_ModuleItemDecl_findAttribute(
+	jnc_ModuleItemDecl* decl,
+	const char* name
+) {
+	return jnc_g_dynamicExtensionLibHost->m_moduleItemDeclFuncTable->m_findAttributeFunc(decl, name);
 }
 
 JNC_EXTERN_C
@@ -241,6 +251,16 @@ JNC_EXPORT_O
 jnc_AttributeBlock*
 jnc_ModuleItemDecl_getAttributeBlock(jnc_ModuleItemDecl* decl) {
 	return decl->getAttributeBlock();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_Attribute*
+jnc_ModuleItemDecl_findAttribute(
+	jnc_ModuleItemDecl* decl,
+	const char* name
+) {
+	return decl->findAttribute(name);
 }
 
 JNC_EXTERN_C

@@ -156,6 +156,13 @@ jnc_AttributeBlock*
 jnc_ModuleItemDecl_GetAttributeBlockFunc(jnc_ModuleItemDecl* decl);
 
 typedef
+jnc_Attribute*
+jnc_ModuleItemDecl_FindAttributeFunc(
+	jnc_ModuleItemDecl* decl,
+	const char* name
+);
+
+typedef
 jnc_Namespace*
 jnc_ModuleItemDecl_GetParentNamespaceFunc(jnc_ModuleItemDecl* decl);
 
@@ -180,6 +187,7 @@ struct jnc_ModuleItemDeclFuncTable {
 	jnc_ModuleItemDecl_GetStorageKindFunc* m_getStorageKindFunc;
 	jnc_ModuleItemDecl_GetAccessKindFunc* m_getAccessKindFunc;
 	jnc_ModuleItemDecl_GetAttributeBlockFunc* m_getAttributeBlockFunc;
+	jnc_ModuleItemDecl_FindAttributeFunc* m_findAttributeFunc;
 	jnc_ModuleItemDecl_GetParentNamespaceFunc* m_getParentNamespaceFunc;
 	jnc_ModuleItemDecl_GetParentUnitFunc* m_getParentUnitFunc;
 	jnc_ModuleItemDecl_GetLineFunc* m_getLineFunc;

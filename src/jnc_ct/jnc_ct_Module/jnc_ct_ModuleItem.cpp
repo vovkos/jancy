@@ -233,6 +233,11 @@ getNullType(ModuleItem* item) {
 }
 
 Type*
+getAttributeType(ModuleItem* item) {
+	return ((Attribute*)item)->getValue().getType();
+}
+
+Type*
 getTypeType(ModuleItem* item) {
 	return (Type*)item;
 }
@@ -602,7 +607,7 @@ ModuleItem::getType() {
 		getNullType,             // ModuleItemKind_Undefined = 0,
 		getNullType,             // ModuleItemKind_Namespace,
 		getNullType,             // ModuleItemKind_Scope,
-		getNullType,             // ModuleItemKind_Attribute,
+		getAttributeType,        // ModuleItemKind_Attribute,
 		getNullType,             // ModuleItemKind_AttributeBlock,
 		getTypeType,             // ModuleItemKind_Type,
 		getTypedefType,          // ModuleItemKind_Typedef,

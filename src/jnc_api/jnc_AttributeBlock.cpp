@@ -16,6 +16,7 @@
 #	include "jnc_ExtensionLib.h"
 #elif defined(_JNC_CORE)
 #	include "jnc_ct_AttributeBlock.h"
+#	include "jnc_Variant.h"
 #endif
 
 //..............................................................................
@@ -52,6 +53,27 @@ jnc_AttributeBlock_findAttribute(
 
 JNC_EXTERN_C
 JNC_EXPORT_O
+const void*
+jnc_Attribute_getValueConstData(jnc_Attribute* attr) {
+	return attr->getValue().getConstData();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+const char*
+jnc_Attribute_getValueString_v(jnc_Attribute* attr) {
+	jnc::Variant variant;
+	variant.m_type = (jnc::Type*)attr->getValue().getType()->getDataPtrType_c(jnc::TypeKind_DataRef);
+	variant.m_p = (void*)attr->getValue().getConstData();
+	sl::String* buffer = jnc::getTlsStringBuffer();
+	variant.format(buffer, NULL);
+	return buffer->sz();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_EXTERN_C
+JNC_EXPORT_O
 size_t
 jnc_AttributeBlock_getAttributeCount(jnc_AttributeBlock* block) {
 	return block->getAttributeArray().getCount();
@@ -75,6 +97,12 @@ jnc_AttributeBlock_findAttribute(
 	const char* name
 ) {
 	return block->findAttribute(name);
+}
+
+JNC_EXTERN_C
+bool_t
+jnc_AttributeBlock_ensureAttributeValuesReady(jnc_AttributeBlock* block) {
+	return block->ensureAttributeValuesReady();
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

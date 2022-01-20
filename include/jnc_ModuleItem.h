@@ -169,6 +169,13 @@ jnc_AttributeBlock*
 jnc_ModuleItemDecl_getAttributeBlock(jnc_ModuleItemDecl* decl);
 
 JNC_EXTERN_C
+jnc_Attribute*
+jnc_ModuleItemDecl_findAttribute(
+	jnc_ModuleItemDecl* decl,
+	const char* name
+);
+
+JNC_EXTERN_C
 jnc_Namespace*
 jnc_ModuleItemDecl_getParentNamespace(jnc_ModuleItemDecl* decl);
 
@@ -216,6 +223,11 @@ struct jnc_ModuleItemDecl {
 	jnc_AttributeBlock*
 	getAttributeBlock() {
 		return jnc_ModuleItemDecl_getAttributeBlock(this);
+	}
+
+	jnc_Attribute*
+	findAttribute(const char* name) {
+		return jnc_ModuleItemDecl_findAttribute(this, name);
 	}
 
 	jnc_Namespace*

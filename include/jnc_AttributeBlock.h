@@ -27,9 +27,26 @@
 
 //..............................................................................
 
+JNC_EXTERN_C
+const void*
+jnc_Attribute_getValueConstData(jnc_Attribute* attr);
+
+JNC_EXTERN_C
+const char*
+jnc_Attribute_getValueString_v(jnc_Attribute* attr);
+
 #if (!defined _JNC_CORE && defined __cplusplus)
 
 struct jnc_Attribute: jnc_ModuleItem {
+	const void*
+	getValueConstData() {
+		return jnc_Attribute_getValueConstData(this);
+	}
+
+	const char*
+	getValueString_v() {
+		return jnc_Attribute_getValueString_v(this);
+	}
 };
 
 #endif // _JNC_CORE
@@ -54,6 +71,10 @@ jnc_AttributeBlock_findAttribute(
 	const char* name
 );
 
+JNC_EXTERN_C
+bool_t
+jnc_AttributeBlock_ensureAttributeValuesReady(jnc_AttributeBlock* block);
+
 #if (!defined _JNC_CORE && defined __cplusplus)
 
 struct jnc_AttributeBlock: jnc_ModuleItem {
@@ -71,6 +92,12 @@ struct jnc_AttributeBlock: jnc_ModuleItem {
 	findAttribute(const char* name) {
 		return jnc_AttributeBlock_findAttribute(this, name);
 	}
+
+	bool
+	ensureAttributeValuesReady() {
+		return jnc_AttributeBlock_ensureAttributeValuesReady(this) != 0;
+	}
+
 };
 
 #endif // _JNC_CORE

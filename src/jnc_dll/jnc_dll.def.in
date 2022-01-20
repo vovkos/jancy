@@ -38,6 +38,7 @@ EXPORTS
 	jnc_CodeAssist_getNamespace
 	jnc_ModuleItemDecl_getAccessKind
 	jnc_ModuleItemDecl_getAttributeBlock
+	jnc_ModuleItemDecl_findAttribute
 	jnc_ModuleItemDecl_getCol
 	jnc_ModuleItemDecl_getLine
 	jnc_ModuleItemDecl_getName
@@ -56,9 +57,12 @@ EXPORTS
 	jnc_getAccessKindString
 	jnc_getModuleItemKindString
 	jnc_getStorageKindString
+	jnc_Attribute_getValueConstData
+	jnc_Attribute_getValueString_v
 	jnc_AttributeBlock_findAttribute
 	jnc_AttributeBlock_getAttribute
 	jnc_AttributeBlock_getAttributeCount
+	jnc_AttributeBlock_ensureAttributeValuesReady
 	jnc_DataPtrType_getPtrTypeKind
 	jnc_DataPtrType_getTargetType
 	jnc_getTypeKindFlags
