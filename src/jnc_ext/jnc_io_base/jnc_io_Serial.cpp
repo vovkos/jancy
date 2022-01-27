@@ -797,26 +797,6 @@ Serial::ioThreadFunc() {
 		uint_t prevActiveEvents = m_activeEvents;
 		m_activeEvents = 0;
 
-		if (statusLines & axl::io::SerialStatusLine_Cts)
-			m_activeEvents |= SerialEvent_CtsOn;
-		else
-			m_activeEvents |= SerialEvent_CtsOff;
-
-		if (statusLines & axl::io::SerialStatusLine_Dsr)
-			m_activeEvents |= SerialEvent_DsrOn;
-		else
-			m_activeEvents |= SerialEvent_DsrOff;
-
-		if (statusLines & axl::io::SerialStatusLine_Dcd)
-			m_activeEvents |= SerialEvent_DcdOn;
-		else
-			m_activeEvents |= SerialEvent_DcdOff;
-
-		if (statusLines & axl::io::SerialStatusLine_Ring)
-			m_activeEvents |= SerialEvent_RingOn;
-		else
-			m_activeEvents |= SerialEvent_RingOff;
-
 		readBlock.setCount(m_readBlockSize); // update read block size
 
 		while (canReadSerial && !m_readBuffer.isFull()) {
