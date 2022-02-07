@@ -335,7 +335,7 @@ ControlFlowMgr::reSwitchStmt_Finalize(ReSwitchStmt* stmt) {
 		conditionalJump(cmpResultValue, matchBlock, defaultBlock, matchBlock) &&
 		m_module->m_operatorMgr.memberOperator(
 			stmt->m_regexStateValue,
-			"m_matchSwitchCaseId",
+			"m_matchAcceptId",
 			&caseIdValue
 		) &&
 		m_module->m_operatorMgr.getProperty(&caseIdValue);
