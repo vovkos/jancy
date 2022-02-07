@@ -38,9 +38,9 @@ OperatorMgr::getField(
 		return getDynamicField(opValue, (DerivableType*)type, field, resultValue);
 	}
 
-	 bool result = type->ensureLayout();
-	 if (!result)
-		 return false;
+	bool result = type->ensureLayout();
+	if (!result)
+		return false;
 
 	TypeKind typeKind = type->getTypeKind();
 	switch (typeKind) {

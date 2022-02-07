@@ -128,6 +128,7 @@ ArrayType::calcLayoutImpl(
 		ASSERT(m_parentUnit && m_parentNamespace);
 
 		Unit* prevUnit = m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
+		Value prevThisValue = m_module->m_functionMgr.overrideThisValue(Value());
 		m_module->m_namespaceMgr.openNamespace(m_parentNamespace);
 
 		int64_t value = 0;
@@ -135,6 +136,7 @@ ArrayType::calcLayoutImpl(
 		if (!dynamicStruct) {
 			result = m_module->m_operatorMgr.parseConstIntegerExpression(m_elementCountInitializer, &value);
 			m_module->m_namespaceMgr.closeNamespace();
+			m_module->m_functionMgr.overrideThisValue(prevThisValue);
 			m_module->m_unitMgr.setCurrentUnit(prevUnit);
 
 			if (!result)
@@ -147,6 +149,7 @@ ArrayType::calcLayoutImpl(
 			m_module->leaveTryCompile();
 
 			m_module->m_namespaceMgr.closeNamespace();
+			m_module->m_functionMgr.overrideThisValue(prevThisValue);
 			m_module->m_unitMgr.setCurrentUnit(prevUnit);
 
 			if (!result) { // nope, create a runtime function...
