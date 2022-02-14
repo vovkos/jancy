@@ -431,18 +431,13 @@ SshChannel::sshConnectLoop() {
 
 			m_socket.close();
 
-			result = m_socket.open(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+			result = m_localAddress.m_family ?
+				SocketBase::open(m_localAddress.m_family, IPPROTO_TCP, &m_localAddress) :
+				SocketBase::open(m_remoteAddress.m_family, IPPROTO_TCP, NULL);
+
 			if (!result) {
 				setIoErrorEvent(err::getLastError());
 				return false;
-			}
-
-			if (m_localAddress.m_family) {
-				result = m_socket.bind(m_localAddress.getSockAddr());
-				if (!result) {
-					setIoErrorEvent(err::getLastError());
-					return false;
-				}
 			}
 
 			result = m_socket.connect(m_remoteAddress.getSockAddr());
