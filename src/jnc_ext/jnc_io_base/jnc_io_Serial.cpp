@@ -827,8 +827,8 @@ Serial::ioThreadFunc() {
 			if (actualSize == -1) {
 				if (errno == EAGAIN) {
 					canWriteSerial = false;
-				} else if (actualSize < 0) {
-					setIoErrorEvent_l(err::Errno((int)actualSize));
+				} else {
+					setIoErrorEvent_l(err::Errno(errno));
 					return;
 				}
 			} else if ((size_t)actualSize < blockSize) {
