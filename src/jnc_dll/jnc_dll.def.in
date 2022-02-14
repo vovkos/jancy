@@ -38,7 +38,6 @@ EXPORTS
 	jnc_CodeAssist_getNamespace
 	jnc_ModuleItemDecl_getAccessKind
 	jnc_ModuleItemDecl_getAttributeBlock
-	jnc_ModuleItemDecl_findAttribute
 	jnc_ModuleItemDecl_getCol
 	jnc_ModuleItemDecl_getLine
 	jnc_ModuleItemDecl_getName
@@ -46,6 +45,7 @@ EXPORTS
 	jnc_ModuleItemDecl_getParentUnit
 	jnc_ModuleItemDecl_getQualifiedName
 	jnc_ModuleItemDecl_getStorageKind
+	jnc_ModuleItemDecl_findAttribute
 	jnc_ModuleItem_getDecl
 	jnc_ModuleItem_getFlags
 	jnc_ModuleItem_getItemKind

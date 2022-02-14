@@ -31,6 +31,7 @@
 		jnc_ModuleItemDecl_getParentUnit;
 		jnc_ModuleItemDecl_getQualifiedName;
 		jnc_ModuleItemDecl_getStorageKind;
+		jnc_ModuleItemDecl_findAttribute;
 		jnc_ModuleItem_getDecl;
 		jnc_ModuleItem_getFlags;
 		jnc_ModuleItem_getItemKind;
@@ -42,6 +43,8 @@
 		jnc_getAccessKindString;
 		jnc_getModuleItemKindString;
 		jnc_getStorageKindString;
+		jnc_Attribute_getValueConstData;
+		jnc_Attribute_getValueString_v;
 		jnc_AttributeBlock_findAttribute;
 		jnc_AttributeBlock_getAttribute;
 		jnc_AttributeBlock_getAttributeCount;
