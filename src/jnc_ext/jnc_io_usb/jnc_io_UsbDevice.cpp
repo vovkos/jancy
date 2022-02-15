@@ -75,13 +75,7 @@ UsbDevice::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 void
 UsbDevice::removeInterface(UsbInterface* iface) {
 	m_lock.lock();
-
-	sl::ListLink* link = UsbInterface::GetParentLink()(iface);
-	if (link->getPrev() || link->getNext()) {
-		m_interfaceList.remove(iface);
-		*link = sl::g_nullListLink;
-	}
-
+	m_interfaceList.remove(iface);
 	m_lock.unlock();
 }
 
