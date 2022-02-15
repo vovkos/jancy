@@ -64,17 +64,10 @@ UsbInterface::removeEndpoint(UsbEndpoint* endpoint) {
 void
 JNC_CDECL
 UsbInterface::release() {
-	// we do force-release ifaces from UsbDevice::~UsbDevice
-	// therefore, we need to prevent multi-release
+	if (!m_isClaimed)
+		return;
 
 	m_lock.lock();
-	if (!m_isClaimed) {
-		m_lock.unlock();
-		return;
-	}
-
-	m_isClaimed = false;
-
 	while (!m_endpointList.isEmpty()) {
 		UsbEndpoint* endpoint = m_endpointList.removeHead();
 		sl::ListLink* link = UsbEndpoint::GetParentLink()(endpoint);
@@ -90,6 +83,7 @@ UsbInterface::release() {
 	UsbInterfaceDesc* interfaceDesc = (UsbInterfaceDesc*)m_interfaceDescPtr.m_p;
 	m_parentDevice->m_device.releaseInterface(interfaceDesc->m_interfaceId);
 	m_parentDevice->removeInterface(this);
+	m_isClaimed = false;
 }
 
 UsbEndpoint*

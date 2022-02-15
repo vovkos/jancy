@@ -79,16 +79,10 @@ UsbEndpoint::open(bool isSuspended) {
 void
 JNC_CDECL
 UsbEndpoint::close() {
-	// we do force-close endpoints from UsbInterface::~UsbInterface
-	// therefore, we need to prevent multi-close
+	if (!m_isOpen)
+		return;
 
 	m_lock.lock();
-	if (!m_isOpen) {
-		m_lock.unlock();
-		return;
-	}
-
-	m_isOpen = false;
 	m_ioThreadFlags |= IoThreadFlag_Closing;
 	wakeIoThread();
 	m_lock.unlock();
@@ -97,6 +91,13 @@ UsbEndpoint::close() {
 	gcHeap->enterWaitRegion();
 	m_ioThread.waitAndClose();
 	gcHeap->leaveWaitRegion();
+
+	// before exiting the IO thread we call cancelAllActiveTransfers()
+	ASSERT(m_activeTransferList.isEmpty() && m_completedTransferList.isEmpty());
+
+	// NON-OBVIOUS: on some backends, it's crucial to free libusb transfers before closing the USB device
+	// no need to lock before clearing -- there is no contention at this point
+	m_transferPool.clear();
 
 	m_parentInterface->removeEndpoint(this);
 	AsyncIoDevice::close();
@@ -181,7 +182,7 @@ UsbEndpoint::cancelAllActiveTransfers() {
 		m_lock.lock();
 	}
 
-	// put all completed transfer back to the free pool
+	// put all completed transfers back to the free pool
 
 	while (!m_completedTransferList.isEmpty()) {
 		Transfer* transfer = m_completedTransferList.removeHead();
