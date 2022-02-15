@@ -429,11 +429,9 @@ SshChannel::sshConnectLoop() {
 			prevUserName = m_connectParams->m_userName;
 			m_lock.unlock();
 
-			m_socket.close();
-
 			result = m_localAddress.m_family ?
-				SocketBase::open(m_localAddress.m_family, IPPROTO_TCP, &m_localAddress) :
-				SocketBase::open(m_remoteAddress.m_family, IPPROTO_TCP, NULL);
+				SocketBase::openSocket(m_family, IPPROTO_TCP, &m_localAddress) :
+				SocketBase::openSocket(m_family, IPPROTO_TCP, NULL);
 
 			if (!result) {
 				setIoErrorEvent(err::getLastError());

@@ -130,24 +130,17 @@ SocketBase::checkAccess(
 }
 
 bool
-SocketBase::open(
+SocketBase::openSocket(
 	uint16_t family_jnc,
 	int protocol,
 	const SocketAddress* address
 ) {
 	bool result;
 
-	close();
-
-	if (!checkAccess(family_jnc, protocol))
-		return false;
-
 	int family_s = family_jnc == AddressFamily_Ip6 ? AF_INET6 : family_jnc;
 	int socketKind =
 		protocol == IPPROTO_TCP ? SOCK_STREAM :
 		protocol == IPPROTO_RAW ? SOCK_RAW : SOCK_DGRAM;
-
-
 
 #if (_AXL_OS_WIN)
 	result = m_socket.m_socket.wsaOpen(family_s, socketKind, protocol, WSA_FLAG_OVERLAPPED);
@@ -208,7 +201,23 @@ SocketBase::open(
 			return false;
 	}
 
-	AsyncIoDevice::open();
+	return true;
+}
+
+bool
+SocketBase::open(
+	uint16_t family_jnc,
+	int protocol,
+	const SocketAddress* address
+) {
+	close();
+
+	if (!checkAccess(family_jnc, protocol))
+		return false;
+
+	bool result = openSocket(family_jnc, protocol, address);
+	if (!result)
+		return false;
 
 	m_family = family_jnc;
 
@@ -217,6 +226,7 @@ SocketBase::open(
 		m_options |= AsyncIoDeviceOption_KeepReadWriteBlockSize;
 	}
 
+	AsyncIoDevice::open();
 	return true;
 }
 

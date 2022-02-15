@@ -78,6 +78,13 @@ protected:
 	);
 
 	bool
+	openSocket(
+		uint16_t family,
+		int protocol,
+		const SocketAddress* address
+	);
+
+	bool
 	open(
 		uint16_t family,
 		int protocol,
