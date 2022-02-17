@@ -106,6 +106,10 @@ RegexMatch::getText(RegexMatch* self) {
 
 //..............................................................................
 
+RegexState::RegexState() {
+	m_runtime = getCurrentThreadRuntime();
+}
+
 RegexState::RegexState(
 	uint_t execFlags,
 	size_t offset

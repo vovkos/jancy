@@ -64,7 +64,7 @@ protected:
 	sl::Array<RegexMatch*> m_captureArray;
 
 public:
-	RegexState() {}
+	RegexState();
 
 	RegexState(
 		uint_t execFlags,
