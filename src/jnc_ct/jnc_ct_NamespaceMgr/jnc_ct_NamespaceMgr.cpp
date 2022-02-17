@@ -139,6 +139,8 @@ NamespaceMgr::addStdItems() {
 		jncNspace->addItem("resetDynamicLayout", dataPtrImport) &&
 		jncNspace->addItem("Scheduler", schedulerImport) &&
 		jncNspace->addItem("RegexMatch", regexImport) &&
+		jncNspace->addItem("RegexExecFlags", regexImport) &&
+		jncNspace->addItem("RegexExecResult", regexImport) &&
 		jncNspace->addItem("RegexState", regexImport) &&
 		jncNspace->addItem("Regex", regexImport) &&
 		jncNspace->addItem("Promise", promiseImport) &&
