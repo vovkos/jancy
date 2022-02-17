@@ -11,20 +11,22 @@ int main() {
 
 	printf("matching\n");
 
-	char const* text = "\x02ab123cdef45678\xff";
+	char const* text = "\x02zab123cdef45678!";
 
 	jnc.RegexExecResult result;
 	jnc.RegexState state(jnc.RegexExecFlags.AnchorDataBegin | jnc.RegexExecFlags.Stream);
 
-	result = regex.exec(state, text);
-	printf("regex result: %d\n", result);
+	result = regex.exec(state, text);	
+	assert(result == jnc.RegexExecResult.Continue);
 
-	result = regex.eof(state);
-	printf("regex result: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
+	result = regex.eof(state, true);
+	assert(result == jnc.RegexExecResult.Match);
+	printf("match id: %d, offset: %d, length: %d, text: %s\n", state.m_matchAcceptId, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
 
 	for (size_t i = 0; i < 5; i++) {
 		result = regex.exec(state, text + state.m_match.m_endOffset);
-		printf("regex result: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
+		assert(result == jnc.RegexExecResult.Match); // eof shouldn't be required here
+		printf("match id: %d, offset: %d, length: %d, text: %s\n", state.m_matchAcceptId, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
 	}
 
 	return 0;

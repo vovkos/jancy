@@ -27,17 +27,23 @@ int main() {
 
 	jnc.RegexState state(jnc.RegexExecFlags.AnchorDataBegin | jnc.RegexExecFlags.Stream);
 
-	char const* stream = " foo bar 100 baz";
+	char const* stream = " foo bar 123";
 	char const* p = stream;
 	char const* end = p + strlen(p);
 
 	enum {
-		ChunkSize = 1 // feed data to the regex byte-by-byte
+		ChunkSize = 1 // feed data to the regex byte-by-byte for demonstration purposes
 	}
 
-	while (p < end) {
-		size_t leftover = end - p;
-		size_t chunkSize = ChunkSize < leftover ? ChunkSize : leftover;
+	while (p <= end) {
+		size_t chunkSize;
+		
+		if (p == end) {
+			chunkSize = jnc.RegexEof; // use a special value as EOF token
+		} else {
+			size_t leftover = end - p;
+			chunkSize = ChunkSize < leftover ? ChunkSize : leftover;
+		}
 
 		reswitch (state, p, chunkSize) { 
 		case "foo":
@@ -77,6 +83,9 @@ int main() {
 		case jnc.RegexExecResult.ContinueBackward:
 			assert(false); // shouldn't happen since we use jnc.RegexExecFlags.AnchorDataBegin
 		}
+
+		if (chunkSize == jnc.RegexEof)
+			break;
 	}
 
 	return 0;

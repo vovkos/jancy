@@ -13,21 +13,20 @@ int main() {
 	jnc.RegexState state(jnc.RegexExecFlags.AnchorDataBegin | jnc.RegexExecFlags.Stream, 1000);
 
 	result = try regex.exec(state, "\x2e123456\x2e");
-	printf("regex result: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
-	assert(result == jnc.RegexExecResult.Match && state.m_matchSwitchCaseId == 1 && state.m_match.m_length == 1);
+	assert(result == jnc.RegexExecResult.Match && state.m_matchAcceptId == 1 && state.m_match.m_length == 1);
+	printf("match id: %d, offset: %d, length: %d, text: %s\n", state.m_matchAcceptId, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
 
 	result = try regex.exec(state, "123456");
-	printf("regex result: %d\n", result);
 	assert(result == jnc.RegexExecResult.Continue);
 
 	result = try regex.exec(state, "\x2e");
-	printf("regex result: %d, match offset: %d, match length: %d\n", result, state.m_match.m_offset, state.m_match.m_length);
-	assert(result == jnc.RegexExecResult.MatchOffsetsOnly && state.m_matchSwitchCaseId == 0 && state.m_match.m_length == 6);
+	assert(result == jnc.RegexExecResult.MatchOffsetsOnly && state.m_matchAcceptId == 0 && state.m_match.m_length == 6);
+	printf("match id: %d, offset: %d, length: %d\n", state.m_matchAcceptId, state.m_match.m_offset, state.m_match.m_length);
 
-	result = try regex.exec(state, "123456");
-	result = try regex.eof(state);
-	printf("regex result: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
-	assert(result == jnc.RegexExecResult.Match && state.m_matchSwitchCaseId == 0 && state.m_match.m_length == 6);
+	result = try regex.exec(state, "123");
+	result = try regex.eof(state, true);
+	assert(result == jnc.RegexExecResult.Match && state.m_matchAcceptId == 0 && state.m_match.m_length == 3);
+	printf("match id: %d, offset: %d, length: %d, text: %s\n", state.m_matchAcceptId, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
 
 	return 0;
 

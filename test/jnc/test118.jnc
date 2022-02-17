@@ -24,6 +24,14 @@ void scanStream(
 
 			// ignore the rest
 			break;
+
+		default:
+			if (!state.m_lastExecResult)
+				printf("mismatch\n");
+
+			assert(state.m_lastExecResult == jnc.RegexExecResult.Continue);
+			printf("incomplete match\n");
+			break2;
 		}
 
 		p += state.m_match.m_length;
@@ -34,7 +42,7 @@ void scanStream(
 int main() {
 	jnc.RegexState state(jnc.RegexExecFlags.AnchorDataBegin | jnc.RegexExecFlags.Stream);
 
-	scanStream(state, "abc123d");
+	scanStream(state, "abc123def456");
 
 	return 0;
 }
