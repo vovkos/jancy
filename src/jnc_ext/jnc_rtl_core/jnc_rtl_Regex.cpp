@@ -59,6 +59,8 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(RegexState)
 	JNC_MAP_CONST_PROPERTY("m_captureArray", &RegexState::getCapture)
 	JNC_MAP_CONST_PROPERTY("m_groupArray", &RegexState::getGroup)
 	JNC_MAP_FUNCTION("initialize", &RegexState::initialize)
+	JNC_MAP_FUNCTION("reset", &RegexState::reset)
+	JNC_MAP_FUNCTION("resume", &RegexState::resume)
 JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -196,7 +198,7 @@ Regex::compile(
 	);
 }
 
-size_t
+bool
 JNC_CDECL
 Regex::compileSwitchCase(
 	uint_t flags,

@@ -220,11 +220,12 @@ ControlFlowMgr::reSwitchStmt_Case(
 	follow(block);
 	m_module->m_namespaceMgr.openScope(pos);
 
-	size_t result = stmt->m_regex.compileSwitchCase(regexSource);
-	if (result == -1)
+	bool result = stmt->m_regex.compileSwitchCase(regexSource);
+	if (!result)
 		return false;
 
-	stmt->m_caseMap[result] = block;
+	size_t caseId = stmt->m_caseMap.getCount();
+	stmt->m_caseMap[caseId] = block;
 	return true;
 }
 

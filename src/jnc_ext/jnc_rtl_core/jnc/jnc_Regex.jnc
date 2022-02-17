@@ -36,6 +36,8 @@ size_t RegexMatch.m_length.get() const {
 
 bitflag enum RegexExecFlags {
 	Stream,          // feed data chunk-by-chunk, then call jnc.Regex.eof()
+	Reverse,         // run the reverse DFA to find the beginning of the match
+	DisableReverse,  // don't run the reverse DFA to find beginnings of matches
 	DisableCapture,  // don't capture sub-matches
 	AnchorDataBegin, // match must start on the first byte of data
 	AnchorDataEnd,   // match must end on the last byte of data
@@ -77,6 +79,9 @@ opaque class RegexState {
 		RegexExecFlags execFlags = 0,
 		size_t offset = 0
 	);
+
+	void reset(size_t offset = 0);
+	void resume();
 }
 
 //..............................................................................
@@ -94,6 +99,12 @@ enum RegexKind {
 	Single,
 	Switch,
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum {
+	RegexEof = -2
+}
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -131,13 +142,13 @@ opaque class Regex {
 
 	void createSwitch();
 
-	size_t errorcode compileSwitchCase(
+	bool errorcode compileSwitchCase(
 		uint_t flags,
 		char const* source,
 		size_t length = -1
 	);
 
-	size_t errorcode compileSwitchCase(
+	bool errorcode compileSwitchCase(
 		char const* source,
 		size_t length = -1
 	) {
@@ -169,7 +180,10 @@ opaque class Regex {
 		return exec(0, p, length);
 	}
 
-	RegexExecResult eof(RegexState* state);
+	RegexExecResult eof(
+		RegexState* state,
+		bool isLastExecDataAvailable
+	);
 }
 
 //..............................................................................

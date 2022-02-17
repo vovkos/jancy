@@ -119,6 +119,18 @@ public:
 		uint_t execFlags,
 		size_t offset
 	);
+
+	void
+	JNC_CDECL
+	reset(size_t offset) {
+		m_state.reset(offset);
+	}
+
+	void
+	JNC_CDECL
+	resume() {
+		m_state.resume();
+	}
 };
 
 //..............................................................................
@@ -161,7 +173,7 @@ public:
 		m_regex.createSwitch();
 	}
 
-	size_t
+	bool
 	JNC_CDECL
 	compileSwitchCase(
 		uint_t flags,
@@ -185,8 +197,11 @@ public:
 
 	re::ExecResult
 	JNC_CDECL
-	eof(RegexState* state) {
-		return m_regex.eof(&state->m_state);
+	eof(
+		RegexState* state,
+		bool isLastExecDataAvailable
+	) {
+		return m_regex.eof(&state->m_state, isLastExecDataAvailable);
 	}
 };
 
