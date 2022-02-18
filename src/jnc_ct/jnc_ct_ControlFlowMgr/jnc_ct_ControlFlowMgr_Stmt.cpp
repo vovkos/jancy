@@ -164,6 +164,7 @@ ControlFlowMgr::reSwitchStmt_Create(ReSwitchStmt* stmt) {
 	stmt->m_switchBlock = NULL;
 	stmt->m_defaultBlock = NULL;
 	stmt->m_followBlock = createBlock("reswitch_follow");
+	stmt->m_regex.createSwitch();
 }
 
 bool
