@@ -118,18 +118,30 @@ public:
 	initialize(
 		uint_t execFlags,
 		size_t offset
-	);
+	) {
+		clearCache();
+		m_state.initialize(re::StateInit(execFlags, offset));
+	}
 
 	void
 	JNC_CDECL
 	reset(size_t offset) {
+		clearCache();
 		m_state.reset(offset);
 	}
 
 	void
 	JNC_CDECL
 	resume() {
+		clearCache();
 		m_state.resume();
+	}
+
+protected:
+	void
+	clearCache() {
+		m_match = NULL;
+		m_captureArray.clear();
 	}
 };
 
@@ -200,9 +212,7 @@ public:
 	eof(
 		RegexState* state,
 		bool isLastExecDataAvailable
-	) {
-		return m_regex.eof(&state->m_state, isLastExecDataAvailable);
-	}
+	);
 };
 
 //..............................................................................

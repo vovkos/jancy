@@ -166,17 +166,6 @@ RegexState::getCapture(size_t i) {
 	return matchObject;
 }
 
-void
-JNC_CDECL
-RegexState::initialize(
-	uint_t execFlags,
-	size_t offset
-) {
-	m_state.initialize(execFlags);
-	m_match = NULL;
-	m_captureArray.clear();
-}
-
 //..............................................................................
 
 size_t
@@ -224,12 +213,22 @@ Regex::exec(
 	RegexState* state,
 	DataPtr ptr,
 	size_t length
+)  {
+	if (length == -1)
+		length = strLen(ptr);
+
+	state->clearCache();
+	return m_regex.exec(&state->m_state, ptr.m_p, length);
+}
+
+re::ExecResult
+JNC_CDECL
+Regex::eof(
+	RegexState* state,
+	bool isLastExecDataAvailable
 ) {
-	return m_regex.exec(
-		&state->m_state,
-		ptr.m_p,
-		length == -1 ? strLen(ptr) : length
-	);
+	state->clearCache();
+	return m_regex.eof(&state->m_state, isLastExecDataAvailable);
 }
 
 //..............................................................................
