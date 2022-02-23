@@ -214,6 +214,8 @@ extern "C" int64_t __moddi3(int64_t, int64_t);
 extern "C" uint64_t __udivdi3(uint64_t, uint64_t);
 extern "C" uint64_t __umoddi3(uint64_t, uint64_t);
 #		if (_JNC_CPU_ARM32)
+extern "C" int32_t __modsi3(int32_t, int32_t);
+extern "C" uint32_t __umodsi3(uint32_t, uint32_t);
 struct DivModRetVal {
 	uint64_t m_quotient;
 	uint64_t m_remainder;
@@ -300,6 +302,8 @@ Module::createLlvmExecutionEngine() {
 		m_functionMap["__udivdi3"] = (void*)__udivdi3;
 		m_functionMap["__umoddi3"] = (void*)__umoddi3;
 #		if (_JNC_CPU_ARM32)
+		m_functionMap["__modsi3"] = (void*)__modsi3;
+		m_functionMap["__umodsi3"] = (void*)__umodsi3;
 		m_functionMap["__aeabi_idiv"] = (void*)__aeabi_idiv;
 		m_functionMap["__aeabi_uidiv"] = (void*)__aeabi_uidiv;
 		m_functionMap["__aeabi_ldivmod"] = (void*)__aeabi_ldivmod;
