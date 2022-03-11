@@ -37,6 +37,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(SslSocket)
 	JNC_MAP_AUTOGET_PROPERTY("m_readBufferSize", &SslSocket::setReadBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_writeBufferSize", &SslSocket::setWriteBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_options", &SslSocket::setOptions)
+	JNC_MAP_PROPERTY("m_hostname", &SslSocket::getHostname, &SslSocket::setHostname)
 
 	JNC_MAP_FUNCTION("open", &SslSocket::open_0)
 	JNC_MAP_OVERLOAD(&SslSocket::open_1)

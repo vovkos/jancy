@@ -113,6 +113,21 @@ public:
 		return SocketBase::setOptions(flags);
 	}
 
+	static
+	DataPtr
+	JNC_CDECL
+	getHostname(SslSocket* self) {
+		ASSERT(self->m_ssl);
+		return strDup(self->m_ssl.getHostname());
+	}
+
+	void
+	JNC_CDECL
+	setHostname(DataPtr hostnamePtr) {
+		ASSERT(m_ssl);
+		m_ssl.setHostname((const char*)hostnamePtr.m_p);
+	}
+
 	bool
 	JNC_CDECL
 	open_0(uint16_t family);

@@ -36,6 +36,7 @@ opaque class SslSocket: SslState {
 	size_t autoget property m_readBufferSize;
 	size_t autoget property m_writeBufferSize;
 	SocketOptions autoget property m_options;
+	char const* property m_hostname;
 
 	io.SslSocketEvents readonly volatile m_activeEvents;
 	std.Error const* readonly volatile m_ioError;
