@@ -375,7 +375,7 @@ LlvmDiBuilder::createDeclare(Variable* variable) {
 	llvm::Instruction* llvmInstruction = m_llvmDiBuilder->insertDeclare(
 		variable->getLlvmValue(),
 		variable->getLlvmDiDescriptor(),
-#	if (LLVM_VERSION == 0x030600)
+#	if (LLVM_VERSION >= 0x030600)
 		m_llvmDiBuilder->createExpression(),
 #	endif
 		block->getLlvmBlock()
