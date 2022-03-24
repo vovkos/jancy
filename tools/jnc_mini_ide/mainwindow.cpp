@@ -554,7 +554,7 @@ bool MainWindow::compile() {
 
 	if (m_optimizeAction->isChecked()) {
 		writeOutput("Optimizing...\n");
-		result = m_module->optimize(1);
+		result = m_module->optimize();
 		if (!result) {
 			writeOutput("%s\n", jnc::getLastErrorDescription_v());
 			return false;
