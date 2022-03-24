@@ -17,8 +17,8 @@ bool errorcode scanPacket(
 ) {
 	char const* p = buffer + from;
 	char const* end = buffer + to;
-
-	printf("scanning %s\n", strdup(p, end - p));
+	
+	printf("scanning %s\n", to - from == jnc.RegexEof ? "<eof>" : strdup(p, end - p));
 
 	do {
 		reswitch (state, p, end - p) {
@@ -38,12 +38,13 @@ bool errorcode scanPacket(
 			break;
 
 		default:
-			assert(
-				state.m_lastExecResult == jnc.RegexExecResult.NoMatch ||
-				state.m_lastExecResult == jnc.RegexExecResult.Continue
-			);
-			
-			return state.m_lastExecResult;
+			if (state.m_lastExecResult == jnc.RegexExecResult.NoMatch) {
+				std.setError("mismatch!");
+				return false;
+			}
+
+			assert(state.m_lastExecResult == jnc.RegexExecResult.Continue);	
+			return true;
 		}
 
 		p = buffer + state.m_match.m_endOffset;
@@ -70,17 +71,19 @@ int main() {
 		l = 10;
 
 		printf("the following will fail ('close' has no [\\r\\n]\n");
-		scanPacket(state, null, 0, 0); // simulate eof
+		scanPacket(state, null, 0, jnc.RegexEof); // simulate eof
+
+		l = 5;
+		printf("*** shouldn't get here\n");
 		assert(false); // shouldn't get here
 
 	catch:
 		printf("recognition error: %s\n", std.getLastErrorDescription());
 		assert(l == 10);
-		return 0;
 	}
 
-	printf("*** shouldn't get here\n");
-	return -1;
+	assert(l == 10);
+	return 0;
 }
 
 //..............................................................................
