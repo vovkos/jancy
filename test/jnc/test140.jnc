@@ -1,0 +1,28 @@
+// -O1/-O2/-O3 in llvm-6+ generate invalid code for Jancy EH (hand-rolled SJLJ); 
+// fix: disable optimizations for functions with landing pads until we port
+// Jancy EH from hand-rolled SJLJ to LLVM built-in EH facilities
+
+//..............................................................................
+
+void foo() {
+	throw;
+}
+
+int main() {
+	int a = 5;
+
+	try {
+		a = 10;
+		foo();
+
+	catch:
+		printf("catch: a = %d\n", a);
+		assert(a == 10);
+	}
+
+	printf("return: a = %d\n", a);
+	return 0;
+}
+
+//..............................................................................
+ 

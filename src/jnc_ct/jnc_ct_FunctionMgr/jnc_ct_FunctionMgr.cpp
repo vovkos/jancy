@@ -831,6 +831,7 @@ FunctionMgr::getStdFunction(StdFunc func) {
 		argTypeArray[0] = m_module->m_typeMgr.getStdType(StdType_SjljFrame)->getDataPtrType_c();
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 1);
 		function = createInternalFunction("jnc.setJmp", functionType);
+		function->getLlvmFunction()->addFnAttr(llvm::Attribute::ReturnsTwice);
 		break;
 
 	case StdFunc_SaveSignalInfo:
@@ -844,6 +845,7 @@ FunctionMgr::getStdFunction(StdFunc func) {
 		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Void);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, NULL, 0);
 		function = createInternalFunction("jnc.dynamicThrow", functionType);
+		function->getLlvmFunction()->addFnAttr(llvm::Attribute::NoReturn);
 		break;
 
 	case StdFunc_AsyncRet:

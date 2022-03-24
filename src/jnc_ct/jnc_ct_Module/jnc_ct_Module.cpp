@@ -805,23 +805,32 @@ Module::optimize(uint_t level) {
 	llvm::PassManagerBuilder passManagerBuilder;
 	passManagerBuilder.OptLevel = level;
 	passManagerBuilder.SizeLevel = 0;
-	passManagerBuilder.Inliner = llvm::createFunctionInliningPass();
 
-	llvm::legacy::PassManager llvmModulePassMgr;
 	llvm::legacy::FunctionPassManager llvmFunctionPassMgr(m_llvmModule);
-	passManagerBuilder.populateModulePassManager(llvmModulePassMgr);
 	passManagerBuilder.populateFunctionPassManager(llvmFunctionPassMgr);
-
-	llvmModulePassMgr.run(*m_llvmModule);
-
 	llvmFunctionPassMgr.doInitialization();
 
 	it = m_functionMgr.m_functionList.getHead();
 	for (; it; it++)
-		if (!it->isEmpty())
-			llvmFunctionPassMgr.run(*it->getLlvmFunction());
+		if (!it->isEmpty()) {
+			llvm::Function* llvmFunction = it->getLlvmFunction();
+			if (!llvmFunction->hasFnAttribute(llvm::Attribute::OptimizeNone))
+				llvmFunctionPassMgr.run(*llvmFunction);
+		}
 
 	llvmFunctionPassMgr.doFinalization();
+
+	passManagerBuilder.Inliner = llvm::createFunctionInliningPass();
+
+	// llvm-3.x.x ignore Attribute::OptimizeNone in module pass manager
+#if (LLVM_VERSION < 0x040000)
+	passManagerBuilder.OptLevel = 0;
+#endif
+
+	llvm::legacy::PassManager llvmModulePassMgr;
+	passManagerBuilder.populateModulePassManager(llvmModulePassMgr);
+	llvmModulePassMgr.run(*m_llvmModule);
+
 	return true;
 }
 

@@ -78,8 +78,17 @@ ControlFlowMgr::unlockEmission() {
 
 void
 ControlFlowMgr::finalizeFunction() {
-	if (m_sjljFrameArrayValue && m_module->hasCodeGen())
+	if (m_sjljFrameArrayValue && m_module->hasCodeGen()) {
+		// the EH in Jancy is hand-rolled SJLJ (with no use of the LLVM EH facilities)
+		// LLVM optimizer respects LandingPad instructions; otherwise, generates broken code
+		// fix: disable optimizations in functions with landing pads (until redesign of the Jancy EH)
+
+		llvm::Function* llvmFunction = m_module->m_functionMgr.getCurrentFunction()->getLlvmFunction();
+		llvmFunction->addFnAttr(llvm::Attribute::NoInline);
+		llvmFunction->addFnAttr(llvm::Attribute::OptimizeNone);
+
 		finalizeSjljFrameArray();
+	}
 
 	m_asyncBlockArray.clear();
 	m_returnBlockArray.clear();
