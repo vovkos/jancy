@@ -564,12 +564,7 @@ jnc_longJmp(
 #	elif (_JNC_CPU_AMD64)
 #		undef jnc_setJmp
 
-int
-jnc_setJmp(jmp_buf jmpBuf) {
-	ASSERT(false);
-	return 0;
-}
-
+/*
 void
 jnc_longJmp(
 	jmp_buf jmpBuf,
@@ -579,6 +574,7 @@ jnc_longJmp(
 	buffer->Frame = 0;
 	longjmp(jmpBuf, retVal);
 }
+*/
 
 #	endif
 #endif

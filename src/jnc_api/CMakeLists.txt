@@ -91,11 +91,38 @@ set(
 	jnc_DynamicExtensionLibHost.cpp
 )
 
+# since MSVC16 2019, we can't take address of pure intrinsic `setjmp` 
+# hence, compile our own implementation (based on the reactos)
+# alas, simple `enable_language(ASM_NASM)` doesn't cut it :(
+# it seems like NASM support in CMake is half-baked (still)...
+
+if (WIN32 AND ${CMAKE_SIZEOF_VOID_P} EQUAL 8)
+	set(SETJMP_ASM jnc_setJmp_msc_amd64.asm)
+	set(SETJMP_OBJ ${CMAKE_CURRENT_BINARY_DIR}/${SETJMP_ASM}.obj)
+	set(LIB_ASM_LIST ${SETJMP_ASM})
+	set(LIB_OBJ_LIST ${SETJMP_OBJ})
+
+	axl_exclude_from_build(${LIB_ASM_LIST})
+
+	add_custom_command(
+		OUTPUT ${SETJMP_OBJ}
+		COMMAND
+			echo Assembling ${SETJMP_ASM}...
+		COMMAND
+			nasm
+			-f win64
+			-o ${SETJMP_OBJ}
+			${CMAKE_CURRENT_LIST_DIR}/${SETJMP_ASM}
+		)
+endif()
+
 source_group(
 	lib
 	FILES
 	${LIB_H_LIST}
 	${LIB_STATIC_CPP_LIST}
+	${LIB_ASM_LIST}
+	${LIB_OBJ_LIST}
 )
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -144,6 +171,8 @@ add_library(
 	${PCH_STATIC_CPP}
 	${LIB_H_LIST}
 	${LIB_STATIC_CPP_LIST}
+	${LIB_ASM_LIST}
+	${LIB_OBJ_LIST}
 )
 
 axl_set_pch(
@@ -186,6 +215,8 @@ add_library(
 	${PCH_DYNAMIC_CPP}
 	${LIB_H_LIST}
 	${LIB_DYNAMIC_CPP_LIST}
+	${LIB_ASM_LIST}
+	${LIB_OBJ_LIST}
 )
 
 target_compile_definitions(
