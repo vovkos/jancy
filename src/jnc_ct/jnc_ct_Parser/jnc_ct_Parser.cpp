@@ -269,13 +269,13 @@ Parser::parseTokenList(
 		}
 
 		if (result)
-			parseEofToken(lastTokenPos, lastTokenPos.m_length); // might trigger actions
+			result = parseEofToken(lastTokenPos, lastTokenPos.m_length); // might trigger actions
 
 		if (!m_module->m_codeAssistMgr.getCodeAssist() &&
 			m_module->m_codeAssistMgr.hasArgumentTipStack())
 			m_module->m_codeAssistMgr.createArgumentTipFromStack();
 
-		return true;
+		return result;
 	}
 }
 
