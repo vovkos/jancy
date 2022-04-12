@@ -269,8 +269,10 @@ FunctionMgr::epilogue() {
 
 	Function* function = m_currentFunction;
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
-
-	ASSERT(m_currentFunction && scope);
+	if (!scope || !(scope->m_flags & ScopeFlag_Function)) {
+		err::setError("invalid scope structure due to previous errors");
+		return false;
+	}
 
 	if (function->m_functionKind == FunctionKind_Destructor &&
 		function->m_storageKind == StorageKind_Member) {
