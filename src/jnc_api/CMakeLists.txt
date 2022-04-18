@@ -165,6 +165,10 @@ include_directories(
 	${JANCY_SRC_DIR}/jnc_ext/jnc_std
 )
 
+if(LINUX)
+	include_directories(${OPENSSL_INC_DIR})
+endif()
+
 add_library(
 	jnc_api_core
 	${PCH_H_LIST}

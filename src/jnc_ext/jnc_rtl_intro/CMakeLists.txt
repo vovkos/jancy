@@ -169,6 +169,10 @@ include_directories(
 	${GEN_DIR}
 )
 
+if(LINUX)
+	include_directories(${OPENSSL_INC_DIR})
+endif()
+
 add_library(
 	jnc_rtl_intro
 	${PCH_H}
