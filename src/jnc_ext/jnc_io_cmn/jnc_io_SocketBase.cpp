@@ -212,13 +212,14 @@ SocketBase::open(
 ) {
 	close();
 
-	if (!checkAccess(family_jnc, protocol))
-		return false;
+	bool result =
+		checkAccess(family_jnc, protocol) &&
+		openSocket(family_jnc, protocol, address);
 
-	bool result = openSocket(family_jnc, protocol, address);
 	if (!result)
 		return false;
 
+	AsyncIoDevice::open();
 	m_family = family_jnc;
 
 	if (protocol != IPPROTO_TCP) {
@@ -226,7 +227,6 @@ SocketBase::open(
 		m_options |= AsyncIoDeviceOption_KeepReadWriteBlockSize;
 	}
 
-	AsyncIoDevice::open();
 	return true;
 }
 
