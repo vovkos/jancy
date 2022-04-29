@@ -105,11 +105,18 @@ ImportMgr::findImportFile(
 	const sl::StringRef& fileName,
 	sl::String* filePath_o
 ) {
-	Unit* unit = m_module->m_unitMgr.getCurrentUnit();
+	sl::StringRef filePath;
 
-	sl::String filePath = unit ?
-		io::findFilePath(fileName, unit->getDir(), &m_importDirList, false) :
-		io::findFilePath(fileName, &m_importDirList, false);
+	if (io::isAbsolutePath(fileName)) {
+		if (io::doesFileExist(fileName))
+			filePath = fileName;
+	} else {
+		Unit* unit = m_module->m_unitMgr.getCurrentUnit();
+
+		filePath = unit ?
+			io::findFilePath(fileName, unit->getDir(), &m_importDirList, false) :
+			io::findFilePath(fileName, &m_importDirList, false);
+	}
 
 	if (filePath.isEmpty()) {
 		err::setFormatStringError("import '%s' not found", fileName.sz());
