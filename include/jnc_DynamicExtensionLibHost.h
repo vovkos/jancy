@@ -1151,6 +1151,15 @@ jnc_Module_AddImportFunc(
 
 typedef
 void
+jnc_Module_AddSourceImportFunc(
+	jnc_Module* module,
+	const char* fileName,
+	const char* source,
+	size_t length
+);
+
+typedef
+void
 jnc_Module_AddOpaqueClassTypeInfoFunc(
 	jnc_Module* module,
 	const char* qualifiedName,
@@ -1233,6 +1242,7 @@ struct jnc_ModuleFuncTable {
 	jnc_Module_GetNextImportDirFunc* m_getNextImportDirFunc;
 	jnc_Module_AddImportDirFunc* m_addImportDirFunc;
 	jnc_Module_AddImportFunc* m_addImportFunc;
+	jnc_Module_AddSourceImportFunc* m_addSourceImportFunc;
 	jnc_Module_AddOpaqueClassTypeInfoFunc* m_addOpaqueClassTypeInfoFunc;
 	jnc_Module_AddStaticLibFunc* m_addStaticLibFunc;
 	jnc_Module_RequireFunc* m_requireFunc;

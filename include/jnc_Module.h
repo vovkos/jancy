@@ -305,6 +305,15 @@ jnc_Module_addImport(
 
 JNC_EXTERN_C
 void
+jnc_Module_addSourceImport(
+	jnc_Module* module,
+	const char* fileName,
+	const char* source,
+	size_t length
+);
+
+JNC_EXTERN_C
+void
 jnc_Module_addIgnoredImport(
 	jnc_Module* module,
 	const char* fileName
@@ -563,6 +572,15 @@ struct jnc_Module {
 	bool
 	addImport(const char* fileName) {
 		return jnc_Module_addImport(this, fileName) != 0;
+	}
+
+	void
+	addSourceImport(
+		const char* fileName,
+		const char* source,
+		size_t length = -1
+	) {
+		jnc_Module_addSourceImport(this, fileName, source, length);
 	}
 
 	void

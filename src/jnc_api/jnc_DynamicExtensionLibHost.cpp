@@ -303,6 +303,7 @@ static jnc_ModuleFuncTable g_moduleFuncTable = {
 	jnc_Module_getNextImportDir,
 	jnc_Module_addImportDir,
 	jnc_Module_addImport,
+	jnc_Module_addSourceImport,
 	jnc_Module_addOpaqueClassTypeInfo,
 	jnc_Module_addStaticLib,
 	jnc_Module_require,
