@@ -165,6 +165,10 @@ struct jnc_Variant {
 		jnc_DataPtr m_dataPtr;
 		jnc_FunctionPtr m_functionPtr;
 		jnc_PropertyPtr m_propertyPtr;
+
+		struct {
+			char m_buffer[sizeof(void*) * 2];
+		} m_data;
 	} JNC_GCC_ALIGN(8);
 
 #if (JNC_PTR_SIZE == 4)
