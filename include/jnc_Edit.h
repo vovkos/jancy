@@ -81,6 +81,8 @@ public:
 	void setImportDirList(const QStringList& dirList);
 	QStringList importList();
 	void setImportList(const QStringList& importList);
+	QString extraSource();
+	void setExtraSource(const QString& source);
 
 	// selection/highlighth operations
 

@@ -78,6 +78,9 @@ CodeAssistThread::run() {
 	for (; it != m_importList.end(); it++)
 		m_module->addImport((*it).toUtf8().constData());
 
+	if (!m_extraSource.isEmpty())
+		m_module->addSourceImport(NULL, m_extraSource.cp(), m_extraSource.getLength());
+
 	m_module->generateCodeAssist(
 		m_codeAssistKind,
 		m_cacheModule,

@@ -447,6 +447,18 @@ Edit::setImportList(const QStringList& importList) {
 	d->m_importList = importList;
 }
 
+QString
+Edit::extraSource() {
+	Q_D(Edit);
+	return d->m_extraSource;
+}
+
+void
+Edit::setExtraSource(const QString& source) {
+	Q_D(Edit);
+	d->m_extraSource = source;
+}
+
 void
 Edit::setTextCursorLineCol(
 	int line,
@@ -878,9 +890,15 @@ EditPrivate::requestCodeAssist(
 	if (m_thread)
 		m_thread->cancel();
 
+
 	m_thread = new CodeAssistThread(this);
 	m_thread->m_importDirList = m_importDirList;
 	m_thread->m_importList = m_importList;
+
+	if (!m_extraSource.isEmpty()) {
+		QByteArray source = m_extraSource.toUtf8();
+		m_thread->m_extraSource = sl::String(source.constData(), source.length());
+	}
 
 	QObject::connect(
 		m_thread, SIGNAL(ready()),

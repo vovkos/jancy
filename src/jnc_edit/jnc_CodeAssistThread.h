@@ -28,6 +28,7 @@ protected:
 public:
 	QStringList m_importDirList;
 	QStringList m_importList;
+	sl::String m_extraSource;
 
 public:
 	CodeAssistThread(QObject* parent = NULL);
