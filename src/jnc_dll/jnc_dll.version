@@ -153,6 +153,7 @@
 		jnc_Module_addImportDir;
 		jnc_Module_addOpaqueClassTypeInfo;
 		jnc_Module_addSource;
+		jnc_Module_addSourceImport;
 		jnc_Module_addStaticLib;
 		jnc_Module_clear;
 		jnc_Module_compile;
