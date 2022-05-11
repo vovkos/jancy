@@ -143,7 +143,17 @@ jnc_Variant_format(
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+enum {
+	jnc_Variant_DataSize = sizeof(void*) * 2
+};
+
 struct jnc_Variant {
+#ifdef __cplusplus
+	enum {
+		DataSize = jnc_Variant_DataSize
+	};
+#endif
+
 	union {
 		/// \unnamed{union}
 		int8_t m_int8;
@@ -167,7 +177,7 @@ struct jnc_Variant {
 		jnc_PropertyPtr m_propertyPtr;
 
 		struct {
-			char m_buffer[sizeof(void*) * 2];
+			char m_buffer[jnc_Variant_DataSize];
 		} m_data;
 	} JNC_GCC_ALIGN(8);
 

@@ -35,7 +35,7 @@ jnc_Variant_create(
 	using namespace jnc;
 
 	size_t size = type->getSize();
-	if (size <= sizeof(jnc::Variant::m_data)) {
+	if (size <= jnc::Variant::DataSize) {
 		memcpy(variant, p, size);
 		variant->m_type = type;
 		return true;
