@@ -78,17 +78,8 @@ ControlFlowMgr::unlockEmission() {
 
 void
 ControlFlowMgr::finalizeFunction() {
-	if (m_sjljFrameArrayValue && m_module->hasCodeGen()) {
-		// the EH in Jancy is hand-rolled SJLJ (with no use of the LLVM EH facilities)
-		// LLVM optimizer respects LandingPad instructions; otherwise, generates broken code
-		// fix: disable optimizations in functions with landing pads (until redesign of the Jancy EH)
-
-		llvm::Function* llvmFunction = m_module->m_functionMgr.getCurrentFunction()->getLlvmFunction();
-		llvmFunction->addFnAttr(llvm::Attribute::NoInline);
-		llvmFunction->addFnAttr(llvm::Attribute::OptimizeNone);
-
+	if (m_sjljFrameArrayValue && m_module->hasCodeGen())
 		finalizeSjljFrameArray();
-	}
 
 	m_asyncBlockArray.clear();
 	m_returnBlockArray.clear();
@@ -361,8 +352,7 @@ ControlFlowMgr::conditionalJump(
 	if (!result)
 		return false;
 
-	uint_t reachableFlag = (m_currentBlock->m_flags & BasicBlockFlag_Reachable);
-
+	uint_t reachableFlag = m_currentBlock->m_flags & BasicBlockFlag_Reachable;
 	thenBlock->m_flags |= BasicBlockFlag_Jumped | reachableFlag;
 	elseBlock->m_flags |= BasicBlockFlag_Jumped | reachableFlag;
 

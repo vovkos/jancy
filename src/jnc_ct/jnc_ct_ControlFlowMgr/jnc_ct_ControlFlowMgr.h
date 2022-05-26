@@ -18,6 +18,7 @@ namespace jnc {
 namespace ct {
 
 class FunctionType;
+struct TryExpr;
 
 //..............................................................................
 
@@ -82,14 +83,6 @@ struct ForStmt {
 struct OnceStmt {
 	Variable* m_flagVariable;
 	BasicBlock* m_followBlock;
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct TryExpr {
-	TryExpr* m_prev;
-	BasicBlock* m_catchBlock;
-	size_t m_sjljFrameIdx;
 };
 
 //..............................................................................

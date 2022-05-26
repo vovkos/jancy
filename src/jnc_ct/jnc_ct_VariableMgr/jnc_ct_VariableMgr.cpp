@@ -26,6 +26,7 @@ VariableMgr::VariableMgr() {
 
 	m_currentLiftedStackVariable = NULL;
 	m_tlsStructType = NULL;
+	m_extraStackPtrFlags = 0;
 
 	memset(m_stdVariableArray, 0, sizeof(m_stdVariableArray));
 }
@@ -42,6 +43,7 @@ VariableMgr::clear() {
 	m_tlsVariableArray.clear();
 	m_currentLiftedStackVariable = NULL;
 	m_tlsStructType = NULL;
+	m_extraStackPtrFlags = 0;
 
 	memset(m_stdVariableArray, 0, sizeof(m_stdVariableArray));
 }
@@ -134,6 +136,9 @@ VariableMgr::createVariable(
 	sl::BoxList<Token>* constructor,
 	sl::BoxList<Token>* initializer
 ) {
+	if (storageKind == StorageKind_Stack)
+		ptrTypeFlags |= m_extraStackPtrFlags;
+
 	Variable* variable = AXL_MEM_NEW(Variable);
 	variable->m_module = m_module;
 	variable->m_name = name;
@@ -620,6 +625,7 @@ VariableMgr::finalizeFunction() {
 
 	m_liftedStackVariableArray.clear();
 	m_argVariableArray.clear();
+	m_extraStackPtrFlags = 0;
 }
 
 Variable*

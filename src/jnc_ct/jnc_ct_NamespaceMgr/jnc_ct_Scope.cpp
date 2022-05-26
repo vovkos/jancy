@@ -34,14 +34,6 @@ Scope::Scope() {
 	m_sjljFrameIdx = -1;
 }
 
-bool
-Scope::canStaticThrow() {
-	return
-		m_tryExpr != NULL ||
-		(m_flags & ScopeFlag_HasCatch)  ||
-		(m_function->getType()->getFlags() & FunctionTypeFlag_ErrorCode);
-}
-
 GcShadowStackFrameMap*
 Scope::findGcShadowStackFrameMap() {
 	if (m_flags & ScopeFlag_FrameMapCached)

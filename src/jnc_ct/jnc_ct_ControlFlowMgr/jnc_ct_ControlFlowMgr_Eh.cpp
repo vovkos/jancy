@@ -73,22 +73,18 @@ ControlFlowMgr::throwException() {
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
 	if (!scope->canStaticThrow()) {
 		jump(getDynamicThrowBlock());
-	} else {
-		Scope* catchScope = m_module->m_namespaceMgr.findCatchScope();
-		if (catchScope) {
-			escapeScope(
-				catchScope,
-				catchScope->m_tryExpr ?
-					catchScope->m_tryExpr->m_catchBlock :
-					catchScope->m_catchBlock
-				);
-		} else {
-			FunctionType* currentFunctionType = m_module->m_functionMgr.getCurrentFunction()->getType();
-			ASSERT(currentFunctionType->getFlags() & FunctionTypeFlag_ErrorCode);
+		return;
+	}
 
-			Value throwValue = currentFunctionType->getReturnType()->getErrorCodeValue();
-			ret(throwValue);
-		}
+	Scope* catchScope = m_module->m_namespaceMgr.findCatchScope();
+	if (catchScope) {
+		escapeScope(catchScope, catchScope->getCatchBlock());
+	} else {
+		FunctionType* currentFunctionType = m_module->m_functionMgr.getCurrentFunction()->getType();
+		ASSERT(currentFunctionType->getFlags() & FunctionTypeFlag_ErrorCode);
+
+		Value throwValue = currentFunctionType->getReturnType()->getErrorCodeValue();
+		ret(throwValue);
 	}
 }
 
@@ -655,7 +651,7 @@ ControlFlowMgr::finalizeSjljFrameArray() {
 		m_module->m_llvmIrBuilder.setInsertPoint(&*block->m_llvmBlock->begin());
 		setSjljFrame(block->m_landingPadScope->m_sjljFrameIdx);
 
-		// also restore prev gc shadow stack frame if GcShadowStackFrameMgr will not do it for us
+		// also restore prev gc shadow stack frame if GcShadowStackFrameMgr    not do it for us
 
 		if (!hasGcShadowStackFrame && (block->m_flags & BasicBlockFlag_SjljLandingPadMask))
 			m_module->m_llvmIrBuilder.createStore(prevGcShadowStackFrameValue, gcShadowStackTopVariable);

@@ -20,9 +20,10 @@
 #include "qrc_res.cpp"
 
 // #define _NO_GC 1
-#define DEFAULT_DEBUG_INFO       true
+#define DEFAULT_DEBUG_INFO       false
 #define DEFAULT_OPTIMIZE         true
 #define DEFAULT_DISABLE_CODE_GEN false
+#define DEFAULT_JIT              true
 
 //..............................................................................
 
@@ -210,7 +211,7 @@ void MainWindow::createActions() {
 
 	m_jitAction = new QAction("&JIT", this);
 	m_jitAction->setCheckable(true);
-	m_jitAction->setChecked(true);
+	m_jitAction->setChecked(DEFAULT_JIT);
 
 	m_setCapabilitiesAction = new QAction("Set Capabilities", this);
 	QObject::connect(m_setCapabilitiesAction, SIGNAL(triggered()), this, SLOT(onSetCapabilities()));

@@ -14,31 +14,39 @@
 #include "jnc_ct_Namespace.h"
 #include "jnc_ct_Value.h"
 #include "jnc_ct_LlvmIrInsertPoint.h"
+#include "jnc_ct_Function.h"
 
 namespace jnc {
 namespace ct {
 
 class BasicBlock;
-class Function;
 class Variable;
 class GcShadowStackFrameMap;
-struct TryExpr;
+
+//..............................................................................
+
+struct TryExpr {
+	TryExpr* m_prev;
+	BasicBlock* m_catchBlock;
+	size_t m_sjljFrameIdx;
+};
 
 //..............................................................................
 
 enum ScopeFlag {
-	ScopeFlag_Function       = 0x000100,
-	ScopeFlag_Unsafe         = 0x000200,
-	ScopeFlag_Nested         = 0x000400,
-	ScopeFlag_Try            = 0x001000,
-	ScopeFlag_Catch          = 0x002000,
-	ScopeFlag_Finally        = 0x004000,
-	ScopeFlag_CatchAhead     = 0x020000,
-	ScopeFlag_FinallyAhead   = 0x040000,
-	ScopeFlag_Finalizable    = 0x100000, // scope or one of its parents has finally
-	ScopeFlag_Disposable     = 0x200000, // this scope contains disposable variables
-	ScopeFlag_HasCatch       = 0x400000, // this scope or some of its parents have catch
-	ScopeFlag_FrameMapCached = 0x800000, // this scope or some of its parents have catch
+	ScopeFlag_Function       = 0x00000100,
+	ScopeFlag_Unsafe         = 0x00000200,
+	ScopeFlag_Nested         = 0x00000400,
+	ScopeFlag_Try            = 0x00001000,
+	ScopeFlag_Catch          = 0x00002000,
+	ScopeFlag_Finally        = 0x00004000,
+	ScopeFlag_CatchAhead     = 0x00020000,
+	ScopeFlag_FinallyAhead   = 0x00040000,
+	ScopeFlag_Finalizable    = 0x00100000, // scope or one of its parents has finally
+	ScopeFlag_Disposable     = 0x00200000, // this scope contains disposable variables
+	ScopeFlag_HasCatch       = 0x00400000, // this scope or some of its parents have catch
+	ScopeFlag_FrameMapCached = 0x00800000, // this scope or some of its parents have catch
+	ScopeFlag_HasLandingPads = 0x10000000, // this function has landing pads
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -108,7 +116,19 @@ public:
 	}
 
 	bool
-	canStaticThrow();
+	canCatch() {
+		return m_tryExpr != NULL || (m_flags & ScopeFlag_HasCatch);
+	}
+
+	bool
+	canStaticThrow() {
+		return canCatch() || (m_function->getType()->getFlags() & FunctionTypeFlag_ErrorCode);
+	}
+
+	BasicBlock*
+	getCatchBlock() {
+		return m_tryExpr ? m_tryExpr->m_catchBlock : m_catchBlock;
+	}
 
 protected:
 	virtual

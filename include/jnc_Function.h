@@ -87,6 +87,14 @@ jnc_getFunctionKindFlags(jnc_FunctionKind functionKind);
 
 //..............................................................................
 
+enum jnc_FunctionFlag {
+	jnc_FunctionFlag_HasLandingPads = 0x010000,
+};
+
+typedef enum jnc_FunctionFlag jnc_FunctionFlag;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 enum jnc_FunctionOverloadFlag {
 	jnc_FunctionOverloadFlag_HasMembers = 0x010000,
 };
@@ -254,6 +262,13 @@ uint_t
 getFunctionKindFlags(FunctionKind functionKind) {
 	return jnc_getFunctionKindFlags(functionKind);
 }
+
+//..............................................................................
+
+typedef jnc_FunctionFlag FunctionFlag;
+
+const FunctionFlag
+	FunctionFlag_HasLandingPads = jnc_FunctionFlag_HasLandingPads;
 
 //..............................................................................
 

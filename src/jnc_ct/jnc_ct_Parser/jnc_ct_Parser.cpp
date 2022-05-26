@@ -83,10 +83,17 @@ Parser::tokenizeBody(
 	sl::Array<Token*> scopeAnchorTokenStack(rc::BufKind_Stack, buffer, sizeof(buffer));
 	bool isScopeFlagMarkupRequired = m_mode != Mode_Parse;
 
+	bool hasLandingPadFlags = false;
+
 	for (;;) {
 		const Token* token = lexer.getToken();
 		switch (token->m_token) {
 		case TokenKind_Eof: // don't add EOF token (parseTokenList adds one automatically)
+			if (hasLandingPadFlags) {
+				Token* token = tokenList->getHead().p();
+				if (token->m_token == '{')
+					token->m_data.m_integer |= ScopeFlag_HasLandingPads;
+			}
 			return true;
 
 		case TokenKind_Error:
@@ -125,14 +132,24 @@ Parser::tokenizeBody(
 			case TokenKind_Catch:
 				if (!scopeAnchorTokenStack.isEmpty())
 					scopeAnchorTokenStack.getBack()->m_data.m_integer |= ScopeFlag_CatchAhead | ScopeFlag_HasCatch;
+
+				hasLandingPadFlags = true;
 				break;
 
 			case TokenKind_Finally:
 				if (!scopeAnchorTokenStack.isEmpty())
 					scopeAnchorTokenStack.getBack()->m_data.m_integer |= ScopeFlag_FinallyAhead | ScopeFlag_Finalizable;
+
+				hasLandingPadFlags = true;
+				break;
+
+			case TokenKind_Try:
+				hasLandingPadFlags = true;
 				break;
 			}
 	}
+
+	ASSERT(false); // should never get here
 }
 
 bool

@@ -814,18 +814,12 @@ Module::optimize(uint_t level) {
 	for (; it; it++)
 		if (!it->isEmpty()) {
 			llvm::Function* llvmFunction = it->getLlvmFunction();
-			if (!llvmFunction->hasFnAttribute(llvm::Attribute::OptimizeNone))
-				llvmFunctionPassMgr.run(*llvmFunction);
+			llvmFunctionPassMgr.run(*llvmFunction);
 		}
 
 	llvmFunctionPassMgr.doFinalization();
 
 	passManagerBuilder.Inliner = llvm::createFunctionInliningPass();
-
-	// llvm-3.x.x ignore Attribute::OptimizeNone in module pass manager
-#if (LLVM_VERSION < 0x040000)
-	passManagerBuilder.OptLevel = 0;
-#endif
 
 	llvm::legacy::PassManager llvmModulePassMgr;
 	passManagerBuilder.populateModulePassManager(llvmModulePassMgr);
