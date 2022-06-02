@@ -159,6 +159,17 @@ isClassPtrType(
 		((ClassPtrType*)type)->getTargetType()->getClassTypeKind() == classTypeKind;
 }
 
+JNC_INLINE
+bool
+isClassPtrType(
+	Type* type,
+	ClassType* classType
+) {
+	return
+		(type->getTypeKindFlags() & TypeKindFlag_ClassPtr) &&
+		((ClassPtrType*)type)->getTargetType()->cmp(classType) == 0;
+}
+
 //..............................................................................
 
 } // namespace ct

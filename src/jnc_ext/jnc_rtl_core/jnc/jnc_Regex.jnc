@@ -164,13 +164,12 @@ opaque class Regex {
 	) const;
 
 	RegexState* exec(
-		uint_t flags,
+		RegexExecFlags flags,
 		char const* p,
 		size_t length = -1
 	) const {
 		RegexState state(flags);
-		exec(state, p, length);
-		return state;
+		return exec(state, p, length) ? state : null;
 	}
 
 	RegexState* exec(

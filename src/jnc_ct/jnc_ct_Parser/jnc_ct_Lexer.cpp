@@ -399,6 +399,22 @@ Lexer::createFmtSimpleIdentifierTokens() {
 }
 
 void
+Lexer::createFmtReGroupTokens() {
+	createFmtLiteralToken(TokenKind_FmtLiteral, false);
+
+	// important: prevent stop () -- otherwise we could feed half-created fmt-literal token to the parser
+
+	size_t prevTokenizeLimit = m_tokenizeLimit;
+	m_tokenizeLimit = -1;
+
+	createIntegerToken(TokenKind_ReGroup, 10, 1);
+
+	m_tokenizeLimit = prevTokenizeLimit;
+
+	preCreateFmtLiteralToken();
+}
+
+void
 Lexer::createFmtLastErrorDescriptionTokens() {
 	createFmtLiteralToken(TokenKind_FmtLiteral, false);
 

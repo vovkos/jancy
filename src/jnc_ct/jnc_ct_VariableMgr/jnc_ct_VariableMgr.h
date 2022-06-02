@@ -177,6 +177,12 @@ public:
 		const Value& value
 	);
 
+	Variable*
+	createStaticRegexVariable(
+		const sl::StringRef& name,
+		const re::Regex* regex
+	);
+
 	bool
 	createTlsStructType();
 

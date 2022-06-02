@@ -858,6 +858,26 @@ appendFmtLiteral_v(
 	return appendFmtLiteral_a(fmtLiteral, string, string.getLength());
 }
 
+size_t
+appendFmtLiteral_re(
+	FmtLiteral* fmtLiteral,
+	const char* fmtSpecifier,
+	const RegexMatch* match
+) {
+	sl::StringRef string;
+
+	if (!match)
+		string = "(null)";
+	else if (!match->m_match.hasText())
+		string = sl::formatString("(%d:%d)", match->m_match.getOffset(), match->m_match.getEndOffset());
+	else
+		string = match->m_match.getText();
+
+	return fmtSpecifier ?
+		appendFmtLiteralImpl(fmtLiteral, fmtSpecifier, "s", string.sz()) :
+		appendFmtLiteral_a(fmtLiteral, string.cp(), string.getLength());
+}
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
@@ -1133,6 +1153,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_CoreLib)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_AppendFmtLiteral_ui64, appendFmtLiteral_ui64)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_AppendFmtLiteral_f,    appendFmtLiteral_f)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_AppendFmtLiteral_v,    appendFmtLiteral_v)
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_AppendFmtLiteral_re,   appendFmtLiteral_re)
 
 	// gc heap
 

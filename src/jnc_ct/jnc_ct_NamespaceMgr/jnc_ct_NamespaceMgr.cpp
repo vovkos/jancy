@@ -517,6 +517,17 @@ NamespaceMgr::findCatchScope() {
 	return scope;
 }
 
+Scope*
+NamespaceMgr::findRegexScope() {
+	Scope* scope = m_currentScope;
+	for (; scope; scope = scope->getParentScope()) {
+		if (scope->m_regexStateValue)
+			break;
+	}
+
+	return scope;
+}
+
 //..............................................................................
 
 } // namespace ct

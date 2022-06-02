@@ -29,6 +29,7 @@ Scope::Scope() {
 	m_finallyBlock = NULL;
 	m_tryExpr = NULL;
 	m_firstStackVariable = NULL;
+	m_regexStateValue = NULL;
 	m_disposeLevelVariable = NULL;
 	m_gcShadowStackFrameMap = NULL;
 	m_sjljFrameIdx = -1;

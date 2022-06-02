@@ -181,6 +181,8 @@ dec+ (('.' dec*) | ([eE] [+\-]? dec+)) |
 ('0' [xXoObBnNdD])? '"""'
                   { highlightLastToken(Color_Constant); fgoto lit_ml; };
 
+'$' dec+          { highlightLastToken(Color_RegexGroup); };
+
 '//' any*         { highlightLastToken(Color_Comment); setCurrentBlockState(BlockState_CommentSl); };
 '/*'              { highlightLastToken(Color_Comment); fgoto comment_ml; };
 

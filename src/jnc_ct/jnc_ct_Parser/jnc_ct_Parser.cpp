@@ -2851,6 +2851,8 @@ Parser::appendFmtLiteralValue(
 		appendFunc = StdFunc_AppendFmtLiteral_v;
 	} else if (isCharArrayType(type) || isCharArrayRefType(type) || isCharPtrType(type)) {
 		appendFunc = StdFunc_AppendFmtLiteral_p;
+	} else if (isClassPtrType(type, (ClassType*)m_module->m_typeMgr.getStdType(StdType_RegexMatch))) {
+		appendFunc = StdFunc_AppendFmtLiteral_re;
 	} else {
 		err::setFormatStringError("don't know how to format '%s'", type->getTypeString().sz());
 		return false;

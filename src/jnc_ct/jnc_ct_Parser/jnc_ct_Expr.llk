@@ -392,6 +392,10 @@ equality_operator
 		{
 			$.m_opKind = BinOpKind_Ne;
 		}
+	| TokenKind_Match
+		{
+			$.m_opKind = BinOpKind_Match;
+		}
 	;
 
 relational_expr<Value* $value>
@@ -833,6 +837,10 @@ primary_expr<Value* $value>
 	|	TokenKind_Null
 			{
 				$value->setNull(m_module);
+			}
+	|	TokenKind_ReGroup $g
+			{
+				return m_module->m_operatorMgr.getRegexGroup($g.m_data.m_integer, $value);
 			}
 	|	TokenKind_Await expression $e
 			{

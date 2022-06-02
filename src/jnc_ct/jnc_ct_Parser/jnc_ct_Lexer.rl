@@ -109,6 +109,7 @@ lit_fmt := |*
 esc       ;
 '$!'      { createFmtLastErrorDescriptionTokens(); };
 '$' id    { createFmtSimpleIdentifierTokens(); };
+'$' dec+  { createFmtReGroupTokens(); };
 '%' dec+  { createFmtIndexTokens(); };
 '%' ([\-+ #0] dec*)? ('.' dec+)? ('l' | 'll' | 'z')? [diuxXfeEgGcsp]
           { createFmtSimpleSpecifierTokens(); };
@@ -311,6 +312,7 @@ main := |*
 '^='             { createToken(TokenKind_XorAssign); };
 '|='             { createToken(TokenKind_OrAssign); };
 '@='             { createToken(TokenKind_AtAssign); };
+'=~'             { createToken(TokenKind_Match); };
 '...'            { createToken(TokenKind_Ellipsis); };
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -335,7 +337,7 @@ main := |*
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-# common tokens
+# other tokens
 
 id               { createStringToken(TokenKind_Identifier); };
 lit_sq           { createCharToken(1, true); };
@@ -360,6 +362,8 @@ dec+             { createIntegerToken(10); };
 				 { createBinLiteralToken(10); };
 dec+ ('.' dec*) | ([eE] [+\-]? dec+)
 				 { createFpToken(); };
+
+'$' dec+         { createIntegerToken(TokenKind_ReGroup, 10, 1); };
 
 '///' [^\n]*     { createDoxyCommentToken(TokenKind_DoxyComment1); };
 '//!' [^\n]*     { createDoxyCommentToken(TokenKind_DoxyComment2); };

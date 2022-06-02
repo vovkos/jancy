@@ -18,9 +18,10 @@ namespace jnc {
 class JancyHighlighter: public gui::QtRagelSyntaxHighlighter<JancyHighlighter> {
 public:
 	enum Color {
-		Color_Keyword  = 0x0000ff,
-		Color_Constant = 0xce7b00,
-		Color_Comment  = 0x969696,
+		Color_Keyword    = 0x0000ff,
+		Color_Constant   = 0xce7b00,
+		Color_Comment    = 0x969696,
+		Color_RegexGroup = 0x009050,
 	};
 
 protected:

@@ -24,6 +24,7 @@ ControlFlowMgr::ifStmt_Create(IfStmt* stmt) {
 	stmt->m_thenBlock = createBlock("if_then");
 	stmt->m_elseBlock = createBlock("if_else");
 	stmt->m_followBlock = stmt->m_elseBlock;
+	m_scopedCondStmt = stmt;
 }
 
 bool
@@ -32,11 +33,16 @@ ControlFlowMgr::ifStmt_Condition(
 	const Value& value,
 	const lex::LineCol& pos
 ) {
+	m_scopedCondStmt = NULL;
+
 	bool result = conditionalJump(value, stmt->m_thenBlock, stmt->m_elseBlock);
 	if (!result)
 		return false;
 
-	m_module->m_namespaceMgr.openScope(pos);
+	Scope* scope = m_module->m_namespaceMgr.openScope(pos);
+	if (stmt->m_regexStateValue)
+		scope->m_regexStateValue = &stmt->m_regexStateValue;
+
 	return true;
 }
 
@@ -219,7 +225,9 @@ ControlFlowMgr::reSwitchStmt_Case(
 	BasicBlock* block = createBlock("reswitch_case");
 	block->m_flags |= (stmt->m_switchBlock->m_flags & BasicBlockFlag_Reachable);
 	follow(block);
-	m_module->m_namespaceMgr.openScope(pos);
+
+	Scope* scope = m_module->m_namespaceMgr.openScope(pos);
+	scope->m_regexStateValue = &stmt->m_regexStateValue;
 
 	bool result = stmt->m_regex.compileSwitchCase(regexSource);
 	if (!result)
@@ -273,41 +281,10 @@ ControlFlowMgr::reSwitchStmt_Finalize(ReSwitchStmt* stmt) {
 	// serialize regex and save the storage value
 
 	stmt->m_regex.finalizeSwitch();
-	sl::Array<char> regexStorage = stmt->m_regex.save();
 
-	Value storageSizeValue;
-	storageSizeValue.setConstSizeT(regexStorage.getCount(), m_module);
-
-	Value storageValue;
-	storageValue.setCharArray(regexStorage, regexStorage.getCount(), m_module);
-	storageValue = m_module->m_constMgr.saveValue(storageValue);
-
-	// create the regex variable
-
-	ClassType* regexType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_Regex);
-	Variable* regexVariable = m_module->m_variableMgr.createVariable(StorageKind_Static, "regex", regexType);
-	regexVariable->m_parentNamespace = m_module->m_namespaceMgr.getCurrentScope();
-
-	// initialize and load the regex variable inside a once-block
-
-	lex::LineCol pos = m_module->m_namespaceMgr.getSourcePos();
-
-	OnceStmt onceStmt;
-	onceStmt_Create(&onceStmt, pos);
-	onceStmt_PreBody(&onceStmt, pos);
-
-	Value loadValue;
-
-	result =
-		m_module->m_variableMgr.allocateVariable(regexVariable) &&
-		m_module->m_variableMgr.initializeVariable(regexVariable) &&
-		m_module->m_operatorMgr.memberOperator(regexVariable, "load", &loadValue) &&
-		m_module->m_operatorMgr.callOperator(loadValue, storageValue, storageSizeValue);
-
-	if (!result)
+	Variable* regexVariable = m_module->m_variableMgr.createStaticRegexVariable("regex", &stmt->m_regex);
+	if (!regexVariable)
 		return false;
-
-	onceStmt_PostBody(&onceStmt, pos);
 
 	// execute regex with the supplied state and data;
 	// on match, jump to the corresponding case-id
@@ -365,6 +342,7 @@ ControlFlowMgr::whileStmt_Create(WhileStmt* stmt) {
 	stmt->m_bodyBlock = createBlock("while_body");
 	stmt->m_followBlock = createBlock("while_follow");
 	follow(stmt->m_conditionBlock);
+	m_scopedCondStmt = stmt;
 }
 
 bool
@@ -373,11 +351,16 @@ ControlFlowMgr::whileStmt_Condition(
 	const Value& value,
 	const lex::LineCol& pos
 ) {
+	m_scopedCondStmt = NULL;
 	m_module->m_operatorMgr.gcSafePoint();
 
 	Scope* scope = m_module->m_namespaceMgr.openScope(pos);
 	scope->m_breakBlock = stmt->m_followBlock;
 	scope->m_continueBlock = stmt->m_conditionBlock;
+
+	if (stmt->m_regexStateValue)
+		scope->m_regexStateValue = &stmt->m_regexStateValue;
+
 	return conditionalJump(value, stmt->m_bodyBlock, stmt->m_followBlock);
 }
 
@@ -451,6 +434,7 @@ ControlFlowMgr::forStmt_PreCondition(ForStmt* stmt) {
 	stmt->m_conditionBlock = createBlock("for_condition");
 	stmt->m_loopBlock = stmt->m_conditionBlock;
 	follow(stmt->m_conditionBlock);
+	m_scopedCondStmt = stmt;
 }
 
 bool
@@ -458,6 +442,11 @@ ControlFlowMgr::forStmt_PostCondition(
 	ForStmt* stmt,
 	const Value& value
 ) {
+	m_scopedCondStmt = NULL;
+
+	if (stmt->m_regexStateValue)
+		stmt->m_scope->m_regexStateValue = &stmt->m_regexStateValue;
+
 	return conditionalJump(value, stmt->m_bodyBlock, stmt->m_followBlock);
 }
 

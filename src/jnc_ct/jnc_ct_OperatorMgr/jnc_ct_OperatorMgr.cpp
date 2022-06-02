@@ -81,6 +81,7 @@ OperatorMgr::OperatorMgr() {
 	m_binaryOperatorTable[BinOpKind_Le]     = &m_binOp_Le;
 	m_binaryOperatorTable[BinOpKind_Gt]     = &m_binOp_Gt;
 	m_binaryOperatorTable[BinOpKind_Ge]     = &m_binOp_Ge;
+	m_binaryOperatorTable[BinOpKind_Match]  = &m_binOp_Match;
 
 	// indexing operator
 
@@ -383,16 +384,26 @@ OperatorMgr::getConditionalOperatorResultType(
 					trueType;
 	}
 
-	// if it's a lean data pointer, fatten it
+	// for pointers, remove remove `safe` flag
+	// if it's a lean data pointer, turn it into a normal one
 
 	if ((resultType->getTypeKindFlags() & TypeKindFlag_DataPtr) &&
-		((DataPtrType*)resultType)->getPtrTypeKind() == DataPtrTypeKind_Lean) {
+		((DataPtrType*)resultType)->getPtrTypeKind() == DataPtrTypeKind_Lean
+	)
 		resultType = ((DataPtrType*)resultType)->getTargetType()->getDataPtrType(
 			resultType->getTypeKind(),
 			DataPtrTypeKind_Normal,
-			resultType->getFlags()
+			resultType->getFlags() & ~PtrTypeFlag_Safe
 		);
-	}
+	else if (
+		(resultType->getTypeKindFlags() & TypeKindFlag_ClassPtr) &&
+		(resultType->getFlags() & PtrTypeFlag_Safe)
+	)
+		resultType = ((ClassPtrType*)resultType)->getTargetType()->getClassPtrType(
+			resultType->getTypeKind(),
+			ClassPtrTypeKind_Normal,
+			resultType->getFlags() & ~PtrTypeFlag_Safe
+		);
 
 	result =
 		checkCastKind(trueValue, resultType) &&
@@ -1465,6 +1476,25 @@ OperatorMgr::awaitOperator(
 		loadDataRef(pendingPromiseFieldValue, &opPromiseValue) &&
 		memberOperator(opPromiseValue, "blockingWait", &waitValue) &&
 		callOperator(waitValue, resultValue);
+}
+
+bool
+OperatorMgr::getRegexGroup(
+	size_t index,
+	Value* resultValue
+) {
+	Scope* scope = m_module->m_namespaceMgr.findRegexScope();
+	if (!scope) {
+		err::setError("no regex groups are visible from here");
+		return false;
+	}
+
+	Value indexValue(index, m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT));
+	Value groupArrayValue;
+
+	return
+		memberOperator(*scope->m_regexStateValue, "m_groupArray", &groupArrayValue) &&
+		binaryOperator(BinOpKind_Idx, groupArrayValue, indexValue, resultValue);
 }
 
 //..............................................................................

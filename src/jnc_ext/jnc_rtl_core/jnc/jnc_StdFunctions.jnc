@@ -160,6 +160,14 @@ size_t appendFmtLiteral_v(
 	variant v
 );
 
+///; static char appendFmtLiteralSrc_re [] =
+
+size_t appendFmtLiteral_re(
+	FmtLiteral thin* fmtLiteral,
+	char const thin* fmtSpecifier,
+	jnc.RegexMatch const* match
+);
+
 ///; static char tryCheckDataPtrRangeDirectSrc[] =
 
 bool errorcode tryCheckDataPtrRangeDirect(

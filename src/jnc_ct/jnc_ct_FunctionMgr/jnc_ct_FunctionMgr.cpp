@@ -976,6 +976,7 @@ FunctionMgr::getStdFunction(StdFunc func) {
 	case StdFunc_AppendFmtLiteral_ui64:
 	case StdFunc_AppendFmtLiteral_f:
 	case StdFunc_AppendFmtLiteral_v:
+	case StdFunc_AppendFmtLiteral_re:
 	case StdFunc_TryCheckDataPtrRangeDirect:
 	case StdFunc_CheckDataPtrRangeDirect:
 	case StdFunc_TryLazyGetDynamicLibFunction:

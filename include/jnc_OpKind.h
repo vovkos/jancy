@@ -78,6 +78,7 @@ enum jnc_BinOpKind {
 	jnc_BinOpKind_Le,
 	jnc_BinOpKind_Gt,
 	jnc_BinOpKind_Ge,
+	jnc_BinOpKind_Match,
 
 	// indexing
 
@@ -163,6 +164,7 @@ const BinOpKind
 	BinOpKind_Le        = jnc_BinOpKind_Le,
 	BinOpKind_Gt        = jnc_BinOpKind_Gt,
 	BinOpKind_Ge        = jnc_BinOpKind_Ge,
+	BinOpKind_Match     = jnc_BinOpKind_Match,
 	BinOpKind_Idx       = jnc_BinOpKind_Idx,
 	BinOpKind_LogAnd    = jnc_BinOpKind_LogAnd,
 	BinOpKind_LogOr     = jnc_BinOpKind_LogOr,

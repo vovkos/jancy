@@ -70,13 +70,13 @@ public:
 	BasicBlock* m_continueBlock;
 	BasicBlock* m_catchBlock;
 	BasicBlock* m_finallyBlock;
-
 	TryExpr* m_tryExpr;
 	size_t m_sjljFrameIdx;
 
 	LlvmIrInsertPoint m_gcShadowStackFrameMapInsertPoint;
 	GcShadowStackFrameMap* m_gcShadowStackFrameMap;
 	Variable* m_firstStackVariable; // we have to set frame map BEFORE the very first stack variable lift point
+	Value* m_regexStateValue; // for getting regex groups via $0, $1, etc
 
 public:
 	Scope();

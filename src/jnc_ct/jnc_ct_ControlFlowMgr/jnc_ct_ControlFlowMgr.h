@@ -22,7 +22,13 @@ struct TryExpr;
 
 //..............................................................................
 
-struct IfStmt {
+struct ScopedCondStmt {
+	Value m_regexStateValue;
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct IfStmt: ScopedCondStmt {
 	BasicBlock* m_thenBlock;
 	BasicBlock* m_elseBlock;
 	BasicBlock* m_followBlock;
@@ -54,7 +60,7 @@ struct ReSwitchStmt {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct WhileStmt {
+struct WhileStmt: ScopedCondStmt {
 	BasicBlock* m_conditionBlock;
 	BasicBlock* m_bodyBlock;
 	BasicBlock* m_followBlock;
@@ -70,7 +76,7 @@ struct DoStmt {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ForStmt {
+struct ForStmt: ScopedCondStmt {
 	Scope* m_scope;
 	BasicBlock* m_conditionBlock;
 	BasicBlock* m_bodyBlock;
@@ -105,6 +111,7 @@ protected:
 	BasicBlock* m_emissionLockBlock;
 	Variable* m_returnValueVariable;
 	Variable* m_finallyRouteIdxVariable;
+	ScopedCondStmt* m_scopedCondStmt;
 	size_t m_emissionLockCount;
 	size_t m_finallyRouteIdx;
 	size_t m_sjljFrameCount;
@@ -117,6 +124,11 @@ public:
 	Module*
 	getModule() {
 		return m_module;
+	}
+
+	ScopedCondStmt*
+	getScopedCondStmt() {
+		return m_scopedCondStmt;
 	}
 
 	void

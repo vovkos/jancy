@@ -671,6 +671,51 @@ VariableMgr::createAsyncArgVariable(
 	return variable;
 }
 
+Variable*
+VariableMgr::createStaticRegexVariable(
+	const sl::StringRef& name,
+	const re::Regex* regex
+) {
+	// serialize regex into arrray
+
+	sl::Array<char> regexStorage = regex->save();
+
+	Value storageSizeValue;
+	storageSizeValue.setConstSizeT(regexStorage.getCount(), m_module);
+
+	Value storageValue;
+	storageValue.setCharArray(regexStorage, regexStorage.getCount(), m_module);
+	storageValue = m_module->m_constMgr.saveValue(storageValue);
+
+	// create the regex variable
+
+	ClassType* regexType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_Regex);
+	Variable* variable = m_module->m_variableMgr.createVariable(StorageKind_Static, name, regexType);
+	variable->m_parentNamespace = m_module->m_namespaceMgr.getCurrentScope();
+
+	// initialize and load the regex variable inside a once-block
+
+	lex::LineCol pos = m_module->m_namespaceMgr.getSourcePos();
+
+	OnceStmt onceStmt;
+	m_module->m_controlFlowMgr.onceStmt_Create(&onceStmt, pos);
+	m_module->m_controlFlowMgr.onceStmt_PreBody(&onceStmt, pos);
+
+	Value loadValue;
+
+	bool result =
+		allocateVariable(variable) &&
+		initializeVariable(variable) &&
+		m_module->m_operatorMgr.memberOperator(variable, "load", &loadValue) &&
+		m_module->m_operatorMgr.callOperator(loadValue, storageValue, storageSizeValue);
+
+	if (!result)
+		return NULL;
+
+	m_module->m_controlFlowMgr.onceStmt_PostBody(&onceStmt, pos);
+	return variable;
+}
+
 bool
 VariableMgr::createTlsStructType() {
 	bool result;

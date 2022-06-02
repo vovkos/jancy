@@ -198,6 +198,9 @@ public:
 	Scope*
 	findCatchScope();
 
+	Scope*
+	findRegexScope();
+
 protected:
 	void
 	addGlobalNamespace(

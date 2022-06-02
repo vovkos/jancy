@@ -22,6 +22,7 @@
 #include "jnc_ct_BinOp_Cmp.h"
 #include "jnc_ct_BinOp_At.h"
 #include "jnc_ct_BinOp_Idx.h"
+#include "jnc_ct_BinOp_Match.h"
 #include "jnc_ct_BinOp_Assign.h"
 #include "jnc_ct_CastOp.h"
 #include "jnc_ct_CastOp_Bool.h"
@@ -129,6 +130,7 @@ protected:
 	BinOp_Le m_binOp_Le;
 	BinOp_Gt m_binOp_Gt;
 	BinOp_Ge m_binOp_Ge;
+	BinOp_Match m_binOp_Match;
 
 	// assignment operators
 
@@ -1313,6 +1315,12 @@ public:
 	getVirtualProperty(
 		Property* prop,
 		Closure* closure,
+		Value* resultValue
+	);
+
+	bool
+	getRegexGroup(
+		size_t index,
 		Value* resultValue
 	);
 

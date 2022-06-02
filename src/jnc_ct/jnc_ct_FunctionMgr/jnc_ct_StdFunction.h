@@ -67,6 +67,7 @@ enum StdFunc {
 	StdFunc_AppendFmtLiteral_ui64,
 	StdFunc_AppendFmtLiteral_f,
 	StdFunc_AppendFmtLiteral_v,
+	StdFunc_AppendFmtLiteral_re,
 
 	StdFunc_SimpleMulticastCall,
 

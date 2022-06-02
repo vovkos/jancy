@@ -31,6 +31,7 @@ ControlFlowMgr::ControlFlowMgr() {
 	m_emissionLockBlock = NULL;
 	m_finallyRouteIdxVariable = NULL;
 	m_returnValueVariable = NULL;
+	m_scopedCondStmt = NULL;
 	m_emissionLockCount = 0;
 	m_finallyRouteIdx = -1;
 	m_sjljFrameCount = 0;
@@ -50,6 +51,7 @@ ControlFlowMgr::clear() {
 	m_emissionLockBlock = NULL;
 	m_finallyRouteIdxVariable = NULL;
 	m_returnValueVariable = NULL;
+	m_scopedCondStmt = NULL;
 	m_emissionLockCount = 0;
 	m_finallyRouteIdx = -1;
 	m_sjljFrameCount = 0;

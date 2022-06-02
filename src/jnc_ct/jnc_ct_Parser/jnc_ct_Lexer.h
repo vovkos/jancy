@@ -194,6 +194,11 @@ enum TokenKind {
 	TokenKind_OrAssign,
 	TokenKind_AtAssign,
 	TokenKind_Ellipsis,
+	TokenKind_Match,
+
+	// other tokens
+
+	TokenKind_ReGroup,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -396,7 +401,11 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP(TokenName)
 	AXL_LEX_TOKEN_NAME(TokenKind_OrAssign,     "|=")
 	AXL_LEX_TOKEN_NAME(TokenKind_AtAssign,     "@=")
 	AXL_LEX_TOKEN_NAME(TokenKind_Ellipsis,     "...")
+	AXL_LEX_TOKEN_NAME(TokenKind_Match,        "=~")
 
+	// other tokens
+
+	AXL_LEX_TOKEN_NAME(TokenKind_ReGroup,      "re-group")
 AXL_LEX_END_TOKEN_NAME_MAP();
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -558,6 +567,9 @@ protected:
 
 	void
 	createFmtSimpleIdentifierTokens();
+
+	void
+	createFmtReGroupTokens();
 
 	void
 	createFmtLastErrorDescriptionTokens();
