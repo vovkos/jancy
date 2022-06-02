@@ -55,8 +55,25 @@ BinOp_Match::op(
 
 		regexValue.setVariable(regexVariable);
 	} else {
-		err::setError("dynamic regex-es not supported yet");
-		return false;
+		Value compileValue;
+		Value compileResultValue;
+
+		BasicBlock* throwBlock = m_module->m_controlFlowMgr.createBlock("throw_block");
+		BasicBlock* followBlock = m_module->m_controlFlowMgr.createBlock("follow_block");
+
+		ClassType* regexType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_Regex);
+
+		result =
+			m_module->m_operatorMgr.newOperator(regexType, &regexValue) &&
+			m_module->m_operatorMgr.memberOperator(regexValue, "compile", &compileValue) &&
+			m_module->m_operatorMgr.callOperator(compileValue, opValue2, &compileResultValue) &&
+			m_module->m_controlFlowMgr.conditionalJump(compileResultValue, followBlock, throwBlock, throwBlock);
+
+		if (!result)
+			return false;
+
+		m_module->m_controlFlowMgr.throwException();
+		m_module->m_controlFlowMgr.setCurrentBlock(followBlock);
 	}
 
 	result =

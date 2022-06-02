@@ -1,0 +1,45 @@
+// this sample was used while developing the perl-style match operator =~ and capturing groups $1, $2, etc
+
+void test(char const* s) {
+	printf("\nmatching: %s\n", s);
+
+	printf("1. using =~\n");
+
+	char const* pattern1 = "command([0-9]+)\n";
+	if (s =~ pattern1) {
+		printf($"command: $1\n");
+	} else if (s =~ "response([0-9]+)\n") {
+		printf($"response: %1\n"($1));
+	} else {
+		printf("mismatch\n");
+	}
+
+	printf("2. using reswitch\n");
+
+	jnc.RegexState state;
+
+	reswitch (state, s) {
+	case "command([0-9]+)\n":
+		printf($"command: $1\n");
+		break;
+		
+	case "response([0-9]+)\n":
+		printf($"response: %s\n"($1));
+		break;
+
+	default:
+		printf("mismatch\n");
+		break;
+	}
+
+	// printf($"here this shouldn't compile: $1\n"); */
+}
+
+int main() {
+	test("  command1\n   ");
+	test("  response1\n  ");
+	test("  command2\n   ");
+	test("  response2\n  ");
+	test("  grrrr\n  ");
+	return 0;
+}
