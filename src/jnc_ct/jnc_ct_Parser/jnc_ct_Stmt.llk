@@ -145,6 +145,12 @@ if_stmt
 			}
 	;
 
+switch_stmt_sync
+	:	local_declaration_sync
+	|	TokenKind_Case
+	|	TokenKind_Default
+	;
+
 switch_stmt
 	local {
 		SwitchStmt $stmt;
@@ -157,11 +163,16 @@ switch_stmt
 			{
 				return m_module->m_controlFlowMgr.switchStmt_Condition(&$stmt, $e.m_value, $l.m_pos);
 			}
-		switch_block_stmt<&$stmt>*
+		switch_block_stmt_list<&$stmt>
 			{
 				m_module->m_controlFlowMgr.switchStmt_Follow(&$stmt);
 			}
 		'}'
+	;
+
+nullable
+switch_block_stmt_list<SwitchStmt* $stmt>
+	:	catch(switch_stmt_sync) switch_block_stmt<$stmt>*
 	;
 
 switch_block_stmt<SwitchStmt* $stmt>
@@ -195,11 +206,16 @@ reswitch_stmt
 					$l.m_pos
 					);
 			}
-		reswitch_block_stmt<&$stmt>*
+		reswitch_block_stmt_list<&$stmt>
 			{
 				return m_module->m_controlFlowMgr.reSwitchStmt_Finalize(&$stmt);
 			}
 		'}'
+	;
+
+nullable
+reswitch_block_stmt_list<ReSwitchStmt* $stmt>
+	:	catch(switch_stmt_sync) reswitch_block_stmt<$stmt>*
 	;
 
 reswitch_block_stmt<ReSwitchStmt* $stmt>
