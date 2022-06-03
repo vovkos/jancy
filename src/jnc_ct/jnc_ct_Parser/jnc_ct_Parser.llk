@@ -204,11 +204,11 @@ public:
 	);
 
 protected:
-	RecoverAction
+	RecoveryAction
 	processError(ErrorKind errorKind) {
 		return m_module->processCompileError((ModuleCompileErrorKind)errorKind) ?
-			RecoverAction_Synchronize :
-			RecoverAction_Fail;
+			RecoveryAction_Synchronize :
+			RecoveryAction_Fail;
 	}
 
 	void

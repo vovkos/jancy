@@ -67,6 +67,9 @@ Module::processCompileError(ModuleCompileErrorKind errorKind) {
 	if (m_tryCompileLevel)
 		return false;
 
+	if (err::getLastError()->isNoError()) // the error is already processed
+		return true;
+
 	if (++m_compileErrorCount > m_compileErrorCountLimit) {
 		err::setFormatStringError("%d errors; error limit reached", m_compileErrorCount);
 		return false;
@@ -90,6 +93,7 @@ Module::processCompileError(ModuleCompileErrorKind errorKind) {
 		// probably, need more cleanup
 	}
 
+	err::setError(&err::g_noError);
 	return true;
 }
 

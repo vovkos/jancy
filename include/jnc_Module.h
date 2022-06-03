@@ -103,8 +103,8 @@ typedef enum jnc_ModuleCompileErrorKind jnc_ModuleCompileErrorKind;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-// true  -> llk::Parser::RecoverAction_Synchronize
-// false -> llk::Parser::RecoverAction_Fail
+// true  -> llk::Parser::RecoveryAction_Synchronize
+// false -> llk::Parser::RecoveryAction_Fail
 
 typedef
 bool_t
