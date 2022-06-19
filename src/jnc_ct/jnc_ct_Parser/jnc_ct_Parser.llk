@@ -303,6 +303,14 @@ protected:
 	isTypeSpecified();
 
 	bool
+	isReSwitchExpr(const Value& e) {
+		Value typeValue;
+		return
+			m_module->m_operatorMgr.prepareOperandType(e, &typeValue) &&
+			isCharPtrType(typeValue.getType());
+	}
+
+	bool
 	createAttributeBlock(const lex::LineCol& pos);
 
 	bool

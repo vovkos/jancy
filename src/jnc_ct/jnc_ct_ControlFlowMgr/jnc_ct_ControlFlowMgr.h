@@ -350,9 +350,9 @@ public:
 	bool
 	reSwitchStmt_Condition(
 		ReSwitchStmt* stmt,
-		const Value& regexStateValue,
-		const Value& dataValue,
-		const Value& sizeValue,
+		const Value& value1,
+		const Value& value2,
+		const Value& value3,
 		const lex::LineCol& pos
 	);
 

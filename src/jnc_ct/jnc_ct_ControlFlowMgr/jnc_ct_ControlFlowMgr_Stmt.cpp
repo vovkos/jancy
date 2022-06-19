@@ -176,28 +176,39 @@ ControlFlowMgr::reSwitchStmt_Create(ReSwitchStmt* stmt) {
 bool
 ControlFlowMgr::reSwitchStmt_Condition(
 	ReSwitchStmt* stmt,
-	const Value& regexStateValue,
-	const Value& dataValue,
-	const Value& sizeValue,
+	const Value& value1,
+	const Value& value2,
+	const Value& value3,
 	const lex::LineCol& pos
 ) {
 	ClassType* regexStateType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_RegexState);
 	ClassPtrType* regexStatePtrType = regexStateType->getClassPtrType(ClassPtrTypeKind_Normal, PtrTypeFlag_Safe);
 	Type* charPtrType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Char)->getDataPtrType(DataPtrTypeKind_Normal, PtrTypeFlag_Const);
 
-	bool result =
-		m_module->m_operatorMgr.castOperator(regexStateValue, regexStatePtrType, &stmt->m_regexStateValue) &&
-		m_module->m_operatorMgr.castOperator(dataValue, charPtrType, &stmt->m_dataValue);
+	if (!value2) { // a single parameter; create a fresh-new state
+		bool result =
+			m_module->m_operatorMgr.newOperator(regexStateType, &stmt->m_regexStateValue) &&
+			m_module->m_operatorMgr.castOperator(value1, charPtrType, &stmt->m_dataValue);
 
-	if (!result)
-		return false;
-
-	if (!sizeValue) {
-		stmt->m_sizeValue.setConstSizeT(-1, m_module);
-	} else {
-		result = m_module->m_operatorMgr.castOperator(sizeValue, TypeKind_SizeT, &stmt->m_sizeValue);
 		if (!result)
 			return false;
+
+		stmt->m_sizeValue.setConstSizeT(-1, m_module);
+	} else {
+		bool result =
+			m_module->m_operatorMgr.castOperator(value1, regexStatePtrType, &stmt->m_regexStateValue) &&
+			m_module->m_operatorMgr.castOperator(value2, charPtrType, &stmt->m_dataValue);
+
+		if (!result)
+			return false;
+
+		if (!value3) {
+			stmt->m_sizeValue.setConstSizeT(-1, m_module);
+		} else {
+			result = m_module->m_operatorMgr.castOperator(value3, TypeKind_SizeT, &stmt->m_sizeValue);
+			if (!result)
+				return false;
+		}
 	}
 
 	stmt->m_switchBlock = getCurrentBlock();

@@ -187,7 +187,16 @@ switch_block_stmt<SwitchStmt* $stmt>
 	|	local_declaration
 	;
 
+// to resolve a conflict between reswitch and switch in the form `switch (expr)`, we check the expression type
 
+reswitch_stmt_rslv
+	:	TokenKind_Switch '(' expression $e ',' $c?
+			{
+				return &$c || isReSwitchExpr($e.m_value);
+			}
+	;
+
+resolver(reswitch_stmt_rslv)
 reswitch_stmt
 	local {
 		ReSwitchStmt $stmt;
@@ -195,14 +204,14 @@ reswitch_stmt
 	enter {
 		m_module->m_controlFlowMgr.reSwitchStmt_Create(&$stmt);
 	}
-	:	TokenKind_ReSwitch '(' expression $r ',' expression $e (',' expression $s)? ')'
+	:	(TokenKind_ReSwitch | TokenKind_Switch) '(' expression $p1 (',' expression $p2 (',' expression $p3)?)? ')'
 		'{' $l
 			{
 				return m_module->m_controlFlowMgr.reSwitchStmt_Condition(
 					&$stmt,
-					$r.m_value,
-					$e.m_value,
-					&$s ? $s.m_value : Value (),
+					$p1.m_value,
+					&$p2 ? $p2.m_value : Value(),
+					&$p3 ? $p3.m_value : Value(),
 					$l.m_pos
 					);
 			}
