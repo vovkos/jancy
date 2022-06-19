@@ -86,7 +86,7 @@ opaque class RegexState {
 
 //..............................................................................
 
-enum RegexCompileFlag {
+bitflag enum RegexCompileFlags {
 	CaseInsensitive = 0x01,
 	MatchOnly       = 0x02, // don't demux NFA and no search start states
 	DisableCapture  = 0x04, // same as ExecFlag_NoCapture
