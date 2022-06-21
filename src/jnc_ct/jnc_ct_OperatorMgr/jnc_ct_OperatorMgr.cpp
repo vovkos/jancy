@@ -493,11 +493,6 @@ OperatorMgr::castOperator(
 	if (!result)
 		return false;
 
-	if (!m_module->hasCodeGen() && rawOpValue.getValueKind() != ValueKind_Const) {
-		resultValue->setType(type);
-		return true;
-	}
-
 	if (rawOpValue.getValueKind() == ValueKind_Null) {
 		if ((type->getTypeKindFlags() & TypeKindFlag_Ptr) && (type->getFlags() & PtrTypeFlag_Safe)) {
 			setCastError(rawOpValue, type);
@@ -527,6 +522,11 @@ OperatorMgr::castOperator(
 	result = prepareOperand(rawOpValue, &opValue, op->getOpFlags());
 	if (!result)
 		return false;
+
+	if (!m_module->hasCodeGen() && opValue.getValueKind() != ValueKind_Const) {
+		resultValue->setType(type);
+		return true;
+	}
 
 	Type* opType = opValue.getType();
 	if (opType->cmp(type) == 0) { // identity, try to shortcut
