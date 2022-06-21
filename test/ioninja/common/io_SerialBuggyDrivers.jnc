@@ -24,14 +24,16 @@ char const* detectSerialBuggyDriver(char const* portName) {
 		portName;
 
 	char const* deviceName = try io.getSymbolicLinkTarget(linkName);
-
 	printf("link name: %s, device name: %s\n", linkName, deviceName);
 
-	char const* driverName;
+	// when we can't get the device name, usually it's because of no port
+
+	if (!deviceName)
+		return null;
 
 	return
-		!deviceName ? "<unknown-driver>" : // be conservative when we can't detect
-		stristr(deviceName, "prolific") ? "Prolific" : // prolific drivers are... just... BAD
+		stristr(deviceName, "prolific") ? "Prolific" : // prolific can't cancel IRP_MJ_READs
+		// ... add more checks later
 		null;
 }
 

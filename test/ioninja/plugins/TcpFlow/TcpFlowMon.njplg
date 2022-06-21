@@ -10,6 +10,7 @@ description = "Monitors TCP communications and produces clean data flow"
 id          = tcp-flow-mon
 group       = net
 monitor     = true
+sudo        = true
 log-guid    = 5a6cc363-3ace-4db8-9224-3d972d16b30d  # tcp flow
 log-guid    = 074c3414-2622-418a-885d-edfeca2b79e7  # pcap
 log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket

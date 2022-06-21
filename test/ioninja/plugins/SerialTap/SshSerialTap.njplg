@@ -1,0 +1,34 @@
+#...............................................................................
+#
+#  Serial Tap over SSH session plugin
+#
+
+[plugin]
+
+name        = "Serial Tap over SSH"
+description = "Monitor serial communication through a Serial Tap connected to a remote machine over SSH"
+id          = ssh-serial-tap
+group       = hw
+monitor     = true
+log-guid    = 29725452-e64f-4c0e-a871-776277b68572  # serial
+log-guid    = 8ec96e77-89df-4dd8-bc14-b995b85de45d  # ssh
+log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
+icon        = images/serialmon.png
+small-icon  = images/serialmon-16x16.png
+
+session-class = SshSerialTapSession
+
+[required-capabilities]
+
+org.jancy.io.net
+org.jancy.io.ssh
+
+[optional-capabilities]
+
+org.jancy.io.ip4
+org.jancy.io.ip6
+org.jancy.io.file
+
+[scripts]
+
+SshSerialTapSession.jnc

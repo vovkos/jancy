@@ -68,7 +68,7 @@ XModemLayer.construct(doc.PluginHost* pluginHost) {
 
 	m_fileDlg.m_onCompleted += onFileDlgCompleted;
 	m_progressDlg.m_onButtonClicked += onProgressDlgButtonClicked;
-	pluginHost.m_log.addListener(onLogRecord @ pluginHost.m_mainThreadScheduler);
+	pluginHost.m_log.addObserver(onLogRecord @ pluginHost.m_mainThreadScheduler);
 
 	m_state = State.Idle;
 

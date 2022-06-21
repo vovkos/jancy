@@ -111,6 +111,12 @@ public:
 		closeSocket();
 	}
 
+	override bool errorcode dispatch(
+		uint_t code,
+		variant in,
+		variant* out
+	);
+
 protected:
 	void onOpen() {
 		m_state ? closeSocket() : try openSocket();
@@ -156,7 +162,6 @@ UdpSession.construct(doc.PluginHost* pluginHost) {
 
 	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
 	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
-	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 	m_resolver.m_onCompleted += onResolveCompleted;
 }
 
@@ -224,7 +229,7 @@ void UdpSession.createUi() {
 
 	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("UDP socket");
 
-	m_stdSessionInfoSet.createInformationValues(m_pluginHost.m_informationGrid, infoGroup);
+	m_stdSessionInfoSet.create(m_pluginHost.m_txRxStats, m_pluginHost.m_informationGrid, infoGroup);
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 
@@ -354,8 +359,10 @@ size_t errorcode UdpSession.transmit(
 	void const* p,
 	size_t size
 ) {
-	if (m_state == State.Closed)
+	if (m_state == State.Closed) {
+		std.setError("UDP socket not opened");
 		return -1;
+	}
 
 	if (m_resolver.m_state == iox.HostNameResolver.State.Idle ||
 		m_resolver.m_state == iox.HostNameResolver.State.Error)
@@ -375,6 +382,47 @@ size_t errorcode UdpSession.transmit(
 	}
 
 	return writeDatagram(p, size, &m_resolver.m_address);
+}
+
+bool errorcode UdpSession.dispatch(
+	uint_t code,
+	variant in,
+	variant* out
+) {
+	switch (code) {
+	case UdpDispatchCode.GetRemoteAddress:
+		*out = m_remoteAddressCombo.m_currentText;
+		break;
+
+	case UdpDispatchCode.SetRemoteAddress:
+		m_remoteAddressCombo.m_editText = in;
+		break;
+
+	case UdpDispatchCode.GetLocalPort:
+		*out = atoi(m_localPortCombo.m_currentText);
+		break;
+
+	case UdpDispatchCode.SetLocalPort:
+		m_localPortCombo.m_editText = $"%d"((uint_t)in);
+		break;
+
+	case UdpDispatchCode.GetRemotePort:
+		*out = m_socketPropertySet.m_remotePortProp.m_value;
+		break;
+
+	case UdpDispatchCode.SetRemotePort:
+		m_socketPropertySet.m_remotePortProp.m_value = in;
+		break;
+
+	case UdpDispatchCode.Open:
+		return openSocket();
+
+	case UdpDispatchCode.Close:
+		closeSocket();
+		break;
+	}
+
+	return true;
 }
 
 bool errorcode UdpSession.resolve() {

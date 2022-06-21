@@ -182,7 +182,7 @@ protected:
 	void onReconnectTimer(uint_t syncId);
 
 	void createUi();
-	void startReconnectTimer(bool canConnectNow);
+	void startReconnectTimer(uint64_t lastReconnectTime = -1);
 	void waitSocketEvents();
 	void addDisconnectLogRecord(uint_t flags);
 }
@@ -196,7 +196,6 @@ WebSocketClientSession.construct(doc.PluginHost* pluginHost) {
 
 	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
 	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
-	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
 void WebSocketClientSession.createUi() {
@@ -267,12 +266,11 @@ void WebSocketClientSession.createUi() {
 
 	// information grid
 
-	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("SSL Connection");
+	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("WebSocket connection");
 	m_infoTable[InfoId.LocalAddress] = m_pluginHost.m_informationGrid.createValue(infoGroup,,, "Local address");
 	m_infoTable[InfoId.RemoteAddress] = m_pluginHost.m_informationGrid.createValue(infoGroup,,, "Remote address");
 
-	m_stdSessionInfoSet.createInformationValues(m_pluginHost.m_informationGrid, infoGroup);
-
+	m_stdSessionInfoSet.create(m_pluginHost.m_txRxStats, m_pluginHost.m_informationGrid, infoGroup);
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 
@@ -303,7 +301,7 @@ bool errorcode WebSocketClientSession.connect() {
 		host = regexState.m_captureArray[1].m_text;
 
 		jnc.RegexMatch const* resourceSubMatch = regexState.m_captureArray[2];
-		resource = resourceSubMatch.m_length && *resourceSubMatch.m_text == '/' ?
+		resource = resourceSubMatch.m_length && resourceSubMatch.m_text[0] == '/' ?
 			resourceSubMatch.m_text :
 			strcat("/", resourceSubMatch.m_text);
 		break;
@@ -494,6 +492,7 @@ void WebSocketClientSession.close() {
 	m_socket.close();
 	m_state = State.Closed;
 	m_sessionConnectionState = SessionConnectionState.Disconnected;
+	m_lastReconnectTime = 0;
 	m_syncId++;
 }
 
@@ -590,8 +589,10 @@ size_t errorcode WebSocketClientSession.transmit(
 	void const* p,
 	size_t size
 ) {
-	if (m_state != State.Connected)
+	if (m_state != State.Connected) {
+		std.setError("not connected");
 		return -1;
+	}
 
 	size_t result = iox.transmitWebSocketData(
 		m_socket,
@@ -617,11 +618,11 @@ void WebSocketClientSession.ping() {
 	m_logWriter.write(WebSocketLogRecordCode.TxPing);
 }
 
-void WebSocketClientSession.startReconnectTimer(bool isForced) {
-	uint64_t delay = m_socketPropertySet.m_reconnectTimeoutProp.m_value;
-	uint64_t dueTime = m_lastReconnectTime + delay * 10000;
+void WebSocketClientSession.startReconnectTimer(uint64_t lastReconnectTime) {
+	uint64_t time = sys.getTimestamp();
+	uint64_t delay = (uint64_t)m_socketPropertySet.m_reconnectTimeoutProp.m_value * 10000;
 
-	if (!isForced && sys.getTimestamp() >= dueTime) { // immediate
+	if (time - delay > lastReconnectTime) { // don't spam reconnects if we're insta-rejected
 		onReconnectTimer(m_syncId);
 		return;
 	}
@@ -631,7 +632,7 @@ void WebSocketClientSession.startReconnectTimer(bool isForced) {
 
 	m_reconnectTimer.startDueTimer(
 		onReconnectTimer~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler,
-		dueTime
+		time + delay
 	);
 }
 
@@ -643,7 +644,12 @@ void WebSocketClientSession.onSocketEvent(
 		return;
 
 	if (triggeredEvents & io.WebSocketEvents.IoError) {
+		bool isReconnecting = m_lastReconnectTime != 0;
 		handleSocketError(m_socket.m_ioError);
+
+		if (isReconnecting && m_socketPropertySet.m_useReconnectProp.m_value)
+			startReconnectTimer();
+
 		return;
 	}
 
@@ -734,10 +740,11 @@ void WebSocketClientSession.onSocketEvent(
 			TcpDisconnectLogRecordFlags.Remote
 		);
 
+		uint64_t lastReconnectTime = m_lastReconnectTime;
 		close();
 
 		if (m_socketPropertySet.m_useReconnectProp.m_value)
-			startReconnectTimer(true);
+			startReconnectTimer(lastReconnectTime);
 
 		return;
 	}
@@ -789,11 +796,11 @@ void WebSocketClientSession.onReconnectTimer(uint_t syncId) {
 	if (syncId != m_syncId)
 		return;
 
-	m_lastReconnectTime = sys.getTimestamp();
-
 	bool result = try connect();
+	m_lastReconnectTime = sys.getTimestamp(); // after connect (connect calls close)
+
 	if (!result && m_socketPropertySet.m_useReconnectProp.m_value)
-		startReconnectTimer(false);
+		startReconnectTimer();
 }
 
 reactor WebSocketClientSession.m_uiReactor {

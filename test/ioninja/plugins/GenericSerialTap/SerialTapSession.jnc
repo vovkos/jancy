@@ -173,7 +173,6 @@ SerialTapSession.construct(doc.PluginHost* pluginHost) {
 
 	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
 	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
-	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
 void SerialTapSession.createUi() {
@@ -307,9 +306,9 @@ void SerialTapSession.createUi() {
 
 	// information grid
 
-	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Serial tap");
+	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Dual-COM serial tap");
 
-	m_stdSessionInfoSet.createInformationValues(m_pluginHost.m_informationGrid, infoGroup);
+	m_stdSessionInfoSet.create(m_pluginHost.m_txRxStats, m_pluginHost.m_informationGrid, infoGroup);
 
 	m_infoTable[InfoId.Dtr] = m_pluginHost.m_informationGrid.createValue(infoGroup,,, "DTR");
 	m_infoTable[InfoId.Rts] = m_pluginHost.m_informationGrid.createValue(infoGroup,,, "RTS");
@@ -431,7 +430,7 @@ bool errorcode SerialTapSession.open() {
 	m_dcePort.m_name = m_dcePortCombo.m_currentText;
 
 	if (strcmp(m_dtePort.m_name, m_dcePort.m_name) == 0) {
-		std.setError("ports A and B cannot be the same");
+		std.setError("DTE and DCE ports cannot be the same");
 		throw;
 	}
 

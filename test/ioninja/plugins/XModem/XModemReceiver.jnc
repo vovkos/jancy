@@ -1,14 +1,17 @@
+import "std_Buffer.jnc"
+
 //..............................................................................
 
 class XModemReceiver {
 protected:
 	enum State {
 		Idle,
-		Data,
-		Eot,
+		Command,
+		Buffer,
 	}
 
 	State m_state;
+	std.Buffer m_buffer;
 	uint64_t m_offset;
 
 	XModemLayer* m_parent;
@@ -25,10 +28,8 @@ public:
 	);
 
 protected:
-	void onRx_Data(XModemBlock const* block);
-
+	void processXModemBlock();
 	void complete();
-	void sendNextDataBlock();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -45,9 +46,10 @@ void XModemReceiver.start() {
 	try m_parent.transmit(&c, sizeof(c));
 
 	m_parent.m_progressDlg.m_status = "Receiving XModem data blocks...";
-	m_state = State.Data;
+	m_state = State.Command;
 	m_offset = 0;
 	m_parent.m_file.setSize(0);
+	m_buffer.clear();
 }
 
 void XModemReceiver.cancel() {
@@ -75,31 +77,50 @@ void XModemReceiver.onRx(
 	void const* p,
 	size_t size
 ) {
-	char c = *(char const*) p;
+	void const* end = p + size;
 
-	switch (c) {
-	case XModemChar.Soh:
-		if (m_state == State.Data && size == sizeof(XModemBlock))
-			onRx_Data((XModemBlock const*) p);
+	while (p < end) {
+		switch (m_state) {
+		case State.Command:
+			char c = *(char const*) p;
+			switch (c) {
+			case XModemChar.Soh:
+				m_state = State.Buffer;
+				m_buffer.clear();
+				break;
 
-		break;
+			case XModemChar.Can:
+				m_parent.m_progressDlg.m_status = "XModem transfer cancelled by remote node";
+				complete();
+				return;
 
-	case XModemChar.Can:
-		m_parent.m_progressDlg.m_status = "XModem transfer cancelled by remote node";
-		complete();
-		break;
+			case XModemChar.Eot:
+				static char c = XModemChar.Ack;
+				try m_parent.transmit(&c, sizeof(c));
+				m_parent.m_progressDlg.m_status = "XModem transfer completed successfully";
+				complete();
+				return;
+			}
 
-	case XModemChar.Eot:
-		static char c = XModemChar.Ack;
-		try m_parent.transmit(&c, sizeof(c));
+		case State.Buffer:
+			size = end - p;
+			if (m_buffer.m_size + size < sizeof(XModemBlock)) {
+				m_buffer.append(p, size);
+				return;
+			}
 
-		m_parent.m_progressDlg.m_status = "XModem transfer completed successfully";
-		complete();
-		break;
+			size_t appendSize = sizeof(XModemBlock) - m_buffer.m_size;
+			m_buffer.append(p, appendSize);
+			m_state = State.Command;
+			processXModemBlock();
+			p += appendSize;
+		}
 	}
 }
 
-void XModemReceiver.onRx_Data(XModemBlock const* block) {
+void XModemReceiver.processXModemBlock() {
+	XModemBlock const* block = (XModemBlock const*)m_buffer.m_p;
+
 	static char ack = XModemChar.Ack;
 	static char nak = XModemChar.Nak;
 
@@ -124,7 +145,7 @@ void XModemReceiver.onRx_Data(XModemBlock const* block) {
 	m_offset += XModemBlockSize;
 
 catch:
-	m_parent.m_progressDlg.m_status = std.getLastError().m_description;
+	m_parent.m_progressDlg.m_status = std.getLastErrorDescription();
 	complete();
 }
 

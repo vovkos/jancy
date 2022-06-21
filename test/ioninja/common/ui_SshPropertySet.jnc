@@ -157,7 +157,7 @@ void SshPropertySet.load(doc.Storage* storage) {
 		m_rememberLastPasswordProp.m_value = storage.readBool("rememberLastPassword", Defaults.RememberLastPassword);
 
 	if (m_processTypeProp)
-		m_processTypeProp.m_value = storage.readString("processType", DefaultProcessType);
+		m_processTypeProp.m_currentIndex = storage.readInt("processTypeIdx", Defaults.ProcessTypeIndex);
 
 	if (m_processParamProp)
 		m_processParamProp.m_value = storage.readString("processParam");
@@ -180,7 +180,7 @@ void SshPropertySet.save(doc.Storage* storage) {
 		storage.writeBool("rememberLastPassword", m_rememberLastPasswordProp.m_value);
 
 	if (m_processTypeProp)
-		storage.writeString("processType", m_processTypeProp.m_value);
+		storage.writeInt("processTypeIdx", m_processTypeProp.m_currentIndex);
 
 	if (m_processParamProp)
 		storage.writeString("processParam", m_processParamProp.m_value);

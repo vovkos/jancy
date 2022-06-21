@@ -62,7 +62,7 @@ struct TcpHdr {
 	[ displayName = "Flags" ]
 	TcpFlags m_flags;
 
-	[ displayName = "Windows size" ]
+	[ displayName = "Window size" ]
 	bigendian uint16_t m_window;
 
 	[

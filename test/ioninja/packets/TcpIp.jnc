@@ -14,40 +14,56 @@ pragma(Alignment, 1);
 
 //..............................................................................
 
-struct EthernetFrame {
+[ displayName = "Ethernet" ]
+struct EthernetPacket {
+	[ displayName = "Ethernet" ]
 	io.EthernetHdr m_ethernet;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ArpFrame {
+[ displayName = "ARP" ]
+struct ArpPacket {
+	[ displayName = "Ethernet" ]
 	io.EthernetHdr m_ethernet;
+
+	[ displayName = "ARP" ]
 	io.ArpHdr m_arp;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct IpFrame {
+[ displayName = "IPv4" ]
+struct IpPacket {
+	[ displayName = "Ethernet" ]
 	io.EthernetHdr m_ethernet;
+
+	[ displayName = "IP" ]
 	io.IpHdr m_ip;
 
-	[ packetTemplateAction ]
+	[ userAction = "Initialize with defaults" ]
 	void initialize() {
 		initializeEthernetIpHdr(&m_ethernet, &m_ip, (io.IpProtocol) 0);
 	}
 
-	[ packetTemplateAction ]
-	void calcLength() {
+	[
+		userAction = "Update length",
+		autorun = "Auto-update length"
+	]
+	void updateLength() {
 		m_ip.m_totalLength = dynamic sizeof(&m_ip);
 	}
 
-	[ packetTemplateAction ]
-	void calcChecksum() {
+	[
+		userAction = "Update checksum",
+		autorun = "Auto-update checksum"
+	]
+	void updateChecksum() {
 		m_ip.m_headerChecksum = 0;
 		m_ip.m_headerChecksum = calcIpHdrChecksum(&m_ip);
 	}
 
-	[ packetTemplateAction ]
+	[ userAction = "Set source address" ]
 	void setSrcAddress(char const* addressString) {
 		io.Address_ip4 addr;
 		bool result = try addr.parse(addressString);
@@ -55,7 +71,7 @@ struct IpFrame {
 			m_ip.m_srcAddress = addr.m_i32;
 	}
 
-	[ packetTemplateAction ]
+	[ userAction = "Set destination address" ]
 	void setDstAddress(char const* addressString) {
 		io.Address_ip4 addr;
 		bool result = try addr.parse(addressString);
@@ -66,31 +82,43 @@ struct IpFrame {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct IcmpFrame {
+[ displayName = "ICMP" ]
+struct IcmpPacket {
+	[ displayName = "Ethernet" ]
 	io.EthernetHdr m_ethernet;
+
+	[ displayName = "IP" ]
 	io.IpHdr m_ip;
+
+	[ displayName = "ICMP" ]
 	io.IcmpHdr m_icmp;
 
-	[ packetTemplateAction ]
+	[ userAction = "Initialize with defaults" ]
 	void initialize() {
 		initializeEthernetIpHdr(&m_ethernet, &m_ip, io.IpProtocol.Icmp);
 		m_icmp = null;
 	}
 
-	[ packetTemplateAction ]
-	void calcLength() {
+	[
+		userAction = "Update length",
+		autorun = "Auto-update length"
+	]
+	void updateLength() {
 		m_ip.m_totalLength = dynamic sizeof(&m_ip);
 	}
 
-	[ packetTemplateAction ]
-	void calcChecksum() {
+	[
+		userAction = "Update checksum",
+		autorun = "Auto-update checksum"
+	]
+	void updateChecksum() {
 		m_ip.m_headerChecksum = 0;
 		m_ip.m_headerChecksum = calcIpHdrChecksum(&m_ip);
 		m_icmp.m_checksum = 0;
 		m_icmp.m_checksum = adjustIpChecksum(calcChecksum16(&m_icmp, dynamic sizeof(&m_icmp)));
 	}
 
-	[ packetTemplateAction ]
+	[ userAction = "Set source address" ]
 	void setSrcAddress(char const* addressString) {
 		io.Address_ip4 addr;
 		bool result = try addr.parse(addressString);
@@ -98,7 +126,7 @@ struct IcmpFrame {
 			m_ip.m_srcAddress = addr.m_i32;
 	}
 
-	[ packetTemplateAction ]
+	[ userAction = "Set destination address" ]
 	void setDstAddress(char const* addressString) {
 		io.Address_ip4 addr;
 		bool result = try addr.parse(addressString);
@@ -109,31 +137,43 @@ struct IcmpFrame {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct TcpFrame {
+[ displayName = "TCP" ]
+struct TcpPacket {
+	[ displayName = "Ethernet" ]
 	io.EthernetHdr m_ethernet;
+
+	[ displayName = "IP" ]
 	io.IpHdr m_ip;
+
+	[ displayName = "TCP" ]
 	io.TcpHdr m_tcp;
 
-	[ packetTemplateAction ]
+	[ userAction = "Initialize with defaults" ]
 	void initialize() {
 		initializeEthernetIpHdr(&m_ethernet, &m_ip, io.IpProtocol.Tcp);
 		m_tcp = null;
 	}
 
-	[ packetTemplateAction ]
-	void calcLength() {
+	[
+		userAction = "Update length",
+		autorun = "Auto-update length"
+	]
+	void updateLength() {
 		m_ip.m_totalLength = dynamic sizeof(&m_ip);
 	}
 
-	[ packetTemplateAction ]
-	void calcChecksum() {
+	[
+		userAction = "Update checksum",
+		autorun = "Auto-update checksum"
+	]
+	void updateChecksum() {
 		m_ip.m_headerChecksum = 0;
 		m_ip.m_headerChecksum = calcIpHdrChecksum(&m_ip);
 		m_tcp.m_checksum = 0;
 		m_tcp.m_checksum = calcTcpUdpChecksum(&m_ip, &m_tcp, dynamic sizeof(&m_tcp));
 	}
 
-	[ packetTemplateAction ]
+	[ userAction = "Set source address" ]
 	void setSrcAddress(char const* addressString) {
 		io.SocketAddress_ip4 addr;
 		bool result = try addr.parse(addressString);
@@ -146,7 +186,7 @@ struct TcpFrame {
 		}
 	}
 
-	[ packetTemplateAction ]
+	[ userAction = "Set destination address" ]
 	void setDstAddress(char const* addressString) {
 		io.SocketAddress_ip4 addr;
 		bool result = try addr.parse(addressString);
@@ -162,32 +202,44 @@ struct TcpFrame {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct UdpFrame {
+[ displayName = "UDP" ]
+struct UdpPacket {
+	[ displayName = "Ethernet" ]
 	io.EthernetHdr m_ethernet;
+
+	[ displayName = "IP" ]
 	io.IpHdr m_ip;
+
+	[ displayName = "UDP" ]
 	io.UdpHdr m_udp;
 
-	[ packetTemplateAction ]
+	[ userAction = "Initialize with defaults" ]
 	void initialize() {
 		initializeEthernetIpHdr(&m_ethernet, &m_ip, io.IpProtocol.Udp);
 		m_udp = null;
 	}
 
-	[ packetTemplateAction ]
-	void calcLength() {
+	[
+		userAction = "Update length",
+		autorun = "Auto-update length"
+	]
+	void updateLength() {
 		m_ip.m_totalLength = dynamic sizeof(&m_ip);
 		m_udp.m_length = dynamic sizeof(&m_udp);
 	}
 
-	[ packetTemplateAction ]
-	void calcChecksum() {
+	[
+		userAction = "Update checksum",
+		autorun = "Auto-update checksum"
+	]
+	void updateChecksum() {
 		m_ip.m_headerChecksum = 0;
 		m_ip.m_headerChecksum = calcIpHdrChecksum(&m_ip);
 		m_udp.m_checksum = 0;
 		m_udp.m_checksum = calcTcpUdpChecksum(&m_ip, &m_udp, dynamic sizeof(&m_udp));
 	}
 
-	[ packetTemplateAction ]
+	[ userAction = "Set source address" ]
 	void setSrcAddress(char const* addressString) {
 		io.SocketAddress_ip4 addr;
 		bool result = try addr.parse(addressString);
@@ -200,7 +252,7 @@ struct UdpFrame {
 		}
 	}
 
-	[ packetTemplateAction ]
+	[ userAction = "Set destination address" ]
 	void setDstAddress(char const* addressString) {
 		io.SocketAddress_ip4 addr;
 		bool result = try addr.parse(addressString);

@@ -1,0 +1,122 @@
+//..............................................................................
+//
+// Serial session dispatch interface for IAS
+//
+
+import "io_base.jncx"
+import "io_Serial.jnc"
+import "ias.jnc"
+
+//..............................................................................
+
+class SerialDispatch: ias.Session {
+	property m_portName {
+		char const* get() {
+			return dispatchGet(SerialDispatchCode.GetPortName);
+		}
+
+		void set(char const* value) {
+			dispatch(SerialDispatchCode.SetPortName, value);
+		}
+	}
+
+	property m_baudRate {
+		uint_t get() {
+			return dispatchGet(SerialDispatchCode.GetBaudRate);
+		}
+
+		void set(uint_t value) {
+			dispatch(SerialDispatchCode.SetBaudRate, value);
+		}
+	}
+
+	property m_dataBits {
+		uint_t get() {
+			return dispatchGet(SerialDispatchCode.GetDataBits);
+		}
+
+		void set(uint_t value) {
+			dispatch(SerialDispatchCode.SetDataBits, value);
+		}
+	}
+
+	property m_stopBits {
+		io.SerialStopBits get() {
+			return dispatchGet(SerialDispatchCode.GetStopBits);
+		}
+
+		void set(io.SerialStopBits value) {
+			dispatch(SerialDispatchCode.SetStopBits, value);
+		}
+	}
+
+	property m_parity {
+		io.SerialParity get() {
+			return dispatchGet(SerialDispatchCode.GetParity);
+		}
+
+		void set(io.SerialParity value) {
+			dispatch(SerialDispatchCode.SetParity, value);
+		}
+	}
+
+	property m_flowControl {
+		io.SerialFlowControl get() {
+			return dispatchGet(SerialDispatchCode.GetFlowControl);
+		}
+
+		void set(io.SerialFlowControl value) {
+			dispatch(SerialDispatchCode.SetFlowControl, value);
+		}
+	}
+
+	property m_statusLines {
+		io.SerialStatusLines get() {
+			return dispatchGet(SerialDispatchCode.GetStatusLines, value);
+		}
+
+		void set(io.SerialStatusLines value) {
+			dispatch(SerialDispatchCode.SetStatusLines, value);
+		}
+	}
+
+	property m_dtr {
+		bool get() {
+			return dispatchGet(SerialDispatchCode.GetDtr);
+		}
+
+		void set(bool value) {
+			dispatch(SerialDispatchCode.SetDtr, value);
+		}
+	}
+
+	property m_rts {
+		bool get() {
+			return dispatchGet(SerialDispatchCode.GetRts);
+		}
+
+		void set(bool value) {
+			dispatch(SerialDispatchCode.SetRts, value);
+		}
+	}
+
+	property m_breakCondition {
+		bool get() {
+			return dispatchGet(SerialDispatchCode.GetBreakCondition);
+		}
+
+		void set(bool value) {
+			dispatch(SerialDispatchCode.SetBreakCondition, value);
+		}
+	}
+
+	bool errorcode open(char const* portName = null) { // null = use m_portName
+		return dispatch(SerialDispatchCode.Open, portName);
+	}
+
+	void close() {
+		dispatch(SerialDispatchCode.Close);
+	}
+}
+
+//..............................................................................

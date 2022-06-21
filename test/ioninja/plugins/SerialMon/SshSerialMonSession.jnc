@@ -7,7 +7,6 @@ import "doc_Session.jnc"
 import "io_base.jncx"
 import "io_ssh.jncx"
 import "io_File.jnc"
-import "io_Socket.jnc"
 import "io_HostNameResolver.jnc"
 import "ui_Dialog.jnc"
 import "ui_History.jnc"
@@ -19,6 +18,7 @@ import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
 import "SerialMonitor_mi.jnc"
 import "std_Buffer.jnc"
+import "loadFile.jnc"
 
 using extension ui.ComboBoxHistory;
 
@@ -164,7 +164,6 @@ SshSerialMonSession.construct(doc.PluginHost* pluginHost) {
 
 	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
 	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
-	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
 void SshSerialMonSession.createUi() {
@@ -225,9 +224,9 @@ void SshSerialMonSession.createUi() {
 
 	// information grid
 
-	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("SSH session");
+	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Serial monitor over SSH");
 
-	m_stdSessionInfoSet.createInformationValues(m_pluginHost.m_informationGrid, infoGroup);
+	m_stdSessionInfoSet.create(m_pluginHost.m_txRxStats, m_pluginHost.m_informationGrid, infoGroup);
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 
@@ -698,25 +697,6 @@ reactor SshSerialMonSession.m_uiReactor {
 	m_statusPaneTable[StatusPaneId.State].m_text = m_stateStringTable[m_state];
 	m_statusPaneTable[StatusPaneId.RemoteAddress].m_text = m_state > State.Resolving ? m_remoteAddress.getString() : "<peer-address>";
 	m_statusPaneTable[StatusPaneId.RemoteAddress].m_isVisible = m_state > State.Resolving;
-}
-
-//..............................................................................
-
-// simple helper to load private key files (returning null is OK)
-
-void const* loadFile(char const* fileName) {
-	if (!fileName || !*fileName)
-		return null;
-
-	io.File file;
-	file.open(fileName, io.FileOpenFlags.ReadOnly);
-	size_t size = file.m_size; // cache size (file may change)
-	void* p = new char[size];
-	file.read(p, size);
-	return p;
-
-catch:
-	return null;
 }
 
 //..............................................................................

@@ -1,0 +1,45 @@
+//..............................................................................
+//
+// TCP Server dispatch interface for IAS
+//
+
+import "io_base.jncx"
+import "io_Socket.jnc"
+import "ias.jnc"
+
+//..............................................................................
+
+class TcpServerDispatch: ias.Session {
+	property m_localPort {
+		uint_t get() {
+			return dispatchGet(TcpServerDispatchCode.GetLocalPort);
+		}
+
+		void set(uint_t value) {
+			dispatch(TcpServerDispatchCode.SetLocalPort, value);
+		}
+	}
+
+	bool errorcode listen() {
+		return dispatch(TcpServerDispatchCode.Listen);
+	}
+
+	bool errorcode listen(uint_t port) {
+		dispatch(TcpServerDispatchCode.SetLocalPort, port);
+		return dispatch(TcpServerDispatchCode.Listen);
+	}
+
+	void stopListen() {
+		dispatch(TcpServerDispatchCode.StopListen);
+	}
+
+	void disconnect() {
+		dispatch(TcpServerDispatchCode.Disconnect);
+	}
+
+	void disconnectAll() {
+		dispatch(TcpServerDispatchCode.DisconnectAll);
+	}
+}
+
+//..............................................................................

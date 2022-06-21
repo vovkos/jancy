@@ -118,6 +118,12 @@ public:
 		size_t size
 	);
 
+	override bool errorcode dispatch(
+		uint_t code,
+		variant in,
+		variant* out
+	);
+
 protected:
 	void onEnumerateDevices() {
 		ui.refreshUsbDeviceListUi(m_deviceCombo, m_deviceProp);
@@ -153,7 +159,6 @@ UsbDataEndpointSession.construct(doc.PluginHost* pluginHost) {
 
 	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
 	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
-	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
 void UsbDataEndpointSession.createUi() {
@@ -258,7 +263,7 @@ void UsbDataEndpointSession.createUi() {
 
 	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("USB connection");
 
-	m_stdSessionInfoSet.createInformationValues(m_pluginHost.m_informationGrid, infoGroup);
+	m_stdSessionInfoSet.create(m_pluginHost.m_txRxStats, m_pluginHost.m_informationGrid, infoGroup);
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 
@@ -563,8 +568,10 @@ size_t errorcode UsbDataEndpointSession.transmit(
 	void const* p,
 	size_t size
 ) {
-	if (m_state < State.Claimed || m_outEndpointCombo.m_currentIndex == -1)
+	if (m_state < State.Claimed || m_outEndpointCombo.m_currentIndex == -1) {
+		std.setError("no USB out-endpoint");
 		return -1;
+	}
 
 	io.UsbEndpointDesc const* endpointDesc = m_outEndpointCombo.m_currentData;
 	if (!m_outEndpoint || m_outEndpoint.m_endpointDesc.m_endpointId != endpointDesc.m_endpointId) {
@@ -579,6 +586,122 @@ size_t errorcode UsbDataEndpointSession.transmit(
 catch:
 	m_logWriter.writeLastError(log.StdRecordCode.Error);
 	return -1;
+}
+
+bool errorcode UsbDataEndpointSession.dispatch(
+	uint_t code,
+	variant in,
+	variant* out
+) {
+	switch (code) {
+	case UsbDataEndpointDispatchCode.GetDeviceVid:
+		io.UsbDevice const* device = m_deviceCombo.m_currentData;
+		*out = device ? device.m_deviceDesc.m_vendorId : -1;
+		break;
+
+	case UsbDataEndpointDispatchCode.GetDevicePid:
+		io.UsbDevice const* device = m_deviceCombo.m_currentData;
+		*out = device ? device.m_deviceDesc.m_productId : -1;
+		break;
+
+	case UsbDataEndpointDispatchCode.SetDeviceVidPid:
+		uint_t vidPid = (uint_t)in;
+		size_t i = ui.findUsbDeviceComboIndex(m_deviceCombo, vidPid >> 16, vidPid & 0xffff);
+		if (i != -1)
+			m_deviceCombo.m_currentIndex = i;
+		break;
+
+	case UsbDataEndpointDispatchCode.GetInterfaceId:
+		io.UsbInterfaceDesc const* ifaceDesc = m_interfaceCombo.m_currentData;
+		*out = ifaceDesc ? ifaceDesc.m_interfaceId : -1;
+		break;
+
+	case UsbDataEndpointDispatchCode.SetInterfaceId:
+		size_t i = ui.findUsbInterfaceComboIndex(m_interfaceCombo, (uint_t)in);
+		if (i != -1)
+			m_interfaceCombo.m_currentIndex = i;
+		break;
+
+	case UsbDataEndpointDispatchCode.GetOutEndpointId:
+		io.UsbEndpointDesc const* epDesc = m_outEndpointCombo.m_currentData;
+		*out = epDesc ? epDesc.m_endpointId : -1;
+		break;
+
+	case UsbDataEndpointDispatchCode.SetOutEndpointId:
+		size_t i = ui.findUsbEndpointComboIndex(m_outEndpointCombo, (uint_t)in);
+		if (i != -1)
+			m_outEndpointCombo.m_currentIndex = i;
+		break;
+
+	case UsbDataEndpointDispatchCode.GetInEndpointId:
+		io.UsbEndpointDesc const* epDesc = m_inEndpointCombo.m_currentData;
+		*out = epDesc ? epDesc.m_endpointId : -1;
+		break;
+
+	case UsbDataEndpointDispatchCode.SetInEndpointId:
+		size_t i = ui.findUsbEndpointComboIndex(m_inEndpointCombo, (uint_t)in);
+		if (i != -1)
+			m_inEndpointCombo.m_currentIndex = i;
+		break;
+
+	case UsbDataEndpointDispatchCode.OpenDevice:
+		return openDevice();
+
+	case UsbDataEndpointDispatchCode.OpenDeviceVidPid:
+		uint_t vidPid = (uint_t)in;
+		size_t i = ui.findUsbDeviceComboIndex(m_deviceCombo, vidPid >> 16, vidPid & 0xffff);
+		if (i == -1) {
+			std.setError("device not found");
+			return false;
+		}
+
+		m_deviceCombo.m_currentIndex = i;
+		return openDevice();
+
+	case UsbDataEndpointDispatchCode.CloseDevice:
+		closeDevice();
+		break;
+
+	case UsbDataEndpointDispatchCode.ClaimInterface:
+		return claimInterface();
+
+	case UsbDataEndpointDispatchCode.ClaimInterfaceId:
+		size_t i = ui.findUsbInterfaceComboIndex(m_interfaceCombo, (uint_t)in);
+		if (i == -1) {
+			std.setError("interface not found");
+			return false;
+		}
+
+		m_interfaceCombo.m_currentIndex = i;
+		return claimInterface();
+
+	case UsbDataEndpointDispatchCode.ReleaseInterface:
+		releaseInterface();
+		break;
+
+	case UsbDataEndpointDispatchCode.StartReading:
+		return startReading();
+
+	case UsbDataEndpointDispatchCode.StartReadingEndpoint:
+		size_t i = ui.findUsbEndpointComboIndex(m_inEndpointCombo, (uint_t)in);
+		if (i == -1) {
+			std.setError("endpoint not found");
+			return false;
+		}
+
+		m_inEndpointCombo.m_currentIndex = i;
+		return startReading();
+
+	case UsbDataEndpointDispatchCode.StopReading:
+		stopReading();
+		break;
+
+	default:
+		std.setError("unsupported dispatch code");
+		return false;
+	}
+
+	return true;
 }
 
 void UsbDataEndpointSession.onOutEndpointEvent(

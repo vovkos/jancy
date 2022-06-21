@@ -4,6 +4,7 @@
 //
 
 import "ui_ChecksumInfoSet.jnc"
+import "crc8.jnc"
 import "crc16.jnc"
 import "crc32.jnc"
 
@@ -20,6 +21,8 @@ protected:
 	uint64_t m_sum8;
 	uint64_t m_sum16_le;
 	uint64_t m_sum16_be;
+	uint8_t m_xor8;
+	uint8_t m_crc8_ccitt;
 	uint16_t m_crc16_ansi;
 	uint16_t m_crc16_modbus;
 	uint16_t m_crc16_xmodem;
@@ -55,7 +58,8 @@ void ChecksumCalcRangeProcessor.processBin(
 	size_t size
 ) {
 	m_sum8 = sum8(p, size, m_sum8);
-
+	m_xor8 = xor8(p, size, m_xor8);
+	m_crc8_ccitt = crc8_ccitt(p, size, m_crc8_ccitt);
 	m_crc16_ansi = crc16_ansi(p, size, m_crc16_ansi);
 	m_crc16_modbus = crc16_ansi(p, size, m_crc16_modbus);
 	m_crc16_xmodem = crc16_ccitt(p, size, m_crc16_xmodem);
@@ -109,6 +113,9 @@ void ChecksumCalcRangeProcessor.processBin(
 }
 
 void ChecksumCalcRangeProcessor.processEndOfRange() {
+	if (m_infoSet.m_crc8Info_ccitt)
+		m_infoSet.m_crc8Info_ccitt.m_value = $"$(m_crc8_ccitt; 02X)";
+
 	if (m_infoSet.m_crc16Info_ansi)
 		m_infoSet.m_crc16Info_ansi.m_value = $"$(m_crc16_ansi; 04X)";
 
@@ -127,6 +134,9 @@ void ChecksumCalcRangeProcessor.processEndOfRange() {
 	if (m_infoSet.m_ip4ChecksumInfo)
 		m_infoSet.m_ip4ChecksumInfo.m_value = $"$(~m_ip4Checksum & 0xffff; 04X)";
 
+	if (m_infoSet.m_xor8Info)
+		m_infoSet.m_xor8Info.m_value = $"$(m_xor8; 02X)";
+
 	if (m_infoSet.m_sum8Info)
 		m_infoSet.m_sum8Info.m_value = $"$(m_sum8; 02X)";
 
@@ -143,11 +153,10 @@ void ChecksumCalcRangeProcessor.processEndOfRange() {
 
 } // namespace log
 
-
 //! \addtogroup common-crc
 //! @{
 
-// simple helper
+// simple helpers
 
 uint64_t sum8(
 	void const* p,
@@ -155,12 +164,26 @@ uint64_t sum8(
 	uint64_t seed = 0
 ) {
 	uint8_t const* b = (uint8_t const*) p;
-	uint32_t sum = seed;
+	uint64_t sum = seed;
 
 	for (; size; size--)
 		sum += *b++;
 
 	return sum;
+}
+
+uint8_t xor8(
+	void const* p,
+	size_t size,
+	uint8_t seed = 0
+) {
+	uint8_t const* b = (uint8_t const*) p;
+	uint8_t xor = seed;
+
+	for (; size; size--)
+		xor ^= *b++;
+
+	return xor;
 }
 
 //! @}

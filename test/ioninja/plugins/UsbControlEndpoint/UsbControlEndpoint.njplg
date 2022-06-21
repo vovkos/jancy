@@ -13,7 +13,8 @@ log-guid    = 3b5bd445-951e-4f76-9d8d-fe97aecbdd73  # usb
 icon        = images/usb.png
 small-icon  = images/usb-16x16.png
 
-session-class = UsbControlEndpointSession
+session-class  = UsbControlEndpointSession
+dispatch-class = UsbControlEndpointDispatch
 
 [required-capabilities]
 
@@ -23,3 +24,9 @@ org.jancy.io.file
 [scripts]
 
 UsbControlEndpointSession.jnc
+UsbControlEndpointDispatchCode.jnc
+
+[dispatch-scripts]
+
+UsbControlEndpointDispatchCode.jnc
+UsbControlEndpointDispatch.jnc

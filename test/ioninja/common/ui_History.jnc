@@ -14,7 +14,7 @@ namespace ui {
 //..............................................................................
 
 extension ComboBoxHistory: ComboBox {
-	void addEditTextToHistory();
+	bool addEditTextToHistory();
 
 	void addToHistory(
 		char const* text,
@@ -36,8 +36,12 @@ extension ComboBoxHistory: ComboBox {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void ComboBoxHistory.addEditTextToHistory() {
-	return addToHistory(m_editText);
+bool ComboBoxHistory.addEditTextToHistory() {
+	if (!m_editText || !*m_editText)
+		return false;
+
+	addToHistory(m_editText);
+	return true;
 }
 
 void ComboBoxHistory.addToHistory(

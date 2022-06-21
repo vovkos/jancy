@@ -147,7 +147,6 @@ UdpFlowMonSession.construct(doc.PluginHost* pluginHost) {
 	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
 	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
 	pluginHost.m_log.addFilter(m_filter);
-	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
 void UdpFlowMonSession.createUi() {
@@ -258,7 +257,7 @@ void UdpFlowMonSession.createUi() {
 
 	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("UDP monitor");
 
-	m_stdSessionInfoSet.createInformationValues(m_pluginHost.m_informationGrid, infoGroup);
+	m_stdSessionInfoSet.create(m_pluginHost.m_txRxStats, m_pluginHost.m_informationGrid, infoGroup);
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 
@@ -319,6 +318,7 @@ bool errorcode UdpFlowMonSession.capture() {
 
 catch:
 	m_logWriter.writeLastError(PcapLogRecordCode.CaptureError);
+	m_pcap.close();
 	return false;
 }
 
@@ -518,12 +518,22 @@ void UdpFlowMonSession.onPcapEvent(
 		size_t result = m_pcap.read(m_readBuffer.m_p, m_readBuffer.m_size, &timestamp);
 		if (result) {
 			g_logWriter = m_pluginHost.m_log.m_writer;
-			g_logTimestamp = timestamp;
-			m_decoder.decodeLinkHdr(m_pcap.m_linkType, m_readBuffer.m_p, result);
+			m_decoder.decodeLinkHdr(m_pcap.m_linkType, timestamp, m_readBuffer.m_p, result);
 		}
 	}
 
 	if (triggeredEvents & io.PcapEvents.Eof) {
+		g_logWriter = m_pluginHost.m_log.m_writer;
+
+		for (;;) {
+			uint64_t timestamp;
+			size_t result = m_pcap.read(m_readBuffer.m_p, m_readBuffer.m_size, &timestamp);
+			if (!result)
+				break;
+
+			m_decoder.decodeLinkHdr(m_pcap.m_linkType, timestamp, m_readBuffer.m_p, result);
+		}
+
 		stopCapture();
 		return;
 	}

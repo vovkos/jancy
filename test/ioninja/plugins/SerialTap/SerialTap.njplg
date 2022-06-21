@@ -8,7 +8,7 @@
 name        = "Serial Tap"
 description = "Monitor serial communication through a Serial Tap device from Tibbo"
 id          = serial-tap
-group       = serial
+group       = hw
 monitor     = true
 log-guid    = 29725452-e64f-4c0e-a871-776277b68572  # serial log
 icon        = images/serialmon.png

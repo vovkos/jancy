@@ -7,7 +7,6 @@ import "io_IpDecoder.jnc"
 import "log_Writer.jnc"
 
 threadlocal log.Writer* g_logWriter;
-threadlocal uint64_t g_logTimestamp;
 
 //..............................................................................
 
@@ -17,6 +16,7 @@ public:
 
 protected:
 	override bool decodeTransportHdr(
+		uint64_t timestamp,
 		io.SocketAddress* srcAddress,
 		io.SocketAddress* dstAddress,
 		io.IpProtocol protocol,
@@ -28,6 +28,7 @@ protected:
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool UdpDecoder.decodeTransportHdr(
+	uint64_t timestamp,
 	io.SocketAddress* srcAddress,
 	io.SocketAddress* dstAddress,
 	io.IpProtocol protocol,
@@ -57,8 +58,8 @@ bool UdpDecoder.decodeTransportHdr(
 	params.m_dstAddress = *dstAddress;
 	params.m_size = size;
 
-	g_logWriter.write(g_logTimestamp, UdpFlowLogRecordCode.Packet, &params, sizeof(params));
-	g_logWriter.write(g_logTimestamp, log.StdRecordCode.Rx, p, size);
+	g_logWriter.write(timestamp, UdpFlowLogRecordCode.Packet, &params, sizeof(params));
+	g_logWriter.write(timestamp, log.StdRecordCode.Rx, p, size);
 	return true;
 }
 

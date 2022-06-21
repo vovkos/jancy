@@ -294,7 +294,6 @@ SerialTapSession.construct(doc.PluginHost* pluginHost) {
 
 	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
 	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
-	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
 void SerialTapSession.createUi() {
@@ -374,9 +373,9 @@ void SerialTapSession.createUi() {
 
 	// information grid
 
-	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Serial tap");
+	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Serial Tap");
 
-	m_stdSessionInfoSet.createInformationValues(m_pluginHost.m_informationGrid, infoGroup);
+	m_stdSessionInfoSet.create(m_pluginHost.m_txRxStats, m_pluginHost.m_informationGrid, infoGroup);
 
 	m_infoTable[InfoId.Dtr] = m_pluginHost.m_informationGrid.createValue(infoGroup,,, "DTR");
 	m_infoTable[InfoId.Rts] = m_pluginHost.m_informationGrid.createValue(infoGroup,,, "RTS");
@@ -758,8 +757,8 @@ void SerialTapSession.updateLineInfoValue(
 
 reactor SerialTapSession.m_uiReactor {
 	m_title = m_state ?
-		$"Tap $(m_deviceName)" :
-		$"Tap $(m_deviceCombo.m_currentText)";
+		$"Serial Tap $(m_deviceName)" :
+		$"Serial Tap $(m_deviceCombo.m_currentText)";
 
 	m_actionTable[ActionId.Capture].m_text = m_state ? "Stop capture" : "Capture";
 	m_actionTable[ActionId.Capture].m_icon = m_iconTable[m_state ? IconId.StopCapture : IconId.Capture];

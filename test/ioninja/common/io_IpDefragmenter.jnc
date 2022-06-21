@@ -17,7 +17,8 @@ namespace io {
 class IpDefragmenter {
 	enum Defaults {
 		FragmentLimit   = 8,
-		FragmentTimeout = 3000,
+		FragmentTimeout = 10000, // 10 sec
+		CleanupPeriod   = 10,    // cleanup timed out chains every 10 new chains
 	}
 
 protected:
@@ -31,7 +32,7 @@ protected:
 		std.ListEntry* m_listEntry;
 		uint64_t m_key;
 		std.List m_fragmentList;
-		uint64_t m_deadlineTimestamp;
+		uint64_t m_timestamp;
 
 		io.IpHdr* m_ipHdr;
 		size_t m_offset;
@@ -40,34 +41,36 @@ protected:
 
 	std.List m_chainList;
 	std.HashTable m_chainHashTable;
+	size_t m_chainSeqId;
 
 public:
-	size_t m_fragmentLimit;
-	uint_t m_timeout;
+	size_t m_fragmentLimit = Defaults.FragmentLimit;
+	uint_t m_fragmentTimeout = Defaults.FragmentTimeout;
+	size_t m_cleanupPeriod = Defaults.CleanupPeriod;
 
 public:
-	construct();
-
-	void reset() {
-		m_chainHashTable.clear();
-	}
+	void reset();
 
 	io.IpHdr const* defragment(
+		uint64_t timestamp,
 		io.IpHdr const* ipHdr,
 		size_t size
 	);
 
 protected:
+	Chain* createChain(uint64_t key);
 	io.IpHdr const* assembleChain(Chain* chain);
-	void removeTimedOutChains();
+	void removeTimedOutChains(uint64_t timestamp);
 }
 
-IpDefragmenter.construct() {
-	m_fragmentLimit = Defaults.FragmentLimit;
-	m_timeout = Defaults.FragmentTimeout; // 3 sec
+void IpDefragmenter.reset() {
+	m_chainList.clear();
+	m_chainHashTable.clear();
+	m_chainSeqId = 0;
 }
 
 io.IpHdr const* IpDefragmenter.defragment(
+	uint64_t timestamp,
 	io.IpHdr const* ipHdr,
 	size_t size
 ) {
@@ -80,17 +83,13 @@ io.IpHdr const* IpDefragmenter.defragment(
 	void const* payload = (char const*) ipHdr + ipHdrSize;
 	size = ipHdr.m_totalLength - ipHdrSize;
 
-	uint64_t timestamp = sys.getTimestamp();
 	uint64_t key = (uint64_t)ipHdr.m_srcAddress | (ipHdr.m_identification << 32);
 	Chain* chain = m_chainHashTable[key];
 	if (!chain) {
-		chain = new Chain;
-		chain.m_key = key;
-		chain.m_listEntry = m_chainList.insertTail(chain);
-		m_chainHashTable[key] = chain;
-	} else if (
-		chain.m_deadlineTimestamp < timestamp || // chain timed out
-		chain.m_fragmentList.m_count >= m_fragmentLimit) { // too many fragments in chain
+		chain = createChain(key);
+		if (!(++m_chainSeqId % m_cleanupPeriod))
+			removeTimedOutChains(timestamp);
+	} else if (chain.m_fragmentList.m_count >= m_fragmentLimit) {
 		m_chainList.remove(chain.m_listEntry);
 		m_chainHashTable.removeKey(chain.m_key);
 		return null;
@@ -135,15 +134,18 @@ io.IpHdr const* IpDefragmenter.defragment(
 		chain.m_offset = 0;
 	}
 
-	// reset chain timer
-
-	chain.m_deadlineTimestamp = timestamp + m_timeout * 10000;
+	chain.m_timestamp = timestamp;
 	m_chainList.moveToTail(chain.m_listEntry);
-
 	io.IpHdr const* result = chain.m_ipHdr ? assembleChain(chain) : null;
-
-	removeTimedOutChains();
 	return result;
+}
+
+Chain* IpDefragmenter.createChain(uint64_t key) {
+	Chain* chain = new Chain;
+	chain.m_key = key;
+	chain.m_listEntry = m_chainList.insertTail(chain);
+	m_chainHashTable[key] = chain;
+	return chain;
 }
 
 io.IpHdr const* IpDefragmenter.assembleChain(IpDefragmenter.Chain* chain) {
@@ -174,12 +176,12 @@ io.IpHdr const* IpDefragmenter.assembleChain(IpDefragmenter.Chain* chain) {
 	return chain.m_ipHdr;
 }
 
-void IpDefragmenter.removeTimedOutChains() {
-	uint64_t timestamp = sys.getTimestamp();
+void IpDefragmenter.removeTimedOutChains(uint64_t timestamp) {
+	timestamp -= m_fragmentTimeout * 10000;
 
 	while (m_chainList.m_count) {
 		Chain* chain = m_chainList.m_head.m_data;
-		if (timestamp < chain.m_deadlineTimestamp)
+		if (timestamp < chain.m_timestamp) // the rest is even more recent
 			break;
 
 		m_chainList.remove(chain.m_listEntry);

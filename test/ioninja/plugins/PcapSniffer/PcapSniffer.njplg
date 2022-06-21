@@ -15,6 +15,7 @@ icon        = images/sniffer.png
 small-icon  = images/sniffer-16x16.png
 terminal    = false
 detail-pane = true
+sudo        = true
 
 session-class = PcapSnifferSession
 

@@ -1,10 +1,9 @@
 //..............................................................................
 //
-// Ninja in-app scripting API
+// Ninja IAS (In-App Scripting) API
 //
 
 import "log_Writer.jnc"
-import "log_Listener.jnc"
 import "log_RecordCode.jnc"
 
 //! \addtogroup api-ias
@@ -21,6 +20,8 @@ void clearLog();
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+// basic session transport operations
+
 bool errorcode connect();
 void disconnect();
 
@@ -31,10 +32,104 @@ size_t errorcode transmit(
 
 size_t errorcode receive(
 	void* p,
-	size_t size
+	size_t size,
+	uint_t timeout = -1 // return as much as received on timeout
 );
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// higher level transmit/receive -- loop until the whole buffer is transferred
+
+size_t errorcode transmitAll(
+	void const* p,
+	size_t size = -1
+) {
+	void const* p0 = p;
+	void const* end = p + size;
+	while (p < end) {
+		size_t blockSize = end - p;
+		size_t result = transmit(p, blockSize);
+		if (result < blockSize) { // buffer full, give it some time to flush
+			sys.sleep(250);
+			break;
+		}
+
+		p += result;
+	}
+
+	return p - p0;
+}
+
+size_t errorcode receiveAll(
+	void* p,
+	size_t size
+) {
+	void const* p0 = p;
+	void const* end = p + size;
+	while (p < end) {
+		size_t result = receive(p, end - p);
+		p += result;
+	}
+
+	return p - p0;
+}
+
+size_t errorcode receiveAll(
+	void* p,
+	size_t size,
+	uint_t timeout // return as much as was received on timeout
+) {
+	uint_t timeEnd = sys.getTimestamp() / 10000 + timeout; // in msec
+	void const* p0 = p;
+	void const* end = p + size;
+	while (p < end) {
+		timeout = timeEnd - sys.getTimestamp() / 10000; // adjust timeout
+		size_t result = receive(p, end - p, timeout);
+		if (!result) // timeout
+			break;
+
+		p += result;
+	}
+
+	return p - p0;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// dispatch iface provides access to session-specific functions
+
+bool errorcode dispatch(
+	uint_t code,
+	variant in = null,
+	variant* out = null
+);
+
+variant dispatchGet(
+	uint_t code,
+	variant in = null
+) {
+	variant result;
+	dispatch(code, in, &result);
+	return result;
+}
+
+namespace ias {
+
+// sessions that support dispatch iface should normally derive from ias.Session
+
+class Session {
+	char const* const property m_id;
+	char const* const property m_name;
+	char const* const property m_description;
+	char const* const property m_pluginDir;
+}
+
+} // namespace ias
+
 //..............................................................................
+
+// two entry points for the script
+// either one of those is required; both are OK, too, of course
 
 [ prototype ]
 void main();

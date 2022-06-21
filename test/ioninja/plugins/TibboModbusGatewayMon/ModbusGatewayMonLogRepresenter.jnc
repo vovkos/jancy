@@ -483,6 +483,23 @@ void representModbusRegisterValues(
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+char const* formatModbusFuncDescription(
+    io.ModbusRole role,
+    io.ModbusFunc func
+) {
+    jnc.EnumType* type = typeof(io.ModbusFunc);
+
+    return (func & io.ModbusFunc.ExceptionFlag) ?
+        $"%1 (\e[34mEXCEPTION\e[m)" (
+            type.getValueString(func & ~io.ModbusFunc.ExceptionFlag)
+        ) :
+        $"%1 (\e[90m%2\e[m)" (
+            type.getValueString(func),
+            role == io.ModbusRole.Master ? "Request" : "Reply"
+        );
+
+}
+
 void representModbusPdu(
 	log.Representation* representation,
 	io.ModbusRole role,
@@ -497,7 +514,7 @@ void representModbusPdu(
 		baseOffset + offsetof(hdr.m_func) * mult,
 		sizeof(hdr.m_func) * mult,
 		hdr.m_func,
-		io.getModbusFuncString(hdr.m_func)
+		formatModbusFuncDescription(role, hdr.m_func)
 	));
 
 	switch (hdr.m_func) {
@@ -654,7 +671,7 @@ void representModbusPdu(
                 baseOffset + offsetof(pdu.m_exception) * mult,
                 sizeof(pdu.m_exception) * mult,
                 pdu.m_exception,
-                io.getModbusExceptionString(pdu.m_exception)
+                typeof(io.ModbusException).getValueString(pdu.m_exception)
                 ));
 		}
 	}

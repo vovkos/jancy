@@ -196,7 +196,6 @@ JLinkRttSession.construct(doc.PluginHost* pluginHost) {
 
 	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
 	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
-	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 
 	m_socketRemoteAddress.m_family = io.AddressFamily.Ip4;
 	m_socketRemoteAddress.m_ip4.m_address.m_i8 = 0d"127.0.0.1";
@@ -362,9 +361,10 @@ void JLinkRttSession.createUi() {
 
 	// information grid
 
-	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("JLinkRtt");
+	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("J-Link RTT");
 
-	m_stdSessionInfoSet.createInformationValues(
+	m_stdSessionInfoSet.create(
+		m_pluginHost.m_txRxStats,
 		m_pluginHost.m_informationGrid,
 		infoGroup,,
 		ui.StdSessionInfoSet.InfoId.SessionTime |

@@ -29,7 +29,7 @@ bitflag enum PartCodeFlags: uint64_t {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum StdRecordCode: uint64_t {
-    Tx                = 0x01d47ff1fc334a10 | PartCodeFlags.Mergeable,
+	Tx                = 0x01d47ff1fc334a10 | PartCodeFlags.Mergeable,
 	Rx                = 0x01d47ff1fc334a11 | PartCodeFlags.Mergeable,
 	TxRx              = 0x01d47ff1fc334a12 | PartCodeFlags.Mergeable,
 	PlainText         = 0x01d47ff1fc334a13 | PartCodeFlags.Mergeable,

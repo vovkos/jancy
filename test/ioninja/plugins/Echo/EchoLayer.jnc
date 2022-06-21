@@ -10,7 +10,7 @@ import "doc_Layer.jnc"
 class EchoLayer: doc.Layer {
 	construct(doc.PluginHost* pluginHost) {
 		basetype.construct(pluginHost);
-		pluginHost.m_log.addListener(onLogRecord @ pluginHost.m_mainThreadScheduler);
+		pluginHost.m_log.addObserver(onLogRecord @ pluginHost.m_mainThreadScheduler);
 	}
 
 	void onLogRecord(

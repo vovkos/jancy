@@ -1,0 +1,555 @@
+//..............................................................................
+//
+// SSH channel (shared between multiple SSH-based plugins)
+//
+
+import "io_base.jncx"
+import "io_ssh.jncx"
+import "io_HostNameResolver.jnc"
+import "ui_Dialog.jnc"
+import "ui_SocketUi.jnc"
+import "ui_SshPropertySet.jnc"
+import "ui_BufferPropertySet.jnc"
+import "doc_PluginHost.jnc"
+import "std_Buffer.jnc"
+
+namespace iox {
+
+//! \addtogroup common-io
+//! @{
+
+//..............................................................................
+
+class SshChannel {
+public:
+	enum State {
+		Closed,
+		Resolving,
+		TcpConnecting,
+		SshHandshaking,
+		SshAuthenticating,
+		WaitingLoginDlg,
+		SshOpeningChannel,
+		SshRequestingPty,
+		SshStartingProcess,
+		Connected,
+	}
+
+	struct ConnectParams {
+		size_t m_readBlockSize;
+		size_t m_readBufferSize;
+		size_t m_writeBufferSize;
+		uint_t m_defaultPort;
+		char const* m_privateKeyFileName;
+		bool m_rememberLastPassword;
+		io.SshConnectParams m_sshParams;
+		io.SocketAddress m_localAddress;
+		io.SocketOptions m_socketOptions;
+	}
+
+protected:
+	doc.PluginHost* m_pluginHost;
+	io.HostNameResolver m_resolver;
+	io.SshChannel m_ssh;
+	ui.LoginDlg* m_loginDlg;
+	std.Buffer m_readBuffer;
+	ConnectParams m_connectParams;
+	uint_t m_syncId;
+
+	property m_logWriter {
+		log.Writer* get() {
+			return m_pluginHost.m_log.m_writer;
+		}
+	}
+
+public:
+	io.SocketAddress readonly m_remoteAddress;
+	State bindable readonly m_state;
+	bool bindable readonly m_isTransmitEnabled;
+
+	event m_onLoginDlgCompleted(
+		char const* userName,
+		ui.AuthenticationMethod authenticationMethod,
+		char const* privateKeyFileName
+	);
+
+	event m_onConnected();
+	event m_onDisconnected();
+	event m_onIncomingData(
+		void const* p,
+		size_t size
+	);
+
+	static char const* const m_stateStringTable[] = {
+		"Closed",
+		"Resolving...",
+		"Connecting...",
+		"Handhsaking...",
+		"Authenticating...",
+		"Authenticating...",
+		"Opening channel...",
+		"Requesting PTY...",
+		"Starting process...",
+		"Connected",
+	}
+
+public:
+	construct(doc.PluginHost* pluginHost);
+
+	bool errorcode connect(
+		char const* addressString,
+		ConnectParams const* params
+	);
+
+	bool errorcode connect(
+		io.SocketAddress const* address,
+		ConnectParams const* params
+	);
+
+	void disconnect();
+
+	size_t errorcode read(
+		void* p,
+		size_t size
+	) {
+		return m_ssh.read(p, size);
+	}
+
+	size_t errorcode write(
+		void const* p,
+		size_t size
+	);
+
+	bool errorcode applyProperties(
+		ui.SocketPropertySet const* socketPropSet,
+		ui.SshPropertySet const* sshPropSet,
+		ui.BufferPropertySet const* bufferPropSet
+	);
+
+	void waitSshEvents();
+
+	char const* getLastPassword() {
+		return m_loginDlg ? m_loginDlg.m_password : null;
+	}
+
+	char const* getLastPrivateKeyPassphrase() {
+		return m_loginDlg ? m_loginDlg.m_privateKeyPassphrase : null;
+	}
+
+protected:
+	void onResolverEvent(
+		uint_t syncId,
+		io.HostNameResolverEvents triggeredEvents
+	);
+
+	void onSshEvent(
+		uint_t syncId,
+		io.SshEvents triggeredEvents
+	);
+
+	void onLoginDlgCompleted(ui.StdDlgButton button);
+	void onConsoleSizeChanged();
+
+	void handleConnectError(std.Error const* error);
+	void handleSshAuthenticateError(std.Error const* error);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+SshChannel.construct(doc.PluginHost* pluginHost) {
+	m_pluginHost = pluginHost;
+	m_pluginHost.m_terminal.m_onConsoleSizeChanged += onConsoleSizeChanged;
+	m_readBuffer.setSize(ui.BufferPropertySet.Defaults.ReadBufferSize);
+}
+
+bool errorcode SshChannel.connect(
+	char const* addressString,
+	ConnectParams const* params
+) {
+	io.SocketAddress address;
+	bool isDirectAddress = try address.parse(addressString);
+	if (isDirectAddress) {
+		if (!address.m_port)
+			address.m_port = params.m_defaultPort;
+
+		return connect(&address, params);
+	}
+
+	m_state = State.Resolving;
+	m_connectParams = *params; // save for later
+
+	m_logWriter.write(
+		SocketLogRecordCode.Resolving,
+		addressString,
+		strlen(addressString)
+	);
+
+	m_resolver.resolve(addressString, params.m_localAddress.m_family);
+
+	m_resolver.wait(
+		io.HostNameResolverEvents.Resolved | io.HostNameResolverEvents.Error,
+		onResolverEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler
+	);
+
+	return true;
+}
+
+bool errorcode SshChannel.connect(
+	io.SocketAddress const* address,
+	ConnectParams const* params
+) {
+	disconnect();
+
+	m_ssh.m_readBlockSize = params.m_readBlockSize;
+	m_ssh.m_readBufferSize = params.m_readBufferSize;
+	m_ssh.m_writeBufferSize = params.m_writeBufferSize;
+	m_ssh.m_options = params.m_socketOptions;
+
+	if (params.m_localAddress.m_family)
+		m_ssh.open(params.m_localAddress);
+	else if (!params.m_localAddress.m_port)
+		m_ssh.open(address.m_family); // any address
+	else { // adjust family according to the remote address
+		io.SocketAddress localAddress = params.m_localAddress;
+		localAddress.m_family = address.m_family;
+		m_ssh.open(params.m_localAddress);
+	}
+
+	m_state = State.TcpConnecting;
+	m_remoteAddress = *address;
+	m_logWriter.write(SocketLogRecordCode.Connecting, address, sizeof(io.SocketAddress));
+
+	// we might need SSH params for handling potential auth failures
+
+	m_connectParams = *params;
+	m_connectParams.m_sshParams.m_address = *address;
+	m_ssh.connect(&m_connectParams.m_sshParams);
+	waitSshEvents();
+	return true;
+
+catch:
+	handleConnectError(std.getLastError());
+	return false;
+
+}
+
+void SshChannel.disconnect() {
+	switch (m_state) {
+	case State.Closed:
+		return;
+
+	case State.Resolving:
+	case State.TcpConnecting:
+	case State.SshHandshaking:
+	case State.SshAuthenticating:
+	case State.WaitingLoginDlg:
+	case State.SshOpeningChannel:
+	case State.SshRequestingPty:
+	case State.SshStartingProcess:
+		m_logWriter.write(SocketLogRecordCode.ConnectCancelled);
+		break;
+
+	case State.Connected:
+		TcpDisconnectLogRecordParams params;
+		params.m_address = m_remoteAddress;
+
+		m_logWriter.write(
+			SocketLogRecordCode.Disconnected,
+			&params,
+			sizeof(params)
+		);
+		break;
+	}
+
+	m_ssh.close();
+	m_state = State.Closed;
+	m_isTransmitEnabled = false;
+	m_syncId++;
+}
+
+size_t errorcode SshChannel.write(
+	void const* p,
+	size_t size
+) {
+	size_t result = m_ssh.write(p, size);
+	if (result < size && m_isTransmitEnabled) {
+		m_isTransmitEnabled = false;
+		waitSshEvents();
+	}
+
+	return result;
+}
+
+bool errorcode SshChannel.applyProperties(
+	ui.SocketPropertySet const* socketPropSet,
+	ui.SshPropertySet const* sshPropSet,
+	ui.BufferPropertySet const* bufferPropSet
+) {
+	m_readBuffer.setSize(bufferPropSet.m_readBufferSizeProp.m_value);
+
+	return true;
+}
+
+void SshChannel.waitSshEvents() {
+	io.SshEvents eventMask = io.SshEvents.IoError;
+
+	switch (m_state) {
+	case State.TcpConnecting:
+		eventMask |= io.SshEvents.TcpConnected;
+		break;
+
+	case State.SshHandshaking:
+		eventMask |= io.SshEvents.SshHandshakeCompleted;
+		break;
+
+	case State.SshAuthenticating:
+		eventMask |= io.SshEvents.SshAuthenticateCompleted | io.SshEvents.SshAuthenticateError;
+		break;
+
+	case State.SshOpeningChannel:
+		eventMask |= io.SshEvents.SshChannelOpened;
+		break;
+
+	case State.SshRequestingPty:
+		eventMask |= io.SshEvents.SshPtyRequestCompleted;
+		break;
+
+	case State.SshStartingProcess:
+		eventMask |= io.SshEvents.SshConnectCompleted;
+		break;
+
+	case State.Connected:
+		eventMask |=
+			io.SshEvents.TcpDisconnected |
+			io.SshEvents.IncomingData;
+
+		if (!m_isTransmitEnabled)
+			eventMask |= io.SshEvents.WriteBufferReady;
+
+		break;
+	}
+
+	m_ssh.wait(eventMask, onSshEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
+}
+
+void SshChannel.handleConnectError(std.Error const* error) {
+	m_logWriter.write(SocketLogRecordCode.ConnectError, error);
+	m_ssh.close();
+	m_state = State.Closed;
+}
+
+void SshChannel.handleSshAuthenticateError(std.Error const* error) {
+	m_logWriter.write(SocketLogRecordCode.ConnectError, error);
+
+	if (!m_loginDlg) {
+		m_loginDlg = new ui.LoginDlg;
+		m_loginDlg.m_onCompleted += onLoginDlgCompleted;
+	}
+
+	m_loginDlg.m_authenticationMethod = m_connectParams.m_sshParams.m_privateKey ?
+		ui.AuthenticationMethod.PrivateKey :
+		ui.AuthenticationMethod.Password;
+
+	m_loginDlg.m_userName = m_connectParams.m_sshParams.m_userName;
+	m_loginDlg.m_privateKeyFileName = m_connectParams.m_privateKeyFileName;
+
+	if (!m_connectParams.m_rememberLastPassword) {
+		m_loginDlg.m_password = null;
+		m_loginDlg.m_privateKeyPassphrase = null;
+	}
+
+	m_loginDlg.show();
+
+	m_state = State.WaitingLoginDlg;
+}
+
+void SshChannel.onLoginDlgCompleted(ui.StdDlgButton button) {
+	if (m_state != State.WaitingLoginDlg)
+		return;
+
+	if (button != ui.StdDlgButton.Ok) {
+		m_ssh.close();
+		m_state = State.Closed;
+		return;
+	}
+
+	State nextState;
+
+	if (strcmp(m_loginDlg.m_userName, m_connectParams.m_sshParams.m_userName) == 0) {
+		nextState = State.SshAuthenticating;
+		m_logWriter.write(SshLogRecordCode.SshAuthenticating);
+	} else {
+		nextState = State.TcpConnecting;
+		m_logWriter.write(SshLogRecordCode.Reconnecting);
+	}
+
+	switch (m_loginDlg.m_authenticationMethod) {
+	case ui.AuthenticationMethod.Password:
+		m_ssh.authenticate(m_loginDlg.m_userName, null, 0, m_loginDlg.m_password);
+		break;
+
+	case ui.AuthenticationMethod.PrivateKey:
+		void const* privateKey = loadFile(m_loginDlg.m_privateKeyFileName);
+
+		m_ssh.authenticate(
+			m_loginDlg.m_userName,
+			privateKey,
+			dynamic sizeof(privateKey),
+			m_loginDlg.m_privateKeyPassphrase
+		);
+		break;
+	}
+
+	// update connect params and notify the session
+
+	m_connectParams.m_sshParams.m_userName = m_loginDlg.m_userName;
+	m_connectParams.m_privateKeyFileName = m_loginDlg.m_privateKeyFileName;
+
+	m_onLoginDlgCompleted(
+		m_loginDlg.m_userName,
+		m_loginDlg.m_authenticationMethod,
+		m_loginDlg.m_privateKeyFileName
+	);
+
+	m_state = nextState;
+	waitSshEvents();
+
+catch:
+	handleConnectError(std.getLastError());
+}
+
+void SshChannel.onSshEvent(
+	uint_t syncId,
+	io.SshEvents triggeredEvents
+) {
+	if (syncId != m_syncId)
+		return;
+
+	if (triggeredEvents & io.SshEvents.IoError) {
+		handleConnectError(m_ssh.m_ioError);
+		return;
+	}
+
+	if (triggeredEvents & io.SshEvents.SshAuthenticateError) {
+		handleSshAuthenticateError(m_ssh.m_ioError);
+		return;
+	}
+
+	if (triggeredEvents & io.SshEvents.TcpConnected) {
+		m_logWriter.write(SshLogRecordCode.TcpConnectCompleted);
+		m_state = State.SshHandshaking;
+	}
+
+	if (triggeredEvents & io.SshEvents.SshHandshakeCompleted) {
+		m_logWriter.write(SshLogRecordCode.SshHandshakeCompleted);
+		m_state = State.SshAuthenticating;
+	}
+
+	if (triggeredEvents & io.SshEvents.SshAuthenticateCompleted) {
+		m_logWriter.write(SshLogRecordCode.SshAuthCompleted);
+		m_state = State.SshOpeningChannel;
+	}
+
+	if (triggeredEvents & io.SshEvents.SshChannelOpened) {
+		m_logWriter.write(SshLogRecordCode.SshChannelOpened);
+		m_state = State.SshRequestingPty;
+	}
+
+	if (triggeredEvents & io.SshEvents.SshPtyRequestCompleted) {
+		m_logWriter.write(SshLogRecordCode.SshPtyRequested);
+		m_state = State.SshStartingProcess;
+	}
+
+	if (triggeredEvents & io.SshEvents.SshConnectCompleted) {
+		m_logWriter.write(SshLogRecordCode.SshProcessStarted);
+		m_logWriter.write(SshLogRecordCode.ConnectCompleted);
+		m_state = State.Connected;
+		m_isTransmitEnabled = true;
+		m_onConnected();
+	}
+
+	if (triggeredEvents & io.SshEvents.TcpDisconnected) {
+		for (;;) { // read all the buffered data
+			size_t size = m_ssh.read(m_readBuffer.m_p, m_readBuffer.m_size);
+			if (!size)
+				break;
+
+			m_onIncomingData(m_readBuffer.m_p, size);
+		}
+
+		TcpDisconnectLogRecordParams params;
+		params.m_address = m_remoteAddress;
+		params.m_flags = TcpDisconnectLogRecordFlags.Remote;
+
+		if (triggeredEvents & io.SshEvents.TcpReset)
+			params.m_flags |= TcpDisconnectLogRecordFlags.Reset;
+
+		m_logWriter.write(
+			SocketLogRecordCode.Disconnected,
+			&params,
+			sizeof(params)
+		);
+
+		m_ssh.close();
+		m_state = State.Closed;
+		m_isTransmitEnabled = false;
+		m_onDisconnected();
+		return;
+	}
+
+	if (triggeredEvents & io.SshEvents.IncomingData) {
+		size_t size = m_ssh.read(m_readBuffer.m_p, m_readBuffer.m_size);
+		if (size)
+			m_onIncomingData(m_readBuffer.m_p, size);
+	}
+
+	// m_onIncomingData could have closed us, so check the state
+
+	if (m_state)
+		waitSshEvents();
+
+catch:
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
+	disconnect();
+}
+
+void SshChannel.onResolverEvent(
+	uint_t syncId,
+	io.HostNameResolverEvents triggeredEvents
+) {
+	if (syncId != m_syncId)
+		return;
+
+	if (triggeredEvents & io.HostNameResolverEvents.Error) {
+		handleConnectError(m_resolver.m_error);
+		return;
+	}
+
+	m_logWriter.write(
+		SocketLogRecordCode.ResolveCompleted,
+		m_resolver.m_addressTable,
+		sizeof(io.SocketAddress)
+	);
+
+	m_state = State.Closed;
+
+	io.SocketAddress address = m_resolver.m_addressTable[0];
+	if (!address.m_port)
+		address.m_port = m_connectParams.m_defaultPort;
+
+	try connect(address, &m_connectParams);
+}
+
+void SshChannel.onConsoleSizeChanged() {
+	if (m_state == State.Connected)
+		m_ssh.resizePty(
+			m_pluginHost.m_terminal.m_consoleWidth,
+			m_pluginHost.m_terminal.m_consoleHeight
+		);
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace iox

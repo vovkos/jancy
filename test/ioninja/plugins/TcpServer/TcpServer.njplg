@@ -13,7 +13,8 @@ log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
 icon        = images/listener.png
 small-icon  = images/listener-16x16.png
 
-session-class = TcpServerSession
+session-class  = TcpServerSession
+dispatch-class = TcpServerDispatch
 
 [required-capabilities]
 
@@ -30,3 +31,9 @@ org.jancy.io.ip6
 
 TcpServerSession.jnc
 ../SocketLog/SocketClientLogFilter.jnc
+TcpServerDispatchCode.jnc
+
+[dispatch-scripts]
+
+TcpServerDispatchCode.jnc
+TcpServerDispatch.jnc

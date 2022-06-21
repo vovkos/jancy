@@ -1,0 +1,17 @@
+//..............................................................................
+//
+// TCP session dispatch codes for IAS
+//
+
+//..............................................................................
+
+enum TcpConnectionDispatchCode {
+	GetRemoteAddress,
+	SetRemoteAddress,
+	GetRemotePort,
+	SetRemotePort,
+	Connect,
+	Disconnect
+}
+
+//..............................................................................

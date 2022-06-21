@@ -164,7 +164,6 @@ bool UdpFlowLayer.convert(
 	size_t size
 ) {
 	g_logWriter = writer;
-	g_logTimestamp = timestamp;
 
 	bool result = true;
 
@@ -175,14 +174,14 @@ bool UdpFlowLayer.convert(
 		break;
 
 	case NetSnifferLogRecordCode.EthernetPacket:
-		m_decoder.decodeLinkHdr(io.PcapLinkType.Ethernet, p, size);
+		m_decoder.decodeLinkHdr(io.PcapLinkType.Ethernet, timestamp, p, size);
 		break;
 
 	case NetSnifferLogRecordCode.Packet:
 		io.PcapLinkType linkType = *(io.PcapLinkType const*)p;
 		p += sizeof(io.PcapLinkType);
 		size -= sizeof(io.PcapLinkType);
-		m_decoder.decodeLinkHdr(linkType, p, size);
+		m_decoder.decodeLinkHdr(linkType, timestamp, p, size);
 		break;
 
 	case EthernetTapLogRecordCode.Packet_ch1:
@@ -193,7 +192,7 @@ bool UdpFlowLayer.convert(
 
 		p += sizeof(PacketHdr);
 		size -= sizeof(PacketHdr);
-		m_decoder.decodeLinkHdr(io.PcapLinkType.Ethernet, p, size);
+		m_decoder.decodeLinkHdr(io.PcapLinkType.Ethernet, timestamp, p, size);
 		break;
 
 	default:

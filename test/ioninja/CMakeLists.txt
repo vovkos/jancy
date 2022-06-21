@@ -101,6 +101,8 @@ add_jancy_tests(
 		representSerialLog
 	FILES
 		SerialSession.jnc
+		SerialDispatchCode.jnc
+		SerialDispatch.jnc
 		SerialLogRecordCode.jnc
 		SerialLogRepresenter.jnc
 	FINALIZE_TEST Serial
@@ -118,6 +120,8 @@ add_jancy_tests(
 		representSocketLog
 	FILES
 		TcpConnectionSession.jnc
+		TcpConnectionDispatchCode.jnc
+		TcpConnectionDispatch.jnc
 		../SocketLog/SocketLogRecordCode.jnc
 		../SocketLog/SocketLogRepresenter.jnc
 	FINALIZE_TEST TcpConnection
@@ -128,6 +132,8 @@ add_jancy_tests(
 		representSocketLog
 	FILES
 		TcpServerSession.jnc
+		TcpServerDispatchCode.jnc
+		TcpServerDispatch.jnc
 		../SocketLog/SocketClientLogFilter.jnc
 		../SocketLog/SocketLogRecordCode.jnc
 		../SocketLog/SocketLogRepresenter.jnc
@@ -182,6 +188,8 @@ add_jancy_tests(
 		representSocketLog
 	FILES
 		UdpSession.jnc
+		UdpDispatchCode.jnc
+		UdpDispatch.jnc
 		UdpLogRecordCode.jnc
 		UdpLogRepresenter.jnc
 		../SocketLog/SocketLogRecordCode.jnc
@@ -492,6 +500,8 @@ if(BUILD_JNC_IO_USB)
 			representUsbLog
 		FILES
 			UsbControlEndpointSession.jnc
+			UsbControlEndpointDispatchCode.jnc
+			UsbControlEndpointDispatch.jnc
 			../UsbLog/UsbLogRecordCode.jnc
 			../UsbLog/UsbLogRepresenter.jnc
 		FINALIZE_TEST UsbControlEndpoint
@@ -502,6 +512,8 @@ if(BUILD_JNC_IO_USB)
 			representUsbLog
 		FILES
 			UsbDataEndpointSession.jnc
+			UsbDataEndpointDispatchCode.jnc
+			UsbDataEndpointDispatch.jnc
 			../UsbLog/UsbLogRecordCode.jnc
 			../UsbLog/UsbLogRepresenter.jnc
 		FINALIZE_TEST UsbDataEndpoint

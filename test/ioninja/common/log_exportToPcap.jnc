@@ -1,0 +1,123 @@
+//..............................................................................
+//
+// *.njlog -> *.pcap conversion
+//
+
+import "io_base.jncx"
+import "io_pcap.jncx"
+import "io_MappedFile.jnc"
+import "io_PcapFile.jnc"
+import "log_RecordFile.jnc"
+import "log_Writer.jnc"
+import "ui_Dialog.jnc"
+import "doc_Plugin.jnc"
+
+namespace log {
+
+//..............................................................................
+
+typedef size_t ExportRecordToPcapFunc(
+	Record const* record,
+	io.MappedFile* pcapFile,
+	uint64_t pcapOffset
+);
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool errorcode exportToPcap(
+	Log const* log,
+	char const* pcapFileName,
+	io.PcapLinkType linkType,
+	size_t snapshotSize,
+	ExportRecordToPcapFunc* exportRecordFunc
+) {
+	char const* tempFileName = io.createTempFile();
+
+nestedscope:
+	log.copyOriginalRecordFile(tempFileName);
+
+	disposable io.MappedFile logFile;
+	logFile.open(tempFileName, io.FileOpenFlags.ReadOnly);
+	RecordFileHdr const* logHdr = (RecordFileHdr const*)logFile.view(0, sizeof(RecordFileHdr), true);
+
+	if (logHdr.m_signature != RecordFileSignature ||
+		logHdr.m_recordOffset < sizeof(RecordFileHdr)) {
+		std.setError($"invalid log record file %1: file signature mismatch"(logFileName));
+		throw;
+	}
+
+	disposable io.MappedFile pcapFile;
+	pcapFile.open(pcapFileName);
+	io.PcapFileHdr* pcapHdr = (io.PcapFileHdr*)pcapFile.view(0, sizeof(io.PcapFileHdr));
+	pcapHdr.m_signature = io.PcapFileSignature;
+	pcapHdr.m_majorVersion = io.PcapFileMajorVersion;
+	pcapHdr.m_minorVersion = io.PcapFileMinorVersion;
+	pcapHdr.m_timeZoneOffset = 0;
+	pcapHdr.m_timestampAccuracy = 0;
+	pcapHdr.m_linkType = linkType;
+	pcapHdr.m_snapshotSize = snapshotSize;
+
+	disposable ui.ProgressDlg progressDlg;
+	progressDlg.m_title = "Exporting Pcap File...";
+	progressDlg.m_buttons = 0;
+	progressDlg.m_status =
+		$"Log file:  %1<br>"
+		$"Pcap file: %2"(logFileName, pcapFileName);
+	progressDlg.show();
+
+	uint64_t baseTimestamp = sys.getTimestamp();
+	uint64_t pcapOffset = sizeof(io.PcapFileHdr);
+	uint64_t logOffset = logHdr.m_recordOffset;
+	uint64_t logEndOffset = logHdr.m_recordOffset + logHdr.m_totalRecordSize;
+
+	while (logOffset < logEndOffset) {
+		Record const* record = (Record const*)logFile.view(logOffset, sizeof(Record));
+		if (record.m_signature != RecordSignature) {
+			std.setError($"invalid log record file %1: record signature mismatch"(logFileName));
+			throw;
+		}
+
+		record = (Record const*)logFile.view(logOffset, sizeof(Record) + record.m_dataSize);
+		pcapOffset += exportRecordFunc(record, pcapFile, pcapOffset);
+		logOffset += sizeof(Record) + record.m_dataSize;
+		progressDlg.m_progress = logOffset * 100 / logEndOffset;
+
+		uint64_t timestamp = sys.getTimestamp();
+		if (timestamp - baseTimestamp > 10000000) { // 1 sec
+			sendKeepAlive(); // prevent the server-is-not-responding warning
+			baseTimestamp = timestamp;
+		}
+	}
+
+	pcapFile.unmapAllViews();
+	pcapFile.setSize(pcapOffset);
+	return true;
+
+finally:
+	io.deleteFile(tempFileName);
+}
+
+size_t errorcode writePcapPacket(
+	io.MappedFile* pcapFile,
+	uint64_t pcapOffset,
+	uint64_t timestamp,
+	void const* p,
+	size_t size
+) {
+	enum {
+		EpochDiff = 11644473600
+	}
+
+	size_t fullSize = sizeof(io.PcapPacketHdr) + size;
+	io.PcapPacketHdr* packet = (io.PcapPacketHdr*)pcapFile.view(pcapOffset, fullSize);
+	packet.m_timestampSeconds = timestamp / 10000000 - EpochDiff;
+	packet.m_timestampMicroseconds = (timestamp % 10000000) / 10;
+	packet.m_savedPacketSize = size;
+	packet.m_actualPacketSize = size;
+	memcpy(packet + 1, p, size);
+	return fullSize;
+}
+
+//..............................................................................
+
+} // namespace log

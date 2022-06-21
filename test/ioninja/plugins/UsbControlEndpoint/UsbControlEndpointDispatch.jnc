@@ -1,0 +1,133 @@
+//..............................................................................
+//
+// USB Control Endpoint session dispatch interface for IAS
+//
+
+import "io_usb.jncx"
+import "ias.jnc"
+
+//..............................................................................
+
+class UsbControlEndpointDispatch: ias.Session {
+	property m_deviceVid {
+		uint_t get() {
+			return dispatchGet(UsbControlEndpointDispatchCode.GetDeviceVid);
+		}
+	}
+
+	property m_devicePid {
+		uint_t get() {
+			return dispatchGet(UsbControlEndpointDispatchCode.GetDevicePid);
+		}
+	}
+
+	bool errorcode setDeviceVidPid(
+		uint_t vid,
+		uint_t pid
+	) {
+		return dispatch(UsbControlEndpointDispatchCode.SetDeviceVidPid, (vid << 16) | (pid & 0xffff));
+	}
+
+	property m_interfaceId {
+		uint_t get() {
+			return dispatchGet(UsbControlEndpointDispatchCode.GetInterfaceId);
+		}
+
+		void set(uint_t value) {
+			dispatch(UsbControlEndpointDispatchCode.SetInterfaceId, value);
+		}
+	}
+
+	property m_reqDirection {
+		UsbControlReqDirection get() {
+			return dispatchGet(UsbControlEndpointDispatchCode.GetReqDirection);
+		}
+
+		void set(UsbControlReqDirection value) {
+			dispatch(UsbControlEndpointDispatchCode.SetReqDirection, value);
+		}
+	}
+
+	property m_reqRecipient {
+		UsbControlReqRecipient get() {
+			return dispatchGet(UsbControlEndpointDispatchCode.GetReqRecipient);
+		}
+
+		void set(UsbControlReqRecipient value) {
+			dispatch(UsbControlEndpointDispatchCode.SetReqRecipient, value);
+		}
+	}
+
+	property m_reqType {
+		UsbControlReqType get() {
+			return dispatchGet(UsbControlEndpointDispatchCode.GetReqType);
+		}
+
+		void set(UsbControlReqType value) {
+			dispatch(UsbControlEndpointDispatchCode.SetReqType, value);
+		}
+	}
+
+	property m_reqCode {
+		uint_t get() {
+			return dispatchGet(UsbControlEndpointDispatchCode.GetReqCode);
+		}
+
+		void set(uint_t value) {
+			dispatch(UsbControlEndpointDispatchCode.SetReqCode, value);
+		}
+	}
+
+	property m_reqValue {
+		uint_t get() {
+			return dispatchGet(UsbControlEndpointDispatchCode.GetReqValue);
+		}
+
+		void set(uint_t value) {
+			dispatch(UsbControlEndpointDispatchCode.SetReqValue, value);
+		}
+	}
+
+	property m_reqIndex {
+		uint_t get() {
+			return dispatchGet(UsbControlEndpointDispatchCode.GetReqIndex);
+		}
+
+		void set(uint_t value) {
+			dispatch(UsbControlEndpointDispatchCode.SetReqIndex, value);
+		}
+	}
+
+	bool errorcode openDevice() {
+		return dispatch(UsbControlEndpointDispatchCode.OpenDevice);
+	}
+
+	bool errorcode openDevice(
+		uint_t vid,
+		uint_t pid
+	) {
+		return dispatch(UsbControlEndpointDispatchCode.OpenDeviceVidPid, (vid << 16) | (pid & 0xffff));
+	}
+
+	void closeDevice() {
+		dispatch(UsbControlEndpointDispatchCode.CloseDevice);
+	}
+
+	void claimInterface() {
+		dispatch(UsbControlEndpointDispatchCode.ClaimInterface);
+	}
+
+	void claimInterface(uint_t interfaceId) {
+		dispatch(UsbControlEndpointDispatchCode.ClaimInterfaceId, interfaceId);
+	}
+
+	void releaseInterface() {
+		dispatch(UsbControlEndpointDispatchCode.ReleaseInterface);
+	}
+
+	void startInTransfer(size_t size) {
+		dispatch(UsbControlEndpointDispatchCode.StartInTransfer, size);
+	}
+}
+
+//..............................................................................

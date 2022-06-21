@@ -1,0 +1,37 @@
+//..............................................................................
+//
+// This is the main entry for log documents (w/o session)
+//
+
+import "doc_Plugin.jnc"
+import "log_ThroughputCalc.jnc"
+import "log_ChecksumCalc.jnc"
+
+//..............................................................................
+
+class LogDocument: doc.Plugin {
+protected:
+	ui.ThroughputInfoSet m_throughputInfoSet;
+	ui.ChecksumInfoSet m_checksumInfoSet;
+
+public:
+	construct(doc.PluginHost* pluginHost) {
+		basetype.construct(pluginHost);
+
+		m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
+		m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
+
+		pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
+		pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
+	}
+
+	override size_t errorcode transmit(
+		void const* p,
+		size_t size
+	) {
+		std.setError("invalid request: LogDocument.transmit");
+		return -1;
+	}
+}
+
+//..............................................................................

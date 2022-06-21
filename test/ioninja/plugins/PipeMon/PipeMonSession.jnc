@@ -123,7 +123,6 @@ PipeMonSession.construct(doc.PluginHost* pluginHost) {
 	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
 	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
 	pluginHost.m_log.addFilter(m_filter);
-	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
 void PipeMonSession.createUi() {
@@ -224,7 +223,7 @@ void PipeMonSession.createUi() {
 
 	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Pipe monitor");
 
-	m_stdSessionInfoSet.createInformationValues(m_pluginHost.m_informationGrid, infoGroup);
+	m_stdSessionInfoSet.create(m_pluginHost.m_txRxStats, m_pluginHost.m_informationGrid, infoGroup);
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 

@@ -1,0 +1,199 @@
+//..............................................................................
+//
+// Packet template library for Modbus RTU
+//
+
+import "io_Modbus.jnc"
+import "crc16.jnc"
+
+//! \addtogroup packets-modbus
+//! @{
+
+pragma(Alignment, 1);
+
+//..............................................................................
+
+[
+	displayName = "Modbus RTU read (request)",
+	fixedSize
+]
+struct ModbusRtuReadRequestPacket {
+	[ displayName = "ADU" ]
+	io.ModbusRtuAduHdr m_adu;
+
+	[ displayName = "PDU" ]
+	io.ModbusReadPdu m_pdu;
+
+	[ displayName = "CRC" ]
+	uint16_t m_crc;
+
+	[ userAction = "Initialize with defaults" ]
+	void initialize() {
+		initializeModbusRtuPacket(this, io.ModbusFunc.ReadHoldingRegisters);
+		m_pdu.m_count = 1;
+		updateChecksum();
+	}
+
+	[
+		userAction = "Update checksum",
+		autorun = "Auto-update checksum"
+	]
+	void updateChecksum() {
+		updateModbusRtuChecksum(this);
+	}
+}
+
+//..............................................................................
+
+[ displayName = "Modbus RTU read (reply)" ]
+struct ModbusRtuReadReplyPacket {
+	[ displayName = "ADU" ]
+	io.ModbusRtuAduHdr m_adu;
+
+	[ displayName = "PDU" ]
+	io.ModbusReadPdu m_pdu;
+
+	[ userAction = "Initialize with defaults" ]
+	void initialize() {
+		initializeModbusRtuPacket(this, io.ModbusFunc.ReadHoldingRegisters);
+		m_pdu.m_count = 1;
+		updateChecksum();
+	}
+
+	[
+		userAction = "Update checksum",
+		autorun = "Auto-update checksum"
+	]
+	void updateChecksum() {
+		updateModbusRtuChecksum(this);
+	}
+}
+
+//..............................................................................
+
+[
+	displayName = "Modbus RTU write",
+	fixedSize
+]
+struct ModbusRtuWritePacket {
+	[ displayName = "ADU" ]
+	io.ModbusRtuAduHdr m_adu;
+
+	[ displayName = "PDU" ]
+	io.ModbusWritePdu m_pdu;
+
+	[ displayName = "CRC" ]
+	uint16_t m_crc;
+
+	[ userAction = "Initialize with defaults" ]
+	void initialize() {
+		initializeModbusRtuPacket(this, io.ModbusFunc.WriteRegister);
+		updateChecksum();
+	}
+
+	[
+		userAction = "Update checksum",
+		autorun = "Auto-update checksum"
+	]
+	void updateChecksum() {
+		updateModbusRtuChecksum(this);
+	}
+}
+
+//..............................................................................
+
+[ displayName = "Modbus RTU write multiple" ]
+struct ModbusRtuWriteMultiplePacket {
+	[ displayName = "ADU" ]
+	io.ModbusRtuAduHdr m_adu;
+
+	[ displayName = "PDU" ]
+	io.ModbusWriteMultiplePdu m_pdu;
+
+	[ userAction = "Initialize with defaults" ]
+	void initialize() {
+		initializeModbusRtuPacket(this, io.ModbusFunc.WriteMultipleRegisters);
+		updateSize();
+		updateChecksum();
+	}
+
+	[
+		userAction = "Update size",
+		autorun = "Auto-update size"
+	]
+	void updateSize() {
+		size_t extra = dynamic sizeof(this) - sizeof(ModbusRtuWriteMultiplePacket);
+		m_pdu.m_count = extra > sizeof(uint16_t) ? (extra - sizeof(uint16_t)) / sizeof(uint16_t) : 0;
+		m_pdu.m_size = m_pdu.m_count * sizeof(uint16_t);
+	}
+
+	[
+		userAction = "Update checksum",
+		autorun = "Auto-update checksum"
+	]
+	void updateChecksum() {
+		updateModbusRtuChecksum(this);
+	}
+}
+
+//..............................................................................
+
+[ displayName = "Modbus RTU read/write multiple" ]
+struct ModbusRtuReadWriteMultiplePacket {
+	[ displayName = "ADU" ]
+	io.ModbusRtuAduHdr m_adu;
+
+	[ displayName = "PDU" ]
+	io.ModbusReadWriteMultiplePdu m_pdu;
+
+	[ userAction = "Initialize with defaults" ]
+	void initialize() {
+		initializeModbusRtuPacket(this, io.ModbusFunc.ReadWriteMultipleRegisters);
+		m_pdu.m_readCount = 1;
+		updateSize();
+		updateChecksum();
+	}
+
+	[
+		userAction = "Update size",
+		autorun = "Auto-update size"
+	]
+	void updateSize() {
+		size_t extra = dynamic sizeof(this) - sizeof(ModbusRtuReadWriteMultiplePacket);
+		m_pdu.m_writeCount = extra > sizeof(uint16_t) ? (extra - sizeof(uint16_t)) / sizeof(uint16_t) : 0;
+		m_pdu.m_writeSize = m_pdu.m_writeCount * sizeof(uint16_t);
+	}
+
+	[
+		userAction = "Update checksum",
+		autorun = "Auto-update checksum"
+	]
+	void updateChecksum() {
+		updateModbusRtuChecksum(this);
+	}
+}
+
+//..............................................................................
+
+void initializeModbusRtuPacket(
+	void* p,
+	io.ModbusFunc func
+) {
+	memset(p, 0, dynamic sizeof(p));
+	((char*)p)[0] = 1;
+	((char*)p)[1] = func;
+}
+
+
+void updateModbusRtuChecksum(void* p) {
+	size_t size = dynamic sizeof(p);
+	if (size < 2)
+		return;
+
+	size -= 2;
+	*(uint16_t*)(p + size) = crc16_ansi(p, size, 0xffff);
+}
+
+//..............................................................................
+
+//! @}

@@ -1,0 +1,37 @@
+#...............................................................................
+#
+#  Ethernet Tap over SSH session plugin
+#
+
+[plugin]
+
+name        = "Ethernet Tap over SSH"
+description = "Monitor Ethernet packets via an Ethernet Tap connected to a remote machine over SSH"
+id          = ssh-ethernet-tap
+group       = hw
+monitor     = true
+terminal    = false
+log-guid    = ae3dc2da-6124-4c14-b05a-200df2fc580a  # ethernet tap
+log-guid    = 8ec96e77-89df-4dd8-bc14-b995b85de45d  # ssh
+log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
+icon        = images/sniffer.png
+small-icon  = images/sniffer-16x16.png
+
+session-class = SshEthernetTapSession
+
+[required-capabilities]
+
+org.jancy.io.net
+org.jancy.io.ssh
+
+[optional-capabilities]
+
+org.jancy.io.ip4
+org.jancy.io.ip6
+org.jancy.io.file
+
+[scripts]
+
+SshEthernetTapSession.jnc
+EthernetTapLogFilter.jnc
+EthernetTapLogToPcap.jnc

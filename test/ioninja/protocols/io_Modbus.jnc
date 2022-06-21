@@ -35,68 +35,65 @@ enum ModbusRole: uint8_t {
 // function codes
 
 enum ModbusFunc: uint8_t {
+	[ displayName = "Read coils" ]
 	ReadCoils                  = 1,
+
+	[ displayName = "Read discrete inputs" ]
 	ReadDiscreteInputs         = 2,
+
+	[ displayName = "Read holding registers" ]
 	ReadHoldingRegisters       = 3,
+
+	[ displayName = "Read input registers" ]
 	ReadInputRegisters         = 4,
+
+	[ displayName = "Write coil" ]
 	WriteCoil                  = 5,
+
+	[ displayName = "Write register" ]
 	WriteRegister              = 6,
+
+	[ displayName = "Read exception status" ]
 	ReadExceptionStatus	       = 7,
+
+	[ displayName = "Diagnostics" ]
 	Diagnostics                = 8,
+
+	[ displayName = "Get comm event counter" ]
 	GetCommEventCounter        = 11,
+
+	[ displayName = "Get comm event log" ]
 	GetCommEventLog            = 12,
+
+	[ displayName = "Write multiple coils" ]
 	WriteMultipleCoils         = 15,
+
+	[ displayName = "Write multiple registers" ]
 	WriteMultipleRegisters     = 16,
+
+	[ displayName = "Report server ID" ]
 	ReportServerId             = 17,
+
+	[ displayName = "Read file record" ]
 	ReadFileRecord             = 20,
+
+	[ displayName = "Write file record" ]
 	WriteFileRecord            = 21,
+
+	[ displayName = "Mask write register" ]
 	MaskWriteRegister	       = 22,
+
+	[ displayName = "Read/write multiple registers" ]
 	ReadWriteMultipleRegisters = 23,
+
+	[ displayName = "Read FIFO queue" ]
 	ReadFifoQueue              = 24,
+
+	[ displayName = "Encapsulated interface" ]
 	EncapsulatedInterface      = 43,
 
+	[ displayName = "Exception" ]
 	ExceptionFlag              = 0x80,
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-char const* getModbusFuncString(ModbusFunc func) {
-	static char const* stringTable[] = {
-		"Unknown",                       // 0
-		"Read Coils",                    // ReadCoils                  = 1,
-		"Read Discrete Inputs",          // ReadDiscreteInputs         = 2,
-		"Read Holding Registers",        // ReadHoldingRegisters       = 3,
-		"Read Input Registers",          // ReadInputRegisters         = 4,
-		"Write Coil",                    // WriteCoil                  = 5,
-		"Write Register",                // WriteRegister              = 6,
-		"Read Exception Status",         // ReadExceptionStatus        = 7,
-		"Diagnostics",                   // Diagnostics                = 8,
-		"Unknown",                       // 9
-		"Unknown",                       // 10
-		"Get Comm Event Counter",        // GetComEventCounter         = 11,
-		"Get Comm Event Log",            // GetComEventLog             = 12,
-		"Unknown",                       // 13
-		"Unknown",                       // 14
-		"Write Multiple Coils",          // WriteMultipleCoils         = 15,
-		"Write Multiple Registers",      // WriteMultipleRegisters     = 16,
-		"Report Server Id",              // ReportServerId             = 17,
-		"Unknown",                       // 18
-		"Unknown",                       // 19
-		"Read File Record",              // ReadFileRecord             = 20,
-		"Write File Record",             // WriteFileRecord            = 21,
-		"Mask Write Register",           // MaskWriteRegister          = 22,
-		"Read/Write Multiple Registers", // ReadWriteMultipleRegisters = 23,
-		"Read Fifo Queue",               // ReadFifoQueue              = 24,
-	}
-
-	return
-		func < countof(stringTable) ?
-			stringTable[func] :
-		func == ModbusFunc.EncapsulatedInterface ?
-			"Encapsulated Interface" :
-		(func & ModbusFunc.ExceptionFlag) ?
-			"Exception" :
-			"Unknown";
 }
 
 //..............................................................................
@@ -104,62 +101,65 @@ char const* getModbusFuncString(ModbusFunc func) {
 // exception codes
 
 enum ModbusException: uint8_t {
+	[ displayName = "Illegal function" ]
 	IllegalFunction         = 1,
+
+	[ displayName = "Illegal data address" ]
 	IllegalDataAddress      = 2,
+
+	[ displayName = "Illegal data value" ]
 	IllegalDataValue        = 3,
+
+	[ displayName = "Server device failure" ]
 	ServerDeviceFailure     = 4,
+
+	[ displayName = "Acknowledge" ]
 	Acknowledge             = 5,
+
+	[ displayName = "Server device busy" ]
 	ServerDeviceBusy        = 6,
+
+	[ displayName = "Memory parity error" ]
 	MemoryParityError       = 8,
+
+	[ displayName = "Gateway path unavailable" ]
 	GatewayPathUnavailable  = 10,
+
+	[ displayName = "Gateway device no response" ]
 	GatewayDeviceNoResponse = 11,
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-char const* getModbusExceptionString(ModbusException exception) {
-	static char const* stringTable[] = {
-		"Unknown",                    // 0
-		"Illegal Function",           // IllegalFunction               = 1,
-		"Illegal Data Address",       // IllegalDataAddress            = 2,
-		"Illegal Data Value",         // IllegalDataValue              = 3,
-		"Server Device Failure",      // ServerDeviceFailure           = 4,
-		"Acknowledge",                // Acknowledge                   = 5,
-		"Server Device Busy",         // ServerDeviceBusy              = 6,
-		"Unknown",                    // 7
-		"Memory Parity Error",        // MemoryParityError             = 8,
-		"Unknown",                    // 9
-		"Gateway Path Unavailable",   // GatewayPathUnavailable        = 10,
-		"Gateway Device No Response", // GatewayTargetDeviceNoResponse = 11,
-	}
-
-	return exception < countof(stringTable) ? stringTable[exception] : "Unknown";
 }
 
 //..............................................................................
 
 // particular function code PDUs
 
+[ displayName = "PDU header" ]
 struct ModbusPduHdr {
+	[ displayName = "Function" ]
 	io.ModbusFunc m_func;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct ModbusExceptionPdu: ModbusPduHdr {
+	[ displayName = "Exception" ]
 	ModbusException m_exception;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct ModbusReadPdu: ModbusPduHdr {
+	[ displayName = "Read address" ]
 	bigendian uint16_t m_address;
+
+	[ displayName = "Count" ]
 	bigendian uint16_t m_count;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct ModbusReadReplyPdu: ModbusPduHdr {
+	[ displayName = "Size" ]
 	uint8_t m_size;
 
 	// followed by read data
@@ -168,28 +168,40 @@ struct ModbusReadReplyPdu: ModbusPduHdr {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct ModbusWritePdu: ModbusPduHdr {
+	[ displayName = "Write address" ]
 	bigendian uint16_t m_address;
+
+	[ displayName = "Value" ]
 	bigendian uint16_t m_value;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct ModbusReadExceptionStatusReplyPdu: ModbusPduHdr {
+	[ displayName = "Status" ]
 	uint8_t m_status;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct ModbusGetCommEventCounterReplyPdu: ModbusPduHdr {
+	[ displayName = "Status" ]
 	bigendian uint16_t m_status;
+
+	[ displayName = "Event count" ]
 	bigendian uint16_t m_eventCount;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct ModbusGetCommEventLogReplyPdu: ModbusReadReplyPdu {
+	[ displayName = "Status" ]
 	bigendian uint16_t m_status;
+
+	[ displayName = "Event count" ]
 	bigendian uint16_t m_eventCount;
+
+	[ displayName = "Message count" ]
 	bigendian uint16_t m_messageCount;
 
 	// followed by event log data
@@ -198,8 +210,13 @@ struct ModbusGetCommEventLogReplyPdu: ModbusReadReplyPdu {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct ModbusWriteMultiplePdu: ModbusPduHdr {
+	[ displayName = "Write address" ]
 	bigendian uint16_t m_address;
+
+	[ displayName = "Count" ]
 	bigendian uint16_t m_count;
+
+	[ displayName = "Size" ]
 	uint8_t m_size;
 
 	// followed by write data
@@ -208,38 +225,59 @@ struct ModbusWriteMultiplePdu: ModbusPduHdr {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct ModbusWriteMultipleReplyPdu: ModbusPduHdr {
+	[ displayName = "Write address" ]
 	bigendian uint16_t m_address;
+
+	[ displayName = "Count" ]
 	bigendian uint16_t m_count;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct ModbusMaskWritePdu: ModbusPduHdr {
+	[ displayName = "Write address" ]
 	bigendian uint16_t m_address;
+
+	[ displayName = "AND mask" ]
 	bigendian uint16_t m_andMask;
+
+	[ displayName = "OR mask" ]
 	bigendian uint16_t m_orMask;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct ModbusReadWriteMultiplePdu: ModbusPduHdr {
+	[ displayName = "Read address" ]
 	bigendian uint16_t m_readAddress;
+
+	[ displayName = "Read count" ]
 	bigendian uint16_t m_readCount;
+
+	[ displayName = "Write address" ]
 	bigendian uint16_t m_writeAddress;
+
+	[ displayName = "Write count" ]
 	bigendian uint16_t m_writeCount;
+
+	[ displayName = "Write size" ]
 	uint8_t m_writeSize;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct ModbusReadFifoPdu: ModbusPduHdr {
+	[ displayName = "Address" ]
 	bigendian uint16_t m_address;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct ModbusReadFifoReplyPdu: ModbusPduHdr {
+	[ displayName = "Byte count" ]
 	bigendian uint16_t m_byteCount;
+
+	[ displayName = "FIFO count" ]
 	bigendian uint16_t m_fifoCount;
 
 	// followed by FIFO data
@@ -346,21 +384,30 @@ size_t errorcode getModbusPduSize(
 // Modbus ADUs
 
 struct ModbusRtuAduHdr {
+	[ displayName = "Device address" ]
 	uint8_t m_deviceAddress;
 
 	// followed by PDU and CRC16 checksum
 }
 
 struct ModbusAsciiAduHdr {
+	[ displayName = "Device address" ]
 	char m_deviceAddress[2];
 
 	// followed by hex-encoded PDU, LRC8 checksum, and then \r\n
 }
 
 struct ModbusTcpAduHdr {
+	[ displayName = "Transaction ID" ]
 	bigendian uint16_t m_transactionId;
+
+	[ displayName = "Protocol" ]
 	bigendian uint16_t m_protocol;
+
+	[ displayName = "Length" ]
 	bigendian uint16_t m_length; // length of data following this field
+
+	[ displayName = "Device address" ]
 	uint8_t m_deviceAddress;
 
 	// followed by PDU

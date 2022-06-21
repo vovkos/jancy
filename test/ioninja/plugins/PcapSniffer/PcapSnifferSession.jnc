@@ -6,7 +6,6 @@
 import "doc_Session.jnc"
 import "io_base.jncx"
 import "io_pcap.jncx"
-import "io_LogToPcap.jnc"
 import "io_IpDefragmenter.jnc"
 import "ui_Dialog.jnc"
 import "ui_History.jnc"
@@ -15,6 +14,7 @@ import "ui_BufferPropertySet.jnc"
 import "ui_StdSessionInfoSet.jnc"
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
+import "log_exportToPcap.jnc"
 import "std_Buffer.jnc"
 
 using extension ui.ComboBoxHistory;
@@ -295,7 +295,8 @@ void PcapSnifferSession.createUi() {
 
 	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Pcap sniffer");
 
-	m_stdSessionInfoSet.createInformationValues(
+	m_stdSessionInfoSet.create(
+		m_pluginHost.m_txRxStats,
 		m_pluginHost.m_informationGrid,
 		infoGroup,,
 		ui.StdSessionInfoSet.InfoId.SessionTime |
@@ -368,8 +369,8 @@ void PcapSnifferSession.onFileDlgCompleted(ui.StdDlgButton button) {
 		break;
 
 	case ui.FileDlgKind.Save:
-		bool result = try io.exportLogToPcap(
-			m_pluginHost.m_log.m_recordFileName,
+		bool result = try log.exportToPcap(
+			m_pluginHost.m_log,
 			m_fileDlg.m_filePath,
 			io.PcapLinkType.Ethernet,
 			m_snapshotSizeProp.m_value,
@@ -423,6 +424,7 @@ bool errorcode PcapSnifferSession.capture(
 
 catch:
 	m_logWriter.writeLastError(PcapLogRecordCode.CaptureError);
+	m_pcap.close();
 	return false;
 }
 
@@ -541,12 +543,12 @@ bool errorcode PcapSnifferSession.applyProperties() {
 	m_deviceCombo.m_currentIndex = m_deviceProp.m_currentIndex;
 	m_viewFilterCombo.m_editText = m_viewFilterProp.m_value;
 	m_ipDefragmenter.m_fragmentLimit = m_ipFragmentLimitProp.m_value;
-	m_ipDefragmenter.m_timeout = m_ipFragmentTimeoutProp.m_value;
+	m_ipDefragmenter.m_fragmentTimeout = m_ipFragmentTimeoutProp.m_value;
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 
 	applyViewFilter();
 
-	if (!m_pcap.m_isOpen)
+	if (!m_state)
 		return true;
 
 	m_pcap.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
@@ -567,16 +569,17 @@ size_t errorcode PcapSnifferSession.transmit(
 	void const* p,
 	size_t size
 ) {
-	if (!m_pcap)
+	if (!m_pcap.m_isOpen) {
+		std.setError("no capture session");
 		return -1;
-
-	size_t result = try m_pcap.write(p, size);
-	if (result != -1) {
-		io.PcapLinkType linkType = m_pcap.m_linkType;
-		void const* params = memcat(&linkType, sizeof(linkType), p, size);
-		m_logWriter.write(NetSnifferLogRecordCode.InjectedPacket, params, result + sizeof(linkType));
-		m_stdSessionInfoSet.addTxData(size);
 	}
+
+	size_t result = m_pcap.write(p, size);
+
+	io.PcapLinkType linkType = m_pcap.m_linkType;
+	void const* params = memcat(&linkType, sizeof(linkType), p, size);
+	m_logWriter.write(NetSnifferLogRecordCode.InjectedPacket, params, result + sizeof(linkType));
+	m_pluginHost.m_txRxStats.addTx(size);
 
 	return result;
 }
@@ -606,6 +609,15 @@ void PcapSnifferSession.onPcapEvent(
 	}
 
 	if (triggeredEvents & io.PcapEvents.Eof) {
+		for (;;) {
+			uint64_t timestamp;
+			size_t result = m_pcap.read(m_readBuffer.m_p, m_readBuffer.m_size, &timestamp);
+			if (!result)
+				break;
+
+			processPacket(timestamp, m_readBuffer.m_p, result);
+		}
+
 		stopCapture();
 		return;
 	}
@@ -622,7 +634,7 @@ void PcapSnifferSession.processPacket(
 	void const* params = memcat(&linkType, sizeof(linkType), p, size);
 	m_logWriter.write(timestamp, NetSnifferLogRecordCode.Packet, params, size + sizeof(linkType));
 
-	m_stdSessionInfoSet.addRxData(size);
+	m_pluginHost.m_txRxStats.addRx(size);
 
 	// defragment IPv4
 
@@ -657,7 +669,7 @@ void PcapSnifferSession.processPacket(
 
 	io.IpHdr const* ipHdr = (io.IpHdr const*) p;
 	if ((ipHdr.m_flags & io.IpFlags.Mf) || ipHdr.m_fragmentOffset) {
-		ipHdr = m_ipDefragmenter.defragment(ipHdr, size);
+		ipHdr = m_ipDefragmenter.defragment(timestamp, ipHdr, size);
 		if (ipHdr) {
 			size = dynamic sizeof(ipHdr);
 			m_logWriter.write(NetSnifferLogRecordCode.DefragmentedIp, ipHdr, size);

@@ -72,6 +72,8 @@ opaque class ComboBox {
 	);
 
 	void clear();
+
+	size_t findData(variant data);
 }
 
 //..............................................................................

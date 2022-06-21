@@ -14,33 +14,39 @@ namespace ui {
 
 class ChecksumInfoSet {
 	bitflag enum InfoId {
+		Crc8_ccitt,
 		Crc16_ansi,
 		Crc16_modbus,
 		Crc16_xmodem,
 		Crc16_usb,
 		Crc32,
+		Xor8,
 		Sum8,
 		Sum16_le,
 		Sum16_be,
 		Ip4Checksum,
 
 		All =
+			Crc8_ccitt |
 			Crc16_ansi |
 			Crc16_modbus |
 			Crc16_xmodem |
 			Crc16_usb |
 			Crc32 |
+			Xor8 |
 			Sum8 |
 			Sum16_le |
 			Sum16_be |
 			Ip4Checksum,
 	}
 
+	ui.InformationValue* m_crc8Info_ccitt;
 	ui.InformationValue* m_crc16Info_ansi;
 	ui.InformationValue* m_crc16Info_modbus;
 	ui.InformationValue* m_crc16Info_xmodem;
 	ui.InformationValue* m_crc16Info_usb;
 	ui.InformationValue* m_crc32Info;
+	ui.InformationValue* m_xor8Info;
 	ui.InformationValue* m_sum8Info;
 	ui.InformationValue* m_sum16Info_le;
 	ui.InformationValue* m_sum16Info_be;
@@ -67,6 +73,15 @@ void ChecksumInfoSet.createInformationValues(
 	ui.InformationValue* insertBefore,
 	InfoId mask
 ) {
+	if (mask & InfoId.Crc8_ccitt)
+		m_crc8Info_ccitt = informationGrid.createValue(
+			group,
+			insertBefore,
+			true,
+			"CRC-8",
+			"Also known as CRC8-CCITT and CRC8-ATM"
+		);
+
 	if (mask & InfoId.Crc16_ansi)
 		m_crc16Info_ansi = informationGrid.createValue(
 			group,
@@ -119,6 +134,15 @@ void ChecksumInfoSet.createInformationValues(
 			"IPv4 checksum",
 			"IPv4, TCP, UDP\n"
 			"Calculated as the 16-bit one's complement of the one's complement sum of all 16-bit words"
+		);
+
+	if (mask & InfoId.Xor8)
+		m_xor8Info = informationGrid.createValue(
+			group,
+			insertBefore,
+			true,
+			"XOR-8",
+			"XOR of all bytes in range"
 		);
 
 	if (mask & InfoId.Sum8)

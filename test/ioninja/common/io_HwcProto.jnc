@@ -1,0 +1,236 @@
+import "std_Buffer.jnc"
+
+namespace io {
+
+//..............................................................................
+
+// non-overlapping codes
+
+enum HwcMsgCode: uint8_t {
+	// generic
+
+	Success     = 0,
+	ErrorString = 1,
+	Error       = 32,
+	Progress    = 26,
+	Tx          = 2,
+	Rx          = 3,
+
+	// hardware: serial
+
+	// in
+
+	SerialLineError = 33,
+	SerialCtsDsr    = 34,
+
+	// out
+
+	SerialSetDtr    = 36,
+	SerialSetRts    = 37,
+	SerialSetBreak  = 38,
+	SerialSetConfig = 39,
+	SerialTransmit  = 40,
+
+	// hardware: Serial Tap
+
+	// in
+
+	SerialTapRtsDtr    = 4,
+	SerialTapCtsDsr    = 5,
+
+	// out
+
+	SerialTapSetConfig = 6,
+
+	// FPGA-based decoders
+
+	FpgaBufferOverflow = 7,
+	FpgaUnexpectedCode = 8,
+	FpgaIncompleteByte = 9,
+
+	// hardware: I2C Tap
+
+	// in
+
+	I2cTapStart                = 10,
+	I2cTapFinalizeStart7Bit    = 11,
+	I2cTapFinalizeStart10Bit   = 12,
+	I2cTapStop                 = 13,
+	I2cTapStopOutOfTransaction = 14,
+	I2cTapTxNack               = 15,
+	I2cTapRxNack               = 16,
+
+	// out
+
+	I2cTapUploadFirmware       = 17,
+	I2cTapStartCapture         = 18,
+	I2cTapStopCapture          = 19,
+
+	// hardware: SPI Tap
+
+	// in
+
+	SpiTapStart          = 20,
+	SpiTapStop           = 21,
+	SpiTapTxRx           = 22,
+
+	// out
+
+	SpiTapUploadFirmware = 23,
+	SpiTapStartCapture   = 24,
+	SpiTapStopCapture    = 25,
+
+	// hardware: Ethernet Tap
+
+	// in
+
+	EthernetTapPacket_ch1     = 27,
+	EthernetTapPacket_ch2     = 28,
+
+	// out
+
+	EthernetTapUploadFirmware = 29,
+	EthernetTapStartCapture   = 30,
+	EthernetTapStopCapture    = 31,
+};
+
+pragma(Alignment, 1)
+
+//..............................................................................
+
+// common header
+
+struct HwcMsgHdr {
+	char m_stx;
+	HwcMsgCode m_code;
+	uint16_t m_dataSize;
+
+	// followed by msg data if any
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum HwcSerialStopBits {
+	_1  = 1,
+	_15 = 2,
+	_2  = 2,
+};
+
+enum HwcSerialParity {
+	None = 0,
+	Odd,
+	Even,
+	Mark,
+	Space,
+	Ignore
+};
+
+enum HwcSerialFlowControl {
+	None = 0,
+	RtsCts,
+};
+
+bitflag enum HwcSerialStatusLines {
+	Cts = 0x01,
+	Dsr = 0x02,
+};
+
+bitflag enum HwcSerialLineErrors {
+	BreakError   = 0x04,
+	FramingError = 0x10,
+	ParityError  = 0x20,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct HwcSerialConfig {
+	uint32_t m_baudRate;
+	uint8_t m_dataBits;
+	uint8_t m_stopBits;
+	uint8_t m_parity;
+	uint8_t m_flowControl;
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// EthernetTapPacket_ch1, EthernetTapPacket_ch2
+
+bitflag enum HwcEthernetTapPacketFlag {
+	Reserved,
+	CrcValid,
+	BufferOverflow,
+	ChannelId,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct HwcEthernetTapPacketHdr {
+	uint16_t m_size;
+	uint8_t m_reserved;
+	uint8_t m_flags;
+};
+
+//..............................................................................
+
+class HwcProtoDecoder {
+	readonly std.Buffer m_buffer;
+	readonly size_t m_msgCount;
+	event m_onMsg(HwcMsgHdr const* hdr);
+	event m_onOobData(
+		void const* p,
+		size_t size
+	);
+
+	void reset();
+	void ensureZeroTerminatedBuffer();
+
+	void write(
+		void const* p,
+		size_t size
+	);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void HwcProtoDecoder.reset() {
+	m_buffer.clear();
+	m_msgCount = 0;
+}
+
+void HwcProtoDecoder.ensureZeroTerminatedBuffer() {
+	if (!m_buffer.m_size || m_buffer[m_buffer.m_size - 1])
+		m_buffer.append(0);
+}
+
+void HwcProtoDecoder.write(
+	void const* p,
+	size_t size
+) {
+	m_buffer.append(p, size);
+
+	while (m_buffer.m_size >= sizeof(HwcMsgHdr)) {
+		HwcMsgHdr const* hdr = (HwcMsgHdr const*)m_buffer.m_p;
+		if (hdr.m_stx != 0x02) {
+			char const* stx = memchr(m_buffer.m_p, 0x02, m_buffer.m_size);
+			size_t skipSize = stx ? stx - m_buffer.m_p : m_buffer.m_size;
+			m_onOobData(m_buffer.m_p, skipSize);
+			m_buffer.remove(0, skipSize);
+			if (m_buffer.m_size < sizeof(HwcMsgHdr))
+				break; // header not buffered yet
+		}
+
+		size_t msgSize = sizeof(HwcMsgHdr) + hdr->m_dataSize;
+		if (m_buffer.m_size < msgSize)
+			break; // not fully buffered yet
+
+		m_onMsg(hdr);
+		m_msgCount++;
+		m_buffer.remove(0, msgSize);
+	}
+}
+
+//..............................................................................
+
+pragma(Alignment, default)
+
+} // namespace io

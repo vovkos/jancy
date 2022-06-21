@@ -40,7 +40,9 @@ PostItLayer.construct(doc.PluginHost* pluginHost) {
 }
 
 void PostItLayer.onPostIt() {
-	m_tagCombo.addEditTextToHistory();
+	bool result = m_tagCombo.addEditTextToHistory();
+	if (!result)
+		return;
 
 	if (m_pluginHost.m_log.m_syncId == m_syncId)
 		m_logWriter.write("\n");

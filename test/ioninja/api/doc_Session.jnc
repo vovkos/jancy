@@ -46,6 +46,15 @@ class Session: Plugin {
 		m_pluginHost.m_log.m_baseTimestamp = timestamp;
 		m_logWriter.write(timestamp, log.StdRecordCode.SessionStarted);
 	}
+
+	virtual bool errorcode dispatch(
+		uint_t code,
+		variant in,
+		variant* out = null
+	) {
+		std.setError("this session doesn't support IAS dispatch");
+		return false;
+	}
 }
 
 //..............................................................................

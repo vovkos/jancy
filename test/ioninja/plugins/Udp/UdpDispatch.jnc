@@ -1,0 +1,57 @@
+//..............................................................................
+//
+// UDP Socket session dispatch interface for IAS
+//
+
+import "io_base.jncx"
+import "io_Socket.jnc"
+import "ias.jnc"
+
+//..............................................................................
+
+class UdpDispatch: ias.Session {
+	property m_remoteAddress {
+		char const* get() {
+			return dispatchGet(UdpDispatchCode.GetRemoteAddress);
+		}
+
+		void set(char const* value) {
+			dispatch(UdpDispatchCode.SetRemoteAddress, value);
+		}
+	}
+
+	property m_remotePort {
+		uint_t get() {
+			return dispatchGet(UdpDispatchCode.GetRemotePort);
+		}
+
+		void set(uint_t value) {
+			dispatch(UdpDispatchCode.SetRemotePort, value);
+		}
+	}
+
+	property m_localPort {
+		uint_t get() {
+			return dispatchGet(UdpDispatchCode.GetLocalPort);
+		}
+
+		void set(uint_t value) {
+			dispatch(UdpDispatchCode.SetLocalPort, value);
+		}
+	}
+
+	bool errorcode open() {
+		return dispatch(UdpDispatchCode.Open);
+	}
+
+	bool errorcode open(uint_t port) {
+		dispatch(UdpDispatchCode.SetLocalPort, port);
+		return dispatch(UdpDispatchCode.Open);
+	}
+
+	void close() {
+		dispatch(UdpDispatchCode.Close);
+	}
+}
+
+//..............................................................................

@@ -18,6 +18,7 @@ import "ui_StdSessionInfoSet.jnc"
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
 import "std_Buffer.jnc"
+import "loadFile.jnc"
 
 using extension ui.ComboBoxHistory;
 
@@ -164,7 +165,6 @@ SshChannelSession.construct(doc.PluginHost* pluginHost) {
 
 	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
 	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
-	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
 void SshChannelSession.createUi() {
@@ -212,9 +212,9 @@ void SshChannelSession.createUi() {
 
 	// information grid
 
-	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("SSH session");
+	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("SSH channel");
 
-	m_stdSessionInfoSet.createInformationValues(m_pluginHost.m_informationGrid, infoGroup);
+	m_stdSessionInfoSet.create(m_pluginHost.m_txRxStats, m_pluginHost.m_informationGrid, infoGroup);
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 
@@ -321,11 +321,14 @@ bool errorcode SshChannelSession.connect(io.SocketAddress const* remoteAddress) 
 	params.m_password = password;
 	params.m_channelType = "session";
 	params.m_processType = m_sshPropertySet.m_processTypeProp.m_value;
-	params.m_processExtra = m_sshPropertySet.m_processParamProp.m_value;
-	params.m_processExtraSize = strlen(params.m_processExtra);
 	params.m_ptyType = m_sshPropertySet.m_ptyTypeProp.m_value;
 	params.m_ptyWidth = m_pluginHost.m_terminal.m_consoleWidth;
 	params.m_ptyHeight = m_pluginHost.m_terminal.m_consoleHeight;
+
+	if (strcmp(params.m_processType, "shell") != 0) {
+		params.m_processExtra = m_sshPropertySet.m_processParamProp.m_value;
+		params.m_processExtraSize = strlen(params.m_processExtra);
+	}
 
 	m_ssh.connect(&params);
 	waitSshEvents();
@@ -540,8 +543,10 @@ size_t errorcode SshChannelSession.transmit(
 	void const* p,
 	size_t size
 ) {
-	if (m_state != State.Connected)
+	if (m_state != State.Connected) {
+		std.setError("not connected");
 		return -1;
+	}
 
 	size_t result = m_ssh.write(p, size);
 	if (result)
@@ -680,25 +685,6 @@ reactor SshChannelSession.m_uiReactor {
 	m_statusPaneTable[StatusPaneId.State].m_text = m_stateStringTable[m_state];
 	m_statusPaneTable[StatusPaneId.RemoteAddress].m_text = m_state > State.Resolving ? m_remoteAddress.getString() : "<peer-address>";
 	m_statusPaneTable[StatusPaneId.RemoteAddress].m_isVisible = m_state > State.Resolving;
-}
-
-//..............................................................................
-
-// simple helper to load private key files (returning null is OK)
-
-void const* loadFile(char const* fileName) {
-	if (!fileName || !*fileName)
-		return null;
-
-	io.File file;
-	file.open(fileName, io.FileOpenFlags.ReadOnly);
-	size_t size = file.m_size; // cache size (file may change)
-	void* p = new char[size];
-	file.read(p, size);
-	return p;
-
-catch:
-	return null;
 }
 
 //..............................................................................

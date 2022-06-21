@@ -1,0 +1,468 @@
+ //..............................................................................
+//
+// Ethernet Tap session
+//
+
+import "doc_Session.jnc"
+import "iox_SshChannel.jnc"
+import "io_HwcProto.jnc"
+import "iox_SshChannel.jnc"
+import "ui_History.jnc"
+import "ui_SocketUi.jnc"
+import "ui_SerialSettingUi.jnc"
+import "ui_SshPropertySet.jnc"
+import "ui_BufferPropertySet.jnc"
+import "ui_StdSessionInfoSet.jnc"
+import "log_ThroughputCalc.jnc"
+import "log_ChecksumCalc.jnc"
+import "log_exportToPcap.jnc"
+import "std_Buffer.jnc"
+import "loadFile.jnc"
+
+using extension ui.ComboBoxHistory;
+
+//..............................................................................
+
+class SshEthernetTapSession: doc.Session {
+protected:
+	alias State = iox.SshChannel.State;
+
+	enum Defaults {
+		ServerPort = 22,
+	}
+
+	enum ActionId {
+		ApplyFilter,
+		Capture,
+		ExportPcap,
+		_Count,
+	}
+
+	enum IconId {
+		Capture,
+		StopCapture,
+		_Count,
+	}
+
+	enum StatusPaneId {
+		RemoteAddress,
+		State,
+		_Count,
+	}
+
+protected:
+	// Ethernet Tap
+
+	iox.SshChannel m_ssh;
+	io.HwcProtoDecoder m_decoder;
+	EthernetTapLogFilter m_filter;
+	EthernetTapLogToPcap m_exportPcap;
+
+	// toolbar, status bar & menu
+
+	ui.Action* m_actionTable[ActionId._Count];
+	ui.Icon* m_iconTable[IconId._Count];
+	ui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
+	ui.ComboBox* m_addressCombo;
+	ui.ComboBox* m_filterCombo;
+
+	// property grid
+
+	ui.SocketPropertySet m_socketPropertySet;
+	ui.SshPropertySet m_sshPropertySet;
+	ui.StringProperty* m_filterProp;
+	ui.BufferPropertySet m_bufferPropertySet;
+
+	// information grid
+
+	ui.StdSessionInfoSet m_stdSessionInfoSet;
+	ui.ChecksumInfoSet m_checksumInfoSet;
+
+	// ui reactor
+
+	reactor m_uiReactor;
+
+public:
+	construct(doc.PluginHost* pluginHost);
+
+	bool errorcode connect();
+	void disconnect();
+
+	override void load(doc.Storage* storage);
+	override void save(doc.Storage* storage);
+	override void updateProperties();
+	override errorcode bool applyProperties();
+	override void restoreDefaultProperties();
+
+protected:
+	void onCapture() {
+		m_ssh.m_state ? disconnect() : try connect();
+	}
+
+	void onAddressComboEnter() {
+		try connect();
+	}
+
+	void onConnected() {
+		m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
+	}
+
+	void onDisconnected();
+
+	void onIncomingData(
+		void const* p,
+		size_t size
+	) {
+		m_decoder.write(p, size);
+	}
+
+	void onLoginDlgCompleted(
+		char const* userName,
+		ui.AuthenticationMethod authenticationMethod,
+		char const* privateKeyFileName
+	);
+
+	void onMsg(io.HwcMsgHdr const* hdr);
+
+	void onOobData(
+		void const* p,
+		size_t size
+	) {
+		m_logWriter.write(log.StdRecordCode.Bin, p, size);
+	}
+
+	void onSetFilter() {
+		try applyFilter(true);
+	}
+
+	void createUi();
+
+	bool errorcode startCapture();
+	bool errorcode applyFilter(bool rebuildLog = false);
+	iox.SshChannel.ConnectParams const* createConnectParams();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+SshEthernetTapSession.construct(doc.PluginHost* pluginHost) {
+	basetype.construct(pluginHost);
+	m_ssh.construct(pluginHost);
+	m_exportPcap.construct(pluginHost);
+
+	createUi();
+
+	m_ssh.m_onLoginDlgCompleted += onLoginDlgCompleted;
+	m_ssh.m_onConnected += onConnected;
+	m_ssh.m_onDisconnected += onDisconnected;
+	m_ssh.m_onIncomingData += onIncomingData;
+	m_decoder.m_onMsg += onMsg;
+	m_decoder.m_onOobData += onOobData;
+
+	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
+	pluginHost.m_log.addFilter(m_filter);
+}
+
+void SshEthernetTapSession.createUi() {
+	// toolbar
+
+	m_iconTable[IconId.Capture] = new ui.Icon("images/capture.png");
+	m_iconTable[IconId.StopCapture] = new ui.Icon("images/stop.png");
+
+	m_pluginHost.m_toolBar.addLabel("Filter:");
+	m_filterCombo = m_pluginHost.m_toolBar.addComboBox(-1);
+	m_filterCombo.m_isEditable = true;
+	m_filterCombo.m_onEnter += onSetFilter;
+	m_filterCombo.m_placeholderText = "Enter a pcap-filter...";
+	m_filterCombo.m_toolTipText =
+		"View only packets which pass this filter\n"
+		"For a complete syntax reference, google 'pcap-filter'";
+
+	m_actionTable[ActionId.ApplyFilter]  = createAction("Apply filter", "images/apply.png");
+	m_actionTable[ActionId.ApplyFilter].m_onTriggered += onSetFilter;
+
+	m_pluginHost.m_toolBar.addLabel("Address:");
+	m_addressCombo = m_pluginHost.m_toolBar.addComboBox(-1);
+	m_addressCombo.m_isEditable = true;
+	m_addressCombo.m_onEnter += onAddressComboEnter;
+	m_addressCombo.m_placeholderText = "Enter a remote IP or hostname...";
+
+	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable [IconId.Capture]);
+	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;
+
+	m_pluginHost.m_menu.addSeparator();
+	m_pluginHost.m_toolBar.addSeparator();
+
+	m_actionTable[ActionId.ExportPcap] = createAction("Export Pcap file (*.pcap)", "images/save-pcap.png");
+	m_actionTable[ActionId.ExportPcap].m_onTriggered += m_exportPcap.export;
+
+	// status bar
+
+	m_statusPaneTable[StatusPaneId.RemoteAddress] = m_pluginHost.m_statusBar.addPane(, 100);
+	m_statusPaneTable[StatusPaneId.RemoteAddress].m_color = ui.StdColor.Blue;
+	m_statusPaneTable[StatusPaneId.State] = m_pluginHost.m_statusBar.addPane(, 80);
+
+	// property grid
+
+	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
+		"TCP connection",
+		"TCP-specific connection settings"
+	);
+
+	m_socketPropertySet.createProperties(m_pluginHost.m_propertyGrid, group);
+	m_socketPropertySet.m_defaultRemotePort = Defaults.ServerPort;
+
+	group = m_pluginHost.m_propertyGrid.createGroupProperty(
+		"SSH connection",
+		"SSH-specific connection settings"
+	);
+
+	m_sshPropertySet.createProperties(
+		m_pluginHost.m_propertyGrid,
+		group,,
+		ui.SshPropertySet.PropertyId.UserName |
+		ui.SshPropertySet.PropertyId.AuthenticationMethod |
+		ui.SshPropertySet.PropertyId.PrivateKeyFile |
+		ui.SshPropertySet.PropertyId.RememberLastPassword
+	);
+
+	group = m_pluginHost.m_propertyGrid.createGroupProperty(
+		"Ethernet Tap",
+		"Ethernet Tap settings"
+	);
+
+	m_filterProp = m_pluginHost.m_propertyGrid.createStringProperty(
+		group,,
+		"Filter",
+		"Enter a pcap-filter...",
+		"View only packets which pass this filter\n"
+		"For a complete syntax reference, google 'pcap-filter'"
+	);
+
+	ui.BufferPropertySet.PropertyId mask = ui.BufferPropertySet.PropertyId.All;
+	mask &= ~(
+		ui.BufferPropertySet.PropertyId.WriteBufferSize |
+		ui.BufferPropertySet.PropertyId.KeepWriteBlockSize
+	);
+
+	m_bufferPropertySet.createPropertiesGrouped(
+		m_pluginHost.m_propertyGrid,,,
+		ui.BufferPropertySet.PropertyId.All & ~ui.BufferPropertySet.PropertyId.ReadParallelism
+	);
+
+	// information grid
+
+	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Ethernet Tap");
+
+	m_stdSessionInfoSet.create(
+		m_pluginHost.m_txRxStats,
+		m_pluginHost.m_informationGrid,
+		infoGroup,,
+		ui.StdSessionInfoSet.InfoId.SessionTime |
+		ui.StdSessionInfoSet.InfoId.TxTotalSize |
+		ui.StdSessionInfoSet.InfoId.RxTotalSize |
+		ui.StdSessionInfoSet.InfoId.TxThroughput |
+		ui.StdSessionInfoSet.InfoId.RxThroughput
+	);
+
+	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
+
+	m_pluginHost.m_propertyGrid.resizeNameColumnToContents();
+	m_pluginHost.m_informationGrid.resizeNameColumnToContents();
+
+	m_uiReactor.start();
+}
+
+bool errorcode SshEthernetTapSession.connect() {
+	disconnect();
+	startSession();
+
+	char const* addressString = m_addressCombo.m_editText;
+	if (!addressString) {
+		std.setError("address string missing");
+		m_logWriter.writeLastError(log.StdRecordCode.Error);
+		return false;
+	}
+
+	m_addressCombo.addEditTextToHistory();
+
+	bool result = try applyFilter();
+	if (!result) {
+		m_logWriter.writeLastError(EthernetTapLogRecordCode.CaptureError);
+		return false;
+	}
+
+	m_decoder.reset();
+	return m_ssh.connect(addressString, createConnectParams());
+}
+
+
+void SshEthernetTapSession.disconnect() {
+	if (!m_ssh.m_state)
+		return;
+
+	m_ssh.disconnect();
+	m_stdSessionInfoSet.endSession();
+}
+
+bool errorcode SshEthernetTapSession.applyFilter(bool rebuildLog) {
+	m_pluginHost.m_log.suspend();
+	bool result = try m_filter.setFilter(m_filterCombo.m_editText);
+	m_pluginHost.m_log.resume();
+
+	if (!result) {
+		m_filterCombo.m_backgroundColor = ui.StdColor.PastelRed;
+		return false;
+	}
+
+	m_filterCombo.m_backgroundColor = ui.ColorFlags.Transparent;
+	m_filterCombo.addEditTextToHistory();
+
+	if (rebuildLog)
+		m_pluginHost.m_log.rebuild();
+
+	return true;
+}
+
+iox.SshChannel.ConnectParams const* SshEthernetTapSession.createConnectParams() {
+	void const* privateKey;
+	char const* lastPassword;
+
+	if (m_sshPropertySet.m_authenticationMethodProp.m_value == ui.AuthenticationMethod.PrivateKey) {
+		privateKey = loadFile(m_sshPropertySet.m_privateKeyFileProp.m_value);
+		lastPassword = m_ssh.getLastPrivateKeyPassphrase();
+	} else {
+		privateKey = null;
+		lastPassword = m_ssh.getLastPassword();
+	}
+
+	iox.SshChannel.ConnectParams* params = new iox.SshChannel.ConnectParams;
+	params.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
+	params.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
+	params.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
+	params.m_socketOptions = ui.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
+	params.m_defaultPort = m_socketPropertySet.m_remotePortProp.m_value;
+
+	if (m_socketPropertySet.m_useLocalAddressProp.m_value) {
+		io.SocketAddress const* adapterAddress = m_socketPropertySet.m_adapterProp.m_value;
+		if (adapterAddress)
+			params.m_localAddress = *adapterAddress;
+
+		params.m_localAddress.m_port = (uint16_t)m_socketPropertySet.m_localPortProp.m_value;
+	}
+
+	params.m_privateKeyFileName = m_sshPropertySet.m_privateKeyFileProp.m_value;
+	params.m_rememberLastPassword = m_sshPropertySet.m_rememberLastPasswordProp.m_value;
+	params.m_sshParams.m_userName = m_sshPropertySet.m_userNameProp.m_value;
+	params.m_sshParams.m_privateKey = privateKey;
+	params.m_sshParams.m_privateKeySize = dynamic sizeof(privateKey);
+	params.m_sshParams.m_channelType = "session";
+	params.m_sshParams.m_processType = "exec";
+	params.m_sshParams.m_processExtra = "ioninja-hwc --stdin --ethernet-tap";
+	params.m_sshParams.m_processExtraSize = strlen(params.m_sshParams.m_processExtra);
+
+	if (m_sshPropertySet.m_rememberLastPasswordProp.m_value)
+		params.m_sshParams.m_password = lastPassword;
+
+	return params;
+}
+
+void SshEthernetTapSession.load(doc.Storage* storage) {
+	m_filterCombo.loadHistory(storage, "filterHistory");
+	m_filterCombo.m_editText = storage.readString("filter");
+	m_addressCombo.loadHistory(storage, "addressHistory");
+	m_addressCombo.m_editText = storage.readString("address");
+
+	m_socketPropertySet.load(storage);
+	m_sshPropertySet.load(storage);
+	m_bufferPropertySet.load(storage);
+	m_ssh.applyProperties(m_socketPropertySet, m_sshPropertySet, m_bufferPropertySet);
+}
+
+void SshEthernetTapSession.save(doc.Storage* storage) {
+	m_socketPropertySet.save(storage);
+	m_sshPropertySet.save(storage);
+	m_bufferPropertySet.save(storage);
+
+	m_addressCombo.saveHistory(storage, "addressHistory");
+	storage.writeString("address", m_addressCombo.m_editText);
+	m_filterCombo.saveHistory(storage, "filterHistory");
+	storage.writeString("filter", m_filterCombo.m_editText);
+}
+
+void SshEthernetTapSession.updateProperties() {
+	m_socketPropertySet.m_remoteAddressProp.m_value = m_addressCombo.m_editText;
+	m_filterProp.m_value = m_filterCombo.m_editText;
+}
+
+bool errorcode SshEthernetTapSession.applyProperties() {
+	m_addressCombo.m_editText = m_socketPropertySet.m_remoteAddressProp.m_value;
+	m_ssh.applyProperties(m_socketPropertySet, m_sshPropertySet, m_bufferPropertySet);
+	m_filterCombo.m_editText = m_filterProp.m_value;
+	applyFilter();
+	return true;
+}
+
+void SshEthernetTapSession.restoreDefaultProperties() {
+	m_socketPropertySet.restoreDefaults();
+	m_sshPropertySet.restoreDefaults();
+	m_bufferPropertySet.restoreDefaults();
+}
+
+void SshEthernetTapSession.onLoginDlgCompleted(
+	char const* userName,
+	ui.AuthenticationMethod authenticationMethod,
+	char const* privateKeyFileName
+) {
+	m_sshPropertySet.m_userNameProp.m_value = userName;
+	m_sshPropertySet.m_authenticationMethodProp.m_value = authenticationMethod;
+	m_sshPropertySet.m_privateKeyFileProp.m_value = privateKeyFileName;
+}
+
+void SshEthernetTapSession.onDisconnected() {
+	if (!m_decoder.m_msgCount) {
+		std.setError("'ioninja-hwc' on the target machine failed to initialize");
+		m_logWriter.writeLastError(log.StdRecordCode.Error);
+	}
+
+	m_stdSessionInfoSet.endSession();
+}
+
+void SshEthernetTapSession.onMsg(io.HwcMsgHdr const* hdr) {
+	switch (hdr.m_code) {
+	case io.HwcMsgCode.Error:
+		std.Error const* error = (std.Error const*)(hdr + 1);
+		m_logWriter.write(log.StdRecordCode.Error, error, error.m_size);
+		disconnect();
+		break;
+
+	case io.HwcMsgCode.ErrorString:
+		std.setError((char const*)(hdr + 1));
+		m_logWriter.writeLastError(log.StdRecordCode.Error);
+		disconnect();
+		break;
+
+	case io.HwcMsgCode.EthernetTapPacket_ch1:
+		m_logWriter.write(EthernetTapLogRecordCode.Packet_ch1, hdr + 1, hdr.m_dataSize);
+		break;
+
+	case io.HwcMsgCode.EthernetTapPacket_ch2:
+		m_logWriter.write(EthernetTapLogRecordCode.Packet_ch2, hdr + 1, hdr.m_dataSize);
+		break;
+	}
+}
+
+reactor SshEthernetTapSession.m_uiReactor {
+	m_title = m_ssh.m_state == State.Connected ?
+		$"Ethernet Tap $(m_ssh.m_remoteAddress.getString())" :
+		$"Ethernet Tap $(m_addressCombo.m_currentText)";
+
+	m_actionTable[ActionId.Capture].m_text = m_ssh.m_state ? "Stop capture" : "Capture";
+	m_actionTable[ActionId.Capture].m_icon = m_iconTable[m_ssh.m_state ? IconId.StopCapture : IconId.Capture];
+	m_statusPaneTable[StatusPaneId.State].m_text = m_ssh.m_stateStringTable[m_ssh.m_state];
+	m_statusPaneTable[StatusPaneId.RemoteAddress].m_text = m_ssh.m_state > State.Resolving ?
+		m_ssh.m_remoteAddress.getString() :
+		"<peer-address>";
+	m_statusPaneTable[StatusPaneId.RemoteAddress].m_isVisible = m_ssh.m_state > State.Resolving;
+}
+
+//..............................................................................

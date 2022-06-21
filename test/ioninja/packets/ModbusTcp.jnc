@@ -1,0 +1,148 @@
+//..............................................................................
+//
+// Packet template library for Modbus TCP
+//
+
+import "io_Modbus.jnc"
+import "crc16.jnc"
+
+//! \addtogroup packets-modbus
+//! @{
+
+pragma(Alignment, 1);
+
+//..............................................................................
+
+[ displayName = "Modbus TCP read" ]
+struct ModbusTcpReadPacket {
+	[ displayName = "ADU" ]
+	io.ModbusTcpAduHdr m_adu;
+
+	[ displayName = "PDU" ]
+	io.ModbusReadPdu m_pdu;
+
+	[ userAction = "Initialize with defaults" ]
+	void initialize() {
+		*this = null;
+		initializeModbusTcpAdu(&m_adu);
+		m_pdu.m_func = io.ModbusFunc.ReadHoldingRegisters;
+		m_pdu.m_count = 1;
+	}
+
+	[
+		userAction = "Update length",
+		autorun = "Auto-update length"
+	]
+	void updateLength() {
+		updateModbusTcpLength(this);
+	}
+}
+
+//..............................................................................
+
+[
+	displayName = "Modbus TCP write",
+	fixedSize
+]
+struct ModbusTcpWritePacket {
+	[ displayName = "ADU" ]
+	io.ModbusTcpAduHdr m_adu;
+
+	[ displayName = "PDU" ]
+	io.ModbusWritePdu m_pdu;
+
+	[ userAction = "Initialize with defaults" ]
+	void initialize() {
+		*this = null;
+		initializeModbusTcpAdu(&m_adu);
+		m_pdu.m_func = io.ModbusFunc.WriteRegister;
+	}
+
+	[
+		userAction = "Update length",
+		autorun = "Auto-update length"
+	]
+	void updateLength() {
+		updateModbusTcpLength(this);
+	}
+}
+
+//..............................................................................
+
+[ displayName = "Modbus TCP write multiple" ]
+struct ModbusTcpWriteMultiplePacket {
+	[ displayName = "ADU" ]
+	io.ModbusTcpAduHdr m_adu;
+
+	[ displayName = "PDU" ]
+	io.ModbusWriteMultiplePdu m_pdu;
+
+	[ userAction = "Initialize with defaults" ]
+	void initialize() {
+		*this = null;
+		initializeModbusTcpAdu(&m_adu);
+		m_pdu.m_func = io.ModbusFunc.WriteMultipleRegisters;
+		updateLength();
+	}
+
+	[
+		userAction = "Update length",
+		autorun = "Auto-update length"
+	]
+	void updateLength() {
+		m_pdu.m_count = (dynamic sizeof(this) - sizeof(ModbusTcpWriteMultiplePacket)) / sizeof(uint16_t);
+		m_pdu.m_size = m_pdu.m_count * sizeof(uint16_t);
+		updateModbusTcpLength(this);
+	}
+}
+
+//..............................................................................
+
+[ displayName = "Modbus TCP read/write multiple" ]
+struct ModbusTcpReadWriteMultiplePacket {
+	[ displayName = "ADU" ]
+	io.ModbusTcpAduHdr m_adu;
+
+	[ displayName = "PDU" ]
+	io.ModbusReadWriteMultiplePdu m_pdu;
+
+	[ userAction = "Initialize with defaults" ]
+	void initialize() {
+		*this = null;
+		initializeModbusTcpAdu(&m_adu);
+		m_pdu.m_func = io.ModbusFunc.ReadWriteMultipleRegisters;
+		m_pdu.m_readCount = 1;
+		updateLength();
+	}
+
+	[
+		userAction = "Update length",
+		autorun = "Auto-update length"
+	]
+	void updateLength() {
+		m_pdu.m_writeCount = (dynamic sizeof(this) - sizeof(ModbusTcpReadWriteMultiplePacket)) / sizeof(uint16_t);
+		m_pdu.m_writeSize = m_pdu.m_writeCount * sizeof(uint16_t);
+		updateModbusTcpLength(this);
+	}
+}
+
+//..............................................................................
+
+void initializeModbusTcpAdu(io.ModbusTcpAduHdr* adu) {
+	adu.m_deviceAddress = 1;
+	adu.m_protocol = 0;
+	adu.m_transactionId = sys.getPreciseTimestamp() / 10000000; // count in seconds
+	adu.m_length = dynamic sizeof(adu) - offsetof(io.ModbusTcpAduHdr.m_deviceAddress);
+}
+
+void updateModbusTcpLength(void* p) {
+	size_t size = dynamic sizeof(p);
+	if (size < sizeof(io.ModbusTcpAduHdr))
+		return;
+
+	((io.ModbusTcpAduHdr*)p).m_length = size - offsetof(io.ModbusTcpAduHdr.m_deviceAddress);
+}
+
+//..............................................................................
+
+//! @}

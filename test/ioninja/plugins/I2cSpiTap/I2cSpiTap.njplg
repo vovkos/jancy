@@ -8,7 +8,7 @@
 name        = "I2C/SPI Tap"
 description = "Monitor I2C/SPI communication via an I2C/SPI Tap device from Tibbo"
 id          = i2c-spi-tap
-group       = serial
+group       = hw
 monitor     = true
 log-guid    = 39ee6b0f-a65e-4e8a-b252-6fa28d8e3327  # i2c-spi tap
 log-guid    = b26c1b57-16c7-48a5-bbb9-05ea1ada5368  # fpga uploader

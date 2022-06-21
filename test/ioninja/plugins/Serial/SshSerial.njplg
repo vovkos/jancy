@@ -1,0 +1,33 @@
+#...............................................................................
+#
+#  Serial over SSH session plugin
+#
+
+[plugin]
+
+name        = Serial over SSH
+description = "Serial communication using one of the installed COM ports on a remote machine over SSH"
+id          = ssh-serial
+group       = serial
+log-guid    = 29725452-e64f-4c0e-a871-776277b68572  # serial
+log-guid    = 8ec96e77-89df-4dd8-bc14-b995b85de45d  # ssh
+log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
+icon        = images/serial.png
+small-icon  = images/serial-16x16.png
+
+session-class = SshSerialSession
+
+[required-capabilities]
+
+org.jancy.io.net
+org.jancy.io.ssh
+
+[optional-capabilities]
+
+org.jancy.io.ip4
+org.jancy.io.ip6
+org.jancy.io.file
+
+[scripts]
+
+SshSerialSession.jnc

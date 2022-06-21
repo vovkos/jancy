@@ -30,6 +30,7 @@ opaque class PluginHost {
 	MainThreadScheduler* m_mainThreadScheduler;
 
 	char const* const property m_pluginDir;
+	log.TxRxStats* const property m_txRxStats;
 
 	destruct();
 }

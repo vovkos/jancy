@@ -5,13 +5,13 @@
 
 import "doc_Session.jnc"
 import "io_usb.jncx"
-import "io_LogToPcap.jnc"
 import "iox_FpgaUploader.jnc"
 import "ui_BufferPropertySet.jnc"
 import "ui_StdSessionInfoSet.jnc"
 import "ui_History.jnc"
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
+import "log_exportToPcap.jnc"
 import "std_Buffer.jnc"
 
 using extension ui.ComboBoxHistory;
@@ -22,10 +22,8 @@ class EthernetTapSession: doc.Session {
 protected:
 	enum Defaults {
 		ReadParallelism = 4,
-		ReadBlockSize   = 64 * 1024,
+		ReadBlockSize   = 2 * 512, // 1 K
 		ReadBufferSize  = 1 * 1024 * 1024,
-
-		LogCacheUpdateScrollRateLimit = 16,
 	}
 
 	enum {
@@ -57,7 +55,7 @@ protected:
 
 	enum IconId {
 		Capture,
-		Stop,
+		StopCapture,
 		_Count,
 	}
 
@@ -89,10 +87,10 @@ protected:
 	std.Buffer m_packetBuffer;
 	uint16_t m_packetOffset;
 	uint32_t m_packetIndex;
-	PacketFlags m_packetFlags;
 	uint_t m_syncId;
 
 	EthernetTapLogFilter m_filter;
+	EthernetTapLogToPcap m_exportPcap;
 
 	// toolbar, status bar & menu
 
@@ -101,7 +99,6 @@ protected:
 	ui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
 	ui.ComboBox* m_deviceCombo;
 	ui.ComboBox* m_filterCombo;
-	ui.FileDlg* m_fileDlg;
 
 	// property grid
 
@@ -137,8 +134,6 @@ public:
 
 protected:
 	void onCapture();
-	void onExportPcap();
-	void onFileDlgCompleted(ui.StdDlgButton button);
 
 	void onSetFilter() {
 		try applyFilter(true);
@@ -170,11 +165,12 @@ protected:
 EthernetTapSession.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
 	m_uploader.construct(pluginHost);
+	m_exportPcap.construct(pluginHost);
+
 	m_uploader.m_onUpdateCompleted += onUpdateCompleted;
 
 	createUi();
 
-	pluginHost.m_log.m_cacheUpdateScrollRateLimit = Defaults.LogCacheUpdateScrollRateLimit;
 	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
 	pluginHost.m_log.addFilter(m_filter);
 }
@@ -183,7 +179,7 @@ void EthernetTapSession.createUi() {
 	// toolbar
 
 	m_iconTable[IconId.Capture] = new ui.Icon("images/capture.png");
-	m_iconTable[IconId.Stop] = new ui.Icon("images/stop.png");
+	m_iconTable[IconId.StopCapture] = new ui.Icon("images/stop.png");
 
 	m_pluginHost.m_toolBar.addLabel("Filter:");
 	m_filterCombo = m_pluginHost.m_toolBar.addComboBox(-1);
@@ -210,7 +206,7 @@ void EthernetTapSession.createUi() {
 	m_pluginHost.m_toolBar.addSeparator();
 
 	m_actionTable[ActionId.ExportPcap] = createAction("Export Pcap file (*.pcap)", "images/save-pcap.png");
-	m_actionTable[ActionId.ExportPcap].m_onTriggered += onExportPcap;
+	m_actionTable[ActionId.ExportPcap].m_onTriggered += m_exportPcap.export;
 
 	// status bar
 
@@ -251,9 +247,10 @@ void EthernetTapSession.createUi() {
 
 	// information grid
 
-	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Ethernet tap");
+	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Ethernet Tap");
 
-	m_stdSessionInfoSet.createInformationValues(
+	m_stdSessionInfoSet.create(
+		m_pluginHost.m_txRxStats,
 		m_pluginHost.m_informationGrid,
 		infoGroup,,
 		ui.StdSessionInfoSet.InfoId.SessionTime |
@@ -264,6 +261,9 @@ void EthernetTapSession.createUi() {
 	);
 
 	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
+
+	m_pluginHost.m_propertyGrid.resizeNameColumnToContents();
+	m_pluginHost.m_informationGrid.resizeNameColumnToContents();
 
 	m_uiReactor.start();
 
@@ -278,63 +278,11 @@ void EthernetTapSession.onCapture() {
 		try capture();
 }
 
-void EthernetTapSession.onExportPcap() {
-	if (!m_fileDlg) {
-		m_fileDlg = new ui.FileDlg;
-		m_fileDlg.m_onCompleted += onFileDlgCompleted;
-	}
-
-	m_fileDlg.m_kind = ui.FileDlgKind.Save;
-	m_fileDlg.m_title = "Export Pcap File...";
-	m_fileDlg.m_filter = "Pcap files (*.pcap; *.cap);; All files (*.*)";
-	m_fileDlg.show();
-}
-
 void EthernetTapSession.onUpdateCompleted(bool result) {
 	if (result)
 		try startCapture();
 	else
 		stopCapture();
-}
-
-size_t exportLogRecordToPcap(
-	log.Record const* record,
-	io.MappedFile* pcapFile,
-	uint64_t pcapOffset
-) {
-	void const* p;
-	size_t size;
-
-	switch (record.m_code) {
-	case EthernetTapLogRecordCode.Packet_ch1:
-	case EthernetTapLogRecordCode.Packet_ch2:
-		uint32_t const* idx = (uint32_t const*)(record + 1);
-		PacketHdr const* hdr = (PacketHdr const*)(idx + 1);
-		p = hdr + 1;
-		size = hdr.m_size;
-		break;
-
-	default:
-		return 0;
-	}
-
-	return io.writePcapPacket(pcapFile, pcapOffset, record.m_timestamp, p, size);
-}
-
-void EthernetTapSession.onFileDlgCompleted(ui.StdDlgButton button) {
-	if (button != ui.StdDlgButton.Ok)
-		return;
-
-	bool result = try io.exportLogToPcap(
-		m_pluginHost.m_log.m_recordFileName,
-		m_fileDlg.m_filePath,
-		io.PcapLinkType.Ethernet,
-		2 * 1024, // enough for ethernet
-		exportLogRecordToPcap
-	);
-
-	if (!result)
-		m_logWriter.writeLastError(log.StdRecordCode.Error);
 }
 
 void EthernetTapSession.enumerateDevices() {
@@ -601,10 +549,10 @@ void EthernetTapSession.parse(
 
 		if (hdr.m_flags & PacketFlags.ChannelId) {
 			recordCode = EthernetTapLogRecordCode.Packet_ch2;
-			m_stdSessionInfoSet.addRxData(m_packetBuffer.m_size);
+			m_pluginHost.m_txRxStats.addRx(m_packetBuffer.m_size);
 		} else {
 			recordCode = EthernetTapLogRecordCode.Packet_ch1;
-			m_stdSessionInfoSet.addTxData(m_packetBuffer.m_size);
+			m_pluginHost.m_txRxStats.addTx(m_packetBuffer.m_size);
 		}
 
 		m_logWriter.write(recordCode, m_packetBuffer.m_p, m_packetBuffer.m_size);
@@ -665,9 +613,9 @@ size_t errorcode EthernetTapSession.transmit(
 }
 
 reactor EthernetTapSession.m_uiReactor {
-	m_title = $"Ethernet $(m_deviceCombo.m_currentText)";
+	m_title = $"Ethernet Tap $(m_deviceCombo.m_currentText)";
 	m_actionTable[ActionId.Capture].m_text = m_state ? "Close Device" : "Open Device";
-	m_actionTable[ActionId.Capture].m_icon = m_iconTable[m_state ? IconId.Stop : IconId.Capture];
+	m_actionTable[ActionId.Capture].m_icon = m_iconTable[m_state ? IconId.StopCapture : IconId.Capture];
 	m_statusPaneTable[StatusPaneId.State].m_text = m_statusText[m_state];
 }
 

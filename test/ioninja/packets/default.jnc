@@ -24,16 +24,27 @@ enum MyEnum: int8_t {
 
 pragma(Alignment, 1);
 
+[ displayName = "My packet" ]
 struct MyPacket {
+	[ displayName = "Enumeration" ]
 	MyEnum m_field1;
+
+	[ displayName = "16-bit integer" ]
 	int16_t m_field2;
+
+	[ displayName = "32-bit big-endian" ]
 	bigendian int32_t m_field3;
+
+	[ displayName = "Name" ]
 	char m_name[8];
 
+	[ displayName = "Length" ]
 	uint16_t m_length;
+
+	[ displayName = "CRC-16" ]
 	uint16_t m_checksum;
 
-	[ packetTemplateAction ]
+	[ userAction = "Initialize" ]
 	void initialize(char const* name) {
 		m_field1 = MyEnum.Value1;
 		m_field2 = 2;
@@ -46,13 +57,19 @@ struct MyPacket {
 		memcpy(m_name, name, size);
 	}
 
-	[ packetTemplateAction ]
+	[
+		userAction = "Update length",
+		autorun = "Auto-update length"
+	]
 	void updateLength() {
 		m_length = dynamic sizeof(this);
 	}
 
-	[ packetTemplateAction ]
-	void calcChecksum() {
+	[
+		userAction = "Update checksum",
+		autorun = "Auto-update checksum"
+	]
+	void updateChecksum() {
 		m_checksum = crc16_ansi(this, dynamic sizeof(this));
 	}
 }

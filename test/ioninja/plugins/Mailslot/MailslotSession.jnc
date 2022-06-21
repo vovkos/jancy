@@ -112,7 +112,6 @@ MailslotSession.construct(doc.PluginHost* pluginHost) {
 
 	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
 	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
-	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
 void MailslotSession.createUi() {
@@ -161,7 +160,8 @@ void MailslotSession.createUi() {
 
 	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Mailslot");
 
-	m_stdSessionInfoSet.createInformationValues(
+	m_stdSessionInfoSet.create(
+		m_pluginHost.m_txRxStats,
 		m_pluginHost.m_informationGrid,
 		infoGroup,,
 		ui.StdSessionInfoSet.InfoId.SessionTime |

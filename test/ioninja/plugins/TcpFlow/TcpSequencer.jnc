@@ -30,60 +30,75 @@ public:
 
 public:
 	void write(
+		uint64_t timestamp,
 		uint32_t seqNumber,
 		void const* p,
 		size_t size
 	);
 
-	void flush() {
-		flushOutOfSeqSegments(0);
+	void flush(uint64_t timestamp) {
+		flushOutOfSeqSegments(timestamp, 0);
 	}
 
-	void finalize(uint32_t seqNumber);
+	void finalize(
+		uint64_t timestamp,
+		uint32_t seqNumber
+	);
 
 protected:
 	void writeInSeqSegment(
+		uint64_t timestamp,
 		uint32_t seqNumber,
 		void const* p,
 		size_t size
 	);
 
 	void addOutOfSeqSegment(
+		uint64_t timestamp,
 		uint32_t seqNumber,
 		void const* p,
 		size_t size
 	);
 
-	void flushOutOfSeqSegments(size_t limit);
-	void writeAlignedOutOfSeqSegments();
+	void flushOutOfSeqSegments(
+		uint64_t timestamp,
+		size_t limit
+	);
+
+	void writeAlignedOutOfSeqSegments(uint64_t timestamp);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void TcpSequencer.write(
+	uint64_t timestamp,
 	uint32_t seqNumber,
 	void const* p,
 	size_t size
 ) {
 	if ((int32_t)(seqNumber - m_seqNumber) > 0) {
-		addOutOfSeqSegment(seqNumber, p, size);
+		addOutOfSeqSegment(timestamp, seqNumber, p, size);
 	} else {
-		writeInSeqSegment(seqNumber, p, size);
-		writeAlignedOutOfSeqSegments();
+		writeInSeqSegment(timestamp, seqNumber, p, size);
+		writeAlignedOutOfSeqSegments(timestamp);
 	}
 }
 
-void TcpSequencer.finalize(uint32_t seqNumber) {
-	flushOutOfSeqSegments(0);
+void TcpSequencer.finalize(
+	uint64_t timestamp,
+	uint32_t seqNumber
+) {
+	flushOutOfSeqSegments(timestamp, 0);
 
 	if (seqNumber > m_seqNumber) {
 		size_t lostSize = seqNumber - m_seqNumber;
-		g_logWriter.write(g_logTimestamp, TcpFlowLogRecordCode.DataLost, &lostSize, sizeof(lostSize));
+		g_logWriter.write(timestamp, TcpFlowLogRecordCode.DataLost, &lostSize, sizeof(lostSize));
 		m_totalLostSize += lostSize;
 	}
 }
 
 void TcpSequencer.writeInSeqSegment(
+	uint64_t timestamp,
 	uint32_t seqNumber,
 	void const* p,
 	size_t size
@@ -98,11 +113,12 @@ void TcpSequencer.writeInSeqSegment(
 		size -= skip;
 	}
 
-	g_logWriter.write(g_logTimestamp, m_logRecordCode, p, size);
+	g_logWriter.write(timestamp, m_logRecordCode, p, size);
 	m_seqNumber = newSeqNumber;
 }
 
 void TcpSequencer.addOutOfSeqSegment(
+	uint64_t timestamp,
 	uint32_t seqNumber,
 	void const* p,
 	size_t size
@@ -125,28 +141,31 @@ void TcpSequencer.addOutOfSeqSegment(
 
 	// maintain out-of-seq limit
 
-	flushOutOfSeqSegments(m_outOfSeqLimit);
+	flushOutOfSeqSegments(timestamp, m_outOfSeqLimit);
 }
 
-void TcpSequencer.flushOutOfSeqSegments(size_t limit) {
+void TcpSequencer.flushOutOfSeqSegments(
+	uint64_t timestamp,
+	size_t limit
+) {
 	while (m_outOfSeqList.m_count > limit) {
 		OutOfSeqSegment* segment = m_outOfSeqList.removeHead();
 		uint32_t lostSize = segment.m_seqNumber - m_seqNumber;
 		m_totalLostSize += lostSize;
-		g_logWriter.write(g_logTimestamp, TcpFlowLogRecordCode.DataLost, &lostSize, sizeof(lostSize));
-		writeInSeqSegment(segment.m_seqNumber, segment.m_p, segment.m_size);
-		writeAlignedOutOfSeqSegments();
+		g_logWriter.write(timestamp, TcpFlowLogRecordCode.DataLost, &lostSize, sizeof(lostSize));
+		writeInSeqSegment(timestamp, segment.m_seqNumber, segment.m_p, segment.m_size);
+		writeAlignedOutOfSeqSegments(timestamp);
 	}
 }
 
-void TcpSequencer.writeAlignedOutOfSeqSegments() {
+void TcpSequencer.writeAlignedOutOfSeqSegments(uint64_t timestamp) {
 	while (m_outOfSeqList.m_count) {
 		OutOfSeqSegment* segment = m_outOfSeqList.m_head.m_data;
 		if ((int32_t)(segment.m_seqNumber - m_seqNumber) > 0)
 			break;
 
 		m_outOfSeqList.removeHead();
-		writeInSeqSegment(segment.m_seqNumber, segment.m_p, segment.m_size);
+		writeInSeqSegment(timestamp, segment.m_seqNumber, segment.m_p, segment.m_size);
 	}
 }
 

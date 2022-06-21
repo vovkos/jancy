@@ -120,6 +120,12 @@ public:
 		disconnectAll();
 	}
 
+	override bool errorcode dispatch(
+		uint_t code,
+		variant in,
+		variant* out
+	);
+
 protected:
 	void onListen() {
 		m_state ? stopListen() : try listen();
@@ -164,7 +170,6 @@ TcpServerSession.construct(doc.PluginHost* pluginHost) {
 	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
 	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
 	pluginHost.m_log.addFilter(m_filter);
-	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
 void TcpServerSession.createUi() {
@@ -227,9 +232,9 @@ void TcpServerSession.createUi() {
 
 	// information grid
 
-	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("TCP listener");
+	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("TCP server");
 
-	m_stdSessionInfoSet.createInformationValues(m_pluginHost.m_informationGrid, infoGroup);
+	m_stdSessionInfoSet.create(m_pluginHost.m_txRxStats, m_pluginHost.m_informationGrid, infoGroup);
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 
@@ -401,8 +406,10 @@ size_t errorcode TcpServerSession.transmit(
 	size_t size
 ) {
 	Client* client = m_clientCombo.m_currentData;
-	if (!client)
+	if (!client) {
+		std.setError("not connected");
 		return -1;
+	}
 
 	setCurrentClient(client);
 
@@ -416,6 +423,43 @@ size_t errorcode TcpServerSession.transmit(
 	}
 
 	return result;
+}
+
+bool errorcode TcpServerSession.dispatch(
+	uint_t code,
+	variant in,
+	variant* out
+) {
+	switch (code) {
+	case TcpServerDispatchCode.GetLocalPort:
+		*out = atoi(m_portCombo.m_editText);
+		break;
+
+	case TcpServerDispatchCode.SetLocalPort:
+		m_portCombo.m_editText = $"%d"((uint_t)in);
+		break;
+
+	case TcpServerDispatchCode.Listen:
+		return listen();
+
+	case TcpServerDispatchCode.StopListen:
+		stopListen();
+		break;
+
+	case TcpServerDispatchCode.Disconnect:
+		disconnect();
+		break;
+
+	case TcpServerDispatchCode.DisconnectAll:
+		disconnectAll();
+		break;
+
+	default:
+		std.setError("unsupported dispatch code");
+		return false;
+	}
+
+	return true;
 }
 
 void TcpServerSession.waitListenerSocketEvents() {

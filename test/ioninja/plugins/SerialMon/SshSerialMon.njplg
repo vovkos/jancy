@@ -6,7 +6,7 @@
 [plugin]
 
 name        = "Serial Monitor over SSH"
-description = "Monitor serial communication through one of the installed COM ports on another machine over SSH"
+description = "Monitor serial communication through one of the installed COM ports on a remote machine over SSH"
 id          = ssh-serialmon
 group       = serial
 monitor     = true

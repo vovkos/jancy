@@ -8,8 +8,9 @@
 name        = "Ethernet Tap"
 description = "Monitor Ethernet packets via an Ethernet Tap device from Tibbo"
 id          = ethernet-tap
-group       = net
+group       = hw
 monitor     = true
+terminal    = false
 log-guid    = ae3dc2da-6124-4c14-b05a-200df2fc580a  # ethernet tap
 log-guid    = b26c1b57-16c7-48a5-bbb9-05ea1ada5368  # fpga uploader
 icon        = images/sniffer.png
@@ -26,3 +27,4 @@ org.jancy.io.file
 
 EthernetTapSession.jnc
 EthernetTapLogFilter.jnc
+EthernetTapLogToPcap.jnc

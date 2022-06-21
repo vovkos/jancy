@@ -1,0 +1,24 @@
+//..............................................................................
+//
+// Ninja log - observers get notifications of every new log record
+//
+
+namespace log {
+
+//! \addtogroup api-log
+//! @{
+
+//..............................................................................
+
+typedef void ObserverFunc(
+	uint64_t timestamp,
+	uint64_t recordCode,
+	void const* p,
+	size_t size
+);
+
+//..............................................................................
+
+//! @}
+
+} // namespace log

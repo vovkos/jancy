@@ -1,0 +1,82 @@
+import "doc_PluginHost.jnc"
+import "ui_Dialog.jnc"
+
+//..............................................................................
+
+class EthernetTapLogToPcap {
+protected:
+	doc.PluginHost* m_pluginHost;
+	ui.FileDlg* m_fileDlg;
+
+public:
+	event m_onError();
+
+public:
+	construct(doc.PluginHost* pluginHost) {
+		m_pluginHost = pluginHost;
+	}
+
+	void export();
+
+protected:
+	void onFileDlgCompleted(ui.StdDlgButton button);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void EthernetTapLogToPcap.export() {
+	if (!m_fileDlg) {
+		m_fileDlg = new ui.FileDlg;
+		m_fileDlg.m_onCompleted += onFileDlgCompleted;
+	}
+
+	m_fileDlg.m_kind = ui.FileDlgKind.Save;
+	m_fileDlg.m_title = "Export Pcap File...";
+	m_fileDlg.m_filter = "Pcap files (*.pcap; *.cap);; All files (*.*)";
+	m_fileDlg.show();
+}
+
+void EthernetTapLogToPcap.onFileDlgCompleted(ui.StdDlgButton button) {
+	if (button != ui.StdDlgButton.Ok)
+		return;
+
+	bool result = try log.exportToPcap(
+		m_pluginHost.m_log,
+		m_fileDlg.m_filePath,
+		io.PcapLinkType.Ethernet,
+		2 * 1024, // enough for ethernet
+		exportLogRecordToPcap
+	);
+
+	if (!result)
+		m_pluginHost.m_log.m_writer.writeLastError(log.StdRecordCode.Error);
+}
+
+//..............................................................................
+
+size_t exportLogRecordToPcap(
+	log.Record const* record,
+	io.MappedFile* pcapFile,
+	uint64_t pcapOffset
+) {
+	void const* p;
+	size_t size;
+
+	switch (record.m_code) {
+	case EthernetTapLogRecordCode.Packet_ch1:
+	case EthernetTapLogRecordCode.Packet_ch2:
+		uint32_t const* idx = (uint32_t const*)(record + 1);
+		PacketHdr const* hdr = (PacketHdr const*)(idx + 1);
+		p = hdr + 1;
+		size = hdr.m_size;
+		break;
+
+	default:
+		return 0;
+	}
+
+	return io.writePcapPacket(pcapFile, pcapOffset, record.m_timestamp, p, size);
+}
+
+//..............................................................................
+

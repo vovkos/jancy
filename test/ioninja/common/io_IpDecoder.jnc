@@ -33,22 +33,26 @@ public:
 
 	bool decodeLinkHdr(
 		PcapLinkType linkType,
+		uint64_t timestamp,
 		void const* p,
 		size_t size
 	);
 
 protected:
 	bool decodeIpHdr(
+		uint64_t timestamp,
 		void const* p,
 		size_t size
 	);
 
 	bool decodeIp6Hdr(
+		uint64_t timestamp,
 		void const* p,
 		size_t size
 	);
 
 	abstract bool decodeTransportHdr(
+		uint64_t timestamp,
 		io.SocketAddress* srcAddress,
 		io.SocketAddress* dstAddress,
 		io.IpProtocol protocol,
@@ -61,14 +65,15 @@ protected:
 
 void IpDecoder.setupDefragmenter(
 	size_t fragmentLimit,
-	uint_t timeout
+	uint_t fragmentTimeout
 ) {
 	m_defragmenter.m_fragmentLimit = fragmentLimit;
-	m_defragmenter.m_timeout = timeout;
+	m_defragmenter.m_fragmentTimeout = fragmentTimeout;
 }
 
 bool IpDecoder.decodeLinkHdr(
 	PcapLinkType linkType,
+	uint64_t timestamp,
 	void const* p,
 	size_t size
 ) {
@@ -83,10 +88,10 @@ bool IpDecoder.decodeLinkHdr(
 
 		switch (loopbackHdr.m_protocolFamily) {
 		case io.LoopbackProtocolFamily.Ip:
-			return decodeIpHdr(p, size);
+			return decodeIpHdr(timestamp, p, size);
 
 		case io.LoopbackProtocolFamily.Ip6:
-			return decodeIpHdr(p, size);
+			return decodeIpHdr(timestamp, p, size);
 		}
 
 		break;
@@ -101,10 +106,10 @@ bool IpDecoder.decodeLinkHdr(
 
 		switch (ethernetHdr.m_type) {
 		case io.EthernetType.Ip:
-			return decodeIpHdr(p, size);
+			return decodeIpHdr(timestamp, p, size);
 
 		case io.EthernetType.Ip6:
-			return decodeIpHdr(p, size);
+			return decodeIpHdr(timestamp, p, size);
 		}
 
 		break;
@@ -114,6 +119,7 @@ bool IpDecoder.decodeLinkHdr(
 }
 
 bool IpDecoder.decodeIpHdr(
+	uint64_t timestamp,
 	void const* p,
 	size_t size
 ) {
@@ -129,7 +135,7 @@ bool IpDecoder.decodeIpHdr(
 		return false;
 
 	if ((ipHdr.m_flags & io.IpFlags.Mf) || ipHdr.m_fragmentOffset) { // fragmented ip
-		ipHdr = m_defragmenter.defragment(ipHdr, size);
+		ipHdr = m_defragmenter.defragment(timestamp, ipHdr, size);
 		if (!ipHdr)
 			return false;
 
@@ -148,10 +154,11 @@ bool IpDecoder.decodeIpHdr(
 	dstAddress.m_family = io.AddressFamily.Ip4;
 	dstAddress.m_ip4.m_address.m_i32 = ipHdr.m_dstAddress;
 
-	return decodeTransportHdr(srcAddress, dstAddress, ipHdr.m_protocol, p, size);
+	return decodeTransportHdr(timestamp, srcAddress, dstAddress, ipHdr.m_protocol, p, size);
 }
 
 bool IpDecoder.decodeIp6Hdr(
+	uint64_t timestamp,
 	void const* p,
 	size_t size
 ) {
@@ -173,7 +180,7 @@ bool IpDecoder.decodeIp6Hdr(
 	dstAddress.m_family = io.AddressFamily.Ip6;
 	dstAddress.m_ip6.m_address = *(io.Address_ip6 const*) ip6Hdr.m_dstAddress;
 
-	return decodeTransportHdr(srcAddress, dstAddress, ip6Hdr.m_nextHeader, p, size);
+	return decodeTransportHdr(timestamp, srcAddress, dstAddress, ip6Hdr.m_nextHeader, p, size);
 }
 
 //..............................................................................

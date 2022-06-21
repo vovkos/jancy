@@ -24,11 +24,13 @@ class SslPropertySet {
 		VerifyServerCertificate,
 		EphemeralDh,
 		EphemeralEcdh,
+		Hostname,
 
 		AllClient =
 			CipherSet |
 			Certificate |
-			VerifyServerCertificate,
+			VerifyServerCertificate |
+			Hostname,
 
 		AllServer =
 			CipherSet |
@@ -46,6 +48,7 @@ class SslPropertySet {
 		UseEphemeralDh        = true,
 		UseEphemeralEcdh      = true,
 		EphemeralDhStdParams  = io.SslStdDh.Dh1024x160,
+		UseHostname          = true,
 	}
 
 	static char const DefaultCipherSet[] = "ALL"; // all (except for unencrypted)
@@ -63,6 +66,7 @@ class SslPropertySet {
 	EnumProperty* m_ephemeralDhStdParamsProp;
 	BoolProperty* m_useEphemeralEcdhProp;
 	ComboProperty* m_ephemeralEcdhCurveProp;
+	BoolProperty* m_useHostnameProp;
 
 	void createProperties(
 		PropertyGrid* propertyGrid,
@@ -120,7 +124,7 @@ void SslPropertySet.createProperties(
 		);
 
 		m_certificateFileProp.m_fileDialogTitle = "Select Certificate File";
-		m_certificateFileProp.m_filter = "Certificate files (*.cer;*.pem);;All files (*.*)";
+		m_certificateFileProp.m_filter = "Certificate files (*.cer; *.crt; *.pem);;All files (*.*)";
 
 		m_privateKeyFileProp = propertyGrid.createFileProperty(
 			m_useCertificateProp,,
@@ -246,6 +250,15 @@ void SslPropertySet.createProperties(
 			countof(ecCurveTable)
 		);
 	}
+
+	if (mask & PropertyId.Hostname)
+		m_useHostnameProp = propertyGrid.createBoolProperty(
+			parentProp,
+			beforeProp,
+			"Pass hostname (SNI)",
+			"Pass the hostname during the handshake for Server Name Indication (SNI)"
+		);
+
 }
 
 void SslPropertySet.load(doc.Storage* storage) {
@@ -274,6 +287,9 @@ void SslPropertySet.load(doc.Storage* storage) {
 		m_useEphemeralEcdhProp.m_value = storage.readBool("useEphemeralEcdh", Defaults.UseEphemeralEcdh);
 		m_ephemeralEcdhCurveProp.m_value = storage.readString("ephemeralEcdhCurve", DefaultEphemeralEcdhCurve);
 	}
+
+	if (m_useHostnameProp)
+		m_useHostnameProp.m_value = storage.readBool("useHostnameProp", Defaults.UseHostname);
 }
 
 void SslPropertySet.save(doc.Storage* storage) {
@@ -302,6 +318,9 @@ void SslPropertySet.save(doc.Storage* storage) {
 		storage.writeBool("useEphemeralEcdh", m_useEphemeralEcdhProp.m_value);
 		storage.writeString("ephemeralEcdhCurveProp", m_ephemeralEcdhCurveProp.m_value);
 	}
+
+	if (m_useHostnameProp)
+		storage.writeBool("useHostname", m_useHostnameProp.m_value);
 }
 
 void SslPropertySet.restoreDefaults() {
@@ -325,6 +344,9 @@ void SslPropertySet.restoreDefaults() {
 		m_useEphemeralEcdhProp.m_value = Defaults.UseEphemeralEcdh;
 		m_ephemeralEcdhCurveProp.m_value = DefaultEphemeralEcdhCurve;
 	}
+
+	if (m_useHostnameProp)
+		m_useHostnameProp.m_value = Defaults.UseHostname;
 }
 
 //..............................................................................

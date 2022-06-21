@@ -161,8 +161,7 @@ ProcessSession.construct(doc.PluginHost* pluginHost) {
 	pluginHost.m_terminal.m_onConsoleSizeChanged += onConsoleSizeChanged;
 	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
 	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
-	pluginHost.m_log.addListener(onLogRecord);
-	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
+	pluginHost.m_log.addObserver(onLogRecord);
 }
 
 void ProcessSession.createUi() {
@@ -243,9 +242,9 @@ void ProcessSession.createUi() {
 
 	// information grid
 
-	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Process session");
+	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Process");
 
-	m_stdSessionInfoSet.createInformationValues(m_pluginHost.m_informationGrid, infoGroup);
+	m_stdSessionInfoSet.create(m_pluginHost.m_txRxStats, m_pluginHost.m_informationGrid, infoGroup);
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 
@@ -455,8 +454,10 @@ size_t errorcode ProcessSession.transmit(
 	void const* p,
 	size_t size
 ) {
-	if (m_state != State.Running)
+	if (m_state != State.Running) {
+		std.setError("no process running");
 		return -1;
+	}
 
 	size_t result = m_process.write(p, size);
 	if (result)
@@ -563,7 +564,7 @@ void ProcessSession.onLogRecord(
 	size_t size
 ) {
 	if (recordCode == ProcessLogRecordCode.Stderr) {
-		m_stdSessionInfoSet.addRxData(size);
+		m_pluginHost.m_txRxStats.addRx(size);
 		m_pluginHost.m_terminal.write(p, size);
 	}
 }

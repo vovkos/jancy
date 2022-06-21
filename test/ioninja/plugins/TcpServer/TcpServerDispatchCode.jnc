@@ -1,0 +1,17 @@
+//..............................................................................
+//
+// TCP Server session dispatch codes for IAS
+//
+
+//..............................................................................
+
+enum TcpServerDispatchCode {
+	GetLocalPort,
+	SetLocalPort,
+	Listen,
+	StopListen,
+	Disconnect,
+	DisconnectAll
+}
+
+//..............................................................................

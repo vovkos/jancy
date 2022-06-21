@@ -13,6 +13,7 @@ namespace io {
 //..............................................................................
 
 enum ArpHardwareType: bigendian uint16_t {
+	Reserved = 0,
 	Ethernet = 1,
 }
 

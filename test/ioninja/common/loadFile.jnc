@@ -1,0 +1,24 @@
+import "io_base.jncx"
+import "io_File.jnc"
+
+//..............................................................................
+
+// simple helper to load private key files (returning null is OK)
+
+void const* loadFile(char const* fileName) {
+	if (!fileName || !*fileName)
+		return null;
+
+	io.File file;
+	file.open(fileName, io.FileOpenFlags.ReadOnly);
+	size_t size = file.m_size; // cache size (file may change)
+	void* p = new char[size];
+	file.read(p, size);
+	return p;
+
+catch:
+	return null;
+}
+
+//..............................................................................
+

@@ -93,8 +93,8 @@ size_t findUsbDeviceComboIndex(
 
 	size_t itemCount = deviceCombo.m_itemCount;
 	for (size_t i = 0; i < itemCount; i++) {
-		io.UsbDevice* device = deviceCombo.m_itemData[i];
-		if (device.m_deviceDesc.m_vendorId == vid &&
+		io.UsbDevice const* device = deviceCombo.m_itemData[i];
+		if (device && device.m_deviceDesc.m_vendorId == vid &&
 			device.m_deviceDesc.m_productId == pid) {
 			if ((bus == -1 || device.m_bus == bus) &&
 				(address == -1 || device.m_address == address))
@@ -105,6 +105,41 @@ size_t findUsbDeviceComboIndex(
 	}
 
 	return bestIndex;
+}
+
+size_t findUsbInterfaceComboIndex(
+	ComboBox* interfaceCombo,
+	uint_t interfaceId,
+	uint_t altSettingId = -1
+) {
+	size_t bestIndex = -1;
+
+	size_t itemCount = interfaceCombo.m_itemCount;
+	for (size_t i = 0; i < itemCount; i++) {
+		io.UsbInterfaceDesc const* ifaceDesc = interfaceCombo.m_itemData[i];
+		if (ifaceDesc && ifaceDesc.m_interfaceId == interfaceId) {
+			if (altSettingId == -1 || ifaceDesc.m_altSettingId == altSettingId)
+				return i; // exact match
+
+			bestIndex = i; // IID match, but different altSettingId
+		}
+	}
+
+	return bestIndex;
+}
+
+size_t findUsbEndpointComboIndex(
+	ComboBox* interfaceCombo,
+	uint_t endpointId
+) {
+	size_t itemCount = interfaceCombo.m_itemCount;
+	for (size_t i = 0; i < itemCount; i++) {
+		io.UsbEndpointDesc const* epDesc = interfaceCombo.m_itemData[i];
+		if (epDesc && epDesc.m_endpointId == endpointId)
+			return i;
+	}
+
+	return -1;
 }
 
 //..............................................................................

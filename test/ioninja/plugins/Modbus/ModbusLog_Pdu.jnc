@@ -210,12 +210,14 @@ char const* formatModbusFuncDescription(
 	io.ModbusRole role,
 	io.ModbusFunc func
 ) {
+	jnc.EnumType* type = typeof(io.ModbusFunc);
+
 	return (func & io.ModbusFunc.ExceptionFlag) ?
 		$"%1 (\e[34mEXCEPTION\e[m)" (
-			io.getModbusFuncString((io.ModbusFunc) (func & ~io.ModbusFunc.ExceptionFlag))
+			type.getValueString(func & ~io.ModbusFunc.ExceptionFlag)
 		) :
 		$"%1 (\e[90m%2\e[m)" (
-			io.getModbusFuncString(func),
+			type.getValueString(func),
 			role == io.ModbusRole.Master ? "Request" : "Reply"
 		);
 
@@ -471,7 +473,7 @@ void representModbusPdu(
 				baseOffset + offsetof(pdu.m_exception) * offsetMultiplier,
 				sizeof(pdu.m_exception) * offsetMultiplier,
 				pdu.m_exception,
-				io.getModbusExceptionString(pdu.m_exception)
+				typeof(io.ModbusException).getValueString(pdu.m_exception)
 			));
 		}
 	}
@@ -589,7 +591,7 @@ char const* getModbusPduDigest(
 			digest.append(
 				$" Err: \e[31m%1\e[m %2" (
 				pdu.m_exception,
-				io.getModbusExceptionString(pdu.m_exception)
+				typeof(io.ModbusException).getValueString(pdu.m_exception)
 			));
 		}
 	}

@@ -14,7 +14,8 @@ log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
 icon        = images/udp.png
 small-icon  = images/udp-16x16.png
 
-session-class = UdpSession
+session-class  = UdpSession
+dispatch-class = UdpDispatch
 
 [required-capabilities]
 
@@ -29,4 +30,10 @@ org.jancy.io.ip6
 [scripts]
 
 UdpSession.jnc
+UdpDispatchCode.jnc
 iox_HostNameResolver.jnc
+
+[dispatch-scripts]
+
+UdpDispatchCode.jnc
+UdpDispatch.jnc

@@ -1,0 +1,19 @@
+//..............................................................................
+//
+// UDP Socket session dispatch codes for IAS
+//
+
+//..............................................................................
+
+enum UdpDispatchCode {
+	GetRemoteAddress,
+	SetRemoteAddress,
+	GetRemotePort,
+	SetRemotePort,
+	GetLocalPort,
+	SetLocalPort,
+	Open,
+	Close
+}
+
+//..............................................................................

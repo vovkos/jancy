@@ -1,0 +1,42 @@
+//..............................................................................
+//
+// TCP Connection session dispatch interface for IAS
+//
+
+import "io_base.jncx"
+import "io_Socket.jnc"
+import "ias.jnc"
+
+//..............................................................................
+
+class TcpConnectionDispatch: ias.Session {
+	property m_remoteAddress {
+		char const* get() {
+			return dispatchGet(TcpConnectionDispatchCode.GetRemoteAddress);
+		}
+
+		void set(char const* value) {
+			dispatch(TcpConnectionDispatchCode.SetRemoteAddress, value);
+		}
+	}
+
+	property m_remotePort {
+		uint_t get() {
+			return dispatchGet(TcpConnectionDispatchCode.GetRemotePort);
+		}
+
+		void set(uint_t value) {
+			dispatch(TcpConnectionDispatchCode.SetRemotePort, value);
+		}
+	}
+
+	bool errorcode connect(char const* address = null) { // null = use m_remoteAddress
+		return dispatch(TcpConnectionDispatchCode.Connect, address);
+	}
+
+	void disconnect() {
+		dispatch(TcpConnectionDispatchCode.Disconnect);
+	}
+}
+
+//..............................................................................
