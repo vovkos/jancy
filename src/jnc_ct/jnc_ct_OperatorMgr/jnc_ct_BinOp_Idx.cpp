@@ -70,7 +70,7 @@ BinOp_Idx::op(
 
 	case TypeKind_PropertyRef:
 	case TypeKind_PropertyPtr:
-		return propertyIndexOperator(opValue1, opValue2, resultValue);
+		return propertyIndexOperator(((PropertyPtrType*)opType1)->getTargetType(), opValue1, opValue2, resultValue);
 
 	case TypeKind_ClassPtr:
 		return derivableTypeIndexOperator(((ClassPtrType*)opType1)->getTargetType(), opValue1, opValue2, resultValue);
@@ -214,13 +214,23 @@ BinOp_Idx::variantIndexOperator(
 
 bool
 BinOp_Idx::propertyIndexOperator(
+	PropertyType* propertyType,
 	const Value& rawOpValue1,
 	const Value& rawOpValue2,
 	Value* resultValue
 ) {
+	Closure* closure = rawOpValue1.getClosure();
+	size_t closureArgCount = closure ? closure->getArgValueList()->getCount() : 0;
+	size_t propArgCount = propertyType->getGetterType()->getArgArray().getCount();
+	if (closureArgCount >= propArgCount) { // closure is full; use normal index operator
+		Value opValue1;
+		return
+			m_module->m_operatorMgr.getProperty(rawOpValue1, &opValue1) &&
+			m_module->m_operatorMgr.binaryOperator(BinOpKind_Idx, opValue1, rawOpValue2, resultValue);
+	}
+
 	*resultValue = rawOpValue1;
 
-	Closure* closure = resultValue->getClosure();
 	if (!closure)
 		closure = resultValue->createClosure();
 

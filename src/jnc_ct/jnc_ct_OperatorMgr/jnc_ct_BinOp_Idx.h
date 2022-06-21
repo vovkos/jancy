@@ -49,9 +49,9 @@ protected:
 		Value* resultValue
 	);
 
-	static
 	bool
 	propertyIndexOperator(
+		PropertyType* propertyType,
 		const Value& rawOpValue1,
 		const Value& rawOpValue2,
 		Value* resultValue
