@@ -32,7 +32,8 @@ namespace io {
 
 //..............................................................................
 
-DataPtr getSymbolicLinkTarget(DataPtr namePtr) {
+DataPtr
+getSymbolicLinkTarget(DataPtr namePtr) {
 	sl::String linkTarget;
 	bool result = axl::io::getSymbolicLinkTarget(&linkTarget, (const char*) namePtr.m_p);
 	if (!result)
@@ -41,19 +42,35 @@ DataPtr getSymbolicLinkTarget(DataPtr namePtr) {
 	return strDup(linkTarget);
 }
 
-DataPtr getHomeDir() {
+DataPtr
+getHomeDir() {
 	return strDup(axl::io::getHomeDir());
 }
 
-DataPtr getTempDir() {
+DataPtr
+getTempDir() {
 	return strDup(axl::io::getTempDir());
 }
 
-DataPtr createTempFile(
+DataPtr
+createTempFile(
 	DataPtr dirPtr,
 	DataPtr prefixPtr
 ) {
 	return strDup(axl::io::createTempFile((const char*)dirPtr.m_p, (const char*)prefixPtr.m_p));
+}
+
+bool
+renameFile(
+	DataPtr srcFileNamePtr,
+	DataPtr dstFileNamePtr
+) {
+	return axl::io::renameFile((const char*)srcFileNamePtr.m_p, (const char*)dstFileNamePtr.m_p);
+}
+
+bool
+deleteFile(DataPtr fileNamePtr) {
+	return axl::io::deleteFile((const char*)fileNamePtr.m_p);
 }
 
 //..............................................................................
@@ -175,6 +192,8 @@ JNC_BEGIN_LIB_FUNCTION_MAP(IoLib)
 	JNC_MAP_FUNCTION("io.getHomeDir", getHomeDir)
 	JNC_MAP_FUNCTION("io.getTempDir", getTempDir)
 	JNC_MAP_FUNCTION("io.createTempFile", createTempFile)
+	JNC_MAP_FUNCTION("io.renameFile", renameFile)
+	JNC_MAP_FUNCTION("io.deleteFile", deleteFile)
 JNC_END_LIB_FUNCTION_MAP()
 
 //..............................................................................

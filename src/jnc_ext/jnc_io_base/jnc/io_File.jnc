@@ -336,6 +336,13 @@ char const* createTempFile(
 	char const* prefix = null
 );
 
+bool errorcode renameFile(
+	char const* srcFileName,
+	char const* dstFileName
+);
+
+bool errorcode deleteFile(char const* fileName);
+
 //..............................................................................
 
 //! @}
