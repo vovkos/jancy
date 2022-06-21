@@ -328,8 +328,13 @@ opaque class File {
 //..............................................................................
 
 char const* getSymbolicLinkTarget(char const* name);
-char const* getTempDir();
 char const* getHomeDir();
+char const* getTempDir();
+
+char const* createTempFile(
+	char const* dir = null,
+	char const* prefix = null
+);
 
 //..............................................................................
 

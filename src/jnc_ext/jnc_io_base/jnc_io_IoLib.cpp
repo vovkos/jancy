@@ -41,12 +41,19 @@ DataPtr getSymbolicLinkTarget(DataPtr namePtr) {
 	return strDup(linkTarget);
 }
 
+DataPtr getHomeDir() {
+	return strDup(axl::io::getHomeDir());
+}
+
 DataPtr getTempDir() {
 	return strDup(axl::io::getTempDir());
 }
 
-DataPtr getHomeDir() {
-	return strDup(axl::io::getHomeDir());
+DataPtr createTempFile(
+	DataPtr dirPtr,
+	DataPtr prefixPtr
+) {
+	return strDup(axl::io::createTempFile((const char*)dirPtr.m_p, (const char*)prefixPtr.m_p));
 }
 
 //..............................................................................
@@ -165,8 +172,9 @@ JNC_BEGIN_LIB_FUNCTION_MAP(IoLib)
 	JNC_MAP_FUNCTION("io.createNetworkAdapterDescList", createNetworkAdapterDescList)
 	JNC_MAP_FUNCTION("io.createSerialPortDescList", createSerialPortDescList)
 	JNC_MAP_FUNCTION("io.getSymbolicLinkTarget", getSymbolicLinkTarget)
-	JNC_MAP_FUNCTION("io.getTempDir", getTempDir)
 	JNC_MAP_FUNCTION("io.getHomeDir", getHomeDir)
+	JNC_MAP_FUNCTION("io.getTempDir", getTempDir)
+	JNC_MAP_FUNCTION("io.createTempFile", createTempFile)
 JNC_END_LIB_FUNCTION_MAP()
 
 //..............................................................................
