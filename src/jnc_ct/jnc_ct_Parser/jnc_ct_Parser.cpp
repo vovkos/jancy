@@ -1637,11 +1637,15 @@ Parser::declareData(
 		}
 
 		ASSERT(scope);
-		if (!(scope->getFlags() & ScopeFlag_Disposable))
+		if (!(scope->getFlags() & ScopeFlag_Disposable)) {
 			scope = m_module->m_namespaceMgr.openScope(
 				declarator->getPos(),
-				ScopeFlag_Disposable | ScopeFlag_FinallyAhead | ScopeFlag_Finalizable | ScopeFlag_Nested
+				ScopeFlag_Disposable | ScopeFlag_FinallyAhead | ScopeFlag_Finalizable
 			);
+
+			if (!scope)
+				return false;
+		}
 
 		storageKind = (type->getFlags() & TypeFlag_NoStack) ? StorageKind_Heap : StorageKind_Stack;
 		m_storageKind = StorageKind_Undefined; // don't overwrite

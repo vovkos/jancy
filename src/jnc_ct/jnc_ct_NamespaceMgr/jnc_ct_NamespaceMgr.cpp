@@ -347,6 +347,7 @@ NamespaceMgr::openScope(
 	if (flags & ScopeFlag_Disposable) {
 		scope->m_finallyBlock = m_module->m_controlFlowMgr.createBlock("dispose_block");
 		scope->m_sjljFrameIdx++;
+		scope->m_flags |= parentScope->m_flags & ScopeFlag_Function; // propagate function flag
 		m_module->m_controlFlowMgr.setJmpFinally(scope->m_finallyBlock, scope->m_sjljFrameIdx);
 
 		Type* type = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int);
@@ -408,7 +409,7 @@ NamespaceMgr::closeScope() {
 
 	closeNamespace();
 
-	if ((flags & ScopeFlag_Nested) && !(flags & (ScopeFlag_CatchAhead | ScopeFlag_FinallyAhead)))
+	if ((flags & (ScopeFlag_Nested | ScopeFlag_Disposable)) && !(flags & (ScopeFlag_CatchAhead | ScopeFlag_FinallyAhead)))
 		closeScope();
 }
 
