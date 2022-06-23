@@ -98,6 +98,7 @@ public:
 		return &m_usingSet;
 	}
 
+	virtual
 	sl::String
 	createQualifiedName(const sl::StringRef& name);
 

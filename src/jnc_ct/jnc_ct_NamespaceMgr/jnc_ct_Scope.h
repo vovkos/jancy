@@ -130,6 +130,12 @@ public:
 		return m_tryExpr ? m_tryExpr->m_catchBlock : m_catchBlock;
 	}
 
+	virtual
+	sl::String
+	createQualifiedName(const sl::StringRef& name) {
+		return name;
+	}
+
 protected:
 	virtual
 	bool
