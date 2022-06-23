@@ -14,6 +14,7 @@
 #define _JNC_ATTRIBUTEBLOCK_H
 
 #include "jnc_ModuleItem.h"
+#include "jnc_Variant.h"
 
 /**
 
@@ -28,6 +29,10 @@
 //..............................................................................
 
 JNC_EXTERN_C
+jnc_Variant
+jnc_Attribute_getValueVariant(jnc_Attribute* attr);
+
+JNC_EXTERN_C
 const void*
 jnc_Attribute_getValueConstData(jnc_Attribute* attr);
 
@@ -38,6 +43,11 @@ jnc_Attribute_getValueString_v(jnc_Attribute* attr);
 #if (!defined _JNC_CORE && defined __cplusplus)
 
 struct jnc_Attribute: jnc_ModuleItem {
+	jnc_Variant
+	getValueVariant() {
+		return jnc_Attribute_getValueVariant(this);
+	}
+
 	const void*
 	getValueConstData() {
 		return jnc_Attribute_getValueConstData(this);

@@ -53,6 +53,16 @@ jnc_AttributeBlock_findAttribute(
 
 JNC_EXTERN_C
 JNC_EXPORT_O
+jnc_Variant
+jnc_Attribute_getValueVariant(jnc_Attribute* attr) {
+	jnc::Variant variant;
+	variant.m_type = (jnc::Type*)attr->getValue().getType()->getDataPtrType_c(jnc::TypeKind_DataRef);
+	variant.m_p = (void*)attr->getValue().getConstData();
+	return variant;
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
 const void*
 jnc_Attribute_getValueConstData(jnc_Attribute* attr) {
 	return attr->getValue().getConstData();
@@ -62,11 +72,8 @@ JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
 jnc_Attribute_getValueString_v(jnc_Attribute* attr) {
-	jnc::Variant variant;
-	variant.m_type = (jnc::Type*)attr->getValue().getType()->getDataPtrType_c(jnc::TypeKind_DataRef);
-	variant.m_p = (void*)attr->getValue().getConstData();
 	sl::String* buffer = jnc::getTlsStringBuffer();
-	variant.format(buffer, NULL);
+	jnc_Attribute_getValueVariant(attr).format(buffer, NULL);
 	return buffer->sz();
 }
 

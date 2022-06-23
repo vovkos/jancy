@@ -57,6 +57,7 @@ EXPORTS
 	jnc_getAccessKindString
 	jnc_getModuleItemKindString
 	jnc_getStorageKindString
+	jnc_Attribute_getValueVariant
 	jnc_Attribute_getValueConstData
 	jnc_Attribute_getValueString_v
 	jnc_AttributeBlock_findAttribute
