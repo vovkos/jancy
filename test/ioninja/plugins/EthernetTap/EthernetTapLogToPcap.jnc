@@ -75,7 +75,7 @@ size_t exportLogRecordToPcap(
 		return 0;
 	}
 
-	return io.writePcapPacket(pcapFile, pcapOffset, record.m_timestamp, p, size);
+	return log.writePcapPacket(pcapFile, pcapOffset, record.m_timestamp, p, size);
 }
 
 //..............................................................................

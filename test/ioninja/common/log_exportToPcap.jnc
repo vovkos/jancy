@@ -31,13 +31,13 @@ bool errorcode exportToPcap(
 	size_t snapshotSize,
 	ExportRecordToPcapFunc* exportRecordFunc
 ) {
-	char const* tempFileName = io.createTempFile();
+	char const* logFileName = io.createTempFile();
 
 nestedscope:
-	log.copyOriginalRecordFile(tempFileName);
+	log.copyOriginalRecordFile(logFileName);
 
 	disposable io.MappedFile logFile;
-	logFile.open(tempFileName, io.FileOpenFlags.ReadOnly);
+	logFile.open(logFileName, io.FileOpenFlags.ReadOnly);
 	RecordFileHdr const* logHdr = (RecordFileHdr const*)logFile.view(0, sizeof(RecordFileHdr), true);
 
 	if (logHdr.m_signature != RecordFileSignature ||
@@ -94,7 +94,7 @@ nestedscope:
 	return true;
 
 finally:
-	io.deleteFile(tempFileName);
+	io.deleteFile(logFileName);
 }
 
 size_t errorcode writePcapPacket(

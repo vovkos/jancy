@@ -475,6 +475,7 @@ if(BUILD_JNC_IO_USB)
 			detailizeEthernetTapLog
 		FILES
 			EthernetTapSession.jnc
+			EthernetTapLogToPcap.jnc
 			EthernetTapLogFilter.jnc
 			EthernetTapLogRecordCode.jnc
 			EthernetTapLogRepresenter.jnc
