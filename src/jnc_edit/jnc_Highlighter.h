@@ -15,7 +15,7 @@ namespace jnc {
 
 //..............................................................................
 
-class JancyHighlighter: public gui::QtRagelSyntaxHighlighter<JancyHighlighter> {
+class JancyHighlighter: public lex::QtRagelSyntaxHighlighter<JancyHighlighter> {
 public:
 	enum Color {
 		Color_Keyword    = 0x0000ff,
@@ -34,7 +34,7 @@ protected:
 
 public:
 	JancyHighlighter(QTextDocument* parent = NULL):
-		gui::QtRagelSyntaxHighlighter<JancyHighlighter>(parent) {}
+		lex::QtRagelSyntaxHighlighter<JancyHighlighter>(parent) {}
 
 protected:
 	bool

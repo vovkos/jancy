@@ -43,7 +43,7 @@
 
 // AXL
 
-#include "axl_gui_QtRagelSyntaxHighlighter.h"
+#include "axl_lex_QtRagelSyntaxHighlighter.h"
 
 using namespace axl;
 

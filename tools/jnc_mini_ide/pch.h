@@ -54,10 +54,10 @@
 #	include "axl_io_SslError.h"
 #endif
 
+#include "axl_lex_QtRagelSyntaxHighlighter.h"
 #include "axl_lex_ParseError.h"
 #include "axl_sys_ExceptionError.h"
 #include "axl_sys_Time.h"
-#include "axl_gui_QtRagelSyntaxHighlighter.h"
 
 using namespace axl;
 
