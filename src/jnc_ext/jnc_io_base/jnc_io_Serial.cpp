@@ -904,20 +904,28 @@ Serial::waitThreadFunc() {
 DataPtr
 createSerialPortDesc(
 	Runtime* runtime,
-	axl::io::SerialPortDesc* portDesc
+	axl::io::SerialPortDesc* portDesc,
+	uint_t mask
 ) {
 	DataPtr portPtr = createData<SerialPortDesc> (runtime);
 	SerialPortDesc* port = (SerialPortDesc*)portPtr.m_p;
 	port->m_deviceNamePtr = strDup(portDesc->getDeviceName());
 	port->m_descriptionPtr = strDup(portDesc->getDescription());
+	port->m_manufacturerPtr = strDup(portDesc->getManufacturer());
+	port->m_hardwareIdsPtr = strDup(portDesc->getHardwareIds());
+	port->m_driverPtr = strDup(portDesc->getDriver());
+	port->m_locationPtr = strDup(portDesc->getLocation());
 
 	return portPtr;
 }
 
 DataPtr
-createSerialPortDescList(DataPtr countPtr) {
+createSerialPortDescList(
+	uint_t mask,
+	DataPtr countPtr
+) {
 	sl::List<axl::io::SerialPortDesc> portList;
-	axl::io::createSerialPortDescList(&portList);
+	axl::io::createSerialPortDescList(&portList, mask);
 
 	if (portList.isEmpty()) {
 		if (countPtr.m_p)
@@ -931,14 +939,14 @@ createSerialPortDescList(DataPtr countPtr) {
 
 	sl::Iterator<axl::io::SerialPortDesc> it = portList.getHead();
 
-	DataPtr portPtr = createSerialPortDesc(runtime, *it);
+	DataPtr portPtr = createSerialPortDesc(runtime, *it, mask);
 
 	DataPtr resultPtr = portPtr;
 	size_t count = 1;
 
 	SerialPortDesc* prevPort = (SerialPortDesc*)portPtr.m_p;
 	for (it++; it; it++) {
-		portPtr = createSerialPortDesc(runtime, *it);
+		portPtr = createSerialPortDesc(runtime, *it, mask);
 		prevPort->m_nextPtr = portPtr;
 		prevPort = (SerialPortDesc*)portPtr.m_p;
 		count++;

@@ -342,12 +342,19 @@ struct SerialPortDesc {
 	DataPtr m_nextPtr;
 	DataPtr m_deviceNamePtr;
 	DataPtr m_descriptionPtr;
+	DataPtr m_manufacturerPtr;
+	DataPtr m_hardwareIdsPtr;
+	DataPtr m_driverPtr;
+	DataPtr m_locationPtr;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 DataPtr
-createSerialPortDescList(DataPtr countPtr);
+createSerialPortDescList(
+	uint_t mask,
+	DataPtr countPtr
+);
 
 //..............................................................................
 

@@ -47,7 +47,7 @@ enum SerialFlowControl {
 	None = 0,
 
 	/**
-		``RTS/CTS`` flow control(sometimes called **hardware** flow control).
+		``RTS/CTS`` flow control (sometimes called **hardware** flow control).
 		Remote side is only allowed to send the data if the ``RTS`` control line
 		is ``high``; likewise, the local side should only send data when ``CTS``
 		status line is ``high``.
@@ -56,7 +56,7 @@ enum SerialFlowControl {
 	RtsCts,
 
 	/**
-		``XON/XOFF`` flow control(sometimes called **software** flow control).
+		``XON/XOFF`` flow control (sometimes called **software** flow control).
 		In this protocol, two special charaters are selected as ``XON``
 		(``0x11``) and ``XOFF`` (``0x13``). Note that current implementation of
 		``io.Serial`` class does not allow overriding these values.
@@ -605,11 +605,48 @@ struct SerialPortDesc {
 	*/
 
 	char const* m_description;
+
+	/**
+		Holds the name of the manufacturer of this serial port.
+	*/
+
+	char const* m_manufacturer;
+
+	/**
+		Holds hardware ID(s) of this serial port.
+	*/
+
+	char const* m_hardwareIds;
+
+	/**
+		Holds information about the device driver for this serial port.
+	*/
+
+	char const* m_driver;
+
+	/**
+		Holds a string identifying the location of this serial port in the system device tree.
+	*/
+
+	char const* m_location;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+bitflag enum SerialPortDescMask {
+	Description,
+	Manufacturer,
+	HardwareIds,
+	Driver,
+	Location,
+	All = Description | Manufacturer | HardwareIds | Driver | Location,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 /**
+	\subgroup
+
 	Enumerates all available serial ports.
 
 	``count`` argument can be used to obtain the total number of devices in the
@@ -627,7 +664,14 @@ struct SerialPortDesc {
 		}
 */
 
-SerialPortDesc const* createSerialPortDescList(size_t* count = null);
+SerialPortDesc const* createSerialPortDescList(
+	SerialPortDescMask mask,
+	size_t* count = null
+);
+
+SerialPortDesc const* createSerialPortDescList(size_t* count = null) {
+	return createSerialPortDescList(0, count);
+}
 
 //..............................................................................
 
