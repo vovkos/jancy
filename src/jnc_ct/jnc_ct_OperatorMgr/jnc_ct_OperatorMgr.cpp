@@ -1452,10 +1452,14 @@ OperatorMgr::awaitOperator(
 	Value* resultValue
 ) {
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
-	if (function->getFunctionKind() != FunctionKind_AsyncSequencer) {
-		err::setError("await can only be used in async functions");
-		return false;
-	}
+	if (function->getFunctionKind() != FunctionKind_AsyncSequencer)
+		if (!m_module->hasCodeGen()) {
+			resultValue->setType(m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant));
+			return true;
+		} else {
+			err::setError("await can only be used in async functions");
+			return false;
+		}
 
 	Value thisPromiseValue = m_module->m_functionMgr.getPromiseValue();
 	ASSERT(thisPromiseValue);

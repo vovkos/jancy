@@ -116,6 +116,18 @@ AsyncLauncherFunction::compile() {
 	return m_module->m_functionMgr.epilogue();
 }
 
+bool
+AsyncLauncherFunction::generateCodeAssist() {
+	ASSERT(isClassPtrType(m_type->getReturnType(), (ClassType*)m_module->m_typeMgr.getStdType(StdType_Promise))); // should only be called once
+
+	m_type = m_module->m_typeMgr.getFunctionType(
+		m_type->getAsyncReturnType(),
+		m_type->getArgArray()
+	);
+
+	return Function::compile();
+}
+
 //..............................................................................
 
 } // namespace ct

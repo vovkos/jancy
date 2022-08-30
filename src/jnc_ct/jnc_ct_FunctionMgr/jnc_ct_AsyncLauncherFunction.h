@@ -25,6 +25,9 @@ public:
 	virtual
 	bool
 	compile();
+
+	bool
+	generateCodeAssist();
 };
 
 //..............................................................................

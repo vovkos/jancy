@@ -11,6 +11,7 @@
 
 #include "pch.h"
 #include "jnc_ct_CodeAssistMgr.h"
+#include "jnc_ct_AsyncLauncherFunction.h"
 #include "jnc_ct_Module.h"
 
 namespace jnc {
@@ -109,7 +110,10 @@ CodeAssistMgr::generateCodeAssistImpl(ModuleItem* item) {
 		break;
 
 	case ModuleItemKind_Function:
-		((Function*)item)->compile();
+		if (((Function*)item)->getType()->getFlags() & FunctionTypeFlag_Async)
+			((AsyncLauncherFunction*)item)->generateCodeAssist();
+		else
+			((Function*)item)->compile();
 		break;
 
 	case ModuleItemKind_Namespace:
