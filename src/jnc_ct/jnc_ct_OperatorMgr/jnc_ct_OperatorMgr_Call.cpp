@@ -59,6 +59,11 @@ OperatorMgr::closureOperator(
 	sl::BoxList<Value>* argValueList,
 	Value* resultValue
 ) {
+	if (argValueList->isEmpty()) {
+		err::setError("closure operator without arguments has no effect");
+		return false;
+	}
+
 	Value opValue;
 	bool result = prepareOperand(rawOpValue, &opValue);
 	if (!result)

@@ -992,15 +992,6 @@ public:
 	bool
 	closureOperator(
 		const Value& opValue,
-		Value* resultValue
-	) {
-		sl::BoxList<Value> argValueList;
-		return closureOperator(opValue, &argValueList, resultValue);
-	}
-
-	bool
-	closureOperator(
-		const Value& opValue,
 		const Value& argValue,
 		Value* resultValue
 	) {
