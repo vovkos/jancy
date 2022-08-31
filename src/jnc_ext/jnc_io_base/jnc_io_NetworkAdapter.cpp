@@ -42,7 +42,7 @@ createNetworkAdapterAddress(
 ) {
 	DataPtr addressPtr = createData<NetworkAdapterAddress> (runtime);
 	NetworkAdapterAddress* address = (NetworkAdapterAddress*)addressPtr.m_p;
-	address->m_address = srcAddress->m_address;
+	address->m_address.setSockAddr(srcAddress->m_address);
 	address->m_netMaskBitCount = srcAddress->m_netMaskBitCount;
 
 	if (prevAddress)

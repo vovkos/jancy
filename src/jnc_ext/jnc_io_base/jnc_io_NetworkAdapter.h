@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include "jnc_io_SocketAddress.h"
+
 namespace jnc {
 namespace io {
 
@@ -23,7 +25,7 @@ struct NetworkAdapterAddress {
 	JNC_DECLARE_TYPE_STATIC_METHODS(NetworkAdapterAddress)
 
 	DataPtr m_nextPtr;
-	axl::io::SockAddr m_address;
+	SocketAddress m_address;
 	size_t m_netMaskBitCount;
 };
 
