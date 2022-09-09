@@ -200,6 +200,7 @@ elseif(UNIX)
 	else()
 		target_link_libraries(
 			jnc_io_base
+			udev
 			rt
 		)
 	endif()
