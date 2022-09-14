@@ -42,10 +42,10 @@ void EditTheme::setDefaultLightTheme() {
 void EditTheme::setDefaultDarkTheme() {
 	// based on monokai
 
-	m_colorTable[BaseBack]                = 0x2c292d;
-	m_colorTable[BaseText]                = 0xd6d6d6;
-	m_colorTable[LineMarginBack]          = 0x3c393d;
-	m_colorTable[LineMarginText]          = 0x7d7d7d;
+	m_colorTable[BaseBack]                = 0x2e3841;
+	m_colorTable[BaseText]                = 0xd7dee9;
+	m_colorTable[LineMarginBack]          = 0x3e4851;
+	m_colorTable[LineMarginText]          = 0x838b95;
 	m_colorTable[ErrorBack]               = 0x773f40;
 	m_colorTable[ErrorText]               = QColor::Invalid;
 	m_colorTable[SelectionBack]           = 0x405672;
@@ -54,12 +54,12 @@ void EditTheme::setDefaultDarkTheme() {
 	m_colorTable[SelectionTextInactive]   = QColor::Invalid;
 	m_colorTable[BraceMatchBack]          = 0x835c42;
 	m_colorTable[BraceMatchText]          = QColor::Invalid;
-	m_colorTable[CurrentLineBack]         = 0x3c393d;
+	m_colorTable[CurrentLineBack]         = 0x3e4851;
 	m_colorTable[CompleterSynopsisColumn] = 0x7d7d7d;
 
-	m_colorTable[Keyword]  = 0xf05279;
-	m_colorTable[Constant] = 0x77dce8;
-	m_colorTable[Comment]  = 0x7d7d7d;
+	m_colorTable[Keyword]  = 0xca95c5;
+	m_colorTable[Constant] = 0x94c796;
+	m_colorTable[Comment]  = 0xa5acb8;
 
 	invalidatePalette();
 }
