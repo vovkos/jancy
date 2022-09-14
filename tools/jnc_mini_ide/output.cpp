@@ -15,9 +15,6 @@
 #include "mdichild.h"
 #include "moc_output.cpp"
 
-#define LINE_SELECTION_BACK QColor(51, 51, 183)
-#define LINE_ERROR_BACK     QColor(255, 200, 200)
-
 Output::Output(QWidget* parent):
 	MonospacePlainTextEdit(parent) {
 	setReadOnly(true);
@@ -31,12 +28,14 @@ void Output::mouseDoubleClickEvent(QMouseEvent* e) {
 	int col;
 
 	if (parseLine(&filePath, &line, &col, textCursor())) {
-		MdiChild *child = getMainWindow()->findMdiChild(filePath);
+		MdiChild* child = getMainWindow()->findMdiChild(filePath);
 		if (child) {
-			highlightLine(textCursor(), LINE_SELECTION_BACK, Qt::white);
+			const jnc::EditTheme* theme = child->theme();
+
+			highlightLine(textCursor(), jnc::g_defaultLightTheme.color(jnc::EditTheme::ErrorBack), jnc::g_defaultLightTheme.color(jnc::EditTheme::ErrorText));
 
 			child->setTextCursorLineCol(line, col);
-			child->highlightLineTemp(line, LINE_ERROR_BACK);
+			child->highlightLineTemp(line, theme->color(jnc::EditTheme::ErrorBack), theme->color(jnc::EditTheme::ErrorText));
 			child->setFocus();
 
 			e->ignore();

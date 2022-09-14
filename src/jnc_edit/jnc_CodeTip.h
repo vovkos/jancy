@@ -2,18 +2,24 @@
 
 namespace jnc {
 
+class EditTheme;
+
 //..............................................................................
 
 class CodeTip: public QLabel {
 	Q_OBJECT
 
 protected:
+	const EditTheme* m_theme;
 	FunctionTypeOverload* m_functionTypeOverload; // needed when we press up/down
 	size_t m_functionTypeOverloadIdx;
 	size_t m_argumentIdx;
 
 public:
-	CodeTip(QWidget* parent);
+	CodeTip(
+		QWidget* parent,
+		const EditTheme* theme
+	);
 
 	bool
 	isFunctionTypeOverload() {
@@ -60,7 +66,6 @@ protected:
 	leaveEvent(QEvent* e);
 
 protected:
-	static
 	QString
 	getArgumentTipText(
 		FunctionType* type,

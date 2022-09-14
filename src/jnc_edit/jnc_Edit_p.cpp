@@ -24,6 +24,7 @@ static class Init {
 public:
 	Init() {
 		g::getModule()->setTag("jnc_edit");
+		g_defaultDarkTheme.setDefaultDarkTheme();
 	}
 } g_init;
 
@@ -411,6 +412,21 @@ Edit::setTabWidth(int width) {
 	setTabStopWidth(fontMetrics().width(' ') * width);
 }
 
+const EditTheme*
+Edit::theme() {
+	Q_D(Edit);
+	return &d->m_theme;
+}
+
+void
+Edit::setTheme(const EditTheme* theme) {
+	Q_D(Edit);
+
+	d->m_theme = *theme;
+	d->applyTheme();
+	viewport()->update();
+}
+
 Edit::CodeAssistTriggers
 Edit::codeAssistTriggers() {
 	Q_D(Edit);
@@ -479,7 +495,9 @@ Edit::highlightLineTemp(
 	QTextEdit::ExtraSelection selection;
 	selection.cursor = d->getCursorFromLineCol(line, 0);
 	selection.format.setProperty(QTextFormat::FullWidthSelection, true);
-	selection.format.setBackground(backColor);
+
+	if (backColor.isValid())
+		selection.format.setBackground(backColor);
 
 	if (textColor.isValid())
 		selection.format.setForeground(textColor);
@@ -701,10 +719,7 @@ EditPrivate::EditPrivate() {
 		Edit::ImportAutoCompleteOnTypeQuotationMark |
 		Edit::GotoDefinitionOnCtrlClick;
 
-	m_highlighTable[HighlightKind_CurrentLine].format.setBackground(QColor(Color_CurrentLineBack));
 	m_highlighTable[HighlightKind_CurrentLine].format.setProperty(QTextFormat::FullWidthSelection, true);
-	m_highlighTable[HighlightKind_AnchorBrace].format.setBackground(QColor(Color_BraceMatch));
-	m_highlighTable[HighlightKind_PairBrace].format.setBackground(QColor(Color_BraceMatch));
 }
 
 void
@@ -726,15 +741,9 @@ EditPrivate::init() {
 		(QFont::StyleStrategy)(QFont::NoFontMerging | QFont::ForceIntegerMetrics)
 	);
 
-	QPalette palette = q->palette();
-	palette.setColor(QPalette::Highlight, Color_SelectionBack);
-	palette.setColor(QPalette::Inactive, QPalette::Highlight, Color_SelectionBackInactive);
-	palette.setBrush(QPalette::HighlightedText, QBrush(Qt::NoBrush));
-
 	q->setFont(font);
 	q->setWordWrapMode(QTextOption::NoWrap);
 	q->setMouseTracking(true);
-	q->setPalette(palette);
 
 	enableSyntaxHighlighting(true);
 	enableLineNumberMargin(true);
@@ -763,6 +772,50 @@ EditPrivate::init() {
 
 	for (size_t i = 0; i < countof(m_iconTable); i++)
 		m_iconTable[i] = imageList.copy(iconIdxTable[i] * iconSize, 0, iconSize, iconSize);
+
+	applyTheme();
+}
+
+void
+EditPrivate::applyTheme() {
+	Q_Q(Edit);
+
+	q->setPalette(m_theme.palette());
+
+	QColor color;
+
+	color = m_theme.color(EditTheme::CurrentLineBack);
+	if (color.isValid())
+		m_highlighTable[HighlightKind_CurrentLine].format.setBackground(color);
+	else
+		m_highlighTable[HighlightKind_CurrentLine].format.clearBackground();
+
+	color = m_theme.color(EditTheme::BraceMatchBack);
+	if (color.isValid()) {
+		m_highlighTable[HighlightKind_AnchorBrace].format.setBackground(color);
+		m_highlighTable[HighlightKind_PairBrace].format.setBackground(color);
+	} else {
+		m_highlighTable[HighlightKind_AnchorBrace].format.clearBackground();
+		m_highlighTable[HighlightKind_PairBrace].format.clearBackground();
+	}
+
+	color = m_theme.color(EditTheme::BraceMatchText);
+	if (color.isValid()) {
+		m_highlighTable[HighlightKind_AnchorBrace].format.setForeground(color);
+		m_highlighTable[HighlightKind_PairBrace].format.setForeground(color);
+	} else {
+		m_highlighTable[HighlightKind_AnchorBrace].format.clearForeground();
+		m_highlighTable[HighlightKind_PairBrace].format.clearForeground();
+	}
+
+	if (m_syntaxHighlighter)
+		m_syntaxHighlighter->m_theme = &m_theme;
+
+	if (m_completer)
+		m_completer->popup()->setPalette(m_theme.palette());
+
+	if (m_lineNumberMargin)
+		m_lineNumberMargin->update();
 }
 
 void
@@ -771,7 +824,7 @@ EditPrivate::enableSyntaxHighlighting(bool isEnabled) {
 
 	if (isEnabled) {
 		if (!m_syntaxHighlighter)
-			m_syntaxHighlighter = new JancyHighlighter(q->document());
+			m_syntaxHighlighter = new JancyHighlighter(q->document(), &m_theme);
 	} else if (m_syntaxHighlighter) {
 		m_syntaxHighlighter->setDocument(NULL);
 		delete m_syntaxHighlighter;
@@ -972,7 +1025,7 @@ EditPrivate::ensureCodeTip() {
 
 	Q_Q(Edit);
 
-	m_codeTip = new CodeTip(q);
+	m_codeTip = new CodeTip(q, &m_theme);
 	m_codeTip->setFont(q->font());
 }
 
@@ -984,11 +1037,12 @@ EditPrivate::ensureCompleter() {
 	Q_Q(Edit);
 
 	QTreeView* popup = new QTreeView;
-	CompleterItemDelegate* itemDelegate = new CompleterItemDelegate(popup);
+	CompleterItemDelegate* itemDelegate = new CompleterItemDelegate(popup, &m_theme);
 	popup->setHeaderHidden(true);
 	popup->setRootIsDecorated(false);
 	popup->setSelectionBehavior(QAbstractItemView::SelectRows);
 	popup->setFont(q->font());
+	popup->setPalette(m_theme.palette());
 	popup->setItemDelegateForColumn(Column_Name, itemDelegate);
 	popup->setItemDelegateForColumn(Column_Synopsis, itemDelegate);
 
@@ -1902,9 +1956,10 @@ CompleterItemDelegate::paint(
 		return;
 	}
 
+	QColor color = m_theme->color(EditTheme::CompleterSynopsisColumn);
 	QStyleOptionViewItem altOption = option;
-	altOption.palette.setColor(QPalette::Text, EditPrivate::Color_SynopsisColumnText);
-	altOption.palette.setColor(QPalette::WindowText, EditPrivate::Color_SynopsisColumnText);
+	altOption.palette.setColor(QPalette::Text, color);
+	altOption.palette.setColor(QPalette::WindowText, color);
 	QStyledItemDelegate::paint(painter, altOption, index);
 }
 

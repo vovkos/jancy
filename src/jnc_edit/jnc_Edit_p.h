@@ -32,14 +32,6 @@ public:
 		Timeout_QuickInfo = 500,
 	};
 
-	enum Color {
-		Color_SelectionBack         = 0x99c9ef,
-		Color_SelectionBackInactive = 0xe0e0e0,
-		Color_CurrentLineBack       = 0xe8eff8,
-		Color_SynopsisColumnText    = 0x808080,
-		Color_BraceMatch            = 0xfff080,
-	};
-
 	enum Column {
 		Column_Name     = 0,
 		Column_Synopsis = 1,
@@ -101,6 +93,7 @@ protected:
 	QBasicTimer m_quickInfoTipTimer;
 	QFileIconProvider m_fileIconProvider;
 	QTextEdit::ExtraSelection m_highlighTable[HighlightKind__Count];
+	EditTheme m_theme;
 	bool m_isExtraSelectionUpdateRequired;
 	bool m_isCurrentLineHighlightingEnabled;
 
@@ -109,6 +102,9 @@ protected:
 
 	void
 	init();
+
+	void
+	applyTheme();
 
 	void
 	enableSyntaxHighlighting(bool isEnabled);
@@ -283,9 +279,17 @@ private slots:
 //..............................................................................
 
 class CompleterItemDelegate: public QStyledItemDelegate {
+protected:
+	const EditTheme* m_theme;
+
 public:
-	CompleterItemDelegate(QObject* parent = NULL):
-		QStyledItemDelegate(parent) {}
+	CompleterItemDelegate(
+		QObject* parent,
+		const EditTheme* theme
+	):
+		QStyledItemDelegate(parent) {
+		m_theme = theme;
+	}
 
 	virtual
 	void

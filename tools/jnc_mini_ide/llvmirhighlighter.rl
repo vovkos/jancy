@@ -96,16 +96,16 @@ main := |*
 'call' |
 'va_arg' |
 'landingpad'
-)                   { highlightLastToken(Color_Keyword); };
+)                   { highlightLastToken(jnc::EditTheme::Keyword); };
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 id                  { };
-(lit_sq | lit_dq)   { highlightLastToken(Color_Constant); };
-dec+              	{ highlightLastToken(Color_Constant); };
-'0' [Xx] hex+       { highlightLastToken(Color_Constant); };
+(lit_sq | lit_dq)   { highlightLastToken(jnc::EditTheme::Constant); };
+dec+                { highlightLastToken(jnc::EditTheme::Constant); };
+'0' [Xx] hex+       { highlightLastToken(jnc::EditTheme::Constant); };
 
-';' [^\n]*          { highlightLastToken(Color_Comment); };
+';' [^\n]*          { highlightLastToken(jnc::EditTheme::Comment); };
 
 ws | nl             ;
 

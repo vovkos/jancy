@@ -11,8 +11,6 @@
 
 #pragma once
 
-#include "jnc_Edit.h"
-
 class MdiChild: public jnc::Edit {
 	Q_OBJECT
 

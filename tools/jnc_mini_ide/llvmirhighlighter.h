@@ -14,17 +14,25 @@
 //..............................................................................
 
 class LlvmIrHighlighter: public lex::QtRagelSyntaxHighlighter<LlvmIrHighlighter> {
-public:
-	enum Color {
-		Color_Keyword  = 0x0000ff,
-		Color_Constant = 0xce7b00,
-		Color_Comment  = 0x969696,
-	};
+protected:
+	const jnc::EditTheme* m_theme;
 
 public:
-	LlvmIrHighlighter(QTextDocument *parent):
-		lex::QtRagelSyntaxHighlighter<LlvmIrHighlighter>(parent) {}
+	LlvmIrHighlighter(
+		QTextDocument* document,
+		const jnc::EditTheme* theme
+	):
+		lex::QtRagelSyntaxHighlighter<LlvmIrHighlighter>(document) {
+		m_theme = theme;
+	}
 
+protected:
+	void
+	highlightLastToken(jnc::EditTheme::Role role) {
+		lex::QtRagelSyntaxHighlighter<LlvmIrHighlighter>::highlightLastToken(m_theme->color(role));
+	}
+
+public:
 	void
 	init();
 

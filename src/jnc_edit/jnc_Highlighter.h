@@ -11,19 +11,13 @@
 
 #pragma once
 
+#include "jnc_EditTheme.h"
+
 namespace jnc {
 
 //..............................................................................
 
 class JancyHighlighter: public lex::QtRagelSyntaxHighlighter<JancyHighlighter> {
-public:
-	enum Color {
-		Color_Keyword    = 0x0000ff,
-		Color_Constant   = 0xce7b00,
-		Color_Comment    = 0x969696,
-		Color_RegexGroup = 0x009050,
-	};
-
 protected:
 	enum BlockState {
 		BlockState_Normal,
@@ -33,8 +27,16 @@ protected:
 	};
 
 public:
-	JancyHighlighter(QTextDocument* parent = NULL):
-		lex::QtRagelSyntaxHighlighter<JancyHighlighter>(parent) {}
+	const jnc::EditTheme* m_theme; // freely adjustible
+
+public:
+	JancyHighlighter(
+		QTextDocument* document,
+		const EditTheme* theme
+	):
+		lex::QtRagelSyntaxHighlighter<JancyHighlighter>(document) {
+		m_theme = theme;
+	}
 
 protected:
 	bool
@@ -50,6 +52,11 @@ protected:
 		return sl::StringRef(ts, te - ts).isSuffix(sl::StringRef(p, length));
 	}
 
+	void
+	highlightLastToken(EditTheme::Role role) {
+		lex::QtRagelSyntaxHighlighter<JancyHighlighter>::highlightLastToken(m_theme->color(role));
+	}
+
 public:
 	void
 	init();
@@ -61,7 +68,10 @@ public:
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 QString
-highlightJancySource(const QString& source);
+highlightJancySource(
+	const QString& source,
+	const EditTheme* theme
+);
 
 //..............................................................................
 

@@ -15,6 +15,7 @@
 
 MdiChild::MdiChild(QWidget *parent):
 	jnc::Edit(parent) {
+	setTheme(&jnc::g_defaultDarkTheme);
 	m_isUntitled = true;
 	m_isCompilationNeeded = true;
 }

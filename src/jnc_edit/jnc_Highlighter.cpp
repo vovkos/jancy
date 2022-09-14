@@ -18,11 +18,14 @@ namespace jnc {
 //..............................................................................
 
 QString
-highlightJancySource(const QString& source) {
+highlightJancySource(
+	const QString& source,
+	const EditTheme* theme
+) {
 	QTextDocument document;
 	document.setPlainText(source);
 
-	JancyHighlighter highlighter(&document);
+	JancyHighlighter highlighter(&document, theme);
 	highlighter.rehighlight();
 
 	QString html;

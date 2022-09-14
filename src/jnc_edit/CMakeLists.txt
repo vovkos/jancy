@@ -16,6 +16,7 @@
 set(
 	LIB_H_LIST
 	${JANCY_INC_DIR}/jnc_Edit.h
+	${JANCY_INC_DIR}/jnc_EditTheme.h
 	${JANCY_INC_DIR}/jnc_CodeAssist.h
 	jnc_Edit_p.h
 	jnc_LineNumberMargin.h
@@ -27,6 +28,7 @@ set(
 set(
 	LIB_CPP_LIST
 	jnc_Edit_p.cpp
+	jnc_EditTheme.cpp
 	jnc_LineNumberMargin.cpp
 	jnc_Highlighter.cpp
 	jnc_CodeAssistThread.cpp

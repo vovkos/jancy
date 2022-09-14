@@ -47,11 +47,16 @@ LineNumberMargin::paintEvent(QPaintEvent* e) {
 
 	QFontInfo fontInfo(edit->font()); // no f-ing idea why simply setting font doesn't work
 	painter.setFont(QFont(fontInfo.family(), fontInfo.pointSize()));
-	painter.setPen(Color_Text);
 
-#if (_JNC_EDIT_LINE_NUMBER_MARGIN_BG)
-	painter.fillRect(paintRect, Color_Back);
-#endif
+	const EditTheme* theme = edit->theme();
+	QColor colorBack = theme->color(EditTheme::LineMarginBack);
+	QColor colorText = theme->color(EditTheme::LineMarginText);
+
+	if (colorBack.isValid())
+		painter.fillRect(paintRect, colorBack);
+
+	if (colorText.isValid())
+		painter.setPen(colorText);
 
 	while (block.isValid() && top <= paintRect.bottom()) {
 		if (block.isVisible() && bottom >= paintRect.top())

@@ -21,7 +21,7 @@ LlvmIr::LlvmIr(QWidget *parent):
 	setReadOnly(true);
 	setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
 	setLineWrapMode(QPlainTextEdit::NoWrap);
-	m_highlighter = new LlvmIrHighlighter(document());
+	m_highlighter = new LlvmIrHighlighter(document(), &jnc::g_defaultLightTheme);
 }
 
 bool LlvmIr::build(jnc::Module* module) {

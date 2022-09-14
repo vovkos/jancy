@@ -12,17 +12,12 @@
 #pragma once
 
 #include <QPlainTextEdit>
+#include "jnc_EditTheme.h"
 
 namespace jnc {
 
 class EditPrivate;
 class LineNumberMargin;
-
-#if (_JNC_EDIT_DLL)
-#  define JNC_EDIT_EXPORT Q_DECL_EXPORT
-#else
-#  define JNC_EDIT_EXPORT Q_DECL_IMPORT
-#endif
 
 //..............................................................................
 
@@ -75,6 +70,8 @@ public:
 	void enableSyntaxHighlighting(bool isEnabled);
 	int tabWidth();
 	void setTabWidth(int width);
+	const EditTheme* theme();
+	void setTheme(const EditTheme* theme);
 	CodeAssistTriggers codeAssistTriggers();
 	void setCodeAssistTriggers(CodeAssistTriggers triggers);
 	QStringList importDirList();

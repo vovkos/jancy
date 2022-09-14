@@ -7,8 +7,12 @@ namespace jnc {
 
 //..............................................................................
 
-CodeTip::CodeTip(QWidget* parent):
+CodeTip::CodeTip(
+	QWidget* parent,
+	const EditTheme* theme
+):
 	QLabel(parent, Qt::ToolTip | Qt::BypassGraphicsProxyWidget) {
+	m_theme = theme;
 	m_functionTypeOverload = NULL;
 	m_functionTypeOverloadIdx = 0;
 	m_argumentIdx = 0;
@@ -121,7 +125,7 @@ CodeTip::getArgumentTipText(
 
 	bool isMl = argCount >= 2;
 
-	QString text = highlightJancySource(returnType->getTypeString());
+	QString text = highlightJancySource(returnType->getTypeString(), m_theme);
 	text += isMl ? " (<br>" ML_ARG_INDENT : " (";
 
 	for (size_t i = 0; i < argCount; i++) {
@@ -131,14 +135,14 @@ CodeTip::getArgumentTipText(
 		if (i == argumentIdx)
 			text += "<b>";
 
-		text += highlightJancySource(argType->getTypeStringPrefix());
+		text += highlightJancySource(argType->getTypeStringPrefix(), m_theme);
 		text += ' ';
 		text += arg->getDecl()->getName();
-		text += highlightJancySource(argType->getTypeStringSuffix());
+		text += highlightJancySource(argType->getTypeStringSuffix(), m_theme);
 
 		if (arg->hasDefaultValue()) {
 			text += " = ";
-			text += highlightJancySource(arg->getDefaultValueString());
+			text += highlightJancySource(arg->getDefaultValueString(), m_theme);
 		}
 
 		if (i == argumentIdx)
@@ -154,7 +158,7 @@ CodeTip::getArgumentTipText(
 	text += isMl ? "<br>)" : ")";
 
 	if (isConst)
-		text += highlightJancySource(" const");
+		text += highlightJancySource(" const", m_theme);
 
 	return text;
 }

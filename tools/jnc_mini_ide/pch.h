@@ -69,6 +69,7 @@ using namespace axl;
 #include "jnc_ExtensionLib.h"
 #include "jnc_CallSite.h"
 #include "jnc_Error.h"
+#include "jnc_Edit.h"
 
 #if (_JNC_OS_WIN)
 

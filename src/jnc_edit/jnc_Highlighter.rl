@@ -156,7 +156,7 @@ main := |*
 'typeof'          |
 'bindingof'       |
 'dynamic'
-)                 { highlightLastToken(Color_Keyword); };
+)                 { highlightLastToken(EditTheme::Keyword); };
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -176,15 +176,15 @@ dec+              |
 '0' [xXoObBnNdD] raw_lit_dq |
 dec+ (('.' dec*) | ([eE] [+\-]? dec+)) |
 [$fF] lit_dq
-)                 { highlightLastToken(Color_Constant); };
+)                 { highlightLastToken(EditTheme::Constant); };
 
 ('0' [xXoObBnNdD])? '"""'
-                  { highlightLastToken(Color_Constant); fgoto lit_ml; };
+                  { highlightLastToken(EditTheme::Constant); fgoto lit_ml; };
 
-'$' dec+          { highlightLastToken(Color_RegexGroup); };
+'$' dec+          { highlightLastToken(EditTheme::Keyword); };
 
-'//' any*         { highlightLastToken(Color_Comment); setCurrentBlockState(BlockState_CommentSl); };
-'/*'              { highlightLastToken(Color_Comment); fgoto comment_ml; };
+'//' any*         { highlightLastToken(EditTheme::Comment); setCurrentBlockState(BlockState_CommentSl); };
+'/*'              { highlightLastToken(EditTheme::Comment); fgoto comment_ml; };
 
 ws | nl           ;
 any               ;
@@ -198,7 +198,7 @@ any               ;
 
 comment_ml := |*
 
-any* :>> '*/'?    { highlightLastToken(Color_Comment); if (isTokenSuffix("*/", 2)) fgoto main; };
+any* :>> '*/'?    { highlightLastToken(EditTheme::Comment); if (isTokenSuffix("*/", 2)) fgoto main; };
 
 *|;
 
@@ -209,7 +209,7 @@ any* :>> '*/'?    { highlightLastToken(Color_Comment); if (isTokenSuffix("*/", 2
 
 lit_ml := |*
 
-any* :>> '"""'?   { highlightLastToken(Color_Constant); if (isTokenSuffix("\"\"\"", 3)) fgoto main; };
+any* :>> '"""'?   { highlightLastToken(EditTheme::Constant); if (isTokenSuffix("\"\"\"", 3)) fgoto main; };
 
 *|;
 
