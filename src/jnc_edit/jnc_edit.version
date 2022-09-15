@@ -1,4 +1,6 @@
 {
-	global: _ZN3jnc4Edit*;
+	global:
+		_ZN3jnc4Edit*;
+		_ZN3jnc9EditTheme*;
 	local: *;
 };
