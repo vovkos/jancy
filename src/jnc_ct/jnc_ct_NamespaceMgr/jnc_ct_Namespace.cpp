@@ -338,8 +338,13 @@ Namespace::findDirectChildItemTraverse(
 
 	if (!(flags & TraverseFlag_NoUsingNamespaces)) {
 		FindModuleItemResult findResult = m_usingSet.findItem(name);
-		if (!findResult.m_result || findResult.m_item)
+		if (!findResult.m_result)
 			return findResult;
+
+		if (findResult.m_item) {
+			findResult.m_result = findResult.m_item->getModule()->m_operatorMgr.checkAccess(findResult.m_item->getDecl());
+			return findResult;
+		}
 	}
 
 	return !(flags & TraverseFlag_NoParentNamespace) && m_parentNamespace ?
