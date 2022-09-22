@@ -14,6 +14,8 @@
 set DOWNLOAD_DIR=c:\downloads
 set DOWNLOAD_DIR_CMAKE=%DOWNLOAD_DIR:\=/%
 
+if not exist %DOWNLOAD_DIR% mkdir %DOWNLOAD_DIR%
+
 :: . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 :: Get rid of annoying Xamarin build warnings
@@ -30,10 +32,20 @@ if exist "c:\Program Files (x86)\MSBuild\4.0\Microsoft.Common.targets\ImportAfte
 
 :: Ragel
 
-mkdir %DOWNLOAD_DIR%\ragel
 appveyor DownloadFile %RAGEL_DOWNLOAD_URL% -FileName %DOWNLOAD_DIR%\ragel.exe
-
 echo set (RAGEL_EXE %DOWNLOAD_DIR_CMAKE%/ragel.exe) >> paths.cmake
+
+:: . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+:: NASM
+
+appveyor DownloadFile %NASM_DOWNLOAD_URL% -FileName %DOWNLOAD_DIR%\%NASM_DOWNLOAD_FILE%
+7z x -y %DOWNLOAD_DIR%\%NASM_DOWNLOAD_FILE% -o%DOWNLOAD_DIR%
+
+dir %DOWNLOAD_DIR%
+dir %DOWNLOAD_DIR_CMAKE%\nasm-%NASM_VERSION%
+
+echo set (NASM_EXE %DOWNLOAD_DIR_CMAKE%/nasm-%NASM_VERSION%/nasm.exe) >> paths.cmake
 
 :: . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
