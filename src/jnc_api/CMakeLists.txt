@@ -98,22 +98,17 @@ set(
 
 if (WIN32 AND ${CMAKE_SIZEOF_VOID_P} EQUAL 8)
 	set(SETJMP_ASM jnc_setJmp_msc_amd64.asm)
-	set(SETJMP_OBJ ${CMAKE_CURRENT_BINARY_DIR}/${SETJMP_ASM}.obj)
+
+	axl_exclude_from_build(${SETJMP_ASM})
+
+	add_nasm_step(
+		${SETJMP_ASM}.obj
+		${SETJMP_ASM}
+		-f win64
+	)
+
 	set(LIB_ASM_LIST ${SETJMP_ASM})
-	set(LIB_OBJ_LIST ${SETJMP_OBJ})
-
-	axl_exclude_from_build(${LIB_ASM_LIST})
-
-	add_custom_command(
-		OUTPUT ${SETJMP_OBJ}
-		COMMAND
-			echo Assembling ${SETJMP_ASM}...
-		COMMAND
-			nasm
-			-f win64
-			-o ${SETJMP_OBJ}
-			${CMAKE_CURRENT_LIST_DIR}/${SETJMP_ASM}
-		)
+	set(LIB_OBJ_LIST ${CMAKE_CURRENT_BINARY_DIR}/${SETJMP_ASM}.obj)
 endif()
 
 source_group(
