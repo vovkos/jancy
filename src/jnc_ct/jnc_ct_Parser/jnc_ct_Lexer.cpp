@@ -255,7 +255,7 @@ Lexer::preCreateMlLiteralToken(int radix) {
 }
 
 size_t
-getWsPrefixLength(const sl::StringRef& string) {
+getIndentLength(const sl::StringRef& string) {
 	const char* p = string.cp();
 	const char* end = string.getEnd();
 	const char* p0 = p;
@@ -273,10 +273,10 @@ bool
 normalizeMlLiteral(
 	sl::String* string,
 	const sl::StringRef& source,
-	const sl::StringRef& prefix
+	const sl::StringRef& indent
 ) {
-	size_t prefixLength = prefix.getLength();
-	ASSERT(source.getLength() >= prefixLength);
+	size_t indentLength = indent.getLength();
+	ASSERT(source.getLength() >= indentLength);
 
 	string->clear();
 
@@ -284,23 +284,23 @@ normalizeMlLiteral(
 	const char* end = source.getEnd();
 	while (p < end) {
 		size_t chunkLength = end - p;
-		ASSERT(chunkLength > prefixLength);
+		ASSERT(chunkLength > indentLength);
 
-		size_t linePrefixLength = getWsPrefixLength(sl::StringRef(p, chunkLength));
+		size_t lineIndentLength = getIndentLength(sl::StringRef(p, chunkLength));
 
-		bool isEmpty = p[linePrefixLength] == '\n';
+		bool isEmpty = p[lineIndentLength] == '\n';
 		if (isEmpty) {
-			if (linePrefixLength && p[linePrefixLength - 1] == '\r')
+			if (lineIndentLength && p[lineIndentLength - 1] == '\r')
 				string->append("\r\n", 2);
 			else
 				string->append('\n');
 
-			p += linePrefixLength + 1;
+			p += lineIndentLength + 1;
 		} else {
-			if (linePrefixLength < prefixLength || memcmp(p, prefix.cp(), prefixLength) != 0)
+			if (lineIndentLength < indentLength || memcmp(p, indent.cp(), indentLength) != 0)
 				return false;
 
-			p += prefixLength;
+			p += indentLength;
 
 			const char* nl = strchr(p, '\n');
 			ASSERT(nl);
@@ -338,10 +338,10 @@ Lexer::createMlLiteralToken() {
 		token->m_token = TokenKind_Literal;
 		token->m_data.m_string = sl::StringRef(p, length);
 
-		if (right > 3 && ts[-1] == '\n') {
+		if (right > 4 && ts[0] == '\n') { // \n (indent) """ -- hence, 4
 			sl::String normalizedString;
-			bool hasCommonPrefix = normalizeMlLiteral(&normalizedString, sl::StringRef(p, length), sl::StringRef(ts, right - 3));
-			if (hasCommonPrefix)
+			bool hasCommonIndent = normalizeMlLiteral(&normalizedString, sl::StringRef(p, length), sl::StringRef(ts + 1, right - 4));
+			if (hasCommonIndent)
 				token->m_data.m_string = normalizedString;
 		}
 	}
