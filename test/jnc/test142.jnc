@@ -1,4 +1,6 @@
-// test new function: std.sort()
+// test new method: std.Array.sort()
+
+import "std_Array.jnc"
 
 bool gt(
 	variant v1,
@@ -8,25 +10,27 @@ bool gt(
 }
 
 int main() {
-	variant a[10];
-	for (size_t i = 0; i < countof(a); i++)
+	std.Array a;
+
+	a.setCount(10);
+	for (size_t i = 0; i < a.m_count; i++)
 		a[i] = rand() % 20;
 
-	for (size_t i = 0; i < countof(a); i++)
+	for (size_t i = 0; i < a.m_count; i++)
 		printf("a[%d] = %d\n", i, a[i]);
 
 	printf("sorted:\n");
-	std.sort(a, countof(a));
+	a.sort();
 
-	for (size_t i = 0; i < countof(a); i++) {
+	for (size_t i = 0; i < a.m_count; i++) {
 		assert(!i || a[i - 1] <= a[i]);
 		printf("a[%d] = %d\n", i, a[i]);
 	}
 
 	printf("inverse-sorted:\n");
-	std.sort(a, countof(a), gt);
+	a.sort(gt);
 
-	for (size_t i = 0; i < countof(a); i++) {
+	for (size_t i = 0; i < a.m_count; i++) {
 		assert(!i || a[i - 1] >= a[i]);
 		printf("a[%d] = %d\n", i, a[i]);
 	}
