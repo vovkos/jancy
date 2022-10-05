@@ -332,24 +332,18 @@ DerivableType::parseBody() {
 	size_t length = m_body.getLength();
 	ASSERT(length >= 2);
 
-	bool result = parser.parseBody(
-		SymbolKind_member_block_declaration_list,
-		lex::LineColOffset(m_bodyPos.m_line, m_bodyPos.m_col + 1, m_bodyPos.m_offset + 1),
-		m_body.getSubString(1, length - 2)
-	);
+	bool result =
+		parser.parseBody(
+			SymbolKind_member_block_declaration_list,
+			lex::LineColOffset(m_bodyPos.m_line, m_bodyPos.m_col + 1, m_bodyPos.m_offset + 1),
+			m_body.getSubString(1, length - 2)
+		) &&
+		resolveOrphans() &&
+		m_module->m_variableMgr.allocateNamespaceVariables(lastVariableIt) &&
+		m_module->m_functionMgr.finalizeNamespaceProperties(lastPropertyIt);
 
 	if (!result)
 		return false;
-
-	if (!(m_module->getCompileFlags() & ModuleCompileFlag_KeepTypedefShadow)) {
-		result =
-			resolveOrphans() &&
-			m_module->m_variableMgr.allocateNamespaceVariables(lastVariableIt) &&
-			m_module->m_functionMgr.finalizeNamespaceProperties(lastPropertyIt);
-
-		if (!result)
-			return false;
-	}
 
 	m_module->m_namespaceMgr.closeNamespace();
 	m_module->m_unitMgr.setCurrentUnit(prevUnit);

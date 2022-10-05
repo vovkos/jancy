@@ -50,7 +50,7 @@ PropertyType::getStdObjectMemberPropertyType() {
 }
 
 PropertyType*
-PropertyType::getShortType  () {
+PropertyType::getShortType() {
 	return m_module->m_typeMgr.getShortPropertyType(this);
 }
 
