@@ -20,6 +20,8 @@
 #include "qrc_res.cpp"
 
 // #define _NO_GC 1
+
+#define DEFAULT_STDLIB           true
 #define DEFAULT_DEBUG_INFO       false
 #define DEFAULT_OPTIMIZE         true
 #define DEFAULT_DISABLE_CODE_GEN false
@@ -188,7 +190,7 @@ void MainWindow::createActions() {
 
 	m_stdlibAction = new QAction("Standard &Libraries", this);
 	m_stdlibAction->setCheckable(true);
-	m_stdlibAction->setChecked(true);
+	m_stdlibAction->setChecked(DEFAULT_STDLIB);
 
 	m_signedExtensionsAction = new QAction("&Signed Extensions", this);
 	m_signedExtensionsAction->setCheckable(true);
