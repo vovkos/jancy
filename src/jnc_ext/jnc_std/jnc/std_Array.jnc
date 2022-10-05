@@ -85,6 +85,14 @@ class Array {
 		size_t count = 1
 	);
 
+	void sort() {
+		std.sort(m_p, m_count);
+	}
+
+	void sort(LessFunc* lessFunc) {
+		std.sort(m_p, m_count, lessFunc);
+	}
+
 protected:
 	void boundsCheck(size_t index) const {
 		if (index >= m_count) {

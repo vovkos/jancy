@@ -466,6 +466,24 @@ char const* cdecl format(
 
 //! @}
 
+typedef bool LessFunc(
+	variant e1,
+	variant e2
+);
+
+void
+sort(
+	variant* p,
+	size_t count
+);
+
+void
+sort(
+	variant* p,
+	size_t count,
+	LessFunc* lessFunc
+);
+
 //..............................................................................
 
 } // namespace std

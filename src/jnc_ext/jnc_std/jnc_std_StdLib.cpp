@@ -49,6 +49,16 @@
 ;
 
 namespace jnc {
+namespace rtl {
+
+void
+checkDataPtrRangeIndirect(
+	const void* p,
+	size_t size,
+	DataPtrValidator* validator
+);
+
+} // namespace rtl
 namespace std {
 
 //..............................................................................
@@ -608,6 +618,70 @@ printf(
 	return g_printOutFunc(string.cp(), string.getLength());
 }
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+typedef
+bool
+VariantLessFunc(
+	IfaceHdr* closure,
+	Variant v1,
+	Variant v2
+);
+
+class VariantPred {
+public:
+	bool operator () (
+		const Variant& v1,
+		const Variant& v2
+	) {
+		bool result = false;
+		v1.relationalOperator(&v2, BinOpKind_Lt, &result);
+		return result;
+	}
+};
+
+class VariantPredEx {
+protected:
+	VariantLessFunc* m_lessFunc;
+	IfaceHdr* m_closure;
+
+public:
+	VariantPredEx(FunctionPtr lessFuncPtr) {
+		m_lessFunc = (VariantLessFunc*)lessFuncPtr.m_p;
+		m_closure = lessFuncPtr.m_closure;
+	}
+
+	bool operator () (
+		const Variant& v1,
+		const Variant& v2
+	) {
+		return m_lessFunc(m_closure, v1, v2);
+	}
+};
+
+void
+variantSort(
+	DataPtr ptr,
+	size_t count
+) {
+	if (count >= 2) {
+		rtl::checkDataPtrRangeIndirect(ptr.m_p, count * sizeof(Variant), ptr.m_validator);
+		::std::sort((Variant*)ptr.m_p, (Variant*)ptr.m_p + count, VariantPred());
+	}
+}
+
+void
+variantSortEx(
+	DataPtr ptr,
+	size_t count,
+	FunctionPtr lessFuncPtr
+) {
+	if (count >= 2) {
+		rtl::checkDataPtrRangeIndirect(ptr.m_p, count * sizeof(Variant), ptr.m_validator);
+		::std::sort((Variant*)ptr.m_p, (Variant*)ptr.m_p + count, VariantPredEx(lessFuncPtr));
+	}
+}
+
 //..............................................................................
 
 } // namespace std
@@ -628,6 +702,8 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_StdLib)
 	JNC_MAP_FUNCTION("std.setError",     setError_0)
 	JNC_MAP_OVERLOAD(setError_1)
 	JNC_MAP_FUNCTION("std.format",       format)
+	JNC_MAP_FUNCTION("std.sort",         variantSort)
+	JNC_MAP_OVERLOAD(variantSortEx)
 
 	JNC_MAP_FUNCTION("strlen",   jnc::strLen)
 	JNC_MAP_FUNCTION("strcmp",   strCmp)
