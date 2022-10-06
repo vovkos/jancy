@@ -178,7 +178,7 @@ dec+ (('.' dec*) | ([eE] [+\-]? dec+)) |
 [$fF] lit_dq
 )                 { highlightLastToken(EditTheme::Constant); };
 
-('0' [xXoObBnNdD])? '"""'
+(('0' [xXoObBnNdD]) | [$fF])? '"""'
                   { highlightLastToken(EditTheme::Constant); fgoto lit_ml; };
 
 '$' dec+          { highlightLastToken(EditTheme::Keyword); };

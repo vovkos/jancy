@@ -320,6 +320,7 @@ main := |*
 # literals
 
 [$fF] '"'        { preCreateFmtLiteralToken(); fcall lit_fmt; };
+
 '"""' (ws? '\r'? nl)?
 				 { preCreateMlLiteralToken(); fgoto lit_ml; };
 
