@@ -756,10 +756,7 @@ Module::compile() {
 
 		m_functionMgr.injectTlsPrologues();
 		m_functionMgr.replaceAsyncAllocas(); // after replacing TLS allocas!
-
-		result = m_controlFlowMgr.deleteUnreachableBlocks();
-		if (!result)
-			return false;
+		m_controlFlowMgr.deleteUnreachableBlocks();
 	}
 
 	if (m_compileFlags & ModuleCompileFlag_DebugInfo)

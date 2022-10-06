@@ -172,7 +172,7 @@ public:
 		uint_t flags
 	);
 
-	bool
+	void
 	deleteUnreachableBlocks();
 
 #if (_JNC_DEBUG)

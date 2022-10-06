@@ -168,66 +168,30 @@ ControlFlowMgr::setCurrentBlock(BasicBlock* block) {
 	return prevCurrentBlock;
 }
 
-bool
+void
 ControlFlowMgr::deleteUnreachableBlocks() {
-	// llvm blocks may have references even when they are unreachable
-
-	sl::List<BasicBlock> pendingDeleteList;
-
 	sl::Iterator<BasicBlock> it = m_blockList.getHead();
 	while (it) {
-		BasicBlock* block = *it;
-		it++;
+		BasicBlock* block = *it++;
+		if (block->m_flags & BasicBlockFlag_Reachable)
+			continue;
 
-		if (!(block->m_flags & BasicBlockFlag_Reachable)) {
-			m_blockList.remove(block);
+		// llvm blocks may have uses even when they are actually unreachable,
+		// and llvm doesn't like to delete values with uses.
+		// hence, we'll simply leave used llvm blocks hanging until the
+		// llvm::UnreachableBlockElim optimization pass
 
-			if (!block->m_llvmBlock->use_empty()) {
-				pendingDeleteList.insertTail(block);
-			} else {
-				if (block->m_function)
-					block->m_llvmBlock->eraseFromParent();
-				else
-					delete block->m_llvmBlock;
-
-				AXL_MEM_DELETE(block);
-			}
-		}
-	}
-
-	m_unreachableBlock = NULL;
-	m_currentBlock = NULL;
-
-	while (!pendingDeleteList.isEmpty()) {
-		bool isFixedPoint = true;
-
-		it = pendingDeleteList.getHead();
-		while (it) {
-			BasicBlock* block = *it;
-			it++;
-
-			if (!block->m_llvmBlock->use_empty())
-				continue;
-
+		if (block->m_llvmBlock->use_empty())
 			if (block->m_function)
 				block->m_llvmBlock->eraseFromParent();
 			else
 				delete block->m_llvmBlock;
 
-			pendingDeleteList.erase(block);
-			isFixedPoint = false;
-		}
-
-		if (isFixedPoint && !pendingDeleteList.isEmpty()) {
-			err::setFormatStringError(
-				"invalid control flow graph: %s is unreachable but has uses",
-				pendingDeleteList.getHead()->m_llvmBlock->getName().begin()
-			);
-			return false;
-		}
+		m_blockList.erase(block);
 	}
 
-	return true;
+	m_unreachableBlock = NULL;
+	m_currentBlock = NULL;
 }
 
 #if (_JNC_DEBUG)
