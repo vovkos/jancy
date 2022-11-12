@@ -1,0 +1,82 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+import "io_base.jncx"
+import "io_StreamEvents.jnc"
+import "io_DeviceMonitorNotify.jnc"
+
+namespace io {
+
+//! \addtogroup io-devmon
+//! @{
+
+//..............................................................................
+
+typedef ReadOnlyStreamEvents DeviceMonitorEvents;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class DeviceMonitor {
+	uint_t autoget property m_readParallelism;
+	size_t autoget property m_readBlockSize;
+	size_t autoget property m_readBufferSize;
+	size_t autoget property m_pendingNotifySizeLimit;
+
+	char const* readonly m_deviceName;
+	char const* autoget property m_fileNameFilter;
+
+	bool readonly m_isConnected;
+	bool autoget property m_isEnabled;
+
+	protected uint_t m_unused;
+
+	DeviceMonitorEvents readonly volatile m_activeEvents;
+	std.Error const* readonly volatile m_ioError;
+	bool readonly m_isOpen;
+
+	construct();
+	destruct();
+
+	bool errorcode open();
+	bool errorcode connect(char const* deviceName);
+	void close();
+
+
+	void setIoctlDescTable(
+		psx.DeviceMonitorIoctlDesc const* ioctlDesc,
+		size_t count
+	);
+
+	size_t errorcode read(
+		void* p,
+		size_t size
+	);
+
+	intptr errorcode wait(
+		DeviceMonitorEvents eventMask,
+		function* handler(DeviceMonitorEvents triggeredEvents)
+	);
+
+	bool errorcode cancelWait(intptr handle);
+
+	DeviceMonitorEvents blockingWait(
+		DeviceMonitorEvents eventMask,
+		uint_t timeout = -1
+	);
+
+	async DeviceMonitorEvents asyncWait(DeviceMonitorEvents eventMask);
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

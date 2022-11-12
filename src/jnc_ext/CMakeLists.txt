@@ -20,7 +20,7 @@ add_subdirectory(jnc_io_cmn)
 
 option(
 	BUILD_JNC_IO_BASE
-	"Build jancy base IO(sockets, serial ports, files) extension library "
+	"Build Jancy basic IO (sockets, serial ports, files) extension library "
 	ON
 )
 
@@ -31,7 +31,7 @@ endif()
 if(OPENSSL_FOUND)
 	option(
 		BUILD_JNC_IO_SSL
-		"Build jancy SSL IO extension library"
+		"Build Jancy SSL extension library"
 		ON
 	)
 
@@ -41,7 +41,7 @@ if(OPENSSL_FOUND)
 
 	option(
 		BUILD_JNC_IO_WEBSOCKET
-		"Build jancy WebSocket IO extension library"
+		"Build Jancy WebSocket extension library"
 		ON
 	)
 
@@ -53,7 +53,7 @@ endif()
 if(LIBSSH2_FOUND AND OPENSSL_FOUND)
 	option(
 		BUILD_JNC_IO_SSH
-		"Build jancy SSH IO extension library"
+		"Build Jancy SSH extension library"
 		ON
 	)
 
@@ -65,7 +65,7 @@ endif()
 if(PCAP_FOUND)
 	option(
 		BUILD_JNC_IO_PCAP
-		"Build jancy PCAP IO extension library"
+		"Build Jancy Pcap extension library"
 		ON
 	)
 
@@ -77,7 +77,7 @@ endif()
 if(LIBUSB_FOUND)
 	option(
 		BUILD_JNC_IO_USB
-		"Build jancy USB IO extension library"
+		"Build Jancy USB extension library"
 		ON
 	)
 
@@ -86,11 +86,23 @@ if(LIBUSB_FOUND)
 	endif()
 endif()
 
+if(WIN32 OR LINUX)
+	option(
+		BUILD_JNC_IO_USBMON
+		"Build Jancy USB monitoring extension library"
+		ON
+	)
+
+	if(BUILD_JNC_IO_USBMON)
+		add_subdirectory(jnc_io_usbmon)
+	endif()
+endif()
+
 # build io_devmon.jncx even if devmon is not available (we can now use SSH for remote monitoring)
 
 option(
 	BUILD_JNC_IO_DEVMON
-	"Build jancy IO device monitoring extension library"
+	"Build Jancy device monitoring extension library"
 	ON
 )
 

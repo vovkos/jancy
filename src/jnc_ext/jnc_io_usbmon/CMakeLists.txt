@@ -1,0 +1,191 @@
+#...............................................................................
+#
+#  This file is part of the Jancy toolkit.
+#
+#  Jancy is distributed under the MIT license.
+#  For details see accompanying license.txt file,
+#  the public copy of which is also available at:
+#  http://tibbo.com/downloads/archive/jancy/license.txt
+#
+#...............................................................................
+
+#
+# lib folder
+#
+
+set(
+	LIB_H_LIST
+	jnc_io_UsbMonLib.h
+	jnc_io_UsbMonitor.h
+)
+
+set(
+	LIB_CPP_LIST
+	jnc_io_UsbMonLib.cpp
+	jnc_io_UsbMonitor.cpp
+)
+
+source_group(
+	lib
+	FILES
+	${LIB_H_LIST}
+	${LIB_CPP_LIST}
+)
+
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#
+# jnc folder
+#
+
+set(
+	JNC_LIST
+	jnc/.forced.jnc
+	jnc/io_UsbMonEnumerator.jnc
+	jnc/io_UsbMonTransfer.jnc
+	jnc/io_UsbMonitor.jnc
+)
+
+source_group(
+	jnc
+	FILES
+	${JNC_LIST}
+)
+
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#
+# pch folder
+#
+
+set(PCH_H   pch.h)
+set(PCH_CPP pch.cpp)
+
+source_group(
+	pch
+	FILES
+	${PCH_H}
+	${PCH_CPP}
+)
+
+#...............................................................................
+#
+# jnc_io_usbmon library
+#
+
+if(NOT WIN32 AND NOT LINUX)
+	message(FATAL "jnc_io_usbmon is currently Windows/Linux only")
+endif()
+
+include_directories(
+	${AXL_INC_DIR}
+	${JANCY_INC_DIR}
+	../jnc_io_cmn
+)
+
+link_directories(${AXL_LIB_DIR})
+
+add_library(
+	jnc_io_usbmon
+	SHARED
+	${PCH_H}
+	${PCH_CPP}
+	${LIB_H_LIST}
+	${LIB_CPP_LIST}
+	${JNC_LIST}
+)
+
+target_compile_definitions(
+	jnc_io_usbmon
+	PUBLIC
+	-D_JNC_DYNAMIC_EXTENSION_LIB=1
+)
+
+if(GCC AND NOT APPLE)
+	axl_set_export_version_script_gcc(
+		jnc_io_usbmon
+		jncDynamicExtensionLibMain
+	)
+endif()
+
+axl_set_pch(
+	jnc_io_usbmon
+	${PCH_H}
+	${PCH_CPP}
+)
+
+set(CMAKE_SHARED_LIBRARY_PREFIX)
+
+set_target_properties(
+	jnc_io_usbmon
+	PROPERTIES
+	OUTPUT_NAME io_usbmon-${TARGET_CPU}
+	SUFFIX .bin
+)
+
+target_link_libraries(
+	jnc_io_usbmon
+	jnc_io_cmn
+	jnc_api_ext
+)
+
+if(WIN32)
+	target_link_libraries(
+		jnc_io_usbmon
+		dm_win_lib
+	)
+elseif(LINUX)
+	target_link_libraries(
+		jnc_io_usbmon
+		dm_lnx_lib
+		pthread
+		rt
+	)
+endif()
+
+target_link_libraries(
+	jnc_io_usbmon
+	axl_io
+	axl_core
+)
+
+set_target_properties(
+	jnc_io_usbmon
+	PROPERTIES
+	FOLDER extensions
+)
+
+#...............................................................................
+#
+# io_usbmon.jncx archive
+#
+
+set(DLL_DIR ${JANCY_DLL_BASE_DIR}/${CONFIGURATION})
+set(JNC_IO_usbmon_NAME io_usbmon-${TARGET_CPU}.bin)
+set(JNC_IO_usbmon_DLL ${DLL_DIR}/${JNC_IO_usbmon_NAME})
+set(JNC_IO_usbmon_JNCX ${DLL_DIR}/io_usbmon.jncx)
+
+configure_file(${CMAKE_CURRENT_LIST_DIR}/jnc/.forced.jnc COPYONLY)
+
+add_custom_command(
+	TARGET jnc_io_usbmon
+	POST_BUILD
+	COMMAND
+		echo Creating io_usbmon.jncx...
+	COMMAND
+		${CMAKE_COMMAND} -E remove ${JNC_IO_usbmon_JNCX}
+	COMMAND
+		${7Z_EXE}
+		a -tzip -y
+		${JNC_IO_usbmon_JNCX}
+		${JNC_IO_usbmon_DLL}
+		${CMAKE_CURRENT_LIST_DIR}/jnc/io_*.jnc
+		${CMAKE_CURRENT_BINARY_DIR}/.forced.jnc
+	)
+
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+install(
+	FILES ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION>/io_usbmon.jncx
+	DESTINATION ${JANCY_INSTALL_JNCX_SUBDIR}
+)
+
+#...............................................................................

@@ -1,0 +1,680 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+import "io_StreamOptions.jnc"
+import "io_StreamEvents.jnc"
+
+namespace io {
+
+//! \addtogroup io-serial
+//! @{
+
+//..............................................................................
+
+/**
+	\import io_base.jncx
+	\import io_Serial.jnc
+
+	\brief This enumeration specifies all possible values for the serial flow
+	control setting.
+
+	Flow control is the protocol of attempted prevention of data loss during
+	serial transmission which may happen when transmission side sends data
+	faster than the receiving side is able to process it.
+
+	To adjust the flow control protocol, modify `io.Serial.m_flowControl`
+	property at any time(both pre-open and post-open modifications are
+	supported).
+
+	\sa `io.Serial`
+*/
+
+enum SerialFlowControl {
+	/**
+		No flow control protocol is employed. If the receiving end is not
+		capable of handling arriving data fast enough, the data is
+		unconditionally lost.
+	*/
+
+	None = 0,
+
+	/**
+		``RTS/CTS`` flow control (sometimes called **hardware** flow control).
+		Remote side is only allowed to send the data if the ``RTS`` control line
+		is ``high``; likewise, the local side should only send data when ``CTS``
+		status line is ``high``.
+	*/
+
+	RtsCts,
+
+	/**
+		``XON/XOFF`` flow control (sometimes called **software** flow control).
+		In this protocol, two special charaters are selected as ``XON``
+		(``0x11``) and ``XOFF`` (``0x13``). Note that current implementation of
+		``io.Serial`` class does not allow overriding these values.
+
+		If a side of transmission detects ``XOFF`` character in input stream,
+		this side should suspend the transmission until it sees ``XON``
+		character; at which moment the transmission may be resumed.
+	*/
+
+	XonXoff,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+/**
+	\import io_base.jncx
+	\import io_Serial.jnc
+
+	\brief This enumeration lists all possible values for stop bits setting of
+	the serial port.
+
+	Stop bits are auxillary(non-data) bits sent at the end of each character to
+	re-synchronize the receiver; normally 1 stop bit is used.
+*/
+
+enum SerialStopBits {
+	//! One stop bit.
+
+	_1  = 0,
+
+	//! One and a half stop bit (1.5 bit duration).
+
+	_15 = 1,
+
+	//! Two stop bits.
+
+	_2  = 2
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+/**
+	\import io_base.jncx
+	\import io_Serial.jnc
+
+	\brief This enumeration specifies all possible values for the serial parity
+	bit setting.
+
+	Serial parity bit is an extra bit transmitted alongside the data so that the
+	total number of one's including data bits *and* this parity bit is always
+	*odd* or always *even*.
+
+	This is a rather weak error detection method as it does not detect data
+	corruption if an *even* number of bits are altered. Usually it's much more
+	reliable to employ other checksums/hash checks after the data has been
+	transmitted.
+
+	To adjust the parity protocol, modify `io.Serial.m_parity` property at any
+	time(both pre-open and post-open modifications are supported).
+
+	\sa `io.Serial`
+*/
+
+enum SerialParity {
+	/**
+		No parity bit is sent alongside the data.
+	*/
+
+	None = 0,
+
+	/**
+		A parity bit is sent; **odd** parity check is used(total number of
+		ones including data and parity bit should be *odd*).
+	*/
+
+	Odd,
+
+	/**
+		A parity bit is sent; **even** parity check is used(total number of
+		ones including data and parity bit should be *odd*).
+	*/
+
+	Even,
+
+	/**
+		A parity bit is sent; parity bit should always be set to ``1``.
+	*/
+
+	Mark,
+
+	/**
+		A parity bit is sent; parity bit should always be set to ``0``.
+	*/
+
+	Space,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+/**
+	\import io_base.jncx
+	\import io_Serial.jnc
+
+	\brief This enumeration lists all possible status lines on the serial port.
+
+	You can read values of all the status lines at once by accessing
+	`io.Serial.m_statusLines` property.
+
+	\sa `io.Serial`
+*/
+
+bitflag enum SerialStatusLines {
+	//! ``CTS`` status line (clear-to-send).
+
+	Cts,
+
+	//! ``DSR`` status line (data-source-ready)
+
+	Dsr,
+
+	//! ``RING`` status line (ring-indicator)
+
+	Ring,
+
+	//! ``DCD`` status line (device-carrier-detect)
+
+	Dcd,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum SerialOptions: StreamOptions {
+	WinReadCheckComstat,
+	WinReadWaitFirstChar,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+/**
+	\import io_base.jncx
+	\import io_Serial.jnc
+
+	\brief This enumeration contains codes of all possible events that might
+	happen on `io.Serial` object. The set of *active* events is accessible
+	via `io.Serial.m_activeEvents`.
+
+	\sa `io.Serial`
+*/
+
+bitflag enum SerialEvents: StreamEvents {
+	CtsOn,
+	CtsOff,
+	DsrOn,
+	DsrOff,
+	RingOn,
+	RingOff,
+	DcdOn,
+	DcdOff,
+
+	LineError,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum SerialLineErrors {
+	FramingError,
+	ParityError,
+	BreakError,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+/**
+	\import io_base.jncx
+	\import io_Serial.jnc
+
+	\brief This class provides high-level asynchronous interface for accessing
+	hardware or virtual serial ports.
+
+	Serial ports are represented as *files* in most operating systems, so
+	working with serial port looks pretty much the same as working with any
+	other file stream. However, besides ``read`` and ``write`` operations serial
+	port files also expose a set of serial-specific properties such as baud
+	rate, status and control lines and so on.
+
+	A typical sequence of steps when working with a serial port usually looks
+	like this:
+
+	* Open a serial port with ``open`` method;
+	* Assign IO event handler with ``wait`` method. You would probably also
+	  want to *schedule* your event handler to be run in particular
+	  environment(e.g., in a specific thread) and partially apply some
+	  syncrhonization ID to discard late events;
+	* Configure serial port settings(``m_baudRate``, ``m_dataBits`` etc)
+	* When `io.SerialEvents.IncomingData` event is fired, read from the serial
+	  port using ``read`` method;
+	* Write to the serial port stream using ``write`` method;
+	* Suspend writing if the return value of ``write`` is less than requested;
+	* Resume writing on `io.SerialEvents.WriteBufferReady` event;
+	* Close the serial port when no longer needed with ``close`` method.
+
+	.. rubric:: Sample code:
+
+	.. ref-code-block::
+
+		class MyDialog {
+			// ...
+
+			io.Serial m_serial;
+			uint_t m_syncId;
+
+			void open(
+				char const* portName,
+				uint_t baudRate
+			);
+
+			void close();
+			void waitSerialEvents();
+
+			void onWriteButtonClicked();
+
+			void onSerialEvent(
+				uint_t syncId,
+				`io.SerialEvents` triggeredEvents
+			);
+		}
+
+		MyDialog.open(
+			char const* portName,
+			uint_t baudRate
+		) {
+			m_serial.open(portName);
+			m_serial.m_baudRate = baudRate;
+			m_serial.m_dataBits = 8;
+			m_serial.m_stopBits = `io.SerialStopBits._1`;
+			// ...
+
+			waitSerialEvents();
+
+		catch:
+			// handle the error...
+		}
+
+		MyDialog.close() {
+			m_serial.close();
+			m_syncId++; // events past this point will be discarded as 'late'
+		}
+
+		MyDialog.waitSerialEvent() {
+			`io.SerialEvents` eventMask =
+				`io.SerialEvents.IoError` |
+				`io.SerialEvents.IncomingData`;
+
+			m_serial.wait(eventMask, onSerialEvent ~(++m_syncId) @
+				g_mainThreadScheduler);
+		}
+
+		MyDialog.onWriteButtonClicked() {
+			static char data[] = "a quick brown fox jumps over the lazy dog";
+			m_serial.write(data, sizeof(data));
+		}
+
+		MyDialog.onSerialEvent(
+			uint_t syncId,
+			`io.SerialEvents` triggeredEvents
+		) {
+			if (syncId != m_syncId) // late event
+				return;
+
+			if (triggeredEvents & `io.SerialEvents.IoError`) {
+				char cont* errorString = m_fileStream.m_ioError.m_description;
+				// ...
+			}
+
+			if (triggeredEvents & `io.SerialEvents.IncomingData`) {
+				char buffer[256];
+				size_t size = m_fileStream.read(buffer, sizeof(buffer));
+				// ...
+			}
+
+			waitSerialEvents(); // restart wait
+		}
+
+	\sa `io.SerialEvents`, `io.File`, `io.FileStream`
+
+	\footnote f4
+
+		|footnote-set-property-fail|
+
+	\footnote f1
+
+		|footnote-errorcode|
+
+	\footnote f2
+
+		|footnote-disposable|
+*/
+
+opaque class Serial {
+	/**
+		This property is used for getting and setting [#f4]_ baud rate, i.e. the
+		number of signal changes per second, which directly affects the speed of
+		data transmission.
+
+		Different hardware serial ports may or may not support some particular
+		baud rates. Unfortunately, there is no reliable cross-platform method of
+		building a list of supported baud rates, so the only way is to probe.
+	*/
+
+	uint_t autoget property m_baudRate;
+
+	/**
+		This property is used for getting and setting [#f4]_ flow control, i.e.
+		the protocol of attempted prevention of data loss during serial
+		transmission which may happen when transmission side sends data faster
+		than the receiving side is able to process it.
+
+		See `io.SerialFlowControl` enumeration for the list of valid values.
+	*/
+
+	SerialFlowControl autoget property m_flowControl;
+
+	/**
+		This property is used for getting and setting [#f4]_ byte size, i.e. the
+		number of bits in each character transmitted over the serial line. Valid
+		values range from ``5`` to ``8``; normally ``8`` data bits are used.
+	*/
+
+	uint_t autoget property m_dataBits; // typically 5..8
+
+	/**
+		This property is used for getting and setting [#f4]_ the number of
+		serial stop bits, i.e. auxillary(non-data) bits sent at the end of each
+		character to re-synchronize the receiver; normally 1 stop bit is used
+		(designated by `io.SerialStopBits._1`)
+
+		See `io.SerialStopBits` enumeration for the list of valid values.
+	*/
+
+	SerialStopBits autoget property m_stopBits;
+
+	/**
+		This property is used for getting and setting [#f4]_ serial parity
+		control, i.e. the protocol of attempted error detection during serial
+		transmission. The idea is to send an extra *parity* bit so that the
+		total number of one's including data bits *and* this parity bit is
+		always *odd* or always *even*.
+
+		This, however, is a rather weak error detection method; usually it's
+		much better to employ other checksums/hash checks after the data has
+		been transmitted.
+
+		See `io.SerialParity` for the list of valid values.
+	*/
+
+	SerialParity autoget property m_parity;
+
+	/**
+		This property is used for getting the values of serial status lines
+		(``DSR``, ``CTS``, ``DCD``, ``RING``).
+
+		The returned value is a combination of `io.SerialStatusLines`
+		enumeration members, showing which status lines are high(or ``0`` if
+		all are low).
+	*/
+
+	SerialStatusLines const property m_statusLines;
+
+	/**
+		This property is used for getting and setting [#f4]_ ``DTR``
+		(data-terminal-ready) serial control line.
+	*/
+
+	bool autoget property m_dtr;
+
+	/**
+		This property is used for getting and setting [#f4]_ ``RTS``
+		(ready-to-send) serial control line.
+	*/
+
+	bool autoget property m_rts;
+
+	/**
+		This property is used for getting and setting [#f4]_ ``RTS``
+		(ready-to-send) serial control line.
+	*/
+
+	bool autoget property m_breakCondition;
+
+	// I tried experimenting with polling for status line updates on macOS
+	// due to the lack of TIOCMIWAIT there; however, it seems like standard
+	// Apple drivers for popular USB-to-Serial cables (CH34x, FTDI) don't
+	// handle TIOCMGET properly either. So it was kind of pointless.
+	// As such, it's disabled by default (m_updateInterval = -1).
+
+	uint_t autoget property m_updateInterval;
+	uint_t autoget property m_readInterval;
+	uint_t autoget property m_readParallelism;
+	size_t autoget property m_readBlockSize;
+	size_t autoget property m_readBufferSize;
+	size_t autoget property m_writeBufferSize;
+
+	SerialOptions autoget property m_options;
+
+	SerialEvents readonly volatile m_activeEvents;
+	std.Error const* readonly volatile m_ioError;
+
+	/**
+		Holds the open status for serial port, i.e. ``true`` if opened;
+		``false`` otherwise.
+	*/
+
+	bool readonly m_isOpen;
+
+	uintptr_t const property m_osHandle;
+
+	construct();
+	destruct();
+
+	/**
+		Opens a serial port.
+
+		The function accepts a single ``name`` argument, which specifies the
+		name of the serial port device.
+
+		Returns ``true`` on success. If serial port could not be opened, IO
+		error supplied by operating system is set and then the function
+		returns ``false`` [#f1]_.
+	*/
+
+	bool errorcode open(char const* name);
+
+	/**
+		Closes a previously opened serial port, does nothing if the port is
+		not opened. This function always succeeds.
+
+		Sometimes it may be convenient to use *disposable* pattern to ensure
+		timely invokation of ``close`` [#f2]_.
+	*/
+
+	void close();
+
+	/**
+		Effectively makes ``io.Serial`` a *disposable* class [#f2]_.
+	*/
+
+	alias dispose = close;
+
+	bool errorcode setupDevice(
+		uint_t baudRate,
+		uint_t dataBits = 8,
+		SerialStopBits stopBits = SerialStopBits._1,
+		SerialParity parity = SerialParity.None,
+		SerialFlowControl flowControl = SerialFlowControl.None,
+		uint_t readInterval = 0,
+		bool dtr = false,
+		bool rts = false
+	);
+
+	SerialLineErrors clearLineErrors();
+
+	/**
+		Attempts to read up to ``size`` bytes from the serial port into the
+		buffer pointed to by ``p``.
+
+		Returns the actual amount of bytes read on success. If read operation
+		is unsuccessful, IO error supplied by the operating system is set and
+		then the function returns ``-1`` [#f1]_.
+
+		Normally you would call this function from within your event handler for
+		``IncomingData`` event. If this function is called when there is no
+		incoming data, it blocks until either the data arrives, or the serial
+		port is closed.
+	*/
+
+	size_t errorcode read(
+		void* p,
+		size_t size
+	);
+
+	/**
+		Attempts to write ``size`` bytes from the buffer pointed to by ``p``
+		to the serial port.
+
+		Returns the actual amount of bytes written on success. If write
+		operation is unsuccessful, IO error supplied by the operating system is
+		set and then the function returns ``-1`` [#f1]_.
+
+		If the return value shows *less* bytes than specified by ``size``
+		argument, you should suspend further transmission until the file stream
+		is ready to accept more data. When this happens, ``WriteBufferReady``
+		event is fired and transmission could be resumed.
+	*/
+
+	size_t errorcode write(
+		void const* p,
+		size_t size
+	);
+
+	intptr errorcode wait(
+		SerialEvents eventMask,
+		function* handler(SerialEvents triggeredEvents)
+	);
+
+	bool errorcode cancelWait(intptr handle);
+
+	SerialEvents blockingWait(
+		SerialEvents eventMask,
+		uint_t timeout = -1
+	);
+
+	async SerialEvents asyncWait(SerialEvents eventMask);
+}
+
+//..............................................................................
+
+/**
+	\import io_base.jncx
+	\import io_Serial.jnc
+
+	\brief This struct holds information about the serial port device.
+
+	A list of serial port descriptions is returned by
+	`io.createSerialPortDescList`.
+
+	\sa `io.createSerialPortDescList`
+*/
+
+struct SerialPortDesc {
+	/**
+		Holds a pointer to the next serial port description or ``null`` if this
+		is the last adapter.
+	*/
+
+	SerialPortDesc const* m_next;
+
+	/**
+		Holds the serial port device name; use this name as ``name`` argument in
+		`io.Serial.open` method.
+	*/
+
+	char const* m_deviceName;
+
+	/**
+		Holds a human-readable description of the serial port.
+	*/
+
+	char const* m_description;
+
+	/**
+		Holds the name of the manufacturer of this serial port.
+	*/
+
+	char const* m_manufacturer;
+
+	/**
+		Holds hardware ID(s) of this serial port.
+	*/
+
+	char const* m_hardwareIds;
+
+	/**
+		Holds information about the device driver for this serial port.
+	*/
+
+	char const* m_driver;
+
+	/**
+		Holds a string identifying the location of this serial port in the system device tree.
+	*/
+
+	char const* m_location;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum SerialPortDescMask {
+	Description,
+	Manufacturer,
+	HardwareIds,
+	Driver,
+	Location,
+	All = Description | Manufacturer | HardwareIds | Driver | Location,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+/**
+	\subgroup
+
+	Enumerates all available serial ports.
+
+	``count`` argument can be used to obtain the total number of devices in the
+	resulting list.
+
+	Returns a pointer to the very first `io.SerialPortDesc` in the resulting
+	list. You can walk through the list by inspecting `io.SerialPortDesc.m_next`
+	field:
+
+	.. ref-code-block::
+
+		`io.SerialPortDesc` const* portDesc = io.createSerialPortDescList();
+		for (; portDesc; portDesc = portDesc.m_next) {
+			// add port to the combo box...
+		}
+*/
+
+SerialPortDesc const* createSerialPortDescList(
+	SerialPortDescMask mask,
+	size_t* count = null
+);
+
+SerialPortDesc const* createSerialPortDescList(size_t* count = null) {
+	return createSerialPortDescList(0, count);
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io
