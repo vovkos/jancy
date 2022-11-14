@@ -15,8 +15,11 @@ struct {
 	NamedType* m_type;
 }
 named_type_specifier
+	enter {
+		$.m_type = NULL;
+	}
 	leave {
-		if (m_mode == Mode_Compile)
+		if (m_mode == Mode_Compile && $.m_type)
 			return $.m_type->ensureLayout();
 	}
 	:	enum_specifier
@@ -68,10 +71,11 @@ struct {
 }
 enum_specifier
 	enter {
+		$.m_type = NULL;
 		$.m_flags = 0;
 	}
 	leave {
-		if ($.m_type->getFlags() & EnumTypeFlag_Exposed)
+		if ($.m_type && $.m_type->getFlags() & EnumTypeFlag_Exposed)
 			return m_module->m_namespaceMgr.getCurrentNamespace()->exposeEnumConsts($.m_type);
 	}
 	:	enum_modifier<&$.m_flags>*
@@ -147,8 +151,11 @@ struct {
 	StructType* m_type;
 }
 struct_specifier
+	enter {
+		$.m_type = NULL;
+	}
 	leave {
-		if ($.m_type->getName().isEmpty())
+		if ($.m_type && $.m_type->getName().isEmpty())
 			return declareUnnamedStructOrUnion($.m_type);
 	}
 	:	TokenKind_Dynamic $d?
@@ -177,8 +184,11 @@ struct {
 	UnionType* m_type;
 }
 union_specifier
+	enter {
+		$.m_type = NULL;
+	}
 	leave {
-		if ($.m_type->getName().isEmpty())
+		if ($.m_type && $.m_type->getName().isEmpty())
 			return declareUnnamedStructOrUnion($.m_type);
 	}
 	:	TokenKind_Dynamic $d?
