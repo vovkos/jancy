@@ -16,6 +16,7 @@
 #include "jnc_io_MappedFile.h"
 #include "jnc_io_FileStream.h"
 #include "jnc_io_Serial.h"
+#include "jnc_io_SerialPortEnumerator.h"
 #include "jnc_io_Socket.h"
 #include "jnc_io_SocketAddress.h"
 #include "jnc_io_HostNameResolver.h"
@@ -186,8 +187,8 @@ JNC_BEGIN_LIB_FUNCTION_MAP(IoLib)
 	JNC_MAP_TYPE(NamedPipe)
 	JNC_MAP_TYPE(Mailslot)
 #endif
-	JNC_MAP_FUNCTION("io.createNetworkAdapterDescList", createNetworkAdapterDescList)
-	JNC_MAP_FUNCTION("io.createSerialPortDescList", createSerialPortDescList)
+	JNC_MAP_FUNCTION("io.enumerateNetworkAdapters", enumerateNetworkAdapters)
+	JNC_MAP_FUNCTION("io.enumerateSerialPorts", enumerateSerialPorts)
 	JNC_MAP_FUNCTION("io.getSymbolicLinkTarget", getSymbolicLinkTarget)
 	JNC_MAP_FUNCTION("io.getHomeDir", getHomeDir)
 	JNC_MAP_FUNCTION("io.getTempDir", getTempDir)

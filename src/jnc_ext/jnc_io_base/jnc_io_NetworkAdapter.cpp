@@ -59,16 +59,16 @@ createNetworkAdapterDesc(
 ) {
 	DataPtr adapterPtr = createData<NetworkAdapterDesc> (runtime);
 	NetworkAdapterDesc* adapter = (NetworkAdapterDesc*)adapterPtr.m_p;
-	adapter->m_type = srcAdapter->getType();
-	adapter->m_flags = srcAdapter->getFlags();
-	adapter->m_namePtr = strDup(srcAdapter->getName());
-	adapter->m_descriptionPtr = strDup(srcAdapter->getDescription());
-	memcpy(adapter->m_macAddress, srcAdapter->getMacAddress(), 6);
+	adapter->m_type = srcAdapter->m_type;
+	adapter->m_flags = srcAdapter->m_flags;
+	adapter->m_namePtr = strDup(srcAdapter->m_name);
+	adapter->m_descriptionPtr = strDup(srcAdapter->m_description);
+	memcpy(adapter->m_macAddress, srcAdapter->m_macAddress, 6);
 
 	if (prevAdapter)
 		prevAdapter->m_nextPtr = adapterPtr;
 
-	sl::ConstList<axl::io::NetworkAdapterAddress> addressList = srcAdapter->getAddressList();
+	sl::ConstList<axl::io::NetworkAdapterAddress> addressList = srcAdapter->m_addressList;
 	if (addressList.isEmpty())
 		return adapterPtr;
 
@@ -85,7 +85,7 @@ createNetworkAdapterDesc(
 }
 
 DataPtr
-createNetworkAdapterDescList(
+enumerateNetworkAdapters(
 	DataPtr adapterCountPtr,
 	DataPtr addressCountPtr
 ) {
@@ -95,7 +95,7 @@ createNetworkAdapterDescList(
 		return g_nullDataPtr;
 
 	sl::List<axl::io::NetworkAdapterDesc> adapterList;
-	size_t adapterCount = axl::io::createNetworkAdapterDescList(&adapterList);
+	size_t adapterCount = axl::io::enumerateNetworkAdapters(&adapterList);
 
 	if (adapterList.isEmpty()) {
 		if (adapterCountPtr.m_p)

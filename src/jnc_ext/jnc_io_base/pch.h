@@ -12,6 +12,7 @@
 #pragma once
 
 #include "axl_io_Serial.h"
+#include "axl_io_SerialPortEnumerator.h"
 #include "axl_io_Socket.h"
 #include "axl_io_NetworkAdapter.h"
 #include "axl_io_MappedFile.h"

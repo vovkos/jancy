@@ -16,6 +16,7 @@
 set(
 	LIB_H_LIST
 	jnc_io_Serial.h
+	jnc_io_SerialPortEnumerator.h
 	jnc_io_Socket.h
 	jnc_io_HostNameResolver.h
 	jnc_io_NetworkAdapter.h
@@ -29,6 +30,7 @@ set(
 set(
 	LIB_CPP_LIST
 	jnc_io_Serial.cpp
+	jnc_io_SerialPortEnumerator.cpp
 	jnc_io_Socket.cpp
 	jnc_io_HostNameResolver.cpp
 	jnc_io_NetworkAdapter.cpp
@@ -72,6 +74,7 @@ set(
 	jnc/io_StreamOptions.jnc
 	jnc/io_StreamEvents.jnc
 	jnc/io_Serial.jnc
+	jnc/io_SerialPortEnumerator.jnc
 	jnc/io_SocketOptions.jnc
 	jnc/io_SocketEvents.jnc
 	jnc/io_SocketAddress.jnc

@@ -19,7 +19,6 @@ namespace jnc {
 namespace io {
 
 JNC_DECLARE_OPAQUE_CLASS_TYPE(Serial)
-JNC_DECLARE_TYPE(SerialPortDesc)
 
 //..............................................................................
 
@@ -333,28 +332,6 @@ protected:
 	waitThreadFunc();
 #endif
 };
-
-//..............................................................................
-
-struct SerialPortDesc {
-	JNC_DECLARE_TYPE_STATIC_METHODS(SerialPortDesc)
-
-	DataPtr m_nextPtr;
-	DataPtr m_deviceNamePtr;
-	DataPtr m_descriptionPtr;
-	DataPtr m_manufacturerPtr;
-	DataPtr m_hardwareIdsPtr;
-	DataPtr m_driverPtr;
-	DataPtr m_locationPtr;
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-DataPtr
-createSerialPortDescList(
-	uint_t mask,
-	DataPtr countPtr
-);
 
 //..............................................................................
 

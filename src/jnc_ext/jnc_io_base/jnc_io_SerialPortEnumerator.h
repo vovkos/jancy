@@ -11,45 +11,31 @@
 
 #pragma once
 
-#include "jnc_io_SocketAddress.h"
-
 namespace jnc {
 namespace io {
 
-JNC_DECLARE_TYPE(NetworkAdapterAddress)
-JNC_DECLARE_TYPE(NetworkAdapterDesc)
+JNC_DECLARE_TYPE(SerialPortDesc)
 
 //..............................................................................
 
-struct NetworkAdapterAddress {
-	JNC_DECLARE_TYPE_STATIC_METHODS(NetworkAdapterAddress)
+struct SerialPortDesc {
+	JNC_DECLARE_TYPE_STATIC_METHODS(SerialPortDesc)
 
 	DataPtr m_nextPtr;
-	SocketAddress m_address;
-	size_t m_netMaskBitCount;
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct NetworkAdapterDesc {
-	JNC_DECLARE_TYPE_STATIC_METHODS(NetworkAdapterDesc)
-
-	DataPtr m_nextPtr;
-	DataPtr m_namePtr;
+	DataPtr m_deviceNamePtr;
 	DataPtr m_descriptionPtr;
-	uint_t m_type;
-	uint_t m_flags;
-	uint8_t m_macAddress[6];
-	DataPtr m_addressPtr;
-	size_t m_addressCount;
+	DataPtr m_manufacturerPtr;
+	DataPtr m_hardwareIdsPtr;
+	DataPtr m_driverPtr;
+	DataPtr m_locationPtr;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 DataPtr
-enumerateNetworkAdapters(
-	DataPtr adapterCountPtr,
-	DataPtr addressCountPtr
+enumerateSerialPorts(
+	uint_t mask,
+	DataPtr countPtr
 );
 
 //..............................................................................
