@@ -275,7 +275,7 @@ createUsbDeviceDesc(
 	UsbConfigurationDesc* dstConfigDescTable = (UsbConfigurationDesc*)deviceDesc->m_configurationTable.m_p;
 	for (size_t i = 0; i < srcDesc->bNumConfigurations; i++) {
 		axl::io::UsbConfigDescriptor srcConfigDesc;
-		bool result = srcDevice->getConfigDescriptor(i, &srcConfigDesc);
+		bool result = srcDevice->getConfigDescriptor(&srcConfigDesc, i);
 		if (result) // LIBUSB_ERROR_NOT_FOUND may happen with libusb-incompatible drivers
 			initUsbConfigurationDesc(runtime, &dstConfigDescTable[i], srcConfigDesc);
 	}
