@@ -17,14 +17,15 @@ requireDevMonCapability() {
 
 //..............................................................................
 
-// {A9A83151-4834-472D-AF0B-43F9BE43D465}
+// {CFEB2181-AAD4-4A85-9C5E-87B38A075FE5}
 AXL_SL_DEFINE_GUID(
-	g_devMonLibGuid,
-	0xa9a83151, 0x4834, 0x472d, 0xaf, 0xb, 0x43, 0xf9, 0xbe, 0x43, 0xd4, 0x65
+	g_usbMonLibGuid,
+	0xcfeb2181, 0xaad4, 0x4a85, 0x9c, 0x5e, 0x87, 0xb3, 0x8a, 0x7, 0x5f, 0xe5
 );
 
-enum DevMonLibTypeCacheSlot {
-	DevMonLibTypeCacheSlot_DeviceMonitor,
+enum UsbMonLibTypeCacheSlot {
+	UsbMonLibTypeCacheSlot_UsbMonitor,
+	UsbMonLibTypeCacheSlot_UsbMonDeviceDesc,
 };
 
 //..............................................................................

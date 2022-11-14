@@ -11,49 +11,47 @@
 
 import "io_base.jncx"
 import "io_StreamEvents.jnc"
-import "io_DeviceMonitorNotify.jnc"
+import "io_UsbMonTransfer.jnc"
 
 namespace io {
 
-//! \addtogroup io-devmon
+//! \addtogroup io-usbmon
 //! @{
 
 //..............................................................................
 
-typedef ReadOnlyStreamEvents DeviceMonitorEvents;
+bitflag enum UsbMonitorOptions {
+	MessageMode = 2,
+	CompletedTransfersOnly,
+}
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class DeviceMonitor {
-	uint_t autoget property m_readParallelism;
+typedef ReadOnlyStreamEvents UsbMonitorEvents;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class UsbMonitor {
+	size_t const m_snapshotLength;   // can only be configured on Windows
+	size_t autoget property m_kernelBufferSize; // 0 -- use platform default
 	size_t autoget property m_readBlockSize;
 	size_t autoget property m_readBufferSize;
-	size_t autoget property m_pendingNotifySizeLimit;
+	uint_t autoget property m_addressFilter;
 
-	char const* readonly m_deviceName;
-	char const* autoget property m_fileNameFilter;
-
-	bool readonly m_isConnected;
-	bool autoget property m_isEnabled;
-
-	protected uint_t m_unused;
-
-	DeviceMonitorEvents readonly volatile m_activeEvents;
+	UsbMonitorOptions m_options;
+	UsbMonitorEvents readonly volatile m_activeEvents;
 	std.Error const* readonly volatile m_ioError;
 	bool readonly m_isOpen;
 
 	construct();
 	destruct();
 
-	bool errorcode open();
-	bool errorcode connect(char const* deviceName);
-	void close();
-
-
-	void setIoctlDescTable(
-		psx.DeviceMonitorIoctlDesc const* ioctlDesc,
-		size_t count
+	bool errorcode open(
+		char const* captureDeviceName,
+		size_t snapshotLength = 0 // 0 -- use default
 	);
+
+	void close();
 
 	size_t errorcode read(
 		void* p,
@@ -61,18 +59,18 @@ opaque class DeviceMonitor {
 	);
 
 	intptr errorcode wait(
-		DeviceMonitorEvents eventMask,
-		function* handler(DeviceMonitorEvents triggeredEvents)
+		UsbMonitorEvents eventMask,
+		function* handler(UsbMonitorEvents triggeredEvents)
 	);
 
 	bool errorcode cancelWait(intptr handle);
 
-	DeviceMonitorEvents blockingWait(
-		DeviceMonitorEvents eventMask,
+	UsbMonitorEvents blockingWait(
+		UsbMonitorEvents eventMask,
 		uint_t timeout = -1
 	);
 
-	async DeviceMonitorEvents asyncWait(DeviceMonitorEvents eventMask);
+	async UsbMonitorEvents asyncWait(UsbMonitorEvents eventMask);
 }
 
 //..............................................................................

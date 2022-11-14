@@ -1,6 +1,7 @@
 #include "pch.h"
-#include "jnc_io_DevMonLib.h"
-#include "jnc_io_DeviceMonitor.h"
+#include "jnc_io_UsbMonLib.h"
+#include "jnc_io_UsbMonitor.h"
+#include "jnc_io_UsbMonEnumerator.h"
 
 namespace jnc {
 namespace io {
@@ -8,30 +9,31 @@ namespace io {
 //..............................................................................
 
 void
-initializeDevMonLibCapabilities() {
+initializeUsbMonLibCapabilities() {
 	g_devMonCapability = jnc::isCapabilityEnabled("org.jancy.io.devmon");
 }
 
 //..............................................................................
 
 JNC_DEFINE_LIB_EX(
-	DevMonLib,
-	g_devMonLibGuid,
-	"DevMonLib",
+	UsbMonLib,
+	g_usbMonLibGuid,
+	"UsbMonLib",
 	"Jancy library for monitoring IO device activity",
-	initializeDevMonLibCapabilities
+	initializeUsbMonLibCapabilities
 )
 
-JNC_BEGIN_LIB_SOURCE_FILE_TABLE(DevMonLib)
-	JNC_LIB_IMPORT("io_DeviceMonitor.jnc")
+JNC_BEGIN_LIB_SOURCE_FILE_TABLE(UsbMonLib)
+	JNC_LIB_IMPORT("io_UsbMonitor.jnc")
 JNC_END_LIB_SOURCE_FILE_TABLE()
 
-JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(DevMonLib)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(jnc::io::DeviceMonitor)
+JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(UsbMonLib)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(UsbMonitor)
 JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE()
 
-JNC_BEGIN_LIB_FUNCTION_MAP(DevMonLib)
-	JNC_MAP_TYPE(jnc::io::DeviceMonitor)
+JNC_BEGIN_LIB_FUNCTION_MAP(UsbMonLib)
+	JNC_MAP_TYPE(UsbMonitor)
+	JNC_MAP_FUNCTION("io.enumerateUsbMonDevices", enumerateUsbMonDevices)
 JNC_END_LIB_FUNCTION_MAP()
 
 //..............................................................................
@@ -50,8 +52,8 @@ jncDynamicExtensionLibMain(jnc::DynamicExtensionLibHost* host) {
 	g::getModule()->setTag("jnc_io_devmon");
 	err::getErrorMgr()->setRouter(host->m_errorRouter);
 	jnc_g_dynamicExtensionLibHost = host;
-	jnc::io::initializeDevMonLibCapabilities();
-	return jnc::io::DevMonLib_getLib();
+	jnc::io::initializeUsbMonLibCapabilities();
+	return jnc::io::UsbMonLib_getLib();
 }
 
 //..............................................................................

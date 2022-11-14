@@ -1,6 +1,6 @@
 #include "pch.h"
-#include "jnc_io_DeviceMonitor.h"
-#include "jnc_io_DevMonLib.h"
+#include "jnc_io_UsbMonitor.h"
+#include "jnc_io_UsbMonLib.h"
 #include "jnc_Error.h"
 
 namespace jnc {
@@ -9,42 +9,39 @@ namespace io {
 //..............................................................................
 
 JNC_DEFINE_OPAQUE_CLASS_TYPE(
-	DeviceMonitor,
-	"io.DeviceMonitor",
-	g_devMonLibGuid,
-	DevMonLibTypeCacheSlot_DeviceMonitor,
-	DeviceMonitor,
-	&DeviceMonitor::markOpaqueGcRoots
+	UsbMonitor,
+	"io.UsbMonitor",
+	g_usbMonLibGuid,
+	UsbMonLibTypeCacheSlot_UsbMonitor,
+	UsbMonitor,
+	&UsbMonitor::markOpaqueGcRoots
 )
 
-JNC_BEGIN_TYPE_FUNCTION_MAP(DeviceMonitor)
-	JNC_MAP_CONSTRUCTOR(&sl::construct<DeviceMonitor>)
-	JNC_MAP_DESTRUCTOR(&sl::destruct<DeviceMonitor>)
+JNC_BEGIN_TYPE_FUNCTION_MAP(UsbMonitor)
+	JNC_MAP_CONSTRUCTOR(&sl::construct<UsbMonitor>)
+	JNC_MAP_DESTRUCTOR(&sl::destruct<UsbMonitor>)
 
-	JNC_MAP_AUTOGET_PROPERTY("m_readParallelism", &DeviceMonitor::setReadParallelism)
-	JNC_MAP_AUTOGET_PROPERTY("m_readBlockSize",   &DeviceMonitor::setReadBlockSize)
-	JNC_MAP_AUTOGET_PROPERTY("m_readBufferSize",  &DeviceMonitor::setReadBufferSize)
-	JNC_MAP_AUTOGET_PROPERTY("m_pendingNotifySizeLimit", &DeviceMonitor::setPendingNotifySizeLimit)
-	JNC_MAP_AUTOGET_PROPERTY("m_isEnabled",       &DeviceMonitor::setEnabled)
-	JNC_MAP_AUTOGET_PROPERTY("m_fileNameFilter",  &DeviceMonitor::setFileNameFilter)
+	JNC_MAP_AUTOGET_PROPERTY("m_kernelBufferSize", &UsbMonitor::setKernelBufferSize)
+	JNC_MAP_AUTOGET_PROPERTY("m_readBlockSize",    &UsbMonitor::setReadBlockSize)
+	JNC_MAP_AUTOGET_PROPERTY("m_readBufferSize",   &UsbMonitor::setReadBufferSize)
+	JNC_MAP_AUTOGET_PROPERTY("m_addressFilter",    &UsbMonitor::setAddressFilter)
 
-	JNC_MAP_FUNCTION("open",              &DeviceMonitor::open)
-	JNC_MAP_FUNCTION("close",             &DeviceMonitor::close)
-	JNC_MAP_FUNCTION("connect",           &DeviceMonitor::connect)
-	JNC_MAP_FUNCTION("setIoctlDescTable", &DeviceMonitor::setIoctlDescTable)
-	JNC_MAP_FUNCTION("read",              &DeviceMonitor::read)
-	JNC_MAP_FUNCTION("wait",              &DeviceMonitor::wait)
-	JNC_MAP_FUNCTION("cancelWait",        &DeviceMonitor::cancelWait)
-	JNC_MAP_FUNCTION("blockingWait",      &DeviceMonitor::blockingWait)
+	JNC_MAP_FUNCTION("open",              &UsbMonitor::open)
+	JNC_MAP_FUNCTION("close",             &UsbMonitor::close)
+	JNC_MAP_FUNCTION("read",              &UsbMonitor::read)
+	JNC_MAP_FUNCTION("wait",              &UsbMonitor::wait)
+	JNC_MAP_FUNCTION("cancelWait",        &UsbMonitor::cancelWait)
+	JNC_MAP_FUNCTION("blockingWait",      &UsbMonitor::blockingWait)
 JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
-DeviceMonitor::DeviceMonitor() {
-	m_readParallelism = Def_ReadParallelism;
+UsbMonitor::UsbMonitor() {
 	m_readBlockSize = Def_ReadBlockSize;
 	m_readBufferSize = Def_ReadBufferSize;
-	m_pendingNotifySizeLimit = Def_PendingNotifySizeLimit;
+	m_snapshotLength = Def_SnapshotLength;
+	m_kernelBufferSize = Def_KernelBufferSize;
+	m_addressFilter = 0;
 
 	m_readBuffer.setBufferSize(Def_ReadBufferSize);
 
@@ -55,61 +52,23 @@ DeviceMonitor::DeviceMonitor() {
 
 bool
 JNC_CDECL
-DeviceMonitor::setPendingNotifySizeLimit(size_t limit) {
-	if (!m_isConnected) {
-		m_pendingNotifySizeLimit = limit;
-		return true;
-	}
+UsbMonitor::open(
+	DataPtr captureDeviceNamePtr,
+	size_t snapshotLength
+) {
+	const char* captureDeviceName = (const char*)captureDeviceNamePtr.m_p;
 
-	bool result = m_monitor.setPendingNotifySizeLimit(limit);
-	if (!result)
-		return false;
-
-	m_pendingNotifySizeLimit = limit;
-	return true;
-}
-
-bool
-JNC_CDECL
-DeviceMonitor::setFileNameFilter(DataPtr filterPtr) {
-	if (!m_isConnected) {
-		setError(err::SystemErrorCode_InvalidDeviceState);
-		return true;
-	}
-
-	const char* filter = (const char*) filterPtr.m_p;
-	bool result = m_monitor.setFileNameFilter(filter);
-	if (!result)
-		return false;
-
-	m_fileNameFilterPtr = strDup(filter);
-	return true;
-}
-
-bool
-JNC_CDECL
-DeviceMonitor::setEnabled(bool isEnabled) {
-	if (!m_isConnected) {
-		setError(err::SystemErrorCode_InvalidDeviceState);
-		return true;
-	}
-
-	bool result = isEnabled ? m_monitor.enable() : m_monitor.disable();
-	if (!result)
-		return false;
-
-	m_isEnabled = isEnabled;
-	return true;
-}
-
-bool
-JNC_CDECL
-DeviceMonitor::open() {
 	close();
 
 	bool result =
 		requireDevMonCapability() &&
-		m_monitor.open();
+		m_monitor.open(
+			captureDeviceName,
+			m_addressFilter,
+			m_snapshotLength,
+			m_kernelBufferSize,
+			(m_options & UsbMonitorOption_MessageMode) ? axl::io::win::UsbMonitor::Flag_MessageMode : 0
+		);
 
 	if (!result)
 		return false;
@@ -126,7 +85,7 @@ DeviceMonitor::open() {
 
 void
 JNC_CDECL
-DeviceMonitor::close() {
+UsbMonitor::close() {
 	if (!m_monitor.isOpen())
 		return;
 
@@ -141,12 +100,7 @@ DeviceMonitor::close() {
 	gcHeap->leaveWaitRegion();
 
 	m_monitor.close();
-
 	AsyncIoDevice::close();
-	m_isConnected = false;
-	m_isEnabled = false;
-	m_deviceNamePtr = g_nullDataPtr;
-	m_fileNameFilterPtr = g_nullDataPtr;
 
 #if (_AXL_OS_WIN)
 	if (m_overlappedIo) {
@@ -156,81 +110,13 @@ DeviceMonitor::close() {
 #endif
 }
 
-bool
-JNC_CDECL
-DeviceMonitor::connect(DataPtr deviceNamePtr) {
-	bool result =
-		m_monitor.connect((const char*) deviceNamePtr.m_p) &&
-		m_monitor.setPendingNotifySizeLimit(m_pendingNotifySizeLimit);
-
-	if (!result)
-		return false;
-
-#if (_JNC_OS_WIN)
-	dm::DeviceInfo deviceInfo;
-	m_monitor.getTargetDeviceInfo(&deviceInfo);
-	m_deviceNamePtr = strDup(deviceInfo.m_deviceName);
-#elif (_JNC_OS_LINUX)
-	dm::HookInfo hookInfo;
-	m_monitor.getTargetHookInfo(&hookInfo);
-	m_deviceNamePtr = strDup(hookInfo.m_fileName);
-#endif
-
-	m_lock.lock();
-	m_ioThreadFlags |= IoThreadFlag_Connected;
-	wakeIoThread();
-	m_lock.unlock();
-
-	m_isConnected = true;
-	return true;
-}
-
-bool
-JNC_CDECL
-DeviceMonitor::setIoctlDescTable(
-	DataPtr ioctlDescPtr,
-	size_t count
-) {
-#if (_JNC_OS_POSIX)
-	const dm_IoctlDesc* ioctlDesc = (const dm_IoctlDesc*) ioctlDescPtr.m_p;
-	bool result = m_monitor.setIoctlDescTable(ioctlDesc, count);
-	if (!result)
-		return false;
-#endif
-
-	return true;
-}
-
-bool
-DeviceMonitor::connectLoop() {
-	for (;;) {
-		sleepIoThread();
-
-		m_lock.lock();
-		if (m_ioThreadFlags & IoThreadFlag_Closing) {
-			m_lock.unlock();
-			return false;
-		}
-
-		if (m_ioThreadFlags & IoThreadFlag_Connected) {
-			m_lock.unlock();
-			return true;
-		}
-
-		m_lock.unlock();
-	}
-
-}
-
 #if (_JNC_OS_WIN)
 
 void
-DeviceMonitor::ioThreadFunc() {
+UsbMonitor::ioThreadFunc() {
 	ASSERT(m_monitor.isOpen() && m_overlappedIo);
 
-	bool result = connectLoop();
-	if (!result)
-		return;
+	bool result;
 
 	HANDLE waitTable[2] = {
 		m_ioThreadEvent.m_event,
@@ -254,20 +140,19 @@ DeviceMonitor::ioThreadFunc() {
 
 		while (!m_overlappedIo->m_activeOverlappedReadList.isEmpty()) {
 			OverlappedRead* read = *m_overlappedIo->m_activeOverlappedReadList.getHead();
-			result = read->m_overlapped.m_completionEvent.wait(0);
+			result = read->m_overlapped.getCompletionEvent().wait(0);
 			if (!result)
 				break;
 
-			dword_t actualSize;
-			result = m_monitor.getOverlappedResult(&read->m_overlapped, &actualSize);
-			if (!result) {
+			size_t actualSize = m_monitor.getOverlappedResult(&read->m_overlapped);
+			if (actualSize == -1) {
 				setIoErrorEvent();
 				return;
 			}
 
 			m_overlappedIo->m_activeOverlappedReadList.remove(read);
 			m_overlappedIo->m_overlappedReadPool.put(read);
-			read->m_overlapped.m_completionEvent.reset();
+			read->m_overlapped.getCompletionEvent().reset();
 
 			// only the main read buffer must be lock-protected
 
@@ -290,7 +175,6 @@ DeviceMonitor::ioThreadFunc() {
 		// take snapshots before releasing the lock
 
 		bool isReadBufferFull = m_readBuffer.isFull();
-		size_t readParallelism = m_readParallelism;
 		size_t readBlockSize = m_readBlockSize;
 
 		if (m_activeEvents != prevActiveEvents)
@@ -298,32 +182,27 @@ DeviceMonitor::ioThreadFunc() {
 		else
 			m_lock.unlock();
 
-		size_t activeReadCount = m_overlappedIo->m_activeOverlappedReadList.getCount();
-		if (!isReadBufferFull && activeReadCount < readParallelism) {
-			size_t newReadCount = readParallelism - activeReadCount;
+		if (!isReadBufferFull && m_overlappedIo->m_activeOverlappedReadList.isEmpty()) {
+			OverlappedRead* read = m_overlappedIo->m_overlappedReadPool.get();
 
-			for (size_t i = 0; i < newReadCount; i++) {
-				OverlappedRead* read = m_overlappedIo->m_overlappedReadPool.get();
+			result =
+				read->m_buffer.setCount(readBlockSize) &&
+				m_monitor.overlappedRead(read->m_buffer, readBlockSize, &read->m_overlapped);
 
-				result =
-					read->m_buffer.setCount(readBlockSize) &&
-					m_monitor.overlappedRead(read->m_buffer, readBlockSize, &read->m_overlapped);
-
-				if (!result) {
-					m_overlappedIo->m_overlappedReadPool.put(read);
-					setIoErrorEvent();
-					return;
-				}
-
-				m_overlappedIo->m_activeOverlappedReadList.insertTail(read);
+			if (!result) {
+				m_overlappedIo->m_overlappedReadPool.put(read);
+				setIoErrorEvent();
+				return;
 			}
+
+			m_overlappedIo->m_activeOverlappedReadList.insertTail(read);
 		}
 
 		if (m_overlappedIo->m_activeOverlappedReadList.isEmpty()) {
 			waitCount = 1;
 		} else {
 			OverlappedRead* read = *m_overlappedIo->m_activeOverlappedReadList.getHead();
-			waitTable[1] = read->m_overlapped.m_completionEvent.m_event;
+			waitTable[1] = read->m_overlapped.getCompletionEvent().m_event;
 			waitCount = 2;
 		}
 	}
@@ -332,7 +211,7 @@ DeviceMonitor::ioThreadFunc() {
 #elif (_JNC_OS_POSIX)
 
 void
-DeviceMonitor::ioThreadFunc() {
+UsbMonitor::ioThreadFunc() {
 	ASSERT(m_monitor.isOpen());
 
 	int result = connectLoop();

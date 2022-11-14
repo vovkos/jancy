@@ -9,71 +9,110 @@
 //
 //..............................................................................
 
-import "io_base.jncx"
-import "io_StreamEvents.jnc"
-import "io_DeviceMonitorNotify.jnc"
-
 namespace io {
 
-//! \addtogroup io-devmon
+//! \addtogroup io-usbmon
 //! @{
 
 //..............................................................................
 
-typedef ReadOnlyStreamEvents DeviceMonitorEvents;
+enum UsbMonTransferType: uint8_t {
+	Isochronous, // 0
+	Interrupt,   // 1
+	Control,     // 2
+	Bulk,        // 3
+};
+
+bitflag enum UsbMonTransferFlags: uint8_t {
+	Completed
+};
+
+enum UsbMonControlRecipient {
+	Device,    // 0
+	Interface, // 1
+	Endpoint,  // 2
+	Other,     // 3
+};
+
+enum UsbMonControlType {
+	Standard, // 0
+	Class,    // 1
+	Vendor,   // 2
+};
+
+enum UsbMonControlDirection {
+	Out,
+	In,
+};
+
+enum UsbMonControlStdRequest {
+	GetStatus,         // 0
+	ClearFeature,      // 1
+	Reserved,          // 2
+	SetFeature,        // 3
+	Reserved2,         // 4
+	SetAddress,        // 5
+	GetDescriptor,     // 6
+	SetDescriptor,     // 7
+	GetConfiguration,  // 8
+	SetConfiguration,  // 9
+	GetInterface,      // 10
+	SetInterface,      // 11
+	SynchFrame,        // 12
+};
+
+//..............................................................................
+
+struct UsbMonControlRequestType {
+	union {
+		uint8_t m_value;
+		struct {
+			uint8_t m_recipient : 2; // UsbMonControlRecipient
+			uint8_t m_reserved  : 3;
+			uint8_t m_type      : 2; // UsbMonControlType
+			uint8_t m_direction : 1; // UsbMonControlDirection
+		};
+	};
+};
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class DeviceMonitor {
-	uint_t autoget property m_readParallelism;
-	size_t autoget property m_readBlockSize;
-	size_t autoget property m_readBufferSize;
-	size_t autoget property m_pendingNotifySizeLimit;
+struct UsbMonControlSetup {
+	UsbMonControlRequestType m_requestType;
+	uint8_t m_request;
+	uint16_t m_value;
+	uint16_t m_index;
+	uint16_t m_length;
+};
 
-	char const* readonly m_deviceName;
-	char const* autoget property m_fileNameFilter;
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-	bool readonly m_isConnected;
-	bool autoget property m_isEnabled;
+struct UsbMonIsochronousHdr {
+	uint32_t m_startFrame;
+	uint32_t m_packetCount;
+	uint32_t m_errorCount;
+};
 
-	protected uint_t m_unused;
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-	DeviceMonitorEvents readonly volatile m_activeEvents;
-	std.Error const* readonly volatile m_ioError;
-	bool readonly m_isOpen;
+struct UsbMonTransferHdr {
+	uint64_t m_timestamp;
+	uint32_t m_status;
+	UsbMonTransferFlag m_flags;
+	UsbMonTransferType m_transferType;
+	uint8_t m_bus;
+	uint8_t m_address;
+	uint8_t m_endpoint;
+	uint32_t m_originalSize; // original transfer data size
+	uint32_t m_captureSize;  // captured by the driver
+	uint32_t m_actualSize;   // returned to the caller (in the message mode, can be smaller than m_captureSize)
 
-	construct();
-	destruct();
-
-	bool errorcode open();
-	bool errorcode connect(char const* deviceName);
-	void close();
-
-
-	void setIoctlDescTable(
-		psx.DeviceMonitorIoctlDesc const* ioctlDesc,
-		size_t count
-	);
-
-	size_t errorcode read(
-		void* p,
-		size_t size
-	);
-
-	intptr errorcode wait(
-		DeviceMonitorEvents eventMask,
-		function* handler(DeviceMonitorEvents triggeredEvents)
-	);
-
-	bool errorcode cancelWait(intptr handle);
-
-	DeviceMonitorEvents blockingWait(
-		DeviceMonitorEvents eventMask,
-		uint_t timeout = -1
-	);
-
-	async DeviceMonitorEvents asyncWait(DeviceMonitorEvents eventMask);
-}
+	union {
+		UsbMonControlSetup m_controlSetup;
+		UsbMonIsochronousHdr m_isochronousHdr;
+		uint64_t m_padding[2]; // align on 16 bytes
+	};
+};
 
 //..............................................................................
 

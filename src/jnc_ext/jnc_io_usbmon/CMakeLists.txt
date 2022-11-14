@@ -17,12 +17,14 @@ set(
 	LIB_H_LIST
 	jnc_io_UsbMonLib.h
 	jnc_io_UsbMonitor.h
+	jnc_io_UsbMonEnumerator.h
 )
 
 set(
 	LIB_CPP_LIST
 	jnc_io_UsbMonLib.cpp
 	jnc_io_UsbMonitor.cpp
+	jnc_io_UsbMonEnumerator.cpp
 )
 
 source_group(
@@ -130,12 +132,11 @@ target_link_libraries(
 if(WIN32)
 	target_link_libraries(
 		jnc_io_usbmon
-		dm_win_lib
+		setupapi
 	)
 elseif(LINUX)
 	target_link_libraries(
 		jnc_io_usbmon
-		dm_lnx_lib
 		pthread
 		rt
 	)
@@ -143,6 +144,7 @@ endif()
 
 target_link_libraries(
 	jnc_io_usbmon
+	axl_io_usbmon
 	axl_io
 	axl_core
 )
@@ -159,11 +161,9 @@ set_target_properties(
 #
 
 set(DLL_DIR ${JANCY_DLL_BASE_DIR}/${CONFIGURATION})
-set(JNC_IO_usbmon_NAME io_usbmon-${TARGET_CPU}.bin)
-set(JNC_IO_usbmon_DLL ${DLL_DIR}/${JNC_IO_usbmon_NAME})
-set(JNC_IO_usbmon_JNCX ${DLL_DIR}/io_usbmon.jncx)
-
-configure_file(${CMAKE_CURRENT_LIST_DIR}/jnc/.forced.jnc COPYONLY)
+set(JNC_IO_USBMON_NAME io_usbmon-${TARGET_CPU}.bin)
+set(JNC_IO_USBMON_DLL ${DLL_DIR}/${JNC_IO_USBMON_NAME})
+set(JNC_IO_USBMON_JNCX ${DLL_DIR}/io_usbmon.jncx)
 
 add_custom_command(
 	TARGET jnc_io_usbmon
@@ -171,15 +171,14 @@ add_custom_command(
 	COMMAND
 		echo Creating io_usbmon.jncx...
 	COMMAND
-		${CMAKE_COMMAND} -E remove ${JNC_IO_usbmon_JNCX}
+		${CMAKE_COMMAND} -E remove ${JNC_IO_USBMON_JNCX}
 	COMMAND
 		${7Z_EXE}
 		a -tzip -y
-		${JNC_IO_usbmon_JNCX}
-		${JNC_IO_usbmon_DLL}
-		${CMAKE_CURRENT_LIST_DIR}/jnc/io_*.jnc
-		${CMAKE_CURRENT_BINARY_DIR}/.forced.jnc
-	)
+		${JNC_IO_USBMON_JNCX}
+		${JNC_IO_USBMON_DLL}
+		${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

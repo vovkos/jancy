@@ -9,70 +9,87 @@
 //
 //..............................................................................
 
-import "io_base.jncx"
-import "io_StreamEvents.jnc"
-import "io_DeviceMonitorNotify.jnc"
-
 namespace io {
 
-//! \addtogroup io-devmon
+//! \addtogroup io-usbmon
 //! @{
 
 //..............................................................................
 
-typedef ReadOnlyStreamEvents DeviceMonitorEvents;
+enum UsbMonDeviceSpeed {
+	Unknown,
+	Low,
+	Full,
+	High,
+	Super,
+};
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class DeviceMonitor {
-	uint_t autoget property m_readParallelism;
-	size_t autoget property m_readBlockSize;
-	size_t autoget property m_readBufferSize;
-	size_t autoget property m_pendingNotifySizeLimit;
+bitflag enum UsbMonDeviceDescFlags {
+	Hub,
+	DeviceDescriptor,
+};
 
-	char const* readonly m_deviceName;
-	char const* autoget property m_fileNameFilter;
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-	bool readonly m_isConnected;
-	bool autoget property m_isEnabled;
+struct UsbMonDeviceDesc {
+	UsbMonDeviceDesc const* m_next;
+	char const* m_captureDeviceName;
+	char const* m_description;
+	char const* m_manufacturer;
+	char const* m_driver;
+	char const* m_manufacturerDescriptor;
+	char const* m_productDescriptor;
+	char const* m_serialNumberDescriptor;
 
-	protected uint_t m_unused;
+	UsbMonDeviceSpeed m_speed;
 
-	DeviceMonitorEvents readonly volatile m_activeEvents;
-	std.Error const* readonly volatile m_ioError;
-	bool readonly m_isOpen;
+	uint_t m_vendorId;
+	uint_t m_productId;
+	uint_t m_address;
+	uint_t m_class;
+	uint_t m_subClass;
+	uint_t m_manufacturerDescriptorId;
+	uint_t m_productDescriptorId;
+	uint_t m_serialNumberDescriptorId;
+	uint_t m_flags;
+}
 
-	construct();
-	destruct();
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-	bool errorcode open();
-	bool errorcode connect(char const* deviceName);
-	void close();
+bitflag enum UsbMonDeviceDescMask {
+	Hubs,
+	Description,
+	Manufacturer,
+	Driver,
+	ManufacturerDescriptor,
+	ProductDescriptor,
+	SerialNumberDescriptor,
 
+	Descriptors =
+		ManufacturerDescriptor |
+		ProductDescriptor |
+		SerialNumberDescriptor,
+	AllButHubs =
+		Description |
+		Manufacturer |
+		Driver |
+		Descriptors,
+	All =
+		AllButHubs |
+		Hubs,
+};
 
-	void setIoctlDescTable(
-		psx.DeviceMonitorIoctlDesc const* ioctlDesc,
-		size_t count
-	);
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-	size_t errorcode read(
-		void* p,
-		size_t size
-	);
+UsbMonDeviceDesc const* enumerateUsbMonDevices(
+	UsbMonDeviceDescMask mask,
+	size_t* count = null
+);
 
-	intptr errorcode wait(
-		DeviceMonitorEvents eventMask,
-		function* handler(DeviceMonitorEvents triggeredEvents)
-	);
-
-	bool errorcode cancelWait(intptr handle);
-
-	DeviceMonitorEvents blockingWait(
-		DeviceMonitorEvents eventMask,
-		uint_t timeout = -1
-	);
-
-	async DeviceMonitorEvents asyncWait(DeviceMonitorEvents eventMask);
+UsbMonDeviceDesc const* enumerateUsbMonDevices(size_t* count = null) {
+	return enumerateUsbMonDevices(0, count);
 }
 
 //..............................................................................

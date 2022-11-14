@@ -17,23 +17,18 @@
 #include "axl_err_ErrorMgr.h"
 #include "axl_g_Module.h"
 
-#if (_AXL_OS_POSIX)
-#	include "axl_io_psx_Pipe.h"
-#endif
-
-using namespace axl;
-
-// devmon
+#include "axl_io_UsbMonEnumerator.h"
 
 #if (_AXL_OS_WIN)
-#	include "dm_win_Pch.h"
-#	include "dm_win_Monitor.h"
+#	include "axl_io_win_UsbMonitor.h"
 #elif (_AXL_OS_LINUX)
-#	include "dm_lnx_Pch.h"
-#	include "dm_lnx_Monitor.h"
+#	include "axl_io_lnx_UsbMonitor.h"
+#	include "axl_io_psx_Pipe.h"
 #else
 #	error This OS is not currently supported
 #endif
+
+using namespace axl;
 
 // Jancy
 

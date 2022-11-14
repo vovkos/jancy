@@ -6,36 +6,38 @@
 namespace jnc {
 namespace io {
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE(DeviceMonitor)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(UsbMonitor)
 
 //..............................................................................
 
-struct DeviceMonitorHdr: IfaceHdr {
-	uint_t m_readParallelism;
-	size_t m_readBlockSize;
-	size_t m_readBufferSize;
-	size_t m_pendingNotifySizeLimit;
-
-	DataPtr m_deviceNamePtr;
-	DataPtr m_fileNameFilterPtr;
-
-	bool m_isConnected;
-	bool m_isEnabled;
+enum UsbMonitorOption {
+	UsbMonitorOption_MessageMode            = 0x02,
+	UsbMonitorOption_CompletedTransfersOnly = 0x04,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class DeviceMonitor:
-	public DeviceMonitorHdr,
+struct UsbMonitorHdr: IfaceHdr {
+	size_t m_snapshotLength;
+	size_t m_kernelBufferSize;
+	size_t m_readBlockSize;
+	size_t m_readBufferSize;
+	size_t m_addressFilter;
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class UsbMonitor:
+	public UsbMonitorHdr,
 	public AsyncIoDevice {
 	friend class IoThread;
 
 public:
 	enum Def {
-		Def_ReadParallelism        = 4,
-		Def_ReadBlockSize          = 4 * 1024,
-		Def_ReadBufferSize         = 16 * 1024,
-		Def_PendingNotifySizeLimit = 1 * 1024 * 1024,
+		Def_SnapshotLength   = 64 * 1024,
+		Def_KernelBufferSize = 512 * 1024,
+		Def_ReadBlockSize    = 128 * 1024,
+		Def_ReadBufferSize   = 1 * 1024 * 1024,
 	};
 
 	enum IoThreadFlag {
@@ -47,11 +49,16 @@ protected:
 	public:
 		void
 		threadFunc() {
-			containerof(this, DeviceMonitor, m_ioThread)->ioThreadFunc();
+			containerof(this, UsbMonitor, m_ioThread)->ioThreadFunc();
 		}
 	};
 
 #if (_AXL_OS_WIN)
+	struct OverlappedRead: sl::ListLink {
+		axl::io::win::UsbMonitor::Overlapped m_overlapped;
+		sl::Array<char> m_buffer;
+	};
+
 	struct OverlappedIo {
 		mem::Pool<OverlappedRead> m_overlappedReadPool;
 		sl::List<OverlappedRead> m_activeOverlappedReadList;
@@ -59,17 +66,19 @@ protected:
 #endif
 
 protected:
-	dm::Monitor m_monitor;
-	IoThread m_ioThread;
-
 #if (_AXL_OS_WIN)
+	axl::io::win::UsbMonitor m_monitor;
 	OverlappedIo* m_overlappedIo;
+#elif (_AXL_OS_LINUX)
+	axl::io::lnx::UsbMonitor m_monitor;
 #endif
 
-public:
-	DeviceMonitor();
+	IoThread m_ioThread;
 
-	~DeviceMonitor() {
+public:
+	UsbMonitor();
+
+	~UsbMonitor() {
 		close();
 	}
 
@@ -77,12 +86,6 @@ public:
 	JNC_CDECL
 	markOpaqueGcRoots(GcHeap* gcHeap) {
 		AsyncIoDevice::markOpaqueGcRoots(gcHeap);
-	}
-
-	void
-	JNC_CDECL
-	setReadParallelism(uint_t count) {
-		AsyncIoDevice::setSetting(&m_readParallelism, count ? count : Def_ReadParallelism);
 	}
 
 	void
@@ -99,34 +102,31 @@ public:
 
 	bool
 	JNC_CDECL
-	setPendingNotifySizeLimit(size_t limit);
+	setKernelBufferSize(size_t size) {
+		return m_monitor.setKernelBufferSize(size);
+	}
 
 	bool
 	JNC_CDECL
-	setFileNameFilter(DataPtr filterPtr);
+	setAddressFilter(uint_t address) {
+#if (_AXL_OS_WIN)
+		return m_monitor.setFilter(address);
+#elif (_AXL_OS_LINUX)
+		m_monitor.m_addressFilter = address;
+		return true;
+#endif
+	}
 
 	bool
 	JNC_CDECL
-	setEnabled(bool isEnabled);
-
-	bool
-	JNC_CDECL
-	open();
+	open(
+		DataPtr captureDeviceNamePtr,
+		size_t snapshotLength
+	);
 
 	void
 	JNC_CDECL
 	close();
-
-	bool
-	JNC_CDECL
-	connect(DataPtr deviceNamePtr);
-
-	bool
-	JNC_CDECL
-	setIoctlDescTable(
-		DataPtr ioctlDescPtr,
-		size_t count
-	);
 
 	size_t
 	JNC_CDECL
@@ -170,9 +170,6 @@ public:
 protected:
 	void
 	ioThreadFunc();
-
-	bool
-	connectLoop();
 };
 
 //..............................................................................
