@@ -982,12 +982,11 @@ Typedef::generateDocumentation(
 
 bool
 TypedefShadowType::calcLayout() {
-	Type* type = m_typedef->getType();
-
-	bool result = type->ensureLayout();
+	bool result = m_typedef->getType()->ensureLayout();
 	if (!result)
 		return false;
 
+	Type* type = m_typedef->getType(); // fetch type *after* layout (due to potential named types fixups)
 	m_flags |= (type->getFlags() & TypeFlag_Pod);
 	m_size = type->getSize();
 	m_alignment = type->getAlignment();
