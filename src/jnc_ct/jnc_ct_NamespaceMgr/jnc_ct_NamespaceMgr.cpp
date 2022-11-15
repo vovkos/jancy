@@ -48,9 +48,11 @@ NamespaceMgr::NamespaceMgr() {
 	ASSERT(m_module);
 
 	sl::String jncName("jnc");
+	sl::String stdName("std");
 
 	GlobalNamespace* global = &m_stdNamespaceArray[StdNamespace_Global];
 	GlobalNamespace* jnc = &m_stdNamespaceArray[StdNamespace_Jnc];
+	GlobalNamespace* std = &m_stdNamespaceArray[StdNamespace_Std];
 	GlobalNamespace* internal = &m_stdNamespaceArray[StdNamespace_Internal];
 
 	global->m_module = m_module;
@@ -61,6 +63,11 @@ NamespaceMgr::NamespaceMgr() {
 	jnc->m_parentNamespace = global;
 	jnc->m_name = jncName;
 	jnc->m_qualifiedName = jncName;
+
+	std->m_module = m_module;
+	std->m_parentNamespace = global;
+	std->m_name = stdName;
+	std->m_qualifiedName = stdName;
 
 	internal->m_module = m_module;
 	internal->m_namespaceStatus = NamespaceStatus_Ready;
@@ -79,6 +86,7 @@ NamespaceMgr::clear() {
 	for (size_t i = 0; i < StdNamespace__Count; i++)
 		m_stdNamespaceArray[i].clear();
 
+	m_stdNamespaceArray[StdNamespace_Std].m_namespaceStatus = NamespaceStatus_ParseRequired; // `std` must be reparsed
 	m_globalNamespaceList.clear();
 	m_scopeList.clear();
 	m_orphanList.clear();
@@ -95,6 +103,7 @@ void
 NamespaceMgr::addStdItems() {
 	GlobalNamespace* globalNspace = &m_stdNamespaceArray[StdNamespace_Global];
 	GlobalNamespace* jncNspace = &m_stdNamespaceArray[StdNamespace_Jnc];
+	GlobalNamespace* stdNspace = &m_stdNamespaceArray[StdNamespace_Std];
 
 	ExtensionLib* coreLib = jnc_CoreLib_getLib();
 	ExtensionLib* introLib = jnc_IntrospectionLib_getLib();
@@ -130,6 +139,7 @@ NamespaceMgr::addStdItems() {
 		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_uint64_t)) &&
 		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_qword_t)) &&
 		globalNspace->addItem(jncNspace) &&
+		globalNspace->addItem(stdNspace) &&
 		jncNspace->addItem("GcStats", gcImport) &&
 		jncNspace->addItem("GcTriggers", gcImport) &&
 		jncNspace->addItem("getGcStats", gcImport) &&

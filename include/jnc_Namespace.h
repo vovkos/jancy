@@ -64,6 +64,7 @@ jnc_getNamespaceKindString(jnc_NamespaceKind namespaceKind);
 enum jnc_StdNamespace {
 	jnc_StdNamespace_Global,
 	jnc_StdNamespace_Jnc,
+	jnc_StdNamespace_Std,
 	jnc_StdNamespace_Internal,
 	jnc_StdNamespace__Count,
 };
@@ -190,6 +191,7 @@ typedef jnc_StdNamespace StdNamespace;
 const StdNamespace
 	StdNamespace_Global   = jnc_StdNamespace_Global,
 	StdNamespace_Jnc      = jnc_StdNamespace_Jnc,
+	StdNamespace_Std      = jnc_StdNamespace_Std,
 	StdNamespace_Internal = jnc_StdNamespace_Internal,
 	StdNamespace__Count   = jnc_StdNamespace__Count;
 
