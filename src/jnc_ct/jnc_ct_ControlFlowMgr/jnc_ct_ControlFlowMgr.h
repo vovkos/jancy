@@ -248,6 +248,9 @@ public:
 		Value* value
 	);
 
+	bool
+	throwException(const Value& value);
+
 	void
 	throwException();
 

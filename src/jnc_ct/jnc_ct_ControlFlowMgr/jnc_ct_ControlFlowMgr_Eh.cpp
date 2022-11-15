@@ -65,6 +65,27 @@ ControlFlowMgr::markLandingPad(
 	block->m_landingPadScope = scope;
 }
 
+bool
+ControlFlowMgr::throwException(const Value& value) {
+	if (value.isEmpty()) {
+		throwException();
+		return true;
+	}
+
+	FindModuleItemResult findResult = m_module->m_namespaceMgr.getStdNamespace(StdNamespace_Std)->findDirectChildItem("setError");
+	if (!findResult.m_item || findResult.m_item->getItemKind() != ModuleItemKind_FunctionOverload)
+		return err::fail("missing or invalid `std.setError`");
+
+	Value setError;
+	setError.setFunctionOverload((jnc::FunctionOverload*)findResult.m_item);
+	bool result = m_module->m_operatorMgr.callOperator(setError, value);
+	if (!result)
+		return false;
+
+	throwException();
+	return true;
+}
+
 void
 ControlFlowMgr::throwException() {
 	if (!m_module->hasCodeGen())

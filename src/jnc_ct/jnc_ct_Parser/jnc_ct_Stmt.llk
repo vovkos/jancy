@@ -355,7 +355,7 @@ continue_stmt
 return_stmt
 	:	TokenKind_Return expression $e? ';'
 			{
-				return m_module->m_controlFlowMgr.ret(&$e ? $e.m_value : Value ());
+				return m_module->m_controlFlowMgr.ret(&$e ? $e.m_value : Value());
 			}
 	;
 
@@ -390,9 +390,9 @@ try_stmt
 	;
 
 throw_stmt
-	:	TokenKind_Throw ';'
+	:	TokenKind_Throw expression $e? ';'
 			{
-				m_module->m_controlFlowMgr.throwException();
+				m_module->m_controlFlowMgr.throwException(&$e ? $e.m_value : Value());
 			}
 	;
 
