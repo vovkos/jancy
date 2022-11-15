@@ -16,11 +16,11 @@ struct DeviceMonitorHdr: IfaceHdr {
 	size_t m_readBufferSize;
 	size_t m_pendingNotifySizeLimit;
 
-	DataPtr m_deviceNamePtr;
-	DataPtr m_fileNameFilterPtr;
-
 	bool m_isConnected;
 	bool m_isEnabled;
+
+	DataPtr m_deviceNamePtr;
+	DataPtr m_fileNameFilterPtr;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
