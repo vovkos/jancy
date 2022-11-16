@@ -20,9 +20,11 @@
 #include "axl_io_UsbMonEnumerator.h"
 
 #if (_AXL_OS_WIN)
-#	include "axl_io_win_UsbMonitor.h"
+#	include "axl_io_win_UsbPcap.h"
+#	include "axl_io_win_UsbPcapTransferParser.h"
 #elif (_AXL_OS_LINUX)
-#	include "axl_io_lnx_UsbMonitor.h"
+#	include "axl_io_lnx_UsbMon.h"
+#	include "axl_io_lnx_UsbMonTransferParser.h"
 #	include "axl_io_psx_Pipe.h"
 #else
 #	error This OS is not currently supported

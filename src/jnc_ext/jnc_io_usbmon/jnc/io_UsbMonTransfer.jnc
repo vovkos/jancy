@@ -23,7 +23,7 @@ enum UsbMonTransferType: uint8_t {
 	Bulk,        // 3
 };
 
-bitflag enum UsbMonTransferFlags: uint8_t {
+bitflag enum UsbMonTransferFlags {
 	Completed
 };
 
@@ -98,7 +98,7 @@ struct UsbMonIsochronousHdr {
 struct UsbMonTransferHdr {
 	uint64_t m_timestamp;
 	uint32_t m_status;
-	UsbMonTransferFlag m_flags;
+	UsbMonTransferFlags m_flags;
 	UsbMonTransferType m_transferType;
 	uint8_t m_bus;
 	uint8_t m_address;

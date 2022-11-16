@@ -11,6 +11,7 @@
 
 import "io_base.jncx"
 import "io_StreamEvents.jnc"
+import "io_StreamOptions.jnc"
 import "io_UsbMonTransfer.jnc"
 
 namespace io {
@@ -21,8 +22,7 @@ namespace io {
 //..............................................................................
 
 bitflag enum UsbMonitorOptions {
-	MessageMode = 2,
-	CompletedTransfersOnly,
+	CompletedTransfersOnly = 2,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -32,13 +32,13 @@ typedef ReadOnlyStreamEvents UsbMonitorEvents;
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 opaque class UsbMonitor {
-	size_t const m_snapshotLength;   // can only be configured on Windows
+	uint_t autoget property m_addressFilter;
+	uint_t autoget property m_readParallelism;
 	size_t autoget property m_kernelBufferSize; // 0 -- use platform default
 	size_t autoget property m_readBlockSize;
 	size_t autoget property m_readBufferSize;
-	uint_t autoget property m_addressFilter;
 
-	UsbMonitorOptions m_options;
+	UsbMonitorOptions autoget property m_options;
 	UsbMonitorEvents readonly volatile m_activeEvents;
 	std.Error const* readonly volatile m_ioError;
 	bool readonly m_isOpen;

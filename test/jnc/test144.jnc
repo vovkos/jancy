@@ -1,0 +1,25 @@
+// compiler crash on enum/struct redefinition
+
+enum E {
+	V1,
+	V2,
+}
+
+enum E {
+	V3,
+	V4,
+}
+
+struct C {
+	E m_e;
+}
+
+struct C {
+	E m_e;
+}
+
+int main() {
+	C c;
+	return 0;
+}
+
