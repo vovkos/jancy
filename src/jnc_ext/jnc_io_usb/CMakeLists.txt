@@ -107,10 +107,11 @@ target_compile_definitions(
 	-D_JNC_DYNAMIC_EXTENSION_LIB=1
 )
 
-if(GCC AND NOT APPLE)
+if(LINUX)
 	axl_set_export_version_script_gcc(
 		jnc_io_usb
 		jncDynamicExtensionLibMain
+		jncDynamicExtensionLibUnload
 	)
 endif()
 

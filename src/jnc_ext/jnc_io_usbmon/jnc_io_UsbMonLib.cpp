@@ -53,7 +53,22 @@ jncDynamicExtensionLibMain(jnc::DynamicExtensionLibHost* host) {
 	err::getErrorMgr()->setRouter(host->m_errorRouter);
 	jnc_g_dynamicExtensionLibHost = host;
 	jnc::io::initializeUsbMonLibCapabilities();
+#if (_AXL_OS_LINUX)
+	axl::io::getUsbDefaultContext()->createDefault();
+#endif
 	return jnc::io::UsbMonLib_getLib();
 }
+
+#if (_AXL_OS_LINUX)
+
+JNC_EXTERN_C
+JNC_EXPORT
+bool_t
+jncDynamicExtensionLibUnload() {
+	axl::io::getUsbDefaultContext()->close();
+	return true;
+}
+
+#endif
 
 //..............................................................................

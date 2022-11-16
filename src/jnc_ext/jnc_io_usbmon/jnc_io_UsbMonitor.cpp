@@ -89,12 +89,10 @@ UsbMonitor::open(
 
 	ASSERT(!m_overlappedIo);
 	m_overlappedIo = AXL_MEM_NEW(OverlappedIo);
-#elif (_AXL_OS_LINUX
-	bool result =
+#elif (_AXL_OS_LINUX)
+	result =
 		m_monitor.open(captureDeviceName, O_RDWR | O_NONBLOCK) &&
-		m_monitor.setKernelBufferSize(m_kernelBufferSize) &&
-
-	m_monitor.m_addressFilter = m_addressFilter;
+		m_monitor.setKernelBufferSize(m_kernelBufferSize);
 #endif
 
 	if (!result)
@@ -138,8 +136,6 @@ UsbMonitor::setAddressFilter(uint_t address) {
 #if (_AXL_OS_WIN)
 	if (m_monitor.isOpen() && !m_monitor.setFilter(address))
 		return false;
-#elif (_AXL_OS_LINUX)
-	m_monitor.m_addressFilter = address;
 #endif
 	m_addressFilter = address;
 	return true;
@@ -203,14 +199,14 @@ UsbMonitor::ioThreadFunc() {
 					return;
 				}
 
-				axl::io::UsbMonTransferParseState state = parser.getState();
+				axl::io::UsbMonTransferParserState state = parser.getState();
 				switch (state) {
-				case axl::io::UsbMonTransferParseState_CompleteHeader:
+				case axl::io::UsbMonTransferParserState_CompleteHeader:
 					addToReadBuffer(parser.getTransferHdr(), sizeof(axl::io::UsbMonTransferHdr));
 					break;
 
-				case axl::io::UsbMonTransferParseState_IncompleteData:
-				case axl::io::UsbMonTransferParseState_CompleteData:
+				case axl::io::UsbMonTransferParserState_IncompleteData:
+				case axl::io::UsbMonTransferParserState_CompleteData:
 					addToReadBuffer(p, size);
 					break;
 				}
@@ -280,16 +276,12 @@ void
 UsbMonitor::ioThreadFunc() {
 	ASSERT(m_monitor.isOpen());
 
-	int result = connectLoop();
-	if (!result)
-		return;
-
-	int selectFd = AXL_MAX(m_monitor.m_device, m_ioThreadSelfPipe.m_readFile) + 1;
+	axl::io::lnx::UsbMonTransferParser parser;
+	int selectFd = AXL_MAX(m_monitor, m_ioThreadSelfPipe.m_readFile) + 1;
+	bool canReadMonitor = false;
 
 	sl::Array<char> readBlock;
 	readBlock.setCount(Def_ReadBlockSize);
-
-	bool canReadMonitor = false;
 
 	// read loop
 
@@ -298,9 +290,9 @@ UsbMonitor::ioThreadFunc() {
 		FD_SET(m_ioThreadSelfPipe.m_readFile, &readSet);
 
 		if (!canReadMonitor)
-			FD_SET(m_monitor.m_device, &readSet);
+			FD_SET(m_monitor, &readSet);
 
-		result = ::select(selectFd, &readSet, NULL, NULL, NULL);
+		int result = ::select(selectFd, &readSet, NULL, NULL, NULL);
 		if (result == -1)
 			break;
 
@@ -309,7 +301,7 @@ UsbMonitor::ioThreadFunc() {
 			m_ioThreadSelfPipe.read(buffer, sizeof(buffer));
 		}
 
-		if (FD_ISSET(m_monitor.m_device, &readSet))
+		if (FD_ISSET(m_monitor, &readSet))
 			canReadMonitor = true;
 
 		m_lock.lock();
@@ -324,16 +316,39 @@ UsbMonitor::ioThreadFunc() {
 		readBlock.setCount(m_readBlockSize); // update read block size
 
 		while (canReadMonitor && !m_readBuffer.isFull()) {
-			ssize_t actualSize = ::read(m_monitor.m_device, readBlock, readBlock.getCount());
+			ssize_t actualSize = ::read(m_monitor, readBlock, readBlock.getCount());
 			if (actualSize == -1) {
-				if (errno == EAGAIN) {
+				if (errno == EAGAIN)
 					canReadMonitor = false;
-				} else {
+				else {
 					setIoErrorEvent_l(err::Errno(errno));
 					return;
 				}
 			} else {
-				addToReadBuffer(readBlock, actualSize);
+				const char* p = readBlock;
+				const char* end = p + actualSize;
+
+				while (p < end) {
+					size_t size = parser.parse(p, end - p);
+					if (size == -1) {
+						setIoErrorEvent_l();
+						return;
+					}
+
+					axl::io::UsbMonTransferParserState state = parser.getState();
+					switch (state) {
+					case axl::io::UsbMonTransferParserState_CompleteHeader:
+						addToReadBuffer(parser.getTransferHdr(), sizeof(axl::io::UsbMonTransferHdr));
+						break;
+
+					case axl::io::UsbMonTransferParserState_IncompleteData:
+					case axl::io::UsbMonTransferParserState_CompleteData:
+						addToReadBuffer(p, size);
+						break;
+					}
+
+					p += size;
+				}
 			}
 		}
 

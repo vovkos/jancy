@@ -85,6 +85,11 @@ include_directories(
 
 link_directories(${AXL_LIB_DIR})
 
+if(LINUX)
+	include_directories(${LIBUSB_INC_DIR})
+	link_directories(${LIBUSB_LIB_DIR})
+endif()
+
 add_library(
 	jnc_io_usbmon
 	SHARED
@@ -101,10 +106,11 @@ target_compile_definitions(
 	-D_JNC_DYNAMIC_EXTENSION_LIB=1
 )
 
-if(GCC AND NOT APPLE)
+if(LINUX)
 	axl_set_export_version_script_gcc(
 		jnc_io_usbmon
 		jncDynamicExtensionLibMain
+		jncDynamicExtensionLibUnload
 	)
 endif()
 
@@ -123,10 +129,20 @@ set_target_properties(
 	SUFFIX .bin
 )
 
+if(LINUX)
+	set(AXL_IO_USB_LIB_NAME axl_io_usb)
+else()
+	set(AXL_IO_USB_LIB_NAME)
+endif()
+
 target_link_libraries(
 	jnc_io_usbmon
 	jnc_io_cmn
 	jnc_api_ext
+	axl_io_usbmon
+	${AXL_IO_USB_LIB_NAME}
+	axl_io
+	axl_core
 )
 
 if(WIN32)
@@ -137,17 +153,11 @@ if(WIN32)
 elseif(LINUX)
 	target_link_libraries(
 		jnc_io_usbmon
+		${LIBUSB_LIB_NAME}
 		pthread
 		rt
 	)
 endif()
-
-target_link_libraries(
-	jnc_io_usbmon
-	axl_io_usbmon
-	axl_io
-	axl_core
-)
 
 set_target_properties(
 	jnc_io_usbmon

@@ -10,7 +10,7 @@
 //..............................................................................
 
 #include "pch.h"
-#include "jnc_io_UsbmonEnumerator.h"
+#include "jnc_io_UsbMonEnumerator.h"
 #include "jnc_io_UsbMonLib.h"
 
 namespace jnc {

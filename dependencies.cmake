@@ -59,10 +59,6 @@ set(
 		latex
 	)
 
-if(UNIX AND NOT APPLE)
-	set(AXL_IMPORT_LIST ${AXL_IMPORT_LIST} OPTIONAL libudev)
-endif()
-
 if (WIN32 AND ${CMAKE_SIZEOF_VOID_P} EQUAL 8)
 	set(AXL_IMPORT_LIST ${AXL_IMPORT_LIST} REQUIRED nasm)
 endif()
