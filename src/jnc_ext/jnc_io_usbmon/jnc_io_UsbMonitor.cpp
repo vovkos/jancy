@@ -50,6 +50,7 @@ UsbMonitor::UsbMonitor() {
 #if (_AXL_OS_WIN)
 	m_overlappedIo = NULL;
 #endif
+	m_transferTracker = NULL;
 }
 
 bool
@@ -98,6 +99,10 @@ UsbMonitor::open(
 	if (!result)
 		return false;
 
+	ASSERT(!m_transferTracker);
+	if (m_options & UsbMonOption_CompletedTransfersOnly)
+		m_transferTracker = AXL_MEM_NEW(TransferTracker);
+
 	AsyncIoDevice::open();
 	m_ioThread.start();
 	return true;
@@ -128,6 +133,11 @@ UsbMonitor::close() {
 		m_overlappedIo = NULL;
 	}
 #endif
+
+	if (m_transferTracker) {
+		AXL_MEM_DELETE(m_transferTracker);
+		m_transferTracker = NULL;
+	}
 }
 
 bool
@@ -138,6 +148,135 @@ UsbMonitor::setAddressFilter(uint_t address) {
 		return false;
 #endif
 	m_addressFilter = address;
+	return true;
+}
+
+template <typename T>
+bool
+UsbMonitor::processIncomingData_l(
+	T& parser,
+	const void* p0,
+	size_t size
+) {
+	const char* p = (char*)p0;
+
+	return m_transferTracker ?
+		parseCompletedTransfersOnly_l(parser, p, p + size) :
+		parseTransfers_l(parser, p, p + size);
+}
+
+template <typename T>
+bool
+UsbMonitor::parseTransfers_l(
+	T& parser,
+	const char* p,
+	const char* end
+) {
+	while (p < end) {
+		size_t size = parser.parse(p, end - p);
+		if (size == -1)
+			return false;
+
+		axl::io::UsbMonTransferParserState state = parser.getState();
+		switch (state) {
+		case axl::io::UsbMonTransferParserState_CompleteHeader:
+			addToReadBuffer(parser.getTransferHdr(), sizeof(axl::io::UsbMonTransferHdr));
+			break;
+
+		case axl::io::UsbMonTransferParserState_IncompleteData:
+		case axl::io::UsbMonTransferParserState_CompleteData:
+			addToReadBuffer(p, size);
+			break;
+		}
+
+		p += size;
+	}
+
+	return true;
+}
+
+template <typename T>
+bool
+UsbMonitor::parseCompletedTransfersOnly_l(
+	T& parser,
+	const char* p,
+	const char* end
+) {
+	ASSERT(m_transferTracker);
+
+	enum DataMode {
+		DataMode_Ignore,
+		DataMode_AddToTransfer,
+		DataMode_AddToBuffer
+	};
+
+	const axl::io::UsbMonTransferHdr* hdr;
+	sl::HashTableIterator<uint64_t, Transfer*> it;
+	Transfer* transfer = NULL;
+	DataMode dataMode = DataMode_Ignore;
+
+	while (p < end) {
+		size_t size = parser.parse(p, end - p);
+		if (size == -1)
+			return false;
+
+		axl::io::UsbMonTransferParserState state = parser.getState();
+		switch (state) {
+		case axl::io::UsbMonTransferParserState_CompleteHeader:
+			hdr = parser.getTransferHdr();
+			if (!(hdr->m_flags & axl::io::UsbMonTransferFlag_Completed)) {
+				if (hdr->m_endpoint & 0x80) { // incomplete in-transfers
+					dataMode = DataMode_Ignore;
+					break;
+				}
+
+				transfer = m_transferTracker->m_transferPool.get();
+				transfer->m_hdr = *hdr;
+				transfer->m_buffer.clear();
+				m_transferTracker->m_activeTransferMap.add(hdr->m_id, transfer);
+				dataMode = DataMode_AddToTransfer;
+			} else {
+				if (hdr->m_endpoint & 0x80) { // completed in-transfer
+					addToReadBuffer(hdr, sizeof(axl::io::UsbMonTransferHdr));
+					dataMode = DataMode_AddToBuffer;
+					break;
+				}
+
+				dataMode = DataMode_Ignore;
+				it = m_transferTracker->m_activeTransferMap.find(hdr->m_id);
+				if (!it) // ignore completed but untracked out-transfers
+					break;
+
+				transfer = it->m_value;
+				transfer->m_hdr.m_status = hdr->m_status;
+				ASSERT(transfer->m_hdr.m_captureSize == transfer->m_buffer.getCount());
+
+				addToReadBuffer(&transfer->m_hdr, sizeof(axl::io::UsbMonTransferHdr));
+				addToReadBuffer(transfer->m_buffer, transfer->m_hdr.m_captureSize);
+				m_transferTracker->m_activeTransferMap.erase(it);
+				m_transferTracker->m_transferPool.put(transfer);
+			}
+
+			break;
+
+		case axl::io::UsbMonTransferParserState_IncompleteData:
+		case axl::io::UsbMonTransferParserState_CompleteData:
+			switch (dataMode) {
+			case DataMode_AddToTransfer:
+				transfer->m_buffer.append(p, size);
+				break;
+
+			case DataMode_AddToBuffer:
+				addToReadBuffer(p, size);
+				break;
+			}
+
+			break;
+		}
+
+		p += size;
+	}
+
 	return true;
 }
 
@@ -186,34 +325,12 @@ UsbMonitor::ioThreadFunc() {
 			m_overlappedIo->m_overlappedReadPool.put(read);
 			read->m_overlapped.m_completionEvent.reset();
 
-			const char* p = read->m_buffer;
-			const char* end = p + actualSize;
-
 			m_lock.lock(); // the main read buffer must be lock-protected
-
-			while (p < end) {
-				size_t size = parser.parse(p, end - p);
-				if (size == -1) {
-					m_lock.unlock();
-					setIoErrorEvent();
-					return;
-				}
-
-				axl::io::UsbMonTransferParserState state = parser.getState();
-				switch (state) {
-				case axl::io::UsbMonTransferParserState_CompleteHeader:
-					addToReadBuffer(parser.getTransferHdr(), sizeof(axl::io::UsbMonTransferHdr));
-					break;
-
-				case axl::io::UsbMonTransferParserState_IncompleteData:
-				case axl::io::UsbMonTransferParserState_CompleteData:
-					addToReadBuffer(p, size);
-					break;
-				}
-
-				p += size;
+			result = processIncomingData_l(parser, read->m_buffer, actualSize);
+			if (!result) {
+				setIoErrorEvent_l();
+				return;
 			}
-
 			m_lock.unlock();
 		}
 
@@ -325,29 +442,10 @@ UsbMonitor::ioThreadFunc() {
 					return;
 				}
 			} else {
-				const char* p = readBlock;
-				const char* end = p + actualSize;
-
-				while (p < end) {
-					size_t size = parser.parse(p, end - p);
-					if (size == -1) {
-						setIoErrorEvent_l();
-						return;
-					}
-
-					axl::io::UsbMonTransferParserState state = parser.getState();
-					switch (state) {
-					case axl::io::UsbMonTransferParserState_CompleteHeader:
-						addToReadBuffer(parser.getTransferHdr(), sizeof(axl::io::UsbMonTransferHdr));
-						break;
-
-					case axl::io::UsbMonTransferParserState_IncompleteData:
-					case axl::io::UsbMonTransferParserState_CompleteData:
-						addToReadBuffer(p, size);
-						break;
-					}
-
-					p += size;
+				result = processIncomingData_l(parser, readBlock, actualSize);
+				if (!result) {
+					setIoErrorEvent_l();
+					return;
 				}
 			}
 		}

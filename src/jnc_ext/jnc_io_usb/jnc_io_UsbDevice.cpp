@@ -159,7 +159,7 @@ UsbDevice::getStringDesc(
 	}
 
 	sl::String string = self->m_device.getStringDescriptor(stringId);
-	return strDup(string, string.getLength());
+	return strDup(string);
 }
 
 UsbInterface*

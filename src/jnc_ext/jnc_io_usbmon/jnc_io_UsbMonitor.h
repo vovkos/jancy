@@ -10,8 +10,8 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(UsbMonitor)
 
 //..............................................................................
 
-enum UsbMonitorOption {
-	UsbMonitorOption_CompletedTransfersOnly = 0x02,
+enum UsbMonOption {
+	UsbMonOption_CompletedTransfersOnly = 0x02,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -65,6 +65,17 @@ protected:
 	};
 #endif
 
+	struct Transfer: sl::ListLink {
+		axl::io::UsbMonTransferHdr m_hdr;
+		sl::Array<char> m_buffer;
+	};
+
+	struct TransferTracker {
+		mem::Pool<Transfer> m_transferPool;
+		sl::List<OverlappedRead> m_activeTransferList;
+		sl::SimpleHashTable<uint64_t, Transfer*> m_activeTransferMap;
+	};
+
 protected:
 #if (_AXL_OS_WIN)
 	axl::io::win::UsbPcap m_monitor;
@@ -72,7 +83,7 @@ protected:
 #elif (_AXL_OS_LINUX)
 	axl::io::lnx::UsbMon m_monitor;
 #endif
-	axl::io::UsbMonTransferHdr m_transferHdr; // parse
+	TransferTracker* m_transferTracker;
 	IoThread m_ioThread;
 
 public:
@@ -173,9 +184,31 @@ public:
 protected:
 	void
 	ioThreadFunc();
-};
 
-//..............................................................................
+	template <typename T>
+	bool
+	processIncomingData_l(
+		T& parser,
+		const void* p,
+		size_t size
+	);
+
+	template <typename T>
+	bool
+	parseTransfers_l(
+		T& parser,
+		const char* p,
+		const char* end
+	);
+
+	template <typename T>
+	bool
+	parseCompletedTransfersOnly_l(
+		T& parser,
+		const char* p,
+		const char* end
+	);
+};
 
 } // namespace io
 } // namespace jnc

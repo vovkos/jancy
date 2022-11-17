@@ -21,13 +21,13 @@ namespace io {
 
 //..............................................................................
 
-bitflag enum UsbMonitorOptions {
+bitflag enum UsbMonOptions {
 	CompletedTransfersOnly = 2,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-typedef ReadOnlyStreamEvents UsbMonitorEvents;
+typedef ReadOnlyStreamEvents UsbMonEvents;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -38,8 +38,8 @@ opaque class UsbMonitor {
 	size_t autoget property m_readBlockSize;
 	size_t autoget property m_readBufferSize;
 
-	UsbMonitorOptions autoget property m_options;
-	UsbMonitorEvents readonly volatile m_activeEvents;
+	UsbMonOptions autoget property m_options;
+	UsbMonEvents readonly volatile m_activeEvents;
 	std.Error const* readonly volatile m_ioError;
 	bool readonly m_isOpen;
 
@@ -59,18 +59,18 @@ opaque class UsbMonitor {
 	);
 
 	intptr errorcode wait(
-		UsbMonitorEvents eventMask,
-		function* handler(UsbMonitorEvents triggeredEvents)
+		UsbMonEvents eventMask,
+		function* handler(UsbMonEvents triggeredEvents)
 	);
 
 	bool errorcode cancelWait(intptr handle);
 
-	UsbMonitorEvents blockingWait(
-		UsbMonitorEvents eventMask,
+	UsbMonEvents blockingWait(
+		UsbMonEvents eventMask,
 		uint_t timeout = -1
 	);
 
-	async UsbMonitorEvents asyncWait(UsbMonitorEvents eventMask);
+	async UsbMonEvents asyncWait(UsbMonEvents eventMask);
 }
 
 //..............................................................................
