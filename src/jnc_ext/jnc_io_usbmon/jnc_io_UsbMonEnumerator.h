@@ -30,16 +30,19 @@ struct UsbMonDeviceDesc {
 	DataPtr m_productDescriptorPtr;
 	DataPtr m_serialNumberDescriptorPtr;
 
-	uint_t m_speed;
-	uint_t m_vendorId;
-	uint_t m_productId;
-	uint_t m_address;
-	uint_t m_class;
-	uint_t m_subClass;
-	uint_t m_manufacturerDescriptorId;
-	uint_t m_productDescriptorId;
-	uint_t m_serialNumberDescriptorId;
-	uint_t m_flags;
+	uint16_t m_vendorId;
+	uint16_t m_productId;
+
+	uint8_t m_captureDeviceId;
+	uint8_t m_address;
+	uint8_t m_class;
+	uint8_t m_subClass;
+	uint8_t m_manufacturerDescriptorId;
+	uint8_t m_productDescriptorId;
+	uint8_t m_serialNumberDescriptorId;
+	uint8_t m_speed;
+
+	uint32_t m_flags;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

@@ -46,15 +46,17 @@ createUsbMonDeviceDesc(
 	dstDevice->m_manufacturerDescriptorPtr = strDup(srcDevice->m_manufacturerDescriptor);
 	dstDevice->m_productDescriptorPtr = strDup(srcDevice->m_productDescriptor);
 	dstDevice->m_serialNumberDescriptorPtr = strDup(srcDevice->m_serialNumberDescriptor);
-	dstDevice->m_speed = srcDevice->m_speed;
+
 	dstDevice->m_vendorId = srcDevice->m_vendorId;
 	dstDevice->m_productId = srcDevice->m_productId;
+	dstDevice->m_captureDeviceId = srcDevice->m_captureDeviceId;
 	dstDevice->m_address = srcDevice->m_address;
 	dstDevice->m_class = srcDevice->m_class;
 	dstDevice->m_subClass = srcDevice->m_subClass;
 	dstDevice->m_manufacturerDescriptorId = srcDevice->m_manufacturerDescriptorId;
 	dstDevice->m_productDescriptorId = srcDevice->m_productDescriptorId;
 	dstDevice->m_serialNumberDescriptorId = srcDevice->m_serialNumberDescriptorId;
+	dstDevice->m_speed = srcDevice->m_speed;
 	dstDevice->m_flags = srcDevice->m_flags;
 
 	return devicePtr;

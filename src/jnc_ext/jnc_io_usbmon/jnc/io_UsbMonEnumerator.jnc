@@ -16,7 +16,7 @@ namespace io {
 
 //..............................................................................
 
-enum UsbMonDeviceSpeed {
+enum UsbMonDeviceSpeed: uint8_t {
 	Unknown,
 	Low,
 	Full,
@@ -43,17 +43,19 @@ struct UsbMonDeviceDesc {
 	char const* m_productDescriptor;
 	char const* m_serialNumberDescriptor;
 
-	UsbMonDeviceSpeed m_speed;
+	uint16_t m_vendorId;
+	uint16_t m_productId;
 
-	uint_t m_vendorId;
-	uint_t m_productId;
-	uint_t m_address;
-	uint_t m_class;
-	uint_t m_subClass;
-	uint_t m_manufacturerDescriptorId;
-	uint_t m_productDescriptorId;
-	uint_t m_serialNumberDescriptorId;
-	uint_t m_flags;
+	uint8_t m_captureDeviceId;
+	uint8_t m_address;
+	uint8_t m_class;
+	uint8_t m_subClass;
+	uint8_t m_manufacturerDescriptorId;
+	uint8_t m_productDescriptorId;
+	uint8_t m_serialNumberDescriptorId;
+
+	UsbMonDeviceSpeed m_speed;
+	UsbMonDeviceDescFlags m_flags;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
