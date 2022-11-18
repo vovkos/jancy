@@ -154,6 +154,7 @@ elseif(LINUX)
 	target_link_libraries(
 		jnc_io_usbmon
 		${LIBUSB_LIB_NAME}
+		udev
 		pthread
 		rt
 	)
