@@ -319,13 +319,6 @@ if(BUILD_JNC_IO_USB)
 				${IOKIT_FRAMEWORK}
 			)
 		endif()
-
-		if(LINUX)
-			target_link_libraries(
-				jnc_mini_ide
-				udev
-			)
-		endif()
 	endif()
 endif()
 
