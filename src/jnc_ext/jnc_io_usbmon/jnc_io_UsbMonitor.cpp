@@ -234,6 +234,7 @@ UsbMonitor::parseCompletedTransfersOnly_l(
 				transfer->m_hdr = *hdr;
 				transfer->m_buffer.clear();
 				m_transferTracker->m_activeTransferMap.add(hdr->m_id, transfer);
+				m_transferTracker->m_activeTransferList.insertTail(transfer);
 				dataMode = DataMode_AddToTransfer;
 			} else {
 				if (hdr->m_endpoint & 0x80) { // completed in-transfer
@@ -254,6 +255,7 @@ UsbMonitor::parseCompletedTransfersOnly_l(
 				addToReadBuffer(&transfer->m_hdr, sizeof(axl::io::UsbMonTransferHdr));
 				addToReadBuffer(transfer->m_buffer, transfer->m_hdr.m_captureSize);
 				m_transferTracker->m_activeTransferMap.erase(it);
+				m_transferTracker->m_activeTransferList.remove(transfer);
 				m_transferTracker->m_transferPool.put(transfer);
 			}
 

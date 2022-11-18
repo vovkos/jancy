@@ -72,7 +72,7 @@ protected:
 
 	struct TransferTracker {
 		mem::Pool<Transfer> m_transferPool;
-		sl::List<OverlappedRead> m_activeTransferList;
+		sl::List<Transfer> m_activeTransferList;
 		sl::SimpleHashTable<uint64_t, Transfer*> m_activeTransferMap;
 	};
 
