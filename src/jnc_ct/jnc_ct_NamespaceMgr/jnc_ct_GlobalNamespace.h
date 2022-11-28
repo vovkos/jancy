@@ -40,6 +40,12 @@ public:
 		m_namespaceKind = NamespaceKind_Global;
 	}
 
+	void
+	clear() {
+		Namespace::clear();
+		m_extraBodyList.clear();
+	}
+
 	virtual
 	sl::String
 	createDoxyRefId();
