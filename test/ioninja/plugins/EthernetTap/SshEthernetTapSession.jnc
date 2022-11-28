@@ -9,7 +9,6 @@ import "io_HwcProto.jnc"
 import "iox_SshChannel.jnc"
 import "ui_History.jnc"
 import "ui_SocketUi.jnc"
-import "ui_SerialSettingUi.jnc"
 import "ui_SshPropertySet.jnc"
 import "ui_BufferPropertySet.jnc"
 import "ui_StdSessionInfoSet.jnc"
@@ -314,7 +313,7 @@ bool errorcode SshEthernetTapSession.applyFilter(bool rebuildLog) {
 		return false;
 	}
 
-	m_filterCombo.m_backgroundColor = ui.ColorFlags.Transparent;
+	m_filterCombo.m_backgroundColor = ui.ColorFlags.Undefined;
 	m_filterCombo.addEditTextToHistory();
 
 	if (rebuildLog)

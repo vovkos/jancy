@@ -7,7 +7,7 @@ import "log_Representation.jnc"
 import "io_base.jncx"
 import "io_Serial.jnc"
 import "SerialLogRecordCode.jnc"
-
+ 
 //..............................................................................
 
 char const* getTableString(
@@ -129,7 +129,7 @@ bool representSerialLog(
 				$"DTR: $dtrString "
 				$"RTS: $rtsString "
 				$"DSR: $dsrString "
-				$"CTS: $ctsString ";
+				$"CTS: $ctsString";
 		} else {
 			char const* flowControlString = getTableString(params.m_flowControl, flowControlStringTable);
 			char const* stopBitsString = getTableString(params.m_stopBits, stopBitsStringTable);

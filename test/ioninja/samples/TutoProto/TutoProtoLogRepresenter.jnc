@@ -113,8 +113,8 @@ bool representTutoProtoLog(
 
 	// add raw data
 
-	representation.m_lineAttr.m_textColor = ui.StdColor.Gray;
-	representation.m_lineAttr.m_backColor = ui.StdColor.White;
+	representation.m_lineAttr.m_textColor = ui.StdColor.BrightBlack;
+	representation.m_lineAttr.m_backColor = ui.StdColor.BrightWhite;
 	representation.addBin(TutoProtoLogPartCode.RawData, p, size);
 	return true;
 }

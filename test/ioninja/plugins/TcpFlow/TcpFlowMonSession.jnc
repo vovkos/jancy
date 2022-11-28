@@ -419,7 +419,7 @@ bool errorcode TcpFlowMonSession.applyViewFilter(bool rebuildLog) {
 	}
 
 	m_viewFilterCombo.addEditTextToHistory();
-	m_viewFilterCombo.m_backgroundColor = ui.ColorFlags.Transparent;
+	m_viewFilterCombo.m_backgroundColor = ui.ColorFlags.Undefined;
 
 	if (rebuildLog)
 		m_pluginHost.m_log.rebuild();

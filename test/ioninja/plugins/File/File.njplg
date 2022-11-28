@@ -14,6 +14,7 @@ icon        = images/file.png
 small-icon  = images/file-16x16.png
 
 session-class = FileSession
+null-packets  = true
 
 [required-capabilities]
 

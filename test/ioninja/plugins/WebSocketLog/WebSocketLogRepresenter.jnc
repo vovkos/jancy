@@ -108,7 +108,7 @@ void representWebSocketHandshake(
 		representation.addHyperText("[\e^+2\e[34m+\e[m] Raw data");
 	} else {
 		representation.addHyperText("[\e^-2\e[34m-\e[m] Raw data");
-		representation.m_lineAttr.m_backColor = ui.StdColor.White;
+		representation.m_lineAttr.m_backColor = ui.StdColor.BrightWhite;
 		representation.addBin(p, size);
 	}
 }
@@ -130,8 +130,8 @@ void representWebSocketPingPong(
 		representation.addHyperText($"[\e^+1\e[34m+\e[m] $text");
 	} else {
 		representation.addHyperText($"[\e^-1\e[34m-\e[m] $text");
-		representation.m_lineAttr.m_textColor = ui.StdColor.Gray;
-		representation.m_lineAttr.m_backColor = ui.StdColor.White;
+		representation.m_lineAttr.m_textColor = ui.StdColor.BrightBlack;
+		representation.m_lineAttr.m_backColor = ui.StdColor.BrightWhite;
 		representation.addBin(p, size);
 	}
 }

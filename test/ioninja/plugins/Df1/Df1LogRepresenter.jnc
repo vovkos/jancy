@@ -128,8 +128,8 @@ void representRawDataLinkData(
 	size_t size
 ) {
 	representation.addBreak();
-	representation.m_lineAttr.m_textColor = ui.StdColor.Gray;
-	representation.m_lineAttr.m_backColor = ui.ColorFlags.Transparent;
+	representation.m_lineAttr.m_textColor = ui.StdColor.BrightBlack;
+	representation.m_lineAttr.m_backColor = ui.ColorFlags.Undefined;
 	representation.addBin(Df1LogPartCode.RawDataLinkData, p, size);
 
 	size_t count = rangeArray.m_count;

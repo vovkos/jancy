@@ -26,6 +26,8 @@ protected:
 		IoErrorWaitTimeout = 1000,
 	}
 
+	static char const* DefaultTerm = "screen-256color";
+
 	enum State {
 		Idle,
 		Running,
@@ -276,7 +278,11 @@ bool errorcode ProcessSession.start() {
 	if (m_cleanEnvironmentProp.m_value)
 		flags |= io.ChildProcessStartFlags.CleanEnvironment;
 
-	m_process.start(commandLine, m_environmentProp.m_value, flags);
+	std.HashTable* environment = m_environmentProp.m_value;
+	if (!environment["TERM"])
+		environment["TERM"] = DefaultTerm;
+
+	m_process.start(commandLine, environment, flags);
 
 	uint_t pid = m_process.m_pid;
 
@@ -396,6 +402,9 @@ void ProcessSession.load(doc.Storage* storage) {
 		char const* value = strdup(p + 1);
 		environment[key] = value;
 	}
+
+	if (!environment["TERM"])
+		environment["TERM"] = DefaultTerm;
 
 	m_environmentProp.m_value = environment;
 

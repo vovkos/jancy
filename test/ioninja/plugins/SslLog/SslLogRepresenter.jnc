@@ -73,7 +73,7 @@ void representSslCertificate(
 		representation.addHyperText($"[\e^+2\e[34m+\e[m] PEM");
 	} else {
 		representation.addHyperText($"[\e^-2\e[34m-\e[m] PEM");
-		representation.m_lineAttr.m_backColor = ui.ColorFlags.Transparent;
+		representation.m_lineAttr.m_backColor = ui.ColorFlags.Undefined;
 
 		std.Buffer buffer;
 		cert.encode(buffer, io.SslCertFormat.Pem);

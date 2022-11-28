@@ -18,6 +18,7 @@ detail-pane = true
 sudo        = true
 
 session-class = PcapSnifferSession
+null-packets  = true
 
 [required-capabilities]
 

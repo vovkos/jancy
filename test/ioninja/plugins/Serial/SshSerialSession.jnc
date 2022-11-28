@@ -9,7 +9,7 @@ import "io_Serial.jnc"
 import "iox_SshChannel.jnc"
 import "io_HwcProto.jnc"
 import "ui_History.jnc"
-import "ui_SerialSettingUi.jnc"
+import "ui_SerialUi.jnc"
 import "ui_BufferPropertySet.jnc"
 import "ui_StdSessionInfoSet.jnc"
 import "log_ThroughputCalc.jnc"
@@ -578,35 +578,17 @@ void SshSerialSession.onMsg(io.HwcMsgHdr const* hdr) {
 		break;
 
 	case io.HwcMsgCode.SerialLineError:
-		io.SerialLineErrors errors;
-		uchar_t hwcErrors = *(char const*)(hdr + 1);
-		if (hwcErrors & io.HwcSerialLineErrors.BreakError)
-			errors |= io.SerialLineErrors.BreakError;
-
-		if (hwcErrors & io.HwcSerialLineErrors.FramingError)
-			errors |= io.SerialLineErrors.FramingError;
-
-		if (hwcErrors & io.HwcSerialLineErrors.ParityError)
-			errors |= io.SerialLineErrors.ParityError;
-
+		io.SerialLineErrors errors = (io.SerialLineErrors)*(char const*)(hdr + 1);
 		m_logWriter.write(SerialLogRecordCode.LineError, &errors, sizeof(errors));
 		break;
 
 	case io.HwcMsgCode.SerialCtsDsr:
-		io.SerialStatusLines statusLines;
-
-		uchar_t hwcLines = *(char const*)(hdr + 1);
-		if (hwcLines & io.HwcSerialStatusLines.Cts)
-			statusLines |= io.SerialStatusLines.Cts;
-
-		if (hwcLines & io.HwcSerialStatusLines.Dsr)
-			statusLines |= io.SerialStatusLines.Dsr;
-
-		io.SerialStatusLines statusLineMask = statusLines ^ m_serialStatusLines;
-		if (statusLineMask) {
-			SerialStatusLineChangedParams params = { statusLines, statusLineMask }
+		io.SerialStatusLines lines = (io.SerialStatusLines)*(char const*)(hdr + 1);
+		io.SerialStatusLines lineMask = lines ^ m_serialStatusLines;
+		if (lineMask) {
+			SerialStatusLineChangedParams params = { lines, lineMask }
 			m_logWriter.write(SerialLogRecordCode.StatusLineChanged, params, sizeof(params));
-			m_serialStatusLines = statusLines;
+			m_serialStatusLines = lines;
 		}
 
 		break;
@@ -723,9 +705,9 @@ bool errorcode SshSerialSession.writeSerialConfigMsg() {
 	msg.m_hdr.m_dataSize = sizeof(msg.m_config);
 	msg.m_config.m_baudRate = m_serialBaudRate;
 	msg.m_config.m_dataBits = m_serialDataBits;
-	msg.m_config.m_stopBits = m_serialStopBits != io.SerialStopBits._1 ? 2 : 1;
+	msg.m_config.m_stopBits = m_serialStopBits;
 	msg.m_config.m_parity = m_serialParity;
-	msg.m_config.m_flowControl = m_serialFlowControl == io.SerialFlowControl.RtsCts;
+	msg.m_config.m_flowControl = m_serialFlowControl;
 	m_ssh.write(&msg, sizeof(msg));
 	return true;
 }
@@ -783,7 +765,7 @@ void SshSerialSession.updateLineInfoValue(
 	bool line
 ) {
 	m_infoTable[infoId].m_value = line ? "on" : "off";
-	m_infoTable[infoId].m_valueColor = line ? ui.StdColor.LightRed : ui.StdColor.Gray;
+	m_infoTable[infoId].m_valueColor = line ? ui.StdColor.BrightRed : ui.StdColor.BrightBlack;
 }
 
 reactor SshSerialSession.m_uiReactor {

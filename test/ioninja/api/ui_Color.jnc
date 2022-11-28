@@ -11,37 +11,48 @@ namespace ui {
 //..............................................................................
 
 bitflag enum ColorFlags {
-	Transparent  = 0x80000000,
-	Index        = 0x40000000,
-	IndexMask    = 0x0fffffff,
+	Undefined = 0x80000000,
+	Index     = 0x40000000,
+	IndexMask = 0x3fffffff,
+	RgbMask   = 0x00ffffff,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum StdColor {
-	Black        = 0x000000,
-	White        = 0xffffff,
-	Gray         = 0x808080,
-	Red          = 0x800000,
-	Green        = 0x008000,
-	Blue         = 0x000080,
-	Purple       = 0x800080,
-	Cyan         = 0x008080,
+	Black           = ColorFlags.Index | 0,
+	Red,            // 1
+	Green,          // 2
+	Yellow,         // 3
+	Blue,           // 4
+	Magenta,        // 5
+	Cyan,           // 6
+	White,          // 7
 
-	LightRed     = 0xff0000,
-	LightGreen   = 0x00ff00,
-	LightBlue    = 0x0000ff,
-	LightPurple  = 0xff00ff,
-	LightCyan    = 0x00ffff,
+	BrightBlack,    // 8
+	BrightRed,      // 9
+	BrightGreen,    // 10
+	BrightYellow,   // 11
+	BrightBlue,     // 12
+	BrightMagenta,  // 13
+	BrightCyan,     // 14
+	BrightWhite,    // 15
 
-	PastelGray   = 0xefefef,
-	PastelRed    = 0xffe4e1,
-	PastelOrange = 0xffefc0,
-	PastelYellow = 0xffffc0,
-	PastelGreen  = 0xe1fada,
-	PastelCyan   = 0xcdfaff,
-	PastelBlue   = 0xe2edff,
-	PastelPurple = 0xe2dafd,
+	PastelGray,     // 16
+	PastelRed,      // 17
+	PastelGreen,    // 18
+	PastelOrange,   // 19
+	PastelBlue,     // 20
+	PastelPurple,   // 21
+	PastelCyan,     // 22
+	PastelYellow,   // 23
+
+	WidgetText,     // 24
+	WidgetBack,     // 25
+	DisabledText,   // 26
+	DisabledBack,   // 27
+	SelectionText,  // 28
+	SelectionBack,  // 29
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

@@ -25,6 +25,7 @@ opaque class ComboBox {
 	size_t readonly m_itemCount;
 	char const* property m_itemText(size_t index);
 	variant property m_itemData(size_t index);
+	char const* property m_itemToolTip(size_t index);
 
 	size_t bindable autoget property m_currentIndex;
 	char const* bindable const property m_currentText;

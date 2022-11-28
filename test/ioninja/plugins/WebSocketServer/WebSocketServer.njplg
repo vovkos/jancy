@@ -16,6 +16,7 @@ icon        = images/websocket-server.png
 small-icon  = images/websocket-server-16x16.png
 
 session-class = WebSocketServerSession
+null-packets  = true
 
 [required-capabilities]
 

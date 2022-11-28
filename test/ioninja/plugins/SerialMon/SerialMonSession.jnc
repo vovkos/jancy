@@ -4,7 +4,7 @@
 //
 
 import "doc_Session.jnc"
-import "ui_SerialSettingUi.jnc"
+import "ui_SerialUi.jnc"
 import "ui_StdSessionInfoSet.jnc"
 import "ui_BufferPropertySet.jnc"
 import "log_ThroughputCalc.jnc"
@@ -93,7 +93,10 @@ protected:
 	}
 
 	void createUi();
-	void enumeratePorts();
+
+	void enumeratePorts() {
+		ui.enumerateSerialPorts(m_portCombo, m_portProp);
+	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -182,28 +185,6 @@ void SerialMonSession.createUi() {
 
 	enumeratePorts();
 	m_uiReactor.start();
-}
-
-void SerialMonSession.enumeratePorts() {
-	char const* name = m_portCombo.m_currentText;
-	m_portCombo.clear();
-
-	size_t count;
-	io.SerialPortDesc const* portList = io.createSerialPortDescList(&count);
-	io.SerialPortDesc const* port = portList;
-
-	ui.EnumPropertyOption* optionArray = new ui.EnumPropertyOption[count];
-	ui.EnumPropertyOption* option = optionArray;
-
-	for (; port; port = port.m_next, option++) {
-		char const* description = $"$(port.m_deviceName) - $(port.m_description)";
-		m_portCombo.addItem(description, port.m_deviceName);
-		option.m_text = description;
-		option.m_value = port.m_deviceName;
-	}
-
-	m_portCombo.m_editText = name; // preserve current text
-	m_portProp.setOptions(optionArray, count);
 }
 
 bool errorcode SerialMonSession.capture() {

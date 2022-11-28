@@ -71,13 +71,13 @@ void representModbusRtuAdu(
 			foldFlags
 		);
 
-		representation.m_lineAttr.m_backColor = ui.ColorFlags.Transparent;
-		representation.m_lineAttr.m_textColor = ui.StdColor.Gray;
+		representation.m_lineAttr.m_backColor = ui.ColorFlags.Undefined;
+		representation.m_lineAttr.m_textColor = ui.StdColor.BrightBlack;
 		representation.addBin(p, size);
 
 		ui.TextAttr attr;
-		attr.m_backColor = ui.ColorFlags.Transparent;
-		attr.m_textColor = ui.StdColor.Purple;
+		attr.m_backColor = ui.ColorFlags.Undefined;
+		attr.m_textColor = ui.StdColor.Magenta;
 
 		representation.retroColorize(-size, sizeof(io.ModbusRtuAduHdr), attr);
 		representation.retroColorize(-sizeof(uint16_t), sizeof(uint16_t), attr);

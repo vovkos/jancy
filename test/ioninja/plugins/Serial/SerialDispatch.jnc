@@ -72,11 +72,7 @@ class SerialDispatch: ias.Session {
 
 	property m_statusLines {
 		io.SerialStatusLines get() {
-			return dispatchGet(SerialDispatchCode.GetStatusLines, value);
-		}
-
-		void set(io.SerialStatusLines value) {
-			dispatch(SerialDispatchCode.SetStatusLines, value);
+			return dispatchGet(SerialDispatchCode.GetStatusLines);
 		}
 	}
 

@@ -127,7 +127,7 @@ bool representModbusGatewayMonLog(
                 mbap = (ModbusMbapHdr const*) (p + 2 + _i);
                 _id = aduHdr.m_deviceAddress;
                 representation.addHyperText($"$_type TCP $_strAddr UnitId #$_id");
-                representation.m_lineAttr.m_backColor = ui.StdColor.White;
+                representation.m_lineAttr.m_backColor = ui.StdColor.BrightWhite;
                 representation.addBin(p + 2 + _i, size - 2 - _i);
                 size_packet = size - _i - 8;
                 b_tcp = true;
@@ -138,7 +138,7 @@ bool representModbusGatewayMonLog(
                 pduHdr = (io.ModbusPduHdr const*) (p + 3);
                 _id = aduHdr.m_deviceAddress;
                 representation.addHyperText($"$_type Port#$channel SlaveId #$_id");
-                representation.m_lineAttr.m_backColor = ui.StdColor.White;
+                representation.m_lineAttr.m_backColor = ui.StdColor.BrightWhite;
                 representation.addBin(p + 2, size - 2);
                 size_packet = size - 2;
                 _base = 0;
@@ -216,7 +216,7 @@ bool representModbusGatewayMonLog(
             // Get SlaveID
             _id = aduHdr.m_deviceAddress;
             representation.addHyperText($"$_type Port#$channel SlaveId #$_id");
-            representation.m_lineAttr.m_backColor = ui.StdColor.White;
+            representation.m_lineAttr.m_backColor = ui.StdColor.BrightWhite;
             representation.addBin(p + 2, size - 2);
 
             // Check LRC

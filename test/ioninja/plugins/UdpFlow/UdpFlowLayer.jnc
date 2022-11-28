@@ -115,7 +115,7 @@ bool errorcode UdpFlowLayer.applyViewFilter(bool rebuildLog) {
 	}
 
 	m_viewFilterCombo.addEditTextToHistory();
-	m_viewFilterCombo.m_backgroundColor = ui.ColorFlags.Transparent;
+	m_viewFilterCombo.m_backgroundColor = ui.ColorFlags.Undefined;
 
 	if (rebuildLog)
 		m_pluginHost.m_log.rebuild();
@@ -186,12 +186,12 @@ bool UdpFlowLayer.convert(
 
 	case EthernetTapLogRecordCode.Packet_ch1:
 	case EthernetTapLogRecordCode.Packet_ch2:
-		PacketHdr const* packetHdr = (PacketHdr const*)p;
+		PacketHdr const* packetHdr = (PacketHdr const*)(p + sizeof(uint32_t));
 		if (!(packetHdr.m_flags & PacketFlags.CrcValid))
 			break; // ignore bad frames
 
-		p += sizeof(PacketHdr);
-		size -= sizeof(PacketHdr);
+		p += MetaSize;
+		size -= MetaSize;
 		m_decoder.decodeLinkHdr(io.PcapLinkType.Ethernet, timestamp, p, size);
 		break;
 

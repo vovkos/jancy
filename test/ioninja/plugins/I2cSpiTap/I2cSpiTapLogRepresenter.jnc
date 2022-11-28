@@ -108,7 +108,7 @@ bool representI2cSpiTapLog(
 		);
 
 		representation.m_lineAttr.m_iconIdx = isRead ? log.StdLogIcon.Rx : log.StdLogIcon.Tx;
-		representation.m_lineAttr.m_backColor = ui.ColorFlags.Transparent;
+		representation.m_lineAttr.m_backColor = ui.ColorFlags.Undefined;
 		representation.m_lineAttr.m_textColor = ui.StdColor.Red;
 		representation.m_lineAttr.m_fontFlags = isAck ? 0 : ui.FontFlags.Strikeout;
 		representation.addBin(isRead ? log.StdRecordCode.Rx : log.StdRecordCode.Tx, p, 1);
@@ -130,7 +130,7 @@ bool representI2cSpiTapLog(
 		);
 
 		representation.m_lineAttr.m_iconIdx = isRead ? log.StdLogIcon.Rx : log.StdLogIcon.Tx;
-		representation.m_lineAttr.m_backColor = ui.ColorFlags.Transparent;
+		representation.m_lineAttr.m_backColor = ui.ColorFlags.Undefined;
 		representation.m_lineAttr.m_textColor = ui.StdColor.Red;
 
 		uint64_t binRecordCode = isRead ? log.StdRecordCode.Rx : log.StdRecordCode.Tx;

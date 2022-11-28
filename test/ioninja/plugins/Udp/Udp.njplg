@@ -16,6 +16,7 @@ small-icon  = images/udp-16x16.png
 
 session-class  = UdpSession
 dispatch-class = UdpDispatch
+null-packets   = true
 
 [required-capabilities]
 

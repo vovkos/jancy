@@ -439,7 +439,7 @@ bool errorcode WebSocketServerSession.applyClientFilter(bool rebuildLog) {
 	}
 
 	m_clientFilterCombo.addEditTextToHistory();
-	m_clientFilterCombo.m_backgroundColor = ui.ColorFlags.Transparent;
+	m_clientFilterCombo.m_backgroundColor = ui.ColorFlags.Undefined;
 
 	if (rebuildLog)
 		m_pluginHost.m_log.rebuild();

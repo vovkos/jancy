@@ -91,7 +91,7 @@ bool IpDecoder.decodeLinkHdr(
 			return decodeIpHdr(timestamp, p, size);
 
 		case io.LoopbackProtocolFamily.Ip6:
-			return decodeIpHdr(timestamp, p, size);
+			return decodeIp6Hdr(timestamp, p, size);
 		}
 
 		break;
@@ -109,7 +109,7 @@ bool IpDecoder.decodeLinkHdr(
 			return decodeIpHdr(timestamp, p, size);
 
 		case io.EthernetType.Ip6:
-			return decodeIpHdr(timestamp, p, size);
+			return decodeIp6Hdr(timestamp, p, size);
 		}
 
 		break;

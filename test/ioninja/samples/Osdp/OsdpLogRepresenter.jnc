@@ -106,7 +106,7 @@ void representPacket(
 			);
 		}
 
-		representation.m_lineAttr.m_backColor = ui.StdColor.White;
+		representation.m_lineAttr.m_backColor = ui.StdColor.BrightWhite;
 		representation.addBin(OsdpLogPartCode.RawPacket, p, size);
 	}
 }

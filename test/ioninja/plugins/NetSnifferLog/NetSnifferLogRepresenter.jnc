@@ -171,12 +171,12 @@ void representRawPacketData(
 	void const* p,
 	size_t size
 ) {
-	representation.m_lineAttr.m_textColor = ui.StdColor.Gray;
-	representation.m_lineAttr.m_backColor = ui.ColorFlags.Transparent;
+	representation.m_lineAttr.m_textColor = ui.StdColor.BrightBlack;
+	representation.m_lineAttr.m_backColor = ui.ColorFlags.Undefined;
 	representation.addBin(NetSnifferLogPartCode.RawPacket, p, size);
 
 	ui.TextAttr attr;
-	attr.m_backColor = ui.ColorFlags.Transparent;
+	attr.m_backColor = ui.ColorFlags.Undefined;
 
 	size_t protoCount = protoRangeArray.m_count;
 	for (size_t i = 0; i < protoCount; i++) {
@@ -229,8 +229,8 @@ void representPayloadPreview(
 ) {
 	representation.m_lineAttr.m_iconIdx = payloadPreviewIconIdx;
 	representation.m_lineAttr.m_flags = log.LineAttrFlags.TileIcon;
-	representation.m_lineAttr.m_textColor = ui.StdColor.Gray;
-	representation.m_lineAttr.m_backColor = ui.ColorFlags.Transparent;
+	representation.m_lineAttr.m_textColor = ui.StdColor.BrightBlack;
+	representation.m_lineAttr.m_backColor = ui.ColorFlags.Undefined;
 	representation.addBinPreview(p, size);
 }
 

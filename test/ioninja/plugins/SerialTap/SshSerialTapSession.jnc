@@ -11,7 +11,7 @@ import "iox_SshChannel.jnc"
 import "io_HwcProto.jnc"
 import "ui_History.jnc"
 import "ui_SocketUi.jnc"
-import "ui_SerialSettingUi.jnc"
+import "ui_SerialUi.jnc"
 import "ui_SshPropertySet.jnc"
 import "ui_BufferPropertySet.jnc"
 import "ui_StdSessionInfoSet.jnc"
@@ -473,46 +473,25 @@ void SshSerialTapSession.onMsg(io.HwcMsgHdr const* hdr) {
 		break;
 
 	case io.HwcMsgCode.SerialTapRtsDtr:
-		io.SerialStatusLines controlLines;
-
-		uchar_t hwcLines = *(char const*)(hdr + 1);
-		if (hwcLines & io.HwcSerialStatusLines.Cts)
-			controlLines |= io.SerialStatusLines.Cts;
-
-		if (hwcLines & io.HwcSerialStatusLines.Dsr)
-			controlLines |= io.SerialStatusLines.Dsr;
-
-		io.SerialStatusLines controlLineMask = controlLines ^ m_serialControlLines;
-		if (controlLineMask & io.SerialStatusLines.Cts) {
-			bool value = (controlLines & io.SerialStatusLines.Cts) != 0;
-			m_logWriter.write(SerialLogRecordCode.RtsChanged, &value, sizeof(value));
+		io.SerialStatusLines lines = (io.SerialStatusLines)*(char const*)(hdr + 1);
+		io.SerialStatusLines lineMask = lines ^ m_serialStatusLines;
+		if (lineMask) {
+			SerialStatusLineChangedParams params = { lines, lineMask }
+			m_logWriter.write(SerialLogRecordCode.ControlLineChanged, params, sizeof(params));
+			m_serialControlLines = lines;
 		}
 
-		if (controlLineMask & io.SerialStatusLines.Dsr) {
-			bool value = (controlLines & io.SerialStatusLines.Dsr) != 0;
-			m_logWriter.write(SerialLogRecordCode.DtrChanged, &value, sizeof(value));
-		}
-
-		m_serialControlLines = controlLines;
 		break;
 
 	case io.HwcMsgCode.SerialTapCtsDsr:
-		io.SerialStatusLines statusLines;
-
-		uchar_t hwcLines = *(char const*)(hdr + 1);
-		if (hwcLines & io.HwcSerialStatusLines.Cts)
-			statusLines |= io.SerialStatusLines.Cts;
-
-		if (hwcLines & io.HwcSerialStatusLines.Dsr)
-			statusLines |= io.SerialStatusLines.Dsr;
-
-		io.SerialStatusLines statusLineMask = statusLines ^ m_serialStatusLines;
-		if (statusLineMask) {
-			SerialStatusLineChangedParams params = { statusLines, statusLineMask }
+		io.SerialStatusLines lines = (io.SerialStatusLines)*(char const*)(hdr + 1);
+		io.SerialStatusLines lineMask = lines ^ m_serialStatusLines;
+		if (lineMask) {
+			SerialStatusLineChangedParams params = { lines, lineMask }
 			m_logWriter.write(SerialLogRecordCode.StatusLineChanged, params, sizeof(params));
+			m_serialStatusLines = lines;
 		}
 
-		m_serialStatusLines = statusLines;
 		break;
 	}
 }
@@ -613,7 +592,7 @@ bool errorcode SshSerialTapSession.writeSerialConfigMsg() {
 	msg.m_hdr.m_dataSize = sizeof(msg.m_config);
 	msg.m_config.m_baudRate = m_serialBaudRate;
 	msg.m_config.m_dataBits = m_serialDataBits;
-	msg.m_config.m_stopBits = m_serialStopBits != io.SerialStopBits._1 ? 2 : 1;
+	msg.m_config.m_stopBits = m_serialStopBits;
 	msg.m_config.m_parity = m_serialParity;
 	msg.m_config.m_flowControl = false;
 	m_ssh.write(&msg, sizeof(msg));
@@ -625,7 +604,7 @@ void SshSerialTapSession.updateLineInfoValue(
 	bool line
 ) {
 	m_infoTable[infoId].m_value = line ? "on" : "off";
-	m_infoTable[infoId].m_valueColor = line ? ui.StdColor.LightRed : ui.StdColor.Gray;
+	m_infoTable[infoId].m_valueColor = line ? ui.StdColor.BrightRed : ui.StdColor.BrightBlack;
 }
 
 reactor SshSerialTapSession.m_uiReactor {

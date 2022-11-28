@@ -15,6 +15,7 @@ icon        = images/mailslot.png
 small-icon  = images/mailslot-16x16.png
 
 session-class = MailslotSession
+null-packets  = true
 
 [required-capabilities]
 

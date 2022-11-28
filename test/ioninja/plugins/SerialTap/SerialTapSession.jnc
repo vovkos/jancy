@@ -8,7 +8,7 @@ import "io_usb.jncx"
 import "io_base.jncx"
 import "io_Serial.jnc"
 import "io_UsbDb.jnc"
-import "ui_SerialSettingUi.jnc"
+import "ui_SerialUi.jnc"
 import "ui_BufferPropertySet.jnc"
 import "ui_StdSessionInfoSet.jnc"
 import "log_ThroughputCalc.jnc"
@@ -752,7 +752,7 @@ void SerialTapSession.updateLineInfoValue(
 	bool line
 ) {
 	m_infoTable[infoId].m_value = line ? "on" : "off";
-	m_infoTable[infoId].m_valueColor = line ? ui.StdColor.LightRed : ui.StdColor.Gray;
+	m_infoTable[infoId].m_valueColor = line ? ui.StdColor.BrightRed : ui.StdColor.BrightBlack;
 }
 
 reactor SerialTapSession.m_uiReactor {

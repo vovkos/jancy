@@ -15,7 +15,8 @@ namespace log {
 // each record is represented as a sequence of 'parts'
 
 enum PartKind {
-	PlainText = 0,
+	Undefined = 0,
+	PlainText,
 	HyperText,
 	Bin,
 	DualBin,

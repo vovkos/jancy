@@ -110,39 +110,6 @@ struct HwcMsgHdr {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum HwcSerialStopBits {
-	_1  = 1,
-	_15 = 2,
-	_2  = 2,
-};
-
-enum HwcSerialParity {
-	None = 0,
-	Odd,
-	Even,
-	Mark,
-	Space,
-	Ignore
-};
-
-enum HwcSerialFlowControl {
-	None = 0,
-	RtsCts,
-};
-
-bitflag enum HwcSerialStatusLines {
-	Cts = 0x01,
-	Dsr = 0x02,
-};
-
-bitflag enum HwcSerialLineErrors {
-	BreakError   = 0x04,
-	FramingError = 0x10,
-	ParityError  = 0x20,
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 struct HwcSerialConfig {
 	uint32_t m_baudRate;
 	uint8_t m_dataBits;

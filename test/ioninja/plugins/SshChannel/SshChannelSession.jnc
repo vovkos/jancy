@@ -33,6 +33,7 @@ protected:
 	enum State {
 		Closed,
 		Resolving,
+		ReconnectDelay,
 		TcpConnecting,
 		SshHandshaking,
 		SshAuthenticating,
@@ -46,6 +47,7 @@ protected:
 	static char const* m_stateStringTable[] = {
 		"Closed",
 		"Resolving...",
+		"Waiting...",
 		"Connecting...",
 		"Handhsaking...",
 		"Authenticating...",
@@ -81,6 +83,8 @@ protected:
 	io.HostNameResolver m_resolver;
 	io.SocketAddress m_remoteAddress;
 	std.Buffer m_readBuffer;
+	sys.Timer m_reconnectTimer;
+	uint64_t m_lastReconnectTime;
 	uint_t m_syncId;
 
 	// toolbar, status bar & menu
@@ -126,6 +130,10 @@ public:
 	);
 
 protected:
+	void close();
+	void handleSocketError(std.Error const* error);
+	void handleSshAuthenticateError(std.Error const* error);
+
 	void onConnect() {
 		m_state ? disconnect() : try connect();
 	}
@@ -147,10 +155,11 @@ protected:
 		io.SshEvents triggeredEvents
 	);
 
+	void onReconnectTimer(uint_t syncId);
+
 	void createUi();
+	void startReconnectTimer(uint64_t lastReconnectTime = -1);
 	void waitSshEvents();
-	void handleConnectError(std.Error const* error);
-	void handleSshAuthenticateError(std.Error const* error);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -195,7 +204,13 @@ void SshChannelSession.createUi() {
 		"TCP-specific connection settings"
 	);
 
-	m_socketPropertySet.createProperties(m_pluginHost.m_propertyGrid, group);
+	m_socketPropertySet.createProperties(
+		m_pluginHost.m_propertyGrid,
+		group,,
+		ui.SocketPropertySet.PropertyId.AllTcpClient |
+		ui.SocketPropertySet.PropertyId.Reconnect
+	);
+
 	m_socketPropertySet.m_defaultRemotePort = Defaults.ServerPort;
 
 	group = m_pluginHost.m_propertyGrid.createGroupProperty(
@@ -266,7 +281,7 @@ bool errorcode SshChannelSession.connect() {
 	return true;
 
 catch:
-	handleConnectError(std.getLastError());
+	handleSocketError(std.getLastError());
 	return false;
 }
 
@@ -335,7 +350,7 @@ bool errorcode SshChannelSession.connect(io.SocketAddress const* remoteAddress) 
 	return true;
 
 catch:
-	handleConnectError(std.getLastError());
+	handleSocketError(std.getLastError());
 	return false;
 }
 
@@ -381,10 +396,22 @@ void SshChannelSession.waitSshEvents() {
 	m_ssh.wait(eventMask, onSshEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
-void SshChannelSession.handleConnectError(std.Error const* error) {
-	m_logWriter.write(SocketLogRecordCode.ConnectError, error);
+void SshChannelSession.handleSocketError(std.Error const* error) {
+	uint64_t recordCode = m_state < State.Connected ?
+		SocketLogRecordCode.ConnectError :
+		log.StdRecordCode.Error;
+
+	m_logWriter.write(recordCode, error);
+	close();
+}
+
+void SshChannelSession.close() {
+	m_stdSessionInfoSet.endSession();
+	m_isTransmitEnabled = false;
 	m_ssh.close();
 	m_state = State.Closed;
+	m_sessionConnectionState = SessionConnectionState.Disconnected;
+	m_syncId++;
 }
 
 void SshChannelSession.handleSshAuthenticateError(std.Error const* error) {
@@ -560,6 +587,24 @@ size_t errorcode SshChannelSession.transmit(
 	return result;
 }
 
+void SshChannelSession.startReconnectTimer(uint64_t lastReconnectTime) {
+	uint64_t time = sys.getTimestamp();
+	uint64_t delay = (uint64_t)m_socketPropertySet.m_reconnectTimeoutProp.m_value * 10000;
+
+	if (time - delay > lastReconnectTime) { // don't spam reconnects if we're insta-rejected
+		onReconnectTimer(m_syncId);
+		return;
+	}
+
+	m_state = State.ReconnectDelay;
+	m_logWriter.write(SocketLogRecordCode.ReconnectDelay);
+
+	m_reconnectTimer.startDueTimer(
+		onReconnectTimer~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler,
+		time + delay
+	);
+}
+
 void SshChannelSession.onSshEvent(
 	uint_t syncId,
 	io.SshEvents triggeredEvents
@@ -568,7 +613,9 @@ void SshChannelSession.onSshEvent(
 		return;
 
 	if (triggeredEvents & io.SshEvents.IoError) {
-		handleConnectError(m_ssh.m_ioError);
+		handleSocketError(m_ssh.m_ioError);
+		if (m_socketPropertySet.m_useReconnectProp.m_value)
+			startReconnectTimer();
 		return;
 	}
 
@@ -632,10 +679,12 @@ void SshChannelSession.onSshEvent(
 			sizeof(params)
 		);
 
-		m_ssh.close();
-		m_state = State.Closed;
-		m_isTransmitEnabled = false;
-		m_stdSessionInfoSet.endSession();
+		uint64_t lastReconnectTime = m_lastReconnectTime;
+		close();
+
+		if (m_socketPropertySet.m_useReconnectProp.m_value)
+			startReconnectTimer(lastReconnectTime);
+
 		return;
 	}
 
@@ -659,7 +708,7 @@ void SshChannelSession.onResolverEvent(
 		return;
 
 	if (triggeredEvents & io.HostNameResolverEvents.Error) {
-		handleConnectError(m_resolver.m_error);
+		handleSocketError(m_resolver.m_error);
 		return;
 	}
 
@@ -676,6 +725,17 @@ void SshChannelSession.onResolverEvent(
 		address.m_port = m_socketPropertySet.m_remotePortProp.m_value;
 
 	try connect(address);
+}
+
+void SshChannelSession.onReconnectTimer(uint_t syncId) {
+	if (syncId != m_syncId)
+		return;
+
+	bool result = try connect();
+	m_lastReconnectTime = sys.getTimestamp(); // after connect (connect calls close)
+
+	if (!result && m_socketPropertySet.m_useReconnectProp.m_value)
+		startReconnectTimer();
 }
 
 reactor SshChannelSession.m_uiReactor {

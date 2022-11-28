@@ -1,0 +1,25 @@
+#...............................................................................
+#
+#  USB Monitor plugin
+#
+
+[plugin]
+
+name        = "USB Monitor"
+description = "Monitor local USB communications"
+id          = usbmon
+group       = usb
+monitor     = true
+log-guid    = A93EB870-9DCA-44A1-ABAC-77F3AF346A6B  # USB monitor
+icon        = images/usbmon.png
+small-icon  = images/usbmon-16x16.png
+
+session-class = UsbMonSession
+
+[required-capabilities]
+
+org.jancy.io.devmon
+
+[scripts]
+
+UsbMonSession.jnc

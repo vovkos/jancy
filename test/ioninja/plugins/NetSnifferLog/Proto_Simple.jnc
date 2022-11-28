@@ -81,7 +81,7 @@ void representSimpleProtoDetails(
 	uint_t headerFoldFlag,
 	uint_t headerColor,
 	uint_t payloadFoldFlag = 0,
-	uint_t payloadColor = ui.ColorFlags.Transparent
+	uint_t payloadColor = ui.ColorFlags.Undefined
 ) {
 	if (!name)
 		name = log.getDisplayName(type);

@@ -3,6 +3,7 @@
 // Some standard stats collected via selection processors
 //
 
+import "log_RangeProcessor.jnc"
 import "ui_ThroughputInfoSet.jnc"
 import "formatInteger.jnc"
 

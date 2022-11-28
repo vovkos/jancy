@@ -15,6 +15,7 @@ small-icon  = images/usb-16x16.png
 
 session-class  = UsbDataEndpointSession
 dispatch-class = UsbDataEndpointDispatch
+null-packets   = true
 
 [required-capabilities]
 

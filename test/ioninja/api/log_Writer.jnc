@@ -127,7 +127,7 @@ opaque class Writer {
 	) {
 		ui.TextAttr attr;
 		attr.m_textColor = color;
-		attr.m_backColor = ui.ColorFlags.Transparent;
+		attr.m_backColor = ui.ColorFlags.Undefined;
 
 		retroColorize(retroOffset, length, attr);
 	}

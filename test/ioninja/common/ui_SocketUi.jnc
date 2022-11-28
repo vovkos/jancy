@@ -25,7 +25,7 @@ enum NetworkAdapterUsage {
 
 EnumPropertyOption const* createNetworkAdapterOptionArray(NetworkAdapterUsage usage) {
 	size_t addressCount;
-	io.NetworkAdapterDesc const* adapterList = io.createNetworkAdapterDescList(null, &addressCount);
+	io.NetworkAdapterDesc const* adapterList = io.enumerateNetworkAdapters(null, &addressCount);
 
 	EnumPropertyOption* optionArray;
 	EnumPropertyOption* option;

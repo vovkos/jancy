@@ -6,8 +6,9 @@
 import "doc_Session.jnc"
 import "io_base.jncx"
 import "io_Serial.jnc"
+import "io_SerialPortEnumerator.jnc"
 import "io_SerialBuggyDrivers.jnc"
-import "ui_SerialSettingUi.jnc"
+import "ui_SerialUi.jnc"
 import "ui_BufferPropertySet.jnc"
 import "ui_StdSessionInfoSet.jnc"
 import "log_ThroughputCalc.jnc"
@@ -198,7 +199,7 @@ void SerialTapSession.createUi() {
 	m_dtePortCombo.m_placeholderText = "Enter a serial port name...";
 
 	size_t portCount;
-	io.SerialPortDesc const* portList = io.createSerialPortDescList(&portCount);
+	io.SerialPortDesc const* portList = io.enumerateSerialPorts(&portCount);
 	io.SerialPortDesc const* port = portList;
 	for (; port; port = port.m_next) {
 		m_dtePortCombo.addItem(port.m_deviceName, null);
@@ -344,33 +345,8 @@ ui.ComboBox* SerialTapSession.createSerialSettingComboBox(
 }
 
 void SerialTapSession.enumeratePorts() {
-	char const* dteName = m_dtePortCombo.m_currentText;
-	char const* dceName = m_dcePortCombo.m_currentText;
-
-	m_dtePortCombo.clear();
-	m_dcePortCombo.clear();
-
-	size_t count;
-	io.SerialPortDesc const* portList = io.createSerialPortDescList(&count);
-	io.SerialPortDesc const* port = portList;
-
-	ui.EnumPropertyOption* optionArray = new ui.EnumPropertyOption[count];
-	ui.EnumPropertyOption* option = optionArray;
-
-	for (; port; port = port.m_next, option++) {
-		char const* description = $"$(port.m_deviceName) - $(port.m_description)";
-		m_dtePortCombo.addItem(description, port.m_deviceName);
-		m_dcePortCombo.addItem(description, port.m_deviceName);
-		option.m_text = description;
-		option.m_value = port.m_deviceName;
-	}
-
-	// preserve current text
-
-	m_dtePortCombo.m_editText = dteName;
-	m_dcePortCombo.m_editText = dceName; // preserve current text
-	m_dtePortProp.setOptions(optionArray, count);
-	m_dcePortProp.setOptions(optionArray, count);
+	ui.enumerateSerialPorts(m_dtePortCombo, m_dtePortProp);
+	ui.enumerateSerialPorts(m_dcePortCombo, m_dcePortProp);
 }
 
 void SerialTapSession.flipDteDce() {
@@ -680,7 +656,7 @@ void SerialTapSession.updateLineInfoValue(
 	bool line
 ) {
 	m_infoTable[infoId].m_value = line ? "on" : "off";
-	m_infoTable[infoId].m_valueColor = line ? ui.StdColor.LightRed : ui.StdColor.Gray;
+	m_infoTable[infoId].m_valueColor = line ? ui.StdColor.BrightRed : ui.StdColor.BrightBlack;
 }
 
 reactor SerialTapSession.m_uiReactor {
@@ -693,7 +669,7 @@ reactor SerialTapSession.m_uiReactor {
 	m_bufferPropertySet.m_readParallelismProp.m_isEnabled = m_readModeProp.m_value != SerialReadMode.CheckComstat;
 	m_readIntervalProp.m_isEnabled = m_readModeProp.m_value == SerialReadMode.IntervalBased;
 	m_statusPane.m_text = m_state ? $"$(m_dtePort.m_name):$(m_dcePort.m_name)" : "Ports closed";
-	m_statusPane.m_color = m_state ? ui.StdColor.Blue : ui.StdColor.Gray;
+	m_statusPane.m_color = m_state ? ui.StdColor.Blue : ui.StdColor.BrightBlack;
 	m_infoTable[InfoId.Dtr].m_isEnabled = m_state;
 	m_infoTable[InfoId.Rts].m_isEnabled = m_state;
 	m_infoTable[InfoId.Dsr].m_isEnabled = m_state;

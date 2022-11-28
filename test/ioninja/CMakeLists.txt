@@ -559,6 +559,23 @@ if(BUILD_JNC_IO_USB)
 	)
 endif()
 
+if(BUILD_JNC_IO_USBMON)
+	add_jancy_tests(
+		NAME_PREFIX "jnc-ioninja-plugin-"
+		FLAGS ${_COMMON_FLAGS}
+
+		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/UsbMon
+		REQUIRES
+			UsbMonSession
+			representUsbMonLog
+		FILES
+			UsbMonSession.jnc
+			UsbMonLogRecordCode.jnc
+			UsbMonLogRepresenter.jnc
+		FINALIZE_TEST UsbMon
+	)
+endif()
+
 if(BUILD_JNC_IO_DEVMON AND DEVMON_FOUND)
 	add_jancy_tests(
 		NAME_PREFIX "jnc-ioninja-plugin-"

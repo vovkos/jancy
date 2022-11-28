@@ -513,7 +513,7 @@ reactor UdpSession.m_uiReactor {
 	m_actionTable[ActionId.Open].m_text = m_state ? "Close Socket" : "Open Socket";
 	m_actionTable[ActionId.Open].m_icon = m_iconTable[m_state ? IconId.Close : IconId.Open];
 	m_statusPaneTable[StatusPaneId.State].m_text = m_state ? "Opened" : "Closed";
-	m_remoteAddressCombo.m_backgroundColor = m_autoRemoteAddressProp.m_value ? ui.StdColor.PastelGreen : ui.StdColor.White;
+	m_remoteAddressCombo.m_backgroundColor = m_autoRemoteAddressProp.m_value ? ui.StdColor.PastelGreen : ui.ColorFlags.Undefined;
 	m_remoteAddressCombo.m_toolTipText = m_autoRemoteAddressProp.m_value ?
 		"This address will automatically switch to the address of the last inbound datagram" :
 		null;

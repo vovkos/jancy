@@ -45,7 +45,10 @@ struct ModbusRtuReadRequestPacket {
 
 //..............................................................................
 
-[ displayName = "Modbus RTU read (reply)" ]
+[
+	displayName = "Modbus RTU read (reply)",
+	extraSize = sizeof(uint16_t) // for CRC
+]
 struct ModbusRtuReadReplyPacket {
 	[ displayName = "ADU" ]
 	io.ModbusRtuAduHdr m_adu;
@@ -56,8 +59,17 @@ struct ModbusRtuReadReplyPacket {
 	[ userAction = "Initialize with defaults" ]
 	void initialize() {
 		initializeModbusRtuPacket(this, io.ModbusFunc.ReadHoldingRegisters);
-		m_pdu.m_count = 1;
+		updateCount();
 		updateChecksum();
+	}
+
+	[
+		userAction = "Update count",
+		autorun = "Auto-update count"
+	]
+	void updateCount() {
+		size_t extra = dynamic sizeof(this) - sizeof(ModbusRtuReadReplyPacket);
+		m_pdu.m_count = extra > sizeof(uint16_t) ? (extra - sizeof(uint16_t)) / sizeof(uint16_t) : 0;
 	}
 
 	[
@@ -102,7 +114,10 @@ struct ModbusRtuWritePacket {
 
 //..............................................................................
 
-[ displayName = "Modbus RTU write multiple" ]
+[
+	displayName = "Modbus RTU write multiple",
+	extraSize = sizeof(uint16_t) // for CRC
+]
 struct ModbusRtuWriteMultiplePacket {
 	[ displayName = "ADU" ]
 	io.ModbusRtuAduHdr m_adu;
@@ -138,7 +153,10 @@ struct ModbusRtuWriteMultiplePacket {
 
 //..............................................................................
 
-[ displayName = "Modbus RTU read/write multiple" ]
+[
+	displayName = "Modbus RTU read/write multiple",
+	extraSize = sizeof(uint16_t) // for CRC
+]
 struct ModbusRtuReadWriteMultiplePacket {
 	[ displayName = "ADU" ]
 	io.ModbusRtuAduHdr m_adu;
