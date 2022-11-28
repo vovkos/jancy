@@ -16,6 +16,19 @@ file(
 	test*.jnc
 )
 
+file(
+	GLOB
+	FAIL_TEST_JNC_LIST
+	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
+	test*fail.jnc
+)
+
+set(FAIL_TEST_NAME_LIST)
+
+foreach(_FILE ${FAIL_TEST_JNC_LIST})
+	list(APPEND FAIL_TEST_NAME_LIST "jnc-test-${_FILE}")
+endforeach()
+
 if(NOT BUILD_JNC_IO_USB)
 	list(
 		REMOVE_ITEM
@@ -46,6 +59,12 @@ if(${BUILD_JNC_APP})
 		NAME_PREFIX "jnc-test-"
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
 		TESTS ${TEST_JNC_LIST}
+	)
+	
+	set_tests_properties(
+		${FAIL_TEST_NAME_LIST}
+		PROPERTIES 
+			WILL_FAIL TRUE
 	)
 endif()
 

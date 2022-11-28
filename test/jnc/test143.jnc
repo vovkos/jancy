@@ -11,7 +11,7 @@ int main() {
 		printf("  capture:        %s\n", p.m_captureDeviceName);
 		printf("  address:        %d\n", p.m_address);
 
-		if (!(p.m_flags & io.UsbMonDeviceDescFlag.DeviceDescriptor)) {
+		if (!(p.m_flags & io.UsbMonDeviceDescFlags.DeviceDescriptor)) {
 			printf("  [ error fetching device descriptor ]\n");
 			continue;
 		}
@@ -39,9 +39,6 @@ int main() {
 
 		if (p.m_serialNumberDescriptor)
 			printf("  serial number*: %s\n", p.m_serialNumberDescriptor);
-
-		if (p.m_vendorId == VidSerialTap && p.m_productId == PidSerialTap)
-			serialTap = p;
 
 		printf("\n");
 	}
