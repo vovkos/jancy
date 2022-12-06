@@ -847,40 +847,38 @@ Serial::waitThreadFunc() {
 	GcHeap* gcHeap = m_runtime->getGcHeap();
 
 	JNC_BEGIN_CALL_SITE(m_runtime); // SIGUSR1 handler will call the original handler unless inside a call-site
-
-	m_lock.lock();
-	if (!(m_ioThreadFlags & IoThreadFlag_Closing)) {
-		m_ioThreadFlags |= IoThreadFlag_Waiting;
-		m_lock.unlock();
-
-		for (;;) {
-			gcHeap->enterWaitRegion();
-			bool result = m_serial.m_serial.wait(TIOCM_DSR | TIOCM_CTS | TIOCM_CD | TIOCM_RI);
-			gcHeap->leaveWaitRegion();
-
-			if (!result && err::getLastError()->m_code != EINTR)
-				break;
-
-			m_lock.lock();
-			if (m_ioThreadFlags & IoThreadFlag_Closing) {
-				m_lock.unlock();
-				break;
-			}
-
+		m_lock.lock();
+		if (!(m_ioThreadFlags & IoThreadFlag_Closing)) {
+			m_ioThreadFlags |= IoThreadFlag_Waiting;
 			m_lock.unlock();
 
-			wakeIoThread();
+			for (;;) {
+				gcHeap->enterWaitRegion();
+				bool result = m_serial.m_serial.wait(TIOCM_DSR | TIOCM_CTS | TIOCM_CD | TIOCM_RI);
+				gcHeap->leaveWaitRegion();
+
+				if (!result && err::getLastError()->m_code != EINTR)
+					break;
+
+				m_lock.lock();
+				if (m_ioThreadFlags & IoThreadFlag_Closing) {
+					m_lock.unlock();
+					break;
+				}
+
+				m_lock.unlock();
+
+				wakeIoThread();
+			}
+
+			m_lock.lock();
 		}
 
-		m_lock.lock();
-	}
+		m_lock.unlock();
 
-	m_lock.unlock();
-
-	gcHeap->enterWaitRegion();
-	m_waitThreadTerminateEvent.wait();
-	gcHeap->leaveWaitRegion();
-
+		gcHeap->enterWaitRegion();
+		m_waitThreadTerminateEvent.wait();
+		gcHeap->leaveWaitRegion();
 	JNC_END_CALL_SITE()
 }
 

@@ -144,7 +144,7 @@ main(
 	mc = jnc_Function_getMachineCode(function);
 
 	JNC_BEGIN_CALL_SITE(runtime)
-	returnValue = mc();
+		returnValue = mc();
 	JNC_END_CALL_SITE_EX(&result)
 
 	if (!result) {

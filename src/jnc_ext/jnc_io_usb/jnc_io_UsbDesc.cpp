@@ -172,19 +172,17 @@ initUsbInterfaceDesc(
 		return;
 
 	JNC_BEGIN_CALL_SITE(runtime)
+		initUsbInterfaceDesc(runtime, dstDesc, &srcDesc->altsetting[0]);
 
-	initUsbInterfaceDesc(runtime, dstDesc, &srcDesc->altsetting[0]);
+		UsbInterfaceDesc* prevDesc = dstDesc;
+		for (size_t i = 1; i < (size_t)srcDesc->num_altsetting; i++) {
+			DataPtr descPtr = createData<UsbInterfaceDesc> (runtime);
+			dstDesc = (UsbInterfaceDesc*)descPtr.m_p;
+			initUsbInterfaceDesc(runtime, dstDesc, &srcDesc->altsetting[i]);
 
-	UsbInterfaceDesc* prevDesc = dstDesc;
-	for (size_t i = 1; i < (size_t)srcDesc->num_altsetting; i++) {
-		DataPtr descPtr = createData<UsbInterfaceDesc> (runtime);
-		dstDesc = (UsbInterfaceDesc*)descPtr.m_p;
-		initUsbInterfaceDesc(runtime, dstDesc, &srcDesc->altsetting[i]);
-
-		prevDesc->m_nextAltSettingInterfacePtr = descPtr;
-		prevDesc = dstDesc;
-	}
-
+			prevDesc->m_nextAltSettingInterfacePtr = descPtr;
+			prevDesc = dstDesc;
+		}
 	JNC_END_CALL_SITE()
 }
 
@@ -218,20 +216,18 @@ initUsbConfigurationDesc(
 	const libusb_config_descriptor* srcDesc
 ) {
 	JNC_BEGIN_CALL_SITE(runtime)
+		Type* ifaceDescType = UsbInterfaceDesc::getType(runtime->getModule());
+		dstDesc->m_interfaceTable = runtime->getGcHeap()->allocateArray(ifaceDescType, srcDesc->bNumInterfaces);
+		dstDesc->m_interfaceCount = srcDesc->bNumInterfaces;
 
-	Type* ifaceDescType = UsbInterfaceDesc::getType(runtime->getModule());
-	dstDesc->m_interfaceTable = runtime->getGcHeap()->allocateArray(ifaceDescType, srcDesc->bNumInterfaces);
-	dstDesc->m_interfaceCount = srcDesc->bNumInterfaces;
+		UsbInterfaceDesc* dstInterfaceDescTable = (UsbInterfaceDesc*)dstDesc->m_interfaceTable.m_p;
+		for (size_t i = 0; i < srcDesc->bNumInterfaces; i++)
+			initUsbInterfaceDesc(runtime, &dstInterfaceDescTable[i], &srcDesc->interface[i]);
 
-	UsbInterfaceDesc* dstInterfaceDescTable = (UsbInterfaceDesc*)dstDesc->m_interfaceTable.m_p;
-	for (size_t i = 0; i < srcDesc->bNumInterfaces; i++)
-		initUsbInterfaceDesc(runtime, &dstInterfaceDescTable[i], &srcDesc->interface[i]);
-
-	dstDesc->m_configurationId = srcDesc->bConfigurationValue;
-	dstDesc->m_descriptionStringId = srcDesc->iConfiguration;
-	dstDesc->m_attributes = srcDesc->bmAttributes;
-	dstDesc->m_maxPower = srcDesc->MaxPower;
-
+		dstDesc->m_configurationId = srcDesc->bConfigurationValue;
+		dstDesc->m_descriptionStringId = srcDesc->iConfiguration;
+		dstDesc->m_attributes = srcDesc->bmAttributes;
+		dstDesc->m_maxPower = srcDesc->MaxPower;
 	JNC_END_CALL_SITE()
 }
 
@@ -243,11 +239,9 @@ createUsbConfigurationDesc(
 	DataPtr resultPtr = g_nullDataPtr;
 
 	JNC_BEGIN_CALL_SITE(runtime)
-
-	resultPtr = createData<UsbConfigurationDesc> (runtime);
-	UsbConfigurationDesc* dstDesc = (UsbConfigurationDesc*)resultPtr.m_p;
-	initUsbConfigurationDesc(runtime, dstDesc, srcDesc);
-
+		resultPtr = createData<UsbConfigurationDesc> (runtime);
+		UsbConfigurationDesc* dstDesc = (UsbConfigurationDesc*)resultPtr.m_p;
+		initUsbConfigurationDesc(runtime, dstDesc, srcDesc);
 	JNC_END_CALL_SITE()
 
 	return resultPtr;
@@ -264,33 +258,31 @@ createUsbDeviceDesc(
 	DataPtr resultPtr = g_nullDataPtr;
 
 	JNC_BEGIN_CALL_SITE(runtime)
+		resultPtr = createData<UsbDeviceDesc> (runtime);
+		UsbDeviceDesc* deviceDesc = (UsbDeviceDesc*)resultPtr.m_p;
 
-	resultPtr = createData<UsbDeviceDesc> (runtime);
-	UsbDeviceDesc* deviceDesc = (UsbDeviceDesc*)resultPtr.m_p;
+		Type* configDescType = UsbConfigurationDesc::getType(runtime->getModule());
+		deviceDesc->m_configurationTable = runtime->getGcHeap()->allocateArray(configDescType, srcDesc->bNumConfigurations);
+		deviceDesc->m_configurationCount = srcDesc->bNumConfigurations;
 
-	Type* configDescType = UsbConfigurationDesc::getType(runtime->getModule());
-	deviceDesc->m_configurationTable = runtime->getGcHeap()->allocateArray(configDescType, srcDesc->bNumConfigurations);
-	deviceDesc->m_configurationCount = srcDesc->bNumConfigurations;
+		UsbConfigurationDesc* dstConfigDescTable = (UsbConfigurationDesc*)deviceDesc->m_configurationTable.m_p;
+		for (size_t i = 0; i < srcDesc->bNumConfigurations; i++) {
+			axl::io::UsbConfigDescriptor srcConfigDesc;
+			bool result = srcDevice->getConfigDescriptor(&srcConfigDesc, i);
+			if (result) // LIBUSB_ERROR_NOT_FOUND may happen with libusb-incompatible drivers
+				initUsbConfigurationDesc(runtime, &dstConfigDescTable[i], srcConfigDesc);
+		}
 
-	UsbConfigurationDesc* dstConfigDescTable = (UsbConfigurationDesc*)deviceDesc->m_configurationTable.m_p;
-	for (size_t i = 0; i < srcDesc->bNumConfigurations; i++) {
-		axl::io::UsbConfigDescriptor srcConfigDesc;
-		bool result = srcDevice->getConfigDescriptor(&srcConfigDesc, i);
-		if (result) // LIBUSB_ERROR_NOT_FOUND may happen with libusb-incompatible drivers
-			initUsbConfigurationDesc(runtime, &dstConfigDescTable[i], srcConfigDesc);
-	}
-
-	deviceDesc->m_usbVersion = srcDesc->bcdUSB;
-	deviceDesc->m_deviceVersion = srcDesc->bcdDevice;
-	deviceDesc->m_vendorId = srcDesc->idVendor;
-	deviceDesc->m_productId = srcDesc->idProduct;
-	deviceDesc->m_vendorStringId = srcDesc->iManufacturer;
-	deviceDesc->m_productStringId = srcDesc->iProduct;
-	deviceDesc->m_serialStringId = srcDesc->iSerialNumber;
-	deviceDesc->m_class = srcDesc->bDeviceClass;
-	deviceDesc->m_subClass = srcDesc->bDeviceSubClass;
-	deviceDesc->m_protocol = srcDesc->bDeviceProtocol;
-
+		deviceDesc->m_usbVersion = srcDesc->bcdUSB;
+		deviceDesc->m_deviceVersion = srcDesc->bcdDevice;
+		deviceDesc->m_vendorId = srcDesc->idVendor;
+		deviceDesc->m_productId = srcDesc->idProduct;
+		deviceDesc->m_vendorStringId = srcDesc->iManufacturer;
+		deviceDesc->m_productStringId = srcDesc->iProduct;
+		deviceDesc->m_serialStringId = srcDesc->iSerialNumber;
+		deviceDesc->m_class = srcDesc->bDeviceClass;
+		deviceDesc->m_subClass = srcDesc->bDeviceSubClass;
+		deviceDesc->m_protocol = srcDesc->bDeviceProtocol;
 	JNC_END_CALL_SITE()
 
 	return resultPtr;

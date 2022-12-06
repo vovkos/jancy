@@ -192,7 +192,7 @@ HostNameResolver::complete_l(
 	m_lock.unlock();
 
 	JNC_BEGIN_CALL_SITE(m_runtime)
-	m_pendingAddressTablePtr = memDup(addressTable, count * sizeof(axl::io::SockAddr));
+		m_pendingAddressTablePtr = memDup(addressTable, count * sizeof(axl::io::SockAddr));
 	JNC_END_CALL_SITE()
 
 	m_lock.lock();

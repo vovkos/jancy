@@ -262,19 +262,15 @@ UsbAsyncControlEndpoint::callCompletionFunc(
 	bool result = true;
 
 	JNC_BEGIN_CALL_SITE(m_runtime)
+		DataPtr errorPtr = g_nullDataPtr;
 
-	DataPtr errorPtr = g_nullDataPtr;
+		if (error)
+			errorPtr = jnc::memDup(error, error->m_size);
 
-	if (error)
-		errorPtr = jnc::memDup(error, error->m_size);
-
-	jnc::callVoidFunctionPtr(completionFuncPtr, resultSize, errorPtr);
-
+		jnc::callVoidFunctionPtr(completionFuncPtr, resultSize, errorPtr);
 	JNC_CALL_SITE_CATCH()
-
-	AXL_TRACE("USB completion func failed: %s\n", err::getLastErrorDescription().sz());
-	result = false;
-
+		AXL_TRACE("USB completion func failed: %s\n", err::getLastErrorDescription().sz());
+		result = false;
 	JNC_END_CALL_SITE()
 
 	return result;

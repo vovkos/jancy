@@ -264,18 +264,16 @@ ReactorImpl::subscribe(Multicast* multicast) {
 	Runtime* runtime = getCurrentThreadRuntime();
 
 	JNC_BEGIN_CALL_SITE(runtime)
+		ClassType* closureType = (ClassType*)runtime->getModule()->m_typeMgr.getStdType(StdType_ReactorClosure);
+		ReactorClosure* closure = (ReactorClosure*)runtime->getGcHeap()->allocateClass(closureType);
+		closure->m_self = this;
+		closure->m_binding = binding;
 
-	ClassType* closureType = (ClassType*)runtime->getModule()->m_typeMgr.getStdType(StdType_ReactorClosure);
-	ReactorClosure* closure = (ReactorClosure*)runtime->getGcHeap()->allocateClass(closureType);
-	closure->m_self = this;
-	closure->m_binding = binding;
+		FunctionPtr functionPtr;
+		functionPtr.m_p = jnc_pvoid_cast(onChangedThunk);
+		functionPtr.m_closure = &closure->m_ifaceHdr;
 
-	FunctionPtr functionPtr;
-	functionPtr.m_p = jnc_pvoid_cast(onChangedThunk);
-	functionPtr.m_closure = &closure->m_ifaceHdr;
-
-	binding->m_handler = ((MulticastImpl*)multicast)->addHandler(functionPtr);
-
+		binding->m_handler = ((MulticastImpl*)multicast)->addHandler(functionPtr);
 	JNC_END_CALL_SITE()
 
 	return binding;

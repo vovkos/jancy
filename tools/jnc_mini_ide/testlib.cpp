@@ -175,16 +175,14 @@ testAlloc() {
 	jnc::DataPtr ptr3;
 
 	JNC_BEGIN_CALL_SITE(runtime)
+		ptr1 = gcHeap->allocateBuffer(100);
+		memset(ptr1.m_p, 0xaa, 100);
 
-	ptr1 = gcHeap->allocateBuffer(100);
-	memset(ptr1.m_p, 0xaa, 100);
+		ptr2 = gcHeap->allocateBuffer(100);
+		memset(ptr2.m_p, 0xbb, 100);
 
-	ptr2 = gcHeap->allocateBuffer(100);
-	memset(ptr2.m_p, 0xbb, 100);
-
-	ptr3 = gcHeap->allocateBuffer(100);
-	memset(ptr3.m_p, 0xcc, 100);
-
+		ptr3 = gcHeap->allocateBuffer(100);
+		memset(ptr3.m_p, 0xcc, 100);
 	JNC_END_CALL_SITE()
 
 	gcHeap->collect();
@@ -200,9 +198,7 @@ testCallSite() {
 	printf("before JNC_BEGIN_CALL_SITE\n");
 
 	JNC_BEGIN_CALL_SITE(runtime)
-
-	printf("inside JNC_CALL_SITE\n");
-
+		printf("inside JNC_CALL_SITE\n");
 	JNC_END_CALL_SITE()
 
 	printf("after JNC_END_CALL_SITE\n");

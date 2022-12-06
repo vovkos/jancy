@@ -682,19 +682,17 @@ GcHeap::getDynamicLayout(Box* box) {
 	// does not get collected during waitIdleAndLock()
 
 	JNC_BEGIN_CALL_SITE(m_runtime)
+		dynamicLayout = createClass<rtl::DynamicLayout> (m_runtime);
 
-	dynamicLayout = createClass<rtl::DynamicLayout> (m_runtime);
+		waitIdleAndLock();
 
-	waitIdleAndLock();
+		it = m_dynamicLayoutMap.visit(box);
+		if (it->m_value)
+			dynamicLayout = it->m_value;
+		else
+			it->m_value = dynamicLayout;
 
-	it = m_dynamicLayoutMap.visit(box);
-	if (it->m_value)
-		dynamicLayout = it->m_value;
-	else
-		it->m_value = dynamicLayout;
-
-	m_lock.unlock();
-
+		m_lock.unlock();
 	JNC_END_CALL_SITE()
 
 	return dynamicLayout;
@@ -736,25 +734,23 @@ GcHeap::getIntrospectionClass(
 	// does not get collected during waitIdleAndLock()
 
 	JNC_BEGIN_CALL_SITE(m_runtime)
+		introClass = allocateClass(type);
+		callVoidFunction(constructor, introClass, item);
 
-	introClass = allocateClass(type);
-	callVoidFunction(constructor, introClass, item);
+		waitIdleAndLock();
 
-	waitIdleAndLock();
+		it = m_introspectionMap.visit(item);
+		if (it->m_value) {
+			introClass = it->m_value;
+		} else {
+			it->m_value = introClass;
 
-	it = m_introspectionMap.visit(item);
-	if (it->m_value) {
-		introClass = it->m_value;
-	} else {
-		it->m_value = introClass;
+			Type* ptrType = m_runtime->getModule()->m_typeMgr.getStdType(StdType_AbstractClassPtr);
+			Root root = { &it->m_value, ptrType };
+			m_staticRootArray.append(root);
+		}
 
-		Type* ptrType = m_runtime->getModule()->m_typeMgr.getStdType(StdType_AbstractClassPtr);
-		Root root = { &it->m_value, ptrType };
-		m_staticRootArray.append(root);
-	}
-
-	m_lock.unlock();
-
+		m_lock.unlock();
 	JNC_END_CALL_SITE()
 
 	return introClass;
@@ -1643,8 +1639,8 @@ GcHeap::runDestructCycle_l() {
 
 		bool result;
 		JNC_BEGIN_CALL_SITE(m_runtime)
-		callVoidFunction(destructor, iface);
-		iface->m_box->m_flags |= BoxFlag_Invalid;
+			callVoidFunction(destructor, iface);
+			iface->m_box->m_flags |= BoxFlag_Invalid;
 		JNC_END_CALL_SITE_EX(&result)
 
 		if (!result)
@@ -1684,15 +1680,13 @@ GcHeap::destructThreadFunc() {
 			m_lock.unlock();
 
 			bool result;
-			JNC_BEGIN_CALL_SITE(m_runtime);
-
-			if (!destructor->m_iface) {
-				callFunctionImpl_u<void>((void*)destructor->m_staticDestructFunc);
-			} else {
-				callFunctionImpl_u<void>((void*)destructor->m_destructFunc, destructor->m_iface);
-				destructor->m_iface->m_box->m_flags |= BoxFlag_Invalid;
-			}
-
+			JNC_BEGIN_CALL_SITE(m_runtime)
+				if (!destructor->m_iface)
+					callFunctionImpl_u<void>((void*)destructor->m_staticDestructFunc);
+				else {
+					callFunctionImpl_u<void>((void*)destructor->m_destructFunc, destructor->m_iface);
+					destructor->m_iface->m_box->m_flags |= BoxFlag_Invalid;
+				}
 			JNC_END_CALL_SITE_EX(&result)
 
 			if (!result)

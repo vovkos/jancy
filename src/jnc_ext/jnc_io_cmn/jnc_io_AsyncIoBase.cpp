@@ -318,7 +318,7 @@ AsyncIoBase::setIoErrorEvent_l(
 	m_lock.unlock();
 
 	JNC_BEGIN_CALL_SITE(m_runtime)
-	m_pendingIoErrorPtr = memDup(error, error->m_size);
+		m_pendingIoErrorPtr = memDup(error, error->m_size);
  	JNC_END_CALL_SITE()
 
 	m_lock.lock();

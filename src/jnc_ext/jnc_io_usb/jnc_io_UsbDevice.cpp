@@ -302,17 +302,15 @@ createUsbDeviceArray(DataPtr countPtr) {
 	Type* classPtrType = (Type*)UsbDevice::getType(runtime->getModule())->getClassPtrType();
 
 	JNC_BEGIN_CALL_SITE(runtime)
+		arrayPtr = gcHeap->allocateArray(classPtrType, count);
+		UsbDevice** dstDeviceArray = (UsbDevice**) arrayPtr.m_p;
+		libusb_device** srcDeviceArray = deviceList;
 
-	arrayPtr = gcHeap->allocateArray(classPtrType, count);
-	UsbDevice** dstDeviceArray = (UsbDevice**) arrayPtr.m_p;
-	libusb_device** srcDeviceArray = deviceList;
-
-	for (size_t i = 0; i < count; i++) {
-		UsbDevice* device = createClass<UsbDevice> (runtime);
-		device->setDevice(srcDeviceArray[i]);
-		dstDeviceArray[i] = device;
-	}
-
+		for (size_t i = 0; i < count; i++) {
+			UsbDevice* device = createClass<UsbDevice> (runtime);
+			device->setDevice(srcDeviceArray[i]);
+			dstDeviceArray[i] = device;
+		}
 	JNC_END_CALL_SITE()
 
 	if (countPtr.m_p)
@@ -338,8 +336,8 @@ openUsbDevice(
 	UsbDevice* device = NULL;
 	Runtime* runtime = getCurrentThreadRuntime();
 	JNC_BEGIN_CALL_SITE(runtime)
-	device = createClass<UsbDevice> (runtime);
-	device->takeOver(&srcDevice);
+		device = createClass<UsbDevice> (runtime);
+		device->takeOver(&srcDevice);
 	JNC_END_CALL_SITE()
 
 	return device;

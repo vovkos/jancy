@@ -147,10 +147,8 @@ void MainWindow::createLayout() {
 	m_runtime->getGcHeap()->addStaticRoot(&m_layout, m_module->getStdType(jnc::StdType_AbstractClassPtr));
 
 	JNC_BEGIN_CALL_SITE(m_runtime)
-
-	m_layout = jnc::createClass<MyLayout> (m_runtime, QBoxLayout::TopToBottom);
-	m_body->setLayout(m_layout->m_qtLayout);
-
+		m_layout = jnc::createClass<MyLayout> (m_runtime, QBoxLayout::TopToBottom);
+		m_body->setLayout(m_layout->m_qtLayout);
 	JNC_END_CALL_SITE()
 }
 

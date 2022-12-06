@@ -241,7 +241,7 @@ callFunctionImpl_s(
 	bool result;
 
 	JNC_BEGIN_CALL_SITE(runtime)
-	*retVal = callFunctionImpl_u<RetVal> (p);
+		*retVal = callFunctionImpl_u<RetVal> (p);
 	JNC_END_CALL_SITE_EX(&result)
 
 	return result;
@@ -261,7 +261,7 @@ callFunctionImpl_s(
 	bool result;
 
 	JNC_BEGIN_CALL_SITE(runtime)
-	*retVal = callFunctionImpl_u<RetVal> (p, arg);
+		*retVal = callFunctionImpl_u<RetVal> (p, arg);
 	JNC_END_CALL_SITE_EX(&result)
 
 	return result;
@@ -283,7 +283,7 @@ callFunctionImpl_s(
 	bool result;
 
 	JNC_BEGIN_CALL_SITE(runtime)
-	*retVal = callFunctionImpl_u<RetVal> (p, arg1, arg2);
+		*retVal = callFunctionImpl_u<RetVal> (p, arg1, arg2);
 	JNC_END_CALL_SITE_EX(&result)
 
 	return result;
@@ -307,7 +307,7 @@ callFunctionImpl_s(
 	bool result;
 
 	JNC_BEGIN_CALL_SITE(runtime)
-	*retVal = callFunctionImpl_u<RetVal> (p, arg1, arg2, arg3);
+		*retVal = callFunctionImpl_u<RetVal> (p, arg1, arg2, arg3);
 	JNC_END_CALL_SITE_EX(&result)
 
 	return result;
@@ -333,7 +333,7 @@ callFunctionImpl_s(
 	bool result;
 
 	JNC_BEGIN_CALL_SITE(runtime)
-	*retVal = callFunctionImpl_u<RetVal> (p, arg1, arg2, arg3, arg4);
+		*retVal = callFunctionImpl_u<RetVal> (p, arg1, arg2, arg3, arg4);
 	JNC_END_CALL_SITE_EX(&result)
 
 	return result;
@@ -361,7 +361,7 @@ callFunctionImpl_s(
 	bool result;
 
 	JNC_BEGIN_CALL_SITE(runtime)
-	*retVal = callFunctionImpl_u<RetVal> (p, arg1, arg2, arg3, arg4, arg5);
+		*retVal = callFunctionImpl_u<RetVal> (p, arg1, arg2, arg3, arg4, arg5);
 	JNC_END_CALL_SITE_EX(&result)
 
 	return result;
