@@ -547,18 +547,18 @@ TypeMgr::addClassType(
 
 bool
 TypeMgr::requireExternalReturnTypes() {
-	bool result;
+	bool finalResult = true;
 
 	sl::HashTableIterator<DerivableType*, bool> it = m_externalReturnTypeSet.getHead();
 	for (; it; it++) {
 		DerivableType* type = it->getKey();
-		result = type->requireExternalReturn();
+		bool result = type->requireExternalReturn();
 		if (!result)
-			return false;
+			finalResult = false;
 	}
 
 	m_externalReturnTypeSet.clear();
-	return true;
+	return finalResult;
 }
 
 FunctionArg*

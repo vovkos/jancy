@@ -760,20 +760,24 @@ VariableMgr::primeGlobalVariables() {
 
 bool
 VariableMgr::initializeGlobalVariables() {
-	bool result;
+	bool finalResult = true;
 
 	size_t count = m_globalVariableInitializeArray.getCount();
 	for (size_t i = 0; i < count; i++) {
 		Variable* variable = m_globalVariableInitializeArray[i];
 		ASSERT(variable->m_storageKind == StorageKind_Static);
 
-		result = initializeVariable(variable);
+		m_module->m_namespaceMgr.openNamespace(variable->m_parentNamespace);
+
+		bool result = initializeVariable(variable);
 		if (!result)
-			return false;
+			finalResult = false;
+
+		m_module->m_namespaceMgr.closeNamespace();
 	}
 
 	m_globalVariableInitializeArray.clear();
-	return true;
+	return finalResult;
 }
 
 //..............................................................................
