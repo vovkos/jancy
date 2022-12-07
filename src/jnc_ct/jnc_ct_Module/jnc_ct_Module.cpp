@@ -64,6 +64,14 @@ Module::~Module() {
 
 bool
 Module::processCompileError(ModuleCompileErrorKind errorKind) {
+	if (errorKind >= ModuleCompileErrorKind_PostParse) {
+		m_namespaceMgr.closeAllNamespaces();
+		m_functionMgr.setCurrentFunction(NULL);
+		m_controlFlowMgr.setCurrentBlock(NULL);
+
+		// probably, need more cleanup
+	}
+
 	if (m_tryCompileLevel)
 		return false;
 
@@ -84,14 +92,6 @@ Module::processCompileError(ModuleCompileErrorKind errorKind) {
 
 	if (!result)
 		return false;
-
-	if (errorKind >= ModuleCompileErrorKind_PostParse) {
-		m_namespaceMgr.closeAllNamespaces();
-		m_functionMgr.setCurrentFunction(NULL);
-		m_controlFlowMgr.setCurrentBlock(NULL);
-
-		// probably, need more cleanup
-	}
 
 	err::setError(&err::g_noError);
 	return true;
@@ -1015,8 +1015,6 @@ Module::processCompileArray() {
 			result = processCompileError(ModuleCompileErrorKind_PostParse);
 			if (!result)
 				return false;
-
-			return false;
 		}
 	}
 
