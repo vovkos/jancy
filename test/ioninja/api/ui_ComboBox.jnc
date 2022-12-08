@@ -1,8 +1,9 @@
 //..............................................................................
 //
-// Ninja GUI - combo boxes
+// Ninja UI - combo boxes
 //
 
+import "ui_Widget.jnc"
 import "ui_ComboItem.jnc"
 
 namespace ui {
@@ -12,14 +13,11 @@ namespace ui {
 
 //..............................................................................
 
-opaque class ComboBox {
-	bool autoget property m_isVisible;
-	bool autoget property m_isEnabled;
+opaque class ComboBox: Widget {
 	bool autoget property m_isEditable; // for editable combo boxes: if itemData is non-null, it's used as the actual value
 
 	char const* bindable autoget property m_editText;
 	char const* autoget property m_placeholderText;
-	char const* autoget property m_toolTipText;
 	uint_t autoget property m_backgroundColor;
 
 	size_t readonly m_itemCount;
@@ -32,6 +30,13 @@ opaque class ComboBox {
 	variant bindable property m_currentData;
 
 	event m_onEnter();
+
+	construct();
+
+	construct(
+		ComboItem const* itemArray,
+		size_t count
+	);
 
 	destruct();
 
@@ -73,6 +78,7 @@ opaque class ComboBox {
 	);
 
 	void clear();
+	void selectAllEditText();
 
 	size_t findData(variant data);
 }

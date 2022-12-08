@@ -1,0 +1,158 @@
+//..............................................................................
+//
+// Socket client log filter (TCP Server, TCP Proxy, SSL Server, WebSocket server)
+//
+
+import "io_base.jncx"
+import "io_SocketAddress.jnc"
+import "doc_Plugin.jnc"
+import "log_Filter.jnc"
+import "ui_Layout.jnc"
+import "ui_GroupBox.jnc"
+import "ui_ComboBox.jnc"
+import "ui_History.jnc"
+import "SocketLogRecordCode.jnc"
+
+using extension ui.ComboBoxHistory;
+
+//..............................................................................
+
+class ServerSocketLogFilter:
+	doc.LogFilter,
+	log.Filter {
+protected:
+	log.Log* m_log;
+
+	ui.ComboBox* m_filterCombo;
+	ui.StringProperty* m_filterProp;
+
+	bool m_isVisible;
+	io.SocketAddress m_filterAddress;
+	io.SocketAddress m_lastVisibleAddress;
+
+	char const Title[] = "Client log filter";
+
+public:
+	construct(doc.PluginHost* pluginHost);
+
+	override void reset();
+
+	override bool filter(
+		uint64_t timestamp,
+		uint64_t recordCode,
+		void const* p,
+		size_t size
+	);
+
+protected:
+	void onApply();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+ServerSocketLogFilter.construct(doc.PluginHost* pluginHost) {
+	m_log = pluginHost.m_log;
+
+	ui.FormLayout* form = pluginHost.createForm();
+	ui.HBoxLayout* layout = new ui.HBoxLayout;
+	ui.GroupBox* groupBox = new ui.GroupBox(Title, layout);
+	ui.GroupProperty* groupProp = pluginHost.m_propertyGrid.createGroupProperty(Title);
+	ui.Action* applyAction = new ui.Action("images/apply.png", "Apply && rebuild log", onApply);
+	ui.ToolBar* applyToolBar = new ui.ToolBar;
+	applyToolBar.addAction(applyAction);
+
+	m_filterCombo = new ui.ComboBox;
+	m_filterCombo.m_isEditable = true;
+	m_filterCombo.m_onEnter += onApply;
+	m_filterCombo.m_placeholderText = "Enter address to keep in log...";
+	m_filterCombo.m_toolTip = "View only communications with the specified client";
+	m_filterCombo.m_horizontalSizePolicy = ui.SizePolicy.Expanding;
+
+	layout.addWidget(m_filterCombo);
+	layout.addWidget(applyToolBar);
+	form.addRow(groupBox);
+
+	pluginHost.m_log.addFilter(this);
+}
+
+void ServerSocketLogFilter.onApply() {
+	char const* filter = m_filterCombo.m_currentText;
+	m_log.suspend();
+
+	if (!filter)
+		m_filterAddress = null;
+	else {
+		bool result = try m_filterAddress.parse(filter);
+		if (!result) {
+			m_filterCombo.m_backgroundColor = ui.StdColor.PastelRed;
+			m_filterCombo.selectAllEditText();
+			m_filterCombo.setFocus();
+			return;
+		}
+
+		m_filterCombo.addEditTextToHistory();
+	}
+
+	m_log.resume();
+	m_filterCombo.m_backgroundColor = ui.ColorFlags.Undefined;
+	m_log.rebuild();
+}
+
+void ServerSocketLogFilter.reset() {
+	m_isVisible = false;
+	m_lastVisibleAddress = null;
+}
+
+bool ServerSocketLogFilter.filter(
+	uint64_t timestamp,
+	uint64_t recordCode,
+	void const* p,
+	size_t size
+) {
+	if (!m_filterAddress.m_family) // empty address means, filtering is off
+		return true;
+
+	switch (recordCode) {
+	case SocketLogRecordCode.ClientConnected:
+	case SocketLogRecordCode.ClientChanged:
+		io.SocketAddress const* address = (io.SocketAddress const*)p;
+		m_isVisible = address.isMatch(m_filterAddress);
+		if (!m_isVisible)
+			return false;
+
+		if (recordCode == SocketLogRecordCode.ClientChanged && m_lastVisibleAddress.isEqual(address))
+			return false; // don't show unnecessary client-changed messages
+
+		m_lastVisibleAddress = *address;
+		return true;
+
+	case SocketLogRecordCode.ClientDisconnected:
+		TcpDisconnectLogRecordParams const* params = (TcpDisconnectLogRecordParams const*)p;
+		bool result = params.m_address.isMatch(m_filterAddress);
+		if (params.m_flags & TcpDisconnectLogRecordFlags.KeepClient) {
+			if (result)
+				m_lastVisibleAddress = params.m_address;
+
+			m_isVisible = result;
+			return result;
+		}
+
+		if (result)
+			m_lastVisibleAddress = null;
+
+		m_isVisible = false;
+		return result;
+
+	case SocketLogRecordCode.ClientRemoved:
+		if (m_isVisible)
+			m_lastVisibleAddress = null;
+
+		m_isVisible = false;
+		return true; // not represented, anyway
+
+	default:
+		return m_isVisible;
+	}
+}
+
+//..............................................................................

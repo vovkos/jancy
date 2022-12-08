@@ -11,6 +11,7 @@ id          = tcp-proxy
 group       = net
 monitor     = true
 log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
+log-guid    = 4cf26929-c3f4-42f3-b695-51d3915dfc46  # server socket log filter
 icon        = images/proxy.png
 small-icon  = images/proxy-16x16.png
 
@@ -31,4 +32,3 @@ org.jancy.io.ip6
 
 TcpProxySession.jnc
 iox_HostNameResolver.jnc
-../SocketLog/SocketClientLogFilter.jnc

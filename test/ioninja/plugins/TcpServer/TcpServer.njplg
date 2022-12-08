@@ -10,6 +10,7 @@ description = "Listens for and accepts TCP connections"
 id          = tcp-server
 group       = net
 log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
+log-guid    = 4cf26929-c3f4-42f3-b695-51d3915dfc46  # server socket log filter
 icon        = images/listener.png
 small-icon  = images/listener-16x16.png
 
@@ -30,7 +31,6 @@ org.jancy.io.ip6
 [scripts]
 
 TcpServerSession.jnc
-../SocketLog/SocketClientLogFilter.jnc
 TcpServerDispatchCode.jnc
 
 [dispatch-scripts]

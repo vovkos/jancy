@@ -1,0 +1,20 @@
+#...............................................................................
+#
+#  Server socket log filter plugin
+#
+
+[plugin]
+
+name        = "Server Socket Log Filter"
+description = "Hides or shows connections with particular clients"
+group       = net
+guid        = 4cf26929-c3f4-42f3-b695-51d3915dfc46
+icon        = images/socket.png
+small-icon  = images/socket-16x16.png
+
+log-filter-class = ServerSocketLogFilter
+
+[scripts]
+
+SocketLogRecordCode.jnc
+ServerSocketLogFilter.jnc

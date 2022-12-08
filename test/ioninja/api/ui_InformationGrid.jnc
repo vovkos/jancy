@@ -1,6 +1,6 @@
 //..............................................................................
 //
-// Ninja GUI - information grid
+// Ninja UI - information grid
 //
 
 namespace ui {
@@ -12,7 +12,7 @@ namespace ui {
 
 opaque class InformationItem {
 	char const* autoget property m_name;
-	char const* autoget property m_toolTipText;
+	char const* autoget property m_toolTip;
 	bool autoget property m_isEnabled;
 
 	void addChildItem(
@@ -36,7 +36,7 @@ opaque class InformationValue: InformationItem {
 
 	char const* autoget property m_value;
 	char const* autoget property m_disabledValue;
-	char const* autoget property m_valueToolTipText;
+	char const* autoget property m_valueToolTip;
 	uint_t autoget property m_valueColor;
 	bool autoget property m_isSelectionDependent;
 }
@@ -74,14 +74,14 @@ opaque class InformationGrid {
 		InformationItem* parentItem = null,
 		InformationItem* beforeItem = null,
 		char const* name,
-		char const* toolTipText = null
+		char const* toolTip = null
 	);
 
 	InformationGroup* createGroup(
 		char const* name,
-		char const* toolTipText = null
+		char const* toolTip = null
 	) {
-		return createGroup(,, name, toolTipText);
+		return createGroup(,, name, toolTip);
 	}
 
 	InformationValue* createValue(
@@ -89,14 +89,14 @@ opaque class InformationGrid {
 		InformationItem* beforeItem = null,
 		bool isSelectionDependent = false,
 		char const* name,
-		char const* toolTipText = null
+		char const* toolTip = null
 	);
 
 	 InformationValue* createValue(
 		char const* name,
-		char const* toolTipText = null
+		char const* toolTip = null
 	) {
-		return createValue(,,, name, toolTipText);
+		return createValue(,,, name, toolTip);
 	}
 
 	InformationStatValue* createStatValue(
@@ -104,14 +104,14 @@ opaque class InformationGrid {
 		InformationItem* beforeItem = null,
 		bool isSelectionDependent = false,
 		char const* name,
-		char const* toolTipText = null
+		char const* toolTip = null
 	);
 
 	 InformationStatValue* createStatValue(
 		char const* name,
-		char const* toolTipText = null
+		char const* toolTip = null
 	) {
-		return createStatValue(,,, name, toolTipText);
+		return createStatValue(,,, name, toolTip);
 	}
 
 	void resizeNameColumnToContents();
@@ -122,7 +122,7 @@ protected:
 		InformationItem* parentItem,
 		InformationItem* beforeItem,
 		bool isSelectionDependent,
-		char const* toolTipText
+		char const* toolTip
 	);
 }
 
@@ -132,7 +132,7 @@ InformationGroup* InformationGrid.createGroup(
 	InformationItem* parentItem,
 	InformationItem* beforeItem,
 	char const* name,
-	char const* toolTipText
+	char const* toolTip
 ) {
 	InformationGroup* item = new InformationGroup(name);
 
@@ -148,10 +148,10 @@ InformationValue* InformationGrid.createValue(
 	InformationItem* beforeItem,
 	bool isSelectionDependent,
 	char const* name,
-	char const* toolTipText
+	char const* toolTip
 ) {
 	InformationValue* item = new InformationValue(name);
-	addValueImpl(item, parentItem, beforeItem, isSelectionDependent, toolTipText);
+	addValueImpl(item, parentItem, beforeItem, isSelectionDependent, toolTip);
 	return item;
 }
 
@@ -160,10 +160,10 @@ InformationStatValue* InformationGrid.createStatValue(
 	InformationItem* beforeItem,
 	bool isSelectionDependent,
 	char const* name,
-	char const* toolTipText
+	char const* toolTip
 ) {
 	InformationStatValue* item = new InformationStatValue(name);
-	addValueImpl(item, parentItem, beforeItem, isSelectionDependent, toolTipText);
+	addValueImpl(item, parentItem, beforeItem, isSelectionDependent, toolTip);
 	return item;
 }
 
@@ -172,9 +172,9 @@ void InformationGrid.addValueImpl(
 	InformationItem* parentItem,
 	InformationItem* beforeItem,
 	bool isSelectionDependent,
-	char const* toolTipText
+	char const* toolTip
 ) {
-	item.m_toolTipText = toolTipText;
+	item.m_toolTip = toolTip;
 	item.m_isSelectionDependent = isSelectionDependent;
 
 	parentItem ?

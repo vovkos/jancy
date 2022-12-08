@@ -1,0 +1,76 @@
+//..............................................................................
+//
+// Ninja UI - widget base class
+//
+
+namespace ui {
+
+//! \addtogroup api-ui
+//! @{
+
+//..............................................................................
+
+enum TextFormat {
+	PlainText = 0,
+	RichText,
+	AutoText2
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum Alignment {
+	Left    = 0x01,
+	Right   = 0x02,
+	HCenter = 0x04,
+	Top     = 0x20,
+	Bottom  = 0x40,
+	VCenter = 0x80,
+	Center  = HCenter | VCenter,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum SizePolicyFlags {
+	Grow,
+	Expand,
+	Shrink,
+	Ignore,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum SizePolicy {
+	Fixed            = 0,
+	Minimum          = SizePolicyFlags.Grow,
+	Maximum          = SizePolicyFlags.Shrink,
+	Preferred        = SizePolicyFlags.Grow | SizePolicyFlags.Shrink,
+	Expanding        = SizePolicyFlags.Grow | SizePolicyFlags.Shrink | SizePolicyFlags.Expand,
+	MinimumExpanding = SizePolicyFlags.Grow | SizePolicyFlags.Expand,
+	Ignored          = SizePolicyFlags.Grow | SizePolicyFlags.Shrink | SizePolicyFlags.Ignore,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class Widget {
+	int autoget property m_minimumWidth;
+	int autoget property m_minimumHeight;
+	int autoget property m_maximumWidth;
+	int autoget property m_maximumHeight;
+	SizePolicy autoget property m_horizontalSizePolicy;
+	SizePolicy autoget property m_verticalSizePolicy;
+	int autoget property m_horizontalStretch;
+	int autoget property m_verticalStretch;
+	bool autoget property m_isVisible;
+	bool autoget property m_isEnabled;
+	char const* autoget property m_toolTip;
+
+	destruct();
+
+	void setFocus();
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace ui

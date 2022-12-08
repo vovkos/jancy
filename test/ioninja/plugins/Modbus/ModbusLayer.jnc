@@ -9,7 +9,7 @@ import "std_Buffer.jnc"
 import "crc16.jnc"
 import "io_base.jncx"
 import "io_Serial.jnc"
-import "Serial/SerialLogRecordCode.jnc"
+import "SerialLog/SerialLogRecordCode.jnc"
 
 //..............................................................................
 

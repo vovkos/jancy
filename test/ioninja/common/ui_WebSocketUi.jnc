@@ -3,6 +3,8 @@
 // WebSocket properties
 //
 
+import "ui_PropertyGrid.jnc"
+
 namespace ui {
 
 //! \addtogroup common-ui
@@ -16,10 +18,10 @@ enum WebSocketTransmitMode {
 	Binary, // always send as binary
 }
 
-const ui.EnumPropertyOption TransmitModeOptionTable[] = {
-	{ "Auto",   ui.WebSocketTransmitMode.Auto },
-	{ "Text",   ui.WebSocketTransmitMode.Text },
-	{ "Binary", ui.WebSocketTransmitMode.Binary },
+const EnumPropertyOption TransmitModeOptionTable[] = {
+	{ "Auto",   WebSocketTransmitMode.Auto },
+	{ "Text",   WebSocketTransmitMode.Text },
+	{ "Binary", WebSocketTransmitMode.Binary },
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -29,9 +31,9 @@ enum WebSocketCloseMode {
 	Abrupt,   // close socket immediately
 }
 
-ui.EnumPropertyOption CloseModeOptionTable[] = {
-	{ "Graceful", ui.WebSocketCloseMode.Graceful },
-	{ "Abrupt",   ui.WebSocketCloseMode.Abrupt },
+EnumPropertyOption CloseModeOptionTable[] = {
+	{ "Graceful", WebSocketCloseMode.Graceful },
+	{ "Abrupt",   WebSocketCloseMode.Abrupt },
 }
 
 //..............................................................................
@@ -56,21 +58,21 @@ class WebSocketUi {
 		CloseTimeout = 3000,
 	}
 
-	ui.ComboBox* m_transmitModeCombo;
-	ui.EnumProperty* m_transmitModeProp;
-	ui.EnumProperty* m_closeModeProp;
-	ui.IntProperty* m_closeTimeoutProp;
-	ui.DictionaryProperty* m_extraHeadersProp;
+	ComboBox* m_transmitModeCombo;
+	EnumProperty* m_transmitModeProp;
+	EnumProperty* m_closeModeProp;
+	IntProperty* m_closeTimeoutProp;
+	DictionaryProperty* m_extraHeadersProp;
 
 	void createCombos(
-		ui.ToolBar* toolBar,
+		ToolBar* toolBar,
 		SettingId settingMask = SettingId.TransmitMode
 	);
 
 	void createProperties(
-		ui.PropertyGrid* propertyGrid,
-		ui.Property* parentProp = null,
-		ui.Property* beforeProp = null,
+		PropertyGrid* propertyGrid,
+		Property* parentProp = null,
+		Property* beforeProp = null,
 		SettingId settingMask = SettingId.All
 	);
 
@@ -88,7 +90,7 @@ class WebSocketUi {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void WebSocketUi.createCombos(
-	ui.ToolBar* toolBar,
+	ToolBar* toolBar,
 	SettingId settingMask
 ) {
 	if (settingMask & SettingId.TransmitMode)
@@ -100,9 +102,9 @@ void WebSocketUi.createCombos(
 }
 
 void WebSocketUi.createProperties(
-	ui.PropertyGrid* propertyGrid,
-	ui.Property* parentProp,
-	ui.Property* beforeProp,
+	PropertyGrid* propertyGrid,
+	Property* parentProp,
+	Property* beforeProp,
 	SettingId settingMask
 ) {
 	if (settingMask & SettingId.ExtraHeaders) {

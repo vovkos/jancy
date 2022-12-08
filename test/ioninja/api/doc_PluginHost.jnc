@@ -9,6 +9,7 @@ import "ui_ToolBar.jnc"
 import "ui_StatusBar.jnc"
 import "ui_PropertyGrid.jnc"
 import "ui_InformationGrid.jnc"
+import "ui_Layout.jnc"
 import "ui_Terminal.jnc"
 import "log_Log.jnc"
 
@@ -33,6 +34,8 @@ opaque class PluginHost {
 	log.TxRxStats* const property m_txRxStats;
 
 	destruct();
+
+	ui.FormLayout* createForm(char const* title = null);
 }
 
 //..............................................................................

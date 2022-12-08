@@ -1,0 +1,31 @@
+//..............................................................................
+//
+// Ninja UI - labels
+//
+
+import "ui_Widget.jnc"
+import "ui_Icon.jnc"
+
+namespace ui {
+
+//! \addtogroup api-ui
+//! @{
+
+//..............................................................................
+
+opaque class Label: Widget {
+	char const* autoget property m_text;
+	Icon* m_icon;
+	TextFormat autoget property m_textFormat;
+	Alignment autoget property m_alignment;
+
+	event m_onLinkClicked(char const* link);
+
+	construct(char const* text);
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace ui

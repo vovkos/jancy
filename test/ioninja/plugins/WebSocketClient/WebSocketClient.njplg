@@ -9,9 +9,9 @@ name        = "WebSocket Client"
 description = "Implements client-side of WebSocket protocol over TCP or SSL"
 id          = websocket-client
 group       = net
-log-guid    = 7940a0d5-a84b-4509-bae4-b5928511472d  # ssl
-log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
 log-guid    = 7e211fb4-0040-47c7-a772-15b769cf4dd0  # websocket
+log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
+log-guid    = 7940a0d5-a84b-4509-bae4-b5928511472d  # ssl
 icon        = images/websocket.png
 small-icon  = images/websocket-16x16.png
 

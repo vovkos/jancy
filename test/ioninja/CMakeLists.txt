@@ -31,8 +31,9 @@ add_jancy_tests(
 	FILES
 		EzTapProSession.jnc
 		EzTapPro.jnc
-		../Serial/SerialLogRecordCode.jnc
-		../Serial/SerialLogRepresenter.jnc
+		../SerialLog/SerialLogRecordCode.jnc
+		../SerialLog/SerialLogRepresenter.jnc
+		../SerialLog/SerialLogFilter.jnc
 	FINALIZE_TEST EzTapPro
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/File
@@ -51,8 +52,9 @@ add_jancy_tests(
 		representSerialLog
 	FILES
 		SerialTapSession.jnc
-		../Serial/SerialLogRecordCode.jnc
-		../Serial/SerialLogRepresenter.jnc
+		../SerialLog/SerialLogRecordCode.jnc
+		../SerialLog/SerialLogRepresenter.jnc
+		../SerialLog/SerialLogFilter.jnc
 	FINALIZE_TEST GenericSerialTap
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/Mailslot
@@ -103,15 +105,19 @@ add_jancy_tests(
 		SerialSession.jnc
 		SerialDispatchCode.jnc
 		SerialDispatch.jnc
-		SerialLogRecordCode.jnc
-		SerialLogRepresenter.jnc
+		../SerialLog/SerialLogRecordCode.jnc
+		../SerialLog/SerialLogRepresenter.jnc
+		../SerialLog/SerialLogFilter.jnc
 	FINALIZE_TEST Serial
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/SocketLog
-	REQUIRES representSocketLog
+	REQUIRES
+		representSocketLog
+		ServerSocketLogFilter
 	FILES
 		SocketLogRecordCode.jnc
 		SocketLogRepresenter.jnc
+		ServerSocketLogFilter.jnc
 	FINALIZE_TEST SocketLog
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/TcpConnection
@@ -130,24 +136,26 @@ add_jancy_tests(
 	REQUIRES
 		TcpServerSession
 		representSocketLog
+		ServerSocketLogFilter
 	FILES
 		TcpServerSession.jnc
 		TcpServerDispatchCode.jnc
 		TcpServerDispatch.jnc
-		../SocketLog/SocketClientLogFilter.jnc
 		../SocketLog/SocketLogRecordCode.jnc
 		../SocketLog/SocketLogRepresenter.jnc
+		../SocketLog/ServerSocketLogFilter.jnc
 	FINALIZE_TEST TcpServer
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/TcpProxy
 	REQUIRES
 		TcpProxySession
 		representSocketLog
+		ServerSocketLogFilter
 	FILES
 		TcpProxySession.jnc
-		../SocketLog/SocketClientLogFilter.jnc
 		../SocketLog/SocketLogRecordCode.jnc
 		../SocketLog/SocketLogRepresenter.jnc
+		../SocketLog/ServerSocketLogFilter.jnc
 	FINALIZE_TEST TcpProxy
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/Process
@@ -239,8 +247,9 @@ if(BUILD_JNC_IO_SSH)
 			SerialMonProcessor_lnx.jnc
 			SerialMonLogRecordCode.jnc
 			SerialMonLogRepresenter.jnc
-			../Serial/SerialLogRecordCode.jnc
-			../Serial/SerialLogRepresenter.jnc
+			../SerialLog/SerialLogRecordCode.jnc
+			../SerialLog/SerialLogRepresenter.jnc
+			../SerialLog/SerialLogFilter.jnc
 			../SshChannel/SshLogRecordCode.jnc
 			../SshChannel/SshLogRepresenter.jnc
 			../SocketLog/SocketLogRecordCode.jnc
@@ -272,20 +281,22 @@ if(BUILD_JNC_IO_SSL)
 			SslServerSession
 			representSslLog
 			representSocketLog
+			ServerSocketLogFilter
 		FILES
 			SslServerSession.jnc
 			../SslLog/SslLogRecordCode.jnc
 			../SslLog/SslLogRepresenter.jnc
-			../SocketLog/SocketClientLogFilter.jnc
 			../SocketLog/SocketLogRecordCode.jnc
 			../SocketLog/SocketLogRepresenter.jnc
+			../SocketLog/ServerSocketLogFilter.jnc
 		FINALIZE_TEST SslServer
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/WebSocketClient
 		REQUIRES
 			WebSocketClientSession
-			representSslLog
+			representWebSocketLog
 			representSocketLog
+			representSslLog
 		FILES
 			WebSocketClientSession.jnc
 			../SslLog/SslLogRecordCode.jnc
@@ -299,17 +310,21 @@ if(BUILD_JNC_IO_SSL)
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/WebSocketServer
 		REQUIRES
 			WebSocketServerSession
-			representSslLog
+			representWebSocketLog
 			representSocketLog
+			representSslLog
+			ServerSocketLogFilter
 		FILES
 			WebSocketServerSession.jnc
-			../SslLog/SslLogRecordCode.jnc
-			../SslLog/SslLogRepresenter.jnc
-			../SocketLog/SocketClientLogFilter.jnc
-			../SocketLog/SocketLogRecordCode.jnc
-			../SocketLog/SocketLogRepresenter.jnc
+			../../common/iox_WebSocket.jnc
+			../../common/ui_WebSocketUi.jnc
 			../WebSocketLog/WebSocketLogRecordCode.jnc
 			../WebSocketLog/WebSocketLogRepresenter.jnc
+			../SocketLog/SocketLogRecordCode.jnc
+			../SocketLog/SocketLogRepresenter.jnc
+			../SslLog/SslLogRecordCode.jnc
+			../SslLog/SslLogRepresenter.jnc
+			../SocketLog/ServerSocketLogFilter.jnc
 		FINALIZE_TEST WebSocketServer
 	)
 endif()
@@ -451,8 +466,9 @@ if(BUILD_JNC_IO_USB)
 			representSerialLog
 		FILES
 			SerialTapSession.jnc
-			../Serial/SerialLogRecordCode.jnc
-			../Serial/SerialLogRepresenter.jnc
+			../SerialLog/SerialLogRecordCode.jnc
+			../SerialLog/SerialLogRepresenter.jnc
+			../SerialLog/SerialLogFilter.jnc
 		FINALIZE_TEST SerialTap
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/I2cSpiTap
@@ -597,8 +613,9 @@ if(BUILD_JNC_IO_DEVMON AND DEVMON_FOUND)
 			SerialMonLogRepresenter.jnc
 			../DeviceMonLog/DeviceMonLogRecordCode.jnc
 			../DeviceMonLog/DeviceMonLogRepresenter.jnc
-			../Serial/SerialLogRecordCode.jnc
-			../Serial/SerialLogRepresenter.jnc
+			../SerialLog/SerialLogRecordCode.jnc
+			../SerialLog/SerialLogRepresenter.jnc
+			../SerialLog/SerialLogFilter.jnc
 		FINALIZE_TEST SerialMon
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/SerialMon
@@ -615,8 +632,9 @@ if(BUILD_JNC_IO_DEVMON AND DEVMON_FOUND)
 			SerialMonProcessor_lnx.jnc
 			SerialMonLogRecordCode.jnc
 			SerialMonLogRepresenter.jnc
-			../Serial/SerialLogRecordCode.jnc
-			../Serial/SerialLogRepresenter.jnc
+			../SerialLog/SerialLogRecordCode.jnc
+			../SerialLog/SerialLogRepresenter.jnc
+			../SerialLog/SerialLogFilter.jnc
 			../File/FileLogRecordCode.jnc
 			../File/FileLogRepresenter.jnc
 		FINALIZE_TEST SerialMiDumpViewer
@@ -660,7 +678,8 @@ add_jancy_tests(
 
 	TESTS
 		default.jnc
-		Modbus.jnc
+		ModbusRtu.jnc
+		ModbusTcp.jnc
 		TcpIp.jnc
 	)
 

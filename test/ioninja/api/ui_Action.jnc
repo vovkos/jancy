@@ -1,6 +1,6 @@
 //..............................................................................
 //
-// Ninja GUI - actions (QT-style model)
+// Ninja UI - actions (QT-style model)
 //
 
 import "ui_Icon.jnc"
@@ -14,9 +14,27 @@ namespace ui {
 
 opaque class Action {
 	construct(
+		Icon* icon,
 		char const* text,
-		Icon* icon = null
-	);
+		void function* onTriggered() = null
+	) {
+		initialize(icon, text, onTriggered);
+	}
+
+	construct(
+		char const* iconFileName,
+		char const* text,
+		void function* onTriggered() = null
+	) {
+		initialize(new Icon(iconFileName), text, onTriggered);
+	}
+
+	construct(
+		char const* text,
+		void function* onTriggered() = null
+	) {
+		initialize(null, text, onTriggered);
+	}
 
 	bool autoget property m_isVisible;
 	bool autoget property m_isEnabled;
@@ -27,6 +45,22 @@ opaque class Action {
 	Icon* autoget property m_icon;
 
 	event m_onTriggered();
+
+protected:
+	void initialize(
+		Icon* icon,
+		char const* text
+	);
+
+	void initialize(
+		Icon* icon,
+		char const* text,
+		void function* onTriggered()
+	) {
+		initialize(icon, text);
+		if (onTriggered)
+			m_onTriggered += onTriggered;
+	}
 }
 
 //..............................................................................

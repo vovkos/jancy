@@ -157,7 +157,7 @@ void UdpFlowMonSession.createUi() {
 	m_viewFilterCombo.m_isEditable = true;
 	m_viewFilterCombo.m_onEnter += onSetViewFilter;
 	m_viewFilterCombo.m_placeholderText = "Enter a filter address...";
-	m_viewFilterCombo.m_toolTipText = "Only show packets matching this address";
+	m_viewFilterCombo.m_toolTip = "Only show packets matching this address";
 
 	m_actionTable[ActionId.ApplyFilter] = createAction("Apply filter", "images/apply.png");
 	m_actionTable[ActionId.ApplyFilter].m_onTriggered += onSetViewFilter;

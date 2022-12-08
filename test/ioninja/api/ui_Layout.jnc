@@ -1,0 +1,105 @@
+//..............................................................................
+//
+// Ninja UI - layouts
+//
+
+import "ui_Label.jnc"
+
+namespace ui {
+
+//! \addtogroup api-ui
+//! @{
+
+//..............................................................................
+
+opaque class Layout {
+	int autoget property m_margin;
+	int autoget property m_spacing;
+
+	destruct();
+}
+
+//..............................................................................
+
+opaque class BoxLayout: Layout {
+	enum Direction {
+		LeftToRight,
+		RightToLeft,
+		TopToBottom,
+		BottomToTop
+	}
+
+	Direction autoget property m_direction;
+
+	construct(Direction direction);
+
+	void addWidget(
+		Widget* widget,
+		int stretch = 0,
+		Alignment alignment = 0
+	);
+
+	void addLayout(
+		Layout* layout,
+		int stretch = 0
+	);
+
+	void addSpacing(int size);
+	void addStrut(int size);
+	void addStretch(int stretch = 0);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class HBoxLayout: BoxLayout {
+	construct() {
+		basetype.construct(Direction.LeftToRight)
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class VBoxLayout: BoxLayout {
+	construct() {
+		basetype.construct(Direction.TopToBottom)
+	}
+}
+
+//..............................................................................
+
+opaque class FormLayout: Layout {
+	construct();
+
+	void addRow(Widget* widget);
+	void addRow(Layout* layout);
+
+	void addRow(
+		Widget* label,
+		Widget* field
+	);
+
+	void addRow(
+		Widget* label,
+		Layout* field
+	);
+
+	void addRow(
+		char const* label,
+		Widget* field
+	) {
+		addRow(new Label(label), field);
+	}
+
+	void addRow(
+		char const* label,
+		Layout* field
+	) {
+		addRow(new Label(label), field);
+	}
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace ui

@@ -9,6 +9,7 @@ import "io_Serial.jnc"
 import "ui_SerialUi.jnc"
 import "ui_BufferPropertySet.jnc"
 import "ui_StdSessionInfoSet.jnc"
+import "ui_GroupBox.jnc"
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
 import "std_List.jnc"
@@ -74,7 +75,7 @@ protected:
 
 	// common serial ui
 
-	ui.SerialSettingUi m_serialSettingUi;
+	ui.SerialUi m_serialUi;
 
 	// toolbar, status bar & menu
 
@@ -82,6 +83,7 @@ protected:
 	ui.Icon* m_iconTable[IconId._Count];
 	ui.StatusPane* m_statusPane;
 	ui.ComboBox* m_portCombo;
+	ui.ComboBox* m_parityCombo;
 
 	// serial property grid
 
@@ -130,7 +132,7 @@ protected:
 		try capture();
 	}
 
-	void onBaudRateChanged();
+	void onSerialSettingChanged();
 
 	void onSerialEvent(
 		uint_t syncId,
@@ -238,30 +240,39 @@ void EzTapProSession.createUi() {
 	m_actionTable[ActionId.Capture]  = createAction("Capture", m_iconTable[IconId.Capture]);
 	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;
 
-	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
+	ui.GroupProperty* groupProp = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Connection",
 		"Serial port-specific connection settings"
 	);
 
 	m_portProp = m_pluginHost.m_propertyGrid.createComboProperty(
-		group,,
+		groupProp,,
 		"Port",
 		"Enter a serial port name...",
 		"Specify a serial port name to use"
 	);
 
-	m_serialSettingUi.create(
-		m_pluginHost.m_toolBar,
-		m_pluginHost.m_propertyGrid,
-		group,
-		ui.SerialSettingUi.SettingId.BaudRate,
-		ui.SerialSettingUi.SettingId.BaudRate |
-		ui.SerialSettingUi.SettingId.DataBits |
-		ui.SerialSettingUi.SettingId.StopBits // no parity -- we handle parity manually
-	);
+	ui.SerialUi.ItemId serialUiMask =
+		ui.SerialUi.ItemId.BaudRate |
+		ui.SerialUi.ItemId.DataBits |
+		ui.SerialUi.ItemId.StopBits; // no parity -- we handle parity manually
 
-	m_serialSettingUi.m_baudRateCombo.m_onEnter += onBaudRateChanged;
-	bindingof(m_serialSettingUi.m_baudRateCombo.m_currentIndex) += onBaudRateChanged;
+	ui.FormLayout* form = m_pluginHost.createForm();
+	ui.FormLayout* layout = new ui.FormLayout;
+	ui.GroupBox* formGroup = new ui.GroupBox("Serial settings", layout);
+
+	m_serialUi.createForm(layout, serialUiMask);
+	m_serialUi.createProperties(m_pluginHost.m_propertyGrid, groupProp, serialUiMask);
+
+	m_parityCombo = new ui.ComboBox(parityTable, countof(parityTable));
+	layout.addRow("Parity:", m_parityCombo);
+	form.addRow(formGroup);
+
+	m_serialUi.m_baudRateCombo.m_onEnter += onSerialSettingChanged;
+	bindingof(m_serialUi.m_baudRateCombo.m_currentIndex) += onSerialSettingChanged;
+	bindingof(m_serialUi.m_dataBitsCombo.m_currentIndex) += onSerialSettingChanged;
+	bindingof(m_serialUi.m_stopBitsCombo.m_currentIndex) += onSerialSettingChanged;
+	bindingof(m_parityCombo.m_currentIndex) += onSerialSettingChanged;
 
 	m_pluginHost.m_menu.addSeparator();
 
@@ -276,7 +287,7 @@ void EzTapProSession.createUi() {
 	// serial property grid
 
 	m_parityProp = m_pluginHost.m_propertyGrid.createEnumProperty(
-		group,,
+		groupProp,,
 		"Parity",
 		"Serial parity check",
 		parityTable,
@@ -284,7 +295,7 @@ void EzTapProSession.createUi() {
 	);
 
 	m_signalLevelProp = m_pluginHost.m_propertyGrid.createEnumProperty(
-		group,,
+		groupProp,,
 		"Signal level",
 		"Serial link signal level",
 		signalLevelTable,
@@ -292,12 +303,12 @@ void EzTapProSession.createUi() {
 	);
 
 	m_flipProp = m_pluginHost.m_propertyGrid.createBoolProperty(
-		group,,
+		groupProp,,
 		"Flip DTE/DCE",
 		"Flip logical sides of the tap cable"
 	);
 
-	group = m_pluginHost.m_propertyGrid.createGroupProperty(
+	groupProp = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Buffering & compatibility",
 		"Advanced options controlling performance, throughtput and compatibility"
 	);
@@ -306,7 +317,7 @@ void EzTapProSession.createUi() {
 		// these settings only make sense on Windows
 
 		m_readModeProp = m_pluginHost.m_propertyGrid.createEnumProperty(
-			group,,
+			groupProp,,
 			"Read mode",
 			"Advanced read request-specific options",
 			readModeTable,
@@ -314,7 +325,7 @@ void EzTapProSession.createUi() {
 		);
 
 		m_readIntervalProp = m_pluginHost.m_propertyGrid.createIntProperty(
-			group,,
+			groupProp,,
 			"Read max inter-char interval (ms)",
 			"Maximum inter-character delay during read request (in millisceonds)"
 		);
@@ -329,7 +340,7 @@ void EzTapProSession.createUi() {
 
 	m_bufferPropertySet.createProperties(
 		m_pluginHost.m_propertyGrid,
-		group,,
+		groupProp,,
 		ui.BufferPropertySet.PropertyId.All &
 		~ui.BufferPropertySet.PropertyId.WriteBufferSize &
 		~ui.BufferPropertySet.PropertyId.KeepWriteBlockSize &
@@ -412,9 +423,9 @@ bool errorcode EzTapProSession.capture() {
 	m_serial.open(portName);
 
 	m_portName = portName;
-	m_baudRate = m_serialSettingUi.m_baudRate;
-	m_dataBits = m_serialSettingUi.m_dataBits;
-	m_stopBits = m_serialSettingUi.m_stopBits;
+	m_baudRate = m_serialUi.m_baudRate;
+	m_dataBits = m_serialUi.m_dataBits;
+	m_stopBits = m_serialUi.m_stopBits;
 	m_parity = m_parityProp.m_value;
 	m_dteControlLines = 0;
 	m_dceControlLines = 0;
@@ -490,10 +501,10 @@ bool errorcode EzTapProSession.startAcquisition() {
 }
 
 bool errorcode EzTapProSession.configureSerial() {
-	uint_t baudRate = m_serialSettingUi.m_baudRate;
-	uint_t dataBits = m_serialSettingUi.m_dataBits;
-	io.SerialStopBits stopBits = m_serialSettingUi.m_stopBits;
-	io.SerialParity parity = (io.SerialParity) m_parityProp.m_value;
+	uint_t baudRate = m_serialUi.m_baudRate;
+	uint_t dataBits = m_serialUi.m_dataBits;
+	io.SerialStopBits stopBits = m_serialUi.m_stopBits;
+	io.SerialParity parity = m_parityCombo.m_currentData;
 
 	if (m_baudRate != baudRate) {
 		m_logWriter.write(SerialLogRecordCode.BaudRateChanged, &baudRate, sizeof(baudRate));
@@ -688,10 +699,10 @@ size_t errorcode EzTapProSession.transmit(
 }
 
 void EzTapProSession.load(doc.Storage* storage) {
-	m_serialSettingUi.load(storage);
+	m_serialUi.load(storage);
 
 	m_portCombo.m_editText = storage.readString("portName");
-	m_parityProp.m_currentIndex = storage.readInt("parity");
+	m_parityCombo.m_currentIndex = storage.readInt("parity");
 	m_signalLevelProp.m_currentIndex = storage.readInt("signalLevel");
 	m_actionTable[ActionId.Flip].m_isChecked = storage.readBool("flipDteDce");
 
@@ -703,10 +714,10 @@ void EzTapProSession.load(doc.Storage* storage) {
 }
 
 void EzTapProSession.save(doc.Storage* storage) {
-	m_serialSettingUi.save(storage);
+	m_serialUi.save(storage);
 
 	storage.writeString("portName", m_portCombo.m_editText);
-	storage.writeInt("parity", m_parityProp.m_currentIndex);
+	storage.writeInt("parity", m_parityCombo.m_currentIndex);
 	storage.writeInt("signalLevel", m_signalLevelProp.m_currentIndex);
 	storage.writeBool("flipDteDce", m_actionTable[ActionId.Flip].m_isChecked);
 
@@ -717,16 +728,18 @@ void EzTapProSession.save(doc.Storage* storage) {
 }
 
 void EzTapProSession.updateProperties() {
-	m_serialSettingUi.updateProperties();
+	m_serialUi.updateProperties();
 
 	m_portProp.m_value = m_portCombo.m_editText;
+	m_parityProp.m_currentIndex = m_parityCombo.m_currentIndex;
 	m_flipProp.m_value = m_actionTable[ActionId.Flip].m_isChecked;
 }
 
 bool errorcode EzTapProSession.applyProperties() {
-	m_serialSettingUi.applyProperties();
+	m_serialUi.applyProperties();
 
 	m_portCombo.m_editText = m_portProp.m_value;
+	m_parityCombo.m_currentIndex = m_parityProp.m_currentIndex;
 	m_actionTable[ActionId.Flip].m_isChecked = m_flipProp.m_value;
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 
@@ -757,7 +770,7 @@ bool errorcode EzTapProSession.applyProperties() {
 }
 
 void EzTapProSession.restoreDefaultProperties() {
-	m_serialSettingUi.restoreDefaultProperties();
+	m_serialUi.restoreDefaultProperties();
 
 	m_parityProp.m_value = Defaults.Parity;
 	m_signalLevelProp.m_value = Defaults.SignalLevel;
@@ -808,11 +821,9 @@ catch:
 	stopCapture();
 }
 
-void EzTapProSession.onBaudRateChanged() {
-	if (m_state != State.Opened)
-		return;
-
-	configureSerial();
+void EzTapProSession.onSerialSettingChanged() {
+	if (m_state == State.Opened)
+		configureSerial();
 }
 
 void EzTapProSession.updateLineInfoValue(
@@ -826,7 +837,7 @@ void EzTapProSession.updateLineInfoValue(
 reactor EzTapProSession.m_uiReactor {
 	m_title = m_state ?
 		$"EZ-Tap $m_portName $(m_baudRate)" :
-		$"EZ-Tap $(m_portCombo.m_currentText) $(m_serialSettingUi.m_baudRateCombo.m_currentText)";
+		$"EZ-Tap $(m_portCombo.m_currentText) $(m_serialUi.m_baudRateCombo.m_currentText)";
 
 	m_actionTable[ActionId.Capture].m_text = m_state ? "Stop capture" : "Capture";
 	m_actionTable[ActionId.Capture].m_icon = m_iconTable[m_state ? IconId.StopCapture : IconId.Capture];

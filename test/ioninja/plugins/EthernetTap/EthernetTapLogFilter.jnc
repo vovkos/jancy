@@ -1,6 +1,6 @@
 //..............................................................................
 //
-// Ethernet Tap  log filter
+// Ethernet Tap log filter
 //
 
 import "log_Filter.jnc"

@@ -174,7 +174,7 @@ void PipeServerSession.createUi() {
 	m_clientFilterCombo.m_isEditable = true;
 	m_clientFilterCombo.m_onEnter += onSetClientFilter;
 	m_clientFilterCombo.m_placeholderText = "Enter client ID to filter...";
-	m_clientFilterCombo.m_toolTipText = "View only communications with the specified client";
+	m_clientFilterCombo.m_toolTip = "View only communications with the specified client";
 
 	m_actionTable[ActionId.ApplyFilter] = createAction("Apply filter", "images/apply.png");
 	m_actionTable[ActionId.ApplyFilter].m_onTriggered += onSetClientFilter;

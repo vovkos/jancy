@@ -83,7 +83,7 @@ EnumProperty* createNetworkAdapterProperty(
 	Property* insertBefore = null,
 	NetworkAdapterUsage usage,
 	char const* name,
-	char const* toolTipText
+	char const* toolTip
 ) {
 	EnumPropertyOption const* optionArray = createNetworkAdapterOptionArray(usage);
 	size_t optionCount = dynamic countof(optionArray);
@@ -92,7 +92,7 @@ EnumProperty* createNetworkAdapterProperty(
 		group,
 		insertBefore,
 		name,
-		toolTipText,
+		toolTip,
 		optionArray,
 		optionCount
 	);
@@ -102,9 +102,9 @@ EnumProperty* createNetworkAdapterProperty(
 	PropertyGrid* propertyGrid,
 	NetworkAdapterUsage usage,
 	char const* name,
-	char const* toolTipText
+	char const* toolTip
 ) {
-	return createNetworkAdapterProperty(propertyGrid,,, usage, name, toolTipText);
+	return createNetworkAdapterProperty(propertyGrid,,, usage, name, toolTip);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -253,8 +253,8 @@ void SocketPropertySet.createProperties(
 		);
 	}
 
-	ui.Property* localAddressGroup = group;
-	ui.Property* localAddressInsertBefore = insertBefore;
+	Property* localAddressGroup = group;
+	Property* localAddressInsertBefore = insertBefore;
 
 	if (mask & PropertyId.UseLocalAddress) {
 		m_useLocalAddressProp = propertyGrid.createBoolProperty(
@@ -298,7 +298,7 @@ void SocketPropertySet.createProperties(
 		);
 
 	if (mask & PropertyId.TcpOptions) {
-		ui.GroupProperty* tcpGroup = propertyGrid.createGroupProperty(
+		GroupProperty* tcpGroup = propertyGrid.createGroupProperty(
 			group,
 			insertBefore,
 			"Advanced TCP options",

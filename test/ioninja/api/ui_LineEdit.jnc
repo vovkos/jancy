@@ -1,0 +1,39 @@
+//..............................................................................
+//
+// Ninja UI - line edit
+//
+
+import "ui_Widget.jnc"
+
+namespace ui {
+
+//! \addtogroup api-ui
+//! @{
+
+//..............................................................................
+
+opaque class LineEdit: Widget {
+	enum EchoMode {
+		Normal = 0,
+		NoEcho,
+		Password,
+		PasswordEchoOnEdit,
+	}
+
+	char const* bindable autoget property m_text;
+	char const* autoget property m_placeholderText;
+	Alignment autoget property m_alignment;
+	EchoMode m_echoMode;
+	bool autoget property m_isReadOnly;
+
+	construct();
+
+	void clear();
+	void selectAll();
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace ui

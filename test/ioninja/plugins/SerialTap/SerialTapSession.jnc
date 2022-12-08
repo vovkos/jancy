@@ -11,6 +11,7 @@ import "io_UsbDb.jnc"
 import "ui_SerialUi.jnc"
 import "ui_BufferPropertySet.jnc"
 import "ui_StdSessionInfoSet.jnc"
+import "ui_GroupBox.jnc"
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
 import "std_Buffer.jnc"
@@ -101,7 +102,7 @@ class SerialIface {
 	io.UsbEndpoint* m_interruptEndpoint;
 	uint_t m_bulkSyncId;
 	uint_t m_interruptSyncId;
-	io.SerialStatusLines bindable m_serialStatusLines;
+	io.SerialStatusLines bindable m_statusLines;
 
 	bool errorcode claim(
 		io.UsbDevice* device,
@@ -124,13 +125,13 @@ bool errorcode SerialIface.claim(
 	bool dsr = getGpioPin(device, ifaceId ? UartGpioPin.Dsr : UartGpioPin.Dtr);
 	bool cts = getGpioPin(device, ifaceId ? UartGpioPin.Cts : UartGpioPin.Rts);
 
-	m_serialStatusLines = 0;
+	m_statusLines = 0;
 
 	if (dsr)
-		m_serialStatusLines = io.SerialStatusLines.Dsr;
+		m_statusLines = io.SerialStatusLines.Dsr;
 
 	if (cts)
-		m_serialStatusLines = io.SerialStatusLines.Cts;
+		m_statusLines = io.SerialStatusLines.Cts;
 
 	return true;
 }
@@ -205,7 +206,7 @@ protected:
 
 	// common serial ui
 
-	ui.SerialSettingUi m_serialSettingUi;
+	ui.SerialUi m_serialUi;
 
 	// toolbar, status bar & menu
 
@@ -253,6 +254,9 @@ protected:
 	}
 
 	void onBaudRateChanged();
+	void onDataBitsChanged();
+	void onParityChanged();
+	void onStopBitsChanged();
 
 	void onBulkEndpointEvent(
 		SerialIface* iface,
@@ -318,31 +322,37 @@ void SerialTapSession.createUi() {
 
 	// serial settings
 
-	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
+	ui.GroupProperty* groupProp = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Connection",
 		"USB-specific connection settings"
 	);
 
 	m_deviceProp = m_pluginHost.m_propertyGrid.createEnumProperty(
-		group,,
+		groupProp,,
 		"Tap",
 		"Target USB-connected tap device",
 		null, 0
 	);
 
-	m_serialSettingUi.create(
-		m_pluginHost.m_toolBar,
-		m_pluginHost.m_propertyGrid,
-		group,
-		ui.SerialSettingUi.SettingId.BaudRate,
-		ui.SerialSettingUi.SettingId.BaudRate |
-		ui.SerialSettingUi.SettingId.DataBits |
-		ui.SerialSettingUi.SettingId.StopBits |
-		ui.SerialSettingUi.SettingId.Parity
-	);
+	ui.FormLayout* form = m_pluginHost.createForm();
+	ui.FormLayout* layout = new ui.FormLayout;
+	ui.GroupBox* formGroup = new ui.GroupBox("Serial tap settings", layout);
 
-	m_serialSettingUi.m_baudRateCombo.m_onEnter += onBaudRateChanged;
-	bindingof(m_serialSettingUi.m_baudRateCombo.m_currentIndex) += onBaudRateChanged;
+	ui.SerialUi.ItemId serialUiMask =
+		ui.SerialUi.ItemId.BaudRate |
+		ui.SerialUi.ItemId.DataBits |
+		ui.SerialUi.ItemId.StopBits |
+		ui.SerialUi.ItemId.Parity;
+
+	m_serialUi.createForm(layout, serialUiMask);
+	m_serialUi.createProperties(m_pluginHost.m_propertyGrid, groupProp, serialUiMask);
+	form.addRow(formGroup);
+
+	m_serialUi.m_baudRateCombo.m_onEnter += onBaudRateChanged;
+	bindingof(m_serialUi.m_baudRateCombo.m_currentIndex) += onBaudRateChanged;
+	bindingof(m_serialUi.m_dataBitsCombo.m_currentIndex) += onDataBitsChanged;
+	bindingof(m_serialUi.m_parityCombo.m_currentIndex) += onParityChanged;
+	bindingof(m_serialUi.m_stopBitsCombo.m_currentIndex) += onStopBitsChanged;
 
 	m_pluginHost.m_menu.addSeparator();
 
@@ -351,14 +361,14 @@ void SerialTapSession.createUi() {
 	m_actionTable[ActionId.Flip].m_onTriggered = flipDteDce;
 
 	m_flipProp = m_pluginHost.m_propertyGrid.createBoolProperty(
-		group,,
+		groupProp,,
 		"Flip DTE/DCE",
 		"Flip logical sides of the tap cable"
 	);
 
 	// property grid
 
-	group = m_pluginHost.m_propertyGrid.createGroupProperty(
+	groupProp = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Buffering & compatibility",
 		"Advanced options controlling performance, throughtput and compatibility"
 	);
@@ -369,7 +379,7 @@ void SerialTapSession.createUi() {
 		ui.BufferPropertySet.PropertyId.KeepWriteBlockSize
 	);
 
-	m_bufferPropertySet.createProperties(m_pluginHost.m_propertyGrid, group,, mask);
+	m_bufferPropertySet.createProperties(m_pluginHost.m_propertyGrid, groupProp,, mask);
 
 	// information grid
 
@@ -437,10 +447,10 @@ void SerialTapSession.flipDteDce() {
 
 bool errorcode SerialTapSession.configureSerialIface(uint_t ifaceId) {
 	cy.CyUartConfig uartConfig;
-	uartConfig.baudRate = m_serialSettingUi.m_baudRate;
-	uartConfig.dataWidth = m_serialSettingUi.m_dataBits;
-	uartConfig.stopBits = m_serialSettingUi.m_stopBits ? 2 : 1;
-	uartConfig.parity = m_serialSettingUi.m_parity;
+	uartConfig.baudRate = m_serialUi.m_baudRate;
+	uartConfig.dataWidth = m_serialUi.m_dataBits;
+	uartConfig.stopBits = m_serialUi.m_stopBits ? 2 : 1;
+	uartConfig.parity = m_serialUi.m_parity;
 
 	size_t result = m_device.controlTransfer(
 		cy.CY_VENDOR_REQUEST_HOST_TO_DEVICE,
@@ -479,10 +489,10 @@ bool errorcode SerialTapSession.capture() {
 		m_dceIface.claim(m_device, 1);
 	}
 
-	m_baudRate = m_serialSettingUi.m_baudRate;
-	m_dataBits = m_serialSettingUi.m_dataBits;
-	m_stopBits = m_serialSettingUi.m_stopBits;
-	m_parity = m_serialSettingUi.m_parity;
+	m_baudRate = m_serialUi.m_baudRate;
+	m_dataBits = m_serialUi.m_dataBits;
+	m_stopBits = m_serialUi.m_stopBits;
+	m_parity = m_serialUi.m_parity;
 
 	SerialOpenParams params;
 	params.m_baudRate = m_baudRate;
@@ -491,9 +501,9 @@ bool errorcode SerialTapSession.capture() {
 	params.m_parity = m_parity;
 	params.m_flowControl = io.SerialFlowControl.None;
 	params.m_readInterval = 0;
-	params.m_dtr = m_dceIface.m_serialStatusLines & io.SerialStatusLines.Dsr;
-	params.m_rts = m_dceIface.m_serialStatusLines & io.SerialStatusLines.Cts;
-	params.m_statusLines = m_dceIface.m_serialStatusLines;
+	params.m_dtr = m_dceIface.m_statusLines & io.SerialStatusLines.Dsr;
+	params.m_rts = m_dceIface.m_statusLines & io.SerialStatusLines.Cts;
+	params.m_statusLines = m_dceIface.m_statusLines;
 	params.m_options = 0;
 	params.m_osKind = sys.g_systemInfo.m_osKind;
 
@@ -632,7 +642,7 @@ void SerialTapSession.onInterruptEndpointEvent(
 			if (bits & cy.CY_UART_BREAK_BIT)
 				lineErrors |= io.SerialLineErrors.BreakError;
 
-			io.SerialStatusLines statusLineMask = statusLines ^ iface.m_serialStatusLines;
+			io.SerialStatusLines statusLineMask = statusLines ^ iface.m_statusLines;
 
 			if (statusLineMask) {
 				uint64_t recordCode = iface == m_dteIface ?
@@ -642,7 +652,7 @@ void SerialTapSession.onInterruptEndpointEvent(
 				SerialStatusLineChangedParams params = { statusLines, statusLineMask }
 				m_logWriter.write(recordCode, params, sizeof(params));
 
-				iface.m_serialStatusLines = statusLines;
+				iface.m_statusLines = statusLines;
 			}
 
 			if (lineErrors)
@@ -654,7 +664,7 @@ void SerialTapSession.onInterruptEndpointEvent(
 }
 
 void SerialTapSession.load(doc.Storage* storage) {
-	m_serialSettingUi.load(storage);
+	m_serialUi.load(storage);
 
 	m_deviceCombo.m_currentIndex  = storage.readInt("deviceIdx");
 	m_actionTable[ActionId.Flip].m_isChecked = storage.readBool("flipDteDce");
@@ -664,7 +674,7 @@ void SerialTapSession.load(doc.Storage* storage) {
 }
 
 void SerialTapSession.save(doc.Storage* storage) {
-	m_serialSettingUi.save(storage);
+	m_serialUi.save(storage);
 
 	storage.writeInt("deviceIdx", (int) m_deviceCombo.m_currentIndex);
 	storage.writeBool("flipDteDce", m_actionTable [ActionId.Flip].m_isChecked);
@@ -673,14 +683,14 @@ void SerialTapSession.save(doc.Storage* storage) {
 }
 
 void SerialTapSession.updateProperties() {
-	m_serialSettingUi.updateProperties();
+	m_serialUi.updateProperties();
 
 	m_deviceProp.m_currentIndex = m_deviceCombo.m_currentIndex;
 	m_flipProp.m_value = m_actionTable[ActionId.Flip].m_isChecked;
 }
 
 bool errorcode SerialTapSession.applyProperties() {
-	m_serialSettingUi.applyProperties();
+	m_serialUi.applyProperties();
 
 	m_deviceCombo.m_currentIndex = m_deviceProp.m_currentIndex;
 	m_actionTable[ActionId.Flip].m_isChecked = m_flipProp.m_value;
@@ -689,10 +699,10 @@ bool errorcode SerialTapSession.applyProperties() {
 	if (m_state != State.Opened)
 		return true;
 
-	uint_t baudRate = m_serialSettingUi.m_baudRate;
-	uint_t dataBits = m_serialSettingUi.m_dataBits;
-	io.SerialStopBits stopBits = m_serialSettingUi.m_stopBits;
-	io.SerialParity parity = m_serialSettingUi.m_parity;
+	uint_t baudRate = m_serialUi.m_baudRate;
+	uint_t dataBits = m_serialUi.m_dataBits;
+	io.SerialStopBits stopBits = m_serialUi.m_stopBits;
+	io.SerialParity parity = m_serialUi.m_parity;
 
 	if (m_baudRate != baudRate) {
 		m_logWriter.write(SerialLogRecordCode.BaudRateChanged, &baudRate, sizeof(baudRate));
@@ -724,7 +734,7 @@ catch:
 }
 
 void SerialTapSession.restoreDefaultProperties() {
-	m_serialSettingUi.restoreDefaultProperties();
+	m_serialUi.restoreDefaultProperties();
 	m_flipProp.m_value = false;
 	m_bufferPropertySet.restoreDefaults();
 }
@@ -733,15 +743,65 @@ void SerialTapSession.onBaudRateChanged() {
 	if (m_state != State.Opened)
 		return;
 
-	uint_t baudRate = m_serialSettingUi.m_baudRate;
+	uint_t baudRate = m_serialUi.m_baudRate;
 	if (baudRate == m_baudRate)
 		return;
 
 	configureSerialIface(0);
 	configureSerialIface(1);
-
 	m_logWriter.write(SerialLogRecordCode.BaudRateChanged, &baudRate, sizeof(baudRate));
 	m_baudRate = baudRate;
+
+catch:
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
+}
+
+void SerialTapSession.onDataBitsChanged() {
+	if (m_state != State.Opened)
+		return;
+
+	uint_t dataBits = m_serialUi.m_dataBits;
+	if (dataBits == m_dataBits)
+		return;
+
+	configureSerialIface(0);
+	configureSerialIface(1);
+	m_logWriter.write(SerialLogRecordCode.DataBitsChanged, &dataBits, sizeof(dataBits));
+	m_dataBits = dataBits;
+
+catch:
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
+}
+
+void SerialTapSession.onParityChanged() {
+	if (m_state != State.Opened)
+		return;
+
+	io.SerialParity parity = m_serialUi.m_parity;
+	if (parity == m_parity)
+		return;
+
+	configureSerialIface(0);
+	configureSerialIface(1);
+	m_logWriter.write(SerialLogRecordCode.ParityChanged, &parity, sizeof(parity));
+	m_parity = parity;
+
+catch:
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
+}
+
+void SerialTapSession.onStopBitsChanged() {
+	if (m_state != State.Opened)
+		return;
+
+	io.SerialStopBits stopBits = m_serialUi.m_stopBits;
+	if (stopBits == m_stopBits)
+		return;
+
+	configureSerialIface(0);
+	configureSerialIface(1);
+	m_logWriter.write(SerialLogRecordCode.StopBitsChanged, &stopBits, sizeof(stopBits));
+	m_stopBits = stopBits;
 
 catch:
 	m_logWriter.writeLastError(log.StdRecordCode.Error);
@@ -768,10 +828,10 @@ reactor SerialTapSession.m_uiReactor {
 	m_infoTable[InfoId.Dsr].m_isEnabled = m_state;
 	m_infoTable[InfoId.Cts].m_isEnabled = m_state;
 
-	updateLineInfoValue(InfoId.Dtr, m_dceIface.m_serialStatusLines & io.SerialStatusLines.Dsr);
-	updateLineInfoValue(InfoId.Rts, m_dceIface.m_serialStatusLines & io.SerialStatusLines.Cts);
-	updateLineInfoValue(InfoId.Dsr, m_dteIface.m_serialStatusLines & io.SerialStatusLines.Dsr);
-	updateLineInfoValue(InfoId.Cts, m_dteIface.m_serialStatusLines & io.SerialStatusLines.Cts);
+	updateLineInfoValue(InfoId.Dtr, m_dceIface.m_statusLines & io.SerialStatusLines.Dsr);
+	updateLineInfoValue(InfoId.Rts, m_dceIface.m_statusLines & io.SerialStatusLines.Cts);
+	updateLineInfoValue(InfoId.Dsr, m_dteIface.m_statusLines & io.SerialStatusLines.Dsr);
+	updateLineInfoValue(InfoId.Cts, m_dteIface.m_statusLines & io.SerialStatusLines.Cts);
 }
 
 //..............................................................................

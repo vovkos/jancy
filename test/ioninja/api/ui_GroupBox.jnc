@@ -1,0 +1,34 @@
+//..............................................................................
+//
+// Ninja UI - group boxes
+//
+
+import "ui_Widget.jnc"
+import "ui_Layout.jnc"
+
+namespace ui {
+
+//! \addtogroup api-ui
+//! @{
+
+//..............................................................................
+
+opaque class GroupBox: Widget {
+	char const* autoget property m_title;
+	Layout* autoget property m_layout;
+	bool autoget property m_isCheckable;
+	bool bindable autoget property m_isChecked;
+
+	construct(
+		char const* title = null,
+		Layout* layout = null
+	);
+
+	construct(Layout* layout);
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace ui

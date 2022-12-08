@@ -1,0 +1,41 @@
+//..............................................................................
+//
+// Ninja UI - spin boxes
+//
+
+import "ui_Widget.jnc"
+import "ui_Layout.jnc"
+
+namespace ui {
+
+//! \addtogroup api-ui
+//! @{
+
+//..............................................................................
+
+opaque class SpinBox: Widget {
+	enum ButtonSymbols {
+		UpDownArrows = 0,
+		PlusMinus,
+		NoButtons,
+	}
+
+	char const* bindable autoget property m_prefix;
+	char const* autoget property m_suffix;
+
+	int autoget property m_value;
+	int autoget property m_minimum;
+	int autoget property m_maximum;
+	int autoget property m_singleStep;
+	bool autoget property m_isAccelerated;
+
+	ButtonSymbols autoget property m_buttonSymbols;
+
+	construct();
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace ui

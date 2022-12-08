@@ -5,7 +5,7 @@
 
 import "SerialMonProcessor.jnc"
 import "SerialMonLogRecordCode.jnc"
-import "Serial/SerialLogRecordCode.jnc"
+import "SerialLog/SerialLogRecordCode.jnc"
 
 // excerpt from ntddser.h
 

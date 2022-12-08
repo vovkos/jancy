@@ -11,6 +11,7 @@ id          = ssl-server
 group       = net
 log-guid    = 7940a0d5-a84b-4509-bae4-b5928511472d  # ssl
 log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
+log-guid    = 4cf26929-c3f4-42f3-b695-51d3915dfc46  # server socket log filter
 icon        = images/listener.png
 small-icon  = images/listener-16x16.png
 
@@ -31,4 +32,3 @@ org.jancy.io.ip6
 [scripts]
 
 SslServerSession.jnc
-../SocketLog/SocketClientLogFilter.jnc

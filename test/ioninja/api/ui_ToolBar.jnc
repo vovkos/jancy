@@ -1,6 +1,6 @@
 //..............................................................................
 //
-// Ninja GUI - tool bar
+// Ninja UI - tool bars
 //
 
 import "ui_Action.jnc"
@@ -15,11 +15,24 @@ namespace ui {
 
 // toolbar
 
-opaque class ToolBar {
+opaque class ToolBar: Widget {
+	enum {
+		Def_Spacing = 6,
+	}
+
+	construct();
 	destruct();
 
 	void addAction(Action* action);
-	void addLabel(char const* pText);
+	void addWidget(Widget* widget);
+	void addSpacing(int size = Def_Spacing);
+	void addStretch(int stretch = 0);
+	void addSeparator();
+
+	Label* addLabel(
+		char const* text,
+		int spacing = Def_Spacing
+	);
 
 	ComboBox* addComboBox(uint_t width = 0);  // 0 = default, -1 = stretch
 
@@ -27,12 +40,34 @@ opaque class ToolBar {
 		const char* labelText,
 		ComboItem const* itemArray,
 		size_t itemCount
-	);  // 0 = default, -1 = stretch
-
-	void addSeparator();
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+Label* ToolBar.addLabel(
+	char const* text,
+	int spacing
+) {
+	Label* label = new Label(text);
+	addWidget(label);
+
+	if (spacing)
+		addSpacing(spacing);
+
+	return label;
+}
+
+ComboBox* ToolBar.addComboBox(uint_t width) {
+	ComboBox* comboBox = new ComboBox;
+	if (width == -1)
+		comboBox.m_horizontalSizePolicy = SizePolicy.Expanding;
+	else if (width > 0)
+		comboBox.m_minimumWidth = width;
+
+	addWidget(comboBox);
+	return comboBox;
+}
 
 ComboBox* ToolBar.addComboBox(
 	const char* labelText,
@@ -40,9 +75,9 @@ ComboBox* ToolBar.addComboBox(
 	size_t itemCount
 ) {
 	addLabel(labelText);
-	ComboBox* comboBox = addComboBox();
-	comboBox.setItems(itemArray, itemCount);
+	ComboBox* comboBox = new ComboBox(itemArray, itemCount);
 	comboBox.adjustSizeToContents();
+	addWidget(comboBox);
 	return comboBox;
 }
 

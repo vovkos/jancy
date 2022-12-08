@@ -1,10 +1,10 @@
 //..............................................................................
 //
-// Ninja document model: plugins (sessions and protocols)
+// Ninja document model - plugins (sessions, layers, log filters)
 //
 
-import "doc_PluginHost.jnc"
 import "doc_Storage.jnc"
+import "doc_PluginHost.jnc"
 
 namespace doc {
 
@@ -13,7 +13,21 @@ namespace doc {
 
 //..............................................................................
 
-class Plugin {
+class PluginConfig {
+	virtual void load(Storage* storage) {}
+	virtual void save(Storage* storage) {}
+	virtual void updateProperties() {}
+
+	virtual bool errorcode applyProperties() {
+		return true;
+	}
+
+	virtual void restoreDefaultProperties() {}
+}
+
+//..............................................................................
+
+class Plugin: PluginConfig {
 	PluginHost* readonly m_pluginHost;
 
 	property m_logWriter {
@@ -25,18 +39,6 @@ class Plugin {
 	construct(PluginHost* host) {
 		m_pluginHost = host;
 	}
-
-	virtual void load(Storage* storage) {}
-
-	virtual void save(Storage* storage) {}
-
-	virtual void updateProperties() {}
-
-	virtual bool errorcode applyProperties() {
-		return true;
-	}
-
-	virtual void restoreDefaultProperties() {}
 
 	abstract size_t errorcode transmit(
 		void const* p,
@@ -68,7 +70,7 @@ ui.Action* Plugin.createAction(
 	bool isCheckable,
 	bool isChecked
 ) {
-	ui.Action* action = new ui.Action(text, icon);
+	ui.Action* action = new ui.Action(icon, text);
 	action.m_isCheckable = isCheckable;
 	if (isCheckable)
 		action.m_isChecked = isChecked;
@@ -76,6 +78,14 @@ ui.Action* Plugin.createAction(
 	m_pluginHost.m_menu.addAction(action);
 	m_pluginHost.m_toolBar.addAction(action);
 	return action;
+}
+
+//..............................................................................
+
+// log filters, while not quite full plugins, also need UI and serialization
+
+class LogFilter: PluginConfig {
+	// construct(PluginHost* host) {}
 }
 
 //..............................................................................

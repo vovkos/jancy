@@ -1,0 +1,84 @@
+import "ui_Layout.jnc"
+import "ui_PropertyGrid.jnc"
+
+namespace ui {
+
+//! \addtogroup common
+//! @{
+
+//..............................................................................
+
+class LogRecordCodeFilterUi {
+protected:
+	CheckBox* m_checkBox;
+	BoolProperty* m_prop;
+
+public:
+	bool volatile readonly m_isVisible;
+
+	void create(
+		VBoxLayout* layout,
+		GroupProperty* groupProp,
+		char const* name,
+		char const* toolTip = null,
+		ui.ToolBar* toolBar = null,
+		bool isVisible = true
+	);
+
+	void update() {
+		m_prop.m_value = m_isVisible;
+	}
+
+	void apply() {
+		m_isVisible = m_checkBox.m_isChecked = m_prop.m_value;
+	}
+
+	void operator := (bool isVisible);
+
+protected:
+	void onCheckBoxClicked() {
+		m_isVisible = m_checkBox.m_isChecked;
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void LogRecordCodeFilterUi.create(
+	VBoxLayout* layout,
+	GroupProperty* groupProp,
+	char const* name,
+	char const* toolTip,
+	ui.ToolBar* toolBar,
+	bool isVisible
+) {
+	m_checkBox = new CheckBox(name);
+	m_checkBox.m_toolTip = toolTip;
+	m_checkBox.m_isChecked = isVisible;
+	bindingof(m_checkBox.m_isChecked) += onCheckBoxClicked;
+
+	if (!toolBar)
+		layout.addWidget(m_checkBox);
+	else {
+		ui.HBoxLayout* subLayout = new ui.HBoxLayout;
+		subLayout.addWidget(m_checkBox, 1, Alignment.Top);
+		subLayout.addWidget(toolBar);
+		layout.addLayout(subLayout);
+	}
+
+	m_prop = new BoolProperty(name);
+	m_prop.m_toolTip = toolTip;
+	m_prop.m_value = isVisible;
+	groupProp.addChildProperty(m_prop);
+
+	m_isVisible = isVisible;
+}
+
+void LogRecordCodeFilterUi.operator := (bool isVisible) {
+	m_isVisible = isVisible;
+	m_checkBox.m_isChecked = isVisible;
+	m_prop.m_value = isVisible;
+}
+
+//..............................................................................
+
+} // namespace ui

@@ -179,7 +179,7 @@ void PcapSnifferSession.createUi() {
 	m_viewFilterCombo.m_isEditable = true;
 	m_viewFilterCombo.m_onEnter += onSetViewFilter;
 	m_viewFilterCombo.m_placeholderText = "Enter a pcap-filter...";
-	m_viewFilterCombo.m_toolTipText =
+	m_viewFilterCombo.m_toolTip =
 		"View only packets which pass this filter\n"
 		"For a complete syntax reference, google 'pcap-filter'";
 

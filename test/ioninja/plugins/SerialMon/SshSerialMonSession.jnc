@@ -175,6 +175,7 @@ void SshSerialMonSession.createUi() {
 	m_addressCombo.m_onEnter += onComboEnter;
 	m_addressCombo.m_placeholderText = "Enter a remote IP or hostname...";
 
+	m_pluginHost.m_toolBar.addSpacing();
 	m_pluginHost.m_toolBar.addLabel("Port:");
 	m_portCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_portCombo.m_isEditable = true;

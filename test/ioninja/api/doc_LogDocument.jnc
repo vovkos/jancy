@@ -1,6 +1,6 @@
 //..............................................................................
 //
-// This is the main entry for log documents (w/o session)
+// Ninja document model - log documents (w/o live sessions)
 //
 
 import "doc_Plugin.jnc"

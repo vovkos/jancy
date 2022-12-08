@@ -1,0 +1,54 @@
+//..............................................................................
+//
+// Ninja UI - buttons
+//
+
+import "ui_Widget.jnc"
+import "ui_Icon.jnc"
+
+namespace ui {
+
+//! \addtogroup api-ui
+//! @{
+
+//..............................................................................
+
+opaque class AbstractButton: Widget {
+	char const* autoget property m_text;
+	Icon* autoget property m_icon;
+	bool autoget property m_isCheckable;
+	bool bindable autoget property m_isChecked;
+
+	event m_onClicked();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class PushButton: AbstractButton {
+	bool autoget property m_isFlat;
+
+	construct(char const* text = null);
+
+	construct(
+		Icon* icon,
+		char const* text = null
+	);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class CheckBox: AbstractButton {
+	construct(char const* text = null);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class RadioButton: AbstractButton {
+	construct(char const* text = null);
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace ui

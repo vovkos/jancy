@@ -172,7 +172,7 @@ void SshEthernetTapSession.createUi() {
 	m_filterCombo.m_isEditable = true;
 	m_filterCombo.m_onEnter += onSetFilter;
 	m_filterCombo.m_placeholderText = "Enter a pcap-filter...";
-	m_filterCombo.m_toolTipText =
+	m_filterCombo.m_toolTip =
 		"View only packets which pass this filter\n"
 		"For a complete syntax reference, google 'pcap-filter'";
 

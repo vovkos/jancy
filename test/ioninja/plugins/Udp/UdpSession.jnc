@@ -179,9 +179,11 @@ void UdpSession.createUi() {
 	bindingof(m_remoteAddressCombo.m_editText) += onRemoteAddressChanged;
 	m_remoteAddressCombo.m_placeholderText = "Enter a remote IP or hostname...";
 
+	m_pluginHost.m_toolBar.addSpacing();
 	m_pluginHost.m_toolBar.addLabel("Adapter:");
 	m_adapterCombo = ui.createNetworkAdapterComboBox(m_pluginHost.m_toolBar, ui.NetworkAdapterUsage.Listener);
 
+	m_pluginHost.m_toolBar.addSpacing();
 	m_pluginHost.m_toolBar.addLabel("Local port:");
 	m_localPortCombo = m_pluginHost.m_toolBar.addComboBox();
 	m_localPortCombo.m_isEditable = true;
@@ -514,7 +516,7 @@ reactor UdpSession.m_uiReactor {
 	m_actionTable[ActionId.Open].m_icon = m_iconTable[m_state ? IconId.Close : IconId.Open];
 	m_statusPaneTable[StatusPaneId.State].m_text = m_state ? "Opened" : "Closed";
 	m_remoteAddressCombo.m_backgroundColor = m_autoRemoteAddressProp.m_value ? ui.StdColor.PastelGreen : ui.ColorFlags.Undefined;
-	m_remoteAddressCombo.m_toolTipText = m_autoRemoteAddressProp.m_value ?
+	m_remoteAddressCombo.m_toolTip = m_autoRemoteAddressProp.m_value ?
 		"This address will automatically switch to the address of the last inbound datagram" :
 		null;
 

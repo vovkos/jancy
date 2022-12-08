@@ -20,6 +20,13 @@ bitflag enum RecordCodeFlags: uint64_t {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+bitflag enum FoldFlags {
+	Hidden    = 0x80,
+	ExpandAll = 0x7f,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 bitflag enum PartCodeFlags: uint64_t {
 	MergeableBackward = 0x2000000000000000, // don't interfere with RecordCodeFlags
 	MergeableForward  = 0x4000000000000000,

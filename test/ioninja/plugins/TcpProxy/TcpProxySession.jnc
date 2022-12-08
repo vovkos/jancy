@@ -48,7 +48,6 @@ protected:
 	enum ActionId {
 		Listen,
 		DisconnectAll,
-		ApplyFilter,
 		_Count,
 	}
 
@@ -98,14 +97,12 @@ protected:
 	iox.HostNameResolver m_resolver;
 	std.List m_resolverWaitList;
 	std.Buffer m_readBuffer;
-	SocketClientLogFilter m_filter;
 
 	// toolbar, status bar & menu
 
 	ui.Action* m_actionTable[ActionId._Count];
 	ui.Icon* m_iconTable[IconId._Count];
 	ui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
-	ui.ComboBox* m_clientFilterCombo;
 	ui.ComboBox* m_adapterCombo;
 	ui.ComboBox* m_portCombo;
 	ui.ComboBox* m_targetAddressCombo;
@@ -156,10 +153,6 @@ protected:
 		try listen();
 	}
 
-	void onSetClientFilter() {
-		try applyClientFilter(true);
-	}
-
 	void onResolveCompleted();
 
 	void onListenerSocketEvent(
@@ -173,8 +166,6 @@ protected:
 		uint_t syncId,
 		io.SocketEvents triggeredEvents
 	);
-
-	bool errorcode applyClientFilter(bool rebuildLog);
 
 	void createUi();
 
@@ -216,23 +207,11 @@ TcpProxySession.construct(doc.PluginHost* pluginHost) {
 
 	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
 	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
-	pluginHost.m_log.addFilter(m_filter);
 	m_resolver.m_onCompleted += onResolveCompleted;
 }
 
 void TcpProxySession.createUi() {
 	// toolbar
-
-	m_pluginHost.m_toolBar.addLabel("Filter:");
-	m_clientFilterCombo = m_pluginHost.m_toolBar.addComboBox(-1);
-	m_clientFilterCombo.m_isEditable = true;
-	m_clientFilterCombo.m_onEnter += onSetClientFilter;
-	m_clientFilterCombo.m_placeholderText = "Enter client address or port...";
-	m_clientFilterCombo.m_toolTipText = "View only communications with the specified client";
-
-	m_actionTable[ActionId.ApplyFilter] = createAction("Apply filter", "images/apply.png");
-	m_actionTable[ActionId.ApplyFilter].m_onTriggered += onSetClientFilter;
-	m_pluginHost.m_toolBar.addSeparator();
 
 	m_pluginHost.m_toolBar.addLabel("Target:");
 	m_targetAddressCombo = m_pluginHost.m_toolBar.addComboBox(-1);
@@ -241,9 +220,11 @@ void TcpProxySession.createUi() {
 	m_targetAddressCombo.m_onEnter += onTargetAddressEnter;
 	m_targetAddressCombo.m_placeholderText = "Enter a remote IP or hostname...";
 
+	m_pluginHost.m_toolBar.addSpacing();
 	m_pluginHost.m_toolBar.addLabel("Adapter:");
 	m_adapterCombo = ui.createNetworkAdapterComboBox(m_pluginHost.m_toolBar, ui.NetworkAdapterUsage.Listener);
 
+	m_pluginHost.m_toolBar.addSpacing();
 	m_pluginHost.m_toolBar.addLabel("Port:");
 	m_portCombo = m_pluginHost.m_toolBar.addComboBox();
 	m_portCombo.m_isEditable = true;
@@ -434,25 +415,6 @@ void TcpProxySession.syncConnectCompleted(TcpProxySession.Proxy* proxy) {
 		proxy.m_target.m_address,
 		sizeof(proxy.m_target.m_address)
 	);
-}
-
-bool errorcode TcpProxySession.applyClientFilter(bool rebuildLog) {
-	m_pluginHost.m_log.suspend();
-	bool result = try m_filter.setFilter(m_clientFilterCombo.m_editText);
-	m_pluginHost.m_log.resume();
-
-	if (!result) {
-		m_clientFilterCombo.m_backgroundColor = ui.StdColor.PastelRed;
-		return false;
-	}
-
-	m_clientFilterCombo.addEditTextToHistory();
-	m_clientFilterCombo.m_backgroundColor = ui.ColorFlags.Undefined;
-
-	if (rebuildLog)
-		m_pluginHost.m_log.rebuild();
-
-	return true;
 }
 
 void TcpProxySession.connect(TcpProxySession.Proxy* proxy) {

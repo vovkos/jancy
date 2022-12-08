@@ -1,6 +1,6 @@
 //..............................................................................
 //
-// Ninja document model - main thread schdeuler
+// Ninja document model - main thread scheduler
 //
 
 namespace doc {

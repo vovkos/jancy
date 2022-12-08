@@ -34,7 +34,6 @@ protected:
 		Listen,
 		Disconnect,
 		DisconnectAll,
-		ApplyFilter,
 		_Count,
 	}
 
@@ -69,7 +68,6 @@ protected:
 	size_t bindable m_clientCount;
 	Client* m_currentClient;
 	std.Buffer m_readBuffer;
-	SocketClientLogFilter m_filter;
 
 	// toolbar, status bar & menu
 
@@ -79,12 +77,10 @@ protected:
 	ui.ComboBox* m_adapterCombo;
 	ui.ComboBox* m_portCombo;
 	ui.ComboBox* m_clientCombo;
-	ui.ComboBox* m_clientFilterCombo;
 
 	// property grid
 
 	ui.SocketPropertySet m_socketPropertySet;
-	ui.StringProperty* m_clientFilterProp;
 	ui.BufferPropertySet m_bufferPropertySet;
 
 	// information grid
@@ -135,10 +131,6 @@ protected:
 		try listen();
 	}
 
-	void onSetClientFilter() {
-		try applyClientFilter(true);
-	}
-
 	void onListenerSocketEvent(
 		uint_t syncId,
 		io.SocketEvents triggeredEvents
@@ -149,8 +141,6 @@ protected:
 		uint_t syncId,
 		io.SocketEvents triggeredEvents
 	);
-
-	bool errorcode applyClientFilter(bool rebuildLog);
 
 	void createUi();
 	void waitListenerSocketEvents();
@@ -169,22 +159,10 @@ TcpServerSession.construct(doc.PluginHost* pluginHost) {
 
 	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
 	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
-	pluginHost.m_log.addFilter(m_filter);
 }
 
 void TcpServerSession.createUi() {
 	// toolbar
-
-	m_pluginHost.m_toolBar.addLabel("Filter:");
-	m_clientFilterCombo = m_pluginHost.m_toolBar.addComboBox(-1);
-	m_clientFilterCombo.m_isEditable = true;
-	m_clientFilterCombo.m_onEnter += onSetClientFilter;
-	m_clientFilterCombo.m_placeholderText = "Enter client address to filter...";
-	m_clientFilterCombo.m_toolTipText = "View only communications with the specified client";
-
-	m_actionTable[ActionId.ApplyFilter] = createAction("Apply filter", "images/apply.png");
-	m_actionTable[ActionId.ApplyFilter].m_onTriggered += onSetClientFilter;
-	m_pluginHost.m_toolBar.addSeparator();
 
 	m_pluginHost.m_toolBar.addLabel("Client:");
 	m_clientCombo = m_pluginHost.m_toolBar.addComboBox(-1);
@@ -198,6 +176,7 @@ void TcpServerSession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("Adapter:");
 	m_adapterCombo = ui.createNetworkAdapterComboBox(m_pluginHost.m_toolBar, ui.NetworkAdapterUsage.Listener);
 
+	m_pluginHost.m_toolBar.addSpacing();
 	m_pluginHost.m_toolBar.addLabel("Port:");
 	m_portCombo = m_pluginHost.m_toolBar.addComboBox();
 	m_portCombo.m_isEditable = true;
@@ -333,25 +312,6 @@ void TcpServerSession.setCurrentClient(TcpServerSession.Client* client) {
 	);
 
 	m_currentClient = client;
-}
-
-bool errorcode TcpServerSession.applyClientFilter(bool rebuildLog) {
-	m_pluginHost.m_log.suspend();
-	bool result = try m_filter.setFilter(m_clientFilterCombo.m_editText);
-	m_pluginHost.m_log.resume();
-
-	if (!result) {
-		m_clientFilterCombo.m_backgroundColor = ui.StdColor.PastelRed;
-		return false;
-	}
-
-	m_clientFilterCombo.addEditTextToHistory();
-	m_clientFilterCombo.m_backgroundColor = ui.ColorFlags.Undefined;
-
-	if (rebuildLog)
-		m_pluginHost.m_log.rebuild();
-
-	return true;
 }
 
 void TcpServerSession.load(doc.Storage* storage) {
