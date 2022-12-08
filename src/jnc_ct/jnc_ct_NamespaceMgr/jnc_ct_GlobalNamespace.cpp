@@ -39,6 +39,8 @@ GlobalNamespace::addBody(
 		extraBody->m_body = body;
 		m_extraBodyList.insertTail(extraBody);
 	}
+
+	m_namespaceStatus = NamespaceStatus_ParseRequired;
 }
 
 sl::String
