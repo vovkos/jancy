@@ -294,7 +294,7 @@ public:
 	enterNoCollectRegion();
 
 	void
-	leaveNoCollectRegion(bool canCollectNow);
+	leaveNoCollectRegion(bool canCollectNow = false);
 
 	void
 	safePoint();

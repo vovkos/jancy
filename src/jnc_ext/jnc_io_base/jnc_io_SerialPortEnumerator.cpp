@@ -64,7 +64,7 @@ enumerateSerialPorts(
 	}
 
 	Runtime* runtime = getCurrentThreadRuntime();
-	NoCollectRegion noCollectRegion(runtime, false);
+	NoCollectRegion noCollectRegion(runtime);
 
 	sl::Iterator<axl::io::SerialPortDesc> it = portList.getHead();
 

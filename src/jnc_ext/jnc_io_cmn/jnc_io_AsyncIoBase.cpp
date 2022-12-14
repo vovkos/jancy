@@ -165,7 +165,7 @@ AsyncIoBase::blockingWait(
 
 Promise*
 AsyncIoBase::asyncWait(uint_t eventMask) {
-	NoCollectRegion noCollectRegion(false);
+	NoCollectRegion noCollectRegion(m_runtime);
 	Promise* promise = createPromise(m_runtime);
 
 	FunctionPtr ptr;

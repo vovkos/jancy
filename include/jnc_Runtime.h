@@ -716,6 +716,10 @@ public:
 
 //..............................................................................
 
+// canCollectOnLeave = false as default is more suitable for situations where
+// no-collect-regions are generally required (e.g., we are building a complex
+// data structure somewhere from a C++ code, then return a pointer to it)
+
 class NoCollectRegion {
 protected:
 	GcHeap* m_gcHeap;
@@ -724,23 +728,16 @@ protected:
 public:
 	NoCollectRegion(
 		GcHeap* gcHeap,
-		bool canCollectOnLeave
+		bool canCollectOnLeave = false
 	) {
 		init(gcHeap, canCollectOnLeave);
 	}
 
 	NoCollectRegion(
 		Runtime* runtime,
-		bool canCollectOnLeave
+		bool canCollectOnLeave = false
 	) {
 		init(runtime->getGcHeap(), canCollectOnLeave);
-	}
-
-	NoCollectRegion(bool canCollectOnLeave) {
-		GcHeap* gcHeap = getCurrentThreadGcHeap();
-		JNC_ASSERT(gcHeap);
-
-		init(gcHeap, canCollectOnLeave);
 	}
 
 	~NoCollectRegion() {

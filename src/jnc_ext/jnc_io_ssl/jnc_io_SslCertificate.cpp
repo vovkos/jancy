@@ -138,7 +138,7 @@ SslCertName::createEntry(X509_NAME_ENTRY* srcEntry) {
 	ASN1_STRING* value = X509_NAME_ENTRY_get_data(srcEntry);
 
 	Runtime* runtime = getCurrentThreadRuntime();
-	NoCollectRegion noCollectRegion(runtime, false);
+	NoCollectRegion noCollectRegion(runtime);
 
 	DataPtr ptr = createData<SslCertNameEntry>(runtime);
 	SslCertNameEntry* dstEntry = (SslCertNameEntry*)ptr.m_p;

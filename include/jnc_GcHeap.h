@@ -382,7 +382,7 @@ struct jnc_GcHeap {
 	}
 
 	void
-	leaveNoCollectRegion(bool canCollectNow = true) {
+	leaveNoCollectRegion(bool canCollectNow = false) {
 		jnc_GcHeap_leaveNoCollectRegion(this, canCollectNow);
 	}
 

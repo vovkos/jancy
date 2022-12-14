@@ -107,7 +107,7 @@ enumerateNetworkAdapters(
 		return g_nullDataPtr;
 	}
 
-	NoCollectRegion noCollectRegion(runtime, false);
+	NoCollectRegion noCollectRegion(runtime);
 
 	sl::Iterator<axl::io::NetworkAdapterDesc> it = adapterList.getHead();
 
