@@ -441,7 +441,7 @@ tryCheckDataPtrRangeDirect(
 
 	void* rangeEnd = (char*)rangeBegin + rangeLength;
 	if (p < rangeBegin ||  p > rangeEnd) {
-		err::setFormatStringError("data pointer %x out of range [%x:%x]", p, rangeBegin, rangeEnd);
+		err::setFormatStringError("data pointer %p out of range [%p:%p]", p, rangeBegin, rangeEnd);
 		return false;
 	}
 
@@ -477,7 +477,7 @@ tryCheckDataPtrRangeIndirect(
 
 	void* end = (char*)p + size;
 	if (p < validator->m_rangeBegin || end > validator->m_rangeEnd) {
-		err::setFormatStringError("data pointer %x out of range [%x:%x]", p, validator->m_rangeBegin, validator->m_rangeEnd);
+		err::setFormatStringError("data pointer %p out of range [%p:%p]", p, validator->m_rangeBegin, validator->m_rangeEnd);
 		return false;
 	}
 
