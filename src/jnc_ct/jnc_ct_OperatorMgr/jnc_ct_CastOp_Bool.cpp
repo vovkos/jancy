@@ -132,6 +132,9 @@ Cast_Bool::getCastOperator(
 	case TypeKind_PropertyPtr:
 		return &m_fromPtr;
 
+	case TypeKind_Array:
+		return &m_true;
+
 	default:
 		return NULL;
 	}

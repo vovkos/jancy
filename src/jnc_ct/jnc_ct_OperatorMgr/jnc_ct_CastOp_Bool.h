@@ -18,6 +18,42 @@ namespace ct {
 
 //..............................................................................
 
+class Cast_BoolTrue: public CastOperator {
+public:
+	virtual
+	CastKind
+	getCastKind(
+		const Value& opValue,
+		Type* type
+	) {
+		return CastKind_Implicit;
+	}
+
+	virtual
+	bool
+	constCast(
+		const Value& opValue,
+		Type* type,
+		void* dst
+	) {
+		*(bool*)dst = true;
+		return true;
+	}
+
+	virtual
+	bool
+	llvmCast(
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
+	) {
+		static bool trueValue = true;
+		return resultValue->createConst(&trueValue, type);
+	}
+};
+
+//..............................................................................
+
 // comparison to zero -> bool (common for both integer & fp)
 
 class Cast_BoolFromZeroCmp: public CastOperator {
@@ -47,6 +83,7 @@ public:
 		Value* resultValue
 	);
 };
+
 
 //..............................................................................
 
@@ -103,6 +140,7 @@ class Cast_Bool: public Cast_Master {
 protected:
 	Cast_BoolFromZeroCmp m_fromZeroCmp;
 	Cast_BoolFromPtr m_fromPtr;
+	Cast_BoolTrue m_true;
 
 public:
 	Cast_Bool() {
