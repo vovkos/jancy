@@ -113,11 +113,11 @@ UsbInterface::openEndpoint(
 		sizeof(UsbEndpointDesc)
 	);
 
-	gcHeap->leaveNoCollectRegion(false);
-
 	m_lock.lock();
 	m_endpointList.insertTail(endpoint);
 	m_lock.unlock();
+
+	gcHeap->leaveNoCollectRegion(false);
 
 	endpoint->open(isSuspended);
 	return endpoint;
