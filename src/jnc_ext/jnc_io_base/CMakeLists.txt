@@ -203,6 +203,7 @@ elseif(UNIX)
 	else()
 		target_link_libraries(
 			jnc_io_base
+			dl
 			rt
 		)
 	endif()

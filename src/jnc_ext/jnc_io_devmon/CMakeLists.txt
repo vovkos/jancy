@@ -185,6 +185,7 @@ elseif(LINUX)
 		jnc_io_devmon
 		dm_lnx_lib
 		pthread
+		dl
 		rt
 	)
 endif()

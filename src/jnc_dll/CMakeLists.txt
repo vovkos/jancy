@@ -113,8 +113,8 @@ else()
 		target_link_libraries(
 			jnc_dll
 			${OPENSSL_CRYPTO_LIB_NAME}
-			rt
 			dl
+			rt
 		)
 
 		set_property(

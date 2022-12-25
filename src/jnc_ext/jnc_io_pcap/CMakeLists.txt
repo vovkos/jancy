@@ -153,9 +153,10 @@ elseif(UNIX)
 		pcap
 	)
 
-	if(NOT APPLE)
+	if(LINUX)
 		target_link_libraries(
 			jnc_io_pcap
+			dl
 			rt
 		)
 	endif()

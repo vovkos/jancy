@@ -149,6 +149,7 @@ target_link_libraries(
 if(LINUX)
 	target_link_libraries(
 		jnc_io_websocket
+		dl
 		rt
 	)
 endif()

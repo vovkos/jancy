@@ -181,13 +181,13 @@ if(WIN32)
 elseif(UNIX)
 	target_link_libraries(
 		jnc_app
-		dl
 		pthread
 	)
 
-	if(NOT APPLE)
+	if(LINUX)
 		target_link_libraries(
 			jnc_app
+			dl
 			rt
 		)
 	endif()

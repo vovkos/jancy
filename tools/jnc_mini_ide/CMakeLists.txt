@@ -288,11 +288,11 @@ elseif(UNIX)
 		pthread
 	)
 
-	if(NOT APPLE)
+	if(LINUX)
 		target_link_libraries(
 			jnc_mini_ide
-			rt
 			dl
+			rt
 		)
 	endif()
 endif()

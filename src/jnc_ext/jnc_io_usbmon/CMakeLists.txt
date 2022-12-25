@@ -156,6 +156,7 @@ elseif(LINUX)
 		${LIBUSB_LIB_NAME}
 		udev
 		pthread
+		dl
 		rt
 	)
 endif()

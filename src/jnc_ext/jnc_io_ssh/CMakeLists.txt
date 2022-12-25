@@ -142,10 +142,11 @@ elseif(UNIX)
 		ssh2
 	)
 
-	if(NOT APPLE)
+	if(LINUX)
 		target_link_libraries(
 			jnc_io_ssh
 			crypto
+			dl
 			rt
 		)
 	endif()

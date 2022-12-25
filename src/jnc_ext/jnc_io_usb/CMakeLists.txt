@@ -152,6 +152,7 @@ if(UNIX)
 	else()
 		target_link_libraries(
 			jnc_io_usb
+			dl
 			rt
 		)
 	endif()
