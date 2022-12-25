@@ -181,6 +181,7 @@ if(WIN32)
 elseif(UNIX)
 	target_link_libraries(
 		jnc_app
+		dl
 		pthread
 	)
 
