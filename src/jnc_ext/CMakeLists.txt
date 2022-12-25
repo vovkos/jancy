@@ -86,7 +86,7 @@ if(LIBUSB_FOUND)
 	endif()
 endif()
 
-if(WIN32 OR LINUX)
+if(WIN32 OR (LINUX AND LIBUSB_FOUND))
 	option(
 		BUILD_JNC_IO_USBMON
 		"Build Jancy USB monitoring extension library"
