@@ -158,7 +158,7 @@ UsbDevice::getStringDesc(
 		return g_nullDataPtr;
 	}
 
-	sl::String string = self->m_device.getStringDescriptor(stringId);
+	sl::String string = self->m_device.getStringDescriptorAscii(stringId);
 	return strDup(string);
 }
 

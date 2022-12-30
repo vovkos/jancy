@@ -80,15 +80,11 @@ endif()
 include_directories(
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
+	${LIBUSB_INC_DIR}
 	../jnc_io_cmn
 )
 
 link_directories(${AXL_LIB_DIR})
-
-if(LINUX)
-	include_directories(${LIBUSB_INC_DIR})
-	link_directories(${LIBUSB_LIB_DIR})
-endif()
 
 add_library(
 	jnc_io_usbmon
@@ -139,6 +135,7 @@ target_link_libraries(
 	jnc_io_usbmon
 	jnc_io_cmn
 	jnc_api_ext
+	axl_io_usb
 	axl_io_usbmon
 	${AXL_IO_USB_LIB_NAME}
 	axl_io

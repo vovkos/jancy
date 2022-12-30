@@ -68,7 +68,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 DataPtr
 getUsbClassString(uint8_t cls) {
-	return jnc::strDup(axl::io::getUsbClassCodeString((libusb_class_code)cls));
+	return jnc::strDup(axl::io::getUsbClassString(cls));
 }
 
 DataPtr

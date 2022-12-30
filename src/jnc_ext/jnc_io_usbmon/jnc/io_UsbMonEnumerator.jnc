@@ -48,6 +48,7 @@ struct UsbMonDeviceDesc {
 
 	uint8_t m_captureDeviceId;
 	uint8_t m_address;
+	uint8_t m_port;
 	uint8_t m_class;
 	uint8_t m_subClass;
 	uint8_t m_manufacturerDescriptorId;
@@ -55,7 +56,6 @@ struct UsbMonDeviceDesc {
 	uint8_t m_serialNumberDescriptorId;
 
 	UsbMonDeviceSpeed m_speed;
-	UsbMonDeviceDescFlags m_flags;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
