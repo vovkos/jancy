@@ -77,7 +77,7 @@ struct SerialPortDesc {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum SerialPortDescMask {
+bitflag enum SerialPortDescFlags {
 	Description,
 	Manufacturer,
 	HardwareIds,
@@ -109,7 +109,7 @@ bitflag enum SerialPortDescMask {
 */
 
 SerialPortDesc const* enumerateSerialPorts(
-	SerialPortDescMask mask,
+	SerialPortDescFlags flags,
 	size_t* count = null
 );
 

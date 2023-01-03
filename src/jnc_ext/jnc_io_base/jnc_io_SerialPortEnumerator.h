@@ -34,7 +34,7 @@ struct SerialPortDesc {
 
 DataPtr
 enumerateSerialPorts(
-	uint_t mask,
+	uint_t flags,
 	DataPtr countPtr
 );
 

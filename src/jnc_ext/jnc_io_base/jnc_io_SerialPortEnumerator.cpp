@@ -33,8 +33,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 DataPtr
 createSerialPortDesc(
 	Runtime* runtime,
-	axl::io::SerialPortDesc* portDesc,
-	uint_t mask
+	axl::io::SerialPortDesc* portDesc
 ) {
 	DataPtr portPtr = createData<SerialPortDesc> (runtime);
 	SerialPortDesc* port = (SerialPortDesc*)portPtr.m_p;
@@ -44,17 +43,16 @@ createSerialPortDesc(
 	port->m_hardwareIdsPtr = strDup(portDesc->m_hardwareIds);
 	port->m_driverPtr = strDup(portDesc->m_driver);
 	port->m_locationPtr = strDup(portDesc->m_location);
-
 	return portPtr;
 }
 
 DataPtr
 enumerateSerialPorts(
-	uint_t mask,
+	uint_t flags,
 	DataPtr countPtr
 ) {
 	sl::List<axl::io::SerialPortDesc> portList;
-	axl::io::enumerateSerialPorts(&portList, mask);
+	axl::io::enumerateSerialPorts(&portList, flags);
 
 	if (portList.isEmpty()) {
 		if (countPtr.m_p)
@@ -68,14 +66,13 @@ enumerateSerialPorts(
 
 	sl::Iterator<axl::io::SerialPortDesc> it = portList.getHead();
 
-	DataPtr portPtr = createSerialPortDesc(runtime, *it, mask);
-
+	DataPtr portPtr = createSerialPortDesc(runtime, *it);
 	DataPtr resultPtr = portPtr;
 	size_t count = 1;
 
 	SerialPortDesc* prevPort = (SerialPortDesc*)portPtr.m_p;
 	for (it++; it; it++) {
-		portPtr = createSerialPortDesc(runtime, *it, mask);
+		portPtr = createSerialPortDesc(runtime, *it);
 		prevPort->m_nextPtr = portPtr;
 		prevPort = (SerialPortDesc*)portPtr.m_p;
 		count++;
