@@ -13,7 +13,7 @@
 #include "jnc_io_UsbDevice.h"
 #include "jnc_io_UsbAsyncControlEndpoint.h"
 #include "jnc_io_UsbInterface.h"
-#include "jnc_io_UsbDesc.h"
+#include "jnc_io_UsbDescriptor.h"
 #include "jnc_io_UsbLib.h"
 #include "jnc_Error.h"
 
@@ -34,22 +34,23 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 JNC_BEGIN_TYPE_FUNCTION_MAP(UsbDevice)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<UsbDevice>)
 	JNC_MAP_DESTRUCTOR(&jnc::destruct<UsbDevice>)
-	JNC_MAP_FUNCTION("open",               &UsbDevice::open)
-	JNC_MAP_FUNCTION("close",              &UsbDevice::close)
-	JNC_MAP_FUNCTION("getStringDesc",      &UsbDevice::getStringDesc)
+	JNC_MAP_FUNCTION("open", &UsbDevice::open)
+	JNC_MAP_FUNCTION("close", &UsbDevice::close)
+	JNC_MAP_FUNCTION("getStringDesc", &UsbDevice::getStringDesc)
 	JNC_MAP_FUNCTION("attachKernelDriver", &UsbDevice::attachKernelDriver)
 	JNC_MAP_FUNCTION("detachKernelDriver", &UsbDevice::detachKernelDriver)
-	JNC_MAP_FUNCTION("claimInterface",     &UsbDevice::claimInterface)
-	JNC_MAP_FUNCTION("controlTransfer",    &UsbDevice::controlTransfer_0)
+	JNC_MAP_FUNCTION("claimInterface", &UsbDevice::claimInterface)
+	JNC_MAP_FUNCTION("controlTransfer", &UsbDevice::controlTransfer_0)
 	JNC_MAP_OVERLOAD(&UsbDevice::controlTransfer_1)
 	JNC_MAP_AUTOGET_PROPERTY("m_isAutoDetachKernelDriverEnabled", &UsbDevice::setAutoDetachKernelDriverEnabled)
 	JNC_MAP_CONST_PROPERTY("m_isKernelDriverActive", &UsbDevice::isKernelDriverActive)
-	JNC_MAP_CONST_PROPERTY("m_deviceDesc", &UsbDevice::getDeviceDesc)
+	JNC_MAP_CONST_PROPERTY("m_deviceDescriptor", &UsbDevice::getDeviceDescriptor)
 	JNC_MAP_CONST_PROPERTY("m_activeConfigurationDesc", &UsbDevice::getActiveConfigurationDesc)
-	JNC_MAP_CONST_PROPERTY("m_bus",        &UsbDevice::getBus)
-	JNC_MAP_CONST_PROPERTY("m_address",    &UsbDevice::getAddress)
-	JNC_MAP_CONST_PROPERTY("m_speed",      &UsbDevice::getSpeed)
-	JNC_MAP_PROPERTY("m_configurationId",  &UsbDevice::getConfigurationId, &UsbDevice::setConfigurationId)
+	JNC_MAP_CONST_PROPERTY("m_bus", &UsbDevice::getBus)
+	JNC_MAP_CONST_PROPERTY("m_address", &UsbDevice::getAddress)
+	JNC_MAP_CONST_PROPERTY("m_port", &UsbDevice::getPort)
+	JNC_MAP_CONST_PROPERTY("m_speed", &UsbDevice::getSpeed)
+	JNC_MAP_PROPERTY("m_configurationId", &UsbDevice::getConfigurationId, &UsbDevice::setConfigurationId)
 JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
@@ -125,14 +126,14 @@ UsbDevice::open() {
 
 DataPtr
 JNC_CDECL
-UsbDevice::getDeviceDesc(UsbDevice* self) {
+UsbDevice::getDeviceDescriptor(UsbDevice* self) {
 	libusb_device_descriptor desc;
 
 	bool result = self->m_device.getDeviceDescriptor(&desc);
 	if (!result)
 		return g_nullDataPtr;
 
-	return createUsbDeviceDesc(getCurrentThreadRuntime(), &desc, &self->m_device);
+	return createUsbDeviceDescriptor(getCurrentThreadRuntime(), &desc, &self->m_device);
 }
 
 DataPtr
@@ -144,7 +145,7 @@ UsbDevice::getActiveConfigurationDesc(UsbDevice* self) {
 	if (!result)
 		return g_nullDataPtr;
 
-	return createUsbConfigurationDesc(getCurrentThreadRuntime(), desc);
+	return createUsbConfigurationDescriptor(getCurrentThreadRuntime(), desc);
 }
 
 DataPtr
@@ -184,20 +185,20 @@ UsbDevice::claimInterface(
 	gcHeap->enterNoCollectRegion();
 
 	DataPtr configDescPtr = getActiveConfigurationDesc(this);
-	UsbConfigurationDesc* configDesc = (UsbConfigurationDesc*)configDescPtr.m_p;
-	UsbInterfaceDesc* ifaceDesc = configDesc->findInterfaceDesc(interfaceId, altSettingId);
+	UsbConfigurationDescriptor* configDescriptor = (UsbConfigurationDescriptor*)configDescPtr.m_p;
+	UsbInterfaceDescriptor* ifaceDescriptor = configDescriptor->findInterfaceDescriptor(interfaceId, altSettingId);
 
-	if (!ifaceDesc) {
+	if (!ifaceDescriptor)
 		err::setError(err::SystemErrorCode_ObjectNameNotFound);
-	} else {
+	else {
 		iface = createClass<UsbInterface> (runtime);
 		iface->m_parentDevice = this;
-		iface->m_interfaceDescPtr.m_p = ifaceDesc;
+		iface->m_interfaceDescriptorPtr.m_p = ifaceDescriptor;
 
-		iface->m_interfaceDescPtr.m_validator = runtime->getGcHeap()->createDataPtrValidator(
+		iface->m_interfaceDescriptorPtr.m_validator = runtime->getGcHeap()->createDataPtrValidator(
 			configDescPtr.m_validator->m_targetBox,
-			ifaceDesc,
-			sizeof(UsbInterfaceDesc)
+			ifaceDescriptor,
+			sizeof(UsbInterfaceDescriptor)
 		);
 
 		iface->m_isClaimed = true;
@@ -288,36 +289,6 @@ UsbDevice::checkAccessByVidPid() {
 }
 
 //..............................................................................
-
-DataPtr
-createUsbDeviceArray(DataPtr countPtr) {
-	axl::io::UsbDeviceList deviceList;
-	size_t count = deviceList.enumerateDevices();
-	if (count == -1)
-		return g_nullDataPtr;
-
-	DataPtr arrayPtr = g_nullDataPtr;
-	Runtime* runtime = getCurrentThreadRuntime();
-	GcHeap* gcHeap = runtime->getGcHeap();
-	Type* classPtrType = (Type*)UsbDevice::getType(runtime->getModule())->getClassPtrType();
-
-	JNC_BEGIN_CALL_SITE(runtime)
-		arrayPtr = gcHeap->allocateArray(classPtrType, count);
-		UsbDevice** dstDeviceArray = (UsbDevice**) arrayPtr.m_p;
-		libusb_device** srcDeviceArray = deviceList;
-
-		for (size_t i = 0; i < count; i++) {
-			UsbDevice* device = createClass<UsbDevice> (runtime);
-			device->setDevice(srcDeviceArray[i]);
-			dstDeviceArray[i] = device;
-		}
-	JNC_END_CALL_SITE()
-
-	if (countPtr.m_p)
-		*(size_t*)countPtr.m_p = count;
-
-	return arrayPtr;
-}
 
 UsbDevice*
 openUsbDevice(

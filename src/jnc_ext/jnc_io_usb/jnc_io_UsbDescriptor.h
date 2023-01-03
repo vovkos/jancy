@@ -14,26 +14,15 @@
 namespace jnc {
 namespace io {
 
-JNC_DECLARE_TYPE(UsbEndpointDesc)
-JNC_DECLARE_TYPE(UsbInterfaceDesc)
-JNC_DECLARE_TYPE(UsbConfigurationDesc)
-JNC_DECLARE_TYPE(UsbDeviceDesc)
+JNC_DECLARE_TYPE(UsbEndpointDescriptor)
+JNC_DECLARE_TYPE(UsbInterfaceDescriptor)
+JNC_DECLARE_TYPE(UsbConfigurationDescriptor)
+JNC_DECLARE_TYPE(UsbDeviceDescriptor)
 
 //..............................................................................
 
-DataPtr
-getUsbClassString(uint8_t cls);
-
-DataPtr
-getUsbSpeedString(libusb_speed speed);
-
-DataPtr
-getUsbTransferTypeString(libusb_transfer_type type);
-
-//..............................................................................
-
-struct UsbEndpointDesc {
-	JNC_DECLARE_TYPE_STATIC_METHODS(UsbEndpointDesc)
+struct UsbEndpointDescriptor {
+	JNC_DECLARE_TYPE_STATIC_METHODS(UsbEndpointDescriptor)
 
 	uint8_t m_endpointId;
 	uint8_t m_transferType;
@@ -48,15 +37,15 @@ struct UsbEndpointDesc {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
-initUsbEndpointDesc(
-	UsbEndpointDesc* dstDesc,
-	const libusb_endpoint_descriptor* srcDesc
+initUsbEndpointDescriptor(
+	UsbEndpointDescriptor* dstDescriptor,
+	const libusb_endpoint_descriptor* srcDescriptor
 );
 
 //..............................................................................
 
-struct UsbInterfaceDesc {
-	JNC_DECLARE_TYPE_STATIC_METHODS(UsbInterfaceDesc)
+struct UsbInterfaceDescriptor {
+	JNC_DECLARE_TYPE_STATIC_METHODS(UsbInterfaceDescriptor)
 
 	DataPtr m_nextAltSettingInterfacePtr;
 	DataPtr m_endpointTable;
@@ -69,32 +58,32 @@ struct UsbInterfaceDesc {
 	uint8_t m_subClass;
 	uint8_t m_protocol;
 
-	UsbEndpointDesc*
-	findEndpointDesc(uint8_t endpointId);
+	UsbEndpointDescriptor*
+	findEndpointDescriptor(uint8_t endpointId);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
-initUsbInterfaceDesc(
+initUsbInterfaceDescriptor(
 	Runtime* runtime,
-	UsbInterfaceDesc* dstDesc,
-	const libusb_interface_descriptor* srcDesc
+	UsbInterfaceDescriptor* dstDescriptor,
+	const libusb_interface_descriptor* srcDescriptor
 );
 
 void
-initUsbInterfaceDesc(
+initUsbInterfaceDescriptor(
 	Runtime* runtime,
-	UsbInterfaceDesc* dstDesc,
-	const libusb_interface* srcDesc
+	UsbInterfaceDescriptor* dstDescriptor,
+	const libusb_interface* iface
 );
 
 //..............................................................................
 
-struct UsbConfigurationDesc {
-	JNC_DECLARE_TYPE_STATIC_METHODS(UsbConfigurationDesc)
+struct UsbConfigurationDescriptor {
+	JNC_DECLARE_TYPE_STATIC_METHODS(UsbConfigurationDescriptor)
 
-	DataPtr m_interfaceTable;
+	DataPtr m_interfaceDescriptorTable;
 	size_t m_interfaceCount;
 
 	uint8_t m_configurationId;
@@ -102,8 +91,8 @@ struct UsbConfigurationDesc {
 	uint8_t m_attributes;
 	uint8_t m_maxPower;
 
-	UsbInterfaceDesc*
-	findInterfaceDesc(
+	UsbInterfaceDescriptor*
+	findInterfaceDescriptor(
 		uint8_t interfaceId,
 		uint8_t altSettingId
 	);
@@ -112,24 +101,24 @@ struct UsbConfigurationDesc {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
-initUsbConfigurationDesc(
+initUsbConfigurationDescriptor(
 	Runtime* runtime,
-	UsbConfigurationDesc* dstDesc,
-	const libusb_config_descriptor* srcDesc
+	UsbConfigurationDescriptor* dstDescriptor,
+	const libusb_config_descriptor* srcDescriptor
 );
 
 DataPtr
-createUsbConfigurationDesc(
+createUsbConfigurationDescriptor(
 	Runtime* runtime,
-	const libusb_config_descriptor* srcDesc
+	const libusb_config_descriptor* srcDescriptor
 );
 
 //..............................................................................
 
-struct UsbDeviceDesc {
-	JNC_DECLARE_TYPE_STATIC_METHODS(UsbDeviceDesc)
+struct UsbDeviceDescriptor {
+	JNC_DECLARE_TYPE_STATIC_METHODS(UsbDeviceDescriptor)
 
-	DataPtr m_configurationTable;
+	DataPtr m_configurationDescriptorTable;
 	size_t m_configurationCount;
 
 	uint16_t m_usbVersion;
@@ -147,10 +136,10 @@ struct UsbDeviceDesc {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 DataPtr
-createUsbDeviceDesc(
+createUsbDeviceDescriptor(
 	Runtime* runtime,
-	const libusb_device_descriptor* srcDesc,
-	axl::io::UsbDevice* srcDevice
+	const libusb_device_descriptor* srcDescriptor,
+	axl::io::UsbDevice* device
 );
 
 //..............................................................................

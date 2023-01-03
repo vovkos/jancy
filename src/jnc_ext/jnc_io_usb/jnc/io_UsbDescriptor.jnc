@@ -1,0 +1,102 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace io {
+
+//! \addtogroup io-usb
+//! @{
+
+//..............................................................................
+
+enum UsbTransferType: uint8_t {
+	Control     = 0,
+	Isochronous = 1,
+	Bulk        = 2,
+	Interrupt   = 3,
+	BulkStream  = 4,
+}
+
+enum UsbIsoSyncType: uint8_t {
+	None     = 0,
+	Async    = 1,
+	Adaptive = 2,
+	Sync     = 3,
+}
+
+enum UsbIsoUsage: uint8_t {
+	Data     = 0,
+	Feedback = 1,
+	Implicit = 2,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct UsbEndpointDescriptor {
+	uint8_t m_endpointId;
+	UsbTransferType m_transferType;
+	UsbIsoSyncType m_isoSyncType;
+	UsbIsoUsage m_isoUsage;
+	uint16_t m_maxPacketSize;
+	uint8_t m_interval;
+	uint8_t m_refresh;
+	uint8_t m_synchAddress;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct UsbInterfaceDescriptor {
+	UsbInterfaceDescriptor const* m_nextAltSettingInterfaceDescriptor;
+	UsbEndpointDescriptor const* m_endpointDescriptorTable;
+	size_t m_endpointCount;
+
+	uint8_t m_interfaceId;
+	uint8_t m_altSettingId;
+	uint8_t m_class;
+	uint8_t m_subClass;
+	uint8_t m_protocol;
+	uint8_t m_stringDescriptorId;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct UsbConfigurationDescriptor {
+	UsbInterfaceDescriptor const* m_interfaceDescriptorTable;
+	size_t m_interfaceCount;
+
+	uint8_t m_configurationId;
+	uint8_t m_descriptionStringId;
+	uint8_t m_attributes;
+	uint8_t m_maxPower;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct UsbDeviceDescriptor {
+	UsbConfigurationDescriptor const* m_configurationDescriptorTable;
+	size_t m_configurationCount;
+
+	uint16_t m_usbVersion;
+	uint16_t m_deviceVersion;
+	uint16_t m_vendorId;
+	uint16_t m_productId;
+	uint8_t m_class;
+	uint8_t m_subClass;
+	uint8_t m_protocol;
+	uint8_t m_vendorDescriptorId;
+	uint8_t m_productDescriptorId;
+	uint8_t m_serialDescriptorId;
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

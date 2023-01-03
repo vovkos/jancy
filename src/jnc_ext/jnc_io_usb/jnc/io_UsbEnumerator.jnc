@@ -1,0 +1,50 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+import "io_UsbDeviceDesc.jnc"
+import "io_UsbDevice.jnc"
+
+namespace io {
+
+//! \addtogroup io-usbmon
+//! @{
+
+//..............................................................................
+
+struct UsbDeviceEntry: UsbDeviceDesc {
+	UsbDeviceEntry const* m_next;
+	UsbDevice* m_device;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum UsbEnumFlags: UsbDeviceDescFlags {
+	Hubs = 0x0100,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+UsbDeviceEntry const* enumerateUsbDevices(
+	UsbEnumFlags flags,
+	size_t* count = null
+);
+
+UsbDeviceEntry const* enumerateUsbDevices(size_t* count = null) {
+	return enumerateUsbDevices(0, count);
+}
+
+UsbDevice* const* errorcode enumerateUsbDevicesNoDesc(size_t* count = null);
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

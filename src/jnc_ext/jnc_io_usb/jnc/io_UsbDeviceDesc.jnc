@@ -1,0 +1,103 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace io {
+
+//! \addtogroup io-usb
+//! @{
+
+//..............................................................................
+
+enum UsbClass: uint8_t {
+	MultiFunction       = 0x00,
+	Audio               = 0x01,
+	Communication       = 0x02,
+	Hid                 = 0x03,
+	Physical            = 0x05,
+	Image               = 0x06,
+	Printer             = 0x07,
+	MassStorage         = 0x08,
+	Hub                 = 0x09,
+	CdcData             = 0x0a,
+	SmartCard           = 0x0b,
+	ContentSecurity     = 0x0d,
+	Video               = 0x0e,
+	PersonalHealthcare  = 0x0f,
+	AudioVideo          = 0x10,
+	Billboard           = 0x11,
+	UsbTypeCBridge      = 0x12,
+	I3c                 = 0x3c,
+	Diagnostic          = 0xdc,
+	WirelessController  = 0xe0,
+	ApplicationSpecific = 0xfe,
+	VendorSpecific      = 0xff
+}
+
+enum UsbSpeed: uint8_t {
+	Unknown = 0,
+	Low,
+	Full,
+	High,
+	Super,
+	SuperPlus,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct UsbDeviceDesc {
+	uint16_t m_vendorId;
+	uint16_t m_productId;
+
+	uint8_t m_address;
+	uint8_t m_port;
+	uint8_t m_class;
+	uint8_t m_subClass;
+	UsbSpeed m_speed;
+
+	uint8_t m_manufacturerDescriptorId;
+	uint8_t m_productDescriptorId;
+	uint8_t m_serialNumberDescriptorId;
+
+	char const* m_description;
+	char const* m_manufacturer;
+	char const* m_driver;
+	char const* m_manufacturerDescriptor;
+	char const* m_productDescriptor;
+	char const* m_serialNumberDescriptor;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum UsbDeviceDescFlags {
+	Description            = 0x01,
+	Manufacturer           = 0x02,
+	Driver                 = 0x04,
+	ManufacturerDescriptor = 0x10,
+	ProductDescriptor      = 0x20,
+	SerialNumberDescriptor = 0x40,
+
+	Descriptors =
+		ManufacturerDescriptor |
+		ProductDescriptor |
+		SerialNumberDescriptor,
+
+	All =
+		Description |
+		Manufacturer |
+		Driver |
+		Descriptors,
+};
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

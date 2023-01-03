@@ -81,7 +81,7 @@ public:
 	static
 	DataPtr
 	JNC_CDECL
-	getDeviceDesc(UsbDevice* self);
+	getDeviceDescriptor(UsbDevice* self);
 
 	static
 	DataPtr
@@ -110,6 +110,12 @@ public:
 	JNC_CDECL
 	getAddress() {
 		return m_device.getDeviceAddress();
+	}
+
+	uint8_t
+	JNC_CDECL
+	getPort() {
+		return m_device.getPortNumber();
 	}
 
 	uint8_t
@@ -196,10 +202,7 @@ protected:
 	checkAccessByVidPid();
 };
 
-//..............................................................................
-
-DataPtr
-createUsbDeviceArray(DataPtr countPtr);
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 UsbDevice*
 openUsbDevice(

@@ -39,7 +39,7 @@ public:
 
 public:
 	UsbDevice* m_parentDevice;
-	DataPtr m_interfaceDescPtr;
+	DataPtr m_interfaceDescriptorPtr;
 	bool m_isClaimed;
 
 protected:

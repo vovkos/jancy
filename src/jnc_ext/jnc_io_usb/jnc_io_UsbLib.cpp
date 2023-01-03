@@ -11,7 +11,8 @@
 
 #include "pch.h"
 #include "jnc_io_UsbLib.h"
-#include "jnc_io_UsbDesc.h"
+#include "jnc_io_UsbDescriptor.h"
+#include "jnc_io_UsbEnumerator.h"
 #include "jnc_io_UsbEndpoint.h"
 #include "jnc_io_UsbInterface.h"
 #include "jnc_io_UsbDevice.h"
@@ -44,6 +45,18 @@ initializeUsbLibCapabilities() {
 
 //..............................................................................
 
+JNC_DEFINE_TYPE(
+	UsbDeviceDesc,
+	"io.UsbDeviceDesc",
+	g_usbLibGuid,
+	UsbLibCacheSlot_UsbDeviceDesc
+)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP(UsbDeviceDesc)
+JNC_END_TYPE_FUNCTION_MAP()
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 JNC_DEFINE_LIB_EX(
 	UsbLib,
 	g_usbLibGuid,
@@ -53,11 +66,6 @@ JNC_DEFINE_LIB_EX(
 )
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE(UsbLib)
-	JNC_LIB_IMPORT("io_UsbDevice.jnc")
-	JNC_LIB_REQUIRE_TYPE(TypeKind_Struct, "io.UsbConfigurationDesc")
-	JNC_LIB_REQUIRE_TYPE(TypeKind_Struct, "io.UsbDeviceDesc")
-	JNC_LIB_REQUIRE_TYPE(TypeKind_Struct, "io.UsbInterfaceDesc")
-	JNC_LIB_REQUIRE_TYPE(TypeKind_Struct, "io.UsbEndpointDesc")
 JNC_END_LIB_SOURCE_FILE_TABLE()
 
 JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(UsbLib)
@@ -67,14 +75,16 @@ JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(UsbLib)
 JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE()
 
 JNC_BEGIN_LIB_FUNCTION_MAP(UsbLib)
+	JNC_MAP_TYPE(UsbEndpointDescriptor)
 	JNC_MAP_TYPE(UsbEndpoint)
+	JNC_MAP_TYPE(UsbInterfaceDescriptor)
 	JNC_MAP_TYPE(UsbInterface)
+	JNC_MAP_TYPE(UsbDeviceDescriptor)
 	JNC_MAP_TYPE(UsbDevice)
-	JNC_MAP_FUNCTION("io.getUsbClassString", &getUsbClassString)
-	JNC_MAP_FUNCTION("io.getUsbSpeedString", &getUsbSpeedString)
-	JNC_MAP_FUNCTION("io.getUsbTransferTypeString", &getUsbTransferTypeString)
-	JNC_MAP_FUNCTION("io.createUsbDeviceArray", &createUsbDeviceArray)
-	JNC_MAP_FUNCTION("io.openUsbDevice", &openUsbDevice)
+	JNC_MAP_TYPE(UsbDeviceDesc)
+	JNC_MAP_TYPE(UsbDeviceEntry)
+	JNC_MAP_FUNCTION("io.enumerateUsbDevices", enumerateUsbDevices)
+	JNC_MAP_FUNCTION("io.enumerateUsbDevicesNoDesc", enumerateUsbDevicesNoDesc)
 JNC_END_LIB_FUNCTION_MAP()
 
 //..............................................................................

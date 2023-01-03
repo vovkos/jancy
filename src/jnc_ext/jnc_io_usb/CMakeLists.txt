@@ -15,7 +15,8 @@
 
 set(
 	LIB_H_LIST
-	jnc_io_UsbDesc.h
+	jnc_io_UsbDescriptor.h
+	jnc_io_UsbEnumerator.h
 	jnc_io_UsbEndpoint.h
 	jnc_io_UsbInterface.h
 	jnc_io_UsbDevice.h
@@ -26,7 +27,8 @@ set(
 
 set(
 	LIB_CPP_LIST
-	jnc_io_UsbDesc.cpp
+	jnc_io_UsbDescriptor.cpp
+	jnc_io_UsbEnumerator.cpp
 	jnc_io_UsbEndpoint.cpp
 	jnc_io_UsbInterface.cpp
 	jnc_io_UsbDevice.cpp
@@ -48,6 +50,9 @@ source_group(
 
 set(
 	JNC_LIST
+	jnc/io_UsbDescriptor.jnc
+	jnc/io_UsbDeviceDesc.jnc
+	jnc/io_UsbEnumerator.jnc
 	jnc/io_UsbDevice.jnc
 	jnc/io_UsbInterface.jnc
 	jnc/io_UsbEndpoint.jnc

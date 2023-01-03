@@ -13,7 +13,7 @@
 #include "jnc_io_UsbInterface.h"
 #include "jnc_io_UsbDevice.h"
 #include "jnc_io_UsbEndpoint.h"
-#include "jnc_io_UsbDesc.h"
+#include "jnc_io_UsbDescriptor.h"
 #include "jnc_io_UsbLib.h"
 #include "jnc_Error.h"
 
@@ -35,14 +35,14 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(UsbInterface)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<UsbInterface>)
 	JNC_MAP_DESTRUCTOR(&jnc::destruct<UsbInterface>)
 	JNC_MAP_FUNCTION("release", &UsbInterface::release)
-	JNC_MAP_FUNCTION  ("openEndpoint", &UsbInterface::openEndpoint)
+	JNC_MAP_FUNCTION("openEndpoint", &UsbInterface::openEndpoint)
 JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
 UsbInterface::UsbInterface() {
 	m_parentDevice = NULL;
-	m_interfaceDescPtr = g_nullDataPtr;
+	m_interfaceDescriptorPtr = g_nullDataPtr;
 	m_isClaimed = false;
 }
 
@@ -80,8 +80,8 @@ UsbInterface::release() {
 	}
 	m_lock.unlock();
 
-	UsbInterfaceDesc* interfaceDesc = (UsbInterfaceDesc*)m_interfaceDescPtr.m_p;
-	m_parentDevice->m_device.releaseInterface(interfaceDesc->m_interfaceId);
+	UsbInterfaceDescriptor* interfaceDescriptor = (UsbInterfaceDescriptor*)m_interfaceDescriptorPtr.m_p;
+	m_parentDevice->m_device.releaseInterface(interfaceDescriptor->m_interfaceId);
 	m_parentDevice->removeInterface(this);
 	m_isClaimed = false;
 }
@@ -92,9 +92,9 @@ UsbInterface::openEndpoint(
 	uint8_t endpointId,
 	bool isSuspended
 ) {
-	UsbInterfaceDesc* interfaceDesc = (UsbInterfaceDesc*)m_interfaceDescPtr.m_p;
-	UsbEndpointDesc* endpointDesc = interfaceDesc->findEndpointDesc(endpointId);
-	if (!endpointDesc) {
+	UsbInterfaceDescriptor* interfaceDescriptor = (UsbInterfaceDescriptor*)m_interfaceDescriptorPtr.m_p;
+	UsbEndpointDescriptor* endpointDescriptor = interfaceDescriptor->findEndpointDescriptor(endpointId);
+	if (!endpointDescriptor) {
 		err::setError(err::SystemErrorCode_ObjectNameNotFound);
 		return NULL;
 	}
@@ -105,12 +105,12 @@ UsbInterface::openEndpoint(
 
 	UsbEndpoint* endpoint = createClass<UsbEndpoint> (runtime);
 	endpoint->m_parentInterface = this;
-	endpoint->m_endpointDescPtr.m_p = endpointDesc;
+	endpoint->m_endpointDescriptorPtr.m_p = endpointDescriptor;
 
-	endpoint->m_endpointDescPtr.m_validator = runtime->getGcHeap()->createDataPtrValidator(
-		m_interfaceDescPtr.m_validator->m_targetBox,
-		endpointDesc,
-		sizeof(UsbEndpointDesc)
+	endpoint->m_endpointDescriptorPtr.m_validator = runtime->getGcHeap()->createDataPtrValidator(
+		m_interfaceDescriptorPtr.m_validator->m_targetBox,
+		endpointDescriptor,
+		sizeof(UsbEndpointDescriptor)
 	);
 
 	m_lock.lock();

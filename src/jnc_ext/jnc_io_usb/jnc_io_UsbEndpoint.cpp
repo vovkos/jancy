@@ -36,19 +36,19 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(UsbEndpoint)
 
 	JNC_MAP_AUTOGET_PROPERTY("m_transferTimeout", &UsbEndpoint::setTransferTimeout)
 	JNC_MAP_AUTOGET_PROPERTY("m_readParallelism", &UsbEndpoint::setReadParallelism)
-	JNC_MAP_AUTOGET_PROPERTY("m_readBlockSize",   &UsbEndpoint::setReadBlockSize)
-	JNC_MAP_AUTOGET_PROPERTY("m_readBufferSize",  &UsbEndpoint::setReadBufferSize)
+	JNC_MAP_AUTOGET_PROPERTY("m_readBlockSize", &UsbEndpoint::setReadBlockSize)
+	JNC_MAP_AUTOGET_PROPERTY("m_readBufferSize", &UsbEndpoint::setReadBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_writeBufferSize", &UsbEndpoint::setWriteBufferSize)
-	JNC_MAP_AUTOGET_PROPERTY("m_options",         &UsbEndpoint::setOptions)
+	JNC_MAP_AUTOGET_PROPERTY("m_options", &UsbEndpoint::setOptions)
 
-	JNC_MAP_FUNCTION("close",        &UsbEndpoint::close)
-	JNC_MAP_FUNCTION("unsuspend",    &UsbEndpoint::unsuspend)
-	JNC_MAP_FUNCTION("write",        &UsbEndpoint::write)
-	JNC_MAP_FUNCTION("read",         &UsbEndpoint::read)
-	JNC_MAP_FUNCTION("wait",         &UsbEndpoint::wait)
-	JNC_MAP_FUNCTION("cancelWait",   &UsbEndpoint::cancelWait)
+	JNC_MAP_FUNCTION("close", &UsbEndpoint::close)
+	JNC_MAP_FUNCTION("unsuspend", &UsbEndpoint::unsuspend)
+	JNC_MAP_FUNCTION("write", &UsbEndpoint::write)
+	JNC_MAP_FUNCTION("read", &UsbEndpoint::read)
+	JNC_MAP_FUNCTION("wait", &UsbEndpoint::wait)
+	JNC_MAP_FUNCTION("cancelWait", &UsbEndpoint::cancelWait)
 	JNC_MAP_FUNCTION("blockingWait", &UsbEndpoint::blockingWait)
-	JNC_MAP_FUNCTION("asyncWait",    &UsbEndpoint::asyncWait)
+	JNC_MAP_FUNCTION("asyncWait", &UsbEndpoint::asyncWait)
 JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
@@ -203,7 +203,7 @@ UsbEndpoint::readLoop() {
 
 	bool result;
 
-	UsbEndpointDesc* desc = (UsbEndpointDesc*)m_endpointDescPtr.m_p;
+	UsbEndpointDescriptor* descriptor = (UsbEndpointDescriptor*)m_endpointDescriptorPtr.m_p;
 
 	for (;;) {
 		sleepIoThread();
@@ -237,7 +237,7 @@ UsbEndpoint::readLoop() {
 
 		size_t activeReadCount = m_activeTransferList.getCount();
 		if (!m_readBuffer.isFull() && activeReadCount < m_readParallelism) {
-			UsbEndpointDesc* endpointDesc = (UsbEndpointDesc*)m_endpointDescPtr.m_p;
+			UsbEndpointDescriptor* endpointDescriptor = (UsbEndpointDescriptor*)m_endpointDescriptorPtr.m_p;
 			size_t readBlockSize = m_readBlockSize;
 			size_t newReadCount = m_readParallelism - activeReadCount;
 			uint_t timeout = m_transferTimeout;
@@ -359,18 +359,18 @@ UsbEndpoint::submitTransfer(
 	size_t size,
 	uint_t timeout
 ) {
-	UsbEndpointDesc* desc = (UsbEndpointDesc*)m_endpointDescPtr.m_p;
+	UsbEndpointDescriptor* descriptor = (UsbEndpointDescriptor*)m_endpointDescriptorPtr.m_p;
 
 	bool result = transfer->m_usbTransfer.create();
 	if (!result)
 		return false;
 
 	axl::io::UsbDevice* device = m_parentInterface->m_parentDevice->getDevice();
-	switch (desc->m_transferType) {
+	switch (descriptor->m_transferType) {
 	case LIBUSB_TRANSFER_TYPE_BULK:
 		transfer->m_usbTransfer.fillBulkTransfer(
 			device->getOpenHandle(),
-			desc->m_endpointId,
+			descriptor->m_endpointId,
 			p,
 			size,
 			onTransferCompleted,
@@ -383,7 +383,7 @@ UsbEndpoint::submitTransfer(
 	case LIBUSB_TRANSFER_TYPE_INTERRUPT:
 		transfer->m_usbTransfer.fillInterruptTransfer(
 			device->getOpenHandle(),
-			desc->m_endpointId,
+			descriptor->m_endpointId,
 			p,
 			size,
 			onTransferCompleted,

@@ -10,6 +10,7 @@
 //..............................................................................
 
 import "io_UsbInterface.jnc"
+import "io_UsbDeviceDesc.jnc"
 
 namespace io {
 
@@ -18,42 +19,13 @@ namespace io {
 
 //..............................................................................
 
-struct UsbConfigurationDesc {
-	UsbInterfaceDesc const* m_interfaceTable;
-	size_t m_interfaceCount;
-
-	uint8_t m_configurationId;
-	uint8_t m_descriptionStringId;
-	uint8_t m_attributes;
-	uint8_t m_maxPower;
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct UsbDeviceDesc {
-	UsbConfigurationDesc const* m_configurationTable;
-	size_t m_configurationCount;
-
-	uint16_t m_usbVersion;
-	uint16_t m_deviceVersion;
-	uint16_t m_vendorId;
-	uint16_t m_productId;
-	uint8_t m_vendorStringId;
-	uint8_t m_productStringId;
-	uint8_t m_serialStringId;
-	UsbClass m_class;
-	uint8_t m_subClass;
-	uint8_t m_protocol;
-}
-
-//..............................................................................
-
 opaque class UsbDevice {
-	UsbDeviceDesc const* const property m_deviceDesc;
-	UsbConfigurationDesc const* const property m_activeConfigurationDesc;
+	UsbDeviceDescriptor const* const property m_deviceDescriptor;
+	UsbConfigurationDescriptor const* const property m_activeConfigurationDescriptor;
 	uint8_t property m_configurationId;
-	uint8_t const property m_bus;
 	uint8_t const property m_address;
+	uint8_t const property m_bus;
+	uint8_t const property m_port;
 	UsbSpeed const property m_speed;
 
 	bool readonly m_isOpen;
@@ -65,7 +37,12 @@ opaque class UsbDevice {
 	void close();
 	alias void dispose = close;
 
-	char const* errorcode getStringDesc(uint8_t stringId);
+	uint16_t const* errorcode getStringDescriptorLangIdTable();
+
+	char const* errorcode getStringDescriptor(
+		uint8_t stringId,
+		uint16_t langId = 0 // use the very first langId
+	);
 
 	bool autoget property m_isAutoDetachKernelDriverEnabled;
 	bool const property m_isKernelDriverActive(uint_t interfaceId);
@@ -105,8 +82,6 @@ opaque class UsbDevice {
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-UsbDevice* const* errorcode createUsbDeviceArray(size_t* count = null);
 
 UsbDevice* errorcode openUsbDevice(
 	uint_t vendorId,

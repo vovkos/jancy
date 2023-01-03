@@ -12,7 +12,7 @@
 #pragma once
 
 #include "jnc_io_AsyncIoDevice.h"
-#include "jnc_io_UsbDesc.h"
+#include "jnc_io_UsbDescriptor.h"
 
 namespace jnc {
 namespace io {
@@ -31,7 +31,7 @@ enum UsbEndpointEvent {
 
 struct UsbEndpointHdr: IfaceHdr {
 	UsbInterface* m_parentInterface;
-	DataPtr m_endpointDescPtr;
+	DataPtr m_endpointDescriptorPtr;
 
 	uint_t m_transferTimeout;
 	uint_t m_readParallelism;
@@ -202,12 +202,12 @@ public:
 protected:
 	bool
 	isInEndpoint() {
-		return (((UsbEndpointDesc*)m_endpointDescPtr.m_p)->m_endpointId & LIBUSB_ENDPOINT_IN) != 0;
+		return (((UsbEndpointDescriptor*)m_endpointDescriptorPtr.m_p)->m_endpointId & LIBUSB_ENDPOINT_IN) != 0;
 	}
 
 	bool
 	isOutEndpoint() {
-		return (((UsbEndpointDesc*)m_endpointDescPtr.m_p)->m_endpointId & LIBUSB_ENDPOINT_IN) == 0;
+		return (((UsbEndpointDescriptor*)m_endpointDescriptorPtr.m_p)->m_endpointId & LIBUSB_ENDPOINT_IN) == 0;
 	}
 
 	void
