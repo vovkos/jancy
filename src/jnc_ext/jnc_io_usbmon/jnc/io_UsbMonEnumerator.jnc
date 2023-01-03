@@ -9,6 +9,9 @@
 //
 //..............................................................................
 
+import "io_usb.jncx"
+import "io_UsbDeviceDesc.jnc"
+
 namespace io {
 
 //! \addtogroup io-usbmon
@@ -16,77 +19,22 @@ namespace io {
 
 //..............................................................................
 
-enum UsbMonDeviceSpeed: uint8_t {
-	Unknown,
-	Low,
-	Full,
-	High,
-	Super,
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-bitflag enum UsbMonDeviceDescFlags {
-	Hub,
-	DeviceDescriptor,
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct UsbMonDeviceDesc {
+struct UsbMonDeviceDesc: UsbDeviceDesc {
 	UsbMonDeviceDesc const* m_next;
 	char const* m_captureDeviceName;
-	char const* m_description;
-	char const* m_manufacturer;
-	char const* m_driver;
-	char const* m_manufacturerDescriptor;
-	char const* m_productDescriptor;
-	char const* m_serialNumberDescriptor;
-
-	uint16_t m_vendorId;
-	uint16_t m_productId;
-
 	uint8_t m_captureDeviceId;
-	uint8_t m_address;
-	uint8_t m_port;
-	uint8_t m_class;
-	uint8_t m_subClass;
-	uint8_t m_manufacturerDescriptorId;
-	uint8_t m_productDescriptorId;
-	uint8_t m_serialNumberDescriptorId;
-
-	UsbMonDeviceSpeed m_speed;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum UsbMonDeviceDescMask {
-	Hubs,
-	Description,
-	Manufacturer,
-	Driver,
-	ManufacturerDescriptor,
-	ProductDescriptor,
-	SerialNumberDescriptor,
-
-	Descriptors =
-		ManufacturerDescriptor |
-		ProductDescriptor |
-		SerialNumberDescriptor,
-	AllButHubs =
-		Description |
-		Manufacturer |
-		Driver |
-		Descriptors,
-	All =
-		AllButHubs |
-		Hubs,
+bitflag enum UsbMonEnumFlags: UsbDeviceDescFlags {
+	Hubs = 0x0100,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 UsbMonDeviceDesc const* enumerateUsbMonDevices(
-	UsbMonDeviceDescMask mask,
+	UsbMonEnumFlags flags,
 	size_t* count = null
 );
 

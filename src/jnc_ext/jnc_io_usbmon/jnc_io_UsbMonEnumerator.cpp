@@ -33,42 +33,24 @@ JNC_END_TYPE_FUNCTION_MAP()
 DataPtr
 createUsbMonDeviceDesc(
 	Runtime* runtime,
-	axl::io::UsbMonDeviceDesc* srcDevice,
+	axl::io::UsbMonDeviceDesc* srcDesc,
 	uint_t mask
 ) {
-	DataPtr devicePtr = createData<UsbMonDeviceDesc> (runtime);
-	UsbMonDeviceDesc* dstDevice = (UsbMonDeviceDesc*)devicePtr.m_p;
-
-	dstDevice->m_captureDeviceNamePtr = strDup(srcDevice->m_captureDeviceName);
-	dstDevice->m_descriptionPtr = strDup(srcDevice->m_description);
-	dstDevice->m_manufacturerPtr = strDup(srcDevice->m_manufacturer);
-	dstDevice->m_driverPtr = strDup(srcDevice->m_driver);
-	dstDevice->m_manufacturerDescriptorPtr = strDup(srcDevice->m_manufacturerDescriptor);
-	dstDevice->m_productDescriptorPtr = strDup(srcDevice->m_productDescriptor);
-	dstDevice->m_serialNumberDescriptorPtr = strDup(srcDevice->m_serialNumberDescriptor);
-
-	dstDevice->m_vendorId = srcDevice->m_vendorId;
-	dstDevice->m_productId = srcDevice->m_productId;
-	dstDevice->m_captureDeviceId = srcDevice->m_captureDeviceId;
-	dstDevice->m_address = srcDevice->m_address;
-	dstDevice->m_port = srcDevice->m_port;
-	dstDevice->m_class = srcDevice->m_class;
-	dstDevice->m_subClass = srcDevice->m_subClass;
-	dstDevice->m_manufacturerDescriptorId = srcDevice->m_manufacturerDescriptorId;
-	dstDevice->m_productDescriptorId = srcDevice->m_productDescriptorId;
-	dstDevice->m_serialNumberDescriptorId = srcDevice->m_serialNumberDescriptorId;
-	dstDevice->m_speed = srcDevice->m_speed;
-
-	return devicePtr;
+	DataPtr descPtr = createData<UsbMonDeviceDesc>(runtime);
+	UsbMonDeviceDesc* dstDesc = (UsbMonDeviceDesc*)descPtr.m_p;
+	initUsbDeviceDesc(dstDesc, srcDesc);
+	dstDesc->m_captureDeviceNamePtr = strDup(srcDesc->m_captureDeviceName);
+	dstDesc->m_captureDeviceId = srcDesc->m_captureDeviceId;
+	return descPtr;
 }
 
 DataPtr
 enumerateUsbMonDevices(
-	uint_t mask,
+	uint_t flags,
 	DataPtr countPtr
 ) {
 	sl::List<axl::io::UsbMonDeviceDesc> deviceList;
-	axl::io::enumerateUsbMonDevices(&deviceList, mask);
+	axl::io::enumerateUsbMonDevices(&deviceList, flags);
 
 	if (deviceList.isEmpty()) {
 		if (countPtr.m_p)
@@ -82,15 +64,15 @@ enumerateUsbMonDevices(
 
 	sl::Iterator<axl::io::UsbMonDeviceDesc> it = deviceList.getHead();
 
-	DataPtr devicePtr = createUsbMonDeviceDesc(runtime, *it, mask);
-	DataPtr resultPtr = devicePtr;
+	DataPtr descPtr = createUsbMonDeviceDesc(runtime, *it, flags);
+	DataPtr resultPtr = descPtr;
 	size_t count = 1;
 
-	UsbMonDeviceDesc* prevDevice = (UsbMonDeviceDesc*)devicePtr.m_p;
+	UsbMonDeviceDesc* prevDesc = (UsbMonDeviceDesc*)descPtr.m_p;
 	for (it++; it; it++) {
-		devicePtr = createUsbMonDeviceDesc(runtime, *it, mask);
-		prevDevice->m_nextPtr = devicePtr;
-		prevDevice = (UsbMonDeviceDesc*)devicePtr.m_p;
+		descPtr = createUsbMonDeviceDesc(runtime, *it, flags);
+		prevDesc->m_nextPtr = descPtr;
+		prevDesc = (UsbMonDeviceDesc*)descPtr.m_p;
 		count++;
 	}
 
