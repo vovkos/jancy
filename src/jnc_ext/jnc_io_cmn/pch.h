@@ -32,6 +32,10 @@
 #	include "axl_io_MappedFile.h"
 #endif
 
+#if (_JNC_IO_USB)
+#	include "axl_io_UsbDeviceDesc.h"
+#endif
+
 #include "jnc_ExtensionLib.h"
 #include "jnc_Capability.h"
 #include "jnc_Runtime.h"

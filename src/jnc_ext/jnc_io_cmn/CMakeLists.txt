@@ -22,6 +22,7 @@ set(
 	jnc_io_SocketBase.h
 	jnc_io_SslStateBase.h
 	jnc_io_SslSocketBase.h
+	jnc_io_UsbDeviceDesc.h
 )
 
 set(
@@ -33,11 +34,16 @@ set(
 	jnc_io_SocketBase.cpp
 	jnc_io_SslStateBase.cpp
 	jnc_io_SslSocketBase.cpp
+	jnc_io_UsbDeviceDesc.cpp
 )
 
 if(NOT OPENSSL_FOUND)
 	axl_exclude_from_build(jnc_io_SslStateBase.cpp)
 	axl_exclude_from_build(jnc_io_SslSocketBase.cpp)
+endif()
+
+if(NOT LIBUSB_FOUND)
+	axl_exclude_from_build(jnc_io_UsbDeviceDesc.cpp)
 endif()
 
 source_group(
@@ -75,6 +81,11 @@ include_directories(
 if(OPENSSL_FOUND)
 	include_directories(${OPENSSL_INC_DIR})
 	add_definitions(-D_JNC_IO_SSL=1)
+endif()
+
+if(LIBUSB_FOUND)
+	include_directories(${LIBUSB_INC_DIR})
+	add_definitions(-D_JNC_IO_USB=1)
 endif()
 
 add_library(
