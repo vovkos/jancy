@@ -2,25 +2,21 @@ import "io_usbmon.jncx"
 import "io_UsbMonEnumerator.jnc"
 
 int main() {
-	io.UsbMonDeviceDesc const* list = io.enumerateUsbMonDevices(io.UsbMonDeviceDescMask.All);
+	io.UsbMonDeviceDesc const* list = io.enumerateUsbMonDevices(io.UsbMonEnumFlags.All);
 	io.UsbMonDeviceDesc const* p = list;
 	io.UsbMonDeviceDesc const* serialTap;
 	
 	for (size_t i = 0; p; p = p.m_next, i++) {
 		printf("device #%d\n", i);
-		printf("  capture:        %s\n", p.m_captureDeviceName);
+		printf("  capture device: %s\n", p.m_captureDeviceName);
+		printf("  capture bus:    %d\n", p.m_captureDeviceId);
 		printf("  address:        %d\n", p.m_address);
-
-		if (!(p.m_flags & io.UsbMonDeviceDescFlags.DeviceDescriptor)) {
-			printf("  [ error fetching device descriptor ]\n");
-			continue;
-		}
-
-		printf("  VID:            %04x\n", p.m_vendorId);
-		printf("  PID:            %04x\n", p.m_productId);
-		printf("  class:          %d\n", p.m_class);
-		printf("  subclass:       %d\n", p.m_subClass);
-		printf("  speed:          %d\n", p.m_speed);
+		printf("  port:           %d\n", p.m_port);
+		printf("  VID:            0x%04x\n", p.m_vendorId);
+		printf("  PID:            0x%04x\n", p.m_productId);
+		printf("  class:          0x%02x\n", typeof(io.UsbClass).getValueString(p.m_class));
+		printf("  subclass:       0x%02x\n", p.m_subClass);
+		printf("  speed:          %s\n", typeof(io.UsbSpeed).getValueString(p.m_speed));
 
 		if (p.m_description)
 			printf("  description:    %s\n", p.m_description);
