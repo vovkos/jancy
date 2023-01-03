@@ -176,14 +176,22 @@ EnumType::findDirectChildItemTraverse(
 			return findResult;
 	}
 
-	if (!(flags & TraverseFlag_NoBaseType) && m_baseType->getTypeKind() == TypeKind_Enum) {
-		uint_t modFlags = (flags & ~TraverseFlag_NoThis) | TraverseFlag_NoParentNamespace;
-		FindModuleItemResult findResult = ((EnumType*)m_baseType)->findDirectChildItemTraverse(name, coord, modFlags);
-		if (!findResult.m_result)
-			return findResult;
+	if (!(flags & TraverseFlag_NoBaseType)) {
+		if (m_baseType->getTypeKindFlags() & TypeKindFlag_Import) {
+			bool result = ((ImportType*)m_baseType)->ensureResolved();
+			if (!result)
+				return g_errorFindModuleItemResult;
+		}
 
-		if (findResult.m_item)
-			return findResult;
+		if (m_baseType->getTypeKind() == TypeKind_Enum) {
+			uint_t modFlags = (flags & ~TraverseFlag_NoThis) | TraverseFlag_NoParentNamespace;
+			FindModuleItemResult findResult = ((EnumType*)m_baseType)->findDirectChildItemTraverse(name, coord, modFlags);
+			if (!findResult.m_result)
+				return findResult;
+
+			if (findResult.m_item)
+				return findResult;
+		}
 	}
 
 	return !(flags & TraverseFlag_NoParentNamespace) && m_parentNamespace ?
