@@ -227,6 +227,13 @@ jnc_strDup(
 
 JNC_EXTERN_C
 jnc_DataPtr
+jnc_strDup_utf16(
+	const utf16_t* p,
+	size_t length
+);
+
+JNC_EXTERN_C
+jnc_DataPtr
 jnc_memDup(
 	const void* p,
 	size_t size
@@ -545,6 +552,15 @@ strDup(
 
 inline
 DataPtr
+strDup(
+	const utf16_t* p,
+	size_t length = -1
+) {
+	return jnc_strDup_utf16(p, length);
+}
+
+inline
+DataPtr
 memDup(
 	const void* p,
 	size_t size
@@ -577,6 +593,12 @@ inline
 DataPtr
 strDup(const axl::sl::StringRef& string) {
 	return jnc_strDup(string.cp(), string.getLength());
+}
+
+inline
+DataPtr
+strDup(const axl::sl::StringRef_utf16& string) {
+	return jnc_strDup_utf16(string.cp(), string.getLength());
 }
 
 inline
