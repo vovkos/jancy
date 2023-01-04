@@ -9,39 +9,36 @@
 //
 //..............................................................................
 
-import "io_UsbDeviceStrings.jnc"
-import "io_UsbDevice.jnc"
-
 namespace io {
 
-//! \addtogroup io-usbmon
+//! \addtogroup io-usb
 //! @{
 
 //..............................................................................
 
-struct UsbDeviceEntry: UsbDeviceStrings {
-	UsbDeviceEntry const* m_next;
-	UsbDevice* m_device;
+struct UsbDeviceStrings {
+	char const* m_description;
+	char const* m_manufacturer;
+	char const* m_driver;
+	char const* m_manufacturerDescriptor;
+	char const* m_productDescriptor;
+	char const* m_serialNumberDescriptor;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum UsbEnumFlags: UsbDeviceStringId {
-	Hubs = 0x0100,
-}
+bitflag enum UsbDeviceStringId {
+	Description,
+	Manufacturer,
+	Driver,
+	ManufacturerDescriptor,
+	ProductDescriptor,
+	SerialNumberDescriptor,
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-UsbDeviceEntry const* enumerateUsbDevices(
-	UsbEnumFlags flags,
-	size_t* count = null
-);
-
-UsbDeviceEntry const* enumerateUsbDevices(size_t* count = null) {
-	return enumerateUsbDevices(0, count);
-}
-
-UsbDevice* const* errorcode enumerateUsbDevicesNoDesc(size_t* count = null);
+	Database    = Description | Manufacturer | Driver,
+	Descriptors = ManufacturerDescriptor | ProductDescriptor | SerialNumberDescriptor,
+	All         = Database | Descriptors,
+};
 
 //..............................................................................
 

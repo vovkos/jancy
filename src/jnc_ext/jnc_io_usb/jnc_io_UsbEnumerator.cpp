@@ -38,7 +38,7 @@ createUsbDeviceEntry(
 ) {
 	DataPtr resultPtr = createData<UsbDeviceEntry> (runtime);
 	UsbDeviceEntry* deviceEntry = (UsbDeviceEntry*)resultPtr.m_p;
-	initUsbDeviceDesc(deviceEntry, srcDeviceEntry);
+	initUsbDeviceStrings(deviceEntry, srcDeviceEntry);
 	deviceEntry->m_device = createClass<UsbDevice>(runtime);
 	deviceEntry->m_device->setDevice(srcDeviceEntry->m_device);
 	return resultPtr;

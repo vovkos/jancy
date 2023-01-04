@@ -10,7 +10,7 @@
 //..............................................................................
 
 import "io_usb.jncx"
-import "io_UsbDeviceDesc.jnc"
+import "io_UsbDeviceStrings.jnc"
 
 namespace io {
 
@@ -19,15 +19,28 @@ namespace io {
 
 //..............................................................................
 
-struct UsbMonDeviceDesc: UsbDeviceDesc {
+struct UsbMonDeviceDesc: UsbDeviceStrings {
 	UsbMonDeviceDesc const* m_next;
 	char const* m_captureDeviceName;
-	uint8_t m_captureDeviceId;
+	uint_t m_captureDeviceId;
+
+	uint16_t m_vendorId;
+	uint16_t m_productId;
+
+	uint8_t m_address;
+	uint8_t m_port;
+	uint8_t m_class;
+	uint8_t m_subClass;
+	UsbSpeed m_speed;
+
+	uint8_t m_manufacturerDescriptorId;
+	uint8_t m_productDescriptorId;
+	uint8_t m_serialNumberDescriptorId;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum UsbMonEnumFlags: UsbDeviceDescFlags {
+bitflag enum UsbMonEnumFlags: UsbDeviceStringId {
 	Hubs = 0x0100,
 };
 

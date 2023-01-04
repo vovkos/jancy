@@ -46,13 +46,13 @@ initializeUsbLibCapabilities() {
 //..............................................................................
 
 JNC_DEFINE_TYPE(
-	UsbDeviceDesc,
-	"io.UsbDeviceDesc",
+	UsbDeviceStrings,
+	"io.UsbDeviceStrings",
 	g_usbLibGuid,
-	UsbLibCacheSlot_UsbDeviceDesc
+	UsbLibCacheSlot_UsbDeviceStrings
 )
 
-JNC_BEGIN_TYPE_FUNCTION_MAP(UsbDeviceDesc)
+JNC_BEGIN_TYPE_FUNCTION_MAP(UsbDeviceStrings)
 JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -65,7 +65,14 @@ JNC_DEFINE_LIB_EX(
 	initializeUsbLibCapabilities
 )
 
+// we allocate descriptors from C++ so they must be parsed & laid out in advance (even if never used)
+
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE(UsbLib)
+	JNC_LIB_IMPORT("io_UsbDescriptors.jnc")
+	JNC_LIB_REQUIRE_TYPE(TypeKind_Struct, "io.UsbDeviceDescriptor")
+	JNC_LIB_REQUIRE_TYPE(TypeKind_Struct, "io.UsbConfigurationDescriptor")
+	JNC_LIB_REQUIRE_TYPE(TypeKind_Struct, "io.UsbInterfaceDescriptor")
+	JNC_LIB_REQUIRE_TYPE(TypeKind_Struct, "io.UsbEndpointDescriptor")
 JNC_END_LIB_SOURCE_FILE_TABLE()
 
 JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(UsbLib)
@@ -81,7 +88,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP(UsbLib)
 	JNC_MAP_TYPE(UsbInterface)
 	JNC_MAP_TYPE(UsbDeviceDescriptor)
 	JNC_MAP_TYPE(UsbDevice)
-	JNC_MAP_TYPE(UsbDeviceDesc)
+	JNC_MAP_TYPE(UsbDeviceStrings)
 	JNC_MAP_TYPE(UsbDeviceEntry)
 	JNC_MAP_FUNCTION("io.enumerateUsbDevices", enumerateUsbDevices)
 	JNC_MAP_FUNCTION("io.enumerateUsbDevicesNoDesc", enumerateUsbDevicesNoDesc)

@@ -40,6 +40,9 @@ protected:
 	sys::Lock m_lock;
 	sl::List<UsbInterface, UsbInterface::GetParentLink> m_interfaceList;
 
+	DataPtr m_deviceDescriptorPtr;
+	DataPtr m_langIdTablePtr;
+
 public:
 	UsbDevice();
 
@@ -86,7 +89,21 @@ public:
 	static
 	DataPtr
 	JNC_CDECL
-	getActiveConfigurationDesc(UsbDevice* self);
+	getActiveConfigurationDescriptor(UsbDevice* self);
+
+	static
+	DataPtr
+	JNC_CDECL
+	getLangIdTable(UsbDevice* self);
+
+	static
+	DataPtr
+	JNC_CDECL
+	getStringDescriptor(
+		UsbDevice* self,
+		uint_t stringId,
+		uint_t langId
+	);
 
 	uint8_t
 	JNC_CDECL
@@ -124,14 +141,6 @@ public:
 		return m_device.getDeviceSpeed();
 	}
 
-	static
-	DataPtr
-	JNC_CDECL
-	getStringDesc(
-		UsbDevice* self,
-		uint8_t stringId
-	);
-
 	bool
 	JNC_CDECL
 	setAutoDetachKernelDriverEnabled(bool isEnabled) {
@@ -159,8 +168,8 @@ public:
 	UsbInterface*
 	JNC_CDECL
 	claimInterface(
-		uint8_t interfaceId,
-		uint8_t altSettingId
+		uint_t interfaceId,
+		uint_t altSettingId
 	);
 
 	size_t

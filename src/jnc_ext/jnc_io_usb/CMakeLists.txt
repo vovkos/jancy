@@ -50,8 +50,8 @@ source_group(
 
 set(
 	JNC_LIST
-	jnc/io_UsbDescriptor.jnc
-	jnc/io_UsbDeviceDesc.jnc
+	jnc/io_UsbDescriptors.jnc
+	jnc/io_UsbDeviceStrings.jnc
 	jnc/io_UsbEnumerator.jnc
 	jnc/io_UsbDevice.jnc
 	jnc/io_UsbInterface.jnc

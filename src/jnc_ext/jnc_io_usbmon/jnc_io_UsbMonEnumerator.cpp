@@ -38,9 +38,19 @@ createUsbMonDeviceDesc(
 ) {
 	DataPtr descPtr = createData<UsbMonDeviceDesc>(runtime);
 	UsbMonDeviceDesc* dstDesc = (UsbMonDeviceDesc*)descPtr.m_p;
-	initUsbDeviceDesc(dstDesc, srcDesc);
+	initUsbDeviceStrings(dstDesc, srcDesc);
 	dstDesc->m_captureDeviceNamePtr = strDup(srcDesc->m_captureDeviceName);
 	dstDesc->m_captureDeviceId = srcDesc->m_captureDeviceId;
+	dstDesc->m_vendorId = srcDesc->m_vendorId;
+	dstDesc->m_productId = srcDesc->m_productId;
+	dstDesc->m_address = srcDesc->m_address;
+	dstDesc->m_port = srcDesc->m_port;
+	dstDesc->m_class = srcDesc->m_class;
+	dstDesc->m_subClass = srcDesc->m_subClass;
+	dstDesc->m_speed = srcDesc->m_speed;
+	dstDesc->m_manufacturerDescriptorId = srcDesc->m_manufacturerDescriptorId;
+	dstDesc->m_productDescriptorId = srcDesc->m_productDescriptorId;
+	dstDesc->m_serialNumberDescriptorId = srcDesc->m_serialNumberDescriptorId;
 	return descPtr;
 }
 

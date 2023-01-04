@@ -125,12 +125,12 @@ struct UsbDeviceDescriptor {
 	uint16_t m_deviceVersion;
 	uint16_t m_vendorId;
 	uint16_t m_productId;
-	uint8_t m_vendorStringId;
-	uint8_t m_productStringId;
-	uint8_t m_serialStringId;
 	uint8_t m_class;
 	uint8_t m_subClass;
 	uint8_t m_protocol;
+	uint8_t m_vendorStringId;
+	uint8_t m_productStringId;
+	uint8_t m_serialStringId;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

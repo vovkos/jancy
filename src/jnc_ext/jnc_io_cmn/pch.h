@@ -33,7 +33,7 @@
 #endif
 
 #if (_JNC_IO_USB)
-#	include "axl_io_UsbDeviceDesc.h"
+#	include "axl_io_UsbDeviceStrings.h"
 #endif
 
 #include "jnc_ExtensionLib.h"

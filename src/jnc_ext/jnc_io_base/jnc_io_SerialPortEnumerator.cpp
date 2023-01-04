@@ -35,7 +35,7 @@ createSerialPortDesc(
 	Runtime* runtime,
 	axl::io::SerialPortDesc* portDesc
 ) {
-	DataPtr portPtr = createData<SerialPortDesc> (runtime);
+	DataPtr portPtr = createData<SerialPortDesc>(runtime);
 	SerialPortDesc* port = (SerialPortDesc*)portPtr.m_p;
 	port->m_deviceNamePtr = strDup(portDesc->m_deviceName);
 	port->m_descriptionPtr = strDup(portDesc->m_description);

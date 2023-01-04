@@ -12,7 +12,7 @@
 import "io_base.jncx"
 import "io_StreamOptions.jnc"
 import "io_StreamEvents.jnc"
-import "io_UsbDescriptor.jnc"
+import "io_UsbDescriptors.jnc"
 
 namespace io {
 

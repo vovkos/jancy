@@ -10,7 +10,7 @@
 //..............................................................................
 
 import "io_UsbInterface.jnc"
-import "io_UsbDeviceDesc.jnc"
+import "io_UsbDeviceStrings.jnc"
 
 namespace io {
 
@@ -37,11 +37,11 @@ opaque class UsbDevice {
 	void close();
 	alias void dispose = close;
 
-	uint16_t const* errorcode getStringDescriptorLangIdTable();
+	uint16_t const* errorcode getLangIdTable();
 
 	char const* errorcode getStringDescriptor(
-		uint8_t stringId,
-		uint16_t langId = 0 // use the very first langId
+		uint_t stringId,
+		uint_t langId = 0 // use the very first langId
 	);
 
 	bool autoget property m_isAutoDetachKernelDriverEnabled;
@@ -50,8 +50,8 @@ opaque class UsbDevice {
 	bool errorcode detachKernelDriver(uint_t interfaceId);
 
 	UsbInterface* errorcode claimInterface(
-		uint8_t interfaceId,
-		uint8_t altSettingId = 0
+		uint_t interfaceId,
+		uint_t altSettingId = 0
 	);
 
 	size_t errorcode controlTransfer(

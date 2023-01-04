@@ -22,7 +22,7 @@ set(
 	jnc_io_SocketBase.h
 	jnc_io_SslStateBase.h
 	jnc_io_SslSocketBase.h
-	jnc_io_UsbDeviceDesc.h
+	jnc_io_UsbDeviceStrings.h
 )
 
 set(
@@ -34,7 +34,7 @@ set(
 	jnc_io_SocketBase.cpp
 	jnc_io_SslStateBase.cpp
 	jnc_io_SslSocketBase.cpp
-	jnc_io_UsbDeviceDesc.cpp
+	jnc_io_UsbDeviceStrings.cpp
 )
 
 if(NOT OPENSSL_FOUND)
@@ -43,7 +43,7 @@ if(NOT OPENSSL_FOUND)
 endif()
 
 if(NOT LIBUSB_FOUND)
-	axl_exclude_from_build(jnc_io_UsbDeviceDesc.cpp)
+	axl_exclude_from_build(jnc_io_UsbDeviceStrings.cpp)
 endif()
 
 source_group(

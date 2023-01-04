@@ -9,36 +9,26 @@
 //
 //..............................................................................
 
-#pragma once
-
+#include "pch.h"
 #include "jnc_io_UsbDeviceStrings.h"
 
 namespace jnc {
 namespace io {
 
-JNC_DECLARE_TYPE(UsbDeviceEntry)
-
-class UsbDevice;
-
 //..............................................................................
 
-struct UsbDeviceEntry: UsbDeviceStrings {
-	JNC_DECLARE_TYPE_STATIC_METHODS(UsbDeviceEntry)
-
-	DataPtr m_nextPtr;
-	UsbDevice* m_device;
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-DataPtr
-enumerateUsbDevices(
-	uint_t flags,
-	DataPtr countPtr
-);
-
-DataPtr
-enumerateUsbDevicesNoDesc(DataPtr countPtr);
+void
+initUsbDeviceStrings(
+	UsbDeviceStrings* dst,
+	const axl::io::UsbDeviceStrings* src
+) {
+	dst->m_descriptionPtr = strDup(src->m_description);
+	dst->m_manufacturerPtr = strDup(src->m_manufacturer);
+	dst->m_driverPtr = strDup(src->m_driver);
+	dst->m_manufacturerDescriptorPtr = strDup(src->m_manufacturerDescriptor);
+	dst->m_productDescriptorPtr = strDup(src->m_productDescriptor);
+	dst->m_serialNumberDescriptorPtr = strDup(src->m_serialNumberDescriptor);
+}
 
 //..............................................................................
 

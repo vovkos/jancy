@@ -36,7 +36,8 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(UsbDevice)
 	JNC_MAP_DESTRUCTOR(&jnc::destruct<UsbDevice>)
 	JNC_MAP_FUNCTION("open", &UsbDevice::open)
 	JNC_MAP_FUNCTION("close", &UsbDevice::close)
-	JNC_MAP_FUNCTION("getStringDesc", &UsbDevice::getStringDesc)
+	JNC_MAP_FUNCTION("getLangIdTable", &UsbDevice::getLangIdTable)
+	JNC_MAP_FUNCTION("getStringDescriptor", &UsbDevice::getStringDescriptor)
 	JNC_MAP_FUNCTION("attachKernelDriver", &UsbDevice::attachKernelDriver)
 	JNC_MAP_FUNCTION("detachKernelDriver", &UsbDevice::detachKernelDriver)
 	JNC_MAP_FUNCTION("claimInterface", &UsbDevice::claimInterface)
@@ -45,7 +46,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(UsbDevice)
 	JNC_MAP_AUTOGET_PROPERTY("m_isAutoDetachKernelDriverEnabled", &UsbDevice::setAutoDetachKernelDriverEnabled)
 	JNC_MAP_CONST_PROPERTY("m_isKernelDriverActive", &UsbDevice::isKernelDriverActive)
 	JNC_MAP_CONST_PROPERTY("m_deviceDescriptor", &UsbDevice::getDeviceDescriptor)
-	JNC_MAP_CONST_PROPERTY("m_activeConfigurationDesc", &UsbDevice::getActiveConfigurationDesc)
+	JNC_MAP_CONST_PROPERTY("m_activeConfigurationDescriptor", &UsbDevice::getActiveConfigurationDescriptor)
 	JNC_MAP_CONST_PROPERTY("m_bus", &UsbDevice::getBus)
 	JNC_MAP_CONST_PROPERTY("m_address", &UsbDevice::getAddress)
 	JNC_MAP_CONST_PROPERTY("m_port", &UsbDevice::getPort)
@@ -59,6 +60,8 @@ UsbDevice::UsbDevice() {
 	m_isOpen = false;
 	m_isAutoDetachKernelDriverEnabled = false;
 	m_asyncControlEndpoint = NULL;
+	m_deviceDescriptorPtr = g_nullDataPtr;
+	m_langIdTablePtr = g_nullDataPtr;
 }
 
 void
@@ -70,6 +73,8 @@ UsbDevice::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 	sl::Iterator<UsbInterface, UsbInterface::GetParentLink> it = m_interfaceList.getHead();
 	for (; it; it++)
 		gcHeap->markClassPtr(*it);
+
+	gcHeap->markDataPtr(m_langIdTablePtr);
 }
 
 
@@ -127,18 +132,23 @@ UsbDevice::open() {
 DataPtr
 JNC_CDECL
 UsbDevice::getDeviceDescriptor(UsbDevice* self) {
+	if (self->m_deviceDescriptorPtr.m_p)
+		return self->m_deviceDescriptorPtr;
+
 	libusb_device_descriptor desc;
 
 	bool result = self->m_device.getDeviceDescriptor(&desc);
 	if (!result)
 		return g_nullDataPtr;
 
-	return createUsbDeviceDescriptor(getCurrentThreadRuntime(), &desc, &self->m_device);
+	DataPtr ptr = createUsbDeviceDescriptor(getCurrentThreadRuntime(), &desc, &self->m_device);
+	self->m_deviceDescriptorPtr = ptr;
+	return ptr;
 }
 
 DataPtr
 JNC_CDECL
-UsbDevice::getActiveConfigurationDesc(UsbDevice* self) {
+UsbDevice::getActiveConfigurationDescriptor(UsbDevice* self) {
 	axl::io::UsbConfigDescriptor desc;
 
 	bool result = self->m_device.getActiveConfigDescriptor(&desc);
@@ -150,24 +160,46 @@ UsbDevice::getActiveConfigurationDesc(UsbDevice* self) {
 
 DataPtr
 JNC_CDECL
-UsbDevice::getStringDesc(
+UsbDevice::getLangIdTable(UsbDevice* self) {
+	if (!self->m_langIdTablePtr.m_p)
+		return self->m_langIdTablePtr;
+
+	sl::String_utf16 string = self->m_device.getStringDescriptor(0, 0); // special descriptor
+	DataPtr ptr = memDup(string.cp(), string.getLength() * sizeof(utf16_t));
+	self->m_langIdTablePtr = ptr;
+	return ptr;
+}
+
+DataPtr
+JNC_CDECL
+UsbDevice::getStringDescriptor(
 	UsbDevice* self,
-	uint8_t stringId
+	uint_t stringId,
+	uint_t langId
 ) {
 	if (!self->m_isOpen) {
 		err::setError(err::SystemErrorCode_InvalidDeviceState);
 		return g_nullDataPtr;
 	}
 
-	sl::String string = self->m_device.getStringDescriptorAscii(stringId);
+	char buffer[256];
+
+	if (!langId) {
+		sl::String string(rc::BufKind_Stack, buffer, sizeof(buffer));
+		self->m_device.getStringDescriptorAscii(&string, stringId);
+		return strDup(string);
+	}
+
+	sl::String_utf16 string(rc::BufKind_Stack, buffer, sizeof(buffer));
+	self->m_device.getStringDescriptor(&string, stringId, langId);
 	return strDup(string);
 }
 
 UsbInterface*
 JNC_CDECL
 UsbDevice::claimInterface(
-	uint8_t interfaceId,
-	uint8_t altSettingId
+	uint_t interfaceId,
+	uint_t altSettingId
 ) {
 	if (!m_isOpen) {
 		jnc::setError(err::Error(err::SystemErrorCode_InvalidDeviceState));
@@ -184,7 +216,7 @@ UsbDevice::claimInterface(
 	GcHeap* gcHeap = runtime->getGcHeap();
 	gcHeap->enterNoCollectRegion();
 
-	DataPtr configDescPtr = getActiveConfigurationDesc(this);
+	DataPtr configDescPtr = getActiveConfigurationDescriptor(this);
 	UsbConfigurationDescriptor* configDescriptor = (UsbConfigurationDescriptor*)configDescPtr.m_p;
 	UsbInterfaceDescriptor* ifaceDescriptor = configDescriptor->findInterfaceDescriptor(interfaceId, altSettingId);
 

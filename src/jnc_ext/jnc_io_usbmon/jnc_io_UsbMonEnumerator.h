@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include "jnc_io_UsbDeviceDesc.h"
+#include "jnc_io_UsbDeviceStrings.h"
 
 namespace jnc {
 namespace io {
@@ -20,12 +20,25 @@ JNC_DECLARE_TYPE(UsbMonDeviceDesc)
 
 //..............................................................................
 
-struct UsbMonDeviceDesc: UsbDeviceDesc {
+struct UsbMonDeviceDesc: UsbDeviceStrings {
 	JNC_DECLARE_TYPE_STATIC_METHODS(UsbMonDeviceDesc)
 
 	DataPtr m_nextPtr;
 	DataPtr m_captureDeviceNamePtr;
-	uint8_t m_captureDeviceId;
+	uint_t m_captureDeviceId;
+
+	uint16_t m_vendorId;
+	uint16_t m_productId;
+
+	uint8_t m_address;
+	uint8_t m_port;
+	uint8_t m_class;
+	uint8_t m_subClass;
+	uint8_t m_speed;
+
+	uint8_t m_manufacturerDescriptorId;
+	uint8_t m_productDescriptorId;
+	uint8_t m_serialNumberDescriptorId;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

@@ -23,9 +23,9 @@ enum UsbLibCacheSlot {
 	UsbLibCacheSlot_UsbInterface,
 	UsbLibCacheSlot_UsbConfigurationDescriptor,
 	UsbLibCacheSlot_UsbDeviceDescriptor,
+	UsbLibCacheSlot_UsbDeviceStrings,
 	UsbLibCacheSlot_UsbDevice,
 	UsbLibCacheSlot_UsbDeviceEntry,
-	UsbLibCacheSlot_UsbDeviceDesc,
 };
 
 // {2cc2fe82-652f-4fe4-9573-5da7d5d53b72}
