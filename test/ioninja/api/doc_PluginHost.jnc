@@ -35,7 +35,15 @@ opaque class PluginHost {
 
 	destruct();
 
-	ui.FormLayout* createForm(char const* title = null);
+	void createForm(
+		ui.Widget* widget,
+		int stretch = 0
+	);
+
+	void createForm(
+		ui.Layout* layout,
+		int stretch = 0
+	);
 }
 
 //..............................................................................

@@ -5,6 +5,8 @@
 
 import "doc_Session.jnc"
 import "io_usb.jncx"
+import "io_UsbDevice.jnc"
+import "io_UsbEnumerator.jnc"
 import "iox_FpgaUploader.jnc"
 import "ui_BufferPropertySet.jnc"
 import "ui_StdSessionInfoSet.jnc"
@@ -352,7 +354,7 @@ void I2cSpiTapSession.onUpdateCompleted(bool result) {
 void I2cSpiTapSession.enumerateDevices() {
 	m_deviceCombo.clear();
 
-	io.UsbDevice* const* deviceArray = io.createUsbDeviceArray();
+	io.UsbDevice* const* deviceArray = io.enumerateUsbDevicesNoDesc();
 	size_t totalCount = dynamic countof(deviceArray);
 	size_t actualCount = 0;
 
@@ -360,7 +362,7 @@ void I2cSpiTapSession.enumerateDevices() {
 
 	for (size_t i = 0; i < totalCount; i++) {
 		io.UsbDevice* device = deviceArray[i];
-		io.UsbDeviceDesc const* deviceDesc = device.m_deviceDesc;
+		io.UsbDeviceDescriptor const* deviceDesc = device.m_deviceDescriptor;
 
 		if (deviceDesc.m_vendorId != Usb.VendorId ||
 			deviceDesc.m_productId != Usb.ProductId)

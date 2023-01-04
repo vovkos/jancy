@@ -16,5 +16,4 @@ log-filter-class = ServerSocketLogFilter
 
 [scripts]
 
-SocketLogRecordCode.jnc
 ServerSocketLogFilter.jnc

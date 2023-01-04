@@ -140,9 +140,10 @@ void MailslotMonSession.createUi() {
 		countof(viewFilterKindTable)
 	);
 
+	m_pluginHost.m_toolBar.addSpacing();
 	m_viewFilterCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_viewFilterCombo.m_isEditable = true;
-	m_viewFilterCombo.m_onEnter += onSetViewFilter;
+	m_viewFilterCombo.m_onReturnPressed += onSetViewFilter;
 
 	m_iconTable[IconId.Capture] = new ui.Icon("images/capture.png");
 	m_iconTable[IconId.StopCapture] = new ui.Icon("images/pause.png");

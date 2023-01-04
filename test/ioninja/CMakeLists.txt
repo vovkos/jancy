@@ -92,7 +92,7 @@ add_jancy_tests(
 		representPipeServerLog
 	FILES
 		PipeServerSession.jnc
-		PipeClientLogFilter.jnc
+		PipeServerLogFilter.jnc
 		PipeServerLogRecordCode.jnc
 		PipeServerLogRepresenter.jnc
 	FINALIZE_TEST PipeServer

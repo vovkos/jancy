@@ -1,23 +1,25 @@
 #...............................................................................
 #
-#  Pipe Server log representer plugin
+#  Pipe Server log plugin
 #
 
 [plugin]
 
 name        = Pipe Server Log
-description = "Pipe Server log representer"
+description = "Pipe Server log representer & filter"
 group       = fs
 guid        = d74419a1-789c-4d9a-8d92-bd44ee19c971
 icon        = images/pipe.png
 small-icon  = images/pipe-16x16.png
 
 log-representer-func = representPipeServerLog
+log-filter-class     = PipeServerLogFilter
 
 [scripts]
 
 PipeServerLogRecordCode.jnc
 PipeServerLogRepresenter.jnc
+PipeServerLogFilter.jnc
 
 [records]
 

@@ -78,7 +78,7 @@ void UdpFlowLayer.createUi() {
 	m_pluginHost.m_toolBar.addLabel("Filter:");
 	m_viewFilterCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_viewFilterCombo.m_isEditable = true;
-	m_viewFilterCombo.m_onEnter += onSetViewFilter;
+	m_viewFilterCombo.m_onReturnPressed += onSetViewFilter;
 	m_viewFilterCombo.m_placeholderText = "Enter a filter address...";
 	m_viewFilterCombo.m_toolTip = "Only show packets matching this address";
 

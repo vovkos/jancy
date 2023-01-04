@@ -172,14 +172,14 @@ void SshSerialMonSession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("Address:");
 	m_addressCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_addressCombo.m_isEditable = true;
-	m_addressCombo.m_onEnter += onComboEnter;
+	m_addressCombo.m_onReturnPressed += onComboEnter;
 	m_addressCombo.m_placeholderText = "Enter a remote IP or hostname...";
 
 	m_pluginHost.m_toolBar.addSpacing();
 	m_pluginHost.m_toolBar.addLabel("Port:");
 	m_portCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_portCombo.m_isEditable = true;
-	m_portCombo.m_onEnter += onComboEnter;
+	m_portCombo.m_onReturnPressed += onComboEnter;
 	m_portCombo.m_placeholderText = "Enter a serial port name...";
 
 	m_iconTable[IconId.Connect] = new ui.Icon("images/capture.png");

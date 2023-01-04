@@ -218,7 +218,7 @@ void SerialSession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("Port:");
 	m_portCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_portCombo.m_isEditable = true;
-	m_portCombo.m_onEnter += onPortComboEnter;
+	m_portCombo.m_onReturnPressed += onPortComboEnter;
 	m_portCombo.m_placeholderText = "Enter a serial port name...";
 
 	m_actionTable[ActionId.Refresh] = createAction("Re-enumerate ports", m_iconTable[IconId.Refresh]);
@@ -254,15 +254,14 @@ void SerialSession.createUi() {
 		"Specify delays to insert between re-open attempts"
 	);
 
-	ui.FormLayout* form = m_pluginHost.createForm();
-	ui.FormLayout* layout = new ui.FormLayout;
-	ui.GroupBox* groupBox = new ui.GroupBox("Serial settings", layout);
-
+	ui.FormLayout layout;
 	m_serialUi.createForm(layout);
 	m_serialUi.createProperties(m_pluginHost.m_propertyGrid, groupProp);
-	form.addRow(groupBox);
 
-	m_serialUi.m_baudRateCombo.m_onEnter += onBaudRateChanged;
+	ui.GroupBox groupBox("Serial settings", layout);
+	m_pluginHost.createForm(groupBox);
+
+	m_serialUi.m_baudRateCombo.m_onReturnPressed += onBaudRateChanged;
 	bindingof(m_serialUi.m_baudRateCombo.m_currentIndex) += onBaudRateChanged;
 	bindingof(m_serialUi.m_dataBitsCombo.m_currentIndex) += onDataBitsChanged;
 	bindingof(m_serialUi.m_parityCombo.m_currentIndex) += onParityChanged;

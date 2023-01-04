@@ -4,6 +4,7 @@
 //
 
 import "ui_Action.jnc"
+import "ui_Label.jnc"
 import "ui_ComboBox.jnc"
 
 namespace ui {

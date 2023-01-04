@@ -90,6 +90,10 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
+	void onRefresh() {
+		ui.refreshUsbMonDeviceListUi(m_deviceCombo, m_deviceProp);
+	}
+
 	void onCapture() {
 		m_state ? close() : try capture();
 	}
@@ -130,7 +134,7 @@ void UsbMonSession.createUi() {
 	m_deviceCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 
 	m_actionTable[ActionId.Refresh]  = createAction("Re-enumerate devices", m_iconTable[IconId.Refresh]);
-	m_actionTable[ActionId.Refresh].m_onTriggered += ui.refreshUsbMonDeviceListUi~(m_deviceCombo, m_deviceProp);
+	m_actionTable[ActionId.Refresh].m_onTriggered += onRefresh;
 
 	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable [IconId.Capture]);
 	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;

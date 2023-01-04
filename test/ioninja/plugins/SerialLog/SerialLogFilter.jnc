@@ -52,13 +52,14 @@ protected:
 SerialLogFilter.construct(doc.PluginHost* pluginHost) {
 	m_log = pluginHost.m_log;
 
-	ui.FormLayout* form = pluginHost.createForm();
-	ui.VBoxLayout* layout = new ui.VBoxLayout;
-	ui.GroupBox* groupBox = new ui.GroupBox(Title, layout);
-	ui.GroupProperty* groupProp = pluginHost.m_propertyGrid.createGroupProperty(Title);
-	ui.Action* applyAction = new ui.Action("images/apply.png", "Rebuild log", onRebuildLog);
-	ui.ToolBar* applyToolBar = new ui.ToolBar;
+	ui.VBoxLayout layout;
+	ui.GroupBox groupBox(Title, layout);
+
+	ui.Action applyAction("images/apply.png", "Rebuild log", onRebuildLog);
+	ui.ToolBar applyToolBar;
 	applyToolBar.addAction(applyAction);
+
+	ui.GroupProperty* groupProp = pluginHost.m_propertyGrid.createGroupProperty(Title);
 
 	m_serialSettingChangeFilter.create(
 		layout,
@@ -89,7 +90,8 @@ SerialLogFilter.construct(doc.PluginHost* pluginHost) {
 		applyToolBar
 	);
 
-	form.addRow(groupBox);
+	pluginHost.createForm(groupBox);
+
 	pluginHost.m_log.addFoldingFilter(this);
 }
 

@@ -12,6 +12,7 @@ import "ui_SocketUi.jnc"
 import "ui_SslPropertySet.jnc"
 import "ui_BufferPropertySet.jnc"
 import "ui_StdSessionInfoSet.jnc"
+import "ui_ListWidget.jnc"
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
 import "std_List.jnc"
@@ -93,7 +94,7 @@ protected:
 	ui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
 	ui.ComboBox* m_adapterCombo;
 	ui.ComboBox* m_portCombo;
-	ui.ComboBox* m_clientCombo;
+	ui.ListWidget* m_clientWidget;
 
 	// property grid
 
@@ -185,20 +186,6 @@ WebSocketServerSession.construct(doc.PluginHost* pluginHost) {
 void WebSocketServerSession.createUi() {
 	// toolbar
 
-	m_pluginHost.m_toolBar.addLabel("Client:");
-	m_clientCombo = m_pluginHost.m_toolBar.addComboBox(-1);
-
-	m_actionTable[ActionId.Disconnect] = createAction("Disconnect", "images/disconnect.png");
-	m_actionTable[ActionId.Disconnect].m_onTriggered += disconnect;
-	m_actionTable[ActionId.DisconnectAll] = createAction("Disconnect All", "images/disconnect-all.png");
-	m_actionTable[ActionId.DisconnectAll].m_onTriggered += disconnectAll;
-
-	m_pluginHost.m_toolBar.addSeparator();
-	m_webSocketUi.createCombos(m_pluginHost.m_toolBar);
-	m_actionTable[ActionId.Ping] = createAction("Ping", "images/ping.png");
-	m_actionTable[ActionId.Ping].m_onTriggered += ping;
-
-	m_pluginHost.m_toolBar.addSeparator();
 	m_pluginHost.m_toolBar.addLabel("Adapter:");
 	m_adapterCombo = ui.createNetworkAdapterComboBox(m_pluginHost.m_toolBar, ui.NetworkAdapterUsage.Listener);
 
@@ -206,14 +193,42 @@ void WebSocketServerSession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("Port:");
 	m_portCombo = m_pluginHost.m_toolBar.addComboBox();
 	m_portCombo.m_isEditable = true;
-	m_portCombo.m_onEnter += onPortComboEnter;
+	m_portCombo.m_onReturnPressed += onPortComboEnter;
 
 	m_iconTable[IconId.Listen] = new ui.Icon("images/listen.png");
 	m_iconTable[IconId.StopListen] = new ui.Icon("images/pause.png");
+
 	m_actionTable[ActionId.UseSsl] = createAction("Secure WebWockets (wss://)", "images/ssl.png");
 	m_actionTable[ActionId.UseSsl].m_isCheckable = true;
 	m_actionTable[ActionId.Listen] = createAction("Listen", m_iconTable[IconId.Listen]);
 	m_actionTable[ActionId.Listen].m_onTriggered += onListen;
+
+	// form
+
+	ui.VBoxLayout layout;
+	m_webSocketUi.createForm(layout);
+	layout.addSpacing(4);
+	layout.addLine();
+
+	ui.Label label("Active client(s):");
+	layout.addWidget(label);
+	m_clientWidget = new ui.ListWidget;
+	m_clientWidget.m_placeholderText = "No active clients";
+	layout.addWidget(m_clientWidget, 1);
+
+	m_actionTable[ActionId.Disconnect] = new ui.Action("images/disconnect.png", "Disconnect", disconnect);
+	m_actionTable[ActionId.DisconnectAll] = new ui.Action("images/disconnect-all.png", "Disconnect All", disconnectAll);
+	m_actionTable[ActionId.Ping] = new ui.Action("images/ping.png", "Ping", ping);
+
+	ui.ToolBar clientToolBar;
+	clientToolBar.addStretch();
+	clientToolBar.addAction(m_actionTable[ActionId.Disconnect]);
+	clientToolBar.addAction(m_actionTable[ActionId.DisconnectAll]);
+	clientToolBar.addSeparator();
+	clientToolBar.addAction(m_actionTable[ActionId.Ping]);
+	layout.addWidget(clientToolBar);
+
+	m_pluginHost.createForm(layout, 1);
 
 	// status bar
 
@@ -319,13 +334,13 @@ void WebSocketServerSession.stopListen() {
 }
 
 void WebSocketServerSession.disconnect() {
-	Client* client = m_clientCombo.m_currentData;
+	Client* client = m_clientWidget.m_currentData;
 	if (client)
 		disconnect(client);
 }
 
 void WebSocketServerSession.ping() {
-	Client* client = m_clientCombo.m_currentData;
+	Client* client = m_clientWidget.m_currentData;
 	if (!client)
 		return;
 
@@ -375,7 +390,7 @@ void WebSocketServerSession.addDisconnectLogRecord(
 
 void WebSocketServerSession.addClient(WebSocketServerSession.Client* client) {
 	client.m_entry = m_clientList.add(client);
-	m_clientCombo.addItemSetCurrent(client.m_address.getString(), client);
+	m_clientWidget.addItemSetCurrent(client.m_address.getString(), client);
 	m_clientCount = m_clientList.m_count;
 	m_currentClientAddress = client.m_address;
 }
@@ -384,14 +399,11 @@ void WebSocketServerSession.removeClient(WebSocketServerSession.Client* client) 
 	client.m_socket.close();
 	client.m_syncId++;
 
+	size_t i = m_clientWidget.findData(client);
+	if (i != -1)
+		m_clientWidget.removeItem(i);
+
 	m_clientList.remove(client.m_entry);
-
-	for (size_t i = 0; i < m_clientCombo.m_itemCount; i++)
-		if (m_clientCombo.m_itemData[i] == client) {
-			m_clientCombo.removeItem(i);
-			break;
-		}
-
 	m_clientCount = m_clientList.m_count;
 	m_currentClientAddress = null;
 }
@@ -476,7 +488,7 @@ size_t errorcode WebSocketServerSession.transmit(
 	void const* p,
 	size_t size
 ) {
-	Client* client = m_clientCombo.m_currentData;
+	Client* client = m_clientWidget.m_currentData;
 	if (!client) {
 		std.setError("not connected");
 		return -1;
@@ -484,9 +496,13 @@ size_t errorcode WebSocketServerSession.transmit(
 
 	setCurrentClient(client);
 
-	size_t result = client.m_socket.writeText(p, size); // choose text/binary
-	if (result)
-		m_logWriter.write(log.StdRecordCode.Tx, p, result);
+	size_t result = iox.transmitWebSocketData(
+		client.m_socket,
+		m_webSocketUi.m_transmitModeCombo.m_currentData,
+		m_logWriter,
+		p,
+		size
+	);
 
 	if (result < size && client.m_isTransmitEnabled) {
 		client.m_isTransmitEnabled = false;
@@ -588,7 +604,7 @@ void WebSocketServerSession.onListenerSocketEvent(
 		socket = m_listenerSocket.accept(&address, true);
 		m_logWriter.write(SocketLogRecordCode.ClientConnected, &address, sizeof(address));
 
-		socket.m_extraHeaders = iox.buildWebSocketExtraHeaders(m_webSocketUi.m_extraHeadersProp.m_value);
+		socket.m_extraHeaders = iox.buildWebSocketHeaders(m_webSocketUi.m_headersWidget.m_dictionary);
 		socket.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
 		socket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 		socket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
@@ -726,7 +742,7 @@ void WebSocketServerSession.onClientSocketEvent(
 
 	if (triggeredEvents & io.WebSocketEvents.IncomingData) {
 		setCurrentClient(client);
-		m_clientCombo.m_currentData = client;
+		m_clientWidget.m_currentData = client;
 		iox.processWebSocketIncomingData(client.m_socket, m_logWriter, m_readBuffer.m_p, m_readBuffer.m_size);
 	}
 
@@ -744,16 +760,16 @@ reactor WebSocketServerSession.m_uiReactor {
 	m_actionTable[ActionId.Listen].m_icon = m_iconTable[m_listenerState ? IconId.StopListen : IconId.Listen];
 	m_actionTable[ActionId.Ping].m_isEnabled =
 	m_actionTable[ActionId.Disconnect].m_isEnabled =
-	m_actionTable[ActionId.DisconnectAll].m_isEnabled = m_clientCombo.m_currentData;
+	m_actionTable[ActionId.DisconnectAll].m_isEnabled = m_clientWidget.m_currentData;
 	m_statusPaneTable[StatusPaneId.ListenerState].m_text = m_listenerState ? "Listening" : "Not listening";
 	m_statusPaneTable[StatusPaneId.ClientCount].m_text = $"$m_clientCount client(s)";
-	m_clientCombo.m_isEnabled = m_clientCount;
+	m_clientWidget.m_isEnabled = m_clientCount;
 
 	m_isTransmitEnabled =
-		m_clientCombo.m_currentData &&
-		((Client*)m_clientCombo.m_currentData).m_isTransmitEnabled;
+		m_clientWidget.m_currentData &&
+		((Client*)m_clientWidget.m_currentData).m_isTransmitEnabled;
 
-	m_sessionConnectionState = m_clientCombo.m_currentData ?
+	m_sessionConnectionState = m_clientWidget.m_currentData ?
 		SessionConnectionState.Connected :
 		SessionConnectionState.Disconnected;
 }

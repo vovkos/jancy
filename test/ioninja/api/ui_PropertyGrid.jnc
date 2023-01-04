@@ -3,7 +3,8 @@
 // Ninja UI - property grid
 //
 
-import "ui_ComboItem.jnc"
+import "ui_ListItem.jnc"
+import "ui_Dictionary.jnc"
 import "std_HashTable.jnc"
 
 namespace ui {
@@ -66,7 +67,7 @@ opaque class StringProperty: Property {
 
 //..............................................................................
 
-typedef ComboItem EnumPropertyOption;
+typedef ListItem EnumPropertyOption;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -194,14 +195,13 @@ opaque class FileProperty: Property {
 opaque class DictionaryProperty: Property {
 	construct(char const* name);
 
-	std.HashTable* bindable autoget property m_value; // onChanged is also fired when contents changes
+	DictionaryEntry const* bindable autoget property m_value; // onChanged is also fired when contents changes
 
 	char const* autoget property m_propertyDisplayName;
 	char const* autoget property m_editDialogTitle;
-	char const* autoget property m_keyLabel;
-	char const* autoget property m_valueLabel;
-	char const* autoget property m_newKey;
-	char const* autoget property m_newValue;
+	char const* autoget property m_keyColumnName;
+	char const* autoget property m_valueColumnName;
+	char const* autoget property m_placeholderText;
 }
 
 //..............................................................................

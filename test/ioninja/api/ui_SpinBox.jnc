@@ -20,10 +20,10 @@ opaque class SpinBox: Widget {
 		NoButtons,
 	}
 
-	char const* bindable autoget property m_prefix;
+	char const* autoget property m_prefix;
 	char const* autoget property m_suffix;
 
-	int autoget property m_value;
+	int bindable autoget property m_value;
 	int autoget property m_minimum;
 	int autoget property m_maximum;
 	int autoget property m_singleStep;

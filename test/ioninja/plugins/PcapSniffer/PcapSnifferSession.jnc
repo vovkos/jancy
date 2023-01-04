@@ -177,7 +177,7 @@ void PcapSnifferSession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("Filter:");
 	m_viewFilterCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_viewFilterCombo.m_isEditable = true;
-	m_viewFilterCombo.m_onEnter += onSetViewFilter;
+	m_viewFilterCombo.m_onReturnPressed += onSetViewFilter;
 	m_viewFilterCombo.m_placeholderText = "Enter a pcap-filter...";
 	m_viewFilterCombo.m_toolTip =
 		"View only packets which pass this filter\n"
@@ -188,7 +188,7 @@ void PcapSnifferSession.createUi() {
 
 	m_pluginHost.m_toolBar.addLabel("Device:");
 	m_deviceCombo = ui.createPcapDeviceComboBox(m_pluginHost.m_toolBar);
-	m_deviceCombo.m_onEnter += onDeviceComboEnter;
+	m_deviceCombo.m_onReturnPressed += onDeviceComboEnter;
 
 	m_iconTable[IconId.Capture] = new ui.Icon("images/capture.png");
 	m_iconTable[IconId.StopCapture] = new ui.Icon("images/pause.png");

@@ -4,6 +4,8 @@
 //
 
 import "ui_PropertyGrid.jnc"
+import "ui_StdEditToolBar.jnc"
+import "ui_DictionaryWidget.jnc"
 
 namespace ui {
 
@@ -24,6 +26,12 @@ const EnumPropertyOption TransmitModeOptionTable[] = {
 	{ "Binary", WebSocketTransmitMode.Binary },
 }
 
+char const* const TransmitModeToolTipTable[] = {
+	"Transmit as text if the packet is a valid UTF-8; transmit as binary otherwise",
+	"Transmit as text always",
+	"Transmit as binary always",
+}
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum WebSocketCloseMode {
@@ -40,13 +48,13 @@ EnumPropertyOption CloseModeOptionTable[] = {
 
 class WebSocketUi {
 	bitflag enum SettingId {
-		ExtraHeaders,
+		Headers,
 		TransmitMode,
 		CloseMode,
 		CloseTimeout,
 
 		All =
-			ExtraHeaders |
+			Headers |
 			TransmitMode |
 			CloseMode |
 			CloseTimeout
@@ -58,15 +66,54 @@ class WebSocketUi {
 		CloseTimeout = 3000,
 	}
 
+	DictionaryWidget* m_headersWidget;
+	StdEditToolBar* m_headersToolBar;
 	ComboBox* m_transmitModeCombo;
+
+	DictionaryProperty* m_headersProp;
 	EnumProperty* m_transmitModeProp;
 	EnumProperty* m_closeModeProp;
 	IntProperty* m_closeTimeoutProp;
-	DictionaryProperty* m_extraHeadersProp;
 
-	void createCombos(
-		ToolBar* toolBar,
-		SettingId settingMask = SettingId.TransmitMode
+	property m_headers {
+		DictionaryEntry const* get() {
+			return
+				m_headersWidget ? m_headersWidget.m_dictionary :
+				m_headersProp ? m_headersProp.m_value :
+				null;
+		}
+
+		void set(DictionaryEntry const* value) {
+			if (m_headersWidget)
+				m_headersWidget.m_dictionary = value;
+			else if (m_headersProp)
+				m_headersProp.m_value = value;
+		}
+	}
+
+	property m_transmitMode {
+		WebSocketTransmitMode get() {
+			return
+				m_transmitModeCombo ? m_transmitModeCombo.m_currentData :
+				m_transmitModeProp ? m_transmitModeProp.m_value :
+				null;
+		}
+
+		void set(WebSocketTransmitMode value) {
+			if (m_transmitModeCombo)
+				m_transmitModeCombo.m_currentData = value;
+			else if (m_transmitModeProp)
+				m_transmitModeProp.m_value = value;
+		}
+	}
+
+	protected reactor m_headersReactor;
+
+	void createForm(
+		VBoxLayout* layout,
+		SettingId settingMask =
+			SettingId.Headers |
+			SettingId.TransmitMode
 	);
 
 	void createProperties(
@@ -82,6 +129,7 @@ class WebSocketUi {
 	void applyProperties();
 	void restoreDefaults();
 
+protected:
 	void onCloseModeChanged() {
 		m_closeTimeoutProp.m_isEnabled = m_closeModeProp.m_value == WebSocketCloseMode.Graceful;
 	}
@@ -89,16 +137,41 @@ class WebSocketUi {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void WebSocketUi.createCombos(
-	ToolBar* toolBar,
+void WebSocketUi.createForm(
+	VBoxLayout* layout,
 	SettingId settingMask
 ) {
-	if (settingMask & SettingId.TransmitMode)
-		m_transmitModeCombo = toolBar.addComboBox(
-			"Transmit as:",
+	if (settingMask & SettingId.Headers) {
+		layout.addWidget(new ui.Label("Extra headers:"));
+		m_headersWidget = new DictionaryWidget;
+		m_headersWidget.m_keyColumnName = "Header";
+		m_headersWidget.m_placeholderText = "No extra headers";
+		layout.addWidget(m_headersWidget, 1);
+
+		m_headersToolBar = new StdEditToolBar;
+		m_headersToolBar.addStretch();
+		m_headersToolBar.createActions();
+		m_headersToolBar.m_addAction.m_onTriggered += m_headersWidget.addEditNew;
+		m_headersToolBar.m_editAction.m_onTriggered += m_headersWidget.editSelection;
+		m_headersToolBar.m_removeAction.m_onTriggered += m_headersWidget.removeSelection;
+		layout.addWidget(m_headersToolBar);
+
+		m_headersReactor.start();
+	}
+
+	if (settingMask & SettingId.TransmitMode) {
+		m_transmitModeCombo = new ComboBox(
 			TransmitModeOptionTable,
 			countof(TransmitModeOptionTable)
 		);
+
+		for (size_t i = 0; i < countof(TransmitModeToolTipTable); i++)
+			m_transmitModeCombo.m_itemToolTip[i] = TransmitModeToolTipTable[i];
+
+		FormLayout subLayout;
+		subLayout.addRow("Transmit as:", m_transmitModeCombo);
+		layout.addLayout(subLayout);
+	}
 }
 
 void WebSocketUi.createProperties(
@@ -107,18 +180,17 @@ void WebSocketUi.createProperties(
 	Property* beforeProp,
 	SettingId settingMask
 ) {
-	if (settingMask & SettingId.ExtraHeaders) {
-		m_extraHeadersProp = propertyGrid.createDictionaryProperty(
+	if (settingMask & SettingId.Headers) {
+		m_headersProp = propertyGrid.createDictionaryProperty(
 			parentProp,
 			beforeProp,
 			"Extra headers",
 			"Extra HTTP headers for WebSocket handshake"
 		);
 
-		m_extraHeadersProp.m_editDialogTitle = "Edit Extra Headers";
-		m_extraHeadersProp.m_keyLabel = "Header";
-		m_extraHeadersProp.m_newKey = "New-Header";
-		m_extraHeadersProp.m_newValue = "VALUE";
+		m_headersProp.m_editDialogTitle = "Edit Extra Headers";
+		m_headersProp.m_keyColumnName = "Header";
+		m_headersProp.m_placeholderText = "No extra headers";
 	}
 
 	if (settingMask & SettingId.TransmitMode)
@@ -155,21 +227,8 @@ void WebSocketUi.createProperties(
 }
 
 void WebSocketUi.load(doc.Storage* storage) {
-	if (m_extraHeadersProp) {
-		m_extraHeadersProp.m_value.clear();
-
-		for (size_t i = 0;; i++) {
-			char const* header = storage.readString($"webSocketExtraHeader$i");
-			char const* value = storage.readString($"webSocketExtraHeaderValue$i");
-			if (!header)
-				break;
-
-			m_extraHeadersProp.m_value.add(header, value);
-		}
-	}
-
-	if (m_transmitModeCombo)
-		m_transmitModeCombo.m_currentData = storage.readInt("webSocketTransmitMode", Defaults.TransmitMode);
+	m_headers = loadDictionary(storage, "webSocketHeaders");
+	m_transmitMode = (WebSocketTransmitMode)storage.readInt("webSocketTransmitMode", Defaults.TransmitMode);
 
 	if (m_closeModeProp)
 		m_closeModeProp.m_value = storage.readInt("webSocketCloseMode", Defaults.CloseMode);
@@ -179,19 +238,8 @@ void WebSocketUi.load(doc.Storage* storage) {
 }
 
 void WebSocketUi.save(doc.Storage* storage) {
-	if (m_extraHeadersProp) {
-		size_t i = 0;
-		std.MapEntry const* entry = m_extraHeadersProp.m_value.m_head;
-		for (; entry; entry = entry.m_next, i++) {
-			storage.writeString($"webSocketExtraHeader$i", entry.m_key);
-			storage.writeString($"webSocketExtraHeaderValue$i", entry.m_value);
-		}
-
-		storage.writeString($"webSocketExtraHeader$i", null);
-	}
-
-	if (m_transmitModeCombo)
-		storage.writeInt("webSocketTransmitMode", m_transmitModeCombo.m_currentData);
+	saveDictionary(m_headers, storage, "webSocketHeaders");
+	storage.writeInt("webSocketTransmitMode", m_transmitMode);
 
 	if (m_closeModeProp)
 		storage.writeInt("webSocketCloseMode", m_closeModeProp.m_value);
@@ -201,18 +249,24 @@ void WebSocketUi.save(doc.Storage* storage) {
 }
 
 void WebSocketUi.updateProperties() {
+	if (m_headersWidget && m_headersProp)
+		m_headersProp.m_value = m_headersWidget.m_dictionary;
+
 	if (m_transmitModeCombo && m_transmitModeProp)
 		m_transmitModeProp.m_value = m_transmitModeCombo.m_editText;
 }
 
 void WebSocketUi.applyProperties() {
+	if (m_headersWidget && m_headersProp)
+		m_headersWidget.m_dictionary = m_headersProp.m_value;
+
 	if (m_transmitModeCombo && m_transmitModeProp)
 		m_transmitModeCombo.m_currentData = m_transmitModeProp.m_value;
 }
 
 void WebSocketUi.restoreDefaults() {
-	if (m_extraHeadersProp)
-		m_extraHeadersProp.m_value.clear();
+	if (m_headersProp)
+		m_headersProp.m_value = null;
 
 	if (m_transmitModeProp)
 		m_transmitModeProp.m_value = Defaults.TransmitMode;
@@ -222,6 +276,11 @@ void WebSocketUi.restoreDefaults() {
 
 	if (m_closeTimeoutProp)
 		m_closeTimeoutProp.m_value = Defaults.CloseTimeout;
+}
+
+reactor WebSocketUi.m_headersReactor {
+	m_headersToolBar.m_editAction.m_isEnabled = m_headersWidget.m_selectedItemCount == 1;
+	m_headersToolBar.m_removeAction.m_isEnabled = m_headersWidget.m_selectedItemCount > 0;
 }
 
 //..............................................................................

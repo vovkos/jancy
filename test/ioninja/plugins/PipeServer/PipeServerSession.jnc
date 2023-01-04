@@ -8,6 +8,7 @@ import "io_base.jncx"
 import "io_NamedPipe.jnc"
 import "io_FileStream.jnc"
 import "ui_History.jnc"
+import "ui_ListWidget.jnc"
 import "ui_BufferPropertySet.jnc"
 import "ui_StdSessionInfoSet.jnc"
 import "log_ThroughputCalc.jnc"
@@ -35,7 +36,6 @@ protected:
 		Listen,
 		Disconnect,
 		DisconnectAll,
-		ApplyFilter,
 		_Count,
 	}
 
@@ -70,7 +70,6 @@ protected:
 	size_t bindable m_clientCount;
 	Client* m_currentClient;
 	std.Buffer m_readBuffer;
-	PipeClientLogFilter m_filter;
 
 	// toolbar, status bar & menu
 
@@ -78,8 +77,7 @@ protected:
 	ui.Icon* m_iconTable[IconId._Count];
 	ui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
 	ui.ComboBox* m_pipeNameCombo;
-	ui.ComboBox* m_clientCombo;
-	ui.ComboBox* m_clientFilterCombo;
+	ui.ListWidget* m_clientWidget;
 
 	// property grid
 
@@ -125,10 +123,6 @@ protected:
 		m_state ? stopListen() : try listen();
 	}
 
-	void onSetClientFilter() {
-		try applyClientFilter(true);
-	}
-
 	void onPipeNameComboEnter() {
 		try listen();
 	}
@@ -145,7 +139,6 @@ protected:
 	);
 
 	void createUi();
-	bool errorcode applyClientFilter(bool rebuildLog);
 	io.FileStreamOptions getFileStreamOptions();
 	void waitListenerPipeEvents();
 	void waitClientPipeEvents(Client* client);
@@ -163,36 +156,15 @@ PipeServerSession.construct(doc.PluginHost* pluginHost) {
 
 	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
 	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
-	pluginHost.m_log.addFilter(m_filter);
 }
 
 void PipeServerSession.createUi() {
 	// toolbar
 
-	m_pluginHost.m_toolBar.addLabel("Filter:");
-	m_clientFilterCombo = m_pluginHost.m_toolBar.addComboBox(-1);
-	m_clientFilterCombo.m_isEditable = true;
-	m_clientFilterCombo.m_onEnter += onSetClientFilter;
-	m_clientFilterCombo.m_placeholderText = "Enter client ID to filter...";
-	m_clientFilterCombo.m_toolTip = "View only communications with the specified client";
-
-	m_actionTable[ActionId.ApplyFilter] = createAction("Apply filter", "images/apply.png");
-	m_actionTable[ActionId.ApplyFilter].m_onTriggered += onSetClientFilter;
-	m_pluginHost.m_toolBar.addSeparator();
-
-	m_pluginHost.m_toolBar.addLabel("Client:");
-	m_clientCombo = m_pluginHost.m_toolBar.addComboBox(-1);
-
-	m_actionTable[ActionId.Disconnect] = createAction("Disconnect", "images/disconnect.png");
-	m_actionTable[ActionId.Disconnect].m_onTriggered += disconnect;
-	m_actionTable[ActionId.DisconnectAll] = createAction("Disconnect All", "images/disconnect-all.png");
-	m_actionTable[ActionId.DisconnectAll].m_onTriggered += disconnectAll;
-	m_pluginHost.m_toolBar.addSeparator();
-
-	m_pluginHost.m_toolBar.addLabel("Name:");
+	m_pluginHost.m_toolBar.addLabel("Pipe:");
 	m_pipeNameCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_pipeNameCombo.m_isEditable = true;
-	m_pipeNameCombo.m_onEnter += onPipeNameComboEnter;
+	m_pipeNameCombo.m_onReturnPressed += onPipeNameComboEnter;
 	m_pipeNameCombo.m_placeholderText = "Enter a pipe name...";
 
 	m_iconTable[IconId.Listen] = new ui.Icon("images/listen.png");
@@ -201,6 +173,26 @@ void PipeServerSession.createUi() {
 
 	m_actionTable[ActionId.Listen] = createAction("Listen", m_iconTable [IconId.Listen]);
 	m_actionTable[ActionId.Listen].m_onTriggered += onListen;
+
+	// form
+
+	ui.VBoxLayout layout;
+	ui.Label label("Active client(s):");
+	layout.addWidget(label);
+	m_clientWidget = new ui.ListWidget;
+	m_clientWidget.m_placeholderText = "No active clients";
+	layout.addWidget(m_clientWidget, 1);
+
+	m_actionTable[ActionId.Disconnect] = new ui.Action("images/disconnect.png", "Disconnect", disconnect);
+	m_actionTable[ActionId.DisconnectAll] = new ui.Action("images/disconnect-all.png", "Disconnect All", disconnectAll);
+
+	ui.ToolBar clientToolBar;
+	clientToolBar.addStretch();
+	clientToolBar.addAction(m_actionTable[ActionId.Disconnect]);
+	clientToolBar.addAction(m_actionTable[ActionId.DisconnectAll]);
+	layout.addWidget(clientToolBar);
+
+	m_pluginHost.createForm(layout, 1);
 
 	// status bar
 
@@ -231,7 +223,7 @@ void PipeServerSession.createUi() {
 
 	// information grid
 
-	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Named pipe server");
+	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Pipe server");
 
 	m_stdSessionInfoSet.create(m_pluginHost.m_txRxStats, m_pluginHost.m_informationGrid, infoGroup);
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
@@ -299,7 +291,7 @@ void PipeServerSession.stopListen() {
 }
 
 void PipeServerSession.disconnect() {
-	Client* client = m_clientCombo.m_currentData;
+	Client* client = m_clientWidget.m_currentData;
 	if (client)
 		disconnect(client);
 }
@@ -320,14 +312,11 @@ void PipeServerSession.removeClient(PipeServerSession.Client* client) {
 	client.m_pipe.close();
 	client.m_syncId++;
 
+	size_t i = m_clientWidget.findData(client);
+	if (i != -1)
+		m_clientWidget.removeItem(i);
+
 	m_clientList.remove(client.m_entry);
-
-	for (size_t i = 0; i < m_clientCombo.m_itemCount; i++)
-		if (m_clientCombo.m_itemData[i] == client) {
-			m_clientCombo.removeItem(i);
-			break;
-		}
-
 	m_clientCount = m_clientList.m_count;
 	m_currentClient = null;
 }
@@ -339,25 +328,6 @@ void PipeServerSession.setCurrentClient(PipeServerSession.Client* client) {
 	uint64_t id = client.m_pipe.m_osHandle;
 	m_logWriter.write(PipeServerLogRecordCode.ClientChanged, &id, sizeof(id));
 	m_currentClient = client;
-}
-
-bool errorcode PipeServerSession.applyClientFilter(bool rebuildLog) {
-	m_pluginHost.m_log.suspend();
-	bool result = try m_filter.setFilter(m_clientFilterCombo.m_editText);
-	m_pluginHost.m_log.resume();
-
-	if (!result) {
-		m_clientFilterCombo.m_backgroundColor = ui.StdColor.PastelRed;
-		return false;
-	}
-
-	m_clientFilterCombo.addEditTextToHistory();
-	m_clientFilterCombo.m_backgroundColor = ui.ColorFlags.Undefined;
-
-	if (rebuildLog)
-		m_pluginHost.m_log.rebuild();
-
-	return true;
 }
 
 io.FileStreamOptions PipeServerSession.getFileStreamOptions() {
@@ -452,7 +422,7 @@ size_t errorcode PipeServerSession.transmit(
 	void const* p,
 	size_t size
 ) {
-	Client* client = m_clientCombo.m_currentData;
+	Client* client = m_clientWidget.m_currentData;
 	if (!client) {
 		std.setError("not connected");
 		return -1;
@@ -501,7 +471,7 @@ void PipeServerSession.onListenerPipeEvent(
 		client.m_pipe = pipe;
 		client.m_entry = m_clientList.add(client);
 		client.m_isTransmitEnabled = true;
-		m_clientCombo.addItemSetCurrent($"Client ID 0x%llX"(id), client);
+		m_clientWidget.addItemSetCurrent($"Client ID 0x%llX"(id), client);
 		m_clientCount = m_clientList.m_count;
 		m_currentClient = client;
 
@@ -567,16 +537,16 @@ reactor PipeServerSession.m_uiReactor {
 	m_actionTable[ActionId.Listen].m_text = m_state ? "Stop Listening" : "Listen";
 	m_actionTable[ActionId.Listen].m_icon = m_iconTable[m_state ? IconId.StopListen : IconId.Listen];
 	m_actionTable[ActionId.Disconnect].m_isEnabled =
-	m_actionTable[ActionId.DisconnectAll].m_isEnabled = m_clientCombo.m_currentData;
+	m_actionTable[ActionId.DisconnectAll].m_isEnabled = m_clientWidget.m_currentData;
 	m_statusPaneTable[StatusPaneId.ListenerState].m_text = m_state  ? "Listening" : "Not listening";
 	m_statusPaneTable[StatusPaneId.ClientCount].m_text = $"$m_clientCount client(s)";
-	m_clientCombo.m_isEnabled = m_clientCount;
+	m_clientWidget.m_isEnabled = m_clientCount;
 
 	m_isTransmitEnabled =
-		m_clientCombo.m_currentData &&
-		((Client*)m_clientCombo.m_currentData).m_isTransmitEnabled;
+		m_clientWidget.m_currentData &&
+		((Client*)m_clientWidget.m_currentData).m_isTransmitEnabled;
 
-	m_sessionConnectionState = m_clientCombo.m_currentData ?
+	m_sessionConnectionState = m_clientWidget.m_currentData ?
 		SessionConnectionState.Connected :
 		SessionConnectionState.Disconnected;
 }

@@ -70,7 +70,7 @@ ui.Action* Plugin.createAction(
 	bool isCheckable,
 	bool isChecked
 ) {
-	ui.Action* action = new ui.Action(icon, text);
+	ui.Action action(icon, text);
 	action.m_isCheckable = isCheckable;
 	if (isCheckable)
 		action.m_isChecked = isChecked;

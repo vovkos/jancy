@@ -37,29 +37,30 @@ void printUsbConfigurationDescriptor(io.UsbConfigurationDescriptor const* config
 }
 
 void printUsbDevice(io.UsbDeviceEntry const* deviceEntry) {
+	io.UsbDeviceDescriptor const* deviceDescriptor = deviceEntry.m_device.m_deviceDescriptor;
+
 	printf(
 		"Vendor:   %04x - %s/%s\n", 
-		deviceEntry.m_vendorId, 
+		deviceDescriptor.m_vendorId, 
 		deviceEntry.m_manufacturer, 
 		deviceEntry.m_manufacturerDescriptor
 	);
 
 	printf(
 		"Product:  %04x - %s/%s\n",
-		deviceEntry.m_productId,
+		deviceDescriptor.m_productId,
 		deviceEntry.m_description,
 		deviceEntry.m_productDescriptor
 	);
 
 	printf("Serial:   %s\n", deviceEntry.m_serialNumberDescriptor);
-	printf("Class:    %02x - %s\n", deviceEntry.m_class, typeof(io.UsbClass).getValueString(deviceEntry.m_class));
-	printf("Subclass: %02x\n", deviceEntry.m_subClass);
+	printf("Class:    %02x - %s\n", deviceDescriptor.m_class, typeof(io.UsbClass).getValueString(deviceDescriptor.m_class));
+	printf("Subclass: %02x\n", deviceDescriptor.m_subClass);
 	printf("Bus:      %d\n", deviceEntry.m_device.m_bus);
-	printf("Address:  %d\n", deviceEntry.m_address);
-	printf("Port:     %d\n", deviceEntry.m_port);
-	printf("Speed:    %s\n", typeof(io.UsbSpeed).getValueString(deviceEntry.m_speed));
+	printf("Address:  %d\n", deviceEntry.m_device.m_address);
+	printf("Port:     %d\n", deviceEntry.m_device.m_port);
+	printf("Speed:    %s\n", typeof(io.UsbSpeed).getValueString(deviceEntry.m_device.m_speed));
 
-	io.UsbDeviceDescriptor const* deviceDescriptor = deviceEntry.m_device.m_deviceDescriptor;
 	printf("Configs:  %d\n", deviceDescriptor.m_configurationCount);
 
 	for (size_t i = 0; i < deviceDescriptor.m_configurationCount; i++) {

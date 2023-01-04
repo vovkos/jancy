@@ -5,7 +5,8 @@
 
 import "doc_Session.jnc"
 import "io_usb.jncx"
-import "io_UsbDb.jnc"
+import "io_UsbDevice.jnc"
+import "io_UsbEnumerator.jnc"
 import "ui_UsbUi.jnc"
 import "ui_BufferPropertySet.jnc"
 import "ui_StdSessionInfoSet.jnc"
@@ -302,25 +303,25 @@ bool UsbDataEndpointSession.openDevice() {
 
 	m_device = m_deviceCombo.m_currentData;
 
-	io.UsbDeviceDesc const* deviceDesc = m_device.m_deviceDesc;
+	io.UsbDeviceDescriptor const* deviceDesc = m_device.m_deviceDescriptor;
 
 	m_device.open();
 
 	m_interfaceCombo.clear();
 
-	io.UsbConfigurationDesc const* confDesc = m_device.m_activeConfigurationDesc;
+	io.UsbConfigurationDescriptor const* confDesc = m_device.m_activeConfigurationDescriptor;
 	ui.EnumPropertyOption* optionTable = new ui.EnumPropertyOption[confDesc.m_interfaceCount];
 
 	for (size_t i = 0; i < confDesc.m_interfaceCount; i++) {
-		io.UsbInterfaceDesc const* ifaceDesc = &confDesc.m_interfaceTable[i];
+		io.UsbInterfaceDescriptor const* ifaceDesc = &confDesc.m_interfaceDescriptorTable[i];
 		char const* name =  $"$(ifaceDesc.m_interfaceId)";
 		optionTable[i].m_text = name;
 		optionTable[i].m_value = ifaceDesc;
 
 		m_interfaceCombo.addItem(name, ifaceDesc);
 
-		io.UsbInterfaceDesc const* ifaceAltDesc = ifaceDesc.m_nextAltSettingInterface;
-		for (; ifaceAltDesc; ifaceAltDesc = ifaceAltDesc.m_nextAltSettingInterface) {
+		io.UsbInterfaceDescriptor const* ifaceAltDesc = ifaceDesc.m_nextAltSettingInterfaceDescriptor;
+		for (; ifaceAltDesc; ifaceAltDesc = ifaceAltDesc.m_nextAltSettingInterfaceDescriptor) {
 			m_interfaceCombo.addItem(
 				$"  $(ifaceAltDesc.m_interfaceId):$(ifaceAltDesc.m_altSettingId)",
 				ifaceAltDesc
@@ -363,7 +364,7 @@ bool UsbDataEndpointSession.claimInterface() {
 
 	releaseInterface();
 
-	io.UsbInterfaceDesc const* ifaceDesc = m_interfaceCombo.m_currentData;
+	io.UsbInterfaceDescriptor const* ifaceDesc = m_interfaceCombo.m_currentData;
 
 	if (m_device.m_isKernelDriverActive[ifaceDesc.m_interfaceId] &&
 		m_autoDetachKernelDriverProp.m_value) {
@@ -383,7 +384,7 @@ bool UsbDataEndpointSession.claimInterface() {
 	size_t inEndpointCount = 0;
 
 	for (size_t i = 0; i < ifaceDesc.m_endpointCount; i++) {
-		io.UsbEndpointDesc const* endpointDesc = &ifaceDesc.m_endpointTable[i];
+		io.UsbEndpointDescriptor const* endpointDesc = &ifaceDesc.m_endpointDescriptorTable[i];
 
 		char const* name = $"$(endpointDesc.m_endpointId; 02x)";
 
@@ -438,7 +439,7 @@ bool UsbDataEndpointSession.startReading() {
 
 	stopReading();
 
-	io.UsbEndpointDesc const* endpointDesc = m_inEndpointCombo.m_currentData;
+	io.UsbEndpointDescriptor const* endpointDesc = m_inEndpointCombo.m_currentData;
 
 	m_inEndpoint = m_interface.openEndpoint(endpointDesc.m_endpointId, true);
 	configureInEndpoint();
@@ -475,7 +476,7 @@ void UsbDataEndpointSession.configureInEndpoint() {
 	} else {
 		m_inEndpoint.m_transferTimeout = -1;
 		m_inEndpoint.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
-		m_inEndpoint.m_readBlockSize = m_inEndpoint.m_endpointDesc.m_maxPacketSize; // if no timeout, we must read with the USB packet size
+		m_inEndpoint.m_readBlockSize = m_inEndpoint.m_endpointDescriptor.m_maxPacketSize; // if no timeout, we must read with the USB packet size
 	}
 
 	m_inEndpoint.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
@@ -521,8 +522,8 @@ void UsbDataEndpointSession.save(doc.Storage* storage) {
 
 	io.UsbDevice* device = m_deviceCombo.m_currentData;
 	if (device) {
-		storage.writeInt("deviceVid", device.m_deviceDesc.m_vendorId);
-		storage.writeInt("devicePid", device.m_deviceDesc.m_productId);
+		storage.writeInt("deviceVid", device.m_deviceDescriptor.m_vendorId);
+		storage.writeInt("devicePid", device.m_deviceDescriptor.m_productId);
 		storage.writeInt("deviceBus", device.m_bus);
 		storage.writeInt("deviceAddress", device.m_address);
 	}
@@ -573,8 +574,8 @@ size_t errorcode UsbDataEndpointSession.transmit(
 		return -1;
 	}
 
-	io.UsbEndpointDesc const* endpointDesc = m_outEndpointCombo.m_currentData;
-	if (!m_outEndpoint || m_outEndpoint.m_endpointDesc.m_endpointId != endpointDesc.m_endpointId) {
+	io.UsbEndpointDescriptor const* endpointDesc = m_outEndpointCombo.m_currentData;
+	if (!m_outEndpoint || m_outEndpoint.m_endpointDescriptor.m_endpointId != endpointDesc.m_endpointId) {
 		m_outEndpoint = m_interface.openEndpoint(endpointDesc.m_endpointId);
 		m_outEndpoint.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
 	}
@@ -596,12 +597,12 @@ bool errorcode UsbDataEndpointSession.dispatch(
 	switch (code) {
 	case UsbDataEndpointDispatchCode.GetDeviceVid:
 		io.UsbDevice const* device = m_deviceCombo.m_currentData;
-		*out = device ? device.m_deviceDesc.m_vendorId : -1;
+		*out = device ? device.m_deviceDescriptor.m_vendorId : -1;
 		break;
 
 	case UsbDataEndpointDispatchCode.GetDevicePid:
 		io.UsbDevice const* device = m_deviceCombo.m_currentData;
-		*out = device ? device.m_deviceDesc.m_productId : -1;
+		*out = device ? device.m_deviceDescriptor.m_productId : -1;
 		break;
 
 	case UsbDataEndpointDispatchCode.SetDeviceVidPid:
@@ -612,7 +613,7 @@ bool errorcode UsbDataEndpointSession.dispatch(
 		break;
 
 	case UsbDataEndpointDispatchCode.GetInterfaceId:
-		io.UsbInterfaceDesc const* ifaceDesc = m_interfaceCombo.m_currentData;
+		io.UsbInterfaceDescriptor const* ifaceDesc = m_interfaceCombo.m_currentData;
 		*out = ifaceDesc ? ifaceDesc.m_interfaceId : -1;
 		break;
 
@@ -623,7 +624,7 @@ bool errorcode UsbDataEndpointSession.dispatch(
 		break;
 
 	case UsbDataEndpointDispatchCode.GetOutEndpointId:
-		io.UsbEndpointDesc const* epDesc = m_outEndpointCombo.m_currentData;
+		io.UsbEndpointDescriptor const* epDesc = m_outEndpointCombo.m_currentData;
 		*out = epDesc ? epDesc.m_endpointId : -1;
 		break;
 
@@ -634,7 +635,7 @@ bool errorcode UsbDataEndpointSession.dispatch(
 		break;
 
 	case UsbDataEndpointDispatchCode.GetInEndpointId:
-		io.UsbEndpointDesc const* epDesc = m_inEndpointCombo.m_currentData;
+		io.UsbEndpointDescriptor const* epDesc = m_inEndpointCombo.m_currentData;
 		*out = epDesc ? epDesc.m_endpointId : -1;
 		break;
 

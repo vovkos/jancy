@@ -6,6 +6,8 @@
 import "log_Representation.jnc"
 import "WebSocketLogRecordCode.jnc"
 import "SocketLog/SocketLogRecordCode.jnc"
+import "io_base.jncx"
+import "io_SocketAddress.jnc"
 
 //..............................................................................
 
@@ -108,7 +110,6 @@ void representWebSocketHandshake(
 		representation.addHyperText("[\e^+2\e[34m+\e[m] Raw data");
 	} else {
 		representation.addHyperText("[\e^-2\e[34m-\e[m] Raw data");
-		representation.m_lineAttr.m_backColor = ui.StdColor.BrightWhite;
 		representation.addBin(p, size);
 	}
 }
@@ -130,8 +131,6 @@ void representWebSocketPingPong(
 		representation.addHyperText($"[\e^+1\e[34m+\e[m] $text");
 	} else {
 		representation.addHyperText($"[\e^-1\e[34m-\e[m] $text");
-		representation.m_lineAttr.m_textColor = ui.StdColor.BrightBlack;
-		representation.m_lineAttr.m_backColor = ui.StdColor.BrightWhite;
 		representation.addBin(p, size);
 	}
 }

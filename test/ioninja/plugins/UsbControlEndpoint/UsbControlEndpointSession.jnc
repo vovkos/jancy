@@ -5,10 +5,14 @@
 
 import "doc_Session.jnc"
 import "io_usb.jncx"
-import "io_UsbDb.jnc"
+import "io_UsbDevice.jnc"
+import "io_UsbEnumerator.jnc"
 import "ui_UsbUi.jnc"
 import "ui_BufferPropertySet.jnc"
 import "ui_StdSessionInfoSet.jnc"
+import "ui_GroupBox.jnc"
+import "ui_SpinBox.jnc"
+
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
 import "parseInteger.jnc"
@@ -63,8 +67,8 @@ protected:
 	ui.ComboBox* m_reqRecipientCombo;
 	ui.ComboBox* m_reqTypeCombo;
 	ui.ComboBox* m_reqCodeCombo;
-	ui.ComboBox* m_reqValueCombo;
-	ui.ComboBox* m_reqIndexCombo;
+	ui.SpinBox* m_reqValueSpin;
+	ui.SpinBox* m_reqIndexSpin;
 
 	// property grid
 
@@ -75,8 +79,8 @@ protected:
 	ui.EnumProperty* m_reqRecipientProp;
 	ui.EnumProperty* m_reqTypeProp;
 	ui.ComboProperty* m_reqCodeProp;
-	ui.StringProperty* m_reqValueProp;
-	ui.StringProperty* m_reqIndexProp;
+	ui.IntProperty* m_reqValueProp;
+	ui.IntProperty* m_reqIndexProp;
 
 	// information grid
 
@@ -198,51 +202,43 @@ void UsbControlEndpointSession.createUi() {
 
 	m_deviceCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 
-	m_actionTable[ActionId.Refresh]  = createAction("Re-enumerate devices", m_iconTable [IconId.Refresh]);
+	m_actionTable[ActionId.Refresh] = createAction("Re-enumerate devices", m_iconTable [IconId.Refresh]);
 	m_actionTable[ActionId.Refresh].m_onTriggered += onEnumerateDevices;
 
 	m_actionTable[ActionId.Open] = createAction("Open device", m_iconTable [IconId.Open]);
 	m_actionTable[ActionId.Open].m_onTriggered += onOpenDevice;
 
-	m_pluginHost.m_toolBar.addLabel("Iface:");
-	m_interfaceCombo = m_pluginHost.m_toolBar.addComboBox();
+	m_actionTable[ActionId.Claim] = new ui.Action(m_iconTable[IconId.Open], "Claim", onClaimInterface);
 
-	m_actionTable[ActionId.Claim] = createAction("Claim interface", m_iconTable [IconId.Open]);
-	m_actionTable[ActionId.Claim].m_onTriggered += onClaimInterface;
+	m_interfaceCombo = new ui.ComboBox;
+	ui.ToolBar ifaceToolBar;
+	ifaceToolBar.addAction(m_actionTable[ActionId.Claim]);
 
-	m_reqDirectionCombo = m_pluginHost.m_toolBar.addComboBox(
-		"Dir:",
-		reqDirectionTable,
-		countof(reqDirectionTable)
-	);
+	ui.HBoxLayout ifaceLayout;
+	ui.GroupBox ifaceGroupBox("USB interface", ifaceLayout);
+	ifaceLayout.addWidget(m_interfaceCombo, 1);
+	ifaceLayout.addWidget(ifaceToolBar);
+	m_pluginHost.createForm(ifaceGroupBox);
 
-	m_reqRecipientCombo = m_pluginHost.m_toolBar.addComboBox(
-		"Rcpt:",
-		reqRecipientTable,
-		countof(reqRecipientTable)
-	);
-
-	m_reqTypeCombo = m_pluginHost.m_toolBar.addComboBox(
-		"Type:",
-		reqTypeTable,
-		countof(reqTypeTable)
-	);
-
-	m_reqCodeCombo = m_pluginHost.m_toolBar.addComboBox(
-		"Req:",
-		reqCodeTable,
-		countof(reqCodeTable)
-	);
-
+	m_reqDirectionCombo = new ui.ComboBox(reqDirectionTable, countof(reqDirectionTable));
+	m_reqRecipientCombo = new ui.ComboBox(reqRecipientTable, countof(reqRecipientTable));
+	m_reqTypeCombo = new ui.ComboBox(reqTypeTable, countof(reqTypeTable));
+	m_reqCodeCombo = new ui.ComboBox(reqCodeTable, countof(reqCodeTable));
 	m_reqCodeCombo.m_isEditable = true;
+	m_reqValueSpin = new ui.SpinBox;
+	m_reqValueSpin.m_maximum = 65535;
+	m_reqIndexSpin = new ui.SpinBox;
+	m_reqIndexSpin.m_maximum = 65535;
 
-	m_pluginHost.m_toolBar.addLabel("Val:");
-	m_reqValueCombo = m_pluginHost.m_toolBar.addComboBox();
-	m_reqValueCombo.m_isEditable = true;
-
-	m_pluginHost.m_toolBar.addLabel("Idx:");
-	m_reqIndexCombo = m_pluginHost.m_toolBar.addComboBox();
-	m_reqIndexCombo.m_isEditable = true;
+	ui.FormLayout reqLayout;
+	ui.GroupBox reqGroupBox("USB control request", reqLayout);
+	reqLayout.addRow("Direction:", m_reqDirectionCombo);
+	reqLayout.addRow("Recipient:", m_reqRecipientCombo);
+	reqLayout.addRow("Type:", m_reqTypeCombo);
+	reqLayout.addRow("Request:", m_reqCodeCombo);
+	reqLayout.addRow("Value:", m_reqValueSpin);
+	reqLayout.addRow("Index:", m_reqIndexSpin);
+	m_pluginHost.createForm(reqGroupBox);
 
 	// status bar
 
@@ -308,18 +304,16 @@ void UsbControlEndpointSession.createUi() {
 		countof(reqCodeTable)
 	);
 
-	m_reqValueProp = m_pluginHost.m_propertyGrid.createStringProperty(
+	m_reqValueProp = m_pluginHost.m_propertyGrid.createIntProperty(
 		group,,
 		"Value",
-		"Enter a request value...",
-		"The 1st ('value') parameter of the USB control request"
+		"The first ('value') parameter of the USB control request"
 	);
 
-	m_reqIndexProp = m_pluginHost.m_propertyGrid.createStringProperty(
+	m_reqIndexProp = m_pluginHost.m_propertyGrid.createIntProperty(
 		group,,
 		"Index",
-		"Enter a request index...",
-		"The 2nd ('index') parameter of the USB control request"
+		"The second ('index') parameter of the USB control request"
 	);
 
 	// information grid
@@ -358,25 +352,25 @@ bool UsbControlEndpointSession.openDevice() {
 
 	m_device = m_deviceCombo.m_currentData;
 
-	io.UsbDeviceDesc const* deviceDesc = m_device.m_deviceDesc;
+	io.UsbDeviceDescriptor const* deviceDesc = m_device.m_deviceDescriptor;
 
 	m_device.open();
 
 	m_interfaceCombo.clear();
 
-	io.UsbConfigurationDesc const* confDesc = m_device.m_activeConfigurationDesc;
+	io.UsbConfigurationDescriptor const* confDesc = m_device.m_activeConfigurationDescriptor;
 	ui.EnumPropertyOption* optionTable = new ui.EnumPropertyOption[confDesc.m_interfaceCount];
 
 	for (size_t i = 0; i < confDesc.m_interfaceCount; i++) {
-		io.UsbInterfaceDesc const* ifaceDesc = &confDesc.m_interfaceTable[i];
+		io.UsbInterfaceDescriptor const* ifaceDesc = &confDesc.m_interfaceDescriptorTable[i];
 		char const* name =  $"$(ifaceDesc.m_interfaceId)";
 		optionTable[i].m_text = name;
 		optionTable[i].m_value = ifaceDesc;
 
 		m_interfaceCombo.addItem(name, ifaceDesc);
 
-		io.UsbInterfaceDesc const* ifaceAltDesc = ifaceDesc.m_nextAltSettingInterface;
-		for (; ifaceAltDesc; ifaceAltDesc = ifaceAltDesc.m_nextAltSettingInterface) {
+		io.UsbInterfaceDescriptor const* ifaceAltDesc = ifaceDesc.m_nextAltSettingInterfaceDescriptor;
+		for (; ifaceAltDesc; ifaceAltDesc = ifaceAltDesc.m_nextAltSettingInterfaceDescriptor) {
 			m_interfaceCombo.addItem(
 				$"  $(ifaceAltDesc.m_interfaceId):$(ifaceAltDesc.m_altSettingId)",
 				ifaceAltDesc
@@ -420,7 +414,7 @@ bool UsbControlEndpointSession.claimInterface() {
 
 	releaseInterface();
 
-	io.UsbInterfaceDesc const* ifaceDesc = m_interfaceCombo.m_currentData;
+	io.UsbInterfaceDescriptor const* ifaceDesc = m_interfaceCombo.m_currentData;
 
 	if (m_device.m_isKernelDriverActive[ifaceDesc.m_interfaceId] &&
 		m_autoDetachKernelDriverProp.m_value) {
@@ -471,15 +465,15 @@ void UsbControlEndpointSession.load(doc.Storage* storage) {
 	m_reqRecipientCombo.m_currentIndex = storage.readInt("reqRecipient");
 	m_reqTypeCombo.m_currentIndex = storage.readInt("reqType");
 	m_reqCodeCombo.m_editText = storage.readString("reqCode", "0x00");
-	m_reqValueCombo.m_editText = storage.readString("reqValue", "0x0000");
-	m_reqIndexCombo.m_editText = storage.readString("reqIndex", "0x0000");
+	m_reqValueSpin.m_value = storage.readInt("reqValue", 0);
+	m_reqIndexSpin.m_value = storage.readInt("reqIndex", 0);
 }
 
 void UsbControlEndpointSession.save(doc.Storage* storage) {
 	io.UsbDevice* device = m_deviceCombo.m_currentData;
 	if (device) {
-		storage.writeInt("deviceVid", device.m_deviceDesc.m_vendorId);
-		storage.writeInt("devicePid", device.m_deviceDesc.m_productId);
+		storage.writeInt("deviceVid", device.m_deviceDescriptor.m_vendorId);
+		storage.writeInt("devicePid", device.m_deviceDescriptor.m_productId);
 		storage.writeInt("deviceBus", device.m_bus);
 		storage.writeInt("deviceAddress", device.m_address);
 	}
@@ -489,8 +483,8 @@ void UsbControlEndpointSession.save(doc.Storage* storage) {
 	storage.writeInt("reqRecipient", m_reqRecipientCombo.m_currentIndex);
 	storage.writeInt("reqType", m_reqTypeCombo.m_currentIndex);
 	storage.writeString("reqCode", m_reqCodeCombo.m_editText);
-	storage.writeString("reqValue", m_reqValueCombo.m_editText);
-	storage.writeString("reqIndex", m_reqIndexCombo.m_editText);
+	storage.writeInt("reqValue", m_reqValueSpin.m_value);
+	storage.writeInt("reqIndex", m_reqIndexSpin.m_value);
 }
 
 void UsbControlEndpointSession.updateProperties() {
@@ -500,8 +494,8 @@ void UsbControlEndpointSession.updateProperties() {
 	m_reqRecipientProp.m_currentIndex = m_reqRecipientCombo.m_currentIndex;
 	m_reqTypeProp.m_currentIndex = m_reqTypeCombo.m_currentIndex;
 	m_reqCodeProp.m_value = m_reqCodeCombo.m_editText;
-	m_reqValueProp.m_value = m_reqValueCombo.m_editText;
-	m_reqIndexProp.m_value = m_reqIndexCombo.m_editText;
+	m_reqValueProp.m_value = m_reqValueSpin.m_value;
+	m_reqIndexProp.m_value = m_reqIndexSpin.m_value;
 }
 
 bool errorcode UsbControlEndpointSession.applyProperties() {
@@ -511,8 +505,8 @@ bool errorcode UsbControlEndpointSession.applyProperties() {
 	m_reqRecipientCombo.m_currentIndex = m_reqRecipientProp.m_currentIndex;
 	m_reqTypeCombo.m_currentIndex = m_reqTypeProp.m_currentIndex;
 	m_reqCodeCombo.m_editText = m_reqCodeProp.m_value;
-	m_reqValueCombo.m_editText = m_reqValueProp.m_value;
-	m_reqIndexCombo.m_editText = m_reqIndexProp.m_value;
+	m_reqValueSpin.m_value = m_reqValueProp.m_value;
+	m_reqIndexSpin.m_value = m_reqIndexProp.m_value;
 
 	return true;
 }
@@ -523,8 +517,8 @@ void UsbControlEndpointSession.restoreDefaultProperties() {
 	m_reqRecipientProp.m_currentIndex = 0;
 	m_reqTypeProp.m_currentIndex = 0;
 	m_reqCodeProp.m_value = "0x00";
-	m_reqValueProp.m_value = "0x0000";
-	m_reqIndexProp.m_value = "0x0000";
+	m_reqValueProp.m_value = 0;
+	m_reqIndexProp.m_value = 0;
 }
 
 size_t errorcode UsbControlEndpointSession.transmit(
@@ -536,20 +530,13 @@ size_t errorcode UsbControlEndpointSession.transmit(
 		return -1;
 	}
 
-	uint_t direction = m_reqDirectionCombo.m_currentData;
-	uint_t recipient = m_reqRecipientCombo.m_currentData;
-	uint_t type = m_reqTypeCombo.m_currentData;
-	uint_t code = parseInteger(m_reqCodeCombo.m_editText);;
-	uint_t value = parseInteger(m_reqValueCombo.m_editText);
-	uint_t index = parseInteger(m_reqIndexCombo.m_editText);
-
 	startTransfer(
-		direction,
-		recipient,
-		type,
-		code,
-		value,
-		index,
+		m_reqDirectionCombo.m_currentData,
+		m_reqRecipientCombo.m_currentData,
+		m_reqTypeCombo.m_currentData,
+		parseInteger(m_reqCodeCombo.m_editText),
+		m_reqValueSpin.m_value,
+		m_reqIndexSpin.m_value,
 		p,
 		size
 	);
@@ -629,12 +616,12 @@ bool errorcode UsbControlEndpointSession.dispatch(
 	switch (code) {
 	case UsbControlEndpointDispatchCode.GetDeviceVid:
 		io.UsbDevice const* device = m_deviceCombo.m_currentData;
-		*out = device ? device.m_deviceDesc.m_vendorId : -1;
+		*out = device ? device.m_deviceDescriptor.m_vendorId : -1;
 		break;
 
 	case UsbControlEndpointDispatchCode.GetDevicePid:
 		io.UsbDevice const* device = m_deviceCombo.m_currentData;
-		*out = device ? device.m_deviceDesc.m_productId : -1;
+		*out = device ? device.m_deviceDescriptor.m_productId : -1;
 		break;
 
 	case UsbControlEndpointDispatchCode.SetDeviceVidPid:
@@ -645,7 +632,7 @@ bool errorcode UsbControlEndpointSession.dispatch(
 		break;
 
 	case UsbControlEndpointDispatchCode.GetInterfaceId:
-		io.UsbInterfaceDesc const* ifaceDesc = m_interfaceCombo.m_currentData;
+		io.UsbInterfaceDescriptor const* ifaceDesc = m_interfaceCombo.m_currentData;
 		*out = ifaceDesc ? ifaceDesc.m_interfaceId : -1;
 		break;
 
@@ -688,19 +675,19 @@ bool errorcode UsbControlEndpointSession.dispatch(
 		break;
 
 	case UsbControlEndpointDispatchCode.GetReqValue:
-		*out = parseInteger(m_reqValueCombo.m_editText);
+		*out = m_reqValueSpin.m_value;
 		break;
 
 	case UsbControlEndpointDispatchCode.SetReqValue:
-		m_reqValueCombo.m_editText = $"0x%04x"((uint_t)in);
+		m_reqValueSpin.m_value = (uint_t)in;
 		break;
 
 	case UsbControlEndpointDispatchCode.GetReqIndex:
-		*out = parseInteger(m_reqIndexCombo.m_editText);
+		*out = m_reqIndexSpin.m_value;
 		break;
 
 	case UsbControlEndpointDispatchCode.SetReqIndex:
-		m_reqIndexCombo.m_editText = $"0x%04x"((uint_t)in);
+		m_reqIndexSpin.m_value = (uint_t)in;
 		break;
 
 	case UsbControlEndpointDispatchCode.OpenDevice:
@@ -744,8 +731,8 @@ bool errorcode UsbControlEndpointSession.dispatch(
 			m_reqRecipientCombo.m_currentData,
 			m_reqTypeCombo.m_currentData,
 			parseInteger(m_reqCodeCombo.m_editText),
-			parseInteger(m_reqValueCombo.m_editText),
-			parseInteger(m_reqIndexCombo.m_editText),
+			m_reqValueSpin.m_value,
+			m_reqIndexSpin.m_value,
 			null,
 			(size_t)in
 		);

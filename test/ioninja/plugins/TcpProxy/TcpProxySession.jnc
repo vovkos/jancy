@@ -11,6 +11,7 @@ import "ui_History.jnc"
 import "ui_SocketUi.jnc"
 import "ui_BufferPropertySet.jnc"
 import "ui_StdSessionInfoSet.jnc"
+import "ui_ListWidget.jnc"
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
 import "std_Buffer.jnc"
@@ -47,6 +48,7 @@ protected:
 
 	enum ActionId {
 		Listen,
+		Disconnect,
 		DisconnectAll,
 		_Count,
 	}
@@ -106,6 +108,7 @@ protected:
 	ui.ComboBox* m_adapterCombo;
 	ui.ComboBox* m_portCombo;
 	ui.ComboBox* m_targetAddressCombo;
+	ui.ListWidget* m_clientWidget;
 
 	// property grid
 
@@ -128,6 +131,7 @@ public:
 
 	bool errorcode listen();
 	void stopListen();
+	void disconnect();
 	void disconnectAll();
 
 	override void load(doc.Storage* storage);
@@ -217,7 +221,7 @@ void TcpProxySession.createUi() {
 	m_targetAddressCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_targetAddressCombo.m_isEditable = true;
 	bindingof(m_targetAddressCombo.m_editText) += onTargetAddressChanged;
-	m_targetAddressCombo.m_onEnter += onTargetAddressEnter;
+	m_targetAddressCombo.m_onReturnPressed += onTargetAddressEnter;
 	m_targetAddressCombo.m_placeholderText = "Enter a remote IP or hostname...";
 
 	m_pluginHost.m_toolBar.addSpacing();
@@ -228,14 +232,32 @@ void TcpProxySession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("Port:");
 	m_portCombo = m_pluginHost.m_toolBar.addComboBox();
 	m_portCombo.m_isEditable = true;
-	m_portCombo.m_onEnter += onPortComboEnter;
+	m_portCombo.m_onReturnPressed += onPortComboEnter;
 
 	m_iconTable[IconId.Listen] = new ui.Icon("images/listen.png");
 	m_iconTable[IconId.StopListen] = new ui.Icon("images/pause.png");
 	m_actionTable[ActionId.Listen] = createAction("Listen", m_iconTable [IconId.Listen]);
 	m_actionTable[ActionId.Listen].m_onTriggered += onListen;
-	m_actionTable[ActionId.DisconnectAll] = createAction("Disconnect All", "images/disconnect-all.png");
-	m_actionTable[ActionId.DisconnectAll].m_onTriggered += disconnectAll;
+
+	// form
+
+	ui.VBoxLayout layout;
+	ui.Label label("Active client(s):");
+	layout.addWidget(label);
+	m_clientWidget = new ui.ListWidget;
+	m_clientWidget.m_placeholderText = "No active clients";
+	layout.addWidget(m_clientWidget, 1);
+
+	m_actionTable[ActionId.Disconnect] = new ui.Action("images/disconnect.png", "Disconnect", disconnect);
+	m_actionTable[ActionId.DisconnectAll] = new ui.Action("images/disconnect-all.png", "Disconnect All", disconnectAll);
+
+	ui.ToolBar clientToolBar;
+	clientToolBar.addStretch();
+	clientToolBar.addAction(m_actionTable[ActionId.Disconnect]);
+	clientToolBar.addAction(m_actionTable[ActionId.DisconnectAll]);
+	layout.addWidget(clientToolBar);
+
+	m_pluginHost.createForm(layout, 1);
 
 	// status bar
 
@@ -332,12 +354,18 @@ void TcpProxySession.stopListen() {
 	m_stdSessionInfoSet.endSession();
 }
 
+void TcpProxySession.disconnect() {
+	Proxy* proxy = m_clientWidget.m_currentData;
+	if (proxy)
+		disconnect(proxy);
+}
+
 void TcpProxySession.disconnectAll() {
 	while (m_proxyList.m_count)
 		disconnect(m_proxyList.m_head.m_data);
 }
 
-void TcpProxySession.disconnect(TcpProxySession.Proxy* proxy) {
+void TcpProxySession.disconnect(Proxy* proxy) {
 	TcpDisconnectLogRecordParams params;
 	params.m_flags = (m_connectionSocketPropertySet.m_tcpResetProp.m_value) ?
 		TcpDisconnectLogRecordFlags.Reset :
@@ -385,6 +413,10 @@ void TcpProxySession.removeProxy(TcpProxySession.Proxy* proxy) {
 
 	if (proxy.m_resolverWaitListEntry)
 		m_resolverWaitList.remove(proxy.m_resolverWaitListEntry);
+
+	size_t i = m_clientWidget.findData(proxy);
+	if (i != -1)
+		m_clientWidget.removeItem(i);
 
 	m_proxyList.remove(proxy.m_proxyListEntry);
 	m_proxyCount = m_proxyList.m_count;
@@ -527,6 +559,7 @@ void TcpProxySession.onListenerSocketEvent(
 		proxy.m_target.m_socket = new io.Socket;
 		proxy.m_target.m_canTransmit = false;
 		proxy.m_proxyListEntry = m_proxyList.add(proxy);
+		m_clientWidget.addItemSetCurrent(proxy.m_client.m_address.getString(), proxy);
 		m_proxyCount = m_proxyList.m_count;
 		m_currentProxy = proxy;
 
@@ -744,7 +777,9 @@ reactor TcpProxySession.m_uiReactor {
 	m_title = $"TCP @ $(m_portCombo.m_editText) \u2192 $(m_targetAddressCombo.m_editText)";
 	m_actionTable[ActionId.Listen].m_text = m_listenerState ? "Stop Listening" : "Listen";
 	m_actionTable[ActionId.Listen].m_icon = m_iconTable[m_listenerState ? IconId.StopListen : IconId.Listen];
-	m_actionTable[ActionId.DisconnectAll].m_isEnabled = m_proxyCount;
+	m_actionTable[ActionId.Disconnect].m_isEnabled =
+	m_actionTable[ActionId.DisconnectAll].m_isEnabled =
+	m_clientWidget.m_isEnabled = m_proxyCount;
 	m_statusPaneTable[StatusPaneId.ListenerState].m_text = m_listenerStateStringTable[m_listenerState];
 	m_statusPaneTable[StatusPaneId.ClientCount].m_text = $"$m_proxyCount client(s)";
 

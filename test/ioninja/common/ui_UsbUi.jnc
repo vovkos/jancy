@@ -4,9 +4,11 @@
 //
 
 import "io_usb.jncx"
+import "io_UsbEnumerator.jnc"
 import "ui_ComboBox.jnc"
 import "ui_PropertyGrid.jnc"
-import "io_UsbDb.jnc"
+import "std_String.jnc"
+import "std_Array.jnc"
 
 namespace ui {
 
@@ -15,71 +17,114 @@ namespace ui {
 
 //..............................................................................
 
-void populateUsbDeviceListUi(
-	ComboBox* deviceCombo,
-	EnumProperty* deviceProp,
-	io.UsbDevice* const* deviceArray,
-	size_t deviceCount
+bool isUsbDeviceLess(
+	io.UsbDeviceEntry const* entry1,
+	io.UsbDeviceEntry const* entry2
 ) {
-	io.UsbDb* usbDb = io.getStdUsbDb();
-	EnumPropertyOption* optionTable = new EnumPropertyOption[deviceCount];
-	deviceCombo.clear();
-
-	for (size_t i = 0; i < deviceCount; i++) {
-		io.UsbDevice* device = deviceArray[i];
-		io.UsbDeviceDesc const* deviceDesc = device.m_deviceDesc;
-		io.UsbVendor const* vendor = usbDb.findVendor(deviceDesc.m_vendorId);
-		io.UsbProduct const* product = vendor ? vendor.findProduct(deviceDesc.m_productId) : null;
-
-		char const* text = $"@%(1;03d):%(2;03d) %3 %4" (
-			device.m_bus,
-			device.m_address,
-			vendor ? vendor.m_name : $"VID_$(deviceDesc.m_vendorId; 04x)",
-			product ? product.m_name : $"PID_$(deviceDesc.m_productId; 04x)"
-		);
-
-		deviceCombo.addItem(text, device);
-
-		optionTable[i].m_text = text;
-		optionTable[i].m_value = device;
-	}
-
-	deviceProp.setOptions(optionTable, deviceCount);
+	return
+		entry1.m_device.m_bus < entry2.m_device.m_bus ||
+		entry1.m_device.m_bus == entry2.m_device.m_bus &&
+		entry1.m_device.m_address < entry2.m_device.m_address;
 }
 
 void refreshUsbDeviceListUi(
 	ComboBox* deviceCombo,
 	EnumProperty* deviceProp
 ) {
-	size_t deviceCount;
-	io.UsbDevice* const* deviceArray = io.createUsbDeviceArray(&deviceCount);
+	size_t count;
+	io.UsbDeviceEntry const* deviceList = io.enumerateUsbDevices(io.UsbEnumFlags.All, &count);
+
+	std.Array deviceArray;
+	deviceArray.setCount(count);
+	io.UsbDeviceEntry const* entry = deviceList;
+	for (size_t i = 0; i < count; i++, entry = entry.m_next)
+		deviceArray[i] = entry;
+
+	deviceArray.sort(isUsbDeviceLess);
+
 	io.UsbDevice* prevDevice = deviceCombo.m_currentData;
 
-	populateUsbDeviceListUi(
-		deviceCombo,
-		deviceProp,
-		deviceArray,
-		deviceCount
-	);
+	EnumPropertyOption* optionArray = new EnumPropertyOption[count];
+	EnumPropertyOption* option = optionArray;
+
+	deviceCombo.clear();
+
+	std.StringBuilder description;
+	std.StringBuilder toolTip;
+
+	for (size_t i = 0; i < count; i++, option++) {
+		io.UsbDeviceEntry const* entry = deviceArray[i];
+		io.UsbDeviceDescriptor const* deviceDescriptor = entry.m_device.m_deviceDescriptor;
+
+		description = $"%03d:%03d - %3 by %4"(
+			entry.m_device.m_bus,
+			entry.m_device.m_address,
+			entry.m_description,
+			entry.m_manufacturer
+		);
+
+		toolTip =
+			"<table>"
+			$"<tr><td>Address:</td><td>%03d:%03d</td></tr>"
+			$"<tr><td>Description:</td><td>%3</td></tr>"
+			$"<tr><td>Manufacturer:</td><td>%4</td></tr>"(
+				entry.m_device.m_bus,
+				entry.m_device.m_address,
+				entry.m_description,
+				entry.m_manufacturer
+			);
+
+		if (entry.m_driver)
+			toolTip += $"<tr><td>Driver:</td><td>$(entry.m_driver)</td></tr>";
+
+		toolTip +=
+			$"<tr><td>Vendor&nbsp;ID:</td><td>%04X</td></tr>"
+			$"<tr><td>Product&nbsp;ID:</td><td>%04X</td></tr>"
+			$"<tr><td>Class:</td><td>%3 %4</td></tr>"
+			$"<tr><td>Speed:</td><td>%5</td></tr>"(
+				deviceDescriptor.m_vendorId,
+				deviceDescriptor.m_productId,
+				deviceDescriptor.m_class, typeof(io.UsbClass).getValueString(deviceDescriptor.m_class),
+				typeof(io.UsbSpeed).getValueString(entry.m_device.m_speed)
+			);
+
+		if (entry.m_manufacturerDescriptor || entry.m_productDescriptor || entry.m_serialNumberDescriptor) {
+			toolTip += $"<tr><td colspan=2><hr></td></tr>";
+
+			if (entry.m_productDescriptor)
+				toolTip += $"<tr><td>Product:</td><td>$(entry.m_productDescriptor)</td></tr>";
+
+			if (entry.m_manufacturerDescriptor)
+				toolTip += $"<tr><td>Manufacturer:</td><td>$(entry.m_manufacturerDescriptor)</td></tr>";
+
+			if (entry.m_serialNumberDescriptor)
+				toolTip += $"<tr><td>Serial&nbsp;number:</td><td>$(entry.m_serialNumberDescriptor)</td></tr>";
+		}
+
+		toolTip.append("</table>");
+
+		char const* text = description.detachString();
+		size_t j = deviceCombo.addItem(text, entry.m_device);
+		deviceCombo.m_itemToolTip[j] = toolTip.detachString();
+
+		option.m_text = text;
+		option.m_value = entry.m_device;
+	}
+
+	deviceProp.setOptions(optionArray, count);
 
 	if (!prevDevice)
 		return;
 
 	size_t i = findUsbDeviceComboIndex(
 		deviceCombo,
-		prevDevice.m_deviceDesc.m_vendorId,
-		prevDevice.m_deviceDesc.m_productId,
+		prevDevice.m_deviceDescriptor.m_vendorId,
+		prevDevice.m_deviceDescriptor.m_productId,
 		prevDevice.m_bus,
 		prevDevice.m_address
 	);
 
-	if (i != -1) {
-		deviceCombo.m_currentIndex = i;
-		deviceProp.m_currentIndex = i;
-	} else {
-		deviceCombo.m_currentIndex = 0;
-		deviceProp.m_currentIndex = 0;
-	}
+	deviceCombo.m_currentIndex = i != -1 ? i : 0;
 }
 
 size_t findUsbDeviceComboIndex(
@@ -94,8 +139,8 @@ size_t findUsbDeviceComboIndex(
 	size_t itemCount = deviceCombo.m_itemCount;
 	for (size_t i = 0; i < itemCount; i++) {
 		io.UsbDevice const* device = deviceCombo.m_itemData[i];
-		if (device && device.m_deviceDesc.m_vendorId == vid &&
-			device.m_deviceDesc.m_productId == pid) {
+		if (device && device.m_deviceDescriptor.m_vendorId == vid &&
+			device.m_deviceDescriptor.m_productId == pid) {
 			if ((bus == -1 || device.m_bus == bus) &&
 				(address == -1 || device.m_address == address))
 				return i; // exact match
@@ -116,7 +161,7 @@ size_t findUsbInterfaceComboIndex(
 
 	size_t itemCount = interfaceCombo.m_itemCount;
 	for (size_t i = 0; i < itemCount; i++) {
-		io.UsbInterfaceDesc const* ifaceDesc = interfaceCombo.m_itemData[i];
+		io.UsbInterfaceDescriptor const* ifaceDesc = interfaceCombo.m_itemData[i];
 		if (ifaceDesc && ifaceDesc.m_interfaceId == interfaceId) {
 			if (altSettingId == -1 || ifaceDesc.m_altSettingId == altSettingId)
 				return i; // exact match
@@ -134,7 +179,7 @@ size_t findUsbEndpointComboIndex(
 ) {
 	size_t itemCount = interfaceCombo.m_itemCount;
 	for (size_t i = 0; i < itemCount; i++) {
-		io.UsbEndpointDesc const* epDesc = interfaceCombo.m_itemData[i];
+		io.UsbEndpointDescriptor const* epDesc = interfaceCombo.m_itemData[i];
 		if (epDesc && epDesc.m_endpointId == endpointId)
 			return i;
 	}

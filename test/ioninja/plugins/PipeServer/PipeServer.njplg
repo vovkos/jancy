@@ -23,4 +23,3 @@ org.jancy.io.file-stream
 [scripts]
 
 PipeServerSession.jnc
-PipeClientLogFilter.jnc

@@ -6,6 +6,8 @@
 import "doc_Session.jnc"
 import "io_base.jncx"
 import "io_usb.jncx"
+import "io_UsbDevice.jnc"
+import "io_UsbEnumerator.jnc"
 import "io_UsbDb.jnc"
 import "io_MappedFile.jnc"
 import "ui_Dialog.jnc"
@@ -315,7 +317,7 @@ void CypressUploaderSession.onOpenDevice() {
 void CypressUploaderSession.enumerateDevices() {
 	m_deviceCombo.clear();
 
-	io.UsbDevice* const* deviceArray = io.createUsbDeviceArray();
+	io.UsbDevice* const* deviceArray = io.enumerateUsbDevicesNoDesc();
 	size_t count = dynamic countof(deviceArray);
 
 	ui.EnumPropertyOption* optionTable = new ui.EnumPropertyOption[count];
@@ -324,7 +326,7 @@ void CypressUploaderSession.enumerateDevices() {
 
 	for (size_t i = 0; i < count; i++) {
 		io.UsbDevice* device = deviceArray[i];
-		io.UsbDeviceDesc const* deviceDesc = device.m_deviceDesc;
+		io.UsbDeviceDescriptor const* deviceDesc = device.m_deviceDescriptor;
 		io.UsbVendor const* vendor = usbDb.findVendor(deviceDesc.m_vendorId);
 		io.UsbProduct const* product = vendor ? vendor.findProduct(deviceDesc.m_productId) : null;
 
@@ -353,7 +355,7 @@ bool CypressUploaderSession.openDevice() {
 
 	m_device = m_deviceCombo.m_currentData;
 
-	io.UsbDeviceDesc const* deviceDesc = m_device.m_deviceDesc;
+	io.UsbDeviceDescriptor const* deviceDesc = m_device.m_deviceDescriptor;
 
 	m_device.open();
 

@@ -1,34 +1,29 @@
 //..............................................................................
 //
-// Socket client log filter (TCP Server, TCP Proxy, SSL Server, WebSocket server)
+// Socket client log filter (TCP Listener, TCP Proxy)
 //
 
-import "io_base.jncx"
-import "io_SocketAddress.jnc"
 import "doc_Plugin.jnc"
 import "log_Filter.jnc"
-import "ui_Layout.jnc"
-import "ui_GroupBox.jnc"
-import "ui_ComboBox.jnc"
+import "PipeServerLogRecordCode.jnc"
 import "ui_History.jnc"
-import "SocketLogRecordCode.jnc"
 
 using extension ui.ComboBoxHistory;
 
 //..............................................................................
 
-class ServerSocketLogFilter:
+class PipeServerLogFilter:
 	doc.LogFilter,
 	log.Filter {
 protected:
 	log.Log* m_log;
 
+	bool m_isVisible;
+	uint64_t m_filterId;
+	uint64_t m_lastVisibleId;
+
 	ui.ComboBox* m_filterCombo;
 	ui.StringProperty* m_filterProp;
-
-	bool m_isVisible;
-	io.SocketAddress m_filterAddress;
-	io.SocketAddress m_lastVisibleAddress;
 
 public:
 	construct(doc.PluginHost* pluginHost);
@@ -48,13 +43,14 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-ServerSocketLogFilter.construct(doc.PluginHost* pluginHost) {
+PipeServerLogFilter.construct(doc.PluginHost* pluginHost) {
 	m_log = pluginHost.m_log;
+	m_filterId = -1;
 
 	m_filterCombo = new ui.ComboBox;
 	m_filterCombo.m_isEditable = true;
 	m_filterCombo.m_onReturnPressed += onApply;
-	m_filterCombo.m_placeholderText = "Enter client address to keep in log...";
+	m_filterCombo.m_placeholderText = "Enter client ID to keep in log...";
 	m_filterCombo.m_toolTip = "View only communications with the specified client";
 
 	ui.Action applyAction("images/apply.png", "Apply && rebuild log", onApply);
@@ -73,15 +69,16 @@ ServerSocketLogFilter.construct(doc.PluginHost* pluginHost) {
 	pluginHost.m_log.addFilter(this);
 }
 
-void ServerSocketLogFilter.onApply() {
+void PipeServerLogFilter.onApply() {
 	char const* filter = m_filterCombo.m_currentText;
 	m_log.suspend();
 
 	if (!filter)
-		m_filterAddress = null;
+		m_filterId = -1;
 	else {
-		bool result = try m_filterAddress.parse(filter);
-		if (!result) {
+		char const* end;
+		uint64_t id = strtoul(filter, &end, 0);
+		if (end == filter) {
 			m_filterCombo.m_backgroundColor = ui.StdColor.PastelRed;
 			m_filterCombo.selectAllEditText();
 			m_filterCombo.setFocus();
@@ -89,6 +86,7 @@ void ServerSocketLogFilter.onApply() {
 		}
 
 		m_filterCombo.addEditTextToHistory();
+		m_filterId = id;
 	}
 
 	m_log.resume();
@@ -96,57 +94,42 @@ void ServerSocketLogFilter.onApply() {
 	m_log.rebuild();
 }
 
-void ServerSocketLogFilter.reset() {
+void PipeServerLogFilter.reset() {
 	m_isVisible = false;
-	m_lastVisibleAddress = null;
+	m_lastVisibleId = -1;
 }
 
-bool ServerSocketLogFilter.filter(
+bool PipeServerLogFilter.filter(
 	uint64_t timestamp,
 	uint64_t recordCode,
 	void const* p,
 	size_t size
 ) {
-	if (!m_filterAddress.m_family) // empty address means, filtering is off
+	if (m_filterId == -1) // means, filtering is off
 		return true;
 
 	switch (recordCode) {
-	case SocketLogRecordCode.ClientConnected:
-	case SocketLogRecordCode.ClientChanged:
-		io.SocketAddress const* address = (io.SocketAddress const*)p;
-		m_isVisible = address.isMatch(m_filterAddress);
+	case PipeServerLogRecordCode.ClientConnected:
+	case PipeServerLogRecordCode.ClientChanged:
+		uint64_t id = *(uint64_t const*)p;
+		m_isVisible = id == m_filterId;
 		if (!m_isVisible)
 			return false;
 
-		if (recordCode == SocketLogRecordCode.ClientChanged && m_lastVisibleAddress.isEqual(address))
+		if (recordCode == PipeServerLogRecordCode.ClientChanged && id == m_lastVisibleId)
 			return false; // don't show unnecessary client-changed messages
 
-		m_lastVisibleAddress = *address;
+		m_lastVisibleId = id;
 		return true;
 
-	case SocketLogRecordCode.ClientDisconnected:
-		TcpDisconnectLogRecordParams const* params = (TcpDisconnectLogRecordParams const*)p;
-		bool result = params.m_address.isMatch(m_filterAddress);
-		if (params.m_flags & TcpDisconnectLogRecordFlags.KeepClient) {
-			if (result)
-				m_lastVisibleAddress = params.m_address;
-
-			m_isVisible = result;
-			return result;
-		}
-
+	case PipeServerLogRecordCode.ClientDisconnected:
+		uint64_t id = *(uint64_t const*)p;
+		bool result = id == m_filterId;
 		if (result)
-			m_lastVisibleAddress = null;
+			m_lastVisibleId = -1;
 
 		m_isVisible = false;
 		return result;
-
-	case SocketLogRecordCode.ClientRemoved:
-		if (m_isVisible)
-			m_lastVisibleAddress = null;
-
-		m_isVisible = false;
-		return true; // not represented, anyway
 
 	default:
 		return m_isVisible;

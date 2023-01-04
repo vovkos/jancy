@@ -11,6 +11,7 @@ import "ui_SocketUi.jnc"
 import "ui_SslPropertySet.jnc"
 import "ui_BufferPropertySet.jnc"
 import "ui_StdSessionInfoSet.jnc"
+import "ui_ListWidget.jnc"
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
 import "std_List.jnc"
@@ -84,7 +85,7 @@ protected:
 	ui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
 	ui.ComboBox* m_adapterCombo;
 	ui.ComboBox* m_portCombo;
-	ui.ComboBox* m_clientCombo;
+	ui.ListWidget* m_clientWidget;
 
 	// property grid
 
@@ -168,14 +169,6 @@ SslServerSession.construct(doc.PluginHost* pluginHost) {
 void SslServerSession.createUi() {
 	// toolbar
 
-	m_pluginHost.m_toolBar.addLabel("Client:");
-	m_clientCombo = m_pluginHost.m_toolBar.addComboBox(-1);
-
-	m_actionTable[ActionId.Disconnect] = createAction("Disconnect", "images/disconnect.png");
-	m_actionTable[ActionId.Disconnect].m_onTriggered += disconnect;
-	m_actionTable[ActionId.DisconnectAll] = createAction("Disconnect All", "images/disconnect-all.png");
-	m_actionTable[ActionId.DisconnectAll].m_onTriggered += disconnectAll;
-
 	m_pluginHost.m_toolBar.addLabel("Adapter:");
 	m_adapterCombo = ui.createNetworkAdapterComboBox(m_pluginHost.m_toolBar, ui.NetworkAdapterUsage.Listener);
 
@@ -183,12 +176,32 @@ void SslServerSession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("Port:");
 	m_portCombo = m_pluginHost.m_toolBar.addComboBox();
 	m_portCombo.m_isEditable = true;
-	m_portCombo.m_onEnter += onPortComboEnter;
+	m_portCombo.m_onReturnPressed += onPortComboEnter;
 
 	m_iconTable[IconId.Listen] = new ui.Icon("images/listen.png");
 	m_iconTable[IconId.StopListen] = new ui.Icon("images/pause.png");
 	m_actionTable[ActionId.Listen] = createAction("Listen", m_iconTable [IconId.Listen]);
 	m_actionTable[ActionId.Listen].m_onTriggered += onListen;
+
+	// form
+
+	ui.VBoxLayout layout;
+	ui.Label label("Active client(s):");
+	layout.addWidget(label);
+	m_clientWidget = new ui.ListWidget;
+	m_clientWidget.m_placeholderText = "No active clients";
+	layout.addWidget(m_clientWidget, 1);
+
+	m_actionTable[ActionId.Disconnect] = new ui.Action("images/disconnect.png", "Disconnect", disconnect);
+	m_actionTable[ActionId.DisconnectAll] = new ui.Action("images/disconnect-all.png", "Disconnect All", disconnectAll);
+
+	ui.ToolBar clientToolBar;
+	clientToolBar.addStretch();
+	clientToolBar.addAction(m_actionTable[ActionId.Disconnect]);
+	clientToolBar.addAction(m_actionTable[ActionId.DisconnectAll]);
+	layout.addWidget(clientToolBar);
+
+	m_pluginHost.createForm(layout, 1);
 
 	// status bar
 
@@ -275,7 +288,7 @@ void SslServerSession.stopListen() {
 }
 
 void SslServerSession.disconnect() {
-	Client* client = m_clientCombo.m_currentData;
+	Client* client = m_clientWidget.m_currentData;
 	if (client)
 		disconnect(client);
 }
@@ -299,7 +312,7 @@ void SslServerSession.disconnect(SslServerSession.Client* client) {
 
 void SslServerSession.addClient(SslServerSession.Client* client) {
 	client.m_entry = m_clientList.add(client);
-	m_clientCombo.addItemSetCurrent(client.m_address.getString(), client);
+	m_clientWidget.addItemSetCurrent(client.m_address.getString(), client);
 	m_clientCount = m_clientList.m_count;
 	m_currentClientAddress = client.m_address;
 }
@@ -308,14 +321,11 @@ void SslServerSession.removeClient(SslServerSession.Client* client) {
 	client.m_socket.close();
 	client.m_syncId++;
 
+	size_t i = m_clientWidget.findData(client);
+	if (i != -1)
+		m_clientWidget.removeItem(i);
+
 	m_clientList.remove(client.m_entry);
-
-	for (size_t i = 0; i < m_clientCombo.m_itemCount; i++)
-		if (m_clientCombo.m_itemData[i] == client) {
-			m_clientCombo.removeItem(i);
-			break;
-		}
-
 	m_clientCount = m_clientList.m_count;
 	m_currentClientAddress = null;
 }
@@ -386,7 +396,7 @@ size_t errorcode SslServerSession.transmit(
 	void const* p,
 	size_t size
 ) {
-	Client* client = m_clientCombo.m_currentData;
+	Client* client = m_clientWidget.m_currentData;
 	if (!client) {
 		std.setError("not connected");
 		return -1;
@@ -582,7 +592,7 @@ void SslServerSession.onClientSocketEvent(
 
 	if (triggeredEvents & io.SslSocketEvents.IncomingData) {
 		setCurrentClient(client);
-		m_clientCombo.m_currentData = client;
+		m_clientWidget.m_currentData = client;
 
 		size_t result = client.m_socket.read(m_readBuffer.m_p, m_readBuffer.m_size);
 		if (result)
@@ -599,17 +609,17 @@ reactor SslServerSession.m_uiReactor {
 	m_title = $"SSL @ $(m_portCombo.m_editText)";
 	m_actionTable[ActionId.Listen].m_text = m_listenerState ? "Stop Listening" : "Listen";
 	m_actionTable[ActionId.Listen].m_icon = m_iconTable[m_listenerState ? IconId.StopListen : IconId.Listen];
+	m_clientWidget.m_isEnabled =
 	m_actionTable[ActionId.Disconnect].m_isEnabled =
-	m_actionTable[ActionId.DisconnectAll].m_isEnabled = m_clientCombo.m_currentData;
+	m_actionTable[ActionId.DisconnectAll].m_isEnabled = m_clientCount;
 	m_statusPaneTable[StatusPaneId.ListenerState].m_text = m_listenerState ? "Listening" : "Not listening";
 	m_statusPaneTable[StatusPaneId.ClientCount].m_text = $"$m_clientCount client(s)";
-	m_clientCombo.m_isEnabled = m_clientCount;
 
 	m_isTransmitEnabled =
-		m_clientCombo.m_currentData &&
-		((Client*)m_clientCombo.m_currentData).m_isTransmitEnabled;
+		m_clientWidget.m_currentData &&
+		((Client*)m_clientWidget.m_currentData).m_isTransmitEnabled;
 
-	m_sessionConnectionState = m_clientCombo.m_currentData ?
+	m_sessionConnectionState = m_clientWidget.m_currentData ?
 		SessionConnectionState.Connected :
 		SessionConnectionState.Disconnected;
 }

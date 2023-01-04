@@ -123,7 +123,7 @@ void SerialMiDumpViewSession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("File:");
 	m_fileNameCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_fileNameCombo.m_isEditable = true;
-	m_fileNameCombo.m_onEnter += onComboEnter;
+	m_fileNameCombo.m_onReturnPressed += onComboEnter;
 	m_fileNameCombo.m_placeholderText = "Enter a MI dump file name...";
 
 	m_iconTable[IconId.Open] = new ui.Icon("images/capture.png");

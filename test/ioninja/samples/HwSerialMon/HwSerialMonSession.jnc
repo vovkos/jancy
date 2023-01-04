@@ -5,6 +5,8 @@
 
 import "doc_Session.jnc"
 import "io_usb.jncx"
+import "io_UsbDevice.jnc"
+import "io_UsbEnumerator.jnc"
 import "io_UsbDb.jnc"
 import "ui_BufferPropertySet.jnc"
 import "ui_StdSessionInfoSet.jnc"
@@ -266,7 +268,7 @@ void HwSerialMonSession.onCapture() {
 void HwSerialMonSession.enumerateDevices() {
 	m_deviceCombo.clear();
 
-	io.UsbDevice* const* deviceArray = io.createUsbDeviceArray();
+	io.UsbDevice* const* deviceArray = io.enumerateUsbDevicesNoDesc();
 	size_t count = dynamic countof(deviceArray);
 
 	ui.EnumPropertyOption* optionTable = new ui.EnumPropertyOption[count];
@@ -274,7 +276,7 @@ void HwSerialMonSession.enumerateDevices() {
 	size_t ftdiCount = 0;
 	for (size_t i = 0; i < count; i++) {
 		io.UsbDevice* device = deviceArray[i];
-		io.UsbDeviceDesc const* deviceDesc = device.m_deviceDesc;
+		io.UsbDeviceDescriptor const* deviceDesc = device.m_deviceDescriptor;
 		io.UsbProduct const* product = g_usbDb.findProduct(deviceDesc.m_vendorId, deviceDesc.m_productId);
 		if (!product)
 			continue;
@@ -314,7 +316,7 @@ bool errorcode HwSerialMonSession.openDevice() {
 	m_inEndpoint.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 	m_inEndpoint.unsuspend();
 
-	io.UsbDeviceDesc const* deviceDesc = m_device.m_deviceDesc;
+	io.UsbDeviceDescriptor const* deviceDesc = m_device.m_deviceDescriptor;
 
 	DeviceParams params;
 	params.m_bus = m_device.m_bus;

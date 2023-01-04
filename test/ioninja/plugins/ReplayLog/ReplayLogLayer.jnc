@@ -121,7 +121,7 @@ void ReplayLogLayer.createUi() {
 	m_pluginHost.m_toolBar.addLabel("File:");
 	m_fileNameCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_fileNameCombo.m_isEditable = true;
-	m_fileNameCombo.m_onEnter += onPlay;
+	m_fileNameCombo.m_onReturnPressed += onPlay;
 	m_fileNameCombo.m_placeholderText = "Enter a log file name...";
 
 	m_actionTable[ActionId.Browse] = createAction("Browse", "images/browse.png");

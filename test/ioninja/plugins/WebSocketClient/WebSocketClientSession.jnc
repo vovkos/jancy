@@ -204,7 +204,7 @@ void WebSocketClientSession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("Address:");
 	m_addressCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_addressCombo.m_isEditable = true;
-	m_addressCombo.m_onEnter += onAddressComboEnter;
+	m_addressCombo.m_onReturnPressed += onAddressComboEnter;
 	m_addressCombo.m_placeholderText = "Enter a remote IP or hostname...";
 
 	m_iconTable[IconId.Connect] = new ui.Icon("images/connect.png");
@@ -212,6 +212,12 @@ void WebSocketClientSession.createUi() {
 
 	m_actionTable[ActionId.Connect] = createAction("Connect", m_iconTable[IconId.Connect]);
 	m_actionTable[ActionId.Connect].m_onTriggered += onConnect;
+	m_actionTable[ActionId.Ping] = createAction("Ping", "images/ping.png");
+	m_actionTable[ActionId.Ping].m_onTriggered += ping;
+
+	ui.VBoxLayout layout;
+	m_webSocketUi.createForm(layout);
+	m_pluginHost.createForm(layout, 1);
 
 	// status bar
 
@@ -226,18 +232,12 @@ void WebSocketClientSession.createUi() {
 		"WebSocket-specific connection settings"
 	);
 
-	m_pluginHost.m_toolBar.addSeparator();
-
-	m_webSocketUi.createCombos(m_pluginHost.m_toolBar);
-	m_webSocketUi.createProperties(m_pluginHost.m_propertyGrid, propGroup);
-
-	m_actionTable[ActionId.Ping] = createAction("Ping", "images/ping.png");
-	m_actionTable[ActionId.Ping].m_onTriggered += ping;
-
 	propGroup = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"TCP",
 		"TCP-specific connection settings"
 	);
+
+	m_webSocketUi.createProperties(m_pluginHost.m_propertyGrid, propGroup);
 
 	m_socketPropertySet.createProperties(
 		m_pluginHost.m_propertyGrid,
@@ -246,7 +246,7 @@ void WebSocketClientSession.createUi() {
 		ui.SocketPropertySet.PropertyId.Reconnect
 	);
 
-	m_socketPropertySet.m_defaultRemoteAddress = "ws://demos.kaazing.com/echo";
+	m_socketPropertySet.m_defaultRemoteAddress = "wss://socketsbay.com/wss/v2/1/demo/";
 
 	propGroup = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"SSL",
@@ -354,7 +354,7 @@ bool errorcode WebSocketClientSession.connect(
 ) {
 	disconnect();
 
-	m_socket.m_extraHeaders = iox.buildWebSocketExtraHeaders(m_webSocketUi.m_extraHeadersProp.m_value);
+	m_socket.m_extraHeaders = iox.buildWebSocketHeaders(m_webSocketUi.m_headersWidget.m_dictionary);
 	m_socket.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
 	m_socket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 	m_socket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;

@@ -59,7 +59,7 @@ void LogRecordCodeFilterUi.create(
 	if (!toolBar)
 		layout.addWidget(m_checkBox);
 	else {
-		ui.HBoxLayout* subLayout = new ui.HBoxLayout;
+		ui.HBoxLayout subLayout;
 		subLayout.addWidget(m_checkBox, 1, Alignment.Top);
 		subLayout.addWidget(toolBar);
 		layout.addLayout(subLayout);

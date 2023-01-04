@@ -216,8 +216,8 @@ void SerialTapSession.createUi() {
 
 	m_dtePortCombo.adjustSizeToContents();
 	m_dcePortCombo.adjustSizeToContents();
-	m_dtePortCombo.m_onEnter += onPortComboEnter;
-	m_dcePortCombo.m_onEnter += onPortComboEnter;
+	m_dtePortCombo.m_onReturnPressed += onPortComboEnter;
+	m_dcePortCombo.m_onReturnPressed += onPortComboEnter;
 
 	m_actionTable[ActionId.Refresh]  = createAction("Refresh port list", "images/refresh.png");
 	m_actionTable[ActionId.Refresh].m_onTriggered += enumeratePorts;
@@ -244,21 +244,20 @@ void SerialTapSession.createUi() {
 		"Specify DCE serial port"
 	);
 
-	ui.FormLayout* form = m_pluginHost.createForm();
-	ui.FormLayout* layout = new ui.FormLayout;
-	ui.GroupBox* formGroup = new ui.GroupBox("Serial settings", layout);
-
 	ui.SerialUi.ItemId serialUiMask =
 		ui.SerialUi.ItemId.BaudRate |
 		ui.SerialUi.ItemId.DataBits |
 		ui.SerialUi.ItemId.StopBits |
 		ui.SerialUi.ItemId.Parity;
 
+	ui.FormLayout layout;
 	m_serialUi.createForm(layout, serialUiMask);
 	m_serialUi.createProperties(m_pluginHost.m_propertyGrid, groupProp, serialUiMask);
-	form.addRow(formGroup);
 
-	m_serialUi.m_baudRateCombo.m_onEnter += onBaudRateChanged;
+	ui.GroupBox groupBox("Serial settings", layout);
+	m_pluginHost.createForm(groupBox);
+
+	m_serialUi.m_baudRateCombo.m_onReturnPressed += onBaudRateChanged;
 	bindingof(m_serialUi.m_baudRateCombo.m_currentIndex) += onBaudRateChanged;
 	bindingof(m_serialUi.m_dataBitsCombo.m_currentIndex) += onDataBitsChanged;
 	bindingof(m_serialUi.m_parityCombo.m_currentIndex) += onParityChanged;

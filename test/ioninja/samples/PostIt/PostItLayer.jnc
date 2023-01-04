@@ -30,7 +30,7 @@ PostItLayer.construct(doc.PluginHost* pluginHost) {
 	m_pluginHost.m_toolBar.addLabel("Tag:");
 	m_tagCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_tagCombo.m_isEditable = true;
-	m_tagCombo.m_onEnter += onPostIt;
+	m_tagCombo.m_onReturnPressed += onPostIt;
 
 	ui.Action* action = createAction("Post-It", "images/post-it.png");
 	action.m_onTriggered += onPostIt;

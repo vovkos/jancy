@@ -7,6 +7,7 @@ import "io_websocket.jncx"
 import "io_WebSocket.jnc"
 import "log_Writer.jnc"
 import "ui_WebSocketUi.jnc"
+import "ui_Dictionary.jnc"
 import "WebSocketLog/WebSocketLogRecordCode.jnc"
 
 namespace iox {
@@ -135,14 +136,14 @@ bool processWebSocketIncomingData(
 	return true;
 }
 
-io.WebSocketHandshakeHeaders const* buildWebSocketExtraHeaders(std.HashTable const* hashTable) {
-	std.MapEntry const* entry = hashTable.m_head;
-	if (!entry)
+io.WebSocketHandshakeHeaders const* buildWebSocketHeaders(ui.DictionaryEntry const* dictionary) {
+	if (!dictionary)
 		return null;
 
 	io.WebSocketHandshakeHeaders headers;
-	for (; entry; entry = entry.m_next)
-		headers.add(entry.m_key, entry.m_value);
+	for (ui.DictionaryEntry const* entry = dictionary; entry; entry = entry.m_next)
+		if (entry.m_isChecked)
+			headers.add(entry.m_key, entry.m_value);
 
 	return headers;
 }

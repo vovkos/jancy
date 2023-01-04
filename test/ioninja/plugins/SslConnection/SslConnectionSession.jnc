@@ -173,7 +173,7 @@ void SslConnectionSession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("Address:");
 	m_addressCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_addressCombo.m_isEditable = true;
-	m_addressCombo.m_onEnter += onAddressComboEnter;
+	m_addressCombo.m_onReturnPressed += onAddressComboEnter;
 	m_addressCombo.m_placeholderText = "Enter a remote IP or hostname...";
 
 	m_iconTable[IconId.Connect] = new ui.Icon("images/connect.png");

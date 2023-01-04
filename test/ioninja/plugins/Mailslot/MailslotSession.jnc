@@ -120,7 +120,7 @@ void MailslotSession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("Mailslot:");
 	m_nameCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_nameCombo.m_isEditable = true;
-	m_nameCombo.m_onEnter += onNameComboEnter;
+	m_nameCombo.m_onReturnPressed += onNameComboEnter;
 	m_nameCombo.m_placeholderText = "Enter a mailslot name...";
 
 	m_iconTable[IconId.Open] = new ui.Icon("images/open.png");

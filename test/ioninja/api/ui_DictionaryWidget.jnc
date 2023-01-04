@@ -1,0 +1,46 @@
+//..............................................................................
+//
+// Ninja UI - list widgets
+//
+
+import "ui_Widget.jnc"
+import "ui_Dictionary.jnc"
+
+namespace ui {
+
+//! \addtogroup api-ui
+//! @{
+
+//..............................................................................
+
+opaque class DictionaryWidget: Widget {
+	char const* autoget property m_keyColumnName;
+	char const* autoget property m_valueColumnName;
+	char const* autoget property m_placeholderText;
+	bool autoget property m_alternatingRowColors;
+
+	size_t bindable readonly m_itemCount;
+	size_t bindable readonly m_selectedItemCount;
+	DictionaryEntry const* bindable autoget property m_dictionary;
+
+	construct();
+	destruct();
+
+	void clear();
+
+	void add(
+		char const* key,
+		char const* value,
+		bool isChecked = true
+	);
+
+	void addEditNew();
+	void editSelection();
+	void removeSelection();
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace ui

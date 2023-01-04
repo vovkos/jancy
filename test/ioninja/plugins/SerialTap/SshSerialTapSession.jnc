@@ -195,7 +195,7 @@ void SshSerialTapSession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("Address:");
 	m_addressCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_addressCombo.m_isEditable = true;
-	m_addressCombo.m_onEnter += onAddressComboEnter;
+	m_addressCombo.m_onReturnPressed += onAddressComboEnter;
 	m_addressCombo.m_placeholderText = "Enter a remote IP or hostname...";
 
 	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable [IconId.Capture]);
@@ -236,9 +236,7 @@ void SshSerialTapSession.createUi() {
 		"Serial settings of the remote Serial Tap"
 	);
 
-	ui.FormLayout* form = m_pluginHost.createForm();
-	ui.FormLayout* layout = new ui.FormLayout;
-	ui.GroupBox* groupBox = new ui.GroupBox("Serial tap settings", layout);
+	ui.FormLayout layout;
 
 	ui.SerialUi.ItemId serialUiMask =
 		ui.SerialUi.ItemId.BaudRate |
@@ -248,9 +246,11 @@ void SshSerialTapSession.createUi() {
 
 	m_serialUi.createForm(layout, serialUiMask);
 	m_serialUi.createProperties(m_pluginHost.m_propertyGrid, groupProp, serialUiMask);
-	form.addRow(groupBox);
 
-	m_serialUi.m_baudRateCombo.m_onEnter += onBaudRateChanged;
+	ui.GroupBox groupBox("Serial tap settings", layout);
+	m_pluginHost.createForm(groupBox);
+
+	m_serialUi.m_baudRateCombo.m_onReturnPressed += onBaudRateChanged;
 	bindingof(m_serialUi.m_baudRateCombo.m_currentIndex) += onBaudRateChanged;
 	bindingof(m_serialUi.m_dataBitsCombo.m_currentIndex) += onDataBitsChanged;
 	bindingof(m_serialUi.m_parityCombo.m_currentIndex) += onParityChanged;

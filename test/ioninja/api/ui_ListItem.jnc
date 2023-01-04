@@ -10,7 +10,7 @@ namespace ui {
 
 //..............................................................................
 
-struct ComboItem {
+struct ListItem {
 	char const* m_text;
 	variant m_value;
 }

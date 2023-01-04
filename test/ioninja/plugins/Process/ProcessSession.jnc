@@ -6,6 +6,10 @@
 import "doc_Session.jnc"
 import "io_base.jncx"
 import "io_ChildProcess.jnc"
+import "ui_GroupBox.jnc"
+import "ui_Button.jnc"
+import "ui_StdEditToolBar.jnc"
+import "ui_DictionaryWidget.jnc"
 import "ui_History.jnc"
 import "ui_BufferPropertySet.jnc"
 import "ui_StdSessionInfoSet.jnc"
@@ -65,7 +69,7 @@ protected:
 	}
 
 protected:
-	// file
+	// process
 
 	State bindable m_state;
 	io.ChildProcess m_process;
@@ -79,6 +83,9 @@ protected:
 	ui.Icon* m_iconTable[IconId._Count];
 	ui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
 	ui.ComboBox* m_commandLineCombo;
+	ui.CheckBox* m_cleanEnvironmentCheckBox;
+	ui.DictionaryWidget* m_environmentWidget;
+	ui.StdEditToolBar* m_environmentToolBar;
 
 	// property grid
 
@@ -178,7 +185,7 @@ void ProcessSession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("Command:");
 	m_commandLineCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_commandLineCombo.m_isEditable = true;
-	m_commandLineCombo.m_onEnter += onProcessNameComboEnter;
+	m_commandLineCombo.m_onReturnPressed += onProcessNameComboEnter;
 	m_commandLineCombo.m_placeholderText = "Enter a command line...";
 
 	m_iconTable[IconId.Start] = new ui.Icon("images/start.png");
@@ -191,6 +198,28 @@ void ProcessSession.createUi() {
 	m_actionTable[ActionId.Detach] = createAction("Detach", m_iconTable[IconId.Detach]);
 	m_actionTable[ActionId.Detach].m_onTriggered += detach;
 	m_actionTable[ActionId.Detach].m_isEnabled = false;
+
+	// form
+
+	ui.VBoxLayout layout;
+	layout.addWidget(new ui.Label("Environment variables:"));
+	m_environmentWidget = new ui.DictionaryWidget;
+	m_environmentWidget.m_keyColumnName = "Variable";
+	m_environmentWidget.m_placeholderText = "No environment variables";
+	layout.addWidget(m_environmentWidget, 1);
+
+	m_cleanEnvironmentCheckBox = new ui.CheckBox("Clean environment");
+	m_cleanEnvironmentCheckBox.m_horizontalSizePolicy = ui.SizePolicy.Expanding;
+
+	m_environmentToolBar = new ui.StdEditToolBar;
+	m_environmentToolBar.addWidget(m_cleanEnvironmentCheckBox);
+	m_environmentToolBar.createActions();
+	m_environmentToolBar.m_addAction.m_onTriggered += m_environmentWidget.addEditNew;
+	m_environmentToolBar.m_editAction.m_onTriggered += m_environmentWidget.editSelection;
+	m_environmentToolBar.m_removeAction.m_onTriggered += m_environmentWidget.removeSelection;
+	layout.addWidget(m_environmentToolBar);
+
+	m_pluginHost.createForm(layout, 1);
 
 	// status bar
 
@@ -236,9 +265,8 @@ void ProcessSession.createUi() {
 	);
 
 	m_environmentProp.m_editDialogTitle = "Edit Environment Variables";
-	m_environmentProp.m_keyLabel = "Variable";
-	m_environmentProp.m_newKey = "NEW_VARIABLE";
-	m_environmentProp.m_newValue = "NEW_VARIABLE_VALUE";
+	m_environmentProp.m_keyColumnName = "Variable";
+	m_environmentProp.m_placeholderText = "No environment variables";
 
 	m_bufferPropertySet.createPropertiesGrouped(m_pluginHost.m_propertyGrid);
 
@@ -275,10 +303,10 @@ bool errorcode ProcessSession.start() {
 		m_separateStderrProp.m_value ? io.ChildProcessStartFlags.SeparateStderr :
 		0;
 
-	if (m_cleanEnvironmentProp.m_value)
+	if (m_cleanEnvironmentCheckBox.m_isChecked)
 		flags |= io.ChildProcessStartFlags.CleanEnvironment;
 
-	std.HashTable* environment = m_environmentProp.m_value;
+	std.StringHashTable* environment = ui.createDictionaryHashTable(m_environmentWidget.m_dictionary);
 	if (!environment["TERM"])
 		environment["TERM"] = DefaultTerm;
 
@@ -384,29 +412,16 @@ void ProcessSession.load(doc.Storage* storage) {
 	m_commandLineCombo.loadHistory(storage, "commandLineHistory");
 	m_commandLineCombo.m_editText = storage.readString("commandLine");
 	m_separateStderrProp.m_value = storage.readBool("separateStderr", Defaults.SeparateStderr);
-	m_cleanEnvironmentProp.m_value = storage.readBool("cleanEnvironment", Defaults.CleanEnvironment);
+	m_cleanEnvironmentCheckBox.m_isChecked = storage.readBool("cleanEnvironment", Defaults.CleanEnvironment);
 
 	if (m_ptyProp)
 		m_ptyProp.m_value = storage.readBool("pty", Defaults.Pty);
 
-	std.HashTable environment;
+	ui.DictionaryEntry* environment = ui.loadDictionary(storage, "env");
+	if (!ui.findDictionaryEntry(environment, "TERM"))
+		environment = ui.insertDictionaryHead(environment, "TERM", DefaultTerm);
 
-	size_t i = 0;
-	for (;; i++) {
-		char const* s = storage.readString($"env-$i");
-		char const* p = strchr(s, '=');
-		if (!p)
-			break;
-
-		char const* key = strdup(s, p - s);
-		char const* value = strdup(p + 1);
-		environment[key] = value;
-	}
-
-	if (!environment["TERM"])
-		environment["TERM"] = DefaultTerm;
-
-	m_environmentProp.m_value = environment;
+	m_environmentWidget.m_dictionary = environment;
 
 	m_bufferPropertySet.load(storage);
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
@@ -420,12 +435,7 @@ void ProcessSession.save(doc.Storage* storage) {
 	storage.writeBool("separateStderr", m_separateStderrProp.m_value);
 	storage.writeBool("cleanEnvironment", m_cleanEnvironmentProp.m_value);
 
-	size_t i = 0;
-	std.MapEntry const* entry = m_environmentProp.m_value.m_head;
-	for (; entry; entry = entry.m_next, i++)
-		storage.writeString($"env-$i", $"$(entry.m_key)=$(entry.m_value)");
-
-	storage.writeString($"env-$i", null);
+	ui.saveDictionary(m_environmentWidget.m_dictionary, storage, "env");
 
 	if (m_ptyProp)
 		storage.writeBool("pty", m_ptyProp.m_value);
@@ -433,11 +443,15 @@ void ProcessSession.save(doc.Storage* storage) {
 
 void ProcessSession.updateProperties() {
 	m_commandLineProp.m_value = m_commandLineCombo.m_editText;
+	m_environmentProp.m_value = m_environmentWidget.m_dictionary;
+	m_cleanEnvironmentProp.m_value = m_cleanEnvironmentCheckBox.m_isChecked;
 }
 
 bool errorcode ProcessSession.applyProperties() {
 	m_commandLineCombo.m_editText = m_commandLineProp.m_value;
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
+	m_environmentWidget.m_dictionary = m_environmentProp.m_value;
+	m_cleanEnvironmentCheckBox.m_isChecked = m_cleanEnvironmentProp.m_value;
 
 	if (!m_process.m_isOpen)
 		return true;
@@ -587,6 +601,8 @@ reactor ProcessSession.m_uiReactor {
 	m_actionTable[ActionId.Detach].m_isEnabled = m_state;
 	m_statusPaneTable[StatusPaneId.State].m_text = m_stateName[m_state];
 	m_separateStderrProp.m_isEnabled = !m_ptyProp || !m_ptyProp.m_value;
+	m_environmentToolBar.m_editAction.m_isEnabled = m_environmentWidget.m_selectedItemCount == 1;
+	m_environmentToolBar.m_removeAction.m_isEnabled = m_environmentWidget.m_selectedItemCount > 0;
 }
 
 //..............................................................................

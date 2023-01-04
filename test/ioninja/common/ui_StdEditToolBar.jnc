@@ -1,0 +1,54 @@
+//..............................................................................
+//
+// SSL user interface
+//
+
+import "ui_ToolBar.jnc"
+import "ui_Action.jnc"
+
+namespace ui {
+
+//! \addtogroup common-ui
+//! @{
+
+//..............................................................................
+
+class StdEditToolBar: ToolBar {
+	bitflag enum ActionId {
+		Add,
+		Edit,
+		Remove,
+		All = Add | Edit | Remove,
+	}
+
+	ui.Action* m_addAction;
+	ui.Action* m_editAction;
+	ui.Action* m_removeAction;
+
+	void createActions(ActionId mask = ActionId.All);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void StdEditToolBar.createActions(ActionId mask) {
+	if (mask & ActionId.Add) {
+		m_addAction = new ui.Action("images/add.png", "New");
+		addAction(m_addAction);
+	}
+
+	if (mask & ActionId.Edit) {
+		m_editAction = new ui.Action("images/edit.png", "Edit");
+		addAction(m_editAction);
+	}
+
+	if (mask & ActionId.Remove) {
+		m_removeAction = new ui.Action("images/remove.png", "Remove");
+		addAction(m_removeAction);
+	}
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace ui

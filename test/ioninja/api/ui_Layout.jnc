@@ -10,6 +10,12 @@ namespace ui {
 //! \addtogroup api-ui
 //! @{
 
+enum FrameShadow {
+	Plain  = 0x10,
+	Raised = 0x20,
+	Sunken = 0x30,
+}
+
 //..............................................................................
 
 opaque class Layout {
@@ -47,6 +53,7 @@ opaque class BoxLayout: Layout {
 	void addSpacing(int size);
 	void addStrut(int size);
 	void addStretch(int stretch = 0);
+	void addLine(FrameShadow shadow = FrameShadow.Sunken);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -96,6 +103,8 @@ opaque class FormLayout: Layout {
 	) {
 		addRow(new Label(label), field);
 	}
+
+	void addLine(FrameShadow shadow = FrameShadow.Sunken);
 }
 
 //..............................................................................

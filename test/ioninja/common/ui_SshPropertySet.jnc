@@ -49,6 +49,8 @@ class SshPropertySet {
 	StringProperty* m_processParamProp;
 	StringProperty* m_ptyTypeProp;
 
+	reactor m_uiReactor;
+
 	void createProperties(
 		PropertyGrid* propertyGrid,
 		GroupProperty* group = null,
@@ -59,8 +61,6 @@ class SshPropertySet {
 	void load(doc.Storage* storage);
 	void save(doc.Storage* storage);
 	void restoreDefaults();
-
-	reactor m_uiReactor;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

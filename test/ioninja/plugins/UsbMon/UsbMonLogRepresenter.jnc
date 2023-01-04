@@ -55,7 +55,7 @@ bool representUsbMonLog(
 					description,
 					manufacturer,
 					driver,
-					typeof(io.UsbMonDeviceSpeed).getValueString(params.m_speed)
+					typeof(io.UsbSpeed).getValueString(params.m_speed)
 				);
 		}
 

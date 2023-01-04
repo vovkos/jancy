@@ -175,7 +175,7 @@ void UdpSession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("Remote:");
 	m_remoteAddressCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_remoteAddressCombo.m_isEditable = true;
-	m_remoteAddressCombo.m_onEnter += onRemoteAddressEnter;
+	m_remoteAddressCombo.m_onReturnPressed += onRemoteAddressEnter;
 	bindingof(m_remoteAddressCombo.m_editText) += onRemoteAddressChanged;
 	m_remoteAddressCombo.m_placeholderText = "Enter a remote IP or hostname...";
 
@@ -187,7 +187,7 @@ void UdpSession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("Local port:");
 	m_localPortCombo = m_pluginHost.m_toolBar.addComboBox();
 	m_localPortCombo.m_isEditable = true;
-	m_localPortCombo.m_onEnter += onPortComboEnter;
+	m_localPortCombo.m_onReturnPressed += onPortComboEnter;
 
 	m_actionTable[ActionId.Open] = createAction("Open socket", m_iconTable [IconId.Open]);
 	m_actionTable[ActionId.Open].m_onTriggered += onOpen;

@@ -148,9 +148,10 @@ void FileSession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("File:");
 	m_fileNameCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_fileNameCombo.m_isEditable = true;
-	m_fileNameCombo.m_onEnter += onFileNameComboEnter;
+	m_fileNameCombo.m_onReturnPressed += onFileNameComboEnter;
 	m_fileNameCombo.m_placeholderText = "Enter a file or device name...";
 
+	m_pluginHost.m_toolBar.addSpacing();
 	m_accessCombo = m_pluginHost.m_toolBar.addComboBox("Access:", accessModeTable, countof(accessModeTable));
 
 	m_iconTable[IconId.Open] = new ui.Icon("images/open.png");
