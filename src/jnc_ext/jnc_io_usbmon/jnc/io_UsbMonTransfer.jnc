@@ -11,86 +11,16 @@
 
 namespace io {
 
+import "io_usb.jncx"
+import "io_UsbTransfer.jnc"
+
 //! \addtogroup io-usbmon
 //! @{
 
 //..............................................................................
 
-enum UsbMonTransferType: uint8_t {
-	Isochronous, // 0
-	Interrupt,   // 1
-	Control,     // 2
-	Bulk,        // 3
-};
-
 bitflag enum UsbMonTransferFlags {
 	Completed
-};
-
-enum UsbMonControlRecipient {
-	Device,    // 0
-	Interface, // 1
-	Endpoint,  // 2
-	Other,     // 3
-};
-
-enum UsbMonControlType {
-	Standard, // 0
-	Class,    // 1
-	Vendor,   // 2
-};
-
-enum UsbMonControlDirection {
-	Out,
-	In,
-};
-
-enum UsbMonControlStdRequest {
-	GetStatus,         // 0
-	ClearFeature,      // 1
-	Reserved,          // 2
-	SetFeature,        // 3
-	Reserved2,         // 4
-	SetAddress,        // 5
-	GetDescriptor,     // 6
-	SetDescriptor,     // 7
-	GetConfiguration,  // 8
-	SetConfiguration,  // 9
-	GetInterface,      // 10
-	SetInterface,      // 11
-	SynchFrame,        // 12
-};
-
-//..............................................................................
-
-struct UsbMonControlRequestType {
-	union {
-		uint8_t m_value;
-		struct {
-			uint8_t m_recipient : 2; // UsbMonControlRecipient
-			uint8_t m_reserved  : 3;
-			uint8_t m_type      : 2; // UsbMonControlType
-			uint8_t m_direction : 1; // UsbMonControlDirection
-		};
-	};
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct UsbMonControlSetup {
-	UsbMonControlRequestType m_requestType;
-	uint8_t m_request;
-	uint16_t m_value;
-	uint16_t m_index;
-	uint16_t m_length;
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct UsbMonIsochronousHdr {
-	uint32_t m_startFrame;
-	uint32_t m_packetCount;
-	uint32_t m_errorCount;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -100,7 +30,7 @@ struct UsbMonTransferHdr {
 	uint64_t m_timestamp;
 	uint32_t m_status;
 	UsbMonTransferFlags m_flags;
-	UsbMonTransferType m_transferType;
+	UsbTransferType m_transferType;
 	uint8_t m_bus;
 	uint8_t m_address;
 	uint8_t m_endpoint;
@@ -108,8 +38,8 @@ struct UsbMonTransferHdr {
 	uint32_t m_captureSize;  // captured by the driver
 
 	union {
-		UsbMonControlSetup m_controlSetup;
-		UsbMonIsochronousHdr m_isochronousHdr;
+		UsbControlSetup m_controlSetup;
+		UsbIsochronousHdr m_isochronousHdr;
 	};
 };
 

@@ -50,14 +50,6 @@ enum UsbSpeed: uint8_t {
 	SuperPlus,
 }
 
-enum UsbTransferType: uint8_t {
-	Control     = 0,
-	Isochronous = 1,
-	Bulk        = 2,
-	Interrupt   = 3,
-	BulkStream  = 4,
-}
-
 enum UsbIsoSyncType: uint8_t {
 	None     = 0,
 	Async    = 1,

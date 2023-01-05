@@ -56,6 +56,7 @@ set(
 	jnc/io_UsbDevice.jnc
 	jnc/io_UsbInterface.jnc
 	jnc/io_UsbEndpoint.jnc
+	jnc/io_UsbTransfer.jnc
 )
 
 source_group(

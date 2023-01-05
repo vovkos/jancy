@@ -1,0 +1,97 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace io {
+
+//! \addtogroup io-usb
+//! @{
+
+//..............................................................................
+
+enum UsbTransferType: uint8_t {
+	Control,     // 0
+	Isochronous, // 1
+	Bulk,        // 2
+	Interrupt,   // 3
+	BulkStream,  // 4
+}
+
+enum UsbControlRecipient: unit8_t {
+	Device,    // 0
+	Interface, // 1
+	Endpoint,  // 2
+	Other,     // 3
+};
+
+enum UsbControlType: unit8_t {
+	Standard, // 0
+	Class,    // 1
+	Vendor,   // 2
+};
+
+enum UsbControlDirection: unit8_t {
+	Out, // 0
+	In,  // 1
+};
+
+enum UsbControlStdRequest: unit8_t {
+	GetStatus,         // 0
+	ClearFeature,      // 1
+	Reserved,          // 2
+	SetFeature,        // 3
+	Reserved2,         // 4
+	SetAddress,        // 5
+	GetDescriptor,     // 6
+	SetDescriptor,     // 7
+	GetConfiguration,  // 8
+	SetConfiguration,  // 9
+	GetInterface,      // 10
+	SetInterface,      // 11
+	SynchFrame,        // 12
+};
+
+//..............................................................................
+
+struct UsbControlRequestType {
+	union {
+		uint8_t m_value;
+		struct {
+			uint8_t m_recipient : 2; // UsbControlRecipient
+			uint8_t m_reserved  : 3;
+			uint8_t m_type      : 2; // UsbControlType
+			uint8_t m_direction : 1; // UsbControlDirection
+		};
+	};
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct UsbControlSetup {
+	UsbControlRequestType m_requestType;
+	uint8_t m_request;
+	uint16_t m_value;
+	uint16_t m_index;
+	uint16_t m_length;
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct UsbIsochronousHdr {
+	uint32_t m_startFrame;
+	uint32_t m_packetCount;
+	uint32_t m_errorCount;
+};
+
+//..............................................................................
+
+//! @}
+
+} // namespace io
