@@ -9,6 +9,8 @@
 //
 //..............................................................................
 
+import "io_UsbTransfer.jnc"
+
 namespace io {
 
 //! \addtogroup io-usb
