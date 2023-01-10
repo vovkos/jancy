@@ -48,7 +48,12 @@ class Buffer {
 		return p;
 	}
 
-	bool errorcode setSize(size_t size);
+	bool errorcode setSize(size_t size) {
+		reserve(size);
+		m_size = size;
+		return true;
+	}
+
 	bool errorcode reserve(size_t size);
 
 	size_t errorcode copy(

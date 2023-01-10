@@ -22,6 +22,7 @@
 #include "jnc_OpKind.h"
 #include "jnc_StdHashTable.h"
 #include "jnc_StdRbTree.h"
+#include "jnc_StdBuffer.h"
 
 typedef struct jnc_ErrorFuncTable jnc_ErrorFuncTable;
 typedef struct jnc_CapabilityFuncTable jnc_CapabilityFuncTable;
@@ -65,6 +66,7 @@ typedef struct jnc_RuntimeFuncTable jnc_RuntimeFuncTable;
 typedef struct jnc_GcHeapFuncTable jnc_GcHeapFuncTable;
 typedef struct jnc_StdHashTableFuncTable jnc_StdHashTableFuncTable;
 typedef struct jnc_StdRbTreeFuncTable jnc_StdRbTreeFuncTable;
+typedef struct jnc_StdBufferFuncTable jnc_StdBufferFuncTable;
 typedef struct jnc_DynamicExtensionLibHost jnc_DynamicExtensionLibHost;
 
 //..............................................................................
@@ -1678,6 +1680,58 @@ struct jnc_StdRbTreeFuncTable {
 
 //..............................................................................
 
+// std.Buffer
+
+typedef
+jnc_StdBuffer*
+jnc_CreateStdBufferFunc(jnc_Runtime* runtime);
+
+typedef
+bool_t
+jnc_StdBuffer_ReserveFunc(
+	jnc_StdBuffer* buffer,
+	size_t size
+);
+
+typedef
+size_t
+jnc_StdBuffer_CopyFunc(
+	jnc_StdBuffer* buffer,
+	const void* p,
+	size_t size
+);
+
+typedef
+size_t
+jnc_StdBuffer_InsertFunc(
+	jnc_StdBuffer* buffer,
+	size_t offset,
+	const void* p,
+	size_t size
+);
+
+typedef
+size_t
+jnc_StdBuffer_RemoveFunc(
+	jnc_StdBuffer* Buffer,
+	size_t offset,
+	size_t size
+);
+
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct jnc_StdBufferFuncTable {
+	size_t m_size;
+	jnc_CreateStdBufferFunc* m_createStdBufferFunc;
+	jnc_StdBuffer_ReserveFunc* m_reserveFunc;
+	jnc_StdBuffer_CopyFunc* m_copyFunc;
+	jnc_StdBuffer_InsertFunc* m_insertFunc;
+	jnc_StdBuffer_RemoveFunc* m_removeFunc;
+};
+
+//..............................................................................
+
 // all-in-one
 
 struct jnc_DynamicExtensionLibHost {
@@ -1725,6 +1779,7 @@ struct jnc_DynamicExtensionLibHost {
 	jnc_GcHeapFuncTable* m_gcHeapFuncTable;
 	jnc_StdHashTableFuncTable* m_stdHashTableFuncTable;
 	jnc_StdRbTreeFuncTable* m_stdRbTreeFuncTable;
+	jnc_StdBufferFuncTable* m_stdBufferFuncTable;
 };
 
 //..............................................................................

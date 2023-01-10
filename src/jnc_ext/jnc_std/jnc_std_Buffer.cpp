@@ -27,7 +27,6 @@ JNC_DEFINE_CLASS_TYPE(
 )
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Buffer)
-	JNC_MAP_FUNCTION("setSize", &Buffer::setSize)
 	JNC_MAP_FUNCTION("reserve", &Buffer::reserve)
 	JNC_MAP_FUNCTION("copy", &Buffer::copy)
 	JNC_MAP_FUNCTION("insert", &Buffer::insert)
@@ -35,24 +34,6 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(Buffer)
 JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
-
-bool
-JNC_CDECL
-Buffer::setSize(size_t size) {
-	if (size == m_size)
-		return true;
-
-	if (size > m_maxSize) {
-		bool result = reserve(size);
-		if (!result)
-			return false;
-	} else if (size > m_size) {
-		memset((char*)m_ptr.m_p + m_size, 0, size - m_size);
-	}
-
-	m_size = size;
-	return true;
-}
 
 bool
 JNC_CDECL
@@ -74,25 +55,23 @@ Buffer::reserve(size_t size) {
 }
 
 size_t
-JNC_CDECL
-Buffer::copy(
-	DataPtr ptr,
+Buffer::copy_u(
+	const void* src,
 	size_t size
 ) {
 	bool result = reserve(size);
 	if (!result)
 		return -1;
 
-	memcpy(m_ptr.m_p, ptr.m_p, size);
+	memcpy(m_ptr.m_p, src, size);
 	m_size = size;
 	return size;
 }
 
 size_t
-JNC_CDECL
-Buffer::insert(
+Buffer::insert_u(
 	size_t offset,
-	DataPtr ptr,
+	const void* src,
 	size_t size
 ) {
 	size_t newSize = m_size + size;
@@ -108,7 +87,7 @@ Buffer::insert(
 	if (offset < m_size)
 		memmove(p + offset + size, p + offset, m_size - offset);
 
-	memcpy(p + offset, ptr.m_p, size);
+	memcpy(p + offset, src, size);
 	m_size = newSize;
 	return newSize;
 }

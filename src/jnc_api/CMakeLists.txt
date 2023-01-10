@@ -48,6 +48,7 @@ set(
 	${JANCY_INC_DIR}/jnc_Construct.h
 	${JANCY_INC_DIR}/jnc_StdMap.h
 	${JANCY_INC_DIR}/jnc_StdHashTable.h
+	${JANCY_INC_DIR}/jnc_StdBuffer.h
 	${JANCY_INC_DIR}/jnc_CodeAssist.h
 	${JANCY_INC_DIR}/jnc_Capability.h
 	${JANCY_INC_DIR}/jnc_WarningSuppression.h
@@ -81,6 +82,7 @@ set(
 	jnc_GcHeap.cpp
 	jnc_StdHashTable.cpp
 	jnc_StdRbTree.cpp
+	jnc_StdBuffer.cpp
 	jnc_CodeAssist.cpp
 	jnc_Capability.cpp
 )
@@ -91,7 +93,7 @@ set(
 	jnc_DynamicExtensionLibHost.cpp
 )
 
-# since MSVC16 2019, we can't take address of pure intrinsic `setjmp` 
+# since MSVC16 2019, we can't take address of pure intrinsic `setjmp`
 # hence, compile our own implementation (based on the reactos)
 # alas, simple `enable_language(ASM_NASM)` doesn't cut it :(
 # it seems like NASM support in CMake is half-baked (still)...

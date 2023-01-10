@@ -26,8 +26,6 @@
 #include "jnc_Module.h"
 #include "jnc_Runtime.h"
 #include "jnc_GcHeap.h"
-#include "jnc_StdHashTable.h"
-#include "jnc_StdRbTree.h"
 
 //..............................................................................
 
@@ -389,6 +387,15 @@ static jnc_StdRbTreeFuncTable g_stdRbTreeFuncTable = {
 	jnc_StdRbTree_removeKey,
 };
 
+static jnc_StdBufferFuncTable g_stdBufferFuncTable = {
+	sizeof(jnc_StdBufferFuncTable),
+	jnc_createStdBuffer,
+	jnc_StdBuffer_reserve,
+	jnc_StdBuffer_copy,
+	jnc_StdBuffer_insert,
+	jnc_StdBuffer_remove,
+};
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl = {
@@ -436,6 +443,7 @@ jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl = {
 	&g_gcHeapFuncTable,
 	&g_stdHashTableFuncTable,
 	&g_stdRbTreeFuncTable,
+	&g_stdBufferFuncTable,
 };
 
 //..............................................................................
