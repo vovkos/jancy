@@ -224,7 +224,7 @@ UsbDevice::claimInterface(
 		err::setError(err::SystemErrorCode_ObjectNameNotFound);
 	else {
 		iface = createClass<UsbInterface> (runtime);
-		iface->m_parentDevice = this;
+		iface->m_device = this;
 		iface->m_interfaceDescriptorPtr.m_p = ifaceDescriptor;
 
 		iface->m_interfaceDescriptorPtr.m_validator = runtime->getGcHeap()->createDataPtrValidator(

@@ -30,7 +30,7 @@ enum UsbEndpointEvent {
 //..............................................................................
 
 struct UsbEndpointHdr: IfaceHdr {
-	UsbInterface* m_parentInterface;
+	UsbInterface* m_interface;
 	DataPtr m_endpointDescriptorPtr;
 
 	uint_t m_transferTimeout;

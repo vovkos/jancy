@@ -99,7 +99,7 @@ UsbEndpoint::close() {
 	// no need to lock before clearing -- there is no contention at this point
 	m_transferPool.clear();
 
-	m_parentInterface->removeEndpoint(this);
+	m_interface->removeEndpoint(this);
 	AsyncIoDevice::close();
 }
 
@@ -365,7 +365,7 @@ UsbEndpoint::submitTransfer(
 	if (!result)
 		return false;
 
-	axl::io::UsbDevice* device = m_parentInterface->m_parentDevice->getDevice();
+	axl::io::UsbDevice* device = m_interface->m_device->getDevice();
 	switch (descriptor->m_transferType) {
 	case LIBUSB_TRANSFER_TYPE_BULK:
 		transfer->m_usbTransfer.fillBulkTransfer(

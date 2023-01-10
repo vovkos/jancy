@@ -41,7 +41,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 //..............................................................................
 
 UsbInterface::UsbInterface() {
-	m_parentDevice = NULL;
+	m_device = NULL;
 	m_interfaceDescriptorPtr = g_nullDataPtr;
 	m_isClaimed = false;
 }
@@ -81,8 +81,8 @@ UsbInterface::release() {
 	m_lock.unlock();
 
 	UsbInterfaceDescriptor* interfaceDescriptor = (UsbInterfaceDescriptor*)m_interfaceDescriptorPtr.m_p;
-	m_parentDevice->m_device.releaseInterface(interfaceDescriptor->m_interfaceId);
-	m_parentDevice->removeInterface(this);
+	m_device->m_device.releaseInterface(interfaceDescriptor->m_interfaceId);
+	m_device->removeInterface(this);
 	m_isClaimed = false;
 }
 
@@ -104,7 +104,7 @@ UsbInterface::openEndpoint(
 	gcHeap->enterNoCollectRegion();
 
 	UsbEndpoint* endpoint = createClass<UsbEndpoint> (runtime);
-	endpoint->m_parentInterface = this;
+	endpoint->m_interface = this;
 	endpoint->m_endpointDescriptorPtr.m_p = endpointDescriptor;
 
 	endpoint->m_endpointDescriptorPtr.m_validator = runtime->getGcHeap()->createDataPtrValidator(

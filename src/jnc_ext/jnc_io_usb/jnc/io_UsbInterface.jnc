@@ -9,6 +9,7 @@
 //
 //..............................................................................
 
+import "io_UsbDevice.jnc"
 import "io_UsbEndpoint.jnc"
 
 namespace io {
@@ -19,7 +20,7 @@ namespace io {
 //..............................................................................
 
 opaque class UsbInterface {
-	UsbDevice* const m_parentDevice;
+	UsbDevice* const m_device;
 	UsbInterfaceDescriptor const* const m_interfaceDescriptor;
 
 	bool readonly m_isClaimed;

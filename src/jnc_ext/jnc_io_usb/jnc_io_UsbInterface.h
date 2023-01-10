@@ -38,7 +38,7 @@ public:
 	};
 
 public:
-	UsbDevice* m_parentDevice;
+	UsbDevice* m_device;
 	DataPtr m_interfaceDescriptorPtr;
 	bool m_isClaimed;
 
