@@ -283,3 +283,8 @@ EXPORTS
 	jnc_StdRbTree_add
 	jnc_StdRbTree_remove
 	jnc_StdRbTree_removeKey
+	jnc_createStdBuffer
+	jnc_StdBuffer_reserve
+	jnc_StdBuffer_copy
+	jnc_StdBuffer_insert
+	jnc_StdBuffer_remove

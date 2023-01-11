@@ -57,6 +57,14 @@ jnc_StdBuffer_copy(
 	size_t size
 );
 
+JNC_INLINE
+size_t
+jnc_StdBuffer_append(
+	jnc_StdBuffer* buffer,
+	const void* p,
+	size_t size
+);
+
 JNC_EXTERN_C
 size_t
 jnc_StdBuffer_insert(
@@ -117,6 +125,14 @@ struct jnc_StdBuffer {
 	}
 
 	size_t
+	append(
+		const void* p,
+		size_t size
+	) {
+		return jnc_StdBuffer_append(this, p, size);
+	}
+
+	size_t
 	insert(
 		size_t offset,
 		const void* p,
@@ -166,6 +182,16 @@ JNC_INLINE
 void
 jnc_StdBuffer_clear(jnc_StdBuffer* buffer) {
 	buffer->m_size = 0;
+}
+
+JNC_INLINE
+size_t
+jnc_StdBuffer_append(
+	jnc_StdBuffer* buffer,
+	const void* p,
+	size_t size
+) {
+	jnc_StdBuffer_insert(buffer, -1, p, size);
 }
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
