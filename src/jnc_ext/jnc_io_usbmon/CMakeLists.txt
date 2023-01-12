@@ -45,6 +45,8 @@ set(
 	jnc/io_UsbMonEnumerator.jnc
 	jnc/io_UsbMonTransfer.jnc
 	jnc/io_UsbMonitor.jnc
+	jnc/io_win_UsbdStatus.jnc
+	jnc/io_win_UrbFunction.jnc
 )
 
 source_group(

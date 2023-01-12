@@ -1,0 +1,90 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace io {
+namespace win {
+
+//! \addtogroup io-usbmon
+//! @{
+
+//..............................................................................
+
+enum USBD_STATUS {
+	USBD_STATUS_SUCCESS                          = 0x00000000,
+	USBD_STATUS_PORT_OPERATION_PENDING           = 0x00000001,
+	USBD_STATUS_PENDING                          = 0x40000000,
+	USBD_STATUS_CRC                              = 0xC0000001,
+	USBD_STATUS_BTSTUFF                          = 0xC0000002,
+	USBD_STATUS_DATA_TOGGLE_MISMATCH             = 0xC0000003,
+	USBD_STATUS_STALL_PID                        = 0xC0000004,
+	USBD_STATUS_DEV_NOT_RESPONDING               = 0xC0000005,
+	USBD_STATUS_PID_CHECK_FAILURE                = 0xC0000006,
+	USBD_STATUS_UNEXPECTED_PID                   = 0xC0000007,
+	USBD_STATUS_DATA_OVERRUN                     = 0xC0000008,
+	USBD_STATUS_DATA_UNDERRUN                    = 0xC0000009,
+	USBD_STATUS_RESERVED1                        = 0xC000000A,
+	USBD_STATUS_RESERVED2                        = 0xC000000B,
+	USBD_STATUS_BUFFER_OVERRUN                   = 0xC000000C,
+	USBD_STATUS_BUFFER_UNDERRUN                  = 0xC000000D,
+	USBD_STATUS_NOT_ACCESSED                     = 0xC000000F,
+	USBD_STATUS_FIFO                             = 0xC0000010,
+	USBD_STATUS_XACT_ERROR                       = 0xC0000011,
+	USBD_STATUS_BABBLE_DETECTED                  = 0xC0000012,
+	USBD_STATUS_DATA_BUFFER_ERROR                = 0xC0000013,
+	USBD_STATUS_NO_PING_RESPONSE                 = 0xC0000014,
+	USBD_STATUS_INVALID_STREAM_TYPE              = 0xC0000015,
+	USBD_STATUS_INVALID_STREAM_ID                = 0xC0000016,
+	USBD_STATUS_ENDPOINT_HALTED                  = 0xC0000030,
+	USBD_STATUS_INVALID_URB_FUNCTION             = 0x80000200,
+	USBD_STATUS_INVALID_PARAMETER                = 0x80000300,
+	USBD_STATUS_ERROR_BUSY                       = 0x80000400,
+	USBD_STATUS_INVALID_PIPE_HANDLE              = 0x80000600,
+	USBD_STATUS_NO_BANDWIDTH                     = 0x80000700,
+	USBD_STATUS_INTERNAL_HC_ERROR                = 0x80000800,
+	USBD_STATUS_ERROR_SHORT_TRANSFER             = 0x80000900,
+	USBD_STATUS_BAD_START_FRAME                  = 0xC0000A00,
+	USBD_STATUS_ISOCH_REQUEST_FAILED             = 0xC0000B00,
+	USBD_STATUS_FRAME_CONTROL_OWNED              = 0xC0000C00,
+	USBD_STATUS_FRAME_CONTROL_NOT_OWNED          = 0xC0000D00,
+	USBD_STATUS_NOT_SUPPORTED                    = 0xC0000E00,
+	USBD_STATUS_INAVLID_CONFIGURATION_DESCRIPTOR = 0xC0000F00,
+	USBD_STATUS_INSUFFICIENT_RESOURCES           = 0xC0001000,
+	USBD_STATUS_SET_CONFIG_FAILED                = 0xC0002000,
+	USBD_STATUS_BUFFER_TOO_SMALL                 = 0xC0003000,
+	USBD_STATUS_INTERFACE_NOT_FOUND              = 0xC0004000,
+	USBD_STATUS_INAVLID_PIPE_FLAGS               = 0xC0005000,
+	USBD_STATUS_TIMEOUT                          = 0xC0006000,
+	USBD_STATUS_DEVICE_GONE                      = 0xC0007000,
+	USBD_STATUS_STATUS_NOT_MAPPED                = 0xC0008000,
+	USBD_STATUS_HUB_INTERNAL_ERROR               = 0xC0009000,
+	USBD_STATUS_CANCELED                         = 0xC0010000,
+	USBD_STATUS_ISO_NOT_ACCESSED_BY_HW           = 0xC0020000,
+	USBD_STATUS_ISO_TD_ERROR                     = 0xC0030000,
+	USBD_STATUS_ISO_NA_LATE_USBPORT              = 0xC0040000,
+	USBD_STATUS_ISO_NOT_ACCESSED_LATE            = 0xC0050000,
+	USBD_STATUS_BAD_DESCRIPTOR                   = 0xC0100000,
+	USBD_STATUS_BAD_DESCRIPTOR_BLEN              = 0xC0100001,
+	USBD_STATUS_BAD_DESCRIPTOR_TYPE              = 0xC0100002,
+	USBD_STATUS_BAD_INTERFACE_DESCRIPTOR         = 0xC0100003,
+	USBD_STATUS_BAD_ENDPOINT_DESCRIPTOR          = 0xC0100004,
+	USBD_STATUS_BAD_INTERFACE_ASSOC_DESCRIPTOR   = 0xC0100005,
+	USBD_STATUS_BAD_CONFIG_DESC_LENGTH           = 0xC0100006,
+	USBD_STATUS_BAD_NUMBER_OF_INTERFACES         = 0xC0100007,
+	USBD_STATUS_BAD_NUMBER_OF_ENDPOINTS          = 0xC0100008,
+	USBD_STATUS_BAD_ENDPOINT_ADDRESS             = 0xC0100009,
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace win
+} // namespace io

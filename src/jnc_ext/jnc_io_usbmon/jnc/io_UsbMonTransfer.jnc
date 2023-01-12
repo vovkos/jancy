@@ -19,7 +19,7 @@ namespace io {
 
 //..............................................................................
 
-bitflag enum UsbMonTransferFlags {
+bitflag enum UsbMonTransferFlags: uint16_t {
 	Completed
 };
 
@@ -28,7 +28,8 @@ bitflag enum UsbMonTransferFlags {
 struct UsbMonTransferHdr {
 	uint64_t m_id;
 	uint64_t m_timestamp;
-	uint32_t m_status;
+	uint32_t m_status;       // USBD_STATUS on Windows, errno on Linux
+	uint16_t m_urbFunction;  // URB_FUNCTION on Windows
 	UsbMonTransferFlags m_flags;
 	UsbTransferType m_transferType;
 	uint8_t m_bus;
