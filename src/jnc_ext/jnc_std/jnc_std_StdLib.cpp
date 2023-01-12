@@ -710,20 +710,28 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_StdLib)
 	JNC_MAP_FUNCTION("strncmp",  strnCmp)
 	JNC_MAP_FUNCTION("stricmp",  striCmp)
 	JNC_MAP_FUNCTION("strnicmp", strniCmp)
-	JNC_MAP_FUNCTION("strchr",   strChr)
-	JNC_MAP_FUNCTION("strrchr",  strrChr)
-	JNC_MAP_FUNCTION("strichr",  striChr)
-	JNC_MAP_FUNCTION("strpbrk",  strpBrk)
-	JNC_MAP_FUNCTION("strstr",   strStr)
-	JNC_MAP_FUNCTION("stristr",  striStr)
+	JNC_MAP_FUNCTION("strchr",   strChr)  // const overload
+	JNC_MAP_OVERLOAD(strChr)              // non-const overload
+	JNC_MAP_FUNCTION("strrchr",  strrChr) // const overload
+	JNC_MAP_OVERLOAD(strrChr)             // non-const overload
+	JNC_MAP_FUNCTION("strichr",  striChr) // const overload
+	JNC_MAP_OVERLOAD(striChr)             // non-const overload
+	JNC_MAP_FUNCTION("strpbrk",  strpBrk) // const overload
+	JNC_MAP_OVERLOAD(strpBrk)             // non-const overload
+	JNC_MAP_FUNCTION("strstr",   strStr)  // const overload
+	JNC_MAP_OVERLOAD(strStr)              // non-const overload
+	JNC_MAP_FUNCTION("stristr",  striStr) // const overload
+	JNC_MAP_OVERLOAD(striStr)             // non-const overload
 	JNC_MAP_FUNCTION("strcpy",   strCpy)
 	JNC_MAP_FUNCTION("strcat",   strCat)
 	JNC_MAP_FUNCTION("strdup",   strDup)
 	JNC_MAP_FUNCTION("strdjb2",  strDjb2)
 	JNC_MAP_FUNCTION("stridjb2", striDjb2)
 	JNC_MAP_FUNCTION("memcmp",   memCmp)
-	JNC_MAP_FUNCTION("memchr",   memChr)
-	JNC_MAP_FUNCTION("memmem",   memMem)
+	JNC_MAP_FUNCTION("memchr",   memChr)  // const overload
+	JNC_MAP_OVERLOAD(memChr)              // non-const overload
+	JNC_MAP_FUNCTION("memmem",   memMem)  // const overload
+	JNC_MAP_OVERLOAD(memMem)              // non-const overload
 	JNC_MAP_FUNCTION("memcpy",   memCpy)
 	JNC_MAP_FUNCTION("memmove",  memMove)
 	JNC_MAP_FUNCTION("memset",   memSet)
