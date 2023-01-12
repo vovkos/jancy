@@ -189,7 +189,7 @@ class BinOp_Add: public BinOp_Arithmetic<BinOp_Add> {
 public:
 	BinOp_Add() {
 		m_opKind = BinOpKind_Add;
-		m_opFlags1 = m_opFlags2 = OpFlag_EnsurePtrTargetLayout;
+		m_opFlags1 = m_opFlags2 = OpFlag_EnsurePtrTargetLayout | OpFlag_ArrayRefToPtr;
 	}
 
 	virtual
@@ -262,7 +262,7 @@ class BinOp_Sub: public BinOp_Arithmetic<BinOp_Sub> {
 public:
 	BinOp_Sub() {
 		m_opKind = BinOpKind_Sub;
-		m_opFlags1 = m_opFlags2 = OpFlag_EnsurePtrTargetLayout;
+		m_opFlags1 = m_opFlags2 = OpFlag_EnsurePtrTargetLayout | OpFlag_ArrayRefToPtr;
 	}
 
 	virtual
