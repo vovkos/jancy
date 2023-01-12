@@ -318,11 +318,8 @@ EnumType::getValueString(
 	const void* p,
 	const char* formatSpec
 ) {
-	Value value;
-	bool result = m_module->m_operatorMgr.castOperator(Value(p, m_baseType), TypeKind_Int64, &value);
-	ASSERT(result);
-
-	int64_t n = *(int64_t*)value.getConstData();
+	int64_t n = 0;
+	memcpy(&n, p, m_baseType->getSize());
 
 	if (!(m_flags & EnumTypeFlag_BitFlag)) { // shortcut
 		EnumConst* enumConst = findConst(n);
