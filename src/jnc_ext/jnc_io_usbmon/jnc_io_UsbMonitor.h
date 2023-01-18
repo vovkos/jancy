@@ -67,7 +67,8 @@ protected:
 
 	struct Transfer: sl::ListLink {
 		axl::io::UsbMonTransferHdr m_hdr;
-		sl::Array<char> m_buffer;
+		sl::Array<axl::io::UsbMonIsoPacket> m_isoPacketArray;
+		sl::Array<char> m_data;
 	};
 
 	struct TransferTracker {

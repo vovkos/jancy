@@ -177,10 +177,19 @@ UsbMonitor::parseTransfers_l(
 		if (size == -1)
 			return false;
 
+		const axl::io::UsbMonTransferHdr* hdr;
 		axl::io::UsbMonTransferParserState state = parser.getState();
 		switch (state) {
 		case axl::io::UsbMonTransferParserState_CompleteHeader:
-			addToReadBuffer(parser.getTransferHdr(), sizeof(axl::io::UsbMonTransferHdr));
+			hdr = parser.getTransferHdr();
+			addToReadBuffer(hdr, sizeof(axl::io::UsbMonTransferHdr));
+
+			if (hdr->m_transferType == LIBUSB_TRANSFER_TYPE_ISOCHRONOUS)
+				addToReadBuffer(
+					parser.getIsoPacketArray(),
+					hdr->m_isoHdr.m_packetCount * sizeof(axl::io::UsbMonIsoPacket)
+				);
+
 			break;
 
 		case axl::io::UsbMonTransferParserState_IncompleteData:
@@ -232,13 +241,21 @@ UsbMonitor::parseCompletedTransfersOnly_l(
 
 				transfer = m_transferTracker->m_transferPool.get();
 				transfer->m_hdr = *hdr;
-				transfer->m_buffer.clear();
+				transfer->m_data.clear();
+
+				if (hdr->m_transferType == LIBUSB_TRANSFER_TYPE_ISOCHRONOUS)
+					transfer->m_isoPacketArray = parser.getIsoPacketArray();
+
 				m_transferTracker->m_activeTransferMap.add(hdr->m_id, transfer);
 				m_transferTracker->m_activeTransferList.insertTail(transfer);
 				dataMode = DataMode_AddToTransfer;
 			} else {
 				if (hdr->m_endpoint & 0x80) { // completed in-transfer
 					addToReadBuffer(hdr, sizeof(axl::io::UsbMonTransferHdr));
+
+					if (hdr->m_transferType == LIBUSB_TRANSFER_TYPE_ISOCHRONOUS)
+						addToReadBuffer(parser.getIsoPacketArray(), hdr->m_isoHdr.m_packetCount * sizeof(axl::io::UsbMonIsoPacket));
+
 					dataMode = DataMode_AddToBuffer;
 					break;
 				}
@@ -250,10 +267,14 @@ UsbMonitor::parseCompletedTransfersOnly_l(
 
 				transfer = it->m_value;
 				transfer->m_hdr.m_status = hdr->m_status;
-				ASSERT(transfer->m_hdr.m_captureSize == transfer->m_buffer.getCount());
+				ASSERT(transfer->m_hdr.m_captureSize == transfer->m_data.getCount());
 
 				addToReadBuffer(&transfer->m_hdr, sizeof(axl::io::UsbMonTransferHdr));
-				addToReadBuffer(transfer->m_buffer, transfer->m_hdr.m_captureSize);
+
+				if (hdr->m_transferType == LIBUSB_TRANSFER_TYPE_ISOCHRONOUS)
+					addToReadBuffer(parser.getIsoPacketArray(), hdr->m_isoHdr.m_packetCount * sizeof(axl::io::UsbMonIsoPacket));
+
+				addToReadBuffer(transfer->m_data, transfer->m_hdr.m_captureSize);
 				m_transferTracker->m_activeTransferMap.erase(it);
 				m_transferTracker->m_activeTransferList.remove(transfer);
 				m_transferTracker->m_transferPool.put(transfer);
@@ -265,7 +286,7 @@ UsbMonitor::parseCompletedTransfersOnly_l(
 		case axl::io::UsbMonTransferParserState_CompleteData:
 			switch (dataMode) {
 			case DataMode_AddToTransfer:
-				transfer->m_buffer.append(p, size);
+				transfer->m_data.append(p, size);
 				break;
 
 			case DataMode_AddToBuffer:
