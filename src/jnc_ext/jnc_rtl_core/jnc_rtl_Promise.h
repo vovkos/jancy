@@ -56,7 +56,7 @@ protected:
 	sl::HandleTable<AsyncWait*> m_asyncWaitMap;
 
 #if (JNC_PTR_SIZE == 4)
-	char m_padding[4]; // ensure the same layout regardless of pack factor
+	char _m_padding[4]; // ensure the same layout regardless of pack factor
 #endif
 
 public:

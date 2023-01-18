@@ -221,7 +221,7 @@ struct SocketAddress_ip4 {
 		Extra padding to ensure binary compatibility wiht ``sockaddr_in``.
 	*/
 
-	char m_padding[8];
+	char _m_padding[8];
 
 	/**
 		Checks two ``IP4`` socket addresses for *equality*; returns ``true`` if

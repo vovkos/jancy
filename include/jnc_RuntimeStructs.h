@@ -300,7 +300,7 @@ struct jnc_SignalInfo {
 	uintptr_t m_codeAddress;
 	uintptr_t m_faultAddress;
 #	if (JNC_PTR_SIZE == 8)
-	uint64_t m_padding; // ensure 16 byte alignment
+	uint64_t _m_padding; // ensure 16 byte alignment
 #	endif
 };
 #endif

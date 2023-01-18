@@ -2000,7 +2000,7 @@ TypeMgr::createVariantStructType() {
 	type->createField("!m_data1", getPrimitiveType (TypeKind_IntPtr));
 	type->createField("!m_data2", getPrimitiveType (TypeKind_IntPtr));
 #if (JNC_PTR_SIZE == 4)
-	type->createField("!m_padding", getPrimitiveType (TypeKind_Int32));
+	type->createField("!_m_padding", getPrimitiveType (TypeKind_Int32));
 #endif
 	type->createField("!m_type", getStdType (StdType_BytePtr));
 	type->ensureLayout();
@@ -2029,7 +2029,7 @@ TypeMgr::createSjljFrameType() {
 	type->createField("!m_codeAddress", getPrimitiveType(TypeKind_IntPtr_u));
 	type->createField("!m_faultAddress", getPrimitiveType(TypeKind_IntPtr_u));
 #	if (JNC_PTR_SIZE == 8)
-	type->createField("!m_padding", getPrimitiveType(TypeKind_Int64));
+	type->createField("!_m_padding", getPrimitiveType(TypeKind_Int64));
 #	endif
 #endif
 
