@@ -84,10 +84,18 @@ struct UsbControlSetup {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct UsbIsochronousHdr {
-	uint32_t m_startFrame;
+struct UsbIsoHdr {
 	uint32_t m_packetCount;
 	uint32_t m_errorCount;
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct UsbIsoPacket {
+	uint32_t m_status;
+	uint32_t m_offset;
+	uint32_t m_length;
+	uint32_t _m_padding;
 };
 
 //..............................................................................

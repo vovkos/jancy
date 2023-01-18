@@ -37,10 +37,11 @@ struct UsbMonTransferHdr {
 	uint8_t m_endpoint;
 	uint32_t m_originalSize; // original transfer data size
 	uint32_t m_captureSize;  // captured by the driver
+	uint32_t _m_padding;
 
 	union {
 		UsbControlSetup m_controlSetup;
-		UsbIsochronousHdr m_isochronousHdr;
+		UsbIsoHdr m_isoHdr;
 	};
 };
 
