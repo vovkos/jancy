@@ -31,7 +31,7 @@ BitFieldType::prepareTypeString() {
 	TypeStringTuple* tuple = getTypeStringTuple();
 
 	tuple->m_typeStringPrefix = m_baseType->getTypeStringPrefix();
-	tuple->m_typeStringSuffix.format(":%d:%d", m_bitOffset, m_bitOffset + m_bitCount);
+	tuple->m_typeStringSuffix.format(" : %d", m_bitCount);
 }
 
 void
@@ -48,7 +48,10 @@ BitFieldType::calcLayout() {
 	if (!result)
 		return false;
 
-	if (!(m_baseType->getTypeKindFlags() & TypeKindFlag_Integer)) {
+	if (!(m_baseType->getTypeKindFlags() & TypeKindFlag_Integer) &&
+		(m_baseType->getTypeKind() != TypeKind_TypedefShadow ||
+		!((TypedefShadowType*)m_baseType)->getActualType()->getTypeKindFlags() & TypeKindFlag_Integer)
+	) {
 		err::setFormatStringError("bit field can only be used with integer types");
 		return false;
 	}
