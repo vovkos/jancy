@@ -69,29 +69,26 @@ void refreshUsbMonDeviceListUi(
 
 		toolTip =
 			"<table>"
-			$"<tr><td>Capture&nbsp;device:</td><td>%1%2:%03d</td></tr>"
+			$"<tr><td>Capture&nbsp;device:</td><td>%1%2:%(3; 03d)</td></tr>"
 			$"<tr><td>Description:</td><td>%4</td></tr>"
-			$"<tr><td>Manufacturer:</td><td>%5</td></tr>"(
+			$"<tr><td>Manufacturer:</td><td>%5</td></tr>"
+			$"<tr><td>Vendor&nbsp;ID:</td><td>%(6; 04X)</td></tr>"
+			$"<tr><td>Product&nbsp;ID:</td><td>%(7; 04X)</td></tr>"
+			$"<tr><td>Class:</td><td>%8</td></tr>"
+			$"<tr><td>Speed:</td><td>%9</td></tr>"(
 				captureDevicePrefix,
 				device.m_captureDeviceId,
 				device.m_address,
 				device.m_description,
-				device.m_manufacturer
-			);
-
-		if (device.m_driver)
-			toolTip += $"<tr><td>Driver:</td><td>$(device.m_driver)</td></tr>";
-
-		toolTip +=
-			$"<tr><td>Vendor&nbsp;ID:</td><td>%04X</td></tr>"
-			$"<tr><td>Product&nbsp;ID:</td><td>%04X</td></tr>"
-			$"<tr><td>Class:</td><td>%3</td></tr>"
-			$"<tr><td>Speed:</td><td>%4</td></tr>"(
+				device.m_manufacturer,
 				device.m_vendorId,
 				device.m_productId,
 				typeof(io.UsbClass).getValueString(device.m_class),
 				typeof(io.UsbSpeed).getValueString(device.m_speed)
 			);
+
+		if (device.m_driver)
+			toolTip += $"<tr><td>Driver:</td><td>$(device.m_driver)</td></tr>";
 
 		if (device.m_manufacturerDescriptor || device.m_productDescriptor || device.m_serialNumberDescriptor) {
 			toolTip += $"<tr><td colspan=2><hr></td></tr>";
@@ -131,22 +128,6 @@ void refreshUsbMonDeviceListUi(
 
 	deviceCombo.m_currentIndex = i != -1 ? i : 0;
 }
-
-/*
-
-
-	for (size_t i = 0; i < count; i++, option++) {
-		port = portArray[i];
-
-		char const* text = description.detachString();
-		size_t i = portCombo.addItem(text, port.m_deviceName);
-		portCombo.m_itemToolTip[i] = toolTip.detachString();
-
-		option.m_text = text;
-		option.m_value = port.m_deviceName;
-	}
-
- */
 
 size_t findUsbMonDeviceComboIndex(
 	ComboBox* deviceCombo,

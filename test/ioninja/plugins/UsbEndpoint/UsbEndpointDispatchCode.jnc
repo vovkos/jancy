@@ -1,0 +1,39 @@
+//..............................................................................
+//
+// USB Endpoint session dispatch codes for IAS
+//
+
+//..............................................................................
+
+enum UsbEndpointDispatchCode {
+	GetDeviceVid,
+	GetDevicePid,
+	SetDeviceVidPid,
+	GetOutEndpointId,
+	SetOutEndpointId,
+	GetControlDirection,
+	SetControlDirection,
+	GetControlRecipient,
+	SetControlRecipient,
+	GetControlType,
+	SetControlType,
+	GetControlRequest,
+	SetControlRequest,
+	GetControlValue,
+	SetControlValue,
+	GetControlIndex,
+	SetControlIndex,
+	OpenDevice,
+	OpenDeviceVidPid,
+	CloseDevice,
+	ClaimInterface,
+	ReleaseInterface,
+	ReleaseAllInterfaces,
+	StartReadingEndpoint,
+	StopReadingEndpoint,
+	StopReadingAllEndpoints,
+	StartControlTransfer,
+	StartControlTransferEx,
+}
+
+//..............................................................................

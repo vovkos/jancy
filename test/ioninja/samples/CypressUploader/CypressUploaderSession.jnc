@@ -649,14 +649,6 @@ bool errorcode CypressUploaderSession.syncControlTransfer(
 	void* p,
 	size_t size
 ) {
-	ControlTransferParams params;
-	params.m_type = type;
-	params.m_code = code;
-	params.m_value = value;
-	params.m_index = index;
-
-	m_logWriter.write(UsbLogRecordCode.ControlTransfer, &params, sizeof(params));
-
 	m_device.controlTransfer(
 		type,
 		code,
@@ -690,9 +682,9 @@ void CypressUploaderSession.onTransferCompleted(
 	if (syncId != m_syncId)
 		return;
 
-	ControlTransferParams params;
-	params.m_type = type;
-	params.m_code = code;
+	io.UsbControlSetup params;
+	params.m_requestType.m_value = type;
+	params.m_request = code;
 	params.m_value = value;
 	params.m_index = index;
 

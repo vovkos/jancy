@@ -104,11 +104,18 @@ add_jancy_tests(
 	FILES
 		SerialSession.jnc
 		SerialDispatchCode.jnc
-		SerialDispatch.jnc
 		../SerialLog/SerialLogRecordCode.jnc
 		../SerialLog/SerialLogRepresenter.jnc
 		../SerialLog/SerialLogFilter.jnc
 	FINALIZE_TEST Serial
+
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/Serial
+	REQUIRES
+		SerialDispatch
+	FILES
+		SerialDispatchCode.jnc
+		SerialDispatch.jnc
+	FINALIZE_TEST SerialDispatch
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/SocketLog
 	REQUIRES
@@ -127,10 +134,17 @@ add_jancy_tests(
 	FILES
 		TcpConnectionSession.jnc
 		TcpConnectionDispatchCode.jnc
-		TcpConnectionDispatch.jnc
 		../SocketLog/SocketLogRecordCode.jnc
 		../SocketLog/SocketLogRepresenter.jnc
 	FINALIZE_TEST TcpConnection
+
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/TcpConnection
+	REQUIRES
+		TcpConnectionDispatch
+	FILES
+		TcpConnectionDispatchCode.jnc
+		TcpConnectionDispatch.jnc
+	FINALIZE_TEST TcpConnectionDispatch
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/TcpServer
 	REQUIRES
@@ -140,11 +154,18 @@ add_jancy_tests(
 	FILES
 		TcpServerSession.jnc
 		TcpServerDispatchCode.jnc
-		TcpServerDispatch.jnc
 		../SocketLog/SocketLogRecordCode.jnc
 		../SocketLog/SocketLogRepresenter.jnc
 		../SocketLog/ServerSocketLogFilter.jnc
 	FINALIZE_TEST TcpServer
+
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/TcpServer
+	REQUIRES
+		TcpServerDispatch
+	FILES
+		TcpServerDispatchCode.jnc
+		TcpServerDispatch.jnc
+	FINALIZE_TEST TcpServerDispatch
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/TcpProxy
 	REQUIRES
@@ -197,12 +218,19 @@ add_jancy_tests(
 	FILES
 		UdpSession.jnc
 		UdpDispatchCode.jnc
-		UdpDispatch.jnc
 		UdpLogRecordCode.jnc
 		UdpLogRepresenter.jnc
 		../SocketLog/SocketLogRecordCode.jnc
 		../SocketLog/SocketLogRepresenter.jnc
 	FINALIZE_TEST Udp
+
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/Udp
+	REQUIRES
+		UdpDispatch
+	FILES
+		UdpDispatchCode.jnc
+		UdpDispatch.jnc
+	FINALIZE_TEST UdpDispatch
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/XModem
 	REQUIRES XModemLayer
@@ -511,29 +539,24 @@ if(BUILD_JNC_IO_USB)
 			../NetSnifferLog/Proto_Dhcp.jnc
 		FINALIZE_TEST EthernetTap
 
-		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/UsbControlEndpoint
+		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/UsbEndpoint
 		REQUIRES
-			UsbControlEndpointSession
+			UsbEndpointSession
 			representUsbLog
 		FILES
-			UsbControlEndpointSession.jnc
-			UsbControlEndpointDispatchCode.jnc
-			UsbControlEndpointDispatch.jnc
+			UsbEndpointSession.jnc
+			UsbEndpointDispatchCode.jnc
 			../UsbLog/UsbLogRecordCode.jnc
 			../UsbLog/UsbLogRepresenter.jnc
-		FINALIZE_TEST UsbControlEndpoint
+		FINALIZE_TEST UsbEndpoint
 
-		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/UsbDataEndpoint
+		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/UsbEndpoint
 		REQUIRES
-			UsbDataEndpointSession
-			representUsbLog
+			UsbEndpointDispatch
 		FILES
-			UsbDataEndpointSession.jnc
-			UsbDataEndpointDispatchCode.jnc
-			UsbDataEndpointDispatch.jnc
-			../UsbLog/UsbLogRecordCode.jnc
-			../UsbLog/UsbLogRepresenter.jnc
-		FINALIZE_TEST UsbDataEndpoint
+			UsbEndpointDispatchCode.jnc
+			UsbEndpointDispatch.jnc
+		FINALIZE_TEST UsbEndpointDispatch
 
 		NAME_PREFIX "jnc-ioninja-sample-"
 
@@ -583,11 +606,11 @@ if(BUILD_JNC_IO_USBMON)
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/UsbMon
 		REQUIRES
 			UsbMonSession
-			representUsbMonLog
+			representUsbLog
 		FILES
 			UsbMonSession.jnc
-			UsbMonLogRecordCode.jnc
-			UsbMonLogRepresenter.jnc
+			../UsbLog/UsbLogRecordCode.jnc
+			../UsbLog/UsbLogRepresenter.jnc
 		FINALIZE_TEST UsbMon
 	)
 endif()

@@ -16,11 +16,13 @@ namespace ui {
 opaque class ListWidget: Widget {
 	char const* autoget property m_placeholderText;
 	bool autoget property m_isAlternatingRowColors;
+	bool autoget property m_isCheckable;
 
 	size_t readonly m_itemCount;
 	char const* property m_itemText(size_t index);
 	variant property m_itemData(size_t index);
 	char const* property m_itemToolTip(size_t index);
+	bool property m_isItemChecked(size_t index);
 
 	size_t bindable autoget property m_currentIndex;
 	char const* bindable const property m_currentText;
@@ -28,6 +30,11 @@ opaque class ListWidget: Widget {
 
 	event m_onReturnPressed();
 	event m_onDoubleClicked();
+
+	event m_onItemCheckStateChanged(
+		size_t index,
+		bool isChecked
+	);
 
 	construct();
 	destruct();

@@ -5,6 +5,7 @@
 
 import "log_Writer.jnc"
 import "log_RecordCode.jnc"
+import "std_Buffer.jnc"
 
 //! \addtogroup api-ias
 //! @{
@@ -30,10 +31,17 @@ size_t errorcode transmit(
 	size_t size = -1 // -1 -- use strlen
 );
 
+size_t getTransmitData(std.Buffer* buffer); // fetch contents of the "Transmit" pane
+
 size_t errorcode receive(
 	void* p,
 	size_t size,
 	uint_t timeout = -1 // return as much as received on timeout
+);
+
+bool errorcode unreceive( // put back to the receive buffer
+	void const* p,
+	size_t size
 );
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

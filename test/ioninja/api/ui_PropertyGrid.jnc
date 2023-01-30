@@ -89,6 +89,8 @@ opaque class EnumProperty: Property {
 		bindable alias m_onPropChanged = m_onChanged;
 	}
 
+	event m_onChanged();
+
 	construct(char const* name);
 	destruct();
 
@@ -97,7 +99,12 @@ opaque class EnumProperty: Property {
 		size_t count
 	);
 
-	event m_onChanged();
+	size_t addOption(
+		char const* text,
+		variant value = null
+	);
+
+	void clear();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

@@ -1,0 +1,164 @@
+//..............................................................................
+//
+// USB Endpoint session dispatch interface for IAS
+//
+
+import "io_usb.jncx"
+import "io_UsbTransfer.jnc"
+import "ias.jnc"
+
+//..............................................................................
+
+class UsbEndpointDispatch: ias.Session {
+	property m_deviceVid {
+		uint_t get() {
+			return dispatchGet(UsbEndpointDispatchCode.GetDeviceVid);
+		}
+	}
+
+	property m_devicePid {
+		uint_t get() {
+			return dispatchGet(UsbEndpointDispatchCode.GetDevicePid);
+		}
+	}
+
+	bool errorcode setDeviceVidPid(
+		uint_t vid,
+		uint_t pid
+	) {
+		return dispatch(UsbEndpointDispatchCode.SetDeviceVidPid, (vid << 16) | (pid & 0xffff));
+	}
+
+	property m_outEndpointId {
+		uint_t get() {
+			return dispatchGet(UsbEndpointDispatchCode.GetOutEndpointId);
+		}
+
+		void set(uint_t value) {
+			dispatch(UsbEndpointDispatchCode.SetOutEndpointId, value);
+		}
+	}
+
+	property m_controlDirection {
+		io.UsbControlDirection get() {
+			return dispatchGet(UsbEndpointDispatchCode.GetControlDirection);
+		}
+
+		void set(io.UsbControlDirection value) {
+			dispatch(UsbEndpointDispatchCode.SetControlDirection, value);
+		}
+	}
+
+	property m_controlRecipient {
+		io.UsbControlRecipient get() {
+			return dispatchGet(UsbEndpointDispatchCode.GetControlRecipient);
+		}
+
+		void set(io.UsbControlRecipient value) {
+			dispatch(UsbEndpointDispatchCode.SetControlRecipient, value);
+		}
+	}
+
+	property m_controlType {
+		io.UsbControlType get() {
+			return dispatchGet(UsbEndpointDispatchCode.GetControlType);
+		}
+
+		void set(io.UsbControlType value) {
+			dispatch(UsbEndpointDispatchCode.SetControlType, value);
+		}
+	}
+
+	property m_controlRequest {
+		uint_t get() {
+			return dispatchGet(UsbEndpointDispatchCode.GetControlRequest);
+		}
+
+		void set(uint_t value) {
+			dispatch(UsbEndpointDispatchCode.SetControlRequest, value);
+		}
+	}
+
+	property m_controlValue {
+		uint_t get() {
+			return dispatchGet(UsbEndpointDispatchCode.GetControlValue);
+		}
+
+		void set(uint_t value) {
+			dispatch(UsbEndpointDispatchCode.SetControlValue, value);
+		}
+	}
+
+	property m_controlIndex {
+		uint_t get() {
+			return dispatchGet(UsbEndpointDispatchCode.GetControlIndex);
+		}
+
+		void set(uint_t value) {
+			dispatch(UsbEndpointDispatchCode.SetControlIndex, value);
+		}
+	}
+
+	bool errorcode openDevice() {
+		return dispatch(UsbEndpointDispatchCode.OpenDevice);
+	}
+
+	bool errorcode openDevice(
+		uint_t vid,
+		uint_t pid
+	) {
+		return dispatch(UsbEndpointDispatchCode.OpenDeviceVidPid, (vid << 16) | (pid & 0xffff));
+	}
+
+	void closeDevice() {
+		dispatch(UsbEndpointDispatchCode.CloseDevice);
+	}
+
+	void claimInterface(uint_t interfaceId) {
+		dispatch(UsbEndpointDispatchCode.ClaimInterface, interfaceId);
+	}
+
+	void releaseInterface(uint_t interfaceId) {
+		dispatch(UsbEndpointDispatchCode.ReleaseInterface, interfaceId);
+	}
+
+	void releaseAllInterfaces() {
+		dispatch(UsbEndpointDispatchCode.ReleaseAllInterfaces);
+	}
+
+	void startReadingEndpoint(uint_t endpointId) {
+		dispatch(UsbEndpointDispatchCode.StartReadingEndpoint, endpointId);
+	}
+
+	void stopReadingEndpoint(uint_t endpointId) {
+		dispatch(UsbEndpointDispatchCode.StopReadingEndpoint, endpointId);
+	}
+
+	void stopReadingAllEndpoints() {
+		dispatch(UsbEndpointDispatchCode.StopReadingAllEndpoints);
+	}
+
+	void startControlTransfer() {
+		dispatch(UsbEndpointDispatchCode.StartControlTransfer);
+	}
+
+	void startControlTransfer(
+		io.UsbControlDirection direction,
+		io.UsbControlRecipient recipient,
+		io.UsbControlDirection type,
+		uint_t request,
+		uint_t value,
+		uint_t index
+	) {
+		io.UsbControlSetup setup;
+		setup.m_requestType.m_direction = direction;
+		setup.m_requestType.m_recipient = recipient;
+		setup.m_requestType.m_type = type;
+		setup.m_request = request;
+		setup.m_value = value;
+		setup.m_index = index;
+		dispatch(UsbEndpointDispatchCode.StartControlTransfer, setup);
+	}
+}
+
+//..............................................................................

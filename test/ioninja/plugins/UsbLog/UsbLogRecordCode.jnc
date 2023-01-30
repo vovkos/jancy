@@ -4,26 +4,39 @@
 //
 
 import "log_RecordCode.jnc"
+import "io_usb.jncx"
+import "io_UsbTransfer.jnc"
 
 //..............................................................................
 
 enum UsbLogRecordCode: uint64_t {
-	DeviceOpened         = 0x01d485f4acbf80b7,
-	DeviceOpenError      = 0x01d485f4acbf80b8,
-	DeviceClosed         = 0x01d485f4acbf80b9,
-	KernelDriverDetached = 0x01d485f4acbf80ba,
-	InterfaceClaimed     = 0x01d485f4acbf80bb,
-	InterfaceClaimError  = 0x01d485f4acbf80bc,
-	InterfaceReleased    = 0x01d485f4acbf80bd,
-	ReadingStarted       = 0x01d485f4acbf80be,
-	ReadingStopped       = 0x01d485f4acbf80bf,
-	EndpointOpenError    = 0x01d485f4acbf80c0,
-	ControlTransfer      = 0x01d485f4acbf80c1,
+	DeviceOpened_0        = 0x01d485f4acbf80b7,
+	DeviceOpenError       = 0x01d485f4acbf80b8,
+	DeviceClosed          = 0x01d485f4acbf80b9,
+	KernelDriverDetached  = 0x01d485f4acbf80ba,
+	InterfaceClaimed_0    = 0x01d485f4acbf80bb,
+	InterfaceClaimError   = 0x01d485f4acbf80bc,
+	InterfaceReleased     = 0x01d485f4acbf80bd,
+	ReadingStarted_0      = 0x01d485f4acbf80be,
+	ReadingStopped        = 0x01d485f4acbf80bf,
+	EndpointOpenError     = 0x01d485f4acbf80c0,
+	ControlTransfer_0     = 0x01d485f4acbf80c1,
+	DeviceOpened          = 0x01d485f4acbf80c2 | log.RecordCodeFlags.Foldable,
+	CaptureStarted        = 0x01d485f4acbf80c3 | log.RecordCodeFlags.Foldable,
+	CaptureError          = 0x01d485f4acbf80c4,
+	CaptureStopped        = 0x01d485f4acbf80c5,
+	ControlTransfer       = 0x01d485f4acbf80c6 | log.RecordCodeFlags.Foldable,
+	BulkTransfer          = 0x01d485f4acbf80c7,
+	InterruptTransfer     = 0x01d485f4acbf80c8,
+	IsochronousTransfer   = 0x01d485f4acbf80c9,
+	TransferError         = 0x01d485f4acbf80ca,
+	InterfaceClaimed      = 0x01d485f4acbf80cb,
+	ReadingStarted        = 0x01d485f4acbf80cc,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct DeviceParams {
+struct DeviceParams_0 {
 	uint8_t m_bus;
 	uint8_t m_address;
 	uint16_t m_vendorId;
@@ -32,18 +45,58 @@ struct DeviceParams {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct InterfaceParams {
+struct InterfaceParams_0 {
 	uint8_t m_interfaceId;
 	uint8_t m_altSettingId;
 }
 
+struct InterfaceParams: InterfaceParams_0 {
+	uint8_t m_class;
+}
+
+struct EndpointParams: InterfaceParams {
+	uint8_t m_endpointId;
+	uint8_t m_transferType;
+}
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ControlTransferParams {
+struct ControlTransferParams_0 {
 	uint8_t m_type;
 	uint8_t m_code;
 	uint16_t m_value;
 	uint16_t m_index;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct DeviceParams {
+	uint16_t m_vendorId;
+	uint16_t m_productId;
+	uint8_t m_osKind;
+
+	union {
+		uint8_t m_captureDeviceId;
+		uint8_t m_bus;
+	}
+
+	uint8_t m_address;
+	uint8_t m_port;
+	uint8_t m_class;
+	uint8_t m_subClass;
+	io.UsbSpeed m_speed;
+
+	// followed by 3 null-terminated strings:
+	// - description
+	// - manufacturer
+	// - driver
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct TransferErrorParams {
+	sys.OsKind m_osKind;
+	uint32_t m_status; // USBD_STATUS on Windows, errno on Linux
 }
 
 //..............................................................................

@@ -65,28 +65,25 @@ void refreshUsbDeviceListUi(
 
 		toolTip =
 			"<table>"
-			$"<tr><td>Address:</td><td>%03d:%03d</td></tr>"
+			$"<tr><td>Address:</td><td>%(1; 03d):%(2; 03d)</td></tr>"
 			$"<tr><td>Description:</td><td>%3</td></tr>"
-			$"<tr><td>Manufacturer:</td><td>%4</td></tr>"(
+			$"<tr><td>Manufacturer:</td><td>%4</td></tr>"
+			$"<tr><td>Vendor&nbsp;ID:</td><td>%(5; 04X)</td></tr>"
+			$"<tr><td>Product&nbsp;ID:</td><td>%(6; 04X)</td></tr>"
+			$"<tr><td>Class:</td><td>%7</td></tr>"
+			$"<tr><td>Speed:</td><td>%8</td></tr>"(
 				entry.m_device.m_bus,
 				entry.m_device.m_address,
 				entry.m_description,
-				entry.m_manufacturer
+				entry.m_manufacturer,
+				deviceDescriptor.m_vendorId,
+				deviceDescriptor.m_productId,
+				typeof(io.UsbClass).getValueString(deviceDescriptor.m_class),
+				typeof(io.UsbSpeed).getValueString(entry.m_device.m_speed)
 			);
 
 		if (entry.m_driver)
 			toolTip += $"<tr><td>Driver:</td><td>$(entry.m_driver)</td></tr>";
-
-		toolTip +=
-			$"<tr><td>Vendor&nbsp;ID:</td><td>%04X</td></tr>"
-			$"<tr><td>Product&nbsp;ID:</td><td>%04X</td></tr>"
-			$"<tr><td>Class:</td><td>%3 %4</td></tr>"
-			$"<tr><td>Speed:</td><td>%5</td></tr>"(
-				deviceDescriptor.m_vendorId,
-				deviceDescriptor.m_productId,
-				deviceDescriptor.m_class, typeof(io.UsbClass).getValueString(deviceDescriptor.m_class),
-				typeof(io.UsbSpeed).getValueString(entry.m_device.m_speed)
-			);
 
 		if (entry.m_manufacturerDescriptor || entry.m_productDescriptor || entry.m_serialNumberDescriptor) {
 			toolTip += $"<tr><td colspan=2><hr></td></tr>";
@@ -104,11 +101,11 @@ void refreshUsbDeviceListUi(
 		toolTip.append("</table>");
 
 		char const* text = description.detachString();
-		size_t j = deviceCombo.addItem(text, entry.m_device);
+		size_t j = deviceCombo.addItem(text, entry);
 		deviceCombo.m_itemToolTip[j] = toolTip.detachString();
 
 		option.m_text = text;
-		option.m_value = entry.m_device;
+		option.m_value = entry;
 	}
 
 	deviceProp.setOptions(optionArray, count);

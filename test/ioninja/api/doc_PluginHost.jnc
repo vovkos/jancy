@@ -12,6 +12,7 @@ import "ui_InformationGrid.jnc"
 import "ui_Layout.jnc"
 import "ui_Terminal.jnc"
 import "log_Log.jnc"
+import "std_Buffer.jnc"
 
 namespace doc {
 
@@ -54,3 +55,6 @@ opaque class PluginHost {
 
 void trace(char const* p);
 void sendKeepAlive();
+size_t getTransmitData(std.Buffer* buffer);
+
+//..............................................................................

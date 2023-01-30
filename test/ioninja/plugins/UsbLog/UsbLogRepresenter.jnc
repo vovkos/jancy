@@ -4,36 +4,60 @@
 //
 
 import "log_Representation.jnc"
-import "io_UsbDb.jnc"
 import "UsbLogRecordCode.jnc"
+import "io_usbmon.jncx"
+import "io_win_UsbdStatus.jnc"
 
 //..............................................................................
 
-char const* formatDeviceString(DeviceParams const* params) {
-	char const* string = $"bus \e[34m%(1;03d):%(2;03d)\e[m ID \e[34m%(3;04x):%(4;04x)\e[m" (
-		params.m_bus,
-		params.m_address,
-		params.m_vendorId,
-		params.m_productId
-	);
-
-	io.UsbDb* db = io.getStdUsbDb();
-	io.UsbVendor const* vendor = db.findVendor(params.m_vendorId);
-	io.UsbProduct const* product = vendor ? vendor.findProduct(params.m_productId) : null;
-
-	if (vendor) {
-		string = $"$string $(vendor.m_name)";
-
-		if (product)
-			string = $"$string $(product.m_name)";
-		else
-			string = $"$string PID_$(params.m_productId; 04x)";
-	}
-
-	return string;
+uint_t getTransferIcon(uint8_t endpointId) {
+	return (endpointId & 0x80) ? log.StdLogIcon.RxPacket : log.StdLogIcon.TxPacket;
 }
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+char const* getDeviceInfoString(
+	char const* prefix,
+	DeviceParams const* params,
+	uint_t foldFlags
+) {
+	char const* description = (char const*)(params + 1);
+
+	if (!(foldFlags & 1))
+		return
+			$"[\e^+1\e[34m+\e[m] %1 - \e[34m%2\e[m"(prefix, description);
+
+	char const* manufacturer = (char const*)(description + strlen(description) + 1);
+	char const* driver = (char const*)(manufacturer + strlen(manufacturer) + 1);
+	char const* string =
+		$"[\e^-1\e[34m-\e[m] %1\n"
+		$"    \e[90mDescription:\t\e[34m%2\n"
+		$"    \e[90mManufacturer:\t\e[34m%3\n"
+		$"    \e[90mVendor ID:\t\e[34m0x%(4; 04X)\n"
+		$"    \e[90mProduct ID:\t\e[34m0x%(5; 04X)\n"
+		$"    \e[90mClass:\t\e[34m%6\n"
+		$"    \e[90mSpeed:\t\e[34m%7"(
+			prefix,
+			description,
+			manufacturer,
+			params.m_vendorId,
+			params.m_productId,
+			typeof(io.UsbClass).getValueString(params.m_class),
+			typeof(io.UsbSpeed).getValueString(params.m_speed)
+		);
+
+	if (!*driver)
+		return string;
+
+	return $"%1\n    \e[90mDriver:\t\e[34m%2"(
+		string,
+		driver
+	);
+}
+
+char const* getInterfaceInfoString(InterfaceParams_0 const* params)  {
+	return params.m_altSettingId ?
+		$"IF%1.%2"(params.m_interfaceId, params.m_altSettingId) :
+		$"IF%1"(params.m_interfaceId);
+}
 
 bool representUsbLog(
 	log.Representation* representation,
@@ -43,11 +67,35 @@ bool representUsbLog(
 	uint_t foldFlags
 ) {
 	switch (recordCode) {
-	case UsbLogRecordCode.DeviceOpened:
-		DeviceParams const* params = (DeviceParams const*) p;
+	case UsbLogRecordCode.DeviceOpened_0:
+		DeviceParams_0 const* params = (DeviceParams_0 const*) p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
-		representation.addHyperText($"Device opened: $(formatDeviceString (params))");
+		representation.addHyperText(
+			$"Device opened: \e[34m%03d:%03d\e[m VID_%04X PID_%04X"(
+				params.m_bus,
+				params.m_address,
+				params.m_vendorId,
+				params.m_productId
+			)
+		);
+		break;
+
+	case UsbLogRecordCode.DeviceOpened:
+		DeviceParams const* params = (DeviceParams const*)p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+
+		char const* string = getDeviceInfoString(
+			$"Device opened at \e[34m%03d:%03d\e[m"(
+				params.m_bus,
+				params.m_address
+			),
+			params,
+			foldFlags
+		);
+
+		representation.addHyperText(string);
 		break;
 
 	case UsbLogRecordCode.DeviceOpenError:
@@ -70,11 +118,23 @@ bool representUsbLog(
 		representation.addHyperText($"Kernel driver detached from interface ID \e[34m$ifaceId");
 		break;
 
+	case UsbLogRecordCode.InterfaceClaimed_0:
+		InterfaceParams_0 const* params = (InterfaceParams_0 const*) p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+
+		char const* ifaceInfo = getInterfaceInfoString(params);
+		representation.addHyperText($"Claimed interface \e[34m%1"(ifaceInfo));
+		break;
+
 	case UsbLogRecordCode.InterfaceClaimed:
 		InterfaceParams const* params = (InterfaceParams const*) p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		representation.addHyperText($"Interface claimed: ID \e[34m$(params.m_interfaceId):$(params.m_altSettingId)");
+
+		char const* ifaceInfo = getInterfaceInfoString(params);
+		char const* className = typeof(io.UsbClass).getValueString(params.m_class);
+		representation.addHyperText($"Claimed interface \e[34m%1 - %2"(ifaceInfo, className));
 		break;
 
 	case UsbLogRecordCode.InterfaceClaimError:
@@ -87,20 +147,33 @@ bool representUsbLog(
 	case UsbLogRecordCode.InterfaceReleased:
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		representation.addHyperText($"Interface released");
+		representation.addHyperText($"Released interface(s)");
 		break;
 
-	case UsbLogRecordCode.ReadingStarted:
+	case UsbLogRecordCode.ReadingStarted_0:
 		uint8_t endpointId = *(uint8_t const*) p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		representation.addHyperText($"Reading started from endpoint ID \e[34m$(endpointId; 02x)");
+		representation.addHyperText($"Started reading from endpoint \e[34mEP%1"(endpointId & ~0x80));
+		break;
+
+	case UsbLogRecordCode.ReadingStarted:
+		EndpointParams const* params = (EndpointParams const*) p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+
+		representation.addHyperText(
+			$"Started reading from endpoint \e[34mEP%1 - %2"(
+				params.m_endpointId & ~0x80,
+				typeof(io.UsbTransferType).getValueString(params.m_transferType)
+			)
+		);
 		break;
 
 	case UsbLogRecordCode.ReadingStopped:
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		representation.addHyperText($"Reading stopped");
+		representation.addHyperText($"Stopped reading from endpoint(s)");
 		break;
 
 	case UsbLogRecordCode.EndpointOpenError:
@@ -110,16 +183,137 @@ bool representUsbLog(
 		representation.addHyperText($"Cannot open endpoint: $(error.m_description)");
 		break;
 
-	case UsbLogRecordCode.ControlTransfer:
-		ControlTransferParams const* params = (ControlTransferParams const*) p;
+	case UsbLogRecordCode.CaptureStarted:
+		DeviceParams const* params = (DeviceParams const*)p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+
+		char const* string = getDeviceInfoString(
+			$"Capture started on \e[34m%1:%03d\e[m"(
+				params.m_osKind == sys.OsKind.Windows ?
+					"USBPcap" :
+					"usbmon",
+				params.m_address
+			),
+			params,
+			foldFlags
+		);
+
+		representation.addHyperText(string);
+		break;
+
+	case UsbLogRecordCode.CaptureStopped:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
+		representation.addHyperText("Capture stopped");
+		break;
+
+	case UsbLogRecordCode.CaptureError:
+		std.Error const* error = (std.Error const*) p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addHyperText($"Cannot start capturing: $(error.m_description)");
+		break;
+
+	case UsbLogRecordCode.ControlTransfer_0:
+		ControlTransferParams_0 const* params = (ControlTransferParams_0 const*) p;
 		representation.m_lineAttr.m_iconIdx = (params.m_type & 0x80) ? log.StdLogIcon.RxPacket : log.StdLogIcon.TxPacket;
 		representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
 		representation.addHyperText(
-			$"Type: $(params.m_type; 02x) "
-			$"Code: $(params.m_code; 02x) "
-			$"Value: $(params.m_value; 04x) "
-			$"Index: $(params.m_index; 04x)"
+			$"Type: $(params.m_type; 02X) "
+			$"Code: $(params.m_code; 02X) "
+			$"Value: $(params.m_value; 04X) "
+			$"Index: $(params.m_index; 04X)"
 		);
+		break;
+
+	case UsbLogRecordCode.ControlTransfer:
+		io.UsbControlSetup const* setup = (io.UsbControlSetup const*)p;
+		representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+		representation.m_lineAttr.m_iconIdx = setup.m_requestType.m_direction ?
+			log.StdLogIcon.RxPacket :
+			log.StdLogIcon.TxPacket;
+
+		char const* recipient = typeof(io.UsbControlRecipient).getValueString(setup.m_requestType.m_recipient);
+		char const* type = typeof(io.UsbControlType).getValueString(setup.m_requestType.m_type);
+		char const* direction = typeof(io.UsbControlDirection).getValueString(setup.m_requestType.m_direction);
+		char const* request = typeof(io.UsbControlStdRequest).getValueString(setup.m_request);
+
+		char const* string = !(foldFlags & 1) ?
+			$"[\e^+1\e[34m+\e[m] \e[1mCONTROL\e[m "
+			$"%1 %2 "
+			$"Req: \e[34m%3\e[m "
+			$"Val: \e[34m0x%(4;04X)\e[m "
+			$"Idx: \e[34m0x%(5;04X)"(
+				recipient,
+				type,
+				request,
+				setup.m_value,
+				setup.m_index
+			) :
+			$"[\e^-1\e[34m-\e[m] \e[1mCONTROL\e[m\n"
+			$"    \e[90mRequest type:\t\e[34m0x%(1;02X)\n"
+			$"    \e[90m    Recipient:\t\e[34m%2\n"
+			$"    \e[90m    Type:\t\e[34m%3\n"
+			$"    \e[90m    Direction:\t\e[34m%4\n"
+			$"    \e[90mRequest:\t\e[34m%5\n"
+			$"    \e[90mValue:\t\e[34m0x%(6;04X)\n"
+			$"    \e[90mIndex:\t\e[34m0x%(7;04X)\n"
+			$"    \e[90mLength:\t\e[34m%8"(
+				setup.m_requestType.m_value,
+				recipient,
+				type,
+				direction,
+				request,
+				setup.m_value,
+				setup.m_index,
+				setup.m_length
+			);
+
+		representation.addHyperText(string);
+		break;
+
+	case UsbLogRecordCode.BulkTransfer:
+		uint8_t endpointId = *(uint8_t const*)p;
+		representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+		representation.m_lineAttr.m_iconIdx = getTransferIcon(endpointId);
+		representation.addHyperText($"\e[1;35mBULK\e[m \e[34mEP$(endpointId & ~0x80)");
+		break;
+
+	case UsbLogRecordCode.InterruptTransfer:
+		uint8_t endpointId = *(uint8_t const*)p;
+		representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+		representation.m_lineAttr.m_iconIdx = getTransferIcon(endpointId);
+		representation.addHyperText($"\e[1;36mINTERRUPT\e[m \e[34mEP$(endpointId & ~0x80)");
+		break;
+
+	case UsbLogRecordCode.IsochronousTransfer:
+		uint8_t endpointId = *(uint8_t const*)p;
+		representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+		representation.m_lineAttr.m_iconIdx = getTransferIcon(endpointId);
+		representation.addHyperText($"\e[1;33mISOCHRONOUS\e[m \e[34mEP$(endpointId & ~0x80)");
+		break;
+
+	case UsbLogRecordCode.TransferError:
+		TransferErrorParams const* params = (TransferErrorParams const*)p;
+		char const* description;
+		switch (params.m_osKind) {
+		case sys.OsKind.Windows:
+			description = typeof(io.win.USBD_STATUS).getValueString(params.m_status);
+			break;
+
+		case sys.OsKind.Linux:
+			std.Error error;
+			error.m_size = sizeof(error);
+			error.m_guid = std.g_errnoGuid;
+			error.m_code = params.m_status;
+			description = error.m_description;
+			break;
+		}
+
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.addHyperText($"Transfer error: $(description)");
 		break;
 
 	default:

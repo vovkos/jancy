@@ -21,15 +21,25 @@ UsbLogRepresenter.jnc
 
 [records]
 
-01d485f4acbf80b7  # DeviceOpened
+01d485f4acbf80b7  # DeviceOpened_0
 01d485f4acbf80b8  # DeviceOpenError
 01d485f4acbf80b9  # DeviceClosed
 01d485f4acbf80ba  # KernelDriverDetached
-01d485f4acbf80bb  # InterfaceClaimed
+01d485f4acbf80bb  # InterfaceClaimed_0
 01d485f4acbf80bc  # InterfaceClaimError
-01d485f4acbf80bd  # InterfaceReleased
-01d485f4acbf80be  # ReadingStarted
+01d485f4acbf80bd  # InterfaceReleased_0
+01d485f4acbf80be  # ReadingStarted_0
 01d485f4acbf80bf  # ReadingStopped
 01d485f4acbf80c0  # EndpointOpenError
-01d485f4acbf80c1  # ControlTransfer
-
+01d485f4acbf80c1  # ControlTransfer_0
+81d485f4acbf80c2  # DeviceOpened
+81d485f4acbf80c3  # CaptureStarted
+01d485f4acbf80c4  # CaptureError
+01d485f4acbf80c5  # CaptureStopped
+81d485f4acbf80c6  # ControlTransfer
+01d485f4acbf80c7  # BulkTransfer
+01d485f4acbf80c8  # InterruptTransfer
+01d485f4acbf80c9  # IsochronousTransfer
+01d485f4acbf80ca  # TransferError
+01d485f4acbf80cb  # InterfaceClaimed
+01d485f4acbf80cc  # ReadingStarted

@@ -13,6 +13,17 @@ namespace ui {
 //..............................................................................
 
 opaque class Action {
+	bool autoget property m_isVisible;
+	bool autoget property m_isEnabled;
+	bool autoget property m_isCheckable;
+	bool bindable autoget property m_isChecked;
+
+	Icon* autoget property m_icon;
+	char const* autoget property m_text;
+	char const* autoget property m_toolTip;
+
+	event m_onTriggered();
+
 	construct(
 		Icon* icon,
 		char const* text,
@@ -35,16 +46,6 @@ opaque class Action {
 	) {
 		initialize(null, text, onTriggered);
 	}
-
-	bool autoget property m_isVisible;
-	bool autoget property m_isEnabled;
-	bool autoget property m_isCheckable;
-	bool bindable autoget property m_isChecked;
-
-	char const* autoget property m_text;
-	Icon* autoget property m_icon;
-
-	event m_onTriggered();
 
 protected:
 	void initialize(
