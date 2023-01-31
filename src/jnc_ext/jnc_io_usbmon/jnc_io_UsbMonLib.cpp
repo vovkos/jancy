@@ -10,7 +10,7 @@ namespace io {
 
 void
 initializeUsbMonLibCapabilities() {
-	g_devMonCapability = jnc::isCapabilityEnabled("org.jancy.io.devmon");
+	g_usbCapability = jnc::isCapabilityEnabled("org.jancy.io.usb");
 }
 
 //..............................................................................

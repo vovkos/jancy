@@ -5,14 +5,14 @@ namespace io {
 
 //..............................................................................
 
-AXL_SELECT_ANY bool g_devMonCapability = true;
+AXL_SELECT_ANY bool g_usbCapability = true;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
 bool
-requireDevMonCapability() {
-	return g_devMonCapability || jnc::failWithCapabilityError("org.jancy.io.devmon");
+requireUsbCapability() {
+	return g_usbCapability || jnc::failWithCapabilityError("org.jancy.io.usb");
 }
 
 //..............................................................................

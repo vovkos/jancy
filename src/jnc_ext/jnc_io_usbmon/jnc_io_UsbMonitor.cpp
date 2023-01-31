@@ -73,7 +73,7 @@ UsbMonitor::open(
 
 	close();
 
-	bool result = requireDevMonCapability();
+	bool result = requireUsbCapability();
 	if (!result)
 		return false;
 
