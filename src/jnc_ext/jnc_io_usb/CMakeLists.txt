@@ -157,6 +157,8 @@ elseif(UNIX)
 
 		target_link_libraries(
 			jnc_io_usb
+			axl_iok
+			axl_cf
 			${CORE_FOUNDATION_FRAMEWORK}
 			${IOKIT_FRAMEWORK}
 		)
