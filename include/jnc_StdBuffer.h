@@ -191,7 +191,7 @@ jnc_StdBuffer_append(
 	const void* p,
 	size_t size
 ) {
-	jnc_StdBuffer_insert(buffer, -1, p, size);
+	return jnc_StdBuffer_insert(buffer, -1, p, size);
 }
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
