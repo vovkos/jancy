@@ -38,7 +38,7 @@ if(NOT BUILD_JNC_IO_USB)
 	)
 endif()
 
-if(NOT BUILD_JNC_IO_USBMON)
+if(NOT BUILD_JNC_IO_USBMON OR NOT USBMON_AVAILABLE)
 	list(
 		REMOVE_ITEM
 		TEST_JNC_LIST
@@ -62,7 +62,7 @@ source_group(
 	${TEST_JNC_LIST}
 )
 
-if(${BUILD_JNC_APP})
+if(BUILD_JNC_APP)
 	add_jancy_tests(
 		NAME_PREFIX "jnc-test-"
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}

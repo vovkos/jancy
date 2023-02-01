@@ -87,18 +87,24 @@ if(LIBUSB_FOUND)
 endif()
 
 if((WIN32 OR LINUX) AND LIBUSB_FOUND)
-	option(
-		BUILD_JNC_IO_USBMON
-		"Build Jancy USB monitoring extension library"
-		ON
-	)
-
-	if(BUILD_JNC_IO_USBMON)
-		add_subdirectory(jnc_io_usbmon)
-	endif()
+	set(USBMON_AVAILABLE TRUE CACHE INTERNAL "usbmon availability") # use cache to make it global
+else()
+	unset(USBMON_AVAILABLE CACHE)
 endif()
 
-# build io_devmon.jncx even if devmon is not available (we can now use SSH for remote monitoring)
+# build io_usbmon.jncx even if usbmon is not available (for transfer declarations)
+
+option(
+	BUILD_JNC_IO_USBMON
+	"Build Jancy USB monitoring extension library"
+	ON
+)
+
+if(BUILD_JNC_IO_USBMON)
+	add_subdirectory(jnc_io_usbmon)
+endif()
+
+# build io_devmon.jncx even if devmon is not available (for protocol declarations)
 
 option(
 	BUILD_JNC_IO_DEVMON

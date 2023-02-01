@@ -598,7 +598,7 @@ if(BUILD_JNC_IO_USB)
 	)
 endif()
 
-if(BUILD_JNC_IO_USBMON)
+if(BUILD_JNC_IO_USBMON AND USBMON_AVAILABLE)
 	add_jancy_tests(
 		NAME_PREFIX "jnc-ioninja-plugin-"
 		FLAGS ${_COMMON_FLAGS}

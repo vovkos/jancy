@@ -10,6 +10,47 @@
 #...............................................................................
 
 #
+# shortcut -- transfer-only io_usbmon.jncx
+#
+
+if(NOT USBMON_AVAILABLE)
+	set(DLL_DIR ${JANCY_DLL_BASE_DIR}/${CONFIGURATION})
+
+	configure_file(
+		${CMAKE_CURRENT_LIST_DIR}/jnc/.forced-transfer.jnc
+		${CMAKE_CURRENT_BINARY_DIR}/.forced.jnc
+		COPYONLY
+	)
+
+	add_custom_target(
+		jnc_io_usbmon_jncx
+		ALL
+		COMMAND ${CMAKE_COMMAND} -E remove ${DLL_DIR}/io_usbmon.jncx
+		COMMAND
+			${7Z_EXE} a -tzip -y
+			${DLL_DIR}/io_usbmon.jncx
+			${CMAKE_CURRENT_LIST_DIR}/jnc/io_UsbMonTransfer.jnc
+			${CMAKE_CURRENT_LIST_DIR}/jnc/io_win_UrbFunction.jnc
+			${CMAKE_CURRENT_LIST_DIR}/jnc/io_win_UsbdStatus.jnc
+			${CMAKE_CURRENT_BINARY_DIR}/.forced.jnc
+	)
+
+	set_target_properties(
+		jnc_io_usbmon_jncx
+		PROPERTIES
+		FOLDER extensions
+	)
+
+	install(
+		FILES ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION>/io_usbmon.jncx
+		DESTINATION ${JANCY_INSTALL_JNCX_SUBDIR}
+	)
+
+	return()
+endif()
+
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#
 # lib folder
 #
 
@@ -41,7 +82,8 @@ source_group(
 
 set(
 	JNC_LIST
-	jnc/.forced.jnc
+	jnc/.forced-full.jnc
+	jnc/.forced-transfer.jnc
 	jnc/io_UsbMonEnumerator.jnc
 	jnc/io_UsbMonTransfer.jnc
 	jnc/io_UsbMonitor.jnc
@@ -176,6 +218,12 @@ set(JNC_IO_USBMON_NAME io_usbmon-${TARGET_CPU}.bin)
 set(JNC_IO_USBMON_DLL ${DLL_DIR}/${JNC_IO_USBMON_NAME})
 set(JNC_IO_USBMON_JNCX ${DLL_DIR}/io_usbmon.jncx)
 
+configure_file(
+	${CMAKE_CURRENT_LIST_DIR}/jnc/.forced-full.jnc
+	${CMAKE_CURRENT_BINARY_DIR}/.forced.jnc
+	COPYONLY
+)
+
 add_custom_command(
 	TARGET jnc_io_usbmon
 	POST_BUILD
@@ -188,7 +236,8 @@ add_custom_command(
 		a -tzip -y
 		${JNC_IO_USBMON_JNCX}
 		${JNC_IO_USBMON_DLL}
-		${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc
+		${CMAKE_CURRENT_LIST_DIR}/jnc/io_*.jnc
+		${CMAKE_CURRENT_BINARY_DIR}/.forced.jnc
 )
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
