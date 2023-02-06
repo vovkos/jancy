@@ -13,6 +13,14 @@
 # app folder
 #
 
+if(APPLE)
+	set(CMAKE_INSTALL_RPATH "@loader_path")
+else()
+	set(CMAKE_INSTALL_RPATH "$ORIGIN")
+endif()
+
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+
 set(
 	LIB_H_LIST
 	${JANCY_INC_DIR}/jnc_Edit.h
@@ -142,9 +150,6 @@ source_group(
 #
 # jnc_edit code-assisting editor
 #
-
-set(CMAKE_INSTALL_RPATH)
-set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
 include_directories(
 	${AXL_INC_DIR}
