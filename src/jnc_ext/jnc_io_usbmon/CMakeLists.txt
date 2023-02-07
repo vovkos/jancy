@@ -122,13 +122,16 @@ if(NOT WIN32 AND NOT LINUX)
 endif()
 
 include_directories(
+	${LIBUSB_INC_DIR}
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
-	${LIBUSB_INC_DIR}
 	../jnc_io_cmn
 )
 
-link_directories(${AXL_LIB_DIR})
+link_directories(
+	${LIBUSB_LIB_DIR}
+	${AXL_LIB_DIR}
+)
 
 add_library(
 	jnc_io_usbmon
