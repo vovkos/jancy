@@ -548,8 +548,20 @@ Edit::changeEvent(QEvent* e) {
 
 	QPlainTextEdit::changeEvent(e);
 
-	if (e->type() == QEvent::FontChange)
+	QEvent::Type type = e->type();
+	switch (type) {
+	case QEvent::FontChange:
 		d->updateFont();
+		break;
+
+	case QEvent::ReadOnlyChange:
+		d->applyPalette();
+		// and fall through
+
+	case QEvent::EnabledChange:
+		d->updateExtraSelections();
+		break;
+	}
 }
 
 void
@@ -778,9 +790,7 @@ EditPrivate::init() {
 
 void
 EditPrivate::applyTheme() {
-	Q_Q(Edit);
-
-	q->setPalette(m_theme.palette());
+	applyPalette();
 
 	QColor color;
 
@@ -816,6 +826,17 @@ EditPrivate::applyTheme() {
 
 	if (m_lineNumberMargin)
 		m_lineNumberMargin->update();
+}
+
+void
+EditPrivate::applyPalette() {
+	Q_Q(Edit);
+
+	q->setPalette(
+		q->isReadOnly() ?
+			m_theme.readOnlyPalette() :
+			m_theme.palette()
+	);
 }
 
 void
@@ -886,9 +907,10 @@ EditPrivate::updateExtraSelections() {
 
 	QList<QTextEdit::ExtraSelection> list;
 
-	for (size_t i = 0; i < countof(m_highlighTable); i++)
-		if (!m_highlighTable[i].cursor.isNull())
-			list.append(m_highlighTable[i]);
+	if (q->isEnabled() && !q->isReadOnly())
+		for (size_t i = 0; i < countof(m_highlighTable); i++)
+			if (!m_highlighTable[i].cursor.isNull())
+				list.append(m_highlighTable[i]);
 
 	q->setExtraSelections(list);
 	m_isExtraSelectionUpdateRequired = false;
@@ -942,7 +964,6 @@ EditPrivate::requestCodeAssist(
 
 	if (m_thread)
 		m_thread->cancel();
-
 
 	m_thread = new CodeAssistThread(this);
 	m_thread->m_importDirList = m_importDirList;

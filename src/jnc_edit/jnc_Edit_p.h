@@ -107,6 +107,9 @@ protected:
 	applyTheme();
 
 	void
+	applyPalette();
+
+	void
 	enableSyntaxHighlighting(bool isEnabled);
 
 	void

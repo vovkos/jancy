@@ -34,6 +34,7 @@ public:
 	enum Role {
 		// editor elements
 
+		BaseBackDisabled,
 		BaseBack,
 		BaseText,
 		LineMarginBack,
@@ -61,6 +62,10 @@ public:
 public:
 	EditTheme(Init init = InitLight);
 
+	bool isDark() const {
+		return m_colorTable[BaseBack].value() < 0x80;
+	}
+
 	QColor color(Role role) const {
 		ASSERT((size_t)role < RoleCount);
 		return m_colorTable[role];
@@ -75,39 +80,59 @@ public:
 	}
 
 	const QPalette& palette() {
-		return isPaletteValid() ? m_palette : createPalette();
+		return m_palette.color(QPalette::Base).isValid() ? m_palette : createPalette();
+	}
+
+	const QPalette& readOnlyPalette() {
+		return m_readOnlyPalette.color(QPalette::Base).isValid() ? m_readOnlyPalette : createReadOnlyPalette();
 	}
 
 	void setDefaultLightTheme();
 	void setDefaultDarkTheme();
 
 protected:
-	bool isPaletteValid() const {
-		return m_palette.color(QPalette::Base).isValid();
-	}
-
 	void invalidatePalette() {
 		m_palette.setColor(QPalette::Base, QColor::Invalid);
+		m_readOnlyPalette.setColor(QPalette::Base, QColor::Invalid);
 	}
 
 	const QPalette& createPalette();
+	const QPalette& createReadOnlyPalette();
 
-	void setPaletteColor(
+	static void setPaletteColor(
+		QPalette* palette,
 		QPalette::ColorGroup group,
 		QPalette::ColorRole role,
 		const QColor& color
 	);
 
+	static void setPaletteColor(
+		QPalette* palette,
+		QPalette::ColorRole role,
+		const QColor& color
+	) {
+		setPaletteColor(palette, QPalette::All, role, color);
+	}
+
+	void setPaletteColor(
+		QPalette::ColorGroup group,
+		QPalette::ColorRole role,
+		const QColor& color
+	) {
+		setPaletteColor(&m_palette, group, role, color);
+	}
+
 	void setPaletteColor(
 		QPalette::ColorRole role,
 		const QColor& color
 	) {
-		setPaletteColor(QPalette::Normal, role, color);
+		setPaletteColor(&m_palette, QPalette::All, role, color);
 	}
 
 protected:
 	QColor m_colorTable[RoleCount];
 	mutable QPalette m_palette;
+	mutable QPalette m_readOnlyPalette;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -127,14 +152,15 @@ EditTheme::EditTheme(Init init) {
 
 inline
 void EditTheme::setPaletteColor(
+	QPalette* palette,
 	QPalette::ColorGroup group,
 	QPalette::ColorRole role,
 	const QColor& color
 ) {
 	if (color.isValid())
-		m_palette.setColor(group, role, color);
+		palette->setColor(group, role, color);
 	else
-		m_palette.setBrush(group, role, Qt::NoBrush);
+		palette->setBrush(group, role, Qt::NoBrush);
 }
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

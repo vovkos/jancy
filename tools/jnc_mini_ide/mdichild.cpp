@@ -13,11 +13,21 @@
 #include "mdichild.h"
 #include "moc_mdichild.cpp"
 
+#define _DARK_THEME 0
+#define _READ_ONLY  0
+
 MdiChild::MdiChild(QWidget *parent):
 	jnc::Edit(parent) {
-	setTheme(&jnc::g_defaultDarkTheme);
 	m_isUntitled = true;
 	m_isCompilationNeeded = true;
+
+#if (_DARK_THEME)
+	setTheme(&jnc::g_defaultDarkTheme);
+#endif
+
+#if (_READ_ONLY)
+	setReadOnly(true);
+#endif
 }
 
 void MdiChild::newFile() {

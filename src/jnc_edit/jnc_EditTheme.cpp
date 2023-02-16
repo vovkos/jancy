@@ -17,9 +17,10 @@ namespace jnc {
 //..............................................................................
 
 void EditTheme::setDefaultLightTheme() {
+	m_colorTable[BaseBackDisabled]        = 0xf0f0f0;
 	m_colorTable[BaseBack]                = 0xffffff;
 	m_colorTable[BaseText]                = (QRgb)0x000000;
-	m_colorTable[LineMarginBack]          = QColor::Invalid;
+	m_colorTable[LineMarginBack]          = 0xf0f0f0;
 	m_colorTable[LineMarginText]          = 0x2b91af;
 	m_colorTable[ErrorBack]               = 0xffc8c8;
 	m_colorTable[ErrorText]               = QColor::Invalid;
@@ -42,6 +43,7 @@ void EditTheme::setDefaultLightTheme() {
 void EditTheme::setDefaultDarkTheme() {
 	// based on monokai
 
+	m_colorTable[BaseBackDisabled]        = 0x3e4851;
 	m_colorTable[BaseBack]                = 0x2e3841;
 	m_colorTable[BaseText]                = 0xd7dee9;
 	m_colorTable[LineMarginBack]          = 0x3e4851;
@@ -72,14 +74,21 @@ const QPalette& EditTheme::createPalette() {
 	setPaletteColor(QPalette::Highlight, m_colorTable[SelectionBack]);
 	setPaletteColor(QPalette::HighlightedText, m_colorTable[SelectionText]);
 
-	setPaletteColor(QPalette::Inactive, QPalette::Base, m_colorTable[BaseBack]);
-	setPaletteColor(QPalette::Inactive, QPalette::Window, m_colorTable[BaseBack]);
-	setPaletteColor(QPalette::Inactive, QPalette::Text, m_colorTable[BaseText]);
-	setPaletteColor(QPalette::Inactive, QPalette::WindowText, m_colorTable[BaseText]);
 	setPaletteColor(QPalette::Inactive, QPalette::Highlight, m_colorTable[SelectionBackInactive]);
 	setPaletteColor(QPalette::Inactive, QPalette::HighlightedText, m_colorTable[SelectionTextInactive]);
 
+	setPaletteColor(QPalette::Disabled, QPalette::Base, m_colorTable[BaseBackDisabled]);
+	setPaletteColor(QPalette::Disabled, QPalette::Window, m_colorTable[BaseBackDisabled]);
+	setPaletteColor(QPalette::Disabled, QPalette::Highlight, m_colorTable[SelectionBackInactive]);
+	setPaletteColor(QPalette::Disabled, QPalette::HighlightedText, m_colorTable[SelectionTextInactive]);
 	return m_palette;
+}
+
+const QPalette& EditTheme::createReadOnlyPalette() {
+	m_readOnlyPalette = palette();
+	setPaletteColor(&m_readOnlyPalette, QPalette::Base, m_colorTable[BaseBackDisabled]);
+	setPaletteColor(&m_readOnlyPalette, QPalette::Inactive, QPalette::Base, m_colorTable[BaseBackDisabled]);
+	return m_readOnlyPalette;
 }
 
 //..............................................................................
