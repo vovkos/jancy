@@ -12,6 +12,15 @@
 #pragma once
 
 namespace jnc {
+namespace rt {
+
+template <typename T>
+class EventBase;
+
+typedef EventBase<axl::sys::Event> Event;
+
+} // namespace rt
+
 namespace io {
 
 //..............................................................................
@@ -34,7 +43,7 @@ protected:
 	};
 
 	struct SyncWait: Wait {
-		sys::Event* m_event;
+		rt::Event* m_event;
 	};
 
 	struct AsyncWait: Wait {

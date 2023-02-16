@@ -11,6 +11,7 @@
 
 #include "pch.h"
 #include "jnc_io_AsyncIoBase.h"
+#include "jnc_rt_Event.h"
 
 namespace jnc {
 namespace io {
@@ -140,8 +141,7 @@ AsyncIoBase::blockingWait(
 		return triggeredEvents;
 	}
 
-	sys::Event event;
-
+	rt::Event event;
 	SyncWait wait;
 	wait.m_mask = eventMask;
 	wait.m_event = &event;

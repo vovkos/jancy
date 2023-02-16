@@ -76,6 +76,7 @@ source_group(
 include_directories(
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
+	${JANCY_SRC_DIR}/jnc_rt
 )
 
 if(OPENSSL_FOUND)
