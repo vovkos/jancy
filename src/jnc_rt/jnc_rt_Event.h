@@ -12,15 +12,14 @@
 #pragma once
 
 #include "jnc_Runtime.h"
-#include "jnc_ExtensionLib.h"
 
 namespace jnc {
-namespace sys {
+namespace rt {
 
 //..............................................................................
 
 template <typename T>
-class EventBase: public IfaceHdr {
+class EventBase: public T {
 #if (_JNC_OS_POSIX)
 protected:
 	enum {
@@ -29,29 +28,11 @@ protected:
 #endif
 
 public:
-	T m_event;
-
-public:
-	void
-	JNC_CDECL
-	signal() {
-		m_event.signal();
-	}
-
-	void
-	JNC_CDECL
-	reset() {
-		m_event.reset();
-	}
-
-	AXL_TODO("implement cross-platform interruptible wait on POSIX")
-
 	// on POSIX, we currently use pthread condition variables for events.
 	// unfortunately, there is no cross-platform way to interrupt pthread_cond_wait.
 	// as such, we use pthread_cond_timedwait and check for the abort flag in between
 
 	bool
-	JNC_CDECL
 	wait(uint_t timeout) {
 		bool result;
 
@@ -67,11 +48,11 @@ public:
 			axl::sys::win::WaitResult waitResult;
 
 			if (endTimestamp == -1)
-				waitResult = m_event.m_event.wait(-1, true);
+				waitResult = m_event.wait(-1, true);
 			else {
 				uint64_t timestamp = axl::sys::getTimestamp();
 				timeout = timestamp >= endTimestamp ? 0 : (uint_t)((endTimestamp - timestamp) / 10000);
-				waitResult = m_event.m_event.wait(timeout, true);
+				waitResult = m_event.wait(timeout, true);
 			}
 
 			if (waitResult == axl::sys::win::WaitResult_IoCompletion &&	!runtime->isAborted())
@@ -89,8 +70,8 @@ public:
 					timeout = WaitGranularity;
 			}
 
-			result = m_event.wait(timeout);
-			if (result || !timeout|| runtime->isAborted())
+			result = T::wait(timeout);
+			if (result || !timeout || runtime->isAborted())
 				break;
 #endif
 		}
@@ -100,7 +81,12 @@ public:
 	}
 };
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+typedef EventBase<axl::sys::Event> Event;
+typedef EventBase<axl::sys::NotificationEvent> NotificationEvent;
+
 //..............................................................................
 
-} // namespace sys
+} // namespace rt
 } // namespace jnc

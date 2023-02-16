@@ -18,6 +18,7 @@ set(
 	jnc_rt_ExceptionMgr.h
 	jnc_rt_Runtime.h
 	jnc_rt_GcHeap.h
+	jnc_rt_Event.h
 )
 
 set(

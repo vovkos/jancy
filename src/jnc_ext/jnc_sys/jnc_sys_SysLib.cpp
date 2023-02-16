@@ -13,7 +13,6 @@
 #include "jnc_sys_SysLib.h"
 #include "jnc_sys_Lock.h"
 #include "jnc_sys_Event.h"
-#include "jnc_sys_NotificationEvent.h"
 #include "jnc_sys_Thread.h"
 #include "jnc_sys_Timer.h"
 

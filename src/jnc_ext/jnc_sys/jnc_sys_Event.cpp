@@ -36,6 +36,25 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(Event)
 	JNC_MAP_FUNCTION("wait", &Event::wait)
 JNC_END_TYPE_FUNCTION_MAP()
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DEFINE_OPAQUE_CLASS_TYPE(
+	NotificationEvent,
+	"sys.NotificationEvent",
+	g_sysLibGuid,
+	SysLibCacheSlot_NotificationEvent,
+	NotificationEvent,
+	NULL
+)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP(NotificationEvent)
+	JNC_MAP_CONSTRUCTOR(&jnc::construct<NotificationEvent>)
+	JNC_MAP_DESTRUCTOR(&jnc::destruct<NotificationEvent>)
+	JNC_MAP_FUNCTION("signal", &NotificationEvent::signal)
+	JNC_MAP_FUNCTION("reset", &NotificationEvent::reset)
+	JNC_MAP_FUNCTION("wait", &NotificationEvent::wait)
+JNC_END_TYPE_FUNCTION_MAP()
+
 //..............................................................................
 
 } // namespace sys

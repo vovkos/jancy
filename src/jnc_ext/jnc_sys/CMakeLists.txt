@@ -16,9 +16,7 @@
 set(
 	LIB_H_LIST
 	jnc_sys_Lock.h
-	jnc_sys_EventBase.h
 	jnc_sys_Event.h
-	jnc_sys_NotificationEvent.h
 	jnc_sys_Thread.h
 	jnc_sys_Timer.h
 	jnc_sys_SysLib.h
@@ -28,7 +26,6 @@ set(
 	LIB_CPP_LIST
 	jnc_sys_Lock.cpp
 	jnc_sys_Event.cpp
-	jnc_sys_NotificationEvent.cpp
 	jnc_sys_Thread.cpp
 	jnc_sys_Timer.cpp
 	jnc_sys_SysLib.cpp
@@ -133,6 +130,7 @@ source_group(
 include_directories(
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
+	${JANCY_SRC_DIR}/jnc_rt
 	${GEN_DIR}
 )
 
