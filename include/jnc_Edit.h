@@ -25,6 +25,7 @@ class JNC_EDIT_EXPORT Edit: public QPlainTextEdit {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(Edit)
 	Q_DISABLE_COPY(Edit)
+	Q_PROPERTY(bool isReadOnly READ isReadOnly WRITE setReadOnly)
 	Q_PROPERTY(bool isLineNumberMarginEnabled READ isLineNumberMarginEnabled WRITE enableLineNumberMargin)
 	Q_PROPERTY(int lineNumberMarginWidth READ lineNumberMarginWidth)
 	Q_PROPERTY(bool isCurrentLineHighlightingEnabled READ isCurrentLineHighlightingEnabled WRITE enableCurrentLineHighlighting)
@@ -61,6 +62,7 @@ public:
 
 	// properties
 
+	void setReadOnly(bool isReadOnly);
 	bool isLineNumberMarginEnabled();
 	void enableLineNumberMargin(bool isEnabled);
 	int lineNumberMarginWidth();

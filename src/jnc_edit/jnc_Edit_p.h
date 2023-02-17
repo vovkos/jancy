@@ -104,6 +104,9 @@ protected:
 	init();
 
 	void
+	setReadOnly(bool isReadOnly);
+
+	void
 	applyTheme();
 
 	void

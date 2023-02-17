@@ -543,6 +543,14 @@ Edit::unindentSelection() {
 }
 
 void
+Edit::setReadOnly(bool isReadOnly) {
+	Q_D(Edit);
+	QPlainTextEdit::setReadOnly(isReadOnly);
+	d->applyPalette();
+	d->updateExtraSelections();
+}
+
+void
 Edit::changeEvent(QEvent* e) {
 	Q_D(Edit);
 
@@ -554,13 +562,11 @@ Edit::changeEvent(QEvent* e) {
 		d->updateFont();
 		break;
 
-	case QEvent::ReadOnlyChange:
-		d->applyPalette();
-		// and fall through
-
 	case QEvent::EnabledChange:
 		d->updateExtraSelections();
 		break;
+
+	// QEvent::ReadOnlyChange was introduced in QT-5.4; to support older QTs, don't rely on it.
 	}
 }
 
