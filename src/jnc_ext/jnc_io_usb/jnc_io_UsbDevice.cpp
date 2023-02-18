@@ -74,6 +74,7 @@ UsbDevice::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 	for (; it; it++)
 		gcHeap->markClassPtr(*it);
 
+	gcHeap->markDataPtr(m_deviceDescriptorPtr);
 	gcHeap->markDataPtr(m_langIdTablePtr);
 }
 
