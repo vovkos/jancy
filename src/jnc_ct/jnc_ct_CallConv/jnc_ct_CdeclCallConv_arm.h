@@ -26,10 +26,12 @@ protected:
 
 protected:
 	Type* m_regType;
+	size_t m_coerceSizeLimit;
 
 public:
 	CdeclCallConv_arm() {
 		m_regType = NULL;
+		m_coerceSizeLimit = 0;
 	}
 
 	virtual

@@ -48,8 +48,6 @@ CdeclCallConv_arm::getArgCoerceType(Type* type) {
 
 void
 CdeclCallConv_arm::prepareFunctionType(FunctionType* functionType) {
-	size_t regSize = m_regType->getSize();
-
 	Type* returnType = functionType->getReturnType();
 	sl::Array<FunctionArg*> argArray = functionType->getArgArray();
 	size_t argCount = argArray.getCount();
@@ -62,7 +60,7 @@ CdeclCallConv_arm::prepareFunctionType(FunctionType* functionType) {
 	size_t j = 0;
 
 	if (returnType->getFlags() & TypeFlag_StructRet) {
-		if (returnType->getSize() > regSize) { // return in memory
+		if (returnType->getSize() > m_coerceSizeLimit) { // return in memory
 			argCount++;
 			llvmArgTypeArray.setCount(argCount);
 			llvmArgTypeArray[0] = returnType->getDataPtrType_c()->getLlvmType();
@@ -124,7 +122,6 @@ CdeclCallConv_arm::call(
 	sl::BoxList<Value>* argValueList,
 	Value* resultValue
 ) {
-	size_t regSize = m_regType->getSize();
 	Type* returnType = functionType->getReturnType();
 
 	if (!(returnType->getFlags() & TypeFlag_StructRet) &&
@@ -136,7 +133,7 @@ CdeclCallConv_arm::call(
 	Value tmpReturnValue;
 
 	if ((returnType->getFlags() & TypeFlag_StructRet) &&
-		returnType->getSize() > regSize) { // return in memory
+		returnType->getSize() > m_coerceSizeLimit) { // return in memory
 		m_module->m_llvmIrBuilder.createAlloca(
 			returnType,
 			"tmpRetVal",
@@ -170,7 +167,7 @@ CdeclCallConv_arm::call(
 	);
 
 	if (returnType->getFlags() & TypeFlag_StructRet) {
-		if (returnType->getSize() > regSize) { // return in memory
+		if (returnType->getSize() > m_coerceSizeLimit) { // return in memory
 			llvmInst->addAttribute(1, llvm::Attribute::StructRet);
 			m_module->m_llvmIrBuilder.createLoad(tmpReturnValue, returnType, resultValue);
 		} else { // coerce
@@ -294,11 +291,13 @@ CdeclCallConv_arm::createArgVariables(Function* function) {
 CdeclCallConv_arm32::CdeclCallConv_arm32() {
 	m_callConvKind = CallConvKind_Cdecl_arm32;
 	m_regType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32);
+	m_coerceSizeLimit = sizeof(int32_t);
 }
 
 CdeclCallConv_arm64::CdeclCallConv_arm64() {
-	m_callConvKind = CallConvKind_Cdecl_arm32;
+	m_callConvKind = CallConvKind_Cdecl_arm64;
 	m_regType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int64);
+	m_coerceSizeLimit = 2 * sizeof(int64_t);
 }
 
 //..............................................................................
