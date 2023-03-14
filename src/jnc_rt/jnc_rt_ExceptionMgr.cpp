@@ -101,6 +101,8 @@ ExceptionMgr::signalHandler(
 		tlsVariableTable->m_sjljFrame->m_signalInfo.m_codeAddress = ucontext->uc_mcontext.gregs[REG_EIP];
 #	elif (_JNC_CPU_ARM32)
 		tlsVariableTable->m_sjljFrame->m_signalInfo.m_codeAddress = ucontext->uc_mcontext.arm_pc;
+#	elif (_JNC_CPU_ARM64)
+		tlsVariableTable->m_sjljFrame->m_signalInfo.m_codeAddress = ucontext->uc_mcontext.pc;
 #	else
 #		error unsupported CPU architecture
 #	endif
