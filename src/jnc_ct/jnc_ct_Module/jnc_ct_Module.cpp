@@ -256,12 +256,19 @@ Module::createLlvmExecutionEngine() {
 	// disable the GlobalMerge pass (on by default) on ARM because
 	// it will dangle GlobalVariable::m_llvmVariable pointers
 
+#	if (LLVM_VERSION < 0x030700)
 	llvm::StringMap<llvm::cl::Option*> options;
 	llvm::cl::getRegisteredOptions(options);
-	llvm::cl::opt<bool>* enableMerge = (llvm::cl::opt<bool>*)options.find("global-merge")->second;
-	ASSERT(llvm::isa<llvm::cl::opt<bool> > (enableMerge));
+#	else
+	llvm::StringMap<llvm::cl::Option*>& options = llvm::cl::getRegisteredOptions();
+#	endif
 
-	enableMerge->setValue(false);
+	llvm::StringMap<llvm::cl::Option*>::iterator globalMergeIt = options.find("global-merge");
+	if (globalMergeIt != options.end()) {
+		llvm::cl::opt<bool>* globalMerge = (llvm::cl::opt<bool>*)globalMergeIt->second;
+		ASSERT(llvm::isa<llvm::cl::opt<bool> >(globalMerge));
+		globalMerge->setValue(false);
+	}
 #endif
 
 #if (LLVM_VERSION < 0x030600)
@@ -1116,6 +1123,7 @@ Module::getLlvmIrString() {
 	::std::string string;
 	llvm::raw_string_ostream stream(string);
 	m_llvmModule->print(stream, NULL);
+	printf("LLVM IR:\n---\n%s\n---\n", string.c_str());
 	return string.c_str();
 }
 
