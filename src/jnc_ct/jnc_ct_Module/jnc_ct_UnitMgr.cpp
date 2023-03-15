@@ -73,15 +73,19 @@ UnitMgr::createUnit(
 	const sl::StringRef& filePath
 ) {
 	Unit* unit = AXL_MEM_NEW(Unit);
-
 	unit->m_module = m_module;
 	unit->m_lib = lib;
 	unit->m_filePath = filePath;
 	unit->m_fileName = io::getFileName(filePath);
-	unit->m_dir = io::getDir  (filePath);
+	unit->m_dir = io::getDir(filePath);
 
 	if (m_module->getCompileFlags() & ModuleCompileFlag_DebugInfo)
-		unit->m_llvmDiFile = m_module->m_llvmDiBuilder.createFile(unit->m_fileName, unit->m_dir);
+		unit->m_llvmDiFile = m_module->m_llvmDiBuilder.createFile(
+			!unit->m_fileName.isEmpty() ?
+				sl::StringRef(unit->m_fileName) :
+				sl::StringRef(".unnamed.jnc"),
+			unit->m_dir
+		);
 
 	m_unitList.insertTail(unit);
 	return unit;

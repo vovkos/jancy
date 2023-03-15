@@ -142,9 +142,9 @@ ExtensionLibMgr::loadDynamicLib(const sl::StringRef& fileName) {
 			dynamicLibFileName = fileName;
 			dynamicLibFileIdx = i;
 		} else if (fileName.isSuffix(jncExt)) {
-			if (fileName[0] == '.') {
+			if (fileName[0] == '.')
 				forcedImportIdxArray.append(i);
-			} else {
+			 else {
 				SourceFile* sourceFile = AXL_MEM_NEW(SourceFile);
 				sourceFile->m_fileName = fileName;
 				sourceFile->m_zipReader = &entry->m_zipReader;
