@@ -73,7 +73,7 @@ CdeclCallConv_gcc64::prepareFunctionType(FunctionType* functionType) {
 			llvmType = type->getLlvmType();
 			if (argRegCount)
 				argRegCount--;
-		} else if (size > sizeof(uint64_t)* 2 || argRegCount < regCount) { // pass on stack
+		} else if (size > sizeof(uint64_t) * 2 || argRegCount < regCount) { // pass on stack
 			llvmType = type->getDataPtrType_c()->getLlvmType();
 			functionType->m_argFlagArray[i] = ArgFlag_ByVal;
 			hasByValArgs = true;
@@ -140,7 +140,7 @@ CdeclCallConv_gcc64::call(
 	Type* returnType = functionType->getReturnType();
 
 	if (!(returnType->getFlags() & TypeFlag_StructRet) &&
-		!(functionType->getFlags() & (FunctionTypeFlag_ByValArgs | FunctionTypeFlag_CoercedArgs | FunctionTypeFlag_VarArg))) {
+		!(functionType->getFlags() & (FunctionTypeFlag_ByValArgs | FunctionTypeFlag_CoercedArgs))) {
 		CallConv::call(calleeValue, functionType, argValueList, resultValue);
 		return;
 	}

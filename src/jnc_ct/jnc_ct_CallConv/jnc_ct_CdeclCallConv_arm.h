@@ -21,18 +21,17 @@ namespace ct {
 class CdeclCallConv_arm: public CallConv {
 protected:
 	enum ArgFlag {
-		ArgFlag_Coerced = 0x01,
+		ArgFlag_ByVal   = 0x01,
+		ArgFlag_Coerced = 0x02,
 	};
 
 protected:
 	Type* m_regType;
-	size_t m_coerceSizeLimit;
+	size_t m_retCoerceSizeLimit;
+	size_t m_argCoerceSizeLimit;
 
 public:
-	CdeclCallConv_arm() {
-		m_regType = NULL;
-		m_coerceSizeLimit = 0;
-	}
+	CdeclCallConv_arm();
 
 	virtual
 	void

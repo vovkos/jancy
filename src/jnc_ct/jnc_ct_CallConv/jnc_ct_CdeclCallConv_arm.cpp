@@ -19,6 +19,12 @@ namespace ct {
 
 //..............................................................................
 
+CdeclCallConv_arm::CdeclCallConv_arm() {
+	m_regType = NULL;
+	m_retCoerceSizeLimit = 0;
+	m_argCoerceSizeLimit = 0;
+}
+
 Type*
 CdeclCallConv_arm::getArgCoerceType(Type* type) {
 	size_t size = type->getSize();
@@ -60,7 +66,7 @@ CdeclCallConv_arm::prepareFunctionType(FunctionType* functionType) {
 	size_t j = 0;
 
 	if (returnType->getFlags() & TypeFlag_StructRet) {
-		if (returnType->getSize() > m_coerceSizeLimit) { // return in memory
+		if (returnType->getSize() > m_retCoerceSizeLimit) { // return in memory
 			argCount++;
 			llvmArgTypeArray.setCount(argCount);
 			llvmArgTypeArray[0] = returnType->getDataPtrType_c()->getLlvmType();
@@ -72,6 +78,7 @@ CdeclCallConv_arm::prepareFunctionType(FunctionType* functionType) {
 		}
 	}
 
+	bool hasByValArgs = false;
 	bool hasCoercedArgs = false;
 
 	for (size_t i = 0; j < argCount; i++, j++) {
@@ -80,6 +87,10 @@ CdeclCallConv_arm::prepareFunctionType(FunctionType* functionType) {
 
 		if (!(type->getFlags() & TypeFlag_StructRet)) {
 			llvmType = type->getLlvmType();
+		} else if (type->getSize() > m_argCoerceSizeLimit) { // pass on stack
+			llvmType = type->getDataPtrType_c()->getLlvmType();
+			functionType->m_argFlagArray[i] = ArgFlag_ByVal;
+			hasByValArgs = true;
 		} else { // coerce
 			llvmType = getArgCoerceType(type)->getLlvmType();
 			functionType->m_argFlagArray[i] = ArgFlag_Coerced;
@@ -88,6 +99,9 @@ CdeclCallConv_arm::prepareFunctionType(FunctionType* functionType) {
 
 		llvmArgTypeArray[j] = llvmType;
 	}
+
+	if (hasByValArgs)
+		functionType->m_flags |= FunctionTypeFlag_ByValArgs;
 
 	if (hasCoercedArgs)
 		functionType->m_flags |= FunctionTypeFlag_CoercedArgs;
@@ -109,8 +123,9 @@ CdeclCallConv_arm::createLlvmFunction(
 	Type* returnType = functionType->getReturnType();
 
 	if ((returnType->getFlags() & TypeFlag_StructRet) &&
-		returnType->getSize() > m_regType->getSize()) // return in memory
+		returnType->getSize() > m_retCoerceSizeLimit) { // return in memory
 		llvmFunction->addAttribute(1, llvm::Attribute::StructRet);
+	}
 
 	return llvmFunction;
 }
@@ -125,7 +140,7 @@ CdeclCallConv_arm::call(
 	Type* returnType = functionType->getReturnType();
 
 	if (!(returnType->getFlags() & TypeFlag_StructRet) &&
-		!(functionType->getFlags() & (FunctionTypeFlag_CoercedArgs | FunctionTypeFlag_VarArg))) {
+		!(functionType->getFlags() & (FunctionTypeFlag_ByValArgs | FunctionTypeFlag_CoercedArgs))) {
 		CallConv::call(calleeValue, functionType, argValueList, resultValue);
 		return;
 	}
@@ -133,7 +148,7 @@ CdeclCallConv_arm::call(
 	Value tmpReturnValue;
 
 	if ((returnType->getFlags() & TypeFlag_StructRet) &&
-		returnType->getSize() > m_coerceSizeLimit) { // return in memory
+		returnType->getSize() > m_retCoerceSizeLimit) { // return in memory
 		m_module->m_llvmIrBuilder.createAlloca(
 			returnType,
 			"tmpRetVal",
@@ -152,8 +167,15 @@ CdeclCallConv_arm::call(
 		if (!(type->getFlags() & TypeFlag_StructRet))
 			continue;
 
-		Type* coerceType = getArgCoerceType(type);
-		m_module->m_operatorMgr.forceCast(it.p(), coerceType);
+		if (type->getSize() > m_argCoerceSizeLimit) { // pass on stack
+			Value tmpValue;
+			m_module->m_llvmIrBuilder.createAlloca(type, "tmpArg", NULL, &tmpValue);
+			m_module->m_llvmIrBuilder.createStore(*it, tmpValue);
+			*it = tmpValue;
+		} else { // coerce
+			Type* coerceType = getArgCoerceType(type);
+			m_module->m_operatorMgr.forceCast(it.p(), coerceType);
+		}
 	}
 
 	llvm::CallInst* llvmInst = m_module->m_llvmIrBuilder.createCall(
@@ -167,7 +189,7 @@ CdeclCallConv_arm::call(
 	);
 
 	if (returnType->getFlags() & TypeFlag_StructRet) {
-		if (returnType->getSize() > m_coerceSizeLimit) { // return in memory
+		if (returnType->getSize() > m_retCoerceSizeLimit) { // return in memory
 			llvmInst->addAttribute(1, llvm::Attribute::StructRet);
 			m_module->m_llvmIrBuilder.createLoad(tmpReturnValue, returnType, resultValue);
 		} else { // coerce
@@ -189,14 +211,12 @@ CdeclCallConv_arm::ret(
 		return;
 	}
 
-	if (returnType->getSize() > m_regType->getSize()) { // return in memory
+	if (returnType->getSize() > m_retCoerceSizeLimit) { // return in memory
 		Value returnPtrValue(&*function->getLlvmFunction()->arg_begin());
-
 		m_module->m_llvmIrBuilder.createStore(value, returnPtrValue);
 		m_module->m_llvmIrBuilder.createRet();
 	} else { // coerce
 		Type* coerceType = getArgCoerceType(returnType);
-
 		Value tmpValue;
 		m_module->m_operatorMgr.forceCast(value, coerceType, &tmpValue);
 		m_module->m_llvmIrBuilder.createRet(tmpValue);
@@ -212,7 +232,7 @@ CdeclCallConv_arm::getThisArgValue(Function* function) {
 
 	llvm::Function::arg_iterator llvmArg = function->getLlvmFunction()->arg_begin();
 	if ((returnType->getFlags() & TypeFlag_StructRet) &&
-		returnType->getSize() > m_regType->getSize())
+		returnType->getSize() > m_retCoerceSizeLimit)
 		llvmArg++;
 
 	return getArgValue(&*llvmArg, functionType, 0);
@@ -228,7 +248,9 @@ CdeclCallConv_arm::getArgValue(
 	uint_t flags = functionType->m_argFlagArray[argIdx];
 
 	Value value;
-	if (flags & ArgFlag_Coerced) {
+	if (flags & ArgFlag_ByVal) {
+		m_module->m_llvmIrBuilder.createLoad(llvmValue, type, &value);
+	} else if (flags & ArgFlag_Coerced) {
 		Type* coerceType = getArgCoerceType(type);
 		m_module->m_operatorMgr.forceCast(Value(llvmValue, coerceType), type, &value);
 	} else {
@@ -250,7 +272,7 @@ CdeclCallConv_arm::getArgValueArray(
 		argValueArray,
 		count,
 		(returnType->getFlags() & TypeFlag_StructRet) &&
-		returnType->getSize() > m_regType->getSize() ? 1 : 0
+		returnType->getSize() > m_retCoerceSizeLimit ? 1 : 0
 	);
 }
 
@@ -261,11 +283,11 @@ CdeclCallConv_arm::createArgVariables(Function* function) {
 
 	llvm::Function::arg_iterator llvmArg = function->getLlvmFunction()->arg_begin();
 	if ((returnType->getFlags() & TypeFlag_StructRet) &&
-		returnType->getSize() > m_regType->getSize())
+		returnType->getSize() > m_retCoerceSizeLimit)
 		llvmArg++;
 
 	size_t i = 0;
-	if (function->isMember()) { // skip this
+	if (function->isMember()) { // skip `this`
 		i++;
 		llvmArg++;
 	}
@@ -291,13 +313,15 @@ CdeclCallConv_arm::createArgVariables(Function* function) {
 CdeclCallConv_arm32::CdeclCallConv_arm32() {
 	m_callConvKind = CallConvKind_Cdecl_arm32;
 	m_regType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32);
-	m_coerceSizeLimit = sizeof(int32_t);
+	m_retCoerceSizeLimit = sizeof(int32_t);
+	m_argCoerceSizeLimit = -1; // no limit
 }
 
 CdeclCallConv_arm64::CdeclCallConv_arm64() {
 	m_callConvKind = CallConvKind_Cdecl_arm64;
 	m_regType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int64);
-	m_coerceSizeLimit = 2 * sizeof(int64_t);
+	m_retCoerceSizeLimit = 2 * sizeof(int64_t);
+	m_argCoerceSizeLimit = 2 * sizeof(int64_t);
 }
 
 //..............................................................................
