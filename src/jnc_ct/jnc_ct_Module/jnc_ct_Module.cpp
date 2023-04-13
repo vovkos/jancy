@@ -303,7 +303,7 @@ Module::createLlvmExecutionEngine() {
 		m_functionMap["memset"] = (void*)memset;
 		m_functionMap["memcpy"] = (void*)memcpy;
 		m_functionMap["memmove"] = (void*)memmove;
-#if (_JNC_OS_POSIX)
+#if (_JNC_OS_DARWIN)
 		m_functionMap["_bzero"] = (void*)bzero;
 		m_functionMap["___bzero"] = (void*)bzero;
 #endif
