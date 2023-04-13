@@ -50,7 +50,7 @@ BitFieldType::calcLayout() {
 
 	if (!(m_baseType->getTypeKindFlags() & TypeKindFlag_Integer) &&
 		(m_baseType->getTypeKind() != TypeKind_TypedefShadow ||
-		!((TypedefShadowType*)m_baseType)->getActualType()->getTypeKindFlags() & TypeKindFlag_Integer)
+		!(((TypedefShadowType*)m_baseType)->getActualType()->getTypeKindFlags() & TypeKindFlag_Integer))
 	) {
 		err::setFormatStringError("bit field can only be used with integer types");
 		return false;
