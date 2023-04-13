@@ -41,13 +41,11 @@ source_group(
 #
 
 set(PCH_H pch.h)
-set(PCH_C pch.c)
 
 source_group(
 	pch
 	FILES
 	${PCH_H}
-	${PCH_C}
 )
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -110,17 +108,16 @@ endif()
 add_executable(
 	jnc_sample_04_pass_c
 	${PCH_H}
-	${PCH_C}
 	${APP_H_LIST}
 	${APP_C_LIST}
 	${APP_JNC_LIST}
 	${GEN_JNC_CPP_LIST}
 )
 
-axl_set_pch(
+target_precompile_headers(
 	jnc_sample_04_pass_c
+	PRIVATE
 	${PCH_H}
-	${PCH_C}
 )
 
 set_target_properties(

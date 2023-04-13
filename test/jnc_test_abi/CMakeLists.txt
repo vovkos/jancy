@@ -43,13 +43,11 @@ source_group(
 #
 
 set(PCH_H   pch.h)
-set(PCH_CPP pch.cpp)
 
 source_group(
 	pch
 	FILES
 	${PCH_H}
-	${PCH_CPP}
 )
 
 #...............................................................................
@@ -76,7 +74,6 @@ endif()
 add_executable(
 	jnc_test_abi
 	${PCH_H}
-	${PCH_CPP}
 	${APP_H_LIST}
 	${APP_CPP_LIST}
 	${APP_JNC_LIST}
@@ -84,10 +81,10 @@ add_executable(
 	${GEN_H_LIST}
 )
 
-axl_set_pch(
+target_precompile_headers(
 	jnc_test_abi
+	PRIVATE
 	${PCH_H}
-	${PCH_CPP}
 )
 
 set_target_properties(

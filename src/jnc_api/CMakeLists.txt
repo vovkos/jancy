@@ -176,8 +176,9 @@ add_library(
 	${LIB_OBJ_LIST}
 )
 
-axl_set_pch(
+target_precompile_headers(
 	jnc_api_core
+	PRIVATE
 	${PCH_H}
 	${PCH_STATIC_CPP}
 )
@@ -201,9 +202,10 @@ if(UNIX)
 		-D_JNC_OBJECT_LIB=1
 	)
 
-	axl_set_pch(
+	target_precompile_headers(
 		jnc_api_core_o
-		${PCH_H}
+		PRIVATE
+	${PCH_H}
 		${PCH_STATIC_O_CPP}
 	)
 endif()
@@ -226,8 +228,9 @@ target_compile_definitions(
 	-D_JNC_DYNAMIC_EXTENSION_LIB=1
 )
 
-axl_set_pch(
+target_precompile_headers(
 	jnc_api_ext
+	PRIVATE
 	${PCH_H}
 	${PCH_DYNAMIC_CPP}
 )

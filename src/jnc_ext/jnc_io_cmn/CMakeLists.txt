@@ -59,13 +59,11 @@ source_group(
 #
 
 set(PCH_H     pch.h)
-set(PCH_CPP   pch.cpp)
 
 source_group(
 	pch
 	FILES
 	${PCH_H}
-	${PCH_CPP}
 )
 
 #...............................................................................
@@ -92,7 +90,6 @@ endif()
 add_library(
 	jnc_io_cmn
 	${PCH_H}
-	${PCH_CPP}
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
 )
@@ -103,10 +100,10 @@ target_compile_definitions(
 	-D_JNC_DYNAMIC_EXTENSION_LIB=1
 )
 
-axl_set_pch(
+target_precompile_headers(
 	jnc_io_cmn
+	PRIVATE
 	${PCH_H}
-	${PCH_CPP}
 )
 
 set_target_properties(

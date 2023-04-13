@@ -107,13 +107,11 @@ source_group(
 #
 
 set(PCH_H   pch.h)
-set(PCH_CPP pch.cpp)
 
 source_group(
 	pch
 	FILES
 	${PCH_H}
-	${PCH_CPP}
 )
 
 #...............................................................................
@@ -150,7 +148,6 @@ add_definitions(
 add_executable(
 	jnc_sample_03_dialog
 	${PCH_H}
-	${PCH_CPP}
 	${APP_H_LIST}
 	${APP_CPP_LIST}
 	${APP_JNC_LIST}
@@ -160,10 +157,10 @@ add_executable(
 
 qt5_use_modules_alt(jnc_sample_03_dialog Widgets)
 
-axl_set_pch(
+target_precompile_headers(
 	jnc_sample_03_dialog
+	PRIVATE
 	${PCH_H}
-	${PCH_CPP}
 )
 
 set_target_properties(

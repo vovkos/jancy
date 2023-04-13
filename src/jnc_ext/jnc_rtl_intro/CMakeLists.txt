@@ -113,14 +113,12 @@ source_group(
 #
 
 set(PCH_H     pch.h)
-set(PCH_CPP   pch.cpp)
 set(PCH_O_CPP pch_o.cpp)
 
 source_group(
 	pch
 	FILES
 	${PCH_H}
-	${PCH_CPP}
 )
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -176,17 +174,16 @@ endif()
 add_library(
 	jnc_rtl_intro
 	${PCH_H}
-	${PCH_CPP}
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
 	${JNC_LIST}
 	${GEN_JNC_CPP_LIST}
 )
 
-axl_set_pch(
+target_precompile_headers(
 	jnc_rtl_intro
+	PRIVATE
 	${PCH_H}
-	${PCH_CPP}
 )
 
 set_target_properties(
@@ -215,9 +212,10 @@ if(UNIX)
 		-D_JNC_OBJECT_LIB=1
 	)
 
-	axl_set_pch(
+	target_precompile_headers(
 		jnc_rtl_intro_o
-		${PCH_H}
+		PRIVATE
+	${PCH_H}
 		${PCH_O_CPP}
 	)
 

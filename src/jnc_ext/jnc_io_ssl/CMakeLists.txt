@@ -64,13 +64,11 @@ source_group(
 #
 
 set(PCH_H   pch.h)
-set(PCH_CPP pch.cpp)
 
 source_group(
 	pch
 	FILES
 	${PCH_H}
-	${PCH_CPP}
 )
 
 #...............................................................................
@@ -95,7 +93,6 @@ add_library(
 	jnc_io_ssl
 	SHARED
 	${PCH_H}
-	${PCH_CPP}
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
 	${JNC_LIST}
@@ -115,10 +112,10 @@ if(GCC AND NOT APPLE)
 	)
 endif()
 
-axl_set_pch(
+target_precompile_headers(
 	jnc_io_ssl
+	PRIVATE
 	${PCH_H}
-	${PCH_CPP}
 )
 
 set(CMAKE_SHARED_LIBRARY_PREFIX)

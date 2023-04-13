@@ -41,13 +41,11 @@ source_group(
 #
 
 set(PCH_H     pch.h)
-set(PCH_CPP   pch.cpp)
 
 source_group(
 	pch
 	FILES
 	${PCH_H}
-	${PCH_CPP}
 )
 
 #...............................................................................
@@ -71,15 +69,14 @@ endif()
 add_library(
 	jnc_rt
 	${PCH_H}
-	${PCH_CPP}
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
 )
 
-axl_set_pch(
+target_precompile_headers(
 	jnc_rt
+	PRIVATE
 	${PCH_H}
-	${PCH_CPP}
 )
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

@@ -481,13 +481,11 @@ source_group(
 #
 
 set(PCH_H     pch.h)
-set(PCH_CPP   pch.cpp)
 
 source_group(
 	pch
 	FILES
 	${PCH_H}
-	${PCH_CPP}
 )
 
 #...............................................................................
@@ -514,7 +512,6 @@ endif()
 add_library(
 	jnc_ct
 	${PCH_H}
-	${PCH_CPP}
 	${INC_H_LIST}
 	${CALLCONV_H_LIST}
 	${CALLCONV_CPP_LIST}
@@ -547,10 +544,10 @@ add_library(
 	# ${GEN_LLK_CPP_LIST} # currently, cmake can't handle double-file output
 )
 
-axl_set_pch(
+target_precompile_headers(
 	jnc_ct
+	PRIVATE
 	${PCH_H}
-	${PCH_CPP}
 )
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

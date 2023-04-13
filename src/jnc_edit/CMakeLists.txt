@@ -137,13 +137,11 @@ source_group(
 #
 
 set(PCH_H   pch.h)
-set(PCH_CPP pch.cpp)
 
 source_group(
 	pch
 	FILES
 	${PCH_H}
-	${PCH_CPP}
 )
 
 #...............................................................................
@@ -177,7 +175,6 @@ add_definitions(
 add_library(
 	jnc_edit SHARED
 	${PCH_H}
-	${PCH_CPP}
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
 	${LIB_RL_LIST}
@@ -191,10 +188,10 @@ add_library(
 
 qt5_use_modules_alt(jnc_edit Widgets)
 
-axl_set_pch(
+target_precompile_headers(
 	jnc_edit
+	PRIVATE
 	${PCH_H}
-	${PCH_CPP}
 )
 
 if(BUILD_JNC_DLL)
