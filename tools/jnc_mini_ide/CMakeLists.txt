@@ -150,8 +150,7 @@ source_group(
 #
 
 if(BUILD_JNC_IO_USB)
-	add_definitions(-D_JNC_IO_USB=1)
-	include_directories(${LIBUSB_INC_DIR})
+#	add_definitions(-D_JNC_IO_USB=1)
 endif()
 
 if(BUILD_JNC_IO_SSL)
@@ -174,12 +173,6 @@ if(BUILD_JNC_DLL)
 	)
 else()
 	link_directories(${LLVM_LIB_DIR})
-endif()
-
-if(BUILD_JNC_IO_USB)
-	include_directories(${LIBUSB_INC_DIR})
-	link_directories(${LIBUSB_LIB_DIR})
-	add_definitions(-D_JNC_IO_USB=1)
 endif()
 
 if(BUILD_JNC_IO_SSL)
@@ -253,7 +246,7 @@ else()
 endif()
 
 if(BUILD_JNC_IO_USB)
-	target_link_libraries(jnc_mini_ide axl_io_usb)
+	target_link_libraries(jnc_mini_ide axl_io_usb_error)
 endif()
 
 if(BUILD_JNC_IO_SSL)
@@ -291,31 +284,6 @@ elseif(UNIX)
 			dl
 			rt
 		)
-	endif()
-endif()
-
-if(BUILD_JNC_IO_USB)
-	if(WIN32)
-		target_link_libraries(
-			jnc_mini_ide
-			libusb-1.0
-		)
-	else()
-		target_link_libraries(
-			jnc_mini_ide
-			usb-1.0
-		)
-
-		if(APPLE)
-			find_library(CORE_FOUNDATION_FRAMEWORK CoreFoundation)
-			find_library(IOKIT_FRAMEWORK IOKit)
-
-			target_link_libraries(
-				jnc_mini_ide
-				${CORE_FOUNDATION_FRAMEWORK}
-				${IOKIT_FRAMEWORK}
-			)
-		endif()
 	endif()
 endif()
 
