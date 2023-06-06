@@ -25,6 +25,7 @@ else
 	sudo apt upgrade
 
 	sudo apt-get remove -y python3
+	sudo apt-get remove -y libz-dev
 
 	sudo apt-get install -y liblua5.2-dev:i386
 	sudo apt-get install -y libpcap-dev:i386
@@ -42,14 +43,6 @@ else
 	sudo apt-get install -y g++-multilib
 
 	# CMake fails to properly switch between 32-bit and 64-bit libraries on Ubuntu
-
-	echo --- ls /usr/lib
-	ls /usr/lib
-
-	echo --- ls /usr/lib/i386-linux-gnu
-	ls /usr/lib/i386-linux-gnu
-
-	echo --- ls /usr/lib/llvm-10
 
 	echo "set (OPENSSL_LIB_DIR /usr/lib/i386-linux-gnu)" >> paths.cmake
 	echo "set (LUA_LIB_DIR /usr/lib/i386-linux-gnu)" >> paths.cmake
