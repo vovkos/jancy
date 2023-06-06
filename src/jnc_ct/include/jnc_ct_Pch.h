@@ -75,31 +75,23 @@
 #include <llvm/Support/Debug.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/TargetSelect.h>
-#include <llvm/Support/TargetRegistry.h>
 #include <llvm/Support/ManagedStatic.h>
 #include <llvm/Support/DynamicLibrary.h>
 #include <llvm/Support/raw_ostream.h>
-
 #include <llvm/ADT/StringExtras.h>
 #include <llvm/ADT/StringMap.h>
 #include <llvm/Analysis/Passes.h>
 #include <llvm/Transforms/IPO.h>
 #include <llvm/Transforms/IPO/PassManagerBuilder.h>
-#include <llvm/ExecutionEngine/SectionMemoryManager.h>
 
-// LLVM JIT forces linkage to LLVM libraries if JIT is merely included;
-// we want to be able to avoid that (i.e. if a libraries defines LLVM-dependent classes, but
-// application does not use those classes -- then why link to LLVM?)
-
-#ifndef _JNC_LLVM_NO_JIT
-#	if (LLVM_VERSION < 0x030600) // legacy JIT is gone in LLVM 3.6
-#		include <llvm/ExecutionEngine/JIT.h>
-#		include <llvm/ExecutionEngine/JITMemoryManager.h>
-#	endif
-
-#	include <llvm/ExecutionEngine/JITEventListener.h>
-#	include <llvm/ExecutionEngine/MCJIT.h>
+#if (LLVM_VERSION < 0x030600) // legacy JIT is gone in LLVM 3.6
+#	include <llvm/ExecutionEngine/JIT.h>
+#	include <llvm/ExecutionEngine/JITMemoryManager.h>
 #endif
+
+#include <llvm/ExecutionEngine/SectionMemoryManager.h>
+#include <llvm/ExecutionEngine/JITEventListener.h>
+#include <llvm/ExecutionEngine/MCJIT.h>
 
 #pragma warning(default: 4141)
 #pragma warning(default: 4146)
