@@ -9,23 +9,28 @@
 #
 #...............................................................................
 
+sudo apt-get remove -y --purge '^llvm(-[0-9]+)?-dev(:i386)?$'
+
 if [[ $TARGET_CPU != "x86" ]]; then
 	sudo apt-get -qq update
 
 	sudo apt-get install -y liblua5.2-dev
 	sudo apt-get install -y libpcap-dev
 	sudo apt-get install -y libudev-dev
-	sudo apt-get install -y llvm
+	sudo apt-get install -y llvm-${LLVM_VERSION}-dev
 	sudo apt-get install -y libz-dev
 else
 	sudo dpkg --add-architecture i386
-	sudo apt-get -qq update
+	sudo apt -qq update
+	sudo apt upgrade
+
+	sudo apt-get remove -y python3
 
 	sudo apt-get install -y liblua5.2-dev:i386
 	sudo apt-get install -y libpcap-dev:i386
 	sudo apt-get install -y libudev-dev:i386
-	sudo apt-get remove -y '^llvm(-[0-9]+)?$'
-	sudo apt-get install -y llvm:i386
+	sudo apt-get install -y python3:i386
+	sudo apt-get install -y llvm-${LLVM_VERSION}-dev:i386
 	sudo apt-get install -y libz-dev:i386
 
 	# OpenSSL is already installed, but 64-bit only
@@ -38,10 +43,17 @@ else
 
 	# CMake fails to properly switch between 32-bit and 64-bit libraries on Ubuntu
 
+	echo --- ls /usr/lib
+	ls /usr/lib
+
+	echo --- ls /usr/lib/i386-linux-gnu
+	ls /usr/lib/i386-linux-gnu
+
+	echo --- ls /usr/lib/llvm-10
+
 	echo "set (OPENSSL_LIB_DIR /usr/lib/i386-linux-gnu)" >> paths.cmake
 	echo "set (LUA_LIB_DIR /usr/lib/i386-linux-gnu)" >> paths.cmake
 	echo "set (PCAP_LIB_DIR /usr/lib/i386-linux-gnu)" >> paths.cmake
-	echo "set (LLVM_LIB_DIR /usr/lib/i386-linux-gnu)" >> paths.cmake
 	echo "set (EXPAT_INC_DIR DISABLED)" >> paths.cmake
 fi
 
