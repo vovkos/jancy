@@ -13,11 +13,11 @@ jobs:
             fail-fast: false
             matrix:
                 CONFIGURATION:
-                #-   Debug
+                -   Debug
                 -   Release
 
                 TARGET_CPU:
-                #-   x86
+                -   x86
                 -   amd64
 
                 LLVM_VERSION:
@@ -103,7 +103,6 @@ jobs:
                 files: ${{steps.PACKAGE.outputs.DEPLOY_FILE}}
 
     linuxBuild:
-        if: ${{ false }}  # disable for now
         name: Linux Build
         runs-on: ubuntu-20.04
 
@@ -111,15 +110,15 @@ jobs:
             fail-fast: false
             matrix:
                 CONFIGURATION:
-                #-   Debug
+                -   Debug
                 -   Release
 
                 TARGET_CPU:
-                #-   x86
+                -   x86
                 -   amd64
 
                 COMPILER:
-                #-   gcc
+                -   gcc
                 -   clang
 
                 LLVM_VERSION:
@@ -258,11 +257,11 @@ jobs:
             fail-fast: false
             matrix:
                 CONFIGURATION:
-                # -   Debug
+                -   Debug
                 -   Release
 
                 LLVM_VERSION:
-                #-   llvm@8
+                -   llvm@8
                 -   llvm@15
 
         env:
