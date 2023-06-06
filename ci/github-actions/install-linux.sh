@@ -17,7 +17,7 @@ if [[ $TARGET_CPU != "x86" ]]; then
 	sudo apt-get install -y liblua5.2-dev
 	sudo apt-get install -y libpcap-dev
 	sudo apt-get install -y libudev-dev
-	sudo apt-get install -y llvm-${LLVM_VERSION}-dev
+	sudo apt-get install -y ${LLVM_VERSION}-dev
 	sudo apt-get install -y libz-dev
 else
 	sudo dpkg --add-architecture i386
@@ -30,7 +30,7 @@ else
 	sudo apt-get install -y libpcap-dev:i386
 	sudo apt-get install -y libudev-dev:i386
 	sudo apt-get install -y python3:i386
-	sudo apt-get install -y llvm-${LLVM_VERSION}-dev:i386
+	sudo apt-get install -y ${LLVM_VERSION}-dev:i386
 	sudo apt-get install -y libz-dev:i386
 
 	# OpenSSL is already installed, but 64-bit only

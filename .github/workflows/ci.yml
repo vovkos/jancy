@@ -6,7 +6,6 @@ on:
 
 jobs:
     windowsBuild:
-        if: ${{ false }}  # disable for now
         name: Windows Build
         runs-on: windows-2019
 
@@ -14,16 +13,16 @@ jobs:
             fail-fast: false
             matrix:
                 CONFIGURATION:
-                -   Debug
+                #-   Debug
                 -   Release
 
                 TARGET_CPU:
-                -   x86
+                #-   x86
                 -   amd64
 
                 LLVM_VERSION:
-                -   3.4.2
-                -   8.0.0
+                -   llvm-3.4.2
+                -   llvm-8.0.0
 
         env:
             RELEASE: ${{ startsWith(github.ref, 'refs/tags/') && matrix.CONFIGURATION == 'Release' }}
@@ -104,6 +103,7 @@ jobs:
                 files: ${{steps.PACKAGE.outputs.DEPLOY_FILE}}
 
     linuxBuild:
+        if: ${{ false }}  # disable for now
         name: Linux Build
         runs-on: ubuntu-20.04
 
@@ -123,8 +123,8 @@ jobs:
                 -   clang
 
                 LLVM_VERSION:
-                -   9
-                -   12
+                -   llvm-9
+                -   llvm-12
 
         env:
             RELEASE: ${{ startsWith(github.ref, 'refs/tags/') && matrix.CONFIGURATION == 'Release' && matrix.COMPILER == 'gcc' }}
@@ -262,8 +262,8 @@ jobs:
                 -   Release
 
                 LLVM_VERSION:
-                -   8
-                -   15
+                #-   llvm@8
+                -   llvm@15
 
         env:
             RELEASE: ${{ startsWith(github.ref, 'refs/tags/') && matrix.CONFIGURATION == 'Release' }}

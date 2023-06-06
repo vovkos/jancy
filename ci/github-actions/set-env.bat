@@ -93,9 +93,9 @@ if not "%CMAKE_USE_ARCH_OPTIONS%" == "" (set CMAKE_OPTIONS=%CMAKE_OPTIONS%%CMAKE
 
 set LLVM_DEBUG_SUFFIX=
 if "%CONFIGURATION%" == "Debug" set LLVM_DEBUG_SUFFIX=-dbg
-set LLVM_RELEASE_NAME=llvm-%LLVM_VERSION%-windows-%TARGET_CPU%-msvc15-msvcrt%LLVM_DEBUG_SUFFIX%
+set LLVM_RELEASE_NAME=%LLVM_VERSION%-windows-%TARGET_CPU%-msvc15-msvcrt%LLVM_DEBUG_SUFFIX%
 set LLVM_DOWNLOAD_FILE=%LLVM_RELEASE_NAME%.7z
-set LLVM_DOWNLOAD_URL=https://github.com/vovkos/llvm-package-windows/releases/download/llvm-%LLVM_VERSION%/%LLVM_DOWNLOAD_FILE%
+set LLVM_DOWNLOAD_URL=https://github.com/vovkos/llvm-package-windows/releases/download/%LLVM_VERSION%/%LLVM_DOWNLOAD_FILE%
 
 set LUA_VERSION=5.3.5
 set LUA_LIB_NAME=lua53
@@ -115,7 +115,7 @@ set CMAKE_BUILD_FLAGS= ^
 echo ---------------------------------------------------------------------------
 echo LLVM_VERSION:       %LLVM_VERSION%
 echo LLVM_DOWNLOAD_URL:  %LLVM_DOWNLOAD_URL%
-echo LUA_LIB_NAME:         %LUA_LIB_NAME%
-echo LUA_DOWNLOAD_URL:     %LUA_DOWNLOAD_URL%
-echo RAGEL_DOWNLOAD_URL:   %RAGEL_DOWNLOAD_URL%
+echo LUA_LIB_NAME:       %LUA_LIB_NAME%
+echo LUA_DOWNLOAD_URL:   %LUA_DOWNLOAD_URL%
+echo RAGEL_DOWNLOAD_URL: %RAGEL_DOWNLOAD_URL%
 echo ---------------------------------------------------------------------------
