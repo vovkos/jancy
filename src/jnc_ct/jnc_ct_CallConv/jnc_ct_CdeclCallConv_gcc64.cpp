@@ -112,23 +112,27 @@ CdeclCallConv_gcc64::createLlvmFunction(
 	size_t j = 1;
 
 	if ((returnType->getFlags() & TypeFlag_StructRet) &&
-		returnType->getSize() > sizeof(uint64_t)* 2) { // return in memory
-		llvmFunction->addAttribute(1, llvm::Attribute::StructRet);
+		returnType->getSize() > sizeof(uint64_t)* 2
+	) { // return in memory
+		m_module->m_llvmIrBuilder.addTypedAttribute(llvmFunction, 1, llvm::Attribute::StructRet, returnType);
 		j = 2;
 	}
 
 	if (functionType->getFlags() & FunctionTypeFlag_ByValArgs) {
 		sl::Array<FunctionArg*> argArray = functionType->getArgArray();
 		size_t argCount = argArray.getCount();
-
-		for (size_t i = 0; i < argCount; i++, j++) {
+		for (size_t i = 0; i < argCount; i++, j++)
 			if (functionType->m_argFlagArray[i] & ArgFlag_ByVal)
-				llvmFunction->addAttribute(j, llvm::Attribute::ByVal);
-		}
+				m_module->m_llvmIrBuilder.addTypedAttribute(llvmFunction, j, llvm::Attribute::ByVal, argArray[i]->getType());
 	}
 
 	return llvmFunction;
 }
+
+struct ByValArg {
+	unsigned m_index;
+	Type* m_type;
+};
 
 void
 CdeclCallConv_gcc64::call(
@@ -164,7 +168,7 @@ CdeclCallConv_gcc64::call(
 
 	unsigned j = 1;
 	char buffer[256];
-	sl::Array<unsigned> byValArgIdxArray(rc::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<ByValArg> byValArgArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 
 	sl::BoxIterator<Value> it = argValueList->getHead();
 	for (; it; it++, j++) {
@@ -183,9 +187,12 @@ CdeclCallConv_gcc64::call(
 			Value tmpValue;
 			m_module->m_llvmIrBuilder.createAlloca(type, "tmpArg", NULL, &tmpValue);
 			m_module->m_llvmIrBuilder.createStore(*it, tmpValue);
-
 			*it = tmpValue;
-			byValArgIdxArray.append(j);
+
+			ByValArg byValArg;
+			byValArg.m_index = j;
+			byValArg.m_type = type;
+			byValArgArray.append(byValArg);
 		} else { // coerce
 			Type* coerceType = getArgCoerceType(type);
 			m_module->m_operatorMgr.forceCast(it.p(), coerceType);
@@ -203,13 +210,13 @@ CdeclCallConv_gcc64::call(
 		resultValue
 	);
 
-	size_t byValArgCount = byValArgIdxArray.getCount();
+	size_t byValArgCount = byValArgArray.getCount();
 	for (size_t i = 0; i < byValArgCount; i++)
-		llvmInst->addAttribute(byValArgIdxArray[i], llvm::Attribute::ByVal);
+		m_module->m_llvmIrBuilder.addTypedAttribute(llvmInst, byValArgArray[i].m_index, llvm::Attribute::ByVal, byValArgArray[i].m_type);
 
 	if (returnType->getFlags() & TypeFlag_StructRet) {
-		if (returnType->getSize() > sizeof(uint64_t)* 2) { // return in memory
-			llvmInst->addAttribute(1, llvm::Attribute::StructRet);
+		if (returnType->getSize() > sizeof(uint64_t) * 2) { // return in memory
+			m_module->m_llvmIrBuilder.addTypedAttribute(llvmInst, 1, llvm::Attribute::StructRet, returnType);
 			m_module->m_llvmIrBuilder.createLoad(tmpReturnValue, returnType, resultValue);
 		} else { // coerce
 			Type* coerceType = getArgCoerceType(returnType);

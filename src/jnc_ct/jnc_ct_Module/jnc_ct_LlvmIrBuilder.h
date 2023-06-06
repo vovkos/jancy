@@ -1293,6 +1293,24 @@ public:
 		PropertyPtrType* resultType,
 		Value* resultValue
 	);
+
+	// typed attributes (sret, byval)
+
+	void
+	addTypedAttribute(
+		llvm::Function* llvmFunction,
+		unsigned i,
+		llvm::Attribute::AttrKind attrKind,
+		Type* type
+	);
+
+	void
+	addTypedAttribute(
+		llvm::CallInst* llvmCallInst,
+		unsigned i,
+		llvm::Attribute::AttrKind attrKind,
+		Type* type
+	);
 };
 
 //..............................................................................

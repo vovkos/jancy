@@ -123,9 +123,9 @@ CdeclCallConv_arm::createLlvmFunction(
 	Type* returnType = functionType->getReturnType();
 
 	if ((returnType->getFlags() & TypeFlag_StructRet) &&
-		returnType->getSize() > m_retCoerceSizeLimit) { // return in memory
-		llvmFunction->addAttribute(1, llvm::Attribute::StructRet);
-	}
+		returnType->getSize() > m_retCoerceSizeLimit
+	)
+		m_module->m_llvmIrBuilder.addTypedAttribute(llvmFunction, 1, llvm::Attribute::StructRet, returnType);
 
 	return llvmFunction;
 }
@@ -190,7 +190,7 @@ CdeclCallConv_arm::call(
 
 	if (returnType->getFlags() & TypeFlag_StructRet) {
 		if (returnType->getSize() > m_retCoerceSizeLimit) { // return in memory
-			llvmInst->addAttribute(1, llvm::Attribute::StructRet);
+			m_module->m_llvmIrBuilder.addTypedAttribute(llvmInst, 1, llvm::Attribute::StructRet, returnType);
 			m_module->m_llvmIrBuilder.createLoad(tmpReturnValue, returnType, resultValue);
 		} else { // coerce
 			Type* coerceType = getArgCoerceType(returnType);
