@@ -173,7 +173,7 @@ AsyncRegionMgr::preserveCrossRegionValue(
 	}
 
 	llvmIrBuilder->SetInsertPoint(llvmTargetInst);
-	llvm::LoadInst* llvmLoad = llvmIrBuilder->CreateLoad(llvmAlloca);
+	llvm::LoadInst* llvmLoad = m_module->m_llvmIrBuilder.createLoadImpl(llvmAlloca);
 	llvmTargetInst->setOperand(opIdx, llvmLoad);
 }
 

@@ -454,9 +454,12 @@ LlvmIrBuilder::addTypedAttribute(
 ) {
 #if (LLVM_VERSION_MAJOR < 9)
 	llvmFunction->addAttribute(i, attrKind);
-#else
+#elif (LLVM_VERSION_MAJOR < 14)
 	llvm::Attribute llvmAttr = llvm::Attribute::get(*m_module->getLlvmContext(), attrKind, type->getLlvmType());
-	llvmFunction->addAttribute(i, llvmAttr);
+    llvmFunction->addAttribute(i, llvmAttr);
+#else
+    llvm::Attribute llvmAttr = llvm::Attribute::get(*m_module->getLlvmContext(), attrKind, type->getLlvmType());
+    llvmFunction->addAttributeAtIndex(i, llvmAttr);
 #endif
 }
 
@@ -470,9 +473,12 @@ LlvmIrBuilder::addTypedAttribute(
 ) {
 #if (LLVM_VERSION_MAJOR < 9)
 	llvmCallInst->addAttribute(i, attrKind);
-#else
+#elif (LLVM_VERSION_MAJOR < 14)
 	llvm::Attribute llvmAttr = llvm::Attribute::get(*m_module->getLlvmContext(), attrKind, type->getLlvmType());
 	llvmCallInst->addAttribute(i, llvmAttr);
+#else
+    llvm::Attribute llvmAttr = llvm::Attribute::get(*m_module->getLlvmContext(), attrKind, type->getLlvmType());
+    llvmCallInst->addAttributeAtIndex(i, llvmAttr);
 #endif
 }
 

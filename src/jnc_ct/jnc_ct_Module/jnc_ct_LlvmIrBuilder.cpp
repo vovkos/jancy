@@ -257,11 +257,10 @@ LlvmIrBuilder::createGep(
 	for (size_t i = 0; i < indexCount; i++)
 		llvmIndexArray[i] = indexArray[i].getLlvmValue();
 
-	llvm::Value* inst = m_llvmIrBuilder->CreateGEP(
-			value.getLlvmValue(),
-			llvm::ArrayRef<llvm::Value*> (llvmIndexArray, indexCount),
-			"gep"
-		);
+	llvm::Value* inst = createGepImpl(
+		value.getLlvmValue(),
+		llvm::ArrayRef<llvm::Value*> (llvmIndexArray, indexCount)
+	);
 
 	resultValue->setLlvmValue(inst, resultType);
 	return inst;
@@ -287,11 +286,10 @@ LlvmIrBuilder::createGep(
 		llvmIndexArray[i] = indexValue.getLlvmValue();
 	}
 
-	llvm::Value* inst = m_llvmIrBuilder->CreateGEP(
-			value.getLlvmValue(),
-			llvm::ArrayRef<llvm::Value*> (llvmIndexArray, indexCount),
-			"gep"
-		);
+	llvm::Value* inst = createGepImpl(
+		value.getLlvmValue(),
+		llvm::ArrayRef<llvm::Value*> (llvmIndexArray, indexCount)
+	);
 
 	resultValue->setLlvmValue(inst, resultType);
 	return inst;

@@ -218,7 +218,12 @@ AsyncSequencerFunction::replaceAllocas() {
 		llvm::Type* llvmType = llvmAlloca->getAllocatedType();
 		size_t size = (size_t) llvmDataLayout.getTypeAllocSize(llvmType);
 		size_t typeAlign = llvmDataLayout.getPrefTypeAlignment(llvmType);
+
+#if (LLVM_VERSION_MAJOR < 15)
 		size_t allocaAlign = llvmAlloca->getAlignment();
+#else
+		size_t allocaAlign = llvmAlloca->getAlign().value();
+#endif
 
 		offset = sl::align(offset, AXL_MAX(typeAlign, allocaAlign));
 

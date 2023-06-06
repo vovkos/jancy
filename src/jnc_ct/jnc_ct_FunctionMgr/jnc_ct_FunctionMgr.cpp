@@ -632,6 +632,7 @@ FunctionMgr::replaceAsyncAllocas() {
 		m_asyncSequencerFunctionArray[i]->replaceAllocas();
 }
 
+#if (LLVM_VERSION_MAJOR < 14)
 void
 llvmFatalErrorHandler(
 	void* context,
@@ -640,6 +641,16 @@ llvmFatalErrorHandler(
 ) {
 	throw err::Error(errorString.c_str());
 }
+#else
+void
+llvmFatalErrorHandler(
+	void* context,
+	const char* errorString,
+	bool shouldGenerateCrashDump
+) {
+	throw err::Error(errorString);
+}
+#endif
 
 bool
 FunctionMgr::jitFunctions() {
