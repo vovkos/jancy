@@ -72,9 +72,7 @@ public:
 	getDebugLoc(
 		Scope* scope,
 		const lex::LineCol& pos
-	) {
-		return llvm::DebugLoc::get(pos.m_line + 1, pos.m_col + 1, scope->getLlvmDiScope());
-	}
+	);
 
 	llvm::DebugLoc
 	getEmptyDebugLoc();
