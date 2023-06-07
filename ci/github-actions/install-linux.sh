@@ -26,9 +26,10 @@ else
 
 	sudo apt-get remove -y python3
 	sudo apt-get remove -y zlib1g-dev
+	sudo apt-get remove -y zlib1g
 
 	echo ls /usr/lib/x86_64-linux-gnu...
-	ls ls /usr/lib/x86_64-linux-gnu
+	ls /usr/lib/x86_64-linux-gnu
 
 	echo ls /usr/lib/i386-linux-gnu...
 	ls /usr/lib/i386-linux-gnu
@@ -38,7 +39,8 @@ else
 	sudo apt-get install -y libudev-dev:i386
 	sudo apt-get install -y python3:i386
 	sudo apt-get install -y ${LLVM_VERSION}-dev:i386
-	sudo apt-get install -y zlib1g-dev-dev:i386
+	sudo apt-get install -y zlib1g-dev:i386
+	sudo apt-get install -y zlib1g:i386
 
 	# OpenSSL is already installed, but 64-bit only
 
