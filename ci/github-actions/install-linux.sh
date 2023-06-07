@@ -53,7 +53,6 @@ sudo apt-get install -y p7zip-full
 sudo apt-get install -y ragel
 
 if [[ $BUILD_DOC == "true" ]]; then
-
 	sudo apt-get install -y doxygen
 	sudo pip install sphinx sphinx_rtd_theme
 

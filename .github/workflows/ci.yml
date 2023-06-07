@@ -6,7 +6,6 @@ on:
 
 jobs:
     windowsBuild:
-        if: ${{ false }}
         name: Windows Build
         runs-on: windows-2019
 
@@ -111,19 +110,19 @@ jobs:
             fail-fast: false
             matrix:
                 CONFIGURATION:
-                #-   Debug
+                -   Debug
                 -   Release
 
                 TARGET_CPU:
                 -   x86
-                #-   amd64
+                -   amd64
 
                 COMPILER:
                 -   gcc
-                #-   clang
+                -   clang
 
                 LLVM_VERSION:
-                #-   llvm-9
+                -   llvm-9
                 -   llvm-12
 
         env:
@@ -251,7 +250,6 @@ jobs:
                 source ci/github-actions/deploy-package.sh linux-${{matrix.TARGET_CPU}}
 
     macOsBuild:
-        if: ${{ false }}
         name: macOS Build
         runs-on: macos-11
 
