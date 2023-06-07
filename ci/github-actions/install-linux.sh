@@ -25,25 +25,20 @@ else
 	# sudo apt upgrade
 
 	sudo apt-get remove -y python3
-	sudo apt-get remove -y libz-dev
+	sudo apt-get remove -y zlib1g-dev
 
-	echo searching for libz.a...
+	echo ls /usr/lib/x86_64-linux-gnu...
+	ls ls /usr/lib/x86_64-linux-gnu
 
-	dpkg -S libz.a
-
-	echo ls /usr/lib/libz...
-	ls /usr/lib/libz*
-
-	echo ls /usr/lib/i386-linux-gnu/libz...
-	cd /usr/lib/i386-linux-gnu
-	ls libz*
+	echo ls /usr/lib/i386-linux-gnu...
+	ls /usr/lib/i386-linux-gnu
 
 	sudo apt-get install -y liblua5.2-dev:i386
 	sudo apt-get install -y libpcap-dev:i386
 	sudo apt-get install -y libudev-dev:i386
 	sudo apt-get install -y python3:i386
 	sudo apt-get install -y ${LLVM_VERSION}-dev:i386
-	sudo apt-get install -y libz-dev:i386
+	sudo apt-get install -y zlib1g-dev-dev:i386
 
 	# OpenSSL is already installed, but 64-bit only
 
