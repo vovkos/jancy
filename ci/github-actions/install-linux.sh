@@ -22,7 +22,7 @@ if [[ $TARGET_CPU != "x86" ]]; then
 else
 	sudo dpkg --add-architecture i386
 	sudo apt -qq update
-	sudo apt upgrade
+	# sudo apt upgrade
 
 	sudo apt-get remove -y python3
 	sudo apt-get remove -y libz-dev
@@ -31,8 +31,12 @@ else
 
 	dpkg -S libz.a
 
-	echo ls /lib/libz...
-	ls /lib/libz*
+	echo ls /usr/lib/libz...
+	ls /usr/lib/libz*
+
+	echo ls /usr/lib/i386-linux-gnu/libz...
+	cd /usr/lib/i386-linux-gnu
+	ls libz*
 
 	sudo apt-get install -y liblua5.2-dev:i386
 	sudo apt-get install -y libpcap-dev:i386
