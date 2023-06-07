@@ -26,7 +26,13 @@ else
 
 	sudo apt-get remove -y python3
 	sudo apt-get remove -y libz-dev
-	sudo apt-get remove -y libz
+
+	echo searching for libz.a...
+
+	dpkg -S libz.a
+
+	echo ls /lib/libz...
+	ls /lib/libz*
 
 	sudo apt-get install -y liblua5.2-dev:i386
 	sudo apt-get install -y libpcap-dev:i386
@@ -34,7 +40,6 @@ else
 	sudo apt-get install -y python3:i386
 	sudo apt-get install -y ${LLVM_VERSION}-dev:i386
 	sudo apt-get install -y libz-dev:i386
-	sudo apt-get install -y libz:i386
 
 	# OpenSSL is already installed, but 64-bit only
 
