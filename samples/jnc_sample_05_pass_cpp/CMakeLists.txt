@@ -46,6 +46,7 @@ source_group(
 	pch
 	FILES
 	${PCH_H}
+	REGULAR_EXPRESSION cmake_pch
 )
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -181,6 +182,6 @@ add_test(
 	COMMAND
 		$<TARGET_FILE:jnc_sample_05_pass_cpp>
 		${CMAKE_CURRENT_LIST_DIR}/script.jnc
-	)
+)
 
 #...............................................................................

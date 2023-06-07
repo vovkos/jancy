@@ -145,6 +145,7 @@ source_group(
 	${PCH_STATIC_CPP}
 	${PCH_STATIC_O_CPP}
 	${PCH_DYNAMIC_CPP}
+	REGULAR_EXPRESSION cmake_pch
 )
 
 #...............................................................................

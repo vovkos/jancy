@@ -69,6 +69,7 @@ source_group(
 	pch
 	FILES
 	${PCH_H}
+	REGULAR_EXPRESSION cmake_pch
 )
 
 #...............................................................................
