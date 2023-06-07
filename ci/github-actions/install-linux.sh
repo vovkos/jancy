@@ -27,11 +27,13 @@ else
 	sudo apt-get remove -y python3
 	sudo apt-get remove -y zlib1g-dev
 
-	echo ls /usr/lib/x86_64-linux-gnu...
-	ls /usr/lib/x86_64-linux-gnu
+	echo ls /usr/lib
+	ls /usr/lib
 
-	echo ls /usr/lib/i386-linux-gnu...
-	ls /usr/lib/i386-linux-gnu
+	echo ls /lib
+	ls /lib
+
+	echo installing...
 
 	sudo apt-get install -y liblua5.2-dev:i386
 	sudo apt-get install -y libpcap-dev:i386
