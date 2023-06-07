@@ -14,8 +14,6 @@ Jancy
 
 .. image:: https://github.com/vovkos/jancy/actions/workflows/ci.yml/badge.svg
 	:target: https://github.com/vovkos/jancy/actions/workflows/ci.yml
-.. image:: https://ci.appveyor.com/api/projects/status/01gq23xd13twr8l5?svg=true
-	:target: https://ci.appveyor.com/project/vovkos/jancy
 .. image:: https://img.shields.io/badge/donate-@jancy.org-blue.svg
 	:align: right
 	:target: http://jancy.org/donate.html?donate=jancy
