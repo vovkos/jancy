@@ -26,7 +26,6 @@ else
 
 	sudo apt-get remove -y python3
 	sudo apt-get remove -y zlib1g-dev
-	sudo apt-get remove -y zlib1g
 
 	echo ls /usr/lib/x86_64-linux-gnu...
 	ls /usr/lib/x86_64-linux-gnu
@@ -41,9 +40,6 @@ else
 	sudo apt-get install -y ${LLVM_VERSION}-dev:i386
 	sudo apt-get install -y zlib1g-dev:i386
 	sudo apt-get install -y zlib1g:i386
-
-	# OpenSSL is already installed, but 64-bit only
-
 	sudo apt-get install -y libssl-dev:i386
 
 	# install g++-multilib -- in the end, after i386 packages!
