@@ -21,8 +21,8 @@ jobs:
                 -   amd64
 
                 LLVM_VERSION:
-                -   3.4.2
-                -   8.0.0
+                -   llvm-3.4.2
+                -   llvm-8.0.0
 
         env:
             RELEASE: ${{ startsWith(github.ref, 'refs/tags/') && matrix.CONFIGURATION == 'Release' }}
@@ -33,7 +33,7 @@ jobs:
 
         steps:
         -   name: Checkout repo
-            uses: actions/checkout@v2
+            uses: actions/checkout@v3
 
         -   name: Install
             run: |
@@ -121,6 +121,10 @@ jobs:
                 -   gcc
                 -   clang
 
+                LLVM_VERSION:
+                -   llvm-9
+                -   llvm-12
+
         env:
             RELEASE: ${{ startsWith(github.ref, 'refs/tags/') && matrix.CONFIGURATION == 'Release' && matrix.COMPILER == 'gcc' }}
             DEPLOY_BINARIES: ${{ github.ref == 'refs/heads/master' && matrix.CONFIGURATION == 'Release' && matrix.COMPILER == 'gcc' }}
@@ -132,11 +136,12 @@ jobs:
 
         steps:
         -   name: Checkout repo
-            uses: actions/checkout@v2
+            uses: actions/checkout@v3
 
         -   name: Install
             run: |
                 export TARGET_CPU=${{matrix.TARGET_CPU}}
+                export LLVM_VERSION=${{matrix.LLVM_VERSION}}
                 source ./ci/github-actions/install-linux.sh
                 git clone --depth 1 https://github.com/vovkos/axl
                 git clone --depth 1 https://github.com/vovkos/graco
@@ -255,6 +260,10 @@ jobs:
                 -   Debug
                 -   Release
 
+                LLVM_VERSION:
+                -   llvm@8
+                -   llvm@15
+
         env:
             RELEASE: ${{ startsWith(github.ref, 'refs/tags/') && matrix.CONFIGURATION == 'Release' }}
             DEPLOY_BINARIES: ${{ github.ref == 'refs/heads/master' && matrix.CONFIGURATION == 'Release' }}
@@ -265,11 +274,11 @@ jobs:
 
         steps:
         -   name: Checkout repo
-            uses: actions/checkout@v2
+            uses: actions/checkout@v3
 
         -   name: Install
             run: |
-                pwd
+                export LLVM_VERSION=${{matrix.LLVM_VERSION}}
                 source ./ci/github-actions/install-osx.sh
                 git clone --depth 1 https://github.com/vovkos/axl
                 git clone --depth 1 https://github.com/vovkos/graco
