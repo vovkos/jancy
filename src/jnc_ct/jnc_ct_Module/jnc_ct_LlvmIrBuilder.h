@@ -221,15 +221,31 @@ public:
 	}
 
 	llvm::LoadInst*
+	createLoadImpl(
+		llvm::Value* llvmValue,
+		bool isVolatile = false
+	) {
+		ASSERT(m_llvmIrBuilder);
+#if (LLVM_VERSION_MAJOR < 8)
+		return m_llvmIrBuilder->CreateLoad(llvmValue, isVolatile, "loa");
+#else
+		return m_llvmIrBuilder->CreateLoad(
+			llvmValue->getType()->getPointerElementType(),
+			llvmValue,
+            isVolatile,
+            "loa"
+        );
+#endif
+	}
+
+	llvm::LoadInst*
 	createLoad(
 		const Value& value,
 		Type* resultType,
 		Value* resultValue,
 		bool isVolatile = false
 	) {
-		ASSERT(m_llvmIrBuilder);
-
-		llvm::LoadInst* inst = m_llvmIrBuilder->CreateLoad(value.getLlvmValue(), isVolatile, "loa");
+		llvm::LoadInst* inst = createLoadImpl(value.getLlvmValue(), isVolatile);
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
 	}
@@ -247,6 +263,24 @@ public:
 	// member access
 
 	llvm::Value*
+	createGepImpl(
+		llvm::Value* llvmValue,
+		const llvm::ArrayRef<llvm::Value*>& llvmIndexArray
+	) {
+		ASSERT(m_llvmIrBuilder);
+#if (LLVM_VERSION < 0x030700)
+		return m_llvmIrBuilder->CreateGEP(llvmValue, llvmIndexArray, "gep");
+#else
+		return m_llvmIrBuilder->CreateGEP(
+			llvmValue->getType()->getScalarType()->getPointerElementType(),
+			llvmValue,
+			llvmIndexArray,
+			"gep"
+		);
+#endif
+	}
+
+	llvm::Value*
 	createGep(
 		const Value& value,
 		const Value* indexArray,
@@ -254,7 +288,6 @@ public:
 		Type* resultType,
 		Value* resultValue
 	);
-
 
 	llvm::Value*
 	createGep(
@@ -272,9 +305,7 @@ public:
 		Type* resultType,
 		Value* resultValue
 	) {
-		ASSERT(m_llvmIrBuilder);
-
-		llvm::Value* inst = m_llvmIrBuilder->CreateGEP(value.getLlvmValue(), indexValue.getLlvmValue(), "gep");
+		llvm::Value* inst = createGepImpl(value.getLlvmValue(), indexValue.getLlvmValue());
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
 	}
@@ -917,6 +948,9 @@ public:
 			ptrValue.getLlvmValue(),
 			cmpValue.getLlvmValue(),
 			newValue.getLlvmValue(),
+#if (LLVM_VERSION_MAJOR >= 13)
+            llvm::MaybeAlign(),
+#endif
 			orderingKind,
 #if (LLVM_VERSION >= 0x030500)
 			orderingKind,
@@ -945,6 +979,9 @@ public:
 			ptrValue.getLlvmValue(),
 			cmpValue.getLlvmValue(),
 			newValue.getLlvmValue(),
+#if (LLVM_VERSION_MAJOR >= 13)
+            llvm::MaybeAlign(),
+#endif
 			successOrderingKind,
 			failureOrderingKind,
 			syncKind
@@ -970,6 +1007,9 @@ public:
 			opKind,
 			ptrValue.getLlvmValue(),
 			newValue.getLlvmValue(),
+#if (LLVM_VERSION_MAJOR >= 13)
+            llvm::MaybeAlign(),
+#endif
 			orderingKind,
 			syncKind
 		);
@@ -1292,6 +1332,24 @@ public:
 		const Value& closureValue,
 		PropertyPtrType* resultType,
 		Value* resultValue
+	);
+
+	// typed attributes (sret, byval)
+
+	void
+	addTypedAttribute(
+		llvm::Function* llvmFunction,
+		unsigned i,
+		llvm::Attribute::AttrKind attrKind,
+		Type* type
+	);
+
+	void
+	addTypedAttribute(
+		llvm::CallInst* llvmCallInst,
+		unsigned i,
+		llvm::Attribute::AttrKind attrKind,
+		Type* type
 	);
 };
 

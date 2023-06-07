@@ -61,7 +61,7 @@ CallConv_msc32::createLlvmFunction(
 
 	Type* returnType = functionType->getReturnType();
 	if (isStructRet(returnType))
-		llvmFunction->addAttribute(1, llvm::Attribute::StructRet);
+		m_module->m_llvmIrBuilder.addTypedAttribute(llvmFunction, 1, llvm::Attribute::StructRet, returnType);
 
 	return llvmFunction;
 }
@@ -89,7 +89,7 @@ CallConv_msc32::call(
 
 	argValueList->insertHead(tmpReturnValue);
 
-	llvm::CallInst* inst = m_module->m_llvmIrBuilder.createCall(
+	llvm::CallInst* llvmInst = m_module->m_llvmIrBuilder.createCall(
 		calleeValue,
 		this,
 		*argValueList,
@@ -97,7 +97,7 @@ CallConv_msc32::call(
 		NULL
 	);
 
-	inst->addAttribute(1, llvm::Attribute::StructRet);
+	m_module->m_llvmIrBuilder.addTypedAttribute(llvmInst, 1, llvm::Attribute::StructRet, returnType);
 	m_module->m_llvmIrBuilder.createLoad(tmpReturnValue, returnType, resultValue);
 }
 

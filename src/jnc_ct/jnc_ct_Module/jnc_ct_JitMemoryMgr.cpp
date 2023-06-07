@@ -29,7 +29,7 @@ JitMemoryMgr::getPointerToNamedFunction(
 
 	if (abortOnFailure) {
 		std::string errorString = "JitMemoryManager::getPointerToNamedFunction: unresolved external function '" + name + "'";
-		llvm::report_fatal_error(errorString);
+		llvm::report_fatal_error(errorString.c_str());
 	}
 
 	return NULL;

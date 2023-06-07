@@ -444,5 +444,45 @@ CodeAssistMgr::prepareAutoCompleteFallback(size_t offset) {
 
 //..............................................................................
 
+inline
+void
+LlvmIrBuilder::addTypedAttribute(
+	llvm::Function* llvmFunction,
+	unsigned i,
+	llvm::Attribute::AttrKind attrKind,
+	Type* type
+) {
+#if (LLVM_VERSION_MAJOR < 9)
+	llvmFunction->addAttribute(i, attrKind);
+#elif (LLVM_VERSION_MAJOR < 14)
+	llvm::Attribute llvmAttr = llvm::Attribute::get(*m_module->getLlvmContext(), attrKind, type->getLlvmType());
+    llvmFunction->addAttribute(i, llvmAttr);
+#else
+    llvm::Attribute llvmAttr = llvm::Attribute::get(*m_module->getLlvmContext(), attrKind, type->getLlvmType());
+    llvmFunction->addAttributeAtIndex(i, llvmAttr);
+#endif
+}
+
+inline
+void
+LlvmIrBuilder::addTypedAttribute(
+	llvm::CallInst* llvmCallInst,
+	unsigned i,
+	llvm::Attribute::AttrKind attrKind,
+	Type* type
+) {
+#if (LLVM_VERSION_MAJOR < 9)
+	llvmCallInst->addAttribute(i, attrKind);
+#elif (LLVM_VERSION_MAJOR < 14)
+	llvm::Attribute llvmAttr = llvm::Attribute::get(*m_module->getLlvmContext(), attrKind, type->getLlvmType());
+	llvmCallInst->addAttribute(i, llvmAttr);
+#else
+    llvm::Attribute llvmAttr = llvm::Attribute::get(*m_module->getLlvmContext(), attrKind, type->getLlvmType());
+    llvmCallInst->addAttributeAtIndex(i, llvmAttr);
+#endif
+}
+
+//..............................................................................
+
 } // namespace ct
 } // namespace jnc

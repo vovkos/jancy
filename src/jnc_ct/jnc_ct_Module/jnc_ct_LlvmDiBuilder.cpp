@@ -59,13 +59,38 @@ LlvmDiBuilder::clear() {
 }
 
 llvm::DebugLoc
+LlvmDiBuilder::getDebugLoc(
+	Scope* scope,
+	const lex::LineCol& pos
+) {
+	llvm::DIScope_vn llvmDiScope = scope->getLlvmDiScope();
+	if (!llvmDiScope)
+		llvmDiScope = m_module->m_functionMgr.getCurrentFunction()->getLlvmDiSubprogram();
+
+#if (LLVM_VERSION_MAJOR < 12)
+	return llvm::DebugLoc::get(pos.m_line + 1, pos.m_col + 1, llvmDiScope);
+#else
+	return llvm::DILocation::get(*m_module->getLlvmContext(), pos.m_line + 1, pos.m_col + 1, (llvm::MDNode*)llvmDiScope);
+#endif
+}
+
+llvm::DebugLoc
 LlvmDiBuilder::getEmptyDebugLoc() {
-	// llvm magic: unfortunately, simple llvm::DebugLoc () doesn't quit cut it
+	// llvm magic: unfortunately, simple llvm::DebugLoc() doesn't quit cut it
 
 	Unit* unit = m_module->m_unitMgr.getCurrentUnit();
+
+#if (LLVM_VERSION_MAJOR < 12)
 	return unit ?
 		llvm::DebugLoc::get(0, 0, unit->getLlvmDiFile()) :
 		llvm::DebugLoc();
+#else
+	ASSERT((llvm::MDNode*)unit->getLlvmDiFile());
+
+	return unit ?
+		llvm::DebugLoc(llvm::DILocation::get(*m_module->getLlvmContext(), 0, 0, (llvm::MDNode*)unit->getLlvmDiFile())) :
+		llvm::DebugLoc();
+#endif
 }
 
 llvm::DISubroutineType_vn
@@ -390,12 +415,24 @@ LlvmDiBuilder::createDeclare(Variable* variable) {
 #else
 	llvm::DILocalVariable* llvmDiLocalVariable = (llvm::DILocalVariable*)variable->getLlvmDiDescriptor();
 	ASSERT(llvm::isa<llvm::DILocalVariable> (llvmDiLocalVariable));
+	ASSERT((llvm::MDNode*)scope->getLlvmDiScope());
+
+#if (LLVM_VERSION_MAJOR < 12)
+	llvm::DebugLoc llvmDebugLoc = llvm::DebugLoc::get(variable->getPos().m_line, variable->getPos().m_col, scope->getLlvmDiScope());
+#	else
+	llvm::DebugLoc llvmDebugLoc = llvm::DILocation::get(
+		*m_module->getLlvmContext(),
+		variable->getPos().m_line,
+		variable->getPos().m_col,
+		(llvm::MDNode*)scope->getLlvmDiScope()
+	);
+#	endif
 
 	llvm::Instruction* llvmInstruction = m_llvmDiBuilder->insertDeclare(
 		variable->getLlvmValue(),
 		llvmDiLocalVariable,
 		m_llvmDiBuilder->createExpression(),
-		llvm::DebugLoc::get(variable->getPos().m_line, variable->getPos().m_col, scope->getLlvmDiScope()),
+		llvmDebugLoc,
 		block->getLlvmBlock()
 	);
 #endif
