@@ -22,16 +22,8 @@ if [[ $TARGET_CPU != "x86" ]]; then
 else
 	sudo dpkg --add-architecture i386
 	sudo apt -qq update
-	# sudo apt upgrade
 
 	sudo apt-get remove -y python3
-	sudo apt-get remove -y zlib1g-dev
-
-	echo ls /usr/lib
-	ls /usr/lib
-
-	echo ls /lib
-	ls /lib
 
 	echo installing...
 
@@ -41,7 +33,6 @@ else
 	sudo apt-get install -y python3:i386
 	sudo apt-get install -y ${LLVM_VERSION}-dev:i386
 	sudo apt-get install -y zlib1g-dev:i386
-	sudo apt-get install -y zlib1g:i386
 	sudo apt-get install -y libssl-dev:i386
 
 	# install g++-multilib -- in the end, after i386 packages!
@@ -50,9 +41,11 @@ else
 
 	# CMake fails to properly switch between 32-bit and 64-bit libraries on Ubuntu
 
+	echo "set (OPENSSL_INC_DIR /usr/include/i386-linux-gnu)" >> paths.cmake
 	echo "set (OPENSSL_LIB_DIR /usr/lib/i386-linux-gnu)" >> paths.cmake
 	echo "set (LUA_LIB_DIR /usr/lib/i386-linux-gnu)" >> paths.cmake
 	echo "set (PCAP_LIB_DIR /usr/lib/i386-linux-gnu)" >> paths.cmake
+	echo "set (ZLIB_ROOT /usr/lib/i386-linux-gnu)" >> paths.cmake
 	echo "set (EXPAT_INC_DIR DISABLED)" >> paths.cmake
 fi
 
@@ -60,6 +53,7 @@ sudo apt-get install -y p7zip-full
 sudo apt-get install -y ragel
 
 if [[ $BUILD_DOC == "true" ]]; then
+
 	sudo apt-get install -y doxygen
 	sudo pip install sphinx sphinx_rtd_theme
 
