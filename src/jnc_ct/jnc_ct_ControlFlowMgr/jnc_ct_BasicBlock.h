@@ -68,13 +68,13 @@ public:
 	bool
 	isEmpty() {
 		ASSERT(m_llvmBlock);
-		return m_llvmBlock->getInstList().empty();
+		return m_llvmBlock->empty();
 	}
 
 	size_t
 	getInstructionCount() {
 		ASSERT(m_llvmBlock);
-		return m_llvmBlock->getInstList().size();
+		return m_llvmBlock->size();
 	}
 
 	bool

@@ -150,7 +150,11 @@ ControlFlowMgr::setCurrentBlock(BasicBlock* block) {
 		Function* function = m_module->m_functionMgr.getCurrentFunction();
 		ASSERT(function);
 
+#if (LLVM_VERSION_MAJOR < 16)
 		function->getLlvmFunction()->getBasicBlockList().push_back(block->m_llvmBlock);
+#else
+		function->getLlvmFunction()->insert(function->getLlvmFunction()->end(), block->m_llvmBlock);
+#endif
 		block->m_function = function;
 	}
 
