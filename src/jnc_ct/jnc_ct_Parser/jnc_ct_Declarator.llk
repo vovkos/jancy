@@ -42,6 +42,10 @@ special_void_method_declarator
 	}
 	:	special_void_method_declarator_qualifier<&$.m_declarator>
 			{
+				$.m_declarator.m_pos = $1.m_firstTokenPos;
+				$.m_declarator.m_attributeBlock = popAttributeBlock();
+				$.m_declarator.m_doxyBlock = m_doxyParser.popBlock();
+
 				postDeclaratorName(&$.m_declarator);
 			}
 		function_suffix<&$.m_declarator>
