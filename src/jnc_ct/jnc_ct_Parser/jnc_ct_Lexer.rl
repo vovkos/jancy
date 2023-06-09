@@ -45,6 +45,7 @@ dec = [0-9];
 hex = [0-9a-fA-F];
 oct = [0-7];
 bin = [01];
+exp = [eE][+\-]?dec+;
 id  = [_a-zA-Z] [_a-zA-Z0-9]*;
 ws  = [ \t\r]+;
 nl  = '\n' @{ newLine(p + 1); };
@@ -361,7 +362,8 @@ dec+             { createIntegerToken(10); };
 				 { createBinLiteralToken(2); };
 '0' [nNdD] raw_lit_dq
 				 { createBinLiteralToken(10); };
-dec+ ('.' dec*) | ([eE] [+\-]? dec+)
+
+(dec+ '.' dec* | '.' dec+) exp? | dec+ exp
 				 { createFpToken(); };
 
 '$' dec+         { createIntegerToken(TokenKind_ReGroup, 10, 1); };

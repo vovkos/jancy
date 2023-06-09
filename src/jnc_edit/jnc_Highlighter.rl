@@ -23,6 +23,7 @@ dec    = [0-9];
 hex    = [0-9a-fA-F];
 oct    = [0-7];
 bin    = [01];
+exp    = [eE][+\-]?dec+;
 id     = [_a-zA-Z] [_a-zA-Z0-9]*;
 ws     = [ \t\r]+;
 nl     = '\n';
@@ -174,7 +175,7 @@ dec+              |
 '0' [bB] bin+     |
 '0' [nNdD] dec+   |
 '0' [xXoObBnNdD] raw_lit_dq |
-dec+ (('.' dec*) | ([eE] [+\-]? dec+)) |
+(dec+ '.' dec* | '.' dec+)exp? | dec+ exp |
 [$fF] lit_dq
 )                 { highlightLastToken(EditTheme::Constant); };
 
