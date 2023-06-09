@@ -638,11 +638,7 @@ TypeMgr::getSimpleFunctionArg(
 		return tuple->m_argArray[i1][i2][i3];
 
 	FunctionArg* arg = createFunctionArg(sl::String(), type, ptrTypeFlags);
-	if (!arg)
-		return NULL;
-
 	arg->m_storageKind = storageKind;
-
 	tuple->m_argArray[i1][i2][i3] = arg;
 	return arg;
 }
@@ -695,13 +691,8 @@ TypeMgr::getFunctionType(
 
 	sl::Array<FunctionArg*> argArray;
 	argArray.setCount(argCount);
-	for (size_t i = 0; i < argCount; i++) {
-		FunctionArg* arg = getSimpleFunctionArg(argTypeArray[i]);
-		if (!arg)
-			return NULL;
-
-		argArray[i] = arg;
-	}
+	for (size_t i = 0; i < argCount; i++)
+		argArray[i] = getSimpleFunctionArg(argTypeArray[i]);
 
 	sl::String signature = FunctionType::createSignature(
 		callConv,

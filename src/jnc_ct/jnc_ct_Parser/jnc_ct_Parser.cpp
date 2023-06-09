@@ -1843,6 +1843,17 @@ Parser::createFormalArg(
 
 	TypeKind typeKind = type->getTypeKind();
 	switch (typeKind) {
+	case TypeKind_Array:
+		if (type->getFlags() & ArrayTypeFlag_AutoSize) {
+			err::setFormatStringError(
+				"function cannot accept auto-size array '%s' as an argument",
+				type->getTypeString().sz()
+			);
+			return NULL;
+		}
+
+		break;
+
 	case TypeKind_Void:
 	case TypeKind_Class:
 	case TypeKind_Function:

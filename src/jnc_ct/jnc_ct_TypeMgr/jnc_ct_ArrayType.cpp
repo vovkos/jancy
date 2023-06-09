@@ -101,7 +101,8 @@ ArrayType::calcLayoutImpl(
 		return false;
 
 	if (m_elementType->getTypeKind() == TypeKind_Class ||
-		m_elementType->getFlags() & TypeFlag_Dynamic) {
+		m_elementType->getFlags() & TypeFlag_Dynamic
+	) {
 		err::setFormatStringError("'%s' cannot be an element of an array", m_elementType->getTypeString().sz());
 		return false;
 	}
