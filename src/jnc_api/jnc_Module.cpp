@@ -627,16 +627,25 @@ jnc_Module_getCodeAssist(jnc_Module* module) {
 	return module->m_codeAssistMgr.getCodeAssist();
 }
 
+class LlvmShutdown:
+	public rc::RefCount,
+	public g::Finalizer {
+public:
+	virtual
+	void
+	finalize() {
+		llvm::llvm_shutdown();
+	}
+};
+
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
 jnc_initialize(const char* tag) {
-#if 0
-	// orginally there was no llvm_shutdown in ioninja-server
-	// so have to make sure it's not going to crash if we add it
+	if (tag)
+		g::getModule()->setTag(tag);
 
-	atexit(llvm::llvm_shutdown);
-#endif
+	g::getModule()->addFinalizer(AXL_RC_NEW(LlvmShutdown));
 
 	llvm::InitializeNativeTarget();
 	llvm::InitializeNativeTargetAsmParser();
@@ -651,9 +660,6 @@ jnc_initialize(const char* tag) {
 	LLVMLinkInJIT();
 #endif
 	LLVMLinkInMCJIT();
-
-	if (tag)
-		g::getModule()->setTag(tag);
 
 	sl::getSimpleSingleton<jnc::rt::ExceptionMgr>()->install();
 }
