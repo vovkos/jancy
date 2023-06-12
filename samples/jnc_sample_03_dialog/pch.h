@@ -44,24 +44,3 @@
 #include "jnc_CallSite.h"
 #include "jnc_ExtensionLib.h"
 #include "jnc_Error.h"
-
-#if (_JNC_OS_WIN)
-
-// Memory Leak Detection
-
-#	define _CRTDBG_MAP_ALLOC
-#	include <stdlib.h>
-#	include <crtdbg.h>
-
-#	ifdef _DEBUG
-#		ifndef DBG_NEW
-#			define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__)
-#			define new DBG_NEW
-#		endif
-#	endif
-
-#elif (_JNC_OS_POSIX)
-#	include <sys/socket.h>
-#	include <netinet/in.h>
-#	include <netinet/ip.h>
-#endif
