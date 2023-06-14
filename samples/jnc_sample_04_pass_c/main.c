@@ -86,7 +86,7 @@ main(
 	char string[] = "This is a host string on stack";
 
 	printf("Initializing...\n");
-	jnc_initialize("jnc_sample_04_pass_c");
+	jnc_initialize(NULL);
 
 	module = jnc_Module_create();
 	jnc_Module_initialize(module, "jnc_sample_04_pass_c", jnc_ModuleCompileFlag_StdFlags);

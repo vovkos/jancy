@@ -105,7 +105,6 @@ JNC_EXTERN_C
 JNC_EXPORT
 jnc_ExtensionLib*
 jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host) {
-	g::getModule()->setTag("jnc_io_usb");
 	err::getErrorMgr()->setRouter(host->m_errorRouter);
 	jnc_g_dynamicExtensionLibHost = host;
 	jnc::io::initializeUsbLibCapabilities();

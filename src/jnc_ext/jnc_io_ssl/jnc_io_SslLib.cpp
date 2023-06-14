@@ -78,7 +78,6 @@ jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host) {
 #endif
 
 	::SSL_library_init();
-	g::getModule()->setTag("jnc_io_ssl");
 	err::getErrorMgr()->setRouter(host->m_errorRouter);
 	jnc_g_dynamicExtensionLibHost = host;
 	jnc::io::initializeSslLibCapabilities();

@@ -23,7 +23,6 @@ namespace jnc {
 static class Init {
 public:
 	Init() {
-		g::getModule()->setTag("jnc_edit");
 		g_defaultDarkTheme.setDefaultDarkTheme();
 	}
 } g_init;

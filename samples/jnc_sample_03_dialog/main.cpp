@@ -19,7 +19,7 @@
 //..............................................................................
 
 int main(int argc, char* argv[]) {
-	jnc::initialize("jnc_sample_03_dialog");
+	jnc::initialize();
 
 	bool isTest = false;
 	QString fileName;

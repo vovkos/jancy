@@ -66,7 +66,7 @@ main(
 	bool result;
 
 	printf("Initializing...\n");
-	jnc::initialize("jnc_sample_05_pass_cpp");
+	jnc::initialize();
 
 	jnc::AutoModule module;
 	module->initialize("jnc_sample_05_pass_cpp");

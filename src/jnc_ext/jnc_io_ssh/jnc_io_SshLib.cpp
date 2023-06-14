@@ -64,7 +64,6 @@ jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host) {
 	WSAStartup(0x0202, &WsaData);
 #endif
 
-	g::getModule()->setTag("jnc_io_ssh");
 	err::getErrorMgr()->setRouter(host->m_errorRouter);
 	jnc_g_dynamicExtensionLibHost = host;
 	jnc::io::initializeSshLibCapabilities();

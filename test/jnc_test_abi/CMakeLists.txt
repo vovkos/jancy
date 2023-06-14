@@ -126,6 +126,7 @@ target_link_libraries(
 	axl_re
 	axl_io
 	axl_lex
+	axl_mem_new
 	axl_core
 )
 

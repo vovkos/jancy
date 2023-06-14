@@ -45,8 +45,7 @@ main(
 
 	bool result;
 
-	g::getModule()->setTag("jnc_test_abi");
-	jnc::initialize("jnc_dll:jnc_test_abi");
+	jnc::initialize();
 	jnc::setErrorRouter(err::getErrorMgr());
 	lex::registerParseErrorProvider();
 	sys::registerExceptionErrorProvider();

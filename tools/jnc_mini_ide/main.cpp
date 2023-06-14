@@ -24,8 +24,7 @@ int main(int argc, char* argv[]) {
 	setvbuf(stdout, NULL, _IOLBF, 1024);
 #endif
 
-	g::getModule()->setTag("jnc_mini_ide");
-	jnc::initialize("jnc_dll:jnc_mini_ide");
+	jnc::initialize();
 	jnc::setErrorRouter(err::getErrorMgr());
 	lex::registerParseErrorProvider();
 	sys::registerExceptionErrorProvider();

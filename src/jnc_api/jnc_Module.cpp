@@ -641,10 +641,7 @@ public:
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
-jnc_initialize(const char* tag) {
-	if (tag)
-		g::getModule()->setTag(tag);
-
+jnc_initialize(const char* reserved) {
 	g::getModule()->addFinalizer(AXL_RC_NEW(LlvmShutdown));
 
 	llvm::InitializeNativeTarget();

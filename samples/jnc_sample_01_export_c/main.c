@@ -85,7 +85,7 @@ main(
 	int returnValue;
 
 	printf("Initializing...\n");
-	jnc_initialize("jnc_sample_01_export_c");
+	jnc_initialize(NULL);
 
 	module = jnc_Module_create();
 	jnc_Module_initialize(module, "jnc_sample_01_export_c", jnc_ModuleCompileFlag_StdFlags);

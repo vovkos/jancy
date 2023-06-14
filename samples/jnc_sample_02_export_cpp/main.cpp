@@ -67,7 +67,7 @@ main(
 	bool result;
 
 	printf("Initializing...\n");
-	jnc::initialize("jnc_sample_02_export_cpp");
+	jnc::initialize();
 	jnc::AutoModule module;
 
 	module->initialize("jnc_sample_02_export_cpp");

@@ -373,7 +373,7 @@ typedef struct jnc_GcSizeTriggers jnc_GcSizeTriggers;
 
 JNC_EXTERN_C
 void
-jnc_initialize(const char* tag);
+jnc_initialize(const char* reserved);
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -434,8 +434,8 @@ typedef jnc_CodeAssist CodeAssist;
 
 inline
 void
-initialize(const char* tag = NULL) {
-	jnc_initialize(tag);
+initialize(const char* reserved = NULL) {
+	jnc_initialize(NULL);
 }
 
 //..............................................................................

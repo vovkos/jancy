@@ -685,6 +685,10 @@ Module::parseFile(const sl::StringRef& fileName) {
 	if (!result)
 		return false;
 
+	do {
+		sl::String s = "hui!";
+	} while (0);
+
 	size_t length = file.getMappingSize();
 	sl::String source((const char*)file.p(), length);
 
