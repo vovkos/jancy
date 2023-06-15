@@ -101,7 +101,12 @@ main(
 	} else {
 		JncApp app(&cmdLine);
 
+		uint64_t time0;
+
+		time0 = sys::getTimestamp();
 		result = app.parse();
+		printf("parse: %s\n", sys::Time(sys::getTimestamp() - time0).format("%s.%l").sz());
+
 		if (!result) {
 			fprintf(stderr, "%s\n", err::getLastErrorDescription().sz());
 			return JncError_CompileFailure;
@@ -116,18 +121,27 @@ main(
 		}
 
 		if (cmdLine.m_flags & JncFlag_Compile) {
+			time0 = sys::getTimestamp();
 			result = app.compile();
+			printf("compile: %s\n", sys::Time(sys::getTimestamp() - time0).format("%s.%l").sz());
+
 			if (!result) {
 				fprintf(stderr, "%s\n", err::getLastErrorDescription().sz());
 				return JncError_CompileFailure;
 			}
 		}
 
-		if (cmdLine.m_flags & JncFlag_LlvmIr)
+		if (cmdLine.m_flags & JncFlag_LlvmIr) {
+			time0 = sys::getTimestamp();
 			app.printLlvmIr();
+			printf("print LLVM IR: %s\n", sys::Time(sys::getTimestamp() - time0).format("%s.%l").sz());
+		}
 
 		if (cmdLine.m_flags & JncFlag_Jit) {
+			time0 = sys::getTimestamp();
 			result = app.jit();
+			printf("JIT: %s\n", sys::Time(sys::getTimestamp() - time0).format("%s.%l").sz());
+
 			if (!result) {
 				fprintf(stderr, "%s\n", err::getLastErrorDescription().sz());
 				return JncError_CompileFailure;
