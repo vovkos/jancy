@@ -110,7 +110,7 @@ CmdLineParser::onSwitch(
 		break;
 
 	case CmdLineSwitch_DisableCodeGen:
-		m_cmdLine->m_flags &= ~(JncFlag_Jit | JncFlag_Run);
+		m_cmdLine->m_flags &= ~(JncFlag_Jit | JncFlag_Run | JncFlag_LlvmIr);
 		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_DisableCodeGen;
 		break;
 
@@ -217,8 +217,10 @@ CmdLineParser::finalize() {
 	if (m_cmdLine->m_flags & JncFlag_Run)
 		m_cmdLine->m_flags |= JncFlag_Jit;
 
-	if (m_cmdLine->m_flags & JncFlag_Jit)
+	if (m_cmdLine->m_flags & (JncFlag_Jit | JncFlag_LlvmIr)) {
 		m_cmdLine->m_flags |= JncFlag_Compile;
+		m_cmdLine->m_flags &= ~JncFlag_DisableCodeGen;
+	}
 
 	if ((m_cmdLine->m_compileFlags & jnc::ModuleCompileFlag_Documentation) &&
 		!(m_cmdLine->m_flags & JncFlag_Compile)) {
