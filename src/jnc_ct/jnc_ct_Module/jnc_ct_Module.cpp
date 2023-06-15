@@ -1131,7 +1131,6 @@ Module::getLlvmIrString() {
 	::std::string string;
 	llvm::raw_string_ostream stream(string);
 	m_llvmModule->print(stream, NULL);
-	printf("LLVM IR:\n---\n%s\n---\n", string.c_str());
 	return string.c_str();
 }
 
