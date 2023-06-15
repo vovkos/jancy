@@ -209,7 +209,7 @@ LlvmIrBuilder::createPhi(
 		return NULL;
 	}
 
-	llvm::PHINode* phiNode = m_llvmIrBuilder->CreatePHI(valueArray->getType()->getLlvmType(), count, "phi");
+	llvm::PHINode* phiNode = m_llvmIrBuilder->CreatePHI(valueArray->getType()->getLlvmType(), count);
 
 	for (size_t i = 0; i < count; i++)
 		phiNode->addIncoming(valueArray[i].getLlvmValue(), blockArray[i]->getLlvmBlock());
@@ -233,7 +233,7 @@ LlvmIrBuilder::createPhi(
 		return NULL;
 	}
 
-	llvm::PHINode* phiNode = m_llvmIrBuilder->CreatePHI(value1.getLlvmValue()->getType(), 2,  "phi");
+	llvm::PHINode* phiNode = m_llvmIrBuilder->CreatePHI(value1.getLlvmValue()->getType(), 2);
 	phiNode->addIncoming(value1.getLlvmValue(), block1->getLlvmBlock());
 	phiNode->addIncoming(value2.getLlvmValue(), block2->getLlvmBlock());
 	resultValue->setLlvmValue(phiNode, value1.getType());
@@ -319,8 +319,7 @@ LlvmIrBuilder::createCall(
 			llvmFunctionType,
 #endif
 			calleeValue.getLlvmValue(),
-			llvm::ArrayRef<llvm::Value*> (llvmArgValueArray, argCount),
-			"call"
+			llvm::ArrayRef<llvm::Value*> (llvmArgValueArray, argCount)
 		);
 
 		ASSERT(resultValue);
