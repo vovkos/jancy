@@ -821,9 +821,13 @@ Module::optimize(uint_t level) {
 	llvm::PassManagerBuilder passManagerBuilder;
 	passManagerBuilder.OptLevel = level;
 	passManagerBuilder.SizeLevel = 0;
+	passManagerBuilder.Inliner = llvm::createFunctionInliningPass();
 
 	llvm::legacy::FunctionPassManager llvmFunctionPassMgr(m_llvmModule);
+	llvm::legacy::PassManager llvmModulePassMgr;
 	passManagerBuilder.populateFunctionPassManager(llvmFunctionPassMgr);
+	passManagerBuilder.populateModulePassManager(llvmModulePassMgr);
+
 	llvmFunctionPassMgr.doInitialization();
 
 	it = m_functionMgr.m_functionList.getHead();
@@ -835,12 +839,7 @@ Module::optimize(uint_t level) {
 
 	llvmFunctionPassMgr.doFinalization();
 
-	passManagerBuilder.Inliner = llvm::createFunctionInliningPass();
-
-	llvm::legacy::PassManager llvmModulePassMgr;
-	passManagerBuilder.populateModulePassManager(llvmModulePassMgr);
 	llvmModulePassMgr.run(*m_llvmModule);
-
 	return true;
 }
 
