@@ -108,7 +108,7 @@ EnumType::isBaseType(EnumType* type) {
 EnumConst*
 EnumType::createConst(
 	const sl::StringRef& name,
-	sl::BoxList<Token>* initializer
+	sl::List<Token>* initializer
 ) {
 	EnumConst* enumConst = AXL_MEM_NEW(EnumConst);
 	enumConst->m_module = m_module;
@@ -273,7 +273,7 @@ EnumType::calcEnumConstValues(EnumConst* baseConst) {
 			finalResult = false;
 
 		if (!constIt->m_initializer.isEmpty()) {
-			result = m_module->m_operatorMgr.parseConstIntegerExpression(constIt->m_initializer, &value);
+			result = m_module->m_operatorMgr.parseConstIntegerExpression(&constIt->m_initializer, &value);
 			if (!result)
 				finalResult = false;
 		}
@@ -298,7 +298,7 @@ EnumType::calcBitflagEnumConstValues(EnumConst* baseConst) {
 			finalResult = false;
 
 		if (!constIt->m_initializer.isEmpty()) {
-			result = m_module->m_operatorMgr.parseConstIntegerExpression(constIt->m_initializer, &value);
+			result = m_module->m_operatorMgr.parseConstIntegerExpression(&constIt->m_initializer, &value);
 			if (!result)
 				finalResult = false;
 		}

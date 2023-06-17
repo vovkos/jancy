@@ -64,30 +64,29 @@ bool Parser::checkUnusedAttributeBlock() {
 
 bool
 Parser::tokenizeBody(
-	sl::BoxList<Token>* tokenList,
+	sl::List<Token>* tokenList,
 	const lex::LineColOffset& pos,
 	const sl::StringRef& body
 ) {
 	Unit* unit = m_module->m_unitMgr.getCurrentUnit();
 	ASSERT(unit);
 
-	Lexer lexer(m_mode == Mode_Parse ? LexerMode_Parse : LexerMode_Compile);
-
+	uint_t flags = m_mode == Mode_Parse ? LexerFlag_Parse : 0;
 	if ((m_module->getCompileFlags() & ModuleCompileFlag_Documentation) && !unit->getLib())
-		lexer.m_channelMask = TokenChannelMask_All; // also include doxy-comments (but not for libs!)
+		flags |= LexerFlag_DoxyComments; // also include doxy-comments (but not for libs!)
 
+	Lexer lexer(flags);
 	lexer.create(unit->getFilePath(), body);
 	lexer.setLineColOffset(pos);
 
 	char buffer[256];
 	sl::Array<Token*> scopeAnchorTokenStack(rc::BufKind_Stack, buffer, sizeof(buffer));
 	bool isScopeFlagMarkupRequired = m_mode != Mode_Parse;
-
 	bool hasLandingPadFlags = false;
 
 	for (;;) {
-		const Token* token = lexer.getToken();
-		switch (token->m_token) {
+		const Token* token0 = lexer.getToken();
+		switch (token0->m_token) {
 		case TokenKind_Eof: // don't add EOF token (parseTokenList adds one automatically)
 			if (hasLandingPadFlags) {
 				Token* token = tokenList->getHead().p();
@@ -97,16 +96,16 @@ Parser::tokenizeBody(
 			return true;
 
 		case TokenKind_Error:
-			err::setFormatStringError("invalid character '\\x%02x'", (uchar_t) token->m_data.m_integer);
-			lex::pushSrcPosError(unit->getFilePath(), token->m_pos);
+			err::setFormatStringError("invalid character '\\x%02x'", (uchar_t)token0->m_data.m_integer);
+			lex::pushSrcPosError(unit->getFilePath(), token0->m_pos);
 			return false;
 		}
 
-		tokenList->insertTail(*token);
-		lexer.nextToken();
+		Token* token = lexer.takeToken();
+		tokenList->insertTail(token);
+		ASSERT(token == token0);
 
 		Token* anchorToken;
-
 		if (isScopeFlagMarkupRequired)
 			switch (token->m_token) {
 			case '{':
@@ -218,14 +217,14 @@ Parser::parseBody(
 	const lex::LineColOffset& pos,
 	const sl::StringRef& body
 ) {
-	sl::BoxList<Token> tokenList;
+	sl::List<Token> tokenList;
 
 	bool result = tokenizeBody(&tokenList, pos, body);
 	if (!result)
 		return false;
 
 	return !tokenList.isEmpty() ?
-		parseTokenList(symbol, tokenList) :
+		parseTokenList(symbol, &tokenList) :
 		create(m_module->m_unitMgr.getCurrentUnit()->getFilePath(), symbol) &&
 		parseEofToken(pos, body.getLength());
 }
@@ -233,25 +232,24 @@ Parser::parseBody(
 bool
 Parser::parseTokenList(
 	SymbolKind symbol,
-	const sl::ConstBoxList<Token>& tokenList
+	sl::List<Token>* tokenList
 ) {
-	ASSERT(!tokenList.isEmpty());
+	ASSERT(!tokenList->isEmpty());
 
 	Unit* unit = m_module->m_unitMgr.getCurrentUnit();
 	create(unit->getFilePath(), symbol);
 
-	Token::Pos lastTokenPos = tokenList.getTail()->m_pos;
+	Token::Pos lastTokenPos = tokenList->getTail()->m_pos;
 
 	if (!m_module->m_codeAssistMgr.getCodeAssistKind() ||
 		!unit->isRootUnit() ||
-		!isOffsetInsideTokenList(tokenList, m_module->m_codeAssistMgr.getOffset())) {
-		sl::ConstBoxIterator<Token> token = tokenList.getHead();
-		for (; token; token++) {
-			bool result = parseToken(&*token);
-			if (!result) {
-				lex::ensureSrcPosError(m_module->m_unitMgr.getCurrentUnit()->getFilePath(), token->m_pos);
+		!isOffsetInsideTokenList(tokenList, m_module->m_codeAssistMgr.getOffset())
+	) {
+		while (!tokenList->isEmpty()) {
+			Token* token = tokenList->removeHead();
+			bool result = consumeToken(token);
+			if (!result)
 				return false;
-			}
 		}
 
 		return parseEofToken(lastTokenPos, lastTokenPos.m_length); // might trigger actions
@@ -261,14 +259,14 @@ Parser::parseTokenList(
 
 		bool result = true;
 
-		sl::ConstBoxIterator<Token> token = tokenList.getHead();
-		for (; token; token++) {
-			bool isCodeAssist = markCodeAssistToken((Token*)token.p(), offset);
+		while (!tokenList->isEmpty()) {
+			Token* token = tokenList->removeHead();
+			bool isCodeAssist = markCodeAssistToken(token, offset);
 			if (isCodeAssist) {
-				if (token->m_tokenKind == TokenKind_Identifier && (token->m_flags & TokenFlag_CodeAssist))
+				if (token->m_tokenKind == TokenKind_Identifier && (token->m_data.m_codeAssistFlags & TokenCodeAssistFlag_At))
 					autoCompleteFallbackOffset = token->m_pos.m_offset;
 
-				if (token->m_flags & TokenFlag_PostCodeAssist) {
+				if (token->m_data.m_codeAssistFlags & TokenCodeAssistFlag_After) {
 					m_module->m_codeAssistMgr.prepareAutoCompleteFallback(autoCompleteFallbackOffset);
 
 					if (m_mode == Mode_Compile) {
@@ -280,7 +278,7 @@ Parser::parseTokenList(
 				}
 			}
 
-			result = parseToken(&*token);
+			result = consumeToken(token);
 			if (!result)
 				break;
 		}
@@ -301,19 +299,12 @@ Parser::parseEofToken(
 	const lex::LineColOffset& pos,
 	size_t length
 ) {
-	Token eofToken;
-	eofToken.m_token = 0;
-	eofToken.m_pos.m_line = pos.m_line;
-	eofToken.m_pos.m_col = pos.m_col + length;
-	eofToken.m_pos.m_offset = pos.m_offset + length;
-
-	bool result = parseToken(&eofToken);
-	if (!result) {
-		lex::ensureSrcPosError(m_module->m_unitMgr.getCurrentUnit()->getFilePath(), pos);
-		return false;
-	}
-
-	return true;
+	Token* token = m_tokenPool->get();
+	token->m_token = 0;
+	token->m_pos.m_line = pos.m_line;
+	token->m_pos.m_col = pos.m_col + length;
+	token->m_pos.m_offset = pos.m_offset + length;
+	return consumeToken(token);
 }
 
 bool
@@ -321,7 +312,9 @@ Parser::isTypeSpecified() {
 	if (m_typeSpecifierStack.isEmpty())
 		return false;
 
-	// if we've seen 'unsigned', assume 'int' is implied.
+	AXL_TODO("process declarations like `unsigned int32_t a; bigendian b;`")
+
+	// if we've seen 'unsigned' or 'bigendian', assume 'int' is implied.
 	// checking for 'property' is required for full property syntax e.g.:
 	// property foo { int get (); }
 	// here 'foo' should be a declarator, not import-type-specifier
@@ -330,7 +323,12 @@ Parser::isTypeSpecified() {
 	TypeSpecifier* typeSpecifier = m_typeSpecifierStack.getBack();
 	return
 		typeSpecifier->getType() != NULL ||
-		typeSpecifier->getTypeModifiers() & (TypeModifier_Unsigned | TypeModifier_Property | TypeModifier_Reactor);
+		typeSpecifier->getTypeModifiers() & (
+			TypeModifier_Unsigned |
+			// TypeModifier_BigEndian |
+			TypeModifier_Property |
+			TypeModifier_Reactor
+		);
 }
 
 NamedImportType*
@@ -467,7 +465,7 @@ bool
 Parser::createAttribute(
 	const lex::LineCol& pos,
 	const sl::StringRef& name,
-	sl::BoxList<Token>* initializer
+	sl::List<Token>* initializer
 ) {
 	ASSERT(m_attributeBlock);
 
@@ -696,7 +694,7 @@ Parser::declareGlobalNamespace(
 		bodyToken.m_data.m_string
 	);
 
-	if (bodyToken.m_flags & TokenFlag_CodeAssist)
+	if (bodyToken.m_data.m_codeAssistFlags & TokenCodeAssistFlag_At)
 		m_module->m_codeAssistMgr.m_containerItem = nspace;
 
 	return nspace;
@@ -734,7 +732,7 @@ Parser::declareExtensionNamespace(
 
 	ASSERT(result);
 
-	if (bodyToken.m_flags & TokenFlag_CodeAssist)
+	if (bodyToken.m_data.m_codeAssistFlags & TokenCodeAssistFlag_At)
 		m_module->m_codeAssistMgr.m_containerItem = nspace;
 
 	return nspace;
@@ -792,19 +790,20 @@ Parser::declareInReaction(Declarator* declarator) {
 
 	// modify initializer so it looks like an assignment expression: name = <initializer>
 
-	Token token;
-	token.m_pos = declarator->m_initializer.getHead()->m_pos;
-	token.m_tokenKind = (TokenKind) '=';
+	Token* token = m_tokenPool->get();
+	token->m_pos = declarator->m_initializer.getHead()->m_pos;
+	token->m_tokenKind = (TokenKind) '=';
 	declarator->m_initializer.insertHead(token);
 
-	token.m_tokenKind = TokenKind_Identifier;
-	token.m_data.m_string = name;
+	token = m_tokenPool->get();
+	token->m_tokenKind = TokenKind_Identifier;
+	token->m_data.m_string = name;
 	declarator->m_initializer.insertHead(token);
 
 	Parser parser(m_module, getCachedPragmaSettings(), Mode_Reaction);
 	parser.m_reactorType = m_reactorType;
 	parser.m_reactionIdx = m_reactionIdx;
-	return parser.parseTokenList(SymbolKind_expression, declarator->m_initializer);
+	return parser.parseTokenList(SymbolKind_expression, &declarator->m_initializer);
 }
 
 bool
@@ -983,7 +982,7 @@ Parser::declareAlias(
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	const sl::StringRef& name = declarator->getName().getShortName();
 	sl::String qualifiedName = nspace->createQualifiedName(name);
-	sl::BoxList<Token>* initializer = &declarator->m_initializer;
+	sl::List<Token>* initializer = &declarator->m_initializer;
 
 	Alias* alias = m_module->m_namespaceMgr.createAlias(name, qualifiedName, initializer);
 	assignDeclarationAttributes(alias, alias, declarator);
@@ -1349,7 +1348,7 @@ Parser::createProperty(Declarator* declarator) {
 bool
 Parser::parseLastPropertyBody(const Token& bodyToken) {
 	size_t length = bodyToken.m_data.m_string.getLength();
-	sl::BoxList<Token> tokenList;
+	sl::List<Token> tokenList;
 
 	return
 		tokenizeBody(
@@ -1361,14 +1360,14 @@ Parser::parseLastPropertyBody(const Token& bodyToken) {
 			),
 			bodyToken.m_data.m_string.getSubString(1, length - 2)
 		) &&
-		parseLastPropertyBody(tokenList);
+		parseLastPropertyBody(&tokenList);
 }
 
 bool
-Parser::parseLastPropertyBody(const sl::ConstBoxList<Token>& body) {
+Parser::parseLastPropertyBody(sl::List<Token>* body) {
 	ASSERT(m_lastDeclaredItem && m_lastDeclaredItem->getItemKind() == ModuleItemKind_Property);
 
-	if (body.isEmpty())
+	if (body->isEmpty())
 		return finalizeLastProperty(true);
 
 	Parser parser(m_module, getCachedPragmaSettings(), Mode_Parse);
@@ -1547,8 +1546,8 @@ Parser::declareData(
 
 	const sl::StringRef& name = declarator->getName().getShortName();
 	size_t bitCount = declarator->getBitCount();
-	sl::BoxList<Token>* constructor = &declarator->m_constructor;
-	sl::BoxList<Token>* initializer = &declarator->m_initializer;
+	sl::List<Token>* constructor = &declarator->m_constructor;
+	sl::List<Token>* initializer = &declarator->m_initializer;
 
 	if (isAutoSizeArrayType(type)) {
 		if (initializer->isEmpty()) {
@@ -1557,7 +1556,7 @@ Parser::declareData(
 		}
 
 		ArrayType* arrayType = (ArrayType*)type;
-		arrayType->m_elementCount = m_module->m_operatorMgr.parseAutoSizeArrayInitializer(arrayType, *initializer);
+		arrayType->m_elementCount = m_module->m_operatorMgr.getAutoSizeArrayElementCount(arrayType, *initializer);
 		if (arrayType->m_elementCount == -1)
 			return false;
 
@@ -1770,13 +1769,7 @@ Parser::declareData(
 				if (!result)
 					return false;
 
-				m_module->m_controlFlowMgr.onceStmt_PostBody(
-					&stmt,
-					!variable->m_initializer.isEmpty() ? variable->m_initializer.getTail()->m_pos :
-					!variable->m_constructor.isEmpty() ? variable->m_constructor.getTail()->m_pos :
-					variable->m_pos
-				);
-
+				m_module->m_controlFlowMgr.onceStmt_PostBody(&stmt);
 				break;
 
 			default:
@@ -1909,6 +1902,7 @@ Parser::addEnumFlag(
 
 EnumType*
 Parser::createEnumType(
+	const lex::LineCol& pos,
 	const sl::StringRef& name,
 	Type* baseType,
 	uint_t flags
@@ -1930,15 +1924,15 @@ Parser::createEnumType(
 			return NULL;
 	}
 
-	assignDeclarationAttributes(enumType, enumType, m_lastMatchedToken.m_pos);
+	assignDeclarationAttributes(enumType, enumType, pos);
 	return enumType;
 }
 
 EnumConst*
 Parser::createEnumConst(
-	const sl::StringRef& name,
 	const lex::LineCol& pos,
-	sl::BoxList<Token>* initializer
+	const sl::StringRef& name,
+	sl::List<Token>* initializer
 ) {
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	ASSERT(nspace->getNamespaceKind() == NamespaceKind_Type);
@@ -1955,6 +1949,7 @@ Parser::createEnumConst(
 
 StructType*
 Parser::createStructType(
+	const lex::LineCol& pos,
 	const sl::StringRef& name,
 	sl::BoxList<Type*>* baseTypeList,
 	size_t fieldAlignment,
@@ -1989,12 +1984,13 @@ Parser::createStructType(
 			return NULL;
 	}
 
-	assignDeclarationAttributes(structType, structType, m_lastMatchedToken.m_pos);
+	assignDeclarationAttributes(structType, structType, pos);
 	return structType;
 }
 
 UnionType*
 Parser::createUnionType(
+	const lex::LineCol& pos,
 	const sl::StringRef& name,
 	size_t fieldAlignment,
 	uint_t flags
@@ -2022,12 +2018,13 @@ Parser::createUnionType(
 			return NULL;
 	}
 
-	assignDeclarationAttributes(unionType, unionType, m_lastMatchedToken.m_pos);
+	assignDeclarationAttributes(unionType, unionType, pos);
 	return unionType;
 }
 
 ClassType*
 Parser::createClassType(
+	const lex::LineCol& pos,
 	const sl::StringRef& name,
 	sl::BoxList<Type*>* baseTypeList,
 	size_t fieldAlignment,
@@ -2060,12 +2057,15 @@ Parser::createClassType(
 			return NULL;
 	}
 
-	assignDeclarationAttributes(classType, classType, m_lastMatchedToken.m_pos);
+	assignDeclarationAttributes(classType, classType, pos);
 	return classType;
 }
 
 DynamicLibClassType*
-Parser::createDynamicLibType(const sl::StringRef& name) {
+Parser::createDynamicLibType(
+	const lex::LineCol& pos,
+	const sl::StringRef& name
+) {
 	bool result;
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
@@ -2082,7 +2082,7 @@ Parser::createDynamicLibType(const sl::StringRef& name) {
 	if (!result)
 		return NULL;
 
-	assignDeclarationAttributes(classType, classType, m_lastMatchedToken.m_pos);
+	assignDeclarationAttributes(classType, classType, pos);
 
 	DynamicLibNamespace* dynamicLibNamespace = classType->createLibNamespace();
 	dynamicLibNamespace->m_parentUnit = classType->getParentUnit();
@@ -2134,7 +2134,7 @@ bool
 Parser::reactorOnEventStmt(
 	const sl::ConstBoxList<Value>& valueList,
 	Declarator* declarator,
-	sl::BoxList<Token>* tokenList
+	sl::List<Token>* tokenList
 ) {
 	ASSERT(m_mode == Mode_Reaction && m_reactorType);
 
@@ -2523,7 +2523,7 @@ Parser::lookupIdentifier(
 	};
 
 	if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_QuickInfoTip &&
-		(token.m_flags & TokenFlag_CodeAssist))
+		(token.m_data.m_codeAssistFlags & TokenCodeAssistFlag_At))
 		m_module->m_codeAssistMgr.createQuickInfoTip(token.m_pos.m_offset, item);
 
 	return true;
@@ -2960,7 +2960,7 @@ Parser::finalizeReSwitchCaseLiteral(
 }
 
 BasicBlock*
-Parser::assertCondition(const sl::BoxList<Token>& tokenList) {
+Parser::assertCondition(sl::List<Token>* tokenList) {
 	bool result;
 
 	Value conditionValue;
@@ -2980,15 +2980,12 @@ Parser::assertCondition(const sl::BoxList<Token>& tokenList) {
 
 bool
 Parser::finalizeAssertStmt(
-	const sl::BoxList<Token>& conditionTokenList,
+	const lex::LineCol& pos,
+	const sl::StringRef& conditionText,
 	const Value& messageValue,
 	BasicBlock* continueBlock
 ) {
-	ASSERT(!conditionTokenList.isEmpty());
-
 	sl::String fileName = m_module->m_unitMgr.getCurrentUnit()->getFilePath();
-	sl::String conditionString = Token::getTokenListString(conditionTokenList);
-	Token::Pos pos = conditionTokenList.getHead()->m_pos;
 
 	Value fileNameValue;
 	Value lineValue;
@@ -2996,7 +2993,7 @@ Parser::finalizeAssertStmt(
 
 	fileNameValue.setCharArray(fileName, m_module);
 	lineValue.setConstInt32(pos.m_line, m_module);
-	conditionValue.setCharArray(conditionString, m_module);
+	conditionValue.setCharArray(conditionText, m_module);
 
 	Function* assertionFailure = m_module->m_functionMgr.getStdFunction(StdFunc_AssertionFailure);
 
@@ -3024,11 +3021,12 @@ Parser::finalizeAssertStmt(
 void
 Parser::addScopeAnchorToken(
 	StmtPass1* stmt,
-	const Token& token
+	const Token& srcToken
 ) {
-	sl::BoxIterator<Token> it = stmt->m_tokenList.insertTail(token);
-	stmt->m_scopeAnchorToken = &*it;
-	stmt->m_scopeAnchorToken->m_data.m_integer = 0; // tokens can be reused, ensure 0
+	Token* token = m_tokenPool->get(srcToken);
+	token->m_data.m_integer = 0; // tokens can be reused, ensure 0
+	stmt->m_tokenList.insertTail(token);
+	stmt->m_scopeAnchorToken = token;
 }
 
 void
@@ -3066,7 +3064,7 @@ Parser::generateAutoComplete(
 ) {
 	size_t offset = token.m_pos.m_offset;
 	if (token.m_tokenKind != TokenKind_Identifier)
-		if (token.m_flags & TokenFlag_CodeAssistRight)
+		if (token.m_data.m_codeAssistFlags & TokenCodeAssistFlag_Right)
 			offset += token.m_pos.m_length;
 		else
 			return;
@@ -3082,7 +3080,7 @@ Parser::prepareAutoCompleteFallback(
 ) {
 	size_t offset = token.m_pos.m_offset;
 	if (token.m_tokenKind != TokenKind_Identifier)
-		if (token.m_flags & TokenFlag_CodeAssistRight)
+		if (token.m_data.m_codeAssistFlags & TokenCodeAssistFlag_Right)
 			offset += token.m_pos.m_length;
 		else
 			return;

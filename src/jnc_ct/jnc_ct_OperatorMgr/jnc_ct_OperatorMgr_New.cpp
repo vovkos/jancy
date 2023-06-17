@@ -204,8 +204,8 @@ OperatorMgr::construct(
 bool
 OperatorMgr::parseInitializer(
 	const Value& rawValue,
-	const sl::ConstBoxList<Token>& constructorTokenList,
-	const sl::ConstBoxList<Token>& initializerTokenList
+	sl::List<Token>* constructorTokenList,
+	sl::List<Token>* initializerTokenList
 ) {
 	bool result;
 
@@ -217,9 +217,8 @@ OperatorMgr::parseInitializer(
 		value.overrideType(((ClassPtrType*)rawValue.getType())->getUnConstPtrType());
 
 	sl::BoxList<Value> argList;
-	if (!constructorTokenList.isEmpty()) {
+	if (!constructorTokenList->isEmpty()) {
 		Parser parser(m_module, NULL, Parser::Mode_Compile);
-
 		result = parser.parseTokenList(SymbolKind_expression_or_empty_list_save_list, constructorTokenList);
 		if (!result)
 			return false;
@@ -231,14 +230,13 @@ OperatorMgr::parseInitializer(
 	if (!result)
 		return false;
 
-	if (!initializerTokenList.isEmpty()) {
+	if (!initializerTokenList->isEmpty()) {
 		Parser parser(m_module, NULL, Parser::Mode_Compile);
-		sl::ConstBoxIterator<Token> tokenIt = initializerTokenList.getHead();
-
-		switch (tokenIt->m_token) {
+		const Token* token = *initializerTokenList->getHead();
+		switch (token->m_token) {
 		case TokenKind_Body:
 			parser.m_curlyInitializerTargetValue = value;
-			result = parser.parseBody(SymbolKind_curly_initializer, tokenIt->m_pos, tokenIt->m_data.m_string);
+			result = parser.parseBody(SymbolKind_curly_initializer, token->m_pos, token->m_data.m_string);
 			break;
 
 		case '{':
@@ -263,7 +261,7 @@ bool
 OperatorMgr::parseFunctionArgDefaultValue(
 	ModuleItemDecl* decl,
 	const Value& thisValue,
-	const sl::ConstBoxList<Token>& tokenList,
+	const sl::List<Token>& tokenList,
 	Value* resultValue
 ) {
 	Value prevThisValue = m_module->m_functionMgr.overrideThisValue(thisValue);
@@ -278,14 +276,16 @@ OperatorMgr::parseFunctionArgDefaultValue(
 bool
 OperatorMgr::parseFunctionArgDefaultValue(
 	ModuleItemDecl* decl,
-	const sl::ConstBoxList<Token>& tokenList,
+	const sl::List<Token>& tokenList,
 	Value* resultValue
 ) {
 	Parser parser(m_module, decl->getPragmaSettings(), Parser::Mode_Compile);
 	m_module->m_namespaceMgr.openNamespace(decl->getParentNamespace());
 	m_module->m_namespaceMgr.lockSourcePos();
 
-	bool result = parser.parseTokenList(SymbolKind_expression_save_value, tokenList);
+	sl::List<Token> tmpTokenList;
+	cloneTokenList(&tmpTokenList, tokenList);
+	bool result = parser.parseTokenList(SymbolKind_expression_save_value, &tmpTokenList);
 	if (!result)
 		return false;
 
@@ -298,7 +298,7 @@ OperatorMgr::parseFunctionArgDefaultValue(
 
 bool
 OperatorMgr::parseExpression(
-	const sl::ConstBoxList<Token>& expressionTokenList,
+	sl::List<Token>* expressionTokenList,
 	Value* resultValue
 ) {
 	Parser parser(m_module, NULL, Parser::Mode_Compile);
@@ -312,7 +312,7 @@ OperatorMgr::parseExpression(
 }
 bool
 OperatorMgr::parseConstIntegerExpression(
-	const sl::ConstBoxList<Token>& expressionTokenList,
+	sl::List<Token>* expressionTokenList,
 	int64_t* integer
 ) {
 	Value value;
@@ -332,21 +332,21 @@ OperatorMgr::parseConstIntegerExpression(
 }
 
 size_t
-OperatorMgr::parseAutoSizeArrayInitializer(
+OperatorMgr::getAutoSizeArrayElementCount(
 	ArrayType* arrayType,
-	const sl::ConstBoxList<Token>& initializerTokenList
+	const sl::List<Token>& initializerTokenList
 ) {
-	const Token* token = initializerTokenList.getHead().p();
+	const Token* token = *initializerTokenList.getHead();
 	switch (token->m_token) {
 	case TokenKind_Literal:
 	case TokenKind_BinLiteral:
-		return parseAutoSizeArrayLiteralInitializer(initializerTokenList);
+		return getAutoSizeArrayElementCount_literal(initializerTokenList);
 
 	case TokenKind_Body:
-		return parseAutoSizeArrayCurlyInitializer(arrayType, token->m_pos, token->m_data.m_string);
+		return getAutoSizeArrayElementCount_curly(arrayType, token->m_pos, token->m_data.m_string);
 
 	case '{':
-		return parseAutoSizeArrayCurlyInitializer(arrayType, initializerTokenList);
+		return getAutoSizeArrayElementCount_curly(arrayType, initializerTokenList);
 
 	default:
 		err::setFormatStringError("invalid initializer for auto-size-array");
@@ -357,10 +357,10 @@ OperatorMgr::parseAutoSizeArrayInitializer(
 // it's both more efficient AND easier to parse these by hand
 
 size_t
-OperatorMgr::parseAutoSizeArrayLiteralInitializer(const sl::ConstBoxList<Token>& initializerTokenList) {
+OperatorMgr::getAutoSizeArrayElementCount_literal(const sl::List<Token>& initializerTokenList) {
 	size_t elementCount = 0;
 
-	sl::ConstBoxIterator<Token> token = initializerTokenList.getHead();
+	sl::ConstIterator<Token> token = initializerTokenList.getHead();
 	for (; token; token++) {
 		switch (token->m_token) {
 		case TokenKind_Literal:
@@ -380,7 +380,7 @@ OperatorMgr::parseAutoSizeArrayLiteralInitializer(const sl::ConstBoxList<Token>&
 }
 
 size_t
-OperatorMgr::parseAutoSizeArrayCurlyInitializer(
+OperatorMgr::getAutoSizeArrayElementCount_curly(
 	ArrayType* arrayType,
 	const lex::LineColOffset& pos,
 	const sl::StringRef& initializer
@@ -388,17 +388,17 @@ OperatorMgr::parseAutoSizeArrayCurlyInitializer(
 	Unit* unit = m_module->m_unitMgr.getCurrentUnit();
 	ASSERT(unit);
 
-	Lexer lexer(LexerMode_Compile);
+	Lexer lexer;
 	lexer.create(unit->getFilePath(), initializer);
 	lexer.setLineColOffset(pos);
 
-	sl::BoxList<Token> tokenList;
+	sl::List<Token> tokenList;
 
 	for (;;) {
 		const Token* token = lexer.getToken();
 		switch (token->m_token) {
 		case TokenKind_Eof: // no need to add EOF token
-			return parseAutoSizeArrayCurlyInitializer(arrayType, tokenList);
+			return getAutoSizeArrayElementCount_curly(arrayType, tokenList);
 
 		case TokenKind_Error:
 			err::setFormatStringError("invalid character '\\x%02x'", (uchar_t) token->m_data.m_integer);
@@ -406,15 +406,14 @@ OperatorMgr::parseAutoSizeArrayCurlyInitializer(
 			return -1;
 		}
 
-		tokenList.insertTail(*token);
-		lexer.nextToken();
+		tokenList.insertTail(lexer.takeToken());
 	}
 }
 
 size_t
-OperatorMgr::parseAutoSizeArrayCurlyInitializer(
+OperatorMgr::getAutoSizeArrayElementCount_curly(
 	ArrayType* arrayType,
-	const sl::ConstBoxList<Token>& initializerTokenList
+	const sl::List<Token>& initializer
 ) {
 	intptr_t level = 0;
 	size_t elementCount = 0;
@@ -422,7 +421,7 @@ OperatorMgr::parseAutoSizeArrayCurlyInitializer(
 	bool isCharArray = arrayType->getElementType()->getTypeKind() == TypeKind_Char;
 	bool isElement = false;
 
-	sl::ConstBoxIterator<Token> token = initializerTokenList.getHead();
+	sl::ConstIterator<Token> token = initializer.getHead();
 	for (; token; token++) {
 		switch (token->m_token) {
 		case '{':

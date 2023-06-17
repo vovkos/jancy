@@ -197,7 +197,7 @@ public:
 	ArrayType*
 	createArrayType(
 		Type* elementType,
-		sl::BoxList<Token>* elementCountInitializer
+		sl::List<Token>* elementCountInitializer
 	);
 
 	ArrayType*
@@ -393,7 +393,7 @@ public:
 		const sl::StringRef& name,
 		Type* type,
 		uint_t ptrTypeFlags = 0,
-		sl::BoxList<Token>* initializer = NULL
+		sl::List<Token>* initializer = NULL
 	);
 
 	FunctionArg*
@@ -417,8 +417,8 @@ public:
 		Type* type,
 		size_t bitCount = 0,
 		uint_t ptrTypeFlags = 0,
-		sl::BoxList<Token>* constructor = NULL,
-		sl::BoxList<Token>* initializer = NULL
+		sl::List<Token>* constructor = NULL,
+		sl::List<Token>* initializer = NULL
 	);
 
 	CallConv*

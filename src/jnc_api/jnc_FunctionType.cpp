@@ -104,7 +104,7 @@ JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
 jnc_FunctionArg_hasDefaultValue(jnc_FunctionArg* arg) {
-	return !arg->getInitializer().isEmpty();
+	return arg->hasInitializer();
 }
 
 JNC_EXTERN_C

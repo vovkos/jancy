@@ -711,7 +711,7 @@ OperatorMgr::getArgCastKind(
 
 	size_t argCount = formalArgCount;
 	while (actualArgCount < argCount) {
-		if (formalArgArray[argCount - 1]->getInitializer().isEmpty())
+		if (!formalArgArray[argCount - 1]->hasInitializer())
 			return CastKind_None;
 
 		argCount--;
@@ -748,7 +748,7 @@ OperatorMgr::getArgCastKind(
 
 	size_t argCount = formalArgCount;
 	while (actualArgCount < argCount) {
-		if (formalArgArray[argCount - 1]->getInitializer().isEmpty())
+		if (!formalArgArray[argCount - 1]->hasInitializer())
 			return CastKind_None;
 
 		argCount--;
@@ -761,7 +761,7 @@ OperatorMgr::getArgCastKind(
 		Type* actualArgType = argValueArray[i].getType();
 
 		if (!actualArgType)
-			return formalArgArray[i]->getInitializer().isEmpty() ? CastKind_None : CastKind_Identitiy;
+			return formalArgArray[i]->hasInitializer() ? CastKind_Identitiy : CastKind_None;
 
 		CastKind castKind = getCastKind(actualArgType, formalArgType);
 		if (!castKind)
@@ -789,7 +789,7 @@ OperatorMgr::getArgCastKind(
 
 	size_t argCount = formalArgCount;
 	while (actualArgCount < argCount) {
-		if (formalArgArray[argCount - 1]->getInitializer().isEmpty())
+		if (!formalArgArray[argCount - 1]->hasInitializer())
 			return CastKind_None;
 
 		argCount--;
@@ -802,7 +802,7 @@ OperatorMgr::getArgCastKind(
 		Type* formalArgType = formalArgArray[i]->getType();
 
 		if (arg->isEmpty())
-			return formalArgArray[i]->getInitializer().isEmpty() ? CastKind_None : CastKind_Identitiy;
+			return formalArgArray[i]->hasInitializer() ? CastKind_Identitiy : CastKind_None;
 
 		CastKind castKind = getCastKind(*arg, formalArgType);
 		if (!castKind)

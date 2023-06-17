@@ -469,10 +469,7 @@ public:
 	);
 
 	void
-	onceStmt_PostBody(
-		OnceStmt* stmt,
-		const lex::LineCol& pos
-	);
+	onceStmt_PostBody(OnceStmt* stmt);
 
 	Variable*
 	getFinallyRouteIdxVariable();

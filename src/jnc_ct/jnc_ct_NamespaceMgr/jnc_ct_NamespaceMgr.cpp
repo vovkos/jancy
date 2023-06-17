@@ -243,7 +243,7 @@ Alias*
 NamespaceMgr::createAlias(
 	const sl::StringRef& name,
 	const sl::StringRef& qualifiedName,
-	sl::BoxList<Token>* initializer
+	sl::List<Token>* initializer
 ) {
 	Alias* alias = AXL_MEM_NEW(Alias);
 	alias->m_module = m_module;

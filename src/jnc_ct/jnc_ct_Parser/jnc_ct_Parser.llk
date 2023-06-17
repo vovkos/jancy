@@ -88,7 +88,7 @@ public:
 	};
 
 	struct StmtPass1 {
-		sl::BoxList<Token> m_tokenList;
+		sl::List<Token> m_tokenList;
 		Token* m_scopeAnchorToken;
 
 		StmtPass1() {
@@ -185,7 +185,7 @@ public:
 
 	bool
 	tokenizeBody(
-		sl::BoxList<Token>* tokenList,
+		sl::List<Token>* tokenList,
 		const lex::LineColOffset& pos,
 		const sl::StringRef& body
 	);
@@ -200,7 +200,7 @@ public:
 	bool
 	parseTokenList(
 		SymbolKind symbol,
-		const sl::ConstBoxList<Token>& tokenList
+		sl::List<Token>* tokenList
 	);
 
 protected:
@@ -317,7 +317,7 @@ protected:
 	createAttribute(
 		const lex::LineCol& pos,
 		const sl::StringRef& name,
-		sl::BoxList<Token>* initializer
+		sl::List<Token>* initializer
 	);
 
 	void
@@ -335,7 +335,7 @@ protected:
 		T* item,
 		const Token& bodyToken
 	) {
-		if (bodyToken.m_flags & TokenFlag_CodeAssist)
+		if (bodyToken.m_data.m_codeAssistFlags & TokenCodeAssistFlag_At)
 			m_module->m_codeAssistMgr.m_containerItem = item;
 
 		return item->setBody(getCachedPragmaSettings(), bodyToken.m_pos, bodyToken.m_data.m_string);
@@ -456,6 +456,7 @@ protected:
 
 	EnumType*
 	createEnumType(
+		const lex::LineCol& pos,
 		const sl::StringRef& name,
 		Type* baseType,
 		uint_t flags
@@ -463,13 +464,14 @@ protected:
 
 	EnumConst*
 	createEnumConst(
-		const sl::StringRef& name,
 		const lex::LineCol& pos,
-		sl::BoxList<Token>* initializer
+		const sl::StringRef& name,
+		sl::List<Token>* initializer
 	);
 
 	StructType*
 	createStructType(
+		const lex::LineCol& pos,
 		const sl::StringRef& name,
 		sl::BoxList<Type*>* baseTypeList,
 		size_t fieldAlignment,
@@ -478,6 +480,7 @@ protected:
 
 	UnionType*
 	createUnionType(
+		const lex::LineCol& pos,
 		const sl::StringRef& name,
 		size_t fieldAlignment,
 		uint_t flags
@@ -485,6 +488,7 @@ protected:
 
 	ClassType*
 	createClassType(
+		const lex::LineCol& pos,
 		const sl::StringRef& name,
 		sl::BoxList<Type*>* baseTypeList,
 		size_t fieldAlignment,
@@ -492,7 +496,10 @@ protected:
 	);
 
 	DynamicLibClassType*
-	createDynamicLibType(const sl::StringRef& name);
+	createDynamicLibType(
+		const lex::LineCol& pos,
+		const sl::StringRef& name
+	);
 
 	bool
 	finalizeDynamicLibType();
@@ -510,7 +517,7 @@ protected:
 	parseLastPropertyBody(const Token& bodyToken);
 
 	bool
-	parseLastPropertyBody(const sl::ConstBoxList<Token>& body);
+	parseLastPropertyBody(sl::List<Token>* body);
 
 	bool
 	addReactionBinding(const Value& value);
@@ -522,7 +529,7 @@ protected:
 	reactorOnEventStmt(
 		const sl::ConstBoxList<Value>& valueList,
 		Declarator* declarator,
-		sl::BoxList<Token>* tokenList
+		sl::List<Token>* tokenList
 	);
 
 	bool
@@ -646,16 +653,16 @@ protected:
 	);
 
 	BasicBlock*
-	assertCondition(const sl::BoxList<Token>& tokenList);
+	assertCondition(sl::List<Token>* tokenList);
 
 	bool
 	finalizeAssertStmt(
-		const sl::BoxList<Token>& conditionTokenList,
+		const lex::LineCol& pos,
+		const sl::StringRef& conditionText,
 		const Value& messageValue,
 		BasicBlock* continueBlock
 	);
 
-	static
 	void
 	addScopeAnchorToken(
 		StmtPass1* stmt,
@@ -668,7 +675,7 @@ protected:
 		const Value& value
 	) {
 		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_AutoComplete &&
-			(token.m_flags & TokenFlag_CodeAssist))
+			(token.m_data.m_codeAssistFlags & TokenCodeAssistFlag_At))
 			generateAutoComplete(token, value);
 	}
 
@@ -688,7 +695,7 @@ protected:
 	void
 	generateImportAutoCompleteIf(const Token& token) {
 		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_AutoComplete &&
-			(token.m_flags & TokenFlag_CodeAssist))
+			(token.m_data.m_codeAssistFlags & TokenCodeAssistFlag_At))
 			m_module->m_codeAssistMgr.createImportAutoComplete(token.m_pos.m_offset);
 	}
 
@@ -699,7 +706,7 @@ protected:
 		uint_t flags = 0
 	) {
 		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_AutoComplete &&
-			(token.m_flags & TokenFlag_CodeAssist))
+			(token.m_data.m_codeAssistFlags & TokenCodeAssistFlag_At))
 			prepareAutoCompleteFallback(token, prefix, flags);
 	}
 
@@ -717,7 +724,7 @@ protected:
 		const sl::StringRef& name
 	) {
 		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_QuickInfoTip &&
-			(token.m_flags & TokenFlag_CodeAssist))
+			(token.m_data.m_codeAssistFlags & TokenCodeAssistFlag_At))
 			generateMemberInfo(token, value, name);
 	}
 

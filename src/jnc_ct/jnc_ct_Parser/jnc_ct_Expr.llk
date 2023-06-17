@@ -10,99 +10,99 @@
 //..............................................................................
 
 struct {
-	sl::BoxList<Token> m_tokenList;
+	sl::List<Token> m_tokenList;
 }
 expression_pass1
 	:	catch(eof) expression_pass1_item<&$.m_tokenList>+
 	;
 
-expression_pass1_item<sl::BoxList<Token>* $tokenList>
+expression_pass1_item<sl::List<Token>* $tokenList>
 	:	'{'
 			{
-				$tokenList->insertTail($1);
+				$tokenList->insertTail(m_tokenPool->get($1));
 			}
 		expression_pass1_item<$tokenList>*
 		'}'
 			{
-				$tokenList->insertTail($3);
+				$tokenList->insertTail(m_tokenPool->get($3));
 			}
 	|	'['
 			{
-				$tokenList->insertTail($1);
+				$tokenList->insertTail(m_tokenPool->get($1));
 			}
 		expression_pass1_item<$tokenList>*
 		']'
 			{
-				$tokenList->insertTail($3);
+				$tokenList->insertTail(m_tokenPool->get($3));
 			}
 	|	'('
 			{
-				$tokenList->insertTail($1);
+				$tokenList->insertTail(m_tokenPool->get($1));
 			}
 		expression_pass1_item<$tokenList>*
 		')'
 			{
-				$tokenList->insertTail($3);
+				$tokenList->insertTail(m_tokenPool->get($3));
 			}
 	|	any
 			{
-				$tokenList->insertTail($1);
+				$tokenList->insertTail(m_tokenPool->get($1));
 			}
 	;
 
 // arg_list & curly_initializer are simplier cause we only need to count one kind of braces
 
 struct {
-	sl::BoxList<Token> m_tokenList;
+	sl::List<Token> m_tokenList;
 }
 arg_list_pass1
 	:	catch(eof) '(' arg_list_pass1_item<&$.m_tokenList>* ')'
 	;
 
-arg_list_pass1_item<sl::BoxList<Token>* $tokenList>
+arg_list_pass1_item<sl::List<Token>* $tokenList>
 	:	'('
 			{
-				$tokenList->insertTail($1);
+				$tokenList->insertTail(m_tokenPool->get($1));
 			}
 		arg_list_pass1_item<$tokenList>*
 		')'
 			{
-				$tokenList->insertTail($3);
+				$tokenList->insertTail(m_tokenPool->get($3));
 			}
 	|	any
 			{
-				$tokenList->insertTail($1);
+				$tokenList->insertTail(m_tokenPool->get($1));
 			}
 	;
 
 struct {
-	sl::BoxList<Token> m_tokenList;
+	sl::List<Token> m_tokenList;
 }
 curly_initializer_pass1
 	:	TokenKind_Body
 			{
-				$.m_tokenList.insertTail($1);
+				$.m_tokenList.insertTail(m_tokenPool->get($1));
 			}
 	|	catch(eof) curly_initializer_pass1_impl<&$.m_tokenList>
 	;
 
-curly_initializer_pass1_impl<sl::BoxList<Token>* $tokenList>
+curly_initializer_pass1_impl<sl::List<Token>* $tokenList>
 	:	'{'
 			{
-				$tokenList->insertTail($1);
+				$tokenList->insertTail(m_tokenPool->get($1));
 			}
 		curly_initializer_pass1_item<$tokenList>*
 		'}'
 			{
-				$tokenList->insertTail($3);
+				$tokenList->insertTail(m_tokenPool->get($3));
 			}
 	;
 
-curly_initializer_pass1_item<sl::BoxList<Token>* $tokenList>
+curly_initializer_pass1_item<sl::List<Token>* $tokenList>
 	:	curly_initializer_pass1_impl<$tokenList>
 	|	any
 			{
-				$tokenList->insertTail($1);
+				$tokenList->insertTail(m_tokenPool->get($1));
 			}
 	;
 
@@ -133,7 +133,7 @@ struct {
 start
 expression
 	enter {
-		m_module->m_namespaceMgr.setSourcePos(m_currentToken.m_pos);
+		m_module->m_namespaceMgr.setSourcePos(m_tokenCursor->m_pos);
 	}
 	:	conditional_expr<&$.m_value>
 	;

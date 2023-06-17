@@ -37,7 +37,7 @@ class Field:
 protected:
 	Type* m_type;
 	uint_t m_ptrTypeFlags;
-	sl::BoxList<Token> m_constructor;
+	sl::List<Token> m_constructor;
 
 	Type* m_bitFieldBaseType;
 	size_t m_bitCount;
@@ -61,9 +61,9 @@ public:
 		return m_ptrTypeFlags;
 	}
 
-	sl::ConstBoxList<Token>
+	sl::List<Token>*
 	getConstructor() {
-		return m_constructor;
+		return &m_constructor;
 	}
 
 	size_t

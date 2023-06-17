@@ -279,7 +279,7 @@ class DeclArraySuffix: public DeclSuffix {
 
 protected:
 	size_t m_elementCount;
-	sl::BoxList<Token> m_elementCountInitializer;
+	sl::List<Token> m_elementCountInitializer;
 
 public:
 	DeclArraySuffix() {
@@ -292,7 +292,7 @@ public:
 		return m_elementCount;
 	}
 
-	sl::BoxList<Token>*
+	sl::List<Token>*
 	getElementCountInitializer() {
 		return &m_elementCountInitializer;
 	}
@@ -386,8 +386,8 @@ protected:
 
 	sl::List<DeclPointerPrefix> m_pointerPrefixList;
 	sl::List<DeclSuffix> m_suffixList;
-	sl::BoxList<Token> m_constructor;
-	sl::BoxList<Token> m_initializer;
+	sl::List<Token> m_constructor;
+	sl::List<Token> m_initializer;
 
 public:
 	Declarator();
@@ -521,7 +521,7 @@ public:
 	addPointerPrefix(uint_t modifiers = 0);
 
 	DeclArraySuffix*
-	addArraySuffix(sl::BoxList<Token>* elementCountInitializer);
+	addArraySuffix(sl::List<Token>* elementCountInitializer);
 
 	DeclArraySuffix*
 	addArraySuffix(size_t elementCount);

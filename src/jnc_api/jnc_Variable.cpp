@@ -53,7 +53,7 @@ JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
 jnc_Variable_hasInitializer(jnc_Variable* variable) {
-	return !variable->getInitializer().isEmpty();
+	return variable->hasInitializer();
 }
 
 JNC_EXTERN_C

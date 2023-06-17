@@ -58,7 +58,7 @@ MemberBlock::scanStaticVariables() {
 		if (variable->getType()->getTypeKind() == TypeKind_Class)
 			m_staticVariablePrimeArray.append(variable);
 
-		if (!variable->getInitializer().isEmpty() ||
+		if (variable->hasInitializer() ||
 			isConstructibleType(variable->getType()))
 			m_staticVariableInitializeArray.append(variable);
 	}
@@ -101,7 +101,7 @@ MemberBlock::callStaticConstructor() {
 	if (!result)
 		return false;
 
-	module->m_controlFlowMgr.onceStmt_PostBody(&stmt, pos);
+	module->m_controlFlowMgr.onceStmt_PostBody(&stmt);
 	return true;
 }
 
@@ -168,8 +168,8 @@ MemberBlock::initializeFields(const Value& thisValue) {
 
 		result = module->m_operatorMgr.parseInitializer(
 			fieldValue,
-			field->m_constructor,
-			field->m_initializer
+			&field->m_constructor,
+			&field->m_initializer
 		);
 
 		if (!result)

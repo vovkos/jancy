@@ -1027,32 +1027,30 @@ FunctionMgr::parseStdFunction(
 ) {
 	bool result;
 
+	sl::StringRef fileName = "jnc_StdFunctions.jnc";
 	Lexer lexer;
-	lexer.create("jnc_StdFunctions.jnc", source);
+	lexer.create(fileName, source);
 
 	if (stdNamespace)
 		m_module->m_namespaceMgr.openStdNamespace(stdNamespace);
 
 	Parser parser(m_module, NULL, Parser::Mode_Compile);
-	parser.create("jnc_StdFunctions.jnc", SymbolKind_normal_item_declaration);
+	parser.create(fileName, SymbolKind_normal_item_declaration);
 #if (_LLK_RANDOM_ERRORS)
 	parser.disableRandomErrors();
 #endif
 
-	for (;;) {
-		const Token* token = lexer.getToken();
+	bool isEof;
 
-		result = parser.parseToken(token);
+	do {
+		Token* token = lexer.takeToken();
+		isEof = token->m_token == TokenKind_Eof; // EOF token must be parsed
+		result = parser.consumeToken(token);
 		if (!result) {
 			TRACE("parse std function error: %s\n", err::getLastErrorDescription().sz());
 			ASSERT(false);
 		}
-
-		if (token->m_token == TokenKind_Eof) // EOF token must be parsed
-			break;
-
-		lexer.nextToken();
-	}
+	} while (!isEof);
 
 	if (stdNamespace)
 		m_module->m_namespaceMgr.closeNamespace();

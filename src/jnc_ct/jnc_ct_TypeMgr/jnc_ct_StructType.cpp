@@ -41,8 +41,8 @@ StructType::createFieldImpl(
 	Type* type,
 	size_t bitCount,
 	uint_t ptrTypeFlags,
-	sl::BoxList<Token>* constructor,
-	sl::BoxList<Token>* initializer
+	sl::List<Token>* constructor,
+	sl::List<Token>* initializer
 ) {
 	Field* field = m_module->m_typeMgr.createField(
 		name,

@@ -102,8 +102,8 @@ public:
 		Type* type,
 		size_t bitCount = 0,
 		uint_t ptrTypeFlags = 0,
-		sl::BoxList<Token>* constructor = NULL,
-		sl::BoxList<Token>* initializer = NULL
+		sl::List<Token>* constructor = NULL,
+		sl::List<Token>* initializer = NULL
 	) {
 		return createFieldImpl(name, type, bitCount, ptrTypeFlags, constructor, initializer);
 	}
@@ -191,8 +191,8 @@ protected:
 		Type* type,
 		size_t bitCount = 0,
 		uint_t ptrTypeFlags = 0,
-		sl::BoxList<Token>* constructor = NULL,
-		sl::BoxList<Token>* initializer = NULL
+		sl::List<Token>* constructor = NULL,
+		sl::List<Token>* initializer = NULL
 	) = 0;
 
 	void

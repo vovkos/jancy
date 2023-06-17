@@ -133,8 +133,8 @@ VariableMgr::createVariable(
 	const sl::StringRef& qualifiedName,
 	Type* type,
 	uint_t ptrTypeFlags,
-	sl::BoxList<Token>* constructor,
-	sl::BoxList<Token>* initializer
+	sl::List<Token>* constructor,
+	sl::List<Token>* initializer
 ) {
 	if (storageKind == StorageKind_Stack)
 		ptrTypeFlags |= m_extraStackPtrFlags;
@@ -333,8 +333,8 @@ VariableMgr::initializeVariable(Variable* variable) {
 
 	bool result = m_module->m_operatorMgr.parseInitializer(
 		variable,
-		variable->m_constructor,
-		variable->m_initializer
+		&variable->m_constructor,
+		&variable->m_initializer
 	);
 
 	if (!result)
@@ -712,7 +712,7 @@ VariableMgr::createStaticRegexVariable(
 	if (!result)
 		return NULL;
 
-	m_module->m_controlFlowMgr.onceStmt_PostBody(&onceStmt, pos);
+	m_module->m_controlFlowMgr.onceStmt_PostBody(&onceStmt);
 	return variable;
 }
 

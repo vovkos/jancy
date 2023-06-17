@@ -689,8 +689,9 @@ Type::prepareSimpleTypeVariable(StdType stdType) {
 	sl::String qualifiedName = "jnc.g_type_" + getSignature();
 	Type* type = m_module->m_typeMgr.getStdType(stdType);
 
-	sl::BoxList<Token> constructor;
-	Token* token = constructor.insertTail().p();
+	sl::List<Token> constructor;
+	Token* token = AXL_MEM_NEW(Token);
+	constructor.insertTail(token);
 	token->m_token = TokenKind_Integer;
 	token->m_data.m_int64_u = (intptr_t)this;
 

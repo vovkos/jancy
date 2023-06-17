@@ -46,7 +46,7 @@ public:
 
 	void
 	printLlvmIr() {
-		printf("%s", m_module->getLlvmIrString_v ());
+		printf("%s", m_module->getLlvmIrString_v());
 	}
 
 	bool

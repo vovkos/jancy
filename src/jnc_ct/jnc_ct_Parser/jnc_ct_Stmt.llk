@@ -76,7 +76,7 @@ btm_construct_name
 
 statement
 	enter {
-		m_module->m_namespaceMgr.setSourcePos(m_currentToken.m_pos);
+		m_module->m_namespaceMgr.setSourcePos(m_tokenCursor->m_pos);
 	}
 	:	compound_stmt
 	|	expression_stmt
@@ -372,7 +372,7 @@ once_stmt
 			}
 		statement $s
 			{
-				m_module->m_controlFlowMgr.onceStmt_PostBody(&$stmt, $s.m_lastTokenPos);
+				m_module->m_controlFlowMgr.onceStmt_PostBody(&$stmt);
 			}
 	;
 
@@ -414,16 +414,19 @@ unsafe_stmt
 assert_stmt
 	local {
 		BasicBlock* $continueBlock;
+		sl::StringRef $conditionText;
 	}
 	:	TokenKind_Assert '(' expression_pass1 $c
 			{
-				$continueBlock = assertCondition($c.m_tokenList);
+				$conditionText = Token::getText($c.m_tokenList);
+				$continueBlock = assertCondition(&$c.m_tokenList);
 				return $continueBlock != NULL;
 			}
 		(',' expression $m)? ')'
 			{
 				return finalizeAssertStmt(
-					$c.m_tokenList,
+					$1.m_pos,
+					$conditionText,
 					&$m ? $m.m_value : Value(),
 					$continueBlock
 					);

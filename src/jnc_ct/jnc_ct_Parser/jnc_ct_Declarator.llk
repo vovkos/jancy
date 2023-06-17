@@ -42,7 +42,6 @@ special_void_method_declarator
 	}
 	:	special_void_method_declarator_qualifier<&$.m_declarator>
 			{
-				$.m_declarator.m_pos = $1.m_firstTokenPos;
 				$.m_declarator.m_attributeBlock = popAttributeBlock();
 				$.m_declarator.m_doxyBlock = m_doxyParser.popBlock();
 
@@ -122,7 +121,6 @@ declarator_name<Declarator* $declarator>
 	}
 	:	declarator_qualifier<$declarator>
 			{
-				$declarator->m_pos = $1.m_firstTokenPos;
 				$declarator->m_attributeBlock = popAttributeBlock();
 				$declarator->m_doxyBlock = m_doxyParser.popBlock();
 			}
@@ -136,6 +134,9 @@ declarator_name<Declarator* $declarator>
 	;
 
 declarator_qualifier<Declarator* $declarator>
+	enter {
+		$declarator->m_pos = m_tokenCursor->m_pos;
+	}
 	:	TokenKind_Identifier
 			{
 				prepareAutoCompleteFallbackIf($1, $declarator->getName(), CodeAssistFlag_Declarator);
@@ -149,13 +150,16 @@ declarator_qualifier<Declarator* $declarator>
 	;
 
 special_void_method_declarator_qualifier<Declarator* $declarator>
-	:	TokenKind_Construct {
+	:	TokenKind_Construct
+			{
 				return $declarator->addUnnamedMethod(FunctionKind_Constructor);
 			}
-	|	TokenKind_StaticConstruct {
+	|	TokenKind_StaticConstruct
+			{
 				return $declarator->addUnnamedMethod(FunctionKind_StaticConstructor);
 			}
-	|	TokenKind_Destruct {
+	|	TokenKind_Destruct
+			{
 				return $declarator->addUnnamedMethod(FunctionKind_Destructor);
 			}
 	|	TokenKind_Set

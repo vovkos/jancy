@@ -203,20 +203,12 @@ enum TokenKind {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum TokenChannelMask {
-	TokenChannelMask_Main        = lex::TokenChannelMask_Main, // 0x01,
-	TokenChannelMask_DoxyComment = 0x02,
-	TokenChannelMask_All         = 0x03,
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 enum TokenFlag {
-	TokenFlag_CodeAssistLeft  = 0x10,
-	TokenFlag_CodeAssistMid   = 0x20,
-	TokenFlag_CodeAssistRight = 0x40,
-	TokenFlag_CodeAssist      = 0x70,
-	TokenFlag_PostCodeAssist  = 0x80,
+	TokenCodeAssistFlag_Left  = 0x10,
+	TokenCodeAssistFlag_Mid   = 0x20,
+	TokenCodeAssistFlag_Right = 0x40,
+	TokenCodeAssistFlag_At    = 0x70,
+	TokenCodeAssistFlag_After = 0x80,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -413,22 +405,35 @@ AXL_LEX_END_TOKEN_NAME_MAP();
 class TokenData: public lex::StdTokenData {
 public:
 	sl::Array<char> m_binData;
+	uint_t m_codeAssistFlags;
+
+	TokenData() {
+		m_codeAssistFlags = 0;
+	}
 };
 
 typedef lex::RagelToken<TokenKind, TokenName, TokenData> Token;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+void
+cloneTokenList(
+	sl::List<Token>* target, // doesn't clear the target
+	const sl::List<Token>& list
+);
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 inline
 bool
 isOffsetInsideTokenList(
-	const sl::ConstBoxList<Token>& tokenList,
+	const sl::List<Token>* tokenList,
 	size_t offset
 ) {
 	return
-		!tokenList.isEmpty() &&
-		tokenList.getHead()->m_pos.m_offset <= offset &&
-		tokenList.getTail()->m_pos.m_offset + tokenList.getTail()->m_pos.m_length > offset;
+		!tokenList->isEmpty() &&
+		tokenList->getHead()->m_pos.m_offset <= offset &&
+		tokenList->getTail()->m_pos.m_offset + tokenList->getTail()->m_pos.m_length > offset;
 }
 
 inline
@@ -438,22 +443,22 @@ markCodeAssistToken(
 	size_t offset
 ) {
 	size_t end = token->m_pos.m_offset + token->m_pos.m_length;
-	if (end < offset)
-		return false;
 
-	token->m_flags |=
-		(token->m_pos.m_offset > offset || token->m_token == TokenKind_Eof) ? TokenFlag_PostCodeAssist :
-		token->m_pos.m_offset == offset ? TokenFlag_CodeAssistLeft :
-		end == offset ? TokenFlag_CodeAssistRight : TokenFlag_CodeAssistMid;
+	token->m_data.m_codeAssistFlags =
+		end < offset ? 0 :
+		(token->m_pos.m_offset > offset || token->m_token == TokenKind_Eof) ? TokenCodeAssistFlag_After :
+		token->m_pos.m_offset == offset ? TokenCodeAssistFlag_Left :
+		end == offset ? TokenCodeAssistFlag_Right :
+		TokenCodeAssistFlag_Mid;
 
-	return true;
+	return token->m_data.m_codeAssistFlags != 0;
 }
 
 //..............................................................................
 
-enum LexerMode {
-	LexerMode_Parse,   // don't tokenize bodies
-	LexerMode_Compile,
+enum LexerFlag {
+	LexerFlag_Parse        = 0x01, // don't tokenize bodies
+	LexerFlag_DoxyComments = 0x02,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -462,7 +467,7 @@ class Lexer: public lex::RagelLexer<Lexer, Token> {
 	friend class lex::RagelLexer<Lexer, Token>;
 
 protected:
-	LexerMode m_mode;
+	uint_t m_flags;
 	Token* m_fmtLiteralToken;
 	Token* m_mlLiteralToken;
 	Token* m_bodyToken;
@@ -470,13 +475,20 @@ protected:
 	int m_mlBinLiteralTokenRadix;
 
 	sl::Array<intptr_t> m_parenthesesLevelStack;
+	sl::StringRef m_filePath;
 	sl::String m_dir;
 
 public:
-	Lexer(LexerMode mode = LexerMode_Compile);
-	LexerMode
-	getMode() {
-		return m_mode;
+	Lexer(uint_t flags = 0);
+
+	void
+	create(
+		const sl::StringRef& filePath,
+		const sl::StringRef& source,
+		lex::RagelBomMode bomMode = lex::RagelBomMode_Skip
+	) {
+		m_filePath = filePath;
+		lex::RagelLexer<Lexer, Token>::create(source, bomMode);
 	}
 
 protected:

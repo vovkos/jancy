@@ -87,7 +87,7 @@ public:
 	createAlias(
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
-		sl::BoxList<Token>* initializer
+		sl::List<Token>* initializer
 	);
 
 	void

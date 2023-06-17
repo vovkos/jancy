@@ -132,10 +132,11 @@ ArrayType::calcLayoutImpl(
 		Value prevThisValue = m_module->m_functionMgr.overrideThisValue(Value());
 		m_module->m_namespaceMgr.openNamespace(m_parentNamespace);
 
+		lex::LineCol pos = m_elementCountInitializer.getHead()->m_pos;
 		int64_t value = 0;
 
 		if (!dynamicStruct) {
-			result = m_module->m_operatorMgr.parseConstIntegerExpression(m_elementCountInitializer, &value);
+			result = m_module->m_operatorMgr.parseConstIntegerExpression(&m_elementCountInitializer, &value);
 			m_module->m_namespaceMgr.closeNamespace();
 			m_module->m_functionMgr.overrideThisValue(prevThisValue);
 			m_module->m_unitMgr.setCurrentUnit(prevUnit);
@@ -144,9 +145,11 @@ ArrayType::calcLayoutImpl(
 				return false;
 		} else {
 			// try parsing it as a const-integer expression first...
+			sl::List<Token> tmpTokenList;
+			cloneTokenList(&tmpTokenList, m_elementCountInitializer);
 
 			m_module->enterTryCompile();
-			result = m_module->m_operatorMgr.parseConstIntegerExpression(m_elementCountInitializer, &value);
+			result = m_module->m_operatorMgr.parseConstIntegerExpression(&tmpTokenList, &value);
 			m_module->leaveTryCompile();
 
 			m_module->m_namespaceMgr.closeNamespace();
@@ -182,22 +185,14 @@ ArrayType::calcLayoutImpl(
 
 		if (value <= 0) {
 			err::setFormatStringError("invalid array size '%lld'\n", value);
-			lex::pushSrcPosError(
-				m_parentUnit->getFilePath(),
-				m_elementCountInitializer.getHead()->m_pos
-			);
-
+			lex::pushSrcPosError(m_parentUnit->getFilePath(), pos);
 			return false;
 		}
 
 #if (JNC_PTR_SIZE == 4)
 		if (value >= (uint32_t) -1) {
 			err::setFormatStringError("array size '%lld' is too big\n", value);
-			lex::pushSrcPosError(
-				m_parentUnit->getFilePath(),
-				m_elementCountInitializer.getHead()->m_pos
-			);
-
+			lex::pushSrcPosError(m_parentUnit->getFilePath(), pos);
 			return false;
 		}
 #endif
@@ -275,7 +270,7 @@ ArrayType::compileGetDynamicSizeFunction(Function* function) {
 	m_module->m_functionMgr.createThisValue();
 
 	Value resultValue;
-	result = m_module->m_operatorMgr.parseExpression(m_elementCountInitializer, &resultValue);
+	result = m_module->m_operatorMgr.parseExpression(&m_elementCountInitializer, &resultValue);
 	if (!result)
 		return false;
 

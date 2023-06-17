@@ -271,7 +271,7 @@ Declarator::setTypeSpecifier(
 
 	m_baseType = typeSpecifier->getType();
 	if (!m_baseType) {
-		m_baseType = (m_typeModifiers & TypeModifier_Unsigned) ?
+		m_baseType = (m_typeModifiers & (TypeModifier_Unsigned | TypeModifier_BigEndian)) ?
 			module->m_typeMgr.getPrimitiveType(TypeKind_Int) :
 			module->m_typeMgr.getPrimitiveType(TypeKind_Void);
 	}
@@ -352,7 +352,7 @@ Declarator::addPointerPrefix(uint_t modifiers) {
 }
 
 DeclArraySuffix*
-Declarator::addArraySuffix(sl::BoxList<Token>* elementCountInitializer) {
+Declarator::addArraySuffix(sl::List<Token>* elementCountInitializer) {
 	DeclArraySuffix* suffix = AXL_MEM_NEW(DeclArraySuffix);
 	suffix->m_declarator = this;
 	sl::takeOver(&suffix->m_elementCountInitializer, elementCountInitializer);

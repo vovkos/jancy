@@ -348,8 +348,7 @@ OperatorMgr::castArgValueList(
 
 		FunctionArg* arg = argArray[i];
 		if (argValue.isEmpty()) {
-			const sl::ConstBoxList<Token>& initializer = arg->getInitializer();
-			if (initializer.isEmpty()) {
+			if (!arg->hasInitializer()) {
 				err::setFormatStringError(
 					"argument (%d) of '%s' has no default value",
 					i + 1,
@@ -358,7 +357,7 @@ OperatorMgr::castArgValueList(
 				return false;
 			}
 
-			result = parseFunctionArgDefaultValue(arg, closure, initializer, &argValue);
+			result = parseFunctionArgDefaultValue(arg, closure, *arg->getInitializer(), &argValue);
 			if (!result)
 				return false;
 		}
@@ -379,8 +378,7 @@ OperatorMgr::castArgValueList(
 		Value argValue;
 
 		FunctionArg* arg = argArray[i];
-		const sl::ConstBoxList<Token>& initializer = arg->getInitializer();
-		if (initializer.isEmpty()) {
+		if (!arg->hasInitializer()) {
 			err::setFormatStringError(
 				"argument (%d) of '%s' has no default value",
 				i + 1,
@@ -389,7 +387,7 @@ OperatorMgr::castArgValueList(
 			return false;
 		}
 
-		result = parseFunctionArgDefaultValue(arg, closure, initializer, &argValue);
+		result = parseFunctionArgDefaultValue(arg, closure, *arg->getInitializer(), &argValue);
 		if (!result)
 			return false;
 

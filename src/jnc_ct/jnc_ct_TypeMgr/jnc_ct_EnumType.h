@@ -116,7 +116,7 @@ public:
 	EnumConst*
 	createConst(
 		const sl::StringRef& name,
-		sl::BoxList<Token>* initializer = NULL
+		sl::List<Token>* initializer = NULL
 	);
 
 	EnumConst*

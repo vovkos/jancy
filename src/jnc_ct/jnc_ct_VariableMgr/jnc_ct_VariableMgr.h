@@ -127,8 +127,8 @@ public:
 		const sl::StringRef& qualifiedName,
 		Type* type,
 		uint_t ptrTypeFlags = 0,
-		sl::BoxList<Token>* constructor = NULL,
-		sl::BoxList<Token>* initializer = NULL
+		sl::List<Token>* constructor = NULL,
+		sl::List<Token>* initializer = NULL
 	);
 
 	Variable*
@@ -137,8 +137,8 @@ public:
 		const sl::StringRef& name,
 		Type* type,
 		uint_t ptrTypeFlags = 0,
-		sl::BoxList<Token>* constructor = NULL,
-		sl::BoxList<Token>* initializer = NULL
+		sl::List<Token>* constructor = NULL,
+		sl::List<Token>* initializer = NULL
 	) {
 		return createVariable(storageKind, name, name, type, ptrTypeFlags, constructor, initializer);
 	}

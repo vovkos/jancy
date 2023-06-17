@@ -340,7 +340,7 @@ TypeMgr::createAutoSizeArrayType(Type* elementType) {
 ArrayType*
 TypeMgr::createArrayType(
 	Type* elementType,
-	sl::BoxList<Token>* elementCountInitializer
+	sl::List<Token>* elementCountInitializer
 ) {
 	ArrayType* type = AXL_MEM_NEW(ArrayType);
 	type->m_module = m_module;
@@ -566,7 +566,7 @@ TypeMgr::createFunctionArg(
 	const sl::StringRef& name,
 	Type* type,
 	uint_t ptrTypeFlags,
-	sl::BoxList<Token>* initializer
+	sl::List<Token>* initializer
 ) {
 	FunctionArg* functionArg = AXL_MEM_NEW(FunctionArg);
 	functionArg->m_module = m_module;
@@ -592,8 +592,8 @@ TypeMgr::createField(
 	Type* type,
 	size_t bitCount,
 	uint_t ptrTypeFlags,
-	sl::BoxList<Token>* constructor,
-	sl::BoxList<Token>* initializer
+	sl::List<Token>* constructor,
+	sl::List<Token>* initializer
 ) {
 	Field* field = AXL_MEM_NEW(Field);
 	field->m_module = m_module;
@@ -1848,8 +1848,9 @@ TypeMgr::parseStdType(
 ) {
 	bool result;
 
-	Lexer lexer(LexerMode_Parse);
-	lexer.create("jnc_StdTypes.jnc", source);
+	sl::StringRef fileName = "jnc_StdTypes.jnc";
+	Lexer lexer(LexerFlag_Parse);
+	lexer.create(fileName, source);
 
 	if (stdNamespace)
 		m_module->m_namespaceMgr.openStdNamespace(stdNamespace);
@@ -1858,27 +1859,23 @@ TypeMgr::parseStdType(
 	ASSERT(prevUnit);
 
 	Parser parser(m_module);
-	parser.create("jnc_StdTypes.jnc", SymbolKind_named_type_specifier_save_type);
+	parser.create(fileName, SymbolKind_named_type_specifier_save_type);
 #if (_LLK_RANDOM_ERRORS)
 	parser.disableRandomErrors();
 #endif
 
-	for (;;) {
-		const Token* token = lexer.getToken();
-
-		result = parser.parseToken(token);
+	bool isEof;
+	do {
+		Token* token = lexer.takeToken();
+		isEof = token->m_token == TokenKind_Eof; // EOF token must be parsed
+		result = parser.consumeToken(token);
 #if (_JNC_DEBUG)
 		if (!result) {
-			TRACE("parse std type error: %s\n", err::getLastErrorDescription().sz());
-			ASSERT(false);
+			TRACE("std type parse error: %s\n", err::getLastErrorDescription().sz());
+			ASSERT(false && "std type parse error");
 		}
 #endif
-
-		if (token->m_token == TokenKind_Eof) // EOF token must be parsed
-			break;
-
-		lexer.nextToken();
-	}
+	} while (!isEof);
 
 	m_module->m_unitMgr.setCurrentUnit(prevUnit);
 

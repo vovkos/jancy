@@ -18,6 +18,19 @@ namespace ct {
 
 //..............................................................................
 
+void
+cloneTokenList(
+	sl::List<Token>* clone,
+	const sl::List<Token>& list
+) {
+	mem::Pool<Token>* tokenPool = mem::getCurrentThreadPool<Token>();
+	sl::ConstIterator<Token> it = list.getHead();
+	for (; it; it++)
+		clone->insertTail(tokenPool->get(**it));
+}
+
+//..............................................................................
+
 inline
 bool
 isByteStringSep(uchar_t c) {
@@ -106,8 +119,8 @@ decodeByteString(
 
 //..............................................................................
 
-Lexer::Lexer(LexerMode mode) {
-	m_mode = mode;
+Lexer::Lexer(uint_t flags) {
+	m_flags = flags;
 	m_fmtLiteralToken = NULL;
 	m_mlLiteralToken = NULL;
 	m_mlBinLiteralTokenRadix = 0;
@@ -484,7 +497,7 @@ Lexer::createFmtSpecifierToken() {
 
 Token*
 Lexer::createDoxyCommentToken(TokenKind tokenKind) {
-	if (!(m_channelMask & TokenChannelMask_DoxyComment))
+	if (!(m_flags & LexerFlag_DoxyComments))
 		return NULL;
 
 	ASSERT(te - ts >= 3 && *ts == '/');
@@ -495,14 +508,12 @@ Lexer::createDoxyCommentToken(TokenKind tokenKind) {
 		suffix = 2;
 	}
 
-	Token* token = createStringToken(tokenKind, 3, suffix);
-	token->m_channelMask = TokenChannelMask_DoxyComment;
-	return token;
+	return createStringToken(tokenKind, 3, suffix);
 }
 
 bool
 Lexer::onLeftCurlyBrace() {
-	if (m_mode != LexerMode_Parse) {
+	if (!(m_flags & LexerFlag_Parse)) {
 		createToken('{');
 		return false;
 	}
@@ -515,7 +526,7 @@ Lexer::onLeftCurlyBrace() {
 
 bool
 Lexer::onRightCurlyBrace() {
-	ASSERT(m_mode == LexerMode_Parse && m_bodyToken == m_tokenList.getTail().p() && m_curlyBraceLevel);
+	ASSERT((m_flags & LexerFlag_Parse) && m_bodyToken == m_tokenList.getTail().p() && m_curlyBraceLevel);
 
 	if (--m_curlyBraceLevel)
 		return false;

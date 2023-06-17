@@ -612,10 +612,7 @@ ControlFlowMgr::onceStmt_PreBody(
 }
 
 void
-ControlFlowMgr::onceStmt_PostBody(
-	OnceStmt* stmt,
-	const lex::LineCol& pos
-) {
+ControlFlowMgr::onceStmt_PostBody(OnceStmt* stmt) {
 	if (!m_module->hasCodeGen())
 		return;
 
@@ -623,9 +620,6 @@ ControlFlowMgr::onceStmt_PostBody(
 	ASSERT(storageKind == StorageKind_Static || storageKind == StorageKind_Tls);
 
 	Type* type = stmt->m_flagVariable->getType();
-
-	m_module->m_namespaceMgr.closeScope();
-	m_module->m_namespaceMgr.setSourcePos(pos);
 
 	if (storageKind == StorageKind_Tls) {
 		m_module->m_llvmIrBuilder.createStore(
@@ -648,6 +642,7 @@ ControlFlowMgr::onceStmt_PostBody(
 		);
 	}
 
+	m_module->m_namespaceMgr.closeScope();
 	follow(stmt->m_followBlock);
 }
 

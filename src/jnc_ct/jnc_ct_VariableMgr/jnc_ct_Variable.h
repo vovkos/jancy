@@ -50,7 +50,7 @@ protected:
 	Type* m_type;
 	uint_t m_ptrTypeFlags;
 	StdVariable m_stdVariable;
-	sl::BoxList<Token> m_constructor;
+	sl::List<Token> m_constructor;
 	Scope* m_scope;
 
 	// codegen-only
@@ -85,9 +85,9 @@ public:
 		return m_stdVariable;
 	}
 
-	sl::ConstBoxList<Token>
+	sl::List<Token>*
 	getConstructor() {
-		return m_constructor;
+		return &m_constructor;
 	}
 
 	Scope*

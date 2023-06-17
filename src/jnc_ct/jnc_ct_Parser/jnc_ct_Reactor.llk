@@ -28,7 +28,7 @@ reactor_body
 
 reactor_stmt<SwitchStmt* $stmt>
 	enter {
-		return m_module->m_controlFlowMgr.switchStmt_Case($stmt, m_reactionIdx, m_currentToken.m_pos, 0);
+		return m_module->m_controlFlowMgr.switchStmt_Case($stmt, m_reactionIdx, m_tokenCursor->m_pos, 0);
 	}
 	leave {
 		m_reactionIdx++;
@@ -63,7 +63,7 @@ struct {
 }
 reactor_event_name
 	local {
-		sl::BoxList<Token> $tokenList;
+		sl::List<Token> $tokenList;
 	}
 	enter {
 		ASSERT(m_mode == Mode_Reaction);
@@ -86,13 +86,13 @@ reactor_event_name
 			}
 	|	(any // anything until '('
 			{
-				$tokenList.insertTail($1);
+				$tokenList.insertTail(m_tokenPool->get($1));
 			}
 		)+
 			{
 				Value value;
 				return
-					m_module->m_operatorMgr.parseExpression($tokenList, &value) &&
+					m_module->m_operatorMgr.parseExpression(&$tokenList, &value) &&
 					$.m_valueList.insertTail(value);
 			}
 	;

@@ -349,7 +349,7 @@ FunctionType::getDoxyArgString() {
 			type->getTypeStringSuffix().sz()
 		);
 
-		if (!arg->getInitializer().isEmpty())
+		if (arg->hasInitializer())
 			string.appendFormat(
 				"<defval>%s</defval>\n",
 				arg->getInitializerString().sz()

@@ -67,7 +67,7 @@ ModuleItemBodyDecl::setBody(
 }
 
 bool
-ModuleItemBodyDecl::setBody(sl::BoxList<Token>* tokenList) {
+ModuleItemBodyDecl::setBody(sl::List<Token>* tokenList) {
 	if (!canSetBody())
 		return false;
 

@@ -22,7 +22,7 @@ bool
 Attribute::parseInitializer() {
 	ASSERT(!m_initializer.isEmpty());
 
-	bool result = m_module->m_operatorMgr.parseExpression(m_initializer, &m_value);
+	bool result = m_module->m_operatorMgr.parseExpression(&m_initializer, &m_value);
 	if (!result)
 		return false;
 
@@ -71,7 +71,7 @@ Attribute::parseInitializer() {
 Attribute*
 AttributeBlock::createAttribute(
 	const sl::StringRef& name,
-	sl::BoxList<Token>* initializer
+	sl::List<Token>* initializer
 ) {
 	sl::StringHashTableIterator<Attribute*> it = m_attributeMap.visit(name);
 	if (it->m_value) {

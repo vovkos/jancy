@@ -79,15 +79,16 @@ enum_specifier
 			return m_module->m_namespaceMgr.getCurrentNamespace()->exposeEnumConsts($.m_type);
 	}
 	:	enum_modifier<&$.m_flags>*
-		TokenKind_Enum
+		TokenKind_Enum $e
 		TokenKind_Identifier $n?
 		(':' type_name $t)?
 			{
 				$.m_type = createEnumType(
+					&$n ? $n.m_pos : $e.m_pos,
 					&$n ? $n.m_data.m_string : sl::String(),
 					&$t ? $t.m_type : NULL,
 					$.m_flags | m_pragmaSettings.m_enumFlags
-					);
+				);
 
 				if (!$.m_type)
 					return false;
@@ -133,7 +134,7 @@ enum_const
 	:	attribute_block?
 		TokenKind_Identifier $n ('=' expression_pass1 $i)?
 			{
-				return createEnumConst($n.m_data.m_string, $n.m_pos, &$i ? &$i.m_tokenList : NULL) != NULL;
+				return createEnumConst($n.m_pos, $n.m_data.m_string, &$i ? &$i.m_tokenList : NULL) != NULL;
 			}
 	|	epsilon
 	;
@@ -159,11 +160,12 @@ struct_specifier
 			return declareUnnamedStructOrUnion($.m_type);
 	}
 	:	TokenKind_Dynamic $d?
-		TokenKind_Struct
+		TokenKind_Struct $s
 		TokenKind_Identifier $n?
 		(':' type_name_list $b)?
 			{
 				$.m_type = createStructType(
+					&$n ? $n.m_pos : $s.m_pos,
 					&$n ? $n.m_data.m_string : sl::String(),
 					&$b ? &$b.m_typeList : NULL,
 					m_pragmaSettings.m_fieldAlignment,
@@ -192,10 +194,11 @@ union_specifier
 			return declareUnnamedStructOrUnion($.m_type);
 	}
 	:	TokenKind_Dynamic $d?
-		TokenKind_Union
+		TokenKind_Union $u
 		TokenKind_Identifier $n?
 			{
 				$.m_type = createUnionType(
+					&$n ? $n.m_pos : $u.m_pos,
 					&$n ? $n.m_data.m_string : sl::String(),
 					m_pragmaSettings.m_fieldAlignment,
 					&$d ? TypeFlag_Dynamic : 0
@@ -223,11 +226,12 @@ struct {
 resolver(class_specifier_rslv)
 class_specifier
 	:	TokenKind_Opaque $o?
-		TokenKind_Class
+		TokenKind_Class $c
 		TokenKind_Identifier $n
 		(':' type_name_list $b)?
 			{
 				$.m_type = createClassType(
+					&$n ? $n.m_pos : $c.m_pos,
 					$n.m_data.m_string,
 					&$b ? &$b.m_typeList : NULL,
 					m_pragmaSettings.m_fieldAlignment,
@@ -250,7 +254,7 @@ struct {
 library_specifier
 	:	TokenKind_DynamicLib TokenKind_Identifier
 			{
-				$.m_type = createDynamicLibType($2.m_data.m_string);
+				$.m_type = createDynamicLibType($2.m_pos, $2.m_data.m_string);
 				if (!$.m_type)
 					return false;
 			}

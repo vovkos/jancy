@@ -35,7 +35,7 @@ class ModuleItemInitializer {
 	friend class Parser;
 
 protected:
-	sl::BoxList<Token> m_initializer;
+	sl::List<Token> m_initializer;
 
 public:
 	bool
@@ -43,14 +43,14 @@ public:
 		return !m_initializer.isEmpty();
 	}
 
-	const sl::BoxList<Token>&
+	sl::List<Token>*
 	getInitializer() {
-		return m_initializer;
+		return &m_initializer;
 	}
 
-	sl::String
+	sl::StringRef
 	getInitializerString() {
-		return Token::getTokenListString(m_initializer);
+		return Token::getText(m_initializer);
 	}
 };
 
@@ -188,7 +188,7 @@ class ModuleItemBodyDecl: public ModuleItemDecl {
 protected:
 	lex::LineColOffset m_bodyPos;
 	sl::StringRef m_body;
-	sl::BoxList<Token> m_bodyTokenList;
+	sl::List<Token> m_bodyTokenList;
 
 public:
 	bool
@@ -214,7 +214,7 @@ public:
 	);
 
 	bool
-	setBody(sl::BoxList<Token>* tokenList);
+	setBody(sl::List<Token>* tokenList);
 
 protected:
 	bool

@@ -42,7 +42,7 @@ protected:
 	Type* m_rootType;
 	size_t m_elementCount;
 
-	sl::BoxList<Token> m_elementCountInitializer;
+	sl::List<Token> m_elementCountInitializer;
 	GetDynamicSizeFunction* m_getDynamicSizeFunction;
 
 	Unit* m_parentUnit;
@@ -64,9 +64,9 @@ public:
 		return m_elementCount;
 	}
 
-	sl::ConstBoxList<Token>
+	sl::List<Token>*
 	getElementCountInitializer() {
-		return m_elementCountInitializer;
+		return &m_elementCountInitializer;
 	}
 
 	Function* getGetDynamicSizeFunction() {

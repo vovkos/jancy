@@ -24,15 +24,14 @@ namespace jnc {
 
 axl::sl::String*
 getTlsStringBuffer() {
-	static int32_t flag = 0;
-	sys::TlsSlot* slot = sl::getSimpleSingleton<sys::TlsSlot> (&flag);
+	static size_t slot = sys::getTlsMgr()->createSlot();
 
-	sl::String* oldStringBuffer = (sl::String*)sys::getTlsMgr()->getSlotValue(*slot).p();
+	sl::String* oldStringBuffer = (sl::String*)sys::getTlsMgr()->getSlotValuePtr(slot);
 	if (oldStringBuffer)
 		return oldStringBuffer;
 
 	rc::Ptr<sl::String> newStringBuffer = AXL_RC_NEW(rc::Box<sl::String>);
-	sys::getTlsMgr()->setSlotValue(*slot, newStringBuffer);
+	sys::getTlsMgr()->setSlotValue(slot, newStringBuffer);
 	return newStringBuffer;
 }
 
@@ -578,7 +577,11 @@ Module::parseImpl(
 	Unit* unit = m_unitMgr.createUnit(lib, fileName);
 	m_unitMgr.setCurrentUnit(unit);
 
-	Lexer lexer(LexerMode_Parse);
+	uint_t flags = LexerFlag_Parse;
+	if ((m_compileFlags & ModuleCompileFlag_Documentation) && !lib)
+		flags |= LexerFlag_DoxyComments; // also include doxy-comments (but not for libs!)
+
+	Lexer lexer(flags);
 	lexer.create(fileName, source);
 
 #if (0)
@@ -609,62 +612,42 @@ Module::parseImpl(
 	return false;
 #endif
 
-	if ((m_compileFlags & ModuleCompileFlag_Documentation) && !lib)
-		lexer.m_channelMask = TokenChannelMask_All; // also include doxy-comments (but not for libs!)
-
 	Parser parser(this);
 	parser.create(fileName, Parser::StartSymbol);
 
 	CodeAssistKind codeAssistKind = m_codeAssistMgr.getCodeAssistKind();
 	if (!codeAssistKind || !unit->isRootUnit()) {
-		for (;;) {
-			const Token* token = lexer.getToken();
-			if (token->m_token == TokenKind_Error) {
-				err::setFormatStringError("invalid character '\\x%02x'", (uchar_t) token->m_data.m_integer);
-				lex::pushSrcPosError(fileName, token->m_pos);
+		bool isEof;
+		do {
+			Token* token = lexer.takeToken();
+			isEof = token->m_token == TokenKind_Eof; // EOF token must be parsed
+			result = parser.consumeToken(token);
+			if (!result)
 				return false;
-			}
-
-			result = parser.parseToken(token);
-			if (!result) {
-				lex::ensureSrcPosError(fileName, token->m_pos);
-				return false;
-			}
-
-			if (token->m_token == TokenKind_Eof) // EOF token must be parsed
-				break;
-
-			lexer.nextToken();
-		}
+		} while (!isEof);
 	} else {
 		size_t offset = m_codeAssistMgr.getOffset();
 		size_t autoCompleteFallbackOffset = offset;
 
-		for (;;) {
-			const Token* token = lexer.getToken();
-			if (token->m_token == TokenKind_Error)
-				return false;
-
+		bool isEof;
+		do {
+			Token* token = lexer.takeToken();
 			bool isCodeAssist = markCodeAssistToken((Token*)token, offset);
 			if (isCodeAssist) {
-				if (token->m_tokenKind == TokenKind_Identifier && (token->m_flags & TokenFlag_CodeAssist))
+				if (token->m_tokenKind == TokenKind_Identifier && (token->m_data.m_codeAssistFlags & TokenCodeAssistFlag_At))
 					autoCompleteFallbackOffset = token->m_pos.m_offset;
 
-				if (token->m_flags & (TokenFlag_PostCodeAssist)) {
+				if (token->m_data.m_codeAssistFlags & TokenCodeAssistFlag_After) {
 					m_codeAssistMgr.prepareAutoCompleteFallback(autoCompleteFallbackOffset);
 					offset = -1; // not needed anymore
 				}
 			}
 
-			result = parser.parseToken(token);
+			isEof = token->m_token == TokenKind_Eof; // EOF token must be parsed
+			result = parser.consumeToken(token);
 			if (!result)
 				return false;
-
-			if (token->m_token == TokenKind_Eof) // EOF token must be parsed
-				break;
-
-			lexer.nextToken();
-		}
+		} while (!isEof);
 	}
 
 	m_namespaceMgr.getGlobalNamespace()->getUsingSet()->clear();

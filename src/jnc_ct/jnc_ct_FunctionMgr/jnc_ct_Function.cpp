@@ -149,10 +149,10 @@ Function::compile() {
 
 		if (!m_bodyTokenList.isEmpty())
 			return
-				parser.parseTokenList(symbolKind, m_bodyTokenList) &&
+				parser.parseTokenList(symbolKind, &m_bodyTokenList) &&
 				m_module->m_functionMgr.epilogue();
 
-		sl::BoxList<Token> tokenList;
+		sl::List<Token> tokenList;
 		bool result = parser.tokenizeBody(&tokenList, m_bodyPos, m_body);
 		if (!result)
 			return false;
@@ -164,14 +164,14 @@ Function::compile() {
 		}
 
 		return
-			parser.parseTokenList(symbolKind, tokenList) &&
+			parser.parseTokenList(symbolKind, &tokenList) &&
 			m_module->m_functionMgr.epilogue();
 	}
 
 	// otherwise, a redirected function
 
 	Parser parser(m_module, m_pragmaSettings);
-	result = parser.parseTokenList(SymbolKind_qualified_name_save_name, m_initializer);
+	result = parser.parseTokenList(SymbolKind_qualified_name_save_name, &m_initializer);
 	if (!result)
 		return false;
 

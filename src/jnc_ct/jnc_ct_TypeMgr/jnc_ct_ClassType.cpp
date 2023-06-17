@@ -56,8 +56,8 @@ ClassType::createFieldImpl(
 	Type* type,
 	size_t bitCount,
 	uint_t ptrTypeFlags,
-	sl::BoxList<Token>* constructor,
-	sl::BoxList<Token>* initializer
+	sl::List<Token>* constructor,
+	sl::List<Token>* initializer
 ) {
 	Field* field = m_ifaceStructType->createField(name, type, bitCount, ptrTypeFlags, constructor, initializer);
 	if (!field)

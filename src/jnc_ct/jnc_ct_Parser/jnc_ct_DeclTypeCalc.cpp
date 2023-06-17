@@ -40,12 +40,13 @@ DeclTypeCalc::calcType(
 
 	if (elementCountValue &&
 		firstSuffix &&
-		firstSuffix->getSuffixKind() == DeclSuffixKind_Array) {
+		firstSuffix->getSuffixKind() == DeclSuffixKind_Array
+	) {
 		DeclArraySuffix* arraySuffix = (DeclArraySuffix*)*firstSuffix;
-		sl::BoxList<Token>* elementCountInitializer = arraySuffix->getElementCountInitializer();
+		sl::List<Token>* elementCountInitializer = arraySuffix->getElementCountInitializer();
 
 		if (!elementCountInitializer->isEmpty()) {
-			result = m_module->m_operatorMgr.parseExpression(*elementCountInitializer, elementCountValue);
+			result = m_module->m_operatorMgr.parseExpression(elementCountInitializer, elementCountValue);
 			if (!result)
 				return NULL;
 
@@ -416,7 +417,7 @@ DeclTypeCalc::getArrayType(Type* elementType) {
 
 	m_typeModifiers &= ~TypeModifier_Array;
 
-	sl::BoxList<Token>* elementCountInitializer = suffix->getElementCountInitializer();
+	sl::List<Token>* elementCountInitializer = suffix->getElementCountInitializer();
 	if (!elementCountInitializer->isEmpty())
 		return m_module->m_typeMgr.createArrayType(elementType, elementCountInitializer);
 

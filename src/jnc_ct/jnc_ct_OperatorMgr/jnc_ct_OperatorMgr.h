@@ -703,14 +703,14 @@ public:
 	bool
 	parseInitializer(
 		const Value& value,
-		const sl::ConstBoxList<Token>& constructorTokenList,
-		const sl::ConstBoxList<Token>& initializerTokenList
+		sl::List<Token>* constructorTokenList,
+		sl::List<Token>* initializerTokenList
 	);
 
 	bool
 	parseFunctionArgDefaultValue(
 		ModuleItemDecl* decl,
-		const sl::ConstBoxList<Token>& tokenList,
+		const sl::List<Token>& tokenList,
 		Value* resultValue
 	);
 
@@ -718,7 +718,7 @@ public:
 	parseFunctionArgDefaultValue(
 		ModuleItemDecl* decl,
 		const Value& thisValue,
-		const sl::ConstBoxList<Token>& tokenList,
+		const sl::List<Token>& tokenList,
 		Value* resultValue
 	);
 
@@ -726,7 +726,7 @@ public:
 	parseFunctionArgDefaultValue(
 		ModuleItemDecl* decl,
 		Closure* closure,
-		const sl::ConstBoxList<Token>& tokenList,
+		const sl::List<Token>& tokenList,
 		Value* resultValue
 	) {
 		return closure && closure->isMemberClosure() ?
@@ -736,33 +736,33 @@ public:
 
 	bool
 	parseExpression(
-		const sl::ConstBoxList<Token>& expressionTokenList,
+		sl::List<Token>* expressionTokenList,
 		Value* resultValue
 	);
 
 	bool
 	parseConstIntegerExpression(
-		const sl::ConstBoxList<Token>& expressionTokenList,
+		sl::List<Token>* expressionTokenList,
 		int64_t* integer
 	);
 
 	size_t
-	parseAutoSizeArrayInitializer(
+	getAutoSizeArrayElementCount(
 		ArrayType* arrayType,
-		const sl::ConstBoxList<Token>& initializerTokenList
+		const sl::List<Token>& initializer
 	);
 
 	size_t
-	parseAutoSizeArrayLiteralInitializer(const sl::ConstBoxList<Token>& initializerTokenList);
+	getAutoSizeArrayElementCount_literal(const sl::List<Token>& initializer);
 
 	size_t
-	parseAutoSizeArrayCurlyInitializer(
+	getAutoSizeArrayElementCount_curly(
 		ArrayType* arrayType,
-		const sl::ConstBoxList<Token>& initializerTokenList
+		const sl::List<Token>& initializer
 	);
 
 	size_t
-	parseAutoSizeArrayCurlyInitializer(
+	getAutoSizeArrayElementCount_curly(
 		ArrayType* arrayType,
 		const lex::LineColOffset& pos,
 		const sl::StringRef& initializer
