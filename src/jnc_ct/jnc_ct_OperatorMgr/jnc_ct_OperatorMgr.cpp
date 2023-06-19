@@ -469,13 +469,13 @@ OperatorMgr::forceCast(
 
 	if (srcType->getSize() >= dstType->getSize()) {
 		Value tmpValue;
-		m_module->m_llvmIrBuilder.createAlloca(srcType, "tmp", NULL, &tmpValue);
+		m_module->m_llvmIrBuilder.createAlloca(srcType, NULL, &tmpValue);
 		m_module->m_llvmIrBuilder.createStore(value, tmpValue);
 		m_module->m_llvmIrBuilder.createBitCast(tmpValue, dstType->getDataPtrType_c(), &tmpValue);
 		m_module->m_llvmIrBuilder.createLoad(tmpValue, dstType, resultValue);
 	} else {
 		Value tmpValue, tmpValue2;
-		m_module->m_llvmIrBuilder.createAlloca(dstType, "tmp", NULL, &tmpValue);
+		m_module->m_llvmIrBuilder.createAlloca(dstType, NULL, &tmpValue);
 		m_module->m_llvmIrBuilder.createBitCast(tmpValue, srcType->getDataPtrType_c(), &tmpValue2);
 		m_module->m_llvmIrBuilder.createStore(value, tmpValue2);
 		m_module->m_llvmIrBuilder.createLoad(tmpValue, dstType, resultValue);

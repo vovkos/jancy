@@ -149,13 +149,7 @@ CdeclCallConv_arm::call(
 
 	if ((returnType->getFlags() & TypeFlag_StructRet) &&
 		returnType->getSize() > m_retCoerceSizeLimit) { // return in memory
-		m_module->m_llvmIrBuilder.createAlloca(
-			returnType,
-			"tmpRetVal",
-			returnType->getDataPtrType_c(),
-			&tmpReturnValue
-		);
-
+		m_module->m_llvmIrBuilder.createAlloca(returnType, returnType->getDataPtrType_c(), &tmpReturnValue);
 		argValueList->insertHead(tmpReturnValue);
 	}
 
@@ -169,7 +163,7 @@ CdeclCallConv_arm::call(
 
 		if (type->getSize() > m_argCoerceSizeLimit) { // pass on stack
 			Value tmpValue;
-			m_module->m_llvmIrBuilder.createAlloca(type, "tmpArg", NULL, &tmpValue);
+			m_module->m_llvmIrBuilder.createAlloca(type, NULL, &tmpValue);
 			m_module->m_llvmIrBuilder.createStore(*it, tmpValue);
 			*it = tmpValue;
 		} else { // coerce

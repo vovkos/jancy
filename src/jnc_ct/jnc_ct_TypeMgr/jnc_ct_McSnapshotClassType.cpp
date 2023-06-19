@@ -80,7 +80,7 @@ McSnapshotClassType::compileCallMethod(Function* function) {
 	Value ptrEndValue;
 
 	int32_t ptrGepIdxArray[] = { 0, 1, 0 };
-	m_module->m_llvmIrBuilder.createAlloca(ptrType, "ptr", NULL, &ptrVariable);
+	m_module->m_llvmIrBuilder.createAlloca(ptrType, NULL, &ptrVariable);
 	m_module->m_llvmIrBuilder.createGep(argValueArray[0], ptrGepIdxArray, countof(ptrGepIdxArray), NULL, &ptrValue);
 	m_module->m_llvmIrBuilder.createLoad(ptrValue, NULL, &ptrValue);
 	m_module->m_llvmIrBuilder.createBitCast(ptrValue, ptrType, &ptrValue);

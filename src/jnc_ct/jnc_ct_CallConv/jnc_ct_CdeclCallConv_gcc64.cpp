@@ -155,13 +155,7 @@ CdeclCallConv_gcc64::call(
 
 	if ((returnType->getFlags() & TypeFlag_StructRet) &&
 		returnType->getSize() > sizeof(uint64_t)* 2) { // return in memory
-		m_module->m_llvmIrBuilder.createAlloca(
-			returnType,
-			"tmpRetVal",
-			returnType->getDataPtrType_c(),
-			&tmpReturnValue
-		);
-
+		m_module->m_llvmIrBuilder.createAlloca(returnType, returnType->getDataPtrType_c(), &tmpReturnValue);
 		argValueList->insertHead(tmpReturnValue);
 		argRegCount--;
 	}
@@ -185,7 +179,7 @@ CdeclCallConv_gcc64::call(
 
 		if (size > sizeof(uint64_t)* 2 || argRegCount < regCount) { // pass on stack
 			Value tmpValue;
-			m_module->m_llvmIrBuilder.createAlloca(type, "tmpArg", NULL, &tmpValue);
+			m_module->m_llvmIrBuilder.createAlloca(type, NULL, &tmpValue);
 			m_module->m_llvmIrBuilder.createStore(*it, tmpValue);
 			*it = tmpValue;
 

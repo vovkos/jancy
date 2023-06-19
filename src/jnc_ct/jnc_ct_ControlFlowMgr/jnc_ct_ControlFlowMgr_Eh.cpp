@@ -598,16 +598,9 @@ ControlFlowMgr::preCreateSjljFrameArray() {
 
 	ASSERT(!m_sjljFrameArrayValue);
 	Type* type = m_module->m_typeMgr.getStdType(StdType_SjljFrame);
-	m_module->m_llvmIrBuilder.createAlloca(
-		type,
-		"sjljFrameArray_tmp",
-		type->getDataPtrType_c(),
-		&m_sjljFrameArrayValue
-	);
-
+	m_module->m_llvmIrBuilder.createAlloca(type, type->getDataPtrType_c(), &m_sjljFrameArrayValue);
 	Variable* variable = m_module->m_variableMgr.getStdVariable(StdVariable_SjljFrame);
 	m_module->m_llvmIrBuilder.createLoad(variable, variable->getType(), &m_prevSjljFrameValue);
-
 	m_module->m_controlFlowMgr.setCurrentBlock(prevBlock);
 }
 
@@ -630,7 +623,7 @@ ControlFlowMgr::finalizeSjljFrameArray() {
 	ArrayType* arrayType = type->getArrayType(m_sjljFrameCount);
 
 	Value sjljFrameArrayValue;
-	llvm::AllocaInst* llvmAlloca = m_module->m_llvmIrBuilder.createAlloca(arrayType, "sjljFrameArray", NULL, &sjljFrameArrayValue);
+	llvm::AllocaInst* llvmAlloca = m_module->m_llvmIrBuilder.createAlloca(arrayType, NULL, &sjljFrameArrayValue);
 	m_module->m_llvmIrBuilder.createBitCast(sjljFrameArrayValue, type->getDataPtrType_c(), &sjljFrameArrayValue);
 
 #if (_JNC_CPU_AMD64)

@@ -231,7 +231,7 @@ VariableMgr::allocateVariable(Variable* variable) {
 		break;
 
 	case StorageKind_Stack:
-		variable->m_llvmValue = m_module->m_llvmIrBuilder.createAlloca(variable->m_type, variable->m_qualifiedName, NULL, &ptrValue);
+		variable->m_llvmValue = m_module->m_llvmIrBuilder.createAlloca(variable->m_type, NULL, &ptrValue);
 		m_module->m_llvmIrBuilder.saveInsertPoint(&variable->m_liftInsertPoint);
 
 		ASSERT(variable->m_scope);

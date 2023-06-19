@@ -2922,7 +2922,7 @@ Parser::appendFmtLiteralBinValue(
 	Value tmpValue;
 	Value resultValue;
 
-	m_module->m_llvmIrBuilder.createAlloca(type, "tmpFmtValue", NULL, &tmpValue);
+	m_module->m_llvmIrBuilder.createAlloca(type, NULL, &tmpValue);
 	m_module->m_llvmIrBuilder.createStore(srcValue, tmpValue);
 	m_module->m_llvmIrBuilder.createBitCast(tmpValue, argType, &tmpValue);
 

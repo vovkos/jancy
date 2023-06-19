@@ -41,13 +41,7 @@ Variable::prepareLlvmValue() {
 	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock(prologueBlock);
 
 	Value ptrValue;
-	m_llvmValue = m_module->m_llvmIrBuilder.createAlloca(
-		m_type,
-		getQualifiedName(),
-		NULL,
-		&ptrValue
-	);
-
+	m_llvmValue = m_module->m_llvmIrBuilder.createAlloca(m_type, NULL, &ptrValue);
 	m_module->m_controlFlowMgr.setCurrentBlock(prevBlock);
 	function->addTlsVariable(this);
 }

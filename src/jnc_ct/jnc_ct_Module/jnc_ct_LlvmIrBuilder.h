@@ -209,13 +209,12 @@ public:
 	llvm::AllocaInst*
 	createAlloca(
 		Type* type,
-		const sl::StringRef& name,
 		Type* resultType,
 		Value* resultValue
 	) {
 		ASSERT(m_llvmAllocaIrBuilder);
 
-		llvm::AllocaInst* inst = m_llvmAllocaIrBuilder->CreateAlloca(type->getLlvmType(), NULL, name >> toLlvm);
+		llvm::AllocaInst* inst = m_llvmAllocaIrBuilder->CreateAlloca(type->getLlvmType(), (llvm::Value*)NULL);
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
 	}

@@ -80,13 +80,7 @@ CallConv_msc32::call(
 	}
 
 	Value tmpReturnValue;
-	m_module->m_llvmIrBuilder.createAlloca(
-		returnType,
-		"tmpRetVal",
-		returnType->getDataPtrType_c(),
-		&tmpReturnValue
-	);
-
+	m_module->m_llvmIrBuilder.createAlloca(returnType, returnType->getDataPtrType_c(), &tmpReturnValue);
 	argValueList->insertHead(tmpReturnValue);
 
 	llvm::CallInst* llvmInst = m_module->m_llvmIrBuilder.createCall(
