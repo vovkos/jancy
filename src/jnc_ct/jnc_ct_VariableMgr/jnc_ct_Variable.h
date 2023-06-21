@@ -45,6 +45,7 @@ class Variable:
 	friend class Type;
 	friend class Parser;
 	friend class Module;
+	friend class Jit;
 
 protected:
 	Type* m_type;
@@ -106,6 +107,11 @@ public:
 
 	LeanDataPtrValidator*
 	getLeanDataPtrValidator();
+
+	const sl::String&
+	getLlvmGlobalVariableName() {
+		return m_llvmGlobalVariableName;
+	}
 
 	llvm::GlobalVariable*
 	getLlvmGlobalVariable() {

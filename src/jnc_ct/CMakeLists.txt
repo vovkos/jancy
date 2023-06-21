@@ -9,6 +9,17 @@
 #
 #...............................................................................
 
+axl_create_setting(
+	JANCY_LLVM_JIT_ENGINE
+	DESCRIPTION "Choose LLVM JIT engine"
+	DEFAULT " " # auto-select based on LLVM version and platform
+	" "
+	"-D_JNC_JIT=JNC_JIT_LLVM_ORC"
+	"-D_JNC_JIT=JIT_JIT_LLVM_MCJIT"
+	"-D_JNC_JIT=JNC_JIT_LLVM_LEGACY_JIT"
+)
+
+#...............................................................................
 #
 # include folder
 #
@@ -26,7 +37,7 @@ source_group(
 	${INC_H_LIST}
 )
 
-#...............................................................................
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
 # jnc_ct_CallConv folder
 #
@@ -52,7 +63,7 @@ source_group(
 	${CALLCONV_CPP_LIST}
 )
 
-#...............................................................................
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
 # jnc_ct_ControlFlowMgr folder
 #

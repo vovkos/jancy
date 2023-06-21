@@ -39,6 +39,7 @@ class Function:
 	public ModuleItemInitializer,
 	public FunctionName {
 	friend class Module;
+	friend class Jit;
 	friend class Unit;
 	friend class FunctionMgr;
 	friend class TypeMgr;

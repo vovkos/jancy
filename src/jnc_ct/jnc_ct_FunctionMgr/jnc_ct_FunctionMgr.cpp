@@ -660,21 +660,27 @@ FunctionMgr::jitFunctions() {
 #endif
 
 	llvm::ScopedFatalErrorHandler scopeErrorHandler(llvmFatalErrorHandler);
-	llvm::ExecutionEngine* llvmExecutionEngine = m_module->getLlvmExecutionEngine();
+
+	bool result = true;
 
 	try {
 		sl::Iterator<Function> it = m_functionList.getHead();
 		for (; it; it++)
-			if (!it->isEmpty())
-				it->m_machineCode = llvmExecutionEngine->getPointerToFunction(it->getLlvmFunction());
+			if (!it->isEmpty()) {
+				void* p = m_module->m_jit.jit(*it);
+				if (!p)
+					return false;
 
-		llvmExecutionEngine->finalizeObject();
+				it->m_machineCode = p;
+			}
+
+		result = m_module->m_jit.finalizeObject();
 	} catch (err::Error error) {
 		err::setFormatStringError("LLVM jitting failed: %s", error->getDescription().sz());
-		return false;
+		result = false;
 	}
 
-	return true;
+	return result;
 }
 
 Function*

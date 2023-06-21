@@ -28,6 +28,7 @@
 #include "jnc_ct_DoxyHost.h"
 #include "jnc_ct_LlvmIrBuilder.h"
 #include "jnc_ct_LlvmDiBuilder.h"
+#include "jnc_ct_Jit.h"
 
 namespace jnc {
 namespace ct {
@@ -60,6 +61,8 @@ protected:
 //..............................................................................
 
 class Module: public PreModule {
+	friend class Jit; // can take ownership of llvm::Module
+
 protected:
 	enum AuxCompileFlag {
 		AuxCompileFlag_IntrospectionLib = 0x80000000,
@@ -100,7 +103,6 @@ protected:
 	sl::Array<Function*> m_compileArray;
 	sl::BoxList<sl::String> m_sourceList; // need to keep all sources in-memory during compilation
 	sl::StringHashTable<bool> m_filePathSet;
-	sl::StringHashTable<void*> m_functionMap;
 	sl::StringHashTable<RequiredItem> m_requireSet;
 
 	Function* m_constructor;
@@ -109,7 +111,6 @@ protected:
 
 	llvm::LLVMContext* m_llvmContext;
 	llvm::Module* m_llvmModule;
-	llvm::ExecutionEngine* m_llvmExecutionEngine;
 
 public:
 	TypeMgr m_typeMgr;
@@ -128,6 +129,7 @@ public:
 	CodeAssistMgr m_codeAssistMgr;
 	DoxyHost m_doxyHost;
 	dox::Module m_doxyModule;
+	Jit m_jit;
 
 	// codegen-only
 
@@ -199,48 +201,10 @@ public:
 		return m_llvmModule;
 	}
 
-	llvm::ExecutionEngine*
-	getLlvmExecutionEngine() {
-		ASSERT(m_llvmExecutionEngine);
-		return m_llvmExecutionEngine;
-	}
-
 	Function*
 	getConstructor() {
 		return m_constructor;
 	}
-
-	void
-	setFunctionPointer(
-		llvm::ExecutionEngine* llvmExecutionEngine,
-		Function* function,
-		void* p
-	) {
-		llvmExecutionEngine->addGlobalMapping(function->getLlvmFunction(), p);
-	}
-
-	void
-	setFunctionPointer(
-		llvm::ExecutionEngine* llvmExecutionEngine,
-		StdFunc funcKind,
-		void* p
-	) {
-		setFunctionPointer(llvmExecutionEngine, m_functionMgr.getStdFunction(funcKind), p);
-	}
-
-	bool
-	setFunctionPointer(
-		llvm::ExecutionEngine* llvmExecutionEngine,
-		const sl::StringRef& name,
-		void* p
-	);
-
-	bool
-	setFunctionPointer(
-		llvm::ExecutionEngine* llvmExecutionEngine,
-		const QualifiedName& name,
-		void* p
-	);
 
 	void
 	markForCompile(Function* function);
@@ -308,21 +272,6 @@ public:
 		return (m_compileFlags & AuxCompileFlag_IntrospectionLib) || requireIntrospectionLib();
 	}
 
-	bool
-	mapVariable(
-		Variable* variable,
-		void* p
-	);
-
-	bool
-	mapFunction(
-		Function* function,
-		void* p
-	);
-
-	void*
-	findFunctionMapping(const sl::StringRef& name);
-
 	sl::String
 	getLlvmIrString();
 
@@ -339,9 +288,6 @@ protected:
 
 	bool
 	requireIntrospectionLib();
-
-	bool
-	createLlvmExecutionEngine();
 
 	bool
 	processRequireSet();

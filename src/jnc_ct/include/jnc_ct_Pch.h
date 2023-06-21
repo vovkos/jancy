@@ -84,14 +84,40 @@
 #include <llvm/Transforms/IPO.h>
 #include <llvm/Transforms/IPO/PassManagerBuilder.h>
 
-#if (LLVM_VERSION < 0x030600) // legacy JIT is gone in LLVM 3.6
+#define JNC_JIT_LLVM_ORC        2
+#define JNC_JIT_LLVM_MCJIT      1
+#define JNC_JIT_LLVM_LEGACY_JIT 0
+
+#ifndef _JNC_JIT
+#	if (LLVM_VERSION >= 0x040000) // ORC is introduced in LLVM 4
+#		define _JNC_JIT JNC_JIT_LLVM_ORC
+#	elif (!JNC_OS_WIN)
+#		define _JNC_JIT JNC_JIT_LLVM_MCJIT
+#	else
+#		define _JNC_JIT JNC_JIT_LLVM_LEGACY_JIT
+#	endif
+#elif (_JNC_JIT == JNC_JIT_LLVM_LEGACY_JIT && LLVM_VERSION > 0x030600)
+#	error "LLVM legacy JIT is no more since LLVM 3.6"
+#endif
+
+#if (_JNC_JIT == JNC_JIT_LLVM_ORC)
+#	include <llvm/ExecutionEngine/Orc/CompileUtils.h>
+#	include <llvm/ExecutionEngine/Orc/Core.h>
+#	include <llvm/ExecutionEngine/Orc/ExecutionUtils.h>
+#	include <llvm/ExecutionEngine/Orc/ExecutorProcessControl.h>
+#	include <llvm/ExecutionEngine/Orc/IRCompileLayer.h>
+#	include <llvm/ExecutionEngine/Orc/JITTargetMachineBuilder.h>
+#	include <llvm/ExecutionEngine/Orc/RTDyldObjectLinkingLayer.h>
+#	include <llvm/ExecutionEngine/SectionMemoryManager.h>
+#	include <llvm/IR/DataLayout.h>
+#elif (_JNC_JIT == JNC_JIT_LLVM_MCJIT)
+#	include <llvm/ExecutionEngine/SectionMemoryManager.h>
+#	include <llvm/ExecutionEngine/JITEventListener.h>
+#	include <llvm/ExecutionEngine/MCJIT.h>
+#elif (_JNC_JIT == JNC_JIT_LLVM_LEGACY_JIT)
 #	include <llvm/ExecutionEngine/JIT.h>
 #	include <llvm/ExecutionEngine/JITMemoryManager.h>
 #endif
-
-#include <llvm/ExecutionEngine/SectionMemoryManager.h>
-#include <llvm/ExecutionEngine/JITEventListener.h>
-#include <llvm/ExecutionEngine/MCJIT.h>
 
 #pragma warning(default: 4141)
 #pragma warning(default: 4146)
@@ -302,5 +328,15 @@ operator >> (
 ) {
 	return sl::String(string.data(), string.size());
 }
+
+inline
+err::Error
+operator >> (
+	llvm::Error&& error,
+	const ToAxl*
+) {
+	return err::Error(llvm::toString(std::move(error)).c_str());
+}
+
 
 //..............................................................................

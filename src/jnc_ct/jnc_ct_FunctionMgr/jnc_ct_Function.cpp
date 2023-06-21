@@ -57,12 +57,12 @@ Function::prepareLlvmFunction() {
 	ASSERT(!m_llvmFunction);
 
 	sl::String llvmName;
-	if (m_module->getCompileFlags() & ModuleCompileFlag_McJit) {
-		llvmName = "?"; // as to avoid linking conflicts
-		llvmName += getQualifiedName();
-	} else {
-		llvmName = getQualifiedName();
-	}
+#if (_JNC_JIT >= JNC_JIT_LLVM_MCJIT)
+	llvmName = '?'; // as to avoid linking conflicts
+	llvmName += getQualifiedName();
+#else
+	llvmName = getQualifiedName();
+#endif
 
 	m_llvmFunction = m_type->getCallConv()->createLlvmFunction(m_type, llvmName);
 

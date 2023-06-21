@@ -1028,11 +1028,11 @@ mapMulticastMethods(
 	ASSERT(ptrTypeKind < FunctionPtrTypeKind__Count);
 
 	Function* function = multicastType->getDestructor();
-	module->mapFunction(function, (void*)multicastDestruct);
+	module->m_jit.mapFunction(function, (void*)multicastDestruct);
 
 	for (size_t i = 0; i < MulticastMethodKind__Count - 1; i++) {
 		function = multicastType->getMethod((MulticastMethodKind)i);
-		module->mapFunction(function, multicastMethodTable[ptrTypeKind][i]);
+		module->m_jit.mapFunction(function, multicastMethodTable[ptrTypeKind][i]);
 	}
 }
 

@@ -11,7 +11,6 @@
 
 #include "pch.h"
 #include "jnc_ct_Module.h"
-#include "jnc_ct_JitMemoryMgr.h"
 #include "jnc_ct_Parser.llk.h"
 
 #if (_AXL_DEBUG)
@@ -52,7 +51,6 @@ Module::Module():
 
 	m_llvmContext = NULL;
 	m_llvmModule = NULL;
-	m_llvmExecutionEngine = NULL;
 
 	finalizeConstruction();
 }
@@ -102,7 +100,6 @@ Module::clear() {
 	m_compileArray.clear();
 	m_sourceList.clear();
 	m_filePathSet.clear();
-	m_functionMap.clear();
 	m_requireSet.clear();
 
 	m_typeMgr.clear();
@@ -119,6 +116,7 @@ Module::clear() {
 	m_controlFlowMgr.clear();
 	m_gcShadowStackMgr.clear();
 	m_codeAssistMgr.clear();
+	m_jit.clear();
 
 	clearLlvm();
 
@@ -134,9 +132,7 @@ Module::clearLlvm() {
 	m_llvmIrBuilder.clear();
 	m_llvmDiBuilder.clear();
 
-	if (m_llvmExecutionEngine)
-		delete m_llvmExecutionEngine;
-	else if (m_llvmModule)
+	if (m_llvmModule)
 		delete m_llvmModule;
 
 	if (m_llvmContext)
@@ -144,7 +140,6 @@ Module::clearLlvm() {
 
 	m_llvmContext = NULL;
 	m_llvmModule = NULL;
-	m_llvmExecutionEngine = NULL;
 
 	m_compileFlags &= ~(
 		ModuleCompileFlag_DebugInfo |
@@ -163,10 +158,6 @@ Module::initialize(
 #if (_AXL_GCC_ASAN)
 	// GC guard page safe points do not work with address sanitizer
 	compileFlags |= ModuleCompileFlag_SimpleGcSafePoint;
-#endif
-
-#if (LLVM_VERSION >= 0x030600)
-	compileFlags |= ModuleCompileFlag_McJit;
 #endif
 
 	m_name = name;
@@ -249,311 +240,6 @@ extern "C" int64_t _aulldiv(int64_t, int64_t);
 extern "C" int64_t _aullrem(int64_t, int64_t);
 #	endif
 #endif
-
-bool
-Module::createLlvmExecutionEngine() {
-	ASSERT(!m_llvmExecutionEngine);
-
-#if (_JNC_CPU_ARM32 || _JNC_CPU_ARM64)
-	// disable the GlobalMerge pass (on by default) on ARM because
-	// it will dangle GlobalVariable::m_llvmVariable pointers
-
-#	if (LLVM_VERSION < 0x030700)
-	llvm::StringMap<llvm::cl::Option*> options;
-	llvm::cl::getRegisteredOptions(options);
-#	else
-	llvm::StringMap<llvm::cl::Option*>& options = llvm::cl::getRegisteredOptions();
-#	endif
-
-	llvm::StringMap<llvm::cl::Option*>::iterator globalMergeIt = options.find("global-merge");
-	if (globalMergeIt != options.end()) {
-		llvm::cl::opt<bool>* globalMerge = (llvm::cl::opt<bool>*)globalMergeIt->second;
-		ASSERT(llvm::isa<llvm::cl::opt<bool> >(globalMerge));
-		globalMerge->setValue(false);
-	}
-#endif
-
-#if (LLVM_VERSION < 0x030600)
-	llvm::EngineBuilder engineBuilder(m_llvmModule);
-#else
-	llvm::EngineBuilder engineBuilder(std::move(std::unique_ptr<llvm::Module> (m_llvmModule)));
-#endif
-
-	std::string errorString;
-	engineBuilder.setErrorStr(&errorString);
-	engineBuilder.setEngineKind(llvm::EngineKind::JIT);
-
-	llvm::TargetOptions targetOptions;
-
-#if (_JNC_CPU_ARM32 || _JNC_CPU_ARM64)
-	targetOptions.FloatABIType = llvm::FloatABI::Hard;
-#endif
-
-	if (m_compileFlags & ModuleCompileFlag_McJit) {
-		JitMemoryMgr* jitMemoryMgr = new JitMemoryMgr(this);
-#if (LLVM_VERSION < 0x030600)
-		engineBuilder.setUseMCJIT(true);
-		engineBuilder.setMCJITMemoryManager(jitMemoryMgr);
-		targetOptions.JITEmitDebugInfo = true;
-#elif (LLVM_VERSION < 0x030700)
-		engineBuilder.setMCJITMemoryManager(std::move(std::unique_ptr<JitMemoryMgr> (jitMemoryMgr)));
-		targetOptions.JITEmitDebugInfo = true;
-#else
-		engineBuilder.setMCJITMemoryManager(std::move(std::unique_ptr<JitMemoryMgr> (jitMemoryMgr)));
-#endif
-
-		m_functionMap["memset"] = (void*)memset;
-		m_functionMap["memcpy"] = (void*)memcpy;
-		m_functionMap["memmove"] = (void*)memmove;
-#if (_JNC_OS_DARWIN)
-		m_functionMap["_bzero"] = (void*)bzero;
-		m_functionMap["___bzero"] = (void*)bzero;
-#endif
-#if (JNC_PTR_BITS == 32)
-#	if (_JNC_OS_POSIX)
-		m_functionMap["__divdi3"] = (void*)__divdi3;
-		m_functionMap["__moddi3"] = (void*)__moddi3;
-		m_functionMap["__udivdi3"] = (void*)__udivdi3;
-		m_functionMap["__umoddi3"] = (void*)__umoddi3;
-#		if (_JNC_CPU_ARM32)
-		m_functionMap["__modsi3"] = (void*)__modsi3;
-		m_functionMap["__umodsi3"] = (void*)__umodsi3;
-		m_functionMap["__aeabi_idiv"] = (void*)__aeabi_idiv;
-		m_functionMap["__aeabi_uidiv"] = (void*)__aeabi_uidiv;
-		m_functionMap["__aeabi_ldivmod"] = (void*)__aeabi_ldivmod;
-		m_functionMap["__aeabi_uldivmod"] = (void*)__aeabi_uldivmod;
-		m_functionMap["__aeabi_i2f"] = (void*)__aeabi_i2f;
-		m_functionMap["__aeabi_l2f"] = (void*)__aeabi_l2f;
-		m_functionMap["__aeabi_ui2f"] = (void*)__aeabi_ui2f;
-		m_functionMap["__aeabi_ul2f"] = (void*)__aeabi_ul2f;
-		m_functionMap["__aeabi_i2d"] = (void*)__aeabi_i2d;
-		m_functionMap["__aeabi_l2d"] = (void*)__aeabi_l2d;
-		m_functionMap["__aeabi_ui2d"] = (void*)__aeabi_ui2d;
-		m_functionMap["__aeabi_ul2d"] = (void*)__aeabi_ul2d;
-		m_functionMap["__aeabi_memcpy"] = (void*)__aeabi_memcpy;
-		m_functionMap["__aeabi_memmove"] = (void*)__aeabi_memmove;
-		m_functionMap["__aeabi_memset"] = (void*)__aeabi_memset;
-#		endif
-#	elif (_JNC_OS_WIN)
-		m_functionMap["_alldiv"] = (void*)_alldiv;
-		m_functionMap["_allrem"] = (void*)_allrem;
-		m_functionMap["_aulldiv"] = (void*)_aulldiv;
-		m_functionMap["_aullrem"] = (void*)_aullrem;
-#	endif
-#endif
-	} else {
-#if (LLVM_VERSION >= 0x030600) // legacy JIT is gone in LLVM 3.6
-		ASSERT(false); // should have been checked earlier
-#else
-#	if (_JNC_OS_WIN && _JNC_CPU_AMD64)
-		// legacy JIT uses relative call to __chkstk
-		// it worked just fine before windows 10 which loads ntdll.dll too far away
-
-		// the fix should go to LLVM, of course, but
-		// a) applying a patch to LLVM before building Jancy would be a pain in the ass
-		// b) legacy JIT is a gonner anyway
-
-		// therefore, a simple workaround is used: allocate a proxy for __chkstk
-		// which would reside close enough to the generated code
-
-		void* chkstk = ::GetProcAddress(::GetModuleHandleA("ntdll.dll"), "__chkstk");
-		if (!chkstk) {
-			err::setFormatStringError("__chkstk is not found");
-			return false;
-		}
-
-		llvm::JITMemoryManager* jitMemoryMgr = llvm::JITMemoryManager::CreateDefaultMemManager();
-		engineBuilder.setJITMemoryManager(jitMemoryMgr);
-		uchar_t* p = jitMemoryMgr->allocateCodeSection(128, 0, 0, llvm::StringRef());
-
-		// mov r11, __chkstk
-
-		p[0] = 0x49;
-		p[1] = 0xbb;
-		*(void**)(p + 2) = chkstk;
-
-		// jmp r11
-
-		p[10] = 0x41;
-		p[11] = 0xff;
-		p[12] = 0xe3;
-
-		llvm::sys::DynamicLibrary::AddSymbol("__chkstk", p);
-#	endif
-
-		engineBuilder.setUseMCJIT(false);
-#endif
-	}
-
-	engineBuilder.setTargetOptions(targetOptions);
-
-	// disable CPU feature auto-detection
-	// alas, making use of certain CPU features leads to JIT crashes (e.g. test114.jnc)
-
-	engineBuilder.setMCPU("generic");
-
-#if (_JNC_CPU_X86)
-	engineBuilder.setMArch("x86");
-#endif
-
-	sys::ScopedTlsPtrSlot<Module> scopeModule(this); // for GcShadowStack
-
-	m_llvmExecutionEngine = engineBuilder.create();
-	if (!m_llvmExecutionEngine) {
-		err::setFormatStringError("cannot create execution engine: %s", errorString.c_str());
-		return false;
-	}
-
-	return true;
-}
-
-bool
-Module::mapVariable(
-	Variable* variable,
-	void* p
-) {
-	if (variable->getStorageKind() != StorageKind_Static) {
-		err::setFormatStringError("attempt to map non-global variable: %s", variable->getQualifiedName().sz());
-		return false;
-	}
-
-	llvm::GlobalVariable* llvmVariable = !variable->m_llvmGlobalVariableName.isEmpty() ?
-		m_llvmModule->getGlobalVariable(variable->m_llvmGlobalVariableName >> toLlvm) :
-		variable->getLlvmGlobalVariable();
-
-	if (!llvmVariable) { // optimized out
-		variable->m_staticData = p;
-		return true;
-	}
-
-	if (m_compileFlags & ModuleCompileFlag_McJit) {
-		std::string name = llvmVariable->getName().str();
-		name += ".mapping";
-
-		llvm::GlobalVariable* llvmMapping = new llvm::GlobalVariable(
-			*m_llvmModule,
-			variable->getType()->getLlvmType(),
-			false,
-			llvm::GlobalVariable::ExternalWeakLinkage,
-			NULL,
-			name
-		);
-
-		llvmVariable->replaceAllUsesWith(llvmMapping);
-		llvmVariable->eraseFromParent();
-
-#if (LLVM_VERSION >= 0x040000)
-		ASSERT(m_llvmExecutionEngine);
-		m_llvmExecutionEngine->addGlobalMapping(llvmMapping, p);
-#else
-		sl::StringHashTableIterator<void*> it = m_functionMap.visit(llvmMapping->getName().data());
-		if (it->m_value) {
-			err::setFormatStringError("attempt to re-map variable: %s", variable->getQualifiedName().sz());
-			return false;
-		}
-
-		it->m_value = p;
-#endif
-	} else {
-		ASSERT(m_llvmExecutionEngine);
-		m_llvmExecutionEngine->addGlobalMapping(llvmVariable, p);
-	}
-
-	variable->m_staticData = p;
-	return true;
-}
-
-bool
-Module::mapFunction(
-	Function* function,
-	void* p
-) {
-	if (!function->hasLlvmFunction()) { // never used
-		function->m_machineCode = p;
-		return true;
-	}
-
-	llvm::Function* llvmFunction = !function->m_llvmFunctionName.isEmpty() ?
-		m_llvmModule->getFunction(function->m_llvmFunctionName >> toLlvm) :
-		function->getLlvmFunction();
-
-	if (!llvmFunction) { // optimized out
-		function->m_machineCode = p;
-		return true;
-	}
-
-	if (m_compileFlags & ModuleCompileFlag_McJit) {
-		sl::StringHashTableIterator<void*> it = m_functionMap.visit(llvmFunction->getName().data());
-		if (it->m_value) {
-			err::setFormatStringError("attempt to re-map function: %s/%s", function->getQualifiedName().sz(), llvmFunction->getName().data());
-			return false;
-		}
-
-		it->m_value = p;
-	} else {
-		ASSERT(m_llvmExecutionEngine);
-		m_llvmExecutionEngine->addGlobalMapping(llvmFunction, p);
-	}
-
-	function->m_machineCode = p;
-	return true;
-}
-
-void*
-Module::findFunctionMapping(const sl::StringRef& name) {
-	sl::StringHashTableIterator<void*> it;
-
-#if (_JNC_OS_WIN && _JNC_CPU_X86)
-	bool isUnderscorePrefix = name.isPrefix(sl::StringRef("_", 1, true));
-#else
-	bool isUnderscorePrefix = name.isPrefix(sl::StringRef("_?", 2, true));
-#endif
-
-	it = isUnderscorePrefix ?
-		m_functionMap.find(name.getSubString(1)) :
-		m_functionMap.find(name);
-
-	return it ? it->m_value : NULL;
-}
-
-bool
-Module::setFunctionPointer(
-	llvm::ExecutionEngine* llvmExecutionEngine,
-	const sl::StringRef& name,
-	void* p
-) {
-	QualifiedName qualifiedName;
-	qualifiedName.parse(name);
-	return setFunctionPointer(llvmExecutionEngine, qualifiedName, p);
-}
-
-bool
-Module::setFunctionPointer(
-	llvm::ExecutionEngine* llvmExecutionEngine,
-	const QualifiedName& name,
-	void* p
-) {
-	FindModuleItemResult findResult = m_namespaceMgr.getGlobalNamespace()->findItem(name);
-	if (!findResult.m_item)
-		return false;
-
-	if (!findResult.m_item) {
-		err::setFormatStringError("'%s' not found", name.getFullName().sz());
-		return false;
-	}
-
-	if (findResult.m_item->getItemKind() != ModuleItemKind_Function) {
-		err::setFormatStringError("'%s' is not a function", name.getFullName().sz());
-		return false;
-	}
-
-	llvm::Function* llvmFunction = ((Function*)findResult.m_item)->getLlvmFunction();
-	if (!llvmFunction)
-		return false;
-
-	llvmExecutionEngine->addGlobalMapping(llvmFunction, p);
-	return true;
-}
 
 void
 Module::markForCompile(Function* function) {
@@ -768,8 +454,8 @@ bool
 Module::optimize(uint_t level) {
 	// optimization requires knowledge of the DataLayout for TargetMachine
 
-	if (!m_llvmExecutionEngine) {
-		bool result = createLlvmExecutionEngine();
+	if (!m_jit.isCreated()) {
+		bool result = m_jit.create();
 		if (!result)
 			return false;
 	}
@@ -837,14 +523,15 @@ Module::jit() {
 			return false;
 	}
 
-	if (!m_llvmExecutionEngine) {
-		result = createLlvmExecutionEngine();
+	if (!m_jit.isCreated()) {
+		result = m_jit.create();
 		if (!result)
 			return false;
 	}
 
 	result =
 		m_extensionLibMgr.mapAddresses() &&
+		m_jit.prepare() &&
 		m_functionMgr.jitFunctions();
 
 	if (!result)
