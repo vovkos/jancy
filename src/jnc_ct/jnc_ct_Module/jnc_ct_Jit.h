@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include "jnc_ct_Pch.h"
+#include "jnc_ct_Module.h"
 
 namespace jnc {
 namespace ct {
@@ -25,63 +25,143 @@ class Variable;
 class Jit {
 protected:
 	Module* m_module;
-#if (_JNC_JIT == JNC_JIT_LLVM_ORC)
-	llvm::orc::ThreadSafeModule m_llvmModule;
-	llvm::orc::ExecutionSession* m_llvmExecutionSession;
-	llvm::orc::IRCompileLayer* m_llvmIrCompileLayer;
-	llvm::orc::RTDyldObjectLinkingLayer* m_llvmObjectLinkingLayer;
-	llvm::orc::JITDylib* m_llvmJitDylib;
-	llvm::DataLayout* m_llvmDataLayout;
-	sl::StringHashTable<void*> m_functionMap;
-#elif (_JNC_JIT == JNC_JIT_LLVM_MCJIT)
-	llvm::ExecutionEngine* m_llvmExecutionEngine;
-	sl::StringHashTable<void*> m_functionMap;
-#elif (_JNC_JIT == JNC_JIT_LLVM_LEGACY)
-	llvm::ExecutionEngine* m_llvmExecutionEngine;
-#endif
+	sl::StringHashTable<void*> m_symbolMap;
 
 public:
-	Jit();
-	~Jit();
+	Jit(Module* module) {
+		ASSERT(module);
+		m_module = module;
+	}
 
+	virtual
+	~Jit() {
+	}
+
+	virtual
 	bool
-	isCreated() const;
-
-	llvm::DataLayout*
-	getLlvmDataLayout();
-
-	void
-	clear();
-
-	bool
-	create();
+	create() = 0;
 
 	void*
-	findFunctionMapping(const sl::StringRef& name);
+	findSymbol(const sl::StringRef& name);
 
+	virtual
 	bool
 	mapVariable(
 		Variable* variable,
 		void* p
-	);
+	) = 0;
 
+	virtual
 	bool
 	mapFunction(
 		Function* function,
 		void* p
-	);
+	) = 0;
 
+	virtual
 	bool
-	prepare(); // called after everything is mapped and before jitting
+	prepare() { // called after everything is mapped and before jitting
+		return true;
+	}
 
+	virtual
 	void*
-	jit(Function* function);
+	jit(Function* function) = 0;
 
+	virtual
 	void*
-	getStaticData(Variable* variable);
+	getStaticData(Variable* variable) = 0;
 
-	bool
-	finalizeObject();
+	virtual
+	void
+	finalizeObject() {
+	}
+
+protected:
+	void
+	addStdSymbols();
+
+	void
+	clearLlvmModule() {
+		m_module->m_llvmModule = NULL;
+	}
+
+	void
+	clearLlvmContext() {
+		m_module->m_llvmContext = NULL;
+	}
+
+	static
+	void
+	setFunctionMachineCode(
+		Function* function,
+		void* p
+	) {
+		function->m_machineCode = p;
+	}
+
+	static
+	void
+	setVariableStaticData(
+		Variable* variable,
+		void* p
+	) {
+		variable->m_staticData = p;
+	}
+
+	llvm::Function*
+	getLlvmFunction(Function* function) {
+		return
+			!function->hasLlvmFunction() ? NULL : // never used
+			!function->getLlvmFunctionName().isEmpty() ?
+				m_module->getLlvmModule()->getFunction(function->getLlvmFunctionName() >> toLlvm) :
+				function->getLlvmFunction();
+	}
+
+	llvm::GlobalVariable*
+	getLlvmGlobalVariable(Variable* variable) {
+		return !variable->getLlvmGlobalVariableName().isEmpty() ?
+			m_module->getLlvmModule()->getGlobalVariable(variable->getLlvmGlobalVariableName() >> toLlvm) :
+			variable->getLlvmGlobalVariable();
+	}
+
+	llvm::GlobalVariable*
+	createLlvmGlobalVariableMapping(Variable* variable);
+};
+
+//..............................................................................
+
+class ExecutionEngineJit: public Jit {
+protected:
+	llvm::ExecutionEngine* m_llvmExecutionEngine;
+
+public:
+	ExecutionEngineJit(Module* module):
+		Jit(module) {
+		m_llvmExecutionEngine = NULL;
+	}
+
+	virtual
+	~ExecutionEngineJit() {
+		if (m_llvmExecutionEngine) {
+			delete m_llvmExecutionEngine;
+			clearLlvmModule();
+		}
+	}
+
+	virtual
+	void*
+	jit(Function* function) {
+		ASSERT(m_llvmExecutionEngine);
+		return m_llvmExecutionEngine->getPointerToFunction(function->getLlvmFunction());
+	}
+
+	virtual
+	void
+	finalizeObject() {
+		ASSERT(m_llvmExecutionEngine);
+		m_llvmExecutionEngine->finalizeObject();
+	}
 };
 
 //..............................................................................

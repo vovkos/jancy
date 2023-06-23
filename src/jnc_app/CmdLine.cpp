@@ -93,7 +93,19 @@ CmdLineParser::onSwitch(
 
 	case CmdLineSwitch_McJit:
 		m_cmdLine->m_flags |= JncFlag_Jit;
-		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_McJit;
+		m_cmdLine->m_compileFlags &= ~(jnc::ModuleCompileFlag_OrcJit | jnc::ModuleCompileFlag_LegacyJit);
+		break;
+
+	case CmdLineSwitch_LegacyJit:
+		m_cmdLine->m_flags |= JncFlag_Jit;
+		m_cmdLine->m_compileFlags &= ~jnc::ModuleCompileFlag_OrcJit;
+		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_LegacyJit;
+		break;
+
+	case CmdLineSwitch_OrcJit:
+		m_cmdLine->m_flags |= JncFlag_Jit;
+		m_cmdLine->m_compileFlags &= ~jnc::ModuleCompileFlag_LegacyJit;
+		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_OrcJit;
 		break;
 
 	case CmdLineSwitch_LlvmIr:

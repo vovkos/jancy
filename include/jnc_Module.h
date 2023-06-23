@@ -56,7 +56,6 @@
 
 enum jnc_ModuleCompileFlag {
 	jnc_ModuleCompileFlag_DebugInfo                     = 0x00000001,
-	jnc_ModuleCompileFlag_McJit                         = 0x00000002,
 	jnc_ModuleCompileFlag_SimpleGcSafePoint             = 0x00000004,
 	jnc_ModuleCompileFlag_GcSafePointInPrologue         = 0x00000010,
 	jnc_ModuleCompileFlag_GcSafePointInInternalPrologue = 0x00000020,
@@ -70,12 +69,15 @@ enum jnc_ModuleCompileFlag {
 	jnc_ModuleCompileFlag_DisableDoxyComment2           = 0x00004000,
 	jnc_ModuleCompileFlag_DisableDoxyComment3           = 0x00008000,
 	jnc_ModuleCompileFlag_DisableDoxyComment4           = 0x00010000,
+	jnc_ModuleCompileFlag_OrcJit                        = 0x00020000,
+	jnc_ModuleCompileFlag_LegacyJit                     = 0x00040000,
 
 	jnc_ModuleCompileFlag_StdFlags =
-#if (_JNC_OS_POSIX)
-		jnc_ModuleCompileFlag_McJit |
-#endif
+#if (_JNC_OS_WIN && LLVM_VERSION < 0x030600)
+		jnc_ModuleCompileFlag_LegacyJit
+#else
 		0
+#endif
 };
 
 typedef enum jnc_ModuleCompileFlag jnc_ModuleCompileFlag;
@@ -701,7 +703,8 @@ typedef jnc_ModuleCompileFlag ModuleCompileFlag;
 
 const ModuleCompileFlag
 	ModuleCompileFlag_DebugInfo                     = jnc_ModuleCompileFlag_DebugInfo,
-	ModuleCompileFlag_McJit                         = jnc_ModuleCompileFlag_McJit,
+	ModuleCompileFlag_OrcJit                        = jnc_ModuleCompileFlag_OrcJit,
+	ModuleCompileFlag_LegacyJit                     = jnc_ModuleCompileFlag_LegacyJit,
 	ModuleCompileFlag_SimpleGcSafePoint             = jnc_ModuleCompileFlag_SimpleGcSafePoint,
 	ModuleCompileFlag_GcSafePointInPrologue         = jnc_ModuleCompileFlag_GcSafePointInPrologue,
 	ModuleCompileFlag_GcSafePointInInternalPrologue = jnc_ModuleCompileFlag_GcSafePointInInternalPrologue,

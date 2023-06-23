@@ -68,6 +68,8 @@ enum CmdLineSwitch {
 	CmdLineSwitch_LlvmIr,
 	CmdLineSwitch_DebugInfo,
 	CmdLineSwitch_Jit,
+	CmdLineSwitch_OrcJit,
+	CmdLineSwitch_LegacyJit,
 	CmdLineSwitch_McJit,
 	CmdLineSwitch_SimpleGcSafePoint,
 	CmdLineSwitch_StdLibDoc,
@@ -173,8 +175,18 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE(CmdLineSwitchTable, CmdLineSwitch)
 	)
 	AXL_SL_CMD_LINE_SWITCH_2(
 		CmdLineSwitch_McJit,
-		"m", "mcjit", NULL,
-		"Use MC-JIT engine (does not work on Windows)"
+		"orc", "orcjit", NULL,
+		"Use OrcJIT engine"
+	)
+	AXL_SL_CMD_LINE_SWITCH_1(
+		CmdLineSwitch_LegacyJit,
+		"legacyjit", NULL,
+		"Use legacy JIT engine"
+	)
+	AXL_SL_CMD_LINE_SWITCH_1(
+		CmdLineSwitch_McJit,
+		"mcjit", NULL,
+		"Use MCJIT engine"
 	)
 	AXL_SL_CMD_LINE_SWITCH(
 		CmdLineSwitch_SimpleGcSafePoint,

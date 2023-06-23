@@ -396,12 +396,13 @@ VariableMgr::createLlvmGlobalVariable(
 		(llvm::Constant*)type->getZeroValue().getLlvmValue();
 
 	sl::String llvmName;
-#if (_JNC_JIT != _JNC_JIT_LLVM_LEGACY)
-	llvmName = "?"; // as to avoid linking conflicts
-	llvmName += name;
-#else
-	llvmName = name;
-#endif
+
+	if (m_module->getCompileFlags() & ModuleCompileFlag_LegacyJit)
+		llvmName = name;
+	else {
+		llvmName = '?'; // as to avoid linking conflicts
+		llvmName += name;
+	}
 
 	return new llvm::GlobalVariable(
 		*m_module->getLlvmModule(),

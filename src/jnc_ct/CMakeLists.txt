@@ -9,17 +9,6 @@
 #
 #...............................................................................
 
-axl_create_setting(
-	JANCY_LLVM_JIT_ENGINE
-	DESCRIPTION "Choose LLVM JIT engine"
-	DEFAULT " " # auto-select based on LLVM version and platform
-	" "
-	"-D_JNC_JIT=JNC_JIT_LLVM_ORC"
-	"-D_JNC_JIT=JIT_JIT_LLVM_MCJIT"
-	"-D_JNC_JIT=JNC_JIT_LLVM_LEGACY_JIT"
-)
-
-#...............................................................................
 #
 # include folder
 #
@@ -270,6 +259,12 @@ source_group(
 	${MODULE_H_LIST}
 	${MODULE_CPP_LIST}
 )
+
+if(${LLVM_VERSION} VERSION_GREATER_EQUAL 3.6)
+	axl_exclude_from_build(jnc_ct_Module/jnc_ct_LegacyJit.cpp)
+elseif(${LLVM_VERSION} VERSION_LESS 7.0)
+	axl_exclude_from_build(jnc_ct_Module/jnc_ct_OrcJit.cpp)
+endif()
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #

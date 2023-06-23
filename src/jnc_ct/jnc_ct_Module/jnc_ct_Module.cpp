@@ -11,6 +11,10 @@
 
 #include "pch.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_Module.h"
+#include "jnc_ct_McJit.h"
+#include "jnc_ct_OrcJit.h"
+#include "jnc_ct_LegacyJit.h"
 #include "jnc_ct_Parser.llk.h"
 
 #if (_AXL_DEBUG)
@@ -48,9 +52,9 @@ Module::Module():
 	m_compileErrorHandler = NULL;
 	m_compileErrorHandlerContext = NULL;
 	m_constructor = NULL;
-
 	m_llvmContext = NULL;
 	m_llvmModule = NULL;
+	m_jit = NULL;
 
 	finalizeConstruction();
 }
@@ -116,10 +120,11 @@ Module::clear() {
 	m_controlFlowMgr.clear();
 	m_gcShadowStackMgr.clear();
 	m_codeAssistMgr.clear();
-	m_jit.clear();
 
+	delete m_jit;
 	clearLlvm();
 
+	m_jit = NULL;
 	m_constructor = NULL;
 	m_compileFlags = ModuleCompileFlag_StdFlags;
 	m_compileState = ModuleCompileState_Idle;
@@ -132,14 +137,11 @@ Module::clearLlvm() {
 	m_llvmIrBuilder.clear();
 	m_llvmDiBuilder.clear();
 
-	if (m_llvmModule)
-		delete m_llvmModule;
+	delete m_llvmModule;
+	delete m_llvmContext;
 
-	if (m_llvmContext)
-		delete m_llvmContext;
-
-	m_llvmContext = NULL;
 	m_llvmModule = NULL;
+	m_llvmContext = NULL;
 
 	m_compileFlags &= ~(
 		ModuleCompileFlag_DebugInfo |
@@ -159,6 +161,10 @@ Module::initialize(
 	// GC guard page safe points do not work with address sanitizer
 	compileFlags |= ModuleCompileFlag_SimpleGcSafePoint;
 #endif
+
+#if (LLVM_VERSION >= 0x030600)
+
+#endif()
 
 	m_name = name;
 	m_compileFlags = compileFlags;
@@ -454,8 +460,8 @@ bool
 Module::optimize(uint_t level) {
 	// optimization requires knowledge of the DataLayout for TargetMachine
 
-	if (!m_jit.isCreated()) {
-		bool result = m_jit.create();
+	if (!m_jit) {
+		bool result = createJit();
 		if (!result)
 			return false;
 	}
@@ -513,6 +519,30 @@ Module::optimize(uint_t level) {
 }
 
 bool
+Module::createJit() {
+	ASSERT(!m_jit);
+
+	m_jit =
+#if (LLVM_VERSION >= 0x070000)
+		(m_compileFlags & ModuleCompileFlag_OrcJit) ? (Jit*)new OrcJit(this) :
+#elif (LLVM_VERSION < 0x030600)
+		(m_compileFlags & ModuleCompileFlag_LegacyJit) ? (Jit*)new LegacyJit(this) :
+#endif
+		(Jit*)new McJit(this);
+
+	ASSERT(m_jit);
+
+	bool result = m_jit->create();
+	if (!result) {
+		delete m_jit;
+		m_jit = NULL;
+		return false;
+	}
+
+	return true;
+}
+
+bool
 Module::jit() {
 	bool result;
 
@@ -523,15 +553,15 @@ Module::jit() {
 			return false;
 	}
 
-	if (!m_jit.isCreated()) {
-		result = m_jit.create();
+	if (!m_jit) {
+		result = createJit();
 		if (!result)
 			return false;
 	}
 
 	result =
 		m_extensionLibMgr.mapAddresses() &&
-		m_jit.prepare() &&
+		m_jit->prepare() &&
 		m_functionMgr.jitFunctions();
 
 	if (!result)

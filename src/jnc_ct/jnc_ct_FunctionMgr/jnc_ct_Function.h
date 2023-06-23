@@ -205,6 +205,11 @@ public:
 		return m_llvmFunction != NULL;
 	}
 
+	const sl::String&
+	getLlvmFunctionName() {
+		return m_llvmFunctionName;
+	}
+
 	llvm::Function*
 	getLlvmFunction();
 

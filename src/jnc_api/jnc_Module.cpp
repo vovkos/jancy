@@ -16,6 +16,7 @@
 #	include "jnc_ExtensionLib.h"
 #elif defined(_JNC_CORE)
 #	include "jnc_ct_Module.h"
+#	include "jnc_ct_Jit.h"
 #	include "jnc_rt_ExceptionMgr.h"
 #endif
 
@@ -376,7 +377,7 @@ jnc_Module_mapVariable(
 	jnc_Variable* variable,
 	void* p
 ) {
-	return module->m_jit.mapVariable(variable, p);
+	return module->m_jit->mapVariable(variable, p);
 }
 
 JNC_EXTERN_C
@@ -387,7 +388,7 @@ jnc_Module_mapFunction(
 	jnc_Function* function,
 	void* p
 ) {
-	return module->m_jit.mapFunction(function, p);
+	return module->m_jit->mapFunction(function, p);
 }
 
 JNC_EXTERN_C

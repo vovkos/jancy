@@ -18,6 +18,7 @@
 #include "jnc_ct_ThunkFunction.h"
 #include "jnc_ct_ThunkProperty.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_Jit.h"
 #include "jnc_ct_MulticastClassType.h"
 #include "jnc_ct_ExtensionNamespace.h"
 #include "jnc_ct_Parser.llk.h"
@@ -661,26 +662,24 @@ FunctionMgr::jitFunctions() {
 
 	llvm::ScopedFatalErrorHandler scopeErrorHandler(llvmFatalErrorHandler);
 
-	bool result = true;
-
 	try {
 		sl::Iterator<Function> it = m_functionList.getHead();
 		for (; it; it++)
 			if (!it->isEmpty()) {
-				void* p = m_module->m_jit.jit(*it);
+				void* p = m_module->m_jit->jit(*it);
 				if (!p)
 					return false;
 
 				it->m_machineCode = p;
 			}
 
-		result = m_module->m_jit.finalizeObject();
+		m_module->m_jit->finalizeObject();
 	} catch (err::Error error) {
 		err::setFormatStringError("LLVM jitting failed: %s", error->getDescription().sz());
-		result = false;
+		return false;
 	}
 
-	return result;
+	return true;
 }
 
 Function*

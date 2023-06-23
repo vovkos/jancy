@@ -28,10 +28,11 @@
 #include "jnc_ct_DoxyHost.h"
 #include "jnc_ct_LlvmIrBuilder.h"
 #include "jnc_ct_LlvmDiBuilder.h"
-#include "jnc_ct_Jit.h"
 
 namespace jnc {
 namespace ct {
+
+class Jit;
 
 //..............................................................................
 
@@ -61,7 +62,7 @@ protected:
 //..............................................................................
 
 class Module: public PreModule {
-	friend class Jit; // can take ownership of llvm::Module
+	friend class Jit;  // JITters take ownership of llvm::Module & llvm::LLVMContext
 
 protected:
 	enum AuxCompileFlag {
@@ -129,7 +130,7 @@ public:
 	CodeAssistMgr m_codeAssistMgr;
 	DoxyHost m_doxyHost;
 	dox::Module m_doxyModule;
-	Jit m_jit;
+	Jit* m_jit;
 
 	// codegen-only
 
@@ -294,6 +295,9 @@ protected:
 
 	bool
 	processCompileArray();
+
+	bool
+	createJit();
 
 	void
 	createConstructor();

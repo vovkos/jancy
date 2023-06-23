@@ -88,19 +88,16 @@
 #define JNC_JIT_LLVM_MCJIT      1
 #define JNC_JIT_LLVM_LEGACY_JIT 0
 
-#ifndef _JNC_JIT
-#	if (LLVM_VERSION >= 0x040000) // ORC is introduced in LLVM 4
-#		define _JNC_JIT JNC_JIT_LLVM_ORC
-#	elif (!JNC_OS_WIN)
-#		define _JNC_JIT JNC_JIT_LLVM_MCJIT
-#	else
-#		define _JNC_JIT JNC_JIT_LLVM_LEGACY_JIT
-#	endif
-#elif (_JNC_JIT == JNC_JIT_LLVM_LEGACY_JIT && LLVM_VERSION > 0x030600)
-#	error "LLVM legacy JIT is no more since LLVM 3.6"
+#include <llvm/ExecutionEngine/SectionMemoryManager.h>
+#include <llvm/ExecutionEngine/JITEventListener.h>
+#include <llvm/ExecutionEngine/MCJIT.h>
+
+#if (LLVM_VERSION < 0x030600) // legacy JIT is gone in LLVM 3.6
+#	include <llvm/ExecutionEngine/JIT.h>
+#	include <llvm/ExecutionEngine/JITMemoryManager.h>
 #endif
 
-#if (_JNC_JIT == JNC_JIT_LLVM_ORC)
+#if (LLVM_VERSION >= 0x070000)
 #	include <llvm/ExecutionEngine/Orc/CompileUtils.h>
 #	include <llvm/ExecutionEngine/Orc/Core.h>
 #	include <llvm/ExecutionEngine/Orc/ExecutionUtils.h>
@@ -110,14 +107,8 @@
 #	include <llvm/ExecutionEngine/Orc/RTDyldObjectLinkingLayer.h>
 #	include <llvm/ExecutionEngine/SectionMemoryManager.h>
 #	include <llvm/IR/DataLayout.h>
-#elif (_JNC_JIT == JNC_JIT_LLVM_MCJIT)
-#	include <llvm/ExecutionEngine/SectionMemoryManager.h>
-#	include <llvm/ExecutionEngine/JITEventListener.h>
-#	include <llvm/ExecutionEngine/MCJIT.h>
-#elif (_JNC_JIT == JNC_JIT_LLVM_LEGACY_JIT)
-#	include <llvm/ExecutionEngine/JIT.h>
-#	include <llvm/ExecutionEngine/JITMemoryManager.h>
 #endif
+
 
 #pragma warning(default: 4141)
 #pragma warning(default: 4146)

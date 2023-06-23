@@ -45,9 +45,9 @@ JncApp::JncApp(CmdLine* cmdLine) {
 	m_module->setCompileErrorHandler(compileErrorHandler, this);
 
 	if (!(cmdLine->m_compileFlags & jnc::ModuleCompileFlag_StdLibDoc)) {
-		m_module->addStaticLib(jnc::StdLib_getLib());
-		m_module->addStaticLib(jnc::SysLib_getLib());
-		m_module->addStaticLib(JncLib_getLib());
+		// m_module->addStaticLib(jnc::StdLib_getLib());
+		// m_module->addStaticLib(jnc::SysLib_getLib());
+		// m_module->addStaticLib(JncLib_getLib());
 	}
 
 	sl::BoxIterator<sl::String> it = cmdLine->m_importDirList.getHead();

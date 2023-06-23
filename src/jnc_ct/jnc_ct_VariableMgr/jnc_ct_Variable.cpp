@@ -12,6 +12,7 @@
 #include "pch.h"
 #include "jnc_ct_Variable.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_Jit.h"
 #include "jnc_ct_LeanDataPtrValidator.h"
 
 namespace jnc {
@@ -72,7 +73,7 @@ Variable::prepareStaticData() {
 		return;
 	}
 
-	m_staticData = m_module->m_jit.getStaticData(this);
+	m_staticData = m_module->m_jit->getStaticData(this);
 }
 
 bool

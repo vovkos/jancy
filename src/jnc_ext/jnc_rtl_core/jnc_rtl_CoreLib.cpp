@@ -18,6 +18,7 @@
 #include "jnc_rtl_Promise.h"
 #include "jnc_rt_Runtime.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_Jit.h"
 #include "jnc_ct_ArrayType.h"
 #include "jnc_ct_MulticastClassType.h"
 #include "jnc_CallSite.h"
@@ -1028,11 +1029,11 @@ mapMulticastMethods(
 	ASSERT(ptrTypeKind < FunctionPtrTypeKind__Count);
 
 	Function* function = multicastType->getDestructor();
-	module->m_jit.mapFunction(function, (void*)multicastDestruct);
+	module->m_jit->mapFunction(function, (void*)multicastDestruct);
 
 	for (size_t i = 0; i < MulticastMethodKind__Count - 1; i++) {
 		function = multicastType->getMethod((MulticastMethodKind)i);
-		module->m_jit.mapFunction(function, multicastMethodTable[ptrTypeKind][i]);
+		module->m_jit->mapFunction(function, multicastMethodTable[ptrTypeKind][i]);
 	}
 }
 
