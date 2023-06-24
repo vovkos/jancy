@@ -501,7 +501,7 @@ bool MainWindow::compile() {
 
 #if (!_JNC_OS_WIN)
 	if (m_debugInfoAction->isChecked())
-		compileFlags |= jnc::ModuleCompileFlag_DebugInfo;
+		moduleConfig.m_compileFlags |= jnc::ModuleCompileFlag_DebugInfo;
 #endif
 
 	QByteArray sourceFilePath = child->filePath().toUtf8();

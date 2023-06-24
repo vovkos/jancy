@@ -172,7 +172,7 @@ Module::initialize(
 		m_config.m_jitKind = JitKind_Legacy;
 #else
 		m_config.m_jitKind = JitKind_McJit;
-#endif()
+#endif
 
 	m_compileFlags = m_config.m_compileFlags;
 	m_compileState = ModuleCompileState_Idle;

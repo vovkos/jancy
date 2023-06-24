@@ -26,7 +26,6 @@ protected:
 	llvm::orc::RTDyldObjectLinkingLayer* m_llvmObjectLinkingLayer;
 	llvm::orc::JITDylib* m_llvmJitDylib;
 	llvm::DataLayout* m_llvmDataLayout;
-	sl::StringHashTable<void*> m_symbolMap;
 
 public:
 	OrcJit(Module*);
