@@ -69,15 +69,8 @@ enum jnc_ModuleCompileFlag {
 	jnc_ModuleCompileFlag_DisableDoxyComment2           = 0x00004000,
 	jnc_ModuleCompileFlag_DisableDoxyComment3           = 0x00008000,
 	jnc_ModuleCompileFlag_DisableDoxyComment4           = 0x00010000,
-	jnc_ModuleCompileFlag_OrcJit                        = 0x00020000,
-	jnc_ModuleCompileFlag_LegacyJit                     = 0x00040000,
 
-	jnc_ModuleCompileFlag_StdFlags =
-#if (_JNC_OS_WIN && LLVM_VERSION < 0x030600)
-		jnc_ModuleCompileFlag_LegacyJit
-#else
-		0
-#endif
+	jnc_ModuleCompileFlag_StdFlags                      = 0
 };
 
 typedef enum jnc_ModuleCompileFlag jnc_ModuleCompileFlag;
@@ -117,6 +110,28 @@ jnc_ModuleCompileErrorHandlerFunc(
 
 //..............................................................................
 
+enum jnc_OptLevel {
+	jnc_OptLevel_None       = 0,  // -O0
+	jnc_OptLevel_Less       = 1,  // -O1
+	jnc_OptLevel_Default    = 2,  // -O2
+	jnc_OptLevel_Aggressive = 3,  // -O3
+};
+
+typedef enum jnc_OptLevel nc_OptLevel;
+
+//..............................................................................
+
+enum jnc_JitKind {
+	jnc_JitKind_Auto    = 0,
+	jnc_JitKind_Legacy  = 1, // only on LLVM 3.5 or lower
+	jnc_JitKind_McJit   = 2,
+	jnc_JitKind_Orc     = 3, // only on LLVM 7.0 or higher
+};
+
+typedef enum jnc_JitKind jnc_JitKind;
+
+//..............................................................................
+
 // platform specific (authenticode on windows, codesign on osx, custom-made elf signer on linux)
 
 struct jnc_CodeAuthenticatorConfig {
@@ -143,6 +158,22 @@ typedef struct jnc_CodeAuthenticatorConfig jnc_CodeAuthenticatorConfig;
 
 //..............................................................................
 
+struct jnc_ModuleConfig {
+	jnc_JitKind m_jitKind;
+	uint_t m_jitOptLevel;
+	uint_t m_compileFlags;
+};
+
+typedef struct jnc_ModuleConfig jnc_ModuleConfig;
+
+JNC_SELECT_ANY jnc_ModuleConfig jnc_g_defaultModuleConfig = {
+	jnc_JitKind_Auto,
+	jnc_OptLevel_Default,
+	jnc_ModuleCompileFlag_StdFlags,
+};
+
+//..............................................................................
+
 JNC_EXTERN_C
 jnc_Module*
 jnc_Module_create();
@@ -160,7 +191,7 @@ void
 jnc_Module_initialize(
 	jnc_Module* module,
 	const char* name,
-	uint_t compileFlags
+	const jnc_ModuleConfig* config
 );
 
 JNC_EXTERN_C
@@ -438,9 +469,9 @@ struct jnc_Module {
 	void
 	initialize(
 		const char* name,
-		uint_t compileFlags = jnc_ModuleCompileFlag_StdFlags
+		jnc_ModuleConfig* config = &jnc_g_defaultModuleConfig
 	) {
-		jnc_Module_initialize(this, name, compileFlags);
+		jnc_Module_initialize(this, name, config);
 	}
 
 	void
@@ -646,7 +677,7 @@ struct jnc_Module {
 	}
 
 	bool
-	optimize(uint_t level = 2) {
+	optimize(uint_t level = jnc_OptLevel_Default) {
 		return jnc_Module_optimize(this, level) != 0;
 	}
 
@@ -703,8 +734,6 @@ typedef jnc_ModuleCompileFlag ModuleCompileFlag;
 
 const ModuleCompileFlag
 	ModuleCompileFlag_DebugInfo                     = jnc_ModuleCompileFlag_DebugInfo,
-	ModuleCompileFlag_OrcJit                        = jnc_ModuleCompileFlag_OrcJit,
-	ModuleCompileFlag_LegacyJit                     = jnc_ModuleCompileFlag_LegacyJit,
 	ModuleCompileFlag_SimpleGcSafePoint             = jnc_ModuleCompileFlag_SimpleGcSafePoint,
 	ModuleCompileFlag_GcSafePointInPrologue         = jnc_ModuleCompileFlag_GcSafePointInPrologue,
 	ModuleCompileFlag_GcSafePointInInternalPrologue = jnc_ModuleCompileFlag_GcSafePointInInternalPrologue,
@@ -728,7 +757,26 @@ const ModuleCompileErrorKind
 	ModuleCompileErrorKind_ParseSemantic = jnc_ModuleCompileErrorKind_ParseSemantic,
 	ModuleCompileErrorKind_PostParse     = jnc_ModuleCompileErrorKind_PostParse;
 
+typedef jnc_OptLevel OptLevel;
+
+const OptLevel
+	OptLevel_None       = jnc_OptLevel_None,
+	OptLevel_Less       = jnc_OptLevel_Less,
+	OptLevel_Default    = jnc_OptLevel_Default,
+	OptLevel_Aggressive = jnc_OptLevel_Aggressive;
+
+typedef jnc_JitKind JitKind;
+
+const JitKind
+	JitKind_Auto   = jnc_JitKind_Auto,
+	JitKind_Legacy = jnc_JitKind_Legacy,
+	JitKind_McJit  = jnc_JitKind_McJit,
+	JitKind_Orc    = jnc_JitKind_Orc;
+
 typedef jnc_CodeAuthenticatorConfig CodeAuthenticatorConfig;
+typedef jnc_ModuleConfig ModuleConfig;
+
+const ModuleConfig g_defaultModuleConfig = jnc_g_defaultModuleConfig;
 
 //..............................................................................
 

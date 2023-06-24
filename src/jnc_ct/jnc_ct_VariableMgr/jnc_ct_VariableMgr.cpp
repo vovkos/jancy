@@ -395,14 +395,7 @@ VariableMgr::createLlvmGlobalVariable(
 		(llvm::Constant*)initValue.getLlvmValue() :
 		(llvm::Constant*)type->getZeroValue().getLlvmValue();
 
-	sl::String llvmName;
-
-	if (m_module->getCompileFlags() & ModuleCompileFlag_LegacyJit)
-		llvmName = name;
-	else {
-		llvmName = '?'; // as to avoid linking conflicts
-		llvmName += name;
-	}
+	sl::String llvmName = '?' + name; // as to avoid linking conflicts
 
 	return new llvm::GlobalVariable(
 		*m_module->getLlvmModule(),

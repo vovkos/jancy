@@ -100,6 +100,7 @@ source_group(
 include_directories(
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
+	${LLVM_INC_DIR}
 	${GEN_DIR}
 )
 
@@ -219,13 +220,33 @@ axl_create_setting(
 )
 
 axl_create_setting(
-	JANCY_TEST_OPT_LEVEL
-	DESCRIPTION "Optimization level to use when running tests"
+	JANCY_TEST_IR_OPT_LEVEL
+	DESCRIPTION "LLVM IR optimization level to use when running tests"
 	DEFAULT "-O2"
 	"-O0"
 	"-O1"
 	"-O2"
 	"-O3"
+)
+
+axl_create_setting(
+	JANCY_TEST_JIT_OPT_LEVEL
+	DESCRIPTION "JIT code generator optimization level to use when running tests"
+	DEFAULT "-J2"
+	"-J0"
+	"-J1"
+	"-J2"
+	"-J3"
+)
+
+axl_create_setting(
+	JANCY_TEST_JIT_KIND
+	DESCRIPTION "JIT engine to use when running tests"
+	DEFAULT " "
+	" "
+	"--mcjit"
+	"--orc"
+	"--legacy-jit"
 )
 
 macro(
@@ -239,12 +260,16 @@ add_jancy_tests
 		_BASE_FLAG_LIST
 		--import-dir ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION>
 		${JANCY_TEST_DISABLE_CODE_GEN}
-		${JANCY_TEST_OPT_LEVEL}
+		${JANCY_TEST_IR_OPT_LEVEL}
+		${JANCY_TEST_JIT_OPT_LEVEL}
+		${JANCY_TEST_JIT_KIND}
 	)
 
 	if(UNIX)
 		list(APPEND _BASE_FLAG_LIST --debug-info)
 	endif()
+
+	list(REMOVE_ITEM _BASE_FLAG_LIST " ")
 
 	set(_COMMAND)
 	set(_NAME_PREFIX)

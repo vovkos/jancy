@@ -58,8 +58,8 @@ JitMemoryMgr::getSymbolAddress(const std::string &name) {
 //..............................................................................
 
 bool
-McJit::create() {
-	ASSERT(!m_llvmExecutionEngine);
+McJit::create(uint_t optLevel) {
+	printf("McJit::create(%d)\n", optLevel);
 
 	addStdSymbols();
 
@@ -79,7 +79,7 @@ McJit::create() {
 	std::string errorString;
 	engineBuilder.setErrorStr(&errorString);
 	engineBuilder.setEngineKind(llvm::EngineKind::JIT);
-	engineBuilder.setOptLevel((llvm::CodeGenOpt::Level)0);
+	engineBuilder.setOptLevel((llvm::CodeGenOpt::Level)optLevel);
 
 	llvm::TargetOptions targetOptions;
 #if (_JNC_CPU_ARM32 || _JNC_CPU_ARM64)

@@ -93,7 +93,7 @@ protected:
 
 protected:
 	sl::String m_name;
-
+	ModuleConfig m_config;
 	uint_t m_compileFlags;
 	ModuleCompileState m_compileState;
 	size_t m_tryCompileLevel;
@@ -151,6 +151,11 @@ public:
 	const sl::String&
 	getName() {
 		return m_name;
+	}
+
+	JitKind
+	getJitKind() {
+		return m_config.m_jitKind;
 	}
 
 	uint_t
@@ -216,7 +221,7 @@ public:
 	void
 	initialize(
 		const sl::StringRef& name,
-		uint_t compileFlags = ModuleCompileFlag_StdFlags
+		const ModuleConfig* config
 	);
 
 	CodeAssist*
@@ -263,7 +268,7 @@ public:
 	compile();
 
 	bool
-	optimize(uint_t level = 2);
+	optimize(uint_t level);
 
 	bool
 	jit();

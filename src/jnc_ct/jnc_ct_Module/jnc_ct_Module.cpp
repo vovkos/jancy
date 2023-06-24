@@ -44,6 +44,7 @@ namespace ct {
 
 Module::Module():
 	m_doxyModule(&m_doxyHost) {
+	m_config = g_defaultModuleConfig;
 	m_compileFlags = ModuleCompileFlag_StdFlags;
 	m_compileState = ModuleCompileState_Idle;
 	m_tryCompileLevel = 0;
@@ -126,6 +127,7 @@ Module::clear() {
 
 	m_jit = NULL;
 	m_constructor = NULL;
+	m_config = g_defaultModuleConfig;
 	m_compileFlags = ModuleCompileFlag_StdFlags;
 	m_compileState = ModuleCompileState_Idle;
 	m_compileErrorCount = 0;
@@ -153,7 +155,7 @@ Module::clearLlvm() {
 void
 Module::initialize(
 	const sl::StringRef& name,
-	uint_t compileFlags
+	const ModuleConfig* config
 ) {
 	clear();
 
@@ -162,16 +164,21 @@ Module::initialize(
 	compileFlags |= ModuleCompileFlag_SimpleGcSafePoint;
 #endif
 
-#if (LLVM_VERSION >= 0x030600)
+	m_name = name;
+	m_config = config ? *config : g_defaultModuleConfig;
 
+	if (!m_config.m_jitKind)
+#if (LLVM_VERSION < 0x030600 && _JNC_OS_WIN)
+		m_config.m_jitKind = JitKind_Legacy;
+#else
+		m_config.m_jitKind = JitKind_McJit;
 #endif()
 
-	m_name = name;
-	m_compileFlags = compileFlags;
+	m_compileFlags = m_config.m_compileFlags;
 	m_compileState = ModuleCompileState_Idle;
 	m_compileErrorCount = 0;
 
-	if (!(compileFlags & ModuleCompileFlag_DisableCodeGen)) {
+	if (!(m_compileFlags & ModuleCompileFlag_DisableCodeGen)) {
 		m_llvmContext = new llvm::LLVMContext;
 #if (LLVM_VERSION_MAJOR >= 15) // disable opaque pointers
 		m_llvmContext->setOpaquePointers(false);
@@ -179,11 +186,11 @@ Module::initialize(
 		m_llvmModule = new llvm::Module("jncModule", *m_llvmContext);
 		m_llvmIrBuilder.create();
 
-		if (compileFlags & ModuleCompileFlag_DebugInfo)
+		if (m_compileFlags & ModuleCompileFlag_DebugInfo)
 			m_llvmDiBuilder.create();
 	}
 
-	if (!(compileFlags & ModuleCompileFlag_StdLibDoc)) {
+	if (!(m_compileFlags & ModuleCompileFlag_StdLibDoc)) {
 		m_extensionLibMgr.addStaticLib(jnc_CoreLib_getLib());
 		m_extensionLibMgr.addStaticLib(jnc_IntrospectionLib_getLib());
 		m_typeMgr.createStdTypes();
@@ -209,43 +216,6 @@ Module::generateCodeAssist(
 	parseImports();
 	return m_codeAssistMgr.generateCodeAssist();
 }
-
-#if (JNC_PTR_BITS == 32)
-#	if (_JNC_OS_POSIX)
-extern "C" int64_t __divdi3(int64_t, int64_t);
-extern "C" int64_t __moddi3(int64_t, int64_t);
-extern "C" uint64_t __udivdi3(uint64_t, uint64_t);
-extern "C" uint64_t __umoddi3(uint64_t, uint64_t);
-#		if (_JNC_CPU_ARM32)
-extern "C" int32_t __modsi3(int32_t, int32_t);
-extern "C" uint32_t __umodsi3(uint32_t, uint32_t);
-struct DivModRetVal {
-	uint64_t m_quotient;
-	uint64_t m_remainder;
-};
-extern "C" int32_t __aeabi_idiv(int32_t);
-extern "C" uint32_t __aeabi_uidiv(uint32_t);
-extern "C" DivModRetVal __aeabi_ldivmod(int64_t, int64_t);
-extern "C" DivModRetVal __aeabi_uldivmod(uint64_t, uint64_t);
-extern "C" float __aeabi_i2f(int32_t);
-extern "C" float __aeabi_l2f(int64_t);
-extern "C" float __aeabi_ui2f(uint32_t);
-extern "C" float __aeabi_ul2f(uint64_t);
-extern "C" double __aeabi_i2d(int32_t);
-extern "C" double __aeabi_l2d(int64_t);
-extern "C" double __aeabi_ui2d(uint32_t);
-extern "C" double __aeabi_ul2d(uint64_t);
-extern "C" void __aeabi_memcpy(void*, const void*, size_t);
-extern "C" void __aeabi_memmove(void*, const void*, size_t);
-extern "C" void __aeabi_memset(void*, int, size_t);
-#		endif
-#	elif (_JNC_OS_WIN)
-extern "C" int64_t _alldiv(int64_t, int64_t);
-extern "C" int64_t _allrem(int64_t, int64_t);
-extern "C" int64_t _aulldiv(int64_t, int64_t);
-extern "C" int64_t _aullrem(int64_t, int64_t);
-#	endif
-#endif
 
 void
 Module::markForCompile(Function* function) {
@@ -458,7 +428,8 @@ Module::compile() {
 
 bool
 Module::optimize(uint_t level) {
-	// optimization requires knowledge of the DataLayout for TargetMachine
+	// optimization requires knowledge of DataLayout for the TargetMachine
+	// which in turn is selected by a particular JIT engine
 
 	if (!m_jit) {
 		bool result = createJit();
@@ -522,17 +493,26 @@ bool
 Module::createJit() {
 	ASSERT(!m_jit);
 
-	m_jit =
+	switch (m_config.m_jitKind) {
+	case JitKind_McJit:
+		m_jit = new McJit(this);
+		break;
+
 #if (LLVM_VERSION >= 0x070000)
-		(m_compileFlags & ModuleCompileFlag_OrcJit) ? (Jit*)new OrcJit(this) :
+	case JitKind_Orc:
+		m_jit = new OrcJit(this);
+		break;
 #elif (LLVM_VERSION < 0x030600)
-		(m_compileFlags & ModuleCompileFlag_LegacyJit) ? (Jit*)new LegacyJit(this) :
+	case JitKind_Orc:
+		m_jit = new OrcJit(this);
+		break;
 #endif
-		(Jit*)new McJit(this);
+	default:
+		return err::fail("Invalid JIT engine kind");
+	}
 
 	ASSERT(m_jit);
-
-	bool result = m_jit->create();
+	bool result = m_jit->create(m_config.m_jitOptLevel);
 	if (!result) {
 		delete m_jit;
 		m_jit = NULL;

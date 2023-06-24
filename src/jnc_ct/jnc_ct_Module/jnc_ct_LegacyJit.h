@@ -26,7 +26,7 @@ public:
 
 	virtual
 	bool
-	create();
+	create(uint_t optLevel);
 
 	virtual
 	bool

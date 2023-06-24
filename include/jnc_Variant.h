@@ -332,7 +332,7 @@ namespace jnc {
 
 typedef jnc_Variant Variant;
 
-JNC_SELECT_ANY Variant g_nullVariant = { 0 };
+const Variant g_nullVariant = jnc_g_nullVariant;
 
 //..............................................................................
 

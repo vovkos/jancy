@@ -112,7 +112,7 @@ main(
 			return JncError_CompileFailure;
 		}
 
-		if (cmdLine.m_compileFlags & jnc::ModuleCompileFlag_Documentation) {
+		if (cmdLine.m_moduleConfig.m_compileFlags & jnc::ModuleCompileFlag_Documentation) {
 			result = app.generateDocumentation();
 			if (!result) {
 				printf("%s\n", err::getLastErrorDescription().sz());

@@ -491,13 +491,13 @@ bool MainWindow::compile() {
 
 	// DebugInfo does not work on Windows
 
-	uint_t compileFlags = jnc::ModuleCompileFlag_StdFlags;
+	jnc::ModuleConfig moduleConfig = jnc::g_defaultModuleConfig;
 
 	if (m_simpleGcSafePointAction->isChecked())
-		compileFlags |= jnc::ModuleCompileFlag_SimpleGcSafePoint;
+		moduleConfig.m_compileFlags |= jnc::ModuleCompileFlag_SimpleGcSafePoint;
 
 	if (m_disableCodeGenAction->isChecked())
-		compileFlags |= jnc::ModuleCompileFlag_DisableCodeGen;
+		moduleConfig.m_compileFlags |= jnc::ModuleCompileFlag_DisableCodeGen;
 
 #if (!_JNC_OS_WIN)
 	if (m_debugInfoAction->isChecked())
@@ -506,7 +506,7 @@ bool MainWindow::compile() {
 
 	QByteArray sourceFilePath = child->filePath().toUtf8();
 
-	m_module->initialize(sourceFilePath.data(), compileFlags);
+	m_module->initialize(sourceFilePath.data(), &moduleConfig);
 
 	if (m_stdlibAction->isChecked()) {
 		m_module->addStaticLib(jnc::StdLib_getLib());

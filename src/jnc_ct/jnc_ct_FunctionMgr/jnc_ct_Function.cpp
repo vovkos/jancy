@@ -56,15 +56,7 @@ void
 Function::prepareLlvmFunction() {
 	ASSERT(!m_llvmFunction);
 
-	sl::String llvmName;
-
-	if (m_module->getCompileFlags() & ModuleCompileFlag_LegacyJit)
-		llvmName = getQualifiedName();
-	else {
-		llvmName = '?'; // as to avoid linking conflicts
-		llvmName += getQualifiedName();
-	}
-
+	sl::String llvmName = '?' + getQualifiedName(); // as to avoid linking conflicts
 	m_llvmFunction = m_type->getCallConv()->createLlvmFunction(m_type, llvmName);
 
 	if (canCompile())

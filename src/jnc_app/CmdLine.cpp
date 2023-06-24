@@ -15,13 +15,13 @@
 //..............................................................................
 
 CmdLine::CmdLine() {
-	m_flags = JncFlag_Run;
-	m_compileFlags = jnc::ModuleCompileFlag_StdFlags;
-	m_optLevel = 0;
+	m_moduleConfig = jnc::g_defaultModuleConfig;
+	m_optLevel = jnc::OptLevel_None;
 	m_functionName = "main";
 	m_outputDir = ".";
 	m_gcSizeTriggers.m_allocSizeTrigger = jnc::GcDef_AllocSizeTrigger;
 	m_gcSizeTriggers.m_periodSizeTrigger = jnc::GcDef_PeriodSizeTrigger;
+	m_flags = JncFlag_Run;
 }
 
 //..............................................................................
@@ -84,7 +84,7 @@ CmdLineParser::onSwitch(
 		break;
 
 	case CmdLineSwitch_DebugInfo:
-		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_DebugInfo;
+		m_cmdLine->m_moduleConfig.m_compileFlags |= jnc::ModuleCompileFlag_DebugInfo;
 		break;
 
 	case CmdLineSwitch_Jit:
@@ -92,28 +92,28 @@ CmdLineParser::onSwitch(
 		break;
 
 	case CmdLineSwitch_McJit:
+		m_cmdLine->m_moduleConfig.m_jitKind = jnc::JitKind_McJit;
 		m_cmdLine->m_flags |= JncFlag_Jit;
-		m_cmdLine->m_compileFlags &= ~(jnc::ModuleCompileFlag_OrcJit | jnc::ModuleCompileFlag_LegacyJit);
 		break;
 
-	case CmdLineSwitch_LegacyJit:
-		m_cmdLine->m_flags |= JncFlag_Jit;
-		m_cmdLine->m_compileFlags &= ~jnc::ModuleCompileFlag_OrcJit;
-		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_LegacyJit;
-		break;
-
+#if (LLVM_VERSION >= 0x070000)
 	case CmdLineSwitch_OrcJit:
+		m_cmdLine->m_moduleConfig.m_jitKind = jnc::JitKind_Orc;
 		m_cmdLine->m_flags |= JncFlag_Jit;
-		m_cmdLine->m_compileFlags &= ~jnc::ModuleCompileFlag_LegacyJit;
-		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_OrcJit;
 		break;
+#elif (LLVM_VERSION < 0x030600)
+	case CmdLineSwitch_LegacyJit:
+		m_cmdLine->m_moduleConfig.m_jitKind = jnc::JitKind_Legacy;
+		m_cmdLine->m_flags |= JncFlag_Jit;
+		break;
+#endif
 
 	case CmdLineSwitch_LlvmIr:
 		m_cmdLine->m_flags |= JncFlag_Compile | JncFlag_LlvmIr;
 		break;
 
 	case CmdLineSwitch_SimpleGcSafePoint:
-		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_SimpleGcSafePoint;
+		m_cmdLine->m_moduleConfig.m_compileFlags |= jnc::ModuleCompileFlag_SimpleGcSafePoint;
 		break;
 
 	case CmdLineSwitch_CompileOnly:
@@ -123,7 +123,7 @@ CmdLineParser::onSwitch(
 
 	case CmdLineSwitch_DisableCodeGen:
 		m_cmdLine->m_flags &= ~(JncFlag_Jit | JncFlag_Run | JncFlag_LlvmIr);
-		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_DisableCodeGen;
+		m_cmdLine->m_moduleConfig.m_compileFlags |= jnc::ModuleCompileFlag_DisableCodeGen;
 		break;
 
 	case CmdLineSwitch_Require:
@@ -132,11 +132,11 @@ CmdLineParser::onSwitch(
 
 	case CmdLineSwitch_Documentation:
 		m_cmdLine->m_flags &= ~JncFlag_Run;
-		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_Documentation;
+		m_cmdLine->m_moduleConfig.m_compileFlags |= jnc::ModuleCompileFlag_Documentation;
 		break;
 
 	case CmdLineSwitch_StdLibDoc:
-		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_StdLibDoc;
+		m_cmdLine->m_moduleConfig.m_compileFlags |= jnc::ModuleCompileFlag_StdLibDoc;
 		break;
 
 	case CmdLineSwitch_Run:
@@ -161,13 +161,17 @@ CmdLineParser::onSwitch(
 		break;
 
 	case CmdLineSwitch_GcSafePointInPrologue:
-		m_cmdLine->m_compileFlags |=
+		m_cmdLine->m_moduleConfig.m_compileFlags |=
 			jnc::ModuleCompileFlag_GcSafePointInPrologue |
 			jnc::ModuleCompileFlag_GcSafePointInInternalPrologue;
 		break;
 
 	case CmdLineSwitch_OptLevel:
 		m_cmdLine->m_optLevel = atoi(value.sz());
+		break;
+
+	case CmdLineSwitch_JitOptLevel:
+		m_cmdLine->m_moduleConfig.m_jitOptLevel = atoi(value.sz());
 		break;
 
 	case CmdLineSwitch_Exclude:
@@ -197,13 +201,13 @@ CmdLineParser::onSwitch(
 		break;
 
 	case CmdLineSwitch_IgnoreOpaqueClassTypeInfo:
-		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_IgnoreOpaqueClassTypeInfo;
+		m_cmdLine->m_moduleConfig.m_compileFlags |= jnc::ModuleCompileFlag_IgnoreOpaqueClassTypeInfo;
 		break;
 
 	case CmdLineSwitch_DisableDoxyComment:
 		DoxyCommentMap::Iterator it = DoxyCommentMap::find(value);
 		if (it)
-			m_cmdLine->m_compileFlags |= it->m_value;
+			m_cmdLine->m_moduleConfig.m_compileFlags |= it->m_value;
 		break;
 	}
 
@@ -234,10 +238,10 @@ CmdLineParser::finalize() {
 		m_cmdLine->m_flags &= ~JncFlag_DisableCodeGen;
 	}
 
-	if ((m_cmdLine->m_compileFlags & jnc::ModuleCompileFlag_Documentation) &&
+	if ((m_cmdLine->m_moduleConfig.m_compileFlags & jnc::ModuleCompileFlag_Documentation) &&
 		!(m_cmdLine->m_flags & JncFlag_Compile)) {
-		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_IgnoreOpaqueClassTypeInfo;
-		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_KeepTypedefShadow;
+		m_cmdLine->m_moduleConfig.m_compileFlags |= jnc::ModuleCompileFlag_IgnoreOpaqueClassTypeInfo;
+		m_cmdLine->m_moduleConfig.m_compileFlags |= jnc::ModuleCompileFlag_KeepTypedefShadow;
 	}
 
 	return true;
@@ -261,7 +265,7 @@ CmdLineParser::scanSourceDirs() {
 			return false;
 	}
 
-	bool isDoc = (m_cmdLine->m_compileFlags & jnc::ModuleCompileFlag_Documentation) != 0;
+	bool isDoc = (m_cmdLine->m_moduleConfig.m_compileFlags & jnc::ModuleCompileFlag_Documentation) != 0;
 
 	sl::BoxIterator<sl::String> it = m_cmdLine->m_sourceDirList.getHead();
 	for (; it; it++) {

@@ -60,12 +60,12 @@ CodeAssistThread::cancel() {
 
 void
 CodeAssistThread::run() {
-	m_module->initialize(
-		"code-assist-module",
+	ModuleConfig config = g_defaultModuleConfig;
+	config.m_compileFlags =
 		ModuleCompileFlag_DisableCodeGen |
-		ModuleCompileFlag_IgnoreOpaqueClassTypeInfo
-	);
+		ModuleCompileFlag_IgnoreOpaqueClassTypeInfo;
 
+	m_module->initialize("code-assist-module", &config);
 	m_module->setCompileErrorHandler(compileErrorHandler, this);
 	m_module->addStaticLib(jnc::StdLib_getLib());
 	m_module->addStaticLib(jnc::SysLib_getLib());

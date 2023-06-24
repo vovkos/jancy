@@ -369,7 +369,7 @@ jnc_DestructFunc(jnc_IfaceHdr* iface);
 
 JNC_SELECT_ANY jnc_DataPtr jnc_g_nullDataPtr = { 0 };
 JNC_SELECT_ANY jnc_FunctionPtr jnc_g_nullFunctionPtr = { 0 };
-JNC_SELECT_ANY jnc_FunctionPtr jnc_g_nullPropertyPtr = { 0 };
+JNC_SELECT_ANY jnc_PropertyPtr jnc_g_nullPropertyPtr = { 0 };
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -429,9 +429,9 @@ typedef jnc_DestructFunc DestructFunc;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_SELECT_ANY DataPtr g_nullDataPtr = { 0 };
-JNC_SELECT_ANY FunctionPtr g_nullFunctionPtr = { 0 };
-JNC_SELECT_ANY PropertyPtr g_nullPropertyPtr = { 0 };
+const DataPtr g_nullDataPtr = jnc_g_nullDataPtr;
+const FunctionPtr g_nullFunctionPtr = jnc_g_nullFunctionPtr;
+const PropertyPtr g_nullPropertyPtr = jnc_g_nullPropertyPtr;
 
 //..............................................................................
 

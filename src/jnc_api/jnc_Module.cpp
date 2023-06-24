@@ -218,10 +218,10 @@ JNC_EXPORT_O
 void
 jnc_Module_initialize(
 	jnc_Module* module,
-	const char* tag,
-	uint_t compileFlags
+	const char* name,
+	const jnc_ModuleConfig* config
 ) {
-	module->initialize(tag, compileFlags);
+	module->initialize(name, config);
 }
 
 JNC_EXTERN_C

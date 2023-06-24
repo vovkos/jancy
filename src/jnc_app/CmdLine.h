@@ -26,10 +26,11 @@ enum JncFlag {
 };
 
 struct CmdLine {
-	uint_t m_flags;
-	uint_t m_compileFlags;
-	uint_t m_optLevel;
+	jnc::ModuleConfig m_moduleConfig;
 	jnc::GcSizeTriggers m_gcSizeTriggers;
+
+	uint_t m_optLevel;
+	uint_t m_flags;
 
 	sl::String m_srcNameOverride;
 	sl::String m_functionName;
@@ -68,9 +69,12 @@ enum CmdLineSwitch {
 	CmdLineSwitch_LlvmIr,
 	CmdLineSwitch_DebugInfo,
 	CmdLineSwitch_Jit,
-	CmdLineSwitch_OrcJit,
-	CmdLineSwitch_LegacyJit,
 	CmdLineSwitch_McJit,
+#if (LLVM_VERSION >= 0x070000)
+	CmdLineSwitch_OrcJit,
+#elif (LLVM_VERSION < 0x030600)
+	CmdLineSwitch_LegacyJit,
+#endif
 	CmdLineSwitch_SimpleGcSafePoint,
 	CmdLineSwitch_StdLibDoc,
 	CmdLineSwitch_DisableDoxyComment,
@@ -80,6 +84,7 @@ enum CmdLineSwitch {
 	CmdLineSwitch_GcPeriodSizeTrigger,
 	CmdLineSwitch_GcSafePointInPrologue,
 	CmdLineSwitch_OptLevel,
+	CmdLineSwitch_JitOptLevel,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -173,21 +178,24 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE(CmdLineSwitchTable, CmdLineSwitch)
 		"j", "jit", NULL,
 		"JIT compiled module"
 	)
-	AXL_SL_CMD_LINE_SWITCH_2(
-		CmdLineSwitch_McJit,
-		"orc", "orcjit", NULL,
-		"Use OrcJIT engine"
-	)
-	AXL_SL_CMD_LINE_SWITCH_1(
-		CmdLineSwitch_LegacyJit,
-		"legacyjit", NULL,
-		"Use legacy JIT engine"
-	)
 	AXL_SL_CMD_LINE_SWITCH_1(
 		CmdLineSwitch_McJit,
 		"mcjit", NULL,
 		"Use MCJIT engine"
 	)
+#if (LLVM_VERSION >= 0x070000)
+	AXL_SL_CMD_LINE_SWITCH_2(
+		CmdLineSwitch_OrcJit,
+		"orc", "orcjit", NULL,
+		"Use OrcJIT engine"
+	)
+#elif (LLVM_VERSION < 0x030600)
+	AXL_SL_CMD_LINE_SWITCH_1(
+		CmdLineSwitch_LegacyJit,
+		"legacyjit", NULL,
+		"Use legacy JIT engine"
+	)
+#endif
 	AXL_SL_CMD_LINE_SWITCH(
 		CmdLineSwitch_SimpleGcSafePoint,
 		"simple-gc-safe-point", NULL,
@@ -201,7 +209,12 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE(CmdLineSwitchTable, CmdLineSwitch)
 	AXL_SL_CMD_LINE_SWITCH_2(
 		CmdLineSwitch_OptLevel,
 		"O", "opt", "<n>",
-		"Enable LLVM optimization passes level <n> (0 to 3)"
+		"Enable LLVM IR optimization level <n> (0 to 3)"
+	)
+	AXL_SL_CMD_LINE_SWITCH_2(
+		CmdLineSwitch_JitOptLevel,
+		"J", "jit-opt", "<n>",
+		"Enable LLVM JIT optimization level <n> (0 to 3)"
 	)
 	AXL_SL_CMD_LINE_SWITCH(
 		CmdLineSwitch_StdLibDoc,

@@ -39,7 +39,7 @@ public:
 
 	virtual
 	bool
-	create() = 0;
+	create(uint_t optLevel) = 0;
 
 	void*
 	findSymbol(const sl::StringRef& name);

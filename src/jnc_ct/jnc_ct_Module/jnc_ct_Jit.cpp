@@ -5,6 +5,43 @@
 namespace jnc {
 namespace ct {
 
+#if (JNC_PTR_BITS == 32)
+#	if (_JNC_OS_POSIX)
+extern "C" int64_t __divdi3(int64_t, int64_t);
+extern "C" int64_t __moddi3(int64_t, int64_t);
+extern "C" uint64_t __udivdi3(uint64_t, uint64_t);
+extern "C" uint64_t __umoddi3(uint64_t, uint64_t);
+#		if (_JNC_CPU_ARM32)
+extern "C" int32_t __modsi3(int32_t, int32_t);
+extern "C" uint32_t __umodsi3(uint32_t, uint32_t);
+struct DivModRetVal {
+	uint64_t m_quotient;
+	uint64_t m_remainder;
+};
+extern "C" int32_t __aeabi_idiv(int32_t);
+extern "C" uint32_t __aeabi_uidiv(uint32_t);
+extern "C" DivModRetVal __aeabi_ldivmod(int64_t, int64_t);
+extern "C" DivModRetVal __aeabi_uldivmod(uint64_t, uint64_t);
+extern "C" float __aeabi_i2f(int32_t);
+extern "C" float __aeabi_l2f(int64_t);
+extern "C" float __aeabi_ui2f(uint32_t);
+extern "C" float __aeabi_ul2f(uint64_t);
+extern "C" double __aeabi_i2d(int32_t);
+extern "C" double __aeabi_l2d(int64_t);
+extern "C" double __aeabi_ui2d(uint32_t);
+extern "C" double __aeabi_ul2d(uint64_t);
+extern "C" void __aeabi_memcpy(void*, const void*, size_t);
+extern "C" void __aeabi_memmove(void*, const void*, size_t);
+extern "C" void __aeabi_memset(void*, int, size_t);
+#		endif
+#	elif (_JNC_OS_WIN)
+extern "C" int64_t _alldiv(int64_t, int64_t);
+extern "C" int64_t _allrem(int64_t, int64_t);
+extern "C" int64_t _aulldiv(int64_t, int64_t);
+extern "C" int64_t _aullrem(int64_t, int64_t);
+#	endif
+#endif
+
 //..............................................................................
 
 void

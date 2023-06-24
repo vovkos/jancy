@@ -39,4 +39,7 @@ using namespace axl;
 #	include <io.h>
 #endif
 
+#include <llvm/Config/llvm-config.h>
+#define LLVM_VERSION ((LLVM_VERSION_MAJOR << 16) | (LLVM_VERSION_MINOR << 8) | LLVM_VERSION_PATCH)
+
 //..............................................................................

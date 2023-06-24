@@ -90,7 +90,9 @@ OrcJit::~OrcJit() {
 }
 
 bool
-OrcJit::create() {
+OrcJit::create(uint_t optLevel) {
+	printf("OrcJit::create(%d)\n", optLevel);
+
 	addStdSymbols();
 
 #if (_JNC_CPU_ARM32 || _JNC_CPU_ARM64)
@@ -110,7 +112,7 @@ OrcJit::create() {
 
 	m_llvmExecutionSession = new llvm::orc::ExecutionSession(std::move(*processControl));
 	llvm::orc::JITTargetMachineBuilder targetMachineBuilder(m_llvmExecutionSession->getExecutorProcessControl().getTargetTriple());
-	targetMachineBuilder.setCodeGenOptLevel((llvm::CodeGenOpt::Level)0);
+	targetMachineBuilder.setCodeGenOptLevel((llvm::CodeGenOpt::Level)optLevel);
 
 	llvm::Expected<llvm::DataLayout> dataLayout = targetMachineBuilder.getDefaultDataLayoutForTarget();
 	if (!dataLayout) {
