@@ -151,13 +151,19 @@ source_group(
 #
 
 if(BUILD_JNC_IO_USB)
-#	add_definitions(-D_JNC_IO_USB=1)
+	add_definitions(-D_JNC_IO_USB=1)
 endif()
 
 if(BUILD_JNC_IO_SSL)
 	add_definitions(-D_JNC_IO_SSL=1)
 	include_directories(${OPENSSL_INC_DIR})
 endif()
+
+add_definitions(
+	-DLLVM_VERSION_MAJOR=${JANCY_LLVM_VERSION_MAJOR}
+	-DLLVM_VERSION_MINOR=${JANCY_LLVM_VERSION_MINOR}
+	-DLLVM_VERSION_PATCH=${JANCY_LLVM_VERSION_PATCH}
+)
 
 include_directories(
 	${AXL_INC_DIR}

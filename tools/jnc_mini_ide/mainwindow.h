@@ -114,6 +114,12 @@ private:
 	QAction* m_simpleGcSafePointAction;
 	QAction* m_debugInfoAction;
 	QAction* m_disableCodeGenAction;
+	QAction* m_mcJitAction;
+#if (LLVM_VERSION >= 0x070000)
+	QAction* m_orcJitAction;
+#elif (LLVM_VERSION < 0x030600)
+	QAction* m_legacyJitAction;
+#endif
 	QAction* m_optimizeAction;
 	QAction* m_jitAction;
 	QAction* m_signedExtensionsAction;

@@ -8,8 +8,8 @@ namespace ct {
 //..............................................................................
 
 bool
-LegacyJit::create() {
-	ASSERT(!m_llvmExecutionEngine);
+LegacyJit::create(uint_t optLevel) {
+	printf("LegacyJit::create(%d)\n", optLevel);
 
 #if (_JNC_CPU_ARM32 || _JNC_CPU_ARM64)
 	// disable the GlobalMerge pass (on by default) on ARM because
@@ -23,7 +23,7 @@ LegacyJit::create() {
 	std::string errorString;
 	engineBuilder.setErrorStr(&errorString);
 	engineBuilder.setEngineKind(llvm::EngineKind::JIT);
-	engineBuilder.setOptLevel((llvm::CodeGenOpt::Level)0);
+	engineBuilder.setOptLevel((llvm::CodeGenOpt::Level)optLevel);
 
 	llvm::TargetOptions targetOptions;
 #if (_JNC_CPU_ARM32 || _JNC_CPU_ARM64)

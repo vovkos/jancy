@@ -100,11 +100,16 @@ source_group(
 include_directories(
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
-	${LLVM_INC_DIR}
 	${GEN_DIR}
 )
 
 link_directories(${AXL_LIB_DIR})
+
+add_definitions(
+	-DLLVM_VERSION_MAJOR=${JANCY_LLVM_VERSION_MAJOR}
+	-DLLVM_VERSION_MINOR=${JANCY_LLVM_VERSION_MINOR}
+	-DLLVM_VERSION_PATCH=${JANCY_LLVM_VERSION_PATCH}
+)
 
 if(BUILD_JNC_DLL)
 	link_directories(

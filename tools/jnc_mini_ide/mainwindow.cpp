@@ -27,6 +27,12 @@
 #define DEFAULT_DISABLE_CODE_GEN false
 #define DEFAULT_JIT              true
 
+#if (LLVM_VERSION >= 0x070000)
+#	define DEFAULT_JIT_KIND      jnc::JitKind_Orc
+#else
+#	define DEFAULT_JIT_KIND      jnc::JitKind_McJit
+#endif
+
 //..............................................................................
 
 size_t
@@ -215,6 +221,19 @@ void MainWindow::createActions() {
 	m_jitAction->setCheckable(true);
 	m_jitAction->setChecked(DEFAULT_JIT);
 
+	m_mcJitAction = new QAction("MCJIT", this);
+	m_mcJitAction->setCheckable(true);
+	m_mcJitAction->setChecked(DEFAULT_JIT_KIND == jnc::JitKind_McJit);
+#if (LLVM_VERSION >= 0x070000)
+	m_orcJitAction = new QAction("ORC JIT", this);
+	m_orcJitAction->setCheckable(true);
+	m_orcJitAction->setChecked(DEFAULT_JIT_KIND == jnc::JitKind_Orc);
+#elif (LLVM_VERSION < 0x030600)
+	m_legacyJitAction = new QAction("Legacy JIT", this);
+	m_legacyJitAction->setCheckable(true);
+	m_legacyJitAction->setChecked(DEFAULT_JIT_KIND == jnc::JitKind_Legacy);
+#endif
+
 	m_setCapabilitiesAction = new QAction("Set Capabilities", this);
 	QObject::connect(m_setCapabilitiesAction, SIGNAL(triggered()), this, SLOT(onSetCapabilities()));
 
@@ -251,6 +270,17 @@ void MainWindow::createMenu() {
 	m_compileMenu->addAction(m_debugInfoAction);
 	m_compileMenu->addAction(m_optimizeAction);
 	m_compileMenu->addAction(m_jitAction);
+
+	QActionGroup* group = new QActionGroup(this);
+	group->addAction(m_mcJitAction);
+#if (LLVM_VERSION >= 0x070000)
+	group->addAction(m_orcJitAction);
+#elif (LLVM_VERSION < 0x030600)
+	group->addAction(m_legacyJitAction);
+#endif
+
+	m_compileMenu->addSeparator();
+	m_compileMenu->addActions(group->actions());
 	m_compileMenu->addSeparator();
 	m_compileMenu->addAction(m_setCapabilitiesAction);
 	m_compileMenu->addAction(m_setUsbFilterAction);
@@ -504,6 +534,16 @@ bool MainWindow::compile() {
 		moduleConfig.m_compileFlags |= jnc::ModuleCompileFlag_DebugInfo;
 #endif
 
+	if (m_mcJitAction->isChecked())
+		moduleConfig.m_jitKind = jnc::JitKind_McJit;
+#if (LLVM_VERSION >= 0x070000)
+	if (m_orcJitAction->isChecked())
+		moduleConfig.m_jitKind = jnc::JitKind_Orc;
+#elif (LLVM_VERSION < 0x030600)
+	if (m_legacyJitAction->isChecked())
+		moduleConfig.m_jitKind = jnc::JitKind_Legacy;
+#endif
+
 	QByteArray sourceFilePath = child->filePath().toUtf8();
 
 	m_module->initialize(sourceFilePath.data(), &moduleConfig);
@@ -511,9 +551,10 @@ bool MainWindow::compile() {
 	if (m_stdlibAction->isChecked()) {
 		m_module->addStaticLib(jnc::StdLib_getLib());
 		m_module->addStaticLib(jnc::SysLib_getLib());
-		m_module->addStaticLib(TestLib_getLib());
 		m_module->addImportDir(m_libDir.toUtf8().constData());
 	}
+
+	m_module->addStaticLib(TestLib_getLib());
 
 	if (m_signedExtensionsAction->isChecked()) {
 		jnc::CodeAuthenticatorConfig config;

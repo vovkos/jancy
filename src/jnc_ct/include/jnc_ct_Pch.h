@@ -320,6 +320,8 @@ operator >> (
 	return sl::String(string.data(), string.size());
 }
 
+#if (LLVM_VERSION >= 0x070000)
+
 inline
 err::Error
 operator >> (
@@ -329,5 +331,6 @@ operator >> (
 	return err::Error(llvm::toString(std::move(error)).c_str());
 }
 
+#endif
 
 //..............................................................................

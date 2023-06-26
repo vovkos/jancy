@@ -13,9 +13,13 @@
 #include "jnc_ct_Module.h"
 #include "jnc_ct_Module.h"
 #include "jnc_ct_McJit.h"
-#include "jnc_ct_OrcJit.h"
-#include "jnc_ct_LegacyJit.h"
 #include "jnc_ct_Parser.llk.h"
+
+#if (LLVM_VERSION >= 0x070000)
+#	include "jnc_ct_OrcJit.h"
+#elif (LLVM_VERSION < 0x030600)
+#	include "jnc_ct_LegacyJit.h"
+#endif
 
 #if (_AXL_DEBUG)
 #	define _JNC_TEST_NO_CODE_GEN 1
@@ -503,12 +507,13 @@ Module::createJit() {
 		m_jit = new OrcJit(this);
 		break;
 #elif (LLVM_VERSION < 0x030600)
-	case JitKind_Orc:
-		m_jit = new OrcJit(this);
+	case JitKind_Legacy:
+		m_jit = new LegacyJit(this);
 		break;
 #endif
 	default:
-		return err::fail("Invalid JIT engine kind");
+		err::setFormatStringError("Invalid JIT engine kind: %d", m_config.m_jitKind);
+		return false;
 	}
 
 	ASSERT(m_jit);

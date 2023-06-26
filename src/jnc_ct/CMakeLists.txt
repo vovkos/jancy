@@ -262,7 +262,9 @@ source_group(
 
 if(${LLVM_VERSION} VERSION_GREATER_EQUAL 3.6)
 	axl_exclude_from_build(jnc_ct_Module/jnc_ct_LegacyJit.cpp)
-elseif(${LLVM_VERSION} VERSION_LESS 7.0)
+endif()
+
+if(${LLVM_VERSION} VERSION_LESS 7.0)
 	axl_exclude_from_build(jnc_ct_Module/jnc_ct_OrcJit.cpp)
 endif()
 
