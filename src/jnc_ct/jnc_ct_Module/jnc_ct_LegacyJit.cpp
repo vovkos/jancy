@@ -9,8 +9,6 @@ namespace ct {
 
 bool
 LegacyJit::create(uint_t optLevel) {
-	printf("LegacyJit::create(%d)\n", optLevel);
-
 #if (_JNC_CPU_ARM32 || _JNC_CPU_ARM64)
 	// disable the GlobalMerge pass (on by default) on ARM because
 	// it will dangle GlobalVariable::m_llvmVariable pointers

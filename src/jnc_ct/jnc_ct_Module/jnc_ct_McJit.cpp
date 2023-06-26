@@ -59,8 +59,6 @@ JitMemoryMgr::getSymbolAddress(const std::string &name) {
 
 bool
 McJit::create(uint_t optLevel) {
-	printf("McJit::create(%d)\n", optLevel);
-
 	addStdSymbols();
 
 #if (_JNC_CPU_ARM32 || _JNC_CPU_ARM64)

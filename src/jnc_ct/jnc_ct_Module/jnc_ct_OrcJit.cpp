@@ -91,8 +91,6 @@ OrcJit::~OrcJit() {
 
 bool
 OrcJit::create(uint_t optLevel) {
-	printf("OrcJit::create(%d)\n", optLevel);
-
 	addStdSymbols();
 
 #if (_JNC_CPU_ARM32 || _JNC_CPU_ARM64)
