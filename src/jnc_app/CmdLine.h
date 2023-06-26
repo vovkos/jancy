@@ -184,15 +184,15 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE(CmdLineSwitchTable, CmdLineSwitch)
 		"Use MCJIT engine"
 	)
 #if (LLVM_VERSION >= 0x070000)
-	AXL_SL_CMD_LINE_SWITCH_2(
+	AXL_SL_CMD_LINE_SWITCH_1(
 		CmdLineSwitch_OrcJit,
-		"orc", "orcjit", NULL,
+		"orc", NULL,
 		"Use OrcJIT engine"
 	)
 #elif (LLVM_VERSION < 0x030600)
 	AXL_SL_CMD_LINE_SWITCH_1(
 		CmdLineSwitch_LegacyJit,
-		"legacyjit", NULL,
+		"legacy-jit", NULL,
 		"Use legacy JIT engine"
 	)
 #endif
