@@ -469,7 +469,7 @@ struct jnc_Module {
 	void
 	initialize(
 		const char* name,
-		jnc_ModuleConfig* config = &jnc_g_defaultModuleConfig
+		const jnc_ModuleConfig* config = &jnc_g_defaultModuleConfig
 	) {
 		jnc_Module_initialize(this, name, config);
 	}
