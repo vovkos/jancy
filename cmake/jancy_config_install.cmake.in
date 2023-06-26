@@ -34,4 +34,8 @@ endif()
 
 include("${CMAKE_CURRENT_LIST_DIR}/jancy_version.cmake")
 
+set(JANCY_LLVM_VERSION_MAJOR @LLVM_VERSION_MAJOR@)
+set(JANCY_LLVM_VERSION_MINOR @LLVM_VERSION_MINOR@)
+set(JANCY_LLVM_VERSION_PATCH @LLVM_VERSION_PATCH@)
+
 #...............................................................................
