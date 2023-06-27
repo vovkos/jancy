@@ -114,12 +114,18 @@ OrcJit::create(uint_t optLevel) {
 	m_llvmExecutionSession = new llvm::orc::ExecutionSession(std::move(*processControl));
 #endif
 
-	llvm::orc::JITTargetMachineBuilder targetMachineBuilder(m_llvmExecutionSession->getExecutorProcessControl().getTargetTriple());
-	targetMachineBuilder.setCodeGenOptLevel((llvm::CodeGenOpt::Level)optLevel);
+	llvm::Expected<llvm::orc::JITTargetMachineBuilder> targetMachineBuilder = llvm::orc::JITTargetMachineBuilder::detectHost();
+	if (!targetMachineBuilder) {
+		err::setError(targetMachineBuilder.takeError() >> toAxl);
+		return false;
+	}
 
-	llvm::Expected<llvm::DataLayout> dataLayout = targetMachineBuilder.getDefaultDataLayoutForTarget();
+
+	targetMachineBuilder->setCodeGenOptLevel((llvm::CodeGenOpt::Level)optLevel);
+
+	llvm::Expected<llvm::DataLayout> dataLayout = targetMachineBuilder->getDefaultDataLayoutForTarget();
 	if (!dataLayout) {
-		err::setError(processControl.takeError() >> toAxl);
+		err::setError(dataLayout.takeError() >> toAxl);
 		return false;
 	}
 
@@ -141,7 +147,7 @@ OrcJit::create(uint_t optLevel) {
 	m_llvmIrCompileLayer = new llvm::orc::IRCompileLayer(
 		*m_llvmExecutionSession,
 		*m_llvmObjectLinkingLayer,
-		std::make_unique<llvm::orc::ConcurrentIRCompiler>(std::move(targetMachineBuilder))
+		std::make_unique<llvm::orc::ConcurrentIRCompiler>(std::move(*targetMachineBuilder))
 	);
 
 	return true;
