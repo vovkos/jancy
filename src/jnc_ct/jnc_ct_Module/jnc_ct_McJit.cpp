@@ -80,22 +80,23 @@ McJit::create(uint_t optLevel) {
 	engineBuilder.setOptLevel((llvm::CodeGenOpt::Level)optLevel);
 
 	llvm::TargetOptions targetOptions;
+	if (optLevel == 0)
+		targetOptions.EnableFastISel = true;
 #if (_JNC_CPU_ARM32 || _JNC_CPU_ARM64)
 	targetOptions.FloatABIType = llvm::FloatABI::Hard;
+#endif
+#if (LLVM_VERSION < 0x030700)
+	if ((m_module->getCompileFlags() & ModuleCompileFlag_DebugInfo))
+		targetOptions.JITEmitDebugInfo = true;
 #endif
 
 	JitMemoryMgr* jitMemoryMgr = new JitMemoryMgr(this);
 #if (LLVM_VERSION < 0x030600)
 	engineBuilder.setUseMCJIT(true);
 	engineBuilder.setMCJITMemoryManager(jitMemoryMgr);
-	targetOptions.JITEmitDebugInfo = true;
-#elif (LLVM_VERSION < 0x030700)
-	engineBuilder.setMCJITMemoryManager(std::move(std::unique_ptr<JitMemoryMgr>(jitMemoryMgr)));
-	targetOptions.JITEmitDebugInfo = true;
 #else
 	engineBuilder.setMCJITMemoryManager(std::move(std::unique_ptr<JitMemoryMgr>(jitMemoryMgr)));
 #endif
-
 	engineBuilder.setTargetOptions(targetOptions);
 
 	// disable CPU feature auto-detection
