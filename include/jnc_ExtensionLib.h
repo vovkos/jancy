@@ -543,9 +543,11 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 
 #define JNC_MAP_VARIABLE(name, p) \
 	JNC_FIND_ITEM_IMPL(name, jnc_ModuleItemKind_Variable, jnc_Variable, variable); \
-	result = jnc_Module_mapVariable(module, variable, p); \
-	if (!result) \
-		return 0;
+	if (variable) { \
+		result = jnc_Module_mapVariable(module, variable, p); \
+		if (!result) \
+			return 0; \
+	}
 
 //..............................................................................
 
