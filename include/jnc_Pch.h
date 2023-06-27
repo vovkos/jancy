@@ -335,3 +335,4 @@ typedef wchar_t           utf32_t;
 /// @}
 
 #include "jnc_WarningSuppression.h"
+#include "jnc_Config.h"

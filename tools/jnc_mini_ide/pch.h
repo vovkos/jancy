@@ -70,5 +70,3 @@ using namespace axl;
 #include "jnc_CallSite.h"
 #include "jnc_Error.h"
 #include "jnc_Edit.h"
-
-#define LLVM_VERSION ((LLVM_VERSION_MAJOR << 16) | (LLVM_VERSION_MINOR << 8) | LLVM_VERSION_PATCH)

@@ -38,4 +38,7 @@ set(JANCY_LLVM_VERSION_MAJOR @LLVM_VERSION_MAJOR@)
 set(JANCY_LLVM_VERSION_MINOR @LLVM_VERSION_MINOR@)
 set(JANCY_LLVM_VERSION_PATCH @LLVM_VERSION_PATCH@)
 
+set(JANCY_LLVM_JIT_ORC       @JANCY_LLVM_JIT_ORC@)
+set(JANCY_LLVM_JIT_LEGACY    @JANCY_LLVM_JIT_LEGACY@)
+
 #...............................................................................

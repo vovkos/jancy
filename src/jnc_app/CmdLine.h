@@ -70,9 +70,10 @@ enum CmdLineSwitch {
 	CmdLineSwitch_DebugInfo,
 	CmdLineSwitch_Jit,
 	CmdLineSwitch_McJit,
-#if (LLVM_VERSION >= 0x070000)
+#if (_JNC_LLVM_JIT_ORC)
 	CmdLineSwitch_OrcJit,
-#elif (LLVM_VERSION < 0x030600)
+#endif
+#if (_JNC_LLVM_JIT_LEGACY)
 	CmdLineSwitch_LegacyJit,
 #endif
 	CmdLineSwitch_SimpleGcSafePoint,
@@ -183,13 +184,14 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE(CmdLineSwitchTable, CmdLineSwitch)
 		"mcjit", NULL,
 		"Use MCJIT engine"
 	)
-#if (LLVM_VERSION >= 0x070000)
+#if (_JNC_LLVM_JIT_ORC)
 	AXL_SL_CMD_LINE_SWITCH_1(
 		CmdLineSwitch_OrcJit,
 		"orc", NULL,
 		"Use OrcJIT engine"
 	)
-#elif (LLVM_VERSION < 0x030600)
+#endif
+#if (_JNC_LLVM_JIT_LEGACY)
 	AXL_SL_CMD_LINE_SWITCH_1(
 		CmdLineSwitch_LegacyJit,
 		"legacy-jit", NULL,

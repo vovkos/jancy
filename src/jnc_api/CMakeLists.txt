@@ -15,43 +15,44 @@
 
 set(
 	LIB_H_LIST
-	${JANCY_INC_DIR}/jnc_Def.h
-	${JANCY_INC_DIR}/jnc_RuntimeStructs.h
-	${JANCY_INC_DIR}/jnc_OpKind.h
-	${JANCY_INC_DIR}/jnc_Error.h
-	${JANCY_INC_DIR}/jnc_ModuleItem.h
-	${JANCY_INC_DIR}/jnc_AttributeBlock.h
-	${JANCY_INC_DIR}/jnc_Type.h
-	${JANCY_INC_DIR}/jnc_DerivableType.h
-	${JANCY_INC_DIR}/jnc_ArrayType.h
-	${JANCY_INC_DIR}/jnc_BitFieldType.h
-	${JANCY_INC_DIR}/jnc_FunctionType.h
-	${JANCY_INC_DIR}/jnc_PropertyType.h
-	${JANCY_INC_DIR}/jnc_EnumType.h
-	${JANCY_INC_DIR}/jnc_StructType.h
-	${JANCY_INC_DIR}/jnc_UnionType.h
-	${JANCY_INC_DIR}/jnc_ClassType.h
-	${JANCY_INC_DIR}/jnc_Alias.h
-	${JANCY_INC_DIR}/jnc_Variable.h
-	${JANCY_INC_DIR}/jnc_Function.h
-	${JANCY_INC_DIR}/jnc_Property.h
-	${JANCY_INC_DIR}/jnc_Namespace.h
-	${JANCY_INC_DIR}/jnc_Variant.h
-	${JANCY_INC_DIR}/jnc_Promise.h
-	${JANCY_INC_DIR}/jnc_Unit.h
-	${JANCY_INC_DIR}/jnc_Module.h
-	${JANCY_INC_DIR}/jnc_Runtime.h
-	${JANCY_INC_DIR}/jnc_GcHeap.h
-	${JANCY_INC_DIR}/jnc_ExtensionLib.h
-	${JANCY_INC_DIR}/jnc_DynamicExtensionLibHost.h
-	${JANCY_INC_DIR}/jnc_CallSite.h
-	${JANCY_INC_DIR}/jnc_Construct.h
-	${JANCY_INC_DIR}/jnc_StdMap.h
-	${JANCY_INC_DIR}/jnc_StdHashTable.h
-	${JANCY_INC_DIR}/jnc_StdBuffer.h
-	${JANCY_INC_DIR}/jnc_CodeAssist.h
-	${JANCY_INC_DIR}/jnc_Capability.h
-	${JANCY_INC_DIR}/jnc_WarningSuppression.h
+	${PROJECT_BINARY_DIR}/include/jnc_Config.h
+	${JANCY_ROOT_DIR}/include/jnc_Def.h
+	${JANCY_ROOT_DIR}/include/jnc_RuntimeStructs.h
+	${JANCY_ROOT_DIR}/include/jnc_OpKind.h
+	${JANCY_ROOT_DIR}/include/jnc_Error.h
+	${JANCY_ROOT_DIR}/include/jnc_ModuleItem.h
+	${JANCY_ROOT_DIR}/include/jnc_AttributeBlock.h
+	${JANCY_ROOT_DIR}/include/jnc_Type.h
+	${JANCY_ROOT_DIR}/include/jnc_DerivableType.h
+	${JANCY_ROOT_DIR}/include/jnc_ArrayType.h
+	${JANCY_ROOT_DIR}/include/jnc_BitFieldType.h
+	${JANCY_ROOT_DIR}/include/jnc_FunctionType.h
+	${JANCY_ROOT_DIR}/include/jnc_PropertyType.h
+	${JANCY_ROOT_DIR}/include/jnc_EnumType.h
+	${JANCY_ROOT_DIR}/include/jnc_StructType.h
+	${JANCY_ROOT_DIR}/include/jnc_UnionType.h
+	${JANCY_ROOT_DIR}/include/jnc_ClassType.h
+	${JANCY_ROOT_DIR}/include/jnc_Alias.h
+	${JANCY_ROOT_DIR}/include/jnc_Variable.h
+	${JANCY_ROOT_DIR}/include/jnc_Function.h
+	${JANCY_ROOT_DIR}/include/jnc_Property.h
+	${JANCY_ROOT_DIR}/include/jnc_Namespace.h
+	${JANCY_ROOT_DIR}/include/jnc_Variant.h
+	${JANCY_ROOT_DIR}/include/jnc_Promise.h
+	${JANCY_ROOT_DIR}/include/jnc_Unit.h
+	${JANCY_ROOT_DIR}/include/jnc_Module.h
+	${JANCY_ROOT_DIR}/include/jnc_Runtime.h
+	${JANCY_ROOT_DIR}/include/jnc_GcHeap.h
+	${JANCY_ROOT_DIR}/include/jnc_ExtensionLib.h
+	${JANCY_ROOT_DIR}/include/jnc_DynamicExtensionLibHost.h
+	${JANCY_ROOT_DIR}/include/jnc_CallSite.h
+	${JANCY_ROOT_DIR}/include/jnc_Construct.h
+	${JANCY_ROOT_DIR}/include/jnc_StdMap.h
+	${JANCY_ROOT_DIR}/include/jnc_StdHashTable.h
+	${JANCY_ROOT_DIR}/include/jnc_StdBuffer.h
+	${JANCY_ROOT_DIR}/include/jnc_CodeAssist.h
+	${JANCY_ROOT_DIR}/include/jnc_Capability.h
+	${JANCY_ROOT_DIR}/include/jnc_WarningSuppression.h
 )
 
 set(
@@ -135,7 +136,7 @@ set(PCH_DYNAMIC_CPP  pch_dynamic.cpp)
 set(
 	PCH_H_LIST
 	${PCH_H}
-	${JANCY_INC_DIR}/jnc_Pch.h
+	${JANCY_ROOT_DIR}/include/jnc_Pch.h
 )
 
 source_group(

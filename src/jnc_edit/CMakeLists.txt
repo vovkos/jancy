@@ -23,9 +23,9 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
 set(
 	LIB_H_LIST
-	${JANCY_INC_DIR}/jnc_Edit.h
-	${JANCY_INC_DIR}/jnc_EditTheme.h
-	${JANCY_INC_DIR}/jnc_CodeAssist.h
+	${JANCY_ROOT_DIR}/include/jnc_Edit.h
+	${JANCY_ROOT_DIR}/include/jnc_EditTheme.h
+	${JANCY_ROOT_DIR}/include/jnc_CodeAssist.h
 	jnc_Edit_p.h
 	jnc_LineNumberMargin.h
 	jnc_Highlighter.h
@@ -88,7 +88,7 @@ file(MAKE_DIRECTORY ${GEN_DIR})
 
 set(
 	MOC_H_LIST
-	${JANCY_INC_DIR}/jnc_Edit.h
+	${JANCY_ROOT_DIR}/include/jnc_Edit.h
 	jnc_Edit_p.h
 	jnc_LineNumberMargin.h
 	jnc_CodeAssistThread.h

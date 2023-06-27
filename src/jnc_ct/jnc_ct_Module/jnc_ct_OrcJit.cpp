@@ -102,6 +102,9 @@ OrcJit::create(uint_t optLevel) {
 
 	ASSERT(!m_llvmExecutionSession);
 
+#	if (LLVM_VERSION_MAJOR < 13)
+	m_llvmExecutionSession = new llvm::orc::ExecutionSession();
+#else
 	llvm::Expected<std::unique_ptr<llvm::orc::SelfExecutorProcessControl> > processControl = llvm::orc::SelfExecutorProcessControl::Create();
 	if (!processControl) {
 		err::setError(processControl.takeError() >> toAxl);
@@ -109,6 +112,8 @@ OrcJit::create(uint_t optLevel) {
 	}
 
 	m_llvmExecutionSession = new llvm::orc::ExecutionSession(std::move(*processControl));
+#endif
+
 	llvm::orc::JITTargetMachineBuilder targetMachineBuilder(m_llvmExecutionSession->getExecutorProcessControl().getTargetTriple());
 	targetMachineBuilder.setCodeGenOptLevel((llvm::CodeGenOpt::Level)optLevel);
 

@@ -115,9 +115,10 @@ private:
 	QAction* m_debugInfoAction;
 	QAction* m_disableCodeGenAction;
 	QAction* m_mcJitAction;
-#if (LLVM_VERSION >= 0x070000)
+#if (_JNC_LLVM_JIT_ORC)
 	QAction* m_orcJitAction;
-#elif (LLVM_VERSION < 0x030600)
+#endif
+#if (_JNC_LLVM_JIT_LEGACY)
 	QAction* m_legacyJitAction;
 #endif
 	QAction* m_optimizeAction;

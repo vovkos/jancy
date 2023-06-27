@@ -15,9 +15,11 @@
 #include "jnc_ct_McJit.h"
 #include "jnc_ct_Parser.llk.h"
 
-#if (LLVM_VERSION >= 0x070000)
+#if (_JNC_LLVM_JIT_ORC)
 #	include "jnc_ct_OrcJit.h"
-#elif (LLVM_VERSION < 0x030600)
+#endif
+
+#if (_JNC_LLVM_JIT_LEGACY)
 #	include "jnc_ct_LegacyJit.h"
 #endif
 
@@ -172,7 +174,7 @@ Module::initialize(
 	m_config = config ? *config : g_defaultModuleConfig;
 
 	if (!m_config.m_jitKind)
-#if (LLVM_VERSION < 0x030600 && _JNC_OS_WIN)
+#if (_JNC_LLVM_JIT_LEGACY && _JNC_OS_WIN)
 		m_config.m_jitKind = JitKind_Legacy;
 #else
 		m_config.m_jitKind = JitKind_McJit;
@@ -502,15 +504,18 @@ Module::createJit() {
 		m_jit = new McJit(this);
 		break;
 
-#if (LLVM_VERSION >= 0x070000)
+#if (_JNC_LLVM_JIT_ORC)
 	case JitKind_Orc:
 		m_jit = new OrcJit(this);
 		break;
-#elif (LLVM_VERSION < 0x030600)
+#endif
+
+#if (_JNC_LLVM_JIT_LEGACY)
 	case JitKind_Legacy:
 		m_jit = new LegacyJit(this);
 		break;
 #endif
+
 	default:
 		err::setFormatStringError("Invalid JIT engine kind: %d", m_config.m_jitKind);
 		return false;

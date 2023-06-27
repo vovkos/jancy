@@ -13,30 +13,20 @@
 
 //..............................................................................
 
-// AXL
+#define JNC_LLVM_VERSION_MAJOR ${LLVM_VERSION_MAJOR}
+#define JNC_LLVM_VERSION_MINOR ${LLVM_VERSION_MINOR}
+#define JNC_LLVM_VERSION_PATCH ${LLVM_VERSION_PATCH}
 
-#include "axl_sl_CmdLineParser.h"
-#include "axl_sl_Singleton.h"
-#include "axl_sl_BoxList.h"
-#include "axl_io_FilePathUtils.h"
-#include "axl_io_FileEnumerator.h"
-#include "axl_lex_ParseError.h"
-#include "axl_sys_ExceptionError.h"
-#include "axl_sys_Time.h"
-#include "axl_re_Regex.h"
+#define JNC_LLVM_VERSION ( \
+	(JNC_LLVM_VERSION_MAJOR << 16) | \
+	(JNC_LLVM_VERSION_MINOR << 8) | \
+	JNC_LLVM_VERSION_PATCH \
+)
 
-using namespace axl;
-
-// Jancy
-
-#include "jnc_Module.h"
-#include "jnc_Runtime.h"
-#include "jnc_CallSite.h"
-#include "jnc_ExtensionLib.h"
-#include "jnc_Error.h"
-
-#if (_JNC_OS_WIN)
-#	include <io.h>
+#if (JNC_LLVM_VERSION < 0x030600)
+#	define _JNC_LLVM_JIT_LEGACY 1
+#elif (JNC_LLVM_VERSION_MAJOR >= 12)
+#	define _JNC_LLVM_JIT_ORC    1
 #endif
 
 //..............................................................................

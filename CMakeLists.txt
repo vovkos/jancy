@@ -71,6 +71,11 @@ add_subdirectory(cmake)
 
 include(${CMAKE_CURRENT_BINARY_DIR}/cmake/jancy_config.cmake)
 
+configure_file(
+	${JANCY_ROOT_DIR}/include/jnc_Config.h.in
+	${CMAKE_CURRENT_BINARY_DIR}/include/jnc_Config.h
+)
+
 add_subdirectory(src)
 add_subdirectory(tools)
 add_subdirectory(samples)
@@ -81,6 +86,12 @@ add_subdirectory(doc)
 
 install(
 	DIRECTORY include/
+	DESTINATION ${JANCY_INSTALL_INC_SUBDIR}
+	PATTERN "*.h"
+)
+
+install(
+	FILES ${CMAKE_CURRENT_BINARY_DIR}/include/jnc_Config.h
 	DESTINATION ${JANCY_INSTALL_INC_SUBDIR}
 )
 

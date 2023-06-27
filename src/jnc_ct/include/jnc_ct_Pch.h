@@ -33,6 +33,8 @@
 #	endif
 #endif
 
+#include "jnc_Config.h"
+
 //..............................................................................
 
 // LLVM
@@ -84,24 +86,22 @@
 #include <llvm/Transforms/IPO.h>
 #include <llvm/Transforms/IPO/PassManagerBuilder.h>
 
-#define JNC_JIT_LLVM_ORC        2
-#define JNC_JIT_LLVM_MCJIT      1
-#define JNC_JIT_LLVM_LEGACY_JIT 0
-
 #include <llvm/ExecutionEngine/SectionMemoryManager.h>
 #include <llvm/ExecutionEngine/JITEventListener.h>
 #include <llvm/ExecutionEngine/MCJIT.h>
 
-#if (LLVM_VERSION < 0x030600) // legacy JIT is gone in LLVM 3.6
+#if (_JNC_LLVM_JIT_LEGACY)
 #	include <llvm/ExecutionEngine/JIT.h>
 #	include <llvm/ExecutionEngine/JITMemoryManager.h>
 #endif
 
-#if (LLVM_VERSION >= 0x070000)
+#if (_JNC_LLVM_JIT_ORC)
 #	include <llvm/ExecutionEngine/Orc/CompileUtils.h>
 #	include <llvm/ExecutionEngine/Orc/Core.h>
 #	include <llvm/ExecutionEngine/Orc/ExecutionUtils.h>
-#	include <llvm/ExecutionEngine/Orc/ExecutorProcessControl.h>
+#	if (LLVM_VERSION_MAJOR >= 13)
+#		include <llvm/ExecutionEngine/Orc/ExecutorProcessControl.h>
+#	endif
 #	include <llvm/ExecutionEngine/Orc/IRCompileLayer.h>
 #	include <llvm/ExecutionEngine/Orc/JITTargetMachineBuilder.h>
 #	include <llvm/ExecutionEngine/Orc/RTDyldObjectLinkingLayer.h>
@@ -320,7 +320,7 @@ operator >> (
 	return sl::String(string.data(), string.size());
 }
 
-#if (LLVM_VERSION >= 0x070000)
+#if (_JNC_LLVM_JIT_ORC)
 
 inline
 err::Error

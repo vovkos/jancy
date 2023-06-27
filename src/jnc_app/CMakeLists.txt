@@ -105,12 +105,6 @@ include_directories(
 
 link_directories(${AXL_LIB_DIR})
 
-add_definitions(
-	-DLLVM_VERSION_MAJOR=${JANCY_LLVM_VERSION_MAJOR}
-	-DLLVM_VERSION_MINOR=${JANCY_LLVM_VERSION_MINOR}
-	-DLLVM_VERSION_PATCH=${JANCY_LLVM_VERSION_PATCH}
-)
-
 if(BUILD_JNC_DLL)
 	link_directories(
 		${JANCY_LIB_DIR}

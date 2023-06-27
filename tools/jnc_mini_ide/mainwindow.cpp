@@ -26,12 +26,7 @@
 #define DEFAULT_OPTIMIZE         true
 #define DEFAULT_DISABLE_CODE_GEN false
 #define DEFAULT_JIT              true
-
-#if (LLVM_VERSION >= 0x070000)
-#	define DEFAULT_JIT_KIND      jnc::JitKind_Orc
-#else
-#	define DEFAULT_JIT_KIND      jnc::JitKind_McJit
-#endif
+#define DEFAULT_JIT_KIND         jnc::JitKind_Auto
 
 //..............................................................................
 
@@ -224,11 +219,12 @@ void MainWindow::createActions() {
 	m_mcJitAction = new QAction("MCJIT", this);
 	m_mcJitAction->setCheckable(true);
 	m_mcJitAction->setChecked(DEFAULT_JIT_KIND == jnc::JitKind_McJit);
-#if (LLVM_VERSION >= 0x070000)
+#if (_JNC_LLVM_JIT_ORC >= 0x070000)
 	m_orcJitAction = new QAction("ORC JIT", this);
 	m_orcJitAction->setCheckable(true);
 	m_orcJitAction->setChecked(DEFAULT_JIT_KIND == jnc::JitKind_Orc);
-#elif (LLVM_VERSION < 0x030600)
+#endif
+#if (_JNC_LLVM_JIT_LEGACY)
 	m_legacyJitAction = new QAction("Legacy JIT", this);
 	m_legacyJitAction->setCheckable(true);
 	m_legacyJitAction->setChecked(DEFAULT_JIT_KIND == jnc::JitKind_Legacy);
@@ -273,9 +269,10 @@ void MainWindow::createMenu() {
 
 	QActionGroup* group = new QActionGroup(this);
 	group->addAction(m_mcJitAction);
-#if (LLVM_VERSION >= 0x070000)
+#if (_JNC_LLVM_JIT_ORC)
 	group->addAction(m_orcJitAction);
-#elif (LLVM_VERSION < 0x030600)
+#endif
+#if (_JNC_LLVM_JIT_LEGACY)
 	group->addAction(m_legacyJitAction);
 #endif
 
@@ -536,10 +533,11 @@ bool MainWindow::compile() {
 
 	if (m_mcJitAction->isChecked())
 		moduleConfig.m_jitKind = jnc::JitKind_McJit;
-#if (LLVM_VERSION >= 0x070000)
+#if (_JNC_LLVM_JIT_ORC)
 	if (m_orcJitAction->isChecked())
 		moduleConfig.m_jitKind = jnc::JitKind_Orc;
-#elif (LLVM_VERSION < 0x030600)
+#endif
+#if (_JNC_LLVM_JIT_LEGACY)
 	if (m_legacyJitAction->isChecked())
 		moduleConfig.m_jitKind = jnc::JitKind_Legacy;
 #endif

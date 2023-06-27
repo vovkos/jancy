@@ -96,12 +96,14 @@ CmdLineParser::onSwitch(
 		m_cmdLine->m_flags |= JncFlag_Jit;
 		break;
 
-#if (LLVM_VERSION >= 0x070000)
+#if (_JNC_LLVM_JIT_ORC)
 	case CmdLineSwitch_OrcJit:
 		m_cmdLine->m_moduleConfig.m_jitKind = jnc::JitKind_Orc;
 		m_cmdLine->m_flags |= JncFlag_Jit;
 		break;
-#elif (LLVM_VERSION < 0x030600)
+#endif
+
+#if (_JNC_LLVM_JIT_LEGACY)
 	case CmdLineSwitch_LegacyJit:
 		m_cmdLine->m_moduleConfig.m_jitKind = jnc::JitKind_Legacy;
 		m_cmdLine->m_flags |= JncFlag_Jit;

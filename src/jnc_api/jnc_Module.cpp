@@ -654,7 +654,7 @@ jnc_initialize(const char* reserved) {
 	llvm::DebugFlag = true;
 #endif
 
-#if (LLVM_VERSION < 0x030600)
+#if (_JNC_LLVM_JIT_LEGACY)
 	LLVMLinkInJIT();
 #endif
 	LLVMLinkInMCJIT();
