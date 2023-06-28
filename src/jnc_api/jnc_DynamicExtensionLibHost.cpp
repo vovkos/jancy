@@ -91,7 +91,9 @@ static jnc_NamespaceFuncTable g_namespaceFuncTable = {
 	jnc_Namespace_getParentItem,
 	jnc_Namespace_getItemCount,
 	jnc_Namespace_getItem,
+	jnc_Namespace_findDirectChildItem,
 	jnc_Namespace_findItem,
+	jnc_Namespace_findItemNoParse,
 };
 
 static jnc_GlobalNamespaceFuncTable g_globalNamespaceFuncTable = {

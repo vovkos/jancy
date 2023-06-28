@@ -90,8 +90,8 @@ JNC_BEGIN_LIB_FUNCTION_MAP(UsbLib)
 	JNC_MAP_TYPE(UsbDevice)
 	JNC_MAP_TYPE(UsbDeviceStrings)
 	JNC_MAP_TYPE(UsbDeviceEntry)
-	JNC_MAP_FUNCTION("io.enumerateUsbDevices", enumerateUsbDevices)
-	JNC_MAP_FUNCTION("io.enumerateUsbDevicesNoDesc", enumerateUsbDevicesNoDesc)
+	JNC_MAP_FUNCTION_Q("io.enumerateUsbDevices", enumerateUsbDevices)
+	JNC_MAP_FUNCTION_Q("io.enumerateUsbDevicesNoDesc", enumerateUsbDevicesNoDesc)
 JNC_END_LIB_FUNCTION_MAP()
 
 //..............................................................................

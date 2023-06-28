@@ -153,7 +153,9 @@ EXPORTS
 	jnc_Namespace_getParentItem
 	jnc_Namespace_getItemCount
 	jnc_Namespace_getItem
+	jnc_Namespace_findDirectChildItem
 	jnc_Namespace_findItem
+	jnc_Namespace_findItemNoParse
 	jnc_getNamespaceKindString
 	jnc_Variant_create
 	jnc_Variant_binaryOperator

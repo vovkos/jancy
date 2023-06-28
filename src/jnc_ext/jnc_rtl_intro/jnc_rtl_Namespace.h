@@ -52,6 +52,12 @@ public:
 		return rtl::getModuleItem(n()->findItem((char*)namePtr.m_p).m_item);
 	}
 
+	ModuleItem*
+	JNC_CDECL
+	findItemNoParse(DataPtr namePtr) {
+		return rtl::getModuleItem(n()->findItemNoParse((char*)namePtr.m_p).m_item);
+	}
+
 protected:
 	ct::Namespace*
 	n() {

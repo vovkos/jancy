@@ -119,7 +119,18 @@ public:
 	findItem(const QualifiedName& name);
 
 	FindModuleItemResult
-	findItem(const sl::StringRef& name);
+	findItem(const sl::StringRef& name) {
+		return findItemImpl<sl::True>(name);
+	}
+
+	FindModuleItemResult
+	findItemNoParse(const sl::StringRef& name) {
+		return findItemImpl<sl::False>(name);
+	}
+
+	template <typename Only>
+	FindModuleItemResult
+	findItemImpl(const sl::StringRef& name);
 
 	virtual
 	FindModuleItemResult
@@ -200,6 +211,38 @@ protected:
 		bool useSectionDef
 	);
 };
+
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+template <typename CanParse>
+FindModuleItemResult
+Namespace::findItemImpl(const sl::StringRef& name) {
+	const char* p = name.cp();
+	const char* end = name.getEnd();
+
+	Namespace* nspace = this;
+	FindModuleItemResult findResult = g_nullFindModuleItemResult;
+	for (;;) {
+		if (!CanParse()() && !nspace->isNamespaceReady())
+			return g_nullFindModuleItemResult;
+
+		size_t length = end - p;
+		const char* dot = (const char*)memchr(p, '.', length);
+		if (!dot)
+			return nspace->findDirectChildItem(sl::StringRef(p, length));
+
+		findResult = nspace->findDirectChildItem(sl::StringRef(p, dot - p));
+		if (!findResult.m_item)
+			return findResult;
+
+		nspace = findResult.m_item->getNamespace();
+		if (!nspace)
+			return g_nullFindModuleItemResult;
+
+		p = dot + 1;
+	}
+}
 
 //..............................................................................
 

@@ -95,13 +95,6 @@ public:
 	bool
 	mapAddresses();
 
-	bool
-	findSourceFileContents(
-		const sl::StringRef& fileName,
-		ExtensionLib** lib,
-		sl::StringRef* contents
-	);
-
 	const OpaqueClassTypeInfo*
 	findOpaqueClassTypeInfo(const sl::StringRef& qualifiedName) {
 		sl::StringHashTableIterator<const OpaqueClassTypeInfo*> it = m_opaqueClassTypeInfoMap.find(qualifiedName);
@@ -113,6 +106,13 @@ public:
 		const sl::StringRef& name,
 		const sl::Guid& libGuid,
 		size_t cacheSlot
+	);
+
+	bool
+	findSourceFileContents(
+		const sl::StringRef& fileName,
+		ExtensionLib** lib,
+		sl::StringRef* contents
 	);
 
 	void
@@ -130,14 +130,6 @@ public:
 		m_opaqueClassTypeInfoMap[qualifiedName] = info;
 	}
 };
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-ExtensionLib*
-getStdLib();
-
-ExtensionLib*
-getSysLib();
 
 //..............................................................................
 

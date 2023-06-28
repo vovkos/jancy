@@ -83,11 +83,29 @@ jnc_Namespace_getItem(
 
 JNC_EXTERN_C
 jnc_FindModuleItemResult
+jnc_Namespace_findDirectChildItem(
+	jnc_Namespace* nspace,
+	const char* name
+) {
+	return jnc_g_dynamicExtensionLibHost->m_namespaceFuncTable->m_findDirectChildItemFunc(nspace, name);
+}
+
+JNC_EXTERN_C
+jnc_FindModuleItemResult
 jnc_Namespace_findItem(
 	jnc_Namespace* nspace,
 	const char* name
 ) {
 	return jnc_g_dynamicExtensionLibHost->m_namespaceFuncTable->m_findItemFunc(nspace, name);
+}
+
+JNC_EXTERN_C
+jnc_FindModuleItemResult
+jnc_Namespace_findItemNoParse(
+	jnc_Namespace* nspace,
+	const char* name
+) {
+	return jnc_g_dynamicExtensionLibHost->m_namespaceFuncTable->m_findItemNoParseFunc(nspace, name);
 }
 
 #else // _JNC_DYNAMIC_EXTENSION_LIB
@@ -140,11 +158,31 @@ jnc_Namespace_getItem(
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_FindModuleItemResult
+jnc_Namespace_findDirectChildItem(
+	jnc_Namespace* nspace,
+	const char* name
+) {
+	return nspace->findDirectChildItem(name);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_FindModuleItemResult
 jnc_Namespace_findItem(
 	jnc_Namespace* nspace,
 	const char* name
 ) {
 	return nspace->findItem(name);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_FindModuleItemResult
+jnc_Namespace_findItemNoParse(
+	jnc_Namespace* nspace,
+	const char* name
+) {
+	return nspace->findItemNoParse(name);
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

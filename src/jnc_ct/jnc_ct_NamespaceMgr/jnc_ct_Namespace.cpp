@@ -271,16 +271,6 @@ Namespace::findDirectChildItem(const sl::StringRef& name) {
 }
 
 FindModuleItemResult
-Namespace::findItem(const sl::StringRef& name) {
-	if (name.find('.') == -1)
-		return findDirectChildItem(name);
-
-	QualifiedName qualifiedName;
-	qualifiedName.parse(name);
-	return findItem(qualifiedName);
-}
-
-FindModuleItemResult
 Namespace::findItem(const QualifiedName& name) {
 	FindModuleItemResult findResult = findDirectChildItem(name.getFirstName());
 	if (!findResult.m_item)

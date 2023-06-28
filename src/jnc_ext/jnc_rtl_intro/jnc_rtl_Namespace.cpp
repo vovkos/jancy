@@ -37,6 +37,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(Namespace)
 	JNC_MAP_CONST_PROPERTY("m_itemCount", &Namespace::getItemCount)
 	JNC_MAP_CONST_PROPERTY("m_itemArray", &Namespace::getItem)
 	JNC_MAP_FUNCTION("findItem", &Namespace::findItem)
+	JNC_MAP_FUNCTION("findItemNoParse", &Namespace::findItemNoParse)
 JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

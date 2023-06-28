@@ -232,6 +232,41 @@ ExtensionLibMgr::mapAddresses() {
 	return true;
 }
 
+FindModuleItemResult
+ExtensionLibMgr::findItem(
+	const sl::StringRef& name,
+	const sl::Guid& libGuid,
+	size_t cacheSlot
+) {
+	ASSERT(m_module);
+
+	if (cacheSlot == -1) // no caching for this item
+		return m_module->m_namespaceMgr.getGlobalNamespace()->findItemImpl<sl::False>(name);
+
+	ItemCacheEntry* entry;
+	ItemCacheMap::Iterator it = m_itemCacheMap.visit(libGuid);
+	if (it->m_value) {
+		entry = it->m_value;
+	} else {
+		entry = AXL_MEM_NEW(ItemCacheEntry);
+		m_itemCache.insertTail(entry);
+		it->m_value = entry;
+	}
+
+	size_t count = entry->m_itemArray.getCount();
+	if (count <= cacheSlot)
+		entry->m_itemArray.setCountZeroConstruct(cacheSlot + 1);
+
+	if (entry->m_itemArray[cacheSlot])
+		return FindModuleItemResult(entry->m_itemArray[cacheSlot]);
+
+	FindModuleItemResult findResult = m_module->m_namespaceMgr.getGlobalNamespace()->findItemImpl<sl::False>(name);
+	if (findResult.m_item)
+		entry->m_itemArray[cacheSlot] = findResult.m_item;
+
+	return findResult;
+}
+
 bool
 ExtensionLibMgr::findSourceFileContents(
 	const sl::StringRef& fileName,
@@ -253,41 +288,6 @@ ExtensionLibMgr::findSourceFileContents(
 	*lib = file->m_lib;
 	*contents = file->m_contents;
 	return true;
-}
-
-FindModuleItemResult
-ExtensionLibMgr::findItem(
-	const sl::StringRef& name,
-	const sl::Guid& libGuid,
-	size_t cacheSlot
-) {
-	ASSERT(m_module);
-
-	if (cacheSlot == -1) // no caching for this item
-		return m_module->m_namespaceMgr.getGlobalNamespace()->findItem(name);
-
-	ItemCacheEntry* entry;
-	ItemCacheMap::Iterator it = m_itemCacheMap.visit(libGuid);
-	if (it->m_value) {
-		entry = it->m_value;
-	} else {
-		entry = AXL_MEM_NEW(ItemCacheEntry);
-		m_itemCache.insertTail(entry);
-		it->m_value = entry;
-	}
-
-	size_t count = entry->m_itemArray.getCount();
-	if (count <= cacheSlot)
-		entry->m_itemArray.setCountZeroConstruct(cacheSlot + 1);
-
-	if (entry->m_itemArray[cacheSlot])
-		return FindModuleItemResult(entry->m_itemArray[cacheSlot]);
-
-	FindModuleItemResult findResult = m_module->m_namespaceMgr.getGlobalNamespace()->findItem(name);
-	if (findResult.m_item)
-		entry->m_itemArray[cacheSlot] = findResult.m_item;
-
-	return findResult;
 }
 
 void

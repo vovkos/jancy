@@ -643,7 +643,7 @@ Parser::getGlobalNamespace(
 ) {
 	GlobalNamespace* nspace;
 
-	FindModuleItemResult findResult = parentNamespace->findItem(name);
+	FindModuleItemResult findResult = parentNamespace->findDirectChildItem(name);
 	if (!findResult.m_result)
 		return NULL;
 
@@ -774,7 +774,7 @@ Parser::declareInReaction(Declarator* declarator) {
 	}
 
 	const sl::StringRef& name = declarator->getName().getShortName();
-	FindModuleItemResult findResult = m_reactorType->findItem(name);
+	FindModuleItemResult findResult = m_reactorType->findDirectChildItem(name);
 	if (!findResult.m_result)
 		return false;
 
@@ -917,7 +917,7 @@ Parser::declareTypedef(
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	const sl::StringRef& name = declarator->getName().getShortName();
-	FindModuleItemResult findResult = nspace->findItem(name);
+	FindModuleItemResult findResult = nspace->findDirectChildItem(name);
 
 	if (!findResult.m_result)
 		return false;

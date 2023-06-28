@@ -50,7 +50,7 @@ JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE()
 JNC_BEGIN_LIB_FUNCTION_MAP(PcapLib)
 	JNC_MAP_TYPE(Pcap)
 	JNC_MAP_TYPE(PcapFilter)
-	JNC_MAP_FUNCTION("io.createPcapDeviceDescList", &createPcapDeviceDescList)
+	JNC_MAP_FUNCTION_Q("io.createPcapDeviceDescList", &createPcapDeviceDescList)
 JNC_END_LIB_FUNCTION_MAP()
 
 //..............................................................................

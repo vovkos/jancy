@@ -1060,7 +1060,7 @@ isDisposableType(Type* type) {
 		return false;
 
 	DerivableType* derivableType = (DerivableType*)type;
-	FindModuleItemResult findResult = derivableType->findItem("dispose");
+	FindModuleItemResult findResult = derivableType->findDirectChildItem("dispose");
 	if (!findResult.m_item)
 		return false;
 

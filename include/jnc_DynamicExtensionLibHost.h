@@ -336,7 +336,9 @@ struct jnc_NamespaceFuncTable {
 	jnc_Namespace_GetParentItemFunc* m_getParentItemFunc;
 	jnc_Namespace_GetItemCountFunc* m_getItemCountFunc;
 	jnc_Namespace_GetItemFunc* m_getItemFunc;
+	jnc_Namespace_FindItemFunc* m_findDirectChildItemFunc;
 	jnc_Namespace_FindItemFunc* m_findItemFunc;
+	jnc_Namespace_FindItemFunc* m_findItemNoParseFunc;
 };
 
 //..............................................................................

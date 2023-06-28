@@ -1158,15 +1158,15 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_CoreLib)
 
 	// gc heap
 
-	JNC_MAP_FUNCTION("jnc.collectGarbage", collectGarbage)
-	JNC_MAP_FUNCTION("jnc.getGcStats",     getGcStats)
-	JNC_MAP_PROPERTY("jnc.g_gcTriggers",   gcTriggers_get, gcTriggers_set)
+	JNC_MAP_FUNCTION_Q("jnc.collectGarbage", collectGarbage)
+	JNC_MAP_FUNCTION_Q("jnc.getGcStats",     getGcStats)
+	JNC_MAP_PROPERTY_Q("jnc.g_gcTriggers",   gcTriggers_get, gcTriggers_set)
 
 	// thin -> safe data pointers
 
-	JNC_MAP_FUNCTION("jnc.createDataPtr",      createDataPtr)
+	JNC_MAP_FUNCTION_Q("jnc.createDataPtr",      createDataPtr)
 	JNC_MAP_OVERLOAD(createDataPtr)
-	JNC_MAP_FUNCTION("jnc.resetDynamicLayout", resetDynamicLayout)
+	JNC_MAP_FUNCTION_Q("jnc.resetDynamicLayout", resetDynamicLayout)
 
 	// multicasts
 

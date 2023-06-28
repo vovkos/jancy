@@ -697,12 +697,12 @@ JNC_DEFINE_LIB(
 )
 
 JNC_BEGIN_LIB_FUNCTION_MAP(jnc_StdLib)
-	JNC_MAP_FUNCTION("std.getLastError", getLastError)
-	JNC_MAP_FUNCTION("std.setErrno",     setErrno)
-	JNC_MAP_FUNCTION("std.setError",     setError_0)
+	JNC_MAP_FUNCTION_Q("std.getLastError", getLastError)
+	JNC_MAP_FUNCTION_Q("std.setErrno",     setErrno)
+	JNC_MAP_FUNCTION_Q("std.setError",     setError_0)
 	JNC_MAP_OVERLOAD(setError_1)
-	JNC_MAP_FUNCTION("std.format",       format)
-	JNC_MAP_FUNCTION("std.sort",         variantSort)
+	JNC_MAP_FUNCTION_Q("std.format",       format)
+	JNC_MAP_FUNCTION_Q("std.sort",         variantSort)
 	JNC_MAP_OVERLOAD(variantSortEx)
 
 	JNC_MAP_FUNCTION("strlen",   jnc::strLen)

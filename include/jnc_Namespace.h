@@ -102,7 +102,21 @@ jnc_Namespace_getItem(
 
 JNC_EXTERN_C
 jnc_FindModuleItemResult
+jnc_Namespace_findDirectChildItem(
+	jnc_Namespace* nspace,
+	const char* name
+);
+
+JNC_EXTERN_C
+jnc_FindModuleItemResult
 jnc_Namespace_findItem(
+	jnc_Namespace* nspace,
+	const char* name
+);
+
+JNC_EXTERN_C
+jnc_FindModuleItemResult
+jnc_Namespace_findItemNoParse(
 	jnc_Namespace* nspace,
 	const char* name
 );
@@ -142,8 +156,18 @@ struct jnc_Namespace {
 	}
 
 	jnc_FindModuleItemResult
+	findDirectChildItem(const char* name) {
+		return jnc_Namespace_findDirectChildItem(this, name);
+	}
+
+	jnc_FindModuleItemResult
 	findItem(const char* name) {
 		return jnc_Namespace_findItem(this, name);
+	}
+
+	jnc_FindModuleItemResult
+	findItemNoParse(const char* name) {
+		return jnc_Namespace_findItemNoParse(this, name);
 	}
 };
 #endif // _JNC_CORE

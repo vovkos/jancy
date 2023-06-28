@@ -70,7 +70,7 @@ OperatorMgr::getPromiseField(
 	ASSERT(((ClassPtrType*)promiseValue.getType())->getTargetType()->getBaseTypeArray() [0]->getType()->getStdType() == StdType_Promise);
 
 	ClassType* promiseType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_Promise);
-	Field* stateField = (Field*)promiseType->findItem(name).m_item;
+	Field* stateField = (Field*)promiseType->findDirectChildItem(name).m_item;
 	ASSERT(stateField && stateField->getItemKind() == ModuleItemKind_Field);
 
 	MemberCoord coord;
