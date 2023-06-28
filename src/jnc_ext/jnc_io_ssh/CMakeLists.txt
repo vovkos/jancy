@@ -132,6 +132,7 @@ target_link_libraries(
 if(WIN32)
 	target_link_libraries(
 		jnc_io_ssh
+		axl_mem_new
 		libssh2
 	)
 elseif(UNIX)

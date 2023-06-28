@@ -58,7 +58,8 @@ source_group(
 )
 
 add_library(
-	jnc_dll SHARED
+	jnc_dll
+	SHARED
 	${DLL_SRC_LIST}
 )
 
@@ -89,6 +90,7 @@ if(WIN32)
 		jnc_rtl_intro
 		jnc_std
 		jnc_sys
+		axl_mem_new
 		wintrust
 		crypt32
 	)

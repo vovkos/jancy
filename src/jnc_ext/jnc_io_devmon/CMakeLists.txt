@@ -177,6 +177,7 @@ if(WIN32)
 	target_link_libraries(
 		jnc_io_devmon
 		dm_win_lib
+		axl_mem_new
 	)
 elseif(LINUX)
 	target_link_libraries(

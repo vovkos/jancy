@@ -136,6 +136,7 @@ target_link_libraries(
 if(WIN32)
 	target_link_libraries(
 		jnc_io_pcap
+		axl_mem_new
 		wpcap
 	)
 

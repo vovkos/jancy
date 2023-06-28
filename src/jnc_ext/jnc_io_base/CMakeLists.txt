@@ -179,6 +179,7 @@ target_link_libraries(
 if(WIN32)
 	target_link_libraries(
 		jnc_io_base
+		axl_mem_new
 		ws2_32
 	)
 elseif(UNIX)
