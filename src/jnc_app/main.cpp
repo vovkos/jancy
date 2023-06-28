@@ -48,6 +48,8 @@ printUsage() {
 	printf("Usage: jancy [<options>...] <source_file>\n%s", helpString.sz());
 }
 
+//..............................................................................
+
 #if (_JNC_OS_WIN)
 int
 wmain(
@@ -73,10 +75,7 @@ main(
 	lex::registerParseErrorProvider();
 	sys::registerExceptionErrorProvider();
 
-	int seed = (int)sys::getTimestamp();
-	srand(seed);
-
-	// fprintf(stderr, "srand: 0x%x\n", seed);
+	srand((uint_t)sys::getTimestamp());
 
 	CmdLine cmdLine;
 	CmdLineParser parser(&cmdLine);
@@ -101,12 +100,7 @@ main(
 	} else {
 		JncApp app(&cmdLine);
 
-		uint64_t time0;
-
-		time0 = sys::getTimestamp();
 		result = app.parse();
-		printf("parse: %s\n", sys::Time(sys::getTimestamp() - time0).format("%s.%l").sz());
-
 		if (!result) {
 			fprintf(stderr, "%s\n", err::getLastErrorDescription().sz());
 			return JncError_CompileFailure;
@@ -121,27 +115,18 @@ main(
 		}
 
 		if (cmdLine.m_flags & JncFlag_Compile) {
-			time0 = sys::getTimestamp();
 			result = app.compile();
-			printf("compile: %s\n", sys::Time(sys::getTimestamp() - time0).format("%s.%l").sz());
-
 			if (!result) {
 				fprintf(stderr, "%s\n", err::getLastErrorDescription().sz());
 				return JncError_CompileFailure;
 			}
 		}
 
-		if (cmdLine.m_flags & JncFlag_LlvmIr) {
-			time0 = sys::getTimestamp();
+		if (cmdLine.m_flags & JncFlag_LlvmIr)
 			app.printLlvmIr();
-			printf("print LLVM IR: %s\n", sys::Time(sys::getTimestamp() - time0).format("%s.%l").sz());
-		}
 
 		if (cmdLine.m_flags & JncFlag_Jit) {
-			time0 = sys::getTimestamp();
 			result = app.jit();
-			printf("JIT: %s\n", sys::Time(sys::getTimestamp() - time0).format("%s.%l").sz());
-
 			if (!result) {
 				fprintf(stderr, "%s\n", err::getLastErrorDescription().sz());
 				return JncError_CompileFailure;
@@ -156,11 +141,18 @@ main(
 				return JncError_RunFailure;
 			}
 
-			if (!(cmdLine.m_flags & JncFlag_PrintReturnValue))
+			if (!(cmdLine.m_flags & JncFlag_PrintReturnValue)) {
+				if (cmdLine.m_flags & JncFlag_TimeReport)
+					app.printTimeReport();
+
 				return returnValue;
+			}
 
 			printf("'%s' returned: %d\n", cmdLine.m_functionName.sz(), returnValue);
 		}
+
+		if (cmdLine.m_flags & JncFlag_TimeReport)
+			app.printTimeReport();
 	}
 
 	return JncError_Success;

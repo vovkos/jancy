@@ -15,45 +15,55 @@
 
 //..............................................................................
 
+struct TimeReport {
+	uint64_t m_parseTime;
+	uint64_t m_compileTime;
+	uint64_t m_optimizeTime;
+	uint64_t m_jitTime;
+	uint64_t m_runTime;
+	uint64_t m_documentationTime;
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 class JncApp {
 protected:
 	CmdLine* m_cmdLine;
 	jnc::AutoModule m_module;
 	jnc::AutoRuntime m_runtime;
 	sl::Array<char> m_stdInBuffer;
+	TimeReport m_timeReport;
 
 public:
 	JncApp(CmdLine* cmdLine);
+
+	const TimeReport&
+	getTimeReport() const {
+		return m_timeReport;
+	}
 
 	bool
 	parse();
 
 	bool
-	compile() {
-		return
-			m_module->compile() &&
-			(
-				(m_cmdLine->m_moduleConfig.m_compileFlags & jnc::ModuleCompileFlag_DisableCodeGen) ||
-				!m_cmdLine->m_optLevel ||
-				m_module->optimize(m_cmdLine->m_optLevel)
-			);
-	}
+	compile();
 
 	bool
-	jit() {
-		return m_module->jit();
-	}
-
-	void
-	printLlvmIr() {
-		printf("%s", m_module->getLlvmIrString_v());
-	}
+	jit();
 
 	bool
 	generateDocumentation();
 
 	bool
 	runFunction(int* returnValue = NULL);
+
+	void
+	printLlvmIr() {
+		printf("%s", m_module->getLlvmIrString_v());
+	}
+
+	void
+	printTimeReport();
 
 protected:
 	static

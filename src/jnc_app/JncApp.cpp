@@ -40,8 +40,6 @@ JNC_END_LIB_FUNCTION_MAP()
 //..............................................................................
 
 JncApp::JncApp(CmdLine* cmdLine) {
-	printf("JIT: %d\n", cmdLine->m_moduleConfig.m_jitKind);
-
 	m_cmdLine = cmdLine;
 	m_module->initialize("jnc_module", &cmdLine->m_moduleConfig);
 	m_module->setCompileErrorHandler(compileErrorHandler, this);
@@ -68,6 +66,8 @@ JncApp::JncApp(CmdLine* cmdLine) {
 
 	if (cmdLine->m_flags & JncFlag_Run)
 		m_module->require(jnc::ModuleItemKind_Function, cmdLine->m_functionName);
+
+	memset(&m_timeReport, 0, sizeof(m_timeReport));
 }
 
 bool_t
@@ -83,6 +83,8 @@ JncApp::compileErrorHandler(
 bool
 JncApp::parse() {
 	bool result;
+
+	uint64_t time0 = sys::getTimestamp();
 
 	if (m_cmdLine->m_flags & JncFlag_StdInSrc) {
 #if (_JNC_OS_WIN)
@@ -119,7 +121,35 @@ JncApp::parse() {
 		}
 	}
 
-	return m_module->parseImports();
+	result = m_module->parseImports();
+	m_timeReport.m_parseTime = sys::getTimestamp() - time0;
+	return result;
+}
+
+bool
+JncApp::compile() {
+	uint64_t time0 = sys::getTimestamp();
+	bool result = m_module->compile();
+	if (!result)
+		return false;
+
+	m_timeReport.m_compileTime = sys::getTimestamp() - time0;
+
+	if (m_cmdLine->m_flags & JncFlag_Optimize) {
+		time0 = sys::getTimestamp();
+		result = m_module->optimize(m_cmdLine->m_optLevel);
+		m_timeReport.m_optimizeTime = sys::getTimestamp() - time0;
+	}
+
+	return result;
+}
+
+bool
+JncApp::jit() {
+	uint64_t time0 = sys::getTimestamp();
+	bool result = m_module->jit();
+	m_timeReport.m_jitTime = sys::getTimestamp() - time0;
+	return result;
 }
 
 bool
@@ -140,6 +170,7 @@ JncApp::runFunction(int* returnValue) {
 
 	m_runtime->getGcHeap()->setSizeTriggers(&m_cmdLine->m_gcSizeTriggers);
 
+	uint64_t time0 = sys::getTimestamp();
 	result = m_runtime->startup(m_module);
 	if (!result)
 		return false;
@@ -155,13 +186,53 @@ JncApp::runFunction(int* returnValue) {
 		return false;
 
 	m_runtime->shutdown();
-
+	m_timeReport.m_runTime = sys::getTimestamp() - time0;
 	return true;
 }
 
 bool
 JncApp::generateDocumentation() {
-	return m_module->generateDocumentation(m_cmdLine->m_outputDir);
+	uint64_t time0 = sys::getTimestamp();
+	bool result = m_module->generateDocumentation(m_cmdLine->m_outputDir);
+	m_timeReport.m_documentationTime = sys::getTimestamp() - time0;
+	return result;
+}
+
+void
+JncApp::printTimeReport() {
+	sl::StringRef timeFormat = "%m:%s.%l";
+
+	printf(
+		"Jancy time report:\n"
+		"    Parse ...... %s\n"
+		"    Compile .... %s\n",
+		sys::Time(m_timeReport.m_parseTime, 0).format(timeFormat).sz(),
+		sys::Time(m_timeReport.m_compileTime, 0).format(timeFormat).sz()
+	);
+
+	if (m_cmdLine->m_flags & JncFlag_Optimize)
+		printf(
+			"    Optimize ... %s\n",
+			sys::Time(m_timeReport.m_optimizeTime, 0).format(timeFormat).sz()
+		);
+
+	if (m_cmdLine->m_flags & JncFlag_Jit)
+		printf(
+			"    JIT ........ %s\n",
+			sys::Time(m_timeReport.m_jitTime, 0).format(timeFormat).sz()
+		);
+
+	if (m_cmdLine->m_flags & JncFlag_Run)
+		printf(
+			"    Run ........ %s\n",
+			sys::Time(m_timeReport.m_runTime, 0).format(timeFormat).sz()
+		);
+
+	if (m_cmdLine->m_moduleConfig.m_compileFlags & jnc::ModuleCompileFlag_Documentation)
+		printf(
+			"    Docs ....... %s\n",
+			sys::Time(m_timeReport.m_documentationTime, 0).format(timeFormat).sz()
+		);
 }
 
 //..............................................................................

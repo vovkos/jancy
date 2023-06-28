@@ -112,9 +112,10 @@ jnc_ModuleCompileErrorHandlerFunc(
 
 enum jnc_OptLevel {
 	jnc_OptLevel_None       = 0,  // -O0
-	jnc_OptLevel_Less       = 1,  // -O1
-	jnc_OptLevel_Default    = 2,  // -O2
+	jnc_OptLevel_Basic      = 1,  // -O1
+	jnc_OptLevel_Standard   = 2,  // -O2
 	jnc_OptLevel_Aggressive = 3,  // -O3
+	jnc_OptLevel_Default    = jnc_OptLevel_Standard
 };
 
 typedef enum jnc_OptLevel nc_OptLevel;
@@ -761,9 +762,10 @@ typedef jnc_OptLevel OptLevel;
 
 const OptLevel
 	OptLevel_None       = jnc_OptLevel_None,
-	OptLevel_Less       = jnc_OptLevel_Less,
-	OptLevel_Default    = jnc_OptLevel_Default,
-	OptLevel_Aggressive = jnc_OptLevel_Aggressive;
+	OptLevel_Basic      = jnc_OptLevel_Basic,
+	OptLevel_Standard   = jnc_OptLevel_Standard,
+	OptLevel_Aggressive = jnc_OptLevel_Aggressive,
+	OptLevel_Default    = jnc_OptLevel_Default;
 
 typedef jnc_JitKind JitKind;
 

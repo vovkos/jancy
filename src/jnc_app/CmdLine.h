@@ -17,12 +17,13 @@ enum JncFlag {
 	JncFlag_Help             = 0x000001,
 	JncFlag_Version          = 0x000002,
 	JncFlag_LlvmIr           = 0x000004,
-	JncFlag_Compile          = 0x000008,
-	JncFlag_DisableCodeGen   = 0x000010,
-	JncFlag_Jit              = 0x000020,
+	JncFlag_Compile          = 0x000010,
+	JncFlag_Optimize         = 0x000020,
+	JncFlag_Jit              = 0x000040,
 	JncFlag_Run              = 0x000080,
-	JncFlag_StdInSrc         = 0x000400,
+	JncFlag_StdInSrc         = 0x000200,
 	JncFlag_PrintReturnValue = 0x000800,
+	JncFlag_TimeReport       = 0x001000,
 };
 
 struct CmdLine {
@@ -86,6 +87,7 @@ enum CmdLineSwitch {
 	CmdLineSwitch_GcSafePointInPrologue,
 	CmdLineSwitch_OptLevel,
 	CmdLineSwitch_JitOptLevel,
+	CmdLineSwitch_TimeReport,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -217,6 +219,11 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE(CmdLineSwitchTable, CmdLineSwitch)
 		CmdLineSwitch_JitOptLevel,
 		"J", "jit-opt", "<n>",
 		"Enable LLVM JIT optimization level <n> (0 to 3)"
+	)
+	AXL_SL_CMD_LINE_SWITCH(
+		CmdLineSwitch_TimeReport,
+		"time-report", NULL,
+		"Enable documentation of standard libraries"
 	)
 	AXL_SL_CMD_LINE_SWITCH(
 		CmdLineSwitch_StdLibDoc,

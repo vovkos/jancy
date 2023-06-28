@@ -132,6 +132,10 @@ CmdLineParser::onSwitch(
 		m_cmdLine->m_requireList.insertTail(value);
 		break;
 
+	case CmdLineSwitch_TimeReport:
+		m_cmdLine->m_flags |= JncFlag_TimeReport;
+		break;
+
 	case CmdLineSwitch_Documentation:
 		m_cmdLine->m_flags &= ~JncFlag_Run;
 		m_cmdLine->m_moduleConfig.m_compileFlags |= jnc::ModuleCompileFlag_Documentation;
@@ -237,14 +241,21 @@ CmdLineParser::finalize() {
 
 	if (m_cmdLine->m_flags & (JncFlag_Jit | JncFlag_LlvmIr)) {
 		m_cmdLine->m_flags |= JncFlag_Compile;
-		m_cmdLine->m_flags &= ~JncFlag_DisableCodeGen;
+		m_cmdLine->m_moduleConfig.m_compileFlags  &= ~jnc::ModuleCompileFlag_DisableCodeGen;
 	}
 
 	if ((m_cmdLine->m_moduleConfig.m_compileFlags & jnc::ModuleCompileFlag_Documentation) &&
-		!(m_cmdLine->m_flags & JncFlag_Compile)) {
+		!(m_cmdLine->m_flags & JncFlag_Compile)
+	) {
 		m_cmdLine->m_moduleConfig.m_compileFlags |= jnc::ModuleCompileFlag_IgnoreOpaqueClassTypeInfo;
 		m_cmdLine->m_moduleConfig.m_compileFlags |= jnc::ModuleCompileFlag_KeepTypedefShadow;
 	}
+
+	if ((m_cmdLine->m_flags & JncFlag_Compile) &&
+		!(m_cmdLine->m_moduleConfig.m_compileFlags & jnc::ModuleCompileFlag_DisableCodeGen) &&
+		m_cmdLine->m_optLevel != 0
+	)
+		m_cmdLine->m_flags |= JncFlag_Optimize;
 
 	return true;
 }
