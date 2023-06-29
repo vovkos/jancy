@@ -166,5 +166,8 @@ public:
 
 //..............................................................................
 
+void
+disableLlvmGlobalMerge();
+
 } // namespace ct
 } // namespace jnc
