@@ -628,22 +628,11 @@ jnc_Module_getCodeAssist(jnc_Module* module) {
 	return module->m_codeAssistMgr.getCodeAssist();
 }
 
-class LlvmShutdown:
-	public rc::RefCount,
-	public g::Finalizer {
-public:
-	virtual
-	void
-	finalize() {
-		llvm::llvm_shutdown();
-	}
-};
-
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
 jnc_initialize(const char* reserved) {
-	g::getModule()->addFinalizer(AXL_RC_NEW(LlvmShutdown));
+	atexit(llvm::llvm_shutdown);
 
 	llvm::InitializeNativeTarget();
 	llvm::InitializeNativeTargetAsmParser();
