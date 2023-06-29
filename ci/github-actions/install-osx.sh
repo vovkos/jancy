@@ -9,7 +9,6 @@
 #
 #...............................................................................
 
-brew update
 brew install coreutils
 brew install lua
 brew install ragel
