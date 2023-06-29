@@ -125,7 +125,7 @@ Runtime::initializeCallSite(CallSite* callSite) {
 			tlsVariableTable->m_gcShadowStackTop->m_map->getMapKind() != ct::GcShadowStackFrameMapKind_Dynamic)
 			tlsVariableTable->m_gcShadowStackTop = &callSite->m_gcShadowStackDynamicFrame;
 	} else { // not found, create a new one
-		callSite->m_tls = AXL_MEM_ZERO_NEW_EXTRA(Tls, m_tlsSize);
+		callSite->m_tls = new (mem::ExtraSize(m_tlsSize), mem::ZeroInit) Tls;
 		callSite->m_tls->m_runtime = this;
 		m_gcHeap.registerMutatorThread(&callSite->m_tls->m_gcMutatorThread); // register with GC heap first
 
@@ -195,7 +195,7 @@ Runtime::uninitializeCallSite(CallSite* callSite) {
 		m_noThreadEvent.signal();
 
 	m_lock.unlock();
-	AXL_MEM_DELETE(callSite->m_tls);
+	delete callSite->m_tls;
 }
 
 SjljFrame*

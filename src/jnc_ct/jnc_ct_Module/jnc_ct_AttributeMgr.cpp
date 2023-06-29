@@ -25,7 +25,7 @@ AttributeMgr::AttributeMgr() {
 
 AttributeBlock*
 AttributeMgr::createAttributeBlock() {
-	AttributeBlock* attributeBlock = AXL_MEM_NEW(AttributeBlock);
+	AttributeBlock* attributeBlock = new AttributeBlock;
 	attributeBlock->m_module = m_module;
 	m_attributeBlockList.insertTail(attributeBlock);
 	return attributeBlock;

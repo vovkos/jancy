@@ -893,7 +893,7 @@ TypeMgr::createClassType(
 	size_t fieldAlignment,
 	uint_t flags
 ) {
-	T* type = AXL_MEM_NEW(T);
+	T* type = new T;
 	addClassType(type, name, qualifiedName, fieldAlignment, flags);
 	return type;
 }

@@ -340,7 +340,7 @@ FunctionMgr::createFunction(
 	const sl::StringRef& qualifiedName,
 	FunctionType* type
 ) {
-	T* function = AXL_MEM_NEW(T);
+	T* function = new T;
 	addFunction(function, name, qualifiedName, type);
 	return function;
 }
@@ -373,7 +373,7 @@ FunctionMgr::createProperty(
 	const sl::StringRef& name,
 	const sl::StringRef& qualifiedName
 ) {
-	T* prop = AXL_MEM_NEW(T);
+	T* prop = new T;
 	addProperty(prop, name, qualifiedName);
 	return prop;
 }

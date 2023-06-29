@@ -104,13 +104,13 @@ NamedPipe::open(DataPtr namePtr) {
 		if (!result)
 			return false;
 
-		OverlappedConnect* connect = AXL_MEM_NEW(OverlappedConnect);
+		OverlappedConnect* connect = new OverlappedConnect;
 		sl::takeOver(&connect->m_pipe, &pipe);
 		pipeList.insertTail(connect);
 	}
 
 	ASSERT(!m_overlappedIo);
-	m_overlappedIo = AXL_MEM_NEW(OverlappedIo);
+	m_overlappedIo = new OverlappedIo;
 	sl::takeOver(&m_overlappedIo->m_pipeList, &pipeList);
 
 	AsyncIoDevice::open();
@@ -145,7 +145,7 @@ NamedPipe::close() {
 	m_incomingConnectionPool.put(&m_pendingIncomingConnectionList);
 
 	ASSERT(m_overlappedIo);
-	AXL_MEM_DELETE(m_overlappedIo);
+	delete m_overlappedIo;
 	m_overlappedIo = NULL;
 }
 
@@ -192,7 +192,7 @@ NamedPipe::accept(bool isSuspended) {
 	fileStream->setReadBufferSize(m_readBufferSize);
 	fileStream->setWriteBufferSize(m_writeBufferSize);
 	fileStream->setOptions(m_options);
-	fileStream->m_overlappedIo = AXL_MEM_NEW(FileStream::OverlappedIo);
+	fileStream->m_overlappedIo = new FileStream::OverlappedIo;
 	fileStream->m_isOpen = true;
 
 	if (isSuspended)

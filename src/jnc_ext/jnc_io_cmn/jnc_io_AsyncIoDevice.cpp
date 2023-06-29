@@ -288,7 +288,7 @@ AsyncIoDevice::createReadWriteMeta(
 ) {
 	ReadWriteMeta* meta = !m_freeReadWriteMetaList.isEmpty() ?
 		m_freeReadWriteMetaList.removeHead() :
-		AXL_MEM_NEW(ReadWriteMeta);
+		new ReadWriteMeta;
 
 	meta->m_dataSize = dataSize;
 	meta->m_params.copy((char*)params, paramSize);

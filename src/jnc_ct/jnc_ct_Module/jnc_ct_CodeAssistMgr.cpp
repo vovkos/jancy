@@ -94,7 +94,7 @@ CodeAssistMgr::generateCodeAssist() {
 void
 CodeAssistMgr::freeCodeAssist() {
 	if (m_codeAssist)
-		AXL_MEM_DELETE(m_codeAssist);
+		delete m_codeAssist;
 
 	m_codeAssist = NULL;
 }
@@ -139,7 +139,7 @@ CodeAssistMgr::createModuleItemCodeAssist(
 ) {
 	freeCodeAssist();
 
-	m_codeAssist = AXL_MEM_NEW(CodeAssist);
+	m_codeAssist = new CodeAssist;
 	m_codeAssist->m_codeAssistKind = kind;
 	m_codeAssist->m_offset = offset;
 	m_codeAssist->m_module = m_module;
@@ -155,7 +155,7 @@ CodeAssistMgr::createArgumentTip(
 ) {
 	freeCodeAssist();
 
-	m_codeAssist = AXL_MEM_NEW(CodeAssist);
+	m_codeAssist = new CodeAssist;
 	m_codeAssist->m_codeAssistKind = CodeAssistKind_ArgumentTip;
 	m_codeAssist->m_offset = offset;
 	m_codeAssist->m_module = m_module;
@@ -176,7 +176,7 @@ CodeAssistMgr::createArgumentTip(
 	for (size_t i = 0; i < overloadCount; i++)
 		typeOverload.getOverload(i)->ensureNoImports();
 
-	m_codeAssist = AXL_MEM_NEW(CodeAssist);
+	m_codeAssist = new CodeAssist;
 	m_codeAssist->m_codeAssistKind = CodeAssistKind_ArgumentTip;
 	m_codeAssist->m_offset = offset;
 	m_codeAssist->m_module = m_module;
@@ -226,7 +226,7 @@ CodeAssistMgr::createAutoComplete(
 		nspace->ensureNamespaceReady();
 	}
 
-	m_codeAssist = AXL_MEM_NEW(CodeAssist);
+	m_codeAssist = new CodeAssist;
 	m_codeAssist->m_codeAssistKind = CodeAssistKind_AutoComplete;
 	m_codeAssist->m_flags = flags;
 	m_codeAssist->m_offset = offset;
@@ -268,7 +268,7 @@ CodeAssist*
 CodeAssistMgr::createImportAutoComplete(size_t offset) {
 	freeCodeAssist();
 
-	m_codeAssist = AXL_MEM_NEW(CodeAssist);
+	m_codeAssist = new CodeAssist;
 	m_codeAssist->m_codeAssistKind = CodeAssistKind_ImportAutoComplete;
 	m_codeAssist->m_offset = offset;
 	m_codeAssist->m_module = m_module;

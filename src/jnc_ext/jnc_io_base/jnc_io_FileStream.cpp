@@ -122,7 +122,7 @@ FileStream::open(
 	}
 
 	ASSERT(!m_overlappedIo);
-	m_overlappedIo = AXL_MEM_NEW(OverlappedIo);
+	m_overlappedIo = new OverlappedIo;
 #else
 	result = m_file.open((const char*) namePtr.m_p, openFlags);
 	if (!result)
@@ -157,7 +157,7 @@ FileStream::close() {
 
 #if (_AXL_OS_WIN)
 	if (m_overlappedIo) {
-		AXL_MEM_DELETE(m_overlappedIo);
+		delete m_overlappedIo;
 		m_overlappedIo = NULL;
 	}
 #endif

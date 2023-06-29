@@ -99,7 +99,7 @@ AsyncIoBase::wait(
 		return 0; // not added
 	}
 
-	AsyncWait* wait = AXL_MEM_NEW(AsyncWait);
+	AsyncWait* wait = new AsyncWait;
 	wait->m_mask = eventMask;
 	wait->m_handlerPtr = handlerPtr;
 	m_asyncWaitList.insertTail(wait);

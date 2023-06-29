@@ -88,7 +88,7 @@ Mailslot::open(DataPtr namePtr) {
 	m_file.m_file.attach(h);
 
 	ASSERT(!m_overlappedIo);
-	m_overlappedIo = AXL_MEM_NEW(OverlappedIo);
+	m_overlappedIo = new OverlappedIo;
 
 	AsyncIoDevice::open();
 	m_ioThread.start();
@@ -116,7 +116,7 @@ Mailslot::close() {
 
 #if (_AXL_OS_WIN)
 	if (m_overlappedIo) {
-		AXL_MEM_DELETE(m_overlappedIo);
+		delete m_overlappedIo;
 		m_overlappedIo = NULL;
 	}
 #endif

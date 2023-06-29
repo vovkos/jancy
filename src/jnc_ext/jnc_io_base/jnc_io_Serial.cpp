@@ -140,7 +140,7 @@ Serial::open(DataPtr namePtr) {
 	}
 
 	ASSERT(!m_overlappedIo);
-	m_overlappedIo = AXL_MEM_NEW(OverlappedIo);
+	m_overlappedIo = new OverlappedIo;
 	m_lineErrors = 0;
 #endif
 
@@ -183,7 +183,7 @@ Serial::close() {
 
 #if (_AXL_OS_WIN)
 	if (m_overlappedIo) {
-		AXL_MEM_DELETE(m_overlappedIo);
+		delete m_overlappedIo;
 		m_overlappedIo = NULL;
 	}
 #endif

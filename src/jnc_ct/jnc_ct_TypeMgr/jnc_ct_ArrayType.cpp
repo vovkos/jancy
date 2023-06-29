@@ -111,7 +111,7 @@ ArrayType::calcLayoutImpl(
 
 	m_rootType = NULL;
 	if (m_typeStringTuple) {
-		AXL_MEM_DELETE(m_typeStringTuple);
+		delete m_typeStringTuple;
 		m_typeStringTuple = NULL;
 	}
 

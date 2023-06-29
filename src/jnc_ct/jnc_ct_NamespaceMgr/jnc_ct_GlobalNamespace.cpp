@@ -32,7 +32,7 @@ GlobalNamespace::addBody(
 		m_bodyPos = pos;
 		m_body = body;
 	} else {
-		ExtraBody* extraBody = AXL_MEM_NEW(ExtraBody);
+		ExtraBody* extraBody = new ExtraBody;
 		extraBody->m_unit = unit;
 		extraBody->m_pragmaSettings = pragmaSettings;
 		extraBody->m_pos = pos;

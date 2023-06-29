@@ -79,7 +79,7 @@ AttributeBlock::createAttribute(
 		return NULL;
 	}
 
-	Attribute* attribute = AXL_MEM_NEW(Attribute);
+	Attribute* attribute = new Attribute;
 	attribute->m_module = m_module;
 	attribute->m_name = name;
 

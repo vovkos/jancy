@@ -231,7 +231,7 @@ NamespaceMgr::createOrphan(
 	OrphanKind orphanKind,
 	FunctionType* functionType
 ) {
-	Orphan* orphan = AXL_MEM_NEW(Orphan);
+	Orphan* orphan = new Orphan;
 	orphan->m_module = m_module;
 	orphan->m_orphanKind = orphanKind;
 	orphan->m_functionType = functionType;
@@ -245,7 +245,7 @@ NamespaceMgr::createAlias(
 	const sl::StringRef& qualifiedName,
 	sl::List<Token>* initializer
 ) {
-	Alias* alias = AXL_MEM_NEW(Alias);
+	Alias* alias = new Alias;
 	alias->m_module = m_module;
 	alias->m_name = name;
 	alias->m_qualifiedName = qualifiedName;
@@ -308,7 +308,7 @@ NamespaceMgr::openInternalScope() {
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
 	ASSERT(function);
 
-	Scope* scope = AXL_MEM_NEW(Scope);
+	Scope* scope = new Scope;
 	scope->m_module = m_module;
 	scope->m_function = function;
 	scope->m_parentNamespace = m_currentNamespace;

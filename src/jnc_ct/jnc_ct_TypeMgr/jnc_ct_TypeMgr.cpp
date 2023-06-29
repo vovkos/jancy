@@ -309,7 +309,7 @@ TypeMgr::getBitFieldType(
 	if (it->m_value)
 		return (BitFieldType*)it->m_value;
 
-	BitFieldType* type = AXL_MEM_NEW(BitFieldType);
+	BitFieldType* type = new BitFieldType;
 	type->m_module = m_module;
 	type->m_baseType = baseType;
 	type->m_bitOffset = bitOffset;
@@ -325,7 +325,7 @@ TypeMgr::getBitFieldType(
 
 ArrayType*
 TypeMgr::createAutoSizeArrayType(Type* elementType) {
-	ArrayType* type = AXL_MEM_NEW(ArrayType);
+	ArrayType* type = new ArrayType;
 	type->m_flags |= ArrayTypeFlag_AutoSize;
 	type->m_module = m_module;
 	type->m_elementType = elementType;
@@ -342,7 +342,7 @@ TypeMgr::createArrayType(
 	Type* elementType,
 	sl::List<Token>* elementCountInitializer
 ) {
-	ArrayType* type = AXL_MEM_NEW(ArrayType);
+	ArrayType* type = new ArrayType;
 	type->m_module = m_module;
 	type->m_elementType = elementType;
 	sl::takeOver(&type->m_elementCountInitializer, elementCountInitializer);
@@ -366,7 +366,7 @@ TypeMgr::getArrayType(
 	if (it->m_value)
 		return (ArrayType*)it->m_value;
 
-	ArrayType* type = AXL_MEM_NEW(ArrayType);
+	ArrayType* type = new ArrayType;
 	type->m_module = m_module;
 	type->m_elementType = elementType;
 	type->m_elementCount = elementCount;
@@ -385,7 +385,7 @@ TypeMgr::createTypedef(
 	const sl::StringRef& qualifiedName,
 	Type* type
 ) {
-	Typedef* tdef = AXL_MEM_NEW(Typedef);
+	Typedef* tdef = new Typedef;
 	tdef->m_module = m_module;
 	tdef->m_name = name;
 	tdef->m_qualifiedName = qualifiedName;
@@ -400,7 +400,7 @@ TypeMgr::createTypedef(
 
 TypedefShadowType*
 TypeMgr::createTypedefShadowType(Typedef* tdef) {
-	TypedefShadowType* type = AXL_MEM_NEW(TypedefShadowType);
+	TypedefShadowType* type = new TypedefShadowType;
 	type->m_module = m_module;
 	type->m_parentUnit = tdef->m_parentUnit;
 	type->m_parentNamespace = tdef->m_parentNamespace;
@@ -423,7 +423,7 @@ TypeMgr::createEnumType(
 	Type* baseType,
 	uint_t flags
 ) {
-	EnumType* type = AXL_MEM_NEW(EnumType);
+	EnumType* type = new EnumType;
 	type->m_name = name;
 	type->m_qualifiedName = qualifiedName;
 	type->m_flags |= TypeFlag_Named;
@@ -449,7 +449,7 @@ TypeMgr::createStructType(
 	size_t fieldAlignment,
 	uint_t flags
 ) {
-	StructType* type = AXL_MEM_NEW(StructType);
+	StructType* type = new StructType;
 	type->m_name = name;
 	type->m_qualifiedName = qualifiedName;
 	type->m_flags |= TypeFlag_Named;
@@ -484,7 +484,7 @@ TypeMgr::createUnionType(
 	size_t fieldAlignment,
 	uint_t flags
 ) {
-	UnionType* type = AXL_MEM_NEW(UnionType);
+	UnionType* type = new UnionType;
 	type->m_name = name;
 	type->m_qualifiedName = qualifiedName;
 	type->m_flags |= TypeFlag_Named;
@@ -568,7 +568,7 @@ TypeMgr::createFunctionArg(
 	uint_t ptrTypeFlags,
 	sl::List<Token>* initializer
 ) {
-	FunctionArg* functionArg = AXL_MEM_NEW(FunctionArg);
+	FunctionArg* functionArg = new FunctionArg;
 	functionArg->m_module = m_module;
 	functionArg->m_name = name;
 	functionArg->m_qualifiedName = name;
@@ -595,7 +595,7 @@ TypeMgr::createField(
 	sl::List<Token>* constructor,
 	sl::List<Token>* initializer
 ) {
-	Field* field = AXL_MEM_NEW(Field);
+	Field* field = new Field;
 	field->m_module = m_module;
 	field->m_name = name;
 	field->m_type = type;
@@ -664,7 +664,7 @@ TypeMgr::getFunctionType(
 	if (it->m_value)
 		return (FunctionType*)it->m_value;
 
-	FunctionType* type = AXL_MEM_NEW(FunctionType);
+	FunctionType* type = new FunctionType;
 	type->m_module = m_module;
 	type->m_callConv = callConv;
 	type->m_returnType = returnType;
@@ -706,7 +706,7 @@ TypeMgr::getFunctionType(
 	if (it->m_value)
 		return (FunctionType*)it->m_value;
 
-	FunctionType* type = AXL_MEM_NEW(FunctionType);
+	FunctionType* type = new FunctionType;
 	type->m_module = m_module;
 	type->m_callConv = callConv;
 	type->m_returnType = returnType;
@@ -730,7 +730,7 @@ TypeMgr::createUserFunctionType(
 ) {
 	ASSERT(callConv && returnType);
 
-	FunctionType* type = AXL_MEM_NEW(FunctionType);
+	FunctionType* type = new FunctionType;
 	type->m_module = m_module;
 	type->m_callConv = callConv;
 
@@ -823,7 +823,7 @@ TypeMgr::getPropertyType(
 	if (setterType.isEmpty())
 		flags |= PropertyTypeFlag_Const;
 
-	PropertyType* type = AXL_MEM_NEW(PropertyType);
+	PropertyType* type = new PropertyType;
 	type->m_module = m_module;
 	type->m_getterType = getterType;
 	type->m_setterType = setterType;
@@ -1342,7 +1342,7 @@ TypeMgr::getDataPtrType(
 
 	size_t size = ptrTypeKind == DataPtrTypeKind_Normal ? sizeof(DataPtr) : sizeof(void*);
 
-	DataPtrType* type = AXL_MEM_NEW(DataPtrType);
+	DataPtrType* type = new DataPtrType;
 	type->m_module = m_module;
 	type->m_typeKind = typeKind;
 	type->m_ptrTypeKind = ptrTypeKind;
@@ -1391,7 +1391,7 @@ TypeMgr::getClassPtrType(
 	if (tuple->m_ptrTypeArray[i1][i2][i3][i4][i5])
 		return tuple->m_ptrTypeArray[i1][i2][i3][i4][i5];
 
-	ClassPtrType* type = AXL_MEM_NEW(ClassPtrType);
+	ClassPtrType* type = new ClassPtrType;
 	type->m_module = m_module;
 	type->m_typeKind = typeKind;
 	type->m_ptrTypeKind = ptrTypeKind;
@@ -1432,7 +1432,7 @@ TypeMgr::getFunctionPtrType(
 
 	size_t size = ptrTypeKind == FunctionPtrTypeKind_Thin ? sizeof(void*) : sizeof(FunctionPtr);
 
-	FunctionPtrType* type = AXL_MEM_NEW(FunctionPtrType);
+	FunctionPtrType* type = new FunctionPtrType;
 	type->m_module = m_module;
 	type->m_typeKind = typeKind;
 	type->m_ptrTypeKind = ptrTypeKind;
@@ -1473,7 +1473,7 @@ TypeMgr::getPropertyPtrType(
 
 	size_t size = ptrTypeKind == PropertyPtrTypeKind_Thin ? sizeof(void*) : sizeof(PropertyPtr);
 
-	PropertyPtrType* type = AXL_MEM_NEW(PropertyPtrType);
+	PropertyPtrType* type = new PropertyPtrType;
 	type->m_module = m_module;
 	type->m_typeKind = typeKind;
 	type->m_ptrTypeKind = ptrTypeKind;
@@ -1531,7 +1531,7 @@ TypeMgr::getNamedImportType(
 		return type;
 	}
 
-	NamedImportType* type = AXL_MEM_NEW(NamedImportType);
+	NamedImportType* type = new NamedImportType;
 	type->m_module = m_module;
 	type->m_signature = signature;
 	type->m_name = name;
@@ -1564,7 +1564,7 @@ TypeMgr::getImportPtrType(
 		return type;
 	}
 
-	ImportPtrType* type = AXL_MEM_NEW(ImportPtrType);
+	ImportPtrType* type = new ImportPtrType;
 	type->m_module = m_module;
 	type->m_signature = signature;
 	type->m_targetType = namedImportType;
@@ -1588,7 +1588,7 @@ TypeMgr::getImportIntModType(
 		return type;
 	}
 
-	ImportIntModType* type = AXL_MEM_NEW(ImportIntModType);
+	ImportIntModType* type = new ImportIntModType;
 	type->m_module = m_module;
 	type->m_signature = signature;
 	type->m_importType = namedImportType;
@@ -1624,7 +1624,7 @@ TypeMgr::getDualTypeTuple(Type* type) {
 	if (type->m_dualTypeTuple)
 		return type->m_dualTypeTuple;
 
-	DualTypeTuple* tuple = AXL_MEM_ZERO_NEW(DualTypeTuple);
+	DualTypeTuple* tuple = new (mem::ZeroInit) DualTypeTuple;
 	type->m_dualTypeTuple = tuple;
 	m_dualTypeTupleList.insertTail(tuple);
 	return tuple;
@@ -1635,7 +1635,7 @@ TypeMgr::getSimplePropertyTypeTuple(Type* type) {
 	if (type->m_simplePropertyTypeTuple)
 		return type->m_simplePropertyTypeTuple;
 
-	SimplePropertyTypeTuple* tuple = AXL_MEM_ZERO_NEW(SimplePropertyTypeTuple);
+	SimplePropertyTypeTuple* tuple = new (mem::ZeroInit) SimplePropertyTypeTuple;
 	type->m_simplePropertyTypeTuple = tuple;
 	m_simplePropertyTypeTupleList.insertTail(tuple);
 	return tuple;
@@ -1646,7 +1646,7 @@ TypeMgr::getFunctionArgTuple(Type* type) {
 	if (type->m_functionArgTuple)
 		return type->m_functionArgTuple;
 
-	FunctionArgTuple* tuple = AXL_MEM_ZERO_NEW(FunctionArgTuple);
+	FunctionArgTuple* tuple = new (mem::ZeroInit) FunctionArgTuple;
 	type->m_functionArgTuple = tuple;
 	m_functionArgTupleList.insertTail(tuple);
 	return tuple;
@@ -1657,7 +1657,7 @@ TypeMgr::getDataPtrTypeTuple(Type* type) {
 	if (type->m_dataPtrTypeTuple)
 		return type->m_dataPtrTypeTuple;
 
-	DataPtrTypeTuple* tuple = AXL_MEM_ZERO_NEW(DataPtrTypeTuple);
+	DataPtrTypeTuple* tuple = new (mem::ZeroInit) DataPtrTypeTuple;
 	type->m_dataPtrTypeTuple = tuple;
 	m_dataPtrTypeTupleList.insertTail(tuple);
 	return tuple;
@@ -1668,7 +1668,7 @@ TypeMgr::getClassPtrTypeTuple(ClassType* classType) {
 	if (classType->m_classPtrTypeTuple)
 		return classType->m_classPtrTypeTuple;
 
-	ClassPtrTypeTuple* tuple = AXL_MEM_ZERO_NEW(ClassPtrTypeTuple);
+	ClassPtrTypeTuple* tuple = new (mem::ZeroInit) ClassPtrTypeTuple;
 	classType->m_classPtrTypeTuple = tuple;
 	m_classPtrTypeTupleList.insertTail(tuple);
 	return tuple;
@@ -1679,7 +1679,7 @@ TypeMgr::getEventClassPtrTypeTuple(MulticastClassType* classType) {
 	if (classType->m_eventClassPtrTypeTuple)
 		return classType->m_eventClassPtrTypeTuple;
 
-	ClassPtrTypeTuple* tuple = AXL_MEM_ZERO_NEW(ClassPtrTypeTuple);
+	ClassPtrTypeTuple* tuple = new (mem::ZeroInit) ClassPtrTypeTuple;
 	classType->m_eventClassPtrTypeTuple = tuple;
 	m_classPtrTypeTupleList.insertTail(tuple);
 	return tuple;
@@ -1690,7 +1690,7 @@ TypeMgr::getFunctionPtrTypeTuple(FunctionType* functionType) {
 	if (functionType->m_functionPtrTypeTuple)
 		return functionType->m_functionPtrTypeTuple;
 
-	FunctionPtrTypeTuple* tuple = AXL_MEM_ZERO_NEW(FunctionPtrTypeTuple);
+	FunctionPtrTypeTuple* tuple = new (mem::ZeroInit) FunctionPtrTypeTuple;
 	functionType->m_functionPtrTypeTuple = tuple;
 	m_functionPtrTypeTupleList.insertTail(tuple);
 	return tuple;
@@ -1701,7 +1701,7 @@ TypeMgr::getPropertyPtrTypeTuple(PropertyType* propertyType) {
 	if (propertyType->m_propertyPtrTypeTuple)
 		return propertyType->m_propertyPtrTypeTuple;
 
-	PropertyPtrTypeTuple* tuple = AXL_MEM_ZERO_NEW(PropertyPtrTypeTuple);
+	PropertyPtrTypeTuple* tuple = new (mem::ZeroInit) PropertyPtrTypeTuple;
 	propertyType->m_propertyPtrTypeTuple = tuple;
 	m_propertyPtrTypeTupleList.insertTail(tuple);
 	return tuple;

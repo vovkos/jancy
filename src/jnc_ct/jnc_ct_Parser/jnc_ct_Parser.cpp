@@ -2625,7 +2625,7 @@ Parser::addFmtSite(
 ) {
 	literal->m_binData.append(string.cp(), string.getLength());
 
-	FmtSite* site = AXL_MEM_NEW(FmtSite);
+	FmtSite* site = new FmtSite;
 	site->m_offset = literal->m_binData.getCount();
 	site->m_fmtSpecifierString = fmtSpecifierString;
 	literal->m_fmtSiteList.insertTail(site);
@@ -2657,7 +2657,7 @@ Parser::addFmtSite(
 ) {
 	literal->m_binData.append(string.cp(), string.getLength());
 
-	FmtSite* site = AXL_MEM_NEW(FmtSite);
+	FmtSite* site = new FmtSite;
 	site->m_offset = literal->m_binData.getCount();
 	site->m_index = index;
 	literal->m_fmtSiteList.insertTail(site);
@@ -2673,7 +2673,7 @@ Parser::addFmtSite(
 ) {
 	literal->m_binData.append(string.cp(), string.getLength());
 
-	FmtSite* site = AXL_MEM_NEW(FmtSite);
+	FmtSite* site = new FmtSite;
 	site->m_offset = literal->m_binData.getCount();
 	site->m_index = ++literal->m_lastIndex;
 	site->m_fmtSpecifierString = fmtSpecifierString;

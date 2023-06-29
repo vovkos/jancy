@@ -103,7 +103,7 @@ ControlFlowMgr::createBlock(
 	const sl::StringRef& name,
 	uint_t flags
 ) {
-	BasicBlock* block = AXL_MEM_NEW(BasicBlock);
+	BasicBlock* block = new BasicBlock;
 	block->m_module = m_module;
 	block->m_name = name;
 	block->m_flags = flags;

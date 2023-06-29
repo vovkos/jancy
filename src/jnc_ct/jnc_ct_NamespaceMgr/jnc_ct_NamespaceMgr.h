@@ -218,7 +218,7 @@ NamespaceMgr::createGlobalNamespace(
 	const sl::StringRef& name,
 	Namespace* parentNamespace
 ) {
-	T* nspace = AXL_MEM_NEW(T);
+	T* nspace = new T;
 	addGlobalNamespace(nspace, name, parentNamespace);
 	return nspace;
 }

@@ -345,7 +345,7 @@ Declarator::setPostDeclaratorModifier(PostDeclaratorModifier modifier) {
 
 void
 Declarator::addPointerPrefix(uint_t modifiers) {
-	DeclPointerPrefix* prefix = AXL_MEM_NEW(DeclPointerPrefix);
+	DeclPointerPrefix* prefix = new DeclPointerPrefix;
 	prefix->takeOverTypeModifiers(this);
 	prefix->m_typeModifiers |= modifiers;
 	m_pointerPrefixList.insertTail(prefix);
@@ -353,7 +353,7 @@ Declarator::addPointerPrefix(uint_t modifiers) {
 
 DeclArraySuffix*
 Declarator::addArraySuffix(sl::List<Token>* elementCountInitializer) {
-	DeclArraySuffix* suffix = AXL_MEM_NEW(DeclArraySuffix);
+	DeclArraySuffix* suffix = new DeclArraySuffix;
 	suffix->m_declarator = this;
 	sl::takeOver(&suffix->m_elementCountInitializer, elementCountInitializer);
 	m_suffixList.insertTail(suffix);
@@ -362,7 +362,7 @@ Declarator::addArraySuffix(sl::List<Token>* elementCountInitializer) {
 
 DeclArraySuffix*
 Declarator::addArraySuffix(size_t elementCount) {
-	DeclArraySuffix* suffix = AXL_MEM_NEW(DeclArraySuffix);
+	DeclArraySuffix* suffix = new DeclArraySuffix;
 	suffix->m_declarator = this;
 	suffix->m_elementCount = elementCount;
 	m_suffixList.insertTail(suffix);
@@ -371,7 +371,7 @@ Declarator::addArraySuffix(size_t elementCount) {
 
 DeclFunctionSuffix*
 Declarator::addFunctionSuffix() {
-	DeclFunctionSuffix* suffix = AXL_MEM_NEW(DeclFunctionSuffix);
+	DeclFunctionSuffix* suffix = new DeclFunctionSuffix;
 	suffix->m_declarator = this;
 	m_suffixList.insertTail(suffix);
 	return suffix;
@@ -379,7 +379,7 @@ Declarator::addFunctionSuffix() {
 
 DeclFunctionSuffix*
 Declarator::addGetterSuffix() {
-	DeclFunctionSuffix* suffix = AXL_MEM_NEW(DeclFunctionSuffix);
+	DeclFunctionSuffix* suffix = new DeclFunctionSuffix;
 	suffix->m_suffixKind = DeclSuffixKind_Getter;
 	suffix->m_declarator = this;
 	m_suffixList.insertHead(suffix);

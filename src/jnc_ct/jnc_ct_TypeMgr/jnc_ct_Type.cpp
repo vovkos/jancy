@@ -197,13 +197,13 @@ Type::Type() {
 
 Type::~Type() {
 	if (m_typeStringTuple)
-		AXL_MEM_DELETE(m_typeStringTuple);
+		delete m_typeStringTuple;
 }
 
 TypeStringTuple*
 Type::getTypeStringTuple() {
 	if (!m_typeStringTuple)
-		m_typeStringTuple = AXL_MEM_NEW(TypeStringTuple);
+		m_typeStringTuple = new TypeStringTuple;
 
 	return m_typeStringTuple;
 }
@@ -690,7 +690,7 @@ Type::prepareSimpleTypeVariable(StdType stdType) {
 	Type* type = m_module->m_typeMgr.getStdType(stdType);
 
 	sl::List<Token> constructor;
-	Token* token = AXL_MEM_NEW(Token);
+	Token* token = new Token;
 	constructor.insertTail(token);
 	token->m_token = TokenKind_Integer;
 	token->m_data.m_int64_u = (intptr_t)this;

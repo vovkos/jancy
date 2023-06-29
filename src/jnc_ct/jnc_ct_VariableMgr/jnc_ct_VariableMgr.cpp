@@ -139,7 +139,7 @@ VariableMgr::createVariable(
 	if (storageKind == StorageKind_Stack)
 		ptrTypeFlags |= m_extraStackPtrFlags;
 
-	Variable* variable = AXL_MEM_NEW(Variable);
+	Variable* variable = new Variable;
 	variable->m_module = m_module;
 	variable->m_name = name;
 	variable->m_qualifiedName = qualifiedName;

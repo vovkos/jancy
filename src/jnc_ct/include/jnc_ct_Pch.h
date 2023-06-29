@@ -236,7 +236,6 @@ typedef Instruction TerminatorInst;
 #include "axl_mem_Block.h"
 #include "axl_err_Errno.h"
 #include "axl_sl_List.h"
-#include "axl_sl_ArrayList.h"
 #include "axl_sl_AutoPtrArray.h"
 #include "axl_sl_BitMap.h"
 #include "axl_sl_StringHashTable.h"

@@ -43,7 +43,7 @@ ExtensionLibMgr::clear() {
 		if (!entry->m_dynamicLibFilePath.isEmpty())
 			io::deleteFile(entry->m_dynamicLibFilePath);
 
-		AXL_MEM_DELETE(entry);
+		delete entry;
 	}
 
 	m_sourceFileList.clear();
@@ -53,7 +53,7 @@ ExtensionLibMgr::clear() {
 	m_itemCacheMap.clear();
 
 	if (m_codeAuthenticator) {
-		AXL_MEM_DELETE(m_codeAuthenticator);
+		delete m_codeAuthenticator;
 		m_codeAuthenticator = NULL;
 	}
 }
@@ -77,7 +77,7 @@ ExtensionLibMgr::closeDynamicLibZipReaders() {
 
 void
 ExtensionLibMgr::setDynamicExtensionAuthenticatorConfig(const CodeAuthenticatorConfig* config) {
-	m_codeAuthenticator = AXL_MEM_NEW(sys::CodeAuthenticator);
+	m_codeAuthenticator = new sys::CodeAuthenticator;
 
 #if (_JNC_OS_WIN)
 	m_codeAuthenticator->setup(
@@ -115,7 +115,7 @@ ExtensionLibMgr::loadDynamicLib(const sl::StringRef& fileName) {
 
 	bool result;
 
-	DynamicLibEntry* entry = AXL_MEM_NEW(DynamicLibEntry);
+	DynamicLibEntry* entry = new DynamicLibEntry;
 	entry->m_lib = NULL;
 	m_dynamicLibList.insertTail(entry);
 
@@ -145,7 +145,7 @@ ExtensionLibMgr::loadDynamicLib(const sl::StringRef& fileName) {
 			if (fileName[0] == '.')
 				forcedImportIdxArray.append(i);
 			 else {
-				SourceFile* sourceFile = AXL_MEM_NEW(SourceFile);
+				SourceFile* sourceFile = new SourceFile;
 				sourceFile->m_fileName = fileName;
 				sourceFile->m_zipReader = &entry->m_zipReader;
 				sourceFile->m_zipIndex = i;
@@ -248,7 +248,7 @@ ExtensionLibMgr::findItem(
 	if (it->m_value) {
 		entry = it->m_value;
 	} else {
-		entry = AXL_MEM_NEW(ItemCacheEntry);
+		entry = new ItemCacheEntry;
 		m_itemCache.insertTail(entry);
 		it->m_value = entry;
 	}
@@ -296,7 +296,7 @@ ExtensionLibMgr::addSource(
 	const sl::StringRef& fileName,
 	const sl::StringRef& contents
 ) {
-	SourceFile* file = AXL_MEM_NEW(SourceFile);
+	SourceFile* file = new SourceFile;
 	file->m_lib = lib;
 	file->m_fileName = fileName;
 	file->m_contents = contents;

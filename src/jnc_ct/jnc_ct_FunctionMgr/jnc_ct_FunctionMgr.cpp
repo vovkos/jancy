@@ -106,7 +106,7 @@ FunctionMgr::addFunction(
 
 FunctionOverload*
 FunctionMgr::createFunctionOverload(Function* function) {
-	FunctionOverload* overload = AXL_MEM_NEW(FunctionOverload);
+	FunctionOverload* overload = new FunctionOverload;
 	*(ModuleItemDecl*)overload = *(ModuleItemDecl*)function;
 	*(FunctionName*)overload = *(FunctionName*)function;
 	overload->m_module = m_module;
@@ -130,7 +130,7 @@ FunctionMgr::addProperty(
 
 PropertyTemplate*
 FunctionMgr::createPropertyTemplate() {
-	PropertyTemplate* propertyTemplate = AXL_MEM_NEW(PropertyTemplate);
+	PropertyTemplate* propertyTemplate = new PropertyTemplate;
 	propertyTemplate->m_module = m_module;
 	m_propertyTemplateList.insertTail(propertyTemplate);
 	return propertyTemplate;

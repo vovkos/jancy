@@ -112,7 +112,7 @@ DynamicLayout::getDynamicFieldEndOffset(
 	if (it->m_value) {
 		entry = it->m_value;
 	} else {
-		entry = AXL_MEM_NEW(Entry);
+		entry = new Entry;
 		m_list.insertTail(entry);
 		it->m_value = entry;
 	}

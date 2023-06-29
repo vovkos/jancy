@@ -124,7 +124,7 @@ SshChannel::close() {
 	m_localAddress.m_family = jnc::io::AddressFamily_Undefined;
 
 	if (m_connectParams) {
-		AXL_MEM_DELETE(m_connectParams);
+		delete m_connectParams;
 		m_connectParams = NULL;
 	}
 
@@ -214,7 +214,7 @@ SshChannel::connectImpl(
 	}
 
 	ASSERT(!m_connectParams);
-	m_connectParams = AXL_MEM_NEW(ConnectParams);
+	m_connectParams = new ConnectParams;
 	m_connectParams->m_userName = userName ? userName : "anonymous";
 
 	if (privateKey && privateKeySize)
@@ -539,7 +539,7 @@ SshChannel::sshConnectLoop() {
 
 	setEvents(SshEvent_SshConnectCompleted);
 
-	AXL_MEM_DELETE(m_connectParams);
+	delete m_connectParams;
 	m_connectParams = NULL;
 	return true;
 }

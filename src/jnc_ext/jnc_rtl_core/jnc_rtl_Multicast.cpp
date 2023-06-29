@@ -25,7 +25,7 @@ namespace rtl {
 void
 MulticastImpl::destruct() {
 	if (m_handleTable) {
-		AXL_MEM_DELETE((sl::HandleTable<size_t>*)m_handleTable);
+		delete (sl::HandleTable<size_t>*)m_handleTable;
 		m_handleTable = NULL;
 	}
 
@@ -63,7 +63,7 @@ MulticastImpl::getHandleTable() {
 	if (m_handleTable)
 		return (sl::HandleTable<size_t>*)m_handleTable;
 
-	sl::HandleTable<size_t>* handleTable = AXL_MEM_NEW(sl::HandleTable<size_t>);
+	sl::HandleTable<size_t>* handleTable = new sl::HandleTable<size_t>;
 	m_handleTable = handleTable;
 	return handleTable;
 }

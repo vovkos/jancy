@@ -67,7 +67,7 @@ ImportMgr::addImport(const sl::StringRef& fileName) {
 	else if (findResult == FindResult_AlreadyImported)
 		return true;
 
-	Import* import = AXL_MEM_NEW(Import);
+	Import* import = new Import;
 	import->m_lib = NULL;
 	import->m_importKind = ImportKind_File;
 	import->m_filePath = filePath;
@@ -89,7 +89,7 @@ ImportMgr::addImport(
 			return; // already added
 	}
 
-	Import* import = AXL_MEM_NEW(Import);
+	Import* import = new Import;
 	import->m_lib = lib;
 	import->m_importKind = ImportKind_Source;
 	import->m_filePath = filePath;
@@ -138,7 +138,7 @@ ImportMgr::createLazyImport(
 	const sl::StringRef& fileName,
 	const sl::StringRef& source
 ) {
-	LazyImport* import = AXL_MEM_NEW(LazyImport);
+	LazyImport* import = new LazyImport;
 	import->m_module = m_module;
 	import->m_lib = lib;
 	import->m_fileName = fileName;

@@ -110,7 +110,7 @@ EnumType::createConst(
 	const sl::StringRef& name,
 	sl::List<Token>* initializer
 ) {
-	EnumConst* enumConst = AXL_MEM_NEW(EnumConst);
+	EnumConst* enumConst = new EnumConst;
 	enumConst->m_module = m_module;
 	enumConst->m_parentUnit = m_parentUnit;
 	enumConst->m_parentEnumType = this;

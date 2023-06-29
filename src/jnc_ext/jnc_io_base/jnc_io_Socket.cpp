@@ -96,7 +96,7 @@ Socket::openImpl(
 
 #if (_AXL_OS_WIN)
 	ASSERT(!m_overlappedIo);
-	m_overlappedIo = AXL_MEM_NEW(OverlappedIo);
+	m_overlappedIo = new OverlappedIo;
 #endif
 
 	m_ioThread.start();
@@ -123,7 +123,7 @@ Socket::close() {
 
 #if (_AXL_OS_WIN)
 	if (m_overlappedIo) {
-		AXL_MEM_DELETE(m_overlappedIo);
+		delete m_overlappedIo;
 		m_overlappedIo = NULL;
 	}
 #endif
@@ -187,7 +187,7 @@ Socket::accept(
 		connectionSocket->m_ioThreadFlags |= IoThreadFlag_Suspended;
 
 #if (_AXL_OS_WIN)
-	connectionSocket->m_overlappedIo = AXL_MEM_NEW(OverlappedIo);
+	connectionSocket->m_overlappedIo = new OverlappedIo;
 #endif
 
 	if (address)

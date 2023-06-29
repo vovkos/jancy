@@ -122,7 +122,7 @@ GcShadowStackMgr::openFrameMap(Scope* scope) {
 	if (scope->m_gcShadowStackFrameMap) // this scope already has its own frame map
 		return scope->m_gcShadowStackFrameMap;
 
-	GcShadowStackFrameMap* frameMap = AXL_MEM_NEW(GcShadowStackFrameMap);
+	GcShadowStackFrameMap* frameMap = new GcShadowStackFrameMap;
 	frameMap->m_scope = scope;
 	m_frameMapList.insertTail(frameMap);
 	m_functionFrameMapArray.append(frameMap);

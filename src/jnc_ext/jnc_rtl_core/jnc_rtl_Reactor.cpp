@@ -73,7 +73,7 @@ ReactorImpl::ReactorImpl() {
 
 	m_reactionArray.setCount(reactionCount);
 	for (size_t i = 0; i < reactionCount; i++)
-		m_reactionArray[i] = AXL_MEM_NEW(Reaction);
+		m_reactionArray[i] = new Reaction;
 
 	m_pendingReactionMap.setBitCount(reactionCount);
 }
@@ -257,7 +257,7 @@ ReactorImpl::reactionLoop() {
 
 ReactorImpl::Binding*
 ReactorImpl::subscribe(Multicast* multicast) {
-	Binding* binding = AXL_MEM_NEW(Binding);
+	Binding* binding = new Binding;
 	binding->m_multicast = multicast;
 	m_bindingList.insertTail(binding);
 
@@ -284,7 +284,7 @@ ReactorImpl::subscribe(
 	Multicast* multicast,
 	FunctionPtr functionPtr
 ) {
-	Binding* binding = AXL_MEM_NEW(Binding);
+	Binding* binding = new Binding;
 	binding->m_multicast = multicast;
 	binding->m_handler = ((MulticastImpl*)multicast)->addHandler(functionPtr);
 	m_bindingList.insertTail(binding);

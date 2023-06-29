@@ -44,7 +44,7 @@ public:
 
 	~ModuleItemDecl() {
 		if (m_cache)
-			AXL_MEM_DELETE(m_cache);
+			delete m_cache;
 	}
 
 	void
@@ -106,7 +106,7 @@ public:
 protected:
 	Cache*
 	getCache() {
-		return m_cache ? m_cache : m_cache = AXL_MEM_ZERO_NEW(Cache);
+		return m_cache ? m_cache : m_cache = new (mem::ZeroInit) Cache;
 	}
 };
 

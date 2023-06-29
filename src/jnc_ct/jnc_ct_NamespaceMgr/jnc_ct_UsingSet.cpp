@@ -33,7 +33,7 @@ UsingSet::append(const UsingSet* src) {
 
 	sl::ConstIterator<ImportNamespace> it = src->m_importNamespaceList.getHead();
 	for (; it; it++) {
-		ImportNamespace* importNamespace = AXL_MEM_NEW(ImportNamespace);
+		ImportNamespace* importNamespace = new ImportNamespace;
 		*importNamespace = **it;
 		m_importNamespaceList.insertTail(importNamespace);
 	}
@@ -98,7 +98,7 @@ UsingSet::addNamespace(
 			return false;
 		}
 
-		ImportNamespace* importNamespace = AXL_MEM_NEW(ImportNamespace);
+		ImportNamespace* importNamespace = new ImportNamespace;
 		importNamespace->m_anchorNamespace = anchorNamespace;
 		importNamespace->m_namespaceKind = namespaceKind;
 		importNamespace->m_name = name;
@@ -149,7 +149,7 @@ UsingSet::resolve() {
 		if (!result)
 			return false;
 
-		AXL_MEM_DELETE(importNamespace);
+		delete importNamespace;
 	}
 
 	return true;

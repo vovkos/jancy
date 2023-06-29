@@ -36,7 +36,7 @@ ConstMgr::createConst(
 	const sl::StringRef& qualifiedName,
 	const Value& value
 ) {
-	Const* cnst = AXL_MEM_NEW(Const);
+	Const* cnst = new Const;
 	cnst->m_name = name;
 	cnst->m_qualifiedName = qualifiedName;
 	cnst->m_value = value;

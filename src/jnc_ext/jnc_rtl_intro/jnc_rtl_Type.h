@@ -46,7 +46,7 @@ public:
 
 	~TypeBase() {
 		if (m_cache)
-			AXL_MEM_DELETE(m_cache);
+			delete m_cache;
 	}
 };
 
@@ -142,7 +142,7 @@ public:
 protected:
 	Cache*
 	getCache() {
-		return m_cache ? m_cache : m_cache = AXL_MEM_ZERO_NEW(Cache);
+		return m_cache ? m_cache : m_cache = new (mem::ZeroInit) Cache;
 	}
 };
 

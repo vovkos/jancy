@@ -122,7 +122,7 @@ AsyncRegionMgr::createRegion(
 	llvm::BasicBlock* llvmEntryBlock,
 	Region* parentRegion
 ) {
-	Region* region = AXL_MEM_NEW(Region);
+	Region* region = new Region;
 	region->m_llvmEntryBlock = llvmEntryBlock;
 	region->m_parentRegion = parentRegion;
 #if (_JNC_ADD_ASYNC_REGION_MD)

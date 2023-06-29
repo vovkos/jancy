@@ -196,14 +196,14 @@ JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Module*
 jnc_Module_create() {
-	return AXL_MEM_NEW(jnc_Module);
+	return new jnc_Module;
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
 jnc_Module_destroy(jnc_Module* module) {
-	AXL_MEM_DELETE(module);
+	delete module;
 }
 
 JNC_EXTERN_C

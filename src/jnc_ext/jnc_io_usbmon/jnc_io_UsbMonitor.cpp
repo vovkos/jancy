@@ -89,7 +89,7 @@ UsbMonitor::open(
 		m_monitor.readPcapHdr();
 
 	ASSERT(!m_overlappedIo);
-	m_overlappedIo = AXL_MEM_NEW(OverlappedIo);
+	m_overlappedIo = new OverlappedIo;
 #elif (_AXL_OS_LINUX)
 	result =
 		m_monitor.open(captureDeviceName, O_RDWR | O_NONBLOCK) &&
@@ -101,7 +101,7 @@ UsbMonitor::open(
 
 	ASSERT(!m_transferTracker);
 	if (m_options & UsbMonOption_CompletedTransfersOnly)
-		m_transferTracker = AXL_MEM_NEW(TransferTracker);
+		m_transferTracker = new TransferTracker;
 
 	AsyncIoDevice::open();
 	m_ioThread.start();
@@ -129,13 +129,13 @@ UsbMonitor::close() {
 
 #if (_AXL_OS_WIN)
 	if (m_overlappedIo) {
-		AXL_MEM_DELETE(m_overlappedIo);
+		delete m_overlappedIo;
 		m_overlappedIo = NULL;
 	}
 #endif
 
 	if (m_transferTracker) {
-		AXL_MEM_DELETE(m_transferTracker);
+		delete m_transferTracker;
 		m_transferTracker = NULL;
 	}
 }

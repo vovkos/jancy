@@ -183,7 +183,7 @@ PromiseImpl::addAsyncWait_l(
 	AsyncWaitKind waitKind,
 	FunctionPtr handlerPtr
 ) {
-	AsyncWait* wait = AXL_MEM_NEW(AsyncWait);
+	AsyncWait* wait = new AsyncWait;
 	wait->m_waitKind = waitKind;
 	wait->m_handlerPtr = handlerPtr;
 	m_asyncWaitList.insertTail(wait);

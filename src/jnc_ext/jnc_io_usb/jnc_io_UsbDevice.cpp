@@ -106,7 +106,7 @@ UsbDevice::close() {
 	m_lock.unlock();
 
 	if (m_asyncControlEndpoint) {
-		AXL_MEM_DELETE(m_asyncControlEndpoint);
+		delete m_asyncControlEndpoint;
 		m_asyncControlEndpoint = NULL;
 	}
 
@@ -286,7 +286,7 @@ UsbDevice::controlTransfer_1(
 		UsbAsyncControlEndpoint* endpoint = AXL_MEM_NEW_ARGS(UsbAsyncControlEndpoint, (&m_device));
 		bool result = endpoint->start();
 		if (!result) {
-			AXL_MEM_DELETE(endpoint);
+			delete endpoint;
 			return false;
 		}
 

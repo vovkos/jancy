@@ -72,7 +72,7 @@ UnitMgr::createUnit(
 	ExtensionLib* lib,
 	const sl::StringRef& filePath
 ) {
-	Unit* unit = AXL_MEM_NEW(Unit);
+	Unit* unit = new Unit;
 	unit->m_module = m_module;
 	unit->m_lib = lib;
 	unit->m_filePath = filePath;

@@ -283,14 +283,14 @@ JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Runtime*
 jnc_Runtime_create() {
-	return AXL_MEM_NEW(jnc_Runtime);
+	return new jnc_Runtime;
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
 jnc_Runtime_destroy(jnc_Runtime* runtime) {
-	return AXL_MEM_DELETE(runtime);
+	return delete runtime;
 }
 
 JNC_EXTERN_C

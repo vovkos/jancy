@@ -277,7 +277,7 @@ GcHeap::addBoxIfDynamicFrame(Box* box) {
 IfaceHdr*
 GcHeap::tryAllocateClass(ct::ClassType* type) {
 	size_t size = type->getSize();
-	Box* box = (Box*)AXL_MEM_ALLOCATE(size);
+	Box* box = (Box*)mem::allocate(size);
 	if (!box) {
 		err::setFormatStringError("not enough memory for '%s'", type->getTypeString().sz());
 		return NULL;
@@ -372,7 +372,7 @@ GcHeap::addStaticClassDestructor_l(
 	ASSERT(iface->m_box->m_type->getTypeKind() == TypeKind_Class);
 	ct::ClassType* classType = (ct::ClassType*)iface->m_box->m_type;
 
-	StaticDestructor* destruct = AXL_MEM_NEW(StaticDestructor);
+	StaticDestructor* destruct = new StaticDestructor;
 	destruct->m_destructFunc = func;
 	destruct->m_iface = iface;
 
@@ -433,7 +433,7 @@ DataPtr
 GcHeap::tryAllocateData(ct::Type* type) {
 	size_t size = type->getSize();
 
-	DataBox* box = AXL_MEM_NEW_EXTRA(DataBox, size);
+	DataBox* box = (DataBox*)mem::allocate(sizeof(DataBox) + size);
 	if (!box) {
 		err::setFormatStringError("not enough memory for '%s'", type->getTypeString().sz());
 		return g_nullDataPtr;
@@ -479,7 +479,7 @@ GcHeap::tryAllocateArray(
 ) {
 	size_t size = type->getSize() * count;
 
-	DataBox* box = AXL_MEM_NEW_EXTRA(DataBox, size);
+	DataBox* box = (DataBox*)mem::allocate(sizeof(DataBox) + size);
 	if (!box) {
 		err::setFormatStringError("not enough memory for '%s [%d]'", type->getTypeString().sz(), count);
 		return g_nullDataPtr;
@@ -799,7 +799,7 @@ GcHeap::finalizeShutdown() {
 
 	size_t count = postponeFreeBoxArray.getCount();
 	for (size_t i = 0; i < count; i++)
-		AXL_MEM_FREE(postponeFreeBoxArray[i]);
+		mem::deallocate(postponeFreeBoxArray[i]);
 
 	// everything should be empty now (if destructors don't play hardball)
 
@@ -865,7 +865,7 @@ GcHeap::addStaticRoot(
 
 void
 GcHeap::addStaticDestructor(StaticDestructFunc* func) {
-	StaticDestructor* destruct = AXL_MEM_NEW(StaticDestructor);
+	StaticDestructor* destruct = new StaticDestructor;
 	destruct->m_staticDestructFunc = func;
 	destruct->m_iface = NULL;
 
@@ -1533,7 +1533,7 @@ GcHeap::collect_l(bool isMutatorThread) {
 			if (isShuttingDown)
 				m_postponeFreeBoxArray.append(box);
 			else
-				AXL_MEM_FREE(box);
+				mem::deallocate(box);
 		}
 	}
 
@@ -1695,7 +1695,7 @@ GcHeap::destructThreadFunc() {
 					err::getLastErrorDescription().sz()
 				);
 
-			AXL_MEM_DELETE(destructor);
+			delete destructor;
 			waitIdleAndLock();
 		}
 

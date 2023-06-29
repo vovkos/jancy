@@ -153,7 +153,7 @@ DerivableType::getBaseTypeByIndex(size_t index) {
 
 BaseTypeSlot*
 DerivableType::addBaseType(Type* type) {
-	BaseTypeSlot* slot = AXL_MEM_NEW(BaseTypeSlot);
+	BaseTypeSlot* slot = new BaseTypeSlot;
 	slot->m_module = m_module;
 	slot->m_type = (DerivableType*)type;
 
