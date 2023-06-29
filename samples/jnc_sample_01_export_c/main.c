@@ -88,7 +88,7 @@ main(
 	jnc_initialize(NULL);
 
 	module = jnc_Module_create();
-	jnc_Module_initialize(module, "jnc_sample_01_export_c", jnc_ModuleCompileFlag_StdFlags);
+	jnc_Module_initialize(module, "jnc_sample_01_export_c", &jnc_g_defaultModuleConfig);
 	jnc_Module_addStaticLib(module, jnc_StdLib_getLib());
 	jnc_Module_addStaticLib(module, MyLib_getLib());
 	jnc_Module_require(module, jnc_ModuleItemKind_Function, "main", 1);
