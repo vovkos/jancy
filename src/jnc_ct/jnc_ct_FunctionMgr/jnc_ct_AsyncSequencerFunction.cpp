@@ -24,6 +24,7 @@ AsyncSequencerFunction::AsyncSequencerFunction() {
 	m_functionKind = FunctionKind_AsyncSequencer;
 	m_promiseType = NULL;
 	m_catchBlock = NULL;
+    m_flags |= ModuleItemFlag_User;
 }
 
 bool

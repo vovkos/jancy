@@ -83,11 +83,13 @@ public:
 		return m_reaction;
 	}
 
-	Function*
-	createOnEventHandler(
+	void
+	addOnEventHandler(
 		size_t reactionIdx,
-		FunctionType* type
-	);
+		Function* function
+	) {
+		m_onEventMap[reactionIdx] = function;
+	}
 
 	Function*
 	findOnEventHandler(size_t reactionIdx) {

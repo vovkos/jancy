@@ -53,21 +53,6 @@ ReactorClassType::ReactorClassType() {
 	m_reaction = NULL;
 }
 
-Function*
-ReactorClassType::createOnEventHandler(
-	size_t reactionIdx,
-	FunctionType* type
-) {
-	Function* function = createUnnamedMethod(FunctionKind_Internal, type);
-
-	sl::HashTableIterator<size_t, Function*> it = m_onEventMap.visit(reactionIdx);
-
-	ASSERT(!it->m_value);
-	it->m_value = function;
-
-	return function;
-}
-
 bool
 ReactorClassType::calcLayout() {
 	bool result;

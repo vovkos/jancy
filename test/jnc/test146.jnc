@@ -1,0 +1,19 @@
+// debug locs in reactor onevent handlers were causing crashes in some versions of llvm
+
+bindable int g_state;
+
+void foo() {
+	if (g_state)
+		printf("abc");
+}
+
+reactor g_reactor {
+	onevent bindingof(g_state)() {
+		foo();
+	}
+}
+
+int main() {
+	g_reactor.start();
+	return 0;
+}

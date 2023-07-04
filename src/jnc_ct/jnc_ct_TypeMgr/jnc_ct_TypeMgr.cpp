@@ -1164,6 +1164,7 @@ TypeMgr::createReactorType(
 	}
 
 	type->m_reaction = type->createMethod<ReactorClassType::Reaction>("!reaction", reactionType);
+    type->m_reaction->m_flags |= ModuleItemFlag_User; // reactions use the body of the parent reactor
 
 	getStdType(StdType_ReactorClosure); // ensure closure type is created
 	return type;

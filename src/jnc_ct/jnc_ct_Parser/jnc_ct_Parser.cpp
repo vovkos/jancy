@@ -2142,9 +2142,11 @@ Parser::reactorOnEventStmt(
 	ASSERT(suffix);
 
 	FunctionType* functionType = m_module->m_typeMgr.getFunctionType(suffix->getArgArray());
-	Function* handler = m_reactorType->createOnEventHandler(m_reactionIdx, functionType);
+	Function* handler = m_reactorType->createUnnamedMethod(FunctionKind_Internal, functionType);
 	handler->m_parentUnit = m_module->m_unitMgr.getCurrentUnit();
-	handler->setBody(tokenList);
+    handler->m_flags |= ModuleItemFlag_User;
+    handler->setBody(tokenList);
+    m_reactorType->addOnEventHandler(m_reactionIdx, handler);
 
 	Function* addBindingFunc = getReactorMethod(m_module, ReactorMethod_AddOnEventBinding);
 

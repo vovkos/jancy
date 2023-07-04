@@ -1,0 +1,14 @@
+// debug locs in compiler-generated constructors were causing crashes in some versions of llvm
+
+class A {
+	int m_a = 1;
+}
+
+class B: A {
+	int m_b = 1;
+}
+
+int main() {
+	B b;
+	return 0;
+}
