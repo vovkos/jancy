@@ -23,6 +23,7 @@ HeaderFileBegin {.
 #include "jnc_ct_Lexer.h"
 #include "jnc_ct_Module.h"
 #include "jnc_ct_Decl.h"
+#include "llk_Parser.h"
 
 namespace jnc {
 namespace ct {
