@@ -212,9 +212,12 @@ install(
 #...............................................................................
 
 axl_create_setting(
-	JANCY_TEST_DISABLE_CODE_GEN
-	DESCRIPTION "Disable code generation when running tests"
+	JANCY_TEST_MODE
+	DESCRIPTION "Compiler mode (run/JIT/compile/parse) when running tests"
 	" "
+	"--run"
+	"--jit"
+	"--compile-only"
 	"--disable-code-gen"
 )
 
@@ -258,7 +261,7 @@ add_jancy_tests
 	set(
 		_BASE_FLAG_LIST
 		--import-dir ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION>
-		${JANCY_TEST_DISABLE_CODE_GEN}
+		${JANCY_TEST_MODE}
 		${JANCY_TEST_IR_OPT_LEVEL}
 		${JANCY_TEST_JIT_OPT_LEVEL}
 		${JANCY_TEST_JIT_KIND}
@@ -299,7 +302,7 @@ add_jancy_tests
 			add_test(
 				NAME ${_NAME_PREFIX}${_ARG}
 				WORKING_DIRECTORY ${_WORKING_DIRECTORY}
-				COMMAND jnc_app ${_BASE_FLAG_LIST} ${_FLAG_LIST} ${_ARG}
+				COMMAND jnc_app ${_BASE_FLAG_LIST} ${_FLAG_LIST} ${_REQUIRE_LIST} ${_ARG}
 			)
 		elseif("${_COMMAND}" STREQUAL "FINALIZE_TEST")
 			add_test(

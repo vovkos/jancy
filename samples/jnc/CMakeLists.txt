@@ -33,6 +33,7 @@ if(${BUILD_JNC_APP})
 	add_jancy_tests(
 		NAME_PREFIX "jnc-sample-"
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+		REQUIRES "main"
 		TESTS ${SAMPLE_JNC_LIST}
 	)
 endif()
