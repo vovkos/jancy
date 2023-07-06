@@ -64,8 +64,13 @@ OrcJit::OrcJit(Module* module):
 }
 
 OrcJit::~OrcJit() {
-	if (m_llvmExecutionSession)
+	if (m_llvmExecutionSession) {
+		llvm::Error error = m_llvmExecutionSession->endSession();
+		if (error)
+			TRACE("llvm::orc::ExecutionSession::endSession failed: %s\n", (std::move(error) >> toAxl).getDescription().sz());
+
 		delete m_llvmExecutionSession;
+	}
 
 	if (m_llvmIrCompileLayer)
 		delete m_llvmIrCompileLayer;
