@@ -56,7 +56,7 @@ enum CmdLineSwitch {
 	CmdLineSwitch_Version,
 	CmdLineSwitch_StdInSrc,
 	CmdLineSwitch_SrcNameOverride,
-	CmdLineSwitch_CompileOnly,
+	CmdLineSwitch_Compile,
 	CmdLineSwitch_DisableCodeGen,
 	CmdLineSwitch_Require,
 	CmdLineSwitch_Documentation,
@@ -117,14 +117,14 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE(CmdLineSwitchTable, CmdLineSwitch)
 
 	AXL_SL_CMD_LINE_SWITCH_GROUP("Compilation options")
 	AXL_SL_CMD_LINE_SWITCH_2(
-		CmdLineSwitch_CompileOnly,
-		"c", "compile-only", NULL,
-		"Compile only (no run)"
+		CmdLineSwitch_Compile,
+		"c", "compile", NULL,
+		"Compile but don't JIT and run"
 	)
-	AXL_SL_CMD_LINE_SWITCH(
+	AXL_SL_CMD_LINE_SWITCH_2(
 		CmdLineSwitch_DisableCodeGen,
-		"disable-code-gen", NULL,
-		"Disable code generation"
+		"no-cg", "no-codegen", NULL,
+		"Disable LLVM IR emission and code generation"
 	)
 	AXL_SL_CMD_LINE_SWITCH(
 		CmdLineSwitch_Require,
@@ -174,12 +174,12 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE(CmdLineSwitchTable, CmdLineSwitch)
 	AXL_SL_CMD_LINE_SWITCH_2(
 		CmdLineSwitch_DebugInfo,
 		"g", "debug-info", NULL,
-		"Generate debug information (does not work with legacy JIT)"
+		"Generate debug information"
 	)
 	AXL_SL_CMD_LINE_SWITCH_2(
 		CmdLineSwitch_Jit,
 		"j", "jit", NULL,
-		"JIT compiled module"
+		"JIT but don't run"
 	)
 	AXL_SL_CMD_LINE_SWITCH_1(
 		CmdLineSwitch_McJit,
@@ -240,7 +240,7 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE(CmdLineSwitchTable, CmdLineSwitch)
 	AXL_SL_CMD_LINE_SWITCH_2(
 		CmdLineSwitch_Run,
 		"r", "run", NULL,
-		"Compile and run (default)"
+		"Compile, JIT, and run (default)"
 	)
 	AXL_SL_CMD_LINE_SWITCH_3(
 		CmdLineSwitch_RunFunction,

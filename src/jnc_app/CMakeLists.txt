@@ -218,7 +218,7 @@ axl_create_setting(
 	"--run"
 	"--jit"
 	"--compile-only"
-	"--disable-code-gen"
+	"--no-codegen"
 )
 
 axl_create_setting(
