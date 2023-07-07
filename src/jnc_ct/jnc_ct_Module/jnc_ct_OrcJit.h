@@ -20,15 +20,16 @@ namespace ct {
 
 class OrcJit: public Jit {
 protected:
-	llvm::orc::ThreadSafeModule m_llvmModule;
+	llvm::orc::ThreadSafeModule m_llvmThreadSafeModule;
 	llvm::orc::ExecutionSession* m_llvmExecutionSession;
 	llvm::orc::IRCompileLayer* m_llvmIrCompileLayer;
 	llvm::orc::RTDyldObjectLinkingLayer* m_llvmObjectLinkingLayer;
+	llvm::orc::MangleAndInterner* m_llvmMangle;
 	llvm::orc::JITDylib* m_llvmJitDylib;
 	llvm::DataLayout* m_llvmDataLayout;
 
 public:
-	OrcJit(Module*);
+	OrcJit(Module* module);
 
 	virtual
 	~OrcJit();

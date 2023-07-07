@@ -219,7 +219,7 @@ void MainWindow::createActions() {
 	m_mcJitAction = new QAction("MCJIT", this);
 	m_mcJitAction->setCheckable(true);
 	m_mcJitAction->setChecked(DEFAULT_JIT_KIND == jnc::JitKind_McJit);
-#if (_JNC_LLVM_JIT_ORC >= 0x070000)
+#if (_JNC_LLVM_JIT_ORC)
 	m_orcJitAction = new QAction("ORC JIT", this);
 	m_orcJitAction->setCheckable(true);
 	m_orcJitAction->setChecked(DEFAULT_JIT_KIND == jnc::JitKind_Orc);

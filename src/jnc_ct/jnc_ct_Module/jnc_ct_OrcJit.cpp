@@ -59,15 +59,16 @@ OrcJit::OrcJit(Module* module):
 	m_llvmExecutionSession = NULL;
 	m_llvmIrCompileLayer = NULL;
 	m_llvmObjectLinkingLayer = NULL;
+	m_llvmMangle = NULL;
 	m_llvmJitDylib = NULL;
 	m_llvmDataLayout = NULL;
 }
 
 OrcJit::~OrcJit() {
 	if (m_llvmExecutionSession) {
-		llvm::Error error = m_llvmExecutionSession->endSession();
-		if (error)
-			TRACE("llvm::orc::ExecutionSession::endSession failed: %s\n", (std::move(error) >> toAxl).getDescription().sz());
+		llvm::Error llvmError = m_llvmExecutionSession->endSession();
+		if (llvmError)
+			TRACE("llvm::orc::ExecutionSession::endSession failed: %s\n", (std::move(llvmError) >> toAxl).getDescription().sz());
 
 		delete m_llvmExecutionSession;
 	}
@@ -78,18 +79,22 @@ OrcJit::~OrcJit() {
 	if (m_llvmObjectLinkingLayer)
 		delete m_llvmObjectLinkingLayer;
 
+	if (m_llvmMangle)
+		delete m_llvmMangle;
+
 	if (m_llvmDataLayout)
 		delete m_llvmDataLayout;
 
-	if (m_llvmModule) {
-		clearLlvmModule(); // compile layer takes ownership of module & context
-		clearLlvmContext();;
+	if (m_llvmThreadSafeModule) {
+		clearLlvmContext();
+		clearLlvmModule();
 	}
 
-	m_llvmModule = llvm::orc::ThreadSafeModule();
+	m_llvmThreadSafeModule = llvm::orc::ThreadSafeModule();
 	m_llvmExecutionSession = NULL;
 	m_llvmIrCompileLayer = NULL;
 	m_llvmObjectLinkingLayer = NULL;
+	m_llvmMangle = NULL;
 	m_llvmDataLayout = NULL;
 	m_llvmJitDylib = NULL;
 }
@@ -110,49 +115,47 @@ OrcJit::create(uint_t optLevel) {
 #	if (LLVM_VERSION_MAJOR < 13)
 	m_llvmExecutionSession = new llvm::orc::ExecutionSession();
 #else
-	llvm::Expected<std::unique_ptr<llvm::orc::SelfExecutorProcessControl> > processControl = llvm::orc::SelfExecutorProcessControl::Create();
-	if (!processControl) {
-		err::setError(processControl.takeError() >> toAxl);
+	llvm::Expected<std::unique_ptr<llvm::orc::SelfExecutorProcessControl> > llvmEpc = llvm::orc::SelfExecutorProcessControl::Create();
+	if (!llvmEpc) {
+		err::setError(llvmEpc.takeError() >> toAxl);
 		return false;
 	}
 
-	m_llvmExecutionSession = new llvm::orc::ExecutionSession(std::move(*processControl));
+	m_llvmExecutionSession = new llvm::orc::ExecutionSession(std::move(*llvmEpc));
 #endif
 
-	llvm::Expected<llvm::orc::JITTargetMachineBuilder> targetMachineBuilder = llvm::orc::JITTargetMachineBuilder::detectHost();
-	if (!targetMachineBuilder) {
-		err::setError(targetMachineBuilder.takeError() >> toAxl);
+	llvm::Expected<llvm::orc::JITTargetMachineBuilder> llvmTmb = llvm::orc::JITTargetMachineBuilder::detectHost();
+	if (!llvmTmb) {
+		err::setError(llvmTmb.takeError() >> toAxl);
 		return false;
 	}
 
+	llvmTmb->setCodeGenOptLevel((llvm::CodeGenOpt::Level)optLevel);
 
-	targetMachineBuilder->setCodeGenOptLevel((llvm::CodeGenOpt::Level)optLevel);
-
-	llvm::Expected<llvm::DataLayout> dataLayout = targetMachineBuilder->getDefaultDataLayoutForTarget();
-	if (!dataLayout) {
-		err::setError(dataLayout.takeError() >> toAxl);
+	llvm::Expected<llvm::DataLayout> llvmDl = llvmTmb->getDefaultDataLayoutForTarget();
+	if (!llvmDl) {
+		err::setError(llvmDl.takeError() >> toAxl);
 		return false;
 	}
+
+	m_llvmDataLayout = new llvm::DataLayout(*llvmDl);
+	m_llvmMangle = new llvm::orc::MangleAndInterner(*m_llvmExecutionSession, *m_llvmDataLayout);
+	m_module->getLlvmModule()->setDataLayout(*m_llvmDataLayout);
 
 	m_llvmJitDylib = &m_llvmExecutionSession->createBareJITDylib(m_module->getName().sz());
 	m_llvmJitDylib->addGenerator(std::make_unique<JitDefinitionGenerator>(this));
 
-	std::function<std::unique_ptr<llvm::RuntimeDyld::MemoryManager>()> getMemoryMgr;
-
-	m_llvmDataLayout = new llvm::DataLayout(*dataLayout);
 	m_llvmObjectLinkingLayer = new llvm::orc::RTDyldObjectLinkingLayer(
 		*m_llvmExecutionSession,
-			[] () {
-				return std::make_unique<llvm::SectionMemoryManager>();
-			}
+		[]() {
+			return std::make_unique<llvm::SectionMemoryManager>();
+		}
 	);
-
-	m_module->getLlvmModule()->setDataLayout(*m_llvmDataLayout);
 
 	m_llvmIrCompileLayer = new llvm::orc::IRCompileLayer(
 		*m_llvmExecutionSession,
 		*m_llvmObjectLinkingLayer,
-		std::make_unique<llvm::orc::ConcurrentIRCompiler>(std::move(*targetMachineBuilder))
+		std::make_unique<llvm::orc::ConcurrentIRCompiler>(std::move(*llvmTmb))
 	);
 
 	return true;
@@ -160,18 +163,18 @@ OrcJit::create(uint_t optLevel) {
 
 bool
 OrcJit::prepare() { // called after everything is mapped and before jitting
-	m_llvmModule = llvm::orc::ThreadSafeModule(
-		std::move(std::unique_ptr<llvm::Module>(m_module->getLlvmModule())),
-		std::move(std::unique_ptr<llvm::LLVMContext>(m_module->getLlvmContext()))
+	m_llvmThreadSafeModule = llvm::orc::ThreadSafeModule(
+		std::unique_ptr<llvm::Module>(m_module->getLlvmModule()),
+		std::unique_ptr<llvm::LLVMContext>(m_module->getLlvmContext())
 	);
 
-	llvm::Error error = m_llvmIrCompileLayer->add(
+	llvm::Error llvmError = m_llvmIrCompileLayer->add(
 		m_llvmJitDylib->getDefaultResourceTracker(),
-		llvm::orc::cloneToNewContext(m_llvmModule)
+		llvm::orc::cloneToNewContext(m_llvmThreadSafeModule)
 	);
 
-	if (error) {
-		err::setError(std::move(error) >> toAxl);
+	if (llvmError) {
+		err::setError(std::move(llvmError) >> toAxl);
 		return false;
 	}
 
@@ -235,7 +238,7 @@ void*
 OrcJit::lookup(const llvm::StringRef& name) {
 	llvm::Expected<llvm::JITEvaluatedSymbol> symbol = m_llvmExecutionSession->lookup(
 		llvm::ArrayRef<llvm::orc::JITDylib*>(m_llvmJitDylib),
-		name
+		(*m_llvmMangle)(name)
 	);
 
 	if (!symbol) {
