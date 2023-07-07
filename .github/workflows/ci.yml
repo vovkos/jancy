@@ -170,7 +170,7 @@ jobs:
                 cat ./Testing/Temporary/LastTest.log
 
                 cmake . -DJANCY_TEST_JIT_KIND=--orc -DJANCY_TEST_DEBUG_INFO=
-                if [[ $LLVM_VERSION != "llvm-9" ]]; then ctest --output-on-failure; cat ./Testing/Temporary/LastTest.log; fi
+                if [[ ${{matrix.LLVM_VERSION}} != "llvm-9" ]]; then ctest --output-on-failure; cat ./Testing/Temporary/LastTest.log; fi
 
                 popd
 
