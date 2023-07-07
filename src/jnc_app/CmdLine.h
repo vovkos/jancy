@@ -171,9 +171,9 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE(CmdLineSwitchTable, CmdLineSwitch)
 		"l", "llvm-ir", NULL,
 		"Emit LLVM IR (lli-compatible)"
 	)
-	AXL_SL_CMD_LINE_SWITCH_2(
+	AXL_SL_CMD_LINE_SWITCH_3(
 		CmdLineSwitch_DebugInfo,
-		"g", "debug-info", NULL,
+		"g", "debug", "debug-info", NULL,
 		"Generate debug information"
 	)
 	AXL_SL_CMD_LINE_SWITCH_2(
