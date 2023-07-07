@@ -221,6 +221,20 @@ axl_create_setting(
 	"--no-codegen"
 )
 
+if(UNIX)
+	set(_DEBUG_INFO_DEFAULT "--debug")
+else()
+	set(_DEBUG_INFO_DEFAULT " ")
+endif()
+
+axl_create_setting(
+	JANCY_DEBUG_INFO
+	DESCRIPTION "Compile tests with debug information"
+	DEFAULT ${_DEBUG_INFO_DEFAULT}
+	" "
+	"--debug"
+)
+
 axl_create_setting(
 	JANCY_TEST_IR_OPT_LEVEL
 	DESCRIPTION "LLVM IR optimization level to use when running tests"
@@ -262,14 +276,11 @@ add_jancy_tests
 		_BASE_FLAG_LIST
 		--import-dir ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION>
 		${JANCY_TEST_MODE}
+		${JANCY_TEST_DEBUG_INFO}
 		${JANCY_TEST_IR_OPT_LEVEL}
 		${JANCY_TEST_JIT_OPT_LEVEL}
 		${JANCY_TEST_JIT_KIND}
 	)
-
-	if(UNIX)
-		list(APPEND _BASE_FLAG_LIST --debug-info)
-	endif()
 
 	list(REMOVE_ITEM _BASE_FLAG_LIST " ")
 
