@@ -59,6 +59,7 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Intrinsics.h>
 #include <llvm/IR/IntrinsicInst.h>
+#include <llvm/IR/DataLayout.h>
 
 // they moved things around in LLVM 3.5
 
@@ -106,9 +107,7 @@
 #	include <llvm/ExecutionEngine/Orc/JITTargetMachineBuilder.h>
 #	include <llvm/ExecutionEngine/Orc/RTDyldObjectLinkingLayer.h>
 #	include <llvm/ExecutionEngine/SectionMemoryManager.h>
-#	include <llvm/IR/DataLayout.h>
 #endif
-
 
 #pragma warning(default: 4141)
 #pragma warning(default: 4146)
