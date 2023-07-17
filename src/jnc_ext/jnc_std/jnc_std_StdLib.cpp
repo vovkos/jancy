@@ -421,21 +421,22 @@ strrChr(
 DataPtr
 striChr(
 	DataPtr ptr,
-	char c
+	char c0
 ) {
 	if (!ptr.m_p)
 		return g_nullDataPtr;
 
 	size_t length = strLen(ptr);
 
-	sl::TextBoyerMooreFind find;
-	find.setPattern(enc::CharCodecKind_Ascii, &c, 1, sl::TextBoyerMooreFlag_CaseInsensitive);
-	size_t offset = find.find(enc::CharCodecKind_Ascii, ptr.m_p, length);
-	if (offset == -1)
+	utf32_t c = c0;
+	sl::BoyerMooreTextFind_ascii find;
+	find.setPattern(sl::StringRef_utf32(&c, 1));
+	sl::BoyerMooreTextFindResult result = find.find(ptr.m_p, length);
+	if (!result.isValid())
 		return g_nullDataPtr;
 
 	DataPtr resultPtr;
-	resultPtr.m_p = (char*)ptr.m_p + offset;
+	resultPtr.m_p = (char*)ptr.m_p + result.m_binOffset;
 	resultPtr.m_validator = ptr.m_validator;
 	return resultPtr;
 }
@@ -493,14 +494,14 @@ striStr(
 	size_t length1 = strLen(ptr1);
 	size_t length2 = strLen(ptr2);
 
-	sl::TextBoyerMooreFind find;
-	find.setPattern(enc::CharCodecKind_Ascii, ptr2.m_p, length2, sl::TextBoyerMooreFlag_CaseInsensitive);
-	size_t offset = find.find(enc::CharCodecKind_Ascii, ptr1.m_p, length1);
-	if (offset == -1)
+	sl::BoyerMooreCaseFoldedTextFind_ascii find;
+	find.setPattern(sl::StringRef((char*)ptr2.m_p, length2));
+	sl::BoyerMooreTextFindResult result = find.find(ptr1.m_p, length1);
+	if (!result.isValid())
 		return g_nullDataPtr;
 
 	DataPtr resultPtr;
-	resultPtr.m_p = (char*)ptr1.m_p + offset;
+	resultPtr.m_p = (char*)ptr1.m_p + result.m_binOffset;
 	resultPtr.m_validator = ptr1.m_validator;
 	return resultPtr;
 }
