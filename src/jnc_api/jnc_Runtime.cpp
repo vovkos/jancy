@@ -87,7 +87,7 @@ jnc_strDup_utf16(
 
 	size_t resultLength = Convert::calcRequiredLength(p, p + length);
 	DataPtr resultPtr = gcHeap->allocateBuffer(resultLength + 1);
-	Convert::convert_u((char*)resultPtr.m_p, p, length);
+	Convert::convert_u((char*)resultPtr.m_p, p, p + length);
 	return resultPtr;
 }
 
