@@ -158,7 +158,7 @@ jnc_Runtime_create() {
 JNC_EXTERN_C
 void
 jnc_Runtime_destroy(jnc_Runtime* runtime) {
-	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_destroyFunc(runtime);
+	jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_destroyFunc(runtime);
 }
 
 JNC_EXTERN_C
@@ -290,7 +290,7 @@ JNC_EXTERN_C
 JNC_EXPORT_O
 void
 jnc_Runtime_destroy(jnc_Runtime* runtime) {
-	return delete runtime;
+	delete runtime;
 }
 
 JNC_EXTERN_C
