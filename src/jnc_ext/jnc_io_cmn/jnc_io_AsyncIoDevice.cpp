@@ -112,6 +112,8 @@ AsyncIoDevice::getMetaListDataSize(const sl::ConstList<ReadWriteMeta>& metaList)
 	return size;
 }
 
+#if (_JNC_DEBUG)
+
 bool
 AsyncIoDevice::isReadBufferValid() {
 	return
@@ -129,6 +131,8 @@ AsyncIoDevice::isWriteBufferValid() {
 		(m_writeMetaList.isEmpty() ||
 		m_writeBuffer.getDataSize() + m_writeOverflowBuffer.getCount() == getMetaListDataSize(m_writeMetaList));
 }
+
+#endif
 
 size_t
 AsyncIoDevice::bufferedRead(

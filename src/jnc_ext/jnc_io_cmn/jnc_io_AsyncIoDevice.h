@@ -78,11 +78,13 @@ protected:
 	size_t
 	getMetaListDataSize(const sl::ConstList<ReadWriteMeta>& metaList);
 
+#if (_JNC_DEBUG)
 	bool
 	isReadBufferValid();
 
 	bool
 	isWriteBufferValid();
+#endif
 
 	size_t
 	bufferedRead(
