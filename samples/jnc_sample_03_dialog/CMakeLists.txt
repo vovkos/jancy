@@ -230,7 +230,10 @@ if(WIN32 AND QT_DLL_DIR)
 			${QT_DLL_DIR}/Qt5Gui${_DEBUG_SUFFIX}.dll
 			${QT_DLL_DIR}/Qt5Widgets${_DEBUG_SUFFIX}.dll
 			${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CONFIGURATION}
-		)
+	)
+
+	qt5_create_qt_conf(${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug)
+	qt5_create_qt_conf(${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Release)
 endif()
 
 # only add this test on Windows and Linux native build --
