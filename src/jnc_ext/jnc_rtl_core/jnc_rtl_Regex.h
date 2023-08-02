@@ -37,7 +37,7 @@ public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(RegexMatch)
 
 public:
-	re::Match m_match; // maps to public fields
+	re::Match m_match; // offsets maps to public fields
 
 protected:
 	DataPtr m_textPtr; // cache
@@ -68,7 +68,7 @@ public:
 
 	RegexState(
 		uint_t execFlags,
-		size_t offset
+		uint64_t offset
 	);
 
 	void
@@ -117,7 +117,7 @@ public:
 	JNC_CDECL
 	initialize(
 		uint_t execFlags,
-		size_t offset
+		uint64_t offset
 	) {
 		clearCache();
 		m_state.initialize(re::StateInit(execFlags, offset));
@@ -125,7 +125,7 @@ public:
 
 	void
 	JNC_CDECL
-	reset(size_t offset) {
+	reset(uint64_t offset) {
 		clearCache();
 		m_state.reset(offset);
 	}

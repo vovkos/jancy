@@ -112,7 +112,7 @@ RegexState::RegexState() {
 
 RegexState::RegexState(
 	uint_t execFlags,
-	size_t offset
+	uint64_t offset
 ):
 	m_state(re::StateInit(execFlags, offset, enc::CharCodecKind_Utf8)) {
 	m_runtime = getCurrentThreadRuntime();

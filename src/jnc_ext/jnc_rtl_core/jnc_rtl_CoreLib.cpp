@@ -870,7 +870,7 @@ appendFmtLiteral_re(
 	if (!match)
 		string = "(null)";
 	else if (!match->m_match.hasText())
-		string = sl::formatString("(%d:%d)", match->m_match.getOffset(), match->m_match.getEndOffset());
+		string = sl::formatString("(%lld:%lld)", match->m_match.getOffset(), match->m_match.getEndOffset());
 	else
 		string = match->m_match.getText();
 
