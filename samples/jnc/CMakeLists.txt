@@ -23,6 +23,14 @@ list(
 	92_WebSocketServer.jnc
 )
 
+if(NOT BUILD_JNC_IO_SSL)
+	list(
+		REMOVE_ITEM
+		SAMPLE_JNC_LIST
+		90_SslSocket.jnc
+	)
+endif()
+
 source_group(
 	jnc
 	FILES

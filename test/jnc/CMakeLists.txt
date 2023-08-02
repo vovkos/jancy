@@ -29,6 +29,14 @@ foreach(_FILE ${FAIL_TEST_JNC_LIST})
 	list(APPEND FAIL_TEST_NAME_LIST "jnc-test-${_FILE}")
 endforeach()
 
+if(NOT BUILD_JNC_IO_SSL)
+	list(
+		REMOVE_ITEM
+		TEST_JNC_LIST
+		test136.jnc
+	)
+endif()
+
 if(NOT BUILD_JNC_IO_USB)
 	list(
 		REMOVE_ITEM
