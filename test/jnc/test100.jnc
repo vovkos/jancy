@@ -21,12 +21,12 @@ int main() {
 
 	result = regex.eof(state, true);
 	assert(result == jnc.RegexExecResult.Match);
-	printf("match id: %d, offset: %d, length: %d, text: %s\n", state.m_matchAcceptId, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
+	printf("match id: %d, offset: %lld, length: %d, text: %s\n", state.m_matchAcceptId, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
 
 	for (size_t i = 0; i < 5; i++) {
 		result = regex.exec(state, text + state.m_match.m_endOffset);
 		assert(result == jnc.RegexExecResult.Match); // eof shouldn't be required here
-		printf("match id: %d, offset: %d, length: %d, text: %s\n", state.m_matchAcceptId, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
+		printf("match id: %d, offset: %lld, length: %d, text: %s\n", state.m_matchAcceptId, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
 	}
 
 	return 0;

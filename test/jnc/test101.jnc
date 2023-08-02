@@ -14,19 +14,19 @@ int main() {
 
 	result = try regex.exec(state, "\x2e123456\x2e");
 	assert(result == jnc.RegexExecResult.Match && state.m_matchAcceptId == 1 && state.m_match.m_length == 1);
-	printf("match id: %d, offset: %d, length: %d, text: %s\n", state.m_matchAcceptId, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
+	printf("match id: %d, offset: %lld, length: %d, text: %s\n", state.m_matchAcceptId, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
 
 	result = try regex.exec(state, "123456");
 	assert(result == jnc.RegexExecResult.Continue);
 
 	result = try regex.exec(state, "\x2e");
 	assert(result == jnc.RegexExecResult.MatchOffsetsOnly && state.m_matchAcceptId == 0 && state.m_match.m_length == 6);
-	printf("match id: %d, offset: %d, length: %d\n", state.m_matchAcceptId, state.m_match.m_offset, state.m_match.m_length);
+	printf("match id: %d, offset: %lld, length: %d\n", state.m_matchAcceptId, state.m_match.m_offset, state.m_match.m_length);
 
 	result = try regex.exec(state, "123");
 	result = try regex.eof(state, true);
 	assert(result == jnc.RegexExecResult.Match && state.m_matchAcceptId == 0 && state.m_match.m_length == 3);
-	printf("match id: %d, offset: %d, length: %d, text: %s\n", state.m_matchAcceptId, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
+	printf("match id: %d, offset: %lld, length: %d, text: %s\n", state.m_matchAcceptId, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
 
 	return 0;
 

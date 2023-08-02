@@ -7,7 +7,7 @@ void scanStream(
 		reswitch (state, p, end - p) {
 		case "[0-9]+":
 			printf(
-				"match#1: match.m_offset: %d match.m_length: %d match.m_text: %s\n",
+				"match#1: match.m_offset: %lld match.m_length: %d match.m_text: %s\n",
 				state.m_match.m_offset,
 				state.m_match.m_length,
 				state.m_match.m_text
@@ -17,7 +17,7 @@ void scanStream(
 
 		case ".":
 			printf(
-				"match#2: match.m_offset: %d match.m_length: %d\n",
+				"match#2: match.m_offset: %lld match.m_length: %d\n",
 				state.m_match.m_offset,
 				state.m_match.m_length
 			);
