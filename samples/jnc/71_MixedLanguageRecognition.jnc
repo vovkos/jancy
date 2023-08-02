@@ -39,7 +39,7 @@ int main() {
 		case Language.Foo:
 			reswitch (state, p, end - p) {
 			case "foo":
-				printf("@%04x: foo\n", state.m_match.m_offset);
+				printf("@%04llx: foo\n", state.m_match.m_offset);
 				break;
 
 			case "'":
@@ -55,7 +55,7 @@ int main() {
 		case Language.Bar:
 			reswitch (state, p, end - p) {
 			case "bar":
-				printf("%04x: bar\n", state.m_match.m_offset);
+				printf("%04llx: bar\n", state.m_match.m_offset);
 				break;
 
 			case r"\\'":

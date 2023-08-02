@@ -7,7 +7,7 @@ int main() {
 		printf("detected foobar: '%s'\n", state.m_match.m_text);
 		printf("foo: '%s'\n", state.m_captureArray[0].m_text);
 		printf("bar: '%s'\n", state.m_captureArray[1].m_text);
-		printf("offset: %d\n", state.m_match.m_endOffset);
+		printf("offset: %lld\n", state.m_match.m_endOffset);
 		break;
 
 	default:

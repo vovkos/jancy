@@ -38,17 +38,17 @@ int main() {
 	while (p < end) {
 		reswitch (state, p, end - p) {
 		case "foo":
-			printf("@%04x: foo\n", state.m_match.m_offset);
+			printf("@%04llx: foo\n", state.m_match.m_offset);
 			break;
 
 		case "bar":
-			printf("@%04x: bar\n", state.m_match.m_offset);
+			printf("@%04llx: bar\n", state.m_match.m_offset);
 			break;
 
 		case r"\d+":
 			// you can access matched lexeme via jnc.RegexState.m_match field
 			printf(
-				"@%04x: %s\n",
+				"@%04llx: %s\n",
 				state.m_match.m_offset,
 				state.m_match.m_text
 			);
