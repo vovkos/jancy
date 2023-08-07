@@ -1,0 +1,111 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+import "io_base.jncx"
+import "io_StreamOptions.jnc"
+import "io_StreamEvents.jnc"
+
+namespace io {
+
+//! \addtogroup io-hid
+//! @{
+
+//..............................................................................
+
+bitflag enum HidDeviceOptions: StreamOptions {
+	NonBlocking,
+};
+
+typedef StreamEvents HidDeviceEvents;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class HidDevice {
+	size_t autoget property m_readBlockSize;
+	size_t autoget property m_readBufferSize;
+	uint_t autoget property m_readTimeout;
+
+	HidDeviceOptions autoget property m_options;
+
+	HidDeviceEvents readonly volatile m_activeEvents;
+	std.Error const* readonly volatile m_ioError;
+
+	bool readonly m_isOpen;
+
+	char const* const property m_manufacturer;
+	char const* const property m_product;
+	char const* const property m_serialNumber;
+
+	construct();
+	destruct();
+
+	bool errorcode open(char const* path);
+
+	bool errorcode open(
+		uint16_t vid,
+		uint16_t pid,
+		char const* serialNumber = null
+	);
+
+	void close();
+
+	alias dispose = close;
+
+	size_t errorcode getReportDescriptor(
+		void* p,
+		size_t size
+	);
+
+	size_t errorcode getInputReport(
+		void* p,
+		size_t size
+	);
+
+	size_t errorcode getFeatureReport(
+		void* p,
+		size_t size
+	);
+
+	size_t errorcode sendFeatureReport(
+		void* p,
+		size_t size
+	);
+
+	size_t errorcode read(
+		void* p,
+		size_t size
+	);
+
+	size_t errorcode write(
+		void const* p,
+		size_t size
+	);
+
+	intptr errorcode wait(
+		HidDeviceEvents eventMask,
+		function* handler(HidDeviceEvents triggeredEvents)
+	);
+
+	bool errorcode cancelWait(intptr handle);
+
+	HidDeviceEvents blockingWait(
+		HidDeviceEvents eventMask,
+		uint_t timeout = -1
+	);
+
+	async HidDeviceEvents asyncWait(HidDeviceEvents eventMask);
+}
+
+//! @}
+
+//..............................................................................
+
+} // namespace io

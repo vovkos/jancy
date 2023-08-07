@@ -1,0 +1,54 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace io {
+
+//! \addtogroup io-hid
+//! @{
+
+//..............................................................................
+
+enum HidBusType: uint8_t {
+	Unknown = 0,
+	Usb,
+	Bluetooth,
+	I2c,
+	Spi,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct HidDeviceDesc {
+	HidDeviceDesc const* m_next;
+
+	char const* m_path;
+	char const* m_manufacturer;
+	char const* m_product;
+	char const* m_serialNumber;
+
+	uint16_t m_releaseNumber;
+	uint16_t m_vendorId;
+	uint16_t m_productId;
+	uint16_t m_usagePage;
+	uint16_t m_usage;
+	uint8_t m_interfaceId;
+	HidBusType m_busType;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+HidDeviceDesc const* enumerateHidDevices(size_t* count = null);
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

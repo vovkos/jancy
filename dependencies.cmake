@@ -21,6 +21,8 @@ set(
 	LIBSSH2_LIB_DIR
 	LIBUSB_INC_DIR
 	LIBUSB_LIB_DIR
+	HIDAPI_INC_DIR
+	HIDAPI_LIB_DIR
 	OPENSSL_INC_DIR
 	OPENSSL_LIB_DIR
 	QT_CMAKE_DIR
@@ -52,6 +54,7 @@ set(
 		openssl
 		pcap
 		libusb
+		hidapi
 		devmon
 		doxygen
 		doxyrest

@@ -104,6 +104,18 @@ if(BUILD_JNC_IO_USBMON)
 	add_subdirectory(jnc_io_usbmon)
 endif()
 
+if(HIDAPI_FOUND)
+	option(
+		BUILD_JNC_IO_HID
+		"Build Jancy HID extension library"
+		ON
+	)
+
+	if(BUILD_JNC_IO_HID)
+		add_subdirectory(jnc_io_hid)
+	endif()
+endif()
+
 # build io_devmon.jncx even if devmon is not available (for protocol declarations)
 
 option(
