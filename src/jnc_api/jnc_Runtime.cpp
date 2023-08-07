@@ -66,18 +66,19 @@ jnc_strDup(
 	return resultPtr;
 }
 
-JNC_EXTERN_C
-JNC_EXPORT_O
+template <typename T>
 jnc_DataPtr
-jnc_strDup_utf16(
-	const utf16_t* p,
+jnc_strDupConvert(
+	const T* p,
 	size_t length
 ) {
 	using namespace jnc;
-	typedef enc::Convert<enc::Utf8, enc::Utf16> Convert;
+
+	typedef sl::StringDetailsBase<T> StringDetails;
+	typedef enc::Convert<enc::Utf8, StringDetails::Encoding> Convert;
 
 	if (length == -1)
-		length = sl::StringDetails_utf16::calcLength(p);
+		length = StringDetails::calcLength(p);
 
 	if (!length)
 		return g_nullDataPtr;
@@ -89,6 +90,26 @@ jnc_strDup_utf16(
 	DataPtr resultPtr = gcHeap->allocateBuffer(resultLength + 1);
 	Convert::convert_u((char*)resultPtr.m_p, p, p + length);
 	return resultPtr;
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_DataPtr
+jnc_strDup_w(
+	const wchar_t* p,
+	size_t length
+) {
+	return jnc_strDupConvert(p, length);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_DataPtr
+jnc_strDup_utf16(
+	const utf16_t* p,
+	size_t length
+) {
+	return jnc_strDupConvert(p, length);
 }
 
 JNC_EXTERN_C

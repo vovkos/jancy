@@ -227,6 +227,13 @@ jnc_strDup(
 
 JNC_EXTERN_C
 jnc_DataPtr
+jnc_strDup_w(
+	const wchar_t* p,
+	size_t length
+);
+
+JNC_EXTERN_C
+jnc_DataPtr
 jnc_strDup_utf16(
 	const utf16_t* p,
 	size_t length
@@ -553,11 +560,24 @@ strDup(
 inline
 DataPtr
 strDup(
+	const wchar_t* p,
+	size_t length = -1
+) {
+	return jnc_strDup_w(p, length);
+}
+
+#if (WCHAR_MAX > 0xffff)
+
+inline
+DataPtr
+strDup(
 	const utf16_t* p,
 	size_t length = -1
 ) {
 	return jnc_strDup_utf16(p, length);
 }
+
+#endif
 
 inline
 DataPtr
