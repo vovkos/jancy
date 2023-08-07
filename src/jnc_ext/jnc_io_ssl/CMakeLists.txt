@@ -48,7 +48,6 @@ set(
 	jnc/io_SslCertificate.jnc
 	jnc/io_SslCipher.jnc
 	jnc/io_SslState.jnc
-	jnc/io_SslSocketEvents.jnc
 	jnc/io_SslSocket.jnc
 )
 

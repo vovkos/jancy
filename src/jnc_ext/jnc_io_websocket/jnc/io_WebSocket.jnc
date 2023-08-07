@@ -13,7 +13,6 @@ import "io_base.jncx"
 import "io_ssl.jncx"
 import "io_SocketAddress.jnc"
 import "io_SocketOptions.jnc"
-import "io_SslSocketEvents.jnc"
 import "io_SslState.jnc"
 import "io_WebSocketHandshake.jnc"
 
