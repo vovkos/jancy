@@ -1,0 +1,11 @@
+// this test triggered a crash due to broken namespace structure 
+// after error recovery in DerivableType::parseBody
+
+class C {
+	AA autoget property m_a;
+}
+
+int main() {
+	C c;
+	return 0;
+}
