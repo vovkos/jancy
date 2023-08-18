@@ -270,6 +270,7 @@ HidRdCollection::detach() {
 
 class HidRd: public IfaceHdr {
 public:
+	uint_t m_flags;
 	ClassBox<HidRdCollection> m_rootCollection;
 
 protected:

@@ -278,6 +278,7 @@ bitflag enum HidRdFlags {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 opaque class HidRd {
+	HidRdFlags const m_flags;
 	HidRdCollection const m_rootCollection;
 	size_t const property m_reportCount(HidReportKind reportKind);
 

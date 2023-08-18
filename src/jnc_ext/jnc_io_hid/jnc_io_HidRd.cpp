@@ -202,9 +202,10 @@ HidRd::parse(
 	size_t size
 ) {
 	clear();
-	m_db = db;
 	m_rd.parse(db->getDb(), ptr.m_p, size);
 	m_rootCollection->init(this, db, &m_rd.getRootCollection());
+	m_flags = m_rd.getFlags();
+	m_db = db;
 }
 
 void
@@ -237,6 +238,7 @@ HidRd::clear() {
 	m_collectionMap.clear();
 	m_rd.clear();
 	m_db = NULL;
+	m_flags = 0;
 }
 
 HidReportField*
