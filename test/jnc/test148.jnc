@@ -1,0 +1,17 @@
+// this test failed because index operator stripped enum layer
+
+enum E {
+	A,
+	B,
+}
+
+int property g_prop(E e);
+
+int g_prop.get(E e) {
+	return e;
+}
+
+int main() {
+	int x = g_prop[E.A];
+	return 0;
+}
