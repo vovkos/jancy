@@ -173,8 +173,8 @@ void ModbusGatewayMonSession.createUi() {
 		"TCP-specific connection settings"
 	);
 
-    m_socketPropertySet.m_defaultRemotePort = 23;
-    //ui.SocketPropertySet.PropertyId mask = ui.SocketPropertySet.PropertyId.AllTcpClient & ~ui.SocketPropertySet.PropertyId.RemotePort;
+	m_socketPropertySet.m_defaultRemotePort = 23;
+	//ui.SocketPropertySet.PropertyId mask = ui.SocketPropertySet.PropertyId.AllTcpClient & ~ui.SocketPropertySet.PropertyId.RemotePort;
 	m_socketPropertySet.createProperties(m_pluginHost.m_propertyGrid, group); //,, mask);
 
 	group = m_pluginHost.m_propertyGrid.createGroupProperty(

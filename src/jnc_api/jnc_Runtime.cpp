@@ -75,7 +75,7 @@ jnc_strDupConvert(
 	using namespace jnc;
 
 	typedef sl::StringDetailsBase<T> StringDetails;
-	typedef enc::Convert<enc::Utf8, StringDetails::Encoding> Convert;
+	typedef enc::Convert<enc::Utf8, typename StringDetails::Encoding> Convert;
 
 	if (length == -1)
 		length = StringDetails::calcLength(p);

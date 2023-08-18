@@ -82,7 +82,7 @@ int main() {
 		"John Smith",       // 36: m_authorName
 		"me@johnsmith.org", // 47: m_authorEmail [strlen (m_authorEmail)]
 		"section-0",        // 64:
- 		"section-1",        // 74:
+		"section-1",        // 74:
 		"section-2",        // 84:
 	}
 
