@@ -394,12 +394,6 @@ getBitFlagEnumBwOrXorResultType(
 
 //..............................................................................
 
-BinOp_BwAnd::BinOp_BwAnd() {
-	m_opKind = BinOpKind_BwAnd;
-	m_opFlags1 = OpFlag_KeepEnum;
-	m_opFlags2 = OpFlag_KeepEnum;
-}
-
 bool
 BinOp_BwAnd::op(
 	const Value& rawOpValue1,
@@ -438,12 +432,6 @@ BinOp_BwAnd::llvmOpInt(
 }
 
 //..............................................................................
-
-BinOp_BwOr::BinOp_BwOr() {
-	m_opKind = BinOpKind_BwOr;
-	m_opFlags1 = OpFlag_KeepEnum;
-	m_opFlags2 = OpFlag_KeepEnum;
-}
 
 bool
 BinOp_BwOr::op(
@@ -486,12 +474,6 @@ BinOp_BwOr::llvmOpInt(
 }
 
 //..............................................................................
-
-BinOp_BwXor::BinOp_BwXor() {
-	m_opKind = BinOpKind_BwXor;
-	m_opFlags1 = OpFlag_KeepEnum;
-	m_opFlags2 = OpFlag_KeepEnum;
-}
 
 bool
 BinOp_BwXor::op(

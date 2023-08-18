@@ -575,7 +575,11 @@ public:
 
 class BinOp_BwAnd: public BinOp_IntegerOnly<BinOp_BwAnd> {
 public:
-	BinOp_BwAnd();
+	BinOp_BwAnd() {
+		m_opKind = BinOpKind_BwAnd;
+		m_opFlags1 = OpFlag_KeepEnum;
+		m_opFlags2 = OpFlag_KeepEnum;
+	}
 
 	virtual
 	bool
@@ -619,7 +623,11 @@ public:
 
 class BinOp_BwOr: public BinOp_IntegerOnly<BinOp_BwOr> {
 public:
-	BinOp_BwOr();
+	BinOp_BwOr() {
+		m_opKind = BinOpKind_BwOr;
+		m_opFlags1 = OpFlag_KeepEnum;
+		m_opFlags2 = OpFlag_KeepEnum;
+	}
 
 	virtual
 	bool
@@ -663,7 +671,11 @@ public:
 
 class BinOp_BwXor: public BinOp_IntegerOnly<BinOp_BwXor> {
 public:
-	BinOp_BwXor();
+	BinOp_BwXor() {
+		m_opKind = BinOpKind_BwXor;
+		m_opFlags1 = OpFlag_KeepEnum;
+		m_opFlags2 = OpFlag_KeepEnum;
+	}
 
 	virtual
 	bool
