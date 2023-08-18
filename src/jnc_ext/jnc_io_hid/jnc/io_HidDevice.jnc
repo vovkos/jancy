@@ -22,7 +22,7 @@ namespace io {
 
 bitflag enum HidDeviceOptions: StreamOptions {
 	NonBlocking,
-};
+}
 
 typedef StreamEvents HidDeviceEvents;
 
@@ -104,8 +104,8 @@ opaque class HidDevice {
 	async HidDeviceEvents asyncWait(HidDeviceEvents eventMask);
 }
 
-//! @}
-
 //..............................................................................
+
+//! @}
 
 } // namespace io

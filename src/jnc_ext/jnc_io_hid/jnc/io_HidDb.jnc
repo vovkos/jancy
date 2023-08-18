@@ -1,0 +1,46 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace io {
+
+//! \addtogroup io-hid
+//! @{
+
+//..............................................................................
+
+opaque class HidUsagePage {
+	uint_t const m_id;
+	char const* const property m_name;
+	char const* const property m_usageName(uint_t usage);
+
+	construct();
+	destruct();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class HidDb {
+	HidUsagePage const* const property m_usagePage(uint_t page);
+
+	construct();
+	destruct();
+
+	bool errorcode load(char const* fileName);
+	void clear();
+}
+
+
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

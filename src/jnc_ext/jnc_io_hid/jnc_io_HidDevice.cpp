@@ -12,7 +12,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	HidDevice,
 	"io.HidDevice",
 	g_hidLibGuid,
-	HidLibTypeCacheSlot_HidDevice,
+	HidLibCacheSlot_HidDevice,
 	HidDevice,
 	&HidDevice::markOpaqueGcRoots
 )

@@ -22,7 +22,7 @@ JNC_DEFINE_TYPE(
 	HidDeviceDesc,
 	"io.HidDeviceDesc",
 	g_hidLibGuid,
-	HidLibTypeCacheSlot_HidDeviceDesc
+	HidLibCacheSlot_HidDeviceDesc
 )
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(HidDeviceDesc)

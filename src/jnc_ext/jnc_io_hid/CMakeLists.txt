@@ -13,11 +13,16 @@
 # lib folder
 #
 
+set(LIB_DEP_H ${JANCY_BUILD_INC_DIR}/jnc_io_HidLibDep.h)
+
 set(
 	LIB_H_LIST
 	jnc_io_HidLib.h
 	jnc_io_HidDevice.h
 	jnc_io_HidEnumerator.h
+	jnc_io_HidRd.h
+	jnc_io_HidDb.h
+	${LIB_DEP_H}
 )
 
 set(
@@ -25,6 +30,8 @@ set(
 	jnc_io_HidLib.cpp
 	jnc_io_HidDevice.cpp
 	jnc_io_HidEnumerator.cpp
+	jnc_io_HidRd.cpp
+	jnc_io_HidDb.cpp
 )
 
 source_group(
@@ -44,11 +51,18 @@ set(
 	jnc/.forced.jnc
 	jnc/io_HidDevice.jnc
 	jnc/io_HidEnumerator.jnc
+	jnc/io_HidRd.jnc
+	jnc/io_HidDb.jnc
 )
 
 source_group(
 	jnc
 	FILES
+	${JNC_LIST}
+)
+
+touch_if_changed(
+	${LIB_DEP_H}
 	${JNC_LIST}
 )
 
@@ -96,6 +110,11 @@ add_library(
 	${JNC_LIST}
 )
 
+add_custom_target(
+	jnc_io_hid_jnc
+	DEPENDS
+)
+
 target_compile_definitions(
 	jnc_io_hid
 	PUBLIC
@@ -129,8 +148,9 @@ target_link_libraries(
 	jnc_io_hid
 	jnc_io_cmn
 	jnc_api_ext
-	axl_io_usb
 	axl_io_hid
+	axl_ini
+	axl_lex
 	axl_io
 	axl_core
 	${HIDAPI_LIB_NAME}
@@ -191,3 +211,5 @@ install(
 )
 
 #...............................................................................
+
+message("AXL_SHARE_DIR: ${AXL_SHARE_DIR}")

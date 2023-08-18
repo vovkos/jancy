@@ -1,0 +1,313 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+import "io_HidDb.jnc"
+
+namespace io {
+
+//! \addtogroup io-hid
+//! @{
+
+//..............................................................................
+
+enum HidRdItemId {
+	Invalid = -1,
+
+	// globals
+
+	UsagePage = 0,
+	LogicalMinimum,  // signed
+	LogicalMaximum,  // signed
+	PhysicalMinimum, // signed
+	PhysicalMaximum, // signed
+	UnitExponent,    // signed
+	Unit,
+	ReportSize,
+	ReportId,
+	ReportCount,
+
+	// locals (unsigned)
+
+	Usage,
+	UsageMinimum,
+	UsageMaximum,
+	DesignatorIndex,
+	DesignatorMinimum,
+	DesignatorMaximum,
+	String,
+	StringMinimum,
+	StringMaximum,
+	Delimiter,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool
+isHidRdItemSigned(HidRdItemId id) {
+	return id >= HidRdItemId.LogicalMinimum && id <= HidRdItemId.UnitExponent;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum HidRdItemMask {
+	// global
+
+	UsagePage       = 1 << HidRdItemId.UsagePage,
+	LogicalMinimum  = 1 << HidRdItemId.LogicalMinimum,
+	LogicalMaximum  = 1 << HidRdItemId.LogicalMaximum,
+	PhysicalMinimum = 1 << HidRdItemId.PhysicalMinimum,
+	PhysicalMaximum = 1 << HidRdItemId.PhysicalMaximum,
+	UnitExponent    = 1 << HidRdItemId.UnitExponent,
+	Unit            = 1 << HidRdItemId.Unit,
+	ReportSize      = 1 << HidRdItemId.ReportSize,
+	ReportId        = 1 << HidRdItemId.ReportId,
+	ReportCount     = 1 << HidRdItemId.ReportCount,
+
+	// local
+
+	Usage             = 1 << HidRdItemId.Usage,
+	UsageMinimum      = 1 << HidRdItemId.UsageMinimum,
+	UsageMaximum      = 1 << HidRdItemId.UsageMaximum,
+	DesignatorIndex   = 1 << HidRdItemId.DesignatorIndex,
+	DesignatorMinimum = 1 << HidRdItemId.DesignatorMinimum,
+	DesignatorMaximum = 1 << HidRdItemId.DesignatorMaximum,
+	String            = 1 << HidRdItemId.String,
+	StringMinimum     = 1 << HidRdItemId.StringMinimum,
+	StringMaximum     = 1 << HidRdItemId.StringMaximum,
+	Delimiter         = 1 << HidRdItemId.Delimiter,
+
+	AllGlobals = (1 << (HidRdItemId.ReportCount + 1)) - 1,
+	AllLocals  = ((1 << (HidRdItemId.Delimiter + 1)) - 1) & ~((1 << HidRdItemId.Usage) - 1),
+	AllUsages =
+		Usage |
+		UsageMinimum |
+		UsageMaximum,
+}
+
+//..............................................................................
+
+enum HidRdUnitSystem {
+	None             = 0x00,
+	SiLinear         = 0x01,
+	SiRotation       = 0x02,
+	EnglishLinear    = 0x03,
+	EnglishRotation  = 0x04,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum HidRdUnitNibbleRole {
+	System,             // nibble 0
+	Length,             // nibble 1
+	Mass,               // nibble 2
+	Time,               // nibble 3
+	Temperature,        // nibble 4
+	Current,            // nibble 5
+	LuminousIntensity,  // nibble 6
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum HidRdUnit {
+	None,
+
+	// nibble 1: length
+
+	[ abbr = "cm" ]
+	Centimiter,
+
+	[ abbr = "rad" ]
+	Radian,
+
+	[ abbr = "in" ]
+	Inch,
+
+	[ abbr = "deg" ]
+	Degree,
+
+	// nibble 2: mass
+
+	[ abbr = "g" ]
+	Gram,
+
+	[ abbr = "slug" ]
+	Slug,
+
+	// nibble 3: time
+
+	[ abbr = "s" ]
+	Second,
+
+	// nibble 4: temperature
+
+	[ abbr = "K" ]
+	Kelvin,
+
+	[ abbr = "F" ]
+	Farenheit,
+
+	// nibble 5: current
+
+	[ abbr = "A" ]
+	Ampere,
+
+	// nibble 6: luminous intensity
+
+	[ abbr = "cd" ]
+	Candela,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+HidRdUnit
+getHidRdUnit(
+	HidRdUnitNibbleRole role,
+	HidRdUnitSystem system
+);
+
+int
+getHidRdUnitExponent(uint_t nibble) {
+	return (((nibble & 0x8) ? -1 : 0) & ~0xf) | (nibble & 0xf);
+}
+
+char const*
+getHidRdComplexUnitString(uint32_t unit);
+
+//..............................................................................
+
+enum HidRdValueFlag {
+	Constant      = 0x0001, // otherwise, variable data
+	Variable      = 0x0002, // otherwise, array
+	Relative      = 0x0004, // otherwise, absolute
+	Wrap          = 0x0008, // otherwise, no wrap
+	Nonlinear     = 0x0010, // otherwise, linear
+	NoPreferred   = 0x0020, // otherwise, preferred state
+	NullState     = 0x0040, // otherwise, no null
+	Volatile      = 0x0080, // otherwise, non-volatile
+	BufferedBytes = 0x0100, // otherwise, bit field
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class HidReportField {
+	HidReport const* const m_report;
+	size_t const m_bitOffset;
+	size_t const m_bitCount;
+	HidRdValueFlags const m_valueFlags;
+	protected uint_t const m_mask;
+	bool const property m_isSet(HidRdItemId id);
+	bool const property m_isSet(HidRdItemMask mask);
+
+	uint_t operator [] (HidRdItemId id) const;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool HidReportField.m_isSet.get(HidRdItemId id) {
+	return m_mask & (1 << id);
+}
+
+bool HidReportField.m_isSet.get(HidRdItemMask mask) {
+	return m_mask & mask;
+}
+
+//..............................................................................
+
+enum HidReportKind {
+	Input,
+	Output,
+	Feature,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class HidReport {
+	HidRd const* const m_rd;
+	HidReportKind const m_reportKind;
+	uint_t const m_reportId;
+	size_t const m_bitCount; // size of all fields in bits
+	size_t const m_size;     // size of all fields in bytes
+	size_t const m_fieldCount;
+	HidReportField const* const property m_fieldArray(size_t i);
+
+	void decode(void const* p) const; // at least m_size bytes expected
+}
+
+//..............................................................................
+
+enum HidRdCollectionKind {
+	HidRdCollectionKind_Physical      = 0x00,
+	HidRdCollectionKind_Application   = 0x01,
+	HidRdCollectionKind_Logical       = 0x02,
+	HidRdCollectionKind_Report        = 0x03,
+	HidRdCollectionKind_NamedArray    = 0x04,
+	HidRdCollectionKind_UsageSwitch   = 0x05,
+	HidRdCollectionKind_UsageModifier = 0x06,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class HidRdCollection {
+	HidRd const* const m_rd;
+	HidRdCollectionKind const m_collectionKind;
+	HidUsagePage const* const m_usagePage;
+	uint_t const m_usage;
+	size_t const m_collectionCount;
+	HidReportField const* const property m_collectionArray(size_t i);
+	size_t const m_fieldCount;
+	HidReportField const* const property m_fieldArray(size_t i) const;
+
+	construct();
+	destruct();
+}
+
+//..............................................................................
+
+bitflag enum HidRdFlags {
+	HasReportId,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class HidRd {
+	HidRdCollection const m_rootCollection;
+	size_t const property m_reportCount(HidReportKind reportKind);
+
+	HidReport const* const property m_reportArray(
+		HidReportKind reportKind,
+	    size_t i
+	);
+
+	construct();
+	destruct();
+
+	HidReport const* findReport(
+		HidReportKind reportKind,
+		uint_t reportId
+	) const;
+
+	void clear();
+
+	void parse(
+		HidDb const* db,
+		void const* p,
+		size_t size
+	); // never fails
+
+	void printReports();
+	void printCollections();
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

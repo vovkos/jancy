@@ -23,13 +23,19 @@ AXL_SL_DEFINE_GUID(
 	0xf8c98f1, 0xa8bb, 0x49d1, 0xbd, 0xbb, 0xd, 0xa7, 0xb1, 0xd9, 0xe5, 0x49
 );
 
-enum HidLibTypeCacheSlot {
-	HidLibTypeCacheSlot_HidDevice,
-	HidLibTypeCacheSlot_HidDeviceDesc,
+enum HidLibCacheSlot {
+	HidLibCacheSlot_HidDevice,
+	HidLibCacheSlot_HidDeviceDesc,
+	HidLibCacheSlot_HidReportField,
+	HidLibCacheSlot_HidReport,
+	HidLibCacheSlot_HidRdCollection,
+	HidLibCacheSlot_HidRd,
+	HidLibCacheSlot_HidUsagePage,
+	HidLibCacheSlot_HidDb,
+
 };
 
 //..............................................................................
 
 } // namespace io
 } // namespace jnc
-

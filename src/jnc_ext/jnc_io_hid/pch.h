@@ -20,6 +20,12 @@
 
 #include "axl_io_HidDevice.h"
 #include "axl_io_HidEnumerator.h"
+#include "axl_io_HidRd.h"
+#include "axl_io_HidDb.h"
+
+#if (_AXL_OS_POSIX)
+#	include "axl_io_psx_Pipe.h"
+#endif
 
 using namespace axl;
 
