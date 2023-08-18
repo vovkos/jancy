@@ -11,6 +11,7 @@
 
 #include "pch.h"
 #include "jnc_io_WebSocketLib.h"
+#include "jnc_io_WebSocketLibDep.h"
 #include "jnc_io_WebSocket.h"
 #include "jnc_io_WebSocketHandshake.h"
 #include "jnc_io_WebSocketHandshakeHeaders.h"

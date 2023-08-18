@@ -13,12 +13,15 @@
 # lib folder
 #
 
+set(LIB_DEP_H ${JANCY_BUILD_INC_DIR}/jnc_io_PcapLibDep.h)
+
 set(
 	LIB_H_LIST
 	jnc_io_Pcap.h
 	jnc_io_PcapFilter.h
 	jnc_io_PcapSignalMgr.h
 	jnc_io_PcapLib.h
+	${LIB_DEP_H}
 )
 
 set(
@@ -53,6 +56,11 @@ set(
 source_group(
 	jnc
 	FILES
+	${JNC_LIST}
+)
+
+touch_if_changed(
+	${LIB_DEP_H}
 	${JNC_LIST}
 )
 

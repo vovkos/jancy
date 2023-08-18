@@ -12,7 +12,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	UsbMonitor,
 	"io.UsbMonitor",
 	g_usbMonLibGuid,
-	UsbMonLibTypeCacheSlot_UsbMonitor,
+	UsbMonLibCacheSlot_UsbMonitor,
 	UsbMonitor,
 	&UsbMonitor::markOpaqueGcRoots
 )

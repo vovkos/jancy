@@ -11,7 +11,7 @@
 
 #include "pch.h"
 #include "jnc_io_IoLib.h"
-
+#include "jnc_io_IoLibDep.h"
 #include "jnc_io_File.h"
 #include "jnc_io_MappedFile.h"
 #include "jnc_io_FileStream.h"

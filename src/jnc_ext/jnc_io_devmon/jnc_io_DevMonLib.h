@@ -23,8 +23,8 @@ AXL_SL_DEFINE_GUID(
 	0xa9a83151, 0x4834, 0x472d, 0xaf, 0xb, 0x43, 0xf9, 0xbe, 0x43, 0xd4, 0x65
 );
 
-enum DevMonLibTypeCacheSlot {
-	DevMonLibTypeCacheSlot_DeviceMonitor,
+enum DevMonLibCacheSlot {
+	DevMonLibCacheSlot_DeviceMonitor,
 };
 
 //..............................................................................

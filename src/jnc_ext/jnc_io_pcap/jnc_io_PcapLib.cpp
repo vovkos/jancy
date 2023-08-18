@@ -11,6 +11,7 @@
 
 #include "pch.h"
 #include "jnc_io_PcapLib.h"
+#include "jnc_io_PcapLibDep.h"
 #include "jnc_io_Pcap.h"
 #include "jnc_io_PcapFilter.h"
 

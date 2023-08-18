@@ -22,7 +22,7 @@ JNC_DEFINE_TYPE(
 	UsbMonDeviceDesc,
 	"io.UsbMonDeviceDesc",
 	g_usbMonLibGuid,
-	UsbMonLibTypeCacheSlot_UsbMonDeviceDesc
+	UsbMonLibCacheSlot_UsbMonDeviceDesc
 )
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(UsbMonDeviceDesc)

@@ -12,7 +12,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	DeviceMonitor,
 	"io.DeviceMonitor",
 	g_devMonLibGuid,
-	DevMonLibTypeCacheSlot_DeviceMonitor,
+	DevMonLibCacheSlot_DeviceMonitor,
 	DeviceMonitor,
 	&DeviceMonitor::markOpaqueGcRoots
 )

@@ -13,6 +13,8 @@
 # lib folder
 #
 
+set(LIB_DEP_H ${JANCY_BUILD_INC_DIR}/jnc_io_IoLibDep.h)
+
 set(
 	LIB_H_LIST
 	jnc_io_Serial.h
@@ -25,6 +27,7 @@ set(
 	jnc_io_FileStream.h
 	jnc_io_ChildProcess.h
 	jnc_io_IoLib.h
+	${LIB_DEP_H}
 )
 
 set(
@@ -99,6 +102,11 @@ endif()
 source_group(
 	jnc
 	FILES
+	${JNC_LIST}
+)
+
+touch_if_changed(
+	${LIB_DEP_H}
 	${JNC_LIST}
 )
 

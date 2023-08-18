@@ -55,10 +55,13 @@ endif()
 # lib folder
 #
 
+set(LIB_DEP_H ${JANCY_BUILD_INC_DIR}/jnc_io_DevMonLibDep.h)
+
 set(
 	LIB_H_LIST
 	jnc_io_DevMonLib.h
 	jnc_io_DeviceMonitor.h
+	${LIB_DEP_H}
 )
 
 set(
@@ -92,6 +95,11 @@ set(
 source_group(
 	jnc
 	FILES
+	${JNC_LIST}
+)
+
+touch_if_changed(
+	${LIB_DEP_H}
 	${JNC_LIST}
 )
 

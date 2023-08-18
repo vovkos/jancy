@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "jnc_io_DevMonLib.h"
+#include "jnc_io_DevMonLibDep.h"
 #include "jnc_io_DeviceMonitor.h"
 
 namespace jnc {

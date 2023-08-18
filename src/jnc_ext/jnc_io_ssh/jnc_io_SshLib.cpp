@@ -11,6 +11,7 @@
 
 #include "pch.h"
 #include "jnc_io_SshLib.h"
+#include "jnc_io_SshLibDep.h"
 #include "jnc_io_Ssh.h"
 #include "jnc_io_SocketCapabilities.h"
 

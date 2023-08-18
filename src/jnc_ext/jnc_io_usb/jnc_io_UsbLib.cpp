@@ -11,6 +11,7 @@
 
 #include "pch.h"
 #include "jnc_io_UsbLib.h"
+#include "jnc_io_UsbLibDep.h"
 #include "jnc_io_UsbDescriptor.h"
 #include "jnc_io_UsbEnumerator.h"
 #include "jnc_io_UsbEndpoint.h"

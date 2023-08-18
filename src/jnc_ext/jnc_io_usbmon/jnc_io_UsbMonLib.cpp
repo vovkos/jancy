@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "jnc_io_UsbMonLib.h"
+#include "jnc_io_UsbMonLibDep.h"
 #include "jnc_io_UsbMonitor.h"
 #include "jnc_io_UsbMonEnumerator.h"
 

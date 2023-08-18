@@ -17,12 +17,13 @@ include(cmake/axl_cmake.cmake NO_POLICY_SCOPE)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-set(JANCY_ROOT_DIR     ${CMAKE_CURRENT_LIST_DIR})
-set(JANCY_SRC_DIR      ${CMAKE_CURRENT_LIST_DIR}/src)
-set(JANCY_LIB_BASE_DIR ${CMAKE_CURRENT_BINARY_DIR}/lib)
-set(JANCY_BIN_BASE_DIR ${CMAKE_CURRENT_BINARY_DIR}/bin)
-set(JANCY_DOC_DIR      ${CMAKE_CURRENT_BINARY_DIR}/doc)
-set(JANCY_PACKAGE_DIR  ${CMAKE_CURRENT_BINARY_DIR}/package)
+set(JANCY_ROOT_DIR       ${CMAKE_CURRENT_LIST_DIR})
+set(JANCY_SRC_DIR        ${CMAKE_CURRENT_LIST_DIR}/src)
+set(JANCY_BUILD_INC_DIR  ${CMAKE_CURRENT_BINARY_DIR}/include)
+set(JANCY_LIB_BASE_DIR   ${CMAKE_CURRENT_BINARY_DIR}/lib)
+set(JANCY_BIN_BASE_DIR   ${CMAKE_CURRENT_BINARY_DIR}/bin)
+set(JANCY_DOC_DIR        ${CMAKE_CURRENT_BINARY_DIR}/doc)
+set(JANCY_PACKAGE_DIR    ${CMAKE_CURRENT_BINARY_DIR}/package)
 
 if(WIN32)
 	set(JANCY_DLL_BASE_DIR ${CMAKE_CURRENT_BINARY_DIR}/bin)
@@ -73,7 +74,7 @@ include(${CMAKE_CURRENT_BINARY_DIR}/cmake/jancy_config.cmake)
 
 configure_file(
 	${JANCY_ROOT_DIR}/include/jnc_Config.h.in
-	${CMAKE_CURRENT_BINARY_DIR}/include/jnc_Config.h
+	${JANCY_BUILD_INC_DIR}/jnc_Config.h
 )
 
 add_subdirectory(src)

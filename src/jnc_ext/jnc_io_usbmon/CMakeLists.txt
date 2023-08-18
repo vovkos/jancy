@@ -54,11 +54,14 @@ endif()
 # lib folder
 #
 
+set(LIB_DEP_H ${JANCY_BUILD_INC_DIR}/jnc_io_UsbMonLibDep.h)
+
 set(
 	LIB_H_LIST
 	jnc_io_UsbMonLib.h
 	jnc_io_UsbMonitor.h
 	jnc_io_UsbMonEnumerator.h
+	${LIB_DEP_H}
 )
 
 set(
@@ -94,6 +97,11 @@ set(
 source_group(
 	jnc
 	FILES
+	${JNC_LIST}
+)
+
+touch_if_changed(
+	${LIB_DEP_H}
 	${JNC_LIST}
 )
 

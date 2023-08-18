@@ -23,9 +23,9 @@ AXL_SL_DEFINE_GUID(
 	0xcfeb2181, 0xaad4, 0x4a85, 0x9c, 0x5e, 0x87, 0xb3, 0x8a, 0x7, 0x5f, 0xe5
 );
 
-enum UsbMonLibTypeCacheSlot {
-	UsbMonLibTypeCacheSlot_UsbMonitor,
-	UsbMonLibTypeCacheSlot_UsbMonDeviceDesc,
+enum UsbMonLibCacheSlot {
+	UsbMonLibCacheSlot_UsbMonitor,
+	UsbMonLibCacheSlot_UsbMonDeviceDesc,
 };
 
 //..............................................................................

@@ -13,6 +13,8 @@
 # lib folder
 #
 
+set(LIB_DEP_H ${JANCY_BUILD_INC_DIR}/jnc_io_UsbLibDep.h)
+
 set(
 	LIB_H_LIST
 	jnc_io_UsbDescriptor.h
@@ -23,6 +25,7 @@ set(
 	jnc_io_UsbDeviceFilter.h
 	jnc_io_UsbAsyncControlEndpoint.h
 	jnc_io_UsbLib.h
+	${LIB_DEP_H}
 )
 
 set(
@@ -62,6 +65,11 @@ set(
 source_group(
 	jnc
 	FILES
+	${JNC_LIST}
+)
+
+touch_if_changed(
+	${LIB_DEP_H}
 	${JNC_LIST}
 )
 

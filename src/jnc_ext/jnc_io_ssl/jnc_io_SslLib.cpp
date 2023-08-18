@@ -11,6 +11,7 @@
 
 #include "pch.h"
 #include "jnc_io_SslLib.h"
+#include "jnc_io_SslLibDep.h"
 #include "jnc_io_SslCertificate.h"
 #include "jnc_io_SslCipher.h"
 #include "jnc_io_SslState.h"
