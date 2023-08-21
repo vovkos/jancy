@@ -119,7 +119,10 @@ OperatorMgr::getPropertyGetter(
 		return false;
 
 	if (opValue.getValueKind() == ValueKind_Property) {
-		*resultValue = opValue.getProperty()->getGetter();
+		result = resultValue->trySetFunction(opValue.getProperty()->getGetter());
+		if (!result)
+			return false;
+
 		resultValue->setClosure(opValue.getClosure());
 		return true;
 	}

@@ -154,9 +154,6 @@ Cast_FunctionPtr_Base::getCastKind(
 	FunctionPtrType* srcPtrType = (FunctionPtrType*)opValue.getClosureAwareType();
 	FunctionPtrType* dstPtrType = (FunctionPtrType*)type;
 
-	if (!srcPtrType)
-		return CastKind_None;
-
 	CastKind castKind = m_module->m_operatorMgr.getFunctionCastKind(
 		srcPtrType->getTargetType(),
 		dstPtrType->getTargetType()

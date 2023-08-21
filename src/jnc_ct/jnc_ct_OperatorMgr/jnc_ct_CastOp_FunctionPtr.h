@@ -213,6 +213,10 @@ public:
 
 class Cast_FunctionRef: public CastOperator {
 public:
+	Cast_FunctionRef() {
+		m_opFlags = OpFlag_KeepFunctionRef;
+	}
+
 	virtual
 	CastKind
 	getCastKind(

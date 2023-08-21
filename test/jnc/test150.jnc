@@ -1,0 +1,45 @@
+// function & property closures in the conditional operator
+
+class C {
+	int const property m_a;
+	int const property m_b;
+
+	int foo() {
+		return 1;
+	}
+
+	int bar() {
+		return 2;
+	}
+}
+
+int C.m_a.get() {
+	return 3;
+}
+
+int C.m_b.get() {
+	return 4;
+}
+
+int main() {
+	C c;
+	int x, y;
+
+	x = 0;
+	y = (x ? c.foo : c.bar)();
+	printf("function& x: %d, y: %d\n", x, y);
+
+	x = 1;
+	y = (x ? c.foo : c.bar)();
+	printf("function& x: %d, y: %d\n", x, y);
+
+	x = 0;
+	y = x ? c.m_a : c.m_b;
+	printf("property& x: %d, y: %d\n", x, y);
+
+	x = 1;
+	y = x ? c.m_a : c.m_b;
+	printf("property& x: %d, y: %d\n", x, y);
+	
+	return 0;
+}

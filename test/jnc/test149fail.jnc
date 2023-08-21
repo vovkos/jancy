@@ -1,0 +1,11 @@
+// this test triggered an assert due to attempt to finalize an incomplete property
+
+class C {
+	int const property m_a;
+	int const property m_a;
+}
+
+int main() {
+	C c;
+	return 0;
+}

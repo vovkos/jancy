@@ -121,9 +121,6 @@ Cast_PropertyPtr_Base::getCastKind(
 	PropertyPtrType* srcPtrType = (PropertyPtrType*)opValue.getClosureAwareType();
 	PropertyPtrType* dstPtrType = (PropertyPtrType*)type;
 
-	if (!srcPtrType)
-		return CastKind_None;
-
 	if ((srcPtrType->getFlags() & PtrTypeFlag_Const) &&
 		!(dstPtrType->getFlags() & PtrTypeFlag_Const))
 		return CastKind_None;

@@ -326,6 +326,33 @@ getConditionalNumericOperatorResultType(
 }
 
 Type*
+getConditionalOperandType(const Value& value) {
+	Type* type = value.getType();
+	Closure* closure = value.getClosure();
+	if (closure) {
+		type = closure->getClosureType(type);
+		if (type->getTypeKindFlags() & TypeKindFlag_FunctionPtr)
+			type = ((FunctionPtrType*)type)->getTargetType()->getFunctionPtrType(
+				type->getTypeKind(),
+				FunctionPtrTypeKind_Normal
+			);
+		else {
+			ASSERT(type->getTypeKindFlags() & TypeKindFlag_PropertyPtr);
+			type = ((PropertyPtrType*)type)->getTargetType()->getPropertyPtrType(
+				type->getTypeKind(),
+				PropertyPtrTypeKind_Normal
+			);
+		}
+	} else if (type->getTypeKind() == TypeKind_Array)
+		type = ((ArrayType*)type)->getElementType()->getDataPtrType(
+			DataPtrTypeKind_Normal,
+			value.getValueKind() == ValueKind_Const ? PtrTypeFlag_Const : 0
+		);
+
+	return type;
+}
+
+Type*
 OperatorMgr::getConditionalOperatorResultType(
 	const Value& trueValue,
 	const Value& falseValue
@@ -333,24 +360,12 @@ OperatorMgr::getConditionalOperatorResultType(
 	bool result;
 
 	Type* resultType;
-	Type* trueType = trueValue.getClosureAwareType();
-	Type* falseType = falseValue.getClosureAwareType();
+	Type* trueType = getConditionalOperandType(trueValue);
+	Type* falseType = getConditionalOperandType(falseValue);
 
-	if (trueType->getTypeKind() == TypeKind_Array)
-		trueType = ((ArrayType*)trueType)->getElementType()->getDataPtrType(
-			DataPtrTypeKind_Normal,
-			trueValue.getValueKind() == ValueKind_Const ? PtrTypeFlag_Const : 0
-		);
-
-	if (falseType->getTypeKind() == TypeKind_Array)
-		falseType = ((ArrayType*)falseType)->getElementType()->getDataPtrType(
-			DataPtrTypeKind_Normal,
-			falseValue.getValueKind() == ValueKind_Const ? PtrTypeFlag_Const : 0
-		);
-
-	if (trueType->cmp(falseType) == 0) {
+	if (trueType->cmp(falseType) == 0)
 		resultType = trueType;
-	} else {
+	else {
 		uint_t trueFlags = OpFlag_KeepBool | OpFlag_KeepEnum;
 		uint_t falseFlags = OpFlag_KeepBool | OpFlag_KeepEnum;
 
@@ -536,7 +551,7 @@ OperatorMgr::castOperator(
 		}
 
 		if (opValue.getValueKind() == ValueKind_Property) {
-			ASSERT(type->getTypeKind() == TypeKind_PropertyPtr);
+			ASSERT(type->getTypeKindFlags() & TypeKindFlag_PropertyPtr);
 			return getPropertyThinPtr(opValue.getProperty(), opValue.getClosure(), (PropertyPtrType*)type, resultValue);
 		}
 
@@ -1146,23 +1161,13 @@ OperatorMgr::prepareOperandType(
 			break;
 
 		case TypeKind_FunctionRef:
-			if (!(opFlags & OpFlag_KeepFunctionRef)) {
-				FunctionPtrType* ptrType = (FunctionPtrType*)value.getClosureAwareType(); // important: take closure into account!
-				if (!ptrType)
-					return false;
-
-				FunctionType* targetType = ptrType->getTargetType();
-				value = targetType->getFunctionPtrType(ptrType->getPtrTypeKind(), ptrType->getFlags());
-			}
-
+			value = value.getClosureAwareType();
 			break;
 
 		case TypeKind_PropertyRef:
+			value = value.getClosureAwareType();
 			if (!(opFlags & OpFlag_KeepPropertyRef)) {
 				PropertyPtrType* ptrType = (PropertyPtrType*)value.getClosureAwareType();
-				if (!ptrType)
-					return false;
-
 				PropertyType* targetType = ptrType->getTargetType();
 				if (!targetType->isIndexed())
 					value = targetType->getReturnType();
@@ -1338,9 +1343,6 @@ OperatorMgr::prepareOperand(
 		case TypeKind_PropertyRef:
 			if (!(opFlags & OpFlag_KeepPropertyRef)) {
 				PropertyPtrType* ptrType = (PropertyPtrType*)value.getClosureAwareType();
-				if (!ptrType)
-					return false;
-
 				PropertyType* targetType = ptrType->getTargetType();
 				if (!targetType->isIndexed()) {
 					result = getProperty(value, &value);
