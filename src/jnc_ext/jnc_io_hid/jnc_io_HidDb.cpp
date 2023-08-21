@@ -31,7 +31,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(HidUsagePage)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<HidUsagePage>)
 	JNC_MAP_DESTRUCTOR(&jnc::destruct<HidUsagePage>)
 	JNC_MAP_CONST_PROPERTY("m_name", &HidUsagePage::getName)
-	JNC_MAP_CONST_PROPERTY("m_usageName", &HidUsagePage::getUsageName)
+	JNC_MAP_FUNCTION("getUsageName", &HidUsagePage::getUsageName)
 JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -48,7 +48,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 JNC_BEGIN_TYPE_FUNCTION_MAP(HidDb)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<HidDb>)
 	JNC_MAP_DESTRUCTOR(&jnc::destruct<HidDb>)
-	JNC_MAP_CONST_PROPERTY("m_usagePage", &HidDb::getUsagePage)
+	JNC_MAP_FUNCTION("getUsagePage", &HidDb::getUsagePage)
 	JNC_MAP_FUNCTION("load", &HidDb::load)
 	JNC_MAP_FUNCTION("clear", &HidDb::clear)
 JNC_END_TYPE_FUNCTION_MAP()

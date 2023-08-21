@@ -1,0 +1,245 @@
+import "io_hid.jncx"
+import "io_HidEnumerator.jnc"
+import "io_HidRd.jnc"
+import "std_String.jnc"
+
+void incIndent(std.StringBuilder* indent) {
+	indent.append(' ', 4);
+}
+
+void decIndent(std.StringBuilder* indent) {
+	indent.chop(4);
+}
+
+void printItem(
+	char const* indent,
+	io.HidReportField const* field,
+	io.HidRdItemId id
+) {
+	if (field.isSet(id))
+		printf(
+			"%s%s: %d\n",
+			indent,
+			typeof(io.HidRdItemId).getValueString(id),
+			field[id]
+		);
+}
+
+bitflag enum PrintFieldFlags {
+	Padding   = 0x01,
+	Report    = 0x02,
+	BitOffset = 0x04,
+};
+
+void
+printFieldArray(
+	std.StringBuilder* indent,
+	io.HidReport const* report,
+	io.HidRdCollection const* collection,
+	PrintFieldFlags flags
+) {
+	assert(report || collection);
+	
+	size_t count = report ? report.m_fieldCount : collection.m_fieldCount;
+	for (size_t i = 0; i < count; i++) {
+		io.HidReportField const* field = report ? report.m_fieldArray[i] : collection.m_fieldArray[i];
+		if (field.m_isPadding) {
+			if (flags & PrintFieldFlags.Padding)
+				printf("%sPadding: %d-bit\n", indent.m_p, field.m_bitCount);
+
+			continue;
+		}
+
+		printf(
+			(flags & PrintFieldFlags.BitOffset) ?
+				"%sField: %s %d-bit (offset: %d bits)\n" :
+				"%sField: %s %d-bit\n",
+	    	indent.m_p,
+			typeof(io.HidReportKind).getValueString(field.m_report.m_reportKind),
+			field.m_bitCount,
+			field.m_bitOffset
+		);
+
+		incIndent(indent);
+
+		if (field.m_valueFlags)
+			printf(
+				"%sFlags: %s\n",
+				indent.m_p,
+				typeof(io.HidRdValueFlags).getValueString(field.m_valueFlags)
+			);
+
+		printf(
+			"%sUsagePage: %s\n",
+			indent.m_p,
+			field.m_usagePage.m_name
+		);
+
+		if (field.isSet(io.HidRdItemId.Usage)) {
+			for (size_t i = 0; i <= field.m_auxUsageCount; i++) {
+				uint_t usage = field.m_usageArray[i];
+				printf(
+					"%sUsage: %s\n",
+					indent.m_p,
+					field.m_usagePage.getUsageName(usage)
+				);
+			}
+		}
+
+		if (field.isSet(io.HidRdItemId.UsageMinimum))
+			printf(
+				"%sUsageMinimum: %s\n",
+				indent.m_p,
+				field.m_usagePage.getUsageName(field[io.HidRdItemId.UsageMinimum])
+			);
+
+		if (field.isSet(io.HidRdItemId.UsageMaximum))
+			printf(
+				"%sUsageMaximum: %s\n",
+				indent.m_p,
+				field.m_usagePage.getUsageName(field[io.HidRdItemId.UsageMaximum])
+			);
+
+		printItem(indent.m_p, field, io.HidRdItemId.LogicalMinimum);
+		printItem(indent.m_p, field, io.HidRdItemId.LogicalMaximum);
+		printItem(indent.m_p, field, io.HidRdItemId.PhysicalMinimum);
+		printItem(indent.m_p, field, io.HidRdItemId.PhysicalMaximum);
+
+		if (flags & PrintFieldFlags.Report)
+			printItem(indent.m_p, field, io.HidRdItemId.ReportId);
+
+		printItem(indent.m_p, field, io.HidRdItemId.ReportSize);
+		printItem(indent.m_p, field, io.HidRdItemId.ReportCount);
+		
+		decIndent(indent);
+	}
+}
+
+void printReports(io.HidRd const* rd) {
+	printf("HID RD Reports%s\n", (rd.m_flags & io.HidRdFlags.HasReportId) ? " (with IDs)" : "");
+	std.StringBuilder indent;
+	incIndent(indent);
+	for (uint_t i = io.HidReportKind.Input; i <= io.HidReportKind.Feature; i++) {
+		io.HidReportKind k = (io.HidReportKind)i;
+
+		size_t count = rd.m_reportCount[k];
+		for (size_t j = 0; j < count; j++) {
+			io.HidReport const* report = rd.m_reportArray[(io.HidReportKind)i][j];
+
+			printf(
+				"%sReport: %s %d-bit (%d bytes)\n",
+				indent.m_p,
+				typeof(io.HidReportKind).getValueString(report.m_reportKind),
+				report.m_bitCount,
+				report.m_size
+			);
+
+			incIndent(&indent);
+
+			if (rd.m_flags & io.HidRdFlags.HasReportId)
+				printf(
+					"%sReportId: %d\n",
+					indent.m_p,
+					report.m_reportId
+				);
+
+			printFieldArray(&indent, report, null, PrintFieldFlags.BitOffset | PrintFieldFlags.Padding);
+			decIndent(&indent);
+		}
+	}
+}
+
+
+void printCollection(
+	std.StringBuilder* indent,
+	io.HidRdCollection const* collection
+) {
+	uint_t usage = collection.m_usage;
+
+	printf(
+		"%sCollection: %s (%s: %s)\n",
+		indent.m_p,
+		typeof(io.HidRdCollectionKind).getValueString(collection.m_collectionKind),
+		collection.m_usagePage.m_name,
+		collection.m_usagePage.getUsageName(usage)
+	);
+
+	incIndent(indent);
+	printFieldArray(indent, null, collection, PrintFieldFlags.Report);
+	for (size_t i = 0; i < collection.m_collectionCount; i++)
+		printCollection(indent, collection.m_collectionArray[i]);
+
+	decIndent(indent);
+}
+
+void printCollections(io.HidRd const* rd) {
+	printf("HID RD Collections%s\n", (rd.m_flags & io.HidRdFlags.HasReportId) ? " (with IDs)" : "");
+
+	std.StringBuilder indent;
+	incIndent(indent);
+	for (size_t i = 0; i < rd.m_rootCollection.m_collectionCount; i++)
+		printCollection(indent, rd.m_rootCollection.m_collectionArray[i]);
+
+	printFieldArray(indent, null, rd.m_rootCollection, PrintFieldFlags.Report);
+}
+
+int main() {
+	char const* fileName = r"C:\Projects\repos\ioninja\axl\src\axl_io_hid\db\hid-00-usage-page-dir.ini";
+	printf("Loading HID DB from %s...\n", fileName);
+	io.HidDb db;
+	db.load(fileName);
+
+	printf("Enumerating HID devices...\n");
+
+	io.HidDeviceDesc const* desc = io.enumerateHidDevices();
+	for (; desc; desc = desc.m_next) {
+		printf(
+			"%s\n"
+			"    Bus:          %s\n"
+			"    VID:          %04x\n"
+			"    PID:          %04x\n"
+			"    Manufacturer: %s\n"
+			"    Product:      %s\n"
+			"    Serial:       %s\n"
+			"    Release:      %x\n"
+			"    Usage page:   %d\n"
+			"    Usage:        %d\n"
+			"    Interface:    %d\n"
+			"\n",
+			desc.m_path,
+			typeof(io.HidBusType).getValueString(desc.m_busType),
+			desc.m_vendorId,
+			desc.m_productId,
+			desc.m_manufacturer,
+			desc.m_product,
+			desc.m_serialNumber,
+			desc.m_releaseNumber,
+			desc.m_usagePage,
+			desc.m_usage,
+			desc.m_interfaceId
+		);
+
+		printf("Opening %s...\n", desc.m_path);
+		io.HidDevice device;
+		bool result = try device.open(desc.m_path);
+		if (!result) {
+			printf("Error: %s\n", std.getLastErrorDescription());
+			continue;
+		}
+
+		printf("Reading report descriptor...\n");
+		char buffer[4096];
+		size_t readResult = device.getReportDescriptor(buffer, sizeof(buffer));
+		printf("read: %d\n", readResult);
+
+		io.HidRd rd;
+		rd.parse(db, buffer, readResult);
+
+		printCollections(rd);
+		printf("-----\n");
+		printReports(rd);
+		printf(">>>>>\n");
+	}
+
+	return 0;
+}

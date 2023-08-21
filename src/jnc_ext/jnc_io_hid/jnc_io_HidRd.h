@@ -53,37 +53,34 @@ public:
 
 public:
 	HidReport* m_report;
+	HidUsagePage* m_usagePage;
 	size_t m_bitOffset;
 	size_t m_bitCount;
 	uint_t m_valueFlags;
 	uint_t m_mask;
+	size_t m_auxUsageCount;
 
 protected:
 	const axl::io::HidReportField* m_field;
 
 public:
-	bool
-	JNC_CDECL
-	isSet_0(axl::io::HidRdItemId id) {
-		return m_field ? m_field->isSet(id) : false;
-	}
-
-	bool
-	JNC_CDECL
-	isSet_1(axl::io::HidRdItemMask mask) {
-		return m_field ? m_field->isSet(mask) : false;
-	}
-
 	uint_t
 	JNC_CDECL
 	getItem(axl::io::HidRdItemId id) const {
 		return m_field ? (*m_field)[id] : 0;
 	}
 
+	uint_t
+	JNC_CDECL
+	getUsage(size_t i) const {
+		return m_field ? m_field->getUsage(i) : 0;
+	}
+
 protected:
 	void
 	init(
 		HidReport* report,
+		HidDb* db,
 		const axl::io::HidReportField* field
 	);
 
@@ -97,14 +94,19 @@ inline
 void
 HidReportField::init(
 	HidReport* report,
+	HidDb* db,
 	const axl::io::HidReportField* field
 ) {
+	const axl::io::HidUsagePage* usagePage = field->getUsagePage();
+
 	m_report = report;
+	m_usagePage = usagePage ? db->getUsagePage(usagePage->getId()) : NULL;
 	m_field = field;
 	m_bitOffset = field->getBitOffset();
 	m_bitCount = field->getBitCount();
 	m_valueFlags = field->getValueFlags();
 	m_mask = field->getMask();
+	m_auxUsageCount = field->getAuxUsageCount();
 }
 
 inline

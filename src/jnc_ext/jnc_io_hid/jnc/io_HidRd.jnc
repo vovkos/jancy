@@ -183,7 +183,7 @@ getHidRdComplexUnitString(uint32_t unit);
 
 //..............................................................................
 
-enum HidRdValueFlag {
+bitflag enum HidRdValueFlags {
 	Constant      = 0x0001, // otherwise, variable data
 	Variable      = 0x0002, // otherwise, array
 	Relative      = 0x0004, // otherwise, absolute
@@ -199,24 +199,30 @@ enum HidRdValueFlag {
 
 opaque class HidReportField {
 	HidReport const* const m_report;
+	HidUsagePage const* const m_usagePage;
 	size_t const m_bitOffset;
 	size_t const m_bitCount;
 	HidRdValueFlags const m_valueFlags;
 	protected uint_t const m_mask;
-	bool const property m_isSet(HidRdItemId id);
-	bool const property m_isSet(HidRdItemMask mask);
+	size_t m_auxUsageCount;
+	uint_t const property m_usageArray(size_t i);
+	bool const property m_isPadding;
 
 	uint_t operator [] (HidRdItemId id) const;
+
+	bool isSet(HidRdItemId id) const {
+		return m_mask & (1 << id);
+	}
+
+	bool isSet(HidRdItemMask mask) const {
+		return m_mask & mask;
+	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bool HidReportField.m_isSet.get(HidRdItemId id) {
-	return m_mask & (1 << id);
-}
-
-bool HidReportField.m_isSet.get(HidRdItemMask mask) {
-	return m_mask & mask;
+bool HidReportField.m_isPadding.get() {
+	return !isSet(HidRdItemMask.AllUsages);
 }
 
 //..............................................................................
@@ -244,13 +250,13 @@ opaque class HidReport {
 //..............................................................................
 
 enum HidRdCollectionKind {
-	HidRdCollectionKind_Physical      = 0x00,
-	HidRdCollectionKind_Application   = 0x01,
-	HidRdCollectionKind_Logical       = 0x02,
-	HidRdCollectionKind_Report        = 0x03,
-	HidRdCollectionKind_NamedArray    = 0x04,
-	HidRdCollectionKind_UsageSwitch   = 0x05,
-	HidRdCollectionKind_UsageModifier = 0x06,
+	Physical      = 0x00,
+	Application   = 0x01,
+	Logical       = 0x02,
+	Report        = 0x03,
+	NamedArray    = 0x04,
+	UsageSwitch   = 0x05,
+	UsageModifier = 0x06,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -261,9 +267,9 @@ opaque class HidRdCollection {
 	HidUsagePage const* const m_usagePage;
 	uint_t const m_usage;
 	size_t const m_collectionCount;
-	HidReportField const* const property m_collectionArray(size_t i);
+	HidRdCollection const* const property m_collectionArray(size_t i);
 	size_t const m_fieldCount;
-	HidReportField const* const property m_fieldArray(size_t i) const;
+	HidReportField const* const property m_fieldArray(size_t i);
 
 	construct();
 	destruct();

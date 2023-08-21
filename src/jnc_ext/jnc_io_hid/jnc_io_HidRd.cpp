@@ -28,9 +28,8 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 )
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(HidReportField)
-	JNC_MAP_FUNCTION("m_isSet", &HidReportField::isSet_0)
-	JNC_MAP_OVERLOAD(&HidReportField::isSet_1)
 	JNC_MAP_BINARY_OPERATOR(BinOpKind_Idx, &HidReportField::getItem)
+	JNC_MAP_CONST_PROPERTY("m_usageArray", &HidReportField::getUsage)
 JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -251,7 +250,7 @@ HidRd::getField(const axl::io::HidReportField* field) {
 	NoCollectRegion noCollectRegion(runtime);
 
 	HidReportField* newField = createClass<HidReportField>(runtime);
-	newField->init(getReportImpl(field->getReport()), field);
+	newField->init(getReportImpl(field->getReport()), m_db, field);
 	it->m_value = newField;
 	return newField;
 }
@@ -263,6 +262,8 @@ HidRd::getCollection(const axl::io::HidRdCollection* collection) {
 		return it->m_value;
 
 	Runtime* runtime = getCurrentThreadRuntime();
+	NoCollectRegion noCollectRegion(runtime);
+
 	HidRdCollection* newCollection = createClass<HidRdCollection>(runtime);
 	newCollection->init(this, m_db, collection);
 	it->m_value = newCollection;
