@@ -572,11 +572,14 @@ FunctionMgr::getSchedLauncherFunction(FunctionPtrType* targetFunctionPtrType) {
 
 bool
 FunctionMgr::finalizeNamespaceProperties(const sl::ConstIterator<Property>& prevIt) {
-	bool result;
-
 	sl::Iterator<Property> it = prevIt ? (Property*)prevIt.getNext().p() : m_propertyList.getHead();
 	for (; it; it++) {
-		result = it->finalize();
+		if (!it->getStorageKind()) {
+			ASSERT(m_module->getCompileErrorCount());
+			continue; // ignore invalid properties (errors already emitted)
+		}
+
+		bool result = it->finalize();
 		if (!result)
 			return false;
 	}
