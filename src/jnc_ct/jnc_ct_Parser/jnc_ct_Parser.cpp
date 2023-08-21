@@ -1372,13 +1372,9 @@ Parser::parseLastPropertyBody(sl::List<Token>* body) {
 
 	Parser parser(m_module, getCachedPragmaSettings(), Mode_Parse);
 	m_module->m_namespaceMgr.openNamespace((Property*)m_lastDeclaredItem);
-
 	bool result = parser.parseTokenList(SymbolKind_member_block_declaration_list, body);
-	if (!result)
-		return false;
-
 	m_module->m_namespaceMgr.closeNamespace();
-	return finalizeLastProperty(true);
+	return result && finalizeLastProperty(true);
 }
 
 bool
