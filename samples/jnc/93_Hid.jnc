@@ -1,3 +1,14 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
 import "io_hid.jncx"
 import "io_HidEnumerator.jnc"
 import "io_HidRd.jnc"
@@ -183,11 +194,57 @@ void printCollections(io.HidRd const* rd) {
 	printFieldArray(indent, null, rd.m_rootCollection, PrintFieldFlags.Report);
 }
 
+int extractValue(
+	void thin const* p, // must have at least 7 bytes extra
+	size_t bitOffset,
+	size_t bitCount
+) {
+	p += bitOffset / 8;
+	int mask = (1 << bitCount) - 1;
+	int value = (*(uint64_t thin const*)p >> (bitOffset & 7)) & mask;
+
+	return bitCount >= 8 && (value & (1 << (bitCount - 1))) ? // negative
+		value | ((int)-1 & ~mask) :
+		value;
+}
+
+void
+decode(
+	io.HidReport const* report,
+	void const* p
+) {
+	size_t bitOffset = 0;
+
+	for (size_t i = 0; i < report.m_fieldCount; i++) {
+		io.HidReportField const* field = report.m_fieldArray[i];
+		if (field.m_isPadding) {
+			bitOffset += field.m_bitCount;
+			continue;
+		}
+
+		size_t reportSize = field[io.HidRdItemId.ReportSize];
+		size_t reportCount = field[io.HidRdItemId.ReportCount];
+
+		for (size_t i = 0; i < reportCount; i++, bitOffset += reportSize) {
+			int value = extractValue(p, bitOffset, reportSize);
+			if (!value)
+				continue; // ignore
+
+			if (field.m_valueFlags & io.HidRdValueFlags.Variable) {
+				uint_t usage = field.m_usageArray[i];
+				printf("%s: %d\n", field.m_usagePage.getUsageName(usage), value);
+			} else {
+				uint_t usage = field[io.HidRdItemId.UsageMinimum] + value;
+				printf("[%d]: %s\n", i, field.m_usagePage.getUsageName(usage));
+			}
+		}
+	}
+}
+
 int main() {
-	char const* fileName = r"C:\Projects\repos\ioninja\axl\src\axl_io_hid\db\hid-00-usage-page-dir.ini";
-	printf("Loading HID DB from %s...\n", fileName);
+	printf("Loading HID DB...\n");
 	io.HidDb db;
-	db.load(fileName);
+	db.load();
 
 	printf("Enumerating HID devices...\n");
 
@@ -222,10 +279,8 @@ int main() {
 		printf("Opening %s...\n", desc.m_path);
 		io.HidDevice device;
 		bool result = try device.open(desc.m_path);
-		if (!result) {
-			printf("Error: %s\n", std.getLastErrorDescription());
+		if (!result)
 			continue;
-		}
 
 		printf("Reading report descriptor...\n");
 		char buffer[4096];
@@ -234,11 +289,8 @@ int main() {
 
 		io.HidRd rd;
 		rd.parse(db, buffer, readResult);
-
 		printCollections(rd);
-		printf("-----\n");
 		printReports(rd);
-		printf(">>>>>\n");
 	}
 
 	return 0;

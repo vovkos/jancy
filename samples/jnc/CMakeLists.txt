@@ -31,6 +31,14 @@ if(NOT BUILD_JNC_IO_SSL)
 	)
 endif()
 
+if(NOT BUILD_JNC_IO_HID)
+	list(
+		REMOVE_ITEM
+		SAMPLE_JNC_LIST
+		93_Hid.jnc
+	)
+endif()
+
 source_group(
 	jnc
 	FILES

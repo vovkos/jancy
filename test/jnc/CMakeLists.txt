@@ -54,6 +54,14 @@ if(NOT BUILD_JNC_IO_USBMON OR NOT USBMON_AVAILABLE)
 	)
 endif()
 
+if(NOT BUILD_JNC_IO_HID)
+	list(
+		REMOVE_ITEM
+		TEST_JNC_LIST
+		test151.jnc
+	)
+endif()
+
 if (NOT WIN32)
 	list(
 		REMOVE_ITEM

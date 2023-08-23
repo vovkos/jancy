@@ -34,11 +34,9 @@ opaque class HidDb {
 
 	HidUsagePage const* getUsagePage(uint_t page) const;
 
-	bool errorcode load(char const* fileName);
+	bool errorcode load(char const* fileName = null);
 	void clear();
 }
-
-
 
 //..............................................................................
 

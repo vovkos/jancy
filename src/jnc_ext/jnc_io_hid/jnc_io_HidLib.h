@@ -17,8 +17,10 @@ requireHidCapability() {
 
 //..............................................................................
 
+JNC_DECLARE_LIB(HidLib)
+
 // {0F8C98F1-A8BB-49D1-BDBB-0DA7B1D9E549}
-AXL_SL_DEFINE_GUID(
+JNC_DEFINE_GUID(
 	g_hidLibGuid,
 	0xf8c98f1, 0xa8bb, 0x49d1, 0xbd, 0xbb, 0xd, 0xa7, 0xb1, 0xd9, 0xe5, 0x49
 );
@@ -32,7 +34,6 @@ enum HidLibCacheSlot {
 	HidLibCacheSlot_HidRd,
 	HidLibCacheSlot_HidUsagePage,
 	HidLibCacheSlot_HidDb,
-
 };
 
 //..............................................................................

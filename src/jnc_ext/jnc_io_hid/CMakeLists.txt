@@ -151,6 +151,7 @@ target_link_libraries(
 	axl_io_hid
 	axl_ini
 	axl_lex
+	axl_zip
 	axl_io
 	axl_core
 	${HIDAPI_LIB_NAME}
@@ -184,9 +185,9 @@ set_target_properties(
 #
 
 set(DLL_DIR ${JANCY_DLL_BASE_DIR}/${CONFIGURATION})
-set(JNC_IO_USBMON_NAME io_hid-${TARGET_CPU}.bin)
-set(JNC_IO_USBMON_DLL ${DLL_DIR}/${JNC_IO_USBMON_NAME})
-set(JNC_IO_USBMON_JNCX ${DLL_DIR}/io_hid.jncx)
+set(JNC_IO_HID_NAME io_hid-${TARGET_CPU}.bin)
+set(JNC_IO_HID_DLL  ${DLL_DIR}/${JNC_IO_HID_NAME})
+set(JNC_IO_HID_JNCX ${DLL_DIR}/io_hid.jncx)
 
 add_custom_command(
 	TARGET jnc_io_hid
@@ -194,13 +195,14 @@ add_custom_command(
 	COMMAND
 		echo Creating io_hid.jncx...
 	COMMAND
-		${CMAKE_COMMAND} -E remove ${JNC_IO_USBMON_JNCX}
+		${CMAKE_COMMAND} -E remove ${JNC_IO_HID_JNCX}
 	COMMAND
 		${7Z_EXE}
 		a -tzip -y
-		${JNC_IO_USBMON_JNCX}
-		${JNC_IO_USBMON_DLL}
+		${JNC_IO_HID_JNCX}
+		${JNC_IO_HID_DLL}
 		${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc
+		${AXL_SHARE_DIR}/hid/*.ini
 )
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -211,5 +213,3 @@ install(
 )
 
 #...............................................................................
-
-message("AXL_SHARE_DIR: ${AXL_SHARE_DIR}")

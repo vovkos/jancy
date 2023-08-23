@@ -96,6 +96,25 @@ public:
 	clear();
 };
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class HidDbZipLoader: public axl::io::HidDbLoader {
+protected:
+	axl::zip::ZipReader m_zipReader;
+	sl::StringHashTable<size_t> m_fileNameMap;
+
+public:
+	bool
+	open(const sl::StringRef& fileName);
+
+	virtual
+	bool
+	load(
+		sl::Array<char>* buffer,
+		const sl::StringRef& fileName
+	) const;
+};
+
 //..............................................................................
 
 } // namespace io

@@ -129,7 +129,16 @@ bool
 JNC_CDECL
 HidDb::load(DataPtr fileNamePtr) {
 	clear();
-	return m_db.load((char*)fileNamePtr.m_p);
+	const char* fileName = (char*)fileNamePtr.m_p;
+	if (fileName && *fileName)
+		return m_db.load(fileName);
+
+	Module* module = getCurrentThreadRuntime()->getModule();
+	const char* filePath = module->getExtensionLibFilePath(HidLib_getLib());
+	rc::Ptr<HidDbZipLoader> loader = AXL_RC_NEW(HidDbZipLoader);
+	return
+		loader->open(filePath) &&
+		m_db.load(loader);
 }
 
 void
@@ -141,6 +150,40 @@ HidDb::clear() {
 
 	m_usagePageMap.clear();
 	m_db.clear();
+}
+
+//..............................................................................
+
+bool
+HidDbZipLoader::open(const sl::StringRef& fileName) {
+	bool result = m_zipReader.openFile(fileName);
+	if (!result)
+		return false;
+
+	size_t count = m_zipReader.getFileCount();
+	for (size_t i = 0; i < count; i++) {
+		sl::String fileName = m_zipReader.getFileName(i);
+		if (!fileName.isEmpty()) // wat?
+			m_fileNameMap[fileName] = i;
+	}
+
+	m_fileName = "hid-00-usage-page-dir.ini";
+	m_path = fileName;
+	m_path.append(':');
+	m_path.append(m_fileName);
+	return true;
+}
+
+bool
+HidDbZipLoader::load(
+	sl::Array<char>* buffer,
+	const sl::StringRef& fileName
+) const {
+	size_t i = m_fileNameMap.findValue(fileName, -1);
+	if (i == -1)
+		return err::fail(err::SystemErrorCode_ObjectNameNotFound);
+
+	return m_zipReader.extractFileToMem(i, buffer);
 }
 
 //..............................................................................
