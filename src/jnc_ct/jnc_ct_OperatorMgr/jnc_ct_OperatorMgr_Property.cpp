@@ -140,14 +140,15 @@ OperatorMgr::getPropertyGetter(
 		return false;
 
 	size_t index = (propertyType->getFlags() & PropertyTypeFlag_Bindable) ? 1 : 0;
+	FunctionPtrType* getterPtrType = propertyType->getGetterType()->getFunctionPtrType(FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe);
 
-	Value pfnValue;
-	m_module->m_llvmIrBuilder.createGep2(VtableValue, index, NULL, &pfnValue);
-	m_module->m_llvmIrBuilder.createLoad(
-		pfnValue,
-		propertyType->getGetterType()->getFunctionPtrType(FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe),
-		resultValue
-	);
+	if (!m_module->hasCodeGen()) {
+		resultValue->setType(getterPtrType);
+	} else {
+		Value pfnValue;
+		m_module->m_llvmIrBuilder.createGep2(VtableValue, index, NULL, &pfnValue);
+		m_module->m_llvmIrBuilder.createLoad(pfnValue, getterPtrType, resultValue);
+	}
 
 	resultValue->setClosure(VtableValue.getClosure());
 	return true;
@@ -192,7 +193,7 @@ OperatorMgr::getPropertySetter(
 
 	if (setterTypeOverload->isOverloaded()) {
 		if (!argValue) {
-			err::setFormatStringError("no argument value to help choose one of '%d' setter overloads", setterTypeOverload->getOverloadCount ());
+			err::setFormatStringError("no argument value to help choose one of '%d' setter overloads", setterTypeOverload->getOverloadCount());
 			return false;
 		}
 
@@ -221,7 +222,6 @@ OperatorMgr::getPropertySetter(
 		m_module->m_llvmIrBuilder.createGep2(vtableValue, index, NULL, &pfnValue);
 		m_module->m_llvmIrBuilder.createLoad(pfnValue, setterPtrType, resultValue);
 	}
-
 
 	resultValue->setClosure(vtableValue.getClosure());
 	return true;
