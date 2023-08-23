@@ -34,10 +34,8 @@ opaque class HidDevice {
 	uint_t autoget property m_readTimeout;
 
 	HidDeviceOptions autoget property m_options;
-
 	HidDeviceEvents readonly volatile m_activeEvents;
 	std.Error const* readonly volatile m_ioError;
-
 	bool readonly m_isOpen;
 
 	char const* const property m_manufacturer;

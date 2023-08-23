@@ -48,7 +48,6 @@ source_group(
 
 set(
 	JNC_LIST
-	jnc/.forced.jnc
 	jnc/io_HidDevice.jnc
 	jnc/io_HidEnumerator.jnc
 	jnc/io_HidRd.jnc
