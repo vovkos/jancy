@@ -1103,6 +1103,13 @@ jnc_Module_FindExtensionLibItemFunc(
 );
 
 typedef
+const char*
+jnc_Module_GetExtensionLibZipFilePathFunc(
+	jnc_Module* module,
+	jnc_ExtensionLib* lib
+);
+
+typedef
 bool_t
 jnc_Module_MapVariableFunc(
 	jnc_Module* module,
@@ -1239,6 +1246,7 @@ struct jnc_ModuleFuncTable {
 	jnc_Module_GetExtensionSourceFileIteratorFunc* m_getExtensionSourceFileIteratorFunc;
 	jnc_Module_GetNextExtensionSourceFileFunc* m_getNextExtensionSourceFileFunc;
 	jnc_Module_FindExtensionLibItemFunc* m_findExtensionLibItemFunc;
+	jnc_Module_GetExtensionLibZipFilePathFunc* m_getExtensionLibFilePathFunc;
 	jnc_Module_MapVariableFunc* m_mapVariableFunc;
 	jnc_Module_MapFunctionFunc* m_mapFunctionFunc;
 	jnc_Module_AddSourceFunc* m_addSourceFunc;

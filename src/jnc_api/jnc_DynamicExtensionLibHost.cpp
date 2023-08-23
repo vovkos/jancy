@@ -296,6 +296,7 @@ static jnc_ModuleFuncTable g_moduleFuncTable = {
 	jnc_Module_getExtensionSourceFileIterator,
 	jnc_Module_getNextExtensionSourceFile,
 	jnc_Module_findExtensionLibItem,
+	jnc_Module_getExtensionLibFilePath,
 	jnc_Module_mapVariable,
 	jnc_Module_mapFunction,
 	jnc_Module_addSource,

@@ -287,6 +287,13 @@ jnc_Module_findExtensionLibItem(
 );
 
 JNC_EXTERN_C
+const char*
+jnc_Module_getExtensionLibFilePath(
+	jnc_Module* module,
+	jnc_ExtensionLib* lib
+);
+
+JNC_EXTERN_C
 bool_t
 jnc_Module_mapVariable(
 	jnc_Module* module,
@@ -560,6 +567,11 @@ struct jnc_Module {
 		size_t itemCacheSlot
 	) {
 		return jnc_Module_findExtensionLibItem(this, name, libGuid, itemCacheSlot);
+	}
+
+	const char*
+	getExtensionLibFilePath(jnc_ExtensionLib* lib) {
+		return jnc_Module_getExtensionLibFilePath(this, lib);
 	}
 
 	bool

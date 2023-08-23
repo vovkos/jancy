@@ -182,6 +182,7 @@ EXPORTS
 	jnc_Module_create
 	jnc_Module_destroy
 	jnc_Module_findExtensionLibItem
+	jnc_Module_getExtensionLibFilePath
 	jnc_Module_generateDocumentation
 	jnc_Module_generateCodeAssist
 	jnc_Module_getCodeAssist

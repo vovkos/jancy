@@ -32,6 +32,7 @@ protected:
 	struct DynamicLibEntry: sl::ListLink {
 		ExtensionLib* m_lib;
 		zip::ZipReader m_zipReader;
+		sl::String m_zipFilePath;
 		sl::String m_dynamicLibFilePath;
 		sys::DynamicLib m_dynamicLib;
 	};
@@ -47,6 +48,7 @@ protected:
 	ct::Module* m_module;
 	sl::Array<ExtensionLib*> m_libArray;
 	sl::List<DynamicLibEntry> m_dynamicLibList;
+	sl::SimpleHashTable<ExtensionLib*, DynamicLibEntry*> m_dynamicLibMap;
 	sl::List<SourceFile> m_sourceFileList;
 	sl::StringHashTable<SourceFile*> m_sourceFileMap;
 	sl::StringHashTable<const OpaqueClassTypeInfo*> m_opaqueClassTypeInfoMap;
@@ -87,13 +89,19 @@ public:
 	addStaticLib(ExtensionLib* lib);
 
 	bool
-	loadDynamicLib(const sl::StringRef& fileName);
+	loadDynamicLib(const sl::StringRef& filePath);
 
 	void
 	closeDynamicLibZipReaders();
 
 	bool
 	mapAddresses();
+
+	sl::StringRef
+	getExtensionLibFilePath(ExtensionLib* lib) {
+		sl::MapIterator<ExtensionLib*, DynamicLibEntry*> it = m_dynamicLibMap.find(lib);
+		return it ? sl::StringRef(it->m_value->m_zipFilePath) : sl::StringRef();
+	}
 
 	const OpaqueClassTypeInfo*
 	findOpaqueClassTypeInfo(const sl::StringRef& qualifiedName) {

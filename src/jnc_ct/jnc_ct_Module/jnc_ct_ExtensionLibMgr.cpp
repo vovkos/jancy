@@ -108,7 +108,7 @@ ExtensionLibMgr::addStaticLib(ExtensionLib* lib) {
 }
 
 bool
-ExtensionLibMgr::loadDynamicLib(const sl::StringRef& fileName) {
+ExtensionLibMgr::loadDynamicLib(const sl::StringRef& filePath) {
 	static char jncxExt[] = ".jncx";
 	static char jncExt[] = ".jnc";
 	static char binExt[] = ".bin";
@@ -119,9 +119,11 @@ ExtensionLibMgr::loadDynamicLib(const sl::StringRef& fileName) {
 	entry->m_lib = NULL;
 	m_dynamicLibList.insertTail(entry);
 
-	result = entry->m_zipReader.openFile(fileName);
+	result = entry->m_zipReader.openFile(filePath);
 	if (!result)
 		return false;
+
+	entry->m_zipFilePath = filePath;
 
 	size_t dynamicLibFileIdx = -1;
 	sl::String dynamicLibFileName;
@@ -156,9 +158,9 @@ ExtensionLibMgr::loadDynamicLib(const sl::StringRef& fileName) {
 	}
 
 	if (m_module->getCompileFlags() & ModuleCompileFlag_ExternalExtensionBin) { // prefer external bin
-		dynamicLibFilePath = fileName;
+		dynamicLibFilePath = filePath;
 
-		if (fileName.isSuffix(jncxExt))
+		if (filePath.isSuffix(jncxExt))
 			dynamicLibFilePath.chop(lengthof(jncxExt));
 
 		dynamicLibFilePath += '-';
@@ -214,6 +216,7 @@ ExtensionLibMgr::loadDynamicLib(const sl::StringRef& fileName) {
 
 	entry->m_lib = lib;
 	m_libArray.append(lib);
+	m_dynamicLibMap[lib] = entry;
 
 	lib->m_addSourcesFunc(m_module);
 	lib->m_addOpaqueClassTypeInfosFunc(m_module);

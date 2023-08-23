@@ -92,6 +92,15 @@ jnc_Module_findExtensionLibItem(
 }
 
 JNC_EXTERN_C
+const char*
+jnc_Module_getExtensionLibFilePath(
+	jnc_Module* module,
+	jnc_ExtensionLib* lib
+) {
+	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_getExtensionLibFilePathFunc(module, lib);
+}
+
+JNC_EXTERN_C
 bool_t
 jnc_Module_mapVariable(
 	jnc_Module* module,
@@ -352,9 +361,9 @@ jnc_Module_getNextExtensionSourceFile(
 	if (!it)
 		return NULL;
 
-	const char* dir = it->getKey().sz();
+	const char* fileName  = it->getKey().sz();
 	*iterator = (++it).p();
-	return dir;
+	return fileName;
 }
 
 JNC_EXTERN_C
@@ -367,6 +376,15 @@ jnc_Module_findExtensionLibItem(
 	size_t itemCacheSlot
 ) {
 	return module->m_extensionLibMgr.findItem(name, *libGuid, itemCacheSlot);
+}
+
+JNC_EXTERN_C
+const char*
+jnc_Module_getExtensionLibFilePath(
+	jnc_Module* module,
+	jnc_ExtensionLib* lib
+) {
+	return module->m_extensionLibMgr.getExtensionLibFilePath(lib).sz();
 }
 
 JNC_EXTERN_C
