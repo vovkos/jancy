@@ -411,6 +411,15 @@ protected:
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
+TypeStringTuple*
+Type::getTypeStringTuple() {
+	if (!m_typeStringTuple)
+		m_typeStringTuple = new TypeStringTuple;
+
+	return m_typeStringTuple;
+}
+
+inline
 const sl::String&
 Type::getSignature() {
 	if (m_signature.isEmpty())

@@ -200,14 +200,6 @@ Type::~Type() {
 		delete m_typeStringTuple;
 }
 
-TypeStringTuple*
-Type::getTypeStringTuple() {
-	if (!m_typeStringTuple)
-		m_typeStringTuple = new TypeStringTuple;
-
-	return m_typeStringTuple;
-}
-
 const sl::String&
 Type::getTypeString() {
 	TypeStringTuple* tuple = getTypeStringTuple();
