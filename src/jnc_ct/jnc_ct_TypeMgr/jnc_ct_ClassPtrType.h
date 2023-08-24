@@ -143,7 +143,7 @@ protected:
 //..............................................................................
 
 struct ClassPtrTypeTuple: sl::ListLink {
-	ClassPtrType* m_ptrTypeArray[2][2][3][2][2]; // ref x kind x const x volatile x checked
+	ClassPtrType* m_ptrTypeArray[2][2][4][2][2]; // ref x kind x const/readonly/cmut x volatile x checked
 };
 
 //..............................................................................

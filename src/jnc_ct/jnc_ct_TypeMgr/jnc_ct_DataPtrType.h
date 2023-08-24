@@ -128,7 +128,7 @@ protected:
 //..............................................................................
 
 struct DataPtrTypeTuple: sl::ListLink {
-	DataPtrType* m_ptrTypeArray[2][3][3][2][2]; // ref x kind x const x volatile x safe
+	DataPtrType* m_ptrTypeArray[2][3][4][2][2]; // ref x kind x const/readonly/cmut x volatile x safe
 };
 
 //..............................................................................

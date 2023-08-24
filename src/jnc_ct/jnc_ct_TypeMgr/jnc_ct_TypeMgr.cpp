@@ -1330,13 +1330,25 @@ TypeMgr::getDataPtrType(
 
 	DataPtrTypeTuple* tuple = getDataPtrTypeTuple(targetType);
 
-	// ref x ptrkind x const x volatile x checked/markup
+	// ref x ptrkind x const/readonly/cmut x volatile x checked/markup
 
 	size_t i1 = typeKind == TypeKind_DataRef;
 	size_t i2 = ptrTypeKind;
-	size_t i3 = (flags & PtrTypeFlag_Const) ? 0 : (flags & PtrTypeFlag_ReadOnly) ? 1 : 2;
-	size_t i4 = (flags & PtrTypeFlag_Volatile) ? 0 : 1;
+	size_t i3;
+	size_t i4 = (flags & PtrTypeFlag_Volatile) ? 1 : 0;
 	size_t i5 = (flags & PtrTypeFlag_Safe) ? 1 : 0;
+
+	if (flags & PtrTypeFlag_Const) {
+		i3 = 1;
+		flags &= ~(PtrTypeFlag_ReadOnly | PtrTypeFlag_CMut);
+	} else if (flags & PtrTypeFlag_ReadOnly) {
+		i3 = 2;
+		flags &= ~(PtrTypeFlag_Const | PtrTypeFlag_CMut);
+	} else if (flags & PtrTypeFlag_CMut) {
+		i3 = 3;
+		flags &= ~(PtrTypeFlag_Const | PtrTypeFlag_ReadOnly);
+	} else
+		i3 = 0;
 
 	if (tuple->m_ptrTypeArray[i1][i2][i3][i4][i5])
 		return tuple->m_ptrTypeArray[i1][i2][i3][i4][i5];
@@ -1385,9 +1397,21 @@ TypeMgr::getClassPtrType(
 
 	size_t i1 = typeKind == TypeKind_ClassRef;
 	size_t i2 = ptrTypeKind;
-	size_t i3 = (flags & PtrTypeFlag_Const) ? 0 : (flags & PtrTypeFlag_ReadOnly) ? 1 : 2;
-	size_t i4 = (flags & PtrTypeFlag_Volatile) ? 0 : 1;
-	size_t i5 = (flags & PtrTypeFlag_Safe) ? 0 : 1;
+	size_t i3;
+	size_t i4 = (flags & PtrTypeFlag_Volatile) ? 1 : 0;
+	size_t i5 = (flags & PtrTypeFlag_Safe) ? 1 : 0;
+
+	if (flags & PtrTypeFlag_Const) {
+		i3 = 1;
+		flags &= ~(PtrTypeFlag_ReadOnly | PtrTypeFlag_CMut);
+	} else if (flags & PtrTypeFlag_ReadOnly) {
+		i3 = 2;
+		flags &= ~(PtrTypeFlag_Const | PtrTypeFlag_CMut);
+	} else if (flags & PtrTypeFlag_CMut) {
+		i3 = 3;
+		flags &= ~(PtrTypeFlag_Const | PtrTypeFlag_ReadOnly);
+	} else
+		i3 = 0;
 
 	if (tuple->m_ptrTypeArray[i1][i2][i3][i4][i5])
 		return tuple->m_ptrTypeArray[i1][i2][i3][i4][i5];
