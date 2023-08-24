@@ -52,6 +52,7 @@ protected:
 protected:
 	axl::io::HidDevice m_device;
 	IoThread m_ioThread;
+	DataPtr m_deviceDescPtr;
 
 public:
 	HidDevice();
@@ -62,9 +63,7 @@ public:
 
 	void
 	JNC_CDECL
-	markOpaqueGcRoots(GcHeap* gcHeap) {
-		AsyncIoDevice::markOpaqueGcRoots(gcHeap);
-	}
+	markOpaqueGcRoots(GcHeap* gcHeap);
 
 	void
 	JNC_CDECL
@@ -85,6 +84,11 @@ public:
 	bool
 	JNC_CDECL
 	setOptions(uint_t options);
+
+	static
+	DataPtr
+	JNC_CDECL
+	getDeviceDesc(HidDevice* self);
 
 	bool
 	JNC_CDECL

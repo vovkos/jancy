@@ -41,6 +41,12 @@ struct HidDeviceDesc {
 DataPtr
 enumerateHidDevices(DataPtr countPtr);
 
+DataPtr
+createHidDeviceDesc(
+	Runtime* runtime,
+	const hid_device_info* info
+);
+
 //..............................................................................
 
 } // namespace io

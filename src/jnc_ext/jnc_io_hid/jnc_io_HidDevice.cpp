@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "jnc_io_HidDevice.h"
+#include "jnc_io_HidEnumerator.h"
 #include "jnc_io_HidLib.h"
 #include "jnc_Error.h"
 
@@ -24,6 +25,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(HidDevice)
 	JNC_MAP_AUTOGET_PROPERTY("m_readBlockSize",  &HidDevice::setReadBlockSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_readBufferSize", &HidDevice::setReadBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_options",        &HidDevice::setOptions)
+	JNC_MAP_CONST_PROPERTY("m_deviceDesc",       &HidDevice::getDeviceDesc)
 
 	JNC_MAP_FUNCTION("open",                &HidDevice::open_0)
 	JNC_MAP_OVERLOAD(&HidDevice::open_1)
@@ -49,6 +51,13 @@ HidDevice::HidDevice() {
 	m_readBuffer.setBufferSize(Def_ReadBufferSize);
 }
 
+void
+JNC_CDECL
+HidDevice::markOpaqueGcRoots(GcHeap* gcHeap) {
+	AsyncIoDevice::markOpaqueGcRoots(gcHeap);
+	gcHeap->markDataPtr(m_deviceDescPtr);
+}
+
 bool
 JNC_CDECL
 HidDevice::setReadTimeout(uint_t timeout) {
@@ -72,6 +81,18 @@ HidDevice::setOptions(uint_t options) {
 
 	m_options = options | AsyncIoDeviceOption_KeepReadBlockSize;
 	return true;
+}
+
+DataPtr
+JNC_CDECL
+HidDevice::getDeviceDesc(HidDevice* self) {
+	if (!self->m_deviceDescPtr.m_p) {
+		const hid_device_info* info = self->m_device.getDeviceInfo();
+		if (info)
+			self->m_deviceDescPtr = createHidDeviceDesc(getCurrentThreadRuntime(), info);
+	}
+
+	return self->m_deviceDescPtr;
 }
 
 bool
@@ -138,6 +159,7 @@ HidDevice::close() {
 	m_ioThread.waitAndClose();
 	gcHeap->leaveWaitRegion();
 
+	m_deviceDescPtr = g_nullDataPtr;
 	m_device.close();
 	AsyncIoDevice::close();
 }

@@ -12,6 +12,7 @@
 import "io_base.jncx"
 import "io_StreamOptions.jnc"
 import "io_StreamEvents.jnc"
+import "io_HidEnumerator.jnc"
 
 namespace io {
 
@@ -41,6 +42,8 @@ opaque class HidDevice {
 	char const* const property m_manufacturer;
 	char const* const property m_product;
 	char const* const property m_serialNumber;
+
+	HidDeviceDesc* const property m_deviceDesc;
 
 	construct();
 	destruct();

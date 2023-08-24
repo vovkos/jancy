@@ -11,6 +11,7 @@
 
 import "io_hid.jncx"
 import "io_HidEnumerator.jnc"
+import "io_HidDevice.jnc"
 import "io_HidRd.jnc"
 import "std_String.jnc"
 
