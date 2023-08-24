@@ -306,11 +306,9 @@ DeclTypeCalc::getPtrTypeFlags(
 
 	if (m_typeModifiers & TypeModifier_Const)
 		flags |= PtrTypeFlag_Const;
-
-	if (m_typeModifiers & TypeModifier_ReadOnly)
+	else if (m_typeModifiers & TypeModifier_ReadOnly)
 		flags |= PtrTypeFlag_ReadOnly;
-
-	if (m_typeModifiers & TypeModifier_CMut)
+	else if (m_typeModifiers & TypeModifier_CMut)
 		flags |= PtrTypeFlag_CMut;
 
 	if (m_typeModifiers & TypeModifier_Volatile) {
