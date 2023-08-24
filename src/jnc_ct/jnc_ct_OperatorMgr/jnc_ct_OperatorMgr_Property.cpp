@@ -263,13 +263,19 @@ OperatorMgr::getPropertyBinder(
 	if (!result)
 		return false;
 
-	Value pfnValue;
-	m_module->m_llvmIrBuilder.createGep2(VtableValue, 0, NULL, &pfnValue);
-	m_module->m_llvmIrBuilder.createLoad(
-		pfnValue,
-		propertyType->getBinderType()->getFunctionPtrType(FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe),
-		resultValue
-	);
+	FunctionPtrType* binderPtrType = propertyType->getBinderType()->getFunctionPtrType(FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe);
+
+	if (!m_module->hasCodeGen()) {
+		resultValue->setType(binderPtrType);
+	} else {
+		Value pfnValue;
+		m_module->m_llvmIrBuilder.createGep2(VtableValue, 0, NULL, &pfnValue);
+		m_module->m_llvmIrBuilder.createLoad(
+			pfnValue,
+			binderPtrType,
+			resultValue
+		);
+	}
 
 	resultValue->setClosure(VtableValue.getClosure());
 	return true;
