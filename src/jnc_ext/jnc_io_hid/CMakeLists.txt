@@ -93,6 +93,7 @@ include_directories(
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
 	../jnc_io_cmn
+	../jnc_std
 )
 
 link_directories(
@@ -147,6 +148,7 @@ target_link_libraries(
 	jnc_io_hid
 	jnc_io_cmn
 	jnc_api_ext
+	jnc_std
 	axl_io_hid
 	axl_ini
 	axl_lex

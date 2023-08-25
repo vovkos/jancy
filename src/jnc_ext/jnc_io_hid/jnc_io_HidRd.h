@@ -23,6 +23,7 @@ class HidDb;
 
 JNC_DECLARE_OPAQUE_CLASS_TYPE(HidReportField)
 JNC_DECLARE_OPAQUE_CLASS_TYPE(HidReport)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(HidStandaloneReport)
 JNC_DECLARE_OPAQUE_CLASS_TYPE(HidRdCollection)
 JNC_DECLARE_OPAQUE_CLASS_TYPE(HidRd)
 
@@ -47,6 +48,7 @@ getHidRdComplexUnitString(uint32_t unit) {
 
 class HidReportField: public IfaceHdr {
 	friend class HidRd;
+	friend class HidStandaloneReport;
 
 public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(HidReportField)
@@ -54,7 +56,6 @@ public:
 public:
 	HidReport* m_report;
 	HidUsagePage* m_usagePage;
-	size_t m_bitOffset;
 	size_t m_bitCount;
 	uint_t m_valueFlags;
 	uint_t m_mask;
@@ -102,7 +103,6 @@ HidReportField::init(
 	m_report = report;
 	m_usagePage = usagePage ? db->getUsagePage(usagePage->getId()) : NULL;
 	m_field = field;
-	m_bitOffset = field->getBitOffset();
 	m_bitCount = field->getBitCount();
 	m_valueFlags = field->getValueFlags();
 	m_mask = field->getMask();
@@ -113,7 +113,6 @@ inline
 void
 HidReportField::detach() {
 	m_report = NULL;
-	m_bitOffset = 0;
 	m_bitCount = 0;
 	m_valueFlags = 0;
 	m_mask = 0;
@@ -128,7 +127,12 @@ public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(HidReport)
 
 public:
-	HidRd* m_rd;
+	enum FieldStorageKind {
+		FieldStorageKind_Rd,
+		FieldStorageKind_StandaloneReport,
+	};
+
+public:
 	axl::io::HidReportKind m_reportKind;
 	uint_t m_reportId;
 	size_t m_bitCount; // size of all fields in bits
@@ -136,19 +140,22 @@ public:
 	size_t m_fieldCount;
 
 protected:
+	FieldStorageKind m_fieldStorageKind;
+	HidRd* m_rd;
 	const axl::io::HidReport* m_report;
 
 public:
+	void
+	JNC_CDECL
+	markOpaqueGcRoots(jnc::GcHeap* gcHeap);
+
 	HidReportField*
 	JNC_CDECL
 	getField(size_t i);
 
-	void
+	size_t
 	JNC_CDECL
-	decode(DataPtr ptr) const {
-		if (m_report)
-			m_report->decode(ptr.m_p);
-	}
+	saveDecodeInfo(std::Buffer* buffer);
 
 protected:
 	void
@@ -169,6 +176,7 @@ HidReport::init(
 	HidRd* rd,
 	const axl::io::HidReport* report
 ) {
+	m_fieldStorageKind = FieldStorageKind_Rd;
 	m_rd = rd;
 	m_report = report;
 	m_reportKind = report->getReportKind();
@@ -192,6 +200,34 @@ HidReport::detach() {
 
 //..............................................................................
 
+class HidStandaloneReport: public HidReport {
+public:
+	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(HidStandaloneReport)
+
+protected:
+	HidDb* m_db;
+	axl::io::HidStandaloneReport m_standaloneReport;
+	sl::Array<HidReportField*> m_fieldArray;
+
+public:
+	void
+	JNC_CDECL
+	markOpaqueGcRoots(jnc::GcHeap* gcHeap);
+
+	void
+	JNC_CDECL
+	loadDecodeInfo(
+		HidDb const* db,
+		DataPtr ptr,
+		size_t size
+	);
+
+	HidReportField*
+	getFieldImpl(size_t i);
+};
+
+//..............................................................................
+
 class HidRdCollection: public IfaceHdr {
 	friend class HidRd;
 
@@ -199,7 +235,6 @@ public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(HidRdCollection)
 
 public:
-	HidRd* m_rd;
 	axl::io::HidRdCollectionKind m_collectionKind;
 	HidUsagePage* m_usagePage;
 	uint_t m_usage;
@@ -207,6 +242,7 @@ public:
 	size_t m_fieldCount;
 
 protected:
+	HidRd* m_rd;
 	const axl::io::HidRdCollection* m_collection;
 	sl::Array<HidRdCollection*> m_collectionArray;
 

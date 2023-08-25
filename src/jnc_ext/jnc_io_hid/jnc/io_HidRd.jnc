@@ -200,7 +200,6 @@ bitflag enum HidRdValueFlags {
 opaque class HidReportField {
 	HidReport const* const m_report;
 	HidUsagePage const* const m_usagePage;
-	size_t const m_bitOffset;
 	size_t const m_bitCount;
 	HidRdValueFlags const m_valueFlags;
 	protected uint_t const m_mask;
@@ -236,7 +235,6 @@ enum HidReportKind {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 opaque class HidReport {
-	HidRd const* const m_rd;
 	HidReportKind const m_reportKind;
 	uint_t const m_reportId;
 	size_t const m_bitCount; // size of all fields in bits
@@ -244,7 +242,20 @@ opaque class HidReport {
 	size_t const m_fieldCount;
 	HidReportField const* const property m_fieldArray(size_t i);
 
-	void decode(void const* p) const; // at least m_size bytes expected
+	size_t errorcode saveDecodeInfo(std.Buffer* buffer) const;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class HidStandaloneReport: HidReport {
+	construct();
+	destruct();
+
+	void loadDecodeInfo(
+		HidDb const* db,
+		void const* p,
+		size_t size
+	);
 }
 
 //..............................................................................
@@ -262,7 +273,6 @@ enum HidRdCollectionKind {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 opaque class HidRdCollection {
-	HidRd const* const m_rd;
 	HidRdCollectionKind const m_collectionKind;
 	HidUsagePage const* const m_usagePage;
 	uint_t const m_usage;

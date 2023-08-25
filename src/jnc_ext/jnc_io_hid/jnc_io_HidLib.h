@@ -30,6 +30,7 @@ enum HidLibCacheSlot {
 	HidLibCacheSlot_HidDeviceDesc,
 	HidLibCacheSlot_HidReportField,
 	HidLibCacheSlot_HidReport,
+	HidLibCacheSlot_HidStandaloneReport,
 	HidLibCacheSlot_HidRdCollection,
 	HidLibCacheSlot_HidRd,
 	HidLibCacheSlot_HidUsagePage,

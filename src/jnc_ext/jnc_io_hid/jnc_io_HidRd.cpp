@@ -40,12 +40,29 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	g_hidLibGuid,
 	HidLibCacheSlot_HidReport,
 	HidReport,
-	NULL
+	&HidReport::markOpaqueGcRoots
 )
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(HidReport)
 	JNC_MAP_CONST_PROPERTY("m_fieldArray", &HidReport::getField)
-	JNC_MAP_FUNCTION("decode", &HidReport::decode)
+	JNC_MAP_FUNCTION("saveDecodeInfo", &HidReport::saveDecodeInfo)
+JNC_END_TYPE_FUNCTION_MAP()
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DEFINE_OPAQUE_CLASS_TYPE(
+	HidStandaloneReport,
+	"io.HidStandaloneReport",
+	g_hidLibGuid,
+	HidLibCacheSlot_HidStandaloneReport,
+	HidStandaloneReport,
+	&HidStandaloneReport::markOpaqueGcRoots
+)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP(HidStandaloneReport)
+	JNC_MAP_CONSTRUCTOR(&jnc::construct<HidStandaloneReport>)
+	JNC_MAP_DESTRUCTOR(&jnc::destruct<HidStandaloneReport>)
+	JNC_MAP_FUNCTION("loadDecodeInfo", &HidStandaloneReport::loadDecodeInfo)
 JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -92,6 +109,13 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
+void
+JNC_CDECL
+HidReport::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
+	if (m_rd)
+		gcHeap->weakMark(m_rd->m_box);
+}
+
 HidReportField*
 JNC_CDECL
 HidReport::getField(size_t i) {
@@ -100,7 +124,81 @@ HidReport::getField(size_t i) {
 
 	ASSERT(m_report->getFieldArray().getCount() == m_fieldCount);
 	const axl::io::HidReportField* field = m_report->getFieldArray()[i];
-	return m_rd->getField(field);
+
+	switch (m_fieldStorageKind) {
+	case FieldStorageKind_Rd:
+		ASSERT(m_rd);
+		return m_rd->getField(field);
+
+	case FieldStorageKind_StandaloneReport:
+		ASSERT(!m_rd);
+		return static_cast<HidStandaloneReport*>(this)->getFieldImpl(i);
+
+	default:
+		ASSERT(false);
+		return NULL;
+	}
+}
+
+size_t
+JNC_CDECL
+HidReport::saveDecodeInfo(std::Buffer* resultBuffer) {
+	char stackBuffer[256];
+	sl::Array<char> buffer(rc::BufKind_Stack, stackBuffer, sizeof(stackBuffer));
+	m_report->saveDecodeInfo(&buffer);
+	return resultBuffer->copy_u(buffer.cp(), buffer.getCount());
+}
+
+//..............................................................................
+
+void
+JNC_CDECL
+HidStandaloneReport::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
+	size_t count = m_fieldArray.getCount();
+	for (size_t i = 0; i < count; i++)
+		gcHeap->markClassPtr(m_fieldArray[i]);
+
+	gcHeap->markClassPtr(m_db);
+}
+
+void
+JNC_CDECL
+HidStandaloneReport::loadDecodeInfo(
+	HidDb const* db,
+	DataPtr ptr,
+	size_t size
+) {
+	m_standaloneReport.loadDecodeInfo(db->getDb(), ptr.m_p, size);
+
+	m_fieldStorageKind = FieldStorageKind_StandaloneReport;
+	m_rd = NULL;
+	m_report = &m_standaloneReport;
+	m_reportKind = m_standaloneReport.getReportKind();
+	m_reportId = m_standaloneReport.getReportId();
+	m_bitCount = m_standaloneReport.getBitCount();
+	m_size = m_standaloneReport.getSize();
+	m_fieldCount = m_standaloneReport.getFieldArray().getCount();
+	m_fieldArray.setCountZeroConstruct(m_fieldCount);
+}
+
+HidReportField*
+HidStandaloneReport::getFieldImpl(size_t i) {
+	ASSERT(m_fieldArray.getCount() == m_fieldCount);
+
+	if (i >= m_fieldCount)
+		return NULL;
+
+	if (m_fieldArray[i])
+		return m_fieldArray[i];
+
+	const axl::io::HidReportField* field = m_standaloneReport.getFieldArray()[i];
+	Runtime* runtime = getCurrentThreadRuntime();
+	NoCollectRegion noCollectRegion(runtime);
+
+	HidReportField* newField = createClass<HidReportField>(runtime);
+	newField->init(this, m_db, field);
+	m_fieldArray[i] = newField;
+	return newField;
 }
 
 //..............................................................................
@@ -111,6 +209,9 @@ HidRdCollection::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 	size_t count = m_collectionArray.getCount();
 	for (size_t i = 0; i < count; i++)
 		gcHeap->markClassPtr(m_collectionArray[i]);
+
+	if (m_rd)
+		gcHeap->weakMark(m_rd->m_box);
 }
 
 HidRdCollection*
@@ -162,6 +263,10 @@ HidRd::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 	sl::MapIterator<const axl::io::HidReportField*, HidReportField*> it2 = m_fieldMap.getHead();
 	for (; it2; it2++)
 		gcHeap->markClassPtr(it2->m_value);
+
+	sl::MapIterator<const axl::io::HidRdCollection*, HidRdCollection*> it3 = m_collectionMap.getHead();
+	for (; it3; it3++)
+		gcHeap->markClassPtr(it3->m_value);
 
 	gcHeap->markClassPtr(m_db);
 }

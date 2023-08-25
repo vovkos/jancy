@@ -37,5 +37,6 @@ using namespace axl;
 #include "jnc_Capability.h"
 #include "jnc_CallSite.h"
 #include "jnc_Error.h"
+#include "jnc_std_Buffer.h"
 
 //..............................................................................
