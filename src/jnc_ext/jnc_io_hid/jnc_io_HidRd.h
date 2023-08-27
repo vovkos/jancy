@@ -214,7 +214,7 @@ public:
 	JNC_CDECL
 	markOpaqueGcRoots(jnc::GcHeap* gcHeap);
 
-	void
+	size_t
 	JNC_CDECL
 	loadDecodeInfo(
 		HidDb const* db,

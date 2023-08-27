@@ -10,6 +10,7 @@
 //..............................................................................
 
 import "io_HidDb.jnc"
+import "std_Buffer.jnc"
 
 namespace io {
 
@@ -251,7 +252,7 @@ opaque class HidStandaloneReport: HidReport {
 	construct();
 	destruct();
 
-	void loadDecodeInfo(
+	size_t errorcode loadDecodeInfo(
 		HidDb const* db,
 		void const* p,
 		size_t size
