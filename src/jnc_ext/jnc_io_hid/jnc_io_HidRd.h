@@ -101,7 +101,7 @@ HidReportField::init(
 	const axl::io::HidUsagePage* usagePage = field->getUsagePage();
 
 	m_report = report;
-	m_usagePage = usagePage ? db->getUsagePage(usagePage->getId()) : NULL;
+	m_usagePage = db && usagePage ? db->getUsagePage(usagePage->getId()) : NULL;
 	m_field = field;
 	m_bitCount = field->getBitCount();
 	m_valueFlags = field->getValueFlags();
@@ -217,7 +217,7 @@ public:
 	size_t
 	JNC_CDECL
 	loadDecodeInfo(
-		HidDb const* db,
+		HidDb* db,
 		DataPtr ptr,
 		size_t size
 	);

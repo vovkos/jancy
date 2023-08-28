@@ -164,7 +164,7 @@ HidStandaloneReport::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 size_t
 JNC_CDECL
 HidStandaloneReport::loadDecodeInfo(
-	HidDb const* db,
+	HidDb* db,
 	DataPtr ptr,
 	size_t size
 ) {
@@ -176,6 +176,7 @@ HidStandaloneReport::loadDecodeInfo(
 
 	m_fieldStorageKind = FieldStorageKind_StandaloneReport;
 	m_rd = NULL;
+	m_db = db;
 	m_report = &m_standaloneReport;
 	m_reportKind = m_standaloneReport.getReportKind();
 	m_reportId = m_standaloneReport.getReportId();

@@ -27,6 +27,7 @@ JNC_DEFINE_LIB_EX(
 )
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE(HidLib)
+	JNC_LIB_REQUIRE_TYPE(TypeKind_Class, "io.HidUsagePage") // HidReportField: HidUsagePage const* const m_usagePage;
 JNC_END_LIB_SOURCE_FILE_TABLE()
 
 JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(HidLib)
