@@ -495,10 +495,19 @@ if(BUILD_JNC_IO_USB)
 			representSerialLog
 		FILES
 			SerialTapSession.jnc
+			SerialTapDispatchCode.jnc
 			../SerialLog/SerialLogRecordCode.jnc
 			../SerialLog/SerialLogRepresenter.jnc
 			../SerialLog/SerialLogFilter.jnc
 		FINALIZE_TEST SerialTap
+
+		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/SerialTap
+		REQUIRES
+			SerialTapDispatch
+		FILES
+			SerialTapDispatchCode.jnc
+			SerialTapDispatch.jnc
+		FINALIZE_TEST SerialTapDispatch
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/I2cSpiTap
 		REQUIRES
