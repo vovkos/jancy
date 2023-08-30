@@ -23,11 +23,13 @@ opaque class Layout {
 	int autoget property m_spacing;
 
 	destruct();
+
+	void clear();
 }
 
 //..............................................................................
 
-opaque class BoxLayout: Layout {
+class BoxLayout: Layout {
 	enum Direction {
 		LeftToRight,
 		RightToLeft,
@@ -74,7 +76,7 @@ class VBoxLayout: BoxLayout {
 
 //..............................................................................
 
-opaque class FormLayout: Layout {
+class FormLayout: Layout {
 	construct();
 
 	void addRow(Widget* widget);

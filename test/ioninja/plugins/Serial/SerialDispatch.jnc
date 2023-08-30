@@ -96,13 +96,13 @@ class SerialDispatch: ias.Session {
 		}
 	}
 
-	property m_break {
+	property m_breakCondition {
 		bool get() {
-			return dispatchGet(SerialDispatchCode.GetBreak);
+			return dispatchGet(SerialDispatchCode.GetBreakCondition);
 		}
 
 		void set(bool value) {
-			dispatch(SerialDispatchCode.SetBreak, value);
+			dispatch(SerialDispatchCode.SetBreakCondition, value);
 		}
 	}
 

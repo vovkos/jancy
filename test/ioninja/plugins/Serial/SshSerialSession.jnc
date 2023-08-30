@@ -803,6 +803,11 @@ reactor SshSerialSession.m_uiReactor {
 		$"Serial $(m_ssh.m_remoteAddress.getString()) $m_portName $m_baudRate bps" :
 		$"Serial $(m_addressCombo.m_currentText) $(m_portCombo.m_currentText) $(m_serialUi.m_baudRateCombo.m_editText)";
 
+	m_sessionConnectionState =
+		m_ssh.m_state == State.Connected ? SessionConnectionState.Connected :
+		m_ssh.m_state == State.Closed ? SessionConnectionState.Disconnected :
+		SessionConnectionState.Connecting;
+
 	m_actionTable[ActionId.Connect].m_text = m_ssh.m_state ? "Close" : "Open";
 	m_actionTable[ActionId.Connect].m_icon = m_iconTable[m_ssh.m_state ? IconId.Disconnect : IconId.Connect];
 	m_serialUi.m_rtsAction.m_isEnabled = m_serialUi.m_flowControlCombo.m_currentData != io.SerialFlowControl.RtsCts;

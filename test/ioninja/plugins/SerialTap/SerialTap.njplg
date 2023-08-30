@@ -14,13 +14,19 @@ log-guid    = 29725452-e64f-4c0e-a871-776277b68572  # serial log
 icon        = images/serialmon.png
 small-icon  = images/serialmon-16x16.png
 
-session-class = SerialTapSession
+session-class  = SerialTapSession
+dispatch-class = SerialTapDispatch
 
 [required-capabilities]
 
 com.ioninja.io.serial-tap
-org.jancy.io.file
 
 [scripts]
 
 SerialTapSession.jnc
+SerialTapDispatchCode.jnc
+
+[dispatch-scripts]
+
+SerialTapDispatchCode.jnc
+SerialTapDispatch.jnc

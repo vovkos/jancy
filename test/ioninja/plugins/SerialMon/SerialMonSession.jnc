@@ -83,6 +83,14 @@ public:
 	override bool errorcode applyProperties();
 	override void restoreDefaultProperties();
 
+	override bool errorcode connectSession() {
+		return m_sessionConnectionState ? true : capture();
+	}
+
+	override void disconnectSession() {
+		close();
+	}
+
 protected:
 	void onCapture() {
 		m_state ? close() : try capture();
@@ -258,6 +266,10 @@ reactor SerialMonSession.m_uiReactor {
 	m_title = m_state ?
 		$"Monitor $m_portName" :
 		$"Monitor $(m_portCombo.m_currentText)";
+
+	m_sessionConnectionState = m_state ?
+		SessionConnectionState.Connected :
+		SessionConnectionState.Disconnected;
 
 	m_actionTable[ActionId.Capture].m_text = m_state ? "Stop capture" : "Capture";
 	m_actionTable[ActionId.Capture].m_icon = m_iconTable[m_state ? IconId.StopCapture : IconId.Capture];

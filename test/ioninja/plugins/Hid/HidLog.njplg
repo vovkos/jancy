@@ -1,0 +1,33 @@
+#...............................................................................
+#
+#  HID log plugin
+#
+
+[plugin]
+
+name        = "HID Log"
+description = "HID log representer"
+group       = usb
+guid        = cd2c079d-63ff-4b2f-a385-0a4fe3afaac2
+icon        = images/hid.png
+small-icon  = images/hid-16x16.png
+
+log-representer-func = representHidLog
+
+[scripts]
+
+HidLogRecordCode.jnc
+HidLogRepresenter.jnc
+HidDb.jnc
+
+[records]
+
+81d9d57271fc2800  # Open
+01d9d57271fc2801  # OpenError
+01d9d57271fc2802  # Close
+81d9d57271fc2803  # DeviceInfo
+81d9d57271fc2804  # ReportDescriptor
+01d9d57271fc2805  # InputReport
+01d9d57271fc2806  # OutputReport
+01d9d57271fc2807  # GetFeatureReport
+01d9d57271fc2808  # SendFeatureReport

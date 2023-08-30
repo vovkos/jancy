@@ -18,7 +18,7 @@ session-class = UsbMonSession
 
 [required-capabilities]
 
-org.jancy.io.devmon
+org.jancy.io.usb
 
 [scripts]
 

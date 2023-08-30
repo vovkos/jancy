@@ -93,6 +93,14 @@ public:
 	override errorcode bool applyProperties();
 	override void restoreDefaultProperties();
 
+	override bool errorcode connectSession() {
+		return m_sessionConnectionState ? true : connect();
+	}
+
+	override void disconnectSession() {
+		disconnect();
+	}
+
 protected:
 	void onCapture() {
 		m_ssh.m_state ? disconnect() : try connect();
@@ -454,6 +462,11 @@ reactor SshEthernetTapSession.m_uiReactor {
 	m_title = m_ssh.m_state == State.Connected ?
 		$"Ethernet Tap $(m_ssh.m_remoteAddress.getString())" :
 		$"Ethernet Tap $(m_addressCombo.m_currentText)";
+
+	m_sessionConnectionState =
+		m_ssh.m_state == State.Connected ? SessionConnectionState.Connected :
+		m_ssh.m_state == State.Closed ? SessionConnectionState.Disconnected :
+		SessionConnectionState.Connecting;
 
 	m_actionTable[ActionId.Capture].m_text = m_ssh.m_state ? "Stop capture" : "Capture";
 	m_actionTable[ActionId.Capture].m_icon = m_iconTable[m_ssh.m_state ? IconId.StopCapture : IconId.Capture];

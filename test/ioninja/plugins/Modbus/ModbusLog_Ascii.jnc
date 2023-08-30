@@ -75,7 +75,7 @@ void representModbusAsciiAdu(
 		} else {
 			representation.addHyperText(
 				$"    Checksum:  \e^!%1,%2\e[34m0x%(3; 04x)\e[m [\e[31mERROR\e[m] \e[90m(expected: 0x%(4; 04X))\e[m" (
-				checksumOffset,
+				size - 4, // xx\r\n
 				2,
 				actualChecksum,
 				expectedChecksum

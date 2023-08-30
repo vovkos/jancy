@@ -631,25 +631,7 @@ bool errorcode SerialSession.dispatch(
 	case SerialDispatchCode.SetDataBits:
 		uint_t dataBits = in;
 		m_serialUi.m_dataBits = dataBits;
-
-		if (m_state && m_serial.m_dataBits != dataBits) {
-			m_serial.m_dataBits = dataBits;
-			m_logWriter.write(SerialLogRecordCode.DataBitsChanged, &dataBits, sizeof(dataBits));
-		}
-		break;
-
-	case SerialDispatchCode.GetStopBits:
-		*out = m_serialUi.m_stopBits;
-		break;
-
-	case SerialDispatchCode.SetStopBits:
-		io.SerialStopBits stopBits = in;
-		m_serialUi.m_stopBits = stopBits;
-
-		if (m_state && m_serial.m_stopBits != stopBits) {
-			m_serial.m_stopBits = stopBits;
-			m_logWriter.write(SerialLogRecordCode.StopBitsChanged, &stopBits, sizeof(stopBits));
-		}
+		onDataBitsChanged();
 		break;
 
 	case SerialDispatchCode.GetParity:
@@ -659,11 +641,17 @@ bool errorcode SerialSession.dispatch(
 	case SerialDispatchCode.SetParity:
 		io.SerialParity parity = in;
 		m_serialUi.m_parity = parity;
+		onParityChanged();
+		break;
 
-		if (m_state && m_serial.m_parity != parity) {
-			m_serial.m_parity = parity;
-			m_logWriter.write(SerialLogRecordCode.ParityChanged, &parity, sizeof(parity));
-		}
+	case SerialDispatchCode.GetStopBits:
+		*out = m_serialUi.m_stopBits;
+		break;
+
+	case SerialDispatchCode.SetStopBits:
+		io.SerialStopBits stopBits = in;
+		m_serialUi.m_stopBits = stopBits;
+		onStopBitsChanged();
 		break;
 
 	case SerialDispatchCode.GetFlowControl:
@@ -673,11 +661,7 @@ bool errorcode SerialSession.dispatch(
 	case SerialDispatchCode.SetFlowControl:
 		io.SerialFlowControl flowControl = in;
 		m_serialUi.m_flowControl = flowControl;
-
-		if (m_state && m_serial.m_flowControl != flowControl) {
-			m_serial.m_flowControl = flowControl;
-			m_logWriter.write(SerialLogRecordCode.FlowControlChanged, &flowControl, sizeof(flowControl));
-		}
+		onFlowControlChanged();
 		break;
 
 	case SerialDispatchCode.GetStatusLines:

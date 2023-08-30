@@ -31,13 +31,13 @@ opaque class Property {
 
 //..............................................................................
 
-opaque class GroupProperty: Property {
+class GroupProperty: Property {
 	construct(char const* name);
 }
 
 //..............................................................................
 
-opaque class BoolProperty: Property {
+class BoolProperty: Property {
 	construct(char const* name);
 
 	bool bindable autoget property m_value;
@@ -46,7 +46,7 @@ opaque class BoolProperty: Property {
 
 //..............................................................................
 
-opaque class IntProperty: Property {
+class IntProperty: Property {
 	construct(char const* name);
 
 	int bindable autoget property m_value;
@@ -57,7 +57,7 @@ opaque class IntProperty: Property {
 
 //..............................................................................
 
-opaque class StringProperty: Property {
+class StringProperty: Property {
 	construct(char const* name);
 
 	char const* bindable autoget property m_value;
@@ -147,18 +147,18 @@ opaque class FlagProperty: Property {
 
 //..............................................................................
 
-opaque class ColorProperty: Property {
-	construct(char const* name);
-
+class ColorProperty: Property {
 	uint_t bindable autoget property m_value;
+
+	construct(char const* name);
 }
 
 //..............................................................................
 
-opaque class ActionProperty: Property {
-	construct(char const* name);
-
+class ActionProperty: Property {
 	function* m_onAction();
+
+	construct(char const* name);
 }
 
 //..............................................................................
@@ -185,7 +185,7 @@ bitflag enum FilePropertyOptions {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class FileProperty: Property {
+class FileProperty: Property {
 	construct(char const* name);
 
 	char const* bindable autoget property m_value;
@@ -199,7 +199,7 @@ opaque class FileProperty: Property {
 
 //..............................................................................
 
-opaque class DictionaryProperty: Property {
+class DictionaryProperty: Property {
 	construct(char const* name);
 
 	DictionaryEntry const* bindable autoget property m_value; // onChanged is also fired when contents changes

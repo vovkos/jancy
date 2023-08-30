@@ -245,6 +245,20 @@ public:
 	override bool errorcode applyProperties();
 	override void restoreDefaultProperties();
 
+	override bool errorcode connectSession() {
+		return m_sessionConnectionState ? true : capture();
+	}
+
+	override void disconnectSession() {
+		stopCapture();
+	}
+
+	override bool errorcode dispatch(
+		uint_t code,
+		variant in,
+		variant* out
+	);
+
 protected:
 	void onCapture() {
 		m_state ? stopCapture() : try capture();
@@ -740,6 +754,78 @@ void SerialTapSession.restoreDefaultProperties() {
 	m_bufferPropertySet.restoreDefaults();
 }
 
+bool errorcode SerialTapSession.dispatch(
+	uint_t code,
+	variant in,
+	variant* out
+) {
+	switch (code) {
+	case SerialTapDispatchCode.GetBaudRate:
+		*out = m_serialUi.m_baudRate;
+		break;
+
+	case SerialTapDispatchCode.SetBaudRate:
+		m_serialUi.m_baudRate = in;
+		onBaudRateChanged();
+		break;
+
+	case SerialTapDispatchCode.GetDataBits:
+		*out = m_serialUi.m_dataBits;
+		break;
+
+	case SerialTapDispatchCode.SetDataBits:
+		uint_t dataBits = in;
+		m_serialUi.m_dataBits = dataBits;
+		onDataBitsChanged();
+		break;
+
+	case SerialTapDispatchCode.GetParity:
+		*out = m_serialUi.m_parity;
+		break;
+
+	case SerialTapDispatchCode.SetParity:
+		io.SerialParity parity = in;
+		m_serialUi.m_parity = parity;
+		onParityChanged();
+		break;
+
+	case SerialTapDispatchCode.GetStopBits:
+		*out = m_serialUi.m_stopBits;
+		break;
+
+	case SerialTapDispatchCode.SetStopBits:
+		io.SerialStopBits stopBits = in;
+		m_serialUi.m_stopBits = stopBits;
+		onStopBitsChanged();
+		break;
+
+	case SerialTapDispatchCode.GetStatusLines:
+		*out = m_dteIface.m_statusLines;
+		break;
+
+	case SerialTapDispatchCode.GetDtr:
+		*out = (m_dceIface.m_statusLines & io.SerialStatusLines.Dsr) != 0;
+		break;
+
+	case SerialTapDispatchCode.GetRts:
+		*out = (m_dceIface.m_statusLines & io.SerialStatusLines.Cts) != 0;
+		break;
+
+	case SerialTapDispatchCode.Capture:
+		return capture();
+
+	case SerialTapDispatchCode.StopCapture:
+		stopCapture();
+		break;
+
+	default:
+		std.setError("unsupported dispatch code");
+		return false;
+	}
+
+	return true;
+}
+
 void SerialTapSession.onBaudRateChanged() {
 	if (m_state != State.Opened)
 		return;
@@ -820,6 +906,10 @@ reactor SerialTapSession.m_uiReactor {
 	m_title = m_state ?
 		$"Serial Tap $(m_deviceName)" :
 		$"Serial Tap $(m_deviceCombo.m_currentText)";
+
+	m_sessionConnectionState = m_state == State.Opened ?
+		SessionConnectionState.Connected :
+		SessionConnectionState.Disconnected;
 
 	m_actionTable[ActionId.Capture].m_text = m_state ? "Stop capture" : "Capture";
 	m_actionTable[ActionId.Capture].m_icon = m_iconTable[m_state ? IconId.StopCapture : IconId.Capture];

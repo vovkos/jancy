@@ -1,0 +1,41 @@
+//..............................................................................
+//
+// HID log record codes
+//
+
+import "log_RecordCode.jnc"
+
+//..............................................................................
+
+enum HidLogRecordCode: uint64_t {
+	Open              = 0x01d9d57271fc2800 | log.RecordCodeFlags.Foldable,
+	OpenError         = 0x01d9d57271fc2801,
+	Close             = 0x01d9d57271fc2802,
+	DeviceInfo        = 0x01d9d57271fc2803 | log.RecordCodeFlags.Foldable,
+	ReportDescriptor  = 0x01d9d57271fc2804 | log.RecordCodeFlags.Foldable,
+	InputReport       = 0x01d9d57271fc2805,
+	OutputReport      = 0x01d9d57271fc2806,
+	GetFeatureReport  = 0x01d9d57271fc2807,
+	SendFeatureReport = 0x01d9d57271fc2808,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct DeviceInfoParams {
+	uint16_t m_releaseNumber;
+	uint16_t m_vendorId;
+	uint16_t m_productId;
+	uint16_t m_usagePage;
+	uint16_t m_usage;
+	uint8_t m_interfaceId;
+	uint8_t m_busType; // io.HidBusKind
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct UnknownReportParams {
+	uint16_t m_decodeInfoSize; // zero to indicate unknown report
+	uint16_t m_reportId;
+}
+
+//..............................................................................

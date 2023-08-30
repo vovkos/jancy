@@ -20,7 +20,6 @@ null-packets   = true
 [required-capabilities]
 
 org.jancy.io.usb
-org.jancy.io.file
 
 [scripts]
 

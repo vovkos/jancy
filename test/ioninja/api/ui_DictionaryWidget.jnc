@@ -13,7 +13,7 @@ namespace ui {
 
 //..............................................................................
 
-opaque class DictionaryWidget: Widget {
+class DictionaryWidget: Widget {
 	char const* autoget property m_keyColumnName;
 	char const* autoget property m_valueColumnName;
 	char const* autoget property m_placeholderText;

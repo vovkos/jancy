@@ -1,13 +1,11 @@
 //..............................................................................
 //
-// Serial session dispatch codes for IAS
+// Serial Tap session dispatch codes for IAS
 //
 
 //..............................................................................
 
-enum SerialDispatchCode {
-	GetPortName,
-	SetPortName,
+enum SerialTapDispatchCode {
 	GetBaudRate,
 	SetBaudRate,
 	GetDataBits,
@@ -16,17 +14,11 @@ enum SerialDispatchCode {
 	SetParity,
 	GetStopBits,
 	SetStopBits,
-	GetFlowControl,
-	SetFlowControl,
 	GetStatusLines,
 	GetDtr,
-	SetDtr,
 	GetRts,
-	SetRts,
-	GetBreakCondition,
-	SetBreakCondition,
-	Open,
-	Close
+	Capture,
+	StopCapture,
 }
 
 //..............................................................................

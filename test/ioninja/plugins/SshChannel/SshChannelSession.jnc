@@ -129,6 +129,14 @@ public:
 		size_t size
 	);
 
+	override bool errorcode connectSession() {
+		return m_sessionConnectionState ? true : connect();
+	}
+
+	override void disconnectSession() {
+		disconnect();
+	}
+
 protected:
 	void close();
 	void handleSocketError(std.Error const* error);
@@ -740,6 +748,12 @@ void SshChannelSession.onReconnectTimer(uint_t syncId) {
 
 reactor SshChannelSession.m_uiReactor {
 	m_title = $"SSH $(m_addressCombo.m_currentText)";
+
+	m_sessionConnectionState =
+		m_state == State.Connected ? SessionConnectionState.Connected :
+		m_state == State.Closed ? SessionConnectionState.Disconnected :
+		SessionConnectionState.Connecting;
+
 	m_actionTable[ActionId.Connect].m_text = m_state ? "Disconnect" : "Connect";
 	m_actionTable[ActionId.Connect].m_icon = m_iconTable[m_state ? IconId.Disconnect : IconId.Connect];
 	m_statusPaneTable[StatusPaneId.State].m_text = m_stateStringTable[m_state];

@@ -48,12 +48,9 @@ void ModbusAsciiParser.parse(
 ) {
 	updateLastTimestamp(timestamp);
 
-	// write the original data first
-
-	writer.write(timestamp, originalRecordCode, p, size);
-
 	ModbusLogRecordCode recordCode = getPacketRecordCode();
 
+	void const* p0 = p;
 	void const* adu = p;
 	void const* end = p + size;
 	while (p < end) {
@@ -80,6 +77,11 @@ void ModbusAsciiParser.parse(
 
 		case State.Cr:
 			if (*(char const*) p != '\n') {
+				if (p0 < end) {
+					writer.write(timestamp, originalRecordCode, p0, p - p0);
+					p0 = p;
+				}
+
 				std.setError("Missing '\\n' in Modbus ASCII frame");
 				writer.writeLastError(timestamp, ModbusLogRecordCode.ParseError);
 				m_infoSet.addError();
@@ -89,19 +91,26 @@ void ModbusAsciiParser.parse(
 
 			// frame completed
 
-			m_dataBuffer.append(adu, p - adu + 1);
+			p++;
+			writer.write(timestamp, originalRecordCode, p0, p - p0);
+			p0 = p;
+
+			m_dataBuffer.append(adu, p - adu);
 			writer.write(timestamp, recordCode, m_dataBuffer.m_p, m_dataBuffer.m_size);
 			m_infoSet.addAdu(m_modbusRole);
-			p++;
 
 			if (m_mode == ModbusParserMode.Alternate) {
 				m_modbusRole = (io.ModbusRole) !m_modbusRole;
 				recordCode = getPacketRecordCode();
 			}
 
+			m_state = State.Idle;
 			break;
 		}
 	}
+
+	if (p0 < end)
+		writer.write(timestamp, originalRecordCode, p0, end - p0);
 
 	if (m_state && adu < end) {
 		m_dataBuffer.append(adu, end - adu);
@@ -115,7 +124,6 @@ void ModbusAsciiParser.parse(
 }
 
 void ModbusAsciiParser.reset() {
-	m_dataBuffer.clear();
 	m_state = State.Idle;
 
 	if (m_mode == ModbusParserMode.Alternate)

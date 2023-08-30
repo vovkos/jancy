@@ -8,6 +8,11 @@ import "sys_Timer.jnc"
 import "std_Buffer.jnc"
 import "std_String.jnc"
 import "std_List.jnc"
+import "ui_Layout.jnc"
+import "ui_GroupBox.jnc"
+import "ui_Button.jnc"
+import "ui_LineEdit.jnc"
+import "ui_SpinBox.jnc"
 import "escapeEncoding.jnc"
 
 //..............................................................................
@@ -47,7 +52,15 @@ protected:
 	size_t m_retransmitPacketSize;
 	size_t m_retransmitNumber;
 
-	// properties
+	ui.CheckBox* m_isPrefixEnabledCheckBox;
+	ui.LineEdit* m_prefixEdit;
+	ui.CheckBox* m_isSuffixEnabledCheckBox;
+	ui.LineEdit* m_suffixEdit;
+	ui.CheckBox* m_isRetransmitEnabledCheckBox;
+	ui.SpinBox* m_retransmitCountSpin;
+	ui.SpinBox* m_retransmitDelaySpin;
+	ui.CheckBox* m_isInterCharDelayEnabledCheckBox;
+	ui.SpinBox* m_interCharDelaySpin;
 
 	ui.BoolProperty* m_isPrefixEnabledProp;
 	ui.StringProperty* m_prefixProp;
@@ -59,8 +72,6 @@ protected:
 	ui.BoolProperty* m_isInterCharDelayEnabledProp;
 	ui.IntProperty* m_interCharDelayProp;
 
-	// ui reactor
-
 	reactor m_uiReactor;
 
 public:
@@ -68,6 +79,7 @@ public:
 
 	override void load(doc.Storage* storage);
 	override void save(doc.Storage* storage);
+	override void updateProperties();
 	override bool errorcode applyProperties();
 	override void restoreDefaultProperties();
 
@@ -106,6 +118,40 @@ TxModifierLayer.construct(doc.PluginHost* pluginHost) {
 }
 
 void TxModifierLayer.createUi() {
+	// form
+
+	ui.FormLayout layout;
+	ui.GroupBox groupBox("TX Modifier", layout);
+
+	m_isPrefixEnabledCheckBox = new ui.CheckBox("Prefix:");
+	m_prefixEdit = new ui.LineEdit;
+	layout.addRow(m_isPrefixEnabledCheckBox, m_prefixEdit);
+
+	m_isSuffixEnabledCheckBox = new ui.CheckBox("Suffix:");
+	m_suffixEdit = new ui.LineEdit;
+	layout.addRow(m_isSuffixEnabledCheckBox, m_suffixEdit);
+
+	m_isRetransmitEnabledCheckBox = new ui.CheckBox("Retransmit:");
+	m_retransmitCountSpin = new ui.SpinBox;
+	m_retransmitCountSpin.m_minimum = 1;
+	m_retransmitCountSpin.m_suffix = " time(s)";
+	layout.addRow(m_isRetransmitEnabledCheckBox, m_retransmitCountSpin);
+
+	m_retransmitDelaySpin = new ui.SpinBox;
+	m_retransmitDelaySpin.m_singleStep = 100;
+	m_retransmitDelaySpin.m_suffix = " ms";
+	layout.addRow(new ui.CheckBoxLabel("Interval:"), m_retransmitDelaySpin);
+
+	m_isInterCharDelayEnabledCheckBox = new ui.CheckBox("Inter-char delay:");
+	m_interCharDelaySpin = new ui.SpinBox;
+	m_interCharDelaySpin.m_singleStep = 100;
+	m_interCharDelaySpin.m_suffix = " ms";
+	layout.addRow(m_isInterCharDelayEnabledCheckBox, m_interCharDelaySpin);
+
+	m_pluginHost.createForm(groupBox);
+
+	// property grid
+
 	m_isPrefixEnabledProp = m_pluginHost.m_propertyGrid.createBoolProperty(
 		"Append prefix",
 		"Prefix each TX packet with the specified char sequence"
@@ -130,17 +176,6 @@ void TxModifierLayer.createUi() {
 		"Specify the suffix char sequence (C-escapes are supported)"
 	);
 
-	m_isInterCharDelayEnabledProp = m_pluginHost.m_propertyGrid.createBoolProperty(
-		"Insert inter-char delays",
-		"Insert inter-character delays during transmission"
-	);
-
-	m_interCharDelayProp = m_pluginHost.m_propertyGrid.createIntProperty(
-		m_isInterCharDelayEnabledProp,,
-		"Inter-char delay (ms)",
-		"Transmission inter-character delay (in millisceonds)"
-	);
-
 	m_isRetransmitEnabledProp = m_pluginHost.m_propertyGrid.createBoolProperty(
 		"Re-transmission",
 		"Re-transmit TX packet N times with the specified delay"
@@ -152,41 +187,80 @@ void TxModifierLayer.createUi() {
 		"How many extra times to re-send the packet"
 	);
 
+	m_retransmitCountProp.m_minValue = 1;
+
 	m_retransmitDelayProp = m_pluginHost.m_propertyGrid.createIntProperty(
 		m_isRetransmitEnabledProp,,
 		"Re-transmit delay (ms)",
 		"Specify the delay between re-transmissions (in milliseconds)"
 	);
 
+	m_retransmitDelayProp.m_minValue = 0;
+
+	m_isInterCharDelayEnabledProp = m_pluginHost.m_propertyGrid.createBoolProperty(
+		"Insert inter-char delays",
+		"Insert inter-character delays during transmission"
+	);
+
+	m_interCharDelayProp = m_pluginHost.m_propertyGrid.createIntProperty(
+		m_isInterCharDelayEnabledProp,,
+		"Inter-char delay (ms)",
+		"Transmission inter-character delay (in millisceonds)"
+	);
+
+	m_interCharDelayProp.m_minValue = 0;
+
 	bindingof(m_isTransmitEnabled) += onTransmitEnabledChanged;
 	m_uiReactor.start();
 }
 
 void TxModifierLayer.load(doc.Storage* storage) {
-	m_isPrefixEnabledProp.m_value = storage.readBool("isPrefixEnabled", Defaults.IsPrefixEnabled);
-	m_prefixProp.m_value = storage.readString("prefix", m_defaultPrefix);
-	m_isSuffixEnabledProp.m_value = storage.readBool("isSuffixEnabled", Defaults.IsSuffixEnabled);
-	m_suffixProp.m_value = storage.readString("suffix", m_defaultSuffix);
-	m_isInterCharDelayEnabledProp.m_value = storage.readBool("isInterCharDelayEnabled", Defaults.IsInterCharDelayEnabled);
-	m_interCharDelayProp.m_value = storage.readInt("interCharDelay", Defaults.InterCharDelay);
-	m_isRetransmitEnabledProp.m_value = storage.readBool("isRetransmitEnabled", Defaults.IsRetansmitEnabled);
-	m_retransmitCountProp.m_value = storage.readInt("retransmitCount", Defaults.RetransmitCount);
-	m_retransmitDelayProp.m_value = storage.readInt("retransmitDelay", Defaults.RetransmitDelay);
+	m_isPrefixEnabledCheckBox.m_isChecked = storage.readBool("isPrefixEnabled", Defaults.IsPrefixEnabled);
+	m_prefixEdit.m_text = storage.readString("prefix", m_defaultPrefix);
+	m_isSuffixEnabledCheckBox.m_isChecked = storage.readBool("isSuffixEnabled", Defaults.IsSuffixEnabled);
+	m_suffixEdit.m_text = storage.readString("suffix", m_defaultSuffix);
+	m_isInterCharDelayEnabledCheckBox.m_isChecked = storage.readBool("isInterCharDelayEnabled", Defaults.IsInterCharDelayEnabled);
+	m_interCharDelaySpin.m_value = storage.readInt("interCharDelay", Defaults.InterCharDelay);
+	m_isRetransmitEnabledCheckBox.m_isChecked = storage.readBool("isRetransmitEnabled", Defaults.IsRetansmitEnabled);
+	m_retransmitCountSpin.m_value = storage.readInt("retransmitCount", Defaults.RetransmitCount);
+	m_retransmitDelaySpin.m_value = storage.readInt("retransmitDelay", Defaults.RetransmitDelay);
 }
 
 void TxModifierLayer.save(doc.Storage* storage) {
-	storage.writeBool("isPrefixEnabled", m_isPrefixEnabledProp.m_value);
-	storage.writeString("prefix", m_prefixProp.m_value);
-	storage.writeBool("isSuffixEnabled", m_isSuffixEnabledProp.m_value);
-	storage.writeString("suffix", m_suffixProp.m_value);
-	storage.writeBool("isInterCharDelayEnabled", m_isInterCharDelayEnabledProp.m_value);
-	storage.writeInt("interCharDelay", m_interCharDelayProp.m_value);
-	storage.writeBool("isRetransmitEnabled", m_isRetransmitEnabledProp.m_value);
-	storage.writeInt("retransmitCount", m_retransmitCountProp.m_value);
-	storage.writeInt("retransmitDelay", m_retransmitDelayProp.m_value);
+	storage.writeBool("isPrefixEnabled", m_isPrefixEnabledCheckBox.m_isChecked);
+	storage.writeString("prefix", m_prefixEdit.m_text);
+	storage.writeBool("isSuffixEnabled", m_isSuffixEnabledCheckBox.m_isChecked);
+	storage.writeString("suffix", m_suffixEdit.m_text);
+	storage.writeBool("isInterCharDelayEnabled", m_isInterCharDelayEnabledCheckBox.m_isChecked);
+	storage.writeInt("interCharDelay", m_interCharDelaySpin.m_value);
+	storage.writeBool("isRetransmitEnabled", m_isRetransmitEnabledCheckBox.m_isChecked);
+	storage.writeInt("retransmitCount", m_retransmitCountSpin.m_value);
+	storage.writeInt("retransmitDelay", m_retransmitDelaySpin.m_value);
+}
+
+void TxModifierLayer.updateProperties() {
+	m_isPrefixEnabledProp.m_value = m_isPrefixEnabledCheckBox.m_isChecked;
+	m_prefixProp.m_value = m_prefixEdit.m_text;
+	m_isSuffixEnabledProp.m_value = m_isSuffixEnabledCheckBox.m_isChecked;
+	m_suffixProp.m_value = m_suffixEdit.m_text;
+	m_isInterCharDelayEnabledProp.m_value = m_isInterCharDelayEnabledCheckBox.m_isChecked;
+	m_interCharDelayProp.m_value = m_interCharDelaySpin.m_value;
+	m_isRetransmitEnabledProp.m_value = m_isRetransmitEnabledCheckBox.m_isChecked;
+	m_retransmitCountProp.m_value = m_retransmitCountSpin.m_value;
+	m_retransmitDelayProp.m_value = m_retransmitDelaySpin.m_value;
 }
 
 bool errorcode TxModifierLayer.applyProperties() {
+	m_isPrefixEnabledCheckBox.m_isChecked = m_isPrefixEnabledProp.m_value;
+	m_prefixEdit.m_text = m_prefixProp.m_value;
+	m_isSuffixEnabledCheckBox.m_isChecked = m_isSuffixEnabledProp.m_value;
+	m_suffixEdit.m_text = m_suffixProp.m_value;
+	m_isInterCharDelayEnabledCheckBox.m_isChecked = m_isInterCharDelayEnabledProp.m_value;
+	m_interCharDelaySpin.m_value = m_interCharDelayProp.m_value;
+	m_isRetransmitEnabledCheckBox.m_isChecked = m_isRetransmitEnabledProp.m_value;
+	m_retransmitCountSpin.m_value = m_retransmitCountProp.m_value;
+	m_retransmitDelaySpin.m_value = m_retransmitDelayProp.m_value;
+
 	if (!m_isInterCharDelayEnabledProp.m_value || !m_interCharDelayProp.m_value)
 		flushDelayedWriteList();
 	else if (m_delayedWriteList.m_count)
@@ -214,28 +288,23 @@ size_t errorcode TxModifierLayer.transmit(
 	void const* packet;
 	size_t packetSize;
 
-	if (!m_isPrefixEnabledProp.m_value && !m_isSuffixEnabledProp.m_value) {
-		packet = p;
-		packetSize = size;
-	} else {
-		std.Buffer buffer;
-		std.StringBuilder string;
+	std.Buffer buffer;
+	std.StringBuilder string;
 
-		if (m_isPrefixEnabledProp.m_value) {
-			decodeEscapeString(&string, m_prefixProp.m_value);
-			buffer.append(string.m_p, string.m_length);
-		}
-
-		buffer.append(p, size);
-
-		if (m_isSuffixEnabledProp.m_value) {
-			decodeEscapeString(&string, m_suffixProp.m_value);
-			buffer.append(string.m_p, string.m_length);
-		}
-
-		packet = buffer.m_p;
-		packetSize = buffer.m_size;
+	if (m_isPrefixEnabledCheckBox.m_isChecked) {
+		decodeEscapeString(&string, m_prefixEdit.m_text);
+		buffer.append(string.m_p, string.m_length);
 	}
+
+	buffer.append(p, size);
+
+	if (m_isSuffixEnabledCheckBox.m_isChecked) {
+		decodeEscapeString(&string, m_suffixEdit.m_text);
+		buffer.append(string.m_p, string.m_length);
+	}
+
+	packet = buffer.m_p;
+	packetSize = buffer.m_size;
 
 	cancelRetransmission();
 
@@ -246,7 +315,7 @@ size_t TxModifierLayer.write(
 	void const* p,
 	size_t size
 ) {
-	if (!m_isInterCharDelayEnabledProp.m_value || !m_interCharDelayProp.m_value) {
+	if (!m_isInterCharDelayEnabledCheckBox.m_isChecked || !m_interCharDelaySpin.m_value) {
 		size_t result = transmitNext(p, size);
 		m_lastWriteTimestamp = sys.getTimestamp();
 		scheduleRetransmission(p, size);
@@ -260,7 +329,7 @@ size_t TxModifierLayer.write(
 	m_delayedWriteList.add(delayedWrite);
 
 	uint64_t timestamp = sys.getTimestamp();
-	if ((timestamp - m_lastWriteTimestamp) / 10000 >= m_interCharDelayProp.m_value)
+	if ((timestamp - m_lastWriteTimestamp) / 10000 >= m_interCharDelaySpin.m_value)
 		onDelayedWriteTimer(); // send 1st char now
 
 	if (m_delayedWriteList.m_count == 1)
@@ -285,14 +354,14 @@ void TxModifierLayer.flushDelayedWriteList() {
 void TxModifierLayer.setDelayedWriteTimer() {
 	m_delayedWriteTimer.startPeriodicTimer(
 		onDelayedWriteTimer @ m_pluginHost.m_mainThreadScheduler,
-		m_interCharDelayProp.m_value
+		m_interCharDelaySpin.m_value
 	);
 }
 
 void TxModifierLayer.onDelayedWriteTimer() {
 	if (!m_delayedWriteList.m_count) {
 		uint64_t timestamp = sys.getTimestamp();
-		if ((timestamp - m_lastWriteTimestamp) / 10000 >= m_interCharDelayProp.m_value)
+		if ((timestamp - m_lastWriteTimestamp) / 10000 >= m_interCharDelaySpin.m_value)
 			m_delayedWriteTimer.stop();
 
 		return;
@@ -316,7 +385,7 @@ void TxModifierLayer.scheduleRetransmission(
 	void const* p,
 	size_t size
 ) {
-	if (!m_isRetransmitEnabledProp.m_value || m_retransmitNumber >= m_retransmitCountProp.m_value) {
+	if (!m_isRetransmitEnabledCheckBox.m_isChecked || m_retransmitNumber >= m_retransmitCountSpin.m_value) {
 		m_retransmitTimer.stop();
 		return;
 	}
@@ -326,7 +395,7 @@ void TxModifierLayer.scheduleRetransmission(
 
 	m_retransmitTimer.startSingleShotTimer(
 		onRetransmitTimer @ m_pluginHost.m_mainThreadScheduler,
-		m_retransmitDelayProp.m_value
+		m_retransmitDelaySpin.m_value
 	);
 }
 
@@ -354,9 +423,15 @@ void TxModifierLayer.onTransmitEnabledChanged() {
 }
 
 reactor TxModifierLayer.m_uiReactor {
+	m_prefixEdit.m_isEnabled = m_isPrefixEnabledCheckBox.m_isChecked;
+	m_suffixEdit.m_isEnabled = m_isSuffixEnabledCheckBox.m_isChecked;
+	m_retransmitCountSpin.m_isEnabled =
+	m_retransmitDelaySpin.m_isEnabled = m_isRetransmitEnabledCheckBox.m_isChecked;
+	m_interCharDelaySpin.m_isEnabled = m_isInterCharDelayEnabledCheckBox.m_isChecked;
+
 	m_prefixProp.m_isEnabled = m_isPrefixEnabledProp.m_value;
 	m_suffixProp.m_isEnabled = m_isSuffixEnabledProp.m_value;
-	m_retransmitCountProp.m_isEnabled = m_isRetransmitEnabledProp.m_value;
+	m_retransmitCountProp.m_isEnabled =
 	m_retransmitDelayProp.m_isEnabled = m_isRetransmitEnabledProp.m_value;
 	m_interCharDelayProp.m_isEnabled = m_isInterCharDelayEnabledProp.m_value;
 }

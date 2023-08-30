@@ -13,7 +13,7 @@ namespace ui {
 
 //..............................................................................
 
-opaque class AbstractButton: Widget {
+class AbstractButton: Widget {
 	char const* autoget property m_text;
 	Icon* autoget property m_icon;
 	bool autoget property m_isCheckable;
@@ -24,7 +24,7 @@ opaque class AbstractButton: Widget {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class PushButton: AbstractButton {
+class PushButton: AbstractButton {
 	bool autoget property m_isFlat;
 
 	construct(char const* text = null);
@@ -37,13 +37,13 @@ opaque class PushButton: AbstractButton {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class CheckBox: AbstractButton {
+class CheckBox: AbstractButton {
 	construct(char const* text = null);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class RadioButton: AbstractButton {
+class RadioButton: AbstractButton {
 	construct(char const* text = null);
 }
 

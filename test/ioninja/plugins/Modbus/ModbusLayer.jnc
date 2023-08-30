@@ -145,15 +145,15 @@ void ModbusLayer.createUi() {
 	ui.GroupBox groupBox("Modbus analyzer", layout);
 
 	m_protocolCombo = new ui.ComboBox(protocolTable, countof(protocolTable));
-	bindingof(m_protocolCombo.m_currentIndex) += onParametersChanged;
+	bindingof(m_protocolCombo.m_currentIndex) += onProtocolChanged;
 	layout.addRow("Protocol:", m_protocolCombo);
 
 	m_streamRolesCombo = new ui.ComboBox(streamRolesTable, countof(streamRolesTable));
-	bindingof(m_protocolCombo.m_currentIndex) += onParametersChanged;
+	bindingof(m_streamRolesCombo.m_currentIndex) += onParametersChanged;
 	layout.addRow("Streams:", m_streamRolesCombo);
 
 	m_halfDuplexModeCombo = new ui.ComboBox(halfDuplexModeTable, countof(halfDuplexModeTable));
-	bindingof(m_protocolCombo.m_currentIndex) += onParametersChanged;
+	bindingof(m_halfDuplexModeCombo.m_currentIndex) += onParametersChanged;
 	layout.addRow("Half-duplex:", m_halfDuplexModeCombo);
 
 	m_halfDuplexTimeoutSpin = new ui.SpinBox;

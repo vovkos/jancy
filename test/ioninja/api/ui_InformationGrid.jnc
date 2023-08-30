@@ -25,13 +25,13 @@ opaque class InformationItem {
 
 //..............................................................................
 
-opaque class InformationGroup: InformationItem {
+class InformationGroup: InformationItem {
 	construct(char const* name);
 }
 
 //..............................................................................
 
-opaque class InformationValue: InformationItem {
+class InformationValue: InformationItem {
 	construct(char const* name);
 
 	char const* autoget property m_value;

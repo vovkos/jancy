@@ -72,22 +72,38 @@ void representStruct(
 	for (size_t i = 0; i < count; i++) {
 		jnc.Field* field = type.m_fieldArray[i];
 		char const* displayName = getDisplayName(field);
-		size_t length = strlen(displayName);
+
+		if (field.m_type.m_typeKind == jnc.TypeKind.Struct) {
+			representation.addHyperText($"%1%2:\t"(indent.m_sz, displayName));
+
+			representStruct(
+				representation,
+				dynamic (jnc.StructType*)field.m_type,
+				displayName,,
+				p + field.m_offset,
+				baseOffset + field.m_offset,
+				0,
+				0,
+				indentLevel + 1
+			);
+
+			continue;
+		}
 
 		char const* valueString;
 
 		FormatFunc thin* formatFunc = field.findAttributeValue("formatFunc");
-		if (formatFunc) {
+		if (formatFunc)
 			valueString = formatFunc(p + field.m_offset);
-		} else {
+		else {
 			char const* formatSpec = field.findAttributeValue("formatSpec");
 			jnc.Type* displayType = field.findAttributeValue("displayType");
 
-			if (!displayType) {
+			if (!displayType)
 				valueString = field.m_type.getValueString(p + field.m_offset, formatSpec);
-			} else if (field.m_type.m_typeKind != jnc.TypeKind.BitField) {
+			else if (field.m_type.m_typeKind != jnc.TypeKind.BitField)
 				valueString = displayType.getValueString(p + field.m_offset, formatSpec);
-			} else {
+			else {
 				variant value = (dynamic (jnc.BitFieldType*)field.m_type).extract(p + field.m_offset);
 				valueString = displayType.getValueString(value, formatSpec);
 			}

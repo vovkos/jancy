@@ -13,7 +13,7 @@ namespace ui {
 
 //..............................................................................
 
-opaque class GroupBox: Widget {
+class GroupBox: Widget {
 	char const* autoget property m_title;
 	Layout* autoget property m_layout;
 	bool autoget property m_isCheckable;

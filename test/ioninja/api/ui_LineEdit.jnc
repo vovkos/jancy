@@ -12,7 +12,7 @@ namespace ui {
 
 //..............................................................................
 
-opaque class LineEdit: Widget {
+class LineEdit: Widget {
 	enum EchoMode {
 		Normal = 0,
 		NoEcho,

@@ -63,13 +63,14 @@ void ModbusRtuParser.parse(
 
 	updateLastTimestamp(timestamp);
 
-	// write the original data first
+	void const* p0 = p;
+	void const* end = p + size;
 
-	writer.write(timestamp, originalRecordCode, p, size);
-
+nestedscope:
 	ModbusLogRecordCode recordCode = getPacketRecordCode();
 
-	while (size) {
+	while (p < end) {
+		size = end - p;
 		if (!m_expectedSize)
 			m_expectedSize = io.getModbusRtuAduSize(m_modbusRole, (io.ModbusRtuAduHdr const*) p, size);
 
@@ -81,7 +82,6 @@ void ModbusRtuParser.parse(
 
 		m_dataBuffer.append(p, leftoverSize);
 		p += leftoverSize;
-		size -= leftoverSize;
 
 		// check ADU size once again (as we have appended some data)
 
@@ -93,6 +93,9 @@ void ModbusRtuParser.parse(
 		}
 
 		// ADU completed
+
+		writer.write(timestamp, originalRecordCode, p0, p - p0);
+		p0 = p;
 
 		writer.write(timestamp, recordCode, m_dataBuffer.m_p, m_dataBuffer.m_size);
 		m_infoSet.addAdu(m_modbusRole);
@@ -109,7 +112,13 @@ void ModbusRtuParser.parse(
 		m_expectedSize = 0;
 	}
 
+	if (p0 < end)
+		writer.write(timestamp, originalRecordCode, p0, end - p0);
+
 catch:
+	if (p0 < end)
+		writer.write(timestamp, originalRecordCode, p0, end - p0);
+
 	writer.writeLastError(timestamp, ModbusLogRecordCode.ParseError);
 	m_infoSet.addError();
 	reset();

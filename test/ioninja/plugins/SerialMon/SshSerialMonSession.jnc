@@ -123,6 +123,14 @@ public:
 	override bool errorcode applyProperties();
 	override void restoreDefaultProperties();
 
+	override bool errorcode connectSession() {
+		return m_sessionConnectionState ? true : connect();
+	}
+
+	override void disconnectSession() {
+		disconnect();
+	}
+
 protected:
 	void onConnect() {
 		m_state ? disconnect() : try connect();
@@ -336,24 +344,29 @@ bool errorcode SshSerialMonSession.connect(io.SocketAddress const* remoteAddress
 	params.m_channelType = "session";
 	params.m_processType = "exec";
 
-	// we only use IOCTL descriptors on POSIX, but passing those on windows will not hurt (will simply be ignored)
+	// we only use IOCTL descriptors on POSIX
 
-	params.m_processExtra =
-		$"tdevmon -m $(m_portCombo.m_editText) --mi "
-		$"--ioctl $(psx.TCSETA):$(sizeof (psx.termio)) "
-		$"--ioctl $(psx.TCSETAW):$(sizeof (psx.termio)) "
-		$"--ioctl $(psx.TCSETAF):$(sizeof (psx.termio)) "
-		$"--ioctl $(psx.TCSETS):$(sizeof (psx.termios)) "
-		$"--ioctl $(psx.TCSETSW):$(sizeof (psx.termios)) "
-		$"--ioctl $(psx.TCSETSF):$(sizeof (psx.termios)) "
-		$"--ioctl $(psx.TCSETS2):$(sizeof (psx.termios2)) "
-		$"--ioctl $(psx.TCSETSW2):$(sizeof (psx.termios2)) "
-		$"--ioctl $(psx.TCSETSF2):$(sizeof (psx.termios2)) "
-		$"--ioctl $(psx.TIOCMGET):$(sizeof (uint_t)) "
-		$"--ioctl $(psx.TIOCMBIS):$(sizeof (uint_t)) "
-		$"--ioctl $(psx.TIOCMBIC):$(sizeof (uint_t))";
+	char const* portName = m_portCombo.m_editText;
+	char const* cmdLine = $"tdevmon --mi --monitor=$portName";
 
-	params.m_processExtraSize = strlen(params.m_processExtra);
+	if (*portName == '/') // POSIX name such as /dev/ttyUSB0
+		cmdLine =
+			$"$cmdLine "
+			$"--ioctl $(psx.TCSETA):$(sizeof (psx.termio)) "
+			$"--ioctl $(psx.TCSETAW):$(sizeof (psx.termio)) "
+			$"--ioctl $(psx.TCSETAF):$(sizeof (psx.termio)) "
+			$"--ioctl $(psx.TCSETS):$(sizeof (psx.termios)) "
+			$"--ioctl $(psx.TCSETSW):$(sizeof (psx.termios)) "
+			$"--ioctl $(psx.TCSETSF):$(sizeof (psx.termios)) "
+			$"--ioctl $(psx.TCSETS2):$(sizeof (psx.termios2)) "
+			$"--ioctl $(psx.TCSETSW2):$(sizeof (psx.termios2)) "
+			$"--ioctl $(psx.TCSETSF2):$(sizeof (psx.termios2)) "
+			$"--ioctl $(psx.TIOCMGET):$(sizeof (uint_t)) "
+    			$"--ioctl $(psx.TIOCMBIS):$(sizeof (uint_t)) "
+			$"--ioctl $(psx.TIOCMBIC):$(sizeof (uint_t))";
+
+	params.m_processExtra = cmdLine;
+	params.m_processExtraSize = strlen(cmdLine);
 
 	m_ssh.connect(&params);
 	waitSshEvents();
@@ -693,6 +706,12 @@ void SshSerialMonSession.onResolverEvent(
 
 reactor SshSerialMonSession.m_uiReactor {
 	m_title = $"Mon $(m_addressCombo.m_currentText)";
+
+	m_sessionConnectionState =
+		m_state == State.Connected ? SessionConnectionState.Connected :
+		m_state == State.Closed ? SessionConnectionState.Disconnected :
+		SessionConnectionState.Connecting;
+
 	m_actionTable[ActionId.Connect].m_text = m_state ? "Disconnect" : "Connect && capture";
 	m_actionTable[ActionId.Connect].m_icon = m_iconTable[m_state ? IconId.Disconnect : IconId.Connect];
 	m_statusPaneTable[StatusPaneId.State].m_text = m_stateStringTable[m_state];

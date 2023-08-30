@@ -150,6 +150,14 @@ public:
 		size_t size
 	);
 
+	override bool errorcode connectSession() {
+		return m_sessionConnectionState ? true : capture();
+	}
+
+	override void disconnectSession() {
+		stopCapture();
+	}
+
 protected:
 	void onCapture();
 
@@ -643,6 +651,12 @@ size_t errorcode I2cSpiTapSession.transmit(
 
 reactor I2cSpiTapSession.m_uiReactor {
 	m_title = $"$(m_protocolCombo.m_currentText) $(m_deviceCombo.m_currentText)";
+
+	m_sessionConnectionState =
+		m_state == State.Capturing ? SessionConnectionState.Connected :
+		m_state == State.Closed ? SessionConnectionState.Disconnected :
+		SessionConnectionState.Connecting;
+
 	m_actionTable[ActionId.Capture].m_text = m_state ? "Close Device" : "Open Device";
 	m_actionTable[ActionId.Capture].m_icon = m_iconTable[m_state ? IconId.Stop : IconId.Capture];
 	m_statusPaneTable[StatusPaneId.State].m_text = m_statusText[m_state];

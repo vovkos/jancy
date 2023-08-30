@@ -13,13 +13,23 @@ namespace ui {
 
 //..............................................................................
 
-opaque class Label: Widget {
+class Label: Widget {
 	char const* autoget property m_text;
 	Icon* m_icon;
 	TextFormat autoget property m_textFormat;
 	Alignment autoget property m_alignment;
 
 	event m_onLinkClicked(char const* link);
+
+	construct(char const* text);
+}
+
+//..............................................................................
+
+// to align with checkbox labels above
+
+class CheckBoxLabel: Widget {
+	char const* autoget property m_text;
 
 	construct(char const* text);
 }

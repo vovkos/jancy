@@ -134,6 +134,14 @@ public:
 	override errorcode bool applyProperties();
 	override void restoreDefaultProperties();
 
+	override bool errorcode connectSession() {
+		return m_sessionConnectionState ? true : capture();
+	}
+
+	override void disconnectSession() {
+		stopCapture();
+	}
+
 protected:
 	void onCapture();
 
@@ -616,6 +624,12 @@ size_t errorcode EthernetTapSession.transmit(
 
 reactor EthernetTapSession.m_uiReactor {
 	m_title = $"Ethernet Tap $(m_deviceCombo.m_currentText)";
+
+	m_sessionConnectionState =
+		m_state == State.Capturing ? SessionConnectionState.Connected :
+		m_state == State.Closed ? SessionConnectionState.Disconnected :
+		SessionConnectionState.Connecting;
+
 	m_actionTable[ActionId.Capture].m_text = m_state ? "Close Device" : "Open Device";
 	m_actionTable[ActionId.Capture].m_icon = m_iconTable[m_state ? IconId.StopCapture : IconId.Capture];
 	m_statusPaneTable[StatusPaneId.State].m_text = m_statusText[m_state];

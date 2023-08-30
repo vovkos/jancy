@@ -22,8 +22,8 @@ org.jancy.io.serial
 
 [scripts]
 
-SerialDispatchCode.jnc
 SerialSession.jnc
+SerialDispatchCode.jnc
 
 [dispatch-scripts]
 

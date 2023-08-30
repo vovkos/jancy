@@ -695,6 +695,25 @@ if(BUILD_JNC_IO_DEVMON AND DEVMON_FOUND)
 	)
 endif()
 
+if(BUILD_JNC_IO_HID)
+	add_jancy_tests(
+		NAME_PREFIX "jnc-ioninja-plugin-"
+		FLAGS ${_COMMON_FLAGS}
+
+		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/Hid
+		REQUIRES
+			HidSession
+			representHidLog
+		FILES
+			HidSession.jnc
+			HidDb.jnc
+			HidReportUi.jnc
+			HidLogRecordCode.jnc
+			HidLogRepresenter.jnc
+		FINALIZE_TEST Hid
+	)
+endif()
+
 add_jancy_tests(
 	NAME_PREFIX "jnc-ioninja-packet-"
 	FLAGS -c --ignore-opaque -I ../api -I ../common -I ../protocols
