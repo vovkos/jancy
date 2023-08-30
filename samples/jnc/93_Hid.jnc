@@ -37,18 +37,11 @@ void printItem(
 		);
 }
 
-bitflag enum PrintFieldFlags {
-	Padding   = 0x01,
-	Report    = 0x02,
-	BitOffset = 0x04,
-};
-
 void
 printFieldArray(
 	std.StringBuilder* indent,
 	io.HidReport const* report,
-	io.HidRdCollection const* collection,
-	PrintFieldFlags flags
+	io.HidRdCollection const* collection
 ) {
 	assert(report || collection);
 	
@@ -56,20 +49,15 @@ printFieldArray(
 	for (size_t i = 0; i < count; i++) {
 		io.HidReportField const* field = report ? report.m_fieldArray[i] : collection.m_fieldArray[i];
 		if (field.m_isPadding) {
-			if (flags & PrintFieldFlags.Padding)
-				printf("%sPadding: %d-bit\n", indent.m_p, field.m_bitCount);
-
+			printf("%sPadding: %d-bit\n", indent.m_p, field.m_bitCount);
 			continue;
 		}
 
 		printf(
-			(flags & PrintFieldFlags.BitOffset) ?
-				"%sField: %s %d-bit (offset: %d bits)\n" :
-				"%sField: %s %d-bit\n",
+			"%sField: %s %d-bit\n",
 	    	indent.m_p,
 			typeof(io.HidReportKind).getValueString(field.m_report.m_reportKind),
-			field.m_bitCount,
-			field.m_bitOffset
+			field.m_bitCount
 		);
 
 		incIndent(indent);
@@ -116,10 +104,7 @@ printFieldArray(
 		printItem(indent.m_p, field, io.HidRdItemId.LogicalMaximum);
 		printItem(indent.m_p, field, io.HidRdItemId.PhysicalMinimum);
 		printItem(indent.m_p, field, io.HidRdItemId.PhysicalMaximum);
-
-		if (flags & PrintFieldFlags.Report)
-			printItem(indent.m_p, field, io.HidRdItemId.ReportId);
-
+		printItem(indent.m_p, field, io.HidRdItemId.ReportId);
 		printItem(indent.m_p, field, io.HidRdItemId.ReportSize);
 		printItem(indent.m_p, field, io.HidRdItemId.ReportCount);
 		
@@ -155,7 +140,7 @@ void printReports(io.HidRd const* rd) {
 					report.m_reportId
 				);
 
-			printFieldArray(&indent, report, null, PrintFieldFlags.BitOffset | PrintFieldFlags.Padding);
+			printFieldArray(&indent, report, null);
 			decIndent(&indent);
 		}
 	}
@@ -177,7 +162,7 @@ void printCollection(
 	);
 
 	incIndent(indent);
-	printFieldArray(indent, null, collection, PrintFieldFlags.Report);
+	printFieldArray(indent, null, collection);
 	for (size_t i = 0; i < collection.m_collectionCount; i++)
 		printCollection(indent, collection.m_collectionArray[i]);
 
@@ -192,7 +177,7 @@ void printCollections(io.HidRd const* rd) {
 	for (size_t i = 0; i < rd.m_rootCollection.m_collectionCount; i++)
 		printCollection(indent, rd.m_rootCollection.m_collectionArray[i]);
 
-	printFieldArray(indent, null, rd.m_rootCollection, PrintFieldFlags.Report);
+	printFieldArray(indent, null, rd.m_rootCollection);
 }
 
 int extractValue(
