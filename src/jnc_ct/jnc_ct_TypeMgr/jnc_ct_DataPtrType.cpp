@@ -52,7 +52,8 @@ DataPtrType::createSignature(
 
 bool
 DataPtrType::calcLayout() {
-	ASSERT(m_targetType->getTypeKindFlags() & TypeKindFlag_Import);
+	if (!(m_targetType->getTypeKindFlags() & TypeKindFlag_Import)) // already fixed up!
+		return true;
 
 	bool result = ((ImportType*)m_targetType)->ensureResolved();
 	if (!result)
