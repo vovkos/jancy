@@ -23,6 +23,7 @@ namespace io {
 
 bitflag enum HidDeviceOptions: StreamOptions {
 	NonBlocking,
+	NoReadThread,
 }
 
 typedef StreamEvents HidDeviceEvents;

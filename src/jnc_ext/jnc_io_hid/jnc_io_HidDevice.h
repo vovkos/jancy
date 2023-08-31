@@ -11,7 +11,8 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(HidDevice)
 //..............................................................................
 
 enum HidDeviceOption {
-	HidDeviceOption_NonBlocking = 0x04,
+	HidDeviceOption_NonBlocking  = 0x04,
+	HidDeviceOption_NoReadThread = 0x08,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

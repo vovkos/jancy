@@ -70,9 +70,6 @@ HidDevice::setReadTimeout(uint_t timeout) {
 bool
 JNC_CDECL
 HidDevice::setOptions(uint_t options) {
-	if (m_isOpen)
-		return err::fail(err::SystemErrorCode_InvalidDeviceState);
-
 	if (((m_options ^ options) & HidDeviceOption_NonBlocking) && m_device.isOpen())	{
 		bool result = m_device.setNonBlocking((options & HidDeviceOption_NonBlocking) != 0);
 		if (!result)
@@ -108,8 +105,7 @@ HidDevice::open_0(DataPtr pathPtr) {
 		return false;
 
 	AsyncIoDevice::open();
-	m_ioThread.start();
-	return true;
+	return (m_options & HidDeviceOption_NoReadThread) || m_ioThread.start();
 }
 
 bool
@@ -129,8 +125,7 @@ HidDevice::open_1(
 		return false;
 
 	AsyncIoDevice::open();
-	m_ioThread.start();
-	return true;
+	return (m_options & HidDeviceOption_NoReadThread) || m_ioThread.start();
 }
 
 bool
