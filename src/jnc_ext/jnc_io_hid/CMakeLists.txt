@@ -164,6 +164,15 @@ if(WIN32)
 		axl_mem_new
 		setupapi
 	)
+elseif(APPLE)
+	find_library(IOKIT_FRAMEWORK IOKit)
+	find_library(APPKIT_FRAMEWORK AppKit)
+	
+	target_link_libraries(
+		jnc_io_hid 
+		${IOKIT_FRAMEWORK}
+		${APPKIT_FRAMEWORK}
+	)
 elseif(LINUX)
 	target_link_libraries(
 		jnc_io_hid
