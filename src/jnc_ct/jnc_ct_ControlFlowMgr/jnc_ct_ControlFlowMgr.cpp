@@ -61,7 +61,7 @@ ControlFlowMgr::clear() {
 
 void
 ControlFlowMgr::lockEmission() {
-	if (++m_emissionLockCount != 1)
+	if (++m_emissionLockCount != 1 || !m_module->m_functionMgr.getCurrentFunction())
 		return;
 
 	ASSERT(!m_emissionLockBlock);
@@ -70,7 +70,7 @@ ControlFlowMgr::lockEmission() {
 
 void
 ControlFlowMgr::unlockEmission() {
-	if (--m_emissionLockCount)
+	if (--m_emissionLockCount || !m_module->m_functionMgr.getCurrentFunction())
 		return;
 
 	ASSERT(m_emissionLockBlock);
