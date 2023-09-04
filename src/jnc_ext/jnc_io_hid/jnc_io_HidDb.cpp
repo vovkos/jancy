@@ -93,14 +93,6 @@ HidUsagePage::getUsageName(
 	return it->m_value;
 }
 
-void
-HidUsagePage::detach() {
-	m_id = 0;
-	m_page = NULL;
-	m_namePtr = g_nullDataPtr;
-	m_usageNameMap.clear();
-}
-
 //..............................................................................
 
 void
@@ -120,6 +112,7 @@ HidDb::getUsagePage(uint_t pageId) {
 
 	Runtime* runtime = getCurrentThreadRuntime();
 	HidUsagePage* page = createClass<HidUsagePage>(runtime);
+	page->m_id = pageId;
 	page->m_page = m_db.getUsagePage(pageId);
 	it->m_value = page;
 	return page;
@@ -144,9 +137,12 @@ HidDb::load(DataPtr fileNamePtr) {
 void
 JNC_CDECL
 HidDb::clear() {
+	// clear is called during shutdown; pages could already be destructed
+
 	sl::MapIterator<uint_t, HidUsagePage*> it = m_usagePageMap.getHead();
 	for (; it; it++)
-		it->m_value->detach();
+		if (!(it->m_value->m_box->m_flags & jnc::BoxFlag_Destructed))
+			it->m_value->detach();
 
 	m_usagePageMap.clear();
 	m_db.clear();

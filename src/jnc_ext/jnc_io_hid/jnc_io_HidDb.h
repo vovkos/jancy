@@ -36,9 +36,6 @@ protected:
 	sl::SimpleHashTable<uint_t, DataPtr> m_usageNameMap;
 
 public:
-	HidUsagePage() {}
-	~HidUsagePage() {}
-
 	void
 	JNC_CDECL
 	markOpaqueGcRoots(jnc::GcHeap* gcHeap);
@@ -62,15 +59,25 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+inline
+void
+HidUsagePage::detach() {
+	m_id = 0;
+	m_page = NULL;
+	m_namePtr = g_nullDataPtr;
+	m_usageNameMap.clear();
+}
+
+//..............................................................................
+
 class HidDb: public IfaceHdr {
 protected:
 	axl::io::HidDb m_db;
 	sl::SimpleHashTable<uint_t, HidUsagePage*> m_usagePageMap;
 
 public:
-	HidDb() {}
-
 	~HidDb() {
+		printf("HidDb::~HidDb\n");
 		clear();
 	}
 

@@ -321,27 +321,36 @@ HidRd::parse(
 void
 JNC_CDECL
 HidRd::clear() {
+	// clear is called during shutdown, reports/collections/fields could already be destructed
+
 	for (size_t i = 0; i < countof(m_reportTable); i++) {
 		sl::Array<HidReport*>& reportArray = m_reportTable[i];
 		size_t count = reportArray.getCount();
-		for (size_t j = 0; j < count; j++)
-			reportArray[j]->detach();
+		for (size_t j = 0; j < count; j++) {
+			HidReport* report = reportArray[j];
+			if (!(report->m_box->m_flags & jnc::BoxFlag_Destructed))
+				report->detach();
+		}
 
 		reportArray.clear();
 	}
 
 	sl::MapIterator<const axl::io::HidReport*, HidReport*> it = m_reportMap.getHead();
 	for (; it; it++)
-		it->m_value->detach();
+		if (!(it->m_value->m_box->m_flags & jnc::BoxFlag_Destructed))
+			it->m_value->detach();
 
 	sl::MapIterator<const axl::io::HidReportField*, HidReportField*> it2 = m_fieldMap.getHead();
 	for (; it2; it2++)
-		it2->m_value->detach();
+		if (!(it2->m_value->m_box->m_flags & jnc::BoxFlag_Destructed))
+			it2->m_value->detach();
 
 	sl::MapIterator<const axl::io::HidRdCollection*, HidRdCollection*> it3 = m_collectionMap.getHead();
 	for (; it3; it3++)
-		it3->m_value->detach();
+		if (!(it3->m_value->m_box->m_flags & jnc::BoxFlag_Destructed))
+			it3->m_value->detach();
 
+	ASSERT(!(m_rootCollection->m_box->m_flags & jnc::BoxFlag_Destructed));
 	m_rootCollection->detach();
 	m_reportMap.clear();
 	m_fieldMap.clear();
