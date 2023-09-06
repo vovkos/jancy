@@ -21,7 +21,7 @@ namespace ct {
 class CallConv_gcc32: public CallConv {
 public:
 	virtual
-	void
+	llvm::FunctionType*
 	prepareFunctionType(FunctionType* functionType);
 
 	virtual
@@ -32,7 +32,7 @@ public:
 	);
 
 	virtual
-	void
+	llvm::CallInst*
 	call(
 		const Value& calleeValue,
 		FunctionType* functionType,
@@ -41,7 +41,7 @@ public:
 	);
 
 	virtual
-	void
+	llvm::ReturnInst*
 	ret(
 		Function* function,
 		const Value& value

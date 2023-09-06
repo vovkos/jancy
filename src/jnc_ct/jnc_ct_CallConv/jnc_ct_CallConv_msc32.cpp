@@ -25,13 +25,11 @@ AXL_TODO("beware: structs with sizes between 16 and 24 are returned incorrectly 
 
 //..............................................................................
 
-void
+llvm::FunctionType*
 CallConv_msc32::prepareFunctionType(FunctionType* functionType) {
 	Type* returnType = functionType->getReturnType();
-	if (!isStructRet(returnType)) {
-		CallConv::prepareFunctionType(functionType);
-		return;
-	}
+	if (!isStructRet(returnType))
+		return CallConv::prepareFunctionType(functionType);
 
 	sl::Array<FunctionArg*> argArray = functionType->getArgArray();
 	size_t argCount = argArray.getCount() + 1;
@@ -50,6 +48,8 @@ CallConv_msc32::prepareFunctionType(FunctionType* functionType) {
 		llvm::ArrayRef<llvm::Type*> (llvmArgTypeArray, argCount),
 		(functionType->getFlags() & FunctionTypeFlag_VarArg) != 0
 	);
+
+	return (llvm::FunctionType*)functionType->m_llvmType;
 }
 
 llvm::Function*
@@ -66,7 +66,7 @@ CallConv_msc32::createLlvmFunction(
 	return llvmFunction;
 }
 
-void
+llvm::CallInst*
 CallConv_msc32::call(
 	const Value& calleeValue,
 	FunctionType* functionType,
@@ -74,10 +74,8 @@ CallConv_msc32::call(
 	Value* resultValue
 ) {
 	Type* returnType = functionType->getReturnType();
-	if (!isStructRet(returnType)) {
-		CallConv::call(calleeValue, functionType, argValueList, resultValue);
-		return;
-	}
+	if (!isStructRet(returnType))
+		return CallConv::call(calleeValue, functionType, argValueList, resultValue);
 
 	Value tmpReturnValue;
 	m_module->m_llvmIrBuilder.createAlloca(returnType, returnType->getDataPtrType_c(), &tmpReturnValue);
@@ -93,25 +91,24 @@ CallConv_msc32::call(
 
 	m_module->m_llvmIrBuilder.addTypedAttribute(llvmInst, 1, llvm::Attribute::StructRet, returnType);
 	m_module->m_llvmIrBuilder.createLoad(tmpReturnValue, returnType, resultValue);
+	return llvmInst;
 }
 
-void
+llvm::ReturnInst*
 CallConv_msc32::ret(
 	Function* function,
 	const Value& value
 ) {
 	Type* returnType = function->getType()->getReturnType();
-	if (!isStructRet(returnType)) {
-		CallConv::ret(function, value);
-		return;
-	}
+	if (!isStructRet(returnType))
+		return CallConv::ret(function, value);
 
 	llvm::Function::arg_iterator llvmArg = function->getLlvmFunction()->arg_begin();
 
 	Value returnPtrValue;
 	returnPtrValue.setLlvmValue(&*llvmArg, returnType->getDataPtrType_c());
 	m_module->m_llvmIrBuilder.createStore(value, returnPtrValue);
-	m_module->m_llvmIrBuilder.createRet();
+	return m_module->m_llvmIrBuilder.createRet();
 }
 
 Value

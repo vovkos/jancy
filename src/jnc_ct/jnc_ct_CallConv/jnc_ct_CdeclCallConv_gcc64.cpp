@@ -31,7 +31,7 @@ CdeclCallConv_gcc64::getArgCoerceType(Type* type) {
 	return coerceType;
 }
 
-void
+llvm::FunctionType*
 CdeclCallConv_gcc64::prepareFunctionType(FunctionType* functionType) {
 	Type* returnType = functionType->getReturnType();
 	sl::Array<FunctionArg*> argArray = functionType->getArgArray();
@@ -98,6 +98,8 @@ CdeclCallConv_gcc64::prepareFunctionType(FunctionType* functionType) {
 		llvm::ArrayRef<llvm::Type*> (llvmArgTypeArray, argCount),
 		(functionType->getFlags() & FunctionTypeFlag_VarArg) != 0
 	);
+
+	return (llvm::FunctionType*)functionType->m_llvmType;
 }
 
 llvm::Function*
@@ -134,7 +136,7 @@ struct ByValArg {
 	Type* m_type;
 };
 
-void
+llvm::CallInst*
 CdeclCallConv_gcc64::call(
 	const Value& calleeValue,
 	FunctionType* functionType,
@@ -144,10 +146,9 @@ CdeclCallConv_gcc64::call(
 	Type* returnType = functionType->getReturnType();
 
 	if (!(returnType->getFlags() & TypeFlag_StructRet) &&
-		!(functionType->getFlags() & (FunctionTypeFlag_ByValArgs | FunctionTypeFlag_CoercedArgs))) {
-		CallConv::call(calleeValue, functionType, argValueList, resultValue);
-		return;
-	}
+		!(functionType->getFlags() & (FunctionTypeFlag_ByValArgs | FunctionTypeFlag_CoercedArgs))
+	)
+		return CallConv::call(calleeValue, functionType, argValueList, resultValue);
 
 	size_t argRegCount = 6; // rdi, rsi, rdx, rcx, r8, r9
 
@@ -218,30 +219,30 @@ CdeclCallConv_gcc64::call(
 			m_module->m_operatorMgr.forceCast(resultValue, returnType);
 		}
 	}
+
+	return llvmInst;
 }
 
-void
+llvm::ReturnInst*
 CdeclCallConv_gcc64::ret(
 	Function* function,
 	const Value& value
 ) {
 	Type* returnType = function->getType()->getReturnType();
-	if (!(returnType->getFlags() & TypeFlag_StructRet)) {
-		CallConv::ret(function, value);
-		return;
-	}
+	if (!(returnType->getFlags() & TypeFlag_StructRet))
+		return CallConv::ret(function, value);
 
 	if (returnType->getSize() > sizeof(uint64_t)* 2) { // return in memory
 		Value returnPtrValue(&*function->getLlvmFunction()->arg_begin());
 
 		m_module->m_llvmIrBuilder.createStore(value, returnPtrValue);
-		m_module->m_llvmIrBuilder.createRet();
+		return m_module->m_llvmIrBuilder.createRet();
 	} else { // coerce
 		Type* coerceType = getArgCoerceType(returnType);
 
 		Value tmpValue;
 		m_module->m_operatorMgr.forceCast(value, coerceType, &tmpValue);
-		m_module->m_llvmIrBuilder.createRet(tmpValue);
+		return m_module->m_llvmIrBuilder.createRet(tmpValue);
 	}
 }
 

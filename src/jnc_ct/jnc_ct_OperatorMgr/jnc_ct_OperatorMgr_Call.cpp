@@ -504,12 +504,15 @@ OperatorMgr::callImpl(
 		return true;
 	}
 
-	functionType->getCallConv()->call(
+	llvm::CallInst* llvmInst = functionType->getCallConv()->call(
 		pfnValue,
 		functionType,
 		argValueList,
 		resultValue
 	);
+
+	if (flags & FunctionTypeFlag_IntExtArgs)
+		CallConv::addIntExtAttributes(llvmInst, *argValueList);
 
 	if (resultValue->getType()->getFlags() & TypeFlag_GcRoot)
 		m_module->m_gcShadowStackMgr.createTmpGcRoot(*resultValue);

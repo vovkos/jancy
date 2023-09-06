@@ -192,7 +192,7 @@ CallConv::CallConv() {
 	m_callConvKind = CallConvKind_Undefined;
 }
 
-void
+llvm::FunctionType*
 CallConv::prepareFunctionType(FunctionType* functionType) {
 	sl::Array<FunctionArg*> argArray = functionType->getArgArray();
 	size_t argCount = argArray.getCount();
@@ -209,6 +209,8 @@ CallConv::prepareFunctionType(FunctionType* functionType) {
 		llvm::ArrayRef<llvm::Type*> (llvmArgTypeArray, argCount),
 		(functionType->getFlags() & FunctionTypeFlag_VarArg) != 0
 	);
+
+	return (llvm::FunctionType*)functionType->m_llvmType;
 }
 
 llvm::Function*
@@ -231,14 +233,14 @@ CallConv::createLlvmFunction(
 	return llvmFunction;
 }
 
-void
+llvm::CallInst*
 CallConv::call(
 	const Value& calleeValue,
 	FunctionType* functionType,
 	sl::BoxList<Value>* argValueList,
 	Value* resultValue
 ) {
-	m_module->m_llvmIrBuilder.createCall(
+	return m_module->m_llvmIrBuilder.createCall(
 		calleeValue,
 		functionType,
 		*argValueList,
@@ -246,12 +248,12 @@ CallConv::call(
 	);
 }
 
-void
+llvm::ReturnInst*
 CallConv::ret(
 	Function* function,
 	const Value& value
 ) {
-	m_module->m_llvmIrBuilder.createRet(value);
+	return m_module->m_llvmIrBuilder.createRet(value);
 }
 
 Value
@@ -319,6 +321,29 @@ CallConv::createArgVariablesImpl(
 
 		Value argValue(llvmArgValue, arg->getType());
 		m_module->m_llvmIrBuilder.createStore(argValue, argVariable);
+	}
+}
+
+void
+CallConv::addIntExtAttributes(
+	llvm::CallInst* llvmInst,
+	const sl::BoxList<Value>& argValueList
+) {
+	sl::ConstBoxIterator<Value> it = argValueList.getHead();
+	for (size_t i = 1; it; it++, i++) {
+		Type* type = it->getType();
+		if (!(type->getTypeKindFlags() & TypeKindFlag_Integer) || type->getSize() >= sizeof(int))
+			continue;
+
+		if (type->getTypeKind() == TypeKind_Enum)
+			type = ((EnumType*)type)->getBaseType();
+
+		llvmInst->addAttribute(
+			i,
+			(type->getTypeKindFlags() & TypeKindFlag_Unsigned) ?
+				llvm::Attribute::AttrKind::ZExt :
+				llvm::Attribute::AttrKind::SExt
+		);
 	}
 }
 

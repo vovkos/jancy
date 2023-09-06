@@ -25,11 +25,11 @@ public:
 	}
 
 	virtual
-	void
+	llvm::FunctionType*
 	prepareFunctionType(FunctionType* functionType);
 
 	virtual
-	void
+	llvm::CallInst*
 	call(
 		const Value& calleeValue,
 		FunctionType* functionType,
@@ -38,7 +38,7 @@ public:
 	);
 
 	virtual
-	void
+	llvm::ReturnInst*
 	ret(
 		Function* function,
 		const Value& value

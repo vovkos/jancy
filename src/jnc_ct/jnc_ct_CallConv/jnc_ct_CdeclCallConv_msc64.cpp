@@ -18,7 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-void
+llvm::FunctionType*
 CdeclCallConv_msc64::prepareFunctionType(FunctionType* functionType) {
 	Type* returnType = functionType->getReturnType();
 	sl::Array<FunctionArg*> argArray = functionType->getArgArray();
@@ -66,9 +66,11 @@ CdeclCallConv_msc64::prepareFunctionType(FunctionType* functionType) {
 		llvm::ArrayRef<llvm::Type*> (llvmArgTypeArray, argCount),
 		(functionType->getFlags() & FunctionTypeFlag_VarArg) != 0
 	);
+
+	return (llvm::FunctionType*)functionType->m_llvmType;
 }
 
-void
+llvm::CallInst*
 CdeclCallConv_msc64::call(
 	const Value& calleeValue,
 	FunctionType* functionType,
@@ -78,10 +80,9 @@ CdeclCallConv_msc64::call(
 	Type* returnType = functionType->getReturnType();
 
 	if (!(functionType->getFlags() & FunctionTypeFlag_CoercedArgs) &&
-		!(returnType->getFlags() & TypeFlag_StructRet)) {
-		CallConv::call(calleeValue, functionType, argValueList, resultValue);
-		return;
-	}
+		!(returnType->getFlags() & TypeFlag_StructRet)
+	)
+		return CallConv::call(calleeValue, functionType, argValueList, resultValue);
 
 	Value tmpReturnValue;
 
@@ -116,7 +117,7 @@ CdeclCallConv_msc64::call(
 		}
 	}
 
-	m_module->m_llvmIrBuilder.createCall(
+	llvm::CallInst* llvmInst = m_module->m_llvmIrBuilder.createCall(
 		calleeValue,
 		functionType,
 		*argValueList,
@@ -133,24 +134,24 @@ CdeclCallConv_msc64::call(
 
 		m_module->m_llvmIrBuilder.createLoad(tmpReturnValue, returnType, resultValue);
 	}
+
+	return llvmInst;
 }
 
-void
+llvm::ReturnInst*
 CdeclCallConv_msc64::ret(
 	Function* function,
 	const Value& value
 ) {
 	Type* returnType = function->getType()->getReturnType();
-	if (!(returnType->getFlags() & TypeFlag_StructRet)) {
-		CallConv::ret(function, value);
-		return;
-	}
+	if (!(returnType->getFlags() & TypeFlag_StructRet))
+		return CallConv::ret(function, value);
 
 	if (returnType->getSize() > sizeof(uint64_t)) {
 		Value returnPtrValue(&*function->getLlvmFunction()->arg_begin());
 
 		m_module->m_llvmIrBuilder.createStore(value, returnPtrValue);
-		m_module->m_llvmIrBuilder.createRet(returnPtrValue);
+		return m_module->m_llvmIrBuilder.createRet(returnPtrValue);
 	} else {
 		Type* type = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int64);
 
@@ -159,7 +160,7 @@ CdeclCallConv_msc64::ret(
 		m_module->m_llvmIrBuilder.createBitCast(tmpValue, returnType->getDataPtrType_c(), &tmpValue2);
 		m_module->m_llvmIrBuilder.createStore(value, tmpValue2);
 		m_module->m_llvmIrBuilder.createLoad(tmpValue, NULL, &tmpValue);
-		m_module->m_llvmIrBuilder.createRet(tmpValue);
+		return m_module->m_llvmIrBuilder.createRet(tmpValue);
 	}
 }
 
