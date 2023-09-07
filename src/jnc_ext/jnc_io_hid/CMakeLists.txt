@@ -84,10 +84,6 @@ source_group(
 # jnc_io_hid library
 #
 
-if(NOT WIN32 AND NOT LINUX)
-	message(FATAL "jnc_io_hid is currently Windows/Linux only")
-endif()
-
 include_directories(
 	${HIDAPI_INC_DIR}
 	${AXL_INC_DIR}
