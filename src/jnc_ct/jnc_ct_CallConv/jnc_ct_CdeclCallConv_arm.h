@@ -34,7 +34,7 @@ public:
 	CdeclCallConv_arm();
 
 	virtual
-	llvm::FunctionType*
+	void
 	prepareFunctionType(FunctionType* functionType);
 
 	virtual

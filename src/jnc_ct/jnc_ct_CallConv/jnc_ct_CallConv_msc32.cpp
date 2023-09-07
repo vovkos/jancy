@@ -25,11 +25,13 @@ AXL_TODO("beware: structs with sizes between 16 and 24 are returned incorrectly 
 
 //..............................................................................
 
-llvm::FunctionType*
+void
 CallConv_msc32::prepareFunctionType(FunctionType* functionType) {
 	Type* returnType = functionType->getReturnType();
-	if (!isStructRet(returnType))
-		return CallConv::prepareFunctionType(functionType);
+	if (!isStructRet(returnType)) {
+		CallConv::prepareFunctionType(functionType);
+		return;
+	}
 
 	sl::Array<FunctionArg*> argArray = functionType->getArgArray();
 	size_t argCount = argArray.getCount() + 1;
@@ -48,8 +50,6 @@ CallConv_msc32::prepareFunctionType(FunctionType* functionType) {
 		llvm::ArrayRef<llvm::Type*> (llvmArgTypeArray, argCount),
 		(functionType->getFlags() & FunctionTypeFlag_VarArg) != 0
 	);
-
-	return (llvm::FunctionType*)functionType->m_llvmType;
 }
 
 llvm::Function*

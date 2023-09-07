@@ -18,7 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-llvm::FunctionType*
+void
 CdeclCallConv_msc64::prepareFunctionType(FunctionType* functionType) {
 	Type* returnType = functionType->getReturnType();
 	sl::Array<FunctionArg*> argArray = functionType->getArgArray();
@@ -66,8 +66,6 @@ CdeclCallConv_msc64::prepareFunctionType(FunctionType* functionType) {
 		llvm::ArrayRef<llvm::Type*> (llvmArgTypeArray, argCount),
 		(functionType->getFlags() & FunctionTypeFlag_VarArg) != 0
 	);
-
-	return (llvm::FunctionType*)functionType->m_llvmType;
 }
 
 llvm::CallInst*

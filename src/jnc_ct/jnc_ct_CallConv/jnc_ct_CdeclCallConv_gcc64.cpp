@@ -31,7 +31,7 @@ CdeclCallConv_gcc64::getArgCoerceType(Type* type) {
 	return coerceType;
 }
 
-llvm::FunctionType*
+void
 CdeclCallConv_gcc64::prepareFunctionType(FunctionType* functionType) {
 	Type* returnType = functionType->getReturnType();
 	sl::Array<FunctionArg*> argArray = functionType->getArgArray();
@@ -98,8 +98,6 @@ CdeclCallConv_gcc64::prepareFunctionType(FunctionType* functionType) {
 		llvm::ArrayRef<llvm::Type*> (llvmArgTypeArray, argCount),
 		(functionType->getFlags() & FunctionTypeFlag_VarArg) != 0
 	);
-
-	return (llvm::FunctionType*)functionType->m_llvmType;
 }
 
 llvm::Function*

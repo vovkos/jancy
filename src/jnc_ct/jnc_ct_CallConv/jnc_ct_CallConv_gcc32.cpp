@@ -18,11 +18,13 @@ namespace ct {
 
 //..............................................................................
 
-llvm::FunctionType*
+void
 CallConv_gcc32::prepareFunctionType(FunctionType* functionType) {
 	Type* returnType = functionType->getReturnType();
-	if (!(returnType->getFlags() & TypeFlag_StructRet))
-		return CallConv::prepareFunctionType(functionType);
+	if (!(returnType->getFlags() & TypeFlag_StructRet)) {
+		CallConv::prepareFunctionType(functionType);
+		return;
+	}
 
 	sl::Array<FunctionArg*> argArray = functionType->getArgArray();
 	size_t argCount = argArray.getCount() + 1;
@@ -41,8 +43,6 @@ CallConv_gcc32::prepareFunctionType(FunctionType* functionType) {
 		llvm::ArrayRef<llvm::Type*> (llvmArgTypeArray, argCount),
 		(functionType->getFlags() & FunctionTypeFlag_VarArg) != 0
 	);
-
-	return (llvm::FunctionType*)functionType->m_llvmType;
 }
 
 llvm::Function*

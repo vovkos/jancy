@@ -192,7 +192,7 @@ CallConv::CallConv() {
 	m_callConvKind = CallConvKind_Undefined;
 }
 
-llvm::FunctionType*
+void
 CallConv::prepareFunctionType(FunctionType* functionType) {
 	sl::Array<FunctionArg*> argArray = functionType->getArgArray();
 	size_t argCount = argArray.getCount();
@@ -209,8 +209,6 @@ CallConv::prepareFunctionType(FunctionType* functionType) {
 		llvm::ArrayRef<llvm::Type*> (llvmArgTypeArray, argCount),
 		(functionType->getFlags() & FunctionTypeFlag_VarArg) != 0
 	);
-
-	return (llvm::FunctionType*)functionType->m_llvmType;
 }
 
 llvm::Function*

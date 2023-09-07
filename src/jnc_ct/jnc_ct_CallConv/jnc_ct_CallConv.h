@@ -155,7 +155,7 @@ public:
 	}
 
 	virtual
-	llvm::FunctionType*
+	void
 	prepareFunctionType(FunctionType* functionType);
 
 	virtual
