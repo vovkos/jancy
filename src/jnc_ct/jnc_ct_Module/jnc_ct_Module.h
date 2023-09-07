@@ -432,7 +432,7 @@ LlvmIrBuilder::addTypedAttribute(
 	llvm::Attribute llvmAttr = llvm::Attribute::get(*m_module->getLlvmContext(), attrKind, type->getLlvmType());
 	llvmCallInst->addAttribute(i, llvmAttr);
 #else
-    llvm::Attribute llvmAttr = llvm::Attribute::get(*m_module->getLlvmContext(), attrKind, type->getLlvmType());
+	llvm::Attribute llvmAttr = llvm::Attribute::get(*m_module->getLlvmContext(), attrKind, type->getLlvmType());
     llvmCallInst->addAttributeAtIndex(i, llvmAttr);
 #endif
 }

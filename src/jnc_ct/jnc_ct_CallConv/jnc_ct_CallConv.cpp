@@ -336,12 +336,15 @@ CallConv::addIntExtAttributes(
 		if (type->getTypeKind() == TypeKind_Enum)
 			type = ((EnumType*)type)->getBaseType();
 
-		llvmInst->addAttribute(
-			i,
-			(type->getTypeKindFlags() & TypeKindFlag_Unsigned) ?
-				llvm::Attribute::AttrKind::ZExt :
-				llvm::Attribute::AttrKind::SExt
-		);
+		llvm::Attribute::AttrKind llvmAttrKind = (type->getTypeKindFlags() & TypeKindFlag_Unsigned) ?
+			llvm::Attribute::ZExt :
+			llvm::Attribute::SExt;
+
+#if (LLVM_VERSION_MAJOR < 14)
+		llvmInst->addAttribute(i, llvmAttrKind);
+#else
+		llvmInst->addAttributeAtIndex(i, llvmAttrKind);
+#endif
 	}
 }
 
