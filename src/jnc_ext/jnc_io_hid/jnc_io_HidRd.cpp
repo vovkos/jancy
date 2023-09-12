@@ -350,8 +350,9 @@ HidRd::clear() {
 		if (!(it3->m_value->m_box->m_flags & jnc::BoxFlag_Destructed))
 			it3->m_value->detach();
 
-	ASSERT(!(m_rootCollection->m_box->m_flags & jnc::BoxFlag_Destructed));
-	m_rootCollection->detach();
+	if (!(m_rootCollection->m_box->m_flags & jnc::BoxFlag_Destructed))
+		m_rootCollection->detach();
+
 	m_reportMap.clear();
 	m_fieldMap.clear();
 	m_collectionMap.clear();
