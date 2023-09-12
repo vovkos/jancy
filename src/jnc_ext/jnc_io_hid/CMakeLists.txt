@@ -160,6 +160,19 @@ if(WIN32)
 		axl_mem_new
 		setupapi
 	)
+
+	if(HIDAPI_DLL_DIR)
+		add_custom_command(
+			TARGET jnc_io_hid
+			POST_BUILD
+			COMMAND
+				echo Copying DLL files for jnc_io_hid...
+			COMMAND
+				${CMAKE_COMMAND} -E copy
+				${HIDAPI_DLL_DIR}/hidapi.dll
+				${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CONFIGURATION}
+			)
+	endif()
 elseif(APPLE)
 	find_library(IOKIT_FRAMEWORK IOKit)
 	find_library(APPKIT_FRAMEWORK AppKit)
