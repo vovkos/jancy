@@ -172,6 +172,10 @@ UsbMonitor::parseTransfers_l(
 	const char* p,
 	const char* end
 ) {
+#if (_AXL_OS_LINUX)
+	bool isDeviceMatch = false;
+#endif
+
 	while (p < end) {
 		size_t size = parser.parse(p, end - p);
 		if (size == -1)
@@ -182,6 +186,12 @@ UsbMonitor::parseTransfers_l(
 		switch (state) {
 		case axl::io::UsbMonTransferParserState_CompleteHeader:
 			hdr = parser.getTransferHdr();
+#if (_AXL_OS_LINUX)
+			isDeviceMatch = !m_addressFilter || hdr->m_address == m_addressFilter;
+			if (!isDeviceMatch)
+				break;
+#endif
+
 			addToReadBuffer(hdr, sizeof(axl::io::UsbMonTransferHdr));
 
 			if (hdr->m_transferType == LIBUSB_TRANSFER_TYPE_ISOCHRONOUS)
@@ -194,6 +204,10 @@ UsbMonitor::parseTransfers_l(
 
 		case axl::io::UsbMonTransferParserState_IncompleteData:
 		case axl::io::UsbMonTransferParserState_CompleteData:
+#if (_AXL_OS_LINUX)
+			if (!isDeviceMatch)
+				break;
+#endif
 			addToReadBuffer(p, size);
 			break;
 		}
@@ -233,6 +247,13 @@ UsbMonitor::parseCompletedTransfersOnly_l(
 		switch (state) {
 		case axl::io::UsbMonTransferParserState_CompleteHeader:
 			hdr = parser.getTransferHdr();
+#if (_AXL_OS_LINUX)
+			if (m_addressFilter && hdr->m_address != m_addressFilter) {
+				dataMode = DataMode_Ignore;
+				break;
+			}
+#endif
+
 			if (!(hdr->m_flags & axl::io::UsbMonTransferFlag_Completed)) {
 				if (hdr->m_endpoint & 0x80) { // incomplete in-transfers
 					dataMode = DataMode_Ignore;

@@ -17,7 +17,7 @@ enum UsbMonOption {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct UsbMonitorHdr: IfaceHdr {
-	uint_t m_addressFilter;
+	volatile uint_t m_addressFilter;
 	uint_t m_readParallelism;
 	size_t m_kernelBufferSize;
 	size_t m_readBlockSize;
