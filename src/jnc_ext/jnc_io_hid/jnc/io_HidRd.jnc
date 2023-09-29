@@ -207,6 +207,7 @@ opaque class HidReportField {
 	size_t m_auxUsageCount;
 	uint_t const property m_usageArray(size_t i);
 	bool const property m_isPadding;
+	bool const property m_isUnsigned;
 
 	uint_t operator [] (HidRdItemId id) const;
 
@@ -223,6 +224,10 @@ opaque class HidReportField {
 
 bool HidReportField.m_isPadding.get() {
 	return !isSet(HidRdItemMask.AllUsages);
+}
+
+bool HidReportField.m_isUnsigned.get() {
+	return (int)this[HidRdItemId.LogicalMinimum] >= 0;
 }
 
 //..............................................................................
