@@ -3,6 +3,9 @@
 #include "jnc_io_HidLibDep.h"
 #include "jnc_io_HidDevice.h"
 #include "jnc_io_HidEnumerator.h"
+#if (_JNC_IO_USBMON)
+#	include "jnc_io_HidMonEnumerator.h"
+#endif
 #include "jnc_io_HidRd.h"
 #include "jnc_io_HidDb.h"
 
@@ -51,6 +54,9 @@ JNC_BEGIN_LIB_FUNCTION_MAP(HidLib)
 	JNC_MAP_TYPE(HidRdCollection)
 	JNC_MAP_TYPE(HidRd)
 	JNC_MAP_FUNCTION_Q("io.enumerateHidDevices", enumerateHidDevices)
+#if (_JNC_IO_USBMON)
+	JNC_MAP_FUNCTION_Q("io.enumerateHidMonDevices", enumerateHidMonDevices)
+#endif
 	JNC_MAP_FUNCTION_Q("io.getHidRdUnit", getHidRdUnit)
 	JNC_MAP_FUNCTION_Q("io.getHidRdComplexUnitString", getHidRdComplexUnitString)
 JNC_END_LIB_FUNCTION_MAP()

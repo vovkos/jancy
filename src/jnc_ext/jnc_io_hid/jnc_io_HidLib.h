@@ -28,6 +28,7 @@ JNC_DEFINE_GUID(
 enum HidLibCacheSlot {
 	HidLibCacheSlot_HidDevice,
 	HidLibCacheSlot_HidDeviceDesc,
+	HidLibCacheSlot_HidMonDeviceDesc,
 	HidLibCacheSlot_HidReportField,
 	HidLibCacheSlot_HidReport,
 	HidLibCacheSlot_HidStandaloneReport,

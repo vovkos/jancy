@@ -20,6 +20,7 @@ set(
 	jnc_io_HidLib.h
 	jnc_io_HidDevice.h
 	jnc_io_HidEnumerator.h
+	jnc_io_HidMonEnumerator.h
 	jnc_io_HidRd.h
 	jnc_io_HidDb.h
 	${LIB_DEP_H}
@@ -30,6 +31,7 @@ set(
 	jnc_io_HidLib.cpp
 	jnc_io_HidDevice.cpp
 	jnc_io_HidEnumerator.cpp
+	jnc_io_HidMonEnumerator.cpp
 	jnc_io_HidRd.cpp
 	jnc_io_HidDb.cpp
 )
@@ -41,6 +43,10 @@ source_group(
 	${LIB_CPP_LIST}
 )
 
+if(NOT BUILD_JNC_IO_USBMON)
+	axl_exclude_from_build(jnc_io_HidMonEnumerator.cpp)
+endif()
+
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
 # jnc folder
@@ -50,6 +56,7 @@ set(
 	JNC_LIST
 	jnc/io_HidDevice.jnc
 	jnc/io_HidEnumerator.jnc
+	jnc/io_HidMonEnumerator.jnc
 	jnc/io_HidRd.jnc
 	jnc/io_HidDb.jnc
 )
@@ -86,11 +93,17 @@ source_group(
 
 include_directories(
 	${HIDAPI_INC_DIR}
+	${LIBUSB_INC_DIR}
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
 	../jnc_io_cmn
 	../jnc_std
 )
+
+if (BUILD_JNC_IO_USBMON)
+	include_directories(${LIBUSB_INC_DIR})
+	add_definitions(-D_JNC_IO_USBMON=1)
+endif()
 
 link_directories(
 	${HIDAPI_LIB_DIR}
@@ -161,6 +174,15 @@ if(WIN32)
 		setupapi
 	)
 
+	if(BUILD_JNC_IO_USBMON)
+		target_link_libraries(
+			jnc_io_hid
+			axl_io_usb
+			axl_io_usbmon
+			hid
+		)
+	endif()
+
 	if(HIDAPI_DLL_DIR)
 		add_custom_command(
 			TARGET jnc_io_hid
@@ -176,9 +198,9 @@ if(WIN32)
 elseif(APPLE)
 	find_library(IOKIT_FRAMEWORK IOKit)
 	find_library(APPKIT_FRAMEWORK AppKit)
-	
+
 	target_link_libraries(
-		jnc_io_hid 
+		jnc_io_hid
 		${IOKIT_FRAMEWORK}
 		${APPKIT_FRAMEWORK}
 	)
