@@ -48,9 +48,6 @@ createUsbMonDeviceDesc(
 	dstDesc->m_class = srcDesc->m_class;
 	dstDesc->m_subClass = srcDesc->m_subClass;
 	dstDesc->m_speed = srcDesc->m_speed;
-	dstDesc->m_manufacturerDescriptorId = srcDesc->m_manufacturerDescriptorId;
-	dstDesc->m_productDescriptorId = srcDesc->m_productDescriptorId;
-	dstDesc->m_serialNumberDescriptorId = srcDesc->m_serialNumberDescriptorId;
 	return descPtr;
 }
 

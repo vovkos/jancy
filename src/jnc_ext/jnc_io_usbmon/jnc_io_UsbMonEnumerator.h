@@ -35,10 +35,6 @@ struct UsbMonDeviceDesc: UsbDeviceStrings {
 	uint8_t m_class;
 	uint8_t m_subClass;
 	uint8_t m_speed;
-
-	uint8_t m_manufacturerDescriptorId;
-	uint8_t m_productDescriptorId;
-	uint8_t m_serialNumberDescriptorId;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
