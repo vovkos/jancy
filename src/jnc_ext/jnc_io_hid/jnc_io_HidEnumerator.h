@@ -27,11 +27,11 @@ struct HidDeviceDesc {
 	DataPtr m_product;
 	DataPtr m_serialNumber;
 
-	uint16_t m_releaseNumber;
 	uint16_t m_vendorId;
 	uint16_t m_productId;
 	uint16_t m_usagePage;
 	uint16_t m_usage;
+	uint16_t m_releaseNumber;
 	uint8_t m_interfaceId;
 	uint8_t m_busType;
 };
