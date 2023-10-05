@@ -22,7 +22,7 @@
 #include "axl_zip_ZipReader.h"
 #include "axl_io_HidDevice.h"
 #include "axl_io_HidEnumerator.h"
-#if (_JNC_IO_USBMON)
+#if (_JNC_IO_HIDMON)
 #	include "axl_io_HidMonEnumerator.h"
 #endif
 #include "axl_io_HidRd.h"

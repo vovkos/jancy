@@ -43,7 +43,7 @@ source_group(
 	${LIB_CPP_LIST}
 )
 
-if(NOT BUILD_JNC_IO_USBMON)
+if(NOT USBMON_AVAILABLE)
 	axl_exclude_from_build(jnc_io_HidMonEnumerator.cpp)
 endif()
 
@@ -100,9 +100,13 @@ include_directories(
 	../jnc_std
 )
 
-if (BUILD_JNC_IO_USBMON)
-	include_directories(${LIBUSB_INC_DIR})
-	add_definitions(-D_JNC_IO_USBMON=1)
+if(USBMON_AVAILABLE)
+	include_directories(${LIBUSB_INC_DIR})	
+	add_definitions(-D_JNC_IO_HIDMON=1)
+	
+	if(${CMAKE_GENERATOR} MATCHES "Visual Studio 10")
+		link_directories(${HIDSDK_LIB_DIR})
+	endif()
 endif()
 
 link_directories(
@@ -174,7 +178,7 @@ if(WIN32)
 		setupapi
 	)
 
-	if(BUILD_JNC_IO_USBMON)
+	if(USBMON_AVAILABLE)
 		target_link_libraries(
 			jnc_io_hid
 			axl_io_usb
