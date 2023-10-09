@@ -1,0 +1,74 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+import "io_hid.jncx"
+import "io_HidEnumerator.jnc"
+import "io_HidDevice.jnc"
+import "HidUtils.jnc"
+
+//..............................................................................
+
+int main() {
+	printf("Loading HID DB...\n");
+	io.HidDb db;
+	db.load();
+
+	printf("Enumerating HID devices...\n");
+
+	io.HidDeviceDesc const* desc = io.enumerateHidDevices();
+	for (; desc; desc = desc.m_next) {
+		printf(
+			"%s\n"
+			"    Bus:          %s\n"
+			"    VID:          %04x\n"
+			"    PID:          %04x\n"
+			"    Manufacturer: %s\n"
+			"    Product:      %s\n"
+			"    Serial:       %s\n"
+			"    Release:      %x\n"
+			"    Usage page:   %d\n"
+			"    Usage:        %d\n"
+			"    Interface:    %d\n"
+			"\n",
+			desc.m_path,
+			typeof(io.HidBusType).getValueString(desc.m_busType),
+			desc.m_vendorId,
+			desc.m_productId,
+			desc.m_manufacturer,
+			desc.m_product,
+			desc.m_serialNumber,
+			desc.m_releaseNumber,
+			desc.m_usagePage,
+			desc.m_usage,
+			desc.m_interfaceId
+		);
+
+		printf("Opening %s...\n", desc.m_path);
+		io.HidDevice device;
+		bool result = try device.open(desc.m_path);
+		if (!result)
+			continue;
+
+		printf("Reading report descriptor...\n");
+		char buffer[4096];
+		size_t readResult = device.getReportDescriptor(buffer, sizeof(buffer));
+		printf("read: %d\n", readResult);
+
+		io.HidRd rd;
+		rd.parse(db, buffer, readResult);
+		printHidRdCollections(rd);
+		printf("\n");
+	}
+
+	return 0;
+}
+
+//..............................................................................

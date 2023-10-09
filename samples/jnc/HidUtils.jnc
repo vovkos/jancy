@@ -10,10 +10,10 @@
 //..............................................................................
 
 import "io_hid.jncx"
-import "io_HidEnumerator.jnc"
-import "io_HidDevice.jnc"
 import "io_HidRd.jnc"
 import "std_String.jnc"
+
+//..............................................................................
 
 void incIndent(std.StringBuilder* indent) {
 	indent.append(' ', 4);
@@ -23,7 +23,7 @@ void decIndent(std.StringBuilder* indent) {
 	indent.chop(4);
 }
 
-void printItem(
+void printHidRdItem(
 	char const* indent,
 	io.HidReportField const* field,
 	io.HidRdItemId id
@@ -38,13 +38,13 @@ void printItem(
 }
 
 void
-printFieldArray(
+printHidRdFieldArray(
 	std.StringBuilder* indent,
 	io.HidReport const* report,
 	io.HidRdCollection const* collection
 ) {
 	assert(report || collection);
-	
+
 	size_t count = report ? report.m_fieldCount : collection.m_fieldCount;
 	for (size_t i = 0; i < count; i++) {
 		io.HidReportField const* field = report ? report.m_fieldArray[i] : collection.m_fieldArray[i];
@@ -100,19 +100,19 @@ printFieldArray(
 				field.m_usagePage.getUsageName(field[io.HidRdItemId.UsageMaximum])
 			);
 
-		printItem(indent.m_p, field, io.HidRdItemId.LogicalMinimum);
-		printItem(indent.m_p, field, io.HidRdItemId.LogicalMaximum);
-		printItem(indent.m_p, field, io.HidRdItemId.PhysicalMinimum);
-		printItem(indent.m_p, field, io.HidRdItemId.PhysicalMaximum);
-		printItem(indent.m_p, field, io.HidRdItemId.ReportId);
-		printItem(indent.m_p, field, io.HidRdItemId.ReportSize);
-		printItem(indent.m_p, field, io.HidRdItemId.ReportCount);
-		
+		printHidRdItem(indent.m_p, field, io.HidRdItemId.LogicalMinimum);
+		printHidRdItem(indent.m_p, field, io.HidRdItemId.LogicalMaximum);
+		printHidRdItem(indent.m_p, field, io.HidRdItemId.PhysicalMinimum);
+		printHidRdItem(indent.m_p, field, io.HidRdItemId.PhysicalMaximum);
+		printHidRdItem(indent.m_p, field, io.HidRdItemId.ReportId);
+		printHidRdItem(indent.m_p, field, io.HidRdItemId.ReportSize);
+		printHidRdItem(indent.m_p, field, io.HidRdItemId.ReportCount);
+
 		decIndent(indent);
 	}
 }
 
-void printReports(io.HidRd const* rd) {
+void printHidRdReports(io.HidRd const* rd) {
 	printf("HID RD Reports%s\n", (rd.m_flags & io.HidRdFlags.HasReportId) ? " (with IDs)" : "");
 	std.StringBuilder indent;
 	incIndent(indent);
@@ -140,14 +140,14 @@ void printReports(io.HidRd const* rd) {
 					report.m_reportId
 				);
 
-			printFieldArray(&indent, report, null);
+			printHidRdFieldArray(&indent, report, null);
 			decIndent(&indent);
 		}
 	}
 }
 
 
-void printCollection(
+void printHidRdCollection(
 	std.StringBuilder* indent,
 	io.HidRdCollection const* collection
 ) {
@@ -162,25 +162,25 @@ void printCollection(
 	);
 
 	incIndent(indent);
-	printFieldArray(indent, null, collection);
+	printHidRdFieldArray(indent, null, collection);
 	for (size_t i = 0; i < collection.m_collectionCount; i++)
-		printCollection(indent, collection.m_collectionArray[i]);
+		printHidRdCollection(indent, collection.m_collectionArray[i]);
 
 	decIndent(indent);
 }
 
-void printCollections(io.HidRd const* rd) {
+void printHidRdCollections(io.HidRd const* rd) {
 	printf("HID RD Collections%s\n", (rd.m_flags & io.HidRdFlags.HasReportId) ? " (with IDs)" : "");
 
 	std.StringBuilder indent;
 	incIndent(indent);
 	for (size_t i = 0; i < rd.m_rootCollection.m_collectionCount; i++)
-		printCollection(indent, rd.m_rootCollection.m_collectionArray[i]);
+		printHidRdCollection(indent, rd.m_rootCollection.m_collectionArray[i]);
 
-	printFieldArray(indent, null, rd.m_rootCollection);
+	printHidRdFieldArray(indent, null, rd.m_rootCollection);
 }
 
-int extractValue(
+int extractHidReportValue(
 	void thin const* p, // must have at least 7 bytes extra
 	size_t bitOffset,
 	size_t bitCount
@@ -195,7 +195,7 @@ int extractValue(
 }
 
 void
-decode(
+decodeHidReport(
 	io.HidReport const* report,
 	void const* p
 ) {
@@ -212,7 +212,7 @@ decode(
 		size_t reportCount = field[io.HidRdItemId.ReportCount];
 
 		for (size_t i = 0; i < reportCount; i++, bitOffset += reportSize) {
-			int value = extractValue(p, bitOffset, reportSize);
+			int value = extractHidReportValue(p, bitOffset, reportSize);
 			if (!value)
 				continue; // ignore
 
@@ -227,57 +227,4 @@ decode(
 	}
 }
 
-int main() {
-	printf("Loading HID DB...\n");
-	io.HidDb db;
-	db.load();
-
-	printf("Enumerating HID devices...\n");
-
-	io.HidDeviceDesc const* desc = io.enumerateHidDevices();
-	for (; desc; desc = desc.m_next) {
-		printf(
-			"%s\n"
-			"    Bus:          %s\n"
-			"    VID:          %04x\n"
-			"    PID:          %04x\n"
-			"    Manufacturer: %s\n"
-			"    Product:      %s\n"
-			"    Serial:       %s\n"
-			"    Release:      %x\n"
-			"    Usage page:   %d\n"
-			"    Usage:        %d\n"
-			"    Interface:    %d\n"
-			"\n",
-			desc.m_path,
-			typeof(io.HidBusType).getValueString(desc.m_busType),
-			desc.m_vendorId,
-			desc.m_productId,
-			desc.m_manufacturer,
-			desc.m_product,
-			desc.m_serialNumber,
-			desc.m_releaseNumber,
-			desc.m_usagePage,
-			desc.m_usage,
-			desc.m_interfaceId
-		);
-
-		printf("Opening %s...\n", desc.m_path);
-		io.HidDevice device;
-		bool result = try device.open(desc.m_path);
-		if (!result)
-			continue;
-
-		printf("Reading report descriptor...\n");
-		char buffer[4096];
-		size_t readResult = device.getReportDescriptor(buffer, sizeof(buffer));
-		printf("read: %d\n", readResult);
-
-		io.HidRd rd;
-		rd.parse(db, buffer, readResult);
-		printCollections(rd);
-		printReports(rd);
-	}
-
-	return 0;
-}
+//..............................................................................

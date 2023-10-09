@@ -1,0 +1,72 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+import "io_hid.jncx"
+import "io_HidMonEnumerator.jnc"
+import "HidUtils.jnc"
+
+//..............................................................................
+
+int main() {
+	printf("Loading HID DB...\n");
+	io.HidDb db;
+	db.load();
+
+	printf("Enumerating HIDMON devices...\n");
+
+	io.HidMonDeviceDesc const* desc = io.enumerateHidMonDevices();
+	for (; desc; desc = desc.m_next) {
+		io.HidUsagePage const* usagePage = db.getUsagePage(desc.m_usagePage);
+
+		printf(
+			"%s\n"
+			"    Capture:       %s\n"
+			"    Capture ID:    %d\n"
+			"    VID:           %04x\n"
+			"    PID:           %04x\n"
+			"    Manufacturer:  %s\n"
+			"    Description:   %s\n"
+			"    *Manufacturer: %s\n"
+			"    *Description:  %s\n"
+			"    *Serial:       %s\n"
+			"    Release:       %x\n"
+			"    Usage page:    %s\n"
+			"    Usage:         %s\n"
+			"    Interface:     %d\n"
+			"    Endpoint:      0x%02x\n"
+			"\n",
+			desc.m_hidDeviceName,
+			desc.m_captureDeviceName,
+			desc.m_captureDeviceId,
+			desc.m_vendorId,
+			desc.m_productId,
+			desc.m_manufacturer,
+			desc.m_description,
+			desc.m_manufacturerDescriptor,
+			desc.m_productDescriptor,
+			desc.m_serialNumberDescriptor,
+			desc.m_releaseNumber,
+			usagePage.m_name,
+			usagePage.getUsageName(desc.m_usage),
+			desc.m_interfaceId,
+			desc.m_endpointId
+		);
+
+		io.HidRd rd;
+		rd.parse(db, desc.m_reportDescriptor, desc.m_reportDescriptorSize);
+		printHidRdCollections(rd);
+		printf("\n");
+	}
+
+	return 0;
+}
+
+//..............................................................................

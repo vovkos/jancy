@@ -35,7 +35,15 @@ if(NOT BUILD_JNC_IO_HID)
 	list(
 		REMOVE_ITEM
 		SAMPLE_JNC_LIST
-		93_Hid.jnc
+		93_HidEnum.jnc
+	)
+endif()
+
+if(NOT BUILD_JNC_IO_HID OR NOT USBMON_AVAILABLE)
+	list(
+		REMOVE_ITEM
+		SAMPLE_JNC_LIST
+		93_HidMonEnum.jnc
 	)
 endif()
 
