@@ -14,8 +14,6 @@
 namespace jnc {
 namespace io {
 
-JNC_DECLARE_TYPE(UsbDeviceStrings)
-
 //..............................................................................
 
 struct UsbDeviceStrings {

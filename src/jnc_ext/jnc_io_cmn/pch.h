@@ -37,6 +37,10 @@
 #	include "axl_io_UsbDeviceStrings.h"
 #endif
 
+#if (_JNC_IO_USBMON)
+#	include "axl_io_UsbMonEnumerator.h"
+#endif
+
 #include "jnc_ExtensionLib.h"
 #include "jnc_Capability.h"
 #include "jnc_Runtime.h"

@@ -19,8 +19,7 @@ namespace io {
 
 //..............................................................................
 
-struct UsbMonDeviceDesc: UsbDeviceStrings {
-	UsbMonDeviceDesc const* m_next;
+struct UsbMonDeviceDescBase: UsbDeviceStrings {
 	char const* m_captureDeviceName;
 	uint_t m_captureDeviceId;
 
@@ -32,6 +31,10 @@ struct UsbMonDeviceDesc: UsbDeviceStrings {
 	uint8_t m_class;
 	uint8_t m_subClass;
 	UsbSpeed m_speed;
+}
+
+struct UsbMonDeviceDesc: UsbMonDeviceDescBase {
+	UsbMonDeviceDesc const* m_next;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

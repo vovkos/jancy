@@ -9,29 +9,31 @@
 //
 //..............................................................................
 
-#pragma once
-
+#include "pch.h"
 #include "jnc_io_UsbMonDeviceDescBase.h"
 
 namespace jnc {
 namespace io {
 
-JNC_DECLARE_TYPE(UsbMonDeviceDesc)
-
 //..............................................................................
 
-struct UsbMonDeviceDesc: UsbMonDeviceDescBase {
-	JNC_DECLARE_TYPE_STATIC_METHODS(UsbMonDeviceDesc)
-	DataPtr m_nextPtr;
-};
+void
+initUsbMonDeviceDescBase(
+	UsbMonDeviceDescBase* dst,
+	const axl::io::UsbMonDeviceDesc* src
+) {
+	initUsbDeviceStrings(dst, src);
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-DataPtr
-enumerateUsbMonDevices(
-	uint_t flags,
-	DataPtr countPtr
-);
+	dst->m_captureDeviceNamePtr = strDup(src->m_captureDeviceName);
+	dst->m_captureDeviceId = src->m_captureDeviceId;
+	dst->m_vendorId = src->m_vendorId;
+	dst->m_productId = src->m_productId;
+	dst->m_address = src->m_address;
+	dst->m_port = src->m_port;
+	dst->m_class = src->m_class;
+	dst->m_subClass = src->m_subClass;
+	dst->m_speed = src->m_speed;
+}
 
 //..............................................................................
 
