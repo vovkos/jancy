@@ -229,7 +229,7 @@ HidRdCollection::getCollection(size_t i) {
 		return m_collectionArray[i];
 
 	ASSERT(m_rd && m_collection->getCollectionList().getCount() == m_collectionCount);
-	m_collectionArray.setCount(m_collectionCount);
+	m_collectionArray.setCountZeroConstruct(m_collectionCount);
 	sl::ConstIterator<axl::io::HidRdCollection> it = m_collection->getCollectionList().getHead();
 	for (size_t j = 0; it; it++, j++)
 		m_collectionArray[j] = m_rd->getCollection(*it);
