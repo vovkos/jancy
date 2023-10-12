@@ -21,6 +21,7 @@ list(
 	SAMPLE_JNC_LIST
 	91_WebSocketClient.jnc
 	92_WebSocketServer.jnc
+	HidUtils.jnc
 )
 
 if(NOT BUILD_JNC_IO_SSL)
