@@ -178,7 +178,7 @@ HidStandaloneReport::loadDecodeInfo(
 	m_rd = NULL;
 	m_db = db;
 	m_report = &m_standaloneReport;
-	m_reportKind = m_standaloneReport.getReportKind();
+	m_reportType = m_standaloneReport.getReportType();
 	m_reportId = m_standaloneReport.getReportId();
 	m_bitCount = m_standaloneReport.getBitCount();
 	m_size = m_standaloneReport.getSize();
@@ -280,17 +280,17 @@ HidRd::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 HidReport*
 JNC_CDECL
 HidRd::getReport(
-	axl::io::HidReportKind reportKind,
+	axl::io::HidReportType reportType,
     size_t i
 ) {
-	if ((size_t)reportKind >= countof(m_reportTable))
+	if (!isValidReportType(reportType))
 		return NULL;
 
-	sl::Array<HidReport*>& reportArray = m_reportTable[reportKind];
+	sl::Array<HidReport*>& reportArray = m_reportTable[reportType - 1];
 	if (i < reportArray.getCount())
 		return reportArray[i];
 
-	const sl::SimpleHashTable<uint_t, axl::io::HidReport>& reportMap = m_rd.getReportMap(reportKind);
+	const sl::SimpleHashTable<uint_t, axl::io::HidReport>& reportMap = m_rd.getReportMap(reportType);
 	size_t count = reportMap.getCount();
 	if (i >= count)
 		return NULL;
@@ -302,6 +302,19 @@ HidRd::getReport(
 		reportArray[j] = getReportImpl(&it->m_value);
 
 	return reportArray[i];
+}
+
+HidReport*
+JNC_CDECL
+HidRd::findReport(
+	axl::io::HidReportType reportType,
+	uint_t reportId
+) {
+	if (!isValidReportType(reportType))
+		return NULL;
+
+	const axl::io::HidReport* report = m_rd.findReport(reportType, reportId);
+	return report ? getReportImpl(report) : NULL;
 }
 
 void

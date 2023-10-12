@@ -56,7 +56,7 @@ printHidRdFieldArray(
 		printf(
 			"%sField: %s %d-bit\n",
 	    	indent.m_p,
-			typeof(io.HidReportKind).getValueString(field.m_report.m_reportKind),
+			typeof(io.HidReportType).getValueString(field.m_report.m_reportType),
 			field.m_bitCount
 		);
 
@@ -116,17 +116,17 @@ void printHidRdReports(io.HidRd const* rd) {
 	printf("HID RD Reports%s\n", (rd.m_flags & io.HidRdFlags.HasReportId) ? " (with IDs)" : "");
 	std.StringBuilder indent;
 	incIndent(indent);
-	for (uint_t i = io.HidReportKind.Input; i <= io.HidReportKind.Feature; i++) {
-		io.HidReportKind k = (io.HidReportKind)i;
+	for (uint_t i = io.HidReportType.Input; i <= io.HidReportType.Feature; i++) {
+		io.HidReportType k = (io.HidReportType)i;
 
 		size_t count = rd.m_reportCount[k];
 		for (size_t j = 0; j < count; j++) {
-			io.HidReport const* report = rd.m_reportArray[(io.HidReportKind)i][j];
+			io.HidReport const* report = rd.m_reportArray[(io.HidReportType)i][j];
 
 			printf(
 				"%sReport: %s %d-bit (%d bytes)\n",
 				indent.m_p,
-				typeof(io.HidReportKind).getValueString(report.m_reportKind),
+				typeof(io.HidReportType).getValueString(report.m_reportType),
 				report.m_bitCount,
 				report.m_size
 			);
@@ -145,7 +145,6 @@ void printHidRdReports(io.HidRd const* rd) {
 		}
 	}
 }
-
 
 void printHidRdCollection(
 	std.StringBuilder* indent,

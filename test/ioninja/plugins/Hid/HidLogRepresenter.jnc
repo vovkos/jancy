@@ -237,7 +237,7 @@ void representFieldArray(
 			continue;
 		}
 
-		char const* kind = typeof(io.HidReportKind).getValueString(field.m_report.m_reportKind);
+		char const* kind = typeof(io.HidReportType).getValueString(field.m_report.m_reportType);
 		representation.addHyperText($"%s\e[90m%s:\t\e[34m%d-bit"(indent.m_p, kind, field.m_bitCount));
 
 		indent.append(' ', 4);

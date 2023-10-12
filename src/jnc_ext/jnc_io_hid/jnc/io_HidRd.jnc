@@ -232,16 +232,17 @@ bool HidReportField.m_isUnsigned.get() {
 
 //..............................................................................
 
-enum HidReportKind {
-	Input,
-	Output,
-	Feature,
+enum HidReportType {
+	Undefined = 0x00,
+	Input     = 0x01,
+	Output    = 0x02,
+	Feature   = 0x03,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 opaque class HidReport {
-	HidReportKind const m_reportKind;
+	HidReportType const m_reportType;
 	uint_t const m_reportId;
 	size_t const m_bitCount; // size of all fields in bits
 	size_t const m_size;     // size of all fields in bytes
@@ -302,10 +303,10 @@ bitflag enum HidRdFlags {
 opaque class HidRd {
 	HidRdFlags const m_flags;
 	HidRdCollection const m_rootCollection;
-	size_t const property m_reportCount(HidReportKind reportKind);
+	size_t const property m_reportCount(HidReportType reportType);
 
 	HidReport const* const property m_reportArray(
-		HidReportKind reportKind,
+		HidReportType reportType,
 	    size_t i
 	);
 
@@ -313,7 +314,7 @@ opaque class HidRd {
 	destruct();
 
 	HidReport const* findReport(
-		HidReportKind reportKind,
+		HidReportType reportType,
 		uint_t reportId
 	) const;
 

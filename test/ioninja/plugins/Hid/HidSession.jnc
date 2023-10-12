@@ -140,7 +140,7 @@ protected:
 	void waitHidDeviceEvents();
 
 	void writeLogReport(
-		io.HidReportKind reportKind,
+		io.HidReportType reportType,
 		void const* p,
 		size_t size
 	);
@@ -396,7 +396,7 @@ size_t errorcode HidSession.transmit(
 	}
 	
 	uint_t reportId = *(uchar_t const*)p;
-	io.HidReport const* report = m_rd.findReport(io.HidReportKind.Output, reportId);
+	io.HidReport const* report = m_rd.findReport(io.HidReportType.Output, reportId);
 	if (!report) {
 		std.setError($"HID output #%d not found"(reportId));
 		throw;		
@@ -427,7 +427,7 @@ catch:
 }
 
 void HidSession.writeLogReport(
-	io.HidReportKind reportKind,
+	io.HidReportType reportType,
 	void const* p,
 	size_t size
 ) {
@@ -438,14 +438,14 @@ void HidSession.writeLogReport(
 		size--;
 	}
 
-	io.HidReport const* report = m_rd.findReport(reportKind, reportId);
+	io.HidReport const* report = m_rd.findReport(reportType, reportId);
 	if (!report) {
 		UnknownReportParams params;
 		params.m_decodeInfoSize = 0;
 		params.m_reportId = reportId;
 		
 		m_logWriter.write(
-			reportKind,
+			reportType,
 			&params,
 			sizeof(params),
 			p,
@@ -484,7 +484,7 @@ void HidSession.onHidDeviceEvent(
 	if (triggeredEvents & io.HidDeviceEvents.IncomingData) {
 		size_t result = m_device.read(m_readBuffer.m_p, m_readBuffer.m_size);
 		if (result)
-			writeLogReport(io.HidReportKind.Input, m_readBuffer.m_p, result);
+			writeLogReport(io.HidReportType.Input, m_readBuffer.m_p, result);
 	}
 
 	waitHidDeviceEvents();

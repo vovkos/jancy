@@ -75,17 +75,17 @@ HidReportUi.construct(
 void HidReportUi.createReportForms() {
 	m_container.clear();
 	
-	size_t reportCount = m_rd.m_reportCount[io.HidReportKind.Output];
+	size_t reportCount = m_rd.m_reportCount[io.HidReportType.Output];
 	for (size_t i = 0; i < reportCount; i++)
-		createReportForm(m_rd.m_reportArray[io.HidReportKind.Output][i]);
+		createReportForm(m_rd.m_reportArray[io.HidReportType.Output][i]);
 
-	reportCount = m_rd.m_reportCount[io.HidReportKind.Feature];
+	reportCount = m_rd.m_reportCount[io.HidReportType.Feature];
 	for (size_t i = 0; i < reportCount; i++)
-		createReportForm(m_rd.m_reportArray[io.HidReportKind.Feature][i]);
+		createReportForm(m_rd.m_reportArray[io.HidReportType.Feature][i]);
 }
 
 void HidReportUi.createReportForm(io.HidReport const* report) {
-	char const* text = typeof(io.HidReportKind).getValueString(report.m_reportKind);
+	char const* text = typeof(io.HidReportType).getValueString(report.m_reportType);
 	if (report.m_reportId)
 		text = $"%1 #%2"(text, report.m_reportId);
 
@@ -191,7 +191,7 @@ void HidReportUi.onSendReport(
 
 	uint64_t recordCode; 		
 	
-	if (report.m_reportKind == io.HidReportKind.Feature) {
+	if (report.m_reportType == io.HidReportType.Feature) {
 		m_device.sendFeatureReport(m_buffer.m_p, report.m_size + 1);
 		recordCode = HidLogRecordCode.SendFeatureReport;
 	} else {

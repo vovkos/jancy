@@ -133,7 +133,7 @@ public:
 	};
 
 public:
-	axl::io::HidReportKind m_reportKind;
+	axl::io::HidReportType m_reportType;
 	uint_t m_reportId;
 	size_t m_bitCount; // size of all fields in bits
 	size_t m_size;     // size of all fields in bytes
@@ -179,7 +179,7 @@ HidReport::init(
 	m_fieldStorageKind = FieldStorageKind_Rd;
 	m_rd = rd;
 	m_report = report;
-	m_reportKind = report->getReportKind();
+	m_reportType = report->getReportType();
 	m_reportId = report->getReportId();
 	m_bitCount = report->getBitCount();
 	m_size = report->getSize();
@@ -191,7 +191,7 @@ void
 HidReport::detach() {
 	m_rd = NULL;
 	m_report = NULL;
-	m_reportKind = axl::io::HidReportKind_Invalid;
+	m_reportType = axl::io::HidReportType_Undefined;
 	m_reportId = 0;
 	m_bitCount = 0;
 	m_size = 0;
@@ -313,7 +313,7 @@ public:
 
 protected:
 	axl::io::HidRd m_rd;
-	sl::Array<HidReport*> m_reportTable[axl::io::HidReportKind__Count];
+	sl::Array<HidReport*> m_reportTable[3]; // input, output, feature
 	sl::SimpleHashTable<const axl::io::HidReport*, HidReport*> m_reportMap;
 	sl::SimpleHashTable<const axl::io::HidReportField*, HidReportField*> m_fieldMap;
 	sl::SimpleHashTable<const axl::io::HidRdCollection*, HidRdCollection*> m_collectionMap;
@@ -331,28 +331,23 @@ public:
 
 	size_t
 	JNC_CDECL
-	getReportCount(axl::io::HidReportKind reportKind) {
-		return (size_t)reportKind < axl::io::HidReportKind__Count ?
-			m_rd.getReportMap(reportKind).getCount() :
-			0;
+	getReportCount(axl::io::HidReportType reportType) {
+		return isValidReportType(reportType) ? m_rd.getReportMap(reportType).getCount() : 0;
 	}
 
 	HidReport*
 	JNC_CDECL
 	getReport(
-		axl::io::HidReportKind reportKind,
+		axl::io::HidReportType reportType,
 	    size_t i
 	);
 
 	HidReport*
 	JNC_CDECL
 	findReport(
-		axl::io::HidReportKind reportKind,
+		axl::io::HidReportType reportType,
 		uint_t reportId
-	) {
-		const axl::io::HidReport* report = m_rd.findReport(reportKind, reportId);
-		return report ? getReportImpl(report) : NULL;
-	}
+	);
 
 	void
 	JNC_CDECL
@@ -386,6 +381,12 @@ public:
 	getCollection(const axl::io::HidRdCollection* collection);
 
 protected:
+	static
+	bool
+	isValidReportType(axl::io::HidReportType reportType) {
+		return (size_t)(reportType - 1) < 3;
+	}
+
 	HidReport*
 	getReportImpl(const axl::io::HidReport* report) {
 		return getReportImpl(getCurrentThreadRuntime(), report);
