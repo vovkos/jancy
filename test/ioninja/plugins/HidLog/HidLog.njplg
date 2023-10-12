@@ -18,7 +18,6 @@ log-representer-func = representHidLog
 
 HidLogRecordCode.jnc
 HidLogRepresenter.jnc
-HidDb.jnc
 
 [records]
 

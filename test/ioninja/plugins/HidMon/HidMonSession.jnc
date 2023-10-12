@@ -1,0 +1,507 @@
+//..............................................................................
+//
+// HID Monitor session
+//
+
+import "doc_Session.jnc"
+import "io_usbmon.jncx"
+import "io_hid.jncx"
+import "io_HidMonEnumerator.jnc"
+import "ui_BufferPropertySet.jnc"
+import "ui_StdSessionInfoSet.jnc"
+import "ui_HidUi.jnc"
+import "log_ThroughputCalc.jnc"
+import "log_ChecksumCalc.jnc"
+import "std_Buffer.jnc"
+
+//..............................................................................
+
+class HidMonSession: doc.Session {
+protected:
+	enum Defaults {
+		ReadParallelism  = 4,
+		ReadBlockSize    = 32 * 1024,
+		ReadBufferSize   = 512 * 1024,
+		KernelBufferSize = 1 * 1024 * 1024, // 1MB
+	}
+
+	enum State {
+		Closed,
+		Opened,
+	}
+
+	enum ActionId {
+		Refresh,
+		Capture,
+		_Count,
+	}
+
+	enum IconId {
+		Refresh,
+		Capture,
+		StopCapture,
+		_Count,
+	}
+
+	enum StatusPaneId {
+		State,
+		_Count,
+	}
+
+protected:
+	State bindable m_state;
+	io.UsbMonitor m_monitor;
+	io.HidMonDeviceDesc const* m_device;
+	io.HidRd m_rd;
+	HidLogReportWriter m_reportWriter;
+	std.Buffer m_deviceInfoBuffer;
+	std.Buffer m_rdBuffer;
+	std.Buffer m_readBuffer;
+	std.Buffer m_transferBuffer;
+	uint_t m_syncId;
+
+	// toolbar, status bar & menu
+
+	ui.Action* m_actionTable[ActionId._Count];
+	ui.Icon* m_iconTable[IconId._Count];
+	ui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
+	ui.ComboBox* m_deviceCombo;
+
+	// HID monitor property grid
+
+	ui.EnumProperty* m_deviceProp;
+	ui.BufferPropertySet m_bufferPropertySet;
+	ui.IntProperty* m_kernelBufferSizeProp;
+
+	// information grid
+
+	ui.StdSessionInfoSet m_stdSessionInfoSet;
+	ui.ThroughputInfoSet m_throughputInfoSet;
+	ui.ChecksumInfoSet m_checksumInfoSet;
+
+	// ui reactor
+
+	reactor m_uiReactor;
+
+public:
+	construct(doc.PluginHost* pluginHost);
+
+	bool errorcode capture();
+	void close();
+
+	override void load(doc.Storage* storage);
+	override void save(doc.Storage* storage);
+	override void updateProperties();
+	override bool errorcode applyProperties();
+	override void restoreDefaultProperties();
+
+protected:
+	void onRefresh() {
+		ui.refreshHidMonDeviceListUi(m_deviceCombo, m_deviceProp);
+	}
+
+	void onCapture() {
+		m_state ? close() : try capture();
+	}
+
+	void onMonitorEvent(
+		uint_t syncId,
+		io.UsbMonEvents triggeredEvents
+	);
+
+	void createUi();
+	void waitMonitorEvents();
+
+	void processData(
+		void const* p,
+		size_t size
+	);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+HidMonSession.construct(doc.PluginHost* pluginHost) {
+	basetype.construct(pluginHost);
+	m_reportWriter.construct(pluginHost.m_log.m_writer);
+
+	createUi();
+
+	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
+	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
+}
+
+void HidMonSession.createUi() {
+	// toolbar
+
+	m_iconTable[IconId.Refresh] = new ui.Icon("images/refresh.png");
+	m_iconTable[IconId.Capture] = new ui.Icon("images/capture.png");
+	m_iconTable[IconId.StopCapture] = new ui.Icon("images/pause.png");
+
+	m_pluginHost.m_toolBar.addLabel("Device:");
+	m_deviceCombo = m_pluginHost.m_toolBar.addComboBox(-1);
+
+	m_actionTable[ActionId.Refresh]  = createAction("Re-enumerate devices", m_iconTable[IconId.Refresh]);
+	m_actionTable[ActionId.Refresh].m_onTriggered += onRefresh;
+
+	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable [IconId.Capture]);
+	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;
+
+	// status bar
+
+	m_statusPaneTable[StatusPaneId.State] = m_pluginHost.m_statusBar.addPane(, 80);
+
+	// property grid
+
+	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
+		"Connection",
+		"HID monitor connection settings"
+	);
+
+	m_deviceProp = m_pluginHost.m_propertyGrid.createEnumProperty(
+		group,,
+		"Device",
+		"Target HID device",
+		null, 0
+	);
+
+	group = m_pluginHost.m_propertyGrid.createGroupProperty(
+		"Buffering & compatibility",
+		"Advanced options controlling performance, throughtput and compatibility"
+	);
+
+	m_kernelBufferSizeProp = m_pluginHost.m_propertyGrid.createIntProperty(
+		group,,
+		"Kernel buffer size",
+		"Specify the Pcap kernel buffer size (0 = default)"
+	);
+
+	m_kernelBufferSizeProp.m_minValue = 4 * 1024;
+	m_kernelBufferSizeProp.m_spinBoxStep = 1024;
+
+	m_bufferPropertySet.m_defaultReadParallelism = Defaults.ReadParallelism;
+	m_bufferPropertySet.m_defaultReadBlockSize = Defaults.ReadBlockSize;
+	m_bufferPropertySet.m_defaultReadBufferSize = Defaults.ReadBufferSize;
+
+	m_bufferPropertySet.createProperties(
+		m_pluginHost.m_propertyGrid,
+		group,,
+		ui.BufferPropertySet.PropertyId.ReadParallelism |
+		ui.BufferPropertySet.PropertyId.ReadBufferSize |
+		ui.BufferPropertySet.PropertyId.ReadBlockSize |
+		ui.BufferPropertySet.PropertyId.NotifyReadBufferFull
+	);
+
+	// information grid
+
+	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Pipe monitor");
+
+	m_stdSessionInfoSet.create(m_pluginHost.m_txRxStats, m_pluginHost.m_informationGrid, infoGroup);
+	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
+	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
+
+	m_pluginHost.m_propertyGrid.resizeNameColumnToContents();
+	m_pluginHost.m_informationGrid.resizeNameColumnToContents();
+
+	ui.refreshHidMonDeviceListUi(m_deviceCombo, m_deviceProp);
+	m_uiReactor.start();
+}
+
+bool errorcode HidMonSession.capture() {
+	close();
+	startSession();
+
+	io.HidMonDeviceDesc const* device = m_deviceCombo.m_currentData;
+	m_monitor.m_options = io.UsbMonOptions.CompletedTransfersOnly;
+	m_monitor.m_addressFilter = device.m_address;
+	m_monitor.open(device.m_captureDeviceName);
+
+	DeviceParams params;
+	params.m_osKind = sys.g_systemInfo.m_osKind;
+	params.m_captureDeviceId = device.m_captureDeviceId;
+	params.m_address = device.m_address;
+	params.m_port = device.m_port;
+	params.m_vendorId = device.m_vendorId;
+	params.m_productId = device.m_productId;
+	params.m_speed = device.m_speed;
+	params.m_class = device.m_class;
+
+	std.Buffer buffer;
+	buffer.append(params, sizeof(params));
+	buffer.append(device.m_description);
+	buffer.append(0);
+	buffer.append(device.m_manufacturer);
+	buffer.append(0);
+	buffer.append(device.m_driver);
+	buffer.append(0);
+
+	m_logWriter.write(
+		UsbLogRecordCode.CaptureStarted,
+		buffer.m_p,
+		buffer.m_size
+	);
+
+	m_state = State.Opened;
+	m_device = device;
+	m_rd.parse(io.g_hidDb, device.m_reportDescriptor, device.m_reportDescriptorSize);
+	m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
+	m_transferBuffer.clear();
+	waitMonitorEvents();
+	return true;
+
+catch:
+	m_logWriter.writeLastError(UsbLogRecordCode.CaptureError);
+	m_monitor.close();
+	return false;
+}
+
+void HidMonSession.close() {
+	if (m_state != State.Opened)
+		return;
+
+	m_logWriter.write(UsbLogRecordCode.CaptureStopped);
+
+	m_monitor.close();
+	m_state = State.Closed;
+	m_stdSessionInfoSet.endSession();
+	m_syncId++;
+}
+
+void HidMonSession.onMonitorEvent(
+	uint_t syncId,
+	io.UsbMonEvents triggeredEvents
+) {
+	if (syncId != m_syncId)
+		return;
+
+	if (triggeredEvents & io.UsbMonEvents.IoError) {
+		m_logWriter.write(log.StdRecordCode.Error, m_monitor.m_ioError);
+		close();
+		return;
+	}
+
+	if ((triggeredEvents & io.UsbMonEvents.ReadBufferFull) &&
+		m_bufferPropertySet.m_notifyReadBufferFullProp.m_value)
+		m_logWriter.write(log.StdRecordCode.RxBufferFull);
+
+	if (triggeredEvents & io.UsbMonEvents.IncomingData) {
+		size_t result = m_monitor.read(m_readBuffer.m_p, m_readBuffer.m_size);
+		if (result)
+			processData(m_readBuffer.m_p, result);
+	}
+
+	waitMonitorEvents();
+
+catch:
+	m_logWriter.writeLastError(log.StdRecordCode.Error); // broken data from usbpcap/usbmon?
+	close();
+}
+
+void HidMonSession.waitMonitorEvents() {
+	io.UsbMonEvents eventMask =
+		io.UsbMonEvents.IoError |
+		io.UsbMonEvents.ReadBufferFull |
+		io.UsbMonEvents.IncomingData;
+
+	m_monitor.wait(eventMask, onMonitorEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
+}
+
+// HID class-specific control request codes
+
+enum HidControlRequest {
+	GetReport   = 0x01,
+	GetIdle     = 0x02,
+	GetProtocol = 0x03,
+	SetReport   = 0x09,
+	SetIdle     = 0x0a,
+	SetProtocol = 0x0b,
+}
+
+void HidMonSession.processData(
+	void const* p,
+	size_t size
+) {
+	void const* end = p + size;
+	while (p < end) {
+		size_t size = end - p;
+		if (m_transferBuffer.m_size < sizeof(io.UsbMonTransferHdr)) {
+			size_t leftoverSize = sizeof(io.UsbMonTransferHdr) - m_transferBuffer.m_size;
+			if (size < leftoverSize) {
+				m_transferBuffer.append(p, size);
+				break;
+			}
+
+			m_transferBuffer.append(p, leftoverSize);
+			p += leftoverSize;
+		}
+
+		io.UsbMonTransferHdr const* hdr = (io.UsbMonTransferHdr const*)m_transferBuffer.m_p;
+		size_t transferSize = sizeof(io.UsbMonTransferHdr) + hdr.m_captureSize;
+		if (hdr.m_transferType == io.UsbTransferType.Isochronous) {
+			// for iso transfers we need to buffer the whole transfer --
+			// including the iso packet array and the payload
+
+			transferSize += hdr.m_isoHdr.m_packetCount * sizeof(io.UsbIsoPacket);
+			size_t leftoverSize = transferSize - m_transferBuffer.m_size;
+			if (size < leftoverSize) {
+				m_transferBuffer.append(p, size);
+				break;
+			}
+
+			m_transferBuffer.append(p, leftoverSize);
+			hdr = (io.UsbMonTransferHdr const*)m_transferBuffer.m_p; // update hdr after append
+			p += leftoverSize;
+		}
+
+		size_t leftoverSize = transferSize - m_transferBuffer.m_size;
+		if (size < leftoverSize) {
+			m_transferBuffer.append(p, size);
+			break;
+		}
+
+		m_transferBuffer.append(p, leftoverSize);
+		hdr = (io.UsbMonTransferHdr const*)m_transferBuffer.m_p; // update hdr after append
+		p += leftoverSize;
+
+		if ((
+				hdr.m_transferType != io.UsbTransferType.Interrupt ||
+				hdr.m_endpoint != m_device.m_endpointId
+			) &&
+			(
+				hdr.m_transferType != io.UsbTransferType.Control ||
+				hdr.m_controlSetup.m_requestType.m_type != io.UsbControlType.Class ||
+				hdr.m_controlSetup.m_requestType.m_recipient != io.UsbControlRecipient.Interface ||
+				hdr.m_controlSetup.m_index != m_device.m_interfaceId
+			)
+		) {
+			m_transferBuffer.clear();
+			p += leftoverSize;
+			continue;
+		}
+
+		if (hdr.m_status != 0) {
+			TransferErrorParams params;
+			params.m_osKind = sys.g_systemInfo.m_osKind;
+			params.m_status = hdr.m_status;
+			m_logWriter.write(UsbLogRecordCode.TransferError, &params, sizeof(params));
+		} else if (hdr.m_captureSize) {
+			uint64_t recordCode;
+			io.HidReportType reportType;
+			uint_t reportId;
+			uchar_t const* data = (uchar_t const*)(hdr + 1);
+			size_t dataSize = hdr.m_captureSize;
+			
+			switch (hdr.m_transferType) {
+			case io.UsbTransferType.Interrupt:
+				recordCode = HidLogRecordCode.InputReport;
+				reportType = io.HidReportType.Input;
+				reportId = 0;
+				if (m_rd.m_flags & io.HidRdFlags.HasReportId) {
+					reportId = *data++;
+					dataSize--;
+				}
+
+				break;
+				
+			case io.UsbTransferType.Control:
+				reportType = (io.HidReportType)((hdr.m_controlSetup.m_value & 0x300) >> 8);
+				reportId = hdr.m_controlSetup.m_value & 0xff;
+
+				switch (hdr.m_controlSetup.m_request) {
+				case HidControlRequest.GetReport:
+					recordCode = 
+						reportType == io.HidReportType.Feature ? HidLogRecordCode.GetFeatureReport :
+						reportType == io.HidReportType.Input ? HidLogRecordCode.InputReport : 0;
+					break;
+
+				case HidControlRequest.SetReport:
+					recordCode = 
+						reportType == io.HidReportType.Feature ? HidLogRecordCode.SendFeatureReport :
+						reportType == io.HidReportType.Output ? HidLogRecordCode.OutputReport : 0;
+					break;
+				}
+			
+				break;
+			}
+
+			if (recordCode) {
+				io.HidReport const* report = m_rd.findReport(reportType, reportId);
+				if (report)
+					m_reportWriter.writeReport(recordCode, report, data, dataSize);
+				else
+					m_reportWriter.writeUnknownReport(recordCode, reportId, data, dataSize);
+			}
+		}
+
+		m_transferBuffer.clear();
+	}
+}
+
+void HidMonSession.load(doc.Storage* storage) {
+	uint_t vid = storage.readInt("deviceVid");
+	uint_t pid = storage.readInt("devicePid");
+	uint_t captureDeviceId = storage.readInt("captureDeviceId");
+	uint_t address = storage.readInt("deviceAddress");
+	uint_t interfaceId = storage.readInt("deviceInterfaceId");
+
+	size_t index = ui.findHidMonDeviceComboIndex(
+		m_deviceCombo, 
+		vid, 
+		pid, 
+		captureDeviceId, 
+		address,
+		interfaceId
+	);
+	
+	if (index != -1)
+		m_deviceCombo.m_currentIndex = index;
+	
+	m_kernelBufferSizeProp.m_value = storage.readInt("kernelBufferSize", Defaults.KernelBufferSize);
+	m_bufferPropertySet.load(storage);
+	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
+}
+
+void HidMonSession.save(doc.Storage* storage) {
+	io.HidMonDeviceDesc const* desc = m_deviceCombo.m_currentData;
+	if (desc) {
+		storage.writeInt("deviceVid", desc.m_vendorId);
+		storage.writeInt("devicePid", desc.m_productId);
+		storage.writeInt("captureDeviceId", desc.m_captureDeviceId);
+		storage.writeInt("deviceAddress", desc.m_address);
+		storage.writeInt("deviceInterfaceId", desc.m_interfaceId);
+	}
+	
+	storage.writeInt("kernelBufferSize", m_kernelBufferSizeProp.m_value);
+	m_bufferPropertySet.save(storage);
+}
+
+void HidMonSession.updateProperties() {
+	m_deviceProp.m_currentIndex = m_deviceCombo.m_currentIndex;
+}
+
+bool errorcode HidMonSession.applyProperties() {
+	m_deviceCombo.m_currentIndex = m_deviceProp.m_currentIndex;
+	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
+
+	if (m_state != State.Opened)
+		return true;
+
+	m_monitor.m_kernelBufferSize = m_kernelBufferSizeProp.m_value;
+	m_monitor.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
+	m_monitor.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
+	m_monitor.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
+	return true;
+}
+
+void HidMonSession.restoreDefaultProperties() {
+	m_kernelBufferSizeProp.m_value = Defaults.KernelBufferSize;
+	m_bufferPropertySet.restoreDefaults();
+}
+
+reactor HidMonSession.m_uiReactor {
+	m_title = m_deviceCombo.m_currentText;
+	m_actionTable[ActionId.Capture].m_text = m_state ? "Stop Capture" : "Capture";
+	m_actionTable[ActionId.Capture].m_icon = m_iconTable[m_state ? IconId.StopCapture : IconId.Capture];
+	m_statusPaneTable[StatusPaneId.State].m_text = m_state ? "Capturing" : "Closed";
+}
+
+//..............................................................................

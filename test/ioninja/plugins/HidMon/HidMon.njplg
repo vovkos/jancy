@@ -1,0 +1,27 @@
+#...............................................................................
+#
+#  HID Monitor plugin
+#
+
+[plugin]
+
+name        = "HID Monitor"
+description = "Monitor local HID communications"
+id          = hidmon
+group       = usb
+monitor     = true
+log-guid    = cd2c079d-63ff-4b2f-a385-0a4fe3afaac2  # HID
+log-guid    = 3b5bd445-951e-4f76-9d8d-fe97aecbdd73  # USB
+icon        = images/hidmon.png
+small-icon  = images/hidmon-16x16.png
+
+session-class = HidMonSession
+
+[required-capabilities]
+
+org.jancy.io.usb
+
+[scripts]
+
+HidMonSession.jnc
+../HidLog/HidLogReportWriter.jnc

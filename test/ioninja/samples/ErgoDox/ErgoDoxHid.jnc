@@ -1,0 +1,108 @@
+//..............................................................................
+//
+// Templates for HID commands sent to control ErgoDox keyboards
+//
+//..............................................................................
+
+pragma(Alignment, 1) // not really necessary here, but a good practice
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum ReportId: uchar_t {
+	Default = 0
+}
+
+enum BrightnessAdjustment: uchar_t {
+	Darker,
+	Lighter
+}
+
+enum Command: uchar_t {
+	[ size = 0 ]
+	GetFwVersion = 0x00,
+
+	[ size = 0 ]
+	InitPairing = 0x01,
+
+	[ size = sizeof(impl.ValidatePairingParams) ]
+	ValidatePairing = 0x02,
+
+	[ size = sizeof(impl.RgbControlParams) ]
+	RgbControl = 0x05,
+
+	[ size = sizeof(impl.SetLedColorParams) ]
+	SetLedColor = 0x06,
+
+	[ size = sizeof(impl.SetStatusLedParams) ]
+	SetStatusLed = 0x07,
+
+	[ size = sizeof(impl.UpdateBrightnessParams) ]
+	UpdateBrightness = 0x08,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+[
+	displayName = "Ergodox HID command",
+	fixedSize
+]
+struct OutputReport {
+	enum {
+		ReportSize = 32
+	}
+
+	ReportId m_reportId;
+	Command m_command;
+
+	union {
+		impl.ValidatePairingParams m_validatePairingParams;
+		impl.RgbControlParams m_rgbControlParams;
+		impl.SetLedColorParams m_setLedColorParams;
+		impl.SetStatusLedParams m_setStatusLedParams;
+		impl.UpdateBrightnessParams m_updateBrightnessParams;
+
+		[ hidden ]
+		uchar_t m_padding[ReportSize - 1];
+	};
+
+	[ userAction = "Finalize" ]
+	void finalize() {
+		m_reportId = ReportId.Default; // ensure report ID is correct
+		jnc.EnumConst* enumConst = typeof(Command).findConst(m_command);
+		size_t size = enumConst ? enumConst.findAttributeValue("size") : 0;
+		memset(m_padding + size, 0, sizeof(m_padding) - size); // zero padding
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+namespace impl { // prevents adding these structs as standalone packet templates
+
+struct ValidatePairingParams {
+	[ collapsed ]
+	uchar_t m_pairingSequence[7];
+}
+
+struct RgbControlParams {
+	bool m_isManualRgbControl;
+}
+
+struct SetLedColorParams {
+	uchar_t m_key;
+	uchar_t m_red;
+	uchar_t m_green;
+	uchar_t m_blue;
+}
+
+struct SetStatusLedParams {
+	uchar_t m_led;
+	bool m_isEnabled;
+}
+
+struct UpdateBrightnessParams {
+	BrightnessAdjustment m_adjustment;
+}
+
+} // namespace impl
+
+//..............................................................................

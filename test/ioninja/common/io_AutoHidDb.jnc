@@ -1,0 +1,21 @@
+//..............................................................................
+//
+// HID usage DB auto-initilized global variable
+//
+
+import "io_hid.jncx"
+import "io_HidDb.jnc"
+
+namespace io {
+
+//..............................................................................
+
+io.HidDb g_hidDb;
+
+//..............................................................................
+
+} // namespace io
+
+construct() {
+	io.g_hidDb.load(); // load from io_hid.jncx
+}

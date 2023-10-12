@@ -715,12 +715,33 @@ if(BUILD_JNC_IO_HID)
 			representHidLog
 		FILES
 			HidSession.jnc
-			HidDb.jnc
 			HidReportUi.jnc
-			HidLogRecordCode.jnc
-			HidLogRepresenter.jnc
+			../HidLog/HidLogReportWriter.jnc
+			../HidLog/HidLogRecordCode.jnc
+			../HidLog/HidLogRepresenter.jnc
 		FINALIZE_TEST Hid
 	)
+
+	if(USBMON_AVAILABLE)
+		add_jancy_tests(
+			NAME_PREFIX "jnc-ioninja-plugin-"
+			FLAGS ${_COMMON_FLAGS}
+
+			WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/HidMon
+			REQUIRES
+				HidMonSession
+				representHidLog
+				representUsbLog
+			FILES
+				HidMonSession.jnc
+				../HidLog/HidLogReportWriter.jnc
+				../HidLog/HidLogRecordCode.jnc
+				../HidLog/HidLogRepresenter.jnc
+				../UsbLog/UsbLogRecordCode.jnc
+				../UsbLog/UsbLogRepresenter.jnc
+			FINALIZE_TEST HidMon
+		)
+	endif()
 endif()
 
 add_jancy_tests(
@@ -733,6 +754,6 @@ add_jancy_tests(
 		ModbusRtu.jnc
 		ModbusTcp.jnc
 		TcpIp.jnc
-	)
+)
 
 #...............................................................................

@@ -1,0 +1,87 @@
+//..............................................................................
+//
+// HID log report decode info DB & writer
+//
+
+import "io_hid.jncx"
+import "io_HidRd.jnc"
+import "doc_PluginHost.jnc"
+import "std_HashTable.jnc"
+import "HidLogRecordCode.jnc"
+
+//..............................................................................
+
+class HidLogReportWriter {
+protected:
+	log.Writer* m_writer;
+	std.HashTable m_decodeInfoMap;
+
+public:
+	construct(log.Writer* writer) {
+		m_writer = writer;
+	}
+
+	void reset() {
+		m_decodeInfoMap.clear();
+	}	
+
+	void writeReport(
+		uint64_t recordCode,
+		io.HidReport const* report,		
+		void const* p,
+		size_t size
+	);
+
+	void writeUnknownReport(
+		uint64_t recordCode,
+		uint_t reportId,		
+		void const* p,
+		size_t size
+	);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void HidLogReportWriter.writeReport(
+	uint64_t recordCode,
+	io.HidReport const* report,		
+	void const* p,
+	size_t size
+) {
+	std.MapEntry* it = m_decodeInfoMap.visit(report);
+	std.Buffer* decodeInfo = it.m_value;
+	if (!decodeInfo) {
+		decodeInfo = new std.Buffer;
+		report.saveDecodeInfo(decodeInfo);
+		it.m_value = decodeInfo;
+	}
+	
+	m_writer.write(
+		recordCode,
+		decodeInfo.m_p,
+		decodeInfo.m_size,
+		p,
+		size
+	);
+}
+
+void HidLogReportWriter.writeUnknownReport(
+	uint64_t recordCode,
+	uint_t reportId,		
+	void const* p,
+	size_t size
+) {
+	UnknownReportParams params;
+	params.m_decodeInfoSize = 0;
+	params.m_reportId = reportId;
+
+	m_writer.write(
+		recordCode,
+		&params,
+		sizeof(params),
+		p,
+		size
+	);
+}
+
+//..............................................................................

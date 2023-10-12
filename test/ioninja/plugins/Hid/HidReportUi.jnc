@@ -13,11 +13,12 @@ import "std_Buffer.jnc"
 //..............................................................................
 
 class HidReportUi {
-protected:	
+protected:
+	HidLogReportWriter* m_reportWriter;
 	log.Writer* m_logWriter;
+	log.TxRxStats* m_txRxStats;
 	io.HidDevice* m_device;
 	io.HidRd const* m_rd;
-	HidReportDecodeInfoDb* m_reportDecodeInfoDb;
 	std.Buffer m_buffer;
 	ui.VBoxLayout m_container;
 	ui.Icon* m_sendIcon;
@@ -26,26 +27,26 @@ protected:
 public:
 	construct(
 		doc.PluginHost* pluginHost,
-		HidReportDecodeInfoDb* reportDecodeInfoDb,
+		HidLogReportWriter* reportWriter,
 		io.HidDevice* device,
 		io.HidRd const* rd
 	);
-	
+
 	void createReportForms();
-	
+
 	void clear() {
 		m_container.clear();
 	}
-	
+
 protected:
 	void createReportForm(io.HidReport const* report);
-	
+
 	HidReportFieldEncoder* createFieldEncoder(
 		ui.FormLayout* layout,
 		char const* text,
 		size_t reportSize
 	);
-	
+
 	void onRefreshReport();
 
 	void onSendReport(
@@ -58,23 +59,24 @@ protected:
 
 HidReportUi.construct(
 	doc.PluginHost* pluginHost,
-	HidReportDecodeInfoDb* reportDecodeInfoDb,
+	HidLogReportWriter* reportWriter,
 	io.HidDevice* device,
 	io.HidRd const* rd
 ) {
 	m_sendIcon = new ui.Icon("images/send.png");
 	m_refreshIcon = new ui.Icon("images/refresh.png");
+	m_reportWriter = reportWriter;
 	m_logWriter = pluginHost.m_log.m_writer;
-	m_reportDecodeInfoDb = reportDecodeInfoDb;
+	m_txRxStats = pluginHost.m_txRxStats;
 	m_device = device;
 	m_rd = rd;
-	
+
 	pluginHost.createForm(m_container);
 }
 
 void HidReportUi.createReportForms() {
 	m_container.clear();
-	
+
 	size_t reportCount = m_rd.m_reportCount[io.HidReportType.Output];
 	for (size_t i = 0; i < reportCount; i++)
 		createReportForm(m_rd.m_reportArray[io.HidReportType.Output][i]);
@@ -93,7 +95,7 @@ void HidReportUi.createReportForm(io.HidReport const* report) {
 
 	size_t encoderCount = 0;
 	for (size_t i = 0; i < report.m_fieldCount; i++) {
-		io.HidReportField const* field = report.m_fieldArray[i];		
+		io.HidReportField const* field = report.m_fieldArray[i];
 		if (!field.m_isPadding)
 			encoderCount += field[io.HidRdItemId.ReportCount];
 	}
@@ -102,18 +104,18 @@ void HidReportUi.createReportForm(io.HidReport const* report) {
 
 	ui.FormLayout layout;
 	layout.m_spacing = 1; // make it dense
-	
+
 	ui.GroupBox groupBox(text, layout);
 	io.HidUsagePage const* usagePage;
 	size_t encoderIdx = 0;
 	for (size_t i = 0; i < report.m_fieldCount; i++) {
-		io.HidReportField const* field = report.m_fieldArray[i];		
+		io.HidReportField const* field = report.m_fieldArray[i];
 		if (field.m_isPadding)
 			continue;
 
 		if (usagePage != field.m_usagePage) {
 			usagePage = field.m_usagePage;
-		
+
 			ui.Label label(usagePage.m_name);
 			label.m_styleSheet = "font-weight: bold";
 			layout.addRow(label);
@@ -124,10 +126,10 @@ void HidReportUi.createReportForm(io.HidReport const* report) {
 
 		for (size_t j = 0; j < reportCount; j++) {
 			text = $"[$j]";
-			
+
 			if (field.m_valueFlags & io.HidRdValueFlags.Variable)
 				text = $"%s %s"(text, usagePage.getUsageName(field.m_usageArray[j]));
-			
+
 			if (reportSize > 1)
 				text = $"%s:"(text);
 
@@ -141,7 +143,7 @@ void HidReportUi.createReportForm(io.HidReport const* report) {
 		controlToolBar.addAction(action);
 		layout.addRow(controlToolBar);
 	}
-	
+
 	m_container.addWidget(groupBox);
 }
 
@@ -158,7 +160,7 @@ HidReportFieldEncoder* HidReportUi.createFieldEncoder(
 		ui.Label label(text);
 		ui.LineEdit edit;
 		edit.m_text = "0";
-		layout.addRow(label, edit);			
+		layout.addRow(label, edit);
 		return new HidReportIntEncoder(edit, reportSize);
 	}
 }
@@ -171,16 +173,16 @@ void HidReportUi.onSendReport(
 	memset(m_buffer.m_p, 0, m_buffer.m_size);
 	m_buffer[0] = report.m_reportId; // report ID in the first byte
 	void* p = m_buffer.m_p + 1;
-	
+
 	size_t bitOffset = 0;
 	size_t encoderIdx = 0;
 	for (size_t i = 0; i < report.m_fieldCount; i++) {
-		io.HidReportField const* field = report.m_fieldArray[i];		
+		io.HidReportField const* field = report.m_fieldArray[i];
 		if (field.m_isPadding) {
 			bitOffset += field.m_bitCount;
 			continue;
 		}
-		
+
 		size_t reportSize = field[io.HidRdItemId.ReportSize];
 		size_t reportCount = field[io.HidRdItemId.ReportCount];
 		for (size_t j = 0; j < reportCount; j++) {
@@ -189,8 +191,8 @@ void HidReportUi.onSendReport(
 		}
 	}
 
-	uint64_t recordCode; 		
-	
+	uint64_t recordCode;
+
 	if (report.m_reportType == io.HidReportType.Feature) {
 		m_device.sendFeatureReport(m_buffer.m_p, report.m_size + 1);
 		recordCode = HidLogRecordCode.SendFeatureReport;
@@ -199,18 +201,11 @@ void HidReportUi.onSendReport(
 		recordCode = HidLogRecordCode.OutputReport;
 	}
 
-	std.Buffer const* decodeInfo = m_reportDecodeInfoDb.getReportDecodeInfo(report);
-
-	m_logWriter.write(
-		recordCode,
-		decodeInfo.m_p,
-		decodeInfo.m_size,
-		p, 
-		report.m_size
-	);			
+	m_reportWriter.writeReport(recordCode, report, p, report.m_size);
+	m_txRxStats.addTx(report.m_size);
 
 catch:
-	m_logWriter.write(log.StdRecordCode.Error, std.getLastError());	
+	m_logWriter.write(log.StdRecordCode.Error, std.getLastError());
 }
 
 //..............................................................................
@@ -228,12 +223,12 @@ public:
 class HidReportBitEncoder: HidReportFieldEncoder {
 protected:
 	ui.CheckBox* m_checkBox;
-	
+
 public:
 	construct(ui.CheckBox* checkBox) {
 		m_checkBox = checkBox;
 	}
-	
+
 	override void encode(
 		void* p,
 		size_t bitOffset
@@ -250,7 +245,7 @@ class HidReportIntEncoder: HidReportFieldEncoder {
 protected:
 	ui.LineEdit* m_lineEdit;
 	size_t m_bitCount;
-	
+
 public:
 	construct(
 		ui.LineEdit* lineEdit,
@@ -259,7 +254,7 @@ public:
 		m_lineEdit = lineEdit;
 		m_bitCount = bitCount;
 	}
-	
+
 	override void encode(
 		void* p0,
 		size_t bitOffset
