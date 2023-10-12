@@ -28,6 +28,12 @@ endmacro()
 
 #...............................................................................
 
+if((WIN32 OR LINUX) AND LIBUSB_FOUND)
+	set(USBMON_AVAILABLE TRUE CACHE INTERNAL "usbmon availability") # use cache to make it global
+else()
+	unset(USBMON_AVAILABLE CACHE)
+endif()
+
 add_subdirectory(jnc_rtl_core)
 add_subdirectory(jnc_rtl_intro)
 add_subdirectory(jnc_std)
@@ -100,12 +106,6 @@ if(LIBUSB_FOUND)
 	if(BUILD_JNC_IO_USB)
 		add_subdirectory(jnc_io_usb)
 	endif()
-endif()
-
-if((WIN32 OR LINUX) AND LIBUSB_FOUND)
-	set(USBMON_AVAILABLE TRUE CACHE INTERNAL "usbmon availability") # use cache to make it global
-else()
-	unset(USBMON_AVAILABLE CACHE)
 endif()
 
 # build io_usbmon.jncx even if usbmon is not available (for transfer declarations)
