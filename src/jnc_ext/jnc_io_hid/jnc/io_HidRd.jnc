@@ -204,7 +204,7 @@ opaque class HidReportField {
 	size_t const m_bitCount;
 	HidRdValueFlags const m_valueFlags;
 	protected uint_t const m_mask;
-	size_t m_auxUsageCount;
+	size_t m_usageCount;
 	uint_t const property m_usageArray(size_t i);
 	bool const property m_isPadding;
 	bool const property m_isUnsigned;

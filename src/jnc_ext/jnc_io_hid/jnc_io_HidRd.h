@@ -59,7 +59,7 @@ public:
 	size_t m_bitCount;
 	uint_t m_valueFlags;
 	uint_t m_mask;
-	size_t m_auxUsageCount;
+	size_t m_usageCount;
 
 protected:
 	const axl::io::HidReportField* m_field;
@@ -106,7 +106,7 @@ HidReportField::init(
 	m_bitCount = field->getBitCount();
 	m_valueFlags = field->getValueFlags();
 	m_mask = field->getMask();
-	m_auxUsageCount = field->getAuxUsageCount();
+	m_usageCount = field->getUsageCount();
 }
 
 inline
