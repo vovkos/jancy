@@ -88,16 +88,19 @@ UsbMonitor::open(
 		m_monitor.setFilter(m_addressFilter) &&
 		m_monitor.readPcapHdr();
 
+	if (!result)
+		return false;
+
 	ASSERT(!m_overlappedIo);
 	m_overlappedIo = new OverlappedIo;
 #elif (_AXL_OS_LINUX)
 	result =
 		m_monitor.open(captureDeviceName, O_RDWR | O_NONBLOCK) &&
 		m_monitor.setKernelBufferSize(m_kernelBufferSize);
-#endif
 
 	if (!result)
 		return false;
+#endif
 
 	ASSERT(!m_transferTracker);
 	if (m_options & UsbMonOption_CompletedTransfersOnly)
