@@ -53,10 +53,10 @@ struct UsbInterfaceDescriptor {
 
 	uint8_t m_interfaceId;
 	uint8_t m_altSettingId;
-	uint8_t m_descriptionStringId;
 	uint8_t m_class;
 	uint8_t m_subClass;
 	uint8_t m_protocol;
+	uint8_t m_descriptionStringId;
 
 	UsbEndpointDescriptor*
 	findEndpointDescriptor(uint8_t endpointId);
