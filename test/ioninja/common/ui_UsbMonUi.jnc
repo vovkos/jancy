@@ -72,8 +72,8 @@ void refreshUsbMonDeviceListUi(
 			$"<tr><td>Capture&nbsp;device:</td><td>%1%2:%(3; 03d)</td></tr>"
 			$"<tr><td>Description:</td><td>%4</td></tr>"
 			$"<tr><td>Manufacturer:</td><td>%5</td></tr>"
-			$"<tr><td>Vendor&nbsp;ID:</td><td>%(6; 04X)</td></tr>"
-			$"<tr><td>Product&nbsp;ID:</td><td>%(7; 04X)</td></tr>"
+			$"<tr><td>Vendor&nbsp;ID:</td><td>0x%(6; 04X)</td></tr>"
+			$"<tr><td>Product&nbsp;ID:</td><td>0x%(7; 04X)</td></tr>"
 			$"<tr><td>Class:</td><td>%8</td></tr>"
 			$"<tr><td>Speed:</td><td>%9</td></tr>"(
 				captureDevicePrefix,

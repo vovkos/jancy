@@ -514,7 +514,7 @@ bool errorcode UsbEndpointSession.openDevice() {
 
 	io.UsbDeviceDescriptor const* deviceDesc = m_device.m_deviceDescriptor;
 
-	DeviceParams params;
+	UsbDeviceParams params;
 	params.m_osKind = sys.g_systemInfo.m_osKind;
 	params.m_bus = m_device.m_bus;
 	params.m_address = m_device.m_address;
@@ -582,7 +582,7 @@ bool errorcode UsbEndpointSession.claimInterfaces() {
 		io.UsbInterface* iface = m_device.claimInterface(ifaceDesc.m_interfaceId, ifaceDesc.m_altSettingId);
 		m_interfaceList.insertTail(iface);
 
-		InterfaceParams params;
+		UsbInterfaceParams params;
 		params.m_interfaceId = ifaceDesc.m_interfaceId;
 		params.m_altSettingId = ifaceDesc.m_altSettingId;
 		m_logWriter.write(UsbLogRecordCode.InterfaceClaimed, &params, sizeof(params));
@@ -666,7 +666,7 @@ bool errorcode UsbEndpointSession.startReading() {
 		read.m_endpoint.unsuspend();
 
 		io.UsbInterfaceDescriptor const* ifaceDesc = epInfo.m_interface.m_interfaceDescriptor;
-		EndpointParams params;
+		UsbEndpointParams params;
 		params.m_interfaceId = ifaceDesc.m_interfaceId;
 		params.m_altSettingId = ifaceDesc.m_altSettingId;
 		params.m_class = ifaceDesc.m_class;

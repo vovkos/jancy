@@ -359,7 +359,7 @@ bool CypressUploaderSession.openDevice() {
 
 	m_device.open();
 
-	DeviceParams params;
+	UsbDeviceParams params;
 	params.m_bus = m_device.m_bus;
 	params.m_address = m_device.m_address;
 	params.m_productId = deviceDesc.m_productId;

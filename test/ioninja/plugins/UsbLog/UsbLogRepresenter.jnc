@@ -6,6 +6,7 @@
 import "log_Representation.jnc"
 import "UsbLogRecordCode.jnc"
 import "io_usbmon.jncx"
+import "io_UsbDescriptors.jnc"
 import "io_win_UsbdStatus.jnc"
 
 //..............................................................................
@@ -16,7 +17,7 @@ uint_t getTransferIcon(uint8_t endpointId) {
 
 char const* getDeviceInfoString(
 	char const* prefix,
-	DeviceParams const* params,
+	UsbDeviceParams const* params,
 	uint_t foldFlags
 ) {
 	char const* description = (char const*)(params + 1);
@@ -53,7 +54,7 @@ char const* getDeviceInfoString(
 	);
 }
 
-char const* getInterfaceInfoString(InterfaceParams_0 const* params)  {
+char const* getInterfaceInfoString(UsbInterfaceParams_0 const* params)  {
 	return params.m_altSettingId ?
 		$"IF%1.%2"(params.m_interfaceId, params.m_altSettingId) :
 		$"IF%1"(params.m_interfaceId);
@@ -68,7 +69,7 @@ bool representUsbLog(
 ) {
 	switch (recordCode) {
 	case UsbLogRecordCode.DeviceOpened_0:
-		DeviceParams_0 const* params = (DeviceParams_0 const*) p;
+		UsbDeviceParams_0 const* params = (UsbDeviceParams_0 const*) p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
 		representation.addHyperText(
@@ -82,7 +83,7 @@ bool representUsbLog(
 		break;
 
 	case UsbLogRecordCode.DeviceOpened:
-		DeviceParams const* params = (DeviceParams const*)p;
+		UsbDeviceParams const* params = (UsbDeviceParams const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
 
@@ -119,7 +120,7 @@ bool representUsbLog(
 		break;
 
 	case UsbLogRecordCode.InterfaceClaimed_0:
-		InterfaceParams_0 const* params = (InterfaceParams_0 const*) p;
+		UsbInterfaceParams_0 const* params = (UsbInterfaceParams_0 const*) p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 
@@ -128,7 +129,7 @@ bool representUsbLog(
 		break;
 
 	case UsbLogRecordCode.InterfaceClaimed:
-		InterfaceParams const* params = (InterfaceParams const*) p;
+		UsbInterfaceParams const* params = (UsbInterfaceParams const*) p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 
@@ -158,7 +159,7 @@ bool representUsbLog(
 		break;
 
 	case UsbLogRecordCode.ReadingStarted:
-		EndpointParams const* params = (EndpointParams const*) p;
+		UsbEndpointParams const* params = (UsbEndpointParams const*) p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 
@@ -184,15 +185,16 @@ bool representUsbLog(
 		break;
 
 	case UsbLogRecordCode.CaptureStarted:
-		DeviceParams const* params = (DeviceParams const*)p;
+		UsbDeviceParams const* params = (UsbDeviceParams const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
 
 		char const* string = getDeviceInfoString(
-			$"Capture started on \e[34m%1:%03d\e[m"(
+			$"Capture started on \e[34m%1%2:%03d\e[m"(
 				params.m_osKind == sys.OsKind.Windows ?
 					"USBPcap" :
 					"usbmon",
+				params.m_captureDeviceId,
 				params.m_address
 			),
 			params,
@@ -216,7 +218,7 @@ bool representUsbLog(
 		break;
 
 	case UsbLogRecordCode.ControlTransfer_0:
-		ControlTransferParams_0 const* params = (ControlTransferParams_0 const*) p;
+		UsbControlTransferParams_0 const* params = (UsbControlTransferParams_0 const*) p;
 		representation.m_lineAttr.m_iconIdx = (params.m_type & 0x80) ? log.StdLogIcon.RxPacket : log.StdLogIcon.TxPacket;
 		representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
 		representation.addHyperText(
@@ -295,7 +297,7 @@ bool representUsbLog(
 		break;
 
 	case UsbLogRecordCode.TransferError:
-		TransferErrorParams const* params = (TransferErrorParams const*)p;
+		UsbTransferErrorParams const* params = (UsbTransferErrorParams const*)p;
 		char const* description;
 		switch (params.m_osKind) {
 		case sys.OsKind.Windows:

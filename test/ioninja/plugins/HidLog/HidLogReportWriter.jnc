@@ -23,18 +23,18 @@ public:
 
 	void reset() {
 		m_decodeInfoMap.clear();
-	}	
+	}
 
 	void writeReport(
 		uint64_t recordCode,
-		io.HidReport const* report,		
+		io.HidReport const* report,
 		void const* p,
 		size_t size
 	);
 
 	void writeUnknownReport(
 		uint64_t recordCode,
-		uint_t reportId,		
+		uint_t reportId,
 		void const* p,
 		size_t size
 	);
@@ -44,7 +44,7 @@ public:
 
 void HidLogReportWriter.writeReport(
 	uint64_t recordCode,
-	io.HidReport const* report,		
+	io.HidReport const* report,
 	void const* p,
 	size_t size
 ) {
@@ -55,7 +55,7 @@ void HidLogReportWriter.writeReport(
 		report.saveDecodeInfo(decodeInfo);
 		it.m_value = decodeInfo;
 	}
-	
+
 	m_writer.write(
 		recordCode,
 		decodeInfo.m_p,
@@ -67,11 +67,11 @@ void HidLogReportWriter.writeReport(
 
 void HidLogReportWriter.writeUnknownReport(
 	uint64_t recordCode,
-	uint_t reportId,		
+	uint_t reportId,
 	void const* p,
 	size_t size
 ) {
-	UnknownReportParams params;
+	UnknownHidReportParams params;
 	params.m_decodeInfoSize = 0;
 	params.m_reportId = reportId;
 

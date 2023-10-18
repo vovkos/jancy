@@ -76,7 +76,7 @@ printHidRdFieldArray(
 		);
 
 		if (field.isSet(io.HidRdItemId.Usage)) {
-			for (size_t i = 0; i <= field.m_auxUsageCount; i++) {
+			for (size_t i = 0; i < field.m_usageCount; i++) {
 				uint_t usage = field.m_usageArray[i];
 				printf(
 					"%sUsage: %s\n",

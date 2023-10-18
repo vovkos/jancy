@@ -217,7 +217,7 @@ bool errorcode UsbMonSession.capture() {
 	m_monitor.m_addressFilter = device.m_address;
 	m_monitor.open(device.m_captureDeviceName);
 
-	DeviceParams params;
+	UsbDeviceParams params;
 	params.m_osKind = sys.g_systemInfo.m_osKind;
 	params.m_captureDeviceId = device.m_captureDeviceId;
 	params.m_address = device.m_address;
@@ -411,7 +411,7 @@ void UsbMonSession.processData(
 }
 
 void UsbMonSession.writeTransferError(uint_t status) {
-	TransferErrorParams params;
+	UsbTransferErrorParams params;
 	params.m_osKind = sys.g_systemInfo.m_osKind;
 	params.m_status = status;
 	m_logWriter.write(UsbLogRecordCode.TransferError, &params, sizeof(params));

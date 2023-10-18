@@ -243,8 +243,8 @@ bool errorcode HidSession.open() {
 	m_device.m_options = options;
 	m_device.open(desc.m_path);
 
-	m_deviceInfoBuffer.setSize(sizeof(DeviceInfoParams));
-	DeviceInfoParams* params = (DeviceInfoParams*)m_deviceInfoBuffer.m_p;
+	m_deviceInfoBuffer.setSize(sizeof(HidDeviceInfoParams));
+	HidDeviceInfoParams* params = (HidDeviceInfoParams*)m_deviceInfoBuffer.m_p;
 	params.m_releaseNumber = desc.m_releaseNumber;
 	params.m_vendorId = desc.m_vendorId;
 	params.m_productId = desc.m_productId;
@@ -423,7 +423,7 @@ void HidSession.onHidDeviceEvent(
 				reportId = *p++;
 				result--;
 			}
-			
+
 			io.HidReport const* report = m_rd.findReport(io.HidReportType.Input, reportId);
 			if (report)
 				m_reportWriter.writeReport(HidLogRecordCode.InputReport, report, p, result);

@@ -67,8 +67,8 @@ void refreshUsbDeviceListUi(
 			$"<tr><td>Address:</td><td>%(1; 03d):%(2; 03d)</td></tr>"
 			$"<tr><td>Description:</td><td>%3</td></tr>"
 			$"<tr><td>Manufacturer:</td><td>%4</td></tr>"
-			$"<tr><td>Vendor&nbsp;ID:</td><td>%(5; 04X)</td></tr>"
-			$"<tr><td>Product&nbsp;ID:</td><td>%(6; 04X)</td></tr>"
+			$"<tr><td>Vendor&nbsp;ID:</td><td>0x%(5; 04X)</td></tr>"
+			$"<tr><td>Product&nbsp;ID:</td><td>0x%(6; 04X)</td></tr>"
 			$"<tr><td>Class:</td><td>%7</td></tr>"
 			$"<tr><td>Speed:</td><td>%8</td></tr>"(
 				entry.m_device.m_bus,

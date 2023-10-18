@@ -27,7 +27,7 @@ bool representHidLog(
 			log.StdLogIcon.Connect,
 			log.StdLogColor.Connect,
 			"Opened HID device",
-			(DeviceInfoParams const*)p,
+			(HidDeviceInfoParams const*)p,
 			foldFlags
 		);
 		break;
@@ -38,7 +38,7 @@ bool representHidLog(
 			log.StdLogIcon.Info,
 			ui.StdColor.PastelGray,
 			"HID device info",
-			(DeviceInfoParams const*)p,
+			(HidDeviceInfoParams const*)p,
 			foldFlags
 		);
 		break;
@@ -147,7 +147,7 @@ void representDeviceInfo(
 	uint_t iconIdx,
 	uint_t backColor,
 	char const* text,
-	DeviceInfoParams const* params,
+	HidDeviceInfoParams const* params,
 	uint_t foldFlags
 ) {
 	char const* path = (char const*)(params + 1);
@@ -177,8 +177,8 @@ void representDeviceInfo(
 		$"    \e[90mPath:\t\e[34m%2\n"
 		$"    \e[90mDescription:\t\e[34m%3\n"
 		$"    \e[90mManufacturer:\t\e[34m%4\n"
-		$"    \e[90mVendor ID:\t\e[34m%(5; 04X)\n"
-		$"    \e[90mProduct ID:\t\e[34m%(6; 04X)\n"
+		$"    \e[90mVendor ID:\t\e[34m0x%(5; 04X)\n"
+		$"    \e[90mProduct ID:\t\e[34m0x%(6; 04X)\n"
 		$"    \e[90mUsage page:\t\e[34m%7\n"
 		$"    \e[90mUsage:\t\e[34m%8\n"
 		$"    \e[90mBus:\t\e[34m%9\n"
@@ -218,10 +218,10 @@ void representCollection(
 
 	indent.append(' ', 4);
 
-	representFieldArray(representation, indent, collection);
 	for (size_t i = 0; i < collection.m_collectionCount; i++)
 		representCollection(representation, indent, collection.m_collectionArray[i]);
 
+	representFieldArray(representation, indent, collection);
 	indent.chop(4);
 }
 
@@ -251,7 +251,7 @@ void representFieldArray(
 		representation.addHyperText($"%s\e[90mUsagePage:\t\e[34m%s"(indent.m_p, field.m_usagePage.m_name));
 
 		if (field.isSet(io.HidRdItemId.Usage)) {
-			for (size_t i = 0; i <= field.m_auxUsageCount; i++) {
+			for (size_t i = 0; i < field.m_usageCount; i++) {
 				char const* text = field.m_usagePage.getUsageName(field.m_usageArray[i]);
 				representation.addHyperText($"%s\e[90mUsage:\t\e[34m%s"(indent.m_p, text));
 			}
@@ -334,11 +334,11 @@ void representReport(
 	char const* suffix;
 
 	if (!(uint16_t const*)p) {
-		UnknownReportParams const* params = (UnknownReportParams const*)p;
+		UnknownHidReportParams const* params = (UnknownHidReportParams const*)p;
 		reportId = params.m_reportId;
 		suffix = " \e[31mUNKNOWN";
 		p = params + 1;
-		size -= sizeof(UnknownReportParams);
+		size -= sizeof(UnknownHidReportParams);
 	} else {
 		report = new io.HidStandaloneReport;
 		size_t decodeInfoSize = report.loadDecodeInfo(io.g_hidDb, p, size);
@@ -381,13 +381,15 @@ void representReportFields(
 
 		size_t reportSize = field[io.HidRdItemId.ReportSize];
 		size_t reportCount = field[io.HidRdItemId.ReportCount];
+		size_t usageCount = field.m_usageCount;
+		size_t baseUsageIdx = usageCount > reportCount ? usageCount - reportCount : 0;
 		bool isUnsigned = field.m_isUnsigned;
 
 		for (size_t i = 0; i < reportCount; i++, bitOffset += reportSize) {
 			int value = extractValue(p, size, bitOffset, reportSize, isUnsigned);
 			if (value)
 				if (field.m_valueFlags & io.HidRdValueFlags.Variable) {
-					uint_t usage = field.m_usageArray[i];
+					uint_t usage = field.m_usageArray[baseUsageIdx + i];
 					representation.addHyperText(
 						$"%s:\t\e[34m%d"(
 							field.m_usagePage.getUsageName(usage),
