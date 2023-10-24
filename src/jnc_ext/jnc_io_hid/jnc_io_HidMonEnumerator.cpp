@@ -48,7 +48,8 @@ createHidMonDeviceDesc(
 	dstDesc->m_usage = srcDesc->m_usage;
 	dstDesc->m_releaseNumber = srcDesc->m_releaseNumber;
 	dstDesc->m_interfaceId = srcDesc->m_interfaceId;
-	dstDesc->m_endpointId = srcDesc->m_endpointId;
+	dstDesc->m_inEndpointId = srcDesc->m_inEndpointId;
+	dstDesc->m_outEndpointId = srcDesc->m_outEndpointId;
 	return descPtr;
 }
 

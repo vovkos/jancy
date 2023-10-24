@@ -29,7 +29,8 @@ struct HidMonDeviceDesc: UsbMonDeviceDescBase {
 	uint16_t m_usage;
 	uint16_t m_releaseNumber;
 	uint8_t m_interfaceId;
-	uint8_t m_endpointId;
+	uint8_t m_inEndpointId;
+	uint8_t m_outEndpointId;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
