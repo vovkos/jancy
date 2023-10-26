@@ -327,8 +327,11 @@ Module::parseFile(const sl::StringRef& fileName) {
 	ASSERT(m_compileState < ModuleCompileState_Compiled);
 
 	sl::String filePath = io::getFullFilePath(fileName);
-	sl::StringHashTableIterator<bool> it = m_filePathSet.find(filePath);
-	if (it)
+#if (_AXL_OS_WIN)
+	filePath.makeLowerCase();
+#endif
+	sl::StringHashTableIterator<bool> it = m_filePathSet.visit(filePath);
+	if (it->m_value)
 		return true; // already parsed
 
 	io::SimpleMappedFile file;
@@ -336,15 +339,11 @@ Module::parseFile(const sl::StringRef& fileName) {
 	if (!result)
 		return false;
 
-	do {
-		sl::String s = "hui!";
-	} while (0);
-
 	size_t length = file.getMappingSize();
 	sl::String source((const char*)file.p(), length);
 
 	m_sourceList.insertTail(source);
-	m_filePathSet.visit(filePath);
+	it->m_value = true;
 	return parseImpl(NULL, filePath, source);
 }
 
