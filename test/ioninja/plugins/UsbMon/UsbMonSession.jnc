@@ -227,11 +227,14 @@ bool errorcode UsbMonSession.capture() {
 	params.m_speed = device.m_speed;
 	params.m_class = device.m_class;
 
+	char const* product = device.m_productDescriptor ? device.m_productDescriptor : device.m_description;
+	char const* manufacturer = device.m_manufacturerDescriptor ? device.m_manufacturerDescriptor : device.m_manufacturer;
+
 	std.Buffer buffer;
 	buffer.append(params, sizeof(params));
-	buffer.append(device.m_description);
+	buffer.append(product);
 	buffer.append(0);
-	buffer.append(device.m_manufacturer);
+	buffer.append(manufacturer);
 	buffer.append(0);
 	buffer.append(device.m_driver);
 	buffer.append(0);

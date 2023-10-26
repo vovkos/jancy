@@ -429,6 +429,8 @@ void HidSession.onHidDeviceEvent(
 				m_reportWriter.writeReport(HidLogRecordCode.InputReport, report, p, result);
 			else
 				m_reportWriter.writeUnknownReport(HidLogRecordCode.InputReport, reportId, p, result);
+
+			m_pluginHost.m_txRxStats.addRx(result);
 		}
 	}
 

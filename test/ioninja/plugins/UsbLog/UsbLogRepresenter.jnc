@@ -20,13 +20,13 @@ char const* getDeviceInfoString(
 	UsbDeviceParams const* params,
 	uint_t foldFlags
 ) {
-	char const* description = (char const*)(params + 1);
+	char const* product = (char const*)(params + 1);
+	char const* manufacturer = (char const*)(product + strlen(product) + 1);
 
 	if (!(foldFlags & 1))
 		return
-			$"[\e^+1\e[34m+\e[m] %1 - \e[34m%2\e[m"(prefix, description);
+			$"[\e^+1\e[34m+\e[m] %1 - \e[34m%2\e[m by \e[34m%3"(prefix, product, manufacturer);
 
-	char const* manufacturer = (char const*)(description + strlen(description) + 1);
 	char const* driver = (char const*)(manufacturer + strlen(manufacturer) + 1);
 	char const* string =
 		$"[\e^-1\e[34m-\e[m] %1\n"
@@ -37,7 +37,7 @@ char const* getDeviceInfoString(
 		$"    \e[90mClass:\t\e[34m%6\n"
 		$"    \e[90mSpeed:\t\e[34m%7"(
 			prefix,
-			description,
+			product,
 			manufacturer,
 			params.m_vendorId,
 			params.m_productId,

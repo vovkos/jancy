@@ -234,11 +234,14 @@ bool errorcode HidMonSession.capture() {
 	usbDeviceParams.m_speed = device.m_speed;
 	usbDeviceParams.m_class = device.m_class;
 
+	char const* product = device.m_productDescriptor ? device.m_productDescriptor : device.m_description;
+	char const* manufacturer = device.m_manufacturerDescriptor ? device.m_manufacturerDescriptor : device.m_manufacturer;
+
 	std.Buffer buffer;
 	buffer.append(usbDeviceParams, sizeof(usbDeviceParams));
-	buffer.append(device.m_description);
+	buffer.append(product);
 	buffer.append(0);
-	buffer.append(device.m_manufacturer);
+	buffer.append(manufacturer);
 	buffer.append(0);
 	buffer.append(device.m_driver);
 	buffer.append(0);
@@ -261,9 +264,9 @@ bool errorcode HidMonSession.capture() {
 
 	m_deviceInfoBuffer.append(device.m_hidDeviceName);
 	m_deviceInfoBuffer.append(0);
-	m_deviceInfoBuffer.append(device.m_manufacturer);
+	m_deviceInfoBuffer.append(manufacturer);
 	m_deviceInfoBuffer.append(0);
-	m_deviceInfoBuffer.append(device.m_description);
+	m_deviceInfoBuffer.append(product);
 	m_deviceInfoBuffer.append(0);
 	m_deviceInfoBuffer.append(device.m_serialNumberDescriptor);
 	m_deviceInfoBuffer.append(0);
@@ -397,7 +400,8 @@ void HidMonSession.processData(
 
 		if ((
 				hdr.m_transferType != io.UsbTransferType.Interrupt ||
-				hdr.m_endpoint != m_device.m_endpointId
+				hdr.m_endpoint != m_device.m_inEndpointId &&
+				hdr.m_endpoint != m_device.m_outEndpointId
 			) &&
 			(
 				hdr.m_transferType != io.UsbTransferType.Control ||
@@ -407,7 +411,6 @@ void HidMonSession.processData(
 			)
 		) {
 			m_transferBuffer.clear();
-			p += leftoverSize;
 			continue;
 		}
 
@@ -422,11 +425,19 @@ void HidMonSession.processData(
 			uint_t reportId;
 			uchar_t const* data = (uchar_t const*)(hdr + 1);
 			size_t dataSize = hdr.m_captureSize;
+			bool isRx;
 
 			switch (hdr.m_transferType) {
 			case io.UsbTransferType.Interrupt:
-				recordCode = HidLogRecordCode.InputReport;
-				reportType = io.HidReportType.Input;
+				if (hdr.m_endpoint & 0x80) {
+					recordCode = HidLogRecordCode.InputReport;
+					reportType = io.HidReportType.Input;
+					isRx = true;
+				} else {
+					recordCode = HidLogRecordCode.OutputReport;
+					reportType = io.HidReportType.Output;
+				}
+
 				reportId = 0;
 				if (m_rd.m_flags & io.HidRdFlags.HasReportId) {
 					reportId = *data++;
@@ -444,12 +455,15 @@ void HidMonSession.processData(
 					recordCode =
 						reportType == io.HidReportType.Feature ? HidLogRecordCode.GetFeatureReport :
 						reportType == io.HidReportType.Input ? HidLogRecordCode.InputReport : 0;
+
+					isRx = true;
 					break;
 
 				case HidControlRequest.SetReport:
 					recordCode =
 						reportType == io.HidReportType.Feature ? HidLogRecordCode.SendFeatureReport :
 						reportType == io.HidReportType.Output ? HidLogRecordCode.OutputReport : 0;
+
 					break;
 				}
 
@@ -462,6 +476,11 @@ void HidMonSession.processData(
 					m_reportWriter.writeReport(recordCode, report, data, dataSize);
 				else
 					m_reportWriter.writeUnknownReport(recordCode, reportId, data, dataSize);
+
+				if (isRx)
+					m_pluginHost.m_txRxStats.addRx(dataSize);
+				else
+					m_pluginHost.m_txRxStats.addTx(dataSize);
 			}
 		}
 

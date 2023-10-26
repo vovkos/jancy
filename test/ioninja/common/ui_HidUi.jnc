@@ -184,6 +184,8 @@ void refreshHidMonDeviceListUi(
 	for (size_t i = 0; i < count; i++, option++) {
 		io.HidMonDeviceDesc const* device = deviceArray[i];
 		io.HidUsagePage const* page = io.g_hidDb.getUsagePage(device.m_usagePage);
+		char const* product = device.m_productDescriptor ? device.m_productDescriptor : device.m_description;
+		char const* manufacturer = device.m_manufacturerDescriptor ? device.m_manufacturerDescriptor : device.m_manufacturer;
 		char const* usageName = page.getUsageName(device.m_usage);
 
 		description = $"%1%2:%(3; 03d).%4 - %5 by %6 (%7: %8)"(
@@ -191,8 +193,8 @@ void refreshHidMonDeviceListUi(
 			device.m_captureDeviceId,
 			device.m_address,
 			device.m_interfaceId,
-			device.m_description,
-			device.m_manufacturer,
+			product,
+			manufacturer,
 			page.m_name,
 			usageName
 		);
@@ -208,7 +210,7 @@ void refreshHidMonDeviceListUi(
 			$"<tr><td>Usage page:</td><td>%9</td></tr>"
 			$"<tr><td>Usage:</td><td>%10</td></tr>"
 			$"<tr><td>Interface:</td><td>%11</td></tr>"
-			$"<tr><td>Endpoint:</td><td>0x%(12; 02X)</td></tr>"(
+			$"<tr><td>IN endpoint:</td><td>0x%(12; 02X)</td></tr>"(
 				captureDevicePrefix,
 				device.m_captureDeviceId,
 				device.m_address,
@@ -220,8 +222,11 @@ void refreshHidMonDeviceListUi(
 				page.m_name,
 				usageName,
 				device.m_interfaceId,
-				device.m_endpointId
+				device.m_inEndpointId
 			);
+
+		if (device.m_outEndpointId)
+			toolTip += $"<tr><td>OUT endpoint:</td><td>0x$(device.m_outEndpointId; 02X)</td></tr>";
 
 		if (device.m_driver)
 			toolTip += $"<tr><td>Driver:</td><td>$(device.m_driver)</td></tr>";

@@ -55,11 +55,14 @@ void refreshUsbDeviceListUi(
 		io.UsbDeviceEntry const* entry = deviceArray[i];
 		io.UsbDeviceDescriptor const* deviceDescriptor = entry.m_device.m_deviceDescriptor;
 
+		char const* product = entry.m_productDescriptor ? entry.m_productDescriptor : entry.m_description;
+		char const* manufacturer = entry.m_manufacturerDescriptor ? entry.m_manufacturerDescriptor : entry.m_manufacturer;
+
 		description = $"%03d:%03d - %3 by %4"(
 			entry.m_device.m_bus,
 			entry.m_device.m_address,
-			entry.m_description,
-			entry.m_manufacturer
+			product,
+			manufacturer
 		);
 
 		toolTip =

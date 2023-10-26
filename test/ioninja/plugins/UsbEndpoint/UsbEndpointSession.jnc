@@ -524,11 +524,14 @@ bool errorcode UsbEndpointSession.openDevice() {
 	params.m_speed = m_device.m_speed;
 	params.m_class = deviceDesc.m_class;
 
+	char const* product = deviceEntry.m_productDescriptor ? deviceEntry.m_productDescriptor : deviceEntry.m_description;
+	char const* manufacturer = deviceEntry.m_manufacturerDescriptor ? deviceEntry.m_manufacturerDescriptor : deviceEntry.m_manufacturer;
+
 	std.Buffer buffer;
 	buffer.append(params, sizeof(params));
-	buffer.append(deviceEntry.m_description);
+	buffer.append(product);
 	buffer.append(0);
-	buffer.append(deviceEntry.m_manufacturer);
+	buffer.append(manufacturer);
 	buffer.append(0);
 	buffer.append(deviceEntry.m_driver);
 	buffer.append(0);

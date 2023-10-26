@@ -59,12 +59,15 @@ void refreshUsbMonDeviceListUi(
 	for (size_t i = 0; i < count; i++, option++) {
 		io.UsbMonDeviceDesc const* device = deviceArray[i];
 
+		char const* product = device.m_productDescriptor ? device.m_productDescriptor : device.m_description;
+		char const* manufacturer = device.m_manufacturerDescriptor ? device.m_manufacturerDescriptor : device.m_manufacturer;
+
 		description = $"%1%2:%03d - %4 by %5"(
 			captureDevicePrefix,
 			device.m_captureDeviceId,
 			device.m_address,
-			device.m_description,
-			device.m_manufacturer
+			product,
+			manufacturer
 		);
 
 		toolTip =
