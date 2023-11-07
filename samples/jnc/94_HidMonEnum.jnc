@@ -41,7 +41,8 @@ int main() {
 			"    Usage page:    %s\n"
 			"    Usage:         %s\n"
 			"    Interface:     %d\n"
-			"    Endpoint:      0x%02x\n"
+			"    IN-Endpoint:   0x%02x\n"
+			"    OUT-Endpoint:  0x%02x\n"
 			"\n",
 			desc.m_hidDeviceName,
 			desc.m_captureDeviceName,
@@ -57,7 +58,8 @@ int main() {
 			usagePage.m_name,
 			usagePage.getUsageName(desc.m_usage),
 			desc.m_interfaceId,
-			desc.m_endpointId
+			desc.m_inEndpointId,
+			desc.m_outEndpointId
 		);
 
 		io.HidRd rd;
