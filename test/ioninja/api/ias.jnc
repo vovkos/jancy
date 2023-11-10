@@ -108,15 +108,15 @@ size_t errorcode receiveAll(
 
 bool errorcode dispatch(
 	uint_t code,
-	variant in = null,
-	variant* out = null
+	variant_t in = null,
+	variant_t* out = null
 );
 
-variant dispatchGet(
+variant_t dispatchGet(
 	uint_t code,
-	variant in = null
+	variant_t in = null
 ) {
-	variant result;
+	variant_t result;
 	dispatch(code, in, &result);
 	return result;
 }

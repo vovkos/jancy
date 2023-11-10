@@ -22,8 +22,8 @@ struct MapEntry {
 	MapEntry cmut* readonly m_next;
 	MapEntry cmut* readonly m_prev;
 
-	variant const m_key;
-	variant m_value;
+	variant_t const m_key;
+	variant_t m_value;
 
 protected:
 	intptr_t const m_map;

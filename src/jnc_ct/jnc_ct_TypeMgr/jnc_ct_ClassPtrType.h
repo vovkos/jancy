@@ -105,15 +105,11 @@ protected:
 
 	virtual
 	void
-	prepareTypeString() {
-		getTypeStringTuple()->m_typeStringPrefix = m_targetType->getTypeString() + getPointerStringSuffix();
-	}
+	prepareTypeString();
 
 	virtual
 	void
-	prepareDoxyLinkedText() {
-		getTypeStringTuple()->m_doxyLinkedTextPrefix = m_targetType->getDoxyLinkedTextPrefix() + getPointerStringSuffix();
-	}
+	prepareDoxyLinkedText();
 
 	virtual
 	void
@@ -136,8 +132,8 @@ protected:
 		bool isContainerConst
 	);
 
-	sl::String
-	getPointerStringSuffix();
+	void
+	appendPointerStringSuffix(sl::String* string);
 };
 
 //..............................................................................

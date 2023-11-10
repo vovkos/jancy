@@ -61,12 +61,11 @@ failWithSocketCapabilityError(SocketCapability capability) {
 	};
 
 	size_t i = sl::getLoBitIdx(capability);
-
 	return failWithCapabilityError(
 		i < countof(stringTable) ?
 			stringTable[i] :
 			"org.jancy.io.?"
-		);
+	);
 }
 
 //..............................................................................

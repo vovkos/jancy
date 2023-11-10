@@ -99,7 +99,7 @@ protected:
 	QualifiedName m_name;
 	Namespace* m_anchorNamespace;
 	QualifiedName m_anchorName;
-	sl::String m_qualifiedName;
+	sl::StringRef m_qualifiedName;
 
 public:
 	NamedImportType();
@@ -119,7 +119,7 @@ public:
 		return m_anchorName;
 	}
 
-	const sl::String&
+	const sl::StringRef&
 	getQualifiedName() {
 		return m_qualifiedName;
 	}
@@ -139,7 +139,7 @@ protected:
 	virtual
 	void
 	prepareTypeString() {
-		getTypeStringTuple()->m_typeStringPrefix.format("import %s", getQualifiedName().sz());
+		getTypeStringTuple()->m_typeStringPrefix = sl::formatString("import %s", getQualifiedName().sz());
 	}
 
 	virtual

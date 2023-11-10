@@ -213,7 +213,7 @@ reswitch_stmt
 					&$p2 ? $p2.m_value : Value(),
 					&$p3 ? $p3.m_value : Value(),
 					$l.m_pos
-					);
+				);
 			}
 		reswitch_block_stmt_list<&$stmt>
 			{
@@ -429,7 +429,7 @@ assert_stmt
 					$conditionText,
 					&$m ? $m.m_value : Value(),
 					$continueBlock
-					);
+				);
 			}
 	;
 

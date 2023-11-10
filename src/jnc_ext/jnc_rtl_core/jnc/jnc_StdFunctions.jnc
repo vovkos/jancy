@@ -67,7 +67,7 @@ class* dynamicCastClassPtr(
 ///; static char dynamicCastVariantSrc[] =
 
 bool dynamicCastVariant(
-	variant v,
+	variant_t v,
 	void thin* type,
 	void thin* buffer
 );
@@ -157,7 +157,7 @@ size_t appendFmtLiteral_f(
 size_t appendFmtLiteral_v(
 	FmtLiteral thin* fmtLiteral,
 	char const thin* fmtSpecifier,
-	variant v
+	variant_t v
 );
 
 ///; static char appendFmtLiteralSrc_re [] =

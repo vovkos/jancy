@@ -6,17 +6,17 @@ struct Point {
 int main() {
 	int a[4] = { 10, 20, 30, 40 }
 
-	variant v1 = &a[0];
-	variant v2 = &a[2];
-	variant v3 = *v1;
-	variant v4 = v2 - v1;
+	variant_t v1 = &a[0];
+	variant_t v2 = &a[2];
+	variant_t v3 = *v1;
+	variant_t v4 = v2 - v1;
 
 	printf($"v1 = $v1; v2 = $v2; v3 = $v3; v4 = $v4\n");
 
 	Point point = { 10, 20 }
 
-	variant v = point;
-	// variant v = &point;
+	variant_t v = point;
+	// variant_t v = &point;
 
 	v.m_x = 100;
 	v.m_y = 200;

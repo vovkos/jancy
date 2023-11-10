@@ -29,6 +29,8 @@ getStdTypeSource(StdType stdType);
 //..............................................................................
 
 enum StdTypedef {
+	StdTypedef_variant_t,
+	StdTypedef_string_t,
 	StdTypedef_uint_t,
 	StdTypedef_intptr_t,
 	StdTypedef_uintptr_t,

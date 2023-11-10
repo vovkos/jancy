@@ -191,6 +191,7 @@ getType(ct::Type* type) {
 	static StdType stdTypeTable[TypeKind__Count] = {
 		StdType_Type,             // TypeKind_Void
 		StdType_Type,             // TypeKind_Variant
+		StdType_Type,             // TypeKind_String
 		StdType_Type,             // TypeKind_Bool
 		StdType_Type,             // TypeKind_Int8
 		StdType_Type,             // TypeKind_Int8_u

@@ -49,8 +49,8 @@ class Session: Plugin {
 
 	virtual bool errorcode dispatch(
 		uint_t code,
-		variant in,
-		variant* out = null
+		variant_t in,
+		variant_t* out = null
 	) {
 		std.setError("this session doesn't support IAS dispatch");
 		return false;

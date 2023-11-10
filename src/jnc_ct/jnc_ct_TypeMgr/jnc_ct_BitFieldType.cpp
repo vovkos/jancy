@@ -29,7 +29,6 @@ BitFieldType::BitFieldType() {
 void
 BitFieldType::prepareTypeString() {
 	TypeStringTuple* tuple = getTypeStringTuple();
-
 	tuple->m_typeStringPrefix = m_baseType->getTypeStringPrefix();
 	tuple->m_typeStringSuffix.format(" : %d", m_bitCount);
 }
@@ -37,7 +36,6 @@ BitFieldType::prepareTypeString() {
 void
 BitFieldType::prepareDoxyLinkedText() {
 	TypeStringTuple* tuple = getTypeStringTuple();
-
 	tuple->m_doxyLinkedTextPrefix = m_baseType->getDoxyLinkedTextPrefix();
 	tuple->m_doxyLinkedTextSuffix = getTypeStringSuffix();
 }
@@ -61,7 +59,7 @@ BitFieldType::calcLayout() {
 	return true;
 }
 
-sl::String
+sl::StringRef
 BitFieldType::getValueString(
 	const void* p,
 	const char* formatSpec

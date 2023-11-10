@@ -23,7 +23,7 @@ opaque class BitFieldType: Type {
 
 	construct(intptr p);
 
-	variant extract(void const* p);
+	variant_t extract(void const* p);
 }
 
 //..............................................................................

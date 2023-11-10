@@ -18,9 +18,9 @@ namespace ct {
 
 //..............................................................................
 
-class UnOp_PreInc: public UnaryOperator {
+class UnOp_Inc: public UnaryOperator {
 public:
-	UnOp_PreInc() {
+	UnOp_Inc() {
 		m_opFlags = OpFlag_KeepRef;
 	}
 

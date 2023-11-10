@@ -14,6 +14,7 @@
 #include "jnc_ct_Decl.h"
 #include "jnc_ct_Module.h"
 #include "jnc_Variant.h"
+#include "jnc_String.h"
 #include "jnc_rt_GcHeap.h"
 
 namespace jnc {
@@ -67,10 +68,10 @@ getInt64TypeKind_u(uint64_t integer) {
 
 sl::String
 getLlvmTypeString(llvm::Type* llvmType) {
-	std::string s;
-	llvm::raw_string_ostream stream(s);
+	std::string string;
+	llvm::raw_string_ostream stream(string);
 	llvmType->print(stream);
-	return stream.str().c_str();
+	return sl::String(string.data(), string.length());
 }
 
 //..............................................................................
@@ -89,70 +90,75 @@ getPtrTypeFlagString(PtrTypeFlag flag) {
 		"autoget",   // PtrTypeFlag_AutoGet   = 0x1000000
 	};
 
-	size_t i = sl::getLoBitIdx32(flag >> 12);
-
+	size_t i = sl::getLoBitIdx16((uint16_t)(flag >> 16));
 	return i < countof(stringTable) ?
 		stringTable[i] :
 		"undefined-ptr-type-flag";
 }
 
-sl::String
+sl::StringRef
 getPtrTypeFlagString(uint_t flags) {
-	sl::String string;
+	flags &= PtrTypeFlag__All;
+	if (!flags)
+		return sl::StringRef();
 
-	if (flags & PtrTypeFlag_Safe)
-		string = "safe ";
+	PtrTypeFlag flag = getFirstFlag<PtrTypeFlag>(flags);
+	sl::StringRef string0 = getPtrTypeFlagString(flag);
+	flags &= ~flag;
+	if (!flags)
+		return string0;
 
-	if (flags & PtrTypeFlag_Const)
-		string += "const ";
-	else if (flags & PtrTypeFlag_ReadOnly)
-		string += "readonly ";
-	else if (flags & PtrTypeFlag_CMut)
-		string += "cmut ";
-
-	if (flags & PtrTypeFlag_Volatile)
-		string += "volatile ";
-
-	if (flags & PtrTypeFlag_Event)
-		string += "event ";
-	else if (flags & PtrTypeFlag_DualEvent)
-		string += "dualevent ";
-
-	if (flags & PtrTypeFlag_Bindable)
-		string += "bindable ";
-
-	if (flags & PtrTypeFlag_AutoGet)
-		string += "autoget ";
-
-	if (!string.isEmpty())
-		string.chop(1);
+	sl::String string = string0;
+	while (flags) {
+		flag = getFirstFlag<PtrTypeFlag>(flags);
+		string += ' ';
+		string += getPtrTypeFlagString(flag);
+		flags &= ~flag;
+	}
 
 	return string;
 }
 
-sl::String
+const char*
+getPtrTypeFlagSignature(PtrTypeFlag flag) {
+	static const char* stringTable[] = {
+		"s",  // PtrTypeFlag_Safe      = 0x0010000
+		"c",  // PtrTypeFlag_Const     = 0x0020000
+		"r",  // PtrTypeFlag_ReadOnly  = 0x0040000
+		"m",  // PtrTypeFlag_CMut      = 0x0080000
+		"v",  // PtrTypeFlag_Volatile  = 0x0100000
+		"e",  // PtrTypeFlag_Event     = 0x0200000
+		"d",  // PtrTypeFlag_DualEvent = 0x0400000
+		"b",  // PtrTypeFlag_Bindable  = 0x0800000
+		"a",  // PtrTypeFlag_AutoGet   = 0x1000000
+	};
+
+	size_t i = sl::getLoBitIdx16((uint16_t)(flag >> 16));
+	return i < countof(stringTable) ?
+		stringTable[i] :
+		"?";
+}
+
+sl::StringRef
 getPtrTypeFlagSignature(uint_t flags) {
-	sl::String signature;
+	flags &= PtrTypeFlag__All;
+	if (!flags)
+		return sl::StringRef();
 
-	if (flags & PtrTypeFlag_Safe)
-		signature += 's';
+	PtrTypeFlag flag = getFirstFlag<PtrTypeFlag>(flags);
+	sl::StringRef string0 = getPtrTypeFlagSignature(flag);
+	flags &= ~flag;
+	if (!flags)
+		return string0;
 
-	if (flags & PtrTypeFlag_Const)
-		signature += 'c';
-	else if (flags & PtrTypeFlag_ReadOnly)
-		signature += 'r';
-	else if (flags & PtrTypeFlag_CMut)
-		signature += 'm';
+	sl::String string = string0;
+	while (flags) {
+		flag = getFirstFlag<PtrTypeFlag>(flags);
+		string += getPtrTypeFlagSignature(flag);
+		flags &= ~flag;
+	}
 
-	if (flags & PtrTypeFlag_Volatile)
-		signature += 'v';
-
-	if (flags & PtrTypeFlag_Event)
-		signature += 'e';
-	else if (flags & PtrTypeFlag_DualEvent)
-		signature += 'd';
-
-	return signature;
+	return string;
 }
 
 uint_t
@@ -200,25 +206,25 @@ Type::~Type() {
 		delete m_typeStringTuple;
 }
 
-const sl::String&
+const sl::StringRef&
 Type::getTypeString() {
 	TypeStringTuple* tuple = getTypeStringTuple();
 	if (!tuple->m_typeString.isEmpty())
 		return tuple->m_typeString;
 
 	prepareTypeString();
+	if (tuple->m_typeStringPrefix.isEmpty())
+		prepareTypeString();
 	ASSERT(!tuple->m_typeStringPrefix.isEmpty());
 
-	tuple->m_typeString = tuple->m_typeStringPrefix;
-	if (!tuple->m_typeStringSuffix.isEmpty()) {
-		tuple->m_typeString += ' ';
-		tuple->m_typeString += tuple->m_typeStringSuffix;
-	}
+	tuple->m_typeString = tuple->m_typeStringSuffix.isEmpty() ?
+		tuple->m_typeStringPrefix :
+		tuple->m_typeStringPrefix + ' ' + tuple->m_typeStringSuffix;
 
 	return tuple->m_typeString;
 }
 
-const sl::String&
+const sl::StringRef&
 Type::getTypeStringPrefix() {
 	TypeStringTuple* tuple = getTypeStringTuple();
 	if (tuple->m_typeStringPrefix.isEmpty()) {
@@ -366,7 +372,8 @@ void
 Type::prepareTypeString() {
 	static const char* stringTable[TypeKind__PrimitiveTypeCount] = {
 		"void",
-		"variant",
+		"variant_t",
+		"string_t",
 		"bool",
 		"char",
 		"unsigned char",
@@ -387,7 +394,8 @@ Type::prepareTypeString() {
 	};
 
 	ASSERT(m_typeKind < TypeKind__PrimitiveTypeCount);
-	getTypeStringTuple()->m_typeStringPrefix = stringTable[m_typeKind];
+	TypeStringTuple* tuple = getTypeStringTuple();
+	tuple->m_typeStringPrefix = stringTable[m_typeKind];
 }
 
 void
@@ -419,6 +427,7 @@ Type::prepareSignature() {
 	static const char* primitiveTypeSignatureTable[TypeKind_Double + 1] = {
 		"v",    // TypeKind_Void,
 		"z",    // TypeKind_Variant,
+		"s",    // TypeKind_String,
 		"b",    // TypeKind_Bool,
 		"is1",  // TypeKind_Int8,
 		"iu1",  // TypeKind_Int8_u,
@@ -454,6 +463,11 @@ getLlvmType_void(Module* module) {
 llvm::Type*
 getLlvmType_variant(Module* module) {
 	return module->m_typeMgr.getStdType(StdType_VariantStruct)->getLlvmType();
+}
+
+llvm::Type*
+getLlvmType_string(Module* module) {
+	return module->m_typeMgr.getStdType(StdType_StringStruct)->getLlvmType();
 }
 
 llvm::Type*
@@ -493,6 +507,31 @@ getLlvmType_double(Module* module) {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+llvm::DIType_vn
+getLlvmDiType_void(Module* module) {
+	ASSERT(false); // shouldn't ever happen
+	return module->m_llvmDiBuilder.createBasicType("void", 1, 1, llvm::dwarf::DW_ATE_boolean);
+}
+
+template <StdType stdType>
+llvm::DIType_vn
+getLlvmDiType_struct(Module* module) {
+	return module->m_typeMgr.getStdType(stdType)->getLlvmDiType();
+}
+
+template <
+	const char* name,
+	uint_t code,
+	size_t size
+>
+llvm::DIType_vn
+getLlvmDiType_simple(Module* module) {
+	return module->m_llvmDiBuilder.createBasicType(name, size, size, code);
+}
+
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 void
 Type::prepareLlvmType() {
 	ASSERT(!m_llvmType && (size_t)m_typeKind < TypeKind__PrimitiveTypeCount);
@@ -502,6 +541,7 @@ Type::prepareLlvmType() {
 	GetLlvmTypeFunc* getLlvmTypeFuncTable[TypeKind__PrimitiveTypeCount] = {
 		getLlvmType_void,    // TypeKind_Void
 		getLlvmType_variant, // TypeKind_Variant
+		getLlvmType_string,  // TypeKind_String
 		getLlvmType_bool,    // TypeKind_Bool
 		getLlvmType_int8,    // TypeKind_Int8
 		getLlvmType_int8,    // TypeKind_Int8_u
@@ -528,150 +568,152 @@ void
 Type::prepareLlvmDiType() {
 	ASSERT(m_typeKind && m_typeKind < TypeKind__PrimitiveTypeCount);
 
-	if (m_typeKind == TypeKind_Variant) {
-		m_llvmDiType = m_module->m_typeMgr.getStdType(StdType_VariantStruct)->getLlvmDiType();
-		return;
-	}
+	typedef llvm::DIType_vn GetLlvmDiTypeFunc(Module* module);
 
-	struct LlvmDiType {
-		const char* m_name;
-		uint_t m_code;
-		size_t m_size;
-	};
+	static char name_bool[]      = "bool";
+	static char name_int8[]      = "char";
+	static char name_int8_u[]    = "unsigned char";
+	static char name_int16[]     = "short";
+	static char name_int16_u[]   = "unsigned short";
+	static char name_int32[]     = "int";
+	static char name_int32_u[]   = "unsigned int";
+	static char name_int64[]     = "long";
+	static char name_int64_u[]   = "unsigned long";
+	static char name_int16_be[]  = "bigendian short";
+	static char name_int16_beu[] = "bigendian unsigned short";
+	static char name_int32_be[]  = "bigendian int";
+	static char name_int32_beu[] = "bigendian unsigned int";
+	static char name_int64_be[]  = "bigendian long";
+	static char name_int64_beu[] = "bigendian unsigned long";
+	static char name_float[]     = "float";
+	static char name_double[]    = "double";
 
-	LlvmDiType llvmDiTypeTable[TypeKind__PrimitiveTypeCount] = {
-		{ 0 }, // TypeKind_Void,
-		{ 0 }, // TypeKind_Variant,
+	GetLlvmDiTypeFunc* getLlvmDiTypeFuncTable[TypeKind__PrimitiveTypeCount] = {
+		getLlvmDiType_void,                          // TypeKind_Void,
+		getLlvmDiType_struct<StdType_VariantStruct>, // TypeKind_Variant,
+		getLlvmDiType_struct<StdType_StringStruct>,  // TypeKind_String,
 
 		// TypeKind_Bool,
-		{
-			"bool",
+		getLlvmDiType_simple<
+			name_bool,
 			llvm::dwarf::DW_ATE_boolean,
-			1,
-		},
+			1
+		>,
 
 		// TypeKind_Int8,
-		{
-			"char",
+		getLlvmDiType_simple<
+			name_int8,
 			llvm::dwarf::DW_ATE_signed_char,
-			1,
-		},
+			1
+		>,
 
 		// TypeKind_Int8_u,
-		{
-			"unsigned char",
+		getLlvmDiType_simple<
+			name_int8_u,
 			llvm::dwarf::DW_ATE_unsigned_char,
-			1,
-		},
+			1
+		>,
 
 		// TypeKind_Int16,
-		{
-			"int16",
+		getLlvmDiType_simple<
+			name_int16,
 			llvm::dwarf::DW_ATE_signed,
-			2,
-		},
+			2
+		>,
 
 		// TypeKind_Int16_u,
-		{
-			"unsigned int16",
+		getLlvmDiType_simple<
+			name_int16_u,
 			llvm::dwarf::DW_ATE_unsigned,
-			2,
-		},
+			2
+		>,
 
 		// TypeKind_Int32,
-		{
-			"int",
+		getLlvmDiType_simple<
+			name_int32,
 			llvm::dwarf::DW_ATE_signed,
-			4,
-		},
+			4
+		>,
 
 		// TypeKind_Int32_u,
-		{
-			"unsigned int",
+		getLlvmDiType_simple<
+			name_int32_u,
 			llvm::dwarf::DW_ATE_unsigned,
-			4,
-		},
+			4
+		>,
 
 		// TypeKind_Int64,
-		{
-			"unsigned int64",
+		getLlvmDiType_simple<
+			name_int64,
 			llvm::dwarf::DW_ATE_signed,
-			8,
-		},
+			8
+		>,
 
 		// TypeKind_Int64_u,
-		{
-			"unsigned int64",
+		getLlvmDiType_simple<
+			name_int64_u,
 			llvm::dwarf::DW_ATE_unsigned,
-			8,
-		},
+			8
+		>,
 
 		// TypeKind_Int16_be,
-		{
-			"bigendian int16",
+		getLlvmDiType_simple<
+			name_int16_be,
 			llvm::dwarf::DW_ATE_signed,
-			2,
-		},
+			2
+		>,
 
 		// TypeKind_Int16_beu,
-		{
-			"unsigned bigendian int16",
+		getLlvmDiType_simple<
+			name_int16_beu,
 			llvm::dwarf::DW_ATE_unsigned,
-			2,
-		},
+			2
+		>,
 
 		// TypeKind_Int32_be,
-		{
-			"bigendian int16",
+		getLlvmDiType_simple<
+			name_int32_be,
 			llvm::dwarf::DW_ATE_signed,
-			4,
-		},
+			4
+		>,
 
 		// TypeKind_Int32_beu,
-		{
-			"unsigned bigendian int16",
+		getLlvmDiType_simple<
+			name_int32_beu,
 			llvm::dwarf::DW_ATE_unsigned,
-			4,
-		},
+			4
+		>,
 
 		// TypeKind_Int64_be,
-		{
-			"bigendian int16",
+		getLlvmDiType_simple<
+			name_int64_be,
 			llvm::dwarf::DW_ATE_signed,
-			8,
-		},
+			8
+		>,
 
 		// TypeKind_Int64_beu,
-		{
-			"unsigned bigendian int64",
+		getLlvmDiType_simple<
+			name_int64_beu,
 			llvm::dwarf::DW_ATE_unsigned,
-			8,
-		},
+			8
+		>,
 
 		// TypeKind_Float,
-		{
-			"float",
+		getLlvmDiType_simple<
+			name_float,
 			llvm::dwarf::DW_ATE_float,
-			4,
-		},
+			4
+		>,
 
 		// TypeKind_Double,
-		{
-			"double",
+		getLlvmDiType_simple<
+			name_double,
 			llvm::dwarf::DW_ATE_float,
-			8,
-		},
+			8
+		>
 	};
 
-	LlvmDiType* diType = &llvmDiTypeTable[m_typeKind];
-	ASSERT(diType->m_size);
-
-	m_llvmDiType = m_module->m_llvmDiBuilder.createBasicType(
-		diType->m_name,
-		diType->m_size,
-		diType->m_size,
-		diType->m_code
-	);
+	m_llvmDiType = getLlvmDiTypeFuncTable[(size_t)m_typeKind](m_module);
 }
 
 void
@@ -705,7 +747,7 @@ Type::prepareSimpleTypeVariable(StdType stdType) {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-sl::String
+sl::StringRef
 getValueString_void(
 	const void* p,
 	const char* formatSpec
@@ -713,25 +755,37 @@ getValueString_void(
 	return "void";
 }
 
-sl::String
+sl::StringRef
 getValueString_variant(
 	const void* p,
 	const char* formatSpec
 ) {
-	return ((Variant*)p)->m_type ? ((Variant*)p)->m_type->getValueString(p, formatSpec) : "<empty-variant>";
+	return ((Variant*)p)->m_type ?
+		sl::StringRef(((Variant*)p)->m_type->getValueString(p, formatSpec)) :
+		sl::StringRef("null");
 }
 
-sl::String
+sl::StringRef
+getValueString_string(
+	const void* p,
+	const char* formatSpec
+) {
+	const String* string = (String*)p;
+	sl::StringRef stringRef((char*)string->m_ptr.m_p, string->m_length);
+	return formatSpec ? sl::StringRef(sl::formatString(formatSpec, stringRef.sz())) : stringRef;
+}
+
+sl::StringRef
 getValueString_bool(
 	const void* p,
 	const char* formatSpec
 ) {
 	return
-		formatSpec ? sl::formatString(formatSpec, *(bool*)p) :
-		*(bool*)p ? sl::String("true") : sl::String("false");
+		formatSpec ? sl::StringRef(sl::formatString(formatSpec, *(bool*)p)) :
+		*(bool*)p ? sl::StringRef("true") : sl::StringRef("false");
 }
 
-sl::String
+sl::StringRef
 getValueString_int8(
 	const void* p,
 	const char* formatSpec
@@ -739,7 +793,7 @@ getValueString_int8(
 	return sl::formatString(formatSpec ? formatSpec : "%d", *(int8_t*)p);
 }
 
-sl::String
+sl::StringRef
 getValueString_int8_u(
 	const void* p,
 	const char* formatSpec
@@ -747,7 +801,7 @@ getValueString_int8_u(
 	return sl::formatString(formatSpec ? formatSpec : "%u", *(uint8_t*)p);
 }
 
-sl::String
+sl::StringRef
 getValueString_int16(
 	const void* p,
 	const char* formatSpec
@@ -755,7 +809,7 @@ getValueString_int16(
 	return sl::formatString(formatSpec ? formatSpec : "%d", *(int16_t*)p);
 }
 
-sl::String
+sl::StringRef
 getValueString_int16_u(
 	const void* p,
 	const char* formatSpec
@@ -763,7 +817,7 @@ getValueString_int16_u(
 	return sl::formatString(formatSpec ? formatSpec : "%u", *(uint16_t*)p);
 }
 
-sl::String
+sl::StringRef
 getValueString_int32(
 	const void* p,
 	const char* formatSpec
@@ -771,7 +825,7 @@ getValueString_int32(
 	return sl::formatString(formatSpec ? formatSpec : "%d", *(int32_t*)p);
 }
 
-sl::String
+sl::StringRef
 getValueString_int32_u(
 	const void* p,
 	const char* formatSpec
@@ -779,7 +833,7 @@ getValueString_int32_u(
 	return sl::formatString(formatSpec ? formatSpec : "%u", *(uint32_t*)p);
 }
 
-sl::String
+sl::StringRef
 getValueString_int64(
 	const void* p,
 	const char* formatSpec
@@ -787,7 +841,7 @@ getValueString_int64(
 	return sl::formatString(formatSpec ? formatSpec : "%lld", *(int64_t*)p);
 }
 
-sl::String
+sl::StringRef
 getValueString_int64_u(
 	const void* p,
 	const char* formatSpec
@@ -795,7 +849,7 @@ getValueString_int64_u(
 	return sl::formatString(formatSpec ? formatSpec : "%llu", *(uint64_t*)p);
 }
 
-sl::String
+sl::StringRef
 getValueString_int16_be(
 	const void* p,
 	const char* formatSpec
@@ -803,7 +857,7 @@ getValueString_int16_be(
 	return sl::formatString(formatSpec ? formatSpec : "%d", (int16_t)sl::swapByteOrder16(*(uint16_t*)p));
 }
 
-sl::String
+sl::StringRef
 getValueString_int16_beu(
 	const void* p,
 	const char* formatSpec
@@ -811,7 +865,7 @@ getValueString_int16_beu(
 	return sl::formatString(formatSpec ? formatSpec : "%u", (uint16_t)sl::swapByteOrder16(*(uint16_t*)p));
 }
 
-sl::String
+sl::StringRef
 getValueString_int32_be(
 	const void* p,
 	const char* formatSpec
@@ -819,7 +873,7 @@ getValueString_int32_be(
 	return sl::formatString(formatSpec ? formatSpec : "%d", (int32_t)sl::swapByteOrder32(*(uint32_t*)p));
 }
 
-sl::String
+sl::StringRef
 getValueString_int32_beu(
 	const void* p,
 	const char* formatSpec
@@ -827,7 +881,7 @@ getValueString_int32_beu(
 	return sl::formatString(formatSpec ? formatSpec : "%u", (uint32_t)sl::swapByteOrder32(*(uint32_t*)p));
 }
 
-sl::String
+sl::StringRef
 getValueString_int64_be(
 	const void* p,
 	const char* formatSpec
@@ -835,7 +889,7 @@ getValueString_int64_be(
 	return sl::formatString(formatSpec ? formatSpec : "%lld", (int64_t)sl::swapByteOrder64(*(uint64_t*)p));
 }
 
-sl::String
+sl::StringRef
 getValueString_int64_beu(
 	const void* p,
 	const char* formatSpec
@@ -843,7 +897,7 @@ getValueString_int64_beu(
 	return sl::formatString(formatSpec ? formatSpec : "%llu", (uint64_t)sl::swapByteOrder64(*(uint64_t*)p));
 }
 
-sl::String
+sl::StringRef
 getValueString_float(
 	const void* p,
 	const char* formatSpec
@@ -851,7 +905,7 @@ getValueString_float(
 	return sl::formatString(formatSpec ? formatSpec : "%f", *(float*)p);
 }
 
-sl::String
+sl::StringRef
 getValueString_double(
 	const void* p,
 	const char* formatSpec
@@ -861,13 +915,13 @@ getValueString_double(
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-sl::String
+sl::StringRef
 Type::getValueString(
 	const void* p,
 	const char* formatSpec
 ) {
 	typedef
-	sl::String
+	sl::StringRef
 	GetValueStringFunc(
 		const void* p,
 		const char* formatSpec
@@ -876,6 +930,7 @@ Type::getValueString(
 	GetValueStringFunc* getValueStringFuncTable[TypeKind__PrimitiveTypeCount] = {
 		getValueString_void,       // TypeKind_Void
 		getValueString_variant,    // TypeKind_Variant
+		getValueString_string,     // TypeKind_String
 		getValueString_bool,       // TypeKind_Bool
 		getValueString_int8,       // TypeKind_Int8
 		getValueString_int8_u,     // TypeKind_Int8_u

@@ -52,19 +52,24 @@ PropertyVerifier::createIndexArgSignature(
 ) {
 	ASSERT(functionKind == FunctionKind_Getter || functionKind == FunctionKind_Setter);
 
+	sl::String string;
+
 	// refine!!!
 
 	if (functionType->isMemberMethodType())
 		functionType = functionType->getShortType();
 
-	if (functionKind == FunctionKind_Getter)
-		return functionType->createArgSignature();
+	if (functionKind == FunctionKind_Getter) {
+		functionType->appendArgSignature(&string);
+		return string;
+	}
 
 	sl::Array<FunctionArg*> argArray = functionType->getArgArray();
 	size_t argCount = argArray.getCount();
 	ASSERT(argCount);
 
-	return functionType->createArgSignature(argArray, argCount - 1, 0);
+	FunctionType::appendArgSignature(&string, argArray, argCount - 1, 0);
+	return string;
 }
 
 //..............................................................................

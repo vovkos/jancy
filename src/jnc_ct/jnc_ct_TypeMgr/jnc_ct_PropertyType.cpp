@@ -81,7 +81,7 @@ PropertyType::createSignature(
 	return string;
 }
 
-sl::String
+sl::StringRef
 PropertyType::getTypeModifierString() {
 	sl::String string;
 
@@ -109,15 +109,15 @@ PropertyType::prepareTypeString() {
 	TypeStringTuple* tuple = getTypeStringTuple();
 	Type* returnType = getReturnType();
 
-	tuple->m_typeStringPrefix = returnType->getTypeStringPrefix();
-
+	sl::String string = returnType->getTypeStringPrefix();
 	sl::String modifierString = getTypeModifierString();
 	if (!modifierString.isEmpty()) {
-		tuple->m_typeStringPrefix += ' ';
-		tuple->m_typeStringPrefix += modifierString;
+		string += ' ';
+		string += modifierString;
 	}
 
-	tuple->m_typeStringPrefix += " property";
+	string += " property";
+	tuple->m_typeStringPrefix = string;
 
 	if (isIndexed())
 		tuple->m_typeStringSuffix = m_getterType->getTypeStringSuffix();
@@ -151,7 +151,7 @@ PropertyType::prepareDoxyTypeString() {
 	Type::prepareDoxyTypeString();
 
 	if (isIndexed())
-		getTypeStringTuple()->m_doxyTypeString += m_getterType->getDoxyArgString();
+		m_getterType->appendDoxyArgString(&getTypeStringTuple()->m_doxyTypeString);
 }
 
 bool

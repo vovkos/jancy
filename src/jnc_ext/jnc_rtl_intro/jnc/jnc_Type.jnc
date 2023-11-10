@@ -188,7 +188,7 @@ opaque class Type: ModuleItem {
 	);
 
 	char const* getValueString(
-		variant value,
+		variant_t value,
 		char const* formatSpec = null
 	);
 

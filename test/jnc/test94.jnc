@@ -1,11 +1,11 @@
 struct MapEntry {
 	MapEntry cmut* m_next;
-	variant m_value;
+	variant_t m_value;
 }
 
-variant findValue(
-	variant key,
-	variant undefinedValue = null
+variant_t findValue(
+	variant_t key,
+	variant_t undefinedValue = null
 ) {
 	MapEntry e;
 	MapEntry* entry = &e;

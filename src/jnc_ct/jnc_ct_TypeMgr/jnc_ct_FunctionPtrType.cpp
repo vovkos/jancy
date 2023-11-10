@@ -71,11 +71,11 @@ FunctionPtrType::createSignature(
 	return signature;
 }
 
-sl::String
+sl::StringRef
 FunctionPtrType::getTypeModifierString() {
 	sl::String string;
 
-	sl::String ptrTypeFlagString = getPtrTypeFlagString(m_flags);
+	sl::StringRef ptrTypeFlagString = getPtrTypeFlagString(m_flags);
 	if (!ptrTypeFlagString.isEmpty()) {
 		string += ptrTypeFlagString;
 		string += ' ';
@@ -97,16 +97,15 @@ FunctionPtrType::prepareTypeString() {
 	TypeStringTuple* tuple = getTypeStringTuple();
 	Type* returnType = m_targetType->getReturnType();
 
-	tuple->m_typeStringPrefix = returnType->getTypeStringPrefix();
-
-	sl::String modifierString = getTypeModifierString();
+	sl::String string = returnType->getTypeStringPrefix();
+	sl::StringRef modifierString = getTypeModifierString();
 	if (!modifierString.isEmpty()) {
-		tuple->m_typeStringPrefix += ' ';
-		tuple->m_typeStringPrefix += modifierString;
+		string += ' ';
+		string += modifierString;
 	}
 
-	tuple->m_typeStringPrefix += m_typeKind == TypeKind_FunctionRef ? " function&" : " function*";
-
+	string += m_typeKind == TypeKind_FunctionRef ? " function&" : " function*";
+	tuple->m_typeStringPrefix = string;
 	tuple->m_typeStringSuffix = m_targetType->getTypeStringSuffix();
 	tuple->m_typeStringSuffix += returnType->getTypeStringSuffix();
 }
@@ -118,10 +117,10 @@ FunctionPtrType::prepareDoxyLinkedText() {
 
 	tuple->m_doxyLinkedTextPrefix = returnType->getDoxyLinkedTextPrefix();
 
-	sl::String modifierString = getTypeModifierString();
+	sl::StringRef modifierString = getTypeModifierString();
 	if (!modifierString.isEmpty()) {
-		tuple->m_typeStringPrefix += ' ';
-		tuple->m_typeStringPrefix += modifierString;
+		tuple->m_doxyLinkedTextPrefix += ' ';
+		tuple->m_doxyLinkedTextPrefix += modifierString;
 	}
 
 	tuple->m_doxyLinkedTextPrefix += m_typeKind == TypeKind_FunctionRef ? " function&" : " function*";
@@ -133,7 +132,7 @@ FunctionPtrType::prepareDoxyLinkedText() {
 void
 FunctionPtrType::prepareDoxyTypeString() {
 	Type::prepareDoxyTypeString();
-	getTypeStringTuple()->m_doxyTypeString += m_targetType->getDoxyArgString();
+	m_targetType->appendDoxyArgString(&getTypeStringTuple()->m_doxyTypeString);
 }
 
 void

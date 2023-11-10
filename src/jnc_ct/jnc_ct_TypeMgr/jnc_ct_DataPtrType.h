@@ -121,8 +121,8 @@ protected:
 		bool isContainerConst
 	);
 
-	sl::String
-	getPointerStringSuffix();
+	void
+	appendPointerStringSuffix(sl::String* string);
 };
 
 //..............................................................................

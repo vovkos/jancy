@@ -48,26 +48,14 @@ enum TypeSizeLimit {
 
 //..............................................................................
 
-JNC_INLINE
-PtrTypeFlag
-getFirstPtrTypeFlag(uint_t flags) {
-	return (PtrTypeFlag)(1 << sl::getLoBitIdx(flags));
-}
-
 const char*
 getPtrTypeFlagString(PtrTypeFlag flag);
 
-sl::String
+sl::StringRef
 getPtrTypeFlagString(uint_t flags);
 
-sl::String
+sl::StringRef
 getPtrTypeFlagSignature(uint_t flags);
-
-JNC_INLINE
-const char*
-getFirstPtrTypeFlagString(uint_t flags) {
-	return getPtrTypeFlagString(getFirstPtrTypeFlag(flags));
-}
 
 uint_t
 getPtrTypeFlagsFromModifiers(uint_t modifiers);
@@ -150,8 +138,8 @@ getLlvmTypeString(llvm::Type* llvmType);
 //..............................................................................
 
 struct TypeStringTuple {
-	sl::String m_typeString;
-	sl::String m_typeStringPrefix;
+	sl::StringRef m_typeString;
+	sl::StringRef m_typeStringPrefix;
 	sl::String m_typeStringSuffix;
 	sl::String m_doxyTypeString;
 	sl::String m_doxyLinkedTextPrefix;
@@ -175,7 +163,7 @@ protected:
 	StdType m_stdType;
 	size_t m_size;
 	size_t m_alignment;
-	sl::String m_signature;
+	sl::StringRef m_signature;
 
 	Variable* m_typeVariable;
 	TypeStringTuple* m_typeStringTuple;
@@ -220,13 +208,13 @@ public:
 		return m_alignment;
 	}
 
-	const sl::String&
+	const sl::StringRef&
 	getSignature();
 
-	const sl::String&
+	const sl::StringRef&
 	getTypeString();
 
-	const sl::String&
+	const sl::StringRef&
 	getTypeStringPrefix();
 
 	const sl::String&
@@ -320,7 +308,7 @@ public:
 	);
 
 	virtual
-	sl::String
+	sl::StringRef
 	getValueString(
 		const void* p,
 		const char* formatSpec = NULL
@@ -420,7 +408,7 @@ Type::getTypeStringTuple() {
 }
 
 inline
-const sl::String&
+const sl::StringRef&
 Type::getSignature() {
 	if (m_signature.isEmpty())
 		prepareSignature();

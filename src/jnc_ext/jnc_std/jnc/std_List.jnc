@@ -47,10 +47,10 @@ struct ListEntry {
 	intptr_t readonly m_validator;
 
 	/**
-		Holds the actual ``variant`` data value of the list entry.
+		Holds the actual ``variant_t`` data value of the list entry.
 	*/
 
-	variant m_data;
+	variant_t m_data;
 }
 
 //..............................................................................
@@ -58,7 +58,7 @@ struct ListEntry {
 /**
 	\import std_List.jnc
 
-	\brief This class provides a doubly linked list container for ``variant``
+	\brief This class provides a doubly linked list container for ``variant_t``
 	values.
 
 	A typical sequence of steps when working with a doubly linked list usually
@@ -143,7 +143,7 @@ class List {
 		Equivalent to ``insertTail``.
 	*/
 
-	ListEntry* errorcode add(variant data) {
+	ListEntry* errorcode add(variant_t data) {
 		return insertTail(data);
 	}
 
@@ -153,7 +153,7 @@ class List {
 		Returns a pointer to the new `std.ListEntry`.
 	*/
 
-	ListEntry* errorcode insertHead(variant data);
+	ListEntry* errorcode insertHead(variant_t data);
 
 	/**
 		Inserts item ``data`` to the tail of the list.
@@ -161,7 +161,7 @@ class List {
 		Returns a pointer to the new `std.ListEntry`.
 	*/
 
-	ListEntry* errorcode insertTail(variant data);
+	ListEntry* errorcode insertTail(variant_t data);
 
 	/**
 		Inserts item ``data`` before the item entry pointed to by ``entry``
@@ -173,7 +173,7 @@ class List {
 	*/
 
 	ListEntry* errorcode insertBefore(
-		variant item,
+		variant_t item,
 		ListEntry* before
 	);
 
@@ -187,7 +187,7 @@ class List {
 	*/
 
 	ListEntry* errorcode insertAfter(
-		variant item,
+		variant_t item,
 		ListEntry* before
 	);
 
@@ -241,7 +241,7 @@ class List {
 		``null``.
 	*/
 
-	variant removeHead();
+	variant_t removeHead();
 
 	/**
 		Removes tail item entry.
@@ -253,7 +253,7 @@ class List {
 		``null``.
 	*/
 
-	variant removeTail();
+	variant_t removeTail();
 
 	/**
 		Removes item entry pointed to by ``entry``.
@@ -261,7 +261,7 @@ class List {
 		Returns the value of ``entry.m_data`` field.
 	*/
 
-	variant remove(ListEntry* entry);
+	variant_t remove(ListEntry* entry);
 }
 
 //..............................................................................

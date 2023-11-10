@@ -564,7 +564,7 @@ DerivableType::findDirectChildItemTraverse(
 		g_nullFindModuleItemResult;
 }
 
-sl::String
+sl::StringRef
 DerivableType::getValueString(
 	const void* p0,
 	const char* formatSpec

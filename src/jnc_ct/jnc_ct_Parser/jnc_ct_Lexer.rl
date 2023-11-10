@@ -199,7 +199,6 @@ main := |*
 
 'anydata'        { createToken(TokenKind_AnyData); };
 'void'           { createToken(TokenKind_Void); };
-'variant'        { createToken(TokenKind_Variant); };
 'bool'           { createToken(TokenKind_Bool); };
 'int'            { createToken(TokenKind_Int); };
 'intptr'         { createToken(TokenKind_IntPtr); };
@@ -214,12 +213,13 @@ main := |*
 # named type specifiers
 
 'enum'           { createToken(TokenKind_Enum); };
+'bitflag' ws+ 'enum'
+                 { createToken(TokenKind_BitFlagEnum); };
 'struct'         { createToken(TokenKind_Struct); };
 'union'          { createToken(TokenKind_Union); };
 'class'          { createToken(TokenKind_Class); };
-'opaque'         { createToken(TokenKind_Opaque); };
-'exposed'        { createToken(TokenKind_Exposed); };
-'bitflag'        { createToken(TokenKind_BitFlag); };
+'opaque' ws+ 'class'
+                 { createToken(TokenKind_OpaqueClass); };
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -232,7 +232,8 @@ main := |*
                  { createToken(TokenKind_StaticConstruct); };
 'destruct'       { createToken(TokenKind_Destruct); };
 'operator'       { createToken(TokenKind_Operator); };
-'postfix'        { createToken(TokenKind_Postfix); };
+'postfix' ws+ 'operator'
+                 { createToken(TokenKind_PostfixOperator); };
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

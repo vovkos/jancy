@@ -82,7 +82,7 @@ public:
 	ClassType*
 	getMulticastType();
 
-	sl::String
+	sl::StringRef
 	getTypeModifierString();
 
 	static

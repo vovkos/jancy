@@ -167,6 +167,7 @@ special_void_method_declarator_qualifier<Declarator* $declarator>
 				return $declarator->addUnnamedMethod(FunctionKind_Setter);
 			}
 	|	TokenKind_Operator operator_declarator_qualifier<$declarator>
+	|	TokenKind_PostfixOperator postfix_operator_declarator_qualifier<$declarator>
 	;
 
 operator_declarator_qualifier<Declarator* $declarator>
@@ -193,6 +194,17 @@ operator_declarator_qualifier<Declarator* $declarator>
 	|	TokenKind_BindingOf
 			{
 				return $declarator->addUnnamedMethod(FunctionKind_Binder);
+			}
+	;
+
+postfix_operator_declarator_qualifier<Declarator* $declarator>
+	:	TokenKind_Inc
+			{
+				return $declarator->addUnaryBinaryOperator(UnOpKind_PostInc, BinOpKind_Undefined);
+			}
+	|	TokenKind_Dec
+			{
+				return $declarator->addUnaryBinaryOperator(UnOpKind_PostDec, BinOpKind_Undefined);
 			}
 	;
 
@@ -225,21 +237,13 @@ operator_name
 			}
 	|	TokenKind_Inc
 			{
-				$.m_unOpKind = UnOpKind_PreInc;
+				$.m_unOpKind = UnOpKind_Inc;
 			}
 	|	TokenKind_Dec
 			{
-				$.m_unOpKind = UnOpKind_PreDec;
+				$.m_unOpKind = UnOpKind_Dec;
 			}
-	|	TokenKind_Postfix TokenKind_Inc
-			{
-				$.m_unOpKind = UnOpKind_PostInc;
-			}
-	|	TokenKind_Postfix TokenKind_Dec
-			{
-				$.m_unOpKind = UnOpKind_PostDec;
-			}
-	|	TokenKind_Postfix? TokenKind_Ptr
+	|	TokenKind_Ptr
 			{
 				$.m_unOpKind = UnOpKind_Ptr;
 			}

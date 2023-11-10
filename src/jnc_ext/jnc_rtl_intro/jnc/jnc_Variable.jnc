@@ -31,7 +31,7 @@ opaque class Variable:
 opaque class Const:
 	ModuleItem,
 	ModuleItemDecl {
-	variant const property m_value;
+	variant_t const property m_value;
 
 	construct(intptr p);
 }

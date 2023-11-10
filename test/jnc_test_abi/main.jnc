@@ -143,12 +143,12 @@ funcStruct128(
 	return retval;
 }
 
-variant
+variant_t
 funcVariant(
-	variant v1,
-	variant v2,
-	variant v3,
-	variant v4
+	variant_t v1,
+	variant_t v2,
+	variant_t v3,
+	variant_t v4
 ) {
 	assert(v1 == -1);
 	assert(v2 == -2);
@@ -244,12 +244,12 @@ funcStruct128(
 	struct128 s4
 );
 
-variant
+variant_t
 funcVariant(
-	variant v1,
-	variant v2,
-	variant v3,
-	variant v4
+	variant_t v1,
+	variant_t v2,
+	variant_t v3,
+	variant_t v4
 );
 
 char const*
@@ -321,12 +321,12 @@ void testStruct128() {
 }
 
 void testVariant() {
-	variant v1 = -1;
-	variant v2 = -2;
-	variant v3 = -3;
-	variant v4 = -4;
+	variant_t v1 = -1;
+	variant_t v2 = -2;
+	variant_t v3 = -3;
+	variant_t v4 = -4;
 
-	variant retval = funcVariant(v1, v2, v3, v4);
+	variant_t retval = funcVariant(v1, v2, v3, v4);
 	assert(retval == -10);
 }
 

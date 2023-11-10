@@ -3,8 +3,8 @@
 import "std_Array.jnc"
 
 bool gt(
-	variant v1,
-	variant v2
+	variant_t v1,
+	variant_t v2
 ) {
 	return v1 > v2;
 }

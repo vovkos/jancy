@@ -207,7 +207,7 @@ ArrayType::calcLayoutImpl(
 	return true;
 }
 
-sl::String
+sl::StringRef
 ArrayType::getValueString(
 	const void* p0,
 	const char* formatSpec

@@ -93,8 +93,8 @@ enum TokenKind {
 
 	// type specifiers
 
+	TokenKind_AnyData,
 	TokenKind_Void,
-	TokenKind_Variant,
 	TokenKind_Bool,
 	TokenKind_Int,
 	TokenKind_IntPtr,
@@ -107,13 +107,11 @@ enum TokenKind {
 	// named type specifiers
 
 	TokenKind_Enum,
+	TokenKind_BitFlagEnum,
 	TokenKind_Struct,
 	TokenKind_Union,
 	TokenKind_Class,
-	TokenKind_Opaque,
-	TokenKind_Exposed,
-	TokenKind_BitFlag,
-	TokenKind_AnyData,
+	TokenKind_OpaqueClass,
 
 	// special member methods
 
@@ -123,7 +121,7 @@ enum TokenKind {
 	TokenKind_StaticConstruct, // avoid extra resolver at global:static
 	TokenKind_Destruct,
 	TokenKind_Operator,
-	TokenKind_Postfix,
+	TokenKind_PostfixOperator,
 
 	// statements
 
@@ -294,7 +292,6 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP(TokenName)
 
 	AXL_LEX_TOKEN_NAME(TokenKind_AnyData,      "anydata")
 	AXL_LEX_TOKEN_NAME(TokenKind_Void,         "void")
-	AXL_LEX_TOKEN_NAME(TokenKind_Variant,      "variant")
 	AXL_LEX_TOKEN_NAME(TokenKind_Bool,         "bool")
 	AXL_LEX_TOKEN_NAME(TokenKind_Int,          "int")
 	AXL_LEX_TOKEN_NAME(TokenKind_IntPtr,       "intptr")
@@ -307,12 +304,11 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP(TokenName)
 	// named type specifiers
 
 	AXL_LEX_TOKEN_NAME(TokenKind_Enum,         "enum")
+	AXL_LEX_TOKEN_NAME(TokenKind_BitFlagEnum,  "bitflag enum")
 	AXL_LEX_TOKEN_NAME(TokenKind_Struct,       "struct")
 	AXL_LEX_TOKEN_NAME(TokenKind_Union,        "union")
 	AXL_LEX_TOKEN_NAME(TokenKind_Class,        "class")
-	AXL_LEX_TOKEN_NAME(TokenKind_Opaque,       "opaque")
-	AXL_LEX_TOKEN_NAME(TokenKind_Exposed,      "exposed")
-	AXL_LEX_TOKEN_NAME(TokenKind_BitFlag,      "bitflag")
+	AXL_LEX_TOKEN_NAME(TokenKind_OpaqueClass,  "opaque class")
 
 	// special members
 
@@ -322,7 +318,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP(TokenName)
 	AXL_LEX_TOKEN_NAME(TokenKind_StaticConstruct, "static construct")
 	AXL_LEX_TOKEN_NAME(TokenKind_Destruct,     "destruct")
 	AXL_LEX_TOKEN_NAME(TokenKind_Operator,     "operator")
-	AXL_LEX_TOKEN_NAME(TokenKind_Postfix,      "postfix")
+	AXL_LEX_TOKEN_NAME(TokenKind_PostfixOperator, "postfix operator")
 
 	// statements
 

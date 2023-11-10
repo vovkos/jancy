@@ -120,7 +120,7 @@ public:
 		return m_bindableEventName;
 	}
 
-	sl::String
+	sl::StringRef
 	getTypeModifierString();
 
 	static

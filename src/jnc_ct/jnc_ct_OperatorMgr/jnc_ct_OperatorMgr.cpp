@@ -44,13 +44,13 @@ OperatorMgr::OperatorMgr() {
 
 	// increment operators
 
-	m_unOp_PreInc.m_opKind  = UnOpKind_PreInc;
-	m_unOp_PreDec.m_opKind  = UnOpKind_PreDec;
+	m_unOp_Inc.m_opKind = UnOpKind_Inc;
+	m_unOp_Dec.m_opKind = UnOpKind_Dec;
 	m_unOp_PostInc.m_opKind = UnOpKind_PostInc;
 	m_unOp_PostDec.m_opKind = UnOpKind_PostDec;
 
-	m_unaryOperatorTable[UnOpKind_PreInc]   = &m_unOp_PreInc;
-	m_unaryOperatorTable[UnOpKind_PreDec]   = &m_unOp_PreDec;
+	m_unaryOperatorTable[UnOpKind_Inc]   = &m_unOp_Inc;
+	m_unaryOperatorTable[UnOpKind_Dec]   = &m_unOp_Dec;
 	m_unaryOperatorTable[UnOpKind_PostInc]  = &m_unOp_PostInc;
 	m_unaryOperatorTable[UnOpKind_PostDec]  = &m_unOp_PostDec;
 

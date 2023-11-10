@@ -21,16 +21,10 @@ class EnumType;
 
 //..............................................................................
 
-JNC_INLINE
-EnumTypeFlag
-getFirstEnumTypeFlag(uint_t flags) {
-	return (EnumTypeFlag)(1 << sl::getLoBitIdx(flags));
-}
-
 const char*
 getEnumTypeFlagString(EnumTypeFlag flag);
 
-sl::String
+sl::StringRef
 getEnumTypeFlagString(uint_t flags);
 
 //..............................................................................
@@ -125,7 +119,7 @@ public:
 	}
 
 	virtual
-	sl::String
+	sl::StringRef
 	getValueString(
 		const void* p,
 		const char* formatSpec

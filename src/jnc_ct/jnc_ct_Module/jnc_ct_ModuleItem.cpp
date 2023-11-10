@@ -377,7 +377,7 @@ getTypedItemSynopsisImpl(
 	synopsis += type->getTypeStringPrefix();
 	synopsis += ' ';
 
-	sl::String ptrTypeFlagsString = getPtrTypeFlagString(ptrTypeFlags);
+	sl::StringRef ptrTypeFlagsString = getPtrTypeFlagString(ptrTypeFlags);
 	if (!ptrTypeFlagsString.isEmpty()) {
 		synopsis += ptrTypeFlagsString;
 		synopsis += ' ';
@@ -483,7 +483,7 @@ getPropertySynopsis(
 	type->ensureNoImports();
 
 	sl::String synopsis = type->getReturnType()->getTypeString();
-	sl::String typeModifierString = type->getShortType()->getTypeModifierString();
+	sl::StringRef typeModifierString = type->getShortType()->getTypeModifierString();
 	if (!typeModifierString.isEmpty()) {
 		synopsis += ' ';
 		synopsis += typeModifierString;

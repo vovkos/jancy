@@ -152,8 +152,8 @@ public:
 
 	override bool errorcode dispatch(
 		uint_t code,
-		variant in,
-		variant* out
+		variant_t in,
+		variant_t* out
 	);
 
 protected:
@@ -888,8 +888,8 @@ catch:
 
 bool errorcode UsbEndpointSession.dispatch(
 	uint_t code,
-	variant in,
-	variant* out
+	variant_t in,
+	variant_t* out
 ) {
 	switch (code) {
 	case UsbEndpointDispatchCode.GetDeviceVid:

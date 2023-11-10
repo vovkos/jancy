@@ -510,19 +510,19 @@ char const* cdecl format(
 //! @}
 
 typedef bool LessFunc(
-	variant e1,
-	variant e2
+	variant_t e1,
+	variant_t e2
 );
 
 void
 sort(
-	variant* p,
+	variant_t* p,
 	size_t count
 );
 
 void
 sort(
-	variant* p,
+	variant_t* p,
 	size_t count,
 	LessFunc* lessFunc
 );

@@ -38,6 +38,7 @@ set(
 	${JANCY_ROOT_DIR}/include/jnc_Property.h
 	${JANCY_ROOT_DIR}/include/jnc_Namespace.h
 	${JANCY_ROOT_DIR}/include/jnc_Variant.h
+	${JANCY_ROOT_DIR}/include/jnc_String.h
 	${JANCY_ROOT_DIR}/include/jnc_Promise.h
 	${JANCY_ROOT_DIR}/include/jnc_Unit.h
 	${JANCY_ROOT_DIR}/include/jnc_Module.h
@@ -77,6 +78,7 @@ set(
 	jnc_Property.cpp
 	jnc_Namespace.cpp
 	jnc_Variant.cpp
+	jnc_String.cpp
 	jnc_Promise.cpp
 	jnc_Module.cpp
 	jnc_Runtime.cpp

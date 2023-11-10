@@ -56,21 +56,23 @@ getTypeModifierString(TypeModifier modifier) {
 		"undefined-type-modifier";
 }
 
-sl::String
+sl::StringRef
 getTypeModifierString(uint_t modifiers) {
 	if (!modifiers)
-		return sl::String();
+		return sl::StringRef();
 
-	TypeModifier modifier = getFirstTypeModifier(modifiers);
-	sl::String string = getTypeModifierString(modifier);
+	TypeModifier modifier = getFirstFlag<TypeModifier>(modifiers);
+	sl::StringRef string0 = getTypeModifierString(modifier);
+
 	modifiers &= ~modifier;
+	if (!modifiers)
+		return string0;
 
+	sl::String string = string0;
 	while (modifiers) {
-		modifier = getFirstTypeModifier(modifiers);
-
+		modifier = getFirstFlag<TypeModifier>(modifiers);
 		string += ' ';
 		string += getTypeModifierString(modifier);
-
 		modifiers &= ~modifier;
 	}
 
@@ -130,7 +132,7 @@ TypeModifiers::addTypeModifier(TypeModifier modifier) {
 
 	uint_t antiModifiers = m_typeModifiers & antiModifierTable[i];
 	if (antiModifiers) {
-		TypeModifier antiModifier = getFirstTypeModifier(antiModifiers);
+		TypeModifier antiModifier = getFirstFlag<TypeModifier>(antiModifiers);
 		err::setFormatStringError(
 			"type modifiers '%s' and '%s' cannot be used together",
 			getTypeModifierString(antiModifier),
@@ -159,14 +161,14 @@ TypeModifiers::checkAntiTypeModifiers(int modifierMask) {
 	if (!modifiers)
 		return true;
 
-	TypeModifier firstModifier = getFirstTypeModifier(modifiers);
+	TypeModifier firstModifier = getFirstFlag<TypeModifier>(modifiers);
 	modifiers &= ~firstModifier;
 	if (!modifiers)
 		return true;
 
 	// more than one
 
-	TypeModifier secondModifier = getFirstTypeModifier(modifiers);
+	TypeModifier secondModifier = getFirstFlag<TypeModifier>(modifiers);
 	err::setFormatStringError(
 		"type modifiers '%s' and '%s' cannot be used together",
 		getTypeModifierString(firstModifier),
@@ -199,30 +201,31 @@ TypeSpecifier::setType(Type* type) {
 const char*
 getPostDeclaratorModifierString(PostDeclaratorModifier modifier) {
 	static const char* stringTable[] = {
-		"const",    // EPostDeclaratorModifier_Const  = 0x01,
+		"const",    // PostDeclaratorModifier_Const  = 0x01,
 	};
 
-	size_t i  = sl::getLoBitIdx32(modifier);
+	size_t i = sl::getLoBitIdx8((uint8_t)modifier);
 	return i < countof(stringTable) ?
 		stringTable[i] :
 		"undefined-post-declarator-modifier";
 }
 
-sl::String
+sl::StringRef
 getPostDeclaratorModifierString(uint_t modifiers) {
 	if (!modifiers)
 		return sl::String();
 
-	PostDeclaratorModifier modifier = getFirstPostDeclaratorModifier(modifiers);
-	sl::String string = getPostDeclaratorModifierString(modifier);
+	PostDeclaratorModifier modifier = getFirstFlag<PostDeclaratorModifier>(modifiers);
+	sl::StringRef string0 = getPostDeclaratorModifierString(modifier);
 	modifiers &= ~modifier;
+	if (!modifiers)
+		return string0;
 
+	sl::String string = string0;
 	while (modifiers) {
-		modifier = getFirstPostDeclaratorModifier(modifiers);
-
+		modifier = getFirstFlag<PostDeclaratorModifier>(modifiers);
 		string += ' ';
 		string += getPostDeclaratorModifierString(modifier);
-
 		modifiers &= ~modifier;
 	}
 

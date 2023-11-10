@@ -20,13 +20,13 @@ opaque class ListWidget: Widget {
 
 	size_t readonly m_itemCount;
 	char const* property m_itemText(size_t index);
-	variant property m_itemData(size_t index);
+	variant_t property m_itemData(size_t index);
 	char const* property m_itemToolTip(size_t index);
 	bool property m_isItemChecked(size_t index);
 
 	size_t bindable autoget property m_currentIndex;
 	char const* bindable const property m_currentText;
-	variant bindable property m_currentData;
+	variant_t bindable property m_currentData;
 
 	event m_onReturnPressed();
 	event m_onDoubleClicked();
@@ -41,14 +41,14 @@ opaque class ListWidget: Widget {
 
 	size_t addItem(
 		char const* text,
-		variant data = null
+		variant_t data = null
 	) {
 		return insertItem(-1, text, data);
 	}
 
 	size_t addItemSetCurrent(
 		char const* text,
-		variant data = null
+		variant_t data = null
 	) {
 		return insertItemSetCurrent(-1, text, data);
 	}
@@ -56,13 +56,13 @@ opaque class ListWidget: Widget {
 	size_t insertItem(
 		size_t index,
 		char const* text,
-		variant data = null
+		variant_t data = null
 	);
 
 	size_t insertItemSetCurrent(
 		size_t index,
 		char const* text,
-		variant data = null
+		variant_t data = null
 	) {
 		return m_currentIndex = insertItem(index, text, data);
 	}
@@ -76,7 +76,7 @@ opaque class ListWidget: Widget {
 
 	void clear();
 
-	size_t findData(variant data);
+	size_t findData(variant_t data);
 }
 
 //..............................................................................

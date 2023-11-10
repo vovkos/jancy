@@ -47,9 +47,11 @@ named_type_specifier
 
 named_type_specifier_sync
 	:	TokenKind_Enum
+	|	TokenKind_BitFlagEnum
 	|	TokenKind_Struct
 	|	TokenKind_Union
 	|	TokenKind_Class
+	|	TokenKind_OpaqueClass
 	|	TokenKind_DynamicLib
 	;
 
@@ -67,44 +69,36 @@ named_type_specifier_save_type
 
 struct {
 	EnumType* m_type;
-	uint_t m_flags;
+	lex::LineCol m_pos;
 }
 enum_specifier
 	enter {
 		$.m_type = NULL;
-		$.m_flags = 0;
+		$.m_pos = m_tokenCursor->m_pos;
 	}
 	leave {
 		if ($.m_type && $.m_type->getFlags() & EnumTypeFlag_Exposed)
 			return m_module->m_namespaceMgr.getCurrentNamespace()->exposeEnumConsts($.m_type);
 	}
-	:	enum_modifier<&$.m_flags>*
-		TokenKind_Enum $e
+	:	(TokenKind_Enum | TokenKind_BitFlagEnum $b)
 		TokenKind_Identifier $n?
 		(':' type_name $t)?
 			{
+				uint_t flags = m_pragmaSettings.m_enumFlags;
+				if (&$b)
+					flags |= EnumTypeFlag_BitFlag;
+
 				$.m_type = createEnumType(
-					&$n ? $n.m_pos : $e.m_pos,
+					&$n ? $n.m_pos : $.m_pos,
 					&$n ? $n.m_data.m_string : sl::String(),
 					&$t ? $t.m_type : NULL,
-					$.m_flags | m_pragmaSettings.m_enumFlags
+					flags
 				);
 
 				if (!$.m_type)
 					return false;
 			}
 		enum_block<$.m_type>
-	;
-
-enum_modifier<uint_t* $flags>
-	:	TokenKind_Exposed
-			{
-				return addEnumFlag($flags, EnumTypeFlag_Exposed);
-			}
-	|	TokenKind_BitFlag
-			{
-				return addEnumFlag($flags, EnumTypeFlag_BitFlag);
-			}
 	;
 
 enum_block<EnumType* $type>
@@ -170,7 +164,7 @@ struct_specifier
 					&$b ? &$b.m_typeList : NULL,
 					m_pragmaSettings.m_fieldAlignment,
 					&$d ? TypeFlag_Dynamic : 0
-					);
+				);
 
 				if (!$.m_type)
 					return false;
@@ -202,7 +196,7 @@ union_specifier
 					&$n ? $n.m_data.m_string : sl::String(),
 					m_pragmaSettings.m_fieldAlignment,
 					&$d ? TypeFlag_Dynamic : 0
-					);
+				);
 
 				if (!$.m_type)
 					return false;
@@ -217,7 +211,7 @@ union_specifier
 // conflict with type_specifier:TokenKind_Class
 
 class_specifier_rslv
-	:	TokenKind_Opaque? TokenKind_Class TokenKind_Identifier
+	:	(TokenKind_Class | TokenKind_OpaqueClass) TokenKind_Identifier
 	;
 
 struct {
@@ -225,18 +219,17 @@ struct {
 }
 resolver(class_specifier_rslv)
 class_specifier
-	:	TokenKind_Opaque $o?
-		TokenKind_Class $c
+	:	(TokenKind_Class | TokenKind_OpaqueClass $o)
 		TokenKind_Identifier $n
 		(':' type_name_list $b)?
 			{
 				$.m_type = createClassType(
-					&$n ? $n.m_pos : $c.m_pos,
+					$n.m_pos,
 					$n.m_data.m_string,
 					&$b ? &$b.m_typeList : NULL,
 					m_pragmaSettings.m_fieldAlignment,
 					&$o ? ClassTypeFlag_Opaque : 0
-					);
+				);
 
 				if (!$.m_type)
 					return false;

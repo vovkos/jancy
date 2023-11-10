@@ -49,6 +49,11 @@ enum jnc_FunctionTypeFlag {
 	jnc_FunctionTypeFlag_Async          = 0x200000,
 	jnc_FunctionTypeFlag_AsyncErrorCode = 0x400000,
 	jnc_FunctionTypeFlag_IntExtArgs     = 0x800000,
+	jnc_FunctionTypeFlag__User =
+		jnc_FunctionTypeFlag_ErrorCode |
+		jnc_FunctionTypeFlag_Unsafe |
+		jnc_FunctionTypeFlag_Async |
+		jnc_FunctionTypeFlag_AsyncErrorCode,
 };
 
 typedef enum jnc_FunctionTypeFlag jnc_FunctionTypeFlag;
@@ -256,7 +261,8 @@ const FunctionTypeFlag
 	FunctionTypeFlag_Unsafe         = jnc_FunctionTypeFlag_Unsafe,
 	FunctionTypeFlag_Async          = jnc_FunctionTypeFlag_Async,
 	FunctionTypeFlag_AsyncErrorCode = jnc_FunctionTypeFlag_AsyncErrorCode,
-	FunctionTypeFlag_IntExtArgs     = jnc_FunctionTypeFlag_IntExtArgs;
+	FunctionTypeFlag_IntExtArgs     = jnc_FunctionTypeFlag_IntExtArgs,
+	FunctionTypeFlag__User          = jnc_FunctionTypeFlag__User;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

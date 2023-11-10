@@ -19,14 +19,13 @@ namespace ct {
 //..............................................................................
 
 bool
-UnOp_PreInc::op(
+UnOp_Inc::op(
 	const Value& opValue,
 	Value* resultValue
 ) {
 	Value oneValue;
 	oneValue.setConstInt32(1, m_module);
-	BinOpKind binOpKind = m_opKind == UnOpKind_PreInc ? BinOpKind_AddAssign : BinOpKind_SubAssign;
-
+	BinOpKind binOpKind = m_opKind == UnOpKind_Inc ? BinOpKind_AddAssign : BinOpKind_SubAssign;
 	bool result = m_module->m_operatorMgr.binaryOperator(binOpKind, opValue, oneValue);
 	if (!result)
 		return false;
@@ -52,7 +51,6 @@ UnOp_PostInc::op(
 	Value oneValue;
 	oneValue.setConstInt32(1, m_module);
 	BinOpKind binOpKind = m_opKind == UnOpKind_PostInc ? BinOpKind_AddAssign : BinOpKind_SubAssign;
-
 	result = m_module->m_operatorMgr.binaryOperator(binOpKind, opValue, oneValue);
 	if (!result)
 		return false;

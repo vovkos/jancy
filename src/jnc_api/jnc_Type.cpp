@@ -27,7 +27,11 @@ uint_t
 jnc_getTypeKindFlags(jnc_TypeKind typeKind) {
 	static uint_t flagTable[jnc_TypeKind__Count] = {
 		0,                              // jnc_TypeKind_Void
-		jnc_TypeKindFlag_Nullable,      // jnc_TypeKind_Variant
+		jnc_TypeKindFlag_Nullable |
+		jnc_TypeKindFlag_ErrorCode,     // jnc_TypeKind_Variant
+
+		jnc_TypeKindFlag_Nullable |
+		jnc_TypeKindFlag_ErrorCode,     // jnc_TypeKind_String
 
 		jnc_TypeKindFlag_Integer |      // jnc_TypeKind_Bool
 		jnc_TypeKindFlag_Numeric |
@@ -301,21 +305,21 @@ JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
 jnc_Type_getTypeString(jnc_Type* type) {
-	return type->getTypeString();
+	return type->getTypeString().sz();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
 jnc_Type_getTypeStringPrefix(jnc_Type* type) {
-	return type->getTypeStringPrefix();
+	return type->getTypeStringPrefix().sz();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
 jnc_Type_getTypeStringSuffix(jnc_Type* type) {
-	return type->getTypeStringSuffix();
+	return type->getTypeStringSuffix().sz();
 }
 
 JNC_EXTERN_C

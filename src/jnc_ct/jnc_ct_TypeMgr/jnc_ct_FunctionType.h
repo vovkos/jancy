@@ -47,7 +47,7 @@ protected:
 	Type* m_asyncReturnType; // until we have generics (e.g. Promise<T>)
 	sl::Array<FunctionArg*> m_argArray;
 	sl::Array<uint_t> m_argFlagArray; // args can be shared between func types
-	sl::String m_argSignature;
+	sl::StringRef m_argSignature;
 	FunctionType* m_shortType;
 	FunctionType* m_stdObjectMemberMethodType;
 	FunctionPtrTypeTuple* m_functionPtrTypeTuple;
@@ -81,10 +81,10 @@ public:
 		return m_argFlagArray;
 	}
 
-	const sl::String&
+	const sl::StringRef&
 	getArgSignature();
 
-	sl::String
+	sl::StringRef
 	getTypeModifierString();
 
 	bool
@@ -138,8 +138,10 @@ public:
 	getMulticastType();
 
 	static
-	sl::String
+	void
 	createSignature(
+		sl::String* signature,
+		sl::StringRef* argSignature,
 		CallConv* callConv,
 		Type* returnType,
 		Type* const* argTypeArray,
@@ -148,8 +150,10 @@ public:
 	);
 
 	static
-	sl::String
+	void
 	createSignature(
+		sl::String* signature,
+		sl::StringRef* argSignature,
 		CallConv* callConv,
 		Type* returnType,
 		FunctionArg* const* argArray,
@@ -158,32 +162,37 @@ public:
 	);
 
 	static
-	sl::String
-	createFlagSignature(uint_t flags);
+	void
+	appendFlagSignature(
+		sl::String* string,
+		uint_t flags
+	);
 
 	static
-	sl::String
-	createArgSignature(
+	void
+	appendArgSignature(
+		sl::String* string,
 		Type* const* argTypeArray,
 		size_t argCount,
 		uint_t flags
 	);
 
 	static
-	sl::String
-	createArgSignature(
+	void
+	appendArgSignature(
+		sl::String* string,
 		FunctionArg* const* argArray,
 		size_t argCount,
 		uint_t flags
 	);
 
-	sl::String
-	createArgSignature() {
-		return createArgSignature(m_argArray, m_argArray.getCount(), m_flags);
+	void
+	appendArgSignature(sl::String* string) {
+		return appendArgSignature(string, m_argArray, m_argArray.getCount(), m_flags);
 	}
 
-	sl::String
-	getDoxyArgString();
+	void
+	appendDoxyArgString(sl::String* string);
 
 protected:
 	virtual
@@ -196,9 +205,7 @@ protected:
 
 	virtual
 	void
-	prepareSignature() {
-		m_signature = createSignature(m_callConv, m_returnType, m_argArray, m_argArray.getCount(), m_flags);
-	}
+	prepareSignature();
 
 	virtual
 	void
@@ -226,6 +233,19 @@ protected:
 		prepareSimpleTypeVariable(StdType_FunctionType);
 	}
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+const sl::StringRef&
+FunctionType::getArgSignature() {
+	if (m_argSignature.isEmpty()) {
+		ASSERT(m_signature.isEmpty());
+		prepareSignature();
+	}
+
+	return m_argSignature;
+}
 
 //..............................................................................
 

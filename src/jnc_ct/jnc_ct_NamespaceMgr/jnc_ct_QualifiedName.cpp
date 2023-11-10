@@ -51,7 +51,7 @@ QualifiedName::removeLastName() {
 	return name;
 }
 
-sl::String
+sl::StringRef
 QualifiedName::getFullName() const {
 	if (m_list.isEmpty())
 		return m_first;

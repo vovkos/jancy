@@ -88,7 +88,7 @@ public:
 		return !m_list.isEmpty() ? *m_list.getTail() : m_first;
 	}
 
-	sl::String
+	sl::StringRef
 	getFullName() const;
 
 	void

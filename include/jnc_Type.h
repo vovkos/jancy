@@ -51,6 +51,7 @@ enum jnc_TypeKind {
 
 	jnc_TypeKind_Void,                // v
 	jnc_TypeKind_Variant,             // z
+	jnc_TypeKind_String,              // s
 	jnc_TypeKind_Bool,                // b
 
 	// little-endian integers
@@ -212,6 +213,7 @@ enum jnc_PtrTypeFlag {
 	jnc_PtrTypeFlag_AutoGet    = 0x1000000, // data ptr only
 	jnc_PtrTypeFlag_DualTarget = 0x2000000, // data ptr only
 
+	jnc_PtrTypeFlag__All       = 0x3ff0000,
 	jnc_PtrTypeFlag__Dual =
 		jnc_PtrTypeFlag_ReadOnly |
 		jnc_PtrTypeFlag_CMut |
@@ -248,6 +250,7 @@ enum jnc_StdType {
 	jnc_StdType_FunctionPtrStruct,
 	jnc_StdType_PropertyPtrStruct = jnc_StdType_FunctionPtrStruct,
 	jnc_StdType_VariantStruct,
+	jnc_StdType_StringStruct,
 	jnc_StdType_GcShadowStackFrame,
 	jnc_StdType_SjljFrame,
 	jnc_StdType_ReactorBase,
@@ -571,6 +574,7 @@ typedef jnc_TypeKind TypeKind;
 const TypeKind
 	TypeKind_Void                = jnc_TypeKind_Void,
 	TypeKind_Variant             = jnc_TypeKind_Variant,
+	TypeKind_String              = jnc_TypeKind_String,
 	TypeKind_Bool                = jnc_TypeKind_Bool,
 	TypeKind_Int8                = jnc_TypeKind_Int8,
 	TypeKind_Int8_u              = jnc_TypeKind_Int8_u,
@@ -690,6 +694,7 @@ const PtrTypeFlag
 	PtrTypeFlag_AutoGet    = jnc_PtrTypeFlag_AutoGet,
 	PtrTypeFlag_DualTarget = jnc_PtrTypeFlag_DualTarget,
 
+	PtrTypeFlag__All       = jnc_PtrTypeFlag__All,
 	PtrTypeFlag__Dual      = jnc_PtrTypeFlag__Dual;
 
 //..............................................................................
@@ -721,6 +726,7 @@ const StdType
 	StdType_FunctionPtrStruct     = jnc_StdType_FunctionPtrStruct,
 	StdType_PropertyPtrStruct     = jnc_StdType_PropertyPtrStruct,
 	StdType_VariantStruct         = jnc_StdType_VariantStruct,
+	StdType_StringStruct          = jnc_StdType_StringStruct,
 	StdType_GcShadowStackFrame    = jnc_StdType_GcShadowStackFrame,
 	StdType_SjljFrame             = jnc_StdType_SjljFrame,
 	StdType_ReactorBase           = jnc_StdType_ReactorBase,

@@ -298,8 +298,7 @@ struct jnc_Variant {
 		return jnc_Variant_format_v(this, fmtSpecifier);
 	}
 
-	#ifdef _JNC_CORE
-
+#	ifdef _JNC_CORE
 	size_t
 	format(
 		sl::String* string,
@@ -307,8 +306,7 @@ struct jnc_Variant {
 	) {
 		return jnc_Variant_format(this, string, fmtSpecifier);
 	}
-
-	#endif
+#	endif
 #endif // __cplusplus
 };
 

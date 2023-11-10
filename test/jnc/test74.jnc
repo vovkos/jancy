@@ -12,7 +12,7 @@
 int main() {
 	printf("main ()\n");
 
-	variant v;
+	variant_t v;
 
 	v = false;
 	printf($"v = $v\n");

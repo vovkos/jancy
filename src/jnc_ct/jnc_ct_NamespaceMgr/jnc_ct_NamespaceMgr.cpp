@@ -117,6 +117,8 @@ NamespaceMgr::addStdItems() {
 	LazyImport* introImport = m_module->m_importMgr.createLazyImport(coreLib, "jnc_intro.jnc", g_jnc_introSrc);
 
 	bool result =
+		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_variant_t)) &&
+		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_string_t)) &&
 		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_uint_t)) &&
 		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_intptr_t)) &&
 		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_uintptr_t)) &&

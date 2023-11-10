@@ -314,7 +314,7 @@ public:
 	}
 
 	virtual
-	sl::String
+	sl::StringRef
 	getValueString(
 		const void* p,
 		const char* formatSpec

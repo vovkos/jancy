@@ -21,11 +21,11 @@ int main() {
 
 	int x = 10;
 
-	variant v1 = x;
-	variant v2 = 3.1415;
-	variant v3 = "abc";
-	variant v4 = (char const*) "def";
-	variant v5 = null;
+	variant_t v1 = x;
+	variant_t v2 = 3.1415;
+	variant_t v3 = "abc";
+	variant_t v4 = (char const*) "def";
+	variant_t v5 = null;
 
 	Point const* p = v5;
 

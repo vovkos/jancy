@@ -161,10 +161,6 @@ type_specifier
 			{
 				$.m_type = m_module->m_typeMgr.getPrimitiveType(TypeKind_Void);
 			}
-	|	TokenKind_Variant
-			{
-				$.m_type = m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant);
-			}
 	|	TokenKind_Class
 			{
 				$.m_type = m_module->m_typeMgr.getStdType(StdType_AbstractClass);
@@ -217,7 +213,6 @@ type_specifier
 
 type_specifier_sync
 	:	TokenKind_Void
-	|	TokenKind_Variant
 	|	TokenKind_Class
 	|	TokenKind_AnyData
 	|	TokenKind_Bool

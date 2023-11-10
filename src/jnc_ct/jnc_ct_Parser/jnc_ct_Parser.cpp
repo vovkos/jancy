@@ -937,18 +937,9 @@ Parser::declareTypedef(
 		return true;
 	}
 
-	sl::String qualifiedName = nspace->createQualifiedName(name);
-
-	ModuleItem* item;
-	ModuleItemDecl* decl;
-
-	Typedef* tdef = m_module->m_typeMgr.createTypedef(name, qualifiedName, type);
-	item = tdef;
-	decl = tdef;
-
-	assignDeclarationAttributes(item, decl, declarator);
-
-	return nspace->addItem(name, item);
+	Typedef* tdef = m_module->m_typeMgr.createTypedef(name, nspace->createQualifiedName(name), type);
+	assignDeclarationAttributes(tdef, tdef, declarator);
+	return nspace->addItem(name, tdef);
 }
 
 bool
@@ -981,10 +972,9 @@ Parser::declareAlias(
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	const sl::StringRef& name = declarator->getName().getShortName();
-	sl::String qualifiedName = nspace->createQualifiedName(name);
 	sl::List<Token>* initializer = &declarator->m_initializer;
 
-	Alias* alias = m_module->m_namespaceMgr.createAlias(name, qualifiedName, initializer);
+	Alias* alias = m_module->m_namespaceMgr.createAlias(name, nspace->createQualifiedName(name), initializer);
 	assignDeclarationAttributes(alias, alias, declarator);
 
 	if (nspace->getNamespaceKind() == NamespaceKind_Property) {
@@ -1283,8 +1273,7 @@ Parser::createProperty(Declarator* declarator) {
 	}
 
 	const sl::StringRef& name = declarator->getName().getShortName();
-	sl::String qualifiedName = nspace->createQualifiedName(name);
-	Property* prop = m_module->m_functionMgr.createProperty(name, qualifiedName);
+	Property* prop = m_module->m_functionMgr.createProperty(name, nspace->createQualifiedName(name));
 
 	assignDeclarationAttributes(prop, prop, declarator);
 
@@ -1498,7 +1487,6 @@ Parser::declareReactor(
 	}
 
 	const sl::StringRef& name = declarator->getName().getShortName();
-	sl::String qualifiedName = nspace->createQualifiedName(name);
 
 	if (declarator->isQualified()) {
 		Orphan* orphan = m_module->m_namespaceMgr.createOrphan(OrphanKind_Reactor, NULL);
@@ -1507,7 +1495,12 @@ Parser::declareReactor(
 		assignDeclarationAttributes(orphan, orphan, declarator);
 		nspace->addOrphan(orphan);
 	} else {
-		ReactorClassType* type = m_module->m_typeMgr.createReactorType(name, qualifiedName, (ClassType*)parentType);
+		ReactorClassType* type = m_module->m_typeMgr.createReactorType(
+			name,
+			nspace->createQualifiedName(name),
+			(ClassType*)parentType
+		);
+
 		assignDeclarationAttributes(type, type, declarator);
 		result = declareData(declarator, type, ptrTypeFlags);
 		if (!result)
@@ -1882,20 +1875,6 @@ Parser::createFormalArg(
 	return arg;
 }
 
-bool
-Parser::addEnumFlag(
-	uint_t* flags,
-	EnumTypeFlag flag
-) {
-	if (*flags & flag) {
-		err::setFormatStringError("modifier '%s' used more than once", getEnumTypeFlagString(flag));
-		return false;
-	}
-
-	*flags |= flag;
-	return true;
-}
-
 EnumType*
 Parser::createEnumType(
 	const lex::LineCol& pos,
@@ -1910,8 +1889,13 @@ Parser::createEnumType(
 		flags |= EnumTypeFlag_Exposed;
 		enumType = m_module->m_typeMgr.createUnnamedEnumType(baseType, flags);
 	} else {
-		sl::String qualifiedName = nspace->createQualifiedName(name);
-		enumType = m_module->m_typeMgr.createEnumType(name, qualifiedName, baseType, flags);
+		enumType = m_module->m_typeMgr.createEnumType(
+			name,
+			nspace->createQualifiedName(name),
+			baseType,
+			flags
+		);
+
 		if (!enumType)
 			return NULL;
 
@@ -1959,8 +1943,13 @@ Parser::createStructType(
 	if (name.isEmpty()) {
 		structType = m_module->m_typeMgr.createUnnamedStructType(fieldAlignment, flags);
 	} else {
-		sl::String qualifiedName = nspace->createQualifiedName(name);
-		structType = m_module->m_typeMgr.createStructType(name, qualifiedName, fieldAlignment, flags);
+		structType = m_module->m_typeMgr.createStructType(
+			name,
+			nspace->createQualifiedName(name),
+			fieldAlignment,
+			flags
+		);
+
 		if (!structType)
 			return NULL;
 	}
@@ -2004,8 +1993,13 @@ Parser::createUnionType(
 	if (name.isEmpty()) {
 		unionType = m_module->m_typeMgr.createUnnamedUnionType(fieldAlignment, flags);
 	} else {
-		sl::String qualifiedName = nspace->createQualifiedName(name);
-		unionType = m_module->m_typeMgr.createUnionType(name, qualifiedName, fieldAlignment, flags);
+		unionType = m_module->m_typeMgr.createUnionType(
+			name,
+			nspace->createQualifiedName(name),
+			fieldAlignment,
+			flags
+		);
+
 		if (!unionType)
 			return NULL;
 
@@ -2029,14 +2023,14 @@ Parser::createClassType(
 	bool result;
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	ClassType* classType;
-
-	if (name.isEmpty()) {
-		classType = m_module->m_typeMgr.createUnnamedClassType(fieldAlignment, flags);
-	} else {
-		sl::String qualifiedName = nspace->createQualifiedName(name);
-		classType = m_module->m_typeMgr.createClassType(name, qualifiedName, fieldAlignment, flags);
-	}
+	ClassType* classType = name.isEmpty() ?
+		m_module->m_typeMgr.createUnnamedClassType(fieldAlignment, flags) :
+		m_module->m_typeMgr.createClassType(
+			name,
+			nspace->createQualifiedName(name),
+			fieldAlignment,
+			flags
+		);
 
 	if (baseTypeList) {
 		sl::BoxIterator<Type*> baseType = baseTypeList->getHead();
@@ -2065,10 +2059,7 @@ Parser::createDynamicLibType(
 	bool result;
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-
-	sl::String qualifiedName = nspace->createQualifiedName(name);
-	DynamicLibClassType* classType = m_module->m_typeMgr.createClassType<DynamicLibClassType>(name, qualifiedName);
-
+	DynamicLibClassType* classType = m_module->m_typeMgr.createClassType<DynamicLibClassType>(name, nspace->createQualifiedName(name));
 	Type* baseType = m_module->m_typeMgr.getStdType(StdType_DynamicLib);
 
 	result =

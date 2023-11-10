@@ -55,20 +55,20 @@ PropertyPtrType::prepareTypeString() {
 	TypeStringTuple* tuple = getTypeStringTuple();
 	Type* returnType = m_targetType->getReturnType();
 
-	tuple->m_typeStringPrefix = returnType->getTypeStringPrefix();
-
-	sl::String ptrTypeFlagString = getPtrTypeFlagString(m_flags);
+	sl::String string = returnType->getTypeStringPrefix();
+	sl::StringRef ptrTypeFlagString = getPtrTypeFlagString(m_flags);
 	if (!ptrTypeFlagString.isEmpty()) {
-		tuple->m_typeStringPrefix += ' ';
-		tuple->m_typeStringPrefix += ptrTypeFlagString;
+		string += ' ';
+		string += ptrTypeFlagString;
 	}
 
 	if (m_ptrTypeKind != PropertyPtrTypeKind_Normal) {
-		tuple->m_typeStringPrefix += ' ';
-		tuple->m_typeStringPrefix += getPropertyPtrTypeKindString(m_ptrTypeKind);
+		string += ' ';
+		string += getPropertyPtrTypeKindString(m_ptrTypeKind);
 	}
 
-	tuple->m_typeStringPrefix += m_typeKind == TypeKind_PropertyRef ? " property&" : " property*";
+	string += m_typeKind == TypeKind_PropertyRef ? " property&" : " property*";
+	tuple->m_typeStringPrefix = string;
 
 	if (m_targetType->isIndexed())
 		tuple->m_typeStringSuffix += m_targetType->getGetterType()->getTypeStringSuffix();
@@ -83,7 +83,7 @@ PropertyPtrType::prepareDoxyLinkedText() {
 
 	tuple->m_doxyLinkedTextPrefix = returnType->getDoxyLinkedTextPrefix();
 
-	sl::String ptrTypeFlagString = getPtrTypeFlagString(m_flags);
+	sl::StringRef ptrTypeFlagString = getPtrTypeFlagString(m_flags);
 	if (!ptrTypeFlagString.isEmpty()) {
 		tuple->m_doxyLinkedTextPrefix += ' ';
 		tuple->m_doxyLinkedTextPrefix += ptrTypeFlagString;
@@ -107,7 +107,7 @@ PropertyPtrType::prepareDoxyTypeString() {
 	Type::prepareDoxyTypeString();
 
 	if (m_targetType->isIndexed())
-		getTypeStringTuple()->m_doxyTypeString += m_targetType->getGetterType()->getDoxyArgString();
+		m_targetType->getGetterType()->appendDoxyArgString(&getTypeStringTuple()->m_doxyTypeString);
 }
 
 void

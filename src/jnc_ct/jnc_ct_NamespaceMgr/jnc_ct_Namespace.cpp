@@ -66,7 +66,7 @@ Namespace::getParentItem() {
 	}
 }
 
-sl::String
+sl::StringRef
 Namespace::createQualifiedName(const sl::StringRef& name) {
 	sl::String qualifiedName = getQualifiedName();
 	if (qualifiedName.isEmpty())
@@ -407,9 +407,7 @@ Namespace::createConst(
 	ASSERT(value.getType());
 
 	Module* module = value.getType()->getModule();
-	sl::String qualifiedName = createQualifiedName(name);
-
-	Const* cnst = module->m_constMgr.createConst(name, qualifiedName, value);
+	Const* cnst = module->m_constMgr.createConst(name, createQualifiedName(name), value);
 	bool result = addItem(cnst);
 	if (!result)
 		return NULL;

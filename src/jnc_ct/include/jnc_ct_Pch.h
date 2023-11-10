@@ -331,4 +331,10 @@ operator >> (
 
 #endif
 
+template <typename T>
+T
+getFirstFlag(uint_t flags) {
+	return (T)sl::getLoBit(flags);
+}
+
 //..............................................................................

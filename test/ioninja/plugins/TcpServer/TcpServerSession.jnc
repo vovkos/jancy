@@ -120,8 +120,8 @@ public:
 
 	override bool errorcode dispatch(
 		uint_t code,
-		variant in,
-		variant* out
+		variant_t in,
+		variant_t* out
 	);
 
 protected:
@@ -397,8 +397,8 @@ size_t errorcode TcpServerSession.transmit(
 
 bool errorcode TcpServerSession.dispatch(
 	uint_t code,
-	variant in,
-	variant* out
+	variant_t in,
+	variant_t* out
 ) {
 	switch (code) {
 	case TcpServerDispatchCode.GetLocalPort:

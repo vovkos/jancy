@@ -44,23 +44,33 @@ ClassPtrType::createSignature(
 	return signature;
 }
 
-sl::String
-ClassPtrType::getPointerStringSuffix() {
-	sl::String string;
-
-	sl::String ptrTypeFlagString = getPtrTypeFlagString(m_flags);
+void
+ClassPtrType::appendPointerStringSuffix(sl::String* string) {
+	sl::StringRef ptrTypeFlagString = getPtrTypeFlagString(m_flags);
 	if (!ptrTypeFlagString.isEmpty()) {
-		string += ' ';
-		string += ptrTypeFlagString;
+		*string += ' ';
+		*string += ptrTypeFlagString;
 	}
 
 	if (m_ptrTypeKind != ClassPtrTypeKind_Normal) {
-		string += ' ';
-		string += getClassPtrTypeKindString(m_ptrTypeKind);
+		*string += ' ';
+		*string += getClassPtrTypeKindString(m_ptrTypeKind);
 	}
 
-	string += m_typeKind == TypeKind_ClassRef ? "&" : "*";
-	return string;
+	*string += m_typeKind == TypeKind_ClassRef ? "&" : "*";
+}
+
+void
+ClassPtrType::prepareTypeString() {
+	sl::String string = m_targetType->getTypeString();
+	appendPointerStringSuffix(&string);
+	getTypeStringTuple()->m_typeStringPrefix = string;
+}
+
+void
+ClassPtrType::prepareDoxyLinkedText() {
+	getTypeStringTuple()->m_doxyLinkedTextPrefix = m_targetType->getDoxyLinkedTextPrefix();
+	appendPointerStringSuffix(&getTypeStringTuple()->m_doxyLinkedTextPrefix);
 }
 
 void

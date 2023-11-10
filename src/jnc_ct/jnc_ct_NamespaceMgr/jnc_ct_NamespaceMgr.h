@@ -169,11 +169,6 @@ public:
 	AccessKind
 	getAccessKind(Namespace* nspace);
 
-	sl::String
-	createQualifiedName(const sl::StringRef& name) {
-		return m_currentNamespace->createQualifiedName(name);
-	}
-
 	template <typename T>
 	T*
 	createGlobalNamespace(

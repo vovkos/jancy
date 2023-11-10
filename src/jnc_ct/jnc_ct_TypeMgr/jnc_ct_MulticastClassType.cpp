@@ -32,23 +32,21 @@ MulticastClassType::MulticastClassType() {
 void
 MulticastClassType::prepareTypeString() {
 	TypeStringTuple* tuple = getTypeStringTuple();
-	tuple->m_typeStringPrefix = m_targetType->getTypeModifierString();
-	tuple->m_typeStringPrefix += "multicast";
+	tuple->m_typeStringPrefix = m_targetType->getTypeModifierString() + " multicast";
 	tuple->m_typeStringSuffix = m_targetType->getTargetType()->getTypeStringSuffix();
 }
 
 void
 MulticastClassType::prepareDoxyLinkedText() {
 	TypeStringTuple* tuple = getTypeStringTuple();
-	tuple->m_doxyLinkedTextPrefix = m_targetType->getTypeModifierString();
-	tuple->m_doxyLinkedTextPrefix += "multicast";
+	tuple->m_doxyLinkedTextPrefix = m_targetType->getTypeModifierString() + " multicast";
 	tuple->m_doxyLinkedTextSuffix = m_targetType->getTargetType()->getDoxyLinkedTextSuffix();
 }
 
 void
 MulticastClassType::prepareDoxyTypeString() {
 	Type::prepareDoxyTypeString();
-	getTypeStringTuple()->m_doxyTypeString += m_targetType->getTargetType()->getDoxyArgString();
+	m_targetType->getTargetType()->appendDoxyArgString(&getTypeStringTuple()->m_doxyTypeString);
 }
 
 bool

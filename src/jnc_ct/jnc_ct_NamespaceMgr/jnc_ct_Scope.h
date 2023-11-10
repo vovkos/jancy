@@ -131,7 +131,7 @@ public:
 	}
 
 	virtual
-	sl::String
+	sl::StringRef
 	createQualifiedName(const sl::StringRef& name) {
 		return name;
 	}

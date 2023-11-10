@@ -104,7 +104,7 @@ void representStruct(
 			else if (field.m_type.m_typeKind != jnc.TypeKind.BitField)
 				valueString = displayType.getValueString(p + field.m_offset, formatSpec);
 			else {
-				variant value = (dynamic (jnc.BitFieldType*)field.m_type).extract(p + field.m_offset);
+				variant_t value = (dynamic (jnc.BitFieldType*)field.m_type).extract(p + field.m_offset);
 				valueString = displayType.getValueString(value, formatSpec);
 			}
 		}

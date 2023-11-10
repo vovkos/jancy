@@ -1,8 +1,8 @@
-// potential crash due to missing gc on value-lifting pre storing in variant
+// potential crash due to missing gc on value-lifting pre storing in variant_t
 
 import "std_Array.jnc"
 
-struct S { // not going to fit in variant in-place
+struct S { // not going to fit in variant_t in-place
 	int64_t m_a;
 	int64_t m_b;
 	int64_t m_c;

@@ -29,7 +29,7 @@ jnc_getPropertyTypeFlagString(jnc_PropertyTypeFlag flag) {
 		"bindable",  // PropertyTypeFlag_Bindable = 0x020000,
 	};
 
-	size_t i = sl::getLoBitIdx32(flag >> 16);
+	size_t i = sl::getLoBitIdx8((uint8_t)(flag >> 16));
 	return i < countof(stringTable) ?
 		stringTable[i] :
 		"undefined-property-type-flag";

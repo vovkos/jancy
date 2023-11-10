@@ -19,18 +19,18 @@ namespace std {
 //! \import std_Array.jnc
 
 class Array {
-	variant cmut* readonly m_p;
+	variant_t cmut* readonly m_p;
 	size_t readonly m_count;
 	size_t readonly m_maxCount;
 
-	variant get(size_t index) const {
+	variant_t get(size_t index) const {
 		boundsCheck(index);
 		return m_p[index];
 	}
 
 	void set(
 		size_t index,
-		variant e
+		variant_t e
 	) {
 		boundsCheck(index);
 		m_p[index] = e;
@@ -48,20 +48,20 @@ class Array {
 	bool errorcode reserve(size_t count);
 
 	size_t errorcode copy(
-		variant const* p,
+		variant_t const* p,
 		size_t count
 	);
 
-	size_t errorcode copy(variant e) {
+	size_t errorcode copy(variant_t e) {
 		return copy(&e, 1);
 	}
 
-	size_t errorcode append(variant e) {
+	size_t errorcode append(variant_t e) {
 		return insert(-1, &e, 1);
 	}
 
 	size_t errorcode append(
-		variant const* p,
+		variant_t const* p,
 		size_t count
 	) {
 		return insert(-1, p, count);
@@ -69,13 +69,13 @@ class Array {
 
 	size_t errorcode insert(
 		size_t index,
-		variant const* p,
+		variant_t const* p,
 		size_t count
 	);
 
 	size_t errorcode insert(
 		size_t index,
-		variant e
+		variant_t e
 	) {
 		return insert(index, &e, 1);
 	}

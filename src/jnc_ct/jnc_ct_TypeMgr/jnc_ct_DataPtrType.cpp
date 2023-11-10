@@ -66,38 +66,37 @@ DataPtrType::calcLayout() {
 void
 DataPtrType::prepareTypeString() {
 	TypeStringTuple* tuple = getTypeStringTuple();
-	tuple->m_typeStringPrefix = m_targetType->getTypeStringPrefix() + getPointerStringSuffix();
+	sl::String string = m_targetType->getTypeString();
+	appendPointerStringSuffix(&string);
+	tuple->m_typeStringPrefix = string;
 	tuple->m_typeStringSuffix = m_targetType->getTypeStringSuffix();
 }
 
 void
 DataPtrType::prepareDoxyLinkedText() {
 	TypeStringTuple* tuple = getTypeStringTuple();
-	tuple->m_doxyLinkedTextPrefix = m_targetType->getDoxyLinkedTextPrefix() + getPointerStringSuffix();
+	tuple->m_doxyLinkedTextPrefix = m_targetType->getDoxyLinkedTextPrefix();
+	appendPointerStringSuffix(&tuple->m_doxyLinkedTextPrefix);
 	tuple->m_doxyLinkedTextSuffix = m_targetType->getDoxyLinkedTextSuffix();
 }
 
-sl::String
-DataPtrType::getPointerStringSuffix() {
-	sl::String string;
-
-	sl::String ptrTypeFlagString = getPtrTypeFlagString(m_flags);
+void
+DataPtrType::appendPointerStringSuffix(sl::String* string) {
+	sl::StringRef ptrTypeFlagString = getPtrTypeFlagString(m_flags);
 	if (!ptrTypeFlagString.isEmpty()) {
-		string += ' ';
-		string += ptrTypeFlagString;
+		*string += ' ';
+		*string += ptrTypeFlagString;
 	}
 
 	if (m_ptrTypeKind != DataPtrTypeKind_Normal) {
-		string += ' ';
-		string += getDataPtrTypeKindString(m_ptrTypeKind);
+		*string += ' ';
+		*string += getDataPtrTypeKindString(m_ptrTypeKind);
 	}
 
 	if (m_targetType->getTypeKind() == TypeKind_Array)
-		string += " array";
+		*string += " array";
 
-	string += m_typeKind == TypeKind_DataRef ? "&" : "*";
-
-	return string;
+	*string += m_typeKind == TypeKind_DataRef ? "&" : "*";
 }
 
 void

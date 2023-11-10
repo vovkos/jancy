@@ -1,8 +1,8 @@
 import "std_RbTree.jnc"
 
 int cmpVariant(
-	variant v1,
-	variant v2
+	variant_t v1,
+	variant_t v2
 ) {
 	return v1 < v2 ? -1 : v1 > v2 ? 1 : 0;
 }

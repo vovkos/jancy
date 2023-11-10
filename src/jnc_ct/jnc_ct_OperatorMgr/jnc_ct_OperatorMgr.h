@@ -94,8 +94,8 @@ protected:
 
 	// increment operators
 
-	UnOp_PreInc m_unOp_PreInc;
-	UnOp_PreInc m_unOp_PreDec;
+	UnOp_Inc m_unOp_Inc;
+	UnOp_Inc m_unOp_Dec;
 	UnOp_PostInc m_unOp_PostInc;
 	UnOp_PostInc m_unOp_PostDec;
 

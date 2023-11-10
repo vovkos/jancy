@@ -236,9 +236,7 @@ public:
 	parse(
 		const sl::StringRef& fileName,
 		const sl::StringRef& source
-	) {
-		return parseImpl(NULL, fileName, source);
-	}
+	);
 
 	bool
 	parseFile(const sl::StringRef& fileName);
@@ -351,8 +349,11 @@ MemberBlock::createMethod(
 	const sl::StringRef& name,
 	FunctionType* shortType
 ) {
-	sl::String qualifedName = getParentNamespaceImpl()->createQualifiedName(name);
-	T* function = m_parent->getModule()->m_functionMgr.createFunction<T>(name, qualifedName, shortType);
+	T* function = m_parent->getModule()->m_functionMgr.createFunction<T>(
+		name,
+		getParentNamespaceImpl()->createQualifiedName(name),
+		shortType
+	);
 	return addMethod(function) ? function : NULL;
 }
 

@@ -311,6 +311,7 @@ TypeMgr::getBitFieldType(
 
 	BitFieldType* type = new BitFieldType;
 	type->m_module = m_module;
+	type->m_signature = signature;
 	type->m_baseType = baseType;
 	type->m_bitOffset = bitOffset;
 	type->m_bitCount = bitCount;
@@ -368,6 +369,7 @@ TypeMgr::getArrayType(
 
 	ArrayType* type = new ArrayType;
 	type->m_module = m_module;
+	type->m_signature = signature;
 	type->m_elementType = elementType;
 	type->m_elementCount = elementCount;
 	m_typeList.insertTail(type);
@@ -449,6 +451,9 @@ TypeMgr::createStructType(
 	size_t fieldAlignment,
 	uint_t flags
 ) {
+	if (name == "Point")
+		printf("Point: %p\n", name.cp());
+
 	StructType* type = new StructType;
 	type->m_name = name;
 	type->m_qualifiedName = qualifiedName;
@@ -652,7 +657,11 @@ TypeMgr::getFunctionType(
 ) {
 	ASSERT(callConv && returnType);
 
-	sl::String signature = FunctionType::createSignature(
+	sl::String signature;
+	sl::StringRef argSignature;
+	FunctionType::createSignature(
+		&signature,
+		&argSignature,
 		callConv,
 		returnType,
 		argArray,
@@ -666,6 +675,8 @@ TypeMgr::getFunctionType(
 
 	FunctionType* type = new FunctionType;
 	type->m_module = m_module;
+	type->m_signature = signature;
+	type->m_argSignature = argSignature;
 	type->m_callConv = callConv;
 	type->m_returnType = returnType;
 	type->m_flags = flags;
@@ -694,7 +705,11 @@ TypeMgr::getFunctionType(
 	for (size_t i = 0; i < argCount; i++)
 		argArray[i] = getSimpleFunctionArg(argTypeArray[i]);
 
-	sl::String signature = FunctionType::createSignature(
+	sl::String signature;
+	sl::StringRef argSignature;
+	FunctionType::createSignature(
+		&signature,
+		&argSignature,
 		callConv,
 		returnType,
 		argTypeArray,
@@ -708,6 +723,8 @@ TypeMgr::getFunctionType(
 
 	FunctionType* type = new FunctionType;
 	type->m_module = m_module;
+	type->m_signature = signature;
+	type->m_argSignature = argSignature;
 	type->m_callConv = callConv;
 	type->m_returnType = returnType;
 	type->m_flags = flags;
@@ -825,6 +842,7 @@ TypeMgr::getPropertyType(
 
 	PropertyType* type = new PropertyType;
 	type->m_module = m_module;
+	type->m_signature = signature;
 	type->m_getterType = getterType;
 	type->m_setterType = setterType;
 	type->m_flags = flags;
@@ -1548,7 +1566,6 @@ TypeMgr::getNamedImportType(
 	ASSERT(anchorNamespace->getNamespaceKind() != NamespaceKind_Scope);
 
 	sl::String signature = NamedImportType::createSignature(name, anchorNamespace, anchorName);
-
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
 	if (it->m_value) {
 		NamedImportType* type = (NamedImportType*)it->m_value;
@@ -1562,14 +1579,9 @@ TypeMgr::getNamedImportType(
 	type->m_name = name;
 	type->m_anchorNamespace = anchorNamespace;
 	type->m_anchorName = anchorName;
-
-	if (anchorName.isEmpty()) {
-		type->m_qualifiedName = anchorNamespace->createQualifiedName(name);
-	} else {
-		type->m_qualifiedName = anchorNamespace->createQualifiedName(anchorName);
-		type->m_qualifiedName += '.';
-		type->m_qualifiedName += name.getFullName();
-	}
+	type->m_qualifiedName = anchorName.isEmpty() ?
+		anchorNamespace->createQualifiedName(name) :
+		anchorNamespace->createQualifiedName(anchorName) + '.' + name.getFullName();
 
 	m_typeList.insertTail(type);
 	it->m_value = type;
@@ -1765,6 +1777,8 @@ TypeMgr::setupAllPrimitiveTypes() {
 
 void
 TypeMgr::setupStdTypedefArray() {
+	setupStdTypedef(StdTypedef_variant_t, TypeKind_Variant,  "variant_t");
+	setupStdTypedef(StdTypedef_string_t,  TypeKind_String,   "string_t");
 	setupStdTypedef(StdTypedef_uint_t,    TypeKind_Int_u,    "uint_t");
 	setupStdTypedef(StdTypedef_intptr_t,  TypeKind_IntPtr,   "intptr_t");
 	setupStdTypedef(StdTypedef_uintptr_t, TypeKind_IntPtr_u, "uintptr_t");

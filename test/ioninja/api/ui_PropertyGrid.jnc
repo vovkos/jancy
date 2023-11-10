@@ -73,8 +73,8 @@ typedef ListItem EnumPropertyOption;
 
 opaque class EnumProperty: Property {
 	property m_value {
-		variant autoget m_value;
-		void set(variant value);
+		variant_t autoget m_value;
+		void set(variant_t value);
 		bindable alias m_onPropChanged = m_onChanged;
 	}
 
@@ -101,7 +101,7 @@ opaque class EnumProperty: Property {
 
 	size_t addOption(
 		char const* text,
-		variant value = null
+		variant_t value = null
 	);
 
 	void clear();

@@ -99,10 +99,10 @@ public:
 	}
 
 	virtual
-	sl::String
+	sl::StringRef
 	createQualifiedName(const sl::StringRef& name);
 
-	sl::String
+	sl::StringRef
 	createQualifiedName(const QualifiedName& name) {
 		return createQualifiedName(name.getFullName());
 	}

@@ -149,23 +149,11 @@ enum TypeModifierMaskKind {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_INLINE
-TypeModifier
-getFirstTypeModifier(uint_t modifiers) {
-	return (TypeModifier)(1 << sl::getLoBitIdx(modifiers));
-}
-
 const char*
 getTypeModifierString(TypeModifier modifier);
 
-sl::String
+sl::StringRef
 getTypeModifierString(uint_t modifiers);
-
-JNC_INLINE
-const char*
-getFirstTypeModifierString(uint_t modifiers) {
-	return getTypeModifierString(getFirstTypeModifier(modifiers));
-}
 
 //..............................................................................
 
@@ -337,23 +325,11 @@ enum PostDeclaratorModifier {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_INLINE
-PostDeclaratorModifier
-getFirstPostDeclaratorModifier(uint_t modifiers) {
-	return (PostDeclaratorModifier)(1 << sl::getLoBitIdx(modifiers));
-}
-
 const char*
 getPostDeclaratorModifierString(PostDeclaratorModifier modifier);
 
-sl::String
+sl::StringRef
 getPostDeclaratorModifierString(uint_t modifiers);
-
-JNC_INLINE
-const char*
-getFirstPostDeclaratorModifierString(uint_t modifiers) {
-	return getPostDeclaratorModifierString(getFirstPostDeclaratorModifier(modifiers));
-}
 
 //..............................................................................
 

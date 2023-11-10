@@ -9,7 +9,7 @@ class D {}
 int main() {
 	C c;
 
-	variant v = c;
+	variant_t v = c;
 
 	A* a = v;
 	B* b = v;

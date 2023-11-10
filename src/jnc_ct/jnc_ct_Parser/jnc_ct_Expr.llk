@@ -281,7 +281,7 @@ conditional_expr<Value* $value>
 						$.m_thenBlock,
 						$.m_phiBlock,
 						$value
-						);
+					);
 				}
 		)?
 	;
@@ -639,11 +639,11 @@ unary_operator_expr<Value* $value>
 			}
 	|	TokenKind_Inc unary_expr<$value>
 			{
-				return m_module->m_operatorMgr.unaryOperator(UnOpKind_PreInc, $value);
+				return m_module->m_operatorMgr.unaryOperator(UnOpKind_Inc, $value);
 			}
 	|	TokenKind_Dec unary_expr<$value>
 			{
-				return m_module->m_operatorMgr.unaryOperator(UnOpKind_PreDec, $value);
+				return m_module->m_operatorMgr.unaryOperator(UnOpKind_Dec, $value);
 			}
 	|	try_operator<$value>
 	|	cast_operator<$value>
@@ -926,7 +926,7 @@ literal_atom<Literal* $literal>
 					$2.m_value,
 					$1.m_data.m_integer != 0,
 					fmtSpecifier
-					);
+				);
 			}
 	|	TokenKind_FmtLiteral TokenKind_FmtIndex
 			{
@@ -934,7 +934,7 @@ literal_atom<Literal* $literal>
 					$literal,
 					$1.m_data.m_string,
 					$2.m_data.m_integer
-					);
+				);
 			}
 	|	TokenKind_FmtLiteral TokenKind_FmtSpecifier
 			{
@@ -942,7 +942,7 @@ literal_atom<Literal* $literal>
 					$literal,
 					$1.m_data.m_string,
 					$2.m_data.m_string
-					);
+				);
 			}
 	;
 

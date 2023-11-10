@@ -21,7 +21,7 @@ opaque class Attribute:
 	ModuleItemDecl,
 	ModuleItemInitializer {
 	bool const property m_hasValue;
-	variant const property m_value;
+	variant_t const property m_value;
 
 	construct(intptr p);
 }

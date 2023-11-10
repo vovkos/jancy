@@ -18,11 +18,11 @@ namespace std {
 
 //..............................................................................
 
-typedef size_t HashFunc(variant key);
+typedef size_t HashFunc(variant_t key);
 
 typedef bool IsEqualFunc(
-	variant key1,
-	variant key2
+	variant_t key1,
+	variant_t key2
 );
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -30,8 +30,8 @@ typedef bool IsEqualFunc(
 /**
 	\import std_HashTable.jnc
 
-	\brief This class provides a hash-table-based mapping from ``variant``-s to
-	``variant``-s.
+	\brief This class provides a hash-table-based mapping from ``variant_t``-s to
+	``variant_t``-s.
 
 	``std.HashTable`` stores ``(key; value)`` pairs and provides fast lookup of
 	the ``value`` associated with a ``key``.
@@ -95,13 +95,13 @@ opaque class HashTable {
 		results in calling ``insert`` method.
 	*/
 
-	variant get(variant key) {
+	variant_t get(variant_t key) {
 		return findValue(key, null);
 	}
 
 	void set(
-		variant key,
-		variant value
+		variant_t key,
+		variant_t value
 	) {
 		add(key, value);
 	}
@@ -112,7 +112,7 @@ opaque class HashTable {
 
 	void clear();
 
-	MapEntry* errorcode visit(variant key);
+	MapEntry* errorcode visit(variant_t key);
 
 	/**
 		Looks up a value associated with the key ``key``.
@@ -123,7 +123,7 @@ opaque class HashTable {
 		Returns ``false`` if key ``key`` is not found.
 	*/
 
-	MapEntry cmut* find(variant key) const;
+	MapEntry cmut* find(variant_t key) const;
 
 	/**
 		Looks up a value associated with the key ``key``.
@@ -134,9 +134,9 @@ opaque class HashTable {
 		in the hash table so it can be used as a *key-not-found* token.
 	*/
 
-	variant findValue(
-		variant key,
-		variant undefinedValue = null
+	variant_t findValue(
+		variant_t key,
+		variant_t undefinedValue = null
 	) const {
 		MapEntry* entry = find(key);
 		return entry ? entry.m_value : undefinedValue;
@@ -151,8 +151,8 @@ opaque class HashTable {
 	*/
 
 	MapEntry* errorcode add(
-		variant key,
-		variant value
+		variant_t key,
+		variant_t value
 	) {
 		MapEntry* entry = visit(key);
 		entry.m_value = value;
@@ -170,7 +170,7 @@ opaque class HashTable {
 		Returns ``false`` if ``key`` was not found.
 	*/
 
-	bool removeKey(variant key) {
+	bool removeKey(variant_t key) {
 		MapEntry* entry = find(key);
 		if (!entry)
 			return false;

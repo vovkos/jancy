@@ -22,7 +22,7 @@ protected:
 	Scheduler* m_scheduler;
 	Promise* m_pendingPromise;
 	void thin* m_gcShadowStackFrame;
-	variant m_result;
+	variant_t m_result;
 	std.Error const* m_error;
 
 public:
@@ -37,14 +37,14 @@ public:
 	intptr errorcode wait(function* handler(std.Error const* error));
 
 	intptr errorcode wait(function* handler(
-		variant result,
+		variant_t result,
 		std.Error const* error
 	));
 
 	bool errorcode cancelWait(intptr handle);
 
-	variant blockingWait();
-	async variant asyncWait();
+	variant_t blockingWait();
+	async variant_t asyncWait();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -56,7 +56,7 @@ class Promisifier: Promise {
 	void complete(std.Error const* error);
 
 	void complete(
-		variant result,
+		variant_t result,
 		std.Error const* error
 	);
 }

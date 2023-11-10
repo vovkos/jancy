@@ -30,23 +30,21 @@ McSnapshotClassType::McSnapshotClassType() {
 void
 McSnapshotClassType::prepareTypeString() {
 	TypeStringTuple* tuple = getTypeStringTuple();
-	tuple->m_typeStringPrefix = "mcsnapshot ";
-	tuple->m_typeStringPrefix += m_targetType->getTypeModifierString();
+	tuple->m_typeStringPrefix = m_targetType->getTypeModifierString() + " mcsnapshot";
 	tuple->m_typeStringSuffix = m_targetType->getTargetType()->getTypeStringSuffix();
 }
 
 void
 McSnapshotClassType::prepareDoxyLinkedText() {
 	TypeStringTuple* tuple = getTypeStringTuple();
-	tuple->m_doxyLinkedTextPrefix = "mcsnapshot ";
-	tuple->m_doxyLinkedTextPrefix += m_targetType->getTypeModifierString();
+	tuple->m_doxyLinkedTextPrefix = m_targetType->getTypeModifierString() + " mcsnapshot";
 	tuple->m_doxyLinkedTextSuffix = m_targetType->getTargetType()->getDoxyLinkedTextSuffix();
 }
 
 void
 McSnapshotClassType::prepareDoxyTypeString() {
 	Type::prepareDoxyTypeString();
-	getTypeStringTuple()->m_doxyTypeString += m_targetType->getTargetType()->getDoxyArgString();
+	m_targetType->getTargetType()->appendDoxyArgString(&getTypeStringTuple()->m_doxyTypeString);
 }
 
 bool

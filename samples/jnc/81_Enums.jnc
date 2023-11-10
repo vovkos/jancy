@@ -12,9 +12,9 @@
 // Jancy enums conceal member identifiers within the enum namespace thus
 // preventing the parent namespace pollution.
 
-// To simplify porting of existing C/C++ code Jancy also offers 'exposed'
-// enums, which behave just like traditional C/C++ enums and expose member
-// identifiers.
+// To simplify porting of existing C/C++ code Jancy also offers the so-called
+// exposed enums, that behave just like traditional C/C++ enums and expose
+// member identifiers (set the `ExposedEnums` pragma to `true` to enable that).
 
 // Yet another flavour of Jancy enums is the 'bitflag' enum, i.e. the enum
 // designed to be used to describe bit flags. Bitflag enums differ from
@@ -23,10 +23,6 @@
 //   * The bitwise OR operator '|' on two operands of matching bitflag enum
 //     type yields the same bitflag enum type
 //   * It's OK to assign zero to a bitflag enum
-
-// By default the bitflag enums conceal member identifiers like normal enums
-// do. The 'exposed' modifier can be applied to the bitflag enum to change
-// that.
 
 // All enums in Jancy can be derived from integer types to specify how many
 // bytes will a particular enum occupy in memory and whether it will be treated
@@ -46,12 +42,17 @@ enum Color {
 	Purple,
 }
 
-exposed enum State {
+pragma(ExposedEnums, true)
+
+enum State {
 	State_Idle, // = 0
 	State_Connecting,
 	State_Connected,
 	State_Disconnecting,
 }
+
+pragma(ExposedEnums, default)
+
 
 bitflag enum OpenFlags: uint8_t {
 	ReadOnly,      // = 0x01

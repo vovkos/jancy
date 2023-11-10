@@ -323,6 +323,16 @@ Module::parseImpl(
 }
 
 bool
+Module::parse(
+	const sl::StringRef& fileName,
+	const sl::StringRef& source0
+) {
+	sl::String source = source0;
+	m_sourceList.insertTail(source);
+	return parseImpl(NULL, fileName, source);
+}
+
+bool
 Module::parseFile(const sl::StringRef& fileName) {
 	ASSERT(m_compileState < ModuleCompileState_Compiled);
 
@@ -341,7 +351,6 @@ Module::parseFile(const sl::StringRef& fileName) {
 
 	size_t length = file.getMappingSize();
 	sl::String source((const char*)file.p(), length);
-
 	m_sourceList.insertTail(source);
 	it->m_value = true;
 	return parseImpl(NULL, filePath, source);

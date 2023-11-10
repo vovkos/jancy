@@ -1,14 +1,14 @@
 // test new function: std.sort()
 
 bool gt(
-	variant v1,
-	variant v2
+	variant_t v1,
+	variant_t v2
 ) {
 	return v1 > v2;
 }
 
 int main() {
-	variant a[10];
+	variant_t a[10];
 	for (size_t i = 0; i < countof(a); i++)
 		a[i] = rand() % 20;
 

@@ -61,8 +61,7 @@ NamedImportType::createSignature(
 	Namespace* anchorNamespace,
 	const QualifiedName& orphanName
 ) {
-	sl::String signature = sl::formatString("ZN%s", anchorNamespace->createQualifiedName (name).sz());
-
+	sl::String signature = "ZN" + anchorNamespace->createQualifiedName(name);
 	if (!orphanName.isEmpty()) {
 		signature += '-';
 		signature += orphanName.getFullName();
@@ -148,15 +147,15 @@ ImportPtrType::prepareTypeString() {
 		return;
 	}
 
-	tuple->m_typeStringPrefix = "import ";
-
+	sl::String string = "import ";
 	if (m_typeModifiers) {
-		tuple->m_typeStringPrefix += getTypeModifierString(m_typeModifiers);
-		tuple->m_typeStringPrefix += ' ';
+		string += getTypeModifierString(m_typeModifiers);
+		string += ' ';
 	}
 
-	tuple->m_typeStringPrefix += m_targetType->getQualifiedName();
-	tuple->m_typeStringPrefix += '*';
+	string += m_targetType->getQualifiedName();
+	string += '*';
+	tuple->m_typeStringPrefix = string;
 }
 
 bool
@@ -191,14 +190,14 @@ ImportIntModType::prepareTypeString() {
 		return;
 	}
 
-	tuple->m_typeStringPrefix = "import ";
-
+	sl::String string = "import ";
 	if (m_typeModifiers) {
-		tuple->m_typeStringPrefix += getTypeModifierString(m_typeModifiers);
-		tuple->m_typeStringPrefix += ' ';
+		string += getTypeModifierString(m_typeModifiers);
+		string += ' ';
 	}
 
-	tuple->m_typeStringPrefix += m_importType->getQualifiedName();
+	string += m_importType->getQualifiedName();
+	tuple->m_typeStringPrefix = string;
 }
 
 bool

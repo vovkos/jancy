@@ -26,25 +26,31 @@ getEnumTypeFlagString(EnumTypeFlag flag) {
 		"bitflag",   // EnumTypeFlag_BitFlag = 0x0020000
 	};
 
-	size_t i = sl::getLoBitIdx32(flag >> 12);
-
+	size_t i = sl::getLoBitIdx8((uint8_t)(flag >> 16));
 	return i < countof(stringTable) ?
 		stringTable[i] :
 		"undefined-enum-type-flag";
 }
 
-sl::String
+sl::StringRef
 getEnumTypeFlagString(uint_t flags) {
-	sl::String string;
+	flags &= EnumTypeFlag__All;
+	if (!flags)
+		return sl::StringRef();
 
-	if (flags & EnumTypeFlag_Exposed)
-		string = "exposed ";
+	EnumTypeFlag flag = getFirstFlag<EnumTypeFlag>(flags);
+	sl::StringRef string0 = getEnumTypeFlagString(flag);
+	flags &= ~flag;
+	if (!flags)
+		return string0;
 
-	if (flags & EnumTypeFlag_BitFlag)
-		string += "bitflag ";
-
-	if (!string.isEmpty())
-		string.chop(1);
+	sl::String string = string0;
+	while (flags) {
+		flag = getFirstFlag<EnumTypeFlag>(flags);
+		string += ' ';
+		string += getEnumTypeFlagString(flag);
+		flags &= ~flag;
+	}
 
 	return string;
 }
@@ -313,7 +319,7 @@ EnumType::calcBitflagEnumConstValues(EnumConst* baseConst) {
 	return finalResult;
 }
 
-sl::String
+sl::StringRef
 EnumType::getValueString(
 	const void* p,
 	const char* formatSpec
@@ -393,7 +399,7 @@ EnumType::generateDocumentation(
 	if (m_name.isEmpty())
 		flags &= ~EnumTypeFlag_Exposed; // unnamed enums imply 'exposed' anyway
 
-	sl::String modifierString = getEnumTypeFlagString(flags);
+	sl::StringRef modifierString = getEnumTypeFlagString(flags);
 	if (!modifierString.isEmpty())
 		itemXml->appendFormat("<modifiers>%s</modifiers>\n", modifierString.sz());
 
