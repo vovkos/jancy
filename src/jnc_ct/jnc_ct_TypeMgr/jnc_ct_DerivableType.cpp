@@ -111,8 +111,12 @@ DerivableType::chooseIndexerProperty(const Value& opValue) {
 	sl::StringHashTableIterator<Property*> it = m_indexerPropertyMap.getHead();
 	for (; it; it++) {
 		Property* prop = it->m_value;
+		FunctionType* getterType = prop->m_getter->getType();
+		bool result = getterType->ensureLayout();
+		if (!result)
+			return NULL;
 
-		FunctionArg* indexArg = prop->m_getter->getType()->getArgArray() [1];
+		FunctionArg* indexArg = getterType->getArgArray() [1];
 		CastKind castKind = m_module->m_operatorMgr.getCastKind(opValue, indexArg->getType());
 		if (!castKind)
 			continue;
