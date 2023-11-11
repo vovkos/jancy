@@ -69,7 +69,7 @@ named_type_specifier_save_type
 
 struct {
 	EnumType* m_type;
-	lex::LineCol m_pos;
+	Token::Pos m_pos;
 }
 enum_specifier
 	enter {
