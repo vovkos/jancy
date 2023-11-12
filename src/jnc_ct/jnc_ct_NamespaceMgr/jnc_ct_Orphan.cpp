@@ -153,17 +153,17 @@ Orphan::adoptOrphanFunction(ModuleItem* item) {
 		}
 	}
 
-	result = m_functionType->ensureLayout();
+	result = m_functionType->ensureNoImports();
 	if (!result)
 		return false;
 
 	Function* originFunction;
 
-	if (origin->getItemKind() == ModuleItemKind_Function) {
-		FunctionTypeOverload type = origin.getFunction()->getType();
-		originFunction = type.findShortOverload(m_functionType) != -1 ? origin.getFunction() : NULL;
-	} else {
+	if (origin->getItemKind() == ModuleItemKind_FunctionOverload)
 		originFunction = origin.getFunctionOverload()->findShortOverload(m_functionType);
+	else {
+		FunctionType* type = origin.getFunction()->getType()->getShortType();
+		originFunction = type->cmp(m_functionType) == 0 ? origin.getFunction() : NULL;
 	}
 
 	if (!originFunction) {
