@@ -202,6 +202,25 @@ jnc_FunctionOverload_getOverload(
 namespace jnc {
 
 bool
+OverloadableFunction::ensureLayout() {
+	if (!m_item)
+		return true;
+
+	ModuleItemKind itemKind = m_item->getItemKind();
+	switch (itemKind) {
+	case ModuleItemKind_Function:
+		return ((Function*)m_item)->getType()->ensureLayout();
+
+	case ModuleItemKind_FunctionOverload:
+		return ((FunctionOverload*)m_item)->getTypeOverload().ensureLayout();
+
+	default:
+		ASSERT(false);
+		return true;
+	}
+}
+
+bool
 OverloadableFunction::ensureNoImports() {
 	if (!m_item)
 		return true;

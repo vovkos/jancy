@@ -332,6 +332,9 @@ public:
 	}
 
 	bool
+	ensureLayout();
+
+	bool
 	ensureNoImports();
 };
 

@@ -153,18 +153,19 @@ Orphan::adoptOrphanFunction(ModuleItem* item) {
 		}
 	}
 
-	result = m_functionType->ensureLayout();
+	result =
+		m_functionType->ensureLayout() &&
+		origin.ensureLayout();
+
 	if (!result)
 		return false;
 
-	Function* originFunction;
-
-	if (origin->getItemKind() == ModuleItemKind_FunctionOverload)
-		originFunction = origin.getFunctionOverload()->findShortOverload(m_functionType);
-	else {
-		FunctionType* type = origin.getFunction()->getType()->getShortType();
-		originFunction = type->cmp(m_functionType) == 0 ? origin.getFunction() : NULL;
-	}
+	Function* originFunction =
+		origin->getItemKind() == ModuleItemKind_FunctionOverload ?
+			origin.getFunctionOverload()->findShortOverload(m_functionType) :
+		origin.getFunction()->getType()->getShortType()->cmp(m_functionType) == 0 ?
+			origin.getFunction() :
+			NULL;
 
 	if (!originFunction) {
 		err::setFormatStringError("'%s': overload not found", getQualifiedName().sz());
