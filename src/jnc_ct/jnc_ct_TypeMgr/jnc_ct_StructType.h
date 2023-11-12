@@ -101,6 +101,7 @@ protected:
 	void
 	prepareSignature() {
 		m_signature = 'S' + m_qualifiedName;
+		m_flags |= TypeFlag_SignatureFinal;
 	}
 
 	virtual

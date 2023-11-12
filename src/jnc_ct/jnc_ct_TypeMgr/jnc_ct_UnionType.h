@@ -63,6 +63,7 @@ protected:
 	void
 	prepareSignature() {
 		m_signature = 'U' + m_qualifiedName;
+		m_flags |= TypeFlag_SignatureFinal;
 	}
 
 	virtual

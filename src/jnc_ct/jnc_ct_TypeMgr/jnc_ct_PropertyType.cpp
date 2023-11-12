@@ -59,26 +59,29 @@ PropertyType::getVtableStructType() {
 	return m_module->m_typeMgr.getPropertyVtableStructType(this);
 }
 
-sl::String
+uint_t
 PropertyType::createSignature(
+	sl::String* string,
 	FunctionType* getterType,
 	const FunctionTypeOverload& setterType,
 	uint_t flags
 ) {
-	sl::String string = "Y";
+	*string = "Y";
 
 	if (flags & PropertyTypeFlag_Bindable)
-		string += 'b';
+		*string += 'b';
 
-	string += getterType->getSignature();
+	*string += getterType->getSignature();
+	uint_t signatureFlags = getterType->getFlags() & TypeFlag_SignatureFinal;
 
 	size_t overloadCount = setterType.getOverloadCount();
 	for (size_t i = 0; i < overloadCount; i++) {
 		FunctionType* overloadType = setterType.getOverload(i);
-		string += overloadType->getSignature();
+		*string += overloadType->getSignature();
+		signatureFlags &= overloadType->getFlags() & TypeFlag_SignatureFinal;
 	}
 
-	return string;
+	return signatureFlags;
 }
 
 sl::StringRef
@@ -102,6 +105,14 @@ PropertyType::getTypeModifierString() {
 		string.chop(1);
 
 	return string;
+}
+
+void
+PropertyType::prepareSignature() {
+	sl::String signature;
+	uint_t signatureFlags = createSignature(&signature, m_getterType, m_setterType, m_flags);
+	m_signature = signature;
+	m_flags |= signatureFlags;
 }
 
 void

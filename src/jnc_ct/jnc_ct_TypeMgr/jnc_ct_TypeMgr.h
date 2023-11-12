@@ -820,6 +820,7 @@ protected:
 	void
 	setupPrimitiveType(
 		TypeKind typeKind,
+		const sl::StringRef& signature,
 		size_t size
 	);
 

@@ -111,6 +111,7 @@ protected:
 	void
 	prepareSignature() {
 		m_signature = createSignature(m_elementType, m_elementCount);
+		m_flags |= m_elementType->getFlags() & TypeFlag_SignatureFinal;
 	}
 
 	virtual

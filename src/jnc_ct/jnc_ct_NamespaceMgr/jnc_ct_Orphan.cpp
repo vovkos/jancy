@@ -153,7 +153,7 @@ Orphan::adoptOrphanFunction(ModuleItem* item) {
 		}
 	}
 
-	result = m_functionType->ensureNoImports();
+	result = m_functionType->ensureLayout();
 	if (!result)
 		return false;
 

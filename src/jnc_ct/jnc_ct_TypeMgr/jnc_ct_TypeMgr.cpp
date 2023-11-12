@@ -311,15 +311,17 @@ TypeMgr::getBitFieldType(
 
 	BitFieldType* type = new BitFieldType;
 	type->m_module = m_module;
-	type->m_signature = signature;
 	type->m_baseType = baseType;
 	type->m_bitOffset = bitOffset;
 	type->m_bitCount = bitCount;
+	type->m_signature = signature;
+	type->m_flags |= baseType->getFlags() & TypeFlag_SignatureFinal;
 	m_typeList.insertTail(type);
 	it->m_value = type;
 
 	if (baseType->getTypeKindFlags() & TypeKindFlag_Import)
 		((ImportType*)baseType)->addFixup(&type->m_baseType);
+
 
 	return type;
 }
@@ -369,9 +371,10 @@ TypeMgr::getArrayType(
 
 	ArrayType* type = new ArrayType;
 	type->m_module = m_module;
-	type->m_signature = signature;
 	type->m_elementType = elementType;
 	type->m_elementCount = elementCount;
+	type->m_signature = signature;
+	type->m_flags |= elementType->getFlags() & TypeFlag_SignatureFinal;
 	m_typeList.insertTail(type);
 
 	if (elementType->getTypeKindFlags() & TypeKindFlag_Import)
@@ -428,7 +431,6 @@ TypeMgr::createEnumType(
 	EnumType* type = new EnumType;
 	type->m_name = name;
 	type->m_qualifiedName = qualifiedName;
-	type->m_flags |= TypeFlag_Named;
 
 	if (!baseType)
 		baseType = getPrimitiveType(TypeKind_Int);
@@ -454,7 +456,6 @@ TypeMgr::createStructType(
 	StructType* type = new StructType;
 	type->m_name = name;
 	type->m_qualifiedName = qualifiedName;
-	type->m_flags |= TypeFlag_Named;
 
 #ifdef _JNC_NAMED_TYPE_ADD_SELF
 	if (!name.isEmpty())
@@ -489,7 +490,6 @@ TypeMgr::createUnionType(
 	UnionType* type = new UnionType;
 	type->m_name = name;
 	type->m_qualifiedName = qualifiedName;
-	type->m_flags |= TypeFlag_Named;
 
 #ifdef _JNC_NAMED_TYPE_ADD_SELF
 	if (!name.isEmpty())
@@ -521,7 +521,7 @@ TypeMgr::addClassType(
 	type->m_module = m_module;
 	type->m_name = name;
 	type->m_qualifiedName = qualifiedName;
-	type->m_flags |= flags | TypeFlag_Named;
+	type->m_flags |= flags;
 
 #ifdef _JNC_NAMED_TYPE_ADD_SELF
 	if (!name.isEmpty())
@@ -656,7 +656,7 @@ TypeMgr::getFunctionType(
 
 	sl::String signature;
 	sl::StringRef argSignature;
-	FunctionType::createSignature(
+	flags |= FunctionType::createSignature(
 		&signature,
 		&argSignature,
 		callConv,
@@ -672,12 +672,12 @@ TypeMgr::getFunctionType(
 
 	FunctionType* type = new FunctionType;
 	type->m_module = m_module;
-	type->m_signature = signature;
-	type->m_argSignature = argSignature;
 	type->m_callConv = callConv;
 	type->m_returnType = returnType;
-	type->m_flags = flags;
 	type->m_argArray = argArray;
+	type->m_signature = signature;
+	type->m_argSignature = argSignature;
+	type->m_flags = flags;
 	m_typeList.insertTail(type);
 
 	if (returnType->getTypeKindFlags() & TypeKindFlag_Import)
@@ -704,7 +704,7 @@ TypeMgr::getFunctionType(
 
 	sl::String signature;
 	sl::StringRef argSignature;
-	FunctionType::createSignature(
+	flags |= FunctionType::createSignature(
 		&signature,
 		&argSignature,
 		callConv,
@@ -720,12 +720,12 @@ TypeMgr::getFunctionType(
 
 	FunctionType* type = new FunctionType;
 	type->m_module = m_module;
-	type->m_signature = signature;
-	type->m_argSignature = argSignature;
 	type->m_callConv = callConv;
 	type->m_returnType = returnType;
-	type->m_flags = flags;
 	type->m_argArray = argArray;
+	type->m_signature = signature;
+	type->m_argSignature = argSignature;
+	type->m_flags = flags;
 	m_typeList.insertTail(type);
 
 	if (returnType->getTypeKindFlags() & TypeKindFlag_Import)
@@ -829,7 +829,8 @@ TypeMgr::getPropertyType(
 	const FunctionTypeOverload& setterType,
 	uint_t flags
 ) {
-	sl::String signature = PropertyType::createSignature(getterType, setterType, flags);
+	sl::String signature;
+	flags |= PropertyType::createSignature(&signature, getterType, setterType, flags);
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
 	if (it->m_value)
 		return (PropertyType*)it->m_value;
@@ -1224,6 +1225,7 @@ TypeMgr::getFunctionClosureClassType(
 
 	FunctionClosureClassType* type = createUnnamedInternalClassType<FunctionClosureClassType>("FunctionClosure");
 	type->m_signature = signature;
+	type->m_flags |= TypeFlag_SignatureFinal;
 	type->m_closureMap.copy(closureMap, argCount);
 	type->m_thisArgFieldIdx = thisArgIdx + 1;
 
@@ -1272,6 +1274,7 @@ TypeMgr::getPropertyClosureClassType(
 
 	PropertyClosureClassType* type = createUnnamedInternalClassType<PropertyClosureClassType>("PropertyClosure");
 	type->m_signature = signature;
+	type->m_flags |= TypeFlag_SignatureFinal;
 	type->m_closureMap.copy(closureMap, argCount);
 	type->m_thisArgFieldIdx = thisArgIdx + 1;
 
@@ -1313,6 +1316,7 @@ TypeMgr::getDataClosureClassType(
 
 	DataClosureClassType* type = createUnnamedInternalClassType<DataClosureClassType>("DataClosure");
 	type->m_signature = signature;
+	type->m_flags |= TypeFlag_SignatureFinal;
 	type->createField("!m_target", targetType->getDataPtrType ());
 
 	Property* thunkProperty = m_module->m_functionMgr.createInternalProperty<DataClosureClassType::ThunkProperty>(type->createQualifiedName("m_thunkProperty"));
@@ -1572,13 +1576,14 @@ TypeMgr::getNamedImportType(
 
 	NamedImportType* type = new NamedImportType;
 	type->m_module = m_module;
-	type->m_signature = signature;
 	type->m_name = name;
 	type->m_anchorNamespace = anchorNamespace;
 	type->m_anchorName = anchorName;
 	type->m_qualifiedName = anchorName.isEmpty() ?
 		anchorNamespace->createQualifiedName(name) :
 		anchorNamespace->createQualifiedName(anchorName) + '.' + name.getFullName();
+	type->m_signature = signature;
+	type->m_flags |= TypeFlag_SignatureReady;
 
 	m_typeList.insertTail(type);
 	it->m_value = type;
@@ -1600,9 +1605,10 @@ TypeMgr::getImportPtrType(
 
 	ImportPtrType* type = new ImportPtrType;
 	type->m_module = m_module;
-	type->m_signature = signature;
 	type->m_targetType = namedImportType;
 	type->m_typeModifiers = typeModifiers;
+	type->m_signature = signature;
+	type->m_flags |= TypeFlag_SignatureReady;
 
 	m_typeList.insertTail(type);
 	it->m_value = type;
@@ -1624,9 +1630,10 @@ TypeMgr::getImportIntModType(
 
 	ImportIntModType* type = new ImportIntModType;
 	type->m_module = m_module;
-	type->m_signature = signature;
 	type->m_importType = namedImportType;
 	type->m_typeModifiers = typeModifiers;
+	type->m_signature = signature;
+	type->m_flags |= TypeFlag_SignatureReady;
 
 	m_typeList.insertTail(type);
 	it->m_value = type;
@@ -1745,25 +1752,26 @@ TypeMgr::getPropertyPtrTypeTuple(PropertyType* propertyType) {
 
 void
 TypeMgr::setupAllPrimitiveTypes() {
-	setupPrimitiveType(TypeKind_Void,      0);
-	setupPrimitiveType(TypeKind_Variant,   sizeof(Variant));
-	setupPrimitiveType(TypeKind_Bool,      1);
-	setupPrimitiveType(TypeKind_Int8,      1);
-	setupPrimitiveType(TypeKind_Int8_u,    1);
-	setupPrimitiveType(TypeKind_Int16,     2);
-	setupPrimitiveType(TypeKind_Int16_u,   2);
-	setupPrimitiveType(TypeKind_Int32,     4);
-	setupPrimitiveType(TypeKind_Int32_u,   4);
-	setupPrimitiveType(TypeKind_Int64,     8);
-	setupPrimitiveType(TypeKind_Int64_u,   8);
-	setupPrimitiveType(TypeKind_Int16_be,  2);
-	setupPrimitiveType(TypeKind_Int16_ube, 2);
-	setupPrimitiveType(TypeKind_Int32_be,  4);
-	setupPrimitiveType(TypeKind_Int32_ube, 4);
-	setupPrimitiveType(TypeKind_Int64_be,  8);
-	setupPrimitiveType(TypeKind_Int64_ube, 8);
-	setupPrimitiveType(TypeKind_Float,     4);
-	setupPrimitiveType(TypeKind_Double,    8);
+	setupPrimitiveType(TypeKind_Void,      "v",   0);
+	setupPrimitiveType(TypeKind_Variant,   "z",   sizeof(Variant));
+	setupPrimitiveType(TypeKind_Variant,   "s",   sizeof(Variant));
+	setupPrimitiveType(TypeKind_Bool,      "b",   1);
+	setupPrimitiveType(TypeKind_Int8,      "i1",  1);
+	setupPrimitiveType(TypeKind_Int8_u,    "u1",  1);
+	setupPrimitiveType(TypeKind_Int16,     "i2",  2);
+	setupPrimitiveType(TypeKind_Int16_u,   "u2",  2);
+	setupPrimitiveType(TypeKind_Int32,     "i4",  4);
+	setupPrimitiveType(TypeKind_Int32_u,   "u4",  4);
+	setupPrimitiveType(TypeKind_Int64,     "i8",  8);
+	setupPrimitiveType(TypeKind_Int64_u,   "u8",  8);
+	setupPrimitiveType(TypeKind_Int16_be,  "ib2", 2);
+	setupPrimitiveType(TypeKind_Int16_ube, "ub2", 2);
+	setupPrimitiveType(TypeKind_Int32_be,  "ib4", 4);
+	setupPrimitiveType(TypeKind_Int32_ube, "ub4", 4);
+	setupPrimitiveType(TypeKind_Int64_be,  "ib8", 8);
+	setupPrimitiveType(TypeKind_Int64_ube, "ub8", 8);
+	setupPrimitiveType(TypeKind_Float,     "f4",  4);
+	setupPrimitiveType(TypeKind_Double,    "48",  8);
 
 	// variant requires special treatment
 
@@ -1822,6 +1830,7 @@ TypeMgr::setupCallConvArray() {
 void
 TypeMgr::setupPrimitiveType(
 	TypeKind typeKind,
+	const sl::StringRef& signature,
 	size_t size
 ) {
 	ASSERT(typeKind < TypeKind__PrimitiveTypeCount);
@@ -1829,7 +1838,8 @@ TypeMgr::setupPrimitiveType(
 	Type* type = &m_primitiveTypeArray[typeKind];
 	type->m_module = m_module;
 	type->m_typeKind = typeKind;
-	type->m_flags = TypeFlag_Pod | ModuleItemFlag_LayoutReady;
+	type->m_signature = signature;
+	type->m_flags = TypeFlag_Pod | TypeFlag_SignatureFinal | ModuleItemFlag_LayoutReady;
 	type->m_size = size;
 	type->m_alignment = size;
 	type->m_llvmType = NULL;

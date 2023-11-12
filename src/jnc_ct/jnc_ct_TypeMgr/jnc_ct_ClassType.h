@@ -187,6 +187,7 @@ protected:
 	void
 	prepareSignature() {
 		m_signature = "CC" + m_qualifiedName;
+		m_flags |= TypeFlag_SignatureFinal;
 	}
 
 	virtual

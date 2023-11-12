@@ -102,63 +102,69 @@ FunctionType::getStdObjectMemberMethodType() {
 }
 
 void
+FunctionType::appendFlagSignature(
+	sl::String* string,
+	uint_t flags
+) {
+	if (flags & FunctionTypeFlag_Unsafe)
+		*string += 'u';
+
+	if (flags & FunctionTypeFlag_Async)
+		*string += 'a';
+
+	if (flags & (FunctionTypeFlag_ErrorCode | FunctionTypeFlag_AsyncErrorCode))
+		*string += 'e';
+}
+
+uint_t
 FunctionType::appendArgSignature(
 	sl::String* string,
 	Type* const* argTypeArray,
 	size_t argCount,
-	uint_t flags
+	uint_t typeFlags
 ) {
+	uint_t signatureFlags = TypeFlag_SignatureFinal;
 	*string += '(';
 
 	for (size_t i = 0; i < argCount; i++) {
 		Type* type = argTypeArray[i];
 		*string += type->getSignature();
 		*string += ',';
+		signatureFlags &= type->getFlags() & TypeFlag_SignatureFinal;
 	}
 
-	if (flags & FunctionTypeFlag_VarArg)
+	if (typeFlags & FunctionTypeFlag_VarArg)
 		*string += '.';
 
 	*string += ')';
+	return signatureFlags;
 }
 
-void
+uint_t
 FunctionType::appendArgSignature(
 	sl::String* string,
 	FunctionArg* const* argArray,
 	size_t argCount,
-	uint_t flags
+	uint_t typeFlags
 ) {
+	uint_t signatureFlags = TypeFlag_SignatureFinal;
 	*string += '(';
 
 	for (size_t i = 0; i < argCount; i++) {
-		FunctionArg* arg = argArray[i];
-		*string += arg->getType()->getSignature();
+		Type* type = argArray[i]->getType();
+		*string += type->getSignature();
 		*string += ',';
+		signatureFlags &= type->getFlags() & TypeFlag_SignatureFinal;
 	}
 
-	if (flags & FunctionTypeFlag_VarArg)
+	if (typeFlags & FunctionTypeFlag_VarArg)
 		*string += '.';
 
 	*string += ')';
+	return signatureFlags;
 }
 
-void
-FunctionType::appendFlagSignature(
-	sl::String* string,
-	uint_t flags
-) {
-	if (flags & FunctionTypeFlag_Unsafe)
-		*string += 'U';
-
-	if (flags & FunctionTypeFlag_Async)
-		*string += 'A';
-
-	if (flags & (FunctionTypeFlag_ErrorCode | FunctionTypeFlag_AsyncErrorCode))
-		*string += 'E';
-}
-
-void
+uint_t
 FunctionType::createSignature(
 	sl::String* string,
 	sl::StringRef* argSignature,
@@ -174,11 +180,12 @@ FunctionType::createSignature(
 	*string += returnType->getSignature();
 
 	size_t length = string->getLength();
-	appendArgSignature(string, argTypeArray, argCount, flags);
+	uint_t signatureFlags = appendArgSignature(string, argTypeArray, argCount, flags);
 	*argSignature = string->getSubString(length);
+	return signatureFlags;
 }
 
-void
+uint_t
 FunctionType::createSignature(
 	sl::String* string,
 	sl::StringRef* argSignature,
@@ -194,8 +201,9 @@ FunctionType::createSignature(
 	*string += returnType->getSignature();
 
 	size_t length = string->getLength();
-	appendArgSignature(string, argArray, argCount, flags);
+	uint_t signatureFlags = appendArgSignature(string, argArray, argCount, flags);
 	*argSignature = string->getSubString(length);
+	return signatureFlags;
 }
 
 sl::StringRef
@@ -262,9 +270,19 @@ FunctionType::calcLayout() {
 
 void
 FunctionType::prepareSignature() {
-	sl::String string;
-	createSignature(&string, &m_argSignature, m_callConv, m_returnType, m_argArray, m_argArray.getCount(), m_flags);
-	m_signature = string;
+	sl::String signature;
+	uint_t signatureFlags = createSignature(
+		&signature,
+		&m_argSignature,
+		m_callConv,
+		m_returnType,
+		m_argArray,
+		m_argArray.getCount(),
+		m_flags
+	);
+
+	m_signature = signature;
+	m_flags |= signatureFlags;
 }
 
 void

@@ -424,37 +424,6 @@ Type::prepareDoxyTypeString() {
 	}
 }
 
-void
-Type::prepareSignature() {
-	static const char* primitiveTypeSignatureTable[TypeKind_Double + 1] = {
-		"v",   // TypeKind_Void,
-		"z",   // TypeKind_Variant,
-		"s",   // TypeKind_String,
-		"b",   // TypeKind_Bool,
-		"i1",  // TypeKind_Int8,
-		"u1",  // TypeKind_Int8_u,
-		"i2",  // TypeKind_Int16,
-		"u2",  // TypeKind_Int16_u,
-		"i4",  // TypeKind_Int32,
-		"u4",  // TypeKind_Int32_u,
-		"i8",  // TypeKind_Int64,
-		"u8",  // TypeKind_Int64_u,
-		"ib2", // TypeKind_Int16_be,
-		"ub2", // TypeKind_Int16_ube,
-		"ib4", // TypeKind_Int32_be,
-		"ub4", // TypeKind_Int32_ube,
-		"ib8", // TypeKind_Int64_be,
-		"ub8", // TypeKind_Int64_ube,
-		"f4",  // TypeKind_Float,
-		"f8",  // TypeKind_Double,
-	};
-
-	if ((size_t)m_typeKind <= countof(primitiveTypeSignatureTable))
-		m_signature = primitiveTypeSignatureTable[m_typeKind];
-	else
-		ASSERT(false);
-}
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 llvm::Type*

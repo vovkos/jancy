@@ -162,7 +162,7 @@ DerivableType::addBaseType(Type* type) {
 	slot->m_type = (DerivableType*)type;
 
 	if (type->getTypeKindFlags() & TypeKindFlag_Import)
-		((ImportType*)type)->addFixup((Type**) &slot->m_type);
+		((ImportType*)type)->addFixup((Type**)&slot->m_type);
 
 	m_baseTypeList.insertTail(slot);
 	m_baseTypeArray.append(slot);

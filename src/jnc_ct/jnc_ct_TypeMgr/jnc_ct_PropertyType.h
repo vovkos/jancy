@@ -123,9 +123,12 @@ public:
 	sl::StringRef
 	getTypeModifierString();
 
+	// createSignature returns TypeFlag_SignatureFinal or 0
+
 	static
-	sl::String
+	uint_t
 	createSignature(
+		sl::String* signature,
 		FunctionType* getterType,
 		const FunctionTypeOverload& setterType,
 		uint_t flags
@@ -134,9 +137,7 @@ public:
 protected:
 	virtual
 	void
-	prepareSignature() {
-		m_signature = createSignature(m_getterType, m_setterType, m_flags);
-	}
+	prepareSignature();
 
 	virtual
 	void

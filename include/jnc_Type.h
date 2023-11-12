@@ -190,13 +190,14 @@ jnc_getTypeKindFlags(jnc_TypeKind typeKind);
 //..............................................................................
 
 enum jnc_TypeFlag {
-	jnc_TypeFlag_Named     = 0x0100,
-	jnc_TypeFlag_Pod       = 0x0200, // plain-old-data
-	jnc_TypeFlag_GcRoot    = 0x0400, // is or contains gc-traceable pointers
-	jnc_TypeFlag_StructRet = 0x0800, // return through hidden 1st arg (gcc32 callconv)
-	jnc_TypeFlag_NoStack   = 0x1000, // try to avoid allocation on stack
-	jnc_TypeFlag_Dynamic   = 0x2000, // dynamic struct/union/array
-	jnc_TypeFlag_NoImports = 0x4000, // all imports resolved (when generating documentation)
+	jnc_TypeFlag_Pod            = 0x0100, // plain-old-data
+	jnc_TypeFlag_GcRoot         = 0x0200, // is or contains gc-traceable pointers
+	jnc_TypeFlag_StructRet      = 0x0400, // return through hidden 1st arg (gcc32 callconv)
+	jnc_TypeFlag_NoStack        = 0x0800, // try to avoid allocation on stack
+	jnc_TypeFlag_Dynamic        = 0x1000, // dynamic struct/union/array
+	jnc_TypeFlag_NoImports      = 0x2000, // all imports resolved (when generating documentation)
+	jnc_TypeFlag_SignatureReady = 0x4000, // signature is ready for use (but can depend on imports)
+	jnc_TypeFlag_SignatureFinal = 0x8000, // signature is ready & final (doesn't depend on imports)
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -670,13 +671,14 @@ getTypeKindFlags(TypeKind typeKind) {
 typedef jnc_TypeFlag TypeFlag;
 
 const TypeFlag
-	TypeFlag_Named     = jnc_TypeFlag_Named,
-	TypeFlag_Pod       = jnc_TypeFlag_Pod,
-	TypeFlag_GcRoot    = jnc_TypeFlag_GcRoot,
-	TypeFlag_StructRet = jnc_TypeFlag_StructRet,
-	TypeFlag_NoStack   = jnc_TypeFlag_NoStack,
-	TypeFlag_Dynamic   = jnc_TypeFlag_Dynamic,
-	TypeFlag_NoImports = jnc_TypeFlag_NoImports;
+	TypeFlag_Pod            = jnc_TypeFlag_Pod,
+	TypeFlag_GcRoot         = jnc_TypeFlag_GcRoot,
+	TypeFlag_StructRet      = jnc_TypeFlag_StructRet,
+	TypeFlag_NoStack        = jnc_TypeFlag_NoStack,
+	TypeFlag_Dynamic        = jnc_TypeFlag_Dynamic,
+	TypeFlag_NoImports      = jnc_TypeFlag_NoImports,
+	TypeFlag_SignatureReady = jnc_TypeFlag_SignatureReady,
+	TypeFlag_SignatureFinal = jnc_TypeFlag_SignatureFinal;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

@@ -137,8 +137,10 @@ public:
 	ClassType*
 	getMulticastType();
 
+	// signature functions return TypeFlag_SignatureFinal or 0
+
 	static
-	void
+	uint_t
 	createSignature(
 		sl::String* signature,
 		sl::StringRef* argSignature,
@@ -150,7 +152,7 @@ public:
 	);
 
 	static
-	void
+	uint_t
 	createSignature(
 		sl::String* signature,
 		sl::StringRef* argSignature,
@@ -169,7 +171,7 @@ public:
 	);
 
 	static
-	void
+	uint_t
 	appendArgSignature(
 		sl::String* string,
 		Type* const* argTypeArray,
@@ -178,7 +180,7 @@ public:
 	);
 
 	static
-	void
+	uint_t
 	appendArgSignature(
 		sl::String* string,
 		FunctionArg* const* argArray,
@@ -186,7 +188,7 @@ public:
 		uint_t flags
 	);
 
-	void
+	uint_t
 	appendArgSignature(sl::String* string) {
 		return appendArgSignature(string, m_argArray, m_argArray.getCount(), m_flags);
 	}
@@ -239,10 +241,8 @@ protected:
 inline
 const sl::StringRef&
 FunctionType::getArgSignature() {
-	if (m_argSignature.isEmpty()) {
-		ASSERT(m_signature.isEmpty());
+	if (!(m_flags & TypeFlag_SignatureFinal))
 		prepareSignature();
-	}
 
 	return m_argSignature;
 }

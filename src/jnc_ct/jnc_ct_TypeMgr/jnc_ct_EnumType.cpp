@@ -148,6 +148,7 @@ EnumType::prepareSignature() {
 	ASSERT(i < countof(stringTable));
 
 	m_signature = stringTable[i] + m_qualifiedName;
+	m_flags |= TypeFlag_SignatureFinal;
 }
 
 bool

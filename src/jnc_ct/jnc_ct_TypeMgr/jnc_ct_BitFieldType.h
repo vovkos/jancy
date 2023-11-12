@@ -71,6 +71,7 @@ protected:
 	void
 	prepareSignature() {
 		m_signature = createSignature(m_baseType, m_bitOffset, m_bitCount);
+		m_flags |= m_baseType->getFlags() & TypeFlag_SignatureFinal;
 	}
 
 	virtual

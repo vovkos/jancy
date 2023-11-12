@@ -339,7 +339,9 @@ protected:
 
 	virtual
 	void
-	prepareSignature();
+	prepareSignature() {
+		ASSERT(false); // shouldn't be called unless required
+	}
 
 	virtual
 	void
@@ -410,8 +412,8 @@ Type::getTypeStringTuple() {
 inline
 const sl::StringRef&
 Type::getSignature() {
-	if (m_signature.isEmpty())
-		prepareSignature();
+	if (!(m_flags & (TypeFlag_SignatureFinal | TypeFlag_SignatureReady)))
+		prepareSignature(); // could be called multiple times
 
 	return m_signature;
 }
@@ -529,6 +531,7 @@ protected:
 	void
 	prepareSignature() {
 		m_signature = "T" + m_typedef->getQualifiedName();
+		m_flags |= TypeFlag_SignatureFinal;
 	}
 
 	virtual
