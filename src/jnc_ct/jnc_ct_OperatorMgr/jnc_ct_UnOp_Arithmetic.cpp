@@ -28,12 +28,12 @@ getArithmeticOperatorResultType(Type* opType) {
 	case TypeKind_Int16:
 	case TypeKind_Int16_u:
 	case TypeKind_Int16_be:
-	case TypeKind_Int16_beu:
+	case TypeKind_Int16_ube:
 	case TypeKind_Int32_be:
 		typeKind = TypeKind_Int32;
 		break;
 
-	case TypeKind_Int32_beu:
+	case TypeKind_Int32_ube:
 		typeKind = TypeKind_Int32_u;
 		break;
 
@@ -41,7 +41,7 @@ getArithmeticOperatorResultType(Type* opType) {
 		typeKind = TypeKind_Int64;
 		break;
 
-	case TypeKind_Int64_beu:
+	case TypeKind_Int64_ube:
 		typeKind = TypeKind_Int64_u;
 		break;
 

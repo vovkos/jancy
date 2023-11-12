@@ -33,18 +33,19 @@ DataPtrType::createSignature(
 	DataPtrTypeKind ptrTypeKind,
 	uint_t flags
 ) {
-	sl::String signature = typeKind == TypeKind_DataRef ? "RD" : "PD";
+	static const char* stringTable[] = {
+		"P",
+		"Pl",
+		"Pt",
+		"R",
+		"Rl",
+		"Rt"
+	};
 
-	switch (ptrTypeKind) {
-	case DataPtrTypeKind_Lean:
-		signature += 'l';
-		break;
+	size_t i = (typeKind - TypeKind_DataPtr) * 2 + ptrTypeKind;
+	ASSERT(i < countof(stringTable));
 
-	case DataPtrTypeKind_Thin:
-		signature += 't';
-		break;
-	}
-
+	sl::String signature = stringTable[i];
 	signature += getPtrTypeFlagSignature(flags);
 	signature += targetType->getSignature();
 	return signature;

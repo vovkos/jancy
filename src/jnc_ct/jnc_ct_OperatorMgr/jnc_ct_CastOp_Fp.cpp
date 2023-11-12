@@ -302,11 +302,11 @@ Cast_Fp::getCastOperator(
 		return &m_fromInt_u;
 
 	case TypeKind_Int16_be:
-	case TypeKind_Int16_beu:
+	case TypeKind_Int16_ube:
 	case TypeKind_Int32_be:
-	case TypeKind_Int32_beu:
+	case TypeKind_Int32_ube:
 	case TypeKind_Int64_be:
-	case TypeKind_Int64_beu:
+	case TypeKind_Int64_ube:
 		return &m_fromBeInt;
 
 	case TypeKind_Float:

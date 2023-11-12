@@ -33,18 +33,19 @@ PropertyPtrType::createSignature(
 	PropertyPtrTypeKind ptrTypeKind,
 	uint_t flags
 ) {
-	sl::String signature = typeKind == TypeKind_PropertyRef ? "RX" : "PX";
+	static const char* stringTable[] = {
+		"P",
+		"Pw",
+		"Pt",
+		"R",
+		"Rw",
+		"Rt"
+	};
 
-	switch (ptrTypeKind) {
-	case PropertyPtrTypeKind_Thin:
-		signature += 't';
-		break;
+	size_t i = (typeKind - TypeKind_PropertyPtr) * 2 + ptrTypeKind;
+	ASSERT(i < countof(stringTable));
 
-	case PropertyPtrTypeKind_Weak:
-		signature += 'w';
-		break;
-	}
-
+	sl::String signature = stringTable[i];
 	signature += getPtrTypeFlagSignature(flags);
 	signature += propertyType->getSignature();
 	return signature;

@@ -451,9 +451,6 @@ TypeMgr::createStructType(
 	size_t fieldAlignment,
 	uint_t flags
 ) {
-	if (name == "Point")
-		printf("Point: %p\n", name.cp());
-
 	StructType* type = new StructType;
 	type->m_name = name;
 	type->m_qualifiedName = qualifiedName;
@@ -1760,11 +1757,11 @@ TypeMgr::setupAllPrimitiveTypes() {
 	setupPrimitiveType(TypeKind_Int64,     8);
 	setupPrimitiveType(TypeKind_Int64_u,   8);
 	setupPrimitiveType(TypeKind_Int16_be,  2);
-	setupPrimitiveType(TypeKind_Int16_beu, 2);
+	setupPrimitiveType(TypeKind_Int16_ube, 2);
 	setupPrimitiveType(TypeKind_Int32_be,  4);
-	setupPrimitiveType(TypeKind_Int32_beu, 4);
+	setupPrimitiveType(TypeKind_Int32_ube, 4);
 	setupPrimitiveType(TypeKind_Int64_be,  8);
-	setupPrimitiveType(TypeKind_Int64_beu, 8);
+	setupPrimitiveType(TypeKind_Int64_ube, 8);
 	setupPrimitiveType(TypeKind_Float,     4);
 	setupPrimitiveType(TypeKind_Double,    8);
 

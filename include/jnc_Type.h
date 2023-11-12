@@ -56,23 +56,23 @@ enum jnc_TypeKind {
 
 	// little-endian integers
 
-	jnc_TypeKind_Int8,                // is1
-	jnc_TypeKind_Int8_u,              // iu1
-	jnc_TypeKind_Int16,               // is2
-	jnc_TypeKind_Int16_u,             // iu2
-	jnc_TypeKind_Int32,               // is4
-	jnc_TypeKind_Int32_u,             // iu4
-	jnc_TypeKind_Int64,               // is8
-	jnc_TypeKind_Int64_u,             // iu8
+	jnc_TypeKind_Int8,                // i1
+	jnc_TypeKind_Int8_u,              // u1
+	jnc_TypeKind_Int16,               // i2
+	jnc_TypeKind_Int16_u,             // u2
+	jnc_TypeKind_Int32,               // i4
+	jnc_TypeKind_Int32_u,             // u4
+	jnc_TypeKind_Int64,               // i8
+	jnc_TypeKind_Int64_u,             // u8
 
 	// big-endian integers
 
-	jnc_TypeKind_Int16_be,            // ibs2
-	jnc_TypeKind_Int16_beu,           // ibu2
-	jnc_TypeKind_Int32_be,            // ibs4
-	jnc_TypeKind_Int32_beu,           // ibu4
-	jnc_TypeKind_Int64_be,            // ibs8
-	jnc_TypeKind_Int64_beu,           // ibu8
+	jnc_TypeKind_Int16_be,            // ib2
+	jnc_TypeKind_Int16_ube,           // ub2
+	jnc_TypeKind_Int32_be,            // ib4
+	jnc_TypeKind_Int32_ube,           // ub4
+	jnc_TypeKind_Int64_be,            // ib8
+	jnc_TypeKind_Int64_ube,           // ub8
 
 	// floating point
 
@@ -94,18 +94,18 @@ enum jnc_TypeKind {
 	// function types
 
 	jnc_TypeKind_Function,            // F
-	jnc_TypeKind_Property,            // X
+	jnc_TypeKind_Property,            // Y
 
 	// pointers & references
 
-	jnc_TypeKind_DataPtr,             // PD
-	jnc_TypeKind_DataRef,             // RD
-	jnc_TypeKind_ClassPtr,            // PC
-	jnc_TypeKind_ClassRef,            // RC
-	jnc_TypeKind_FunctionPtr,         // PF
-	jnc_TypeKind_FunctionRef,         // RF
-	jnc_TypeKind_PropertyPtr,         // PX
-	jnc_TypeKind_PropertyRef,         // RX
+	jnc_TypeKind_DataPtr,             // P
+	jnc_TypeKind_DataRef,             // R
+	jnc_TypeKind_ClassPtr,            // P
+	jnc_TypeKind_ClassRef,            // R
+	jnc_TypeKind_FunctionPtr,         // P
+	jnc_TypeKind_FunctionRef,         // R
+	jnc_TypeKind_PropertyPtr,         // P
+	jnc_TypeKind_PropertyRef,         // R
 
 	// import types (resolved after linkage)
 
@@ -129,12 +129,12 @@ enum jnc_TypeKind {
 	jnc_TypeKind_IntPtr     = jnc_TypeKind_Int64,
 	jnc_TypeKind_IntPtr_u   = jnc_TypeKind_Int64_u,
 	jnc_TypeKind_IntPtr_be  = jnc_TypeKind_Int64_be,
-	jnc_TypeKind_IntPtr_beu = jnc_TypeKind_Int64_beu,
+	jnc_TypeKind_IntPtr_ube = jnc_TypeKind_Int64_ube,
 #else
 	jnc_TypeKind_IntPtr     = jnc_TypeKind_Int32,
 	jnc_TypeKind_IntPtr_u   = jnc_TypeKind_Int32_u,
 	jnc_TypeKind_IntPtr_be  = jnc_TypeKind_Int32_be,
-	jnc_TypeKind_IntPtr_beu = jnc_TypeKind_Int32_beu,
+	jnc_TypeKind_IntPtr_ube = jnc_TypeKind_Int32_ube,
 #endif
 
 	jnc_TypeKind_SizeT    = jnc_TypeKind_IntPtr_u,
@@ -585,11 +585,11 @@ const TypeKind
 	TypeKind_Int64               = jnc_TypeKind_Int64,
 	TypeKind_Int64_u             = jnc_TypeKind_Int64_u,
 	TypeKind_Int16_be            = jnc_TypeKind_Int16_be,
-	TypeKind_Int16_beu           = jnc_TypeKind_Int16_beu,
+	TypeKind_Int16_ube           = jnc_TypeKind_Int16_ube,
 	TypeKind_Int32_be            = jnc_TypeKind_Int32_be,
-	TypeKind_Int32_beu           = jnc_TypeKind_Int32_beu,
+	TypeKind_Int32_ube           = jnc_TypeKind_Int32_ube,
 	TypeKind_Int64_be            = jnc_TypeKind_Int64_be,
-	TypeKind_Int64_beu           = jnc_TypeKind_Int64_beu,
+	TypeKind_Int64_ube           = jnc_TypeKind_Int64_ube,
 	TypeKind_Float               = jnc_TypeKind_Float,
 	TypeKind_Double              = jnc_TypeKind_Double,
 	TypeKind_Array               = jnc_TypeKind_Array,
@@ -618,7 +618,7 @@ const TypeKind
 	TypeKind_IntPtr              = jnc_TypeKind_IntPtr,
 	TypeKind_IntPtr_u            = jnc_TypeKind_IntPtr_u,
 	TypeKind_IntPtr_be           = jnc_TypeKind_IntPtr_be,
-	TypeKind_IntPtr_beu          = jnc_TypeKind_IntPtr_beu,
+	TypeKind_IntPtr_ube          = jnc_TypeKind_IntPtr_ube,
 	TypeKind_SizeT               = jnc_TypeKind_SizeT,
 	TypeKind_Int                 = jnc_TypeKind_Int,
 	TypeKind_Int_u               = jnc_TypeKind_Int_u,

@@ -34,11 +34,17 @@ ClassPtrType::createSignature(
 	ClassPtrTypeKind ptrTypeKind,
 	uint_t flags
 ) {
-	sl::String signature = typeKind == TypeKind_ClassRef ? "RC" : "PC";
+	static const char* stringTable[] = {
+		"P",
+		"Pw",
+		"R",
+		"Rw"
+	};
 
-	if (ptrTypeKind == ClassPtrTypeKind_Weak)
-		signature += 'w';
+	size_t i = (typeKind - TypeKind_ClassPtr) * 2 + ptrTypeKind;
+	ASSERT(i < countof(stringTable));
 
+	sl::String signature = stringTable[i];
 	signature += getPtrTypeFlagSignature(flags);
 	signature += classType->getSignature();
 	return signature;

@@ -54,18 +54,19 @@ FunctionPtrType::createSignature(
 	FunctionPtrTypeKind ptrTypeKind,
 	uint_t flags
 ) {
-	sl::String signature = typeKind == TypeKind_FunctionRef ? "RF" : "PF";
+	static const char* stringTable[] = {
+		"P",
+		"Pw",
+		"Pt",
+		"R",
+		"Rw",
+		"Rt"
+	};
 
-	switch (ptrTypeKind) {
-	case FunctionPtrTypeKind_Thin:
-		signature += 't';
-		break;
+	size_t i = (typeKind - TypeKind_FunctionPtr) * 2 + ptrTypeKind;
+	ASSERT(i < countof(stringTable));
 
-	case FunctionPtrTypeKind_Weak:
-		signature += 'w';
-		break;
-	}
-
+	sl::String signature = stringTable[i];
 	signature += getPtrTypeFlagSignature(flags);
 	signature += functionType->getSignature();
 	return signature;

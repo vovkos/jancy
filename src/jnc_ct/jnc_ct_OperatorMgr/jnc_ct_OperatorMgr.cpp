@@ -133,7 +133,7 @@ OperatorMgr::OperatorMgr() {
 	for (size_t i = TypeKind_Int8; i <= TypeKind_Int64_u; i++)
 		m_castOperatorTable[i] = &m_cast_Int;
 
-	for (size_t i = TypeKind_Int16_be; i <= TypeKind_Int64_beu; i++)
+	for (size_t i = TypeKind_Int16_be; i <= TypeKind_Int64_ube; i++)
 		m_castOperatorTable[i] = &m_cast_BeInt;
 
 	m_castOperatorTable[TypeKind_Void]        = &m_cast_Void;

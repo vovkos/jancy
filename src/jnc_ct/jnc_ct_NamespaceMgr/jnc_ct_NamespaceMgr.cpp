@@ -140,6 +140,7 @@ NamespaceMgr::addStdItems() {
 		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_int64_t)) &&
 		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_uint64_t)) &&
 		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_qword_t)) &&
+		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_ulong_t)) &&
 		globalNspace->addItem(jncNspace) &&
 		globalNspace->addItem(stdNspace) &&
 		jncNspace->addItem("GcStats", gcImport) &&

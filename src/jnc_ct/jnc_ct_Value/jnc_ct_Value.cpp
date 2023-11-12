@@ -163,7 +163,7 @@ Value::getLlvmConst(
 	case TypeKind_Int16:
 	case TypeKind_Int16_u:
 	case TypeKind_Int16_be:
-	case TypeKind_Int16_beu:
+	case TypeKind_Int16_ube:
 		integer = *(int16_t*)p;
 		llvmConst = llvm::ConstantInt::get(
 			type->getLlvmType(),
@@ -174,7 +174,7 @@ Value::getLlvmConst(
 	case TypeKind_Int32:
 	case TypeKind_Int32_u:
 	case TypeKind_Int32_be:
-	case TypeKind_Int32_beu:
+	case TypeKind_Int32_ube:
 		integer = *(int32_t*)p;
 		llvmConst = llvm::ConstantInt::get(
 			type->getLlvmType(),
@@ -185,7 +185,7 @@ Value::getLlvmConst(
 	case TypeKind_Int64:
 	case TypeKind_Int64_u:
 	case TypeKind_Int64_be:
-	case TypeKind_Int64_beu:
+	case TypeKind_Int64_ube:
 		integer = *(int64_t*)p;
 		llvmConst = llvm::ConstantInt::get(
 			type->getLlvmType(),

@@ -78,7 +78,7 @@ jnc_getTypeKindFlags(jnc_TypeKind typeKind) {
 		jnc_TypeKindFlag_Numeric |
 		jnc_TypeKindFlag_ErrorCode,
 
-		jnc_TypeKindFlag_Unsigned |     // jnc_TypeKind_Int16_beu
+		jnc_TypeKindFlag_Unsigned |     // jnc_TypeKind_Int16_ube
 		jnc_TypeKindFlag_BigEndian |
 		jnc_TypeKindFlag_Integer |
 		jnc_TypeKindFlag_Numeric |
@@ -89,7 +89,7 @@ jnc_getTypeKindFlags(jnc_TypeKind typeKind) {
 		jnc_TypeKindFlag_Numeric |
 		jnc_TypeKindFlag_ErrorCode,
 
-		jnc_TypeKindFlag_Unsigned |     // jnc_TypeKind_Int32_beu
+		jnc_TypeKindFlag_Unsigned |     // jnc_TypeKind_Int32_ube
 		jnc_TypeKindFlag_BigEndian |
 		jnc_TypeKindFlag_Integer |
 		jnc_TypeKindFlag_Numeric |
@@ -100,7 +100,7 @@ jnc_getTypeKindFlags(jnc_TypeKind typeKind) {
 		jnc_TypeKindFlag_Numeric |
 		jnc_TypeKindFlag_ErrorCode,
 
-		jnc_TypeKindFlag_Unsigned |     // jnc_TypeKind_Int64_beu
+		jnc_TypeKindFlag_Unsigned |     // jnc_TypeKind_Int64_ube
 		jnc_TypeKindFlag_BigEndian |
 		jnc_TypeKindFlag_Integer |
 		jnc_TypeKindFlag_Numeric |

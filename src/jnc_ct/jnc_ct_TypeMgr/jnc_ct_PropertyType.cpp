@@ -65,7 +65,7 @@ PropertyType::createSignature(
 	const FunctionTypeOverload& setterType,
 	uint_t flags
 ) {
-	sl::String string = "X";
+	sl::String string = "Y";
 
 	if (flags & PropertyTypeFlag_Bindable)
 		string += 'b';

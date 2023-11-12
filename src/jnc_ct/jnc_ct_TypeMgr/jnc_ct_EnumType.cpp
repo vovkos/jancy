@@ -137,11 +137,17 @@ EnumType::createConst(
 
 void
 EnumType::prepareSignature() {
-	const char* signaturePrefix = (m_flags & EnumTypeFlag_BitFlag) ?
-		(m_flags & EnumTypeFlag_Exposed) ? "EZ" : "EF" :
-		(m_flags & EnumTypeFlag_Exposed) ? "EC" : "EE";
+	const char* stringTable[] = {
+		"EE", // 0
+		"EC", // 1 - EnumTypeFlag_Exposed
+		"EF", // 2 - EnumTypeFlag_BitFlag
+		"EZ", // 3 - EnumTypeFlag_Exposed | EnumTypeFlag_BitFlag
+	};
 
-	m_signature = signaturePrefix + m_qualifiedName;
+	size_t i = (m_flags & EnumTypeFlag__All) >> 16;
+	ASSERT(i < countof(stringTable));
+
+	m_signature = stringTable[i] + m_qualifiedName;
 }
 
 bool

@@ -202,11 +202,11 @@ getType(ct::Type* type) {
 		StdType_Type,             // TypeKind_Int64
 		StdType_Type,             // TypeKind_Int64_u
 		StdType_Type,             // TypeKind_Int16_be
-		StdType_Type,             // TypeKind_Int16_beu
+		StdType_Type,             // TypeKind_Int16_ube
 		StdType_Type,             // TypeKind_Int32_be
-		StdType_Type,             // TypeKind_Int32_beu
+		StdType_Type,             // TypeKind_Int32_ube
 		StdType_Type,             // TypeKind_Int64_be
-		StdType_Type,             // TypeKind_Int64_beu
+		StdType_Type,             // TypeKind_Int64_ube
 		StdType_Type,             // TypeKind_Float
 		StdType_Type,             // TypeKind_Double
 

@@ -121,6 +121,8 @@ getPtrTypeFlagString(uint_t flags) {
 
 const char*
 getPtrTypeFlagSignature(PtrTypeFlag flag) {
+	// possible conflicts with primitive type signatures are OK
+
 	static const char* stringTable[] = {
 		"s",  // PtrTypeFlag_Safe      = 0x0010000
 		"c",  // PtrTypeFlag_Const     = 0x0020000
@@ -146,7 +148,7 @@ getPtrTypeFlagSignature(uint_t flags) {
 		return sl::StringRef();
 
 	PtrTypeFlag flag = getFirstFlag<PtrTypeFlag>(flags);
-	sl::StringRef string0 = getPtrTypeFlagSignature(flag);
+	sl::StringRef string0 = sl::StringRef(getPtrTypeFlagSignature(flag), 1);
 	flags &= ~flag;
 	if (!flags)
 		return string0;
@@ -154,7 +156,7 @@ getPtrTypeFlagSignature(uint_t flags) {
 	sl::String string = string0;
 	while (flags) {
 		flag = getFirstFlag<PtrTypeFlag>(flags);
-		string += getPtrTypeFlagSignature(flag);
+		string.append(getPtrTypeFlagSignature(flag), 1);
 		flags &= ~flag;
 	}
 
@@ -425,26 +427,26 @@ Type::prepareDoxyTypeString() {
 void
 Type::prepareSignature() {
 	static const char* primitiveTypeSignatureTable[TypeKind_Double + 1] = {
-		"v",    // TypeKind_Void,
-		"z",    // TypeKind_Variant,
-		"s",    // TypeKind_String,
-		"b",    // TypeKind_Bool,
-		"is1",  // TypeKind_Int8,
-		"iu1",  // TypeKind_Int8_u,
-		"is2",  // TypeKind_Int16,
-		"iu2",  // TypeKind_Int16_u,
-		"is4",  // TypeKind_Int32,
-		"iu4",  // TypeKind_Int32_u,
-		"is8",  // TypeKind_Int64,
-		"iu8",  // TypeKind_Int64_u,
-		"ibs2", // TypeKind_Int16_be,
-		"ibu2", // TypeKind_Int16_beu,
-		"ibs4", // TypeKind_Int32_be,
-		"ibu4", // TypeKind_Int32_beu,
-		"ibs8", // TypeKind_Int64_be,
-		"ibu8", // TypeKind_Int64_beu,
-		"f4",   // TypeKind_Float,
-		"f8",   // TypeKind_Double,
+		"v",   // TypeKind_Void,
+		"z",   // TypeKind_Variant,
+		"s",   // TypeKind_String,
+		"b",   // TypeKind_Bool,
+		"i1",  // TypeKind_Int8,
+		"u1",  // TypeKind_Int8_u,
+		"i2",  // TypeKind_Int16,
+		"u2",  // TypeKind_Int16_u,
+		"i4",  // TypeKind_Int32,
+		"u4",  // TypeKind_Int32_u,
+		"i8",  // TypeKind_Int64,
+		"u8",  // TypeKind_Int64_u,
+		"ib2", // TypeKind_Int16_be,
+		"ub2", // TypeKind_Int16_ube,
+		"ib4", // TypeKind_Int32_be,
+		"ub4", // TypeKind_Int32_ube,
+		"ib8", // TypeKind_Int64_be,
+		"ub8", // TypeKind_Int64_ube,
+		"f4",  // TypeKind_Float,
+		"f8",  // TypeKind_Double,
 	};
 
 	if ((size_t)m_typeKind <= countof(primitiveTypeSignatureTable))
@@ -552,11 +554,11 @@ Type::prepareLlvmType() {
 		getLlvmType_int64,   // TypeKind_Int64
 		getLlvmType_int64,   // TypeKind_Int64_u
 		getLlvmType_int16,   // TypeKind_Int16_be
-		getLlvmType_int16,   // TypeKind_Int16_beu
+		getLlvmType_int16,   // TypeKind_Int16_ube
 		getLlvmType_int32,   // TypeKind_Int32_be
-		getLlvmType_int32,   // TypeKind_Int32_beu
+		getLlvmType_int32,   // TypeKind_Int32_ube
 		getLlvmType_int64,   // TypeKind_Int64_be
-		getLlvmType_int64,   // TypeKind_Int64_beu
+		getLlvmType_int64,   // TypeKind_Int64_ube
 		getLlvmType_float,   // TypeKind_Float
 		getLlvmType_double,  // TypeKind_Double
 	};
@@ -580,11 +582,11 @@ Type::prepareLlvmDiType() {
 	static char name_int64[]     = "long";
 	static char name_int64_u[]   = "unsigned long";
 	static char name_int16_be[]  = "bigendian short";
-	static char name_int16_beu[] = "bigendian unsigned short";
+	static char name_int16_ube[] = "bigendian unsigned short";
 	static char name_int32_be[]  = "bigendian int";
-	static char name_int32_beu[] = "bigendian unsigned int";
+	static char name_int32_ube[] = "bigendian unsigned int";
 	static char name_int64_be[]  = "bigendian long";
-	static char name_int64_beu[] = "bigendian unsigned long";
+	static char name_int64_ube[] = "bigendian unsigned long";
 	static char name_float[]     = "float";
 	static char name_double[]    = "double";
 
@@ -663,9 +665,9 @@ Type::prepareLlvmDiType() {
 			2
 		>,
 
-		// TypeKind_Int16_beu,
+		// TypeKind_Int16_ube,
 		getLlvmDiType_simple<
-			name_int16_beu,
+			name_int16_ube,
 			llvm::dwarf::DW_ATE_unsigned,
 			2
 		>,
@@ -677,9 +679,9 @@ Type::prepareLlvmDiType() {
 			4
 		>,
 
-		// TypeKind_Int32_beu,
+		// TypeKind_Int32_ube,
 		getLlvmDiType_simple<
-			name_int32_beu,
+			name_int32_ube,
 			llvm::dwarf::DW_ATE_unsigned,
 			4
 		>,
@@ -691,9 +693,9 @@ Type::prepareLlvmDiType() {
 			8
 		>,
 
-		// TypeKind_Int64_beu,
+		// TypeKind_Int64_ube,
 		getLlvmDiType_simple<
-			name_int64_beu,
+			name_int64_ube,
 			llvm::dwarf::DW_ATE_unsigned,
 			8
 		>,
@@ -858,7 +860,7 @@ getValueString_int16_be(
 }
 
 sl::StringRef
-getValueString_int16_beu(
+getValueString_int16_ube(
 	const void* p,
 	const char* formatSpec
 ) {
@@ -874,7 +876,7 @@ getValueString_int32_be(
 }
 
 sl::StringRef
-getValueString_int32_beu(
+getValueString_int32_ube(
 	const void* p,
 	const char* formatSpec
 ) {
@@ -890,7 +892,7 @@ getValueString_int64_be(
 }
 
 sl::StringRef
-getValueString_int64_beu(
+getValueString_int64_ube(
 	const void* p,
 	const char* formatSpec
 ) {
@@ -941,11 +943,11 @@ Type::getValueString(
 		getValueString_int64,      // TypeKind_Int64
 		getValueString_int64_u,    // TypeKind_Int64_u
 		getValueString_int16_be,   // TypeKind_Int16_be
-		getValueString_int16_beu,  // TypeKind_Int16_beu
+		getValueString_int16_ube,  // TypeKind_Int16_ube
 		getValueString_int32_be,   // TypeKind_Int32_be
-		getValueString_int32_beu,  // TypeKind_Int32_beu
+		getValueString_int32_ube,  // TypeKind_Int32_ube
 		getValueString_int64_be,   // TypeKind_Int64_be
-		getValueString_int64_beu,  // TypeKind_Int64_beu
+		getValueString_int64_ube,  // TypeKind_Int64_ube
 		getValueString_float,      // TypeKind_Float
 		getValueString_double,     // TypeKind_Double
 	};

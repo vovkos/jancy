@@ -37,11 +37,11 @@ enum TypeKind {
 	// big-endian integers
 
 	Int16_be,
-	Int16_beu,
+	Int16_ube,
 	Int32_be,
-	Int32_beu,
+	Int32_ube,
 	Int64_be,
-	Int64_beu,
+	Int64_ube,
 
 	// floating point
 
