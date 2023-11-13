@@ -960,6 +960,18 @@ FunctionMgr::getStdFunction(StdFunc func) {
 		function = createInternalFunction("jnc.variantIndexProperty.set", functionType);
 		break;
 
+	case StdFunc_StringCreate:
+		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_String);
+		argTypeArray[0] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Char)->getDataPtrType(
+			TypeKind_DataPtr,
+			DataPtrTypeKind_Normal,
+			PtrTypeFlag_Const
+		);
+		argTypeArray[1] = m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT);
+		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 2);
+		function = createInternalFunction("jnc.stringCreate", functionType);
+		break;
+
 	case StdFunc_GcSafePoint:
 		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Void);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, NULL, 0);

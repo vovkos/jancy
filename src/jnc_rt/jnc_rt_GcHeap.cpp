@@ -1078,6 +1078,12 @@ GcHeap::markVariant(const Variant& variant) {
 }
 
 void
+GcHeap::markString(const String& string) {
+	markDataPtr(string.m_ptr);
+	markDataPtr(string.m_ptr_sz);
+}
+
+void
 GcHeap::markClass(Box* box) {
 	ASSERT(box->m_type->getTypeKind() == TypeKind_Class);
 

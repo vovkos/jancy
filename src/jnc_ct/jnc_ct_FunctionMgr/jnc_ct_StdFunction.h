@@ -59,6 +59,8 @@ enum StdFunc {
 	StdFunc_VariantIndexProperty_get,
 	StdFunc_VariantIndexProperty_set,
 
+	StdFunc_StringCreate,
+
 	StdFunc_AppendFmtLiteral_a,
 	StdFunc_AppendFmtLiteral_p,
 	StdFunc_AppendFmtLiteral_i32,

@@ -35,12 +35,8 @@ jnc_strLen(jnc_DataPtr ptr) {
 
 	char* p0 = (char*)ptr.m_p;
 	char* end = (char*)ptr.m_validator->m_rangeEnd;
-
-	char* p = p0;
-	while (p < end && *p)
-		p++;
-
-	return p - p0;
+	char* p = (char*)memchr(p0, 0, end - p0);
+	return p ? p - p0 : end - p0;
 }
 
 JNC_EXTERN_C

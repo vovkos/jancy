@@ -840,6 +840,9 @@ protected:
 	createVariantStructType();
 
 	StructType*
+	createStringStructType();
+
+	StructType*
 	createGcShadowStackFrameType();
 
 	StructType*

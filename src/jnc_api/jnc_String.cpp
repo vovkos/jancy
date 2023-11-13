@@ -28,35 +28,60 @@
 
 #else // _JNC_DYNAMIC_EXTENSION_LIB
 
+inline
+bool
+isValidString(const jnc_String* string) {
+	return
+		!string->m_ptr.m_validator ||
+		(char*)string->m_ptr.m_p + string->m_length <= (char*)string->m_ptr.m_validator->m_rangeEnd;
+}
+
 JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
 jnc_String_isEqual(
-	const jnc_String* string1,
+	const jnc_String* string,
 	const jnc_String* string2
 ) {
-	ASSERT(
-		(!string1->m_ptr.m_validator ||
-		(char*)string1->m_ptr.m_p + string1->m_length <= (char*)string1->m_ptr.m_validator->m_rangeEnd) &&
-		(!string2->m_ptr.m_validator ||
-		(char*)string2->m_ptr.m_p + string2->m_length <= (char*)string2->m_ptr.m_validator->m_rangeEnd)
-	);
+	ASSERT(isValidString(string) && isValidString(string2));
 
-	return
-		string1->m_length == string2->m_length &&
-		memcmp(string1->m_ptr.m_p, string2->m_ptr.m_p, string1->m_length) == 0;
+	sl::StringRef stringRef1((char*)string->m_ptr.m_p, string->m_length);
+	sl::StringRef stringRef2((char*)string2->m_ptr.m_p, string2->m_length);
+	return stringRef1.isEqual(stringRef2);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+bool_t
+jnc_String_isEqualIgnoreCase(
+	const jnc_String* string,
+	const jnc_String* string2
+) {
+	ASSERT(isValidString(string) && isValidString(string2));
+
+	sl::StringRef stringRef1((char*)string->m_ptr.m_p, string->m_length);
+	sl::StringRef stringRef2((char*)string2->m_ptr.m_p, string2->m_length);
+	return stringRef1.isEqualIgnoreCase(stringRef2);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 size_t
 jnc_String_hash(const jnc_String* string) {
-	ASSERT(
-		!string->m_ptr.m_validator ||
-		(char*)string->m_ptr.m_p + string->m_length <= (char*)string->m_ptr.m_validator->m_rangeEnd
-	);
+	ASSERT(isValidString(string));
 
-	return sl::djb2(string->m_ptr.m_p, string->m_length);
+	sl::StringRef stringRef((char*)string->m_ptr.m_p, string->m_length);
+	return stringRef.hash();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+size_t
+jnc_String_hashIgnoreCase(const jnc_String* string) {
+	ASSERT(isValidString(string));
+
+	sl::StringRef stringRef((char*)string->m_ptr.m_p, string->m_length);
+	return stringRef.hashIgnoreCase();
 }
 
 JNC_EXTERN_C

@@ -204,6 +204,18 @@ testCallSite() {
 	printf("after JNC_END_CALL_SITE\n");
 }
 
+void
+foo(jnc::String string) {
+	printf("%p : %p, %d B: %s\n",
+		string.m_ptr.m_p,
+		string.m_ptr_sz.m_p,
+		string.m_length,
+		string.m_ptr_sz.m_p ?
+			string.m_ptr_sz.m_p :
+			sl::StringRef((char*)string.m_ptr.m_p, string.m_length).sz()
+	);
+}
+
 //..............................................................................
 
 JNC_DEFINE_LIB(
@@ -228,6 +240,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP(TestLib)
 //	JNC_MAP_FUNCTION("testVariant", &testVariant)
 //	JNC_MAP_FUNCTION("testAlloc", testAlloc)
 //	JNC_MAP_FUNCTION("testCallSite", testCallSite)
+	JNC_MAP_FUNCTION("foo", foo)
 JNC_END_LIB_FUNCTION_MAP()
 
 //..............................................................................

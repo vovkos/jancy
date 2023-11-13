@@ -136,20 +136,21 @@ OperatorMgr::OperatorMgr() {
 	for (size_t i = TypeKind_Int16_be; i <= TypeKind_Int64_ube; i++)
 		m_castOperatorTable[i] = &m_cast_BeInt;
 
-	m_castOperatorTable[TypeKind_Void]        = &m_cast_Void;
-	m_castOperatorTable[TypeKind_Float]       = &m_cast_Fp;
-	m_castOperatorTable[TypeKind_Double]      = &m_cast_Fp;
-	m_castOperatorTable[TypeKind_Variant]     = &m_cast_Variant;
-	m_castOperatorTable[TypeKind_Array]       = &m_cast_Array;
-	m_castOperatorTable[TypeKind_Enum]        = &m_cast_Enum;
-	m_castOperatorTable[TypeKind_Struct]      = &m_cast_Struct;
-	m_castOperatorTable[TypeKind_DataPtr]     = &m_cast_DataPtr;
-	m_castOperatorTable[TypeKind_DataRef]     = &m_cast_DataRef;
-	m_castOperatorTable[TypeKind_ClassPtr]    = &m_cast_ClassPtr;
-	m_castOperatorTable[TypeKind_FunctionPtr] = &m_cast_FunctionPtr;
-	m_castOperatorTable[TypeKind_FunctionRef] = &m_cast_FunctionRef;
-	m_castOperatorTable[TypeKind_PropertyPtr] = &m_cast_PropertyPtr;
-	m_castOperatorTable[TypeKind_PropertyRef] = &m_cast_PropertyRef;
+	m_castOperatorTable[TypeKind_Void]          = &m_cast_Void;
+	m_castOperatorTable[TypeKind_Float]         = &m_cast_Fp;
+	m_castOperatorTable[TypeKind_Double]        = &m_cast_Fp;
+	m_castOperatorTable[TypeKind_Variant]       = &m_cast_Variant;
+	m_castOperatorTable[TypeKind_String]        = &m_cast_String;
+	m_castOperatorTable[TypeKind_Array]         = &m_cast_Array;
+	m_castOperatorTable[TypeKind_Enum]          = &m_cast_Enum;
+	m_castOperatorTable[TypeKind_Struct]        = &m_cast_Struct;
+	m_castOperatorTable[TypeKind_DataPtr]       = &m_cast_DataPtr;
+	m_castOperatorTable[TypeKind_DataRef]       = &m_cast_DataRef;
+	m_castOperatorTable[TypeKind_ClassPtr]      = &m_cast_ClassPtr;
+	m_castOperatorTable[TypeKind_FunctionPtr]   = &m_cast_FunctionPtr;
+	m_castOperatorTable[TypeKind_FunctionRef]   = &m_cast_FunctionRef;
+	m_castOperatorTable[TypeKind_PropertyPtr]   = &m_cast_PropertyPtr;
+	m_castOperatorTable[TypeKind_PropertyRef]   = &m_cast_PropertyRef;
 	m_castOperatorTable[TypeKind_TypedefShadow] = &m_cast_Typedef;
 
 	m_unsafeEnterCount = 0;

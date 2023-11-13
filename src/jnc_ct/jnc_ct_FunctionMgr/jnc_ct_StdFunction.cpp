@@ -99,6 +99,8 @@ getStdFunctionSource(StdFunc stdFunc) {
 		{ NULL },                                // StdFunc_VariantIndexProperty_get,
 		{ NULL },                                // StdFunc_VariantIndexProperty_set,
 
+		{ NULL },                                // StdFunc_StringCopy,
+
 		{                                        // StdFunc_AppendFmtLiteral_a,
 			appendFmtLiteralSrc_a,
 			lengthof(appendFmtLiteralSrc_a),

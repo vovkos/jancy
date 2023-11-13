@@ -324,6 +324,9 @@ public:
 	markVariant(const Variant& variant);
 
 	void
+	markString(const String& string);
+
+	void
 	markClass(Box* box);
 
 	void

@@ -926,13 +926,42 @@ Type::getValueString(
 		"<unsupported-type>";
 }
 
+typedef
+void
+MarkGcRootsFunc(
+	const void* p,
+	rt::GcHeap* gcHeap
+);
+
+void
+markGcRoots_variant(
+	const void* p,
+	rt::GcHeap* gcHeap
+) {
+	gcHeap->markVariant(*(Variant*)p);
+}
+
+void
+markGcRoots_string(
+	const void* p,
+	rt::GcHeap* gcHeap
+) {
+	gcHeap->markString(*(String*)p);
+}
+
 void
 Type::markGcRoots(
 	const void* p,
 	rt::GcHeap* gcHeap
 ) {
-	ASSERT(m_typeKind == TypeKind_Variant);
-	gcHeap->markVariant(*(Variant*)p);
+	static MarkGcRootsFunc* funcTable[2] = {
+		markGcRoots_variant,
+		markGcRoots_string
+	};
+
+	size_t i = m_typeKind - TypeKind_Variant;
+	ASSERT(i < countof(funcTable));
+	funcTable[i](p, gcHeap);
 }
 
 //..............................................................................

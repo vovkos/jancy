@@ -207,6 +207,10 @@ Value::getLlvmConst(
 		llvmConst = LlvmPodStruct::get((StructType*)module->m_typeMgr.getStdType(StdType_VariantStruct), p);
 		break;
 
+	case TypeKind_String:
+		llvmConst = LlvmPodStruct::get((StructType*)module->m_typeMgr.getStdType(StdType_StringStruct), p);
+		break;
+
 	case TypeKind_Array:
 		llvmConst = LlvmPodArray::get((ArrayType*)type, p);
 		break;

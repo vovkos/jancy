@@ -172,6 +172,10 @@ TypeMgr::getStdType(StdType stdType) {
 		type = createVariantStructType();
 		break;
 
+	case StdType_StringStruct:
+		type = createStringStructType();
+		break;
+
 	case StdType_GcShadowStackFrame:
 		type = createGcShadowStackFrameType();
 		break;
@@ -2038,6 +2042,17 @@ TypeMgr::createVariantStructType() {
 	type->createField("!_m_padding", getPrimitiveType(TypeKind_Int32));
 #endif
 	type->createField("!m_type", getStdType(StdType_BytePtr));
+	type->ensureLayout();
+	return type;
+}
+
+StructType*
+TypeMgr::createStringStructType() {
+	Type* ptrType = getPrimitiveType(TypeKind_Char)->getDataPtrType(DataPtrTypeKind_Normal, PtrTypeFlag_Const);
+	StructType* type = createInternalStructType("jnc.String");
+	type->createField("!m_ptr", ptrType);
+	type->createField("!m_ptr_2", ptrType);
+	type->createField("!m_length", getPrimitiveType(TypeKind_SizeT));
 	type->ensureLayout();
 	return type;
 }

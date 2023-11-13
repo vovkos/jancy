@@ -15,6 +15,7 @@
 
 #include "jnc_RuntimeStructs.h"
 #include "jnc_OpKind.h"
+#include "jnc_String.h"
 
 /**
 
@@ -175,6 +176,7 @@ struct jnc_Variant {
 		jnc_DataPtr m_dataPtr;
 		jnc_FunctionPtr m_functionPtr;
 		jnc_PropertyPtr m_propertyPtr;
+		jnc_String m_string;
 
 		struct {
 			char m_buffer[jnc_Variant_DataSize];

@@ -14,7 +14,6 @@
 #define _JNC_STRING_H
 
 #include "jnc_RuntimeStructs.h"
-#include "jnc_OpKind.h"
 
 /**
 
@@ -42,8 +41,19 @@ jnc_String_isEqual(
 );
 
 JNC_EXTERN_C
+bool_t
+jnc_String_isEqualIgnoreCase(
+	const jnc_String* string,
+	const jnc_String* string2
+);
+
+JNC_EXTERN_C
 size_t
 jnc_String_hash(const jnc_String* string);
+
+JNC_EXTERN_C
+size_t
+jnc_String_hashIgnoreCase(const jnc_String* string);
 
 JNC_EXTERN_C
 jnc_DataPtr
@@ -71,9 +81,19 @@ struct jnc_String {
 		return jnc_String_isEqual(this, string2) != 0;
 	}
 
+	bool
+	isEqualIgnoreCase(const jnc_String* string2) const {
+		return jnc_String_isEqualIgnoreCase(this, string2) != 0;
+	}
+
 	size_t
 	hash() const {
 		return jnc_String_hash(this);
+	}
+
+	size_t
+	hashIgnoreCase() const {
+		return jnc_String_hashIgnoreCase(this);
 	}
 
 	jnc_DataPtr

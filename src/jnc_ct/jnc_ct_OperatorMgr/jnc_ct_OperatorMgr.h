@@ -29,6 +29,7 @@
 #include "jnc_ct_CastOp_Int.h"
 #include "jnc_ct_CastOp_Fp.h"
 #include "jnc_ct_CastOp_Variant.h"
+#include "jnc_ct_CastOp_String.h"
 #include "jnc_ct_CastOp_Array.h"
 #include "jnc_ct_CastOp_Struct.h"
 #include "jnc_ct_CastOp_DataPtr.h"
@@ -163,6 +164,7 @@ protected:
 	Cast_Fp m_cast_Fp;
 	Cast_Variant m_cast_Variant;
 	Cast_FromVariant m_cast_FromVariant;
+	Cast_String m_cast_String;
 	Cast_Array m_cast_Array;
 	Cast_Enum m_cast_Enum;
 	Cast_Struct m_cast_Struct;
