@@ -77,7 +77,6 @@ protected:
 
 public:
 	~HidDb() {
-		printf("HidDb::~HidDb\n");
 		clear();
 	}
 
