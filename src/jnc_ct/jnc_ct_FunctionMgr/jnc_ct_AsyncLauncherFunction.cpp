@@ -89,7 +89,6 @@ AsyncLauncherFunction::compile() {
 
 	Type* argType = promiseType->getClassPtrType(ClassPtrTypeKind_Normal, PtrTypeFlag_Safe);
 	uint_t flags = m_type->getFlags() & FunctionTypeFlag_AsyncErrorCode;
-
 	FunctionType* functionType = m_module->m_typeMgr.getFunctionType(&argType, 1, flags);
 
 	AsyncSequencerFunction* sequencerFunc = m_module->m_functionMgr.createFunction<AsyncSequencerFunction>(
@@ -120,11 +119,7 @@ bool
 AsyncLauncherFunction::generateCodeAssist() {
 	ASSERT(isClassPtrType(m_type->getReturnType(), (ClassType*)m_module->m_typeMgr.getStdType(StdType_Promise))); // should only be called once
 
-	m_type = m_module->m_typeMgr.getFunctionType(
-		m_type->getAsyncReturnType(),
-		m_type->getArgArray()
-	);
-
+	m_type = m_module->m_typeMgr.getFunctionType(m_type->getAsyncReturnType(), m_type->getArgArray());
 	return Function::compile();
 }
 

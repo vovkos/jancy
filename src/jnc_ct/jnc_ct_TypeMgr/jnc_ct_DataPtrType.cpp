@@ -143,7 +143,7 @@ DataPtrType::calcFoldedDualType(
 		m_module->m_typeMgr.foldDualType(m_targetType, isAlien, isContainerConst) :
 		m_targetType;
 
-	uint_t flags = m_flags & ~(PtrTypeFlag_ReadOnly | PtrTypeFlag_CMut | PtrTypeFlag_DualTarget);
+	uint_t flags = m_flags & (PtrTypeFlag__All & ~(PtrTypeFlag_ReadOnly | PtrTypeFlag_CMut | PtrTypeFlag_DualTarget));
 
 	if ((m_flags & PtrTypeFlag_ReadOnly) && isAlien)
 		flags |= PtrTypeFlag_Const;

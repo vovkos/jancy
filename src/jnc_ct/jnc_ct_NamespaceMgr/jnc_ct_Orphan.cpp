@@ -198,7 +198,7 @@ Orphan::adoptOrphanFunction(ModuleItem* item) {
 			originType->getCallConv(),
 			originType->getReturnType(),
 			argArray,
-			originType->getFlags()
+			originType->getFlags() & FunctionTypeFlag__All
 		);
 	}
 

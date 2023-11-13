@@ -65,6 +65,7 @@ enum jnc_ClassTypeFlag {
 	jnc_ClassTypeFlag_Opaque             = 0x040000,
 	jnc_ClassTypeFlag_OpaqueNonCreatable = 0x080000,
 	jnc_ClassTypeFlag_Creatable          = 0x100000,
+	jnc_ClassTypeFlag__All               = 0x1f0000,
 };
 
 typedef enum jnc_ClassTypeFlag jnc_ClassTypeFlag;
@@ -356,7 +357,8 @@ const ClassTypeFlag
 	ClassTypeFlag_Closure            = jnc_ClassTypeFlag_Closure,
 	ClassTypeFlag_Opaque             = jnc_ClassTypeFlag_Opaque,
 	ClassTypeFlag_OpaqueNonCreatable = jnc_ClassTypeFlag_OpaqueNonCreatable,
-	ClassTypeFlag_Creatable          = jnc_ClassTypeFlag_Creatable;
+	ClassTypeFlag_Creatable          = jnc_ClassTypeFlag_Creatable,
+	ClassTypeFlag__All               = jnc_ClassTypeFlag__All;
 
 //..............................................................................
 

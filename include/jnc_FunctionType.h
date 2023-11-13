@@ -49,6 +49,8 @@ enum jnc_FunctionTypeFlag {
 	jnc_FunctionTypeFlag_Async          = 0x200000,
 	jnc_FunctionTypeFlag_AsyncErrorCode = 0x400000,
 	jnc_FunctionTypeFlag_IntExtArgs     = 0x800000,
+
+	jnc_FunctionTypeFlag__All           = 0xff0000,
 	jnc_FunctionTypeFlag__User =
 		jnc_FunctionTypeFlag_ErrorCode |
 		jnc_FunctionTypeFlag_Unsafe |
@@ -262,6 +264,7 @@ const FunctionTypeFlag
 	FunctionTypeFlag_Async          = jnc_FunctionTypeFlag_Async,
 	FunctionTypeFlag_AsyncErrorCode = jnc_FunctionTypeFlag_AsyncErrorCode,
 	FunctionTypeFlag_IntExtArgs     = jnc_FunctionTypeFlag_IntExtArgs,
+	FunctionTypeFlag__All           = jnc_FunctionTypeFlag__All,
 	FunctionTypeFlag__User          = jnc_FunctionTypeFlag__User;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

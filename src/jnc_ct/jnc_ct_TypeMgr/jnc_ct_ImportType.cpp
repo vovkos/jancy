@@ -61,7 +61,7 @@ NamedImportType::createSignature(
 	Namespace* anchorNamespace,
 	const QualifiedName& orphanName
 ) {
-	sl::String signature = "ZN" + anchorNamespace->createQualifiedName(name);
+	sl::String signature = "IN" + anchorNamespace->createQualifiedName(name);
 	if (!orphanName.isEmpty()) {
 		signature += '-';
 		signature += orphanName.getFullName();

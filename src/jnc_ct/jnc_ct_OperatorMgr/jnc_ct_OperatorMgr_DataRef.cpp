@@ -329,7 +329,11 @@ OperatorMgr::makeLeanDataPtr(
 		((DataPtrType*)value.getType())->getPtrTypeKind() == DataPtrTypeKind_Normal);
 
 	DataPtrType* ptrType = ((DataPtrType*)value.getType());
-	ptrType = ptrType->getTargetType()->getDataPtrType(DataPtrTypeKind_Lean, ptrType->getFlags());
+	ptrType = ptrType->getTargetType()->getDataPtrType(
+		DataPtrTypeKind_Lean,
+		ptrType->getFlags() & PtrTypeFlag__All
+	);
+
 	Type* validatorType = m_module->m_typeMgr.getStdType(StdType_DataPtrValidatorPtr);
 
 	Value ptrValue;

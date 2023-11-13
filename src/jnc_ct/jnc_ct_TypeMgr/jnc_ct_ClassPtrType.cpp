@@ -113,7 +113,7 @@ ClassPtrType::calcFoldedDualType(
 ) {
 	ASSERT(isDualType(this));
 
-	uint_t flags = m_flags & ~(PtrTypeFlag_ReadOnly | PtrTypeFlag_CMut | PtrTypeFlag_DualEvent);
+	uint_t flags = m_flags & (PtrTypeFlag__All & ~(PtrTypeFlag_ReadOnly | PtrTypeFlag_CMut | PtrTypeFlag_DualEvent));
 
 	if (isAlien) {
 		if (m_flags & PtrTypeFlag_ReadOnly)

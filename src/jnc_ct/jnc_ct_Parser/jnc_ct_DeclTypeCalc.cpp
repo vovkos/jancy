@@ -478,7 +478,6 @@ DeclTypeCalc::getFunctionType(Type* returnType) {
 	CallConv* callConv = m_module->m_typeMgr.getCallConv(callConvKind);
 
 	uint_t typeFlags = suffix->getFunctionTypeFlags();
-
 	if (m_typeModifiers & TypeModifier_ErrorCode)
 		typeFlags |= FunctionTypeFlag_ErrorCode;
 
@@ -514,8 +513,6 @@ DeclTypeCalc::getFunctionType(Type* returnType) {
 
 PropertyType*
 DeclTypeCalc::getPropertyType(Type* returnType) {
-	uint_t typeFlags = 0;
-
 	returnType = prepareReturnType(returnType);
 	if (!returnType)
 		return NULL;
@@ -528,6 +525,7 @@ DeclTypeCalc::getPropertyType(Type* returnType) {
 	CallConvKind callConvKind = getCallConvKindFromModifiers(m_typeModifiers);
 	CallConv* callConv = m_module->m_typeMgr.getCallConv(callConvKind);
 
+	uint_t typeFlags = 0;
 	if (m_typeModifiers & TypeModifier_Const)
 		typeFlags |= PropertyTypeFlag_Const;
 
@@ -538,11 +536,7 @@ DeclTypeCalc::getPropertyType(Type* returnType) {
 	m_typeModifiers &= ~TypeModifierMaskKind_Property;
 
 	if (!isIndexed)
-		return m_module->m_typeMgr.getSimplePropertyType(
-			callConv,
-			returnType,
-			typeFlags
-		);
+		return m_module->m_typeMgr.getSimplePropertyType(callConv, returnType, typeFlags);
 
 	// indexed property
 

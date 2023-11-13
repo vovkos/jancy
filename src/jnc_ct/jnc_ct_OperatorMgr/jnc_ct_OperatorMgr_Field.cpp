@@ -184,12 +184,25 @@ OperatorMgr::getStructField(
 			if (ptrTypeKind == DataPtrTypeKind_Normal) {
 				DataPtr ptr = *(DataPtr*)opValue.getConstData();
 				ptr.m_p = (char*)ptr.m_p + field->getOffset();
-				resultValue->createConst(&ptr, field->getType()->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Normal, type->getFlags()));
+				resultValue->createConst(
+					&ptr,
+					field->getType()->getDataPtrType(
+						TypeKind_DataRef,
+						DataPtrTypeKind_Normal,
+						type->getFlags() & PtrTypeFlag__All
+					)
+				);
 			} else {
 				ASSERT(ptrTypeKind == DataPtrTypeKind_Thin);
 				char* p = *(char**) opValue.getConstData();
 				p += field->getOffset();
-				resultValue->createConst(&p, field->getType()->getDataPtrType_c(TypeKind_DataRef, type->getFlags()));
+				resultValue->createConst(
+					&p,
+					field->getType()->getDataPtrType_c(
+						TypeKind_DataRef,
+						type->getFlags() & PtrTypeFlag__All
+					)
+				);
 			}
 		}
 
@@ -217,7 +230,7 @@ OperatorMgr::getStructField(
 	coord->m_llvmIndexArray.insert(0, 0);
 
 	DataPtrTypeKind ptrTypeKind = opType->getPtrTypeKind();
-	uint_t ptrTypeFlags = opType->getFlags() | field->getPtrTypeFlags();
+	uint_t ptrTypeFlags = (opType->getFlags() | field->getPtrTypeFlags()) & PtrTypeFlag__All;
 	if (field->getStorageKind() == StorageKind_Mutable)
 		ptrTypeFlags &= ~PtrTypeFlag_Const;
 
@@ -312,7 +325,7 @@ OperatorMgr::getDynamicField(
 	DataPtrTypeKind ptrTypeKind = opType->getPtrTypeKind();
 	ASSERT(ptrTypeKind != DataPtrTypeKind_Thin); // otherwise, getDynamicFieldFunc fails
 
-	uint_t ptrTypeFlags = opType->getFlags() | field->getPtrTypeFlags();
+	uint_t ptrTypeFlags = (opType->getFlags() | field->getPtrTypeFlags()) & PtrTypeFlag__All;
 	if (field->getStorageKind() == StorageKind_Mutable)
 		ptrTypeFlags &= ~PtrTypeFlag_Const;
 
@@ -353,7 +366,7 @@ OperatorMgr::getUnionField(
 
 	DataPtrType* opType = (DataPtrType*)opValue.getType();
 
-	uint_t ptrTypeFlags = opType->getFlags() | field->getPtrTypeFlags();
+	uint_t ptrTypeFlags = (opType->getFlags() | field->getPtrTypeFlags()) & PtrTypeFlag__All;
 	if (field->getStorageKind() == StorageKind_Mutable)
 		ptrTypeFlags &= ~PtrTypeFlag_Const;
 
@@ -404,7 +417,7 @@ OperatorMgr::getClassField(
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_ClassPtr);
 	ClassPtrType* opType = (ClassPtrType*)opValue.getType();
 
-	uint_t ptrTypeFlags = opType->getFlags() | field->getPtrTypeFlags() | PtrTypeFlag_Safe;
+	uint_t ptrTypeFlags = (opType->getFlags() | field->getPtrTypeFlags() | PtrTypeFlag_Safe) & PtrTypeFlag__All;
 	if (field->getStorageKind() == StorageKind_Mutable)
 		ptrTypeFlags &= ~PtrTypeFlag_Const;
 
@@ -513,7 +526,7 @@ OperatorMgr::getPropertyField(
 	if (parentType->getTypeKind() == TypeKind_Class) {
 		parentPtrType = ((ClassType*)parentType)->getClassPtrType(
 			ClassPtrTypeKind_Normal,
-			parentValueType->getFlags()
+			parentValueType->getFlags() & PtrTypeFlag__All
 		);
 	} else {
 		DataPtrTypeKind ptrTypeKind = (parentValueType->getTypeKindFlags() & TypeKindFlag_DataPtr) ?
@@ -522,7 +535,7 @@ OperatorMgr::getPropertyField(
 
 		parentPtrType = parentType->getDataPtrType(
 			ptrTypeKind,
-			parentValueType->getFlags()
+			parentValueType->getFlags() & PtrTypeFlag__All
 		);
 	}
 

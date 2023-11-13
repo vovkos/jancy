@@ -108,12 +108,25 @@ BinOp_Idx::arrayIndexOperator(
 			if (ptrTypeKind == DataPtrTypeKind_Normal) {
 				DataPtr ptr = *(DataPtr*)opValue1.getConstData();
 				ptr.m_p = (char*)ptr.m_p + elementOffset;
-				resultValue->createConst(&ptr, elementType->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Normal, type->getFlags()));
+				resultValue->createConst(
+					&ptr,
+					elementType->getDataPtrType(
+						TypeKind_DataRef,
+						DataPtrTypeKind_Normal,
+						type->getFlags() & PtrTypeFlag__All
+					)
+				);
 			} else {
 				ASSERT(ptrTypeKind == DataPtrTypeKind_Thin);
 				char* p = *(char**) opValue1.getConstData();
 				p += elementOffset;
-				resultValue->createConst(&p, elementType->getDataPtrType_c(TypeKind_DataRef, type->getFlags()));
+				resultValue->createConst(
+					&p,
+					elementType->getDataPtrType_c(
+						TypeKind_DataRef,
+						type->getFlags() & PtrTypeFlag__All
+					)
+				);
 			}
 		}
 
@@ -129,8 +142,7 @@ BinOp_Idx::arrayIndexOperator(
 	}
 
 	DataPtrType* opType1 = (DataPtrType*)opValue1.getType();
-	uint_t ptrTypeFlags = opType1->getFlags();
-
+	uint_t ptrTypeFlags = opType1->getFlags() & PtrTypeFlag__All;
 	if (ptrTypeFlags & PtrTypeFlag_Safe) {
 		if (opValue2.getValueKind() == ValueKind_Const) {
 			Value idxValue;

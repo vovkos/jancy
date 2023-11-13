@@ -693,7 +693,7 @@ Cast_DataRef::getCastKind(
 	DataPtrType* intermediateDstType = ptrType->getTargetType()->getDataPtrType(
 		TypeKind_DataPtr,
 		ptrType->getPtrTypeKind(),
-		ptrType->getFlags()
+		ptrType->getFlags() & PtrTypeFlag__All
 	);
 
 	return m_module->m_operatorMgr.getCastKind(intermediateSrcType, intermediateDstType);
@@ -711,7 +711,7 @@ Cast_DataRef::llvmCast(
 	DataPtrType* intermediateType = ptrType->getTargetType()->getDataPtrType(
 		TypeKind_DataPtr,
 		ptrType->getPtrTypeKind(),
-		ptrType->getFlags()
+		ptrType->getFlags() & PtrTypeFlag__All
 	);
 
 	Value intermediateValue;

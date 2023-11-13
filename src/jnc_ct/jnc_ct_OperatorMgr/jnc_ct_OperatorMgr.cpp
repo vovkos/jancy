@@ -408,7 +408,7 @@ OperatorMgr::getConditionalOperatorResultType(
 		resultType = ((DataPtrType*)resultType)->getTargetType()->getDataPtrType(
 			resultType->getTypeKind(),
 			DataPtrTypeKind_Normal,
-			resultType->getFlags() & ~PtrTypeFlag_Safe
+			resultType->getFlags() & (PtrTypeFlag__All & ~PtrTypeFlag_Safe)
 		);
 	else if (
 		(resultType->getTypeKindFlags() & TypeKindFlag_ClassPtr) &&
@@ -417,7 +417,7 @@ OperatorMgr::getConditionalOperatorResultType(
 		resultType = ((ClassPtrType*)resultType)->getTargetType()->getClassPtrType(
 			resultType->getTypeKind(),
 			ClassPtrTypeKind_Normal,
-			resultType->getFlags() & ~PtrTypeFlag_Safe
+			resultType->getFlags() & (PtrTypeFlag__All & ~PtrTypeFlag_Safe)
 		);
 
 	result =
@@ -1125,7 +1125,7 @@ OperatorMgr::prepareOperandType(
 					value = arrayType->getElementType()->getDataPtrType(
 						TypeKind_DataPtr,
 						ptrType->getPtrTypeKind(),
-						ptrType->getFlags()
+						ptrType->getFlags() & PtrTypeFlag__All
 					);
 				}
 			}
@@ -1151,11 +1151,13 @@ OperatorMgr::prepareOperandType(
 			if (!(opFlags & OpFlag_KeepClassRef)) {
 				ClassPtrType* ptrType = (ClassPtrType*)type;
 				ClassType* targetType = ptrType->getTargetType();
-				value.overrideType(targetType->getClassPtrType(
-					TypeKind_ClassPtr,
-					ptrType->getPtrTypeKind(),
-					ptrType->getFlags()
-				));
+				value.overrideType(
+					targetType->getClassPtrType(
+						TypeKind_ClassPtr,
+						ptrType->getPtrTypeKind(),
+						ptrType->getFlags() & PtrTypeFlag__All
+					)
+				);
 			}
 
 			break;
@@ -1210,7 +1212,7 @@ OperatorMgr::prepareArrayRef(
 	DataPtrType* resultType = elementType->getDataPtrType(
 		TypeKind_DataPtr,
 		ptrTypeKind,
-		ptrType->getFlags()
+		ptrType->getFlags() & PtrTypeFlag__All
 	);
 
 	if (value.getValueKind() == ValueKind_Const || ptrTypeKind == DataPtrTypeKind_Normal) {
@@ -1322,10 +1324,12 @@ OperatorMgr::prepareOperand(
 			if (!(opFlags & OpFlag_KeepClassRef)) {
 				ClassPtrType* ptrType = (ClassPtrType*)type;
 				ClassType* targetType = ptrType->getTargetType();
-				value.overrideType(targetType->getClassPtrType(
-					TypeKind_ClassPtr,
-					ptrType->getPtrTypeKind(),
-					ptrType->getFlags())
+				value.overrideType(
+					targetType->getClassPtrType(
+						TypeKind_ClassPtr,
+						ptrType->getPtrTypeKind(),
+						ptrType->getFlags() & PtrTypeFlag__All
+					)
 				);
 			}
 
@@ -1335,7 +1339,12 @@ OperatorMgr::prepareOperand(
 			if (!(opFlags & OpFlag_KeepFunctionRef)) {
 				FunctionPtrType* ptrType = (FunctionPtrType*)type;
 				FunctionType* targetType = ptrType->getTargetType();
-				value.overrideType(targetType->getFunctionPtrType(ptrType->getPtrTypeKind(), ptrType->getFlags()));
+				value.overrideType(
+					targetType->getFunctionPtrType(
+						ptrType->getPtrTypeKind(),
+						ptrType->getFlags() & PtrTypeFlag__All
+					)
+				);
 			}
 
 			break;

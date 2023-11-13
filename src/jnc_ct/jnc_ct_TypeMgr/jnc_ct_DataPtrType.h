@@ -41,21 +41,21 @@ public:
 	DataPtrType*
 	getCheckedPtrType() {
 		return !(m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getDataPtrType(m_typeKind, m_ptrTypeKind, m_flags | PtrTypeFlag_Safe) :
+			m_targetType->getDataPtrType(m_typeKind, m_ptrTypeKind, (m_flags & PtrTypeFlag__All) | PtrTypeFlag_Safe) :
 			this;
 	}
 
 	DataPtrType*
 	getUnCheckedPtrType() {
 		return (m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getDataPtrType(m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Safe) :
+			m_targetType->getDataPtrType(m_typeKind, m_ptrTypeKind, m_flags & (PtrTypeFlag__All & ~PtrTypeFlag_Safe)) :
 			this;
 	}
 
 	DataPtrType*
 	getUnConstPtrType() {
 		return (m_flags & PtrTypeFlag_Const) ?
-			m_targetType->getDataPtrType(m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Const) :
+			m_targetType->getDataPtrType(m_typeKind, m_ptrTypeKind, m_flags & (PtrTypeFlag__All & ~PtrTypeFlag_Const)) :
 			this;
 	}
 

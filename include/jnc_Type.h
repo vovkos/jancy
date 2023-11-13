@@ -109,9 +109,9 @@ enum jnc_TypeKind {
 
 	// import types (resolved after linkage)
 
-	jnc_TypeKind_NamedImport,         // ZN
-	jnc_TypeKind_ImportPtr,           // ZP
-	jnc_TypeKind_ImportIntMod,        // ZI
+	jnc_TypeKind_NamedImport,         // IN
+	jnc_TypeKind_ImportPtr,           // IP
+	jnc_TypeKind_ImportIntMod,        // II
 
 	// when generating documentation, we want to keep typedef shadow in declarations
 
@@ -198,6 +198,7 @@ enum jnc_TypeFlag {
 	jnc_TypeFlag_NoImports      = 0x2000, // all imports resolved (when generating documentation)
 	jnc_TypeFlag_SignatureReady = 0x4000, // signature is ready for use (but can depend on imports)
 	jnc_TypeFlag_SignatureFinal = 0x8000, // signature is ready & final (doesn't depend on imports)
+	jnc_TypeFlag__All           = 0xffff,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -678,7 +679,8 @@ const TypeFlag
 	TypeFlag_Dynamic        = jnc_TypeFlag_Dynamic,
 	TypeFlag_NoImports      = jnc_TypeFlag_NoImports,
 	TypeFlag_SignatureReady = jnc_TypeFlag_SignatureReady,
-	TypeFlag_SignatureFinal = jnc_TypeFlag_SignatureFinal;
+	TypeFlag_SignatureFinal = jnc_TypeFlag_SignatureFinal,
+	TypeFlag__All           = jnc_TypeFlag__All;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

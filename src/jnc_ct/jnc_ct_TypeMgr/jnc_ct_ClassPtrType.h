@@ -41,42 +41,42 @@ public:
 	ClassPtrType*
 	getCheckedPtrType() {
 		return !(m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getClassPtrType(m_typeKind, m_ptrTypeKind, m_flags | PtrTypeFlag_Safe) :
+			m_targetType->getClassPtrType(m_typeKind, m_ptrTypeKind, (m_flags & PtrTypeFlag__All) | PtrTypeFlag_Safe) :
 			this;
 	}
 
 	ClassPtrType*
 	getUnCheckedPtrType() {
 		return (m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getClassPtrType(m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Safe) :
+			m_targetType->getClassPtrType(m_typeKind, m_ptrTypeKind, m_flags & (PtrTypeFlag__All & ~PtrTypeFlag_Safe)) :
 			this;
 	}
 
 	ClassPtrType*
 	getUnConstPtrType() {
 		return (m_flags & PtrTypeFlag_Const) ?
-			m_targetType->getClassPtrType(m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Const) :
+			m_targetType->getClassPtrType(m_typeKind, m_ptrTypeKind, m_flags & (PtrTypeFlag__All & ~PtrTypeFlag_Const)) :
 			this;
 	}
 
 	ClassPtrType*
 	getNormalPtrType() {
 		return (m_ptrTypeKind != ClassPtrTypeKind_Normal) ?
-			m_targetType->getClassPtrType(ClassPtrTypeKind_Normal, m_flags) :
+			m_targetType->getClassPtrType(ClassPtrTypeKind_Normal, m_flags & PtrTypeFlag__All) :
 			this;
 	}
 
 	ClassPtrType*
 	getWeakPtrType() {
 		return (m_ptrTypeKind != ClassPtrTypeKind_Weak) ?
-			m_targetType->getClassPtrType(ClassPtrTypeKind_Weak, m_flags) :
+			m_targetType->getClassPtrType(ClassPtrTypeKind_Weak, m_flags & PtrTypeFlag__All) :
 			this;
 	}
 
 	ClassPtrType*
 	getUnWeakPtrType() {
 		return (m_ptrTypeKind == ClassPtrTypeKind_Weak) ?
-			m_targetType->getClassPtrType(ClassPtrTypeKind_Normal, m_flags) :
+			m_targetType->getClassPtrType(ClassPtrTypeKind_Normal, m_flags & PtrTypeFlag__All) :
 			this;
 	}
 

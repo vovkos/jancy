@@ -176,7 +176,7 @@ public:
 		uint_t typeModifiers
 	) {
 		return sl::formatString(
-			"ZP%s:%d",
+			"IP%s:%x",
 			importType->getQualifiedName().sz(),
 			typeModifiers
 		);
@@ -221,7 +221,7 @@ public:
 		uint_t typeModifiers
 	) {
 		return sl::formatString(
-			"ZI%s:%d:%d",
+			"II%s:%x",
 			importType->getQualifiedName().sz(),
 			typeModifiers
 		);

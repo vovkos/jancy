@@ -68,7 +68,7 @@ Cast_Variant::llvmCast(
 		opType = ((DataPtrType*)opType)->getTargetType()->getDataPtrType(
 			opType->getTypeKind(),
 			DataPtrTypeKind_Normal,
-			opType->getFlags()
+			opType->getFlags() & PtrTypeFlag__All
 		);
 
 		m_module->m_operatorMgr.castOperator(rawOpValue, opType, &opValue);
@@ -147,7 +147,7 @@ Cast_FromVariant::llvmCast(
 	Value typeValue(&type, m_module->m_typeMgr.getStdType(StdType_BytePtr));
 	Value tmpValue;
 
-	m_module->m_llvmIrBuilder.createAlloca(type, type->getDataPtrType_c (), &tmpValue);
+	m_module->m_llvmIrBuilder.createAlloca(type, type->getDataPtrType_c(), &tmpValue);
 	Function* function = m_module->m_functionMgr.getStdFunction(StdFunc_DynamicCastVariant);
 	bool result = m_module->m_operatorMgr.callOperator(function, opValue, typeValue, tmpValue);
 	if (!result)

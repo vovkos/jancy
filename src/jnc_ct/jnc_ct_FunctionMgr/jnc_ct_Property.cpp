@@ -200,7 +200,7 @@ Property::setAutoGetValue(
 		return false;
 	}
 
-	FunctionType* getterType = m_module->m_typeMgr.getFunctionType(type, NULL, 0, 0);
+	FunctionType* getterType = m_module->m_typeMgr.getFunctionType(type, NULL, 0);
 
 	if (m_getter) {
 		if (m_getter->getType()->getReturnType()->cmp(type) != 0) {

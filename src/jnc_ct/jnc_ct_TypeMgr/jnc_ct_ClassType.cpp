@@ -617,7 +617,7 @@ ClassType::overrideVirtualFunction(Function* function) {
 		function->m_type = m_module->m_typeMgr.getFunctionType(
 			function->m_type->getReturnType(),
 			argArray,
-			function->m_type->getFlags()
+			function->m_type->getFlags() & FunctionTypeFlag__All
 		);
 	}
 

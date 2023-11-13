@@ -42,7 +42,8 @@
 //..............................................................................
 
 enum jnc_ArrayTypeFlag {
-	jnc_ArrayTypeFlag_AutoSize    = 0x010000,
+	jnc_ArrayTypeFlag_AutoSize = 0x010000,
+	jnc_ArrayTypeFlag__All     = 0x010000,
 };
 
 typedef enum jnc_ArrayTypeFlag jnc_ArrayTypeFlag;
@@ -116,7 +117,8 @@ namespace jnc {
 typedef jnc_ArrayTypeFlag ArrayTypeFlag;
 
 const ArrayTypeFlag
-	ArrayTypeFlag_AutoSize = jnc_ArrayTypeFlag_AutoSize;
+	ArrayTypeFlag_AutoSize = jnc_ArrayTypeFlag_AutoSize,
+	ArrayTypeFlag__All     = jnc_ArrayTypeFlag__All;
 
 //..............................................................................
 

@@ -178,7 +178,7 @@ GcShadowStackMgr::preCreateFrame() {
 	m_frameVariable = m_module->m_variableMgr.createSimpleStackVariable("gcShadowStackFrame", type);
 
 	type = m_module->m_typeMgr.getStdType(StdType_BytePtr);
-	m_module->m_llvmIrBuilder.createAlloca(type, type->getDataPtrType_c (), &m_gcRootArrayValue);
+	m_module->m_llvmIrBuilder.createAlloca(type, type->getDataPtrType_c(), &m_gcRootArrayValue);
 
 	// m_gcRootArrayValue will be replaced later
 }
@@ -201,7 +201,7 @@ GcShadowStackMgr::finalizeFrame() {
 	Type* type = m_module->m_typeMgr.getPrimitiveType(TypeKind_IntPtr_u)->getArrayType(m_gcRootCount);
 
 	Value gcRootArrayValue;
-	m_module->m_llvmIrBuilder.createAlloca(type, type->getDataPtrType_c (), &gcRootArrayValue);
+	m_module->m_llvmIrBuilder.createAlloca(type, type->getDataPtrType_c(), &gcRootArrayValue);
 	type = m_module->m_typeMgr.getStdType(StdType_BytePtr)->getDataPtrType_c();
 	m_module->m_llvmIrBuilder.createBitCast(gcRootArrayValue, type, &gcRootArrayValue);
 

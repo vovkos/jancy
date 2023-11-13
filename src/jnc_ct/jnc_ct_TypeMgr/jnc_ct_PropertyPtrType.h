@@ -47,35 +47,35 @@ public:
 	PropertyPtrType*
 	getCheckedPtrType() {
 		return !(m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getPropertyPtrType(m_typeKind, m_ptrTypeKind, m_flags | PtrTypeFlag_Safe) :
+			m_targetType->getPropertyPtrType(m_typeKind, m_ptrTypeKind, (m_flags & PtrTypeFlag__All) | PtrTypeFlag_Safe) :
 			this;
 	}
 
 	PropertyPtrType*
 	getUnCheckedPtrType() {
 		return (m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getPropertyPtrType(m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Safe) :
+			m_targetType->getPropertyPtrType(m_typeKind, m_ptrTypeKind, m_flags & (PtrTypeFlag__All & ~PtrTypeFlag_Safe)) :
 			this;
 	}
 
 	PropertyPtrType*
 	getNormalPtrType() {
 		return (m_ptrTypeKind != PropertyPtrTypeKind_Normal) ?
-			m_targetType->getPropertyPtrType(PropertyPtrTypeKind_Normal, m_flags) :
+			m_targetType->getPropertyPtrType(PropertyPtrTypeKind_Normal, m_flags & PtrTypeFlag__All) :
 			this;
 	}
 
 	PropertyPtrType*
 	getWeakPtrType() {
 		return (m_ptrTypeKind != PropertyPtrTypeKind_Weak) ?
-			m_targetType->getPropertyPtrType(PropertyPtrTypeKind_Weak, m_flags) :
+			m_targetType->getPropertyPtrType(PropertyPtrTypeKind_Weak, m_flags & PtrTypeFlag__All) :
 			this;
 	}
 
 	PropertyPtrType*
 	getUnWeakPtrType() {
 		return (m_ptrTypeKind == PropertyPtrTypeKind_Weak) ?
-			m_targetType->getPropertyPtrType(PropertyPtrTypeKind_Normal, m_flags) :
+			m_targetType->getPropertyPtrType(PropertyPtrTypeKind_Normal, m_flags & PtrTypeFlag__All) :
 			this;
 	}
 

@@ -555,47 +555,7 @@ public:
 		Type* returnType,
 		uint_t flags = 0
 	) {
-		return getSimplePropertyType(
-			m_callConvArray[CallConvKind_Default],
-			returnType,
-			flags
-		);
-	}
-
-	PropertyType*
-	getIndexedPropertyType(
-		CallConv* callConv,
-		Type* returnType,
-		Type* const* indexArgType,
-		size_t indexArgCount,
-		uint_t flags = 0
-	);
-
-	PropertyType*
-	getIndexedPropertyType(
-		Type* returnType,
-		Type* const* indexArgType,
-		size_t indexArgCount,
-		uint_t flags = 0
-	) {
-		return getIndexedPropertyType(NULL, returnType, indexArgType, indexArgCount, flags);
-	}
-
-	PropertyType*
-	getIndexedPropertyType(
-		CallConv* callConv,
-		Type* returnType,
-		const sl::Array<FunctionArg*>& argArray,
-		uint_t flags = 0
-	);
-
-	PropertyType*
-	getIndexedPropertyType(
-		Type* returnType,
-		const sl::Array<FunctionArg*>& argArray,
-		uint_t flags = 0
-	) {
-		return getIndexedPropertyType(NULL, returnType, argArray, flags);
+		return getSimplePropertyType(m_callConvArray[CallConvKind_Default], returnType, flags);
 	}
 
 	PropertyType*
@@ -821,7 +781,9 @@ protected:
 	setupPrimitiveType(
 		TypeKind typeKind,
 		const sl::StringRef& signature,
-		size_t size
+		size_t size,
+		size_t alignment,
+		uint_t flags
 	);
 
 	void

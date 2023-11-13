@@ -549,7 +549,7 @@ Cast_PropertyRef::getCastKind(
 	PropertyPtrType* intermediateDstType = ptrType->getTargetType()->getPropertyPtrType(
 		TypeKind_PropertyPtr,
 		ptrType->getPtrTypeKind(),
-		ptrType->getFlags()
+		ptrType->getFlags() & PtrTypeFlag__All
 	);
 
 	return m_module->m_operatorMgr.getCastKind(intermediateSrcType, intermediateDstType);
@@ -567,7 +567,7 @@ Cast_PropertyRef::llvmCast(
 	PropertyPtrType* intermediateType = ptrType->getTargetType()->getPropertyPtrType(
 		TypeKind_PropertyPtr,
 		ptrType->getPtrTypeKind(),
-		ptrType->getFlags()
+		ptrType->getFlags() & PtrTypeFlag__All
 	);
 
 	Value intermediateValue;

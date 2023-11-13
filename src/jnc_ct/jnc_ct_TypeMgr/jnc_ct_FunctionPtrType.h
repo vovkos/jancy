@@ -47,35 +47,35 @@ public:
 	FunctionPtrType*
 	getCheckedPtrType() {
 		return !(m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getFunctionPtrType(m_typeKind, m_ptrTypeKind, m_flags | PtrTypeFlag_Safe) :
+			m_targetType->getFunctionPtrType(m_typeKind, m_ptrTypeKind, (m_flags & PtrTypeFlag__All) | PtrTypeFlag_Safe) :
 			this;
 	}
 
 	FunctionPtrType*
 	getUnCheckedPtrType() {
 		return (m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getFunctionPtrType(m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Safe) :
+			m_targetType->getFunctionPtrType(m_typeKind, m_ptrTypeKind, m_flags & (PtrTypeFlag__All & ~PtrTypeFlag_Safe)) :
 			this;
 	}
 
 	FunctionPtrType*
 	getNormalPtrType() {
 		return (m_ptrTypeKind != FunctionPtrTypeKind_Normal) ?
-			m_targetType->getFunctionPtrType(FunctionPtrTypeKind_Normal, m_flags) :
+			m_targetType->getFunctionPtrType(FunctionPtrTypeKind_Normal, m_flags & PtrTypeFlag__All) :
 			this;
 	}
 
 	FunctionPtrType*
 	getWeakPtrType() {
 		return (m_ptrTypeKind != FunctionPtrTypeKind_Weak) ?
-			m_targetType->getFunctionPtrType(FunctionPtrTypeKind_Weak, m_flags) :
+			m_targetType->getFunctionPtrType(FunctionPtrTypeKind_Weak, m_flags & PtrTypeFlag__All) :
 			this;
 	}
 
 	FunctionPtrType*
 	getUnWeakPtrType() {
 		return (m_ptrTypeKind == FunctionPtrTypeKind_Weak) ?
-			m_targetType->getFunctionPtrType(FunctionPtrTypeKind_Normal, m_flags) :
+			m_targetType->getFunctionPtrType(FunctionPtrTypeKind_Normal, m_flags & PtrTypeFlag__All) :
 			this;
 	}
 
