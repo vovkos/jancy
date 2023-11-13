@@ -54,7 +54,7 @@ opaque class ToolBar: Widget {
 	ComboBox* addComboBox(uint_t width = 0);  // 0 = default, -1 = stretch
 
 	ComboBox* addComboBox(
-		const char* labelText,
+		char const* labelText,
 		ComboItem const* itemArray,
 		size_t itemCount
 	);
@@ -87,7 +87,7 @@ ComboBox* ToolBar.addComboBox(uint_t width) {
 }
 
 ComboBox* ToolBar.addComboBox(
-	const char* labelText,
+	char const* labelText,
 	ComboItem const* itemArray,
 	size_t itemCount
 ) {

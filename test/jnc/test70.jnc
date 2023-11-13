@@ -59,7 +59,7 @@ struct NbnsQuestion {
 
 void encodeNetBiosName(
 	char* buffer,
-	const char* name
+	char const* name
 ) {
 	size_t i = 0;
 	size_t j = 0;
