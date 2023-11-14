@@ -96,7 +96,7 @@ void addStaticClassDestructor(
 	class* obj
 );
 
-///; static char appendFmtLiteralSrc_a [] =
+///; static char appendFmtLiteralSrc_a[] =
 
 size_t appendFmtLiteral_a(
 	FmtLiteral thin* fmtLiteral,
@@ -104,7 +104,7 @@ size_t appendFmtLiteral_a(
 	size_t length
 );
 
-///; static char appendFmtLiteralSrc_p [] =
+///; static char appendFmtLiteralSrc_p[] =
 
 size_t appendFmtLiteral_p(
 	FmtLiteral thin* fmtLiteral,
@@ -112,7 +112,7 @@ size_t appendFmtLiteral_p(
 	char const* p
 );
 
-///; static char appendFmtLiteralSrc_i32 [] =
+///; static char appendFmtLiteralSrc_i32[] =
 
 size_t appendFmtLiteral_i32(
 	FmtLiteral thin* fmtLiteral,
@@ -120,7 +120,7 @@ size_t appendFmtLiteral_i32(
 	int32_t value
 );
 
-///; static char appendFmtLiteralSrc_ui32 [] =
+///; static char appendFmtLiteralSrc_ui32[] =
 
 size_t appendFmtLiteral_ui32(
 	FmtLiteral thin* fmtLiteral,
@@ -128,7 +128,7 @@ size_t appendFmtLiteral_ui32(
 	uint32_t value
 );
 
-///; static char appendFmtLiteralSrc_i64 [] =
+///; static char appendFmtLiteralSrc_i64[] =
 
 size_t appendFmtLiteral_i64(
 	FmtLiteral thin* fmtLiteral,
@@ -136,7 +136,7 @@ size_t appendFmtLiteral_i64(
 	int64_t value
 );
 
-///; static char appendFmtLiteralSrc_ui64 [] =
+///; static char appendFmtLiteralSrc_ui64[] =
 
 size_t appendFmtLiteral_ui64(
 	FmtLiteral thin* fmtLiteral,
@@ -144,7 +144,7 @@ size_t appendFmtLiteral_ui64(
 	uint64_t value
 );
 
-///; static char appendFmtLiteralSrc_f [] =
+///; static char appendFmtLiteralSrc_f[] =
 
 size_t appendFmtLiteral_f(
 	FmtLiteral thin* fmtLiteral,
@@ -152,15 +152,23 @@ size_t appendFmtLiteral_f(
 	double value
 );
 
-///; static char appendFmtLiteralSrc_v [] =
+///; static char appendFmtLiteralSrc_v[] =
 
 size_t appendFmtLiteral_v(
 	FmtLiteral thin* fmtLiteral,
 	char const thin* fmtSpecifier,
-	variant_t v
+	variant_t value
 );
 
-///; static char appendFmtLiteralSrc_re [] =
+///; static char appendFmtLiteralSrc_s[] =
+
+size_t appendFmtLiteral_s(
+	FmtLiteral thin* fmtLiteral,
+	char const thin* fmtSpecifier,
+	string_t value
+);
+
+///; static char appendFmtLiteralSrc_re[] =
 
 size_t appendFmtLiteral_re(
 	FmtLiteral thin* fmtLiteral,

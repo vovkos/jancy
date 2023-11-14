@@ -206,7 +206,7 @@ testCallSite() {
 
 void
 foo(jnc::String string) {
-	printf("%p : %p, %d B: %s\n",
+	printf("foo: ptr: %p : ptr_sz: %p, len: %d data: '%s'\n",
 		string.m_ptr.m_p,
 		string.m_ptr_sz.m_p,
 		string.m_length,

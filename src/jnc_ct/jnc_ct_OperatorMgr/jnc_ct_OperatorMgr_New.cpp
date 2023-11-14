@@ -53,7 +53,7 @@ OperatorMgr::memSet(
 ) {
 	Value ptrValue;
 
-	bool result = castOperator(value, m_module->m_typeMgr.getStdType(StdType_BytePtr), &ptrValue);
+	bool result = castOperator(value, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr), &ptrValue);
 	if (!result)
 		return false;
 
@@ -94,8 +94,8 @@ OperatorMgr::memCpy(
 	Value srcPtrValue;
 
 	bool result =
-		castOperator(dstValue, m_module->m_typeMgr.getStdType(StdType_BytePtr), &dstPtrValue) &&
-		castOperator(srcValue, m_module->m_typeMgr.getStdType(StdType_CharConstPtr), &srcPtrValue);
+		castOperator(dstValue, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr), &dstPtrValue) &&
+		castOperator(srcValue, m_module->m_typeMgr.getStdType(StdType_CharConstThinPtr), &srcPtrValue);
 
 	if (!result)
 		return false;
@@ -497,7 +497,7 @@ OperatorMgr::gcHeapAllocate(
 		return true;
 	}
 
-	Value typeValue(&type, m_module->m_typeMgr.getStdType(StdType_BytePtr));
+	Value typeValue(&type, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
 
 	Function* allocate;
 	sl::BoxList<Value> allocateArgValueList;

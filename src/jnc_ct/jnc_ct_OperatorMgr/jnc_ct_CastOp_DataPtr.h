@@ -50,6 +50,40 @@ public:
 
 //..............................................................................
 
+// string -> data ptr
+
+class Cast_DataPtr_FromString: public CastOperator {
+public:
+	Cast_DataPtr_FromString() {
+		m_opFlags = OpFlag_KeepStringRef;
+	}
+
+	virtual
+	CastKind
+	getCastKind(
+		const Value& opValue,
+		Type* type
+	);
+
+	virtual
+	bool
+	constCast(
+		const Value& opValue,
+		Type* type,
+		void* dst
+	);
+
+	virtual
+	bool
+	llvmCast(
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
+	);
+};
+
+//..............................................................................
+
 // class ptr -> data ptr
 
 class Cast_DataPtr_FromClassPtr: public CastOperator {
@@ -260,6 +294,7 @@ public:
 class Cast_DataPtr: public Cast_Master {
 protected:
 	Cast_DataPtr_FromArray m_fromArray;
+	Cast_DataPtr_FromString m_fromString;
 	Cast_DataPtr_FromClassPtr m_fromClassPtr;
 	Cast_DataPtr_FromFunctionPtr m_fromFunctionPtr;
 	Cast_DataPtr_FromPropertyPtr m_fromPropertyPtr;

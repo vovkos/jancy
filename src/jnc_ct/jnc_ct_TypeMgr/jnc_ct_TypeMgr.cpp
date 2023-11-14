@@ -112,12 +112,23 @@ TypeMgr::getStdType(StdType stdType) {
 	const char* name;
 	Type* type;
 	switch (stdType) {
-	case StdType_BytePtr:
-		type = getPrimitiveType(TypeKind_Int8_u)->getDataPtrType_c();
+	case StdType_ByteThinPtr:
+		type = getPrimitiveType(TypeKind_Byte)->getDataPtrType_c();
+		break;
+
+	case StdType_CharConstThinPtr:
+		type = getPrimitiveType(TypeKind_Char)->getDataPtrType_c(
+			TypeKind_DataPtr,
+			PtrTypeFlag_Const
+		);
 		break;
 
 	case StdType_CharConstPtr:
-		type = getPrimitiveType(TypeKind_Char)->getDataPtrType_c(TypeKind_DataPtr, PtrTypeFlag_Const);
+		type = getPrimitiveType(TypeKind_Char)->getDataPtrType(
+			TypeKind_DataPtr,
+			DataPtrTypeKind_Normal,
+			PtrTypeFlag_Const
+		);
 		break;
 
 	case StdType_IfaceHdr:
@@ -1167,7 +1178,7 @@ TypeMgr::createReactorClosureType() {
 	FunctionClosureClassType* type = createClassType<FunctionClosureClassType>("ReactorClosure", "jnc.ReactorClosure");
 	type->m_thisArgFieldIdx = 0;
 	type->createField("m_self", type->getClassPtrType());
-	type->createField("m_event", getStdType (StdType_BytePtr));
+	type->createField("m_event", getStdType (StdType_ByteThinPtr));
 	type->ensureLayout();
 	return type;
 }
@@ -1968,7 +1979,7 @@ TypeMgr::createAbstractDataType() {
 StructType*
 TypeMgr::createIfaceHdrType() {
 	StructType* type = createInternalStructType("jnc.IfaceHdr");
-	type->createField("!m_vtable", getStdType (StdType_BytePtr));
+	type->createField("!m_vtable", getStdType (StdType_ByteThinPtr));
 	type->createField("!m_box", getStdType (StdType_BoxPtr));
 	type->ensureLayout();
 	return type;
@@ -1977,7 +1988,7 @@ TypeMgr::createIfaceHdrType() {
 StructType*
 TypeMgr::createBoxType() {
 	StructType* type = createInternalStructType("jnc.Box");
-	type->createField("!m_type", getStdType (StdType_BytePtr));
+	type->createField("!m_type", getStdType (StdType_ByteThinPtr));
 	type->createField("!m_flags", getPrimitiveType (TypeKind_IntPtr_u));
 	type->ensureLayout();
 	return type;
@@ -1986,7 +1997,7 @@ TypeMgr::createBoxType() {
 StructType*
 TypeMgr::createDataBoxType() {
 	StructType* type = createInternalStructType("jnc.DataBox");
-	type->createField("!m_type", getStdType (StdType_BytePtr));
+	type->createField("!m_type", getStdType (StdType_ByteThinPtr));
 	type->createField("!m_flags", getPrimitiveType (TypeKind_IntPtr_u));
 	type->createField("!m_validator", getStdType (StdType_DataPtrValidator));
 	type->ensureLayout();
@@ -1996,10 +2007,10 @@ TypeMgr::createDataBoxType() {
 StructType*
 TypeMgr::createDetachedDataBoxType() {
 	StructType* type = createInternalStructType("jnc.DetachedDataBox");
-	type->createField("!m_type", getStdType (StdType_BytePtr));
+	type->createField("!m_type", getStdType (StdType_ByteThinPtr));
 	type->createField("!m_flags", getPrimitiveType (TypeKind_IntPtr_u));
 	type->createField("!m_validator", getStdType (StdType_DataPtrValidator));
-	type->createField("!m_p", getStdType (StdType_BytePtr));
+	type->createField("!m_p", getStdType (StdType_ByteThinPtr));
 	type->ensureLayout();
 	return type;
 }
@@ -2009,8 +2020,8 @@ TypeMgr::createDataPtrValidatorType() {
 	StructType* type = createInternalStructType("jnc.DataPtrValidator");
 	type->createField("!m_validatorBox", getStdType(StdType_BoxPtr));
 	type->createField("!m_targetBox", getStdType(StdType_BoxPtr));
-	type->createField("!m_rangeBegin", getStdType(StdType_BytePtr));
-	type->createField("!m_rangeEnd", getStdType(StdType_BytePtr));
+	type->createField("!m_rangeBegin", getStdType(StdType_ByteThinPtr));
+	type->createField("!m_rangeEnd", getStdType(StdType_ByteThinPtr));
 	type->ensureLayout();
 	return type;
 }
@@ -2018,7 +2029,7 @@ TypeMgr::createDataPtrValidatorType() {
 StructType*
 TypeMgr::createDataPtrStructType() {
 	StructType* type = createInternalStructType("jnc.DataPtr");
-	type->createField("!m_p", getStdType(StdType_BytePtr));
+	type->createField("!m_p", getStdType(StdType_ByteThinPtr));
 	type->createField("!m_validator", getStdType(StdType_DataPtrValidatorPtr));
 	type->ensureLayout();
 	return type;
@@ -2027,7 +2038,7 @@ TypeMgr::createDataPtrStructType() {
 StructType*
 TypeMgr::createFunctionPtrStructType() {
 	StructType* type = createInternalStructType("jnc.FunctionPtr");
-	type->createField("!m_p", getStdType(StdType_BytePtr));
+	type->createField("!m_p", getStdType(StdType_ByteThinPtr));
 	type->createField("!m_closure", getStdType(StdType_AbstractClassPtr));
 	type->ensureLayout();
 	return type;
@@ -2041,17 +2052,16 @@ TypeMgr::createVariantStructType() {
 #if (JNC_PTR_SIZE == 4)
 	type->createField("!_m_padding", getPrimitiveType(TypeKind_Int32));
 #endif
-	type->createField("!m_type", getStdType(StdType_BytePtr));
+	type->createField("!m_type", getStdType(StdType_ByteThinPtr));
 	type->ensureLayout();
 	return type;
 }
 
 StructType*
 TypeMgr::createStringStructType() {
-	Type* ptrType = getPrimitiveType(TypeKind_Char)->getDataPtrType(DataPtrTypeKind_Normal, PtrTypeFlag_Const);
 	StructType* type = createInternalStructType("jnc.String");
-	type->createField("!m_ptr", ptrType);
-	type->createField("!m_ptr_2", ptrType);
+	type->createField("!m_ptr", getStdType(StdType_CharConstPtr));
+	type->createField("!m_ptr_sz", getStdType(StdType_CharConstPtr));
 	type->createField("!m_length", getPrimitiveType(TypeKind_SizeT));
 	type->ensureLayout();
 	return type;
@@ -2061,8 +2071,8 @@ StructType*
 TypeMgr::createGcShadowStackFrameType() {
 	StructType* type = createInternalStructType("jnc.GcShadowStackFrame");
 	type->createField("!m_prev", type->getDataPtrType_c());
-	type->createField("!m_map", getStdType(StdType_BytePtr));
-	type->createField("!m_gcRootArray", getStdType(StdType_BytePtr)->getDataPtrType_c());
+	type->createField("!m_map", getStdType(StdType_ByteThinPtr));
+	type->createField("!m_gcRootArray", getStdType(StdType_ByteThinPtr)->getDataPtrType_c());
 	type->ensureLayout();
 	return type;
 }

@@ -60,6 +60,8 @@ enum StdFunc {
 	StdFunc_VariantIndexProperty_set,
 
 	StdFunc_StringCreate,
+	StdFunc_StringSz,
+	StdFunc_StringRefSz,
 
 	StdFunc_AppendFmtLiteral_a,
 	StdFunc_AppendFmtLiteral_p,
@@ -69,6 +71,7 @@ enum StdFunc {
 	StdFunc_AppendFmtLiteral_ui64,
 	StdFunc_AppendFmtLiteral_f,
 	StdFunc_AppendFmtLiteral_v,
+	StdFunc_AppendFmtLiteral_s,
 	StdFunc_AppendFmtLiteral_re,
 
 	StdFunc_SimpleMulticastCall,

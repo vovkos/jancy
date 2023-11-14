@@ -23,7 +23,7 @@ public:
 	BinOp_Assign() {
 		m_opKind = BinOpKind_Assign;
 		m_opFlags1 = OpFlag_KeepRef;
-		m_opFlags2 = OpFlag_KeepEnum | OpFlag_KeepBool;
+		m_opFlags2 = OpFlag_KeepEnum | OpFlag_KeepBool | OpFlag_KeepStringRef;
 	}
 
 	virtual
@@ -41,7 +41,7 @@ class BinOp_OpAssign: public BinaryOperator {
 public:
 	BinOp_OpAssign() {
 		m_opFlags1 = OpFlag_KeepRef;
-		m_opFlags2 = OpFlag_KeepEnum;
+		m_opFlags2 = OpFlag_KeepEnum | OpFlag_KeepStringRef;
 	}
 
 	virtual
@@ -60,6 +60,7 @@ public:
 	BinOp_RefAssign() {
 		m_opKind = BinOpKind_RefAssign;
 		m_opFlags1 = OpFlag_KeepRef;
+		m_opFlags2 = OpFlag_KeepStringRef;
 	}
 
 	virtual

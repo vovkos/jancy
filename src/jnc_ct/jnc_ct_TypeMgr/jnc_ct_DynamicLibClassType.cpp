@@ -51,7 +51,7 @@ DynamicLibClassType::ensureFunctionTable() {
 		return false;
 	}
 
-	ArrayType* functionTableType = m_module->m_typeMgr.getStdType(StdType_BytePtr)->getArrayType(functionCount);
+	ArrayType* functionTableType = m_module->m_typeMgr.getStdType(StdType_ByteThinPtr)->getArrayType(functionCount);
 	createField(functionTableType);
 
 	m_flags |= DynamicLibClassTypeFlag_FunctionTableReady;

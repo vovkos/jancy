@@ -99,7 +99,7 @@ LeanDataPtrValidator::createValidator(const Value& boxValue) {
 
 	Value argValueArray[3];
 	argValueArray[0] = boxValue;
-	module->m_llvmIrBuilder.createBitCast(m_rangeBeginValue, module->m_typeMgr.getStdType(StdType_BytePtr), &argValueArray[1]);
+	module->m_llvmIrBuilder.createBitCast(m_rangeBeginValue, module->m_typeMgr.getStdType(StdType_ByteThinPtr), &argValueArray[1]);
 	argValueArray[2].setConstSizeT(m_rangeLength, module);
 
 	module->m_llvmIrBuilder.createCall(

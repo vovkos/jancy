@@ -304,8 +304,8 @@ OperatorMgr::getDynamicField(
 	bool result;
 
 	Function* getDynamicFieldFunc = m_module->m_functionMgr.getStdFunction(StdFunc_GetDynamicField);
-	Value typeValue(&type, m_module->m_typeMgr.getStdType(StdType_BytePtr));
-	Value fieldValue(&field, m_module->m_typeMgr.getStdType(StdType_BytePtr));
+	Value typeValue(&type, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
+	Value fieldValue(&field, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
 
 	Value ptrValue;
 	result = m_module->m_operatorMgr.callOperator(

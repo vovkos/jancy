@@ -622,7 +622,7 @@ OperatorMgr::dynamicCastDataPtr(
 		return false;
 
 	Type* targetType = type->getTargetType();
-	Value typeValue(&targetType, m_module->m_typeMgr.getStdType(StdType_BytePtr));
+	Value typeValue(&targetType, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
 
 	Function* function = m_module->m_functionMgr.getStdFunction(StdFunc_DynamicCastDataPtr);
 
@@ -659,7 +659,7 @@ OperatorMgr::dynamicCastClassPtr(
 	m_module->m_llvmIrBuilder.createBitCast(opValue, m_module->m_typeMgr.getStdType(StdType_AbstractClassPtr), &ptrValue);
 
 	Type* targetType = type->getTargetType();
-	Value typeValue(&targetType, m_module->m_typeMgr.getStdType(StdType_BytePtr));
+	Value typeValue(&targetType, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
 
 	Function* function = m_module->m_functionMgr.getStdFunction(StdFunc_DynamicCastClassPtr);
 	m_module->m_llvmIrBuilder.createCall2(
@@ -910,12 +910,12 @@ OperatorMgr::sizeofOperator(
 			DynamicFieldValueInfo* fieldInfo = opValue.getDynamicFieldInfo();
 			if (fieldInfo) {
 				Function* function = m_module->m_functionMgr.getStdFunction(StdFunc_DynamicFieldSizeOf);
-				Value typeValue(&fieldInfo->m_parentType, m_module->m_typeMgr.getStdType(StdType_BytePtr));
-				Value fieldValue(&fieldInfo->m_field, m_module->m_typeMgr.getStdType(StdType_BytePtr));
+				Value typeValue(&fieldInfo->m_parentType, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
+				Value fieldValue(&fieldInfo->m_field, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
 				return callOperator(function, fieldInfo->m_parentValue, typeValue, fieldValue, resultValue);
 			} else {
 				Function* function = m_module->m_functionMgr.getStdFunction(StdFunc_DynamicTypeSizeOf);
-				Value typeValue(&type, m_module->m_typeMgr.getStdType(StdType_BytePtr));
+				Value typeValue(&type, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
 				return callOperator(function, opValue, typeValue, resultValue);
 			}
 		}
@@ -966,8 +966,8 @@ OperatorMgr::countofOperator(
 			}
 
 			Function* function = m_module->m_functionMgr.getStdFunction(StdFunc_DynamicFieldCountOf);
-			Value typeValue(&fieldInfo->m_parentType, m_module->m_typeMgr.getStdType(StdType_BytePtr));
-			Value fieldValue(&fieldInfo->m_field, m_module->m_typeMgr.getStdType(StdType_BytePtr));
+			Value typeValue(&fieldInfo->m_parentType, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
+			Value fieldValue(&fieldInfo->m_field, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
 			return callOperator(function, fieldInfo->m_parentValue, typeValue, fieldValue, resultValue);
 		}
 
@@ -978,7 +978,7 @@ OperatorMgr::countofOperator(
 		}
 
 		type = ((DataPtrType*)type)->getTargetType();
-		typeValue.createConst(&type, m_module->m_typeMgr.getStdType(StdType_BytePtr));
+		typeValue.createConst(&type, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
 		Function* function = m_module->m_functionMgr.getStdFunction(StdFunc_DynamicCountOf);
 		return callOperator(function, opValue, typeValue, resultValue);
 	}
@@ -1109,25 +1109,43 @@ OperatorMgr::prepareOperandType(
 				DataPtrType* ptrType = (DataPtrType*)type;
 				Type* targetType = ptrType->getTargetType();
 				TypeKind targetTypeKind = targetType->getTypeKind();
+				switch (targetTypeKind) {
+				case TypeKind_BitField:
+					value = ((BitFieldType*)targetType)->getBaseType();
+					break;
 
-				if (targetTypeKind == TypeKind_BitField) {
-					BitFieldType* bitFieldType = (BitFieldType*)targetType;
-					value = bitFieldType->getBaseType();
-				} else if (targetTypeKind != TypeKind_Array) {
-					bool b1 = (targetType->getTypeKindFlags() & TypeKindFlag_Derivable) && (opFlags & OpFlag_KeepDerivableRef);
-					bool b2 = targetTypeKind == TypeKind_Variant && (opFlags & OpFlag_KeepVariantRef);
-
-					if (!b1 && !b2)
+				case TypeKind_Struct:
+				case TypeKind_Union:
+				case TypeKind_Class:
+					if (!(opFlags & OpFlag_KeepDerivableRef))
 						value = ((DataPtrType*)type)->getTargetType();
-				} else if (opFlags & OpFlag_LoadArrayRef) {
+					break;
+
+				case TypeKind_Variant:
+					if (!(opFlags & OpFlag_KeepVariantRef))
+						value = ((DataPtrType*)type)->getTargetType();
+					break;
+
+				case TypeKind_String:
+					if (!(opFlags & OpFlag_KeepStringRef))
+						value = ((DataPtrType*)type)->getTargetType();
+					break;
+
+				case TypeKind_Array:
+					if (opFlags & OpFlag_LoadArrayRef)
+						value = ((DataPtrType*)type)->getTargetType();
+					else if (opFlags & OpFlag_ArrayRefToPtr) {
+						ArrayType* arrayType = (ArrayType*)targetType;
+						value = arrayType->getElementType()->getDataPtrType(
+							TypeKind_DataPtr,
+							ptrType->getPtrTypeKind(),
+							ptrType->getFlags() & PtrTypeFlag__All
+						);
+					}
+					break;
+
+				default:
 					value = ((DataPtrType*)type)->getTargetType();
-				} else if (opFlags & OpFlag_ArrayRefToPtr) {
-					ArrayType* arrayType = (ArrayType*)targetType;
-					value = arrayType->getElementType()->getDataPtrType(
-						TypeKind_DataPtr,
-						ptrType->getPtrTypeKind(),
-						ptrType->getFlags() & PtrTypeFlag__All
-					);
 				}
 			}
 
@@ -1181,13 +1199,11 @@ OperatorMgr::prepareOperandType(
 		case TypeKind_Bool:
 			if (!(opFlags & OpFlag_KeepBool))
 				value = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int8);
-
 			break;
 
 		case TypeKind_Enum:
 			if (!(opFlags & OpFlag_KeepEnum))
 				value.overrideType(((EnumType*)type)->getRootType());
-
 			break;
 		}
 
@@ -1286,21 +1302,46 @@ OperatorMgr::prepareOperand(
 				Type* targetType = ptrType->getTargetType();
 				TypeKind targetTypeKind = targetType->getTypeKind();
 
-				if (targetTypeKind != TypeKind_Array) {
-					bool b1 = (targetType->getTypeKindFlags() & TypeKindFlag_Derivable) && (opFlags & OpFlag_KeepDerivableRef);
-					bool b2 = targetTypeKind == TypeKind_Variant && (opFlags & OpFlag_KeepVariantRef);
-
-					if (!b1 && !b2) {
+				switch (targetTypeKind) {
+				case TypeKind_Struct:
+				case TypeKind_Union:
+				case TypeKind_Class:
+					if (!(opFlags & OpFlag_KeepDerivableRef)) {
 						result = loadDataRef(&value);
 						if (!result)
 							return false;
 					}
-				} else if (opFlags & OpFlag_LoadArrayRef) {
+					break;
+
+				case TypeKind_Variant:
+					if (!(opFlags & OpFlag_KeepVariantRef)) {
+						result = loadDataRef(&value);
+						if (!result)
+							return false;
+					}
+					break;
+
+				case TypeKind_String:
+					if (!(opFlags & OpFlag_KeepStringRef)) {
+						result = loadDataRef(&value);
+						if (!result)
+							return false;
+					}
+					break;
+
+				case TypeKind_Array:
+					if (opFlags & OpFlag_LoadArrayRef) {
+						result = loadDataRef(&value);
+						if (!result)
+							return false;
+					} else if (opFlags & OpFlag_ArrayRefToPtr)
+						prepareArrayRef(&value);
+					break;
+
+				default:
 					result = loadDataRef(&value);
 					if (!result)
 						return false;
-				} else if (opFlags & OpFlag_ArrayRefToPtr) {
-					prepareArrayRef(&value);
 				}
 			}
 

@@ -422,7 +422,7 @@ VariableMgr::primeStaticClassVariable(Variable* variable) {
 
 	argValueArray[1].createConst(
 		&variable->m_type,
-		m_module->m_typeMgr.getStdType(StdType_BytePtr)
+		m_module->m_typeMgr.getStdType(StdType_ByteThinPtr)
 	);
 
 	m_module->m_llvmIrBuilder.createCall(
@@ -439,7 +439,7 @@ VariableMgr::primeStaticClassVariable(Variable* variable) {
 
 		Value argValueArray[2];
 
-		m_module->m_llvmIrBuilder.createBitCast(destructor, m_module->m_typeMgr.getStdType(StdType_BytePtr), &argValueArray[0]);
+		m_module->m_llvmIrBuilder.createBitCast(destructor, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr), &argValueArray[0]);
 		m_module->m_llvmIrBuilder.createBitCast(variable, m_module->m_typeMgr.getStdType(StdType_AbstractClassPtr), &argValueArray[1]);
 		m_module->m_llvmIrBuilder.createCall(addDestructor, addDestructor->getType(), argValueArray, countof(argValueArray), NULL);
 	}
@@ -484,14 +484,14 @@ VariableMgr::createStaticDataPtrValidator(Variable* variable) {
 
 	m_module->m_llvmIrBuilder.createBitCast(
 		variable,
-		m_module->m_typeMgr.getStdType(StdType_BytePtr),
+		m_module->m_typeMgr.getStdType(StdType_ByteThinPtr),
 		&variablePtrValue
 	);
 
 	m_module->m_llvmIrBuilder.createGep(
 		variablePtrValue,
 		variable->m_type->getSize(),
-		m_module->m_typeMgr.getStdType(StdType_BytePtr),
+		m_module->m_typeMgr.getStdType(StdType_ByteThinPtr),
 		&variableEndPtrValue
 	);
 
@@ -525,7 +525,7 @@ VariableMgr::createStaticDataPtrValidator(Variable* variable) {
 
 	uintptr_t flags = BoxFlag_Detached | BoxFlag_Static | BoxFlag_DataMark | BoxFlag_WeakMark;
 
-	llvmMemberArray[0] = Value::getLlvmConst(m_module->m_typeMgr.getStdType(StdType_BytePtr), &variable->m_type);
+	llvmMemberArray[0] = Value::getLlvmConst(m_module->m_typeMgr.getStdType(StdType_ByteThinPtr), &variable->m_type);
 	llvmMemberArray[1] = Value::getLlvmConst(m_module->m_typeMgr.getPrimitiveType(TypeKind_IntPtr_u), &flags);
 	llvmMemberArray[2] = llvmValidatorConst;
 	llvmMemberArray[3] = (llvm::Constant*)variablePtrValue.getLlvmValue();

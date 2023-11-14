@@ -100,6 +100,8 @@ getStdFunctionSource(StdFunc stdFunc) {
 		{ NULL },                                // StdFunc_VariantIndexProperty_set,
 
 		{ NULL },                                // StdFunc_StringCopy,
+		{ NULL },                                // StdFunc_StringSz,
+		{ NULL },                                // StdFunc_StringRef,
 
 		{                                        // StdFunc_AppendFmtLiteral_a,
 			appendFmtLiteralSrc_a,
@@ -139,6 +141,11 @@ getStdFunctionSource(StdFunc stdFunc) {
 		{                                        // StdFunc_AppendFmtLiteral_v,
 			appendFmtLiteralSrc_v,
 			lengthof(appendFmtLiteralSrc_v),
+			StdNamespace_Internal,
+		},
+		{                                        // StdFunc_AppendFmtLiteral_s,
+			appendFmtLiteralSrc_s,
+			lengthof(appendFmtLiteralSrc_s),
 			StdNamespace_Internal,
 		},
 		{                                        // StdFunc_AppendFmtLiteral_re,

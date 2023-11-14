@@ -12,6 +12,7 @@
 #pragma once
 
 #include "jnc_ct_CastOp.h"
+#include "jnc_String.h"
 
 namespace jnc {
 namespace ct {
@@ -32,6 +33,20 @@ protected:
 	preparePtr(
 		const Value& opValue,
 		Value* resultValue
+	);
+
+	DataPtr
+	saveLiteral(
+		const void* p,
+		size_t length
+	);
+
+	void
+	finalizeString(
+		String* string,
+		const char* p,
+		size_t length,
+		DataPtrValidator* validator
 	);
 };
 

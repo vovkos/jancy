@@ -176,7 +176,7 @@ OperatorMgr::getThisValue(
 				size_t parentOffset = reactorType->getParentOffset();
 				ASSERT(parentOffset);
 
-				m_module->m_llvmIrBuilder.createBitCast(thisValue, m_module->m_typeMgr.getStdType(StdType_BytePtr), &thisValue);
+				m_module->m_llvmIrBuilder.createBitCast(thisValue, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr), &thisValue);
 				m_module->m_llvmIrBuilder.createGep(thisValue, -parentOffset, NULL, &thisValue);
 				m_module->m_llvmIrBuilder.createBitCast(thisValue, parentType->getClassPtrType(), &thisValue);
 			}
@@ -656,7 +656,7 @@ OperatorMgr::getLibraryMember(
 	Value argValueArray[] = {
 		closure->getThisArgValue(),
 		Value(index, m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT)),
-		Value(&namePtr, m_module->m_typeMgr.getStdType(StdType_CharConstPtr)),
+		Value(&namePtr, m_module->m_typeMgr.getStdType(StdType_CharConstThinPtr)),
 	};
 
 	m_module->m_llvmIrBuilder.createBitCast(

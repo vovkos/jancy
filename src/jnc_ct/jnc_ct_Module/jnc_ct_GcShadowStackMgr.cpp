@@ -105,7 +105,7 @@ GcShadowStackMgr::markGcRoot(
 
 	Value bytePtrValue;
 	Value gcRootValue;
-	Type* bytePtrType = m_module->m_typeMgr.getStdType(StdType_BytePtr);
+	Type* bytePtrType = m_module->m_typeMgr.getStdType(StdType_ByteThinPtr);
 
 	m_module->m_llvmIrBuilder.createGep(m_gcRootArrayValue, index, NULL, &gcRootValue);
 	m_module->m_llvmIrBuilder.createBitCast(ptrValue, bytePtrType, &bytePtrValue);
@@ -164,7 +164,7 @@ GcShadowStackMgr::setFrameMap(
 		function,
 		function->getType(),
 		m_frameVariable,
-		Value(&frameMap, m_module->m_typeMgr.getStdType(StdType_BytePtr)),
+		Value(&frameMap, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr)),
 		Value(op, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int)),
 		NULL
 	);
@@ -177,7 +177,7 @@ GcShadowStackMgr::preCreateFrame() {
 	Type* type = m_module->m_typeMgr.getStdType(StdType_GcShadowStackFrame);
 	m_frameVariable = m_module->m_variableMgr.createSimpleStackVariable("gcShadowStackFrame", type);
 
-	type = m_module->m_typeMgr.getStdType(StdType_BytePtr);
+	type = m_module->m_typeMgr.getStdType(StdType_ByteThinPtr);
 	m_module->m_llvmIrBuilder.createAlloca(type, type->getDataPtrType_c(), &m_gcRootArrayValue);
 
 	// m_gcRootArrayValue will be replaced later
@@ -202,7 +202,7 @@ GcShadowStackMgr::finalizeFrame() {
 
 	Value gcRootArrayValue;
 	m_module->m_llvmIrBuilder.createAlloca(type, type->getDataPtrType_c(), &gcRootArrayValue);
-	type = m_module->m_typeMgr.getStdType(StdType_BytePtr)->getDataPtrType_c();
+	type = m_module->m_typeMgr.getStdType(StdType_ByteThinPtr)->getDataPtrType_c();
 	m_module->m_llvmIrBuilder.createBitCast(gcRootArrayValue, type, &gcRootArrayValue);
 
 	// fixup all uses of gc root array
@@ -218,7 +218,7 @@ GcShadowStackMgr::finalizeFrame() {
 	// GcShadowStackFrame.m_map
 
 	Value frameMapFieldValue;
-	type = m_module->m_typeMgr.getStdType(StdType_BytePtr);
+	type = m_module->m_typeMgr.getStdType(StdType_ByteThinPtr);
 	m_module->m_llvmIrBuilder.createGep2(m_frameVariable, 1, NULL, &frameMapFieldValue);
 	m_module->m_llvmIrBuilder.createStore(type->getZeroValue(), frameMapFieldValue);
 
@@ -240,7 +240,7 @@ GcShadowStackMgr::finalizeFrame() {
 		ASSERT(result);
 
 		Value frameValue;
-		m_module->m_llvmIrBuilder.createBitCast(m_frameVariable, m_module->m_typeMgr.getStdType(StdType_BytePtr), &frameValue);
+		m_module->m_llvmIrBuilder.createBitCast(m_frameVariable, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr), &frameValue);
 		m_module->m_llvmIrBuilder.createStore(frameValue, frameFieldValue);
 	} else {
 		Value prevStackTopValue;

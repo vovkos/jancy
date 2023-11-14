@@ -28,10 +28,7 @@ BinOp_Match::op(
 	Value opValue1;
 	Value opValue2;
 
-	Type* charPtrType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Char)->getDataPtrType(
-		DataPtrTypeKind_Normal,
-		PtrTypeFlag_Const
-	);
+	Type* charPtrType = m_module->m_typeMgr.getStdType(StdType_CharConstPtr);
 
 	bool result =
 		castOperator(m_module, rawOpValue1, charPtrType, &opValue1) &&

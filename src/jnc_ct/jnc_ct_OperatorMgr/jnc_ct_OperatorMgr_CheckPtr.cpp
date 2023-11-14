@@ -79,7 +79,7 @@ OperatorMgr::checkDataPtrRange(const Value& value) {
 	} else {
 		ASSERT(ptrTypeKind == DataPtrTypeKind_Lean);
 
-		m_module->m_llvmIrBuilder.createBitCast(value, m_module->m_typeMgr.getStdType(StdType_BytePtr), &ptrValue);
+		m_module->m_llvmIrBuilder.createBitCast(value, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr), &ptrValue);
 
 		LeanDataPtrValidator* validator = value.getLeanDataPtrValidator();
 		if (validator->isDynamicRange() || validator->hasValidatorValue()) {
@@ -94,7 +94,7 @@ OperatorMgr::checkDataPtrRange(const Value& value) {
 			rangeLength -= targetSize;
 
 			Value rangeBeginValue = validator->getRangeBeginValue();
-			m_module->m_llvmIrBuilder.createBitCast(rangeBeginValue, m_module->m_typeMgr.getStdType(StdType_BytePtr), &rangeBeginValue);
+			m_module->m_llvmIrBuilder.createBitCast(rangeBeginValue, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr), &rangeBeginValue);
 
 			Value argValueArray[] = {
 				ptrValue,
@@ -142,7 +142,7 @@ OperatorMgr::checkNullPtr(const Value& value) {
 	Variable* nullPtrCheckSink = m_module->m_variableMgr.getStdVariable(StdVariable_NullPtrCheckSink);
 
 	Value tmpValue;
-	m_module->m_llvmIrBuilder.createBitCast(value, m_module->m_typeMgr.getStdType(StdType_BytePtr), &tmpValue);
+	m_module->m_llvmIrBuilder.createBitCast(value, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr), &tmpValue);
 	m_module->m_llvmIrBuilder.createLoad(tmpValue, NULL, &tmpValue);
 	m_module->m_llvmIrBuilder.createStore(tmpValue, nullPtrCheckSink);
 }

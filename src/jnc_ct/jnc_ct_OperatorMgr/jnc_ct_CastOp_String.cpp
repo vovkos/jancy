@@ -63,6 +63,48 @@ Cast_StringBase::preparePtr(
 	return m_module->m_operatorMgr.castOperator(opValue, opType, resultValue);
 }
 
+DataPtr
+Cast_StringBase::saveLiteral(
+	const void* p,
+	size_t length
+) {
+	Value value = m_module->m_constMgr.saveLiteral(sl::StringRef((char*)p, length));
+
+	DataPtr ptr;
+	ptr.m_p = (void*)value.getConstData();
+	ptr.m_validator = m_module->m_constMgr.createConstDataPtrValidator(p, value.getType());
+	return ptr;
+}
+
+void
+Cast_StringBase::finalizeString(
+	String* string,
+	const char* p,
+	size_t length,
+	DataPtrValidator* validator
+) {
+	DataPtr ptr;
+	ptr.m_p = (void*)p;
+	ptr.m_validator = validator;
+
+	if (p + length < (char*)validator->m_rangeEnd) { // in-range
+		if (length && !p[length - 1])
+			length--;
+		else if (p[length])
+			ptr = saveLiteral(p, length);
+	} else { // out-of-range
+		const char* end = (char*)validator->m_rangeEnd;
+		if (p < end && !end[-1])
+			length = end - p - 1;
+		else
+			ptr = saveLiteral(p, length);
+	}
+
+	string->m_ptr = ptr;
+	string->m_ptr_sz = ptr;
+	string->m_length = length;
+}
+
 //..............................................................................
 
 bool
@@ -80,14 +122,7 @@ Cast_String_FromPtr::constCast(
 
 	String* string = (String*)dst;
 	DataPtr ptr = *(DataPtr*)opValue.getConstData();
-	size_t length = jnc_strLen(ptr);
-
-	string->m_ptr = ptr;
-	string->m_length = length;
-	string->m_ptr_sz = (char*)ptr.m_p + length < (char*)ptr.m_validator->m_rangeEnd ?
-		ptr :
-		g_nullDataPtr;
-
+	finalizeString(string, (char*)ptr.m_p, jnc_strLen(ptr), ptr.m_validator);
 	return true;
 }
 
@@ -125,36 +160,17 @@ Cast_String_FromArray::constCast(
 		if (!result)
 			return false;
 
-		ArrayType* arrayType = (ArrayType*)((DataPtrType*)opValue.getType())->getTargetType();
-		size_t length = arrayType->getElementCount();
-
 		DataPtr ptr = *(DataPtr*)ptrValue.getConstData();
-		string->m_ptr = ptr;
-		string->m_length = length;
-		string->m_ptr_sz = (char*)ptr.m_p + length < (char*)ptr.m_validator->m_rangeEnd ?
-			ptr :
-			g_nullDataPtr;
-
+		ArrayType* arrayType = (ArrayType*)((DataPtrType*)opValue.getType())->getTargetType();
+		finalizeString(string, (char*)ptr.m_p, arrayType->getElementCount(), ptr.m_validator);
 		return true;
 	}
 
 	ASSERT(opValue.getType()->getTypeKind() == TypeKind_Array);
-
 	ArrayType* srcType = (ArrayType*)opValue.getType();
 	size_t length = srcType->getElementCount();
-
-	const Value& savedOpValue = m_module->m_constMgr.saveLiteral(sl::StringRef((char*)opValue.getConstData(), length));
-	char* p = (char*)savedOpValue.getConstData();
-	if (length && !p[length - 1])
-		length--; // null-termination is part of the array
-
-	DataPtr ptr;
-	ptr.m_p = p;
-	ptr.m_validator = m_module->m_constMgr.createConstDataPtrValidator(p, srcType);
-
-	string->m_ptr = ptr;
-	string->m_ptr_sz = ptr;
-	string->m_length = length;
+	DataPtr ptr = saveLiteral(opValue.getConstData(), length);
+	finalizeString(string, (char*)ptr.m_p, length, ptr.m_validator);
 	return true;
 }
 

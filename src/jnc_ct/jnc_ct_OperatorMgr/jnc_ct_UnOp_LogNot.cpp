@@ -84,7 +84,7 @@ UnOp_LogNot::ptrOperator(
 	}
 
 	Value ptrValue;
-	m_module->m_llvmIrBuilder.createExtractValue(opValue, 0, m_module->m_typeMgr.getStdType(StdType_BytePtr), &ptrValue);
+	m_module->m_llvmIrBuilder.createExtractValue(opValue, 0, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr), &ptrValue);
 	return zeroCmpOperator(ptrValue, resultValue);
 }
 

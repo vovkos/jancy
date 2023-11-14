@@ -462,6 +462,33 @@ stringCreate(
 	return string;
 }
 
+bool
+isNullTerminated(DataPtr ptr) {
+	if (!ptr.m_validator)
+		return false;
+
+	char* p = (char*)ptr.m_p;
+	char* p0 = (char*)ptr.m_validator->m_rangeBegin;
+	char* end = (char*)ptr.m_validator->m_rangeEnd;
+	return p >= p0 && p < end && memchr(p, 0, end - p);
+}
+
+DataPtr
+stringSz(String string) {
+	return
+		string.m_ptr_sz.m_p ? string.m_ptr_sz :
+		isNullTerminated(string.m_ptr) ? string.m_ptr :
+		strDup((char*)string.m_ptr.m_p, string.m_length);
+}
+
+DataPtr
+stringRefSz(String* string) {
+	return
+		string->m_ptr_sz.m_p ? string->m_ptr_sz :
+		isNullTerminated(string->m_ptr) ? string->m_ptr_sz = string->m_ptr :
+		string->m_ptr_sz = strDup((char*)string->m_ptr.m_p, string->m_length);
+}
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
@@ -740,7 +767,7 @@ appendFmtLiteral_a(
 	// adjust validator
 
 	DataPtrValidator* validator = fmtLiteral->m_ptr.m_validator;
-	validator->m_rangeEnd = (char*)validator->m_rangeBegin + fmtLiteral->m_length;
+	validator->m_rangeEnd = (char*)validator->m_rangeBegin + fmtLiteral->m_length + 1; // including zero-terminator
 	return fmtLiteral->m_length;
 }
 
@@ -909,6 +936,22 @@ appendFmtLiteral_v(
 	sl::String string(rc::BufKind_Stack, buffer, sizeof(buffer));
 	variant.format(&string, fmtSpecifier);
 	return appendFmtLiteral_a(fmtLiteral, string, string.getLength());
+}
+
+size_t
+appendFmtLiteral_s(
+	FmtLiteral* fmtLiteral,
+	const char* fmtSpecifier,
+	String string
+) {
+	return appendFmtLiteralStringImpl(
+		fmtLiteral,
+		fmtSpecifier,
+		string.m_ptr_sz.m_p ?
+			(char*)string.m_ptr_sz.m_p :
+			(char*)string.m_ptr.m_p,
+		string.m_length
+	);
 }
 
 size_t
@@ -1178,6 +1221,8 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_CoreLib)
 	// strings
 
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringCreate,   stringCreate)
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringSz,       stringSz)
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringRefSz,    stringRefSz)
 
 	// exceptions/async
 
@@ -1210,6 +1255,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_CoreLib)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_AppendFmtLiteral_ui64, appendFmtLiteral_ui64)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_AppendFmtLiteral_f,    appendFmtLiteral_f)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_AppendFmtLiteral_v,    appendFmtLiteral_v)
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_AppendFmtLiteral_s,    appendFmtLiteral_s)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_AppendFmtLiteral_re,   appendFmtLiteral_re)
 
 	// gc heap

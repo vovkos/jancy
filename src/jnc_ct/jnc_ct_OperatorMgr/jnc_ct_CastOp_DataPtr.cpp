@@ -127,6 +127,100 @@ Cast_DataPtr_FromArray::llvmCast(
 //..............................................................................
 
 CastKind
+Cast_DataPtr_FromString::getCastKind(
+	const Value& opValue,
+	Type* type
+) {
+	ASSERT(type->getTypeKind() == TypeKind_DataPtr);
+
+	ASSERT(
+		opValue.getType()->getTypeKind() == TypeKind_String ||
+		opValue.getType()->getTypeKind() == TypeKind_DataRef &&
+		((DataPtrType*)opValue.getType())->getTargetType()->getTypeKind() == TypeKind_String
+	);
+
+	DataPtrType* dstType = (DataPtrType*)type;
+	if (!(dstType->getFlags() & PtrTypeFlag_Const))
+		return CastKind_None;
+
+	Type* targetType = dstType->getTargetType();
+	switch (targetType->getTypeKind()) {
+	case TypeKind_Void:
+	case TypeKind_Char:
+	case TypeKind_Byte:
+		return CastKind_Implicit;
+
+	default:
+		return (targetType->getFlags() & TypeFlag_Pod) ?
+			CastKind_Explicit :
+			CastKind_None;
+	}
+}
+
+bool
+Cast_DataPtr_FromString::constCast(
+	const Value& opValue,
+	Type* type,
+	void* dst
+) {
+	ASSERT(type->getTypeKind() == TypeKind_DataPtr);
+
+	DataPtrType* dstType = (DataPtrType*)type;
+	if (!(dstType->getFlags() & PtrTypeFlag_Const)) {
+		setCastError(opValue, type);
+		return false;
+	}
+
+	if (opValue.getType()->getTypeKind() == TypeKind_DataRef) {
+		ASSERT(((DataPtrType*)opValue.getType())->getTargetType()->getTypeKind() == TypeKind_String);
+		err::setError("casting from string_t reference constants not supported");
+		return false;
+	}
+
+	ASSERT(opValue.getType()->getTypeKind() == TypeKind_String);
+	String* string = (String*)opValue.getConstData();
+	ASSERT(string->m_ptr.m_p == string->m_ptr_sz.m_p); // constants are always null-terminated
+
+	if (dstType->getPtrTypeKind() == DataPtrTypeKind_Normal)
+		*(DataPtr*)dst = string->m_ptr;
+	else
+		*(void**)dst = string->m_ptr.m_p;
+
+	return true;
+}
+
+bool
+Cast_DataPtr_FromString::llvmCast(
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
+) {
+	Value charPtrValue;
+
+	if (opValue.getType()->getTypeKind() == TypeKind_DataRef) {
+		ASSERT(((DataPtrType*)opValue.getType())->getTargetType()->getTypeKind() == TypeKind_String);
+
+		Function* func = m_module->m_functionMgr.getStdFunction(StdFunc_StringRefSz);
+		Value stringPtrValue;
+
+		return
+			m_module->m_operatorMgr.unaryOperator(UnOpKind_Addr, opValue, &stringPtrValue) &&
+			m_module->m_operatorMgr.callOperator(func, stringPtrValue, &charPtrValue) &&
+			m_module->m_operatorMgr.castOperator(charPtrValue, type, resultValue);
+	} else {
+		ASSERT(opValue.getType()->getTypeKind() == TypeKind_String);
+
+		Function* func = m_module->m_functionMgr.getStdFunction(StdFunc_StringSz);
+
+		return
+			m_module->m_operatorMgr.callOperator(func, opValue, &charPtrValue) &&
+			m_module->m_operatorMgr.castOperator(charPtrValue, type, resultValue);
+	}
+}
+
+//..............................................................................
+
+CastKind
 Cast_DataPtr_FromClassPtr::getCastKind(
 	const Value& opValue,
 	Type* type
@@ -390,7 +484,7 @@ Cast_DataPtr_Base::getOffsetUnsafePtrValue(
 		return false;
 
 	if (isFat)
-		dstType = (DataPtrType*)m_module->m_typeMgr.getStdType(StdType_BytePtr);
+		dstType = (DataPtrType*)m_module->m_typeMgr.getStdType(StdType_ByteThinPtr);
 	else if (dstType->getPtrTypeKind() != DataPtrTypeKind_Thin)
 		dstType = dstType->getTargetType()->getDataPtrType_c();
 
@@ -620,7 +714,7 @@ Cast_DataPtr::Cast_DataPtr() {
 	m_operatorTable[DataPtrTypeKind_Lean][DataPtrTypeKind_Thin]     = &m_lean2Thin;
 	m_operatorTable[DataPtrTypeKind_Thin][DataPtrTypeKind_Thin]     = &m_thin2Thin;
 
-	m_opFlags = OpFlag_KeepDerivableRef;
+	m_opFlags = OpFlag_KeepDerivableRef | OpFlag_KeepStringRef;
 }
 
 CastOperator*
@@ -634,17 +728,26 @@ Cast_DataPtr::getCastOperator(
 	DataPtrTypeKind dstPtrTypeKind = dstPtrType->getPtrTypeKind();
 
 	Type* srcType = opValue.getType();
-	if (isArrayRefType(srcType))
-		return &m_fromArray;
-
 	TypeKind typeKind = srcType->getTypeKind();
 	switch (typeKind) {
 	case TypeKind_DataPtr:
+		break;
+
 	case TypeKind_DataRef:
+		switch (((DataPtrType*)srcType)->getTargetType()->getTypeKind()) {
+		case TypeKind_Array:
+			return &m_fromArray;
+
+		case TypeKind_String:
+			return &m_fromString;
+		}
 		break;
 
 	case TypeKind_Array:
 		return &m_fromArray;
+
+	case TypeKind_String:
+		return &m_fromString;
 
 	case TypeKind_ClassPtr:
 	case TypeKind_ClassRef:

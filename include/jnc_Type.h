@@ -228,7 +228,8 @@ enum jnc_PtrTypeFlag {
 // commonly used non-primitive types
 
 enum jnc_StdType {
-	jnc_StdType_BytePtr,
+	jnc_StdType_ByteThinPtr,
+	jnc_StdType_CharConstThinPtr,
 	jnc_StdType_CharConstPtr,
 	jnc_StdType_IfaceHdr,
 	jnc_StdType_IfaceHdrPtr,
@@ -706,7 +707,8 @@ const PtrTypeFlag
 typedef jnc_StdType StdType;
 
 const StdType
-	StdType_BytePtr               = jnc_StdType_BytePtr,
+	StdType_ByteThinPtr           = jnc_StdType_ByteThinPtr,
+	StdType_CharConstThinPtr      = jnc_StdType_CharConstThinPtr,
 	StdType_CharConstPtr          = jnc_StdType_CharConstPtr,
 	StdType_IfaceHdr              = jnc_StdType_IfaceHdr,
 	StdType_IfaceHdrPtr           = jnc_StdType_IfaceHdrPtr,

@@ -402,7 +402,7 @@ LlvmIrBuilder::createClosureFunctionPtr(
 	Value ptrValue;
 	Value closureValue;
 
-	createBitCast(rawPtrValue, m_module->m_typeMgr.getStdType(StdType_BytePtr), &ptrValue);
+	createBitCast(rawPtrValue, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr), &ptrValue);
 	createBitCast(rawClosureValue, m_module->m_typeMgr.getStdType(StdType_AbstractClassPtr), &closureValue);
 
 	Value functionPtrValue = resultType->getUndefValue();
@@ -422,7 +422,7 @@ LlvmIrBuilder::createClosurePropertyPtr(
 	Value ptrValue;
 	Value closureValue;
 
-	createBitCast(rawPtrValue, m_module->m_typeMgr.getStdType(StdType_BytePtr), &ptrValue);
+	createBitCast(rawPtrValue, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr), &ptrValue);
 	createBitCast(rawClosureValue, m_module->m_typeMgr.getStdType(StdType_AbstractClassPtr), &closureValue);
 
 	Value functionPtrValue = resultType->getUndefValue();

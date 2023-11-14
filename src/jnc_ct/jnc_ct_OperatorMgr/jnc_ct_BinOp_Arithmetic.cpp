@@ -95,7 +95,7 @@ dataPtrIncrementOperator(
 			return false;
 		}
 
-		Type* ptrType = module->m_typeMgr.getStdType(StdType_BytePtr);
+		Type* ptrType = module->m_typeMgr.getStdType(StdType_ByteThinPtr);
 
 		Function* getDynamicFieldFunc = module->m_functionMgr.getStdFunction(StdFunc_GetDynamicField);
 
@@ -141,8 +141,7 @@ dataPtrDifferenceOperator(
 		return false;
 	}
 
-	Type* bytePtrType = module->m_typeMgr.getPrimitiveType(TypeKind_Char)->getDataPtrType_c(TypeKind_DataPtr, PtrTypeFlag_Const);
-
+	Type* bytePtrType = module->m_typeMgr.getStdType(StdType_CharConstThinPtr);
 	Value opValue1;
 	Value opValue2;
 

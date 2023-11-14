@@ -137,6 +137,10 @@ OperatorMgr::getCdeclVarArgType(Type* type) {
 			type = ((DataPtrType*)type)->getTargetType()->getDataPtrType_c(TypeKind_DataPtr, PtrTypeFlag_Const);
 			break;
 
+		case TypeKind_String:
+			type = m_module->m_typeMgr.getStdType(StdType_CharConstThinPtr);
+			break;
+
 		default:
 			if (type->getTypeKindFlags() & TypeKindFlag_Integer) {
 				type = type->getSize() > 4 ?
@@ -441,7 +445,7 @@ OperatorMgr::castArgValueList(
 		}
 
 		Type* formalArgType = argValue.getValueKind() == ValueKind_Null ?
-			m_module->m_typeMgr.getStdType(StdType_BytePtr) :
+			m_module->m_typeMgr.getStdType(StdType_ByteThinPtr) :
 			getCdeclVarArgType(argValue.getType());
 
 		result = castOperator(argValue, formalArgType, &*argValueIt); // store it in the same list entry

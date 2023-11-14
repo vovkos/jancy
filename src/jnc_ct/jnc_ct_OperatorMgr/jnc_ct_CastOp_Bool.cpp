@@ -62,7 +62,7 @@ Cast_BoolFromPtr::llvmCast(
 		return Cast_BoolFromZeroCmp::llvmCast(opValue, type, resultValue);
 
 	Value ptrValue;
-	m_module->m_llvmIrBuilder.createExtractValue(opValue, 0, m_module->m_typeMgr.getStdType(StdType_BytePtr), &ptrValue);
+	m_module->m_llvmIrBuilder.createExtractValue(opValue, 0, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr), &ptrValue);
 	return Cast_BoolFromZeroCmp::llvmCast(ptrValue, type, resultValue);
 }
 

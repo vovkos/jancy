@@ -2802,7 +2802,7 @@ Parser::appendFmtLiteralRawData(
 
 	Value literalValue;
 	literalValue.setCharArray(p, length, m_module);
-	bool result = m_module->m_operatorMgr.castOperator(&literalValue, m_module->m_typeMgr.getStdType(StdType_CharConstPtr));
+	bool result = m_module->m_operatorMgr.castOperator(&literalValue, m_module->m_typeMgr.getStdType(StdType_CharConstThinPtr));
 	ASSERT(result);
 
 	Value lengthValue;
@@ -2853,6 +2853,8 @@ Parser::appendFmtLiteralValue(
 		appendFunc = StdFunc_AppendFmtLiteral_f;
 	} else if (typeKind == TypeKind_Variant) {
 		appendFunc = StdFunc_AppendFmtLiteral_v;
+	} else if (typeKind == TypeKind_String) {
+		appendFunc = StdFunc_AppendFmtLiteral_s;
 	} else if (isCharArrayType(type) || isCharArrayRefType(type) || isCharPtrType(type)) {
 		appendFunc = StdFunc_AppendFmtLiteral_p;
 	} else if (isClassPtrType(type, (ClassType*)m_module->m_typeMgr.getStdType(StdType_RegexMatch))) {
@@ -2873,9 +2875,9 @@ Parser::appendFmtLiteralValue(
 	Value fmtSpecifierValue;
 	if (!fmtSpecifierString.isEmpty()) {
 		fmtSpecifierValue.setCharArray(fmtSpecifierString, m_module);
-		m_module->m_operatorMgr.castOperator(&fmtSpecifierValue, m_module->m_typeMgr.getStdType(StdType_CharConstPtr));
+		m_module->m_operatorMgr.castOperator(&fmtSpecifierValue, m_module->m_typeMgr.getStdType(StdType_CharConstThinPtr));
 	} else {
-		fmtSpecifierValue = m_module->m_typeMgr.getStdType(StdType_CharConstPtr)->getZeroValue();
+		fmtSpecifierValue = m_module->m_typeMgr.getStdType(StdType_CharConstThinPtr)->getZeroValue();
 	}
 
 	return m_module->m_operatorMgr.callOperator(
@@ -2901,7 +2903,7 @@ Parser::appendFmtLiteralBinValue(
 
 	Type* type = srcValue.getType();
 	Function* append = m_module->m_functionMgr.getStdFunction(StdFunc_AppendFmtLiteral_a);
-	Type* argType = m_module->m_typeMgr.getStdType(StdType_BytePtr);
+	Type* argType = m_module->m_typeMgr.getStdType(StdType_ByteThinPtr);
 
 	Value sizeValue(
 		type->getSize(),

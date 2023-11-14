@@ -783,7 +783,7 @@ Module::createConstructor() {
 	count = destructorArray.getCount();
 	if (count) {
 		Function* addStaticDestructor = m_functionMgr.getStdFunction(StdFunc_AddStaticDestructor);
-		Type* voidPtrType = m_typeMgr.getStdType(StdType_BytePtr);
+		Type* voidPtrType = m_typeMgr.getStdType(StdType_ByteThinPtr);
 
 		for (size_t i = 0; i < count; i++) {
 			Value argValue;

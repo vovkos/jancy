@@ -183,7 +183,7 @@ ControlFlowMgr::reSwitchStmt_Condition(
 ) {
 	ClassType* regexStateType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_RegexState);
 	ClassPtrType* regexStatePtrType = regexStateType->getClassPtrType(ClassPtrTypeKind_Normal, PtrTypeFlag_Safe);
-	Type* charPtrType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Char)->getDataPtrType(DataPtrTypeKind_Normal, PtrTypeFlag_Const);
+	Type* charPtrType = m_module->m_typeMgr.getStdType(StdType_CharConstPtr);
 
 	if (!value2) { // a single parameter; create a fresh-new state
 		bool result =

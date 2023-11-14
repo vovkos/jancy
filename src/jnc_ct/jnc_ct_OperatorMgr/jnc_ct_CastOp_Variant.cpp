@@ -91,7 +91,7 @@ Cast_Variant::llvmCast(
 		);
 	}
 
-	Value opTypeValue(&opType, m_module->m_typeMgr.getStdType(StdType_BytePtr));
+	Value opTypeValue(&opType, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
 	Value variantValue;
 	Value castValue;
 
@@ -144,7 +144,7 @@ Cast_FromVariant::llvmCast(
 ) {
 	ASSERT(opValue.getType()->getTypeKind() == TypeKind_Variant);
 
-	Value typeValue(&type, m_module->m_typeMgr.getStdType(StdType_BytePtr));
+	Value typeValue(&type, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
 	Value tmpValue;
 
 	m_module->m_llvmIrBuilder.createAlloca(type, type->getDataPtrType_c(), &tmpValue);
