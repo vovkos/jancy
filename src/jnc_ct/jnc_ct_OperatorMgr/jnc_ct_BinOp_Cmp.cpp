@@ -28,7 +28,34 @@ getPtrCmpOperatorOperandType(
 	return opValue1.getType()->getModule()->m_typeMgr.getPrimitiveType(TypeKind_IntPtr);
 }
 
+bool
+cmpStringOperator(
+	BinOpKind opKind,
+	const Value& opValue1,
+	const Value& opValue2,
+	Value* resultValue
+) {
+	Module* module = opValue1.getType()->getModule();
+	Function* func = module->m_functionMgr.getStdFunction(StdFunc_StringCmp);
+	Value cmpValue;
+	Value zeroValue = func->getType()->getReturnType()->getZeroValue();
+
+	return
+		module->m_operatorMgr.callOperator(func, opValue1, opValue2, &cmpValue) &&
+		module->m_operatorMgr.binaryOperator(opKind, cmpValue, zeroValue, resultValue);
+}
+
 //..............................................................................
+
+bool
+BinOp_Eq::llvmOpString(
+	const Value& opValue1,
+	const Value& opValue2,
+	Value* resultValue
+) {
+	Function* func = m_module->m_functionMgr.getStdFunction(StdFunc_StringEq);
+	return m_module->m_operatorMgr.callOperator(func, opValue1, opValue2, resultValue);
+}
 
 llvm::Value*
 BinOp_Eq::llvmOpInt(
@@ -50,6 +77,19 @@ BinOp_Eq::llvmOpFp(
 }
 
 //..............................................................................
+
+bool
+BinOp_Ne::llvmOpString(
+	const Value& opValue1,
+	const Value& opValue2,
+	Value* resultValue
+) {
+	Function* func = m_module->m_functionMgr.getStdFunction(StdFunc_StringEq);
+	Value eqValue;
+	return
+		m_module->m_operatorMgr.callOperator(func, opValue1, opValue2, &eqValue) &&
+		m_module->m_operatorMgr.unaryOperator(UnOpKind_LogNot, eqValue, resultValue);
+}
 
 llvm::Value*
 BinOp_Ne::llvmOpInt(

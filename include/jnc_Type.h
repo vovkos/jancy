@@ -56,28 +56,28 @@ enum jnc_TypeKind {
 
 	// little-endian integers
 
-	jnc_TypeKind_Int8,                // i1
-	jnc_TypeKind_Int8_u,              // u1
-	jnc_TypeKind_Int16,               // i2
-	jnc_TypeKind_Int16_u,             // u2
-	jnc_TypeKind_Int32,               // i4
-	jnc_TypeKind_Int32_u,             // u4
-	jnc_TypeKind_Int64,               // i8
-	jnc_TypeKind_Int64_u,             // u8
+	jnc_TypeKind_Int8,                // i8
+	jnc_TypeKind_Int8_u,              // u8
+	jnc_TypeKind_Int16,               // i16
+	jnc_TypeKind_Int16_u,             // u16
+	jnc_TypeKind_Int32,               // i32
+	jnc_TypeKind_Int32_u,             // u32
+	jnc_TypeKind_Int64,               // i64
+	jnc_TypeKind_Int64_u,             // u64
 
 	// big-endian integers
 
-	jnc_TypeKind_Int16_be,            // ib2
-	jnc_TypeKind_Int16_ube,           // ub2
-	jnc_TypeKind_Int32_be,            // ib4
-	jnc_TypeKind_Int32_ube,           // ub4
-	jnc_TypeKind_Int64_be,            // ib8
-	jnc_TypeKind_Int64_ube,           // ub8
+	jnc_TypeKind_Int16_be,            // ib16
+	jnc_TypeKind_Int16_ube,           // ub16
+	jnc_TypeKind_Int32_be,            // ib32
+	jnc_TypeKind_Int32_ube,           // ub32
+	jnc_TypeKind_Int64_be,            // ib64
+	jnc_TypeKind_Int64_ube,           // ub64
 
 	// floating point
 
-	jnc_TypeKind_Float,               // f4
-	jnc_TypeKind_Double,              // f8
+	jnc_TypeKind_Float,               // f
+	jnc_TypeKind_Double,              // d
 
 	// derived types
 

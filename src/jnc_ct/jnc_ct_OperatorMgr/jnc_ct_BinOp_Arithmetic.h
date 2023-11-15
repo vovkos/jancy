@@ -99,7 +99,7 @@ public:
 			case TypeKind_Int32_u:
 			case TypeKind_Int64:
 			case TypeKind_Int64_u:
-				static_cast<T*> (this)->llvmOpInt(
+				static_cast<T*>(this)->llvmOpInt(
 					opValue1,
 					opValue2,
 					type,
@@ -110,7 +110,7 @@ public:
 
 			case TypeKind_Float:
 			case TypeKind_Double:
-				static_cast<T*> (this)->llvmOpFp(
+				static_cast<T*>(this)->llvmOpFp(
 					opValue1,
 					opValue2,
 					type,

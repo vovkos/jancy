@@ -33,6 +33,7 @@ bool
 isValidString(const jnc_String* string) {
 	return
 		!string->m_ptr.m_validator ||
+		(char*)string->m_ptr.m_p >= (char*)string->m_ptr.m_validator->m_rangeBegin &&
 		(char*)string->m_ptr.m_p + string->m_length <= (char*)string->m_ptr.m_validator->m_rangeEnd;
 }
 
@@ -62,6 +63,34 @@ jnc_String_isEqualIgnoreCase(
 	sl::StringRef stringRef1((char*)string->m_ptr.m_p, string->m_length);
 	sl::StringRef stringRef2((char*)string2->m_ptr.m_p, string2->m_length);
 	return stringRef1.isEqualIgnoreCase(stringRef2);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+int
+jnc_String_cmp(
+	const jnc_String* string,
+	const jnc_String* string2
+) {
+	ASSERT(isValidString(string) && isValidString(string2));
+
+	sl::StringRef stringRef1((char*)string->m_ptr.m_p, string->m_length);
+	sl::StringRef stringRef2((char*)string2->m_ptr.m_p, string2->m_length);
+	return stringRef1.cmp(stringRef2);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+int
+jnc_String_cmpIgnoreCase(
+	const jnc_String* string,
+	const jnc_String* string2
+) {
+	ASSERT(isValidString(string) && isValidString(string2));
+
+	sl::StringRef stringRef1((char*)string->m_ptr.m_p, string->m_length);
+	sl::StringRef stringRef2((char*)string2->m_ptr.m_p, string2->m_length);
+	return stringRef1.cmpIgnoreCase(stringRef2);
 }
 
 JNC_EXTERN_C

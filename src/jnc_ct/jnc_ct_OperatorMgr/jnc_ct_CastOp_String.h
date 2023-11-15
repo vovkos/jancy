@@ -37,7 +37,7 @@ protected:
 
 	DataPtr
 	saveLiteral(
-		const void* p,
+		const char* p,
 		size_t length
 	);
 

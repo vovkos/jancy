@@ -62,6 +62,8 @@ enum StdFunc {
 	StdFunc_StringCreate,
 	StdFunc_StringSz,
 	StdFunc_StringRefSz,
+	StdFunc_StringEq,
+	StdFunc_StringCmp,
 
 	StdFunc_AppendFmtLiteral_a,
 	StdFunc_AppendFmtLiteral_p,

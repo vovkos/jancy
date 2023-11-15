@@ -48,6 +48,20 @@ jnc_String_isEqualIgnoreCase(
 );
 
 JNC_EXTERN_C
+int
+jnc_String_cmp(
+	const jnc_String* string,
+	const jnc_String* string2
+);
+
+JNC_EXTERN_C
+int
+jnc_String_cmpIgnoreCase(
+	const jnc_String* string,
+	const jnc_String* string2
+);
+
+JNC_EXTERN_C
 size_t
 jnc_String_hash(const jnc_String* string);
 
@@ -84,6 +98,16 @@ struct jnc_String {
 	bool
 	isEqualIgnoreCase(const jnc_String* string2) const {
 		return jnc_String_isEqualIgnoreCase(this, string2) != 0;
+	}
+
+	int
+	cmp(const jnc_String* string2) const {
+		return jnc_String_cmp(this, string2);
+	}
+
+	int
+	cmpIgnoreCase(const jnc_String* string2) {
+		jnc_String_cmpIgnoreCase(this, string2);
 	}
 
 	size_t

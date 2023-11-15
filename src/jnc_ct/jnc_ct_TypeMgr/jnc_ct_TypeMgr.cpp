@@ -1756,24 +1756,24 @@ TypeMgr::setupAllPrimitiveTypes() {
 			ModuleItemFlag_LayoutReady,
 	};
 
-	setupPrimitiveType(TypeKind_Void,      "v",   0, 0, PodFlags);
-	setupPrimitiveType(TypeKind_Bool,      "b",   1, 1, PodFlags);
-	setupPrimitiveType(TypeKind_Int8,      "i1",  1, 1, PodFlags);
-	setupPrimitiveType(TypeKind_Int8_u,    "u1",  1, 1, PodFlags);
-	setupPrimitiveType(TypeKind_Int16,     "i2",  2, 2, PodFlags);
-	setupPrimitiveType(TypeKind_Int16_u,   "u2",  2, 2, PodFlags);
-	setupPrimitiveType(TypeKind_Int32,     "i4",  4, 4, PodFlags);
-	setupPrimitiveType(TypeKind_Int32_u,   "u4",  4, 4, PodFlags);
-	setupPrimitiveType(TypeKind_Int64,     "i8",  8, 8, PodFlags);
-	setupPrimitiveType(TypeKind_Int64_u,   "u8",  8, 8, PodFlags);
-	setupPrimitiveType(TypeKind_Int16_be,  "ib2", 2, 2, PodFlags);
-	setupPrimitiveType(TypeKind_Int16_ube, "ub2", 2, 2, PodFlags);
-	setupPrimitiveType(TypeKind_Int32_be,  "ib4", 4, 4, PodFlags);
-	setupPrimitiveType(TypeKind_Int32_ube, "ub4", 4, 4, PodFlags);
-	setupPrimitiveType(TypeKind_Int64_be,  "ib8", 8, 8, PodFlags);
-	setupPrimitiveType(TypeKind_Int64_ube, "ub8", 8, 8, PodFlags);
-	setupPrimitiveType(TypeKind_Float,     "f4",  4, 4, PodFlags);
-	setupPrimitiveType(TypeKind_Double,    "48",  8, 8, PodFlags);
+	setupPrimitiveType(TypeKind_Void,      "v",    0, 0, PodFlags);
+	setupPrimitiveType(TypeKind_Bool,      "b",    1, 1, PodFlags);
+	setupPrimitiveType(TypeKind_Int8,      "i8",   1, 1, PodFlags);
+	setupPrimitiveType(TypeKind_Int8_u,    "u8",   1, 1, PodFlags);
+	setupPrimitiveType(TypeKind_Int16,     "i16",  2, 2, PodFlags);
+	setupPrimitiveType(TypeKind_Int16_u,   "u16",  2, 2, PodFlags);
+	setupPrimitiveType(TypeKind_Int32,     "i32",  4, 4, PodFlags);
+	setupPrimitiveType(TypeKind_Int32_u,   "u32",  4, 4, PodFlags);
+	setupPrimitiveType(TypeKind_Int64,     "i64",  8, 8, PodFlags);
+	setupPrimitiveType(TypeKind_Int64_u,   "u64",  8, 8, PodFlags);
+	setupPrimitiveType(TypeKind_Int16_be,  "ib16", 2, 2, PodFlags);
+	setupPrimitiveType(TypeKind_Int16_ube, "ub16", 2, 2, PodFlags);
+	setupPrimitiveType(TypeKind_Int32_be,  "ib32", 4, 4, PodFlags);
+	setupPrimitiveType(TypeKind_Int32_ube, "ub32", 4, 4, PodFlags);
+	setupPrimitiveType(TypeKind_Int64_be,  "ib64", 8, 8, PodFlags);
+	setupPrimitiveType(TypeKind_Int64_ube, "ub64", 8, 8, PodFlags);
+	setupPrimitiveType(TypeKind_Float,     "f",    4, 4, PodFlags);
+	setupPrimitiveType(TypeKind_Double,    "d",    8, 8, PodFlags);
 
 	// variant & string require special treatment
 
@@ -2046,14 +2046,16 @@ TypeMgr::createFunctionPtrStructType() {
 
 StructType*
 TypeMgr::createVariantStructType() {
+	ASSERT(sizeof(Variant) == sizeof(void*) * 8);
+	ASSERT(!(Variant::DataSize & 7));
+
 	StructType* type = createInternalStructType("jnc.Variant");
-	type->createField("!m_data1", getPrimitiveType(TypeKind_IntPtr));
-	type->createField("!m_data2", getPrimitiveType(TypeKind_IntPtr));
-#if (JNC_PTR_SIZE == 4)
-	type->createField("!_m_padding", getPrimitiveType(TypeKind_Int32));
-#endif
+	type->createField("!m_data", getPrimitiveType(TypeKind_Int64)->getArrayType(Variant::DataSize / sizeof(int64_t)));
+	type->createField("!_m_padding", getPrimitiveType(TypeKind_SizeT));
 	type->createField("!m_type", getStdType(StdType_ByteThinPtr));
 	type->ensureLayout();
+	ASSERT(type->getSize() == sizeof(Variant));
+	ASSERT(type->getAlignment() == 8);
 	return type;
 }
 

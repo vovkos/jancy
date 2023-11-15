@@ -489,6 +489,22 @@ stringRefSz(String* string) {
 		string->m_ptr_sz = strDup((char*)string->m_ptr.m_p, string->m_length);
 }
 
+bool
+stringEq(
+	String string1,
+	String string2
+) {
+	return string1.isEqual(&string2);
+}
+
+int
+stringCmp(
+	String string1,
+	String string2
+) {
+	return string1.cmp(&string2);
+}
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
@@ -1223,6 +1239,8 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_CoreLib)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringCreate,   stringCreate)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringSz,       stringSz)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringRefSz,    stringRefSz)
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringEq,       stringEq)
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringCmp,      stringCmp)
 
 	// exceptions/async
 

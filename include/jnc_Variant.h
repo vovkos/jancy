@@ -144,8 +144,10 @@ jnc_Variant_format(
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+// sizeof(Variant) is 8 * sizeof(void*)
+
 enum {
-	jnc_Variant_DataSize = sizeof(void*) * 2
+	jnc_Variant_DataSize = sizeof(void*) * 6
 };
 
 struct jnc_Variant {
@@ -183,10 +185,7 @@ struct jnc_Variant {
 		} m_data;
 	} JNC_GCC_ALIGN(8);
 
-#if (JNC_PTR_SIZE == 4)
-	char _m_padding[4]; // ensure the same layout regardless of pack factor
-#endif
-
+	char _m_padding[sizeof(void*)]; // ensure the same layout regardless of pack factor
 	jnc_Type* m_type;
 
 #ifdef __cplusplus

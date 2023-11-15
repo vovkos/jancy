@@ -65,14 +65,14 @@ Cast_StringBase::preparePtr(
 
 DataPtr
 Cast_StringBase::saveLiteral(
-	const void* p,
+	const char* p,
 	size_t length
 ) {
-	Value value = m_module->m_constMgr.saveLiteral(sl::StringRef((char*)p, length));
+	const Value& value = m_module->m_constMgr.saveLiteral(sl::StringRef(p, length));
 
 	DataPtr ptr;
 	ptr.m_p = (void*)value.getConstData();
-	ptr.m_validator = m_module->m_constMgr.createConstDataPtrValidator(p, value.getType());
+	ptr.m_validator = m_module->m_constMgr.createConstDataPtrValidator(ptr.m_p, value.getType());
 	return ptr;
 }
 
@@ -169,7 +169,7 @@ Cast_String_FromArray::constCast(
 	ASSERT(opValue.getType()->getTypeKind() == TypeKind_Array);
 	ArrayType* srcType = (ArrayType*)opValue.getType();
 	size_t length = srcType->getElementCount();
-	DataPtr ptr = saveLiteral(opValue.getConstData(), length);
+	DataPtr ptr = saveLiteral((char*)opValue.getConstData(), length);
 	finalizeString(string, (char*)ptr.m_p, length, ptr.m_validator);
 	return true;
 }

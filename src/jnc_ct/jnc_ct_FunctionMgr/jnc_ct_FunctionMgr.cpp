@@ -985,6 +985,22 @@ FunctionMgr::getStdFunction(StdFunc func) {
 		function = createInternalFunction("jnc.stringRefSz", functionType);
 		break;
 
+	case StdFunc_StringEq:
+		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool);
+		argTypeArray[0] = m_module->m_typeMgr.getPrimitiveType(TypeKind_String);
+		argTypeArray[1] = m_module->m_typeMgr.getPrimitiveType(TypeKind_String);
+		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 2);
+		function = createInternalFunction("jnc.stringEq", functionType);
+		break;
+
+	case StdFunc_StringCmp:
+		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int);
+		argTypeArray[0] = m_module->m_typeMgr.getPrimitiveType(TypeKind_String);
+		argTypeArray[1] = m_module->m_typeMgr.getPrimitiveType(TypeKind_String);
+		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 2);
+		function = createInternalFunction("jnc.stringCmp", functionType);
+		break;
+
 	case StdFunc_GcSafePoint:
 		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Void);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, NULL, 0);

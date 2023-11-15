@@ -13,6 +13,7 @@
 
 #include "jnc_ct_BinOp.h"
 #include "jnc_ct_UnOp_Arithmetic.h"
+#include "jnc_String.h"
 
 namespace jnc {
 namespace ct {
@@ -23,6 +24,14 @@ Type*
 getPtrCmpOperatorOperandType(
 	const Value& opValue1,
 	const Value& opValue2
+);
+
+bool
+cmpStringOperator(
+	BinOpKind opKind,
+	const Value& opValue1,
+	const Value& opValue2,
+	Value* resultValue
 );
 
 //..............................................................................
@@ -39,7 +48,10 @@ public:
 	) {
 		Type* type;
 
-		if ((rawOpValue1.getType()->getTypeKindFlags() & TypeKindFlag_Ptr) ||
+		if ((rawOpValue1.getType()->getTypeKind() == TypeKind_String) ||
+			(rawOpValue2.getType()->getTypeKind() == TypeKind_String)) {
+			type = getPrimitiveType(m_module, TypeKind_String);
+		} else if ((rawOpValue1.getType()->getTypeKindFlags() & TypeKindFlag_Ptr) ||
 			(rawOpValue2.getType()->getTypeKindFlags() & TypeKindFlag_Ptr)) {
 			type = getPtrCmpOperatorOperandType(rawOpValue1, rawOpValue2);
 		} else {
@@ -69,6 +81,16 @@ public:
 		if (opValue1.getValueKind() == ValueKind_Const && opValue2.getValueKind() == ValueKind_Const) {
 			TypeKind typeKind = type->getTypeKind();
 			switch (typeKind) {
+			case TypeKind_String:
+				resultValue->setConstBool(
+					T::constOpString(
+						(jnc::String*)opValue1.getConstData(),
+						(jnc::String*)opValue2.getConstData()
+					),
+					m_module
+				);
+				break;
+
 			case TypeKind_Int32:
 			case TypeKind_Int32_u:
 				resultValue->setConstBool(
@@ -107,11 +129,21 @@ public:
 		} else {
 			TypeKind typeKind = type->getTypeKind();
 			switch (typeKind) {
+			case TypeKind_String:
+				result = static_cast<T*>(this)->llvmOpString(
+					opValue1,
+					opValue2,
+					resultValue
+				);
+				if (!result)
+					return false;
+				break;
+
 			case TypeKind_Int32:
 			case TypeKind_Int32_u:
 			case TypeKind_Int64:
 			case TypeKind_Int64_u:
-				static_cast<T*> (this)->llvmOpInt(
+				static_cast<T*>(this)->llvmOpInt(
 					opValue1,
 					opValue2,
 					resultValue,
@@ -121,7 +153,7 @@ public:
 
 			case TypeKind_Float:
 			case TypeKind_Double:
-				static_cast<T*> (this)->llvmOpFp(
+				static_cast<T*>(this)->llvmOpFp(
 					opValue1,
 					opValue2,
 					resultValue
@@ -135,6 +167,16 @@ public:
 
 		return true;
 	}
+
+protected:
+	bool
+	llvmOpString(
+		const Value& opValue1,
+		const Value& opValue2,
+		Value* resultValue
+	) {
+		return cmpStringOperator(m_opKind, opValue1, opValue2, resultValue);
+	}
 };
 
 //..............................................................................
@@ -143,6 +185,15 @@ class BinOp_Eq: public BinOp_Cmp<BinOp_Eq> {
 public:
 	BinOp_Eq() {
 		m_opKind = BinOpKind_Eq;
+	}
+
+	static
+	bool
+	constOpString(
+		const jnc::String* opValue1,
+		const jnc::String* opValue2
+	) {
+		return opValue1->isEqual(opValue2);
 	}
 
 	static
@@ -182,6 +233,13 @@ public:
 	) {
 		return opValue1 == opValue2;
 	}
+
+	bool
+	llvmOpString(
+		const Value& opValue1,
+		const Value& opValue2,
+		Value* resultValue
+	);
 
 	llvm::Value*
 	llvmOpInt(
@@ -209,6 +267,15 @@ public:
 
 	static
 	bool
+	constOpString(
+		const jnc::String* opValue1,
+		const jnc::String* opValue2
+	) {
+		return !opValue1->isEqual(opValue2);
+	}
+
+	static
+	bool
 	constOpInt32(
 		int32_t opValue1,
 		int32_t opValue2,
@@ -245,6 +312,13 @@ public:
 		return opValue1 != opValue2;
 	}
 
+	bool
+	llvmOpString(
+		const Value& opValue1,
+		const Value& opValue2,
+		Value* resultValue
+	);
+
 	llvm::Value*
 	llvmOpInt(
 		const Value& opValue1,
@@ -267,6 +341,15 @@ class BinOp_Lt: public BinOp_Cmp<BinOp_Lt> {
 public:
 	BinOp_Lt() {
 		m_opKind = BinOpKind_Lt;
+	}
+
+	static
+	bool
+	constOpString(
+		const jnc::String* opValue1,
+		const jnc::String* opValue2
+	) {
+		return opValue1->cmp(opValue2) < 0;
 	}
 
 	static
@@ -333,6 +416,15 @@ public:
 
 	static
 	bool
+	constOpString(
+		const jnc::String* opValue1,
+		const jnc::String* opValue2
+	) {
+		return opValue1->cmp(opValue2) <= 0;
+	}
+
+	static
+	bool
 	constOpInt32(
 		int32_t opValue1,
 		int32_t opValue2,
@@ -395,6 +487,15 @@ public:
 
 	static
 	bool
+	constOpString(
+		const jnc::String* opValue1,
+		const jnc::String* opValue2
+	) {
+		return opValue1->cmp(opValue2) > 0;
+	}
+
+	static
+	bool
 	constOpInt32(
 		int32_t opValue1,
 		int32_t opValue2,
@@ -453,6 +554,15 @@ class BinOp_Ge: public BinOp_Cmp<BinOp_Ge> {
 public:
 	BinOp_Ge() {
 		m_opKind = BinOpKind_Ge;
+	}
+
+	static
+	bool
+	constOpString(
+		const jnc::String* opValue1,
+		const jnc::String* opValue2
+	) {
+		return opValue1->cmp(opValue2) >= 0;
 	}
 
 	static
