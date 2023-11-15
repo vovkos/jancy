@@ -107,7 +107,7 @@ struct jnc_String {
 
 	int
 	cmpIgnoreCase(const jnc_String* string2) {
-		jnc_String_cmpIgnoreCase(this, string2);
+		return jnc_String_cmpIgnoreCase(this, string2);
 	}
 
 	size_t

@@ -694,10 +694,6 @@ format_dataPtr(
 	return formatStringImpl(string, fmtSpecifier, c, length);
 }
 
-extern
-FormatFunc*
-g_formatFuncTable[jnc_TypeKind__Count];
-
 static
 size_t
 format_dataRef(
@@ -705,14 +701,7 @@ format_dataRef(
 	const char* fmtSpecifier,
 	const void* p,
 	jnc::Type* type
-) {
-	type = ((jnc::DataPtrType*)type)->getTargetType();
-	p = *(void**)p;
-
-	jnc::TypeKind typeKind = type->getTypeKind();
-	ASSERT((size_t)typeKind < jnc::TypeKind__Count);
-	return g_formatFuncTable[typeKind](string, fmtSpecifier, p, type);
-}
+);
 
 static const char FmtSpecifier_d[] = "%d";
 static const char FmtSpecifier_u[] = "%u";
@@ -764,6 +753,22 @@ g_formatFuncTable[jnc_TypeKind__Count] = {
 	format_default,                          // TypeKind_ImportIntMod
 	format_default,                          // TypeKind_TypedefShadow
 };
+
+static
+size_t
+format_dataRef(
+	sl::String* string,
+	const char* fmtSpecifier,
+	const void* p,
+	jnc::Type* type
+) {
+	type = ((jnc::DataPtrType*)type)->getTargetType();
+	p = *(void**)p;
+
+	jnc::TypeKind typeKind = type->getTypeKind();
+	ASSERT((size_t)typeKind < jnc::TypeKind__Count);
+	return g_formatFuncTable[typeKind](string, fmtSpecifier, p, type);
+}
 
 JNC_EXTERN_C
 size_t
