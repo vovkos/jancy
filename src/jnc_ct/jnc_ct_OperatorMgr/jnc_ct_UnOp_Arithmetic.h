@@ -107,12 +107,12 @@ public:
 			case TypeKind_Int32_u:
 			case TypeKind_Int64:
 			case TypeKind_Int64_u:
-				static_cast<T*> (this)->llvmOpInt(opValue, type, resultValue);
+				static_cast<T*>(this)->llvmOpInt(opValue, type, resultValue);
 				break;
 
 			case TypeKind_Float:
 			case TypeKind_Double:
-				static_cast<T*> (this)->llvmOpFp(opValue, type, resultValue);
+				static_cast<T*>(this)->llvmOpFp(opValue, type, resultValue);
 				break;
 
 			default:

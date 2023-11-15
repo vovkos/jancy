@@ -18,50 +18,35 @@ namespace ct {
 
 //..............................................................................
 
+static TypeKind g_arithmeticOperatorResultTypeTable[TypeKind_Double - TypeKind_Int8 + 1] = {
+	TypeKind_Int32,   // TypeKind_Int8
+	TypeKind_Int32,   // TypeKind_Int8_u
+	TypeKind_Int32,   // TypeKind_Int16
+	TypeKind_Int32,   // TypeKind_Int16_u
+	TypeKind_Int32,   // TypeKind_Int32
+	TypeKind_Int32_u, // TypeKind_Int32_u
+	TypeKind_Int64,   // TypeKind_Int64
+	TypeKind_Int64_u, // TypeKind_Int64_u
+	TypeKind_Int32,   // TypeKind_Int16_be
+	TypeKind_Int32,   // TypeKind_Int16_ube
+	TypeKind_Int32,   // TypeKind_Int32_be
+	TypeKind_Int32_u, // TypeKind_Int32_ube
+	TypeKind_Int64,   // TypeKind_Int64_be
+	TypeKind_Int64_u, // TypeKind_Int64_ube
+	TypeKind_Float,   // TypeKind_Float
+	TypeKind_Double,  // TypeKind_Double
+};
+
 Type*
 getArithmeticOperatorResultType(Type* opType) {
 	TypeKind typeKind = opType->getTypeKind();
-
-	switch (typeKind) {
-	case TypeKind_Int8:
-	case TypeKind_Int8_u:
-	case TypeKind_Int16:
-	case TypeKind_Int16_u:
-	case TypeKind_Int16_be:
-	case TypeKind_Int16_ube:
-	case TypeKind_Int32_be:
-		typeKind = TypeKind_Int32;
-		break;
-
-	case TypeKind_Int32_ube:
-		typeKind = TypeKind_Int32_u;
-		break;
-
-	case TypeKind_Int64_be:
-		typeKind = TypeKind_Int64;
-		break;
-
-	case TypeKind_Int64_ube:
-		typeKind = TypeKind_Int64_u;
-		break;
-
-	case TypeKind_Int32:
-	case TypeKind_Int32_u:
-	case TypeKind_Int64:
-	case TypeKind_Int64_u:
-	case TypeKind_Float:
-	case TypeKind_Double:
-		// no change
-		break;
-
-	case TypeKind_Enum:
+	if (typeKind == TypeKind_Enum)
 		return getArithmeticOperatorResultType(((EnumType*)opType)->getBaseType());
 
-	default:
-		return NULL;
-	}
-
-	return opType->getModule()->m_typeMgr.getPrimitiveType(typeKind);
+	size_t i = typeKind - TypeKind_Int8;
+	return i < countof(g_arithmeticOperatorResultTypeTable) ?
+		opType->getModule()->m_typeMgr.getPrimitiveType(g_arithmeticOperatorResultTypeTable[i]) :
+		NULL;
 }
 
 //..............................................................................
