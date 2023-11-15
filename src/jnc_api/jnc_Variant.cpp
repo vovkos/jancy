@@ -564,6 +564,207 @@ formatCharPtr(
 	return formatStringImpl(string, fmtSpecifier, (const char*)ptr.m_p, length);
 }
 
+typedef
+size_t
+FormatFunc(
+	sl::String* string,
+	const char* fmtSpecifier,
+	const void* p,
+	jnc::Type* type
+);
+
+static
+size_t
+format_default(
+	sl::String* string,
+	const char* fmtSpecifier,
+	const void* p,
+	jnc::Type* type
+) {
+	return string->format("(variant:%s)", type->getTypeString().sz());
+}
+
+static
+size_t
+format_string(
+	sl::String* string,
+	const char* fmtSpecifier,
+	const void* p,
+	jnc::Type* type
+) {
+	ASSERT(type->getTypeKind() == jnc_TypeKind_String);
+	return string->copy((char*)((jnc::String*)p)->m_ptr.m_p, ((jnc::String*)p)->m_length);
+}
+
+template <
+	typename T,
+	const char* defaultType
+>
+size_t
+format_type(
+	sl::String* string,
+	const char* fmtSpecifier,
+	const void* p,
+	jnc::Type* type
+) {
+	return formatImpl(string, fmtSpecifier, defaultType, *(const T*)p);
+}
+
+template <
+	typename T,
+	const char* defaultType
+>
+size_t
+format_be(
+	sl::String* string,
+	const char* fmtSpecifier,
+	const void* p,
+	jnc::Type* type
+) {
+	T x = *(const T*)p;
+	switch (sizeof(T)) {
+	case 2:
+		x = sl::swapByteOrder16(x);
+		break;
+	case 4:
+		x = sl::swapByteOrder32(x);
+		break;
+	case 8:
+		x = sl::swapByteOrder64(x);
+		break;
+	}
+
+	return formatImpl(string, fmtSpecifier, defaultType, x);
+}
+
+static
+size_t
+format_array(
+	sl::String* string,
+	const char* fmtSpecifier,
+	const void* p,
+	jnc::Type* type
+) {
+	ASSERT(type->getTypeKind() == jnc::TypeKind_Array);
+	jnc::ArrayType* arrayType = (jnc::ArrayType*)type;
+	if (arrayType->getElementType()->getTypeKind() != jnc::TypeKind_Char)
+		return format_default(string, fmtSpecifier, p, type);
+
+	size_t count = arrayType->getElementCount();
+	const char* c = (char*)p;
+
+	// trim zero-termination
+
+	while (count && c[count - 1] == 0)
+		count--;
+
+	return string->copy(c, count);
+}
+
+static
+size_t
+format_ptr(
+	sl::String* string,
+	const char* fmtSpecifier,
+	const void* p,
+	jnc::Type* type
+) {
+	return formatImpl(string, fmtSpecifier, "%p", *(void**)p);
+}
+
+static
+size_t
+format_dataPtr(
+	sl::String* string,
+	const char* fmtSpecifier,
+	const void* p,
+	jnc::Type* type
+) {
+	ASSERT(type->getTypeKindFlags() & jnc::TypeKindFlag_DataPtr);
+	jnc::DataPtrType* ptrType = (jnc::DataPtrType*)type;
+	if (ptrType->getTargetType()->getTypeKind() != jnc::TypeKind_Char)
+		return format_ptr(string, fmtSpecifier, p, type);
+
+	jnc::DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind();
+	if (ptrTypeKind == jnc::DataPtrTypeKind_Normal)
+		return formatCharPtr(string, fmtSpecifier, *(const jnc::DataPtr*)p);
+
+	const char* c = *(char**)p;
+	size_t length = strlen_s(c);
+	return formatStringImpl(string, fmtSpecifier, c, length);
+}
+
+extern
+FormatFunc*
+g_formatFuncTable[jnc_TypeKind__Count];
+
+static
+size_t
+format_dataRef(
+	sl::String* string,
+	const char* fmtSpecifier,
+	const void* p,
+	jnc::Type* type
+) {
+	type = ((jnc::DataPtrType*)type)->getTargetType();
+	p = *(void**)p;
+
+	jnc::TypeKind typeKind = type->getTypeKind();
+	ASSERT((size_t)typeKind < jnc::TypeKind__Count);
+	return g_formatFuncTable[typeKind](string, fmtSpecifier, p, type);
+}
+
+static const char FmtSpecifier_d[] = "%d";
+static const char FmtSpecifier_u[] = "%u";
+static const char FmtSpecifier_lld[] = "%lld";
+static const char FmtSpecifier_llu[] = "%llu";
+static const char FmtSpecifier_f[] = "%f";
+
+static
+FormatFunc*
+g_formatFuncTable[jnc_TypeKind__Count] = {
+	format_default,                          // TypeKind_Void
+	format_default,                          // TypeKind_Variant
+	format_string,                           // TypeKind_String
+	format_type<bool,     FmtSpecifier_d>,   // TypeKind_Bool
+	format_type<int8_t,   FmtSpecifier_d>,   // TypeKind_Int8
+	format_type<uint8_t,  FmtSpecifier_u>,   // TypeKind_Int8_u
+	format_type<int16_t,  FmtSpecifier_d>,   // TypeKind_Int16
+	format_type<uint16_t, FmtSpecifier_u>,   // TypeKind_Int16_u
+	format_type<int32_t,  FmtSpecifier_d>,   // TypeKind_Int32
+	format_type<uint32_t, FmtSpecifier_u>,   // TypeKind_Int32_u
+	format_type<int64_t,  FmtSpecifier_lld>, // TypeKind_Int64
+	format_type<uint64_t, FmtSpecifier_llu>, // TypeKind_Int64_u
+	format_be<int16_t,    FmtSpecifier_d>,   // TypeKind_Int16_be
+	format_be<uint16_t,   FmtSpecifier_u>,   // TypeKind_Int16_ube
+	format_be<int32_t,    FmtSpecifier_d>,   // TypeKind_Int32_be
+	format_be<uint32_t,   FmtSpecifier_u>,   // TypeKind_Int32_ube
+	format_be<int64_t,    FmtSpecifier_lld>, // TypeKind_Int64_be
+	format_be<uint64_t,   FmtSpecifier_llu>, // TypeKind_Int64_ube
+	format_type<float,    FmtSpecifier_f>,   // TypeKind_Float
+	format_type<double,   FmtSpecifier_f>,   // TypeKind_Double
+	format_array,                            // TypeKind_Array
+	format_default,                          // TypeKind_BitField
+	format_default,                          // TypeKind_Enum
+	format_default,                          // TypeKind_Struct
+	format_default,                          // TypeKind_Union
+	format_default,                          // TypeKind_Class
+	format_default,                          // TypeKind_Function
+	format_default,                          // TypeKind_Property
+	format_dataPtr,                          // TypeKind_DataPtr
+	format_dataRef,                          // TypeKind_DataRef
+	format_ptr,                              // TypeKind_ClassPtr
+	format_ptr,                              // TypeKind_ClassRef
+	format_ptr,                              // TypeKind_FunctionPtr
+	format_ptr,                              // TypeKind_FunctionRef
+	format_ptr,                              // TypeKind_PropertyPtr
+	format_ptr,                              // TypeKind_PropertyRef
+	format_default,                          // TypeKind_NamedImport
+	format_default,                          // TypeKind_ImportPtr
+	format_default,                          // TypeKind_ImportIntMod
+	format_default,                          // TypeKind_TypedefShadow
+};
+
 JNC_EXTERN_C
 size_t
 jnc_Variant_format(
@@ -571,88 +772,14 @@ jnc_Variant_format(
 	sl::String* string,
 	const char* fmtSpecifier
 ) {
-	bool result;
-
 	string->clear();
 
 	if (!variant->m_type)
 		return 0;
 
 	jnc::TypeKind typeKind = variant->m_type->getTypeKind();
-	uint_t typeKindFlags = variant->m_type->getTypeKindFlags();
-
-	if (typeKindFlags & jnc::TypeKindFlag_Integer) {
-		jnc::Module* module = variant->m_type->getModule();
-
-		char buffer[sizeof(int64_t)];
-
-		if (variant->m_type->getSize() > 4) {
-			jnc::Type* targetType = module->m_typeMgr.getPrimitiveType(jnc::TypeKind_Int64);
-			result = variant->cast(targetType, buffer);
-			if (!result) {
-				ASSERT(false);
-				return 0;
-			}
-
-			const char* defaultType = (typeKindFlags & jnc::TypeKindFlag_Unsigned) ? "llu" : "lld";
-			return formatImpl(string, fmtSpecifier, defaultType, *(int64_t*)buffer);
-		} else {
-			jnc::Type* targetType = module->m_typeMgr.getPrimitiveType(jnc::TypeKind_Int32);
-			result = variant->cast(targetType, buffer);
-			if (!result) {
-				ASSERT(false);
-				return 0;
-			}
-
-			const char* defaultType = (typeKindFlags & jnc::TypeKindFlag_Unsigned) ? "llu" : "lld";
-			return formatImpl(string, fmtSpecifier,	defaultType, *(int32_t*)buffer);
-		}
-	} else if (typeKindFlags & jnc::TypeKindFlag_Fp) {
-		double x = jnc::TypeKind_Float ? *(float*)&variant : *(double*)&variant;
-		return formatImpl(string, fmtSpecifier, "f", x);
-	}
-
-	jnc::Type* type;
-	const void* p;
-
-	if (typeKind != jnc::TypeKind_DataRef) {
-		type = variant->m_type;
-		p = variant;
-	} else {
-		type = ((jnc::DataPtrType*)variant->m_type)->getTargetType();
-		p = variant->m_dataPtr.m_p;
-	}
-
-	if (jnc::isCharArrayType(type)) {
-		jnc::ArrayType* arrayType = (jnc::ArrayType*)type;
-		size_t count = arrayType->getElementCount();
-		const char* c = (char*)p;
-
-		// trim zero-termination
-
-		while (count && c[count - 1] == 0)
-			count--;
-
-		return string->copy(c, count);
-	} else if (type->getTypeKindFlags() & jnc::TypeKindFlag_Ptr) {
-		if (jnc::isCharPtrType(type)) {
-			jnc::DataPtrType* ptrType = (jnc::DataPtrType*)type;
-			jnc::DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind();
-
-			if (ptrTypeKind == jnc::DataPtrTypeKind_Normal)
-				return formatCharPtr(string, fmtSpecifier, variant->m_dataPtr);
-
-			const char* c = *(char**)p;
-			size_t length = strlen_s(c);
-			return formatStringImpl(string, fmtSpecifier, c, length);
-		} else { // generic pointer
-			return string->format("%p", variant->m_p);
-		}
-	} else { // don't know how to format
-		return string->format("(variant:%s)", type->getTypeString().sz());
-	}
-
-	return string->getLength();
+	ASSERT((size_t)typeKind < jnc::TypeKind__Count);
+	return g_formatFuncTable[typeKind](string, fmtSpecifier, variant, variant->m_type);
 }
 
 JNC_EXTERN_C
