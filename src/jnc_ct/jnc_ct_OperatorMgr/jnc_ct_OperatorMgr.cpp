@@ -1046,6 +1046,524 @@ OperatorMgr::offsetofOperator(
 	return true;
 }
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool
+OperatorMgr::prepareOperand_nop(
+	Value* value,
+	uint_t opFlags
+) {
+	return true;
+}
+
+bool
+OperatorMgr::prepareOperandType_typedef(
+	Value* value,
+	uint_t opFlags
+) {
+	value->overrideType(((TypedefShadowType*)value->getType())->getTypedef()->getType());
+	return true;
+}
+
+bool
+OperatorMgr::prepareOperand_import(
+	Value* value,
+	uint_t opFlags
+) {
+	value->overrideType(((ImportType*)value->getType())->getActualType());
+	return true;
+}
+
+bool
+OperatorMgr::prepareOperand_dataPtr(
+	Value* value,
+	uint_t opFlags
+) {
+	return (opFlags & OpFlag_EnsurePtrTargetLayout) ?
+		((DataPtrType*)value->getType())->getTargetType()->ensureLayout() :
+		true;
+}
+
+bool
+OperatorMgr::prepareOperandType_dataRef_bitField(
+	Value* value,
+	uint_t opFlags
+) {
+	Type* targetType = ((DataPtrType*)value->getType())->getTargetType();
+	*value = ((BitFieldType*)targetType)->getBaseType();
+	return true;
+}
+
+bool
+OperatorMgr::prepareOperandType_dataRef_derivable(
+	Value* value,
+	uint_t opFlags
+) {
+	if (!(opFlags & OpFlag_KeepDerivableRef))
+		*value = ((DataPtrType*)value->getType())->getTargetType();
+	return true;
+}
+
+bool
+OperatorMgr::prepareOperand_dataRef_derivable(
+	Value* value,
+	uint_t opFlags
+) {
+	return (!(opFlags & OpFlag_KeepDerivableRef)) ?
+		loadDataRef(value) :
+		true;
+}
+
+bool
+OperatorMgr::prepareOperandType_dataRef_variant(
+	Value* value,
+	uint_t opFlags
+) {
+	if (!(opFlags & OpFlag_KeepVariantRef))
+		*value = ((DataPtrType*)value->getType())->getTargetType();
+	return true;
+}
+
+bool
+OperatorMgr::prepareOperand_dataRef_variant(
+	Value* value,
+	uint_t opFlags
+) {
+	return (!(opFlags & OpFlag_KeepVariantRef)) ?
+		loadDataRef(value) :
+		true;
+}
+
+bool
+OperatorMgr::prepareOperandType_dataRef_string(
+	Value* value,
+	uint_t opFlags
+) {
+	if (!(opFlags & OpFlag_KeepStringRef))
+		*value = ((DataPtrType*)value->getType())->getTargetType();
+	return true;
+}
+
+bool
+OperatorMgr::prepareOperand_dataRef_string(
+	Value* value,
+	uint_t opFlags
+) {
+	return (!(opFlags & OpFlag_KeepStringRef)) ?
+		loadDataRef(value) :
+		true;
+}
+
+bool
+OperatorMgr::prepareOperandType_dataRef_array(
+	Value* value,
+	uint_t opFlags
+) {
+	DataPtrType* ptrType = (DataPtrType*)value->getType();
+
+	if (opFlags & OpFlag_LoadArrayRef)
+		*value = ptrType->getTargetType();
+	else if (opFlags & OpFlag_ArrayRefToPtr) {
+		ArrayType* arrayType = (ArrayType*)ptrType->getTargetType();
+		*value = arrayType->getElementType()->getDataPtrType(
+			TypeKind_DataPtr,
+			ptrType->getPtrTypeKind(),
+			ptrType->getFlags() & PtrTypeFlag__All
+		);
+	}
+
+	return true;
+}
+
+bool
+OperatorMgr::prepareOperand_dataRef_array(
+	Value* value,
+	uint_t opFlags
+) {
+	if (opFlags & OpFlag_LoadArrayRef)
+		return loadDataRef(value);
+
+	if (opFlags & OpFlag_ArrayRefToPtr)
+		prepareArrayRef(value);
+
+	return true;
+}
+
+bool
+OperatorMgr::prepareOperandType_dataRef_default(
+	Value* value,
+	uint_t opFlags
+) {
+	*value = ((DataPtrType*)value->getType())->getTargetType();
+	return true;
+}
+
+bool
+OperatorMgr::prepareOperand_dataRef_default(
+	Value* value,
+	uint_t opFlags
+) {
+	return loadDataRef(value);
+}
+
+bool
+OperatorMgr::prepareOperandType_dataRef(
+	Value* value,
+	uint_t opFlags
+) {
+	if (opFlags & OpFlag_EnsurePtrTargetLayout) {
+		bool result = ((DataPtrType*)value->getType())->getTargetType()->ensureLayout();
+		if (!result)
+			return false;
+	}
+
+	if (!(opFlags & OpFlag_KeepDataRef)) {
+		Type* targetType = ((DataPtrType*)value->getType())->getTargetType();
+		TypeKind typeKind = targetType->getTypeKind();
+		ASSERT(typeKind < TypeKind__Count);
+
+		bool result = (this->*m_prepareOperandTypeFuncTable_dataRef[typeKind])(value, opFlags);
+		if (!result)
+			return false;
+	}
+
+	return true;
+}
+
+bool
+OperatorMgr::prepareOperand_dataRef(
+	Value* value,
+	uint_t opFlags
+) {
+	bool result;
+	Type* type = value->getType();
+
+	if (opFlags & OpFlag_EnsurePtrTargetLayout) {
+		result = ((DataPtrType*)type)->getTargetType()->ensureLayout();
+		if (!result)
+			return false;
+	}
+
+	if (!(opFlags & OpFlag_KeepDataRef)) {
+		Type* targetType = ((DataPtrType*)value->getType())->getTargetType();
+		TypeKind typeKind = targetType->getTypeKind();
+		ASSERT(typeKind < TypeKind__Count);
+
+		bool result = (this->*m_prepareOperandFuncTable_dataRef[typeKind])(value, opFlags);
+		if (!result)
+			return false;
+	}
+
+	return true;
+}
+
+bool
+OperatorMgr::prepareOperand_classPtr(
+	Value* value,
+	uint_t opFlags
+) {
+	return (opFlags & OpFlag_EnsurePtrTargetLayout) ?
+		((ClassPtrType*)value->getType())->getTargetType()->ensureLayout() :
+		true;
+}
+
+bool
+OperatorMgr::prepareOperand_classRef(
+	Value* value,
+	uint_t opFlags
+) {
+	Type* type = value->getType();
+	if (opFlags & OpFlag_EnsurePtrTargetLayout) {
+		bool result = ((ClassPtrType*)type)->getTargetType()->ensureLayout();
+		if (!result)
+			return false;
+	}
+
+	if (!(opFlags & OpFlag_KeepClassRef)) {
+		ClassPtrType* ptrType = (ClassPtrType*)type;
+		ClassType* targetType = ptrType->getTargetType();
+		value->overrideType(
+			targetType->getClassPtrType(
+				TypeKind_ClassPtr,
+				ptrType->getPtrTypeKind(),
+				ptrType->getFlags() & PtrTypeFlag__All
+			)
+		);
+	}
+
+	return true;
+}
+
+bool
+OperatorMgr::prepareOperandType_functionRef(
+	Value* value,
+	uint_t opFlags
+) {
+	*value = value->getClosureAwareType();
+	return true;
+}
+
+bool
+OperatorMgr::prepareOperand_functionRef(
+	Value* value,
+	uint_t opFlags
+) {
+	if (!(opFlags & OpFlag_KeepFunctionRef)) {
+		FunctionPtrType* ptrType = (FunctionPtrType*)value->getType();
+		FunctionType* targetType = ptrType->getTargetType();
+		value->overrideType(
+			targetType->getFunctionPtrType(
+				ptrType->getPtrTypeKind(),
+				ptrType->getFlags() & PtrTypeFlag__All
+			)
+		);
+	}
+
+	return true;
+}
+
+bool
+OperatorMgr::prepareOperandType_propertyRef(
+	Value* value,
+	uint_t opFlags
+) {
+	*value = value->getClosureAwareType();
+	if (!(opFlags & OpFlag_KeepPropertyRef)) {
+		PropertyPtrType* ptrType = (PropertyPtrType*)value->getType();
+		PropertyType* targetType = ptrType->getTargetType();
+		if (!targetType->isIndexed())
+			*value = targetType->getReturnType();
+	}
+
+	return true;
+}
+
+bool
+OperatorMgr::prepareOperand_propertyRef(
+	Value* value,
+	uint_t opFlags
+) {
+	if (!(opFlags & OpFlag_KeepPropertyRef)) {
+		PropertyPtrType* ptrType = (PropertyPtrType*)value->getClosureAwareType();
+		PropertyType* targetType = ptrType->getTargetType();
+		if (!targetType->isIndexed()) {
+			bool result = getProperty(value);
+			if (!result)
+				return false;
+		}
+	}
+
+	return true;
+}
+
+bool
+OperatorMgr::prepareOperandType_bool(
+	Value* value,
+	uint_t opFlags
+) {
+	if (!(opFlags & OpFlag_KeepBool))
+		*value = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int8);
+
+	return true;
+}
+
+bool
+OperatorMgr::prepareOperand_bool(
+	Value* value,
+	uint_t opFlags
+) {
+	return (!(opFlags & OpFlag_KeepBool)) ?
+		m_castIntFromBool.cast(
+			*value,
+			m_module->m_typeMgr.getPrimitiveType(TypeKind_Int8),
+			value
+		) :
+		true;
+}
+
+bool
+OperatorMgr::prepareOperand_enum(
+	Value* value,
+	uint_t opFlags
+) {
+	if (!(opFlags & OpFlag_KeepEnum))
+		value->overrideType(((EnumType*)value->getType())->getRootType());
+
+	return true;
+}
+
+OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandTypeFuncTable[TypeKind__Count] = {
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_Void
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_Variant
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_String
+	&OperatorMgr::prepareOperandType_bool,        // TypeKind_Bool
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_Int8
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_Int8_u
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_Int16
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_Int16_u
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_Int32
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_Int32_u
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_Int64
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_Int64_u
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_Int16_be
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_Int16_ube
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_Int32_be
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_Int32_ube
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_Int64_be
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_Int64_ube
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_Float
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_Double
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_Array
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_BitField
+	&OperatorMgr::prepareOperand_enum,            // TypeKind_Enum
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_Struct
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_Union
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_Class
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_Function
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_Property
+	&OperatorMgr::prepareOperand_dataPtr,         // TypeKind_DataPtr
+	&OperatorMgr::prepareOperandType_dataRef,     // TypeKind_DataRef
+	&OperatorMgr::prepareOperand_classPtr,        // TypeKind_ClassPtr
+	&OperatorMgr::prepareOperand_classRef,        // TypeKind_ClassRef
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_FunctionPtr
+	&OperatorMgr::prepareOperandType_functionRef, // TypeKind_FunctionRef
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_PropertyPtr
+	&OperatorMgr::prepareOperandType_propertyRef, // TypeKind_PropertyRef
+	&OperatorMgr::prepareOperand_import,          // TypeKind_NamedImport
+	&OperatorMgr::prepareOperand_import,          // TypeKind_ImportPtr
+	&OperatorMgr::prepareOperand_import,          // TypeKind_ImportIntMod
+	&OperatorMgr::prepareOperandType_typedef,     // TypeKind_TypedefShadow
+};
+
+OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable[TypeKind__Count] = {
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_Void
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_Variant
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_String
+	&OperatorMgr::prepareOperand_bool,        // TypeKind_Bool
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_Int8
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_Int8_u
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_Int16
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_Int16_u
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_Int32
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_Int32_u
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_Int64
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_Int64_u
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_Int16_be
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_Int16_ube
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_Int32_be
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_Int32_ube
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_Int64_be
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_Int64_ube
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_Float
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_Double
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_Array
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_BitField
+	&OperatorMgr::prepareOperand_enum,        // TypeKind_Enum
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_Struct
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_Union
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_Class
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_Function
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_Property
+	&OperatorMgr::prepareOperand_dataPtr,     // TypeKind_DataPtr
+	&OperatorMgr::prepareOperand_dataRef,     // TypeKind_DataRef
+	&OperatorMgr::prepareOperand_classPtr,    // TypeKind_ClassPtr
+	&OperatorMgr::prepareOperand_classRef,    // TypeKind_ClassRef
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_FunctionPtr
+	&OperatorMgr::prepareOperand_functionRef, // TypeKind_FunctionRef
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_PropertyPtr
+	&OperatorMgr::prepareOperand_propertyRef, // TypeKind_PropertyRef
+	&OperatorMgr::prepareOperand_import,      // TypeKind_NamedImport
+	&OperatorMgr::prepareOperand_import,      // TypeKind_ImportPtr
+	&OperatorMgr::prepareOperand_import,      // TypeKind_ImportIntMod
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_TypedefShadow
+};
+
+OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandTypeFuncTable_dataRef[TypeKind__Count] = {
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Void
+	&OperatorMgr::prepareOperandType_dataRef_variant,   // TypeKind_Variant
+	&OperatorMgr::prepareOperandType_dataRef_string,    // TypeKind_String
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Bool
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Int8
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Int8_u
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Int16
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Int16_u
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Int32
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Int32_u
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Int64
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Int64_u
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Int16_be
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Int16_ube
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Int32_be
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Int32_ube
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Int64_be
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Int64_ube
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Float
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Double
+	&OperatorMgr::prepareOperandType_dataRef_array,     // TypeKind_Array
+	&OperatorMgr::prepareOperandType_dataRef_bitField,  // TypeKind_BitField
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Enum
+	&OperatorMgr::prepareOperandType_dataRef_derivable, // TypeKind_Struct
+	&OperatorMgr::prepareOperandType_dataRef_derivable, // TypeKind_Union
+	&OperatorMgr::prepareOperandType_dataRef_derivable, // TypeKind_Class
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Function
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Property
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_DataPtr
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_DataRef
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_ClassPtr
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_ClassRef
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_FunctionPtr
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_FunctionRef
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_PropertyPtr
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_PropertyRef
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_NamedImport
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_ImportPtr
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_ImportIntMod
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_TypedefShadow
+};
+
+OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable_dataRef[TypeKind__Count] = {
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Void
+	&OperatorMgr::prepareOperand_dataRef_variant,   // TypeKind_Variant
+	&OperatorMgr::prepareOperand_dataRef_string,    // TypeKind_String
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Bool
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Int8
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Int8_u
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Int16
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Int16_u
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Int32
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Int32_u
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Int64
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Int64_u
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Int16_be
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Int16_ube
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Int32_be
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Int32_ube
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Int64_be
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Int64_ube
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Float
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Double
+	&OperatorMgr::prepareOperand_dataRef_array,     // TypeKind_Array
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_BitField
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Enum
+	&OperatorMgr::prepareOperand_dataRef_derivable, // TypeKind_Struct
+	&OperatorMgr::prepareOperand_dataRef_derivable, // TypeKind_Union
+	&OperatorMgr::prepareOperand_dataRef_derivable, // TypeKind_Class
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Function
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Property
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_DataPtr
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_DataRef
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_ClassPtr
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_ClassRef
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_FunctionPtr
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_FunctionRef
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_PropertyPtr
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_PropertyRef
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_NamedImport
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_ImportPtr
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_ImportIntMod
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_TypedefShadow
+};
+
 bool
 OperatorMgr::prepareOperandType(
 	const Value& opValue,
@@ -1073,139 +1591,59 @@ OperatorMgr::prepareOperandType(
 
 	for (;;) {
 		Type* type = value.getType();
-		result = type->ensureLayout();
+		TypeKind typeKind = type->getTypeKind();
+		ASSERT((size_t)typeKind < TypeKind__Count);
+
+		result =
+			type->ensureLayout() &&
+			(this->*m_prepareOperandTypeFuncTable[typeKind])(&value, opFlags);
+
 		if (!result)
 			return false;
 
+		if (value.getType() == type)
+			break;
+	}
+
+	*resultValue = value;
+	return true;
+}
+
+bool
+OperatorMgr::prepareOperand(
+	const Value& opValue,
+	Value* resultValue,
+	uint_t opFlags
+) {
+	bool result;
+
+	if (!m_module->hasCodeGen())
+		return prepareOperandType(opValue, resultValue, opFlags);
+
+	switch (opValue.getValueKind()) {
+	case ValueKind_Void:
+		resultValue->setVoid(m_module); // ensure non-null type
+		return true;
+
+	case ValueKind_FunctionOverload:
+	case ValueKind_FunctionTypeOverload:
+		*resultValue = opValue;
+		return true;
+	}
+
+	Value value = opValue;
+
+	for (;;) {
+		Type* type = value.getType();
 		TypeKind typeKind = type->getTypeKind();
-		switch (typeKind) {
-		case TypeKind_TypedefShadow:
-			value.overrideType(((TypedefShadowType*)type)->getTypedef()->getType());
-			break;
+		ASSERT((size_t)typeKind < TypeKind__Count);
 
-		case TypeKind_NamedImport:
-		case TypeKind_ImportIntMod:
-		case TypeKind_ImportPtr:
-			value.overrideType(((ImportType*)type)->getActualType());
-			break;
+		result =
+			type->ensureLayout() &&
+			(this->*m_prepareOperandFuncTable[typeKind])(&value, opFlags);
 
-		case TypeKind_DataPtr:
-			if (opFlags & OpFlag_EnsurePtrTargetLayout) {
-				result = ((DataPtrType*)type)->getTargetType()->ensureLayout();
-				if (!result)
-					return false;
-			}
-
-			break;
-
-		case TypeKind_DataRef:
-			if (opFlags & OpFlag_EnsurePtrTargetLayout) {
-				result = ((DataPtrType*)type)->getTargetType()->ensureLayout();
-				if (!result)
-					return false;
-			}
-
-			if (!(opFlags & OpFlag_KeepDataRef)) {
-				DataPtrType* ptrType = (DataPtrType*)type;
-				Type* targetType = ptrType->getTargetType();
-				TypeKind targetTypeKind = targetType->getTypeKind();
-				switch (targetTypeKind) {
-				case TypeKind_BitField:
-					value = ((BitFieldType*)targetType)->getBaseType();
-					break;
-
-				case TypeKind_Struct:
-				case TypeKind_Union:
-				case TypeKind_Class:
-					if (!(opFlags & OpFlag_KeepDerivableRef))
-						value = ((DataPtrType*)type)->getTargetType();
-					break;
-
-				case TypeKind_Variant:
-					if (!(opFlags & OpFlag_KeepVariantRef))
-						value = ((DataPtrType*)type)->getTargetType();
-					break;
-
-				case TypeKind_String:
-					if (!(opFlags & OpFlag_KeepStringRef))
-						value = ((DataPtrType*)type)->getTargetType();
-					break;
-
-				case TypeKind_Array:
-					if (opFlags & OpFlag_LoadArrayRef)
-						value = ((DataPtrType*)type)->getTargetType();
-					else if (opFlags & OpFlag_ArrayRefToPtr) {
-						ArrayType* arrayType = (ArrayType*)targetType;
-						value = arrayType->getElementType()->getDataPtrType(
-							TypeKind_DataPtr,
-							ptrType->getPtrTypeKind(),
-							ptrType->getFlags() & PtrTypeFlag__All
-						);
-					}
-					break;
-
-				default:
-					value = ((DataPtrType*)type)->getTargetType();
-				}
-			}
-
-			break;
-
-		case TypeKind_ClassPtr:
-			if (opFlags & OpFlag_EnsurePtrTargetLayout) {
-				result = ((ClassPtrType*)type)->getTargetType()->ensureLayout();
-				if (!result)
-					return false;
-			}
-
-			break;
-
-		case TypeKind_ClassRef:
-			if (opFlags & OpFlag_EnsurePtrTargetLayout) {
-				result = ((ClassPtrType*)type)->getTargetType()->ensureLayout();
-				if (!result)
-					return false;
-			}
-
-			if (!(opFlags & OpFlag_KeepClassRef)) {
-				ClassPtrType* ptrType = (ClassPtrType*)type;
-				ClassType* targetType = ptrType->getTargetType();
-				value.overrideType(
-					targetType->getClassPtrType(
-						TypeKind_ClassPtr,
-						ptrType->getPtrTypeKind(),
-						ptrType->getFlags() & PtrTypeFlag__All
-					)
-				);
-			}
-
-			break;
-
-		case TypeKind_FunctionRef:
-			value = value.getClosureAwareType();
-			break;
-
-		case TypeKind_PropertyRef:
-			value = value.getClosureAwareType();
-			if (!(opFlags & OpFlag_KeepPropertyRef)) {
-				PropertyPtrType* ptrType = (PropertyPtrType*)value.getClosureAwareType();
-				PropertyType* targetType = ptrType->getTargetType();
-				if (!targetType->isIndexed())
-					value = targetType->getReturnType();
-			}
-
-			break;
-
-		case TypeKind_Bool:
-			if (!(opFlags & OpFlag_KeepBool))
-				value = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int8);
-			break;
-
-		case TypeKind_Enum:
-			if (!(opFlags & OpFlag_KeepEnum))
-				value.overrideType(((EnumType*)type)->getRootType());
-			break;
-		}
+		if (!result)
+			return false;
 
 		if (value.getType() == type)
 			break;
@@ -1242,190 +1680,6 @@ OperatorMgr::prepareArrayRef(
 		m_module->m_llvmIrBuilder.createGep2(value, 0, resultType, resultValue);
 		resultValue->setLeanDataPtrValidator(validator);
 	}
-}
-
-bool
-OperatorMgr::prepareOperand(
-	const Value& opValue,
-	Value* resultValue,
-	uint_t opFlags
-) {
-	bool result;
-
-	if (!m_module->hasCodeGen())
-		return prepareOperandType(opValue, resultValue, opFlags);
-
-	switch (opValue.getValueKind()) {
-	case ValueKind_Void:
-		resultValue->setVoid(m_module); // ensure non-null type
-		return true;
-
-	case ValueKind_FunctionOverload:
-	case ValueKind_FunctionTypeOverload:
-		*resultValue = opValue;
-		return true;
-	}
-
-	Value value = opValue;
-	for (;;) {
-		Type* type = value.getType();
-		result = type->ensureLayout();
-		if (!result)
-			return false;
-
-		TypeKind typeKind = type->getTypeKind();
-		switch (typeKind) {
-		case TypeKind_NamedImport:
-		case TypeKind_ImportIntMod:
-		case TypeKind_ImportPtr:
-			value.overrideType(((ImportType*)type)->getActualType());
-			break;
-
-		case TypeKind_DataPtr:
-			if (opFlags & OpFlag_EnsurePtrTargetLayout) {
-				result = ((DataPtrType*)type)->getTargetType()->ensureLayout();
-				if (!result)
-					return false;
-			}
-
-			break;
-
-		case TypeKind_DataRef:
-			if (opFlags & OpFlag_EnsurePtrTargetLayout) {
-				result = ((DataPtrType*)type)->getTargetType()->ensureLayout();
-				if (!result)
-					return false;
-			}
-
-			if (!(opFlags & OpFlag_KeepDataRef)) {
-				DataPtrType* ptrType = (DataPtrType*)type;
-				Type* targetType = ptrType->getTargetType();
-				TypeKind targetTypeKind = targetType->getTypeKind();
-
-				switch (targetTypeKind) {
-				case TypeKind_Struct:
-				case TypeKind_Union:
-				case TypeKind_Class:
-					if (!(opFlags & OpFlag_KeepDerivableRef)) {
-						result = loadDataRef(&value);
-						if (!result)
-							return false;
-					}
-					break;
-
-				case TypeKind_Variant:
-					if (!(opFlags & OpFlag_KeepVariantRef)) {
-						result = loadDataRef(&value);
-						if (!result)
-							return false;
-					}
-					break;
-
-				case TypeKind_String:
-					if (!(opFlags & OpFlag_KeepStringRef)) {
-						result = loadDataRef(&value);
-						if (!result)
-							return false;
-					}
-					break;
-
-				case TypeKind_Array:
-					if (opFlags & OpFlag_LoadArrayRef) {
-						result = loadDataRef(&value);
-						if (!result)
-							return false;
-					} else if (opFlags & OpFlag_ArrayRefToPtr)
-						prepareArrayRef(&value);
-					break;
-
-				default:
-					result = loadDataRef(&value);
-					if (!result)
-						return false;
-				}
-			}
-
-			break;
-
-		case TypeKind_ClassPtr:
-			if (opFlags & OpFlag_EnsurePtrTargetLayout) {
-				result = ((ClassPtrType*)type)->getTargetType()->ensureLayout();
-				if (!result)
-					return false;
-			}
-
-			break;
-
-		case TypeKind_ClassRef:
-			if (opFlags & OpFlag_EnsurePtrTargetLayout) {
-				result = ((ClassPtrType*)type)->getTargetType()->ensureLayout();
-				if (!result)
-					return false;
-			}
-
-			if (!(opFlags & OpFlag_KeepClassRef)) {
-				ClassPtrType* ptrType = (ClassPtrType*)type;
-				ClassType* targetType = ptrType->getTargetType();
-				value.overrideType(
-					targetType->getClassPtrType(
-						TypeKind_ClassPtr,
-						ptrType->getPtrTypeKind(),
-						ptrType->getFlags() & PtrTypeFlag__All
-					)
-				);
-			}
-
-			break;
-
-		case TypeKind_FunctionRef:
-			if (!(opFlags & OpFlag_KeepFunctionRef)) {
-				FunctionPtrType* ptrType = (FunctionPtrType*)type;
-				FunctionType* targetType = ptrType->getTargetType();
-				value.overrideType(
-					targetType->getFunctionPtrType(
-						ptrType->getPtrTypeKind(),
-						ptrType->getFlags() & PtrTypeFlag__All
-					)
-				);
-			}
-
-			break;
-
-		case TypeKind_PropertyRef:
-			if (!(opFlags & OpFlag_KeepPropertyRef)) {
-				PropertyPtrType* ptrType = (PropertyPtrType*)value.getClosureAwareType();
-				PropertyType* targetType = ptrType->getTargetType();
-				if (!targetType->isIndexed()) {
-					result = getProperty(value, &value);
-					if (!result)
-						return false;
-				}
-			}
-
-			break;
-
-		case TypeKind_Bool:
-			if (!(opFlags & OpFlag_KeepBool)) {
-				result = m_castIntFromBool.cast(value, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int8), &value);
-				if (!result)
-					return false;
-			}
-
-			break;
-
-		case TypeKind_Enum:
-			if (!(opFlags & OpFlag_KeepEnum))
-				value.overrideType(((EnumType*)type)->getRootType());
-
-			break;
-		}
-
-		if (value.getType() == type)
-			break;
-	}
-
-	*resultValue = value;
-	return true;
 }
 
 bool

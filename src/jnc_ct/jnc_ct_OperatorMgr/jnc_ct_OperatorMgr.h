@@ -78,6 +78,18 @@ class OperatorMgr {
 	friend class Cast_FunctionPtr;
 
 protected:
+	typedef bool (OperatorMgr::*PrepareOperandFunc)(
+		Value* opValue,
+		uint_t opFlags
+	);
+
+protected:
+	static PrepareOperandFunc m_prepareOperandTypeFuncTable[TypeKind__Count];
+	static PrepareOperandFunc m_prepareOperandFuncTable[TypeKind__Count];
+	static PrepareOperandFunc m_prepareOperandTypeFuncTable_dataRef[TypeKind__Count];
+	static PrepareOperandFunc m_prepareOperandFuncTable_dataRef[TypeKind__Count];
+
+protected:
 	Module* m_module;
 
 	// unary arithmetics
@@ -1366,6 +1378,164 @@ public:
 	}
 
 protected:
+	// operand pre-processing
+
+	bool
+	prepareOperand_nop(
+		Value* value,
+		uint_t opFlags
+	);
+
+	bool
+	prepareOperandType_typedef(
+		Value* value,
+		uint_t opFlags
+	);
+
+	bool
+	prepareOperand_import(
+		Value* value,
+		uint_t opFlags
+	);
+
+	bool
+	prepareOperand_dataPtr(
+		Value* value,
+		uint_t opFlags
+	);
+
+	bool
+	prepareOperandType_dataRef_bitField(
+		Value* value,
+		uint_t opFlags
+	);
+
+	bool
+	prepareOperandType_dataRef_derivable(
+		Value* value,
+		uint_t opFlags
+	);
+
+	bool
+	prepareOperandType_dataRef_variant(
+		Value* value,
+		uint_t opFlags
+	);
+
+	bool
+	prepareOperandType_dataRef_string(
+		Value* value,
+		uint_t opFlags
+	);
+
+	bool
+	prepareOperandType_dataRef_array(
+		Value* value,
+		uint_t opFlags
+	);
+
+	bool
+	prepareOperandType_dataRef_default(
+		Value* value,
+		uint_t opFlags
+	);
+
+	bool
+	prepareOperandType_dataRef(
+		Value* value,
+		uint_t opFlags
+	);
+
+	bool
+	prepareOperand_dataRef_derivable(
+		Value* value,
+		uint_t opFlags
+	);
+
+	bool
+	prepareOperand_dataRef_variant(
+		Value* value,
+		uint_t opFlags
+	);
+
+	bool
+	prepareOperand_dataRef_string(
+		Value* value,
+		uint_t opFlags
+	);
+
+	bool
+	prepareOperand_dataRef_array(
+		Value* value,
+		uint_t opFlags
+	);
+
+	bool
+	prepareOperand_dataRef_default(
+		Value* value,
+		uint_t opFlags
+	);
+
+	bool
+	prepareOperand_dataRef(
+		Value* value,
+		uint_t opFlags
+	);
+
+	bool
+	prepareOperand_classPtr(
+		Value* value,
+		uint_t opFlags
+	);
+
+	bool
+	prepareOperand_classRef(
+		Value* value,
+		uint_t opFlags
+	);
+
+	bool
+	prepareOperandType_functionRef(
+		Value* value,
+		uint_t opFlags
+	);
+
+	bool
+	prepareOperand_functionRef(
+		Value* value,
+		uint_t opFlags
+	);
+
+	bool
+	prepareOperandType_propertyRef(
+		Value* value,
+		uint_t opFlags
+	);
+
+	bool
+	prepareOperand_propertyRef(
+		Value* value,
+		uint_t opFlags
+	);
+
+	bool
+	prepareOperandType_bool(
+		Value* value,
+		uint_t opFlags
+	);
+
+	bool
+	prepareOperand_bool(
+		Value* value,
+		uint_t opFlags
+	);
+
+	bool
+	prepareOperand_enum(
+		Value* value,
+		uint_t opFlags
+	);
+
 	// overloaded operators
 
 	OverloadableFunction
