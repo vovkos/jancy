@@ -2061,10 +2061,12 @@ TypeMgr::createVariantStructType() {
 
 StructType*
 TypeMgr::createStringStructType() {
-	StructType* type = createInternalStructType("jnc.String");
-	type->createField("!m_ptr", getStdType(StdType_CharConstPtr));
+	// m_p && m_length are accessible directly (e.g.: string_t s; file.write(s.m_p, s.m_length);
+
+	StructType* type = createInternalStructType("string_t");
+	type->createField("m_p", getStdType(StdType_CharConstPtr), 0, PtrTypeFlag_ReadOnly);
 	type->createField("!m_ptr_sz", getStdType(StdType_CharConstPtr));
-	type->createField("!m_length", getPrimitiveType(TypeKind_SizeT));
+	type->createField("m_length", getPrimitiveType(TypeKind_SizeT), 0, PtrTypeFlag_ReadOnly);
 	type->ensureLayout();
 	return type;
 }

@@ -64,8 +64,8 @@ struct WebSocketHandshakeHeader {
 
 	void
 	add(
-		const sl::StringRef& value,
-		DataPtr valuePtr
+		const sl::StringRef& value_axl,
+		String value_jnc
 	);
 
 	void
@@ -119,7 +119,7 @@ public:
 	clear();
 
 	static
-	DataPtr
+	String
 	JNC_CDECL
 	getName(
 		WebSocketHandshakeHeaders* self,
@@ -131,7 +131,7 @@ public:
 	getValueCount(size_t nameIdx);
 
 	static
-	DataPtr
+	String
 	JNC_CDECL
 	getFirstValue(
 		WebSocketHandshakeHeaders* self,
@@ -139,7 +139,7 @@ public:
 	);
 
 	static
-	DataPtr
+	String
 	JNC_CDECL
 	getValue(
 		WebSocketHandshakeHeaders* self,
@@ -149,46 +149,41 @@ public:
 
 	size_t
 	JNC_CDECL
-	findName(DataPtr namePtr);
+	findName(String name);
 
 	static
-	DataPtr
+	String
 	JNC_CDECL
 	findValue(
 		WebSocketHandshakeHeaders* self,
-		DataPtr namePtr
+		String name
 	);
 
 	size_t
 	JNC_CDECL
 	add(
-		DataPtr namePtr,
-		DataPtr valuePtr
+		String name,
+		String value
 	) {
-		return addImpl(
-			sl::StringRef((char*)namePtr.m_p, strLen(namePtr)),
-			namePtr,
-			sl::StringRef((char*)valuePtr.m_p, strLen(valuePtr)),
-			valuePtr
-		)->m_nameIdx;
+		return addImpl(name >> toAxl, name, value >> toAxl, value)->m_nameIdx;
 	}
 
 	static
-	DataPtr
+	String
 	JNC_CDECL
 	format(
 		WebSocketHandshakeHeaders* self,
-		DataPtr delimiterPtr,
-		DataPtr eolPtr
+		String delimiter,
+		String eol
 	);
 
 protected:
 	WebSocketHandshakeHeader*
 	addImpl(
-		const sl::StringRef& name,
-		DataPtr namePtr,
-		const sl::StringRef& value,
-		DataPtr valuePtr
+		const sl::StringRef& name_axl,
+		String name_jnc,
+		const sl::StringRef& value_axl,
+		String value_jnc
 	);
 
 	WebSocketHandshakeHeader*
@@ -196,7 +191,7 @@ protected:
 		const sl::StringRef& name,
 		const sl::StringRef& value
 	) {
-		return addImpl(name, g_nullDataPtr, value, g_nullDataPtr);
+		return addImpl(name, g_nullString, value, g_nullString);
 	}
 
 	void

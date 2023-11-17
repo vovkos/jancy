@@ -27,8 +27,8 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(ModuleItem)
 class ModuleItemDecl: public IfaceHdr {
 protected:
 	struct Cache {
-		DataPtr m_namePtr;
-		DataPtr m_qualifiedNamePtr;
+		String m_name;
+		String m_qualifiedName;
 	};
 
 protected:
@@ -52,12 +52,12 @@ public:
 	markOpaqueGcRoots(jnc::GcHeap* gcHeap);
 
 	static
-	DataPtr
+	String
 	JNC_CDECL
 	getName(ModuleItemDecl* self);
 
 	static
-	DataPtr
+	String
 	JNC_CDECL
 	getQualifiedName(ModuleItemDecl* self);
 
@@ -114,7 +114,7 @@ protected:
 
 class ModuleItemInitializer: public IfaceHdr {
 protected:
-	DataPtr m_initializerPtr;
+	String m_initializerString;
 
 protected:
 	ct::ModuleItemInitializer* m_initializer;
@@ -129,7 +129,7 @@ public:
 	markOpaqueGcRoots(jnc::GcHeap* gcHeap);
 
 	static
-	DataPtr
+	String
 	JNC_CDECL
 	getInitializer(ModuleItemInitializer* self);
 };

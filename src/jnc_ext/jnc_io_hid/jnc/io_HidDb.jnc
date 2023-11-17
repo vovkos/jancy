@@ -18,12 +18,12 @@ namespace io {
 
 opaque class HidUsagePage {
 	uint_t const m_id;
-	char const* const property m_name;
+	string_t const property m_name;
 
 	construct();
 	destruct();
 
-	char const* getUsageName(uint_t usage) const;
+	string_t getUsageName(uint_t usage) const;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -34,7 +34,7 @@ opaque class HidDb {
 
 	HidUsagePage const* getUsagePage(uint_t page) const;
 
-	bool errorcode load(char const* fileName = null);
+	bool errorcode load(string_t fileName = null);
 	void clear();
 }
 

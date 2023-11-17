@@ -29,10 +29,10 @@ enum HidBusType: uint8_t {
 struct HidDeviceDesc {
 	HidDeviceDesc const* m_next;
 
-	char const* m_path;
-	char const* m_manufacturer;
-	char const* m_product;
-	char const* m_serialNumber;
+	string_t m_path;
+	string_t m_manufacturer;
+	string_t m_product;
+	string_t m_serialNumber;
 
 	uint16_t m_vendorId;
 	uint16_t m_productId;

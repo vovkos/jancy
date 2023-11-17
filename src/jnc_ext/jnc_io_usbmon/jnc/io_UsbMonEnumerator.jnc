@@ -20,7 +20,7 @@ namespace io {
 //..............................................................................
 
 struct UsbMonDeviceDescBase: UsbDeviceStrings {
-	char const* m_captureDeviceName;
+	string_t m_captureDeviceName;
 	uint_t m_captureDeviceId;
 
 	uint16_t m_vendorId;

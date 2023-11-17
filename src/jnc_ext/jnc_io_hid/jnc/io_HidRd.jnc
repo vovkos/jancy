@@ -179,7 +179,7 @@ getHidRdUnitExponent(uint_t nibble) {
 	return (((nibble & 0x8) ? -1 : 0) & ~0xf) | (nibble & 0xf);
 }
 
-char const*
+string_t
 getHidRdComplexUnitString(uint32_t unit);
 
 //..............................................................................

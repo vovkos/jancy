@@ -66,7 +66,7 @@ AsyncLauncherFunction::compile() {
 		Field* argField = argFieldArray[0];
 		Value argFieldValue;
 
-		result = m_module->m_operatorMgr.getField(promiseValue, argField, &argFieldValue);
+		result = m_module->m_operatorMgr.getField(promiseValue, promiseType, argField, &argFieldValue);
 		ASSERT(result);
 
 		result = m_module->m_operatorMgr.storeDataRef(argFieldValue, m_module->m_functionMgr.getThisValue());
@@ -80,7 +80,7 @@ AsyncLauncherFunction::compile() {
 		Field* argField = argFieldArray[j];
 		Value argFieldValue;
 
-		result = m_module->m_operatorMgr.getField(promiseValue, argField, &argFieldValue);
+		result = m_module->m_operatorMgr.getField(promiseValue, promiseType, argField, &argFieldValue);
 		ASSERT(result);
 
 		result = m_module->m_operatorMgr.storeDataRef(argFieldValue, argVar);

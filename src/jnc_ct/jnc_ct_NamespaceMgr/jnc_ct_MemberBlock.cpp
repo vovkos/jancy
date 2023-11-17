@@ -145,13 +145,20 @@ MemberBlock::initializeStaticVariables() {
 
 bool
 MemberBlock::initializeFields(const Value& thisValue) {
-	bool result;
+	if (m_fieldInitializeArray.isEmpty()) // shortcut
+		return true;
 
 	Module* module = m_parent->getModule();
 
 	Unit* unit = getParentUnitImpl();
 	if (unit)
 		module->m_unitMgr.setCurrentUnit(unit);
+
+	Type* parentType = thisValue.getType();
+	if (parentType->getTypeKindFlags() & TypeKindFlag_DataPtr)
+		parentType = ((DataPtrType*)parentType)->getTargetType();
+	else if (parentType->getTypeKindFlags() & TypeKindFlag_ClassPtr)
+		parentType = ((ClassPtrType*)parentType)->getTargetType();
 
 	size_t count = m_fieldInitializeArray.getCount();
 	for (size_t i = 0; i < count; i++) {
@@ -162,7 +169,7 @@ MemberBlock::initializeFields(const Value& thisValue) {
 		}
 
 		Value fieldValue;
-		result = module->m_operatorMgr.getField(thisValue, field, NULL, &fieldValue);
+		bool result = module->m_operatorMgr.getField(thisValue, parentType, field, NULL, &fieldValue);
 		if (!result)
 			return false;
 

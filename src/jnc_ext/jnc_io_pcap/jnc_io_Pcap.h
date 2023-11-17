@@ -33,7 +33,7 @@ struct PcapHdr: IfaceHdr {
 	uint_t m_readTimeout;
 	size_t m_kernelBufferSize;
 	size_t m_readBufferSize;
-	DataPtr m_filterPtr;
+	String m_filter;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -90,13 +90,13 @@ public:
 
 	bool
 	JNC_CDECL
-	openDevice(DataPtr deviceNamePtr);
+	openDevice(String deviceName);
 
 	bool
 	JNC_CDECL
 	openLive(
-		DataPtr deviceNamePtr,
-		DataPtr filterPtr,
+		String deviceName,
+		String filter,
 		uint_t snapshotSize,
 		bool isPromiscious,
 		uint_t readTimeout
@@ -105,8 +105,8 @@ public:
 	bool
 	JNC_CDECL
 	openFile(
-		DataPtr fileNamePtr,
-		DataPtr filterPtr
+		String fileName,
+		String filter
 	);
 
 	void
@@ -149,12 +149,12 @@ public:
 
 	bool
 	JNC_CDECL
-	activate(DataPtr filterPtr);
+	activate(String filter);
 
 	bool
 	JNC_CDECL
 	setFilter(
-		DataPtr filterPtr,
+		String filter,
 		bool isOptimized,
 		uint32_t netMask
 	);
@@ -216,7 +216,6 @@ protected:
 
 struct PcapAddress {
 	DataPtr m_nextPtr;
-
 	uint32_t m_address;
 	uint32_t m_mask;
 	uint32_t m_broadcast;
@@ -226,8 +225,8 @@ struct PcapAddress {
 
 struct PcapDeviceDesc {
 	DataPtr m_nextPtr;
-	DataPtr m_namePtr;
-	DataPtr m_descriptionPtr;
+	String m_name;
+	String m_description;
 	PcapAddress m_address;
 	uint_t m_flags;
 };

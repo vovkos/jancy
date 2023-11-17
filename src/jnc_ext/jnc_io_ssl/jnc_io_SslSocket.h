@@ -114,18 +114,18 @@ public:
 	}
 
 	static
-	DataPtr
+	String
 	JNC_CDECL
 	getHostname(SslSocket* self) {
 		ASSERT(self->m_ssl);
-		return strDup(self->m_ssl.getHostname());
+		return allocateString(self->m_ssl.getHostname());
 	}
 
 	void
 	JNC_CDECL
-	setHostname(DataPtr hostnamePtr) {
+	setHostname(String hostnamePtr) {
 		ASSERT(m_ssl);
-		m_ssl.setHostname((const char*)hostnamePtr.m_p);
+		m_ssl.setHostname(hostnamePtr >> toAxl);
 	}
 
 	bool

@@ -68,8 +68,8 @@ enum NetworkAdapterType {
 		denoting the total count  of adapter types. Should you need a table
 		indexed by adapter type, you could write something like::
 
-			char const* getNetworkAdapterTypeString(io.NetworkAdapterType type) {
-				static char const stringTable[io.NetworkAdapterType._Count] = {
+			string_t getNetworkAdapterTypeString(io.NetworkAdapterType type) {
+				static string_t stringTable[io.NetworkAdapterType._Count] = {
 					"<unknown>",
 					"loopback",
 					// ...
@@ -194,13 +194,13 @@ struct NetworkAdapterDesc {
 		Holds the permanent device name of the network adapter.
 	*/
 
-	char const* m_name;
+	string_t m_name;
 
 	/**
 		Holds a human-readable description of the network adapter.
 	*/
 
-	char const* m_description;
+	string_t m_description;
 
 	/**
 		Holds the type the network adapter. For a complete list of types refer

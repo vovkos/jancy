@@ -42,37 +42,37 @@ struct SerialPortDesc {
 		`io.Serial.open` method.
 	*/
 
-	char const* m_deviceName;
+	string_t m_deviceName;
 
 	/**
 		Holds a human-readable description of the serial port.
 	*/
 
-	char const* m_description;
+	string_t m_description;
 
 	/**
 		Holds the name of the manufacturer of this serial port.
 	*/
 
-	char const* m_manufacturer;
+	string_t m_manufacturer;
 
 	/**
 		Holds hardware ID(s) of this serial port.
 	*/
 
-	char const* m_hardwareIds;
+	string_t m_hardwareIds;
 
 	/**
 		Holds information about the device driver for this serial port.
 	*/
 
-	char const* m_driver;
+	string_t m_driver;
 
 	/**
 		Holds a string identifying the location of this serial port in the system device tree.
 	*/
 
-	char const* m_location;
+	string_t m_location;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

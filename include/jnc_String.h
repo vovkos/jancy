@@ -77,6 +77,14 @@ JNC_INLINE
 jnc_DataPtr
 jnc_String_szn(const jnc_String* string);
 
+JNC_EXTERN_C
+void
+jnc_String_setPtr(
+	jnc_String* string,
+	jnc_DataPtr ptr,
+	size_t length
+);
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_String {
@@ -129,6 +137,14 @@ struct jnc_String {
 	szn() const {
 		return jnc_String_szn(this);
 	}
+
+	void
+	setPtr(
+		jnc_DataPtr ptr,
+		size_t length = -1
+	) {
+		jnc_String_setPtr(this, ptr, length);
+	}
 #endif // __cplusplus
 };
 
@@ -163,6 +179,16 @@ const String g_nullString = jnc_g_nullString;
 //..............................................................................
 
 } // namespace jnc
+
+#ifdef _AXL_SL_STRING_H
+inline
+axl::sl::StringRef
+operator >> (jnc::String string, struct ToAxl*) {
+	return string.m_ptr_sz.m_p ?
+		axl::sl::StringRef((char*)string.m_ptr_sz.m_p, string.m_length, true) :
+		axl::sl::StringRef((char*)string.m_ptr.m_p, string.m_length);
+}
+#endif
 
 #endif // __cplusplus
 

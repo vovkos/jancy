@@ -269,7 +269,7 @@ bitflag enum SerialLineErrors {
 			uint_t m_syncId;
 
 			void open(
-				char const* portName,
+				string_t portName,
 				uint_t baudRate
 			);
 
@@ -285,7 +285,7 @@ bitflag enum SerialLineErrors {
 		}
 
 		MyDialog.open(
-			char const* portName,
+			string_t portName,
 			uint_t baudRate
 		) {
 			m_serial.open(portName);
@@ -327,7 +327,7 @@ bitflag enum SerialLineErrors {
 				return;
 
 			if (triggeredEvents & `io.SerialEvents.IoError`) {
-				char cont* errorString = m_fileStream.m_ioError.m_description;
+				string_t errorString = m_fileStream.m_ioError.m_description;
 				// ...
 			}
 
@@ -487,7 +487,7 @@ opaque class Serial {
 		returns ``false`` [#f1]_.
 	*/
 
-	bool errorcode open(char const* name);
+	bool errorcode open(string_t name);
 
 	/**
 		Closes a previously opened serial port, does nothing if the port is

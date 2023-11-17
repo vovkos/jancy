@@ -40,21 +40,17 @@ opaque class HidDevice {
 	std.Error const* readonly volatile m_ioError;
 	bool readonly m_isOpen;
 
-	char const* const property m_manufacturer;
-	char const* const property m_product;
-	char const* const property m_serialNumber;
-
 	HidDeviceDesc* const property m_deviceDesc;
 
 	construct();
 	destruct();
 
-	bool errorcode open(char const* path);
+	bool errorcode open(string_t path);
 
 	bool errorcode open(
 		uint16_t vid,
 		uint16_t pid,
-		char const* serialNumber = null
+		string_t serialNumber = null
 	);
 
 	void close();

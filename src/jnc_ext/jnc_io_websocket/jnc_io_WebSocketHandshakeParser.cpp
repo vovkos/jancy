@@ -109,7 +109,7 @@ WebSocketHandshakeParser::parse(
 	}
 
 	size_t length = p - (char*)p0;
-	m_handshake->m_rawData = m_handshake->m_rawData.m_string + sl::StringRef((char*)p0, length);
+	m_handshake->m_rawData = m_handshake->m_rawData.m_string_axl + sl::StringRef((char*)p0, length);
 	return length;
 }
 
@@ -225,7 +225,7 @@ WebSocketHandshakeParser::finalize() {
 	if (i == -1)
 		return err::fail("invalid handshake: missing 'Upgrade' in HTTP 'Connection' header");
 
-	if (stdHeaderTable[WebSocketHandshakeStdHeader_Upgrade]->m_firstValue.m_string.cmpIgnoreCase("websocket") != 0)
+	if (stdHeaderTable[WebSocketHandshakeStdHeader_Upgrade]->m_firstValue.m_string_axl.cmpIgnoreCase("websocket") != 0)
 		return err::fail("invalid handshake: unexpected value of HTTP 'Upgrade' header");
 
 	if (!m_key.isEmpty() && !verifyAccept())

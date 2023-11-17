@@ -99,24 +99,25 @@ WebSocketHandshake::buildRequest(
 size_t
 WebSocketHandshake::buildResponse(
 	sl::String* resultString,
+	uint_t statusCode,
+	const sl::StringRef& reasonPhrase,
 	WebSocketHandshake* handshakeRequest,
 	WebSocketHandshakeHeaders* extraHeaders
 ) {
-	static const char ReasonPhrase[] = "Switching Protocols";
-
 	uchar_t hash[SHA_DIGEST_LENGTH];
 	WebSocketHandshakeHeader* keyHeader = handshakeRequest->m_headers->getStdHeader(WebSocketHandshakeStdHeader_WebSocketKey);
 	calcWebSocketHandshakeKeyHash(hash, keyHeader->m_firstValue);
 	sl::String acceptKey = enc::Base64Encoding::encode(hash, sizeof(hash));
 
 	resultString->format(
-		"HTTP/1.1 101 %s\r\n",
-		ReasonPhrase
+		"HTTP/1.1 %d %s\r\n",
+		statusCode,
+		reasonPhrase.sz()
 	);
 
 	m_httpVersion = 0x0101;
 	m_statusCode = 101;
-	m_reasonPhrase = ReasonPhrase;
+	m_reasonPhrase = reasonPhrase;
 
 	m_headers->addImpl("Connection", "Upgrade");
 	m_headers->addImpl("Upgrade", "websocket");

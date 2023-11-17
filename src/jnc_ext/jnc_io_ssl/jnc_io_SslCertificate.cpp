@@ -85,7 +85,7 @@ SslCertName::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 	for (size_t i = 0; i < count; i++)
 		gcHeap->markDataPtr(m_entryArray[i]);
 
-	gcHeap->markDataPtr(m_oneLinePtr);
+	gcHeap->markString(m_oneLine);
 }
 
 DataPtr
@@ -109,17 +109,17 @@ SslCertName::getEntryTable(
 	return self->m_entryArray[i];
 }
 
-DataPtr
+String
 JNC_CDECL
 SslCertName::getOneLine(SslCertName* self) {
-	if (self->m_oneLinePtr.m_p)
-		return self->m_oneLinePtr;
+	if (self->m_oneLine.m_ptr.m_p)
+		return self->m_oneLine;
 
     char* p = X509_NAME_oneline(self->m_name, NULL, 0);
-	self->m_oneLinePtr = strDup(p);
+	self->m_oneLine = allocateString(p);
 	OPENSSL_free(p);
 
-	return self->m_oneLinePtr;
+	return self->m_oneLine;
 }
 
 DataPtr
@@ -143,8 +143,8 @@ SslCertName::createEntry(X509_NAME_ENTRY* srcEntry) {
 	DataPtr ptr = createData<SslCertNameEntry>(runtime);
 	SslCertNameEntry* dstEntry = (SslCertNameEntry*)ptr.m_p;
 	dstEntry->m_nid = OBJ_obj2nid(object);
-	dstEntry->m_namePtr = strDup(cry::getAsn1ObjectString(object));
-	dstEntry->m_valuePtr = strDup(cry::getAsn1StringString(value));
+	dstEntry->m_name = allocateString(cry::getAsn1ObjectString(object));
+	dstEntry->m_value = allocateString(cry::getAsn1StringString(value));
 	return ptr;
 }
 
@@ -161,16 +161,16 @@ SslCertificate::create(X509* cert) {
 void
 JNC_CDECL
 SslCertificate::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
-	gcHeap->markDataPtr(m_serialNumberPtr);
+	gcHeap->markString(m_serialNumber);
 	gcHeap->markClassPtr(m_subject);
 	gcHeap->markClassPtr(m_issuer);
 }
 
-DataPtr
+String
 JNC_CDECL
 SslCertificate::getSerialNumber(SslCertificate* self) {
-	if (self->m_serialNumberPtr.m_p)
-		return self->m_serialNumberPtr;
+	if (self->m_serialNumber.m_ptr.m_p)
+		return self->m_serialNumber;
 
 	cry::BigNum bigNum;
 	bigNum.create();
@@ -178,8 +178,8 @@ SslCertificate::getSerialNumber(SslCertificate* self) {
 	ASN1_INTEGER* serialNumber = X509_get_serialNumber(self->m_cert);
 	ASN1_INTEGER_to_BN(serialNumber, bigNum);
 
-	self->m_serialNumberPtr = strDup(bigNum.getHexString());
-	return self->m_serialNumberPtr;
+	self->m_serialNumber = allocateString(bigNum.getHexString());
+	return self->m_serialNumber;
 }
 
 uint64_t
@@ -261,20 +261,20 @@ SslCertificate::encode(
 bool
 JNC_CDECL
 SslCertificate::load(
-	DataPtr fileNamePtr,
+	String fileName,
 	uint_t format
 ) {
 	axl::io::SimpleMappedFile file;
 
 	return
-		file.open((char*)fileNamePtr.m_p, axl::io::FileFlag_ReadOnly | axl::io::FileFlag_OpenExisting) &&
+		file.open(fileName >> toAxl, axl::io::FileFlag_ReadOnly | axl::io::FileFlag_OpenExisting) &&
 		decodeImpl(file.p(), file.getMappingSize(), format);
 }
 
 bool
 JNC_CDECL
 SslCertificate::save(
-	DataPtr fileNamePtr,
+	String fileName,
 	uint_t format
 ) {
 	sl::Array<char> buffer;
@@ -287,7 +287,7 @@ SslCertificate::save(
 	axl::io::File file;
 
 	return
-		file.open((char*)fileNamePtr.m_p) &&
+		file.open(fileName >> toAxl) &&
 		file.write(buffer, size) != -1 &&
 		file.setSize(size);
 }
@@ -350,16 +350,16 @@ SslCertificate::decodeImpl(
 
 //..............................................................................
 
-DataPtr
+String
 JNC_CDECL
 getSslNidShortName(uint_t nid) {
-	return createForeignStringPtr(OBJ_nid2sn(nid), false);
+	return allocateString(OBJ_nid2sn(nid));
 }
 
-DataPtr
+String
 JNC_CDECL
 getSslNidLongName(uint_t nid) {
-	return createForeignStringPtr(OBJ_nid2ln(nid), false);
+	return allocateString(OBJ_nid2ln(nid));
 }
 
 //..............................................................................

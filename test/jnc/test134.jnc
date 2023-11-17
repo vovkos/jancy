@@ -2,7 +2,7 @@ import "std_String.jnc"
 
 //..............................................................................
 
-char* formatIntegerWithThousandSep(
+string_t formatIntegerWithThousandSep(
 	uint64_t value,
 	char sep = ','
 ) {
@@ -21,9 +21,7 @@ typedef char const* FormatFunc(int value);
 
 int main() {
 	FormatFunc* func = formatIntegerWithThousandSep;
-	char const* string = func(123456);
-
+	string_t string = func(123456);
 	printf("result: %s\n", string);
-
 	return 0;
 }

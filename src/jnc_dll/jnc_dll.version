@@ -213,8 +213,13 @@
 		jnc_getCurrentThreadTls;
 		jnc_memDup;
 		jnc_primeClass;
-		jnc_strDup;
 		jnc_strLen;
+		jnc_strDup;
+		jnc_strDup_w;
+		jnc_strDup_utf16;
+		jnc_allocateString;
+		jnc_allocateString_w;
+		jnc_allocateString_utf16;
 		jnc_strengthenClassPtr;
 		jnc_createForeignBufferPtr;
 		jnc_createForeignStringPtr;
@@ -242,6 +247,7 @@
 		jnc_GcHeap_leaveWaitRegion;
 		jnc_GcHeap_markClass;
 		jnc_GcHeap_markData;
+		jnc_GcHeap_markVariant;
 		jnc_GcHeap_resetDynamicLayout;
 		jnc_GcHeap_safePoint;
 		jnc_GcHeap_setFrameMap;

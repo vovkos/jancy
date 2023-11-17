@@ -43,7 +43,10 @@ OperatorMgr::getValueNamespace(const Value& rawOpValue) {
 		break;
 	}
 
-	return (type->getTypeKindFlags() & TypeKindFlag_Named) ? (NamedType*)type : NULL;
+	return
+		(type->getTypeKindFlags() & TypeKindFlag_Named) ? (NamedType*)type :
+		type->getTypeKind() == TypeKind_String ? (StructType*)m_module->m_typeMgr.getStdType(StdType_StringStruct) :
+		NULL;
 }
 
 bool
@@ -85,7 +88,6 @@ OperatorMgr::memberOperator(
 		return false;
 
 	Type* type = opValue.getType();
-
 	if (type->getTypeKind() == TypeKind_DataRef)
 		type = ((DataPtrType*)type)->getTargetType();
 
@@ -120,6 +122,9 @@ OperatorMgr::memberOperator(
 
 	case TypeKind_Variant:
 		return getVariantMember(opValue, name, resultValue);
+
+	case TypeKind_String:
+		return getStringMember(opValue, name, resultValue);
 
 	default:
 		err::setFormatStringError("member operator cannot be applied to '%s'", type->getTypeString().sz());
@@ -220,8 +225,9 @@ bool
 OperatorMgr::checkAccess(ModuleItemDecl* decl) {
 	Namespace* nspace = decl->getParentNamespace();
 	if (decl->getAccessKind() != AccessKind_Public &&
-		m_module->m_namespaceMgr.getAccessKind(nspace) == AccessKind_Public) {
-		err::setFormatStringError("'%s.%s' is protected", nspace->getQualifiedName().sz(), decl->getName().sz());
+		m_module->m_namespaceMgr.getAccessKind(nspace) == AccessKind_Public
+	) {
+		err::setFormatStringError("'%s' is protected", decl->getQualifiedName().sz());
 		return false;
 	}
 
@@ -430,7 +436,7 @@ OperatorMgr::getNamedTypeMember(
 		}
 
 		return
-			getField(opValue, (Field*)member, &coord, resultValue) &&
+			getField(opValue, namedType, (Field*)member, &coord, resultValue) &&
 			finalizeMemberOperator(opValue, (Field*)member, resultValue);
 
 	case ModuleItemKind_Variable:
@@ -562,6 +568,16 @@ OperatorMgr::getVariantMember(
 	closure->append(variantValue);
 	closure->append(nameValue);
 	return true;
+}
+
+bool
+OperatorMgr::getStringMember(
+	const Value& opValue,
+	const sl::StringRef& name,
+	Value* resultValue
+) {
+	StructType* type = (StructType*)m_module->m_typeMgr.getStdType(StdType_StringStruct);
+	return getNamedTypeMember(opValue, type, name, resultValue);
 }
 
 bool

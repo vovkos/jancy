@@ -159,7 +159,7 @@ public:
 	bool
 	JNC_CDECL
 	open(
-		DataPtr namePtr,
+		String name,
 		uint_t openFlags
 	);
 

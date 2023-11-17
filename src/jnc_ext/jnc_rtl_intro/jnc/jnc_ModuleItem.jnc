@@ -81,8 +81,8 @@ enum AccessKind {
 //..............................................................................
 
 opaque class ModuleItemDecl {
-	char const* const property m_name;
-	char const* const property m_qualifiedName;
+	string_t const property m_name;
+	string_t const property m_qualifiedName;
 	StorageKind const property m_storageKind;
 	AccessKind const property m_accessKind;
 	AttributeBlock* const property m_attributeBlock;
@@ -94,11 +94,11 @@ opaque class ModuleItemDecl {
 	construct(intptr p);
 	destruct();
 
-	Attribute* findAttribute(char const* name) {
+	Attribute* findAttribute(string_t name) {
 		return m_attributeBlock ? m_attributeBlock.findAttribute(name) : null;
 	}
 
-	variant_t findAttributeValue(char const* name) {
+	variant_t findAttributeValue(string_t name) {
 		Attribute* attribute = findAttribute(name);
 		return attribute ? attribute.m_value : null;
 	}
@@ -107,7 +107,7 @@ opaque class ModuleItemDecl {
 //..............................................................................
 
 opaque class ModuleItemInitializer {
-	char const* const property m_initializer;
+	string_t const property m_initializer;
 
 	construct(intptr p);
 }

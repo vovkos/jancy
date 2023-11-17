@@ -20,7 +20,7 @@ opaque class RegexMatch {
 	uint64_t readonly m_offset;
 	uint64_t readonly m_endOffset;
 	size_t const property m_length;
-	char const* const property m_text;
+	string_t const property m_text;
 
 	construct();
 	destruct();
@@ -129,54 +129,63 @@ opaque class Regex {
 
 	bool errorcode compile(
 		uint_t flags,
-		char const* source,
-		size_t length = -1
+		string_t source
 	);
 
-	bool errorcode compile(
-		char const* source,
-		size_t length = -1
-	) {
-		return compile(0, source, length);
+	bool errorcode compile(string_t source) {
+		return compile(0, source);
 	}
 
 	void createSwitch();
 
 	bool errorcode compileSwitchCase(
 		uint_t flags,
-		char const* source,
-		size_t length = -1
+		string_t source
 	);
 
-	bool errorcode compileSwitchCase(
-		char const* source,
-		size_t length = -1
-	) {
-		return compileSwitchCase(0, source, length);
+	bool errorcode compileSwitchCase(string_t source) {
+		return compileSwitchCase(0, source);
 	}
 
 	void finalizeSwitch(uint_t flags = 0);
 
 	RegexExecResult exec(
 		RegexState* state,
+		string_t text
+	) const;
+
+	RegexExecResult exec(
+		RegexState* state,
 		char const* p,
-		size_t length = -1
+		size_t length
 	) const;
 
 	RegexState* exec(
 		RegexExecFlags flags,
+		string_t text
+	) const {
+		RegexState state(flags);
+		return exec(state, text) ? state : null;
+	}
+
+	RegexState* exec(
+		RegexExecFlags flags,
 		char const* p,
-		size_t length = -1
+		size_t length
 	) const {
 		RegexState state(flags);
 		return exec(state, p, length) ? state : null;
 	}
 
+	RegexState* exec(string_t text) const {
+		return exec(0, text);
+	}
+
 	RegexState* exec(
 		char const* p,
-		size_t length = -1
+		size_t length
 	) const {
-		return exec(0, p, length);
+		return exec(0, string_t(p, length));
 	}
 
 	RegexExecResult eof(

@@ -73,7 +73,7 @@ opaque class ChildProcess {
 	destruct();
 
 	bool errorcode start(
-		char const* commandLine,
+		string_t commandLine,
 		std.HashTable const* environment = null,
 		ChildProcessStartFlags flags = 0
 	);

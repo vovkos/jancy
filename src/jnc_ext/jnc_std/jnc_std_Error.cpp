@@ -32,13 +32,5 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
-DataPtr
-Error::getDescription() {
-	sl::String string = err::ErrorHdr::getDescription();
-	return strDup(string, string.getLength());
-}
-
-//..............................................................................
-
 } // namespace std
 } // namespace jnc

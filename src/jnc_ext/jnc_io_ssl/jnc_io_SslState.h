@@ -102,37 +102,34 @@ public:
 	}
 
 	static
-	DataPtr
+	String
 	JNC_CDECL
 	getStateString(SslState* self) {
-		return strDup(self->m_ssl.getStateString());
+		return allocateString(self->m_ssl.getStateString());
 	}
 
 	static
-	DataPtr
+	String
 	JNC_CDECL
 	getStateStringLong(SslState* self) {
-		return strDup(self->m_ssl.getStateStringLong());
+		return allocateString(self->m_ssl.getStateStringLong());
 	}
 
 	bool
 	JNC_CDECL
-	enableCiphers(DataPtr ciphersPtr) {
+	enableCiphers(String ciphers) {
 		return
-			m_sslCtx.setCipherList((char*)ciphersPtr.m_p) &&
-			m_ssl.setCipherList((char*)ciphersPtr.m_p);
+			m_sslCtx.setCipherList(ciphers >> toAxl) &&
+			m_ssl.setCipherList(ciphers >> toAxl);
 	}
 
 	bool
 	JNC_CDECL
-	setEphemeralDhParams(
-		DataPtr pemPtr,
-		size_t length
-	);
+	setEphemeralDhParams(String pem);
 
 	bool
 	JNC_CDECL
-	loadEphemeralDhParams(DataPtr fileNamePtr);
+	loadEphemeralDhParams(String fileName);
 
 	bool
 	JNC_CDECL
@@ -140,27 +137,27 @@ public:
 
 	bool
 	JNC_CDECL
-	setEphemeralEcdhCurve(DataPtr curveNamePtr);
+	setEphemeralEcdhCurve(String curveName);
 
 	bool
 	JNC_CDECL
 	loadVerifyLocations(
-		DataPtr caFileNamePtr,
-		DataPtr caDirPtr
+		String caFileName,
+		String caDir
 	) {
-		return m_sslCtx.loadVerifyLocations((char*)caFileNamePtr.m_p, (char*)caDirPtr.m_p);
+		return m_sslCtx.loadVerifyLocations(caFileName >> toAxl, caDir >> toAxl);
 	}
 
 	bool
 	JNC_CDECL
-	loadCertificate(DataPtr fileNamePtr) {
-		return m_ssl.useCertificateFile((char*)fileNamePtr.m_p, SSL_FILETYPE_PEM);
+	loadCertificate(String fileName) {
+		return m_ssl.useCertificateFile(fileName >> toAxl, SSL_FILETYPE_PEM);
 	}
 
 	bool
 	JNC_CDECL
-	loadPrivateKey(DataPtr fileNamePtr) {
-		return m_ssl.usePrivateKeyFile((char*)fileNamePtr.m_p, SSL_FILETYPE_PEM);
+	loadPrivateKey(String fileName) {
+		return m_ssl.usePrivateKeyFile(fileName >> toAxl, SSL_FILETYPE_PEM);
 	}
 
 	bool

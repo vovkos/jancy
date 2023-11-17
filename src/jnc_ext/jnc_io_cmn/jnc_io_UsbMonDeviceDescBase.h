@@ -19,7 +19,7 @@ namespace io {
 //..............................................................................
 
 struct UsbMonDeviceDescBase: UsbDeviceStrings {
-	DataPtr m_captureDeviceNamePtr;
+	String m_captureDeviceName;
 	uint_t m_captureDeviceId;
 	uint16_t m_vendorId;
 	uint16_t m_productId;

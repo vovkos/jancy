@@ -52,8 +52,8 @@ enum FileKind {
 	``unknown device`` is returned.
 */
 
-char const* getFileStreamKindString(FileKind kind) {
-	static char const* stringTable[] = {
+string_t getFileStreamKindString(FileKind kind) {
+	static string_t stringTable[] = {
 		"unknown device", // FileKind.Unknown,
 		"disk file",      // FileKind.Disk,
 		"serial device",  // FileKind.Serial,
@@ -268,7 +268,7 @@ opaque class File {
 	*/
 
 	bool errorcode open(
-		char const* name,
+		string_t name,
 		FileOpenFlags flags = 0
 	);
 
@@ -327,21 +327,21 @@ opaque class File {
 
 //..............................................................................
 
-char const* getSymbolicLinkTarget(char const* name);
-char const* getHomeDir();
-char const* getTempDir();
+string_t getSymbolicLinkTarget(string_t name);
+string_t getHomeDir();
+string_t getTempDir();
 
-char const* createTempFile(
-	char const* dir = null,
-	char const* prefix = null
+string_t createTempFile(
+	string_t dir = null,
+	string_t prefix = null
 );
 
 bool errorcode renameFile(
-	char const* srcFileName,
-	char const* dstFileName
+	string_t srcFileName,
+	string_t dstFileName
 );
 
-bool errorcode deleteFile(char const* fileName);
+bool errorcode deleteFile(string_t fileName);
 
 //..............................................................................
 

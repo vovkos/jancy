@@ -65,12 +65,12 @@ size_t errorcode transmitWebSocketData(
 	switch (mode) {
 	case ui.WebSocketTransmitMode.Auto:
 		result = isValidUtf8(p, size) ?
-			socket.writeText(p, size) :
+			socket.writeText(string_t(p, size)) :
 			socket.writeBinary(p, size);
 		break;
 
 	case ui.WebSocketTransmitMode.Text:
-		result = socket.writeText(p, size);
+		result = socket.writeText(string_t(p, size));
 		break;
 
 	case ui.WebSocketTransmitMode.Binary:

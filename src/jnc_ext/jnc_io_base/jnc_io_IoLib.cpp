@@ -33,45 +33,45 @@ namespace io {
 
 //..............................................................................
 
-DataPtr
-getSymbolicLinkTarget(DataPtr namePtr) {
+String
+getSymbolicLinkTarget(String name) {
 	sl::String linkTarget;
-	bool result = axl::io::getSymbolicLinkTarget(&linkTarget, (const char*) namePtr.m_p);
+	bool result = axl::io::getSymbolicLinkTarget(&linkTarget, name >> toAxl);
 	if (!result)
-		return g_nullDataPtr;
+		return g_nullString;
 
-	return strDup(linkTarget);
+	return allocateString(linkTarget);
 }
 
-DataPtr
+String
 getHomeDir() {
-	return strDup(axl::io::getHomeDir());
+	return allocateString(axl::io::getHomeDir());
 }
 
-DataPtr
+String
 getTempDir() {
-	return strDup(axl::io::getTempDir());
+	return allocateString(axl::io::getTempDir());
 }
 
-DataPtr
+String
 createTempFile(
-	DataPtr dirPtr,
-	DataPtr prefixPtr
+	String dir,
+	String prefix
 ) {
-	return strDup(axl::io::createTempFile((const char*)dirPtr.m_p, (const char*)prefixPtr.m_p));
+	return allocateString(axl::io::createTempFile(dir >> toAxl, prefix >> toAxl));
 }
 
 bool
 renameFile(
-	DataPtr srcFileNamePtr,
-	DataPtr dstFileNamePtr
+	String srcFileName,
+	String dstFileName
 ) {
-	return axl::io::renameFile((const char*)srcFileNamePtr.m_p, (const char*)dstFileNamePtr.m_p);
+	return axl::io::renameFile(srcFileName >> toAxl, dstFileName >> toAxl);
 }
 
 bool
-deleteFile(DataPtr fileNamePtr) {
-	return axl::io::deleteFile((const char*)fileNamePtr.m_p);
+deleteFile(String fileName) {
+	return axl::io::deleteFile(fileName >> toAxl);
 }
 
 //..............................................................................

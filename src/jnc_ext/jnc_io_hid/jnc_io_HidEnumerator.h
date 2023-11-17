@@ -22,10 +22,10 @@ struct HidDeviceDesc {
 	JNC_DECLARE_TYPE_STATIC_METHODS(HidDeviceDesc)
 
 	DataPtr m_nextPtr;
-	DataPtr m_path;
-	DataPtr m_manufacturer;
-	DataPtr m_product;
-	DataPtr m_serialNumber;
+	String m_path;
+	String m_manufacturer;
+	String m_product;
+	String m_serialNumber;
 
 	uint16_t m_vendorId;
 	uint16_t m_productId;

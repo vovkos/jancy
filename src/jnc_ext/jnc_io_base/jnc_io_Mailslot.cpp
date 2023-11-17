@@ -63,7 +63,7 @@ Mailslot::Mailslot() {
 
 bool
 JNC_CDECL
-Mailslot::open(DataPtr namePtr) {
+Mailslot::open(String name0) {
 	close();
 
 	if (!requireIoLibCapability(IoLibCapability_Mailslot))
@@ -73,7 +73,7 @@ Mailslot::open(DataPtr namePtr) {
 	sl::String_w deviceName(rc::BufKind_Stack, buffer, sizeof(buffer));
 	deviceName = L"\\\\.\\mailslot\\";
 
-	sl::StringRef name((const char*) namePtr.m_p);
+	sl::StringRef name = name0 >> toAxl;
 	if (name.isPrefix("\\\\.\\mailslot\\"))
 		deviceName += name.getSubString(deviceName.getLength());
 	else

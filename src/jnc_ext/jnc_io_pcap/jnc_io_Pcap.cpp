@@ -90,12 +90,12 @@ Pcap::Pcap() {
 
 bool
 JNC_CDECL
-Pcap::openDevice(DataPtr deviceNamePtr) {
+Pcap::openDevice(String deviceName) {
 	close();
 
 	return
 		requirePcapCapability() &&
-		m_pcap.openDevice((char*)deviceNamePtr.m_p) &&
+		m_pcap.openDevice(deviceName >> toAxl) &&
 		m_pcap.setPromiscious(Def_IsPromiscious) &&
 		m_pcap.setPromiscious(Def_IsPromiscious) &&
 		m_pcap.setTimeout(Def_ReadTimeout) &&
@@ -105,8 +105,8 @@ Pcap::openDevice(DataPtr deviceNamePtr) {
 bool
 JNC_CDECL
 Pcap::openLive(
-	DataPtr deviceNamePtr,
-	DataPtr filterPtr,
+	String deviceName,
+	String filter,
 	uint_t snapshotSize,
 	bool isPromiscious,
 	uint_t readTimeout
@@ -116,16 +116,12 @@ Pcap::openLive(
 	bool result =
 		requirePcapCapability() &&
 		m_pcap.openLive(
-			(char*)deviceNamePtr.m_p,
+			deviceName >> toAxl,
 			snapshotSize,
 			isPromiscious,
 			readTimeout
 		) &&
-		setFilter(
-			filterPtr,
-			true,
-			PCAP_NETMASK_UNKNOWN
-		);
+		setFilter(filter, true, PCAP_NETMASK_UNKNOWN);
 
 	if (!result)
 		return false;
@@ -138,15 +134,15 @@ Pcap::openLive(
 bool
 JNC_CDECL
 Pcap::openFile(
-	DataPtr fileNamePtr,
-	DataPtr filterPtr
+	String fileName,
+	String filter
 ) {
 	close();
 
 	return
 		requirePcapCapability() &&
-		m_pcap.openFile((char*)fileNamePtr.m_p) &&
-		setFilter(filterPtr, true, PCAP_NETMASK_UNKNOWN) &&
+		m_pcap.openFile(fileName >> toAxl) &&
+		setFilter(filter, true, PCAP_NETMASK_UNKNOWN) &&
 		finishOpen();
 }
 
@@ -192,7 +188,7 @@ Pcap::close() {
 	m_kernelBufferSize = 0;
 	m_isPromiscious = false;
 	m_readTimeout = 0;
-	m_filterPtr = g_nullDataPtr;
+	m_filter = g_nullString;
 }
 
 void
@@ -235,10 +231,10 @@ Pcap::setKernelBufferSize(size_t size) {
 
 bool
 JNC_CDECL
-Pcap::activate(DataPtr filterPtr) {
+Pcap::activate(String filter) {
 	bool result =
 		m_pcap.activate() &&
-		setFilter(filterPtr, true, PCAP_NETMASK_UNKNOWN);
+		setFilter(filter, true, PCAP_NETMASK_UNKNOWN);
 
 	if (!result)
 		return false;
@@ -250,17 +246,16 @@ Pcap::activate(DataPtr filterPtr) {
 bool
 JNC_CDECL
 Pcap::setFilter(
-	DataPtr filterPtr,
+	String filter0,
 	bool isOptimized,
 	uint32_t netMask
 ) {
-	const char* filter = (const char*) filterPtr.m_p;
-
+	sl::StringRef filter = filter0 >> toAxl;
 	bool result = m_pcap.setFilter(filter, isOptimized, netMask);
 	if (!result)
 		return false;
 
-	m_filterPtr = strDup(filter);
+	m_filter = allocateString(filter);
 	return true;
 }
 
@@ -460,8 +455,8 @@ createPcapDeviceDescList(DataPtr countPtr) {
 
 	DataPtr devicePtr = gcHeap->allocateData(deviceType);
 	PcapDeviceDesc* device = (PcapDeviceDesc*)devicePtr.m_p;
-	device->m_namePtr = strDup(iface->name);
-	device->m_descriptionPtr = strDup(iface->description);
+	device->m_name = allocateString(iface->name);
+	device->m_description = allocateString(iface->description);
 	setupPcapAddress(runtime, &device->m_address, iface->addresses);
 
 	DataPtr resultPtr = devicePtr;
@@ -470,8 +465,8 @@ createPcapDeviceDescList(DataPtr countPtr) {
 	for (iface = iface->next; iface; iface = iface->next, count++) {
 		devicePtr = gcHeap->allocateData(deviceType);
 		device = (PcapDeviceDesc*)devicePtr.m_p;
-		device->m_namePtr = strDup(iface->name);
-		device->m_descriptionPtr = strDup(iface->description);
+		device->m_name = allocateString(iface->name);
+		device->m_description = allocateString(iface->description);
 		setupPcapAddress(runtime, &device->m_address, iface->addresses);
 
 		prevDevice->m_nextPtr = devicePtr;

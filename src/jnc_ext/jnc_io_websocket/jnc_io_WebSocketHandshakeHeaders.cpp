@@ -50,17 +50,13 @@ JNC_END_CLASS_TYPE_VTABLE()
 
 void
 WebSocketHandshakeHeader::add(
-	const sl::StringRef& value,
-	DataPtr valuePtr
+	const sl::StringRef& value_axl,
+	String value_jnc
 ) {
-	if (m_firstValue.isEmpty()) {
-		m_firstValue.m_string = value;
-		m_firstValue.m_ptr = valuePtr;
-	} else {
-		DualString extraValue;
-		extraValue.m_string = value;
-		extraValue.m_ptr = valuePtr;
-		sl::BoxIterator<DualString> it = m_extraValueList.insertTail(extraValue);
+	if (m_firstValue.isEmpty())
+		m_firstValue.setup(value_axl, value_jnc);
+	else {
+		sl::BoxIterator<DualString> it = m_extraValueList.insertTail(DualString(value_axl, value_jnc));
 		m_extraValueArray.append(it.p());
 	}
 }
@@ -93,15 +89,15 @@ WebSocketHandshakeHeaders::clear() {
 	memset(m_stdHeaderTable, 0, sizeof(m_stdHeaderTable));
 }
 
-DataPtr
+String
 JNC_CDECL
 WebSocketHandshakeHeaders::getName(
 	WebSocketHandshakeHeaders* self,
 	size_t nameIdx
 ) {
 	return nameIdx < self->m_headerArray.getCount() ?
-		self->m_headerArray[nameIdx]->m_name.getPtr() :
-		g_nullDataPtr;
+		self->m_headerArray[nameIdx]->m_name :
+		g_nullString;
 }
 
 size_t
@@ -112,18 +108,18 @@ WebSocketHandshakeHeaders::getValueCount(size_t nameIdx) {
 		0;
 }
 
-DataPtr
+String
 JNC_CDECL
 WebSocketHandshakeHeaders::getFirstValue(
 	WebSocketHandshakeHeaders* self,
 	size_t nameIdx
 ) {
 	return nameIdx < self->m_headerArray.getCount() ?
-		self->m_headerArray[nameIdx]->m_firstValue.getPtr() :
-		g_nullDataPtr;
+		self->m_headerArray[nameIdx]->m_firstValue :
+		g_nullString;
 }
 
-DataPtr
+String
 JNC_CDECL
 WebSocketHandshakeHeaders::getValue(
 	WebSocketHandshakeHeaders* self,
@@ -131,83 +127,73 @@ WebSocketHandshakeHeaders::getValue(
 	size_t valueIdx
 ) {
 	if (nameIdx >= self->m_headerArray.getCount())
-		return g_nullDataPtr;
+		return g_nullString;
 
 	WebSocketHandshakeHeader* header = self->m_headerArray[nameIdx];
 	if (valueIdx > header->m_extraValueArray.getCount())
-		return g_nullDataPtr;
+		return g_nullString;
 
 	DualString* value = valueIdx == 0 ?
 		&header->m_firstValue :
 		header->m_extraValueArray[valueIdx];
 
-	return value->getPtr();
+	return *value;
 }
 
 size_t
 JNC_CDECL
-WebSocketHandshakeHeaders::findName(DataPtr namePtr) {
-	sl::StringRef name((char*)namePtr.m_p, strLen(namePtr));
-	sl::StringHashTableIterator<WebSocketHandshakeHeader> it = m_headerMap.find(name);
+WebSocketHandshakeHeaders::findName(String name) {
+	sl::StringHashTableIterator<WebSocketHandshakeHeader> it = m_headerMap.find(name >> toAxl);
 	return it ? it->m_value.m_nameIdx : -1;
 }
 
-DataPtr
+String
 JNC_CDECL
 WebSocketHandshakeHeaders::findValue(
 	WebSocketHandshakeHeaders* self,
-	DataPtr namePtr
+	String name
 ) {
-	sl::StringRef name((char*)namePtr.m_p, strLen(namePtr));
-	sl::StringHashTableIterator<WebSocketHandshakeHeader> it = self->m_headerMap.find(name);
-	return it ? it->m_value.m_firstValue.getPtr() : g_nullDataPtr;
+	sl::StringHashTableIterator<WebSocketHandshakeHeader> it = self->m_headerMap.find(name >> toAxl);
+	return it ? it->m_value.m_firstValue : g_nullString;
 }
 
-DataPtr
+String
 JNC_CDECL
 WebSocketHandshakeHeaders::format(
 	WebSocketHandshakeHeaders* self,
-	DataPtr delimiterPtr,
-	DataPtr eolPtr
+	String delimiter,
+	String eol
 ) {
 	sl::String string;
-
-	self->appendFormat(
-		&string,
-		sl::StringRef((char*)delimiterPtr.m_p, strLen(delimiterPtr)),
-		sl::StringRef((char*)eolPtr.m_p, strLen(eolPtr))
-	);
-
-	return strDup(string);
+	self->appendFormat(&string, delimiter >> toAxl, eol >> toAxl);
+	return allocateString(string);
 }
 
 WebSocketHandshakeHeader*
 WebSocketHandshakeHeaders::addImpl(
-	const sl::StringRef& name,
-	DataPtr namePtr,
-	const sl::StringRef& value,
-	DataPtr valuePtr
+	const sl::StringRef& name_axl,
+	String name_jnc,
+	const sl::StringRef& value_axl,
+	String value_jnc
 ) {
-	sl::StringHashTableIterator<WebSocketHandshakeHeader> it = m_headerMap.visit(name);
-
+	sl::StringHashTableIterator<WebSocketHandshakeHeader> it = m_headerMap.visit(name_axl);
 	WebSocketHandshakeHeader* header = &it->m_value;
 	ASSERT(header->m_nameIdx != -1 || header->m_name.isEmpty() && header->m_firstValue.isEmpty());
 
 	if (header->m_nameIdx != -1) {
-		header->add(value, valuePtr);
+		header->add(value_axl, value_jnc);
 		return header;
 	}
 
 	header->m_nameIdx = m_headerArray.getCount();
-	header->m_name.m_string = name;
-	header->m_name.m_ptr = namePtr;
+	header->m_name.setup(name_axl, name_jnc);
 	m_nameCount = m_headerArray.append(header);
 
-	WebSocketHandshakeStdHeader stdHeader = WebSocketHandshakeStdHeaderMap::findValue(name, WebSocketHandshakeStdHeader_Undefined);
+	WebSocketHandshakeStdHeader stdHeader = WebSocketHandshakeStdHeaderMap::findValue(name_axl, WebSocketHandshakeStdHeader_Undefined);
 	if (stdHeader != WebSocketHandshakeStdHeader_Undefined)
 		m_stdHeaderTable[stdHeader] = header;
 
-	header->add(value, valuePtr);
+	header->add(value_axl, value_jnc);
 	return header;
 }
 
@@ -218,15 +204,15 @@ WebSocketHandshakeHeaders::addImpl(WebSocketHandshakeHeaders* headers) {
 		WebSocketHandshakeHeader* srcHeader = headers->m_headerArray[i];
 
 		WebSocketHandshakeHeader* dstHeader = addImpl(
-			srcHeader->m_name.m_string,
-			srcHeader->m_name.m_ptr,
-			srcHeader->m_firstValue.m_string,
-			srcHeader->m_firstValue.m_ptr
+			srcHeader->m_name.m_string_axl,
+			srcHeader->m_name.m_string_jnc,
+			srcHeader->m_firstValue.m_string_axl,
+			srcHeader->m_firstValue.m_string_jnc
 		);
 
 		sl::ConstBoxIterator<DualString> it = srcHeader->m_extraValueList.getHead();
 		for (; it; it++)
-			dstHeader->add(it->m_string, it->m_ptr);
+			dstHeader->add(it->m_string_axl, it->m_string_jnc);
 	}
 }
 
@@ -242,13 +228,13 @@ WebSocketHandshakeHeaders::appendFormat(
 
 		string->appendFormat(
 			"%s: %s\r\n",
-			header->m_name.m_string.sz(),
+			header->m_name.sz(),
 			header->m_firstValue.sz()
 		);
 
 		sl::ConstBoxIterator<DualString> it = header->m_extraValueList.getHead();
 		for (; it; it++) {
-			string->append(header->m_name.m_string);
+			string->append(header->m_name.m_string_axl);
 			string->append(delimiter);
 			string->append(*it);
 			string->append(eol);

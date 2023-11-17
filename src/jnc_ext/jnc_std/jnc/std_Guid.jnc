@@ -73,7 +73,7 @@ struct Guid {
 
 	construct() {}
 
-	construct(char const* string) {
+	construct(string_t string) {
 		parse(string);
 	}
 
@@ -89,12 +89,12 @@ struct Guid {
 		return !isEqual(op);
 	}
 
-	void operator := (char const* string) {
+	void operator := (string_t string) {
 		parse(string);
 	}
 
-	char const* getString(GuidStringFlags flags = 0);
-	bool errorcode parse(char const* string);
+	string_t getString(GuidStringFlags flags = 0);
+	bool errorcode parse(string_t string);
 }
 
 //..............................................................................

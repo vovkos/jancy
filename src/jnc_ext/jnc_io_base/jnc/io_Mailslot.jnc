@@ -57,7 +57,7 @@ typedef ReadOnlyStreamEvents  MailslotEvents;
 			io.Mailslot m_mailslot;
 			uint_t m_syncId;
 
-			void open(char const* fileName);
+			void open(string_t fileName);
 			void close();
 			void waitMailslotEvents();
 
@@ -67,10 +67,10 @@ typedef ReadOnlyStreamEvents  MailslotEvents;
 			);
 		}
 
-		MyDialog.open(char const* fileName) {
+		MyDialog.open(string_t fileName) {
 			bool result = try m_mailslot.open(fileName);
 			if (!result) {
-				char const* errorString = std.getLastError().m_description;
+				string_t errorString = std.getLastError().m_description;
 				// ...
 			}
 
@@ -99,7 +99,7 @@ typedef ReadOnlyStreamEvents  MailslotEvents;
 				return;
 
 			if (triggeredEvents & `io.MailslotEvents.IoError <io.ReadOnlyStreamEvents.IoError>`) {
-				char const* errorString = m_mailslot.m_ioError.m_description;
+				string_t errorString = m_mailslot.m_ioError.m_description;
 				// ...
 			}
 
@@ -157,7 +157,7 @@ opaque class Mailslot {
 		``false`` [#f1]_.
 	*/
 
-	bool errorcode open(char const* name);
+	bool errorcode open(string_t name);
 
 	/**
 		Closes a previously opened mailslot, does nothing if the mailslot is not

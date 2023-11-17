@@ -51,7 +51,7 @@ HostNameResolver::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 bool
 JNC_CDECL
 HostNameResolver::resolve(
-	DataPtr namePtr,
+	String name0,
 	uint16_t addrFamily
 ) {
 	cancel();
@@ -62,8 +62,7 @@ HostNameResolver::resolve(
 	if (!m_isOpen)
 		AsyncIoBase::open();
 
-	const char* name = (const char*)namePtr.m_p;
-
+	sl::StringRef name = name0 >> toAxl;
 	axl::io::SockAddr sockAddr;
 	bool result = sockAddr.parse(name);
 	if (result) {
@@ -74,19 +73,20 @@ HostNameResolver::resolve(
 	sl::String nameString;
 	uint_t port;
 
-	const char* p = strchr(name, ':');
-	if (!p) {
+	size_t colon = name.find(':');
+	if (colon == -1) {
 		nameString = name;
 		port = 0;
 	} else {
+		const char* p = name.cp() + colon + 1;
 		char* end;
-		port = (ushort_t)strtol(p + 1, &end, 10);
+		port = (ushort_t)strtol(p, &end, 10);
 		if (end == p) {
 			setIoErrorEvent("invalid port string");
 			return false;
 		}
 
-		nameString.copy(name, p - name);
+		nameString = name.getLeftSubString(colon);
 	}
 
 	m_lock.lock();

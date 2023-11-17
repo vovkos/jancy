@@ -43,16 +43,16 @@ bool
 JNC_CDECL
 PcapFilter::compile_0(
 	Pcap* pcap,
-	DataPtr filterPtr,
+	String filter,
 	bool isOptimized,
 	uint_t netMask
 ) {
-	if (!filterPtr.m_p) {
+	if (!filter.m_length) {
 		m_filter.free();
 		return true;
 	}
 
-	return m_filter.compile(pcap->getPcap(), (char*)filterPtr.m_p, isOptimized, netMask);
+	return m_filter.compile(pcap->getPcap(), filter >> toAxl, isOptimized, netMask);
 }
 
 bool
@@ -60,16 +60,16 @@ JNC_CDECL
 PcapFilter::compile_1(
 	int linkType,
 	size_t snapshotSize,
-	DataPtr filterPtr,
+	String filter,
 	bool isOptimized,
 	uint_t netMask
 ) {
-	if (!filterPtr.m_p) {
+	if (!filter.m_length) {
 		m_filter.free();
 		return true;
 	}
 
-	return m_filter.compile(linkType, snapshotSize, (char*)filterPtr.m_p, isOptimized, netMask);
+	return m_filter.compile(linkType, snapshotSize, filter >> toAxl, isOptimized, netMask);
 }
 
 //..............................................................................

@@ -31,8 +31,8 @@ struct SslCertNameEntry {
 	JNC_DECLARE_TYPE_STATIC_METHODS(SslCertNameEntry)
 
 	uint_t m_nid;
-	DataPtr m_namePtr;
-	DataPtr m_valuePtr;
+	String m_name;
+	String m_value;
 };
 
 //..............................................................................
@@ -50,7 +50,7 @@ protected:
 	X509_NAME* m_name;
 
 	sl::Array<DataPtr> m_entryArray;
-	DataPtr m_oneLinePtr;
+	String m_oneLine;
 
 public:
 	void
@@ -66,7 +66,7 @@ public:
 	);
 
 	static
-	DataPtr
+	String
 	JNC_CDECL
 	getOneLine(SslCertName* self);
 
@@ -96,7 +96,7 @@ protected:
 	X509* m_cert;
 	cry::X509Cert m_certBuffer;
 
-	DataPtr m_serialNumberPtr;
+	String m_serialNumber;
 	uint64_t m_validFromDate;
 	uint64_t m_validToDate;
 	SslCertName* m_subject;
@@ -112,7 +112,7 @@ public:
 	markOpaqueGcRoots(jnc::GcHeap* gcHeap);
 
 	static
-	DataPtr
+	String
 	JNC_CDECL
 	getSerialNumber(SslCertificate* self);
 
@@ -152,14 +152,14 @@ public:
 	bool
 	JNC_CDECL
 	load(
-		DataPtr fileNamePtr,
+		String fileName,
 		uint_t format
 	);
 
 	bool
 	JNC_CDECL
 	save(
-		DataPtr fileNamePtr,
+		String fileName,
 		uint_t format
 	);
 
@@ -186,11 +186,11 @@ protected:
 
 //..............................................................................
 
-DataPtr
+String
 JNC_CDECL
 getSslNidShortName(uint_t nid);
 
-DataPtr
+String
 JNC_CDECL
 getSslNidLongName(uint_t nid);
 

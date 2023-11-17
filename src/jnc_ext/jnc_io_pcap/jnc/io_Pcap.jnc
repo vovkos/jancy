@@ -90,8 +90,8 @@ bitflag enum PcapEvents: ReadOnlyStreamEvents {
 			uint_t m_syncId;
 
 			void startCapture(
-				char const* device,
-				char const* filter = null
+				string_t device,
+				string_t filter = null
 			);
 
 			void close();
@@ -104,8 +104,8 @@ bitflag enum PcapEvents: ReadOnlyStreamEvents {
 		}
 
 		MyDialog.startCapture(
-			char const* device,
-			char const* filter = null
+			string_t device,
+			string_t filter = null
 		) {
 			bool result = try m_pcap.openDevice(device, filter);
 			if (!result) {
@@ -137,7 +137,7 @@ bitflag enum PcapEvents: ReadOnlyStreamEvents {
 				return;
 
 			if (triggeredEvents & `io.PcapEvents.IoError`) {
-				char cont* errorString = m_pcap.m_ioError.m_description;
+				string_t errorString = m_pcap.m_ioError.m_description;
 				// ...
 			}
 
@@ -184,7 +184,7 @@ opaque class Pcap {
 		Holds currently specified capture filter [#f3]_.
 	*/
 
-	char const* readonly m_filter;
+	string_t readonly m_filter;
 
 	protected uint_t m_unused;
 
@@ -209,7 +209,7 @@ opaque class Pcap {
 		``false`` [#f1]_.
 	*/
 
-	bool errorcode openDevice(char const* deviceName);
+	bool errorcode openDevice(string_t deviceName);
 
 	/**
 		Opens a network interface for Pcap capture.
@@ -233,8 +233,8 @@ opaque class Pcap {
 	*/
 
 	bool errorcode openLive(
-		char const* deviceName,
-		char const* filter = null,
+		string_t deviceName,
+		string_t filter = null,
 		uint_t snapshotSize = Defaults.SnapshotSize,
 		bool isPromiscious = Defaults.IsPromiscious,
 		uint_t readTimeout = Defaults.ReadTimeout
@@ -252,8 +252,8 @@ opaque class Pcap {
 	*/
 
 	bool errorcode openFile(
-		char const* fileName,
-		char const* filter = null
+		string_t fileName,
+		string_t filter = null
 	);
 
 	/**
@@ -272,7 +272,7 @@ opaque class Pcap {
 
 	alias dispose = close;
 
-	bool errorcode activate(char const* filter = null);
+	bool errorcode activate(string_t filter = null);
 
 	/**
 		Allows you to change current capture filter without restarting the
@@ -283,7 +283,7 @@ opaque class Pcap {
 	*/
 
 	bool errorcode setFilter(
-		char const* filter,
+		string_t filter,
 		bool isOptimized = true,
 		uint32_t netMask = -1
 	);
@@ -345,7 +345,7 @@ opaque class PcapFilter {
 
 	bool errorcode compile(
 		Pcap* pcap,
-		char const* filter,
+		string_t filter,
 		bool isOptimized = true,
 		uint32_t netMask = -1
 	);
@@ -353,13 +353,13 @@ opaque class PcapFilter {
 	bool errorcode compile(
 		PcapLinkType linkType,
 		size_t snapshotSize,
-		char const* filter,
+		string_t filter,
 		bool isOptimized = true,
 		uint32_t netMask = -1
 	);
 
 	bool errorcode compile(
-		char const* filter,
+		string_t filter,
 		bool isOptimized = true,
 		uint32_t netMask = -1
 	) {
@@ -437,13 +437,13 @@ struct PcapDeviceDesc {
 		`io.Pcap.openDevice` method.
 	*/
 
-	char const* m_name;
+	string_t m_name;
 
 	/**
 		Holds a human-readable description of Pcap device.
 	*/
 
-	char const* m_description;
+	string_t m_description;
 
 	/**
 		Holds the head of the list of addresses of this Pcap device. Iterate

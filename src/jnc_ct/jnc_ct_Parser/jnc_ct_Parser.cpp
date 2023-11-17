@@ -2436,7 +2436,9 @@ Parser::lookupIdentifier(
 		// and fall through
 
 	case ModuleItemKind_Type:
-		if (!(((Type*)item)->getTypeKindFlags() & TypeKindFlag_Named)) {
+		if (((Type*)item)->getTypeKind() == TypeKind_String)
+			item = m_module->m_typeMgr.getStdType(StdType_StringStruct);
+		else if (!(((Type*)item)->getTypeKindFlags() & TypeKindFlag_Named)) {
 			err::setFormatStringError("'%s' cannot be used as expression", ((Type*)item)->getTypeString().sz());
 			return false;
 		}

@@ -27,8 +27,8 @@ public:
 public:
 	bool
 	JNC_CDECL
-	open(DataPtr fileNamePtr) {
-		return openImpl((const char*) fileNamePtr.m_p);
+	open(String fileName) {
+		return openImpl(fileName >> toAxl);
 	}
 
 	bool
@@ -42,8 +42,8 @@ public:
 
 	void*
 	JNC_CDECL
-	getFunction(DataPtr namePtr) {
-		return getFunctionImpl((const char*) namePtr.m_p);
+	getFunction(String name) {
+		return getFunctionImpl(name >> toAxl);
 	}
 
 	void*

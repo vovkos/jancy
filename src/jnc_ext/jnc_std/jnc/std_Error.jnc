@@ -68,11 +68,11 @@ struct Error {
 
 		.. ref-code-block::
 
-			char const* s = `std.getLastError` ().m_description;
+			string_t s = `std.getLastError` ().m_description;
 			printf($"cannot open file: $s\n");
 	*/
 
-	char const* const property m_description;
+	string_t const property m_description;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -100,7 +100,7 @@ Error const* getLastError();
 		std.getLastError().`m_description<std.Error.m_description>`
 */
 
-char const* getLastErrorDescription() {
+string_t getLastErrorDescription() {
 	return getLastError().m_description;
 }
 
@@ -126,7 +126,7 @@ void setErrno(int errno);
 	null-terminated string identical to ``string``.
 */
 
-void setError(char const* string);
+void setError(string_t string);
 
 //..............................................................................
 

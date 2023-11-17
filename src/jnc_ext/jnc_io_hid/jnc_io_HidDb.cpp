@@ -58,37 +58,37 @@ JNC_END_TYPE_FUNCTION_MAP()
 void
 JNC_CDECL
 HidUsagePage::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
-	gcHeap->markDataPtr(m_namePtr);
+	gcHeap->markString(m_name);
 
-	sl::ConstMapIterator<uint_t, DataPtr> it = m_usageNameMap.getHead();
+	sl::ConstMapIterator<uint_t, String> it = m_usageNameMap.getHead();
 	for (; it; it++)
-		gcHeap->markDataPtr(it->m_value);
+		gcHeap->markString(it->m_value);
 }
 
-DataPtr
+String
 JNC_CDECL
 HidUsagePage::getName(HidUsagePage* self) {
 	if (!self->m_page) // detached
-		return g_nullDataPtr;
+		return g_nullString;
 
-	if (!self->m_namePtr.m_p)
-		self->m_namePtr = strDup(self->m_page->getName());
+	if (!self->m_name.m_ptr.m_p)
+		self->m_name = allocateString(self->m_page->getName());
 
-	return self->m_namePtr;
+	return self->m_name;
 }
 
-DataPtr
+String
 JNC_CDECL
 HidUsagePage::getUsageName(
 	HidUsagePage* self,
 	uint_t usage
 ) {
 	if (!self->m_page) // detached
-		return g_nullDataPtr;
+		return g_nullString;
 
-	sl::MapIterator<uint_t, DataPtr> it = self->m_usageNameMap.visit(usage);
-	if (!it->m_value.m_p)
-		it->m_value = strDup(self->m_page->getUsageName(usage));
+	sl::MapIterator<uint_t, String> it = self->m_usageNameMap.visit(usage);
+	if (!it->m_value.m_ptr.m_p)
+		it->m_value = allocateString(self->m_page->getUsageName(usage));
 
 	return it->m_value;
 }
@@ -120,10 +120,11 @@ HidDb::getUsagePage(uint_t pageId) {
 
 bool
 JNC_CDECL
-HidDb::load(DataPtr fileNamePtr) {
+HidDb::load(String fileName0) {
 	clear();
-	const char* fileName = (char*)fileNamePtr.m_p;
-	if (fileName && *fileName)
+
+	sl::StringRef fileName = fileName0 >> toAxl;
+	if (!fileName.isEmpty())
 		return m_db.load(fileName);
 
 	Module* module = getCurrentThreadRuntime()->getModule();

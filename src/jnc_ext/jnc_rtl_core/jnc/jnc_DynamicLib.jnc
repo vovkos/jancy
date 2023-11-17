@@ -121,7 +121,7 @@ class DynamicLib {
 		and then the function returns ``false`` [#f1]_.
 	*/
 
-	bool errorcode open(char const* fileName);
+	bool errorcode open(string_t fileName);
 
 	/**
 		Closes(releases)a previously loaded dynamic library, does nothing if
@@ -156,7 +156,7 @@ class DynamicLib {
 		returns ``null`` [#f1]_.
 	*/
 
-	void thin* errorcode getFunction(char const* fileName);
+	void thin* errorcode getFunction(string_t name);
 }
 
 //..............................................................................

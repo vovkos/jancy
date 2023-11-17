@@ -27,7 +27,7 @@ class EnumConst:
 	public ModuleItemDecl,
 	public ModuleItemInitializer {
 protected:
-	DataPtr m_namePtr;
+	String m_name;
 
 public:
 	EnumConst(ct::EnumConst* cnst):
@@ -46,7 +46,7 @@ public:
 	}
 
 	static
-	DataPtr
+	String
 	JNC_CDECL
 	getName(EnumConst* self);
 

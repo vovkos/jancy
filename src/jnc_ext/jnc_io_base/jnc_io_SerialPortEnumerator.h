@@ -22,12 +22,12 @@ struct SerialPortDesc {
 	JNC_DECLARE_TYPE_STATIC_METHODS(SerialPortDesc)
 
 	DataPtr m_nextPtr;
-	DataPtr m_deviceNamePtr;
-	DataPtr m_descriptionPtr;
-	DataPtr m_manufacturerPtr;
-	DataPtr m_hardwareIdsPtr;
-	DataPtr m_driverPtr;
-	DataPtr m_locationPtr;
+	String m_deviceName;
+	String m_description;
+	String m_manufacturer;
+	String m_hardwareIds;
+	String m_driver;
+	String m_location;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

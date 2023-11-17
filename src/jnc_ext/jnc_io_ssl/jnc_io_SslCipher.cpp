@@ -48,29 +48,29 @@ SslCipher::create(const SSL_CIPHER* cipher) {
 void
 JNC_CDECL
 SslCipher::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
-	gcHeap->markDataPtr(m_namePtr);
-	gcHeap->markDataPtr(m_descriptionPtr);
+	gcHeap->markString(m_name);
+	gcHeap->markString(m_description);
 }
 
-DataPtr
+String
 JNC_CDECL
 SslCipher::getName(SslCipher* self) {
-	if (!self->m_namePtr.m_p)
-		self->m_namePtr = strDup(::SSL_CIPHER_get_name(self->m_cipher));
+	if (!self->m_name.m_ptr.m_p)
+		self->m_name = allocateString(::SSL_CIPHER_get_name(self->m_cipher));
 
-	return self->m_namePtr;
+	return self->m_name;
 }
 
-DataPtr
+String
 JNC_CDECL
 SslCipher::getDescription(SslCipher* self) {
-	if (self->m_descriptionPtr.m_p)
-		return self->m_descriptionPtr;
+	if (self->m_description.m_ptr.m_p)
+		return self->m_description;
 
 	char buffer[256];
 	::SSL_CIPHER_description(self->m_cipher, buffer, sizeof(buffer));
-	self->m_descriptionPtr = strDup(buffer);
-	return self->m_descriptionPtr;
+	self->m_description = allocateString(buffer);
+	return self->m_description;
 }
 
 uint_t

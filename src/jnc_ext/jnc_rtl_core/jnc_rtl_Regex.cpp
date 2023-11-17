@@ -84,7 +84,8 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(Regex)
 	JNC_MAP_FUNCTION("createSwitch", &Regex::createSwitch)
 	JNC_MAP_FUNCTION("compileSwitchCase", &Regex::compileSwitchCase)
 	JNC_MAP_FUNCTION("finalizeSwitch", &Regex::finalizeSwitch)
-	JNC_MAP_FUNCTION("exec", &Regex::exec)
+	JNC_MAP_FUNCTION("exec", &Regex::exec_0)
+	JNC_MAP_OVERLOAD(&Regex::exec_1)
 	JNC_MAP_FUNCTION("eof", &Regex::eof)
 JNC_END_TYPE_FUNCTION_MAP()
 
@@ -93,15 +94,15 @@ JNC_END_TYPE_FUNCTION_MAP()
 void
 JNC_CDECL
 RegexMatch::markOpaqueGcRoots(GcHeap* gcHeap)  {
-	gcHeap->markDataPtr(m_textPtr);
+	gcHeap->markString(m_text);
 }
 
-DataPtr
+String
 RegexMatch::getText(RegexMatch* self) {
-	if (!self->m_textPtr.m_p)
-		self->m_textPtr = strDup(self->m_match.getText());
+	if (!self->m_text.m_length)
+		self->m_text = allocateString(self->m_match.getText());
 
-	return self->m_textPtr;
+	return self->m_text;
 }
 
 //..............................................................................
@@ -139,7 +140,7 @@ RegexState::getMatch() {
 
 	if (!m_match->m_match.isEqual(*match)) {
 		m_match->m_match = *match;
-		m_match->m_textPtr = g_nullDataPtr;
+		m_match->m_text = g_nullString;
 	}
 
 	return m_match;
@@ -175,45 +176,24 @@ Regex::save(IfaceHdr* buffer) {
 	return -1;
 }
 
-bool
+
+re::ExecResult
 JNC_CDECL
-Regex::compile(
-	uint_t flags,
-	DataPtr sourcePtr,
-	size_t length
+Regex::exec_0(
+	RegexState* state,
+	String text
 ) {
-	if (length == -1)
-		length = strLen(sourcePtr);
-
-	return m_regex.compile(
-		flags,
-		sl::String((char*)sourcePtr.m_p, length)
-	);
-}
-
-bool
-JNC_CDECL
-Regex::compileSwitchCase(
-	uint_t flags,
-	DataPtr sourcePtr,
-	size_t length
-) {
-	if (length == -1)
-		length = strLen(sourcePtr);
-
-	return m_regex.compileSwitchCase(
-		flags,
-		sl::String((char*)sourcePtr.m_p, length)
-	);
+	state->clearCache();
+	return m_regex.exec(&state->m_state, text >> toAxl);
 }
 
 re::ExecResult
 JNC_CDECL
-Regex::exec(
+Regex::exec_1(
 	RegexState* state,
 	DataPtr ptr,
 	size_t length
-)  {
+) {
 	if (length == -1)
 		length = strLen(ptr);
 

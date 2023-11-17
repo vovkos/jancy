@@ -135,7 +135,7 @@ public:
 	bool
 	JNC_CDECL
 	open(
-		DataPtr captureDeviceNamePtr,
+		String captureDeviceName,
 		size_t snapshotLength
 	);
 

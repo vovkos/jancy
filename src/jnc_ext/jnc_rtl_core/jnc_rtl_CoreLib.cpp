@@ -412,53 +412,22 @@ variantIndexProperty_set(
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+void
+stringConstruct(
+	String* string,
+	DataPtr ptr,
+	size_t length
+) {
+	string->setPtr(ptr, length);
+}
+
 String
 stringCreate(
 	DataPtr ptr,
 	size_t length
 ) {
 	String string;
-	string.m_ptr = ptr;
-
-	if (!ptr.m_validator ||
-		ptr.m_p < ptr.m_validator->m_rangeBegin ||
-		(ptr.m_validator->m_targetBox->m_flags & jnc_BoxFlag_Invalid)
-	) {
-		string.m_ptr_sz = g_nullDataPtr;
-		string.m_length = 0;
-		return string;
-	}
-
-	char* p0 = (char*)ptr.m_p;
-	char* end = (char*)ptr.m_validator->m_rangeEnd;
-
-	if (length == -1) { // calculate length
-		char* p = (char*)memchr(p0, 0, end - p0);
-		if (p) {
-			string.m_ptr_sz = ptr;
-			string.m_length = p - p0;
-		} else {
-			string.m_ptr_sz = g_nullDataPtr;
-			string.m_length = end - p0;
-		}
-	} else if (p0 + length < end) { // length is in-range
-		if (length && !p0[length - 1]) {
-			string.m_ptr_sz = ptr;
-			string.m_length = length - 1;
-		} else {
-			string.m_ptr_sz = !p0[length] ? ptr : g_nullDataPtr;
-			string.m_length = length;
-		}
-	} else { // length is out-of-range
-		if (p0 < end && !end[-1]) {
-			string.m_ptr_sz = ptr;
-			string.m_length = end - p0 - 1;
-		} else {
-			string.m_ptr_sz = g_nullDataPtr;
-			string.m_length = end - p0;
-		}
-	}
-
+	string.setPtr(ptr, length);
 	return string;
 }
 
@@ -1236,11 +1205,12 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_CoreLib)
 
 	// strings
 
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringCreate,   stringCreate)
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringSz,       stringSz)
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringRefSz,    stringRefSz)
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringEq,       stringEq)
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringCmp,      stringCmp)
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringCreate,    stringCreate)
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringConstruct, stringConstruct)
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringSz,        stringSz)
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringRefSz,     stringRefSz)
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringEq,        stringEq)
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringCmp,       stringCmp)
 
 	// exceptions/async
 

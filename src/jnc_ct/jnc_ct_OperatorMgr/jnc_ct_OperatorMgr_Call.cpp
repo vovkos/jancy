@@ -205,9 +205,14 @@ OperatorMgr::callOperator(
 			return false;
 	}
 
-	if (opValue.getValueKind() == ValueKind_FunctionOverload) {
-		Function* function = opValue.getFunctionOverload()->chooseOverload(*argValueList);
-		if (!function)
+	ValueKind valueKind = opValue.getValueKind();
+	switch (valueKind) {
+		Function* function;
+		Namespace* nspace;
+
+	case ValueKind_FunctionOverload:
+		function = opValue.getFunctionOverload()->chooseOverload(*argValueList);
+		if (!function || !checkAccess(function))
 			return false;
 
 		result = opValue.trySetFunction(function);
@@ -215,11 +220,10 @@ OperatorMgr::callOperator(
 			return false;
 
 		opValue.setClosure(closure);
-	}
+		break;
 
-	if (opValue.getValueKind() == ValueKind_Function) {
-		Function* function = opValue.getFunction();
-
+	case ValueKind_Function:
+		function = opValue.getFunction();
 		if (function->isVirtual()) {
 			result = getVirtualMethod(function, closure, &opValue);
 			if (!result)
@@ -227,16 +231,35 @@ OperatorMgr::callOperator(
 		}
 
 		return callImpl(opValue, function->getType(), argValueList, resultValue);
+
+	case ValueKind_Namespace:
+		nspace = opValue.getNamespace();
+		if (nspace->getNamespaceKind() == NamespaceKind_Type) {
+			NamedType* type = (NamedType*)nspace;
+			if (type->getStdType() == StdType_StringStruct) {
+				opValue = m_module->m_functionMgr.getStdFunction(StdFunc_StringCreate);
+				break;
+			}
+
+			Value ptrValue;
+			return
+				newOperator(type, argValueList, &ptrValue) &&
+				unaryOperator(UnOpKind_Indir, ptrValue, resultValue);
+		}
+
+		err::setFormatStringError("cannot call '%s'", nspace->getQualifiedName().sz());
+		return false;
 	}
 
 	Type* opType = opValue.getType();
 	if (!(opType->getTypeKindFlags() & TypeKindFlag_FunctionPtr) ||
-		((FunctionPtrType*)opType)->getPtrTypeKind() == FunctionPtrTypeKind_Weak) {
+		((FunctionPtrType*)opType)->getPtrTypeKind() == FunctionPtrTypeKind_Weak
+	) {
 		err::setFormatStringError("cannot call '%s'", opType->getTypeString().sz());
 		return false;
 	}
 
-	FunctionPtrType* functionPtrType = ((FunctionPtrType*)opType);
+	FunctionPtrType* functionPtrType = (FunctionPtrType*)opValue.getType();
 	return functionPtrType->hasClosure() ?
 		callClosureFunctionPtr(opValue, argValueList, resultValue) :
 		callImpl(opValue, functionPtrType->getTargetType(), argValueList, resultValue);

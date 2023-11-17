@@ -64,7 +64,7 @@ AsyncSequencerFunction::compile() {
 		Field* argField = promiseFieldArray[0];
 		Value argFieldValue;
 
-		result = m_module->m_operatorMgr.getField(promiseValue, argField, &argFieldValue);
+		result = m_module->m_operatorMgr.getField(promiseValue, m_promiseType, argField, &argFieldValue);
 		ASSERT(result);
 
 		m_module->m_llvmIrBuilder.createLoad(argFieldValue, m_thisType, &m_module->m_functionMgr.m_thisValue);
@@ -83,7 +83,7 @@ AsyncSequencerFunction::compile() {
 		Field* argField = promiseFieldArray[i];
 
 		Value argFieldValue;
-		result = m_module->m_operatorMgr.getField(promiseValue, argField, &argFieldValue);
+		result = m_module->m_operatorMgr.getField(promiseValue, m_promiseType, argField, &argFieldValue);
 		ASSERT(result);
 
 		Variable* argVar = m_module->m_variableMgr.createAsyncArgVariable(

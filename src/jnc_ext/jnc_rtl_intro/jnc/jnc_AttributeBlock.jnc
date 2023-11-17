@@ -36,7 +36,7 @@ opaque class AttributeBlock:
 
 	construct(intptr p);
 
-	Attribute* findAttribute(char const* name);
+	Attribute* findAttribute(string_t name);
 }
 
 //..............................................................................

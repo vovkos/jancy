@@ -95,7 +95,7 @@ public:
 	bool
 	JNC_CDECL
 	start(
-		DataPtr commandLinePtr,
+		String commandLine,
 		StdHashTable* environment,
 		uint_t flags
 	);

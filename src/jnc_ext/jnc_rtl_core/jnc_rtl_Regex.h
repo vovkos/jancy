@@ -40,7 +40,7 @@ public:
 	re::Match m_match; // offsets maps to public fields
 
 protected:
-	DataPtr m_textPtr; // cache
+	String m_text; // cache
 
 public:
 	void
@@ -48,7 +48,7 @@ public:
 	markOpaqueGcRoots(GcHeap* gcHeap);
 
 	static
-	DataPtr
+	String
 	getText(RegexMatch* self);
 };
 
@@ -175,9 +175,10 @@ public:
 	JNC_CDECL
 	compile(
 		uint_t flags,
-		DataPtr sourcePtr,
-		size_t length
-	);
+		String source
+	) {
+		return m_regex.compile(flags, source >> toAxl);
+	}
 
 	void
 	JNC_CDECL
@@ -189,9 +190,10 @@ public:
 	JNC_CDECL
 	compileSwitchCase(
 		uint_t flags,
-		DataPtr sourcePtr,
-		size_t length
-	);
+		String source
+	) {
+		return m_regex.compileSwitchCase(flags, source >> toAxl);
+	}
 
 	void
 	JNC_CDECL
@@ -201,9 +203,16 @@ public:
 
 	re::ExecResult
 	JNC_CDECL
-	exec(
+	exec_0(
 		RegexState* state,
-		DataPtr ptr,
+		String text
+	);
+
+	re::ExecResult
+	JNC_CDECL
+	exec_1(
+		RegexState* state,
+		DataPtr p,
 		size_t length
 	);
 

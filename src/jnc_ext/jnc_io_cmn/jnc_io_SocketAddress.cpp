@@ -41,11 +41,10 @@ SocketAddress::isMatch(
 bool
 SocketAddress::parse(
 	DataPtr selfPtr,
-	DataPtr stringPtr
+	String string
 ) {
 	axl::io::SockAddr sockAddr;
-
-	bool result = sockAddr.parse((const char*) stringPtr.m_p);
+	bool result = sockAddr.parse(string >> toAxl);
 	if (!result)
 		return false;
 

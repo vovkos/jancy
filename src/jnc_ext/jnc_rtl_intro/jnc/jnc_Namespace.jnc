@@ -37,8 +37,8 @@ opaque class Namespace: ModuleItemDecl {
 
 	construct(intptr p);
 
-	ModuleItem* findItem(char const* name);
-	ModuleItem* findItemNoParse(char const* name);
+	ModuleItem* findItem(string_t name);
+	ModuleItem* findItemNoParse(string_t name);
 }
 
 //..............................................................................

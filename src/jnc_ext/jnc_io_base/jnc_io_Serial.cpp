@@ -108,7 +108,7 @@ Serial::setReadWaitFirstChar() {
 
 bool
 JNC_CDECL
-Serial::open(DataPtr namePtr) {
+Serial::open(String name) {
 	close();
 
 	if (!requireIoLibCapability(IoLibCapability_Serial))
@@ -126,7 +126,7 @@ Serial::open(DataPtr namePtr) {
 	);
 
 	bool result =
-		m_serial.open((const char*) namePtr.m_p, axl::io::FileFlag_Asynchronous) &&
+		m_serial.open(name >> toAxl, axl::io::FileFlag_Asynchronous) &&
 		m_serial.setSettings(&serialSettings);
 
 	if (!result)

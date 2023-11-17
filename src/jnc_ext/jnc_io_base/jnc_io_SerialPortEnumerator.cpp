@@ -37,12 +37,12 @@ createSerialPortDesc(
 ) {
 	DataPtr portPtr = createData<SerialPortDesc>(runtime);
 	SerialPortDesc* port = (SerialPortDesc*)portPtr.m_p;
-	port->m_deviceNamePtr = strDup(portDesc->m_deviceName);
-	port->m_descriptionPtr = strDup(portDesc->m_description);
-	port->m_manufacturerPtr = strDup(portDesc->m_manufacturer);
-	port->m_hardwareIdsPtr = strDup(portDesc->m_hardwareIds);
-	port->m_driverPtr = strDup(portDesc->m_driver);
-	port->m_locationPtr = strDup(portDesc->m_location);
+	port->m_deviceName = allocateString(portDesc->m_deviceName);
+	port->m_description = allocateString(portDesc->m_description);
+	port->m_manufacturer = allocateString(portDesc->m_manufacturer);
+	port->m_hardwareIds = allocateString(portDesc->m_hardwareIds);
+	port->m_driver = allocateString(portDesc->m_driver);
+	port->m_location = allocateString(portDesc->m_location);
 	return portPtr;
 }
 

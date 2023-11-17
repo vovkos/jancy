@@ -39,7 +39,7 @@ opaque class UsbDevice {
 
 	uint16_t const* errorcode getLangIdTable();
 
-	char const* errorcode getStringDescriptor(
+	string_t errorcode getStringDescriptor(
 		uint_t stringId,
 		uint_t langId = 0 // use the very first langId
 	);

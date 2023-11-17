@@ -66,11 +66,9 @@ UsbMonitor::setOptions(uint_t options) {
 bool
 JNC_CDECL
 UsbMonitor::open(
-	DataPtr captureDeviceNamePtr,
+	String captureDeviceName,
 	size_t snapshotLength
 ) {
-	const char* captureDeviceName = (const char*)captureDeviceNamePtr.m_p;
-
 	close();
 
 	bool result = requireUsbCapability();
@@ -82,7 +80,7 @@ UsbMonitor::open(
 
 #if (_AXL_OS_WIN)
 	result =
-		m_monitor.open(captureDeviceName) &&
+		m_monitor.open(captureDeviceName >> toAxl) &&
 		m_monitor.setSnapshotLength(snapshotLength) &&
 		m_monitor.setKernelBufferSize(m_kernelBufferSize) &&
 		m_monitor.setFilter(m_addressFilter) &&
@@ -95,7 +93,7 @@ UsbMonitor::open(
 	m_overlappedIo = new OverlappedIo;
 #elif (_AXL_OS_LINUX)
 	result =
-		m_monitor.open(captureDeviceName, O_RDWR | O_NONBLOCK) &&
+		m_monitor.open(captureDeviceName >> toAxl, O_RDWR | O_NONBLOCK) &&
 		m_monitor.setKernelBufferSize(m_kernelBufferSize);
 
 	if (!result)

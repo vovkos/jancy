@@ -285,9 +285,10 @@ using namespace axl;
 
 //..............................................................................
 
+#include "jnc_Pch.h"
+
 // converstions for axl::sl::StringRef
 
-AXL_SELECT_ANY struct ToAxl* toAxl;
 AXL_SELECT_ANY struct ToStl* toStl;
 AXL_SELECT_ANY struct ToLlvm* toLlvm;
 

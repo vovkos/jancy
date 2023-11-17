@@ -97,7 +97,7 @@ public:
 	getLangIdTable(UsbDevice* self);
 
 	static
-	DataPtr
+	String
 	JNC_CDECL
 	getStringDescriptor(
 		UsbDevice* self,

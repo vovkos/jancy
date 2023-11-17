@@ -336,3 +336,7 @@ typedef wchar_t           utf32_t;
 
 #include "jnc_WarningSuppression.h"
 #include "jnc_Config.h"
+
+#ifdef _AXL_G_PCH_H
+AXL_SELECT_ANY struct ToAxl* toAxl; // for convenient conversion operators
+#endif

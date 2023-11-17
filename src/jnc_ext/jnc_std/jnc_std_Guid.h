@@ -24,7 +24,7 @@ struct Guid: sl::Guid {
 	JNC_DECLARE_TYPE_STATIC_METHODS(Guid)
 
 	static
-	DataPtr
+	String
 	JNC_CDECL
 	getString(
 		DataPtr selfPtr,
@@ -36,7 +36,7 @@ struct Guid: sl::Guid {
 	JNC_CDECL
 	parse(
 		DataPtr selfPtr,
-		DataPtr stringPtr
+		String stringPtr
 	);
 };
 

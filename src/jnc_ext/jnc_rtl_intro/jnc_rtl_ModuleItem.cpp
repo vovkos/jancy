@@ -85,28 +85,28 @@ ModuleItemDecl::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 	if (!m_cache)
 		return;
 
-	gcHeap->markDataPtr(m_cache->m_namePtr);
-	gcHeap->markDataPtr(m_cache->m_qualifiedNamePtr);
+	gcHeap->markString(m_cache->m_name);
+	gcHeap->markString(m_cache->m_qualifiedName);
 }
 
-DataPtr
+String
 JNC_CDECL
 ModuleItemDecl::getName(ModuleItemDecl* self) {
 	Cache* cache = self->getCache();
-	if (!cache->m_namePtr.m_p)
-		cache->m_namePtr = createForeignStringPtr(self->m_decl->getName(), false);
+	if (!cache->m_name.m_length)
+		cache->m_name = createForeignString(self->m_decl->getName(), false);
 
-	return cache->m_namePtr;
+	return cache->m_name;
 }
 
-DataPtr
+String
 JNC_CDECL
 ModuleItemDecl::getQualifiedName(ModuleItemDecl* self) {
 	Cache* cache = self->getCache();
-	if (!cache->m_namePtr.m_p)
-		cache->m_namePtr = createForeignStringPtr(self->m_decl->getQualifiedName(), false);
+	if (!cache->m_name.m_length)
+		cache->m_name = createForeignString(self->m_decl->getQualifiedName(), false);
 
-	return cache->m_namePtr;
+	return cache->m_name;
 }
 
 //..............................................................................
@@ -114,16 +114,16 @@ ModuleItemDecl::getQualifiedName(ModuleItemDecl* self) {
 void
 JNC_CDECL
 ModuleItemInitializer::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
-	gcHeap->markDataPtr(m_initializerPtr);
+	gcHeap->markString(m_initializerString);
 }
 
-DataPtr
+String
 JNC_CDECL
 ModuleItemInitializer::getInitializer(ModuleItemInitializer* self) {
-	if (!self->m_initializerPtr.m_p)
-		self->m_initializerPtr = createForeignStringPtr(self->m_initializer->getInitializerString(), false);
+	if (!self->m_initializerString.m_length)
+		self->m_initializerString = createForeignString(self->m_initializer->getInitializerString(), false);
 
-	return self->m_initializerPtr;
+	return self->m_initializerString;
 }
 
 //..............................................................................

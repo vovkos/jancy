@@ -24,7 +24,7 @@ initUsbMonDeviceDescBase(
 ) {
 	initUsbDeviceStrings(dst, src);
 
-	dst->m_captureDeviceNamePtr = strDup(src->m_captureDeviceName);
+	dst->m_captureDeviceName = allocateString(src->m_captureDeviceName);
 	dst->m_captureDeviceId = src->m_captureDeviceId;
 	dst->m_vendorId = src->m_vendorId;
 	dst->m_productId = src->m_productId;

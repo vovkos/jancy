@@ -25,28 +25,28 @@ namespace io {
 
 opaque class WebSocketHandshakeHeaders {
 	size_t readonly m_nameCount;
-	char const* const property m_name(size_t i);
-	char const* const property m_value(size_t i);
+	string_t const property m_name(size_t i);
+	string_t const property m_value(size_t i);
 	size_t const property m_valueCount(size_t i);
 
 	construct();
 	destruct();
 
-	char const* get(char const* name) const {
+	string_t get(string_t name) const {
 		return findValue(name);
 	}
 
 	size_t set(
-		char const* name,
-		char const* value
+		string_t name,
+		string_t value
 	) {
 		add(name, value);
 	}
 
-	size_t findName(char const* name) const;
-	char const* findValue(char const* name) const;
+	size_t findName(string_t name) const;
+	string_t findValue(string_t name) const;
 
-	char const* getValue(
+	string_t getValue(
 		size_t nameIdx,
 		size_t valueIdx
 	) const;
@@ -54,13 +54,13 @@ opaque class WebSocketHandshakeHeaders {
 	void clear();
 
 	size_t add(
-		char const* name,
-		char const* value
+		string_t name,
+		string_t value
 	); // returns name index
 
-	char const* format(
-		char const* delimiter = ": ",
-		char const* eol = "\r\n"
+	string_t format(
+		string_t delimiter = ": ",
+		string_t eol = "\r\n"
 	) const;
 }
 
@@ -68,11 +68,11 @@ opaque class WebSocketHandshakeHeaders {
 
 opaque class WebSocketHandshake {
 	uint_t readonly m_httpVersion;
-	char const* const property m_resource;     // request only
-	uint_t readonly m_statusCode;              // response only
-	char const* const property m_reasonPhrase; // response only
+	string_t const property m_resource;     // request only
+	uint_t readonly m_statusCode;           // response only
+	string_t const property m_reasonPhrase; // response only
 	WebSocketHandshakeHeaders readonly m_headers;
-	char const* const property m_rawData;
+	string_t const property m_rawData;
 
 	construct();
 	destruct();

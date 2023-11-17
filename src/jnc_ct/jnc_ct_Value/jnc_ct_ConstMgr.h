@@ -50,6 +50,8 @@ protected:
 	sl::List<Const> m_constList;
 	sl::BoxList<DetachedDataBox> m_constBoxList;
 
+	DataPtr m_emptyLiteralPtr;
+
 public:
 	ConstMgr();
 
@@ -77,11 +79,20 @@ public:
 	const Value&
 	saveLiteral(const sl::StringRef& string);
 
+	DataPtr
+	getEmptyLiteralPtr() {
+		return m_emptyLiteralPtr.m_p ? m_emptyLiteralPtr : createEmptyLiteralPtr();
+	}
+
 	DataPtrValidator*
 	createConstDataPtrValidator(
 		const void* p,
 		Type* type
 	);
+
+protected:
+	DataPtr
+	createEmptyLiteralPtr();
 };
 
 //..............................................................................

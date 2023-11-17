@@ -487,6 +487,14 @@ public:
 		lex::RagelLexer<Lexer, Token>::create(source, bomMode);
 	}
 
+	static
+	size_t
+	tokenizeString(
+		sl::List<Token>* tokenList,
+		const sl::StringRef& source,
+		lex::RagelBomMode bomMode = lex::RagelBomMode_Skip
+	);
+
 protected:
 	Token*
 	createKeywordTokenEx(

@@ -42,17 +42,17 @@ enum SshEvent {
 
 struct SshConnectParams {
 	SocketAddress m_address;
-	DataPtr m_userNamePtr;
+	String m_userName;
 	DataPtr m_privateKeyPtr;
 	size_t m_privateKeySize;
-	DataPtr m_passwordPtr;
-	DataPtr m_channelTypePtr;  // session, direct-tcpip, tcpip-forward, etc
+	String m_password;
+	String m_channelType;  // session, direct-tcpip, tcpip-forward, etc
 	DataPtr m_channelExtraPtr;
 	size_t m_channelExtraSize;
-	DataPtr m_processTypePtr;  // shell, exec, subsystem, etc
+	String m_processType;  // shell, exec, subsystem, etc
 	DataPtr m_processExtraPtr;
 	size_t m_processExtraSize;
-	DataPtr m_ptyTypePtr;      // vanilla, ansi, xterm, vt102, etc
+	String m_ptyType;      // vanilla, ansi, xterm, vt102, etc
 	uint_t m_ptyWidth;
 	uint_t m_ptyHeight;
 };
@@ -210,13 +210,13 @@ public:
 	JNC_CDECL
 	connect_0(
 		DataPtr addressPtr,
-		DataPtr userNamePtr,
+		String userName,
 		DataPtr privateKeyPtr,
 		size_t privateKeySize,
-		DataPtr passwordPtr,
-		DataPtr channelTypePtr,
-		DataPtr processTypePtr,
-		DataPtr ptyTypePtr,
+		String password,
+		String channelType,
+		String processType,
+		String ptyType,
 		uint_t ptyWidth,
 		uint_t ptyHeight
 	);
@@ -228,10 +228,10 @@ public:
 	bool
 	JNC_CDECL
 	authenticate(
-		DataPtr userNamePtr,
+		String userName,
 		DataPtr privateKeyPtr,
 		size_t privateKeySize,
-		DataPtr passwordPtr
+		String password
 	);
 
 	bool
@@ -293,17 +293,17 @@ protected:
 	bool
 	connectImpl(
 		const SocketAddress* address,
-		const char* userName,
+		const sl::StringRef& userName,
 		const void* privateKey,
 		size_t privateKeySize,
-		const char* password,
-		const char* channelType,
+		const sl::StringRef& password,
+		const sl::StringRef& channelType,
 		const void* channelExtra,
 		size_t channelExtraSize,
-		const char* processType,
+		const sl::StringRef& processType,
 		const void* processExtra,
 		size_t processExtraSize,
-		const char* ptyType,
+		const sl::StringRef& ptyType,
 		uint_t ptyWidth,
 		uint_t ptyHeight
 	);

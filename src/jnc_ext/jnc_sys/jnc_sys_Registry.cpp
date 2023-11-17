@@ -58,28 +58,31 @@ DataPtr
 JNC_CDECL
 RegKey::read(
 	RegKey* self,
-	DataPtr namePtr,
+	String name,
 	DataPtr typePtr
 ) {
 	char buffer[256];
 	sl::Array<byte_t> value(rc::BufKind_Stack, buffer, sizeof(buffer));
 
 	dword_t type;
-	size_t size = self->readImpl(&value, (char*)namePtr.m_p, &type);
+	size_t size = self->readImpl(&value, name >> toAxl, &type);
 	if (size == -1)
 		return g_nullDataPtr;
 
-	return memDup(namePtr.m_p, size);
+	if (typePtr.m_p)
+		*(dword_t*)typePtr.m_p = type;
+
+	return memDup(value, size);
 }
 
 uint32_t
 JNC_CDECL
-RegKey::readDword(DataPtr namePtr) {
+RegKey::readDword(String name) {
 	char buffer[256];
 	sl::Array<byte_t> value(rc::BufKind_Stack, buffer, sizeof(buffer));
 
 	dword_t type;
-	size_t size = readImpl(&value, (char*)namePtr.m_p, &type);
+	size_t size = readImpl(&value, name >> toAxl, &type);
 	if (size == -1)
 		return 0;
 
@@ -104,19 +107,19 @@ RegKey::readDword(DataPtr namePtr) {
 	}
 }
 
-DataPtr
+String
 JNC_CDECL
 RegKey::readString(
 	RegKey* self,
-	DataPtr namePtr
+	String name
 ) {
 	char buffer[256];
 	sl::Array<byte_t> value(rc::BufKind_Stack, buffer, sizeof(buffer));
 
 	dword_t type;
-	size_t size = self->readImpl(&value, (char*)namePtr.m_p, &type);
+	size_t size = self->readImpl(&value, name >> toAxl, &type);
 	if (size == -1)
-		return g_nullDataPtr;
+		return g_nullString;
 
 	uint32_t dword;
 	sl::String string;
@@ -136,37 +139,39 @@ RegKey::readString(
 	case REG_SZ:
 	case REG_EXPAND_SZ:
 	case REG_MULTI_SZ:
-		string.copy((wchar_t*)value.cp(), size / sizeof(wchar_t));
-		break;
+		return allocateString((wchar_t*)value.cp(), size / sizeof(wchar_t));
 
 	default:
-		value.append(0); // just in case
-		return strDup((char*)value.cp());
+		return allocateString((char*)value.cp(), value.getCount());
 	}
 
-	return strDup(string);
+	return allocateString(string);
 }
 
 bool
 JNC_CDECL
 RegKey::writeString(
-	DataPtr namePtr,
-	DataPtr valuePtr
+	String name,
+	String value
 ) {
-	sl::String_w string((char*)valuePtr.m_p);
-	return writeImpl((char*)namePtr.m_p, REG_SZ, string.sz(), (string.getLength() + 1) * sizeof(wchar_t));
+	sl::String_w string(value >> toAxl);
+	return writeImpl(name >> toAxl, REG_SZ, string.sz(), (string.getLength() + 1) * sizeof(wchar_t));
 }
 
 bool
 RegKey::createImpl(
 	HKEY parent,
-	const char* path
+	const sl::StringRef& path
 ) {
 	close();
 
+	char buffer[256];
+	sl::String_w path_w(rc::BufKind_Stack, buffer, sizeof(buffer));
+	path_w = path;
+
 	long result = ::RegCreateKeyExW(
 		parent,
-		sl::String_w(path),
+		path_w,
 		0,
 		NULL,
 		0,
@@ -182,14 +187,18 @@ RegKey::createImpl(
 bool
 RegKey::openImpl(
 	HKEY parent,
-	const char* path,
+	const sl::StringRef& path,
 	REGSAM access
 ) {
 	close();
 
+	char buffer[256];
+	sl::String_w path_w(rc::BufKind_Stack, buffer, sizeof(buffer));
+	path_w = path;
+
 	long result = ::RegOpenKeyExW(
 		parent,
-		sl::String_w(path),
+		path_w,
 		0,
 		access,
 		&m_key
@@ -201,14 +210,18 @@ RegKey::openImpl(
 size_t
 RegKey::readImpl(
 	sl::Array<byte_t>* buffer,
-	const char* name,
+	const sl::StringRef& name,
 	dword_t* type
 ) {
 	dword_t size = 0;
 
+	char buffer_w[256];
+	sl::String_w name_w(rc::BufKind_Stack, buffer_w, sizeof(buffer_w));
+	name_w = name;
+
 	long result = ::RegQueryValueExW(
 		m_key,
-		sl::String_w(name),
+		name_w,
 		NULL,
 		type,
 		NULL,
@@ -226,7 +239,7 @@ RegKey::readImpl(
 
 	result = ::RegQueryValueExW(
 		m_key,
-		sl::String_w(name),
+		name_w,
 		NULL,
 		type,
 		buffer->p(),
@@ -243,14 +256,18 @@ RegKey::readImpl(
 
 bool
 RegKey::writeImpl(
-	const char* name,
+	const sl::StringRef& name,
 	dword_t type,
 	const void* p,
 	size_t size
 ) {
+	char buffer[256];
+	sl::String_w name_w(rc::BufKind_Stack, buffer, sizeof(buffer));
+	name_w = name;
+
 	long result = ::RegSetValueExW(
 		m_key,
-		sl::String_w(name),
+		name_w,
 		0,
 		type,
 		(const byte_t*)p,

@@ -61,8 +61,8 @@ class Buffer {
 		size_t size
 	);
 
-	size_t errorcode copy(char const* p) {
-		return copy(p, p ? strlen(p) : 0);
+	size_t errorcode copy(string_t string) {
+		return copy(string.m_p, string.m_length);
 	}
 
 	size_t errorcode copy(char c) {
@@ -76,8 +76,8 @@ class Buffer {
 		return insert(-1, p, size);
 	}
 
-	size_t errorcode append(char const* p) {
-		return insert(-1, p);
+	size_t errorcode append(string_t string) {
+		return insert(-1, string);
 	}
 
 	size_t errorcode append(char c) {
@@ -92,9 +92,9 @@ class Buffer {
 
 	size_t errorcode insert(
 		size_t offset,
-		char const* p
+		string_t string
 	) {
-		return insert(offset, p, p ? strlen(p) : 0);
+		return insert(offset, string.m_p, string.m_length);
 	}
 
 	size_t errorcode insert(

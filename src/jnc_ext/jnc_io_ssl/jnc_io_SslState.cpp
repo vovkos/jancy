@@ -145,28 +145,22 @@ SslState::getCurrentCipher() {
 
 bool
 JNC_CDECL
-SslState::setEphemeralDhParams(
-	DataPtr pemPtr,
-	size_t length
-) {
-	if (length == -1)
-		length = strLen(pemPtr);
-
+SslState::setEphemeralDhParams(String pem) {
 	cry::Dh dh;
 	return
-		dh.readParameters(pemPtr.m_p, length) &&
+		dh.readParameters(pem.m_ptr.m_p, pem.m_length) &&
 		m_ssl.setTmpDh(dh);
 }
 
 bool
 JNC_CDECL
-SslState::loadEphemeralDhParams(DataPtr fileNamePtr) {
+SslState::loadEphemeralDhParams(String fileName) {
 	axl::io::SimpleMappedFile file;
 	cry::Bio bio;
 	cry::Dh dh;
 
 	return
-		file.open((char*)fileNamePtr.m_p, axl::io::FileFlag_ReadOnly | axl::io::FileFlag_OpenExisting) &&
+		file.open(fileName >> toAxl, axl::io::FileFlag_ReadOnly | axl::io::FileFlag_OpenExisting) &&
 		bio.createMemBuf(file.p(), file.getMappingSize()) &&
 		dh.readParameters(bio) &&
 		m_ssl.setTmpDh(dh);
@@ -204,10 +198,11 @@ SslState::setEphemeralDhStdParams(uint_t stdDh) {
 
 bool
 JNC_CDECL
-SslState::setEphemeralEcdhCurve(DataPtr curveNamePtr) {
-	int curveId = OBJ_sn2nid((char*)curveNamePtr.m_p);
+SslState::setEphemeralEcdhCurve(String curveName0) {
+	sl::StringRef curveName = curveName0 >> toAxl;
+	int curveId = OBJ_sn2nid(curveName.sz());
 	if (curveId == NID_undef) {
-		err::setFormatStringError("invalid curve '%s'", curveNamePtr.m_p);
+		err::setFormatStringError("invalid curve '%s'", curveName.sz());
 		return false;
 	}
 

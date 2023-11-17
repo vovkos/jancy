@@ -61,8 +61,8 @@ createNetworkAdapterDesc(
 	NetworkAdapterDesc* adapter = (NetworkAdapterDesc*)adapterPtr.m_p;
 	adapter->m_type = srcAdapter->m_type;
 	adapter->m_flags = srcAdapter->m_flags;
-	adapter->m_namePtr = strDup(srcAdapter->m_name);
-	adapter->m_descriptionPtr = strDup(srcAdapter->m_description);
+	adapter->m_name = allocateString(srcAdapter->m_name);
+	adapter->m_description = allocateString(srcAdapter->m_description);
 	memcpy(adapter->m_macAddress, srcAdapter->m_macAddress, 6);
 
 	if (prevAdapter)

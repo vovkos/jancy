@@ -58,16 +58,16 @@ JNC_END_TYPE_FUNCTION_MAP()
 void
 JNC_CDECL
 Unit::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
-	gcHeap->markDataPtr(m_filePathPtr);
+	gcHeap->markString(m_filePath);
 }
 
-DataPtr
+String
 JNC_CDECL
 Unit::getFilePath(Unit* self) {
-	if (!self->m_filePathPtr.m_p)
-		self->m_filePathPtr = createForeignStringPtr(self->m_unit->getFilePath(), false);
+	if (!self->m_filePath.m_length)
+		self->m_filePath = createForeignString(self->m_unit->getFilePath(), false);
 
-	return self->m_filePathPtr;
+	return self->m_filePath;
 }
 
 //..............................................................................

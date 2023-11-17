@@ -26,8 +26,8 @@ public:
 
 protected:
 	const SSL_CIPHER* m_cipher;
-	DataPtr m_namePtr;
-	DataPtr m_descriptionPtr;
+	String m_name;
+	String m_description;
 
 public:
 	static
@@ -39,12 +39,12 @@ public:
 	markOpaqueGcRoots(jnc::GcHeap* gcHeap);
 
 	static
-	DataPtr
+	String
 	JNC_CDECL
 	getName(SslCipher* self);
 
 	static
-	DataPtr
+	String
 	JNC_CDECL
 	getDescription(SslCipher* self);
 

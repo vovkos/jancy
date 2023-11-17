@@ -71,18 +71,18 @@ DeviceMonitor::setPendingNotifySizeLimit(size_t limit) {
 
 bool
 JNC_CDECL
-DeviceMonitor::setFileNameFilter(DataPtr filterPtr) {
+DeviceMonitor::setFileNameFilter(String filter0) {
 	if (!m_isConnected) {
 		setError(err::SystemErrorCode_InvalidDeviceState);
 		return true;
 	}
 
-	const char* filter = (const char*) filterPtr.m_p;
+	sl::StringRef filter = filter0 >> toAxl;
 	bool result = m_monitor.setFileNameFilter(filter);
 	if (!result)
 		return false;
 
-	m_fileNameFilterPtr = strDup(filter);
+	m_fileNameFilter = allocateString(filter);
 	return true;
 }
 
@@ -145,8 +145,8 @@ DeviceMonitor::close() {
 	AsyncIoDevice::close();
 	m_isConnected = false;
 	m_isEnabled = false;
-	m_deviceNamePtr = g_nullDataPtr;
-	m_fileNameFilterPtr = g_nullDataPtr;
+	m_deviceName = g_nullString;
+	m_fileNameFilter = g_nullString;
 
 #if (_AXL_OS_WIN)
 	if (m_overlappedIo) {
@@ -158,9 +158,9 @@ DeviceMonitor::close() {
 
 bool
 JNC_CDECL
-DeviceMonitor::connect(DataPtr deviceNamePtr) {
+DeviceMonitor::connect(String deviceName) {
 	bool result =
-		m_monitor.connect((const char*) deviceNamePtr.m_p) &&
+		m_monitor.connect(deviceName >> toAxl) &&
 		m_monitor.setPendingNotifySizeLimit(m_pendingNotifySizeLimit);
 
 	if (!result)
@@ -169,11 +169,11 @@ DeviceMonitor::connect(DataPtr deviceNamePtr) {
 #if (_JNC_OS_WIN)
 	dm::DeviceInfo deviceInfo;
 	m_monitor.getTargetDeviceInfo(&deviceInfo);
-	m_deviceNamePtr = strDup(deviceInfo.m_deviceName);
+	m_deviceName = allocateString(deviceInfo.m_deviceName);
 #elif (_JNC_OS_LINUX)
 	dm::HookInfo hookInfo;
 	m_monitor.getTargetHookInfo(&hookInfo);
-	m_deviceNamePtr = strDup(hookInfo.m_fileName);
+	m_deviceName = allocateString(hookInfo.m_fileName);
 #endif
 
 	m_lock.lock();

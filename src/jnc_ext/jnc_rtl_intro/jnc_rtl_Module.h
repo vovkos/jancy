@@ -62,7 +62,7 @@ public:
 class Unit: public IfaceHdr {
 protected:
 	ct::Unit* m_unit;
-	DataPtr m_filePathPtr;
+	String m_filePath;
 
 public:
 	Unit(ct::Unit* unit) {
@@ -74,7 +74,7 @@ public:
 	markOpaqueGcRoots(jnc::GcHeap* gcHeap);
 
 	static
-	DataPtr
+	String
 	JNC_CDECL
 	getFilePath(Unit* self);
 };

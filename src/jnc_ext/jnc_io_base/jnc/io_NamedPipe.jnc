@@ -117,7 +117,7 @@ opaque class NamedPipe {
 		function returns ``false`` [#f1]_.
 	*/
 
-	bool errorcode open(char const* name);
+	bool errorcode open(string_t name);
 
 	/**
 		Closes all previously opened server-side named pipes in the backlog;

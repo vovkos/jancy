@@ -25,7 +25,7 @@ namespace sys {
 	``_putenv`` on Windows.
 */
 
-char const* property g_env(char const* name);
+string_t property g_env(string_t name);
 
 enum CpuKind {
 	Ia32,
@@ -95,7 +95,7 @@ uintptr_t getCurrentThreadId();
 
 uint_t getCurrentProcessId();
 
-char const* errorcode getProcessImageName(uint_t pid);
+string_t errorcode getProcessImageName(uint_t pid);
 
 //! @}
 
@@ -180,15 +180,15 @@ uint64_t getPreciseTimestamp();
 	\sa `sys.getTimestamp`, `sys.getPreciseTimestamp`
 */
 
-char const* formatTimestamp(
+string_t formatTimestamp(
 	uint64_t timestamp,
-	char const* format
+	string_t format
 );
 
-char const* formatTimestamp(
+string_t formatTimestamp(
 	uint64_t timestamp,
 	int timeZone,
-	char const* format
+	string_t format
 );
 
 //! @}

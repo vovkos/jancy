@@ -60,16 +60,16 @@ JNC_END_TYPE_FUNCTION_MAP()
 void
 JNC_CDECL
 EnumConst::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
-	gcHeap->markDataPtr(m_namePtr);
+	gcHeap->markString(m_name);
 }
 
-DataPtr
+String
 JNC_CDECL
 EnumConst::getName(EnumConst* self) {
-	if (!self->m_namePtr.m_p)
-		self->m_namePtr = createForeignStringPtr(self->m_item->getName(), false);
+	if (!self->m_name.m_length)
+		self->m_name = createForeignString(self->m_item->getName(), false);
 
-	return self->m_namePtr;
+	return self->m_name;
 }
 
 //..............................................................................

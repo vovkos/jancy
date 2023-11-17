@@ -39,9 +39,9 @@ getHidRdUnit(
 }
 
 inline
-DataPtr
+String
 getHidRdComplexUnitString(uint32_t unit) {
-	return strDup(axl::io::getHidRdComplexUnitString(unit));
+	return allocateString(axl::io::getHidRdComplexUnitString(unit));
 }
 
 //..............................................................................

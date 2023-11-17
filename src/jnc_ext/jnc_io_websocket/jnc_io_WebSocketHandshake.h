@@ -45,24 +45,24 @@ public:
 	markOpaqueGcRoots(jnc::GcHeap* gcHeap);
 
 	static
-	DataPtr
+	String
 	JNC_CDECL
 	getResource(WebSocketHandshake* self) {
-		return self->m_resource.getPtr();
+		return self->m_resource;
 	}
 
 	static
-	DataPtr
+	String
 	JNC_CDECL
 	getReasonPhrase(WebSocketHandshake* self) {
-		return self->m_reasonPhrase.getPtr();
+		return self->m_reasonPhrase;
 	}
 
 	static
-	DataPtr
+	String
 	JNC_CDECL
 	getRawData(WebSocketHandshake* self) {
-		return self->m_rawData.getPtr();
+		return self->m_rawData;
 	}
 
 	void
@@ -80,9 +80,20 @@ public:
 	size_t
 	buildResponse(
 		sl::String* resultString,
+		uint_t statusCode,
+		const sl::StringRef& reasonPhrase,
 		WebSocketHandshake* handshake,
 		WebSocketHandshakeHeaders* extraHeaders = NULL
 	);
+
+	size_t
+	buildResponse(
+		sl::String* resultString,
+		WebSocketHandshake* handshake,
+		WebSocketHandshakeHeaders* extraHeaders = NULL
+	) {
+		return buildResponse(resultString, 101, "Switching Protocols", handshake, extraHeaders);
+	}
 
 	sl::String
 	buildRequest(

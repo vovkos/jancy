@@ -12,6 +12,7 @@
 #pragma once
 
 #include "jnc_ExtensionLib.h"
+#include "jnc_Runtime.h"
 
 namespace jnc {
 namespace std {
@@ -23,11 +24,13 @@ JNC_DECLARE_TYPE(Error)
 struct Error: err::ErrorHdr {
 	JNC_DECLARE_TYPE_STATIC_METHODS(Error)
 
-	DataPtr
-	getDescription();
+	String
+	getDescription() {
+		return allocateString(err::ErrorHdr::getDescription());
+	}
 
 	static
-	DataPtr
+	String
 	getDescription_s(DataPtr selfPtr) {
 		return ((Error*)selfPtr.m_p)->getDescription();
 	}

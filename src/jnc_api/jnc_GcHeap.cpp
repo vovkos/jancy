@@ -252,6 +252,15 @@ jnc_GcHeap_markClass(
 
 JNC_EXTERN_C
 void
+jnc_GcHeap_markVariant(
+	jnc_GcHeap* gcHeap,
+	jnc_Variant variant
+) {
+	return jnc_g_dynamicExtensionLibHost->m_gcHeapFuncTable->m_markVariantFunc(gcHeap, variant);
+}
+
+JNC_EXTERN_C
+void
 jnc_GcHeap_addBoxToCallSite(jnc_Box* box) {
 	jnc_g_dynamicExtensionLibHost->m_gcHeapFuncTable->m_addBoxToCallSiteFunc(box);
 }
@@ -561,6 +570,16 @@ jnc_GcHeap_markClass(
 	jnc_Box* box
 ) {
 	gcHeap->markClass(box);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+void
+jnc_GcHeap_markVariant(
+	jnc_GcHeap* gcHeap,
+	jnc_Variant variant
+) {
+	gcHeap->markVariant(variant);
 }
 
 JNC_EXTERN_C

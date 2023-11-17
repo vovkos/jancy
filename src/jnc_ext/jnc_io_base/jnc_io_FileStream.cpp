@@ -85,7 +85,7 @@ FileStream::FileStream() {
 bool
 JNC_CDECL
 FileStream::open(
-	DataPtr namePtr,
+	String name,
 	uint_t openFlags
 ) {
 	bool result;
@@ -95,16 +95,15 @@ FileStream::open(
 	if (!requireIoLibCapability(IoLibCapability_FileStream))
 		return false;
 
-	const char* name = (const char*)namePtr.m_p;
 	openFlags |= axl::io::FileFlag_Asynchronous;
 
 #if (_JNC_OS_WIN)
 	if (m_options & FileStreamOption_MessageNamedPipe)
 		result =
-			m_file.open(name, openFlags | axl::io::FileFlag_WriteAttributes) ||
-			m_file.open(name, openFlags);
+			m_file.open(name >> toAxl, openFlags | axl::io::FileFlag_WriteAttributes) ||
+			m_file.open(name >> toAxl, openFlags);
 	else
-		result = m_file.open(name, openFlags);
+		result = m_file.open(name >> toAxl, openFlags);
 
 	if (!result)
 		return false;

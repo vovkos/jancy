@@ -35,7 +35,7 @@ public:
 	JNC_CDECL
 	compile_0(
 		Pcap* pcap,
-		DataPtr filterPtr,
+		String filter,
 		bool isOptimized,
 		uint_t netMask
 	);
@@ -45,7 +45,7 @@ public:
 	compile_1(
 		int linkType,
 		size_t snapshotSize,
-		DataPtr filterPtr,
+		String filter,
 		bool isOptimized,
 		uint_t netMask
 	);

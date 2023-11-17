@@ -1230,7 +1230,16 @@ public:
 	bool
 	getField(
 		const Value& opValue,
-		Field* member,
+		Type* type,
+		Field* field,
+		MemberCoord* coord, // can be NULL
+		Value* resultValue
+	);
+
+	bool
+	getField(
+		const Value& opValue,
+		Field* field,
 		MemberCoord* coord,
 		Value* resultValue
 	);
@@ -1238,18 +1247,37 @@ public:
 	bool
 	getField(
 		const Value& opValue,
-		Field* member,
+		Type* type,
+		Field* field,
 		Value* resultValue
 	) {
-		return getField(opValue, member, NULL, resultValue);
+		return getField(opValue, type, field, NULL, resultValue);
+	}
+
+	bool
+	getField(
+		const Value& opValue,
+		Field* field,
+		Value* resultValue
+	) {
+		return getField(opValue, field, NULL, resultValue);
 	}
 
 	bool
 	getField(
 		Value* value,
-		Field* member
+		Type* type,
+		Field* field
 	) {
-		return getField(*value, member, NULL, value);
+		return getField(*value, type, field, NULL, value);
+	}
+
+	bool
+	getField(
+		Value* value,
+		Field* field
+	) {
+		return getField(*value, field, NULL, value);
 	}
 
 	bool
@@ -1585,6 +1613,13 @@ protected:
 
 	bool
 	getVariantMember(
+		const Value& opValue,
+		const sl::StringRef& name,
+		Value* resultValue
+	);
+
+	bool
+	getStringMember(
 		const Value& opValue,
 		const sl::StringRef& name,
 		Value* resultValue

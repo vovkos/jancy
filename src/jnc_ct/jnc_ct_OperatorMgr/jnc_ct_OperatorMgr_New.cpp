@@ -165,24 +165,30 @@ OperatorMgr::construct(
 
 	OverloadableFunction constructor;
 
-	if (type->getTypeKindFlags() & TypeKindFlag_Derivable)
+	if (type->getTypeKind() == TypeKind_String) {
+		if (!argList || argList->isEmpty())
+			return true;
+		constructor = m_module->m_functionMgr.getStdFunction(StdFunc_StringConstruct);
+	} else if (type->getTypeKindFlags() & TypeKindFlag_Derivable) {
+		DerivableType* derivableType = (DerivableType*)type;
 		constructor = ((DerivableType*)type)->getConstructor();
+		if (constructor &&
+			constructor->getItemKind() == ModuleItemKind_Function &&
+			!checkAccess(constructor.getFunction())
+		)
+			return false;
+	}
 
 	if (!constructor) {
 		if (argList && !argList->isEmpty()) {
+			if (argList->getCount() == 1)
+				return binaryOperator(BinOpKind_Assign, rawOpValue, *argList->getHead());
+
 			err::setFormatStringError("'%s' has no constructor", type->getTypeString().sz());
 			return false;
 		}
 
 		return true;
-	}
-
-	DerivableType* derivableType = (DerivableType*)type;
-	if (constructor->getItemKind() == ModuleItemKind_Function &&
-		constructor.getFunction()->getAccessKind() != AccessKind_Public &&
-		m_module->m_namespaceMgr.getAccessKind(derivableType) == AccessKind_Public) {
-		err::setFormatStringError("'%s.construct' is protected", derivableType->getQualifiedName().sz());
-		return false;
 	}
 
 	sl::BoxList<Value> emptyArgList;

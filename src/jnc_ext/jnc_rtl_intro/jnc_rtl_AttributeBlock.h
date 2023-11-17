@@ -79,8 +79,8 @@ public:
 
 	Attribute*
 	JNC_CDECL
-	findAttribute(DataPtr namePtr) {
-		return rtl::getAttribute(m_item->findAttribute((char*)namePtr.m_p));
+	findAttribute(String name) {
+		return rtl::getAttribute(m_item->findAttribute(name >> toAxl));
 	}
 };
 

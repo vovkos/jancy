@@ -26,6 +26,7 @@ class FunctionArg:
 	public ModuleItemInitializer {
 	friend class TypeMgr;
 	friend class Function;
+	friend class FunctionMgr;
 	friend class ClassType;
 	friend class Orphan;
 

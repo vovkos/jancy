@@ -46,7 +46,7 @@ namespace io {
 			io.Socket m_socket;
 			uint_t m_syncId;
 
-			void connect(char const* addrString);
+			void connect(string_t addrString);
 			void close();
 			void waitSocketEvents();
 
@@ -58,7 +58,7 @@ namespace io {
 			);
 		}
 
-		MyDialog.connect(char const* addrString) {
+		MyDialog.connect(string_t addrString) {
 			`io.SocketAddress` sockAddr;
 			sockAddr.parse(addrString);
 			m_socket.open(`io.Protocol.Tcp`);
@@ -99,7 +99,7 @@ namespace io {
 				return;
 
 			if (triggeredEvents & `io.SocketEvents.IoError`) {
-				char cont* errorString = m_socket.m_ioError.m_description;
+				string_t errorString = m_socket.m_ioError.m_description;
 				// ...
 			}
 

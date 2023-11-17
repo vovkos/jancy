@@ -14,6 +14,8 @@
 #define _JNC_GCHEAP_H
 
 #include "jnc_RuntimeStructs.h"
+#include "jnc_String.h"
+#include "jnc_Variant.h"
 
 /**
 
@@ -337,6 +339,20 @@ jnc_GcHeap_markClassPtr(
 	jnc_IfaceHdr* iface
 );
 
+JNC_INLINE
+void
+jnc_GcHeap_markString(
+	jnc_GcHeap* gcHeap,
+	jnc_String string
+);
+
+JNC_EXTERN_C
+void
+jnc_GcHeap_markVariant(
+	jnc_GcHeap* gcHeap,
+	jnc_Variant variant
+);
+
 JNC_EXTERN_C
 void
 jnc_GcHeap_addRoot(
@@ -560,6 +576,11 @@ struct jnc_GcHeap {
 	}
 
 	void
+	markString(jnc_String string) {
+		jnc_GcHeap_markString(this, string);
+	}
+
+	void
 	addRoot(
 		const void* p,
 		jnc_Type* type
@@ -597,6 +618,16 @@ jnc_GcHeap_markClassPtr(
 ) {
 	if (iface)
 		jnc_GcHeap_markClass(gcHeap, iface->m_box);
+}
+
+JNC_INLINE
+void
+jnc_GcHeap_markString(
+	jnc_GcHeap* gcHeap,
+	jnc_String string
+) {
+	jnc_GcHeap_markDataPtr(gcHeap, string.m_ptr);
+	jnc_GcHeap_markDataPtr(gcHeap, string.m_ptr_sz);
 }
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

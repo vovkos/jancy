@@ -85,7 +85,7 @@ bitflag enum FileStreamEvents: StreamEvents {
 			io.FileStream m_fileStream;
 			uint_t m_syncId;
 
-			void open(char const* fileName);
+			void open(string_t fileName);
 			void close();
 			void waitFileStreamEvents();
 
@@ -97,10 +97,10 @@ bitflag enum FileStreamEvents: StreamEvents {
 			);
 		}
 
-		MyDialog.open(char const* fileName) {
+		MyDialog.open(string_t fileName) {
 			bool result = try m_fileStream.open(fileName);
 			if (!result) {
-				char const* errorString = std.getLastError().m_description;
+				string_t errorString = std.getLastError().m_description;
 				// ...
 			}
 
@@ -134,7 +134,7 @@ bitflag enum FileStreamEvents: StreamEvents {
 				return;
 
 			if (triggeredEvents & `io.FileStreamEvents.IoError`) {
-				char const* errorString = m_fileStream.m_ioError.m_description;
+				string_t errorString = m_fileStream.m_ioError.m_description;
 				// ...
 			}
 
@@ -208,7 +208,7 @@ opaque class FileStream {
 	*/
 
 	bool errorcode open(
-		char const* name,
+		string_t name,
 		FileOpenFlags flags = 0
 	);
 

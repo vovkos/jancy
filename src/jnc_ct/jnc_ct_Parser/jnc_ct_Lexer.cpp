@@ -128,6 +128,20 @@ Lexer::Lexer(uint_t flags) {
 	m_curlyBraceLevel = 0;
 }
 
+size_t
+Lexer::tokenizeString(
+	sl::List<Token>* tokenList,
+	const sl::StringRef& source,
+	lex::RagelBomMode bomMode
+) {
+	Lexer lexer;
+	lexer.create(sl::StringRef(), source, bomMode);
+	while (lexer.getToken()->m_tokenKind > 0)
+		tokenList->insertTail(lexer.takeToken());
+
+	return tokenList->getCount();
+}
+
 Token*
 Lexer::createStringToken(
 	TokenKind tokenKind,

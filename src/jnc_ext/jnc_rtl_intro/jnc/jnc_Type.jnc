@@ -172,24 +172,24 @@ opaque class Type: ModuleItem {
 	TypeKind const property m_typeKind;
 	size_t const property m_size;
 	size_t const property m_alignment;
-	char const* const property m_signature;
-	char const* const property m_typeString;
-	char const* const property m_typeStringPrefix;
-	char const* const property m_typeStringSuffix;
+	string_t const property m_signature;
+	string_t const property m_typeString;
+	string_t const property m_typeStringPrefix;
+	string_t const property m_typeStringSuffix;
 
 	construct(intptr p);
 	destruct();
 
 	int cmp(Type* type);
 
-	char const* getValueString(
+	string_t getValueString(
 		void const* value,
-		char const* formatSpec = null
+		string_t formatSpec = null
 	);
 
-	char const* getValueString(
+	string_t getValueString(
 		variant_t value,
-		char const* formatSpec = null
+		string_t formatSpec = null
 	);
 
 	ArrayType* getArrayType(size_t elementCount);

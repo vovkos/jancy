@@ -32,8 +32,8 @@ public:
 
 protected:
 	const axl::io::HidUsagePage* m_page;
-	DataPtr m_namePtr;
-	sl::SimpleHashTable<uint_t, DataPtr> m_usageNameMap;
+	String m_name;
+	sl::SimpleHashTable<uint_t, String> m_usageNameMap;
 
 public:
 	void
@@ -41,12 +41,12 @@ public:
 	markOpaqueGcRoots(jnc::GcHeap* gcHeap);
 
 	static
-    DataPtr
+    String
 	JNC_CDECL
 	getName(HidUsagePage* self);
 
 	static
-    DataPtr
+    String
 	JNC_CDECL
 	getUsageName(
 		HidUsagePage* self,
@@ -64,7 +64,7 @@ void
 HidUsagePage::detach() {
 	m_id = 0;
 	m_page = NULL;
-	m_namePtr = g_nullDataPtr;
+	m_name = g_nullString;
 	m_usageNameMap.clear();
 }
 
@@ -95,7 +95,7 @@ public:
 
     bool
 	JNC_CDECL
-	load(DataPtr fileNamePtr);
+	load(String fileName);
 
 	void
 	JNC_CDECL

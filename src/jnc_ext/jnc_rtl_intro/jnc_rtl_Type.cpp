@@ -103,70 +103,70 @@ Type::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 	if (!m_cache)
 		return;
 
-	gcHeap->markDataPtr(m_cache->m_signaturePtr);
-	gcHeap->markDataPtr(m_cache->m_typeStringPtr);
-	gcHeap->markDataPtr(m_cache->m_typeStringPrefixPtr);
-	gcHeap->markDataPtr(m_cache->m_typeStringSuffixPtr);
+	gcHeap->markString(m_cache->m_signature);
+	gcHeap->markString(m_cache->m_typeString);
+	gcHeap->markString(m_cache->m_typeStringPrefix);
+	gcHeap->markString(m_cache->m_typeStringSuffix);
 }
 
-DataPtr
+String
 JNC_CDECL
 Type::getSignature(Type* self) {
 	Cache* cache = self->getCache();
-	if (!cache->m_signaturePtr.m_p)
-		cache->m_signaturePtr = createForeignStringPtr(self->m_item->getSignature(), false);
+	if (!cache->m_signature.m_length)
+		cache->m_signature = createForeignString(self->m_item->getSignature(), false);
 
-	return cache->m_signaturePtr;
+	return cache->m_signature;
 }
 
-DataPtr
+String
 JNC_CDECL
 Type::getTypeString(Type* self) {
 	Cache* cache = self->getCache();
-	if (!cache->m_typeStringPtr.m_p)
-		cache->m_typeStringPtr = createForeignStringPtr(self->m_item->getTypeString(), false);
+	if (!cache->m_typeString.m_length)
+		cache->m_typeString = createForeignString(self->m_item->getTypeString(), false);
 
-	return cache->m_typeStringPtr;
+	return cache->m_typeString;
 }
 
-DataPtr
+String
 JNC_CDECL
 Type::getTypeStringPrefix(Type* self) {
 	Cache* cache = self->getCache();
-	if (!cache->m_typeStringPrefixPtr.m_p)
-		cache->m_typeStringPrefixPtr = createForeignStringPtr(self->m_item->getTypeStringPrefix(), false);
+	if (!cache->m_typeStringPrefix.m_length)
+		cache->m_typeStringPrefix= createForeignString(self->m_item->getTypeStringPrefix(), false);
 
-	return cache->m_typeStringPrefixPtr;
+	return cache->m_typeStringPrefix;
 }
 
-DataPtr
+String
 JNC_CDECL
 Type::getTypeStringSuffix(Type* self) {
 	Cache* cache = self->getCache();
-	if (!cache->m_typeStringSuffixPtr.m_p)
-		cache->m_typeStringSuffixPtr = createForeignStringPtr(self->m_item->getTypeStringSuffix(), false);
+	if (!cache->m_typeStringSuffix.m_length)
+		cache->m_typeStringSuffix= createForeignString(self->m_item->getTypeStringSuffix(), false);
 
-	return cache->m_typeStringSuffixPtr;
+	return cache->m_typeStringSuffix;
 }
 
-DataPtr
+String
 JNC_CDECL
 Type::getValueString_0(
 	Type* self,
 	DataPtr valuePtr,
-	DataPtr formatSpecPtr
+	String formatSpec
 ) {
 	return valuePtr.m_p ?
-		strDup(self->m_item->getValueString(valuePtr.m_p, (char*)formatSpecPtr.m_p)) :
-		g_nullDataPtr;
+		allocateString(self->m_item->getValueString(valuePtr.m_p, (formatSpec >> toAxl).sz())) :
+		g_nullString;
 }
 
-DataPtr
+String
 JNC_CDECL
 Type::getValueString_1(
 	Type* self,
 	Variant value,
-	DataPtr formatSpecPtr
+	String formatSpec
 ) {
 	char buffer[256];
 	sl::Array<char> valueBuffer(rc::BufKind_Stack, buffer, sizeof(buffer));
@@ -174,8 +174,8 @@ Type::getValueString_1(
 
 	bool result = value.cast(self->m_item, valueBuffer);
 	return result ?
-		strDup(self->m_item->getValueString(valueBuffer, (char*)formatSpecPtr.m_p)) :
-		g_nullDataPtr;
+		allocateString(self->m_item->getValueString(valueBuffer, (formatSpec >> toAxl).sz())) :
+		g_nullString;
 }
 
 //..............................................................................

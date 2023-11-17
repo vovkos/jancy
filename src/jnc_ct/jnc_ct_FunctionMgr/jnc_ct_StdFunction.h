@@ -59,6 +59,7 @@ enum StdFunc {
 	StdFunc_VariantIndexProperty_get,
 	StdFunc_VariantIndexProperty_set,
 
+	StdFunc_StringConstruct,
 	StdFunc_StringCreate,
 	StdFunc_StringSz,
 	StdFunc_StringRefSz,

@@ -38,19 +38,19 @@ public:
 	JNC_CDECL
 	create0(
 		uint_t parent,
-		DataPtr pathPtr
+		String path
 	) {
-		return createImpl((HKEY)(uintptr_t)parent, (char*)pathPtr.m_p);
+		return createImpl((HKEY)(uintptr_t)parent, path >> toAxl);
 	}
 
 	bool
 	JNC_CDECL
 	create1(
 		RegKey* parent,
-		DataPtr pathPtr
+		String path
 	) {
 		return parent && parent->m_key ?
-			createImpl(parent->m_key, (char*)pathPtr.m_p) :
+			createImpl(parent->m_key, path >> toAxl) :
 			err::fail(err::SystemErrorCode_InvalidParameter);
 	}
 
@@ -58,21 +58,21 @@ public:
 	JNC_CDECL
 	open0(
 		uint_t parent,
-		DataPtr pathPtr,
+		String path,
 		uint_t access
 	) {
-		return openImpl((HKEY)(uintptr_t)parent, (char*)pathPtr.m_p, (REGSAM)access);
+		return openImpl((HKEY)(uintptr_t)parent, path >> toAxl, (REGSAM)access);
 	}
 
 	bool
 	JNC_CDECL
 	open1(
 		RegKey* parent,
-		DataPtr pathPtr,
+		String path,
 		uint_t access
 	) {
 		return parent && parent->m_key ?
-			openImpl(parent->m_key, (char*)pathPtr.m_p, access) :
+			openImpl(parent->m_key, path >> toAxl, access) :
 			err::fail(err::SystemErrorCode_InvalidParameter);
 	}
 
@@ -81,64 +81,64 @@ public:
 	JNC_CDECL
 	read(
 		RegKey* self,
-		DataPtr namePtr,
+		String name,
 		DataPtr typePtr
 	);
 
 	uint32_t
 	JNC_CDECL
-	readDword(DataPtr namePtr);
+	readDword(String name);
 
 	static
-	DataPtr
+	String
 	JNC_CDECL
 	readString(
 		RegKey* self,
-		DataPtr namePtr
+		String name
 	);
 
 	bool
 	JNC_CDECL
 	write(
-		DataPtr namePtr,
+		String name,
 		uint_t type,
 		DataPtr dataPtr,
 		size_t size
 	) {
-		return writeImpl((char*)namePtr.m_p, type, dataPtr.m_p, size);
+		return writeImpl(name >> toAxl, type, dataPtr.m_p, size);
 	}
 
 	bool
 	JNC_CDECL
 	writeString(
-		DataPtr namePtr,
-		DataPtr valuePtr
+		String name,
+		String value
 	);
 
 protected:
 	bool
 	createImpl(
 		HKEY parent,
-		const char* path
+		const sl::StringRef& path
 	);
 
 	bool
 	openImpl(
 		HKEY parent,
-		const char* path,
+		const sl::StringRef& path,
 		REGSAM access
 	);
 
 	size_t
 	readImpl(
 		sl::Array<byte_t>* buffer,
-		const char* name,
+		const sl::StringRef& name,
 		dword_t* type
 	);
 
 	bool
 	writeImpl(
-		const char* name,
+		const sl::StringRef& name,
 		dword_t type,
 		const void* p,
 		size_t size

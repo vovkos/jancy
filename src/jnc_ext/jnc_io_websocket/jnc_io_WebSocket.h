@@ -195,8 +195,8 @@ public:
 	JNC_CDECL
 	connect(
 		DataPtr addressPtr,
-		DataPtr resourcePtr,
-		DataPtr hostPtr
+		String resource,
+		String host
 	);
 
 	bool
@@ -220,7 +220,7 @@ public:
 	JNC_CDECL
 	serverHandshake(
 		uint_t statusCode,
-		DataPtr statusTextPtr
+		String reasonPhrase
 	);
 
 	size_t

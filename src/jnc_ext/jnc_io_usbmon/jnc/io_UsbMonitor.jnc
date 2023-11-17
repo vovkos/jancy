@@ -47,7 +47,7 @@ opaque class UsbMonitor {
 	destruct();
 
 	bool errorcode open(
-		char const* captureDeviceName,
+		string_t captureDeviceName,
 		size_t snapshotLength = 0 // 0 -- use default
 	);
 

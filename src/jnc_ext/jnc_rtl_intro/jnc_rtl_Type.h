@@ -31,10 +31,10 @@ template <typename T>
 class TypeBase: public ModuleItemBase<T> {
 protected:
 	struct Cache {
-		DataPtr m_signaturePtr;
-		DataPtr m_typeStringPtr;
-		DataPtr m_typeStringPrefixPtr;
-		DataPtr m_typeStringSuffixPtr;
+		String m_signature;
+		String m_typeString;
+		String m_typeStringPrefix;
+		String m_typeStringSuffix;
 	};
 
 protected:
@@ -80,22 +80,22 @@ public:
 	}
 
 	static
-	DataPtr
+	String
 	JNC_CDECL
 	getSignature(Type* self);
 
 	static
-	DataPtr
+	String
 	JNC_CDECL
 	getTypeString(Type* self);
 
 	static
-	DataPtr
+	String
 	JNC_CDECL
 	getTypeStringPrefix(Type* self);
 
 	static
-	DataPtr
+	String
 	JNC_CDECL
 	getTypeStringSuffix(Type* self);
 
@@ -106,21 +106,21 @@ public:
 	}
 
 	static
-	DataPtr
+	String
 	JNC_CDECL
 	getValueString_0(
 		Type* self,
 		DataPtr valuePtr,
-		DataPtr formatSpecPtr
+		String formatSpec
 	);
 
 	static
-	DataPtr
+	String
 	JNC_CDECL
 	getValueString_1(
 		Type* self,
 		Variant value,
-		DataPtr formatSpecPtr
+		String formatSpec
 	);
 
 	ArrayType*

@@ -118,13 +118,13 @@ union Address_ip4 {
 		sets the description of parsing error and returns ``false`` [#f1]_.
 	*/
 
-	bool errorcode parse(char const* string);
+	bool errorcode parse(string_t string);
 
 	/**
 		Creates and returns a string representation of the address.
 	*/
 
-	char const* getString() const;
+	string_t getString() const;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -165,13 +165,13 @@ union Address_ip6 {
 		sets the description of parsing error and returns ``false`` [#f1]_.
 	*/
 
-	bool errorcode parse(char const* string);
+	bool errorcode parse(string_t string);
 
 	/**
 		Creates and returns a string representation of the address.
 	*/
 
-	char const* getString() const;
+	string_t getString() const;
 }
 
 //..............................................................................
@@ -254,13 +254,13 @@ struct SocketAddress_ip4 {
 		sets the description of parsing error and returns ``false`` [#f1]_.
 	*/
 
-	bool errorcode parse(char const* string);
+	bool errorcode parse(string_t string);
 
 	/**
 		Creates and returns a string representation of the address.
 	*/
 
-	char const* getString() const;
+	string_t getString() const;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -347,13 +347,13 @@ struct SocketAddress_ip6 {
 		sets the description of parsing error and returns ``false`` [#f1]_.
 	*/
 
-	bool errorcode parse(char const* string);
+	bool errorcode parse(string_t string);
 
 	/**
 		Creates and returns a string representation of the address.
 	*/
 
-	char const* getString() const;
+	string_t getString() const;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -429,13 +429,13 @@ union SocketAddress {
 		sets the description of parsing error and returns ``false`` [#f1]_.
 	*/
 
-	bool errorcode parse(char const* string);
+	bool errorcode parse(string_t string);
 
 	/**
 		Creates and returns a string representation of the address.
 	*/
 
-	char const* getString() const;
+	string_t getString() const;
 }
 
 //..............................................................................

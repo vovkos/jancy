@@ -24,7 +24,7 @@ struct HidMonDeviceDesc: UsbMonDeviceDescBase {
 	JNC_DECLARE_TYPE_STATIC_METHODS(HidMonDeviceDesc)
 
 	DataPtr m_nextPtr;
-	DataPtr m_hidDeviceNamePtr;
+	String m_hidDeviceName;
 	DataPtr m_reportDescriptorPtr;
 	size_t m_reportDescriptorSize;
 

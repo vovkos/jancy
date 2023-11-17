@@ -240,6 +240,27 @@ jnc_strDup_utf16(
 );
 
 JNC_EXTERN_C
+jnc_String
+jnc_allocateString(
+	const char* p,
+	size_t length
+);
+
+JNC_EXTERN_C
+jnc_String
+jnc_allocateString_w(
+	const wchar_t* p,
+	size_t length
+);
+
+JNC_EXTERN_C
+jnc_String
+jnc_allocateString_utf16(
+	const utf16_t* p,
+	size_t length
+);
+
+JNC_EXTERN_C
 jnc_DataPtr
 jnc_memDup(
 	const void* p,
@@ -255,9 +276,10 @@ jnc_createForeignBufferPtr(
 );
 
 JNC_EXTERN_C
-jnc_DataPtr
-jnc_createForeignStringPtr(
+jnc_String
+jnc_createForeignString(
 	const char* p,
+	size_t length,
 	bool_t isCallSiteLocal
 );
 
@@ -566,6 +588,24 @@ strDup(
 	return jnc_strDup_w(p, length);
 }
 
+inline
+String
+allocateString(
+	const char* p,
+	size_t length = -1
+) {
+	return jnc_allocateString(p, length);
+}
+
+inline
+String
+allocateString(
+	const wchar_t* p,
+	size_t length = -1
+) {
+	return jnc_allocateString_w(p, length);
+}
+
 #if (WCHAR_MAX > 0xffff)
 
 inline
@@ -575,6 +615,15 @@ strDup(
 	size_t length = -1
 ) {
 	return jnc_strDup_utf16(p, length);
+}
+
+inline
+String
+allocateString(
+	const utf16_t* p,
+	size_t length = -1
+) {
+	return jnc_allocateString_utf16(p, length);
 }
 
 #endif
@@ -599,12 +648,13 @@ createForeignBufferPtr(
 }
 
 inline
-DataPtr
-createForeignStringPtr(
+String
+createForeignString(
 	const char* p,
+	size_t length,
 	bool isCallSiteLocal = true
 ) {
-	return jnc_createForeignStringPtr(p, isCallSiteLocal);
+	return jnc_createForeignString(p, length, isCallSiteLocal);
 }
 
 #ifdef _AXL_SL_STRING_H
@@ -622,108 +672,120 @@ strDup(const axl::sl::StringRef_utf16& string) {
 }
 
 inline
-DataPtr
-createForeignStringPtr(
+String
+allocateString(const axl::sl::StringRef& string) {
+	return jnc_allocateString(string.cp(), string.getLength());
+}
+
+inline
+String
+createForeignString(
 	const axl::sl::StringRef& string,
 	bool isCallSiteLocal = true
 ) {
-	const char* p = string.cp();
-	return jnc_createForeignBufferPtr(p, p ? string.getLength() + 1 : 0, isCallSiteLocal);
+	return jnc_createForeignString(string.cp(), string.getLength(), isCallSiteLocal);
 }
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 struct DualString {
-	axl::sl::StringRef m_string;
-	DataPtr m_ptr;
+	axl::sl::StringRef m_string_axl;
+	mutable String m_string_jnc;
 
 	DualString() {
-		m_ptr = g_nullDataPtr;
+		m_string_jnc = g_nullString;
 	}
 
 	DualString(
-		const axl::sl::StringRef& string,
-		DataPtr ptr = g_nullDataPtr
+		const axl::sl::StringRef& string_axl,
+		String string_jnc = g_nullString
 	):
-		m_string(string) {
-		m_ptr = ptr;
-	}
+		m_string_axl(string_axl),
+		m_string_jnc(string_jnc) {}
 
 #if (_AXL_CPP_HAS_RVALUE_REF)
 	DualString(
-		axl::sl::StringRef&& string,
-		DataPtr ptr = g_nullDataPtr
+		axl::sl::StringRef&& string_axl,
+		String string_jnc = g_nullString
 	):
-		m_string(string) {
-		m_ptr = ptr;
-	}
+		m_string_axl(::std::move(string_axl)),
+		m_string_jnc(string_jnc) {}
 #endif
 
-	DualString(
-		const char* string,
-		DataPtr ptr = g_nullDataPtr
-	):
-		m_string(string) {
-		m_ptr = ptr;
-	}
-
 	operator const axl::sl::StringRef& () const {
-		return m_string;
+		return m_string_axl;
 	}
 
-	operator DataPtr () const {
-		return m_ptr;
+	operator String () const {
+		return getString();
 	}
 
 	DualString&
 	operator = (const axl::sl::StringRef& string) {
-		m_string = string;
-		m_ptr = g_nullDataPtr;
+		m_string_axl = string;
+		m_string_jnc = g_nullString;
 		return *this;
 	}
 
 #if (_AXL_CPP_HAS_RVALUE_REF)
 	DualString&
 	operator = (axl::sl::StringRef&& string) {
-		m_string = string;
-		m_ptr = g_nullDataPtr;
+		m_string_axl = ::std::move(string);
+		m_string_jnc = g_nullString;
 		return *this;
 	}
 #endif
 
-	DualString&
-	operator = (const char* string) {
-		m_string = string;
-		m_ptr = g_nullDataPtr;
-		return *this;
-	}
-
 	bool
 	isEmpty() const {
-		return m_string.isEmpty();
+		return m_string_axl.isEmpty();
 	}
 
 	const char*
 	sz() const {
-		return m_string.sz();
+		return m_string_axl.sz();
 	}
 
-	DataPtr
-	getPtr() {
-		return m_ptr.m_p || m_string.isEmpty() ? m_ptr : (m_ptr = strDup(m_string));
+	String
+	getString() const {
+		return m_string_jnc.m_length || m_string_axl.isEmpty() ?
+			m_string_jnc :
+			(m_string_jnc = allocateString(m_string_axl));
 	}
 
 	void
 	clear() {
-		m_string.clear();
-		m_ptr = g_nullDataPtr;
+		m_string_axl.clear();
+		m_string_jnc = g_nullString;
 	}
 
 	void
+	setup(
+		const axl::sl::StringRef& string_axl,
+		String string_jnc = g_nullString
+	) {
+		m_string_axl = string_axl;
+		m_string_jnc = string_jnc;
+	}
+
+#if (_AXL_CPP_HAS_RVALUE_REF)
+	void
+	setup(
+		axl::sl::StringRef&& string_axl,
+		String string_jnc = g_nullString
+	) {
+		m_string_axl = ::std::move(string_axl);
+		m_string_jnc = string_jnc;
+	}
+#endif
+
+	void
 	markGcRoots(jnc::GcHeap* gcHeap) {
-		gcHeap->markDataPtr(m_ptr);
+		gcHeap->markString(m_string_jnc);
 	}
 };
 
-#endif
+#endif // _AXL_SL_STRING_H
 
 //..............................................................................
 

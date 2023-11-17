@@ -56,7 +56,7 @@ opaque class Module {
 //..............................................................................
 
 opaque class Unit {
-	char const* const property m_filePath;
+	string_t const property m_filePath;
 
 	construct(intptr p);
 }

@@ -502,8 +502,8 @@ namespace std {
 
 */
 
-char const* cdecl format(
-	char const* fmtSpecifier,
+string_t cdecl format(
+	string_t fmtSpecifier,
 	...
 );
 

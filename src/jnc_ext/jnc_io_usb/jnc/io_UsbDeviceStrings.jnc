@@ -17,12 +17,12 @@ namespace io {
 //..............................................................................
 
 struct UsbDeviceStrings {
-	char const* m_description;
-	char const* m_manufacturer;
-	char const* m_driver;
-	char const* m_manufacturerDescriptor;
-	char const* m_productDescriptor;
-	char const* m_serialNumberDescriptor;
+	string_t m_description;
+	string_t m_manufacturer;
+	string_t m_driver;
+	string_t m_manufacturerDescriptor;
+	string_t m_productDescriptor;
+	string_t m_serialNumberDescriptor;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

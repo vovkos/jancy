@@ -276,6 +276,12 @@ static jnc_VariantFuncTable g_variantFuncTable = {
 	jnc_Variant_format_v,
 };
 
+static jnc_StringFuncTable g_stringFuncTable = {
+	sizeof(jnc_StringFuncTable),
+	jnc_String_sz,
+	jnc_String_setPtr,
+};
+
 static jnc_PromiseFuncTable g_promiseFuncTable = {
 	sizeof(jnc_PromiseFuncTable),
 	jnc_createPromise,
@@ -367,6 +373,7 @@ static jnc_GcHeapFuncTable g_gcHeapFuncTable = {
 	jnc_GcHeap_weakMark,
 	jnc_GcHeap_markData,
 	jnc_GcHeap_markClass,
+	jnc_GcHeap_markVariant,
 	jnc_GcHeap_addBoxToCallSite,
 };
 
@@ -439,6 +446,7 @@ jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl = {
 	&g_functionPtrTypeFuncTable,
 	&g_propertyPtrTypeFuncTable,
 	&g_variantFuncTable,
+	&g_stringFuncTable,
 	&g_promiseFuncTable,
 	&g_unitFuncTable,
 	&g_moduleFuncTable,

@@ -33,8 +33,8 @@ opaque class DeviceMonitor {
 	bool readonly m_isConnected;
 	bool autoget property m_isEnabled;
 
-	char const* readonly m_deviceName;
-	char const* autoget property m_fileNameFilter;
+	string_t readonly m_deviceName;
+	string_t autoget property m_fileNameFilter;
 
 	protected uint_t m_unused;
 
@@ -46,7 +46,7 @@ opaque class DeviceMonitor {
 	destruct();
 
 	bool errorcode open();
-	bool errorcode connect(char const* deviceName);
+	bool errorcode connect(string_t deviceName);
 	void close();
 
 

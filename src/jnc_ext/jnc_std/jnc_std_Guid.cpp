@@ -33,7 +33,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-DataPtr
+String
 JNC_CDECL
 Guid::getString(
 	DataPtr selfPtr,
@@ -41,17 +41,17 @@ Guid::getString(
 ) {
 	Guid* self = (Guid*)selfPtr.m_p;
 	sl::String string = self->sl::Guid::getString(flags);
-	return strDup(string);
+	return allocateString(string);
 }
 
 bool
 JNC_CDECL
 Guid::parse(
 	DataPtr selfPtr,
-	DataPtr stringPtr
+	String string
 ) {
 	Guid* self = (Guid*)selfPtr.m_p;
-	return self->sl::Guid::parse((const char*) stringPtr.m_p);
+	return self->sl::Guid::parse(string >> toAxl);
 }
 
 //..............................................................................

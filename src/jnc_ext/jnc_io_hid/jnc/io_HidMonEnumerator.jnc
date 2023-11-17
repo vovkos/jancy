@@ -21,7 +21,7 @@ namespace io {
 
 struct HidMonDeviceDesc: UsbMonDeviceDescBase {
 	HidMonDeviceDesc const* m_next;
-	char const* m_hidDeviceName;
+	string_t m_hidDeviceName;
 	void const* m_reportDescriptor;
 	size_t m_reportDescriptorSize;
 

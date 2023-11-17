@@ -99,6 +99,7 @@ getStdFunctionSource(StdFunc stdFunc) {
 		{ NULL },                                // StdFunc_VariantIndexProperty_get,
 		{ NULL },                                // StdFunc_VariantIndexProperty_set,
 
+		{ NULL },                                // StdFunc_StringConstruct,
 		{ NULL },                                // StdFunc_StringCreate,
 		{ NULL },                                // StdFunc_StringSz,
 		{ NULL },                                // StdFunc_StringRef,

@@ -59,6 +59,7 @@ typedef struct jnc_ClassPtrTypeFuncTable jnc_ClassPtrTypeFuncTable;
 typedef struct jnc_FunctionPtrTypeFuncTable jnc_FunctionPtrTypeFuncTable;
 typedef struct jnc_PropertyPtrTypeFuncTable jnc_PropertyPtrTypeFuncTable;
 typedef struct jnc_VariantFuncTable jnc_VariantFuncTable;
+typedef struct jnc_StringFuncTable jnc_StringFuncTable;
 typedef struct jnc_PromiseFuncTable jnc_PromiseFuncTable;
 typedef struct jnc_UnitFuncTable jnc_UnitFuncTable;
 typedef struct jnc_ModuleFuncTable jnc_ModuleFuncTable;
@@ -1021,6 +1022,30 @@ struct jnc_VariantFuncTable {
 
 //..............................................................................
 
+// String
+
+typedef
+jnc_DataPtr
+jnc_String_SzFunc(const jnc_String* string);
+
+typedef
+void
+jnc_String_SetPtrFunc(
+	jnc_String* string,
+	jnc_DataPtr ptr,
+	size_t length
+);
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct jnc_StringFuncTable {
+	size_t m_size;
+	jnc_String_SzFunc* m_szFunc;
+	jnc_String_SetPtrFunc* m_setPtrFunc;
+};
+
+//..............................................................................
+
 typedef
 jnc_Promise*
 jnc_Promise_CreateFunc(jnc_Runtime* runtime);
@@ -1540,6 +1565,13 @@ jnc_GcHeap_MarkClassFunc(
 
 typedef
 void
+jnc_GcHeap_MarkVariantFunc(
+	jnc_GcHeap* gcHeap,
+	jnc_Variant variant
+);
+
+typedef
+void
 jnc_GcHeap_AddBoxToCallSiteFunc(jnc_Box* box);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -1572,6 +1604,7 @@ struct jnc_GcHeapFuncTable {
 	jnc_GcHeap_WeakMarkFunc* m_weakMarkFunc;
 	jnc_GcHeap_MarkDataFunc* m_markDataFunc;
 	jnc_GcHeap_MarkClassFunc* m_markClassFunc;
+	jnc_GcHeap_MarkVariantFunc* m_markVariantFunc;
 	jnc_GcHeap_AddBoxToCallSiteFunc* m_addBoxToCallSiteFunc;
 };
 
@@ -1782,6 +1815,7 @@ struct jnc_DynamicExtensionLibHost {
 	jnc_FunctionPtrTypeFuncTable* m_functionPtrTypeFuncTable;
 	jnc_PropertyPtrTypeFuncTable* m_propertyPtrTypeFuncTable;
 	jnc_VariantFuncTable* m_variantFuncTable;
+	jnc_StringFuncTable* m_stringFuncTable;
 	jnc_PromiseFuncTable* m_promiseFuncTable;
 	jnc_UnitFuncTable* m_unitFuncTable;
 	jnc_ModuleFuncTable* m_moduleFuncTable;

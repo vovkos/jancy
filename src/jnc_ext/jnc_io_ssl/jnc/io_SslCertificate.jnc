@@ -29,8 +29,8 @@ enum SslNid {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* getSslNidShortName(SslNid nid);
-char const* getSslNidLongName(SslNid nid);
+string_t getSslNidShortName(SslNid nid);
+string_t getSslNidLongName(SslNid nid);
 
 //..............................................................................
 
@@ -43,8 +43,8 @@ enum SslCertFormat {
 
 struct SslCertNameEntry {
 	SslNid m_nid;
-	char const* m_name;
-	char const* m_value;
+	string_t m_name;
+	string_t m_value;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -52,7 +52,7 @@ struct SslCertNameEntry {
 opaque class SslCertName {
 	size_t readonly m_entryCount;
 	SslCertNameEntry const* const property m_entryTable(size_t i);
-	char const* const property m_oneLine;
+	string_t const property m_oneLine;
 
 	construct();
 	destruct();
@@ -63,7 +63,7 @@ opaque class SslCertName {
 //..............................................................................
 
 opaque class SslCertificate {
-	char const* const property m_serialNumber;
+	string_t const property m_serialNumber;
 	uint64_t const property m_validFromDate;
 	uint64_t const property m_validToDate;
 	SslCertName const* const property m_subject;
@@ -77,12 +77,7 @@ opaque class SslCertificate {
 		SslCertFormat format = SslCertFormat.Pem
 	) const;
 
-	char const* errorcode encode() const {
-		std.Buffer buffer;
-		encode(buffer, SslCertFormat.Pem);
-		buffer.append(0); // ensure zero-termination
-		return (char const*)buffer.detach();
-	}
+	string_t errorcode encode() const;
 
 	bool errorcode decode(
 		void const* p,
@@ -90,19 +85,29 @@ opaque class SslCertificate {
 		SslCertFormat format = SslCertFormat.Pem
 	);
 
-	bool errorcode decode(char const* p) {
-		return decode(p, strlen(p), SslCertFormat.Pem);
+	bool errorcode decode(string_t p) {
+		return decode(p.m_p, p.m_length, SslCertFormat.Pem);
 	}
 
 	bool errorcode load(
-		char const* fileName,
+		string_t fileName,
 		SslCertFormat format = SslCertFormat.Pem
 	);
 
 	bool errorcode save(
-		char const* fileName,
+		string_t fileName,
 		SslCertFormat format = SslCertFormat.Pem
 	) const;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+string_t errorcode SslCertificate.encode() const {
+	std.Buffer buffer;
+	encode(buffer, SslCertFormat.Pem);
+	size_t length = buffer.m_size;
+	buffer.append(0); // ensure zero-termination
+	return string_t(buffer.detach(), length);
 }
 
 //..............................................................................

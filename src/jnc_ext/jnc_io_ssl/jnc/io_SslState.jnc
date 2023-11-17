@@ -69,8 +69,8 @@ opaque class SslState {
 	SslVerifyMode property m_verifyMode;
 	size_t property m_verifyDepth;
 
-	char const* const property m_stateString;
-	char const* const property m_stateStringLong;
+	string_t const property m_stateString;
+	string_t const property m_stateStringLong;
 
 	event m_onStateChanged(
 		SslStateFlags flags,
@@ -80,23 +80,18 @@ opaque class SslState {
 	construct();
 	destruct();
 
-	bool errorcode enableCiphers(char const* ciphers);
-
-	bool errorcode setEphemeralDhParams(
-		char const* pem,
-		size_t length = -1
-	);
-
-	bool errorcode loadEphemeralDhParams(char const* fileName);
+	bool errorcode enableCiphers(string_t ciphers);
+	bool errorcode setEphemeralDhParams(string_t pem);
+	bool errorcode loadEphemeralDhParams(string_t fileName);
 	bool errorcode setEphemeralDhStdParams(SslStdDh dh = SslStdDh.Dh1024x160);
-	bool errorcode setEphemeralEcdhCurve(char const* curveName = "secp112r1");
+	bool errorcode setEphemeralEcdhCurve(string_t curveName = "secp112r1");
 
-	bool errorcode loadCertificate(char const* fileName);
-	bool errorcode loadPrivateKey(char const* fileName);
+	bool errorcode loadCertificate(string_t fileName);
+	bool errorcode loadPrivateKey(string_t fileName);
 
 	bool errorcode loadVerifyLocations(
-		char const* caFileName,
-		char const* caDir = null
+		string_t caFileName,
+		string_t caDir = null
 	);
 
 	bool errorcode shutdown();

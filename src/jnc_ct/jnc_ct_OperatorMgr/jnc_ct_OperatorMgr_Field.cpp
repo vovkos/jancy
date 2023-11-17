@@ -22,17 +22,11 @@ namespace ct {
 bool
 OperatorMgr::getField(
 	const Value& opValue,
+	Type* type,
 	Field* field,
 	MemberCoord* coord,
 	Value* resultValue
 ) {
-	Type* type = opValue.getType();
-
-	if (type->getTypeKindFlags() & TypeKindFlag_DataPtr)
-		type = ((DataPtrType*)type)->getTargetType();
-	else if (opValue.getType()->getTypeKindFlags() & TypeKindFlag_ClassPtr)
-		type = ((ClassPtrType*)opValue.getType())->getTargetType();
-
 	if (type->getFlags() & TypeFlag_Dynamic) {
 		ASSERT(type->getTypeKindFlags() & TypeKindFlag_Derivable);
 		return getDynamicField(opValue, (DerivableType*)type, field, resultValue);
@@ -62,6 +56,22 @@ OperatorMgr::getField(
 }
 
 bool
+OperatorMgr::getField(
+	const Value& opValue,
+	Field* field,
+	MemberCoord* coord,
+	Value* resultValue
+) {
+	Type* type = opValue.getType();
+	if (type->getTypeKindFlags() & TypeKindFlag_DataPtr)
+		type = ((DataPtrType*)type)->getTargetType();
+	else if (type->getTypeKindFlags() & TypeKindFlag_ClassPtr)
+		type = ((ClassPtrType*)type)->getTargetType();
+
+	return getField(opValue, type, field, coord, resultValue);
+}
+
+bool
 OperatorMgr::getPromiseField(
 	const Value& promiseValue,
 	const sl::String& name,
@@ -76,7 +86,7 @@ OperatorMgr::getPromiseField(
 	MemberCoord coord;
 	coord.m_llvmIndexArray.append(0); // account for base type jnc.Promise
 
-	return getField(promiseValue, stateField, &coord, resultValue);
+	return getField(promiseValue, promiseType, stateField, &coord, resultValue);
 }
 
 bool
@@ -541,7 +551,7 @@ OperatorMgr::getPropertyField(
 
 	return
 		castOperator(&parentValue, parentPtrType) &&
-		getField(parentValue, (Field*)member, resultValue);
+		getField(parentValue, parentType, (Field*)member, resultValue);
 }
 
 //..............................................................................

@@ -29,14 +29,10 @@ JNC_DEFINE_CLASS_TYPE(
 JNC_BEGIN_TYPE_FUNCTION_MAP(StringBuilder)
 	JNC_MAP_FUNCTION("clear", &StringBuilder::clear)
 	JNC_MAP_FUNCTION("reserve", &StringBuilder::reserve)
-	JNC_MAP_FUNCTION("copy", &StringBuilder::copy_char)
-	JNC_MAP_OVERLOAD(&StringBuilder::copy_utf8)
-	JNC_MAP_OVERLOAD(&StringBuilder::copy_utf16)
-	JNC_MAP_OVERLOAD(&StringBuilder::copy_utf32)
-	JNC_MAP_FUNCTION("insert", &StringBuilder::insert_char)
-	JNC_MAP_OVERLOAD(&StringBuilder::insert_utf8)
-	JNC_MAP_OVERLOAD(&StringBuilder::insert_utf16)
-	JNC_MAP_OVERLOAD(&StringBuilder::insert_utf32)
+	JNC_MAP_FUNCTION("copy", &StringBuilder::copy_string)
+	JNC_MAP_OVERLOAD(&StringBuilder::copy_char)
+	JNC_MAP_FUNCTION("insert", &StringBuilder::insert_string)
+	JNC_MAP_OVERLOAD(&StringBuilder::insert_char)
 	JNC_MAP_FUNCTION("remove", &StringBuilder::remove)
 	JNC_MAP_FUNCTION("chop", &StringBuilder::chop)
 	JNC_MAP_FUNCTION("trimLeft", &StringBuilder::trimLeft)
@@ -82,44 +78,16 @@ StringBuilder::copy_char(
 	utf32_t c,
 	size_t count
 ) {
-	sl::String string(c, count);
+	char buffer[256];
+	sl::String string(rc::BufKind_Stack, buffer, sizeof(buffer));
+	string.copy(c, count);
 	return copyImpl(string.cp(), string.getLength());
 }
 
 size_t
 JNC_CDECL
-StringBuilder::copy_utf8(
-	DataPtr ptr,
-	size_t length
-) {
-	if (length == -1)
-		length = strLen(ptr);
-
-	return copyImpl((char*)ptr.m_p, length);
-}
-
-size_t
-JNC_CDECL
-StringBuilder::copy_utf16(
-	DataPtr ptr,
-	size_t length
-) {
-	char buffer[256];
-	sl::String string(rc::BufKind_Stack, buffer, sizeof(buffer));
-	string.copy((utf16_t*)ptr.m_p, length);
-	return copyImpl(string, string.getLength());
-}
-
-size_t
-JNC_CDECL
-StringBuilder::copy_utf32(
-	DataPtr ptr,
-	size_t length
-) {
-	char buffer[256];
-	sl::String string(rc::BufKind_Stack, buffer, sizeof(buffer));
-	string.copy((utf32_t*)ptr.m_p, length);
-	return copyImpl(string, string.getLength());
+StringBuilder::copy_string(String string) {
+	return copyImpl((char*)string.m_ptr.m_p, string.m_length);
 }
 
 size_t
@@ -129,47 +97,19 @@ StringBuilder::insert_char(
 	utf32_t c,
 	size_t count
 ) {
-	sl::String string(c, count);
+	char buffer[256];
+	sl::String string(rc::BufKind_Stack, buffer, sizeof(buffer));
+	string.copy(c, count);
 	return insertImpl(offset, string.cp(), string.getLength());
 }
 
 size_t
 JNC_CDECL
-StringBuilder::insert_utf8(
+StringBuilder::insert_string(
 	size_t offset,
-	DataPtr ptr,
-	size_t length
+	String string
 ) {
-	if (length == -1)
-		length = strLen(ptr);
-
-	return insertImpl(offset, (char*)ptr.m_p, length);
-}
-
-size_t
-JNC_CDECL
-StringBuilder::insert_utf16(
-	size_t offset,
-	DataPtr ptr,
-	size_t length
-) {
-	char buffer[256];
-	sl::String string(rc::BufKind_Stack, buffer, sizeof(buffer));
-	string.copy((utf16_t*)ptr.m_p, length);
-	return insertImpl(offset, string, string.getLength());
-}
-
-size_t
-JNC_CDECL
-StringBuilder::insert_utf32(
-	size_t offset,
-	DataPtr ptr,
-	size_t length
-) {
-	char buffer[256];
-	sl::String string(rc::BufKind_Stack, buffer, sizeof(buffer));
-	string.copy((utf32_t*)ptr.m_p, length);
-	return insertImpl(offset, string, string.getLength());
+	return insertImpl(offset, (char*)string.m_ptr.m_p, string.m_length);
 }
 
 size_t
@@ -239,34 +179,27 @@ StringBuilder::trimRight() {
 	return m_length;
 }
 
-DataPtr
+String
 StringBuilder::detachString(StringBuilder* self) {
-	if (!self->m_bufferSize) {
-		GcHeap* gcHeap = getCurrentThreadGcHeap();
-		return gcHeap->tryAllocateBuffer(1); // empty string + null
-	}
+	if (!self->m_bufferSize)
+		return g_nullString;
 
-	((char*)self->m_ptr.m_p) [self->m_length] = 0;
-
-	DataPtr ptr = self->m_ptr;
+	String string;
+	string.m_ptr = self->m_ptr;
+	string.m_ptr_sz = self->m_ptr;
+	string.m_length = self->m_length;
 	self->m_ptr = g_nullDataPtr;
 	self->m_length = 0;
 	self->m_bufferSize = 0;
-	return ptr;
+	return string;
 }
 
-DataPtr
+String
 StringBuilder::cloneString(StringBuilder* self) {
-	GcHeap* gcHeap = getCurrentThreadGcHeap();
 	if (!self->m_bufferSize)
-		return gcHeap->tryAllocateBuffer(1); // empty string + null
+		return g_nullString;
 
-	DataPtr ptr = gcHeap->tryAllocateBuffer(self->m_length + 1);
-	if (!ptr.m_p)
-		return g_nullDataPtr;
-
-	memcpy(ptr.m_p, self->m_ptr.m_p, self->m_length);
-	return ptr;
+	return allocateString((char*)self->m_ptr.m_p, self->m_length);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

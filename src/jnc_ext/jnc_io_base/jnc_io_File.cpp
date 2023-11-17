@@ -77,14 +77,14 @@ getFileKind(const axl::io::File& file) {
 bool
 JNC_CDECL
 File::open(
-	DataPtr namePtr,
+	String name,
 	uint_t flags
 ) {
 	close();
 
 	bool result =
 		requireIoLibCapability(IoLibCapability_File) &&
-		m_file.open((const char*) namePtr.m_p, flags);
+		m_file.open(name >> toAxl, flags);
 
 	if (!result)
 		return false;

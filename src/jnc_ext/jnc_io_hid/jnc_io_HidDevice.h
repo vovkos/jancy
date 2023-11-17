@@ -93,14 +93,14 @@ public:
 
 	bool
 	JNC_CDECL
-	open_0(DataPtr pathPtr);
+	open_0(String path);
 
 	bool
 	JNC_CDECL
 	open_1(
 		uint16_t vid,
 		uint16_t pid,
-		DataPtr serialNumberPtr
+		String serialNumberPtr
 	);
 
 	void

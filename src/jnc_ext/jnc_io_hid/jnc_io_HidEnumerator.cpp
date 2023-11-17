@@ -38,10 +38,10 @@ createHidDeviceDesc(
 	DataPtr descPtr = createData<HidDeviceDesc>(runtime);
 	HidDeviceDesc* desc = (HidDeviceDesc*)descPtr.m_p;
 	desc->m_nextPtr = jnc::g_nullDataPtr;
-	desc->m_path = strDup(info->path);
-	desc->m_manufacturer = strDup(info->manufacturer_string);
-	desc->m_product = strDup(info->product_string);
-	desc->m_serialNumber = strDup(info->serial_number);
+	desc->m_path = allocateString(info->path);
+	desc->m_manufacturer = allocateString(info->manufacturer_string);
+	desc->m_product = allocateString(info->product_string);
+	desc->m_serialNumber = allocateString(info->serial_number);
 	desc->m_releaseNumber = info->release_number;
 	desc->m_vendorId = info->vendor_id;
 	desc->m_productId = info->product_id;

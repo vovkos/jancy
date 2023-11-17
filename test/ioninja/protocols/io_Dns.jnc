@@ -329,7 +329,7 @@ void const* formatDnsName(
 		if (string.m_length)
 			string.append('.');
 
-		string.append(p, c);
+		string.append(string_t(p, c));
 		p += c;
 	}
 

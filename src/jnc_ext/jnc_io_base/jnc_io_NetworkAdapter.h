@@ -35,8 +35,8 @@ struct NetworkAdapterDesc {
 	JNC_DECLARE_TYPE_STATIC_METHODS(NetworkAdapterDesc)
 
 	DataPtr m_nextPtr;
-	DataPtr m_namePtr;
-	DataPtr m_descriptionPtr;
+	String m_name;
+	String m_description;
 	uint_t m_type;
 	uint_t m_flags;
 	uint8_t m_macAddress[6];

@@ -301,7 +301,7 @@ ChildProcess::ChildProcess():
 bool
 JNC_CDECL
 ChildProcess::start(
-	DataPtr commandLinePtr,
+	String commandLine,
 	StdHashTable* environment,
 	uint_t flags
 ) {
@@ -313,7 +313,7 @@ ChildProcess::start(
 	bool isSeparateStderr = (flags & ChildProcessFlag_SeparateStderr) != 0;
 
 #if (_JNC_OS_WIN)
-	sl::String_w cmdLine = (char*)commandLinePtr.m_p;
+	sl::String_w cmdLine = commandLine >> toAxl;
 
 	bool_t result;
 

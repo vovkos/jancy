@@ -57,7 +57,7 @@ namespace io {
 			uint64_t m_size;
 		}
 
-		void foo(char const* fileName) {
+		void foo(string_t fileName) {
 			disposable io.MappedFile file;
 			file.open(fileName, `io.FileOpenFlags.ReadOnly`);
 
@@ -144,7 +144,7 @@ opaque class MappedFile {
 	*/
 
 	bool errorcode open(
-		char const* name,
+		string_t name,
 		FileOpenFlags flags = 0
 	);
 

@@ -16,17 +16,12 @@
 #	include "jnc_ExtensionLib.h"
 #elif defined(_JNC_CORE)
 #	include "jnc_ct_Module.h"
-#	include "jnc_ct_ArrayType.h"
 #	include "jnc_rt_Runtime.h"
 #endif
 
 #include "jnc_Runtime.h"
 
 //..............................................................................
-
-#ifdef _JNC_DYNAMIC_EXTENSION_LIB
-
-#else // _JNC_DYNAMIC_EXTENSION_LIB
 
 inline
 bool
@@ -113,15 +108,88 @@ jnc_String_hashIgnoreCase(const jnc_String* string) {
 	return stringRef.hashIgnoreCase();
 }
 
+#ifdef _JNC_DYNAMIC_EXTENSION_LIB
+
 JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_DataPtr
+jnc_String_sz(const jnc_String* string) {
+	return jnc_g_dynamicExtensionLibHost->m_stringFuncTable->m_szFunc(string);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+void
+jnc_String_setPtr(
+	jnc_String* string,
+	jnc_DataPtr ptr,
+	size_t length
+) {
+	return jnc_g_dynamicExtensionLibHost->m_stringFuncTable->m_setPtrFunc(string, ptr, length);
+}
+
+#else
+
+JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_DataPtr
 jnc_String_sz(const jnc_String* string) {
 	if (!string->m_ptr_sz.m_p)
 		((jnc_String*)string)->m_ptr_sz = string->m_length ?
-			jnc_strDup((char*)string->m_ptr.m_p, string->m_length) :
-			jnc_createForeignBufferPtr("", 0, false);
+			jnc::strDup((char*)string->m_ptr.m_p, string->m_length) :
+			jnc::getCurrentThreadRuntime()->getModule()->m_constMgr.getEmptyLiteralPtr();
 
 	return string->m_ptr_sz;
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+void
+jnc_String_setPtr(
+	jnc_String* string,
+	jnc_DataPtr ptr,
+	size_t length
+) {
+	string->m_ptr = ptr;
+
+	if (!ptr.m_validator ||
+		ptr.m_p < ptr.m_validator->m_rangeBegin ||
+		(ptr.m_validator->m_targetBox->m_flags & jnc_BoxFlag_Invalid)
+	) {
+		string->m_ptr_sz = jnc_g_nullDataPtr;
+		string->m_length = 0;
+		return;
+	}
+
+	char* p0 = (char*)ptr.m_p;
+	char* end = (char*)ptr.m_validator->m_rangeEnd;
+
+	if (length == -1) { // calculate length
+		char* p = (char*)memchr(p0, 0, end - p0);
+		if (p) {
+			string->m_ptr_sz = ptr;
+			string->m_length = p - p0;
+		} else {
+			string->m_ptr_sz = jnc::g_nullDataPtr;
+			string->m_length = end - p0;
+		}
+	} else if (p0 + length < end) { // length is in-range
+		if (length && !p0[length - 1]) {
+			string->m_ptr_sz = ptr;
+			string->m_length = length - 1;
+		} else {
+			string->m_ptr_sz = !p0[length] ? ptr : jnc::g_nullDataPtr;
+			string->m_length = length;
+		}
+	} else { // length is out-of-range
+		if (p0 < end && !end[-1]) {
+			string->m_ptr_sz = ptr;
+			string->m_length = end - p0 - 1;
+		} else {
+			string->m_ptr_sz = jnc::g_nullDataPtr;
+			string->m_length = end - p0;
+		}
+	}
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

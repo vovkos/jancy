@@ -59,51 +59,51 @@ opaque class RegKey {
 
 	bool errorcode create(
 		RegStdKey parent,
-		char const* path
+		string_t path
 	);
 
 	bool errorcode create(
 		RegKey* parent,
-		char const* path
+		string_t path
 	);
 
 	bool errorcode open(
 		RegStdKey parent,
-		char const* path,
+		string_t path,
 		RegKeyAccess access = RegKeyAccess.All
 	);
 
 	bool errorcode open(
 		RegKey* parent,
-		char const* path,
+		string_t path,
 		RegKeyAccess access = RegKeyAccess.All
 	);
 
 	void const* errorcode read(
-		char const* name,
+		string_t name,
 		RegValueType* type = null
 	);
 
-	uint32_t readDword(char const* name);
-	char const* readString(char const* name);
+	uint32_t readDword(string_t name);
+	string_t readString(string_t name);
 
 	bool errorcode write(
-		char const* name,
+		string_t name,
 		RegValueType type,
 		void const* data,
 		size_t size
 	);
 
 	bool errorcode writeDword(
-		char const* name,
+		string_t name,
 		uint32_t value
 	) {
 		return write(name, RegValueType.Dword, &value, sizeof(value));
 	}
 
 	bool errorcode writeString(
-		char const* name,
-		char const* value
+		string_t name,
+		string_t value
 	);
 }
 

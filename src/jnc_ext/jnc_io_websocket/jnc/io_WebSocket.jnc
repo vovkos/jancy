@@ -121,8 +121,8 @@ opaque class WebSocket {
 
 	bool errorcode connect(
 		SocketAddress const* address,
-		char const* resource,
-		char const* host
+		string_t resource,
+		string_t host
 	);
 
 	bool errorcode listen(size_t backlog = 0); // 0 -- default
@@ -136,11 +136,11 @@ opaque class WebSocket {
 
 	bool errorcode serverHandshake(
 		uint_t statusCode,
-		char const* statusText
+		string_t reasonPhrase
 	);
 
-	bool errorcode serverHandshake(WebSocketHandshakeHeaders const* extraHeaders = null) {
-		return handshake(101, "Switching Protocols", extraHeaders);
+	bool errorcode serverHandshake() {
+		return serverHandshake(101, "Switching Protocols");
 	}
 
 	size_t errorcode read(
@@ -162,11 +162,8 @@ opaque class WebSocket {
 		size_t size
 	);
 
-	size_t errorcode writeText(
-		char const* p,
-		size_t length = -1
-	) {
-		return write(WebSocketFrameOpcode.Text, p, length != -1 ? length : strlen(p));
+	size_t errorcode writeText(string_t text) {
+		return write(WebSocketFrameOpcode.Text, text.m_p, text.m_length);
 	}
 
 	size_t errorcode writeBinary(

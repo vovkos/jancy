@@ -72,7 +72,7 @@ public:
 	bool
 	JNC_CDECL
 	resolve(
-		DataPtr namePtr,
+		String name,
 		uint16_t addrFamily
 	);
 

@@ -58,34 +58,34 @@ getCurrentThreadId() {
 	return (uintptr_t)axl::sys::getCurrentThreadId();
 }
 
-DataPtr
+String
 getProcessImageName(uint_t pid) {
-	return strDup(axl::sys::getProcessImageName(pid));
+	return allocateString(axl::sys::getProcessImageName(pid));
 }
 
-DataPtr
-getEnv(DataPtr namePtr) {
-	if (!namePtr.m_p)
-		return g_nullDataPtr;
+String
+getEnv(String name) {
+	if (!name.m_length)
+		return g_nullString;
 
-	const char* value = getenv((const char*) namePtr.m_p);
-	return strDup(value);
+	const char* value = getenv((name >> toAxl).sz());
+	return allocateString(value);
 }
 
 void
 setEnv(
-	DataPtr namePtr,
-	DataPtr valuePtr
+	String name,
+	String value
 ) {
 #if (_AXL_OS_WIN)
 	char buffer[256];
 	sl::String envString(rc::BufKind_Stack, buffer, sizeof(buffer));
-	envString.format("%s=%s", namePtr.m_p, valuePtr.m_p ? valuePtr.m_p : "");
+	envString = (name >> toAxl) + '=' + (value >> toAxl);
 	_putenv(envString);
 #else
 	setenv(
-		(const char*) namePtr.m_p,
-		(const char*) valuePtr.m_p,
+		(name >> toAxl).sz(),
+		(value >> toAxl).sz(),
 		true
 	);
 #endif
@@ -170,25 +170,25 @@ getSystemInfo() {
 	return &systemInfo;
 }
 
-DataPtr
+String
 formatTimestamp_0(
 	uint64_t timestamp,
-	DataPtr format
+	String format
 ) {
 	axl::sys::Time time(timestamp);
-	sl::String string = time.format((const char*) format.m_p);
-	return strDup(string);
+	sl::String string = time.format(format >> toAxl);
+	return allocateString(string);
 }
 
-DataPtr
+String
 formatTimestamp_1(
 	uint64_t timestamp,
 	int timeZone,
-	DataPtr format
+	String format
 ) {
 	axl::sys::Time time(timestamp, timeZone);
-	sl::String string = time.format((const char*) format.m_p);
-	return strDup(string);
+	sl::String string = time.format(format >> toAxl);
+	return allocateString(string);
 }
 
 //..............................................................................

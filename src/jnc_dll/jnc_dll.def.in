@@ -168,6 +168,14 @@ EXPORTS
 	jnc_Variant_setMember
 	jnc_Variant_unaryOperator
 	jnc_Variant_format_v
+	jnc_String_isEqual
+	jnc_String_isEqualIgnoreCase
+	jnc_String_cmp
+	jnc_String_cmpIgnoreCase
+	jnc_String_hash
+	jnc_String_hashIgnoreCase
+	jnc_String_sz
+	jnc_String_setPtr
 	jnc_createPromise
 	jnc_Promise_complete
 	jnc_Module_addIgnoredImport
@@ -231,11 +239,16 @@ EXPORTS
 	jnc_getCurrentThreadTls
 	jnc_memDup
 	jnc_primeClass
-	jnc_strDup
 	jnc_strLen
+	jnc_strDup
+	jnc_strDup_w
+	jnc_strDup_utf16
+	jnc_allocateString
+	jnc_allocateString_w
+	jnc_allocateString_utf16
 	jnc_strengthenClassPtr
 	jnc_createForeignBufferPtr
-	jnc_createForeignStringPtr
+	jnc_createForeignString
 	jnc_GcHeap_addBoxToCallSite
 	jnc_GcHeap_addRoot
 	jnc_GcHeap_addStaticClassDestructor
@@ -260,6 +273,7 @@ EXPORTS
 	jnc_GcHeap_leaveWaitRegion
 	jnc_GcHeap_markClass
 	jnc_GcHeap_markData
+	jnc_GcHeap_markVariant
 	jnc_GcHeap_resetDynamicLayout
 	jnc_GcHeap_safePoint
 	jnc_GcHeap_setFrameMap

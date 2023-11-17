@@ -67,7 +67,7 @@ NamedPipe::NamedPipe() {
 
 bool
 JNC_CDECL
-NamedPipe::open(DataPtr namePtr) {
+NamedPipe::open(String name0) {
 	bool result;
 
 	close();
@@ -77,7 +77,7 @@ NamedPipe::open(DataPtr namePtr) {
 
 	m_pipeName = L"\\\\.\\pipe\\";
 
-	sl::StringRef name((const char*) namePtr.m_p);
+	sl::StringRef name = name0 >> toAxl;
 	if (name.isPrefix("\\\\.\\pipe\\"))
 		m_pipeName += name.getSubString(m_pipeName.getLength());
 	else

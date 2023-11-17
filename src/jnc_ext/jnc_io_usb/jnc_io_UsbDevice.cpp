@@ -171,7 +171,7 @@ UsbDevice::getLangIdTable(UsbDevice* self) {
 	return ptr;
 }
 
-DataPtr
+String
 JNC_CDECL
 UsbDevice::getStringDescriptor(
 	UsbDevice* self,
@@ -180,7 +180,7 @@ UsbDevice::getStringDescriptor(
 ) {
 	if (!self->m_isOpen) {
 		err::setError(err::SystemErrorCode_InvalidDeviceState);
-		return g_nullDataPtr;
+		return g_nullString;
 	}
 
 	char buffer[256];
@@ -188,12 +188,12 @@ UsbDevice::getStringDescriptor(
 	if (!langId) {
 		sl::String string(rc::BufKind_Stack, buffer, sizeof(buffer));
 		self->m_device.getStringDescriptorAscii(&string, stringId);
-		return strDup(string);
+		return allocateString(string);
 	}
 
 	sl::String_utf16 string(rc::BufKind_Stack, buffer, sizeof(buffer));
 	self->m_device.getStringDescriptor(&string, stringId, langId);
-	return strDup(string);
+	return allocateString(string);
 }
 
 UsbInterface*

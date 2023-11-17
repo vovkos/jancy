@@ -39,7 +39,7 @@ opaque class HostNameResolver {
 	destruct();
 
 	bool errorcode resolve(
-		char const* name,
+		string_t name,
 		AddressFamily family = AddressFamily.Undefined
 	);
 

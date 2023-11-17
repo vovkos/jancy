@@ -94,12 +94,12 @@ HidDevice::getDeviceDesc(HidDevice* self) {
 
 bool
 JNC_CDECL
-HidDevice::open_0(DataPtr pathPtr) {
+HidDevice::open_0(String path) {
 	close();
 
 	bool result =
 		requireHidCapability() &&
-		m_device.open((const char*)pathPtr.m_p);
+		m_device.open(path >> toAxl);
 
 	if (!result)
 		return false;
@@ -113,13 +113,13 @@ JNC_CDECL
 HidDevice::open_1(
 	uint16_t vid,
 	uint16_t pid,
-	DataPtr serialNumberPtr
+	String serialNumber
 ) {
 	close();
 
 	bool result =
 		requireHidCapability() &&
-		m_device.open(vid, pid, (const char*)serialNumberPtr.m_p);
+		m_device.open(vid, pid, serialNumber >> toAxl);
 
 	if (!result)
 		return false;

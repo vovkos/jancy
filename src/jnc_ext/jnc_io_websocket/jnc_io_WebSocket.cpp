@@ -176,16 +176,16 @@ bool
 JNC_CDECL
 WebSocket::connect(
 	DataPtr addressPtr,
-	DataPtr resourcePtr,
-	DataPtr hostPtr
+	String resource,
+	String host
 ) {
 	SocketAddress* address = (SocketAddress*)addressPtr.m_p;
 	bool result = m_socket.connect(address->getSockAddr());
 	if (!result)
 		return false;
 
-	m_resource.copy((char*)resourcePtr.m_p, strLen(resourcePtr));
-	m_host.copy((char*)hostPtr.m_p, strLen(hostPtr));
+	m_resource = resource >> toAxl;
+	m_host = host >> toAxl;
 
 	m_lock.lock();
 	m_ioThreadFlags |= IoThreadFlag_Connecting;
@@ -266,7 +266,7 @@ bool
 JNC_CDECL
 WebSocket::serverHandshake(
 	uint_t statusCode,
-	DataPtr statusTextPtr
+	String reasonPhrase
 ) {
 	sl::String handshakeResponse;
 
@@ -277,7 +277,14 @@ WebSocket::serverHandshake(
 		return false;
 	}
 
-	m_handshakeResponse->buildResponse(&handshakeResponse, m_handshakeRequest, m_extraHeaders);
+	m_handshakeResponse->buildResponse(
+		&handshakeResponse,
+		statusCode,
+		reasonPhrase >> toAxl,
+		m_handshakeRequest,
+		m_extraHeaders
+	);
+
 	m_publicHandshakeRequest = m_handshakeRequest;
 	m_publicHandshakeResponse = m_handshakeResponse;
 	size_t result = addToWriteBuffer(handshakeResponse.cp(), handshakeResponse.getLength());

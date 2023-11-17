@@ -19,8 +19,8 @@ struct DeviceMonitorHdr: IfaceHdr {
 	bool m_isConnected;
 	bool m_isEnabled;
 
-	DataPtr m_deviceNamePtr;
-	DataPtr m_fileNameFilterPtr;
+	String m_deviceName;
+	String m_fileNameFilter;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -103,7 +103,7 @@ public:
 
 	bool
 	JNC_CDECL
-	setFileNameFilter(DataPtr filterPtr);
+	setFileNameFilter(String filter);
 
 	bool
 	JNC_CDECL
@@ -119,7 +119,7 @@ public:
 
 	bool
 	JNC_CDECL
-	connect(DataPtr deviceNamePtr);
+	connect(String deviceName);
 
 	bool
 	JNC_CDECL

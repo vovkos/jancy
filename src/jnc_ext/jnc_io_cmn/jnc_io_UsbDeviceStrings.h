@@ -17,12 +17,12 @@ namespace io {
 //..............................................................................
 
 struct UsbDeviceStrings {
-	DataPtr m_descriptionPtr;
-	DataPtr m_manufacturerPtr;
-	DataPtr m_driverPtr;
-	DataPtr m_manufacturerDescriptorPtr;
-	DataPtr m_productDescriptorPtr;
-	DataPtr m_serialNumberDescriptorPtr;
+	String m_description;
+	String m_manufacturer;
+	String m_driver;
+	String m_manufacturerDescriptor;
+	String m_productDescriptor;
+	String m_serialNumberDescriptor;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

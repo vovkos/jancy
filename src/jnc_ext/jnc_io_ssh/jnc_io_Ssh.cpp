@@ -135,29 +135,29 @@ bool
 JNC_CDECL
 SshChannel::connect_0(
 	DataPtr addressPtr,
-	DataPtr userNamePtr,
+	String userName,
 	DataPtr privateKeyPtr,
 	size_t privateKeySize,
-	DataPtr passwordPtr,
-	DataPtr channelTypePtr,
-	DataPtr processTypePtr,
-	DataPtr ptyTypePtr,
+	String password,
+	String channelType,
+	String processType,
+	String ptyType,
 	uint_t ptyWidth,
 	uint_t ptyHeight
 ) {
 	return connectImpl(
-		(const SocketAddress*) addressPtr.m_p,
-		(const char*) userNamePtr.m_p,
+		(const SocketAddress*)addressPtr.m_p,
+		userName >> toAxl,
 		privateKeyPtr.m_p,
 		privateKeySize,
-		(const char*) passwordPtr.m_p,
-		(const char*) channelTypePtr.m_p,
+		password  >> toAxl,
+		channelType  >> toAxl,
 		NULL,
 		0,
-		(const char*) processTypePtr.m_p,
+		processType >> toAxl,
 		NULL,
 		0,
-		(const char*) ptyTypePtr.m_p,
+		ptyType >> toAxl,
 		ptyWidth,
 		ptyHeight
 	);
@@ -170,17 +170,17 @@ SshChannel::connect_1(DataPtr paramPtr) {
 
 	return connectImpl(
 		&params->m_address,
-		(const char*) params->m_userNamePtr.m_p,
+		params->m_userName >> toAxl,
 		params->m_privateKeyPtr.m_p,
 		params->m_privateKeySize,
-		(const char*) params->m_passwordPtr.m_p,
-		(const char*) params->m_channelTypePtr.m_p,
+		params->m_password >> toAxl,
+		params->m_channelType >> toAxl,
 		params->m_channelExtraPtr.m_p,
 		params->m_channelExtraSize,
-		(const char*) params->m_processTypePtr.m_p,
+		params->m_processType >> toAxl,
 		params->m_processExtraPtr.m_p,
 		params->m_processExtraSize,
-		(const char*) params->m_ptyTypePtr.m_p,
+		params->m_ptyType >> toAxl,
 		params->m_ptyWidth,
 		params->m_ptyHeight
 	);
@@ -189,17 +189,17 @@ SshChannel::connect_1(DataPtr paramPtr) {
 bool
 SshChannel::connectImpl(
 	const SocketAddress* address,
-	const char* userName,
+	const sl::StringRef& userName,
 	const void* privateKey,
 	size_t privateKeySize,
-	const char* password,
-	const char* channelType,
+	const sl::StringRef& password,
+	const sl::StringRef& channelType,
 	const void* channelExtra,
 	size_t channelExtraSize,
-	const char* processType,
+	const sl::StringRef& processType,
 	const void* processExtra,
 	size_t processExtraSize,
-	const char* ptyType,
+	const sl::StringRef& ptyType,
 	uint_t ptyWidth,
 	uint_t ptyHeight
 ) {
@@ -215,13 +215,13 @@ SshChannel::connectImpl(
 
 	ASSERT(!m_connectParams);
 	m_connectParams = new ConnectParams;
-	m_connectParams->m_userName = userName ? userName : "anonymous";
+	m_connectParams->m_userName = !userName.isEmpty() ? userName : "anonymous";
 
 	if (privateKey && privateKeySize)
 		m_connectParams->m_privateKey.copy((char*)privateKey, privateKeySize);
 
 	m_connectParams->m_password = password;
-	m_connectParams->m_channelType = channelType ? channelType: "session";
+	m_connectParams->m_channelType = !channelType.isEmpty() ? channelType: "session";
 
 	if (channelExtra && channelExtraSize)
 		m_connectParams->m_channelExtra.copy((char*)channelExtra, channelExtraSize);
@@ -252,10 +252,10 @@ SshChannel::connectImpl(
 bool
 JNC_CDECL
 SshChannel::authenticate(
-	DataPtr userNamePtr,
+	String userName0,
 	DataPtr privateKeyPtr,
 	size_t privateKeySize,
-	DataPtr passwordPtr
+	String password
 ) {
 	m_lock.lock();
 	if (!(m_activeEvents & SshEvent_SshAuthenticateError)) {
@@ -267,9 +267,11 @@ SshChannel::authenticate(
 
 	m_activeEvents &= ~SshEvent_SshAuthenticateError;
 
+	sl::StringRef userName = userName0 >> toAxl;
+
 	ASSERT(m_connectParams);
-	m_connectParams->m_userName = userNamePtr.m_p ? (const char*) userNamePtr.m_p : "anonymous";
-	m_connectParams->m_password = (const char*) passwordPtr.m_p;
+	m_connectParams->m_userName = !userName.isEmpty() ? userName : "anonymous";
+	m_connectParams->m_password = password >> toAxl;
 	m_connectParams->m_privateKey.copy((char*)privateKeyPtr.m_p, privateKeySize);
 
 	wakeIoThread();

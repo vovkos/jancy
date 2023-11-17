@@ -48,14 +48,14 @@ public:
 
 	ModuleItem*
 	JNC_CDECL
-	findItem(DataPtr namePtr) {
-		return rtl::getModuleItem(n()->findItem((char*)namePtr.m_p).m_item);
+	findItem(String name) {
+		return rtl::getModuleItem(n()->findItem(name >> toAxl).m_item);
 	}
 
 	ModuleItem*
 	JNC_CDECL
-	findItemNoParse(DataPtr namePtr) {
-		return rtl::getModuleItem(n()->findItemNoParse((char*)namePtr.m_p).m_item);
+	findItemNoParse(String name) {
+		return rtl::getModuleItem(n()->findItemNoParse(name >> toAxl).m_item);
 	}
 
 protected:

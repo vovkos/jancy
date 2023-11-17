@@ -38,7 +38,7 @@ createHidMonDeviceDesc(
 	DataPtr descPtr = createData<HidMonDeviceDesc>(runtime);
 	HidMonDeviceDesc* dstDesc = (HidMonDeviceDesc*)descPtr.m_p;
 	initUsbMonDeviceDescBase(dstDesc, srcDesc);
-	dstDesc->m_hidDeviceNamePtr = strDup(srcDesc->m_hidDeviceName);
+	dstDesc->m_hidDeviceName = allocateString(srcDesc->m_hidDeviceName);
 	dstDesc->m_reportDescriptorPtr = memDup(
 		srcDesc->m_reportDescriptor,
 		srcDesc->m_reportDescriptor.getCount()

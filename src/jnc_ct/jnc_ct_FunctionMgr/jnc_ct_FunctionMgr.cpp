@@ -960,6 +960,17 @@ FunctionMgr::getStdFunction(StdFunc func) {
 		function = createInternalFunction("jnc.variantIndexProperty.set", functionType);
 		break;
 
+	case StdFunc_StringConstruct:
+		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Void);
+		argTypeArray[0] = m_module->m_typeMgr.getPrimitiveType(TypeKind_String)->getDataPtrType_c();
+		argTypeArray[1] = m_module->m_typeMgr.getStdType(StdType_CharConstPtr);
+		argTypeArray[2] = m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT);
+		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 3);
+		Lexer::tokenizeString(&functionType->getArgArray()[2]->m_initializer, "-1");
+		functionType->getArgArray()[2]->m_parentNamespace = m_module->m_namespaceMgr.getGlobalNamespace();
+		function = createInternalFunction("jnc.stringConstruct", functionType);
+		break;
+
 	case StdFunc_StringCreate:
 		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_String);
 		argTypeArray[0] = m_module->m_typeMgr.getStdType(StdType_CharConstPtr);

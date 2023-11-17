@@ -86,7 +86,7 @@ public:
 
 	bool
 	JNC_CDECL
-	open(DataPtr namePtr);
+	open(String name);
 
 	void
 	JNC_CDECL

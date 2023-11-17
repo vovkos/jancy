@@ -39,19 +39,15 @@ struct Address_ip4: public in_addr {
 	bool
 	parse(
 		DataPtr selfPtr,
-		DataPtr stringPtr
+		String string
 	) {
-		return axl::io::parseAddr_ip4(
-			(in_addr*)selfPtr.m_p,
-			(const char*) stringPtr.m_p
-		);
+		return axl::io::parseAddr_ip4((in_addr*)selfPtr.m_p, string >> toAxl);
 	}
 
 	static
-	DataPtr
+	String
 	getString(DataPtr selfPtr) {
-		sl::String string = axl::io::getAddrString_ip4((const in_addr*) selfPtr.m_p);
-		return strDup(string, string.getLength());
+		return allocateString(axl::io::getAddrString_ip4((in_addr*)selfPtr.m_p));
 	}
 };
 
@@ -64,19 +60,15 @@ struct Address_ip6: public in6_addr {
 	bool
 	parse(
 		DataPtr selfPtr,
-		DataPtr stringPtr
+		String string
 	) {
-		return axl::io::parseAddr_ip6(
-			(in6_addr*)selfPtr.m_p,
-			(const char*) stringPtr.m_p
-		);
+		return axl::io::parseAddr_ip6((in6_addr*)selfPtr.m_p, string >> toAxl);
 	}
 
 	static
-	DataPtr
+	String
 	getString(DataPtr selfPtr) {
-		sl::String string = axl::io::getAddrString_ip6((const in6_addr*) selfPtr.m_p);
-		return strDup(string, string.getLength());
+		return allocateString(axl::io::getAddrString_ip6((in6_addr*)selfPtr.m_p));
 	}
 };
 
@@ -91,10 +83,7 @@ struct SocketAddress_ip4: public sockaddr_in {
 		DataPtr selfPtr,
 		DataPtr addressPtr
 	) {
-		return axl::io::isSockAddrEqual_ip4(
-			(const sockaddr_in*) selfPtr.m_p,
-			(const sockaddr_in*) addressPtr.m_p
-		);
+		return axl::io::isSockAddrEqual_ip4((sockaddr_in*)selfPtr.m_p, (sockaddr_in*)addressPtr.m_p);
 	}
 
 	static
@@ -103,29 +92,22 @@ struct SocketAddress_ip4: public sockaddr_in {
 		DataPtr selfPtr,
 		DataPtr addressPtr
 	) {
-		return axl::io::isSockAddrMatch_ip4(
-			(const sockaddr_in*) selfPtr.m_p,
-			(const sockaddr_in*) addressPtr.m_p
-		);
+		return axl::io::isSockAddrMatch_ip4((sockaddr_in*)selfPtr.m_p, (sockaddr_in*)addressPtr.m_p);
 	}
 
 	static
 	bool
 	parse(
 		DataPtr selfPtr,
-		DataPtr stringPtr
+		String string
 	) {
-		return axl::io::parseSockAddr_ip4(
-			(sockaddr_in*)selfPtr.m_p,
-			(const char*) stringPtr.m_p
-		);
+		return axl::io::parseSockAddr_ip4((sockaddr_in*)selfPtr.m_p, string >> toAxl);
 	}
 
 	static
-	DataPtr
+	String
 	getString(DataPtr selfPtr) {
-		sl::String string = axl::io::getSockAddrString_ip4((const sockaddr_in*) selfPtr.m_p);
-		return strDup(string, string.getLength());
+		return allocateString(axl::io::getSockAddrString_ip4((sockaddr_in*)selfPtr.m_p));
 	}
 };
 
@@ -140,10 +122,7 @@ struct SocketAddress_ip6: public sockaddr_in6 {
 		DataPtr selfPtr,
 		DataPtr addressPtr
 	) {
-		return axl::io::isSockAddrEqual_ip6(
-			(const sockaddr_in6*) selfPtr.m_p,
-			(const sockaddr_in6*) addressPtr.m_p
-		);
+		return axl::io::isSockAddrEqual_ip6((sockaddr_in6*)selfPtr.m_p, (sockaddr_in6*)addressPtr.m_p);
 	}
 
 	static
@@ -152,29 +131,22 @@ struct SocketAddress_ip6: public sockaddr_in6 {
 		DataPtr selfPtr,
 		DataPtr addressPtr
 	) {
-		return axl::io::isSockAddrMatch_ip6(
-			(const sockaddr_in6*) selfPtr.m_p,
-			(const sockaddr_in6*) addressPtr.m_p
-		);
+		return axl::io::isSockAddrMatch_ip6((sockaddr_in6*)selfPtr.m_p, (sockaddr_in6*)addressPtr.m_p);
 	}
 
 	static
 	bool
 	parse(
 		DataPtr selfPtr,
-		DataPtr stringPtr
+		String string
 	) {
-		return axl::io::parseSockAddr_ip6(
-			(sockaddr_in6*)selfPtr.m_p,
-			(const char*) stringPtr.m_p
-		);
+		return axl::io::parseSockAddr_ip6((sockaddr_in6*)selfPtr.m_p, string >> toAxl);
 	}
 
 	static
-	DataPtr
+	String
 	getString(DataPtr selfPtr) {
-		sl::String string = axl::io::getSockAddrString_ip6((const sockaddr_in6*) selfPtr.m_p);
-		return strDup(string, string.getLength());
+		return allocateString(axl::io::getSockAddrString_ip6((sockaddr_in6*)selfPtr.m_p));
 	}
 };
 
@@ -211,14 +183,13 @@ struct SocketAddress {
 	bool
 	parse(
 		DataPtr selfPtr,
-		DataPtr stringPtr
+		String string
 	);
 
 	static
-	DataPtr
+	String
 	getString(DataPtr selfPtr) {
-		sl::String string = ((SocketAddress*)selfPtr.m_p)->getSockAddr().getString();
-		return strDup(string, string.getLength());
+		return allocateString(((SocketAddress*)selfPtr.m_p)->getSockAddr().getString());
 	}
 
 	axl::io::SockAddr

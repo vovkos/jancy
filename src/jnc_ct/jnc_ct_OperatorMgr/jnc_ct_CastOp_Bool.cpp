@@ -53,6 +53,23 @@ Cast_BoolFromZeroCmp::llvmCast(
 //..............................................................................
 
 bool
+Cast_BoolFromString::llvmCast(
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
+) {
+	StructType* stringType = (StructType*)m_module->m_typeMgr.getStdType(StdType_StringStruct);
+	Field* lengthField = stringType->getFieldArray()[2];
+	Value lengthValue;
+
+	return
+		m_module->m_operatorMgr.getField(opValue, stringType, lengthField, &lengthValue) &&
+		m_module->m_operatorMgr.castOperator(lengthValue, type, resultValue);
+}
+
+//..............................................................................
+
+bool
 Cast_BoolFromPtr::llvmCast(
 	const Value& opValue,
 	Type* type,
@@ -105,6 +122,9 @@ Cast_Bool::getCastOperator(
 ) {
 	TypeKind srcTypeKind = opValue.getType()->getTypeKind();
 	switch (srcTypeKind) {
+	case TypeKind_String:
+		return &m_fromString;
+
 	case TypeKind_Bool:
 	case TypeKind_Int8:
 	case TypeKind_Int8_u:

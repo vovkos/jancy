@@ -63,8 +63,8 @@ jnc_strDup(
 }
 
 template <typename T>
-jnc_DataPtr
-jnc_strDupConvert(
+jnc::DataPtr
+strDupConvert(
 	const T* p,
 	size_t length
 ) {
@@ -95,7 +95,7 @@ jnc_strDup_w(
 	const wchar_t* p,
 	size_t length
 ) {
-	return jnc_strDupConvert(p, length);
+	return strDupConvert(p, length);
 }
 
 JNC_EXTERN_C
@@ -105,7 +105,60 @@ jnc_strDup_utf16(
 	const utf16_t* p,
 	size_t length
 ) {
-	return jnc_strDupConvert(p, length);
+	return strDupConvert(p, length);
+}
+
+template <typename T>
+jnc_String
+allocateStringImpl(
+	const T* p,
+	size_t length
+) {
+	using namespace jnc;
+
+	typedef sl::StringDetailsBase<T> StringDetails;
+
+	if (length == -1)
+		length = StringDetails::calcLength(p);
+
+	if (!length)
+		return g_nullString;
+
+	String string;
+	string.m_ptr = strDup(p, length);
+	string.m_ptr_sz = string.m_ptr;
+	string.m_length = length;
+	return string;
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_String
+jnc_allocateString(
+	const char* p,
+	size_t length
+) {
+	return allocateStringImpl(p, length);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_String
+jnc_allocateString_w(
+	const wchar_t* p,
+	size_t length
+) {
+	return allocateStringImpl(p, length);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_String
+jnc_allocateString_utf16(
+	const utf16_t* p,
+	size_t length
+) {
+	return allocateStringImpl(p, length);
 }
 
 JNC_EXTERN_C
@@ -148,18 +201,24 @@ jnc_createForeignBufferPtr(
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-jnc_DataPtr
-jnc_createForeignStringPtr(
+jnc_String
+jnc_createForeignString(
 	const char* p,
+	size_t length,
 	bool_t isCallSiteLocal
 ) {
 	using namespace jnc;
 
-	GcHeap* gcHeap = getCurrentThreadGcHeap();
-	ASSERT(gcHeap);
+	if (length == -1)
+		length = p ? strlen(p) : 0;
 
-	size_t length = strlen_s(p);
-	return gcHeap->createForeignBufferPtr(p, p ? length + 1 : 0, isCallSiteLocal != 0);
+	if (!length)
+		return g_nullString;
+
+	DataPtr ptr = createForeignBufferPtr(p, length + 1, isCallSiteLocal);
+	String string;
+	string.setPtr(ptr, length);
+	return string;
 }
 
 //..............................................................................

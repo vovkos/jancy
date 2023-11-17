@@ -12,6 +12,7 @@
 #pragma once
 
 #include "jnc_ct_CastOp.h"
+#include "jnc_String.h"
 
 namespace jnc {
 namespace ct {
@@ -54,6 +55,39 @@ public:
 
 //..............................................................................
 
+class Cast_BoolFromString: public CastOperator {
+public:
+	virtual
+	CastKind
+	getCastKind(
+		const Value& opValue,
+		Type* type
+	) {
+		return CastKind_Implicit;
+	}
+
+	virtual
+	bool
+	constCast(
+		const Value& opValue,
+		Type* type,
+		void* dst
+	) {
+		*(bool*)dst = ((String*)opValue.getConstData())->m_length == 0;
+		return true;
+	}
+
+	virtual
+	bool
+	llvmCast(
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
+	);
+};
+
+//..............................................................................
+
 // comparison to zero -> bool (common for both integer & fp)
 
 class Cast_BoolFromZeroCmp: public CastOperator {
@@ -83,7 +117,6 @@ public:
 		Value* resultValue
 	);
 };
-
 
 //..............................................................................
 
@@ -139,6 +172,7 @@ public:
 class Cast_Bool: public Cast_Master {
 protected:
 	Cast_BoolFromZeroCmp m_fromZeroCmp;
+	Cast_BoolFromString m_fromString;
 	Cast_BoolFromPtr m_fromPtr;
 	Cast_BoolTrue m_true;
 

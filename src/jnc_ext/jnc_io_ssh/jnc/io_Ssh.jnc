@@ -81,17 +81,17 @@ bitflag enum SshEvents: SocketEvents {
 
 struct SshConnectParams {
 	SocketAddress m_address;
-	char const* m_userName;
+	string_t m_userName;
 	void const* m_privateKey;
 	size_t m_privateKeySize;
-	char const* m_password;
-	char const* m_channelType;  // session, direct-tcpip, tcpip-forward, etc
+	string_t m_password;
+	string_t m_channelType;  // session, direct-tcpip, tcpip-forward, etc
 	void const* m_channelExtra;
 	size_t m_channelExtraSize;
-	char const* m_processType;  // shell, exec, subsystem, etc
+	string_t m_processType;  // shell, exec, subsystem, etc
 	void const* m_processExtra;
 	size_t m_processExtraSize;
-	char const* m_ptyType;      // vanilla, ansi, xterm, vt102, etc
+	string_t m_ptyType;      // vanilla, ansi, xterm, vt102, etc
 	uint_t m_ptyWidth;
 	uint_t m_ptyHeight;
 }
@@ -139,7 +139,7 @@ struct SshConnectParams {
 			construct();
 
 			void open(
-				char const* portName,
+				string_t portName,
 				uint_t baudRate
 			);
 
@@ -155,9 +155,9 @@ struct SshConnectParams {
 		}
 
 		MyDialog.connect(
-			char const* addrString,
-			char const* userName,
-			char const* password
+			string_t addrString,
+			string_t userName,
+			string_t password
 		) {
 			`io.SocketAddress` sockAddr;
 			sockAddr.parse(addrString);
@@ -202,7 +202,7 @@ struct SshConnectParams {
 				return;
 
 			if (triggeredEvents & `io.SshEvents.IoError`) {
-				char cont* errorString = m_ssh.m_ioError.m_description;
+				string_t errorString = m_ssh.m_ioError.m_description;
 				// ...
 			}
 
@@ -339,13 +339,13 @@ opaque class SshChannel {
 
 	bool errorcode connect(
 		SocketAddress const* address,
-		char const* userName,
+		string_t userName,
 		void const* privateKey,
 		size_t privateKeySize,
-		char const* password,
-		char const* channelType = "session", // session, direct-tcpip, tcpip-forward, etc
-		char const* processType = "shell",   // shell, exec, subsystem, etc
-		char const* ptyType = "xterm",       // vanilla, ansi, xterm, vt102, etc
+		string_t password,
+		string_t channelType = "session", // session, direct-tcpip, tcpip-forward, etc
+		string_t processType = "shell",   // shell, exec, subsystem, etc
+		string_t ptyType = "xterm",       // vanilla, ansi, xterm, vt102, etc
 		uint_t ptyWidth = 80,
 		uint_t ptyHeight = 24
 	);
@@ -360,10 +360,10 @@ opaque class SshChannel {
 	*/
 
 	bool errorcode authenticate(
-		char const* userName,
+		string_t userName,
 		void const* privateKey,
 		size_t privateKeySize,
-		char const* password
+		string_t password
 	);
 
 	/**
