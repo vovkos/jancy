@@ -699,6 +699,7 @@ FunctionMgr::getStdFunction(StdFunc func) {
 
 	Type* returnType;
 	FunctionType* functionType;
+	FunctionArg* arg;
 	Function* function;
 
 	switch (func) {
@@ -966,8 +967,9 @@ FunctionMgr::getStdFunction(StdFunc func) {
 		argTypeArray[1] = m_module->m_typeMgr.getStdType(StdType_CharConstPtr);
 		argTypeArray[2] = m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 3);
-		Lexer::tokenizeString(&functionType->getArgArray()[2]->m_initializer, "-1");
-		functionType->getArgArray()[2]->m_parentNamespace = m_module->m_namespaceMgr.getGlobalNamespace();
+		arg = functionType->getArgArray()[2];
+		Lexer::tokenizeString(&arg->m_initializer, "-1");
+		arg->m_parentNamespace = m_module->m_namespaceMgr.getGlobalNamespace();
 		function = createInternalFunction("jnc.stringConstruct", functionType);
 		break;
 
@@ -976,6 +978,9 @@ FunctionMgr::getStdFunction(StdFunc func) {
 		argTypeArray[0] = m_module->m_typeMgr.getStdType(StdType_CharConstPtr);
 		argTypeArray[1] = m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 2);
+		arg = functionType->getArgArray()[1];
+		Lexer::tokenizeString(&arg->m_initializer, "-1");
+		arg->m_parentNamespace = m_module->m_namespaceMgr.getGlobalNamespace();
 		function = createInternalFunction("jnc.stringCreate", functionType);
 		break;
 
