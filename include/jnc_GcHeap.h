@@ -576,6 +576,11 @@ struct jnc_GcHeap {
 	}
 
 	void
+	markVariant(jnc_Variant variant) {
+		jnc_GcHeap_markVariant(this, variant);
+	}
+
+	void
 	markString(jnc_String string) {
 		jnc_GcHeap_markString(this, string);
 	}
