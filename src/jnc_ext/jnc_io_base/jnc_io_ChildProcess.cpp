@@ -183,7 +183,7 @@ size_t
 buildArgvArray(
 	sl::Array<char*>* argv,
 	sl::String* string,
-	const char* commandLine
+	const sl::StringRef& commandLine
 ) {
 	argv->clear();
 	*string = commandLine;
@@ -262,7 +262,7 @@ buildEnvpArray(
 
 void
 exec(
-	const char* commandLine,
+	const sl::StringRef& commandLine,
 	StdHashTable* environment,
 	uint_t flags
 ) { // returns on failure only
@@ -285,6 +285,7 @@ exec(
 
 	ASSERT(result == -1);
 	err::setLastSystemError();
+	
 }
 #endif
 
@@ -424,7 +425,7 @@ ChildProcess::start(
 			::dup2(isSeparateStderr ? stderrPipe.m_writeFile : stdoutPipe.m_writeFile, STDERR_FILENO);
 		}
 
-		exec((const char*)commandLinePtr.m_p, environment, flags);
+		exec(commandLine >> toAxl, environment, flags);
 
 		error = err::getLastError();
 		execPipe.m_writeFile.write(error, error->m_size);

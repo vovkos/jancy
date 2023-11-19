@@ -123,7 +123,7 @@ FileStream::open(
 	ASSERT(!m_overlappedIo);
 	m_overlappedIo = new OverlappedIo;
 #else
-	result = m_file.open((const char*) namePtr.m_p, openFlags);
+	result = m_file.open(name >> toAxl, openFlags);
 	if (!result)
 		return false;
 #endif
