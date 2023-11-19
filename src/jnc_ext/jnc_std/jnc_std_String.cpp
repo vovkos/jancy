@@ -29,10 +29,12 @@ JNC_DEFINE_CLASS_TYPE(
 JNC_BEGIN_TYPE_FUNCTION_MAP(StringBuilder)
 	JNC_MAP_FUNCTION("clear", &StringBuilder::clear)
 	JNC_MAP_FUNCTION("reserve", &StringBuilder::reserve)
-	JNC_MAP_FUNCTION("copy", &StringBuilder::copy_string)
-	JNC_MAP_OVERLOAD(&StringBuilder::copy_char)
-	JNC_MAP_FUNCTION("insert", &StringBuilder::insert_string)
-	JNC_MAP_OVERLOAD(&StringBuilder::insert_char)
+	JNC_MAP_FUNCTION("copy", &StringBuilder::copy_0)
+	JNC_MAP_OVERLOAD(&StringBuilder::copy_1)
+	JNC_MAP_OVERLOAD(&StringBuilder::copy_2)
+	JNC_MAP_FUNCTION("insert", &StringBuilder::insert_0)
+	JNC_MAP_OVERLOAD(&StringBuilder::insert_1)
+	JNC_MAP_OVERLOAD(&StringBuilder::insert_2)
 	JNC_MAP_FUNCTION("remove", &StringBuilder::remove)
 	JNC_MAP_FUNCTION("chop", &StringBuilder::chop)
 	JNC_MAP_FUNCTION("trimLeft", &StringBuilder::trimLeft)
@@ -74,7 +76,25 @@ StringBuilder::reserve(size_t length) {
 
 size_t
 JNC_CDECL
-StringBuilder::copy_char(
+StringBuilder::copy_0(String string) {
+	return copyImpl((char*)string.m_ptr.m_p, string.m_length);
+}
+
+size_t
+JNC_CDECL
+StringBuilder::copy_1(
+	DataPtr ptr,
+	size_t length
+) {
+	char buffer[256];
+	sl::String string(rc::BufKind_Stack, buffer, sizeof(buffer));
+	string.copy((utf16_t*)ptr.m_p, length);
+	return copyImpl(string.cp(), string.getLength());
+}
+
+size_t
+JNC_CDECL
+StringBuilder::copy_2(
 	utf32_t c,
 	size_t count
 ) {
@@ -86,13 +106,30 @@ StringBuilder::copy_char(
 
 size_t
 JNC_CDECL
-StringBuilder::copy_string(String string) {
-	return copyImpl((char*)string.m_ptr.m_p, string.m_length);
+StringBuilder::insert_0(
+	size_t offset,
+	String string
+) {
+	return insertImpl(offset, (char*)string.m_ptr.m_p, string.m_length);
+}
+
+
+size_t
+JNC_CDECL
+StringBuilder::insert_1(
+	size_t offset,
+	DataPtr ptr,
+	size_t length
+) {
+	char buffer[256];
+	sl::String string(rc::BufKind_Stack, buffer, sizeof(buffer));
+	string.copy((utf16_t*)ptr.m_p, length);
+	return insertImpl(offset, string.cp(), string.getLength());
 }
 
 size_t
 JNC_CDECL
-StringBuilder::insert_char(
+StringBuilder::insert_2(
 	size_t offset,
 	utf32_t c,
 	size_t count
@@ -101,15 +138,6 @@ StringBuilder::insert_char(
 	sl::String string(rc::BufKind_Stack, buffer, sizeof(buffer));
 	string.copy(c, count);
 	return insertImpl(offset, string.cp(), string.getLength());
-}
-
-size_t
-JNC_CDECL
-StringBuilder::insert_string(
-	size_t offset,
-	String string
-) {
-	return insertImpl(offset, (char*)string.m_ptr.m_p, string.m_length);
 }
 
 size_t

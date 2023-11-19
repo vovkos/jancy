@@ -39,28 +39,43 @@ public:
 
 	size_t
 	JNC_CDECL
-	copy_char(
+	copy_0(String string);
+
+	size_t
+	JNC_CDECL
+	copy_1(
+		DataPtr ptr,
+		size_t length
+	);
+
+	size_t
+	JNC_CDECL
+	copy_2(
 		utf32_t c,
 		size_t count
 	);
 
 	size_t
 	JNC_CDECL
-	copy_string(String string);
-
-	size_t
-	JNC_CDECL
-	insert_char(
-		size_t offset,
-		utf32_t c,
-		size_t count
-	);
-
-	size_t
-	JNC_CDECL
-	insert_string(
+	insert_0(
 		size_t offset,
 		String string
+	);
+
+	size_t
+	JNC_CDECL
+	insert_1(
+		size_t offset,
+		DataPtr ptr,
+		size_t length
+	);
+
+	size_t
+	JNC_CDECL
+	insert_2(
+		size_t offset,
+		utf32_t c,
+		size_t count
 	);
 
 	size_t
