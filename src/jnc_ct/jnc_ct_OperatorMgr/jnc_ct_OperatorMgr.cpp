@@ -393,14 +393,12 @@ OperatorMgr::getConditionalOperatorResultType(
 			trueType->cmp(falseType) == 0 ? trueType :
 			(trueType->getTypeKindFlags() & falseType->getTypeKindFlags() & TypeKindFlag_Numeric) ?
 				getConditionalNumericOperatorResultType(trueValue, trueType, falseValue, falseType) :
-				(trueType->getTypeKindFlags() & falseType->getTypeKindFlags() & (TypeKindFlag_DataPtr | TypeKindFlag_ClassPtr)) &&
-				!(trueType->getFlags() & PtrTypeFlag_Const) &&
-				(falseType->getFlags() & PtrTypeFlag_Const) ?
-					falseType :
-					trueType;
+				checkCastKind(falseValue, trueType) ? // prefer true-type unless can't cast to true-type
+					trueType :
+					falseType;
 	}
 
-	// for pointers, remove remove `safe` flag
+	// for pointers, remove `safe` flag
 	// if it's a lean data pointer, turn it into a normal one
 
 	if ((resultType->getTypeKindFlags() & TypeKindFlag_DataPtr) &&
@@ -421,11 +419,7 @@ OperatorMgr::getConditionalOperatorResultType(
 			resultType->getFlags() & (PtrTypeFlag__All & ~PtrTypeFlag_Safe)
 		);
 
-	result =
-		checkCastKind(trueValue, resultType) &&
-		checkCastKind(falseValue, resultType);
-
-	return result ? resultType : NULL;
+	return resultType;
 }
 
 bool
