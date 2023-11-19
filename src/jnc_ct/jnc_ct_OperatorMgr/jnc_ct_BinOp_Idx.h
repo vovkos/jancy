@@ -51,6 +51,13 @@ protected:
 	);
 
 	bool
+	stringIndexOperator(
+		const Value& rawOpValue1,
+		const Value& rawOpValue2,
+		Value* resultValue
+	);
+
+	bool
 	propertyIndexOperator(
 		PropertyType* propertyType,
 		const Value& rawOpValue1,

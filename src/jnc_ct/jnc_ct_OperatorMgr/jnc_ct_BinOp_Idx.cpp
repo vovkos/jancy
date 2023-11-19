@@ -53,6 +53,8 @@ BinOp_Idx::op(
 
 	TypeKind typeKind = opType1->getTypeKind();
 	switch (typeKind) {
+		Field* field;
+
 	case TypeKind_DataPtr:
 		return
 			m_module->m_operatorMgr.castOperator(&opValue2, TypeKind_IntPtr) &&
@@ -67,6 +69,9 @@ BinOp_Idx::op(
 	case TypeKind_Variant:
 		err::setFormatStringError("r-value variant index is not implemented yet");
 		return false;
+
+	case TypeKind_String:
+		return stringIndexOperator(opValue1, opValue2, resultValue);
 
 	case TypeKind_PropertyRef:
 	case TypeKind_PropertyPtr:
@@ -222,6 +227,22 @@ BinOp_Idx::variantIndexOperator(
 	closure->append(variantValue);
 	closure->append(opValue2);
 	return true;
+}
+
+bool
+BinOp_Idx::stringIndexOperator(
+	const Value& opValue1,
+	const Value& opValue2,
+	Value* resultValue
+) {
+	StructType* stringType = (StructType*)m_module->m_typeMgr.getStdType(StdType_StringStruct);
+	Field* ptrField = stringType->getFieldArray()[0];
+	Value ptrValue;
+
+	return
+		m_module->m_operatorMgr.getField(opValue1, stringType, ptrField, &ptrValue) &&
+		m_module->m_operatorMgr.binaryOperator(BinOpKind_Add, ptrValue, opValue2, &ptrValue) &&
+		m_module->m_operatorMgr.unaryOperator(UnOpKind_Indir, ptrValue, resultValue);
 }
 
 bool
