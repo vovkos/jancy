@@ -52,12 +52,8 @@ UnOp_LogNot::op(
 	case TypeKind_PropertyPtr:
 		return ptrOperator(opValue, resultValue);
 
-	case TypeKind_Variant:
-		return variantOperator(opValue, resultValue);
-
 	default:
-		setOperatorError(opValue);
-		return false;
+		return defaultOperator(opValue, resultValue);
 	}
 }
 
@@ -89,7 +85,7 @@ UnOp_LogNot::ptrOperator(
 }
 
 bool
-UnOp_LogNot::variantOperator(
+UnOp_LogNot::defaultOperator(
 	const Value& opValue,
 	Value* resultValue
 ) {

@@ -45,7 +45,7 @@ protected:
 	);
 
 	bool
-	variantOperator(
+	defaultOperator(
 		const Value& opValue,
 		Value* resultValue
 	);
