@@ -271,24 +271,29 @@ jnc_Variant_relationalOperator(
 	using namespace jnc;
 	ASSERT(opKind >= BinOpKind_Eq && opKind <= BinOpKind_Ge);
 
+	Type* opType1;
+	Type* opType2;
 	ct::Value opValue1;
+	ct::Value opValue2;
 
 	if (variant->m_type) {
-		opValue1.createConst(variant, variant->m_type);
+		opType1 = variant->m_type;
+		opValue1.createConst(variant, opType1);
 	} else if (variant2->m_type) {
-		opValue1.createConst(NULL, variant2->m_type);
+		opType1 = variant2->m_type;
+		opValue1.createConst(NULL, opType1);
 	} else {
 		*resultBool = opKind == jnc_BinOpKind_Eq;
 		return true;
 	}
 
-	ct::Value opValue2;
-
 	if (variant2->m_type) {
-		opValue2.createConst(variant2, variant2->m_type);
+		opType2 = variant2->m_type;
+		opValue2.createConst(variant2, opType2);
 	} else {
 		ASSERT(variant->m_type);
-		opValue2.createConst(NULL, variant->m_type);
+		opType2 = variant->m_type;
+		opValue2.createConst(NULL, opType2);
 	}
 
 	ct::Module* module = opValue1.getType()->getModule();
@@ -309,23 +314,21 @@ jnc_Variant_relationalOperator(
 
 	// try memcmp fallback for equality and inequality
 
-	if ((opKind != jnc_BinOpKind_Eq && opKind != jnc_BinOpKind_Ne) ||
-		variant->m_type->cmp(variant2->m_type) != 0)
+	if ((opKind != jnc_BinOpKind_Eq && opKind != jnc_BinOpKind_Ne) || opType1->cmp(opType2) != 0)
 		return false;
 
 	const void* p1;
 	const void* p2;
 	size_t size;
 
-	Type* type = variant->m_type;
-	if (type->getTypeKind() == TypeKind_DataRef) {
+	if (opType1->getTypeKind() == TypeKind_DataRef) {
 		p1 = variant->m_p;
 		p2 = variant2->m_p;
-		size = ((ct::DataPtrType*)type)->getTargetType()->getSize();
+		size = ((ct::DataPtrType*)opType1)->getTargetType()->getSize();
 	} else {
 		p1 = variant;
 		p2 = variant2;
-		size = type->getSize();
+		size = opType1->getSize();
 	}
 
 	bool isEqual = memcmp(p1, p2, size) == 0;
