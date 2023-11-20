@@ -249,6 +249,7 @@ EXPORTS
 	jnc_strengthenClassPtr
 	jnc_createForeignBufferPtr
 	jnc_createForeignString
+	jnc_createForeignString_sz
 	jnc_GcHeap_addBoxToCallSite
 	jnc_GcHeap_addRoot
 	jnc_GcHeap_addStaticClassDestructor

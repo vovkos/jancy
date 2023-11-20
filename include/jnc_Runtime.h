@@ -283,6 +283,14 @@ jnc_createForeignString(
 	bool_t isCallSiteLocal
 );
 
+JNC_EXTERN_C
+jnc_String
+jnc_createForeignString_sz(
+	const char* p,
+	size_t length,
+	bool_t isCallSiteLocal
+);
+
 // we want to make sure there is no unwinding during SJLJ -- alas,
 // unwinding doesn't work too well with the LLVM-generated JIT-code
 
@@ -683,7 +691,9 @@ createForeignString(
 	const axl::sl::StringRef& string,
 	bool isCallSiteLocal = true
 ) {
-	return jnc_createForeignString(string.cp(), string.getLength(), isCallSiteLocal);
+	return string.isNullTerminated() ?
+		jnc_createForeignString_sz(string.cp(), string.getLength(), isCallSiteLocal) :
+		jnc_createForeignString(string.cp(), string.getLength(), isCallSiteLocal);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

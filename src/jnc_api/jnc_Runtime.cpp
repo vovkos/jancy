@@ -209,15 +209,49 @@ jnc_createForeignString(
 ) {
 	using namespace jnc;
 
-	if (length == -1)
-		length = p ? strlen(p) : 0;
+	size_t ptrLength;
+	if (length != -1)
+		ptrLength = length;
+	else if (!p)
+		ptrLength = length = 0;
+	else {
+		length = strlen(p);
+		ptrLength = length + 1;
+	}
 
 	if (!length)
 		return g_nullString;
 
-	DataPtr ptr = createForeignBufferPtr(p, length + 1, isCallSiteLocal);
+	DataPtr ptr = createForeignBufferPtr(p, ptrLength, isCallSiteLocal);
 	String string;
 	string.setPtr(ptr, length);
+	return string;
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_String
+jnc_createForeignString_sz(
+	const char* p,
+	size_t length,
+	bool_t isCallSiteLocal
+) {
+	using namespace jnc;
+
+	ASSERT(p);
+
+	if (length == -1)
+		length = strlen(p);
+
+	if (!length)
+		return g_nullString;
+
+	ASSERT(!p[length]);
+	DataPtr ptr = createForeignBufferPtr(p, length + 1, isCallSiteLocal);
+	String string;
+	string.m_ptr = ptr;
+	string.m_ptr_sz = ptr;
+	string.m_length = length;
 	return string;
 }
 
