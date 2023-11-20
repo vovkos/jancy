@@ -57,7 +57,7 @@ opaque class ClassType: DerivableType {
 		TypeKind typeKind = TypeKind.ClassPtr,
 		ClassPtrTypeKind ptrTypeKind = ClassPtrTypeKind.Normal,
 		PtrTypeFlags flags = 0
-	);
+	)  const;
 }
 
 //..............................................................................

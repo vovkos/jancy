@@ -45,7 +45,7 @@ opaque class PropertyType: Type {
 		TypeKind typeKind = TypeKind.PropertyPtr,
 		PropertyPtrTypeKind ptrTypeKind = PropertyPtrTypeKind.Normal,
 		PtrTypeFlags flags = 0
-	);
+	) const;
 }
 
 //..............................................................................

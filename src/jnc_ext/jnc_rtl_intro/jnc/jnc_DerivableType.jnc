@@ -43,7 +43,7 @@ opaque class DerivableType:
 
 	construct(intptr p);
 
-	size_t findBaseTypeOffset(DerivableType* baseType);
+	size_t findBaseTypeOffset(DerivableType* baseType) const;
 }
 
 //..............................................................................

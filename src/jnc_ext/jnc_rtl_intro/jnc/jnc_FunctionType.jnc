@@ -61,7 +61,7 @@ opaque class FunctionType: Type {
 		TypeKind typeKind = TypeKind.FunctionPtr,
 		FunctionPtrTypeKind ptrTypeKind = FunctionPtrTypeKind.Normal,
 		PtrTypeFlags flags = 0
-	);
+	) const;
 }
 
 //..............................................................................

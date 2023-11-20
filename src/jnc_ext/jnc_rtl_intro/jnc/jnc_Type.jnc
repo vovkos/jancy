@@ -180,25 +180,25 @@ opaque class Type: ModuleItem {
 	construct(intptr p);
 	destruct();
 
-	int cmp(Type* type);
+	int cmp(Type* type) const;
 
 	string_t getValueString(
 		void const* value,
 		string_t formatSpec = null
-	);
+	) const;
 
 	string_t getValueString(
 		variant_t value,
 		string_t formatSpec = null
-	);
+	) const;
 
-	ArrayType* getArrayType(size_t elementCount);
+	ArrayType* getArrayType(size_t elementCount) const;
 
 	DataPtrType* getDataPtrType(
 		TypeKind typeKind = TypeKind.DataPtr,
 		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind.Normal,
 		PtrTypeFlags flags = 0
-	);
+	) const;
 }
 
 //..............................................................................

@@ -94,11 +94,11 @@ opaque class ModuleItemDecl {
 	construct(intptr p);
 	destruct();
 
-	Attribute* findAttribute(string_t name) {
+	Attribute* findAttribute(string_t name) const {
 		return m_attributeBlock ? m_attributeBlock.findAttribute(name) : null;
 	}
 
-	variant_t findAttributeValue(string_t name) {
+	variant_t findAttributeValue(string_t name) const {
 		Attribute* attribute = findAttribute(name);
 		return attribute ? attribute.m_value : null;
 	}
