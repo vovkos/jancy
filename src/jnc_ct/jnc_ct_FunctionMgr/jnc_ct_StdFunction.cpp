@@ -101,6 +101,7 @@ getStdFunctionSource(StdFunc stdFunc) {
 
 		{ NULL },                                // StdFunc_StringConstruct,
 		{ NULL },                                // StdFunc_StringCreate,
+		{ NULL },                                // StdFunc_StringIncrement,
 		{ NULL },                                // StdFunc_StringSz,
 		{ NULL },                                // StdFunc_StringRef,
 		{ NULL },                                // StdFunc_StringEq,

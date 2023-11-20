@@ -431,6 +431,24 @@ stringCreate(
 	return string;
 }
 
+String
+stringIncrement(
+	String string,
+	size_t delta
+) {
+	if (delta >= string.m_length)
+		delta = string.m_length;
+
+	if (delta) {
+		string.m_ptr.m_p = (char*)string.m_ptr.m_p + delta;
+		if (string.m_ptr_sz.m_p)
+			string.m_ptr_sz.m_p = (char*)string.m_ptr_sz.m_p + delta;
+		string.m_length -= delta;
+	}
+
+	return string;
+}
+
 bool
 isNullTerminated(DataPtr ptr) {
 	if (!ptr.m_validator)
@@ -1205,8 +1223,9 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_CoreLib)
 
 	// strings
 
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringCreate,    stringCreate)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringConstruct, stringConstruct)
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringCreate,    stringCreate)
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringIncrement, stringIncrement)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringSz,        stringSz)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringRefSz,     stringRefSz)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringEq,        stringEq)

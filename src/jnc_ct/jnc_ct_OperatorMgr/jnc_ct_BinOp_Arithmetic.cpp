@@ -19,6 +19,18 @@ namespace ct {
 //..............................................................................
 
 bool
+stringIncrementOperator(
+	Module* module,
+	const Value& opValue1,
+	const Value& opValue2,
+	Value* resultValue
+) {
+	ASSERT(opValue1.getType()->getTypeKind() == TypeKind_String);
+	Function* func = module->m_functionMgr.getStdFunction(StdFunc_StringIncrement);
+	return module->m_operatorMgr.callOperator(func, opValue1, opValue2, resultValue);
+}
+
+bool
 dataPtrIncrementOperator(
 	Module* module,
 	const Value& opValue1,
@@ -188,15 +200,19 @@ BinOp_Add::op(
 	const Value& opValue2,
 	Value* resultValue
 ) {
-	if (opValue1.getType()->getTypeKind() == TypeKind_DataPtr &&
-		(opValue2.getType()->getTypeKindFlags() & TypeKindFlag_Integer))
-		return dataPtrIncrementOperator(m_module, opValue1, opValue2, resultValue);
-	else if (
-		opValue2.getType()->getTypeKind() == TypeKind_DataPtr &&
-		(opValue1.getType()->getTypeKindFlags() & TypeKindFlag_Integer))
-		return dataPtrIncrementOperator(m_module, opValue2, opValue1, resultValue);
-	else
-		return BinOp_Arithmetic<BinOp_Add>::op(opValue1, opValue2, resultValue);
+	if (opValue2.getType()->getTypeKindFlags() & TypeKindFlag_Integer) {
+		if (opValue1.getType()->getTypeKind() == TypeKind_String)
+			return stringIncrementOperator(m_module, opValue1, opValue2, resultValue);
+		if (opValue1.getType()->getTypeKind() == TypeKind_DataPtr)
+			return dataPtrIncrementOperator(m_module, opValue1, opValue2, resultValue);
+	} else if (opValue1.getType()->getTypeKindFlags() & TypeKindFlag_Integer) {
+		if (opValue2.getType()->getTypeKind() == TypeKind_String)
+			return stringIncrementOperator(m_module, opValue2, opValue1, resultValue);
+		if (opValue2.getType()->getTypeKind() == TypeKind_DataPtr)
+			return dataPtrIncrementOperator(m_module, opValue2, opValue1, resultValue);
+	}
+
+	return BinOp_Arithmetic<BinOp_Add>::op(opValue1, opValue2, resultValue);
 }
 
 llvm::Value*
@@ -240,7 +256,6 @@ BinOp_Sub::op(
 		return dataPtrDifferenceOperator(m_module, opValue1, opValue2, resultValue);
 	else
 		return BinOp_Arithmetic<BinOp_Sub>::op(opValue1, opValue2, resultValue);
-
 }
 
 llvm::Value*

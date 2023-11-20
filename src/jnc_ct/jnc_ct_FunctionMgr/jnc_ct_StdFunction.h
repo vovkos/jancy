@@ -61,6 +61,7 @@ enum StdFunc {
 
 	StdFunc_StringConstruct,
 	StdFunc_StringCreate,
+	StdFunc_StringIncrement,
 	StdFunc_StringSz,
 	StdFunc_StringRefSz,
 	StdFunc_StringEq,

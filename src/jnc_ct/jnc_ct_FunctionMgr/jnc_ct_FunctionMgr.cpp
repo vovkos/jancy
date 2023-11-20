@@ -984,6 +984,14 @@ FunctionMgr::getStdFunction(StdFunc func) {
 		function = createInternalFunction("jnc.stringCreate", functionType);
 		break;
 
+	case StdFunc_StringIncrement:
+		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_String);
+		argTypeArray[0] = m_module->m_typeMgr.getPrimitiveType(TypeKind_String);
+		argTypeArray[1] = m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT);
+		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 2);
+		function = createInternalFunction("jnc.stringIncrement", functionType);
+		break;
+
 	case StdFunc_StringSz:
 		returnType = m_module->m_typeMgr.getStdType(StdType_CharConstPtr);
 		argTypeArray[0] = m_module->m_typeMgr.getPrimitiveType(TypeKind_String);
