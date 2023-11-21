@@ -12,7 +12,7 @@ protected:
 	doc.PluginHost* m_pluginHost;
 
 public:
-	char const* readonly m_name;
+	string_t readonly m_name;
 	ui.GroupProperty* readonly m_groupProp;
 
 public:

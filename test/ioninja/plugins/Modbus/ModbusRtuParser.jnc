@@ -72,7 +72,7 @@ nestedscope:
 	while (p < end) {
 		size = end - p;
 		if (!m_expectedSize)
-			m_expectedSize = io.getModbusRtuAduSize(m_modbusRole, (io.ModbusRtuAduHdr const*) p, size);
+			m_expectedSize = io.getModbusRtuAduSize(m_modbusRole, (io.ModbusRtuAduHdr const*)p, size);
 
 		size_t leftoverSize = m_expectedSize - m_dataBuffer.m_size;
 		if (size < leftoverSize) {
@@ -85,7 +85,7 @@ nestedscope:
 
 		// check ADU size once again (as we have appended some data)
 
-		io.ModbusRtuAduHdr const* aduHdr = (io.ModbusRtuAduHdr const*) m_dataBuffer.m_p;
+		io.ModbusRtuAduHdr const* aduHdr = (io.ModbusRtuAduHdr const*)m_dataBuffer.m_p;
 		size_t expectedSize = io.getModbusRtuAduSize(m_modbusRole, aduHdr, m_dataBuffer.m_size);
 		if (expectedSize > m_expectedSize) {
 			m_expectedSize = expectedSize;

@@ -183,7 +183,7 @@ bool errorcode MailslotSession.open() {
 
 	m_nameCombo.addEditTextToHistory();
 
-	char const* fileName = m_nameCombo.m_editText;
+	string_t fileName = m_nameCombo.m_editText;
 
 	m_mailslot.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
 	m_mailslot.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;

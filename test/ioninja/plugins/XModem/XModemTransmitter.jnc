@@ -103,15 +103,15 @@ void XModemTransmitter.onRx(
 ) {
 	switch (m_state) {
 	case State.WaitNak:
-		onRx_WaitNak(*(char const*) p);
+		onRx_WaitNak(*(char const*)p);
 		break;
 
 	case State.Data:
-		onRx_Data(*(char const*) p);
+		onRx_Data(*(char const*)p);
 		break;
 
 	case State.Eot:
-		onRx_Eot(*(char const*) p);
+		onRx_Eot(*(char const*)p);
 		break;
 	}
 }

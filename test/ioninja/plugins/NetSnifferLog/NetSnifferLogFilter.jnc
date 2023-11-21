@@ -11,7 +11,7 @@ import "io_pcap.jncx"
 
 class NetSnifferLogFilter: log.Filter {
 protected:
-	char const* m_filter;
+	string_t m_filter;
 	bool m_isOptimized;
 	std.HashTable m_pcapFilterMap; // link-type to pcap-filter
 
@@ -19,7 +19,7 @@ public:
 	// suspend log engine before calling setFilter
 
 	bool errorcode setFilter(
-		char const* filter,
+		string_t filter,
 		bool isOptimized = true
 	);
 
@@ -37,7 +37,7 @@ protected:
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool errorcode NetSnifferLogFilter.setFilter(
-	char const* filter,
+	string_t filter,
 	bool isOptimized
 ) {
 	io.PcapFilter pcapFilter;

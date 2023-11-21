@@ -46,7 +46,7 @@ struct IgmpHdr {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* formatIgmpDigest(void const* p) {
+string_t formatIgmpDigest(void const* p) {
 	IgmpHdr const* hdr = (IgmpHdr const*)p;
 	return typeof(IgmpType).getValueString(&hdr.m_type);
 }

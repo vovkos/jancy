@@ -26,7 +26,7 @@ const EnumPropertyOption TransmitModeOptionTable[] = {
 	{ "Binary", WebSocketTransmitMode.Binary },
 }
 
-char const* const TransmitModeToolTipTable[] = {
+string_t const TransmitModeToolTipTable[] = {
 	"Transmit as text if the packet is a valid UTF-8; transmit as binary otherwise",
 	"Transmit as text always",
 	"Transmit as binary always",

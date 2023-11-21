@@ -119,7 +119,7 @@ struct EthernetHdr_ieee8023 {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* formatEthernetDigest(void const* p) {
+string_t formatEthernetDigest(void const* p) {
 	EthernetHdr const* hdr = (EthernetHdr const*)p;
 
 	return $"%1 \u2192 %2" (
@@ -128,7 +128,7 @@ char const* formatEthernetDigest(void const* p) {
 	);
 }
 
-char const* formatEthernetAddress(void const* p) {
+string_t formatEthernetAddress(void const* p) {
 	uchar_t const* mac = (uchar_t const*)p;
 
 	return $"%02X:%02X:%02X:%02X:%02X:%02X"(

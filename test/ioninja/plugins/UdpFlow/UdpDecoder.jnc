@@ -38,7 +38,7 @@ bool UdpDecoder.decodeTransportHdr(
 	if (protocol != io.IpProtocol.Udp || size < sizeof(io.UdpHdr))
 		return false;
 
-	io.UdpHdr const* udpHdr = (io.UdpHdr const*) p;
+	io.UdpHdr const* udpHdr = (io.UdpHdr const*)p;
 	if (udpHdr.m_length < sizeof(io.UdpHdr) || udpHdr.m_length > size)
 		return false;
 

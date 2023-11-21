@@ -93,14 +93,14 @@ class FormLayout: Layout {
 	);
 
 	void addRow(
-		char const* label,
+		string_t label,
 		Widget* field
 	) {
 		addRow(new Label(label), field);
 	}
 
 	void addRow(
-		char const* label,
+		string_t label,
 		Layout* field
 	) {
 		addRow(new Label(label), field);

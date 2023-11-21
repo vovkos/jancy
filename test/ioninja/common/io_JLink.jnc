@@ -94,7 +94,7 @@ enum JLINK_FUNC_INDEX {
 typedef uint8_t  U8;
 typedef uint32_t U32;
 
-typedef void stdcall JLINK_LOG(const char thin* sErr);
+typedef void stdcall JLINK_LOG(char const thin* sErr);
 
 typedef int stdcall JLINK_FUNC_MRU_GETLIST(
 	U32 Group,
@@ -154,8 +154,8 @@ struct JLINK_PCODE_INFO {
 }
 
 struct JLINK_FLASH_BANK_INFO {
-	const char thin* sBankName;
-	const char thin* sAlgoFile;
+	char const thin* sBankName;
+	char const thin* sAlgoFile;
 	U32 AlgoType;                 // Really of type MAIN_FLASH_ALGO_TYPE but to avoid mutual inclusion, we choose U32 here for now...
 	U32 BaseAddr;
 	const void thin* paBlockInfo; // For some algos, e.g. for SPIFI, this is just a default block info that may vary from target to target, so we need to request the actual one from the target via the RAMCode, at runtime
@@ -182,14 +182,14 @@ struct JLINK_FLASH_BANK_INFO_EXT {
 
 struct JLINKARM_DEVICE_INFO {
 	U32 SizeOfStruct;           // Required. Use SizeofStruct = sizeof(JLINKARM_DEVICE_INFO)
-	const char thin* sName;
+	char const thin* sName;
 	U32 CoreId;
 	U32 FlashAddr;              // Start address of first flash area
 	U32 RAMAddr;                // Start address of first RAM area
 	char EndianMode;            // 0=Little, 1=Big, 2=Both
 	U32 FlashSize;              // Total flash size in bytes (flash may contain gaps. For exact address & size of each region, please refer to aFlashArea)
 	U32 RAMSize;                // Total RAM size in bytes  (RAM may contain gaps. For exact address & size of each region, please refer to aRAMArea)
-	const char thin* sManu;               // Device manufacturer
+	char const thin* sManu;               // Device manufacturer
 	JLINK_FLASH_AREA_INFO aFlashArea[32]; // Region size of 0 bytes marks the end of the list
 	JLINK_RAM_AREA_INFO aRAMArea[32];     // Region size of 0 bytes marks the end of the list
 	U32 Core;                             // JLINKARM_CORE_... value
@@ -215,9 +215,9 @@ dynamiclib JLinkLib {
 		JLINKARM_DEVICE_INFO thin* pDeviceInfo
 	);
 
-	const char thin* stdcall JLINK_Open();
+	char const thin* stdcall JLINK_Open();
 
-	const char thin* stdcall JLINK_OpenEx(
+	char const thin* stdcall JLINK_OpenEx(
 		JLINK_LOG thin* pfLog,
 		JLINK_LOG thin* pfErrorOut
 	);
@@ -229,7 +229,7 @@ dynamiclib JLinkLib {
 	void thin* stdcall JLINK_GetpFunc(JLINK_FUNC_INDEX FuncIndex);
 
 	int stdcall JLINK_ExecCommand(
-		const char thin* pIn,
+		char const thin* pIn,
 		char thin* pOut,
 		int BufferSize
 	);
@@ -238,7 +238,7 @@ dynamiclib JLinkLib {
 	void stdcall JLINK_SetSpeed(U32 Speed);
 
 	char stdcall JLINK_SelectIP(
-		const char thin* sHost,
+		char const thin* sHost,
 		int Port
 	);
 

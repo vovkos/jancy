@@ -31,7 +31,7 @@ protected:
 		Connected,
 	}
 
-	static char const* m_stateStringTable[] = {
+	static string_t const m_stateStringTable[] = {
 		"Closed",
 		"Resolving...",
 		"Waiting...",
@@ -74,7 +74,7 @@ protected:
 	std.Buffer m_readBuffer;
 	sys.Timer m_reconnectTimer;
 	uint64_t m_lastReconnectTime;
-	char const* m_hostname;
+	string_t m_hostname;
 	uint_t m_syncId;
 
 	// toolbar, status bar & menu
@@ -242,7 +242,7 @@ bool errorcode SslConnectionSession.connect() {
 
 	startSession();
 
-	char const* addressString = m_addressCombo.m_editText;
+	string_t addressString = m_addressCombo.m_editText;
 	m_addressCombo.addEditTextToHistory();
 	m_hostname = null;
 
@@ -259,18 +259,14 @@ bool errorcode SslConnectionSession.connect() {
 	m_sessionConnectionState = SessionConnectionState.Connecting;
 
 	if (m_sslPropertySet.m_useHostnameProp.m_value) {
-		char const* portToken = strchr(addressString, ':');
+		char const* portToken = memchr(addressString.m_p, ':', addressString.m_length);
 		m_hostname = strdup(
 			addressString,
-			portToken ? portToken - addressString : -1
+			portToken ? portToken - addressString.m_p : -1
 		);
 	}
 
-	m_logWriter.write(
-		SocketLogRecordCode.Resolving,
-		addressString,
-		strlen(addressString)
-	);
+	m_logWriter.write(SocketLogRecordCode.Resolving, addressString);
 
 	io.AddressFamily addressFamily = io.AddressFamily.Undefined;
 	if (m_socketPropertySet.m_useLocalAddressProp.m_value) {
@@ -344,7 +340,7 @@ bool errorcode SslConnectionSession.connect(io.SocketAddress const* remoteAddres
 	m_socket.connect(remoteAddress);
 
 	m_localAddress = m_socket.m_address;
-	char const* p = $"$(*remoteAddress; B)$(m_localAddress; B)";
+	void const* p = $"$(*remoteAddress; B)$(m_localAddress; B)";
 	m_logWriter.write(SocketLogRecordCode.ConnectingFrom, p, dynamic sizeof(p));
 
 	waitSocketEvents();
@@ -354,7 +350,7 @@ catch:
 	if (!m_socketPropertySet.m_useLocalAddressProp.m_value) {
 		m_logWriter.write(SocketLogRecordCode.Connecting, remoteAddress, sizeof(io.SocketAddress));
 	} else {
-		char const* p = $"$(*remoteAddress; B)$(m_localAddress; B)";
+		void const* p = $"$(*remoteAddress; B)$(m_localAddress; B)";
 		m_logWriter.write(SocketLogRecordCode.ConnectingFrom, p, dynamic sizeof(p));
 	}
 

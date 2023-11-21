@@ -8,7 +8,7 @@ import "HwSerialMonLogRecordCode.jnc"
 
 //..............................................................................
 
-char const* getLineString(uint_t line) {
+string_t getLineString(uint_t line) {
 	return line ? "\e[31mon\e[m" : "\e[90moff\e[m";
 }
 
@@ -23,7 +23,7 @@ bool representHwSerialMonLog(
 ) {
 	switch (recordCode) {
 	case HwSerialMonRecordCode.CaptureStarted:
-		char const* ifaceName = p;
+		string_t ifaceName = (char const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addHyperText($"Capture started on \e[34m$ifaceName\e[m interface");
@@ -36,14 +36,13 @@ bool representHwSerialMonLog(
 		break;
 
 	case HwSerialMonRecordCode.RawPacket:
-//		representation.m_lineAttr.m_iconIdx = -1;
-//		representation.m_lineAttr.m_textColor = log.StdLogColor.Rx;
+		representation.m_lineAttr.m_textColor = log.StdLogColor.Rx;
 		representation.addBin(p, size);
 		break;
 
 	case HwSerialMonRecordCode.UartRtsChanged:
-		bool rts = *(bool const*) p;
-		char const* rtsString = getLineString(rts);
+		bool rts = *(bool const*)p;
+		string_t rtsString = getLineString(rts);
 
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
@@ -51,8 +50,8 @@ bool representHwSerialMonLog(
 		break;
 
 	case HwSerialMonRecordCode.UartCtsChanged:
-		bool dtr = *(bool const*) p;
-		char const* ctsString = getLineString(dtr);
+		bool dtr = *(bool const*)p;
+		string_t ctsString = getLineString(dtr);
 
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;

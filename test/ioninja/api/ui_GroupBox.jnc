@@ -14,13 +14,13 @@ namespace ui {
 //..............................................................................
 
 class GroupBox: Widget {
-	char const* autoget property m_title;
+	string_t autoget property m_title;
 	Layout* autoget property m_layout;
 	bool autoget property m_isCheckable;
 	bool bindable autoget property m_isChecked;
 
 	construct(
-		char const* title = null,
+		string_t title = null,
 		Layout* layout = null
 	);
 

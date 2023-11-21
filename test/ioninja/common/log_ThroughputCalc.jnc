@@ -34,7 +34,7 @@ protected:
 
 	override processText(
 		uint64_t partCode,
-		char const* text
+		string_t text
 	);
 
 	override processBin(
@@ -57,7 +57,7 @@ protected:
 
 void ThroughputCalcRangeProcessor.processText(
 	uint64_t partCode,
-	char const* text
+	string_t text
 ) {
 	if (!m_startTimestamp)
 		m_startTimestamp = m_timestamp;
@@ -128,7 +128,7 @@ void ThroughputCalcRangeProcessor.processEndOfRange() {
 		if (m_infoSet.m_totalThroughputInfo)
 			m_infoSet.m_totalThroughputInfo.m_value = formatIntegerWithThousandSep(m_totalSize * 10000000 / timeSpan);
 	} else {
-		char const* text = "insufficient time span";
+		string_t text = "insufficient time span";
 
 		if (m_infoSet.m_txThroughputInfo)
 			m_infoSet.m_txThroughputInfo.m_disabledValue = text;

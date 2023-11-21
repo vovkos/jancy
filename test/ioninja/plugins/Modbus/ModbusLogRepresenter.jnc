@@ -42,14 +42,14 @@ bool representModbusLog(
 		break;
 
 	case ModbusLogRecordCode.InvalidFunction: // legacy
-		uint8_t code = *(uint8_t const*) p;
+		uint8_t code = *(uint8_t const*)p;
 		representation.m_lineAttr.m_backColor = ui.StdColor.PastelYellow;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
 		representation.addHyperText($"Invalid or unsupported Modbus function: \e[31m0x%(1; 02x)/%1\e[m" (code));
 		return true;
 
 	case ModbusLogRecordCode.ParseError:
-		std.Error const* error = (std.Error const*) p;
+		std.Error const* error = (std.Error const*)p;
 		representation.m_lineAttr.m_backColor = ui.StdColor.PastelYellow;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
 		representation.addHyperText($"Modbus parse error: $(error.m_description)");

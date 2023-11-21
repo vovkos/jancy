@@ -31,7 +31,7 @@ bool PipeMonLogFilter.filter(
 	case PipeMonLogRecordCode.ServerFileOpened_0:
 	case PipeMonLogRecordCode.ClientFileOpened_0:
 		m_fileId = *(uint32_t const*)p;
-		char const* fileName = (char const*)(p + sizeof(uint32_t));
+		string_t fileName = (char const*)(p + sizeof(uint32_t));
 		result = match(fileName, null, 0, true);
 		break;
 
@@ -39,7 +39,7 @@ bool PipeMonLogFilter.filter(
 	case PipeMonLogRecordCode.ClientFileOpened_1:
 		m_fileId = *(uint32_t const*)p;
 		uint_t pid = *(uint32_t const*)(p + sizeof(uint32_t));
-		char const* fileName = (char const*)(p + sizeof(uint32_t) + sizeof(uint32_t));
+		string_t fileName = (char const*)(p + sizeof(uint32_t) + sizeof(uint32_t));
 		result = match(fileName, null, pid, true);
 		break;
 
@@ -47,15 +47,15 @@ bool PipeMonLogFilter.filter(
 	case PipeMonLogRecordCode.ClientFileOpened:
 		m_fileId = *(uint64_t const*)p;
 		uint_t pid = *(uint32_t const*)(p + sizeof(uint64_t));
-		char const* fileName = (char const*)(p + sizeof(uint64_t) + sizeof(uint32_t));
-		char const* processName = (char const*)fileName + strlen(fileName) + 1;
+		string_t fileName = (char const*)(p + sizeof(uint64_t) + sizeof(uint32_t));
+		string_t processName = fileName.m_p + fileName.m_length + 1;
 		result = match(fileName, processName, pid, true);
 		break;
 
 	case PipeMonLogRecordCode.ServerFileOpenError_0:
 	case PipeMonLogRecordCode.ClientFileOpenError_0:
 		std.Error const* error = (std.Error const*)p;
-		char const* fileName = (char const*)(error + 1);
+		string_t fileName = (char const*)(error + 1);
 		result = match(fileName, null, 0, false);
 		break;
 
@@ -63,7 +63,7 @@ bool PipeMonLogFilter.filter(
 	case PipeMonLogRecordCode.ClientFileOpenError_1:
 		uint_t pid = *(uint32_t const*)p;
 		std.Error const* error = (std.Error const*)(p + sizeof(uint32_t));
-		char const* fileName = (char const*)(error + 1);
+		string_t fileName = (char const*)(error + 1);
 		result = match(fileName, null, pid, false);
 		break;
 
@@ -71,8 +71,8 @@ bool PipeMonLogFilter.filter(
 	case PipeMonLogRecordCode.ClientFileOpenError:
 		uint_t pid = *(uint32_t const*)p;
 		std.Error const* error = (std.Error const*)(p + sizeof(uint32_t));
-		char const* fileName = (char const*)(error + 1);
-		char const* processName = fileName + strlen(fileName) + 1;
+		string_t fileName = (char const*)(error + 1);
+		string_t processName = fileName.m_p + fileName.m_length + 1;
 		result = match(fileName, processName, pid, false);
 		break;
 

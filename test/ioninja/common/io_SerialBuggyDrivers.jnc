@@ -14,16 +14,16 @@ namespace io {
 
 //..............................................................................
 
-char const* detectSerialBuggyDriver(char const* portName) {
+string_t detectSerialBuggyDriver(string_t portName) {
 	if (sys.g_systemInfo.m_osKind != sys.OsKind.Windows)
 		return null;
 
-	char const* linkName =
-		portName[0] != '\\' ? (char const*) $"\\??\\$portName" :
-		strncmp(portName, "\\\\.\\", 4) == 0 ? (char const*) $"\\??\\$(portName + 4)" :
+	string_t linkName =
+		portName[0] != '\\' ? $"\\??\\$portName" :
+		strncmp(portName, "\\\\.\\", 4) == 0 ? $"\\??\\$(portName + 4)" :
 		portName;
 
-	char const* deviceName = try io.getSymbolicLinkTarget(linkName);
+	string_t deviceName = try io.getSymbolicLinkTarget(linkName);
 	printf("link name: %s, device name: %s\n", linkName, deviceName);
 
 	// when we can't get the device name, usually it's because of no port

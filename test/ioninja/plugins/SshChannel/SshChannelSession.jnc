@@ -44,7 +44,7 @@ protected:
 		Connected,
 	}
 
-	static char const* m_stateStringTable[] = {
+	static string_t const m_stateStringTable[] = {
 		"Closed",
 		"Resolving...",
 		"Waiting...",
@@ -252,7 +252,7 @@ bool errorcode SshChannelSession.connect() {
 	disconnect();
 	startSession();
 
-	char const* addressString = m_addressCombo.m_editText;
+	string_t addressString = m_addressCombo.m_editText;
 	m_addressCombo.addEditTextToHistory();
 
 	io.SocketAddress address;
@@ -265,12 +265,7 @@ bool errorcode SshChannelSession.connect() {
 	}
 
 	m_state = State.Resolving;
-
-	m_logWriter.write(
-		SocketLogRecordCode.Resolving,
-		addressString,
-		strlen(addressString)
-	);
+	m_logWriter.write(SocketLogRecordCode.Resolving, addressString);
 
 	io.AddressFamily addressFamily = io.AddressFamily.Undefined;
 	if (m_socketPropertySet.m_useLocalAddressProp.m_value) {
@@ -326,7 +321,7 @@ bool errorcode SshChannelSession.connect(io.SocketAddress const* remoteAddress) 
 	);
 
 	void const* privateKey;
-	char const* password;
+	string_t password;
 
 	if (m_sshPropertySet.m_authenticationMethodProp.m_value == ui.AuthenticationMethod.PrivateKey) {
 		privateKey = loadFile(m_sshPropertySet.m_privateKeyFileProp.m_value);
@@ -348,9 +343,10 @@ bool errorcode SshChannelSession.connect(io.SocketAddress const* remoteAddress) 
 	params.m_ptyWidth = m_pluginHost.m_terminal.m_consoleWidth;
 	params.m_ptyHeight = m_pluginHost.m_terminal.m_consoleHeight;
 
-	if (strcmp(params.m_processType, "shell") != 0) {
-		params.m_processExtra = m_sshPropertySet.m_processParamProp.m_value;
-		params.m_processExtraSize = strlen(params.m_processExtra);
+	if (params.m_processType != "shell") {
+		string_t extra = m_sshPropertySet.m_processParamProp.m_value;
+		params.m_processExtra = extra.m_p;
+		params.m_processExtraSize = extra.m_length;
 	}
 
 	m_ssh.connect(&params);

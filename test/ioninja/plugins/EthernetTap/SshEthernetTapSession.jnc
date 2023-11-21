@@ -124,9 +124,9 @@ protected:
 	}
 
 	void onLoginDlgCompleted(
-		char const* userName,
+		string_t userName,
 		ui.AuthenticationMethod authenticationMethod,
-		char const* privateKeyFileName
+		string_t privateKeyFileName
 	);
 
 	void onMsg(io.HwcMsgHdr const* hdr);
@@ -283,7 +283,7 @@ bool errorcode SshEthernetTapSession.connect() {
 	disconnect();
 	startSession();
 
-	char const* addressString = m_addressCombo.m_editText;
+	string_t addressString = m_addressCombo.m_editText;
 	if (!addressString) {
 		std.setError("address string missing");
 		m_logWriter.writeLastError(log.StdRecordCode.Error);
@@ -332,7 +332,7 @@ bool errorcode SshEthernetTapSession.applyFilter(bool rebuildLog) {
 
 iox.SshChannel.ConnectParams const* SshEthernetTapSession.createConnectParams() {
 	void const* privateKey;
-	char const* lastPassword;
+	string_t lastPassword;
 
 	if (m_sshPropertySet.m_authenticationMethodProp.m_value == ui.AuthenticationMethod.PrivateKey) {
 		privateKey = loadFile(m_sshPropertySet.m_privateKeyFileProp.m_value);
@@ -357,6 +357,8 @@ iox.SshChannel.ConnectParams const* SshEthernetTapSession.createConnectParams() 
 		params.m_localAddress.m_port = (uint16_t)m_socketPropertySet.m_localPortProp.m_value;
 	}
 
+	string_t extra = "ioninja-hwc --stdin --ethernet-tap";
+
 	params.m_privateKeyFileName = m_sshPropertySet.m_privateKeyFileProp.m_value;
 	params.m_rememberLastPassword = m_sshPropertySet.m_rememberLastPasswordProp.m_value;
 	params.m_sshParams.m_userName = m_sshPropertySet.m_userNameProp.m_value;
@@ -364,8 +366,8 @@ iox.SshChannel.ConnectParams const* SshEthernetTapSession.createConnectParams() 
 	params.m_sshParams.m_privateKeySize = dynamic sizeof(privateKey);
 	params.m_sshParams.m_channelType = "session";
 	params.m_sshParams.m_processType = "exec";
-	params.m_sshParams.m_processExtra = "ioninja-hwc --stdin --ethernet-tap";
-	params.m_sshParams.m_processExtraSize = strlen(params.m_sshParams.m_processExtra);
+	params.m_sshParams.m_processExtra = extra.m_p;
+	params.m_sshParams.m_processExtraSize = extra.m_length;
 
 	if (m_sshPropertySet.m_rememberLastPasswordProp.m_value)
 		params.m_sshParams.m_password = lastPassword;
@@ -416,9 +418,9 @@ void SshEthernetTapSession.restoreDefaultProperties() {
 }
 
 void SshEthernetTapSession.onLoginDlgCompleted(
-	char const* userName,
+	string_t userName,
 	ui.AuthenticationMethod authenticationMethod,
-	char const* privateKeyFileName
+	string_t privateKeyFileName
 ) {
 	m_sshPropertySet.m_userNameProp.m_value = userName;
 	m_sshPropertySet.m_authenticationMethodProp.m_value = authenticationMethod;

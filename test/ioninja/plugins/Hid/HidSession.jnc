@@ -312,7 +312,7 @@ void HidSession.waitHidDeviceEvents() {
 void HidSession.load(doc.Storage* storage) {
 	uint_t vid = storage.readInt("deviceVid");
 	uint_t pid = storage.readInt("devicePid");
-	char const* path = storage.readString("devicePath");
+	string_t path = storage.readString("devicePath");
 
 	size_t index = ui.findHidDeviceComboIndex(m_deviceCombo, vid, pid, path);
 	if (index != -1)

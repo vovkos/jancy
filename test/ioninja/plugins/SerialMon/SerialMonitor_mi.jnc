@@ -69,7 +69,7 @@ bool errorcode SerialMonitor_mi.write(
 			size -= leftover;
 		}
 
-		io.DeviceMonitorMiMsgHdr const* hdr = (io.DeviceMonitorMiMsgHdr const*) m_buffer.m_p;
+		io.DeviceMonitorMiMsgHdr const* hdr = (io.DeviceMonitorMiMsgHdr const*)m_buffer.m_p;
 		if (hdr.m_code > io.DeviceMonitorMiMsgCode._Last) {
 			handleUndefinedMessageCode(p, size);
 			return false;
@@ -92,7 +92,7 @@ bool errorcode SerialMonitor_mi.write(
 bool errorcode SerialMonitor_mi.processMsg(io.DeviceMonitorMiMsgHdr const* hdr) {
 	switch (hdr.m_code) {
 	case io.DeviceMonitorMiMsgCode.Error:
-		std.Error const* error = (std.Error const*) (hdr + 1);
+		std.Error const* error = (std.Error const*)(hdr + 1);
 		if (hdr.m_paramSize < sizeof(std.Error) ||
 			hdr.m_paramSize < error.m_size) {
 			std.setError("tdevmon MI error: ERROR message too small");
@@ -108,7 +108,7 @@ bool errorcode SerialMonitor_mi.processMsg(io.DeviceMonitorMiMsgHdr const* hdr) 
 			return false;
 		}
 
-		io.DeviceMonitorMiStartParams const* params = (io.DeviceMonitorMiStartParams const*) (hdr + 1);
+		io.DeviceMonitorMiStartParams const* params = (io.DeviceMonitorMiStartParams const*)(hdr + 1);
 		if (params.m_flags & io.DeviceMonitorMiStartFlags.Windows)
 			m_processor = new SerialMonProcessor_win(m_logWriter);
 		else if (params.m_flags & io.DeviceMonitorMiStartFlags.Linux)
@@ -126,7 +126,7 @@ bool errorcode SerialMonitor_mi.processMsg(io.DeviceMonitorMiMsgHdr const* hdr) 
 			return false;
 		}
 
-		io.DeviceMonitorNotifyHdr const* notifyHdr = (io.DeviceMonitorNotifyHdr const*) (hdr + 1);
+		io.DeviceMonitorNotifyHdr const* notifyHdr = (io.DeviceMonitorNotifyHdr const*)(hdr + 1);
 		if (hdr.m_paramSize < sizeof(io.DeviceMonitorNotifyHdr) ||
 			hdr.m_paramSize < sizeof(io.DeviceMonitorNotifyHdr) + notifyHdr.m_paramSize) {
 			std.setError("tdevmon MI error: NOTIFY message too small");

@@ -3,13 +3,8 @@
 
 //..............................................................................
 
-uint_t parseVersion(
-	char const* p,
-	size_t length = -1
-) {
-	if (length == -1)
-		length = strlen(p);
-
+uint_t parseVersion(string_t string) {
+	char const* p = string;
 	char const* end;
 	uint_t version = strtol(p, &end) << 16;
 

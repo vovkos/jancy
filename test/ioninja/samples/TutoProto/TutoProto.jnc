@@ -97,7 +97,7 @@ struct TutoProtoError {
 	bigendian int32_t m_errno;
 }
 
-char const* formatErrno(void const* p) {
+string_t formatErrno(void const* p) {
 	std.Error error;
 	error.m_guid = std.g_errnoGuid;
 	error.m_code = *(bigendian int const*)p;

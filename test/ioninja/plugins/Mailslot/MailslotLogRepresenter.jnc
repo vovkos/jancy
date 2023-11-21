@@ -17,14 +17,14 @@ bool representMailslotLog(
 ) {
 	switch (recordCode) {
 	case MailslotLogRecordCode.Opened:
-		char const* fileName = (char const*) p;
+		string_t fileName = (char const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
 		representation.addHyperText($"Opened mailslot \e[34m$fileName");
 		break;
 
 	case MailslotLogRecordCode.OpenError:
-		std.Error const* error = (std.Error const*) p;
+		std.Error const* error = (std.Error const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
 		representation.addHyperText($"Cannot open mailslot: $(error.m_description)");

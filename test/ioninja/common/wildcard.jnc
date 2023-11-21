@@ -7,8 +7,8 @@
 //..............................................................................
 
 bool wildcardCompareStringLowerCase(
-	const char thin* string0,
-	const char thin* wildcard
+	char const thin* string0,
+	char const thin* wildcard
 ) {
 	if (!*string0) { // empty input shortcut
 		while (*wildcard == '*')
@@ -17,9 +17,9 @@ bool wildcardCompareStringLowerCase(
 		return *wildcard == '\0';
 	}
 
-	const char thin* string = string0;
-	const char thin* stringBookmark = null;
-	const char thin* wildcardBookmark = null;
+	char const thin* string = string0;
+	char const thin* stringBookmark = null;
+	char const thin* wildcardBookmark = null;
 	char c;
 
 	for (;;) {

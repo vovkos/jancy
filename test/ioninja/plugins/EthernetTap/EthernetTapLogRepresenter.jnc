@@ -10,7 +10,7 @@ import "crc32.jnc"
 
 //..............................................................................
 
-char const* getValidityString(bool isValid) {
+string_t getValidityString(bool isValid) {
 	return isValid ? "\e[32mOK\e[m" : "\e[31mINVALID\e[m";
 }
 
@@ -23,7 +23,7 @@ bool representEthernetTapLog(
 ) {
 	switch (recordCode) {
 	case EthernetTapLogRecordCode.DeviceOpened:
-		char const* name = (char const*)p;
+		string_t name = (char const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addHyperText($"Tap device \e[34m$name\e[m opened");

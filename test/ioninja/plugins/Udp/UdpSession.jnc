@@ -248,10 +248,10 @@ nestedscope:
 	closeSocket();
 	startSession();
 
-	char const* portString = m_localPortCombo.m_editText;
+	string_t portString = m_localPortCombo.m_editText;
 	m_localPortCombo.addEditTextToHistory();
 
-	address = *(io.SocketAddress const*) m_adapterCombo.m_currentData;
+	address = *(io.SocketAddress const*)m_adapterCombo.m_currentData;
 	address.m_port = (uint16_t)atoi(portString);
 
 	m_socket.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
@@ -430,7 +430,7 @@ bool errorcode UdpSession.dispatch(
 bool errorcode UdpSession.resolve() {
 	m_resolver.cancel();
 	m_remoteAddressCombo.addEditTextToHistory();
-	char const* addressString = m_remoteAddressCombo.m_editText;
+	string_t addressString = m_remoteAddressCombo.m_editText;
 	m_resolver.m_defaultPort = m_socketPropertySet.m_remotePortProp.m_value;
 	return m_resolver.resolve(addressString);
 }

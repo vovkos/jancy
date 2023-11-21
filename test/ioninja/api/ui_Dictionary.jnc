@@ -12,8 +12,8 @@ namespace ui {
 
 struct DictionaryEntry {
 	DictionaryEntry cmut* m_next;
-	char const* m_key;
-	char const* m_value;
+	string_t m_key;
+	string_t m_value;
 	bool m_isChecked;
 }
 
@@ -21,14 +21,14 @@ struct DictionaryEntry {
 
 DictionaryEntry* loadDictionary(
 	doc.Storage* storage,
-	char const* name,
+	string_t name,
 	size_t* count = null
 ) {
 	DictionaryEntry* dictionary = null;
 	DictionaryEntry* prevEntry = null;
 
 	for (size_t i = 0;; i++) {
-		char const* key = storage.readString($"%1-key-%2"(name, i));
+		string_t key = storage.readString($"%1-key-%2"(name, i));
 		if (!key)
 			break;
 
@@ -51,7 +51,7 @@ DictionaryEntry* loadDictionary(
 void saveDictionary(
 	DictionaryEntry const* dictionary,
 	doc.Storage* storage,
-	char const* name
+	string_t name
 ) {
 	size_t i = 0;
 	DictionaryEntry const* entry = dictionary;
@@ -66,8 +66,8 @@ void saveDictionary(
 
 DictionaryEntry* insertDictionaryHead(
 	DictionaryEntry* dictionary,
-	char const* key,
-	char const* value,
+	string_t key,
+	string_t value,
 	bool isChecked = true
 ) {
 	DictionaryEntry entry;
@@ -90,11 +90,11 @@ std.StringHashTable* createDictionaryHashTable(DictionaryEntry const* dictionary
 
 DictionaryEntry* findDictionaryEntry(
 	DictionaryEntry* dictionary,
-	char const* key
+	string_t key
 ) {
 	DictionaryEntry* entry = dictionary;
 	for (; entry; entry = entry.m_next)
-		if (strcmp(entry.m_key, key) == 0)
+		if (entry.m_key == key)
 			return entry;
 
 	return null;

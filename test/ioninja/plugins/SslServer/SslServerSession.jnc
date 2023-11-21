@@ -253,7 +253,7 @@ bool errorcode SslServerSession.listen() {
 	startSession();
 
 	m_portCombo.addEditTextToHistory();
-	io.SocketAddress address = *(io.SocketAddress const*) m_adapterCombo.m_currentData;
+	io.SocketAddress address = *(io.SocketAddress const*)m_adapterCombo.m_currentData;
 	address.m_port = (uint16_t)atoi(m_portCombo.m_editText);
 
 	m_listenerSocket.open(&address);

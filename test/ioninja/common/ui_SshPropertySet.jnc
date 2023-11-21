@@ -205,11 +205,11 @@ reactor SshPropertySet.m_uiReactor {
 		m_privateKeyFileProp.m_isEnabled = m_authenticationMethodProp.m_value == ui.AuthenticationMethod.PrivateKey :
 		0;
 
-	m_processTypeProp ? m_processParamProp.m_isEnabled = strcmp(m_processTypeProp.m_value, "shell") != 0 : 0;
+	m_processTypeProp ? m_processParamProp.m_isEnabled = m_processTypeProp.m_value != "shell" : 0;
 
 	m_processTypeProp ?
-		strcmp(m_processTypeProp.m_value, "exec") == 0 ? m_processParamProp.m_placeholderText = "Enter command line..." :
-		strcmp(m_processTypeProp.m_value, "subsystem") == 0 ? m_processParamProp.m_placeholderText = "Enter subsystem name..." :
+		m_processTypeProp.m_value == "exec" ? m_processParamProp.m_placeholderText = "Enter command line..." :
+		m_processTypeProp.m_value == "subsystem" ? m_processParamProp.m_placeholderText = "Enter subsystem name..." :
 		null : null;
 }
 

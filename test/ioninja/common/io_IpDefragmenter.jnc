@@ -80,7 +80,7 @@ io.IpHdr const* IpDefragmenter.defragment(
 		ipHdr.m_totalLength > size)
 		return null;
 
-	void const* payload = (char const*) ipHdr + ipHdrSize;
+	void const* payload = (char const*)ipHdr + ipHdrSize;
 	size = ipHdr.m_totalLength - ipHdrSize;
 
 	uint64_t key = (uint64_t)ipHdr.m_srcAddress | (ipHdr.m_identification << 32);
@@ -122,7 +122,7 @@ io.IpHdr const* IpDefragmenter.defragment(
 		size_t payloadSize = fragment.m_offset + fragment.m_size;
 		size_t bufferSize = sizeof(io.IpHdr) + payloadSize;
 
-		io.IpHdr* newIpHdr = (io.IpHdr*) new char[bufferSize];
+		io.IpHdr* newIpHdr = (io.IpHdr*)new char[bufferSize];
 		*newIpHdr = *ipHdr;
 		newIpHdr.m_headerLength = sizeof(io.IpHdr) / 4;
 		newIpHdr.m_totalLength = bufferSize;

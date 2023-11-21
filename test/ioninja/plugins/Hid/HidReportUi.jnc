@@ -43,7 +43,7 @@ protected:
 
 	HidReportFieldEncoder* createFieldEncoder(
 		ui.FormLayout* layout,
-		char const* text,
+		string_t text,
 		size_t reportSize
 	);
 
@@ -87,7 +87,7 @@ void HidReportUi.createReportForms() {
 }
 
 void HidReportUi.createReportForm(io.HidReport const* report) {
-	char const* text = typeof(io.HidReportType).getValueString(report.m_reportType);
+	string_t text = typeof(io.HidReportType).getValueString(report.m_reportType);
 	if (report.m_reportId)
 		text = $"%1 #%2"(text, report.m_reportId);
 
@@ -149,7 +149,7 @@ void HidReportUi.createReportForm(io.HidReport const* report) {
 
 HidReportFieldEncoder* HidReportUi.createFieldEncoder(
 	ui.FormLayout* layout,
-	char const* text,
+	string_t text,
 	size_t reportSize
 ) {
 	if (reportSize == 1) {

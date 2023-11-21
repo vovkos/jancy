@@ -205,7 +205,7 @@ void SerialMonProcessor_lnx.processNotification(io.DeviceMonitorNotifyHdr const*
 
 	case io.lnx.DeviceMonitorNotifyCode.Read:
 	case io.lnx.DeviceMonitorNotifyCode.ReadIter:
-		io.lnx.DeviceMonitorReadWriteNotifyParams const* params = (io.lnx.DeviceMonitorReadWriteNotifyParams const*) (notifyHdr + 1);
+		io.lnx.DeviceMonitorReadWriteNotifyParams const* params = (io.lnx.DeviceMonitorReadWriteNotifyParams const*)(notifyHdr + 1);
 
 		if (params.m_dataSize)
 			m_logWriter.write(
@@ -218,7 +218,7 @@ void SerialMonProcessor_lnx.processNotification(io.DeviceMonitorNotifyHdr const*
 
 	case io.lnx.DeviceMonitorNotifyCode.Write:
 	case io.lnx.DeviceMonitorNotifyCode.WriteIter:
-		io.lnx.DeviceMonitorReadWriteNotifyParams const* params = (io.lnx.DeviceMonitorReadWriteNotifyParams const*) (notifyHdr + 1);
+		io.lnx.DeviceMonitorReadWriteNotifyParams const* params = (io.lnx.DeviceMonitorReadWriteNotifyParams const*)(notifyHdr + 1);
 
 		if (params.m_dataSize)
 			m_logWriter.write(
@@ -232,7 +232,7 @@ void SerialMonProcessor_lnx.processNotification(io.DeviceMonitorNotifyHdr const*
 
 	case io.lnx.DeviceMonitorNotifyCode.UnlockedIoctl:
 	case io.lnx.DeviceMonitorNotifyCode.CompatIoctl:
-		io.lnx.DeviceMonitorIoctlNotifyParams const* params = (io.lnx.DeviceMonitorIoctlNotifyParams const*) (notifyHdr + 1);
+		io.lnx.DeviceMonitorIoctlNotifyParams const* params = (io.lnx.DeviceMonitorIoctlNotifyParams const*)(notifyHdr + 1);
 
 		processIoctlNotification(
 			notifyHdr.m_ntStatus,
@@ -262,7 +262,7 @@ void SerialMonProcessor_lnx.processIoctlNotification(
 		if (argDataSize < sizeof(psx.termio))
 			break;
 
-		psx.termio const* attr = (psx.termio const*) argData;
+		psx.termio const* attr = (psx.termio const*)argData;
 		processTermiosSetAttr(timestamp, attr.c_cflag, attr.c_iflag);
 		break;
 
@@ -272,7 +272,7 @@ void SerialMonProcessor_lnx.processIoctlNotification(
 		if (argDataSize < sizeof(psx.termios))
 			break;
 
-		psx.termios const* attr = (psx.termios const*) argData;
+		psx.termios const* attr = (psx.termios const*)argData;
 		processTermiosSetAttr(timestamp, attr.c_cflag, attr.c_iflag);
 		break;
 
@@ -282,7 +282,7 @@ void SerialMonProcessor_lnx.processIoctlNotification(
 		if (argDataSize < sizeof(psx.termios2))
 			break;
 
-		psx.termios2 const* attr = (psx.termios2 const*) argData;
+		psx.termios2 const* attr = (psx.termios2 const*)argData;
 		processTermiosSetAttr(timestamp, attr.c_cflag, attr.c_iflag, attr.c_ispeed, attr.c_ospeed);
 		break;
 
@@ -290,7 +290,7 @@ void SerialMonProcessor_lnx.processIoctlNotification(
 		if (argDataSize < sizeof(uint_t))
 			break;
 
-		uint_t posixLines = *(uint_t const*) argData;
+		uint_t posixLines = *(uint_t const*)argData;
 		io.SerialStatusLines lines = 0;
 
 		if (posixLines & psx.TIOCM_CTS)
@@ -326,7 +326,7 @@ void SerialMonProcessor_lnx.processIoctlNotification(
 		if (argDataSize < sizeof(uint_t))
 			break;
 
-		uint_t lines = *(uint_t const*) argData;
+		uint_t lines = *(uint_t const*)argData;
 		bool value = code == psx.TIOCMBIS;
 
 		if (lines & psx.TIOCM_DTR)

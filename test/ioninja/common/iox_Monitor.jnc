@@ -37,8 +37,8 @@ public:
 	}
 
 	bool errorcode capture(
-		char const* deviceName,
-		char const* fileNameFilter = null,
+		string_t deviceName,
+		string_t fileNameFilter = null,
 		io.psx.DeviceMonitorIoctlDesc const* ioctlDescTable = null,
 		size_t ioctlDescCount = 0
 	);
@@ -54,7 +54,7 @@ public:
 		size_t pendingNotifySizeLimit
 	);
 
-	void setFileNameFilter(char const* filter) {
+	void setFileNameFilter(string_t filter) {
 		m_monitor.m_fileNameFilter = filter;
 	}
 
@@ -78,8 +78,8 @@ protected:
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool errorcode Monitor.capture(
-	char const* deviceName,
-	char const* fileNameFilter,
+	string_t deviceName,
+	string_t fileNameFilter,
 	io.psx.DeviceMonitorIoctlDesc const* ioctlDescTable,
 	size_t ioctlDescCount
 ) {
@@ -168,7 +168,7 @@ bool Monitor.addNotificationData(
 			size -= leftoverSize;
 		}
 
-		io.DeviceMonitorNotifyHdr const* notifyHdr = (io.DeviceMonitorNotifyHdr const*) m_notifyBuffer.m_p;
+		io.DeviceMonitorNotifyHdr const* notifyHdr = (io.DeviceMonitorNotifyHdr const*)m_notifyBuffer.m_p;
 		if (notifyHdr.m_signature != io.DeviceMonitorNotifyHdrSignature) {
 			std.setError("invalid signature in notification header");
 			processError(std.getLastError());
@@ -190,7 +190,7 @@ bool Monitor.addNotificationData(
 		p += leftoverSize;
 		size -= leftoverSize;
 
-		notifyHdr = (io.DeviceMonitorNotifyHdr const*) m_notifyBuffer.m_p;
+		notifyHdr = (io.DeviceMonitorNotifyHdr const*)m_notifyBuffer.m_p;
 		processNotification(notifyHdr);
 		m_notifyBuffer.clear();
 	}

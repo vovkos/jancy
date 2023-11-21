@@ -30,6 +30,10 @@ class Layer: Plugin {
 		void const* p,
 		size_t size
 	);
+
+	size_t transmitNext(string_t text) {
+		return transmitNext(text.m_p, text.m_length);
+	}
 }
 
 //..............................................................................

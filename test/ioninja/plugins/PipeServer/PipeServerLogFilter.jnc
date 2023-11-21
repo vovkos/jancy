@@ -70,7 +70,7 @@ PipeServerLogFilter.construct(doc.PluginHost* pluginHost) {
 }
 
 void PipeServerLogFilter.onApply() {
-	char const* filter = m_filterCombo.m_currentText;
+	string_t filter = m_filterCombo.m_currentText;
 	m_log.suspend();
 
 	if (!filter)

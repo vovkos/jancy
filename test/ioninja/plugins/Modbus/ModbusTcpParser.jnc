@@ -56,7 +56,7 @@ void ModbusTcpParser.parse(
 
 		// check ADU size once again (now that we have the TCP ADU hdr)
 
-		io.ModbusTcpAduHdr const* aduHdr = (io.ModbusTcpAduHdr const*) m_dataBuffer.m_p;
+		io.ModbusTcpAduHdr const* aduHdr = (io.ModbusTcpAduHdr const*)m_dataBuffer.m_p;
 
 		size_t expectedSize = offsetof(io.ModbusTcpAduHdr.m_deviceAddress) + aduHdr.m_length;
 		if (expectedSize > m_expectedSize) {

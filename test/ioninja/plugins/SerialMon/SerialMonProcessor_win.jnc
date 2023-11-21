@@ -141,7 +141,7 @@ void SerialMonProcessor_win.processNotification(io.DeviceMonitorNotifyHdr const*
 		break;
 
 	case io.win.DeviceMonitorNotifyCode.Read:
-		io.win.DeviceMonitorReadWriteNotifyParams const* params = (io.win.DeviceMonitorReadWriteNotifyParams const*) (notifyHdr + 1);
+		io.win.DeviceMonitorReadWriteNotifyParams const* params = (io.win.DeviceMonitorReadWriteNotifyParams const*)(notifyHdr + 1);
 
 		if (params.m_dataSize)
 			m_logWriter.write(
@@ -153,7 +153,7 @@ void SerialMonProcessor_win.processNotification(io.DeviceMonitorNotifyHdr const*
 		break;
 
 	case io.win.DeviceMonitorNotifyCode.Write:
-		io.win.DeviceMonitorReadWriteNotifyParams const* params = (io.win.DeviceMonitorReadWriteNotifyParams const*) (notifyHdr + 1);
+		io.win.DeviceMonitorReadWriteNotifyParams const* params = (io.win.DeviceMonitorReadWriteNotifyParams const*)(notifyHdr + 1);
 
 		if (params.m_dataSize)
 			m_logWriter.write(
@@ -165,7 +165,7 @@ void SerialMonProcessor_win.processNotification(io.DeviceMonitorNotifyHdr const*
 		break;
 
 	case io.win.DeviceMonitorNotifyCode.Ioctl:
-		io.win.DeviceMonitorIoctlNotifyParams const* params = (io.win.DeviceMonitorIoctlNotifyParams const*) (notifyHdr + 1);
+		io.win.DeviceMonitorIoctlNotifyParams const* params = (io.win.DeviceMonitorIoctlNotifyParams const*)(notifyHdr + 1);
 
 		void const* p = params + 1;
 
@@ -209,7 +209,7 @@ void SerialMonProcessor_win.processIoctlNotification(
 		if (inDataSize < sizeof(wdk.SERIAL_LINE_CONTROL))
 			break;
 
-		wdk.SERIAL_LINE_CONTROL const* p = (wdk.SERIAL_LINE_CONTROL const*) inData;
+		wdk.SERIAL_LINE_CONTROL const* p = (wdk.SERIAL_LINE_CONTROL const*)inData;
 
 		uint_t dataBits = p.WordLength;
 		uint_t stopBits = p.StopBits;
@@ -242,7 +242,7 @@ void SerialMonProcessor_win.processIoctlNotification(
 		if (inDataSize < sizeof(wdk.SERIAL_HANDFLOW))
 			break;
 
-		wdk.SERIAL_HANDFLOW const* p = (wdk.SERIAL_HANDFLOW const*) inData;
+		wdk.SERIAL_HANDFLOW const* p = (wdk.SERIAL_HANDFLOW const*)inData;
 
 		io.SerialFlowControl flowControl =
 			(p.ControlHandShake & wdk.SERIAL_CTS_HANDSHAKE) && (p.FlowReplace & wdk.SERIAL_RTS_HANDSHAKE) ?
@@ -265,7 +265,7 @@ void SerialMonProcessor_win.processIoctlNotification(
 			break;
 
 		io.SerialStatusLines lines = 0;
-		uint_t wdkLines = *(uint_t const*) outData;
+		uint_t wdkLines = *(uint_t const*)outData;
 
 		if (wdkLines & wdk.SERIAL_MSR_CTS)
 			lines |= io.SerialStatusLines.Cts;

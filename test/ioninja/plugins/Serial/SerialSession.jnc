@@ -60,7 +60,7 @@ protected:
 
 	State bindable m_state;
 	io.Serial m_serial;
-	char const* m_portName;
+	string_t m_portName;
 	sys.Timer m_reopenTimer;
 
 	uint_t bindable m_baudRate;
@@ -352,7 +352,7 @@ bool errorcode SerialSession.open() {
 	close();
 	startSession();
 
-	char const* portName = m_portCombo.m_currentText;
+	string_t portName = m_portCombo.m_currentText;
 
 	// configure and open
 
@@ -371,7 +371,7 @@ bool errorcode SerialSession.open() {
 	m_serial.m_dtr = m_serialUi.m_dtr;
 	m_serial.m_rts = m_serialUi.m_rts;
 
-	char const* driverName = io.detectSerialBuggyDriver(portName);
+	string_t driverName = io.detectSerialBuggyDriver(portName);
 	if (driverName) {
 		m_logWriter.write(SerialLogRecordCode.BuggyDriverDetected, driverName);
 		io.setConservativeSerialSettings(m_serial);
@@ -396,8 +396,8 @@ bool errorcode SerialSession.open() {
 		SerialLogRecordCode.PortOpened,
 		&params,
 		sizeof(params),
-		portName,
-		strlen(portName)
+		portName.m_p,
+		portName.m_length
 	);
 
 	m_portName = portName;

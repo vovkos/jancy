@@ -19,11 +19,11 @@ bool representUdpFlowLog(
 ) {
 	switch (recordCode) {
 	case UdpFlowLogRecordCode.Packet:
-		UdpFlowPacketParams const* params = (UdpFlowPacketParams const*) p;
+		UdpFlowPacketParams const* params = (UdpFlowPacketParams const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Packet;
 		representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
 
-		char const* text = $"From \e[34m%1\e[m to \e[34m%2\e[m (%3 bytes)" (
+		string_t text = $"From \e[34m%1\e[m to \e[34m%2\e[m (%3 bytes)" (
 			params.m_srcAddress.getString(),
 			params.m_dstAddress.getString(),
 			params.m_size

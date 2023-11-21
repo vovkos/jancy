@@ -196,7 +196,7 @@ protected:
 
 	State bindable m_state;
 	io.UsbDevice* m_device;
-	char const* m_deviceName;
+	string_t m_deviceName;
 	SerialIface* m_dteIface; // pointers are easier to flip
 	SerialIface* m_dceIface;
 	uint_t m_baudRate;
@@ -434,7 +434,7 @@ void SerialTapSession.enumerateDevices() {
 			deviceDesc.m_productId != UsbId.ProductId)
 			continue;
 
-		char const* text = $"@%(1;03d):%(2;03d) IO Ninja Serial Tap" (
+		string_t text = $"@%(1;03d):%(2;03d) IO Ninja Serial Tap" (
 			device.m_bus,
 			device.m_address
 		);
@@ -528,8 +528,8 @@ bool errorcode SerialTapSession.capture() {
 		SerialLogRecordCode.PortOpened,
 		&params,
 		sizeof(params),
-		m_deviceName,
-		strlen(m_deviceName)
+		m_deviceName.m_p,
+		m_deviceName.m_length
 	);
 
 	m_state = State.Opened;

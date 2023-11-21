@@ -37,7 +37,7 @@ protected:
 		Closing,
 	}
 
-	static char const* m_stateStringTable[] = {
+	static string_t const m_stateStringTable[] = {
 		"Closed",
 		"Resolving...",
 		"Waiting...",
@@ -126,8 +126,8 @@ public:
 
 	bool errorcode connect(
 		io.SocketAddress const* address,
-		char const* resource,
-		char const* host,
+		string_t resource,
+		string_t host,
 		bool isSecure = false
 	);
 
@@ -168,8 +168,8 @@ protected:
 
 	void onResolverEvent(
 		uint_t syncId,
-		char const* resource,
-		char const* host,
+		string_t resource,
+		string_t host,
 		bool isSecure,
 		io.HostNameResolverEvents triggeredEvents
 	);
@@ -285,14 +285,14 @@ bool errorcode WebSocketClientSession.connect() {
 
 	startSession();
 
-	char const* addressString = m_addressCombo.m_editText;
+	string_t addressString = m_addressCombo.m_editText;
 	m_addressCombo.addEditTextToHistory();
 
 	// parse address string
 
 	bool isSecure;
-	char const* host;
-	char const* resource;
+	string_t host;
+	string_t resource;
 
 	jnc.RegexState regexState;
 	reswitch (regexState, addressString) {
@@ -348,8 +348,8 @@ catch:
 
 bool errorcode WebSocketClientSession.connect(
 	io.SocketAddress const* remoteAddress,
-	char const* resource,
-	char const* host,
+	string_t resource,
+	string_t host,
 	bool isSecure
 ) {
 	disconnect();
@@ -406,7 +406,7 @@ bool errorcode WebSocketClientSession.connect(
 	m_socket.connect(remoteAddress, resource, host);
 
 	m_localAddress = m_socket.m_address;
-	char const* p = $"$(*remoteAddress; B)$(m_localAddress; B)";
+	void const* p = $"$(*remoteAddress; B)$(m_localAddress; B)";
 	m_logWriter.write(SocketLogRecordCode.ConnectingFrom, p, dynamic sizeof(p));
 
 	waitSocketEvents();
@@ -416,7 +416,7 @@ catch:
 	if (!m_socketPropertySet.m_useLocalAddressProp.m_value) {
 		m_logWriter.write(SocketLogRecordCode.Connecting, remoteAddress, sizeof(io.SocketAddress));
 	} else {
-		char const* p = $"$(*remoteAddress; B)$(m_localAddress; B)";
+		void const* p = $"$(*remoteAddress; B)$(m_localAddress; B)";
 		m_logWriter.write(SocketLogRecordCode.ConnectingFrom, p, dynamic sizeof(p));
 	}
 
@@ -764,8 +764,8 @@ void WebSocketClientSession.onSocketEvent(
 
 void WebSocketClientSession.onResolverEvent(
 	uint_t syncId,
-	char const* resource,
-	char const* host,
+	string_t resource,
+	string_t host,
 	bool isSecure,
 	io.HostNameResolverEvents triggeredEvents
 ) {

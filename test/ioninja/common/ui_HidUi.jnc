@@ -22,15 +22,15 @@ namespace ui {
 
 struct HidDeviceEntry {
 	io.HidDeviceDesc const* m_deviceDesc;
-	char const* m_description;
-	char const* m_toolTip;
+	string_t m_description;
+	string_t m_toolTip;
 }
 
 bool isHidDeviceLess(
 	HidDeviceEntry const* device1,
 	HidDeviceEntry const* device2
 ) {
-	return strcmp(device1.m_description, device2.m_description) < 0;
+	return device1.m_description < device2.m_description;
 }
 
 void refreshHidDeviceListUi(
@@ -48,7 +48,7 @@ void refreshHidDeviceListUi(
 	std.StringBuilder toolTip;
 	for (size_t i = 0; i < count; i++, desc = desc.m_next) {
 		io.HidUsagePage const* page = io.g_hidDb.getUsagePage(desc.m_usagePage);
-		char const* usageName = page.getUsageName(desc.m_usage);
+		string_t usageName = page.getUsageName(desc.m_usage);
 
 		HidDeviceEntry* entry = new HidDeviceEntry;
 		entry.m_deviceDesc = desc;
@@ -121,7 +121,7 @@ size_t findHidDeviceComboIndex(
 	ui.ComboBox* deviceCombo,
 	uint_t vid,
 	uint_t pid,
-	char const* path
+	string_t path
 ) {
 	size_t bestIndex = -1;
 
@@ -129,7 +129,7 @@ size_t findHidDeviceComboIndex(
 	for (size_t i = 0; i < itemCount; i++) {
 		io.HidDeviceDesc const* desc = deviceCombo.m_itemData[i];
 		if (desc && desc.m_vendorId == vid && desc.m_productId == pid) {
-			if (strcmp(desc.m_path, path) == 0)
+			if (desc.m_path == path)
 				return i; // exact match
 
 			bestIndex = i; // VID/PID match, but different path

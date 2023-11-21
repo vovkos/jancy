@@ -19,8 +19,8 @@ public:
 	void create(
 		VBoxLayout* layout,
 		GroupProperty* groupProp,
-		char const* name,
-		char const* toolTip = null,
+		string_t name,
+		string_t toolTip = null,
 		ui.ToolBar* toolBar = null,
 		bool isVisible = true
 	);
@@ -46,8 +46,8 @@ protected:
 void LogRecordCodeFilterUi.create(
 	VBoxLayout* layout,
 	GroupProperty* groupProp,
-	char const* name,
-	char const* toolTip,
+	string_t name,
+	string_t toolTip,
 	ui.ToolBar* toolBar,
 	bool isVisible
 ) {

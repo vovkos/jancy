@@ -13,21 +13,17 @@ static bool isspace(char c) { // we don't have these in the Jancy stdlib yet
 
 size_t decodeHexString(
 	std.Buffer* buffer,
-	char const* source,
-	size_t length = -1
+	string_t source
 ) {
 	enum State {
 		Normal = 0,
 		Hex
 	};
 
-	if (length == -1)
-		length = strlen(source);
-
 	State state = State.Normal;
 
 	buffer.clear();
-	buffer.setSize(length / 2); // enough to hold everything
+	buffer.setSize(source.m_length / 2); // enough to hold everything
 
 	char hexCodeString[4] = { 0 };
 	char const* hexCodeEnd;
@@ -35,8 +31,8 @@ size_t decodeHexString(
 
 	uchar_t x;
 
-	char const* p = source;
-	char const* end = source + length;
+	char const* p = source.m_p;
+	char const* end = p + source.m_length;
 
 	size_t size = 0;
 	for (; p < end; p++) {

@@ -8,7 +8,7 @@ import "log_RepresentStruct.jnc"
 
 //..............................................................................
 
-typedef char const* GetTutoProtoDigestFunc(
+typedef string_t GetTutoProtoDigestFunc(
 	void const* p,
 	size_t size
 );
@@ -72,9 +72,9 @@ bool representTutoProtoLog(
 					"getCommandDigest"
 				);
 
-		char const* command = commandEnumConst ? commandEnumConst.m_name : null;
-		char const* direction = (hdr.m_flags & TutoProtoFlags.Reply) ? "reply" : "command";
-		char const* digest;
+		string_t command = commandEnumConst ? commandEnumConst.m_name : null;
+		string_t direction = (hdr.m_flags & TutoProtoFlags.Reply) ? "reply" : "command";
+		string_t digest;
 
 		if (getDigestFunc) {
 			 digest = getDigestFunc(hdr + 1, size - sizeof(TutoProtoHdr));
@@ -121,7 +121,7 @@ bool representTutoProtoLog(
 
 //..............................................................................
 
-char const* getTutoProtoErrorDigest(
+string_t getTutoProtoErrorDigest(
 	void const* p,
 	size_t size
 ) {
@@ -142,7 +142,7 @@ bool representTutoProtoError(
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* getTutoProtoReplyDigest_GetVersion(
+string_t getTutoProtoReplyDigest_GetVersion(
 	void const* p,
 	size_t size
 ) {
@@ -163,7 +163,7 @@ bool representTutoProtoReply_GetVersion(
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* getTutoProtoCommandDigest_Write(
+string_t getTutoProtoCommandDigest_Write(
 	void const* p,
 	size_t size
 ) {
@@ -202,7 +202,7 @@ bool representTutoProtoCommand_Write(
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* getTutoProtoCommandDigest_Read(
+string_t getTutoProtoCommandDigest_Read(
 	void const* p,
 	size_t size
 ) {
@@ -223,7 +223,7 @@ bool representTutoProtoCommand_Read(
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* getTutoProtoReplyDigest_Read(
+string_t getTutoProtoReplyDigest_Read(
 	void const* p,
 	size_t size
 ) {

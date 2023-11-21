@@ -65,7 +65,7 @@ protected:
 	State bindable m_state;
 	io.NamedPipe m_listenerPipe;
 	uint_t m_listenerSyncId;
-	char const* m_pipeName;
+	string_t m_pipeName;
 	std.List m_clientList;
 	size_t bindable m_clientCount;
 	Client* m_currentClient;
@@ -241,7 +241,7 @@ bool errorcode PipeServerSession.listen() {
 
 	m_pipeNameCombo.addEditTextToHistory();
 
-	char const* name = m_pipeNameCombo.m_editText;
+	string_t name = m_pipeNameCombo.m_editText;
 
 	io.FileStreamOptions options = getFileStreamOptions();
 
@@ -255,11 +255,7 @@ bool errorcode PipeServerSession.listen() {
 	m_listenerPipe.m_options = options;
 	m_listenerPipe.open(name);
 
-	m_logWriter.write(
-		PipeServerLogRecordCode.Listening,
-		name,
-		strlen(name)
-	);
+	m_logWriter.write(PipeServerLogRecordCode.Listening, name);
 
 	m_pipeName = name;
 	m_state = State.Listening;
@@ -278,11 +274,7 @@ void PipeServerSession.stopListen() {
 	if (m_state != State.Listening)
 		return;
 
-	m_logWriter.write(
-		PipeServerLogRecordCode.ListenStopped,
-		m_pipeName,
-		strlen(m_pipeName)
-	);
+	m_logWriter.write(PipeServerLogRecordCode.ListenStopped, m_pipeName);
 
 	m_listenerPipe.close();
 	m_state = State.Closed;

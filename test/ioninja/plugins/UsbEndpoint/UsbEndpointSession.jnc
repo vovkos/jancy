@@ -476,11 +476,11 @@ void UsbEndpointSession.createUi() {
 }
 
 void UsbEndpointSession.addInterface(io.UsbInterfaceDescriptor const* ifaceDesc) {
-	char const* description = ifaceDesc.m_stringDescriptorId ?
+	string_t description = ifaceDesc.m_stringDescriptorId ?
 		m_device.getStringDescriptor(ifaceDesc.m_stringDescriptorId) :
 		typeof(io.UsbClass).getValueString(ifaceDesc.m_class);
 
-	char const* name = ifaceDesc.m_altSettingId ?
+	string_t name = ifaceDesc.m_altSettingId ?
 		$"IF%1.%2 - %3"(ifaceDesc.m_interfaceId, ifaceDesc.m_altSettingId, description) :
 		$"IF%1 - %2"(ifaceDesc.m_interfaceId, description);
 
@@ -524,8 +524,8 @@ bool errorcode UsbEndpointSession.openDevice() {
 	params.m_speed = m_device.m_speed;
 	params.m_class = deviceDesc.m_class;
 
-	char const* product = deviceEntry.m_productDescriptor ? deviceEntry.m_productDescriptor : deviceEntry.m_description;
-	char const* manufacturer = deviceEntry.m_manufacturerDescriptor ? deviceEntry.m_manufacturerDescriptor : deviceEntry.m_manufacturer;
+	string_t product = deviceEntry.m_productDescriptor ? deviceEntry.m_productDescriptor : deviceEntry.m_description;
+	string_t manufacturer = deviceEntry.m_manufacturerDescriptor ? deviceEntry.m_manufacturerDescriptor : deviceEntry.m_manufacturer;
 
 	std.Buffer buffer;
 	buffer.append(params, sizeof(params));
@@ -590,14 +590,14 @@ bool errorcode UsbEndpointSession.claimInterfaces() {
 		params.m_altSettingId = ifaceDesc.m_altSettingId;
 		m_logWriter.write(UsbLogRecordCode.InterfaceClaimed, &params, sizeof(params));
 
-		char const* ifaceName = ifaceDesc.m_altSettingId ?
+		string_t ifaceName = ifaceDesc.m_altSettingId ?
 			$"IF%1.%2"(ifaceDesc.m_interfaceId, ifaceDesc.m_altSettingId) :
 			$"IF%1"(ifaceDesc.m_interfaceId);
 
 		for (size_t i = 0; i < ifaceDesc.m_endpointCount; i++) {
 			io.UsbEndpointDescriptor const* epDesc = &ifaceDesc.m_endpointDescriptorTable[i];
 
-			char const* name = $"%1 - EP%2 - %3"(
+			string_t name = $"%1 - EP%2 - %3"(
 				ifaceName,
 				epDesc.m_endpointId & ~0x80,
 				typeof(io.UsbTransferType).getValueString(epDesc.m_transferType)

@@ -14,7 +14,7 @@ namespace ui {
 //..............................................................................
 
 class AbstractButton: Widget {
-	char const* autoget property m_text;
+	string_t autoget property m_text;
 	Icon* autoget property m_icon;
 	bool autoget property m_isCheckable;
 	bool bindable autoget property m_isChecked;
@@ -27,24 +27,24 @@ class AbstractButton: Widget {
 class PushButton: AbstractButton {
 	bool autoget property m_isFlat;
 
-	construct(char const* text = null);
+	construct(string_t text = null);
 
 	construct(
 		Icon* icon,
-		char const* text = null
+		string_t text = null
 	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class CheckBox: AbstractButton {
-	construct(char const* text = null);
+	construct(string_t text = null);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class RadioButton: AbstractButton {
-	construct(char const* text = null);
+	construct(string_t text = null);
 }
 
 //..............................................................................

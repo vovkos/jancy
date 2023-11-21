@@ -82,11 +82,12 @@ bool representHttpHeaders(
 
 void representWebSocketHandshake(
 	log.Representation* representation,
-	char const* text,
-	char const* p,
+	string_t text,
+	void const* p0,
 	size_t size,
 	uint_t foldFlags
 ) {
+	char const* p = (char const*)p0;
 	char const* eol = strchr(p, '\n');
 
 	representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
@@ -116,9 +117,9 @@ void representWebSocketHandshake(
 
 void representWebSocketPingPong(
 	log.Representation* representation,
-	char const* text,
+	string_t text,
 	log.StdLogIcon icon,
-	char const* p,
+	void const* p,
 	size_t size,
 	uint_t foldFlags
 ) {
@@ -197,7 +198,7 @@ bool representWebSocketLog(
 		break;
 
 	case WebSocketLogRecordCode.SecureListening:
-		char const* addressString = ((io.SocketAddress const*)p).getString();
+		string_t addressString = ((io.SocketAddress const*)p).getString();
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Listen;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addHyperText($"SSL server listening on \e[34m$addressString");

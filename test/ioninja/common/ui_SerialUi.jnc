@@ -269,8 +269,8 @@ public:
 protected:
 	Action* createControlLineAction(
 		ui.ToolBar* toolBar,
-		char const* iconFileName,
-		char const* text
+		string_t iconFileName,
+		string_t text
 	);
 }
 
@@ -325,8 +325,8 @@ void SerialUi.createForm(
 
 Action* SerialUi.createControlLineAction(
 	ui.ToolBar* toolBar,
-	char const* iconFileName,
-	char const* text
+	string_t iconFileName,
+	string_t text
 ) {
 	Action action(iconFileName, text);
 	action.m_isCheckable = true;
@@ -511,14 +511,14 @@ bool isSerialPortLess(
 	io.SerialPortDesc const* port1,
 	io.SerialPortDesc const* port2
 ) {
-	return strcmp(port1.m_deviceName, port2.m_deviceName) < 0;
+	return port1.m_deviceName < port2.m_deviceName;
 }
 
 void enumerateSerialPorts(
 	ComboBox* portCombo,
 	ComboProperty* portProp
 ) {
-	char const* editText = portCombo.m_editText; // save edit text
+	string_t editText = portCombo.m_editText; // save edit text
 	portCombo.clear();
 
 	size_t count;
@@ -564,7 +564,7 @@ void enumerateSerialPorts(
 
 		toolTip.append("</table>");
 
-		char const* text = description.detachString();
+		string_t text = description.detachString();
 		size_t j = portCombo.addItem(text, port.m_deviceName);
 		portCombo.m_itemToolTip[j] = toolTip.detachString();
 

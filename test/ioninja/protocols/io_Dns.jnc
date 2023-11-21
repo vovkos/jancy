@@ -232,7 +232,7 @@ struct DnsAnswerRrSuffix {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* formatDnsDigest(void const* p) {
+string_t formatDnsDigest(void const* p) {
 	DnsHdr const* hdr = (DnsHdr const*)p;
 	uint_t opcode = hdr.m_opcode;
 
@@ -273,7 +273,7 @@ void const* scanDnsName(
 	return p;
 }
 
-char const* formatDnsName(
+string_t formatDnsName(
 	void const* p,
 	size_t size,
 	void const* base
@@ -281,7 +281,7 @@ char const* formatDnsName(
 	return formatDnsName(p, p + size, base);
 }
 
-char const* formatDnsName(
+string_t formatDnsName(
 	void const* p,
 	void const* end,
 	void const* base
@@ -329,7 +329,7 @@ void const* formatDnsName(
 		if (string.m_length)
 			string.append('.');
 
-		string.append(string_t(p, c));
+		string.append(p, c);
 		p += c;
 	}
 

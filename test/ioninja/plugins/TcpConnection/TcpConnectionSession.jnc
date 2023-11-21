@@ -29,7 +29,7 @@ protected:
 		Connected,
 	}
 
-	static char const* m_stateStringTable[] = {
+	static string_t const m_stateStringTable[] = {
 		"Closed",
 		"Resolving...",
 		"Waiting...",
@@ -227,7 +227,7 @@ bool errorcode TcpConnectionSession.connect() {
 
 	startSession();
 
-	char const* addressString = m_addressCombo.m_editText;
+	string_t addressString = m_addressCombo.m_editText;
 	m_addressCombo.addEditTextToHistory();
 
 	io.SocketAddress address;
@@ -241,12 +241,7 @@ bool errorcode TcpConnectionSession.connect() {
 
 	m_state = State.Resolving;
 	m_sessionConnectionState = SessionConnectionState.Connecting;
-
-	m_logWriter.write(
-		SocketLogRecordCode.Resolving,
-		addressString,
-		strlen(addressString)
-	);
+	m_logWriter.write(SocketLogRecordCode.Resolving, addressString);
 
 	io.AddressFamily addressFamily = io.AddressFamily.Undefined;
 	if (m_socketPropertySet.m_useLocalAddressProp.m_value) {
@@ -301,7 +296,7 @@ bool errorcode TcpConnectionSession.connect(io.SocketAddress const* remoteAddres
 	m_socket.connect(remoteAddress);
 
 	m_localAddress = m_socket.m_address;
-	char const* p = $"$(*remoteAddress; B)$(m_localAddress; B)";
+	void const* p = $"$(*remoteAddress; B)$(m_localAddress; B)";
 	m_logWriter.write(SocketLogRecordCode.ConnectingFrom, p, dynamic sizeof(p));
 
 	waitSocketEvents();
@@ -311,7 +306,7 @@ catch:
 	if (!m_socketPropertySet.m_useLocalAddressProp.m_value) {
 		m_logWriter.write(SocketLogRecordCode.Connecting, remoteAddress, sizeof(io.SocketAddress));
 	} else {
-		char const* p = $"$(*remoteAddress; B)$(m_localAddress; B)";
+		void const* p = $"$(*remoteAddress; B)$(m_localAddress; B)";
 		m_logWriter.write(SocketLogRecordCode.ConnectingFrom, p, dynamic sizeof(p));
 	}
 

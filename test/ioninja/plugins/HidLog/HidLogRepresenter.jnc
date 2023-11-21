@@ -45,7 +45,7 @@ bool representHidLog(
 
 	case HidLogRecordCode.OpenError:
 		std.Error const* error = (std.Error const*)p;
-		char const* path = (char const*)p + error.m_size;
+		string_t path = (char const*)p + error.m_size;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
 		representation.addHyperText($"Cannot open HID device \e[34m$path\e[m: $(error.m_description)");
@@ -146,14 +146,14 @@ void representDeviceInfo(
 	log.Representation* representation,
 	uint_t iconIdx,
 	uint_t backColor,
-	char const* text,
+	string_t text,
 	HidDeviceInfoParams const* params,
 	uint_t foldFlags
 ) {
-	char const* path = (char const*)(params + 1);
-	char const* manufacturer = path + strlen(path) + 1;
-	char const* product = manufacturer + strlen(manufacturer) + 1;
-	char const* serialNumber = product + strlen(product) + 1;
+	string_t path = (char const*)(params + 1);
+	string_t manufacturer = path.m_p + path.m_length + 1;
+	string_t product = manufacturer.m_p + manufacturer.m_length + 1;
+	string_t serialNumber = product.m_p + product.m_length + 1;
 
 	representation.m_lineAttr.m_iconIdx = iconIdx;
 	representation.m_lineAttr.m_backColor = backColor;
@@ -196,7 +196,7 @@ void representDeviceInfo(
 		)
 	);
 
-	if (*serialNumber)
+	if (serialNumber)
 		representation.addHyperText($"    Serial number\t\e[34m%1"(serialNumber));
 }
 
@@ -238,13 +238,13 @@ void representFieldArray(
 			continue;
 		}
 
-		char const* kind = typeof(io.HidReportType).getValueString(field.m_report.m_reportType);
+		string_t kind = typeof(io.HidReportType).getValueString(field.m_report.m_reportType);
 		representation.addHyperText($"%s\e[90m%s:\t\e[34m%d-bit"(indent.m_p, kind, field.m_bitCount));
 
 		indent.append(' ', 4);
 
 		if (field.m_valueFlags) {
-			char const* text = typeof(io.HidRdValueFlags).getValueString(field.m_valueFlags);
+			string_t text = typeof(io.HidRdValueFlags).getValueString(field.m_valueFlags);
 			representation.addHyperText($"%s\e[90mFlags:\t\e[34m%s"(indent.m_p, text));
 		}
 
@@ -252,18 +252,18 @@ void representFieldArray(
 
 		if (field.isSet(io.HidRdItemId.Usage)) {
 			for (size_t i = 0; i < field.m_usageCount; i++) {
-				char const* text = field.m_usagePage.getUsageName(field.m_usageArray[i]);
+				string_t text = field.m_usagePage.getUsageName(field.m_usageArray[i]);
 				representation.addHyperText($"%s\e[90mUsage:\t\e[34m%s"(indent.m_p, text));
 			}
 		}
 
 		if (field.isSet(io.HidRdItemId.UsageMinimum)) {
-			char const* text = field.m_usagePage.getUsageName(field[io.HidRdItemId.UsageMinimum]);
+			string_t text = field.m_usagePage.getUsageName(field[io.HidRdItemId.UsageMinimum]);
 			representation.addHyperText($"%s\e[90mUsageMinimum:\t\e[34m%s"(indent.m_p, text));
 		}
 
 		if (field.isSet(io.HidRdItemId.UsageMaximum)) {
-			char const* text = field.m_usagePage.getUsageName(field[io.HidRdItemId.UsageMaximum]);
+			string_t text = field.m_usagePage.getUsageName(field[io.HidRdItemId.UsageMaximum]);
 			representation.addHyperText($"%s\e[90mUsageMaximum:\t\e[34m%s"(indent.m_p, text));
 		}
 
@@ -325,13 +325,13 @@ void representReport(
 	log.Representation* representation,
 	uint_t iconIdx,
 	uint_t binTextColor,
-	char const* text,
+	string_t text,
 	void const* p,
 	size_t size
 ) {
 	io.HidStandaloneReport* report;
 	uint_t reportId;
-	char const* suffix;
+	string_t suffix;
 
 	if (!(uint16_t const*)p) {
 		UnknownHidReportParams const* params = (UnknownHidReportParams const*)p;

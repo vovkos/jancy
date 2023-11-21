@@ -62,7 +62,7 @@ protected:
 
 	iox.SshChannel m_ssh;
 	io.HwcProtoDecoder m_decoder;
-	char const* m_portName;
+	string_t m_portName;
 	uint_t bindable m_baudRate;
 	uint_t m_dataBits;
 	io.SerialParity m_parity;
@@ -157,9 +157,9 @@ protected:
 	}
 
 	void onLoginDlgCompleted(
-		char const* userName,
+		string_t userName,
 		ui.AuthenticationMethod authenticationMethod,
-		char const* privateKeyFileName
+		string_t privateKeyFileName
 	);
 
 	void onMsg(io.HwcMsgHdr const* hdr);
@@ -467,8 +467,8 @@ bool errorcode SshSerialSession.connect() {
 	disconnect();
 	startSession();
 
-	char const* addressString = m_addressCombo.m_editText;
-	char const* portName = m_portCombo.m_currentText;
+	string_t addressString = m_addressCombo.m_editText;
+	string_t portName = m_portCombo.m_currentText;
 
 	if (!addressString || !portName) {
 		std.setError("required parameters missing");
@@ -502,9 +502,9 @@ void SshSerialSession.disconnect() {
 }
 
 void SshSerialSession.onLoginDlgCompleted(
-	char const* userName,
+	string_t userName,
 	ui.AuthenticationMethod authenticationMethod,
-	char const* privateKeyFileName
+	string_t privateKeyFileName
 ) {
 	m_sshPropertySet.m_userNameProp.m_value = userName;
 	m_sshPropertySet.m_authenticationMethodProp.m_value = authenticationMethod;
@@ -542,12 +542,12 @@ void SshSerialSession.onMsg(io.HwcMsgHdr const* hdr) {
 		break;
 
 	case io.HwcMsgCode.SerialLineError:
-		io.SerialLineErrors errors = (io.SerialLineErrors)*(char const*)(hdr + 1);
+		io.SerialLineErrors errors = (io.SerialLineErrors)*(uchar_t const*)(hdr + 1);
 		m_logWriter.write(SerialLogRecordCode.LineError, &errors, sizeof(errors));
 		break;
 
 	case io.HwcMsgCode.SerialCtsDsr:
-		io.SerialStatusLines lines = (io.SerialStatusLines)*(char const*)(hdr + 1);
+		io.SerialStatusLines lines = (io.SerialStatusLines)*(uchar_t const*)(hdr + 1);
 		io.SerialStatusLines lineMask = lines ^ m_statusLines;
 		if (lineMask) {
 			SerialStatusLineChangedParams params = { lines, lineMask }
@@ -641,7 +641,7 @@ catch:
 
 iox.SshChannel.ConnectParams const* SshSerialSession.createConnectParams() {
 	void const* privateKey;
-	char const* lastPassword;
+	string_t lastPassword;
 
 	if (m_sshPropertySet.m_authenticationMethodProp.m_value == ui.AuthenticationMethod.PrivateKey) {
 		privateKey = loadFile(m_sshPropertySet.m_privateKeyFileProp.m_value);
@@ -677,13 +677,13 @@ iox.SshChannel.ConnectParams const* SshSerialSession.createConnectParams() {
 	if (m_sshPropertySet.m_rememberLastPasswordProp.m_value)
 		params.m_sshParams.m_password = lastPassword;
 
-	static char const* stopBitsStringTable[] = {
+	static string_t const stopBitsStringTable[] = {
 		"1",
 		"1.5",
 		"2",
 	}
 
-	static char const* parityStringTable[] = {
+	static string_t const parityStringTable[] = {
 		"none",
 		"odd",
 		"even",
@@ -691,13 +691,13 @@ iox.SshChannel.ConnectParams const* SshSerialSession.createConnectParams() {
 		"space",
 	}
 
-	static char const* flowControlStringTable[] = {
+	static string_t const flowControlStringTable[] = {
 		"0",
 		"1",
 		"0", // xon/xoff not supported
 	}
 
-	params.m_sshParams.m_processExtra =
+	string_t extra =
 		"ioninja-hwc --stdin "
 		$"--serial=%1 "
 		$"--ser-baud %2 "
@@ -717,7 +717,8 @@ iox.SshChannel.ConnectParams const* SshSerialSession.createConnectParams() {
 			m_rts
 		);
 
-	params.m_sshParams.m_processExtraSize = strlen(params.m_sshParams.m_processExtra);
+	params.m_sshParams.m_processExtra = extra.m_p;
+	params.m_sshParams.m_processExtraSize = extra.m_length;
 	return params;
 }
 

@@ -26,7 +26,7 @@ public:
 protected:
 	doc.PluginHost* m_pluginHost;
 	io.HostNameResolver m_resolver;
-	char const* m_addressString;
+	string_t m_addressString;
 	uint_t m_syncId;
 
 	property m_logWriter {
@@ -47,7 +47,7 @@ public:
 	}
 
 	bool errorcode resolve(
-		char const* addressString,
+		string_t addressString,
 		io.AddressFamily addressFamily = io.AddressFamily.Undefined
 	);
 
@@ -66,7 +66,7 @@ protected:
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool errorcode HostNameResolver.resolve(
-	char const* addressString,
+	string_t addressString,
 	io.AddressFamily addressFamily
 ) {
 	cancel();

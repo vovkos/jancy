@@ -45,16 +45,17 @@ struct MyPacket {
 	uint16_t m_checksum;
 
 	[ userAction = "Initialize" ]
-	void initialize(char const* name) {
+	void initialize(string_t name) {
 		m_field1 = MyEnum.Value1;
 		m_field2 = 2;
 		m_field3 = 3;
 
-		size_t size = strlen(name) + 1;
-		if (size > sizeof(m_name))
-			size = sizeof(m_name);
-
-		memcpy(m_name, name, size);
+		if (name.m_length >= sizeof(m_name))
+			memcpy(m_name, name.m_p, sizeof(m_name));
+		else {
+			memset(m_name, 0, sizeof(m_name));
+			memcpy(m_name, name.m_p, name.m_length);
+		}
 	}
 
 	[

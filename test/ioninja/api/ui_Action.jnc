@@ -19,29 +19,29 @@ opaque class Action {
 	bool bindable autoget property m_isChecked;
 
 	Icon* autoget property m_icon;
-	char const* autoget property m_text;
-	char const* autoget property m_toolTip;
+	string_t autoget property m_text;
+	string_t autoget property m_toolTip;
 
 	event m_onTriggered();
 
 	construct(
 		Icon* icon,
-		char const* text,
+		string_t text,
 		void function* onTriggered() = null
 	) {
 		initialize(icon, text, onTriggered);
 	}
 
 	construct(
-		char const* iconFileName,
-		char const* text,
+		string_t iconFileName,
+		string_t text,
 		void function* onTriggered() = null
 	) {
 		initialize(new Icon(iconFileName), text, onTriggered);
 	}
 
 	construct(
-		char const* text,
+		string_t text,
 		void function* onTriggered() = null
 	) {
 		initialize(null, text, onTriggered);
@@ -50,12 +50,12 @@ opaque class Action {
 protected:
 	void initialize(
 		Icon* icon,
-		char const* text
+		string_t text
 	);
 
 	void initialize(
 		Icon* icon,
-		char const* text,
+		string_t text,
 		void function* onTriggered()
 	) {
 		initialize(icon, text);

@@ -108,24 +108,24 @@ opaque class Representation {
 
 	void addPlainText(
 		uint64_t partCode,
-		char const* text
+		string_t text
 	) {
-		addPart(PartKind.PlainText, partCode, text, strlen(text));
+		addPart(PartKind.PlainText, partCode, text.m_p, text.m_length);
 	}
 
-	void addPlainText(char const* text) {
-		addPart(PartKind.PlainText, m_recordCode, text, strlen(text));
+	void addPlainText(string_t text) {
+		addPart(PartKind.PlainText, m_recordCode, text.m_p, text.m_length);
 	}
 
 	void addHyperText(
 		uint64_t partCode,
-		char const* text
+		string_t text
 	) {
-		addPart(PartKind.HyperText, partCode, text, strlen(text));
+		addPart(PartKind.HyperText, partCode, text.m_p, text.m_length);
 	}
 
-	void addHyperText(char const* text) {
-		addPart(PartKind.HyperText, m_recordCode, text, strlen(text));
+	void addHyperText(string_t text) {
+		addPart(PartKind.HyperText, m_recordCode, text.m_p, text.m_length);
 	}
 
 	void addBin(

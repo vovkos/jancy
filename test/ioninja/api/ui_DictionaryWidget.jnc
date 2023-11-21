@@ -14,9 +14,9 @@ namespace ui {
 //..............................................................................
 
 class DictionaryWidget: Widget {
-	char const* autoget property m_keyColumnName;
-	char const* autoget property m_valueColumnName;
-	char const* autoget property m_placeholderText;
+	string_t autoget property m_keyColumnName;
+	string_t autoget property m_valueColumnName;
+	string_t autoget property m_placeholderText;
 	bool autoget property m_alternatingRowColors;
 
 	size_t bindable readonly m_itemCount;
@@ -29,8 +29,8 @@ class DictionaryWidget: Widget {
 	void clear();
 
 	void add(
-		char const* key,
-		char const* value,
+		string_t key,
+		string_t value,
 		bool isChecked = true
 	);
 

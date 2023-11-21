@@ -13,7 +13,7 @@ uint8_t lrc(
 	void const* p,
 	size_t size
 ) {
-	uint8_t const* b = (uint8_t const*) p;
+	uint8_t const* b = (uint8_t const*)p;
 	int result = 0;
 
 	for (; size; size--)
@@ -32,11 +32,11 @@ void representModbusAsciiAdu(
 	assert(size > 3);
 
 	std.Buffer aduBuffer;
-	decodeHexString(&aduBuffer, p + 1, size - 3); // exclude ':' and "\r\n"
+	decodeHexString(&aduBuffer, string_t(p + 1, size - 3)); // exclude ':' and "\r\n"
 
 	// after decoding, we can use the RTU ADU hdr
-	io.ModbusRtuAduHdr const* aduHdr = (io.ModbusRtuAduHdr const*) aduBuffer.m_p;
-	io.ModbusPduHdr const* pduHdr = (io.ModbusPduHdr const*) (aduHdr + 1);
+	io.ModbusRtuAduHdr const* aduHdr = (io.ModbusRtuAduHdr const*)aduBuffer.m_p;
+	io.ModbusPduHdr const* pduHdr = (io.ModbusPduHdr const*)(aduHdr + 1);
 
 	representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
 	representation.m_lineAttr.m_iconIdx = role == io.ModbusRole.Master ?

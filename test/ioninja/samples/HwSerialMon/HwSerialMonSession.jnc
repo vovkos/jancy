@@ -24,7 +24,7 @@ protected:
 		Capturing,
 	}
 
-	static char const* m_stateStringTable[] = {
+	static string_t const m_stateStringTable[] = {
 		"Closed",
 		"Opened",
 		"Capturing",
@@ -281,7 +281,7 @@ void HwSerialMonSession.enumerateDevices() {
 		if (!product)
 			continue;
 
-		char const* text = $"@%(1;03d):%(2;03d) %3 %4" (
+		string_t text = $"@%(1;03d):%(2;03d) %3 %4" (
 			device.m_bus,
 			device.m_address,
 			product.m_vendor.m_name,
@@ -504,7 +504,7 @@ void HwSerialMonSession.onInEndpointEvent(
 		size_t size = m_inEndpoint.read(m_readBuffer.m_p, m_readBuffer.m_size);
 		m_usbTotalSize += size;
 
-		uint64_t const* p = (uint64_t const*) m_readBuffer.m_p;
+		uint64_t const* p = (uint64_t const*)m_readBuffer.m_p;
 		uint64_t const* end = p + size / sizeof(uint64_t);
 		for (; p < end; p++) {
 			uint64_t frame = *p;

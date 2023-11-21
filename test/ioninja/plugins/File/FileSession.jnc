@@ -213,7 +213,7 @@ bool errorcode FileSession.open() {
 
 	m_fileNameCombo.addEditTextToHistory();
 
-	char const* fileName = m_fileNameCombo.m_editText;
+	string_t fileName = m_fileNameCombo.m_editText;
 
 	Access access = m_accessCombo.m_currentData;
 
@@ -236,8 +236,8 @@ bool errorcode FileSession.open() {
 		FileLogRecordCode.Opened,
 		&params,
 		sizeof(params),
-		fileName,
-		strlen(fileName) + 1
+		fileName.m_p,
+		fileName.m_length
 	);
 
 	m_state = State.Opened;

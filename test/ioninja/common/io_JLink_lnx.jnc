@@ -7,7 +7,7 @@ namespace io {
 
 //..............................................................................
 
-char const* detectJLinkLibPath() {
+string_t detectJLinkLibPath() {
 	return "/opt/SEGGER/JLink/libjlinkarm.so";
 }
 

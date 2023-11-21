@@ -59,7 +59,7 @@ protected:
 
 	State bindable m_state;
 	io.Pcap m_pcap;
-	char const* m_captureFilterString;
+	string_t m_captureFilterString;
 	io.IpDefragmenter m_ipDefragmenter;
 	std.Buffer m_readBuffer;
 	NetSnifferLogFilter m_filter;
@@ -102,12 +102,12 @@ public:
 
 	bool errorcode capture(
 		io.PcapDeviceDesc const* device,
-		char const* filterString
+		string_t filterString
 	);
 
 	bool errorcode openPcapFile(
-		char const* fileName,
-		char const* filterString
+		string_t fileName,
+		string_t filterString
 	);
 
 	void stopCapture();
@@ -400,7 +400,7 @@ bool errorcode PcapSnifferSession.capture() {
 
 bool errorcode PcapSnifferSession.capture(
 	io.PcapDeviceDesc const* device,
-	char const* filterString
+	string_t filterString
 ) {
 	stopCapture();
 	startSession();
@@ -429,8 +429,8 @@ catch:
 }
 
 bool errorcode PcapSnifferSession.openPcapFile(
-	char const* fileName,
-	char const* filterString
+	string_t fileName,
+	string_t filterString
 ) {
 	m_logWriter.write(PcapLogRecordCode.StartingCapture, filterString);
 
@@ -461,8 +461,8 @@ void PcapSnifferSession.stopCapture() {
 }
 
 bool errorcode PcapSnifferSession.applyCaptureFilter() {
-	char const* filter = m_captureFilterProp.m_value;
-	if (strcmp(filter, m_captureFilterString) == 0)
+	string_t filter = m_captureFilterProp.m_value;
+	if (filter == m_captureFilterString)
 		return true;
 
 	m_logWriter.write(PcapLogRecordCode.ChangingCaptureFilter, filter);
@@ -667,7 +667,7 @@ void PcapSnifferSession.processPacket(
 	if (size < sizeof(io.IpHdr))
 		return;
 
-	io.IpHdr const* ipHdr = (io.IpHdr const*) p;
+	io.IpHdr const* ipHdr = (io.IpHdr const*)p;
 	if ((ipHdr.m_flags & io.IpFlags.Mf) || ipHdr.m_fragmentOffset) {
 		ipHdr = m_ipDefragmenter.defragment(timestamp, ipHdr, size);
 		if (ipHdr) {

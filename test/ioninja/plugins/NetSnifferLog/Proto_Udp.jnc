@@ -25,8 +25,8 @@ AppProtoParser* getUdpAppProtoParser(io.UdpHdr const* hdr) {
 
 void representUdpDigest(
 	log.Representation* representation,
-	char const* srcString,
-	char const* dstString,
+	string_t srcString,
+	string_t dstString,
 	void const* p,
 	size_t size,
 	int payloadPreviewIconIdx = -1
@@ -64,11 +64,11 @@ void representUdpDigest(
 	representPayloadPreview(representation, p, size, payloadPreviewIconIdx);
 }
 
-char const* formatUdpDigest(
+string_t formatUdpDigest(
 	io.UdpHdr const* hdr,
-	char const* srcString,
-	char const* dstString,
-	char const* extra = null
+	string_t srcString,
+	string_t dstString,
+	string_t extra = null
 ) {
 	return
 		$"\e[1mUDP \e[10;34m%1:%2\e[m \u2192 \e[10;34m%3:%4\e[m%5%6"(

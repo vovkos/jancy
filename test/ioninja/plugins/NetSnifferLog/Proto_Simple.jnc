@@ -8,9 +8,9 @@
 void representSimpleProtoDigestNoPayload(
 	log.Representation* representation,
 	jnc.StructType* type,
-	char const* name = null,
-	char const* srcString,
-	char const* dstString,
+	string_t name = null,
+	string_t srcString,
+	string_t dstString,
 	void const* p,
 	size_t size
 ) {
@@ -27,7 +27,7 @@ void representSimpleProtoDigestNoPayload(
 		return;
 	}
 
-	char const* digest = log.getStructDigest(type, p);
+	string_t digest = log.getStructDigest(type, p);
 
 	representation.addHyperText(
 		$"\e[1m%1 \e[10;34m%2\e[m \u2192 \e[34m%3%4%5"(
@@ -42,9 +42,9 @@ void representSimpleProtoDigestNoPayload(
 void representSimpleProtoDigest(
 	log.Representation* representation,
 	jnc.StructType* type,
-	char const* name = null,
-	char const* srcString,
-	char const* dstString,
+	string_t name = null,
+	string_t srcString,
+	string_t dstString,
 	void const* p,
 	size_t size,
 	int payloadPreviewIconIdx = -1
@@ -73,7 +73,7 @@ void representSimpleProtoDetails(
 	log.Representation* representation,
 	std.Array* protoRangeArray,
 	jnc.StructType* type,
-	char const* name = null,
+	string_t name = null,
 	void const* p,
 	size_t size,
 	size_t baseOffset,

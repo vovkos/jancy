@@ -96,7 +96,7 @@ struct LlcHdr16 {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* formatLlcDigest(void const* p) {
+string_t formatLlcDigest(void const* p) {
 	LlcHdr const* hdr = (LlcHdr const*)p;
 
 	return $"%1 \u2192 %2" (

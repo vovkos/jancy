@@ -68,7 +68,7 @@ void ChecksumCalcRangeProcessor.processBin(
 	// do all 16-bit calculations in a single loop
 
 	if (m_totalSize & 1) {
-		uint16_t be = *(uint8_t const*) p;
+		uint16_t be = *(uint8_t const*)p;
 		uint16_t le = be << 8;
 
 		m_sum16_le += le;
@@ -86,8 +86,8 @@ void ChecksumCalcRangeProcessor.processBin(
 	void const* end = p + (size & ~1);
 
 	for (; p < end; p += 2) {
-		uint16_t le = *(uint16_t const*) p;
-		uint16_t be = *(bigendian uint16_t const*) p;
+		uint16_t le = *(uint16_t const*)p;
+		uint16_t be = *(bigendian uint16_t const*)p;
 
 		m_sum16_le += le;
 		m_sum16_be += be;
@@ -98,7 +98,7 @@ void ChecksumCalcRangeProcessor.processBin(
 	}
 
 	if (size & 1) {
-		uint16_t le = *(uint8_t const*) p;
+		uint16_t le = *(uint8_t const*)p;
 		uint16_t be = le << 8;
 
 		m_sum16_le += le;
@@ -163,7 +163,7 @@ uint64_t sum8(
 	size_t size,
 	uint64_t seed = 0
 ) {
-	uint8_t const* b = (uint8_t const*) p;
+	uint8_t const* b = (uint8_t const*)p;
 	uint64_t sum = seed;
 
 	for (; size; size--)
@@ -177,7 +177,7 @@ uint8_t xor8(
 	size_t size,
 	uint8_t seed = 0
 ) {
-	uint8_t const* b = (uint8_t const*) p;
+	uint8_t const* b = (uint8_t const*)p;
 	uint8_t xor = seed;
 
 	for (; size; size--)

@@ -189,7 +189,7 @@ void representRawPacketData(
 void representPayload(
 	log.Representation* representation,
 	std.Array* protoRangeArray,
-	char const* name,
+	string_t name,
 	void const* p,
 	size_t size,
 	size_t baseOffset,

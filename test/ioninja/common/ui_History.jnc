@@ -17,7 +17,7 @@ extension ComboBoxHistory: ComboBox {
 	bool addEditTextToHistory();
 
 	void addToHistory(
-		char const* text,
+		string_t text,
 		size_t limit = 10
 	);
 
@@ -25,19 +25,19 @@ extension ComboBoxHistory: ComboBox {
 
 	void saveHistory(
 		doc.Storage* storage,
-		char const* directory
+		string_t directory
 	);
 
 	void loadHistory(
 		doc.Storage* storage,
-		char const* directory
+		string_t directory
 	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool ComboBoxHistory.addEditTextToHistory() {
-	if (!m_editText || !*m_editText)
+	if (!m_editText)
 		return false;
 
 	addToHistory(m_editText);
@@ -45,11 +45,11 @@ bool ComboBoxHistory.addEditTextToHistory() {
 }
 
 void ComboBoxHistory.addToHistory(
-	char const* text,
+	string_t text,
 	size_t limit
 ) {
 	for (size_t i = 0; i < m_itemCount; i++)
-		if (strcmp(text, m_itemText[i]) == 0) {
+		if (text == m_itemText[i]) {
 			if (!i)
 				return;
 
@@ -70,9 +70,9 @@ void ComboBoxHistory.removeExtraItems(size_t limit) {
 
 void ComboBoxHistory.saveHistory(
 	doc.Storage* storage,
-	char const* directory
+	string_t directory
 ) {
-	char const* prevDirectory = storage.m_directory;
+	string_t prevDirectory = storage.m_directory;
 
 nestedscope:
 	storage.m_directory = directory;
@@ -88,9 +88,9 @@ finally:
 
 void ComboBoxHistory.loadHistory(
 	doc.Storage* storage,
-	char const* directory
+	string_t directory
 ) {
-	char const* prevDirectory = storage.m_directory;
+	string_t prevDirectory = storage.m_directory;
 
 nestedscope:
 	storage.m_directory = directory;

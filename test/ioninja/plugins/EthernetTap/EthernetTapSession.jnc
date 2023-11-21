@@ -41,7 +41,7 @@ protected:
 		Capturing,
 	}
 
-	char const* m_statusText[] = {
+	string_t m_statusTextTable[] = {
 		"Closed",
 		"Uploading",
 		"Capturing",
@@ -312,7 +312,7 @@ void EthernetTapSession.enumerateDevices() {
 			deviceDesc.m_productId != Usb.ProductId)
 			continue;
 
-		char const* text = $"@%(1;03d):%(2;03d) IO Ninja Ethernet Tap"(
+		string_t text = $"@%(1;03d):%(2;03d) IO Ninja Ethernet Tap"(
 			device.m_bus,
 			device.m_address
 		);
@@ -522,7 +522,7 @@ void EthernetTapSession.parse(
 			size_t packetSize = ((*p & 0xffff) + 3) & ~3; // align on 4 bytes
 			size_t bufferSize = sizeof(uint32_t) * 2 + packetSize;
 			m_packetBuffer.setSize(bufferSize);
-			*(uint32_t*) m_packetBuffer.m_p = ++m_packetIndex;
+			*(uint32_t*)m_packetBuffer.m_p = ++m_packetIndex;
 			m_packetOffset = sizeof(uint32_t);
 		}
 
@@ -632,7 +632,7 @@ reactor EthernetTapSession.m_uiReactor {
 
 	m_actionTable[ActionId.Capture].m_text = m_state ? "Close Device" : "Open Device";
 	m_actionTable[ActionId.Capture].m_icon = m_iconTable[m_state ? IconId.StopCapture : IconId.Capture];
-	m_statusPaneTable[StatusPaneId.State].m_text = m_statusText[m_state];
+	m_statusPaneTable[StatusPaneId.State].m_text = m_statusTextTable[m_state];
 }
 
 //..............................................................................

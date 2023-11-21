@@ -71,7 +71,7 @@ struct Icmp6Hdr {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* formatIcmp6Digest(void const* p) {
+string_t formatIcmp6Digest(void const* p) {
 	Icmp6Hdr const* hdr = (Icmp6Hdr const*)p;
 	return typeof(Icmp6Type).getValueString(&hdr.m_type);
 }

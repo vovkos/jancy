@@ -9,8 +9,8 @@ namespace io {
 
 //..............................................................................
 
-char const* detectJLinkLibPath() {
-	static char const* fileName = sys.g_systemInfo.m_cpuKind == sys.CpuKind.Amd64 ?
+string_t detectJLinkLibPath() {
+	static string_t fileName = sys.g_systemInfo.m_cpuKind == sys.CpuKind.Amd64 ?
 		"JLink_x64.dll" :
 		"JLinkARM.dll";
 
@@ -22,7 +22,7 @@ char const* detectJLinkLibPath() {
 	);
 
 	if (result) {
-		char const* installPath = key.readString("InstallPath");
+		string_t installPath = key.readString("InstallPath");
 		if (installPath)
 			return $"$installPath\\$fileName";
 	}

@@ -50,7 +50,7 @@ protected:
 	MailslotMonitor m_msfsMonitor;
 	MailslotMonitor m_lanmanMonitor;
 	MailslotMonLogFilter m_filter;
-	char const* m_captureFilter;
+	string_t m_captureFilter;
 
 	// toolbar, status bar & menu
 
@@ -100,9 +100,9 @@ protected:
 		applyViewFilter(true);
 	}
 
-	char const* createCaptureFilter() {
-		char const* name = m_captureFilterProp.m_value;
-		return name && *name ? strdup(name) : "*"; // null wildcard means we also receive notifications from already-opened "nameless" files
+	string_t createCaptureFilter() {
+		string_t name = m_captureFilterProp.m_value;
+		return name ? name : "*"; // null wildcard means we also receive notifications from already-opened "nameless" files
 	}
 
 	void createUi();
@@ -319,8 +319,8 @@ bool errorcode MailslotMonSession.applyProperties() {
 	m_msfsMonitor.applyProperties(m_bufferPropertySet, m_pendingNotifySizeLimitProp.m_value);
 	m_lanmanMonitor.applyProperties(m_bufferPropertySet, m_pendingNotifySizeLimitProp.m_value);
 
-	char const* captureFilter = createCaptureFilter();
-	if (strcmp(m_captureFilter, captureFilter)) {
+	string_t captureFilter = createCaptureFilter();
+	if (m_captureFilter != captureFilter) {
 		m_captureFilter = captureFilter;
 		m_msfsMonitor.setFileNameFilter(captureFilter);
 		m_lanmanMonitor.setFileNameFilter(captureFilter);

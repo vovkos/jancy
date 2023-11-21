@@ -60,7 +60,7 @@ protected:
 		EnablingFpga,
 	}
 
-	char const* m_statusText[] = {
+	string_t m_statusTextTable[] = {
 		"Closed",
 		"Opened",
 		"Downloading file...",
@@ -330,7 +330,7 @@ void CypressUploaderSession.enumerateDevices() {
 		io.UsbVendor const* vendor = usbDb.findVendor(deviceDesc.m_vendorId);
 		io.UsbProduct const* product = vendor ? vendor.findProduct(deviceDesc.m_productId) : null;
 
-		char const* text = $"@%(1;03d):%(2;03d) %3 %4" (
+		string_t text = $"@%(1;03d):%(2;03d) %3 %4" (
 			device.m_bus,
 			device.m_address,
 			vendor ? vendor.m_name : $"VID_$(deviceDesc.m_vendorId; 04x)",
@@ -733,7 +733,7 @@ reactor CypressUploaderSession.m_uiReactor {
 	m_actionTable[ActionId.Open].m_icon = m_iconTable[m_state ? IconId.Close : IconId.Open];
 	m_actionTable[ActionId.Download].m_isEnabled = m_state;
 	m_actionTable[ActionId.Upload].m_isEnabled = m_state;
-	m_statusPaneTable[StatusPaneId.State].m_text = m_statusText[m_state];
+	m_statusPaneTable[StatusPaneId.State].m_text = m_statusTextTable[m_state];
 }
 
 //..............................................................................

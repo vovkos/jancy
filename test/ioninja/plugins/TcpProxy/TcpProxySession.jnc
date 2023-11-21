@@ -34,7 +34,7 @@ protected:
 		Listening,
 	}
 
-	static char const* m_listenerStateStringTable[] = {
+	static string_t const m_listenerStateStringTable[] = {
 		"Not listening",
 		"Listening",
 	}
@@ -338,7 +338,7 @@ catch:
 bool errorcode TcpProxySession.resolve() {
 	m_resolver.cancel();
 	m_targetAddressCombo.addEditTextToHistory();
-	char const* addressString = m_targetAddressCombo.m_editText;
+	string_t addressString = m_targetAddressCombo.m_editText;
 	m_resolver.m_defaultPort = m_connectionSocketPropertySet.m_remotePortProp.m_value;
 	return m_resolver.resolve(addressString);
 }

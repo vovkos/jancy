@@ -55,8 +55,8 @@ void refreshUsbDeviceListUi(
 		io.UsbDeviceEntry const* entry = deviceArray[i];
 		io.UsbDeviceDescriptor const* deviceDescriptor = entry.m_device.m_deviceDescriptor;
 
-		char const* product = entry.m_productDescriptor ? entry.m_productDescriptor : entry.m_description;
-		char const* manufacturer = entry.m_manufacturerDescriptor ? entry.m_manufacturerDescriptor : entry.m_manufacturer;
+		string_t product = entry.m_productDescriptor ? entry.m_productDescriptor : entry.m_description;
+		string_t manufacturer = entry.m_manufacturerDescriptor ? entry.m_manufacturerDescriptor : entry.m_manufacturer;
 
 		description = $"%03d:%03d - %3 by %4"(
 			entry.m_device.m_bus,
@@ -102,7 +102,7 @@ void refreshUsbDeviceListUi(
 
 		toolTip.append("</table>");
 
-		char const* text = description.detachString();
+		string_t text = description.detachString();
 		size_t j = deviceCombo.addItem(text, entry);
 		deviceCombo.m_itemToolTip[j] = toolTip.detachString();
 

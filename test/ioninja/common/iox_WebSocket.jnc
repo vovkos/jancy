@@ -18,9 +18,10 @@ namespace iox {
 //..............................................................................
 
 bool isValidUtf8(
-	char const* p,
+	void const* p0,
 	size_t size
 ) {
+	char const* p = p0;
 	char const* end = p + size;
 	while (p < end) {
 		if ((*p & 0x80) == 0) { // 0xxxxxxx

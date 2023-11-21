@@ -21,8 +21,8 @@ enum MonitorFilterKind {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* getMonitorFilterPlaceholderText(MonitorFilterKind filterKind) {
-	static char const* placeholderTextTable[] = {
+string_t getMonitorFilterPlaceholderText(MonitorFilterKind filterKind) {
+	static string_t const placeholderTextTable[] = {
 		null,
 		"Enter a file name wildcard...",
 		"Enter a file ID...",
@@ -40,7 +40,7 @@ char const* getMonitorFilterPlaceholderText(MonitorFilterKind filterKind) {
 class MonitorFilter: log.Filter {
 protected:
 	MonitorFilterKind m_filterKind;
-	char const* m_wildcard;
+	string_t m_wildcard;
 	uint64_t m_id;
 	uint64_t m_fileId;
 	uint64_t m_lastVisibleFileId;
@@ -51,7 +51,7 @@ public:
 
 	void setFilter(
 		MonitorFilterKind filterKind,
-		char const* filter
+		string_t filter
 	);
 
 	override void reset();
@@ -60,8 +60,8 @@ protected:
 	bool finalizeFilter(bool result);
 
 	bool match(
-		char const* fileName,
-		char const* processName,
+		string_t fileName,
+		string_t processName,
 		uint64_t pid,
 		bool addFileIdOnMatch
 	);
@@ -71,21 +71,16 @@ protected:
 
 void MonitorFilter.setFilter(
 	MonitorFilterKind filterKind,
-	char const* filter
+	string_t filter
 ) {
 	m_filterKind = filterKind;
 
 	switch (filterKind) {
 	case MonitorFilterKind.FileName:
 	case MonitorFilterKind.ProcessName:
-		char* wildcard = strdup(filter);
-		if (!wildcard) {
-			m_wildcard = ""; // should not be null
-			break;
-		}
-
 		// wildcardCompareStringLowerCase() expects wildcard in lower-case
 
+		char* wildcard = strdup(filter);
 		for (char* p = wildcard; *p; p++)
 			*p = tolower(*p);
 
@@ -119,8 +114,8 @@ void MonitorFilter.reset() {
 }
 
 bool MonitorFilter.match(
-	char const* fileName,
-	char const* processName,
+	string_t fileName,
+	string_t processName,
 	uint64_t pid,
 	bool addFileIdIfMatch
 ) {

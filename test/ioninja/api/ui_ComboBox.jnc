@@ -20,17 +20,17 @@ typedef ListItem ComboItem;
 opaque class ComboBox: Widget {
 	bool autoget property m_isEditable; // for editable combo boxes: if itemData is non-null, it's used as the actual value
 
-	char const* bindable autoget property m_editText;
-	char const* autoget property m_placeholderText;
+	string_t bindable autoget property m_editText;
+	string_t autoget property m_placeholderText;
 	uint_t autoget property m_backgroundColor;
 
 	size_t readonly m_itemCount;
-	char const* property m_itemText(size_t index);
+	string_t property m_itemText(size_t index);
 	variant_t property m_itemData(size_t index);
-	char const* property m_itemToolTip(size_t index);
+	string_t property m_itemToolTip(size_t index);
 
 	size_t bindable autoget property m_currentIndex;
-	char const* bindable const property m_currentText;
+	string_t bindable const property m_currentText;
 	variant_t bindable property m_currentData;
 
 	event m_onReturnPressed();
@@ -47,14 +47,14 @@ opaque class ComboBox: Widget {
 	void adjustSizeToContents();
 
 	size_t addItem(
-		char const* text,
+		string_t text,
 		variant_t data = null
 	) {
 		return insertItem(-1, text, data);
 	}
 
 	size_t addItemSetCurrent(
-		char const* text,
+		string_t text,
 		variant_t data = null
 	) {
 		return insertItemSetCurrent(-1, text, data);
@@ -62,13 +62,13 @@ opaque class ComboBox: Widget {
 
 	size_t insertItem(
 		size_t index,
-		char const* text,
+		string_t text,
 		variant_t data = null
 	);
 
 	size_t insertItemSetCurrent(
 		size_t index,
-		char const* text,
+		string_t text,
 		variant_t data = null
 	) {
 		return m_currentIndex = insertItem(index, text, data);

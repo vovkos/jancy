@@ -30,7 +30,7 @@ protected:
 		IoErrorWaitTimeout = 1000,
 	}
 
-	static char const* DefaultTerm = "screen-256color";
+	static string_t const DefaultTerm = "screen-256color";
 
 	enum State {
 		Idle,
@@ -62,7 +62,7 @@ protected:
 		_Count,
 	}
 
-	static char const* m_stateName[] = {
+	static string_t const m_stateNameTable[] = {
 		"Idle",
 		"Running",
 		"Terminating...",
@@ -290,7 +290,7 @@ bool errorcode ProcessSession.start() {
 
 	m_commandLineCombo.addEditTextToHistory();
 
-	char const* commandLine = m_commandLineCombo.m_editText;
+	string_t commandLine = m_commandLineCombo.m_editText;
 
 	m_process.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
 	m_process.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
@@ -318,8 +318,8 @@ bool errorcode ProcessSession.start() {
 		ProcessLogRecordCode.ProcessStarted,
 		&pid,
 		sizeof(pid),
-		commandLine,
-		strlen(commandLine) + 1
+		commandLine.m_p,
+		commandLine.m_length
 	);
 
 	m_state = State.Running;
@@ -599,7 +599,7 @@ reactor ProcessSession.m_uiReactor {
 	m_actionTable[ActionId.Start].m_icon = m_iconTable[m_state ? IconId.Terminate : IconId.Start];
 	m_actionTable[ActionId.Start].m_isEnabled = m_state != State.Terminating;
 	m_actionTable[ActionId.Detach].m_isEnabled = m_state;
-	m_statusPaneTable[StatusPaneId.State].m_text = m_stateName[m_state];
+	m_statusPaneTable[StatusPaneId.State].m_text = m_stateNameTable[m_state];
 	m_separateStderrProp.m_isEnabled = !m_ptyProp || !m_ptyProp.m_value;
 	m_environmentToolBar.m_editAction.m_isEnabled = m_environmentWidget.m_selectedItemCount == 1;
 	m_environmentToolBar.m_removeAction.m_isEnabled = m_environmentWidget.m_selectedItemCount > 0;

@@ -45,15 +45,14 @@ size_t getChecksumSize(io.Df1ChecksumKind checksumKind) {
 	return checksumKind == io.Df1ChecksumKind.Bcc ? 1 : 2;
 }
 
-char const* getChecksumString(
+string_t getChecksumString(
 	io.Df1ChecksumKind checksumKind,
 	uint16_t checksum
 ) {
 	return checksumKind == io.Df1ChecksumKind.Bcc ? $"0x%02X"(checksum) : $"0x%04X"(checksum);
 }
 
-char const*
-getChecksumValidityString(
+string_t getChecksumValidityString(
 	io.Df1ChecksumKind checksumKind,
 	uchar_t const* p,
 	size_t size
@@ -64,18 +63,18 @@ getChecksumValidityString(
 	return getValidityString(actualChecksum == expectedChecksum);
 }
 
-char const* getValidityString(bool isValid) {
+string_t getValidityString(bool isValid) {
 	return isValid ? "\e[32mOK\e[m" : "\e[31mINVALID\e[m";
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* getStationDetailString(void const* p) {
+string_t getStationDetailString(void const* p) {
 	uchar_t stn = *(uchar_t const*)p;
 	return $"\e^!%1,0,1\e[34m%2\e[m"(Df1LogPartCode.RawDataLinkData, stn);
 }
 
-char const* getChecksumDetailString(
+string_t getChecksumDetailString(
 	io.Df1ChecksumKind checksumKind,
 	void const* p,
 	size_t size
@@ -96,7 +95,7 @@ char const* getChecksumDetailString(
 	);
 }
 
-char const* getCmdString(io.Df1AppMsgHdr const* hdr) {
+string_t getCmdString(io.Df1AppMsgHdr const* hdr) {
 	return hdr.m_direction != io.Df1CmdDirection.Command ?
 		$"%1 %2"(
 			typeof(io.Df1CmdPrefix).getValueString(hdr.m_command, "0x%02X"),
@@ -105,7 +104,7 @@ char const* getCmdString(io.Df1AppMsgHdr const* hdr) {
 		typeof(io.Df1CmdPrefix).getValueString(hdr.m_command, "0x%02X");
 }
 
-char const* getStatusString(io.Df1AppMsgHdr const* hdr) {
+string_t getStatusString(io.Df1AppMsgHdr const* hdr) {
 	return hdr.m_localStatus ?
 		typeof(io.Df1LocalStatus).getValueString(hdr.m_localStatus) :
 		typeof(io.Df1RemoteStatus).getValueString(hdr.m_remoteStatus);
@@ -203,8 +202,8 @@ bool representDf1Log(
 
 void representSimpleFrame(
 	log.Representation* representation,
-	char const* name,
-	char const* description,
+	string_t name,
+	string_t description,
 	uint_t foldFlags
 ) {
 	representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
@@ -374,7 +373,7 @@ void representStxFrame(
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* getAppMsgDigest(
+string_t getAppMsgDigest(
 	uchar_t const* p,
 	size_t size
 ) {
@@ -385,7 +384,7 @@ char const* getAppMsgDigest(
 	p += sizeof(io.Df1AppMsgHdr);
 	size -= sizeof(io.Df1AppMsgHdr);
 
-	char const* cmdString;
+	string_t cmdString;
 
 	switch (hdr.m_command) {
 	case io.Df1CmdPrefix.ProtectedWrite:
@@ -556,7 +555,7 @@ void representAppMsg(
 void representPayload(
 	log.Representation* representation,
 	std.Array* rangeArray,
-	char const* name = "DATA",
+	string_t name = "DATA",
 	void const* p,
 	size_t size,
 	size_t baseOffset,

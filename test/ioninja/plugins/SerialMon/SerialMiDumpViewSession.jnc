@@ -161,7 +161,7 @@ bool errorcode SerialMiDumpViewSession.open() {
 	close();
 	startSession();
 
-	char const* fileName = m_fileNameCombo.m_editText;
+	string_t fileName = m_fileNameCombo.m_editText;
 	m_fileNameCombo.addEditTextToHistory();
 	m_file.open(fileName, io.FileOpenFlags.ReadOnly);
 	m_logWriter.write(FileLogRecordCode.FileOpened, fileName);

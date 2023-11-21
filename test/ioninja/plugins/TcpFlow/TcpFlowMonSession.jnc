@@ -58,7 +58,7 @@ protected:
 	State bindable m_state;
 	io.Pcap m_pcap;
 	TcpDecoder m_decoder;
-	char const* m_captureFilterString;
+	string_t m_captureFilterString;
 	std.Buffer m_readBuffer;
 	TcpFlowLogFilter m_filter;
 	uint_t m_syncId;
@@ -99,7 +99,7 @@ public:
 	construct(doc.PluginHost* pluginHost);
 
 	bool errorcode capture();
-	bool errorcode openPcapFile(char const* fileName);
+	bool errorcode openPcapFile(string_t fileName);
 	void stopCapture();
 
 	override void load(doc.Storage* storage);
@@ -129,7 +129,7 @@ protected:
 		io.PcapEvents triggeredEvents
 	);
 
-	char const* createCaptureFilterString(io.SocketAddress const* filterAddress);
+	string_t createCaptureFilterString(io.SocketAddress const* filterAddress);
 	bool errorcode applyCaptureFilter();
 	bool errorcode applyViewFilter(bool rebuildLog = false);
 
@@ -307,7 +307,7 @@ bool errorcode TcpFlowMonSession.capture() {
 	if (m_captureFilterProp.m_value)
 		filterAddress.parse(m_captureFilterProp.m_value);
 
-	char const* filterString = createCaptureFilterString(filterAddress);
+	string_t filterString = createCaptureFilterString(filterAddress);
 	m_logWriter.write(PcapLogRecordCode.StartingCapture, filterString);
 
 	m_pcap.openDevice(device.m_name);
@@ -335,7 +335,7 @@ catch:
 	return false;
 }
 
-bool errorcode TcpFlowMonSession.openPcapFile(char const* fileName) {
+bool errorcode TcpFlowMonSession.openPcapFile(string_t fileName) {
 	stopCapture();
 	startSession();
 
@@ -343,7 +343,7 @@ bool errorcode TcpFlowMonSession.openPcapFile(char const* fileName) {
 	if (m_captureFilterProp.m_value)
 		filterAddress.parse(m_captureFilterProp.m_value);
 
-	char const* filterString = createCaptureFilterString(filterAddress);
+	string_t filterString = createCaptureFilterString(filterAddress);
 	m_logWriter.write(PcapLogRecordCode.StartingCapture, filterString);
 
 	m_pcap.openFile(fileName, filterString);
@@ -388,9 +388,8 @@ bool errorcode TcpFlowMonSession.applyCaptureFilter() {
 	if (m_captureFilterProp.m_value)
 		filterAddress.parse(m_captureFilterProp.m_value);
 
-	char const* filterString = createCaptureFilterString(filterAddress);
-
-	if (strcmp(filterString, m_captureFilterString)) {
+	string_t filterString = createCaptureFilterString(filterAddress);
+	if (filterString != m_captureFilterString) {
 		m_pcap.setFilter(filterString);
 		m_captureFilterString = filterString;
 		m_logWriter.write(PcapLogRecordCode.SetCaptureFilter, filterString);
@@ -427,8 +426,8 @@ bool errorcode TcpFlowMonSession.applyViewFilter(bool rebuildLog) {
 	return true;
 }
 
-char const* TcpFlowMonSession.createCaptureFilterString(io.SocketAddress const* filterAddress) {
-	char const* filterString =
+string_t TcpFlowMonSession.createCaptureFilterString(io.SocketAddress const* filterAddress) {
+	string_t filterString =
 		filterAddress.m_family == io.AddressFamily.Ip6 ? $"tcp and host $(filterAddress.m_ip6.m_address.getString())" :
 		filterAddress.m_ip4.m_address.m_i32 ? $"tcp and host $(filterAddress.m_ip4.m_address.getString())" :
 		"tcp";

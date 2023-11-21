@@ -58,7 +58,7 @@ protected:
 
 	State bindable m_state;
 	io.Serial m_serial;
-	char const* m_portName;
+	string_t m_portName;
 	uint_t bindable m_baudRate;
 	uint_t m_dataBits;
 	io.SerialStopBits m_stopBits;
@@ -147,7 +147,7 @@ protected:
 	}
 
 	ui.ComboBox* createSerialSettingComboBox(
-		char const* labelText,
+		string_t labelText,
 		ui.EnumPropertyOption const* optionTable,
 		size_t optionCount,
 		function* onChanged()
@@ -368,7 +368,7 @@ void EzTapProSession.createUi() {
 }
 
 ui.ComboBox* EzTapProSession.createSerialSettingComboBox(
-	char const* labelText,
+	string_t labelText,
 	ui.EnumPropertyOption const* optionTable,
 	size_t optionCount,
 	function* onChanged()
@@ -409,7 +409,7 @@ bool errorcode EzTapProSession.capture() {
 	stopCapture();
 	startSession();
 
-	char const* portName = m_portCombo.m_currentText;
+	string_t portName = m_portCombo.m_currentText;
 
 	// configure and open
 
@@ -442,7 +442,7 @@ bool errorcode EzTapProSession.capture() {
 	params.m_options = m_serial.m_options;
 	params.m_osKind = sys.g_systemInfo.m_osKind;
 
-	char const* p = $"$(params; B)$portName";
+	void const* p = $"$(params; B)$portName";
 	m_logWriter.write(SerialLogRecordCode.PortOpened, p, dynamic sizeof(p));
 
 	m_responseSize = 0;
@@ -598,7 +598,7 @@ bool errorcode EzTapProSession.decodeResponse(
 ) {
 	while (size) {
 		if (m_responseSize == 0) {
-			uint_t code = *(uint8_t const*) p & EzTapResponseCode.Mask;
+			uint_t code = *(uint8_t const*)p & EzTapResponseCode.Mask;
 
 			m_responseSize = g_ezTapResponseSizeMap[code];
 			if (!m_responseSize) {
@@ -629,7 +629,7 @@ bool errorcode EzTapProSession.decodeResponse(
 
 		case EzTapResponseCode.DteData:
 		case EzTapResponseCode.DceData:
-			EzTapDataParams const* params = (EzTapDataParams const*) m_responseBuffer.m_p;
+			EzTapDataParams const* params = (EzTapDataParams const*)m_responseBuffer.m_p;
 
 			uint64_t recordCode = code == EzTapResponseCode.DteData != m_actionTable[ActionId.Flip].m_isChecked ?
 				log.StdRecordCode.Tx :
@@ -640,7 +640,7 @@ bool errorcode EzTapProSession.decodeResponse(
 
 		case EzTapResponseCode.DteControlLineChanged:
 		case EzTapResponseCode.DceControlLineChanged:
-			EzTapControlLineChangedParams const* params = (EzTapControlLineChangedParams const*) m_responseBuffer.m_p;
+			EzTapControlLineChangedParams const* params = (EzTapControlLineChangedParams const*)m_responseBuffer.m_p;
 
 			if (code == EzTapResponseCode.DteControlLineChanged != m_actionTable[ActionId.Flip].m_isChecked)
 				updateDteControlLines(params.m_dsr, params.m_cts);
@@ -649,13 +649,13 @@ bool errorcode EzTapProSession.decodeResponse(
 			break;
 
 		case EzTapResponseCode.GenericReply:
-			EzTapGenericReplyParams const* params = (EzTapGenericReplyParams const*) m_responseBuffer.m_p;
+			EzTapGenericReplyParams const* params = (EzTapGenericReplyParams const*)m_responseBuffer.m_p;
 
 			// TODO: handle errors
 			break;
 
 		case EzTapResponseCode.GetControlLinesReply:
-			EzTapGetContorlLinesReplyParams const* params = (EzTapGetContorlLinesReplyParams const*) m_responseBuffer.m_p;
+			EzTapGetContorlLinesReplyParams const* params = (EzTapGetContorlLinesReplyParams const*)m_responseBuffer.m_p;
 
 			if (m_actionTable[ActionId.Flip].m_isChecked) {
 				updateDteControlLines(params.m_dsr, params.m_cts);
@@ -668,7 +668,7 @@ bool errorcode EzTapProSession.decodeResponse(
 			break;
 
 		case EzTapResponseCode.Error:
-			EzTapErrorParams const* params = (EzTapErrorParams const*) m_responseBuffer.m_p;
+			EzTapErrorParams const* params = (EzTapErrorParams const*)m_responseBuffer.m_p;
 			if (params.m_error == EzTapErrorCode.BufferOverflow) {
 				m_logWriter.write(log.StdRecordCode.RxBufferFullLossy);
 			} else {

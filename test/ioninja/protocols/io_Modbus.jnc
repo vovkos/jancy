@@ -310,7 +310,7 @@ size_t errorcode getModbusPduSize(
 		return
 			role == ModbusRole.Master ? sizeof(ModbusReadPdu) :
 			size < sizeof(ModbusReadReplyPdu) ? sizeof(ModbusReadReplyPdu) :
-			sizeof(ModbusReadReplyPdu) + ((ModbusReadReplyPdu const*) pduHdr).m_size;
+			sizeof(ModbusReadReplyPdu) + ((ModbusReadReplyPdu const*)pduHdr).m_size;
 
 	case io.ModbusFunc.WriteCoil:
 	case io.ModbusFunc.WriteRegister:
@@ -334,20 +334,20 @@ size_t errorcode getModbusPduSize(
 		return role == ModbusRole.Master ?
 			sizeof(ModbusPduHdr) :
 			size < sizeof(ModbusGetCommEventLogReplyPdu) ? sizeof(ModbusGetCommEventLogReplyPdu) :
-			sizeof(ModbusReadReplyPdu) + ((ModbusReadReplyPdu const*) pduHdr).m_size;
+			sizeof(ModbusReadReplyPdu) + ((ModbusReadReplyPdu const*)pduHdr).m_size;
 
 	case io.ModbusFunc.WriteMultipleCoils:
 	case io.ModbusFunc.WriteMultipleRegisters:
 		return
 			role == ModbusRole.Slave ? sizeof(ModbusWriteMultipleReplyPdu) :
 			size < sizeof(ModbusWriteMultiplePdu) ? sizeof(ModbusWriteMultiplePdu) :
-			sizeof(ModbusWriteMultiplePdu) + ((ModbusWriteMultiplePdu const*) pduHdr).m_size;
+			sizeof(ModbusWriteMultiplePdu) + ((ModbusWriteMultiplePdu const*)pduHdr).m_size;
 
 	case io.ModbusFunc.ReadFileRecord:
 	case io.ModbusFunc.WriteFileRecord:
 		return
 			size < sizeof(ModbusReadReplyPdu) ? sizeof(ModbusReadReplyPdu) :
-			sizeof(ModbusReadReplyPdu) + ((ModbusReadReplyPdu const*) pduHdr).m_size;
+			sizeof(ModbusReadReplyPdu) + ((ModbusReadReplyPdu const*)pduHdr).m_size;
 
 	case io.ModbusFunc.MaskWriteRegister:
 		return sizeof(ModbusMaskWritePdu);
@@ -356,15 +356,15 @@ size_t errorcode getModbusPduSize(
 		return
 			role == ModbusRole.Master ?
 			size < sizeof(ModbusReadWriteMultiplePdu) ? sizeof(ModbusReadWriteMultiplePdu) :
-			sizeof(ModbusReadWriteMultiplePdu) + ((ModbusReadWriteMultiplePdu const*) pduHdr).m_writeSize :
+			sizeof(ModbusReadWriteMultiplePdu) + ((ModbusReadWriteMultiplePdu const*)pduHdr).m_writeSize :
 			size < sizeof(ModbusReadReplyPdu) ? sizeof(ModbusReadReplyPdu) :
-			sizeof(ModbusReadReplyPdu) + ((ModbusReadReplyPdu const*) pduHdr).m_size;
+			sizeof(ModbusReadReplyPdu) + ((ModbusReadReplyPdu const*)pduHdr).m_size;
 
 	case io.ModbusFunc.ReadFifoQueue:
 		return
 			role == ModbusRole.Master ? sizeof(ModbusReadFifoPdu) :
 			size < sizeof(ModbusReadFifoReplyPdu) ? sizeof(ModbusReadFifoReplyPdu) :
-			sizeof(ModbusReadFifoReplyPdu) + ((ModbusReadFifoReplyPdu const*) pduHdr).m_fifoCount * sizeof(uint16_t);
+			sizeof(ModbusReadFifoReplyPdu) + ((ModbusReadFifoReplyPdu const*)pduHdr).m_fifoCount * sizeof(uint16_t);
 
 	case io.ModbusFunc.EncapsulatedInterface:
 		std.setError("ModbusFunc.EncapsulatedInterface is unsupported");
@@ -433,7 +433,7 @@ size_t errorcode getModbusRtuAduSize(
 	if (size < sizeof(ModbusRtuAduHdr))
 		return sizeof(ModbusRtuAduHdr);
 
-	ModbusPduHdr const* pduHdr = (ModbusPduHdr const*) (aduHdr + 1);
+	ModbusPduHdr const* pduHdr = (ModbusPduHdr const*)(aduHdr + 1);
 	size_t pduSize = getModbusPduSize(role, pduHdr, size - sizeof(ModbusRtuAduHdr));
 	return pduSize + sizeof(uint8_t) + sizeof(uint16_t);
 }

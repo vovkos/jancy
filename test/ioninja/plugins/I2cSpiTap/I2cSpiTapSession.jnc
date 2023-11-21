@@ -49,7 +49,7 @@ protected:
 		Capturing,
 	}
 
-	char const* m_statusText[] = {
+	string_t m_statusTextTable[] = {
 		"Closed",
 		"Uploading",
 		"Capturing",
@@ -83,7 +83,7 @@ protected:
 		PacketSize  = 512,
 	}
 
-	static char const* const m_fileNameTable[] = {
+	static string_t const m_fileNameTable[] = {
 		__DIR__ "/firmware/spi.rpd",
 		__DIR__ "/firmware/i2c.rpd",
 	}
@@ -376,7 +376,7 @@ void I2cSpiTapSession.enumerateDevices() {
 			deviceDesc.m_productId != Usb.ProductId)
 			continue;
 
-		char const* text = $"@%(1;03d):%(2;03d) IO Ninja I2C/SPI Tap" (
+		string_t text = $"@%(1;03d):%(2;03d) IO Ninja I2C/SPI Tap" (
 			device.m_bus,
 			device.m_address
 		);
@@ -659,7 +659,7 @@ reactor I2cSpiTapSession.m_uiReactor {
 
 	m_actionTable[ActionId.Capture].m_text = m_state ? "Close Device" : "Open Device";
 	m_actionTable[ActionId.Capture].m_icon = m_iconTable[m_state ? IconId.Stop : IconId.Capture];
-	m_statusPaneTable[StatusPaneId.State].m_text = m_statusText[m_state];
+	m_statusPaneTable[StatusPaneId.State].m_text = m_statusTextTable[m_state];
 	m_spiModeProp.m_isEnabled = m_protocolProp.m_value == Protocol.Spi;
 	m_spiDataBitsProp.m_isEnabled = m_protocolProp.m_value == Protocol.Spi;
 	m_spiEndiannessProp.m_isEnabled = m_protocolProp.m_value == Protocol.Spi;

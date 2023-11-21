@@ -11,8 +11,8 @@ class DhcpProtoParser: AppProtoParser {
 public:
 	override void representDigest(
 		log.Representation* representation,
-		char const* srcString,
-		char const* dstString,
+		string_t srcString,
+		string_t dstString,
 		void const* p,
 		size_t size,
 		int payloadPreviewIconIdx
@@ -32,8 +32,8 @@ public:
 
 void DhcpProtoParser.representDigest(
 	log.Representation* representation,
-	char const* srcString,
-	char const* dstString,
+	string_t srcString,
+	string_t dstString,
 	void const* p,
 	size_t size,
 	int payloadPreviewIconIdx
@@ -48,7 +48,7 @@ void DhcpProtoParser.representDigest(
 	);
 }
 
-char const* getDhcpOptionValueString(io.DhcpOptionHdr const* optionHdr) {
+string_t getDhcpOptionValueString(io.DhcpOptionHdr const* optionHdr) {
 	jnc.EnumConst* optionConst = typeof(io.DhcpOptionType).findConst(optionHdr.m_type);
 	if (!optionConst)
 		return null;
@@ -102,7 +102,7 @@ size_t representDhcpOption(
 			optionHdr.m_length
 		));
 
-	char const* valueString = getDhcpOptionValueString(optionHdr);
+	string_t valueString = getDhcpOptionValueString(optionHdr);
 	if (valueString)
 		representation.addHyperText(
 			$"%(1;7c)Value:\t\e^!%2,%3\e[34m%4"(

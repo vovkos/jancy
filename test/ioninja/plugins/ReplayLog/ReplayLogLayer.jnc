@@ -173,7 +173,7 @@ void ReplayLogLayer.load(doc.Storage* storage) {
 	m_replayCustomCodeProp.m_value = storage.readBool("replayCustomCode", Defaults.ReplayCustomCode);
 	m_customCodeProp.m_value = storage.readString("customCode", m_customCodeProp.m_value);
 	m_customCodeProp.m_value = storage.readString("customCode", m_customCodeProp.m_value);
-	m_customRecordCode = strtoul(m_customCodeProp.m_value, null, 0);
+	m_customRecordCode = strtoul(m_customCodeProp.m_value);
 	m_replayCountProp.m_value = storage.readInt("replayCount", Defaults.ReplayCount);
 	m_intervalScaleProp.m_value = storage.readInt("intervalScale", Defaults.IntervalScale);
 }
@@ -195,7 +195,7 @@ void ReplayLogLayer.updateProperties() {
 
 bool errorcode ReplayLogLayer.applyProperties() {
 	m_fileNameCombo.m_editText = m_fileNameProp.m_value;
-	m_customRecordCode = strtoul(m_customCodeProp.m_value, null, 0);
+	m_customRecordCode = strtoul(m_customCodeProp.m_value);
 	return true;
 }
 
@@ -332,7 +332,7 @@ void ReplayLogLayer.onPlay() {
 	close();
 
 	m_fileNameCombo.addEditTextToHistory();
-	char const* fileName = m_fileNameCombo.m_editText;
+	string_t fileName = m_fileNameCombo.m_editText;
 
 	m_progressDlg.m_title = fileName;
 	m_progressDlg.m_status = "Initializing...";
@@ -342,7 +342,7 @@ void ReplayLogLayer.onPlay() {
 
 	m_file.open(fileName, io.FileOpenFlags.OpenExisting | io.FileOpenFlags.ReadOnly);
 
-	m_hdr = (log.RecordFileHdr const*) m_file.view(0, sizeof(log.RecordFileHdr), true);
+	m_hdr = (log.RecordFileHdr const*)m_file.view(0, sizeof(log.RecordFileHdr), true);
 	if (m_hdr.m_signature != log.RecordFileSignature) {
 		std.setError("Invalid log file format (bad file signature)");
 		throw;
@@ -396,7 +396,7 @@ void ReplayLogLayer.onProgressTimer(uint_t syncId) {
 }
 
 reactor ReplayLogLayer.m_uiReactor {
-	m_actionTable[ActionId.Play].m_isEnabled = m_isTransmitEnabled && strlen(m_fileNameCombo.m_editText);
+	m_actionTable[ActionId.Play].m_isEnabled = m_isTransmitEnabled && m_fileNameCombo.m_editText;
 	m_customCodeProp.m_isEnabled = m_replayCustomCodeProp.m_value;
 }
 

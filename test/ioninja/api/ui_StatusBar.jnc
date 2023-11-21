@@ -13,7 +13,7 @@ namespace ui {
 opaque class StatusPane {
 	bool autoget property m_isVisible;
 	bool autoget property m_isEnabled;
-	char const* autoget property m_text;
+	string_t autoget property m_text;
 	uint_t autoget property m_width;
 	uint_t autoget property m_color;
 }
@@ -24,7 +24,7 @@ opaque class StatusBar {
 	destruct();
 
 	void displayMessage(
-		char const* text,
+		string_t text,
 		uint_t timeout = 3000
 	);
 
@@ -32,7 +32,7 @@ opaque class StatusBar {
 	StatusPane* const property m_pane(size_t index);
 
 	StatusPane* addPane(
-		char const* text = null,
+		string_t text = null,
 		uint_t width = 0 // 0 = default
 	);
 }

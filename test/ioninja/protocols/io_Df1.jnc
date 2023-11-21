@@ -38,8 +38,8 @@ enum Df1ChecksumKind: uchar_t {
 	Crc,
 }
 
-char const* getDf1ChecksumKindString(Df1ChecksumKind kind) {
-	static char const* stringTable[] = {
+string_t getDf1ChecksumKindString(Df1ChecksumKind kind) {
+	static string_t const stringTable[] = {
 		"BCC",
 		"CRC",
 	}

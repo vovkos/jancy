@@ -17,7 +17,7 @@ public:
 
 	bool errorcode setFilter(
 		io.Pcap* pcap,
-		char const* filter,
+		string_t filter,
 		bool isOptimized = true,
 		uint32_t netMask = -1
 	) {
@@ -25,7 +25,7 @@ public:
 	}
 
 	bool errorcode setFilter(
-		char const* filter,
+		string_t filter,
 		bool isOptimized = true,
 		uint32_t netMask = -1
 	) {

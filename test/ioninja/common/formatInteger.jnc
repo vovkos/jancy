@@ -7,7 +7,7 @@ import "std_String.jnc"
 
 // both functions return mutable pointers
 
-char const* formatIntegerWithThousandSep(
+string_t formatIntegerWithThousandSep(
 	uint64_t value,
 	char sep = ','
 ) {
@@ -20,7 +20,7 @@ char const* formatIntegerWithThousandSep(
 	return string.detachString();
 }
 
-char const* formatFileSize(uint64_t size) {
+string_t formatFileSize(uint64_t size) {
 	enum {
 		KB = 1024,
 		MB = 1024 * KB,

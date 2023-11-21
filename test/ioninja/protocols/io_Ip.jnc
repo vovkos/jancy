@@ -90,7 +90,7 @@ struct IpHdr {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* formatIpDigest(void const* p) {
+string_t formatIpDigest(void const* p) {
 	IpHdr const* hdr = (IpHdr const*)p;
 
 	return $"%1 \u2192 %2" (
@@ -99,7 +99,7 @@ char const* formatIpDigest(void const* p) {
 	);
 }
 
-char const* formatIpAddress(void const* p) {
+string_t formatIpAddress(void const* p) {
 	return ((io.Address_ip4 const*)p).getString();
 }
 

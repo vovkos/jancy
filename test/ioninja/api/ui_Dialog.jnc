@@ -52,9 +52,9 @@ enum FileDlgKind {
 
 opaque class FileDlg {
 	FileDlgKind autoget property m_kind;
-	char const* autoget property m_title;
-	char const* autoget property m_filter;
-	char const* autoget property m_filePath;
+	string_t autoget property m_title;
+	string_t autoget property m_filter;
+	string_t autoget property m_filePath;
 
 	event m_onCompleted(StdDlgButton button);
 
@@ -73,14 +73,14 @@ enum AuthenticationMethod {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 opaque class LoginDlg {
-	char const* autoget property m_title;
-	char const* autoget property m_message;
-	char const* autoget property m_userName;
+	string_t autoget property m_title;
+	string_t autoget property m_message;
+	string_t autoget property m_userName;
 
 	AuthenticationMethod autoget property m_authenticationMethod;
-	char const* autoget property m_password;
-	char const* autoget property m_privateKeyFileName;
-	char const* autoget property m_privateKeyPassphrase;
+	string_t autoget property m_password;
+	string_t autoget property m_privateKeyFileName;
+	string_t autoget property m_privateKeyPassphrase;
 
 	event m_onCompleted(StdDlgButton button);
 
@@ -92,8 +92,8 @@ opaque class LoginDlg {
 //..............................................................................
 
 opaque class MessageDlg {
-	char const* autoget property m_title;
-	char const* autoget property m_message;
+	string_t autoget property m_title;
+	string_t autoget property m_message;
 	StdDlgIcon autoget property m_icon;
 	StdDlgButtons autoget property m_buttons;
 
@@ -107,8 +107,8 @@ opaque class MessageDlg {
 //..............................................................................
 
 opaque class ProgressDlg {
-	char const* autoget property m_title;
-	char const* autoget property m_status;
+	string_t autoget property m_title;
+	string_t autoget property m_status;
 	int autoget property m_progress;
 	StdDlgIcon autoget property m_icon;
 	StdDlgButtons autoget property m_buttons;

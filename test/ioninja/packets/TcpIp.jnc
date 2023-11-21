@@ -64,7 +64,7 @@ struct IpPacket {
 	}
 
 	[ userAction = "Set source address" ]
-	void setSrcAddress(char const* addressString) {
+	void setSrcAddress(string_t addressString) {
 		io.Address_ip4 addr;
 		bool result = try addr.parse(addressString);
 		if (result)
@@ -72,7 +72,7 @@ struct IpPacket {
 	}
 
 	[ userAction = "Set destination address" ]
-	void setDstAddress(char const* addressString) {
+	void setDstAddress(string_t addressString) {
 		io.Address_ip4 addr;
 		bool result = try addr.parse(addressString);
 		if (result)
@@ -119,7 +119,7 @@ struct IcmpPacket {
 	}
 
 	[ userAction = "Set source address" ]
-	void setSrcAddress(char const* addressString) {
+	void setSrcAddress(string_t addressString) {
 		io.Address_ip4 addr;
 		bool result = try addr.parse(addressString);
 		if (result)
@@ -127,7 +127,7 @@ struct IcmpPacket {
 	}
 
 	[ userAction = "Set destination address" ]
-	void setDstAddress(char const* addressString) {
+	void setDstAddress(string_t addressString) {
 		io.Address_ip4 addr;
 		bool result = try addr.parse(addressString);
 		if (result)
@@ -174,7 +174,7 @@ struct TcpPacket {
 	}
 
 	[ userAction = "Set source address" ]
-	void setSrcAddress(char const* addressString) {
+	void setSrcAddress(string_t addressString) {
 		io.SocketAddress_ip4 addr;
 		bool result = try addr.parse(addressString);
 		if (result) {
@@ -187,7 +187,7 @@ struct TcpPacket {
 	}
 
 	[ userAction = "Set destination address" ]
-	void setDstAddress(char const* addressString) {
+	void setDstAddress(string_t addressString) {
 		io.SocketAddress_ip4 addr;
 		bool result = try addr.parse(addressString);
 		if (result) {
@@ -240,7 +240,7 @@ struct UdpPacket {
 	}
 
 	[ userAction = "Set source address" ]
-	void setSrcAddress(char const* addressString) {
+	void setSrcAddress(string_t addressString) {
 		io.SocketAddress_ip4 addr;
 		bool result = try addr.parse(addressString);
 		if (result) {
@@ -253,7 +253,7 @@ struct UdpPacket {
 	}
 
 	[ userAction = "Set destination address" ]
-	void setDstAddress(char const* addressString) {
+	void setDstAddress(string_t addressString) {
 		io.SocketAddress_ip4 addr;
 		bool result = try addr.parse(addressString);
 		if (result) {
@@ -288,7 +288,7 @@ uint_t calcChecksum16(
 	void const* p0,
 	size_t size
 ) {
-	uint16_t const* p = (uint16_t const*) p0;
+	uint16_t const* p = (uint16_t const*)p0;
 	void const* end = p0 + (size & ~1);
 
 	uint_t checksum = 0;
@@ -297,7 +297,7 @@ uint_t calcChecksum16(
 		checksum += *p;
 
 	if (size & 1)
-		checksum += *(uint8_t const*) p;
+		checksum += *(uint8_t const*)p;
 
 	return checksum;
 }
@@ -307,7 +307,7 @@ bigendian uint16_t adjustIpChecksum(uint_t checksum) {
 	checksum += checksum >> 16;
 	checksum = ~checksum;
 
-	return *(bigendian uint16_t thin*) &checksum; // bswap16
+	return *(bigendian uint16_t thin*)&checksum; // bswap16
 }
 
 bigendian uint16_t calcIpHdrChecksum(io.IpHdr const* ipHdr) {

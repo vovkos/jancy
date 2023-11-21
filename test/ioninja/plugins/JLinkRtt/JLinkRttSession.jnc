@@ -179,11 +179,11 @@ protected:
 	void jlinkReadThreadFunc();
 
 	static void jlinkTraceInfo(char const thin* p) {
-		m_singleton.m_logWriter.write(JLinkRttLogRecordCode.TraceInfo, jnc.createDataPtr(p));
+		m_singleton.m_logWriter.write(JLinkRttLogRecordCode.TraceInfo, (char const*)jnc.createDataPtr(p));
 	}
 
 	static void jlinkTraceError(char const thin* p) {
-		m_singleton.m_logWriter.write(JLinkRttLogRecordCode.TraceError, jnc.createDataPtr(p));
+		m_singleton.m_logWriter.write(JLinkRttLogRecordCode.TraceError, (char const*)jnc.createDataPtr(p));
 	}
 }
 
@@ -269,7 +269,7 @@ void JLinkRttSession.createUi() {
 
 	switch (sys.g_systemInfo.m_osKind) {
 	case sys.OsKind.Windows:
-		char const* cpuSuffix = sys.g_systemInfo.m_cpuKind == sys.CpuKind.Amd64 ? "_x64" : "ARM";
+		string_t cpuSuffix = sys.g_systemInfo.m_cpuKind == sys.CpuKind.Amd64 ? "_x64" : "ARM";
 		m_jlinkLibPathProp.m_filter = $"J-Link library (JLink$cpuSuffix.dll);;Dynamic-link libraries (*.dll);;All files (*.*)";
 		break;
 
@@ -416,7 +416,7 @@ void JLinkRttSession.enumerateDevices() {
 		if (!info.sName)
 			break;
 
-		itemArray[i].m_text = jnc.createDataPtr(info.sName);
+		itemArray[i].m_text = strdup(jnc.createDataPtr(info.sName));
 	}
 
 	m_deviceCombo.setItems(itemArray, count);
@@ -520,7 +520,7 @@ bool errorcode JLinkRttSession.connectJlink() {
 	uint_t serialNumber = m_jlinkLib.lib.JLINK_GetSN();
 	m_jlinkLib.lib.JLINK_EMU_GetProductName(buffer, sizeof(buffer) - 1);
 
-	char const* params = $"$(serialNumber;B)$buffer";
+	void const* params = $"$(serialNumber;B)$buffer";
 	m_logWriter.write(JLinkRttLogRecordCode.Connected, params, dynamic sizeof(params));
 	m_state = State.JlinkConnected;
 
@@ -594,7 +594,7 @@ bool errorcode JLinkRttSession.applyProperties() {
 }
 
 void JLinkRttSession.restoreDefaultProperties() {
-	if (strlen(m_jlinkLibPathProp.m_value) == 0) // re-write only if empty
+	if (!m_jlinkLibPathProp.m_value) // re-write only if empty
 		m_jlinkLibPathProp.m_value = io.detectJLinkLibPath();
 
 	m_connectionTypeProp.m_value = Defaults.ConnectionType;

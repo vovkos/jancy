@@ -17,7 +17,7 @@ bool representPipeServerLog  (
 ) {
 	switch (recordCode) {
 	case PipeServerLogRecordCode.Listening:
-		char const* name = (char const*)p;
+		string_t name = (char const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Listen;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addHyperText($"Listening on \e[34m$name");
@@ -31,7 +31,7 @@ bool representPipeServerLog  (
 		break;
 
 	case PipeServerLogRecordCode.ListenStopped:
-		char const* name = (char const*)p;
+		string_t name = (char const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.StopListen;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addHyperText($"Stopped listening on \e[34m$name");
@@ -64,7 +64,7 @@ bool representPipeServerLog  (
 
 	case PipeServerLogRecordCode.ClientDisconnected:
 		PipeDisconnectLogRecordParams const* params = (PipeDisconnectLogRecordParams const*)p;
-		char const* initiator = (params.m_flags & PipeDisconnectLogRecordFlags.Remote) ? "remote" : "local";
+		string_t initiator = (params.m_flags & PipeDisconnectLogRecordFlags.Remote) ? "remote" : "local";
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
 

@@ -9,8 +9,8 @@ import "io_Tcp.jnc"
 
 void representTcpDigest(
 	log.Representation* representation,
-	char const* srcString,
-	char const* dstString,
+	string_t srcString,
+	string_t dstString,
 	void const* p,
 	size_t size,
 	int payloadPreviewIconIdx = -1
@@ -44,12 +44,12 @@ void representTcpDigest(
 	representPayloadPreview(representation, p, size, payloadPreviewIconIdx);
 }
 
-char const* formatTcpDigest(
+string_t formatTcpDigest(
 	io.TcpHdr const* hdr,
-	char const* srcString,
-	char const* dstString,
+	string_t srcString,
+	string_t dstString,
 	size_t dataSize,
-	char const* extra = null
+	string_t extra = null
 ) {
 	return
 		$"\e[1mTCP \e[10;34m%1:%2\e[m \u2192 \e[10;34m%3:%4\e[m [%5]%6%7"(

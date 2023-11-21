@@ -20,7 +20,7 @@ bool representFileLog(
 	switch (recordCode) {
 	case FileLogRecordCode.Opened_0:
 		io.FileKind const* kind = (io.FileKind const*)p;
-		char const* fileName = (char const*)(kind + 1);
+		string_t fileName = (char const*)(kind + 1);
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
 		representation.addHyperText($"Opened file \e[34m$fileName\e[m ($(io.getFileStreamKindString(*kind)))");
@@ -28,9 +28,9 @@ bool representFileLog(
 
 	case FileLogRecordCode.Opened:
 		FileOpenLogRecordParams const* params = (FileOpenLogRecordParams const*)p;
-		char const* fileName = (char const*)(params + 1);
-		char const* kindString = io.getFileStreamKindString(params.m_kind);
-		char const* modeString =
+		string_t fileName = (char const*)(params + 1);
+		string_t kindString = io.getFileStreamKindString(params.m_kind);
+		string_t modeString =
 			(params.m_openFlags & io.FileOpenFlags.ReadOnly) ? ", read-only" :
 			(params.m_openFlags & io.FileOpenFlags.WriteOnly) ? ", write-only" :
 			null;
@@ -41,7 +41,7 @@ bool representFileLog(
 		break;
 
 	case FileLogRecordCode.FileOpened:
-		char const* fileName = (char const*)p;
+		string_t fileName = (char const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
 		representation.addHyperText($"Opened file \e[34m$fileName");

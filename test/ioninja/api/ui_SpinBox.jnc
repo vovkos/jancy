@@ -20,8 +20,8 @@ class SpinBox: Widget {
 		NoButtons,
 	}
 
-	char const* autoget property m_prefix;
-	char const* autoget property m_suffix;
+	string_t autoget property m_prefix;
+	string_t autoget property m_suffix;
 
 	int bindable autoget property m_value;
 	int autoget property m_minimum;

@@ -63,20 +63,20 @@ opaque class Writer {
 	void write(
 		uint64_t timestamp,
 		uint64_t recordCode,
-		char const* p
+		string_t text
 	) {
-		write(timestamp, recordCode, p, strlen(p));
+		write(timestamp, recordCode, text.m_p, text.m_length);
 	}
 
 	void write(
 		uint64_t recordCode,
-		char const* p
+		string_t text
 	) {
-		write(sys.getPreciseTimestamp(), recordCode, p, strlen(p));
+		write(sys.getPreciseTimestamp(), text.m_p, text.m_length);
 	}
 
-	void write(char const* p) {
-		write(sys.getPreciseTimestamp(), log.StdRecordCode.PlainText, p, strlen(p));
+	void write(string_t text) {
+		write(sys.getPreciseTimestamp(), log.StdRecordCode.PlainText, text.m_p, text.m_length);
 	}
 
 	void write(

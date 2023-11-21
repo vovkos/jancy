@@ -31,7 +31,7 @@ opaque class PluginHost {
 	log.Log m_log;
 	MainThreadScheduler* m_mainThreadScheduler;
 
-	char const* const property m_pluginDir;
+	string_t const property m_pluginDir;
 	log.TxRxStats* const property m_txRxStats;
 
 	destruct();
@@ -53,7 +53,7 @@ opaque class PluginHost {
 
 } // namespace doc
 
-void trace(char const* p);
+void trace(string_t text);
 void sendKeepAlive();
 size_t getTransmitData(std.Buffer* buffer);
 

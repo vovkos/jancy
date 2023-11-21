@@ -11,8 +11,8 @@ namespace ui {
 //..............................................................................
 
 opaque class InformationItem {
-	char const* autoget property m_name;
-	char const* autoget property m_toolTip;
+	string_t autoget property m_name;
+	string_t autoget property m_toolTip;
 	bool autoget property m_isEnabled;
 
 	void addChildItem(
@@ -26,17 +26,17 @@ opaque class InformationItem {
 //..............................................................................
 
 class InformationGroup: InformationItem {
-	construct(char const* name);
+	construct(string_t name);
 }
 
 //..............................................................................
 
-class InformationValue: InformationItem {
-	construct(char const* name);
+opaque class InformationValue: InformationItem {
+	construct(string_t name);
 
-	char const* autoget property m_value;
-	char const* autoget property m_disabledValue;
-	char const* autoget property m_valueToolTip;
+	string_t autoget property m_value;
+	string_t autoget property m_disabledValue;
+	string_t autoget property m_valueToolTip;
 	uint_t autoget property m_valueColor;
 	bool autoget property m_isSelectionDependent;
 }
@@ -47,14 +47,14 @@ class InformationValue: InformationItem {
 // the unnecessary load on the CPU
 
 opaque class InformationStatValue: InformationValue {
-	typedef char const* FormatFunc(uint64_t value);
+	typedef string_t FormatFunc(uint64_t value);
 
 	FormatFunc* m_formatFunc;
-	char const* m_formatSpec;
+	string_t m_formatSpec;
 
 	uint64_t autoget property m_value; // shadows InformationValue.m_value
 
-	construct(char const* name);
+	construct(string_t name);
 	destruct();
 
 	void forceUpdate();
@@ -73,13 +73,13 @@ opaque class InformationGrid {
 	InformationGroup* createGroup(
 		InformationItem* parentItem = null,
 		InformationItem* beforeItem = null,
-		char const* name,
-		char const* toolTip = null
+		string_t name,
+		string_t toolTip = null
 	);
 
 	InformationGroup* createGroup(
-		char const* name,
-		char const* toolTip = null
+		string_t name,
+		string_t toolTip = null
 	) {
 		return createGroup(,, name, toolTip);
 	}
@@ -88,13 +88,13 @@ opaque class InformationGrid {
 		InformationItem* parentItem = null,
 		InformationItem* beforeItem = null,
 		bool isSelectionDependent = false,
-		char const* name,
-		char const* toolTip = null
+		string_t name,
+		string_t toolTip = null
 	);
 
 	 InformationValue* createValue(
-		char const* name,
-		char const* toolTip = null
+		string_t name,
+		string_t toolTip = null
 	) {
 		return createValue(,,, name, toolTip);
 	}
@@ -103,13 +103,13 @@ opaque class InformationGrid {
 		InformationItem* parentItem = null,
 		InformationItem* beforeItem = null,
 		bool isSelectionDependent = false,
-		char const* name,
-		char const* toolTip = null
+		string_t name,
+		string_t toolTip = null
 	);
 
 	 InformationStatValue* createStatValue(
-		char const* name,
-		char const* toolTip = null
+		string_t name,
+		string_t toolTip = null
 	) {
 		return createStatValue(,,, name, toolTip);
 	}
@@ -122,7 +122,7 @@ protected:
 		InformationItem* parentItem,
 		InformationItem* beforeItem,
 		bool isSelectionDependent,
-		char const* toolTip
+		string_t toolTip
 	);
 }
 
@@ -131,8 +131,8 @@ protected:
 InformationGroup* InformationGrid.createGroup(
 	InformationItem* parentItem,
 	InformationItem* beforeItem,
-	char const* name,
-	char const* toolTip
+	string_t name,
+	string_t toolTip
 ) {
 	InformationGroup* item = new InformationGroup(name);
 
@@ -147,8 +147,8 @@ InformationValue* InformationGrid.createValue(
 	InformationItem* parentItem,
 	InformationItem* beforeItem,
 	bool isSelectionDependent,
-	char const* name,
-	char const* toolTip
+	string_t name,
+	string_t toolTip
 ) {
 	InformationValue* item = new InformationValue(name);
 	addValueImpl(item, parentItem, beforeItem, isSelectionDependent, toolTip);
@@ -159,8 +159,8 @@ InformationStatValue* InformationGrid.createStatValue(
 	InformationItem* parentItem,
 	InformationItem* beforeItem,
 	bool isSelectionDependent,
-	char const* name,
-	char const* toolTip
+	string_t name,
+	string_t toolTip
 ) {
 	InformationStatValue* item = new InformationStatValue(name);
 	addValueImpl(item, parentItem, beforeItem, isSelectionDependent, toolTip);
@@ -172,7 +172,7 @@ void InformationGrid.addValueImpl(
 	InformationItem* parentItem,
 	InformationItem* beforeItem,
 	bool isSelectionDependent,
-	char const* toolTip
+	string_t toolTip
 ) {
 	item.m_toolTip = toolTip;
 	item.m_isSelectionDependent = isSelectionDependent;

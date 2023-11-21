@@ -19,7 +19,7 @@ import "std_Buffer.jnc"
 //..............................................................................
 
 class SerialPort {
-	char const* m_name;
+	string_t m_name;
 	io.Serial m_serial;
 	io.SerialStatusLines bindable m_serialStatusLines;
 	uint_t m_syncId;
@@ -145,7 +145,7 @@ protected:
 	void flipDteDce();
 
 	ui.ComboBox* createSerialSettingComboBox(
-		char const* labelText,
+		string_t labelText,
 		ui.EnumPropertyOption const* optionTable,
 		size_t optionCount,
 		function* onChanged()
@@ -340,7 +340,7 @@ void SerialTapSession.createUi() {
 }
 
 ui.ComboBox* SerialTapSession.createSerialSettingComboBox(
-	char const* labelText,
+	string_t labelText,
 	ui.EnumPropertyOption const* optionTable,
 	size_t optionCount,
 	function* onChanged()
@@ -363,7 +363,7 @@ void SerialTapSession.enumeratePorts() {
 }
 
 void SerialTapSession.flipDteDce() {
-	char const* tmpName = m_dtePortCombo.m_editText;
+	string_t tmpName = m_dtePortCombo.m_editText;
 	m_dtePortCombo.m_editText = m_dcePortCombo.m_editText;
 	m_dcePortCombo.m_editText = tmpName;
 
@@ -426,8 +426,8 @@ bool errorcode SerialTapSession.open() {
 	configurePort(m_dtePort);
 	configurePort(m_dcePort);
 
-	char const* driverNameA = io.detectSerialBuggyDriver(m_dtePort.m_name);
-	char const* driverNameB = io.detectSerialBuggyDriver(m_dcePort.m_name);
+	string_t driverNameA = io.detectSerialBuggyDriver(m_dtePort.m_name);
+	string_t driverNameB = io.detectSerialBuggyDriver(m_dcePort.m_name);
 	if (driverNameA || driverNameB) {
 		m_logWriter.write(SerialLogRecordCode.BuggyDriverDetected, driverNameA ? driverNameA : driverNameB);
 		io.setConservativeSerialSettings(m_dtePort.m_serial);
@@ -452,7 +452,7 @@ bool errorcode SerialTapSession.open() {
 	params.m_options = m_dtePort.m_serial.m_options;
 	params.m_osKind = sys.g_systemInfo.m_osKind;
 
-	char const* p = $"$(params; B)$(m_dtePort.m_name):$(m_dcePort.m_name)";
+	void const* p = $"$(params; B)$(m_dtePort.m_name):$(m_dcePort.m_name)";
 	m_logWriter.write(SerialLogRecordCode.PortOpened, p, dynamic sizeof(p));
 
 	m_baudRate = m_dtePort.m_serial.m_baudRate;

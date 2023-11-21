@@ -16,8 +16,8 @@ void representModbusRtuAdu(
 	size_t size,
 	uint_t foldFlags
 ) {
-	io.ModbusRtuAduHdr const* aduHdr = (io.ModbusRtuAduHdr const*) p;
-	io.ModbusPduHdr const* pduHdr = (io.ModbusPduHdr const*) (aduHdr + 1);
+	io.ModbusRtuAduHdr const* aduHdr = (io.ModbusRtuAduHdr const*)p;
+	io.ModbusPduHdr const* pduHdr = (io.ModbusPduHdr const*)(aduHdr + 1);
 
 	representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
 	representation.m_lineAttr.m_iconIdx = role == io.ModbusRole.Master ?
@@ -25,7 +25,7 @@ void representModbusRtuAdu(
 		log.StdLogIcon.RxPacket;
 
 	size_t checksumOffset = size - sizeof(uint16_t);
-	uint16_t actualChecksum = *(uint16_t const*) (p + checksumOffset);
+	uint16_t actualChecksum = *(uint16_t const*)(p + checksumOffset);
 	uint16_t expectedChecksum = crc16_ansi(p, checksumOffset, 0xffff);
 
 	if (!(foldFlags & 1)) {

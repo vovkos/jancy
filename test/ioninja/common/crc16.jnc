@@ -43,7 +43,7 @@ uint16_t crc16_ansi(
 		0x8201, 0x42c0, 0x4380, 0x8341, 0x4100, 0x81c1, 0x8081, 0x4040,
 	}
 
-	uint8_t const* b = (uint8_t const*) p;
+	uint8_t const* b = (uint8_t const*)p;
 	uint16_t crc = seed;
 
 	for (; size; size--) {
@@ -94,7 +94,7 @@ uint16_t crc16_ccitt(
 		0x6e17, 0x7e36, 0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0,
 	}
 
-	uint8_t const* b = (uint8_t const*) p;
+	uint8_t const* b = (uint8_t const*)p;
 	uint16_t crc = seed;
 
 	for (; size; size--) {

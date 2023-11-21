@@ -52,7 +52,7 @@ void refreshHidMonDeviceListUi(
 
 	deviceCombo.clear();
 
-	char const* captureDevicePrefix = sys.g_systemInfo.m_osKind == sys.OsKind.Windows ?
+	string_t captureDevicePrefix = sys.g_systemInfo.m_osKind == sys.OsKind.Windows ?
 		"USBPcap" :
 		"usbmon";
 
@@ -62,9 +62,9 @@ void refreshHidMonDeviceListUi(
 	for (size_t i = 0; i < count; i++, option++) {
 		io.HidMonDeviceDesc const* device = deviceArray[i];
 		io.HidUsagePage const* page = io.g_hidDb.getUsagePage(device.m_usagePage);
-		char const* product = device.m_productDescriptor ? device.m_productDescriptor : device.m_description;
-		char const* manufacturer = device.m_manufacturerDescriptor ? device.m_manufacturerDescriptor : device.m_manufacturer;
-		char const* usageName = page.getUsageName(device.m_usage);
+		string_t product = device.m_productDescriptor ? device.m_productDescriptor : device.m_description;
+		string_t manufacturer = device.m_manufacturerDescriptor ? device.m_manufacturerDescriptor : device.m_manufacturer;
+		string_t usageName = page.getUsageName(device.m_usage);
 
 		description = $"%1%2:%(3; 03d).%4 - %5 by %6 (%7: %8)"(
 			captureDevicePrefix,
@@ -124,7 +124,7 @@ void refreshHidMonDeviceListUi(
 
 		toolTip.append("</table>");
 
-		char const* text = description.detachString();
+		string_t text = description.detachString();
 		size_t j = deviceCombo.addItem(text, device);
 		deviceCombo.m_itemToolTip[j] = toolTip.detachString();
 

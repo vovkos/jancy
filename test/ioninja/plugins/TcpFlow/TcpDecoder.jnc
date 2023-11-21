@@ -154,7 +154,7 @@ bool TcpDecoder.decodeTransportHdr(
 	if (protocol != io.IpProtocol.Tcp || size < sizeof(io.TcpHdr))
 		return false;
 
-	io.TcpHdr const* tcpHdr = (io.TcpHdr const*) p;
+	io.TcpHdr const* tcpHdr = (io.TcpHdr const*)p;
 	size_t tcpHdrSize = tcpHdr.m_dataOffset * 4;
 	if (tcpHdrSize < sizeof(io.TcpHdr) || tcpHdrSize > size)
 		return false;

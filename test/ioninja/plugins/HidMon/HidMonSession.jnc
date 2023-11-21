@@ -234,8 +234,8 @@ bool errorcode HidMonSession.capture() {
 	usbDeviceParams.m_speed = device.m_speed;
 	usbDeviceParams.m_class = device.m_class;
 
-	char const* product = device.m_productDescriptor ? device.m_productDescriptor : device.m_description;
-	char const* manufacturer = device.m_manufacturerDescriptor ? device.m_manufacturerDescriptor : device.m_manufacturer;
+	string_t product = device.m_productDescriptor ? device.m_productDescriptor : device.m_description;
+	string_t manufacturer = device.m_manufacturerDescriptor ? device.m_manufacturerDescriptor : device.m_manufacturer;
 
 	std.Buffer buffer;
 	buffer.append(usbDeviceParams, sizeof(usbDeviceParams));

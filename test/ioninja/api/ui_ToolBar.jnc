@@ -47,14 +47,14 @@ opaque class ToolBar: Widget {
 	void addSeparator();
 
 	Label* addLabel(
-		char const* text,
+		string_t text,
 		int spacing = Def_Spacing
 	);
 
 	ComboBox* addComboBox(uint_t width = 0);  // 0 = default, -1 = stretch
 
 	ComboBox* addComboBox(
-		char const* labelText,
+		string_t labelText,
 		ComboItem const* itemArray,
 		size_t itemCount
 	);
@@ -63,7 +63,7 @@ opaque class ToolBar: Widget {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 Label* ToolBar.addLabel(
-	char const* text,
+	string_t text,
 	int spacing
 ) {
 	Label* label = new Label(text);
@@ -87,7 +87,7 @@ ComboBox* ToolBar.addComboBox(uint_t width) {
 }
 
 ComboBox* ToolBar.addComboBox(
-	char const* labelText,
+	string_t labelText,
 	ComboItem const* itemArray,
 	size_t itemCount
 ) {

@@ -42,8 +42,8 @@ struct ProtoRange {
 class AppProtoParser {
 	abstract void representDigest(
 		log.Representation* representation,
-		char const* srcString,
-		char const* dstString,
+		string_t srcString,
+		string_t dstString,
 		void const* p,
 		size_t size,
 		int payloadPreviewIconIdx = -1

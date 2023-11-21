@@ -82,8 +82,8 @@ EnumProperty* createNetworkAdapterProperty(
 	Property* group = null,
 	Property* insertBefore = null,
 	NetworkAdapterUsage usage,
-	char const* name,
-	char const* toolTip
+	string_t name,
+	string_t toolTip
 ) {
 	EnumPropertyOption const* optionArray = createNetworkAdapterOptionArray(usage);
 	size_t optionCount = dynamic countof(optionArray);
@@ -101,8 +101,8 @@ EnumProperty* createNetworkAdapterProperty(
 EnumProperty* createNetworkAdapterProperty(
 	PropertyGrid* propertyGrid,
 	NetworkAdapterUsage usage,
-	char const* name,
-	char const* toolTip
+	string_t name,
+	string_t toolTip
 ) {
 	return createNetworkAdapterProperty(propertyGrid,,, usage, name, toolTip);
 }
@@ -179,7 +179,7 @@ class SocketPropertySet {
 		UdpBroadcast       = true,
 	}
 
-	static char const DefaultRemoteAddress[] = "ioninja.com";
+	static string_t const DefaultRemoteAddress = "ioninja.com";
 
 	StringProperty* m_remoteAddressProp;
 	IntProperty* m_remotePortProp;
@@ -194,7 +194,7 @@ class SocketPropertySet {
 	BoolProperty* m_tcpResetProp;
 	BoolProperty* m_udpBroadcastProp;
 
-	char const* m_defaultRemoteAddress = DefaultRemoteAddress;
+	string_t m_defaultRemoteAddress = DefaultRemoteAddress;
 	uint16_t m_defaultRemotePort = Defaults.RemotePort;
 	uint16_t m_defaultLocalPort = Defaults.LocalPort;
 	uint_t m_defaultReconnectTimeout = Defaults.ReconnectTimeout;

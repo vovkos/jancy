@@ -126,7 +126,7 @@ bool IpDecoder.decodeIpHdr(
 	if (size < sizeof(io.IpHdr))
 		return false;
 
-	io.IpHdr const* ipHdr = (io.IpHdr const*) p;
+	io.IpHdr const* ipHdr = (io.IpHdr const*)p;
 	size_t ipHdrSize = ipHdr.m_headerLength * 4;
 
 	if (ipHdrSize < sizeof(io.IpHdr) ||
@@ -165,7 +165,7 @@ bool IpDecoder.decodeIp6Hdr(
 	if (size < sizeof(io.Ip6Hdr))
 		return false;
 
-	io.Ip6Hdr const* ip6Hdr = (io.Ip6Hdr const*) p;
+	io.Ip6Hdr const* ip6Hdr = (io.Ip6Hdr const*)p;
 	if (ip6Hdr.m_payloadLength + sizeof(io.Ip6Hdr) > size)
 		return false;
 
@@ -174,11 +174,11 @@ bool IpDecoder.decodeIp6Hdr(
 
 	io.SocketAddress srcAddress;
 	srcAddress.m_family = io.AddressFamily.Ip6;
-	srcAddress.m_ip6.m_address = *(io.Address_ip6 const*) ip6Hdr.m_srcAddress;
+	srcAddress.m_ip6.m_address = *(io.Address_ip6 const*)ip6Hdr.m_srcAddress;
 
 	io.SocketAddress dstAddress;
 	dstAddress.m_family = io.AddressFamily.Ip6;
-	dstAddress.m_ip6.m_address = *(io.Address_ip6 const*) ip6Hdr.m_dstAddress;
+	dstAddress.m_ip6.m_address = *(io.Address_ip6 const*)ip6Hdr.m_dstAddress;
 
 	return decodeTransportHdr(timestamp, srcAddress, dstAddress, ip6Hdr.m_nextHeader, p, size);
 }

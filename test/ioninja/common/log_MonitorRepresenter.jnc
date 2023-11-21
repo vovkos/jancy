@@ -11,15 +11,15 @@ namespace log {
 
 void representDeviceOpened(
 	log.Representation* representation,
-	char const* messageText,
+	string_t messageText,
 	void const* p,
 	size_t size
 ) {
 	uint64_t fileId = *(uint64_t const*)p;
 	uint32_t pid = *(uint32_t const*)(p + sizeof(fileId));
-	char const* fileName = (char const*)(p + sizeof(fileId) + sizeof(pid));
-	char const* processName = (char const*)fileName + strlen(fileName) + 1;
-	bool isUnnamed = *fileName == '\0';
+	string_t fileName = (char const*)(p + sizeof(fileId) + sizeof(pid));
+	string_t processName = fileName.m_p + fileName.m_length + 1;
+	bool isUnnamed = !fileName;
 
 	representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
 	representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
@@ -41,15 +41,15 @@ void representDeviceOpened(
 
 void representDeviceOpenError(
 	log.Representation* representation,
-	char const* messageText,
+	string_t messageText,
 	void const* p,
 	size_t size
 ) {
 	uint32_t pid = *(uint32_t const*)p;
 	std.Error const* error = (std.Error const*)(p + sizeof(pid));
-	char const* fileName = (char const*)(error + 1);
-	char const* processName = fileName + strlen(fileName) + 1;
-	bool isUnnamed = *fileName == '\0';
+	string_t fileName = (char const*)(error + 1);
+	string_t processName = fileName.m_p + fileName.m_length + 1;
+	bool isUnnamed = !fileName;
 
 	representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
 	representation.m_lineAttr.m_backColor = log.StdLogColor.Error;

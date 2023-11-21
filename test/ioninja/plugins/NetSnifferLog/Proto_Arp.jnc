@@ -137,7 +137,7 @@ void representArpPayload(
 	protoRangeArray.append(range);
 }
 
-char const* getArpHardwareAddressString(
+string_t getArpHardwareAddressString(
 	io.ArpHdr const* hdr,
 	size_t index
 ) {
@@ -153,7 +153,7 @@ char const* getArpHardwareAddressString(
 	}
 }
 
-char const* getArpProtocolAddressString(
+string_t getArpProtocolAddressString(
 	io.ArpHdr const* hdr,
 	size_t index
 ) {
@@ -172,7 +172,7 @@ char const* getArpProtocolAddressString(
 	}
 }
 
-char const* formatArpHardwareAddress(
+string_t formatArpHardwareAddress(
 	io.ArpHdr const* arpHdr,
 	size_t baseOffset,
 	size_t index
@@ -186,7 +186,7 @@ char const* formatArpHardwareAddress(
 	);
 }
 
-char const* formatArpProtocolAddress(
+string_t formatArpProtocolAddress(
 	io.ArpHdr const* arpHdr,
 	size_t baseOffset,
 	size_t index

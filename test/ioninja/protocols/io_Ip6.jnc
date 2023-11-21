@@ -120,7 +120,7 @@ struct Ip6Hdr {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* formatIp6Digest(void const* p) {
+string_t formatIp6Digest(void const* p) {
 	Ip6Hdr const* hdr = (Ip6Hdr const*)p;
 
 	return $"%1 \u2192 %2" (
@@ -129,7 +129,7 @@ char const* formatIp6Digest(void const* p) {
 	);
 }
 
-char const* formatIp6Address(void const* p) {
+string_t formatIp6Address(void const* p) {
 	return ((io.Address_ip6 const*)p).getString();
 }
 

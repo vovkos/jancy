@@ -17,14 +17,14 @@ bool representDeviceMonLog  (
 ) {
 	switch (recordCode) {
 	case DeviceMonLogRecordCode.CaptureStarted_name:
-		char const* name = (char const*)p;
+		string_t name = (char const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Listen;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addHyperText($"Capture started on \e[34m$name");
 		break;
 
 	case DeviceMonLogRecordCode.CaptureStarted_filter:
-		char const* nameFilter = (char const*)p;
+		string_t nameFilter = (char const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Listen;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addHyperText($"Capture started with filter \e[34m$nameFilter");
@@ -37,12 +37,12 @@ bool representDeviceMonLog  (
 		break;
 
 	case DeviceMonLogRecordCode.CaptureError:
-		std.Error const* error = (std.Error const*) p;
+		std.Error const* error = (std.Error const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
 		representation.addHyperText($"Cannot start capture: $(error.m_description)");
 
-		char const* url;
+		string_t url;
 
 		if (error.m_guid == std.g_winErrorGuid)
 			switch (error.m_code) {
@@ -71,14 +71,14 @@ bool representDeviceMonLog  (
 		break;
 
 	case DeviceMonLogRecordCode.SetCaptureFilter:
-		char const* filter = (char const*) p;
+		string_t filter = (char const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addHyperText(
-			size && *filter ?
+			filter ?
 				$"Set capture filter \e[34m$filter" :
 				"Cleared capture filter"
-			);
+		);
 		break;
 
 	default:

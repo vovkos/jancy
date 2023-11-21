@@ -39,8 +39,8 @@ EnumProperty* createPcapDeviceProperty(
 	PropertyGrid* propertyGrid,
 	GroupProperty* group = null,
 	Property* beforeProp = null,
-	char const* name,
-	char const* toolTip
+	string_t name,
+	string_t toolTip
 ) {
 	EnumPropertyOption const* optionArray = createPcapDeviceOptionArray();
 	size_t optionCount = dynamic countof(optionArray);

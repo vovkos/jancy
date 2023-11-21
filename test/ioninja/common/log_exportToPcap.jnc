@@ -26,12 +26,12 @@ typedef size_t ExportRecordToPcapFunc(
 
 bool errorcode exportToPcap(
 	Log const* log,
-	char const* pcapFileName,
+	string_t pcapFileName,
 	io.PcapLinkType linkType,
 	size_t snapshotSize,
 	ExportRecordToPcapFunc* exportRecordFunc
 ) {
-	char const* logFileName = io.createTempFile();
+	string_t logFileName = io.createTempFile();
 
 nestedscope:
 	log.copyOriginalRecordFile(logFileName);

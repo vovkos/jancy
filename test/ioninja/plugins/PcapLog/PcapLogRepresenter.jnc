@@ -19,13 +19,13 @@ bool representPcapLog(
 ) {
 	switch (recordCode) {
 	case PcapLogRecordCode.StartingCapture:
-		char const* filter = p;
+		string_t filter = (char const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 
 		representation.addHyperText(
 			PcapLogPartCode.StartingCapture,
-			size && *filter ?
+			filter ?
 				$"Starting capture (capture filter '\e[34m$filter\e[m')..." :
 				"Starting capture (no capture filter)..."
 			);
@@ -40,7 +40,7 @@ bool representPcapLog(
 		break;
 
 	case PcapLogRecordCode.CaptureError:
-		std.Error const* error = (std.Error const*) p;
+		std.Error const* error = (std.Error const*)p;
 		representation.m_lineAttr.m_flags = log.LineAttrFlags.Override;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
@@ -54,7 +54,7 @@ bool representPcapLog(
 		break;
 
 	case PcapLogRecordCode.ChangingCaptureFilter:
-		char const* filter = (char const*) p;
+		string_t filter = (char const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addHyperText(PcapLogPartCode.ChangingCaptureFilter, $"Changing capture filter to \e[34m$filter\e[m...");
@@ -65,7 +65,7 @@ bool representPcapLog(
 		break;
 
 	case PcapLogRecordCode.CaptureFilterError:
-		std.Error const* error = (std.Error const*) p;
+		std.Error const* error = (std.Error const*)p;
 		representation.m_lineAttr.m_flags = log.LineAttrFlags.Override;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
@@ -73,11 +73,11 @@ bool representPcapLog(
 		break;
 
 	case PcapLogRecordCode.SetCaptureFilter:
-		char const* filter = (char const*) p;
+		string_t filter = (char const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addHyperText(
-			size && *filter ?
+			filter ?
 				$"Set capture filter \e[34m$filter" :
 				"Cleared capture filter"
 			);

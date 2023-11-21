@@ -5,19 +5,19 @@ namespace log {
 
 //..............................................................................
 
-typedef char const* FormatFunc(void const* p);
+typedef string_t FormatFunc(void const* p);
 
-typedef char const* FormatExFunc(
+typedef string_t FormatExFunc(
 	void const* p,
 	size_t size
 );
 
-char const* getDisplayName(jnc.ModuleItemDecl* decl) {
-	char const* displayName = decl.findAttributeValue("displayName");
+string_t getDisplayName(jnc.ModuleItemDecl* decl) {
+	string_t displayName = decl.findAttributeValue("displayName");
 	return displayName ? displayName : decl.m_name;
 }
 
-char const* getStructDigest(
+string_t getStructDigest(
 	jnc.StructType* type,
 	void const* p
 ) {
@@ -30,7 +30,7 @@ char const* getStructDigest(
 void representStruct(
 	Representation* representation,
 	jnc.StructType* type,
-	char const* name = null,
+	string_t name = null,
 	uint_t binPartRecordCode = 0,
 	void const* p,
 	size_t baseOffset = 0,
@@ -46,7 +46,7 @@ void representStruct(
 			name = getDisplayName(type);
 
 		if (!(foldFlags & structFoldFlag)) {
-			char const* digest = getStructDigest(type, p);
+			string_t digest = getStructDigest(type, p);
 
 			representation.addHyperText($"%1[\e^+%2\e[34m+\e[m] \e[1m%3%4%5"(
 				indent.m_sz,
@@ -71,7 +71,7 @@ void representStruct(
 	size_t count = type.m_fieldCount;
 	for (size_t i = 0; i < count; i++) {
 		jnc.Field* field = type.m_fieldArray[i];
-		char const* displayName = getDisplayName(field);
+		string_t displayName = getDisplayName(field);
 
 		if (field.m_type.m_typeKind == jnc.TypeKind.Struct) {
 			representation.addHyperText($"%1%2:\t"(indent.m_sz, displayName));
@@ -90,13 +90,13 @@ void representStruct(
 			continue;
 		}
 
-		char const* valueString;
+		string_t valueString;
 
 		FormatFunc thin* formatFunc = field.findAttributeValue("formatFunc");
 		if (formatFunc)
 			valueString = formatFunc(p + field.m_offset);
 		else {
-			char const* formatSpec = field.findAttributeValue("formatSpec");
+			string_t formatSpec = field.findAttributeValue("formatSpec");
 			jnc.Type* displayType = field.findAttributeValue("displayType");
 
 			if (!displayType)

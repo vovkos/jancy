@@ -49,7 +49,7 @@ void refreshUsbMonDeviceListUi(
 
 	deviceCombo.clear();
 
-	char const* captureDevicePrefix = sys.g_systemInfo.m_osKind == sys.OsKind.Windows ?
+	string_t captureDevicePrefix = sys.g_systemInfo.m_osKind == sys.OsKind.Windows ?
 		"USBPcap" :
 		"usbmon";
 
@@ -59,8 +59,8 @@ void refreshUsbMonDeviceListUi(
 	for (size_t i = 0; i < count; i++, option++) {
 		io.UsbMonDeviceDesc const* device = deviceArray[i];
 
-		char const* product = device.m_productDescriptor ? device.m_productDescriptor : device.m_description;
-		char const* manufacturer = device.m_manufacturerDescriptor ? device.m_manufacturerDescriptor : device.m_manufacturer;
+		string_t product = device.m_productDescriptor ? device.m_productDescriptor : device.m_description;
+		string_t manufacturer = device.m_manufacturerDescriptor ? device.m_manufacturerDescriptor : device.m_manufacturer;
 
 		description = $"%1%2:%03d - %4 by %5"(
 			captureDevicePrefix,
@@ -108,7 +108,7 @@ void refreshUsbMonDeviceListUi(
 
 		toolTip.append("</table>");
 
-		char const* text = description.detachString();
+		string_t text = description.detachString();
 		size_t j = deviceCombo.addItem(text, device);
 		deviceCombo.m_itemToolTip[j] = toolTip.detachString();
 

@@ -26,7 +26,7 @@ opaque class Log {
 	Writer* readonly m_writer;
 	uint64_t const property m_syncId; // -1 if last record is not StdRecordCode.Sync
 	uint64_t autoget property m_baseTimestamp;
-	char const* const property m_recordFileName;
+	string_t const property m_recordFileName;
 
 	destruct();
 
@@ -34,8 +34,8 @@ opaque class Log {
 	void resume();
 	void rebuild();
 
-	bool errorcode copyOriginalRecordFile(char const* fileName) const;
-	bool errorcode copyFinalRecordFile(char const* fileName) const;
+	bool errorcode copyOriginalRecordFile(string_t fileName) const;
+	bool errorcode copyFinalRecordFile(string_t fileName) const;
 
 	void addConverter(
 		Converter* converter,

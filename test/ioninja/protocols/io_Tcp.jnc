@@ -22,7 +22,7 @@ bitflag enum TcpFlags: uint8_t {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* formatTcpFlagString(TcpFlags flags) {
+string_t formatTcpFlagString(TcpFlags flags) {
 	return $"%c%c%c%c%c%c%c"(
 		(flags & TcpFlags.Fin) ? 'F' : '.',
 		(flags & TcpFlags.Syn) ? 'S' : '.',
@@ -77,7 +77,7 @@ struct TcpHdr {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* formatTcpDigest(void const* p) {
+string_t formatTcpDigest(void const* p) {
 	TcpHdr const* hdr = (TcpHdr const*)p;
 	return $"%1 \u2192 %2 [%3]" (
 		hdr.m_srcPort,

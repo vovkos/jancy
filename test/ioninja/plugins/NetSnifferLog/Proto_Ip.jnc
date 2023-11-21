@@ -37,8 +37,8 @@ void representIpDigest(
 		return;
 	}
 
-	char const* srcString = io.formatIpAddress(&ipHdr.m_srcAddress);
-	char const* dstString = io.formatIpAddress(&ipHdr.m_dstAddress);
+	string_t srcString = io.formatIpAddress(&ipHdr.m_srcAddress);
+	string_t dstString = io.formatIpAddress(&ipHdr.m_dstAddress);
 
 	switch (ipHdr.m_protocol) {
 	case io.IpProtocol.Icmp:
@@ -81,9 +81,9 @@ void representIpDigest(
 	}
 }
 
-char const* formatIpDigest(
+string_t formatIpDigest(
 	io.IpHdr const* hdr,
-	char const* extra = null
+	string_t extra = null
 ) {
 	return $"\e[1mIP \e[10;34m%1\e[m \u2192 \e[34m%2\e[m (proto: \e[34m%3\e[m)%4"(
 		io.formatIpAddress(&hdr.m_srcAddress),

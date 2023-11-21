@@ -20,8 +20,8 @@ class LineEdit: Widget {
 		PasswordEchoOnEdit,
 	}
 
-	char const* bindable autoget property m_text;
-	char const* autoget property m_placeholderText;
+	string_t bindable autoget property m_text;
+	string_t autoget property m_placeholderText;
 	Alignment autoget property m_alignment;
 	EchoMode m_echoMode;
 	bool autoget property m_isReadOnly;

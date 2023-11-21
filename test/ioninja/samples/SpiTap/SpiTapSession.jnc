@@ -421,7 +421,7 @@ void SpiTapSession.enumerateDevices() {
 			deviceDesc.m_productId != UsbId.ProductId)
 			continue;
 
-		char const* text = $"@%(1;03d):%(2;03d) IO Ninja SPI Tap" (
+		string_t text = $"@%(1;03d):%(2;03d) IO Ninja SPI Tap" (
 			device.m_bus,
 			device.m_address
 		);
@@ -507,7 +507,7 @@ bool errorcode SpiTapSession.capture() {
 	params.m_dataBits = m_dataBitsProp.m_value;
 	params.m_endianness = m_endiannessProp.m_value;
 
-	char const* p = $"$(params; B)$(m_deviceCombo.m_currentText)";
+	void const* p = $"$(params; B)$(m_deviceCombo.m_currentText)";
 	m_logWriter.write(SpiTapLogRecordCode.TapOpened, p, dynamic sizeof(p));
 
 	m_frequency = m_frequencyProp.m_value;
@@ -577,7 +577,7 @@ bool SpiTapSession.flush(bool isForced) {
 		if (m_useTextFilter.m_value) {
 			writeLogTextOnly(m_ifaceA.m_buffer.m_p, m_ifaceB.m_buffer.m_p, commonSize);
 		} else {
-			char const* p = memcat(m_ifaceA.m_buffer.m_p, commonSize, m_ifaceB.m_buffer.m_p, commonSize);
+			void const* p = memcat(m_ifaceA.m_buffer.m_p, commonSize, m_ifaceB.m_buffer.m_p, commonSize);
 			m_logWriter.write(log.StdRecordCode.TxRx, p, commonSize * 2);
 		}
 	}
@@ -675,7 +675,7 @@ void SpiTapSession.writeLogTextOnly(
 
 		m_logWriter.write(
 			recordCode,
-			state.m_captureArray[0].m_text,
+			state.m_captureArray[0].m_text.m_p,
 			state.m_captureArray[0].m_length
 		);
 
@@ -696,10 +696,10 @@ void SpiTapSession.writeLogTextOnly(
 		if (!result)
 			break;
 
-		char const* cut = memcat(
+		void const* cut = memcat(
 			tx + state.m_captureArray[0].m_offset,
 			state.m_captureArray[0].m_length,
-			state.m_captureArray[0].m_text,
+			state.m_captureArray[0].m_text.m_p,
 			state.m_captureArray[0].m_length
 		);
 

@@ -30,7 +30,7 @@ uchar_t calcXModemChecksum(void const* p) {
 
 	void const* end = p + XModemBlockSize;
 	for (; p < end; p++)
-		checksum += *(uchar_t const*) p;
+		checksum += *(uchar_t const*)p;
 
 	return (uchar_t)checksum;
 }

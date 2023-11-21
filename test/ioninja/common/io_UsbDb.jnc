@@ -16,7 +16,7 @@ namespace io {
 
 struct UsbProduct {
 	uint_t m_id;
-	char const* m_name;
+	string_t m_name;
 	UsbVendor* m_vendor;
 }
 
@@ -28,12 +28,12 @@ protected:
 
 public:
 	uint_t m_id;
-	char const* m_name;
+	string_t m_name;
 
 public:
 	UsbProduct* addProduct(
 		uint_t id,
-		char const* name
+		string_t name
 	);
 
 	UsbProduct const* findProduct(uint_t productId) const {
@@ -45,7 +45,7 @@ public:
 
 UsbProduct* UsbVendor.addProduct(
 	uint_t id,
-	char const* name
+	string_t name
 ) {
 	UsbProduct* product = new UsbProduct;
 	product.m_id = id;
@@ -63,11 +63,11 @@ protected:
 	std.HashTable m_vendorMap;
 
 public:
-	bool errorcode load(char const* fileName);
+	bool errorcode load(string_t fileName);
 
 	UsbVendor* addVendor(
 		uint_t id,
-		char const* name
+		string_t name
 	);
 
 	UsbVendor const* findVendor(uint_t vendorId) const {
@@ -109,19 +109,18 @@ UsbDb* getStdUsbDb() {
 
 UsbVendor* UsbDb.addVendor(
 	uint_t id,
-	char const* name
+	string_t name
 ) {
 	UsbVendor* vendor = new UsbVendor;
 	vendor.m_id = id;
 	vendor.m_name = name;
 	m_vendorMap[id] = vendor;
-
 	return vendor;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bool errorcode UsbDb.load(char const* fileName) {
+bool errorcode UsbDb.load(string_t fileName) {
 	m_vendorMap.clear();
 
 	disposable io.MappedFile file;

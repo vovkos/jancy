@@ -17,7 +17,7 @@ bool representI2cSpiTapLog(
 ) {
 	switch (recordCode) {
 	case I2cSpiTapLogRecordCode.DeviceOpened:
-		char const* name = (char const*) p;
+		string_t name = (char const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addHyperText($"Opened tap device \e[34m$name\e[m");
@@ -69,7 +69,7 @@ bool representI2cSpiTapLog(
 		break;
 
 	case I2cSpiTapLogRecordCode.IncompleteByte:
-		uint_t bitCount = *(uint_t const*) p;
+		uint_t bitCount = *(uint_t const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Warning;
 		representation.addHyperText($"Incomplete byte received ($(bitCount) bit(s))");
@@ -94,7 +94,7 @@ bool representI2cSpiTapLog(
 		break;
 
 	case I2cSpiTapLogRecordCode.I2cFinalizeStart7Bit:
-		uint16_t hdr = *(const uint16_t*) p;
+		uint16_t hdr = *(const uint16_t*)p;
 		bool isRead = hdr & 0x01;
 		bool isAck = hdr & 0x0100;
 
@@ -115,7 +115,7 @@ bool representI2cSpiTapLog(
 		break;
 
 	case I2cSpiTapLogRecordCode.I2cFinalizeStart10Bit:
-		uint32_t hdr = *(const uint32_t*) p;
+		uint32_t hdr = *(const uint32_t*)p;
 		bool isRead = hdr & 0x01;
 		bool isAck1 = hdr & 0x00010000;
 		bool isAck2 = hdr & 0x00020000;

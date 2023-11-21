@@ -11,11 +11,11 @@ import "ias.jnc"
 
 class TcpConnectionDispatch: ias.Session {
 	property m_remoteAddress {
-		char const* get() {
+		string_t get() {
 			return dispatchGet(TcpConnectionDispatchCode.GetRemoteAddress);
 		}
 
-		void set(char const* value) {
+		void set(string_t value) {
 			dispatch(TcpConnectionDispatchCode.SetRemoteAddress, value);
 		}
 	}
@@ -30,7 +30,7 @@ class TcpConnectionDispatch: ias.Session {
 		}
 	}
 
-	bool errorcode connect(char const* address = null) { // null = use m_remoteAddress
+	bool errorcode connect(string_t address = null) { // null = use m_remoteAddress
 		return dispatch(TcpConnectionDispatchCode.Connect, address);
 	}
 

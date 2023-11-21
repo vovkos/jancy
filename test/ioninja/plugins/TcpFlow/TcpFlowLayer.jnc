@@ -19,7 +19,7 @@ protected:
 	// tcp decoding
 
 	TcpDecoder m_decoder;
-	char const* m_captureFilterString;
+	string_t m_captureFilterString;
 	TcpFlowLogFilter m_filter;
 
 	// toolbar, status bar & menu

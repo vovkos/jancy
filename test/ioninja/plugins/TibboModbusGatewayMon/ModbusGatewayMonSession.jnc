@@ -220,12 +220,7 @@ bool errorcode ModbusGatewayMonSession.connect() {
 	}
 
 	m_state = State.Resolving;
-
-	m_logWriter.write(
-		SocketLogRecordCode.Resolving,
-		addressString,
-		strlen(addressString)
-	);
+	m_logWriter.write(SocketLogRecordCode.Resolving, addressString);
 
 	io.AddressFamily addressFamily = io.AddressFamily.Undefined;
 	if (m_socketPropertySet.m_useLocalAddressProp.m_value) {

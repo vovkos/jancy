@@ -87,7 +87,7 @@ public:
 
 	bool errorcode update(
 		io.UsbDevice* device,
-		char const* fileName,
+		string_t fileName,
 		size_t baseIndex
 	);
 
@@ -131,7 +131,7 @@ void FpgaUploader.cancel() {
 
 bool errorcode FpgaUploader.update(
 	io.UsbDevice* device,
-	char const* fileName,
+	string_t fileName,
 	size_t baseIndex
 ) {
 	cancel();

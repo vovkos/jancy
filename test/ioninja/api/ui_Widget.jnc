@@ -62,8 +62,8 @@ opaque class Widget {
 	int autoget property m_verticalStretch;
 	bool autoget property m_isVisible;
 	bool autoget property m_isEnabled;
-	char const* autoget property m_toolTip;
-	char const* autoget property m_styleSheet;
+	string_t autoget property m_toolTip;
+	string_t autoget property m_styleSheet;
 
 	destruct();
 

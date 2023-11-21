@@ -82,7 +82,7 @@ void XModemReceiver.onRx(
 	while (p < end) {
 		switch (m_state) {
 		case State.Command:
-			char c = *(char const*) p;
+			char c = *(char const*)p;
 			switch (c) {
 			case XModemChar.Soh:
 				m_state = State.Buffer;

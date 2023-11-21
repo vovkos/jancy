@@ -15,17 +15,17 @@ protected:
 	}
 
 protected:
-	char const* m_name;
+	string_t m_name;
 
 public:
-	construct(char const* name = "DNS") {
+	construct(string_t name = "DNS") {
 		m_name = name;
 	}
 
 	override void representDigest(
 		log.Representation* representation,
-		char const* srcString,
-		char const* dstString,
+		string_t srcString,
+		string_t dstString,
 		void const* p,
 		size_t size,
 		int payloadPreviewIconIdx
@@ -58,7 +58,7 @@ protected:
 		size_t baseOffset
 	);
 
-	char const* getAnswerRrValueString(
+	string_t getAnswerRrValueString(
 		std.StringBuilder* string,
 		io.DnsType type,
 		void const* p,
@@ -88,7 +88,7 @@ protected:
 	void const* representQuestionRrTableDetails(
 		log.Representation* representation,
 		std.StringBuilder* string,
-		char const* name,
+		string_t name,
 		size_t count,
 		void const* p,
 		void const* end,
@@ -99,7 +99,7 @@ protected:
 	void const* representAnswerRrTableDetails(
 		log.Representation* representation,
 		std.StringBuilder* string,
-		char const* name,
+		string_t name,
 		size_t count,
 		void const* p,
 		void const* end,
@@ -148,8 +148,8 @@ protected:
 
 void DnsProtoParser.representDigest(
 	log.Representation* representation,
-	char const* srcString,
-	char const* dstString,
+	string_t srcString,
+	string_t dstString,
 	void const* p,
 	size_t size,
 	int payloadPreviewIconIdx
@@ -341,14 +341,14 @@ void const* DnsProtoParser.formatNameLink(
 	return p;
 }
 
-char const* DnsProtoParser.getAnswerRrValueString(
+string_t DnsProtoParser.getAnswerRrValueString(
 	std.StringBuilder* string,
 	io.DnsType type,
 	void const* p,
 	void const* end,
 	void const* base
 ) {
-	char const* resultString;
+	string_t resultString;
 
 	switch (type) {
 	case io.DnsType.A:
@@ -438,7 +438,7 @@ void const* DnsProtoParser.representAnswerRrTableDigest(
 void const* DnsProtoParser.representQuestionRrTableDetails(
 	log.Representation* representation,
 	std.StringBuilder* string,
-	char const* name,
+	string_t name,
 	size_t count,
 	void const* p,
 	void const* end,
@@ -456,7 +456,7 @@ void const* DnsProtoParser.representQuestionRrTableDetails(
 void const* DnsProtoParser.representAnswerRrTableDetails(
 	log.Representation* representation,
 	std.StringBuilder* string,
-	char const* name,
+	string_t name,
 	size_t count,
 	void const* p,
 	void const* end,
@@ -570,7 +570,7 @@ void const* DnsProtoParser.representAnswerRrDigest(
 		return end;
 	}
 
-	char const* valueString = getAnswerRrValueString(string, suffix.m_type, p, end, base);
+	string_t valueString = getAnswerRrValueString(string, suffix.m_type, p, end, base);
 
 	representation.addHyperText($"Answer:\t%1 (%2%3%4)"(
 		string.m_sz,
@@ -631,7 +631,7 @@ void const* DnsProtoParser.representAnswerRrDetails(
 		return end;
 	}
 
-	char const* valueString = getAnswerRrValueString(string, suffix.m_type, p, end, base);
+	string_t valueString = getAnswerRrValueString(string, suffix.m_type, p, end, base);
 
 	if (valueString)
 		representation.addHyperText(

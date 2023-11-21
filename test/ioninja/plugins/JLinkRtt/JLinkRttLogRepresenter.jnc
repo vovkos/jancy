@@ -18,7 +18,7 @@ bool representJLinkRttLog(
 	switch (recordCode) {
 	case JLinkRttLogRecordCode.Connected:
 		uint_t const* serialNumber = (uint_t const*)p;
-		char const* deviceName = (char const*)(serialNumber + 1);
+		string_t deviceName = (char const*)(serialNumber + 1);
 
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
@@ -30,7 +30,7 @@ bool representJLinkRttLog(
 		break;
 
 	case JLinkRttLogRecordCode.ConnectError:
-		std.Error const* error = (std.Error const*) p;
+		std.Error const* error = (std.Error const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
 		representation.addHyperText($"Cannot establish J-Link RTT connection: $(error.m_description)");
@@ -55,7 +55,7 @@ bool representJLinkRttLog(
 		break;
 
 	case JLinkRttLogRecordCode.RttSearchFailed:
-		std.Error const* error = (std.Error const*) p;
+		std.Error const* error = (std.Error const*)p;
 		representation.m_lineAttr.m_flags = log.LineAttrFlags.Override;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
@@ -70,13 +70,13 @@ bool representJLinkRttLog(
 
 	case JLinkRttLogRecordCode.TraceInfo:
 		representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
-		representation.addPlainText(p);
+		representation.addPlainText((char const*)p);
 		break;
 
 	case JLinkRttLogRecordCode.TraceError:
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
-		representation.addPlainText(p);
+		representation.addPlainText((char const*)p);
 		break;
 
 	default:

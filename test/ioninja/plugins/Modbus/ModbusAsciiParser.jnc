@@ -76,7 +76,7 @@ void ModbusAsciiParser.parse(
 			break;
 
 		case State.Cr:
-			if (*(char const*) p != '\n') {
+			if (*(char const*)p != '\n') {
 				if (p0 < end) {
 					writer.write(timestamp, originalRecordCode, p0, p - p0);
 					p0 = p;

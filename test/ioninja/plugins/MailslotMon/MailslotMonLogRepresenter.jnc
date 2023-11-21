@@ -18,7 +18,7 @@ bool representMailslotMonLog  (
 	switch (recordCode) {
 	case MailslotMonLogRecordCode.ServerFileOpened_0:
 		uint32_t fileId = *(uint32_t const*)p;
-		char const* name = (char const*)(p + sizeof(fileId));
+		string_t name = (char const*)(p + sizeof(fileId));
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
 		representation.addHyperText($"File \e[34m#$fileId\e[m: Server file opened: \e[34m$name");
@@ -27,7 +27,7 @@ bool representMailslotMonLog  (
 	case MailslotMonLogRecordCode.ServerFileOpened_1:
 		uint32_t fileId = *(uint32_t const*)p;
 		uint32_t pid = *((uint32_t const*)p + 1);
-		char const* name = (char const*)(p + sizeof(fileId) + sizeof(pid));
+		string_t name = (char const*)(p + sizeof(fileId) + sizeof(pid));
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
 		representation.addHyperText($"PID \e[34m#$pid\e[m file \e[34m#$fileId\e[m: Server file opened: \e[34m$name");
@@ -39,7 +39,7 @@ bool representMailslotMonLog  (
 
 	case MailslotMonLogRecordCode.ServerFileOpenError_0:
 		std.Error const* error = (std.Error const*)p;
-		char const* name = (char const*)(error + 1);
+		string_t name = (char const*)(error + 1);
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
 		representation.addHyperText($"Cannot open server file \e[34m$name\e[m$: $(error.m_description)");
@@ -48,7 +48,7 @@ bool representMailslotMonLog  (
 	case MailslotMonLogRecordCode.ServerFileOpenError_1:
 		uint32_t pid = *(uint32_t const*)p;
 		std.Error const* error = (std.Error const*)(p + sizeof(pid));
-		char const* name = (char const*)(error + 1);
+		string_t name = (char const*)(error + 1);
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
 		representation.addHyperText($"PID \e[34m#$pid\e[m: Cannot open server file \e[34m$name\e[m$: $(error.m_description)");
@@ -60,7 +60,7 @@ bool representMailslotMonLog  (
 
 	case MailslotMonLogRecordCode.ClientFileOpened_0:
 		uint32_t fileId = *(uint32_t const*)p;
-		char const* name = (char const*)(p + sizeof(fileId));
+		string_t name = (char const*)(p + sizeof(fileId));
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
 		representation.addHyperText($"File \e[34m#$fileId\e[m: Client file opened: \e[34m$name");
@@ -69,7 +69,7 @@ bool representMailslotMonLog  (
 	case MailslotMonLogRecordCode.ClientFileOpened_1:
 		uint32_t fileId = *(uint32_t const*)p;
 		uint32_t pid = *((uint32_t const*)p + 1);
-		char const* name = (char const*)(p + sizeof(fileId) + sizeof(pid));
+		string_t name = (char const*)(p + sizeof(fileId) + sizeof(pid));
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
 		representation.addHyperText($"PID \e[34m#$pid\e[m file \e[34m#$fileId\e[m: Client file opened: \e[34m$name");
@@ -81,7 +81,7 @@ bool representMailslotMonLog  (
 
 	case MailslotMonLogRecordCode.ClientFileOpenError_0:
 		std.Error const* error = (std.Error const*)p;
-		char const* name = (char const*)(error + 1);
+		string_t name = (char const*)(error + 1);
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
 		representation.addHyperText($"Cannot open client file \e[34m$name\e[m: $(error.m_description)");
@@ -90,7 +90,7 @@ bool representMailslotMonLog  (
 	case MailslotMonLogRecordCode.ClientFileOpenError_1:
 		uint32_t pid = *(uint32_t const*)p;
 		std.Error const* error = (std.Error const*)(p + sizeof(pid));
-		char const* name = (char const*)(error + 1);
+		string_t name = (char const*)(error + 1);
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
 		representation.addHyperText($"PID \e[34m#$pid\e[m: Cannot open client file \e[34m$name\e[m: $(error.m_description)");

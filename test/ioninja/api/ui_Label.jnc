@@ -14,14 +14,14 @@ namespace ui {
 //..............................................................................
 
 class Label: Widget {
-	char const* autoget property m_text;
+	string_t autoget property m_text;
 	Icon* m_icon;
 	TextFormat autoget property m_textFormat;
 	Alignment autoget property m_alignment;
 
-	event m_onLinkClicked(char const* link);
+	event m_onLinkClicked(string_t link);
 
-	construct(char const* text);
+	construct(string_t text);
 }
 
 //..............................................................................
@@ -29,9 +29,9 @@ class Label: Widget {
 // to align with checkbox labels above
 
 class CheckBoxLabel: Widget {
-	char const* autoget property m_text;
+	string_t autoget property m_text;
 
-	construct(char const* text);
+	construct(string_t text);
 }
 
 //..............................................................................

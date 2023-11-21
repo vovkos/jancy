@@ -46,7 +46,7 @@ protected:
 
 	State bindable m_state;
 	SerialMonitor m_monitor;
-	char const* m_portName;
+	string_t m_portName;
 
 	// toolbar, status bar & menu
 
@@ -199,7 +199,7 @@ bool errorcode SerialMonSession.capture() {
 	close();
 	startSession();
 
-	char const* name = m_portCombo.m_currentText;
+	string_t name = m_portCombo.m_currentText;
 
 	m_monitor.applyProperties(m_bufferPropertySet, m_pendingNotifySizeLimitProp.m_value);
 	m_monitor.capture(name);

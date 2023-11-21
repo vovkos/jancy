@@ -33,7 +33,7 @@ struct UdpHdr {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* formatUdpDigest(void const* p) {
+string_t formatUdpDigest(void const* p) {
 	UdpHdr const* hdr = (UdpHdr const*)p;
 	return $"%1 \u2192 %2"(hdr.m_srcPort, hdr.m_dstPort);
 }

@@ -11,7 +11,7 @@ namespace ui {
 //..............................................................................
 
 struct ListItem {
-	char const* m_text;
+	string_t m_text;
 	variant_t m_value;
 }
 

@@ -59,7 +59,7 @@ protected:
 	State bindable m_state;
 	io.Pcap m_pcap;
 	UdpDecoder m_decoder;
-	char const* m_captureFilterString;
+	string_t m_captureFilterString;
 	std.Buffer m_readBuffer;
 	UdpFlowLogFilter m_filter;
 	uint_t m_syncId;
@@ -99,7 +99,7 @@ public:
 	construct(doc.PluginHost* pluginHost);
 
 	bool errorcode capture();
-	bool errorcode openPcapFile(char const* fileName);
+	bool errorcode openPcapFile(string_t fileName);
 	void stopCapture();
 
 	override void load(doc.Storage* storage);
@@ -129,7 +129,7 @@ protected:
 		io.PcapEvents triggeredEvents
 	);
 
-	char const* errorcode createCaptureFilterString(io.SocketAddress const* address);
+	string_t errorcode createCaptureFilterString(io.SocketAddress const* address);
 	bool errorcode applyCaptureFilter();
 	bool errorcode applyViewFilter(bool rebuildLog = false);
 
@@ -294,7 +294,7 @@ bool errorcode UdpFlowMonSession.capture() {
 	if (m_captureFilterProp.m_value)
 		filterAddress.parse(m_captureFilterProp.m_value);
 
-	char const* filterString = createCaptureFilterString(filterAddress);
+	string_t filterString = createCaptureFilterString(filterAddress);
 	m_logWriter.write(PcapLogRecordCode.StartingCapture, filterString);
 
 	m_pcap.openDevice(device.m_name);
@@ -322,7 +322,7 @@ catch:
 	return false;
 }
 
-bool errorcode UdpFlowMonSession.openPcapFile(char const* fileName) {
+bool errorcode UdpFlowMonSession.openPcapFile(string_t fileName) {
 	stopCapture();
 	startSession();
 
@@ -330,7 +330,7 @@ bool errorcode UdpFlowMonSession.openPcapFile(char const* fileName) {
 	if (m_captureFilterProp.m_value)
 		filterAddress.parse(m_captureFilterProp.m_value);
 
-	char const* filterString = createCaptureFilterString(filterAddress);
+	string_t filterString = createCaptureFilterString(filterAddress);
 	m_logWriter.write(PcapLogRecordCode.StartingCapture, filterString);
 
 	m_pcap.openFile(fileName, filterString);
@@ -374,9 +374,8 @@ bool errorcode UdpFlowMonSession.applyCaptureFilter() {
 	if (m_captureFilterProp.m_value)
 		filterAddress.parse(m_captureFilterProp.m_value);
 
-	char const* filterString = createCaptureFilterString(filterAddress);
-
-	if (strcmp(filterString, m_captureFilterString)) {
+	string_t filterString = createCaptureFilterString(filterAddress);
+	if (filterString != m_captureFilterString) {
 		m_pcap.setFilter(filterString);
 		m_captureFilterString = filterString;
 		m_logWriter.write(PcapLogRecordCode.SetCaptureFilter, filterString);
@@ -413,8 +412,8 @@ bool errorcode UdpFlowMonSession.applyViewFilter(bool rebuildLog) {
 	return true;
 }
 
-char const* errorcode UdpFlowMonSession.createCaptureFilterString(io.SocketAddress const* address) {
-	char const* filterString =
+string_t errorcode UdpFlowMonSession.createCaptureFilterString(io.SocketAddress const* address) {
+	string_t filterString =
 		address.m_family == io.AddressFamily.Ip6 ? $"udp and host $(address.m_ip6.m_address.getString())" :
 		address.m_ip4.m_address.m_i32 ? $"udp and host $(address.m_ip4.m_address.getString())" :
 		"udp";

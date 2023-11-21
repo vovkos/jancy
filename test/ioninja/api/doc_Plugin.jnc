@@ -46,15 +46,15 @@ class Plugin: PluginConfig {
 	);
 
 	ui.Action* createAction(
-		char const* text,
+		string_t text,
 		ui.Icon* icon = null,
 		bool isCheckable = false,
 		bool isChecked = false
 	);
 
 	ui.Action* createAction(
-		char const* text,
-		char const* iconFileName,
+		string_t text,
+		string_t iconFileName,
 		bool isCheckable = false,
 		bool isChecked = false
 	) {
@@ -65,7 +65,7 @@ class Plugin: PluginConfig {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 ui.Action* Plugin.createAction(
-	char const* text,
+	string_t text,
 	ui.Icon* icon,
 	bool isCheckable,
 	bool isChecked

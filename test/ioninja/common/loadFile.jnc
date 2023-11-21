@@ -5,8 +5,8 @@ import "io_File.jnc"
 
 // simple helper to load private key files (returning null is OK)
 
-void const* loadFile(char const* fileName) {
-	if (!fileName || !*fileName)
+void const* loadFile(string_t fileName) {
+	if (!fileName)
 		return null;
 
 	io.File file;

@@ -19,7 +19,7 @@ bool representProcessLog(
 	switch (recordCode) {
 	case ProcessLogRecordCode.ProcessStarted:
 		uint_t pid = *(uint_t const*)p;
-		char const* fileName = (char const*)(p + sizeof(uint_t));
+		string_t fileName = (char const*)(p + sizeof(uint_t));
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
 		representation.addHyperText($"Started process PID \e[34m$pid\e[m: \e[34m$fileName");

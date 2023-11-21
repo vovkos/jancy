@@ -13,7 +13,10 @@ pragma(Alignment, 1);
 
 //..............................................................................
 
-[ displayName = "Modbus TCP read" ]
+[ 
+	displayName = "Modbus TCP read",
+	fixedSize
+]
 struct ModbusTcpReadPacket {
 	[ displayName = "ADU" ]
 	io.ModbusTcpAduHdr m_adu;

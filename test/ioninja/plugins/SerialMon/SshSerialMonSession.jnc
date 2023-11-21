@@ -43,7 +43,7 @@ protected:
 		Connected,
 	}
 
-	static char const* m_stateStringTable[] = {
+	static string_t const m_stateStringTable[] = {
 		"Closed",
 		"Resolving...",
 		"Connecting...",
@@ -250,7 +250,7 @@ bool errorcode SshSerialMonSession.connect() {
 	disconnect();
 	startSession();
 
-	char const* addressString = m_addressCombo.m_editText;
+	string_t addressString = m_addressCombo.m_editText;
 	m_addressCombo.addEditTextToHistory();
 
 	io.SocketAddress address;
@@ -263,12 +263,7 @@ bool errorcode SshSerialMonSession.connect() {
 	}
 
 	m_state = State.Resolving;
-
-	m_logWriter.write(
-		SocketLogRecordCode.Resolving,
-		addressString,
-		strlen(addressString)
-	);
+	m_logWriter.write(SocketLogRecordCode.Resolving, addressString);
 
 	io.AddressFamily addressFamily = io.AddressFamily.Undefined;
 	if (m_socketPropertySet.m_useLocalAddressProp.m_value) {
@@ -325,7 +320,7 @@ bool errorcode SshSerialMonSession.connect(io.SocketAddress const* remoteAddress
 	);
 
 	void const* privateKey;
-	char const* password;
+	string_t password;
 
 	if (m_sshPropertySet.m_authenticationMethodProp.m_value == ui.AuthenticationMethod.PrivateKey) {
 		privateKey = loadFile(m_sshPropertySet.m_privateKeyFileProp.m_value);
@@ -346,27 +341,27 @@ bool errorcode SshSerialMonSession.connect(io.SocketAddress const* remoteAddress
 
 	// we only use IOCTL descriptors on POSIX
 
-	char const* portName = m_portCombo.m_editText;
-	char const* cmdLine = $"tdevmon --mi --monitor=$portName";
+	string_t portName = m_portCombo.m_editText;
+	string_t cmdLine = $"tdevmon --mi --monitor=$portName";
 
-	if (*portName == '/') // POSIX name such as /dev/ttyUSB0
+	if (portName.m_length && portName[0] == '/') // POSIX name such as /dev/ttyUSB0
 		cmdLine =
 			$"$cmdLine "
-			$"--ioctl $(psx.TCSETA):$(sizeof (psx.termio)) "
-			$"--ioctl $(psx.TCSETAW):$(sizeof (psx.termio)) "
-			$"--ioctl $(psx.TCSETAF):$(sizeof (psx.termio)) "
-			$"--ioctl $(psx.TCSETS):$(sizeof (psx.termios)) "
-			$"--ioctl $(psx.TCSETSW):$(sizeof (psx.termios)) "
-			$"--ioctl $(psx.TCSETSF):$(sizeof (psx.termios)) "
-			$"--ioctl $(psx.TCSETS2):$(sizeof (psx.termios2)) "
-			$"--ioctl $(psx.TCSETSW2):$(sizeof (psx.termios2)) "
-			$"--ioctl $(psx.TCSETSF2):$(sizeof (psx.termios2)) "
-			$"--ioctl $(psx.TIOCMGET):$(sizeof (uint_t)) "
-    			$"--ioctl $(psx.TIOCMBIS):$(sizeof (uint_t)) "
-			$"--ioctl $(psx.TIOCMBIC):$(sizeof (uint_t))";
+			$"--ioctl $(psx.TCSETA):$(sizeof(psx.termio)) "
+			$"--ioctl $(psx.TCSETAW):$(sizeof(psx.termio)) "
+			$"--ioctl $(psx.TCSETAF):$(sizeof(psx.termio)) "
+			$"--ioctl $(psx.TCSETS):$(sizeof(psx.termios)) "
+			$"--ioctl $(psx.TCSETSW):$(sizeof(psx.termios)) "
+			$"--ioctl $(psx.TCSETSF):$(sizeof(psx.termios)) "
+			$"--ioctl $(psx.TCSETS2):$(sizeof(psx.termios2)) "
+			$"--ioctl $(psx.TCSETSW2):$(sizeof(psx.termios2)) "
+			$"--ioctl $(psx.TCSETSF2):$(sizeof(psx.termios2)) "
+			$"--ioctl $(psx.TIOCMGET):$(sizeof(uint_t)) "
+			$"--ioctl $(psx.TIOCMBIS):$(sizeof(uint_t)) "
+			$"--ioctl $(psx.TIOCMBIC):$(sizeof(uint_t))";
 
-	params.m_processExtra = cmdLine;
-	params.m_processExtraSize = strlen(cmdLine);
+	params.m_processExtra = cmdLine.m_p;
+	params.m_processExtraSize = cmdLine.m_length;
 
 	m_ssh.connect(&params);
 	waitSshEvents();

@@ -19,7 +19,7 @@ void representEthernetDigest(
 		return;
 	}
 
-	io.EthernetHdr const* ethernetHdr = (io.EthernetHdr const*) p;
+	io.EthernetHdr const* ethernetHdr = (io.EthernetHdr const*)p;
 	p += sizeof(io.EthernetHdr);
 	size -= sizeof(io.EthernetHdr);
 
@@ -70,7 +70,7 @@ void representEthernetDetails(
 		return;
 	}
 
-	io.EthernetHdr const* ethernetHdr = (io.EthernetHdr const*) p;
+	io.EthernetHdr const* ethernetHdr = (io.EthernetHdr const*)p;
 	jnc.StructType* type = ethernetHdr.m_type <= io.EthernetType.Ieee8023 ?
 		typeof(io.EthernetHdr_ieee8023) :
 		typeof(io.EthernetHdr);

@@ -16,7 +16,7 @@ protected:
 public:
 	// suspend log engine before calling setFilter
 
-	bool errorcode setFilter(char const* filter);
+	bool errorcode setFilter(string_t filter);
 
 protected:
 	override void reset() {
@@ -33,7 +33,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bool errorcode UdpFlowLogFilter.setFilter(char const* filter) {
+bool errorcode UdpFlowLogFilter.setFilter(string_t filter) {
 	if (filter)
 		return m_filterAddress.parse(filter);
 

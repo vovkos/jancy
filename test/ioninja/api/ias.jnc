@@ -28,8 +28,12 @@ void disconnect();
 
 size_t errorcode transmit(
 	void const* p,
-	size_t size = -1 // -1 -- use strlen
+	size_t size
 );
+
+size_t errorcode transmit(string_t text) {
+	return transmit(text.m_p, text.m_length);
+}
 
 size_t getTransmitData(std.Buffer* buffer); // fetch contents of the "Transmit" pane
 
@@ -126,10 +130,10 @@ namespace ias {
 // sessions that support dispatch iface should normally derive from ias.Session
 
 class Session {
-	char const* const property m_id;
-	char const* const property m_name;
-	char const* const property m_description;
-	char const* const property m_pluginDir;
+	string_t const property m_id;
+	string_t const property m_name;
+	string_t const property m_description;
+	string_t const property m_pluginDir;
 }
 
 } // namespace ias

@@ -122,13 +122,13 @@ struct DhcpHdr {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-char const* formatDhcpDigest(void const* p) {
+string_t formatDhcpDigest(void const* p) {
 	DhcpHdr const* hdr = (DhcpHdr const*)p;
 	void const* options = hdr + 1;
 	void const* end = p + dynamic sizeof(p);
 	DhcpOptionHdr const* messageType = findDhcpOption(DhcpOptionType.DhcpMessageType, options, end - options);
 
-	char const* typeString = messageType ?
+	string_t typeString = messageType ?
 		typeof(DhcpMessageType).getValueString(messageType + 1) :
 		typeof(DhcpOpcode).getValueString(&hdr.m_opcode);
 
@@ -347,14 +347,14 @@ bitflag enum DhcpOptionOverload: uint8_t {
 
 //..............................................................................
 
-char const* formatString(
+string_t formatString(
 	void const* p,
 	size_t size
 ) {
 	return strdup(p, size);
 }
 
-char const* formatDhcpParameterRequestList(
+string_t formatDhcpParameterRequestList(
 	void const* p,
 	size_t size
 ) {
@@ -375,7 +375,7 @@ char const* formatDhcpParameterRequestList(
 	return string.detachString();
 }
 
-char const* formatDhcpClientIdentifier(
+string_t formatDhcpClientIdentifier(
 	void const* p,
 	size_t size
 ) {

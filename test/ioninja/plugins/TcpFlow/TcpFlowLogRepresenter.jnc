@@ -19,8 +19,8 @@ bool representTcpFlowLog(
 ) {
 	switch (recordCode) {
 	case TcpFlowLogRecordCode.Connecting:
-		char const* srcAddressString = ((io.SocketAddress const*) p).getString();
-		char const* dstAddressString = ((io.SocketAddress const*) p + 1).getString();
+		string_t srcAddressString = ((io.SocketAddress const*)p).getString();
+		string_t dstAddressString = ((io.SocketAddress const*)p + 1).getString();
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addHyperText(TcpFlowLogPartCode.Connecting, $"Connecting to \e[34m$dstAddressString\e[m from \e[34m$srcAddressString\e[m...");
@@ -45,7 +45,7 @@ bool representTcpFlowLog(
 		break;
 
 	case TcpFlowLogRecordCode.Disconnected_old:
-		char const* addressString = ((io.SocketAddress const*) p).getString();
+		string_t addressString = ((io.SocketAddress const*)p).getString();
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
 		representation.addHyperText($"Disconnected by \e[34m$addressString");
@@ -67,7 +67,7 @@ bool representTcpFlowLog(
 	case TcpFlowLogRecordCode.Reset:
 		io.SocketAddress const* remoteAddress = (io.SocketAddress const*)p;
 		io.SocketAddress const* localAddress = remoteAddress + 1;
-		char const* closeKindString = recordCode == TcpFlowLogRecordCode.Reset ? "reset" : "closed";
+		string_t closeKindString = recordCode == TcpFlowLogRecordCode.Reset ? "reset" : "closed";
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
 

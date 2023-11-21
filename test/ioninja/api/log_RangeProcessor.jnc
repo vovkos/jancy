@@ -21,7 +21,7 @@ class RangeProcessor {
 
 	virtual void processText(
 		uint64_t partCode,
-		char const* text
+		string_t text
 	) {}
 
 	virtual void processBin(
