@@ -51,7 +51,7 @@ struct ReSwitchStmt {
 	Value m_dataValue;
 	Value m_sizeValue;
 
-	re::Regex m_regex;
+	re2::Regex m_regex;
 	BasicBlock* m_switchBlock;
 	BasicBlock* m_defaultBlock;
 	BasicBlock* m_followBlock;

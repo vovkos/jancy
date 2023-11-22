@@ -273,7 +273,7 @@ CmdLineParser::scanSourceDirs() {
 
 	bool result;
 
-	re::Regex excludeRegex;
+	re2::Regex excludeRegex;
 	if (!m_cmdLine->m_excludeRegex.isEmpty()) {
 		result = excludeRegex.compile(m_cmdLine->m_excludeRegex);
 		if (!result)

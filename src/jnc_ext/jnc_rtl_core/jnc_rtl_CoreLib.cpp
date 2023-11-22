@@ -961,16 +961,19 @@ size_t
 appendFmtLiteral_re(
 	FmtLiteral* fmtLiteral,
 	const char* fmtSpecifier,
-	const RegexMatch* match
+	const RegexCapture* capture
 ) {
 	sl::StringRef string;
 
-	if (!match)
-		string = "(null)";
-	else if (!match->m_match.hasText())
-		string = sl::formatString("(%lld:%lld)", match->m_match.getOffset(), match->m_match.getEndOffset());
-	else
-		string = match->m_match.getText();
+	if (capture)
+		if (!capture->m_capture.hasText())
+			string = sl::formatString(
+				"[%lld:%lld)",
+				capture->m_capture.getOffset(),
+				capture->m_capture.getEndOffset()
+			);
+		else
+			string = capture->m_capture.getText();
 
 	return fmtSpecifier ?
 		appendFmtLiteralImpl(fmtLiteral, fmtSpecifier, "s", string.sz()) :
@@ -1170,7 +1173,7 @@ JNC_BEGIN_LIB_SOURCE_FILE_TABLE(jnc_CoreLib)
 JNC_END_LIB_SOURCE_FILE_TABLE()
 
 JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(jnc_CoreLib)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(RegexMatch)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(RegexCapture)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(RegexState)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(Regex)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(DynamicLayout)
@@ -1285,6 +1288,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_CoreLib)
 
 	// std types
 
+	JNC_MAP_TYPE(RegexCapture)
 	JNC_MAP_TYPE(RegexMatch)
 	JNC_MAP_TYPE(RegexState)
 	JNC_MAP_TYPE(Regex)

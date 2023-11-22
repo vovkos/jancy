@@ -22,18 +22,28 @@ namespace rtl {
 //..............................................................................
 
 JNC_DEFINE_OPAQUE_CLASS_TYPE(
+	RegexCapture,
+	"jnc.RegexCapture",
+	sl::g_nullGuid,
+	-1,
+	RegexCapture,
+	&RegexCapture::markOpaqueGcRoots
+)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP(RegexCapture)
+	JNC_MAP_CONST_PROPERTY("m_text", &RegexCapture::getText)
+JNC_END_TYPE_FUNCTION_MAP()
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DEFINE_CLASS_TYPE(
 	RegexMatch,
 	"jnc.RegexMatch",
 	sl::g_nullGuid,
-	-1,
-	RegexMatch,
-	&RegexMatch::markOpaqueGcRoots
+	-1
 )
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(RegexMatch)
-	JNC_MAP_CONSTRUCTOR(&jnc::construct<RegexMatch>)
-	JNC_MAP_DESTRUCTOR(&jnc::destruct<RegexMatch>)
-	JNC_MAP_CONST_PROPERTY("m_text", &RegexMatch::getText)
 JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -48,19 +58,15 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 )
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(RegexState)
-	JNC_MAP_CONSTRUCTOR(&jnc::construct<RegexState>)
-	JNC_MAP_OVERLOAD(&(jnc::construct<RegexState, uint_t, size_t>))
 	JNC_MAP_DESTRUCTOR(&jnc::destruct<RegexState>)
-	JNC_MAP_CONST_PROPERTY("m_execFlags", &RegexState::getExecFlags)
-	JNC_MAP_CONST_PROPERTY("m_lastExecResult", &RegexState::getLastExecResult)
-	JNC_MAP_CONST_PROPERTY("m_matchAcceptId", &RegexState::getMatchAcceptId)
+	JNC_MAP_CONST_PROPERTY("m_anchor", &RegexState::getAnchor)
+	JNC_MAP_CONST_PROPERTY("m_baseOffset", &RegexState::getBaseOffset)
+	JNC_MAP_CONST_PROPERTY("m_eofOffset", &RegexState::getEofOffset)
 	JNC_MAP_CONST_PROPERTY("m_match", &RegexState::getMatch)
-	JNC_MAP_CONST_PROPERTY("m_captureCount", &RegexState::getCaptureCount)
-	JNC_MAP_CONST_PROPERTY("m_captureArray", &RegexState::getCapture)
-	JNC_MAP_CONST_PROPERTY("m_groupArray", &RegexState::getGroup)
-	JNC_MAP_FUNCTION("initialize", &RegexState::initialize)
+	JNC_MAP_CONST_PROPERTY("m_baseChar", &RegexState::getBaseChar)
+	JNC_MAP_CONST_PROPERTY("m_eofChar", &RegexState::getEofChar)
 	JNC_MAP_FUNCTION("reset", &RegexState::reset)
-	JNC_MAP_FUNCTION("resume", &RegexState::resume)
+	JNC_MAP_FUNCTION("init", &RegexState::init)
 JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -75,7 +81,6 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 )
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Regex)
-	JNC_MAP_CONSTRUCTOR(&jnc::construct<Regex>)
 	JNC_MAP_DESTRUCTOR(&jnc::destruct<Regex>)
 	JNC_MAP_FUNCTION("clear", &Regex::clear)
 	JNC_MAP_FUNCTION("load", &Regex::load)
@@ -84,132 +89,188 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(Regex)
 	JNC_MAP_FUNCTION("createSwitch", &Regex::createSwitch)
 	JNC_MAP_FUNCTION("compileSwitchCase", &Regex::compileSwitchCase)
 	JNC_MAP_FUNCTION("finalizeSwitch", &Regex::finalizeSwitch)
-	JNC_MAP_FUNCTION("exec", &Regex::exec_0)
-	JNC_MAP_OVERLOAD(&Regex::exec_1)
-	JNC_MAP_FUNCTION("eof", &Regex::eof)
+	JNC_MAP_FUNCTION("exec", &Regex::exec)
+	JNC_MAP_FUNCTION("execEof", &Regex::execEof)
+	JNC_MAP_FUNCTION("captureSubmatches", &Regex::captureSubmatches)
+	JNC_MAP_FUNCTION("captureSwitchCaseSubmatches", &Regex::captureSwitchCaseSubmatches)
+	JNC_MAP_FUNCTION("init", &Regex::init)
 JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
 void
 JNC_CDECL
-RegexMatch::markOpaqueGcRoots(GcHeap* gcHeap)  {
+RegexCapture::markOpaqueGcRoots(GcHeap* gcHeap)  {
+	ASSERT(!m_text.m_ptr.m_validator || m_text.m_ptr.m_validator == m_lastChunk.m_ptr.m_validator);
 	gcHeap->markString(m_text);
+	gcHeap->markString(m_lastChunk);
 }
 
 String
-RegexMatch::getText(RegexMatch* self) {
-	if (!self->m_text.m_length)
-		self->m_text = allocateString(self->m_match.getText());
+RegexCapture::getText(RegexMatch* self) {
+	if (self->m_text.m_ptr.m_p)
+		return self->m_text;
 
+	if (!self->m_capture.hasText())
+		return g_nullString;
+
+	const sl::StringRef& text = self->m_capture.getText();
+
+	ASSERT(
+		self->m_lastChunk.m_ptr.m_validator &&
+		text.cp() >= (char*)self->m_lastChunk.m_ptr.m_validator->m_rangeBegin &&
+		text.getEnd() <= (char*)self->m_lastChunk.m_ptr.m_validator->m_rangeEnd
+	);
+
+	DataPtr ptr;
+	ptr.m_p = (void*)text.cp();
+	ptr.m_validator = self->m_lastChunk.m_ptr.m_validator;
+	self->m_text.setPtr(ptr, text.getLength());
 	return self->m_text;
 }
 
 //..............................................................................
 
-RegexState::RegexState() {
-	m_runtime = getCurrentThreadRuntime();
-}
-
-RegexState::RegexState(
-	uint_t execFlags,
-	uint64_t offset
-):
-	m_state(re::StateInit(execFlags, offset, enc::CharCodecKind_Utf8)) {
-	m_runtime = getCurrentThreadRuntime();
-}
-
 void
 JNC_CDECL
 RegexState::markOpaqueGcRoots(GcHeap* gcHeap) {
 	gcHeap->markClassPtr(m_match);
-	size_t count = m_captureArray.getCount();
-	for (size_t i = 0; i < count; i++)
-		gcHeap->markClassPtr(m_captureArray[i]);
+	gcHeap->markString(m_lastChunk);
 }
 
-RegexMatch*
+const RegexMatch*
 JNC_CDECL
 RegexState::getMatch() {
-	const re::Match* match = m_state.getMatch();
-	if (!match)
-		return NULL;
+	if (m_match || !m_state.isMatch())
+		return m_match;
 
-	if (!m_match)
-		m_match = jnc::createClass<RegexMatch>(m_runtime);
-
-	if (!m_match->m_match.isEqual(*match)) {
-		m_match->m_match = *match;
-		m_match->m_text = g_nullString;
-	}
-
+	m_match = jnc::createClass<RegexMatch>(jnc::getCurrentThreadRuntime());
+	m_match->m_capture = m_state.getMatch();
+	m_match->m_id = m_state.getMatch().getId();
+	m_match->m_lastChunk = m_lastChunk;
 	return m_match;
 }
 
-RegexMatch*
+void
 JNC_CDECL
-RegexState::getCapture(size_t i) {
-	const re::Match* match = m_state.getCapture(i);
-	if (!match)
-		return NULL;
-
-	size_t count = m_captureArray.getCount();
-	if (i >= count)
-		m_captureArray.setCountZeroConstruct(i + 1);
-
-	RegexMatch* matchObject = m_captureArray[i];
-	if (!matchObject) {
-		matchObject = jnc::createClass<RegexMatch>(m_runtime);
-		m_captureArray[i] = matchObject;
-	}
-
-	matchObject->m_match = *match;
-	return matchObject;
+RegexState::reset(
+	re2::Anchor anchor,
+	uint64_t baseOffset,
+	int baseChar,
+	uint64_t eofOffset,
+	int eofChar
+) {
+	m_state.reset(anchor, baseOffset, baseChar, eofOffset, eofChar);
+	m_match = NULL;
+	m_lastChunk = g_nullString;
 }
 
 //..............................................................................
 
+void
+JNC_CDECL
+Regex::markOpaqueGcRoots(GcHeap* gcHeap) {
+	size_t count = m_switchCasePatternArray.getCount();
+	for (size_t i = 0; i < count; i++)
+		gcHeap->markString(m_switchCasePatternArray[i]);
+}
+
+void
+JNC_CDECL
+Regex::clear() {
+	m_regexKind = re2::RegexKind_Undefined;
+	m_flags = 0;
+	m_captureCount = 0;
+	m_pattern = g_nullString;
+	m_switchCaseCount = 0;
+	m_regex.clear();
+	m_switchCasePatternArray.clear();
+}
+
+bool
+JNC_CDECL
+Regex::compile(
+	uint_t flags,
+	String source
+) {
+	clear();
+
+	bool result = m_regex.compile(flags, source >> toAxl);
+	if (!result)
+		return false;
+
+	finalize();
+	return true;
+}
+
+bool
+JNC_CDECL
+Regex::finalizeSwitch() {
+	bool result = m_regex.finalizeSwitch();
+	if (!result)
+		return false;
+
+	finalize();
+	return true;
+}
+
 size_t
 JNC_CDECL
-Regex::save(IfaceHdr* buffer) {
-	err::setError("Regex::save is not yet implemented");
-	return -1;
-}
-
-
-re::ExecResult
-JNC_CDECL
-Regex::exec_0(
-	RegexState* state,
-	String text
-) {
-	state->clearCache();
-	return m_regex.exec(&state->m_state, text >> toAxl);
-}
-
-re::ExecResult
-JNC_CDECL
-Regex::exec_1(
-	RegexState* state,
+Regex::load(
 	DataPtr ptr,
-	size_t length
+	size_t size
 ) {
-	if (length == -1)
-		length = strLen(ptr);
+	clear();
 
-	state->clearCache();
-	return m_regex.exec(&state->m_state, ptr.m_p, length);
+	size_t size = m_regex.load(ptr.m_p, size);
+	if (size == -1)
+		return -1;
+
+	finalize();
+	return size;
 }
 
-re::ExecResult
+re2::ExecResult
 JNC_CDECL
-Regex::eof(
+Regex::exec(
 	RegexState* state,
-	bool isLastExecDataAvailable
+	String chunk
 ) {
-	state->clearCache();
-	return m_regex.eof(&state->m_state, isLastExecDataAvailable);
+	state->m_match = NULL;
+	state->m_lastChunk = chunk;
+	return m_regex.exec(&state->m_state, chunk >> toAxl);
 }
+
+re2::ExecResult
+JNC_CDECL
+Regex::execEof(
+	RegexState* state,
+	String lastChunk,
+	int eofChar
+) {
+	state->m_match = NULL;
+	state->m_lastChunk = lastChunk;
+	return m_regex.execEof(&state->m_state, lastChunk >> toAxl, eofChar);
+}
+
+void
+JNC_CDECL
+Regex::init() {
+	new (&m_regex) Regex();
+	new (&m_switchCasePatternArray) sl::Array<String>();
+}
+
+/*
+void
+Regex::finalize() {
+	m_regexKind = m_regex.getRegexKind();
+	m_flags = m_regex.getFlags();
+	m_captureCount = m_regex.getCaptureCount();
+	m_pattern = m_regex.getPattern();
+	m_switchCaseCount = m_regex.getSwitchCaseCount();
+	m_switchCasePatternArray.clear();
+}
+*/
 
 //..............................................................................
 

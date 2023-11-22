@@ -165,7 +165,7 @@ endif()
 target_link_libraries(
 	jnc_app
 	axl_zip
-	axl_re
+	axl_re2
 	axl_io
 	axl_lex
 	axl_mem_new

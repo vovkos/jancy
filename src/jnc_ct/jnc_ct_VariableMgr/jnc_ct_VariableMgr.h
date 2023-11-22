@@ -180,7 +180,7 @@ public:
 	Variable*
 	createStaticRegexVariable(
 		const sl::StringRef& name,
-		const re::Regex* regex
+		const re2::Regex* regex
 	);
 
 	bool

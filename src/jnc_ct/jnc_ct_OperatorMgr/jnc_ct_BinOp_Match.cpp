@@ -41,7 +41,7 @@ BinOp_Match::op(
 	Value execValue;
 
 	if (opValue2.getValueKind() == ValueKind_Const) { // can compile and save regex now
-		re::Regex regex;
+		re2::Regex regex;
 		result = regex.compile(*(char**)opValue2.getConstData());
 		if (!result)
 			return false;

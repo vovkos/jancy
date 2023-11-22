@@ -16,116 +16,163 @@ namespace jnc {
 
 //..............................................................................
 
-opaque class RegexMatch {
-	uint64_t readonly m_offset;
-	uint64_t readonly m_endOffset;
-	size_t const property m_length;
-	string_t const property m_text;
-
-	construct();
-	destruct();
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-size_t RegexMatch.m_length.get() const {
-	return m_endOffset - m_offset;
-}
-
-//..............................................................................
-
-bitflag enum RegexExecFlags {
-	Stream,          // feed data chunk-by-chunk, then call jnc.Regex.eof()
-	Reverse,         // run the reverse DFA to find the beginning of the match
-	DisableReverse,  // don't run the reverse DFA to find beginnings of matches
-	DisableCapture,  // don't capture sub-matches
-	AnchorDataBegin, // match must start on the first byte of data
-	AnchorDataEnd,   // match must end on the last byte of data
-	ExactMatch = AnchorDataBegin | AnchorDataEnd,
+enum ExecResult {
+	ErrorInconsistent = -2, // RE2::SM::ErrorInconsistent - reverse scan couldn't find a match (inconsistent data)
+	ErrorOutOfMemory  = -1, // RE2::SM::ErrorOutOfMemory  - DFA run out-of-memory
+	Mismatch          = 0,  // RE2::SM::Mismatch          - match can't be found
+	Continue,               // RE2::SM::Continue,         - match not found yet; continue feeding next chunks of data
+	ContinueBackward,       // RE2::SM::ContinueBackward  - match end found; continue feeding previous chunks of data
+	Match,                  // RE2::SM::Match,            - match end & start found
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum RegexExecResult {
-	Match              = 3,
-	MatchOffsetsOnly   = 2,
-	MatchEndOffsetOnly = 1,
-	NoMatch            = 0,
-	Continue           = -1, // continue feeding data
-	ContinueBackward   = -2, // continue feeding backward data
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-opaque class RegexState {
-	RegexExecFlags const property m_execFlags;
-	RegexExecResult const property m_lastExecResult;
-	size_t const property m_matchAcceptId;
-	RegexMatch const* const property m_match;
-	size_t const property m_captureCount;
-	RegexMatch const* const property m_captureArray(size_t i); // 0 .. m_captureCount - 1
-	RegexMatch const* const property m_groupArray(size_t i);   // 0 .. m_captureCount (0 yields the full match)
-
-	construct();
-
-	construct(
-		RegexExecFlags execFlags,
-		uint64_t offset = 0
-	);
-
-	destruct();
-
-	void initialize(
-		RegexExecFlags execFlags = 0,
-		uint64_t offset = 0
-	);
-
-	void reset(uint64_t offset = 0);
-	void resume();
-}
-
-//..............................................................................
-
-bitflag enum RegexCompileFlags {
-	CaseInsensitive,
-	MatchOnly,       // don't demux NFA and no search start states
-	DisableCapture,  // same as ExecFlag_NoCapture
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-enum RegexKind {
-	Undefined,
-	Single,
-	Switch,
+enum Anchor {
+	None      = 0, // RE2::UNANCHORED
+	Start     = 1, // RE2::ANCHOR_START
+	FullMatch = 2, // RE2::ANCHOR_BOTH
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum {
-	RegexEof = -2
+	RegexEofChar = 256, // RE2::SM::kByteEndText
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class RegexCapture {
+	uint64_t readonly m_offset;
+	uint64_t readonly m_endOffset;
+	uint64_t const property m_size;
+	string_t const property m_text;
 }
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class RegexMatch: RegexCapture {
+	uint_t readonly m_id;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class RegexState {
+	Anchor const property m_anchor;
+	uint64_t const property m_baseOffset;
+	uint64_t const property m_eofOffset;
+	int const property m_baseChar;
+	int const property m_eofChar;
+
+	RegexMatch const* m_match;
+
+	construct(Anchor anchor = Anchor_None) {
+		init(anchor, 0, RegexEofChar, -1, RegexEofChar);
+	}
+
+	construct(
+		Anchor anchor,
+		uint64_t baseOffset,
+		int baseChar
+	) {
+		init(anchor, baseOffset, baseChar, -1, RegexEofChar);
+	}
+
+	construct(
+		Anchor anchor,
+		uint64_t baseOffset,
+		int baseChar,
+		uint64_t eofOffset,
+		int eofChar = RegexEofChar
+	) {
+		init(anchor, baseOffset, baseChar, eofOffset, eofChar);
+	}
+
+	void destruct();
+
+	void reset(
+		Anchor anchor,
+		uint64_t baseOffset,
+		int baseChar,
+		uint64_t eofOffset,
+		int eofChar = RegexEofChar
+	);
+
+	void reset(Anchor anchor = Anchor_None) {
+		reset(anchor, 0, RegexEofChar, -1, RegexEofChar);
+	}
+
+	void reset(
+		Anchor anchor,
+		uint64_t baseOffset,
+		int baseChar
+	) {
+		reset(anchor, baseOffset, baseChar, -1, EofChar);
+	}
+
+	void setEof(
+		uint64_t offset,
+		int eofChar = EofChar
+	);
+
+protected:
+	void init(
+		Anchor anchor,
+		uint64_t baseOffset,
+		int baseChar,
+		uint64_t eofOffset,
+		int eofChar = EofChar
+	);
+}
+
+//..............................................................................
+
+bitflag enum RegexFlags {
+	OneLine,         // R2::Options.one_line -> true (otherwise, false)
+	Latin1,			 // R2::Options.encoding -> EncodingLatin1 (otherwise, UTF8)
+	CaseInsensitive, // R2::Options.case_sensitive -> (otherwise, false)
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum RegexKind {
+	Undefined, // RE2::SM::kUninitialized
+	Single,	   // RE2::SM::kSingleRegexp
+	Switch,	   // RE2::SM::kRegexpSwitch
+};
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 opaque class Regex {
 	RegexKind readonly m_regexKind;
+	RegexFlags readonly m_flags;
+	size_t readonly m_captureCount;
+	string_t readonly m_pattern;
+	size_t readonly m_switchCaseCount;
+	size_t const property m_switchCaseCaptureCount(uint_t id);
+	string_t const property m_switchCasePattern(uint_t id);
 
-	construct();
+	construct() {
+		init();
+	}
+
+	construct(string_t pattern) {
+		init();
+		compile(pattern);
+	}
+
+	construct(
+		RegexFlags flags,
+		string_t pattern
+	) {
+		init();
+		compile(flags, pattern);
+	}
+
 	destruct();
 
+	// compilation
+
 	void clear();
-
-	size_t errorcode load(
-		void const* p,
-		size_t size
-	);
-
-	std.Buffer* errorcode save() {
-		std.Buffer buffer;
-		save(buffer);
-		return buffer;
-	}
 
 	bool errorcode compile(
 		uint_t flags,
@@ -136,62 +183,91 @@ opaque class Regex {
 		return compile(0, source);
 	}
 
-	void createSwitch();
+	void createSwitch(uint_t flags = 0);
+	uint_t errorcode compileSwitchCase(string_t source);
+	bool errorcode finalizeSwitch();
 
-	bool errorcode compileSwitchCase(
-		uint_t flags,
-		string_t source
+	// serialization
+
+	size_t errorcode load(
+		void const* p,
+		size_t size
 	);
 
-	bool errorcode compileSwitchCase(string_t source) {
-		return compileSwitchCase(0, source);
+	size_t errorcode save(std.Buffer* buffer);
+
+	std.Buffer* errorcode save() {
+		std.Buffer buffer;
+		save(buffer);
+		return buffer;
 	}
 
-	void finalizeSwitch(uint_t flags = 0);
+	// execution
 
 	RegexExecResult exec(
 		RegexState* state,
-		string_t text
+		string_t chunk
 	) const;
 
-	RegexExecResult exec(
-		RegexState* state,
-		char const* p,
-		size_t length
-	) const;
+	RegexMatch const* exec(string_t text) const {
+		return exec(RegexAnchor.None, text);
+	}
 
-	RegexState* exec(
-		RegexExecFlags flags,
+	RegexMatch const* exec(
+		RegexAnchor anchor,
 		string_t text
 	) const {
-		RegexState state(flags);
-		return exec(state, text) ? state : null;
+		RegexState state(anchor);
+		execEof(state, text);
+		return state.m_match;
 	}
 
-	RegexState* exec(
-		RegexExecFlags flags,
-		char const* p,
-		size_t length
-	) const {
-		RegexState state(flags);
-		return exec(state, p, length) ? state : null;
-	}
-
-	RegexState* exec(string_t text) const {
-		return exec(0, text);
-	}
-
-	RegexState* exec(
-		char const* p,
-		size_t length
-	) const {
-		return exec(0, string_t(p, length));
-	}
-
-	RegexExecResult eof(
+	RegexExecResult execEof(
 		RegexState* state,
-		bool isLastExecDataAvailable
-	);
+		string_t lastChunk,
+		int eofChar = RegexEofChar
+	) const;
+
+	RegexExecResult execEof(
+		RegexState* state,
+		int eofChar = RegexEofChar
+	) const {
+		return execEof(state, null, eofChar);
+	}
+
+	bool errorcode captureSubmatches(
+		uint64_t matchOffset,
+		string_t matchText,
+		RegexCapture* submatchArray,
+		size_t count
+	) const;
+
+	bool errorcode captureSubmatches(
+		RegexCapture const* match,
+		RegexCapture* submatchArray,
+		size_t count
+	) const {
+		return captureSubmatches();
+	}
+
+	bool errorcode captureSwitchCaseSubmatches(
+		uint_t switchCaseId,
+		uint64_t matchOffset,
+		string_t matchText,
+		RegexCapture* submatchArray,
+		size_t count
+	) const;
+
+	bool errorcode captureSwitchCaseSubmatches(
+		uint_t switchCaseId,
+		RegexCapture const* match,
+		RegexCapture* submatchArray,
+		size_t count
+	) const;
+
+protected:
+	void
+	init();
 }
 
 //..............................................................................

@@ -45,6 +45,7 @@ set(
 		perl
 		ragel
 		llvm
+		re2s
 		axl
 		graco
 		7z

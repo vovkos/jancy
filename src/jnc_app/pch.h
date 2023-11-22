@@ -23,7 +23,7 @@
 #include "axl_lex_ParseError.h"
 #include "axl_sys_ExceptionError.h"
 #include "axl_sys_Time.h"
-#include "axl_re_Regex.h"
+#include "axl_re2_Regex.h"
 
 using namespace axl;
 

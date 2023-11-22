@@ -667,7 +667,7 @@ VariableMgr::createAsyncArgVariable(
 Variable*
 VariableMgr::createStaticRegexVariable(
 	const sl::StringRef& name,
-	const re::Regex* regex
+	const re2::Regex* regex
 ) {
 	// serialize regex into arrray
 

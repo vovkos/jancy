@@ -16,31 +16,30 @@
 namespace jnc {
 namespace rtl {
 
+class RegexCapture;
 class RegexMatch;
 class RegexState;
 class Regex;
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE(RegexMatch)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(RegexCapture)
+JNC_DECLARE_CLASS_TYPE(RegexMatch)
 JNC_DECLARE_OPAQUE_CLASS_TYPE(RegexState)
 JNC_DECLARE_OPAQUE_CLASS_TYPE(Regex)
 
 //..............................................................................
 
-typedef re::MatchPos RegexMatchPos;
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-class RegexMatch: public IfaceHdr {
+class RegexCapture: public IfaceHdr {
 	friend class RegexState;
 
 public:
-	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(RegexMatch)
+	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(RegexCapture)
 
 public:
-	re::Match m_match; // offsets maps to public fields
+	re2::Capture m_capture; // offsets maps to public fields
 
 protected:
 	String m_text; // cache
+	String m_lastChunk;
 
 public:
 	void
@@ -54,174 +53,205 @@ public:
 
 //..............................................................................
 
+class RegexMatch: public RegexCapture {
+	friend class RegexState;
+
+public:
+	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(RegexMatch)
+
+public:
+	uint_t m_id;
+};
+
+//..............................................................................
+
 class RegexState: public IfaceHdr {
 	friend class Regex;
 
 protected:
-	Runtime* m_runtime;
-	re::State m_state;
+	re2::State m_state;
 	RegexMatch* m_match;
-	sl::Array<RegexMatch*> m_captureArray;
+	String m_lastChunk;
 
 public:
-	RegexState();
-
-	RegexState(
-		uint_t execFlags,
-		uint64_t offset
-	);
-
 	void
 	JNC_CDECL
 	markOpaqueGcRoots(GcHeap* gcHeap);
 
-	uint_t
+	re2::Anchor
 	JNC_CDECL
-	getExecFlags() {
-		return m_state.getExecFlags();
+	getAnchor() {
+		return m_state.getAnchor();
 	}
 
-	re::ExecResult
+	uint64_t
 	JNC_CDECL
-	getLastExecResult() {
-		return m_state.getLastExecResult();
+	getBaseOffset() {
+		return m_state.getBaseOffset();
 	}
 
-	size_t
+	uint64_t
 	JNC_CDECL
-	getMatchAcceptId() {
-		return m_state.getMatchAcceptId();
+	getEofOffset() {
+		return m_state.getEofOffset();
 	}
 
-	RegexMatch*
+	int
+	JNC_CDECL
+	getBaseChar() {
+		return m_state.getBaseChar();
+	}
+
+	int
+	JNC_CDECL
+	getEofChar() {
+		return m_state.getEofChar();
+	}
+
+	const RegexMatch*
 	JNC_CDECL
 	getMatch();
 
-	size_t
+	void
 	JNC_CDECL
-	getCaptureCount() {
-		return m_state.getCaptureCount();
-	}
-
-	RegexMatch*
-	JNC_CDECL
-	getCapture(size_t i);
-
-	RegexMatch*
-	JNC_CDECL
-	getGroup(size_t i) {
-		return i == 0 ? getMatch() : getCapture(i - 1);
-	}
+	reset(
+		re2::Anchor anchor,
+		uint64_t baseOffset,
+		int baseChar,
+		uint64_t eofOffset,
+		int eofChar
+	);
 
 	void
 	JNC_CDECL
-	initialize(
-		uint_t execFlags,
-		uint64_t offset
+	setEof(
+		uint64_t offset,
+		int eofChar
 	) {
-		clearCache();
-		m_state.initialize(re::StateInit(execFlags, offset));
+		m_state.setEof(offset, eofChar);
 	}
 
 	void
 	JNC_CDECL
-	reset(uint64_t offset) {
-		clearCache();
-		m_state.reset(offset);
-	}
-
-	void
-	JNC_CDECL
-	resume() {
-		clearCache();
-		m_state.resume();
-	}
-
-protected:
-	void
-	clearCache() {
-		m_match = NULL;
-		m_captureArray.clear();
+	init(
+		re2::Anchor anchor,
+		uint64_t baseOffset,
+		int baseChar,
+		uint64_t eofOffset,
+		int eofChar
+	) {
+		new (&m_state) re2::State(anchor, baseOffset, baseChar, eofOffset, eofChar);
 	}
 };
 
 //..............................................................................
 
 class Regex: public IfaceHdr {
+public:
+	re2::RegexKind m_regexKind;
+	uint_t m_flags;
+	size_t m_captureCount;
+	String m_pattern;
+	size_t m_switchCaseCount;
+
 protected:
-	re::Regex m_regex;
+	re2::Regex m_regex;
+	sl::Array<String> m_switchCasePatternArray;
 
 public:
 	void
 	JNC_CDECL
-	clear() {
-		m_regex.clear();
-	}
+	markOpaqueGcRoots(GcHeap* gcHeap);
 
-	size_t
-	JNC_CDECL
-	load(
-		DataPtr ptr,
-		size_t size
-	) {
-		return m_regex.load(ptr.m_p, size);
-	}
+	// compilation
 
-	size_t
+	void
 	JNC_CDECL
-	save(IfaceHdr* buffer);
+	clear();
 
 	bool
 	JNC_CDECL
 	compile(
 		uint_t flags,
 		String source
-	) {
-		return m_regex.compile(flags, source >> toAxl);
-	}
+	);
 
 	void
 	JNC_CDECL
-	createSwitch() {
-		m_regex.createSwitch();
+	createSwitch(uint_t flags) {
+		clear();
+		m_regex.createSwitch(flags);
+	}
+
+	uint_t
+	JNC_CDECL
+	compileSwitchCase(String source) {
+		return m_regex.compileSwitchCase(source >> toAxl);
 	}
 
 	bool
 	JNC_CDECL
-	compileSwitchCase(
-		uint_t flags,
-		String source
-	) {
-		return m_regex.compileSwitchCase(flags, source >> toAxl);
+	finalizeSwitch();
+
+	// serialization
+
+	size_t
+	JNC_CDECL
+	load(
+		DataPtr ptr,
+		size_t size
+	);
+
+	size_t
+	JNC_CDECL
+	save(StdBuffer* buffer_jnc) {
+		sl::Array<char> buffer_axl = m_regex.save();
+		return buffer_jnc->copy(buffer_axl.cp(), buffer_axl.getCount());
 	}
+
+	// execution
+
+	re2::ExecResult
+	JNC_CDECL
+	exec(
+		RegexState* state,
+		String chunk
+	);
+
+	re2::ExecResult
+	JNC_CDECL
+	execEof(
+		RegexState* state,
+		String lastChunk,
+		int eofChar
+	);
+
+	bool
+	JNC_CDECL
+	captureSubmatches(
+		uint64_t matchOffset,
+		String matchText,
+		DataPtr submatchArrayPtr,
+		size_t count
+	);
+
+	bool
+	JNC_CDECL
+	captureSwitchCaseSubmatches(
+		uint_t switchCaseId,
+		uint64_t matchOffset,
+		String matchText,
+		DataPtr submatchArrayPtr,
+		size_t count
+	);
 
 	void
 	JNC_CDECL
-	finalizeSwitch(uint_t flags)  {
-		m_regex.finalizeSwitch(flags);
-	}
+	init();
 
-	re::ExecResult
-	JNC_CDECL
-	exec_0(
-		RegexState* state,
-		String text
-	);
-
-	re::ExecResult
-	JNC_CDECL
-	exec_1(
-		RegexState* state,
-		DataPtr p,
-		size_t length
-	);
-
-	re::ExecResult
-	JNC_CDECL
-	eof(
-		RegexState* state,
-		bool isLastExecDataAvailable
-	);
+protected:
+	void
+	finalize();
 };
 
 //..............................................................................
