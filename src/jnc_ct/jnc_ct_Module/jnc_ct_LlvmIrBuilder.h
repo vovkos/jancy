@@ -162,7 +162,7 @@ public:
 	createSwitch(
 		const Value& value,
 		BasicBlock* defaultBlock,
-		sl::HashTableIterator<intptr_t, BasicBlock*> firstCase,
+		sl::HashTableIterator<int64_t, BasicBlock*> firstCase,
 		size_t caseCount
 	);
 
@@ -170,7 +170,7 @@ public:
 	createSwitch(
 		const Value& value,
 		BasicBlock* defaultBlock,
-		intptr_t* constArray,
+		int64_t* constArray,
 		BasicBlock** blockArray,
 		size_t caseCount
 	);

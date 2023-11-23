@@ -248,6 +248,8 @@ TypeMgr::getStdType(StdType stdType) {
 	case StdType_RegexCapture:
 	case StdType_RegexMatch:
 	case StdType_RegexState:
+	case StdType_RegexFlags:
+	case StdType_RegexExecFlags:
 	case StdType_Regex:
 	case StdType_Promise:
 	case StdType_Promisifier:

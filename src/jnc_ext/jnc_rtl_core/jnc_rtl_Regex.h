@@ -124,11 +124,17 @@ public:
 
 	void
 	JNC_CDECL
-	setEof(
+	setEofOffset(
 		uint64_t offset,
 		int eofChar
 	) {
-		m_state.setEof(offset, eofChar);
+		m_state.setEofOffset(offset, eofChar);
+	}
+
+	void
+	JNC_CDECL
+	setEof(int eofChar) {
+		m_state.setEof(eofChar);
 	}
 
 	void
@@ -266,7 +272,10 @@ public:
 
 	void
 	JNC_CDECL
-	init();
+	init() {
+		new (&m_regex) re2::Regex();
+		new (&m_switchCasePatternArray) sl::Array<String>();
+	}
 
 protected:
 	void
@@ -280,10 +289,16 @@ void
 Regex::finalize() {
 	m_regexKind = m_regex.getRegexKind();
 	m_flags = m_regex.getFlags();
-	m_captureCount = m_regex.getCaptureCount();
-	m_pattern = g_nullString;
-	m_switchCaseCount = m_regex.getSwitchCaseCount();
-	m_switchCasePatternArray.clear();
+
+	switch (m_regexKind) {
+	case re2::RegexKind_Single:
+		m_captureCount = m_regex.getCaptureCount();
+		break;
+
+	case re2::RegexKind_Switch:
+		m_switchCaseCount = m_regex.getSwitchCaseCount();
+		break;
+	}
 }
 
 //..............................................................................

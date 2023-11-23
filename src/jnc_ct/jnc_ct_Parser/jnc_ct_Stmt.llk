@@ -82,7 +82,7 @@ statement
 	|	expression_stmt
 	|	if_stmt
 	|	switch_stmt
-	|	reswitch_stmt
+	|	regex_switch_stmt
 	|	while_stmt
 	|	do_stmt
 	|	for_stmt
@@ -100,7 +100,7 @@ statement
 statement_sync
 	:	TokenKind_If
 	|	TokenKind_Switch
-	|	TokenKind_ReSwitch
+	|	TokenKind_RegexSwitch
 	|	TokenKind_While
 	|	TokenKind_Do
 	|	TokenKind_For
@@ -187,54 +187,53 @@ switch_block_stmt<SwitchStmt* $stmt>
 	|	local_declaration
 	;
 
-// to resolve a conflict between reswitch and switch in the form `switch (expr)`, we check the expression type
+// to resolve a conflict between regex switch and switch in the form `switch (expr)`, we check the expression type
 
-reswitch_stmt_rslv
+regex_switch_stmt_rslv
 	:	TokenKind_Switch '(' expression $e ',' $c?
 			{
-				return &$c || isReSwitchExpr($e.m_value);
+				return &$c || isRegexSwitchExpr($e.m_value);
 			}
 	;
 
-resolver(reswitch_stmt_rslv)
-reswitch_stmt
+resolver(regex_switch_stmt_rslv)
+regex_switch_stmt
 	local {
-		ReSwitchStmt $stmt;
+		RegexSwitchStmt $stmt;
 	}
 	enter {
-		m_module->m_controlFlowMgr.reSwitchStmt_Create(&$stmt);
+		m_module->m_controlFlowMgr.regexSwitchStmt_Create(&$stmt);
 	}
-	:	(TokenKind_ReSwitch | TokenKind_Switch) '(' expression $p1 (',' expression $p2 (',' expression $p3)?)? ')'
+	:	(TokenKind_RegexSwitch | TokenKind_Switch) '(' expression $p1 (',' expression $p2)? ')'
 		'{' $l
 			{
-				return m_module->m_controlFlowMgr.reSwitchStmt_Condition(
+				return m_module->m_controlFlowMgr.regexSwitchStmt_Condition(
 					&$stmt,
 					$p1.m_value,
 					&$p2 ? $p2.m_value : Value(),
-					&$p3 ? $p3.m_value : Value(),
 					$l.m_pos
 				);
 			}
-		reswitch_block_stmt_list<&$stmt>
+		regex_switch_block_stmt_list<&$stmt>
 			{
-				return m_module->m_controlFlowMgr.reSwitchStmt_Finalize(&$stmt);
+				return m_module->m_controlFlowMgr.regexSwitchStmt_Finalize(&$stmt);
 			}
 		'}'
 	;
 
 nullable
-reswitch_block_stmt_list<ReSwitchStmt* $stmt>
-	:	catch(switch_stmt_sync) reswitch_block_stmt<$stmt>*
+regex_switch_block_stmt_list<RegexSwitchStmt* $stmt>
+	:	catch(switch_stmt_sync) regex_switch_block_stmt<$stmt>*
 	;
 
-reswitch_block_stmt<ReSwitchStmt* $stmt>
-	:	TokenKind_Case reswitch_case_literal ':'
+regex_switch_block_stmt<RegexSwitchStmt* $stmt>
+	:	TokenKind_Case regex_switch_case_literal ':'
 			{
-				return m_module->m_controlFlowMgr.reSwitchStmt_Case($stmt, $2.m_data, $1.m_pos, $1.m_data.m_integer);
+				return m_module->m_controlFlowMgr.regexSwitchStmt_Case($stmt, $2.m_data, $1.m_pos, $1.m_data.m_integer);
 			}
 	|	TokenKind_Default ':'
 			{
-				return m_module->m_controlFlowMgr.reSwitchStmt_Default($stmt, $1.m_pos, $1.m_data.m_integer);
+				return m_module->m_controlFlowMgr.regexSwitchStmt_Default($stmt, $1.m_pos, $1.m_data.m_integer);
 			}
 	|	local_declaration
 	;
@@ -244,13 +243,13 @@ struct {
 	sl::StringRef m_data;
 }
 start
-reswitch_case_literal
+regex_switch_case_literal
 	local {
 		Value $value;
 	}
 	:	literal<&$value>
 			{
-				return finalizeReSwitchCaseLiteral(&$.m_data, $value, $1.m_literal.m_isZeroTerminated);
+				return finalizeRegexSwitchCaseLiteral(&$.m_data, $value, $1.m_literal.m_isZeroTerminated);
 			}
 	;
 

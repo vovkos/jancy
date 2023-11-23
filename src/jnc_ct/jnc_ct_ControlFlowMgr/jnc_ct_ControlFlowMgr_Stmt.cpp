@@ -98,13 +98,13 @@ ControlFlowMgr::switchStmt_Condition(
 bool
 ControlFlowMgr::switchStmt_Case(
 	SwitchStmt* stmt,
-	intptr_t value,
+	int64_t value,
 	const lex::LineCol& pos,
 	uint_t scopeFlags
 ) {
-	sl::HashTableIterator<intptr_t, BasicBlock*> it = stmt->m_caseMap.visit(value);
+	sl::HashTableIterator<int64_t, BasicBlock*> it = stmt->m_caseMap.visit(value);
 	if (it->m_value) {
-		err::setFormatStringError("redefinition of label (%d) of 'switch' statement", value);
+		err::setFormatStringError("redefinition of label (%lld) of 'switch' statement", value);
 		return false;
 	}
 
@@ -166,54 +166,63 @@ ControlFlowMgr::switchStmt_Follow(SwitchStmt* stmt) {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
-ControlFlowMgr::reSwitchStmt_Create(ReSwitchStmt* stmt) {
+ControlFlowMgr::regexSwitchStmt_Create(RegexSwitchStmt* stmt) {
 	stmt->m_switchBlock = NULL;
 	stmt->m_defaultBlock = NULL;
-	stmt->m_followBlock = createBlock("reswitch_follow");
+	stmt->m_followBlock = createBlock("regex_switch_follow");
 	stmt->m_regex.createSwitch();
 }
 
 bool
-ControlFlowMgr::reSwitchStmt_Condition(
-	ReSwitchStmt* stmt,
+ControlFlowMgr::regexSwitchStmt_Condition(
+	RegexSwitchStmt* stmt,
 	const Value& value1,
 	const Value& value2,
-	const Value& value3,
 	const lex::LineCol& pos
 ) {
 	ClassType* regexStateType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_RegexState);
-	ClassPtrType* regexStatePtrType = regexStateType->getClassPtrType(ClassPtrTypeKind_Normal, PtrTypeFlag_Safe);
-	Type* charPtrType = m_module->m_typeMgr.getStdType(StdType_CharConstPtr);
 
-	if (!value2) { // a single parameter; create a fresh-new state
-		bool result =
-			m_module->m_operatorMgr.newOperator(regexStateType, &stmt->m_regexStateValue) &&
-			m_module->m_operatorMgr.castOperator(value1, charPtrType, &stmt->m_dataValue);
+	bool result;
 
-		if (!result)
-			return false;
+	if (!value2) { // simple-mode -- one parameter (text); create a fresh-new regex-state
+		stmt->m_execMethodName = "execEof";
 
-		stmt->m_sizeValue.setConstSizeT(-1, m_module);
-	} else {
-		bool result =
-			m_module->m_operatorMgr.castOperator(value1, regexStatePtrType, &stmt->m_regexStateValue) &&
-			m_module->m_operatorMgr.castOperator(value2, charPtrType, &stmt->m_dataValue);
+		Type* flagsType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_RegexExecFlags);
+		sl::BoxList<Value> argValueList;
+		argValueList.insertTail(Value(re2::ExecFlag_FullMatch, flagsType));
 
-		if (!result)
-			return false;
+		result =
+			m_module->m_operatorMgr.newOperator(
+				regexStateType,
+				&argValueList,
+				&stmt->m_regexStateValue
+			) &&
+			m_module->m_operatorMgr.castOperator(
+				value1,
+				m_module->m_typeMgr.getPrimitiveType(TypeKind_String),
+				&stmt->m_textValue
+			);
+	} else { // streaming mode -- two parameters (state, text)
+		stmt->m_execMethodName = "exec";
 
-		if (!value3) {
-			stmt->m_sizeValue.setConstSizeT(-1, m_module);
-		} else {
-			result = m_module->m_operatorMgr.castOperator(value3, TypeKind_SizeT, &stmt->m_sizeValue);
-			if (!result)
-				return false;
-		}
+		result = m_module->m_operatorMgr.castOperator(
+			value1,
+			regexStateType->getClassPtrType(ClassPtrTypeKind_Normal, PtrTypeFlag_Safe),
+			&stmt->m_regexStateValue
+		) &&
+		m_module->m_operatorMgr.castOperator(
+			value1,
+			m_module->m_typeMgr.getPrimitiveType(TypeKind_String),
+			&stmt->m_textValue
+		);
 	}
+
+	if (!result)
+		return false;
 
 	stmt->m_switchBlock = getCurrentBlock();
 
-	BasicBlock* bodyBlock = createBlock("reswitch_body");
+	BasicBlock* bodyBlock = createBlock("regex_switch_body");
 	setCurrentBlock(bodyBlock);
 	markUnreachable(bodyBlock);
 
@@ -225,33 +234,33 @@ ControlFlowMgr::reSwitchStmt_Condition(
 }
 
 bool
-ControlFlowMgr::reSwitchStmt_Case(
-	ReSwitchStmt* stmt,
+ControlFlowMgr::regexSwitchStmt_Case(
+	RegexSwitchStmt* stmt,
 	const sl::StringRef& regexSource,
 	const lex::LineCol& pos,
 	uint_t scopeFlags
 ) {
 	m_module->m_namespaceMgr.closeScope();
 
-	BasicBlock* block = createBlock("reswitch_case");
+	BasicBlock* block = createBlock("regex_switch_case");
 	block->m_flags |= (stmt->m_switchBlock->m_flags & BasicBlockFlag_Reachable);
 	follow(block);
 
 	Scope* scope = m_module->m_namespaceMgr.openScope(pos);
 	scope->m_regexStateValue = &stmt->m_regexStateValue;
 
-	bool result = stmt->m_regex.compileSwitchCase(regexSource);
-	if (!result)
+	uint_t caseId = stmt->m_regex.compileSwitchCase(regexSource);
+	if (caseId == -1)
 		return false;
 
-	size_t caseId = stmt->m_caseMap.getCount();
+	stmt->m_caseMap.getCount();
 	stmt->m_caseMap[caseId] = block;
 	return true;
 }
 
 bool
-ControlFlowMgr::reSwitchStmt_Default(
-	ReSwitchStmt* stmt,
+ControlFlowMgr::regexSwitchStmt_Default(
+	RegexSwitchStmt* stmt,
 	const lex::LineCol& pos,
 	uint_t scopeFlags
 ) {
@@ -262,7 +271,7 @@ ControlFlowMgr::reSwitchStmt_Default(
 
 	m_module->m_namespaceMgr.closeScope();
 
-	BasicBlock* block = createBlock("reswitch_default");
+	BasicBlock* block = createBlock("regex_switch_default");
 	block->m_flags |= (stmt->m_switchBlock->m_flags & BasicBlockFlag_Reachable);
 	follow(block);
 	stmt->m_defaultBlock = block;
@@ -272,7 +281,7 @@ ControlFlowMgr::reSwitchStmt_Default(
 }
 
 bool
-ControlFlowMgr::reSwitchStmt_Finalize(ReSwitchStmt* stmt) {
+ControlFlowMgr::regexSwitchStmt_Finalize(RegexSwitchStmt* stmt) {
 	bool result;
 
 	m_module->m_namespaceMgr.closeScope();
@@ -300,35 +309,44 @@ ControlFlowMgr::reSwitchStmt_Finalize(ReSwitchStmt* stmt) {
 	// execute regex with the supplied state and data;
 	// on match, jump to the corresponding case-id
 
-	Value execValue;
+	Value execMethodValue;
 	Value execResultValue;
 	Value cmpResultValue;
+	Value matchValue;
 	Value caseIdValue;
 
 	BasicBlock* matchBlock = createBlock("regex_match");
 
 	result =
-		m_module->m_operatorMgr.memberOperator(regexVariable, "exec", &execValue) &&
+		m_module->m_operatorMgr.memberOperator(
+			regexVariable,
+			stmt->m_execMethodName,
+			&execMethodValue
+		) &&
 		m_module->m_operatorMgr.callOperator(
-			execValue,
+			execMethodValue,
 			stmt->m_regexStateValue,
-			stmt->m_dataValue,
-			stmt->m_sizeValue,
+			stmt->m_textValue,
 			&execResultValue
 		) &&
 		m_module->m_operatorMgr.binaryOperator(
-			BinOpKind_Gt,
+			BinOpKind_Eq,
 			execResultValue,
-			Value((int64_t)0, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int)),
+			Value((int64_t)re2::ExecResult_Match, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int)),
 			&cmpResultValue
 		) &&
 		conditionalJump(cmpResultValue, matchBlock, defaultBlock, matchBlock) &&
 		m_module->m_operatorMgr.memberOperator(
 			stmt->m_regexStateValue,
-			"m_matchAcceptId",
+			"m_match",
+			&matchValue
+		) &&
+		m_module->m_operatorMgr.memberOperator(
+			matchValue,
+			"m_id",
 			&caseIdValue
 		) &&
-		m_module->m_operatorMgr.getProperty(&caseIdValue);
+		m_module->m_operatorMgr.prepareOperand(&caseIdValue);
 
 	if (!result)
 		return false;

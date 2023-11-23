@@ -44,119 +44,119 @@ main := |*
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 (
-'import'          |
-'namespace'       |
-'extension'       |
-'dynamiclib'      |
-'using'           |
-'friend'          |
-'public'          |
-'protected'       |
-'pragma'          |
-'setas'           |
+	'import'          |
+	'namespace'       |
+	'extension'       |
+	'dynamiclib'      |
+	'using'           |
+	'friend'          |
+	'public'          |
+	'protected'       |
+	'pragma'          |
+	'setas'           |
 
-'typedef'         |
-'alias'           |
-'static'          |
-'threadlocal'     |
-'stack'           |
-'heap'            |
-'abstract'        |
-'virtual'         |
-'override'        |
-'mutable'         |
-'disposable'      |
+	'typedef'         |
+	'alias'           |
+	'static'          |
+	'threadlocal'     |
+	'stack'           |
+	'heap'            |
+	'abstract'        |
+	'virtual'         |
+	'override'        |
+	'mutable'         |
+	'disposable'      |
 
-'signed'          |
-'unsigned'        |
-'bigendian'       |
-'const'           |
-'cmut'            |
-'readonly'        |
-'volatile'        |
-'safe'            |
-'unsafe'          |
-'weak'            |
-'thin'            |
-'errorcode'       |
-'cdecl'           |
-'stdcall'         |
-'thiscall'        |
-'jnccall'         |
-'array'           |
-'function'        |
-'property'        |
-'bindable'        |
-'autoget'         |
-'indexed'         |
-'multicast'       |
-'event'           |
-'reactor'         |
-'async'           |
+	'signed'          |
+	'unsigned'        |
+	'bigendian'       |
+	'const'           |
+	'cmut'            |
+	'readonly'        |
+	'volatile'        |
+	'safe'            |
+	'unsafe'          |
+	'weak'            |
+	'thin'            |
+	'errorcode'       |
+	'cdecl'           |
+	'stdcall'         |
+	'thiscall'        |
+	'jnccall'         |
+	'array'           |
+	'function'        |
+	'property'        |
+	'bindable'        |
+	'autoget'         |
+	'indexed'         |
+	'multicast'       |
+	'event'           |
+	'reactor'         |
+	'async'           |
 
-'anydata'         |
-'void'            |
-'variant'         |
-'bool'            |
-'int'             |
-'intptr'          |
-'char'            |
-'short'           |
-'long'            |
-'float'           |
-'double'          |
-'enum'            |
-'struct'          |
-'union'           |
-'class'           |
-'opaque'          |
-'exposed'         |
-'bitflag'         |
+	'anydata'         |
+	'void'            |
+	'variant'         |
+	'bool'            |
+	'int'             |
+	'intptr'          |
+	'char'            |
+	'short'           |
+	'long'            |
+	'float'           |
+	'double'          |
+	'enum'            |
+	'bitflag' ws+ 'enum' |
+	'struct'          |
+	'union'           |
+	'class'           |
+	'opaque' ws+ 'class' |
 
-'get'             |
-'set'             |
-'construct'       |
-'destruct'        |
-'operator'        |
-'postfix'         |
+	'get'             |
+	'set'             |
+	'construct'       |
+	'destruct'        |
+	'operator'        |
+	'postfix' ws+ 'operator' |
 
-'if'              |
-'else'            |
-'for'             |
-'while'           |
-'do'              |
-'break'           |
-'break' [1-9]?    |
-'continue' [1-9]? |
-'return'          |
-'switch'          |
-'reswitch'        |
-'case'            |
-'default'         |
-'once'            |
-'onevent'         |
-'try'             |
-'throw'           |
-'catch'           |
-'finally'         |
-'nestedscope'     |
-'assert'          |
-'await'           |
+	'if'              |
+	'else'            |
+	'for'             |
+	'while'           |
+	'do'              |
+	'break'           |
+	'break' [1-9]?    |
+	'continue' [1-9]? |
+	'return'          |
+	'switch'          |
+	'reswitch'        |
+	'regex' ws+ 'switch' |
+	'case'            |
+	'default'         |
+	'once'            |
+	'onevent'         |
+	'try'             |
+	'throw'           |
+	'catch'           |
+	'finally'         |
+	'nestedscope'     |
+	'assert'          |
+	'await'           |
 
-'basetype' [1-9]? |
-'this'            |
-'true'            |
-'false'           |
-'null'            |
+	'basetype' [1-9]? |
+	'this'            |
+	'true'            |
+	'false'           |
+	'null'            |
 
-'new'             |
-'delete'          |
-'sizeof'          |
-'countof'         |
-'offsetof'        |
-'typeof'          |
-'bindingof'       |
-'dynamic'
+	'new'             |
+	'delete'          |
+	'sizeof'          |
+	'countof'         |
+	'offsetof'        |
+	'typeof'          |
+	'bindingof'       |
+	'dynamic'
 )                 { highlightLastToken(EditTheme::Keyword); };
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -164,19 +164,19 @@ main := |*
 id                ;
 
 (
-lit_dq            |
-lit_sq            |
-[rR] raw_lit_sq   |
-[rR] raw_lit_dq   |
-dec+              |
-'0' oct+          |
-'0' [xX] hex+     |
-'0' [oO] oct+     |
-'0' [bB] bin+     |
-'0' [nNdD] dec+   |
-'0' [xXoObBnNdD] raw_lit_dq |
-(dec+ '.' dec* | '.' dec+)exp? | dec+ exp |
-[$fF] lit_dq
+	lit_dq            |
+	lit_sq            |
+	[rR] raw_lit_sq   |
+	[rR] raw_lit_dq   |
+	dec+              |
+	'0' oct+          |
+	'0' [xX] hex+     |
+	'0' [oO] oct+     |
+	'0' [bB] bin+     |
+	'0' [nNdD] dec+   |
+	'0' [xXoObBnNdD] raw_lit_dq |
+	(dec+ '.' dec* | '.' dec+)exp? | dec+ exp |
+	[$fF] lit_dq
 )                 { highlightLastToken(EditTheme::Constant); };
 
 (('0' [xXoObBnNdD]) | [$fF])? '"""'

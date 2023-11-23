@@ -304,10 +304,11 @@ protected:
 	isTypeSpecified();
 
 	bool
-	isReSwitchExpr(const Value& e) {
+	isRegexSwitchExpr(const Value& e) {
 		Value typeValue;
 		return
 			m_module->m_operatorMgr.prepareOperandType(e, &typeValue) &&
+			typeValue.getType()->getTypeKind() == TypeKind_String ||
 			isCharPtrType(typeValue.getType());
 	}
 
@@ -641,7 +642,7 @@ protected:
 	);
 
 	bool
-	finalizeReSwitchCaseLiteral(
+	finalizeRegexSwitchCaseLiteral(
 		sl::StringRef* data,
 		const Value& value,
 		bool isZeroTerminated

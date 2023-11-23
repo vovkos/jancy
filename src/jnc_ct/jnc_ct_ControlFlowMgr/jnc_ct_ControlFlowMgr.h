@@ -41,21 +41,21 @@ struct SwitchStmt {
 	BasicBlock* m_switchBlock;
 	BasicBlock* m_defaultBlock;
 	BasicBlock* m_followBlock;
-	sl::SimpleHashTable<intptr_t, BasicBlock*> m_caseMap;
+	sl::SimpleHashTable<int64_t, BasicBlock*> m_caseMap;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ReSwitchStmt {
-	Value m_regexStateValue;
-	Value m_dataValue;
-	Value m_sizeValue;
+struct RegexSwitchStmt {
+	Value m_regexStateValue; // jnc.RegexState*
+	Value m_textValue;       // string_t
 
+	sl::StringRef m_execMethodName;
 	re2::Regex m_regex;
 	BasicBlock* m_switchBlock;
 	BasicBlock* m_defaultBlock;
 	BasicBlock* m_followBlock;
-	sl::SimpleHashTable<intptr_t, BasicBlock*> m_caseMap;
+	sl::SimpleHashTable<int64_t, BasicBlock*> m_caseMap;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -330,7 +330,7 @@ public:
 	bool
 	switchStmt_Case(
 		SwitchStmt* stmt,
-		intptr_t value,
+		int64_t value,
 		const lex::LineCol& pos,
 		uint_t scopeFlags
 	);
@@ -348,34 +348,33 @@ public:
 	// regex switch stmt
 
 	void
-	reSwitchStmt_Create(ReSwitchStmt* stmt);
+	regexSwitchStmt_Create(RegexSwitchStmt* stmt);
 
 	bool
-	reSwitchStmt_Condition(
-		ReSwitchStmt* stmt,
+	regexSwitchStmt_Condition(
+		RegexSwitchStmt* stmt,
 		const Value& value1,
 		const Value& value2,
-		const Value& value3,
 		const lex::LineCol& pos
 	);
 
 	bool
-	reSwitchStmt_Case(
-		ReSwitchStmt* stmt,
+	regexSwitchStmt_Case(
+		RegexSwitchStmt* stmt,
 		const sl::StringRef& regexSource,
 		const lex::LineCol& pos,
 		uint_t scopeFlags
 	);
 
 	bool
-	reSwitchStmt_Default(
-		ReSwitchStmt* stmt,
+	regexSwitchStmt_Default(
+		RegexSwitchStmt* stmt,
 		const lex::LineCol& pos,
 		uint_t scopeFlags
 	);
 
 	bool
-	reSwitchStmt_Finalize(ReSwitchStmt* stmt);
+	regexSwitchStmt_Finalize(RegexSwitchStmt* stmt);
 
 	// while stmt
 

@@ -66,6 +66,8 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(RegexState)
 	JNC_MAP_CONST_PROPERTY("m_eofChar", &RegexState::getEofChar)
 	JNC_MAP_CONST_PROPERTY("m_match", &RegexState::getMatch)
 	JNC_MAP_FUNCTION("reset", &RegexState::reset)
+	JNC_MAP_FUNCTION("setEofOffset", &RegexState::setEofOffset)
+	JNC_MAP_FUNCTION("setEof", &RegexState::setEof)
 	JNC_MAP_FUNCTION("init", &RegexState::init)
 JNC_END_TYPE_FUNCTION_MAP()
 
@@ -282,13 +284,6 @@ Regex::execEof(
 	state->m_match = NULL;
 	state->m_lastChunk = lastChunk;
 	return m_regex.execEof(&state->m_state, lastChunk >> toAxl, eofChar);
-}
-
-void
-JNC_CDECL
-Regex::init() {
-	new (&m_regex) Regex();
-	new (&m_switchCasePatternArray) sl::Array<String>();
 }
 
 bool

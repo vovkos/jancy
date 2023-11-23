@@ -134,7 +134,7 @@ enum TokenKind {
 	TokenKind_Continue,
 	TokenKind_Return,
 	TokenKind_Switch,
-	TokenKind_ReSwitch,
+	TokenKind_RegexSwitch,
 	TokenKind_Case,
 	TokenKind_Default,
 	TokenKind_Once,
@@ -331,7 +331,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP(TokenName)
 	AXL_LEX_TOKEN_NAME(TokenKind_Continue,     "continue")
 	AXL_LEX_TOKEN_NAME(TokenKind_Return,       "return")
 	AXL_LEX_TOKEN_NAME(TokenKind_Switch,       "switch")
-	AXL_LEX_TOKEN_NAME(TokenKind_ReSwitch,     "reswitch")
+	AXL_LEX_TOKEN_NAME(TokenKind_RegexSwitch,  "regex switch")
 	AXL_LEX_TOKEN_NAME(TokenKind_Case,         "case")
 	AXL_LEX_TOKEN_NAME(TokenKind_Default,      "default")
 	AXL_LEX_TOKEN_NAME(TokenKind_Once,         "once")

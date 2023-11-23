@@ -28,9 +28,9 @@ enum RegexExecResult {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bitflag enum RegexExecFlags {
-	AnchorStart        = 0x01, // RE2::SM::kAnchorStart or RE2::ANCHOR_START
-	FullMatch          = 0x02, // RE2::SM::kFullMatch   or RE2::ANCHOR_BOTH
-	MatchEndOffsetOnly = 0x04, // RE2::SM::kMatchEndOffsetOnly
+	Anchored      = 0x01, // RE2::SM::kAnchored or RE2::ANCHOR_START
+	FullMatch     = 0x02, // RE2::SM::kFullMatch or RE2::ANCHOR_BOTH
+	EndOffsetOnly = 0x04, // RE2::SM::kEndOffsetOnly
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -50,7 +50,7 @@ opaque class RegexCapture {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class RegexMatch: RegexCapture {
+class RegexMatch: RegexCapture {
 	uint_t readonly m_id;
 }
 
@@ -63,10 +63,10 @@ opaque class RegexState {
 	uint64_t const property m_eofOffset;
 	int const property m_eofChar;
 
-	RegexMatch const* m_match;
+	RegexMatch const* const property m_match;
 
 	construct(RegexExecFlags flags = 0) {
-		init(anchor, 0, RegexEofChar, -1, RegexEofChar);
+		init(flags, 0, RegexEofChar, -1, RegexEofChar);
 	}
 
 	construct(
@@ -76,7 +76,7 @@ opaque class RegexState {
 		uint64_t eofOffset = -1,
 		int eofChar = RegexEofChar
 	) {
-		init(anchor, baseOffset, baseChar, eofOffset, eofChar);
+		init(flags, baseOffset, baseChar, eofOffset, eofChar);
 	}
 
 	void destruct();
@@ -93,10 +93,12 @@ opaque class RegexState {
 		reset(flags, 0, RegexEofChar, -1, RegexEofChar);
 	}
 
-	void setEof(
+	void setEofOffset(
 		uint64_t offset,
 		int eofChar = EofChar
 	);
+
+	void setEof(int eofChar = EofChar);
 
 protected:
 	void init(
@@ -110,18 +112,18 @@ protected:
 
 //..............................................................................
 
-bitflag enum RegexFlags {
-	OneLine         = 0x10, // RE2::Options.one_line -> true (otherwise, false)
-	Latin1          = 0x20, // RE2::Options.encoding -> EncodingLatin1 (otherwise, UTF8)
-	CaseInsensitive = 0x40, // RE2::Options.case_sensitive -> (otherwise, false)
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 enum RegexKind {
 	Undefined, // RE2::SM::kUninitialized
 	Single,	   // RE2::SM::kSingleRegexp
 	Switch,	   // RE2::SM::kRegexpSwitch
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum RegexFlags {
+	OneLine         = 0x10, // RE2::Options.one_line -> true (otherwise, false)
+	Latin1          = 0x20, // RE2::Options.encoding -> EncodingLatin1 (otherwise, UTF8)
+	CaseInsensitive = 0x40, // RE2::Options.case_sensitive -> (otherwise, false)
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

@@ -2932,7 +2932,7 @@ Parser::appendFmtLiteralBinValue(
 }
 
 bool
-Parser::finalizeReSwitchCaseLiteral(
+Parser::finalizeRegexSwitchCaseLiteral(
 	sl::StringRef* data,
 	const Value& value,
 	bool isZeroTerminated
