@@ -78,10 +78,10 @@ public:
 	JNC_CDECL
 	markOpaqueGcRoots(GcHeap* gcHeap);
 
-	re2::Anchor
+	uint_t
 	JNC_CDECL
-	getAnchor() {
-		return m_state.getAnchor();
+	getExecFlags() {
+		return m_state.getExecFlags();
 	}
 
 	uint64_t
@@ -90,16 +90,16 @@ public:
 		return m_state.getBaseOffset();
 	}
 
-	uint64_t
-	JNC_CDECL
-	getEofOffset() {
-		return m_state.getEofOffset();
-	}
-
 	int
 	JNC_CDECL
 	getBaseChar() {
 		return m_state.getBaseChar();
+	}
+
+	uint64_t
+	JNC_CDECL
+	getEofOffset() {
+		return m_state.getEofOffset();
 	}
 
 	int
@@ -115,7 +115,7 @@ public:
 	void
 	JNC_CDECL
 	reset(
-		re2::Anchor anchor,
+		uint_t execFlags,
 		uint64_t baseOffset,
 		int baseChar,
 		uint64_t eofOffset,
@@ -134,13 +134,13 @@ public:
 	void
 	JNC_CDECL
 	init(
-		re2::Anchor anchor,
+		uint_t execFlags,
 		uint64_t baseOffset,
 		int baseChar,
 		uint64_t eofOffset,
 		int eofChar
 	) {
-		new (&m_state) re2::State(anchor, baseOffset, baseChar, eofOffset, eofChar);
+		new (&m_state) re2::State(execFlags, baseOffset, baseChar, eofOffset, eofChar);
 	}
 };
 
@@ -151,17 +151,36 @@ public:
 	re2::RegexKind m_regexKind;
 	uint_t m_flags;
 	size_t m_captureCount;
-	String m_pattern;
 	size_t m_switchCaseCount;
 
 protected:
 	re2::Regex m_regex;
+	String m_pattern;
 	sl::Array<String> m_switchCasePatternArray;
 
 public:
 	void
 	JNC_CDECL
 	markOpaqueGcRoots(GcHeap* gcHeap);
+
+	static
+	String
+	JNC_CDECL
+	getPattern(Regex* self);
+
+	static
+	String
+	JNC_CDECL
+	getSwitchCasePattern(
+		Regex* self,
+		uint_t id
+	);
+
+	size_t
+	JNC_CDECL
+	getSwitchCaseCaptureCount(uint_t id) {
+		return m_regex.getSwitchCaseCaptureCount(id);
+	}
 
 	// compilation
 
@@ -253,6 +272,19 @@ protected:
 	void
 	finalize();
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+void
+Regex::finalize() {
+	m_regexKind = m_regex.getRegexKind();
+	m_flags = m_regex.getFlags();
+	m_captureCount = m_regex.getCaptureCount();
+	m_pattern = g_nullString;
+	m_switchCaseCount = m_regex.getSwitchCaseCount();
+	m_switchCasePatternArray.clear();
+}
 
 //..............................................................................
 

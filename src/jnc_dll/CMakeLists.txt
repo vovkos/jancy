@@ -19,6 +19,7 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 link_directories(
 	${LLVM_LIB_DIR}
 	${OPENSSL_LIB_DIR}
+	${RE2S_LIB_DIR}
 	${AXL_LIB_DIR}
 )
 
@@ -80,6 +81,7 @@ target_link_libraries(
 	axl_lex
 	axl_dox
 	axl_core
+	re2
 )
 
 if(WIN32)

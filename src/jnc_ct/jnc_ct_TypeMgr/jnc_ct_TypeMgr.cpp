@@ -245,6 +245,7 @@ TypeMgr::getStdType(StdType stdType) {
 
 	case StdType_GcTriggers:
 	case StdType_GcStats:
+	case StdType_RegexCapture:
 	case StdType_RegexMatch:
 	case StdType_RegexState:
 	case StdType_Regex:

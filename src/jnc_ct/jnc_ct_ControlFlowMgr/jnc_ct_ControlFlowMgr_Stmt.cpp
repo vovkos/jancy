@@ -279,7 +279,7 @@ ControlFlowMgr::reSwitchStmt_Finalize(ReSwitchStmt* stmt) {
 	m_module->m_namespaceMgr.closeScope();
 	follow(stmt->m_followBlock);
 
-	if (stmt->m_regex.isEmpty()) {
+	if (!stmt->m_regex.getSwitchCaseCount()) {
 		err::setError("empty regex switch");
 		return false;
 	}

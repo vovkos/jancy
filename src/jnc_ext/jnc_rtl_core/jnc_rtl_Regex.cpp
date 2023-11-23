@@ -59,12 +59,12 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(RegexState)
 	JNC_MAP_DESTRUCTOR(&jnc::destruct<RegexState>)
-	JNC_MAP_CONST_PROPERTY("m_anchor", &RegexState::getAnchor)
+	JNC_MAP_CONST_PROPERTY("m_execFlags", &RegexState::getExecFlags)
 	JNC_MAP_CONST_PROPERTY("m_baseOffset", &RegexState::getBaseOffset)
-	JNC_MAP_CONST_PROPERTY("m_eofOffset", &RegexState::getEofOffset)
-	JNC_MAP_CONST_PROPERTY("m_match", &RegexState::getMatch)
 	JNC_MAP_CONST_PROPERTY("m_baseChar", &RegexState::getBaseChar)
+	JNC_MAP_CONST_PROPERTY("m_eofOffset", &RegexState::getEofOffset)
 	JNC_MAP_CONST_PROPERTY("m_eofChar", &RegexState::getEofChar)
+	JNC_MAP_CONST_PROPERTY("m_match", &RegexState::getMatch)
 	JNC_MAP_FUNCTION("reset", &RegexState::reset)
 	JNC_MAP_FUNCTION("init", &RegexState::init)
 JNC_END_TYPE_FUNCTION_MAP()
@@ -154,13 +154,13 @@ RegexState::getMatch() {
 void
 JNC_CDECL
 RegexState::reset(
-	re2::Anchor anchor,
+	uint_t execFlags,
 	uint64_t baseOffset,
 	int baseChar,
 	uint64_t eofOffset,
 	int eofChar
 ) {
-	m_state.reset(anchor, baseOffset, baseChar, eofOffset, eofChar);
+	m_state.reset(execFlags, baseOffset, baseChar, eofOffset, eofChar);
 	m_match = NULL;
 	m_lastChunk = g_nullString;
 }
@@ -170,9 +170,40 @@ RegexState::reset(
 void
 JNC_CDECL
 Regex::markOpaqueGcRoots(GcHeap* gcHeap) {
+	gcHeap->markString(m_pattern);
+
 	size_t count = m_switchCasePatternArray.getCount();
 	for (size_t i = 0; i < count; i++)
 		gcHeap->markString(m_switchCasePatternArray[i]);
+}
+
+String
+JNC_CDECL
+Regex::getPattern(Regex* self) {
+	return self->m_pattern.m_length ?
+		self->m_pattern :
+		self->m_pattern = allocateString(self->m_regex.getPattern());
+}
+
+String
+JNC_CDECL
+Regex::getSwitchCasePattern(
+	Regex* self,
+	uint_t id
+) {
+	size_t count = self->m_regex.getSwitchCaseCount();
+	ASSERT(count == self->m_switchCaseCount);
+
+	if (id > count)
+		return g_nullString;
+
+	if (self->m_switchCasePatternArray.isEmpty())
+		self->m_switchCasePatternArray.setCount(count);
+
+	if (!self->m_switchCasePatternArray[id].m_length)
+		self->m_switchCasePatternArray[id] = allocateString(self->m_regex.getSwitchCasePattern(id));
+
+	return self->m_switchCasePatternArray[id];
 }
 
 void
@@ -222,12 +253,12 @@ Regex::load(
 ) {
 	clear();
 
-	size_t size = m_regex.load(ptr.m_p, size);
-	if (size == -1)
+	size_t result = m_regex.load(ptr.m_p, size);
+	if (result == -1)
 		return -1;
 
 	finalize();
-	return size;
+	return result;
 }
 
 re2::ExecResult
@@ -260,17 +291,28 @@ Regex::init() {
 	new (&m_switchCasePatternArray) sl::Array<String>();
 }
 
-/*
-void
-Regex::finalize() {
-	m_regexKind = m_regex.getRegexKind();
-	m_flags = m_regex.getFlags();
-	m_captureCount = m_regex.getCaptureCount();
-	m_pattern = m_regex.getPattern();
-	m_switchCaseCount = m_regex.getSwitchCaseCount();
-	m_switchCasePatternArray.clear();
+bool
+JNC_CDECL
+Regex::captureSubmatches(
+	uint64_t matchOffset,
+	String matchText,
+	DataPtr submatchArrayPtr,
+	size_t count
+) {
+	return true;
 }
-*/
+
+bool
+JNC_CDECL
+Regex::captureSwitchCaseSubmatches(
+	uint_t switchCaseId,
+	uint64_t matchOffset,
+	String matchText,
+	DataPtr submatchArrayPtr,
+	size_t count
+) {
+	return true;
+}
 
 //..............................................................................
 

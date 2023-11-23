@@ -173,7 +173,7 @@ size_t appendFmtLiteral_s(
 size_t appendFmtLiteral_re(
 	FmtLiteral thin* fmtLiteral,
 	char const thin* fmtSpecifier,
-	jnc.RegexMatch const* match
+	jnc.RegexCapture const* capture
 );
 
 ///; static char tryCheckDataPtrRangeDirectSrc[] =

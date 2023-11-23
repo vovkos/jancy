@@ -167,6 +167,21 @@ isClassPtrType(
 		((ClassPtrType*)type)->getTargetType()->cmp(classType) == 0;
 }
 
+JNC_INLINE
+bool
+isDerivedClassPtrType(
+	Type* type,
+	ClassType* classType
+) {
+	if (!(type->getTypeKindFlags() & TypeKindFlag_ClassPtr))
+		return false;
+
+	ClassType* targetType = ((ClassPtrType*)type)->getTargetType();
+	return
+		targetType->cmp(classType) == 0 ||
+		targetType->findBaseTypeTraverse(classType) == 0;
+}
+
 //..............................................................................
 
 } // namespace ct

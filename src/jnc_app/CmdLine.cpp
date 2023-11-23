@@ -311,7 +311,7 @@ CmdLineParser::scanSourceDirs() {
 
 			if ((memcmp(suffix, jncSuffix, SuffixLength) == 0 ||
 				isDoc && memcmp(suffix, doxSuffix, SuffixLength) == 0)) {
-				if (!excludeRegex.isEmpty() && excludeRegex.exec(filePath)) {
+				if (excludeRegex && excludeRegex.exec(filePath)) {
 					printf("excluding: %s\n", filePath.sz());
 					continue;
 				}

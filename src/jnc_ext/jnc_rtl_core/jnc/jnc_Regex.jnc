@@ -16,7 +16,7 @@ namespace jnc {
 
 //..............................................................................
 
-enum ExecResult {
+enum RegexExecResult {
 	ErrorInconsistent = -2, // RE2::SM::ErrorInconsistent - reverse scan couldn't find a match (inconsistent data)
 	ErrorOutOfMemory  = -1, // RE2::SM::ErrorOutOfMemory  - DFA run out-of-memory
 	Mismatch          = 0,  // RE2::SM::Mismatch          - match can't be found
@@ -27,10 +27,10 @@ enum ExecResult {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum Anchor {
-	None      = 0, // RE2::UNANCHORED
-	Start     = 1, // RE2::ANCHOR_START
-	FullMatch = 2, // RE2::ANCHOR_BOTH
+bitflag enum RegexExecFlags {
+	AnchorStart        = 0x01, // RE2::SM::kAnchorStart or RE2::ANCHOR_START
+	FullMatch          = 0x02, // RE2::SM::kFullMatch   or RE2::ANCHOR_BOTH
+	MatchEndOffsetOnly = 0x04, // RE2::SM::kMatchEndOffsetOnly
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -57,31 +57,23 @@ opaque class RegexMatch: RegexCapture {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 opaque class RegexState {
-	Anchor const property m_anchor;
+	RegexExecFlags const property m_execFlags;
 	uint64_t const property m_baseOffset;
-	uint64_t const property m_eofOffset;
 	int const property m_baseChar;
+	uint64_t const property m_eofOffset;
 	int const property m_eofChar;
 
 	RegexMatch const* m_match;
 
-	construct(Anchor anchor = Anchor_None) {
+	construct(RegexExecFlags flags = 0) {
 		init(anchor, 0, RegexEofChar, -1, RegexEofChar);
 	}
 
 	construct(
-		Anchor anchor,
-		uint64_t baseOffset,
-		int baseChar
-	) {
-		init(anchor, baseOffset, baseChar, -1, RegexEofChar);
-	}
-
-	construct(
-		Anchor anchor,
+		RegexExecFlags flags,
 		uint64_t baseOffset,
 		int baseChar,
-		uint64_t eofOffset,
+		uint64_t eofOffset = -1,
 		int eofChar = RegexEofChar
 	) {
 		init(anchor, baseOffset, baseChar, eofOffset, eofChar);
@@ -90,23 +82,15 @@ opaque class RegexState {
 	void destruct();
 
 	void reset(
-		Anchor anchor,
+		RegexExecFlags flags,
 		uint64_t baseOffset,
 		int baseChar,
 		uint64_t eofOffset,
 		int eofChar = RegexEofChar
 	);
 
-	void reset(Anchor anchor = Anchor_None) {
-		reset(anchor, 0, RegexEofChar, -1, RegexEofChar);
-	}
-
-	void reset(
-		Anchor anchor,
-		uint64_t baseOffset,
-		int baseChar
-	) {
-		reset(anchor, baseOffset, baseChar, -1, EofChar);
+	void reset(RegexExecFlags flags = 0) {
+		reset(flags, 0, RegexEofChar, -1, RegexEofChar);
 	}
 
 	void setEof(
@@ -116,7 +100,7 @@ opaque class RegexState {
 
 protected:
 	void init(
-		Anchor anchor,
+		RegexExecFlags flags,
 		uint64_t baseOffset,
 		int baseChar,
 		uint64_t eofOffset,
@@ -127,9 +111,9 @@ protected:
 //..............................................................................
 
 bitflag enum RegexFlags {
-	OneLine,         // R2::Options.one_line -> true (otherwise, false)
-	Latin1,			 // R2::Options.encoding -> EncodingLatin1 (otherwise, UTF8)
-	CaseInsensitive, // R2::Options.case_sensitive -> (otherwise, false)
+	OneLine         = 0x10, // RE2::Options.one_line -> true (otherwise, false)
+	Latin1          = 0x20, // RE2::Options.encoding -> EncodingLatin1 (otherwise, UTF8)
+	CaseInsensitive = 0x40, // RE2::Options.case_sensitive -> (otherwise, false)
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -145,11 +129,11 @@ enum RegexKind {
 opaque class Regex {
 	RegexKind readonly m_regexKind;
 	RegexFlags readonly m_flags;
+	string_t const property m_pattern;
 	size_t readonly m_captureCount;
-	string_t readonly m_pattern;
 	size_t readonly m_switchCaseCount;
-	size_t const property m_switchCaseCaptureCount(uint_t id);
 	string_t const property m_switchCasePattern(uint_t id);
+	size_t const property m_switchCaseCaptureCount(uint_t id);
 
 	construct() {
 		init();
@@ -175,7 +159,7 @@ opaque class Regex {
 	void clear();
 
 	bool errorcode compile(
-		uint_t flags,
+		RegexFlags flags,
 		string_t source
 	);
 
@@ -183,7 +167,7 @@ opaque class Regex {
 		return compile(0, source);
 	}
 
-	void createSwitch(uint_t flags = 0);
+	void createSwitch(RegexFlags flags = 0);
 	uint_t errorcode compileSwitchCase(string_t source);
 	bool errorcode finalizeSwitch();
 
@@ -214,10 +198,10 @@ opaque class Regex {
 	}
 
 	RegexMatch const* exec(
-		RegexAnchor anchor,
+		RegexExecFlags flags,
 		string_t text
 	) const {
-		RegexState state(anchor);
+		RegexState state(flags);
 		execEof(state, text);
 		return state.m_match;
 	}
@@ -247,7 +231,12 @@ opaque class Regex {
 		RegexCapture* submatchArray,
 		size_t count
 	) const {
-		return captureSubmatches();
+		return captureSubmatches(
+			match.m_offset,
+			match.m_text,
+			submatchArray,
+			count
+		);
 	}
 
 	bool errorcode captureSwitchCaseSubmatches(
@@ -263,7 +252,15 @@ opaque class Regex {
 		RegexCapture const* match,
 		RegexCapture* submatchArray,
 		size_t count
-	) const;
+	) const {
+		return captureSwitchCaseSubmatches(
+			switchCaseId,
+			match.m_offset,
+			match.m_text,
+			submatchArray,
+			count
+		);
+	}
 
 protected:
 	void

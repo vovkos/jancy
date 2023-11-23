@@ -103,7 +103,10 @@ include_directories(
 	${GEN_DIR}
 )
 
-link_directories(${AXL_LIB_DIR})
+link_directories(
+	${RE2S_LIB_DIR}
+	${AXL_LIB_DIR}
+)
 
 if(BUILD_JNC_DLL)
 	link_directories(
@@ -170,6 +173,7 @@ target_link_libraries(
 	axl_lex
 	axl_mem_new
 	axl_core
+	re2
 )
 
 if(WIN32)
