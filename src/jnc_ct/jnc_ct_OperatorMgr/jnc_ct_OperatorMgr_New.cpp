@@ -285,7 +285,7 @@ OperatorMgr::parseFunctionArgDefaultValue(
 	const sl::List<Token>& tokenList,
 	Value* resultValue
 ) {
-	Parser parser(m_module, decl->getPragmaSettings(), Parser::Mode_Compile);
+	Parser parser(m_module, decl->getPragmaConfig(), Parser::Mode_Compile);
 	m_module->m_namespaceMgr.openNamespace(decl->getParentNamespace());
 	m_module->m_namespaceMgr.lockSourcePos();
 

@@ -126,7 +126,7 @@ if_stmt
 		IfStmt $stmt;
 	}
 	enter {
-		m_module->m_controlFlowMgr.ifStmt_Create(&$stmt);
+		m_module->m_controlFlowMgr.ifStmt_Create(&$stmt, popAttributeBlock());
 	}
 	:	TokenKind_If '(' expression $e ')' $a
 			{
@@ -202,7 +202,7 @@ regex_switch_stmt
 		RegexSwitchStmt $stmt;
 	}
 	enter {
-		m_module->m_controlFlowMgr.regexSwitchStmt_Create(&$stmt);
+		m_module->m_controlFlowMgr.regexSwitchStmt_Create(&$stmt, popAttributeBlock());
 	}
 	:	(TokenKind_RegexSwitch | TokenKind_Switch) '(' expression $p1 (',' expression $p2)? ')'
 		'{' $l
@@ -258,7 +258,7 @@ while_stmt
 		WhileStmt $stmt;
 	}
 	enter {
-		m_module->m_controlFlowMgr.whileStmt_Create(&$stmt);
+		m_module->m_controlFlowMgr.whileStmt_Create(&$stmt, popAttributeBlock());
 	}
 	:	TokenKind_While '(' expression $e ')' $a
 			{
@@ -296,7 +296,7 @@ for_stmt
 		ForStmt $stmt;
 	}
 	enter {
-		m_module->m_controlFlowMgr.forStmt_Create(&$stmt);
+		m_module->m_controlFlowMgr.forStmt_Create(&$stmt, popAttributeBlock());
 	}
 	:	TokenKind_For '('
 			{

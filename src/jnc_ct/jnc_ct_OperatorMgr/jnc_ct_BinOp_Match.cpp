@@ -37,12 +37,14 @@ BinOp_Match::op(
 	if (!result)
 		return false;
 
+	RegexCondStmt* regexCondStmt = m_module->m_controlFlowMgr.getRegexCondStmt();
+
 	Value regexValue;
-	Value execValue;
+	uint_t regexFlags = regexCondStmt ? regexCondStmt->m_regexFlags : 0;
 
 	if (opValue2.getValueKind() == ValueKind_Const) { // can compile and save regex now
 		re2::Regex regex;
-		result = regex.compile(*(char**)opValue2.getConstData());
+		result = regex.compile(*(char**)opValue2.getConstData(), regexFlags);
 		if (!result)
 			return false;
 
@@ -52,13 +54,13 @@ BinOp_Match::op(
 
 		regexValue.setVariable(regexVariable);
 	} else {
-		Value compileValue;
-		Value compileResultValue;
-
 		BasicBlock* throwBlock = m_module->m_controlFlowMgr.createBlock("throw_block");
 		BasicBlock* followBlock = m_module->m_controlFlowMgr.createBlock("follow_block");
 
 		ClassType* regexType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_Regex);
+
+		Value compileValue;
+		Value compileResultValue;
 
 		result =
 			m_module->m_operatorMgr.newOperator(regexType, &regexValue) &&
@@ -73,20 +75,27 @@ BinOp_Match::op(
 		m_module->m_controlFlowMgr.setCurrentBlock(followBlock);
 	}
 
+	ClassType* stateType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_RegexState);
+	Type* flagsType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_RegexExecFlags);
+	sl::BoxList<Value> argValueList;
+	argValueList.insertTail(Value(regexFlags, flagsType));
+
+	Value stateValue;
+	Value execValue;
+	Value execResultValue;
+	Value matchConstValue((int64_t)re2::ExecResult_Match, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int));
+
 	result =
-		m_module->m_operatorMgr.memberOperator(regexValue, "exec", &execValue) &&
-		m_module->m_operatorMgr.callOperator(
-			execValue,
-			opValue1,
-			resultValue
-		);
+		m_module->m_operatorMgr.newOperator(stateType, &argValueList, &stateValue) &&
+		m_module->m_operatorMgr.memberOperator(regexValue, "execEof", &execValue) &&
+		m_module->m_operatorMgr.callOperator(execValue, stateValue, opValue1, &execResultValue) &&
+		m_module->m_operatorMgr.binaryOperator(BinOpKind_Eq, execResultValue, matchConstValue, resultValue);
 
 	if (!result)
 		return false;
 
-	ScopedCondStmt* scopedCondStmt = m_module->m_controlFlowMgr.getScopedCondStmt();
-	if (scopedCondStmt)
-		scopedCondStmt->m_regexStateValue = *resultValue;
+	if (regexCondStmt)
+		regexCondStmt->m_regexStateValue = stateValue;
 
 	return true;
 }

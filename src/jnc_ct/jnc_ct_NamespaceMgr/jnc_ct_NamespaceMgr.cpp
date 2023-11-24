@@ -151,13 +151,14 @@ NamespaceMgr::addStdItems() {
 		jncNspace->addItem("createDataPtr", dataPtrImport) &&
 		jncNspace->addItem("resetDynamicLayout", dataPtrImport) &&
 		jncNspace->addItem("Scheduler", schedulerImport) &&
-		jncNspace->addItem("RegexMatch", regexImport) &&
-		jncNspace->addItem("RegexComplileFlags", regexImport) &&
-		jncNspace->addItem("RegexExecFlags", regexImport) &&
 		jncNspace->addItem("RegexExecResult", regexImport) &&
+		jncNspace->addItem("RegexExecFlags", regexImport) &&
+		jncNspace->addItem("RegexEofChar", regexImport) &&
+		jncNspace->addItem("RegexCapture", regexImport) &&
+		jncNspace->addItem("RegexMatch", regexImport) &&
 		jncNspace->addItem("RegexState", regexImport) &&
 		jncNspace->addItem("RegexKind", regexImport) &&
-		jncNspace->addItem("RegexEof", regexImport) &&
+		jncNspace->addItem("RegexFlags", regexImport) &&
 		jncNspace->addItem("Regex", regexImport) &&
 		jncNspace->addItem("Promise", promiseImport) &&
 		jncNspace->addItem("Promisifier", promiseImport) &&

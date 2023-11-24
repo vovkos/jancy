@@ -22,14 +22,16 @@ class RegexState;
 class Regex;
 
 JNC_DECLARE_OPAQUE_CLASS_TYPE(RegexCapture)
-JNC_DECLARE_CLASS_TYPE(RegexMatch)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(RegexMatch)
 JNC_DECLARE_OPAQUE_CLASS_TYPE(RegexState)
 JNC_DECLARE_OPAQUE_CLASS_TYPE(Regex)
 
 //..............................................................................
 
 class RegexCapture: public IfaceHdr {
+	friend class Regex;
 	friend class RegexState;
+	friend class RegexMatch;
 
 public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(RegexCapture)
@@ -61,6 +63,24 @@ public:
 
 public:
 	uint_t m_id;
+
+protected:
+	rc::Ptr<re2::Regex> m_regex;
+	sl::Array<re2::Capture> m_submatchArray_axl;
+	sl::Array<RegexCapture*> m_submatchArray_jnc;
+
+public:
+	void
+	JNC_CDECL
+	markOpaqueGcRoots(GcHeap* gcHeap);
+
+	RegexCapture*
+	JNC_CDECL
+	getGroup(size_t i);
+
+protected:
+	bool
+	ensureSubmatchesCaptured();
 };
 
 //..............................................................................
@@ -69,6 +89,7 @@ class RegexState: public IfaceHdr {
 	friend class Regex;
 
 protected:
+	rc::Ptr<re2::Regex> m_regex;
 	re2::State m_state;
 	RegexMatch* m_match;
 	String m_lastChunk;
@@ -160,11 +181,18 @@ public:
 	size_t m_switchCaseCount;
 
 protected:
-	re2::Regex m_regex;
+	rc::Ptr<re2::Regex> m_regex;
 	String m_pattern;
 	sl::Array<String> m_switchCasePatternArray;
 
 public:
+	void
+	JNC_CDECL
+	init() {
+		m_regex = AXL_RC_NEW(rc::Box<re2::Regex>);
+		new (&m_switchCasePatternArray) sl::Array<String>();
+	}
+
 	void
 	JNC_CDECL
 	markOpaqueGcRoots(GcHeap* gcHeap);
@@ -185,7 +213,7 @@ public:
 	size_t
 	JNC_CDECL
 	getSwitchCaseCaptureCount(uint_t id) {
-		return m_regex.getSwitchCaseCaptureCount(id);
+		return m_regex->getSwitchCaseCaptureCount(id);
 	}
 
 	// compilation
@@ -197,21 +225,21 @@ public:
 	bool
 	JNC_CDECL
 	compile(
-		uint_t flags,
-		String source
+		String source,
+		uint_t flags
 	);
 
 	void
 	JNC_CDECL
 	createSwitch(uint_t flags) {
 		clear();
-		m_regex.createSwitch(flags);
+		m_regex->createSwitch(flags);
 	}
 
 	uint_t
 	JNC_CDECL
 	compileSwitchCase(String source) {
-		return m_regex.compileSwitchCase(source >> toAxl);
+		return m_regex->compileSwitchCase(source >> toAxl);
 	}
 
 	bool
@@ -230,7 +258,7 @@ public:
 	size_t
 	JNC_CDECL
 	save(StdBuffer* buffer_jnc) {
-		sl::Array<char> buffer_axl = m_regex.save();
+		sl::Array<char> buffer_axl = m_regex->save();
 		return buffer_jnc->copy(buffer_axl.cp(), buffer_axl.getCount());
 	}
 
@@ -251,7 +279,7 @@ public:
 		int eofChar
 	);
 
-	bool
+	size_t
 	JNC_CDECL
 	captureSubmatches(
 		uint64_t matchOffset,
@@ -260,7 +288,7 @@ public:
 		size_t count
 	);
 
-	bool
+	size_t
 	JNC_CDECL
 	captureSwitchCaseSubmatches(
 		uint_t switchCaseId,
@@ -270,16 +298,17 @@ public:
 		size_t count
 	);
 
-	void
-	JNC_CDECL
-	init() {
-		new (&m_regex) re2::Regex();
-		new (&m_switchCasePatternArray) sl::Array<String>();
-	}
-
 protected:
 	void
 	finalize();
+
+	void
+	createSubmatchCaptureArray(
+		String matchText,
+		RegexCapture** captureArray_jnc,
+		const re2::Capture* const captureArray_axl,
+		size_t count
+	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -287,16 +316,16 @@ protected:
 inline
 void
 Regex::finalize() {
-	m_regexKind = m_regex.getRegexKind();
-	m_flags = m_regex.getFlags();
+	m_regexKind = m_regex->getRegexKind();
+	m_flags = m_regex->getFlags();
 
 	switch (m_regexKind) {
 	case re2::RegexKind_Single:
-		m_captureCount = m_regex.getCaptureCount();
+		m_captureCount = m_regex->getCaptureCount();
 		break;
 
 	case re2::RegexKind_Switch:
-		m_switchCaseCount = m_regex.getSwitchCaseCount();
+		m_switchCaseCount = m_regex->getSwitchCaseCount();
 		break;
 	}
 }

@@ -22,13 +22,29 @@ struct TryExpr;
 
 //..............................................................................
 
-struct ScopedCondStmt {
+struct RegexCondStmt {
 	Value m_regexStateValue;
+	uint_t m_regexFlags;
+	uint_t m_prevPragmaRegexFlags : 8;
+	uint_t m_isPragmaRegexFlagsChanged : 1;
+	uint_t m_isPragmaRegexFlagsDefault : 1;
+
+	RegexCondStmt();
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct IfStmt: ScopedCondStmt {
+inline
+RegexCondStmt::RegexCondStmt() {
+	m_regexFlags = 0;
+	m_prevPragmaRegexFlags = 0;
+	m_isPragmaRegexFlagsChanged = false;
+	m_isPragmaRegexFlagsDefault = false;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct IfStmt: RegexCondStmt {
 	BasicBlock* m_thenBlock;
 	BasicBlock* m_elseBlock;
 	BasicBlock* m_followBlock;
@@ -46,12 +62,10 @@ struct SwitchStmt {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct RegexSwitchStmt {
-	Value m_regexStateValue; // jnc.RegexState*
+struct RegexSwitchStmt: RegexCondStmt {
 	Value m_textValue;       // string_t
-
-	sl::StringRef m_execMethodName;
 	re2::Regex m_regex;
+	sl::StringRef m_execMethodName;
 	BasicBlock* m_switchBlock;
 	BasicBlock* m_defaultBlock;
 	BasicBlock* m_followBlock;
@@ -60,7 +74,7 @@ struct RegexSwitchStmt {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct WhileStmt: ScopedCondStmt {
+struct WhileStmt: RegexCondStmt {
 	BasicBlock* m_conditionBlock;
 	BasicBlock* m_bodyBlock;
 	BasicBlock* m_followBlock;
@@ -76,7 +90,7 @@ struct DoStmt {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ForStmt: ScopedCondStmt {
+struct ForStmt: RegexCondStmt {
 	Scope* m_scope;
 	BasicBlock* m_conditionBlock;
 	BasicBlock* m_bodyBlock;
@@ -111,7 +125,7 @@ protected:
 	BasicBlock* m_emissionLockBlock;
 	Variable* m_returnValueVariable;
 	Variable* m_finallyRouteIdxVariable;
-	ScopedCondStmt* m_scopedCondStmt;
+	RegexCondStmt* m_regexCondStmt;
 	size_t m_emissionLockCount;
 	size_t m_finallyRouteIdx;
 	size_t m_sjljFrameCount;
@@ -126,9 +140,9 @@ public:
 		return m_module;
 	}
 
-	ScopedCondStmt*
-	getScopedCondStmt() {
-		return m_scopedCondStmt;
+	RegexCondStmt*
+	getRegexCondStmt() {
+		return m_regexCondStmt;
 	}
 
 	void
@@ -297,7 +311,10 @@ public:
 	// if stmt
 
 	void
-	ifStmt_Create(IfStmt* stmt);
+	ifStmt_Create(
+		IfStmt* stmt,
+		AttributeBlock* attributeBlock
+	);
 
 	bool
 	ifStmt_Condition(
@@ -348,7 +365,10 @@ public:
 	// regex switch stmt
 
 	void
-	regexSwitchStmt_Create(RegexSwitchStmt* stmt);
+	regexSwitchStmt_Create(
+		RegexSwitchStmt* stmt,
+		AttributeBlock* attributeBlock
+	);
 
 	bool
 	regexSwitchStmt_Condition(
@@ -379,7 +399,10 @@ public:
 	// while stmt
 
 	void
-	whileStmt_Create(WhileStmt* stmt);
+	whileStmt_Create(
+		WhileStmt* stmt,
+		AttributeBlock* attributeBlock
+	);
 
 	bool
 	whileStmt_Condition(
@@ -414,7 +437,10 @@ public:
 	// for stmt
 
 	void
-	forStmt_Create(ForStmt* stmt);
+	forStmt_Create(
+		ForStmt* stmt,
+		AttributeBlock* attributeBlock
+	);
 
 	void
 	forStmt_PreInit(
@@ -503,6 +529,16 @@ protected:
 
 	void
 	setSjljFrame(size_t index);
+
+	void
+	setRegexFlags(
+		RegexCondStmt* stmt,
+		AttributeBlock* attributeBlock,
+		uint_t defaultFlags
+	);
+
+	void
+	restoreRegexFlags(RegexCondStmt* stmt);
 };
 
 //..............................................................................

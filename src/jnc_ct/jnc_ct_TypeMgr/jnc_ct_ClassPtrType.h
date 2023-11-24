@@ -179,7 +179,7 @@ isDerivedClassPtrType(
 	ClassType* targetType = ((ClassPtrType*)type)->getTargetType();
 	return
 		targetType->cmp(classType) == 0 ||
-		targetType->findBaseTypeTraverse(classType) == 0;
+		targetType->findBaseTypeTraverse(classType);
 }
 
 //..............................................................................

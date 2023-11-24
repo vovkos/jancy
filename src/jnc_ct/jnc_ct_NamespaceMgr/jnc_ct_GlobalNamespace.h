@@ -26,7 +26,7 @@ class GlobalNamespace:
 protected:
 	struct ExtraBody: sl::ListLink {
 		Unit* m_unit;
-		const PragmaSettings* m_pragmaSettings;
+		const PragmaConfig* m_pragmaConfig;
 		lex::LineColOffset m_pos;
 		sl::StringRef m_body;
 	};
@@ -61,7 +61,7 @@ public:
 	void
 	addBody(
 		Unit* unit,
-		const PragmaSettings* pragmaSettings,
+		const PragmaConfig* pragmaConfig,
 		const lex::LineColOffset& pos,
 		const sl::StringRef& body
 	);
@@ -74,7 +74,7 @@ protected:
 	bool
 	parseBodyImpl(
 		Unit* unit,
-		const PragmaSettings* pragmaSettings,
+		const PragmaConfig* pragmaConfig,
 		const lex::LineColOffset& pos,
 		const sl::StringRef& body
 	);

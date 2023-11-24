@@ -36,6 +36,9 @@ common_declaration_sync
 	;
 
 global_declaration
+	leave {
+		return processAttributeBlocks();
+	}
 	:	common_declaration
 	|	namespace_declaration
 	|	extension_declaration
@@ -52,6 +55,9 @@ global_declaration_sync
 	;
 
 member_block_declaration
+	leave {
+		return processAttributeBlocks();
+	}
 	:	common_declaration
 	|	friend_declaration
 	|	access_declaration
@@ -73,6 +79,9 @@ member_block_declaration_sync
 local_declaration
 	enter {
 		m_module->m_namespaceMgr.setSourcePos(m_tokenCursor->m_pos);
+	}
+	leave {
+		return processAttributeBlocks();
 	}
 	:	common_declaration
 	|	statement
@@ -167,34 +176,11 @@ access_declaration
 	;
 
 pragma_declaration
-	:	TokenKind_Pragma '(' TokenKind_Identifier $i ',' pragma_value $v ')'
+	:	TokenKind_Pragma '(' TokenKind_Identifier $i ',' (TokenKind_Default | constant_integer_expr $v) ')'
 			{
-				return pragma($i.m_data.m_string, $v.m_value);
-			}
-	;
-
-class {
-	int m_value;
-}
-pragma_value
-	enter {
-		$.m_value = 0;
-	}
-	:	TokenKind_Integer
-			{
-				$.m_value = $1.m_data.m_integer;
-			}
-	|	TokenKind_True
-			{
-				$.m_value = true;
-			}
-	|	TokenKind_False
-			{
-				$.m_value = false;
-			}
-	|	TokenKind_Default
-			{
-				$.m_value = -1;
+				return &$v ?
+					pragma($i.m_data.m_string, PragmaState_CustomValue, $v.m_value) :
+					pragma($i.m_data.m_string, PragmaState_Default);
 			}
 	;
 
@@ -275,9 +261,6 @@ global_item_declaration
 	enter {
 		preDeclaration();
 	}
-	leave {
-		checkUnusedAttributeBlock();
-	}
 	:	normal_item_declaration
 	|	special_void_method_declarator
 	|	qualified_special_void_method_declaration
@@ -287,9 +270,6 @@ member_item_declaration
 	enter {
 		preDeclaration();
 	}
-	leave {
-		checkUnusedAttributeBlock();
-	}
 	:	normal_item_declaration
 	|	special_void_method_declarator
 	;
@@ -297,9 +277,6 @@ member_item_declaration
 local_item_declaration
 	enter {
 		preDeclaration();
-	}
-	leave {
-		checkUnusedAttributeBlock();
 	}
 	:	normal_item_declaration
 	;

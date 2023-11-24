@@ -121,7 +121,7 @@ Function::compile() {
 		m_module->m_functionMgr.prologue(this, m_bodyPos);
 		m_module->m_namespaceMgr.getCurrentScope()->getUsingSet()->append(&m_usingSet);
 
-		Parser parser(m_module, m_pragmaSettings, Parser::Mode_Compile);
+		Parser parser(m_module, m_pragmaConfig, Parser::Mode_Compile);
 		SymbolKind symbolKind = SymbolKind_compound_stmt;
 
 		if (m_functionKind == FunctionKind_Constructor ||
@@ -163,7 +163,7 @@ Function::compile() {
 
 	// otherwise, a redirected function
 
-	Parser parser(m_module, m_pragmaSettings);
+	Parser parser(m_module, m_pragmaConfig);
 	result = parser.parseTokenList(SymbolKind_qualified_name_save_name, &m_initializer);
 	if (!result)
 		return false;

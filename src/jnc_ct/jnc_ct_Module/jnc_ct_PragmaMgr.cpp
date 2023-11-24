@@ -17,10 +17,13 @@ namespace ct {
 
 //..............................................................................
 
-PragmaSettings::PragmaSettings() {
+void
+PragmaConfig::reset() {
 	m_fieldAlignment = PragmaDefault_Alignment;
-	m_pointerModifiers = PragmaDefault_PointerModifiers;
-	m_enumFlags = PragmaDefault_EnumFlags;
+	m_pointerModifiers = 0;
+	m_enumFlags = 0;
+	m_regexFlags = 0;
+	m_mask = 0;
 }
 
 //..............................................................................

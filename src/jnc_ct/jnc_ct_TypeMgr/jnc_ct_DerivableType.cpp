@@ -331,7 +331,7 @@ DerivableType::parseBody() {
 	Unit* prevUnit = m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
 	m_module->m_namespaceMgr.openNamespace(this);
 
-	Parser parser(m_module, m_pragmaSettings, Parser::Mode_Parse);
+	Parser parser(m_module, m_pragmaConfig, Parser::Mode_Parse);
 
 	size_t length = m_body.getLength();
 	ASSERT(length >= 2);
@@ -437,6 +437,10 @@ DerivableType::findBaseTypeTraverseImpl(
 	BaseTypeCoord* coord,
 	size_t level
 ) {
+	bool result = ensureLayout();
+	if (!result)
+		return false;
+
 	sl::StringHashTableIterator<BaseTypeSlot*> it = m_baseTypeMap.find(type->getSignature());
 	if (it) {
 		if (!coord)

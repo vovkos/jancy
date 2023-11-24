@@ -84,7 +84,7 @@ enum_specifier
 		TokenKind_Identifier $n?
 		(':' type_name $t)?
 			{
-				uint_t flags = m_pragmaSettings.m_enumFlags;
+				uint_t flags = m_module->m_pragmaMgr->m_enumFlags;
 				if (&$b)
 					flags |= EnumTypeFlag_BitFlag;
 
@@ -162,7 +162,7 @@ struct_specifier
 					&$n ? $n.m_pos : $s.m_pos,
 					&$n ? $n.m_data.m_string : sl::String(),
 					&$b ? &$b.m_typeList : NULL,
-					m_pragmaSettings.m_fieldAlignment,
+					m_module->m_pragmaMgr->m_fieldAlignment,
 					&$d ? TypeFlag_Dynamic : 0
 				);
 
@@ -194,7 +194,7 @@ union_specifier
 				$.m_type = createUnionType(
 					&$n ? $n.m_pos : $u.m_pos,
 					&$n ? $n.m_data.m_string : sl::String(),
-					m_pragmaSettings.m_fieldAlignment,
+					m_module->m_pragmaMgr->m_fieldAlignment,
 					&$d ? TypeFlag_Dynamic : 0
 				);
 
@@ -227,7 +227,7 @@ class_specifier
 					$n.m_pos,
 					$n.m_data.m_string,
 					&$b ? &$b.m_typeList : NULL,
-					m_pragmaSettings.m_fieldAlignment,
+					m_module->m_pragmaMgr->m_fieldAlignment,
 					&$o ? ClassTypeFlag_Opaque : 0
 				);
 

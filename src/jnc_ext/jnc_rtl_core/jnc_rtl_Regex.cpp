@@ -36,14 +36,18 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_DEFINE_CLASS_TYPE(
+JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	RegexMatch,
 	"jnc.RegexMatch",
 	sl::g_nullGuid,
-	-1
+	-1,
+	RegexMatch,
+	&RegexMatch::markOpaqueGcRoots
 )
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(RegexMatch)
+	JNC_MAP_DESTRUCTOR(&jnc::destruct<RegexMatch>)
+	JNC_MAP_CONST_PROPERTY("m_groupArray", &RegexMatch::getGroup)
 JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -135,6 +139,59 @@ RegexCapture::getText(RegexMatch* self) {
 
 void
 JNC_CDECL
+RegexMatch::markOpaqueGcRoots(GcHeap* gcHeap) {
+	size_t count = m_submatchArray_jnc.getCount();
+	for (size_t i = 0; i < count; i++)
+		gcHeap->markClassPtr(m_submatchArray_jnc[i]);
+}
+
+RegexCapture*
+JNC_CDECL
+RegexMatch::getGroup(size_t i) {
+	bool result = ensureSubmatchesCaptured();
+	if (!result)
+		return NULL;
+
+	size_t count = m_submatchArray_axl.getCount();
+	if (m_submatchArray_jnc.getCount() != count)
+		m_submatchArray_jnc.setCountZeroConstruct(count);
+
+	if (i >= count || !m_submatchArray_axl[i])
+		return NULL;
+
+	if (m_submatchArray_jnc[i])
+		return m_submatchArray_jnc[i];
+
+	RegexCapture* capture = jnc::createClass<RegexCapture>(jnc::getCurrentThreadRuntime());
+	capture->m_capture = m_submatchArray_axl[i];
+	capture->m_lastChunk = m_lastChunk;
+	m_submatchArray_jnc[i] = capture;
+	return capture;
+}
+
+bool
+RegexMatch::ensureSubmatchesCaptured() {
+	if (m_regex->getRegexKind() == re2::RegexKind_Switch) {
+		size_t count = m_regex->getSwitchCaseCaptureCount(m_id) + 1;
+		if (m_submatchArray_axl.getCount() != count) {
+			m_submatchArray_axl.setCount(count);
+			return m_regex->captureSwitchCaseSubmatches(m_id, m_capture, m_submatchArray_axl, count);
+		}
+	} else {
+		size_t count = m_regex->getCaptureCount() + 1;
+		if (m_submatchArray_axl.getCount() != count) {
+			m_submatchArray_axl.setCount(count);
+			return m_regex->captureSubmatches(m_capture, m_submatchArray_axl, count);
+		}
+	}
+
+	return true;
+}
+
+//..............................................................................
+
+void
+JNC_CDECL
 RegexState::markOpaqueGcRoots(GcHeap* gcHeap) {
 	gcHeap->markClassPtr(m_match);
 	gcHeap->markString(m_lastChunk);
@@ -147,6 +204,7 @@ RegexState::getMatch() {
 		return m_match;
 
 	m_match = jnc::createClass<RegexMatch>(jnc::getCurrentThreadRuntime());
+	m_match->m_regex = m_regex;
 	m_match->m_capture = m_state.getMatch();
 	m_match->m_id = m_state.getMatch().getId();
 	m_match->m_lastChunk = m_lastChunk;
@@ -184,7 +242,7 @@ JNC_CDECL
 Regex::getPattern(Regex* self) {
 	return self->m_pattern.m_length ?
 		self->m_pattern :
-		self->m_pattern = allocateString(self->m_regex.getPattern());
+		self->m_pattern = allocateString(self->m_regex->getPattern());
 }
 
 String
@@ -193,7 +251,7 @@ Regex::getSwitchCasePattern(
 	Regex* self,
 	uint_t id
 ) {
-	size_t count = self->m_regex.getSwitchCaseCount();
+	size_t count = self->m_regex->getSwitchCaseCount();
 	ASSERT(count == self->m_switchCaseCount);
 
 	if (id > count)
@@ -203,7 +261,7 @@ Regex::getSwitchCasePattern(
 		self->m_switchCasePatternArray.setCount(count);
 
 	if (!self->m_switchCasePatternArray[id].m_length)
-		self->m_switchCasePatternArray[id] = allocateString(self->m_regex.getSwitchCasePattern(id));
+		self->m_switchCasePatternArray[id] = allocateString(self->m_regex->getSwitchCasePattern(id));
 
 	return self->m_switchCasePatternArray[id];
 }
@@ -216,19 +274,24 @@ Regex::clear() {
 	m_captureCount = 0;
 	m_pattern = g_nullString;
 	m_switchCaseCount = 0;
-	m_regex.clear();
+
+	if (m_regex.getRefCount()->getRefCount() == 1)
+		m_regex->clear();
+	else
+		m_regex = AXL_RC_NEW(rc::Box<re2::Regex>);
+
 	m_switchCasePatternArray.clear();
 }
 
 bool
 JNC_CDECL
 Regex::compile(
-	uint_t flags,
-	String source
+	String source,
+	uint_t flags
 ) {
 	clear();
 
-	bool result = m_regex.compile(flags, source >> toAxl);
+	bool result = m_regex->compile(source >> toAxl, flags);
 	if (!result)
 		return false;
 
@@ -239,7 +302,7 @@ Regex::compile(
 bool
 JNC_CDECL
 Regex::finalizeSwitch() {
-	bool result = m_regex.finalizeSwitch();
+	bool result = m_regex->finalizeSwitch();
 	if (!result)
 		return false;
 
@@ -255,7 +318,7 @@ Regex::load(
 ) {
 	clear();
 
-	size_t result = m_regex.load(ptr.m_p, size);
+	size_t result = m_regex->load(ptr.m_p, size);
 	if (result == -1)
 		return -1;
 
@@ -269,9 +332,10 @@ Regex::exec(
 	RegexState* state,
 	String chunk
 ) {
+	state->m_regex = m_regex;
 	state->m_match = NULL;
 	state->m_lastChunk = chunk;
-	return m_regex.exec(&state->m_state, chunk >> toAxl);
+	return m_regex->exec(&state->m_state, chunk >> toAxl);
 }
 
 re2::ExecResult
@@ -281,12 +345,13 @@ Regex::execEof(
 	String lastChunk,
 	int eofChar
 ) {
+	state->m_regex = m_regex;
 	state->m_match = NULL;
 	state->m_lastChunk = lastChunk;
-	return m_regex.execEof(&state->m_state, lastChunk >> toAxl, eofChar);
+	return m_regex->execEof(&state->m_state, lastChunk >> toAxl, eofChar);
 }
 
-bool
+size_t
 JNC_CDECL
 Regex::captureSubmatches(
 	uint64_t matchOffset,
@@ -294,10 +359,30 @@ Regex::captureSubmatches(
 	DataPtr submatchArrayPtr,
 	size_t count
 ) {
-	return true;
+	memset(submatchArrayPtr.m_p, 0, count * sizeof(RegexCapture*));
+
+	size_t submatchCount = m_regex->getCaptureCount() + 1;
+	if (count > submatchCount)
+		count = submatchCount;
+
+	char buffer[256];
+	sl::Array<re2::Capture> submatchArray(rc::BufKind_Stack, buffer, sizeof(buffer));
+	submatchArray.setCount(count);
+	count = m_regex->captureSubmatches(matchText >> toAxl, submatchArray, count);
+	if (count == -1)
+		return -1;
+
+	createSubmatchCaptureArray(
+		matchText,
+		(RegexCapture**)submatchArrayPtr.m_p,
+		submatchArray,
+		count
+	);
+
+	return count;
 }
 
-bool
+size_t
 JNC_CDECL
 Regex::captureSwitchCaseSubmatches(
 	uint_t switchCaseId,
@@ -306,7 +391,48 @@ Regex::captureSwitchCaseSubmatches(
 	DataPtr submatchArrayPtr,
 	size_t count
 ) {
-	return true;
+	memset(submatchArrayPtr.m_p, 0, count * sizeof(RegexCapture*));
+
+	size_t submatchCount = m_regex->getSwitchCaseCaptureCount(switchCaseId) + 1;
+	if (count > submatchCount)
+		count = submatchCount;
+
+	char buffer[256];
+	sl::Array<re2::Capture> submatchArray(rc::BufKind_Stack, buffer, sizeof(buffer));
+	submatchArray.setCount(count);
+	count = m_regex->captureSwitchCaseSubmatches(switchCaseId, matchText >> toAxl, submatchArray, count);
+	if (count == -1)
+		return -1;
+
+	createSubmatchCaptureArray(
+		matchText,
+		(RegexCapture**)submatchArrayPtr.m_p,
+		submatchArray,
+		count
+	);
+
+	return count;
+}
+
+void
+Regex::createSubmatchCaptureArray(
+	String matchText,
+	RegexCapture** captureArray_jnc,
+	const re2::Capture* const captureArray_axl,
+	size_t count
+) {
+	Runtime* runtime = getCurrentThreadRuntime();
+	NoCollectRegion noCollectRegion(runtime);
+
+	for (size_t i = 0; i < count; i++) {
+		if (!captureArray_axl[i])
+			continue;
+
+		RegexCapture* capture = createClass<RegexCapture>(runtime);
+		capture->m_capture = captureArray_axl[i];
+		capture->m_lastChunk = matchText;
+		captureArray_jnc[i] = capture;
+	}
 }
 
 //..............................................................................

@@ -1792,11 +1792,20 @@ OperatorMgr::getRegexGroup(
 		return false;
 	}
 
-	Value indexValue(index, m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT));
-	Value groupArrayValue;
+	Value matchValue;
+	bool result = memberOperator(*scope->m_regexStateValue, "m_match", &matchValue);
+	if (!result)
+		return false;
 
+	if (!index) { // $0 is the match itself
+		*resultValue = matchValue;
+		return true;
+	}
+
+	Value groupArrayValue;
+	Value indexValue(index, m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT));
 	return
-		memberOperator(*scope->m_regexStateValue, "m_groupArray", &groupArrayValue) &&
+		memberOperator(matchValue, "m_groupArray", &groupArrayValue) &&
 		binaryOperator(BinOpKind_Idx, groupArrayValue, indexValue, resultValue);
 }
 

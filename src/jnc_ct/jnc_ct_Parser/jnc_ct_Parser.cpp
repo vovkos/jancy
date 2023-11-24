@@ -29,19 +29,22 @@ namespace ct {
 
 Parser::Parser(
 	Module* module,
-	const PragmaSettings* pragmaSettings,
+	const PragmaConfig* pragmaConfig,
 	Mode mode
 ):
 	m_doxyParser(&module->m_doxyModule) {
 	m_module = module;
 	m_mode = mode;
-	if (pragmaSettings)
-		m_pragmaSettings = *pragmaSettings;
+	m_pragmaConfigBackup = module->m_pragmaMgr.m_config;
 
-	m_cachedPragmaSettings = pragmaSettings;
+	if (pragmaConfig)
+		module->m_pragmaMgr.m_config = *pragmaConfig;
+
+	m_pragmaConfigSnapshot = pragmaConfig;
 	m_storageKind = StorageKind_Undefined;
 	m_accessKind = AccessKind_Undefined;
-	m_attributeBlock = NULL;
+	m_attributeBlocks[0] = NULL;
+	m_attributeBlocks[1] = NULL;
 	m_lastDeclaredItem = NULL;
 	m_lastNamedType = NULL;
 	m_lastPropertyGetterType = NULL;
@@ -51,15 +54,6 @@ Parser::Parser(
 	m_constructorType = NULL;
 	m_constructorProperty = NULL;
 	m_topDeclarator = NULL;
-}
-
-bool Parser::checkUnusedAttributeBlock() {
-	if (m_attributeBlock) {
-		err::setFormatStringError("unused attribute block in declaration");
-		return false;
-	}
-
-	return true;
 }
 
 bool
@@ -154,15 +148,17 @@ Parser::tokenizeBody(
 bool
 Parser::pragma(
 	const sl::StringRef& name,
-	int value
+	PragmaState state,
+	int64_t value
 ) {
+	bool isDefault = state == state == PragmaState_Default;
 	Pragma pragmaKind = PragmaMap::findValue(name, Pragma_Undefined);
 	switch (pragmaKind) {
 	case Pragma_Alignment:
-		if (value < 0)
-			m_pragmaSettings.m_fieldAlignment = PragmaDefault_Alignment;
+		if (isDefault)
+			m_module->m_pragmaMgr->m_fieldAlignment = PragmaDefault_Alignment;
 		else if (sl::isPowerOf2(value) && value <= 16)
-			m_pragmaSettings.m_fieldAlignment = value;
+			m_module->m_pragmaMgr->m_fieldAlignment = value;
 		else {
 			err::setFormatStringError("invalid alignment %d", value);
 			return false;
@@ -170,11 +166,15 @@ Parser::pragma(
 		break;
 
 	case Pragma_ThinPointers:
-		m_pragmaSettings.m_pointerModifiers = value > 0 ? (uint_t)TypeModifier_Thin : PragmaDefault_PointerModifiers;
+		m_module->m_pragmaMgr->m_pointerModifiers = isDefault || !value ? 0 : TypeModifier_Thin;
 		break;
 
 	case Pragma_ExposedEnums:
-		m_pragmaSettings.m_enumFlags = value > 0 ? (uint_t)EnumTypeFlag_Exposed : PragmaDefault_EnumFlags;
+		m_module->m_pragmaMgr->m_enumFlags = isDefault || !value ? 0 : EnumTypeFlag_Exposed;
+		break;
+
+	case Pragma_RegexFlags:
+		m_module->m_pragmaMgr->m_regexFlags = isDefault ? 0 : value;
 		break;
 
 	default:
@@ -182,7 +182,12 @@ Parser::pragma(
 		return false;
 	}
 
-	m_cachedPragmaSettings = NULL;
+	if (isDefault)
+		m_module->m_pragmaMgr->m_mask &= ~(1 << pragmaKind);
+	else
+		m_module->m_pragmaMgr->m_mask |= 1 << pragmaKind;
+
+	m_pragmaConfigSnapshot = NULL;
 	return true;
 }
 
@@ -450,15 +455,48 @@ Parser::setSetAsType(Type* type) {
 	return true;
 }
 
+AttributeBlock*
+Parser::popAttributeBlock() {
+	AttributeBlock* attributeBlock = m_attributeBlocks[1];
+	m_attributeBlocks[1] = NULL;
+	return attributeBlock;
+}
+
+bool Parser::processAttributeBlocks() {
+	bool result;
+
+	if (!m_attributeBlocks[1])
+		result = true;
+	else {
+		err::setFormatStringError("unused attribute block");
+		m_attributeBlocks[1]->ensureSrcPosError();
+		result = false;
+	}
+
+	m_attributeBlocks[1] = m_attributeBlocks[0];
+	m_attributeBlocks[0] = NULL;
+	return result;
+}
+
 bool
 Parser::createAttributeBlock(const lex::LineCol& pos) {
-	ASSERT(!m_attributeBlock);
+	AttributeBlock* attributeBlock = m_module->m_attributeMgr.createAttributeBlock();
+	attributeBlock->m_parentNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
+	attributeBlock->m_parentUnit = m_module->m_unitMgr.getCurrentUnit();
+	attributeBlock->m_pos = pos;
 
-	m_attributeBlock = m_module->m_attributeMgr.createAttributeBlock();
-	m_attributeBlock->m_parentNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
-	m_attributeBlock->m_parentUnit = m_module->m_unitMgr.getCurrentUnit();
-	m_attributeBlock->m_pos = pos;
-	return true;
+	bool result;
+
+	if (!m_attributeBlocks[0])
+		result = true;
+	else {
+		err::setError("unused attribute block");
+		m_attributeBlocks[0]->ensureSrcPosError();
+		result = false;
+	}
+
+	m_attributeBlocks[0] = attributeBlock;
+	return result;
 }
 
 bool
@@ -467,9 +505,9 @@ Parser::createAttribute(
 	const sl::StringRef& name,
 	sl::List<Token>* initializer
 ) {
-	ASSERT(m_attributeBlock);
+	ASSERT(m_attributeBlocks[0]);
 
-	Attribute* attribute = m_attributeBlock->createAttribute(name, initializer);
+	Attribute* attribute = m_attributeBlocks[0]->createAttribute(name, initializer);
 	if (!attribute)
 		return false;
 
@@ -689,7 +727,7 @@ Parser::declareGlobalNamespace(
 
 	nspace->addBody(
 		m_module->m_unitMgr.getCurrentUnit(),
-		getCachedPragmaSettings(),
+		getPragmaConfigSnapshot(),
 		bodyToken.m_pos,
 		bodyToken.m_data.m_string
 	);
@@ -725,7 +763,7 @@ Parser::declareExtensionNamespace(
 		return NULL;
 
 	result = nspace->setBody(
-		getCachedPragmaSettings(),
+		getPragmaConfigSnapshot(),
 		bodyToken.m_pos,
 		bodyToken.m_data.m_string
 	);
@@ -755,13 +793,6 @@ Parser::useNamespace(
 	}
 
 	return true;
-}
-
-AttributeBlock*
-Parser::popAttributeBlock() {
-	AttributeBlock* attributeBlock = m_attributeBlock;
-	m_attributeBlock = NULL;
-	return attributeBlock;
 }
 
 bool
@@ -800,7 +831,7 @@ Parser::declareInReaction(Declarator* declarator) {
 	token->m_data.m_string = name;
 	declarator->m_initializer.insertHead(token);
 
-	Parser parser(m_module, getCachedPragmaSettings(), Mode_Reaction);
+	Parser parser(m_module, getPragmaConfigSnapshot(), Mode_Reaction);
 	parser.m_reactorType = m_reactorType;
 	parser.m_reactionIdx = m_reactionIdx;
 	return parser.parseTokenList(SymbolKind_expression, &declarator->m_initializer);
@@ -893,7 +924,7 @@ Parser::assignDeclarationAttributes(
 	decl->m_pos = pos;
 	decl->m_parentUnit = m_module->m_unitMgr.getCurrentUnit();
 	decl->m_parentNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
-	decl->m_pragmaSettings = getCachedPragmaSettings();
+	decl->m_pragmaConfig = getPragmaConfigSnapshot();
 	decl->m_attributeBlock = attributeBlock ? attributeBlock : popAttributeBlock();
 
 	if (m_module->getCompileFlags() & ModuleCompileFlag_Documentation)
@@ -931,8 +962,8 @@ Parser::declareTypedef(
 			return false;
 		}
 
-		m_attributeBlock = NULL;
 		m_lastDeclaredItem = prevItem;
+		popAttributeBlock();
 		m_doxyParser.popBlock();
 		return true;
 	}
@@ -1359,7 +1390,7 @@ Parser::parseLastPropertyBody(sl::List<Token>* body) {
 	if (body->isEmpty())
 		return finalizeLastProperty(true);
 
-	Parser parser(m_module, getCachedPragmaSettings(), Mode_Parse);
+	Parser parser(m_module, getPragmaConfigSnapshot(), Mode_Parse);
 	m_module->m_namespaceMgr.openNamespace((Property*)m_lastDeclaredItem);
 	bool result = parser.parseTokenList(SymbolKind_member_block_declaration_list, body);
 	m_module->m_namespaceMgr.closeNamespace();
@@ -2862,6 +2893,7 @@ Parser::appendFmtLiteralValue(
 	} else if (isDerivedClassPtrType(type, (ClassType*)m_module->m_typeMgr.getStdType(StdType_RegexCapture))) {
 		appendFunc = StdFunc_AppendFmtLiteral_re;
 	} else {
+		bool is = isDerivedClassPtrType(type, (ClassType*)m_module->m_typeMgr.getStdType(StdType_RegexCapture));
 		err::setFormatStringError("don't know how to format '%s'", type->getTypeString().sz());
 		return false;
 	}

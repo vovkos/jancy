@@ -20,11 +20,55 @@ namespace ct {
 //..............................................................................
 
 void
-ControlFlowMgr::ifStmt_Create(IfStmt* stmt) {
+ControlFlowMgr::setRegexFlags(
+	RegexCondStmt* stmt,
+	AttributeBlock* attributeBlock,
+	uint_t defaultFlags
+) {
+	if (attributeBlock) {
+		Attribute* flagsAttr = attributeBlock->findAttribute("RegexFlags");
+		if (flagsAttr && flagsAttr->getValue()) {
+			uint_t flags = *(uint8_t*)flagsAttr->getValue().getConstData();
+			stmt->m_prevPragmaRegexFlags = m_module->m_pragmaMgr->m_regexFlags;
+			stmt->m_isPragmaRegexFlagsDefault = (m_module->m_pragmaMgr->m_mask & Pragma_RegexFlags) == 0;
+			stmt->m_isPragmaRegexFlagsChanged = true;
+
+			m_module->m_pragmaMgr->m_regexFlags = flags;
+			m_module->m_pragmaMgr->m_mask |= 1 << Pragma_RegexFlags;
+			stmt->m_regexFlags = flags;
+			return;
+		}
+	}
+
+	stmt->m_regexFlags = (m_module->m_pragmaMgr->m_mask & (1 << Pragma_RegexFlags)) ?
+		m_module->m_pragmaMgr->m_regexFlags :
+		defaultFlags;
+}
+
+inline
+void
+ControlFlowMgr::restoreRegexFlags(RegexCondStmt* stmt) {
+	if (!stmt->m_isPragmaRegexFlagsChanged)
+		return;
+
+	if (stmt->m_isPragmaRegexFlagsDefault)
+		m_module->m_pragmaMgr->m_mask &= ~(1 << Pragma_RegexFlags);
+	else
+		m_module->m_pragmaMgr->m_mask |= 1 << Pragma_RegexFlags;
+
+	m_module->m_pragmaMgr->m_regexFlags = stmt->m_prevPragmaRegexFlags;
+}
+
+void
+ControlFlowMgr::ifStmt_Create(
+	IfStmt* stmt,
+	AttributeBlock* attributeBlock
+) {
+	setRegexFlags(stmt, attributeBlock, 0);
 	stmt->m_thenBlock = createBlock("if_then");
 	stmt->m_elseBlock = createBlock("if_else");
 	stmt->m_followBlock = stmt->m_elseBlock;
-	m_scopedCondStmt = stmt;
+	m_regexCondStmt = stmt;
 }
 
 bool
@@ -33,7 +77,7 @@ ControlFlowMgr::ifStmt_Condition(
 	const Value& value,
 	const lex::LineCol& pos
 ) {
-	m_scopedCondStmt = NULL;
+	m_regexCondStmt = NULL;
 
 	bool result = conditionalJump(value, stmt->m_thenBlock, stmt->m_elseBlock);
 	if (!result)
@@ -61,6 +105,7 @@ void
 ControlFlowMgr::ifStmt_Follow(IfStmt* stmt) {
 	m_module->m_namespaceMgr.closeScope();
 	follow(stmt->m_followBlock);
+	restoreRegexFlags(stmt);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -166,11 +211,15 @@ ControlFlowMgr::switchStmt_Follow(SwitchStmt* stmt) {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
-ControlFlowMgr::regexSwitchStmt_Create(RegexSwitchStmt* stmt) {
+ControlFlowMgr::regexSwitchStmt_Create(
+	RegexSwitchStmt* stmt,
+	AttributeBlock* attributeBlock
+) {
+	setRegexFlags(stmt, attributeBlock, re2::ExecFlag_FullMatch);
 	stmt->m_switchBlock = NULL;
 	stmt->m_defaultBlock = NULL;
 	stmt->m_followBlock = createBlock("regex_switch_follow");
-	stmt->m_regex.createSwitch();
+	stmt->m_regex.createSwitch(stmt->m_regexFlags);
 }
 
 bool
@@ -189,7 +238,7 @@ ControlFlowMgr::regexSwitchStmt_Condition(
 
 		Type* flagsType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_RegexExecFlags);
 		sl::BoxList<Value> argValueList;
-		argValueList.insertTail(Value(re2::ExecFlag_FullMatch, flagsType));
+		argValueList.insertTail(Value(stmt->m_regexFlags, flagsType));
 
 		result =
 			m_module->m_operatorMgr.newOperator(
@@ -309,43 +358,22 @@ ControlFlowMgr::regexSwitchStmt_Finalize(RegexSwitchStmt* stmt) {
 	// execute regex with the supplied state and data;
 	// on match, jump to the corresponding case-id
 
-	Value execMethodValue;
+	Value execValue;
 	Value execResultValue;
 	Value cmpResultValue;
 	Value matchValue;
 	Value caseIdValue;
+	Value matchConstValue((int64_t)re2::ExecResult_Match, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int));
 
 	BasicBlock* matchBlock = createBlock("regex_match");
 
 	result =
-		m_module->m_operatorMgr.memberOperator(
-			regexVariable,
-			stmt->m_execMethodName,
-			&execMethodValue
-		) &&
-		m_module->m_operatorMgr.callOperator(
-			execMethodValue,
-			stmt->m_regexStateValue,
-			stmt->m_textValue,
-			&execResultValue
-		) &&
-		m_module->m_operatorMgr.binaryOperator(
-			BinOpKind_Eq,
-			execResultValue,
-			Value((int64_t)re2::ExecResult_Match, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int)),
-			&cmpResultValue
-		) &&
+		m_module->m_operatorMgr.memberOperator(regexVariable, stmt->m_execMethodName, &execValue) &&
+		m_module->m_operatorMgr.callOperator(execValue, stmt->m_regexStateValue, stmt->m_textValue, &execResultValue) &&
+		m_module->m_operatorMgr.binaryOperator(BinOpKind_Eq, execResultValue, matchConstValue, &cmpResultValue) &&
 		conditionalJump(cmpResultValue, matchBlock, defaultBlock, matchBlock) &&
-		m_module->m_operatorMgr.memberOperator(
-			stmt->m_regexStateValue,
-			"m_match",
-			&matchValue
-		) &&
-		m_module->m_operatorMgr.memberOperator(
-			matchValue,
-			"m_id",
-			&caseIdValue
-		) &&
+		m_module->m_operatorMgr.memberOperator(stmt->m_regexStateValue, "m_match", &matchValue) &&
+		m_module->m_operatorMgr.memberOperator(matchValue, "m_id", &caseIdValue) &&
 		m_module->m_operatorMgr.prepareOperand(&caseIdValue);
 
 	if (!result)
@@ -360,18 +388,23 @@ ControlFlowMgr::regexSwitchStmt_Finalize(RegexSwitchStmt* stmt) {
 		);
 
 	setCurrentBlock(stmt->m_followBlock);
+	restoreRegexFlags(stmt);
 	return true;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
-ControlFlowMgr::whileStmt_Create(WhileStmt* stmt) {
+ControlFlowMgr::whileStmt_Create(
+	WhileStmt* stmt,
+	AttributeBlock* attributeBlock
+) {
+	setRegexFlags(stmt, attributeBlock, 0);
 	stmt->m_conditionBlock = createBlock("while_condition");
 	stmt->m_bodyBlock = createBlock("while_body");
 	stmt->m_followBlock = createBlock("while_follow");
 	follow(stmt->m_conditionBlock);
-	m_scopedCondStmt = stmt;
+	m_regexCondStmt = stmt;
 }
 
 bool
@@ -380,7 +413,7 @@ ControlFlowMgr::whileStmt_Condition(
 	const Value& value,
 	const lex::LineCol& pos
 ) {
-	m_scopedCondStmt = NULL;
+	m_regexCondStmt = NULL;
 	m_module->m_operatorMgr.gcSafePoint();
 
 	Scope* scope = m_module->m_namespaceMgr.openScope(pos);
@@ -397,6 +430,7 @@ void
 ControlFlowMgr::whileStmt_Follow(WhileStmt* stmt) {
 	m_module->m_namespaceMgr.closeScope();
 	jump(stmt->m_conditionBlock, stmt->m_followBlock);
+	restoreRegexFlags(stmt);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -438,7 +472,11 @@ ControlFlowMgr::doStmt_Condition(
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
-ControlFlowMgr::forStmt_Create(ForStmt* stmt) {
+ControlFlowMgr::forStmt_Create(
+	ForStmt* stmt,
+	AttributeBlock* attributeBlock
+) {
+	setRegexFlags(stmt, attributeBlock, 0);
 	stmt->m_bodyBlock = createBlock("for_body");
 	stmt->m_followBlock = createBlock("for_follow");
 	stmt->m_conditionBlock = stmt->m_bodyBlock;
@@ -463,7 +501,7 @@ ControlFlowMgr::forStmt_PreCondition(ForStmt* stmt) {
 	stmt->m_conditionBlock = createBlock("for_condition");
 	stmt->m_loopBlock = stmt->m_conditionBlock;
 	follow(stmt->m_conditionBlock);
-	m_scopedCondStmt = stmt;
+	m_regexCondStmt = stmt;
 }
 
 bool
@@ -471,7 +509,7 @@ ControlFlowMgr::forStmt_PostCondition(
 	ForStmt* stmt,
 	const Value& value
 ) {
-	m_scopedCondStmt = NULL;
+	m_regexCondStmt = NULL;
 
 	if (stmt->m_regexStateValue)
 		stmt->m_scope->m_regexStateValue = &stmt->m_regexStateValue;
@@ -502,6 +540,7 @@ void
 ControlFlowMgr::forStmt_PostBody(ForStmt* stmt) {
 	jump(stmt->m_loopBlock, stmt->m_followBlock);
 	m_module->m_namespaceMgr.closeScope();
+	restoreRegexFlags(stmt);
 
 	if (!(stmt->m_followBlock->getFlags() & BasicBlockFlag_Jumped))
 		markUnreachable(stmt->m_followBlock);

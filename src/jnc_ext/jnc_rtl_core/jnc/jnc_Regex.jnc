@@ -50,8 +50,12 @@ opaque class RegexCapture {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class RegexMatch: RegexCapture {
+opaque class RegexMatch: RegexCapture {
 	uint_t readonly m_id;
+
+	RegexCapture const* const property m_groupArray(size_t i);
+
+	destruct();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -79,7 +83,7 @@ opaque class RegexState {
 		init(flags, baseOffset, baseChar, eofOffset, eofChar);
 	}
 
-	void destruct();
+	destruct();
 
 	void reset(
 		RegexExecFlags flags,
@@ -161,13 +165,9 @@ opaque class Regex {
 	void clear();
 
 	bool errorcode compile(
-		RegexFlags flags,
-		string_t source
+		string_t source,
+		RegexFlags flags = 0
 	);
-
-	bool errorcode compile(string_t source) {
-		return compile(0, source);
-	}
 
 	void createSwitch(RegexFlags flags = 0);
 	uint_t errorcode compileSwitchCase(string_t source);
@@ -195,13 +195,9 @@ opaque class Regex {
 		string_t chunk
 	) const;
 
-	RegexMatch const* exec(string_t text) const {
-		return exec(RegexAnchor.None, text);
-	}
-
 	RegexMatch const* exec(
-		RegexExecFlags flags,
-		string_t text
+		string_t text,
+		RegexExecFlags flags = 0
 	) const {
 		RegexState state(flags);
 		execEof(state, text);
@@ -221,14 +217,14 @@ opaque class Regex {
 		return execEof(state, null, eofChar);
 	}
 
-	bool errorcode captureSubmatches(
+	size_t errorcode captureSubmatches(
 		uint64_t matchOffset,
 		string_t matchText,
 		RegexCapture* submatchArray,
 		size_t count
 	) const;
 
-	bool errorcode captureSubmatches(
+	size_t errorcode captureSubmatches(
 		RegexCapture const* match,
 		RegexCapture* submatchArray,
 		size_t count
@@ -241,7 +237,7 @@ opaque class Regex {
 		);
 	}
 
-	bool errorcode captureSwitchCaseSubmatches(
+	size_t errorcode captureSwitchCaseSubmatches(
 		uint_t switchCaseId,
 		uint64_t matchOffset,
 		string_t matchText,
@@ -249,7 +245,7 @@ opaque class Regex {
 		size_t count
 	) const;
 
-	bool errorcode captureSwitchCaseSubmatches(
+	size_t errorcode captureSwitchCaseSubmatches(
 		uint_t switchCaseId,
 		RegexCapture const* match,
 		RegexCapture* submatchArray,

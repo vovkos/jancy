@@ -52,6 +52,11 @@ public:
 		Mode_Reaction, // compiling the 'reaction' method of a reactor (w/ implicit bindings)
 	};
 
+	enum PragmaState {
+		PragmaState_Default = 0,
+		PragmaState_CustomValue,
+	};
+
 	struct CurlyInitializer {
 		Value m_targetValue;
 		Value m_memberValue;
@@ -99,13 +104,13 @@ public:
 
 protected:
 	Module* m_module;
-	PragmaSettings m_pragmaSettings;
-	const PragmaSettings* m_cachedPragmaSettings;
 	Mode m_mode;
 
+	const PragmaConfig* m_pragmaConfigSnapshot;
+	PragmaConfig m_pragmaConfigBackup;
 	StorageKind m_storageKind;
 	AccessKind m_accessKind;
-	AttributeBlock* m_attributeBlock;
+	AttributeBlock* m_attributeBlocks[2]; // [0] - newly created, [1] - staged
 	ModuleItem* m_lastDeclaredItem;
 	NamedType* m_lastNamedType;
 	QualifiedName m_lastQualifiedName;
@@ -133,15 +138,17 @@ public:
 public:
 	Parser(
 		Module* module,
-		const PragmaSettings* pragmaSettings = NULL,
+		const PragmaConfig* pragmaConfig = NULL,
 		Mode mode = Mode_Parse
 	);
 
-	const PragmaSettings*
-	getCachedPragmaSettings() {
-		return m_cachedPragmaSettings ?
-			m_cachedPragmaSettings :
-			(m_cachedPragmaSettings = m_module->m_pragmaMgr.getCachedSettings(m_pragmaSettings));
+	~Parser() {
+		m_module->m_pragmaMgr.m_config = m_pragmaConfigBackup;
+	}
+
+	const PragmaConfig*
+	getPragmaConfigSnapshot() {
+		return m_pragmaConfigSnapshot ? m_pragmaConfigSnapshot : m_module->m_pragmaMgr.getConfigSnapshot();
 	}
 
 	Declarator*
@@ -229,7 +236,8 @@ protected:
 	bool
 	pragma(
 		const sl::StringRef& name,
-		int value
+		PragmaState state,
+		int64_t value = 0
 	);
 
 	NamedImportType*
@@ -340,7 +348,7 @@ protected:
 		if (bodyToken.m_data.m_codeAssistFlags & TokenCodeAssistFlag_At)
 			m_module->m_codeAssistMgr.m_containerItem = item;
 
-		return item->setBody(getCachedPragmaSettings(), bodyToken.m_pos, bodyToken.m_data.m_string);
+		return item->setBody(getPragmaConfigSnapshot(), bodyToken.m_pos, bodyToken.m_data.m_string);
 	}
 
 	void
@@ -361,9 +369,6 @@ protected:
 		assignDeclarationAttributes(item, itemDecl, declarator->m_pos, declarator->m_attributeBlock, declarator->m_doxyBlock);
 	}
 
-	bool
-	checkUnusedAttributeBlock();
-
 	GlobalNamespace*
 	getGlobalNamespace(
 		GlobalNamespace* parentNamespace,
@@ -380,6 +385,9 @@ protected:
 
 	AttributeBlock*
 	popAttributeBlock();
+
+	bool
+	processAttributeBlocks();
 
 	bool
 	declare(Declarator* declarator);
