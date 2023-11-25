@@ -44,7 +44,10 @@ enum {
 opaque class RegexCapture {
 	uint64_t readonly m_offset;
 	uint64_t readonly m_endOffset;
-	uint64_t const property m_size;
+	uint64_t const property m_length {
+		return m_endOffset - m_offset;
+	}
+
 	string_t const property m_text;
 }
 
