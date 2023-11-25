@@ -1370,6 +1370,17 @@ Parser::parseLastPropertyBody(const Token& bodyToken) {
 	size_t length = bodyToken.m_data.m_string.getLength();
 	sl::List<Token> tokenList;
 
+	if (m_lastPropertyGetterType) { // simple property declaration syntax
+		Property* prop = ((Property*)m_lastDeclaredItem);
+		if (m_lastPropertyTypeModifiers & TypeModifier_Const) // const property with a body -- the body is the getter
+				return
+					finalizeLastProperty(true) &&
+					setBody(prop->m_getter, bodyToken);
+
+		err::setFormatStringError("simple read-write property '%s' can't have a body", prop->getQualifiedName().sz());
+		return false;
+	}
+
 	return
 		tokenizeBody(
 			&tokenList,
