@@ -81,13 +81,8 @@ target_link_libraries(
 	axl_lex
 	axl_dox
 	axl_core
+	${RE2S_LIB_NAME}
 )
-
-if(TARGET re2::re2)
-	target_link_libraries(jnc_dll re2::re2)
-else()
-	target_link_libraries(jnc_dll re2)
-endif()
 
 if(WIN32)
 	target_link_libraries(
