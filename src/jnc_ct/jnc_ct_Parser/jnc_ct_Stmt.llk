@@ -100,7 +100,7 @@ statement
 statement_sync
 	:	TokenKind_If
 	|	TokenKind_Switch
-	|	TokenKind_RegexSwitch
+	|	TokenKind_LexerSwitch
 	|	TokenKind_While
 	|	TokenKind_Do
 	|	TokenKind_For
@@ -201,10 +201,16 @@ regex_switch_stmt
 	local {
 		RegexSwitchStmt $stmt;
 	}
-	enter {
-		m_module->m_controlFlowMgr.regexSwitchStmt_Create(&$stmt, popAttributeBlock());
-	}
-	:	(TokenKind_RegexSwitch | TokenKind_Switch) '(' expression $p1 (',' expression $p2)? ')'
+	:	(	TokenKind_LexerSwitch $x
+				{
+					m_module->m_controlFlowMgr.regexSwitchStmt_Create(&$stmt, popAttributeBlock(), re2::ExecFlag_Anchored);
+				}
+		|	TokenKind_Switch
+				{
+					m_module->m_controlFlowMgr.regexSwitchStmt_Create(&$stmt, popAttributeBlock(), re2::ExecFlag_FullMatch);
+				}
+		)
+		'(' expression $p1 (',' expression $p2)? ')'
 		'{' $l
 			{
 				return m_module->m_controlFlowMgr.regexSwitchStmt_Condition(
