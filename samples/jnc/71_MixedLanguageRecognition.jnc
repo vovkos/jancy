@@ -11,7 +11,7 @@
 
 // Like Ragel, Jancy-generated recognizers can be used for processing
 // mixed-language documents. Developer can switch languages at will and just
-// feed the data to the appropriate 'reswitch'.
+// feed the data to the appropriate 'switch'.
 
 //..............................................................................
 
@@ -27,61 +27,61 @@ int main() {
 
 	Language language = Language.Foo;
 
-	char s[] = "foo 'bar \\' bar' foo";
-
-	char* p = s;
-	char* end = p + countof(s) - 1;
-
-	jnc.RegexState state(jnc.RegexExecFlags.AnchorDataBegin);
-
-	while (p < end) {
+	string_t text = r" foooo 2 barr \1 barrr 1 foooooo \2 fooo ";
+	while (text.m_length) {
 		switch (language) {
 		case Language.Foo:
-			reswitch (state, p, end - p) {
-			case "foo":
-				printf("@%04llx: foo\n", state.m_match.m_offset);
+			lexer switch (text) {
+			case "foo+":
+				printf($"foo: $0\n");
 				break;
 
-			case "'":
-				language = Language.Bar; // switch language
+			case "2":
+				language = Language.Bar; // switch language to Bar
+				break;
+
+			case r"\\2":
+				// ignore if it's escape-protected
 				break;
 
 			case r"\s+":
 				// ignore whitespace
 				break;
+
+			default:
+				printf("the Foo language recognition error at %s\n", text);
+				return -1;
 			}
+
+			text += $0.m_length; // advance to the next lexeme
 			break;
 
 		case Language.Bar:
-			reswitch (state, p, end - p) {
-			case "bar":
-				printf("%04llx: bar\n", state.m_match.m_offset);
+			lexer switch (text) {
+			case "bar+":
+				printf($"bar: $0\n");
 				break;
 
-			case r"\\'":
-				// ignore escape-protected apostrophe
+			case "1":
+				language = Language.Foo; // switch language back to Foo
 				break;
 
-			case "'":
-				language = Language.Foo; // switch language back
+			case r"\\1":
+				// ignore if it's escape-protected
 				break;
 
 			case r"\s+":
 				// ignore whitespace
 				break;
+
+			default:
+				printf("the Bar language recognition error at: %s\n", text);
+				return -2;
 			}
-			break;
 
-		default:
-			assert(false);
-		}
-
-		if (!state.m_lastExecResult) {
-			printf("recognition error\n");
+			text += $0.m_length; // advance to the next lexeme
 			break;
 		}
-
-		p += state.m_match.m_length; // advance to the next lexeme
 	}
 
 	return 0;

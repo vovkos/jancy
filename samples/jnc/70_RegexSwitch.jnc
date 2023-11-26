@@ -9,7 +9,7 @@
 //
 //..............................................................................
 
-// Jancy features 'regex switch' statement as a built-in support for creating
+// Jancy features regex `switch` statement as a built-in support for creating
 // protocol analyzers, programming language lexers and other recognizers.
 
 // If you ever used tools like Lex, Flex, Ragel etc then you are already
@@ -26,23 +26,24 @@
 int main() {
 	printf("main()\n");
 
-	string_t text = " foo bar 123 baz";
+	string_t text = " foooooo bar 123 baz";
 	while (text.m_length) {
-		// by default, regex switch implies jnc.RegexExecFlag.FullMatch
-		// for lexers like this one, we only want the start anchor
-		[ RegexFlags = jnc.RegexExecFlags.Anchored ]
+		// `lexer switch` implies `jnc.RegexExecFlags.Anchored` which is most
+		// natural for lexers. Without the `lexer` modifier, the regex `switch`
+		// will go for a full match only (imply `jnc.RegexExecFlags.FullMatch`)
+
 		lexer switch (text) {
-		case "foo":
+		case "foo+":
 			// $0 is the whole match, $1 is the first capturing group, etc
-			printf("@%04llx: foo\n", $0.m_offset);
+			printf($"foo: $0\n");
 			break;
 
 		case "bar":
-			printf("@%04llx: bar\n", $0.m_offset);
+			printf("bar\n");
 			break;
 
 		case r"\d+":
-			printf("@%04llx: %s\n", $0.m_offset, $0.m_text);
+			printf($"decimal: $0\n");
 			break;
 
 		case r"\s+":
@@ -54,7 +55,7 @@ int main() {
 			break2;
 		}
 
-		text += $0.m_length; // "shift" effectively removes the matched lexeme
+		text += $0.m_length; // effectively removes the matched lexeme
 	}
 
 	return 0;
