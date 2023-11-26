@@ -1792,21 +1792,34 @@ OperatorMgr::getRegexGroup(
 		return false;
 	}
 
-	Value matchValue;
-	bool result = memberOperator(*scope->m_regexStateValue, "m_match", &matchValue);
-	if (!result)
-		return false;
-
 	if (!index) { // $0 is the match itself
-		*resultValue = matchValue;
+		*resultValue = scope->m_regexMatchVariable;
 		return true;
 	}
 
 	Value groupArrayValue;
 	Value indexValue(index, m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT));
-	return
-		memberOperator(matchValue, "m_groupArray", &groupArrayValue) &&
-		binaryOperator(BinOpKind_Idx, groupArrayValue, indexValue, resultValue);
+	Value groupValue;
+
+	BasicBlock* thenBlock = m_module->m_controlFlowMgr.createBlock("is_match");
+	BasicBlock* elseBlock = m_module->m_controlFlowMgr.createBlock("no_match");
+	BasicBlock* phiBlock = m_module->m_controlFlowMgr.createBlock("match_phi");
+
+	bool result =
+		m_module->m_controlFlowMgr.conditionalJump(scope->m_regexMatchVariable, thenBlock, elseBlock) &&
+		memberOperator(scope->m_regexMatchVariable, "m_groupArray", &groupArrayValue) &&
+		binaryOperator(BinOpKind_Idx, groupArrayValue, indexValue, &groupValue) &&
+		prepareOperand(&groupValue);
+
+	thenBlock = m_module->m_controlFlowMgr.setCurrentBlock(elseBlock);
+
+	return m_module->m_operatorMgr.conditionalOperator(
+		groupValue,
+		groupValue.getType()->getZeroValue(),
+		thenBlock,
+		phiBlock,
+		resultValue
+	);
 }
 
 //..............................................................................
