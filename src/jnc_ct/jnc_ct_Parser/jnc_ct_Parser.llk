@@ -52,11 +52,6 @@ public:
 		Mode_Reaction, // compiling the 'reaction' method of a reactor (w/ implicit bindings)
 	};
 
-	enum PragmaState {
-		PragmaState_Default = 0,
-		PragmaState_CustomValue,
-	};
-
 	struct CurlyInitializer {
 		Value m_targetValue;
 		Value m_memberValue;

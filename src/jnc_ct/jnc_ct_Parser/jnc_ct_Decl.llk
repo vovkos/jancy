@@ -176,12 +176,24 @@ access_declaration
 	;
 
 pragma_declaration
-	:	TokenKind_Pragma '(' TokenKind_Identifier $i ',' (TokenKind_Default | constant_integer_expr $v) ')'
+	:	TokenKind_Pragma '(' TokenKind_Identifier $i
+		(	','
+			(
+				constant_integer_expr $v
+					{
+						return pragma($i.m_data.m_string, PragmaState_CustomValue, $v.m_value);
+					}
+			|	TokenKind_Default
+					{
+						return pragma($i.m_data.m_string, PragmaState_Default);
+					}
+			)
+		|
 			{
-				return &$v ?
-					pragma($i.m_data.m_string, PragmaState_CustomValue, $v.m_value) :
-					pragma($i.m_data.m_string, PragmaState_Default);
+				return pragma($i.m_data.m_string, PragmaState_NoValue);
 			}
+		)
+		')'
 	;
 
 setas_declaration

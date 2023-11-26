@@ -151,44 +151,14 @@ Parser::pragma(
 	PragmaState state,
 	int64_t value
 ) {
-	bool isDefault = state == state == PragmaState_Default;
 	Pragma pragmaKind = PragmaMap::findValue(name, Pragma_Undefined);
-	switch (pragmaKind) {
-	case Pragma_Alignment:
-		if (isDefault)
-			m_module->m_pragmaMgr->m_fieldAlignment = PragmaDefault_Alignment;
-		else if (sl::isPowerOf2(value) && value <= 16)
-			m_module->m_pragmaMgr->m_fieldAlignment = value;
-		else {
-			err::setFormatStringError("invalid alignment %d", value);
-			return false;
-		}
-		break;
-
-	case Pragma_ThinPointers:
-		m_module->m_pragmaMgr->m_pointerModifiers = isDefault || !value ? 0 : TypeModifier_Thin;
-		break;
-
-	case Pragma_ExposedEnums:
-		m_module->m_pragmaMgr->m_enumFlags = isDefault || !value ? 0 : EnumTypeFlag_Exposed;
-		break;
-
-	case Pragma_RegexFlags:
-		m_module->m_pragmaMgr->m_regexFlags = isDefault ? 0 : value;
-		break;
-
-	default:
+	if (!pragmaKind) {
 		err::setFormatStringError("unknown pragma '%s'", name.sz());
 		return false;
 	}
 
-	if (isDefault)
-		m_module->m_pragmaMgr->m_mask &= ~(1 << pragmaKind);
-	else
-		m_module->m_pragmaMgr->m_mask |= 1 << pragmaKind;
-
 	m_pragmaConfigSnapshot = NULL;
-	return true;
+	return m_module->m_pragmaMgr->setPragma(pragmaKind, state, value);
 }
 
 void
