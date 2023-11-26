@@ -178,10 +178,10 @@ public:
 	);
 
 	Variable*
-	createStaticRegexVariable(
-		const sl::StringRef& name,
-		const re2::Regex* regex
-	);
+	createStaticRegexVariable(const re2::Regex& regex);
+
+	Variable*
+	getRegexMatchVariable();
 
 	bool
 	createTlsStructType();

@@ -23,40 +23,53 @@ void
 ControlFlowMgr::setRegexFlags(
 	RegexCondStmt* stmt,
 	AttributeBlock* attributeBlock,
-	uint_t defaultFlags
+	uint_t defaultAnchorFlags
 ) {
 	if (attributeBlock) {
-		Attribute* flagsAttr = attributeBlock->findAttribute("RegexFlags");
-		if (flagsAttr && flagsAttr->getValue()) {
-			uint_t flags = *(uint8_t*)flagsAttr->getValue().getConstData();
-			stmt->m_prevPragmaRegexFlags = m_module->m_pragmaMgr->m_regexFlags;
-			stmt->m_isPragmaRegexFlagsDefault = (m_module->m_pragmaMgr->m_mask & Pragma_RegexFlags) == 0;
-			stmt->m_isPragmaRegexFlagsChanged = true;
+		PragmaConfig pragmaConfig;
 
-			m_module->m_pragmaMgr->m_regexFlags = flags;
-			m_module->m_pragmaMgr->m_mask |= 1 << Pragma_RegexFlags;
-			stmt->m_regexFlags = flags;
-			return;
+		const sl::Array<Attribute*>& attributeArray = attributeBlock->getAttributeArray();
+		size_t count = attributeArray.getCount();
+		for (size_t i = 0; i < count; i++) {
+			Attribute* attr = attributeArray[i];
+			Pragma pragmaKind = PragmaMap::findValue(attr->getName(), Pragma_Undefined);
+			if (pragmaKind)
+				if (!attr->getValue())
+					pragmaConfig.setPragma(pragmaKind, PragmaState_NoValue);
+				else
+					pragmaConfig.setPragma(
+						pragmaKind,
+						PragmaState_CustomValue,
+						*(uint8_t*)attr->getValue().getConstData()
+					);
+		}
+
+		if (pragmaConfig.m_regexFlagMask) {
+			stmt->m_attrRegexFlagMask = pragmaConfig.m_regexFlagMask;
+			stmt->m_prevPragmaRegexFlags = m_module->m_pragmaMgr->m_regexFlags;
+			stmt->m_prevPragmaRegexFlagMask = m_module->m_pragmaMgr->m_regexFlagMask;
+
+			m_module->m_pragmaMgr->m_regexFlags &= ~pragmaConfig.m_regexFlagMask;
+			m_module->m_pragmaMgr->m_regexFlags |= pragmaConfig.m_regexFlags;
+			m_module->m_pragmaMgr->m_regexFlagMask |= pragmaConfig.m_regexFlagMask;
 		}
 	}
 
-	stmt->m_regexFlags = (m_module->m_pragmaMgr->m_mask & (1 << Pragma_RegexFlags)) ?
-		m_module->m_pragmaMgr->m_regexFlags :
-		defaultFlags;
+	stmt->m_regexFlags = m_module->m_pragmaMgr->m_regexFlags;
+	if (!(m_module->m_pragmaMgr->m_regexFlagMask & (re2::ExecFlag_Anchored | re2::ExecFlag_FullMatch)))
+		stmt->m_regexFlags |= defaultAnchorFlags;
 }
 
 inline
 void
 ControlFlowMgr::restoreRegexFlags(RegexCondStmt* stmt) {
-	if (!stmt->m_isPragmaRegexFlagsChanged)
+	if (!stmt->m_attrRegexFlagMask)
 		return;
 
-	if (stmt->m_isPragmaRegexFlagsDefault)
-		m_module->m_pragmaMgr->m_mask &= ~(1 << Pragma_RegexFlags);
-	else
-		m_module->m_pragmaMgr->m_mask |= 1 << Pragma_RegexFlags;
-
-	m_module->m_pragmaMgr->m_regexFlags = stmt->m_prevPragmaRegexFlags;
+	m_module->m_pragmaMgr->m_regexFlags &= ~stmt->m_attrRegexFlagMask;
+	m_module->m_pragmaMgr->m_regexFlags |= stmt->m_prevPragmaRegexFlags;
+	m_module->m_pragmaMgr->m_regexFlagMask &= ~stmt->m_attrRegexFlagMask;
+	m_module->m_pragmaMgr->m_regexFlagMask |= stmt->m_prevPragmaRegexFlagMask;
 }
 
 void
@@ -83,10 +96,7 @@ ControlFlowMgr::ifStmt_Condition(
 	if (!result)
 		return false;
 
-	Scope* scope = m_module->m_namespaceMgr.openScope(pos);
-	if (stmt->m_regexStateValue)
-		scope->m_regexStateValue = &stmt->m_regexStateValue;
-
+	m_module->m_namespaceMgr.openScope(pos);
 	return true;
 }
 
@@ -98,7 +108,7 @@ ControlFlowMgr::ifStmt_Else(
 	m_module->m_namespaceMgr.closeScope();
 	stmt->m_followBlock = createBlock("if_follow");
 	jump(stmt->m_followBlock, stmt->m_elseBlock);
-	m_module->m_namespaceMgr.openScope(pos);
+	m_module->m_namespaceMgr.openScope(pos, ScopeFlag_ElseIf);
 }
 
 void
@@ -213,13 +223,15 @@ ControlFlowMgr::switchStmt_Follow(SwitchStmt* stmt) {
 void
 ControlFlowMgr::regexSwitchStmt_Create(
 	RegexSwitchStmt* stmt,
-	AttributeBlock* attributeBlock
+	AttributeBlock* attributeBlock,
+	uint_t defaultAnchorFlags
 ) {
-	setRegexFlags(stmt, attributeBlock, re2::ExecFlag_FullMatch);
+	setRegexFlags(stmt, attributeBlock, defaultAnchorFlags);
 	stmt->m_switchBlock = NULL;
 	stmt->m_defaultBlock = NULL;
 	stmt->m_followBlock = createBlock("regex_switch_follow");
 	stmt->m_regex.createSwitch(stmt->m_regexFlags);
+	m_module->m_variableMgr.getRegexMatchVariable(); // ensure the regex match variable in the parent scope
 }
 
 bool
@@ -239,6 +251,10 @@ ControlFlowMgr::regexSwitchStmt_Condition(
 		Type* flagsType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_RegexExecFlags);
 		sl::BoxList<Value> argValueList;
 		argValueList.insertTail(Value(stmt->m_regexFlags, flagsType));
+
+		Variable* regexVariable = m_module->m_variableMgr.createStaticRegexVariable(stmt->m_regex);
+		if (!regexVariable)
+			return false;
 
 		result =
 			m_module->m_operatorMgr.newOperator(
@@ -295,15 +311,14 @@ ControlFlowMgr::regexSwitchStmt_Case(
 	block->m_flags |= (stmt->m_switchBlock->m_flags & BasicBlockFlag_Reachable);
 	follow(block);
 
-	Scope* scope = m_module->m_namespaceMgr.openScope(pos);
-	scope->m_regexStateValue = &stmt->m_regexStateValue;
-
 	uint_t caseId = stmt->m_regex.compileSwitchCase(regexSource);
 	if (caseId == -1)
 		return false;
 
 	stmt->m_caseMap.getCount();
 	stmt->m_caseMap[caseId] = block;
+
+	m_module->m_namespaceMgr.openScope(pos);
 	return true;
 }
 
@@ -351,7 +366,7 @@ ControlFlowMgr::regexSwitchStmt_Finalize(RegexSwitchStmt* stmt) {
 
 	stmt->m_regex.finalizeSwitch();
 
-	Variable* regexVariable = m_module->m_variableMgr.createStaticRegexVariable("regex", &stmt->m_regex);
+	Variable* regexVariable = m_module->m_variableMgr.createStaticRegexVariable(stmt->m_regex);
 	if (!regexVariable)
 		return false;
 
@@ -373,6 +388,7 @@ ControlFlowMgr::regexSwitchStmt_Finalize(RegexSwitchStmt* stmt) {
 		m_module->m_operatorMgr.binaryOperator(BinOpKind_Eq, execResultValue, matchConstValue, &cmpResultValue) &&
 		conditionalJump(cmpResultValue, matchBlock, defaultBlock, matchBlock) &&
 		m_module->m_operatorMgr.memberOperator(stmt->m_regexStateValue, "m_match", &matchValue) &&
+		m_module->m_operatorMgr.storeDataRef(m_module->m_variableMgr.getRegexMatchVariable(), matchValue) &&
 		m_module->m_operatorMgr.memberOperator(matchValue, "m_id", &caseIdValue) &&
 		m_module->m_operatorMgr.prepareOperand(&caseIdValue);
 
@@ -419,10 +435,6 @@ ControlFlowMgr::whileStmt_Condition(
 	Scope* scope = m_module->m_namespaceMgr.openScope(pos);
 	scope->m_breakBlock = stmt->m_followBlock;
 	scope->m_continueBlock = stmt->m_conditionBlock;
-
-	if (stmt->m_regexStateValue)
-		scope->m_regexStateValue = &stmt->m_regexStateValue;
-
 	return conditionalJump(value, stmt->m_bodyBlock, stmt->m_followBlock);
 }
 
@@ -510,10 +522,6 @@ ControlFlowMgr::forStmt_PostCondition(
 	const Value& value
 ) {
 	m_regexCondStmt = NULL;
-
-	if (stmt->m_regexStateValue)
-		stmt->m_scope->m_regexStateValue = &stmt->m_regexStateValue;
-
 	return conditionalJump(value, stmt->m_bodyBlock, stmt->m_followBlock);
 }
 

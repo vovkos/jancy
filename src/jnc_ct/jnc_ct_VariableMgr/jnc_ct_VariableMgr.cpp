@@ -665,13 +665,10 @@ VariableMgr::createAsyncArgVariable(
 }
 
 Variable*
-VariableMgr::createStaticRegexVariable(
-	const sl::StringRef& name,
-	const re2::Regex* regex
-) {
+VariableMgr::createStaticRegexVariable(const re2::Regex& regex) {
 	// serialize regex into arrray
 
-	sl::Array<char> regexStorage = regex->save();
+	sl::Array<char> regexStorage = regex.save();
 
 	Value storageSizeValue;
 	storageSizeValue.setConstSizeT(regexStorage.getCount(), m_module);
@@ -683,7 +680,7 @@ VariableMgr::createStaticRegexVariable(
 	// create the regex variable
 
 	ClassType* regexType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_Regex);
-	Variable* variable = m_module->m_variableMgr.createVariable(StorageKind_Static, name, regexType);
+	Variable* variable = m_module->m_variableMgr.createVariable(StorageKind_Static, "regex", regexType);
 	variable->m_parentNamespace = m_module->m_namespaceMgr.getCurrentScope();
 
 	// initialize and load the regex variable inside a once-block
@@ -706,6 +703,26 @@ VariableMgr::createStaticRegexVariable(
 		return NULL;
 
 	m_module->m_controlFlowMgr.onceStmt_PostBody(&onceStmt);
+	return variable;
+}
+
+Variable*
+VariableMgr::getRegexMatchVariable() {
+	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
+	if (scope->getFlags() & ScopeFlag_ElseIf)
+		scope = scope->getParentScope();
+
+	if (scope->m_regexMatchVariable)
+		return scope->m_regexMatchVariable;
+
+	ClassPtrType* ptrType = ((ClassType*)m_module->m_typeMgr.getStdType(StdType_RegexMatch))->getClassPtrType(
+		ClassPtrTypeKind_Normal,
+		PtrTypeFlag_Const
+	);
+
+	Variable* variable = m_module->m_variableMgr.createSimpleStackVariable("regexMatch", ptrType);
+	variable->m_parentNamespace = scope;
+	scope->m_regexMatchVariable = variable;
 	return variable;
 }
 

@@ -541,7 +541,7 @@ Scope*
 NamespaceMgr::findRegexScope() {
 	Scope* scope = m_currentScope;
 	for (; scope; scope = scope->getParentScope()) {
-		if (scope->m_regexStateValue)
+		if (scope->m_regexMatchVariable)
 			break;
 	}
 

@@ -37,6 +37,7 @@ enum ScopeFlag {
 	ScopeFlag_Function       = 0x00000100,
 	ScopeFlag_Unsafe         = 0x00000200,
 	ScopeFlag_Nested         = 0x00000400,
+	ScopeFlag_ElseIf         = 0x00000800,
 	ScopeFlag_Try            = 0x00001000,
 	ScopeFlag_Catch          = 0x00002000,
 	ScopeFlag_Finally        = 0x00004000,
@@ -76,7 +77,7 @@ public:
 	LlvmIrInsertPoint m_gcShadowStackFrameMapInsertPoint;
 	GcShadowStackFrameMap* m_gcShadowStackFrameMap;
 	Variable* m_firstStackVariable; // we have to set frame map BEFORE the very first stack variable lift point
-	Value* m_regexStateValue; // for getting regex groups via $0, $1, etc
+	Variable* m_regexMatchVariable; // for getting regex groups via $0, $1, etc
 
 public:
 	Scope();

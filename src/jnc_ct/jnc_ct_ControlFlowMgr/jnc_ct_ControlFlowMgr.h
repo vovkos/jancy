@@ -23,11 +23,10 @@ struct TryExpr;
 //..............................................................................
 
 struct RegexCondStmt {
-	Value m_regexStateValue;
 	uint_t m_regexFlags;
-	uint_t m_prevPragmaRegexFlags : 8;
-	uint_t m_isPragmaRegexFlagsChanged : 1;
-	uint_t m_isPragmaRegexFlagsDefault : 1;
+	uint_t m_attrRegexFlagMask;
+	uint_t m_prevPragmaRegexFlags;
+	uint_t m_prevPragmaRegexFlagMask;
 
 	RegexCondStmt();
 };
@@ -37,9 +36,9 @@ struct RegexCondStmt {
 inline
 RegexCondStmt::RegexCondStmt() {
 	m_regexFlags = 0;
+	m_attrRegexFlagMask = 0;
 	m_prevPragmaRegexFlags = 0;
-	m_isPragmaRegexFlagsChanged = false;
-	m_isPragmaRegexFlagsDefault = false;
+	m_prevPragmaRegexFlagMask = 0;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -64,6 +63,7 @@ struct SwitchStmt {
 
 struct RegexSwitchStmt: RegexCondStmt {
 	Value m_textValue;       // string_t
+	Value m_regexStateValue;
 	re2::Regex m_regex;
 	sl::StringRef m_execMethodName;
 	BasicBlock* m_switchBlock;
@@ -367,7 +367,8 @@ public:
 	void
 	regexSwitchStmt_Create(
 		RegexSwitchStmt* stmt,
-		AttributeBlock* attributeBlock
+		AttributeBlock* attributeBlock,
+		uint_t defaultAnchorFlags = re2::ExecFlag_FullMatch
 	);
 
 	bool
@@ -534,7 +535,7 @@ protected:
 	setRegexFlags(
 		RegexCondStmt* stmt,
 		AttributeBlock* attributeBlock,
-		uint_t defaultFlags
+		uint_t defaultAnchorFlags
 	);
 
 	void

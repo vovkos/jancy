@@ -48,7 +48,7 @@ BinOp_Match::op(
 		if (!result)
 			return false;
 
-		Variable* regexVariable = m_module->m_variableMgr.createStaticRegexVariable("regex", &regex);
+		Variable* regexVariable = m_module->m_variableMgr.createStaticRegexVariable(regex);
 		if (!regexVariable)
 			return false;
 
@@ -82,22 +82,13 @@ BinOp_Match::op(
 
 	Value stateValue;
 	Value execValue;
-	Value execResultValue;
-	Value matchConstValue((int64_t)re2::ExecResult_Match, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int));
 
-	result =
+	return
 		m_module->m_operatorMgr.newOperator(stateType, &argValueList, &stateValue) &&
 		m_module->m_operatorMgr.memberOperator(regexValue, "execEof", &execValue) &&
-		m_module->m_operatorMgr.callOperator(execValue, stateValue, opValue1, &execResultValue) &&
-		m_module->m_operatorMgr.binaryOperator(BinOpKind_Eq, execResultValue, matchConstValue, resultValue);
-
-	if (!result)
-		return false;
-
-	if (regexCondStmt)
-		regexCondStmt->m_regexStateValue = stateValue;
-
-	return true;
+		m_module->m_operatorMgr.callOperator(execValue, stateValue, opValue1, NULL) &&
+		m_module->m_operatorMgr.memberOperator(stateValue, "m_match", resultValue) &&
+		m_module->m_operatorMgr.storeDataRef(m_module->m_variableMgr.getRegexMatchVariable(), *resultValue);
 }
 
 //..............................................................................
