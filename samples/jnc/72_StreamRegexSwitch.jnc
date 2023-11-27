@@ -37,7 +37,7 @@ int main() {
 		switch (state, string_t(p, 1)) { // feed data to the regex char-by-char
 		case "foo+":
 			printf(
-				"@%04llx: foo (%d B): %s \n",
+				"@%04llx(%d): foo: %s \n",
 				$0.m_offset,
 				$0.m_length,
 				string_t(text.m_p + $0.m_offset, $0.m_length)
@@ -45,11 +45,11 @@ int main() {
 			break;
 
 		case "bar":
-			printf("@%04llx: bar\n", $0.m_offset);
+			printf("@%04llx(%d): bar\n", $0.m_offset, $0.m_length);
 			break;
 
 		case r"\d+":
-			printf("@%04llx: decimal (%d B): %s\n",
+			printf("@%04llx(%d): decimal: %s\n",
 				$0.m_offset,
 				$0.m_length,
 				string_t(text.m_p + $0.m_offset, $0.m_length)
