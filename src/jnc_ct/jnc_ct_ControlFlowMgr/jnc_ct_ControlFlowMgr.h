@@ -367,8 +367,7 @@ public:
 	void
 	regexSwitchStmt_Create(
 		RegexSwitchStmt* stmt,
-		AttributeBlock* attributeBlock,
-		uint_t defaultAnchorFlags = re2::ExecFlag_FullMatch
+		AttributeBlock* attributeBlock
 	);
 
 	bool
@@ -535,7 +534,7 @@ protected:
 	setRegexFlags(
 		RegexCondStmt* stmt,
 		AttributeBlock* attributeBlock,
-		uint_t defaultAnchorFlags
+		uint_t defaultAnchorFlags = 0
 	);
 
 	void

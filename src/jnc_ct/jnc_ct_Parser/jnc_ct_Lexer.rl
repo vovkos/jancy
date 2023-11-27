@@ -262,8 +262,6 @@ main := |*
 'continue' [1-9] { createKeywordTokenEx(TokenKind_Continue, te[-1] - '0'); };
 'return'         { createToken(TokenKind_Return); };
 'switch'         { createToken(TokenKind_Switch); };
-'lexer' ws+ 'switch'
-                 { createToken(TokenKind_LexerSwitch); };
 'case'           { createToken(TokenKind_Case); };
 'default'        { createToken(TokenKind_Default); };
 'once'           { createToken(TokenKind_Once); };

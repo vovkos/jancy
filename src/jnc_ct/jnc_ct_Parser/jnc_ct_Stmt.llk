@@ -100,7 +100,6 @@ statement
 statement_sync
 	:	TokenKind_If
 	|	TokenKind_Switch
-	|	TokenKind_LexerSwitch
 	|	TokenKind_While
 	|	TokenKind_Do
 	|	TokenKind_For
@@ -187,10 +186,11 @@ switch_block_stmt<SwitchStmt* $stmt>
 	|	local_declaration
 	;
 
-// to resolve a conflict between regex switch and switch in the form `switch (expr)`, we check the expression type
+// to resolve a conflict between `regex switch (expr)` and `switch (expr)`, we check the expression type
+// when there are multiple arguments, it's a `regex switch` (the first argument is `jnc.RegexState*`)
 
 regex_switch_stmt_rslv
-	:	TokenKind_Switch '(' expression $e ',' $c?
+	:	TokenKind_Switch '(' expression $e (',' $c)?
 			{
 				return &$c || isRegexSwitchExpr($e.m_value);
 			}
@@ -201,16 +201,10 @@ regex_switch_stmt
 	local {
 		RegexSwitchStmt $stmt;
 	}
-	:	(	TokenKind_LexerSwitch $x
-				{
-					m_module->m_controlFlowMgr.regexSwitchStmt_Create(&$stmt, popAttributeBlock(), re2::ExecFlag_Anchored);
-				}
-		|	TokenKind_Switch
-				{
-					m_module->m_controlFlowMgr.regexSwitchStmt_Create(&$stmt, popAttributeBlock(), re2::ExecFlag_FullMatch);
-				}
-		)
-		'(' expression $p1 (',' expression $p2)? ')'
+	enter {
+		m_module->m_controlFlowMgr.regexSwitchStmt_Create(&$stmt, popAttributeBlock());
+	}
+	:	TokenKind_Switch '(' expression $p1 (',' expression $p2)? ')'
 		'{' $l
 			{
 				return m_module->m_controlFlowMgr.regexSwitchStmt_Condition(

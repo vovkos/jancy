@@ -129,7 +129,6 @@ main := |*
 	'continue' [1-9]? |
 	'return'          |
 	'switch'          |
-	'lexer' ws+ 'switch' |
 	'case'            |
 	'default'         |
 	'once'            |

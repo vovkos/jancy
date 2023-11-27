@@ -77,7 +77,7 @@ ControlFlowMgr::ifStmt_Create(
 	IfStmt* stmt,
 	AttributeBlock* attributeBlock
 ) {
-	setRegexFlags(stmt, attributeBlock, 0);
+	setRegexFlags(stmt, attributeBlock);
 	stmt->m_thenBlock = createBlock("if_then");
 	stmt->m_elseBlock = createBlock("if_else");
 	stmt->m_followBlock = stmt->m_elseBlock;
@@ -223,10 +223,9 @@ ControlFlowMgr::switchStmt_Follow(SwitchStmt* stmt) {
 void
 ControlFlowMgr::regexSwitchStmt_Create(
 	RegexSwitchStmt* stmt,
-	AttributeBlock* attributeBlock,
-	uint_t defaultAnchorFlags
+	AttributeBlock* attributeBlock
 ) {
-	setRegexFlags(stmt, attributeBlock, defaultAnchorFlags);
+	setRegexFlags(stmt, attributeBlock, re2::ExecFlag_FullMatch);
 	stmt->m_switchBlock = NULL;
 	stmt->m_defaultBlock = NULL;
 	stmt->m_followBlock = createBlock("regex_switch_follow");
@@ -276,7 +275,7 @@ ControlFlowMgr::regexSwitchStmt_Condition(
 			&stmt->m_regexStateValue
 		) &&
 		m_module->m_operatorMgr.castOperator(
-			value1,
+			value2,
 			m_module->m_typeMgr.getPrimitiveType(TypeKind_String),
 			&stmt->m_textValue
 		);
@@ -415,7 +414,7 @@ ControlFlowMgr::whileStmt_Create(
 	WhileStmt* stmt,
 	AttributeBlock* attributeBlock
 ) {
-	setRegexFlags(stmt, attributeBlock, 0);
+	setRegexFlags(stmt, attributeBlock);
 	stmt->m_conditionBlock = createBlock("while_condition");
 	stmt->m_bodyBlock = createBlock("while_body");
 	stmt->m_followBlock = createBlock("while_follow");
@@ -488,7 +487,7 @@ ControlFlowMgr::forStmt_Create(
 	ForStmt* stmt,
 	AttributeBlock* attributeBlock
 ) {
-	setRegexFlags(stmt, attributeBlock, 0);
+	setRegexFlags(stmt, attributeBlock);
 	stmt->m_bodyBlock = createBlock("for_body");
 	stmt->m_followBlock = createBlock("for_follow");
 	stmt->m_conditionBlock = stmt->m_bodyBlock;
