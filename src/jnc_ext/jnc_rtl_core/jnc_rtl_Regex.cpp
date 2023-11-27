@@ -62,6 +62,15 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 )
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(RegexState)
+	JNC_MAP_CONSTRUCTOR(
+		&(jnc::construct<RegexState,
+			uint_t,
+			uint64_t,
+			int,
+			uint64_t,
+			int
+		>)
+	)
 	JNC_MAP_DESTRUCTOR(&jnc::destruct<RegexState>)
 	JNC_MAP_CONST_PROPERTY("m_execFlags", &RegexState::getExecFlags)
 	JNC_MAP_CONST_PROPERTY("m_baseOffset", &RegexState::getBaseOffset)
@@ -72,7 +81,6 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(RegexState)
 	JNC_MAP_FUNCTION("reset", &RegexState::reset)
 	JNC_MAP_FUNCTION("setEofOffset", &RegexState::setEofOffset)
 	JNC_MAP_FUNCTION("setEof", &RegexState::setEof)
-	JNC_MAP_FUNCTION("init", &RegexState::init)
 JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

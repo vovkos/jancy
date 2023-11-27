@@ -73,19 +73,13 @@ opaque class RegexState {
 	RegexExecResult readonly m_lastExecResult;
 	RegexMatch const* const property m_match;
 
-	construct(RegexExecFlags flags = 0) {
-		init(flags, 0, RegexEofChar, -1, RegexEofChar);
-	}
-
 	construct(
-		RegexExecFlags flags,
-		uint64_t baseOffset,
-		int baseChar,
+		RegexExecFlags flags = 0,
+		uint64_t baseOffset = 0,
+		int baseChar = RegexEofChar,
 		uint64_t eofOffset = -1,
 		int eofChar = RegexEofChar
-	) {
-		init(flags, baseOffset, baseChar, eofOffset, eofChar);
-	}
+	);
 
 	destruct();
 
@@ -107,15 +101,6 @@ opaque class RegexState {
 	);
 
 	void setEof(int eofChar = RegexEofChar);
-
-protected:
-	void init(
-		RegexExecFlags flags,
-		uint64_t baseOffset,
-		int baseChar,
-		uint64_t eofOffset,
-		int eofChar
-	);
 }
 
 //..............................................................................

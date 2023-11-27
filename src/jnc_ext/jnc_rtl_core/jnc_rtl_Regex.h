@@ -98,6 +98,15 @@ protected:
 	String m_lastChunk;
 
 public:
+	RegexState(
+		uint_t execFlags,
+		uint64_t baseOffset,
+		int baseChar,
+		uint64_t eofOffset,
+		int eofChar
+	):
+		m_state(execFlags, baseOffset, baseChar, eofOffset, eofChar) {}
+
 	void
 	JNC_CDECL
 	markOpaqueGcRoots(GcHeap* gcHeap);
@@ -159,18 +168,6 @@ public:
 	JNC_CDECL
 	setEof(int eofChar) {
 		m_state.setEof(eofChar);
-	}
-
-	void
-	JNC_CDECL
-	init(
-		uint_t execFlags,
-		uint64_t baseOffset,
-		int baseChar,
-		uint64_t eofOffset,
-		int eofChar
-	) {
-		new (&m_state) re2::State(execFlags, baseOffset, baseChar, eofOffset, eofChar);
 	}
 };
 
