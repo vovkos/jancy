@@ -37,7 +37,7 @@ enum ScopeFlag {
 	ScopeFlag_Function       = 0x00000100,
 	ScopeFlag_Unsafe         = 0x00000200,
 	ScopeFlag_Nested         = 0x00000400,
-	ScopeFlag_ElseIf         = 0x00000800,
+	ScopeFlag_Else           = 0x00000800,
 	ScopeFlag_Try            = 0x00001000,
 	ScopeFlag_Catch          = 0x00002000,
 	ScopeFlag_Finally        = 0x00004000,

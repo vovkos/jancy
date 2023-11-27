@@ -709,7 +709,7 @@ VariableMgr::createStaticRegexVariable(const re2::Regex& regex) {
 Variable*
 VariableMgr::getRegexMatchVariable() {
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
-	if (scope->getFlags() & ScopeFlag_ElseIf)
+	if (scope->getFlags() & ScopeFlag_Else)
 		scope = scope->getParentScope();
 
 	if (scope->m_regexMatchVariable)

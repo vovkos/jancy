@@ -108,7 +108,7 @@ ControlFlowMgr::ifStmt_Else(
 	m_module->m_namespaceMgr.closeScope();
 	stmt->m_followBlock = createBlock("if_follow");
 	jump(stmt->m_followBlock, stmt->m_elseBlock);
-	m_module->m_namespaceMgr.openScope(pos, ScopeFlag_ElseIf);
+	m_module->m_namespaceMgr.openScope(pos, ScopeFlag_Else);
 }
 
 void
