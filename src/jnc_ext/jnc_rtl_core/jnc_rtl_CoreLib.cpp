@@ -449,22 +449,27 @@ stringIncrement(
 	return string;
 }
 
+static
+inline
 bool
-isNullTerminated(DataPtr ptr) {
+isNullTerminated(
+	DataPtr ptr,
+	size_t length
+) {
 	if (!ptr.m_validator)
 		return false;
 
 	char* p = (char*)ptr.m_p;
 	char* p0 = (char*)ptr.m_validator->m_rangeBegin;
 	char* end = (char*)ptr.m_validator->m_rangeEnd;
-	return p >= p0 && p < end && memchr(p, 0, end - p);
+	return p >= p0 && p + length < end && !p[length];
 }
 
 DataPtr
 stringSz(String string) {
 	return
 		string.m_ptr_sz.m_p ? string.m_ptr_sz :
-		isNullTerminated(string.m_ptr) ? string.m_ptr :
+		isNullTerminated(string.m_ptr, string.m_length) ? string.m_ptr :
 		strDup((char*)string.m_ptr.m_p, string.m_length);
 }
 
@@ -472,7 +477,7 @@ DataPtr
 stringRefSz(String* string) {
 	return
 		string->m_ptr_sz.m_p ? string->m_ptr_sz :
-		isNullTerminated(string->m_ptr) ? string->m_ptr_sz = string->m_ptr :
+		isNullTerminated(string->m_ptr, string->m_length) ? string->m_ptr_sz = string->m_ptr :
 		string->m_ptr_sz = strDup((char*)string->m_ptr.m_p, string->m_length);
 }
 
