@@ -340,10 +340,9 @@ Regex::exec(
 	RegexState* state,
 	String chunk
 ) {
-	state->m_regex = m_regex;
-	state->m_match = NULL;
-	state->m_lastChunk = chunk;
-	return state->m_lastExecResult = m_regex->exec(&state->m_state, chunk >> toAxl);
+	re2::ExecResult result = m_regex->exec(&state->m_state, chunk >> toAxl);
+	saveExecResult(state, result, chunk);
+	return result;
 }
 
 re2::ExecResult
@@ -353,10 +352,9 @@ Regex::execEof(
 	String lastChunk,
 	int eofChar
 ) {
-	state->m_regex = m_regex;
-	state->m_match = NULL;
-	state->m_lastChunk = lastChunk;
-	return state->m_lastExecResult = m_regex->execEof(&state->m_state, lastChunk >> toAxl, eofChar);
+	re2::ExecResult result = m_regex->execEof(&state->m_state, lastChunk >> toAxl, eofChar);
+	saveExecResult(state, result, lastChunk);
+	return result;
 }
 
 size_t

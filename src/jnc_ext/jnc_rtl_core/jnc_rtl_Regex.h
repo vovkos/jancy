@@ -303,6 +303,13 @@ protected:
 	finalize();
 
 	void
+	saveExecResult(
+		RegexState* state,
+		re2::ExecResult result,
+		String chunk
+	);
+
+	void
 	createSubmatchCaptureArray(
 		String matchText,
 		RegexCapture** captureArray_jnc,
@@ -327,6 +334,25 @@ Regex::finalize() {
 	case re2::RegexKind_Switch:
 		m_switchCaseCount = m_regex->getSwitchCaseCount();
 		break;
+	}
+}
+
+inline
+void
+Regex::saveExecResult(
+	RegexState* state,
+	re2::ExecResult result,
+	String chunk
+) {
+	state->m_lastExecResult = result;
+	state->m_match = NULL;
+
+	if (result == re2::ExecResult_Match) {
+		state->m_regex = m_regex;
+		state->m_lastChunk = chunk;
+	} else {
+		state->m_regex = rc::g_nullPtr;
+		state->m_lastChunk = g_nullString;
 	}
 }
 

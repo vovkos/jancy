@@ -87,6 +87,26 @@ construct(
 	new(p)T(arg1, arg2, arg3, arg4);
 }
 
+template <
+	typename T,
+	typename Arg1,
+	typename Arg2,
+	typename Arg3,
+	typename Arg4,
+	typename Arg5
+>
+void
+construct(
+	T* p,
+	Arg1 arg1,
+	Arg2 arg2,
+	Arg3 arg3,
+	Arg4 arg4,
+	Arg5 arg5
+) {
+	new(p)T(arg1, arg2, arg3, arg4, arg5);
+}
+
 template <typename T>
 void
 destruct(T* p) {
