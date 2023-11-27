@@ -31,7 +31,8 @@ int main() {
 	while (text.m_length) {
 		switch (language) {
 		case Language.Foo:
-			lexer switch (text) {
+			[ RegexAnchored ]
+			switch (text) {
 			case "foo+":
 				printf($"foo: $0\n");
 				break;
@@ -57,7 +58,8 @@ int main() {
 			break;
 
 		case Language.Bar:
-			lexer switch (text) {
+			[ RegexAnchored ]
+			switch (text) {
 			case "bar+":
 				printf($"bar: $0\n");
 				break;

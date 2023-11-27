@@ -23,69 +23,60 @@
 int main() {
 	printf("main()\n");
 
-	// we need a jnc.RegexState object to store the state of DFA
+	string_t text = " foooooo bar 123";
 
-	jnc.RegexState state(jnc.RegexExecFlags.AnchorDataBegin | jnc.RegexExecFlags.Stream);
+	// a jnc.RegexState object to store the DFA state between invokations
+	jnc.RegexState state(jnc.RegexExecFlags.Anchored);
 
-	char const* stream = " foo bar 123";
-	char const* p = stream;
-	char const* end = p + strlen(p);
+	// set the EOF offset when you know it (not necessarily now)
+	state.setEofOffset(text.m_length);
 
-	enum {
-		ChunkSize = 1 // feed data to the regex byte-by-byte for demonstration purposes
-	}
-
-	while (p <= end) {
-		size_t chunkSize;
-		
-		if (p == end) {
-			chunkSize = jnc.RegexEof; // use a special value as EOF token
-		} else {
-			size_t leftover = end - p;
-			chunkSize = ChunkSize < leftover ? ChunkSize : leftover;
-		}
-
-		reswitch (state, p, chunkSize) { 
-		case "foo":
-			printf("@%04llx: foo\n", state.m_match.m_offset);
-			break;
-	
-		case "bar":
-			printf("@%04llx: bar\n", state.m_match.m_offset);
-			break;
-	
-		case r"\d+":
-			printf("@%04llx: decimal (%d bytes long)\n",
-				state.m_match.m_offset,
-				state.m_match.m_length
+	char const* p = text.m_p;
+	char const* end = p + text.m_length;
+	while (p < end) {
+		switch (state, string_t(p, 1)) { // feed data to the regex char-by-char
+		case "foo+":
+			printf(
+				"@%04llx: foo (%d B): %s \n",
+				$0.m_offset,
+				$0.m_length,
+				string_t(text.m_p + $0.m_offset, $0.m_length)
 			);
 			break;
-	
+
+		case "bar":
+			printf("@%04llx: bar\n", $0.m_offset);
+			break;
+
+		case r"\d+":
+			printf("@%04llx: decimal (%d B): %s\n",
+				$0.m_offset,
+				$0.m_length,
+				string_t(text.m_p + $0.m_offset, $0.m_length)
+			);
+			break;
+
 		case r"\s+":
 			// ignore whitespace
 			break;
 		}
-	
+
 		switch (state.m_lastExecResult) {
-		case jnc.RegexExecResult.Match:
-		case jnc.RegexExecResult.MatchOffsetsOnly:
-			p = stream + state.m_match.m_endOffset;
-			break;		
-		
-		case jnc.RegexExecResult.NoMatch:
-			printf("recognition error\n");
-			break2;
-
 		case jnc.RegexExecResult.Continue:
-			p += chunkSize;
+			p++;
 			break;
-		
-		case jnc.RegexExecResult.ContinueBackward:
-			assert(false); // shouldn't happen since we use jnc.RegexExecFlags.AnchorDataBegin
-		}
 
-		if (chunkSize == jnc.RegexEof)
+		case jnc.RegexExecResult.Match:
+			p = text.m_p + state.m_match.m_endOffset;
 			break;
+
+		case jnc.RegexExecResult.Mismatch:
+			printf("recognition error\n");
+			return -1;
+
+		case jnc.RegexExecResult.ContinueBackward:
+			assert(false); // shouldn't happen because of jnc.RegexExecFlags.Anchored
+		}
 	}
 
 	return 0;
