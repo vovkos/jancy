@@ -17,11 +17,16 @@ bool errorcode scanPacket(
 ) {
 	char const* p = buffer + from;
 	char const* end = buffer + to;
-	
-	printf("scanning %s\n", to - from == jnc.RegexEof ? "<eof>" : strdup(p, end - p));
+
+	if (to != from) {
+		printf("scanning %s\n", strdup(p, end - p));
+	} else {
+		printf("scanning <eof>\n");
+		state.setEof();
+	}
 
 	do {
-		reswitch (state, p, end - p) {
+		switch (state, string_t(p, end - p)) {
 		case r"open[ \t]*\d*[\r\n]":
 			printf("@%04x(%d): command = open\n", state.m_match.m_offset, state.m_match.m_length);
 			break;
@@ -35,15 +40,16 @@ bool errorcode scanPacket(
 			break;
 
 		case r"\s+":
+			printf("skipping space (%d)\n", state.m_match.m_length);
 			break;
 
 		default:
-			if (state.m_lastExecResult == jnc.RegexExecResult.NoMatch) {
+			if (state.m_lastExecResult == jnc.RegexExecResult.Mismatch) {
 				std.setError("mismatch!");
 				return false;
 			}
 
-			assert(state.m_lastExecResult == jnc.RegexExecResult.Continue);	
+			assert(state.m_lastExecResult == jnc.RegexExecResult.Continue);
 			return true;
 		}
 
@@ -56,7 +62,7 @@ bool errorcode scanPacket(
 int main() {
 	printf("main ()\n");
 
-	jnc.RegexState state(jnc.RegexExecFlags.AnchorDataBegin | jnc.RegexExecFlags.Stream);
+	jnc.RegexState state(jnc.RegexExecFlags.Anchored);
 
 	int l = 0;
 
@@ -71,7 +77,7 @@ int main() {
 		l = 10;
 
 		printf("the following will fail ('close' has no [\\r\\n]\n");
-		scanPacket(state, null, 0, jnc.RegexEof); // simulate eof
+		scanPacket(state, null, 0, 0); // simulate eof
 
 		l = 5;
 		printf("*** shouldn't get here\n");
