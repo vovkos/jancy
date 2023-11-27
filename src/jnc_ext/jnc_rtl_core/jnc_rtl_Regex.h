@@ -88,6 +88,9 @@ protected:
 class RegexState: public IfaceHdr {
 	friend class Regex;
 
+public:
+	re2::ExecResult m_lastExecResult;
+
 protected:
 	rc::Ptr<re2::Regex> m_regex;
 	re2::State m_state;

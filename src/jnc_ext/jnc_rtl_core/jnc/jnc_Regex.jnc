@@ -70,6 +70,7 @@ opaque class RegexState {
 	uint64_t const property m_eofOffset;
 	int const property m_eofChar;
 
+	RegexExecResult readonly m_lastExecResult;
 	RegexMatch const* const property m_match;
 
 	construct(RegexExecFlags flags = 0) {
@@ -102,10 +103,10 @@ opaque class RegexState {
 
 	void setEofOffset(
 		uint64_t offset,
-		int eofChar = EofChar
+		int eofChar = RegexEofChar
 	);
 
-	void setEof(int eofChar = EofChar);
+	void setEof(int eofChar = RegexEofChar);
 
 protected:
 	void init(
@@ -113,7 +114,7 @@ protected:
 		uint64_t baseOffset,
 		int baseChar,
 		uint64_t eofOffset,
-		int eofChar = EofChar
+		int eofChar
 	);
 }
 

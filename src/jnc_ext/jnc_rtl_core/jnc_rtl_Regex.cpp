@@ -335,7 +335,7 @@ Regex::exec(
 	state->m_regex = m_regex;
 	state->m_match = NULL;
 	state->m_lastChunk = chunk;
-	return m_regex->exec(&state->m_state, chunk >> toAxl);
+	return state->m_lastExecResult = m_regex->exec(&state->m_state, chunk >> toAxl);
 }
 
 re2::ExecResult
@@ -348,7 +348,7 @@ Regex::execEof(
 	state->m_regex = m_regex;
 	state->m_match = NULL;
 	state->m_lastChunk = lastChunk;
-	return m_regex->execEof(&state->m_state, lastChunk >> toAxl, eofChar);
+	return state->m_lastExecResult = m_regex->execEof(&state->m_state, lastChunk >> toAxl, eofChar);
 }
 
 size_t
