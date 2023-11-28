@@ -13,33 +13,24 @@ import "io_SocketAddress.jnc"
 
 bool representHttpFirstLine(
 	log.Representation* representation,
-	char const* p,
-	char const* end
+	string_t text
 ) {
-	jnc.RegexState state(jnc.RegexExecFlags.AnchorDataBegin);
-	reswitch (state, p, end - p) {
+	[ RegexAnchored ]
+	switch (text) {
 	case r"([A-Z]+)\s+([^\s]+)\s+HTTP/([0-9\.]+)\r?\n":
 		representation.addHyperText(
-			$"    HTTP version:\t\e[34m%1\n"
-			$"    Verb:\t\e[34m%2\n"
-			$"    Resource:\t\e[34m%3"
-			(
-				state.m_captureArray[2].m_text,
-				state.m_captureArray[0].m_text,
-				state.m_captureArray[1].m_text
-			));
+			$"    HTTP version:\t\e[34$3\n"
+			$"    Verb:\t\e[34m$1\n"
+			$"    Resource:\t\e[34m$2"
+		);
 		break;
 
 	case r"HTTP/([0-9\.]+)\s+([0-9]+)\s+([^\r\n]+)\r?\n":
 		representation.addHyperText(
-			$"    HTTP version:\t\e[34m%1\n"
-			$"    Status code:\t\e[34m%2\n"
-			$"    Reason phrase:\t\e[34m%3"
-			(
-				state.m_captureArray[0].m_text,
-				state.m_captureArray[1].m_text,
-				state.m_captureArray[2].m_text
-			));
+			$"    HTTP version:\t\e[34m$1\n"
+			$"    Status code:\t\e[34m$2\n"
+			$"    Reason phrase:\t\e[34m$3"
+		);
 		break;
 
 	default:
@@ -51,20 +42,13 @@ bool representHttpFirstLine(
 
 bool representHttpHeaders(
 	log.Representation* representation,
-	char const* p,
-	char const* end
+	string_t text
 ) {
-	jnc.RegexState state(jnc.RegexExecFlags.AnchorDataBegin);
-
-	while (p < end) {
-		reswitch (state, p, end - p) {
+	while (text.m_length) {
+		[ RegexAnchored ]
+		switch (text) {
 		case r"([^:\r\n]+):\s+([^\r\n]+)\r?\n":
-			representation.addHyperText(
-				$"    %1:\t\e[34m%2"
-				(
-					state.m_captureArray[0].m_text,
-					state.m_captureArray[1].m_text
-				));
+			representation.addHyperText($"    $1:\t\e[34m$2");
 			break;
 
 		case r"\r?\n":
@@ -74,7 +58,7 @@ bool representHttpHeaders(
 			return false;
 		}
 
-		p += state.m_match.m_length;
+		text += $0.m_length;
 	}
 
 	return true;
@@ -103,8 +87,8 @@ void representWebSocketHandshake(
 
 	if (eol) {
 		eol++; // include \n
-		representHttpFirstLine(representation, p, eol);
-		representHttpHeaders(representation, eol, p + size);
+		representHttpFirstLine(representation, string_t(p, eol - p));
+		representHttpHeaders(representation, string_t(eol, p + size - eol));
 	}
 
 	if (!(foldFlags & 2)) {

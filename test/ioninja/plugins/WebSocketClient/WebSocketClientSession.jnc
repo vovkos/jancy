@@ -294,19 +294,13 @@ bool errorcode WebSocketClientSession.connect() {
 	string_t host;
 	string_t resource;
 
-	jnc.RegexState regexState;
-	reswitch (regexState, addressString) {
-	case r"(ws|wss)://([^/?]+)(.*)":
-		isSecure = regexState.m_captureArray[0].m_length == 3;
-		host = regexState.m_captureArray[1].m_text;
-
-		jnc.RegexMatch const* resourceSubMatch = regexState.m_captureArray[2];
-		resource = resourceSubMatch.m_length && resourceSubMatch.m_text[0] == '/' ?
-			resourceSubMatch.m_text :
-			strcat("/", resourceSubMatch.m_text);
-		break;
-
-	default:
+	if (addressString =~ r"ws|(wss)://([^/?]+)(.*)") {
+		isSecure = $1 != null;
+		host = $2;
+		resource = $3.m_length && $3.m_text[0] == '/' ?
+			$3.m_text :
+			strcat("/", $3.m_text);
+	} else {
 		std.setError("invalid WebSocket URI");
 		m_logWriter.writeLastError(log.StdRecordCode.Error);
 		return false;

@@ -665,18 +665,18 @@ void SpiTapSession.writeLogTextOnly(
 	void const* p,
 	size_t size
 ) {
-	jnc.RegexState state(jnc.RegexExecFlags.AnchorDataBegin);
+	jnc.RegexState state(jnc.RegexExecFlags.Anchored);
 
 	void const* end = p + size;
 	while (p < end) {
-		jnc.RegexExecResult result = m_textRegex.exec(state, p, end - p);
-		if (!result)
+		jnc.RegexExecResult result = m_textRegex.exec(state, string_t(p, end - p));
+		if (result != jnc.RegexExecResult.Match)
 			break;
 
 		m_logWriter.write(
 			recordCode,
-			state.m_captureArray[0].m_text.m_p,
-			state.m_captureArray[0].m_length
+			state.m_match.m_text.m_p,
+			state.m_match.m_length
 		);
 
 		p += state.m_match.m_length;
@@ -688,25 +688,25 @@ void SpiTapSession.writeLogTextOnly(
 	void const* rx,
 	size_t size
 ) {
-	jnc.RegexState state(jnc.RegexExecFlags.AnchorDataBegin);
+	jnc.RegexState state(jnc.RegexExecFlags.Anchored);
 
 	void const* end = rx + size;
 	while (rx < end) {
-		jnc.RegexExecResult result = m_textRegex.exec(state, rx, end - rx);
-		if (!result)
+		jnc.RegexExecResult result = m_textRegex.exec(state, string_t(rx, end - rx));
+		if (result != jnc.RegexExecResult.Match)
 			break;
 
 		void const* cut = memcat(
-			tx + state.m_captureArray[0].m_offset,
-			state.m_captureArray[0].m_length,
-			state.m_captureArray[0].m_text.m_p,
-			state.m_captureArray[0].m_length
+			tx + state.m_match.m_offset,
+			state.m_match.m_length,
+			state.m_match.m_text.m_p,
+			state.m_match.m_length
 		);
 
 		m_logWriter.write(
 			log.StdRecordCode.TxRx,
 			cut,
-			state.m_captureArray[0].m_length * 2
+			state.m_match.m_length * 2
 		);
 
 		rx += state.m_match.m_length;

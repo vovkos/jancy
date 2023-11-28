@@ -128,30 +128,23 @@ bool errorcode UsbDb.load(string_t fileName) {
 
 	size_t size = file.m_size;
 	char const* p = file.view(0, size, false);
-	char const* end = p + size;
+	string_t contents(p, size);
 
-	jnc.RegexState state(jnc.RegexExecFlags.AnchorDataBegin);
 	UsbVendor* vendor;
-
-	while (p < end) {
-		reswitch (state, p, end - p) {
-		case r"(\h{4})\s+([^\n]+[^\s])\s*\n":
-			vendor = addVendor(
-				strtol(state.m_captureArray[0].m_text,, 16),
-				state.m_captureArray[1].m_text
-			);
+	while (contents.m_length) {
+		[ RegexAnchored ]
+		switch (contents) {
+		case r"([0-9a-fA-F]{4})\s+([^\n]+[^\s])\s*\n":
+			vendor = addVendor(strtoul($1,, 16), $2);
 			break;
 
-		case r"\t(\h{4})\s+([^\n]+[^\s])\s*\n":
+		case r"\t([0-9a-fA-F]{4})\s+([^\n]+[^\s])\s*\n":
 			if (!vendor) {
 				std.setError("invalid USB database file format");
 				return false;
 			}
 
-			vendor.addProduct(
-				strtol(state.m_captureArray[0].m_text,, 16),
-				state.m_captureArray[1].m_text
-			);
+			vendor.addProduct(strtoul($1,, 16), $2);
 			break;
 
 		case r"\s*#[^\n]*\n":
@@ -164,7 +157,7 @@ bool errorcode UsbDb.load(string_t fileName) {
 			break2; // any other line stops parsing
 		}
 
-		p += state.m_match.m_length;
+		contents += $0.m_length;
 	}
 
 	return true;

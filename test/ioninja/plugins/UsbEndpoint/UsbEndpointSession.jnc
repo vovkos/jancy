@@ -16,7 +16,6 @@ import "ui_LineEdit.jnc"
 
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
-import "parseInteger.jnc"
 import "std_Buffer.jnc"
 import "std_List.jnc"
 
@@ -178,9 +177,9 @@ protected:
 			m_controlDirectionCombo.m_currentData,
 			m_controlRecipientCombo.m_currentData,
 			m_controlTypeCombo.m_currentData,
-			parseInteger(m_controlCodeCombo.m_editText),
-			parseInteger(m_controlValueEdit.m_text),
-			parseInteger(m_controlIndexEdit.m_text)
+			strtoul(m_controlCodeCombo.m_editText),
+			strtoul(m_controlValueEdit.m_text),
+			strtoul(m_controlIndexEdit.m_text)
 		);
 	}
 
@@ -945,7 +944,7 @@ bool errorcode UsbEndpointSession.dispatch(
 		break;
 
 	case UsbEndpointDispatchCode.GetControlRequest:
-		*out = parseInteger(m_controlCodeCombo.m_editText);
+		*out = strtoul(m_controlCodeCombo.m_editText);
 		break;
 
 	case UsbEndpointDispatchCode.SetControlRequest:
@@ -953,7 +952,7 @@ bool errorcode UsbEndpointSession.dispatch(
 		break;
 
 	case UsbEndpointDispatchCode.GetControlValue:
-		*out = parseInteger(m_controlValueEdit.m_text);
+		*out = strtoul(m_controlValueEdit.m_text);
 		break;
 
 	case UsbEndpointDispatchCode.SetControlValue:
@@ -961,7 +960,7 @@ bool errorcode UsbEndpointSession.dispatch(
 		break;
 
 	case UsbEndpointDispatchCode.GetControlIndex:
-		*out = parseInteger(m_controlIndexEdit.m_text);
+		*out = strtoul(m_controlIndexEdit.m_text);
 		break;
 
 	case UsbEndpointDispatchCode.SetControlIndex:
@@ -1000,9 +999,9 @@ bool errorcode UsbEndpointSession.dispatch(
 			m_controlDirectionCombo.m_currentData,
 			m_controlRecipientCombo.m_currentData,
 			m_controlTypeCombo.m_currentData,
-			parseInteger(m_controlCodeCombo.m_editText),
-			parseInteger(m_controlValueEdit.m_text),
-			parseInteger(m_controlIndexEdit.m_text)
+			strtoul(m_controlCodeCombo.m_editText),
+			strtoul(m_controlValueEdit.m_text),
+			strtoul(m_controlIndexEdit.m_text)
 		);
 
 	default:
