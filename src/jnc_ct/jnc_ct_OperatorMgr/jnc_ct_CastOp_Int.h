@@ -60,7 +60,7 @@ public:
 		const Value& opValue,
 		Type* type
 	) {
-		return CastKind_Implicit;
+		return opValue.getValueKind() == ValueKind_Const ? CastKind_Identitiy : CastKind_Implicit;
 	}
 
 	virtual
@@ -90,7 +90,7 @@ public:
 		const Value& opValue,
 		Type* type
 	) {
-		return CastKind_Implicit;
+		return opValue.getValueKind() == ValueKind_Const ? CastKind_Identitiy : CastKind_Implicit;
 	}
 
 	virtual
@@ -122,7 +122,7 @@ public:
 		const Value& opValue,
 		Type* type
 	) {
-		return CastKind_Implicit;
+		return opValue.getValueKind() == ValueKind_Const ? CastKind_Identitiy : CastKind_Implicit;
 	}
 
 	virtual
