@@ -225,13 +225,16 @@ OperatorMgr::getStructField(
 			return false;
 		}
 
-		m_module->m_llvmIrBuilder.createExtractValue(
-			opValue,
-			coord->m_llvmIndexArray,
-			coord->m_llvmIndexArray.getCount(),
-			field->getType(),
-			resultValue
-		);
+		if (!m_module->hasCodeGen())
+			resultValue->setType(field->getType());
+		else
+			m_module->m_llvmIrBuilder.createExtractValue(
+				opValue,
+				coord->m_llvmIndexArray,
+				coord->m_llvmIndexArray.getCount(),
+				field->getType(),
+				resultValue
+			);
 
 		return true;
 	}
