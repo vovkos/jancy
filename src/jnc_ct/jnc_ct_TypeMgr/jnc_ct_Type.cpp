@@ -1099,7 +1099,7 @@ getDirectRefType(
 bool
 isDisposableType(Type* type) {
 	if (type->getTypeKindFlags() & TypeKindFlag_ClassPtr)
-		return isStringableType((DerivableType*)((ClassPtrType*)type)->getTargetType());
+		return isDisposableType((DerivableType*)((ClassPtrType*)type)->getTargetType());
 
 	if (type->getTypeKindFlags() & TypeKindFlag_DataPtr)
 		type = ((DataPtrType*)type)->getTargetType();
@@ -1111,7 +1111,10 @@ isDisposableType(Type* type) {
 
 bool
 isDisposableType(DerivableType* type) {
-	FindModuleItemResult findResult = type->findDirectChildItem("dispose");
+	if (!type->ensureLayout())
+		return false;
+
+	FindModuleItemResult findResult = type->findDirectChildItemTraverse("dispose");
 	if (!findResult.m_item || findResult.m_item->getItemKind() != ModuleItemKind_Function)
 		return false;
 
@@ -1137,7 +1140,10 @@ isStringableType(Type* type) {
 
 bool
 isStringableType(DerivableType* type) {
-	FindModuleItemResult findResult = type->findDirectChildItem("toString");
+	if (!type->ensureLayout())
+		return false;
+
+	FindModuleItemResult findResult = type->findDirectChildItemTraverse("toString");
 	if (!findResult.m_item || findResult.m_item->getItemKind() != ModuleItemKind_Function)
 		return false;
 
