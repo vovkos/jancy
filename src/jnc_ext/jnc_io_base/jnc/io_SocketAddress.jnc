@@ -125,6 +125,12 @@ union Address_ip4 {
 	*/
 
 	string_t getString() const;
+
+	/**
+		Effectively makes ``io.Address_ip4`` a *stringable* class.
+	*/
+
+	alias toString = getString;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -172,6 +178,12 @@ union Address_ip6 {
 	*/
 
 	string_t getString() const;
+
+	/**
+		Effectively makes ``io.Address_ip6`` a *stringable* class.
+	*/
+
+	alias toString = getString;
 }
 
 //..............................................................................
@@ -261,6 +273,12 @@ struct SocketAddress_ip4 {
 	*/
 
 	string_t getString() const;
+
+	/**
+		Effectively makes ``io.SocketAddress_ip4`` a *stringable* class.
+	*/
+
+	alias toString = getString;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -354,6 +372,12 @@ struct SocketAddress_ip6 {
 	*/
 
 	string_t getString() const;
+
+	/**
+		Effectively makes ``io.SocketAddress_ip6`` a *stringable* class.
+	*/
+
+	alias toString = getString;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -436,6 +460,12 @@ union SocketAddress {
 	*/
 
 	string_t getString() const;
+
+	/**
+		Effectively makes ``io.SocketAddress`` a *stringable* class.
+	*/
+
+	alias toString = getString;
 }
 
 //..............................................................................

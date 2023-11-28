@@ -97,14 +97,26 @@ jnc_StdLib_StdOutputFunc* g_printErrFunc = stdPrintErr;
 
 //..............................................................................
 
-int
-atoi(DataPtr ptr) {
-	return ptr.m_p ? ::atoi((char*)ptr.m_p) : 0;
-}
+template <
+	typename T,
+	typename F
+>
+T
+strtot(
+	const F& f,
+	String string_jnc,
+	DataPtr endPtr,
+	int radix
+) {
+	sl::StringRef string_axl = string_jnc >> toAxl;
+	const char* p = string_axl.sz(); // non-null
+	char* end;
+	T result = f(p, &end, radix);
 
-int64_t
-atol(DataPtr ptr) {
-	return ptr.m_p ? ::_atoi64((char*)ptr.m_p) : 0;
+	if (endPtr.m_p)
+		*(size_t*)endPtr.m_p = end - p;
+
+	return result;
 }
 
 template <
@@ -118,10 +130,14 @@ strtot(
 	DataPtr endPtr,
 	int radix
 ) {
-	T result = 0;
-	char* end = (char*)ptr.m_p;
-	if (ptr.m_p)
+	T result;
+	char* end;
+	if (ptr.m_p) {
 		result = f((char*)ptr.m_p, &end, radix);
+	} else {
+		result = 0;
+		end = NULL;
+	}
 
 	if (endPtr.m_p) {
 		((DataPtr*)endPtr.m_p)->m_p = end;
@@ -132,7 +148,16 @@ strtot(
 }
 
 int64_t
-strtol(
+strtol_0(
+	String string,
+	DataPtr endPtr,
+	int radix
+) {
+	return strtot<int64_t>(::_strtoi64, string, endPtr, radix);
+}
+
+int64_t
+strtol_1(
 	DataPtr ptr,
 	DataPtr endPtr,
 	int radix
@@ -141,7 +166,16 @@ strtol(
 }
 
 uint64_t
-strtoul(
+strtoul_0(
+	String string,
+	DataPtr endPtr,
+	int radix
+) {
+	return strtot<uint64_t>(::_strtoui64, string, endPtr, radix);
+}
+
+uint64_t
+strtoul_1(
 	DataPtr ptr,
 	DataPtr endPtr,
 	int radix
@@ -740,10 +774,10 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_StdLib)
 	JNC_MAP_FUNCTION("memdup",   memDup)
 	JNC_MAP_FUNCTION("memdjb2",  memDjb2)
 	JNC_MAP_FUNCTION("rand",     ::rand)
-	JNC_MAP_FUNCTION("atoi",     jnc::std::atoi)
-	JNC_MAP_FUNCTION("atol",     jnc::std::atol)
-	JNC_MAP_FUNCTION("strtol",   jnc::std::strtol)
-	JNC_MAP_FUNCTION("strtoul",  jnc::std::strtoul)
+	JNC_MAP_FUNCTION("strtol",   jnc::std::strtol_0)
+	JNC_MAP_OVERLOAD(jnc::std::strtol_1)
+	JNC_MAP_FUNCTION("strtoul",  jnc::std::strtoul_0)
+	JNC_MAP_OVERLOAD(jnc::std::strtoul_1)
 	JNC_MAP_FUNCTION("toupper",  toUpper)
 	JNC_MAP_FUNCTION("tolower",  toLower)
 	JNC_MAP_FUNCTION("gets",     jnc::std::gets)

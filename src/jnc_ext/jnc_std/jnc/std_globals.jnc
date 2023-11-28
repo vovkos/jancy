@@ -415,8 +415,19 @@ uint32_t tolower(uint32_t c);
 	Returns ``0`` if ``p == null``.
 */
 
-int atoi(char const* p);
-long atol(char const* p);
+int atoi(string_t s) {
+	return strtol(s);
+}
+
+long atol(string_t s) {
+	return strtol(s);
+}
+
+long strtol(
+	string_t s,
+	size_t* length = null,
+	int radix = 0
+);
 
 long strtol(
 	char const* p,
@@ -424,7 +435,13 @@ long strtol(
 	int radix = 0
 );
 
-unsigned long strtoul(
+ulong_t strtoul(
+	string_t s,
+	size_t* length = null,
+	int radix = 0
+);
+
+ulong_t strtoul(
 	char const* p,
 	char const** end = null,
 	int radix = 0
