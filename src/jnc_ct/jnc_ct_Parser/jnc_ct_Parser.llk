@@ -52,6 +52,12 @@ public:
 		Mode_Reaction, // compiling the 'reaction' method of a reactor (w/ implicit bindings)
 	};
 
+	enum AttributeBlockState {
+		AttributeBlockState_Undefined = 0,
+		AttributeBlockState_Created,
+		AttributeBlockState_Staged
+	};
+
 	struct CurlyInitializer {
 		Value m_targetValue;
 		Value m_memberValue;
@@ -105,7 +111,8 @@ protected:
 	PragmaConfig m_pragmaConfigBackup;
 	StorageKind m_storageKind;
 	AccessKind m_accessKind;
-	AttributeBlock* m_attributeBlocks[2]; // [0] - newly created, [1] - staged
+	AttributeBlockState m_attributeBlockState;
+	AttributeBlock* m_attributeBlock;
 	ModuleItem* m_lastDeclaredItem;
 	NamedType* m_lastNamedType;
 	QualifiedName m_lastQualifiedName;
@@ -382,7 +389,7 @@ protected:
 	popAttributeBlock();
 
 	bool
-	processAttributeBlocks();
+	checkUnusedAttributes();
 
 	bool
 	declare(Declarator* declarator);

@@ -43,8 +43,8 @@ Parser::Parser(
 	m_pragmaConfigSnapshot = pragmaConfig;
 	m_storageKind = StorageKind_Undefined;
 	m_accessKind = AccessKind_Undefined;
-	m_attributeBlocks[0] = NULL;
-	m_attributeBlocks[1] = NULL;
+	m_attributeBlockState = AttributeBlockState_Undefined;
+	m_attributeBlock = NULL;
 	m_lastDeclaredItem = NULL;
 	m_lastNamedType = NULL;
 	m_lastPropertyGetterType = NULL;
@@ -427,25 +427,26 @@ Parser::setSetAsType(Type* type) {
 
 AttributeBlock*
 Parser::popAttributeBlock() {
-	AttributeBlock* attributeBlock = m_attributeBlocks[1];
-	m_attributeBlocks[1] = NULL;
+	AttributeBlock* attributeBlock = m_attributeBlock;
+	m_attributeBlock = NULL;
+	m_attributeBlockState = AttributeBlockState_Undefined;
 	return attributeBlock;
 }
 
-bool Parser::processAttributeBlocks() {
-	bool result;
+bool Parser::checkUnusedAttributes() {
+	if (!m_attributeBlock)
+		return true;
 
-	if (!m_attributeBlocks[1])
-		result = true;
-	else {
-		err::setFormatStringError("unused attribute block");
-		m_attributeBlocks[1]->ensureSrcPosError();
-		result = false;
+	if (m_attributeBlockState == AttributeBlockState_Created) {
+		m_attributeBlockState = AttributeBlockState_Staged;
+		return true;
 	}
 
-	m_attributeBlocks[1] = m_attributeBlocks[0];
-	m_attributeBlocks[0] = NULL;
-	return result;
+	err::setFormatStringError("unused attribute block");
+	m_attributeBlock->ensureSrcPosError();
+	m_attributeBlock = NULL;
+	m_attributeBlockState = AttributeBlockState_Undefined;
+	return false;
 }
 
 bool
@@ -457,15 +458,16 @@ Parser::createAttributeBlock(const lex::LineCol& pos) {
 
 	bool result;
 
-	if (!m_attributeBlocks[0])
+	if (!m_attributeBlock)
 		result = true;
 	else {
 		err::setError("unused attribute block");
-		m_attributeBlocks[0]->ensureSrcPosError();
+		m_attributeBlock->ensureSrcPosError();
 		result = false;
 	}
 
-	m_attributeBlocks[0] = attributeBlock;
+	m_attributeBlock = attributeBlock;
+	m_attributeBlockState = AttributeBlockState_Created;
 	return result;
 }
 
@@ -475,9 +477,9 @@ Parser::createAttribute(
 	const sl::StringRef& name,
 	sl::List<Token>* initializer
 ) {
-	ASSERT(m_attributeBlocks[0]);
+	ASSERT(m_attributeBlock);
 
-	Attribute* attribute = m_attributeBlocks[0]->createAttribute(name, initializer);
+	Attribute* attribute = m_attributeBlock->createAttribute(name, initializer);
 	if (!attribute)
 		return false;
 

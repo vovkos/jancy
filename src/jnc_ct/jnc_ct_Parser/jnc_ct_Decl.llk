@@ -37,7 +37,7 @@ common_declaration_sync
 
 global_declaration
 	leave {
-		return processAttributeBlocks();
+		return checkUnusedAttributes();
 	}
 	:	common_declaration
 	|	namespace_declaration
@@ -56,7 +56,7 @@ global_declaration_sync
 
 member_block_declaration
 	leave {
-		return processAttributeBlocks();
+		return checkUnusedAttributes();
 	}
 	:	common_declaration
 	|	friend_declaration
@@ -81,7 +81,7 @@ local_declaration
 		m_module->m_namespaceMgr.setSourcePos(m_tokenCursor->m_pos);
 	}
 	leave {
-		return processAttributeBlocks();
+		return checkUnusedAttributes();
 	}
 	:	common_declaration
 	|	statement
