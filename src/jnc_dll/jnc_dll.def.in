@@ -157,9 +157,10 @@ EXPORTS
 	jnc_Namespace_findItem
 	jnc_Namespace_findItemNoParse
 	jnc_getNamespaceKindString
-	jnc_Variant_create
 	jnc_Variant_binaryOperator
 	jnc_Variant_cast
+	jnc_Variant_create
+	jnc_Variant_format_v
 	jnc_Variant_getElement
 	jnc_Variant_getMember
 	jnc_Variant_hash
@@ -167,7 +168,6 @@ EXPORTS
 	jnc_Variant_setElement
 	jnc_Variant_setMember
 	jnc_Variant_unaryOperator
-	jnc_Variant_format_v
 	jnc_String_isEqual
 	jnc_String_isEqualIgnoreCase
 	jnc_String_cmp

@@ -149,6 +149,14 @@
 		jnc_Variant_setElement;
 		jnc_Variant_setMember;
 		jnc_Variant_unaryOperator;
+		jnc_String_isEqual;
+		jnc_String_isEqualIgnoreCase;
+		jnc_String_cmp;
+		jnc_String_cmpIgnoreCase;
+		jnc_String_hash;
+		jnc_String_hashIgnoreCase;
+		jnc_String_sz;
+		jnc_String_setPtr;
 		jnc_createPromise;
 		jnc_Promise_complete;
 		jnc_Module_addIgnoredImport;
@@ -223,6 +231,7 @@
 		jnc_strengthenClassPtr;
 		jnc_createForeignBufferPtr;
 		jnc_createForeignString;
+		jnc_createForeignString_sz;
 		jnc_GcHeap_addBoxToCallSite;
 		jnc_GcHeap_addRoot;
 		jnc_GcHeap_addStaticClassDestructor;
