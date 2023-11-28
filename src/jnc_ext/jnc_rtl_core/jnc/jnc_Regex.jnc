@@ -48,7 +48,12 @@ opaque class RegexCapture {
 		return m_endOffset - m_offset;
 	}
 
+	bool const property m_hasText;
 	string_t const property m_text;
+
+	string_t toString() const { // makes RegexCapture stringable
+		return m_hasText ? m_text : $"[%lld:%lld)"(m_offset, m_endOffset);
+	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

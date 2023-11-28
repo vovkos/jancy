@@ -1099,47 +1099,54 @@ getDirectRefType(
 bool
 isDisposableType(Type* type) {
 	if (type->getTypeKindFlags() & TypeKindFlag_ClassPtr)
-		type = ((ClassPtrType*)type)->getTargetType();
-	else if (type->getTypeKindFlags() & TypeKindFlag_DataPtr)
+		return isStringableType((DerivableType*)((ClassPtrType*)type)->getTargetType());
+
+	if (type->getTypeKindFlags() & TypeKindFlag_DataPtr)
 		type = ((DataPtrType*)type)->getTargetType();
 
-	if (!(type->getTypeKindFlags() & TypeKindFlag_Derivable))
+	return
+		(type->getTypeKindFlags() & TypeKindFlag_Derivable) &&
+		isDisposableType((DerivableType*)type);
+}
+
+bool
+isDisposableType(DerivableType* type) {
+	FindModuleItemResult findResult = type->findDirectChildItem("dispose");
+	if (!findResult.m_item || findResult.m_item->getItemKind() != ModuleItemKind_Function)
 		return false;
 
-	DerivableType* derivableType = (DerivableType*)type;
-	FindModuleItemResult findResult = derivableType->findDirectChildItem("dispose");
-	if (!findResult.m_item)
+	FunctionType* functionType = ((Function*)findResult.m_item)->getType();
+	return
+		functionType->ensureLayout() &&
+		functionType->getArgArray().getCount() == 1 &&
+		functionType->isMemberMethodType();
+}
+
+bool
+isStringableType(Type* type) {
+	if (type->getTypeKindFlags() & TypeKindFlag_ClassPtr)
+		return isStringableType((DerivableType*)((ClassPtrType*)type)->getTargetType());
+
+	if (type->getTypeKindFlags() & TypeKindFlag_DataPtr)
+		type = ((DataPtrType*)type)->getTargetType();
+
+	return
+		(type->getTypeKindFlags() & TypeKindFlag_Derivable) &&
+		isStringableType((DerivableType*) type);
+}
+
+bool
+isStringableType(DerivableType* type) {
+	FindModuleItemResult findResult = type->findDirectChildItem("toString");
+	if (!findResult.m_item || findResult.m_item->getItemKind() != ModuleItemKind_Function)
 		return false;
 
-	FunctionType* functionType;
-	ModuleItem* item = findResult.m_item;
-	ModuleItemKind itemKind = item->getItemKind();
-
-	switch (itemKind) {
-	case ModuleItemKind_Function:
-		functionType = ((Function*)item)->getType();
-		break;
-
-	case ModuleItemKind_Alias:
-		functionType = (FunctionType*)((Alias*)item)->getType();
-		if (functionType->getTypeKind() != TypeKind_Function) {
-			if (functionType->getTypeKind() == TypeKind_Void) {
-				// alias was declared like this: alias dispose = close;
-				// since we don't do strict checks now anyway, let it go
-				break;
-			}
-
-			return false;
-		}
-
-		break;
-
-	default:
-		return false;
-	}
-
-	AXL_TODO("double-check function type - must be thiscall, no arguments")
-	return true;
+	FunctionType* functionType = ((Function*)findResult.m_item)->getType();
+	return
+		functionType->ensureLayout() &&
+		functionType->getReturnType()->getTypeKind() == TypeKind_String &&
+		functionType->getArgArray().getCount() == 1 &&
+		functionType->isMemberMethodType();
 }
 
 bool

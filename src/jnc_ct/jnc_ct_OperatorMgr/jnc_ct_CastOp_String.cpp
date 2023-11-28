@@ -24,6 +24,21 @@ namespace ct {
 
 //..............................................................................
 
+bool
+Cast_String_FromStringable::llvmCast(
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
+) {
+	Value toStringValue;
+
+	return
+		m_module->m_operatorMgr.memberOperator(opValue, "toString", &toStringValue) &&
+		m_module->m_operatorMgr.callOperator(toStringValue, resultValue);
+}
+
+//..............................................................................
+
 CastKind
 Cast_StringBase::getCastKind(
 	const Value& opValue,
@@ -206,13 +221,24 @@ Cast_String::getCastOperator(
 	ASSERT(type->getTypeKind() == TypeKind_String);
 
 	Type* opType = opValue.getType();
+	Type* targetType;
 	TypeKind typeKind = opType->getTypeKind();
 	switch (typeKind) {
+	case TypeKind_ClassPtr:
+	case TypeKind_ClassRef:
+		return isStringableType(((ClassPtrType*)opType)->getTargetType()) ? &m_fromStringable : NULL;
+
 	case TypeKind_DataPtr:
-		return ((DataPtrType*)opType)->getTargetType()->getTypeKind() == TypeKind_Char ? &m_fromPtr : NULL;
+		targetType = ((DataPtrType*)opType)->getTargetType();
+		return
+			targetType->getTypeKind() == TypeKind_Char ? (CastOperator*)&m_fromPtr :
+			isStringableType(targetType) ? &m_fromStringable :NULL;
 
 	case TypeKind_DataRef:
-		return isCharArrayType(((DataPtrType*)opType)->getTargetType()) ? &m_fromArray : NULL;
+		targetType = ((DataPtrType*)opType)->getTargetType();
+		return
+			isCharArrayType(targetType) ? (CastOperator*)&m_fromArray :
+			isStringableType(targetType) ? &m_fromStringable :NULL;
 
 	case TypeKind_Array:
 		return ((ArrayType*)opType)->getElementType()->getTypeKind() == TypeKind_Char ? &m_fromArray : NULL;

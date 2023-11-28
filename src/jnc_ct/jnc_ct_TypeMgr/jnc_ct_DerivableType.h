@@ -230,6 +230,11 @@ public:
 	size_t
 	findBaseTypeOffset(Type* type);
 
+	bool
+	isDerivedType(Type* baseType) {
+		return cmp(baseType) == 0 || findBaseTypeTraverse(baseType);
+	}
+
 	sl::Array<BaseTypeSlot*>
 	getGcRootBaseTypeArray() {
 		return m_gcRootBaseTypeArray;

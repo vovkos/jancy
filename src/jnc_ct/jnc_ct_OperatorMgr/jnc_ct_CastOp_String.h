@@ -52,6 +52,38 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+class Cast_String_FromStringable: public CastOperator {
+public:
+	virtual
+	CastKind
+	getCastKind(
+		const Value& opValue,
+		Type* type
+	) {
+		return CastKind_Implicit;
+	}
+
+	virtual
+	bool
+	constCast(
+		const Value& opValue,
+		Type* type,
+		void* dst
+	) {
+		return err::fail("can't call 'toString()' of a constant");
+	}
+
+	virtual
+	bool
+	llvmCast(
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
+	);
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 class Cast_String_FromPtr: public Cast_StringBase {
 public:
 	virtual
@@ -96,6 +128,7 @@ public:
 
 class Cast_String: public Cast_Master {
 protected:
+	Cast_String_FromStringable m_fromStringable;
 	Cast_String_FromPtr m_fromPtr;
 	Cast_String_FromArray m_fromArray;
 
@@ -105,13 +138,6 @@ public:
 	getCastOperator(
 		const Value& opValue,
 		Type* type
-	);
-
-protected:
-	bool
-	makeFatDataPtr(
-		const Value& opValue,
-		Value* resultValue
 	);
 };
 

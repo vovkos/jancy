@@ -31,6 +31,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 )
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(RegexCapture)
+	JNC_MAP_CONST_PROPERTY("m_hasText", &RegexCapture::hasText)
 	JNC_MAP_CONST_PROPERTY("m_text", &RegexCapture::getText)
 JNC_END_TYPE_FUNCTION_MAP()
 

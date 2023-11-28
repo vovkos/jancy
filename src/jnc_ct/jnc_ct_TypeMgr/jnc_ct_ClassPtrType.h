@@ -173,13 +173,9 @@ isDerivedClassPtrType(
 	Type* type,
 	ClassType* classType
 ) {
-	if (!(type->getTypeKindFlags() & TypeKindFlag_ClassPtr))
-		return false;
-
-	ClassType* targetType = ((ClassPtrType*)type)->getTargetType();
 	return
-		targetType->cmp(classType) == 0 ||
-		targetType->findBaseTypeTraverse(classType);
+		(type->getTypeKindFlags() & TypeKindFlag_ClassPtr) &&
+		((ClassPtrType*)type)->getTargetType()->isDerivedType(classType);
 }
 
 //..............................................................................

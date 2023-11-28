@@ -2865,17 +2865,15 @@ Parser::appendFmtLiteralValue(
 		size_t i2 = (typeKindFlags & TypeKindFlag_Unsigned) != 0;
 
 		appendFunc = funcTable[i1][i2];
-	} else if (typeKindFlags & TypeKindFlag_Fp) {
+	} else if (typeKindFlags & TypeKindFlag_Fp)
 		appendFunc = StdFunc_AppendFmtLiteral_f;
-	} else if (typeKind == TypeKind_Variant) {
+	else if (typeKind == TypeKind_Variant)
 		appendFunc = StdFunc_AppendFmtLiteral_v;
-	} else if (typeKind == TypeKind_String) {
+	else if (typeKind == TypeKind_String || isStringableType(type))
 		appendFunc = StdFunc_AppendFmtLiteral_s;
-	} else if (isCharArrayType(type) || isCharArrayRefType(type) || isCharPtrType(type)) {
+	else if (isCharArrayType(type) || isCharArrayRefType(type) || isCharPtrType(type))
 		appendFunc = StdFunc_AppendFmtLiteral_p;
-	} else if (isDerivedClassPtrType(type, (ClassType*)m_module->m_typeMgr.getStdType(StdType_RegexCapture))) {
-		appendFunc = StdFunc_AppendFmtLiteral_re;
-	} else {
+	else {
 		bool is = isDerivedClassPtrType(type, (ClassType*)m_module->m_typeMgr.getStdType(StdType_RegexCapture));
 		err::setFormatStringError("don't know how to format '%s'", type->getTypeString().sz());
 		return false;

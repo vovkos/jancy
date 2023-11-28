@@ -596,7 +596,16 @@ isDualType(Type* type) {
 }
 
 bool
+isDisposableType(DerivableType* type);
+
+bool
 isDisposableType(Type* type);
+
+bool
+isStringableType(DerivableType* type);
+
+bool
+isStringableType(Type* type);
 
 bool
 isWeakPtrType(Type* type);
