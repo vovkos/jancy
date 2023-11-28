@@ -764,16 +764,16 @@ OperatorMgr::getArgCastKind(
 		argCount--;
 	}
 
-	CastKind worstCastKind = CastKind_Identitiy;
+	CastKind worstCastKind = CastKind_Identity;
+	const Value* arg = argValueArray;
+	for (size_t i = 0; i < argCount; i++, arg++) {
+		FunctionArg* formalArg = formalArgArray[i];
 
-	for (size_t i = 0; i < argCount; i++) {
-		Type* formalArgType = formalArgArray[i]->getType();
-		Type* actualArgType = argValueArray[i].getType();
+		CastKind castKind =
+			!arg->isEmpty() ? getCastKind(*arg, formalArg->getType()) :
+			formalArg->hasInitializer() ? CastKind_Identity :
+			CastKind_None;
 
-		if (!actualArgType)
-			return formalArgArray[i]->hasInitializer() ? CastKind_Identitiy : CastKind_None;
-
-		CastKind castKind = getCastKind(actualArgType, formalArgType);
 		if (!castKind)
 			return CastKind_None;
 
@@ -805,16 +805,16 @@ OperatorMgr::getArgCastKind(
 		argCount--;
 	}
 
-	CastKind worstCastKind = CastKind_Identitiy;
-
+	CastKind worstCastKind = CastKind_Identity;
 	sl::ConstBoxIterator<Value> arg = argList.getHead();
 	for (size_t i = 0; i < argCount; i++, arg++) {
-		Type* formalArgType = formalArgArray[i]->getType();
+		FunctionArg* formalArg = formalArgArray[i];
 
-		if (arg->isEmpty())
-			return formalArgArray[i]->hasInitializer() ? CastKind_Identitiy : CastKind_None;
+		CastKind castKind =
+			!arg->isEmpty() ? getCastKind(*arg, formalArg->getType()) :
+			formalArg->hasInitializer() ? CastKind_Identity :
+			CastKind_None;
 
-		CastKind castKind = getCastKind(*arg, formalArgType);
 		if (!castKind)
 			return CastKind_None;
 
