@@ -674,7 +674,7 @@ OperatorMgr::getCastKind(
 	Type* type
 ) {
 	if (rawOpValue.getValueKind() == ValueKind_Null)
-		return (type->getTypeKindFlags() & TypeKindFlag_Nullable) ? CastKind_Identitiy : CastKind_None;
+		return (type->getTypeKindFlags() & TypeKindFlag_Nullable) ? CastKind_Identity : CastKind_None;
 
 	TypeKind typeKind = type->getTypeKind();
 	ASSERT((size_t)typeKind < TypeKind__Count);
@@ -694,7 +694,7 @@ OperatorMgr::getCastKind(
 
 	Type* opType = opValue.getType();
 	return
-		opType->cmp(type) == 0 ? CastKind_Identitiy :
+		opType->cmp(type) == 0 ? CastKind_Identity :
 		opType->getTypeKind() == TypeKind_Variant ? CastKind_ImplicitCrossFamily :
 		op->getCastKind(opValue, type);
 }
@@ -727,7 +727,7 @@ OperatorMgr::getArgCastKind(
 		argCount--;
 	}
 
-	CastKind worstCastKind = CastKind_Identitiy;
+	CastKind worstCastKind = CastKind_Identity;
 
 	for (size_t i = 0; i < argCount; i++) {
 		Type* formalArgType = formalArgArray[i]->getType();

@@ -30,7 +30,7 @@ enum CastKind {
 	CastKind_ImplicitCrossFamily,
 	CastKind_ImplicitCrossConst,
 	CastKind_Implicit,
-	CastKind_Identitiy,
+	CastKind_Identity,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -194,7 +194,7 @@ public:
 		const Value& opValue,
 		Type* type
 	) {
-		return opValue.getType()->cmp(type) == 0 ? CastKind_Identitiy : CastKind_Implicit;
+		return opValue.getType()->cmp(type) == 0 ? CastKind_Identity : CastKind_Implicit;
 	}
 
 	virtual
@@ -231,7 +231,7 @@ public:
 		const Value& opValue,
 		Type* type
 	) {
-		return opValue.getType()->cmp(type) == 0 ? CastKind_Identitiy : CastKind_Implicit;
+		return opValue.getType()->cmp(type) == 0 ? CastKind_Identity : CastKind_Implicit;
 	}
 
 	virtual
