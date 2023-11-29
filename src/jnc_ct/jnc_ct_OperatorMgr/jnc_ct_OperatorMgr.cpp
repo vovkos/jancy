@@ -1289,15 +1289,6 @@ OperatorMgr::prepareOperand_classRef(
 }
 
 bool
-OperatorMgr::prepareOperandType_functionRef(
-	Value* value,
-	uint_t opFlags
-) {
-	*value = value->getClosureAwareType();
-	return true;
-}
-
-bool
 OperatorMgr::prepareOperand_functionRef(
 	Value* value,
 	uint_t opFlags
@@ -1321,9 +1312,8 @@ OperatorMgr::prepareOperandType_propertyRef(
 	Value* value,
 	uint_t opFlags
 ) {
-	*value = value->getClosureAwareType();
 	if (!(opFlags & OpFlag_KeepPropertyRef)) {
-		PropertyPtrType* ptrType = (PropertyPtrType*)value->getType();
+		PropertyPtrType* ptrType = (PropertyPtrType*)value->getClosureAwareType();
 		PropertyType* targetType = ptrType->getTargetType();
 		if (!targetType->isIndexed())
 			*value = targetType->getReturnType();
@@ -1420,7 +1410,7 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandTypeFuncTable[TypeK
 	&OperatorMgr::prepareOperand_classPtr,        // TypeKind_ClassPtr
 	&OperatorMgr::prepareOperand_classRef,        // TypeKind_ClassRef
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_FunctionPtr
-	&OperatorMgr::prepareOperandType_functionRef, // TypeKind_FunctionRef
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_FunctionRef
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_PropertyPtr
 	&OperatorMgr::prepareOperandType_propertyRef, // TypeKind_PropertyRef
 	&OperatorMgr::prepareOperand_import,          // TypeKind_NamedImport
