@@ -508,25 +508,25 @@ Edit::highlightLineTemp(
 void
 Edit::quickInfoTip() {
 	Q_D(Edit);
-	d->requestCodeAssist(CodeAssistKind_QuickInfoTip);
+	d->requestCodeAssist(0, CodeAssistKind_QuickInfoTip);
 }
 
 void
 Edit::argumentTip() {
 	Q_D(Edit);
-	d->requestCodeAssist(CodeAssistKind_ArgumentTip);
+	d->requestCodeAssist(0, CodeAssistKind_ArgumentTip);
 }
 
 void
 Edit::autoComplete() {
 	Q_D(Edit);
-	d->requestCodeAssist(CodeAssistKind_AutoComplete);
+	d->requestCodeAssist(0, CodeAssistKind_AutoComplete);
 }
 
 void
 Edit::gotoDefinition() {
 	Q_D(Edit);
-	d->requestCodeAssist(CodeAssistKind_GotoDefinition);
+	d->requestCodeAssist(0, CodeAssistKind_GotoDefinition);
 }
 
 void
@@ -691,7 +691,7 @@ Edit::mouseMoveEvent(QMouseEvent* e) {
 
 	if (!d->isCompleterVisible() &&
 		(d->m_codeAssistTriggers & QuickInfoTipOnMouseOverIdentifier))
-		d->requestQuickInfoTip(e->pos());
+		d->requestQuickInfoTip(EditPrivate::CodeAssistDelay_QuickInfoTip, e->pos());
 }
 
 void
@@ -704,7 +704,7 @@ Edit::enterEvent(QEvent* e) {
 		d->m_lastCodeAssistKind == CodeAssistKind_QuickInfoTip &&
 		(d->m_codeAssistTriggers & QuickInfoTipOnMouseOverIdentifier)) {
 		QPoint pos = mapFromGlobal(QCursor::pos());
-		d->requestQuickInfoTip(pos);
+		d->requestQuickInfoTip(EditPrivate::CodeAssistDelay_QuickInfoTip, pos);
 	}
 }
 
@@ -723,6 +723,7 @@ EditPrivate::EditPrivate() {
 	m_lastCodeAssistKind = CodeAssistKind_Undefined;
 	m_lastCodeAssistOffset = -1;
 	m_lastCodeAssistPosition = -1;
+	m_pendingCodeAssistKind = CodeAssistKind_Undefined;
 	m_pendingCodeAssistPosition = -1;
 
 	m_codeAssistTriggers =
@@ -953,15 +954,52 @@ EditPrivate::updateLineNumberMarginGeometry() {
 }
 
 void
-EditPrivate::requestCodeAssist(CodeAssistKind kind) {
+EditPrivate::requestCodeAssist(
+	int delay,
+	CodeAssistKind kind
+) {
 	Q_Q(Edit);
 
 	QTextCursor cursor = q->textCursor();
-	requestCodeAssist(kind, cursor.position());
+	requestCodeAssist(delay, kind, cursor.position());
 }
 
 void
 EditPrivate::requestCodeAssist(
+	int delay,
+	CodeAssistKind kind,
+	int position
+) {
+	Q_Q(Edit);
+
+	if (m_thread) {
+		m_thread->cancel();
+		m_thread = NULL;
+	}
+
+	if (!delay) {
+		m_codeAssistTimer.stop();
+		startCodeAssistThread(kind, position);
+	} else {
+		m_pendingCodeAssistKind = kind;
+		m_pendingCodeAssistPosition = position;
+		m_codeAssistTimer.start(delay, this);
+	}
+}
+
+void
+EditPrivate::requestQuickInfoTip(
+	int delay,
+	const QPoint& pos
+) {
+	Q_Q(Edit);
+
+	QTextCursor cursor = q->cursorForPosition(pos);
+	requestCodeAssist(delay, CodeAssistKind_QuickInfoTip, cursor.position());
+}
+
+void
+EditPrivate::startCodeAssistThread(
 	CodeAssistKind kind,
 	int position
 ) {
@@ -990,15 +1028,6 @@ EditPrivate::requestCodeAssist(
 	);
 
 	m_thread->request(kind, rc::g_nullPtr, position, q->toPlainText());
-}
-
-void
-EditPrivate::requestQuickInfoTip(const QPoint& pos) {
-	Q_Q(Edit);
-
-	QTextCursor cursor = q->cursorForPosition(pos);
-	m_pendingCodeAssistPosition = cursor.position();
-	m_quickInfoTipTimer.start(Timeout_QuickInfo, this);
 }
 
 void
@@ -1489,10 +1518,10 @@ EditPrivate::keyPressControlSpace(QKeyEvent* e) {
 
 	if (e->modifiers() & Qt::ShiftModifier) {
 		if (m_codeAssistTriggers & Edit::ArgumentTipOnCtrlShiftSpace)
-			requestCodeAssist(CodeAssistKind_ArgumentTip);
+			requestCodeAssist(0, CodeAssistKind_ArgumentTip);
 	} else {
 		if (m_codeAssistTriggers & Edit::AutoCompleteOnCtrlSpace)
-			requestCodeAssist(CodeAssistKind_AutoComplete);
+			requestCodeAssist(0, CodeAssistKind_AutoComplete);
 	}
 }
 
@@ -1654,7 +1683,7 @@ EditPrivate::keyPressPrintChar(QKeyEvent* e) {
 		}
 
 		if ((m_codeAssistTriggers & Edit::ArgumentTipOnTypeLeftParenthesis) && c == '(')
-			requestCodeAssist(CodeAssistKind_ArgumentTip);
+			requestCodeAssist(CodeAssistDelay_ArgumentTipInitial, CodeAssistKind_ArgumentTip);
 
 		break;
 
@@ -1662,7 +1691,7 @@ EditPrivate::keyPressPrintChar(QKeyEvent* e) {
 		q->QPlainTextEdit::keyPressEvent(e);
 
 		if ((m_codeAssistTriggers & Edit::AutoCompleteOnTypeDot) && !hasCursorHighlightColor(cursor))
-			requestCodeAssist(CodeAssistKind_AutoComplete);
+			requestCodeAssist(CodeAssistDelay_AutoComplete, CodeAssistKind_AutoComplete);
 
 		break;
 
@@ -1670,7 +1699,7 @@ EditPrivate::keyPressPrintChar(QKeyEvent* e) {
 		q->QPlainTextEdit::keyPressEvent(e);
 
 		if ((m_codeAssistTriggers & Edit::ArgumentTipOnTypeComma) && !hasCursorHighlightColor(cursor))
-			requestCodeAssist(CodeAssistKind_ArgumentTip);
+			requestCodeAssist(CodeAssistDelay_ArgumentTipComma, CodeAssistKind_ArgumentTip);
 
 		break;
 
@@ -1682,7 +1711,7 @@ EditPrivate::keyPressPrintChar(QKeyEvent* e) {
 		q->QPlainTextEdit::keyPressEvent(e);
 
 		if (isImportAutoComplete)
-			requestCodeAssist(CodeAssistKind_AutoComplete);
+			requestCodeAssist(CodeAssistDelay_AutoComplete, CodeAssistKind_AutoComplete);
 
 		break;
 
@@ -1693,11 +1722,13 @@ EditPrivate::keyPressPrintChar(QKeyEvent* e) {
 
 void
 EditPrivate::timerEvent(QTimerEvent* e) {
-	if (e->timerId() != m_quickInfoTipTimer.timerId())
+	Q_Q(Edit);
+
+	if (e->timerId() != m_codeAssistTimer.timerId())
 		return;
 
-	m_quickInfoTipTimer.stop();
-	requestCodeAssist(CodeAssistKind_QuickInfoTip, m_pendingCodeAssistPosition);
+	m_codeAssistTimer.stop();
+	startCodeAssistThread(m_pendingCodeAssistKind, m_pendingCodeAssistPosition);
 }
 
 void
@@ -1786,7 +1817,7 @@ EditPrivate::onCursorPositionChanged() {
 		break;
 
 	case CodeAssistKind_ArgumentTip:
-		requestCodeAssist(CodeAssistKind_ArgumentTip);
+		requestCodeAssist(CodeAssistDelay_ArgumentTipPos, CodeAssistKind_ArgumentTip);
 		break;
 
 	case CodeAssistKind_AutoComplete:

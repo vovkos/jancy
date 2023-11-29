@@ -28,10 +28,6 @@ class EditPrivate: public QObject {
 	Q_DECLARE_PUBLIC(Edit)
 
 public:
-	enum Timeout {
-		Timeout_QuickInfo = 500,
-	};
-
 	enum Column {
 		Column_Name     = 0,
 		Column_Synopsis = 1,
@@ -71,6 +67,15 @@ protected:
 		HighlightKind__Count,
 	};
 
+	enum CodeAssistDelay {
+		CodeAssistDelay_None               = 0,
+		CodeAssistDelay_AutoComplete       = 100,
+		CodeAssistDelay_ArgumentTipInitial = 100,
+		CodeAssistDelay_ArgumentTipComma   = 250,
+		CodeAssistDelay_ArgumentTipPos     = 250,
+		CodeAssistDelay_QuickInfoTip       = 500,
+	};
+
 protected:
     Edit* q_ptr;
 	JancyHighlighter* m_syntaxHighlighter;
@@ -85,12 +90,13 @@ protected:
 	CodeAssistKind m_lastCodeAssistKind;
 	size_t m_lastCodeAssistOffset;
 	int m_lastCodeAssistPosition;
+	CodeAssistKind m_pendingCodeAssistKind;
 	int m_pendingCodeAssistPosition;
 	CodeTip* m_codeTip;
 	QCompleter* m_completer;
 	QRect m_completerRect;
 	QIcon m_iconTable[Icon__Count];
-	QBasicTimer m_quickInfoTipTimer;
+	QBasicTimer m_codeAssistTimer;
 	QFileIconProvider m_fileIconProvider;
 	QTextEdit::ExtraSelection m_highlighTable[HighlightKind__Count];
 	EditTheme m_theme;
@@ -131,24 +137,38 @@ protected:
 	updateExtraSelections();
 
 	void
-	requestCodeAssist(CodeAssistKind kind);
+	requestCodeAssist(
+		int delay,
+		CodeAssistKind kind
+	);
 
 	void
 	requestCodeAssist(
+		int delay,
 		CodeAssistKind kind,
 		const QTextCursor& cursor
 	) {
-		requestCodeAssist(kind, cursor.position());
+		requestCodeAssist(delay, kind, cursor.position());
 	}
 
 	void
 	requestCodeAssist(
+		int delay,
 		CodeAssistKind kind,
 		int position
 	);
 
 	void
-	requestQuickInfoTip(const QPoint& pos);
+	requestQuickInfoTip(
+		int delay,
+		const QPoint& pos
+	);
+
+	void
+	startCodeAssistThread(
+		CodeAssistKind kind,
+		int position
+	);
 
 	void
 	hideCodeAssist();
