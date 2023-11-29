@@ -38,7 +38,10 @@ Alias::resolveImpl() {
 	m_flags |= AliasFlag_InResolve;
 
 	Parser parser(m_module, m_pragmaConfig);
-	result = parser.parseTokenList(SymbolKind_qualified_name_save_name, &m_initializer);
+
+	sl::List<Token> tmpTokenList;
+	cloneTokenList(&tmpTokenList, m_initializer);
+	result = parser.parseTokenList(SymbolKind_qualified_name_save_name, &tmpTokenList);
 	if (!result)
 		return false;
 
