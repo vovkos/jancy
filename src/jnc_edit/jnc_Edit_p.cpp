@@ -1339,6 +1339,7 @@ EditPrivate::createAutoComplete(
 			return;
 	}
 
+	ensureCompleter();
 	QStandardItemModel* model = new QStandardItemModel(m_completer);
 	addAutoCompleteNamespace(model, nspace);
 
@@ -1350,8 +1351,6 @@ EditPrivate::createAutoComplete(
 			nspace = nspace->getParentNamespace();
 		}
 	}
-
-	ensureCompleter();
 
 	model->setSortRole(Role_CaseInsensitiveSort);
 	model->sort(0);
