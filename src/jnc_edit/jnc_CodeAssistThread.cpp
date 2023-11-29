@@ -55,7 +55,7 @@ CodeAssistThread::request(
 
 void
 CodeAssistThread::cancel() {
-	TRACE("CodeAssistThread::cancel -- not yet supported\n");
+	m_module->cancelCodeAssist();
 }
 
 void

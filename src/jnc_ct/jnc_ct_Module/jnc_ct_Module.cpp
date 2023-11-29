@@ -53,6 +53,7 @@ Module::Module():
 	m_config = g_defaultModuleConfig;
 	m_compileFlags = ModuleCompileFlag_StdFlags;
 	m_compileState = ModuleCompileState_Idle;
+	m_asyncFlags = 0;
 	m_tryCompileLevel = 0;
 	m_compileErrorCount = 0;
 	m_compileErrorCountLimit = DefaultErrorCountLimit;
@@ -156,6 +157,14 @@ Module::clearLlvm() {
 		ModuleCompileFlag_GcSafePointInPrologue |
 		ModuleCompileFlag_GcSafePointInInternalPrologue
 	);
+}
+
+void
+Module::setAsyncFlag(AsyncFlag flag) {
+	int32_t flags = m_asyncFlags;
+	do {
+		flags = sys::atomicCmpXchg(&m_asyncFlags, flags, flags | flag);
+	} while (!(flags & flag));
 }
 
 void
@@ -299,6 +308,9 @@ Module::parseImpl(
 
 		bool isEof;
 		do {
+			if (m_asyncFlags & AsyncFlag_CancelCodeAssist)
+				return err::fail(err::SystemErrorCode_Cancelled);
+
 			Token* token = lexer.takeToken();
 			bool isCodeAssist = markCodeAssistToken((Token*)token, offset);
 			if (isCodeAssist) {

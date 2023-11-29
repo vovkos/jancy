@@ -451,6 +451,10 @@ jnc_Module_generateCodeAssist(
 );
 
 JNC_EXTERN_C
+void
+jnc_Module_cancelCodeAssist(jnc_Module* module);
+
+JNC_EXTERN_C
 jnc_CodeAssist*
 jnc_Module_getCodeAssist(jnc_Module* module);
 
@@ -718,6 +722,11 @@ struct jnc_Module {
 		size_t length = -1
 	) {
 		return jnc_Module_generateCodeAssist(this, kind, cacheModule, offset, source, length);
+	}
+
+	void
+	cancelCodeAssist() {
+		jnc_Module_cancelCodeAssist(this);
 	}
 
 	jnc_CodeAssist*

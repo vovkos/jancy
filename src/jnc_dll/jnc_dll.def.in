@@ -185,6 +185,7 @@ EXPORTS
 	jnc_Module_addSource
 	jnc_Module_addSourceImport
 	jnc_Module_addStaticLib
+	jnc_Module_cancelCodeAssist
 	jnc_Module_clear
 	jnc_Module_compile
 	jnc_Module_create

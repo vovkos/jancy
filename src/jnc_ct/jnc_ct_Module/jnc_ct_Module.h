@@ -69,6 +69,10 @@ protected:
 		AuxCompileFlag_IntrospectionLib = 0x80000000,
 	};
 
+	enum AsyncFlag {
+		AsyncFlag_CancelCodeAssist = 0x01,
+	};
+
 	enum {
 		DefaultErrorCountLimit = 100,
 	};
@@ -100,6 +104,7 @@ protected:
 	size_t m_compileErrorCount;
 	ModuleCompileErrorHandlerFunc* m_compileErrorHandler;
 	void* m_compileErrorHandlerContext;
+	volatile int32_t m_asyncFlags;
 
 	sl::Array<Function*> m_compileArray;
 	sl::BoxList<sl::String> m_sourceList; // need to keep all sources in-memory during compilation
@@ -232,6 +237,11 @@ public:
 		const sl::StringRef& source
 	);
 
+	void
+	cancelCodeAssist() {
+		setAsyncFlag(AsyncFlag_CancelCodeAssist);
+	}
+
 	bool
 	parse(
 		const sl::StringRef& fileName,
@@ -280,6 +290,9 @@ public:
 	getLlvmIrString();
 
 protected:
+	void
+	setAsyncFlag(AsyncFlag flag);
+
 	void
 	clearLlvm();
 
