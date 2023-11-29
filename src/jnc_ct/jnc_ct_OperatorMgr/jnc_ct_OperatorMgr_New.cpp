@@ -292,14 +292,12 @@ OperatorMgr::parseFunctionArgDefaultValue(
 	sl::List<Token> tmpTokenList;
 	cloneTokenList(&tmpTokenList, tokenList);
 	bool result = parser.parseTokenList(SymbolKind_expression_save_value, &tmpTokenList);
-	if (!result)
-		return false;
 
 	m_module->m_namespaceMgr.unlockSourcePos();
 	m_module->m_namespaceMgr.closeNamespace();
 
 	*resultValue = parser.getLastExpressionValue();
-	return true;
+	return result;
 }
 
 bool
