@@ -246,6 +246,7 @@ Parser::parseTokenList(
 
 					if (m_mode == Mode_Compile) {
 						lastTokenPos = token->m_pos;
+						m_tokenPool->put(token);
 						break;
 					}
 
