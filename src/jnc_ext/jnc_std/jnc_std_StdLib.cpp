@@ -463,7 +463,7 @@ striChr(
 	size_t length = strLen(ptr);
 
 	utf32_t c = c0;
-	sl::BoyerMooreTextFind_ascii find;
+	sl::BoyerMooreTextFind_latin1 find;
 	find.setPattern(sl::StringRef_utf32(&c, 1));
 	sl::BoyerMooreTextFindResult result = find.find(ptr.m_p, length);
 	if (!result.isValid())
@@ -528,7 +528,7 @@ striStr(
 	size_t length1 = strLen(ptr1);
 	size_t length2 = strLen(ptr2);
 
-	sl::BoyerMooreCaseFoldedTextFind_ascii find;
+	sl::BoyerMooreCaseFoldedTextFind_latin1 find;
 	find.setPattern(sl::StringRef((char*)ptr2.m_p, length2));
 	sl::BoyerMooreTextFindResult result = find.find(ptr1.m_p, length1);
 	if (!result.isValid())
