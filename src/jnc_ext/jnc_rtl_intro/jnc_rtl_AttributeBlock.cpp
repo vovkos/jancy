@@ -81,8 +81,7 @@ Attribute::getValue(Attribute* self) {
 
 	case ct::ValueKind_Variable:
 		variable = value.getVariable();
-		if (
-			variable->getStorageKind() != StorageKind_Static ||
+		if (variable->getStorageKind() != StorageKind_Static ||
 			variable->getType()->getTypeKind() != TypeKind_Class) {
 			ASSERT(false);
 			return g_nullVariant;
