@@ -121,7 +121,8 @@ enum RegexKind {
 bitflag enum RegexFlags {
 	OneLine         = 0x10, // RE2::Options.one_line -> true (otherwise, false)
 	Latin1          = 0x20, // RE2::Options.encoding -> EncodingLatin1 (otherwise, UTF8)
-	CaseInsensitive = 0x40, // RE2::Options.case_sensitive -> (otherwise, false)
+	CaseInsensitive = 0x40, // RE2::Options.case_sensitive -> false (otherwise, true)
+	WholeWord       = 0x80, // RE2::Options.word_boundary -> true (otherwise, false)
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
