@@ -167,11 +167,6 @@ set_target_properties(
 )
 
 if(WIN32)
-	target_link_libraries(
-		jnc_io_ssl
-		axl_mem_new
-	)
-
 	set(_DLL_LIST)
 
 	if(OPENSSL_DLL_DIR)

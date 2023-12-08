@@ -92,7 +92,6 @@ if(WIN32)
 		jnc_rtl_intro
 		jnc_std
 		jnc_sys
-		axl_mem_new
 		wintrust
 		crypt32
 	)

@@ -174,7 +174,6 @@ target_link_libraries(
 if(WIN32)
 	target_link_libraries(
 		jnc_io_hid
-		axl_mem_new
 		setupapi
 	)
 
