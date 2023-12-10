@@ -149,22 +149,23 @@ CdeclCallConv_gcc64::call(
 		return CallConv::call(calleeValue, functionType, argValueList, resultValue);
 
 	size_t argRegCount = 6; // rdi, rsi, rdx, rcx, r8, r9
+	unsigned byValIdx = 1;
 
 	Value tmpReturnValue;
+	sl::BoxIterator<Value> it = argValueList->getHead();
 
 	if ((returnType->getFlags() & TypeFlag_StructRet) &&
-		returnType->getSize() > sizeof(uint64_t)* 2) { // return in memory
+		returnType->getSize() > sizeof(uint64_t) * 2) { // return in memory
 		m_module->m_llvmIrBuilder.createAlloca(returnType, returnType->getDataPtrType_c(), &tmpReturnValue);
 		argValueList->insertHead(tmpReturnValue);
 		argRegCount--;
+		byValIdx++;
 	}
 
-	unsigned j = 1;
 	char buffer[256];
 	sl::Array<ByValArg> byValArgArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 
-	sl::BoxIterator<Value> it = argValueList->getHead();
-	for (; it; it++, j++) {
+	for (; it; it++, byValIdx++) {
 		Type* type = it->getType();
 		if (!(type->getFlags() & TypeFlag_StructRet)) {
 			if (argRegCount)
@@ -176,14 +177,14 @@ CdeclCallConv_gcc64::call(
 		size_t size = type->getSize();
 		size_t regCount = size > sizeof(uint64_t) ? 2 : 1;
 
-		if (size > sizeof(uint64_t)* 2 || argRegCount < regCount) { // pass on stack
+		if (size > sizeof(uint64_t) * 2 || argRegCount < regCount) { // pass on stack
 			Value tmpValue;
 			m_module->m_llvmIrBuilder.createAlloca(type, NULL, &tmpValue);
 			m_module->m_llvmIrBuilder.createStore(*it, tmpValue);
 			*it = tmpValue;
 
 			ByValArg byValArg;
-			byValArg.m_index = j;
+			byValArg.m_index = byValIdx;
 			byValArg.m_type = type;
 			byValArgArray.append(byValArg);
 		} else { // coerce
