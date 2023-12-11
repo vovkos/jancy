@@ -150,6 +150,7 @@ jobs:
         -   name: Build and test
             run: |
                 THIS_DIR=$(pwd)
+                echo TARGET_CPU -- $TARGET_CPU
 
                 source axl/ci/github-actions/build-re2s.sh ${{matrix.CONFIGURATION}}
                 cat paths.cmake
