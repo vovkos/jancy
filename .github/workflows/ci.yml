@@ -41,6 +41,7 @@ jobs:
                 set LLVM_VERSION=${{matrix.LLVM_VERSION}}
                 call ci\github-actions\set-env.bat msvc16 ${{matrix.TARGET_CPU}}
                 call ci\github-actions\install-windows.bat
+                git clone --branch re2s-no-abseil --depth 1 https://github.com/vovkos/re2s
                 git clone --depth 1 https://github.com/vovkos/axl
                 git clone --depth 1 https://github.com/vovkos/graco
 
@@ -56,6 +57,7 @@ jobs:
                 set THIS_DIR_CMAKE=%THIS_DIR:\=/%
 
                 call ci\github-actions\set-env.bat msvc16 ${{matrix.TARGET_CPU}}
+                call axl\ci\github-actions\build-re2s.bat ${{matrix.CONFIGURATION}}
 
                 mkdir axl\build
                 cd axl\build
@@ -139,12 +141,15 @@ jobs:
                 export TARGET_CPU=${{matrix.TARGET_CPU}}
                 export LLVM_VERSION=${{matrix.LLVM_VERSION}}
                 source ./ci/github-actions/install-linux.sh
+                git clone --branch re2s-no-abseil --depth 1 https://github.com/vovkos/re2s
                 git clone --depth 1 https://github.com/vovkos/axl
                 git clone --depth 1 https://github.com/vovkos/graco
 
         -   name: Build and test
             run: |
                 THIS_DIR=$(pwd)
+
+                source axl/ci/github-actions/build-re2s.sh ${{matrix.CONFIGURATION}}
 
                 mkdir axl/build
                 pushd axl/build
@@ -278,12 +283,15 @@ jobs:
             run: |
                 export LLVM_VERSION=${{matrix.LLVM_VERSION}}
                 source ./ci/github-actions/install-osx.sh
+                git clone --branch re2s-no-abseil --depth 1 https://github.com/vovkos/re2s
                 git clone --depth 1 https://github.com/vovkos/axl
                 git clone --depth 1 https://github.com/vovkos/graco
 
         -   name: Build and test
             run: |
                 THIS_DIR=$(pwd)
+
+                source axl/ci/github-actions/build-re2s.sh ${{matrix.CONFIGURATION}}
 
                 mkdir axl/build
                 pushd axl/build
