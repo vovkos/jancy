@@ -291,7 +291,7 @@ jobs:
             run: |
                 THIS_DIR=$(pwd)
 
-                source ci/github-actions/build-re2s.sh $(uname -m) ${{matrix.CONFIGURATION}}
+                source axl/ci/github-actions/build-re2s.sh $(uname -m) ${{matrix.CONFIGURATION}}
 
                 mkdir axl/build
                 pushd axl/build
