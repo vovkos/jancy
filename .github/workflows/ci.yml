@@ -57,9 +57,7 @@ jobs:
                 set THIS_DIR_CMAKE=%THIS_DIR:\=/%
 
                 call ci\github-actions\set-env.bat msvc16 ${{matrix.TARGET_CPU}}
-                call axl\ci\github-actions\build-re2s.bat ${{matrix.CONFIGURATION}}
-
-                type paths.cmake
+                call axl\ci\github-actions\build-re2s.bat
 
                 mkdir axl\build
                 cd axl\build
@@ -150,10 +148,8 @@ jobs:
         -   name: Build and test
             run: |
                 THIS_DIR=$(pwd)
-                echo TARGET_CPU -- $TARGET_CPU
 
-                source axl/ci/github-actions/build-re2s.sh ${{matrix.CONFIGURATION}}
-                cat paths.cmake
+                source axl/ci/github-actions/build-re2s.sh ${{matrix.TARGET_CPU}} ${{matrix.CONFIGURATION}}
 
                 mkdir axl/build
                 pushd axl/build
@@ -295,9 +291,7 @@ jobs:
             run: |
                 THIS_DIR=$(pwd)
 
-                source axl/ci/github-actions/build-re2s.sh ${{matrix.CONFIGURATION}}
-                cat paths.cmake
-                cat settings.cmake
+                source ci/github-actions/build-re2s.sh $(uname -m) ${{matrix.CONFIGURATION}}
 
                 mkdir axl/build
                 pushd axl/build
