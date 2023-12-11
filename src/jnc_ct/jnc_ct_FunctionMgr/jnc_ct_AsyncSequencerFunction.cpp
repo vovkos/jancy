@@ -156,7 +156,7 @@ AsyncSequencerFunction::compile() {
 	size_t count = asyncBlockArray.getCount();
 
 	char buffer[256];
-	sl::Array<intptr_t> stateIdArray(rc::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<int64_t> stateIdArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	stateIdArray.setCount(count);
 
 	for (size_t i = 0; i < count; i++)

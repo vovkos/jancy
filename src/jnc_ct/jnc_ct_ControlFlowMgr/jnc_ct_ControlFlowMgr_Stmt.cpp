@@ -627,7 +627,7 @@ ControlFlowMgr::onceStmt_PreBody(
 		bodyBlock->m_flags |= flags;
 		loopBlock->m_flags |= flags;
 
-		intptr_t constArray[2] = { 0, 1 };
+		int64_t constArray[2] = { 0, 1 };
 		BasicBlock* blockArray[2] = { preBodyBlock, loopBlock };
 
 		m_module->m_llvmIrBuilder.createSwitch(value, stmt->m_followBlock, constArray, blockArray, 2);

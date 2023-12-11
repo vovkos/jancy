@@ -502,7 +502,7 @@ ControlFlowMgr::finalizeDisposableScope(Scope* scope) {
 	BasicBlock* switchBlock = m_currentBlock;
 
 	char buffer1[256];
-	sl::Array<intptr_t> levelArray(rc::BufKind_Stack, buffer1, sizeof(buffer1));
+	sl::Array<int64_t> levelArray(rc::BufKind_Stack, buffer1, sizeof(buffer1));
 	levelArray.setCount(count);
 
 	char buffer2[256];
