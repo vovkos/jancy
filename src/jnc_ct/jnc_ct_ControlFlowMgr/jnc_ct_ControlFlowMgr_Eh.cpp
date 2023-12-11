@@ -416,7 +416,7 @@ void ControlFlowMgr::finalizeFinallyScope(Scope* scope) {
 	}
 
 	char buffer1[256];
-	sl::Array<intptr_t> routeIdxArray(rc::BufKind_Stack, buffer1, sizeof(buffer1));
+	sl::Array<int64_t> routeIdxArray(rc::BufKind_Stack, buffer1, sizeof(buffer1));
 	routeIdxArray.setCount(count);
 
 	char buffer2[256];
