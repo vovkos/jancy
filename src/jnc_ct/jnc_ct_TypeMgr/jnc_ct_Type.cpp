@@ -500,7 +500,6 @@ getLlvmDiType_simple(Module* module) {
 	return module->m_llvmDiBuilder.createBasicType(name, size, size, code);
 }
 
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
@@ -565,119 +564,119 @@ Type::prepareLlvmDiType() {
 		getLlvmDiType_struct<StdType_StringStruct>,  // TypeKind_String,
 
 		// TypeKind_Bool,
-		getLlvmDiType_simple<
+		&getLlvmDiType_simple<
 			name_bool,
 			llvm::dwarf::DW_ATE_boolean,
 			1
 		>,
 
 		// TypeKind_Int8,
-		getLlvmDiType_simple<
+		&getLlvmDiType_simple<
 			name_int8,
 			llvm::dwarf::DW_ATE_signed_char,
 			1
 		>,
 
 		// TypeKind_Int8_u,
-		getLlvmDiType_simple<
+		&getLlvmDiType_simple<
 			name_int8_u,
 			llvm::dwarf::DW_ATE_unsigned_char,
 			1
 		>,
 
 		// TypeKind_Int16,
-		getLlvmDiType_simple<
+		&getLlvmDiType_simple<
 			name_int16,
 			llvm::dwarf::DW_ATE_signed,
 			2
 		>,
 
 		// TypeKind_Int16_u,
-		getLlvmDiType_simple<
+		&getLlvmDiType_simple<
 			name_int16_u,
 			llvm::dwarf::DW_ATE_unsigned,
 			2
 		>,
 
 		// TypeKind_Int32,
-		getLlvmDiType_simple<
+		&getLlvmDiType_simple<
 			name_int32,
 			llvm::dwarf::DW_ATE_signed,
 			4
 		>,
 
 		// TypeKind_Int32_u,
-		getLlvmDiType_simple<
+		&getLlvmDiType_simple<
 			name_int32_u,
 			llvm::dwarf::DW_ATE_unsigned,
 			4
 		>,
 
 		// TypeKind_Int64,
-		getLlvmDiType_simple<
+		&getLlvmDiType_simple<
 			name_int64,
 			llvm::dwarf::DW_ATE_signed,
 			8
 		>,
 
 		// TypeKind_Int64_u,
-		getLlvmDiType_simple<
+		&getLlvmDiType_simple<
 			name_int64_u,
 			llvm::dwarf::DW_ATE_unsigned,
 			8
 		>,
 
 		// TypeKind_Int16_be,
-		getLlvmDiType_simple<
+		&getLlvmDiType_simple<
 			name_int16_be,
 			llvm::dwarf::DW_ATE_signed,
 			2
 		>,
 
 		// TypeKind_Int16_ube,
-		getLlvmDiType_simple<
+		&getLlvmDiType_simple<
 			name_int16_ube,
 			llvm::dwarf::DW_ATE_unsigned,
 			2
 		>,
 
 		// TypeKind_Int32_be,
-		getLlvmDiType_simple<
+		&getLlvmDiType_simple<
 			name_int32_be,
 			llvm::dwarf::DW_ATE_signed,
 			4
 		>,
 
 		// TypeKind_Int32_ube,
-		getLlvmDiType_simple<
+		&getLlvmDiType_simple<
 			name_int32_ube,
 			llvm::dwarf::DW_ATE_unsigned,
 			4
 		>,
 
 		// TypeKind_Int64_be,
-		getLlvmDiType_simple<
+		&getLlvmDiType_simple<
 			name_int64_be,
 			llvm::dwarf::DW_ATE_signed,
 			8
 		>,
 
 		// TypeKind_Int64_ube,
-		getLlvmDiType_simple<
+		&getLlvmDiType_simple<
 			name_int64_ube,
 			llvm::dwarf::DW_ATE_unsigned,
 			8
 		>,
 
 		// TypeKind_Float,
-		getLlvmDiType_simple<
+		&getLlvmDiType_simple<
 			name_float,
 			llvm::dwarf::DW_ATE_float,
 			4
 		>,
 
 		// TypeKind_Double,
-		getLlvmDiType_simple<
+		&getLlvmDiType_simple<
 			name_double,
 			llvm::dwarf::DW_ATE_float,
 			8
