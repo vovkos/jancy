@@ -74,7 +74,7 @@ LlvmIrBuilder::createSwitch(
 		caseCount
 	);
 
-	sl::HashTableIterator<intptr_t, BasicBlock*> caseIt = firstCase;
+	sl::HashTableIterator<int64_t, BasicBlock*> caseIt = firstCase;
 	for (; caseIt; caseIt++) {
 		Value constValue(caseIt->getKey(), type);
 		BasicBlock* block = caseIt->m_value;
