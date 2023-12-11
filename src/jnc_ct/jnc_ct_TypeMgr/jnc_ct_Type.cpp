@@ -478,30 +478,6 @@ getLlvmType_double(Module* module) {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-llvm::DIType_vn
-getLlvmDiType_void(Module* module) {
-	ASSERT(false); // shouldn't ever happen
-	return module->m_llvmDiBuilder.createBasicType("void", 1, 1, llvm::dwarf::DW_ATE_boolean);
-}
-
-template <StdType stdType>
-llvm::DIType_vn
-getLlvmDiType_struct(Module* module) {
-	return module->m_typeMgr.getStdType(stdType)->getLlvmDiType();
-}
-
-template <
-	const char* name,
-	uint_t code,
-	size_t size
->
-llvm::DIType_vn
-getLlvmDiType_simple(Module* module) {
-	return module->m_llvmDiBuilder.createBasicType(name, size, size, code);
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 void
 Type::prepareLlvmType() {
 	ASSERT(!m_llvmType && (size_t)m_typeKind < TypeKind__PrimitiveTypeCount);
@@ -534,156 +510,131 @@ Type::prepareLlvmType() {
 	m_llvmType = getLlvmTypeFuncTable[(size_t)m_typeKind](m_module);
 }
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 void
 Type::prepareLlvmDiType() {
-	ASSERT(m_typeKind && m_typeKind < TypeKind__PrimitiveTypeCount);
+		ASSERT(m_typeKind && m_typeKind < TypeKind__PrimitiveTypeCount);
 
-	typedef llvm::DIType_vn GetLlvmDiTypeFunc(Module* module);
-
-	static char name_bool[]      = "bool";
-	static char name_int8[]      = "char";
-	static char name_int8_u[]    = "unsigned char";
-	static char name_int16[]     = "short";
-	static char name_int16_u[]   = "unsigned short";
-	static char name_int32[]     = "int";
-	static char name_int32_u[]   = "unsigned int";
-	static char name_int64[]     = "long";
-	static char name_int64_u[]   = "unsigned long";
-	static char name_int16_be[]  = "bigendian short";
-	static char name_int16_ube[] = "bigendian unsigned short";
-	static char name_int32_be[]  = "bigendian int";
-	static char name_int32_ube[] = "bigendian unsigned int";
-	static char name_int64_be[]  = "bigendian long";
-	static char name_int64_ube[] = "bigendian unsigned long";
-	static char name_float[]     = "float";
-	static char name_double[]    = "double";
-
-	GetLlvmDiTypeFunc* getLlvmDiTypeFuncTable[TypeKind__PrimitiveTypeCount] = {
-		getLlvmDiType_void,                          // TypeKind_Void,
-		getLlvmDiType_struct<StdType_VariantStruct>, // TypeKind_Variant,
-		getLlvmDiType_struct<StdType_StringStruct>,  // TypeKind_String,
-
-		// TypeKind_Bool,
-		&getLlvmDiType_simple<
-			name_bool,
-			llvm::dwarf::DW_ATE_boolean,
-			1
-		>,
-
-		// TypeKind_Int8,
-		&getLlvmDiType_simple<
-			name_int8,
-			llvm::dwarf::DW_ATE_signed_char,
-			1
-		>,
-
-		// TypeKind_Int8_u,
-		&getLlvmDiType_simple<
-			name_int8_u,
-			llvm::dwarf::DW_ATE_unsigned_char,
-			1
-		>,
-
-		// TypeKind_Int16,
-		&getLlvmDiType_simple<
-			name_int16,
-			llvm::dwarf::DW_ATE_signed,
-			2
-		>,
-
-		// TypeKind_Int16_u,
-		&getLlvmDiType_simple<
-			name_int16_u,
-			llvm::dwarf::DW_ATE_unsigned,
-			2
-		>,
-
-		// TypeKind_Int32,
-		&getLlvmDiType_simple<
-			name_int32,
-			llvm::dwarf::DW_ATE_signed,
-			4
-		>,
-
-		// TypeKind_Int32_u,
-		&getLlvmDiType_simple<
-			name_int32_u,
-			llvm::dwarf::DW_ATE_unsigned,
-			4
-		>,
-
-		// TypeKind_Int64,
-		&getLlvmDiType_simple<
-			name_int64,
-			llvm::dwarf::DW_ATE_signed,
-			8
-		>,
-
-		// TypeKind_Int64_u,
-		&getLlvmDiType_simple<
-			name_int64_u,
-			llvm::dwarf::DW_ATE_unsigned,
-			8
-		>,
-
-		// TypeKind_Int16_be,
-		&getLlvmDiType_simple<
-			name_int16_be,
-			llvm::dwarf::DW_ATE_signed,
-			2
-		>,
-
-		// TypeKind_Int16_ube,
-		&getLlvmDiType_simple<
-			name_int16_ube,
-			llvm::dwarf::DW_ATE_unsigned,
-			2
-		>,
-
-		// TypeKind_Int32_be,
-		&getLlvmDiType_simple<
-			name_int32_be,
-			llvm::dwarf::DW_ATE_signed,
-			4
-		>,
-
-		// TypeKind_Int32_ube,
-		&getLlvmDiType_simple<
-			name_int32_ube,
-			llvm::dwarf::DW_ATE_unsigned,
-			4
-		>,
-
-		// TypeKind_Int64_be,
-		&getLlvmDiType_simple<
-			name_int64_be,
-			llvm::dwarf::DW_ATE_signed,
-			8
-		>,
-
-		// TypeKind_Int64_ube,
-		&getLlvmDiType_simple<
-			name_int64_ube,
-			llvm::dwarf::DW_ATE_unsigned,
-			8
-		>,
-
-		// TypeKind_Float,
-		&getLlvmDiType_simple<
-			name_float,
-			llvm::dwarf::DW_ATE_float,
-			4
-		>,
-
-		// TypeKind_Double,
-		&getLlvmDiType_simple<
-			name_double,
-			llvm::dwarf::DW_ATE_float,
-			8
-		>
+	struct DiTypeInfo {
+		const char* m_name;
+		uint_t m_dwarfCode;
+		size_t m_size;
 	};
 
-	m_llvmDiType = getLlvmDiTypeFuncTable[(size_t)m_typeKind](m_module);
+	static const DiTypeInfo typeInfoTable[] = {
+		{
+			"void",                     // TypeKind_Void
+			llvm::dwarf::DW_ATE_boolean,
+			1,
+		},
+		{ 0 },                        // TypeKind_Variant
+		{ 0 },                        // TypeKind_String
+		{                             // TypeKind_Bool
+			"bool",
+			llvm::dwarf::DW_ATE_boolean,
+			1,
+		},
+		{
+			"char",                     // TypeKind_Int8
+			llvm::dwarf::DW_ATE_signed_char,
+			1
+		},
+		{
+			"unsigned char",            // TypeKind_Int8_u
+			llvm::dwarf::DW_ATE_unsigned_char,
+			1
+		},
+		{
+			"short",                    // TypeKind_Int16
+			llvm::dwarf::DW_ATE_signed,
+			2
+		},
+		{
+			"unsigned short",           // TypeKind_Int16_u
+			llvm::dwarf::DW_ATE_unsigned,
+			2
+		},
+		{
+			"int",                      // TypeKind_Int32
+			llvm::dwarf::DW_ATE_signed,
+			4
+		},
+		{
+			"unsigned int",             // TypeKind_Int32_u
+			llvm::dwarf::DW_ATE_unsigned,
+			4
+		},
+		{
+			"long",                     // TypeKind_Int64
+			llvm::dwarf::DW_ATE_signed,
+			8
+		},
+		{
+			"unsigned long",            // TypeKind_Int64_u
+			llvm::dwarf::DW_ATE_unsigned,
+			8
+		},
+		{
+			"bigendian short",          // TypeKind_Int16_be
+			llvm::dwarf::DW_ATE_signed,
+			2
+		},
+		{
+			"bigendian unsigned short", // TypeKind_Int16_ube
+			llvm::dwarf::DW_ATE_unsigned,
+			2
+		},
+		{
+			"bigendian int",            // TypeKind_Int32_be
+			llvm::dwarf::DW_ATE_signed,
+			4
+		},
+		{
+			"bigendian unsigned int",   // TypeKind_Int32_ube
+			llvm::dwarf::DW_ATE_unsigned,
+			4
+		},
+		{
+			"bigendian long",           // TypeKind_Int64_be
+			llvm::dwarf::DW_ATE_signed,
+			8
+		},
+		{
+			"bigendian unsigned long",  // TypeKind_Int64_ube
+			llvm::dwarf::DW_ATE_unsigned,
+			8
+		},
+		{
+			"float",                    // TypeKind_Float
+			llvm::dwarf::DW_ATE_float,
+			4
+		},
+		{
+			"double",                   // TypeKind_Double
+			llvm::dwarf::DW_ATE_float,
+			8
+		},
+	};
+
+	switch (m_typeKind) {
+		case TypeKind_Variant:
+			m_llvmDiType = m_module->m_typeMgr.getStdType(StdType_VariantStruct)->getLlvmDiType();
+			break;
+
+		case TypeKind_String:
+			m_llvmDiType = m_module->m_typeMgr.getStdType(StdType_StringStruct)->getLlvmDiType();
+			break;
+
+		default:
+			const DiTypeInfo& diTypeInfo = typeInfoTable[m_typeKind];
+			m_llvmDiType = m_module->m_llvmDiBuilder.createBasicType(
+				diTypeInfo.m_name,
+				diTypeInfo.m_size,
+				diTypeInfo.m_size,
+				diTypeInfo.m_dwarfCode
+			);
+	};
 }
 
 void
