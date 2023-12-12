@@ -42,6 +42,14 @@ extern "C" int64_t _aullrem(int64_t, int64_t);
 #	endif
 #endif
 
+#if (_JNC_OS_WIN)
+#	if (_JNC_CPU_AMD64)
+extern "C" void __chkstk();
+#	elif (_JNC_CPU_X86)
+extern "C" void _chkstk();
+#	endif
+#endif
+
 //..............................................................................
 
 void
@@ -75,7 +83,12 @@ Jit::findSymbol(const sl::StringRef& name) {
 		m_symbolMap.find(name.getSubString(1)) :
 		m_symbolMap.find(name);
 
-	return it ? it->m_value : NULL;
+	if (!it) {
+		TRACE("JIT: unresolved: %s\n", name.sz());
+		return NULL;
+	}
+
+	return it->m_value;
 }
 
 void
@@ -83,7 +96,14 @@ Jit::addStdSymbols() {
 	m_symbolMap["memset"] = (void*)memset;
 	m_symbolMap["memcpy"] = (void*)memcpy;
 	m_symbolMap["memmove"] = (void*)memmove;
-#if (_JNC_OS_DARWIN)
+
+#if (_JNC_OS_WIN)
+#	if (_JNC_CPU_AMD64)
+	m_symbolMap["__chkstk"] = (void*)__chkstk;
+#	elif (_JNC_CPU_X86)
+	m_symbolMap["_chkstk"] = (void*)_chkstk;
+#	endif
+#elif (_JNC_OS_DARWIN)
 	m_symbolMap["_bzero"] = (void*)bzero;
 	m_symbolMap["___bzero"] = (void*)bzero;
 #endif
