@@ -387,7 +387,7 @@ jnc_Variant_setMember(
 	if (variant->m_type->getTypeKindFlags() & TypeKindFlag_Ptr) {
 		opValue.createConst(variant, variant->m_type);
 	} else {
-		ASSERT(variant->m_type->getSize() <= sizeof(DataPtr));
+		ASSERT(variant->m_type->getSize() <= Variant::DataSize);
 		opValue.createConst(&variant, variant->m_type->getDataPtrType_c(TypeKind_DataRef));
 	}
 
@@ -422,7 +422,7 @@ jnc_Variant_getElement(
 	if (variant->m_type->getTypeKindFlags() & TypeKindFlag_Ptr) {
 		opValue.createConst(variant, variant->m_type);
 	} else {
-		ASSERT(variant->m_type->getSize() <= sizeof(DataPtr));
+		ASSERT(variant->m_type->getSize() <= Variant::DataSize);
 		opValue.createConst(&variant, variant->m_type->getDataPtrType_c(TypeKind_DataRef));
 	}
 
@@ -459,7 +459,7 @@ jnc_Variant_setElement(
 	if (variant->m_type->getTypeKindFlags() & TypeKindFlag_Ptr) {
 		opValue.createConst(variant, variant->m_type);
 	} else {
-		ASSERT(variant->m_type->getSize() <= sizeof(DataPtr));
+		ASSERT(variant->m_type->getSize() <= Variant::DataSize);
 		opValue.createConst(&variant, variant->m_type->getDataPtrType_c(TypeKind_DataRef));
 	}
 
