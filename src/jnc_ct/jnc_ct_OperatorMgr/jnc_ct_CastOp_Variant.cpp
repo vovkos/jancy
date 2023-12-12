@@ -31,7 +31,7 @@ Cast_Variant::constCast(
 	memset(variant, 0, sizeof(Variant));
 
 	Type* opType = opValue.getType();
-	if (opType->getSize() <= sizeof(DataPtr)) {
+	if (opType->getSize() <= Variant::DataSize) {
 		memcpy(variant, opValue.getConstData(), opType->getSize());
 	} else { // store it as reference
 		const void* p = m_module->m_constMgr.saveValue(opValue).getConstData();
@@ -72,7 +72,7 @@ Cast_Variant::llvmCast(
 		);
 
 		m_module->m_operatorMgr.castOperator(rawOpValue, opType, &opValue);
-	} else if (opType->getSize() <= sizeof(DataPtr)) {
+	} else if (opType->getSize() <= Variant::DataSize) {
 		opValue = rawOpValue;
 	} else { // store it as reference
 		result = m_module->m_operatorMgr.gcHeapAllocate(opType, &opValue);
@@ -120,7 +120,7 @@ Cast_FromVariant::constCast(
 		return true;
 	}
 
-	if (variant->m_type->getSize() > sizeof(DataPtr)) {
+	if (variant->m_type->getSize() > Variant::DataSize) {
 		err::setFormatStringError("invalid variant type '%s'", variant->m_type->getTypeString().sz());
 		return false;
 	}

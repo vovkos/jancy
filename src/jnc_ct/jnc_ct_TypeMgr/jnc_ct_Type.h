@@ -63,12 +63,9 @@ getPtrTypeFlagsFromModifiers(uint_t modifiers);
 //..............................................................................
 
 enum VariantField {
-	VariantField_Data1,
-	VariantField_Data2,
-#if (JNC_PTR_SIZE == 4)
-	VariantField_Padding,
-#endif
-	VariantField_Type,
+	VariantField_Data    = 0,
+	VariantField_Padding = 1,
+	VariantField_Type    = 2,
 };
 
 //..............................................................................
