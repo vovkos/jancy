@@ -596,24 +596,21 @@ striDjb2(DataPtr ptr) {
 	return sl::djb2_op(::tolower, (char*)ptr.m_p, length);
 }
 
-DataPtr
+String
 format(
-	DataPtr formatStringPtr,
+	String formatString_jnc,
 	...
 ) {
-	AXL_VA_DECL(va, formatStringPtr);
+	AXL_VA_DECL(va, formatString_jnc);
+
+	sl::StringRef formatString_axl = formatString_jnc >> toAxl;
 
 	char buffer[256];
 	sl::String string(rc::BufKind_Stack, buffer, sizeof(buffer));
-	string.format_va((const char*) formatStringPtr.m_p, va);
+	string.format_va(formatString_axl.sz(), va);
 	size_t length = string.getLength();
 
-	GcHeap* gcHeap = getCurrentThreadGcHeap();
-	ASSERT(gcHeap);
-
-	DataPtr resultPtr = gcHeap->allocateBuffer(length + 1);
-	memcpy(resultPtr.m_p, string.sz(), length);
-	return resultPtr;
+	return allocateString(string);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

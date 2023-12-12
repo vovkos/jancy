@@ -216,6 +216,22 @@ foo(jnc::String string) {
 	);
 }
 
+void
+bar(
+	jnc::Variant v1,
+	jnc::Variant v2,
+	jnc::Variant v3,
+	jnc::Variant v4
+) {
+	printf(
+		"bar: v1: %p (%s), v2: %p (%s), v3: %p (%s), v4: %p (%s)\n",
+		v1.m_p, v1.m_type->getTypeString(),
+		v2.m_p, v2.m_type->getTypeString(),
+		v3.m_p, v3.m_type->getTypeString(),
+		v4.m_p, v4.m_type->getTypeString()
+	);
+}
+
 //..............................................................................
 
 JNC_DEFINE_LIB(
@@ -240,7 +256,8 @@ JNC_BEGIN_LIB_FUNCTION_MAP(TestLib)
 //	JNC_MAP_FUNCTION("testVariant", &testVariant)
 //	JNC_MAP_FUNCTION("testAlloc", testAlloc)
 //	JNC_MAP_FUNCTION("testCallSite", testCallSite)
-	JNC_MAP_FUNCTION("foo", foo)
+//	JNC_MAP_FUNCTION("foo", foo)
+	JNC_MAP_FUNCTION("bar", bar)
 JNC_END_LIB_FUNCTION_MAP()
 
 //..............................................................................
