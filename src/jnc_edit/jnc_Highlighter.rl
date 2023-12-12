@@ -96,7 +96,6 @@ main := |*
 
 	'anydata'         |
 	'void'            |
-	'variant'         |
 	'bool'            |
 	'int'             |
 	'intptr'          |
