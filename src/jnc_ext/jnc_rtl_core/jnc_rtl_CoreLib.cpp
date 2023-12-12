@@ -799,7 +799,7 @@ prepareFormatString(
 	formatString->append(fmtSpecifier);
 
 	size_t length = formatString->getLength();
-	if (!isalpha(formatString->sz() [length - 1]))
+	if (!isalpha(formatString->sz()[length - 1]))
 		formatString->append(defaultType);
 }
 
@@ -881,7 +881,7 @@ appendFmtLiteral_p(
 		return fmtLiteral->m_length;
 
 	checkDataPtrRangeIndirect(ptr.m_p, length, ptr.m_validator);
-	return appendFmtLiteralStringImpl(fmtLiteral, fmtSpecifier, (const char*) ptr.m_p, length);
+	return appendFmtLiteralStringImpl(fmtLiteral, fmtSpecifier, (const char*)ptr.m_p, length);
 }
 
 static

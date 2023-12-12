@@ -613,7 +613,7 @@ format_string(
 
 template <
 	typename T,
-	const char* defaultType
+	typename DefaultType
 >
 size_t
 format_type(
@@ -622,12 +622,12 @@ format_type(
 	const void* p,
 	jnc::Type* type
 ) {
-	return formatImpl(string, fmtSpecifier, defaultType, *(const T*)p);
+	return formatImpl(string, fmtSpecifier, DefaultType()(), *(const T*)p);
 }
 
 template <
 	typename T,
-	const char* defaultType
+	typename DefaultType
 >
 size_t
 format_be(
@@ -649,7 +649,7 @@ format_be(
 		break;
 	}
 
-	return formatImpl(string, fmtSpecifier, defaultType, x);
+	return formatImpl(string, fmtSpecifier, DefaultType()(), x);
 }
 
 static
@@ -684,7 +684,7 @@ format_ptr(
 	const void* p,
 	jnc::Type* type
 ) {
-	return formatImpl(string, fmtSpecifier, "%p", *(void**)p);
+	return formatImpl(string, fmtSpecifier, "p", *(void**)p);
 }
 
 static
@@ -718,55 +718,79 @@ format_dataRef(
 	jnc::Type* type
 );
 
-static const char FmtSpecifier_d[] = "%d";
-static const char FmtSpecifier_u[] = "%u";
-static const char FmtSpecifier_lld[] = "%lld";
-static const char FmtSpecifier_llu[] = "%llu";
-static const char FmtSpecifier_f[] = "%f";
+struct FmtType_d {
+	const char* operator () () const {
+		return "d";
+	}
+};
+
+struct FmtType_u {
+	const char* operator () () const {
+		return "u";
+	}
+};
+
+struct FmtType_lld {
+	const char* operator () () const {
+		return "lld";
+	}
+};
+
+struct FmtType_llu {
+	const char* operator () () const {
+		return "llu";
+	}
+};
+
+struct FmtType_f {
+	const char* operator () () const {
+		return "f";
+	}
+};
 
 static
 FormatFunc*
 g_formatFuncTable[jnc_TypeKind__Count] = {
-	format_default,                          // TypeKind_Void
-	format_default,                          // TypeKind_Variant
-	format_string,                           // TypeKind_String
-	format_type<bool,     FmtSpecifier_d>,   // TypeKind_Bool
-	format_type<int8_t,   FmtSpecifier_d>,   // TypeKind_Int8
-	format_type<uint8_t,  FmtSpecifier_u>,   // TypeKind_Int8_u
-	format_type<int16_t,  FmtSpecifier_d>,   // TypeKind_Int16
-	format_type<uint16_t, FmtSpecifier_u>,   // TypeKind_Int16_u
-	format_type<int32_t,  FmtSpecifier_d>,   // TypeKind_Int32
-	format_type<uint32_t, FmtSpecifier_u>,   // TypeKind_Int32_u
-	format_type<int64_t,  FmtSpecifier_lld>, // TypeKind_Int64
-	format_type<uint64_t, FmtSpecifier_llu>, // TypeKind_Int64_u
-	format_be<int16_t,    FmtSpecifier_d>,   // TypeKind_Int16_be
-	format_be<uint16_t,   FmtSpecifier_u>,   // TypeKind_Int16_ube
-	format_be<int32_t,    FmtSpecifier_d>,   // TypeKind_Int32_be
-	format_be<uint32_t,   FmtSpecifier_u>,   // TypeKind_Int32_ube
-	format_be<int64_t,    FmtSpecifier_lld>, // TypeKind_Int64_be
-	format_be<uint64_t,   FmtSpecifier_llu>, // TypeKind_Int64_ube
-	format_type<float,    FmtSpecifier_f>,   // TypeKind_Float
-	format_type<double,   FmtSpecifier_f>,   // TypeKind_Double
-	format_array,                            // TypeKind_Array
-	format_default,                          // TypeKind_BitField
-	format_default,                          // TypeKind_Enum
-	format_default,                          // TypeKind_Struct
-	format_default,                          // TypeKind_Union
-	format_default,                          // TypeKind_Class
-	format_default,                          // TypeKind_Function
-	format_default,                          // TypeKind_Property
-	format_dataPtr,                          // TypeKind_DataPtr
-	format_dataRef,                          // TypeKind_DataRef
-	format_ptr,                              // TypeKind_ClassPtr
-	format_ptr,                              // TypeKind_ClassRef
-	format_ptr,                              // TypeKind_FunctionPtr
-	format_ptr,                              // TypeKind_FunctionRef
-	format_ptr,                              // TypeKind_PropertyPtr
-	format_ptr,                              // TypeKind_PropertyRef
-	format_default,                          // TypeKind_NamedImport
-	format_default,                          // TypeKind_ImportPtr
-	format_default,                          // TypeKind_ImportIntMod
-	format_default,                          // TypeKind_TypedefShadow
+	format_default,                     // TypeKind_Void
+	format_default,                     // TypeKind_Variant
+	format_string,                      // TypeKind_String
+	format_type<bool,     FmtType_d>,   // TypeKind_Bool
+	format_type<int8_t,   FmtType_d>,   // TypeKind_Int8
+	format_type<uint8_t,  FmtType_u>,   // TypeKind_Int8_u
+	format_type<int16_t,  FmtType_d>,   // TypeKind_Int16
+	format_type<uint16_t, FmtType_u>,   // TypeKind_Int16_u
+	format_type<int32_t,  FmtType_d>,   // TypeKind_Int32
+	format_type<uint32_t, FmtType_u>,   // TypeKind_Int32_u
+	format_type<int64_t,  FmtType_lld>, // TypeKind_Int64
+	format_type<uint64_t, FmtType_llu>, // TypeKind_Int64_u
+	format_be<int16_t,    FmtType_d>,   // TypeKind_Int16_be
+	format_be<uint16_t,   FmtType_u>,   // TypeKind_Int16_ube
+	format_be<int32_t,    FmtType_d>,   // TypeKind_Int32_be
+	format_be<uint32_t,   FmtType_u>,   // TypeKind_Int32_ube
+	format_be<int64_t,    FmtType_lld>, // TypeKind_Int64_be
+	format_be<uint64_t,   FmtType_llu>, // TypeKind_Int64_ube
+	format_type<float,    FmtType_f>,   // TypeKind_Float
+	format_type<double,   FmtType_f>,   // TypeKind_Double
+	format_array,                       // TypeKind_Array
+	format_default,                     // TypeKind_BitField
+	format_default,                     // TypeKind_Enum
+	format_default,                     // TypeKind_Struct
+	format_default,                     // TypeKind_Union
+	format_default,                     // TypeKind_Class
+	format_default,                     // TypeKind_Function
+	format_default,                     // TypeKind_Property
+	format_dataPtr,                     // TypeKind_DataPtr
+	format_dataRef,                     // TypeKind_DataRef
+	format_ptr,                         // TypeKind_ClassPtr
+	format_ptr,                         // TypeKind_ClassRef
+	format_ptr,                         // TypeKind_FunctionPtr
+	format_ptr,                         // TypeKind_FunctionRef
+	format_ptr,                         // TypeKind_PropertyPtr
+	format_ptr,                         // TypeKind_PropertyRef
+	format_default,                     // TypeKind_NamedImport
+	format_default,                     // TypeKind_ImportPtr
+	format_default,                     // TypeKind_ImportIntMod
+	format_default,                     // TypeKind_TypedefShadow
 };
 
 static
