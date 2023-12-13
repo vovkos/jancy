@@ -49,12 +49,14 @@ public:
 	markOpaqueGcRoots(GcHeap* gcHeap);
 
 	bool
+	JNC_CDECL
 	hasText() {
 		return m_capture.hasText();
 	}
 
 	static
 	String
+	JNC_CDECL
 	getText(RegexMatch* self);
 };
 
