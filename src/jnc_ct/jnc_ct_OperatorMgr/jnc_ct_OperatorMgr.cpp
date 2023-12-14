@@ -1657,11 +1657,11 @@ OperatorMgr::prepareArrayRef(
 	if (value.getValueKind() == ValueKind_Const || ptrTypeKind == DataPtrTypeKind_Normal) {
 		resultValue->overrideType(value, resultType);
 	} else if (ptrTypeKind != DataPtrTypeKind_Lean) {
-		m_module->m_llvmIrBuilder.createGep2(value, elementType, 0, resultType, resultValue);
+		m_module->m_llvmIrBuilder.createGep2(value, arrayType, 0, resultType, resultValue);
 	} else {
 		// get validator first (resultValue can point to value)
 		LeanDataPtrValidator* validator = value.getLeanDataPtrValidator();
-		m_module->m_llvmIrBuilder.createGep2(value, elementType, 0, resultType, resultValue);
+		m_module->m_llvmIrBuilder.createGep2(value, arrayType, 0, resultType, resultValue);
 		resultValue->setLeanDataPtrValidator(validator);
 	}
 }

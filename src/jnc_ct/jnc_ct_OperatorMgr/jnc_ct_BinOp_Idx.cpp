@@ -188,16 +188,12 @@ BinOp_Idx::arrayIndexOperator(
 		switch (ptrTypeKind) {
 		case DataPtrTypeKind_Thin:
 			ptrType = elementType->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Thin, ptrTypeFlags);
-			m_module->m_llvmIrBuilder.createGep2(opValue1, elementType, opValue2, ptrType, resultValue);
+			m_module->m_llvmIrBuilder.createGep2(opValue1, arrayType, opValue2, ptrType, resultValue);
 			break;
 
 		case DataPtrTypeKind_Lean:
 			ptrType = elementType->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Lean, ptrTypeFlags);
-
-			printf("opValue1: %s\n", opValue1.getLlvmTypeString().sz());
-			printf("elementType: %s\n", ct::getLlvmTypeString(elementType->getLlvmType()).sz());
-
-			m_module->m_llvmIrBuilder.createGep2(opValue1, elementType, opValue2, ptrType, resultValue);
+			m_module->m_llvmIrBuilder.createGep2(opValue1, arrayType, opValue2, ptrType, resultValue);
 			resultValue->setLeanDataPtrValidator(opValue1.getLeanDataPtrValidator());
 			break;
 

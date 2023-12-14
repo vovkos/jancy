@@ -77,15 +77,16 @@ OperatorMgr::getPromiseField(
 	const sl::String& name,
 	Value* resultValue
 ) {
-	ASSERT(((ClassPtrType*)promiseValue.getType())->getTargetType()->getBaseTypeArray() [0]->getType()->getStdType() == StdType_Promise);
+	ASSERT(promiseValue.getType()->getTypeKindFlags() & TypeKindFlag_ClassPtr);
+	ClassType* promiseType = ((ClassPtrType*)promiseValue.getType())->getTargetType();
+	ClassType* basePromiseType = (ClassType*)promiseType->getBaseTypeArray()[0]->getType();
+	ASSERT(basePromiseType->getStdType() == StdType_Promise);
 
-	ClassType* promiseType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_Promise);
-	Field* stateField = (Field*)promiseType->findDirectChildItem(name).m_item;
+	Field* stateField = (Field*)basePromiseType->findDirectChildItem(name).m_item;
 	ASSERT(stateField && stateField->getItemKind() == ModuleItemKind_Field);
 
 	MemberCoord coord;
 	coord.m_llvmIndexArray.append(0); // account for base type jnc.Promise
-
 	return getField(promiseValue, promiseType, stateField, &coord, resultValue);
 }
 

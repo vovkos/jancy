@@ -79,11 +79,10 @@ McSnapshotClassType::compileCallMethod(Function* function) {
 
 	StructType* ifaceStruct = getIfaceStructType();
 	int32_t ptrGepIdxArray[] = { 0, 1, 0 };
-	Type* ptrFieldType = m_fieldArray[McSnapshotFieldKind_PtrArray]->getType();
 
 	m_module->m_llvmIrBuilder.createAlloca(ptrType, NULL, &ptrVariable);
 	m_module->m_llvmIrBuilder.createGep(argValueArray[0], ifaceStruct, ptrGepIdxArray, countof(ptrGepIdxArray), NULL, &ptrValue);
-	m_module->m_llvmIrBuilder.createLoad(ptrValue, ptrFieldType, &ptrValue);
+	m_module->m_llvmIrBuilder.createLoad(ptrValue, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr), &ptrValue);
 	m_module->m_llvmIrBuilder.createBitCast(ptrValue, ptrType, &ptrValue);
 	m_module->m_llvmIrBuilder.createStore(ptrValue, ptrVariable);
 
@@ -91,7 +90,7 @@ McSnapshotClassType::compileCallMethod(Function* function) {
 
 	int32_t countGepIdxArray[] = { 0, 2 };
 	m_module->m_llvmIrBuilder.createGep(argValueArray[0], ifaceStruct, countGepIdxArray, countof(countGepIdxArray), NULL, &countValue);
-	m_module->m_llvmIrBuilder.createLoad(countValue, countValue.getType(), &countValue);
+	m_module->m_llvmIrBuilder.createLoad(countValue, m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT), &countValue);
 	m_module->m_llvmIrBuilder.createGep(ptrValue, m_targetType, countValue, ptrType, &ptrEndValue);
 
 	BasicBlock* conditionBlock = m_module->m_controlFlowMgr.createBlock("call_loop_cond");
