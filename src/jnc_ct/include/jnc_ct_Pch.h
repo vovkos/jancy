@@ -85,7 +85,12 @@
 #include <llvm/ADT/StringMap.h>
 #include <llvm/Analysis/Passes.h>
 #include <llvm/Transforms/IPO.h>
-#include <llvm/Transforms/IPO/PassManagerBuilder.h>
+
+#if (LLVM_VERSION_MAJOR < 17)
+#	include <llvm/Transforms/IPO/PassManagerBuilder.h>
+#else
+#	include <llvm/Passes/PassBuilder.h>
+#endif
 
 #include <llvm/ExecutionEngine/SectionMemoryManager.h>
 #include <llvm/ExecutionEngine/JITEventListener.h>

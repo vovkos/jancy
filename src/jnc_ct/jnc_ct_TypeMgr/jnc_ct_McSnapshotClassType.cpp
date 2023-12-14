@@ -77,19 +77,22 @@ McSnapshotClassType::compileCallMethod(Function* function) {
 	Value ptrValue;
 	Value ptrEndValue;
 
+	StructType* ifaceStruct = getIfaceStructType();
 	int32_t ptrGepIdxArray[] = { 0, 1, 0 };
+	Type* ptrFieldType = m_fieldArray[McSnapshotFieldKind_PtrArray]->getType();
+
 	m_module->m_llvmIrBuilder.createAlloca(ptrType, NULL, &ptrVariable);
-	m_module->m_llvmIrBuilder.createGep(argValueArray[0], ptrGepIdxArray, countof(ptrGepIdxArray), NULL, &ptrValue);
-	m_module->m_llvmIrBuilder.createLoad(ptrValue, NULL, &ptrValue);
+	m_module->m_llvmIrBuilder.createGep(argValueArray[0], ifaceStruct, ptrGepIdxArray, countof(ptrGepIdxArray), NULL, &ptrValue);
+	m_module->m_llvmIrBuilder.createLoad(ptrValue, ptrFieldType, &ptrValue);
 	m_module->m_llvmIrBuilder.createBitCast(ptrValue, ptrType, &ptrValue);
 	m_module->m_llvmIrBuilder.createStore(ptrValue, ptrVariable);
 
 	Value countValue;
 
 	int32_t countGepIdxArray[] = { 0, 2 };
-	m_module->m_llvmIrBuilder.createGep(argValueArray[0], countGepIdxArray, countof(countGepIdxArray), NULL, &countValue);
+	m_module->m_llvmIrBuilder.createGep(argValueArray[0], ifaceStruct, countGepIdxArray, countof(countGepIdxArray), NULL, &countValue);
 	m_module->m_llvmIrBuilder.createLoad(countValue, countValue.getType(), &countValue);
-	m_module->m_llvmIrBuilder.createGep(ptrValue, countValue, ptrType, &ptrEndValue);
+	m_module->m_llvmIrBuilder.createGep(ptrValue, m_targetType, countValue, ptrType, &ptrEndValue);
 
 	BasicBlock* conditionBlock = m_module->m_controlFlowMgr.createBlock("call_loop_cond");
 	BasicBlock* bodyBlock = m_module->m_controlFlowMgr.createBlock("call_loop_body");
@@ -100,7 +103,7 @@ McSnapshotClassType::compileCallMethod(Function* function) {
 	Value idxValue;
 	Value cmpValue;
 
-	m_module->m_llvmIrBuilder.createLoad(ptrVariable, NULL, &ptrValue);
+	m_module->m_llvmIrBuilder.createLoad(ptrVariable, ptrType, &ptrValue);
 	m_module->m_llvmIrBuilder.createGe_u(ptrValue, ptrEndValue, &cmpValue);
 	m_module->m_controlFlowMgr.conditionalJump(cmpValue, followBlock, bodyBlock, bodyBlock);
 
@@ -109,7 +112,7 @@ McSnapshotClassType::compileCallMethod(Function* function) {
 	m_module->m_llvmIrBuilder.createLoad(ptrValue, m_targetType, &pfnValue);
 	m_module->m_operatorMgr.callOperator(pfnValue, &argValueList);
 
-	m_module->m_llvmIrBuilder.createGep(ptrValue, 1, ptrType, &ptrValue);
+	m_module->m_llvmIrBuilder.createGep(ptrValue, m_targetType, 1, ptrType, &ptrValue);
 	m_module->m_llvmIrBuilder.createStore(ptrValue, ptrVariable);
 	m_module->m_controlFlowMgr.jump(conditionBlock, followBlock);
 

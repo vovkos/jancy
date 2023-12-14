@@ -109,7 +109,7 @@ CdeclCallConv_msc64::call(
 				m_module->m_llvmIrBuilder.createAlloca(coerceType, NULL, &tmpValue);
 				m_module->m_llvmIrBuilder.createBitCast(tmpValue, type->getDataPtrType_c(), &tmpValue2);
 				m_module->m_llvmIrBuilder.createStore(*it, tmpValue2);
-				m_module->m_llvmIrBuilder.createLoad(tmpValue, NULL, &tmpValue);
+				m_module->m_llvmIrBuilder.createLoad(tmpValue, coerceType, &tmpValue);
 				*it = tmpValue;
 			}
 		}
@@ -157,7 +157,7 @@ CdeclCallConv_msc64::ret(
 		m_module->m_llvmIrBuilder.createAlloca(type, NULL, &tmpValue);
 		m_module->m_llvmIrBuilder.createBitCast(tmpValue, returnType->getDataPtrType_c(), &tmpValue2);
 		m_module->m_llvmIrBuilder.createStore(value, tmpValue2);
-		m_module->m_llvmIrBuilder.createLoad(tmpValue, NULL, &tmpValue);
+		m_module->m_llvmIrBuilder.createLoad(tmpValue, type, &tmpValue);
 		return m_module->m_llvmIrBuilder.createRet(tmpValue);
 	}
 }
@@ -257,7 +257,7 @@ CdeclCallConv_msc64::createArgVariables(Function* function) {
 
 			if (type->getSize() > sizeof(uint64_t)) {
 				Value tmpValue;
-				m_module->m_llvmIrBuilder.createLoad(llvmArgValue, NULL, &tmpValue);
+				m_module->m_llvmIrBuilder.createLoad(llvmArgValue, type, &tmpValue);
 				m_module->m_llvmIrBuilder.createStore(tmpValue, argVariable);
 			} else {
 				Type* int64Type = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int64);
@@ -265,9 +265,8 @@ CdeclCallConv_msc64::createArgVariables(Function* function) {
 				Value tmpValue;
 				m_module->m_llvmIrBuilder.createAlloca(int64Type, NULL, &tmpValue);
 				m_module->m_llvmIrBuilder.createStore(llvmArgValue, tmpValue);
-
 				m_module->m_llvmIrBuilder.createBitCast(tmpValue, type->getDataPtrType_c(), &tmpValue);
-				m_module->m_llvmIrBuilder.createLoad(tmpValue, NULL, &tmpValue);
+				m_module->m_llvmIrBuilder.createLoad(tmpValue, type, &tmpValue);
 				m_module->m_llvmIrBuilder.createStore(tmpValue, argVariable);
 			}
 		}

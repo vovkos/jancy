@@ -134,8 +134,8 @@ OperatorMgr::getPropertyGetter(
 		ptrType->getTargetType()->getStdObjectMemberPropertyType() :
 		ptrType->getTargetType();
 
-	Value VtableValue;
-	result = getPropertyVtable(opValue, &VtableValue);
+	Value vtableValue;
+	result = getPropertyVtable(opValue, &vtableValue);
 	if (!result)
 		return false;
 
@@ -146,11 +146,11 @@ OperatorMgr::getPropertyGetter(
 		resultValue->setType(getterPtrType);
 	} else {
 		Value pfnValue;
-		m_module->m_llvmIrBuilder.createGep2(VtableValue, index, NULL, &pfnValue);
+		m_module->m_llvmIrBuilder.createGep2(vtableValue, propertyType->getVtableStructType(), index, NULL, &pfnValue);
 		m_module->m_llvmIrBuilder.createLoad(pfnValue, getterPtrType, resultValue);
 	}
 
-	resultValue->setClosure(VtableValue.getClosure());
+	resultValue->setClosure(vtableValue.getClosure());
 	return true;
 }
 
@@ -219,7 +219,7 @@ OperatorMgr::getPropertySetter(
 		index += i;
 
 		Value pfnValue;
-		m_module->m_llvmIrBuilder.createGep2(vtableValue, index, NULL, &pfnValue);
+		m_module->m_llvmIrBuilder.createGep2(vtableValue, propertyType->getVtableStructType(), index, NULL, &pfnValue);
 		m_module->m_llvmIrBuilder.createLoad(pfnValue, setterPtrType, resultValue);
 	}
 
@@ -242,7 +242,9 @@ OperatorMgr::getPropertyBinder(
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_PropertyPtr);
 
 	PropertyPtrType* ptrType = (PropertyPtrType*)opValue.getType();
-	PropertyType* propertyType = ptrType->getTargetType();
+	PropertyType* propertyType = ptrType->hasClosure() ?
+		ptrType->getTargetType()->getStdObjectMemberPropertyType() :
+		ptrType->getTargetType();
 
 	if (!(propertyType->getFlags() & PropertyTypeFlag_Bindable)) {
 		err::setFormatStringError("'%s' has no 'onchanged' binder", propertyType->getTypeString().sz());
@@ -255,11 +257,8 @@ OperatorMgr::getPropertyBinder(
 		return true;
 	}
 
-	if (ptrType->hasClosure())
-		propertyType = propertyType->getStdObjectMemberPropertyType();
-
-	Value VtableValue;
-	result = getPropertyVtable(opValue, &VtableValue);
+	Value vtableValue;
+	result = getPropertyVtable(opValue, &vtableValue);
 	if (!result)
 		return false;
 
@@ -269,15 +268,11 @@ OperatorMgr::getPropertyBinder(
 		resultValue->setType(binderPtrType);
 	} else {
 		Value pfnValue;
-		m_module->m_llvmIrBuilder.createGep2(VtableValue, 0, NULL, &pfnValue);
-		m_module->m_llvmIrBuilder.createLoad(
-			pfnValue,
-			binderPtrType,
-			resultValue
-		);
+		m_module->m_llvmIrBuilder.createGep2(vtableValue, propertyType->getVtableStructType(), 0, NULL, &pfnValue);
+		m_module->m_llvmIrBuilder.createLoad(pfnValue, binderPtrType, resultValue);
 	}
 
-	resultValue->setClosure(VtableValue.getClosure());
+	resultValue->setClosure(vtableValue.getClosure());
 	return true;
 }
 

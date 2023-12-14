@@ -76,6 +76,7 @@ OperatorMgr::memSet(
 		llvmMemset->getType(),
 		argValueArray,
 		countof(argValueArray),
+		m_module->m_typeMgr.getPrimitiveType(TypeKind_Void),
 		NULL
 	);
 

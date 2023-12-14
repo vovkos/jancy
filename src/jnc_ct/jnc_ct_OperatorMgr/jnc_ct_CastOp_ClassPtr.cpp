@@ -179,6 +179,7 @@ Cast_ClassPtr::llvmCast(
 		Value ptrValue;
 		m_module->m_llvmIrBuilder.createGep(
 			opValue,
+			srcClassType->getIfaceStructType(),
 			coord.m_llvmIndexArray,
 			coord.m_llvmIndexArray.getCount(),
 			dstType,
@@ -208,9 +209,10 @@ Cast_ClassPtr::llvmCast(
 	Value ptrValue;
 	m_module->m_llvmIrBuilder.createGep(
 		opValue,
+		srcClassType->getIfaceStructType(),
 		coord.m_llvmIndexArray,
 		coord.m_llvmIndexArray.getCount(),
-		NULL,
+		dstType,
 		&ptrValue
 	);
 

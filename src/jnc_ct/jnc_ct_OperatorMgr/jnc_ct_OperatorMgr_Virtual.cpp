@@ -29,8 +29,8 @@ OperatorMgr::getClassVtable(
 
 	Value ptrValue;
 	m_module->m_llvmIrBuilder.createBitCast(opValue, m_module->m_typeMgr.getStdType(StdType_IfaceHdrPtr), &ptrValue);
-	m_module->m_llvmIrBuilder.createGep2(ptrValue, 0, NULL, &ptrValue);
-	m_module->m_llvmIrBuilder.createLoad(ptrValue, NULL, &ptrValue);
+	m_module->m_llvmIrBuilder.createGep2(ptrValue, m_module->m_typeMgr.getStdType(StdType_IfaceHdr), 0, NULL, &ptrValue);
+	m_module->m_llvmIrBuilder.createLoad(ptrValue, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr), &ptrValue);
 	m_module->m_llvmIrBuilder.createBitCast(ptrValue, vtableType->getDataPtrType_c(), resultValue);
 	return true;
 }
@@ -50,12 +50,11 @@ OperatorMgr::getVirtualMethod(
 
 	Value value = *closure->getArgValueList()->getHead();
 	ClassType* classType = ((ClassPtrType*)value.getType())->getTargetType();
-	ClassType* vtableType = function->getVirtualOriginClassType();
-	size_t VtableIndex = function->getClassVtableIndex();
+	size_t vtableIndex = function->getClassVtableIndex();
 
 	BaseTypeCoord coord;
-	classType->findBaseTypeTraverse(vtableType, &coord);
-	VtableIndex += coord.m_vtableIndex;
+	classType->findBaseTypeTraverse(function->getVirtualOriginClassType(), &coord);
+	vtableIndex += coord.m_vtableIndex;
 
 	// class.vtbl*
 
@@ -66,7 +65,8 @@ OperatorMgr::getVirtualMethod(
 
 	m_module->m_llvmIrBuilder.createGep2(
 		ptrValue,
-		VtableIndex,
+		classType->getVtableStructType(),
+		vtableIndex,
 		NULL,
 		&ptrValue
 	);
@@ -75,13 +75,8 @@ OperatorMgr::getVirtualMethod(
 
 	m_module->m_llvmIrBuilder.createLoad(
 		ptrValue,
-		NULL,
-		&ptrValue
-	);
-
-	resultValue->setLlvmValue(
-		ptrValue.getLlvmValue(),
-		function->getType()->getFunctionPtrType(FunctionPtrTypeKind_Thin)
+		function->getType()->getFunctionPtrType(FunctionPtrTypeKind_Thin),
+		resultValue
 	);
 
 	resultValue->setClosure(closure);
@@ -103,11 +98,11 @@ OperatorMgr::getVirtualProperty(
 
 	Value value = *closure->getArgValueList()->getHead();
 	ClassType* classType = ((ClassPtrType*)value.getType())->getTargetType();
-	size_t VtableIndex = prop->getParentClassVtableIndex();
+	size_t vtableIndex = prop->getParentClassVtableIndex();
 
 	BaseTypeCoord coord;
 	classType->findBaseTypeTraverse(prop->getParentType(), &coord);
-	VtableIndex += coord.m_vtableIndex;
+	vtableIndex += coord.m_vtableIndex;
 
 	// class.vtbl*
 
@@ -118,7 +113,8 @@ OperatorMgr::getVirtualProperty(
 
 	m_module->m_llvmIrBuilder.createGep2(
 		ptrValue,
-		VtableIndex,
+		classType->getVtableStructType(),
+		vtableIndex,
 		NULL,
 		&ptrValue
 	);

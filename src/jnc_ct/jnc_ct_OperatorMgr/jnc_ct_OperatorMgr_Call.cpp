@@ -563,7 +563,7 @@ OperatorMgr::gcSafePoint() {
 
 		Value ptrValue;
 		Value value = m_module->m_typeMgr.getPrimitiveType(TypeKind_IntPtr)->getZeroValue();
-		m_module->m_llvmIrBuilder.createLoad(variable, NULL, &ptrValue);
+		m_module->m_llvmIrBuilder.createLoad(variable, variable->getType(), &ptrValue);
 		m_module->m_llvmIrBuilder.createRmw(
 			llvm::AtomicRMWInst::Xchg,
 			ptrValue,

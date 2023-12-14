@@ -98,7 +98,7 @@ Cast_Variant::llvmCast(
 	m_module->m_llvmIrBuilder.createAlloca(type, NULL, &variantValue);
 	m_module->m_llvmIrBuilder.createBitCast(variantValue, opType->getDataPtrType_c(), &castValue);
 	m_module->m_llvmIrBuilder.createStore(opValue, castValue);
-	m_module->m_llvmIrBuilder.createLoad(variantValue, NULL, &variantValue);
+	m_module->m_llvmIrBuilder.createLoad(variantValue, type, &variantValue);
 	m_module->m_llvmIrBuilder.createInsertValue(variantValue, opTypeValue, VariantField_Type, type, resultValue);
 	return true;
 }

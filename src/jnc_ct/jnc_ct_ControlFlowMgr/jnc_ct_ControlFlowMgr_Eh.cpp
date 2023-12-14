@@ -45,7 +45,7 @@ ControlFlowMgr::getFinallyRouteIdxVariable() {
 
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
 	BasicBlock* prevBlock = setCurrentBlock(function->getPrologueBlock());
-	m_finallyRouteIdxVariable = m_module->m_variableMgr.createSimpleStackVariable("finallyRouteIdx", m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr));
+	m_finallyRouteIdxVariable = m_module->m_variableMgr.createSimpleStackVariable("finallyRouteIdx", m_module->m_typeMgr.getPrimitiveType(TypeKind_IntPtr));
 	setCurrentBlock(prevBlock);
 	return m_finallyRouteIdxVariable;
 }
@@ -123,15 +123,16 @@ ControlFlowMgr::setJmp(
 	Variable* sjljFrameVariable = m_module->m_variableMgr.getStdVariable(StdVariable_SjljFrame);
 	Function* setJmpFunc = m_module->m_functionMgr.getStdFunction(StdFunc_SetJmp);
 
+	Type* sjljFrameType = m_module->m_typeMgr.getStdType(StdType_SjljFrame);
 	Value sjljFrameValue;
 	Value returnValue;
-	m_module->m_llvmIrBuilder.createGep(m_sjljFrameArrayValue, sjljFrameIdx, NULL, &sjljFrameValue);
+	m_module->m_llvmIrBuilder.createGep(m_sjljFrameArrayValue, sjljFrameType, sjljFrameIdx, NULL, &sjljFrameValue);
 	m_module->m_llvmIrBuilder.createStore(sjljFrameValue, sjljFrameVariable);
 
 #if (_JNC_OS_POSIX)
 	Value signalValue;
 	Value zeroValue((int64_t)0, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int));
-	m_module->m_llvmIrBuilder.createGep2(sjljFrameValue, 1,  NULL, &signalValue);
+	m_module->m_llvmIrBuilder.createGep2(sjljFrameValue, sjljFrameType, 1,  NULL, &signalValue);
 	m_module->m_llvmIrBuilder.createStore(zeroValue, signalValue);
 #endif
 
@@ -584,8 +585,9 @@ ControlFlowMgr::setSjljFrame(size_t index) {
 	if (index == -1) {
 		m_module->m_llvmIrBuilder.createStore(m_prevSjljFrameValue, sjljFrameVariable);
 	} else {
+		Type* sjljFrameType = m_module->m_typeMgr.getStdType(StdType_SjljFrame);
 		Value sjljFrameValue;
-		m_module->m_llvmIrBuilder.createGep(m_sjljFrameArrayValue, index, NULL, &sjljFrameValue);
+		m_module->m_llvmIrBuilder.createGep(m_sjljFrameArrayValue, sjljFrameType, index, NULL, &sjljFrameValue);
 		m_module->m_llvmIrBuilder.createStore(sjljFrameValue, sjljFrameVariable);
 	}
 }
@@ -652,7 +654,7 @@ ControlFlowMgr::finalizeSjljFrameArray() {
 	bool hasGcShadowStackFrame = m_module->m_gcShadowStackMgr.hasFrame() && function->getFunctionKind() != FunctionKind_AsyncSequencer;
 	if (!hasGcShadowStackFrame) {
 		gcShadowStackTopVariable = m_module->m_variableMgr.getStdVariable(StdVariable_GcShadowStackTop);
-		m_module->m_llvmIrBuilder.createLoad(gcShadowStackTopVariable, NULL, &prevGcShadowStackFrameValue);
+		m_module->m_llvmIrBuilder.createLoad(gcShadowStackTopVariable, gcShadowStackTopVariable->getType(), &prevGcShadowStackFrameValue);
 	}
 
 	// restore sjlj frame at every landing pad

@@ -177,7 +177,7 @@ AsyncSequencerFunction::compile() {
 	ASSERT(result);
 
 	Function* throwFunc = m_module->m_functionMgr.getStdFunction(StdFunc_AsyncThrow);
-	m_module->m_llvmIrBuilder.createGep2(promiseValue, 0, NULL, &promiseValue);
+	m_module->m_llvmIrBuilder.createGep2(promiseValue, m_promiseType->getIfaceStructType(), 0, NULL, &promiseValue);
 	m_module->m_llvmIrBuilder.createCall(throwFunc, throwFunc->getType(), promiseValue, NULL);
 	m_module->m_controlFlowMgr.asyncRet(NULL);
 	m_module->m_namespaceMgr.closeScope();
@@ -201,10 +201,11 @@ AsyncSequencerFunction::replaceAllocas() {
 	llvm::BasicBlock* llvmAllocaBlock = m_allocaBlock->getLlvmBlock();
 	llvm::BasicBlock::iterator it = llvmAllocaBlock->begin();
 	llvm::DataLayout llvmDataLayout(m_module->getLlvmModule());
+	Type* byteType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Byte);
 
 	Value bufferValue;
 	m_module->m_llvmIrBuilder.setInsertPoint(&*it);
-	m_module->m_llvmIrBuilder.createBitCast(llvmPromiseValue, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr), &bufferValue);
+	m_module->m_llvmIrBuilder.createBitCast(llvmPromiseValue, byteType->getDataPtrType_c(), &bufferValue);
 
 	size_t offset = m_promiseType->m_ifaceStructType->m_size;
 
@@ -230,7 +231,7 @@ AsyncSequencerFunction::replaceAllocas() {
 
 		Value gepValue;
 		m_module->m_llvmIrBuilder.setInsertPoint(llvmAlloca);
-		m_module->m_llvmIrBuilder.createGep(bufferValue, offset, NULL, &gepValue);
+		m_module->m_llvmIrBuilder.createGep(bufferValue, byteType, offset, NULL, &gepValue);
 		m_module->m_llvmIrBuilder.createBitCast(gepValue.getLlvmValue(), llvmPtrType, &gepValue);
 		llvmAlloca->replaceAllUsesWith(gepValue.getLlvmValue());
 		llvmAlloca->eraseFromParent();

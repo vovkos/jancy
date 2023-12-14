@@ -221,6 +221,7 @@ public:
 
 	llvm::LoadInst*
 	createLoadImpl(
+		llvm::Type* llvmType,
 		llvm::Value* llvmValue,
 		bool isVolatile = false
 	) {
@@ -228,11 +229,10 @@ public:
 #if (LLVM_VERSION_MAJOR < 8)
 		return m_llvmIrBuilder->CreateLoad(llvmValue, isVolatile);
 #else
-		return m_llvmIrBuilder->CreateLoad(
-			llvmValue->getType()->getPointerElementType(),
-			llvmValue,
-            isVolatile
-        );
+#	if (LLVM_VERSION_MAJOR < 17)
+		ASSERT(llvmType == llvmValue->getType()->getPointerElementType());
+#	endif
+		return m_llvmIrBuilder->CreateLoad(llvmType, llvmValue, isVolatile);
 #endif
 	}
 
@@ -243,7 +243,7 @@ public:
 		Value* resultValue,
 		bool isVolatile = false
 	) {
-		llvm::LoadInst* inst = createLoadImpl(value.getLlvmValue(), isVolatile);
+		llvm::LoadInst* inst = createLoadImpl(resultType->getLlvmType(), value.getLlvmValue(), isVolatile);
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
 	}
@@ -262,6 +262,7 @@ public:
 
 	llvm::Value*
 	createGepImpl(
+		llvm::Type* llvmType,
 		llvm::Value* llvmValue,
 		const llvm::ArrayRef<llvm::Value*>& llvmIndexArray
 	) {
@@ -269,17 +270,17 @@ public:
 #if (LLVM_VERSION < 0x030700)
 		return m_llvmIrBuilder->CreateGEP(llvmValue, llvmIndexArray);
 #else
-		return m_llvmIrBuilder->CreateGEP(
-			llvmValue->getType()->getScalarType()->getPointerElementType(),
-			llvmValue,
-			llvmIndexArray
-		);
+#	if (LLVM_VERSION_MAJOR < 17)
+		ASSERT(llvmType == llvmValue->getType()->getPointerElementType());
+#	endif
+		return m_llvmIrBuilder->CreateGEP(llvmType, llvmValue, llvmIndexArray);
 #endif
 	}
 
 	llvm::Value*
 	createGep(
 		const Value& value,
+		Type* elementType,
 		const Value* indexArray,
 		size_t indexCount,
 		Type* resultType,
@@ -289,6 +290,7 @@ public:
 	llvm::Value*
 	createGep(
 		const Value& value,
+		Type* elementType,
 		const int32_t* indexArray,
 		size_t indexCount,
 		Type* resultType,
@@ -298,11 +300,12 @@ public:
 	llvm::Value*
 	createGep(
 		const Value& value,
+		Type* elementType,
 		const Value& indexValue,
 		Type* resultType,
 		Value* resultValue
 	) {
-		llvm::Value* inst = createGepImpl(value.getLlvmValue(), indexValue.getLlvmValue());
+		llvm::Value* inst = createGepImpl(elementType->getLlvmType(), value.getLlvmValue(), indexValue.getLlvmValue());
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
 	}
@@ -310,6 +313,7 @@ public:
 	llvm::Value*
 	createGep(
 		const Value& value,
+		Type* elementType,
 		int32_t index,
 		Type* resultType,
 		Value* resultValue
@@ -318,12 +322,13 @@ public:
 
 		Value indexValue;
 		indexValue.setConstInt32(index, getSimpleType(TypeKind_Int32, m_module));
-		return createGep(value, indexValue, resultType, resultValue);
+		return createGep(value, elementType, indexValue, resultType, resultValue);
 	}
 
 	llvm::Value*
 	createGep2(
 		const Value& value,
+		Type* elementType,
 		const Value& indexValue1,
 		const Value& indexValue2,
 		Type* resultType,
@@ -334,12 +339,13 @@ public:
 			indexValue2,
 		};
 
-		return createGep(value, indexArray, countof(indexArray), resultType, resultValue);
+		return createGep(value, elementType, indexArray, countof(indexArray), resultType, resultValue);
 	}
 
 	llvm::Value*
 	createGep2(
 		const Value& value,
+		Type* elementType,
 		int32_t index1,
 		int32_t index2,
 		Type* resultType,
@@ -349,24 +355,26 @@ public:
 		Value indexValue2;
 		indexValue1.setConstInt32(index1, getSimpleType(TypeKind_Int32, m_module));
 		indexValue2.setConstInt32(index2, getSimpleType(TypeKind_Int32, m_module));
-		return createGep2(value, indexValue1, indexValue2, resultType, resultValue);
+		return createGep2(value, elementType, indexValue1, indexValue2, resultType, resultValue);
 	}
 
 	llvm::Value*
 	createGep2(
 		const Value& value,
+		Type* elementType,
 		const Value& indexValue2,
 		Type* resultType,
 		Value* resultValue
 	) {
 		Value indexValue1;
 		indexValue1.setConstInt32(0, getSimpleType(TypeKind_Int32, m_module));
-		return createGep2(value, indexValue1, indexValue2, resultType, resultValue);
+		return createGep2(value, elementType, indexValue1, indexValue2, resultType, resultValue);
 	}
 
 	llvm::Value*
 	createGep2(
 		const Value& value,
+		Type* elementType,
 		int32_t index2,
 		Type* resultType,
 		Value* resultValue
@@ -375,7 +383,7 @@ public:
 		Value indexValue2;
 		indexValue1.setConstInt32(0, getSimpleType(TypeKind_Int32, m_module));
 		indexValue2.setConstInt32(index2, getSimpleType(TypeKind_Int32, m_module));
-		return createGep2(value, indexValue1, indexValue2, resultType, resultValue);
+		return createGep2(value, elementType, indexValue1, indexValue2, resultType, resultValue);
 	}
 
 	llvm::Value*
@@ -1174,52 +1182,42 @@ public:
 	llvm::CallInst*
 	createCall(
 		const Value& calleeValue,
-		CallConv* callConv,
+		FunctionType* functionType,
 		llvm::Value* const* llvmArgValueArray,
 		size_t argCount,
-		Type* resultType,
+		Type* resultType, // not necessarily functionType->getReturnType()
 		Value* resultValue
 	);
 
 	llvm::CallInst*
 	createCall(
 		const Value& calleeValue,
-		CallConv* callConv,
+		FunctionType* functionType,
 		const Value* argArray,
 		size_t argCount,
-		Type* resultType,
+		Type* resultType, // not necessarily functionType->getReturnType()
 		Value* resultValue
 	);
-
-	llvm::CallInst*
-	createCall(
-		const Value& calleeValue,
-		CallConv* callConv,
-		const sl::BoxList<Value>& argValueList,
-		Type* resultType,
-		Value* resultValue
-	);
-
-	// the following functions are convenient but be sure they don't need
-	// special handing by CallConv (e.g. struct-ret, arg splitting/reconstruction etc)
 
 	llvm::CallInst*
 	createCall(
 		const Value& calleeValue,
 		FunctionType* functionType,
-		const Value* argValueArray,
+		const Value* argArray,
 		size_t argCount,
 		Value* resultValue
 	) {
-		return createCall(
-			calleeValue,
-			functionType->getCallConv(),
-			argValueArray,
-			argCount,
-			functionType->getReturnType(),
-			resultValue
-		);
+		return createCall(calleeValue, functionType, argArray, argCount, functionType->getReturnType(), resultValue);
 	}
+
+	llvm::CallInst*
+	createCall(
+		const Value& calleeValue,
+		FunctionType* functionType,
+		const sl::BoxList<Value>& argValueList,
+		Type* resultType, // not necessarily functionType->getReturnType()
+		Value* resultValue
+	);
 
 	llvm::CallInst*
 	createCall(
@@ -1228,14 +1226,11 @@ public:
 		const sl::BoxList<Value>& argValueList,
 		Value* resultValue
 	) {
-		return createCall(
-			calleeValue,
-			functionType->getCallConv(),
-			argValueList,
-			functionType->getReturnType(),
-			resultValue
-		);
+		return createCall(calleeValue, functionType, argValueList, functionType->getReturnType(), resultValue);
 	}
+
+	// the following functions are convenient but be sure they don't need
+	// special handing by CallConv (e.g. struct-ret, arg coercion etc)
 
 	llvm::CallInst*
 	createCall(
@@ -1243,7 +1238,7 @@ public:
 		FunctionType* functionType,
 		Value* resultValue
 	) {
-		return createCall(calleeValue, functionType, NULL, 0, resultValue);
+		return createCall(calleeValue, functionType, (llvm::Value* const*)NULL, 0, functionType->getReturnType(), resultValue);
 	}
 
 	llvm::CallInst*

@@ -42,10 +42,17 @@ JitDefinitionGenerator::tryToGenerate(
 	for (; it != LookupSet.end(); it++) {
 		void* p = m_jit->findSymbol(*it->first >> toAxl);
 		if (p)
+#if (LLVM_VERSION_MAJOR < 17)
 			symbolMap[it->first] = llvm::JITEvaluatedSymbol(
 				(llvm::JITTargetAddress)(void*)p,
 				llvm::JITSymbolFlags::Exported
 			);
+#else
+			symbolMap[it->first] = llvm::orc::ExecutorSymbolDef(
+				llvm::orc::ExecutorAddr((size_t)p),
+				llvm::JITSymbolFlags::Exported
+			);
+#endif
 	}
 
 	return JD.define(llvm::orc::absoluteSymbols(std::move(symbolMap)));
@@ -236,7 +243,12 @@ OrcJit::mapFunction(
 
 void*
 OrcJit::lookup(const llvm::StringRef& name) {
-	llvm::Expected<llvm::JITEvaluatedSymbol> symbol = m_llvmExecutionSession->lookup(
+#if (LLVM_VERSION_MAJOR < 17)
+	typedef llvm::Expected<llvm::JITEvaluatedSymbol> LookupResult;
+#else
+	typedef llvm::Expected<llvm::orc::ExecutorSymbolDef> LookupResult;
+#endif
+	LookupResult symbol = m_llvmExecutionSession->lookup(
 		llvm::ArrayRef<llvm::orc::JITDylib*>(m_llvmJitDylib),
 		(*m_llvmMangle)(name)
 	);
@@ -246,7 +258,11 @@ OrcJit::lookup(const llvm::StringRef& name) {
 		return NULL;
 	}
 
+#if (LLVM_VERSION_MAJOR < 17)
 	return (void*)symbol->getAddress();
+#else
+	return (void*)symbol->getAddress().getValue();
+#endif
 }
 
 //..............................................................................

@@ -2718,13 +2718,12 @@ Parser::finalizeLiteral(
 		}
 	}
 
-	Type* type = m_module->m_typeMgr.getStdType(StdType_FmtLiteral);
-	Variable* fmtLiteral = m_module->m_variableMgr.createSimpleStackVariable("fmtLiteral", type);
-
-	result = m_module->m_variableMgr.initializeVariable(fmtLiteral);
+	Type* fmtLiteralType = m_module->m_typeMgr.getStdType(StdType_FmtLiteral);
+	Variable* fmtLiteralVariable = m_module->m_variableMgr.createSimpleStackVariable("fmtLiteral", fmtLiteralType);
+	result = m_module->m_variableMgr.initializeVariable(fmtLiteralVariable);
 	ASSERT(result);
 
-	Value fmtLiteralValue = fmtLiteral;
+	Value fmtLiteralValue = fmtLiteralVariable;
 
 	size_t offset = 0;
 
@@ -2796,10 +2795,11 @@ Parser::finalizeLiteral(
 	Value fatPtrValue;
 	Value thinPtrValue;
 	Value validatorValue;
+	Type* fatPtrType = m_module->m_typeMgr.getStdType(StdType_DataPtrStruct);
 	Type* validatorType = m_module->m_typeMgr.getStdType(StdType_DataPtrValidatorPtr);
 
-	m_module->m_llvmIrBuilder.createGep2(fmtLiteralValue, 0, NULL, &fatPtrValue);
-	m_module->m_llvmIrBuilder.createLoad(fatPtrValue, NULL, &fatPtrValue);
+	m_module->m_llvmIrBuilder.createGep2(fmtLiteralValue, fmtLiteralType, 0, NULL, &fatPtrValue);
+	m_module->m_llvmIrBuilder.createLoad(fatPtrValue, fatPtrType, &fatPtrValue);
 	m_module->m_llvmIrBuilder.createExtractValue(fatPtrValue, 0, NULL, &thinPtrValue);
 	m_module->m_llvmIrBuilder.createExtractValue(fatPtrValue, 1, validatorType, &validatorValue);
 	resultValue->setLeanDataPtr(thinPtrValue.getLlvmValue(), resultType, validatorValue);

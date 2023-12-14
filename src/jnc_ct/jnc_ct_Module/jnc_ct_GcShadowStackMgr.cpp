@@ -107,7 +107,7 @@ GcShadowStackMgr::markGcRoot(
 	Value gcRootValue;
 	Type* bytePtrType = m_module->m_typeMgr.getStdType(StdType_ByteThinPtr);
 
-	m_module->m_llvmIrBuilder.createGep(m_gcRootArrayValue, index, NULL, &gcRootValue);
+	m_module->m_llvmIrBuilder.createGep(m_gcRootArrayValue, bytePtrType, index, NULL, &gcRootValue);
 	m_module->m_llvmIrBuilder.createBitCast(ptrValue, bytePtrType, &bytePtrValue);
 	m_module->m_llvmIrBuilder.createStore(bytePtrValue, gcRootValue);
 
@@ -215,17 +215,19 @@ GcShadowStackMgr::finalizeFrame() {
 
 	// initialize frame
 
+	Type* frameType = m_frameVariable->getType();
+
 	// GcShadowStackFrame.m_map
 
 	Value frameMapFieldValue;
 	type = m_module->m_typeMgr.getStdType(StdType_ByteThinPtr);
-	m_module->m_llvmIrBuilder.createGep2(m_frameVariable, 1, NULL, &frameMapFieldValue);
+	m_module->m_llvmIrBuilder.createGep2(m_frameVariable, frameType, 1, NULL, &frameMapFieldValue);
 	m_module->m_llvmIrBuilder.createStore(type->getZeroValue(), frameMapFieldValue);
 
 	// GcShadowStackFrame.m_gcRootArray
 
 	Value gcRootArrayFieldValue;
-	m_module->m_llvmIrBuilder.createGep2(m_frameVariable, 2, NULL, &gcRootArrayFieldValue);
+	m_module->m_llvmIrBuilder.createGep2(m_frameVariable, frameType, 2, NULL, &gcRootArrayFieldValue);
 	m_module->m_llvmIrBuilder.createStore(gcRootArrayValue, gcRootArrayFieldValue);
 
 	Variable* stackTopVariable;
@@ -245,12 +247,12 @@ GcShadowStackMgr::finalizeFrame() {
 	} else {
 		Value prevStackTopValue;
 		stackTopVariable = m_module->m_variableMgr.getStdVariable(StdVariable_GcShadowStackTop);
-		m_module->m_llvmIrBuilder.createLoad(stackTopVariable, NULL, &prevStackTopValue);
+		m_module->m_llvmIrBuilder.createLoad(stackTopVariable, stackTopVariable->getType(), &prevStackTopValue);
 
 		// GcShadowStackFrame.m_prev
 
 		Value prevFieldValue;
-		m_module->m_llvmIrBuilder.createGep2(m_frameVariable, 0, NULL, &prevFieldValue);
+		m_module->m_llvmIrBuilder.createGep2(m_frameVariable, frameType, 0, NULL, &prevFieldValue);
 		m_module->m_llvmIrBuilder.createStore(prevStackTopValue, prevFieldValue);
 
 		// set new frame as the new stack top

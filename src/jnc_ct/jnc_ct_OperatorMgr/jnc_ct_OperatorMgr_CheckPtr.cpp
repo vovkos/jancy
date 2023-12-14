@@ -37,6 +37,7 @@ OperatorMgr::checkPtr(
 			checkFunction->getType(),
 			argValueArray,
 			argCount,
+			m_module->m_typeMgr.getPrimitiveType(TypeKind_Void),
 			NULL
 		);
 	} else {
@@ -49,6 +50,7 @@ OperatorMgr::checkPtr(
 			checkFunctionType,
 			argValueArray,
 			argCount,
+			checkFunctionType->getReturnType(),
 			&returnValue
 		);
 
@@ -142,8 +144,8 @@ OperatorMgr::checkNullPtr(const Value& value) {
 	Variable* nullPtrCheckSink = m_module->m_variableMgr.getStdVariable(StdVariable_NullPtrCheckSink);
 
 	Value tmpValue;
-	m_module->m_llvmIrBuilder.createBitCast(value, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr), &tmpValue);
-	m_module->m_llvmIrBuilder.createLoad(tmpValue, NULL, &tmpValue);
+	m_module->m_llvmIrBuilder.createBitCast(value, nullPtrCheckSink->getType()->getDataPtrType_c(), &tmpValue);
+	m_module->m_llvmIrBuilder.createLoad(tmpValue, nullPtrCheckSink->getType(), &tmpValue);
 	m_module->m_llvmIrBuilder.createStore(tmpValue, nullPtrCheckSink);
 }
 

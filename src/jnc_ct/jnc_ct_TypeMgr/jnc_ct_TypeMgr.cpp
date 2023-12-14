@@ -1028,11 +1028,11 @@ TypeMgr::getMulticastType(FunctionPtrType* functionPtrType) {
 
 	// fields
 
-	type->m_fieldArray[MulticastFieldKind_Lock] = type->createField("!m_lock", getPrimitiveType (TypeKind_IntPtr), 0, PtrTypeFlag_Volatile);
+	type->m_fieldArray[MulticastFieldKind_Lock] = type->createField("!m_lock", getPrimitiveType(TypeKind_IntPtr), 0, PtrTypeFlag_Volatile);
 	type->m_fieldArray[MulticastFieldKind_PtrArray] = type->createField("!m_arrayPtr", functionPtrType->getDataPtrType());
-	type->m_fieldArray[MulticastFieldKind_Count] = type->createField("!m_count", getPrimitiveType (TypeKind_SizeT));
-	type->m_fieldArray[MulticastFieldKind_MaxCount] = type->createField("!m_maxCount", getPrimitiveType (TypeKind_SizeT));
-	type->m_fieldArray[MulticastFieldKind_HandleTable] = type->createField("!m_handleTable", getPrimitiveType (TypeKind_IntPtr));
+	type->m_fieldArray[MulticastFieldKind_Count] = type->createField("!m_count", getPrimitiveType(TypeKind_SizeT));
+	type->m_fieldArray[MulticastFieldKind_MaxCount] = type->createField("!m_maxCount", getPrimitiveType(TypeKind_SizeT));
+	type->m_fieldArray[MulticastFieldKind_HandleTable] = type->createField("!m_handleTable", getPrimitiveType(TypeKind_IntPtr));
 
 	Type* argType;
 	Function* method;
@@ -1099,7 +1099,7 @@ TypeMgr::getMulticastType(FunctionPtrType* functionPtrType) {
 	// fields
 
 	snapshotType->m_fieldArray[McSnapshotFieldKind_PtrArray] = snapshotType->createField("!m_arrayPtr", functionPtrType->getDataPtrType());
-	snapshotType->m_fieldArray[McSnapshotFieldKind_Count] = snapshotType->createField("!m_count", getPrimitiveType (TypeKind_SizeT));
+	snapshotType->m_fieldArray[McSnapshotFieldKind_Count] = snapshotType->createField("!m_count", getPrimitiveType(TypeKind_SizeT));
 
 	// call method
 
@@ -1124,7 +1124,7 @@ TypeMgr::createReactorBaseType() {
 
 	ClassType* type = createClassType("ReactorBase", "jnc.ReactorBase", 8, ClassTypeFlag_Opaque);
 	type->m_namespaceStatus = NamespaceStatus_Ready;
-	type->createField("m_activationCountLimit", getPrimitiveType (TypeKind_SizeT));
+	type->createField("m_activationCountLimit", getPrimitiveType(TypeKind_SizeT));
 
 	Function* constructor = m_module->m_functionMgr.createFunction(simpleFunctionType);
 	constructor->m_functionKind = FunctionKind_Constructor;
@@ -1181,7 +1181,7 @@ TypeMgr::createReactorClosureType() {
 	FunctionClosureClassType* type = createClassType<FunctionClosureClassType>("ReactorClosure", "jnc.ReactorClosure");
 	type->m_thisArgFieldIdx = 0;
 	type->createField("m_self", type->getClassPtrType());
-	type->createField("m_event", getStdType (StdType_ByteThinPtr));
+	type->createField("m_event", getStdType(StdType_ByteThinPtr));
 	type->ensureLayout();
 	return type;
 }
@@ -1982,8 +1982,8 @@ TypeMgr::createAbstractDataType() {
 StructType*
 TypeMgr::createIfaceHdrType() {
 	StructType* type = createInternalStructType("jnc.IfaceHdr");
-	type->createField("!m_vtable", getStdType (StdType_ByteThinPtr));
-	type->createField("!m_box", getStdType (StdType_BoxPtr));
+	type->createField("!m_vtable", getStdType(StdType_ByteThinPtr));
+	type->createField("!m_box", getStdType(StdType_BoxPtr));
 	type->ensureLayout();
 	return type;
 }
@@ -1991,8 +1991,8 @@ TypeMgr::createIfaceHdrType() {
 StructType*
 TypeMgr::createBoxType() {
 	StructType* type = createInternalStructType("jnc.Box");
-	type->createField("!m_type", getStdType (StdType_ByteThinPtr));
-	type->createField("!m_flags", getPrimitiveType (TypeKind_IntPtr_u));
+	type->createField("!m_type", getStdType(StdType_ByteThinPtr));
+	type->createField("!m_flags", getPrimitiveType(TypeKind_IntPtr_u));
 	type->ensureLayout();
 	return type;
 }
@@ -2000,9 +2000,9 @@ TypeMgr::createBoxType() {
 StructType*
 TypeMgr::createDataBoxType() {
 	StructType* type = createInternalStructType("jnc.DataBox");
-	type->createField("!m_type", getStdType (StdType_ByteThinPtr));
-	type->createField("!m_flags", getPrimitiveType (TypeKind_IntPtr_u));
-	type->createField("!m_validator", getStdType (StdType_DataPtrValidator));
+	type->createField("!m_type", getStdType(StdType_ByteThinPtr));
+	type->createField("!m_flags", getPrimitiveType(TypeKind_IntPtr_u));
+	type->createField("!m_validator", getStdType(StdType_DataPtrValidator));
 	type->ensureLayout();
 	return type;
 }
@@ -2010,10 +2010,10 @@ TypeMgr::createDataBoxType() {
 StructType*
 TypeMgr::createDetachedDataBoxType() {
 	StructType* type = createInternalStructType("jnc.DetachedDataBox");
-	type->createField("!m_type", getStdType (StdType_ByteThinPtr));
-	type->createField("!m_flags", getPrimitiveType (TypeKind_IntPtr_u));
-	type->createField("!m_validator", getStdType (StdType_DataPtrValidator));
-	type->createField("!m_p", getStdType (StdType_ByteThinPtr));
+	type->createField("!m_type", getStdType(StdType_ByteThinPtr));
+	type->createField("!m_flags", getPrimitiveType(TypeKind_IntPtr_u));
+	type->createField("!m_validator", getStdType(StdType_DataPtrValidator));
+	type->createField("!m_p", getStdType(StdType_ByteThinPtr));
 	type->ensureLayout();
 	return type;
 }

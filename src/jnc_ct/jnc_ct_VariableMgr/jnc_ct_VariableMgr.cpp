@@ -100,7 +100,7 @@ VariableMgr::getStdVariable(StdVariable stdVariable) {
 			StorageKind_Static,
 			"g_nullPtrCheckSink",
 			"jnc.g_nullPtrCheckSink",
-			m_module->m_typeMgr.getPrimitiveType(TypeKind_Char)
+			m_module->m_typeMgr.getPrimitiveType(TypeKind_Byte)
 		);
 		break;
 
@@ -206,7 +206,7 @@ VariableMgr::allocateVariable(Variable* variable) {
 		variable->m_llvmGlobalVariable = createLlvmGlobalVariable(variable->m_type, variable->m_qualifiedName);
 
 		variable->m_llvmValue = isClassType ?
-			(llvm::Value*)m_module->m_llvmIrBuilder.createGep2(variable->m_llvmGlobalVariable, 1, NULL, &ptrValue) :
+			(llvm::Value*)m_module->m_llvmIrBuilder.createGep2(variable->m_llvmGlobalVariable, variable->m_type, 1, NULL, &ptrValue) :
 			(llvm::Value*)variable->m_llvmGlobalVariable;
 
 		if (variable->m_type->getFlags() & TypeFlag_GcRoot)
@@ -490,6 +490,7 @@ VariableMgr::createStaticDataPtrValidator(Variable* variable) {
 
 	m_module->m_llvmIrBuilder.createGep(
 		variablePtrValue,
+		m_module->m_typeMgr.getPrimitiveType(TypeKind_Byte),
 		variable->m_type->getSize(),
 		m_module->m_typeMgr.getStdType(StdType_ByteThinPtr),
 		&variableEndPtrValue
@@ -540,6 +541,7 @@ VariableMgr::createStaticDataPtrValidator(Variable* variable) {
 	Value validatorPtrValue;
 	m_module->m_llvmIrBuilder.createGep2(
 		llvmBoxVariable,
+		boxType,
 		2,
 		m_module->m_typeMgr.getStdType(StdType_DataPtrValidatorPtr),
 		&validatorPtrValue

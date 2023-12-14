@@ -76,9 +76,9 @@ dataPtrIncrementOperator(
 			resultValue->createConst(&ptr, opValue1.getType());
 		}
 	} else if (ptrTypeKind == DataPtrTypeKind_Thin) {
-		module->m_llvmIrBuilder.createGep(opValue1, opValue2, resultType, resultValue);
+		module->m_llvmIrBuilder.createGep(opValue1, targetType, opValue2, resultType, resultValue);
 	} else if (ptrTypeKind == DataPtrTypeKind_Lean) {
-		module->m_llvmIrBuilder.createGep(opValue1, opValue2, resultType, resultValue);
+		module->m_llvmIrBuilder.createGep(opValue1, targetType, opValue2, resultType, resultValue);
 		resultValue->setLeanDataPtr(resultValue->getLlvmValue(), resultType, opValue1);
 	} else if (!(targetType->getFlags() & TypeFlag_Dynamic)) { // DataPtrTypeKind_Normal
 		size_t size = targetType->getSize();
@@ -87,9 +87,10 @@ dataPtrIncrementOperator(
 		Value incValue;
 		module->m_operatorMgr.binaryOperator(BinOpKind_Mul, opValue2, sizeValue, &incValue);
 
+		Type* byteType = module->m_typeMgr.getPrimitiveType(TypeKind_Byte);
 		Value ptrValue;
 		module->m_llvmIrBuilder.createExtractValue(opValue1, 0, NULL, &ptrValue);
-		module->m_llvmIrBuilder.createGep(ptrValue, incValue, NULL, &ptrValue);
+		module->m_llvmIrBuilder.createGep(ptrValue, byteType, incValue, NULL, &ptrValue);
 		module->m_llvmIrBuilder.createInsertValue(opValue1, ptrValue, 0, resultType, resultValue);
 	} else { // DataPtrTypeKind_Normal, TypeFlag_Dynamic
 		if (targetType->getTypeKind() != TypeKind_Struct) {

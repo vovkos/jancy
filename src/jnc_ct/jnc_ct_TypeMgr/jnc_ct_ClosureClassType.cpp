@@ -69,7 +69,7 @@ ClosureClassType::buildArgValueList(
 		Value argValue;
 
 		if (i == m_closureMap[iClosure]) {
-			m_module->m_operatorMgr.getClassField(closureValue, m_fieldArray[fieldIdx], NULL, &argValue);
+			m_module->m_operatorMgr.getClassField(closureValue, this, m_fieldArray[fieldIdx], NULL, &argValue);
 			fieldIdx++;
 			iClosure++;
 		} else {
@@ -122,7 +122,7 @@ FunctionClosureClassType::compileThunkFunction(Function* function) {
 	ASSERT(thisValue);
 
 	Value pfnValue;
-	m_module->m_operatorMgr.getClassField(thisValue, m_fieldArray[0], NULL, &pfnValue);
+	m_module->m_operatorMgr.getClassField(thisValue, this, m_fieldArray[0], NULL, &pfnValue);
 
 	sl::BoxList<Value> argValueList;
 	buildArgValueList(thisValue, argValueArray, argCount, &argValueList);
@@ -177,7 +177,7 @@ PropertyClosureClassType::compileAccessor(Function* accessor) {
 	ASSERT(thisValue);
 
 	Value propertyPtrValue;
-	result = m_module->m_operatorMgr.getClassField(thisValue, m_fieldArray[0], NULL, &propertyPtrValue);
+	result = m_module->m_operatorMgr.getClassField(thisValue, this, m_fieldArray[0], NULL, &propertyPtrValue);
 	ASSERT(result);
 
 	Value pfnValue;
@@ -276,7 +276,7 @@ DataClosureClassType::compileGetter(Function* function) {
 	Value ptrValue;
 
 	bool result =
-		m_module->m_operatorMgr.getClassField(thisValue, m_fieldArray[0], NULL, &ptrValue) &&
+		m_module->m_operatorMgr.getClassField(thisValue, this, m_fieldArray[0], NULL, &ptrValue) &&
 		m_module->m_operatorMgr.unaryOperator(UnOpKind_Indir, &ptrValue) &&
 		m_module->m_controlFlowMgr.ret(ptrValue);
 
@@ -298,7 +298,7 @@ DataClosureClassType::compileSetter(Function* function) {
 	Value ptrValue;
 
 	bool result =
-		m_module->m_operatorMgr.getClassField(thisValue, m_fieldArray[0], NULL, &ptrValue) &&
+		m_module->m_operatorMgr.getClassField(thisValue, this, m_fieldArray[0], NULL, &ptrValue) &&
 		m_module->m_operatorMgr.unaryOperator(UnOpKind_Indir, &ptrValue) &&
 		m_module->m_operatorMgr.storeDataRef(ptrValue, argValue);
 

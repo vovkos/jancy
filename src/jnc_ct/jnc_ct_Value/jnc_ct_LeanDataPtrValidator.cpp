@@ -84,7 +84,7 @@ LeanDataPtrValidator::createValidator() {
 		m_validatorValue = originValidatorValue;
 	} else {
 		Value boxValue;
-		module->m_llvmIrBuilder.createGep2(originValidatorValue, 1, NULL, &boxValue);
+		module->m_llvmIrBuilder.createGep2(originValidatorValue, module->m_typeMgr.getStdType(StdType_DataPtrValidator), 1, NULL, &boxValue);
 		module->m_llvmIrBuilder.createLoad(boxValue, module->m_typeMgr.getStdType(StdType_BoxPtr), &boxValue);
 		createValidator(boxValue);
 	}
@@ -107,6 +107,7 @@ LeanDataPtrValidator::createValidator(const Value& boxValue) {
 		createDataPtrValidator->getType(),
 		argValueArray,
 		3,
+		createDataPtrValidator->getType()->getReturnType(),
 		&m_validatorValue
 	);
 
@@ -126,11 +127,11 @@ LeanDataPtrValidator::createClassFieldValidator() {
 	if (m_originValue.getValueKind() == ValueKind_Variable) {
 		Value tmpValue;
 		module->m_llvmIrBuilder.createBitCast(m_originValue, module->m_typeMgr.getStdType(StdType_BoxPtr), &tmpValue);
-		module->m_llvmIrBuilder.createGep(tmpValue, -1, module->m_typeMgr.getStdType(StdType_BoxPtr), &boxValue);
+		module->m_llvmIrBuilder.createGep(tmpValue, module->m_typeMgr.getStdType(StdType_Box), -1, module->m_typeMgr.getStdType(StdType_BoxPtr), &boxValue);
 	} else {
 		Value tmpValue;
 		module->m_llvmIrBuilder.createBitCast(m_originValue, module->m_typeMgr.getStdType(StdType_IfaceHdrPtr), &tmpValue);
-		module->m_llvmIrBuilder.createGep2(tmpValue, 1, NULL, &tmpValue);
+		module->m_llvmIrBuilder.createGep2(tmpValue, module->m_typeMgr.getStdType(StdType_IfaceHdr), 1, NULL, &tmpValue);
 		module->m_llvmIrBuilder.createLoad(tmpValue, module->m_typeMgr.getStdType(StdType_BoxPtr), &boxValue);
 	}
 

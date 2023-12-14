@@ -240,12 +240,15 @@ ControlFlowMgr::getReturnBlock() {
 		ASSERT(result);
 
 		m_module->m_llvmIrBuilder.createRet();
-	} else if (functionType->getReturnType()->getTypeKind() == TypeKind_Void) {
-		m_module->m_llvmIrBuilder.createRet();
 	} else {
-		Value returnValue;
-		m_module->m_llvmIrBuilder.createLoad(getReturnValueVariable(), NULL, &returnValue);
-		functionType->getCallConv()->ret(function, returnValue);
+		Type* returnType = functionType->getReturnType();
+		if (returnType->getTypeKind() == TypeKind_Void)
+			m_module->m_llvmIrBuilder.createRet();
+		else {
+			Value returnValue;
+			m_module->m_llvmIrBuilder.createLoad(getReturnValueVariable(), returnType, &returnValue);
+			functionType->getCallConv()->ret(function, returnValue);
+		}
 	}
 
 	m_currentBlock->m_flags |= BasicBlockFlag_Return;

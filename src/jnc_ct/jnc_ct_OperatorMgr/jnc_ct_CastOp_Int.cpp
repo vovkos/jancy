@@ -132,20 +132,17 @@ Cast_SwapByteOrder::llvmCast(
 	Type* type,
 	Value* resultValue
 ) {
-	llvm::Type* llvmType = type->getLlvmType();
-
-	llvm::Function* llvmSwap = llvm::Intrinsic::getDeclaration(
+	llvm::Function* llvmSwapFunc = llvm::Intrinsic::getDeclaration(
 		m_module->getLlvmModule(),
 		llvm::Intrinsic::bswap,
-		llvm::ArrayRef<llvm::Type*> (llvmType)
+		llvm::ArrayRef<llvm::Type*> (type->getLlvmType())
 	);
 
-	Value swapFunctionValue;
-	swapFunctionValue.setLlvmValue(llvmSwap, NULL);
 	m_module->m_llvmIrBuilder.createCall(
-		swapFunctionValue,
-		m_module->m_typeMgr.getCallConv(CallConvKind_Default),
-		&opValue, 1,
+		llvmSwapFunc,
+		m_module->m_typeMgr.getFunctionType(type, &type, 1),
+		&opValue,
+		1,
 		type,
 		resultValue
 	);

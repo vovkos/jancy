@@ -131,7 +131,7 @@ OperatorMgr::createClosureObject(
 
 	Value fieldValue;
 	result =
-		getClassField(closureValue, fieldArray[fieldIdx], NULL, &fieldValue) &&
+		getClassField(closureValue, closureType, fieldArray[fieldIdx], NULL, &fieldValue) &&
 		binaryOperator(BinOpKind_Assign, fieldValue, pfnValue);
 
 	if (!result)
@@ -149,7 +149,7 @@ OperatorMgr::createClosureObject(
 
 			Value fieldValue;
 			result =
-				getClassField(closureValue, fieldArray[fieldIdx], NULL, &fieldValue) &&
+				getClassField(closureValue, closureType, fieldArray[fieldIdx], NULL, &fieldValue) &&
 				binaryOperator(BinOpKind_Assign, fieldValue, *closureArgValue);
 
 			if (!result)
@@ -194,7 +194,7 @@ OperatorMgr::createDataClosureObject(
 
 	Value fieldValue;
 	result =
-		getClassField(closureValue, fieldArray[0], NULL, &fieldValue) &&
+		getClassField(closureValue, closureType, fieldArray[0], NULL, &fieldValue) &&
 		binaryOperator(BinOpKind_Assign, fieldValue, opValue);
 
 	if (!result)

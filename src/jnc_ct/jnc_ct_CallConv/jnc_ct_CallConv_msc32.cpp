@@ -83,7 +83,7 @@ CallConv_msc32::call(
 
 	llvm::CallInst* llvmInst = m_module->m_llvmIrBuilder.createCall(
 		calleeValue,
-		this,
+		functionType,
 		*argValueList,
 		m_module->m_typeMgr.getPrimitiveType(TypeKind_Void),
 		NULL

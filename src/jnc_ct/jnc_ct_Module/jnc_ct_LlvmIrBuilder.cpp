@@ -242,6 +242,7 @@ LlvmIrBuilder::createPhi(
 llvm::Value*
 LlvmIrBuilder::createGep(
 	const Value& value,
+	Type* elementType,
 	const Value* indexArray,
 	size_t indexCount,
 	Type* resultType,
@@ -257,6 +258,7 @@ LlvmIrBuilder::createGep(
 		llvmIndexArray[i] = indexArray[i].getLlvmValue();
 
 	llvm::Value* inst = createGepImpl(
+		elementType->getLlvmType(),
 		value.getLlvmValue(),
 		llvm::ArrayRef<llvm::Value*> (llvmIndexArray, indexCount)
 	);
@@ -268,6 +270,7 @@ LlvmIrBuilder::createGep(
 llvm::Value*
 LlvmIrBuilder::createGep(
 	const Value& value,
+	Type* elementType,
 	const int32_t* indexArray,
 	size_t indexCount,
 	Type* resultType,
@@ -286,6 +289,7 @@ LlvmIrBuilder::createGep(
 	}
 
 	llvm::Value* inst = createGepImpl(
+		elementType->getLlvmType(),
 		value.getLlvmValue(),
 		llvm::ArrayRef<llvm::Value*> (llvmIndexArray, indexCount)
 	);
@@ -297,7 +301,7 @@ LlvmIrBuilder::createGep(
 llvm::CallInst*
 LlvmIrBuilder::createCall(
 	const Value& calleeValue,
-	CallConv* callConv,
+	FunctionType* functionType,
 	llvm::Value* const* llvmArgValueArray,
 	size_t argCount,
 	Type* resultType,
@@ -306,16 +310,10 @@ LlvmIrBuilder::createCall(
 	ASSERT(m_llvmIrBuilder);
 
 	llvm::CallInst* llvmInst;
-
-#if (LLVM_VERSION_MAJOR >= 11)
-	llvm::Type* llvmCalleeType = calleeValue.getLlvmValue()->getType();
-	llvm::FunctionType* llvmFunctionType = llvm::cast<llvm::FunctionType>(llvmCalleeType->getPointerElementType());
-#endif
-
 	if (resultType->getTypeKind() != TypeKind_Void) {
 		llvmInst = m_llvmIrBuilder->CreateCall(
 #if (LLVM_VERSION_MAJOR >= 11)
-			llvmFunctionType,
+			(llvm::FunctionType*)functionType->getLlvmType(),
 #endif
 			calleeValue.getLlvmValue(),
 			llvm::ArrayRef<llvm::Value*> (llvmArgValueArray, argCount)
@@ -326,7 +324,7 @@ LlvmIrBuilder::createCall(
 	} else {
 		llvmInst = m_llvmIrBuilder->CreateCall(
 #if (LLVM_VERSION_MAJOR >= 11)
-			llvmFunctionType,
+			(llvm::FunctionType*)functionType->getLlvmType(),
 #endif
 			calleeValue.getLlvmValue(),
 			llvm::ArrayRef<llvm::Value*> (llvmArgValueArray, argCount)
@@ -336,7 +334,7 @@ LlvmIrBuilder::createCall(
 			resultValue->setVoid(m_module);
 	}
 
-	llvm::CallingConv::ID llvmCallConv = callConv->getLlvmCallConv();
+	llvm::CallingConv::ID llvmCallConv = functionType->getCallConv()->getLlvmCallConv();
 	if (llvmCallConv)
 		llvmInst->setCallingConv(llvmCallConv);
 
@@ -346,7 +344,7 @@ LlvmIrBuilder::createCall(
 llvm::CallInst*
 LlvmIrBuilder::createCall(
 	const Value& calleeValue,
-	CallConv* callConv,
+	FunctionType* functionType,
 	const sl::BoxList<Value>& argValueList,
 	Type* resultType,
 	Value* resultValue
@@ -365,13 +363,13 @@ LlvmIrBuilder::createCall(
 		llvmArgValueArray[i] = it->getLlvmValue();
 	}
 
-	return createCall(calleeValue, callConv, llvmArgValueArray, argCount, resultType, resultValue);
+	return createCall(calleeValue, functionType, llvmArgValueArray, argCount, resultType, resultValue);
 }
 
 llvm::CallInst*
 LlvmIrBuilder::createCall(
 	const Value& calleeValue,
-	CallConv* callConv,
+	FunctionType* functionType,
 	const Value* argArray,
 	size_t argCount,
 	Type* resultType,
@@ -386,7 +384,7 @@ LlvmIrBuilder::createCall(
 	for (size_t i = 0; i < argCount; i++)
 		llvmArgValueArray[i] = argArray[i].getLlvmValue();
 
-	return createCall(calleeValue, callConv, llvmArgValueArray, argCount, resultType, resultValue);
+	return createCall(calleeValue, functionType, llvmArgValueArray, argCount, resultType, resultValue);
 }
 
 void

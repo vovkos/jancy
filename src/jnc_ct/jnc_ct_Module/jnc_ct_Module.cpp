@@ -490,6 +490,7 @@ Module::optimize(uint_t level) {
 			variable->m_llvmGlobalVariableName = llvmGlobalVariable->getName() >> toAxl;
 	}
 
+#if (LLVM_VERSION_MAJOR < 17)
 	llvm::PassManagerBuilder passManagerBuilder;
 	passManagerBuilder.OptLevel = level;
 	passManagerBuilder.SizeLevel = 0;
@@ -512,6 +513,37 @@ Module::optimize(uint_t level) {
 	llvmFunctionPassMgr.doFinalization();
 
 	llvmModulePassMgr.run(*m_llvmModule);
+#else
+	llvm::LoopAnalysisManager llvmLoopAnalysisMgr;
+	llvm::FunctionAnalysisManager llvmFuncAnalysisMgr;
+	llvm::CGSCCAnalysisManager llvmCallGraphAnalysisMgr;
+	llvm::ModuleAnalysisManager llvmModuleAnalysisMgr;
+
+	llvm::PassBuilder llvmPassBuilder;
+	llvmPassBuilder.registerModuleAnalyses(llvmModuleAnalysisMgr);
+	llvmPassBuilder.registerCGSCCAnalyses(llvmCallGraphAnalysisMgr);
+	llvmPassBuilder.registerFunctionAnalyses(llvmFuncAnalysisMgr);
+	llvmPassBuilder.registerLoopAnalyses(llvmLoopAnalysisMgr);
+	llvmPassBuilder.crossRegisterProxies(
+		llvmLoopAnalysisMgr,
+		llvmFuncAnalysisMgr,
+		llvmCallGraphAnalysisMgr,
+		llvmModuleAnalysisMgr
+	);
+
+	static llvm::OptimizationLevel llvmOptLevelTable[] = {
+		llvm::OptimizationLevel::O0,
+		llvm::OptimizationLevel::O1,
+		llvm::OptimizationLevel::O2,
+		llvm::OptimizationLevel::O3,
+	};
+
+	if (level >= countof(llvmOptLevelTable))
+		level = countof(llvmOptLevelTable) - 1;
+
+	llvm::ModulePassManager llvmModulePassMgr = llvmPassBuilder.buildPerModuleDefaultPipeline(llvmOptLevelTable[level]);
+	llvmModulePassMgr.run(*m_llvmModule, llvmModuleAnalysisMgr);
+#endif
 	return true;
 }
 

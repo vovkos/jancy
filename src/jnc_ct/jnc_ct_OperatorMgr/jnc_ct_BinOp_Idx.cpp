@@ -188,12 +188,16 @@ BinOp_Idx::arrayIndexOperator(
 		switch (ptrTypeKind) {
 		case DataPtrTypeKind_Thin:
 			ptrType = elementType->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Thin, ptrTypeFlags);
-			m_module->m_llvmIrBuilder.createGep2(opValue1, opValue2, ptrType, resultValue);
+			m_module->m_llvmIrBuilder.createGep2(opValue1, elementType, opValue2, ptrType, resultValue);
 			break;
 
 		case DataPtrTypeKind_Lean:
 			ptrType = elementType->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Lean, ptrTypeFlags);
-			m_module->m_llvmIrBuilder.createGep2(opValue1, opValue2, ptrType, resultValue);
+
+			printf("opValue1: %s\n", opValue1.getLlvmTypeString().sz());
+			printf("elementType: %s\n", ct::getLlvmTypeString(elementType->getLlvmType()).sz());
+
+			m_module->m_llvmIrBuilder.createGep2(opValue1, elementType, opValue2, ptrType, resultValue);
 			resultValue->setLeanDataPtrValidator(opValue1.getLeanDataPtrValidator());
 			break;
 
@@ -201,7 +205,7 @@ BinOp_Idx::arrayIndexOperator(
 			ptrType = elementType->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Lean, ptrTypeFlags);
 			m_module->m_llvmIrBuilder.createExtractValue(opValue1, 0, NULL, &ptrValue);
 			m_module->m_llvmIrBuilder.createBitCast(ptrValue, ptrType, &ptrValue);
-			m_module->m_llvmIrBuilder.createGep(ptrValue, opValue2, ptrType, resultValue);
+			m_module->m_llvmIrBuilder.createGep(ptrValue, elementType, opValue2, ptrType, resultValue);
 			resultValue->setLeanDataPtrValidator(opValue1);
 		}
 	}

@@ -491,13 +491,15 @@ Cast_DataPtr_Base::getOffsetUnsafePtrValue(
 	if (!coord.m_llvmIndexArray.isEmpty()) {
 		coord.m_llvmIndexArray.insert(0, 0);
 
-		srcType = srcType->getTargetType()->getDataPtrType_c();
+		Type* targetType = srcType->getTargetType();
+		srcType = targetType->getDataPtrType_c();
 
 		Value tmpValue;
 		m_module->m_llvmIrBuilder.createBitCast(ptrValue, srcType, &tmpValue);
 
 		m_module->m_llvmIrBuilder.createGep(
 			tmpValue,
+			targetType,
 			coord.m_llvmIndexArray,
 			coord.m_llvmIndexArray.getCount(),
 			dstType,

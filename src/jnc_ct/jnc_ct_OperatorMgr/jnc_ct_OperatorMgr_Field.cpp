@@ -39,15 +39,15 @@ OperatorMgr::getField(
 	TypeKind typeKind = type->getTypeKind();
 	switch (typeKind) {
 	case TypeKind_Struct:
-		return getStructField(opValue, field, coord, resultValue);
+		return getStructField(opValue, (StructType*)type, field, coord, resultValue);
 
 	case TypeKind_Union:
 		return coord ?
-			getStructField(opValue, field, coord, resultValue) :
+			getStructField(opValue, (UnionType*)type, field, coord, resultValue) :
 			getUnionField(opValue, field, resultValue);
 
 	case TypeKind_Class:
-		return getClassField(opValue, field, coord, resultValue);
+		return getClassField(opValue, (ClassType*)type, field, coord, resultValue);
 
 	default:
 		err::setFormatStringError("cannot get a field '%s' of '%s'", field->getName().sz(), type->getTypeString().sz());
@@ -92,6 +92,7 @@ OperatorMgr::getPromiseField(
 bool
 OperatorMgr::getFieldPtrImpl(
 	const Value& opValueRaw,
+	Type* containerType,
 	MemberCoord* coord,
 	Type* resultType,
 	Value* resultValue
@@ -101,6 +102,7 @@ OperatorMgr::getFieldPtrImpl(
 	if (coord->m_unionCoordArray.isEmpty()) {
 		m_module->m_llvmIrBuilder.createGep(
 			opValueRaw,
+			containerType,
 			coord->m_llvmIndexArray,
 			coord->m_llvmIndexArray.getCount(),
 			resultType,
@@ -127,6 +129,7 @@ OperatorMgr::getFieldPtrImpl(
 		if (llvmIndexDelta) {
 			m_module->m_llvmIrBuilder.createGep(
 				opValue,
+				containerType,
 				llvmIndex,
 				llvmIndexDelta,
 				NULL,
@@ -135,7 +138,8 @@ OperatorMgr::getFieldPtrImpl(
 		}
 
 		Field* field = unionCoord->m_type->getFieldByIndex(llvmIndex[llvmIndexDelta]);
-		Type* type = field->getType()->getDataPtrType_c();
+		containerType = field->getType();
+		Type* type = containerType->getDataPtrType_c();
 
 		m_module->m_llvmIrBuilder.createBitCast(opValue, type, &opValue);
 
@@ -151,6 +155,7 @@ OperatorMgr::getFieldPtrImpl(
 
 		m_module->m_llvmIrBuilder.createGep(
 			opValue,
+			containerType,
 			llvmIndex,
 			llvmIndexEnd - llvmIndex,
 			resultType,
@@ -166,6 +171,7 @@ OperatorMgr::getFieldPtrImpl(
 bool
 OperatorMgr::getStructField(
 	const Value& opValue,
+	DerivableType* containerType,
 	Field* field,
 	MemberCoord* coord,
 	Value* resultValue
@@ -262,17 +268,17 @@ OperatorMgr::getStructField(
 			ptrTypeFlags
 		);
 
-		getFieldPtrImpl(opValue, coord, resultType, resultValue);
+		getFieldPtrImpl(opValue, containerType, coord, resultType, resultValue);
 		return true;
 	}
 
 	Value ptrValue;
 	if (ptrTypeKind == DataPtrTypeKind_Lean) {
-		getFieldPtrImpl(opValue, coord, NULL, &ptrValue);
+		getFieldPtrImpl(opValue, containerType, coord, NULL, &ptrValue);
 	} else {
 		m_module->m_llvmIrBuilder.createExtractValue(opValue, 0, NULL, &ptrValue);
 		m_module->m_llvmIrBuilder.createBitCast(ptrValue, opType->getTargetType()->getDataPtrType_c(), &ptrValue);
-		getFieldPtrImpl(ptrValue, coord, NULL, &ptrValue);
+		getFieldPtrImpl(ptrValue, containerType, coord, NULL, &ptrValue);
 	}
 
 	if (opType->getTargetType()->getFlags() & TypeFlag_Pod) {
@@ -418,6 +424,7 @@ OperatorMgr::getUnionField(
 bool
 OperatorMgr::getClassField(
 	const Value& rawOpValue,
+	ClassType* classType,
 	Field* field,
 	MemberCoord* coord,
 	Value* resultValue
@@ -453,8 +460,6 @@ OperatorMgr::getClassField(
 
 	checkNullPtr(opValue);
 
-	ClassType* classType = (ClassType*)field->getParentNamespace();
-
 	MemberCoord dummyCoord;
 	if (!coord)
 		coord = &dummyCoord;
@@ -468,6 +473,7 @@ OperatorMgr::getClassField(
 	Value ptrValue;
 	m_module->m_llvmIrBuilder.createGep(
 		opValue,
+		classType->getIfaceStructType(),
 		coord->m_llvmIndexArray,
 		coord->m_llvmIndexArray.getCount(),
 		NULL,

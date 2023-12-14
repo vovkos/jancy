@@ -1292,6 +1292,7 @@ public:
 	bool
 	getFieldPtrImpl(
 		const Value& opValue,
+		Type* containerType,
 		MemberCoord* coord,
 		Type* resultType,
 		Value* resultValue
@@ -1300,6 +1301,7 @@ public:
 	bool
 	getStructField(
 		const Value& opValue,
+		DerivableType* containerType,
 		Field* field,
 		MemberCoord* coord,
 		Value* resultValue
@@ -1323,6 +1325,7 @@ public:
 	bool
 	getClassField(
 		const Value& opValue,
+		ClassType* classType,
 		Field* field,
 		MemberCoord* coord,
 		Value* resultValue

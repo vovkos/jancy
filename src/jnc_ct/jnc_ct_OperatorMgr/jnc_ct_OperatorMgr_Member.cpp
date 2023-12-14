@@ -181,8 +181,9 @@ OperatorMgr::getThisValue(
 				size_t parentOffset = reactorType->getParentOffset();
 				ASSERT(parentOffset);
 
-				m_module->m_llvmIrBuilder.createBitCast(thisValue, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr), &thisValue);
-				m_module->m_llvmIrBuilder.createGep(thisValue, -parentOffset, NULL, &thisValue);
+				Type* byteType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Byte);
+				m_module->m_llvmIrBuilder.createBitCast(thisValue, byteType->getDataPtrType_c(), &thisValue);
+				m_module->m_llvmIrBuilder.createGep(thisValue, byteType, -parentOffset, NULL, &thisValue);
 				m_module->m_llvmIrBuilder.createBitCast(thisValue, parentType->getClassPtrType(), &thisValue);
 			}
 	}
@@ -620,7 +621,7 @@ OperatorMgr::memberOperator(
 
 		case TypeKind_Struct:
 			field = ((StructType*)type)->getFieldByIndex(index);
-			return field && getStructField(opValue, field, NULL, resultValue);
+			return field && getStructField(opValue, (StructType*)type, field, NULL, resultValue);
 
 		case TypeKind_Union:
 			field = ((UnionType*)type)->getFieldByIndex(index);
@@ -638,7 +639,7 @@ OperatorMgr::memberOperator(
 	case TypeKind_ClassRef:
 		type = ((ClassPtrType*)type)->getTargetType();
 		field = ((ClassType*)type)->getFieldByIndex(index);
-		return field && getClassField(opValue, field, NULL, resultValue);
+		return field && getClassField(opValue, (ClassType*)type, field, NULL, resultValue);
 
 	default:
 		err::setFormatStringError("indexed member operator cannot be applied to '%s'", type->getTypeString().sz());
@@ -694,6 +695,7 @@ OperatorMgr::getLibraryMember(
 		getterFunctionType,
 		argValueArray,
 		countof(argValueArray),
+		getterFunctionType->getReturnType(),
 		&ptrValue
 	);
 

@@ -256,9 +256,10 @@ FunctionMgr::createThisValue() {
 		if (function->m_thisArgDelta == 0) {
 			m_module->m_llvmIrBuilder.createBitCast(thisArgValue, function->m_thisType, &m_thisValue);
 		} else {
+			Type* byteType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Byte);
 			Value ptrValue;
-			m_module->m_llvmIrBuilder.createBitCast(thisArgValue, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr), &ptrValue);
-			m_module->m_llvmIrBuilder.createGep(ptrValue, (int32_t)function->m_thisArgDelta, NULL, &ptrValue);
+			m_module->m_llvmIrBuilder.createBitCast(thisArgValue, byteType->getDataPtrType_c(), &ptrValue);
+			m_module->m_llvmIrBuilder.createGep(ptrValue, byteType, (int32_t)function->m_thisArgDelta, NULL, &ptrValue);
 			m_module->m_llvmIrBuilder.createBitCast(ptrValue, function->m_thisType, &m_thisValue);
 		}
 	}
@@ -603,6 +604,7 @@ FunctionMgr::injectTlsPrologue(Function* function) {
 	m_module->m_controlFlowMgr.setCurrentBlock(block);
 	m_module->m_llvmIrBuilder.setInsertPoint(&*block->getLlvmBlock()->begin());
 
+	StructType* tlsType = m_module->m_variableMgr.getTlsStructType();
 	Function* getTls = getStdFunction(StdFunc_GetTls);
 
 	Value tlsValue;
@@ -617,7 +619,7 @@ FunctionMgr::injectTlsPrologue(Function* function) {
 		ASSERT(field);
 
 		Value ptrValue;
-		m_module->m_llvmIrBuilder.createGep2(tlsValue, field->getLlvmIndex(), NULL, &ptrValue);
+		m_module->m_llvmIrBuilder.createGep2(tlsValue, tlsType, field->getLlvmIndex(), NULL, &ptrValue);
 		tlsVariableArray[i].m_llvmAlloca->replaceAllUsesWith(ptrValue.getLlvmValue());
 	}
 
