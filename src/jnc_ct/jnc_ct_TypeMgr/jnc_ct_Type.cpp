@@ -71,6 +71,7 @@ getLlvmTypeString(llvm::Type* llvmType) {
 	std::string string;
 	llvm::raw_string_ostream stream(string);
 	llvmType->print(stream);
+	stream.flush();
 	return sl::String(string.data(), string.length());
 }
 

@@ -434,7 +434,7 @@ getLlvmInstructionString(llvm::Instruction* llvmInst) {
 	std::string bufferString;
 	llvm::raw_string_ostream stream(bufferString);
 	llvmInst->print(stream);
-
+	stream.flush();
 	sl::String resultString(bufferString.c_str(), bufferString.length());
 	resultString.trimLeft(); // remove indent
 	return resultString;

@@ -869,10 +869,11 @@ Module::createGlobalInitializerFunction() {
 
 sl::String
 Module::getLlvmIrString() {
-	::std::string string;
+	std::string string;
 	llvm::raw_string_ostream stream(string);
 	m_llvmModule->print(stream, NULL);
-	return string.c_str();
+	stream.flush();
+	return sl::String(string.data(), string.length());
 }
 
 //..............................................................................

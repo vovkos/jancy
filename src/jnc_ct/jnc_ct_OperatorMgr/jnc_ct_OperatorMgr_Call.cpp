@@ -45,6 +45,7 @@ OperatorMgr::traceBlock(BasicBlock* block) {
 		std::string s;
 		llvm::raw_string_ostream stream(s);
 		it->print(stream);
+		stream.flush();
 		s += '\n';
 
 		m_module->m_llvmIrBuilder.setInsertPoint(&*it);
