@@ -264,7 +264,6 @@ jobs:
                 -   Release
 
                 LLVM_VERSION:
-                -   llvm@12
                 -   llvm@15
                 -   llvm@17
 
