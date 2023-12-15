@@ -23,7 +23,3 @@ echo "set (OPENSSL_LIB_DIR /usr/local/opt/openssl/lib)" >> paths.cmake
 # homebrew llvm installation is not linked
 
 echo "set (LLVM_CMAKE_DIR /usr/local/opt/${LLVM_VERSION}/lib/cmake/llvm)" >> paths.cmake
-
-# newer llvms require c++17
-
-echo "axl_override_setting (GCC_FLAG_CPP_STANDARD -std=c++17)" >> settings.cmake
