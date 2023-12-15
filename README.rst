@@ -44,7 +44,7 @@ Design Principles
 
 * LLVM as a back-end
 
-	This was a no-brainer from the very beginning. I started with LLVM 3.1 a few years ago; at the present moment Jancy builds and runs with any LLVM version from 3.4.2 all the way up to the latest and greatest LLVM 8.0.0
+	This was a no-brainer from the very beginning. I started with LLVM 3.1 years ago; at the present moment Jancy builds and runs with any LLVM starting from 3.4.2 (the latest LLVM that still builds on MSVC 10) all the way up to the latest and greatest LLVM 17!
 
 Key Features
 ------------
@@ -178,18 +178,17 @@ You can even switch contexts during the execution of your ``async`` procedure:
 Incremental Regex-based Switches
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Create *efficient* regex-based switches for tokenizing string streams:
+Create *efficient* regex-based switches for matching text data:
 
 .. code:: cpp
 
-	jnc.RegexState state;
-	reswitch (state, p, length) {
+	switch (text) {
 	case "foo":
 		...
 		break;
 
 	case r"bar(\d+)":
-		print($"bar id: $(state.m_captureArray[0].m_text)\n");
+		print($"bar id: $1\n");
 		break;
 
 	case r"\s+":
@@ -202,6 +201,25 @@ Create *efficient* regex-based switches for tokenizing string streams:
 This statement will compile into a table-driven DFA which can parse the input string in ``O(length)`` -- you don't get any faster than that.
 
 But there's more -- the resulting DFA recognizer is *incremental*, which means you can feed it the data chunk-by-chunk when it becomes available (e.g. once received over the network).
+
+.. code:: cpp
+
+	jnc.RegexState state(jnc.RegexExecFlags.Anchored);
+
+	...
+
+	switch (state, string_t(p, size)) {
+	case "open":
+		...
+		break;
+
+	case "close":
+		...
+		break;
+
+	...
+	}
+
 
 Dynamic Structs
 ~~~~~~~~~~~~~~~
