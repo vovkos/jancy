@@ -17,6 +17,18 @@ include(cmake/axl_cmake.cmake NO_POLICY_SCOPE)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+if(NOT "${GCC_FLAG_CPP_STANDARD}" MATCHES "-std=")
+	if(${LLVM_VERSION_MAJOR} LESS 10)
+		set(CMAKE_CXX_STANDARD 11)
+	elseif(${LLVM_VERSION_MAJOR} LESS 16)
+		set(CMAKE_CXX_STANDARD 14)
+	else()
+		set(CMAKE_CXX_STANDARD 17)		
+	endif()
+endif()
+
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 set(JANCY_ROOT_DIR       ${CMAKE_CURRENT_LIST_DIR})
 set(JANCY_SRC_DIR        ${CMAKE_CURRENT_LIST_DIR}/src)
 set(JANCY_BUILD_INC_DIR  ${CMAKE_CURRENT_BINARY_DIR}/include)
