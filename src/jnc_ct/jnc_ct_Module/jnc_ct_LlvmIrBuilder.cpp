@@ -308,31 +308,21 @@ LlvmIrBuilder::createCall(
 	Value* resultValue
 ) {
 	ASSERT(m_llvmIrBuilder);
+	ASSERT(calleeValue.getLlvmValue()->getType() == llvm::PointerType::get(functionType->getLlvmType(), 0));
 
-	llvm::CallInst* llvmInst;
-	if (resultType->getTypeKind() != TypeKind_Void) {
-		llvmInst = m_llvmIrBuilder->CreateCall(
+	llvm::CallInst* llvmInst = m_llvmIrBuilder->CreateCall(
 #if (LLVM_VERSION_MAJOR >= 11)
-			(llvm::FunctionType*)functionType->getLlvmType(),
+		(llvm::FunctionType*)functionType->getLlvmType(),
 #endif
-			calleeValue.getLlvmValue(),
-			llvm::ArrayRef<llvm::Value*> (llvmArgValueArray, argCount)
-		);
+		calleeValue.getLlvmValue(),
+		llvm::ArrayRef<llvm::Value*> (llvmArgValueArray, argCount)
+	);
 
+	if (resultType->getTypeKind() != TypeKind_Void) {
 		ASSERT(resultValue);
 		resultValue->setLlvmValue(llvmInst, resultType);
-	} else {
-		llvmInst = m_llvmIrBuilder->CreateCall(
-#if (LLVM_VERSION_MAJOR >= 11)
-			(llvm::FunctionType*)functionType->getLlvmType(),
-#endif
-			calleeValue.getLlvmValue(),
-			llvm::ArrayRef<llvm::Value*> (llvmArgValueArray, argCount)
-		);
-
-		if (resultValue)
-			resultValue->setVoid(m_module);
-	}
+	} else if (resultValue)
+		resultValue->setVoid(m_module);
 
 	llvm::CallingConv::ID llvmCallConv = functionType->getCallConv()->getLlvmCallConv();
 	if (llvmCallConv)
