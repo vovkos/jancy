@@ -168,7 +168,7 @@ CdeclCallConv_arm::call(
 
 		if (type->getSize() > m_argCoerceSizeLimit) { // pass on stack
 			Value tmpValue;
-			m_module->m_llvmIrBuilder.createAlloca(type, NULL, &tmpValue);
+			m_module->m_llvmIrBuilder.createAlloca(type, type->getDataPtrType_c(TypeKind_DataRef), &tmpValue);
 			m_module->m_llvmIrBuilder.createStore(*it, tmpValue);
 			*it = tmpValue;
 		} else { // coerce
