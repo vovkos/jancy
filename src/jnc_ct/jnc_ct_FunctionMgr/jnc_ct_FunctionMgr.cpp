@@ -698,6 +698,7 @@ FunctionMgr::getStdFunction(StdFunc func) {
 
 	Type* argTypeArray[8] = { 0 };
 	llvm::Type* llvmArgTypeArray[8] = { 0 };
+	size_t argCount;
 
 	Type* returnType;
 	FunctionType* functionType;
@@ -789,9 +790,15 @@ FunctionMgr::getStdFunction(StdFunc func) {
 		argTypeArray[0] = m_module->m_typeMgr.getStdType(StdType_ByteThinPtr);
 		argTypeArray[1] = m_module->m_typeMgr.getStdType(StdType_ByteThinPtr);
 		argTypeArray[2] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32);
+#if (LLVM_VERSION_MAJOR < 7)
 		argTypeArray[3] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32);
 		argTypeArray[4] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool);
-		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 5);
+		argCount = 5;
+#else
+		argTypeArray[3] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool);
+		argCount = 4;
+#endif
+		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, argCount);
 		function = createInternalFunction("jnc.llvmMemcpy", functionType);
 
 		llvmArgTypeArray[0] = argTypeArray[0]->getLlvmType();
@@ -809,9 +816,15 @@ FunctionMgr::getStdFunction(StdFunc func) {
 		argTypeArray[0] = m_module->m_typeMgr.getStdType(StdType_ByteThinPtr);
 		argTypeArray[1] = m_module->m_typeMgr.getStdType(StdType_ByteThinPtr);
 		argTypeArray[2] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32);
+#if (LLVM_VERSION_MAJOR < 7)
 		argTypeArray[3] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32);
 		argTypeArray[4] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool);
-		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 5);
+		argCount = 5;
+#else
+		argTypeArray[3] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool);
+		argCount = 4;
+#endif
+		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, argCount);
 		function = createInternalFunction("jnc.llvmMemmove", functionType);
 
 		llvmArgTypeArray[0] = argTypeArray[0]->getLlvmType();
@@ -829,9 +842,15 @@ FunctionMgr::getStdFunction(StdFunc func) {
 		argTypeArray[0] = m_module->m_typeMgr.getStdType(StdType_ByteThinPtr);
 		argTypeArray[1] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int8);
 		argTypeArray[2] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32);
+#if (LLVM_VERSION_MAJOR < 7)
 		argTypeArray[3] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32);
 		argTypeArray[4] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool);
-		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 5);
+		argCount = 5;
+#else
+		argTypeArray[3] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool);
+		argCount = 4;
+#endif
+		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, argCount);
 		function = createInternalFunction("jnc.llvmMemset", functionType);
 
 		llvmArgTypeArray[0] = argTypeArray[0]->getLlvmType();
