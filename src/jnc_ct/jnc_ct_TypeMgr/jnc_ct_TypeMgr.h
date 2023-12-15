@@ -89,8 +89,8 @@ protected:
 	CdeclCallConv_msc64 m_cdeclCallConv_msc64;
 	CdeclCallConv_gcc32 m_cdeclCallConv_gcc32;
 	CdeclCallConv_gcc64 m_cdeclCallConv_gcc64;
-	CdeclCallConv_gcc32 m_cdeclCallConv_arm32;
-	CdeclCallConv_gcc64 m_cdeclCallConv_arm64;
+	CdeclCallConv_arm32 m_cdeclCallConv_arm32;
+	CdeclCallConv_arm64 m_cdeclCallConv_arm64;
 	StdcallCallConv_msc32 m_stdcallCallConv_msc32;
 	StdcallCallConv_gcc32 m_stdcallCallConv_gcc32;
 	ThiscallCallConv_msc32 m_thiscallCallConv_msc32;
