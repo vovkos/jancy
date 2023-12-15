@@ -13,6 +13,48 @@
 //! @{
 
 /**
+	The internal implementation of the built-in string type. Fields ``m_p`` and
+	``m_length`` can be accessed directly. To get the contents of ``m_sz``, cast
+	a string to ``char const*``.
+*/
+
+struct String {
+	char const* readonly m_p;
+	protected char const* m_sz;
+	size_t readonly m_length;
+}
+
+/**
+	A built-in string type -- a UTF-8 string slice, not necessarily null-terminated.
+	When a null-terminated version of this slice is required, it's automatically
+	generated and cached.
+*/
+
+typedef String string_t;
+
+/**
+	The internal implementation of the built-in variant type.
+*/
+
+struct Variant {
+protected:
+	union {
+		char m_data[sizeof(size_t) * 6];
+		uint64_t _m_align64;
+	}
+
+	size_t _m_padding;
+	jnc.Type* m_type;
+}
+
+/**
+	The built-in variant type. Variables or fields of this type can hold values of
+	any other type.
+*/
+
+typedef Variant variant_t;
+
+/**
 	Signed integer type with size equal to the size of a pointer on the given
 	platform. On 32-bit platform ``intptr_t`` is identical to ``int32_t``; on
 	64-bit platforns ``intptr_t`` is identical to ``int64_t``.
