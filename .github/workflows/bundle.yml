@@ -22,7 +22,7 @@ jobs:
                 git clone --depth 1 git@github.com:vovkos/jancy_b
                 cd jancy_b
 
-                git submodule update --init --depth 1
+                git submodule update --init
                 git submodule foreach 'case $name in re2s) git checkout re2s-no-abseil;; *) git checkout master;; esac'
                 git submodule foreach 'git pull'
 
