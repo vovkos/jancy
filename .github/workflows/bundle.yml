@@ -19,11 +19,12 @@ jobs:
                 echo "$JANCY_B_ID_RSA" > ~/.ssh/id_rsa
                 chmod 600 ~/.ssh/id_rsa
 
-                git clone git@github.com:vovkos/jancy_b
+                git clone --depth 1 git@github.com:vovkos/jancy_b
                 cd jancy_b
 
-                git submodule update --init
-                git submodule foreach git checkout master
+                git submodule update --init --depth 1
+                git submodule foreach 'case $name in re2s) git checkout re2s-no-abseil;; *) git checkout master;; esac'
+                git submodule foreach 'git pull'
 
                 COMMIT_MESSAGE=$(perl ./axl/ci/github-actions/get-submodule-update-commit-message.pl)
                 if [[ "$COMMIT_MESSAGE" == "" ]]; then
