@@ -1,0 +1,30 @@
+.. include:: def.rst
+.. index:: pair: group; Synchronization Facilities
+.. _doxid-group_sys_sync:
+
+Synchronization Facilities
+==========================
+
+.. toctree::
+	:hidden:
+
+	class_sys_Event.rst
+	class_sys_Lock.rst
+	class_sys_NotificationEvent.rst
+
+This section describes types and facilities used for inter-thread synchronization.
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "sys_Lock.jnc"
+	import "sys_Event.jnc"
+	import "sys_NotificationEvent.jnc"
+	
+	// classes
+
+	class :ref:`sys.Event<doxid-type_sys_event>`;
+	class :ref:`sys.Lock<doxid-type_sys_lock>`;
+	class :ref:`sys.NotificationEvent<doxid-type_sys_notificationevent>`;
+

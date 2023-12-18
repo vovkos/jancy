@@ -1,0 +1,196 @@
+.. include:: def.rst
+.. index:: pair: struct; io.SocketAddress_ip6
+.. _doxid-type_io_socketaddress_ip6:
+
+struct io.SocketAddress_ip6
+===========================
+
+.. toctree::
+	:hidden:
+
+Overview
+~~~~~~~~
+
+This struct holds information about ``IP6`` address in the form
+suitable for socket communications. :ref:`More...<details-type_io_socketaddress_ip6>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "io_base.jncx"
+	import "io_SocketAddress.jnc"
+	
+	struct SocketAddress_ip6 {
+		// fields
+	
+		:ref:`io.AddressFamily<doxid-type_io_addressfamily>` :ref:`m_family<doxid-struct_member_io_socketaddress_ip6_m_family>`;
+		bigendian unsigned short :ref:`m_port<doxid-struct_member_io_socketaddress_ip6_m_port>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :ref:`m_flow<doxid-struct_member_io_socketaddress_ip6_m_flow>`;
+		:ref:`io.Address_ip6<doxid-type_io_address_ip6>` :ref:`m_address<doxid-struct_member_io_socketaddress_ip6_m_address>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :ref:`m_scope<doxid-struct_member_io_socketaddress_ip6_m_scope>`;
+
+		// methods
+	
+		bool :ref:`isEqual<doxid-function_io_socketaddress_ip6_isequal>`(io.SocketAddress_ip6 const* address) const;
+		bool :ref:`isMatch<doxid-function_io_socketaddress_ip6_ismatch>`(io.SocketAddress_ip6 const* filterAddress) const;
+		bool errorcode :ref:`parse<doxid-function_io_socketaddress_ip6_parse>`(:ref:`string_t<doxid-typedef_string_t>` string);
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`getString<doxid-function_io_socketaddress_ip6_getstring>`() const;
+
+		// aliases
+	
+		alias :ref:`toString<doxid-alias_io_socketaddress_ip6_tostring>` = getString;
+	};
+.. _details-type_io_socketaddress_ip6:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This struct holds information about ``IP6`` address in the form
+suitable for socket communications.
+
+On the binary level this structure directly maps to ``sockaddr_in6``.
+
+
+
+.. rubric:: See also:
+
+`io.Socket`, `io.HostNameResolver`
+
+Fields
+------
+
+.. index:: pair: variable; m_family
+.. _doxid-struct_member_io_socketaddress_ip6_m_family:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`io.AddressFamily<doxid-type_io_addressfamily>` m_family
+
+Holds the address family of the socket address; should be set to
+`io.AddressFamily.Ip6`.
+
+.. index:: pair: variable; m_port
+.. _doxid-struct_member_io_socketaddress_ip6_m_port:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bigendian unsigned short m_port
+
+Holds the number of ``TCP`` or ``UDP`` port. There is no need to change
+the byte order of the port before assignment -- this field is already
+declared as ``bigendian`` so all the necessary conversions will happen
+automatically.
+
+.. index:: pair: variable; m_flow
+.. _doxid-struct_member_io_socketaddress_ip6_m_flow:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`uint32_t<doxid-typedef_uint32_t>` m_flow
+
+Holds ``IP6`` flow information.
+
+.. index:: pair: variable; m_address
+.. _doxid-struct_member_io_socketaddress_ip6_m_address:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`io.Address_ip6<doxid-type_io_address_ip6>` m_address
+
+Holds ``IP6`` address as `io.Address_ip6`.
+
+.. index:: pair: variable; m_scope
+.. _doxid-struct_member_io_socketaddress_ip6_m_scope:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`uint32_t<doxid-typedef_uint32_t>` m_scope
+
+Holds 32-bit ``IP6`` scope identifier.
+
+Methods
+-------
+
+.. index:: pair: function; isEqual
+.. _doxid-function_io_socketaddress_ip6_isequal:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool isEqual(io.SocketAddress_ip6 const* address) const
+
+Checks two ``IP6`` socket addresses for *equality*; returns ``true`` if
+addresses are equal and ``false`` otherwise.
+
+.. index:: pair: function; isMatch
+.. _doxid-function_io_socketaddress_ip6_ismatch:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool isMatch(io.SocketAddress_ip6 const* filterAddress) const
+
+Checks two ``IP6`` socket addresses for *matching*. The term *matching*
+requires some explanation.
+
+Matching could be described as a non-strict equality check. We may
+decide to only check *port* for equality and ignore the address. To do
+so, set ``m_address`` field of ``filter`` argument to ``0``.
+
+Or the other way around -- only check *address* and ignore port -- set
+``m_port`` field of ``filter`` argument to ``0``.
+
+Returns ``true`` if addresses *match* and ``false`` otherwise.
+
+.. index:: pair: function; parse
+.. _doxid-function_io_socketaddress_ip6_parse:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool errorcode parse(:ref:`string_t<doxid-typedef_string_t>` string)
+
+Constructs the address from a string representation in ``string``
+argument.
+
+Returns ``true`` if address string was parsed successfully. Otherwise,
+sets the description of parsing error and returns ``false`` [#f1]_.
+
+.. index:: pair: function; getString
+.. _doxid-function_io_socketaddress_ip6_getstring:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`string_t<doxid-typedef_string_t>` getString() const
+
+Creates and returns a string representation of the address.
+
+Aliases
+-------
+
+.. index:: pair: alias; toString
+.. _doxid-alias_io_socketaddress_ip6_tostring:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	alias toString = getString
+
+Effectively makes ``io.SocketAddress_ip6`` a *stringable* class.
+
+
+---------------------
+
+.. rubric:: Footnotes
+
+.. [#f1]
+
+	|footnote-errorcode|
+

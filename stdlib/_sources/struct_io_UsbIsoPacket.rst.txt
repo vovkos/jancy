@@ -1,0 +1,25 @@
+.. include:: def.rst
+.. index:: pair: struct; io.UsbIsoPacket
+.. _doxid-type_io_usbisopacket:
+
+struct io.UsbIsoPacket
+======================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct UsbIsoPacket {
+		// fields
+	
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`m_status<doxid-struct_member_io_usbisopacket_m_status>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`m_offset<doxid-struct_member_io_usbisopacket_m_offset>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`m_length<doxid-struct_member_io_usbisopacket_m_length>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`_m_padding<doxid-struct_member_io_usbisopacket__m_padding>`;
+	};

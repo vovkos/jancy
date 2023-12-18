@@ -1,0 +1,29 @@
+.. include:: def.rst
+.. index:: pair: struct; io.UsbEndpointDescriptor
+.. _doxid-type_io_usbendpointdescriptor:
+
+struct io.UsbEndpointDescriptor
+===============================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct UsbEndpointDescriptor {
+		// fields
+	
+		:ref:`uint8_t<doxid-typedef_uint8_t>` :target:`m_endpointId<doxid-struct_member_io_usbendpointdescriptor_m_endpointid>`;
+		:ref:`io.UsbTransferType<doxid-type_io_usbtransfertype>` :target:`m_transferType<doxid-struct_member_io_usbendpointdescriptor_m_transfertype>`;
+		:ref:`io.UsbIsoSyncType<doxid-type_io_usbisosynctype>` :target:`m_isoSyncType<doxid-struct_member_io_usbendpointdescriptor_m_isosynctype>`;
+		:ref:`io.UsbIsoUsage<doxid-type_io_usbisousage>` :target:`m_isoUsage<doxid-struct_member_io_usbendpointdescriptor_m_isousage>`;
+		:ref:`uint16_t<doxid-typedef_uint16_t>` :target:`m_maxPacketSize<doxid-struct_member_io_usbendpointdescriptor_m_maxpacketsize>`;
+		:ref:`uint8_t<doxid-typedef_uint8_t>` :target:`m_interval<doxid-struct_member_io_usbendpointdescriptor_m_interval>`;
+		:ref:`uint8_t<doxid-typedef_uint8_t>` :target:`m_refresh<doxid-struct_member_io_usbendpointdescriptor_m_refresh>`;
+		:ref:`uint8_t<doxid-typedef_uint8_t>` :target:`m_synchAddress<doxid-struct_member_io_usbendpointdescriptor_m_synchaddress>`;
+	};

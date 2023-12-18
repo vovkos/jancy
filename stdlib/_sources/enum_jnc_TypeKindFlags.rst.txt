@@ -1,0 +1,34 @@
+.. include:: def.rst
+.. index:: pair: enum; TypeKindFlags
+.. _doxid-type_jnc_typekindflags:
+
+bitflag enum jnc.TypeKindFlags
+==============================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum TypeKindFlags {
+	    :target:`Integer<doxid-enum_member_jnc_typekindflags_integer>`     = 0x00000001,
+	    :target:`Unsigned<doxid-enum_member_jnc_typekindflags_unsigned>`    = 0x00000002,
+	    :target:`BigEndian<doxid-enum_member_jnc_typekindflags_bigendian>`   = 0x00000004,
+	    :target:`Fp<doxid-enum_member_jnc_typekindflags_fp>`          = 0x00000008,
+	    :target:`Numeric<doxid-enum_member_jnc_typekindflags_numeric>`     = 0x00000010,
+	    :target:`Aggregate<doxid-enum_member_jnc_typekindflags_aggregate>`   = 0x00000020,
+	    :target:`Named<doxid-enum_member_jnc_typekindflags_named>`       = 0x00000100,
+	    :target:`Derivable<doxid-enum_member_jnc_typekindflags_derivable>`   = 0x00000200,
+	    :target:`DataPtr<doxid-enum_member_jnc_typekindflags_dataptr>`     = 0x00000400,
+	    :target:`ClassPtr<doxid-enum_member_jnc_typekindflags_classptr>`    = 0x00000800,
+	    :target:`FunctionPtr<doxid-enum_member_jnc_typekindflags_functionptr>` = 0x00001000,
+	    :target:`PropertyPtr<doxid-enum_member_jnc_typekindflags_propertyptr>` = 0x00002000,
+	    :target:`Ptr<doxid-enum_member_jnc_typekindflags_ptr>`         = 0x00004000,
+	    :target:`Ref<doxid-enum_member_jnc_typekindflags_ref>`         = 0x00008000,
+	    :target:`Import<doxid-enum_member_jnc_typekindflags_import>`      = 0x00010000,
+	    :target:`Code<doxid-enum_member_jnc_typekindflags_code>`        = 0x00020000,
+	    :target:`Nullable<doxid-enum_member_jnc_typekindflags_nullable>`    = 0x00040000,
+	    :target:`ErrorCode<doxid-enum_member_jnc_typekindflags_errorcode>`   = 0x00080000,
+	};
+

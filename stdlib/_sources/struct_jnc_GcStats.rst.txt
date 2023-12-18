@@ -1,0 +1,30 @@
+.. include:: def.rst
+.. index:: pair: struct; jnc.GcStats
+.. _doxid-type_jnc_gcstats:
+
+struct jnc.GcStats
+==================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct GcStats {
+		// fields
+	
+		:ref:`size_t<doxid-typedef_size_t>` :target:`m_currentAllocSize<doxid-struct_member_jnc_gcstats_m_currentallocsize>`;
+		:ref:`size_t<doxid-typedef_size_t>` :target:`m_totalAllocSize<doxid-struct_member_jnc_gcstats_m_totalallocsize>`;
+		:ref:`size_t<doxid-typedef_size_t>` :target:`m_peakAllocSize<doxid-struct_member_jnc_gcstats_m_peakallocsize>`;
+		:ref:`size_t<doxid-typedef_size_t>` :target:`m_currentPeriodSize<doxid-struct_member_jnc_gcstats_m_currentperiodsize>`;
+		:ref:`size_t<doxid-typedef_size_t>` :target:`m_totalCollectCount<doxid-struct_member_jnc_gcstats_m_totalcollectcount>`;
+		:ref:`size_t<doxid-typedef_size_t>` :target:`m_lastCollectFreeSize<doxid-struct_member_jnc_gcstats_m_lastcollectfreesize>`;
+		:ref:`uint64_t<doxid-typedef_uint64_t>` :target:`m_lastCollectTime<doxid-struct_member_jnc_gcstats_m_lastcollecttime>`;
+		:ref:`uint64_t<doxid-typedef_uint64_t>` :target:`m_lastCollectTimeTaken<doxid-struct_member_jnc_gcstats_m_lastcollecttimetaken>`;
+		:ref:`uint64_t<doxid-typedef_uint64_t>` :target:`m_totalCollectTimeTaken<doxid-struct_member_jnc_gcstats_m_totalcollecttimetaken>`;
+	};

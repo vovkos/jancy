@@ -1,0 +1,33 @@
+.. _global:
+.. index:: pair: namespace; global
+
+Global Namespace
+================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	// macros
+
+	#define :ref:`JNC_PTR_BITS<doxid-group__base-def_1ga09b7be7064265680ef9968c3a0daf056>`
+	#define :ref:`JNC_PTR_SIZE<doxid-group__base-def_1gac72eb674125d6c29d46168896e22231e>`
+	#define :ref:`JNC_SELECT_ANY<doxid-group__base-def_1gadf3ff658e277ca8ea2878349758bfdf5>`
+	#define :ref:`_JNC_CPP_CLANG<doxid-group__base-def_1gac3e5dd1212165d07c21cf8e42c8f2f8e>`
+	#define :ref:`_JNC_CPP_GCC<doxid-group__base-def_1gae8d48fecbd4d71ae875687a81e628207>`
+	#define :ref:`_JNC_CPP_MSC<doxid-group__base-def_1ga4941936ab80e0651d377a8fac045b79b>`
+	#define :ref:`_JNC_CPU_AMD64<doxid-group__base-def_1ga00e7d26c19d5920b1649857b7bb4270e>`
+	#define :ref:`_JNC_CPU_X86<doxid-group__base-def_1ga3f36421faf3aa1f104d2c76d9468c00d>`
+	#define :ref:`_JNC_OS_BSD<doxid-group__base-def_1gae812e575bdb2f0b5d3372adfae0c47af>`
+	#define :ref:`_JNC_OS_DARWIN<doxid-group__base-def_1gae2856681f4f608def5aeabe626ed7521>`
+	#define :ref:`_JNC_OS_LINUX<doxid-group__base-def_1gaab0f9e52f49016ad573e91a6b0912495>`
+	#define :ref:`_JNC_OS_POSIX<doxid-group__base-def_1gaad9543e0a8c46c2ea8c91d88c7b648df>`
+	#define :ref:`_JNC_OS_SOLARIS<doxid-group__base-def_1gae45670a576265b583297d9e8367308bf>`
+	#define :ref:`_JNC_OS_WIN<doxid-group__base-def_1ga9d37c94fd927cf617495e3b0809fc768>`
+

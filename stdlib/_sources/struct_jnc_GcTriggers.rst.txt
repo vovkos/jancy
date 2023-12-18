@@ -1,0 +1,23 @@
+.. include:: def.rst
+.. index:: pair: struct; jnc.GcTriggers
+.. _doxid-type_jnc_gctriggers:
+
+struct jnc.GcTriggers
+=====================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct GcTriggers {
+		// fields
+	
+		:ref:`size_t<doxid-typedef_size_t>` :target:`m_allocSizeTrigger<doxid-struct_member_jnc_gctriggers_m_allocsizetrigger>`;
+		:ref:`size_t<doxid-typedef_size_t>` :target:`m_periodSizeTrigger<doxid-struct_member_jnc_gctriggers_m_periodsizetrigger>`;
+	};

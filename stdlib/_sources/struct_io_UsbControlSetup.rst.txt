@@ -1,0 +1,26 @@
+.. include:: def.rst
+.. index:: pair: struct; io.UsbControlSetup
+.. _doxid-type_io_usbcontrolsetup:
+
+struct io.UsbControlSetup
+=========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct UsbControlSetup {
+		// fields
+	
+		:ref:`io.UsbControlRequestType<doxid-type_io_usbcontrolrequesttype>` :target:`m_requestType<doxid-struct_member_io_usbcontrolsetup_m_requesttype>`;
+		:ref:`uint8_t<doxid-typedef_uint8_t>` :target:`m_request<doxid-struct_member_io_usbcontrolsetup_m_request>`;
+		:ref:`uint16_t<doxid-typedef_uint16_t>` :target:`m_value<doxid-struct_member_io_usbcontrolsetup_m_value>`;
+		:ref:`uint16_t<doxid-typedef_uint16_t>` :target:`m_index<doxid-struct_member_io_usbcontrolsetup_m_index>`;
+		:ref:`uint16_t<doxid-typedef_uint16_t>` :target:`m_length<doxid-struct_member_io_usbcontrolsetup_m_length>`;
+	};

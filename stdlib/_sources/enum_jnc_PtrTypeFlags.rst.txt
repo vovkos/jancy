@@ -1,0 +1,27 @@
+.. include:: def.rst
+.. index:: pair: enum; PtrTypeFlags
+.. _doxid-type_jnc_ptrtypeflags:
+
+bitflag enum jnc.PtrTypeFlags
+=============================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum PtrTypeFlags {
+	    :target:`Safe<doxid-enum_member_jnc_ptrtypeflags_safe>`       = 0x0010000,
+	    :target:`Const<doxid-enum_member_jnc_ptrtypeflags_const>`      = 0x0020000,
+	    :target:`ReadOnly<doxid-enum_member_jnc_ptrtypeflags_readonly>`   = 0x0040000,
+	    :target:`CMut<doxid-enum_member_jnc_ptrtypeflags_cmut>`       = 0x0080000,
+	    :target:`Volatile<doxid-enum_member_jnc_ptrtypeflags_volatile>`   = 0x0100000,
+	    :target:`Event<doxid-enum_member_jnc_ptrtypeflags_event>`      = 0x0200000,
+	    :target:`DualEvent<doxid-enum_member_jnc_ptrtypeflags_dualevent>`  = 0x0400000,
+	    :target:`Bindable<doxid-enum_member_jnc_ptrtypeflags_bindable>`   = 0x0800000,
+	    :target:`AutoGet<doxid-enum_member_jnc_ptrtypeflags_autoget>`    = 0x1000000,
+	    :target:`DualTarget<doxid-enum_member_jnc_ptrtypeflags_dualtarget>` = 0x2000000,
+	    :target:`_Dual<doxid-enum_member_jnc_ptrtypeflags__dual>`      = ReadOnly | CMut | DualEvent | DualTarget,
+	};
+

@@ -1,0 +1,42 @@
+.. include:: def.rst
+.. index:: pair: enum; StreamOptions
+.. _doxid-type_io_streamoptions:
+
+bitflag enum io.StreamOptions
+=============================
+
+Overview
+~~~~~~~~
+
+This enumeration contains standard buffering options for a buffered
+stream object. :ref:`More...<details-type_io_streamoptions>`
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum StreamOptions: :ref:`io.ReadOnlyStreamOptions<doxid-type_io_readonlystreamoptions>` {
+	    :ref:`KeepWriteBlockSize<doxid-enum_member_io_streamoptions_keepwriteblocksize>`,
+	};
+
+.. _details-type_io_streamoptions:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This enumeration contains standard buffering options for a buffered
+stream object.
+
+Enum Values
+-----------
+
+.. index:: pair: enumvalue; KeepWriteBlockSize
+.. _doxid-enum_member_io_streamoptions_keepwriteblocksize:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	KeepWriteBlockSize
+
+Don't merge outgoing blocks inside the *write* buffer.
+

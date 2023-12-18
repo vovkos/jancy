@@ -1,0 +1,124 @@
+.. include:: def.rst
+.. index:: pair: union; io.Address_ip6
+.. _doxid-type_io_address_ip6:
+
+union io.Address_ip6
+====================
+
+.. toctree::
+	:hidden:
+
+Overview
+~~~~~~~~
+
+This union holds information about ``IP6`` address :ref:`More...<details-type_io_address_ip6>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "io_base.jncx"
+	import "io_SocketAddress.jnc"
+	
+	union Address_ip6 {
+		// fields
+	
+		bigendian unsigned short :ref:`m_i16<doxid-struct_member_io_address_ip6_m_i16>`[];
+		:ref:`uint8_t<doxid-typedef_uint8_t>` :ref:`m_i8<doxid-struct_member_io_address_ip6_m_i8>`[];
+
+		// methods
+	
+		bool errorcode :ref:`parse<doxid-function_io_address_ip6_parse>`(:ref:`string_t<doxid-typedef_string_t>` string);
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`getString<doxid-function_io_address_ip6_getstring>`() const;
+
+		// aliases
+	
+		alias :ref:`toString<doxid-alias_io_address_ip6_tostring>` = getString;
+	};
+.. _details-type_io_address_ip6:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This union holds information about ``IP6`` address
+
+On the binary level this union directly maps to ``in6_addr``.
+
+
+
+.. rubric:: See also:
+
+`io.SocketAddress_ip6`
+
+Fields
+------
+
+.. index:: pair: variable; m_i16
+.. _doxid-struct_member_io_address_ip6_m_i16:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bigendian unsigned short m_i16[]
+
+Holds eight 16-bit words of ``IP6`` address.
+
+.. index:: pair: variable; m_i8
+.. _doxid-struct_member_io_address_ip6_m_i8:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`uint8_t<doxid-typedef_uint8_t>` m_i8[]
+
+Holds sixteen 8-bit bytes of ``IP6`` address.
+
+Methods
+-------
+
+.. index:: pair: function; parse
+.. _doxid-function_io_address_ip6_parse:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool errorcode parse(:ref:`string_t<doxid-typedef_string_t>` string)
+
+Constructs the address from a string representation in ``string``
+argument.
+
+Returns ``true`` if address string was parsed successfully. Otherwise,
+sets the description of parsing error and returns ``false`` [#f1]_.
+
+.. index:: pair: function; getString
+.. _doxid-function_io_address_ip6_getstring:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`string_t<doxid-typedef_string_t>` getString() const
+
+Creates and returns a string representation of the address.
+
+Aliases
+-------
+
+.. index:: pair: alias; toString
+.. _doxid-alias_io_address_ip6_tostring:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	alias toString = getString
+
+Effectively makes ``io.Address_ip6`` a *stringable* class.
+
+
+---------------------
+
+.. rubric:: Footnotes
+
+.. [#f1]
+
+	|footnote-errorcode|
+

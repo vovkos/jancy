@@ -1,0 +1,25 @@
+.. include:: def.rst
+.. index:: pair: struct; io.lnx.DeviceMonitorReadWriteNotifyParams
+.. _doxid-type_io_lnx_devicemonitorreadwritenotifyparams:
+
+struct io.lnx.DeviceMonitorReadWriteNotifyParams
+================================================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct DeviceMonitorReadWriteNotifyParams {
+		// fields
+	
+		:ref:`uint64_t<doxid-typedef_uint64_t>` :target:`m_fileId<doxid-struct_member_io_lnx_devicemonitorreadwritenotifyparams_m_fileid>`;
+		:ref:`uint64_t<doxid-typedef_uint64_t>` :target:`m_offset<doxid-struct_member_io_lnx_devicemonitorreadwritenotifyparams_m_offset>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`m_bufferSize<doxid-struct_member_io_lnx_devicemonitorreadwritenotifyparams_m_buffersize>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`m_dataSize<doxid-struct_member_io_lnx_devicemonitorreadwritenotifyparams_m_datasize>`;
+	};

@@ -1,0 +1,151 @@
+.. include:: def.rst
+.. index:: pair: group; Introspection
+.. _doxid-group_rtl_intro:
+
+Introspection
+=============
+
+.. toctree::
+	:hidden:
+
+	enum_jnc_AccessKind.rst
+	enum_jnc_BinOpKind.rst
+	enum_jnc_ClassPtrTypeKind.rst
+	enum_jnc_ClassTypeFlags.rst
+	enum_jnc_ClassTypeKind.rst
+	enum_jnc_DataPtrTypeKind.rst
+	enum_jnc_EnumTypeFlags.rst
+	enum_jnc_FunctionKind.rst
+	enum_jnc_FunctionKindFlags.rst
+	enum_jnc_FunctionPtrTypeKind.rst
+	enum_jnc_FunctionTypeFlags.rst
+	enum_jnc_ModuleCompileFlags.rst
+	enum_jnc_ModuleCompileState.rst
+	enum_jnc_ModuleItemFlags.rst
+	enum_jnc_ModuleItemKind.rst
+	enum_jnc_NamespaceKind.rst
+	enum_jnc_PropertyFlag.rst
+	enum_jnc_PropertyKind.rst
+	enum_jnc_PropertyPtrTypeKind.rst
+	enum_jnc_PropertyTypeFlags.rst
+	enum_jnc_PtrTypeFlags.rst
+	enum_jnc_StorageKind.rst
+	enum_jnc_StructTypeKind.rst
+	enum_jnc_TypeFlags.rst
+	enum_jnc_TypeKind.rst
+	enum_jnc_TypeKindFlags.rst
+	enum_jnc_UnOpKind.rst
+	class_jnc_Alias.rst
+	class_jnc_ArrayType.rst
+	class_jnc_Attribute.rst
+	class_jnc_AttributeBlock.rst
+	class_jnc_BaseTypeSlot.rst
+	class_jnc_BitFieldType.rst
+	class_jnc_ClassPtrType.rst
+	class_jnc_ClassType.rst
+	class_jnc_Const.rst
+	class_jnc_DataPtrType.rst
+	class_jnc_DerivableType.rst
+	class_jnc_EnumConst.rst
+	class_jnc_EnumType.rst
+	class_jnc_Field.rst
+	class_jnc_Function.rst
+	class_jnc_FunctionArg.rst
+	class_jnc_FunctionOverload.rst
+	class_jnc_FunctionPtrType.rst
+	class_jnc_FunctionType.rst
+	class_jnc_GlobalNamespace.rst
+	class_jnc_MemberBlock.rst
+	class_jnc_Module.rst
+	class_jnc_ModuleItem.rst
+	class_jnc_ModuleItemDecl.rst
+	class_jnc_ModuleItemInitializer.rst
+	class_jnc_NamedType.rst
+	class_jnc_Namespace.rst
+	class_jnc_Property.rst
+	class_jnc_PropertyPtrType.rst
+	class_jnc_PropertyType.rst
+	class_jnc_StructType.rst
+	class_jnc_Type.rst
+	class_jnc_Typedef.rst
+	class_jnc_UnionType.rst
+	class_jnc_Unit.rst
+	class_jnc_Variable.rst
+
+This section describes facilities for the introspection (i.e., the
+ability to inspect a program's structure during *runtime*).
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	// enums
+
+	enum :ref:`jnc.AccessKind<doxid-type_jnc_accesskind>`;
+	enum :ref:`jnc.BinOpKind<doxid-type_jnc_binopkind>`;
+	enum :ref:`jnc.ClassPtrTypeKind<doxid-type_jnc_classptrtypekind>`;
+	bitflag enum :ref:`jnc.ClassTypeFlags<doxid-type_jnc_classtypeflags>`;
+	enum :ref:`jnc.ClassTypeKind<doxid-type_jnc_classtypekind>`;
+	enum :ref:`jnc.DataPtrTypeKind<doxid-type_jnc_dataptrtypekind>`;
+	bitflag enum :ref:`jnc.EnumTypeFlags<doxid-type_jnc_enumtypeflags>`;
+	enum :ref:`jnc.FunctionKind<doxid-type_jnc_functionkind>`;
+	bitflag enum :ref:`jnc.FunctionKindFlags<doxid-type_jnc_functionkindflags>`;
+	enum :ref:`jnc.FunctionPtrTypeKind<doxid-type_jnc_functionptrtypekind>`;
+	bitflag enum :ref:`jnc.FunctionTypeFlags<doxid-type_jnc_functiontypeflags>`;
+	bitflag enum :ref:`jnc.ModuleCompileFlags<doxid-type_jnc_modulecompileflags>`;
+	enum :ref:`jnc.ModuleCompileState<doxid-type_jnc_modulecompilestate>`;
+	bitflag enum :ref:`jnc.ModuleItemFlags<doxid-type_jnc_moduleitemflags>`;
+	enum :ref:`jnc.ModuleItemKind<doxid-type_jnc_moduleitemkind>`;
+	enum :ref:`jnc.NamespaceKind<doxid-type_jnc_namespacekind>`;
+	bitflag enum :ref:`jnc.PropertyFlag<doxid-type_jnc_propertyflag>`;
+	enum :ref:`jnc.PropertyKind<doxid-type_jnc_propertykind>`;
+	enum :ref:`jnc.PropertyPtrTypeKind<doxid-type_jnc_propertyptrtypekind>`;
+	bitflag enum :ref:`jnc.PropertyTypeFlags<doxid-type_jnc_propertytypeflags>`;
+	bitflag enum :ref:`jnc.PtrTypeFlags<doxid-type_jnc_ptrtypeflags>`;
+	enum :ref:`jnc.StorageKind<doxid-type_jnc_storagekind>`;
+	enum :ref:`jnc.StructTypeKind<doxid-type_jnc_structtypekind>`;
+	bitflag enum :ref:`jnc.TypeFlags<doxid-type_jnc_typeflags>`;
+	enum :ref:`jnc.TypeKind<doxid-type_jnc_typekind>`;
+	bitflag enum :ref:`jnc.TypeKindFlags<doxid-type_jnc_typekindflags>`;
+	enum :ref:`jnc.UnOpKind<doxid-type_jnc_unopkind>`;
+
+	// classes
+
+	class :ref:`jnc.Alias<doxid-type_jnc_alias>`;
+	class :ref:`jnc.ArrayType<doxid-type_jnc_arraytype>`;
+	class :ref:`jnc.Attribute<doxid-type_jnc_attribute>`;
+	class :ref:`jnc.AttributeBlock<doxid-type_jnc_attributeblock>`;
+	class :ref:`jnc.BaseTypeSlot<doxid-type_jnc_basetypeslot>`;
+	class :ref:`jnc.BitFieldType<doxid-type_jnc_bitfieldtype>`;
+	class :ref:`jnc.ClassPtrType<doxid-type_jnc_classptrtype>`;
+	class :ref:`jnc.ClassType<doxid-type_jnc_classtype>`;
+	class :ref:`jnc.Const<doxid-type_jnc_const>`;
+	class :ref:`jnc.DataPtrType<doxid-type_jnc_dataptrtype>`;
+	class :ref:`jnc.DerivableType<doxid-type_jnc_derivabletype>`;
+	class :ref:`jnc.EnumConst<doxid-type_jnc_enumconst>`;
+	class :ref:`jnc.EnumType<doxid-type_jnc_enumtype>`;
+	class :ref:`jnc.Field<doxid-type_jnc_field>`;
+	class :ref:`jnc.Function<doxid-type_jnc_function>`;
+	class :ref:`jnc.FunctionArg<doxid-type_jnc_functionarg>`;
+	class :ref:`jnc.FunctionOverload<doxid-type_jnc_functionoverload>`;
+	class :ref:`jnc.FunctionPtrType<doxid-type_jnc_functionptrtype>`;
+	class :ref:`jnc.FunctionType<doxid-type_jnc_functiontype>`;
+	class :ref:`jnc.GlobalNamespace<doxid-type_jnc_globalnamespace>`;
+	class :ref:`jnc.MemberBlock<doxid-type_jnc_memberblock>`;
+	class :ref:`jnc.Module<doxid-type_jnc_module>`;
+	class :ref:`jnc.ModuleItem<doxid-type_jnc_moduleitem>`;
+	class :ref:`jnc.ModuleItemDecl<doxid-type_jnc_moduleitemdecl>`;
+	class :ref:`jnc.ModuleItemInitializer<doxid-type_jnc_moduleiteminitializer>`;
+	class :ref:`jnc.NamedType<doxid-type_jnc_namedtype>`;
+	class :ref:`jnc.Namespace<doxid-type_jnc_namespace>`;
+	class :ref:`jnc.Property<doxid-type_jnc_property>`;
+	class :ref:`jnc.PropertyPtrType<doxid-type_jnc_propertyptrtype>`;
+	class :ref:`jnc.PropertyType<doxid-type_jnc_propertytype>`;
+	class :ref:`jnc.StructType<doxid-type_jnc_structtype>`;
+	class :ref:`jnc.Type<doxid-type_jnc_type>`;
+	class :ref:`jnc.Typedef<doxid-type_jnc_typedef>`;
+	class :ref:`jnc.UnionType<doxid-type_jnc_uniontype>`;
+	class :ref:`jnc.Unit<doxid-type_jnc_unit>`;
+	class :ref:`jnc.Variable<doxid-type_jnc_variable>`;
+

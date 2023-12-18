@@ -1,0 +1,42 @@
+.. include:: def.rst
+.. index:: pair: class; io.UsbInterface
+.. _doxid-type_io_usbinterface:
+
+class io.UsbInterface
+=====================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class UsbInterface {
+		// fields
+	
+		:ref:`io.UsbDevice<doxid-type_io_usbdevice>`* const :target:`m_device<doxid-struct_member_io_usbinterface_m_device>`;
+		:ref:`io.UsbInterfaceDescriptor<doxid-type_io_usbinterfacedescriptor>` const* const :target:`m_interfaceDescriptor<doxid-struct_member_io_usbinterface_m_interfacedescriptor>`;
+		bool readonly :target:`m_isClaimed<doxid-struct_member_io_usbinterface_m_isclaimed>`;
+
+		// construction
+	
+		:target:`construct<doxid-function_io_usbinterface_construct>`();
+		:target:`destruct<doxid-function_io_usbinterface_destruct>`();
+
+		// methods
+	
+		void :target:`release<doxid-function_io_usbinterface_release>`();
+	
+		:ref:`io.UsbEndpoint<doxid-type_io_usbendpoint>`* errorcode :target:`openEndpoint<doxid-function_io_usbinterface_openendpoint>`(
+			:ref:`uint8_t<doxid-typedef_uint8_t>` endpointId,
+			bool isSuspended = false
+		);
+
+		// aliases
+	
+		alias :target:`dispose<doxid-alias_io_usbinterface_dispose>` = release;
+	};

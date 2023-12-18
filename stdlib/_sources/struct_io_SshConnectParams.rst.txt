@@ -1,0 +1,35 @@
+.. include:: def.rst
+.. index:: pair: struct; io.SshConnectParams
+.. _doxid-type_io_sshconnectparams:
+
+struct io.SshConnectParams
+==========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct SshConnectParams {
+		// fields
+	
+		:ref:`io.SocketAddress<doxid-type_io_socketaddress>` :target:`m_address<doxid-struct_member_io_sshconnectparams_m_address>`;
+		:ref:`string_t<doxid-typedef_string_t>` :target:`m_userName<doxid-struct_member_io_sshconnectparams_m_username>`;
+		void const* :target:`m_privateKey<doxid-struct_member_io_sshconnectparams_m_privatekey>`;
+		:ref:`size_t<doxid-typedef_size_t>` :target:`m_privateKeySize<doxid-struct_member_io_sshconnectparams_m_privatekeysize>`;
+		:ref:`string_t<doxid-typedef_string_t>` :target:`m_password<doxid-struct_member_io_sshconnectparams_m_password>`;
+		:ref:`string_t<doxid-typedef_string_t>` :target:`m_channelType<doxid-struct_member_io_sshconnectparams_m_channeltype>`;
+		void const* :target:`m_channelExtra<doxid-struct_member_io_sshconnectparams_m_channelextra>`;
+		:ref:`size_t<doxid-typedef_size_t>` :target:`m_channelExtraSize<doxid-struct_member_io_sshconnectparams_m_channelextrasize>`;
+		:ref:`string_t<doxid-typedef_string_t>` :target:`m_processType<doxid-struct_member_io_sshconnectparams_m_processtype>`;
+		void const* :target:`m_processExtra<doxid-struct_member_io_sshconnectparams_m_processextra>`;
+		:ref:`size_t<doxid-typedef_size_t>` :target:`m_processExtraSize<doxid-struct_member_io_sshconnectparams_m_processextrasize>`;
+		:ref:`string_t<doxid-typedef_string_t>` :target:`m_ptyType<doxid-struct_member_io_sshconnectparams_m_ptytype>`;
+		:ref:`uint_t<doxid-typedef_uint_t>` :target:`m_ptyWidth<doxid-struct_member_io_sshconnectparams_m_ptywidth>`;
+		:ref:`uint_t<doxid-typedef_uint_t>` :target:`m_ptyHeight<doxid-struct_member_io_sshconnectparams_m_ptyheight>`;
+	};

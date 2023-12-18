@@ -1,0 +1,67 @@
+.. include:: def.rst
+.. index:: pair: enum; TypeKind
+.. _doxid-type_jnc_typekind:
+
+enum jnc.TypeKind
+=================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum TypeKind {
+	    :target:`Void<doxid-enum_member_jnc_typekind_void>`,
+	    :target:`Variant<doxid-enum_member_jnc_typekind_variant>`,
+	    :target:`Bool<doxid-enum_member_jnc_typekind_bool>`,
+	    :target:`Int8<doxid-enum_member_jnc_typekind_int8>`,
+	    :target:`Int8_u<doxid-enum_member_jnc_typekind_int8_u>`,
+	    :target:`Int16<doxid-enum_member_jnc_typekind_int16>`,
+	    :target:`Int16_u<doxid-enum_member_jnc_typekind_int16_u>`,
+	    :target:`Int32<doxid-enum_member_jnc_typekind_int32>`,
+	    :target:`Int32_u<doxid-enum_member_jnc_typekind_int32_u>`,
+	    :target:`Int64<doxid-enum_member_jnc_typekind_int64>`,
+	    :target:`Int64_u<doxid-enum_member_jnc_typekind_int64_u>`,
+	    :target:`Int16_be<doxid-enum_member_jnc_typekind_int16_be>`,
+	    :target:`Int16_ube<doxid-enum_member_jnc_typekind_int16_ube>`,
+	    :target:`Int32_be<doxid-enum_member_jnc_typekind_int32_be>`,
+	    :target:`Int32_ube<doxid-enum_member_jnc_typekind_int32_ube>`,
+	    :target:`Int64_be<doxid-enum_member_jnc_typekind_int64_be>`,
+	    :target:`Int64_ube<doxid-enum_member_jnc_typekind_int64_ube>`,
+	    :target:`Float<doxid-enum_member_jnc_typekind_float>`,
+	    :target:`Double<doxid-enum_member_jnc_typekind_double>`,
+	    :target:`Array<doxid-enum_member_jnc_typekind_array>`,
+	    :target:`BitField<doxid-enum_member_jnc_typekind_bitfield>`,
+	    :target:`Enum<doxid-enum_member_jnc_typekind_enum>`,
+	    :target:`Struct<doxid-enum_member_jnc_typekind_struct>`,
+	    :target:`Union<doxid-enum_member_jnc_typekind_union>`,
+	    :target:`Class<doxid-enum_member_jnc_typekind_class>`,
+	    :target:`Function<doxid-enum_member_jnc_typekind_function>`,
+	    :target:`Property<doxid-enum_member_jnc_typekind_property>`,
+	    :target:`DataPtr<doxid-enum_member_jnc_typekind_dataptr>`,
+	    :target:`DataRef<doxid-enum_member_jnc_typekind_dataref>`,
+	    :target:`ClassPtr<doxid-enum_member_jnc_typekind_classptr>`,
+	    :target:`ClassRef<doxid-enum_member_jnc_typekind_classref>`,
+	    :target:`FunctionPtr<doxid-enum_member_jnc_typekind_functionptr>`,
+	    :target:`FunctionRef<doxid-enum_member_jnc_typekind_functionref>`,
+	    :target:`PropertyPtr<doxid-enum_member_jnc_typekind_propertyptr>`,
+	    :target:`PropertyRef<doxid-enum_member_jnc_typekind_propertyref>`,
+	    :target:`NamedImport<doxid-enum_member_jnc_typekind_namedimport>`,
+	    :target:`ImportPtr<doxid-enum_member_jnc_typekind_importptr>`,
+	    :target:`ImportIntMod<doxid-enum_member_jnc_typekind_importintmod>`,
+	    :target:`TypedefShadow<doxid-enum_member_jnc_typekind_typedefshadow>`,
+	    :target:`Int<doxid-enum_member_jnc_typekind_int>`           = Int32,
+	    :target:`Int_u<doxid-enum_member_jnc_typekind_int_u>`         = Int32_u,
+	    :target:`Char<doxid-enum_member_jnc_typekind_char>`          = Int8,
+	    :target:`Char_u<doxid-enum_member_jnc_typekind_char_u>`        = Int8_u,
+	    :target:`Byte<doxid-enum_member_jnc_typekind_byte>`          = Int8_u,
+	    :target:`Short<doxid-enum_member_jnc_typekind_short>`         = Int16,
+	    :target:`Short_u<doxid-enum_member_jnc_typekind_short_u>`       = Int16_u,
+	    :target:`Word<doxid-enum_member_jnc_typekind_word>`          = Int16_u,
+	    :target:`Long<doxid-enum_member_jnc_typekind_long>`          = Int64,
+	    :target:`Long_u<doxid-enum_member_jnc_typekind_long_u>`        = Int64_u,
+	    :target:`DWord<doxid-enum_member_jnc_typekind_dword>`         = Int32_u,
+	    :target:`QWord<doxid-enum_member_jnc_typekind_qword>`         = Int64_u,
+	};
+

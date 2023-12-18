@@ -1,0 +1,143 @@
+.. index:: pair: group; Base-def
+.. _doxid-group__base-def:
+
+Base-def
+========
+
+.. toctree::
+	:hidden:
+
+Overview
+~~~~~~~~
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	// macros
+
+	#define :ref:`JNC_PTR_BITS<doxid-group__base-def_1ga09b7be7064265680ef9968c3a0daf056>`
+	#define :ref:`JNC_PTR_SIZE<doxid-group__base-def_1gac72eb674125d6c29d46168896e22231e>`
+	#define :ref:`JNC_SELECT_ANY<doxid-group__base-def_1gadf3ff658e277ca8ea2878349758bfdf5>`
+	#define :ref:`_JNC_CPP_CLANG<doxid-group__base-def_1gac3e5dd1212165d07c21cf8e42c8f2f8e>`
+	#define :ref:`_JNC_CPP_GCC<doxid-group__base-def_1gae8d48fecbd4d71ae875687a81e628207>`
+	#define :ref:`_JNC_CPP_MSC<doxid-group__base-def_1ga4941936ab80e0651d377a8fac045b79b>`
+	#define :ref:`_JNC_CPU_AMD64<doxid-group__base-def_1ga00e7d26c19d5920b1649857b7bb4270e>`
+	#define :ref:`_JNC_CPU_X86<doxid-group__base-def_1ga3f36421faf3aa1f104d2c76d9468c00d>`
+	#define :ref:`_JNC_OS_BSD<doxid-group__base-def_1gae812e575bdb2f0b5d3372adfae0c47af>`
+	#define :ref:`_JNC_OS_DARWIN<doxid-group__base-def_1gae2856681f4f608def5aeabe626ed7521>`
+	#define :ref:`_JNC_OS_LINUX<doxid-group__base-def_1gaab0f9e52f49016ad573e91a6b0912495>`
+	#define :ref:`_JNC_OS_POSIX<doxid-group__base-def_1gaad9543e0a8c46c2ea8c91d88c7b648df>`
+	#define :ref:`_JNC_OS_SOLARIS<doxid-group__base-def_1gae45670a576265b583297d9e8367308bf>`
+	#define :ref:`_JNC_OS_WIN<doxid-group__base-def_1ga9d37c94fd927cf617495e3b0809fc768>`
+
+.. _details-group__base-def:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+Macros
+------
+
+.. index:: pair: define; JNC_PTR_SIZE
+.. _doxid-group__base-def_1gac72eb674125d6c29d46168896e22231e:
+.. index:: pair: define; JNC_PTR_BITS
+.. _doxid-group__base-def_1ga09b7be7064265680ef9968c3a0daf056:
+
+.. ref-code-block:: cpp
+	:class: doxyrest-title-code-block
+
+	#define JNC_PTR_SIZE
+	#define JNC_PTR_BITS
+
+Size of data/code pointer on the current processor architecture.
+
+``JNC_PTR_SIZE`` equals ``4`` on ``JNC_CPU_X86``; equals ``8`` on ``JNC_CPU_AMD64``.
+
+``JNC_PTR_BITS`` equals ``32`` on ``JNC_CPU_X86``; equals ``64`` on ``JNC_CPU_AMD64``.
+
+.. index:: pair: define; JNC_SELECT_ANY
+.. _doxid-group__base-def_1gadf3ff658e277ca8ea2878349758bfdf5:
+
+.. ref-code-block:: cpp
+	:class: doxyrest-title-code-block
+
+	#define JNC_SELECT_ANY
+
+A compiler-independent macro used to define a (variable/constant) data inside a ``.h`` header file.
+
+.. index:: pair: define; _JNC_CPP_MSC
+.. _doxid-group__base-def_1ga4941936ab80e0651d377a8fac045b79b:
+.. index:: pair: define; _JNC_CPP_GCC
+.. _doxid-group__base-def_1gae8d48fecbd4d71ae875687a81e628207:
+.. index:: pair: define; _JNC_CPP_CLANG
+.. _doxid-group__base-def_1gac3e5dd1212165d07c21cf8e42c8f2f8e:
+
+.. ref-code-block:: cpp
+	:class: doxyrest-title-code-block
+
+	#define _JNC_CPP_MSC
+	#define _JNC_CPP_GCC
+	#define _JNC_CPP_CLANG
+
+``_JNC_CPP_MSC`` is set to ``1`` if the C/C++ compiler is **Microsoft Visual C/C++**; undefined otherwise.
+
+``_JNC_CPP_GCC`` is set to ``1`` if the C/C++ compiler is **GCC** (GNU C/C++); undefined otherwise.
+
+``_JNC_CPP_CLANG`` is set to ``1`` if the C/C++ compiler is **Clang** (LLVM/Clang); undefined otherwise.
+
+.. index:: pair: define; _JNC_CPU_X86
+.. _doxid-group__base-def_1ga3f36421faf3aa1f104d2c76d9468c00d:
+.. index:: pair: define; _JNC_CPU_AMD64
+.. _doxid-group__base-def_1ga00e7d26c19d5920b1649857b7bb4270e:
+
+.. ref-code-block:: cpp
+	:class: doxyrest-title-code-block
+
+	#define _JNC_CPU_X86
+	#define _JNC_CPU_AMD64
+
+``_JNC_CPU_X86`` is set to ``1`` if the processor architecture is **32-bit Intel x86**; undefined otherwise.
+
+``_JNC_CPU_AMD64`` is set to ``1`` if the processor architecture is **64-bit AMD64** (x64/Intel x86_64); undefined otherwise.
+
+.. index:: pair: define; _JNC_OS_WIN
+.. _doxid-group__base-def_1ga9d37c94fd927cf617495e3b0809fc768:
+.. index:: pair: define; _JNC_OS_POSIX
+.. _doxid-group__base-def_1gaad9543e0a8c46c2ea8c91d88c7b648df:
+.. index:: pair: define; _JNC_OS_LINUX
+.. _doxid-group__base-def_1gaab0f9e52f49016ad573e91a6b0912495:
+.. index:: pair: define; _JNC_OS_SOLARIS
+.. _doxid-group__base-def_1gae45670a576265b583297d9e8367308bf:
+.. index:: pair: define; _JNC_OS_BSD
+.. _doxid-group__base-def_1gae812e575bdb2f0b5d3372adfae0c47af:
+.. index:: pair: define; _JNC_OS_DARWIN
+.. _doxid-group__base-def_1gae2856681f4f608def5aeabe626ed7521:
+
+.. ref-code-block:: cpp
+	:class: doxyrest-title-code-block
+
+	#define _JNC_OS_WIN
+	#define _JNC_OS_POSIX
+	#define _JNC_OS_LINUX
+	#define _JNC_OS_SOLARIS
+	#define _JNC_OS_BSD
+	#define _JNC_OS_DARWIN
+
+``_JNC_OS_WIN``  is set to ``1`` if the target operating system is **Microsoft Windows**; undefined otherwise.
+
+``_JNC_OS_POSIX`` is set to ``1`` if the target operating system is **POSIX**-compliant (Linux/Mac OS X/BSD/etc); undefined otherwise.
+
+``_JNC_OS_LINUX``  is set to ``1`` if the target operating system is **Linux**; undefined otherwise. On Linux systems ``_JNC_OS_POSIX`` is also set to ``1``.
+
+``_JNC_OS_SOLARIS`` is set to ``1`` if the target operating system is **Oracle Solaris**; undefined otherwise. On Solaris systems ``_JNC_OS_POSIX`` is also set to ``1``.
+
+``_JNC_OS_BSD`` is set to ``1`` if the target operating system is **BSD**-family (OpenBSD/FreeBSD/Mac OS X etc); undefined otherwise. On BSD systems ``_JNC_OS_POSIX`` is also set to ``1``.
+
+``_JNC_OS_DARWIN`` is set to ``1`` if the target operating system is **Apple Darwin** (Mac OS X/iOS/etc); undefined otherwise. On Darwin systems ``_JNC_OS_POSIX`` and ``_JNC_OS_BSD`` are also set to ``1``.
+

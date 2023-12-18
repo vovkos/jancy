@@ -1,0 +1,22 @@
+.. include:: def.rst
+.. index:: pair: struct; io.win.DeviceMonitorKeyboardEventParams
+.. _doxid-type_io_win_devicemonitorkeyboardeventparams:
+
+struct io.win.DeviceMonitorKeyboardEventParams
+==============================================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct DeviceMonitorKeyboardEventParams {
+		// fields
+	
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`m_inputCount<doxid-struct_member_io_win_devicemonitorkeyboardeventparams_m_inputcount>`;
+	};

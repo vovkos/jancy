@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Global Namespace &mdash; Jancy Standard Library Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=650102ad"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+        <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="namespace io" href="namespace_io.html" />
+    <link rel="prev" title="‘errorcode’ Functions" href="errorcode.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy Standard Library Reference
+          </a>
+              <div class="version">
+                1.10
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="group_io-usbmon.html">io-usbmon</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_c-typedefs.html">Standard Typedefs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_rtl.html">RTL (Runtime Library)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_crt.html">C Runtime Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_std.html">General Purpose Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_sys.html">System Facilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_io.html">IO (Input/Output) Library</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="disposable.html">‘disposable’ Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="errorcode.html">‘errorcode’ Functions</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Global Namespace</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="namespace_io.html">namespace io</a></li>
+<li class="toctree-l2"><a class="reference internal" href="namespace_jnc.html">namespace jnc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="namespace_std.html">namespace std</a></li>
+<li class="toctree-l2"><a class="reference internal" href="namespace_sys.html">namespace sys</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy Standard Library Reference</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Global Namespace</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <span class="target" id="global"></span><section id="global-namespace">
+<span id="index-0"></span><h1>Global Namespace</h1>
+<div class="toctree-wrapper compound">
+</div>
+<pre class="highlight doxyrest-overview-code-block literal-block"><span></span><span class="c1">// namespaces</span>
+
+<span class="k">namespace</span> <a class="reference internal" href="namespace_io.html#doxid-namespace-io"><span class="std std-ref">io</span></a><span></span><span class="p">;</span>
+    <span class="k">namespace</span> <a class="reference internal" href="namespace_io_lnx.html#doxid-namespace-io-lnx"><span class="std std-ref">io.lnx</span></a><span></span><span class="p">;</span>
+    <span class="k">namespace</span> <a class="reference internal" href="namespace_io_psx.html#doxid-namespace-io-psx"><span class="std std-ref">io.psx</span></a><span></span><span class="p">;</span>
+    <span class="k">namespace</span> <a class="reference internal" href="namespace_io_win.html#doxid-namespace-io-win"><span class="std std-ref">io.win</span></a><span></span><span class="p">;</span>
+<span class="k">namespace</span> <a class="reference internal" href="namespace_jnc.html#doxid-namespace-jnc"><span class="std std-ref">jnc</span></a><span></span><span class="p">;</span>
+<span class="k">namespace</span> <a class="reference internal" href="namespace_std.html#doxid-namespace-std"><span class="std std-ref">std</span></a><span></span><span class="p">;</span>
+<span class="k">namespace</span> <a class="reference internal" href="namespace_sys.html#doxid-namespace-sys"><span class="std std-ref">sys</span></a><span></span><span class="p">;</span>
+
+<span class="c1">// typedefs</span>
+
+<span class="k">typedef</span> <a class="reference internal" href="struct_String.html#doxid-type-string"><span class="std std-ref">String</span></a><span></span> <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-string-t"><span class="std std-ref">string_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <a class="reference internal" href="struct_Variant.html#doxid-type-variant"><span class="std std-ref">Variant</span></a><span></span> <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-variant-t"><span class="std std-ref">variant_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <span class="k">long</span> <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-intptr-t"><span class="std std-ref">intptr_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <span class="k">unsigned</span> <span class="k">long</span> <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-uintptr-t"><span class="std std-ref">uintptr_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <span class="k">unsigned</span> <span class="k">long</span> <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <span class="k">char</span> <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-int8-t"><span class="std std-ref">int8_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <span class="k">char</span> <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-utf8-t"><span class="std std-ref">utf8_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <span class="k">unsigned</span> <span class="k">char</span> <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-uint8-t"><span class="std std-ref">uint8_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <span class="k">unsigned</span> <span class="k">char</span> <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-uchar-t"><span class="std std-ref">uchar_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <span class="k">unsigned</span> <span class="k">char</span> <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-byte-t"><span class="std std-ref">byte_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <span class="k">short</span> <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-int16-t"><span class="std std-ref">int16_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <span class="k">short</span> <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-utf16-t"><span class="std std-ref">utf16_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <span class="k">unsigned</span> <span class="k">short</span> <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-uint16-t"><span class="std std-ref">uint16_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <span class="k">unsigned</span> <span class="k">short</span> <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-ushort-t"><span class="std std-ref">ushort_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <span class="k">unsigned</span> <span class="k">short</span> <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-word-t"><span class="std std-ref">word_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <span class="k">int</span> <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-int32-t"><span class="std std-ref">int32_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <span class="k">int</span> <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-utf32-t"><span class="std std-ref">utf32_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <span class="k">unsigned</span> <span class="k">int</span> <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-uint32-t"><span class="std std-ref">uint32_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <span class="k">unsigned</span> <span class="k">int</span> <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-uint-t"><span class="std std-ref">uint_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <span class="k">unsigned</span> <span class="k">int</span> <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-dword-t"><span class="std std-ref">dword_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <span class="k">long</span> <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-int64-t"><span class="std std-ref">int64_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <span class="k">unsigned</span> <span class="k">long</span> <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-uint64-t"><span class="std std-ref">uint64_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <span class="k">unsigned</span> <span class="k">long</span> <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-ulong-t"><span class="std std-ref">ulong_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <span class="k">unsigned</span> <span class="k">long</span> <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-qword-t"><span class="std std-ref">qword_t</span></a><span></span><span class="p">;</span>
+
+<span class="c1">// structs</span>
+
+<span class="k">struct</span> <a class="reference internal" href="struct_String.html#doxid-type-string"><span class="std std-ref">String</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_Variant.html#doxid-type-variant"><span class="std std-ref">Variant</span></a><span></span><span class="p">;</span>
+
+<span class="c1">// global functions</span>
+
+<a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span> <a class="reference internal" href="group_crt.html#doxid-function-strlen"><span class="std std-ref">strlen</span></a><span></span><span class="p">(</span><span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p</span><span class="p">);</span>
+
+<span class="k">int</span> <a class="reference internal" href="group_crt.html#doxid-function-strcmp"><span class="std std-ref">strcmp</span></a><span></span><span class="p">(</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p1</span><span class="p">,</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p2</span>
+<span class="p">);</span>
+
+<span class="k">int</span> <span class="doxyrest-code-target target" id="doxid-function-strncmp"><span></span><span class="n">strncmp</span></span><span></span><span class="p">(</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p1</span><span class="p">,</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p2</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">length</span>
+<span class="p">);</span>
+
+<span class="k">int</span> <a class="reference internal" href="group_crt.html#doxid-function-stricmp"><span class="std std-ref">stricmp</span></a><span></span><span class="p">(</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p1</span><span class="p">,</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p2</span>
+<span class="p">);</span>
+
+<span class="k">int</span> <span class="doxyrest-code-target target" id="doxid-function-strnicmp"><span></span><span class="n">strnicmp</span></span><span></span><span class="p">(</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p1</span><span class="p">,</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p2</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">length</span>
+<span class="p">);</span>
+
+<span class="k">bool</span> <a class="reference internal" href="group_crt.html#doxid-function-streq"><span class="std std-ref">streq</span></a><span></span><span class="p">(</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p1</span><span class="p">,</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p2</span>
+<span class="p">);</span>
+
+<span class="k">bool</span> <span class="doxyrest-code-target target" id="doxid-function-strneq"><span></span><span class="n">strneq</span></span><span></span><span class="p">(</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p1</span><span class="p">,</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p2</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">length</span>
+<span class="p">);</span>
+
+<span class="k">bool</span> <a class="reference internal" href="group_crt.html#doxid-function-strieq"><span class="std std-ref">strieq</span></a><span></span><span class="p">(</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p1</span><span class="p">,</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p2</span>
+<span class="p">);</span>
+
+<span class="k">bool</span> <span class="doxyrest-code-target target" id="doxid-function-strnieq"><span></span><span class="n">strnieq</span></span><span></span><span class="p">(</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p1</span><span class="p">,</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p2</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">length</span>
+<span class="p">);</span>
+
+<span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-function-strchr"><span></span><span class="n">strchr</span></span><span></span><span class="p">(</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <span class="k">char</span> <span class="n">c</span>
+<span class="p">);</span>
+
+<span class="k">char</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-function-strchr-2"><span></span><span class="n">strchr</span></span><span></span><span class="p">(</span>
+    <span class="k">char</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <span class="k">char</span> <span class="n">c</span>
+<span class="p">);</span>
+
+<span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-function-strrchr"><span></span><span class="n">strrchr</span></span><span></span><span class="p">(</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <span class="k">char</span> <span class="n">c</span>
+<span class="p">);</span>
+
+<span class="k">char</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-function-strrchr-2"><span></span><span class="n">strrchr</span></span><span></span><span class="p">(</span>
+    <span class="k">char</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <span class="k">char</span> <span class="n">c</span>
+<span class="p">);</span>
+
+<span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-function-strichr"><span></span><span class="n">strichr</span></span><span></span><span class="p">(</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <span class="k">char</span> <span class="n">c</span>
+<span class="p">);</span>
+
+<span class="k">char</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-function-strichr-2"><span></span><span class="n">strichr</span></span><span></span><span class="p">(</span>
+    <span class="k">char</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <span class="k">char</span> <span class="n">c</span>
+<span class="p">);</span>
+
+<span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-function-strpbrk"><span></span><span class="n">strpbrk</span></span><span></span><span class="p">(</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p1</span><span class="p">,</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p2</span>
+<span class="p">);</span>
+
+<span class="k">char</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-function-strpbrk-2"><span></span><span class="n">strpbrk</span></span><span></span><span class="p">(</span>
+    <span class="k">char</span><span class="o">*</span> <span class="n">p1</span><span class="p">,</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p2</span>
+<span class="p">);</span>
+
+<span class="k">char</span> <span class="k">const</span><span class="o">*</span> <a class="reference internal" href="group_crt.html#doxid-function-strstr"><span class="std std-ref">strstr</span></a><span></span><span class="p">(</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p1</span><span class="p">,</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p2</span>
+<span class="p">);</span>
+
+<span class="k">char</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-function-strstr-2"><span></span><span class="n">strstr</span></span><span></span><span class="p">(</span>
+    <span class="k">char</span><span class="o">*</span> <span class="n">p1</span><span class="p">,</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p2</span>
+<span class="p">);</span>
+
+<span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-function-stristr"><span></span><span class="n">stristr</span></span><span></span><span class="p">(</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p1</span><span class="p">,</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p2</span>
+<span class="p">);</span>
+
+<span class="k">char</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-function-stristr-2"><span></span><span class="n">stristr</span></span><span></span><span class="p">(</span>
+    <span class="k">char</span><span class="o">*</span> <span class="n">p1</span><span class="p">,</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p2</span>
+<span class="p">);</span>
+
+<span class="k">void</span> <a class="reference internal" href="group_crt.html#doxid-function-strcpy"><span class="std std-ref">strcpy</span></a><span></span><span class="p">(</span>
+    <span class="k">char</span><span class="o">*</span> <span class="n">dst</span><span class="p">,</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">src</span>
+<span class="p">);</span>
+
+<span class="k">char</span><span class="o">*</span> <a class="reference internal" href="group_crt.html#doxid-function-strcat"><span class="std std-ref">strcat</span></a><span></span><span class="p">(</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p1</span><span class="p">,</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p2</span>
+<span class="p">);</span>
+
+<span class="k">char</span><span class="o">*</span> <a class="reference internal" href="group_crt.html#doxid-function-strdup"><span class="std std-ref">strdup</span></a><span></span><span class="p">(</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">length</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="p">);</span>
+
+<a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span> <a class="reference internal" href="group_crt.html#doxid-function-strdjb2"><span class="std std-ref">strdjb2</span></a><span></span><span class="p">(</span><span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p</span><span class="p">);</span>
+<a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span> <a class="reference internal" href="group_crt.html#doxid-function-stridjb2"><span class="std std-ref">stridjb2</span></a><span></span><span class="p">(</span><span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p</span><span class="p">);</span>
+
+<span class="k">int</span> <a class="reference internal" href="group_crt.html#doxid-function-memcmp"><span class="std std-ref">memcmp</span></a><span></span><span class="p">(</span>
+    <span class="k">void</span> <span class="k">const</span><span class="o">*</span> <span class="n">p1</span><span class="p">,</span>
+    <span class="k">void</span> <span class="k">const</span><span class="o">*</span> <span class="n">p2</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">size</span>
+<span class="p">);</span>
+
+<span class="k">void</span> <span class="k">const</span><span class="o">*</span> <a class="reference internal" href="group_crt.html#doxid-function-memchr"><span class="std std-ref">memchr</span></a><span></span><span class="p">(</span>
+    <span class="k">void</span> <span class="k">const</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <span class="k">int</span> <span class="n">c</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">size</span>
+<span class="p">);</span>
+
+<span class="k">void</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-function-memchr-2"><span></span><span class="n">memchr</span></span><span></span><span class="p">(</span>
+    <span class="k">void</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <span class="k">int</span> <span class="n">c</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">size</span>
+<span class="p">);</span>
+
+<span class="k">void</span> <span class="k">const</span><span class="o">*</span> <a class="reference internal" href="group_crt.html#doxid-function-memmem"><span class="std std-ref">memmem</span></a><span></span><span class="p">(</span>
+    <span class="k">void</span> <span class="k">const</span><span class="o">*</span> <span class="n">p1</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">size1</span><span class="p">,</span>
+    <span class="k">void</span> <span class="k">const</span><span class="o">*</span> <span class="n">p2</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">size2</span>
+<span class="p">);</span>
+
+<span class="k">void</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-function-memmem-2"><span></span><span class="n">memmem</span></span><span></span><span class="p">(</span>
+    <span class="k">void</span><span class="o">*</span> <span class="n">p1</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">size1</span><span class="p">,</span>
+    <span class="k">void</span> <span class="k">const</span><span class="o">*</span> <span class="n">p2</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">size2</span>
+<span class="p">);</span>
+
+<span class="k">void</span> <a class="reference internal" href="group_crt.html#doxid-function-memcpy"><span class="std std-ref">memcpy</span></a><span></span><span class="p">(</span>
+    <span class="k">void</span><span class="o">*</span> <span class="n">dst</span><span class="p">,</span>
+    <span class="k">void</span> <span class="k">const</span><span class="o">*</span> <span class="n">src</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">size</span>
+<span class="p">);</span>
+
+<span class="k">void</span> <a class="reference internal" href="group_crt.html#doxid-function-memmove"><span class="std std-ref">memmove</span></a><span></span><span class="p">(</span>
+    <span class="k">void</span><span class="o">*</span> <span class="n">dst</span><span class="p">,</span>
+    <span class="k">void</span> <span class="k">const</span><span class="o">*</span> <span class="n">src</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">size</span>
+<span class="p">);</span>
+
+<span class="k">void</span> <a class="reference internal" href="group_crt.html#doxid-function-memset"><span class="std std-ref">memset</span></a><span></span><span class="p">(</span>
+    <span class="k">void</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <span class="k">int</span> <span class="n">c</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">size</span>
+<span class="p">);</span>
+
+<span class="k">void</span><span class="o">*</span> <a class="reference internal" href="group_crt.html#doxid-function-memcat"><span class="std std-ref">memcat</span></a><span></span><span class="p">(</span>
+    <span class="k">void</span> <span class="k">const</span><span class="o">*</span> <span class="n">p1</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">size1</span><span class="p">,</span>
+    <span class="k">void</span> <span class="k">const</span><span class="o">*</span> <span class="n">p2</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">size2</span>
+<span class="p">);</span>
+
+<span class="k">void</span><span class="o">*</span> <a class="reference internal" href="group_crt.html#doxid-function-memdup"><span class="std std-ref">memdup</span></a><span></span><span class="p">(</span>
+    <span class="k">void</span> <span class="k">const</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">size</span>
+<span class="p">);</span>
+
+<a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span> <a class="reference internal" href="group_crt.html#doxid-function-memdjb2"><span class="std std-ref">memdjb2</span></a><span></span><span class="p">(</span>
+    <span class="k">void</span> <span class="k">const</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">size</span>
+<span class="p">);</span>
+
+<span class="k">int</span> <a class="reference internal" href="group_crt.html#doxid-function-rand"><span class="std std-ref">rand</span></a><span></span><span class="p">();</span>
+<a class="reference internal" href="group_c-typedefs.html#doxid-typedef-uint32-t"><span class="std std-ref">uint32_t</span></a><span></span> <a class="reference internal" href="group_crt.html#doxid-function-toupper"><span class="std std-ref">toupper</span></a><span></span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedef-uint32-t"><span class="std std-ref">uint32_t</span></a><span></span> <span class="n">c</span><span class="p">);</span>
+<a class="reference internal" href="group_c-typedefs.html#doxid-typedef-uint32-t"><span class="std std-ref">uint32_t</span></a><span></span> <a class="reference internal" href="group_crt.html#doxid-function-tolower"><span class="std std-ref">tolower</span></a><span></span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedef-uint32-t"><span class="std std-ref">uint32_t</span></a><span></span> <span class="n">c</span><span class="p">);</span>
+<span class="k">int</span> <a class="reference internal" href="group_crt.html#doxid-function-atoi"><span class="std std-ref">atoi</span></a><span></span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedef-string-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">s</span><span class="p">);</span>
+<span class="k">long</span> <a class="reference internal" href="group_crt.html#doxid-function-atol"><span class="std std-ref">atol</span></a><span></span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedef-string-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">s</span><span class="p">);</span>
+
+<span class="k">long</span> <a class="reference internal" href="group_crt.html#doxid-function-strtol"><span class="std std-ref">strtol</span></a><span></span><span class="p">(</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-string-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">s</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span><span class="o">*</span> <span class="n">length</span> <span class="o">=</span> <span class="k">null</span><span class="p">,</span>
+    <span class="k">int</span> <span class="n">radix</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="p">);</span>
+
+<span class="k">long</span> <a class="reference internal" href="group_crt.html#doxid-function-strtol-2"><span class="std std-ref">strtol</span></a><span></span><span class="p">(</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">**</span> <span class="n">end</span> <span class="o">=</span> <span class="k">null</span><span class="p">,</span>
+    <span class="k">int</span> <span class="n">radix</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="p">);</span>
+
+<a class="reference internal" href="group_c-typedefs.html#doxid-typedef-ulong-t"><span class="std std-ref">ulong_t</span></a><span></span> <a class="reference internal" href="group_crt.html#doxid-function-strtoul"><span class="std std-ref">strtoul</span></a><span></span><span class="p">(</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-string-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">s</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span><span class="o">*</span> <span class="n">length</span> <span class="o">=</span> <span class="k">null</span><span class="p">,</span>
+    <span class="k">int</span> <span class="n">radix</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="p">);</span>
+
+<a class="reference internal" href="group_c-typedefs.html#doxid-typedef-ulong-t"><span class="std std-ref">ulong_t</span></a><span></span> <a class="reference internal" href="group_crt.html#doxid-function-strtoul-2"><span class="std std-ref">strtoul</span></a><span></span><span class="p">(</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <span class="k">char</span> <span class="k">const</span><span class="o">**</span> <span class="n">end</span> <span class="o">=</span> <span class="k">null</span><span class="p">,</span>
+    <span class="k">int</span> <span class="n">radix</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="p">);</span>
+
+<span class="k">char</span><span class="o">*</span> <a class="reference internal" href="group_crt.html#doxid-function-gets"><span class="std std-ref">gets</span></a><span></span><span class="p">();</span>
+<a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span> <a class="reference internal" href="group_crt.html#doxid-function-print"><span class="std std-ref">print</span></a><span></span><span class="p">(</span><span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">text</span><span class="p">);</span>
+<a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span> <span class="doxyrest-code-target target" id="doxid-function-print-u"><span></span><span class="n">print_u</span></span><span></span><span class="p">(</span><span class="k">char</span> <span class="k">const</span> <span class="k">thin</span><span class="o">*</span> <span class="n">text</span><span class="p">);</span>
+<a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span> <a class="reference internal" href="group_crt.html#doxid-function-perror"><span class="std std-ref">perror</span></a><span></span><span class="p">(</span><span class="k">char</span> <span class="k">const</span><span class="o">*</span> <span class="n">text</span><span class="p">);</span>
+
+<a class="reference internal" href="group_c-typedefs.html#doxid-typedef-intptr-t"><span class="std std-ref">intptr_t</span></a><span></span> <span class="k">cdecl</span> <a class="reference internal" href="group_crt.html#doxid-function-printf"><span class="std std-ref">printf</span></a><span></span><span class="p">(</span>
+    <span class="k">char</span> <span class="k">const</span> <span class="k">thin</span><span class="o">*</span> <span class="n">fmtSpecifier</span><span class="p">,</span>
+    <span class="p">...</span>
+<span class="p">);</span></pre>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="errorcode.html" class="btn btn-neutral float-left" title="‘errorcode’ Functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="namespace_io.html" class="btn btn-neutral float-right" title="namespace io" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2023, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,40 @@
+.. include:: def.rst
+.. index:: pair: struct; io.UsbDeviceEntry
+.. _doxid-type_io_usbdeviceentry:
+
+struct io.UsbDeviceEntry
+========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct UsbDeviceEntry: :ref:`io.UsbDeviceStrings<doxid-type_io_usbdevicestrings>` {
+		// fields
+	
+		io.UsbDeviceEntry const* :target:`m_next<doxid-struct_member_io_usbdeviceentry_m_next>`;
+		:ref:`io.UsbDevice<doxid-type_io_usbdevice>`* :target:`m_device<doxid-struct_member_io_usbdeviceentry_m_device>`;
+	};
+
+Inherited Members
+-----------------
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-inherited-code-block
+
+	public:
+		// fields
+	
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`m_description<doxid-struct_member_io_usbdevicestrings_m_description>`;
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`m_manufacturer<doxid-struct_member_io_usbdevicestrings_m_manufacturer>`;
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`m_driver<doxid-struct_member_io_usbdevicestrings_m_driver>`;
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`m_manufacturerDescriptor<doxid-struct_member_io_usbdevicestrings_m_manufacturerdescriptor>`;
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`m_productDescriptor<doxid-struct_member_io_usbdevicestrings_m_productdescriptor>`;
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`m_serialNumberDescriptor<doxid-struct_member_io_usbdevicestrings_m_serialnumberdescriptor>`;
+

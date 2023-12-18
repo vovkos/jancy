@@ -1,0 +1,26 @@
+.. include:: def.rst
+.. index:: pair: enum; PcapLinkType
+.. _doxid-type_io_pcaplinktype:
+
+enum io.PcapLinkType
+====================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum PcapLinkType {
+	    :target:`Loopback<doxid-enum_member_io_pcaplinktype_loopback>`    = 0,
+	    :target:`Ethernet<doxid-enum_member_io_pcaplinktype_ethernet>`    = 1,
+	    :target:`TokenRing<doxid-enum_member_io_pcaplinktype_tokenring>`   = 6,
+	    :target:`Arcnet<doxid-enum_member_io_pcaplinktype_arcnet>`      = 7,
+	    :target:`Slip<doxid-enum_member_io_pcaplinktype_slip>`        = 8,
+	    :target:`Ppp<doxid-enum_member_io_pcaplinktype_ppp>`         = 9,
+	    :target:`Fddi<doxid-enum_member_io_pcaplinktype_fddi>`        = 10,
+	    :target:`PppSerial<doxid-enum_member_io_pcaplinktype_pppserial>`   = 50,
+	    :target:`PppEthernet<doxid-enum_member_io_pcaplinktype_pppethernet>` = 51,
+	    :target:`Ieeee80211<doxid-enum_member_io_pcaplinktype_ieeee80211>`  = 105,
+	};
+

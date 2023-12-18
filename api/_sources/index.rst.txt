@@ -1,0 +1,22 @@
+.. include:: intro.rst
+
+.. toctree::
+	:hidden:
+
+	group_base-def.rst
+
+.. rubric:: Further Reading:
+
+|	:ref:`Base-def<doxid-group__base-def>`
+
+
+.. rubric:: Reference and Index:
+
+.. toctree::
+	:hidden:
+
+	global.rst
+
+|	:doc:`global`
+|	:ref:`genindex`
+

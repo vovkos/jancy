@@ -1,0 +1,130 @@
+.. include:: def.rst
+.. index:: pair: namespace; jnc
+.. _doxid-namespace_jnc:
+
+namespace jnc
+=============
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	namespace jnc {
+
+	// enums
+
+	enum {
+	    :target:`RegexEofChar<doxid-enum_member_enum_7_regexeofchar>` = 256,
+	};
+
+	enum :ref:`AccessKind<doxid-type_jnc_accesskind>`;
+	enum :ref:`BinOpKind<doxid-type_jnc_binopkind>`;
+	enum :ref:`ClassPtrTypeKind<doxid-type_jnc_classptrtypekind>`;
+	bitflag enum :ref:`ClassTypeFlags<doxid-type_jnc_classtypeflags>`;
+	enum :ref:`ClassTypeKind<doxid-type_jnc_classtypekind>`;
+	enum :ref:`DataPtrTypeKind<doxid-type_jnc_dataptrtypekind>`;
+	bitflag enum :ref:`EnumTypeFlags<doxid-type_jnc_enumtypeflags>`;
+	enum :ref:`FunctionKind<doxid-type_jnc_functionkind>`;
+	bitflag enum :ref:`FunctionKindFlags<doxid-type_jnc_functionkindflags>`;
+	enum :ref:`FunctionPtrTypeKind<doxid-type_jnc_functionptrtypekind>`;
+	bitflag enum :ref:`FunctionTypeFlags<doxid-type_jnc_functiontypeflags>`;
+	bitflag enum :ref:`ModuleCompileFlags<doxid-type_jnc_modulecompileflags>`;
+	enum :ref:`ModuleCompileState<doxid-type_jnc_modulecompilestate>`;
+	bitflag enum :ref:`ModuleItemFlags<doxid-type_jnc_moduleitemflags>`;
+	enum :ref:`ModuleItemKind<doxid-type_jnc_moduleitemkind>`;
+	enum :ref:`NamespaceKind<doxid-type_jnc_namespacekind>`;
+	bitflag enum :ref:`PropertyFlag<doxid-type_jnc_propertyflag>`;
+	enum :ref:`PropertyKind<doxid-type_jnc_propertykind>`;
+	enum :ref:`PropertyPtrTypeKind<doxid-type_jnc_propertyptrtypekind>`;
+	bitflag enum :ref:`PropertyTypeFlags<doxid-type_jnc_propertytypeflags>`;
+	bitflag enum :ref:`PtrTypeFlags<doxid-type_jnc_ptrtypeflags>`;
+	bitflag enum :ref:`RegexExecFlags<doxid-type_jnc_regexexecflags>`;
+	enum :ref:`RegexExecResult<doxid-type_jnc_regexexecresult>`;
+	bitflag enum :ref:`RegexFlags<doxid-type_jnc_regexflags>`;
+	enum :ref:`RegexKind<doxid-type_jnc_regexkind>`;
+	enum :ref:`StorageKind<doxid-type_jnc_storagekind>`;
+	enum :ref:`StructTypeKind<doxid-type_jnc_structtypekind>`;
+	bitflag enum :ref:`TypeFlags<doxid-type_jnc_typeflags>`;
+	enum :ref:`TypeKind<doxid-type_jnc_typekind>`;
+	bitflag enum :ref:`TypeKindFlags<doxid-type_jnc_typekindflags>`;
+	enum :ref:`UnOpKind<doxid-type_jnc_unopkind>`;
+
+	// structs
+
+	struct :ref:`GcStats<doxid-type_jnc_gcstats>`;
+	struct :ref:`GcTriggers<doxid-type_jnc_gctriggers>`;
+
+	// classes
+
+	class :ref:`Alias<doxid-type_jnc_alias>`;
+	class :ref:`ArrayType<doxid-type_jnc_arraytype>`;
+	class :ref:`Attribute<doxid-type_jnc_attribute>`;
+	class :ref:`AttributeBlock<doxid-type_jnc_attributeblock>`;
+	class :ref:`BaseTypeSlot<doxid-type_jnc_basetypeslot>`;
+	class :ref:`BitFieldType<doxid-type_jnc_bitfieldtype>`;
+	class :ref:`ClassPtrType<doxid-type_jnc_classptrtype>`;
+	class :ref:`ClassType<doxid-type_jnc_classtype>`;
+	class :ref:`Const<doxid-type_jnc_const>`;
+	class :ref:`DataPtrType<doxid-type_jnc_dataptrtype>`;
+	class :ref:`DerivableType<doxid-type_jnc_derivabletype>`;
+	class :ref:`DynamicLib<doxid-type_jnc_dynamiclib>`;
+	class :ref:`EnumConst<doxid-type_jnc_enumconst>`;
+	class :ref:`EnumType<doxid-type_jnc_enumtype>`;
+	class :ref:`Field<doxid-type_jnc_field>`;
+	class :ref:`Function<doxid-type_jnc_function>`;
+	class :ref:`FunctionArg<doxid-type_jnc_functionarg>`;
+	class :ref:`FunctionOverload<doxid-type_jnc_functionoverload>`;
+	class :ref:`FunctionPtrType<doxid-type_jnc_functionptrtype>`;
+	class :ref:`FunctionType<doxid-type_jnc_functiontype>`;
+	class :ref:`GlobalNamespace<doxid-type_jnc_globalnamespace>`;
+	class :ref:`MemberBlock<doxid-type_jnc_memberblock>`;
+	class :ref:`Module<doxid-type_jnc_module>`;
+	class :ref:`ModuleItem<doxid-type_jnc_moduleitem>`;
+	class :ref:`ModuleItemDecl<doxid-type_jnc_moduleitemdecl>`;
+	class :ref:`ModuleItemInitializer<doxid-type_jnc_moduleiteminitializer>`;
+	class :ref:`NamedType<doxid-type_jnc_namedtype>`;
+	class :ref:`Namespace<doxid-type_jnc_namespace>`;
+	class :ref:`Promise<doxid-type_jnc_promise>`;
+	class :ref:`Promisifier<doxid-type_jnc_promisifier>`;
+	class :ref:`Property<doxid-type_jnc_property>`;
+	class :ref:`PropertyPtrType<doxid-type_jnc_propertyptrtype>`;
+	class :ref:`PropertyType<doxid-type_jnc_propertytype>`;
+	class :ref:`Regex<doxid-type_jnc_regex>`;
+	class :ref:`RegexCapture<doxid-type_jnc_regexcapture>`;
+	class :ref:`RegexMatch<doxid-type_jnc_regexmatch>`;
+	class :ref:`RegexState<doxid-type_jnc_regexstate>`;
+	class :ref:`Scheduler<doxid-type_jnc_scheduler>`;
+	class :ref:`StructType<doxid-type_jnc_structtype>`;
+	class :ref:`Type<doxid-type_jnc_type>`;
+	class :ref:`Typedef<doxid-type_jnc_typedef>`;
+	class :ref:`UnionType<doxid-type_jnc_uniontype>`;
+	class :ref:`Unit<doxid-type_jnc_unit>`;
+	class :ref:`Variable<doxid-type_jnc_variable>`;
+
+	// properties
+
+	:ref:`jnc.GcTriggers<doxid-type_jnc_gctriggers>` property :target:`g_gcTriggers<doxid-property_jnc_g_gctriggers>`;
+
+	// global functions
+
+	void* :target:`createDataPtr<doxid-function_jnc_createdataptr>`(
+		void thin* p,
+		:ref:`size_t<doxid-typedef_size_t>` length = -1
+	);
+
+	void const* :target:`createDataPtr<doxid-function_jnc_createdataptr_2>`(
+		void const thin* p,
+		:ref:`size_t<doxid-typedef_size_t>` length = -1
+	);
+
+	void :ref:`resetDynamicLayout<doxid-function_jnc_resetdynamiclayout>`(void const* p);
+	:ref:`jnc.GcStats<doxid-type_jnc_gcstats>` :target:`getGcStats<doxid-function_jnc_getgcstats>`();
+	void :ref:`collectGarbage<doxid-function_jnc_collectgarbage>`();
+
+	} // namespace jnc

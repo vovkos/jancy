@@ -1,0 +1,38 @@
+.. include:: def.rst
+.. index:: pair: group; io-usbmon
+.. _doxid-group_io_usbmon:
+
+io-usbmon
+=========
+
+.. toctree::
+	:hidden:
+
+	enum_io_UsbEnumFlags.rst
+	struct_io_UsbDeviceEntry.rst
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	// enums
+
+	bitflag enum :ref:`io.UsbEnumFlags<doxid-type_io_usbenumflags>`;
+
+	// structs
+
+	struct :ref:`io.UsbDeviceEntry<doxid-type_io_usbdeviceentry>`;
+
+	// global functions
+
+	:ref:`io.UsbDeviceEntry<doxid-type_io_usbdeviceentry>` const* :target:`io.enumerateUsbDevices<doxid-function_io_enumerateusbdevices>`(
+		:ref:`io.UsbEnumFlags<doxid-type_io_usbenumflags>` flags,
+		:ref:`size_t<doxid-typedef_size_t>`* count = null
+	);
+
+	:ref:`io.UsbDeviceEntry<doxid-type_io_usbdeviceentry>` const* :target:`io.enumerateUsbDevices<doxid-function_io_enumerateusbdevices_2>`(:ref:`size_t<doxid-typedef_size_t>`* count = null);
+	:ref:`io.UsbDevice<doxid-type_io_usbdevice>`* const* errorcode :target:`io.enumerateUsbDevicesNoDesc<doxid-function_io_enumerateusbdevicesnodesc>`(:ref:`size_t<doxid-typedef_size_t>`* count = null);
+

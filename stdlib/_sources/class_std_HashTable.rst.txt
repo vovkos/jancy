@@ -1,0 +1,192 @@
+.. include:: def.rst
+.. index:: pair: class; std.HashTable
+.. _doxid-type_std_hashtable:
+
+class std.HashTable
+===================
+
+.. toctree::
+	:hidden:
+
+Overview
+~~~~~~~~
+
+This class provides a hash-table-based mapping from ``variant_t``-s to
+``variant_t``-s. :ref:`More...<details-type_std_hashtable>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "std_HashTable.jnc"
+	
+	class HashTable {
+		// fields
+	
+		:ref:`std.MapEntry<doxid-type_std_mapentry>` cmut* readonly :target:`m_head<doxid-struct_member_std_hashtable_m_head>`;
+		:ref:`std.MapEntry<doxid-type_std_mapentry>` cmut* readonly :target:`m_tail<doxid-struct_member_std_hashtable_m_tail>`;
+		:ref:`size_t<doxid-typedef_size_t>` readonly :target:`m_count<doxid-struct_member_std_hashtable_m_count>`;
+
+		// properties
+	
+		bool const property :ref:`m_isEmpty<doxid-property_std_hashtable_m_isempty>`;
+
+		// construction
+	
+		:target:`construct<doxid-function_std_hashtable_construct>`(
+			:ref:`std.HashFunc<doxid-typedef_std_hashfunc>` thin* hashFunc = null,
+			:ref:`std.IsEqualFunc<doxid-typedef_std_isequalfunc>` thin* isEqualFunc = null
+		);
+		:target:`destruct<doxid-function_std_hashtable_destruct>`();
+
+		// methods
+	
+		void :ref:`clear<doxid-function_std_hashtable_clear>`();
+		:ref:`std.MapEntry<doxid-type_std_mapentry>`* errorcode :target:`visit<doxid-function_std_hashtable_visit>`(:ref:`variant_t<doxid-typedef_variant_t>` key);
+		:ref:`std.MapEntry<doxid-type_std_mapentry>` cmut* :ref:`find<doxid-function_std_hashtable_find>`(:ref:`variant_t<doxid-typedef_variant_t>` key) const;
+	
+		:ref:`variant_t<doxid-typedef_variant_t>` :ref:`findValue<doxid-function_std_hashtable_findvalue>`(
+			:ref:`variant_t<doxid-typedef_variant_t>` key,
+			:ref:`variant_t<doxid-typedef_variant_t>` undefinedValue = null
+		) const;
+	
+		:ref:`std.MapEntry<doxid-type_std_mapentry>`* errorcode :ref:`add<doxid-function_std_hashtable_add>`(
+			:ref:`variant_t<doxid-typedef_variant_t>` key,
+			:ref:`variant_t<doxid-typedef_variant_t>` value
+		);
+	
+		void :target:`remove<doxid-function_std_hashtable_remove>`(:ref:`std.MapEntry<doxid-type_std_mapentry>`* entry);
+		bool :ref:`removeKey<doxid-function_std_hashtable_removekey>`(:ref:`variant_t<doxid-typedef_variant_t>` key);
+	};
+.. _details-type_std_hashtable:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This class provides a hash-table-based mapping from ``variant_t``-s to
+``variant_t``-s.
+
+``std.HashTable`` stores ``(key; value)`` pairs and provides fast lookup of
+the ``value`` associated with a ``key``.
+
+A typical sequence of steps when working with a hash table usually looks
+like this:
+
+* Add ``(key; value)`` pairs using ``add`` method(or by accessing the
+  *indexer* property);
+* Remove ``(key; value)`` pairs using ``remove`` or ``removeKey`` methods;
+* Find ``value`` associated with a ``key`` using ``find``, ``findValue``
+  method(or by accessing the *indexer* property).
+
+.. rubric:: Sample code:
+
+.. ref-code-block::
+
+	enum State {
+		Idle,
+		Running,
+		Stopping,
+		_Count
+	}
+
+	std.HashTable hashTable;
+
+	hashTable[State.Idle] = "idle";
+	hashTable[State.Running] = "running";
+	hashTable[State.Stopping] = "stopping";
+
+	State state = (State)(rand() % State._Count);
+
+	printf($"state: $(hashTable [state])\n");
+
+Properties
+----------
+
+.. index:: pair: property; m_isEmpty
+.. _doxid-property_std_hashtable_m_isempty:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool const property m_isEmpty
+
+Returns ``true`` if hash table is empty; ``false`` otherwise.
+
+Methods
+-------
+
+.. index:: pair: function; clear
+.. _doxid-function_std_hashtable_clear:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	void clear()
+
+Remove all entries from the hash table.
+
+.. index:: pair: function; find
+.. _doxid-function_std_hashtable_find:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`std.MapEntry<doxid-type_std_mapentry>` cmut* find(:ref:`variant_t<doxid-typedef_variant_t>` key) const
+
+Looks up a value associated with the key ``key``.
+
+If the value is found, it is copied to the buffer pointed to by
+``value``; then ``find`` method returns ``true``.
+
+Returns ``false`` if key ``key`` is not found.
+
+.. index:: pair: function; findValue
+.. _doxid-function_std_hashtable_findvalue:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`variant_t<doxid-typedef_variant_t>` findValue(
+		:ref:`variant_t<doxid-typedef_variant_t>` key,
+		:ref:`variant_t<doxid-typedef_variant_t>` undefinedValue = null
+	) const
+
+Looks up a value associated with the key ``key``.
+
+Returns the found value or ``undefinedValue`` if the value is not found.
+
+``undefinedValue`` must be chosen distinct from all the possible values
+in the hash table so it can be used as a *key-not-found* token.
+
+.. index:: pair: function; add
+.. _doxid-function_std_hashtable_add:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`std.MapEntry<doxid-type_std_mapentry>`* errorcode add(
+		:ref:`variant_t<doxid-typedef_variant_t>` key,
+		:ref:`variant_t<doxid-typedef_variant_t>` value
+	)
+
+Adds a new ``(key; value)`` pair into the hash table.
+
+If ``key`` is already in the hash, ``insert`` re-writes the value of
+existing association with the new value specified by the ``value``
+argument.
+
+.. index:: pair: function; removeKey
+.. _doxid-function_std_hashtable_removekey:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool removeKey(:ref:`variant_t<doxid-typedef_variant_t>` key)
+
+Finds and deletes ``key`` from the hash table.
+
+Returns ``true`` if ``key`` was found and ``(key; value)`` pair
+successfully deleted.
+
+Returns ``false`` if ``key`` was not found.
+

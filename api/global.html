@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Global Namespace &mdash; Jancy C API Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=650102ad"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+        <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Base-def" href="group_base-def.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy C API Reference
+          </a>
+              <div class="version">
+                1.10
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="group_base-def.html">Base-def</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Global Namespace</a><ul class="simple">
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy C API Reference</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Global Namespace</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <span class="target" id="global"></span><section id="global-namespace">
+<span id="index-0"></span><h1>Global Namespace</h1>
+<div class="toctree-wrapper compound">
+</div>
+<pre class="highlight doxyrest-overview-code-block literal-block"><span></span><span class="c1">// macros</span>
+
+<span class="cp">#define </span><a class="reference internal" href="group_base-def.html#doxid-group-base-def-1ga09b7be7064265680ef9968c3a0daf056"><span class="std std-ref">JNC_PTR_BITS</span></a><span></span>
+<span class="cp">#define </span><a class="reference internal" href="group_base-def.html#doxid-group-base-def-1gac72eb674125d6c29d46168896e22231e"><span class="std std-ref">JNC_PTR_SIZE</span></a><span></span>
+<span class="cp">#define </span><a class="reference internal" href="group_base-def.html#doxid-group-base-def-1gadf3ff658e277ca8ea2878349758bfdf5"><span class="std std-ref">JNC_SELECT_ANY</span></a><span></span>
+<span class="cp">#define </span><a class="reference internal" href="group_base-def.html#doxid-group-base-def-1gac3e5dd1212165d07c21cf8e42c8f2f8e"><span class="std std-ref">_JNC_CPP_CLANG</span></a><span></span>
+<span class="cp">#define </span><a class="reference internal" href="group_base-def.html#doxid-group-base-def-1gae8d48fecbd4d71ae875687a81e628207"><span class="std std-ref">_JNC_CPP_GCC</span></a><span></span>
+<span class="cp">#define </span><a class="reference internal" href="group_base-def.html#doxid-group-base-def-1ga4941936ab80e0651d377a8fac045b79b"><span class="std std-ref">_JNC_CPP_MSC</span></a><span></span>
+<span class="cp">#define </span><a class="reference internal" href="group_base-def.html#doxid-group-base-def-1ga00e7d26c19d5920b1649857b7bb4270e"><span class="std std-ref">_JNC_CPU_AMD64</span></a><span></span>
+<span class="cp">#define </span><a class="reference internal" href="group_base-def.html#doxid-group-base-def-1ga3f36421faf3aa1f104d2c76d9468c00d"><span class="std std-ref">_JNC_CPU_X86</span></a><span></span>
+<span class="cp">#define </span><a class="reference internal" href="group_base-def.html#doxid-group-base-def-1gae812e575bdb2f0b5d3372adfae0c47af"><span class="std std-ref">_JNC_OS_BSD</span></a><span></span>
+<span class="cp">#define </span><a class="reference internal" href="group_base-def.html#doxid-group-base-def-1gae2856681f4f608def5aeabe626ed7521"><span class="std std-ref">_JNC_OS_DARWIN</span></a><span></span>
+<span class="cp">#define </span><a class="reference internal" href="group_base-def.html#doxid-group-base-def-1gaab0f9e52f49016ad573e91a6b0912495"><span class="std std-ref">_JNC_OS_LINUX</span></a><span></span>
+<span class="cp">#define </span><a class="reference internal" href="group_base-def.html#doxid-group-base-def-1gaad9543e0a8c46c2ea8c91d88c7b648df"><span class="std std-ref">_JNC_OS_POSIX</span></a><span></span>
+<span class="cp">#define </span><a class="reference internal" href="group_base-def.html#doxid-group-base-def-1gae45670a576265b583297d9e8367308bf"><span class="std std-ref">_JNC_OS_SOLARIS</span></a><span></span>
+<span class="cp">#define </span><a class="reference internal" href="group_base-def.html#doxid-group-base-def-1ga9d37c94fd927cf617495e3b0809fc768"><span class="std std-ref">_JNC_OS_WIN</span></a></pre>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="group_base-def.html" class="btn btn-neutral float-left" title="Base-def" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2023, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
