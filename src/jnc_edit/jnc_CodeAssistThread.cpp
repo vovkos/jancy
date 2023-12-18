@@ -89,6 +89,7 @@ CodeAssistThread::run() {
 		m_source.getLength()
 	);
 
+	m_module->unloadDynamicLibs();
 	emit ready();
 }
 
