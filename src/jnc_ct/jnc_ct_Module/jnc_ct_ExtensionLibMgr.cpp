@@ -27,25 +27,10 @@ ExtensionLibMgr::ExtensionLibMgr() {
 
 void
 ExtensionLibMgr::clear() {
+	unloadDynamicLibs();
+
 	m_libArray.clear();
-
-	while (!m_dynamicLibList.isEmpty()) {
-		DynamicLibEntry* entry = m_dynamicLibList.removeHead();
-
-		if (entry->m_dynamicLib.isOpen()) {
-			DynamicExtensionLibUnloadFunc* unloadFunc = (DynamicExtensionLibUnloadFunc*)entry->m_dynamicLib.getFunction(jnc_g_dynamicExtensionLibUnloadFuncName);
-			if (!unloadFunc || unloadFunc())
-				entry->m_dynamicLib.close();
-			else
-				entry->m_dynamicLib.detach(); // don't unload
-		}
-
-		if (!entry->m_dynamicLibFilePath.isEmpty())
-			io::deleteFile(entry->m_dynamicLibFilePath);
-
-		delete entry;
-	}
-
+	m_dynamicLibList.clear();
 	m_sourceFileList.clear();
 	m_sourceFileMap.clear();
 	m_opaqueClassTypeInfoMap.clear();
@@ -73,6 +58,26 @@ ExtensionLibMgr::closeDynamicLibZipReaders() {
 	sl::Iterator<DynamicLibEntry> it = m_dynamicLibList.getHead();
 	for (; it; it++)
 		it->m_zipReader.close();
+}
+
+void
+ExtensionLibMgr::unloadDynamicLibs() {
+	sl::Iterator<DynamicLibEntry> it = m_dynamicLibList.getHead();
+	for (; it; it++) {
+		DynamicLibEntry* entry = *it;
+		if (entry->m_dynamicLib.isOpen()) {
+			DynamicExtensionLibUnloadFunc* unloadFunc = (DynamicExtensionLibUnloadFunc*)entry->m_dynamicLib.getFunction(jnc_g_dynamicExtensionLibUnloadFuncName);
+			if (!unloadFunc || unloadFunc())
+				entry->m_dynamicLib.close();
+			else
+				entry->m_dynamicLib.detach(); // don't unload
+		}
+
+		if (!entry->m_dynamicLibFilePath.isEmpty()) {
+			io::deleteFile(entry->m_dynamicLibFilePath);
+			entry->m_dynamicLibFilePath.clear();
+		}
+	}
 }
 
 void

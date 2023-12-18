@@ -236,6 +236,13 @@ jnc_Module_initialize(
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
+jnc_Module_unloadDynamicLibs(jnc_Module* module) {
+	module->m_extensionLibMgr.unloadDynamicLibs();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+void
 jnc_Module_updateCapabilities(jnc_Module* module) {
 	module->m_extensionLibMgr.updateCapabilities();
 }

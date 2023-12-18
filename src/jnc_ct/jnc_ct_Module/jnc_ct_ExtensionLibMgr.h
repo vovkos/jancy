@@ -94,6 +94,9 @@ public:
 	void
 	closeDynamicLibZipReaders();
 
+	void
+	unloadDynamicLibs();
+
 	bool
 	mapAddresses();
 

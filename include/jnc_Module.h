@@ -189,6 +189,10 @@ jnc_Module_clear(jnc_Module* module);
 
 JNC_EXTERN_C
 void
+jnc_Module_unloadDynamicLibs(jnc_Module* module);
+
+JNC_EXTERN_C
+void
 jnc_Module_initialize(
 	jnc_Module* module,
 	const char* name,
@@ -484,6 +488,11 @@ struct jnc_Module {
 		const jnc_ModuleConfig* config = &jnc_g_defaultModuleConfig
 	) {
 		jnc_Module_initialize(this, name, config);
+	}
+
+	void
+	unloadDynamicLibs() {
+		jnc_Module_unloadDynamicLibs(this);
 	}
 
 	void
