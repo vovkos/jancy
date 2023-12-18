@@ -256,8 +256,8 @@ JNC_BEGIN_LIB_FUNCTION_MAP(TestLib)
 //	JNC_MAP_FUNCTION("testVariant", &testVariant)
 //	JNC_MAP_FUNCTION("testAlloc", testAlloc)
 //	JNC_MAP_FUNCTION("testCallSite", testCallSite)
-//	JNC_MAP_FUNCTION("foo", foo)
-	JNC_MAP_FUNCTION("bar", bar)
+	JNC_MAP_FUNCTION("foo", foo)
+//	JNC_MAP_FUNCTION("bar", bar)
 JNC_END_LIB_FUNCTION_MAP()
 
 //..............................................................................

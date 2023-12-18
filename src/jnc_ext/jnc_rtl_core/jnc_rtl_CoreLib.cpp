@@ -851,18 +851,18 @@ appendFmtLiteralStringImpl(
 	FmtLiteral* fmtLiteral,
 	const char* fmtSpecifier,
 	const char* p,
-	size_t length
+	size_t length,
+	DataPtrValidator* validator
 ) {
 	if (!fmtSpecifier)
 		return appendFmtLiteral_a(fmtLiteral, p, length);
 
-	if (p[length] == 0) // already zero-terminated
+	if (validator && p + length < (char*)validator->m_rangeEnd && !p[length])
 		return appendFmtLiteralImpl(fmtLiteral, fmtSpecifier, "s", p);
 
 	char buffer[256];
 	sl::String string(rc::BufKind_Stack, buffer, sizeof(buffer));
 	string.copy(p, length);
-
 	return appendFmtLiteralImpl(fmtLiteral, fmtSpecifier, "s", string.sz());
 }
 
@@ -881,7 +881,13 @@ appendFmtLiteral_p(
 		return fmtLiteral->m_length;
 
 	checkDataPtrRangeIndirect(ptr.m_p, length, ptr.m_validator);
-	return appendFmtLiteralStringImpl(fmtLiteral, fmtSpecifier, (const char*)ptr.m_p, length);
+	return appendFmtLiteralStringImpl(
+		fmtLiteral,
+		fmtSpecifier,
+		(const char*)ptr.m_p,
+		length,
+		ptr.m_validator
+	);
 }
 
 static
@@ -952,13 +958,13 @@ appendFmtLiteral_s(
 	const char* fmtSpecifier,
 	String string
 ) {
+	DataPtr ptr = string.m_ptr_sz.m_p ? string.m_ptr_sz : string.m_ptr;
 	return appendFmtLiteralStringImpl(
 		fmtLiteral,
 		fmtSpecifier,
-		string.m_ptr_sz.m_p ?
-			(char*)string.m_ptr_sz.m_p :
-			(char*)string.m_ptr.m_p,
-		string.m_length
+		(char*)ptr.m_p,
+		string.m_length,
+		ptr.m_validator
 	);
 }
 
