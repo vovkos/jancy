@@ -85,7 +85,7 @@ WebSocketStateMachine::parse(
 	if (m_state == WebSocketState_WaitingHandshake ||
 		m_state == WebSocketState_WaitingHandshakeResponse) {
 		if (!m_handshakeParser)
-			m_handshakeParser = AXL_MEM_NEW_ARGS(WebSocketHandshakeParser, (m_handshake, m_handshakeKey));
+			m_handshakeParser = new WebSocketHandshakeParser(m_handshake, m_handshakeKey);
 
 		result = m_handshakeParser->parse(p0, size);
 		if (result == -1)
@@ -103,7 +103,7 @@ WebSocketStateMachine::parse(
 	ASSERT(m_state == WebSocketState_Connected); // wrong use otherwise -- missing setConnectedState()
 
 	if (!m_frameParser)
-		m_frameParser = AXL_MEM_NEW_ARGS(WebSocketFrameParser, (&m_frame));
+		m_frameParser = new WebSocketFrameParser(&m_frame);
 
 	const char* p = (char*)p0;
 	const char* end = p + size;

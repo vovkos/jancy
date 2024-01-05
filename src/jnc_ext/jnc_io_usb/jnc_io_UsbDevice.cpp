@@ -283,7 +283,7 @@ UsbDevice::controlTransfer_1(
 	}
 
 	if (!m_asyncControlEndpoint) {
-		UsbAsyncControlEndpoint* endpoint = AXL_MEM_NEW_ARGS(UsbAsyncControlEndpoint, (&m_device));
+		UsbAsyncControlEndpoint* endpoint = new UsbAsyncControlEndpoint(&m_device);
 		bool result = endpoint->start();
 		if (!result) {
 			delete endpoint;

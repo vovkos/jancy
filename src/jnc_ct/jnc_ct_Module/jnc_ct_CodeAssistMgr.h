@@ -250,7 +250,7 @@ public:
 		const Value& value
 	) {
 		if (m_codeAssistKind == CodeAssistKind_ArgumentTip && pos.m_offset < m_offset)
-			m_argumentTipStack.insertTail(AXL_MEM_NEW_ARGS(ArgumentTip, (pos, value)));
+			m_argumentTipStack.insertTail(new ArgumentTip(pos, value));
 	}
 
 	void
