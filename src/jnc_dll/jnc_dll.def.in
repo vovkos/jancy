@@ -78,6 +78,7 @@ EXPORTS
 	jnc_Type_ensureNoImports
 	jnc_Type_markGcRoots
 	jnc_getDataPtrTypeKindString
+	jnc_getPtrTypeFlagString_v
 	jnc_BaseTypeSlot_getOffset
 	jnc_BaseTypeSlot_getVtableIndex
 	jnc_Field_getPtrTypeFlags
@@ -103,9 +104,6 @@ EXPORTS
 	jnc_DerivableType_getUnaryOperator
 	jnc_ArrayType_getElementCount
 	jnc_ArrayType_getElementType
-	jnc_BitFieldType_getBaseType
-	jnc_BitFieldType_getBitCount
-	jnc_BitFieldType_getBitOffset
 	jnc_FunctionArg_getDefaultValueString_v
 	jnc_FunctionArg_hasDefaultValue
 	jnc_FunctionPtrType_getPtrTypeKind

@@ -49,7 +49,6 @@ set(
 	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_Alias.jnc
 	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_ArrayType.jnc
 	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_AttributeBlock.jnc
-	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_BitFieldType.jnc
 	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_ClassType.jnc
 	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_DerivableType.jnc
 	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_EnumType.jnc

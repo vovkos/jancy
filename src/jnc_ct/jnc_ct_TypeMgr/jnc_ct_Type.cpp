@@ -80,15 +80,18 @@ getLlvmTypeString(llvm::Type* llvmType) {
 const char*
 getPtrTypeFlagString(PtrTypeFlag flag) {
 	static const char* stringTable[] = {
-		"safe",      // PtrTypeFlag_Safe      = 0x0010000
-		"const",     // PtrTypeFlag_Const     = 0x0020000
-		"readonly",  // PtrTypeFlag_ReadOnly  = 0x0040000
-		"cmut",      // PtrTypeFlag_CMut      = 0x0080000
-		"volatile",  // PtrTypeFlag_Volatile  = 0x0100000
-		"event",     // PtrTypeFlag_Event     = 0x0200000
-		"dualevent", // PtrTypeFlag_DualEvent = 0x0400000
-		"bindable",  // PtrTypeFlag_Bindable  = 0x0800000
-		"autoget",   // PtrTypeFlag_AutoGet   = 0x1000000
+		"safe",       // PtrTypeFlag_Safe      = 0x0010000
+		"const",      // PtrTypeFlag_Const     = 0x0020000
+		"readonly",   // PtrTypeFlag_ReadOnly  = 0x0040000
+		"cmut",       // PtrTypeFlag_CMut      = 0x0080000
+		"volatile",   // PtrTypeFlag_Volatile  = 0x0100000
+		"event",      // PtrTypeFlag_Event     = 0x0200000
+		"dualevent",  // PtrTypeFlag_DualEvent = 0x0400000
+		"bindable",   // PtrTypeFlag_Bindable  = 0x0800000
+		"autoget",    // PtrTypeFlag_AutoGet   = 0x1000000
+		"dualtarget", // PtrTypeFlag_DualTarget = 0x2000000, // data ptr only
+		"bigendian",  // PtrTypeFlag_BigEndian  = 0x4000000, // data ptr only
+		"bitfield",   // PtrTypeFlag_BitField   = 0x8000000, // data ptr only
 	};
 
 	size_t i = sl::getLoBitIdx16((uint16_t)(flag >> 16));
@@ -134,6 +137,9 @@ getPtrTypeFlagSignature(PtrTypeFlag flag) {
 		"d",  // PtrTypeFlag_DualEvent = 0x0400000
 		"b",  // PtrTypeFlag_Bindable  = 0x0800000
 		"a",  // PtrTypeFlag_AutoGet   = 0x1000000
+		"t",  // PtrTypeFlag_DualTarget = 0x2000000, // data ptr only
+		"n",  // PtrTypeFlag_BigEndian  = 0x4000000, // data ptr only
+		"f",  // PtrTypeFlag_BitField   = 0x8000000, // data ptr only
 	};
 
 	size_t i = sl::getLoBitIdx16((uint16_t)(flag >> 16));
@@ -173,6 +179,9 @@ getPtrTypeFlagsFromModifiers(uint_t modifiers) {
 
 	if (modifiers & TypeModifier_Volatile)
 		flags |= PtrTypeFlag_Volatile;
+
+	if (modifiers & TypeModifier_BigEndian)
+		flags |= PtrTypeFlag_BigEndian;
 
 	if (modifiers & TypeModifier_Const)
 		flags |= PtrTypeFlag_Const;
@@ -386,12 +395,6 @@ Type::prepareTypeString() {
 		"unsigned int",
 		"long",
 		"unsigned long",
-		"bigendian short",
-		"bigendian unsigned short",
-		"bigendian int",
-		"bigendian unsigned int",
-		"bigendian long",
-		"bigendian unsigned long",
 		"float",
 		"double",
 	};
@@ -498,12 +501,6 @@ Type::prepareLlvmType() {
 		getLlvmType_int32,   // TypeKind_Int32_u
 		getLlvmType_int64,   // TypeKind_Int64
 		getLlvmType_int64,   // TypeKind_Int64_u
-		getLlvmType_int16,   // TypeKind_Int16_be
-		getLlvmType_int16,   // TypeKind_Int16_ube
-		getLlvmType_int32,   // TypeKind_Int32_be
-		getLlvmType_int32,   // TypeKind_Int32_ube
-		getLlvmType_int64,   // TypeKind_Int64_be
-		getLlvmType_int64,   // TypeKind_Int64_ube
 		getLlvmType_float,   // TypeKind_Float
 		getLlvmType_double,  // TypeKind_Double
 	};
@@ -573,36 +570,6 @@ Type::prepareLlvmDiType() {
 		},
 		{
 			"unsigned long",            // TypeKind_Int64_u
-			llvm::dwarf::DW_ATE_unsigned,
-			8
-		},
-		{
-			"bigendian short",          // TypeKind_Int16_be
-			llvm::dwarf::DW_ATE_signed,
-			2
-		},
-		{
-			"bigendian unsigned short", // TypeKind_Int16_ube
-			llvm::dwarf::DW_ATE_unsigned,
-			2
-		},
-		{
-			"bigendian int",            // TypeKind_Int32_be
-			llvm::dwarf::DW_ATE_signed,
-			4
-		},
-		{
-			"bigendian unsigned int",   // TypeKind_Int32_ube
-			llvm::dwarf::DW_ATE_unsigned,
-			4
-		},
-		{
-			"bigendian long",           // TypeKind_Int64_be
-			llvm::dwarf::DW_ATE_signed,
-			8
-		},
-		{
-			"bigendian unsigned long",  // TypeKind_Int64_ube
 			llvm::dwarf::DW_ATE_unsigned,
 			8
 		},
@@ -862,12 +829,6 @@ Type::getValueString(
 		getValueString_int32_u,    // TypeKind_Int32_u
 		getValueString_int64,      // TypeKind_Int64
 		getValueString_int64_u,    // TypeKind_Int64_u
-		getValueString_int16_be,   // TypeKind_Int16_be
-		getValueString_int16_ube,  // TypeKind_Int16_ube
-		getValueString_int32_be,   // TypeKind_Int32_be
-		getValueString_int32_ube,  // TypeKind_Int32_ube
-		getValueString_int64_be,   // TypeKind_Int64_be
-		getValueString_int64_ube,  // TypeKind_Int64_ube
 		getValueString_float,      // TypeKind_Float
 		getValueString_double,     // TypeKind_Double
 	};

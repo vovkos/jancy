@@ -208,17 +208,22 @@ void ModulePane::addTypedef(QTreeWidgetItem *parent, jnc::Typedef* tdef) {
 	item->setData(0, Qt::UserRole, qVariantFromValue((void*)tdef->getDecl()));
 }
 
-void ModulePane::addVariable(QTreeWidgetItem *parent, jnc::Variable *variable) {
-	addValue(parent, variable->getDecl()->getName(), variable->getType(), variable);
-}
-
 void ModulePane::addEnumConst(QTreeWidgetItem *parent, jnc::EnumConst *member) {
 	QTreeWidgetItem *item = insertItem((const char*) member->getDecl()->getName(), parent);
 	item->setData(0, Qt::UserRole, qVariantFromValue((void*)member->getDecl()));
 }
 
-void ModulePane::addValue(QTreeWidgetItem *parent, const QString& name, jnc::Type* type, jnc::ModuleItem* moduleItem) {
-	QString itemName = QString("%1 %2 %3").arg (type->getTypeStringPrefix ()).arg (name).arg (type->getTypeStringSuffix ());
+void ModulePane::addValue(QTreeWidgetItem *parent, const QString& name, jnc::Type* type, uint_t ptrTypeFlags, jnc::ModuleItem* moduleItem) {
+	QString ptrTypeFlagString;
+	ptrTypeFlagString = jnc::getPtrTypeFlagString_v(ptrTypeFlags);
+	if (!ptrTypeFlagString.isEmpty())
+		ptrTypeFlagString += ' ';
+
+	QString itemName = QString("%1 %2%3 %4").
+		arg (type->getTypeStringPrefix()).
+		arg (ptrTypeFlagString).
+		arg (name).
+		arg (type->getTypeStringSuffix ());
 	QTreeWidgetItem *item = insertItem(itemName, parent);
 	item->setData(0, Qt::UserRole, qVariantFromValue((void*)moduleItem->getDecl()));
 

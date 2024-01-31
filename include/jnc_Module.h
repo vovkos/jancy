@@ -20,7 +20,6 @@
 #include "jnc_Function.h"
 #include "jnc_Property.h"
 #include "jnc_ArrayType.h"
-#include "jnc_BitFieldType.h"
 #include "jnc_EnumType.h"
 #include "jnc_DerivableType.h"
 #include "jnc_StructType.h"

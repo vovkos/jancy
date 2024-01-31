@@ -52,10 +52,8 @@ class DynamicLibNamespace;
 
 enum StdCast {
 	StdCast_Copy,
-	StdCast_SwapByteOrder,
 	StdCast_PtrFromInt,
 	StdCast_Int,
-	StdCast_BeInt,
 	StdCast_Fp,
 	StdCast_FromVariant,
 	StdCast__Count
@@ -167,12 +165,10 @@ protected:
 	Cast_Typedef m_cast_Typedef;
 	Cast_Void m_cast_Void;
 	Cast_Copy m_cast_Copy;
-	Cast_SwapByteOrder m_cast_SwapByteOrder;
 	Cast_PtrFromInt m_cast_PtrFromInt;
 	Cast_Bool m_cast_Bool;
 	Cast_IntFromBool m_castIntFromBool;
 	Cast_Int m_cast_Int;
-	Cast_BeInt m_cast_BeInt;
 	Cast_Fp m_cast_Fp;
 	Cast_Variant m_cast_Variant;
 	Cast_FromVariant m_cast_FromVariant;
@@ -547,6 +543,17 @@ public:
 		TypeKind typeKind
 	) {
 		return castOperator(OperatorDynamism_Static, *value, typeKind, value);
+	}
+
+	void
+	swapByteOrder(
+		const Value& opValue,
+		Value* resultValue = NULL
+	);
+
+	void
+	swapByteOrder(Value* value) {
+		swapByteOrder(*value, value);
 	}
 
 	// sizeof
@@ -1213,7 +1220,9 @@ public:
 	bool
 	extractBitField(
 		const Value& value,
-		BitFieldType* bitFieldType,
+		Type* type,
+		uint_t bitOffset,
+		uint_t bitCount,
 		Value* resultValue
 	);
 
@@ -1221,7 +1230,9 @@ public:
 	mergeBitField(
 		const Value& value,
 		const Value& shadowValue,
-		BitFieldType* bitFieldType,
+		Type* type,
+		uint_t bitOffset,
+		uint_t bitCount,
 		Value* resultValue
 	);
 
@@ -1431,12 +1442,6 @@ protected:
 
 	bool
 	prepareOperand_dataPtr(
-		Value* value,
-		uint_t opFlags
-	);
-
-	bool
-	prepareOperandType_dataRef_bitField(
 		Value* value,
 		uint_t opFlags
 	);

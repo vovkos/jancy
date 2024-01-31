@@ -65,15 +65,6 @@ enum jnc_TypeKind {
 	jnc_TypeKind_Int64,               // i64
 	jnc_TypeKind_Int64_u,             // u64
 
-	// big-endian integers
-
-	jnc_TypeKind_Int16_be,            // ib16
-	jnc_TypeKind_Int16_ube,           // ub16
-	jnc_TypeKind_Int32_be,            // ib32
-	jnc_TypeKind_Int32_ube,           // ub32
-	jnc_TypeKind_Int64_be,            // ib64
-	jnc_TypeKind_Int64_ube,           // ub64
-
 	// floating point
 
 	jnc_TypeKind_Float,               // f
@@ -82,7 +73,6 @@ enum jnc_TypeKind {
 	// derived types
 
 	jnc_TypeKind_Array,               // A
-	jnc_TypeKind_BitField,            // B
 
 	// named types
 
@@ -120,7 +110,6 @@ enum jnc_TypeKind {
 	// meta
 
 	jnc_TypeKind__Count,
-	jnc_TypeKind__EndianDelta = jnc_TypeKind_Int16_be - jnc_TypeKind_Int16,
 	jnc_TypeKind__PrimitiveTypeCount = jnc_TypeKind_Double + 1,
 
 	// aliases
@@ -128,13 +117,9 @@ enum jnc_TypeKind {
 #if (JNC_PTR_BITS == 64)
 	jnc_TypeKind_IntPtr     = jnc_TypeKind_Int64,
 	jnc_TypeKind_IntPtr_u   = jnc_TypeKind_Int64_u,
-	jnc_TypeKind_IntPtr_be  = jnc_TypeKind_Int64_be,
-	jnc_TypeKind_IntPtr_ube = jnc_TypeKind_Int64_ube,
 #else
 	jnc_TypeKind_IntPtr     = jnc_TypeKind_Int32,
 	jnc_TypeKind_IntPtr_u   = jnc_TypeKind_Int32_u,
-	jnc_TypeKind_IntPtr_be  = jnc_TypeKind_Int32_be,
-	jnc_TypeKind_IntPtr_ube = jnc_TypeKind_Int32_ube,
 #endif
 
 	jnc_TypeKind_SizeT    = jnc_TypeKind_IntPtr_u,
@@ -161,7 +146,6 @@ typedef enum jnc_TypeKind jnc_TypeKind;
 enum jnc_TypeKindFlag {
 	jnc_TypeKindFlag_Integer      = 0x00000001,
 	jnc_TypeKindFlag_Unsigned     = 0x00000002,
-	jnc_TypeKindFlag_BigEndian    = 0x00000004,
 	jnc_TypeKindFlag_Fp           = 0x00000008,
 	jnc_TypeKindFlag_Numeric      = 0x00000010,
 	jnc_TypeKindFlag_Aggregate    = 0x00000020,
@@ -214,14 +198,22 @@ enum jnc_PtrTypeFlag {
 	jnc_PtrTypeFlag_Bindable   = 0x0800000, // multicast-class only
 	jnc_PtrTypeFlag_AutoGet    = 0x1000000, // data ptr only
 	jnc_PtrTypeFlag_DualTarget = 0x2000000, // data ptr only
+	jnc_PtrTypeFlag_BigEndian  = 0x4000000, // data ptr only
+	jnc_PtrTypeFlag_BitField   = 0x8000000, // data ptr only
 
-	jnc_PtrTypeFlag__All       = 0x3ff0000,
+	jnc_PtrTypeFlag__All       = 0xfff0000,
 	jnc_PtrTypeFlag__Dual =
 		jnc_PtrTypeFlag_ReadOnly |
 		jnc_PtrTypeFlag_CMut |
 		jnc_PtrTypeFlag_DualEvent |
 		jnc_PtrTypeFlag_DualTarget,
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_EXTERN_C
+const char*
+jnc_getPtrTypeFlagString_v(uint_t flags);
 
 //..............................................................................
 
@@ -298,7 +290,6 @@ enum jnc_StdType {
 	jnc_StdType_BaseTypeSlot,
 	jnc_StdType_DerivableType,
 	jnc_StdType_ArrayType,
-	jnc_StdType_BitFieldType,
 	jnc_StdType_FunctionArg,
 	jnc_StdType_FunctionType,
 	jnc_StdType_FunctionPtrType,
@@ -590,16 +581,9 @@ const TypeKind
 	TypeKind_Int32_u             = jnc_TypeKind_Int32_u,
 	TypeKind_Int64               = jnc_TypeKind_Int64,
 	TypeKind_Int64_u             = jnc_TypeKind_Int64_u,
-	TypeKind_Int16_be            = jnc_TypeKind_Int16_be,
-	TypeKind_Int16_ube           = jnc_TypeKind_Int16_ube,
-	TypeKind_Int32_be            = jnc_TypeKind_Int32_be,
-	TypeKind_Int32_ube           = jnc_TypeKind_Int32_ube,
-	TypeKind_Int64_be            = jnc_TypeKind_Int64_be,
-	TypeKind_Int64_ube           = jnc_TypeKind_Int64_ube,
 	TypeKind_Float               = jnc_TypeKind_Float,
 	TypeKind_Double              = jnc_TypeKind_Double,
 	TypeKind_Array               = jnc_TypeKind_Array,
-	TypeKind_BitField            = jnc_TypeKind_BitField,
 	TypeKind_Enum                = jnc_TypeKind_Enum,
 	TypeKind_Struct              = jnc_TypeKind_Struct,
 	TypeKind_Union               = jnc_TypeKind_Union,
@@ -619,12 +603,9 @@ const TypeKind
 	TypeKind_ImportIntMod        = jnc_TypeKind_ImportIntMod,
 	TypeKind_TypedefShadow       = jnc_TypeKind_TypedefShadow,
 	TypeKind__Count              = jnc_TypeKind__Count,
-	TypeKind__EndianDelta        = jnc_TypeKind__EndianDelta,
 	TypeKind__PrimitiveTypeCount = jnc_TypeKind__PrimitiveTypeCount,
 	TypeKind_IntPtr              = jnc_TypeKind_IntPtr,
 	TypeKind_IntPtr_u            = jnc_TypeKind_IntPtr_u,
-	TypeKind_IntPtr_be           = jnc_TypeKind_IntPtr_be,
-	TypeKind_IntPtr_ube          = jnc_TypeKind_IntPtr_ube,
 	TypeKind_SizeT               = jnc_TypeKind_SizeT,
 	TypeKind_Int                 = jnc_TypeKind_Int,
 	TypeKind_Int_u               = jnc_TypeKind_Int_u,
@@ -646,7 +627,6 @@ typedef jnc_TypeKindFlag TypeKindFlag;
 const TypeKindFlag
 	TypeKindFlag_Integer      = jnc_TypeKindFlag_Integer,
 	TypeKindFlag_Unsigned     = jnc_TypeKindFlag_Unsigned,
-	TypeKindFlag_BigEndian    = jnc_TypeKindFlag_BigEndian,
 	TypeKindFlag_Fp           = jnc_TypeKindFlag_Fp,
 	TypeKindFlag_Numeric      = jnc_TypeKindFlag_Numeric,
 	TypeKindFlag_Aggregate    = jnc_TypeKindFlag_Aggregate,
@@ -701,6 +681,8 @@ const PtrTypeFlag
 	PtrTypeFlag_Bindable   = jnc_PtrTypeFlag_Bindable,
 	PtrTypeFlag_AutoGet    = jnc_PtrTypeFlag_AutoGet,
 	PtrTypeFlag_DualTarget = jnc_PtrTypeFlag_DualTarget,
+	PtrTypeFlag_BigEndian  = jnc_PtrTypeFlag_BigEndian,
+	PtrTypeFlag_BitField   = jnc_PtrTypeFlag_BitField,
 
 	PtrTypeFlag__All       = jnc_PtrTypeFlag__All,
 	PtrTypeFlag__Dual      = jnc_PtrTypeFlag__Dual;
@@ -774,7 +756,6 @@ const StdType
 	StdType_BaseTypeSlot          = jnc_StdType_BaseTypeSlot,
 	StdType_DerivableType         = jnc_StdType_DerivableType,
 	StdType_ArrayType             = jnc_StdType_ArrayType,
-	StdType_BitFieldType          = jnc_StdType_BitFieldType,
 	StdType_FunctionArg           = jnc_StdType_FunctionArg,
 	StdType_FunctionType          = jnc_StdType_FunctionType,
 	StdType_FunctionPtrType       = jnc_StdType_FunctionPtrType,
@@ -814,6 +795,12 @@ inline
 const char*
 getDataPtrTypeKindString(DataPtrTypeKind ptrTypeKind) {
 	return jnc_getDataPtrTypeKindString(ptrTypeKind);
+}
+
+inline
+const char*
+getPtrTypeFlagString_v(uint_t flags) {
+	return jnc_getPtrTypeFlagString_v(flags);
 }
 
 //..............................................................................

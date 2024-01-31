@@ -25,7 +25,6 @@ set(
 	${JANCY_ROOT_DIR}/include/jnc_Type.h
 	${JANCY_ROOT_DIR}/include/jnc_DerivableType.h
 	${JANCY_ROOT_DIR}/include/jnc_ArrayType.h
-	${JANCY_ROOT_DIR}/include/jnc_BitFieldType.h
 	${JANCY_ROOT_DIR}/include/jnc_FunctionType.h
 	${JANCY_ROOT_DIR}/include/jnc_PropertyType.h
 	${JANCY_ROOT_DIR}/include/jnc_EnumType.h
@@ -65,7 +64,6 @@ set(
 	jnc_Type.cpp
 	jnc_DerivableType.cpp
 	jnc_ArrayType.cpp
-	jnc_BitFieldType.cpp
 	jnc_FunctionType.cpp
 	jnc_PropertyType.cpp
 	jnc_EnumType.cpp

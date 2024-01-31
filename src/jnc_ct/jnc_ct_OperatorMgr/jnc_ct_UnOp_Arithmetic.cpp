@@ -27,12 +27,6 @@ static TypeKind g_arithmeticOperatorResultTypeTable[TypeKind_Double - TypeKind_I
 	TypeKind_Int32_u, // TypeKind_Int32_u
 	TypeKind_Int64,   // TypeKind_Int64
 	TypeKind_Int64_u, // TypeKind_Int64_u
-	TypeKind_Int32,   // TypeKind_Int16_be
-	TypeKind_Int32,   // TypeKind_Int16_ube
-	TypeKind_Int32,   // TypeKind_Int32_be
-	TypeKind_Int32_u, // TypeKind_Int32_ube
-	TypeKind_Int64,   // TypeKind_Int64_be
-	TypeKind_Int64_u, // TypeKind_Int64_ube
 	TypeKind_Float,   // TypeKind_Float
 	TypeKind_Double,  // TypeKind_Double
 };

@@ -88,22 +88,6 @@ getInt64TypeKind_u(uint64_t integer);
 
 JNC_INLINE
 TypeKind
-getBigEndianIntegerTypeKind(TypeKind typeKind) {
-	return !(getTypeKindFlags(typeKind) & TypeKindFlag_BigEndian) ?
-		(TypeKind)(typeKind + TypeKind__EndianDelta) :
-		typeKind;
-}
-
-JNC_INLINE
-TypeKind
-getLittleEndianIntegerTypeKind(TypeKind typeKind) {
-	return (getTypeKindFlags(typeKind) & TypeKindFlag_BigEndian) ?
-		(TypeKind)(typeKind - TypeKind__EndianDelta) :
-		typeKind;
-}
-
-JNC_INLINE
-TypeKind
 getUnsignedIntegerTypeKind(TypeKind typeKind) {
 	return !(getTypeKindFlags(typeKind) & TypeKindFlag_Unsigned) ?
 		(TypeKind)(typeKind + 1) :

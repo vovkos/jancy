@@ -25,7 +25,6 @@ namespace ct {
 
 class Module;
 class ArrayType;
-class BitFieldType;
 class EnumType;
 class StructType;
 class UnionType;
@@ -183,13 +182,6 @@ public:
 	getInt64Type_u(uint64_t integer) {
 		return getPrimitiveType(getInt64TypeKind_u(integer));
 	}
-
-	BitFieldType*
-	getBitFieldType(
-		Type* baseType,
-		size_t bitOffset,
-		size_t bitCount
-	);
 
 	ArrayType*
 	createAutoSizeArrayType(Type* elementType);
@@ -640,6 +632,16 @@ public:
 	DataPtrType*
 	getDataPtrType(
 		Type* targetType,
+		uint_t bitOffset,
+		uint_t bitCount,
+		TypeKind typeKind,
+		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal,
+		uint_t flags = 0
+	);
+
+	DataPtrType*
+	getDataPtrType(
+		Type* targetType,
 		TypeKind typeKind,
 		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal,
 		uint_t flags = 0
@@ -651,7 +653,7 @@ public:
 		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal,
 		uint_t flags = 0
 	) {
-		return getDataPtrType(targetType, TypeKind_DataPtr, ptrTypeKind, flags);
+		return getDataPtrType(targetType, 0, 0, TypeKind_DataPtr, ptrTypeKind, flags);
 	}
 
 	ClassPtrType*
@@ -754,7 +756,10 @@ protected:
 	getFunctionArgTuple(Type* type);
 
 	DataPtrTypeTuple*
-	getDataPtrTypeTuple(Type* type);
+	getDataPtrTypeTuple(
+		Type* type,
+		uint_t flags
+	);
 
 	ClassPtrTypeTuple*
 	getClassPtrTypeTuple(ClassType* classType);

@@ -89,12 +89,6 @@ UnionType::calcLayout() {
 			return false;
 		}
 
-		if (field->m_bitCount) {
-			field->m_type = m_module->m_typeMgr.getBitFieldType(field->m_bitFieldBaseType, 0, field->m_bitCount);
-			if (!field->m_type)
-				return false;
-		}
-
 		if (!largestFieldType || field->m_type->getSize() > largestFieldType->getSize())
 			largestFieldType = field->m_type;
 

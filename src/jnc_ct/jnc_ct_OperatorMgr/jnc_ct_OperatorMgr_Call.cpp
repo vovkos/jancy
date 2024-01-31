@@ -118,10 +118,6 @@ OperatorMgr::getCdeclVarArgType(Type* type) {
 			type = ((PropertyPtrType*)type)->getTargetType()->getReturnType();
 			break;
 
-		case TypeKind_BitField:
-			type = ((BitFieldType*)type)->getBaseType();
-			break;
-
 		case TypeKind_Enum:
 			type = ((EnumType*)type)->getBaseType();
 			break;

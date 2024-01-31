@@ -480,13 +480,6 @@ jnc_Variant_hash(const jnc_Variant* variant) {
 		return 0;
 
 	size_t size = variant->m_type->getSize();
-
-	if (variant->m_type->getTypeKindFlags() & TypeKindFlag_BigEndian) {
-		uint64_t result = 0;
-		axl::sl::swapByteOrder(&result, &variant->m_int64, size);
-		return (uintptr_t)result;
-	}
-
 	if (size <= sizeof(uintptr_t) || variant->m_type->getTypeKind() == TypeKind_DataPtr)
 		return variant->m_uintptr;
 
@@ -625,33 +618,6 @@ format_type(
 	return formatImpl(string, fmtSpecifier, DefaultType()(), *(const T*)p);
 }
 
-template <
-	typename T,
-	typename DefaultType
->
-size_t
-format_be(
-	sl::String* string,
-	const char* fmtSpecifier,
-	const void* p,
-	jnc::Type* type
-) {
-	T x = *(const T*)p;
-	switch (sizeof(T)) {
-	case 2:
-		x = sl::swapByteOrder16(x);
-		break;
-	case 4:
-		x = sl::swapByteOrder32(x);
-		break;
-	case 8:
-		x = sl::swapByteOrder64(x);
-		break;
-	}
-
-	return formatImpl(string, fmtSpecifier, DefaultType()(), x);
-}
-
 static
 size_t
 format_array(
@@ -763,16 +729,9 @@ g_formatFuncTable[jnc_TypeKind__Count] = {
 	format_type<uint32_t, FmtType_u>,   // TypeKind_Int32_u
 	format_type<int64_t,  FmtType_lld>, // TypeKind_Int64
 	format_type<uint64_t, FmtType_llu>, // TypeKind_Int64_u
-	format_be<int16_t,    FmtType_d>,   // TypeKind_Int16_be
-	format_be<uint16_t,   FmtType_u>,   // TypeKind_Int16_ube
-	format_be<int32_t,    FmtType_d>,   // TypeKind_Int32_be
-	format_be<uint32_t,   FmtType_u>,   // TypeKind_Int32_ube
-	format_be<int64_t,    FmtType_lld>, // TypeKind_Int64_be
-	format_be<uint64_t,   FmtType_llu>, // TypeKind_Int64_ube
 	format_type<float,    FmtType_f>,   // TypeKind_Float
 	format_type<double,   FmtType_f>,   // TypeKind_Double
 	format_array,                       // TypeKind_Array
-	format_default,                     // TypeKind_BitField
 	format_default,                     // TypeKind_Enum
 	format_default,                     // TypeKind_Struct
 	format_default,                     // TypeKind_Union

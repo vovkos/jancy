@@ -35,9 +35,8 @@ private:
 	void addItem(QTreeWidgetItem* parent, jnc::ModuleItem* item);
 	void addType(QTreeWidgetItem* parent, jnc::Type* type);
 	void addTypedef(QTreeWidgetItem* parent, jnc::Typedef* typed);
-	void addVariable(QTreeWidgetItem* parent, jnc::Variable* variable);
 	void addEnumConst(QTreeWidgetItem* parent, jnc::EnumConst* member);
-	void addValue(QTreeWidgetItem* parent, const QString& name, jnc::Type* type, jnc::ModuleItem* item);
+	void addValue(QTreeWidgetItem* parent, const QString& name, jnc::Type* type, uint_t ptrTypeFlags, jnc::ModuleItem* item);
 	void addFunction(QTreeWidgetItem* parent, jnc::Function* function);
 	void addFunctionOverload(QTreeWidgetItem* parent, jnc::FunctionOverload* overload);
 	void addOverloadableFunction(QTreeWidgetItem* parent, jnc::OverloadableFunction function);
@@ -46,8 +45,12 @@ private:
 	void addEnumTypeMembers(QTreeWidgetItem* parent, jnc::EnumType* type);
 	void addDerivableTypeMembers(QTreeWidgetItem* parent, jnc::DerivableType* type);
 
+	void addVariable(QTreeWidgetItem* parent, jnc::Variable* variable) {
+		addValue(parent, variable->getDecl()->getName(), variable->getType(), variable->getPtrTypeFlags(), variable);
+	}
+
 	void addField(QTreeWidgetItem* parent, jnc::Field* field) {
-		addValue(parent, field->getDecl()->getName(), field->getType(), field);
+		addValue(parent, field->getDecl()->getName(), field->getType(), field->getPtrTypeFlags(), field);
 	}
 
 protected:

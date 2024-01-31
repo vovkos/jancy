@@ -34,15 +34,6 @@ enum TypeKind {
 	Int64,
 	Int64_u,
 
-	// big-endian integers
-
-	Int16_be,
-	Int16_ube,
-	Int32_be,
-	Int32_ube,
-	Int64_be,
-	Int64_ube,
-
 	// floating point
 
 	Float,
@@ -51,7 +42,6 @@ enum TypeKind {
 	// derived types
 
 	Array,
-	BitField,
 
 	// named types
 

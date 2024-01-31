@@ -18,7 +18,6 @@ set(
 	jnc_rtl_Alias.h
 	jnc_rtl_ArrayType.h
 	jnc_rtl_AttributeBlock.h
-	jnc_rtl_BitFieldType.h
 	jnc_rtl_ClassType.h
 	jnc_rtl_DerivableType.h
 	jnc_rtl_EnumType.h
@@ -43,7 +42,6 @@ set(
 	jnc_rtl_Alias.cpp
 	jnc_rtl_ArrayType.cpp
 	jnc_rtl_AttributeBlock.cpp
-	jnc_rtl_BitFieldType.cpp
 	jnc_rtl_ClassType.cpp
 	jnc_rtl_DerivableType.cpp
 	jnc_rtl_EnumType.cpp
@@ -81,7 +79,6 @@ set(
 	jnc/jnc_Alias.jnc
 	jnc/jnc_ArrayType.jnc
 	jnc/jnc_AttributeBlock.jnc
-	jnc/jnc_BitFieldType.jnc
 	jnc/jnc_ClassType.jnc
 	jnc/jnc_DerivableType.jnc
 	jnc/jnc_EnumType.jnc

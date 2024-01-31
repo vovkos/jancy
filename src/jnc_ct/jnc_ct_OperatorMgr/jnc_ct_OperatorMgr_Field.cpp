@@ -203,7 +203,7 @@ OperatorMgr::getStructField(
 				ptr.m_p = (char*)ptr.m_p + field->getOffset();
 				resultValue->createConst(
 					&ptr,
-					field->getType()->getDataPtrType(
+					field->getDataPtrType(
 						TypeKind_DataRef,
 						DataPtrTypeKind_Normal,
 						type->getFlags() & PtrTypeFlag__All
@@ -215,8 +215,9 @@ OperatorMgr::getStructField(
 				p += field->getOffset();
 				resultValue->createConst(
 					&p,
-					field->getType()->getDataPtrType_c(
+					field->getDataPtrType(
 						TypeKind_DataRef,
+						DataPtrTypeKind_Thin,
 						type->getFlags() & PtrTypeFlag__All
 					)
 				);
@@ -257,13 +258,17 @@ OperatorMgr::getStructField(
 	DataPtrType* resultType;
 
 	if (!m_module->hasCodeGen()) {
-		resultType = field->getType()->getDataPtrType(TypeKind_DataRef, ptrTypeKind, ptrTypeFlags);
+		resultType = field->getDataPtrType(
+			TypeKind_DataRef,
+			ptrTypeKind,
+			ptrTypeFlags
+		);
 		resultValue->setType(resultType);
 		return true;
 	}
 
 	if (ptrTypeKind == DataPtrTypeKind_Thin) {
-		resultType = field->getType()->getDataPtrType(
+		resultType = field->getDataPtrType(
 			TypeKind_DataRef,
 			DataPtrTypeKind_Thin,
 			ptrTypeFlags
@@ -283,7 +288,7 @@ OperatorMgr::getStructField(
 	}
 
 	if (opType->getTargetType()->getFlags() & TypeFlag_Pod) {
-		resultType = field->getType()->getDataPtrType(
+		resultType = field->getDataPtrType(
 			TypeKind_DataRef,
 			DataPtrTypeKind_Lean,
 			ptrTypeFlags
@@ -296,7 +301,7 @@ OperatorMgr::getStructField(
 			return false;
 
 		ptrTypeFlags |= PtrTypeFlag_Safe;
-		resultType = field->getType()->getDataPtrType(
+		resultType = field->getDataPtrType(
 			TypeKind_DataRef,
 			DataPtrTypeKind_Lean,
 			ptrTypeFlags
@@ -350,7 +355,7 @@ OperatorMgr::getDynamicField(
 		ptrTypeFlags &= ~PtrTypeFlag_Const;
 
 	ASSERT(opType->getTargetType()->getFlags() & TypeFlag_Pod); // dynamic struct must be POD
-	DataPtrType* resultType = field->getType()->getDataPtrType(
+	DataPtrType* resultType = field->getDataPtrType(
 		TypeKind_DataRef,
 		DataPtrTypeKind_Lean,
 		ptrTypeFlags
@@ -392,7 +397,7 @@ OperatorMgr::getUnionField(
 
 	DataPtrTypeKind ptrTypeKind = opType->getPtrTypeKind();
 
-	DataPtrType* ptrType = field->getType()->getDataPtrType(
+	DataPtrType* ptrType = field->getDataPtrType(
 		TypeKind_DataRef,
 		ptrTypeKind == DataPtrTypeKind_Thin ? DataPtrTypeKind_Thin : DataPtrTypeKind_Lean,
 		ptrTypeFlags
@@ -449,7 +454,7 @@ OperatorMgr::getClassField(
 				ClassPtrTypeKind_Normal,
 				ptrTypeFlags
 			) :
-			field->getType()->getDataPtrType(
+			field->getDataPtrType(
 				TypeKind_DataRef,
 				DataPtrTypeKind_Lean,
 				ptrTypeFlags
@@ -490,7 +495,7 @@ OperatorMgr::getClassField(
 
 		resultValue->setLlvmValue(ptrValue.getLlvmValue(), ptrType);
 	} else {
-		DataPtrType* ptrType = field->getType()->getDataPtrType(
+		DataPtrType* ptrType = field->getDataPtrType(
 			TypeKind_DataRef,
 			DataPtrTypeKind_Lean,
 			ptrTypeFlags

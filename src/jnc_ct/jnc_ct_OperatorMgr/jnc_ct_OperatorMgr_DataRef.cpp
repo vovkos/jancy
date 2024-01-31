@@ -79,6 +79,7 @@ OperatorMgr::loadDataRef(
 
 	DataPtrType* type = (DataPtrType*)opValue.getType();
 	Type* targetType = type->getTargetType();
+	uint_t typeFlags = type->getFlags();
 
 	if (targetType->getFlags() & TypeFlag_Dynamic) {
 		err::setFormatStringError("invalid usage of dynamic type '%s'", targetType->getTypeString().sz());
@@ -95,7 +96,7 @@ OperatorMgr::loadDataRef(
 			ptrValue,
 			targetType,
 			resultValue,
-			(type->getFlags() & PtrTypeFlag_Volatile) != 0
+			(typeFlags & PtrTypeFlag_Volatile) != 0
 		);
 	} else {
 		const void* p;
@@ -115,16 +116,19 @@ OperatorMgr::loadDataRef(
 		resultValue->createConst(p, targetType);
 	}
 
-	if (targetType->getTypeKind() == TypeKind_BitField) {
+	if (typeFlags & PtrTypeFlag_BitField) {
 		result = extractBitField(
 			*resultValue,
-			(BitFieldType*)targetType,
+			targetType,
+			type->getBitOffset(),
+			type->getBitCount(),
 			resultValue
 		);
 
 		if (!result)
 			return false;
-	}
+	} else if (typeFlags & PtrTypeFlag_BigEndian)
+		swapByteOrder(resultValue);
 
 	return true;
 }
@@ -139,6 +143,8 @@ OperatorMgr::storeDataRef(
 	bool result;
 
 	DataPtrType* dstType = (DataPtrType*)dstValue.getType();
+	uint_t dstTypeFlags = dstType->getFlags();
+
 	if (dstType->getFlags() & PtrTypeFlag_Const) {
 		err::setError("cannot store into const location");
 		return false;
@@ -150,18 +156,12 @@ OperatorMgr::storeDataRef(
 		return false;
 	}
 
-	TypeKind targetTypeKind = targetType->getTypeKind();
-
-	Type* castType = (targetTypeKind == TypeKind_BitField) ?
-		((BitFieldType*)targetType)->getBaseType() :
-		targetType;
-
 	Value srcValue;
 	Value bfShadowValue;
 
 	result =
-		checkCastKind(rawSrcValue, castType) &&
-		castOperator(rawSrcValue, castType, &srcValue);
+		checkCastKind(rawSrcValue, targetType) &&
+		castOperator(rawSrcValue, targetType, &srcValue);
 
 	if (!result)
 		return false;
@@ -176,10 +176,10 @@ OperatorMgr::storeDataRef(
 		if (!result)
 			return false;
 
-		if (targetTypeKind == TypeKind_BitField) {
+		if (dstTypeFlags & PtrTypeFlag_BitField) {
 			m_module->m_llvmIrBuilder.createLoad(
 				ptrValue,
-				castType,
+				targetType,
 				&bfShadowValue,
 				(dstType->getFlags() & PtrTypeFlag_Volatile) != 0
 			);
@@ -187,13 +187,16 @@ OperatorMgr::storeDataRef(
 			result = mergeBitField(
 				srcValue,
 				bfShadowValue,
-				(BitFieldType*)targetType,
+				targetType,
+				dstType->getBitOffset(),
+				dstType->getBitCount(),
 				&srcValue
 			);
 
 			if (!result)
 				return false;
-		}
+		} else if (dstTypeFlags & PtrTypeFlag_BigEndian)
+			swapByteOrder(&srcValue);
 
 		m_module->m_llvmIrBuilder.createStore(
 			srcValue,
@@ -215,18 +218,21 @@ OperatorMgr::storeDataRef(
 			p = ptr->m_p;
 		}
 
-		if (targetTypeKind == TypeKind_BitField) {
-			bfShadowValue.createConst(p, castType);
+		if (dstTypeFlags & PtrTypeFlag_BitField) {
+			bfShadowValue.createConst(p, targetType);
 			result = mergeBitField(
 				srcValue,
 				bfShadowValue,
-				(BitFieldType*)targetType,
+				targetType,
+				dstType->getBitOffset(),
+				dstType->getBitCount(),
 				&srcValue
 			);
 
 			if (!result)
 				return false;
-		}
+		} else if (dstTypeFlags & PtrTypeFlag_BigEndian)
+			swapByteOrder(&srcValue);
 
 		memcpy(p, srcValue.getConstData(), targetType->getSize());
 	}
@@ -237,14 +243,12 @@ OperatorMgr::storeDataRef(
 bool
 OperatorMgr::extractBitField(
 	const Value& rawValue,
-	BitFieldType* bitFieldType,
+	Type* baseType,
+	uint_t bitOffset,
+	uint_t bitCount,
 	Value* resultValue
 ) {
 	bool result;
-
-	Type* baseType = bitFieldType->getBaseType();
-	size_t bitOffset = bitFieldType->getBitOffset();
-	size_t bitCount = bitFieldType->getBitCount();
 
 	TypeKind typeKind = baseType->getSize() <= 4 ? TypeKind_Int32_u : TypeKind_Int64_u;
 	Type* type = m_module->m_typeMgr.getPrimitiveType(typeKind);
@@ -285,14 +289,12 @@ bool
 OperatorMgr::mergeBitField(
 	const Value& rawValue,
 	const Value& rawShadowValue,
-	BitFieldType* bitFieldType,
+	Type* baseType,
+	uint_t bitOffset,
+	uint_t bitCount,
 	Value* resultValue
 ) {
 	bool result;
-
-	Type* baseType = bitFieldType->getBaseType();
-	size_t bitOffset = bitFieldType->getBitOffset();
-	size_t bitCount = bitFieldType->getBitCount();
 
 	TypeKind typeKind = baseType->getSize() <= 4 ? TypeKind_Int32_u : TypeKind_Int64_u;
 	Type* type = m_module->m_typeMgr.getPrimitiveType(typeKind);

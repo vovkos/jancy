@@ -201,17 +201,10 @@ getType(ct::Type* type) {
 		StdType_Type,             // TypeKind_Int32_u
 		StdType_Type,             // TypeKind_Int64
 		StdType_Type,             // TypeKind_Int64_u
-		StdType_Type,             // TypeKind_Int16_be
-		StdType_Type,             // TypeKind_Int16_ube
-		StdType_Type,             // TypeKind_Int32_be
-		StdType_Type,             // TypeKind_Int32_ube
-		StdType_Type,             // TypeKind_Int64_be
-		StdType_Type,             // TypeKind_Int64_ube
 		StdType_Type,             // TypeKind_Float
 		StdType_Type,             // TypeKind_Double
 
 		StdType_ArrayType,        // TypeKind_Array
-		StdType_BitFieldType,     // TypeKind_BitField
 		StdType_EnumType,         // TypeKind_Enum
 		StdType_StructType,       // TypeKind_Struct
 		StdType_UnionType,        // TypeKind_Union

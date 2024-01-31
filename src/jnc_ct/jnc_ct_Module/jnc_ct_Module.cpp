@@ -632,7 +632,6 @@ Module::requireIntrospectionLib() {
 		StdType_BaseTypeSlot,
 		StdType_DerivableType,
 		StdType_ArrayType,
-		StdType_BitFieldType,
 		StdType_FunctionArg,
 		StdType_FunctionType,
 		StdType_FunctionPtrType,

@@ -110,99 +110,6 @@ Cast_IntExt_u::llvmCast(
 //..............................................................................
 
 bool
-Cast_SwapByteOrder::constCast(
-	const Value& opValue,
-	Type* type,
-	void* dst
-) {
-	size_t srcSize = opValue.getType()->getSize();
-	size_t dstSize = type->getSize();
-
-	ASSERT(srcSize == dstSize);
-
-	char* src = (char*)opValue.getConstData();
-
-	sl::swapByteOrder(dst, src, srcSize);
-	return true;
-}
-
-bool
-Cast_SwapByteOrder::llvmCast(
-	const Value& opValue,
-	Type* type,
-	Value* resultValue
-) {
-	llvm::Function* llvmSwapFunc = llvm::Intrinsic::getDeclaration(
-		m_module->getLlvmModule(),
-		llvm::Intrinsic::bswap,
-		llvm::ArrayRef<llvm::Type*> (type->getLlvmType())
-	);
-
-	m_module->m_llvmIrBuilder.createCall(
-		llvmSwapFunc,
-		m_module->m_typeMgr.getFunctionType(type, &type, 1),
-		&opValue,
-		1,
-		type,
-		resultValue
-	);
-
-	return true;
-}
-
-//..............................................................................
-
-bool
-Cast_IntFromBeInt::getCastOperators(
-	const Value& opValue,
-	Type* type,
-	CastOperator** firstOperator,
-	CastOperator** secondOperator,
-	Type** intermediateType
-) {
-	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_BigEndian);
-
-	TypeKind intermediateTypeKind = getLittleEndianIntegerTypeKind(opValue.getType()->getTypeKind());
-
-	if (isEquivalentIntegerTypeKind(type->getTypeKind(), intermediateTypeKind)) {
-		*firstOperator = m_module->m_operatorMgr.getStdCastOperator(StdCast_SwapByteOrder);
-		return true;
-	}
-
-	*firstOperator = m_module->m_operatorMgr.getStdCastOperator(StdCast_SwapByteOrder);
-	*secondOperator = m_module->m_operatorMgr.getStdCastOperator(StdCast_Int);
-	*intermediateType = m_module->m_typeMgr.getPrimitiveType(intermediateTypeKind);
-	return true;
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-bool
-Cast_BeInt::getCastOperators(
-	const Value& opValue,
-	Type* type,
-	CastOperator** firstOperator,
-	CastOperator** secondOperator,
-	Type** intermediateType
-) {
-	ASSERT(type->getTypeKindFlags() & TypeKindFlag_BigEndian);
-
-	TypeKind intermediateTypeKind = getLittleEndianIntegerTypeKind(type->getTypeKind());
-
-	if (isEquivalentIntegerTypeKind(opValue.getType()->getTypeKind(), intermediateTypeKind)) {
-		*firstOperator = m_module->m_operatorMgr.getStdCastOperator(StdCast_SwapByteOrder);
-		return true;
-	}
-
-	*firstOperator = m_module->m_operatorMgr.getStdCastOperator(StdCast_Int);
-	*secondOperator = m_module->m_operatorMgr.getStdCastOperator(StdCast_SwapByteOrder);
-	*intermediateType = m_module->m_typeMgr.getPrimitiveType(intermediateTypeKind);
-	return true;
-}
-
-//..............................................................................
-
-bool
 Cast_IntFromFp::llvmCast(
 	const Value& opValue,
 	Type* type,
@@ -376,10 +283,8 @@ Cast_IntFromEnum::getCastOperators(
 		return true;
 	}
 
-	bool isBigEndian = (intermediateType->getTypeKindFlags() & TypeKindFlag_BigEndian) != 0;
-
 	*firstOperator = m_module->m_operatorMgr.getStdCastOperator(StdCast_Copy);
-	*secondOperator = m_module->m_operatorMgr.getStdCastOperator(isBigEndian ? StdCast_BeInt : StdCast_Int);
+	*secondOperator = m_module->m_operatorMgr.getStdCastOperator(StdCast_Int);
 	*intermediateType_o = intermediateType;
 	return true;
 }
@@ -422,9 +327,7 @@ Cast_Enum::getCastOperators(
 		return true;
 	}
 
-	bool isBigEndian = (intermediateType->getTypeKindFlags() & TypeKindFlag_BigEndian) != 0;
-
-	*firstOperator = m_module->m_operatorMgr.getStdCastOperator(isBigEndian ? StdCast_BeInt : StdCast_Int);
+	*firstOperator = m_module->m_operatorMgr.getStdCastOperator(StdCast_Int);
 	*secondOperator = m_module->m_operatorMgr.getStdCastOperator(StdCast_Copy);
 	*intermediateType_o = intermediateType;
 	return true;
@@ -465,14 +368,6 @@ Cast_Int::getCastOperator(
 			(getTypeKindFlags(srcTypeKind) & TypeKindFlag_Unsigned) ?
 				(CastOperator*)&m_ext_u :
 				(CastOperator*)&m_ext;
-
-	case TypeKind_Int16_be:
-	case TypeKind_Int16_ube:
-	case TypeKind_Int32_be:
-	case TypeKind_Int32_ube:
-	case TypeKind_Int64_be:
-	case TypeKind_Int64_ube:
-		return &m_fromBeInt;
 
 	case TypeKind_Float:
 		return &m_fromFp32;

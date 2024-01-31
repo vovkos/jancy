@@ -178,23 +178,6 @@ protected:
 
 //..............................................................................
 
-// bigendian integer -> floating point
-
-class Cast_FpFromBeInt: public Cast_SuperMaster {
-public:
-	virtual
-	bool
-	getCastOperators(
-		const Value& opValue,
-		Type* type,
-		CastOperator** firstOperator,
-		CastOperator** secondOperator,
-		Type** intermediateType
-	);
-};
-
-//..............................................................................
-
 // enum -> floating point
 
 class Cast_FpFromEnum: public Cast_SuperMaster {
@@ -220,7 +203,6 @@ protected:
 	Cast_FpExt m_ext;
 	Cast_FpFromInt m_fromInt;
 	Cast_FpFromInt_u m_fromInt_u;
-	Cast_FpFromBeInt m_fromBeInt;
 	Cast_FpFromEnum m_fromEnum;
 
 public:

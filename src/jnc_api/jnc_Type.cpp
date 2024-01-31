@@ -17,6 +17,7 @@
 #elif defined(_JNC_CORE)
 #	include "jnc_ct_Type.h"
 #	include "jnc_ct_DataPtrType.h"
+#	include "jnc_ct_Module.h"
 #endif
 
 //..............................................................................
@@ -73,39 +74,6 @@ jnc_getTypeKindFlags(jnc_TypeKind typeKind) {
 		jnc_TypeKindFlag_Numeric |
 		jnc_TypeKindFlag_ErrorCode,
 
-		jnc_TypeKindFlag_BigEndian |    // jnc_TypeKind_Int16_be
-		jnc_TypeKindFlag_Integer |
-		jnc_TypeKindFlag_Numeric |
-		jnc_TypeKindFlag_ErrorCode,
-
-		jnc_TypeKindFlag_Unsigned |     // jnc_TypeKind_Int16_ube
-		jnc_TypeKindFlag_BigEndian |
-		jnc_TypeKindFlag_Integer |
-		jnc_TypeKindFlag_Numeric |
-		jnc_TypeKindFlag_ErrorCode,
-
-		jnc_TypeKindFlag_BigEndian |    // jnc_TypeKind_Int32_be
-		jnc_TypeKindFlag_Integer |
-		jnc_TypeKindFlag_Numeric |
-		jnc_TypeKindFlag_ErrorCode,
-
-		jnc_TypeKindFlag_Unsigned |     // jnc_TypeKind_Int32_ube
-		jnc_TypeKindFlag_BigEndian |
-		jnc_TypeKindFlag_Integer |
-		jnc_TypeKindFlag_Numeric |
-		jnc_TypeKindFlag_ErrorCode,
-
-		jnc_TypeKindFlag_BigEndian |    // jnc_TypeKind_Int64_be
-		jnc_TypeKindFlag_Integer |
-		jnc_TypeKindFlag_Numeric |
-		jnc_TypeKindFlag_ErrorCode,
-
-		jnc_TypeKindFlag_Unsigned |     // jnc_TypeKind_Int64_ube
-		jnc_TypeKindFlag_BigEndian |
-		jnc_TypeKindFlag_Integer |
-		jnc_TypeKindFlag_Numeric |
-		jnc_TypeKindFlag_ErrorCode,
-
 		jnc_TypeKindFlag_Fp |           // jnc_TypeKind_Float
 		jnc_TypeKindFlag_Numeric,
 
@@ -113,9 +81,7 @@ jnc_getTypeKindFlags(jnc_TypeKind typeKind) {
 		jnc_TypeKindFlag_Numeric,
 
 		jnc_TypeKindFlag_Aggregate |
-		jnc_TypeKindFlag_Nullable,      // jnc_TypeKind_Array
-
-		0,                              // jnc_TypeKind_BitField
+		jnc_TypeKindFlag_Nullable,           // jnc_TypeKind_Array
 
 		jnc_TypeKindFlag_Named |        // jnc_TypeKind_Enum
 		jnc_TypeKindFlag_Integer |
@@ -286,6 +252,13 @@ jnc_DataPtrType_getTargetType(jnc_DataPtrType* type) {
 }
 
 #else // _JNC_DYNAMIC_EXTENSION_LIB
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+const char*
+jnc_getPtrTypeFlagString_v(uint_t flags) {
+	return *jnc::getTlsStringBuffer() = jnc::ct::getPtrTypeFlagString(flags);
+}
 
 JNC_EXTERN_C
 JNC_EXPORT_O

@@ -26,8 +26,7 @@ StructType::StructType() {
 	m_fieldAlignment = 8;
 	m_fieldActualSize = 0;
 	m_fieldAlignedSize = 0;
-	m_lastBitFieldType = NULL;
-	m_lastBitFieldOffset = 0;
+	m_lastBitField = NULL;
 }
 
 void
@@ -82,10 +81,7 @@ StructType::append(StructType* type) {
 	size_t count = fieldArray.getCount();
 	for (size_t i = 0; i < count; i++) {
 		Field* field = fieldArray[i];
-		result = field->m_bitCount ?
-			createField(field->m_name, field->m_bitFieldBaseType, field->m_bitCount, field->m_ptrTypeFlags) != NULL:
-			createField(field->m_name, field->m_type, 0, field->m_ptrTypeFlags) != NULL;
-
+		result = createField(field->m_name, field->m_type, field->m_bitCount, field->m_ptrTypeFlags) != NULL;
 		if (!result)
 			return false;
 	}
@@ -139,7 +135,7 @@ StructType::calcLayout() {
 		if (slot->m_type->getConstructor())
 			m_baseTypeConstructArray.append(slot);
 
-		result = layoutField(
+		result = layoutFieldImpl(
 			slot->m_type,
 			&slot->m_offset,
 			&slot->m_llvmIndex
@@ -308,14 +304,8 @@ StructType::layoutField(Field* field) {
 	}
 
 	result = field->m_bitCount ?
-		layoutBitField(
-			field->m_bitFieldBaseType,
-			field->m_bitCount,
-			&field->m_type,
-			&field->m_offset,
-			&field->m_llvmIndex
-		) :
-		layoutField(
+		layoutBitField(field) :
+		layoutFieldImpl(
 			field->m_type,
 			&field->m_offset,
 			&field->m_llvmIndex
@@ -345,7 +335,7 @@ StructType::layoutField(Field* field) {
 }
 
 bool
-StructType::layoutField(
+StructType::layoutFieldImpl(
 	Type* type,
 	size_t* offset_o,
 	uint_t* llvmIndex
@@ -365,83 +355,68 @@ StructType::layoutField(
 		m_llvmFieldTypeArray.append(type->getLlvmType());
 	}
 
-	m_lastBitFieldType = NULL;
-	m_lastBitFieldOffset = 0;
-
 	setFieldActualSize(offset + type->getSize());
+	m_lastBitField = NULL;
 	return true;
 }
 
 bool
-StructType::layoutBitField(
-	Type* baseType,
-	size_t bitCount,
-	Type** type_o,
-	size_t* offset_o,
-	uint_t* llvmIndex
-) {
-	size_t baseBitCount = baseType->getSize() * 8;
-	if (bitCount > baseBitCount) {
+StructType::layoutBitField(Field* field) {
+	size_t baseBitCount = field->m_type->getSize() * 8;
+	if (field->m_bitCount > baseBitCount) {
 		err::setFormatStringError("type of bit field too small for number of bits");
 		return false;
 	}
 
-	bool isMerged = m_lastBitFieldType && m_lastBitFieldType->getBaseType()->cmp(baseType) == 0;
+	bool isMerged = m_lastBitField && m_lastBitField->getType()->cmp(field->m_type) == 0;
 
 	size_t bitOffset;
-	if (baseType->getTypeKindFlags() & TypeKindFlag_BigEndian) {
+	if (field->m_ptrTypeFlags & PtrTypeFlag_BigEndian) {
 		if (!isMerged) {
-			bitOffset = baseBitCount - bitCount;
+			bitOffset = baseBitCount - field->m_bitCount;
 		} else {
-			size_t lastBitOffset = m_lastBitFieldType->getBitOffset();
-			isMerged = lastBitOffset >= bitCount;
-			bitOffset = isMerged ? lastBitOffset - bitCount : baseBitCount - bitCount;
+			size_t lastBitOffset = m_lastBitField->getBitOffset();
+			isMerged = lastBitOffset >= field->m_bitCount;
+			bitOffset = isMerged ? lastBitOffset - field->m_bitCount : baseBitCount - field->m_bitCount;
 		}
 	} else {
 		if (!isMerged) {
 			bitOffset = 0;
 		} else {
-			size_t lastBitOffset = m_lastBitFieldType->getBitOffset() + m_lastBitFieldType->getBitCount();
-			isMerged = lastBitOffset + bitCount <= baseBitCount;
+			size_t lastBitOffset = m_lastBitField->getBitOffset() + m_lastBitField->getBitCount();
+			isMerged = lastBitOffset + field->m_bitCount <= baseBitCount;
 			bitOffset = isMerged ? lastBitOffset : 0;
 		}
 	}
 
-	BitFieldType* type = m_module->m_typeMgr.getBitFieldType(baseType, bitOffset, bitCount);
-	if (!type)
-		return false;
-
-	bool result = type->ensureLayout();
-	if (!result)
-		return false;
-
-	*type_o = type;
-	m_lastBitFieldType = type;
+	field->m_bitOffset = bitOffset;
+	field->m_ptrTypeFlags |= PtrTypeFlag_BitField;
 
 	if (isMerged) {
-		*offset_o = m_lastBitFieldOffset;
-		*llvmIndex = (uint_t)m_llvmFieldTypeArray.getCount() - 1;
+		field->m_offset = m_lastBitField->m_offset;
+		field->m_llvmIndex = m_lastBitField->m_llvmIndex;
+		m_lastBitField = field;
 		return true;
 	}
 
-	size_t alignment = type->getAlignment();
+	size_t alignment = field->m_type->getAlignment();
 	if (alignment > m_alignment)
 		m_alignment = AXL_MIN(alignment, m_fieldAlignment);
 
 	size_t offset = getFieldOffset(alignment);
-	m_lastBitFieldOffset = offset;
 
 	if (offset > m_fieldActualSize)
 		addLlvmPadding(offset - m_fieldActualSize);
 
-	*offset_o = offset;
+	field->m_offset = offset;
 
 	if (m_module->hasCodeGen() && !(m_flags & TypeFlag_Dynamic)) {
-		*llvmIndex = (uint_t)m_llvmFieldTypeArray.getCount();
-		m_llvmFieldTypeArray.append(type->getLlvmType());
+		field->m_llvmIndex = (uint_t)m_llvmFieldTypeArray.getCount();
+		m_llvmFieldTypeArray.append(field->m_type->getLlvmType());
 	}
 
-	setFieldActualSize(offset + type->getSize());
+	setFieldActualSize(offset + field->m_type->getSize());
+	m_lastBitField = field;
 	return true;
 }
 

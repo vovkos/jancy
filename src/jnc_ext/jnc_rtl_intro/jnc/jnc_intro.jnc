@@ -12,7 +12,6 @@
 import "jnc_Alias.jnc"
 import "jnc_ArrayType.jnc"
 import "jnc_AttributeBlock.jnc"
-import "jnc_BitFieldType.jnc"
 import "jnc_ClassType.jnc"
 import "jnc_DerivableType.jnc"
 import "jnc_EnumType.jnc"

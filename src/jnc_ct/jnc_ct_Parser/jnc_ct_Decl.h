@@ -56,8 +56,7 @@ enum TypeModifier {
 
 enum TypeModifierMaskKind {
 	TypeModifierMaskKind_Integer =
-		TypeModifier_Unsigned |
-		TypeModifier_BigEndian,
+		TypeModifier_Unsigned,
 
 	TypeModifierMaskKind_CallConv =
 		TypeModifier_Cdecl |
@@ -82,6 +81,7 @@ enum TypeModifierMaskKind {
 		TypeModifier_Indexed,
 
 	TypeModifierMaskKind_DataPtr =
+		TypeModifier_BigEndian |
 		TypeModifier_Safe |
 		TypeModifier_Const |
 		TypeModifier_ReadOnly |
@@ -116,6 +116,7 @@ enum TypeModifierMaskKind {
 		TypeModifierMaskKind_PropertyPtr,
 
 	TypeModifierMaskKind_DeclPtr =
+		TypeModifier_BigEndian |
 		TypeModifier_Const |
 		TypeModifier_ReadOnly |
 		TypeModifier_CMut |

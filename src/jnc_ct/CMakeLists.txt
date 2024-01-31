@@ -30,7 +30,6 @@ set(
 	include/jnc_ct_BinOp_Cmp.h
 	include/jnc_ct_BinOp_Idx.h
 	include/jnc_ct_BinOp_Logic.h
-	include/jnc_ct_BitFieldType.h
 	include/jnc_ct_CallConv.h
 	include/jnc_ct_CallConv_gcc32.h
 	include/jnc_ct_CallConv_msc32.h
@@ -378,7 +377,6 @@ source_group(
 set(
 	TYPEMGR_H_LIST
 	jnc_ct_TypeMgr/jnc_ct_ArrayType.h
-	jnc_ct_TypeMgr/jnc_ct_BitFieldType.h
 	jnc_ct_TypeMgr/jnc_ct_ClassPtrType.h
 	jnc_ct_TypeMgr/jnc_ct_ClassType.h
 	jnc_ct_TypeMgr/jnc_ct_ClosureClassType.h
@@ -407,7 +405,6 @@ set(
 set(
 	TYPEMGR_CPP_LIST
 	jnc_ct_TypeMgr/jnc_ct_ArrayType.cpp
-	jnc_ct_TypeMgr/jnc_ct_BitFieldType.cpp
 	jnc_ct_TypeMgr/jnc_ct_ClassPtrType.cpp
 	jnc_ct_TypeMgr/jnc_ct_ClassType.cpp
 	jnc_ct_TypeMgr/jnc_ct_ClosureClassType.cpp
@@ -663,7 +660,6 @@ set(
 	${RTL_INTRO_JNC_DIR}/jnc_Alias.jnc
 	${RTL_INTRO_JNC_DIR}/jnc_ArrayType.jnc
 	${RTL_INTRO_JNC_DIR}/jnc_AttributeBlock.jnc
-	${RTL_INTRO_JNC_DIR}/jnc_BitFieldType.jnc
 	${RTL_INTRO_JNC_DIR}/jnc_ClassType.jnc
 	${RTL_INTRO_JNC_DIR}/jnc_DerivableType.jnc
 	${RTL_INTRO_JNC_DIR}/jnc_EnumType.jnc

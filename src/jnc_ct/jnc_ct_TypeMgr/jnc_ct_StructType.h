@@ -12,7 +12,6 @@
 #pragma once
 
 #include "jnc_ct_DerivableType.h"
-#include "jnc_ct_BitFieldType.h"
 
 namespace jnc {
 namespace ct {
@@ -44,8 +43,7 @@ protected:
 
 	sl::Array<Field*> m_dynamicFieldArray;
 	sl::Array<llvm::Type*> m_llvmFieldTypeArray;
-	BitFieldType* m_lastBitFieldType;
-	size_t m_lastBitFieldOffset;
+	Field* m_lastBitField;
 
 public:
 	StructType();
@@ -126,20 +124,14 @@ protected:
 	layoutField(Field* field);
 
 	bool
-	layoutField(
+	layoutFieldImpl(
 		Type* type,
 		size_t* offset,
 		uint_t* llvmIndex
 	);
 
 	bool
-	layoutBitField(
-		Type* baseType,
-		size_t bitCount,
-		Type** type,
-		size_t* offset,
-		uint_t* llvmIndex
-	);
+	layoutBitField(Field* field);
 
 	size_t
 	getFieldOffset(size_t alignment);

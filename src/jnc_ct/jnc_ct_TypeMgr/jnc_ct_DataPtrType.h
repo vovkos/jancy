@@ -24,6 +24,8 @@ class DataPtrType: public Type {
 protected:
 	DataPtrTypeKind m_ptrTypeKind;
 	Type* m_targetType;
+	uint_t m_bitOffset; // PtrTypeFlag_BitField only
+	uint_t m_bitCount;  // PtrTypeFlag_BitField only
 
 public:
 	DataPtrType();
@@ -36,6 +38,16 @@ public:
 	Type*
 	getTargetType() {
 		return m_targetType;
+	}
+
+	size_t
+	getBitOffset() {
+		return m_bitOffset;
+	}
+
+	size_t
+	getBitCount() {
+		return m_bitCount;
 	}
 
 	DataPtrType*
@@ -63,6 +75,8 @@ public:
 	sl::String
 	createSignature(
 		Type* targetType,
+		uint_t bitOffset,
+		uint_t bitCount,
 		TypeKind typeKind,
 		DataPtrTypeKind ptrTypeKind,
 		uint_t flags
@@ -89,7 +103,7 @@ protected:
 	virtual
 	void
 	prepareSignature() {
-		m_signature = createSignature(m_targetType, m_typeKind, m_ptrTypeKind, m_flags);
+		m_signature = createSignature(m_targetType, m_bitOffset, m_bitCount, m_typeKind, m_ptrTypeKind, m_flags);
 		m_flags |= m_targetType->getFlags() & TypeFlag_SignatureFinal;
 	}
 
@@ -130,6 +144,7 @@ protected:
 
 struct DataPtrTypeTuple: sl::ListLink {
 	DataPtrType* m_ptrTypeArray[2][3][4][2][2]; // ref x kind x const/readonly/cmut x volatile x safe
+	DataPtrTypeTuple* m_bigEndianTuple; // same for PtrTypeFlag_BigEndian
 };
 
 //..............................................................................

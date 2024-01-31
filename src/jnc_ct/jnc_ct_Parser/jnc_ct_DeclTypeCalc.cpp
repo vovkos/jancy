@@ -311,6 +311,9 @@ DeclTypeCalc::getPtrTypeFlags(
 	else if (m_typeModifiers & TypeModifier_CMut)
 		flags |= PtrTypeFlag_CMut;
 
+	if (m_typeModifiers & TypeModifier_BigEndian)
+		flags |= PtrTypeFlag_BigEndian;
+
 	if (m_typeModifiers & TypeModifier_Volatile) {
 		if (type->getTypeKindFlags() & TypeKindFlag_Code) {
 			err::setFormatStringError("'volatile' cannot be applied to '%s'", type->getTypeString().sz());
@@ -367,11 +370,6 @@ DeclTypeCalc::getIntegerType(Type* type) {
 
 	if (m_typeModifiers & TypeModifier_Unsigned) {
 		TypeKind modTypeKind = getUnsignedIntegerTypeKind(type->getTypeKind());
-		type = m_module->m_typeMgr.getPrimitiveType(modTypeKind);
-	}
-
-	if (m_typeModifiers & TypeModifier_BigEndian) {
-		TypeKind modTypeKind = getBigEndianIntegerTypeKind(type->getTypeKind());
 		type = m_module->m_typeMgr.getPrimitiveType(modTypeKind);
 	}
 

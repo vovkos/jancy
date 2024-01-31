@@ -16,7 +16,6 @@
 #include "jnc_rtl_Field.h"
 #include "jnc_rtl_Type.h"
 #include "jnc_rtl_ArrayType.h"
-#include "jnc_rtl_BitFieldType.h"
 #include "jnc_rtl_FunctionType.h"
 #include "jnc_rtl_PropertyType.h"
 #include "jnc_rtl_DerivableType.h"
@@ -45,8 +44,6 @@
 #include "jnc_ArrayType.jnc.cpp"
 ;static char g_jnc_attributeBlockSrc[] =
 #include "jnc_AttributeBlock.jnc.cpp"
-;static char g_jnc_bitFieldTypeSrc[] =
-#include "jnc_BitFieldType.jnc.cpp"
 ;static char g_jnc_classTypeSrc[] =
 #include "jnc_ClassType.jnc.cpp"
 ;static char g_jnc_derivableTypeSrc[] =
@@ -106,7 +103,6 @@ JNC_BEGIN_LIB_SOURCE_FILE_TABLE(jnc_IntrospectionLib)
 	JNC_LIB_SOURCE_FILE("jnc_Alias.jnc",          g_jnc_aliasSrc)
 	JNC_LIB_SOURCE_FILE("jnc_ArrayType.jnc",      g_jnc_arrayTypeSrc)
 	JNC_LIB_SOURCE_FILE("jnc_AttributeBlock.jnc", g_jnc_attributeBlockSrc)
-	JNC_LIB_SOURCE_FILE("jnc_BitFieldType.jnc",   g_jnc_bitFieldTypeSrc)
 	JNC_LIB_SOURCE_FILE("jnc_ClassType.jnc",      g_jnc_classTypeSrc)
 	JNC_LIB_SOURCE_FILE("jnc_DerivableType.jnc",  g_jnc_derivableTypeSrc)
 	JNC_LIB_SOURCE_FILE("jnc_EnumType.jnc",       g_jnc_enumTypeSrc)
@@ -141,7 +137,6 @@ JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(jnc_IntrospectionLib)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(BaseTypeSlot)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(DerivableType)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(ArrayType)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(BitFieldType)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(FunctionArg)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(FunctionType)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(FunctionPtrType)
@@ -180,7 +175,6 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_IntrospectionLib)
 	JNC_MAP_TYPE(BaseTypeSlot)
 	JNC_MAP_TYPE(DerivableType)
 	JNC_MAP_TYPE(ArrayType)
-	JNC_MAP_TYPE(BitFieldType)
 	JNC_MAP_TYPE(FunctionArg)
 	JNC_MAP_TYPE(FunctionType)
 	JNC_MAP_TYPE(FunctionPtrType)

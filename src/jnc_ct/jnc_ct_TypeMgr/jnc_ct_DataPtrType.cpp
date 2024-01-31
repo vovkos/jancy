@@ -24,11 +24,15 @@ DataPtrType::DataPtrType() {
 	m_ptrTypeKind = DataPtrTypeKind_Normal;
 	m_targetType = NULL;
 	m_alignment = sizeof(void*);
+	m_bitOffset = 0;
+	m_bitCount = 0;
 }
 
 sl::String
 DataPtrType::createSignature(
 	Type* targetType,
+	uint_t bitOffset,
+	uint_t bitCount,
 	TypeKind typeKind,
 	DataPtrTypeKind ptrTypeKind,
 	uint_t flags
@@ -46,6 +50,9 @@ DataPtrType::createSignature(
 	ASSERT(i < countof(stringTable));
 
 	sl::String signature = stringTable[i];
+	if (bitCount)
+		signature.appendFormat(":%d:%d", bitOffset, bitCount);
+
 	signature += getPtrTypeFlagSignature(flags);
 	signature += targetType->getSignature();
 	return signature;

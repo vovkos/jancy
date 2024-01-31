@@ -118,10 +118,8 @@ OperatorMgr::OperatorMgr() {
 	// cast operators
 
 	m_stdCastOperatorTable[StdCast_Copy] = &m_cast_Copy;
-	m_stdCastOperatorTable[StdCast_SwapByteOrder] = &m_cast_SwapByteOrder;
 	m_stdCastOperatorTable[StdCast_PtrFromInt] = &m_cast_PtrFromInt;
 	m_stdCastOperatorTable[StdCast_Int] = &m_cast_Int;
-	m_stdCastOperatorTable[StdCast_BeInt] = &m_cast_BeInt;
 	m_stdCastOperatorTable[StdCast_Fp] = &m_cast_Fp;
 	m_stdCastOperatorTable[StdCast_FromVariant] = &m_cast_FromVariant;
 
@@ -132,9 +130,6 @@ OperatorMgr::OperatorMgr() {
 
 	for (size_t i = TypeKind_Int8; i <= TypeKind_Int64_u; i++)
 		m_castOperatorTable[i] = &m_cast_Int;
-
-	for (size_t i = TypeKind_Int16_be; i <= TypeKind_Int64_ube; i++)
-		m_castOperatorTable[i] = &m_cast_BeInt;
 
 	m_castOperatorTable[TypeKind_Void]          = &m_cast_Void;
 	m_castOperatorTable[TypeKind_Float]         = &m_cast_Fp;
@@ -887,6 +882,36 @@ OperatorMgr::checkCastKind(
 	return true;
 }
 
+void
+OperatorMgr::swapByteOrder(
+	const Value& opValue,
+	Value* resultValue
+) {
+	Type* type = opValue.getType();
+	ASSERT(type->getTypeKindFlags() & TypeKindFlag_Integer);
+
+	if (opValue.getValueKind() == ValueKind_Const) {
+		int64_t buffer;
+		sl::swapByteOrder(&buffer, opValue.getConstData(), type->getSize());
+		resultValue->createConst(&buffer, type);
+	} else {
+		llvm::Function* llvmSwapFunc = llvm::Intrinsic::getDeclaration(
+			m_module->getLlvmModule(),
+			llvm::Intrinsic::bswap,
+			llvm::ArrayRef<llvm::Type*> (type->getLlvmType())
+		);
+
+		m_module->m_llvmIrBuilder.createCall(
+			llvmSwapFunc,
+			m_module->m_typeMgr.getFunctionType(type, &type, 1),
+			&opValue,
+			1,
+			type,
+			resultValue
+		);
+	}
+}
+
 bool
 OperatorMgr::sizeofOperator(
 	OperatorDynamism dynamism,
@@ -1076,16 +1101,6 @@ OperatorMgr::prepareOperand_dataPtr(
 	return (opFlags & OpFlag_EnsurePtrTargetLayout) ?
 		((DataPtrType*)value->getType())->getTargetType()->ensureLayout() :
 		true;
-}
-
-bool
-OperatorMgr::prepareOperandType_dataRef_bitField(
-	Value* value,
-	uint_t opFlags
-) {
-	Type* targetType = ((DataPtrType*)value->getType())->getTargetType();
-	*value = ((BitFieldType*)targetType)->getBaseType();
-	return true;
 }
 
 bool
@@ -1389,16 +1404,9 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandTypeFuncTable[TypeK
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_Int32_u
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_Int64
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_Int64_u
-	&OperatorMgr::prepareOperand_nop,             // TypeKind_Int16_be
-	&OperatorMgr::prepareOperand_nop,             // TypeKind_Int16_ube
-	&OperatorMgr::prepareOperand_nop,             // TypeKind_Int32_be
-	&OperatorMgr::prepareOperand_nop,             // TypeKind_Int32_ube
-	&OperatorMgr::prepareOperand_nop,             // TypeKind_Int64_be
-	&OperatorMgr::prepareOperand_nop,             // TypeKind_Int64_ube
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_Float
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_Double
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_Array
-	&OperatorMgr::prepareOperand_nop,             // TypeKind_BitField
 	&OperatorMgr::prepareOperand_enum,            // TypeKind_Enum
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_Struct
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_Union
@@ -1432,16 +1440,9 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable[TypeKind_
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_Int32_u
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_Int64
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_Int64_u
-	&OperatorMgr::prepareOperand_nop,         // TypeKind_Int16_be
-	&OperatorMgr::prepareOperand_nop,         // TypeKind_Int16_ube
-	&OperatorMgr::prepareOperand_nop,         // TypeKind_Int32_be
-	&OperatorMgr::prepareOperand_nop,         // TypeKind_Int32_ube
-	&OperatorMgr::prepareOperand_nop,         // TypeKind_Int64_be
-	&OperatorMgr::prepareOperand_nop,         // TypeKind_Int64_ube
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_Float
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_Double
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_Array
-	&OperatorMgr::prepareOperand_nop,         // TypeKind_BitField
 	&OperatorMgr::prepareOperand_enum,        // TypeKind_Enum
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_Struct
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_Union
@@ -1475,16 +1476,9 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandTypeFuncTable_dataR
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Int32_u
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Int64
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Int64_u
-	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Int16_be
-	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Int16_ube
-	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Int32_be
-	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Int32_ube
-	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Int64_be
-	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Int64_ube
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Float
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Double
 	&OperatorMgr::prepareOperandType_dataRef_array,     // TypeKind_Array
-	&OperatorMgr::prepareOperandType_dataRef_bitField,  // TypeKind_BitField
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Enum
 	&OperatorMgr::prepareOperandType_dataRef_derivable, // TypeKind_Struct
 	&OperatorMgr::prepareOperandType_dataRef_derivable, // TypeKind_Union
@@ -1518,16 +1512,9 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable_dataRef[T
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Int32_u
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Int64
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Int64_u
-	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Int16_be
-	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Int16_ube
-	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Int32_be
-	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Int32_ube
-	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Int64_be
-	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Int64_ube
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Float
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Double
 	&OperatorMgr::prepareOperand_dataRef_array,     // TypeKind_Array
-	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_BitField
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Enum
 	&OperatorMgr::prepareOperand_dataRef_derivable, // TypeKind_Struct
 	&OperatorMgr::prepareOperand_dataRef_derivable, // TypeKind_Union

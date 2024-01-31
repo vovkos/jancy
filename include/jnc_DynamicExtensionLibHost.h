@@ -42,7 +42,6 @@ typedef struct jnc_NamedTypeFuncTable jnc_NamedTypeFuncTable;
 typedef struct jnc_BaseTypeSlotFuncTable jnc_BaseTypeSlotFuncTable;
 typedef struct jnc_DerivableTypeFuncTable jnc_DerivableTypeFuncTable;
 typedef struct jnc_ArrayTypeFuncTable jnc_ArrayTypeFuncTable;
-typedef struct jnc_BitFieldTypeFuncTable jnc_BitFieldTypeFuncTable;
 typedef struct jnc_FunctionArgFuncTable jnc_FunctionArgFuncTable;
 typedef struct jnc_FunctionTypeFuncTable jnc_FunctionTypeFuncTable;
 typedef struct jnc_PropertyTypeFuncTable jnc_PropertyTypeFuncTable;
@@ -620,31 +619,6 @@ struct jnc_ArrayTypeFuncTable {
 	size_t m_size;
 	jnc_ArrayType_GetElementTypeFunc* m_getElementTypeFunc;
 	jnc_ArrayType_GetElementCountFunc* m_GetElementCountFunc;
-};
-
-//..............................................................................
-
-// BitFieldType
-
-typedef
-jnc_Type*
-jnc_BitFieldType_GetBaseTypeFunc(jnc_BitFieldType* type);
-
-typedef
-size_t
-jnc_BitFieldType_GetBitOffsetFunc(jnc_BitFieldType* type);
-
-typedef
-size_t
-jnc_BitFieldType_GetBitCountFunc(jnc_BitFieldType* type);
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct jnc_BitFieldTypeFuncTable {
-	size_t m_size;
-	jnc_BitFieldType_GetBaseTypeFunc* m_getBaseTypeFunc;
-	jnc_BitFieldType_GetBitOffsetFunc* m_getBitOffsetFunc;
-	jnc_BitFieldType_GetBitCountFunc* m_getBitCountFunc;
 };
 
 //..............................................................................
@@ -1799,7 +1773,6 @@ struct jnc_DynamicExtensionLibHost {
 	jnc_FieldFuncTable* m_fieldFuncTable;
 	jnc_DerivableTypeFuncTable* m_derivableTypeFuncTable;
 	jnc_ArrayTypeFuncTable* m_arrayTypeFuncTable;
-	jnc_BitFieldTypeFuncTable* m_bitFieldTypeFuncTable;
 	jnc_FunctionArgFuncTable* m_functionArgFuncTable;
 	jnc_FunctionTypeFuncTable* m_functionTypeFuncTable;
 	jnc_PropertyTypeFuncTable* m_propertyTypeFuncTable;

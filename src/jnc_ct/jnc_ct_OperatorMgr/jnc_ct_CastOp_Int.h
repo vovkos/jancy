@@ -112,68 +112,6 @@ public:
 
 //..............................................................................
 
-// big endian <-> little endian
-
-class Cast_SwapByteOrder: public CastOperator {
-public:
-	virtual
-	CastKind
-	getCastKind(
-		const Value& opValue,
-		Type* type
-	) {
-		return opValue.getValueKind() == ValueKind_Const ? CastKind_Identity : CastKind_Implicit;
-	}
-
-	virtual
-	bool
-	constCast(
-		const Value& opValue,
-		Type* type,
-		void* dst
-	);
-
-	virtual
-	bool
-	llvmCast(
-		const Value& opValue,
-		Type* type,
-		Value* resultValue
-	);
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-class Cast_IntFromBeInt: public Cast_SuperMaster {
-public:
-	virtual
-	bool
-	getCastOperators(
-		const Value& opValue,
-		Type* type,
-		CastOperator** firstOperator,
-		CastOperator** secondOperator,
-		Type** intermediateType
-	);
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-class Cast_BeInt: public Cast_SuperMaster {
-public:
-	virtual
-	bool
-	getCastOperators(
-		const Value& opValue,
-		Type* type,
-		CastOperator** firstOperator,
-		CastOperator** secondOperator,
-		Type** intermediateType
-	);
-};
-
-//..............................................................................
-
 // floating point -> integer
 
 class Cast_IntFromFp: public CastOperator {
@@ -337,7 +275,6 @@ protected:
 	Cast_IntTrunc m_trunc;
 	Cast_IntExt m_ext;
 	Cast_IntExt_u m_ext_u;
-	Cast_IntFromBeInt m_fromBeInt;
 	Cast_IntFromFp32 m_fromFp32;
 	Cast_IntFromFp64 m_fromFp64;
 	Cast_IntFromEnum m_fromEnum;

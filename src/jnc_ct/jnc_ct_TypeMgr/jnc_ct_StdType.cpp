@@ -90,7 +90,6 @@ getStdTypeName(StdType stdType) {
 		"BaseTypeSlot",           // StdType_BaseTypeSlot
 		"DerivableType",          // StdType_DerivableType
 		"ArrayType",              // StdType_ArrayType
-		"BitFieldType",           // StdType_BitFieldType
 		"FunctionArg",            // StdType_FunctionArg
 		"FunctionType",           // StdType_FunctionType
 		"FunctionPtrType",        // StdType_FunctionPtrType
@@ -219,7 +218,6 @@ getStdTypeSource(StdType stdType) {
 		{ NULL },  // StdType_BaseTypeSlot
 		{ NULL },  // StdType_DerivableType
 		{ NULL },  // StdType_ArrayType
-		{ NULL },  // StdType_BitFieldType
 		{ NULL },  // StdType_FunctionArg
 		{ NULL },  // StdType_FunctionType
 		{ NULL },  // StdType_FunctionPtrType

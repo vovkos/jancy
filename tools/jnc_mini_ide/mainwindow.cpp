@@ -22,8 +22,8 @@
 // #define _NO_GC 1
 
 #define DEFAULT_STDLIB           true
-#define DEFAULT_DEBUG_INFO       true
-#define DEFAULT_OPTIMIZE         true
+#define DEFAULT_DEBUG_INFO       false
+#define DEFAULT_OPTIMIZE         false
 #define DEFAULT_DISABLE_CODE_GEN false
 #define DEFAULT_JIT              true
 #define DEFAULT_JIT_KIND         jnc::JitKind_Auto

@@ -233,26 +233,6 @@ Cast_FpFromInt_u::constCast_Fp64(
 //..............................................................................
 
 bool
-Cast_FpFromBeInt::getCastOperators(
-	const Value& opValue,
-	Type* type,
-	CastOperator** firstOperator,
-	CastOperator** secondOperator,
-	Type** intermediateType
-) {
-	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_BigEndian);
-
-	TypeKind intermediateTypeKind = getLittleEndianIntegerTypeKind(opValue.getType()->getTypeKind());
-
-	*firstOperator = m_module->m_operatorMgr.getStdCastOperator(StdCast_SwapByteOrder);
-	*secondOperator = m_module->m_operatorMgr.getStdCastOperator(StdCast_Fp);
-	*intermediateType = m_module->m_typeMgr.getPrimitiveType(intermediateTypeKind);
-	return true;
-}
-
-//..............................................................................
-
-bool
 Cast_FpFromEnum::getCastOperators(
 	const Value& opValue,
 	Type* type,
@@ -300,14 +280,6 @@ Cast_Fp::getCastOperator(
 	case TypeKind_Int32_u:
 	case TypeKind_Int64_u:
 		return &m_fromInt_u;
-
-	case TypeKind_Int16_be:
-	case TypeKind_Int16_ube:
-	case TypeKind_Int32_be:
-	case TypeKind_Int32_ube:
-	case TypeKind_Int64_be:
-	case TypeKind_Int64_ube:
-		return &m_fromBeInt;
 
 	case TypeKind_Float:
 	case TypeKind_Double:

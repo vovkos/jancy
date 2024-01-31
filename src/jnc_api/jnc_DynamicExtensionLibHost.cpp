@@ -178,13 +178,6 @@ static jnc_ArrayTypeFuncTable g_arrayTypeFuncTable = {
 	jnc_ArrayType_getElementCount,
 };
 
-static jnc_BitFieldTypeFuncTable g_bitFieldTypeFuncTable = {
-	sizeof(jnc_BitFieldTypeFuncTable),
-	jnc_BitFieldType_getBaseType,
-	jnc_BitFieldType_getBitOffset,
-	jnc_BitFieldType_getBitCount,
-};
-
 static jnc_FunctionArgFuncTable g_functionArgFuncTable = {
 	sizeof(jnc_FunctionArgFuncTable),
 };
@@ -430,7 +423,6 @@ jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl = {
 	&g_fieldFuncTable,
 	&g_derivableTypeFuncTable,
 	&g_arrayTypeFuncTable,
-	&g_bitFieldTypeFuncTable,
 	&g_functionArgFuncTable,
 	&g_functionTypeFuncTable,
 	&g_propertyTypeFuncTable,

@@ -21,12 +21,38 @@ namespace ct {
 Field::Field() {
 	m_itemKind = ModuleItemKind_Field;
 	m_type = NULL;
-	m_ptrTypeFlags = 0;
-	m_bitFieldBaseType = NULL;
+	m_bitOffset = 0;
 	m_bitCount = 0;
+	m_ptrTypeFlags = 0;
 	m_offset = 0;
 	m_llvmIndex = -1;
 	m_prevDynamicFieldIndex = -1;
+}
+
+DataPtrType*
+Field::getDataPtrType(
+	TypeKind typeKind,
+	DataPtrTypeKind ptrTypeKind,
+	uint_t flags
+) {
+	ASSERT(!m_bitCount == !(flags & PtrTypeFlag_BitField));
+
+	return m_bitCount ?
+		m_module->m_typeMgr.getDataPtrType(
+			m_type,
+			m_bitOffset,
+			m_bitCount,
+			typeKind,
+			ptrTypeKind,
+			flags
+		) :
+	 	m_module->m_typeMgr.getDataPtrType(
+			m_type,
+			typeKind,
+			ptrTypeKind,
+			flags
+		);
+
 }
 
 bool

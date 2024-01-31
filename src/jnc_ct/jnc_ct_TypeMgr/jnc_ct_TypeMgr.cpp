@@ -14,7 +14,6 @@
 #include "jnc_ct_Module.h"
 #include "jnc_ct_DeclTypeCalc.h"
 #include "jnc_ct_ArrayType.h"
-#include "jnc_ct_BitFieldType.h"
 #include "jnc_ct_EnumType.h"
 #include "jnc_ct_StructType.h"
 #include "jnc_ct_UnionType.h"
@@ -269,7 +268,6 @@ TypeMgr::getStdType(StdType stdType) {
 	case StdType_BaseTypeSlot:
 	case StdType_DerivableType:
 	case StdType_ArrayType:
-	case StdType_BitFieldType:
 	case StdType_FunctionArg:
 	case StdType_FunctionType:
 	case StdType_FunctionPtrType:
@@ -314,34 +312,6 @@ TypeMgr::getStdType(StdType stdType) {
 
 	type->m_stdType = stdType;
 	m_stdTypeArray[stdType] = type;
-	return type;
-}
-
-BitFieldType*
-TypeMgr::getBitFieldType(
-	Type* baseType,
-	size_t bitOffset,
-	size_t bitCount
-) {
-	sl::String signature = BitFieldType::createSignature(baseType, bitOffset, bitCount);
-	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
-	if (it->m_value)
-		return (BitFieldType*)it->m_value;
-
-	BitFieldType* type = new BitFieldType;
-	type->m_module = m_module;
-	type->m_baseType = baseType;
-	type->m_bitOffset = bitOffset;
-	type->m_bitCount = bitCount;
-	type->m_signature = signature;
-	type->m_flags |= baseType->getFlags() & TypeFlag_SignatureFinal;
-	m_typeList.insertTail(type);
-	it->m_value = type;
-
-	if (baseType->getTypeKindFlags() & TypeKindFlag_Import)
-		((ImportType*)baseType)->addFixup(&type->m_baseType);
-
-
 	return type;
 }
 
@@ -625,7 +595,6 @@ TypeMgr::createField(
 	field->m_name = name;
 	field->m_type = type;
 	field->m_ptrTypeFlags = ptrTypeFlags;
-	field->m_bitFieldBaseType = bitCount ? type : NULL;
 	field->m_bitCount = bitCount;
 
 	if (constructor)
@@ -636,11 +605,8 @@ TypeMgr::createField(
 
 	m_fieldList.insertTail(field);
 
-	if (type->getTypeKindFlags() & TypeKindFlag_Import) {
+	if (type->getTypeKindFlags() & TypeKindFlag_Import)
 		((ImportType*)type)->addFixup(&field->m_type);
-		if (bitCount)
-			((ImportType*)type)->addFixup(&field->m_bitFieldBaseType);
-	}
 
 	return field;
 }
@@ -1323,6 +1289,46 @@ TypeMgr::getDataClosureClassType(
 DataPtrType*
 TypeMgr::getDataPtrType(
 	Type* targetType,
+	uint_t bitOffset,
+	uint_t bitCount,
+	TypeKind typeKind,
+	DataPtrTypeKind ptrTypeKind,
+	uint_t flags
+) {
+	ASSERT(bitCount && (flags & PtrTypeFlag_BitField)); // otherwise, should go to the original getDataPtrType overload
+
+	sl::String signature = DataPtrType::createSignature(targetType, bitOffset, bitCount, typeKind, ptrTypeKind, flags);
+	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
+	if (it->m_value) {
+		DataPtrType* type = (DataPtrType*)it->m_value;
+		ASSERT(type->m_signature == signature);
+		return type;
+	}
+
+	DataPtrType* type = new DataPtrType;
+	type->m_module = m_module;
+	type->m_typeKind = typeKind;
+	type->m_ptrTypeKind = ptrTypeKind;
+	type->m_size = ptrTypeKind == DataPtrTypeKind_Normal ? sizeof(DataPtr) : sizeof(void*);
+	type->m_targetType = targetType;
+	type->m_bitOffset = bitOffset;
+	type->m_bitCount = bitCount;
+	type->m_signature = signature;
+	type->m_flags = flags | TypeFlag_SignatureReady;
+
+	if (targetType->getTypeKindFlags() & TypeKindFlag_Import)
+		((ImportType*)targetType)->addFixup(&type->m_targetType);
+	else
+		type->m_flags |= ModuleItemFlag_LayoutReady;
+
+	m_typeList.insertTail(type);
+	it->m_value = type;
+	return type;
+}
+
+DataPtrType*
+TypeMgr::getDataPtrType(
+	Type* targetType,
 	TypeKind typeKind,
 	DataPtrTypeKind ptrTypeKind,
 	uint_t flags
@@ -1338,9 +1344,9 @@ TypeMgr::getDataPtrType(
 	if (isDualType(targetType))
 		flags |= PtrTypeFlag_DualTarget;
 
-	DataPtrTypeTuple* tuple = getDataPtrTypeTuple(targetType);
+	DataPtrTypeTuple* tuple = getDataPtrTypeTuple(targetType, flags);
 
-	// ref x ptrkind x const/readonly/cmut x volatile x checked/markup
+	// ref x ptrkind x const/readonly/cmut x volatile x safe
 
 	size_t i1 = typeKind == TypeKind_DataRef;
 	size_t i2 = ptrTypeKind;
@@ -1363,13 +1369,11 @@ TypeMgr::getDataPtrType(
 	if (tuple->m_ptrTypeArray[i1][i2][i3][i4][i5])
 		return tuple->m_ptrTypeArray[i1][i2][i3][i4][i5];
 
-	size_t size = ptrTypeKind == DataPtrTypeKind_Normal ? sizeof(DataPtr) : sizeof(void*);
-
 	DataPtrType* type = new DataPtrType;
 	type->m_module = m_module;
 	type->m_typeKind = typeKind;
 	type->m_ptrTypeKind = ptrTypeKind;
-	type->m_size = size;
+	type->m_size = ptrTypeKind == DataPtrTypeKind_Normal ? sizeof(DataPtr) : sizeof(void*);
 	type->m_targetType = targetType;
 	type->m_flags = flags;
 
@@ -1467,13 +1471,11 @@ TypeMgr::getFunctionPtrType(
 	if (tuple->m_ptrTypeArray[i1][i2][i3])
 		return tuple->m_ptrTypeArray[i1][i2][i3];
 
-	size_t size = ptrTypeKind == FunctionPtrTypeKind_Thin ? sizeof(void*) : sizeof(FunctionPtr);
-
 	FunctionPtrType* type = new FunctionPtrType;
 	type->m_module = m_module;
 	type->m_typeKind = typeKind;
 	type->m_ptrTypeKind = ptrTypeKind;
-	type->m_size = size;
+	type->m_size = ptrTypeKind == FunctionPtrTypeKind_Thin ? sizeof(void*) : sizeof(FunctionPtr);
 	type->m_targetType = functionType;
 	type->m_flags = flags;
 
@@ -1509,13 +1511,11 @@ TypeMgr::getPropertyPtrType(
 	if (tuple->m_ptrTypeArray[i1][i2][i3])
 		return tuple->m_ptrTypeArray[i1][i2][i3];
 
-	size_t size = ptrTypeKind == PropertyPtrTypeKind_Thin ? sizeof(void*) : sizeof(PropertyPtr);
-
 	PropertyPtrType* type = new PropertyPtrType;
 	type->m_module = m_module;
 	type->m_typeKind = typeKind;
 	type->m_ptrTypeKind = ptrTypeKind;
-	type->m_size = size;
+	type->m_size = ptrTypeKind == PropertyPtrTypeKind_Thin ? sizeof(void*) : sizeof(PropertyPtr);
 	type->m_targetType = propertyType;
 	type->m_flags = flags;
 
@@ -1688,14 +1688,30 @@ TypeMgr::getFunctionArgTuple(Type* type) {
 }
 
 DataPtrTypeTuple*
-TypeMgr::getDataPtrTypeTuple(Type* type) {
-	if (type->m_dataPtrTypeTuple)
-		return type->m_dataPtrTypeTuple;
+TypeMgr::getDataPtrTypeTuple(
+	Type* type,
+	uint_t flags
+) {
+	DataPtrTypeTuple* tuple;
 
-	DataPtrTypeTuple* tuple = new (mem::ZeroInit) DataPtrTypeTuple;
-	type->m_dataPtrTypeTuple = tuple;
-	m_dataPtrTypeTupleList.insertTail(tuple);
-	return tuple;
+	if (type->m_dataPtrTypeTuple)
+		tuple = type->m_dataPtrTypeTuple;
+	else {
+		tuple = new(mem::ZeroInit) DataPtrTypeTuple;
+		type->m_dataPtrTypeTuple = tuple;
+		m_dataPtrTypeTupleList.insertTail(tuple);
+	}
+
+	if (!(flags & PtrTypeFlag_BigEndian))
+		return tuple;
+
+	if (tuple->m_bigEndianTuple)
+		return tuple->m_bigEndianTuple;
+
+	DataPtrTypeTuple* tuple2 = new(mem::ZeroInit) DataPtrTypeTuple;
+	tuple->m_bigEndianTuple = tuple2;
+	m_dataPtrTypeTupleList.insertTail(tuple2);
+	return tuple2;
 }
 
 ClassPtrTypeTuple*
@@ -1769,12 +1785,6 @@ TypeMgr::setupAllPrimitiveTypes() {
 	setupPrimitiveType(TypeKind_Int32_u,   "u32",  4, 4, PodFlags);
 	setupPrimitiveType(TypeKind_Int64,     "i64",  8, 8, PodFlags);
 	setupPrimitiveType(TypeKind_Int64_u,   "u64",  8, 8, PodFlags);
-	setupPrimitiveType(TypeKind_Int16_be,  "ib16", 2, 2, PodFlags);
-	setupPrimitiveType(TypeKind_Int16_ube, "ub16", 2, 2, PodFlags);
-	setupPrimitiveType(TypeKind_Int32_be,  "ib32", 4, 4, PodFlags);
-	setupPrimitiveType(TypeKind_Int32_ube, "ub32", 4, 4, PodFlags);
-	setupPrimitiveType(TypeKind_Int64_be,  "ib64", 8, 8, PodFlags);
-	setupPrimitiveType(TypeKind_Int64_ube, "ub64", 8, 8, PodFlags);
 	setupPrimitiveType(TypeKind_Float,     "f",    4, 4, PodFlags);
 	setupPrimitiveType(TypeKind_Double,    "d",    8, 8, PodFlags);
 

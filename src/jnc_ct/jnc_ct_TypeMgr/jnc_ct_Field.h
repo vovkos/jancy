@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include "jnc_ct_ModuleItem.h"
+#include "jnc_ct_Type.h"
 
 namespace jnc {
 namespace ct {
@@ -36,17 +36,17 @@ class Field:
 
 protected:
 	Type* m_type;
+	uint_t m_bitOffset;
+	uint_t m_bitCount;
 	uint_t m_ptrTypeFlags;
-	sl::List<Token> m_constructor;
-
-	Type* m_bitFieldBaseType;
-	size_t m_bitCount;
 	size_t m_offset;
 
 	union {
 		uint_t m_llvmIndex;
 		size_t m_prevDynamicFieldIndex;
 	};
+
+	sl::List<Token> m_constructor;
 
 public:
 	Field();
@@ -56,14 +56,19 @@ public:
 		return m_type;
 	}
 
-	int
-	getPtrTypeFlags() {
-		return m_ptrTypeFlags;
+	uint_t
+	getBitOffset() {
+		return m_bitOffset;
 	}
 
-	sl::List<Token>*
-	getConstructor() {
-		return &m_constructor;
+	uint_t
+	getBitCount() {
+		return m_bitCount;
+	}
+
+	uint_t
+	getPtrTypeFlags() {
+		return m_ptrTypeFlags;
 	}
 
 	size_t
@@ -80,6 +85,18 @@ public:
 	getPrevDynamicFieldIndex() {
 		return m_prevDynamicFieldIndex;
 	}
+
+	sl::List<Token>*
+	getConstructor() {
+		return &m_constructor;
+	}
+
+	DataPtrType*
+	getDataPtrType(
+		TypeKind typeKind,
+		DataPtrTypeKind ptrTypeKind,
+		uint_t flags
+	);
 
 	virtual
 	bool

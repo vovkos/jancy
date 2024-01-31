@@ -162,8 +162,6 @@ Value::getLlvmConst(
 
 	case TypeKind_Int16:
 	case TypeKind_Int16_u:
-	case TypeKind_Int16_be:
-	case TypeKind_Int16_ube:
 		integer = *(int16_t*)p;
 		llvmConst = llvm::ConstantInt::get(
 			type->getLlvmType(),
@@ -173,8 +171,6 @@ Value::getLlvmConst(
 
 	case TypeKind_Int32:
 	case TypeKind_Int32_u:
-	case TypeKind_Int32_be:
-	case TypeKind_Int32_ube:
 		integer = *(int32_t*)p;
 		llvmConst = llvm::ConstantInt::get(
 			type->getLlvmType(),
@@ -184,8 +180,6 @@ Value::getLlvmConst(
 
 	case TypeKind_Int64:
 	case TypeKind_Int64_u:
-	case TypeKind_Int64_be:
-	case TypeKind_Int64_ube:
 		integer = *(int64_t*)p;
 		llvmConst = llvm::ConstantInt::get(
 			type->getLlvmType(),
@@ -426,21 +420,13 @@ Value::trySetEnumConst(EnumConst* enumConst) {
 			return false;
 	}
 
-	Type* baseType = enumType->getBaseType();
 	uint64_t enumValue = enumConst->getValue();
-	if (enumType->getBaseType()->getTypeKindFlags() & TypeKindFlag_BigEndian) {
-		enumValue = sl::swapByteOrder64(enumValue);
-
-		size_t size = baseType->getSize();
-		if (size < 8)
-			enumValue >>= (8 - size) * 8;
-	}
 
 	return createConst(
 		&enumValue,
 		(enumType->getFlags() & ModuleItemFlag_LayoutReady) ?
 			enumType :
-			baseType
+			enumType->getBaseType()
 		);
 }
 
