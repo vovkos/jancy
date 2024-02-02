@@ -888,7 +888,7 @@ OperatorMgr::swapByteOrder(
 	Value* resultValue
 ) {
 	Type* type = opValue.getType();
-	ASSERT(type->getTypeKindFlags() & TypeKindFlag_Integer);
+	ASSERT((type->getTypeKindFlags() & TypeKindFlag_Integer) && type->getSize() >= 2);
 
 	if (opValue.getValueKind() == ValueKind_Const) {
 		int64_t buffer;

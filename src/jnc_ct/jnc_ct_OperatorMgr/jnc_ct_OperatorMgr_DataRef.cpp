@@ -116,6 +116,9 @@ OperatorMgr::loadDataRef(
 		resultValue->createConst(p, targetType);
 	}
 
+	if ((typeFlags & PtrTypeFlag_BigEndian) && targetType->getSize() >= 2)
+		swapByteOrder(resultValue);
+
 	if (typeFlags & PtrTypeFlag_BitField) {
 		result = extractBitField(
 			*resultValue,
@@ -127,8 +130,7 @@ OperatorMgr::loadDataRef(
 
 		if (!result)
 			return false;
-	} else if (typeFlags & PtrTypeFlag_BigEndian)
-		swapByteOrder(resultValue);
+	}
 
 	return true;
 }
@@ -169,6 +171,8 @@ OperatorMgr::storeDataRef(
 	if (!m_module->hasCodeGen())
 		return true;
 
+	bool isSwapByteOrderNeeded = (dstTypeFlags & PtrTypeFlag_BigEndian) && targetType->getSize() >= 2;
+
 	if (srcValue.getValueKind() != ValueKind_Const ||
 		dstValue.getValueKind() != ValueKind_Const) {
 		Value ptrValue;
@@ -184,6 +188,9 @@ OperatorMgr::storeDataRef(
 				(dstType->getFlags() & PtrTypeFlag_Volatile) != 0
 			);
 
+			if (isSwapByteOrderNeeded)
+				swapByteOrder(&bfShadowValue);
+
 			result = mergeBitField(
 				srcValue,
 				bfShadowValue,
@@ -195,7 +202,9 @@ OperatorMgr::storeDataRef(
 
 			if (!result)
 				return false;
-		} else if (dstTypeFlags & PtrTypeFlag_BigEndian)
+		}
+
+		if (isSwapByteOrderNeeded)
 			swapByteOrder(&srcValue);
 
 		m_module->m_llvmIrBuilder.createStore(
@@ -220,6 +229,9 @@ OperatorMgr::storeDataRef(
 
 		if (dstTypeFlags & PtrTypeFlag_BitField) {
 			bfShadowValue.createConst(p, targetType);
+			if (isSwapByteOrderNeeded)
+				swapByteOrder(&bfShadowValue);
+
 			result = mergeBitField(
 				srcValue,
 				bfShadowValue,
@@ -231,7 +243,9 @@ OperatorMgr::storeDataRef(
 
 			if (!result)
 				return false;
-		} else if (dstTypeFlags & PtrTypeFlag_BigEndian)
+		}
+
+		if (isSwapByteOrderNeeded)
 			swapByteOrder(&srcValue);
 
 		memcpy(p, srcValue.getConstData(), targetType->getSize());

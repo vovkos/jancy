@@ -548,7 +548,7 @@ public:
 	void
 	swapByteOrder(
 		const Value& opValue,
-		Value* resultValue = NULL
+		Value* resultValue
 	);
 
 	void
