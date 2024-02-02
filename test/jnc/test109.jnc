@@ -1,6 +1,6 @@
 // this test was used to fix a bug with bigendian enums
 
-enum EthernetType: bigendian uint16_t {
+enum EthernetType: uint16_t {
 	Ip  = 0x0800,
 	Arp = 0x0806,
 	Ip6 = 0x86dd,
@@ -9,7 +9,7 @@ enum EthernetType: bigendian uint16_t {
 struct EthernetHdr {
 	uint8_t m_dstAddress[6];
 	uint8_t m_srcAddress[6];
-	EthernetType m_type;
+	EthernetType bigendian m_type;
 }
 
 int main() {
@@ -19,10 +19,10 @@ int main() {
 
 	uint_t a = hdr.m_type;
 	EthernetType b = hdr.m_type;
-	uint_t c = (bigendian uint16_t)0x0806;
+	uint_t c = 0x0806;
 	uint_t d = EthernetType.Arp;
 	bigendian uint_t e = 0x0806;
-	bigendian uint_t f = (bigendian uint_t)0x0806;
+	bigendian uint_t f = 0x0806;
 	EthernetType g = EthernetType.Arp;
 	EthernetType h = (EthernetType)0x0806;
 

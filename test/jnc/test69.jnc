@@ -17,7 +17,7 @@ enum {
 	MinInterFrameDelay32 = 0xffffffff,
 }
 
-bigendian uint16_t foo() {
+uint16_t foo() {
 	uint16_t a = 0xabcd;
 	return *(bigendian uint16_t thin*) &a;
 }
@@ -28,8 +28,10 @@ int main() {
 	printf("MinInterFrameDelay   = %llx\n", MinInterFrameDelay);
 	printf("MinInterFrameDelay32 = %x\n", MinInterFrameDelay32);
 
-	printf("foo -> %x\n", foo ());
+	uint16_t x = foo();
+	assert(x == 0xcdab);
 
+	printf("foo -> %x\n", x);
 	return 0;
 }
 
