@@ -156,6 +156,9 @@ static jnc_BaseTypeSlotFuncTable g_baseTypeSlotFuncTable = {
 
 static jnc_FieldFuncTable g_fieldFuncTable = {
 	sizeof(jnc_FieldFuncTable),
+	jnc_Field_getType,
+	jnc_Field_getBitOffset,
+	jnc_Field_getBitCount,
 	jnc_Field_getPtrTypeFlags,
 	jnc_Field_getOffset,
 };

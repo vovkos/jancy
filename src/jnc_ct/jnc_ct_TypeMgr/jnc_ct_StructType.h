@@ -41,7 +41,6 @@ protected:
 	size_t m_fieldActualSize;
 	size_t m_fieldAlignedSize;
 
-	sl::Array<Field*> m_dynamicFieldArray;
 	sl::Array<llvm::Type*> m_llvmFieldTypeArray;
 	Field* m_lastBitField;
 
@@ -66,11 +65,6 @@ public:
 	size_t
 	getFieldAlignedSize() {
 		return m_fieldAlignedSize;
-	}
-
-	sl::Array<Field*>
-	getDynamicFieldArray() {
-		return m_dynamicFieldArray;
 	}
 
 	bool

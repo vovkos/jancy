@@ -38,6 +38,10 @@ named_type_specifier
 			{
 				$.m_type = $1.m_type;
 			}
+	|	dynamic_struct_specifier
+			{
+				$.m_type = $1.m_type;
+			}
 	|	library_specifier
 			{
 				$.m_type = $1.m_type;
@@ -47,11 +51,12 @@ named_type_specifier
 
 named_type_specifier_sync
 	:	TokenKind_Enum
-	|	TokenKind_BitFlagEnum
 	|	TokenKind_Struct
 	|	TokenKind_Union
 	|	TokenKind_Class
+	|	TokenKind_BitFlagEnum
 	|	TokenKind_OpaqueClass
+	|	TokenKind_DynamicStruct
 	|	TokenKind_DynamicLib
 	;
 
@@ -153,17 +158,14 @@ struct_specifier
 		if ($.m_type && $.m_type->getName().isEmpty())
 			return declareUnnamedStructOrUnion($.m_type);
 	}
-	:	TokenKind_Dynamic $d?
-		TokenKind_Struct $s
+	:	TokenKind_Struct $s
 		TokenKind_Identifier $n?
 		(':' type_name_list $b)?
 			{
 				$.m_type = createStructType(
 					&$n ? $n.m_pos : $s.m_pos,
 					&$n ? $n.m_data.m_string : sl::String(),
-					&$b ? &$b.m_typeList : NULL,
-					m_module->m_pragmaMgr->m_fieldAlignment,
-					&$d ? TypeFlag_Dynamic : 0
+					&$b ? &$b.m_typeList : NULL
 				);
 
 				if (!$.m_type)
@@ -187,15 +189,12 @@ union_specifier
 		if ($.m_type && $.m_type->getName().isEmpty())
 			return declareUnnamedStructOrUnion($.m_type);
 	}
-	:	TokenKind_Dynamic $d?
-		TokenKind_Union $u
+	:	TokenKind_Union $u
 		TokenKind_Identifier $n?
 			{
 				$.m_type = createUnionType(
 					&$n ? $n.m_pos : $u.m_pos,
-					&$n ? $n.m_data.m_string : sl::String(),
-					m_module->m_pragmaMgr->m_fieldAlignment,
-					&$d ? TypeFlag_Dynamic : 0
+					&$n ? $n.m_data.m_string : sl::String()
 				);
 
 				if (!$.m_type)
@@ -227,7 +226,6 @@ class_specifier
 					$n.m_pos,
 					$n.m_data.m_string,
 					&$b ? &$b.m_typeList : NULL,
-					m_module->m_pragmaMgr->m_fieldAlignment,
 					&$o ? ClassTypeFlag_Opaque : 0
 				);
 
@@ -239,7 +237,31 @@ class_specifier
 
 //..............................................................................
 
-// class
+// dynamic struct
+
+struct {
+	DynamicStructType* m_type;
+}
+dynamic_struct_specifier
+	enter {
+		$.m_type = NULL;
+	}
+	:	TokenKind_DynamicStruct
+		TokenKind_Identifier $n
+			{
+				$.m_type = createDynamicStructType($2.m_pos, $n.m_data.m_string);
+				if (!$.m_type)
+					return false;
+			}
+		declaration_body_pass1 $b
+			{
+				setBody($.m_type, &$b.m_tokenList);
+			}
+	;
+
+//..............................................................................
+
+// dynamic library
 
 struct {
 	DynamicLibClassType* m_type;

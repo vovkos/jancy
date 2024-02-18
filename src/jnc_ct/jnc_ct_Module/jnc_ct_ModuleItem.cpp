@@ -67,10 +67,14 @@ ModuleItemBodyDecl::setBody(
 }
 
 bool
-ModuleItemBodyDecl::setBody(sl::List<Token>* tokenList) {
+ModuleItemBodyDecl::setBody(
+	const PragmaConfig* pragmaConfig,
+	sl::List<Token>* tokenList
+) {
 	if (!canSetBody())
 		return false;
 
+	m_pragmaConfig = pragmaConfig;
 	m_bodyPos = tokenList->getHead()->m_pos;
 	sl::takeOver(&m_bodyTokenList, tokenList);
 	return true;
@@ -329,10 +333,11 @@ getTypeSynopsis(
 		return type->getTypeString();
 
 	static const char* namedTypeKindStringTable[] = {
-		"enum",   // TypeKind_Enum,
-		"struct", // TypeKind_Struct,
-		"union",  // TypeKind_Union,
-		"class",  // TypeKind_Class,
+		"enum",            // TypeKind_Enum,
+		"struct",          // TypeKind_Struct,
+		"union",           // TypeKind_Union,
+		"class",           // TypeKind_Class,
+		"dynamic struct",  // TypeKind_DynamicStruct,
 	};
 
 	sl::String synopsis;

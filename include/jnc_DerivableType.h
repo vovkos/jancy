@@ -80,6 +80,18 @@ struct jnc_BaseTypeSlot: jnc_ModuleItem {
 //..............................................................................
 
 JNC_EXTERN_C
+jnc_Type*
+jnc_Field_getType(jnc_Field* field);
+
+JNC_EXTERN_C
+uint_t
+jnc_Field_getBitOffset(jnc_Field* field);
+
+JNC_EXTERN_C
+uint_t
+jnc_Field_getBitCount(jnc_Field* field);
+
+JNC_EXTERN_C
 uint_t
 jnc_Field_getPtrTypeFlags(jnc_Field* field);
 
@@ -92,6 +104,21 @@ jnc_Field_getOffset(jnc_Field* field);
 #if (!defined _JNC_CORE && defined __cplusplus)
 
 struct jnc_Field: jnc_ModuleItem {
+	jnc_Type*
+	getType() {
+		return jnc_Field_getType(this);
+	}
+
+	uint_t
+	getBitOffset() {
+		return jnc_Field_getBitOffset(this);
+	}
+
+	uint_t
+	getBitCount() {
+		return jnc_Field_getBitCount(this);
+	}
+
 	uint_t
 	getPtrTypeFlags() {
 		return jnc_Field_getPtrTypeFlags(this);

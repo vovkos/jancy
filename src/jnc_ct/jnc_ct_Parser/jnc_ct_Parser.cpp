@@ -14,6 +14,7 @@
 #include "jnc_ct_DeclTypeCalc.h"
 #include "jnc_ct_ArrayType.h"
 #include "jnc_ct_UnionType.h"
+#include "jnc_ct_DynamicStructType.h"
 #include "jnc_ct_DynamicLibClassType.h"
 #include "jnc_ct_DynamicLibNamespace.h"
 #include "jnc_ct_ExtensionNamespace.h"
@@ -1946,26 +1947,24 @@ StructType*
 Parser::createStructType(
 	const lex::LineCol& pos,
 	const sl::StringRef& name,
-	sl::BoxList<Type*>* baseTypeList,
-	size_t fieldAlignment,
-	uint_t flags
+	sl::BoxList<Type*>* baseTypeList
 ) {
 	bool result;
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	StructType* structType = NULL;
 
-	if (name.isEmpty()) {
-		structType = m_module->m_typeMgr.createUnnamedStructType(fieldAlignment, flags);
-	} else {
+	if (name.isEmpty())
+		structType = m_module->m_typeMgr.createUnnamedStructType(m_module->m_pragmaMgr->m_fieldAlignment);
+	else {
 		structType = m_module->m_typeMgr.createStructType(
 			name,
 			nspace->createQualifiedName(name),
-			fieldAlignment,
-			flags
+			m_module->m_pragmaMgr->m_fieldAlignment
 		);
 
-		if (!structType)
+		result = nspace->addItem(structType);
+		if (!result)
 			return NULL;
 	}
 
@@ -1978,12 +1977,6 @@ Parser::createStructType(
 		}
 	}
 
-	if (!name.isEmpty()) {
-		result = nspace->addItem(structType);
-		if (!result)
-			return NULL;
-	}
-
 	assignDeclarationAttributes(structType, structType, pos);
 	return structType;
 }
@@ -1991,34 +1984,21 @@ Parser::createStructType(
 UnionType*
 Parser::createUnionType(
 	const lex::LineCol& pos,
-	const sl::StringRef& name,
-	size_t fieldAlignment,
-	uint_t flags
+	const sl::StringRef& name
 ) {
-	bool result;
-
-	if (flags & TypeFlag_Dynamic) {
-		err::setError("dynamic unions are not supported yet");
-		return NULL;
-	}
-
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	UnionType* unionType = NULL;
 
-	if (name.isEmpty()) {
-		unionType = m_module->m_typeMgr.createUnnamedUnionType(fieldAlignment, flags);
-	} else {
+	if (name.isEmpty())
+		unionType = m_module->m_typeMgr.createUnnamedUnionType(m_module->m_pragmaMgr->m_fieldAlignment);
+	else {
 		unionType = m_module->m_typeMgr.createUnionType(
 			name,
 			nspace->createQualifiedName(name),
-			fieldAlignment,
-			flags
+			m_module->m_pragmaMgr->m_fieldAlignment
 		);
 
-		if (!unionType)
-			return NULL;
-
-		result = nspace->addItem(unionType);
+		bool result = nspace->addItem(unionType);
 		if (!result)
 			return NULL;
 	}
@@ -2032,20 +2012,19 @@ Parser::createClassType(
 	const lex::LineCol& pos,
 	const sl::StringRef& name,
 	sl::BoxList<Type*>* baseTypeList,
-	size_t fieldAlignment,
 	uint_t flags
 ) {
 	bool result;
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	ClassType* classType = name.isEmpty() ?
-		m_module->m_typeMgr.createUnnamedClassType(fieldAlignment, flags) :
-		m_module->m_typeMgr.createClassType(
-			name,
-			nspace->createQualifiedName(name),
-			fieldAlignment,
-			flags
-		);
+	ClassType* classType;
+
+	m_module->m_typeMgr.createClassType(
+		name,
+		nspace->createQualifiedName(name),
+		m_module->m_pragmaMgr->m_fieldAlignment,
+		flags
+	);
 
 	if (baseTypeList) {
 		sl::BoxIterator<Type*> baseType = baseTypeList->getHead();
@@ -2056,14 +2035,34 @@ Parser::createClassType(
 		}
 	}
 
-	if (!name.isEmpty()) {
-		result = nspace->addItem(classType);
-		if (!result)
-			return NULL;
-	}
+	result = nspace->addItem(classType);
+	if (!result)
+		return NULL;
 
 	assignDeclarationAttributes(classType, classType, pos);
 	return classType;
+}
+
+DynamicStructType*
+Parser::createDynamicStructType(
+	const lex::LineCol& pos,
+	const sl::StringRef& name
+) {
+	bool result;
+
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
+	DynamicStructType* structType = m_module->m_typeMgr.createDynamicStructType(
+		name,
+		nspace->createQualifiedName(name),
+		m_module->m_pragmaMgr->m_fieldAlignment
+	);
+
+	result = nspace->addItem(structType);
+	if (!result)
+		return NULL;
+
+	assignDeclarationAttributes(structType, structType, pos);
+	return structType;
 }
 
 DynamicLibClassType*
@@ -2147,7 +2146,7 @@ Parser::reactorOnEventStmt(
 	Function* handler = m_reactorType->createUnnamedMethod(FunctionKind_Internal, functionType);
 	handler->m_parentUnit = m_module->m_unitMgr.getCurrentUnit();
     handler->m_flags |= ModuleItemFlag_User;
-    handler->setBody(tokenList);
+    handler->setBody(getPragmaConfigSnapshot(), tokenList);
     m_reactorType->addOnEventHandler(m_reactionIdx, handler);
 
 	Function* addBindingFunc = getReactorMethod(m_module, ReactorMethod_AddOnEventBinding);

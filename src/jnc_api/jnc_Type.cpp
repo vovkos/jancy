@@ -81,7 +81,7 @@ jnc_getTypeKindFlags(jnc_TypeKind typeKind) {
 		jnc_TypeKindFlag_Numeric,
 
 		jnc_TypeKindFlag_Aggregate |
-		jnc_TypeKindFlag_Nullable,           // jnc_TypeKind_Array
+		jnc_TypeKindFlag_Nullable,      // jnc_TypeKind_Array
 
 		jnc_TypeKindFlag_Named |        // jnc_TypeKind_Enum
 		jnc_TypeKindFlag_Integer |
@@ -100,6 +100,9 @@ jnc_getTypeKindFlags(jnc_TypeKind typeKind) {
 
 		jnc_TypeKindFlag_Aggregate |    // jnc_TypeKind_Class
 		jnc_TypeKindFlag_Derivable |
+		jnc_TypeKindFlag_Named,
+
+		jnc_TypeKindFlag_Aggregate |    // jnc_TypeKind_DynamicStruct
 		jnc_TypeKindFlag_Named,
 
 		jnc_TypeKindFlag_Code,          // jnc_TypeKind_Function

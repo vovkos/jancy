@@ -644,6 +644,7 @@ Module::requireIntrospectionLib() {
 		StdType_Field,
 		StdType_StructType,
 		StdType_UnionType,
+		StdType_DynamicStructType,
 		StdType_Alias,
 		StdType_Const,
 		StdType_Variable,

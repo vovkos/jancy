@@ -37,6 +37,24 @@ jnc_BaseTypeSlot_getVtableIndex(jnc_BaseTypeSlot* baseType) {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
+jnc_Type*
+jnc_Field_getType(jnc_Field* field) {
+	return jnc_g_dynamicExtensionLibHost->m_fieldFuncTable->m_getTypeFunc(field);
+}
+
+JNC_EXTERN_C
+uint_t
+jnc_Field_getBitOffset(jnc_Field* field) {
+	return jnc_g_dynamicExtensionLibHost->m_fieldFuncTable->m_getBitOffsetFunc(field);
+}
+
+JNC_EXTERN_C
+uint_t
+jnc_Field_getBitCount(jnc_Field* field) {
+	return jnc_g_dynamicExtensionLibHost->m_fieldFuncTable->m_getBitCountFunc(field);
+}
+
+JNC_EXTERN_C
 uint_t
 jnc_Field_getPtrTypeFlags(jnc_Field* field) {
 	return jnc_g_dynamicExtensionLibHost->m_fieldFuncTable->m_getPtrTypeFlagsFunc(field);
@@ -124,6 +142,27 @@ jnc_BaseTypeSlot_getVtableIndex(jnc_BaseTypeSlot* baseType) {
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_Type*
+jnc_Field_getType(jnc_Field* field) {
+	return field->getType();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+uint_t
+jnc_Field_getBitOffset(jnc_Field* field) {
+	return field->getBitOffset();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+uint_t
+jnc_Field_getBitCount(jnc_Field* field) {
+	return field->getBitCount();
+}
 
 JNC_EXTERN_C
 JNC_EXPORT_O

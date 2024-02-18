@@ -213,13 +213,16 @@ main := |*
 # named type specifiers
 
 'enum'           { createToken(TokenKind_Enum); };
-'bitflag' ws+ 'enum'
-                 { createToken(TokenKind_BitFlagEnum); };
 'struct'         { createToken(TokenKind_Struct); };
 'union'          { createToken(TokenKind_Union); };
 'class'          { createToken(TokenKind_Class); };
+
+'bitflag' ws+ 'enum'
+                 { createToken(TokenKind_BitFlagEnum); };
 'opaque' ws+ 'class'
                  { createToken(TokenKind_OpaqueClass); };
+'dynamic' ws+ 'struct'
+                 { createToken(TokenKind_DynamicStruct); };
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

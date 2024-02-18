@@ -656,38 +656,11 @@ getDynamicFieldOffset(
 	DerivableType* type,
 	Field* field
 ) {
-	ASSERT	(type->getFlags() & TypeFlag_Dynamic);
+	ASSERT(type->getFlags() & TypeFlag_Dynamic);
 
-	if (type->getTypeKind() != TypeKind_Struct) {
-		err::setError("only dynamic structs are currently supported");
-		dynamicThrow();
-	}
-
-	StructType* structType = (StructType*)type;
-
-	size_t offset;
-	size_t prevIndex;
-
-	if (field) {
-		offset = field->getOffset();
-		prevIndex = field->getPrevDynamicFieldIndex();
-		if (prevIndex == -1)
-			return offset;
-	} else {
-		field = structType->getFieldArray().getBack();
-
-		if (field->getType()->getFlags() & TypeFlag_Dynamic) {
-			offset = 0;
-			prevIndex = structType->getDynamicFieldArray().getCount() - 1;
-		} else {
-			offset = field->getOffset() + field->getType()->getSize();
-			prevIndex = field->getPrevDynamicFieldIndex();
-		}
-	}
-
-	rtl::DynamicLayout* dynamicLayout = getDynamicLayout(ptr);
-	offset += dynamicLayout->getDynamicFieldEndOffset(ptr, structType, prevIndex);
-	return offset;
+	err::setError("dynamic structs are under redesign");
+	dynamicThrow();
+	return -1;
 }
 
 void*
@@ -717,12 +690,9 @@ dynamicFieldSizeOf(
 	ASSERT(field->getType()->getFlags() & TypeFlag_Dynamic);
 
 	rtl::DynamicLayout* dynamicLayout = getDynamicLayout(ptr);
-	size_t dynamicFieldIndex = field->getPrevDynamicFieldIndex() + 1;
-
-	size_t beginOffset = getDynamicFieldOffset(ptr, type, field);
-	size_t endOffset = dynamicLayout->getDynamicFieldEndOffset(ptr, type, dynamicFieldIndex);
-
-	return endOffset - beginOffset;
+	err::setError("dynamic structs are under redesign");
+	dynamicThrow();
+	return -1;
 }
 
 size_t

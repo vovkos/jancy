@@ -120,7 +120,10 @@ DynamicLayout::getDynamicFieldEndOffset(
 	TypeKind typeKind = type->getTypeKind();
 	ASSERT(typeKind == TypeKind_Struct);
 
-	sl::Array<Field*> dynamicFieldArray = ((StructType*)type)->getDynamicFieldArray();
+	err::setFormatStringError("dynamic structs are under redesign");
+	dynamicThrow();
+
+	sl::Array<Field*> dynamicFieldArray;//  = ((StructType*)type)->getDynamicFieldArray();
 
 	size_t offset;
 

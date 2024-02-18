@@ -107,11 +107,12 @@ enum TokenKind {
 	// named type specifiers
 
 	TokenKind_Enum,
-	TokenKind_BitFlagEnum,
 	TokenKind_Struct,
 	TokenKind_Union,
 	TokenKind_Class,
+	TokenKind_BitFlagEnum,
 	TokenKind_OpaqueClass,
+	TokenKind_DynamicStruct,
 
 	// special member methods
 
@@ -302,12 +303,13 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP(TokenName)
 
 	// named type specifiers
 
-	AXL_LEX_TOKEN_NAME(TokenKind_Enum,         "enum")
-	AXL_LEX_TOKEN_NAME(TokenKind_BitFlagEnum,  "bitflag enum")
-	AXL_LEX_TOKEN_NAME(TokenKind_Struct,       "struct")
-	AXL_LEX_TOKEN_NAME(TokenKind_Union,        "union")
-	AXL_LEX_TOKEN_NAME(TokenKind_Class,        "class")
-	AXL_LEX_TOKEN_NAME(TokenKind_OpaqueClass,  "opaque class")
+	AXL_LEX_TOKEN_NAME(TokenKind_Enum,          "enum")
+	AXL_LEX_TOKEN_NAME(TokenKind_BitFlagEnum,   "bitflag enum")
+	AXL_LEX_TOKEN_NAME(TokenKind_Struct,        "struct")
+	AXL_LEX_TOKEN_NAME(TokenKind_Union,         "union")
+	AXL_LEX_TOKEN_NAME(TokenKind_Class,         "class")
+	AXL_LEX_TOKEN_NAME(TokenKind_OpaqueClass,   "opaque class")
+	AXL_LEX_TOKEN_NAME(TokenKind_DynamicStruct, "dynamic struct")
 
 	// special members
 

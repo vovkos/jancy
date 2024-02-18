@@ -36,15 +36,11 @@ class Field:
 
 protected:
 	Type* m_type;
+	size_t m_offset;
 	uint_t m_bitOffset;
 	uint_t m_bitCount;
 	uint_t m_ptrTypeFlags;
-	size_t m_offset;
-
-	union {
-		uint_t m_llvmIndex;
-		size_t m_prevDynamicFieldIndex;
-	};
+	uint_t m_llvmIndex;
 
 	sl::List<Token> m_constructor;
 
@@ -54,6 +50,11 @@ public:
 	Type*
 	getType() {
 		return m_type;
+	}
+
+	size_t
+	getOffset() {
+		return m_offset;
 	}
 
 	uint_t
@@ -71,19 +72,9 @@ public:
 		return m_ptrTypeFlags;
 	}
 
-	size_t
-	getOffset() {
-		return m_offset;
-	}
-
 	uint_t
 	getLlvmIndex() {
 		return m_llvmIndex;
-	}
-
-	size_t
-	getPrevDynamicFieldIndex() {
-		return m_prevDynamicFieldIndex;
 	}
 
 	sl::List<Token>*

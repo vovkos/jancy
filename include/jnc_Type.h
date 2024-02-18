@@ -80,6 +80,7 @@ enum jnc_TypeKind {
 	jnc_TypeKind_Struct,              // S
 	jnc_TypeKind_Union,               // U
 	jnc_TypeKind_Class,               // CC/CO/CB/CA/CF/CD (class/object/box/reactor-iface/f-closure/d-closure)
+	jnc_TypeKind_DynamicStruct,       // D
 
 	// function types
 
@@ -302,6 +303,7 @@ enum jnc_StdType {
 	jnc_StdType_Field,
 	jnc_StdType_StructType,
 	jnc_StdType_UnionType,
+	jnc_StdType_DynamicStructType,
 	jnc_StdType_Alias,
 	jnc_StdType_Const,
 	jnc_StdType_Variable,
@@ -588,6 +590,7 @@ const TypeKind
 	TypeKind_Struct              = jnc_TypeKind_Struct,
 	TypeKind_Union               = jnc_TypeKind_Union,
 	TypeKind_Class               = jnc_TypeKind_Class,
+	TypeKind_DynamicStruct       = jnc_TypeKind_DynamicStruct,
 	TypeKind_Function            = jnc_TypeKind_Function,
 	TypeKind_Property            = jnc_TypeKind_Property,
 	TypeKind_DataPtr             = jnc_TypeKind_DataPtr,
@@ -768,6 +771,7 @@ const StdType
 	StdType_Field                 = jnc_StdType_Field,
 	StdType_StructType            = jnc_StdType_StructType,
 	StdType_UnionType             = jnc_StdType_UnionType,
+	StdType_DynamicStructType     = jnc_StdType_DynamicStructType,
 	StdType_Alias                 = jnc_StdType_Alias,
 	StdType_Const                 = jnc_StdType_Const,
 	StdType_Variable              = jnc_StdType_Variable,

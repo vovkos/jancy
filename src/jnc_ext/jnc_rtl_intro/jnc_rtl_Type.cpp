@@ -189,43 +189,44 @@ getType(ct::Type* type) {
 	}
 
 	static StdType stdTypeTable[TypeKind__Count] = {
-		StdType_Type,             // TypeKind_Void
-		StdType_Type,             // TypeKind_Variant
-		StdType_Type,             // TypeKind_String
-		StdType_Type,             // TypeKind_Bool
-		StdType_Type,             // TypeKind_Int8
-		StdType_Type,             // TypeKind_Int8_u
-		StdType_Type,             // TypeKind_Int16
-		StdType_Type,             // TypeKind_Int16_u
-		StdType_Type,             // TypeKind_Int32
-		StdType_Type,             // TypeKind_Int32_u
-		StdType_Type,             // TypeKind_Int64
-		StdType_Type,             // TypeKind_Int64_u
-		StdType_Type,             // TypeKind_Float
-		StdType_Type,             // TypeKind_Double
+		StdType_Type,              // TypeKind_Void
+		StdType_Type,              // TypeKind_Variant
+		StdType_Type,              // TypeKind_String
+		StdType_Type,              // TypeKind_Bool
+		StdType_Type,              // TypeKind_Int8
+		StdType_Type,              // TypeKind_Int8_u
+		StdType_Type,              // TypeKind_Int16
+		StdType_Type,              // TypeKind_Int16_u
+		StdType_Type,              // TypeKind_Int32
+		StdType_Type,              // TypeKind_Int32_u
+		StdType_Type,              // TypeKind_Int64
+		StdType_Type,              // TypeKind_Int64_u
+		StdType_Type,              // TypeKind_Float
+		StdType_Type,              // TypeKind_Double
 
-		StdType_ArrayType,        // TypeKind_Array
-		StdType_EnumType,         // TypeKind_Enum
-		StdType_StructType,       // TypeKind_Struct
-		StdType_UnionType,        // TypeKind_Union
-		StdType_ClassType,        // TypeKind_Class
-		StdType_FunctionType,     // TypeKind_Function
-		StdType_PropertyType,     // TypeKind_Property
-		StdType_DataPtrType,      // TypeKind_DataPtr
-		StdType_DataPtrType,      // TypeKind_DataRef
-		StdType_ClassPtrType,     // TypeKind_ClassPtr
-		StdType_ClassPtrType,     // TypeKind_ClassRef
-		StdType_FunctionPtrType,  // TypeKind_FunctionPtr
-		StdType_FunctionPtrType,  // TypeKind_FunctionRef
-		StdType_PropertyPtrType,  // TypeKind_PropertyPtr
-		StdType_PropertyPtrType,  // TypeKind_PropertyRef
+		StdType_ArrayType,         // TypeKind_Array
+		StdType_EnumType,          // TypeKind_Enum
+		StdType_StructType,        // TypeKind_Struct
+		StdType_UnionType,         // TypeKind_Union
+		StdType_ClassType,         // TypeKind_Class
+		StdType_DynamicStructType, // TypeKind_DynamicStruct
+		StdType_FunctionType,      // TypeKind_Function
+		StdType_PropertyType,      // TypeKind_Property
+		StdType_DataPtrType,       // TypeKind_DataPtr
+		StdType_DataPtrType,       // TypeKind_DataRef
+		StdType_ClassPtrType,      // TypeKind_ClassPtr
+		StdType_ClassPtrType,      // TypeKind_ClassRef
+		StdType_FunctionPtrType,   // TypeKind_FunctionPtr
+		StdType_FunctionPtrType,   // TypeKind_FunctionRef
+		StdType_PropertyPtrType,   // TypeKind_PropertyPtr
+		StdType_PropertyPtrType,   // TypeKind_PropertyRef
 
 		// shouldn't happen at runtime
 
-		StdType_Type,             // TypeKind_NamedImport,
-		StdType_Type,             // TypeKind_ImportPtr,
-		StdType_Type,             // TypeKind_ImportIntMod,
-		StdType_Type,             // TypeKind_TypedefShadow,
+		StdType_Type,              // TypeKind_NamedImport,
+		StdType_Type,              // TypeKind_ImportPtr,
+		StdType_Type,              // TypeKind_ImportIntMod,
+		StdType_Type,              // TypeKind_TypedefShadow,
 	};
 
 	TypeKind typeKind = type->getTypeKind();

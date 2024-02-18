@@ -320,7 +320,11 @@ struct {
 	sl::List<Token> m_tokenList;
 }
 declaration_body_pass1
-	:	compound_stmt_pass1<&$.m_tokenList>
+	:	TokenKind_Body
+			{
+				$.m_tokenList.insertTail(m_tokenPool->get($1));
+			}
+	|	catch(eof) compound_stmt_pass1<&$.m_tokenList>
 	;
 
 compound_stmt_pass1<sl::List<Token>* $tokenList>

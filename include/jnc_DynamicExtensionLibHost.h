@@ -734,6 +734,18 @@ struct jnc_EnumTypeFuncTable {
 // FieldFuncTable
 
 typedef
+jnc_Type*
+jnc_Field_GetTypeFunc(jnc_Field* field);
+
+typedef
+uint_t
+jnc_Field_GetBitOffsetFunc(jnc_Field* field);
+
+typedef
+uint_t
+jnc_Field_GetBitCountFunc(jnc_Field* field);
+
+typedef
 uint_t
 jnc_Field_GetPtrTypeFlagsFunc(jnc_Field* field);
 
@@ -745,6 +757,9 @@ jnc_Field_GetOffsetFunc(jnc_Field* field);
 
 struct jnc_FieldFuncTable {
 	size_t m_size;
+	jnc_Field_GetTypeFunc* m_getTypeFunc;
+	jnc_Field_GetBitOffsetFunc* m_getBitOffsetFunc;
+	jnc_Field_GetBitCountFunc* m_getBitCountFunc;
 	jnc_Field_GetPtrTypeFlagsFunc* m_getPtrTypeFlagsFunc;
 	jnc_Field_GetOffsetFunc* m_getOffsetFunc;
 };

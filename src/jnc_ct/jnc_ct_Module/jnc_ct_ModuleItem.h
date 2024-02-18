@@ -214,7 +214,10 @@ public:
 	);
 
 	bool
-	setBody(sl::List<Token>* tokenList);
+	setBody(
+		const PragmaConfig* pragmaConfig,
+		sl::List<Token>* tokenList
+	);
 
 protected:
 	bool

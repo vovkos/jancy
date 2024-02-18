@@ -353,6 +353,24 @@ protected:
 		return item->setBody(getPragmaConfigSnapshot(), bodyToken.m_pos, bodyToken.m_data.m_string);
 	}
 
+	template <typename T>
+	bool
+	setBody(
+		T* item,
+		sl::List<Token>* tokenList
+	) {
+		ASSERT(!tokenList->isEmpty());
+
+		const Token* head = *tokenList->getHead();
+		const Token* tail = *tokenList->getTail();
+		if (head->m_data.m_codeAssistFlags <= TokenCodeAssistFlag_Right &&
+			tail->m_data.m_codeAssistFlags >= TokenCodeAssistFlag_Left
+		)
+			m_module->m_codeAssistMgr.m_containerItem = item;
+
+		return item->setBody(getPragmaConfigSnapshot(), tokenList);
+	}
+
 	void
 	assignDeclarationAttributes(
 		ModuleItem* item,
@@ -479,17 +497,19 @@ protected:
 	createStructType(
 		const lex::LineCol& pos,
 		const sl::StringRef& name,
-		sl::BoxList<Type*>* baseTypeList,
-		size_t fieldAlignment,
-		uint_t flags
+		sl::BoxList<Type*>* baseTypeList
+	);
+
+	DynamicStructType*
+	createDynamicStructType(
+		const lex::LineCol& pos,
+		const sl::StringRef& name
 	);
 
 	UnionType*
 	createUnionType(
 		const lex::LineCol& pos,
-		const sl::StringRef& name,
-		size_t fieldAlignment,
-		uint_t flags
+		const sl::StringRef& name
 	);
 
 	ClassType*
@@ -497,7 +517,6 @@ protected:
 		const lex::LineCol& pos,
 		const sl::StringRef& name,
 		sl::BoxList<Type*>* baseTypeList,
-		size_t fieldAlignment,
 		uint_t flags
 	);
 

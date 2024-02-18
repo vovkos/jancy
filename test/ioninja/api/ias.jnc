@@ -26,6 +26,9 @@ void clearLog();
 bool errorcode connect();
 void disconnect();
 
+void initiateConnect();
+void initiateDisconnect();
+
 size_t errorcode transmit(
 	void const* p,
 	size_t size
@@ -141,10 +144,21 @@ class Session {
 //..............................................................................
 
 // two entry points for the script
-// either one of those is required; both are OK, too, of course
+// either one of those is required (both are OK, too, of course)
 
 [ prototype ]
 void main();
+
+//
+// attention! from `onLogRecord`, you are only allowed to call:
+// - transmit()
+// - receive()
+// - initiateConnect()
+// - initiateDisconnect()
+//
+// the above functions are guaranteed to return immediately; other IAS functions
+// are potentially blocking and could lead to deadlocks during layer operations
+//
 
 [ prototype ]
 void onLogRecord(

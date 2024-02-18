@@ -1411,6 +1411,7 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandTypeFuncTable[TypeK
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_Struct
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_Union
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_Class
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_DynamicStruct
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_Function
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_Property
 	&OperatorMgr::prepareOperand_dataPtr,         // TypeKind_DataPtr
@@ -1447,6 +1448,7 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable[TypeKind_
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_Struct
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_Union
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_Class
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_DynamicStruct
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_Function
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_Property
 	&OperatorMgr::prepareOperand_dataPtr,     // TypeKind_DataPtr
@@ -1483,6 +1485,7 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandTypeFuncTable_dataR
 	&OperatorMgr::prepareOperandType_dataRef_derivable, // TypeKind_Struct
 	&OperatorMgr::prepareOperandType_dataRef_derivable, // TypeKind_Union
 	&OperatorMgr::prepareOperandType_dataRef_derivable, // TypeKind_Class
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_DynamicStruct
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Function
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Property
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_DataPtr
@@ -1519,6 +1522,7 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable_dataRef[T
 	&OperatorMgr::prepareOperand_dataRef_derivable, // TypeKind_Struct
 	&OperatorMgr::prepareOperand_dataRef_derivable, // TypeKind_Union
 	&OperatorMgr::prepareOperand_dataRef_derivable, // TypeKind_Class
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_DynamicStruct
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Function
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Property
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_DataPtr

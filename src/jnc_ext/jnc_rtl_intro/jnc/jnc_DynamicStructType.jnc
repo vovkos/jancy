@@ -1,0 +1,35 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace jnc {
+
+//! \addtogroup rtl-intro
+//! @{
+
+//..............................................................................
+
+opaque class DynamicLayout {
+	MemberBlock const* const property m_sections(size_t i);
+}
+
+opaque class DynamicStructType: Type {
+	size_t const property m_fieldAlignment;
+
+	construct(intptr p);
+
+	DynamicLayout const* createDynamicLayout(void const* p);
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace jnc

@@ -18,6 +18,7 @@
 #include "jnc_ct_StructType.h"
 #include "jnc_ct_UnionType.h"
 #include "jnc_ct_ClassType.h"
+#include "jnc_ct_DynamicStructType.h"
 #include "jnc_ct_FunctionType.h"
 #include "jnc_ct_PropertyType.h"
 #include "jnc_ct_DataPtrType.h"
@@ -280,6 +281,7 @@ TypeMgr::getStdType(StdType stdType) {
 	case StdType_Field:
 	case StdType_StructType:
 	case StdType_UnionType:
+	case StdType_DynamicStructType:
 	case StdType_Alias:
 	case StdType_Variable:
 	case StdType_Const:
@@ -429,11 +431,11 @@ TypeMgr::createEnumType(
 	type->m_module = m_module;
 	type->m_baseType = baseType;
 	type->m_flags |= flags;
-	m_typeList.insertTail(type);
 
 	if (baseType->getTypeKindFlags() & TypeKindFlag_Import)
 		((ImportType*)baseType)->addFixup(&type->m_baseType);
 
+	m_typeList.insertTail(type);
 	return type;
 }
 
@@ -441,33 +443,20 @@ StructType*
 TypeMgr::createStructType(
 	const sl::StringRef& name,
 	const sl::StringRef& qualifiedName,
-	size_t fieldAlignment,
-	uint_t flags
+	size_t fieldAlignment
 ) {
 	StructType* type = new StructType;
+	type->m_module = m_module;
 	type->m_name = name;
 	type->m_qualifiedName = qualifiedName;
+	type->m_fieldAlignment = fieldAlignment;
 
 #ifdef _JNC_NAMED_TYPE_ADD_SELF
 	if (!name.isEmpty())
 		type->addItem(type);
 #endif
 
-	type->m_module = m_module;
-	type->m_fieldAlignment = fieldAlignment;
-	type->m_flags |= flags;
 	m_typeList.insertTail(type);
-	return type;
-}
-
-StructType*
-TypeMgr::createInternalStructType(
-	const sl::StringRef& tag,
-	size_t fieldAlignment,
-	uint_t flags
-) {
-	StructType* type = createStructType(sl::StringRef(), tag, fieldAlignment, flags);
-	type->m_namespaceStatus = NamespaceStatus_Ready;
 	return type;
 }
 
@@ -475,10 +464,10 @@ UnionType*
 TypeMgr::createUnionType(
 	const sl::StringRef& name,
 	const sl::StringRef& qualifiedName,
-	size_t fieldAlignment,
-	uint_t flags
+	size_t fieldAlignment
 ) {
 	UnionType* type = new UnionType;
+	type->m_module = m_module;
 	type->m_name = name;
 	type->m_qualifiedName = qualifiedName;
 
@@ -487,15 +476,10 @@ TypeMgr::createUnionType(
 		type->addItem(type);
 #endif
 
-	type->m_module = m_module;
-	type->m_flags |= flags;
-
-	if (!(flags & TypeFlag_Dynamic)) {
-		StructType* unionStructType = createUnnamedInternalStructType(type->createQualifiedName("Struct"), fieldAlignment);
-		unionStructType->m_parentNamespace = type;
-		unionStructType->m_structTypeKind = StructTypeKind_UnionStruct;
-		type->m_structType = unionStructType;
-	}
+	StructType* unionStructType = createUnnamedInternalStructType(type->createQualifiedName("Struct"), fieldAlignment);
+	unionStructType->m_parentNamespace = type;
+	unionStructType->m_structTypeKind = StructTypeKind_UnionStruct;
+	type->m_structType = unionStructType;
 
 	m_typeList.insertTail(type);
 	return type;
@@ -538,6 +522,27 @@ TypeMgr::addClassType(
 
 	if (type->m_classTypeKind == ClassTypeKind_Multicast)
 		m_multicastClassTypeArray.append((MulticastClassType*)type);
+}
+
+DynamicStructType*
+TypeMgr::createDynamicStructType(
+	const sl::StringRef& name,
+	const sl::StringRef& qualifiedName,
+	size_t fieldAlignment
+) {
+	DynamicStructType* type = new DynamicStructType;
+	type->m_module = m_module;
+	type->m_name = name;
+	type->m_qualifiedName = qualifiedName;
+	type->m_fieldAlignment = fieldAlignment;
+
+#ifdef _JNC_NAMED_TYPE_ADD_SELF
+	if (!name.isEmpty())
+		type->addItem(type);
+#endif
+
+	m_typeList.insertTail(type);
+	return type;
 }
 
 bool

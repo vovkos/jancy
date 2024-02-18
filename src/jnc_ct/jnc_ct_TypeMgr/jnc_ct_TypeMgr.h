@@ -11,14 +11,14 @@
 
 #pragma once
 
-#include "jnc_ct_Type.h"
+#include "jnc_ClassType.h"
+#include "jnc_PropertyType.h"
 #include "jnc_ct_JnccallCallConv.h"
 #include "jnc_ct_CallConv_msc32.h"
 #include "jnc_ct_CallConv_gcc32.h"
 #include "jnc_ct_CdeclCallConv_gcc64.h"
 #include "jnc_ct_CdeclCallConv_msc64.h"
-#include "jnc_ClassType.h"
-#include "jnc_PropertyType.h"
+#include "jnc_ct_StructType.h"
 
 namespace jnc {
 namespace ct {
@@ -233,40 +233,32 @@ public:
 	createStructType(
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
-		size_t fieldAlignment = 8,
-		uint_t flags = 0
+		size_t fieldAlignment = 8
 	);
 
 	StructType*
 	createInternalStructType(
 		const sl::StringRef& tag,
-		size_t fieldAlignment = 8,
-		uint_t flags = 0
+		size_t fieldAlignment = 8
 	);
 
 	StructType*
-	createUnnamedStructType(
-		size_t fieldAlignment = 8,
-		uint_t flags = 0
-	) {
+	createUnnamedStructType(size_t fieldAlignment = 8) {
 		return createStructType(
 			sl::StringRef(),
 			sl::formatString("struct.%d", ++m_unnamedTypeCounter),
-			fieldAlignment,
-			flags
+			fieldAlignment
 		);
 	}
 
 	StructType*
 	createUnnamedInternalStructType(
 		const sl::StringRef& tag,
-		size_t fieldAlignment = 8,
-		uint_t flags = 0
+		size_t fieldAlignment = 8
 	) {
 		return createInternalStructType(
 			sl::formatString("struct.%s.%d", tag.sz(), ++m_unnamedTypeCounter),
-			fieldAlignment,
-			flags
+			fieldAlignment
 		);
 	}
 
@@ -274,20 +266,15 @@ public:
 	createUnionType(
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
-		size_t fieldAlignment = 8,
-		uint_t flags = 0
+		size_t fieldAlignment = 8
 	);
 
 	UnionType*
-	createUnnamedUnionType(
-		size_t fieldAlignment = 8,
-		uint_t flags = 0
-	) {
+	createUnnamedUnionType(size_t fieldAlignment = 8) {
 		return createUnionType(
 			sl::StringRef(),
 			sl::formatString("union.%d", ++m_unnamedTypeCounter),
-			fieldAlignment,
-			flags
+			fieldAlignment
 		);
 	}
 
@@ -371,6 +358,13 @@ public:
 	) {
 		return createUnnamedInternalClassType<ClassType>(tag, fieldAlignment, flags);
 	}
+
+	DynamicStructType*
+	createDynamicStructType(
+		const sl::StringRef& name,
+		const sl::StringRef& qualifiedName,
+		size_t fieldAlignment = 8
+	);
 
 	void
 	addExternalReturnType(DerivableType* type) {
@@ -855,6 +849,17 @@ protected:
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+StructType*
+TypeMgr::createInternalStructType(
+	const sl::StringRef& tag,
+	size_t fieldAlignment
+) {
+	StructType* type = createStructType(sl::StringRef(), tag, fieldAlignment);
+	type->m_namespaceStatus = NamespaceStatus_Ready;
+	return type;
+}
 
 template <typename T>
 T*

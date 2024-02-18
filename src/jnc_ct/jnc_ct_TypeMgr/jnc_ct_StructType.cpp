@@ -153,11 +153,6 @@ StructType::calcLayout() {
 			return false;
 	}
 
-	if ((m_flags & TypeFlag_Dynamic) && m_dynamicFieldArray.isEmpty()) {
-		err::setFormatStringError("dynamic struct '%s' has no dynamic fields", getQualifiedName().sz());
-		return false;
-	}
-
 	if (m_fieldAlignedSize > m_fieldActualSize)
 		addLlvmPadding(m_fieldAlignedSize - m_fieldActualSize);
 
@@ -314,18 +309,7 @@ StructType::layoutField(Field* field) {
 	if (!result)
 		return false;
 
-	if (m_flags & TypeFlag_Dynamic) {
-		field->m_prevDynamicFieldIndex = m_dynamicFieldArray.getCount() - 1;
-
-		if (field->m_type->getFlags() & TypeFlag_Dynamic) {
-			m_dynamicFieldArray.append(field);
-
-			// reset sizes on each dynamic field
-
-			m_fieldAlignedSize = 0;
-			m_fieldActualSize = 0;
-		}
-	} else if (field->m_type->getFlags() & TypeFlag_Dynamic) {
+	if (field->m_type->getFlags() & TypeFlag_Dynamic) {
 		err::setFormatStringError("dynamic '%s' cannot be a struct member", field->m_type->getTypeString().sz());
 		field->pushSrcPosError();
 		return false;

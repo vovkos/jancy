@@ -72,7 +72,7 @@ opaque class Writer {
 		uint64_t recordCode,
 		string_t text
 	) {
-		write(sys.getPreciseTimestamp(), text.m_p, text.m_length);
+		write(recordCode, text.m_p, text.m_length);
 	}
 
 	void write(string_t text) {

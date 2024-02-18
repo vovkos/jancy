@@ -62,6 +62,7 @@ set(
 	include/jnc_ct_DoxyHost.h
 	include/jnc_ct_DynamicLibClassType.h
 	include/jnc_ct_DynamicLibNamespace.h
+	include/jnc_ct_DynamicStructType.h
 	include/jnc_ct_EnumType.h
 	include/jnc_ct_ExtensionLibMgr.h
 	include/jnc_ct_ExtensionNamespace.h
@@ -383,6 +384,7 @@ set(
 	jnc_ct_TypeMgr/jnc_ct_DataPtrType.h
 	jnc_ct_TypeMgr/jnc_ct_DerivableType.h
 	jnc_ct_TypeMgr/jnc_ct_DynamicLibClassType.h
+	jnc_ct_TypeMgr/jnc_ct_DynamicStructType.h
 	jnc_ct_TypeMgr/jnc_ct_EnumType.h
 	jnc_ct_TypeMgr/jnc_ct_Field.h
 	jnc_ct_TypeMgr/jnc_ct_FunctionArg.h
@@ -411,6 +413,7 @@ set(
 	jnc_ct_TypeMgr/jnc_ct_DataPtrType.cpp
 	jnc_ct_TypeMgr/jnc_ct_DerivableType.cpp
 	jnc_ct_TypeMgr/jnc_ct_DynamicLibClassType.cpp
+	jnc_ct_TypeMgr/jnc_ct_DynamicStructType.cpp
 	jnc_ct_TypeMgr/jnc_ct_EnumType.cpp
 	jnc_ct_TypeMgr/jnc_ct_Field.cpp
 	jnc_ct_TypeMgr/jnc_ct_FunctionArg.cpp
@@ -662,6 +665,7 @@ set(
 	${RTL_INTRO_JNC_DIR}/jnc_AttributeBlock.jnc
 	${RTL_INTRO_JNC_DIR}/jnc_ClassType.jnc
 	${RTL_INTRO_JNC_DIR}/jnc_DerivableType.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_DynamicStructType.jnc
 	${RTL_INTRO_JNC_DIR}/jnc_EnumType.jnc
 	${RTL_INTRO_JNC_DIR}/jnc_Field.jnc
 	${RTL_INTRO_JNC_DIR}/jnc_Function.jnc

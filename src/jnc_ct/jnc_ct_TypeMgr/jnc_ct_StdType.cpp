@@ -102,6 +102,7 @@ getStdTypeName(StdType stdType) {
 		"Field",                  // StdType_Field
 		"StructType",             // StdType_StructType
 		"UnionType",              // StdType_UnionType
+		"DynamicStructType",      // StdType_DynamicStructType
 		"Alias",                  // StdType_Alias
 		"Const",                  // StdType_Const
 		"Variable",               // StdType_Variable
@@ -230,6 +231,7 @@ getStdTypeSource(StdType stdType) {
 		{ NULL },  // StdType_Field
 		{ NULL },  // StdType_StructType
 		{ NULL },  // StdType_UnionType
+		{ NULL },  // StdType_DynamicStructType
 		{ NULL },  // StdType_Alias
 		{ NULL },  // StdType_Const
 		{ NULL },  // StdType_Variable
