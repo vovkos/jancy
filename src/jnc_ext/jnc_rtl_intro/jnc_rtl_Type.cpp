@@ -209,7 +209,6 @@ getType(ct::Type* type) {
 		StdType_StructType,        // TypeKind_Struct
 		StdType_UnionType,         // TypeKind_Union
 		StdType_ClassType,         // TypeKind_Class
-		StdType_DynamicStructType, // TypeKind_DynamicStruct
 		StdType_FunctionType,      // TypeKind_Function
 		StdType_PropertyType,      // TypeKind_Property
 		StdType_DataPtrType,       // TypeKind_DataPtr

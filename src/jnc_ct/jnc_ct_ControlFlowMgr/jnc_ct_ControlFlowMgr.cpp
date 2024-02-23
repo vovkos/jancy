@@ -488,7 +488,7 @@ ControlFlowMgr::ret(const Value& value) {
 			checkErrorCode(
 				returnValue,
 				returnType,
-				((AsyncSequencerFunction*) function)->getCatchBlock()
+				((AsyncSequencerFunction*)function)->getCatchBlock()
 			);
 
 		if ((scope->getFlags() & ScopeFlag_Finalizable) || isAsync) {

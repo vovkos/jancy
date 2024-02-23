@@ -37,7 +37,7 @@ public:
 	void
 	JNC_CDECL
 	setText(jnc::DataPtr textPtr) {
-		m_qtLineEdit->setText((const char*) textPtr.m_p);
+		m_qtLineEdit->setText((const char*)textPtr.m_p);
 	}
 };
 

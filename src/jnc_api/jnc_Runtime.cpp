@@ -492,7 +492,7 @@ jnc_Runtime_setUserData(
 	jnc_Runtime* runtime,
 	void* data
 ) {
-	return (void*)sys::atomicXchg((size_t volatile*) &runtime->m_userData, (size_t)data);
+	return (void*)sys::atomicXchg((size_t volatile*)&runtime->m_userData, (size_t)data);
 }
 
 JNC_EXTERN_C
@@ -552,7 +552,7 @@ primeIface(
 			root,
 			(IfaceHdr*)((char*)iface + slot->getOffset()),
 			(ct::ClassType*)slot->getType(),
-			(void**) vtable + slot->getVtableIndex()
+			(void**)vtable + slot->getVtableIndex()
 		);
 	}
 

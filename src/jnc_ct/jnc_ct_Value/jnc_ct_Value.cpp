@@ -250,18 +250,6 @@ Value::getClosureAwareType() const {
 }
 
 void
-Value::setDynamicFieldInfo(
-	const Value& parentValue,
-	DerivableType* parentType,
-	Field* field
-) {
-	m_dynamicFieldInfo = AXL_RC_NEW(DynamicFieldValueInfo);
-	m_dynamicFieldInfo->m_parentValue = parentValue;
-	m_dynamicFieldInfo->m_parentType = parentType;
-	m_dynamicFieldInfo->m_field = field;
-}
-
-void
 Value::setVoid(Module* module) {
 	clear();
 

@@ -25,13 +25,13 @@ DoxyHost::DoxyHost() {
 
 dox::Block*
 DoxyHost::findItemBlock(handle_t item0) {
-	ModuleItem* item = (ModuleItem*) item0;
+	ModuleItem* item = (ModuleItem*)item0;
 	return item->getDecl()->m_doxyBlock;
 }
 
 dox::Block*
 DoxyHost::getItemBlock(handle_t item0) {
-	ModuleItem* item = (ModuleItem*) item0;
+	ModuleItem* item = (ModuleItem*)item0;
 	return getItemBlock(item, item->getDecl());
 }
 
@@ -40,7 +40,7 @@ DoxyHost::setItemBlock(
 	handle_t item0,
 	dox::Block* block
 ) {
-	ModuleItem* item = (ModuleItem*) item0;
+	ModuleItem* item = (ModuleItem*)item0;
 	setItemBlock(item, item->getDecl(), block);
 }
 
@@ -73,7 +73,7 @@ DoxyHost::createItemRefId(handle_t item) {
 
 sl::StringRef
 DoxyHost::getItemCompoundElementName(handle_t item) {
-	ModuleItemKind itemKind = ((ModuleItem*) item)->getItemKind();
+	ModuleItemKind itemKind = ((ModuleItem*)item)->getItemKind();
 
 	bool isCompoundFile =
 		itemKind == ModuleItemKind_Namespace ||

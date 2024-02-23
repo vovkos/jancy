@@ -24,7 +24,7 @@ Cast_BoolFromZeroCmp::constCast(
 	Type* type,
 	void* dst
 ) {
-	const char* p = (const char*) opValue.getConstData();
+	const char* p = (const char*)opValue.getConstData();
 	const char* end = p + opValue.getType()->getSize();
 
 	bool result = false;

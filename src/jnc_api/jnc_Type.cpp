@@ -102,9 +102,6 @@ jnc_getTypeKindFlags(jnc_TypeKind typeKind) {
 		jnc_TypeKindFlag_Derivable |
 		jnc_TypeKindFlag_Named,
 
-		jnc_TypeKindFlag_Aggregate |    // jnc_TypeKind_DynamicStruct
-		jnc_TypeKindFlag_Named,
-
 		jnc_TypeKindFlag_Code,          // jnc_TypeKind_Function
 		jnc_TypeKindFlag_Code,          // jnc_TypeKind_Property
 

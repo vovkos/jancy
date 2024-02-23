@@ -169,7 +169,7 @@ MemberBlock::initializeFields(const Value& thisValue) {
 		}
 
 		Value fieldValue;
-		bool result = module->m_operatorMgr.getField(thisValue, parentType, field, NULL, &fieldValue);
+		bool result = module->m_operatorMgr.getField(thisValue, parentType, field, &fieldValue);
 		if (!result)
 			return false;
 

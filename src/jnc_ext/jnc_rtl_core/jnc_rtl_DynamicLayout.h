@@ -16,52 +16,86 @@
 namespace jnc {
 namespace rtl {
 
+class ModuleItemDecl;
+
+JNC_DECLARE_OPAQUE_CLASS_TYPE(DynamicSection)
 JNC_DECLARE_OPAQUE_CLASS_TYPE(DynamicLayout)
 
 //..............................................................................
 
-class DynamicLayout: public IfaceHdr {
-protected:
-	struct Key {
-		void* m_base;
-		DerivableType* m_type;
+enum DynamicSectionKind {
+	DynamicSectionKind_Group,
+	DynamicSectionKind_Array,
+	DynamicSectionKind_Struct,
+};
 
-		size_t hash() const {
-			return sl::djb2(this, sizeof(Key));
-		}
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-		bool isEqual(const Key& key) const {
-			return m_base == key.m_base && m_type == key.m_type;
-		}
-	};
-
-	struct Entry: sl::ListLink {
-		sl::Array<size_t> m_endOffsetArray;
-	};
-
-protected:
-	sys::Lock m_lock;
-	sl::DuckTypeHashTable<Key, Entry*> m_map;
-	sl::List<Entry> m_list;
+class DynamicSection: public IfaceHdr {
+public:
+	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(DynamicSection)
 
 public:
-	static
-	ClassType*
-	getType(Module* module);
+	size_t m_offset;
+	size_t m_size;
+	DynamicSectionKind m_sectoinKind;
+	Type* m_type;
 
-	size_t
-	getDynamicFieldSize(
+	union {
+		size_t m_elementCount;
+		size_t m_sectionCount;
+	};
+
+protected:
+	ct::ModuleItemDecl* m_decl;
+	sl::Array<DynamicSection*> m_sectionArray;
+
+public:
+	void
+	JNC_CDECL
+	markOpaqueGcRoots(GcHeap* gcHeap);
+
+	rtl::ModuleItemDecl*
+	JNC_CDECL
+	getDecl();
+
+	DynamicSection*
+	JNC_CDECL
+	getSection(size_t i) {
+		return m_sectionArray[i];
+	}
+};
+
+//..............................................................................
+
+class DynamicLayout: public IfaceHdr {
+public:
+	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(DynamicLayout)
+
+public:
+	DataPtr m_ptr;
+	DataPtr m_basePtr;
+	DataPtr m_endPtr;
+	size_t m_sectionCount;
+
+protected:
+	sl::Array<DynamicSection*> m_sectionArray;
+
+public:
+	void
+	JNC_CDECL
+	construct_0() {}
+
+	void
+	JNC_CDECL
+	construct_1(
 		DataPtr ptr,
-		size_t offset,
-		Field* field
+		size_t size
 	);
 
-	size_t
-	getDynamicFieldEndOffset(
-		DataPtr ptr,
-		DerivableType* type,
-		size_t fieldIndex // dynamic
-	);
+	void
+	JNC_CDECL
+	markOpaqueGcRoots(GcHeap* gcHeap);
 };
 
 //..............................................................................

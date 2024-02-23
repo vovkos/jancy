@@ -96,7 +96,7 @@ ClassPtrType::markGcRoots(
 	const void* p,
 	rt::GcHeap* gcHeap
 ) {
-	IfaceHdr* iface = *(IfaceHdr**) p;
+	IfaceHdr* iface = *(IfaceHdr**)p;
 	if (!iface)
 		return;
 

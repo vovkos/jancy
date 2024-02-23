@@ -631,7 +631,7 @@ template <typename T>
 void*
 jnc_pvoid_cast(T x) {
 	JNC_ASSERT(sizeof(x) == sizeof(void*) || sizeof(x) == sizeof(void*)* 2);
-	return *(void**) &x;
+	return *(void**)&x;
 }
 
 #	if (!_JNC_CPP_GCC)

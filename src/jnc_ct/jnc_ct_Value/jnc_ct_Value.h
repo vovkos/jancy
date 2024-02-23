@@ -56,8 +56,6 @@ getValueKindString(ValueKind valueKind);
 
 //..............................................................................
 
-struct DynamicFieldValueInfo;
-
 class Value {
 	friend class Parser;
 
@@ -81,7 +79,6 @@ protected:
 
 	// codegen-only
 
-	rc::Ptr<DynamicFieldValueInfo> m_dynamicFieldInfo;
 	mutable rc::Ptr<LeanDataPtrValidator> m_leanDataPtrValidator;
 	mutable llvm::Value* m_llvmValue;
 
@@ -339,23 +336,6 @@ public:
 
 	Type*
 	getClosureAwareType() const;
-
-	DynamicFieldValueInfo*
-	getDynamicFieldInfo() const {
-		return m_dynamicFieldInfo;
-	}
-
-	void
-	setDynamicFieldInfo(
-		const Value& parentValue,
-		DerivableType* parentType,
-		Field* field
-	);
-
-	void
-	clearDynamicFieldInfo() {
-		m_closure = rc::g_nullPtr;
-	}
 
 	void
 	overrideType(Type* type) {

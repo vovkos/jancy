@@ -289,17 +289,6 @@ VariableMgr::createSimpleStaticVariable(
 
 bool
 VariableMgr::initializeVariable(Variable* variable) {
-	if (variable->m_type->getFlags() & TypeFlag_Dynamic) {
-		err::setFormatStringError(
-			"'%s' uses dynamic type '%s'",
-			variable->getQualifiedName().sz(),
-			variable->m_type->getTypeString().sz()
-		);
-
-		variable->pushSrcPosError();
-		return false;
-	}
-
 	if (m_module->hasCodeGen())
 		switch (variable->m_storageKind) {
 		case StorageKind_Static:

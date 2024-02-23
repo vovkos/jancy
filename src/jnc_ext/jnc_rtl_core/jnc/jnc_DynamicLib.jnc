@@ -34,7 +34,7 @@ namespace jnc {
 			typedef void stdcall FooFunc(int); // specify function type
 
 			unsafe {
-				FooFunc thin* foo = (FooFunc thin*) p; // cast to the proper type
+				FooFunc thin* foo = (FooFunc thin*)p; // cast to the proper type
 			}
 
 			foo(100); // call this function

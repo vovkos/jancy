@@ -18,7 +18,6 @@
 #include "jnc_ct_StructType.h"
 #include "jnc_ct_UnionType.h"
 #include "jnc_ct_ClassType.h"
-#include "jnc_ct_DynamicStructType.h"
 #include "jnc_ct_FunctionType.h"
 #include "jnc_ct_PropertyType.h"
 #include "jnc_ct_DataPtrType.h"
@@ -281,7 +280,6 @@ TypeMgr::getStdType(StdType stdType) {
 	case StdType_Field:
 	case StdType_StructType:
 	case StdType_UnionType:
-	case StdType_DynamicStructType:
 	case StdType_Alias:
 	case StdType_Variable:
 	case StdType_Const:
@@ -522,27 +520,6 @@ TypeMgr::addClassType(
 
 	if (type->m_classTypeKind == ClassTypeKind_Multicast)
 		m_multicastClassTypeArray.append((MulticastClassType*)type);
-}
-
-DynamicStructType*
-TypeMgr::createDynamicStructType(
-	const sl::StringRef& name,
-	const sl::StringRef& qualifiedName,
-	size_t fieldAlignment
-) {
-	DynamicStructType* type = new DynamicStructType;
-	type->m_module = m_module;
-	type->m_name = name;
-	type->m_qualifiedName = qualifiedName;
-	type->m_fieldAlignment = fieldAlignment;
-
-#ifdef _JNC_NAMED_TYPE_ADD_SELF
-	if (!name.isEmpty())
-		type->addItem(type);
-#endif
-
-	m_typeList.insertTail(type);
-	return type;
 }
 
 bool
@@ -1130,7 +1107,7 @@ TypeMgr::createReactorType(
 	FunctionType* reactionType;
 
 	if (!parentType) {
-		reactionType = getFunctionType(voidType, (Type**) &sizeType, 1);
+		reactionType = getFunctionType(voidType, (Type**)&sizeType, 1);
 	} else {
 		Type* argTypeArray[] = {
 			parentType->getClassPtrType(ClassPtrTypeKind_Normal, PtrTypeFlag_Safe),

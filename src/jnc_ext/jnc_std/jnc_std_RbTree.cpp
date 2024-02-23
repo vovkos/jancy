@@ -75,7 +75,7 @@ RbTree::removeImpl(MapEntry* entry) {
 	}
 
 	m_map.remove(entry);
-	m_rbTree.erase((sl::RbTreeNode<Variant, DataPtr>*) entry->m_mapEntry);
+	m_rbTree.erase((sl::RbTreeNode<Variant, DataPtr>*)entry->m_mapEntry);
 	ASSERT(m_map.m_count == m_rbTree.getCount());
 }
 

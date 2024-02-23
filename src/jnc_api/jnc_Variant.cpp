@@ -736,7 +736,6 @@ g_formatFuncTable[jnc_TypeKind__Count] = {
 	format_default,                     // TypeKind_Struct
 	format_default,                     // TypeKind_Union
 	format_default,                     // TypeKind_Class
-	format_default,                     // TypeKind_DynamicStruct
 	format_default,                     // TypeKind_Function
 	format_default,                     // TypeKind_Property
 	format_dataPtr,                     // TypeKind_DataPtr

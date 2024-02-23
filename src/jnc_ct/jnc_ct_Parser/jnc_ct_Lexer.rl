@@ -163,6 +163,9 @@ main := |*
 'mutable'        { createToken(TokenKind_Mutable); };
 'disposable'     { createToken(TokenKind_Disposable); };
 
+'dynamic' ws+ 'field'
+                 { createToken(TokenKind_DynamicField); };
+
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 # type modifiers
@@ -221,8 +224,6 @@ main := |*
                  { createToken(TokenKind_BitFlagEnum); };
 'opaque' ws+ 'class'
                  { createToken(TokenKind_OpaqueClass); };
-'dynamic' ws+ 'struct'
-                 { createToken(TokenKind_DynamicStruct); };
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -276,6 +277,9 @@ main := |*
 'nestedscope'    { createToken(TokenKind_NestedScope); };
 'assert'         { createToken(TokenKind_Assert); };
 'await'          { createToken(TokenKind_Await); };
+
+'dynamic' ws+ 'layout'
+                 { createToken(TokenKind_DynamicLayout); };
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

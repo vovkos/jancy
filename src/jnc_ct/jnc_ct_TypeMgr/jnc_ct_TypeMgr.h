@@ -359,13 +359,6 @@ public:
 		return createUnnamedInternalClassType<ClassType>(tag, fieldAlignment, flags);
 	}
 
-	DynamicStructType*
-	createDynamicStructType(
-		const sl::StringRef& name,
-		const sl::StringRef& qualifiedName,
-		size_t fieldAlignment = 8
-	);
-
 	void
 	addExternalReturnType(DerivableType* type) {
 		m_externalReturnTypeSet.visit(type);

@@ -288,8 +288,7 @@ ClassType::calcLayout() {
 		if (!result)
 			return false;
 
-		if (!(slot->m_type->getTypeKindFlags() & TypeKindFlag_Derivable) ||
-			(slot->m_type->getFlags() & TypeFlag_Dynamic)) {
+		if (!(slot->m_type->getTypeKindFlags() & TypeKindFlag_Derivable)) {
 			err::setFormatStringError("'%s' cannot be a base type of a class", slot->m_type->getTypeString().sz());
 			return false;
 		}

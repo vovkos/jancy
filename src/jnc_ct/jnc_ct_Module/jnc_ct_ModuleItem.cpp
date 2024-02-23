@@ -337,7 +337,6 @@ getTypeSynopsis(
 		"struct",          // TypeKind_Struct,
 		"union",           // TypeKind_Union,
 		"class",           // TypeKind_Class,
-		"dynamic struct",  // TypeKind_DynamicStruct,
 	};
 
 	sl::String synopsis;

@@ -61,7 +61,7 @@ HashTable::removeImpl(MapEntry* entry) {
 		dynamicThrow();
 	}
 
-	m_hashTable.erase((sl::HashTableEntry<Variant, DataPtr>*) entry->m_mapEntry);
+	m_hashTable.erase((sl::HashTableEntry<Variant, DataPtr>*)entry->m_mapEntry);
 	m_map.remove(entry);
 	ASSERT(m_map.m_count == m_hashTable.getCount());
 }

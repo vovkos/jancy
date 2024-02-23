@@ -67,7 +67,7 @@ Variable::prepareStaticData() {
 		m_llvmGlobalVariable;
 
 	if (!llvmGlobalVariable) { // optimized out
-		Value value((void*) NULL, m_type);
+		Value value((void*)NULL, m_type);
 		m_module->m_constMgr.saveValue(value);
 		m_staticData = value.getConstData();
 		return;

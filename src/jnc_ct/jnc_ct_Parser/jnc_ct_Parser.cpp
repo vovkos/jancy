@@ -14,7 +14,6 @@
 #include "jnc_ct_DeclTypeCalc.h"
 #include "jnc_ct_ArrayType.h"
 #include "jnc_ct_UnionType.h"
-#include "jnc_ct_DynamicStructType.h"
 #include "jnc_ct_DynamicLibClassType.h"
 #include "jnc_ct_DynamicLibNamespace.h"
 #include "jnc_ct_ExtensionNamespace.h"
@@ -50,11 +49,12 @@ Parser::Parser(
 	m_lastNamedType = NULL;
 	m_lastPropertyGetterType = NULL;
 	m_lastPropertyTypeModifiers = 0;
-	m_reactorType = NULL;
 	m_reactionIdx = 0;
+	m_topDeclarator = NULL;
+
 	m_constructorType = NULL;
 	m_constructorProperty = NULL;
-	m_topDeclarator = NULL;
+	m_reactorType = NULL;
 }
 
 bool
@@ -1307,7 +1307,7 @@ Parser::createProperty(Declarator* declarator) {
 			break;
 
 		default:
-			err::setFormatStringError("property members are not allowed in '%s'", ((NamedType*) nspace)->getTypeString().sz());
+			err::setFormatStringError("property members are not allowed in '%s'", ((NamedType*)nspace)->getTypeString().sz());
 			return NULL;
 		}
 
@@ -1726,9 +1726,9 @@ Parser::declareData(
 			TypeKind namedTypeKind = namedType->getTypeKind();
 
 			switch (namedTypeKind) {
-			case TypeKind_Class:
 			case TypeKind_Struct:
 			case TypeKind_Union:
+			case TypeKind_Class:
 				((DerivableType*)namedType)->m_staticVariableArray.append(variable);
 				break;
 
@@ -1790,16 +1790,10 @@ Parser::declareData(
 		Field* field;
 
 		switch (namedTypeKind) {
-		case TypeKind_Class:
-			field = ((ClassType*)namedType)->createField(name, type, bitCount, ptrTypeFlags, constructor, initializer);
-			break;
-
 		case TypeKind_Struct:
-			field = ((StructType*)namedType)->createField(name, type, bitCount, ptrTypeFlags, constructor, initializer);
-			break;
-
 		case TypeKind_Union:
-			field = ((UnionType*)namedType)->createField(name, type, bitCount, ptrTypeFlags, constructor, initializer);
+		case TypeKind_Class:
+			field = ((DerivableType*)namedType)->createField(name, type, bitCount, ptrTypeFlags, constructor, initializer);
 			break;
 
 		default:
@@ -2017,9 +2011,7 @@ Parser::createClassType(
 	bool result;
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	ClassType* classType;
-
-	m_module->m_typeMgr.createClassType(
+	ClassType* classType = m_module->m_typeMgr.createClassType(
 		name,
 		nspace->createQualifiedName(name),
 		m_module->m_pragmaMgr->m_fieldAlignment,
@@ -2041,28 +2033,6 @@ Parser::createClassType(
 
 	assignDeclarationAttributes(classType, classType, pos);
 	return classType;
-}
-
-DynamicStructType*
-Parser::createDynamicStructType(
-	const lex::LineCol& pos,
-	const sl::StringRef& name
-) {
-	bool result;
-
-	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	DynamicStructType* structType = m_module->m_typeMgr.createDynamicStructType(
-		name,
-		nspace->createQualifiedName(name),
-		m_module->m_pragmaMgr->m_fieldAlignment
-	);
-
-	result = nspace->addItem(structType);
-	if (!result)
-		return NULL;
-
-	assignDeclarationAttributes(structType, structType, pos);
-	return structType;
 }
 
 DynamicLibClassType*

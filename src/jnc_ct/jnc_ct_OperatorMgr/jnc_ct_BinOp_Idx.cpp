@@ -123,7 +123,7 @@ BinOp_Idx::arrayIndexOperator(
 				);
 			} else {
 				ASSERT(ptrTypeKind == DataPtrTypeKind_Thin);
-				char* p = *(char**) opValue1.getConstData();
+				char* p = *(char**)opValue1.getConstData();
 				p += elementOffset;
 				resultValue->createConst(
 					&p,

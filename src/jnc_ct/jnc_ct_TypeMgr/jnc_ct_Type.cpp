@@ -1047,7 +1047,7 @@ isStringableType(Type* type) {
 
 	return
 		(type->getTypeKindFlags() & TypeKindFlag_Derivable) &&
-		isStringableType((DerivableType*) type);
+		isStringableType((DerivableType*)type);
 }
 
 bool

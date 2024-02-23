@@ -32,7 +32,6 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(ArrayType)
 	JNC_MAP_CONST_PROPERTY("m_elementType", &ArrayType::getElementType)
 	JNC_MAP_CONST_PROPERTY("m_rootType", &ArrayType::getRootType)
 	JNC_MAP_CONST_PROPERTY("m_elementCount", &ArrayType::getElementCount)
-	JNC_MAP_CONST_PROPERTY("m_getDynamicSizeFunction", &ArrayType::getGetDynamicSizeFunction)
 JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................

@@ -215,12 +215,12 @@ setErrno(int code) {
 
 void
 setError_0(DataPtr errorPtr) {
-	err::setError((const err::ErrorHdr*) errorPtr.m_p);
+	err::setError((const err::ErrorHdr*)errorPtr.m_p);
 }
 
 void
 setError_1(DataPtr stringPtr) {
-	err::setError((const char*) stringPtr.m_p);
+	err::setError((const char*)stringPtr.m_p);
 }
 
 int
@@ -581,7 +581,7 @@ strDup(
 	if (length == -1)
 		length = strLen(ptr);
 
-	return jnc::strDup((const char*) ptr.m_p, length);
+	return jnc::strDup((const char*)ptr.m_p, length);
 }
 
 size_t

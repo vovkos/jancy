@@ -114,7 +114,7 @@ public:
 		size_t bitCount = 0,
 		uint_t ptrTypeFlags = 0
 	) {
-		return createFieldImpl(sl::String(), type, bitCount, ptrTypeFlags);
+		return createFieldImpl(sl::String(), type, bitCount, ptrTypeFlags, NULL, NULL);
 	}
 
 	template <typename T>
@@ -189,10 +189,10 @@ protected:
 	createFieldImpl(
 		const sl::StringRef& name,
 		Type* type,
-		size_t bitCount = 0,
-		uint_t ptrTypeFlags = 0,
-		sl::List<Token>* constructor = NULL,
-		sl::List<Token>* initializer = NULL
+		size_t bitCount,
+		uint_t ptrTypeFlags,
+		sl::List<Token>* constructor,
+		sl::List<Token>* initializer
 	) = 0;
 
 	void

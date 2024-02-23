@@ -364,8 +364,6 @@ static jnc_GcHeapFuncTable g_gcHeapFuncTable = {
 	jnc_GcHeap_createForeignDataBox,
 	jnc_GcHeap_createForeignBufferPtr,
 	jnc_GcHeap_invalidateDataPtrValidator,
-	jnc_GcHeap_getDynamicLayout,
-	jnc_GcHeap_resetDynamicLayout,
 	jnc_GcHeap_weakMark,
 	jnc_GcHeap_markData,
 	jnc_GcHeap_markClass,

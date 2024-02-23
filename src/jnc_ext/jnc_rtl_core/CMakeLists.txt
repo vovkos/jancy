@@ -52,6 +52,7 @@ set(
 	jnc/jnc_gc.jnc
 	jnc/jnc_DataPtr.jnc
 	jnc/jnc_DynamicLib.jnc
+	jnc/jnc_DynamicLayout.jnc
 	jnc/jnc_Promise.jnc
 	jnc/jnc_Regex.jnc
 	jnc/jnc_Scheduler.jnc
@@ -124,6 +125,7 @@ include_directories(
 	${JANCY_INC_DIR}
 	${JANCY_SRC_DIR}/jnc_ct/include
 	${JANCY_SRC_DIR}/jnc_rt
+	${JANCY_SRC_DIR}/jnc_ext/jnc_rtl_intro
 	${GEN_DIR}
 )
 

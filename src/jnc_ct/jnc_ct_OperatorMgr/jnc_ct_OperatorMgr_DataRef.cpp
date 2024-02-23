@@ -81,11 +81,6 @@ OperatorMgr::loadDataRef(
 	Type* targetType = type->getTargetType();
 	uint_t typeFlags = type->getFlags();
 
-	if (targetType->getFlags() & TypeFlag_Dynamic) {
-		err::setFormatStringError("invalid usage of dynamic type '%s'", targetType->getTypeString().sz());
-		return false;
-	}
-
 	if (opValue.getValueKind() != ValueKind_Const) {
 		Value ptrValue;
 		result = prepareDataPtr(opValue, &ptrValue);
@@ -153,11 +148,6 @@ OperatorMgr::storeDataRef(
 	}
 
 	Type* targetType = dstType->getTargetType();
-	if (targetType->getFlags() & TypeFlag_Dynamic) {
-		err::setFormatStringError("invalid usage of dynamic type '%s'", targetType->getTypeString().sz());
-		return false;
-	}
-
 	Value srcValue;
 	Value bfShadowValue;
 

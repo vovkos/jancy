@@ -83,10 +83,6 @@ UnionType::calcLayout() {
 			err::setFormatStringError("non-POD '%s' cannot be a union member", field->m_type->getTypeString().sz());
 			field->pushSrcPosError();
 			return false;
-		} else if (fieldTypeFlags & TypeFlag_Dynamic) {
-			err::setFormatStringError("dynamic '%s' cannot be a union member", field->m_type->getTypeString().sz());
-			field->pushSrcPosError();
-			return false;
 		}
 
 		if (!largestFieldType || field->m_type->getSize() > largestFieldType->getSize())

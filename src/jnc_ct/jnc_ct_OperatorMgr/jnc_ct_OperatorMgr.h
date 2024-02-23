@@ -1319,14 +1319,6 @@ public:
 	);
 
 	bool
-	getDynamicField(
-		const Value& opValue,
-		DerivableType* type,
-		Field* field,
-		Value* resultValue
-	);
-
-	bool
 	getUnionField(
 		const Value& opValue,
 		Field* field,

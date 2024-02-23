@@ -103,7 +103,6 @@ protected:
 	sl::Array<Root> m_markRootArray[2];
 	size_t m_currentMarkRootArrayIdx;
 
-	sl::SimpleHashTable<Box*, IfaceHdr*> m_dynamicLayoutMap;
 	sl::SimpleHashTable<void*, IfaceHdr*> m_introspectionMap;
 
 	// adjustable triggers
@@ -201,14 +200,6 @@ public:
 	invalidateDataPtr(DataPtr ptr) {
 		invalidateDataPtrValidator(ptr.m_validator);
 	}
-
-	// dynamic layout methods
-
-	IfaceHdr*
-	getDynamicLayout(Box* box);
-
-	void
-	resetDynamicLayout(Box* box);
 
 	// introspection
 

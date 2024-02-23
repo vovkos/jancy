@@ -209,7 +209,7 @@ void ModulePane::addTypedef(QTreeWidgetItem *parent, jnc::Typedef* tdef) {
 }
 
 void ModulePane::addEnumConst(QTreeWidgetItem *parent, jnc::EnumConst *member) {
-	QTreeWidgetItem *item = insertItem((const char*) member->getDecl()->getName(), parent);
+	QTreeWidgetItem *item = insertItem((const char*)member->getDecl()->getName(), parent);
 	item->setData(0, Qt::UserRole, qVariantFromValue((void*)member->getDecl()));
 }
 

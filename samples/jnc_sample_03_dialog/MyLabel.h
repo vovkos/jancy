@@ -35,7 +35,7 @@ public:
 	JNC_CDECL
 	setText(jnc::DataPtr textPtr) {
 		m_text = textPtr;
-		m_qtLabel->setText((const char*) textPtr.m_p);
+		m_qtLabel->setText((const char*)textPtr.m_p);
 	}
 
 	void

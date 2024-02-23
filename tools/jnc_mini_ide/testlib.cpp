@@ -92,10 +92,10 @@ TestClassB::bar(
 	int a,
 	int b
 ) {
-	const char* p1 = (const char*) ptr1.m_p;
-	const char* p2 = (const char*) ptr2.m_p;
-	const char* p3 = (const char*) ptr3.m_p;
-	const char* p4 = (const char*) ptr4.m_p;
+	const char* p1 = (const char*)ptr1.m_p;
+	const char* p2 = (const char*)ptr2.m_p;
+	const char* p3 = (const char*)ptr3.m_p;
+	const char* p4 = (const char*)ptr4.m_p;
 
 	printf("TestClassB::bar ()\n");
 

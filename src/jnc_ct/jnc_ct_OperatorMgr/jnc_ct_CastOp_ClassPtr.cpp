@@ -87,7 +87,7 @@ Cast_ClassPtr::constCast(
 	if (opValue.getType()->getTypeKind() != TypeKind_ClassPtr)
 		return false; // TODO: user conversions later via constructors
 
-	IfaceHdr* srcIface = *(IfaceHdr**) opValue.getConstData();
+	IfaceHdr* srcIface = *(IfaceHdr**)opValue.getConstData();
 	ClassType* srcClassType = srcIface ? (ClassType*)srcIface->m_box->m_type : NULL;
 
 	ClassPtrType* srcType = (ClassPtrType*)opValue.getType();
@@ -101,7 +101,7 @@ Cast_ClassPtr::constCast(
 		dstClassType->getClassTypeKind() == ClassTypeKind_Abstract ||
 		isMulticastToMulticast(srcType, dstType) ||
 		srcClassType->cmp(dstClassType) == 0) {
-		*(void**) dst = srcIface;
+		*(void**)dst = srcIface;
 		return true;
 	}
 

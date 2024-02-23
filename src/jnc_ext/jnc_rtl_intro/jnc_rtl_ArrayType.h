@@ -44,12 +44,6 @@ public:
 	getElementCount() {
 		return m_item->getElementCount();
 	}
-
-	Function*
-	JNC_CDECL
-	getGetDynamicSizeFunction() {
-		return (Function*)rtl::getModuleItem(m_item->getGetDynamicSizeFunction());
-	}
 };
 
 //..............................................................................

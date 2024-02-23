@@ -80,7 +80,6 @@ enum jnc_TypeKind {
 	jnc_TypeKind_Struct,              // S
 	jnc_TypeKind_Union,               // U
 	jnc_TypeKind_Class,               // CC/CO/CB/CA/CF/CD (class/object/box/reactor-iface/f-closure/d-closure)
-	jnc_TypeKind_DynamicStruct,       // D
 
 	// function types
 
@@ -179,7 +178,6 @@ enum jnc_TypeFlag {
 	jnc_TypeFlag_GcRoot         = 0x0200, // is or contains gc-traceable pointers
 	jnc_TypeFlag_StructRet      = 0x0400, // return through hidden 1st arg (gcc32 callconv)
 	jnc_TypeFlag_NoStack        = 0x0800, // try to avoid allocation on stack
-	jnc_TypeFlag_Dynamic        = 0x1000, // dynamic struct/union/array
 	jnc_TypeFlag_NoImports      = 0x2000, // all imports resolved (when generating documentation)
 	jnc_TypeFlag_SignatureReady = 0x4000, // signature is ready for use (but can depend on imports)
 	jnc_TypeFlag_SignatureFinal = 0x8000, // signature is ready & final (doesn't depend on imports)
@@ -303,7 +301,6 @@ enum jnc_StdType {
 	jnc_StdType_Field,
 	jnc_StdType_StructType,
 	jnc_StdType_UnionType,
-	jnc_StdType_DynamicStructType,
 	jnc_StdType_Alias,
 	jnc_StdType_Const,
 	jnc_StdType_Variable,
@@ -590,7 +587,6 @@ const TypeKind
 	TypeKind_Struct              = jnc_TypeKind_Struct,
 	TypeKind_Union               = jnc_TypeKind_Union,
 	TypeKind_Class               = jnc_TypeKind_Class,
-	TypeKind_DynamicStruct       = jnc_TypeKind_DynamicStruct,
 	TypeKind_Function            = jnc_TypeKind_Function,
 	TypeKind_Property            = jnc_TypeKind_Property,
 	TypeKind_DataPtr             = jnc_TypeKind_DataPtr,
@@ -663,7 +659,6 @@ const TypeFlag
 	TypeFlag_GcRoot         = jnc_TypeFlag_GcRoot,
 	TypeFlag_StructRet      = jnc_TypeFlag_StructRet,
 	TypeFlag_NoStack        = jnc_TypeFlag_NoStack,
-	TypeFlag_Dynamic        = jnc_TypeFlag_Dynamic,
 	TypeFlag_NoImports      = jnc_TypeFlag_NoImports,
 	TypeFlag_SignatureReady = jnc_TypeFlag_SignatureReady,
 	TypeFlag_SignatureFinal = jnc_TypeFlag_SignatureFinal,
@@ -771,7 +766,6 @@ const StdType
 	StdType_Field                 = jnc_StdType_Field,
 	StdType_StructType            = jnc_StdType_StructType,
 	StdType_UnionType             = jnc_StdType_UnionType,
-	StdType_DynamicStructType     = jnc_StdType_DynamicStructType,
 	StdType_Alias                 = jnc_StdType_Alias,
 	StdType_Const                 = jnc_StdType_Const,
 	StdType_Variable              = jnc_StdType_Variable,

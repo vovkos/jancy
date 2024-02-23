@@ -38,10 +38,6 @@ named_type_specifier
 			{
 				$.m_type = $1.m_type;
 			}
-	|	dynamic_struct_specifier
-			{
-				$.m_type = $1.m_type;
-			}
 	|	library_specifier
 			{
 				$.m_type = $1.m_type;
@@ -56,7 +52,6 @@ named_type_specifier_sync
 	|	TokenKind_Class
 	|	TokenKind_BitFlagEnum
 	|	TokenKind_OpaqueClass
-	|	TokenKind_DynamicStruct
 	|	TokenKind_DynamicLib
 	;
 
@@ -233,30 +228,6 @@ class_specifier
 					return false;
 			}
 		member_block<$.m_type>
-	;
-
-//..............................................................................
-
-// dynamic struct
-
-struct {
-	DynamicStructType* m_type;
-}
-dynamic_struct_specifier
-	enter {
-		$.m_type = NULL;
-	}
-	:	TokenKind_DynamicStruct
-		TokenKind_Identifier $n
-			{
-				$.m_type = createDynamicStructType($2.m_pos, $n.m_data.m_string);
-				if (!$.m_type)
-					return false;
-			}
-		declaration_body_pass1 $b
-			{
-				setBody($.m_type, &$b.m_tokenList);
-			}
 	;
 
 //..............................................................................

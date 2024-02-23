@@ -566,7 +566,7 @@ GcHeap::createDataPtrValidator(
 		jnc::Type* validatorType = m_runtime->getModule()->m_typeMgr.getStdType(StdType_DataPtrValidator);
 		DataPtr ptr = allocateArray(validatorType, GcDef_DataPtrValidatorPoolSize);
 
-		validator = (DataPtrValidator*) ptr.m_p;
+		validator = (DataPtrValidator*)ptr.m_p;
 		validator->m_validatorBox = ptr.m_validator->m_validatorBox;
 
 		if (GcDef_DataPtrValidatorPoolSize >= 2) {
@@ -610,7 +610,7 @@ GcHeap::createForeignDataBox(
 		Type* boxType = m_runtime->getModule()->m_typeMgr.getStdType(StdType_DetachedDataBox);
 		DataPtr ptr = allocateArray(boxType, GcDef_ForeignDataBoxPoolSize);
 
-		resultBox = (DetachedDataBox*) ptr.m_p;
+		resultBox = (DetachedDataBox*)ptr.m_p;
 		resultBox->m_validator.m_validatorBox = ptr.m_validator->m_validatorBox;
 
 		if (GcDef_DataPtrValidatorPoolSize >= 2) {
@@ -659,49 +659,6 @@ void
 GcHeap::invalidateDataPtrValidator(DataPtrValidator* validator) {
 	waitIdleAndLock();
 	validator->m_targetBox->m_flags |= BoxFlag_Invalid;
-	m_lock.unlock();
-}
-
-// dynamic layout methods
-
-IfaceHdr*
-GcHeap::getDynamicLayout(Box* box) {
-	IfaceHdr* dynamicLayout;
-
-	waitIdleAndLock();
-	sl::HashTableIterator<Box*, IfaceHdr*> it = m_dynamicLayoutMap.find(box);
-	if (it) {
-		dynamicLayout = it->m_value;
-		m_lock.unlock();
-		return dynamicLayout;
-	}
-
-	m_lock.unlock();
-
-	// we need a call site so the newly allocated dynamic layout
-	// does not get collected during waitIdleAndLock()
-
-	JNC_BEGIN_CALL_SITE(m_runtime)
-		dynamicLayout = createClass<rtl::DynamicLayout> (m_runtime);
-
-		waitIdleAndLock();
-
-		it = m_dynamicLayoutMap.visit(box);
-		if (it->m_value)
-			dynamicLayout = it->m_value;
-		else
-			it->m_value = dynamicLayout;
-
-		m_lock.unlock();
-	JNC_END_CALL_SITE()
-
-	return dynamicLayout;
-}
-
-void
-GcHeap::resetDynamicLayout(Box* box) {
-	waitIdleAndLock();
-	m_dynamicLayoutMap.eraseKey(box);
 	m_lock.unlock();
 }
 
@@ -809,8 +766,7 @@ GcHeap::finalizeShutdown() {
 		m_staticDestructorList.isEmpty() &&
 		m_dynamicDestructArray.isEmpty() &&
 		m_allocBoxArray.isEmpty() &&
-		m_classBoxArray.isEmpty() &&
-		m_dynamicLayoutMap.isEmpty()
+		m_classBoxArray.isEmpty()
 	);
 
 	// force-clear anyway
@@ -823,7 +779,6 @@ GcHeap::finalizeShutdown() {
 	m_allocBoxArray.clear();
 	m_classBoxArray.clear();
 	m_destructibleClassBoxArray.clear();
-	m_dynamicLayoutMap.clear();
 	m_introspectionMap.clear();
 }
 
@@ -1214,7 +1169,7 @@ GcHeap::addRootArray(
 	size_t baseCount = markRootArray->getCount();
 	markRootArray->setCount(baseCount + count);
 
-	const char* p = (const char*) p0;
+	const char* p = (const char*)p0;
 	for (size_t i = 0, j = baseCount; i < count; i++, j++) {
 		(*markRootArray) [j].m_p = p;
 		(*markRootArray) [j].m_type = type;
@@ -1447,19 +1402,6 @@ GcHeap::collect_l(bool isMutatorThread) {
 	// run mark cycle
 
 	runMarkCycle();
-
-	// mark used dynamic layouts and remove unused from the map
-
-	sl::HashTableIterator<Box*, IfaceHdr*> it = m_dynamicLayoutMap.getHead();
-	sl::HashTableIterator<Box*, IfaceHdr*> nextIt;
-	for (; it; it = nextIt) {
-		nextIt = it.getNext();
-
-		if (it->getKey()->m_flags & BoxFlag_WeakMark)
-			markClass(it->m_value->m_box); // simple mark is enough -- DynamicLayout is a primitive opaque class
-		else
-			m_dynamicLayoutMap.erase(it);
-	}
 
 	JNC_TRACE_GC_COLLECT("   ... GcHeap::collect_l () -- mark complete\n");
 

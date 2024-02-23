@@ -37,6 +37,8 @@
 #include "jnc_Promise.jnc.cpp"
 ;static char g_jnc_regexSrc[] =
 #include "jnc_Regex.jnc.cpp"
+;static char g_jnc_dynamicLayoutSrc[] =
+#include "jnc_DynamicLayout.jnc.cpp"
 ;static char g_jnc_schedulerSrc[] =
 #include "jnc_Scheduler.jnc.cpp"
 ;
@@ -148,17 +150,6 @@ dynamicCastVariant(
 IfaceHdr*
 strengthenClassPtr(IfaceHdr* iface) {
 	return jnc_strengthenClassPtr(iface);
-}
-
-void
-resetDynamicLayout(DataPtr ptr) {
-	if (!ptr.m_validator)
-		return;
-
-	GcHeap* gcHeap = getCurrentThreadGcHeap();
-	ASSERT(gcHeap);
-
-	gcHeap->resetDynamicLayout(ptr.m_validator->m_targetBox);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -449,6 +440,29 @@ stringIncrement(
 	return string;
 }
 
+String
+stringConcatenate(
+	String string1,
+	String string2
+) {
+	if (!string2.m_length)
+		return string1;
+	else if (!string1.m_length)
+		return string2;
+
+	GcHeap* gcHeap = getCurrentThreadGcHeap();
+	ASSERT(gcHeap);
+
+	size_t length = string1.m_length + string2.m_length;
+	DataPtr ptr = gcHeap->allocateBuffer(length + 1);
+	memcpy(ptr.m_p, string1.m_ptr.m_p, string1.m_length);
+	memcpy((char*)ptr.m_p + string1.m_length, string2.m_ptr.m_p, string2.m_length);
+
+	String string;
+	string.setPtr(ptr, length);
+	return string;
+}
+
 static
 inline
 bool
@@ -607,7 +621,7 @@ tryLazyGetDynamicLibFunction(
 		return NULL;
 	}
 
-	void** functionTable = (void**) (lib + 1);
+	void** functionTable = (void**)(lib + 1);
 	if (functionTable[index])
 		return functionTable[index];
 
@@ -630,82 +644,6 @@ lazyGetDynamicLibFunction(
 		dynamicThrow();
 
 	return p;
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-rtl::DynamicLayout*
-getDynamicLayout(DataPtr ptr) {
-	if (!ptr.m_p || !ptr.m_validator) {
-		err::setError("null data pointer access");
-		dynamicThrow();
-	}
-
-	GcHeap* gcHeap = getCurrentThreadGcHeap();
-	ASSERT(gcHeap);
-
-	IfaceHdr* iface = gcHeap->getDynamicLayout(ptr.m_validator->m_targetBox);
-	ASSERT(iface->m_box->m_type->getStdType() == StdType_DynamicLayout);
-
-	return (rtl::DynamicLayout*)iface;
-}
-
-size_t
-getDynamicFieldOffset(
-	DataPtr ptr,
-	DerivableType* type,
-	Field* field
-) {
-	ASSERT(type->getFlags() & TypeFlag_Dynamic);
-
-	err::setError("dynamic structs are under redesign");
-	dynamicThrow();
-	return -1;
-}
-
-void*
-getDynamicField(
-	DataPtr ptr,
-	DerivableType* type,
-	Field* field
-) {
-	return (char*)ptr.m_p + getDynamicFieldOffset(ptr, type, field);
-}
-
-size_t
-dynamicTypeSizeOf(
-	DataPtr ptr,
-	DerivableType* type
-) {
-	return getDynamicFieldOffset(ptr, type, NULL);
-}
-
-size_t
-dynamicFieldSizeOf(
-	DataPtr ptr,
-	DerivableType* type,
-	Field* field
-) {
-	ASSERT(type->getFlags() & TypeFlag_Dynamic);
-	ASSERT(field->getType()->getFlags() & TypeFlag_Dynamic);
-
-	rtl::DynamicLayout* dynamicLayout = getDynamicLayout(ptr);
-	err::setError("dynamic structs are under redesign");
-	dynamicThrow();
-	return -1;
-}
-
-size_t
-dynamicFieldCountOf(
-	DataPtr ptr,
-	DerivableType* type,
-	Field* field
-) {
-	ASSERT(field->getType()->getTypeKind() == TypeKind_Array);
-	ArrayType* arrayType = (ArrayType*)field->getType();
-
-	size_t size = dynamicFieldSizeOf(ptr, type, field);
-	return size / arrayType->getElementType()->getSize();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -1122,12 +1060,13 @@ JNC_DEFINE_LIB(
 )
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE(jnc_CoreLib)
-	JNC_LIB_SOURCE_FILE("jnc_gc.jnc",         g_jnc_gcSrc)
-	JNC_LIB_SOURCE_FILE("jnc_DataPtr.jnc",    g_jnc_dataPtrSrc)
-	JNC_LIB_SOURCE_FILE("jnc_DynamicLib.jnc", g_jnc_dynamicLibSrc)
-	JNC_LIB_SOURCE_FILE("jnc_Promise.jnc",    g_jnc_promiseSrc)
-	JNC_LIB_SOURCE_FILE("jnc_Regex.jnc",      g_jnc_regexSrc)
-	JNC_LIB_SOURCE_FILE("jnc_Scheduler.jnc",  g_jnc_schedulerSrc)
+	JNC_LIB_SOURCE_FILE("jnc_gc.jnc",            g_jnc_gcSrc)
+	JNC_LIB_SOURCE_FILE("jnc_DataPtr.jnc",       g_jnc_dataPtrSrc)
+	JNC_LIB_SOURCE_FILE("jnc_DynamicLib.jnc",    g_jnc_dynamicLibSrc)
+	JNC_LIB_SOURCE_FILE("jnc_DynamicLayout.jnc", g_jnc_dynamicLayoutSrc)
+	JNC_LIB_SOURCE_FILE("jnc_Promise.jnc",       g_jnc_promiseSrc)
+	JNC_LIB_SOURCE_FILE("jnc_Regex.jnc",         g_jnc_regexSrc)
+	JNC_LIB_SOURCE_FILE("jnc_Scheduler.jnc",     g_jnc_schedulerSrc)
 JNC_END_LIB_SOURCE_FILE_TABLE()
 
 JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(jnc_CoreLib)
@@ -1145,14 +1084,10 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_CoreLib)
 
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_DynamicSizeOf,       dynamicSizeOf)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_DynamicCountOf,      dynamicCountOf)
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_DynamicTypeSizeOf,   dynamicTypeSizeOf)
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_DynamicFieldSizeOf,  dynamicFieldSizeOf)
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_DynamicFieldCountOf, dynamicFieldCountOf)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_DynamicCastDataPtr,  dynamicCastDataPtr)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_DynamicCastClassPtr, dynamicCastClassPtr)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_DynamicCastVariant,  dynamicCastVariant)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_StrengthenClassPtr,  strengthenClassPtr)
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_GetDynamicField,     getDynamicField)
 
 	// gc heap
 
@@ -1185,13 +1120,14 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_CoreLib)
 
 	// strings
 
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringConstruct, stringConstruct)
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringCreate,    stringCreate)
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringIncrement, stringIncrement)
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringSz,        stringSz)
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringRefSz,     stringRefSz)
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringEq,        stringEq)
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringCmp,       stringCmp)
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringConstruct,   stringConstruct)
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringCreate,      stringCreate)
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringIncrement,   stringIncrement)
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringConcatenate, stringConcatenate)
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringSz,          stringSz)
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringRefSz,       stringRefSz)
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringEq,          stringEq)
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_StringCmp,         stringCmp)
 
 	// exceptions/async
 
@@ -1236,7 +1172,6 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_CoreLib)
 
 	JNC_MAP_FUNCTION_Q("jnc.createDataPtr",      createDataPtr)
 	JNC_MAP_OVERLOAD(createDataPtr)
-	JNC_MAP_FUNCTION_Q("jnc.resetDynamicLayout", resetDynamicLayout)
 
 	// multicasts
 

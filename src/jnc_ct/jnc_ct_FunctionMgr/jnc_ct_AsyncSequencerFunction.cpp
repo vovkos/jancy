@@ -215,7 +215,7 @@ AsyncSequencerFunction::replaceAllocas() {
 			continue;
 		}
 
-		llvm::AllocaInst* llvmAlloca = (llvm::AllocaInst*) &*it++;
+		llvm::AllocaInst* llvmAlloca = (llvm::AllocaInst*)&*it++;
 		llvm::Type* llvmPtrType = llvmAlloca->getType();
 		llvm::Type* llvmType = llvmAlloca->getAllocatedType();
 		size_t size = (size_t) llvmDataLayout.getTypeAllocSize(llvmType);

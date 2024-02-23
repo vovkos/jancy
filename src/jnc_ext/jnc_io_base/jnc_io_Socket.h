@@ -164,7 +164,7 @@ public:
 		int protocol,
 		DataPtr addressPtr
 	) {
-		const SocketAddress* address = (const SocketAddress*) addressPtr.m_p;
+		const SocketAddress* address = (const SocketAddress*)addressPtr.m_p;
 		return openImpl(address ? address->m_family : AddressFamily_Ip4, protocol, address);
 	}
 

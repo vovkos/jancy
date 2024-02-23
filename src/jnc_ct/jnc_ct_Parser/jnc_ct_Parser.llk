@@ -500,12 +500,6 @@ protected:
 		sl::BoxList<Type*>* baseTypeList
 	);
 
-	DynamicStructType*
-	createDynamicStructType(
-		const lex::LineCol& pos,
-		const sl::StringRef& name
-	);
-
 	UnionType*
 	createUnionType(
 		const lex::LineCol& pos,

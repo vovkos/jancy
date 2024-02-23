@@ -62,6 +62,7 @@ enum TokenKind {
 	TokenKind_Override,
 	TokenKind_Mutable,
 	TokenKind_Disposable,
+	TokenKind_DynamicField,
 
 	// type modifiers
 
@@ -112,7 +113,6 @@ enum TokenKind {
 	TokenKind_Class,
 	TokenKind_BitFlagEnum,
 	TokenKind_OpaqueClass,
-	TokenKind_DynamicStruct,
 
 	// special member methods
 
@@ -146,6 +146,7 @@ enum TokenKind {
 	TokenKind_NestedScope,
 	TokenKind_Assert,
 	TokenKind_Await,
+	TokenKind_DynamicLayout,
 
 	// pre-defined values
 
@@ -259,6 +260,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP(TokenName)
 	AXL_LEX_TOKEN_NAME(TokenKind_Override,     "override")
 	AXL_LEX_TOKEN_NAME(TokenKind_Mutable,      "mutable")
 	AXL_LEX_TOKEN_NAME(TokenKind_Disposable,   "disposable")
+	AXL_LEX_TOKEN_NAME(TokenKind_DynamicField, "dynamic field")
 
 	// type modifiers
 
@@ -309,40 +311,40 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP(TokenName)
 	AXL_LEX_TOKEN_NAME(TokenKind_Union,         "union")
 	AXL_LEX_TOKEN_NAME(TokenKind_Class,         "class")
 	AXL_LEX_TOKEN_NAME(TokenKind_OpaqueClass,   "opaque class")
-	AXL_LEX_TOKEN_NAME(TokenKind_DynamicStruct, "dynamic struct")
 
 	// special members
 
-	AXL_LEX_TOKEN_NAME(TokenKind_Get,          "get")
-	AXL_LEX_TOKEN_NAME(TokenKind_Set,          "set")
-	AXL_LEX_TOKEN_NAME(TokenKind_Construct,    "construct")
+	AXL_LEX_TOKEN_NAME(TokenKind_Get,             "get")
+	AXL_LEX_TOKEN_NAME(TokenKind_Set,             "set")
+	AXL_LEX_TOKEN_NAME(TokenKind_Construct,       "construct")
 	AXL_LEX_TOKEN_NAME(TokenKind_StaticConstruct, "static construct")
-	AXL_LEX_TOKEN_NAME(TokenKind_Destruct,     "destruct")
-	AXL_LEX_TOKEN_NAME(TokenKind_Operator,     "operator")
+	AXL_LEX_TOKEN_NAME(TokenKind_Destruct,        "destruct")
+	AXL_LEX_TOKEN_NAME(TokenKind_Operator,        "operator")
 	AXL_LEX_TOKEN_NAME(TokenKind_PostfixOperator, "postfix operator")
 
 	// statements
 
-	AXL_LEX_TOKEN_NAME(TokenKind_If,           "if")
-	AXL_LEX_TOKEN_NAME(TokenKind_Else,         "else")
-	AXL_LEX_TOKEN_NAME(TokenKind_For,          "for")
-	AXL_LEX_TOKEN_NAME(TokenKind_While,        "while")
-	AXL_LEX_TOKEN_NAME(TokenKind_Do,           "do")
-	AXL_LEX_TOKEN_NAME(TokenKind_Break,        "break")
-	AXL_LEX_TOKEN_NAME(TokenKind_Continue,     "continue")
-	AXL_LEX_TOKEN_NAME(TokenKind_Return,       "return")
-	AXL_LEX_TOKEN_NAME(TokenKind_Switch,       "switch")
-	AXL_LEX_TOKEN_NAME(TokenKind_Case,         "case")
-	AXL_LEX_TOKEN_NAME(TokenKind_Default,      "default")
-	AXL_LEX_TOKEN_NAME(TokenKind_Once,         "once")
-	AXL_LEX_TOKEN_NAME(TokenKind_OnEvent,      "onevent")
-	AXL_LEX_TOKEN_NAME(TokenKind_Try,          "try")
-	AXL_LEX_TOKEN_NAME(TokenKind_Throw,        "throw")
-	AXL_LEX_TOKEN_NAME(TokenKind_Catch,        "catch")
-	AXL_LEX_TOKEN_NAME(TokenKind_Finally,      "finally")
-	AXL_LEX_TOKEN_NAME(TokenKind_NestedScope,  "nestedscope")
-	AXL_LEX_TOKEN_NAME(TokenKind_Assert,       "assert")
-	AXL_LEX_TOKEN_NAME(TokenKind_Await,        "await")
+	AXL_LEX_TOKEN_NAME(TokenKind_If,            "if")
+	AXL_LEX_TOKEN_NAME(TokenKind_Else,          "else")
+	AXL_LEX_TOKEN_NAME(TokenKind_For,           "for")
+	AXL_LEX_TOKEN_NAME(TokenKind_While,         "while")
+	AXL_LEX_TOKEN_NAME(TokenKind_Do,            "do")
+	AXL_LEX_TOKEN_NAME(TokenKind_Break,         "break")
+	AXL_LEX_TOKEN_NAME(TokenKind_Continue,      "continue")
+	AXL_LEX_TOKEN_NAME(TokenKind_Return,        "return")
+	AXL_LEX_TOKEN_NAME(TokenKind_Switch,        "switch")
+	AXL_LEX_TOKEN_NAME(TokenKind_Case,          "case")
+	AXL_LEX_TOKEN_NAME(TokenKind_Default,       "default")
+	AXL_LEX_TOKEN_NAME(TokenKind_Once,          "once")
+	AXL_LEX_TOKEN_NAME(TokenKind_OnEvent,       "onevent")
+	AXL_LEX_TOKEN_NAME(TokenKind_Try,           "try")
+	AXL_LEX_TOKEN_NAME(TokenKind_Throw,         "throw")
+	AXL_LEX_TOKEN_NAME(TokenKind_Catch,         "catch")
+	AXL_LEX_TOKEN_NAME(TokenKind_Finally,       "finally")
+	AXL_LEX_TOKEN_NAME(TokenKind_NestedScope,   "nestedscope")
+	AXL_LEX_TOKEN_NAME(TokenKind_Assert,        "assert")
+	AXL_LEX_TOKEN_NAME(TokenKind_Await,         "await")
+	AXL_LEX_TOKEN_NAME(TokenKind_DynamicLayout, "dynamic layout")
 
 	// pre-defined values
 

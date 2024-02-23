@@ -31,7 +31,6 @@ set(
 	${JANCY_ROOT_DIR}/include/jnc_StructType.h
 	${JANCY_ROOT_DIR}/include/jnc_UnionType.h
 	${JANCY_ROOT_DIR}/include/jnc_ClassType.h
-	${JANCY_ROOT_DIR}/include/jnc_DynamicStructType.h
 	${JANCY_ROOT_DIR}/include/jnc_Alias.h
 	${JANCY_ROOT_DIR}/include/jnc_Variable.h
 	${JANCY_ROOT_DIR}/include/jnc_Function.h
@@ -71,7 +70,6 @@ set(
 	jnc_StructType.cpp
 	jnc_UnionType.cpp
 	jnc_ClassType.cpp
-	jnc_DynamicStructType.cpp
 	jnc_Alias.cpp
 	jnc_Variable.cpp
 	jnc_Function.cpp

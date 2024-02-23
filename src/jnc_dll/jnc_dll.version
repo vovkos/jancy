@@ -250,7 +250,6 @@
 		jnc_GcHeap_invalidateDataPtrValidator;
 		jnc_GcHeap_enterNoCollectRegion;
 		jnc_GcHeap_enterWaitRegion;
-		jnc_GcHeap_getDynamicLayout;
 		jnc_GcHeap_getRuntime;
 		jnc_GcHeap_getSizeTriggers;
 		jnc_GcHeap_getStats;
@@ -259,7 +258,6 @@
 		jnc_GcHeap_markClass;
 		jnc_GcHeap_markData;
 		jnc_GcHeap_markVariant;
-		jnc_GcHeap_resetDynamicLayout;
 		jnc_GcHeap_safePoint;
 		jnc_GcHeap_setFrameMap;
 		jnc_GcHeap_setSizeTriggers;

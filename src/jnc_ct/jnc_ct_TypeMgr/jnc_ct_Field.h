@@ -16,10 +16,6 @@
 namespace jnc {
 namespace ct {
 
-class StructType;
-class UnionType;
-struct FmtLiteral;
-
 //..............................................................................
 
 class Field:

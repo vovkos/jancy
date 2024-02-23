@@ -96,7 +96,7 @@ ClosureClassType::strengthen(IfaceHdr* p) {
 
 	void* p2 = (char*)p + field->getOffset();
 
-	return jnc::strengthenClassPtr(*(IfaceHdr**) p2) ? p : NULL;
+	return jnc::strengthenClassPtr(*(IfaceHdr**)p2) ? p : NULL;
 }
 
 //..............................................................................

@@ -34,7 +34,7 @@ public:
 	JNC_CDECL
 	setText(jnc::DataPtr textPtr) {
 		m_text = textPtr;
-		m_qtButton->setText((const char*) textPtr.m_p);
+		m_qtButton->setText((const char*)textPtr.m_p);
 	}
 };
 

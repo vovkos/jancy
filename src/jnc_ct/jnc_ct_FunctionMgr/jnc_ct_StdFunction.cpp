@@ -33,21 +33,6 @@ getStdFunctionSource(StdFunc stdFunc) {
 			lengthof(dynamicCountOfSrc),
 			StdNamespace_Internal,
 		},
-		{                                        // StdFunc_DynamicTypeSizeOf,
-			dynamicTypeSizeOfSrc,
-			lengthof(dynamicTypeSizeOfSrc),
-			StdNamespace_Internal,
-		},
-		{                                        // StdFunc_DynamicFieldSizeOf,
-			dynamicFieldSizeOfSrc,
-			lengthof(dynamicFieldSizeOfSrc),
-			StdNamespace_Internal,
-		},
-		{                                        // StdFunc_DynamicFieldCountOf,
-			dynamicFieldCountOfSrc,
-			lengthof(dynamicFieldCountOfSrc),
-			StdNamespace_Internal,
-		},
 		{                                        // StdFunc_DynamicCastDataPtr,
 			dynamicCastDataPtrSrc,
 			lengthof(dynamicCastDataPtrSrc),
@@ -58,7 +43,7 @@ getStdFunctionSource(StdFunc stdFunc) {
 			lengthof(dynamicCastClassPtrSrc),
 			StdNamespace_Internal,
 		},
-		{                                       // StdFunc_DynamicCastVariant,
+		{                                        // StdFunc_DynamicCastVariant,
 			dynamicCastVariantSrc,
 			lengthof(dynamicCastVariantSrc),
 			StdNamespace_Internal,
@@ -102,6 +87,7 @@ getStdFunctionSource(StdFunc stdFunc) {
 		{ NULL },                                // StdFunc_StringConstruct,
 		{ NULL },                                // StdFunc_StringCreate,
 		{ NULL },                                // StdFunc_StringIncrement,
+		{ NULL },                                // StdFunc_StringConcatenate,
 		{ NULL },                                // StdFunc_StringSz,
 		{ NULL },                                // StdFunc_StringRef,
 		{ NULL },                                // StdFunc_StringEq,
@@ -193,11 +179,6 @@ getStdFunctionSource(StdFunc stdFunc) {
 		{ NULL },                                // StdFunc_LlvmMemcpy
 		{ NULL },                                // StdFunc_LlvmMemmove
 		{ NULL },                                // StdFunc_LlvmMemset
-		{                                        // StdFunc_GetDynamicField,
-			getDynamicFieldSrc,
-			lengthof(getDynamicFieldSrc),
-			StdNamespace_Internal,
-		},
 	};
 
 	ASSERT((size_t)stdFunc < StdFunc__Count);

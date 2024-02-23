@@ -27,11 +27,6 @@ OperatorMgr::getField(
 	MemberCoord* coord,
 	Value* resultValue
 ) {
-	if (type->getFlags() & TypeFlag_Dynamic) {
-		ASSERT(type->getTypeKindFlags() & TypeKindFlag_Derivable);
-		return getDynamicField(opValue, (DerivableType*)type, field, resultValue);
-	}
-
 	bool result = type->ensureLayout();
 	if (!result)
 		return false;
@@ -316,59 +311,6 @@ OperatorMgr::getStructField(
 		);
 	}
 
-	return true;
-}
-
-bool
-OperatorMgr::getDynamicField(
-	const Value& opValue,
-	DerivableType* type,
-	Field* field,
-	Value* resultValue
-) {
-	bool result;
-
-	Function* getDynamicFieldFunc = m_module->m_functionMgr.getStdFunction(StdFunc_GetDynamicField);
-	Value typeValue(&type, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
-	Value fieldValue(&field, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
-
-	Value ptrValue;
-	result = m_module->m_operatorMgr.callOperator(
-		getDynamicFieldFunc,
-		opValue,
-		typeValue,
-		fieldValue,
-		&ptrValue
-	);
-
-	if (!result)
-		return false;
-
-	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr); // otherwise, getDynamicFieldFunc fails
-	DataPtrType* opType = (DataPtrType*)opValue.getType();
-
-	DataPtrTypeKind ptrTypeKind = opType->getPtrTypeKind();
-	ASSERT(ptrTypeKind != DataPtrTypeKind_Thin); // otherwise, getDynamicFieldFunc fails
-
-	uint_t ptrTypeFlags = (opType->getFlags() | field->getPtrTypeFlags()) & PtrTypeFlag__All;
-	if (field->getStorageKind() == StorageKind_Mutable)
-		ptrTypeFlags &= ~PtrTypeFlag_Const;
-
-	ASSERT(opType->getTargetType()->getFlags() & TypeFlag_Pod); // dynamic struct must be POD
-	DataPtrType* resultType = field->getDataPtrType(
-		TypeKind_DataRef,
-		DataPtrTypeKind_Lean,
-		ptrTypeFlags
-	);
-
-	if (!m_module->hasCodeGen()) {
-		resultValue->setType(resultType);
-		return true;
-	}
-
-	m_module->m_llvmIrBuilder.createBitCast(ptrValue, resultType, &ptrValue);
-	resultValue->setLeanDataPtr(ptrValue.getLlvmValue(), resultType, opValue);
-	resultValue->setDynamicFieldInfo(opValue, type, field);
 	return true;
 }
 

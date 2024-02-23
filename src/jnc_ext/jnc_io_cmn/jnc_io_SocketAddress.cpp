@@ -59,7 +59,7 @@ SocketAddress::getSockAddr() const {
 	ASSERT(sizeof(SocketAddress) == sizeof(sockAddr));
 	memcpy(&sockAddr, this, sizeof(sockAddr));
 
-	*(uint16_t*) &sockAddr = 0;
+	*(uint16_t*)&sockAddr = 0;
 	sockAddr.m_addr.sa_family = m_family == AddressFamily_Ip6 ?
 		AF_INET6 :
 		m_family;

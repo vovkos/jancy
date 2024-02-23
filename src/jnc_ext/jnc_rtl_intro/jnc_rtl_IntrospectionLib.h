@@ -64,6 +64,12 @@ JNC_CDECL
 getModuleItem(ct::ModuleItem* item);
 
 inline
+ModuleItemDecl*
+getModuleItemDecl(ct::ModuleItemDecl* decl) {
+	return (ModuleItemDecl*)getIntrospectionClass(decl, StdType_ModuleItemDecl);
+}
+
+inline
 AttributeBlock*
 getAttributeBlock(ct::AttributeBlock* block) {
 	return (AttributeBlock*)getIntrospectionClass(block, StdType_AttributeBlock);

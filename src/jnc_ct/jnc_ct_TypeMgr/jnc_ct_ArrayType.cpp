@@ -22,12 +22,11 @@ namespace ct {
 ArrayType::ArrayType() {
 	m_typeKind = TypeKind_Array;
 	m_flags = TypeFlag_StructRet;
+	m_parentUnit = NULL;
+	m_parentNamespace = NULL;
 	m_elementType = NULL;
 	m_rootType = NULL;
 	m_elementCount = -1;
-	m_getDynamicSizeFunction = NULL;
-	m_parentUnit = NULL;
-	m_parentNamespace = NULL;
 }
 
 Type*
@@ -74,35 +73,12 @@ ArrayType::createDimensionString() {
 }
 
 bool
-ArrayType::ensureDynamicLayout(
-	StructType* dynamicStruct,
-	Field* dynamicField
-) {
-	bool result;
-
-	if (m_flags & ModuleItemFlag_LayoutReady)
-		return true;
-
-	result = calcLayoutImpl(dynamicStruct, dynamicField);
-	if (!result)
-		return false;
-
-	m_flags |= ModuleItemFlag_LayoutReady;
-	return true;
-}
-
-bool
-ArrayType::calcLayoutImpl(
-	StructType* dynamicStruct,
-	Field* dynamicField
-) {
+ArrayType::calcLayout() {
 	bool result = m_elementType->ensureLayout();
 	if (!result)
 		return false;
 
-	if (m_elementType->getTypeKind() == TypeKind_Class ||
-		m_elementType->getFlags() & TypeFlag_Dynamic
-	) {
+	if (m_elementType->getTypeKind() == TypeKind_Class) {
 		err::setFormatStringError("'%s' cannot be an element of an array", m_elementType->getTypeString().sz());
 		return false;
 	}
@@ -135,53 +111,13 @@ ArrayType::calcLayoutImpl(
 		lex::LineCol pos = m_elementCountInitializer.getHead()->m_pos;
 		int64_t value = 0;
 
-		if (!dynamicStruct) {
-			result = m_module->m_operatorMgr.parseConstIntegerExpression(&m_elementCountInitializer, &value);
-			m_module->m_namespaceMgr.closeNamespace();
-			m_module->m_functionMgr.overrideThisValue(prevThisValue);
-			m_module->m_unitMgr.setCurrentUnit(prevUnit);
+		result = m_module->m_operatorMgr.parseConstIntegerExpression(&m_elementCountInitializer, &value);
+		m_module->m_namespaceMgr.closeNamespace();
+		m_module->m_functionMgr.overrideThisValue(prevThisValue);
+		m_module->m_unitMgr.setCurrentUnit(prevUnit);
 
-			if (!result)
-				return false;
-		} else {
-			// try parsing it as a const-integer expression first...
-			sl::List<Token> tmpTokenList;
-			cloneTokenList(&tmpTokenList, m_elementCountInitializer);
-
-			m_module->enterTryCompile();
-			result = m_module->m_operatorMgr.parseConstIntegerExpression(&tmpTokenList, &value);
-			m_module->leaveTryCompile();
-
-			m_module->m_namespaceMgr.closeNamespace();
-			m_module->m_functionMgr.overrideThisValue(prevThisValue);
-			m_module->m_unitMgr.setCurrentUnit(prevUnit);
-
-			if (!result) { // nope, create a runtime function...
-				sl::String qualifiedName = sl::formatString(
-					"%s.%s.getDynamicSize",
-					dynamicStruct->getQualifiedName().sz(),
-					dynamicField->getName().sz()
-				);
-
-				Type* returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT);
-				FunctionType* type = m_module->m_typeMgr.getFunctionType(returnType, NULL, 0);
-
-				m_getDynamicSizeFunction = m_module->m_functionMgr.createInternalFunction<GetDynamicSizeFunction>(
-					qualifiedName,
-					type
-				);
-
-				m_getDynamicSizeFunction->m_arrayType = this;
-				m_getDynamicSizeFunction->m_storageKind = StorageKind_Member;
-				m_getDynamicSizeFunction->convertToMemberMethod(dynamicStruct);
-				m_module->markForCompile(m_getDynamicSizeFunction);
-
-				m_flags |= TypeFlag_Dynamic;
-				m_elementCount = 0;
-				m_size = 0;
-				return true;
-			}
-		}
+		if (!result)
+			return false;
 
 		if (value <= 0) {
 			err::setFormatStringError("invalid array size '%lld'\n", value);
@@ -212,11 +148,6 @@ ArrayType::getValueString(
 	const void* p0,
 	const char* formatSpec
 ) {
-	if (m_flags & TypeFlag_Dynamic) {
-		AXL_TODO("format dynamic arrays")
-		return "{ dynamic-array }";
-	}
-
 	const char* p = (char*)p0;
 
 	if (m_elementType->getTypeKind() == TypeKind_Char) {
@@ -253,47 +184,6 @@ ArrayType::markGcRoots(
 void
 ArrayType::prepareLlvmDiType() {
 	m_llvmDiType = m_module->m_llvmDiBuilder.createArrayType(this);
-}
-
-bool
-ArrayType::compileGetDynamicSizeFunction(Function* function) {
-	ASSERT(function == m_getDynamicSizeFunction);
-
-	bool result;
-
-	Unit* parentUnit = function->getParentUnit();
-	if (parentUnit)
-		m_module->m_unitMgr.setCurrentUnit(parentUnit);
-
-	m_module->m_namespaceMgr.openNamespace(function->getParentNamespace());
-	m_module->m_functionMgr.internalPrologue(function);
-	m_module->m_functionMgr.createThisValue();
-
-	Value resultValue;
-	result = m_module->m_operatorMgr.parseExpression(&m_elementCountInitializer, &resultValue);
-	if (!result)
-		return false;
-
-	size_t size = m_elementType->getSize();
-	if (size != 1) {
-		Value sizeValue(size, m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT));
-		result = m_module->m_operatorMgr.binaryOperator(
-			BinOpKind_Mul,
-			&resultValue,
-			sizeValue
-		);
-
-		if (!result)
-			return false;
-	}
-
-	result = m_module->m_controlFlowMgr.ret(resultValue);
-	if (!result)
-		return false;
-
-	m_module->m_functionMgr.internalEpilogue();
-	m_module->m_namespaceMgr.closeNamespace();
-	return true;
 }
 
 //..............................................................................

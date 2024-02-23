@@ -925,20 +925,6 @@ OperatorMgr::sizeofOperator(
 
 	Type* type = typeValue.getType();
 	if (dynamism == OperatorDynamism_Dynamic) {
-		if (type->getFlags() & TypeFlag_Dynamic) {
-			DynamicFieldValueInfo* fieldInfo = opValue.getDynamicFieldInfo();
-			if (fieldInfo) {
-				Function* function = m_module->m_functionMgr.getStdFunction(StdFunc_DynamicFieldSizeOf);
-				Value typeValue(&fieldInfo->m_parentType, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
-				Value fieldValue(&fieldInfo->m_field, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
-				return callOperator(function, fieldInfo->m_parentValue, typeValue, fieldValue, resultValue);
-			} else {
-				Function* function = m_module->m_functionMgr.getStdFunction(StdFunc_DynamicTypeSizeOf);
-				Value typeValue(&type, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
-				return callOperator(function, opValue, typeValue, resultValue);
-			}
-		}
-
 		type = typeValue.getType();
 		if (type->getTypeKind() != TypeKind_DataPtr) {
 			err::setFormatStringError("'dynamic sizeof' operator is only applicable to data pointers, not to '%s'", type->getTypeString().sz());
@@ -947,11 +933,6 @@ OperatorMgr::sizeofOperator(
 
 		Function* function = m_module->m_functionMgr.getStdFunction(StdFunc_DynamicSizeOf);
 		return callOperator(function, opValue, resultValue);
-	}
-
-	if (type->getFlags() & TypeFlag_Dynamic) {
-		err::setError("use 'dynamic sizeof' to get size of a dynamic type");
-		return false;
 	}
 
 	resultValue->setConstSizeT(type->getSize(), m_module);
@@ -971,25 +952,6 @@ OperatorMgr::countofOperator(
 
 	Type* type = typeValue.getType();
 	if (dynamism == OperatorDynamism_Dynamic) {
-		if (type->getFlags() & TypeFlag_Dynamic) {
-			DynamicFieldValueInfo* fieldInfo = opValue.getDynamicFieldInfo();
-			if (!fieldInfo) {
-				err::setError("invalid 'dynamic countof' operator");
-				return false;
-			}
-
-			Type* fieldType = fieldInfo->m_field->getType();
-			if (fieldType->getTypeKind() != TypeKind_Array) {
-				err::setFormatStringError("'dynamic countof' operator is only applicable to arrays, not to '%s'", type->getTypeString().sz());
-				return false;
-			}
-
-			Function* function = m_module->m_functionMgr.getStdFunction(StdFunc_DynamicFieldCountOf);
-			Value typeValue(&fieldInfo->m_parentType, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
-			Value fieldValue(&fieldInfo->m_field, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
-			return callOperator(function, fieldInfo->m_parentValue, typeValue, fieldValue, resultValue);
-		}
-
 		type = typeValue.getType();
 		if (type->getTypeKind() != TypeKind_DataPtr) {
 			err::setFormatStringError("'dynamic countof' operator is only applicable to data pointers, not to '%s'", type->getTypeString().sz());
@@ -1004,11 +966,6 @@ OperatorMgr::countofOperator(
 
 	if (type->getTypeKind() != TypeKind_Array) {
 		err::setFormatStringError("'countof' operator is only applicable to arrays, not to '%s'", type->getTypeString().sz());
-		return false;
-	}
-
-	if (type->getFlags() & TypeFlag_Dynamic) {
-		err::setError("use 'dynamic countof' to get element count of a dynamic array");
 		return false;
 	}
 
@@ -1411,7 +1368,6 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandTypeFuncTable[TypeK
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_Struct
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_Union
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_Class
-	&OperatorMgr::prepareOperand_nop,             // TypeKind_DynamicStruct
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_Function
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_Property
 	&OperatorMgr::prepareOperand_dataPtr,         // TypeKind_DataPtr
@@ -1448,7 +1404,6 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable[TypeKind_
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_Struct
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_Union
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_Class
-	&OperatorMgr::prepareOperand_nop,         // TypeKind_DynamicStruct
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_Function
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_Property
 	&OperatorMgr::prepareOperand_dataPtr,     // TypeKind_DataPtr
@@ -1485,7 +1440,6 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandTypeFuncTable_dataR
 	&OperatorMgr::prepareOperandType_dataRef_derivable, // TypeKind_Struct
 	&OperatorMgr::prepareOperandType_dataRef_derivable, // TypeKind_Union
 	&OperatorMgr::prepareOperandType_dataRef_derivable, // TypeKind_Class
-	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_DynamicStruct
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Function
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_Property
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_DataPtr
@@ -1522,7 +1476,6 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable_dataRef[T
 	&OperatorMgr::prepareOperand_dataRef_derivable, // TypeKind_Struct
 	&OperatorMgr::prepareOperand_dataRef_derivable, // TypeKind_Union
 	&OperatorMgr::prepareOperand_dataRef_derivable, // TypeKind_Class
-	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_DynamicStruct
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Function
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_Property
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_DataPtr

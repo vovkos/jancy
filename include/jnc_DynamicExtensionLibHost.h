@@ -1588,8 +1588,6 @@ struct jnc_GcHeapFuncTable {
 	jnc_GcHeap_CreateForeignDataBoxFunc* m_createForeignDataBoxFunc;
 	jnc_GcHeap_CreateForeignBufferPtrFunc* m_createForeignBufferPtrFunc;
 	jnc_GcHeap_InvalidateDataPtrValidatorFunc* m_invalidateDataPtrValidatorFunc;
-	jnc_GcHeap_GetDynamicLayoutFunc* m_getDynamicLayoutFunc;
-	jnc_GcHeap_ResetDynamicLayoutFunc* m_resetDynamicLayoutFunc;
 	jnc_GcHeap_WeakMarkFunc* m_weakMarkFunc;
 	jnc_GcHeap_MarkDataFunc* m_markDataFunc;
 	jnc_GcHeap_MarkClassFunc* m_markClassFunc;

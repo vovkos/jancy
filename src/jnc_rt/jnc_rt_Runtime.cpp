@@ -94,7 +94,7 @@ Runtime::initializeCallSite(CallSite* callSite) {
 	ASSERT(sizeof(GcShadowStackFrameMapBuffer) >= sizeof(GcShadowStackFrameMap));
 	new(&callSite->m_gcShadowStackDynamicFrameMap) GcShadowStackFrameMap;
 	callSite->m_gcShadowStackDynamicFrameMap.m_mapKind = ct::GcShadowStackFrameMapKind_Dynamic;
-	callSite->m_gcShadowStackDynamicFrame.m_map = (GcShadowStackFrameMap*) &callSite->m_gcShadowStackDynamicFrameMap;
+	callSite->m_gcShadowStackDynamicFrame.m_map = (GcShadowStackFrameMap*)&callSite->m_gcShadowStackDynamicFrameMap;
 
 	// try to find TLS of *this* runtime
 
@@ -172,7 +172,7 @@ Runtime::uninitializeCallSite(CallSite* callSite) {
 	callSite->m_tls->m_gcMutatorThread.m_waitRegionLevel = callSite->m_waitRegionLevel;
 	tlsVariableTable->m_gcShadowStackTop = prevGcShadowStackTop;
 
-	((GcShadowStackFrameMap*) &callSite->m_gcShadowStackDynamicFrameMap)->~GcShadowStackFrameMap();
+	((GcShadowStackFrameMap*)&callSite->m_gcShadowStackDynamicFrameMap)->~GcShadowStackFrameMap();
 
 	if (callSite->m_nestLevel) { // this thread was nested-initialized
 		sys::setTlsPtrSlotValue<CallSite>(callSite->m_prev);

@@ -53,7 +53,7 @@ protected:
 	sys::DynamicLib*
 	getDynamicLib() {
 		ASSERT(sizeof(sys::DynamicLib) == sizeof(m_handle));
-		return (sys::DynamicLib*) &m_handle;
+		return (sys::DynamicLib*)&m_handle;
 	}
 };
 

@@ -192,7 +192,7 @@ DeviceMonitor::setIoctlDescTable(
 	size_t count
 ) {
 #if (_JNC_OS_POSIX)
-	const dm_IoctlDesc* ioctlDesc = (const dm_IoctlDesc*) ioctlDescPtr.m_p;
+	const dm_IoctlDesc* ioctlDesc = (const dm_IoctlDesc*)ioctlDescPtr.m_p;
 	bool result = m_monitor.setIoctlDescTable(ioctlDesc, count);
 	if (!result)
 		return false;

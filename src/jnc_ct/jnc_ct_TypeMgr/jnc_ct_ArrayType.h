@@ -25,28 +25,13 @@ class ArrayType: public Type {
 	friend class Parser;
 
 protected:
-	class GetDynamicSizeFunction: public CompilableFunction {
-	public:
-		ArrayType* m_arrayType;
-
-	public:
-		virtual
-		bool
-		compile() {
-			return m_arrayType->compileGetDynamicSizeFunction(this);
-		}
-	};
-
-protected:
+	Unit* m_parentUnit;
+	Namespace* m_parentNamespace;
 	Type* m_elementType;
 	Type* m_rootType;
 	size_t m_elementCount;
 
 	sl::List<Token> m_elementCountInitializer;
-	GetDynamicSizeFunction* m_getDynamicSizeFunction;
-
-	Unit* m_parentUnit;
-	Namespace* m_parentNamespace;
 
 public:
 	ArrayType();
@@ -67,10 +52,6 @@ public:
 	sl::List<Token>*
 	getElementCountInitializer() {
 		return &m_elementCountInitializer;
-	}
-
-	Function* getGetDynamicSizeFunction() {
-		return m_getDynamicSizeFunction;
 	}
 
 	static
@@ -100,12 +81,6 @@ public:
 		rt::GcHeap* gcHeap
 	);
 
-	bool
-	ensureDynamicLayout(
-		StructType* dynamicStruct,
-		Field* dynamicField
-	);
-
 protected:
 	virtual
 	void
@@ -122,15 +97,7 @@ protected:
 
 	virtual
 	bool
-	calcLayout() {
-		return calcLayoutImpl(NULL, NULL);
-	}
-
-	bool
-	calcLayoutImpl(
-		StructType* dynamicStruct,
-		Field* dynamicField
-	);
+	calcLayout();
 
 	virtual
 	void
@@ -159,9 +126,6 @@ protected:
 	prepareTypeVariable() {
 		prepareSimpleTypeVariable(StdType_ArrayType);
 	}
-
-	bool
-	compileGetDynamicSizeFunction(Function* function);
 };
 
 //..............................................................................

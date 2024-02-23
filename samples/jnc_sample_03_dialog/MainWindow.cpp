@@ -27,7 +27,7 @@ MainWindow* getMainWindow() {
 }
 
 size_t printToMainWindow(const void* p, size_t size) {
-	return getMainWindow()->outputDirect(QString::fromUtf8((const char*) p, size));
+	return getMainWindow()->outputDirect(QString::fromUtf8((const char*)p, size));
 }
 
 //..............................................................................

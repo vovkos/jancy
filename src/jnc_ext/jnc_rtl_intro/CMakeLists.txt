@@ -20,7 +20,6 @@ set(
 	jnc_rtl_AttributeBlock.h
 	jnc_rtl_ClassType.h
 	jnc_rtl_DerivableType.h
-	jnc_rtl_DynamicStructType.h
 	jnc_rtl_EnumType.h
 	jnc_rtl_Field.h
 	jnc_rtl_Function.h
@@ -45,7 +44,6 @@ set(
 	jnc_rtl_AttributeBlock.cpp
 	jnc_rtl_ClassType.cpp
 	jnc_rtl_DerivableType.cpp
-	jnc_rtl_DynamicStructType.cpp
 	jnc_rtl_EnumType.cpp
 	jnc_rtl_Field.cpp
 	jnc_rtl_Function.cpp
@@ -83,7 +81,6 @@ set(
 	jnc/jnc_AttributeBlock.jnc
 	jnc/jnc_ClassType.jnc
 	jnc/jnc_DerivableType.jnc
-	jnc/jnc_DynamicStructType.jnc
 	jnc/jnc_EnumType.jnc
 	jnc/jnc_Field.jnc
 	jnc/jnc_Function.jnc

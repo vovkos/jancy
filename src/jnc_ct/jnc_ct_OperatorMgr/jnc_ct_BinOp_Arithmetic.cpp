@@ -31,6 +31,17 @@ stringIncrementOperator(
 }
 
 bool
+stringConcatenateOperator(
+	Module* module,
+	const Value& opValue1,
+	const Value& opValue2,
+	Value* resultValue
+) {
+	Function* func = module->m_functionMgr.getStdFunction(StdFunc_StringConcatenate);
+	return module->m_operatorMgr.callOperator(func, opValue1, opValue2, resultValue);
+}
+
+bool
 dataPtrIncrementOperator(
 	Module* module,
 	const Value& opValue1,
@@ -66,7 +77,7 @@ dataPtrIncrementOperator(
 		intptr_t delta = deltaValue.getIntPtr() * targetType->getSize();
 
 		if (ptrTypeKind == DataPtrTypeKind_Thin) {
-			char* p = *(char**) opValue1.getConstData() + delta;
+			char* p = *(char**)opValue1.getConstData() + delta;
 			resultValue->createConst(&p, opValue1.getType());
 		} else {
 			ASSERT(ptrTypeKind == DataPtrTypeKind_Normal); // lean is compile-time-only
@@ -80,7 +91,7 @@ dataPtrIncrementOperator(
 	} else if (ptrTypeKind == DataPtrTypeKind_Lean) {
 		module->m_llvmIrBuilder.createGep(opValue1, targetType, opValue2, resultType, resultValue);
 		resultValue->setLeanDataPtr(resultValue->getLlvmValue(), resultType, opValue1);
-	} else if (!(targetType->getFlags() & TypeFlag_Dynamic)) { // DataPtrTypeKind_Normal
+	} { // DataPtrTypeKind_Normal
 		size_t size = targetType->getSize();
 		Value sizeValue(size ? size : 1, module->m_typeMgr.getPrimitiveType(TypeKind_SizeT));
 
@@ -91,39 +102,6 @@ dataPtrIncrementOperator(
 		Value ptrValue;
 		module->m_llvmIrBuilder.createExtractValue(opValue1, 0, NULL, &ptrValue);
 		module->m_llvmIrBuilder.createGep(ptrValue, byteType, incValue, NULL, &ptrValue);
-		module->m_llvmIrBuilder.createInsertValue(opValue1, ptrValue, 0, resultType, resultValue);
-	} else { // DataPtrTypeKind_Normal, TypeFlag_Dynamic
-		if (targetType->getTypeKind() != TypeKind_Struct) {
-			err::setError("pointer increments are only supported for dynamic structs");
-			return false;
-		}
-
-		Value incValue;
-		result = module->m_operatorMgr.castOperator(opValue2, TypeKind_SizeT, &incValue);
-		if (!result)
-			return false;
-
-		if (incValue.getValueKind() != ValueKind_Const || incValue.getSizeT() != 1) {
-			err::setError("invalid pointer increment on a dynamic pointer (+1 only)");
-			return false;
-		}
-
-		Type* ptrType = module->m_typeMgr.getStdType(StdType_ByteThinPtr);
-
-		Function* getDynamicFieldFunc = module->m_functionMgr.getStdFunction(StdFunc_GetDynamicField);
-
-		Value ptrValue;
-		result = module->m_operatorMgr.callOperator(
-			getDynamicFieldFunc,
-			opValue1,
-			Value(&targetType, ptrType),
-			ptrType->getZeroValue(), // field = null
-			&ptrValue
-		);
-
-		if (!result)
-			return false;
-
 		module->m_llvmIrBuilder.createInsertValue(opValue1, ptrValue, 0, resultType, resultValue);
 	}
 
@@ -148,9 +126,6 @@ dataPtrDifferenceOperator(
 		return false;
 	} else if (targetType1->getStdType() == StdType_AbstractData) {
 		err::setError("pointer arithmetic is not applicable to 'anydata' pointers");
-		return false;
-	} else if (targetType1->getFlags() & TypeFlag_Dynamic) {
-		err::setError("pointer subtraction is not applicable to dynamic pointers");
 		return false;
 	}
 
@@ -201,17 +176,21 @@ BinOp_Add::op(
 	const Value& opValue2,
 	Value* resultValue
 ) {
-	if (opValue2.getType()->getTypeKindFlags() & TypeKindFlag_Integer) {
-		if (opValue1.getType()->getTypeKind() == TypeKind_String)
+	Type* opType1 = opValue1.getType();
+	Type* opType2 = opValue2.getType();
+
+	if (opType2->getTypeKindFlags() & TypeKindFlag_Integer) {
+		if (opType1->getTypeKind() == TypeKind_String)
 			return stringIncrementOperator(m_module, opValue1, opValue2, resultValue);
-		if (opValue1.getType()->getTypeKind() == TypeKind_DataPtr)
+		if (opType1->getTypeKind() == TypeKind_DataPtr)
 			return dataPtrIncrementOperator(m_module, opValue1, opValue2, resultValue);
-	} else if (opValue1.getType()->getTypeKindFlags() & TypeKindFlag_Integer) {
-		if (opValue2.getType()->getTypeKind() == TypeKind_String)
+	} else if (opType1->getTypeKindFlags() & TypeKindFlag_Integer) {
+		if (opType2->getTypeKind() == TypeKind_String)
 			return stringIncrementOperator(m_module, opValue2, opValue1, resultValue);
-		if (opValue2.getType()->getTypeKind() == TypeKind_DataPtr)
+		if (opType2->getTypeKind() == TypeKind_DataPtr)
 			return dataPtrIncrementOperator(m_module, opValue2, opValue1, resultValue);
-	}
+	} else if (opType1->getTypeKind() == TypeKind_String || opType2->getTypeKind() == TypeKind_String)
+		return stringConcatenateOperator(m_module, opValue1, opValue2, resultValue);
 
 	return BinOp_Arithmetic<BinOp_Add>::op(opValue1, opValue2, resultValue);
 }

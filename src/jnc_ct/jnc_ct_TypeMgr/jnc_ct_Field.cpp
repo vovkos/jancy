@@ -51,7 +51,6 @@ Field::getDataPtrType(
 			ptrTypeKind,
 			flags
 		);
-
 }
 
 bool

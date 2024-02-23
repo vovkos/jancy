@@ -1013,6 +1013,14 @@ FunctionMgr::getStdFunction(StdFunc func) {
 		function = createInternalFunction("jnc.stringIncrement", functionType);
 		break;
 
+	case StdFunc_StringConcatenate:
+		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_String);
+		argTypeArray[0] = m_module->m_typeMgr.getPrimitiveType(TypeKind_String);
+		argTypeArray[1] = m_module->m_typeMgr.getPrimitiveType(TypeKind_String);
+		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 2);
+		function = createInternalFunction("jnc.stringConcatenate", functionType);
+		break;
+
 	case StdFunc_StringSz:
 		returnType = m_module->m_typeMgr.getStdType(StdType_CharConstPtr);
 		argTypeArray[0] = m_module->m_typeMgr.getPrimitiveType(TypeKind_String);
@@ -1063,9 +1071,6 @@ FunctionMgr::getStdFunction(StdFunc func) {
 
 	case StdFunc_DynamicSizeOf:
 	case StdFunc_DynamicCountOf:
-	case StdFunc_DynamicTypeSizeOf:
-	case StdFunc_DynamicFieldSizeOf:
-	case StdFunc_DynamicFieldCountOf:
 	case StdFunc_DynamicCastDataPtr:
 	case StdFunc_DynamicCastClassPtr:
 	case StdFunc_DynamicCastVariant:
@@ -1086,7 +1091,6 @@ FunctionMgr::getStdFunction(StdFunc func) {
 	case StdFunc_CheckDataPtrRangeDirect:
 	case StdFunc_TryLazyGetDynamicLibFunction:
 	case StdFunc_LazyGetDynamicLibFunction:
-	case StdFunc_GetDynamicField:
 		function = parseStdFunction(func);
 		break;
 
