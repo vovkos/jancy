@@ -123,7 +123,7 @@ protected:
 
 	sl::Array<TypeSpecifier*> m_typeSpecifierStack;
 	Declarator* m_topDeclarator; // orphan declarators affect import type resolution
-
+	DynamicLayoutStmt* m_dynamicLayoutStmt;
 	size_t m_reactionIdx;
 
 	dox::Parser m_doxyParser;

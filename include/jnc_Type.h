@@ -249,7 +249,6 @@ enum jnc_StdType {
 	jnc_StdType_SjljFrame,
 	jnc_StdType_ReactorBase,
 	jnc_StdType_ReactorClosure,
-	jnc_StdType_DynamicLayout,
 	jnc_StdType_FmtLiteral,
 	jnc_StdType_Int64Int64, // for system V coercion
 	jnc_StdType_Fp64Fp64,   // for system V coercion
@@ -271,6 +270,7 @@ enum jnc_StdType {
 	jnc_StdType_Promise,
 	jnc_StdType_PromisePtr,
 	jnc_StdType_Promisifier,
+	jnc_StdType_DynamicLayout,
 	jnc_StdType_DynamicLib,
 
 	// jnc_rtl_intro lazy types
@@ -720,7 +720,6 @@ const StdType
 	StdType_SjljFrame             = jnc_StdType_SjljFrame,
 	StdType_ReactorBase           = jnc_StdType_ReactorBase,
 	StdType_ReactorClosure        = jnc_StdType_ReactorClosure,
-	StdType_DynamicLayout         = jnc_StdType_DynamicLayout,
 	StdType_FmtLiteral            = jnc_StdType_FmtLiteral,
 	StdType_Int64Int64            = jnc_StdType_Int64Int64,
 	StdType_Fp64Fp64              = jnc_StdType_Fp64Fp64,
@@ -739,6 +738,7 @@ const StdType
 	StdType_Promise               = jnc_StdType_Promise,
 	StdType_PromisePtr            = jnc_StdType_PromisePtr,
 	StdType_Promisifier           = jnc_StdType_Promisifier,
+	StdType_DynamicLayout         = jnc_StdType_DynamicLayout,
 	StdType_DynamicLib            = jnc_StdType_DynamicLib,
 	StdType_ModuleItem            = jnc_StdType_ModuleItem,
 	StdType_ModuleItemDecl        = jnc_StdType_ModuleItemDecl,

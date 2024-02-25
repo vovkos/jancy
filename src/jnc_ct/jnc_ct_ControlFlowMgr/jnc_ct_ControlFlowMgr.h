@@ -105,6 +105,13 @@ struct OnceStmt {
 	BasicBlock* m_followBlock;
 };
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct DynamicLayoutStmt {
+	Value m_layoutValue; // jnc.DynamicLayout
+	StructType* m_structType;
+};
+
 //..............................................................................
 
 class ControlFlowMgr {
@@ -495,6 +502,19 @@ public:
 
 	void
 	onceStmt_PostBody(OnceStmt* stmt);
+
+	// dynamic layout
+
+	bool
+	dynamicLayoutStmt_PreBody(
+		DynamicLayoutStmt* stmt,
+		const Value& layoutValue
+	);
+
+	bool
+	dynamicLayoutStmt_PostBody(DynamicLayoutStmt* stmt);
+
+	// finally
 
 	Variable*
 	getFinallyRouteIdxVariable();

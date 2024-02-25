@@ -66,6 +66,7 @@ main := |*
 	'override'        |
 	'mutable'         |
 	'disposable'      |
+	'dynamic' ws+ 'field' |
 
 	'signed'          |
 	'unsigned'        |
@@ -139,6 +140,7 @@ main := |*
 	'nestedscope'     |
 	'assert'          |
 	'await'           |
+	'dynamic' ws+ 'layout' |
 
 	'basetype' [1-9]? |
 	'this'            |

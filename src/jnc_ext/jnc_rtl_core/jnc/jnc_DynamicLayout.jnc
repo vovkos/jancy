@@ -45,7 +45,6 @@ opaque class DynamicLayout {
 	void const* readonly m_base;
 	void const* readonly m_end;
 	void const* readonly m_p;
-	size_t readonly m_size;
 	size_t readonly m_sectionCount;
 
 	size_t const property m_size {

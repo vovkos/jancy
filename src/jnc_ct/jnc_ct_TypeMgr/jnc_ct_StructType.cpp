@@ -302,8 +302,12 @@ StructType::layoutFieldImpl(
 		addLlvmPadding(offset - m_fieldActualSize);
 
 	*offset_o = offset;
-	*llvmIndex = (uint_t)m_llvmFieldTypeArray.getCount();
-	m_llvmFieldTypeArray.append(type->getLlvmType());
+
+	if (m_module->hasCodeGen()) {
+		*llvmIndex = (uint_t) m_llvmFieldTypeArray.getCount();
+		m_llvmFieldTypeArray.append(type->getLlvmType());
+	}
+
 	setFieldActualSize(offset + type->getSize());
 	m_lastBitField = NULL;
 	return true;
@@ -358,8 +362,12 @@ StructType::layoutBitField(Field* field) {
 		addLlvmPadding(offset - m_fieldActualSize);
 
 	field->m_offset = offset;
-	field->m_llvmIndex = (uint_t)m_llvmFieldTypeArray.getCount();
-	m_llvmFieldTypeArray.append(field->m_type->getLlvmType());
+
+	if (m_module->hasCodeGen()) {
+		field->m_llvmIndex = (uint_t) m_llvmFieldTypeArray.getCount();
+		m_llvmFieldTypeArray.append(field->m_type->getLlvmType());
+	}
+
 	setFieldActualSize(offset + field->m_type->getSize());
 	m_lastBitField = field;
 	return true;

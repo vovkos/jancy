@@ -1185,12 +1185,13 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_CoreLib)
 	JNC_MAP_TYPE(RegexMatch)
 	JNC_MAP_TYPE(RegexState)
 	JNC_MAP_TYPE(Regex)
+	JNC_MAP_TYPE(DynamicSection)
+	JNC_MAP_TYPE(DynamicLayout)
 	JNC_MAP_TYPE(DynamicLib)
 	JNC_MAP_TYPE(Promise)
 	JNC_MAP_TYPE(Promisifier)
 
-	JNC_MAP_STD_TYPE(StdType_DynamicLayout, DynamicLayout)
-	JNC_MAP_STD_TYPE(StdType_ReactorBase,   ReactorImpl)
+	JNC_MAP_STD_TYPE(StdType_ReactorBase, ReactorImpl)
 
 JNC_END_LIB_FUNCTION_MAP()
 

@@ -94,6 +94,7 @@ statement
 	|	throw_stmt
 	|	unsafe_stmt
 	|	assert_stmt
+	|	dynamic_layout_stmt
 	|	';'
 	;
 
@@ -111,6 +112,7 @@ statement_sync
 	|	TokenKind_Throw
 	|	TokenKind_Unsafe
 	|	TokenKind_Assert
+	|	TokenKind_DynamicLayout
 	|	';'
 	|	'{'
 	;
@@ -429,6 +431,28 @@ assert_stmt
 					&$m ? $m.m_value : Value(),
 					$continueBlock
 				);
+			}
+	;
+
+dynamic_layout_stmt
+	local {
+		DynamicLayoutStmt $stmt;
+		DynamicLayoutStmt* $prevStmt;
+	}
+	enter {
+		$prevStmt = m_dynamicLayoutStmt;
+		m_dynamicLayoutStmt = &$stmt;
+	}
+	leave {
+		m_dynamicLayoutStmt = $prevStmt;
+	}
+	:	TokenKind_DynamicLayout '(' expression $e ')'
+			{
+				return m_module->m_controlFlowMgr.dynamicLayoutStmt_PreBody(&$stmt, $e.m_value);
+			}
+		compound_stmt
+			{
+				return m_module->m_controlFlowMgr.dynamicLayoutStmt_PostBody(&$stmt);
 			}
 	;
 

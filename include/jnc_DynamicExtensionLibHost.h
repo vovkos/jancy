@@ -1518,20 +1518,6 @@ jnc_GcHeap_InvalidateDataPtrValidatorFunc(
 );
 
 typedef
-jnc_IfaceHdr*
-jnc_GcHeap_GetDynamicLayoutFunc(
-	jnc_GcHeap* gcHeap,
-	jnc_Box* box
-);
-
-typedef
-void
-jnc_GcHeap_ResetDynamicLayoutFunc(
-	jnc_GcHeap* gcHeap,
-	jnc_Box* box
-);
-
-typedef
 void
 jnc_GcHeap_WeakMarkFunc(
 	jnc_GcHeap* gcHeap,

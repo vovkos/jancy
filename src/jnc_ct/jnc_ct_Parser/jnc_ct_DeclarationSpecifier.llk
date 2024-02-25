@@ -116,6 +116,10 @@ storage_specifier
 			{
 				$.m_storageKind = StorageKind_Disposable;
 			}
+	|	TokenKind_DynamicField
+			{
+				$.m_storageKind = StorageKind_DynamicField;
+			}
 	;
 
 storage_specifier_sync
@@ -128,6 +132,7 @@ storage_specifier_sync
 	|	TokenKind_Override
 	|	TokenKind_Mutable
 	|	TokenKind_Disposable
+	|	TokenKind_DynamicField
 	;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

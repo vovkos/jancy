@@ -628,6 +628,7 @@ set(
 	RTL_CORE_JNC_LIST
 	${RTL_CORE_JNC_DIR}/jnc_gc.jnc
 	${RTL_CORE_JNC_DIR}/jnc_DataPtr.jnc
+	${RTL_CORE_JNC_DIR}/jnc_DynamicLayout.jnc
 	${RTL_CORE_JNC_DIR}/jnc_DynamicLib.jnc
 	${RTL_CORE_JNC_DIR}/jnc_Promise.jnc
 	${RTL_CORE_JNC_DIR}/jnc_Regex.jnc

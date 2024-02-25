@@ -51,6 +51,7 @@ Parser::Parser(
 	m_lastPropertyTypeModifiers = 0;
 	m_reactionIdx = 0;
 	m_topDeclarator = NULL;
+	m_dynamicLayoutStmt = NULL;
 
 	m_constructorType = NULL;
 	m_constructorProperty = NULL;
@@ -1655,6 +1656,15 @@ Parser::declareData(
 		m_storageKind = StorageKind_Undefined; // don't overwrite
 		isDisposable = true;
 		break;
+
+	case StorageKind_DynamicField:
+		if (!m_dynamicLayoutStmt) {
+			err::setFormatStringError("dynamic fields are only allowed inside dynamic layouts");
+			return false;
+		}
+
+		err::setFormatStringError("YAY! add dynamic field '%s' to dynamic layout", declarator->m_name.getShortName().sz());
+		return false;
 
 	default:
 		err::setFormatStringError("invalid storage specifier '%s' for variable", getStorageKindString(storageKind));

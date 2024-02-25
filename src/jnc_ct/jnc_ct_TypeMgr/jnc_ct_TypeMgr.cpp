@@ -252,6 +252,7 @@ TypeMgr::getStdType(StdType stdType) {
 	case StdType_Regex:
 	case StdType_Promise:
 	case StdType_Promisifier:
+	case StdType_DynamicLayout:
 	case StdType_DynamicLib:
 	case StdType_Scheduler:
 	case StdType_ModuleItem:
@@ -301,7 +302,6 @@ TypeMgr::getStdType(StdType stdType) {
 	case StdType_Fp64Fp64:
 	case StdType_Int64Fp64:
 	case StdType_Fp64Int64:
-	case StdType_DynamicLayout:
 		type = parseStdType(stdType);
 		break;
 

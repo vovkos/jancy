@@ -50,7 +50,6 @@ getStdTypeName(StdType stdType) {
 		NULL,  // StdType_SjljFrame,
 		NULL,  // StdType_ReactorBase,
 		NULL,  // StdType_ReactorClosure,
-		NULL,  // StdType_DynamicLayout,
 		NULL,  // StdType_FmtLiteral,
 		NULL,  // StdType_Int64Int64,
 		NULL,  // StdType_Fp64Fp64,
@@ -72,6 +71,7 @@ getStdTypeName(StdType stdType) {
 		"Promise",                // StdType_Promise,
 		NULL,                     // StdType_PromisePtr,
 		"Promisifier",            // StdType_Promisifier,
+		"DynamicLayout",          // StdType_DynamicLayout,
 		"DynamicLib",             // StdType_DynamicLib,
 
 		// jnc_rtl_intro lazy types
@@ -154,11 +154,6 @@ getStdTypeSource(StdType stdType) {
 
 		// these types should be redefined without source
 
-		{                                    // StdType_DynamicLayout,
-			dynamicLayoutSrc,
-			lengthof(dynamicLayoutSrc),
-			StdNamespace_Internal,
-		},
 		{                                    // StdType_FmtLiteral,
 			fmtLiteralSrc,
 			lengthof(fmtLiteralSrc),
@@ -200,6 +195,7 @@ getStdTypeSource(StdType stdType) {
 		{ NULL },  // StdType_Promise,
 		{ NULL },  // StdType_PromisePtr,
 		{ NULL },  // StdType_Promisifier,
+		{ NULL },  // StdType_DynamicLayout,
 		{ NULL },  // StdType_DynamicLib,
 
 		// jnc_rtl_intro lazy types

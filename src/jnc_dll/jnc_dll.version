@@ -65,6 +65,9 @@
 		jnc_getPtrTypeFlagString_v;
 		jnc_BaseTypeSlot_getOffset;
 		jnc_BaseTypeSlot_getVtableIndex;
+		jnc_Field_getType;
+		jnc_Field_getBitOffset;
+		jnc_Field_getBitCount;
 		jnc_Field_getPtrTypeFlags;
 		jnc_Field_getOffset;
 		jnc_DerivableType_findBaseTypeOffset;

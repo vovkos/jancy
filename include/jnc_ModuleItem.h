@@ -117,6 +117,7 @@ enum jnc_StorageKind {
 	jnc_StorageKind_Override,
 	jnc_StorageKind_Mutable,
 	jnc_StorageKind_Disposable,
+	jnc_StorageKind_DynamicField,
 	jnc_StorageKind_This,
 	jnc_StorageKind__Count,
 };
@@ -417,21 +418,22 @@ const ModuleItemFlag
 typedef jnc_StorageKind StorageKind;
 
 const StorageKind
-	StorageKind_Undefined  = jnc_StorageKind_Undefined,
-	StorageKind_Alias      = jnc_StorageKind_Alias,
-	StorageKind_Typedef    = jnc_StorageKind_Typedef,
-	StorageKind_Static     = jnc_StorageKind_Static,
-	StorageKind_Tls        = jnc_StorageKind_Tls,
-	StorageKind_Stack      = jnc_StorageKind_Stack,
-	StorageKind_Heap       = jnc_StorageKind_Heap,
-	StorageKind_Member     = jnc_StorageKind_Member,
-	StorageKind_Abstract   = jnc_StorageKind_Abstract,
-	StorageKind_Virtual    = jnc_StorageKind_Virtual,
-	StorageKind_Override   = jnc_StorageKind_Override,
-	StorageKind_Mutable    = jnc_StorageKind_Mutable,
-	StorageKind_Disposable = jnc_StorageKind_Disposable,
-	StorageKind_This       = jnc_StorageKind_This,
-	StorageKind__Count     = jnc_StorageKind__Count;
+	StorageKind_Undefined    = jnc_StorageKind_Undefined,
+	StorageKind_Alias        = jnc_StorageKind_Alias,
+	StorageKind_Typedef      = jnc_StorageKind_Typedef,
+	StorageKind_Static       = jnc_StorageKind_Static,
+	StorageKind_Tls          = jnc_StorageKind_Tls,
+	StorageKind_Stack        = jnc_StorageKind_Stack,
+	StorageKind_Heap         = jnc_StorageKind_Heap,
+	StorageKind_Member       = jnc_StorageKind_Member,
+	StorageKind_Abstract     = jnc_StorageKind_Abstract,
+	StorageKind_Virtual      = jnc_StorageKind_Virtual,
+	StorageKind_Override     = jnc_StorageKind_Override,
+	StorageKind_Mutable      = jnc_StorageKind_Mutable,
+	StorageKind_Disposable   = jnc_StorageKind_Disposable,
+	StorageKind_DynamicField = jnc_StorageKind_DynamicField,
+	StorageKind_This         = jnc_StorageKind_This,
+	StorageKind__Count       = jnc_StorageKind__Count;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

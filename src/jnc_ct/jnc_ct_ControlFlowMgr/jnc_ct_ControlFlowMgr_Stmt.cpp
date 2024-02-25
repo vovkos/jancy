@@ -710,6 +710,31 @@ ControlFlowMgr::onceStmt_PostBody(OnceStmt* stmt) {
 	follow(stmt->m_followBlock);
 }
 
+bool
+ControlFlowMgr::dynamicLayoutStmt_PreBody(
+	DynamicLayoutStmt* stmt,
+	const Value& layoutValue
+) {
+	ClassType* layoutType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_DynamicLayout);
+
+	bool result = m_module->m_operatorMgr.castOperator(
+		layoutValue,
+		layoutType->getClassPtrType(ClassPtrTypeKind_Normal, PtrTypeFlag_Safe),
+		&stmt->m_layoutValue
+	);
+
+	if (!result)
+		return false;
+
+	stmt->m_structType = NULL;
+	return true;
+}
+
+bool
+ControlFlowMgr::dynamicLayoutStmt_PostBody(DynamicLayoutStmt* stmt) {
+	return true;
+}
+
 //..............................................................................
 
 } // namespace ct
