@@ -23,7 +23,6 @@
 #include "axl_cry_X509.h"
 #include "axl_cry_Dh.h"
 #include "axl_cry_EcKey.h"
-#include "axl_sl_Construct.h"
 #include "axl_sl_CircularBuffer.h"
 #include "axl_sl_HandleTable.h"
 #include "axl_err_Errno.h"

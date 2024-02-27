@@ -246,10 +246,18 @@ main := |*
 'new'            { createToken(TokenKind_New); };
 'sizeof'         { createToken(TokenKind_SizeOf); };
 'countof'        { createToken(TokenKind_CountOf); };
-'offsetof'       { createToken(TokenKind_OffsetOf); };
 'typeof'         { createToken(TokenKind_TypeOf); };
+'offsetof'       { createToken(TokenKind_OffsetOf); };
 'bindingof'      { createToken(TokenKind_BindingOf); };
-'dynamic'        { createToken(TokenKind_Dynamic); };
+
+'dynamic' ws+ 'sizeof'
+                 { createToken(TokenKind_DynamicSizeOf); };
+'dynamic' ws+ 'countof'
+                 { createToken(TokenKind_DynamicCountOf); };
+'dynamic' ws+ 'typeof'
+                 { createToken(TokenKind_DynamicTypeOf); };
+'dynamic' ws* '('
+                 { createDynamicCastTokens(); };
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -280,6 +288,8 @@ main := |*
 
 'dynamic' ws+ 'layout'
                  { createToken(TokenKind_DynamicLayout); };
+'dynamic' ws+ 'group'
+                 { createToken(TokenKind_DynamicGroup); };
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

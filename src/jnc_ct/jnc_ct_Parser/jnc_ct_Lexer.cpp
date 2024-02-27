@@ -509,6 +509,18 @@ Lexer::createFmtSpecifierToken() {
 	return ts < te ? createStringToken(TokenKind_FmtSpecifier) : NULL;
 }
 
+void
+Lexer::createDynamicCastTokens() {
+	Token* token = createToken(TokenKind_DynamicCast);
+	token->m_pos.m_length = lengthof("dynamic");
+
+	token = createToken('(');
+	size_t delta = token->m_pos.m_length - 1;
+	token->m_pos.m_p += delta;
+	token->m_pos.m_col += delta;
+	token->m_pos.m_length = 1;
+}
+
 Token*
 Lexer::createDoxyCommentToken(TokenKind tokenKind) {
 	if (!(m_flags & LexerFlag_DoxyComments))

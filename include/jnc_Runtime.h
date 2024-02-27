@@ -406,7 +406,7 @@ T*
 createClass(Runtime* runtime) {
 	ClassType* type = T::getType(runtime->getModule());
 	T* p = (T*)runtime->getGcHeap()->allocateClass(type);
-	construct(p);
+	jnc::construct(p);
 	return p;
 }
 
@@ -421,7 +421,7 @@ createClass(
 ) {
 	ClassType* type = T::getType(runtime->getModule());
 	T* p = (T*)runtime->getGcHeap()->allocateClass(type);
-	construct(p, arg);
+	jnc::construct(p, arg);
 	return p;
 }
 
@@ -438,7 +438,7 @@ createClass(
 ) {
 	ClassType* type = T::getType(runtime->getModule());
 	T* p = (T*)runtime->getGcHeap()->allocateClass(type);
-	construct(p, arg1, arg2);
+	jnc::construct(p, arg1, arg2);
 	return p;
 }
 
@@ -457,7 +457,7 @@ createClass(
 ) {
 	ClassType* type = T::getType(runtime->getModule());
 	T* p = (T*)runtime->getGcHeap()->allocateClass(type);
-	construct(p, arg1, arg2, arg3);
+	jnc::construct(p, arg1, arg2, arg3);
 	return p;
 }
 
@@ -478,7 +478,7 @@ createClass(
 ) {
 	ClassType* type = T::getType(runtime->getModule());
 	T* p = (T*)runtime->getGcHeap()->allocateClass(type);
-	construct(p, arg1, arg2, arg3, arg4);
+	jnc::construct(p, arg1, arg2, arg3, arg4);
 	return p;
 }
 
@@ -489,8 +489,7 @@ DataPtr
 createData(Runtime* runtime) {
 	Type* type = T::getType(runtime->getModule());
 	DataPtr ptr = runtime->getGcHeap()->allocateData(type);
-	construct((T*)ptr.m_p);
-
+	jnc::construct((T*)ptr.m_p);
 	return ptr;
 }
 
@@ -505,8 +504,7 @@ createData(
 ) {
 	Type* type = T::getType(runtime->getModule());
 	DataPtr ptr = runtime->getGcHeap()->allocateData(type);
-	construct((T*)ptr.m_p, arg);
-
+	jnc::construct((T*)ptr.m_p, arg);
 	return ptr;
 }
 
@@ -523,8 +521,7 @@ createData(
 ) {
 	Type* type = T::getType(runtime->getModule());
 	DataPtr ptr = runtime->getGcHeap()->allocateData(type);
-	construct((T*)ptr.m_p, arg1, arg2);
-
+	jnc::construct((T*)ptr.m_p, arg1, arg2);
 	return ptr;
 }
 
@@ -543,8 +540,7 @@ createData(
 ) {
 	Type* type = T::getType(runtime->getModule());
 	DataPtr ptr = runtime->getGcHeap()->allocateData(type);
-	construct((T*)ptr.m_p, arg1, arg2, arg3);
-
+	jnc::construct((T*)ptr.m_p, arg1, arg2, arg3);
 	return ptr;
 }
 
@@ -565,8 +561,7 @@ createData(
 ) {
 	Type* type = T::getType(runtime->getModule());
 	DataPtr ptr = runtime->getGcHeap()->allocateData(type);
-	construct((T*)ptr.m_p, arg1, arg2, arg3, arg4);
-
+	jnc::construct((T*)ptr.m_p, arg1, arg2, arg3, arg4);
 	return ptr;
 }
 

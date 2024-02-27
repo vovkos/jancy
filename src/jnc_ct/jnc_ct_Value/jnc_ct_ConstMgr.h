@@ -23,13 +23,16 @@ class Const:
 	public ModuleItem,
 	public ModuleItemDecl {
 	friend class ConstMgr;
+	friend class Parser;
 
 protected:
 	Value m_value;
+	Type* m_dynamicArrayElementType; // we use Const-s for dynamic array fields in dynamic layout
 
 public:
 	Const() {
 		m_itemKind = ModuleItemKind_Const;
+		m_dynamicArrayElementType = NULL;
 	}
 
 	const Value&

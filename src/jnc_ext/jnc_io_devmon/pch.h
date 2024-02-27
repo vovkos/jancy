@@ -4,7 +4,6 @@
 
 // AXL
 
-#include "axl_sl_Construct.h"
 #include "axl_sl_CircularBuffer.h"
 #include "axl_sl_HandleTable.h"
 #include "axl_io_File.h"

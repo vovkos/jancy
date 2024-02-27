@@ -248,7 +248,6 @@ typedef Instruction TerminatorInst;
 #include "axl_sl_ByteOrder.h"
 #include "axl_sl_HandleTable.h"
 #include "axl_sl_Singleton.h"
-#include "axl_sl_Construct.h"
 #include "axl_re2_Regex.h"
 #include "axl_enc_HexEncoding.h"
 #include "axl_enc_EscapeEncoding.h"

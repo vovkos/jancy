@@ -141,6 +141,7 @@ main := |*
 	'assert'          |
 	'await'           |
 	'dynamic' ws+ 'layout' |
+	'dynamic' ws+ 'group' |
 
 	'basetype' [1-9]? |
 	'this'            |
@@ -152,11 +153,21 @@ main := |*
 	'delete'          |
 	'sizeof'          |
 	'countof'         |
-	'offsetof'        |
 	'typeof'          |
+	'offsetof'        |
 	'bindingof'       |
-	'dynamic'
+	'dynamic' ws+ 'sizeof' |
+	'dynamic' ws+ 'countofof' |
+	'dynamic' ws+ 'typeofof'
 )                 { highlightLastToken(EditTheme::Keyword); };
+
+'dynamic' ws+ '('
+	{
+		char* prev = te;
+		te = ts + lengthof("dynamic");
+		highlightLastToken(EditTheme::Keyword);
+		te = prev;
+	};
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

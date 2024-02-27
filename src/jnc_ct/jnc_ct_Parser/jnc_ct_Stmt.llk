@@ -95,6 +95,7 @@ statement
 	|	unsafe_stmt
 	|	assert_stmt
 	|	dynamic_layout_stmt
+	|	dynamic_group_stmt
 	|	';'
 	;
 
@@ -113,6 +114,7 @@ statement_sync
 	|	TokenKind_Unsafe
 	|	TokenKind_Assert
 	|	TokenKind_DynamicLayout
+	|	TokenKind_DynamicGroup
 	|	';'
 	|	'{'
 	;
@@ -133,13 +135,13 @@ if_stmt
 			{
 				return m_module->m_controlFlowMgr.ifStmt_Condition(&$stmt, $e.m_value, $a.m_pos);
 			}
-		statement $t
+		local_declaration
 		(
 			TokenKind_Else $a2
 				{
 					m_module->m_controlFlowMgr.ifStmt_Else(&$stmt, $a2.m_pos);
 				}
-			statement $f
+			local_declaration
 		)?
 			{
 				m_module->m_controlFlowMgr.ifStmt_Follow(&$stmt);
@@ -266,7 +268,7 @@ while_stmt
 			{
 				m_module->m_controlFlowMgr.whileStmt_Condition(&$stmt, $e.m_value, $a.m_pos);
 			}
-		statement
+		local_declaration
 			{
 				m_module->m_controlFlowMgr.whileStmt_Follow(&$stmt);
 			}
@@ -283,7 +285,7 @@ do_stmt
 			{
 				m_module->m_controlFlowMgr.doStmt_PreBody(&$stmt, $1.m_pos);
 			}
-		statement
+		local_declaration
 			{
 				m_module->m_controlFlowMgr.doStmt_PostBody(&$stmt);
 			}
@@ -317,7 +319,7 @@ for_stmt
 			{
 				m_module->m_controlFlowMgr.forStmt_PreBody(&$stmt);
 			}
-		statement
+		local_declaration
 			{
 				m_module->m_controlFlowMgr.forStmt_PostBody(&$stmt);
 			}
@@ -371,7 +373,7 @@ once_stmt
 					m_module->m_controlFlowMgr.onceStmt_Create(&$stmt, $2.m_pos, storageKind) &&
 					m_module->m_controlFlowMgr.onceStmt_PreBody(&$stmt, $2.m_pos);
 			}
-		statement $s
+		statement
 			{
 				m_module->m_controlFlowMgr.onceStmt_PostBody(&$stmt);
 			}
@@ -448,11 +450,22 @@ dynamic_layout_stmt
 	}
 	:	TokenKind_DynamicLayout '(' expression $e ')'
 			{
-				return m_module->m_controlFlowMgr.dynamicLayoutStmt_PreBody(&$stmt, $e.m_value);
+				return initializeDynamicLayoutStmt(&$stmt, $e.m_value);
 			}
 		compound_stmt
 			{
-				return m_module->m_controlFlowMgr.dynamicLayoutStmt_PostBody(&$stmt);
+				return finalizeDynamicStructSection();
+			}
+	;
+
+dynamic_group_stmt
+	:	TokenKind_DynamicGroup TokenKind_Identifier $n?
+			{
+				return openDynamicGroup($1.m_pos, &$n? $n.m_data.m_string : sl::StringRef());
+			}
+		compound_stmt
+			{
+				closeDynamicGroup();
 			}
 	;
 

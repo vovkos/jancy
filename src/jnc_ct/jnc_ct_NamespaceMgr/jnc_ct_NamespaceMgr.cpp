@@ -164,6 +164,7 @@ NamespaceMgr::addStdItems() {
 		jncNspace->addItem("Regex", regexImport) &&
 		jncNspace->addItem("Promise", promiseImport) &&
 		jncNspace->addItem("Promisifier", promiseImport) &&
+		jncNspace->addItem("DynamicSectionGroup", dynamicLayoutImport) &&
 		jncNspace->addItem("DynamicSection", dynamicLayoutImport) &&
 		jncNspace->addItem("DynamicLayout", dynamicLayoutImport) &&
 		jncNspace->addItem("DynamicLib", dynamicLibImport) &&

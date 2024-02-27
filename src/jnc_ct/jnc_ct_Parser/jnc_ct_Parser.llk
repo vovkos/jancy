@@ -103,6 +103,14 @@ public:
 		}
 	};
 
+	struct DynamicLayoutStmt {
+		size_t m_fieldAlignment;
+		Value m_layoutValue; // jnc.DynamicLayout
+		StructType* m_structType;
+		BasicBlock* m_structBlock;
+		sl::Array<Value> m_structSectionOffsetValueArray;
+	};
+
 protected:
 	Module* m_module;
 	Mode m_mode;
@@ -681,6 +689,24 @@ protected:
 		const Value& messageValue,
 		BasicBlock* continueBlock
 	);
+
+	bool
+	initializeDynamicLayoutStmt(
+		DynamicLayoutStmt* stmt,
+		const Value& layoutValue
+	);
+
+	bool
+	finalizeDynamicStructSection();
+
+	bool
+	openDynamicGroup(
+		const lex::LineCol& pos,
+		const sl::StringRef& name
+	);
+
+	bool
+	closeDynamicGroup();
 
 	void
 	addScopeAnchorToken(

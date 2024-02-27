@@ -1657,14 +1657,117 @@ Parser::declareData(
 		isDisposable = true;
 		break;
 
-	case StorageKind_DynamicField:
+	case StorageKind_DynamicField: {
 		if (!m_dynamicLayoutStmt) {
 			err::setFormatStringError("dynamic fields are only allowed inside dynamic layouts");
 			return false;
 		}
 
-		err::setFormatStringError("YAY! add dynamic field '%s' to dynamic layout", declarator->m_name.getShortName().sz());
-		return false;
+		if (!constructor->isEmpty() || !initializer->isEmpty()) {
+			err::setFormatStringError("initializers for dynamic fields are not currently supported");
+			return false;
+		}
+
+		if (type->getTypeKind() == TypeKind_Array) {
+			Parser parser(m_module, NULL, Parser::Mode_Compile);
+			parser.m_dynamicLayoutStmt = m_dynamicLayoutStmt;
+
+			ArrayType* arrayType = (ArrayType*)type;
+			Value countValue;
+
+			result =
+				parser.parseTokenList(SymbolKind_expression_save_value, arrayType->getElementCountInitializer()) &&
+				m_module->m_operatorMgr.castOperator(parser.m_lastExpressionValue, TypeKind_SizeT, &countValue);
+
+			if (!result)
+				return false;
+
+			if (parser.m_lastExpressionValue.getValueKind() == ValueKind_Const)
+				arrayType->m_elementCount = countValue.getSizeT();
+			else {
+				Type* elementType = arrayType->getElementType();
+				result =
+					finalizeDynamicStructSection() &&
+					elementType->ensureLayout();
+
+				if (!result)
+					return false;
+
+				if (!(elementType->getFlags() & TypeFlag_Pod)) {
+					err::setFormatStringError("non-POD '%s' cannot be used in a dynamic layout", elementType->getTypeString().sz());
+					return false;
+				}
+
+				m_storageKind = StorageKind_Undefined;
+				Const* field = m_module->m_constMgr.createConst(name, name, Value());
+				field->m_storageKind = StorageKind_DynamicField;
+				field->m_dynamicArrayElementType = elementType;
+				assignDeclarationAttributes(field, field, declarator->getPos());
+
+				Value funcValue;
+				Value declValue((int64_t)(ModuleItemDecl*)field, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
+				Value typeValue((int64_t)elementType, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
+				Value offsetValue;
+
+				m_module->m_compileFlags |= Module::AuxCompileFlag_SkipAccessChecks;
+
+				result =
+					nspace->addItem(field) &&
+					m_module->m_operatorMgr.memberOperator(m_dynamicLayoutStmt->m_layoutValue, "addArray", &funcValue) &&
+					m_module->m_operatorMgr.callOperator(funcValue, declValue, typeValue, countValue, &offsetValue);
+
+				m_module->m_compileFlags &= ~Module::AuxCompileFlag_SkipAccessChecks;
+
+				field->m_value = offsetValue;
+				return result;
+			}
+		}
+
+		if (!(type->getFlags() & TypeFlag_Pod)) {
+			err::setFormatStringError("non-POD '%s' cannot be used in a dynamic layout", type->getTypeString().sz());
+			return false;
+		}
+
+		if (m_dynamicLayoutStmt->m_structType &&
+			m_dynamicLayoutStmt->m_structBlock != m_module->m_controlFlowMgr.getCurrentBlock()
+		) {
+			result = finalizeDynamicStructSection();
+			if (!result)
+				return false;
+		}
+
+		if (!m_dynamicLayoutStmt->m_structType) {
+			StructType* structType = m_module->m_typeMgr.createUnnamedInternalStructType("section", m_dynamicLayoutStmt->m_fieldAlignment);
+
+			Value funcValue;
+			Value typeValue(&structType, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
+			Value offsetValue;
+
+			m_module->m_compileFlags |= Module::AuxCompileFlag_SkipAccessChecks;
+
+			result =
+				m_module->m_operatorMgr.memberOperator(m_dynamicLayoutStmt->m_layoutValue, "addStruct", &funcValue) &&
+				m_module->m_operatorMgr.callOperator(funcValue, typeValue, &offsetValue);
+
+			m_module->m_compileFlags &= ~Module::AuxCompileFlag_SkipAccessChecks;
+
+			if (!result)
+				return false;
+
+			structType->m_dynamicStructSectionId = m_dynamicLayoutStmt->m_structSectionOffsetValueArray.getCount();
+			m_dynamicLayoutStmt->m_structSectionOffsetValueArray.append(offsetValue);
+			m_dynamicLayoutStmt->m_structType = structType;
+			m_dynamicLayoutStmt->m_structBlock = m_module->m_controlFlowMgr.getCurrentBlock();
+		}
+
+		Field* field = m_dynamicLayoutStmt->m_structType->createField(name, type, bitCount, ptrTypeFlags);
+		if (!field || !nspace->addItem(field))
+			return false;
+
+		assignDeclarationAttributes(field, field, declarator);
+		field->m_parentNamespace = m_dynamicLayoutStmt->m_structType; // don't reparent
+		return true;
+		}
 
 	default:
 		err::setFormatStringError("invalid storage specifier '%s' for variable", getStorageKindString(storageKind));
@@ -2440,10 +2543,6 @@ Parser::lookupIdentifier(
 		value->setNamespace((NamedType*)item);
 		break;
 
-	case ModuleItemKind_Const:
-		*value = ((Const*)item)->getValue();
-		break;
-
 	case ModuleItemKind_Variable:
 		value->setVariable((Variable*)item);
 		break;
@@ -2487,16 +2586,94 @@ Parser::lookupIdentifier(
 			return false;
 		break;
 
-	case ModuleItemKind_Field:
+	case ModuleItemKind_Const: {
+		Const* cnst = (Const*)item;
+		if (cnst->getStorageKind() != StorageKind_DynamicField) {
+			*value = ((Const*)item)->getValue();
+			break;
+		}
+
+		// dynamic array field in a dynamic layout
+
+		ASSERT(m_dynamicLayoutStmt);
+		Value ptrValue;
+
 		result =
-			m_module->m_operatorMgr.getThisValue(&thisValue, (Field*)item) &&
-			m_module->m_operatorMgr.getField(thisValue, (Field*)item, &coord, value);
+			m_module->m_operatorMgr.memberOperator(m_dynamicLayoutStmt->m_layoutValue, "m_base", &ptrValue) &&
+			m_module->m_operatorMgr.binaryOperator(BinOpKind_Add, &ptrValue, cnst->getValue()) &&
+			m_module->m_operatorMgr.castOperator(
+				ptrValue,
+				cnst->m_dynamicArrayElementType->getDataPtrType(DataPtrTypeKind_Normal, PtrTypeFlag_Const),
+				value
+			);
 
 		if (!result)
 			return false;
 
-		m_module->m_operatorMgr.finalizeDualType(thisValue, (Field*)item, value);
 		break;
+		}
+
+	case ModuleItemKind_Field: {
+		Field* field = (Field*)item;
+		if (field->getStorageKind() != StorageKind_DynamicField) { // normal field
+			result =
+				m_module->m_operatorMgr.getThisValue(&thisValue, field) &&
+				m_module->m_operatorMgr.getField(thisValue, field, &coord, value);
+
+			if (!result)
+				return false;
+
+			m_module->m_operatorMgr.finalizeDualType(thisValue, field, value);
+			break;
+		}
+
+		// field in a dynamic layout
+
+		StructType* structType = (StructType*)field->getParentNamespace();
+		if (!(structType->getFlags() & ModuleItemFlag_LayoutReady)) {
+			result = finalizeDynamicStructSection();
+			if (!result)
+				return false;
+		}
+
+		ASSERT(m_dynamicLayoutStmt && structType->m_dynamicStructSectionId != -1);
+		Value offsetValue = m_dynamicLayoutStmt->m_structSectionOffsetValueArray[structType->m_dynamicStructSectionId];
+		Value fieldOffsetValue(field->getOffset(), m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT));
+		Value ptrValue;
+
+		result =
+			m_module->m_operatorMgr.memberOperator(m_dynamicLayoutStmt->m_layoutValue, "m_base", &ptrValue) &&
+			m_module->m_operatorMgr.binaryOperator(BinOpKind_Add, &offsetValue, fieldOffsetValue) &&
+			m_module->m_operatorMgr.binaryOperator(BinOpKind_Add, &ptrValue, offsetValue) &&
+			m_module->m_operatorMgr.castOperator(
+				ptrValue,
+				field->getType()->getDataPtrType(DataPtrTypeKind_Normal, PtrTypeFlag_Const),
+				value
+			);
+
+		if (!result)
+			return false;
+
+		uint_t ptrTypeFlags = field->getPtrTypeFlags() | PtrTypeFlag_Const;
+		DataPtrType* ptrType = (ptrTypeFlags & PtrTypeFlag_BitField) ?
+			m_module->m_typeMgr.getDataPtrType(
+				field->getType(),
+				field->getBitOffset(),
+				field->getBitCount(),
+				TypeKind_DataRef,
+				DataPtrTypeKind_Normal,
+				ptrTypeFlags
+			) :
+			m_module->m_typeMgr.getDataPtrType(
+				field->getType(),
+				TypeKind_DataRef,
+				DataPtrTypeKind_Normal,
+				ptrTypeFlags
+			);
+
+		value->overrideType(ptrType);
+		break;
+		}
 
 	default:
 		err::setFormatStringError(
@@ -3002,6 +3179,96 @@ Parser::finalizeAssertStmt(
 
 	m_module->m_controlFlowMgr.follow(continueBlock);
 	return true;
+}
+
+bool
+Parser::initializeDynamicLayoutStmt(
+	DynamicLayoutStmt* stmt,
+	const Value& layoutValue
+) {
+	ClassType* layoutType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_DynamicLayout);
+
+	bool result =
+		m_module->ensureIntrospectionLibRequired() &&
+		m_module->m_operatorMgr.castOperator(
+			layoutValue,
+			layoutType->getClassPtrType(ClassPtrTypeKind_Normal, PtrTypeFlag_Safe),
+			&stmt->m_layoutValue
+		);
+
+	if (!result)
+		return false;
+
+	stmt->m_fieldAlignment = m_module->m_pragmaMgr.getConfigSnapshot()->m_fieldAlignment;
+	stmt->m_structType = NULL;
+	stmt->m_structBlock = NULL;
+	return true;
+}
+
+bool
+Parser::finalizeDynamicStructSection() {
+	ASSERT(m_dynamicLayoutStmt);
+
+	if (m_dynamicLayoutStmt->m_structType) {
+		bool result = m_dynamicLayoutStmt->m_structType->ensureLayout();
+		if (!result)
+			return false;
+	}
+
+	m_dynamicLayoutStmt->m_structType = NULL;
+	m_dynamicLayoutStmt->m_structBlock = NULL;
+	return true;
+}
+
+bool
+Parser::openDynamicGroup(
+	const lex::LineCol& pos,
+	const sl::StringRef& name
+) {
+	if (!m_dynamicLayoutStmt) {
+		err::setError("dynamic groups are only allowed inside dynamic layouts");
+		return false;
+	}
+
+	bool result = finalizeDynamicStructSection();
+	if (!result)
+		return false;
+
+	m_storageKind = StorageKind_Undefined;
+	Const* group = m_module->m_constMgr.createConst(name, name, Value()); // all we need ModuleItemDecl
+	assignDeclarationAttributes(group, group, pos);
+
+	Value funcValue;
+	Value declValue((int64_t)(ModuleItemDecl*)group, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
+
+	m_module->m_compileFlags |= Module::AuxCompileFlag_SkipAccessChecks;
+
+	result =
+		m_module->m_operatorMgr.memberOperator(m_dynamicLayoutStmt->m_layoutValue, "openGroup", &funcValue) &&
+		m_module->m_operatorMgr.callOperator(funcValue, declValue);
+
+	m_module->m_compileFlags &= ~Module::AuxCompileFlag_SkipAccessChecks;
+	return result;
+}
+
+bool
+Parser::closeDynamicGroup() {
+	ASSERT(m_dynamicLayoutStmt);
+
+	bool result = finalizeDynamicStructSection();
+	if (!result)
+		return false;
+
+	Value funcValue;
+
+	m_module->m_compileFlags |= Module::AuxCompileFlag_SkipAccessChecks;
+
+	result =
+		m_module->m_operatorMgr.memberOperator(m_dynamicLayoutStmt->m_layoutValue, "closeGroup", &funcValue) &&
+		m_module->m_operatorMgr.callOperator(funcValue);
+
+	m_module->m_compileFlags &= ~Module::AuxCompileFlag_SkipAccessChecks;
+	return result;
 }
 
 void

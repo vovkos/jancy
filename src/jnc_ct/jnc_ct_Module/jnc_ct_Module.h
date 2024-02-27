@@ -63,10 +63,12 @@ protected:
 
 class Module: public PreModule {
 	friend class Jit;  // JITters take ownership of llvm::Module & llvm::LLVMContext
+	friend class Parser;
 
 protected:
 	enum AuxCompileFlag {
 		AuxCompileFlag_IntrospectionLib = 0x80000000,
+		AuxCompileFlag_SkipAccessChecks = 0x40000000,
 	};
 
 	enum AsyncFlag {
@@ -151,6 +153,11 @@ public:
 	bool
 	hasCodeGen() {
 		return m_llvmIrBuilder;
+	}
+
+	bool
+	hasAccessChecks() {
+		return (m_compileFlags & AuxCompileFlag_SkipAccessChecks) == 0;
 	}
 
 	const sl::String&
@@ -409,6 +416,23 @@ CodeAssistMgr::prepareAutoCompleteFallback(size_t offset) {
 		m_autoCompleteFallback.m_namespace = m_module->m_namespaceMgr.getCurrentNamespace();
 		m_autoCompleteFallback.m_offset = offset;
 	}
+}
+
+//..............................................................................
+
+inline
+bool
+OperatorMgr::checkAccess(ModuleItemDecl* decl) {
+	Namespace* nspace = decl->getParentNamespace();
+	if (m_module->hasAccessChecks() &&
+		decl->getAccessKind() != AccessKind_Public &&
+		m_module->m_namespaceMgr.getAccessKind(nspace) == AccessKind_Public
+	) {
+		err::setFormatStringError("'%s' is protected", decl->getQualifiedName().sz());
+		return false;
+	}
+
+	return true;
 }
 
 //..............................................................................

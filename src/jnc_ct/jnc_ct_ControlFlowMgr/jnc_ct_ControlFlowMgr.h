@@ -13,6 +13,7 @@
 
 #include "jnc_ct_Value.h"
 #include "jnc_ct_BasicBlock.h"
+#include "jnc_ct_StructType.h"
 
 namespace jnc {
 namespace ct {
@@ -103,13 +104,6 @@ struct ForStmt: RegexCondStmt {
 struct OnceStmt {
 	Variable* m_flagVariable;
 	BasicBlock* m_followBlock;
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct DynamicLayoutStmt {
-	Value m_layoutValue; // jnc.DynamicLayout
-	StructType* m_structType;
 };
 
 //..............................................................................
@@ -502,17 +496,6 @@ public:
 
 	void
 	onceStmt_PostBody(OnceStmt* stmt);
-
-	// dynamic layout
-
-	bool
-	dynamicLayoutStmt_PreBody(
-		DynamicLayoutStmt* stmt,
-		const Value& layoutValue
-	);
-
-	bool
-	dynamicLayoutStmt_PostBody(DynamicLayoutStmt* stmt);
 
 	// finally
 

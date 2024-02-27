@@ -147,6 +147,7 @@ enum TokenKind {
 	TokenKind_Assert,
 	TokenKind_Await,
 	TokenKind_DynamicLayout,
+	TokenKind_DynamicGroup,
 
 	// pre-defined values
 
@@ -161,10 +162,14 @@ enum TokenKind {
 	TokenKind_New,
 	TokenKind_SizeOf,
 	TokenKind_CountOf,
-	TokenKind_OffsetOf,
 	TokenKind_TypeOf,
+	TokenKind_OffsetOf,
 	TokenKind_BindingOf,
-	TokenKind_Dynamic,
+
+	TokenKind_DynamicSizeOf,
+	TokenKind_DynamicCountOf,
+	TokenKind_DynamicTypeOf,
+	TokenKind_DynamicCast,
 
 	// symbol tokens
 
@@ -345,6 +350,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP(TokenName)
 	AXL_LEX_TOKEN_NAME(TokenKind_Assert,        "assert")
 	AXL_LEX_TOKEN_NAME(TokenKind_Await,         "await")
 	AXL_LEX_TOKEN_NAME(TokenKind_DynamicLayout, "dynamic layout")
+	AXL_LEX_TOKEN_NAME(TokenKind_DynamicGroup,  "dynamic group")
 
 	// pre-defined values
 
@@ -359,10 +365,14 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP(TokenName)
 	AXL_LEX_TOKEN_NAME(TokenKind_New,          "new")
 	AXL_LEX_TOKEN_NAME(TokenKind_SizeOf,       "sizeof")
 	AXL_LEX_TOKEN_NAME(TokenKind_CountOf,      "countof")
-	AXL_LEX_TOKEN_NAME(TokenKind_OffsetOf,     "offsetof")
 	AXL_LEX_TOKEN_NAME(TokenKind_TypeOf,       "typeof")
+	AXL_LEX_TOKEN_NAME(TokenKind_OffsetOf,     "offsetof")
 	AXL_LEX_TOKEN_NAME(TokenKind_BindingOf,    "bindingof")
-	AXL_LEX_TOKEN_NAME(TokenKind_Dynamic,      "dynamic")
+
+	AXL_LEX_TOKEN_NAME(TokenKind_DynamicSizeOf,  "dynamic sizeof")
+	AXL_LEX_TOKEN_NAME(TokenKind_DynamicCountOf, "dynamic countof")
+	AXL_LEX_TOKEN_NAME(TokenKind_DynamicTypeOf,  "dynamic typeof")
+	AXL_LEX_TOKEN_NAME(TokenKind_DynamicCast,    "dynamic-cast")
 
 	// symbol tokens
 
@@ -600,6 +610,9 @@ protected:
 
 	Token*
 	createFmtSpecifierToken();
+
+	void
+	createDynamicCastTokens();
 
 	Token*
 	createDoxyCommentToken(TokenKind tokenKind);

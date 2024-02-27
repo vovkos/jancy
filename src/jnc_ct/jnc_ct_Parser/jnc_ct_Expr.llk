@@ -679,7 +679,7 @@ cast_operator_rslv
 	local {
 		TypeSpecifier $typeSpecifier;
 	}
-	:	TokenKind_Dynamic? '('
+	:	TokenKind_DynamicCast? '('
 		(
 			type_specifier_sync |
 			type_modifier_sync |
@@ -689,7 +689,7 @@ cast_operator_rslv
 
 resolver(cast_operator_rslv)
 cast_operator<Value* $value>
-	:	TokenKind_Dynamic $d? '(' type_name $t ')' unary_expr<$value>
+	:	TokenKind_DynamicCast $d? '(' type_name $t ')' unary_expr<$value>
 			{
 				OperatorDynamism dynamism = &$d ? OperatorDynamism_Dynamic : OperatorDynamism_Static;
 				return m_module->m_operatorMgr.castOperator(dynamism, $value, $t.m_type);
@@ -858,15 +858,15 @@ primary_expr<Value* $value>
 			{
 				return m_module->m_operatorMgr.typeofOperator(OperatorDynamism_Static, $t.m_value, $value);
 			}
-	|	TokenKind_Dynamic TokenKind_SizeOf '(' expression $e ')'
+	|	TokenKind_DynamicSizeOf '(' expression $e ')'
 			{
 				return m_module->m_operatorMgr.sizeofOperator(OperatorDynamism_Dynamic, $e.m_value, $value);
 			}
-	|	TokenKind_Dynamic TokenKind_CountOf '(' expression $e ')'
+	|	TokenKind_DynamicCountOf '(' expression $e ')'
 			{
 				return m_module->m_operatorMgr.countofOperator(OperatorDynamism_Dynamic, $e.m_value, $value);
 			}
-	|	TokenKind_Dynamic TokenKind_TypeOf '(' expression $e ')'
+	|	TokenKind_DynamicTypeOf '(' expression $e ')'
 			{
 				return m_module->m_operatorMgr.typeofOperator(OperatorDynamism_Dynamic, $e.m_value, $value);
 			}

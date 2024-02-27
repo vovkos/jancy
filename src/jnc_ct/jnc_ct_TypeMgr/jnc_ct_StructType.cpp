@@ -27,6 +27,7 @@ StructType::StructType() {
 	m_fieldActualSize = 0;
 	m_fieldAlignedSize = 0;
 	m_lastBitField = NULL;
+	m_dynamicStructSectionId = -1;
 }
 
 void

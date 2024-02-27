@@ -42,7 +42,7 @@ jnc_getModuleItemKindString(jnc_ModuleItemKind itemKind) {
 		"property",                    // ModuleItemKind_Property,
 		"property-template",           // ModuleItemKind_PropertyTemplate,
 		"enum-member",                 // ModuleItemKind_EnumConst,
-		"struct-member",               // ModuleItemKind_Field,
+		"field",                       // ModuleItemKind_Field,
 		"base-type-slot",              // ModuleItemKind_BaseTypeSlot,
 		"orphan",                      // ModuleItemKind_Orphan,
 		"lazy-import",                 // ModuleItemKind_LazyImport,

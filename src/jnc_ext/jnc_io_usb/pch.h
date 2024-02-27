@@ -18,7 +18,6 @@
 #include "axl_io_UsbDevice.h"
 #include "axl_io_UsbEnumerator.h"
 #include "axl_io_UsbTransfer.h"
-#include "axl_sl_Construct.h"
 #include "axl_sl_CircularBuffer.h"
 #include "axl_sl_HandleTable.h"
 #include "axl_mem_Pool.h"

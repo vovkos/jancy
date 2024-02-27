@@ -22,6 +22,7 @@ class Field:
 	public ModuleItem,
 	public ModuleItemDecl,
 	public ModuleItemInitializer {
+	friend class Parser;
 	friend class TypeMgr;
 	friend class MemberBlock;
 	friend class DerivableType;

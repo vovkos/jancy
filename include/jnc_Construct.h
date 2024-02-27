@@ -36,7 +36,7 @@ construct(
 	T* p,
 	Arg arg
 ) {
-	new(p)T(arg);
+	new(p) T(arg);
 }
 
 template <
@@ -50,7 +50,7 @@ construct(
 	Arg1 arg1,
 	Arg2 arg2
 ) {
-	new(p)T(arg1, arg2);
+	new(p) T(arg1, arg2);
 }
 
 template <
@@ -66,7 +66,7 @@ construct(
 	Arg2 arg2,
 	Arg3 arg3
 ) {
-	new(p)T(arg1, arg2, arg3);
+	new(p) T(arg1, arg2, arg3);
 }
 
 template <
@@ -84,7 +84,7 @@ construct(
 	Arg3 arg3,
 	Arg4 arg4
 ) {
-	new(p)T(arg1, arg2, arg3, arg4);
+	new(p) T(arg1, arg2, arg3, arg4);
 }
 
 template <
@@ -104,7 +104,7 @@ construct(
 	Arg4 arg4,
 	Arg5 arg5
 ) {
-	new(p)T(arg1, arg2, arg3, arg4, arg5);
+	new(p) T(arg1, arg2, arg3, arg4, arg5);
 }
 
 template <typename T>

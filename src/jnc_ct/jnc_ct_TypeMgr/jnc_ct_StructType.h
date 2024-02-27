@@ -33,6 +33,7 @@ class StructType: public DerivableType {
 	friend class UnionType;
 	friend class Property;
 	friend class AsyncSequencerFunction;
+	friend class Parser;
 
 protected:
 	StructTypeKind m_structTypeKind;
@@ -43,6 +44,7 @@ protected:
 
 	sl::Array<llvm::Type*> m_llvmFieldTypeArray;
 	Field* m_lastBitField;
+	size_t m_dynamicStructSectionId;
 
 public:
 	StructType();

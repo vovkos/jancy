@@ -17,41 +17,43 @@ namespace jnc {
 //..............................................................................
 
 enum DynamicSectionKind {
-	Group,  // void pseudo-field used for grouping
-	Array,  // non-const array fields
-	Struct, // all other fields are added to the tail struct section
+	Undefined,
+	Struct,    // all regular fields are added to the tail struct section
+	Array,     // non-const array fields
+	Group,     // for grouping
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class DynamicSection {
-	size_t readonly m_offset;
-	size_t readonly m_size;
+opaque class DynamicSectionGroup {
+	size_t const m_sectionCount;
+	DynamicSection* const property m_sectionArray(size_t index);
+
+	construct();
+	destruct();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class DynamicSection: DynamicSectionGroup {
 	DynamicSectionKind readonly m_sectoinKind;
-	Type* readonly m_type; // null for DynamicSectionKind.Group
+	size_t readonly m_offset;
+	size_t const m_elementCount; // for DynamicSectionKind.Array
 
-	union {
-		size_t const property m_elementCount; // for DynamicSectionKind.Array
-		size_t const property m_sectionCount; // for DynamicSectionKind.Group
-	}
-
+	Type* const property m_type;           // null for DynamicSectionKind.Group
 	ModuleItemDecl* const property m_decl; // null for DynamicSectionKind.Struct
-	DynamicSection* const property m_sectionArray(size_t index); // for DynamicSectionKind.Group
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class DynamicLayout {
+opaque class DynamicLayout: DynamicSectionGroup {
 	void const* readonly m_base;
 	void const* readonly m_end;
 	void const* readonly m_p;
-	size_t readonly m_sectionCount;
 
 	size_t const property m_size {
-		return m_end - m_base;
+		return m_p - m_base;
 	}
-
-	DynamicSection* const property m_sectionArray(size_t index);
 
 	construct();
 
@@ -60,12 +62,28 @@ opaque class DynamicLayout {
 		size_t size
 	);
 
-	void clear();
+	destruct();
+
+	void clear() {
+		reset(null, 0);
+	}
 
 	void reset(
 		void const* p,
 		size_t size
 	);
+
+protected:
+	size_t addStruct(void thin* structType);
+
+	size_t addArray(
+		void thin* decl,
+		void thin* type,
+		size_t elementCount
+	);
+
+	void openGroup(void thin* decl);
+	void closeGroup();
 }
 
 //..............................................................................

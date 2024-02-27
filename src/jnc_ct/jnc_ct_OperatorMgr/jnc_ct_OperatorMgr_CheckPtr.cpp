@@ -84,7 +84,7 @@ OperatorMgr::checkDataPtrRange(const Value& value) {
 		m_module->m_llvmIrBuilder.createBitCast(value, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr), &ptrValue);
 
 		LeanDataPtrValidator* validator = value.getLeanDataPtrValidator();
-		if (validator->isDynamicRange() || validator->hasValidatorValue()) {
+		if (validator->hasValidatorValue()) {
 			validatorValue = validator->getValidatorValue();
 		} else {
 			size_t rangeLength = validator->getRangeLength();

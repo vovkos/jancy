@@ -222,19 +222,6 @@ OperatorMgr::getThisValueType(
 	return true;
 }
 
-bool
-OperatorMgr::checkAccess(ModuleItemDecl* decl) {
-	Namespace* nspace = decl->getParentNamespace();
-	if (decl->getAccessKind() != AccessKind_Public &&
-		m_module->m_namespaceMgr.getAccessKind(nspace) == AccessKind_Public
-	) {
-		err::setFormatStringError("'%s' is protected", decl->getQualifiedName().sz());
-		return false;
-	}
-
-	return true;
-}
-
 void
 OperatorMgr::foldDualType(
 	const Value& opValue,
