@@ -157,7 +157,7 @@ Type::getValueString_0(
 	String formatSpec
 ) {
 	return valuePtr.m_p ?
-		allocateString(self->m_item->getValueString(valuePtr.m_p, (formatSpec >> toAxl).sz())) :
+		allocateString(self->m_item->getValueString(valuePtr.m_p, (formatSpec >> toAxl).szn())) :
 		g_nullString;
 }
 
@@ -174,7 +174,7 @@ Type::getValueString_1(
 
 	bool result = value.cast(self->m_item, valueBuffer);
 	return result ?
-		allocateString(self->m_item->getValueString(valueBuffer, (formatSpec >> toAxl).sz())) :
+		allocateString(self->m_item->getValueString(valueBuffer, (formatSpec >> toAxl).szn())) :
 		g_nullString;
 }
 
