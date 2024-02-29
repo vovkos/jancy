@@ -21,6 +21,7 @@ enum TypeKind {
 
 	Void,
 	Variant,
+	String,
 	Bool,
 
 	// little-endian integers
