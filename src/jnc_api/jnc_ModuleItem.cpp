@@ -71,7 +71,7 @@ jnc_getStorageKindString(jnc_StorageKind storageKind) {
 		"override",                 // StorageKind_Override,
 		"mutable",                  // StorageKind_Mutable,
 		"disposable",               // StorageKind_Disposable,
-		"dynamic field",            // StorageKind_DynamicField,
+		"dyfield",                  // StorageKind_DynamicField,
 		"this",                     // StorageKind_This,
 	};
 

@@ -147,7 +147,6 @@ enum TokenKind {
 	TokenKind_Assert,
 	TokenKind_Await,
 	TokenKind_DynamicLayout,
-	TokenKind_DynamicGroup,
 
 	// pre-defined values
 
@@ -246,7 +245,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP(TokenName)
 	AXL_LEX_TOKEN_NAME(TokenKind_Import,       "import")
 	AXL_LEX_TOKEN_NAME(TokenKind_Namespace,    "namespace")
 	AXL_LEX_TOKEN_NAME(TokenKind_Extension,    "extension")
-	AXL_LEX_TOKEN_NAME(TokenKind_DynamicLib,   "dynamiclib")
+	AXL_LEX_TOKEN_NAME(TokenKind_DynamicLib,   "dylib")
 	AXL_LEX_TOKEN_NAME(TokenKind_Using,        "using")
 	AXL_LEX_TOKEN_NAME(TokenKind_Friend,       "friend")
 	AXL_LEX_TOKEN_NAME(TokenKind_Public,       "public")
@@ -265,7 +264,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP(TokenName)
 	AXL_LEX_TOKEN_NAME(TokenKind_Override,     "override")
 	AXL_LEX_TOKEN_NAME(TokenKind_Mutable,      "mutable")
 	AXL_LEX_TOKEN_NAME(TokenKind_Disposable,   "disposable")
-	AXL_LEX_TOKEN_NAME(TokenKind_DynamicField, "dynamic field")
+	AXL_LEX_TOKEN_NAME(TokenKind_DynamicField, "dyfield")
 
 	// type modifiers
 
@@ -349,8 +348,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP(TokenName)
 	AXL_LEX_TOKEN_NAME(TokenKind_NestedScope,   "nestedscope")
 	AXL_LEX_TOKEN_NAME(TokenKind_Assert,        "assert")
 	AXL_LEX_TOKEN_NAME(TokenKind_Await,         "await")
-	AXL_LEX_TOKEN_NAME(TokenKind_DynamicLayout, "dynamic layout")
-	AXL_LEX_TOKEN_NAME(TokenKind_DynamicGroup,  "dynamic group")
+	AXL_LEX_TOKEN_NAME(TokenKind_DynamicLayout, "dylayout")
 
 	// pre-defined values
 

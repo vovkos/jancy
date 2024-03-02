@@ -114,7 +114,6 @@ statement_sync
 	|	TokenKind_Unsafe
 	|	TokenKind_Assert
 	|	TokenKind_DynamicLayout
-	|	TokenKind_DynamicGroup
 	|	';'
 	|	'{'
 	;
@@ -458,8 +457,9 @@ dynamic_layout_stmt
 			}
 	;
 
+resolver(TokenKind_DynamicField TokenKind_Identifier? '{')
 dynamic_group_stmt
-	:	TokenKind_DynamicGroup TokenKind_Identifier $n?
+	:	TokenKind_DynamicField TokenKind_Identifier $n?
 			{
 				return openDynamicGroup($1.m_pos, &$n? $n.m_data.m_string : sl::StringRef());
 			}

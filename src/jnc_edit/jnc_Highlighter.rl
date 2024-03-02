@@ -47,7 +47,7 @@ main := |*
 	'import'          |
 	'namespace'       |
 	'extension'       |
-	'dynamiclib'      |
+	'dylib'           |
 	'using'           |
 	'friend'          |
 	'public'          |
@@ -66,7 +66,7 @@ main := |*
 	'override'        |
 	'mutable'         |
 	'disposable'      |
-	'dynamic' ws+ 'field' |
+	'dyfield'         |
 
 	'signed'          |
 	'unsigned'        |
@@ -140,8 +140,7 @@ main := |*
 	'nestedscope'     |
 	'assert'          |
 	'await'           |
-	'dynamic' ws+ 'layout' |
-	'dynamic' ws+ 'group' |
+	'dylayout'        |
 
 	'basetype' [1-9]? |
 	'this'            |

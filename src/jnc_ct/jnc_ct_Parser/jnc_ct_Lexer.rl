@@ -141,7 +141,7 @@ main := |*
 'import'         { createToken(TokenKind_Import); };
 'namespace'      { createToken(TokenKind_Namespace); };
 'extension'      { createToken(TokenKind_Extension); };
-'dynamiclib'     { createToken(TokenKind_DynamicLib); };
+'dylib'          { createToken(TokenKind_DynamicLib); };
 'using'          { createToken(TokenKind_Using); };
 'friend'         { createToken(TokenKind_Friend); };
 'public'         { createToken(TokenKind_Public); };
@@ -162,9 +162,7 @@ main := |*
 'override'       { createToken(TokenKind_Override); };
 'mutable'        { createToken(TokenKind_Mutable); };
 'disposable'     { createToken(TokenKind_Disposable); };
-
-'dynamic' ws+ 'field'
-                 { createToken(TokenKind_DynamicField); };
+'dyfield'        { createToken(TokenKind_DynamicField); };
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -285,11 +283,7 @@ main := |*
 'nestedscope'    { createToken(TokenKind_NestedScope); };
 'assert'         { createToken(TokenKind_Assert); };
 'await'          { createToken(TokenKind_Await); };
-
-'dynamic' ws+ 'layout'
-                 { createToken(TokenKind_DynamicLayout); };
-'dynamic' ws+ 'group'
-                 { createToken(TokenKind_DynamicGroup); };
+'dylayout'       { createToken(TokenKind_DynamicLayout); };
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
