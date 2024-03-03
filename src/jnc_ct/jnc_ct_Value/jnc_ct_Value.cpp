@@ -469,7 +469,7 @@ Value::setLeanDataPtrValidator(const Value& originValue) {
 		m_leanDataPtrValidator = originValue.m_leanDataPtrValidator;
 	else if (originValue.m_valueKind == ValueKind_Variable)
 		m_leanDataPtrValidator = originValue.m_variable->getLeanDataPtrValidator();
-	} else {
+	else {
 		m_leanDataPtrValidator = AXL_RC_NEW(LeanDataPtrValidator);
 		m_leanDataPtrValidator->m_originValue = originValue;
 	}

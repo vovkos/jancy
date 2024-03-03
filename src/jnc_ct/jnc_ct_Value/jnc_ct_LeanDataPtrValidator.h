@@ -39,6 +39,11 @@ public:
 	}
 
 	bool
+	isDynamicRange() {
+		return m_rangeLength == 0;
+	}
+
+	bool
 	hasValidatorValue() {
 		return m_validatorValue;
 	}
@@ -55,7 +60,7 @@ public:
 
 	size_t
 	getRangeLength() {
-		ASSERT(m_rangeLength);
+		ASSERT(m_rangeLength); // should be checked with isDynamicRange()
 		return m_rangeLength;
 	}
 
