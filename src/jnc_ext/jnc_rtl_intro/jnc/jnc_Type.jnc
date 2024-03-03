@@ -98,7 +98,6 @@ enum TypeKind {
 bitflag enum TypeKindFlags {
 	Integer      = 0x00000001,
 	Unsigned     = 0x00000002,
-	BigEndian    = 0x00000004,
 	Fp           = 0x00000008,
 	Numeric      = 0x00000010,
 	Aggregate    = 0x00000020,
@@ -119,12 +118,10 @@ bitflag enum TypeKindFlags {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bitflag enum TypeFlags {
-	Named     = 0x0100,
-	Pod       = 0x0200, // plain-old-data
-	GcRoot    = 0x0400, // is or contains gc-traceable pointers
-	StructRet = 0x0800, // return through hidden 1st arg (gcc32 callconv)
-	NoStack   = 0x1000, // try to avoid allocation on stack
-	Dynamic   = 0x2000, // dynamic struct/union/array
+	Pod       = 0x0100, // plain-old-data
+	GcRoot    = 0x0200, // is or contains gc-traceable pointers
+	StructRet = 0x0400, // return through hidden 1st arg (gcc32 callconv)
+	NoStack   = 0x0800, // try to avoid allocation on stack
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
