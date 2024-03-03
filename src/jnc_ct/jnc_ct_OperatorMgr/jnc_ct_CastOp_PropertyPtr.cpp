@@ -523,7 +523,6 @@ Cast_PropertyPtr::getCastOperator(
 	case TypeKind_PropertyPtr: {
 		PropertyPtrTypeKind srcPtrTypeKind = ((PropertyPtrType*)opValue.getType())->getPtrTypeKind();
 		ASSERT((size_t)srcPtrTypeKind < PropertyPtrTypeKind__Count);
-
 		return m_operatorTable[srcPtrTypeKind][dstPtrTypeKind];
 		}
 
