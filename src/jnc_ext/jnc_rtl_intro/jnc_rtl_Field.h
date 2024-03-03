@@ -37,16 +37,28 @@ public:
 		return rtl::getType(m_item->getType());
 	}
 
-	uint_t
-	JNC_CDECL
-	getPtrTypeFlags() {
-		return m_item->getPtrTypeFlags();
-	}
-
 	size_t
 	JNC_CDECL
 	getOffset() {
 		return m_item->getOffset();
+	}
+
+	uint_t
+	JNC_CDECL
+	getBitOffset() {
+		return m_item->getBitOffset();
+	}
+
+	uint_t
+	JNC_CDECL
+	getBitCount() {
+		return m_item->getBitCount();
+	}
+
+	uint_t
+	JNC_CDECL
+	getPtrTypeFlags() {
+		return m_item->getPtrTypeFlags();
 	}
 };
 

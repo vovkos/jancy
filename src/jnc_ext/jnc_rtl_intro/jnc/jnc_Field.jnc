@@ -21,10 +21,24 @@ opaque class Field:
 	ModuleItemDecl,
 	ModuleItemInitializer {
 	Type* const property m_type;
-	PtrTypeFlags const property m_ptrTypeFlags;
 	size_t const property m_offset;
+	uint_t const property m_bitOffset;
+	uint_t const property m_bitCount;
+	PtrTypeFlags const property m_ptrTypeFlags;
 
 	construct(intptr p);
+
+	string_t getValueString(
+		void const* p,
+		string_t formatSpec = null
+	) const {
+		return
+			(m_ptrTypeFlags & PtrTypeFlags.BitField) ?
+				m_type.getDataPtrType(m_bitOffset, m_bitCount,,, m_ptrTypeFlags).getTargetValueString(p, formatSpec) :
+			(m_ptrTypeFlags & PtrTypeFlags.BigEndian) ?
+				m_type.getDataPtrType(,, m_ptrTypeFlags).getTargetValueString(p, formatSpec) :
+			m_type.getValueString(p, formatSpec);
+	}
 }
 
 //..............................................................................

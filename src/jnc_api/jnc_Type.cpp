@@ -207,6 +207,28 @@ jnc_Type_cmp(
 }
 
 JNC_EXTERN_C
+jnc_ArrayType*
+jnc_Type_getArrayType(
+	jnc_Type* type,
+	size_t elementCount
+) {
+	return jnc_g_dynamicExtensionLibHost->m_typeFuncTable->m_getArrayTypeFunc(type, elementCount);
+}
+
+JNC_EXTERN_C
+jnc_DataPtrType*
+jnc_Type_getBitFieldDataPtrType(
+	jnc_Type* type,
+	uint_t bitOffset,
+	uint_t bitCount,
+	jnc_TypeKind typeKind,
+	jnc_DataPtrTypeKind ptrTypeKind,
+	uint_t flags
+) {
+	return jnc_g_dynamicExtensionLibHost->m_typeFuncTable->m_getBitFieldDataPtrTypeFunc(type, bitOffset, bitCount, typeKind, ptrTypeKind, flags);
+}
+
+JNC_EXTERN_C
 jnc_DataPtrType*
 jnc_Type_getDataPtrType(
 	jnc_Type* type,
@@ -249,6 +271,18 @@ JNC_EXTERN_C
 jnc_Type*
 jnc_DataPtrType_getTargetType(jnc_DataPtrType* type) {
 	return jnc_g_dynamicExtensionLibHost->m_dataPtrTypeFuncTable->m_getTargetTypeFunc(type);
+}
+
+JNC_EXTERN_C
+uint_t
+jnc_DataPtrType_getBitOffset(jnc_DataPtrType* type) {
+	return jnc_g_dynamicExtensionLibHost->m_dataPtrTypeFuncTable->m_getBitOffsetFunc(type);
+}
+
+JNC_EXTERN_C
+uint_t
+jnc_DataPtrType_getBitCount(jnc_DataPtrType* type) {
+	return jnc_g_dynamicExtensionLibHost->m_dataPtrTypeFuncTable->m_getBitCountFunc(type);
 }
 
 #else // _JNC_DYNAMIC_EXTENSION_LIB
@@ -306,6 +340,29 @@ jnc_Type_cmp(
 }
 
 JNC_EXTERN_C
+jnc_ArrayType*
+jnc_Type_getArrayType(
+	jnc_Type* type,
+	size_t elementCount
+) {
+	return type->getArrayType(elementCount);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_DataPtrType*
+jnc_Type_getBitFieldDataPtrType(
+	jnc_Type* type,
+	uint_t bitOffset,
+	uint_t bitCount,
+	jnc_TypeKind typeKind,
+	jnc_DataPtrTypeKind ptrTypeKind,
+	uint_t flags
+) {
+	return type->getDataPtrType(bitOffset, bitCount, typeKind, ptrTypeKind, flags);
+}
+
+JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_DataPtrType*
 jnc_Type_getDataPtrType(
@@ -356,6 +413,20 @@ JNC_EXPORT_O
 jnc_Type*
 jnc_DataPtrType_getTargetType(jnc_DataPtrType* type) {
 	return type->getTargetType();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+uint_t
+jnc_DataPtrType_getBitOffset(jnc_DataPtrType* type) {
+	return type->getBitOffset();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+uint_t
+jnc_DataPtrType_getBitCount(jnc_DataPtrType* type) {
+	return type->getBitCount();
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

@@ -484,6 +484,24 @@ jnc_Type_CmpFunc(
 );
 
 typedef
+jnc_ArrayType*
+jnc_Type_GetArrayTypeFunc(
+	jnc_Type* type,
+	size_t elementCount
+);
+
+typedef
+jnc_DataPtrType*
+jnc_Type_GetBitFieldDataPtrTypeFunc(
+	jnc_Type* type,
+	uint_t bitOffset,
+	uint_t bitCount,
+	jnc_TypeKind typeKind,
+	jnc_DataPtrTypeKind ptrTypeKind,
+	uint_t flags
+);
+
+typedef
 jnc_DataPtrType*
 jnc_Type_GetDataPtrTypeFunc(
 	jnc_Type* type,
@@ -516,6 +534,8 @@ struct jnc_TypeFuncTable {
 	jnc_Type_GetSizeFunc* m_getSizeFunc;
 	jnc_Type_GetTypeStringFunc* m_getTypeStringFunc;
 	jnc_Type_CmpFunc* m_cmpFunc;
+	jnc_Type_GetArrayTypeFunc* m_getArrayTypeFunc;
+	jnc_Type_GetBitFieldDataPtrTypeFunc* m_getBitFieldDataPtrTypeFunc;
 	jnc_Type_GetDataPtrTypeFunc* m_getDataPtrTypeFunc;
 	jnc_Type_ensureLayoutFunc* m_ensureLayoutFunc;
 	jnc_Type_ensureNoImportsFunc* m_ensureNoImportsFunc;
@@ -868,12 +888,22 @@ typedef
 jnc_Type*
 jnc_DataPtrType_GetTargetTypeFunc(jnc_DataPtrType* type);
 
+typedef
+uint_t
+jnc_DataPtrType_GetBitOffsetFunc(jnc_DataPtrType* type);
+
+typedef
+uint_t
+jnc_DataPtrType_GetBitCountFunc(jnc_DataPtrType* type);
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_DataPtrTypeFuncTable {
 	size_t m_size;
 	jnc_DataPtrType_GetPtrTypeKindFunc* m_getPtrTypeKindFunc;
 	jnc_DataPtrType_GetTargetTypeFunc* m_getTargetTypeFunc;
+	jnc_DataPtrType_GetBitOffsetFunc* m_getBitOffsetFunc;
+	jnc_DataPtrType_GetBitCountFunc* m_getBitCountFunc;
 };
 
 //..............................................................................

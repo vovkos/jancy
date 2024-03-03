@@ -372,6 +372,24 @@ jnc_Type_cmp(
 );
 
 JNC_EXTERN_C
+jnc_ArrayType*
+jnc_Type_getArrayType(
+	jnc_Type* type,
+	size_t elementCount
+);
+
+JNC_EXTERN_C
+jnc_DataPtrType*
+jnc_Type_getBitFieldDataPtrType(
+	jnc_Type* type,
+	uint_t bitOffset,
+	uint_t bitCount,
+	jnc_TypeKind typeKind,
+	jnc_DataPtrTypeKind ptrTypeKind,
+	uint_t flags
+);
+
+JNC_EXTERN_C
 jnc_DataPtrType*
 jnc_Type_getDataPtrType(
 	jnc_Type* type,
@@ -438,6 +456,17 @@ struct jnc_Type: jnc_ModuleItem {
 
 	jnc_DataPtrType*
 	getDataPtrType(
+		uint_t bitOffset,
+		uint_t bitCount,
+		jnc_TypeKind typeKind,
+		jnc_DataPtrTypeKind ptrTypeKind = jnc_DataPtrTypeKind_Normal,
+		uint_t flags = 0
+	) {
+		return jnc_Type_getBitFieldDataPtrType(this, bitOffset, bitCount, typeKind, ptrTypeKind, flags);
+	}
+
+	jnc_DataPtrType*
+	getDataPtrType(
 		jnc_TypeKind typeKind,
 		jnc_DataPtrTypeKind ptrTypeKind = jnc_DataPtrTypeKind_Normal,
 		uint_t flags = 0
@@ -493,6 +522,14 @@ JNC_EXTERN_C
 jnc_Type*
 jnc_DataPtrType_getTargetType(jnc_DataPtrType* type);
 
+JNC_EXTERN_C
+uint_t
+jnc_DataPtrType_getBitOffset(jnc_DataPtrType* type);
+
+JNC_EXTERN_C
+uint_t
+jnc_DataPtrType_getBitCount(jnc_DataPtrType* type);
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
@@ -506,6 +543,16 @@ struct jnc_DataPtrType: jnc_Type {
 	jnc_Type*
 	getTargetType() {
 		return jnc_DataPtrType_getTargetType(this);
+	}
+
+	uint_t
+	getBitOffset() {
+		return jnc_DataPtrType_getBitOffset(this);
+	}
+
+	uint_t
+	getBitCount() {
+		return jnc_DataPtrType_getBitCount(this);
 	}
 };
 

@@ -30,8 +30,10 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 JNC_BEGIN_TYPE_FUNCTION_MAP(Field)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<Field, ct::Field*>))
 	JNC_MAP_CONST_PROPERTY("m_type", &Field::getType)
-	JNC_MAP_CONST_PROPERTY("m_ptrTypeFlags", &Field::getPtrTypeFlags)
 	JNC_MAP_CONST_PROPERTY("m_offset", &Field::getOffset)
+	JNC_MAP_CONST_PROPERTY("m_bitOffset", &Field::getBitOffset)
+	JNC_MAP_CONST_PROPERTY("m_bitCount", &Field::getBitCount)
+	JNC_MAP_CONST_PROPERTY("m_ptrTypeFlags", &Field::getPtrTypeFlags)
 JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................

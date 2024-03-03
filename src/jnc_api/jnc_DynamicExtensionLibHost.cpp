@@ -138,6 +138,8 @@ static jnc_TypeFuncTable g_typeFuncTable = {
 	jnc_Type_getSize,
 	jnc_Type_getTypeString,
 	jnc_Type_cmp,
+	jnc_Type_getArrayType,
+	jnc_Type_getBitFieldDataPtrType,
 	jnc_Type_getDataPtrType,
 	jnc_Type_ensureLayout,
 	jnc_Type_ensureNoImports,
@@ -242,6 +244,8 @@ static jnc_DataPtrTypeFuncTable g_dataPtrTypeFuncTable = {
 	sizeof(jnc_DataPtrTypeFuncTable),
 	jnc_DataPtrType_getPtrTypeKind,
 	jnc_DataPtrType_getTargetType,
+	jnc_DataPtrType_getBitOffset,
+	jnc_DataPtrType_getBitCount,
 };
 
 static jnc_ClassPtrTypeFuncTable g_classPtrTypeFuncTable = {

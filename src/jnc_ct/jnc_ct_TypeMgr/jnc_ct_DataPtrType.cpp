@@ -161,6 +161,30 @@ DataPtrType::calcFoldedDualType(
 	return m_module->m_typeMgr.getDataPtrType(targetType, m_typeKind, m_ptrTypeKind, flags);
 }
 
+sl::StringRef
+DataPtrType::getTargetValueString(
+	const void* p,
+	const char* formatSpec
+) {
+	if (m_flags & !(PtrTypeFlag_BigEndian | PtrTypeFlag_BitField))
+		return m_targetType->getValueString(p, formatSpec);
+
+	uint64_t n = 0;
+	if (m_flags & PtrTypeFlag_BigEndian)
+		sl::swapByteOrder(&n, p, m_targetType->getSize());
+	else
+		memcpy(&n, p, m_targetType->getSize());
+
+	if (m_flags & PtrTypeFlag_BitField) {
+		n >>= m_bitOffset;
+		n &= (1 << m_bitCount) - 1;
+		if (!(m_targetType->getTypeKindFlags() & TypeKindFlag_Unsigned)) // extend with sign bit
+			n |= ~((n & ((int64_t)1 << (m_bitCount - 1))) - 1);
+	}
+
+	return m_targetType->getValueString(&n, formatSpec);
+}
+
 //..............................................................................
 
 } // namespace ct

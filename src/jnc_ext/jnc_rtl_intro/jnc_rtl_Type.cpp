@@ -41,10 +41,11 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(Type)
 	JNC_MAP_CONST_PROPERTY("m_typeStringPrefix", &Type::getTypeStringPrefix)
 	JNC_MAP_CONST_PROPERTY("m_typeStringSuffix", &Type::getTypeStringSuffix)
 	JNC_MAP_FUNCTION("cmp", &Type::cmp)
+	JNC_MAP_FUNCTION("getArrayType", &Type::getArrayType)
+	JNC_MAP_FUNCTION("getDataPtrType", &Type::getDataPtrType_0)
+	JNC_MAP_OVERLOAD(&Type::getDataPtrType_1)
 	JNC_MAP_FUNCTION("getValueString", &Type::getValueString_0)
 	JNC_MAP_OVERLOAD(&Type::getValueString_1)
-	JNC_MAP_FUNCTION("getArrayType", &Type::getArrayType)
-	JNC_MAP_FUNCTION("getDataPtrType", &Type::getDataPtrType)
 JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -77,6 +78,9 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(DataPtrType)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<DataPtrType, ct::DataPtrType*>))
 	JNC_MAP_CONST_PROPERTY("m_ptrTypeKind", &DataPtrType::getPtrTypeKind)
 	JNC_MAP_CONST_PROPERTY("m_targetType", &DataPtrType::getTargetType)
+	JNC_MAP_CONST_PROPERTY("m_bitOffset", &DataPtrType::getBitOffset)
+	JNC_MAP_CONST_PROPERTY("m_bitCount", &DataPtrType::getBitCount)
+	JNC_MAP_FUNCTION("getTargetValueString", &DataPtrType::getTargetValueString)
 JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -175,6 +179,20 @@ Type::getValueString_1(
 	bool result = value.cast(self->m_item, valueBuffer);
 	return result ?
 		allocateString(self->m_item->getValueString(valueBuffer, (formatSpec >> toAxl).szn())) :
+		g_nullString;
+}
+
+//..............................................................................
+
+String
+JNC_CDECL
+DataPtrType::getTargetValueString(
+	DataPtrType* self,
+	DataPtr valuePtr,
+	String formatSpec
+) {
+	return valuePtr.m_p ?
+		allocateString(self->m_item->getTargetValueString(valuePtr.m_p, (formatSpec >> toAxl).szn())) :
 		g_nullString;
 }
 

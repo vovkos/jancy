@@ -131,7 +131,19 @@ public:
 
 	DataPtrType*
 	JNC_CDECL
-	getDataPtrType(
+	getDataPtrType_0(
+		uint_t bitOffset,
+		uint_t bitCount,
+		TypeKind typeKind,
+		DataPtrTypeKind ptrTypeKind,
+		uint_t flags
+	) {
+		return (DataPtrType*)rtl::getType(m_item->getDataPtrType(bitOffset, bitCount, typeKind, ptrTypeKind, flags));
+	}
+
+	DataPtrType*
+	JNC_CDECL
+	getDataPtrType_1(
 		TypeKind typeKind,
 		DataPtrTypeKind ptrTypeKind,
 		uint_t flags
@@ -184,6 +196,27 @@ public:
 	getTargetType() {
 		return rtl::getType(m_item->getTargetType());
 	}
+
+	uint_t
+	JNC_CDECL
+	getBitOffset() {
+		return m_item->getBitOffset();
+	}
+
+	uint_t
+	JNC_CDECL
+	getBitCount() {
+		return m_item->getBitCount();
+	}
+
+	static
+	String
+	JNC_CDECL
+	getTargetValueString(
+		DataPtrType* self,
+		DataPtr valuePtr,
+		String formatSpec
+	);
 };
 
 //..............................................................................

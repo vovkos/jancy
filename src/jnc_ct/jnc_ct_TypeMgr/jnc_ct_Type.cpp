@@ -332,6 +332,17 @@ Type::getArrayType(size_t elementCount) {
 
 DataPtrType*
 Type::getDataPtrType(
+	uint_t bitOffset,
+	uint_t bitCount,
+	TypeKind typeKind,
+	DataPtrTypeKind ptrTypeKind,
+	uint_t flags
+) {
+	return m_module->m_typeMgr.getDataPtrType(this, bitOffset, bitCount, typeKind, ptrTypeKind, flags);
+}
+
+DataPtrType*
+Type::getDataPtrType(
 	TypeKind typeKind,
 	DataPtrTypeKind ptrTypeKind,
 	uint_t flags
@@ -736,54 +747,6 @@ getValueString_int64_u(
 	const char* formatSpec
 ) {
 	return sl::formatString(formatSpec ? formatSpec : "%llu", *(uint64_t*)p);
-}
-
-sl::StringRef
-getValueString_int16_be(
-	const void* p,
-	const char* formatSpec
-) {
-	return sl::formatString(formatSpec ? formatSpec : "%d", (int16_t)sl::swapByteOrder16(*(uint16_t*)p));
-}
-
-sl::StringRef
-getValueString_int16_ube(
-	const void* p,
-	const char* formatSpec
-) {
-	return sl::formatString(formatSpec ? formatSpec : "%u", (uint16_t)sl::swapByteOrder16(*(uint16_t*)p));
-}
-
-sl::StringRef
-getValueString_int32_be(
-	const void* p,
-	const char* formatSpec
-) {
-	return sl::formatString(formatSpec ? formatSpec : "%d", (int32_t)sl::swapByteOrder32(*(uint32_t*)p));
-}
-
-sl::StringRef
-getValueString_int32_ube(
-	const void* p,
-	const char* formatSpec
-) {
-	return sl::formatString(formatSpec ? formatSpec : "%u", (uint32_t)sl::swapByteOrder32(*(uint32_t*)p));
-}
-
-sl::StringRef
-getValueString_int64_be(
-	const void* p,
-	const char* formatSpec
-) {
-	return sl::formatString(formatSpec ? formatSpec : "%lld", (int64_t)sl::swapByteOrder64(*(uint64_t*)p));
-}
-
-sl::StringRef
-getValueString_int64_ube(
-	const void* p,
-	const char* formatSpec
-) {
-	return sl::formatString(formatSpec ? formatSpec : "%llu", (uint64_t)sl::swapByteOrder64(*(uint64_t*)p));
 }
 
 sl::StringRef

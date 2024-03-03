@@ -258,6 +258,15 @@ public:
 
 	DataPtrType*
 	getDataPtrType(
+		uint_t bitOffset,
+		uint_t bitCount,
+		TypeKind typeKind,
+		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal,
+		uint_t flags = 0
+	);
+
+	DataPtrType*
+	getDataPtrType(
 		TypeKind typeKind,
 		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal,
 		uint_t flags = 0

@@ -140,6 +140,8 @@ bitflag enum PtrTypeFlags {
 	Bindable   = 0x0800000, // multicast-class only
 	AutoGet    = 0x1000000, // data ptr only
 	DualTarget = 0x2000000, // data ptr only
+	BigEndian  = 0x4000000, // data ptr only
+	BitField   = 0x8000000, // data ptr only
 
 	_Dual =
 		ReadOnly |
@@ -173,8 +175,24 @@ opaque class Type: ModuleItem {
 
 	int cmp(Type* type) const;
 
+	ArrayType* getArrayType(size_t elementCount) const;
+
+	DataPtrType* getDataPtrType(
+		uint_t bitOffset,
+		uint_t bitCount,
+		TypeKind typeKind = TypeKind.DataPtr,
+		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind.Normal,
+		PtrTypeFlags flags = 0
+	) const;
+
+	DataPtrType* getDataPtrType(
+		TypeKind typeKind = TypeKind.DataPtr,
+		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind.Normal,
+		PtrTypeFlags flags = 0
+	) const;
+
 	string_t getValueString(
-		void const* value,
+		void const* p,
 		string_t formatSpec = null
 	) const;
 
@@ -183,13 +201,6 @@ opaque class Type: ModuleItem {
 		string_t formatSpec = null
 	) const;
 
-	ArrayType* getArrayType(size_t elementCount) const;
-
-	DataPtrType* getDataPtrType(
-		TypeKind typeKind = TypeKind.DataPtr,
-		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind.Normal,
-		PtrTypeFlags flags = 0
-	) const;
 }
 
 //..............................................................................
@@ -205,8 +216,15 @@ opaque class NamedType:
 opaque class DataPtrType: Type {
 	DataPtrTypeKind const property m_ptrTypeKind;
 	Type* const property m_targetType;
+	uint_t const property m_bitOffset; // PtrTypeFlags.BitField only
+	uint_t const property m_bitCount;  // PtrTypeFlags.BitField only
 
 	construct(intptr p);
+
+	string_t getTargetValueString( // respect bigendian & bit field flags
+		void const* p,
+		string_t formatSpec = null
+	) const;
 }
 
 //..............................................................................

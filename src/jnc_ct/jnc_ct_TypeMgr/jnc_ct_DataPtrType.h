@@ -89,6 +89,12 @@ public:
 		rt::GcHeap* gcHeap
 	);
 
+	sl::StringRef
+	getTargetValueString(
+		const void* p,
+		const char* formatSpec = NULL
+	);
+
 protected:
 	virtual
 	bool
