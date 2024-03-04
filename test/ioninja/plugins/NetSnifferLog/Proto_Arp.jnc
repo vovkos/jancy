@@ -20,7 +20,7 @@ void representArpDigest(
 	io.ArpHdr const* arpHdr = (io.ArpHdr const*)p;
 	size_t arpSize = sizeof(io.ArpHdr) + 2 * (arpHdr.m_hardwareLength + arpHdr.m_protocolLength);
 	if (size < arpSize) {
-		representation.addHyperText($"\e[1mARP\e[m %1 [BROKEN]"(typeof(io.ArpOpcode).getValueString(&arpHdr.m_opcode)));
+		representation.addHyperText($"\e[1mARP\e[m %1 [BROKEN]"(typeof(io.ArpOpcode).getValueString(arpHdr.m_opcode)));
 		return;
 	}
 

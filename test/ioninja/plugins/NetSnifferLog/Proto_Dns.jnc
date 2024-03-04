@@ -491,7 +491,7 @@ void const* DnsProtoParser.representQuestionRrDigest(
 
 	representation.addHyperText($"Question:\t%1 (%2)"(
 		string.m_sz,
-		typeof(io.DnsType).getValueString(&suffix.m_type)
+		typeof(io.DnsType).getValueString(suffix.m_type)
 	));
 
 	return p + sizeof(io.DnsQuestionRrSuffix);
@@ -564,7 +564,7 @@ void const* DnsProtoParser.representAnswerRrDigest(
 	if (end - p < suffix.m_dataLength) {
 		representation.addHyperText($"Answer:\t%1 (%2)"(
 			string.m_sz,
-			typeof(io.DnsType).getValueString(&suffix.m_type)
+			typeof(io.DnsType).getValueString(suffix.m_type)
 		));
 
 		return end;
@@ -574,7 +574,7 @@ void const* DnsProtoParser.representAnswerRrDigest(
 
 	representation.addHyperText($"Answer:\t%1 (%2%3%4)"(
 		string.m_sz,
-		typeof(io.DnsType).getValueString(&suffix.m_type),
+		typeof(io.DnsType).getValueString(suffix.m_type),
 		valueString ? ": " : null,
 		valueString
 	));

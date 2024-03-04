@@ -47,7 +47,7 @@ void representEthernetDigest(
 				$"\e[1mETHERNET II \e[10;34m%1\e[m \u2192 \e[34m%2\e[m (type: \e[34m%3\e[m)"(
 					io.formatEthernetAddress(ethernetHdr.m_srcAddress),
 					io.formatEthernetAddress(ethernetHdr.m_dstAddress),
-					typeof(io.EthernetType).getValueString(&ethernetHdr.m_type, "0x%04X")
+					typeof(io.EthernetType).getValueString(ethernetHdr.m_type, "0x%04X")
 				)
 			);
 

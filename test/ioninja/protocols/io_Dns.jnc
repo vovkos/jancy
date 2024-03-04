@@ -25,7 +25,7 @@ enum DnsOpcode {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum DnsClass: bigendian uint16_t {
+enum DnsClass: uint16_t {
 	Internet   = 0x01,
 	Chaos      = 0x03,
 	Hesiod     = 0x04,
@@ -35,7 +35,7 @@ enum DnsClass: bigendian uint16_t {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum DnsType: bigendian uint16_t {
+enum DnsType: uint16_t {
 	A          = 1,
 	NS         = 2,
 	MD         = 3,
@@ -208,20 +208,20 @@ struct DnsHdr {
 
 struct DnsQuestionRrSuffix {
 	[ displayName = "Type" ]
-	DnsType m_type;
+	bigendian DnsType m_type;
 
 	[ displayName = "Class" ]
-	DnsClass m_class;
+	bigendian DnsClass m_class;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct DnsAnswerRrSuffix {
 	[ displayName = "Type" ]
-	DnsType m_type;
+	bigendian DnsType m_type;
 
 	[ displayName = "Class" ]
-	DnsClass m_class;
+	bigendian DnsClass m_class;
 
 	[ displayName = "Time to live" ]
 	bigendian uint32_t m_ttl;

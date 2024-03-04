@@ -10,7 +10,7 @@ namespace io {
 
 //..............................................................................
 
-enum EthernetType: bigendian uint16_t {
+enum EthernetType: uint16_t {
 	Ieee8023      = 0x5dc,
 
 	Ip            = 0x0800, // Internet Protocol version 4 (IPv4)
@@ -91,7 +91,7 @@ struct EthernetHdr {
 	uint8_t m_srcAddress[6];
 
 	[ displayName = "Type" ]
-	EthernetType m_type;
+	bigendian EthernetType m_type;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

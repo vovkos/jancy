@@ -302,7 +302,7 @@ uint_t calcChecksum16(
 	return checksum;
 }
 
-bigendian uint16_t adjustIpChecksum(uint_t checksum) {
+uint16_t adjustIpChecksum(uint_t checksum) {
 	checksum = (checksum >> 16) + (checksum & 0xffff);
 	checksum += checksum >> 16;
 	checksum = ~checksum;
@@ -310,7 +310,7 @@ bigendian uint16_t adjustIpChecksum(uint_t checksum) {
 	return *(bigendian uint16_t thin*)&checksum; // bswap16
 }
 
-bigendian uint16_t calcIpHdrChecksum(io.IpHdr const* ipHdr) {
+uint16_t calcIpHdrChecksum(io.IpHdr const* ipHdr) {
 	size_t size = ipHdr.m_headerLength * 4;
 	size_t maxSize = dynamic sizeof(ipHdr);
 
@@ -321,7 +321,7 @@ bigendian uint16_t calcIpHdrChecksum(io.IpHdr const* ipHdr) {
 	return adjustIpChecksum(checksum);
 }
 
-bigendian uint16_t calcTcpUdpChecksum(
+uint16_t calcTcpUdpChecksum(
 	io.IpHdr const* ipHdr,
 	void const* p,
 	size_t size

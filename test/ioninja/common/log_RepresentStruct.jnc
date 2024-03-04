@@ -32,7 +32,7 @@ void representStruct(
 	jnc.StructType* type,
 	string_t name = null,
 	uint_t binPartRecordCode = 0,
-	void const* p,
+	void const* p0,
 	size_t baseOffset = 0,
 	uint_t foldFlags = 1,
 	uint_t structFoldFlag = 1, // 0 to exclude the folding header
@@ -46,7 +46,7 @@ void representStruct(
 			name = getDisplayName(type);
 
 		if (!(foldFlags & structFoldFlag)) {
-			string_t digest = getStructDigest(type, p);
+			string_t digest = getStructDigest(type, p0);
 
 			representation.addHyperText($"%1[\e^+%2\e[34m+\e[m] \e[1m%3%4%5"(
 				indent.m_sz,
@@ -71,6 +71,7 @@ void representStruct(
 	size_t count = type.m_fieldCount;
 	for (size_t i = 0; i < count; i++) {
 		jnc.Field* field = type.m_fieldArray[i];
+		void const* p = p0 + field.m_offset;
 		string_t displayName = getDisplayName(field);
 
 		if (field.m_type.m_typeKind == jnc.TypeKind.Struct) {
@@ -80,7 +81,7 @@ void representStruct(
 				representation,
 				dynamic (jnc.StructType*)field.m_type,
 				displayName,,
-				p + field.m_offset,
+				p,
 				baseOffset + field.m_offset,
 				0,
 				0,
@@ -94,18 +95,21 @@ void representStruct(
 
 		FormatFunc thin* formatFunc = field.findAttributeValue("formatFunc");
 		if (formatFunc)
-			valueString = formatFunc(p + field.m_offset);
+			valueString = formatFunc(p);
 		else {
 			string_t formatSpec = field.findAttributeValue("formatSpec");
 			jnc.Type* displayType = field.findAttributeValue("displayType");
 
 			if (!displayType)
-				valueString = field.m_type.getValueString(p + field.m_offset, formatSpec);
-			else if (field.m_type.m_typeKind != jnc.TypeKind.BitField)
-				valueString = displayType.getValueString(p + field.m_offset, formatSpec);
+				valueString = field.getValueString(p, formatSpec);
+			else if (!(field.m_ptrTypeFlags & (jnc.PtrTypeFlags.BitField | jnc.PtrTypeFlags.BigEndian)))
+				valueString = displayType.getValueString(p, formatSpec);
 			else {
-				variant_t value = (dynamic (jnc.BitFieldType*)field.m_type).extract(p + field.m_offset);
-				valueString = displayType.getValueString(value, formatSpec);
+				jnc.DataPtrType* displayPtrType = (field.m_ptrTypeFlags & jnc.PtrTypeFlags.BitField) ?
+					displayType.getDataPtrType(field.m_bitOffset, field.m_bitCount,,, field.m_ptrTypeFlags) :
+					displayType.getDataPtrType(,, field.m_ptrTypeFlags);
+
+				valueString = displayPtrType.getTargetValueString(p, formatSpec);
 			}
 		}
 

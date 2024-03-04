@@ -65,6 +65,10 @@ string_t getDhcpOptionValueString(io.DhcpOptionHdr const* optionHdr) {
 	if (displayType)
 		return displayType.getValueString(optionHdr + 1);
 
+	jnc.DataPtrType* displayPtrType = optionConst.findAttributeValue("displayPtrType");
+	if (displayPtrType)
+		return displayPtrType.getTargetValueString(optionHdr + 1);
+
 	return null;
 }
 

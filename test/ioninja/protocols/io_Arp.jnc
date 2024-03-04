@@ -12,14 +12,14 @@ namespace io {
 
 //..............................................................................
 
-enum ArpHardwareType: bigendian uint16_t {
+enum ArpHardwareType: uint16_t {
 	Reserved = 0,
 	Ethernet = 1,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum ArpOpcode: bigendian uint16_t {
+enum ArpOpcode: uint16_t {
 	Request        = 1,
 	Reply          = 2,
 	RequestReverse = 3,
@@ -34,10 +34,10 @@ enum ArpOpcode: bigendian uint16_t {
 ]
 struct ArpHdr {
 	[ displayName = "Hardware type" ]
-	ArpHardwareType m_hardwareType;
+	bigendian ArpHardwareType m_hardwareType;
 
 	[ displayName = "Protocol type" ]
-	EthernetType m_protocolType;
+	bigendian EthernetType m_protocolType;
 
 	[ displayName = "Hardware size" ]
 	uint8_t m_hardwareLength;
@@ -46,14 +46,14 @@ struct ArpHdr {
 	uint8_t m_protocolLength;
 
 	[ displayName = "Opcode" ]
-	ArpOpcode m_opcode;
+	bigendian ArpOpcode m_opcode;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 string_t formatArpDigest(void const* p) {
 	ArpHdr const* hdr = (ArpHdr const*)p;
-	return typeof(ArpOpcode).getValueString(&hdr.m_opcode);
+	return typeof(ArpOpcode).getValueString(hdr.m_opcode);
 }
 
 //..............................................................................
