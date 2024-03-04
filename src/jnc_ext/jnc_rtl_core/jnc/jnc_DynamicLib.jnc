@@ -43,7 +43,7 @@ namespace jnc {
 			// handle error...
 		}
 
-	Alternatively, you can declare a pseudo-interface using ``dynamiclib``
+	Alternatively, you can declare a pseudo-interface using ``dylib``
 	keyword, and then simply call methods of this interface. Eventually it
 	will result in the same sequence of steps, and even the base implementation
 	class will be the same, ``jnc.DynamicLib``. But all the above steps will be
@@ -56,7 +56,7 @@ namespace jnc {
 
 	.. ref-code-block::
 
-		dynamiclib MyLib { // will use jnc.DynamicLib behind the scene
+		dylib MyLib { // will use jnc.DynamicLib behind the scene
 			void stdcall foo(int);
 		}
 

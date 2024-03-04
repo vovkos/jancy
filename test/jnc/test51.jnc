@@ -9,7 +9,7 @@
 //
 //..............................................................................
 
-dynamiclib User32 {
+dylib User32 {
 	int stdcall MessageBoxA(
 		intptr_t hwnd,
 		char const thin* text,
@@ -20,7 +20,7 @@ dynamiclib User32 {
 	int stdcall MessageBeep(int type);
 }
 
-dynamiclib Msvcrt {
+dylib Msvcrt {
 	int cdecl printf(
 		char const thin* format,
 		...

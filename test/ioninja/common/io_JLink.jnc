@@ -205,7 +205,7 @@ struct JLINKARM_DEVICE_INFO {
 
 //..............................................................................
 
-dynamiclib JLinkLib {
+dylib JLinkLib {
 	int stdcall JLINK_GetSN();
 	char stdcall JLINK_IsOpen();
 	char stdcall JLINK_IsHalted();
