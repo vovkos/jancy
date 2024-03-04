@@ -91,7 +91,7 @@ dataPtrIncrementOperator(
 	} else if (ptrTypeKind == DataPtrTypeKind_Lean) {
 		module->m_llvmIrBuilder.createGep(opValue1, targetType, opValue2, resultType, resultValue);
 		resultValue->setLeanDataPtr(resultValue->getLlvmValue(), resultType, opValue1);
-	} { // DataPtrTypeKind_Normal
+	} else { // DataPtrTypeKind_Normal
 		size_t size = targetType->getSize();
 		Value sizeValue(size ? size : 1, module->m_typeMgr.getPrimitiveType(TypeKind_SizeT));
 
