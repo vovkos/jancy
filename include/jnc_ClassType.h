@@ -142,6 +142,33 @@ struct jnc_ClassType: jnc_DerivableType {
 
 //..............................................................................
 
+JNC_EXTERN_C
+jnc_ClassPtrTypeKind
+jnc_ClassPtrType_getPtrTypeKind(jnc_ClassPtrType* type);
+
+JNC_EXTERN_C
+jnc_ClassType*
+jnc_ClassPtrType_getTargetType(jnc_ClassPtrType* type);
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+#if (!defined _JNC_CORE && defined __cplusplus)
+
+struct jnc_ClassPtrType: jnc_Type {
+	jnc_ClassPtrTypeKind
+	getPtrTypeKind() {
+		return jnc_ClassPtrType_getPtrTypeKind(this);
+	}
+
+	jnc_ClassType*
+	getTargetType() {
+		return jnc_ClassPtrType_getTargetType(this);
+	}
+};
+
+#endif // _JNC_CORE
+//..............................................................................
+
 enum jnc_MulticastFieldKind {
 	jnc_MulticastFieldKind_Lock,
 	jnc_MulticastFieldKind_PtrArray,

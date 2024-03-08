@@ -250,6 +250,8 @@ static jnc_DataPtrTypeFuncTable g_dataPtrTypeFuncTable = {
 
 static jnc_ClassPtrTypeFuncTable g_classPtrTypeFuncTable = {
 	sizeof(jnc_ClassPtrTypeFuncTable),
+	jnc_ClassPtrType_getPtrTypeKind,
+	jnc_ClassPtrType_getTargetType,
 };
 
 static jnc_FunctionPtrTypeFuncTable g_functionPtrTypeFuncTable = {

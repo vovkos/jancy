@@ -113,6 +113,8 @@
 		jnc_ClassType_getClassPtrType;
 		jnc_ClassType_getClassTypeKind;
 		jnc_ClassType_getIfaceStructType;
+		jnc_ClassPtrType_getPtrTypeKind;
+		jnc_ClassPtrType_getTargetType;
 		jnc_McSnapshotClassType_getMethod;
 		jnc_McSnapshotClassType_getTargetType;
 		jnc_MulticastClassType_getMethod;

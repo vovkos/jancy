@@ -16,6 +16,7 @@
 #	include "jnc_ExtensionLib.h"
 #elif defined(_JNC_CORE)
 #	include "jnc_ct_ClassType.h"
+#	include "jnc_ct_ClassPtrType.h"
 #	include "jnc_ct_MulticastClassType.h"
 #	include "jnc_ct_McSnapshotClassType.h"
 #endif
@@ -61,6 +62,20 @@ jnc_ClassType_getClassPtrType(
 	uint_t flags
 ) {
 	return jnc_g_dynamicExtensionLibHost->m_classTypeFuncTable->m_getClassPtrTypeFunc(type, typeKind, ptrTypeKind, flags);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_EXTERN_C
+jnc_ClassPtrTypeKind
+jnc_ClassPtrType_getPtrTypeKind(jnc_ClassPtrType* type) {
+	return jnc_g_dynamicExtensionLibHost->m_classPtrTypeFuncTable->m_getPtrTypeKindFunc(type);
+}
+
+JNC_EXTERN_C
+jnc_ClassType*
+jnc_ClassPtrType_getTargetType(jnc_ClassPtrType* type) {
+	return jnc_g_dynamicExtensionLibHost->m_classPtrTypeFuncTable->m_getTargetTypeFunc(type);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -123,6 +138,22 @@ jnc_ClassType_getClassPtrType(
 	uint_t flags
 ) {
 	return type->getClassPtrType(typeKind, ptrTypeKind, flags);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_ClassPtrTypeKind
+jnc_ClassPtrType_getPtrTypeKind(jnc_ClassPtrType* type) {
+	return type->getPtrTypeKind();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_ClassType*
+jnc_ClassPtrType_getTargetType(jnc_ClassPtrType* type) {
+	return type->getTargetType();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

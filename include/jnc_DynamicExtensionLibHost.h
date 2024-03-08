@@ -910,8 +910,18 @@ struct jnc_DataPtrTypeFuncTable {
 
 // ClassPtrType
 
+typedef
+jnc_ClassPtrTypeKind
+jnc_ClassPtrType_GetPtrTypeKindFunc(jnc_ClassPtrType* type);
+
+typedef
+jnc_ClassType*
+jnc_ClassPtrType_GetTargetTypeFunc(jnc_ClassPtrType* type);
+
 struct jnc_ClassPtrTypeFuncTable {
 	size_t m_size;
+	jnc_ClassPtrType_GetPtrTypeKindFunc* m_getPtrTypeKindFunc;
+	jnc_ClassPtrType_GetTargetTypeFunc* m_getTargetTypeFunc;
 };
 
 //..............................................................................
