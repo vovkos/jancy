@@ -36,7 +36,7 @@ opaque class DynamicSectionGroup {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 opaque class DynamicSection: DynamicSectionGroup {
-	DynamicSectionKind readonly m_sectoinKind;
+	DynamicSectionKind readonly m_sectionKind;
 	size_t readonly m_offset;
 	size_t const m_elementCount; // for DynamicSectionKind.Array
 

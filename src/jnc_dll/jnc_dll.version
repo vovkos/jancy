@@ -297,6 +297,16 @@
 		jnc_StdBuffer_copy;
 		jnc_StdBuffer_insert;
 		jnc_StdBuffer_remove;
+		jnc_DynamicSectionGroup_getSectionCount;
+		jnc_DynamicSectionGroup_getSection;
+		jnc_DynamicSection_getSectionKind;
+		jnc_DynamicSection_getOffset;
+		jnc_DynamicSection_getElementCount;
+		jnc_DynamicSection_getType;
+		jnc_DynamicSection_getDecl;
+		jnc_createDynamicLayoutEx;
+		jnc_DynamicLayout_getSize;
+		jnc_DynamicLayout_reset;
 
 	local: *;
 };

@@ -80,11 +80,22 @@ public:
 
 	IfaceHdr*
 	JNC_CDECL
-	getType_0(); // disambiguate vs JNC_DECLARE_CLASS_TYPE_STATIC_METHODS()
+	getType_rtl(); // disambiguate vs JNC_DECLARE_CLASS_TYPE_STATIC_METHODS()
+
+	ct::Type*
+	getType_ct() {
+		return m_type;
+	}
 
 	rtl::ModuleItemDecl*
 	JNC_CDECL
-	getDecl();
+	getDecl_rtl();
+
+	ct::ModuleItemDecl*
+	JNC_CDECL
+	getDecl_ct() {
+		return m_decl;
+	}
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -128,6 +139,16 @@ public:
 		reset(ptr, size);
 	}
 
+	size_t
+	getSize() {
+		return (char*)m_ptr.m_p - (char*)m_basePtr.m_p;
+	}
+
+	void
+	clear() {
+		reset(g_nullDataPtr, 0);
+	}
+
 	void
 	JNC_CDECL
 	reset(
@@ -159,11 +180,6 @@ public:
 	}
 
 protected:
-	size_t
-	getSize() {
-		return (char*)m_ptr.m_p - (char*)m_basePtr.m_p;
-	}
-
 	void
 	addSection(DynamicSection* section);
 };

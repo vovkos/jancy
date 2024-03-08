@@ -71,6 +71,7 @@ jnc_StdBuffer_remove(
 #else // _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_StdBuffer*
 jnc_createStdBuffer(jnc_Runtime* runtime) {
 	return (jnc_StdBuffer*)jnc::createClass<jnc::std::Buffer>(runtime);

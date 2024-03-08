@@ -50,6 +50,7 @@ set(
 	${JANCY_ROOT_DIR}/include/jnc_StdMap.h
 	${JANCY_ROOT_DIR}/include/jnc_StdHashTable.h
 	${JANCY_ROOT_DIR}/include/jnc_StdBuffer.h
+	${JANCY_ROOT_DIR}/include/jnc_DynamicLayout.h
 	${JANCY_ROOT_DIR}/include/jnc_CodeAssist.h
 	${JANCY_ROOT_DIR}/include/jnc_Capability.h
 	${JANCY_ROOT_DIR}/include/jnc_WarningSuppression.h
@@ -84,6 +85,7 @@ set(
 	jnc_StdHashTable.cpp
 	jnc_StdRbTree.cpp
 	jnc_StdBuffer.cpp
+	jnc_DynamicLayout.cpp
 	jnc_CodeAssist.cpp
 	jnc_Capability.cpp
 )

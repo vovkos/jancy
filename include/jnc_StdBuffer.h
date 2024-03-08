@@ -200,7 +200,13 @@ jnc_StdBuffer_append(
 
 namespace jnc {
 
-typedef jnc_StdBuffer      StdBuffer;
+typedef jnc_StdBuffer StdBuffer;
+
+inline
+StdBuffer*
+createStdBuffer(Runtime* runtime) {
+	return jnc_createStdBuffer(runtime);
+}
 
 //..............................................................................
 

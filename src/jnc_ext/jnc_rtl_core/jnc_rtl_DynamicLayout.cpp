@@ -50,8 +50,8 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 )
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(DynamicSection)
-	JNC_MAP_CONST_PROPERTY("m_decl", &DynamicSection::getDecl)
-	JNC_MAP_CONST_PROPERTY("m_type", &DynamicSection::getType_0)
+	JNC_MAP_CONST_PROPERTY("m_decl", &DynamicSection::getDecl_rtl)
+	JNC_MAP_CONST_PROPERTY("m_type", &DynamicSection::getType_rtl)
 JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -89,13 +89,13 @@ DynamicSectionGroup::markOpaqueGcRoots(GcHeap* gcHeap) {
 
 rtl::ModuleItemDecl*
 JNC_CDECL
-DynamicSection::getDecl() {
+DynamicSection::getDecl_rtl() {
 	return m_decl ? rtl::getModuleItemDecl(m_decl) : NULL;
 }
 
 IfaceHdr*
 JNC_CDECL
-DynamicSection::getType_0() {
+DynamicSection::getType_rtl() {
 	return m_type ? rtl::getType(m_type) : NULL;
 }
 
