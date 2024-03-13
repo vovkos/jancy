@@ -55,6 +55,9 @@ JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Variant
 jnc_Attribute_getValueVariant(jnc_Attribute* attr) {
+	if (attr->getValue().isEmpty())
+		return jnc_g_nullVariant;
+
 	jnc::Variant variant;
 	variant.m_type = (jnc::Type*)attr->getValue().getType()->getDataPtrType_c(jnc::TypeKind_DataRef);
 	variant.m_p = (void*)attr->getValue().getConstData();
