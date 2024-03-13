@@ -74,15 +74,15 @@ opaque class DynamicLayout: DynamicSectionGroup {
 	);
 
 protected:
-	size_t addStruct(void thin* structType);
+	DynamicSection* addStruct(void thin* structType);
 
-	size_t addArray(
+	DynamicSection* addArray(
 		void thin* decl,
 		void thin* type,
 		size_t elementCount
 	);
 
-	void openGroup(void thin* decl);
+	DynamicSection* openGroup(void thin* decl);
 	void closeGroup();
 }
 

@@ -1734,21 +1734,21 @@ Parser::declareData(
 
 			Value funcValue;
 			Value typeValue(&structType, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
-			Value offsetValue;
+			Value sectionValue;
 
 			m_module->m_compileFlags |= Module::AuxCompileFlag_SkipAccessChecks;
 
 			result =
 				m_module->m_operatorMgr.memberOperator(m_dynamicLayoutStmt->m_layoutValue, "addStruct", &funcValue) &&
-				m_module->m_operatorMgr.callOperator(funcValue, typeValue, &offsetValue);
+				m_module->m_operatorMgr.callOperator(funcValue, typeValue, &sectionValue);
 
 			m_module->m_compileFlags &= ~Module::AuxCompileFlag_SkipAccessChecks;
 
 			if (!result)
 				return false;
 
-			structType->m_dynamicStructSectionId = m_dynamicLayoutStmt->m_structSectionOffsetValueArray.getCount();
-			m_dynamicLayoutStmt->m_structSectionOffsetValueArray.append(offsetValue);
+			structType->m_dynamicStructSectionId = m_dynamicLayoutStmt->m_structSectionValueArray.getCount();
+			m_dynamicLayoutStmt->m_structSectionValueArray.append(sectionValue);
 			m_dynamicLayoutStmt->m_structType = structType;
 			m_dynamicLayoutStmt->m_structBlock = m_module->m_controlFlowMgr.getCurrentBlock();
 		}
@@ -2630,12 +2630,14 @@ Parser::lookupIdentifier(
 		}
 
 		ASSERT(m_dynamicLayoutStmt && structType->m_dynamicStructSectionId != -1);
-		Value offsetValue = m_dynamicLayoutStmt->m_structSectionOffsetValueArray[structType->m_dynamicStructSectionId];
+		Value sectionValue = m_dynamicLayoutStmt->m_structSectionValueArray[structType->m_dynamicStructSectionId];
+		Value offsetValue;
 		Value fieldOffsetValue(field->getOffset(), m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT));
 		Value ptrValue;
 
 		result =
 			m_module->m_operatorMgr.memberOperator(m_dynamicLayoutStmt->m_layoutValue, "m_base", &ptrValue) &&
+			m_module->m_operatorMgr.memberOperator(sectionValue, "m_offset", &offsetValue) &&
 			m_module->m_operatorMgr.binaryOperator(BinOpKind_Add, &offsetValue, fieldOffsetValue) &&
 			m_module->m_operatorMgr.binaryOperator(BinOpKind_Add, &ptrValue, offsetValue) &&
 			m_module->m_operatorMgr.castOperator(

@@ -156,11 +156,11 @@ public:
 		size_t size
 	);
 
-	size_t
+	DynamicSection*
 	JNC_CDECL
 	addStruct(ct::StructType* type);
 
-	size_t
+	DynamicSection*
 	JNC_CDECL
 	addArray(
 		ct::ModuleItemDecl* decl,
@@ -168,7 +168,7 @@ public:
 		size_t elementCount
 	);
 
-	void
+	DynamicSection*
 	JNC_CDECL
 	openGroup(ct::ModuleItemDecl* decl);
 
