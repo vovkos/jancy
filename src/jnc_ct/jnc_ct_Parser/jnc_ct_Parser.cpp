@@ -436,20 +436,13 @@ Parser::popAttributeBlock() {
 	return attributeBlock;
 }
 
-bool Parser::checkUnusedAttributes() {
-	if (!m_attributeBlock)
-		return true;
-
-	if (m_attributeBlockState == AttributeBlockState_Created) {
-		m_attributeBlockState = AttributeBlockState_Staged;
-		return true;
-	}
+void Parser::processUnusedAttributes() {
+	ASSERT(m_attributeBlock);
 
 	err::setFormatStringError("unused attribute block");
 	m_attributeBlock->ensureSrcPosError();
 	m_attributeBlock = NULL;
 	m_attributeBlockState = AttributeBlockState_Undefined;
-	return false;
 }
 
 bool

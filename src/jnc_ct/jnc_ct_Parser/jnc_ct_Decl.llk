@@ -33,11 +33,12 @@ common_declaration_sync
 	:	TokenKind_Using
 	|	TokenKind_Pragma
 	|	named_type_specifier_sync
+	|	'['
 	;
 
 global_declaration
 	leave {
-		return checkUnusedAttributes();
+		return processAttributes();
 	}
 	:	common_declaration
 	|	namespace_declaration
@@ -48,7 +49,8 @@ global_declaration
 
 global_declaration_sync
 	:	common_declaration_sync
-	|	item_declaration_sync
+	|	declaration_specifier_sync
+	|	special_void_method_declarator_sync
 	|	TokenKind_Namespace
 	|	TokenKind_Extension
 	|	';'
@@ -56,7 +58,7 @@ global_declaration_sync
 
 member_block_declaration
 	leave {
-		return checkUnusedAttributes();
+		return processAttributes();
 	}
 	:	common_declaration
 	|	friend_declaration
@@ -68,7 +70,8 @@ member_block_declaration
 
 member_block_declaration_sync
 	:	common_declaration_sync
-	|	item_declaration_sync
+	|	declaration_specifier_sync
+	|	special_void_method_declarator_sync
 	|	TokenKind_Friend
 	|	TokenKind_Public
 	|	TokenKind_Protected
@@ -81,18 +84,30 @@ local_declaration
 		m_module->m_namespaceMgr.setSourcePos(m_tokenCursor->m_pos);
 	}
 	leave {
-		return checkUnusedAttributes();
+		return processAttributes();
 	}
 	:	common_declaration
-	|	statement
 	|	local_item_declaration
+	|	statement
 	|	catch_label
 	|	finally_label
 	|	nested_scope_label
 	;
 
+local_branch_declaration // if/else/do/while/for
+	enter {
+		m_module->m_namespaceMgr.setSourcePos(m_tokenCursor->m_pos);
+		return checkUnusedAttributes();
+	}
+	leave {
+		return checkUnusedAttributes();
+	}
+	:	attribute_block? (statement | local_item_declaration)
+	;
+
 local_declaration_sync
 	:	common_declaration_sync
+	|	declaration_specifier_sync
 	|	statement_sync
 	|	TokenKind_Catch
 	|	TokenKind_Finally
@@ -307,11 +322,6 @@ qualified_special_void_method_declaration_rslv
 resolver(qualified_special_void_method_declaration_rslv, 2) // higher than qualified_type_name_rslv
 qualified_special_void_method_declaration
 	:	declarator_list<NULL>
-	;
-
-item_declaration_sync
-	:	declaration_specifier_sync
-	|	special_void_method_declarator_sync
 	;
 
 //..............................................................................

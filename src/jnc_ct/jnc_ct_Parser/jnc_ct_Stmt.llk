@@ -134,13 +134,13 @@ if_stmt
 			{
 				return m_module->m_controlFlowMgr.ifStmt_Condition(&$stmt, $e.m_value, $a.m_pos);
 			}
-		local_declaration
+		local_branch_declaration
 		(
 			TokenKind_Else $a2
 				{
 					m_module->m_controlFlowMgr.ifStmt_Else(&$stmt, $a2.m_pos);
 				}
-			local_declaration
+			local_branch_declaration
 		)?
 			{
 				m_module->m_controlFlowMgr.ifStmt_Follow(&$stmt);
@@ -267,7 +267,7 @@ while_stmt
 			{
 				m_module->m_controlFlowMgr.whileStmt_Condition(&$stmt, $e.m_value, $a.m_pos);
 			}
-		local_declaration
+		local_branch_declaration
 			{
 				m_module->m_controlFlowMgr.whileStmt_Follow(&$stmt);
 			}
@@ -284,7 +284,7 @@ do_stmt
 			{
 				m_module->m_controlFlowMgr.doStmt_PreBody(&$stmt, $1.m_pos);
 			}
-		local_declaration
+		local_branch_declaration
 			{
 				m_module->m_controlFlowMgr.doStmt_PostBody(&$stmt);
 			}
@@ -318,7 +318,7 @@ for_stmt
 			{
 				m_module->m_controlFlowMgr.forStmt_PreBody(&$stmt);
 			}
-		local_declaration
+		local_branch_declaration
 			{
 				m_module->m_controlFlowMgr.forStmt_PostBody(&$stmt);
 			}
@@ -384,7 +384,7 @@ try_stmt
 			{
 				m_module->m_namespaceMgr.openScope($1.m_pos, ScopeFlag_Try | ScopeFlag_HasCatch | $2.m_data.m_integer);
 			}
-		local_declaration*
+		local_declaration_list
 		'}'
 			{
 				m_module->m_namespaceMgr.closeScope();
@@ -405,7 +405,7 @@ unsafe_stmt
 				m_module->m_operatorMgr.enterUnsafeRgn();
 				m_module->m_namespaceMgr.openScope($l.m_pos, $l.m_data.m_integer | ScopeFlag_Unsafe);
 			}
-		local_declaration*
+		local_declaration_list
 		'}'
 			{
 				m_module->m_namespaceMgr.closeScope();
