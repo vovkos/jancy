@@ -3239,6 +3239,7 @@ Parser::openDynamicGroup(
 	m_module->m_compileFlags |= Module::AuxCompileFlag_SkipAccessChecks;
 
 	result =
+		group->ensureAttributeValuesReady() &&
 		m_module->m_operatorMgr.memberOperator(m_dynamicLayoutStmt->m_layoutValue, "openGroup", &funcValue) &&
 		m_module->m_operatorMgr.callOperator(funcValue, declValue);
 
