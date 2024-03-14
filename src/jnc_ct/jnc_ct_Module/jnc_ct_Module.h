@@ -106,6 +106,8 @@ protected:
 	size_t m_compileErrorCount;
 	ModuleCompileErrorHandlerFunc* m_compileErrorHandler;
 	void* m_compileErrorHandlerContext;
+	ModuleDynamicSectionObserverFunc* m_dynamicSectionObserver;
+	void* m_dynamicSectionObserverContext;
 	volatile int32_t m_asyncFlags;
 
 	sl::Array<Function*> m_compileArray;
@@ -205,6 +207,15 @@ public:
 	) {
 		m_compileErrorHandler = handler;
 		m_compileErrorHandlerContext = context;
+	}
+
+	void
+	setDynamicSectionObserver(
+		ModuleDynamicSectionObserverFunc* observer,
+		void* context
+	) {
+		m_dynamicSectionObserver = observer;
+		m_dynamicSectionObserverContext = context;
 	}
 
 	llvm::LLVMContext*

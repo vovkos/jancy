@@ -29,7 +29,7 @@ enum jnc_DynamicSectionKind {
 	jnc_DynamicSectionKind_Group,
 };
 
-typedef enum jnc_TypeKind jnc_TypeKind;
+typedef enum jnc_DynamicSectionKind jnc_DynamicSectionKind;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

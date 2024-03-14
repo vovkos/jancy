@@ -206,6 +206,7 @@ EXPORTS
 	jnc_Module_getCompileState
 	jnc_Module_getCompileErrorCount
 	jnc_Module_setCompileErrorHandler
+	jnc_Module_setDynamicSectionObserver
 	jnc_Module_setDynamicExtensionAuthenticatorConfig
 	jnc_Module_getGlobalNamespace
 	jnc_Module_getStdNamespace

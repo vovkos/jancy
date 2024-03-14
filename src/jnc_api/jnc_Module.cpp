@@ -314,6 +314,17 @@ jnc_Module_setCompileErrorHandler(
 
 JNC_EXTERN_C
 JNC_EXPORT_O
+void
+jnc_Module_setDynamicSectionObserver(
+	jnc_Module* module,
+	jnc_ModuleDynamicSectionObserverFunc* observer,
+	void* context
+) {
+	module->setDynamicSectionObserver(observer, context);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_GlobalNamespace*
 jnc_Module_getGlobalNamespace(jnc_Module* module) {
 	return module->m_namespaceMgr.getGlobalNamespace();

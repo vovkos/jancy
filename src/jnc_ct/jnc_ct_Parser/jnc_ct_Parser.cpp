@@ -1711,6 +1711,13 @@ Parser::declareData(
 
 				m_module->m_compileFlags &= ~Module::AuxCompileFlag_SkipAccessChecks;
 
+				if (m_module->m_dynamicSectionObserver)
+					m_module->m_dynamicSectionObserver(
+						m_module->m_dynamicSectionObserverContext,
+						jnc::DynamicSectionKind_Array,
+						elementType
+					);
+
 				field->m_value = offsetValue;
 				return result;
 			}
@@ -3208,6 +3215,13 @@ Parser::finalizeDynamicStructSection() {
 		bool result = m_dynamicLayoutStmt->m_structType->ensureLayout();
 		if (!result)
 			return false;
+
+		if (m_module->m_dynamicSectionObserver)
+			m_module->m_dynamicSectionObserver(
+				m_module->m_dynamicSectionObserverContext,
+				jnc::DynamicSectionKind_Struct,
+				m_dynamicLayoutStmt->m_structType
+			);
 	}
 
 	m_dynamicLayoutStmt->m_structType = NULL;

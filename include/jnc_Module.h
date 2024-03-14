@@ -26,6 +26,7 @@
 #include "jnc_UnionType.h"
 #include "jnc_ClassType.h"
 #include "jnc_CodeAssist.h"
+#include "jnc_DynamicLayout.h"
 #include "jnc_Unit.h"
 
 /**
@@ -105,6 +106,16 @@ bool_t
 jnc_ModuleCompileErrorHandlerFunc(
 	void* context,
 	jnc_ModuleCompileErrorKind errorKind
+);
+
+//..............................................................................
+
+typedef
+void
+jnc_ModuleDynamicSectionObserverFunc(
+	void* context,
+	jnc_DynamicSectionKind sectionKind,
+	jnc_Type* sectionType
 );
 
 //..............................................................................
@@ -241,6 +252,14 @@ void
 jnc_Module_setCompileErrorHandler(
 	jnc_Module* module,
 	jnc_ModuleCompileErrorHandlerFunc* handler,
+	void* context
+);
+
+JNC_EXTERN_C
+void
+jnc_Module_setDynamicSectionObserver(
+	jnc_Module* module,
+	jnc_ModuleDynamicSectionObserverFunc* observer,
 	void* context
 );
 
@@ -542,6 +561,14 @@ struct jnc_Module {
 		jnc_Module_setCompileErrorHandler(this, errorHandler, context);
 	}
 
+	void
+	setDynamicSectionObserver(
+		jnc_ModuleDynamicSectionObserverFunc* observer,
+		void* context
+	) {
+		jnc_Module_setDynamicSectionObserver(this, observer, context);
+	}
+
 	jnc_GlobalNamespace*
 	getGlobalNamespace() {
 		return jnc_Module_getGlobalNamespace(this);
@@ -786,6 +813,8 @@ const ModuleCompileErrorKind
 	ModuleCompileErrorKind_ParseSyntax   = jnc_ModuleCompileErrorKind_ParseSyntax,
 	ModuleCompileErrorKind_ParseSemantic = jnc_ModuleCompileErrorKind_ParseSemantic,
 	ModuleCompileErrorKind_PostParse     = jnc_ModuleCompileErrorKind_PostParse;
+
+typedef jnc_ModuleDynamicSectionObserverFunc ModuleDynamicSectionObserverFunc;
 
 typedef jnc_OptLevel OptLevel;
 
