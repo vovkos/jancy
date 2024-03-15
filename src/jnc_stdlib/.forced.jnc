@@ -1,6 +1,7 @@
 // rtl-core
 
 import "jnc_DataPtr.jnc"
+import "jnc_DynamicLayout.jnc"
 import "jnc_DynamicLib.jnc"
 import "jnc_gc.jnc"
 import "jnc_Promise.jnc"
