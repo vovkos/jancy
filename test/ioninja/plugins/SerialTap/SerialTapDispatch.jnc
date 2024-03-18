@@ -50,22 +50,16 @@ class SerialTapDispatch: ias.Session {
 		}
 	}
 
-	property m_statusLines {
-		io.SerialStatusLines get() {
-			return dispatchGet(SerialTapDispatchCode.GetStatusLines);
-		}
+	io.SerialStatusLines const property m_statusLines {
+		return dispatchGet(SerialTapDispatchCode.GetStatusLines);
 	}
 
-	property m_dtr {
-		bool get() {
-			return dispatchGet(SerialTapDispatchCode.GetDtr);
-		}
+	bool const property m_dtr {
+		return dispatchGet(SerialTapDispatchCode.GetDtr);
 	}
 
-	property m_rts {
-		bool get() {
-			return dispatchGet(SerialTapDispatchCode.GetRts);
-		}
+	bool const property m_rts {
+		return dispatchGet(SerialTapDispatchCode.GetRts);
 	}
 
 	bool errorcode capture() {

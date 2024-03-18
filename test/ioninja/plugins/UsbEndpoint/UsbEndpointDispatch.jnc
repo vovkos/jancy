@@ -10,16 +10,12 @@ import "ias.jnc"
 //..............................................................................
 
 class UsbEndpointDispatch: ias.Session {
-	property m_deviceVid {
-		uint_t get() {
-			return dispatchGet(UsbEndpointDispatchCode.GetDeviceVid);
-		}
+	uint_t const property m_deviceVid {
+		return dispatchGet(UsbEndpointDispatchCode.GetDeviceVid);
 	}
 
-	property m_devicePid {
-		uint_t get() {
-			return dispatchGet(UsbEndpointDispatchCode.GetDevicePid);
-		}
+	uint_t const property m_devicePid {
+		return dispatchGet(UsbEndpointDispatchCode.GetDevicePid);
 	}
 
 	bool errorcode setDeviceVidPid(
