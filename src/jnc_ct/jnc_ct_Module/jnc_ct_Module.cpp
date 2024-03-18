@@ -291,12 +291,13 @@ Module::parseImpl(
 	return false;
 #endif
 
+	bool isEof;
+
 	Parser parser(this);
 	parser.create(fileName, Parser::StartSymbol);
 
 	CodeAssistKind codeAssistKind = m_codeAssistMgr.getCodeAssistKind();
-	if (!codeAssistKind || !unit->isRootUnit()) {
-		bool isEof;
+	if (!codeAssistKind)
 		do {
 			Token* token = lexer.takeToken();
 			isEof = token->m_token == TokenKind_Eof; // EOF token must be parsed
@@ -304,11 +305,19 @@ Module::parseImpl(
 			if (!result)
 				return false;
 		} while (!isEof);
-	} else {
+	else if (!unit->isRootUnit())
+		do {
+			Token* token = lexer.takeToken();
+			token->m_data.m_codeAssistFlags = 0; // tokens can be reused -- ensure 0
+			isEof = token->m_token == TokenKind_Eof; // EOF token must be parsed
+			result = parser.consumeToken(token);
+			if (!result)
+				return false;
+		} while (!isEof);
+	else {
 		size_t offset = m_codeAssistMgr.getOffset();
 		size_t autoCompleteFallbackOffset = offset;
 
-		bool isEof;
 		do {
 			if (m_asyncFlags & AsyncFlag_CancelCodeAssist)
 				return err::fail(err::SystemErrorCode_Cancelled);
