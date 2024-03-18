@@ -23,16 +23,12 @@ class StringBuilder {
 	size_t readonly m_length;
 	size_t readonly m_bufferSize;
 
-	property m_string {
-		string_t get() {
-			return string_t(m_p, m_length);
-		}
+	string_t const property m_string {
+		return string_t(m_p, m_length);
 	}
 
-	property m_sz {
-		char const* get() {
-			return m_p ? m_p : "";
-		}
+	char const* const property m_sz {
+		return m_p ? m_p : "";
 	}
 
 	char get(size_t offset) {

@@ -206,8 +206,14 @@ opaque class HidReportField {
 	protected uint_t const m_mask;
 	size_t m_usageCount;
 	uint_t const property m_usageArray(size_t i);
-	bool const property m_isPadding;
-	bool const property m_isUnsigned;
+
+	bool const property m_isPadding {
+		return !isSet(HidRdItemMask.AllUsages);
+	}
+
+	bool const property m_isUnsigned {
+		return (int)this[HidRdItemId.LogicalMinimum] >= 0;
+	}
 
 	uint_t operator [] (HidRdItemId id) const;
 
@@ -218,16 +224,6 @@ opaque class HidReportField {
 	bool isSet(HidRdItemMask mask) const {
 		return m_mask & mask;
 	}
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-bool HidReportField.m_isPadding.get() {
-	return !isSet(HidRdItemMask.AllUsages);
-}
-
-bool HidReportField.m_isUnsigned.get() {
-	return (int)this[HidRdItemId.LogicalMinimum] >= 0;
 }
 
 //..............................................................................

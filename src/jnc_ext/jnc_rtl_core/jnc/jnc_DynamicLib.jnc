@@ -100,10 +100,8 @@ class DynamicLib {
 		``false`` otherwise.
 	*/
 
-	property m_isOpen {
-		bool get() {
-			return m_handle != null;
-		}
+	bool const property m_isOpen {
+		return m_handle != null;
 	}
 
 	destruct() {

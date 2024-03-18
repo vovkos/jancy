@@ -36,9 +36,7 @@ opaque class RbTree {
 
 	destruct();
 
-	bool const property m_isEmpty;
-
-	bool m_isEmpty.get() {
+	bool const property m_isEmpty {
 		return m_count == 0;
 	}
 
