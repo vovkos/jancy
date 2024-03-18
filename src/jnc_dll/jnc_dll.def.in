@@ -321,7 +321,7 @@ EXPORTS
 	jnc_DynamicSection_getElementCount
 	jnc_DynamicSection_getType
 	jnc_DynamicSection_getDecl
-	jnc_createDynamicLayoutEx
+	jnc_createDynamicLayout
 	jnc_DynamicLayout_getSize
 	jnc_DynamicLayout_reset
 	

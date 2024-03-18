@@ -117,17 +117,10 @@ struct jnc_DynamicSection: jnc_DynamicSectionGroup {
 
 JNC_EXTERN_C
 jnc_DynamicLayout*
-jnc_createDynamicLayoutEx(
+jnc_createDynamicLayout(
 	jnc_Runtime* runtime,
-	jnc_DataPtr ptr,
-	size_t size
+	jnc_DataPtr ptr
 );
-
-JNC_INLINE
-jnc_DynamicLayout*
-jnc_createDynamicLayout(jnc_Runtime* runtime) {
-	return jnc_createDynamicLayoutEx(runtime, jnc_g_nullDataPtr, 0);
-}
 
 JNC_EXTERN_C
 size_t
@@ -137,14 +130,13 @@ JNC_EXTERN_C
 void
 jnc_DynamicLayout_reset(
 	jnc_DynamicLayout* layout,
-	jnc_DataPtr ptr,
-	size_t size
+	jnc_DataPtr ptr
 );
 
 JNC_INLINE
 void
 jnc_DynamicLayout_clear(jnc_DynamicLayout* layout) {
-	jnc_DynamicLayout_reset(layout, jnc_g_nullDataPtr, 0);
+	jnc_DynamicLayout_reset(layout, jnc_g_nullDataPtr);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -162,11 +154,8 @@ struct jnc_DynamicLayout: jnc_DynamicSectionGroup {
 	}
 
 	void
-	reset(
-		jnc_DataPtr ptr,
-		size_t size
-	) {
-		jnc_DynamicLayout_reset(this, ptr, size);
+	reset(jnc_DataPtr ptr) {
+		jnc_DynamicLayout_reset(this, ptr);
 	}
 };
 #endif
@@ -192,18 +181,11 @@ const DynamicSectionKind
 
 inline
 DynamicLayout*
-createDynamicLayout(Runtime* runtime) {
-	return jnc_createDynamicLayout(runtime);
-}
-
-inline
-DynamicLayout*
 createDynamicLayout(
 	Runtime* runtime,
-	DataPtr ptr,
-	size_t size
+	DataPtr ptr = g_nullDataPtr
 ) {
-	return jnc_createDynamicLayoutEx(runtime, ptr, size);
+	return jnc_createDynamicLayout(runtime, ptr);
 }
 
 //..............................................................................

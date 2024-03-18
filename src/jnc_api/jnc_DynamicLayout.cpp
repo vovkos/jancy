@@ -87,12 +87,11 @@ jnc_DynamicSection_getDecl(jnc_DynamicSection* section) {
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_DynamicLayout*
-jnc_createDynamicLayoutEx(
+jnc_createDynamicLayout(
 	jnc_Runtime* runtime,
-	jnc_DataPtr ptr,
-	size_t size
+	jnc_DataPtr ptr
 ) {
-	return (jnc_DynamicLayout*)jnc::createClass<jnc::rtl::DynamicLayout>(runtime, ptr, size);
+	return (jnc_DynamicLayout*)jnc::createClass<jnc::rtl::DynamicLayout>(runtime, ptr);
 }
 
 JNC_EXTERN_C
@@ -107,10 +106,9 @@ JNC_EXPORT_O
 void
 jnc_DynamicLayout_reset(
 	jnc_DynamicLayout* layout,
-	jnc_DataPtr ptr,
-	size_t size
+	jnc_DataPtr ptr
 ) {
-	((jnc::rtl::DynamicLayout*)layout)->reset(ptr, size);
+	((jnc::rtl::DynamicLayout*)layout)->reset(ptr);
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

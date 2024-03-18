@@ -48,7 +48,6 @@ opaque class DynamicSection: DynamicSectionGroup {
 
 opaque class DynamicLayout: DynamicSectionGroup {
 	void const* readonly m_base;
-	void const* readonly m_end;
 	void const* readonly m_p;
 
 	size_t const property m_size {
@@ -56,22 +55,14 @@ opaque class DynamicLayout: DynamicSectionGroup {
 	}
 
 	construct();
-
-	construct(
-		void const* p,
-		size_t size
-	);
-
+	construct(void const* p);
 	destruct();
 
 	void clear() {
 		reset(null, 0);
 	}
 
-	void reset(
-		void const* p,
-		size_t size
-	);
+	void reset(void const* p);
 
 protected:
 	DynamicSection* addStruct(void thin* structType);

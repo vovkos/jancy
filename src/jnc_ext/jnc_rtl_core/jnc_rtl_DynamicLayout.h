@@ -122,7 +122,6 @@ public:
 
 public:
 	DataPtr m_basePtr;
-	DataPtr m_endPtr;
 	DataPtr m_ptr;
 
 protected:
@@ -132,11 +131,8 @@ public:
 	DynamicLayout() {
 	}
 
-	DynamicLayout(
-		DataPtr ptr,
-		size_t size
-	) {
-		reset(ptr, size);
+	DynamicLayout(DataPtr ptr) {
+		reset(ptr);
 	}
 
 	size_t
@@ -146,15 +142,12 @@ public:
 
 	void
 	clear() {
-		reset(g_nullDataPtr, 0);
+		reset(g_nullDataPtr);
 	}
 
 	void
 	JNC_CDECL
-	reset(
-		DataPtr ptr,
-		size_t size
-	);
+	reset(DataPtr ptr);
 
 	DynamicSection*
 	JNC_CDECL

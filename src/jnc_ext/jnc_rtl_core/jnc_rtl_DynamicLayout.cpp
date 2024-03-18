@@ -67,7 +67,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(DynamicLayout)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<DynamicLayout>)
-	JNC_MAP_OVERLOAD(&(jnc::construct<DynamicLayout, DataPtr, size_t>))
+	JNC_MAP_OVERLOAD(&(jnc::construct<DynamicLayout, DataPtr>))
 	JNC_MAP_DESTRUCTOR(&jnc::destruct<DynamicLayout>)
 	JNC_MAP_FUNCTION("addStruct", &DynamicLayout::addStruct)
 	JNC_MAP_FUNCTION("addArray", &DynamicLayout::addArray)
@@ -103,13 +103,8 @@ DynamicSection::getType_rtl() {
 
 void
 JNC_CDECL
-DynamicLayout::reset(
-	DataPtr ptr,
-	size_t size
-) {
+DynamicLayout::reset(DataPtr ptr) {
 	m_ptr = m_basePtr = ptr;
-	m_endPtr.m_p = (char*)ptr.m_p + size;
-	m_endPtr.m_validator = ptr.m_validator;
 	m_sectionCount = 0;
 	m_groupStack.clear();
 	m_sectionArray.clear();
