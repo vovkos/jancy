@@ -26,6 +26,16 @@ void const* createDataPtr(
 	size_t length = -1
 );
 
+void* limitDataPtr(
+	void* p,
+	size_t length
+);
+
+void const* limitDataPtr(
+	void const* p,
+	size_t length
+);
+
 //..............................................................................
 
 //! @}

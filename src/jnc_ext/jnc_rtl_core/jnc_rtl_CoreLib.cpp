@@ -927,6 +927,26 @@ createDataPtr(
 	return jnc::createForeignBufferPtr(p, length, false);
 }
 
+DataPtr
+limitDataPtr(
+	DataPtr ptr,
+	size_t length
+) {
+	if (!ptr.m_validator ||
+		(char*)ptr.m_validator->m_rangeEnd <= (char*)ptr.m_p ||
+		(char*)ptr.m_validator->m_rangeEnd - (char*)ptr.m_p < length
+	)
+		return ptr;
+
+	ptr.m_validator = createDataPtrValidator(
+		ptr.m_validator->m_targetBox,
+		ptr.m_validator->m_rangeBegin,
+		(char*)ptr.m_p + length - (char*)ptr.m_validator->m_rangeBegin
+	);
+
+	return ptr;
+}
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
@@ -1170,10 +1190,12 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_CoreLib)
 	JNC_MAP_FUNCTION_Q("jnc.getGcStats",     getGcStats)
 	JNC_MAP_PROPERTY_Q("jnc.g_gcTriggers",   gcTriggers_get, gcTriggers_set)
 
-	// thin -> safe data pointers
+	// safe data pointers
 
-	JNC_MAP_FUNCTION_Q("jnc.createDataPtr",      createDataPtr)
+	JNC_MAP_FUNCTION_Q("jnc.createDataPtr", createDataPtr)
 	JNC_MAP_OVERLOAD(createDataPtr)
+	JNC_MAP_FUNCTION_Q("jnc.limitDataPtr",  limitDataPtr)
+	JNC_MAP_OVERLOAD(limitDataPtr)
 
 	// multicasts
 
