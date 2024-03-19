@@ -14,6 +14,9 @@ struct {
 }
 expression_pass1
 	:	catch(eof) expression_pass1_item<&$.m_tokenList>+
+			{
+				prepareExpressionCodeAssistFallbackIf($.m_tokenList);
+			}
 	;
 
 expression_pass1_item<sl::List<Token>* $tokenList>
@@ -708,7 +711,7 @@ new_operator_type
 
 // can be left-factorized to avoid resolver
 
-resolver(qualified_name TokenKind_Construct? '(', 2) // set higher priority than qualified_type_name
+resolver(qualified_name_rslv TokenKind_Construct? '(', 2) // set higher priority than qualified_type_name
 new_operator_type_w_constructor<Type** $type, sl::BoxList<Value>* $argList>
 	:	qualified_type_name $t TokenKind_Construct? '(' expression_or_empty_list $a ')'
 			{
@@ -768,23 +771,22 @@ postfix_operator<Value* $value>
 			}
 	|	'.'
 			{
-				generateAutoCompleteIf($1, *$value);
+				createMemberCodeAssistIf($1, *$value);
 			}
 		member_operator<$value>
 	|	TokenKind_Ptr
 			{
-				generateAutoCompleteIf($1, *$value);
+				createMemberCodeAssistIf($1, *$value);
 				return m_module->m_operatorMgr.unaryOperator(UnOpKind_Ptr, $value);
 			}
 		member_operator<$value>
 	;
 
 member_operator<Value* $value>
-	:	TokenKind_Identifier $n
+	:	TokenKind_Identifier
 			{
-				generateAutoCompleteIf($1, *$value);
-				generateMemberInfoIf($1, *$value, $n.m_data.m_string);
-				return m_module->m_operatorMgr.memberOperator($value, $n.m_data.m_string);
+				createMemberCodeAssistIf($1, *$value);
+				return m_module->m_operatorMgr.memberOperator($value, $1.m_data.m_string);
 			}
 	|	TokenKind_Get
 			{

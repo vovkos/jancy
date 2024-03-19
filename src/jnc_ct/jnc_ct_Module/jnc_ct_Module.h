@@ -422,10 +422,32 @@ Unit::isRootUnit() {
 
 inline
 void
-CodeAssistMgr::prepareAutoCompleteFallback(size_t offset) {
-	if (m_codeAssistKind == CodeAssistKind_AutoComplete && !m_codeAssist && !m_containerItem) {
-		m_autoCompleteFallback.m_namespace = m_module->m_namespaceMgr.getCurrentNamespace();
-		m_autoCompleteFallback.m_offset = offset;
+CodeAssistMgr::prepareQualifiedNameFallback(
+	const QualifiedName& namePrefix,
+	size_t offset
+) {
+	m_fallbackMode = FallbackMode_QualifiedName;
+	m_fallbackNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
+	m_fallbackNamePrefix = namePrefix;
+	m_fallbackOffset = offset;
+}
+
+inline
+void
+CodeAssistMgr::prepareExpressionFallback(const sl::List<Token>& expression) {
+	ASSERT(!expression.isEmpty());
+	m_fallbackMode = FallbackMode_Expression;
+	m_fallbackNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
+	cloneTokenList(&m_fallbackExpression, expression);
+}
+
+inline
+void
+CodeAssistMgr::prepareIdentifierFallback(size_t offset) {
+	if (m_fallbackMode <= FallbackMode_Identifier) { // only if no other fallbacks
+		m_fallbackMode = FallbackMode_Identifier;
+		m_fallbackNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
+		m_fallbackOffset = offset;
 	}
 }
 

@@ -224,6 +224,7 @@ Parser::parseTokenList(
 	) {
 		while (!tokenList->isEmpty()) {
 			Token* token = tokenList->removeHead();
+			token->m_data.m_codeAssistFlags = 0; // tokens can be reused -- ensure 0
 			bool result = consumeToken(token);
 			if (!result)
 				return false;
@@ -232,7 +233,7 @@ Parser::parseTokenList(
 		return parseEofToken(lastTokenPos, lastTokenPos.m_length); // might trigger actions
 	} else {
 		size_t offset = m_module->m_codeAssistMgr.getOffset();
-		size_t autoCompleteFallbackOffset = offset;
+		size_t fallbackOffset = offset;
 
 		bool result = true;
 
@@ -241,10 +242,10 @@ Parser::parseTokenList(
 			bool isCodeAssist = markCodeAssistToken(token, offset);
 			if (isCodeAssist) {
 				if (token->m_tokenKind == TokenKind_Identifier && (token->m_data.m_codeAssistFlags & TokenCodeAssistFlag_At))
-					autoCompleteFallbackOffset = token->m_pos.m_offset;
+					fallbackOffset = token->m_pos.m_offset;
 
 				if (token->m_data.m_codeAssistFlags & TokenCodeAssistFlag_After) {
-					m_module->m_codeAssistMgr.prepareAutoCompleteFallback(autoCompleteFallbackOffset);
+					m_module->m_codeAssistMgr.prepareIdentifierFallback(fallbackOffset);
 
 					if (m_mode == Mode_Compile) {
 						lastTokenPos = token->m_pos;
@@ -3292,67 +3293,36 @@ Parser::addScopeAnchorToken(
 	stmt->m_scopeAnchorToken = token;
 }
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 void
-Parser::generateAutoComplete(
+Parser::createMemberCodeAssist(
 	const Token& token,
 	const Value& value
 ) {
 	Namespace* nspace = m_module->m_operatorMgr.getValueNamespace(value);
-
-	if (nspace)
-		generateAutoComplete(token, nspace);
-	else
+	if (!nspace) {
 		m_module->m_codeAssistMgr.createEmptyCodeAssist(token.m_pos.m_offset);
-}
-
-void
-Parser::generateMemberInfo(
-	const Token& token,
-	const Value& value,
-	const sl::StringRef& name
-) {
-	Namespace* nspace = m_module->m_operatorMgr.getValueNamespace(value);
-	if (nspace) {
-		FindModuleItemResult result = nspace->findDirectChildItemTraverse(name, NULL, TraverseFlag_NoParentNamespace);
-		if (result.m_item)
-			m_module->m_codeAssistMgr.createQuickInfoTip(token.m_pos.m_offset, result.m_item);
+		return;
 	}
-}
 
-void
-Parser::generateAutoComplete(
-	const Token& token,
-	Namespace* nspace,
-	uint_t flags
-) {
-	size_t offset = token.m_pos.m_offset;
-	if (token.m_tokenKind != TokenKind_Identifier)
-		if (token.m_data.m_codeAssistFlags & TokenCodeAssistFlag_Right)
-			offset += token.m_pos.m_length;
-		else
-			return;
+	CodeAssistKind codeAssistKind = m_module->m_codeAssistMgr.getCodeAssistKind();
+	if (codeAssistKind == CodeAssistKind_QuickInfoTip) {
+		if (token.m_tokenKind == TokenKind_Identifier) {
+			FindModuleItemResult result = nspace->findDirectChildItemTraverse(token.m_data.m_string, NULL, TraverseFlag_NoParentNamespace);
+			if (result.m_item)
+				m_module->m_codeAssistMgr.createQuickInfoTip(token.m_pos.m_offset, result.m_item);
+		}
+	} else if (codeAssistKind == CodeAssistKind_AutoComplete) {
+		size_t offset = token.m_pos.m_offset;
+		if (token.m_tokenKind != TokenKind_Identifier)
+			if (token.m_data.m_codeAssistFlags & TokenCodeAssistFlag_Right)
+				offset += token.m_pos.m_length;
+			else
+				return;
 
-	m_module->m_codeAssistMgr.createAutoComplete(offset, nspace, flags);
-}
-
-void
-Parser::prepareAutoCompleteFallback(
-	const Token& token,
-	const QualifiedName& prefix,
-	uint_t flags
-) {
-	size_t offset = token.m_pos.m_offset;
-	if (token.m_tokenKind != TokenKind_Identifier)
-		if (token.m_data.m_codeAssistFlags & TokenCodeAssistFlag_Right)
-			offset += token.m_pos.m_length;
-		else
-			return;
-
-	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	m_module->m_codeAssistMgr.m_autoCompleteFallback.m_offset = offset;
-	m_module->m_codeAssistMgr.m_autoCompleteFallback.m_namespace = nspace;
-	m_module->m_codeAssistMgr.m_autoCompleteFallback.m_prefix = prefix;
-	m_module->m_codeAssistMgr.m_autoCompleteFallback.m_flags = flags;
+		m_module->m_codeAssistMgr.createAutoComplete(offset, nspace);
+	}
 }
 
 //..............................................................................

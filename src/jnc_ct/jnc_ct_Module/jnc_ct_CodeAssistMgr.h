@@ -95,18 +95,11 @@ class CodeAssistMgr {
 	friend class Module;
 
 protected:
-	struct AutoCompleteFallback {
-		size_t m_offset;
-		Namespace* m_namespace;
-		QualifiedName m_prefix;
-		uint_t m_flags;
-
-		AutoCompleteFallback() {
-			clear();
-		}
-
-		void
-		clear();
+	enum FallbackMode {
+		FallbackMode_None,
+		FallbackMode_Identifier,
+		FallbackMode_QualifiedName,
+		FallbackMode_Expression,
 	};
 
 	struct ArgumentTip: sl::ListLink {
@@ -131,8 +124,13 @@ protected:
 	CodeAssist* m_codeAssist;
 	size_t m_offset;
 	ModuleItem* m_containerItem;
-	AutoCompleteFallback m_autoCompleteFallback;
 	sl::List<ArgumentTip> m_argumentTipStack;
+
+	FallbackMode m_fallbackMode;
+	Namespace* m_fallbackNamespace;
+	size_t m_fallbackOffset;
+	QualifiedName m_fallbackNamePrefix;
+	sl::List<Token> m_fallbackExpression;
 
 public:
 	CodeAssistMgr();
@@ -170,7 +168,16 @@ public:
 	generateCodeAssist();
 
 	void
-	prepareAutoCompleteFallback(size_t offset);
+	prepareQualifiedNameFallback(
+		const QualifiedName& namePrefix,
+		size_t offset
+	);
+
+	void
+	prepareExpressionFallback(const sl::List<Token>& expression);
+
+	void
+	prepareIdentifierFallback(size_t offset);
 
 	CodeAssist*
 	createQuickInfoTip(
@@ -226,7 +233,7 @@ public:
 	);
 
 	CodeAssist*
-	createImportAutoComplete(size_t offset);
+	createImportCodeAssist(size_t offset);
 
 	bool
 	hasArgumentTipStack() {
@@ -280,7 +287,7 @@ protected:
 	);
 
 	CodeAssist*
-	createAutoCompleteFallback();
+	createFallbackCodeAssist();
 };
 
 //..............................................................................

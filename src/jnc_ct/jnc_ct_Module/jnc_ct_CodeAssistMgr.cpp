@@ -30,35 +30,36 @@ CodeAssist::CodeAssist() {
 
 //..............................................................................
 
-void
-CodeAssistMgr::AutoCompleteFallback::clear() {
-	m_offset = -1;
-	m_namespace = NULL;
-	m_prefix.clear();
-	m_flags = 0;
-}
-
 CodeAssistMgr::CodeAssistMgr() {
 	m_module = Module::getCurrentConstructedModule();
 	ASSERT(m_module);
 
-	m_codeAssistKind = CodeAssistKind_Undefined;
 	m_cacheModule = NULL;
+	m_codeAssistKind = CodeAssistKind_Undefined;
+	m_codeAssist = NULL;
 	m_offset = -1;
 	m_containerItem = NULL;
-	m_codeAssist = NULL;
+
+	m_fallbackMode = FallbackMode_None;
+	m_fallbackOffset = -1;
+	m_fallbackNamespace = NULL;
 }
 
 void
 CodeAssistMgr::clear() {
 	freeCodeAssist();
-	m_codeAssistKind = CodeAssistKind_Undefined;
 	m_cacheModule = NULL;
+	m_codeAssistKind = CodeAssistKind_Undefined;
+	m_codeAssist = NULL;
 	m_offset = -1;
 	m_containerItem = NULL;
-	m_codeAssist = NULL;
-	m_autoCompleteFallback.clear();
 	m_argumentTipStack.clear();
+
+	m_fallbackMode = FallbackMode_None;
+	m_fallbackOffset = -1;
+	m_fallbackNamespace = NULL;
+	m_fallbackNamePrefix.clear();
+	m_fallbackExpression.clear();
 }
 
 void
@@ -85,8 +86,8 @@ CodeAssistMgr::generateCodeAssist() {
 		generateCodeAssistImpl(item);
 	}
 
-	if (!m_codeAssist && m_autoCompleteFallback.m_namespace) // auto-complete fallback
-		createAutoCompleteFallback();
+	if (!m_codeAssist && m_fallbackMode)
+		createFallbackCodeAssist();
 
 	return m_codeAssist;
 }
@@ -236,42 +237,71 @@ CodeAssistMgr::createAutoComplete(
 }
 
 CodeAssist*
-CodeAssistMgr::createAutoCompleteFallback() {
-	ASSERT(m_autoCompleteFallback.m_namespace);
+CodeAssistMgr::createImportCodeAssist(size_t offset) {
+	freeCodeAssist();
 
-	if (m_autoCompleteFallback.m_prefix.isEmpty())
+	switch (m_codeAssistKind) {
+	case CodeAssistKind_AutoComplete:
+		m_codeAssist = new CodeAssist;
+		m_codeAssist->m_codeAssistKind = CodeAssistKind_ImportAutoComplete;
+		m_codeAssist->m_offset = offset;
+		m_codeAssist->m_module = m_module;
+		break;
+
+	case CodeAssistKind_QuickInfoTip:
+		// full path?
+		break;
+	}
+
+	return m_codeAssist;
+}
+
+CodeAssist*
+CodeAssistMgr::createFallbackCodeAssist() {
+	ASSERT(m_fallbackNamespace);
+
+	switch (m_fallbackMode) {
+	case FallbackMode_QualifiedName:
+		if (!m_fallbackNamePrefix.isEmpty()) {
+			FindModuleItemResult findItemResult = m_fallbackNamespace->findItemTraverse(m_fallbackNamePrefix, NULL);
+			Namespace* nspace = findItemResult.m_item ? findItemResult.m_item->getNamespace() : NULL;
+			if (!nspace)
+				return NULL;
+
+			nspace->ensureNamespaceReady();
+
+			return createAutoComplete(
+				m_fallbackOffset,
+				nspace,
+				CodeAssistFlag_AutoCompleteFallback |
+				CodeAssistFlag_QualifiedName
+			);
+		} // else fall through...
+
+	case FallbackMode_Identifier:
 		return createAutoComplete(
-			m_autoCompleteFallback.m_offset,
-			m_autoCompleteFallback.m_namespace,
-			m_autoCompleteFallback.m_flags |
+			m_fallbackOffset,
+			m_fallbackNamespace,
 			CodeAssistFlag_AutoCompleteFallback |
 			CodeAssistFlag_IncludeParentNamespace
 		);
 
-	FindModuleItemResult findItemResult = m_autoCompleteFallback.m_namespace->findItemTraverse(m_autoCompleteFallback.m_prefix, NULL);
-	Namespace* nspace = findItemResult.m_item ? findItemResult.m_item->getNamespace() : NULL;
-	if (!nspace)
+	case FallbackMode_Expression:
+		break;
+
+	default:
 		return NULL;
+	}
 
-	nspace->ensureNamespaceReady();
+	m_module->m_unitMgr.setCurrentUnit(m_module->m_unitMgr.getRootUnit());
 
-	return createAutoComplete(
-		m_autoCompleteFallback.m_offset,
-		nspace,
-		m_autoCompleteFallback.m_flags |
-		CodeAssistFlag_AutoCompleteFallback |
-		CodeAssistFlag_QualifiedName
-	);
-}
-
-CodeAssist*
-CodeAssistMgr::createImportAutoComplete(size_t offset) {
-	freeCodeAssist();
-
-	m_codeAssist = new CodeAssist;
-	m_codeAssist->m_codeAssistKind = CodeAssistKind_ImportAutoComplete;
-	m_codeAssist->m_offset = offset;
-	m_codeAssist->m_module = m_module;
+	Value value;
+	FunctionType* functionType = (FunctionType*)m_module->m_typeMgr.getStdType(StdType_SimpleFunction);
+	Function* function = m_module->m_functionMgr.createInternalFunction("jnci.expressionFallbackContainter", functionType);
+	function->m_parentNamespace = m_fallbackNamespace;
+	m_module->m_functionMgr.prologue(function, m_fallbackExpression.getHead()->m_pos);
+	m_module->m_operatorMgr.parseExpression(&m_fallbackExpression, &value);
+	m_module->m_functionMgr.epilogue();
 	return m_codeAssist;
 }
 

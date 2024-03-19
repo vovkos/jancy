@@ -990,14 +990,14 @@ TypeMgr::getMulticastType(FunctionPtrType* functionPtrType) {
 
 	// destructor
 
-	methodType = getFunctionType();
+	methodType = (FunctionType*)getStdType(StdType_SimpleFunction);
 	method = type->createUnnamedMethod(FunctionKind_Destructor, methodType);
 	method->m_flags |= ModuleItemFlag_User; // no need to generate default destructor
 	type->m_destructor = method;
 
 	// methods
 
-	methodType = getFunctionType();
+	methodType = (FunctionType*)getStdType(StdType_SimpleFunction);
 	method = type->createMethod("clear", methodType);
 	method->m_flags |= MulticastMethodFlag_InaccessibleViaEventPtr;
 	type->m_methodArray[MulticastMethodKind_Clear] = method;

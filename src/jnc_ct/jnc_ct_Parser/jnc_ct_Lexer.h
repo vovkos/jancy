@@ -437,9 +437,8 @@ isOffsetInsideTokenList(
 	size_t offset
 ) {
 	return
-		!tokenList->isEmpty() &&
 		tokenList->getHead()->m_pos.m_offset <= offset &&
-		tokenList->getTail()->m_pos.m_offset + tokenList->getTail()->m_pos.m_length > offset;
+		tokenList->getTail()->m_pos.m_offset + tokenList->getTail()->m_pos.m_length >= offset;
 }
 
 inline

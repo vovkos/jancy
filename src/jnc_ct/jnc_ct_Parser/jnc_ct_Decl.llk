@@ -139,7 +139,7 @@ local_declaration_list
 import_declaration
 	:	TokenKind_Import TokenKind_Literal
 			{
-				generateImportAutoCompleteIf($2);
+				createImportCodeAssistIf($2);
 				return m_module->m_importMgr.addImport($2.m_data.m_string);
 			}
 	;
@@ -229,6 +229,10 @@ setas_value
 
 //..............................................................................
 
+qualified_name_rslv
+	:	TokenKind_Identifier ('.' TokenKind_Identifier)*
+	;
+
 struct {
 	QualifiedName m_name;
 }
@@ -239,18 +243,18 @@ qualified_name
 qualified_name_impl<QualifiedName* $name>
 	:	TokenKind_Identifier
 			{
-				prepareAutoCompleteFallbackIf($1, *$name);
+				prepareQualifiedNameCodeAssistFallbackIf($1, *$name);
 				$name->addName($1.m_data.m_string);
 			}
 		(
-			'.' $op
+			'.' $d
 				{
-					prepareAutoCompleteFallbackIf($op, *$name);
+					prepareQualifiedNameCodeAssistFallbackIf($d, *$name);
 				}
-			TokenKind_Identifier $n2
+			TokenKind_Identifier $n
 				{
-					prepareAutoCompleteFallbackIf($n2, *$name);
-					$name->addName($n2.m_data.m_string);
+					prepareQualifiedNameCodeAssistFallbackIf($n, *$name);
+					$name->addName($n.m_data.m_string);
 				}
 		)*
 	;

@@ -211,7 +211,7 @@ hasCursorHighlightColor(const QTextCursor& cursor) {
 
 		if (pos < range.start)
 			right = i;
-		else if (pos >= end)
+		else if (pos > end)
 			left = i + 1;
 		else
 			return true;
@@ -1140,7 +1140,7 @@ EditPrivate::updateCompleter(bool isForced) {
 	QAbstractItemView* popup = (QTreeView*)m_completer->popup();
 	QTreeView* treeView = (QTreeView*)popup;
 	m_completer->setCompletionPrefix(prefix);
-	popup->setCurrentIndex(m_completer->completionModel()->index(0, 0));
+	popup->setCurrentIndex(m_completer->model()->index(0, 0));
 
 	QMargins margins = treeView->contentsMargins();
 	int marginWidth = margins.left() + margins.right();
@@ -1362,9 +1362,6 @@ EditPrivate::createAutoComplete(
 	if (flags & CodeAssistFlag_AutoCompleteFallback) {
 		QTextCursor cursor = getLastCodeAssistCursor();
 		if (hasCursorHighlightColor(cursor)) // not within keywords/literals/comments/etc
-			return;
-
-		if (!(flags & CodeAssistFlag_QualifiedName) && getCursorPrevChar(cursor) == '.') // not after the member operator
 			return;
 	}
 

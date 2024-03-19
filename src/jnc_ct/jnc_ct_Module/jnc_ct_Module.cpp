@@ -297,15 +297,7 @@ Module::parseImpl(
 	parser.create(fileName, Parser::StartSymbol);
 
 	CodeAssistKind codeAssistKind = m_codeAssistMgr.getCodeAssistKind();
-	if (!codeAssistKind)
-		do {
-			Token* token = lexer.takeToken();
-			isEof = token->m_token == TokenKind_Eof; // EOF token must be parsed
-			result = parser.consumeToken(token);
-			if (!result)
-				return false;
-		} while (!isEof);
-	else if (!unit->isRootUnit())
+	if (!codeAssistKind || !unit->isRootUnit())
 		do {
 			Token* token = lexer.takeToken();
 			token->m_data.m_codeAssistFlags = 0; // tokens can be reused -- ensure 0
@@ -316,7 +308,7 @@ Module::parseImpl(
 		} while (!isEof);
 	else {
 		size_t offset = m_codeAssistMgr.getOffset();
-		size_t autoCompleteFallbackOffset = offset;
+		size_t fallbackOffset = offset;
 
 		do {
 			if (m_asyncFlags & AsyncFlag_CancelCodeAssist)
@@ -326,10 +318,10 @@ Module::parseImpl(
 			bool isCodeAssist = markCodeAssistToken((Token*)token, offset);
 			if (isCodeAssist) {
 				if (token->m_tokenKind == TokenKind_Identifier && (token->m_data.m_codeAssistFlags & TokenCodeAssistFlag_At))
-					autoCompleteFallbackOffset = token->m_pos.m_offset;
+					fallbackOffset = token->m_pos.m_offset;
 
 				if (token->m_data.m_codeAssistFlags & TokenCodeAssistFlag_After) {
-					m_codeAssistMgr.prepareAutoCompleteFallback(autoCompleteFallbackOffset);
+					m_codeAssistMgr.prepareIdentifierFallback(fallbackOffset);
 					offset = -1; // not needed anymore
 				}
 			}

@@ -738,70 +738,47 @@ protected:
 	);
 
 	void
-	generateAutoCompleteIf(
+	createImportCodeAssistIf(const Token& token) {
+		if (token.m_data.m_codeAssistFlags & TokenCodeAssistFlag_At)
+			m_module->m_codeAssistMgr.createImportCodeAssist(token.m_pos.m_offset);
+	}
+
+	void
+	createMemberCodeAssistIf(
 		const Token& token,
 		const Value& value
 	) {
-		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_AutoComplete &&
-			(token.m_data.m_codeAssistFlags & TokenCodeAssistFlag_At))
-			generateAutoComplete(token, value);
+		if (token.m_data.m_codeAssistFlags & TokenCodeAssistFlag_At)
+			createMemberCodeAssist(token, value);
 	}
 
 	void
-	generateAutoComplete(
+	createMemberCodeAssist(
 		const Token& token,
 		const Value& value
 	);
 
 	void
-	generateAutoComplete(
+	prepareQualifiedNameCodeAssistFallbackIf(
 		const Token& token,
-		Namespace* nspace,
-		uint_t flags = 0
-	);
-
-	void
-	generateImportAutoCompleteIf(const Token& token) {
-		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_AutoComplete &&
-			(token.m_data.m_codeAssistFlags & TokenCodeAssistFlag_At))
-			m_module->m_codeAssistMgr.createImportAutoComplete(token.m_pos.m_offset);
-	}
-
-	void
-	prepareAutoCompleteFallbackIf(
-		const Token& token,
-		const QualifiedName& prefix,
-		uint_t flags = 0
+		const QualifiedName& name
 	) {
-		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_AutoComplete &&
-			(token.m_data.m_codeAssistFlags & TokenCodeAssistFlag_At))
-			prepareAutoCompleteFallback(token, prefix, flags);
+		if (token.m_data.m_codeAssistFlags & TokenCodeAssistFlag_At)
+			m_module->m_codeAssistMgr.prepareQualifiedNameFallback(
+				name,
+				token.m_tokenKind == TokenKind_Identifier ?
+					token.m_pos.m_offset :
+					token.m_pos.m_offset + token.m_pos.m_length
+			);
 	}
 
 	void
-	prepareAutoCompleteFallback(
-		const Token& token,
-		const QualifiedName& prefix,
-		uint_t flags = 0
-	);
-
-	void
-	generateMemberInfoIf(
-		const Token& token,
-		const Value& value,
-		const sl::StringRef& name
-	) {
-		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_QuickInfoTip &&
-			(token.m_data.m_codeAssistFlags & TokenCodeAssistFlag_At))
-			generateMemberInfo(token, value, name);
+	prepareExpressionCodeAssistFallbackIf(const sl::List<Token>& expression) {
+		if (expression.getTail()->m_data.m_codeAssistFlags &&
+			!(expression.getHead()->m_data.m_codeAssistFlags & TokenCodeAssistFlag_After)
+		)
+			m_module->m_codeAssistMgr.prepareExpressionFallback(expression);
 	}
-
-	void
-	generateMemberInfo(
-		const Token& token,
-		const Value& value,
-		const sl::StringRef& name
-	);
 }
 
 //..............................................................................

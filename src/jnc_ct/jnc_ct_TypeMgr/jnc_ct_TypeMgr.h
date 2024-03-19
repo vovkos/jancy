@@ -471,11 +471,6 @@ public:
 	}
 
 	FunctionType*
-	getFunctionType() {
-		return (FunctionType*)getStdType(StdType_SimpleFunction);
-	}
-
-	FunctionType*
 	createUserFunctionType(
 		CallConv* callConv,
 		Type* returnType,

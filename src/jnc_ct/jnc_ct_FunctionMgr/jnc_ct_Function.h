@@ -42,6 +42,7 @@ class Function:
 	friend class Jit;
 	friend class Unit;
 	friend class FunctionMgr;
+	friend class CodeAssistMgr;
 	friend class TypeMgr;
 	friend class MemberBlock;
 	friend class DerivableType;
