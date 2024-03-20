@@ -291,6 +291,7 @@ Module::parseImpl(
 	return false;
 #endif
 
+	result = true;
 	bool isEof;
 
 	Parser parser(this);
@@ -308,7 +309,7 @@ Module::parseImpl(
 		} while (!isEof);
 	else {
 		size_t offset = m_codeAssistMgr.getOffset();
-		size_t fallbackOffset = offset;
+		result = true;
 
 		do {
 			if (m_asyncFlags & AsyncFlag_CancelCodeAssist)
@@ -318,23 +319,27 @@ Module::parseImpl(
 			bool isCodeAssist = markCodeAssistToken((Token*)token, offset);
 			if (isCodeAssist) {
 				if (token->m_tokenKind == TokenKind_Identifier && (token->m_data.m_codeAssistFlags & TokenCodeAssistFlag_At))
-					fallbackOffset = token->m_pos.m_offset;
+					m_codeAssistMgr.prepareIdentifierFallback(*token);
 
 				if (token->m_data.m_codeAssistFlags & TokenCodeAssistFlag_After) {
-					m_codeAssistMgr.prepareIdentifierFallback(fallbackOffset);
+					m_codeAssistMgr.prepareNamespaceFallback();
 					offset = -1; // not needed anymore
 				}
 			}
 
 			isEof = token->m_token == TokenKind_Eof; // EOF token must be parsed
-			result = parser.consumeToken(token);
-			if (!result)
-				return false;
+			if (result)
+				result = parser.consumeToken(token);
+			else { // keep scanning tokens even after error -- until we get any fallback
+				parser.getTokenPool()->put(token);
+				if (m_codeAssistMgr.hasFallBack())
+					break;
+			}
 		} while (!isEof);
 	}
 
 	m_namespaceMgr.getGlobalNamespace()->getUsingSet()->clear();
-	return true;
+	return result;
 }
 
 bool

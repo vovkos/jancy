@@ -38,6 +38,7 @@ common_declaration_sync
 
 global_declaration
 	leave {
+		m_declarationId++;
 		return processAttributes();
 	}
 	:	common_declaration
@@ -58,6 +59,7 @@ global_declaration_sync
 
 member_block_declaration
 	leave {
+		m_declarationId++;
 		return processAttributes();
 	}
 	:	common_declaration
@@ -84,6 +86,7 @@ local_declaration
 		m_module->m_namespaceMgr.setSourcePos(m_tokenCursor->m_pos);
 	}
 	leave {
+		m_declarationId++;
 		return processAttributes();
 	}
 	:	common_declaration
@@ -100,6 +103,7 @@ local_branch_declaration // if/else/do/while/for
 		return checkUnusedAttributes();
 	}
 	leave {
+		m_declarationId++;
 		return checkUnusedAttributes();
 	}
 	:	attribute_block? (statement | local_item_declaration)

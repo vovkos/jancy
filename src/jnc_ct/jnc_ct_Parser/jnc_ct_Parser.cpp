@@ -50,6 +50,7 @@ Parser::Parser(
 	m_lastPropertyGetterType = NULL;
 	m_lastPropertyTypeModifiers = 0;
 	m_reactionIdx = 0;
+	m_declarationId = 0;
 	m_topDeclarator = NULL;
 	m_dynamicLayoutStmt = NULL;
 
@@ -233,34 +234,60 @@ Parser::parseTokenList(
 		return parseEofToken(lastTokenPos, lastTokenPos.m_length); // might trigger actions
 	} else {
 		size_t offset = m_module->m_codeAssistMgr.getOffset();
-		size_t fallbackOffset = offset;
+		size_t declarationId = -1;
 
 		bool result = true;
 
-		while (!tokenList->isEmpty()) {
-			Token* token = tokenList->removeHead();
-			bool isCodeAssist = markCodeAssistToken(token, offset);
-			if (isCodeAssist) {
-				if (token->m_tokenKind == TokenKind_Identifier && (token->m_data.m_codeAssistFlags & TokenCodeAssistFlag_At))
-					fallbackOffset = token->m_pos.m_offset;
+		if (m_mode != Mode_Compile)
+			while (!tokenList->isEmpty()) {
+				Token* token = tokenList->removeHead();
+				bool isCodeAssist = markCodeAssistToken(token, offset);
+				if (isCodeAssist) {
+					if (token->m_tokenKind == TokenKind_Identifier && (token->m_data.m_codeAssistFlags & TokenCodeAssistFlag_At))
+						m_module->m_codeAssistMgr.prepareIdentifierFallback(*token);
 
-				if (token->m_data.m_codeAssistFlags & TokenCodeAssistFlag_After) {
-					m_module->m_codeAssistMgr.prepareIdentifierFallback(fallbackOffset);
-
-					if (m_mode == Mode_Compile) {
-						lastTokenPos = token->m_pos;
-						m_tokenPool->put(token);
-						break;
+					if (token->m_data.m_codeAssistFlags & TokenCodeAssistFlag_After) {
+						m_module->m_codeAssistMgr.prepareNamespaceFallback();
+						offset = -1; // not needed anymore
 					}
+				}
 
-					offset = -1; // not needed anymore
+				if (result)
+					result = consumeToken(token);
+				else { // keep scanning tokens even after error -- until we get any fallback
+					m_tokenPool->put(token);
+					if (m_module->m_codeAssistMgr.hasFallBack())
+						break;
 				}
 			}
+		else
+			while (!tokenList->isEmpty()) {
+				Token* token = tokenList->removeHead();
+				bool isCodeAssist = markCodeAssistToken(token, offset);
+				if (isCodeAssist) {
+					if (token->m_tokenKind == TokenKind_Identifier && (token->m_data.m_codeAssistFlags & TokenCodeAssistFlag_At))
+						m_module->m_codeAssistMgr.prepareIdentifierFallback(*token);
 
-			result = consumeToken(token);
-			if (!result)
-				break;
-		}
+					if (token->m_data.m_codeAssistFlags & TokenCodeAssistFlag_After)
+						// keep parsing some more (until the end of the declaration)
+						if (declarationId == -1) {
+							declarationId = m_declarationId;
+							m_module->m_codeAssistMgr.prepareNamespaceFallback();
+						} else if (declarationId != m_declarationId) {
+							lastTokenPos = token->m_pos;
+							m_tokenPool->put(token);
+							break;
+						}
+				}
+
+				if (result)
+					result = consumeToken(token);
+				else { // keep scanning tokens even after error -- until we get any fallback
+					m_tokenPool->put(token);
+					if (m_module->m_codeAssistMgr.hasFallBack())
+						break;
+				}
+			}
 
 		if (result)
 			result = parseEofToken(lastTokenPos, lastTokenPos.m_length); // might trigger actions
@@ -2688,7 +2715,8 @@ Parser::lookupIdentifier(
 	};
 
 	if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_QuickInfoTip &&
-		(token.m_data.m_codeAssistFlags & TokenCodeAssistFlag_At))
+		(token.m_data.m_codeAssistFlags & TokenCodeAssistFlag_At)
+	)
 		m_module->m_codeAssistMgr.createQuickInfoTip(token.m_pos.m_offset, item);
 
 	return true;

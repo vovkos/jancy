@@ -133,6 +133,7 @@ protected:
 	Declarator* m_topDeclarator; // orphan declarators affect import type resolution
 	DynamicLayoutStmt* m_dynamicLayoutStmt;
 	size_t m_reactionIdx;
+	size_t m_declarationId;
 
 	dox::Parser m_doxyParser;
 
@@ -764,12 +765,7 @@ protected:
 		const QualifiedName& name
 	) {
 		if (token.m_data.m_codeAssistFlags & TokenCodeAssistFlag_At)
-			m_module->m_codeAssistMgr.prepareQualifiedNameFallback(
-				name,
-				token.m_tokenKind == TokenKind_Identifier ?
-					token.m_pos.m_offset :
-					token.m_pos.m_offset + token.m_pos.m_length
-			);
+			m_module->m_codeAssistMgr.prepareQualifiedNameFallback(name, token);
 	}
 
 	void

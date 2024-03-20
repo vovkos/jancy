@@ -727,7 +727,7 @@ EditPrivate::EditPrivate() {
 	m_pendingCodeAssistPosition = -1;
 
 	m_codeAssistTriggers =
-//		Edit::QuickInfoTipOnMouseOverIdentifier | // doesn't work quite well yet
+		Edit::QuickInfoTipOnMouseOverIdentifier |
 		Edit::ArgumentTipOnCtrlShiftSpace |
 		Edit::ArgumentTipOnTypeLeftParenthesis |
 		Edit::ArgumentTipOnTypeComma |
@@ -1361,8 +1361,10 @@ EditPrivate::createAutoComplete(
 
 	if (flags & CodeAssistFlag_AutoCompleteFallback) {
 		QTextCursor cursor = getLastCodeAssistCursor();
-		if (hasCursorHighlightColor(cursor)) // not within keywords/literals/comments/etc
+		if (hasCursorHighlightColor(cursor)) { // not within keywords/literals/comments/etc
+			hideCodeAssist();
 			return;
+		}
 	}
 
 	ensureCompleter();
@@ -1949,7 +1951,8 @@ EditPrivate::onCodeAssistReady() {
 	CodeAssist* codeAssist = thread->getModule()->getCodeAssist();
 	if (!codeAssist) {
 		if (thread->getCodeAssistKind() != CodeAssistKind_QuickInfoTip ||
-			m_lastCodeAssistKind == CodeAssistKind_QuickInfoTip) // don't let failed quick-info to ruin existing code-assist
+			m_lastCodeAssistKind == CodeAssistKind_QuickInfoTip
+		) // don't let failed quick-info to ruin other code-assists
 			hideCodeAssist();
 
 		return;
@@ -1978,6 +1981,8 @@ EditPrivate::onCodeAssistReady() {
 		break;
 
 	case CodeAssistKind_GotoDefinition:
+		hideCodeAssist();
+		// not yet...
 		break;
 
 	default:

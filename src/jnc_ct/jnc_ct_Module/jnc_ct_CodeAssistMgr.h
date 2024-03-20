@@ -97,6 +97,7 @@ class CodeAssistMgr {
 protected:
 	enum FallbackMode {
 		FallbackMode_None,
+		FallbackMode_Namespace,
 		FallbackMode_Identifier,
 		FallbackMode_QualifiedName,
 		FallbackMode_Expression,
@@ -128,9 +129,9 @@ protected:
 
 	FallbackMode m_fallbackMode;
 	Namespace* m_fallbackNamespace;
-	size_t m_fallbackOffset;
 	QualifiedName m_fallbackNamePrefix;
 	sl::List<Token> m_fallbackExpression;
+	Token m_fallbackToken;
 
 public:
 	CodeAssistMgr();
@@ -154,6 +155,11 @@ public:
 		return m_offset;
 	}
 
+	bool
+	hasFallBack() {
+		return m_fallbackMode != FallbackMode_None;
+	}
+
 	void
 	clear();
 
@@ -170,14 +176,17 @@ public:
 	void
 	prepareQualifiedNameFallback(
 		const QualifiedName& namePrefix,
-		size_t offset
+		const Token& token
 	);
 
 	void
 	prepareExpressionFallback(const sl::List<Token>& expression);
 
 	void
-	prepareIdentifierFallback(size_t offset);
+	prepareIdentifierFallback(const Token& token);
+
+	void
+	prepareNamespaceFallback();
 
 	CodeAssist*
 	createQuickInfoTip(

@@ -73,7 +73,7 @@ protected:
 		CodeAssistDelay_ArgumentTipInitial = 100,
 		CodeAssistDelay_ArgumentTipComma   = 250,
 		CodeAssistDelay_ArgumentTipPos     = 250,
-		CodeAssistDelay_QuickInfoTip       = 500,
+		CodeAssistDelay_QuickInfoTip       = 250,
 	};
 
 protected:

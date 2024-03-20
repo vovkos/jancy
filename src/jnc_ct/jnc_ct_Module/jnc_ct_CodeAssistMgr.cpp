@@ -41,7 +41,6 @@ CodeAssistMgr::CodeAssistMgr() {
 	m_containerItem = NULL;
 
 	m_fallbackMode = FallbackMode_None;
-	m_fallbackOffset = -1;
 	m_fallbackNamespace = NULL;
 }
 
@@ -56,7 +55,7 @@ CodeAssistMgr::clear() {
 	m_argumentTipStack.clear();
 
 	m_fallbackMode = FallbackMode_None;
-	m_fallbackOffset = -1;
+	m_fallbackToken.m_token = 0;
 	m_fallbackNamespace = NULL;
 	m_fallbackNamePrefix.clear();
 	m_fallbackExpression.clear();
@@ -270,21 +269,68 @@ CodeAssistMgr::createFallbackCodeAssist() {
 
 			nspace->ensureNamespaceReady();
 
-			return createAutoComplete(
-				m_fallbackOffset,
-				nspace,
-				CodeAssistFlag_AutoCompleteFallback |
-				CodeAssistFlag_QualifiedName
-			);
-		} // else fall through...
+			switch (m_codeAssistKind) {
+			case CodeAssistKind_AutoComplete:
+				return createAutoComplete(
+					m_fallbackToken.m_tokenKind == TokenKind_Identifier ?
+						m_fallbackToken.m_pos.m_offset :
+						m_fallbackToken.m_pos.m_offset + m_fallbackToken.m_pos.m_length,
+					nspace,
+					CodeAssistFlag_AutoCompleteFallback |
+					CodeAssistFlag_QualifiedName
+				);
+
+			case CodeAssistKind_QuickInfoTip:
+				if (m_fallbackToken.m_tokenKind != TokenKind_Identifier)
+					return NULL;
+
+				findItemResult = nspace->findItem(m_fallbackToken.m_data.m_string);
+				return findItemResult.m_item ?
+					createQuickInfoTip(m_fallbackToken.m_pos.m_offset, findItemResult.m_item) :
+					NULL;
+
+			case CodeAssistKind_GotoDefinition:
+				// not yet
+
+			default:
+				return NULL;
+			}
+		} // else fall through (it's the first identifier of a qualified name)
 
 	case FallbackMode_Identifier:
-		return createAutoComplete(
-			m_fallbackOffset,
-			m_fallbackNamespace,
-			CodeAssistFlag_AutoCompleteFallback |
-			CodeAssistFlag_IncludeParentNamespace
-		);
+		ASSERT(m_fallbackToken.m_tokenKind == TokenKind_Identifier);
+		switch (m_codeAssistKind) {
+		case CodeAssistKind_AutoComplete:
+			return createAutoComplete(
+				m_fallbackToken.m_pos.m_offset,
+				m_fallbackNamespace,
+				CodeAssistFlag_AutoCompleteFallback |
+				CodeAssistFlag_IncludeParentNamespace
+			);
+
+		case CodeAssistKind_QuickInfoTip: {
+			FindModuleItemResult findItemResult = m_fallbackNamespace->findItem(m_fallbackToken.m_data.m_string);
+			return findItemResult.m_item ?
+				createQuickInfoTip(m_fallbackToken.m_pos.m_offset, findItemResult.m_item) :
+				NULL;
+			}
+
+		case CodeAssistKind_GotoDefinition:
+			// not yet
+
+		default:
+			return NULL;
+		}
+
+	case FallbackMode_Namespace:
+		return m_codeAssistKind == CodeAssistKind_AutoComplete ?
+			createAutoComplete(
+				m_offset,
+				m_fallbackNamespace,
+				CodeAssistFlag_AutoCompleteFallback |
+				CodeAssistFlag_IncludeParentNamespace
+			) :
+			NULL;
 
 	case FallbackMode_Expression:
 		break;
@@ -294,6 +340,7 @@ CodeAssistMgr::createFallbackCodeAssist() {
 	}
 
 	m_module->m_unitMgr.setCurrentUnit(m_module->m_unitMgr.getRootUnit());
+	m_fallbackMode = FallbackMode_None;
 
 	Value value;
 	FunctionType* functionType = (FunctionType*)m_module->m_typeMgr.getStdType(StdType_SimpleFunction);
@@ -302,7 +349,11 @@ CodeAssistMgr::createFallbackCodeAssist() {
 	m_module->m_functionMgr.prologue(function, m_fallbackExpression.getHead()->m_pos);
 	m_module->m_operatorMgr.parseExpression(&m_fallbackExpression, &value);
 	m_module->m_functionMgr.epilogue();
-	return m_codeAssist;
+
+	return
+		m_codeAssist ? m_codeAssist :
+		m_fallbackMode && m_fallbackMode != FallbackMode_Expression ? createFallbackCodeAssist() :
+		NULL;
 }
 
 //..............................................................................

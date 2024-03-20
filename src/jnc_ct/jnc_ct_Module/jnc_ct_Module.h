@@ -424,12 +424,12 @@ inline
 void
 CodeAssistMgr::prepareQualifiedNameFallback(
 	const QualifiedName& namePrefix,
-	size_t offset
+	const Token& token
 ) {
 	m_fallbackMode = FallbackMode_QualifiedName;
 	m_fallbackNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
 	m_fallbackNamePrefix = namePrefix;
-	m_fallbackOffset = offset;
+	m_fallbackToken = token;
 }
 
 inline
@@ -443,11 +443,20 @@ CodeAssistMgr::prepareExpressionFallback(const sl::List<Token>& expression) {
 
 inline
 void
-CodeAssistMgr::prepareIdentifierFallback(size_t offset) {
-	if (m_fallbackMode <= FallbackMode_Identifier) { // only if no other fallbacks
+CodeAssistMgr::prepareIdentifierFallback(const Token& token) {
+	if (m_fallbackMode <= FallbackMode_Identifier) { // only if no better fallbacks
 		m_fallbackMode = FallbackMode_Identifier;
 		m_fallbackNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
-		m_fallbackOffset = offset;
+		m_fallbackToken = token;
+	}
+}
+
+inline
+void
+CodeAssistMgr::prepareNamespaceFallback() {
+	if (m_fallbackMode <= FallbackMode_Namespace) { // only if no better fallbacks
+		m_fallbackMode = FallbackMode_Namespace;
+		m_fallbackNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
 	}
 }
 
