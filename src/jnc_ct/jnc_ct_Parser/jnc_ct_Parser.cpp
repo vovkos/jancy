@@ -237,18 +237,20 @@ Parser::parseTokenList(
 		size_t declarationId = -1;
 
 		bool result = true;
+		bool isAfter = false;
 
 		if (m_mode != Mode_Compile)
 			while (!tokenList->isEmpty()) {
 				Token* token = tokenList->removeHead();
-				bool isCodeAssist = markCodeAssistToken(token, offset);
-				if (isCodeAssist) {
+				if (isAfter)
+					token->m_data.m_codeAssistFlags = TokenCodeAssistFlag_After;
+				else if (calcTokenCodeAssistFlags(token, offset)) {
 					if (token->m_tokenKind == TokenKind_Identifier && (token->m_data.m_codeAssistFlags & TokenCodeAssistFlag_At))
 						m_module->m_codeAssistMgr.prepareIdentifierFallback(*token);
 
 					if (token->m_data.m_codeAssistFlags & TokenCodeAssistFlag_After) {
 						m_module->m_codeAssistMgr.prepareNamespaceFallback();
-						offset = -1; // not needed anymore
+						isAfter = true;
 					}
 				}
 
@@ -263,21 +265,22 @@ Parser::parseTokenList(
 		else
 			while (!tokenList->isEmpty()) {
 				Token* token = tokenList->removeHead();
-				bool isCodeAssist = markCodeAssistToken(token, offset);
-				if (isCodeAssist) {
+				if (isAfter) {
+					if (declarationId != m_declarationId) { // keep parsing some more (until the end of the declaration)
+						lastTokenPos = token->m_pos;
+						m_tokenPool->put(token);
+						break;
+					}
+					token->m_data.m_codeAssistFlags = TokenCodeAssistFlag_After;
+				} else if (calcTokenCodeAssistFlags(token, offset)) {
 					if (token->m_tokenKind == TokenKind_Identifier && (token->m_data.m_codeAssistFlags & TokenCodeAssistFlag_At))
 						m_module->m_codeAssistMgr.prepareIdentifierFallback(*token);
 
-					if (token->m_data.m_codeAssistFlags & TokenCodeAssistFlag_After)
-						// keep parsing some more (until the end of the declaration)
-						if (declarationId == -1) {
-							declarationId = m_declarationId;
-							m_module->m_codeAssistMgr.prepareNamespaceFallback();
-						} else if (declarationId != m_declarationId) {
-							lastTokenPos = token->m_pos;
-							m_tokenPool->put(token);
-							break;
-						}
+					if (token->m_data.m_codeAssistFlags & TokenCodeAssistFlag_After) {
+						declarationId = m_declarationId;
+						m_module->m_codeAssistMgr.prepareNamespaceFallback();
+						isAfter = true;
+					}
 				}
 
 				if (result)

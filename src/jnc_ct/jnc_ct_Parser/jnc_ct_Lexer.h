@@ -443,7 +443,7 @@ isOffsetInsideTokenList(
 
 inline
 bool
-markCodeAssistToken(
+calcTokenCodeAssistFlags(
 	Token* token,
 	size_t offset
 ) {

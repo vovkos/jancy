@@ -309,6 +309,7 @@ Module::parseImpl(
 		} while (!isEof);
 	else {
 		size_t offset = m_codeAssistMgr.getOffset();
+		bool isAfter = false;
 		result = true;
 
 		do {
@@ -316,14 +317,15 @@ Module::parseImpl(
 				return err::fail(err::SystemErrorCode_Cancelled);
 
 			Token* token = lexer.takeToken();
-			bool isCodeAssist = markCodeAssistToken((Token*)token, offset);
-			if (isCodeAssist) {
+			if (isAfter)
+				token->m_data.m_codeAssistFlags = TokenCodeAssistFlag_After;
+			else if (calcTokenCodeAssistFlags(token, offset)) {
 				if (token->m_tokenKind == TokenKind_Identifier && (token->m_data.m_codeAssistFlags & TokenCodeAssistFlag_At))
 					m_codeAssistMgr.prepareIdentifierFallback(*token);
 
 				if (token->m_data.m_codeAssistFlags & TokenCodeAssistFlag_After) {
 					m_codeAssistMgr.prepareNamespaceFallback();
-					offset = -1; // not needed anymore
+					isAfter = true;
 				}
 			}
 
