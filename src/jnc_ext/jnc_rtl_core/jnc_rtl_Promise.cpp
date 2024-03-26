@@ -163,13 +163,24 @@ PromiseImpl::complete_2(
 	m_lock.lock();
 	if (m_state == State_Completed) {
 		m_lock.unlock();
-		TRACE("-- WARNING: ignoring repetitve completion for jnc.Promise: %p\n", this);
+		TRACE("-- WARNING: multiple completions for jnc.Promise %p\n", this);
 		return;
 	}
 
 	m_result = result;
 	m_errorPtr = errorPtr;
 	m_state = State_Completed;
+
+	if (errorPtr.m_p && m_syncWaitList.isEmpty() && m_asyncWaitList.isEmpty()) {
+		m_lock.unlock();
+
+		const err::ErrorHdr* error = (err::ErrorHdr*)errorPtr.m_p;
+		TRACE("-- WARNING: uncaught async exception for jnc.Promise %p: %s\n", this, error->getDescription().sz());
+
+		err::setError(error);
+		err::pushError("uncaught async exception");
+		dynamicThrow();
+	}
 
 	sl::Iterator<SyncWait> syncIt = m_syncWaitList.getHead();
 	for (; syncIt; syncIt++)
