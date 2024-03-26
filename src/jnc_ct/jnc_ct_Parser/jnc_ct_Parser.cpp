@@ -35,10 +35,9 @@ Parser::Parser(
 	m_doxyParser(&module->m_doxyModule) {
 	m_module = module;
 	m_mode = mode;
-	m_pragmaConfigBackup = module->m_pragmaMgr.m_config;
 
 	if (pragmaConfig)
-		module->m_pragmaMgr.m_config = *pragmaConfig;
+		m_pragmaConfig = *pragmaConfig;
 
 	m_pragmaConfigSnapshot = pragmaConfig;
 	m_storageKind = StorageKind_Undefined;
@@ -161,7 +160,7 @@ Parser::pragma(
 	}
 
 	m_pragmaConfigSnapshot = NULL;
-	return m_module->m_pragmaMgr->setPragma(pragmaKind, state, value);
+	return m_pragmaConfig.setPragma(pragmaKind, state, value);
 }
 
 void
@@ -2097,12 +2096,12 @@ Parser::createStructType(
 	StructType* structType = NULL;
 
 	if (name.isEmpty())
-		structType = m_module->m_typeMgr.createUnnamedStructType(m_module->m_pragmaMgr->m_fieldAlignment);
+		structType = m_module->m_typeMgr.createUnnamedStructType(m_pragmaConfig.m_fieldAlignment);
 	else {
 		structType = m_module->m_typeMgr.createStructType(
 			name,
 			nspace->createQualifiedName(name),
-			m_module->m_pragmaMgr->m_fieldAlignment
+			m_pragmaConfig.m_fieldAlignment
 		);
 
 		result = nspace->addItem(structType);
@@ -2132,12 +2131,12 @@ Parser::createUnionType(
 	UnionType* unionType = NULL;
 
 	if (name.isEmpty())
-		unionType = m_module->m_typeMgr.createUnnamedUnionType(m_module->m_pragmaMgr->m_fieldAlignment);
+		unionType = m_module->m_typeMgr.createUnnamedUnionType(m_pragmaConfig.m_fieldAlignment);
 	else {
 		unionType = m_module->m_typeMgr.createUnionType(
 			name,
 			nspace->createQualifiedName(name),
-			m_module->m_pragmaMgr->m_fieldAlignment
+			m_pragmaConfig.m_fieldAlignment
 		);
 
 		bool result = nspace->addItem(unionType);
@@ -2162,7 +2161,7 @@ Parser::createClassType(
 	ClassType* classType = m_module->m_typeMgr.createClassType(
 		name,
 		nspace->createQualifiedName(name),
-		m_module->m_pragmaMgr->m_fieldAlignment,
+		m_pragmaConfig.m_fieldAlignment,
 		flags
 	);
 
@@ -3237,7 +3236,7 @@ Parser::initializeDynamicLayoutStmt(
 	if (!result)
 		return false;
 
-	stmt->m_fieldAlignment = m_module->m_pragmaMgr.getConfigSnapshot()->m_fieldAlignment;
+	stmt->m_fieldAlignment = m_pragmaConfig.m_fieldAlignment;
 	stmt->m_structType = NULL;
 	stmt->m_structBlock = NULL;
 	return true;

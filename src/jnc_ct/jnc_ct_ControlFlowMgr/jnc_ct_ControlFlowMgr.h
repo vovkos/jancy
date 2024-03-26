@@ -314,6 +314,7 @@ public:
 	void
 	ifStmt_Create(
 		IfStmt* stmt,
+		PragmaConfig* pragmaConfig,
 		AttributeBlock* attributeBlock
 	);
 
@@ -331,7 +332,10 @@ public:
 	);
 
 	void
-	ifStmt_Follow(IfStmt* stmt);
+	ifStmt_Follow(
+		IfStmt* stmt,
+		PragmaConfig* pragmaConfig
+	);
 
 	// switch stmt
 
@@ -368,6 +372,7 @@ public:
 	void
 	regexSwitchStmt_Create(
 		RegexSwitchStmt* stmt,
+		PragmaConfig* pragmaConfig,
 		AttributeBlock* attributeBlock
 	);
 
@@ -395,13 +400,17 @@ public:
 	);
 
 	bool
-	regexSwitchStmt_Finalize(RegexSwitchStmt* stmt);
+	regexSwitchStmt_Finalize(
+		RegexSwitchStmt* stmt,
+		PragmaConfig* pragmaConfig
+	);
 
 	// while stmt
 
 	void
 	whileStmt_Create(
 		WhileStmt* stmt,
+		PragmaConfig* pragmaConfig,
 		AttributeBlock* attributeBlock
 	);
 
@@ -413,7 +422,10 @@ public:
 	);
 
 	void
-	whileStmt_Follow(WhileStmt* stmt);
+	whileStmt_Follow(
+		WhileStmt* stmt,
+		PragmaConfig* pragmaConfig
+	);
 
 	// do stmt
 
@@ -440,6 +452,7 @@ public:
 	void
 	forStmt_Create(
 		ForStmt* stmt,
+		PragmaConfig* pragmaConfig,
 		AttributeBlock* attributeBlock
 	);
 
@@ -471,7 +484,10 @@ public:
 	forStmt_PreBody(ForStmt* stmt);
 
 	void
-	forStmt_PostBody(ForStmt* stmt);
+	forStmt_PostBody(
+		ForStmt* stmt,
+		PragmaConfig* pragmaConfig
+	);
 
 	// once stmt
 
@@ -501,6 +517,22 @@ public:
 
 	Variable*
 	getFinallyRouteIdxVariable();
+
+	// stmts with regex conditions
+
+	void
+	setRegexFlags(
+		RegexCondStmt* stmt,
+		PragmaConfig* pragmaConfig,
+		AttributeBlock* attributeBlock,
+		uint_t defaultAnchorFlags = 0
+	);
+
+	void
+	restoreRegexFlags(
+		RegexCondStmt* stmt,
+		PragmaConfig* pragmaConfig
+	);
 
 protected:
 	void
@@ -532,16 +564,6 @@ protected:
 
 	void
 	setSjljFrame(size_t index);
-
-	void
-	setRegexFlags(
-		RegexCondStmt* stmt,
-		AttributeBlock* attributeBlock,
-		uint_t defaultAnchorFlags = 0
-	);
-
-	void
-	restoreRegexFlags(RegexCondStmt* stmt);
 };
 
 //..............................................................................

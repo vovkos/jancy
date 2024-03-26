@@ -128,7 +128,7 @@ if_stmt
 		IfStmt $stmt;
 	}
 	enter {
-		m_module->m_controlFlowMgr.ifStmt_Create(&$stmt, popAttributeBlock());
+		m_module->m_controlFlowMgr.ifStmt_Create(&$stmt, &m_pragmaConfig, popAttributeBlock());
 	}
 	:	TokenKind_If '(' expression $e ')' $a
 			{
@@ -143,7 +143,7 @@ if_stmt
 			local_branch_declaration
 		)?
 			{
-				m_module->m_controlFlowMgr.ifStmt_Follow(&$stmt);
+				m_module->m_controlFlowMgr.ifStmt_Follow(&$stmt, &m_pragmaConfig);
 			}
 	;
 
@@ -205,7 +205,7 @@ regex_switch_stmt
 		RegexSwitchStmt $stmt;
 	}
 	enter {
-		m_module->m_controlFlowMgr.regexSwitchStmt_Create(&$stmt, popAttributeBlock());
+		m_module->m_controlFlowMgr.regexSwitchStmt_Create(&$stmt, &m_pragmaConfig, popAttributeBlock());
 	}
 	:	TokenKind_Switch '(' expression $p1 (',' expression $p2)? ')'
 		'{' $l
@@ -219,7 +219,7 @@ regex_switch_stmt
 			}
 		regex_switch_block_stmt_list<&$stmt>
 			{
-				return m_module->m_controlFlowMgr.regexSwitchStmt_Finalize(&$stmt);
+				return m_module->m_controlFlowMgr.regexSwitchStmt_Finalize(&$stmt, &m_pragmaConfig);
 			}
 		'}'
 	;
@@ -261,7 +261,7 @@ while_stmt
 		WhileStmt $stmt;
 	}
 	enter {
-		m_module->m_controlFlowMgr.whileStmt_Create(&$stmt, popAttributeBlock());
+		m_module->m_controlFlowMgr.whileStmt_Create(&$stmt, &m_pragmaConfig, popAttributeBlock());
 	}
 	:	TokenKind_While '(' expression $e ')' $a
 			{
@@ -269,7 +269,7 @@ while_stmt
 			}
 		local_branch_declaration
 			{
-				m_module->m_controlFlowMgr.whileStmt_Follow(&$stmt);
+				m_module->m_controlFlowMgr.whileStmt_Follow(&$stmt, &m_pragmaConfig);
 			}
 	;
 
@@ -299,7 +299,7 @@ for_stmt
 		ForStmt $stmt;
 	}
 	enter {
-		m_module->m_controlFlowMgr.forStmt_Create(&$stmt, popAttributeBlock());
+		m_module->m_controlFlowMgr.forStmt_Create(&$stmt, &m_pragmaConfig, popAttributeBlock());
 	}
 	:	TokenKind_For '('
 			{
@@ -320,7 +320,7 @@ for_stmt
 			}
 		local_branch_declaration
 			{
-				m_module->m_controlFlowMgr.forStmt_PostBody(&$stmt);
+				m_module->m_controlFlowMgr.forStmt_PostBody(&$stmt, &m_pragmaConfig);
 			}
 	;
 

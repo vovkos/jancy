@@ -22,11 +22,12 @@ namespace ct {
 void
 ControlFlowMgr::setRegexFlags(
 	RegexCondStmt* stmt,
+	PragmaConfig* pragmaConfig,
 	AttributeBlock* attributeBlock,
 	uint_t defaultAnchorFlags
 ) {
 	if (attributeBlock) {
-		PragmaConfig pragmaConfig;
+		PragmaConfig newPragmaConfig;
 
 		const sl::Array<Attribute*>& attributeArray = attributeBlock->getAttributeArray();
 		size_t count = attributeArray.getCount();
@@ -35,49 +36,53 @@ ControlFlowMgr::setRegexFlags(
 			Pragma pragmaKind = PragmaMap::findValue(attr->getName(), Pragma_Undefined);
 			if (pragmaKind)
 				if (!attr->getValue())
-					pragmaConfig.setPragma(pragmaKind, PragmaState_NoValue);
+					newPragmaConfig.setPragma(pragmaKind, PragmaState_NoValue);
 				else
-					pragmaConfig.setPragma(
+					newPragmaConfig.setPragma(
 						pragmaKind,
 						PragmaState_CustomValue,
 						*(uint8_t*)attr->getValue().getConstData()
 					);
 		}
 
-		if (pragmaConfig.m_regexFlagMask) {
-			stmt->m_attrRegexFlagMask = pragmaConfig.m_regexFlagMask;
-			stmt->m_prevPragmaRegexFlags = m_module->m_pragmaMgr->m_regexFlags;
-			stmt->m_prevPragmaRegexFlagMask = m_module->m_pragmaMgr->m_regexFlagMask;
+		if (newPragmaConfig.m_regexFlagMask) {
+			stmt->m_attrRegexFlagMask = newPragmaConfig.m_regexFlagMask;
+			stmt->m_prevPragmaRegexFlags = pragmaConfig->m_regexFlags;
+			stmt->m_prevPragmaRegexFlagMask = pragmaConfig->m_regexFlagMask;
 
-			m_module->m_pragmaMgr->m_regexFlags &= ~pragmaConfig.m_regexFlagMask;
-			m_module->m_pragmaMgr->m_regexFlags |= pragmaConfig.m_regexFlags;
-			m_module->m_pragmaMgr->m_regexFlagMask |= pragmaConfig.m_regexFlagMask;
+			pragmaConfig->m_regexFlags &= ~newPragmaConfig.m_regexFlagMask;
+			pragmaConfig->m_regexFlags |= newPragmaConfig.m_regexFlags;
+			pragmaConfig->m_regexFlagMask |= newPragmaConfig.m_regexFlagMask;
 		}
 	}
 
-	stmt->m_regexFlags = m_module->m_pragmaMgr->m_regexFlags;
-	if (!(m_module->m_pragmaMgr->m_regexFlagMask & (re2::ExecFlag_Anchored | re2::ExecFlag_FullMatch)))
+	stmt->m_regexFlags = pragmaConfig->m_regexFlags;
+	if (!(pragmaConfig->m_regexFlagMask & (re2::ExecFlag_Anchored | re2::ExecFlag_FullMatch)))
 		stmt->m_regexFlags |= defaultAnchorFlags;
 }
 
 inline
 void
-ControlFlowMgr::restoreRegexFlags(RegexCondStmt* stmt) {
+ControlFlowMgr::restoreRegexFlags(
+	RegexCondStmt* stmt,
+	PragmaConfig* pragmaConfig
+) {
 	if (!stmt->m_attrRegexFlagMask)
 		return;
 
-	m_module->m_pragmaMgr->m_regexFlags &= ~stmt->m_attrRegexFlagMask;
-	m_module->m_pragmaMgr->m_regexFlags |= stmt->m_prevPragmaRegexFlags;
-	m_module->m_pragmaMgr->m_regexFlagMask &= ~stmt->m_attrRegexFlagMask;
-	m_module->m_pragmaMgr->m_regexFlagMask |= stmt->m_prevPragmaRegexFlagMask;
+	pragmaConfig->m_regexFlags &= ~stmt->m_attrRegexFlagMask;
+	pragmaConfig->m_regexFlags |= stmt->m_prevPragmaRegexFlags;
+	pragmaConfig->m_regexFlagMask &= ~stmt->m_attrRegexFlagMask;
+	pragmaConfig->m_regexFlagMask |= stmt->m_prevPragmaRegexFlagMask;
 }
 
 void
 ControlFlowMgr::ifStmt_Create(
 	IfStmt* stmt,
+	PragmaConfig* pragmaConfig,
 	AttributeBlock* attributeBlock
 ) {
-	setRegexFlags(stmt, attributeBlock);
+	setRegexFlags(stmt, pragmaConfig, attributeBlock);
 	stmt->m_thenBlock = createBlock("if_then");
 	stmt->m_elseBlock = createBlock("if_else");
 	stmt->m_followBlock = stmt->m_elseBlock;
@@ -112,10 +117,13 @@ ControlFlowMgr::ifStmt_Else(
 }
 
 void
-ControlFlowMgr::ifStmt_Follow(IfStmt* stmt) {
+ControlFlowMgr::ifStmt_Follow(
+	IfStmt* stmt,
+	PragmaConfig* pragmaConfig
+) {
 	m_module->m_namespaceMgr.closeScope();
 	follow(stmt->m_followBlock);
-	restoreRegexFlags(stmt);
+	restoreRegexFlags(stmt, pragmaConfig);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -223,9 +231,10 @@ ControlFlowMgr::switchStmt_Follow(SwitchStmt* stmt) {
 void
 ControlFlowMgr::regexSwitchStmt_Create(
 	RegexSwitchStmt* stmt,
+	PragmaConfig* pragmaConfig,
 	AttributeBlock* attributeBlock
 ) {
-	setRegexFlags(stmt, attributeBlock, re2::ExecFlag_FullMatch);
+	setRegexFlags(stmt, pragmaConfig, attributeBlock, re2::ExecFlag_FullMatch);
 	stmt->m_switchBlock = NULL;
 	stmt->m_defaultBlock = NULL;
 	stmt->m_followBlock = createBlock("regex_switch_follow");
@@ -344,7 +353,10 @@ ControlFlowMgr::regexSwitchStmt_Default(
 }
 
 bool
-ControlFlowMgr::regexSwitchStmt_Finalize(RegexSwitchStmt* stmt) {
+ControlFlowMgr::regexSwitchStmt_Finalize(
+	RegexSwitchStmt* stmt,
+	PragmaConfig* pragmaConfig
+) {
 	bool result;
 
 	m_module->m_namespaceMgr.closeScope();
@@ -403,7 +415,7 @@ ControlFlowMgr::regexSwitchStmt_Finalize(RegexSwitchStmt* stmt) {
 		);
 
 	setCurrentBlock(stmt->m_followBlock);
-	restoreRegexFlags(stmt);
+	restoreRegexFlags(stmt, pragmaConfig);
 	return true;
 }
 
@@ -412,9 +424,10 @@ ControlFlowMgr::regexSwitchStmt_Finalize(RegexSwitchStmt* stmt) {
 void
 ControlFlowMgr::whileStmt_Create(
 	WhileStmt* stmt,
+	PragmaConfig* pragmaConfig,
 	AttributeBlock* attributeBlock
 ) {
-	setRegexFlags(stmt, attributeBlock);
+	setRegexFlags(stmt, pragmaConfig, attributeBlock);
 	stmt->m_conditionBlock = createBlock("while_condition");
 	stmt->m_bodyBlock = createBlock("while_body");
 	stmt->m_followBlock = createBlock("while_follow");
@@ -438,10 +451,13 @@ ControlFlowMgr::whileStmt_Condition(
 }
 
 void
-ControlFlowMgr::whileStmt_Follow(WhileStmt* stmt) {
+ControlFlowMgr::whileStmt_Follow(
+	WhileStmt* stmt,
+	PragmaConfig* pragmaConfig
+) {
 	m_module->m_namespaceMgr.closeScope();
 	jump(stmt->m_conditionBlock, stmt->m_followBlock);
-	restoreRegexFlags(stmt);
+	restoreRegexFlags(stmt, pragmaConfig);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -485,9 +501,10 @@ ControlFlowMgr::doStmt_Condition(
 void
 ControlFlowMgr::forStmt_Create(
 	ForStmt* stmt,
+	PragmaConfig* pragmaConfig,
 	AttributeBlock* attributeBlock
 ) {
-	setRegexFlags(stmt, attributeBlock);
+	setRegexFlags(stmt, pragmaConfig, attributeBlock);
 	stmt->m_bodyBlock = createBlock("for_body");
 	stmt->m_followBlock = createBlock("for_follow");
 	stmt->m_conditionBlock = stmt->m_bodyBlock;
@@ -544,10 +561,13 @@ ControlFlowMgr::forStmt_PreBody(ForStmt* stmt) {
 }
 
 void
-ControlFlowMgr::forStmt_PostBody(ForStmt* stmt) {
+ControlFlowMgr::forStmt_PostBody(
+	ForStmt* stmt,
+	PragmaConfig* pragmaConfig
+) {
 	jump(stmt->m_loopBlock, stmt->m_followBlock);
 	m_module->m_namespaceMgr.closeScope();
-	restoreRegexFlags(stmt);
+	restoreRegexFlags(stmt, pragmaConfig);
 
 	if (!(stmt->m_followBlock->getFlags() & BasicBlockFlag_Jumped))
 		markUnreachable(stmt->m_followBlock);

@@ -392,7 +392,7 @@ operator_name
 declarator_prefix<Declarator* $declarator>
 	:	'*'
 			{
-				$declarator->addPointerPrefix(m_module->m_pragmaMgr->m_pointerModifiers);
+				$declarator->addPointerPrefix(m_pragmaConfig.m_pointerModifiers);
 			}
 		(type_modifier $m
 			{

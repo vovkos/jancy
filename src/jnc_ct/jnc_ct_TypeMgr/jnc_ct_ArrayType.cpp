@@ -116,10 +116,8 @@ ArrayType::calcLayout() {
 		m_module->m_functionMgr.overrideThisValue(prevThisValue);
 		m_module->m_unitMgr.setCurrentUnit(prevUnit);
 
-		if (!result) {
-			printf("error: %s\n", err::getLastErrorDescription().sz());
+		if (!result)
 			return false;
-		}
 
 		if (value <= 0) {
 			err::setFormatStringError("invalid array size '%lld'\n", value);

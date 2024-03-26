@@ -84,7 +84,7 @@ enum_specifier
 		TokenKind_Identifier $n?
 		(':' type_name $t)?
 			{
-				uint_t flags = m_module->m_pragmaMgr->m_enumFlags;
+				uint_t flags = m_pragmaConfig.m_enumFlags;
 				if (&$b)
 					flags |= EnumTypeFlag_BitFlag;
 

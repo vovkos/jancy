@@ -113,17 +113,9 @@ protected:
 	sl::DuckTypeHashTable<PragmaConfig, bool> m_snapshotDb;
 
 public:
-	PragmaConfig m_config;
-
-public:
-	PragmaConfig*
-	operator -> () {
-		return &m_config;
-	}
-
 	const PragmaConfig*
-	getConfigSnapshot() {
-		return &m_snapshotDb.visit(m_config)->getKey();
+	getConfigSnapshot(const PragmaConfig& config) {
+		return &m_snapshotDb.visit(config)->getKey();
 	}
 
 	void

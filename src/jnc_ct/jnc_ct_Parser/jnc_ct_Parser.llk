@@ -115,8 +115,8 @@ protected:
 	Module* m_module;
 	Mode m_mode;
 
+	PragmaConfig m_pragmaConfig;
 	const PragmaConfig* m_pragmaConfigSnapshot;
-	PragmaConfig m_pragmaConfigBackup;
 	StorageKind m_storageKind;
 	AccessKind m_accessKind;
 	AttributeBlockState m_attributeBlockState;
@@ -153,13 +153,9 @@ public:
 		Mode mode = Mode_Parse
 	);
 
-	~Parser() {
-		m_module->m_pragmaMgr.m_config = m_pragmaConfigBackup;
-	}
-
 	const PragmaConfig*
 	getPragmaConfigSnapshot() {
-		return m_pragmaConfigSnapshot ? m_pragmaConfigSnapshot : m_module->m_pragmaMgr.getConfigSnapshot();
+		return m_pragmaConfigSnapshot ? m_pragmaConfigSnapshot : m_module->m_pragmaMgr.getConfigSnapshot(m_pragmaConfig);
 	}
 
 	Declarator*
