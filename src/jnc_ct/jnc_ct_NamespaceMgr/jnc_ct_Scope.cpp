@@ -28,6 +28,7 @@ Scope::Scope() {
 	m_catchBlock = NULL;
 	m_finallyBlock = NULL;
 	m_tryExpr = NULL;
+	m_dynamicLayoutStmt = NULL;
 	m_firstStackVariable = NULL;
 	m_regexMatchVariable = NULL;
 	m_disposeLevelVariable = NULL;

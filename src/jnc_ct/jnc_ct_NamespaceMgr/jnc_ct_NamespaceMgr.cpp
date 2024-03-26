@@ -553,6 +553,17 @@ NamespaceMgr::findRegexScope() {
 	return scope;
 }
 
+Scope*
+NamespaceMgr::findDynamicLayoutScope() {
+	Scope* scope = m_currentScope;
+	for (; scope; scope = scope->getParentScope()) {
+		if (scope->m_dynamicLayoutStmt)
+			break;
+	}
+
+	return scope;
+}
+
 //..............................................................................
 
 } // namespace ct

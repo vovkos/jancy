@@ -31,7 +31,17 @@ struct TryExpr {
 	size_t m_sjljFrameIdx;
 };
 
-//..............................................................................
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct DynamicLayoutStmt {
+	size_t m_fieldAlignment;
+	Value m_layoutValue; // jnc.DynamicLayout
+	StructType* m_structType;
+	BasicBlock* m_structBlock;
+	sl::Array<Value> m_structSectionValueArray;
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum ScopeFlag {
 	ScopeFlag_Function       = 0x00000100,
@@ -72,6 +82,7 @@ public:
 	BasicBlock* m_catchBlock;
 	BasicBlock* m_finallyBlock;
 	TryExpr* m_tryExpr;
+	DynamicLayoutStmt* m_dynamicLayoutStmt;
 	size_t m_sjljFrameIdx;
 
 	LlvmIrInsertPoint m_gcShadowStackFrameMapInsertPoint;

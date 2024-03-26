@@ -103,14 +103,6 @@ public:
 		}
 	};
 
-	struct DynamicLayoutStmt {
-		size_t m_fieldAlignment;
-		Value m_layoutValue; // jnc.DynamicLayout
-		StructType* m_structType;
-		BasicBlock* m_structBlock;
-		sl::Array<Value> m_structSectionValueArray;
-	};
-
 protected:
 	Module* m_module;
 	Mode m_mode;
@@ -131,7 +123,6 @@ protected:
 
 	sl::Array<TypeSpecifier*> m_typeSpecifierStack;
 	Declarator* m_topDeclarator; // orphan declarators affect import type resolution
-	DynamicLayoutStmt* m_dynamicLayoutStmt;
 	size_t m_reactionIdx;
 	size_t m_declarationId;
 
@@ -710,14 +701,25 @@ protected:
 		BasicBlock* continueBlock
 	);
 
+	DynamicLayoutStmt*
+	findDynamicLayoutStmt() {
+		Scope* scope = m_module->m_namespaceMgr.findDynamicLayoutScope();
+		return scope ? scope->m_dynamicLayoutStmt : NULL;
+	}
+
 	bool
 	initializeDynamicLayoutStmt(
 		DynamicLayoutStmt* stmt,
-		const Value& layoutValue
+		const Value& layoutValue,
+		const lex::LineCol& pos,
+		uint_t flags = 0
 	);
 
 	bool
-	finalizeDynamicStructSection();
+	finalizeDynamicStructSection(DynamicLayoutStmt* stmt);
+
+	bool
+	finalizeDynamicLayoutStmt();
 
 	bool
 	openDynamicGroup(

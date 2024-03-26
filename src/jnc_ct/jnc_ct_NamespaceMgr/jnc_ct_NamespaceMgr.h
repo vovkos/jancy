@@ -196,6 +196,9 @@ public:
 	Scope*
 	findRegexScope();
 
+	Scope*
+	findDynamicLayoutScope();
+
 protected:
 	void
 	addGlobalNamespace(

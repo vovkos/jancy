@@ -440,20 +440,14 @@ dynamic_layout_stmt
 		DynamicLayoutStmt $stmt;
 		DynamicLayoutStmt* $prevStmt;
 	}
-	enter {
-		$prevStmt = m_dynamicLayoutStmt;
-		m_dynamicLayoutStmt = &$stmt;
-	}
-	leave {
-		m_dynamicLayoutStmt = $prevStmt;
-	}
-	:	TokenKind_DynamicLayout '(' expression $e ')'
+	:	TokenKind_DynamicLayout '(' expression $e ')' '{'
 			{
-				return initializeDynamicLayoutStmt(&$stmt, $e.m_value);
+				return initializeDynamicLayoutStmt(&$stmt, $e.m_value, $1.m_pos, $1.m_data.m_integer);
 			}
-		compound_stmt
+		local_declaration_list
+		'}'
 			{
-				return finalizeDynamicStructSection();
+				return finalizeDynamicLayoutStmt();
 			}
 	;
 
