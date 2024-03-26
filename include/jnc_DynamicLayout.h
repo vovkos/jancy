@@ -115,11 +115,22 @@ struct jnc_DynamicSection: jnc_DynamicSectionGroup {
 
 //..............................................................................
 
+enum jnc_DynamicLayoutMode {
+	jnc_DynamicLayoutMode_Block = 0,
+	jnc_DynamicLayoutMode_Stream,
+};
+
+typedef enum jnc_DynamicLayoutMode jnc_DynamicLayoutMode;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 JNC_EXTERN_C
 jnc_DynamicLayout*
 jnc_createDynamicLayout(
 	jnc_Runtime* runtime,
-	jnc_DataPtr ptr
+	jnc_DynamicLayoutMode mode,
+	jnc_DataPtr ptr,
+	size_t size
 );
 
 JNC_EXTERN_C
@@ -127,16 +138,22 @@ size_t
 jnc_DynamicLayout_getSize(jnc_DynamicLayout* layout);
 
 JNC_EXTERN_C
+size_t
+jnc_DynamicLayout_getBufferSize(jnc_DynamicLayout* layout);
+
+JNC_EXTERN_C
 void
 jnc_DynamicLayout_reset(
 	jnc_DynamicLayout* layout,
-	jnc_DataPtr ptr
+	jnc_DynamicLayoutMode mode,
+	jnc_DataPtr ptr,
+	size_t size
 );
 
 JNC_INLINE
 void
 jnc_DynamicLayout_clear(jnc_DynamicLayout* layout) {
-	jnc_DynamicLayout_reset(layout, jnc_g_nullDataPtr);
+	jnc_DynamicLayout_reset(layout, jnc_DynamicLayoutMode_Block, jnc_g_nullDataPtr, 0);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -154,8 +171,12 @@ struct jnc_DynamicLayout: jnc_DynamicSectionGroup {
 	}
 
 	void
-	reset(jnc_DataPtr ptr) {
-		jnc_DynamicLayout_reset(this, ptr);
+	reset(
+		jnc_DynamicLayoutMode mode,
+		jnc_DataPtr ptr,
+		size_t size
+	) {
+		jnc_DynamicLayout_reset(this, mode, ptr, size);
 	}
 };
 #endif
@@ -169,6 +190,7 @@ namespace jnc {
 typedef jnc_DynamicSectionKind  DynamicSectionKind;
 typedef jnc_DynamicSection      DynamicSection;
 typedef jnc_DynamicSectionGroup DynamicSectionGroup;
+typedef jnc_DynamicLayoutMode   DynamicLayoutMode;
 typedef jnc_DynamicLayout       DynamicLayout;
 
 const DynamicSectionKind
@@ -177,15 +199,38 @@ const DynamicSectionKind
 	DynamicSectionKind_Array     = jnc_DynamicSectionKind_Array,
 	DynamicSectionKind_Group     = jnc_DynamicSectionKind_Group;
 
+const DynamicLayoutMode
+	DynamicLayoutMode_Block  = jnc_DynamicLayoutMode_Block,
+	DynamicLayoutMode_Stream = jnc_DynamicLayoutMode_Stream;
+
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+DynamicLayout*
+createDynamicLayout(Runtime* runtime) {
+	return jnc_createDynamicLayout(runtime, DynamicLayoutMode_Block, g_nullDataPtr, 0);
+}
 
 inline
 DynamicLayout*
 createDynamicLayout(
 	Runtime* runtime,
-	DataPtr ptr = g_nullDataPtr
+	DataPtr ptr,
+	size_t size
 ) {
-	return jnc_createDynamicLayout(runtime, ptr);
+	return jnc_createDynamicLayout(runtime, DynamicLayoutMode_Block, ptr, size);
+}
+
+inline
+DynamicLayout*
+createDynamicLayout(
+	Runtime* runtime,
+	DynamicLayoutMode mode,
+	DataPtr ptr,
+	size_t size
+) {
+	return jnc_createDynamicLayout(runtime, mode, ptr, size);
 }
 
 //..............................................................................

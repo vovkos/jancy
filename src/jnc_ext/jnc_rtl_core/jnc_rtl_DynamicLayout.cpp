@@ -67,8 +67,10 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(DynamicLayout)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<DynamicLayout>)
-	JNC_MAP_OVERLOAD(&(jnc::construct<DynamicLayout, DataPtr>))
+	JNC_MAP_OVERLOAD(&(jnc::construct<DynamicLayout, uint_t, DataPtr, size_t>))
 	JNC_MAP_DESTRUCTOR(&jnc::destruct<DynamicLayout>)
+	JNC_MAP_FUNCTION("reset", &DynamicLayout::reset)
+	JNC_MAP_FUNCTION("resume", &DynamicLayout::resume)
 	JNC_MAP_FUNCTION("addStruct", &DynamicLayout::addStruct)
 	JNC_MAP_FUNCTION("addArray", &DynamicLayout::addArray)
 	JNC_MAP_FUNCTION("openGroup", &DynamicLayout::openGroup)
@@ -103,11 +105,58 @@ DynamicSection::getType_rtl() {
 
 void
 JNC_CDECL
-DynamicLayout::reset(DataPtr ptr) {
-	m_ptr = m_basePtr = ptr;
+DynamicLayout::reset(
+	uint_t mode,
+	DataPtr ptr,
+	size_t size
+) {
+	m_buffer->clear();
+	m_promise = NULL;
+	m_mode = mode;
+	m_ptr = ptr;
+	m_size = 0;
+	m_bufferSize = size;
 	m_sectionCount = 0;
 	m_groupStack.clear();
 	m_sectionArray.clear();
+
+}
+
+size_t
+JNC_CDECL
+DynamicLayout::resume(
+	DataPtr ptr,
+	size_t size
+) {
+	if (!m_promise || m_size <= m_bufferSize) {
+		err::setError("dynamic layout is not in a resumable state");
+		dynamicThrow();
+	}
+
+	char* p = (char*)ptr.m_p;
+	char* end = p + size;
+	char* p0 = p;
+
+	while (p < end) {
+		size_t bufferLeftover = end - p;
+		size_t packetLeftover = m_size - m_bufferSize;
+		if (bufferLeftover < packetLeftover) { // not yet
+			m_bufferSize = m_buffer->append(p, bufferLeftover);
+			printf("1-buffer: %p\n", m_buffer->m_ptr.m_p);
+			return size;
+		}
+
+		m_bufferSize = m_buffer->append(p, packetLeftover);
+		printf("2-buffer: %p\n", m_buffer->m_ptr.m_p);
+		p += packetLeftover;
+
+		m_ptr = m_buffer->m_ptr;
+		m_promise->complete(g_nullVariant, g_nullDataPtr); // this will resume the layout coroutine
+		if (m_size <= m_bufferSize) // complete
+			break;
+	}
+
+	return p - p0;
 }
 
 DynamicSection*
@@ -116,13 +165,14 @@ DynamicLayout::addStruct(ct::StructType* type) {
 	DynamicSection* section = createClass<DynamicSection>(
 		jnc::getCurrentThreadRuntime(),
 		DynamicSectionKind_Struct,
-		getSize(),
+		m_size,
 		(ct::ModuleItemDecl*)NULL,
 		type
 	);
 
 	addSection(section);
-	m_ptr.m_p = (char*)m_ptr.m_p + type->getSize();
+	m_size += type->getSize();
+	prepareForAwaitIf();
 	return section;
 }
 
@@ -136,14 +186,15 @@ DynamicLayout::addArray(
 	DynamicSection* section = createClass<DynamicSection>(
 		jnc::getCurrentThreadRuntime(),
 		DynamicSectionKind_Array,
-		getSize(),
+		m_size,
 		decl,
 		type
 	);
 
 	section->m_elementCount = elementCount;
 	addSection(section);
-	m_ptr.m_p = (char*)m_ptr.m_p + type->getSize() * elementCount;
+	m_size += type->getSize() * elementCount;
+	prepareForAwaitIf();
 	return section;
 }
 
@@ -160,13 +211,31 @@ DynamicLayout::openGroup(ct::ModuleItemDecl* decl) {
 	DynamicSection* section = createClass<DynamicSection>(
 		jnc::getCurrentThreadRuntime(),
 		DynamicSectionKind_Group,
-		getSize(),
+		m_size,
 		decl
 	);
 
 	addSection(section);
 	m_groupStack.append(section);
 	return section;
+}
+
+void
+DynamicLayout::prepareForAwait() {
+	if (m_buffer->m_ptr.m_p != m_ptr.m_p) // initial invokation
+		m_buffer->copy(m_ptr.m_p, m_bufferSize);
+
+
+
+//	if (!m_auxPromise) {
+		m_auxPromise = m_promise;
+		m_promise = createClass<PromiseImpl>(getCurrentThreadRuntime());
+/*	} else {
+		PromiseImpl* promise = m_auxPromise;
+		m_auxPromise = m_promise;
+		m_promise = promise;
+		promise->reset();
+	} */
 }
 
 //..............................................................................

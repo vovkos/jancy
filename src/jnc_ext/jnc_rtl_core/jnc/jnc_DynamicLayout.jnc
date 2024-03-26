@@ -9,10 +9,22 @@
 //
 //..............................................................................
 
+import "std_Buffer.jnc"
+
 namespace jnc {
 
 //! \addtogroup rtl-dynamic-layout
 //! @{
+
+//..............................................................................
+
+opaque class DynamicSectionGroup {
+	size_t const m_sectionCount;
+	DynamicSection* const property m_sectionArray(size_t index);
+
+	construct();
+	destruct();
+}
 
 //..............................................................................
 
@@ -21,16 +33,6 @@ enum DynamicSectionKind {
 	Struct,    // all regular fields are added to the tail struct section
 	Array,     // non-const array fields
 	Group,     // for grouping
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-opaque class DynamicSectionGroup {
-	size_t const m_sectionCount;
-	DynamicSection* const property m_sectionArray(size_t index);
-
-	construct();
-	destruct();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -44,27 +46,73 @@ opaque class DynamicSection: DynamicSectionGroup {
 	ModuleItemDecl* const property m_decl; // null for DynamicSectionKind.Struct
 }
 
+//..............................................................................
+
+enum DynamicLayoutMode {
+	Block,
+	Stream,
+}
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 opaque class DynamicLayout: DynamicSectionGroup {
-	void const* readonly m_base;
-	void const* readonly m_p;
+protected:
+	// only for DynamicLayoutMode.Stream
 
-	size_t const property m_size {
-		return m_p - m_base;
-	}
+	std.Buffer m_buffer;
+	Promise* m_promise;    // pending section promise
+	Promise* m_auxPromise; // to avoid extra allocations
+
+public:
+	void const* readonly m_p;
+	size_t readonly m_size;       // layout size (can be larger than buffer size)
+	size_t readonly m_bufferSize; // size of the buffer being parsed
+
+	DynamicLayoutMode readonly m_mode;
 
 	construct();
-	construct(void const* p);
+
+	construct(
+		DynamicLayoutMode mode,
+		void const* p,
+		size_t size
+	);
+
 	destruct();
 
-	void clear() {
-		reset(null, 0);
+	bool const property m_isIncomplete {
+		return m_size > m_bufferSize;
 	}
 
-	void reset(void const* p);
+	void clear() {
+		reset(DynamicLayoutMode.Block, null, 0);
+	}
+
+	void reset(
+		DynamicLayoutMode mode,
+		void const* p,
+		size_t size
+	);
+
+	void reset(
+		void const* p,
+		size_t size
+	) {
+		reset(DynamicLayoutMode.Block, p, size);
+	}
+
+	// only for DynamicLayoutMode.Stream
+
+	size_t resume(
+		void const* p,
+		size_t size
+	);
 
 protected:
+	bool const property m_shouldAwait {
+		return m_mode == DynamicLayoutMode.Stream && m_isIncomplete;
+	}
+
 	DynamicSection* addStruct(void thin* structType);
 
 	DynamicSection* addArray(

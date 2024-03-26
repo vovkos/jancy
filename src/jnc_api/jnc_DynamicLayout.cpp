@@ -89,16 +89,25 @@ JNC_EXPORT_O
 jnc_DynamicLayout*
 jnc_createDynamicLayout(
 	jnc_Runtime* runtime,
-	jnc_DataPtr ptr
+	jnc_DynamicLayoutMode mode,
+	jnc_DataPtr ptr,
+	size_t size
 ) {
-	return (jnc_DynamicLayout*)jnc::createClass<jnc::rtl::DynamicLayout>(runtime, ptr);
+	return (jnc_DynamicLayout*)jnc::createClass<jnc::rtl::DynamicLayout>(runtime, mode, ptr, size);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 size_t
 jnc_DynamicLayout_getSize(jnc_DynamicLayout* layout) {
-	return ((jnc::rtl::DynamicLayout*)layout)->getSize();
+	return ((jnc::rtl::DynamicLayout*)layout)->m_size;
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+size_t
+jnc_DynamicLayout_getBufferSize(jnc_DynamicLayout* layout) {
+	return ((jnc::rtl::DynamicLayout*)layout)->m_bufferSize;
 }
 
 JNC_EXTERN_C
@@ -106,9 +115,11 @@ JNC_EXPORT_O
 void
 jnc_DynamicLayout_reset(
 	jnc_DynamicLayout* layout,
-	jnc_DataPtr ptr
+	jnc_DynamicLayoutMode mode,
+	jnc_DataPtr ptr,
+	size_t size
 ) {
-	((jnc::rtl::DynamicLayout*)layout)->reset(ptr);
+	((jnc::rtl::DynamicLayout*)layout)->reset(mode, ptr, size);
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

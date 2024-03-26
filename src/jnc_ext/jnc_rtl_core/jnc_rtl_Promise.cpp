@@ -85,6 +85,17 @@ PromiseImpl::markOpaqueGcRoots(GcHeap* gcHeap) {
 	m_lock.unlock();
 }
 
+void
+PromiseImpl::reset() {
+	ASSERT(m_state == State_Completed && m_asyncWaitList.isEmpty() && m_syncWaitList.isEmpty());
+
+	m_lock.lock();
+	m_state = State_Initial;
+	m_result = g_nullVariant;
+	m_errorPtr = g_nullDataPtr;
+	m_lock.unlock();
+}
+
 uintptr_t
 JNC_CDECL
 PromiseImpl::wait_0(FunctionPtr handlerPtr) {

@@ -1738,7 +1738,8 @@ Parser::declareData(
 				result =
 					nspace->addItem(field) &&
 					m_module->m_operatorMgr.memberOperator(m_dynamicLayoutStmt->m_layoutValue, "addArray", &funcValue) &&
-					m_module->m_operatorMgr.callOperator(funcValue, declValue, typeValue, countValue, &offsetValue);
+					m_module->m_operatorMgr.callOperator(funcValue, declValue, typeValue, countValue, &offsetValue) &&
+					m_module->m_operatorMgr.awaitDynamicLayoutIf(m_dynamicLayoutStmt->m_layoutValue);
 
 				m_module->m_compileFlags &= ~Module::AuxCompileFlag_SkipAccessChecks;
 
@@ -1773,12 +1774,15 @@ Parser::declareData(
 			Value funcValue;
 			Value typeValue(&structType, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
 			Value sectionValue;
+			Value sizeValue;
+			Value bufferSizeValue;
 
 			m_module->m_compileFlags |= Module::AuxCompileFlag_SkipAccessChecks;
 
 			result =
 				m_module->m_operatorMgr.memberOperator(m_dynamicLayoutStmt->m_layoutValue, "addStruct", &funcValue) &&
-				m_module->m_operatorMgr.callOperator(funcValue, typeValue, &sectionValue);
+				m_module->m_operatorMgr.callOperator(funcValue, typeValue, &sectionValue) &&
+				m_module->m_operatorMgr.awaitDynamicLayoutIf(m_dynamicLayoutStmt->m_layoutValue);
 
 			m_module->m_compileFlags &= ~Module::AuxCompileFlag_SkipAccessChecks;
 
@@ -2630,7 +2634,7 @@ Parser::lookupIdentifier(
 		Value ptrValue;
 
 		result =
-			m_module->m_operatorMgr.memberOperator(m_dynamicLayoutStmt->m_layoutValue, "m_base", &ptrValue) &&
+			m_module->m_operatorMgr.memberOperator(m_dynamicLayoutStmt->m_layoutValue, "m_p", &ptrValue) &&
 			m_module->m_operatorMgr.binaryOperator(BinOpKind_Add, &ptrValue, cnst->getValue()) &&
 			m_module->m_operatorMgr.castOperator(
 				ptrValue,
@@ -2674,7 +2678,7 @@ Parser::lookupIdentifier(
 		Value ptrValue;
 
 		result =
-			m_module->m_operatorMgr.memberOperator(m_dynamicLayoutStmt->m_layoutValue, "m_base", &ptrValue) &&
+			m_module->m_operatorMgr.memberOperator(m_dynamicLayoutStmt->m_layoutValue, "m_p", &ptrValue) &&
 			m_module->m_operatorMgr.memberOperator(sectionValue, "m_offset", &offsetValue) &&
 			m_module->m_operatorMgr.binaryOperator(BinOpKind_Add, &offsetValue, fieldOffsetValue) &&
 			m_module->m_operatorMgr.binaryOperator(BinOpKind_Add, &ptrValue, offsetValue) &&

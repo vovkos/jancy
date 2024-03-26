@@ -13,6 +13,7 @@
 #include "jnc_ct_OperatorMgr.h"
 #include "jnc_ct_Module.h"
 #include "jnc_ct_ArrayType.h"
+#include "jnc_rtl_DynamicLayout.h"
 
 namespace jnc {
 namespace ct {
@@ -1713,6 +1714,31 @@ OperatorMgr::awaitOperator(
 		loadDataRef(pendingPromiseFieldValue, &opPromiseValue) &&
 		memberOperator(opPromiseValue, "blockingWait", &waitValue) &&
 		callOperator(waitValue, resultValue);
+}
+
+bool
+OperatorMgr::awaitDynamicLayoutIf(const Value& opValue) {
+	FunctionKind functionKind = m_module->m_functionMgr.getCurrentFunction()->getFunctionKind();
+	if (functionKind != FunctionKind_AsyncSequencer) // only when inside
+		return true;
+
+	Value shouldAwaitValue;
+	Value promiseValue;
+
+	BasicBlock* awaitBlock = m_module->m_controlFlowMgr.createBlock("await_block");
+	BasicBlock* followBlock = m_module->m_controlFlowMgr.createBlock("follow_block");
+
+	bool result =
+		memberOperator(opValue, "m_shouldAwait", &shouldAwaitValue) &&
+		m_module->m_controlFlowMgr.conditionalJump(shouldAwaitValue, awaitBlock, followBlock) &&
+		memberOperator(opValue, "m_promise", &promiseValue) &&
+		awaitOperator(promiseValue);
+
+	if (!result)
+		return false;
+
+	m_module->m_controlFlowMgr.follow(followBlock);
+	return true;
 }
 
 bool

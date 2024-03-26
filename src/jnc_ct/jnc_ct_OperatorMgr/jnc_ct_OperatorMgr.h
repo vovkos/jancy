@@ -675,6 +675,11 @@ public:
 		return awaitOperator(*value, value);
 	}
 
+	bool
+	awaitDynamicLayoutIf(const Value& value);
+
+	// memory block ops
+
 	void
 	zeroInitialize(const Value& value);
 

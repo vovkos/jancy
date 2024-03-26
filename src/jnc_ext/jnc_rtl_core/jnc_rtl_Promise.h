@@ -115,6 +115,11 @@ public:
 		DataPtr errorPtr
 	);
 
+	// only after a promise is completed
+
+	void
+	reset();
+
 protected:
 	uintptr_t
 	addAsyncWait_l(

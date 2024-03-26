@@ -307,6 +307,7 @@
 		jnc_DynamicSection_getDecl;
 		jnc_createDynamicLayout;
 		jnc_DynamicLayout_getSize;
+		jnc_DynamicLayout_getBufferSize;
 		jnc_DynamicLayout_reset;
 
 	local: *;
