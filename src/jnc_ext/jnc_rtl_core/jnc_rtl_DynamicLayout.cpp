@@ -66,8 +66,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 )
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(DynamicLayout)
-	JNC_MAP_CONSTRUCTOR(&jnc::construct<DynamicLayout>)
-	JNC_MAP_OVERLOAD(&(jnc::construct<DynamicLayout, uint_t, DataPtr, size_t>))
+	JNC_MAP_FUNCTION("init", &jnc::construct<DynamicLayout>)
 	JNC_MAP_DESTRUCTOR(&jnc::destruct<DynamicLayout>)
 	JNC_MAP_FUNCTION("reset", &DynamicLayout::reset)
 	JNC_MAP_FUNCTION("resume", &DynamicLayout::resume)
@@ -142,12 +141,10 @@ DynamicLayout::resume(
 		size_t packetLeftover = m_size - m_bufferSize;
 		if (bufferLeftover < packetLeftover) { // not yet
 			m_bufferSize = m_buffer->append(p, bufferLeftover);
-			printf("1-buffer: %p\n", m_buffer->m_ptr.m_p);
 			return size;
 		}
 
 		m_bufferSize = m_buffer->append(p, packetLeftover);
-		printf("2-buffer: %p\n", m_buffer->m_ptr.m_p);
 		p += packetLeftover;
 
 		m_ptr = m_buffer->m_ptr;
@@ -225,17 +222,15 @@ DynamicLayout::prepareForAwait() {
 	if (m_buffer->m_ptr.m_p != m_ptr.m_p) // initial invokation
 		m_buffer->copy(m_ptr.m_p, m_bufferSize);
 
-
-
-//	if (!m_auxPromise) {
+	if (!m_auxPromise) {
 		m_auxPromise = m_promise;
 		m_promise = createClass<PromiseImpl>(getCurrentThreadRuntime());
-/*	} else {
+	} else {
 		PromiseImpl* promise = m_auxPromise;
 		m_auxPromise = m_promise;
 		m_promise = promise;
 		promise->reset();
-	} */
+	}
 }
 
 //..............................................................................

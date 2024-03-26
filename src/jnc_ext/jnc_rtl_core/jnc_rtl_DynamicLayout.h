@@ -64,7 +64,7 @@ public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(DynamicSection)
 
 public:
-	DynamicSectionKind m_sectionKind;
+	uint_t m_sectionKind;
 	size_t m_offset;
 	size_t m_elementCount;
 
@@ -144,18 +144,8 @@ protected:
 	sl::Array<DynamicSectionGroup*> m_groupStack; // groups are already added -- no need to extra mark
 
 public:
-	DynamicLayout() {
-	}
-
-	DynamicLayout(
-		uint_t mode,
-		DataPtr ptr,
-		size_t size
-	) {
-		reset(mode, ptr, size);
-	}
-
 	void
+	JNC_CDECL
 	clear() {
 		reset(DynamicLayoutMode_Block, g_nullDataPtr, 0);
 	}

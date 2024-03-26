@@ -93,7 +93,9 @@ jnc_createDynamicLayout(
 	jnc_DataPtr ptr,
 	size_t size
 ) {
-	return (jnc_DynamicLayout*)jnc::createClass<jnc::rtl::DynamicLayout>(runtime, mode, ptr, size);
+	jnc_DynamicLayout* layout = (jnc_DynamicLayout*)jnc::createClass<jnc::rtl::DynamicLayout>(runtime);
+	layout->reset(mode, ptr, size);
+	return layout;
 }
 
 JNC_EXTERN_C

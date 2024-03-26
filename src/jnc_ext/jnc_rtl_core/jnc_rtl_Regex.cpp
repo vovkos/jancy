@@ -96,6 +96,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 )
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Regex)
+	JNC_MAP_FUNCTION("init", &Regex::init)
 	JNC_MAP_DESTRUCTOR(&jnc::destruct<Regex>)
 	JNC_MAP_FUNCTION("clear", &Regex::clear)
 	JNC_MAP_FUNCTION("load", &Regex::load)
@@ -108,7 +109,6 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(Regex)
 	JNC_MAP_FUNCTION("execEof", &Regex::execEof)
 	JNC_MAP_FUNCTION("captureSubmatches", &Regex::captureSubmatches)
 	JNC_MAP_FUNCTION("captureSwitchCaseSubmatches", &Regex::captureSwitchCaseSubmatches)
-	JNC_MAP_FUNCTION("init", &Regex::init)
 JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................

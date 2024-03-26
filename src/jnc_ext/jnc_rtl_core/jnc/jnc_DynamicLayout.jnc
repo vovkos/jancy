@@ -19,7 +19,7 @@ namespace jnc {
 //..............................................................................
 
 opaque class DynamicSectionGroup {
-	size_t const m_sectionCount;
+	size_t readonly m_sectionCount;
 	DynamicSection* const property m_sectionArray(size_t index);
 
 	construct();
@@ -40,7 +40,7 @@ enum DynamicSectionKind {
 opaque class DynamicSection: DynamicSectionGroup {
 	DynamicSectionKind readonly m_sectionKind;
 	size_t readonly m_offset;
-	size_t const m_elementCount; // for DynamicSectionKind.Array
+	size_t readonly m_elementCount; // for DynamicSectionKind.Array
 
 	Type* const property m_type;           // null for DynamicSectionKind.Group
 	ModuleItemDecl* const property m_decl; // null for DynamicSectionKind.Struct
@@ -70,13 +70,26 @@ public:
 
 	DynamicLayoutMode readonly m_mode;
 
-	construct();
+	construct() {
+		init();
+	}
 
 	construct(
 		DynamicLayoutMode mode,
 		void const* p,
 		size_t size
-	);
+	) {
+		init();
+		reset(mode, p, size);
+	}
+
+	construct(
+		void const* p,
+		size_t size
+	) {
+		init();
+		reset(DynamicLayoutMode.Block, p, size);
+	}
 
 	destruct();
 
@@ -109,6 +122,8 @@ public:
 	);
 
 protected:
+	void init();
+
 	bool const property m_shouldAwait {
 		return m_mode == DynamicLayoutMode.Stream && m_isIncomplete;
 	}
