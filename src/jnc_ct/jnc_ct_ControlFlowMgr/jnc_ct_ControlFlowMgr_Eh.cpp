@@ -181,12 +181,14 @@ ControlFlowMgr::setJmpFinally(
 	setCurrentBlock(prevBlock);
 }
 
-void
-ControlFlowMgr::beginTryOperator(TryExpr* tryExpr) {
+TryExpr*
+ControlFlowMgr::beginTryOperator() {
 	if (!m_module->hasCodeGen())
-		return;
+		return NULL;
 
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
+
+	TryExpr* tryExpr = m_module->m_namespaceMgr.createScopeExtension<TryExpr>();
 	tryExpr->m_prev = scope->m_tryExpr;
 	tryExpr->m_catchBlock = createBlock("try_catch_block");
 	tryExpr->m_sjljFrameIdx = tryExpr->m_prev ?
@@ -195,6 +197,7 @@ ControlFlowMgr::beginTryOperator(TryExpr* tryExpr) {
 
 	setJmp(tryExpr->m_catchBlock, tryExpr->m_sjljFrameIdx);
 	scope->m_tryExpr = tryExpr;
+	return tryExpr;
 }
 
 bool
@@ -218,6 +221,10 @@ ControlFlowMgr::endTryOperator(
 		return true;
 
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
+	if (scope->m_tryExpr != tryExpr) {
+		err::setError("invalid scope structure due to previous errors");
+		return false;
+	}
 
 	BasicBlock* prevBlock = m_currentBlock;
 	BasicBlock* phiBlock = createBlock("try_phi_block");

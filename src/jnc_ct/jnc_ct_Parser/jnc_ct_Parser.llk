@@ -707,9 +707,8 @@ protected:
 		return scope ? scope->m_dynamicLayoutStmt : NULL;
 	}
 
-	bool
+	DynamicLayoutStmt*
 	initializeDynamicLayoutStmt(
-		DynamicLayoutStmt* stmt,
 		const Value& layoutValue,
 		const lex::LineCol& pos,
 		uint_t flags = 0
@@ -719,7 +718,7 @@ protected:
 	finalizeDynamicStructSection(DynamicLayoutStmt* stmt);
 
 	bool
-	finalizeDynamicLayoutStmt();
+	finalizeDynamicLayoutStmt(DynamicLayoutStmt* stmt);
 
 	bool
 	openDynamicGroup(

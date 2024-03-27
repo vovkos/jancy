@@ -254,8 +254,8 @@ public:
 
 	// exception handling
 
-	void
-	beginTryOperator(TryExpr* tryExpr);
+	TryExpr*
+	beginTryOperator();
 
 	bool
 	endTryOperator(

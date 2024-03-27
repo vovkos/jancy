@@ -664,15 +664,15 @@ unary_operator_expr<Value* $value>
 
 try_operator<Value* $value>
 	local {
-		TryExpr $tryExpr;
+		TryExpr* $tryExpr;
 	}
 	:	TokenKind_Try
 			{
-				m_module->m_controlFlowMgr.beginTryOperator(&$tryExpr);
+				return $tryExpr = m_module->m_controlFlowMgr.beginTryOperator();
 			}
 		unary_expr<$value>
 			{
-				return m_module->m_controlFlowMgr.endTryOperator(&$tryExpr, $value);
+				return m_module->m_controlFlowMgr.endTryOperator($tryExpr, $value);
 			}
 	;
 

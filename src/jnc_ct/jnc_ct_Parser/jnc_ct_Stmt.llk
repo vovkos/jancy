@@ -437,17 +437,16 @@ assert_stmt
 
 dynamic_layout_stmt
 	local {
-		DynamicLayoutStmt $stmt;
-		DynamicLayoutStmt* $prevStmt;
+		DynamicLayoutStmt* $stmt;
 	}
 	:	TokenKind_DynamicLayout '(' expression $e ')' '{' $l
 			{
-				return initializeDynamicLayoutStmt(&$stmt, $e.m_value, $l.m_pos, $l.m_data.m_integer);
+				return $stmt = initializeDynamicLayoutStmt($e.m_value, $l.m_pos, $l.m_data.m_integer);
 			}
 		local_declaration_list
 		'}'
 			{
-				return finalizeDynamicLayoutStmt();
+				return finalizeDynamicLayoutStmt($stmt); // make sure this stmt is not referenced anymore
 			}
 	;
 

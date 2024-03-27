@@ -49,6 +49,7 @@ protected:
 	sl::List<Alias> m_aliasList;
 
 	sl::Array<NamespaceStackEntry> m_namespaceStack;
+	sl::AutoPtrArray<ScopeExtension> m_scopeExtensionArray;
 
 	lex::LineCol m_sourcePos;
 	Namespace* m_currentNamespace;
@@ -107,6 +108,10 @@ public:
 
 	void
 	setSourcePos(const lex::LineCol& pos);
+
+	template <typename T>
+	T*
+	createScopeExtension();
 
 	GlobalNamespace*
 	getGlobalNamespace() {
@@ -219,6 +224,14 @@ NamespaceMgr::createGlobalNamespace(
 	T* nspace = new T;
 	addGlobalNamespace(nspace, name, parentNamespace);
 	return nspace;
+}
+
+template <typename T>
+T*
+NamespaceMgr::createScopeExtension(){
+	T* extension = new T;
+	m_scopeExtensionArray.append(extension);
+	return extension;
 }
 
 //..............................................................................

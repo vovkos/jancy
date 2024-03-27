@@ -25,7 +25,11 @@ class GcShadowStackFrameMap;
 
 //..............................................................................
 
-struct TryExpr {
+struct ScopeExtension {
+	virtual ~ScopeExtension() {}
+};
+
+struct TryExpr: ScopeExtension {
 	TryExpr* m_prev;
 	BasicBlock* m_catchBlock;
 	size_t m_sjljFrameIdx;
@@ -33,12 +37,12 @@ struct TryExpr {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct DynamicLayoutStmt {
-	size_t m_fieldAlignment;
+struct DynamicLayoutStmt: ScopeExtension {
 	Value m_layoutValue; // jnc.DynamicLayout
 	StructType* m_structType;
 	BasicBlock* m_structBlock;
 	sl::Array<Value> m_structSectionValueArray;
+	size_t m_fieldAlignment;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

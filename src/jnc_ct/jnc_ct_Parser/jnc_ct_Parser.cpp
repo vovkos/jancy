@@ -3220,33 +3220,36 @@ Parser::finalizeAssertStmt(
 	return true;
 }
 
-bool
+DynamicLayoutStmt*
 Parser::initializeDynamicLayoutStmt(
-	DynamicLayoutStmt* stmt,
-	const Value& layoutValue,
+	const Value& layoutValue0,
 	const lex::LineCol& pos,
 	uint_t flags
 ) {
 	ClassType* layoutType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_DynamicLayout);
 
+	Value layoutValue;
+
 	bool result =
 		m_module->ensureIntrospectionLibRequired() &&
 		m_module->m_operatorMgr.castOperator(
-			layoutValue,
+			layoutValue0,
 			layoutType->getClassPtrType(ClassPtrTypeKind_Normal, PtrTypeFlag_Safe),
-			&stmt->m_layoutValue
+			&layoutValue
 		);
 
 	if (!result)
 		return false;
 
-	stmt->m_fieldAlignment = m_pragmaConfig.m_fieldAlignment;
+	DynamicLayoutStmt* stmt = m_module->m_namespaceMgr.createScopeExtension<DynamicLayoutStmt>();
+	stmt->m_layoutValue = layoutValue;
 	stmt->m_structType = NULL;
 	stmt->m_structBlock = NULL;
+	stmt->m_fieldAlignment = m_pragmaConfig.m_fieldAlignment;
 
 	Scope* scope = m_module->m_namespaceMgr.openScope(pos, flags);
 	scope->m_dynamicLayoutStmt = stmt;
-	return true;
+	return stmt;
 }
 
 bool
@@ -3270,11 +3273,17 @@ Parser::finalizeDynamicStructSection(DynamicLayoutStmt* stmt) {
 }
 
 bool
-Parser::finalizeDynamicLayoutStmt() {
-	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
-	ASSERT(scope->m_dynamicLayoutStmt);
+Parser::finalizeDynamicLayoutStmt(DynamicLayoutStmt* stmt) {
+	if (!m_module->hasCodeGen())
+		return true;
 
-	bool result = finalizeDynamicStructSection(scope->m_dynamicLayoutStmt);
+	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
+	if (scope->m_dynamicLayoutStmt != stmt) {
+		err::setError("invalid scope structure due to previous errors");
+		return false;
+	}
+
+	bool result = finalizeDynamicStructSection(stmt);
 	m_module->m_namespaceMgr.closeScope();
 	return result;
 }
