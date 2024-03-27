@@ -61,7 +61,10 @@ public:
 	create();
 
 	void
-	clear();
+	clear() {
+		delete m_llvmDiBuilder;
+		m_llvmDiBuilder = NULL;
+	}
 
 	void
 	finalize() {

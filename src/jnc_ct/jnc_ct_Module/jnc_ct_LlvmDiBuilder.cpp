@@ -49,15 +49,6 @@ LlvmDiBuilder::create() {
 	);
 }
 
-void
-LlvmDiBuilder::clear() {
-	if (!m_llvmDiBuilder)
-		return;
-
-	delete m_llvmDiBuilder;
-	m_llvmDiBuilder = NULL;
-}
-
 llvm::DebugLoc
 LlvmDiBuilder::getDebugLoc(
 	Scope* scope,

@@ -91,14 +91,6 @@ CodeAssistMgr::generateCodeAssist() {
 	return m_codeAssist;
 }
 
-void
-CodeAssistMgr::freeCodeAssist() {
-	if (m_codeAssist)
-		delete m_codeAssist;
-
-	m_codeAssist = NULL;
-}
-
 CodeAssist*
 CodeAssistMgr::generateCodeAssistImpl(ModuleItem* item) {
 	ModuleItemKind itemKind = item->getItemKind();

@@ -144,7 +144,6 @@ NamedPipe::close() {
 
 	m_incomingConnectionPool.put(&m_pendingIncomingConnectionList);
 
-	ASSERT(m_overlappedIo);
 	delete m_overlappedIo;
 	m_overlappedIo = NULL;
 }

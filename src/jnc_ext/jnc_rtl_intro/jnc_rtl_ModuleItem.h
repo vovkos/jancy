@@ -43,8 +43,7 @@ public:
 	}
 
 	~ModuleItemDecl() {
-		if (m_cache)
-			delete m_cache;
+		delete m_cache;
 	}
 
 	void

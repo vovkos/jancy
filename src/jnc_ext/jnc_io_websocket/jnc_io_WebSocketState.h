@@ -48,7 +48,11 @@ protected:
 
 public:
 	WebSocketStateMachine();
-	~WebSocketStateMachine();
+
+	~WebSocketStateMachine() {
+		delete m_handshakeParser;
+		delete m_frameParser;
+	}
 
 	WebSocketState
 	getState() {

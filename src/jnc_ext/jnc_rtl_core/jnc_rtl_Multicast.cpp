@@ -24,11 +24,8 @@ namespace rtl {
 
 void
 MulticastImpl::destruct() {
-	if (m_handleTable) {
-		delete (sl::HandleTable<size_t>*)m_handleTable;
-		m_handleTable = NULL;
-	}
-
+	delete (sl::HandleTable<size_t>*)m_handleTable;
+	m_handleTable = NULL;
 	m_count = 0;
 }
 

@@ -213,11 +213,6 @@ Type::Type() {
 	m_dualTypeTuple = NULL;
 }
 
-Type::~Type() {
-	if (m_typeStringTuple)
-		delete m_typeStringTuple;
-}
-
 const sl::StringRef&
 Type::getTypeString() {
 	TypeStringTuple* tuple = getTypeStringTuple();

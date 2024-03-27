@@ -37,10 +37,8 @@ ExtensionLibMgr::clear() {
 	m_itemCache.clear();
 	m_itemCacheMap.clear();
 
-	if (m_codeAuthenticator) {
-		delete m_codeAuthenticator;
-		m_codeAuthenticator = NULL;
-	}
+	delete m_codeAuthenticator;
+	m_codeAuthenticator = NULL;
 }
 
 void

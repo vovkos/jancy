@@ -283,7 +283,10 @@ public:
 
 protected:
 	void
-	freeCodeAssist();
+	freeCodeAssist() {
+		delete m_codeAssist;
+		m_codeAssist = NULL;
+	}
 
 	CodeAssist*
 	generateCodeAssistImpl(ModuleItem* item);

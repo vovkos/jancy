@@ -85,11 +85,9 @@ ArrayType::calcLayout() {
 
 	// ensure update
 
+	delete m_typeStringTuple;
+	m_typeStringTuple = NULL;
 	m_rootType = NULL;
-	if (m_typeStringTuple) {
-		delete m_typeStringTuple;
-		m_typeStringTuple = NULL;
-	}
 
 	uint_t rootTypeFlags = getRootType()->getFlags();
 	if (rootTypeFlags & TypeFlag_Pod)

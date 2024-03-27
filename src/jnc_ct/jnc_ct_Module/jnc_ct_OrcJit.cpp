@@ -80,17 +80,10 @@ OrcJit::~OrcJit() {
 		delete m_llvmExecutionSession;
 	}
 
-	if (m_llvmIrCompileLayer)
-		delete m_llvmIrCompileLayer;
-
-	if (m_llvmObjectLinkingLayer)
-		delete m_llvmObjectLinkingLayer;
-
-	if (m_llvmMangle)
-		delete m_llvmMangle;
-
-	if (m_llvmDataLayout)
-		delete m_llvmDataLayout;
+	delete m_llvmIrCompileLayer;
+	delete m_llvmObjectLinkingLayer;
+	delete m_llvmMangle;
+	delete m_llvmDataLayout;
 
 	if (m_llvmThreadSafeModule) {
 		clearLlvmContext();

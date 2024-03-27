@@ -105,11 +105,8 @@ UsbDevice::close() {
 	}
 	m_lock.unlock();
 
-	if (m_asyncControlEndpoint) {
-		delete m_asyncControlEndpoint;
-		m_asyncControlEndpoint = NULL;
-	}
-
+	delete m_asyncControlEndpoint;
+	m_asyncControlEndpoint = NULL;
 	m_device.close();
 	m_isOpen = false;
 }

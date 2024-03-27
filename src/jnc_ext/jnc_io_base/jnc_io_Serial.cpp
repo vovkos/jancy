@@ -182,10 +182,8 @@ Serial::close() {
 	AsyncIoDevice::close();
 
 #if (_AXL_OS_WIN)
-	if (m_overlappedIo) {
-		delete m_overlappedIo;
-		m_overlappedIo = NULL;
-	}
+	delete m_overlappedIo;
+	m_overlappedIo = NULL;
 #endif
 }
 

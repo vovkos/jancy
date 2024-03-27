@@ -123,11 +123,8 @@ SshChannel::close() {
 
 	m_localAddress.m_family = jnc::io::AddressFamily_Undefined;
 
-	if (m_connectParams) {
-		delete m_connectParams;
-		m_connectParams = NULL;
-	}
-
+	delete m_connectParams;
+	m_connectParams = NULL;
 	SocketBase::close();
 }
 

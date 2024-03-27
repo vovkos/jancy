@@ -143,10 +143,8 @@ public:
 
 	virtual
 	~ExecutionEngineJit() {
-		if (m_llvmExecutionEngine) {
-			delete m_llvmExecutionEngine;
-			clearLlvmModule();
-		}
+		delete m_llvmExecutionEngine;
+		clearLlvmModule();
 	}
 
 	virtual

@@ -25,28 +25,16 @@ WebSocketStateMachine::WebSocketStateMachine() {
 	m_frameParser = NULL;
 }
 
-WebSocketStateMachine::~WebSocketStateMachine() {
-	if (m_handshakeParser)
-		delete m_handshakeParser;
-
-	if (m_frameParser)
-		delete m_frameParser;
-}
-
 void
 WebSocketStateMachine::setHandshake(
 	WebSocketHandshake* handshake,
 	const sl::StringRef& handshakeKey
 ) {
-	if (m_handshakeParser) {
-		delete m_handshakeParser;
-		m_handshakeParser = NULL;
-	}
+	delete m_handshakeParser;
+	delete m_frameParser;
 
-	if (m_frameParser) {
-		delete m_frameParser;
-		m_frameParser = NULL;
-	}
+	m_handshakeParser = NULL;
+	m_frameParser = NULL;
 
 	m_handshake = handshake;
 	m_frame.clear();

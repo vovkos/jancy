@@ -160,7 +160,10 @@ protected:
 
 public:
 	Type();
-	~Type();
+
+	~Type() {
+		delete m_typeStringTuple;
+	}
 
 	TypeKind
 	getTypeKind() {

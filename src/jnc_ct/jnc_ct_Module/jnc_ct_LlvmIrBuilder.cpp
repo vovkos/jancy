@@ -36,9 +36,6 @@ LlvmIrBuilder::create() {
 
 void
 LlvmIrBuilder::clear() {
-	if (!m_llvmIrBuilder)
-		return;
-
 	delete m_llvmIrBuilder;
 	delete m_llvmAllocaIrBuilder;
 

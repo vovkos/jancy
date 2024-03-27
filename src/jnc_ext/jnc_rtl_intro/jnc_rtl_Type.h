@@ -45,8 +45,7 @@ public:
 		ModuleItemBase<T>(type) {}
 
 	~TypeBase() {
-		if (m_cache)
-			delete m_cache;
+		delete m_cache;
 	}
 };
 
