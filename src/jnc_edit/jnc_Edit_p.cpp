@@ -1361,7 +1361,9 @@ EditPrivate::createAutoComplete(
 
 	if (flags & CodeAssistFlag_AutoCompleteFallback) {
 		QTextCursor cursor = getLastCodeAssistCursor();
-		if (hasCursorHighlightColor(cursor)) { // not within keywords/literals/comments/etc
+		if (hasCursorHighlightColor(cursor) || // not within keywords/literals/comments/etc...
+			!(flags & CodeAssistFlag_QualifiedName) && getCursorPrevChar(cursor) == '.' // ...and not after member operators
+		) {
 			hideCodeAssist();
 			return;
 		}
