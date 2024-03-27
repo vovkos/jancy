@@ -22,7 +22,9 @@ namespace ct {
 
 bool
 AsyncLauncherFunction::compile() {
-	bool result;
+	bool result = m_type->ensureLayout();
+	if (!result)
+		return false;
 
 	// prepare promise class type
 

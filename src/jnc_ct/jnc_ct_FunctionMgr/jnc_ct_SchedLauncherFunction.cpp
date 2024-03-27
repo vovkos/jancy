@@ -20,7 +20,9 @@ namespace ct {
 
 bool
 SchedLauncherFunction::compile() {
-	bool result;
+	bool result = m_type->ensureLayout();
+	if (!result)
+		return false;
 
 	size_t argCount = m_type->getArgArray().getCount();
 
