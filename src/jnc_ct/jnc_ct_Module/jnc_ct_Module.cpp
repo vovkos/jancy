@@ -676,6 +676,15 @@ Module::requireIntrospectionLib() {
 }
 
 bool
+Module::requireDynamicLayout() {
+	ASSERT(!(m_compileFlags & AuxCompileFlag_DynamicLayout));
+	require(TypeKind_Class, "jnc.DynamicLayout");
+	require(TypeKind_Class, "jnc.DynamicSection");
+	m_compileFlags |= AuxCompileFlag_DynamicLayout;
+	return requireIntrospectionLib();
+}
+
+bool
 Module::processRequireSet() {
 	bool result;
 

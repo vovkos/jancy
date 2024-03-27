@@ -89,7 +89,7 @@ JNC_EXPORT_O
 jnc_DynamicLayout*
 jnc_createDynamicLayout(
 	jnc_Runtime* runtime,
-	jnc_DynamicLayoutMode mode,
+	uint_t mode,
 	jnc_DataPtr ptr,
 	size_t size
 ) {
@@ -117,7 +117,7 @@ JNC_EXPORT_O
 void
 jnc_DynamicLayout_reset(
 	jnc_DynamicLayout* layout,
-	jnc_DynamicLayoutMode mode,
+	uint_t mode,
 	jnc_DataPtr ptr,
 	size_t size
 ) {

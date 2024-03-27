@@ -156,43 +156,51 @@ DynamicLayout::resume(
 	return p - p0;
 }
 
-DynamicSection*
+size_t
 JNC_CDECL
 DynamicLayout::addStruct(ct::StructType* type) {
-	DynamicSection* section = createClass<DynamicSection>(
-		jnc::getCurrentThreadRuntime(),
-		DynamicSectionKind_Struct,
-		m_size,
-		(ct::ModuleItemDecl*)NULL,
-		type
-	);
+	size_t offset = m_size;
+	if (m_mode & DynamicLayoutMode_Save) {
+		DynamicSection* section = createClass<DynamicSection>(
+			jnc::getCurrentThreadRuntime(),
+			DynamicSectionKind_Struct,
+			m_size,
+			(ct::ModuleItemDecl*)NULL,
+			type
+		);
 
-	addSection(section);
+		addSection(section);
+	}
+
 	m_size += type->getSize();
 	prepareForAwaitIf();
-	return section;
+	return offset;
 }
 
-DynamicSection*
+size_t
 JNC_CDECL
 DynamicLayout::addArray(
 	ct::ModuleItemDecl* decl,
 	ct::Type* type,
 	size_t elementCount
 ) {
-	DynamicSection* section = createClass<DynamicSection>(
-		jnc::getCurrentThreadRuntime(),
-		DynamicSectionKind_Array,
-		m_size,
-		decl,
-		type
-	);
+	size_t offset = m_size;
+	if (m_mode & DynamicLayoutMode_Save) {
+		DynamicSection* section = createClass<DynamicSection>(
+			jnc::getCurrentThreadRuntime(),
+			DynamicSectionKind_Array,
+			m_size,
+			decl,
+			type
+		);
 
-	section->m_elementCount = elementCount;
-	addSection(section);
+		section->m_elementCount = elementCount;
+		addSection(section);
+	}
+
 	m_size += type->getSize() * elementCount;
 	prepareForAwaitIf();
-	return section;
+	return offset;
 }
 
 void
@@ -202,19 +210,23 @@ DynamicLayout::addSection(DynamicSection* section) {
 	group->m_sectionCount++;
 }
 
-DynamicSection*
+size_t
 JNC_CDECL
 DynamicLayout::openGroup(ct::ModuleItemDecl* decl) {
-	DynamicSection* section = createClass<DynamicSection>(
-		jnc::getCurrentThreadRuntime(),
-		DynamicSectionKind_Group,
-		m_size,
-		decl
-	);
+	size_t offset = m_size;
+	if (m_mode & DynamicLayoutMode_Save) {
+		DynamicSection* section = createClass<DynamicSection>(
+			jnc::getCurrentThreadRuntime(),
+			DynamicSectionKind_Group,
+			m_size,
+			decl
+		);
 
-	addSection(section);
-	m_groupStack.append(section);
-	return section;
+		addSection(section);
+		m_groupStack.append(section);
+	}
+
+	return offset;
 }
 
 void

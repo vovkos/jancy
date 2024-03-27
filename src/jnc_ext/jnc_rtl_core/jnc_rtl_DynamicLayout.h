@@ -119,8 +119,8 @@ DynamicSection::DynamicSection(
 //..............................................................................
 
 enum DynamicLayoutMode {
-	DynamicLayoutMode_Block = 0,
-	DynamicLayoutMode_Stream
+	DynamicLayoutMode_Save   = 0x01,
+	DynamicLayoutMode_Stream = 0x02,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -147,7 +147,7 @@ public:
 	void
 	JNC_CDECL
 	clear() {
-		reset(DynamicLayoutMode_Block, g_nullDataPtr, 0);
+		reset(0, g_nullDataPtr, 0);
 	}
 
 	void
@@ -165,11 +165,11 @@ public:
 		size_t size
 	);
 
-	DynamicSection*
+	size_t
 	JNC_CDECL
 	addStruct(ct::StructType* type);
 
-	DynamicSection*
+	size_t
 	JNC_CDECL
 	addArray(
 		ct::ModuleItemDecl* decl,
@@ -177,7 +177,7 @@ public:
 		size_t elementCount
 	);
 
-	DynamicSection*
+	size_t
 	JNC_CDECL
 	openGroup(ct::ModuleItemDecl* decl);
 
@@ -191,7 +191,7 @@ public:
 protected:
 	void
 	prepareForAwaitIf() {
-		if (m_mode == DynamicLayoutMode_Stream && m_size > m_bufferSize)
+		if ((m_mode & DynamicLayoutMode_Stream) && m_size > m_bufferSize)
 			prepareForAwait();
 	}
 

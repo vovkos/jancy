@@ -48,9 +48,9 @@ opaque class DynamicSection: DynamicSectionGroup {
 
 //..............................................................................
 
-enum DynamicLayoutMode {
-	Block,
-	Stream,
+bitflag enum DynamicLayoutMode {
+	Save,   // otherwise, just parse (don't populate sections)
+	Stream, // support incremental parsing (when dylayout is in a coroutine)
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -88,7 +88,7 @@ public:
 		size_t size
 	) {
 		init();
-		reset(DynamicLayoutMode.Block, p, size);
+		reset(0, p, size);
 	}
 
 	destruct();
@@ -98,7 +98,7 @@ public:
 	}
 
 	void clear() {
-		reset(DynamicLayoutMode.Block, null, 0);
+		reset(0, null, 0);
 	}
 
 	void reset(
@@ -111,7 +111,7 @@ public:
 		void const* p,
 		size_t size
 	) {
-		reset(DynamicLayoutMode.Block, p, size);
+		reset(0, p, size);
 	}
 
 	// only for DynamicLayoutMode.Stream
@@ -125,18 +125,18 @@ protected:
 	void init();
 
 	bool const property m_shouldAwait {
-		return m_mode == DynamicLayoutMode.Stream && m_isIncomplete;
+		return (m_mode & DynamicLayoutMode.Stream) && m_isIncomplete;
 	}
 
-	DynamicSection* addStruct(void thin* structType);
+	size_t addStruct(void thin* structType);
 
-	DynamicSection* addArray(
+	size_t addArray(
 		void thin* decl,
 		void thin* type,
 		size_t elementCount
 	);
 
-	DynamicSection* openGroup(void thin* decl);
+	size_t openGroup(void thin* decl);
 	void closeGroup();
 }
 

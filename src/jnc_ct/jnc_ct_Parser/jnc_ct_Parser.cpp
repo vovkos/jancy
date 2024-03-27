@@ -1770,7 +1770,7 @@ Parser::declareData(
 
 			Value funcValue;
 			Value typeValue(&structType, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
-			Value sectionValue;
+			Value offsetValue;
 			Value sizeValue;
 			Value bufferSizeValue;
 
@@ -1778,7 +1778,7 @@ Parser::declareData(
 
 			result =
 				m_module->m_operatorMgr.memberOperator(stmt->m_layoutValue, "addStruct", &funcValue) &&
-				m_module->m_operatorMgr.callOperator(funcValue, typeValue, &sectionValue) &&
+				m_module->m_operatorMgr.callOperator(funcValue, typeValue, &offsetValue) &&
 				m_module->m_operatorMgr.awaitDynamicLayoutIf(stmt->m_layoutValue);
 
 			m_module->m_compileFlags &= ~Module::AuxCompileFlag_SkipAccessChecks;
@@ -1786,8 +1786,8 @@ Parser::declareData(
 			if (!result)
 				return false;
 
-			structType->m_dynamicStructSectionId = stmt->m_structSectionValueArray.getCount();
-			stmt->m_structSectionValueArray.append(sectionValue);
+			structType->m_dynamicStructSectionId = stmt->m_offsetValueArray.getCount();
+			stmt->m_offsetValueArray.append(offsetValue);
 			stmt->m_structType = structType;
 			stmt->m_structBlock = m_module->m_controlFlowMgr.getCurrentBlock();
 		}
@@ -2673,14 +2673,12 @@ Parser::lookupIdentifier(
 		}
 
 		ASSERT(structType->m_dynamicStructSectionId != -1);
-		Value sectionValue = stmt->m_structSectionValueArray[structType->m_dynamicStructSectionId];
-		Value offsetValue;
+		Value offsetValue = stmt->m_offsetValueArray[structType->m_dynamicStructSectionId];
 		Value fieldOffsetValue(field->getOffset(), m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT));
 		Value ptrValue;
 
 		result =
 			m_module->m_operatorMgr.memberOperator(stmt->m_layoutValue, "m_p", &ptrValue) &&
-			m_module->m_operatorMgr.memberOperator(sectionValue, "m_offset", &offsetValue) &&
 			m_module->m_operatorMgr.binaryOperator(BinOpKind_Add, &offsetValue, fieldOffsetValue) &&
 			m_module->m_operatorMgr.binaryOperator(BinOpKind_Add, &ptrValue, offsetValue) &&
 			m_module->m_operatorMgr.castOperator(
@@ -3231,7 +3229,7 @@ Parser::initializeDynamicLayoutStmt(
 	Value layoutValue;
 
 	bool result =
-		m_module->ensureIntrospectionLibRequired() &&
+		m_module->ensureDynamicLayoutRequired() &&
 		m_module->m_operatorMgr.castOperator(
 			layoutValue0,
 			layoutType->getClassPtrType(ClassPtrTypeKind_Normal, PtrTypeFlag_Safe),

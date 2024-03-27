@@ -116,8 +116,8 @@ struct jnc_DynamicSection: jnc_DynamicSectionGroup {
 //..............................................................................
 
 enum jnc_DynamicLayoutMode {
-	jnc_DynamicLayoutMode_Block = 0,
-	jnc_DynamicLayoutMode_Stream,
+	jnc_DynamicLayoutMode_Save   = 0x01,
+	jnc_DynamicLayoutMode_Stream = 0x02,
 };
 
 typedef enum jnc_DynamicLayoutMode jnc_DynamicLayoutMode;
@@ -128,7 +128,7 @@ JNC_EXTERN_C
 jnc_DynamicLayout*
 jnc_createDynamicLayout(
 	jnc_Runtime* runtime,
-	jnc_DynamicLayoutMode mode,
+	uint_t mode,
 	jnc_DataPtr ptr,
 	size_t size
 );
@@ -145,7 +145,7 @@ JNC_EXTERN_C
 void
 jnc_DynamicLayout_reset(
 	jnc_DynamicLayout* layout,
-	jnc_DynamicLayoutMode mode,
+	uint_t mode,
 	jnc_DataPtr ptr,
 	size_t size
 );
@@ -153,7 +153,7 @@ jnc_DynamicLayout_reset(
 JNC_INLINE
 void
 jnc_DynamicLayout_clear(jnc_DynamicLayout* layout) {
-	jnc_DynamicLayout_reset(layout, jnc_DynamicLayoutMode_Block, jnc_g_nullDataPtr, 0);
+	jnc_DynamicLayout_reset(layout, 0, jnc_g_nullDataPtr, 0);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -172,7 +172,7 @@ struct jnc_DynamicLayout: jnc_DynamicSectionGroup {
 
 	void
 	reset(
-		jnc_DynamicLayoutMode mode,
+		uint_t mode,
 		jnc_DataPtr ptr,
 		size_t size
 	) {
@@ -200,7 +200,7 @@ const DynamicSectionKind
 	DynamicSectionKind_Group     = jnc_DynamicSectionKind_Group;
 
 const DynamicLayoutMode
-	DynamicLayoutMode_Block  = jnc_DynamicLayoutMode_Block,
+	DynamicLayoutMode_Save   = jnc_DynamicLayoutMode_Save,
 	DynamicLayoutMode_Stream = jnc_DynamicLayoutMode_Stream;
 
 
@@ -209,7 +209,7 @@ const DynamicLayoutMode
 inline
 DynamicLayout*
 createDynamicLayout(Runtime* runtime) {
-	return jnc_createDynamicLayout(runtime, DynamicLayoutMode_Block, g_nullDataPtr, 0);
+	return jnc_createDynamicLayout(runtime, 0, g_nullDataPtr, 0);
 }
 
 inline
@@ -219,14 +219,14 @@ createDynamicLayout(
 	DataPtr ptr,
 	size_t size
 ) {
-	return jnc_createDynamicLayout(runtime, DynamicLayoutMode_Block, ptr, size);
+	return jnc_createDynamicLayout(runtime, 0, ptr, size);
 }
 
 inline
 DynamicLayout*
 createDynamicLayout(
 	Runtime* runtime,
-	DynamicLayoutMode mode,
+	uint_t mode,
 	DataPtr ptr,
 	size_t size
 ) {

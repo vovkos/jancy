@@ -41,7 +41,7 @@ struct DynamicLayoutStmt: ScopeExtension {
 	Value m_layoutValue; // jnc.DynamicLayout
 	StructType* m_structType;
 	BasicBlock* m_structBlock;
-	sl::Array<Value> m_structSectionValueArray;
+	sl::Array<Value> m_offsetValueArray;
 	size_t m_fieldAlignment;
 };
 

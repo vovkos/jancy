@@ -67,8 +67,9 @@ class Module: public PreModule {
 
 protected:
 	enum AuxCompileFlag {
-		AuxCompileFlag_IntrospectionLib = 0x80000000,
-		AuxCompileFlag_SkipAccessChecks = 0x40000000,
+		AuxCompileFlag_SkipAccessChecks = 0x80000000,
+		AuxCompileFlag_IntrospectionLib = 0x40000000,
+		AuxCompileFlag_DynamicLayout    = 0x20000000,
 	};
 
 	enum AsyncFlag {
@@ -304,6 +305,11 @@ public:
 		return (m_compileFlags & AuxCompileFlag_IntrospectionLib) || requireIntrospectionLib();
 	}
 
+	bool
+	ensureDynamicLayoutRequired() {
+		return (m_compileFlags & AuxCompileFlag_DynamicLayout) || requireDynamicLayout();
+	}
+
 	sl::String
 	getLlvmIrString();
 
@@ -323,6 +329,9 @@ protected:
 
 	bool
 	requireIntrospectionLib();
+
+	bool
+	requireDynamicLayout();
 
 	bool
 	processRequireSet();
