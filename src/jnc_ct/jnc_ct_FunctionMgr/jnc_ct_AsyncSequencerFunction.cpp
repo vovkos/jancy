@@ -135,6 +135,13 @@ AsyncSequencerFunction::compile() {
 	if (!result)
 		return false;
 
+	scope = m_module->m_namespaceMgr.getCurrentScope();
+	if (!scope || !(scope->getFlags() & ScopeFlag_Function)) {
+		err::setError("invalid scope structure due to previous errors");
+		ensureSrcPosError();
+		return false;
+	}
+
 	if (!m_module->hasCodeGen()) { // codegen was gone while parsing the body
 		m_module->m_namespaceMgr.closeScope();
 		m_module->m_functionMgr.internalEpilogue();

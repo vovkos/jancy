@@ -269,13 +269,13 @@ bool
 FunctionMgr::epilogue() {
 	bool result;
 
-	Function* function = m_currentFunction;
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
 	if (!scope || !(scope->m_flags & ScopeFlag_Function)) {
 		err::setError("invalid scope structure due to previous errors");
 		return false;
 	}
 
+	Function* function = m_currentFunction;
 	if (function->m_functionKind == FunctionKind_Destructor &&
 		function->m_storageKind == StorageKind_Member) {
 		ASSERT(m_thisValue);

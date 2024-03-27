@@ -104,6 +104,7 @@ AsyncLauncherFunction::compile() {
 	sequencerFunc->m_asyncLauncher = this;
 	sequencerFunc->m_parentUnit = m_parentUnit;
 	sequencerFunc->m_parentNamespace = m_parentNamespace;
+	sequencerFunc->m_pos = m_pos;
 	sequencerFunc->m_thisArgType = m_thisArgType;
 	sequencerFunc->m_thisType = m_thisType;
 	sequencerFunc->m_thisArgDelta = m_thisArgDelta;
