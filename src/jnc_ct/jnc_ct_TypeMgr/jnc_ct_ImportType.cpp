@@ -30,17 +30,23 @@ ImportType::applyFixups() {
 }
 
 bool
-ImportType::ensureResolved() {
-	if (m_actualType)
-		return true;
+ImportType::resolve() {
+	ASSERT(!m_actualType);
+
+	bool result;
 
 	if (m_flags & ImportTypeFlag_InResolve) {
 		err::setFormatStringError("can't resolve '%s' due to recursion", getTypeString().sz());
-		return false;
+		result = false;
+	} else {
+		m_flags |= ImportTypeFlag_InResolve;
+		result = resolveImports();
 	}
 
-	m_flags |= ImportTypeFlag_InResolve;
-	return resolveImports();
+	if (!result)
+		m_resolveError = err::getLastError();
+
+	return result;
 }
 
 //..............................................................................

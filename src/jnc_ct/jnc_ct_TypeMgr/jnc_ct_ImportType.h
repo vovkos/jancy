@@ -34,6 +34,7 @@ class ImportType: public Type {
 protected:
 	Type* m_actualType;
 	sl::Array<Type**> m_fixupArray;
+	err::Error m_resolveError;
 
 public:
 	ImportType() {
@@ -65,9 +66,17 @@ public:
 	applyFixups();
 
 	bool
-	ensureResolved();
+	ensureResolved() {
+		return
+			m_actualType ? true :
+			m_resolveError ? err::fail(m_resolveError) :
+			resolve();
+	}
 
 protected:
+	bool
+	resolve();
+
 	virtual
 	void
 	prepareLlvmType() {
