@@ -440,9 +440,9 @@ dynamic_layout_stmt
 		DynamicLayoutStmt $stmt;
 		DynamicLayoutStmt* $prevStmt;
 	}
-	:	TokenKind_DynamicLayout '(' expression $e ')' '{'
+	:	TokenKind_DynamicLayout '(' expression $e ')' '{' $l
 			{
-				return initializeDynamicLayoutStmt(&$stmt, $e.m_value, $1.m_pos, $1.m_data.m_integer);
+				return initializeDynamicLayoutStmt(&$stmt, $e.m_value, $l.m_pos, $l.m_data.m_integer);
 			}
 		local_declaration_list
 		'}'
