@@ -160,6 +160,7 @@ enum DataPtrTypeKind {
 
 opaque class Type: ModuleItem {
 	TypeKind const property m_typeKind;
+	TypeKindFlags const property m_typeKindFlags;
 	size_t const property m_size;
 	size_t const property m_alignment;
 	string_t const property m_signature;

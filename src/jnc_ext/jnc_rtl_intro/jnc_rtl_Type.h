@@ -66,6 +66,12 @@ public:
 		return m_item->getTypeKind();
 	}
 
+	uint_t
+	JNC_CDECL
+	getTypeKindFlags() {
+		return m_item->getTypeKindFlags();
+	}
+
 	size_t
 	JNC_CDECL
 	getSize() {
