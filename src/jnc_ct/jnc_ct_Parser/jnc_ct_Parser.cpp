@@ -1687,7 +1687,7 @@ Parser::declareData(
 		}
 
 		if (!constructor->isEmpty() || !initializer->isEmpty()) {
-			err::setFormatStringError("initializers for dynamic fields are not currently supported");
+			err::setFormatStringError("dynamic fields can't have initializers");
 			return false;
 		}
 
@@ -1723,7 +1723,7 @@ Parser::declareData(
 				Const* field = m_module->m_constMgr.createConst(name, name, Value());
 				field->m_storageKind = StorageKind_DynamicField;
 				field->m_dynamicArrayElementType = elementType;
-				assignDeclarationAttributes(field, field, declarator->getPos());
+				assignDeclarationAttributes(field, field, declarator);
 
 				Value funcValue;
 				Value declValue((int64_t)(ModuleItemDecl*)field, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
