@@ -3237,7 +3237,7 @@ Parser::initializeDynamicLayoutStmt(
 		);
 
 	if (!result)
-		return false;
+		return NULL;
 
 	DynamicLayoutStmt* stmt = m_module->m_namespaceMgr.createScopeExtension<DynamicLayoutStmt>();
 	stmt->m_layoutValue = layoutValue;
