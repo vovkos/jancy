@@ -11,14 +11,11 @@
 
 #pragma once
 
-#include "jnc_io_WebSocketHandshake.h"
-#include "jnc_io_WebSocketFrame.h"
+#include "jnc_io_WebSocketHandshakeParser.h"
+#include "jnc_io_WebSocketFrameParser.h"
 
 namespace jnc {
 namespace io {
-
-class WebSocketHandshakeParser;
-class WebSocketFrameParser;
 
 //..............................................................................
 
