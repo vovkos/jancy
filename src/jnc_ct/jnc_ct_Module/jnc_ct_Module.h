@@ -107,8 +107,9 @@ protected:
 	size_t m_compileErrorCount;
 	ModuleCompileErrorHandlerFunc* m_compileErrorHandler;
 	void* m_compileErrorHandlerContext;
-	ModuleDynamicSectionObserverFunc* m_dynamicSectionObserver;
-	void* m_dynamicSectionObserverContext;
+	AttributeObserverFunc* m_attributeObserver;
+	void* m_attributeObserverContext;
+	uint_t m_attributeObserverItemKindMask;
 	volatile int32_t m_asyncFlags;
 
 	sl::Array<Function*> m_compileArray;
@@ -211,13 +212,11 @@ public:
 	}
 
 	void
-	setDynamicSectionObserver(
-		ModuleDynamicSectionObserverFunc* observer,
-		void* context
-	) {
-		m_dynamicSectionObserver = observer;
-		m_dynamicSectionObserverContext = context;
-	}
+	setAttributeObserver(
+		AttributeObserverFunc* observer,
+		void* context,
+		uint_t itemKindMask
+	);
 
 	llvm::LLVMContext*
 	getLlvmContext() {
@@ -379,6 +378,18 @@ Module::RequiredItem::RequiredItem(
 	m_itemKind = ModuleItemKind_Type;
 	m_typeKind = typeKind;
 	m_isEssential = isEssential;
+}
+
+inline
+void
+Module::setAttributeObserver(
+	AttributeObserverFunc* observer,
+	void* context,
+	uint_t itemKindMask
+) {
+	m_attributeObserver = observer;
+	m_attributeObserverContext = context;
+	m_attributeObserverItemKindMask = itemKindMask;
 }
 
 //..............................................................................

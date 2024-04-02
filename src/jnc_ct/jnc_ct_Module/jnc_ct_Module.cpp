@@ -59,8 +59,9 @@ Module::Module():
 	m_compileErrorCountLimit = DefaultErrorCountLimit;
 	m_compileErrorHandler = NULL;
 	m_compileErrorHandlerContext = NULL;
-	m_dynamicSectionObserver = NULL;
-	m_dynamicSectionObserverContext = NULL;
+	m_attributeObserver = NULL;
+	m_attributeObserverContext = NULL;
+	m_attributeObserverItemKindMask = 0;
 	m_constructor = NULL;
 	m_llvmContext = NULL;
 	m_llvmModule = NULL;

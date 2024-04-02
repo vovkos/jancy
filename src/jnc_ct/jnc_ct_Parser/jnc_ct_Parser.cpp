@@ -908,7 +908,7 @@ Parser::assignDeclarationAttributes(
 	const lex::LineCol& pos,
 	AttributeBlock* attributeBlock,
 	dox::Block* doxyBlock
-) {
+) { 
 	decl->m_accessKind = m_accessKind ?
 		m_accessKind :
 		m_module->m_namespaceMgr.getCurrentAccessKind();
@@ -918,16 +918,26 @@ Parser::assignDeclarationAttributes(
 	if (m_storageKind)
 		decl->m_storageKind = m_storageKind;
 
+	if (!attributeBlock)
+		attributeBlock = popAttributeBlock();
+
 	decl->m_pos = pos;
 	decl->m_parentUnit = m_module->m_unitMgr.getCurrentUnit();
 	decl->m_parentNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
 	decl->m_pragmaConfig = getPragmaConfigSnapshot();
-	decl->m_attributeBlock = attributeBlock ? attributeBlock : popAttributeBlock();
+	decl->m_attributeBlock = attributeBlock;
 
 	if (m_module->getCompileFlags() & ModuleCompileFlag_Documentation)
 		m_module->m_doxyHost.setItemBlock(item, decl, doxyBlock ? doxyBlock : m_doxyParser.popBlock());
 
 	item->m_flags |= ModuleItemFlag_User;
+
+	if (attributeBlock &&
+		m_module->m_attributeObserver &&
+		(m_module->m_attributeObserverItemKindMask & (1 << item->getItemKind()))
+	)
+		m_module->m_attributeObserver(m_module->m_attributeObserverContext, item, attributeBlock);
+
 	m_lastDeclaredItem = item;
 }
 
@@ -1112,8 +1122,6 @@ Parser::declareFunction(
 			sl::takeOver(&function->m_initializer, &declarator->m_initializer);
 	}
 
-	assignDeclarationAttributes(functionItem, functionItemDecl, declarator);
-
 	if (postModifiers & PostDeclaratorModifier_Const)
 		functionName->m_thisArgTypeFlags = PtrTypeFlag_Const;
 
@@ -1157,6 +1165,8 @@ Parser::declareFunction(
 			getFunctionKindString(functionKind)
 		);
 	}
+
+	assignDeclarationAttributes(functionItem, functionItemDecl, declarator);
 
 	if (functionItem->getItemKind() == ModuleItemKind_Orphan) {
 		if (namespaceKind == NamespaceKind_DynamicLib) {
@@ -1739,14 +1749,6 @@ Parser::declareData(
 					m_module->m_operatorMgr.awaitDynamicLayoutIf(stmt->m_layoutValue);
 
 				m_module->m_compileFlags &= ~Module::AuxCompileFlag_SkipAccessChecks;
-
-				if (m_module->m_dynamicSectionObserver)
-					m_module->m_dynamicSectionObserver(
-						m_module->m_dynamicSectionObserverContext,
-						jnc::DynamicSectionKind_Array,
-						elementType
-					);
-
 				field->m_value = offsetValue;
 				return result;
 			}
@@ -3256,13 +3258,6 @@ Parser::finalizeDynamicStructSection(DynamicLayoutStmt* stmt) {
 		bool result = stmt->m_structType->ensureLayout();
 		if (!result)
 			return false;
-
-		if (m_module->m_dynamicSectionObserver)
-			m_module->m_dynamicSectionObserver(
-				m_module->m_dynamicSectionObserverContext,
-				jnc::DynamicSectionKind_Struct,
-				stmt->m_structType
-			);
 	}
 
 	stmt->m_structType = NULL;

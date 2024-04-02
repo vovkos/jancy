@@ -315,12 +315,13 @@ jnc_Module_setCompileErrorHandler(
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
-jnc_Module_setDynamicSectionObserver(
+jnc_Module_setAttributeObserver(
 	jnc_Module* module,
-	jnc_ModuleDynamicSectionObserverFunc* observer,
-	void* context
+	jnc_AttributeObserverFunc* observer,
+	void* context,
+	uint_t itemKindMask
 ) {
-	module->setDynamicSectionObserver(observer, context);
+	module->setAttributeObserver(observer, context, itemKindMask);
 }
 
 JNC_EXTERN_C
