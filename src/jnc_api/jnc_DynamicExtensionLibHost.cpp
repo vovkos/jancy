@@ -292,6 +292,10 @@ static jnc_PromiseFuncTable g_promiseFuncTable = {
 
 static jnc_UnitFuncTable g_unitFuncTable = {
 	sizeof(jnc_UnitFuncTable),
+	jnc_Unit_getLib,
+	jnc_Unit_getFilePath,
+	jnc_Unit_getFileName,
+	jnc_Unit_getDir,
 };
 
 static jnc_ModuleFuncTable g_moduleFuncTable = {

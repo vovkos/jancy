@@ -185,6 +185,10 @@ EXPORTS
 	jnc_String_setPtr
 	jnc_createPromise
 	jnc_Promise_complete
+	jnc_Unit_getLib
+	jnc_Unit_getFilePath
+	jnc_Unit_getFileName
+	jnc_Unit_getDir
 	jnc_Module_addIgnoredImport
 	jnc_Module_addImport
 	jnc_Module_addImportDir

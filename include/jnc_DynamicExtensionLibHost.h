@@ -1099,8 +1099,29 @@ struct jnc_PromiseFuncTable {
 
 // Unit
 
+typedef
+jnc_ExtensionLib*
+jnc_Unit_GetLibFunc(jnc_Unit* unit);
+
+typedef
+const char*
+jnc_Unit_GetFilePathFunc(jnc_Unit* unit);
+
+typedef
+const char*
+jnc_Unit_GetFileNameFunc(jnc_Unit* unit);
+
+typedef
+const char*
+jnc_Unit_GetDirFunc(jnc_Unit* unit);
+
 struct jnc_UnitFuncTable {
 	size_t m_size;
+	jnc_Unit_GetLibFunc* m_getLibFunc;
+	jnc_Unit_GetFilePathFunc* m_getFilePathFunc;
+	jnc_Unit_GetFileNameFunc* m_getFileNameFunc;
+	jnc_Unit_GetDirFunc* m_getDirFunc;
+
 };
 
 //..............................................................................
