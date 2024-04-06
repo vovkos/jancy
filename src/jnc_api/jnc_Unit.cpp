@@ -49,12 +49,14 @@ jnc_Unit_getDir(jnc_Unit* unit) {
 #else // _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_ExtensionLib*
 jnc_Unit_getLib(jnc_Unit* unit) {
 	return unit->getLib();
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 const char*
 jnc_Unit_getFilePath(jnc_Unit* unit) {
 	return unit->getFilePath();
@@ -62,6 +64,7 @@ jnc_Unit_getFilePath(jnc_Unit* unit) {
 
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 const char*
 jnc_Unit_getFileName(jnc_Unit* unit) {
 	return unit->getFileName();
@@ -69,6 +72,7 @@ jnc_Unit_getFileName(jnc_Unit* unit) {
 
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 const char*
 jnc_Unit_getDir(jnc_Unit* unit) {
 	return unit->getDir();
