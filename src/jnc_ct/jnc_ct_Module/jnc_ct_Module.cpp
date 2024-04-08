@@ -682,7 +682,7 @@ Module::requireDynamicLayout() {
 	require(TypeKind_Class, "jnc.DynamicLayout");
 	require(TypeKind_Class, "jnc.DynamicSection");
 	m_compileFlags |= AuxCompileFlag_DynamicLayout;
-	return requireIntrospectionLib();
+	return ensureIntrospectionLibRequired();
 }
 
 bool
