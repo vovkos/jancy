@@ -908,7 +908,7 @@ Parser::assignDeclarationAttributes(
 	const lex::LineCol& pos,
 	AttributeBlock* attributeBlock,
 	dox::Block* doxyBlock
-) { 
+) {
 	decl->m_accessKind = m_accessKind ?
 		m_accessKind :
 		m_module->m_namespaceMgr.getCurrentAccessKind();
@@ -2664,6 +2664,28 @@ Parser::lookupIdentifier(
 
 		// field in a dynamic layout
 
+		uint_t ptrTypeFlags = field->getPtrTypeFlags() | PtrTypeFlag_Const;
+		DataPtrType* ptrType = (ptrTypeFlags & PtrTypeFlag_BitField) ?
+			m_module->m_typeMgr.getDataPtrType(
+				field->getType(),
+				field->getBitOffset(),
+				field->getBitCount(),
+				TypeKind_DataRef,
+				DataPtrTypeKind_Normal,
+				ptrTypeFlags
+			) :
+			m_module->m_typeMgr.getDataPtrType(
+				field->getType(),
+				TypeKind_DataRef,
+				DataPtrTypeKind_Normal,
+				ptrTypeFlags
+			);
+
+		if (m_module->m_controlFlowMgr.isEmissionLocked()) { // sizeof/countof/typeof
+			value->setType(ptrType);
+			break;
+		}
+
 		DynamicLayoutStmt* stmt = findDynamicLayoutStmt();
 		ASSERT(stmt);
 
@@ -2691,23 +2713,6 @@ Parser::lookupIdentifier(
 
 		if (!result)
 			return false;
-
-		uint_t ptrTypeFlags = field->getPtrTypeFlags() | PtrTypeFlag_Const;
-		DataPtrType* ptrType = (ptrTypeFlags & PtrTypeFlag_BitField) ?
-			m_module->m_typeMgr.getDataPtrType(
-				field->getType(),
-				field->getBitOffset(),
-				field->getBitCount(),
-				TypeKind_DataRef,
-				DataPtrTypeKind_Normal,
-				ptrTypeFlags
-			) :
-			m_module->m_typeMgr.getDataPtrType(
-				field->getType(),
-				TypeKind_DataRef,
-				DataPtrTypeKind_Normal,
-				ptrTypeFlags
-			);
 
 		value->overrideType(ptrType);
 		break;
