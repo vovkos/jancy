@@ -203,7 +203,7 @@ Type::Type() {
 	m_typeKind = TypeKind_Void;
 	m_stdType = (StdType)-1;
 	m_size = 0;
-	m_alignment = 0;
+	m_alignment = 1;
 	m_llvmType = NULL;
 	m_typeVariable = NULL;
 	m_typeStringTuple = NULL;

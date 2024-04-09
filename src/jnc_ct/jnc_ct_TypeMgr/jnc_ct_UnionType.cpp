@@ -66,7 +66,7 @@ UnionType::calcLayout() {
 		return false;
 
 	Type* largestFieldType = NULL;
-	size_t largestAlignment = 0;
+	size_t largestAlignment = 1;
 
 	size_t count = m_fieldArray.getCount();
 	for (size_t i = 0; i < count; i++) {
