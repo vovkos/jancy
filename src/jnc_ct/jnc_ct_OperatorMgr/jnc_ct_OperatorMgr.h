@@ -194,6 +194,7 @@ protected:
 	// unsafe blocks
 
 	intptr_t m_unsafeEnterCount;
+	size_t m_callCount;
 
 public:
 	OperatorMgr();
@@ -224,6 +225,11 @@ public:
 	bool
 	isUnsafeRgn() {
 		return m_unsafeEnterCount > 0;
+	}
+
+	size_t
+	getCallCount() {
+		return m_callCount;
 	}
 
 	// ensure ptr/ref target layout, load ref, get property, enum->int, bool->int, array->ptr

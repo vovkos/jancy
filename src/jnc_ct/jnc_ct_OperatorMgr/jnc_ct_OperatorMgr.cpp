@@ -150,11 +150,13 @@ OperatorMgr::OperatorMgr() {
 	m_castOperatorTable[TypeKind_TypedefShadow] = &m_cast_Typedef;
 
 	m_unsafeEnterCount = 0;
+	m_callCount = 0;
 }
 
 void
 OperatorMgr::clear() {
 	m_unsafeEnterCount = 0;
+	m_callCount = 0;
 }
 
 OverloadableFunction

@@ -43,6 +43,7 @@ struct DynamicLayoutStmt: ScopeExtension {
 	BasicBlock* m_structBlock;
 	sl::Array<Value> m_offsetValueArray;
 	size_t m_fieldAlignment;
+	size_t m_callCount;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

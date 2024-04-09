@@ -544,6 +544,7 @@ OperatorMgr::callImpl(
 	if (functionType->getFlags() & FunctionTypeFlag_ErrorCode)
 		m_module->m_controlFlowMgr.checkErrorCode(*resultValue, functionType->getReturnType());
 
+	m_callCount++;
 	return true;
 }
 

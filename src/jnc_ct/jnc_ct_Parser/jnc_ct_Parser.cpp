@@ -1759,8 +1759,10 @@ Parser::declareData(
 			return false;
 		}
 
-		if (stmt->m_structType &&
-			stmt->m_structBlock != m_module->m_controlFlowMgr.getCurrentBlock()
+		if (stmt->m_structType && (
+				stmt->m_structBlock != m_module->m_controlFlowMgr.getCurrentBlock() ||
+				stmt->m_callCount != m_module->m_operatorMgr.getCallCount()
+			)
 		) {
 			result = finalizeDynamicStructSection(stmt);
 			if (!result)
@@ -1792,6 +1794,7 @@ Parser::declareData(
 			stmt->m_offsetValueArray.append(offsetValue);
 			stmt->m_structType = structType;
 			stmt->m_structBlock = m_module->m_controlFlowMgr.getCurrentBlock();
+			stmt->m_callCount = m_module->m_operatorMgr.getCallCount();
 		}
 
 		Field* field = stmt->m_structType->createField(name, type, bitCount, ptrTypeFlags);
@@ -3251,6 +3254,7 @@ Parser::initializeDynamicLayoutStmt(
 	stmt->m_structType = NULL;
 	stmt->m_structBlock = NULL;
 	stmt->m_fieldAlignment = m_pragmaConfig.m_fieldAlignment;
+	stmt->m_callCount = 0;
 
 	Scope* scope = m_module->m_namespaceMgr.openScope(pos, flags);
 	scope->m_dynamicLayoutStmt = stmt;
