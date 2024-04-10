@@ -168,6 +168,7 @@ enum TokenKind {
 	TokenKind_DynamicSizeOf,
 	TokenKind_DynamicCountOf,
 	TokenKind_DynamicTypeOf,
+	TokenKind_DynamicOffsetOf,
 	TokenKind_DynamicCast,
 
 	// symbol tokens
@@ -367,10 +368,11 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP(TokenName)
 	AXL_LEX_TOKEN_NAME(TokenKind_OffsetOf,     "offsetof")
 	AXL_LEX_TOKEN_NAME(TokenKind_BindingOf,    "bindingof")
 
-	AXL_LEX_TOKEN_NAME(TokenKind_DynamicSizeOf,  "dynamic sizeof")
-	AXL_LEX_TOKEN_NAME(TokenKind_DynamicCountOf, "dynamic countof")
-	AXL_LEX_TOKEN_NAME(TokenKind_DynamicTypeOf,  "dynamic typeof")
-	AXL_LEX_TOKEN_NAME(TokenKind_DynamicCast,    "dynamic-cast")
+	AXL_LEX_TOKEN_NAME(TokenKind_DynamicSizeOf,   "dynamic sizeof")
+	AXL_LEX_TOKEN_NAME(TokenKind_DynamicCountOf,  "dynamic countof")
+	AXL_LEX_TOKEN_NAME(TokenKind_DynamicTypeOf,   "dynamic typeof")
+	AXL_LEX_TOKEN_NAME(TokenKind_DynamicOffsetOf, "dynamic offsetof")
+	AXL_LEX_TOKEN_NAME(TokenKind_DynamicCast,     "dynamic-cast")
 
 	// symbol tokens
 

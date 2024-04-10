@@ -22,6 +22,7 @@ namespace ct {
 enum StdFunc {
 	StdFunc_DynamicSizeOf,
 	StdFunc_DynamicCountOf,
+	StdFunc_DynamicOffsetOf,
 
 	StdFunc_DynamicCastDataPtr,
 	StdFunc_DynamicCastClassPtr,

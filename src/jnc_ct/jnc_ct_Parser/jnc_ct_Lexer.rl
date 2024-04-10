@@ -254,6 +254,8 @@ main := |*
                  { createToken(TokenKind_DynamicCountOf); };
 'dynamic' ws+ 'typeof'
                  { createToken(TokenKind_DynamicTypeOf); };
+'dynamic' ws+ 'offsetof'
+                 { createToken(TokenKind_DynamicOffsetOf); };
 'dynamic' ws* '('
                  { createDynamicCastTokens(); };
 

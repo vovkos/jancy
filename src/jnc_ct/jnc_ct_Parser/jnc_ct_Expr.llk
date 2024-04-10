@@ -860,6 +860,14 @@ primary_expr<Value* $value>
 			{
 				return m_module->m_operatorMgr.typeofOperator(OperatorDynamism_Static, $t.m_value, $value);
 			}
+	|	TokenKind_OffsetOf '(' expression_0 $e ')'
+			{
+				return m_module->m_operatorMgr.offsetofOperator(OperatorDynamism_Static, $e.m_value, $value);
+			}
+	|	TokenKind_BindingOf '(' conditional_expr<$value> ')'
+			{
+				return m_module->m_operatorMgr.getPropertyOnChanged($value);
+			}
 	|	TokenKind_DynamicSizeOf '(' expression $e ')'
 			{
 				return m_module->m_operatorMgr.sizeofOperator(OperatorDynamism_Dynamic, $e.m_value, $value);
@@ -872,13 +880,9 @@ primary_expr<Value* $value>
 			{
 				return m_module->m_operatorMgr.typeofOperator(OperatorDynamism_Dynamic, $e.m_value, $value);
 			}
-	|	TokenKind_OffsetOf '(' expression_0 $e ')'
+	|	TokenKind_DynamicOffsetOf '(' expression $e ')'
 			{
-				return m_module->m_operatorMgr.offsetofOperator($e.m_value, $value);
-			}
-	|	TokenKind_BindingOf '(' conditional_expr<$value> ')'
-			{
-				return m_module->m_operatorMgr.getPropertyOnChanged($value);
+				return m_module->m_operatorMgr.offsetofOperator(OperatorDynamism_Dynamic, $e.m_value, $value);
 			}
 	;
 

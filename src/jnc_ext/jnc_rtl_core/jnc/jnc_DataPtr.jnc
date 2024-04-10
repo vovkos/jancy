@@ -31,10 +31,13 @@ void* limitDataPtr(
 	size_t length
 );
 
-void const* limitDataPtr(
+void const* getDataPtr(
 	void const* p,
 	size_t length
 );
+
+intptr_t getDataPtrLeftRadius(void const* p);
+intptr_t getDataPtrRightRadius(void const* p);
 
 //..............................................................................
 

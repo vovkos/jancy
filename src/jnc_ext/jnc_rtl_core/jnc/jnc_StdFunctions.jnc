@@ -26,6 +26,10 @@ size_t dynamicCountOf(
 	void thin* type
 );
 
+///; static char dynamicOffsetOfSrc[] =
+
+size_t dynamicOffsetOf(void const* p);
+
 ///; static char dynamicCastDataPtrSrc[] =
 
 void* dynamicCastDataPtr(

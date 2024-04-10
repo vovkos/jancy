@@ -928,7 +928,6 @@ OperatorMgr::sizeofOperator(
 
 	Type* type = typeValue.getType();
 	if (dynamism == OperatorDynamism_Dynamic) {
-		type = typeValue.getType();
 		if (type->getTypeKind() != TypeKind_DataPtr) {
 			err::setFormatStringError("'dynamic sizeof' operator is only applicable to data pointers, not to '%s'", type->getTypeString().sz());
 			return false;
@@ -955,7 +954,6 @@ OperatorMgr::countofOperator(
 
 	Type* type = typeValue.getType();
 	if (dynamism == OperatorDynamism_Dynamic) {
-		type = typeValue.getType();
 		if (type->getTypeKind() != TypeKind_DataPtr) {
 			err::setFormatStringError("'dynamic countof' operator is only applicable to data pointers, not to '%s'", type->getTypeString().sz());
 			return false;
@@ -993,8 +991,8 @@ OperatorMgr::typeofOperator(
 
 	Type* type = typeValue.getType();
 	if (dynamism == OperatorDynamism_Dynamic) {
-		if (type->getTypeKind() != TypeKind_DataPtr) {
-			err::setFormatStringError("'dynamic typeof' operator is only applicable to data pointers, not to '%s'", type->getTypeString().sz());
+		if (!(type->getTypeKindFlags() & (TypeKindFlag_DataPtr | TypeKindFlag_ClassPtr))) {
+			err::setFormatStringError("'dynamic typeof' operator is only applicable to data and class pointers, not to '%s'", type->getTypeString().sz());
 			return false;
 		}
 
@@ -1013,9 +1011,26 @@ OperatorMgr::typeofOperator(
 
 bool
 OperatorMgr::offsetofOperator(
+	OperatorDynamism dynamism,
 	const Value& value,
 	Value* resultValue
 ) {
+	if (dynamism == OperatorDynamism_Dynamic) {
+		Value typeValue;
+		bool result = prepareOperandType(value, &typeValue, OpFlag_LoadArrayRef);
+		if (!result)
+			return false;
+
+		Type* type = typeValue.getType();
+		if (type->getTypeKind() != TypeKind_DataPtr) {
+			err::setFormatStringError("'dynamic sizeof' operator is only applicable to data pointers, not to '%s'", type->getTypeString().sz());
+			return false;
+		}
+
+		Function* function = m_module->m_functionMgr.getStdFunction(StdFunc_DynamicOffsetOf);
+		return callOperator(function, value, resultValue);
+	}
+
 	if (value.getValueKind() != ValueKind_Field) {
 		err::setFormatStringError("'offsetof' can only be applied to fields");
 		return false;

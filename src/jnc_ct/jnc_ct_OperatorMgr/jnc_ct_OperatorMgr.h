@@ -656,13 +656,30 @@ public:
 
 	bool
 	offsetofOperator(
+		OperatorDynamism dynamism,
 		const Value& value,
 		Value* resultValue
 	);
 
 	bool
+	offsetofOperator(
+		OperatorDynamism dynamism,
+		Value* value
+	) {
+		return offsetofOperator(dynamism, *value, value);
+	}
+
+	bool
+	offsetofOperator(
+		const Value& value,
+		Value* resultValue
+	) {
+		return offsetofOperator(OperatorDynamism_Static, value, resultValue);
+	}
+
+	bool
 	offsetofOperator(Value* value) {
-		return offsetofOperator(*value, value);
+		return offsetofOperator(OperatorDynamism_Static, *value, value);
 	}
 
 	// async/await

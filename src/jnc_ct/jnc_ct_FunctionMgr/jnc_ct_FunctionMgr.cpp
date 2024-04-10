@@ -1071,6 +1071,7 @@ FunctionMgr::getStdFunction(StdFunc func) {
 
 	case StdFunc_DynamicSizeOf:
 	case StdFunc_DynamicCountOf:
+	case StdFunc_DynamicOffsetOf:
 	case StdFunc_DynamicCastDataPtr:
 	case StdFunc_DynamicCastClassPtr:
 	case StdFunc_DynamicCastVariant:

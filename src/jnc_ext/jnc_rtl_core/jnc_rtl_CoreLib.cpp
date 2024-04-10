@@ -68,6 +68,16 @@ dynamicCountOf(
 	return maxSize / (typeSize ? typeSize : 1);
 }
 
+size_t
+dynamicOffsetOf(DataPtr ptr) {
+	if (!ptr.m_validator)
+		return 0;
+
+	char* p = (char*)ptr.m_p;
+	char* base = (char*)ptr.m_validator->m_rangeBegin;
+	return base < p ? p - base : 0;
+}
+
 DataPtr
 dynamicCastDataPtr(
 	DataPtr ptr,
@@ -947,6 +957,16 @@ limitDataPtr(
 	return ptr;
 }
 
+intptr_t
+getDataPtrLeftRadius(DataPtr ptr) {
+	return ptr.m_validator ? (char*)ptr.m_p - (char*)ptr.m_validator->m_rangeBegin : 0;
+}
+
+intptr_t
+getDataPtrRightRadius(DataPtr ptr) {
+	return ptr.m_validator ? (char*)ptr.m_validator->m_rangeEnd - (char*)ptr.m_p : 0;
+}
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
@@ -1106,6 +1126,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_CoreLib)
 
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_DynamicSizeOf,       dynamicSizeOf)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_DynamicCountOf,      dynamicCountOf)
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_DynamicOffsetOf,     dynamicOffsetOf)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_DynamicCastDataPtr,  dynamicCastDataPtr)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_DynamicCastClassPtr, dynamicCastClassPtr)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_DynamicCastVariant,  dynamicCastVariant)
@@ -1192,10 +1213,12 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_CoreLib)
 
 	// safe data pointers
 
-	JNC_MAP_FUNCTION_Q("jnc.createDataPtr", createDataPtr)
+	JNC_MAP_FUNCTION_Q("jnc.createDataPtr",         createDataPtr)
 	JNC_MAP_OVERLOAD(createDataPtr)
-	JNC_MAP_FUNCTION_Q("jnc.limitDataPtr",  limitDataPtr)
+	JNC_MAP_FUNCTION_Q("jnc.limitDataPtr",          limitDataPtr)
 	JNC_MAP_OVERLOAD(limitDataPtr)
+	JNC_MAP_FUNCTION_Q("jnc.getDataPtrLeftRadius",  getDataPtrLeftRadius)
+	JNC_MAP_FUNCTION_Q("jnc.getDataPtrRightRadius", getDataPtrRightRadius)
 
 	// multicasts
 
