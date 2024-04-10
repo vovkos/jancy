@@ -39,8 +39,9 @@ enum DynamicSectionKind {
 
 opaque class DynamicSection: DynamicSectionGroup {
 	DynamicSectionKind readonly m_sectionKind;
+	PtrTypeFlags readonly m_ptrTypeFlags;  // for DynamicSectionKind.Array
+	size_t readonly m_elementCount;        // for DynamicSectionKind.Array
 	size_t readonly m_offset;
-	size_t readonly m_elementCount; // for DynamicSectionKind.Array
 
 	Type* const property m_type;           // null for DynamicSectionKind.Group
 	ModuleItemDecl* const property m_decl; // null for DynamicSectionKind.Struct
@@ -133,7 +134,8 @@ protected:
 	size_t addArray(
 		void thin* decl,
 		void thin* type,
-		size_t elementCount
+		size_t elementCount,
+		uint_t ptrTypeFlags
 	);
 
 	size_t openGroup(void thin* decl);

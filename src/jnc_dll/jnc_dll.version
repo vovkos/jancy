@@ -307,6 +307,7 @@
 		jnc_DynamicSection_getSectionKind;
 		jnc_DynamicSection_getOffset;
 		jnc_DynamicSection_getElementCount;
+		jnc_DynamicSection_getPtrTypeFlags;
 		jnc_DynamicSection_getType;
 		jnc_DynamicSection_getDecl;
 		jnc_createDynamicLayout;

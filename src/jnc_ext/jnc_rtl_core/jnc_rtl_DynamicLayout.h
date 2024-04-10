@@ -65,8 +65,9 @@ public:
 
 public:
 	uint_t m_sectionKind;
-	size_t m_offset;
+	uint_t m_ptrTypeFlags;
 	size_t m_elementCount;
+	size_t m_offset;
 
 protected:
 	ct::ModuleItemDecl* m_decl;
@@ -174,7 +175,8 @@ public:
 	addArray(
 		ct::ModuleItemDecl* decl,
 		ct::Type* type,
-		size_t elementCount
+		size_t elementCount,
+		uint_t ptrTypeFlags
 	);
 
 	size_t

@@ -182,7 +182,8 @@ JNC_CDECL
 DynamicLayout::addArray(
 	ct::ModuleItemDecl* decl,
 	ct::Type* type,
-	size_t elementCount
+	size_t elementCount,
+	uint_t ptrTypeFlags
 ) {
 	size_t offset = m_size;
 	if (m_mode & DynamicLayoutMode_Save) {
@@ -195,6 +196,7 @@ DynamicLayout::addArray(
 		);
 
 		section->m_elementCount = elementCount;
+		section->m_ptrTypeFlags = ptrTypeFlags;
 		addSection(section);
 	}
 

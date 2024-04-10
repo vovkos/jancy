@@ -75,6 +75,10 @@ size_t
 jnc_DynamicSection_getElementCount(jnc_DynamicSection* section);
 
 JNC_EXTERN_C
+uint_t
+jnc_DynamicSection_getPtrTypeFlags(jnc_DynamicSection* section);
+
+JNC_EXTERN_C
 jnc_Type*
 jnc_DynamicSection_getType(jnc_DynamicSection* section);
 
@@ -99,6 +103,11 @@ struct jnc_DynamicSection: jnc_DynamicSectionGroup {
 	size_t
 	getElementCount() {
 		return jnc_DynamicSection_getElementCount(this);
+	}
+
+	uint_t
+	getPtrTypeFlags() {
+		return jnc_DynamicSection_getPtrTypeFlags(this);
 	}
 
 	jnc_Type*

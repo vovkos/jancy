@@ -70,6 +70,13 @@ jnc_DynamicSection_getElementCount(jnc_DynamicSection* section) {
 
 JNC_EXTERN_C
 JNC_EXPORT_O
+uint_t
+jnc_DynamicSection_getPtrTypeFlags(jnc_DynamicSection* section) {
+	return ((jnc::rtl::DynamicSection*)section)->m_ptrTypeFlags;
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Type*
 jnc_DynamicSection_getType(jnc_DynamicSection* section) {
 	return ((jnc::rtl::DynamicSection*)section)->getType_ct();

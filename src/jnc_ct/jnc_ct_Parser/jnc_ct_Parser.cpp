@@ -1741,6 +1741,7 @@ Parser::declareData(
 				Value funcValue;
 				Value declValue((int64_t)(ModuleItemDecl*)field, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
 				Value typeValue((int64_t)elementType, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
+				Value ptrTypeFlagsValue(ptrTypeFlags, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int_u));
 				Value offsetValue;
 
 				m_module->m_compileFlags |= Module::AuxCompileFlag_SkipAccessChecks;
@@ -1748,7 +1749,14 @@ Parser::declareData(
 				result =
 					nspace->addItem(field) &&
 					m_module->m_operatorMgr.memberOperator(stmt->m_layoutValue, "addArray", &funcValue) &&
-					m_module->m_operatorMgr.callOperator(funcValue, declValue, typeValue, countValue, &offsetValue) &&
+					m_module->m_operatorMgr.callOperator(
+						funcValue,
+						declValue,
+						typeValue,
+						countValue,
+						ptrTypeFlagsValue,
+						&offsetValue
+					) &&
 					m_module->m_operatorMgr.awaitDynamicLayoutIf(stmt->m_layoutValue);
 
 				m_module->m_compileFlags &= ~Module::AuxCompileFlag_SkipAccessChecks;
