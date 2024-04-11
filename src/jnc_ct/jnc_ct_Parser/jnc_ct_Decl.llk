@@ -458,6 +458,10 @@ attribute_declarator
 			{
 				return createAttribute($1.m_pos, $1.m_data.m_string, &$i ? &$i.m_tokenList : NULL);
 			}
+	|	'@' qualified_name
+			{
+				return reuseAttributes($2.m_name);
+			}
 	|	epsilon
 	;
 

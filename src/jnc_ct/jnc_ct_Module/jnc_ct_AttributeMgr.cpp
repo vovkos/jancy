@@ -23,6 +23,22 @@ AttributeMgr::AttributeMgr() {
 	ASSERT(m_module);
 }
 
+Attribute*
+AttributeMgr::createAttribute(
+	const sl::StringRef& name,
+	sl::List<Token>* initializer
+) {
+	Attribute* attribute = new Attribute;
+	attribute->m_module = m_module;
+	attribute->m_name = name;
+
+	if (initializer)
+		sl::takeOver(&attribute->m_initializer, initializer);
+
+	m_attributeList.insertTail(attribute);
+	return attribute;
+}
+
 AttributeBlock*
 AttributeMgr::createAttributeBlock() {
 	AttributeBlock* attributeBlock = new AttributeBlock;

@@ -19,8 +19,12 @@ namespace ct {
 //..............................................................................
 
 bool
-Attribute::parseInitializer() {
-	ASSERT(!m_initializer.isEmpty());
+Attribute::prepareValue() {
+	if (m_initializer.isEmpty()) {
+		m_value.setVoid(m_module);
+		m_flags |= AttributeFlag_ValueReady;
+		return true;
+	}
 
 	bool result = m_module->m_operatorMgr.parseExpression(&m_initializer, &m_value);
 	if (!result)
@@ -63,33 +67,39 @@ Attribute::parseInitializer() {
 		return false;
 	}
 
+	m_flags |= AttributeFlag_ValueReady;
 	return true;
 }
 
 //..............................................................................
 
-Attribute*
-AttributeBlock::createAttribute(
-	const sl::StringRef& name,
-	sl::List<Token>* initializer
-) {
-	sl::StringHashTableIterator<Attribute*> it = m_attributeMap.visit(name);
-	if (it->m_value) {
-		err::setFormatStringError("redefinition of attribute '%s'", name.sz());
-		return NULL;
+bool
+AttributeBlock::addAttribute(Attribute* attribute) {
+	sl::StringHashTableIterator<Attribute*> it = m_attributeMap.visit(attribute->getName());
+
+	// don't overwrite attributes declared in this very block
+	if (it->m_value && !(it->m_value->getFlags() & AttributeFlag_Shared)) {
+		if (attribute->getFlags() & AttributeFlag_Shared) // shared attribute; ignore
+			return true;
+
+		err::setFormatStringError("redefinition of attribute '%s'", attribute->getName().sz());
+		return false;
 	}
 
-	Attribute* attribute = new Attribute;
-	attribute->m_module = m_module;
-	attribute->m_name = name;
-
-	if (initializer)
-		sl::takeOver(&attribute->m_initializer, initializer);
-
-	m_attributeList.insertTail(attribute);
 	m_attributeArray.append(attribute);
 	it->m_value = attribute;
-	return attribute;
+	return true;
+}
+
+void
+AttributeBlock::addAttributeBlock(AttributeBlock* attributeBlock) {
+	size_t count = attributeBlock->m_attributeArray.getCount();
+	for (size_t i = 0; i < count; i++) {
+		Attribute* attribute = attributeBlock->m_attributeArray[i];
+		attribute->m_flags |= AttributeFlag_Shared;
+		bool result = addAttribute(attribute);
+		ASSERT(result);
+	}
 }
 
 bool
@@ -104,13 +114,9 @@ AttributeBlock::prepareAttributeValues() {
 	size_t count = m_attributeArray.getCount();
 	for (size_t i = 0; i < count; i++) {
 		Attribute* attribute = m_attributeArray[i];
-		if (!attribute->hasInitializer()) {
-			attribute->m_value.setVoid(m_module);
-		} else {
-			bool result = attribute->parseInitializer();
-			if (!result)
-				finalResult = false;
-		}
+		bool result = attribute->ensureValueReady();
+		if (!result)
+			finalResult = false;
 	}
 
 	m_module->m_namespaceMgr.closeNamespace();

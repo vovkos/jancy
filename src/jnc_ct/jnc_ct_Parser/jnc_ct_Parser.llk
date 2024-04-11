@@ -328,6 +328,9 @@ protected:
 		sl::List<Token>* initializer
 	);
 
+	bool
+	reuseAttributes(const QualifiedName& name);
+
 	void
 	preDeclaration();
 
@@ -430,6 +433,9 @@ protected:
 
 	bool
 	declare(Declarator* declarator);
+
+	bool
+	declareNamedAttributeBlock(Declarator* declarator);
 
 	bool
 	declareInReaction(Declarator* declarator);

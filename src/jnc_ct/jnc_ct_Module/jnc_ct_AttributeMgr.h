@@ -26,6 +26,7 @@ class AttributeMgr {
 protected:
 	Module* m_module;
 
+	sl::List<Attribute> m_attributeList;
 	sl::List<AttributeBlock> m_attributeBlockList;
 
 public:
@@ -41,14 +42,14 @@ public:
 		m_attributeBlockList.clear();
 	}
 
-	AttributeBlock*
-	createAttributeBlock();
-
 	Attribute*
 	createAttribute(
 		const sl::StringRef& name,
-		Value* value = NULL
+		sl::List<Token>* initializer
 	);
+
+	AttributeBlock*
+	createAttributeBlock();
 };
 
 //..............................................................................

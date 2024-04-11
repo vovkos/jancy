@@ -18,6 +18,13 @@ namespace ct {
 
 //..............................................................................
 
+enum AttributeFlag {
+	AttributeFlag_ValueReady = 0x010000,
+	AttributeFlag_Shared     = 0x020000,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 enum AttributeBlockFlag {
 	AttributeBlockFlag_ValuesReady = 0x010000,
 };
@@ -29,6 +36,7 @@ class Attribute:
 	public ModuleItemDecl,
 	public ModuleItemInitializer {
 	friend class AttributeBlock;
+	friend class AttributeMgr;
 
 protected:
 	Value m_value;
@@ -44,7 +52,13 @@ public:
 	}
 
 	bool
-	parseInitializer();
+	ensureValueReady() {
+		return (m_flags & AttributeFlag_ValueReady) || prepareValue();
+	}
+
+protected:
+	bool
+	prepareValue();
 };
 
 //..............................................................................
@@ -52,10 +66,10 @@ public:
 class AttributeBlock:
 	public ModuleItem,
 	public ModuleItemDecl {
+	friend class Parser;
 	friend class AttributeMgr;
 
 protected:
-	sl::List<Attribute> m_attributeList;
 	sl::Array<Attribute*> m_attributeArray;
 	sl::StringHashTable<Attribute*> m_attributeMap;
 
@@ -73,11 +87,11 @@ public:
 	Attribute*
 	findAttribute(const sl::StringRef& name);
 
-	Attribute*
-	createAttribute(
-		const sl::StringRef& name,
-		sl::List<Token>* initializer = NULL
-	);
+	bool
+	addAttribute(Attribute* attribute);
+
+	void
+	addAttributeBlock(AttributeBlock* attributeBlock);
 
 	bool
 	ensureAttributeValuesReady() {

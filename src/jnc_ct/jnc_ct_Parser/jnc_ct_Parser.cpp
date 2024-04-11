@@ -504,13 +504,30 @@ Parser::createAttribute(
 ) {
 	ASSERT(m_attributeBlock);
 
-	Attribute* attribute = m_attributeBlock->createAttribute(name, initializer);
-	if (!attribute)
-		return false;
-
+	Attribute* attribute = m_module->m_attributeMgr.createAttribute(name, initializer);
 	attribute->m_parentNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
 	attribute->m_parentUnit = m_module->m_unitMgr.getCurrentUnit();
 	attribute->m_pos = pos;
+	return m_attributeBlock->addAttribute(attribute);
+}
+
+bool
+Parser::reuseAttributes(const QualifiedName& name) {
+	ASSERT(m_attributeBlock);
+
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
+	FindModuleItemResult findResult = nspace->findItemTraverse(name);
+	if (!findResult.m_result)
+		return false;
+
+	ModuleItemDecl* decl = findResult.m_item ? findResult.m_item->getDecl() : NULL;
+	AttributeBlock* attributeBlock = decl ? decl->getAttributeBlock() : NULL;
+	if (!attributeBlock) {
+		err::setFormatStringError("declaration '%s' not found or has no attributes", name.getFullName().sz());
+		return false;
+	}
+
+	m_attributeBlock->addAttributeBlock(attributeBlock);
 	return true;
 }
 
@@ -835,6 +852,34 @@ Parser::declareInReaction(Declarator* declarator) {
 }
 
 bool
+Parser::declareNamedAttributeBlock(Declarator* declarator) {
+	ASSERT(declarator->m_attributeBlock);
+
+	if (!declarator->isSimple()) {
+		err::setFormatStringError("invalid named attribute block declarator");
+		return false;
+	}
+
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
+
+	AttributeBlock* attributeBlock = m_module->m_attributeMgr.createAttributeBlock();
+	attributeBlock->m_parentNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
+	attributeBlock->m_parentUnit = m_module->m_unitMgr.getCurrentUnit();
+	attributeBlock->m_name = declarator->getName().getShortName();
+	attributeBlock->m_qualifiedName = nspace->createQualifiedName(attributeBlock->m_name);
+	attributeBlock->m_attributeBlock = declarator->m_attributeBlock;
+	attributeBlock->m_pos = declarator->m_pos;
+	attributeBlock->m_flags |= ModuleItemFlag_User;
+
+	bool result = nspace->addItem(attributeBlock);
+	if (!result)
+		return false;
+
+	m_lastDeclaredItem = attributeBlock;
+	return true;
+}
+
+bool
 Parser::declare(Declarator* declarator) {
 	if (m_mode == Mode_Reaction)
 		return declareInReaction(declarator);
@@ -884,8 +929,14 @@ Parser::declare(Declarator* declarator) {
 	default:
 		switch (typeKind) {
 		case TypeKind_Void:
-			err::setFormatStringError("illegal use of type 'void'");
-			return false;
+			if (!declarator->m_attributeBlock &&
+				!(declarator->m_attributeBlock = popAttributeBlock())
+			) {
+				err::setFormatStringError("illegal use of type 'void'");
+				return false;
+			}
+
+			return declareNamedAttributeBlock(declarator);
 
 		case TypeKind_Function:
 			return declareFunction(declarator, (FunctionType*)type);
