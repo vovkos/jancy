@@ -121,6 +121,16 @@ DynamicLayout::reset(
 
 }
 
+void
+JNC_CDECL
+DynamicLayout::updateGroupSizes() {
+	size_t count = m_groupStack.getCount();
+	for (size_t i = 0; i < count; i++) {
+		DynamicSection* group = m_groupStack[i];
+		group->m_size = m_size - group->m_offset;
+	}
+}
+
 size_t
 JNC_CDECL
 DynamicLayout::resume(
@@ -160,19 +170,12 @@ size_t
 JNC_CDECL
 DynamicLayout::addStruct(ct::StructType* type) {
 	size_t offset = m_size;
-	if (m_mode & DynamicLayoutMode_Save) {
-		DynamicSection* section = createClass<DynamicSection>(
-			jnc::getCurrentThreadRuntime(),
-			DynamicSectionKind_Struct,
-			m_size,
-			(ct::ModuleItemDecl*)NULL,
-			type
-		);
+	size_t size = type->getSize();
 
-		addSection(section);
-	}
+	if (m_mode & DynamicLayoutMode_Save)
+		addSection(DynamicSectionKind_Struct, m_size, size, NULL, type);
 
-	m_size += type->getSize();
+	m_size += size;
 	prepareForAwaitIf();
 	return offset;
 }
@@ -186,30 +189,37 @@ DynamicLayout::addArray(
 	uint_t ptrTypeFlags
 ) {
 	size_t offset = m_size;
+	size_t size = type->getSize() * elementCount;
 	if (m_mode & DynamicLayoutMode_Save) {
-		DynamicSection* section = createClass<DynamicSection>(
-			jnc::getCurrentThreadRuntime(),
-			DynamicSectionKind_Array,
-			m_size,
-			decl,
-			type
-		);
-
+		DynamicSection* section = addSection(DynamicSectionKind_Array, m_size, size, decl, type);
 		section->m_elementCount = elementCount;
 		section->m_ptrTypeFlags = ptrTypeFlags;
-		addSection(section);
 	}
 
-	m_size += type->getSize() * elementCount;
+	m_size += size;
 	prepareForAwaitIf();
 	return offset;
 }
 
-void
-DynamicLayout::addSection(DynamicSection* section) {
-	DynamicSectionGroup* group = !m_groupStack.isEmpty() ? m_groupStack.getBack() : this;
+DynamicSection*
+DynamicLayout::addSection(
+	DynamicSectionKind sectionKind,
+	size_t offset,
+	size_t size,
+	ct::ModuleItemDecl* decl,
+	ct::Type* type
+) {
+	DynamicSection* section = createClass<DynamicSection>(jnc::getCurrentThreadRuntime());
+	section->m_sectionKind = sectionKind;
+	section->m_offset = offset;
+	section->m_size = size;
+	section->m_decl = decl;
+	section->m_type = type;
+
+	DynamicSectionGroup* group = !m_groupStack.isEmpty() ? (DynamicSectionGroup*)m_groupStack.getBack() : this;
 	group->m_sectionArray.append(section);
 	group->m_sectionCount++;
+	return section;
 }
 
 size_t
@@ -217,18 +227,20 @@ JNC_CDECL
 DynamicLayout::openGroup(ct::ModuleItemDecl* decl) {
 	size_t offset = m_size;
 	if (m_mode & DynamicLayoutMode_Save) {
-		DynamicSection* section = createClass<DynamicSection>(
-			jnc::getCurrentThreadRuntime(),
-			DynamicSectionKind_Group,
-			m_size,
-			decl
-		);
-
-		addSection(section);
-		m_groupStack.append(section);
+		DynamicSection* group = addSection(DynamicSectionKind_Group, m_size, 0, decl, NULL);
+		m_groupStack.append(group);
 	}
 
 	return offset;
+}
+
+void
+JNC_CDECL
+DynamicLayout::closeGroup() {
+	if (!m_groupStack.isEmpty()) {
+		DynamicSection* group = m_groupStack.getBackAndPop();
+		group->m_size = m_size - group->m_offset;
+	}
 }
 
 void

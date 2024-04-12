@@ -20,6 +20,7 @@ namespace rtl {
 
 class ModuleItemDecl;
 class DynamicSection;
+class DynamicLayout;
 
 JNC_DECLARE_OPAQUE_CLASS_TYPE(DynamicSectionGroup)
 JNC_DECLARE_OPAQUE_CLASS_TYPE(DynamicSection)
@@ -60,6 +61,8 @@ enum DynamicSectionKind {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class DynamicSection: public DynamicSectionGroup {
+	friend class DynamicLayout;
+
 public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(DynamicSection)
 
@@ -68,19 +71,13 @@ public:
 	uint_t m_ptrTypeFlags;
 	size_t m_elementCount;
 	size_t m_offset;
+	size_t m_size;
 
 protected:
 	ct::ModuleItemDecl* m_decl;
 	ct::Type* m_type;
 
 public:
-	DynamicSection(
-		DynamicSectionKind sectionKind,
-		size_t offset,
-		ct::ModuleItemDecl* decl = NULL,
-		ct::Type* type = NULL
-	);
-
 	IfaceHdr*
 	JNC_CDECL
 	getType_rtl(); // disambiguate vs JNC_DECLARE_CLASS_TYPE_STATIC_METHODS()
@@ -100,22 +97,6 @@ public:
 		return m_decl;
 	}
 };
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-inline
-DynamicSection::DynamicSection(
-	DynamicSectionKind sectionKind,
-	size_t offset,
-	ct::ModuleItemDecl* decl,
-	ct::Type* type
-) {
-	m_sectionKind  = sectionKind;
-	m_offset  = offset;
-	m_elementCount = 0;
-	m_decl = decl;
-	m_type = type;
-}
 
 //..............................................................................
 
@@ -142,7 +123,7 @@ public:
 	uint_t m_mode;
 
 protected:
-	sl::Array<DynamicSectionGroup*> m_groupStack; // groups are already added -- no need to extra mark
+	sl::Array<DynamicSection*> m_groupStack; // groups are already added -- no need to extra mark
 
 public:
 	void
@@ -158,6 +139,10 @@ public:
 		DataPtr ptr,
 		size_t size
 	);
+
+	void
+	JNC_CDECL
+	updateGroupSizes();
 
 	size_t
 	JNC_CDECL
@@ -185,10 +170,7 @@ public:
 
 	void
 	JNC_CDECL
-	closeGroup() {
-		if (!m_groupStack.isEmpty())
-			m_groupStack.pop();
-	}
+	closeGroup();
 
 protected:
 	void
@@ -200,8 +182,14 @@ protected:
 	void
 	prepareForAwait();
 
-	void
-	addSection(DynamicSection* section);
+	DynamicSection*
+	addSection(
+		DynamicSectionKind sectionKind,
+		size_t offset,
+		size_t size,
+		ct::ModuleItemDecl* decl,
+		ct::Type* type
+	);
 };
 
 //..............................................................................

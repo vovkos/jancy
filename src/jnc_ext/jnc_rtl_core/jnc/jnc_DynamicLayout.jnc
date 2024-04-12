@@ -42,6 +42,7 @@ opaque class DynamicSection: DynamicSectionGroup {
 	PtrTypeFlags readonly m_ptrTypeFlags;  // for DynamicSectionKind.Array
 	size_t readonly m_elementCount;        // for DynamicSectionKind.Array
 	size_t readonly m_offset;
+	size_t readonly m_size;
 
 	Type* const property m_type;           // null for DynamicSectionKind.Group
 	ModuleItemDecl* const property m_decl; // null for DynamicSectionKind.Struct
@@ -114,6 +115,8 @@ public:
 	) {
 		reset(0, p, size);
 	}
+
+	void updateGroupSizes(); // when accessing an incomplete layout (e.g. after an exception)
 
 	// only for DynamicLayoutMode.Stream
 
