@@ -112,7 +112,7 @@ DynamicLayout::reset(
 	m_buffer->clear();
 	m_promise = NULL;
 	m_mode = mode;
-	m_ptr = ptr;
+	m_ptr = limitDataPtr(ptr, size); // prevent data access beyond the end-of-buffer
 	m_size = 0;
 	m_bufferSize = size;
 	m_sectionCount = 0;
