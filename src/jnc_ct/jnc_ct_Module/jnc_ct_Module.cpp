@@ -679,10 +679,17 @@ Module::requireIntrospectionLib() {
 bool
 Module::requireDynamicLayout() {
 	ASSERT(!(m_compileFlags & AuxCompileFlag_DynamicLayout));
-	require(TypeKind_Class, "jnc.DynamicLayout");
-	require(TypeKind_Class, "jnc.DynamicSection");
+	bool result =
+		ensureIntrospectionLibRequired() &&
+		m_typeMgr.getStdType(StdType_DynamicLayout)->require() &&
+		m_typeMgr.getStdType(StdType_DynamicSection)->require() &&
+		m_typeMgr.getStdType(StdType_Promise)->require();
+
+	if (!result)
+		return false;
+
 	m_compileFlags |= AuxCompileFlag_DynamicLayout;
-	return ensureIntrospectionLibRequired();
+	return true;
 }
 
 bool

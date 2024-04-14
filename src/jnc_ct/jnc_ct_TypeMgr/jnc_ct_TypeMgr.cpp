@@ -253,6 +253,7 @@ TypeMgr::getStdType(StdType stdType) {
 	case StdType_Promise:
 	case StdType_Promisifier:
 	case StdType_DynamicLayout:
+	case StdType_DynamicSection:
 	case StdType_DynamicLib:
 	case StdType_Scheduler:
 	case StdType_ModuleItem:

@@ -271,6 +271,7 @@ enum jnc_StdType {
 	jnc_StdType_PromisePtr,
 	jnc_StdType_Promisifier,
 	jnc_StdType_DynamicLayout,
+	jnc_StdType_DynamicSection,
 	jnc_StdType_DynamicLib,
 
 	// jnc_rtl_intro lazy types
@@ -786,6 +787,7 @@ const StdType
 	StdType_PromisePtr            = jnc_StdType_PromisePtr,
 	StdType_Promisifier           = jnc_StdType_Promisifier,
 	StdType_DynamicLayout         = jnc_StdType_DynamicLayout,
+	StdType_DynamicSection        = jnc_StdType_DynamicSection,
 	StdType_DynamicLib            = jnc_StdType_DynamicLib,
 	StdType_ModuleItem            = jnc_StdType_ModuleItem,
 	StdType_ModuleItemDecl        = jnc_StdType_ModuleItemDecl,
