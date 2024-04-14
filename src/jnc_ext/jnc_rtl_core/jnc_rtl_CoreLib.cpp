@@ -227,16 +227,15 @@ allocateArray(
 	return gcHeap->allocateArray(type, elementCount);
 }
 
-DataPtrValidator*
-createDataPtrValidator(
-	Box* box,
-	const void* rangeBegin,
-	size_t rangeLength
+DataPtr
+createDataPtr(
+	void* p,
+	size_t length
 ) {
-	GcHeap* gcHeap = getCurrentThreadGcHeap();
-	ASSERT(gcHeap);
+	if (length == -1)
+		length = p ? strlen((char*)p) + 1 : 0;
 
-	return gcHeap->createDataPtrValidator(box, rangeBegin, rangeLength);
+	return jnc::createForeignBufferPtr(p, length, false);
 }
 
 void
@@ -926,49 +925,6 @@ gcTriggers_set(GcSizeTriggers triggers) {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-DataPtr
-createDataPtr(
-	void* p,
-	size_t length
-) {
-	if (length == -1)
-		length = p ? strlen((char*)p) + 1 : 0;
-
-	return jnc::createForeignBufferPtr(p, length, false);
-}
-
-DataPtr
-limitDataPtr(
-	DataPtr ptr,
-	size_t length
-) {
-	if (!ptr.m_validator ||
-		(char*)ptr.m_validator->m_rangeEnd <= (char*)ptr.m_p ||
-		(char*)ptr.m_validator->m_rangeEnd - (char*)ptr.m_p < length
-	)
-		return ptr;
-
-	ptr.m_validator = createDataPtrValidator(
-		ptr.m_validator->m_targetBox,
-		ptr.m_validator->m_rangeBegin,
-		(char*)ptr.m_p + length - (char*)ptr.m_validator->m_rangeBegin
-	);
-
-	return ptr;
-}
-
-intptr_t
-getDataPtrLeftRadius(DataPtr ptr) {
-	return ptr.m_validator ? (char*)ptr.m_p - (char*)ptr.m_validator->m_rangeBegin : 0;
-}
-
-intptr_t
-getDataPtrRightRadius(DataPtr ptr) {
-	return ptr.m_validator ? (char*)ptr.m_validator->m_rangeEnd - (char*)ptr.m_p : 0;
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 void
 multicastDestruct(Multicast* multicast) {
 	((MulticastImpl*)multicast)->destruct();
@@ -1215,10 +1171,10 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_CoreLib)
 
 	JNC_MAP_FUNCTION_Q("jnc.createDataPtr",         createDataPtr)
 	JNC_MAP_OVERLOAD(createDataPtr)
-	JNC_MAP_FUNCTION_Q("jnc.limitDataPtr",          limitDataPtr)
-	JNC_MAP_OVERLOAD(limitDataPtr)
-	JNC_MAP_FUNCTION_Q("jnc.getDataPtrLeftRadius",  getDataPtrLeftRadius)
-	JNC_MAP_FUNCTION_Q("jnc.getDataPtrRightRadius", getDataPtrRightRadius)
+	JNC_MAP_FUNCTION_Q("jnc.limitDataPtr",          jnc::limitDataPtr)
+	JNC_MAP_OVERLOAD(jnc::limitDataPtr)
+	JNC_MAP_FUNCTION_Q("jnc.getDataPtrLeftRadius",  jnc::getDataPtrLeftRadius)
+	JNC_MAP_FUNCTION_Q("jnc.getDataPtrRightRadius", jnc::getDataPtrRightRadius)
 
 	// multicasts
 

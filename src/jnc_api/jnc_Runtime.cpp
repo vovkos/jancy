@@ -185,6 +185,44 @@ jnc_memDup(
 
 JNC_EXTERN_C
 JNC_EXPORT_O
+jnc_DataPtrValidator*
+jnc_createDataPtrValidator(
+	jnc_Box* box,
+	const void* rangeBegin,
+	size_t rangeLength
+) {
+	using namespace jnc;
+
+	GcHeap* gcHeap = getCurrentThreadGcHeap();
+	ASSERT(gcHeap);
+
+	return gcHeap->createDataPtrValidator(box, rangeBegin, rangeLength);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_DataPtr
+jnc_limitDataPtr(
+	jnc_DataPtr ptr,
+	size_t length
+) {
+	if (!ptr.m_validator ||
+		(char*)ptr.m_validator->m_rangeEnd <= (char*)ptr.m_p ||
+		(char*)ptr.m_validator->m_rangeEnd - (char*)ptr.m_p < length
+	)
+		return ptr;
+
+	ptr.m_validator = jnc_createDataPtrValidator(
+		ptr.m_validator->m_targetBox,
+		ptr.m_validator->m_rangeBegin,
+		(char*)ptr.m_p + length - (char*)ptr.m_validator->m_rangeBegin
+	);
+
+	return ptr;
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_DataPtr
 jnc_createForeignBufferPtr(
 	const void* p,

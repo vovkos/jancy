@@ -261,6 +261,8 @@ EXPORTS
 	jnc_allocateString_w
 	jnc_allocateString_utf16
 	jnc_strengthenClassPtr
+	jnc_limitDataPtr
+	jnc_createDataPtrValidator
 	jnc_createForeignBufferPtr
 	jnc_createForeignString
 	jnc_createForeignString_sz

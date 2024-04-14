@@ -268,6 +268,37 @@ jnc_memDup(
 );
 
 JNC_EXTERN_C
+JNC_INLINE
+intptr_t
+jnc_getDataPtrLeftRadius(jnc_DataPtr ptr) {
+	return ptr.m_validator ? (char*)ptr.m_p - (char*)ptr.m_validator->m_rangeBegin : 0;
+}
+
+JNC_EXTERN_C
+JNC_INLINE
+intptr_t
+jnc_getDataPtrRightRadius(jnc_DataPtr ptr) {
+	return ptr.m_validator ? (char*)ptr.m_validator->m_rangeEnd - (char*)ptr.m_p : 0;
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_DataPtr
+jnc_limitDataPtr(
+	jnc_DataPtr ptr,
+	size_t length
+);
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_DataPtrValidator*
+jnc_createDataPtrValidator(
+	jnc_Box* box,
+	const void* rangeBegin,
+	size_t rangeLength
+);
+
+JNC_EXTERN_C
 jnc_DataPtr
 jnc_createForeignBufferPtr(
 	const void* p,
@@ -638,6 +669,37 @@ memDup(
 	size_t size
 ) {
 	return jnc_memDup(p, size);
+}
+
+inline
+intptr_t
+getDataPtrLeftRadius(jnc_DataPtr ptr) {
+	return jnc_getDataPtrLeftRadius(ptr);
+}
+
+inline
+intptr_t
+getDataPtrRightRadius(jnc_DataPtr ptr) {
+	return jnc_getDataPtrRightRadius(ptr);
+}
+
+inline
+jnc_DataPtr
+limitDataPtr(
+	jnc_DataPtr ptr,
+	size_t length
+) {
+	return jnc_limitDataPtr(ptr, length);
+}
+
+inline
+jnc_DataPtrValidator*
+createDataPtrValidator(
+	jnc_Box* box,
+	const void* rangeBegin,
+	size_t rangeLength
+) {
+	return jnc_createDataPtrValidator(box, rangeBegin, rangeLength);
 }
 
 inline
