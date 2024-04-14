@@ -168,7 +168,10 @@ DynamicLayout::resume(
 
 size_t
 JNC_CDECL
-DynamicLayout::addStruct(ct::StructType* type) {
+DynamicLayout::addStruct(
+	ct::StructType* type,
+	bool isAsync
+) {
 	size_t offset = m_size;
 	size_t size = type->getSize();
 
@@ -176,7 +179,10 @@ DynamicLayout::addStruct(ct::StructType* type) {
 		addSection(DynamicSectionKind_Struct, m_size, size, NULL, type);
 
 	m_size += size;
-	prepareForAwaitIf();
+
+	if (isAsync && (m_mode & DynamicLayoutMode_Stream) && m_size > m_bufferSize)
+		prepareForAwait();
+
 	return offset;
 }
 
@@ -186,7 +192,8 @@ DynamicLayout::addArray(
 	ct::ModuleItemDecl* decl,
 	ct::Type* type,
 	size_t elementCount,
-	uint_t ptrTypeFlags
+	uint_t ptrTypeFlags,
+	bool isAsync
 ) {
 	size_t offset = m_size;
 	size_t size = type->getSize() * elementCount;
@@ -197,7 +204,10 @@ DynamicLayout::addArray(
 	}
 
 	m_size += size;
-	prepareForAwaitIf();
+
+	if (isAsync && (m_mode & DynamicLayoutMode_Stream) && m_size > m_bufferSize)
+		prepareForAwait();
+
 	return offset;
 }
 
@@ -245,6 +255,8 @@ DynamicLayout::closeGroup() {
 
 void
 DynamicLayout::prepareForAwait() {
+	ASSERT(m_mode & DynamicLayoutMode_Stream);
+
 	if (m_buffer->m_ptr.m_p != m_ptr.m_p) // initial invokation
 		m_buffer->copy(m_ptr.m_p, m_bufferSize);
 

@@ -699,7 +699,7 @@ public:
 	}
 
 	bool
-	awaitDynamicLayoutIf(const Value& value);
+	awaitDynamicLayout(const Value& value);
 
 	// memory block ops
 

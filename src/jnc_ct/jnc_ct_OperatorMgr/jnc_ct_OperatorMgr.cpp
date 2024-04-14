@@ -1734,10 +1734,8 @@ OperatorMgr::awaitOperator(
 }
 
 bool
-OperatorMgr::awaitDynamicLayoutIf(const Value& opValue) {
-	FunctionKind functionKind = m_module->m_functionMgr.getCurrentFunction()->getFunctionKind();
-	if (functionKind != FunctionKind_AsyncSequencer) // only when inside
-		return true;
+OperatorMgr::awaitDynamicLayout(const Value& opValue) {
+	ASSERT(m_module->m_functionMgr.getCurrentFunction()->getFunctionKind() == FunctionKind_AsyncSequencer);
 
 	Value shouldAwaitValue;
 	Value promiseValue;

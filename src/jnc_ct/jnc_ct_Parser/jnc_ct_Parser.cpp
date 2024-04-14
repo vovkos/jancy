@@ -1789,26 +1789,29 @@ Parser::declareData(
 				field->m_dynamicArrayElementType = elementType;
 				assignDeclarationAttributes(field, field, declarator);
 
+				bool isAsync = m_module->m_functionMgr.getCurrentFunction()->getFunctionKind() == FunctionKind_AsyncSequencer;
+
 				Value funcValue;
 				Value declValue((int64_t)(ModuleItemDecl*)field, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
 				Value typeValue((int64_t)elementType, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
 				Value ptrTypeFlagsValue(ptrTypeFlags, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int_u));
+				Value isAsyncValue(isAsync, m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool));
 				Value offsetValue;
 
 				m_module->m_compileFlags |= Module::AuxCompileFlag_SkipAccessChecks;
 
+				sl::BoxList<Value> argValueList;
+				argValueList.insertTail(declValue);
+				argValueList.insertTail(typeValue);
+				argValueList.insertTail(countValue);
+				argValueList.insertTail(ptrTypeFlagsValue);
+				argValueList.insertTail(isAsyncValue);
+
 				result =
 					nspace->addItem(field) &&
 					m_module->m_operatorMgr.memberOperator(stmt->m_layoutValue, "addArray", &funcValue) &&
-					m_module->m_operatorMgr.callOperator(
-						funcValue,
-						declValue,
-						typeValue,
-						countValue,
-						ptrTypeFlagsValue,
-						&offsetValue
-					) &&
-					m_module->m_operatorMgr.awaitDynamicLayoutIf(stmt->m_layoutValue);
+					m_module->m_operatorMgr.callOperator(funcValue, &argValueList, &offsetValue) &&
+					(!isAsync || m_module->m_operatorMgr.awaitDynamicLayout(stmt->m_layoutValue));
 
 				m_module->m_compileFlags &= ~Module::AuxCompileFlag_SkipAccessChecks;
 				field->m_value = offsetValue;
@@ -1834,8 +1837,11 @@ Parser::declareData(
 		if (!stmt->m_structType) {
 			StructType* structType = m_module->m_typeMgr.createUnnamedInternalStructType("section", stmt->m_fieldAlignment);
 
+			bool isAsync = m_module->m_functionMgr.getCurrentFunction()->getFunctionKind() == FunctionKind_AsyncSequencer;
+
 			Value funcValue;
 			Value typeValue(&structType, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
+			Value isAsyncValue(isAsync, m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool));
 			Value offsetValue;
 			Value sizeValue;
 			Value bufferSizeValue;
@@ -1844,8 +1850,8 @@ Parser::declareData(
 
 			result =
 				m_module->m_operatorMgr.memberOperator(stmt->m_layoutValue, "addStruct", &funcValue) &&
-				m_module->m_operatorMgr.callOperator(funcValue, typeValue, &offsetValue) &&
-				m_module->m_operatorMgr.awaitDynamicLayoutIf(stmt->m_layoutValue);
+				m_module->m_operatorMgr.callOperator(funcValue, typeValue, isAsyncValue, &offsetValue) &&
+				(!isAsync || m_module->m_operatorMgr.awaitDynamicLayout(stmt->m_layoutValue));
 
 			m_module->m_compileFlags &= ~Module::AuxCompileFlag_SkipAccessChecks;
 

@@ -153,7 +153,10 @@ public:
 
 	size_t
 	JNC_CDECL
-	addStruct(ct::StructType* type);
+	addStruct(
+		ct::StructType* type,
+		bool isAsync
+	);
 
 	size_t
 	JNC_CDECL
@@ -161,7 +164,8 @@ public:
 		ct::ModuleItemDecl* decl,
 		ct::Type* type,
 		size_t elementCount,
-		uint_t ptrTypeFlags
+		uint_t ptrTypeFlags,
+		bool isAsync
 	);
 
 	size_t
@@ -173,12 +177,6 @@ public:
 	closeGroup();
 
 protected:
-	void
-	prepareForAwaitIf() {
-		if ((m_mode & DynamicLayoutMode_Stream) && m_size > m_bufferSize)
-			prepareForAwait();
-	}
-
 	void
 	prepareForAwait();
 

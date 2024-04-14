@@ -132,13 +132,17 @@ protected:
 		return (m_mode & DynamicLayoutMode.Stream) && m_isIncomplete;
 	}
 
-	size_t addStruct(void thin* structType);
+	size_t addStruct(
+		void thin* structType,
+		bool isAsync
+	);
 
 	size_t addArray(
 		void thin* decl,
 		void thin* type,
 		size_t elementCount,
-		uint_t ptrTypeFlags
+		uint_t ptrTypeFlags,
+		bool isAsync
 	);
 
 	size_t openGroup(void thin* decl);
