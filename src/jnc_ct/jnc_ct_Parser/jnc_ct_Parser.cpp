@@ -1788,6 +1788,9 @@ Parser::declareData(
 				field->m_storageKind = StorageKind_DynamicField;
 				field->m_dynamicArrayElementType = elementType;
 				assignDeclarationAttributes(field, field, declarator);
+				result = field->ensureAttributeValuesReady();
+				if (!result)
+					return false;
 
 				bool isAsync = m_module->m_functionMgr.getCurrentFunction()->getFunctionKind() == FunctionKind_AsyncSequencer;
 
