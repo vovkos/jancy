@@ -16,6 +16,8 @@
 #	include "jnc_ExtensionLib.h"
 #elif defined(_JNC_CORE)
 #	include "jnc_ct_AttributeBlock.h"
+#	include "jnc_ct_Variable.h"
+#	include "jnc_ct_Function.h"
 #	include "jnc_Variant.h"
 #endif
 
@@ -55,12 +57,39 @@ JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Variant
 jnc_Attribute_getValueVariant(jnc_Attribute* attr) {
-	if (attr->getValue().isEmpty())
-		return jnc_g_nullVariant;
-
 	jnc::Variant variant;
-	variant.m_type = (jnc::Type*)attr->getValue().getType()->getDataPtrType_c(jnc::TypeKind_DataRef);
-	variant.m_p = (void*)attr->getValue().getConstData();
+
+	switch (attr->getValue().getValueKind()) {
+	case jnc::ct::ValueKind_Const: {
+		variant.m_type = attr->getValue().getType();
+		const void* p = attr->getValue().getConstData();
+		size_t size = variant.m_type->getSize();
+		if (size <= jnc::Variant::DataSize)
+			memcpy(&variant.m_data, p, size);
+		else {
+			variant.m_type = (jnc::Type*)variant.m_type->getDataPtrType_c(jnc::TypeKind_DataRef);
+			variant.m_p = (void*)p;
+		}
+		break;
+		}
+
+	case jnc::ct::ValueKind_Variable:
+		variant.m_type = attr->getValue().getType();
+		variant.m_p = attr->getValue().getVariable()->getStaticData();
+
+		if (attr->getValue().getVariable()->getType()->getTypeKind() == jnc::TypeKind_Class)
+			variant.m_p = (jnc::Box*)variant.m_p + 1; // make it IfaceHdr*
+		break;
+
+	case jnc::ct::ValueKind_Function:
+		variant.m_type = attr->getValue().getType();
+		variant.m_p = attr->getValue().getFunction()->getMachineCode();
+		break;
+
+	default:
+		return jnc::g_nullVariant;
+	}
+
 	return variant;
 }
 
