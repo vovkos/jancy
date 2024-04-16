@@ -1021,6 +1021,15 @@ public:
 	void
 	gcSafePoint();
 
+	bool
+	closeDynamicGroup(const Value& layoutValue);
+
+	bool
+	closeDynamicGroups(
+		const Value& layoutValue,
+		size_t count
+	);
+
 	// closure operators
 
 	bool

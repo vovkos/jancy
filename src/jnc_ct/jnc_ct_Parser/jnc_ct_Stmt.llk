@@ -452,11 +452,12 @@ dynamic_layout_stmt
 
 resolver(TokenKind_DynamicField TokenKind_Identifier? '{')
 dynamic_group_stmt
-	:	TokenKind_DynamicField TokenKind_Identifier $n?
+	:	TokenKind_DynamicField TokenKind_Identifier $n? '{' $l
 			{
-				return openDynamicGroup($1.m_pos, &$n? $n.m_data.m_string : sl::StringRef());
+				return openDynamicGroup($1.m_pos, &$n? $n.m_data.m_string : sl::StringRef(), $l.m_data.m_integer);
 			}
-		compound_stmt
+		local_declaration_list
+		'}'
 			{
 				closeDynamicGroup();
 			}

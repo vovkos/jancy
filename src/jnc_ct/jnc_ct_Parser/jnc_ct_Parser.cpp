@@ -983,11 +983,8 @@ Parser::assignDeclarationAttributes(
 
 	item->m_flags |= ModuleItemFlag_User;
 
-	if (attributeBlock &&
-		m_module->m_attributeObserver &&
-		(m_module->m_attributeObserverItemKindMask & (1 << item->getItemKind()))
-	)
-		m_module->m_attributeObserver(m_module->m_attributeObserverContext, item, attributeBlock);
+	if (attributeBlock)
+		m_module->notifyAttributeObserver(item, attributeBlock);
 
 	m_lastDeclaredItem = item;
 }
@@ -1801,7 +1798,7 @@ Parser::declareData(
 				Value isAsyncValue(isAsync, m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool));
 				Value offsetValue;
 
-				m_module->m_compileFlags |= Module::AuxCompileFlag_SkipAccessChecks;
+				m_module->disableAccessChecks();
 
 				sl::BoxList<Value> argValueList;
 				argValueList.insertTail(declValue);
@@ -1816,7 +1813,7 @@ Parser::declareData(
 					m_module->m_operatorMgr.callOperator(funcValue, &argValueList, &offsetValue) &&
 					(!isAsync || m_module->m_operatorMgr.awaitDynamicLayout(stmt->m_layoutValue));
 
-				m_module->m_compileFlags &= ~Module::AuxCompileFlag_SkipAccessChecks;
+				m_module->enableAccessChecks();
 				field->m_value = offsetValue;
 				return result;
 			}
@@ -1849,14 +1846,14 @@ Parser::declareData(
 			Value sizeValue;
 			Value bufferSizeValue;
 
-			m_module->m_compileFlags |= Module::AuxCompileFlag_SkipAccessChecks;
+			m_module->disableAccessChecks();
 
 			result =
 				m_module->m_operatorMgr.memberOperator(stmt->m_layoutValue, "addStruct", &funcValue) &&
 				m_module->m_operatorMgr.callOperator(funcValue, typeValue, isAsyncValue, &offsetValue) &&
 				(!isAsync || m_module->m_operatorMgr.awaitDynamicLayout(stmt->m_layoutValue));
 
-			m_module->m_compileFlags &= ~Module::AuxCompileFlag_SkipAccessChecks;
+			m_module->enableAccessChecks();
 
 			if (!result)
 				return false;
@@ -3356,15 +3353,15 @@ Parser::finalizeDynamicLayoutStmt(DynamicLayoutStmt* stmt) {
 		return false;
 	}
 
-	bool result = finalizeDynamicStructSection(stmt);
 	m_module->m_namespaceMgr.closeScope();
-	return result;
+	return finalizeDynamicStructSection(stmt);
 }
 
 bool
 Parser::openDynamicGroup(
 	const lex::LineCol& pos,
-	const sl::StringRef& name
+	const sl::StringRef& name,
+	uint_t scopeFlags
 ) {
 	DynamicLayoutStmt* stmt = findDynamicLayoutStmt();
 	if (!stmt) {
@@ -3376,6 +3373,8 @@ Parser::openDynamicGroup(
 	if (!result)
 		return false;
 
+	m_module->m_namespaceMgr.openScope(pos, scopeFlags | ScopeFlag_DynamicGroup);
+
 	m_storageKind = StorageKind_Undefined;
 	Const* group = m_module->m_constMgr.createConst(name, name, Value()); // all we need ModuleItemDecl
 	assignDeclarationAttributes(group, group, pos);
@@ -3383,36 +3382,33 @@ Parser::openDynamicGroup(
 	Value funcValue;
 	Value declValue((int64_t)(ModuleItemDecl*)group, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
 
-	m_module->m_compileFlags |= Module::AuxCompileFlag_SkipAccessChecks;
+	m_module->disableAccessChecks();
 
 	result =
 		group->ensureAttributeValuesReady() &&
 		m_module->m_operatorMgr.memberOperator(stmt->m_layoutValue, "openGroup", &funcValue) &&
 		m_module->m_operatorMgr.callOperator(funcValue, declValue);
 
-	m_module->m_compileFlags &= ~Module::AuxCompileFlag_SkipAccessChecks;
+	m_module->enableAccessChecks();
 	return result;
 }
 
 bool
 Parser::closeDynamicGroup() {
+	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
+	if (!(scope->m_flags & ScopeFlag_DynamicGroup)) {
+		err::setError("invalid scope structure due to previous errors");
+		return false;
+	}
+
 	DynamicLayoutStmt* stmt = findDynamicLayoutStmt();
 	ASSERT(stmt);
 
-	bool result = finalizeDynamicStructSection(stmt);
-	if (!result)
-		return false;
+	m_module->m_namespaceMgr.closeScope();
 
-	Value funcValue;
-
-	m_module->m_compileFlags |= Module::AuxCompileFlag_SkipAccessChecks;
-
-	result =
-		m_module->m_operatorMgr.memberOperator(stmt->m_layoutValue, "closeGroup", &funcValue) &&
-		m_module->m_operatorMgr.callOperator(funcValue);
-
-	m_module->m_compileFlags &= ~Module::AuxCompileFlag_SkipAccessChecks;
-	return result;
+	return
+		m_module->m_operatorMgr.closeDynamicGroup(stmt->m_layoutValue) &&
+		finalizeDynamicStructSection(stmt);
 }
 
 void

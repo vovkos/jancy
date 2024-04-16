@@ -164,6 +164,16 @@ public:
 		return (m_compileFlags & AuxCompileFlag_SkipAccessChecks) == 0;
 	}
 
+	void
+	disableAccessChecks() {
+		m_compileFlags |= AuxCompileFlag_SkipAccessChecks;
+	}
+
+	void
+	enableAccessChecks() {
+		m_compileFlags &= ~AuxCompileFlag_SkipAccessChecks;
+	}
+
 	const sl::String&
 	getName() {
 		return m_name;
@@ -217,6 +227,15 @@ public:
 		void* context,
 		uint_t itemKindMask
 	);
+
+	void
+	notifyAttributeObserver(
+		ModuleItem* item,
+		AttributeBlock* attributeBlock
+	) {
+		if (m_attributeObserver && (m_attributeObserverItemKindMask & (1 << item->getItemKind())))
+			m_attributeObserver(m_attributeObserverContext, item, attributeBlock);
+	}
 
 	llvm::LLVMContext*
 	getLlvmContext() {

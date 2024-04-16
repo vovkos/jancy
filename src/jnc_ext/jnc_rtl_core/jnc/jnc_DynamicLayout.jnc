@@ -147,6 +147,7 @@ protected:
 
 	size_t openGroup(void thin* decl);
 	void closeGroup();
+	void closeGroups(size_t count);
 }
 
 //..............................................................................

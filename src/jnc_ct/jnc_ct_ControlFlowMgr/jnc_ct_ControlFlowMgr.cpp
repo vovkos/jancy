@@ -376,6 +376,8 @@ ControlFlowMgr::escapeScope(
 	BasicBlock* firstFinallyBlock = NULL;
 	BasicBlock* prevFinallyBlock = NULL;
 
+	size_t dynamicGroupCount = 0;
+
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
 	while (scope && scope != targetScope) {
 		if (scope->m_flags & ScopeFlag_FinallyAhead) {
@@ -391,7 +393,27 @@ ControlFlowMgr::escapeScope(
 			prevFinallyBlock = scope->m_finallyBlock;
 		}
 
+		if (scope->m_flags & ScopeFlag_DynamicGroup)
+			dynamicGroupCount++;
+		else if (scope->m_dynamicLayoutStmt && dynamicGroupCount) {
+			bool result = m_module->m_operatorMgr.closeDynamicGroups(scope->m_dynamicLayoutStmt->m_layoutValue, dynamicGroupCount);
+			ASSERT(result);
+			dynamicGroupCount = 0;
+		}
+
 		scope = scope->getParentScope();
+	}
+
+	if (dynamicGroupCount) {
+		if (scope)
+			scope = m_module->m_namespaceMgr.findDynamicLayoutScope(scope);
+
+		if (!scope) {
+			TRACE("-- WARNING: dynamic layout scope not found (broken scope structure)");
+		} else {
+			bool result = m_module->m_operatorMgr.closeDynamicGroups(scope->m_dynamicLayoutStmt->m_layoutValue, dynamicGroupCount);
+			ASSERT(result);
+		}
 	}
 
 	if (!targetBlock) { // escape before normal return

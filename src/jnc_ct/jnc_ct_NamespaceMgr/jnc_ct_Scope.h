@@ -63,6 +63,7 @@ enum ScopeFlag {
 	ScopeFlag_HasCatch       = 0x00400000, // this scope or some of its parents have catch
 	ScopeFlag_FrameMapCached = 0x00800000, // this scope or some of its parents have catch
 	ScopeFlag_HasLandingPads = 0x10000000, // this function has landing pads
+	ScopeFlag_DynamicGroup   = 0x20000000, // this scope is a dynamic layout group (close on escape)
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

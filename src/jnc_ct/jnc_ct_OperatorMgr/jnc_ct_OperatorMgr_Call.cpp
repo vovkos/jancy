@@ -577,6 +577,41 @@ OperatorMgr::gcSafePoint() {
 	}
 }
 
+bool
+OperatorMgr::closeDynamicGroup(const Value& layoutValue) {
+	Value funcValue;
+
+	m_module->disableAccessChecks();
+
+	bool result =
+		m_module->m_operatorMgr.memberOperator(layoutValue, "closeGroup", &funcValue) &&
+		m_module->m_operatorMgr.callOperator(funcValue);
+
+	m_module->enableAccessChecks();
+	return result;
+}
+
+bool
+OperatorMgr::closeDynamicGroups(
+	const Value& layoutValue,
+	size_t count
+) {
+	if (count == 1)
+		return closeDynamicGroup(layoutValue);
+
+	Value funcValue;
+	Value countValue(count, m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT));
+
+	m_module->disableAccessChecks();
+
+	bool result =
+		m_module->m_operatorMgr.memberOperator(layoutValue, "closeGroups", &funcValue) &&
+		m_module->m_operatorMgr.callOperator(funcValue, countValue);
+
+	m_module->enableAccessChecks();
+	return result;
+}
+
 //..............................................................................
 
 } // namespace ct

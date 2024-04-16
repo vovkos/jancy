@@ -554,8 +554,8 @@ NamespaceMgr::findRegexScope() {
 }
 
 Scope*
-NamespaceMgr::findDynamicLayoutScope() {
-	Scope* scope = m_currentScope;
+NamespaceMgr::findDynamicLayoutScope(Scope* startScope) {
+	Scope* scope = startScope;
 	for (; scope; scope = scope->getParentScope()) {
 		if (scope->m_dynamicLayoutStmt)
 			break;

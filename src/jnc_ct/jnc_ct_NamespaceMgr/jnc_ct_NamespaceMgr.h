@@ -202,7 +202,12 @@ public:
 	findRegexScope();
 
 	Scope*
-	findDynamicLayoutScope();
+	findDynamicLayoutScope(Scope* startScope);
+
+	Scope*
+	findDynamicLayoutScope() {
+		return findDynamicLayoutScope(getCurrentScope());
+	}
 
 protected:
 	void

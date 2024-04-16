@@ -176,6 +176,10 @@ public:
 	JNC_CDECL
 	closeGroup();
 
+	void
+	JNC_CDECL
+	closeGroups(size_t count);
+
 protected:
 	void
 	prepareForAwait();

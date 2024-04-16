@@ -74,6 +74,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(DynamicLayout)
 	JNC_MAP_FUNCTION("addArray", &DynamicLayout::addArray)
 	JNC_MAP_FUNCTION("openGroup", &DynamicLayout::openGroup)
 	JNC_MAP_FUNCTION("closeGroup", &DynamicLayout::closeGroup)
+	JNC_MAP_FUNCTION("closeGroups", &DynamicLayout::closeGroups)
 JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
@@ -248,6 +249,15 @@ void
 JNC_CDECL
 DynamicLayout::closeGroup() {
 	if (!m_groupStack.isEmpty()) {
+		DynamicSection* group = m_groupStack.getBackAndPop();
+		group->m_size = m_size - group->m_offset;
+	}
+}
+
+void
+JNC_CDECL
+DynamicLayout::closeGroups(size_t count) {
+	for (size_t i = 0; i < count && !m_groupStack.isEmpty(); i++) {
 		DynamicSection* group = m_groupStack.getBackAndPop();
 		group->m_size = m_size - group->m_offset;
 	}

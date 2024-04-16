@@ -729,7 +729,8 @@ protected:
 	bool
 	openDynamicGroup(
 		const lex::LineCol& pos,
-		const sl::StringRef& name
+		const sl::StringRef& name,
+		uint_t scopeFlags
 	);
 
 	bool
