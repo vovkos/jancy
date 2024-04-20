@@ -196,6 +196,7 @@
 		jnc_Module_setAttributeObserver;
 		jnc_Module_setDynamicExtensionAuthenticatorConfig;
 		jnc_Module_getGlobalNamespace;
+		jnc_Module_getStdNamespace;
 		jnc_Module_getExtensionSourceFileIterator;
 		jnc_Module_getNextExtensionSourceFile;
 		jnc_Module_getImportDirIterator;
