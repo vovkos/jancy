@@ -198,7 +198,6 @@ opaque class Type: ModuleItem {
 		variant_t value,
 		string_t formatSpec = null
 	) const;
-
 }
 
 //..............................................................................

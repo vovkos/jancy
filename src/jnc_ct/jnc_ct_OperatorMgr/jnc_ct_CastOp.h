@@ -27,6 +27,7 @@ enum CastKind {
 	CastKind_None,
 	CastKind_Dynamic,
 	CastKind_Explicit,
+	CastKind_ImplicitLossyFuntionCall,
 	CastKind_ImplicitCrossFamily,
 	CastKind_ImplicitCrossConst,
 	CastKind_Implicit,

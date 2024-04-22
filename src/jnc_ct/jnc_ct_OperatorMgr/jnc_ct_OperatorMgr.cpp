@@ -705,7 +705,6 @@ OperatorMgr::getArgCastKind(
 	size_t actualArgCount
 ) {
 	sl::Array<FunctionArg*> formalArgArray = functionType->getArgArray();
-
 	if (closure) {
 		bool result = closure->getArgTypeArray(m_module, &formalArgArray);
 		if (!result)
@@ -715,7 +714,7 @@ OperatorMgr::getArgCastKind(
 	CastKind worstCastKind = CastKind_Identity;
 	size_t formalArgCount = formalArgArray.getCount();
 	if (actualArgCount > formalArgCount)
-		worstCastKind = CastKind_Implicit;
+		worstCastKind = CastKind_ImplicitLossyFuntionCall;
 	else while (actualArgCount < formalArgCount) {
 		formalArgCount--;
 		if (!formalArgArray[formalArgCount]->hasInitializer())
@@ -743,23 +742,19 @@ OperatorMgr::getArgCastKind(
 	const Value* argValueArray,
 	size_t actualArgCount
 ) {
+	CastKind worstCastKind = CastKind_Identity;
 	sl::Array<FunctionArg*> formalArgArray = functionType->getArgArray();
 	size_t formalArgCount = formalArgArray.getCount();
-
-	if (actualArgCount > formalArgCount && !(functionType->getFlags() & FunctionTypeFlag_VarArg))
-		return CastKind_None;
-
-	size_t argCount = formalArgCount;
-	while (actualArgCount < argCount) {
-		if (!formalArgArray[argCount - 1]->hasInitializer())
+	if (actualArgCount > formalArgCount)
+		worstCastKind = CastKind_ImplicitLossyFuntionCall;
+	else while (actualArgCount < formalArgCount) {
+		formalArgCount--;
+		if (!formalArgArray[formalArgCount]->hasInitializer())
 			return CastKind_None;
-
-		argCount--;
 	}
 
-	CastKind worstCastKind = CastKind_Identity;
 	const Value* arg = argValueArray;
-	for (size_t i = 0; i < argCount; i++, arg++) {
+	for (size_t i = 0; i < formalArgCount; i++, arg++) {
 		FunctionArg* formalArg = formalArgArray[i];
 
 		CastKind castKind =
@@ -782,25 +777,20 @@ OperatorMgr::getArgCastKind(
 	FunctionType* functionType,
 	const sl::ConstBoxList<Value>& argList
 ) {
+	CastKind worstCastKind = CastKind_Identity;
 	size_t actualArgCount = argList.getCount();
-
 	sl::Array<FunctionArg*> formalArgArray = functionType->getArgArray();
 	size_t formalArgCount = formalArgArray.getCount();
-
-	if (actualArgCount > formalArgCount && !(functionType->getFlags() & FunctionTypeFlag_VarArg))
-		return CastKind_None;
-
-	size_t argCount = formalArgCount;
-	while (actualArgCount < argCount) {
-		if (!formalArgArray[argCount - 1]->hasInitializer())
+	if (actualArgCount > formalArgCount)
+		worstCastKind = CastKind_ImplicitLossyFuntionCall;
+	else while (actualArgCount < formalArgCount) {
+		formalArgCount--;
+		if (!formalArgArray[formalArgCount]->hasInitializer())
 			return CastKind_None;
-
-		argCount--;
 	}
 
-	CastKind worstCastKind = CastKind_Identity;
 	sl::ConstBoxIterator<Value> arg = argList.getHead();
-	for (size_t i = 0; i < argCount; i++, arg++) {
+	for (size_t i = 0; i < formalArgCount; i++, arg++) {
 		FunctionArg* formalArg = formalArgArray[i];
 
 		CastKind castKind =
