@@ -119,8 +119,10 @@ Cast_PropertyPtr_Base::getCastKind(
 	ASSERT(opValue.getType()->getTypeKind() == TypeKind_PropertyPtr && type->getTypeKind() == TypeKind_PropertyPtr);
 
 	PropertyPtrType* srcPtrType = (PropertyPtrType*)opValue.getClosureAwareType();
-	PropertyPtrType* dstPtrType = (PropertyPtrType*)type;
+	if (!srcPtrType)
+		return CastKind_None;
 
+	PropertyPtrType* dstPtrType = (PropertyPtrType*)type;
 	if ((srcPtrType->getFlags() & PtrTypeFlag_Const) &&
 		!(dstPtrType->getFlags() & PtrTypeFlag_Const))
 		return CastKind_None;

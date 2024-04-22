@@ -151,9 +151,12 @@ Cast_FunctionPtr_Base::getCastKind(
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_FunctionPtr);
 	ASSERT(type->getTypeKind() == TypeKind_FunctionPtr);
 
-	FunctionType* srcType = ((FunctionPtrType*)opValue.getClosureAwareType())->getTargetType();
-	FunctionType* dstType = ((FunctionPtrType*)type)->getTargetType();
+	FunctionPtrType* srcPtrType = (FunctionPtrType*)opValue.getClosureAwareType();
+	if (!srcPtrType)
+		return CastKind_None;
 
+	FunctionType* dstType = ((FunctionPtrType*)type)->getTargetType();
+	FunctionType* srcType = srcPtrType->getTargetType();
 	CastKind castKind = m_module->m_operatorMgr.getFunctionCastKind(srcType, dstType);
 	if (castKind != CastKind_None)
 		return castKind;

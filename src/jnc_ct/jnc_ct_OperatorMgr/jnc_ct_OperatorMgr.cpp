@@ -1299,6 +1299,9 @@ OperatorMgr::prepareOperandType_propertyRef(
 ) {
 	if (!(opFlags & OpFlag_KeepPropertyRef)) {
 		PropertyPtrType* ptrType = (PropertyPtrType*)value->getClosureAwareType();
+		if (!ptrType)
+			return false;
+
 		PropertyType* targetType = ptrType->getTargetType();
 		if (!targetType->isIndexed())
 			*value = targetType->getReturnType();
@@ -1314,6 +1317,9 @@ OperatorMgr::prepareOperand_propertyRef(
 ) {
 	if (!(opFlags & OpFlag_KeepPropertyRef)) {
 		PropertyPtrType* ptrType = (PropertyPtrType*)value->getClosureAwareType();
+		if (!ptrType)
+			return false;
+
 		PropertyType* targetType = ptrType->getTargetType();
 		if (!targetType->isIndexed()) {
 			bool result = getProperty(value);
