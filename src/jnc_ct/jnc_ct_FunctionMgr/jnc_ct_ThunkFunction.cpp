@@ -29,14 +29,14 @@ ThunkFunction::compile() {
 
 	bool result;
 
-	sl::Array<FunctionArg*> thunkArgArray = m_type->getArgArray();
-	size_t thunkArgCount = thunkArgArray.getCount();
+	sl::Array<FunctionArg*> argArray = m_type->getArgArray();
+	size_t argCount = argArray.getCount();
 
 	char buffer[256];
 	sl::Array<Value> thunkArgValueArray(rc::BufKind_Stack, buffer, sizeof(buffer));
-	thunkArgValueArray.setCount(thunkArgCount);
+	thunkArgValueArray.setCount(argCount);
 
-	m_module->m_functionMgr.internalPrologue(this, thunkArgValueArray, thunkArgCount);
+	m_module->m_functionMgr.internalPrologue(this, thunkArgValueArray, argCount);
 
 	sl::Array<FunctionArg*> targetArgArray = m_targetFunction->getType()->getArgArray();
 	size_t targetArgCount = targetArgArray.getCount();
@@ -44,13 +44,14 @@ ThunkFunction::compile() {
 	// skip the fat -> thin thunk 1st (closure-this) argument
 
 	size_t j =
-		(thunkArgCount && thunkArgArray[0]->getStorageKind() == StorageKind_This) &&
+		(argCount && argArray[0]->getStorageKind() == StorageKind_This) &&
 		(!targetArgCount || targetArgArray[0]->getStorageKind() != StorageKind_This) ? 1 : 0;
 
-	ASSERT(thunkArgCount - j <= targetArgCount); // this should have been checked in cast operator
+	if (argCount > j + targetArgCount)
+		argCount = j + targetArgCount; // trim unused arguments
 
 	sl::BoxList<Value> targetArgValueList;
-	for (size_t i = 0; j < thunkArgCount; i++, j++) {
+	for (size_t i = 0; j < argCount; i++, j++) {
 		Value* argValue = targetArgValueList.insertTail().p();
 
 		result = m_module->m_operatorMgr.castOperator(

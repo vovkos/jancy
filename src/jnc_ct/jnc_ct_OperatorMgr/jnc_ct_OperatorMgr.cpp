@@ -712,22 +712,17 @@ OperatorMgr::getArgCastKind(
 			return CastKind_None;
 	}
 
+	CastKind worstCastKind = CastKind_Identity;
 	size_t formalArgCount = formalArgArray.getCount();
-
-	if (actualArgCount > formalArgCount && !(functionType->getFlags() & FunctionTypeFlag_VarArg))
-		return CastKind_None;
-
-	size_t argCount = formalArgCount;
-	while (actualArgCount < argCount) {
-		if (!formalArgArray[argCount - 1]->hasInitializer())
+	if (actualArgCount > formalArgCount)
+		worstCastKind = CastKind_Implicit;
+	else while (actualArgCount < formalArgCount) {
+		formalArgCount--;
+		if (!formalArgArray[formalArgCount]->hasInitializer())
 			return CastKind_None;
-
-		argCount--;
 	}
 
-	CastKind worstCastKind = CastKind_Identity;
-
-	for (size_t i = 0; i < argCount; i++) {
+	for (size_t i = 0; i < formalArgCount; i++) {
 		Type* formalArgType = formalArgArray[i]->getType();
 		Type* actualArgType = actualArgArray[i]->getType();
 

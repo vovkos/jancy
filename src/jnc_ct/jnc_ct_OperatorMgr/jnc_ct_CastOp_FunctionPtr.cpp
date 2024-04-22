@@ -151,24 +151,17 @@ Cast_FunctionPtr_Base::getCastKind(
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_FunctionPtr);
 	ASSERT(type->getTypeKind() == TypeKind_FunctionPtr);
 
-	FunctionPtrType* srcPtrType = (FunctionPtrType*)opValue.getClosureAwareType();
-	FunctionPtrType* dstPtrType = (FunctionPtrType*)type;
+	FunctionType* srcType = ((FunctionPtrType*)opValue.getClosureAwareType())->getTargetType();
+	FunctionType* dstType = ((FunctionPtrType*)type)->getTargetType();
 
-	CastKind castKind = m_module->m_operatorMgr.getFunctionCastKind(
-		srcPtrType->getTargetType(),
-		dstPtrType->getTargetType()
-	);
-
+	CastKind castKind = m_module->m_operatorMgr.getFunctionCastKind(srcType, dstType);
 	if (castKind != CastKind_None)
 		return castKind;
 
 	// second attempt -- use non-closure-aware type
 
-	srcPtrType = (FunctionPtrType*)opValue.getType();
-	return m_module->m_operatorMgr.getFunctionCastKind(
-		srcPtrType->getTargetType(),
-		dstPtrType->getTargetType()
-	);
+	srcType = ((FunctionPtrType*)opValue.getType())->getTargetType();
+	return m_module->m_operatorMgr.getFunctionCastKind(srcType, dstType);
 }
 
 //..............................................................................
@@ -449,10 +442,9 @@ Cast_FunctionPtr_Thin2Thin::llvmCast(
 		return false;
 	}
 
-	FunctionPtrType* srcPtrType = (FunctionPtrType*)opValue.getType();
-	FunctionPtrType* dstPtrType = (FunctionPtrType*)type;
-
-	if (srcPtrType->getTargetType()->cmp(dstPtrType->getTargetType()) == 0) {
+	FunctionType* srcType = ((FunctionPtrType*)opValue.getType())->getTargetType();
+	FunctionType* dstType = ((FunctionPtrType*)type)->getTargetType();
+	if (srcType->cmp(dstType) == 0) {
 		resultValue->overrideType(opValue, type);
 		return true;
 	}
@@ -462,10 +454,7 @@ Cast_FunctionPtr_Thin2Thin::llvmCast(
 		return false;
 	}
 
-	Function* thunkFunction = m_module->m_functionMgr.getDirectThunkFunction(
-		opValue.getFunction(),
-		dstPtrType->getTargetType()
-	);
+	Function* thunkFunction = m_module->m_functionMgr.getDirectThunkFunction(opValue.getFunction(), dstType);
 
 	resultValue->setFunction(thunkFunction);
 	resultValue->overrideType(type);
@@ -473,6 +462,55 @@ Cast_FunctionPtr_Thin2Thin::llvmCast(
 }
 
 //..............................................................................
+
+static
+inline
+bool
+areCompatibleArgTypes(
+	FunctionType* opType,
+	FunctionType* type
+) {
+	if (opType->getArgSignature() == type->getArgSignature())
+		return true;
+
+	if ((opType->getCallConv()->getFlags() & CallConvFlag_Stdcall) ||
+		opType->getArgArray().getCount() > type->getArgArray().getCount())
+		return false;
+
+	size_t count = opType->getArgArray().getCount();
+	for (size_t i = 0; i < count; i++)
+		if (opType->getArgArray()[i]->getType()->cmp(type->getArgArray()[i]->getType()) != 0)
+			return false;
+
+	return true;
+}
+
+static
+inline
+bool
+areCompatibleReturnTypes(
+	Type* opType,
+	Type* type
+) {
+	return
+		opType->cmp(type) == 0 ||
+		!(opType->getFlags() & TypeFlag_StructRet) &&
+		type->getTypeKind() == TypeKind_Void;
+}
+
+static
+inline
+bool
+areCompatibleFunctionTypes(
+	FunctionType* opType,
+	FunctionType* type
+) {
+	return
+		opType->cmp(type) == 0 ||
+		opType->getCallConv()->getCallConvKind() == type->getCallConv()->getCallConvKind() &&
+		areCompatibleArgTypes(opType, type) &&
+		areCompatibleReturnTypes(opType->getReturnType(), type->getReturnType());
+}
 
 Cast_FunctionPtr::Cast_FunctionPtr() {
 	memset(m_operatorTable, 0, sizeof(m_operatorTable));
@@ -503,9 +541,8 @@ Cast_FunctionPtr::constCast(
 	FunctionPtrType* srcType = (FunctionPtrType*)opValue.getType();
 
 	if (dstType->getPtrTypeKind() != srcType->getPtrTypeKind() ||
-		dstType->getTargetType()->cmp(srcType->getTargetType()) != 0 ||
-		(dstType->getFlags() & PtrTypeFlag_Safe) &&
-		!(srcType->getFlags() & PtrTypeFlag_Safe))
+		!areCompatibleFunctionTypes(srcType->getTargetType(), dstType->getTargetType()) ||
+		(dstType->getFlags() & PtrTypeFlag_Safe) && !(srcType->getFlags() & PtrTypeFlag_Safe))
 		return false;
 
 	ASSERT(dstType->getSize() == srcType->getSize());
