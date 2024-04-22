@@ -66,6 +66,9 @@ class DynamicSection: public DynamicSectionGroup {
 public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(DynamicSection)
 
+protected:
+	struct DynamicDecl;
+
 public:
 	uint_t m_sectionKind;
 	uint_t m_ptrTypeFlags;
@@ -74,10 +77,19 @@ public:
 	size_t m_size;
 
 protected:
-	ct::ModuleItemDecl* m_decl;
 	ct::Type* m_type;
+	ct::ModuleItemDecl* m_decl;
+	DynamicDecl* m_dynamicDecl;
 
 public:
+	~DynamicSection() {
+		delete m_dynamicDecl;
+	}
+
+	void
+	JNC_CDECL
+	markOpaqueGcRoots(GcHeap* gcHeap);
+
 	IfaceHdr*
 	JNC_CDECL
 	getType_rtl(); // disambiguate vs JNC_DECLARE_CLASS_TYPE_STATIC_METHODS()
@@ -96,6 +108,16 @@ public:
 	getDecl_ct() {
 		return m_decl;
 	}
+
+protected:
+	void
+	createDynamicDecl();
+
+	void
+	setDynamicAttribute(
+		const sl::StringRef& name,
+		Variant value
+	);
 };
 
 //..............................................................................
@@ -143,6 +165,13 @@ public:
 	void
 	JNC_CDECL
 	updateGroupSizes();
+
+	void
+	JNC_CDECL
+	setGroupAttribute(
+		String name,
+		Variant value
+	);
 
 	size_t
 	JNC_CDECL

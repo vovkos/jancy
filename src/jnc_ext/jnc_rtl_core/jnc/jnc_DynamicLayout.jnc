@@ -46,6 +46,8 @@ opaque class DynamicSection: DynamicSectionGroup {
 
 	Type* const property m_type;           // null for DynamicSectionKind.Group
 	ModuleItemDecl* const property m_decl; // null for DynamicSectionKind.Struct
+
+	destruct();
 }
 
 //..............................................................................
@@ -115,6 +117,11 @@ public:
 	) {
 		reset(0, p, size);
 	}
+
+	void setGroupAttribute(
+		string_t name,
+		variant_t value
+	); // add dynamic attribute to the currently opened group
 
 	void updateGroupSizes(); // when accessing an incomplete layout (e.g. after an exception)
 

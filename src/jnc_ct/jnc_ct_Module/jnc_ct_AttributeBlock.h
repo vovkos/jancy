@@ -46,6 +46,12 @@ public:
 		m_itemKind = ModuleItemKind_Attribute;
 	}
 
+	Attribute(
+		Module* module,
+		const sl::StringRef& name,
+		const Value& value
+	);
+
 	const Value&
 	getValue() {
 		return m_value;
@@ -60,6 +66,20 @@ protected:
 	bool
 	prepareValue();
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+Attribute::Attribute(
+	Module* module,
+	const sl::StringRef& name,
+	const Value& value
+) {
+	m_itemKind = ModuleItemKind_Attribute;
+	m_module = module;
+	m_name = name;
+	m_value = value;
+}
 
 //..............................................................................
 

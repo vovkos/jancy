@@ -28,6 +28,21 @@ ModuleItemDecl::ModuleItemDecl() {
 }
 
 void
+ModuleItemDecl::copy(
+	ModuleItemDecl* src,
+	AttributeBlock* attributeBlock
+) {
+	m_storageKind = src->m_storageKind;
+	m_accessKind = src->m_accessKind;
+	m_name = src->m_name;
+	m_qualifiedName = src->m_qualifiedName;
+	m_parentNamespace = src->m_parentNamespace;
+	m_pragmaConfig = src->m_pragmaConfig;
+	m_attributeBlock = attributeBlock;
+	m_doxyBlock = src->m_doxyBlock;
+}
+
+void
 ModuleItemDecl::prepareQualifiedName() {
 	ASSERT(m_qualifiedName.isEmpty());
 	m_qualifiedName = m_parentNamespace ? m_parentNamespace->createQualifiedName(m_name) : m_name;

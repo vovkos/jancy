@@ -153,6 +153,17 @@ public:
 	Attribute*
 	findAttribute(const sl::StringRef& name);
 
+	void
+	copy(ModuleItemDecl* src) {
+		copy(src, src->m_attributeBlock);
+	}
+
+	void
+	copy(
+		ModuleItemDecl* src,
+		AttributeBlock* attributeBlock
+	);
+
 	dox::Block*
 	getDoxyBlock() {
 		return m_doxyBlock;

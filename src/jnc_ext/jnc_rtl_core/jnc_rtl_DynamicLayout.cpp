@@ -15,7 +15,9 @@
 #include "jnc_rtl_Type.h"
 #include "jnc_rt_Runtime.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_ClassType.h"
 #include "jnc_Runtime.h"
+#include "jnc_CallSite.h"
 #include "jnc_Construct.h"
 
 namespace jnc {
@@ -50,6 +52,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 )
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(DynamicSection)
+	JNC_MAP_DESTRUCTOR(&jnc::destruct<DynamicSection>)
 	JNC_MAP_CONST_PROPERTY("m_decl", &DynamicSection::getDecl_rtl)
 	JNC_MAP_CONST_PROPERTY("m_type", &DynamicSection::getType_rtl)
 JNC_END_TYPE_FUNCTION_MAP()
@@ -70,6 +73,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(DynamicLayout)
 	JNC_MAP_DESTRUCTOR(&jnc::destruct<DynamicLayout>)
 	JNC_MAP_FUNCTION("reset", &DynamicLayout::reset)
 	JNC_MAP_FUNCTION("resume", &DynamicLayout::resume)
+	JNC_MAP_FUNCTION("setGroupAttribute", &DynamicLayout::setGroupAttribute)
 	JNC_MAP_FUNCTION("addStruct", &DynamicLayout::addStruct)
 	JNC_MAP_FUNCTION("addArray", &DynamicLayout::addArray)
 	JNC_MAP_FUNCTION("openGroup", &DynamicLayout::openGroup)
@@ -89,16 +93,93 @@ DynamicSectionGroup::markOpaqueGcRoots(GcHeap* gcHeap) {
 
 //..............................................................................
 
+struct DynamicSection::DynamicDecl {
+	ct::Module* m_module;
+	ct::ModuleItemDecl m_decl_ct;
+	rtl::ModuleItemDecl* m_decl_rtl;
+	ct::AttributeBlock m_attributeBlock;
+	sl::Array<ct::Attribute*> m_attributeArray;
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void
+JNC_CDECL
+DynamicSection::markOpaqueGcRoots(GcHeap* gcHeap) {
+	DynamicSectionGroup::markOpaqueGcRoots(gcHeap);
+	if (m_dynamicDecl)
+		gcHeap->markClassPtr(m_dynamicDecl->m_decl_rtl);
+}
+
 rtl::ModuleItemDecl*
 JNC_CDECL
 DynamicSection::getDecl_rtl() {
-	return m_decl ? rtl::getModuleItemDecl(m_decl) : NULL;
+	if (!m_decl)
+		return NULL;
+
+	if (!m_dynamicDecl)
+		return rtl::getModuleItemDecl(m_decl);
+
+	if (m_dynamicDecl->m_decl_rtl)
+		return m_dynamicDecl->m_decl_rtl;
+
+	Runtime* runtime = getCurrentThreadRuntime();
+	ct::ClassType* type = (ct::ClassType*)runtime->getModule()->m_typeMgr.getStdType(StdType_ModuleItemDecl);
+	ASSERT(type->getTypeKind() == TypeKind_Class && type->getConstructor());
+
+	ct::Function* constructor = type->getConstructor().getFunction();
+	ASSERT(constructor->getType()->getArgArray().getCount() == 2);
+
+	m_dynamicDecl->m_decl_rtl = (ModuleItemDecl*)runtime->getGcHeap()->allocateClass(type);
+
+	callVoidFunction(
+		constructor,
+		m_dynamicDecl->m_decl_rtl,
+		&m_dynamicDecl->m_decl_ct
+	);
+
+	return m_dynamicDecl->m_decl_rtl;
 }
 
 IfaceHdr*
 JNC_CDECL
 DynamicSection::getType_rtl() {
 	return m_type ? rtl::getType(m_type) : NULL;
+}
+
+void
+DynamicSection::setDynamicAttribute(
+	const sl::StringRef& name,
+	Variant variant
+) {
+	if (!m_dynamicDecl)
+		createDynamicDecl();
+
+	ct::Value value;
+	if (!variant.isNull())
+		value.createConst(&variant.m_data, variant.m_type);
+
+	ct::Attribute* attribute = new ct::Attribute(m_dynamicDecl->m_module, sl::String(name), value);
+	m_dynamicDecl->m_attributeBlock.addAttribute(attribute);
+	m_dynamicDecl->m_attributeArray.append(attribute);
+}
+
+void
+DynamicSection::createDynamicDecl() {
+	ct::Module* module = getCurrentThreadRuntime()->getModule();
+
+	m_dynamicDecl = new DynamicDecl;
+	m_dynamicDecl->m_module = module;
+	m_dynamicDecl->m_decl_ct.copy(m_decl, &m_dynamicDecl->m_attributeBlock);
+
+	ct::AttributeBlock* attributeBlock = m_decl->getAttributeBlock();
+	if (attributeBlock) {
+		size_t count = attributeBlock->getAttributeArray().getCount();
+		for (size_t i = 0; i < count; i++)
+			m_dynamicDecl->m_attributeBlock.addAttribute(attributeBlock->getAttributeArray()[i]);
+	}
+
+	m_decl = &m_dynamicDecl->m_decl_ct;
 }
 
 //..............................................................................
@@ -119,7 +200,25 @@ DynamicLayout::reset(
 	m_sectionCount = 0;
 	m_groupStack.clear();
 	m_sectionArray.clear();
+}
 
+void
+JNC_CDECL
+DynamicLayout::setGroupAttribute(
+	String name,
+	Variant value
+) {
+	if (!(m_mode & DynamicLayoutMode_Save))
+		return;
+
+	if (m_groupStack.isEmpty()) {
+		err::setError("no dynamic groups opened");
+		dynamicThrow();
+	}
+
+	DynamicSection* group = m_groupStack.getBack();
+	ASSERT(group->m_sectionKind == DynamicSectionKind_Group);
+	group->setDynamicAttribute(name >> toAxl, value);
 }
 
 void
