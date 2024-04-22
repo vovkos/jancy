@@ -163,7 +163,7 @@ Closure::getArgTypeArray(
 
 		ASSERT(i < argCount);
 
-		result = module->m_operatorMgr.checkCastKind(closureArg->getType(), (*argArray) [i]->getType());
+		result = module->m_operatorMgr.checkCastKind(*closureArg, (*argArray) [i]->getType());
 		if (!result)
 			return false;
 
