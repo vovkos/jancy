@@ -1684,7 +1684,8 @@ OperatorMgr::awaitOperator(const Value& value) {
 		closureOperator(resumeFuncValue, thisPromiseValue, &resumeFuncValue) &&
 		callOperator(waitValue, resumeFuncValue);
 
-	ASSERT(result);
+	if (!result)
+		return false;
 
 	m_module->m_controlFlowMgr.jump(followBlock, noSchedulerBlock);
 
