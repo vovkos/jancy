@@ -304,7 +304,7 @@ public:
 		m_functionTypeFlags = 0;
 	}
 
-	sl::Array<FunctionArg*>
+	const sl::Array<FunctionArg*>&
 	getArgArray() {
 		return m_argArray;
 	}
