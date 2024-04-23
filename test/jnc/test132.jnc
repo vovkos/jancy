@@ -54,7 +54,7 @@ void printAttributeBlock(jnc.ModuleItemDecl* decl) {
 		jnc.Attribute* attr = block.m_attributeArray[i];
 		print(attr.m_name);
 
-		if (attr.m_hasValue) {
+		if (attr.m_value) {
 			print(" = ");
 			print(attr.m_value);
 		}

@@ -20,9 +20,12 @@ namespace ct {
 
 bool
 Attribute::prepareValue() {
+	ASSERT(!(m_flags & AttributeFlag_ValueReady));
+
 	if (m_initializer.isEmpty()) {
-		m_value.setVoid(m_module);
-		m_flags |= AttributeFlag_ValueReady;
+		m_value.clear();
+		m_variant = g_nullVariant;
+		m_flags |= (AttributeFlag_ValueReady | AttributeFlag_VariantReady);
 		return true;
 	}
 
@@ -42,6 +45,8 @@ Attribute::prepareValue() {
 				"non-type variable '%s' used as an attribute value",
 				m_value.getVariable()->getQualifiedName().sz()
 			);
+
+			return false;
 		}
 
 		break;
@@ -49,7 +54,7 @@ Attribute::prepareValue() {
 	case ValueKind_Function:
 		if (m_value.getFunction()->getStorageKind() != StorageKind_Static) {
 			err::setFormatStringError(
-				"non-static function '%s' used in a const expression",
+				"non-static function '%s' used as an attribute value",
 				m_value.getFunction()->getQualifiedName().sz()
 			);
 
@@ -69,6 +74,52 @@ Attribute::prepareValue() {
 
 	m_flags |= AttributeFlag_ValueReady;
 	return true;
+}
+
+void
+Attribute::prepareVariant() {
+	ASSERT(!(m_flags & AttributeFlag_VariantReady));
+
+	m_variant = g_nullVariant;
+
+	ct::ValueKind valueKind = m_value.getValueKind();
+	switch (valueKind) {
+	case ct::ValueKind_Const: {
+		size_t size = m_value.getType()->getSize();
+		if (size <= jnc::Variant::DataSize)
+			memcpy(&m_variant.m_data, m_value.getConstData(), size);
+		else {
+			m_variant.m_type = m_value.getType()->getDataPtrType_c(jnc::TypeKind_DataRef);
+			m_variant.m_p = m_value.getConstData();
+		}
+
+		m_variant.create(m_value.getConstData(), m_value.getType());
+		break;
+		}
+
+	case ct::ValueKind_Variable: {
+		Variable* variable = m_value.getVariable();
+		ASSERT(
+			variable->getStorageKind() == StorageKind_Static &&
+			variable->getType()->getTypeKind() != TypeKind_Class
+		);
+
+		m_variant.m_type = (jnc::Type*)((ct::ClassType*)variable->getType())->getClassPtrType();
+		m_variant.m_p = (Box*)variable->getStaticData() + 1; // we want IfaceHdr*
+		break;
+		}
+
+	case ct::ValueKind_Function: {
+		Function* function = m_value.getFunction();
+		ASSERT(function->getStorageKind() == StorageKind_Static);
+
+		m_variant.m_type = (jnc::Type*)function->getType()->getFunctionPtrType(FunctionPtrTypeKind_Thin);
+		m_variant.m_p = function->getMachineCode();
+		break;
+		}
+	}
+
+	m_flags |= AttributeFlag_VariantReady;
 }
 
 //..............................................................................
@@ -124,6 +175,40 @@ AttributeBlock::prepareAttributeValues() {
 
 	m_flags |= AttributeBlockFlag_ValuesReady;
 	return finalResult;
+}
+
+void
+AttributeBlock::setDynamicAttributeValue(
+	const sl::StringRef& name,
+	const Variant& value
+) {
+	ASSERT(m_flags & AttributeBlockFlag_Dynamic);
+
+	sl::StringHashTableIterator<Attribute*> it = m_attributeMap.visit(name);
+	if (it->m_value && ((it->m_value)->getFlags() & AttributeFlag_Dynamic)) {
+		it->m_value->m_variant = value;
+		return;
+	}
+
+	Attribute* attribute = new Attribute;
+	attribute->m_flags |= AttributeFlag_Dynamic | AttributeFlag_ValueReady | AttributeFlag_VariantReady;
+	attribute->m_module = m_module;
+	attribute->m_parentUnit = m_parentUnit;
+	attribute->m_parentNamespace = m_parentNamespace;
+	attribute->m_name = name;
+	attribute->m_variant = value;
+	it->m_value = attribute;
+	m_attributeArray.append(attribute);
+}
+
+void
+AttributeBlock::deleteDynamicAttributes() {
+	size_t count = m_attributeArray.getCount();
+	for (size_t i = 0; i < count; i++) {
+		Attribute* attribute = m_attributeArray[i];
+		if (attribute->m_flags & AttributeBlockFlag_Dynamic)
+			delete attribute;
+	}
 }
 
 //..............................................................................

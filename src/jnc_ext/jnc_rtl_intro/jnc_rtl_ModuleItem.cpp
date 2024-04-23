@@ -11,6 +11,8 @@
 
 #include "pch.h"
 #include "jnc_rtl_ModuleItem.h"
+#include "jnc_rtl_Module.h"
+#include "jnc_rtl_Namespace.h"
 #include "jnc_Construct.h"
 #include "jnc_rt_Runtime.h"
 #include "jnc_Runtime.h"
@@ -87,6 +89,17 @@ ModuleItemDecl::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 
 	gcHeap->markString(m_cache->m_name);
 	gcHeap->markString(m_cache->m_qualifiedName);
+	gcHeap->markClassPtr(m_cache->m_parentUnit);
+	gcHeap->markClassPtr(m_cache->m_parentNamespace);
+	gcHeap->markClassPtr((ModuleItemBase<ct::AttributeBlock>*)m_cache->m_attributeBlock);
+}
+
+void
+JNC_CDECL
+ModuleItemDecl::initializeDynamicDecl(AttributeBlock* attributeBlock) {
+	ASSERT(m_decl->getAttributeBlock() && (m_decl->getAttributeBlock()->getFlags() & ct::AttributeBlockFlag_Dynamic));
+	m_dynamicDecl = m_decl;
+	getCache()->m_attributeBlock = attributeBlock;
 }
 
 String
@@ -107,6 +120,36 @@ ModuleItemDecl::getQualifiedName(ModuleItemDecl* self) {
 		cache->m_name = createForeignString(self->m_decl->getQualifiedName(), false);
 
 	return cache->m_name;
+}
+
+AttributeBlock*
+JNC_CDECL
+ModuleItemDecl::getAttributeBlock() {
+	Cache* cache = getCache();
+	if (!cache->m_attributeBlock)
+		cache->m_attributeBlock = rtl::getAttributeBlock(m_decl->getAttributeBlock());
+
+	return cache->m_attributeBlock;
+}
+
+Namespace*
+JNC_CDECL
+ModuleItemDecl::getParentNamespace() {
+	Cache* cache = getCache();
+	if (!cache->m_parentNamespace)
+		cache->m_parentNamespace = rtl::getNamespace(m_decl->getParentNamespace());
+
+	return cache->m_parentNamespace;
+}
+
+Unit*
+JNC_CDECL
+ModuleItemDecl::getParentUnit() {
+	Cache* cache = getCache();
+	if (!cache->m_parentUnit)
+		cache->m_parentUnit = rtl::getUnit(m_decl->getParentUnit());;
+
+	return cache->m_parentUnit;
 }
 
 //..............................................................................

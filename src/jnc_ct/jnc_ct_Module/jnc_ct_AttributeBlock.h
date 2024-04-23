@@ -11,6 +11,7 @@
 
 #pragma once
 
+#include "jnc_Variant.h"
 #include "jnc_ct_Value.h"
 
 namespace jnc {
@@ -19,14 +20,17 @@ namespace ct {
 //..............................................................................
 
 enum AttributeFlag {
-	AttributeFlag_ValueReady = 0x010000,
-	AttributeFlag_Shared     = 0x020000,
+	AttributeFlag_ValueReady   = 0x010000,
+	AttributeFlag_VariantReady = 0x020000,
+	AttributeFlag_Shared       = 0x040000,
+	AttributeFlag_Dynamic      = 0x080000,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum AttributeBlockFlag {
 	AttributeBlockFlag_ValuesReady = 0x010000,
+	AttributeBlockFlag_Dynamic     = 0x080000, // same as AttributeFlag_Dynamic
 };
 
 //..............................................................................
@@ -40,21 +44,24 @@ class Attribute:
 
 protected:
 	Value m_value;
+	Variant m_variant;
 
 public:
 	Attribute() {
 		m_itemKind = ModuleItemKind_Attribute;
+		m_variant = g_nullVariant;
 	}
-
-	Attribute(
-		Module* module,
-		const sl::StringRef& name,
-		const Value& value
-	);
 
 	const Value&
 	getValue() {
+		ASSERT(m_flags & AttributeFlag_ValueReady);
 		return m_value;
+	}
+
+	const Variant&
+	getVariant() {
+		ASSERT(m_flags & AttributeFlag_VariantReady);
+		return m_variant;
 	}
 
 	bool
@@ -62,24 +69,19 @@ public:
 		return (m_flags & AttributeFlag_ValueReady) || prepareValue();
 	}
 
+	void
+	ensureVariantReady() {
+		if (!(m_flags & AttributeFlag_VariantReady))
+			prepareVariant();
+	}
+
 protected:
 	bool
 	prepareValue();
+
+	void
+	prepareVariant();
 };
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-inline
-Attribute::Attribute(
-	Module* module,
-	const sl::StringRef& name,
-	const Value& value
-) {
-	m_itemKind = ModuleItemKind_Attribute;
-	m_module = module;
-	m_name = name;
-	m_value = value;
-}
 
 //..............................................................................
 
@@ -96,6 +98,11 @@ protected:
 public:
 	AttributeBlock() {
 		m_itemKind = ModuleItemKind_AttributeBlock;
+	}
+
+	~AttributeBlock() {
+		if (m_flags & AttributeBlockFlag_Dynamic)
+			deleteDynamicAttributes();
 	}
 
 	const sl::Array<Attribute*>&
@@ -118,9 +125,18 @@ public:
 		return (m_flags & AttributeBlockFlag_ValuesReady) || prepareAttributeValues();
 	}
 
+	void
+	setDynamicAttributeValue(
+		const sl::StringRef& name,
+		const Variant& value
+	);
+
 protected:
 	bool
 	prepareAttributeValues();
+
+	void
+	deleteDynamicAttributes();
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

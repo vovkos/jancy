@@ -27,8 +27,9 @@ class Attribute:
 	public ModuleItemBase<ct::Attribute>,
 	public ModuleItemDecl,
 	public ModuleItemInitializer {
+
 protected:
-	Variant m_value;
+	AttributeBlock* m_dynamicAttributeBlock;
 
 public:
 	Attribute(ct::Attribute* attribute):
@@ -38,20 +39,15 @@ public:
 
 	void
 	JNC_CDECL
-	markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
-		gcHeap->markVariant(m_value);
-	}
-
-	bool
-	JNC_CDECL
-	hasValue() {
-		return !m_item->getValue().isEmpty();
-	}
+	markOpaqueGcRoots(jnc::GcHeap* gcHeap);
 
 	static
 	Variant
 	JNC_CDECL
-	getValue(Attribute* self);
+	getValue(Attribute* self) {
+		self->m_item->ensureVariantReady();
+		return self->m_item->getVariant();
+	}
 };
 
 //..............................................................................
@@ -59,10 +55,16 @@ public:
 class AttributeBlock:
 	public ModuleItemBase<ct::AttributeBlock>,
 	public ModuleItemDecl {
+
 public:
 	AttributeBlock(ct::AttributeBlock* block):
 		ModuleItemBase(block),
 		ModuleItemDecl(block) {}
+
+	~AttributeBlock() {
+		if (m_item->getFlags() & ct::AttributeBlockFlag_Dynamic)
+			delete m_item;
+	}
 
 	size_t
 	JNC_CDECL
@@ -72,15 +74,23 @@ public:
 
 	Attribute*
 	JNC_CDECL
-	getAttribute(size_t index) {
-		size_t count = m_item->getAttributeArray().getCount();
-		return index < count ? rtl::getAttribute(m_item->getAttributeArray()[index]) : NULL;
+	getAttribute(size_t i) {
+		return i < m_item->getAttributeArray().getCount() ? getAttributeImpl(m_item->getAttributeArray()[i]): NULL;
 	}
 
 	Attribute*
 	JNC_CDECL
 	findAttribute(String name) {
-		return rtl::getAttribute(m_item->findAttribute(name >> toAxl));
+		return getAttributeImpl(m_item->findAttribute(name >> toAxl));
+	}
+
+protected:
+	Attribute*
+	JNC_CDECL
+	getAttributeImpl(ct::Attribute* attribute) {
+		return attribute && (attribute->getFlags() & ct::AttributeFlag_Dynamic) ?
+			(Attribute*)(void*)createIntrospectionClass(attribute, StdType_Attribute) :
+			rtl::getAttribute(attribute);
 	}
 };
 

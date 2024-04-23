@@ -18,6 +18,8 @@
 namespace jnc {
 namespace rtl {
 
+class DynamicAttributeBlock;
+
 JNC_DECLARE_OPAQUE_CLASS_TYPE(ModuleItemDecl)
 JNC_DECLARE_OPAQUE_CLASS_TYPE(ModuleItemInitializer)
 JNC_DECLARE_OPAQUE_CLASS_TYPE(ModuleItem)
@@ -29,13 +31,15 @@ protected:
 	struct Cache {
 		String m_name;
 		String m_qualifiedName;
+		AttributeBlock* m_attributeBlock;
+		Namespace* m_parentNamespace;
+		Unit* m_parentUnit;
 	};
 
 protected:
 	Cache* m_cache;
-
-protected:
 	ct::ModuleItemDecl* m_decl;
+	ct::ModuleItemDecl* m_dynamicDecl;
 
 public:
 	ModuleItemDecl(ct::ModuleItemDecl* decl) {
@@ -44,7 +48,12 @@ public:
 
 	~ModuleItemDecl() {
 		delete m_cache;
+		delete m_dynamicDecl;
 	}
+
+	void
+	JNC_CDECL
+	initializeDynamicDecl(AttributeBlock* attributeBlock);
 
 	void
 	JNC_CDECL
@@ -74,21 +83,15 @@ public:
 
 	AttributeBlock*
 	JNC_CDECL
-	getAttributeBlock() {
-		return rtl::getAttributeBlock(m_decl->getAttributeBlock());
-	}
+	getAttributeBlock();
 
 	Namespace*
 	JNC_CDECL
-	getParentNamespace() {
-		return rtl::getNamespace(m_decl->getParentNamespace());
-	}
+	getParentNamespace();
 
 	Unit*
 	JNC_CDECL
-	getParentUnit() {
-		return rtl::getUnit(m_decl->getParentUnit());
-	}
+	getParentUnit();
 
 	int
 	JNC_CDECL

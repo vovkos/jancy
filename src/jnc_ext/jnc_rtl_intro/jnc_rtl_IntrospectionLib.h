@@ -59,6 +59,13 @@ getIntrospectionClass(
 	StdType stdType
 );
 
+IfaceHdr*
+JNC_CDECL
+createIntrospectionClass(
+	void* item,
+	StdType stdType
+);
+
 ModuleItem*
 JNC_CDECL
 getModuleItem(ct::ModuleItem* item);

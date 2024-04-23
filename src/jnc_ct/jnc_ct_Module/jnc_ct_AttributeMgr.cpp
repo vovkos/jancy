@@ -47,6 +47,25 @@ AttributeMgr::createAttributeBlock() {
 	return attributeBlock;
 }
 
+AttributeBlock*
+AttributeMgr::createDynamicAttributeBlock(ModuleItemDecl* decl) {
+	AttributeBlock* attributeBlock = new AttributeBlock;
+	attributeBlock->m_module = m_module;
+	attributeBlock->m_parentUnit = decl->getParentUnit();
+	attributeBlock->m_parentNamespace = decl->getParentNamespace();
+	attributeBlock->m_flags |= AttributeBlockFlag_Dynamic;
+
+	AttributeBlock* existingBlock = decl->getAttributeBlock();
+	if (!existingBlock)
+		attributeBlock->m_pos = decl->getPos();
+	else {
+		attributeBlock->m_pos = existingBlock->getPos();
+		attributeBlock->addAttributeBlock(existingBlock);
+	}
+
+	return attributeBlock;
+}
+
 //..............................................................................
 
 } // namespace ct

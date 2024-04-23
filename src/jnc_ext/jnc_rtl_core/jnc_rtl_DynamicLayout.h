@@ -24,6 +24,7 @@ class DynamicLayout;
 
 JNC_DECLARE_OPAQUE_CLASS_TYPE(DynamicSectionGroup)
 JNC_DECLARE_OPAQUE_CLASS_TYPE(DynamicSection)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(DynamicDecl)
 JNC_DECLARE_OPAQUE_CLASS_TYPE(DynamicLayout)
 
 //..............................................................................
@@ -66,9 +67,6 @@ class DynamicSection: public DynamicSectionGroup {
 public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(DynamicSection)
 
-protected:
-	struct DynamicDecl;
-
 public:
 	uint_t m_sectionKind;
 	uint_t m_ptrTypeFlags;
@@ -77,14 +75,17 @@ public:
 	size_t m_size;
 
 protected:
-	ct::Type* m_type;
-	ct::ModuleItemDecl* m_decl;
-	DynamicDecl* m_dynamicDecl;
+	ct::Module* m_module;
+	ct::Type* m_type_ct;
+	ct::ModuleItemDecl* m_decl_ct;
+	ct::ModuleItemDecl* m_dynamicDecl;
+	ct::AttributeBlock* m_dynamicAttributeBlock;
+
+	IfaceHdr* m_type_rtl;
+	rtl::ModuleItemDecl* m_decl_rtl;
 
 public:
-	~DynamicSection() {
-		delete m_dynamicDecl;
-	}
+	~DynamicSection();
 
 	void
 	JNC_CDECL
@@ -96,7 +97,7 @@ public:
 
 	ct::Type*
 	getType_ct() {
-		return m_type;
+		return m_type_ct;
 	}
 
 	rtl::ModuleItemDecl*
@@ -106,7 +107,7 @@ public:
 	ct::ModuleItemDecl*
 	JNC_CDECL
 	getDecl_ct() {
-		return m_decl;
+		return m_decl_ct;
 	}
 
 protected:
@@ -116,7 +117,7 @@ protected:
 	void
 	setDynamicAttribute(
 		const sl::StringRef& name,
-		Variant value
+		const Variant& value
 	);
 };
 

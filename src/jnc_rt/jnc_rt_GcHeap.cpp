@@ -713,6 +713,25 @@ GcHeap::getIntrospectionClass(
 	return introClass;
 }
 
+IfaceHdr*
+GcHeap::createIntrospectionClass(
+	void* item,
+	StdType stdType
+) {
+	ASSERT(item);
+
+	ClassType* type = (ClassType*)m_runtime->getModule()->m_typeMgr.getStdType(stdType);
+	ASSERT(type->getTypeKind() == TypeKind_Class && type->getConstructor());
+
+	Function* constructor = type->getConstructor().getFunction();
+	ASSERT(constructor->getType()->getArgArray().getCount() == 2);
+
+	NoCollectRegion noCollectRegion(m_runtime);
+	IfaceHdr* introClass = allocateClass(type);
+	callVoidFunction(constructor, introClass, item);
+	return introClass;
+}
+
 // management
 
 void

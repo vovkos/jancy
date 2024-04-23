@@ -209,6 +209,12 @@ public:
 		StdType stdType
 	);
 
+	IfaceHdr*
+	createIntrospectionClass(
+		void* item,
+		StdType stdType
+	);
+
 	// management methods
 
 	void

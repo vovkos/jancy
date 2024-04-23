@@ -50,6 +50,9 @@ public:
 
 	AttributeBlock*
 	createAttributeBlock();
+
+	AttributeBlock*
+	createDynamicAttributeBlock(ModuleItemDecl* decl);
 };
 
 //..............................................................................

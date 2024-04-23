@@ -213,6 +213,19 @@ getIntrospectionClass(
 	return gcHeap->getIntrospectionClass(item, stdType);
 }
 
+IfaceHdr*
+JNC_CDECL
+createIntrospectionClass(
+	void* item,
+	StdType stdType
+) {
+	if (!item)
+		return NULL;
+
+	GcHeap* gcHeap = getCurrentThreadRuntime()->getGcHeap();
+	return gcHeap->createIntrospectionClass(item, stdType);
+}
+
 Function*
 getFunction(OverloadableFunction function) {
 	return function ?
