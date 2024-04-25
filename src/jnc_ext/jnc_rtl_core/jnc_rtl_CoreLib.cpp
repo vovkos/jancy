@@ -304,7 +304,7 @@ asyncRet(
 
 void
 asyncThrow(IfaceHdr* promise) {
-	err::Error error = err::getLastError();
+	err::ErrorRef error = err::getLastError();
 
 	GcHeap* gcHeap = getCurrentThreadGcHeap();
 	ASSERT(gcHeap);
@@ -312,6 +312,8 @@ asyncThrow(IfaceHdr* promise) {
 	DataPtr errorPtr = gcHeap->tryAllocateBuffer(error->m_size);
 	if (errorPtr.m_p)
 		memcpy(errorPtr.m_p, error, error->m_size);
+
+	error.release(); // complete_2 could result in a throw
 
 	((PromiseImpl*)promise)->complete_2(g_nullVariant, errorPtr);
 }
