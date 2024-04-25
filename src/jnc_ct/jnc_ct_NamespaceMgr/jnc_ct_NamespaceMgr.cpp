@@ -152,6 +152,9 @@ NamespaceMgr::addStdItems() {
 		jncNspace->addItem("g_gcTriggers", gcImport) &&
 		jncNspace->addItem("collectGarbage", gcImport) &&
 		jncNspace->addItem("createDataPtr", dataPtrImport) &&
+		jncNspace->addItem("limitDataPtr", dataPtrImport) &&
+		jncNspace->addItem("getDataPtrLeftRadius", dataPtrImport) &&
+		jncNspace->addItem("getDataPtrRightRadius", dataPtrImport) &&
 		jncNspace->addItem("Scheduler", schedulerImport) &&
 		jncNspace->addItem("RegexExecResult", regexImport) &&
 		jncNspace->addItem("RegexExecFlags", regexImport) &&
