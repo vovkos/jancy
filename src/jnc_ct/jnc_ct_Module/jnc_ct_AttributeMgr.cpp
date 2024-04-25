@@ -53,12 +53,13 @@ AttributeMgr::createDynamicAttributeBlock(ModuleItemDecl* decl) {
 	attributeBlock->m_module = m_module;
 	attributeBlock->m_parentUnit = decl->getParentUnit();
 	attributeBlock->m_parentNamespace = decl->getParentNamespace();
-	attributeBlock->m_flags |= AttributeBlockFlag_Dynamic;
+	attributeBlock->m_flags |= AttributeBlockFlag_Dynamic | AttributeBlockFlag_ValuesReady;
 
 	AttributeBlock* existingBlock = decl->getAttributeBlock();
 	if (!existingBlock)
 		attributeBlock->m_pos = decl->getPos();
 	else {
+		ASSERT(existingBlock->getFlags() & AttributeBlockFlag_ValuesReady);
 		attributeBlock->m_pos = existingBlock->getPos();
 		attributeBlock->addAttributeBlock(existingBlock);
 	}
