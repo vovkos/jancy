@@ -22,8 +22,14 @@ protected:
 	Scheduler* m_scheduler;
 	Promise* m_pendingPromise;
 	void thin* m_gcShadowStackFrame;
-	variant_t m_result;
-	std.Error const* m_error;
+
+public:
+	variant_t readonly m_result;
+	std.Error const* readonly m_error;
+
+	bool const property m_isCompleted {
+		return m_state == -1;
+	}
 
 public:
 	construct();

@@ -173,11 +173,7 @@ PromiseImpl::complete_2(
 
 	if (errorPtr.m_p && m_syncWaitList.isEmpty() && m_asyncWaitList.isEmpty()) {
 		m_lock.unlock();
-
-		const err::ErrorHdr* error = (err::ErrorHdr*)errorPtr.m_p;
-		TRACE("-- WARNING: uncaught async exception for jnc.Promise %p: %s\n", this, error->getDescription().sz());
-		err::setError(error);
-		dynamicThrow(); // rethrow
+		return;
 	}
 
 	sl::Iterator<SyncWait> syncIt = m_syncWaitList.getHead();
