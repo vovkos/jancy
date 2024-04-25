@@ -165,14 +165,14 @@ public:
 
 	void
 	JNC_CDECL
-	updateGroupSizes();
-
-	void
-	JNC_CDECL
 	setGroupAttribute(
 		String name,
 		Variant value
 	);
+
+	void
+	JNC_CDECL
+	updateGroupSizes();
 
 	size_t
 	JNC_CDECL
