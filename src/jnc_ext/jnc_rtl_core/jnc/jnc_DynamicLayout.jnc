@@ -64,15 +64,19 @@ protected:
 	// only for DynamicLayoutMode.Stream
 
 	std.Buffer m_buffer;
-	Promise* m_promise;    // pending section promise
 	Promise* m_auxPromise; // to avoid extra allocations
 
 public:
+	Promise const* readonly m_promise;  // when async-waiting for resume()
 	void const* readonly m_p;
 	size_t readonly m_size;       // layout size (can be larger than buffer size)
 	size_t readonly m_bufferSize; // size of the buffer being parsed
 
 	DynamicLayoutMode readonly m_mode;
+
+	bool const property m_isIncomplete {
+		return m_size > m_bufferSize;
+	}
 
 	construct() {
 		init();
@@ -96,10 +100,6 @@ public:
 	}
 
 	destruct();
-
-	bool const property m_isIncomplete {
-		return m_size > m_bufferSize;
-	}
 
 	void clear() {
 		reset(0, null, 0);
