@@ -622,7 +622,7 @@ GcHeap::createForeignDataBox(
 
 	resultBox->m_box.m_type = type;
 	resultBox->m_box.m_flags = BoxFlag_Detached | BoxFlag_DataMark | BoxFlag_WeakMark;
-	resultBox->m_box.m_rootOffset = 0;
+	resultBox->m_box.m_rootOffset = (char*)&resultBox->m_box - (char*)resultBox->m_validator.m_validatorBox;
 
 	size_t size = type->getSize();
 	if (elementCount != 1) {
@@ -638,8 +638,13 @@ GcHeap::createForeignDataBox(
 	resultBox->m_validator.m_rangeEnd = (char*)p + size;
 	resultBox->m_p = (void*)p;
 
-	addBoxIfDynamicFrame((Box*)resultBox);
+#if (_JNC_TRACK_FOREIGN_DATA)
+	waitIdleAndLock();
+	m_foreignDataBoxArray.append((Box*)resultBox);
+	m_lock.unlock();
+#endif
 
+	addBoxIfDynamicFrame((Box*)resultBox);
 	return resultBox;
 }
 
@@ -788,6 +793,10 @@ GcHeap::finalizeShutdown() {
 		m_classBoxArray.isEmpty()
 	);
 
+#if (_JNC_TRACK_FOREIGN_DATA)
+	ASSERT(m_foreignDataBoxArray.isEmpty());
+#endif
+
 	// force-clear anyway
 
 	m_noCollectMutatorThreadCount = 0;
@@ -797,6 +806,9 @@ GcHeap::finalizeShutdown() {
 	m_dynamicDestructArray.clear();
 	m_allocBoxArray.clear();
 	m_classBoxArray.clear();
+#if (_JNC_TRACK_FOREIGN_DATA)
+	m_foreignDataBoxArray.clear();
+#endif
 	m_destructibleClassBoxArray.clear();
 	m_introspectionMap.clear();
 }
@@ -1000,37 +1012,30 @@ GcHeap::safePoint() {
 
 void
 GcHeap::weakMark(Box* box) {
-	if (box->m_flags & BoxFlag_WeakMark)
-		return;
-
 	box->m_flags |= BoxFlag_WeakMark;
-
 	if (box->m_rootOffset) {
 		Box* root = (Box*)((char*)box - box->m_rootOffset);
-		if (!(root->m_flags & BoxFlag_WeakMark))
-			root->m_flags |= BoxFlag_WeakMark;
+		root->m_flags |= BoxFlag_WeakMark;
 	}
 }
 
 void
 GcHeap::markData(Box* box) {
+	weakMark(box); // weak mark anyway -- this way, we can still reach foreign data box pool after replacing validator
+
 	if (box->m_flags & BoxFlag_DataMark)
 		return;
 
 	ASSERT(!(box->m_flags & BoxFlag_Static)); // statics are always marked
-
-	weakMark(box);
-
 	box->m_flags |= BoxFlag_DataMark;
-
 	if (!(box->m_type->getFlags() & TypeFlag_GcRoot) || (box->m_flags & BoxFlag_Invalid))
 		return;
 
-	if (box->m_type->getTypeKind() == TypeKind_Class) {
+	if (box->m_type->getTypeKind() == TypeKind_Class)
 		addRoot(box, box->m_type);
-	} else if (!(box->m_flags & BoxFlag_DynamicArray)) {
+	else if (!(box->m_flags & BoxFlag_DynamicArray))
 		addRoot((DataBox*)box + 1, box->m_type);
-	} else {
+	else {
 		size_t count = getDynamicArrayElementCount((DataBox*)box);
 		addRootArray((DataBox*)box + 1, box->m_type, count);
 	}
@@ -1372,6 +1377,12 @@ GcHeap::collect_l(bool isMutatorThread) {
 	for (size_t i = 0; i < count; i++)
 		m_classBoxArray[i]->m_flags &= ~BoxFlag_MarkMask;
 
+#if (_JNC_TRACK_FOREIGN_DATA)
+	count = m_foreignDataBoxArray.getCount();
+	for (size_t i = 0; i < count; i++)
+		m_foreignDataBoxArray[i]->m_flags &= ~BoxFlag_MarkMask;
+#endif
+
 	// add static roots
 
 	count = m_staticRootArray.getCount();
@@ -1477,6 +1488,20 @@ GcHeap::collect_l(bool isMutatorThread) {
 	}
 
 	m_classBoxArray.setCount(dstIdx);
+
+#if (_JNC_TRACK_FOREIGN_DATA)
+	// sweep unmarked foreign data boxes
+
+	dstIdx = 0;
+	count = m_foreignDataBoxArray.getCount();
+	for (size_t i = 0; i < count; i++) {
+		Box* box = m_foreignDataBoxArray[i];
+		if (box->m_flags & BoxFlag_WeakMark)
+			m_foreignDataBoxArray[dstIdx++] = box;
+	}
+
+	m_foreignDataBoxArray.setCount(dstIdx);
+#endif
 
 	// sweep allocated boxes
 

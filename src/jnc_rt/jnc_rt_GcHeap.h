@@ -18,6 +18,8 @@
 namespace jnc {
 namespace rt {
 
+#define _JNC_TRACK_FOREIGN_DATA 0
+
 //..............................................................................
 
 class GcHeap {
@@ -97,6 +99,9 @@ protected:
 
 	sl::Array<Box*> m_allocBoxArray;
 	sl::Array<Box*> m_classBoxArray;
+#if (_JNC_TRACK_FOREIGN_DATA)
+	sl::Array<Box*> m_foreignDataBoxArray;
+#endif
 	sl::Array<Box*> m_destructibleClassBoxArray;
 	sl::Array<Box*> m_postponeFreeBoxArray;
 	sl::Array<Root> m_staticRootArray;
