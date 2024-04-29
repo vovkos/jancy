@@ -65,7 +65,7 @@ struct jnc_Unit {
 
 	const char*
 	getDir(jnc_Unit* unit) {
-		jnc_Unit_getDir(this);
+		return jnc_Unit_getDir(this);
 	}
 };
 
