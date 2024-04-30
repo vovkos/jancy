@@ -101,7 +101,7 @@ Attribute::prepareVariant() {
 		Variable* variable = m_value.getVariable();
 		ASSERT(
 			variable->getStorageKind() == StorageKind_Static &&
-			variable->getType()->getTypeKind() != TypeKind_Class
+			variable->getType()->getTypeKind() == TypeKind_Class
 		);
 
 		m_variant.m_type = (jnc::Type*)((ct::ClassType*)variable->getType())->getClassPtrType();
