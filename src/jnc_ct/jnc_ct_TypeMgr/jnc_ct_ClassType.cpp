@@ -632,6 +632,18 @@ ClassType::overrideVirtualFunction(Function* function) {
 }
 
 bool
+ClassType::ensureClassFieldsCreatable() {
+	size_t count = m_classFieldArray.getCount();
+	for (size_t i = 0; i < count; i++) {
+		bool result = ((ClassType*)m_classFieldArray[i]->getType())->ensureCreatable();
+		if (!result)
+			return false;
+	}
+
+	return true;
+}
+
+bool
 ClassType::prepareForOperatorNew() {
 	ASSERT(m_flags & ModuleItemFlag_LayoutReady);
 
@@ -643,12 +655,14 @@ ClassType::prepareForOperatorNew() {
 	if (m_opaqueClassTypeInfo && m_opaqueClassTypeInfo->m_requireOpaqueItemsFunc)
 		m_opaqueClassTypeInfo->m_requireOpaqueItemsFunc(m_module);
 
-	size_t count = m_classFieldArray.getCount();
+	size_t count = m_classBaseTypeArray.getCount();
 	for (size_t i = 0; i < count; i++) {
-		result = ((ClassType*)m_classFieldArray[i]->getType())->ensureCreatable();
+		result = ((ClassType*)m_classBaseTypeArray[i]->getType())->ensureClassFieldsCreatable();
 		if (!result)
 			return false;
 	}
+
+	ensureClassFieldsCreatable();
 
 	if (!m_module->hasCodeGen() || !m_vtableStructType) {
 		m_flags |= ClassTypeFlag_Creatable;

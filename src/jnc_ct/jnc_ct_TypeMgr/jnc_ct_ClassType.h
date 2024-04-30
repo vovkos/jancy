@@ -214,6 +214,9 @@ protected:
 	bool
 	overrideVirtualFunction(Function* function);
 
+	bool
+	ensureClassFieldsCreatable();
+
 	virtual
 	bool
 	prepareForOperatorNew();
