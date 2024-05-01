@@ -45,7 +45,9 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(SshChannel)
 	JNC_MAP_FUNCTION("close",        &SshChannel::close)
 	JNC_MAP_FUNCTION("connect",      &SshChannel::connect_0)
 	JNC_MAP_OVERLOAD(&SshChannel::connect_1)
-	JNC_MAP_FUNCTION("authenticate", &SshChannel::authenticate)
+	JNC_MAP_FUNCTION("authenticate", &SshChannel::authenticate_0)
+	JNC_MAP_OVERLOAD(&SshChannel::authenticate_1)
+	JNC_MAP_OVERLOAD(&SshChannel::authenticate_2)
 	JNC_MAP_FUNCTION("resizePty",    &SshChannel::resizePty)
 	JNC_MAP_FUNCTION("read",         &SshChannel::read)
 	JNC_MAP_FUNCTION("write",        &SshChannel::write)
@@ -133,8 +135,6 @@ JNC_CDECL
 SshChannel::connect_0(
 	DataPtr addressPtr,
 	String userName,
-	DataPtr privateKeyPtr,
-	size_t privateKeySize,
 	String password,
 	String channelType,
 	String processType,
@@ -145,10 +145,11 @@ SshChannel::connect_0(
 	return connectImpl(
 		(const SocketAddress*)addressPtr.m_p,
 		userName >> toAxl,
-		privateKeyPtr.m_p,
-		privateKeySize,
-		password  >> toAxl,
-		channelType  >> toAxl,
+		sl::StringRef(),
+		NULL,
+		0,
+		password >> toAxl,
+		channelType >> toAxl,
 		NULL,
 		0,
 		processType >> toAxl,
@@ -168,6 +169,7 @@ SshChannel::connect_1(DataPtr paramPtr) {
 	return connectImpl(
 		&params->m_address,
 		params->m_userName >> toAxl,
+		params->m_privateKeyFileName >> toAxl,
 		params->m_privateKeyPtr.m_p,
 		params->m_privateKeySize,
 		params->m_password >> toAxl,
@@ -187,6 +189,7 @@ bool
 SshChannel::connectImpl(
 	const SocketAddress* address,
 	const sl::StringRef& userName,
+	const sl::StringRef& privateKeyFileName,
 	const void* privateKey,
 	size_t privateKeySize,
 	const sl::StringRef& password,
@@ -213,6 +216,7 @@ SshChannel::connectImpl(
 	ASSERT(!m_connectParams);
 	m_connectParams = new ConnectParams;
 	m_connectParams->m_userName = !userName.isEmpty() ? userName : "anonymous";
+	m_connectParams->m_privateKeyFileName = privateKeyFileName;
 
 	if (privateKey && privateKeySize)
 		m_connectParams->m_privateKey.copy((char*)privateKey, privateKeySize);
@@ -248,12 +252,49 @@ SshChannel::connectImpl(
 
 bool
 JNC_CDECL
-SshChannel::authenticate(
-	String userName0,
+SshChannel::authenticate_0(
+	String userName,
+	String password
+) {
+	AuthenticateParams params = { 0 };
+	params.m_userName = userName;
+	params.m_password = password;
+	return authenticateImpl(params);
+}
+
+bool
+JNC_CDECL
+SshChannel::authenticate_1(
+	String userName,
+	String privateKeyFileName,
+	String password
+) {
+	AuthenticateParams params = { 0 };
+	params.m_userName = userName;
+	params.m_privateKeyFileName = privateKeyFileName;
+	params.m_password = password;
+	return authenticateImpl(params);
+}
+
+bool
+JNC_CDECL
+SshChannel::authenticate_2(
+	String userName,
 	DataPtr privateKeyPtr,
 	size_t privateKeySize,
 	String password
 ) {
+	AuthenticateParams params = { 0 };
+	params.m_userName = userName;
+	params.m_privateKeyPtr = privateKeyPtr;
+	params.m_privateKeySize = privateKeySize;
+	params.m_password = password;
+	return authenticateImpl(params);
+}
+
+bool
+JNC_CDECL
+SshChannel::authenticateImpl(const AuthenticateParams& params) {
 	m_lock.lock();
 	if (!(m_activeEvents & SshEvent_SshAuthenticateError)) {
 		m_lock.unlock();
@@ -264,12 +305,13 @@ SshChannel::authenticate(
 
 	m_activeEvents &= ~SshEvent_SshAuthenticateError;
 
-	sl::StringRef userName = userName0 >> toAxl;
+	sl::StringRef userName = params.m_userName >> toAxl;
 
 	ASSERT(m_connectParams);
 	m_connectParams->m_userName = !userName.isEmpty() ? userName : "anonymous";
-	m_connectParams->m_password = password >> toAxl;
-	m_connectParams->m_privateKey.copy((char*)privateKeyPtr.m_p, privateKeySize);
+	m_connectParams->m_privateKeyFileName = params.m_privateKeyFileName >> toAxl;
+	m_connectParams->m_privateKey.copy((char*)params.m_privateKeyPtr.m_p, params.m_privateKeySize);
+	m_connectParams->m_password = params.m_password >> toAxl;
 
 	wakeIoThread();
 	m_lock.unlock();
@@ -384,13 +426,8 @@ SshChannel::sshConnectLoop() {
 
 	for (;;) {
 		do {
-			result = m_connectParams->m_privateKey.isEmpty() ?
-				::libssh2_userauth_password(
-					m_sshSession,
-					m_connectParams->m_userName,
-					m_connectParams->m_password
-				) :
-				::libssh2_userauth_publickey_frommemory(
+			result =
+				!m_connectParams->m_privateKey.isEmpty() ? ::libssh2_userauth_publickey_frommemory(
 					m_sshSession,
 					m_connectParams->m_userName.cp(),
 					m_connectParams->m_userName.getLength(),
@@ -399,8 +436,20 @@ SshChannel::sshConnectLoop() {
 					m_connectParams->m_privateKey.cp(),
 					m_connectParams->m_privateKey.getCount(),
 					m_connectParams->m_password.sz()
+				) :
+				!m_connectParams->m_privateKeyFileName.isEmpty() ? ::libssh2_userauth_publickey_fromfile_ex(
+					m_sshSession,
+					m_connectParams->m_userName.cp(),
+					m_connectParams->m_userName.getLength(),
+					NULL,
+					m_connectParams->m_privateKeyFileName.sz(),
+					m_connectParams->m_password.sz()
+				) :
+				::libssh2_userauth_password(
+					m_sshSession,
+					m_connectParams->m_userName,
+					m_connectParams->m_password
 				);
-
 			result = sshAsyncLoop(result);
 		} while (result == LIBSSH2_ERROR_EAGAIN);
 

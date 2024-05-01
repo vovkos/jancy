@@ -43,9 +43,10 @@ enum SshEvent {
 struct SshConnectParams {
 	SocketAddress m_address;
 	String m_userName;
+	String m_privateKeyFileName;
 	DataPtr m_privateKeyPtr;
 	size_t m_privateKeySize;
-	String m_password;
+	String m_password; // or passphrase for private key
 	String m_channelType;  // session, direct-tcpip, tcpip-forward, etc
 	DataPtr m_channelExtraPtr;
 	size_t m_channelExtraSize;
@@ -122,6 +123,7 @@ protected:
 
 	struct ConnectParams {
 		sl::String m_userName;
+		sl::String m_privateKeyFileName;
 		sl::Array<char> m_privateKey;
 		sl::String m_password; // or private key passphrase
 		sl::String m_channelType;
@@ -129,6 +131,14 @@ protected:
 		sl::String m_processType;
 		sl::Array<char> m_processExtra;
 		sl::String m_ptyType;
+	};
+
+	struct AuthenticateParams {
+		String m_userName;
+		String m_privateKeyFileName;
+		DataPtr m_privateKeyPtr;
+		size_t m_privateKeySize;
+		String m_password; // or private key passphrase
 	};
 
 protected:
@@ -193,7 +203,6 @@ public:
 		return SocketBase::setOptions(flags);
 	}
 
-
 	bool
 	JNC_CDECL
 	open_0(uint16_t family);
@@ -211,8 +220,6 @@ public:
 	connect_0(
 		DataPtr addressPtr,
 		String userName,
-		DataPtr privateKeyPtr,
-		size_t privateKeySize,
 		String password,
 		String channelType,
 		String processType,
@@ -227,11 +234,26 @@ public:
 
 	bool
 	JNC_CDECL
-	authenticate(
+	authenticate_0(
+		String userName,
+		String password
+	);
+
+	bool
+	JNC_CDECL
+	authenticate_1(
+		String userName,
+		String privateKeyFileName,
+		String privateKeyPassphrase
+	);
+
+	bool
+	JNC_CDECL
+	authenticate_2(
 		String userName,
 		DataPtr privateKeyPtr,
 		size_t privateKeySize,
-		String password
+		String privateKeyPassphrase
 	);
 
 	bool
@@ -294,6 +316,7 @@ protected:
 	connectImpl(
 		const SocketAddress* address,
 		const sl::StringRef& userName,
+		const sl::StringRef& privateKeyFileName,
 		const void* privateKey,
 		size_t privateKeySize,
 		const sl::StringRef& password,
@@ -307,6 +330,9 @@ protected:
 		uint_t ptyWidth,
 		uint_t ptyHeight
 	);
+
+	bool
+	authenticateImpl(const AuthenticateParams& params);
 
 	void
 	ioThreadFunc();

@@ -82,9 +82,10 @@ bitflag enum SshEvents: SocketEvents {
 struct SshConnectParams {
 	SocketAddress m_address;
 	string_t m_userName;
+	string_t m_privateKeyFileName;
 	void const* m_privateKey;
 	size_t m_privateKeySize;
-	string_t m_password;
+	string_t m_password; // or passphrase
 	string_t m_channelType;  // session, direct-tcpip, tcpip-forward, etc
 	void const* m_channelExtra;
 	size_t m_channelExtraSize;
@@ -340,8 +341,6 @@ opaque class SshChannel {
 	bool errorcode connect(
 		SocketAddress const* address,
 		string_t userName,
-		void const* privateKey,
-		size_t privateKeySize,
 		string_t password,
 		string_t channelType = "session", // session, direct-tcpip, tcpip-forward, etc
 		string_t processType = "shell",   // shell, exec, subsystem, etc
@@ -361,9 +360,20 @@ opaque class SshChannel {
 
 	bool errorcode authenticate(
 		string_t userName,
+		string_t password
+	);
+
+	bool errorcode authenticate(
+		string_t userName,
+		string_t privateKeyFileName,
+		string_t passphrase
+	);
+
+	bool errorcode authenticate(
+		string_t userName,
 		void const* privateKey,
 		size_t privateKeySize,
-		string_t password
+		string_t passphrase
 	);
 
 	/**
