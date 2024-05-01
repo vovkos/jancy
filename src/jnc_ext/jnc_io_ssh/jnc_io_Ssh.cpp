@@ -450,17 +450,12 @@ SshChannel::sshConnectLoop() {
 					m_connectParams->m_userName,
 					m_connectParams->m_password
 				);
+
 			result = sshAsyncLoop(result);
 		} while (result == LIBSSH2_ERROR_EAGAIN);
 
 		if (!result)
 			break;
-
-		if (result != LIBSSH2_ERROR_AUTHENTICATION_FAILED &&
-			result != LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED) {
-			setIoErrorEvent(getSshLastError(m_sshSession));
-			return false;
-		}
 
 		setIoErrorEvent(SshEvent_SshAuthenticateError, getSshLastError(m_sshSession));
 		sleepIoThread();
