@@ -577,12 +577,6 @@ protected:
 	);
 
 	bool
-	initializeReaction();
-
-	bool
-	finalizeReaction();
-
-	bool
 	callBaseTypeMemberConstructor(
 		const QualifiedName& name,
 		sl::BoxList<Value>* argList
