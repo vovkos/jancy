@@ -633,6 +633,7 @@ Type::prepareSimpleTypeVariable(StdType stdType) {
 		&constructor
 	);
 
+	m_typeVariable->m_parentUnit = m_module->m_unitMgr.getIntrospectionLibUnit();
 	m_typeVariable->m_parentNamespace = m_module->m_namespaceMgr.getStdNamespace(StdNamespace_Jnc);
 	m_typeVariable->m_flags |= VariableFlag_Type;
 
