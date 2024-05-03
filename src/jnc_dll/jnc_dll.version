@@ -205,6 +205,7 @@
 		jnc_Module_getPrimitiveType;
 		jnc_Module_getStdType;
 		jnc_Module_initialize;
+		jnc_Module_ensureJitCreated;
 		jnc_Module_jit;
 		jnc_Module_mapFunction;
 		jnc_Module_mapVariable;

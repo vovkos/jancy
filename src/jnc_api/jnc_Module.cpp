@@ -617,6 +617,13 @@ jnc_Module_optimize(
 JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
+jnc_Module_ensureJitCreated(jnc_Module* module) {
+	return module->ensureJitCreated();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+bool_t
 jnc_Module_jit(jnc_Module* module) {
 	return module->jit();
 }

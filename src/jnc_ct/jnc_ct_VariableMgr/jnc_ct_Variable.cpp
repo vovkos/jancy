@@ -66,14 +66,13 @@ Variable::prepareStaticData() {
 		m_module->getLlvmModule()->getGlobalVariable(m_llvmGlobalVariableName >> toLlvm) :
 		m_llvmGlobalVariable;
 
-	if (!llvmGlobalVariable) { // optimized out
+	if (llvmGlobalVariable && m_module->ensureJitCreated()) // if no llvmGlobalVariable, it was optimized out
+		m_staticData = m_module->m_jit->getStaticData(this);
+	else {
 		Value value((void*)NULL, m_type);
-		m_module->m_constMgr.saveValue(value);
-		m_staticData = value.getConstData();
-		return;
+		m_staticData = (void*)m_module->m_constMgr.saveValue(value).getConstData();
 	}
 
-	m_staticData = m_module->m_jit->getStaticData(this);
 }
 
 bool

@@ -221,6 +221,7 @@ EXPORTS
 	jnc_Module_getImportDirIterator
 	jnc_Module_getNextImportDir
 	jnc_Module_initialize
+	jnc_Module_ensureJitCreated
 	jnc_Module_jit
 	jnc_Module_mapFunction
 	jnc_Module_mapVariable

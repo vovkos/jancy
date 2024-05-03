@@ -356,6 +356,14 @@ public:
 	optimize(uint_t level);
 
 	bool
+	createJit();
+
+	bool
+	ensureJitCreated() {
+		return m_jit || createJit();
+	}
+
+	bool
 	jit();
 
 	bool
@@ -399,9 +407,6 @@ protected:
 
 	bool
 	processCompileArray();
-
-	bool
-	createJit();
 
 	void
 	createConstructor();
@@ -464,16 +469,14 @@ ParseContext::set(
 	Namespace* nspace
 ) {
 	m_module = module;
-	m_prevUnit = unit ? module->m_unitMgr.setCurrentUnit(unit) : NULL;
+	m_prevUnit = module->m_unitMgr.setCurrentUnit(unit);
 	m_isNamespaceOpened = module->m_namespaceMgr.openNamespaceIf(nspace);
 }
 
 inline
 void
 ParseContext::restore() {
-	if (m_prevUnit)
-		m_module->m_unitMgr.setCurrentUnit(m_prevUnit);
-
+	m_module->m_unitMgr.setCurrentUnit(m_prevUnit);
 	if (m_isNamespaceOpened)
 		m_module->m_namespaceMgr.closeNamespace();
 }

@@ -451,6 +451,10 @@ jnc_Module_optimize(
 
 JNC_EXTERN_C
 bool_t
+jnc_Module_ensureJitCreated(jnc_Module* module);
+
+JNC_EXTERN_C
+bool_t
 jnc_Module_jit(jnc_Module* module);
 
 JNC_EXTERN_C
@@ -735,6 +739,11 @@ struct jnc_Module {
 	bool
 	optimize(uint_t level = jnc_OptLevel_Default) {
 		return jnc_Module_optimize(this, level) != 0;
+	}
+
+	bool
+	ensureJitCreated() {
+		return jnc_Module_ensureJitCreated(this) != 0;
 	}
 
 	bool
