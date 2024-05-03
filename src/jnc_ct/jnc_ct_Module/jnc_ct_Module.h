@@ -346,6 +346,9 @@ protected:
 	);
 
 	bool
+	compileImpl();
+
+	bool
 	requireIntrospectionLib();
 
 	bool

@@ -406,13 +406,19 @@ Module::parseImports() {
 		}
 	}
 
-	m_extensionLibMgr.closeDynamicLibZipReaders();
 	m_compileState = ModuleCompileState_Parsed;
 	return finalResult;
 }
 
 bool
 Module::compile() {
+	bool result = compileImpl();
+	m_extensionLibMgr.closeDynamicLibZipReaders();
+	return result;
+}
+
+bool
+Module::compileImpl() {
 	bool result;
 
 	ASSERT(m_compileState < ModuleCompileState_Compiled);
