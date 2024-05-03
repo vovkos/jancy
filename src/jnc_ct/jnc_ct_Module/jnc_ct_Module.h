@@ -36,6 +36,46 @@ class Jit;
 
 //..............................................................................
 
+class ParseContext {
+protected:
+	Module* m_module;
+	Unit* m_prevUnit;
+	bool m_isNamespaceOpened;
+
+public:
+	ParseContext(
+		Module* module,
+		Unit* unit,
+		Namespace* nspace
+	) {
+		set(module, unit, nspace);
+	}
+
+	ParseContext(
+		Module* module,
+		ModuleItemDecl* decl
+	) {
+		set(module, decl->getParentUnit(), decl->getParentNamespace());
+	}
+
+	~ParseContext() {
+		restore();
+	}
+
+protected:
+	void
+	set(
+		Module* module,
+		Unit* unit,
+		Namespace* nspace
+	);
+
+	void
+	restore();
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 // makes it convenient to initialize childs (especially operators)
 
 class PreModule {
@@ -59,7 +99,7 @@ protected:
 	}
 };
 
-//..............................................................................
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class Module: public PreModule {
 	friend class Jit;  // JITters take ownership of llvm::Module & llvm::LLVMContext
@@ -412,6 +452,30 @@ Module::setAttributeObserver(
 	m_attributeObserver = observer;
 	m_attributeObserverContext = context;
 	m_attributeObserverItemKindMask = itemKindMask;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+void
+ParseContext::set(
+	Module* module,
+	Unit* unit,
+	Namespace* nspace
+) {
+	m_module = module;
+	m_prevUnit = unit ? module->m_unitMgr.setCurrentUnit(unit) : NULL;
+	m_isNamespaceOpened = module->m_namespaceMgr.openNamespaceIf(nspace);
+}
+
+inline
+void
+ParseContext::restore() {
+	if (m_prevUnit)
+		m_module->m_unitMgr.setCurrentUnit(m_prevUnit);
+
+	if (m_isNamespaceOpened)
+		m_module->m_namespaceMgr.closeNamespace();
 }
 
 //..............................................................................

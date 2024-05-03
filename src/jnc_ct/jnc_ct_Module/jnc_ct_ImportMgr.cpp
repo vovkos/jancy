@@ -159,7 +159,7 @@ ImportMgr::parseLazyImport(LazyImport* import) {
 	addImport(import->m_lib, import->m_fileName, import->m_source);
 
 	Unit* prevUnit = m_module->m_unitMgr.getCurrentUnit();
-	m_module->m_namespaceMgr.openNamespace(m_module->m_namespaceMgr.getGlobalNamespace());
+	bool isNspaceChanged = m_module->m_namespaceMgr.openNamespaceIf(m_module->m_namespaceMgr.getGlobalNamespace());
 
 	bool result =
 		m_module->parseImports() &&
@@ -167,7 +167,9 @@ ImportMgr::parseLazyImport(LazyImport* import) {
 		m_module->m_variableMgr.allocateNamespaceVariables(lastVariableIt) &&
 		m_module->m_functionMgr.finalizeNamespaceProperties(lastPropertyIt);
 
-	m_module->m_namespaceMgr.closeNamespace();
+	if (isNspaceChanged)
+		m_module->m_namespaceMgr.closeNamespace();
+
 	m_module->m_unitMgr.setCurrentUnit(prevUnit);
 	return result;
 }

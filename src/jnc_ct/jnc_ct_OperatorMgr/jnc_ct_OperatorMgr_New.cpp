@@ -286,16 +286,14 @@ OperatorMgr::parseFunctionArgDefaultValue(
 	const sl::List<Token>& tokenList,
 	Value* resultValue
 ) {
+	ParseContext parseContext(m_module, decl);
 	Parser parser(m_module, decl->getPragmaConfig(), Parser::Mode_Compile);
-	m_module->m_namespaceMgr.openNamespace(decl->getParentNamespace());
-	m_module->m_namespaceMgr.lockSourcePos();
 
+	m_module->m_namespaceMgr.lockSourcePos();
 	sl::List<Token> tmpTokenList;
 	cloneTokenList(&tmpTokenList, tokenList);
 	bool result = parser.parseTokenList(SymbolKind_expression_save_value, &tmpTokenList);
-
 	m_module->m_namespaceMgr.unlockSourcePos();
-	m_module->m_namespaceMgr.closeNamespace();
 
 	*resultValue = parser.getLastExpressionValue();
 	return result;

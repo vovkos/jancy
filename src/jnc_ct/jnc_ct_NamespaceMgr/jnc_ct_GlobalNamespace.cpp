@@ -63,7 +63,7 @@ GlobalNamespace::parseBody() {
 	sl::ConstIterator<Variable> lastVariableIt = m_module->m_variableMgr.getVariableList().getTail();
 	sl::ConstIterator<Property> lastPropertyIt = m_module->m_functionMgr.getPropertyList().getTail();
 
-	m_module->m_namespaceMgr.openNamespace(this);
+	ParseContext parseContext(m_module, m_parentUnit, this);
 
 	bool result = parseBodyImpl(m_parentUnit, m_pragmaConfig, m_bodyPos, m_body);
 	if (!result)
@@ -86,7 +86,6 @@ GlobalNamespace::parseBody() {
 			return false;
 	}
 
-	m_module->m_namespaceMgr.closeNamespace();
 	m_body.clear();
 	m_extraBodyList.clear();
 	return true;

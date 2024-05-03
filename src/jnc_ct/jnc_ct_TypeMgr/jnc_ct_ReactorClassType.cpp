@@ -55,8 +55,6 @@ ReactorClassType::ReactorClassType() {
 
 bool
 ReactorClassType::calcLayout() {
-	bool result;
-
 	if (m_body.isEmpty()) {
 		err::setFormatStringError("reactor '%s' has no body", getQualifiedName().sz());
 		return false;
@@ -70,17 +68,15 @@ ReactorClassType::calcLayout() {
 	parser.m_reactorType = this;
 
 	Function* prevFunction = m_module->m_functionMgr.setCurrentFunction(m_reaction); // we need some method for OperatorMgr::getThisValueType to work
-	m_module->m_namespaceMgr.openNamespace(this);
 
-	result = parser.parseBody(SymbolKind_reactor_body_0, m_bodyPos, m_body);
-	if (!result)
-		return false;
+	ParseContext parseContext(m_module, m_parentUnit, this);
+	bool result =
+		parser.parseBody(SymbolKind_reactor_body_0, m_bodyPos, m_body) &&
+		ClassType::calcLayout();
 
-	m_module->m_namespaceMgr.closeNamespace();
 	m_module->m_functionMgr.setCurrentFunction(prevFunction);
 	m_reactionCount = parser.getReactionCount();
-
-	return ClassType::calcLayout();
+	return result;
 }
 
 bool
@@ -101,11 +97,9 @@ ReactorClassType::compileReaction(Function* function) {
 	ASSERT(function == m_reaction);
 	ASSERT(!m_body.isEmpty());
 
-	if (m_parentUnit)
-		m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
+	ParseContext parseContext(m_module, m_parentUnit, this);
 
 	Value argValueArray[2];
-	m_module->m_namespaceMgr.openNamespace(this);
 	m_module->m_functionMgr.internalPrologue(function, argValueArray, countof(argValueArray), &m_bodyPos);
 
 	Parser parser(m_module, m_pragmaConfig, Parser::Mode_Reaction);
@@ -117,7 +111,6 @@ ReactorClassType::compileReaction(Function* function) {
 		return false;
 
 	m_module->m_functionMgr.internalEpilogue();
-	m_module->m_namespaceMgr.closeNamespace();
 
 	// explicitly mark all event handlers for compilation as we don't call those directly
 	// they are called from RTL in rtl::ReactorImpl::reactionLoop

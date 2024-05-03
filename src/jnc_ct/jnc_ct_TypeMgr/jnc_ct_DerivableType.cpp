@@ -328,15 +328,13 @@ DerivableType::parseBody() {
 	sl::ConstIterator<Variable> lastVariableIt = m_module->m_variableMgr.getVariableList().getTail();
 	sl::ConstIterator<Property> lastPropertyIt = m_module->m_functionMgr.getPropertyList().getTail();
 
-	Unit* prevUnit = m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
-	m_module->m_namespaceMgr.openNamespace(this);
-
+	ParseContext parseContext(m_module, m_parentUnit, this);
 	Parser parser(m_module, m_pragmaConfig, Parser::Mode_Parse);
 
 	size_t length = m_body.getLength();
 	ASSERT(length >= 2);
 
-	bool result =
+	return
 		parser.parseBody(
 			SymbolKind_member_block_declaration_list,
 			lex::LineColOffset(m_bodyPos.m_line, m_bodyPos.m_col + 1, m_bodyPos.m_offset + 1),
@@ -345,10 +343,6 @@ DerivableType::parseBody() {
 		resolveOrphans() &&
 		m_module->m_variableMgr.allocateNamespaceVariables(lastVariableIt) &&
 		m_module->m_functionMgr.finalizeNamespaceProperties(lastPropertyIt);
-
-	m_module->m_namespaceMgr.closeNamespace();
-	m_module->m_unitMgr.setCurrentUnit(prevUnit);
-	return result;
 }
 
 template <typename T>

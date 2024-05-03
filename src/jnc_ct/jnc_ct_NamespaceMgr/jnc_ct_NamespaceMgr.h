@@ -147,6 +147,11 @@ public:
 	void
 	openNamespace(Namespace* nspace);
 
+	bool
+	openNamespaceIf(Namespace* nspace) {
+		return m_currentNamespace == nspace ? false : (openNamespace(nspace), true);
+	}
+
 	void
 	openStdNamespace(StdNamespace stdNamepace) {
 		ASSERT(stdNamepace < StdNamespace__Count);

@@ -768,13 +768,10 @@ VariableMgr::initializeGlobalVariables() {
 		Variable* variable = m_globalVariableInitializeArray[i];
 		ASSERT(variable->m_storageKind == StorageKind_Static);
 
-		m_module->m_namespaceMgr.openNamespace(variable->m_parentNamespace);
-
+		ParseContext parseContext(m_module, variable);
 		bool result = initializeVariable(variable);
 		if (!result)
 			finalResult = false;
-
-		m_module->m_namespaceMgr.closeNamespace();
 	}
 
 	m_globalVariableInitializeArray.clear();

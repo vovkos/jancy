@@ -29,6 +29,7 @@ Attribute::prepareValue() {
 		return true;
 	}
 
+	ParseContext parseContext(m_module, m_parentUnit, m_parentNamespace);
 	bool result = m_module->m_operatorMgr.parseExpression(&m_initializer, &m_value);
 	if (!result)
 		return false;
@@ -157,9 +158,6 @@ bool
 AttributeBlock::prepareAttributeValues() {
 	ASSERT(!(m_flags & AttributeBlockFlag_ValuesReady));
 
-	Unit* prevUnit = m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
-	m_module->m_namespaceMgr.openNamespace(m_parentNamespace);
-
 	bool finalResult = true;
 
 	size_t count = m_attributeArray.getCount();
@@ -169,9 +167,6 @@ AttributeBlock::prepareAttributeValues() {
 		if (!result)
 			finalResult = false;
 	}
-
-	m_module->m_namespaceMgr.closeNamespace();
-	m_module->m_unitMgr.setCurrentUnit(prevUnit);
 
 	m_flags |= AttributeBlockFlag_ValuesReady;
 	return finalResult;

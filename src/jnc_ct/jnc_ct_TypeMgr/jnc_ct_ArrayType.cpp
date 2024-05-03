@@ -101,18 +101,13 @@ ArrayType::calcLayout() {
 
 	if (!m_elementCountInitializer.isEmpty()) {
 		ASSERT(m_parentUnit && m_parentNamespace);
-
-		Unit* prevUnit = m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
-		Value prevThisValue = m_module->m_functionMgr.overrideThisValue(Value());
-		m_module->m_namespaceMgr.openNamespace(m_parentNamespace);
-
+		ParseContext parseContext(m_module, m_parentUnit, m_parentNamespace);
 		lex::LineCol pos = m_elementCountInitializer.getHead()->m_pos;
 		int64_t value = 0;
 
+		Value prevThisValue = m_module->m_functionMgr.overrideThisValue(Value());
 		result = m_module->m_operatorMgr.parseConstIntegerExpression(&m_elementCountInitializer, &value);
-		m_module->m_namespaceMgr.closeNamespace();
 		m_module->m_functionMgr.overrideThisValue(prevThisValue);
-		m_module->m_unitMgr.setCurrentUnit(prevUnit);
 
 		if (!result)
 			return false;

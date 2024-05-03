@@ -36,8 +36,7 @@ AsyncSequencerFunction::compile() {
 
 	bool result;
 
-	m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
-	m_module->m_namespaceMgr.openNamespace(m_parentNamespace);
+	ParseContext parseContext(m_module, this);
 
 	Value promiseValue;
 	m_module->m_functionMgr.internalPrologue(this, &promiseValue, 1, &m_bodyPos);
@@ -145,7 +144,6 @@ AsyncSequencerFunction::compile() {
 	if (!m_module->hasCodeGen()) { // codegen was gone while parsing the body
 		m_module->m_namespaceMgr.closeScope();
 		m_module->m_functionMgr.internalEpilogue();
-		m_module->m_namespaceMgr.closeNamespace();
 		return true;
 	}
 
@@ -189,7 +187,6 @@ AsyncSequencerFunction::compile() {
 	m_module->m_controlFlowMgr.asyncRet(NULL);
 	m_module->m_namespaceMgr.closeScope();
 	m_module->m_functionMgr.internalEpilogue();
-	m_module->m_namespaceMgr.closeNamespace();
 
 	// preserve values used across async-returns
 

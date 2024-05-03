@@ -748,45 +748,32 @@ bool
 Property::compileDefaultStaticConstructor() {
 	ASSERT(m_staticConstructor);
 
-	m_module->m_namespaceMgr.openNamespace(this);
+	ParseContext parseContext(m_module, m_parentUnit, this);
 	m_module->m_functionMgr.internalPrologue(m_staticConstructor);
 
 	primeStaticVariables();
 
-	bool result =
+	return
 		initializeStaticVariables() &&
-		callPropertyStaticConstructors();
-
-	if (!result)
-		return false;
-
-	m_module->m_functionMgr.internalEpilogue();
-	m_module->m_namespaceMgr.closeNamespace();
-	return true;
+		callPropertyStaticConstructors() &&
+		(m_module->m_functionMgr.internalEpilogue(), true);
 }
 
 bool
 Property::compileDefaultConstructor() {
-	bool result;
-
 	Function* constructor = m_constructor.getFunction();
 
+	ParseContext parseContext(m_module, m_parentUnit, this);
+
 	Value thisValue;
-	m_module->m_namespaceMgr.openNamespace(this);
 	m_module->m_functionMgr.internalPrologue(constructor, &thisValue, 1);
 
 	// don't call static constructor here -- as to avoid unnecessary nested once-stmt
 
-	result =
+	return
 		initializeFields(thisValue) &&
-		callPropertyConstructors(thisValue);
-
-	if (!result)
-		return false;
-
-	m_module->m_functionMgr.internalEpilogue();
-	m_module->m_namespaceMgr.closeNamespace();
-	return true;
+		callPropertyConstructors(thisValue) &&
+		(m_module->m_functionMgr.internalEpilogue(), true);
 }
 
 bool

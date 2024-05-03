@@ -153,25 +153,17 @@ EnumType::prepareSignature() {
 
 bool
 EnumType::parseBody() {
-	Unit* prevUnit = m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
-	m_module->m_namespaceMgr.openNamespace(this);
+	ParseContext parseContext(m_module, m_parentUnit, this);
 
 	size_t length = m_body.getLength();
 	ASSERT(length >= 2);
 
 	Parser parser(m_module, m_pragmaConfig, Parser::Mode_Parse);
-	bool result = parser.parseBody(
+	return parser.parseBody(
 		SymbolKind_enum_const_list,
 		lex::LineColOffset(m_bodyPos.m_line, m_bodyPos.m_col + 1, m_bodyPos.m_offset + 1),
 		m_body.getSubString(1, length - 2)
 	);
-
-	if (!result)
-		return false;
-
-	m_module->m_namespaceMgr.closeNamespace();
-	m_module->m_unitMgr.setCurrentUnit(prevUnit);
-	return true;
 }
 
 FindModuleItemResult
@@ -247,18 +239,12 @@ EnumType::calcLayout() {
 
 	// assign values to consts
 
+	ParseContext parseContext(m_module, m_parentUnit, this);
 	EnumConst* baseConst = findBaseEnumConst();
 
-	Unit* prevUnit = m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
-	m_module->m_namespaceMgr.openNamespace(this);
-
-	result = (m_flags & EnumTypeFlag_BitFlag) ?
+	return (m_flags & EnumTypeFlag_BitFlag) ?
 		calcBitflagEnumConstValues(baseConst) :
 		calcEnumConstValues(baseConst);
-
-	m_module->m_namespaceMgr.closeNamespace();
-	m_module->m_unitMgr.setCurrentUnit(prevUnit);
-	return result;
 }
 
 EnumConst*
