@@ -990,6 +990,7 @@ FunctionMgr::getStdFunction(StdFunc func) {
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 3);
 		arg = functionType->getArgArray()[2];
 		Lexer::tokenizeString(&arg->m_initializer, "-1");
+		arg->m_parentUnit = m_module->m_unitMgr.getCoreLibUnit();
 		arg->m_parentNamespace = m_module->m_namespaceMgr.getGlobalNamespace();
 		function = createInternalFunction("jnc.stringConstruct", functionType);
 		break;
@@ -1001,6 +1002,7 @@ FunctionMgr::getStdFunction(StdFunc func) {
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 2);
 		arg = functionType->getArgArray()[1];
 		Lexer::tokenizeString(&arg->m_initializer, "-1");
+		arg->m_parentUnit = m_module->m_unitMgr.getCoreLibUnit();
 		arg->m_parentNamespace = m_module->m_namespaceMgr.getGlobalNamespace();
 		function = createInternalFunction("jnc.stringCreate", functionType);
 		break;
