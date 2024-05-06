@@ -3117,7 +3117,7 @@ Parser::appendFmtLiteralValue(
 		return appendFmtLiteralBinValue(fmtLiteralValue, rawSrcValue);
 
 	Value srcValue;
-	bool result = m_module->m_operatorMgr.prepareOperand(rawSrcValue, &srcValue);
+	bool result = m_module->m_operatorMgr.prepareOperand(rawSrcValue, &srcValue, OpFlag_KeepDerivableRef);
 	if (!result)
 		return false;
 
@@ -3146,7 +3146,6 @@ Parser::appendFmtLiteralValue(
 	else if (isCharArrayType(type) || isCharArrayRefType(type) || isCharPtrType(type))
 		appendFunc = StdFunc_AppendFmtLiteral_p;
 	else {
-		bool is = isDerivedClassPtrType(type, (ClassType*)m_module->m_typeMgr.getStdType(StdType_RegexCapture));
 		err::setFormatStringError("don't know how to format '%s'", type->getTypeString().sz());
 		return false;
 	}

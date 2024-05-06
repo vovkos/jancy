@@ -54,6 +54,10 @@ protected:
 
 class Cast_String_FromStringable: public CastOperator {
 public:
+	Cast_String_FromStringable() {
+		m_opFlags = OpFlag_KeepDerivableRef;
+	}
+
 	virtual
 	CastKind
 	getCastKind(
@@ -133,6 +137,10 @@ protected:
 	Cast_String_FromArray m_fromArray;
 
 public:
+	Cast_String() {
+		m_opFlags = OpFlag_KeepDerivableRef;
+	}
+
 	virtual
 	CastOperator*
 	getCastOperator(
