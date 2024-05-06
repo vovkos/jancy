@@ -76,17 +76,18 @@ OperatorMgr::OperatorMgr() {
 
 	// comparison operators
 
-	m_binaryOperatorTable[BinOpKind_Eq]     = &m_binOp_Eq;
-	m_binaryOperatorTable[BinOpKind_Ne]     = &m_binOp_Ne;
-	m_binaryOperatorTable[BinOpKind_Lt]     = &m_binOp_Lt;
-	m_binaryOperatorTable[BinOpKind_Le]     = &m_binOp_Le;
-	m_binaryOperatorTable[BinOpKind_Gt]     = &m_binOp_Gt;
-	m_binaryOperatorTable[BinOpKind_Ge]     = &m_binOp_Ge;
-	m_binaryOperatorTable[BinOpKind_Match]  = &m_binOp_Match;
+	m_binaryOperatorTable[BinOpKind_Eq]       = &m_binOp_Eq;
+	m_binaryOperatorTable[BinOpKind_Ne]       = &m_binOp_Ne;
+	m_binaryOperatorTable[BinOpKind_Lt]       = &m_binOp_Lt;
+	m_binaryOperatorTable[BinOpKind_Le]       = &m_binOp_Le;
+	m_binaryOperatorTable[BinOpKind_Gt]       = &m_binOp_Gt;
+	m_binaryOperatorTable[BinOpKind_Ge]       = &m_binOp_Ge;
+	m_binaryOperatorTable[BinOpKind_Match]    = &m_binOp_Match;
+	m_binaryOperatorTable[BinOpKind_NotMatch] = &m_binOp_NotMatch;
 
 	// indexing operator
 
-	m_binaryOperatorTable[BinOpKind_Idx]    = &m_binOp_Idx;
+	m_binaryOperatorTable[BinOpKind_Idx] = &m_binOp_Idx;
 
 	// assignment operators
 

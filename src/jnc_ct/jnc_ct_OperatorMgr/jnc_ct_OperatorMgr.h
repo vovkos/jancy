@@ -142,6 +142,7 @@ protected:
 	BinOp_Gt m_binOp_Gt;
 	BinOp_Ge m_binOp_Ge;
 	BinOp_Match m_binOp_Match;
+	BinOp_NotMatch m_binOp_NotMatch;
 
 	// assignment operators
 

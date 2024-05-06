@@ -93,5 +93,18 @@ BinOp_Match::op(
 
 //..............................................................................
 
+bool
+BinOp_NotMatch::op(
+	const Value& opValue1,
+	const Value& opValue2,
+	Value* resultValue
+) {
+	return
+		m_module->m_operatorMgr.binaryOperator(BinOpKind_Match, opValue1, opValue2, resultValue) &&
+		m_module->m_operatorMgr.unaryOperator(UnOpKind_LogNot, resultValue);
+}
+
+//..............................................................................
+
 } // namespace ct
 } // namespace jnc

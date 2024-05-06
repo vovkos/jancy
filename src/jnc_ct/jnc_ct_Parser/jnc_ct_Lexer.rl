@@ -327,6 +327,7 @@ main := |*
 '|='             { createToken(TokenKind_OrAssign); };
 '@='             { createToken(TokenKind_AtAssign); };
 '=~'             { createToken(TokenKind_Match); };
+'!~'             { createToken(TokenKind_NotMatch); };
 '...'            { createToken(TokenKind_Ellipsis); };
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

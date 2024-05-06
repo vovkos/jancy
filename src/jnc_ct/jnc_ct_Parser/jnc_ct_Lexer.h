@@ -199,6 +199,7 @@ enum TokenKind {
 	TokenKind_AtAssign,
 	TokenKind_Ellipsis,
 	TokenKind_Match,
+	TokenKind_NotMatch,
 
 	// other tokens
 
@@ -402,6 +403,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP(TokenName)
 	AXL_LEX_TOKEN_NAME(TokenKind_AtAssign,     "@=")
 	AXL_LEX_TOKEN_NAME(TokenKind_Ellipsis,     "...")
 	AXL_LEX_TOKEN_NAME(TokenKind_Match,        "=~")
+	AXL_LEX_TOKEN_NAME(TokenKind_NotMatch,     "!~")
 
 	// other tokens
 

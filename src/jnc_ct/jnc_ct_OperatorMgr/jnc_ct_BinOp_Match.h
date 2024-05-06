@@ -35,5 +35,22 @@ public:
 
 //..............................................................................
 
+class BinOp_NotMatch: public BinaryOperator {
+public:
+	BinOp_NotMatch() {
+		m_opKind = BinOpKind_NotMatch;
+	}
+
+	virtual
+	bool
+	op(
+		const Value& rawOpValue1,
+		const Value& rawOpValue2,
+		Value* resultValue
+	);
+};
+
+//..............................................................................
+
 } // namespace ct
 } // namespace jnc

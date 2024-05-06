@@ -40,6 +40,7 @@ getBinOpKindString(BinOpKind opKind) {
 		"<=",                         // BinOpKind_Gt,
 		">=",                         // BinOpKind_Ge,
 		"=~",                         // BinOpKind_Match,
+		"!~",                         // BinOpKind_NotMatch,
 		"[]",                         // BinOpKind_Idx,
 		"&&",                         // BinOpKind_LogAnd,
 		"||",                         // BinOpKind_LogOr,
