@@ -51,6 +51,7 @@ FunctionMgr::clear() {
 	m_thunkPropertyMap.clear();
 	m_schedLauncherFunctionMap.clear();
 	m_asyncSequencerFunctionArray.clear();
+	m_requiredExternalFunctionArray.clear();
 
 	for (size_t i = 0; i < countof(m_globalCtorDtorArrayTable); i++)
 		m_globalCtorDtorArrayTable[i].clear();
@@ -682,6 +683,15 @@ FunctionMgr::jitFunctions() {
 	} catch (err::Error error) {
 		err::setFormatStringError("LLVM jitting failed: %s", error->getDescription().sz());
 		return false;
+	}
+
+	size_t count = m_requiredExternalFunctionArray.getCount();
+	for (size_t i = 0; i < count; i++) {
+		Function* function = m_requiredExternalFunctionArray[i];
+		if (!function->getMachineCode()) {
+			err::setFormatStringError("unresolved required external function: %s", function->getQualifiedName().sz());
+			return false;
+		}
 	}
 
 	return true;

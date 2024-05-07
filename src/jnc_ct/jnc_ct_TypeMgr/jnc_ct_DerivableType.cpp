@@ -678,29 +678,6 @@ DerivableType::generateDocumentation(
 }
 
 bool
-DerivableType::requireConstructor() {
-	if (!m_constructor)
-		return true;
-
-	if (m_constructor->getItemKind() == ModuleItemKind_Function) {
-		Function* constructor = m_constructor.getFunction();
-
-		if (constructor->canCompile())
-			m_module->markForCompile(constructor);
-	} else {
-		FunctionOverload* constructor = m_constructor.getFunctionOverload();
-		size_t count = constructor->getOverloadCount();
-		for (size_t i = 0; i < count; i++) {
-			Function* overload = constructor->getOverload(i);
-			if (overload->canCompile())
-				m_module->markForCompile(overload);
-		}
-	}
-
-	return true;
-}
-
-bool
 DerivableType::compileDefaultStaticConstructor() {
 	ASSERT(m_staticConstructor);
 

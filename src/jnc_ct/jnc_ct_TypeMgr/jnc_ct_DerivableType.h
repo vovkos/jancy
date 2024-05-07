@@ -368,7 +368,9 @@ protected:
 	compileDefaultDestructor();
 
 	bool
-	requireConstructor();
+	requireConstructor() {
+		return m_constructor ? m_constructor->require() : true;
+	}
 
 	bool
 	findBaseTypeTraverseImpl(

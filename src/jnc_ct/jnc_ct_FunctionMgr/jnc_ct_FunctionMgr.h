@@ -59,6 +59,7 @@ protected:
 
 	sl::Array<AsyncSequencerFunction*> m_asyncSequencerFunctionArray;
 	sl::Array<Function*> m_globalCtorDtorArrayTable[GlobalCtorDtorKind__Count];
+	sl::Array<Function*> m_requiredExternalFunctionArray;
 
 	Function* m_stdFunctionArray[StdFunc__Count];
 	Property* m_stdPropertyArray[StdProp__Count];

@@ -35,15 +35,8 @@ FunctionOverload::addOverload(Function* function) {
 bool
 FunctionOverload::require() {
 	size_t count = m_overloadArray.getCount();
-	for (size_t i = 0; i < count; i++) {
-		Function* overload = m_overloadArray[i];
-		if (!overload->canCompile()) {
-			err::setFormatStringError("required '%s' (overload #%d) is external", getQualifiedName().sz(), i);
-			return false;
-		}
-
-		m_module->markForCompile(overload);
-	}
+	for (size_t i = 0; i < count; i++)
+		m_overloadArray[i]->require();
 
 	return true;
 }

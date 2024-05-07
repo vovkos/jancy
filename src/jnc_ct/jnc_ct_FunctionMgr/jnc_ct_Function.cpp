@@ -96,12 +96,11 @@ Function::addTlsVariable(Variable* variable) {
 
 bool
 Function::require() {
-	if (!canCompile()) {
-		err::setFormatStringError("required '%s' is external", getQualifiedName().sz());
-		return false;
-	}
+	if (canCompile())
+		m_module->markForCompile(this);
+	else
+		m_module->m_functionMgr.m_requiredExternalFunctionArray.append(this);
 
-	m_module->markForCompile(this);
 	return true;
 }
 
