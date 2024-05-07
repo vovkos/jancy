@@ -161,6 +161,14 @@ protected:
 	getCache() {
 		return m_cache ? m_cache : m_cache = new (mem::ZeroInit) Cache;
 	}
+
+	static
+	bool
+	tryGetStringableValueString(
+		String* string,
+		ct::DerivableType* type,
+		DataPtr valuePtr
+	);
 };
 
 //..............................................................................

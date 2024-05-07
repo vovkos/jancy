@@ -13,8 +13,10 @@
 #include "jnc_rtl_Type.h"
 #include "jnc_Construct.h"
 #include "jnc_ct_Variable.h"
+#include "jnc_ct_DerivableType.h"
 #include "jnc_rt_Runtime.h"
 #include "jnc_Runtime.h"
+#include "jnc_CallSite.h"
 
 namespace jnc {
 namespace rtl {
@@ -161,9 +163,17 @@ Type::getValueString_0(
 	DataPtr valuePtr,
 	String formatSpec
 ) {
-	return valuePtr.m_p ?
-		allocateString(self->m_item->getValueString(valuePtr.m_p, (formatSpec >> toAxl).szn())) :
-		g_nullString;
+	if (!valuePtr.m_p)
+		return g_nullString;
+
+	if (self->m_item->getTypeKindFlags() & TypeKindFlag_Derivable) {
+		String string;
+		bool result = tryGetStringableValueString(&string, (ct::DerivableType*)self->m_item, valuePtr);
+		if (result)
+			return string;
+	}
+
+	return allocateString(self->m_item->getValueString(valuePtr.m_p, (formatSpec >> toAxl).szn()));
 }
 
 String
@@ -181,6 +191,32 @@ Type::getValueString_1(
 	return result ?
 		allocateString(self->m_item->getValueString(valueBuffer, (formatSpec >> toAxl).szn())) :
 		g_nullString;
+}
+
+bool
+Type::tryGetStringableValueString(
+	String* string,
+	ct::DerivableType* type,
+	DataPtr valuePtr
+) {
+	ct::MemberCoord coord;
+	FindModuleItemResult findResult = type->findDirectChildItemTraverse("toString", &coord);
+	if (!findResult.m_item || findResult.m_item->getItemKind() != ModuleItemKind_Function)
+		return false;
+
+	ct::Function* function = ((ct::Function*)findResult.m_item);
+	ct::FunctionType* functionType = function->getType();
+	void* p = function->getMachineCode();
+
+	if (!p ||
+		!functionType->isMemberMethodType() ||
+		functionType->getReturnType()->getTypeKind() != TypeKind_String ||
+		functionType->getArgArray().getCount() != 1
+	)
+		return false;
+
+	*string = jnc::callFunctionImpl_u<String>(p, valuePtr);
+	return true;
 }
 
 //..............................................................................
