@@ -123,18 +123,18 @@ protected:
 	struct RequiredItem {
 		ModuleItemKind m_itemKind;
 		TypeKind m_typeKind;
-		bool m_isEssential;
+		uint_t m_flags;
 
 		RequiredItem();
 
 		RequiredItem(
 			ModuleItemKind itemKind,
-			bool isEssential
+			uint_t flags
 		);
 
 		RequiredItem(
 			TypeKind typeKind,
-			bool isEssential
+			uint_t flags
 		);
 	};
 
@@ -335,18 +335,18 @@ public:
 	require(
 		ModuleItemKind itemKind,
 		const sl::StringRef& name,
-		bool isEssential = true
+		uint_t flags = jnc_ModuleRequireFlag_Essential
 	) {
-		m_requireSet[name] = RequiredItem(itemKind, isEssential);
+		m_requireSet[name] = RequiredItem(itemKind, flags);
 	}
 
 	void
 	require(
 		TypeKind typeKind,
 		const sl::StringRef& name,
-		bool isEssential = true
+		uint_t flags = jnc_ModuleRequireFlag_Essential
 	) {
-		m_requireSet[name] = RequiredItem(typeKind, isEssential);
+		m_requireSet[name] = RequiredItem(typeKind, flags);
 	}
 
 	bool
@@ -424,27 +424,27 @@ inline
 Module::RequiredItem::RequiredItem() {
 	m_itemKind = ModuleItemKind_Undefined;
 	m_typeKind = TypeKind_Void;
-	m_isEssential = false;
+	m_flags = 0;
 }
 
 inline
 Module::RequiredItem::RequiredItem(
 	ModuleItemKind itemKind,
-	bool isEssential
+	uint_t flags
 ) {
 	m_itemKind = itemKind;
 	m_typeKind = TypeKind_Void;
-	m_isEssential = isEssential;
+	m_flags = flags;
 }
 
 inline
 Module::RequiredItem::RequiredItem(
 	TypeKind typeKind,
-	bool isEssential
+	uint_t flags
 ) {
 	m_itemKind = ModuleItemKind_Type;
 	m_typeKind = typeKind;
-	m_isEssential = isEssential;
+	m_flags = flags;
 }
 
 inline

@@ -209,12 +209,6 @@ jnc_ModuleItem_getSynopsis_v(
 	return jnc_g_dynamicExtensionLibHost->m_moduleItemFuncTable->m_getSynopsisFunc(item, isQualifiedName);
 }
 
-JNC_EXTERN_C
-bool_t
-jnc_ModuleItem_require(jnc_ModuleItem* item) {
-	return jnc_g_dynamicExtensionLibHost->m_moduleItemFuncTable->m_requireFunc(item);
-}
-
 #else // _JNC_DYNAMIC_EXTENSION_LIB
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -300,13 +294,6 @@ jnc_ModuleItem_getSynopsis_v(
 	bool_t isQualifiedName
 ) {
 	return *jnc::getTlsStringBuffer() = item->getSynopsis(isQualifiedName != 0);
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-bool_t
-jnc_ModuleItem_require(jnc_ModuleItem* item) {
-	return item->require();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

@@ -75,7 +75,7 @@ enum jnc_ModuleCompileFlag {
 
 typedef enum jnc_ModuleCompileFlag jnc_ModuleCompileFlag;
 
-//..............................................................................
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum jnc_ModuleCompileState {
 	jnc_ModuleCompileState_Idle,
@@ -86,7 +86,16 @@ enum jnc_ModuleCompileState {
 
 typedef enum jnc_ModuleCompileState jnc_ModuleCompileState;
 
-//..............................................................................
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum jnc_ModuleRequireFlag {
+	jnc_ModuleRequireFlag_Essential = 0x01, // otherwise, optional (compile if found)
+	jnc_ModuleRequireFlag_Traverse  = 0x02, // traverse to find exact location of the item
+};
+
+typedef enum jnc_ModuleRequireFlag jnc_ModuleRequireFlag;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum jnc_ModuleCompileErrorKind {
 	jnc_ModuleCompileErrorKind_ParseSyntax,   // -> llk::Parser::ErrorKind_Syntax
@@ -406,7 +415,7 @@ jnc_Module_require(
 	jnc_Module* module,
 	jnc_ModuleItemKind itemKind,
 	const char* name,
-	bool_t isEssential
+	uint_t flags
 );
 
 JNC_EXTERN_C
@@ -415,7 +424,7 @@ jnc_Module_requireType(
 	jnc_Module* module,
 	jnc_TypeKind typeKind,
 	const char* name,
-	bool_t isEssential
+	uint_t flags
 );
 
 JNC_EXTERN_C
@@ -698,18 +707,18 @@ struct jnc_Module {
 	require(
 		jnc_ModuleItemKind itemKind,
 		const char* name,
-		bool isEssential = true
+		uint_t flags = jnc_ModuleRequireFlag_Essential
 	) {
-		jnc_Module_require(this, itemKind, name, isEssential);
+		jnc_Module_require(this, itemKind, name, flags);
 	}
 
 	void
 	require(
 		jnc_TypeKind typeKind,
 		const char* name,
-		bool isEssential = true
+		uint_t flags = jnc_ModuleRequireFlag_Essential
 	) {
-		jnc_Module_requireType(this, typeKind, name, isEssential);
+		jnc_Module_requireType(this, typeKind, name, flags);
 	}
 
 	bool
@@ -799,6 +808,12 @@ const ModuleCompileState
 	ModuleCompileState_Parsed   = jnc_ModuleCompileState_Parsed,
 	ModuleCompileState_Compiled = jnc_ModuleCompileState_Compiled,
 	ModuleCompileState_Jitted   = jnc_ModuleCompileState_Jitted;
+
+typedef jnc_ModuleRequireFlag ModuleRequireFlag;
+
+const ModuleRequireFlag
+	ModuleRequireFlag_Essential = jnc_ModuleRequireFlag_Essential,
+	ModuleRequireFlag_Traverse  = jnc_ModuleRequireFlag_Traverse;
 
 typedef jnc_ModuleCompileFlag ModuleCompileFlag;
 

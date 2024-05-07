@@ -141,17 +141,17 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 #define JNC_LIB_IMPORT(fileName) \
 	jnc_Module_addImport(module, fileName);
 
-#define JNC_LIB_REQUIRE_EX(itemKind, name, isEssential) \
-	jnc_Module_require(module, itemKind, name, isEssential);
+#define JNC_LIB_REQUIRE_EX(itemKind, name, flags) \
+	jnc_Module_require(module, itemKind, name, flags);
 
 #define JNC_LIB_REQUIRE(itemKind, name) \
-	JNC_LIB_REQUIRE_EX(itemKind, name, 1)
+	JNC_LIB_REQUIRE_EX(itemKind, name, jnc_ModuleRequireFlag_Essential)
 
-#define JNC_LIB_REQUIRE_TYPE_EX(typeKind, name, isEssential) \
-	jnc_Module_requireType(module, typeKind, name, isEssential);
+#define JNC_LIB_REQUIRE_TYPE_EX(typeKind, name, flags) \
+	jnc_Module_requireType(module, typeKind, name, flags);
 
 #define JNC_LIB_REQUIRE_TYPE(typeKind, name) \
-	JNC_LIB_REQUIRE_TYPE_EX(typeKind, name, 1)
+	JNC_LIB_REQUIRE_TYPE_EX(typeKind, name, jnc_ModuleRequireFlag_Essential)
 
 #define JNC_END_LIB_SOURCE_FILE_TABLE() \
 	}
@@ -394,10 +394,10 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 	TypePrefix##_requireOpaqueItems(jnc_Module* module) {
 
 #define JNC_OPAQUE_CLASS_REQUIRE(itemKind, name) \
-		jnc_Module_require(module, itemKind, name, 1);
+		jnc_Module_require(module, itemKind, name, jnc_ModuleRequireFlag_Essential);
 
 #define JNC_OPAQUE_CLASS_REQUIRE_TYPE(typeKind, name) \
-		jnc_Module_requireType(module, typeKind, name, 1);
+		jnc_Module_requireType(module, typeKind, name, jnc_ModuleRequireFlag_Essential);
 
 #define JNC_END_OPAQUE_CLASS_REQUIRE_TABLE() \
 	}

@@ -23,7 +23,7 @@ if(NOT "${GCC_FLAG_CPP_STANDARD}" MATCHES "-std=")
 	elseif(${LLVM_VERSION_MAJOR} LESS 16)
 		set(CMAKE_CXX_STANDARD 14)
 	else()
-		set(CMAKE_CXX_STANDARD 17)		
+		set(CMAKE_CXX_STANDARD 17)
 	endif()
 endif()
 

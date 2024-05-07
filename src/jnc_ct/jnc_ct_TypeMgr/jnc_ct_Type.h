@@ -294,12 +294,6 @@ public:
 	FunctionArg*
 	getSimpleFunctionArg(uint_t ptrTypeFlags = 0);
 
-	Type*
-	foldDualType(
-		bool isAlien,
-		bool isContainerConst
-	);
-
 	virtual
 	sl::StringRef
 	getValueString(

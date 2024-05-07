@@ -91,7 +91,7 @@ main(
 	module = jnc_Module_create();
 	jnc_Module_initialize(module, "jnc_sample_04_pass_c", &jnc_g_defaultModuleConfig);
 	jnc_Module_addStaticLib(module, jnc_StdLib_getLib());
-	jnc_Module_require(module, jnc_ModuleItemKind_Function, "foo", 1);
+	jnc_Module_require(module, jnc_ModuleItemKind_Function, "foo", jnc_ModuleRequireFlag_Essential);
 
 	if (argc < 2) {
 		printf("Parsing default script...\n");

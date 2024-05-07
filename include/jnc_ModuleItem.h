@@ -212,7 +212,7 @@ struct jnc_ModuleItemDecl {
 	}
 
 	jnc_StorageKind
-	getStorageKind(jnc_ModuleItemDecl* decl) {
+	getStorageKind() {
 		return jnc_ModuleItemDecl_getStorageKind(this);
 	}
 
@@ -291,10 +291,6 @@ jnc_ModuleItem_getSynopsis_v(
 	bool_t isQualifiedName
 );
 
-JNC_EXTERN_C
-bool_t
-jnc_ModuleItem_require(jnc_ModuleItem* item);
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
@@ -333,11 +329,6 @@ struct jnc_ModuleItem {
 	const char*
 	getSynopsis_v(bool isQualifiedName = true) {
 		return jnc_ModuleItem_getSynopsis_v(this, isQualifiedName);
-	}
-
-	bool
-	require() {
-		return jnc_ModuleItem_require(this) != 0;
 	}
 };
 

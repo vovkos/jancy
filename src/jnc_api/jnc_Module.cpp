@@ -183,9 +183,9 @@ jnc_Module_require(
 	jnc_Module* module,
 	jnc_ModuleItemKind itemKind,
 	const char* name,
-	bool_t isEssential
+	uint_t flags
 ) {
-	jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_requireFunc(module, itemKind, name, isEssential);
+	jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_requireFunc(module, itemKind, name, flags);
 }
 
 JNC_EXTERN_C
@@ -194,9 +194,9 @@ jnc_Module_requireType(
 	jnc_Module* module,
 	jnc_TypeKind typeKind,
 	const char* name,
-	bool_t isEssential
+	uint_t flags
 ) {
-	jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_requireTypeFunc(module, typeKind, name, isEssential);
+	jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_requireTypeFunc(module, typeKind, name, flags);
 }
 
 #else // _JNC_DYNAMIC_EXTENSION_LIB
@@ -546,9 +546,9 @@ jnc_Module_require(
 	jnc_Module* module,
 	jnc_ModuleItemKind itemKind,
 	const char* name,
-	bool_t isEssential
+	uint_t flags
 ) {
-	module->require(itemKind, name, isEssential != 0);
+	module->require(itemKind, name, flags);
 }
 
 JNC_EXTERN_C
@@ -558,9 +558,9 @@ jnc_Module_requireType(
 	jnc_Module* module,
 	jnc_TypeKind typeKind,
 	const char* name,
-	bool_t isEssential
+	uint_t flags
 ) {
-	module->require(typeKind, name, isEssential != 0);
+	module->require(typeKind, name, flags);
 }
 
 JNC_EXTERN_C

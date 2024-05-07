@@ -69,7 +69,6 @@ static jnc_ModuleItemFuncTable g_moduleItemFuncTable = {
 	jnc_ModuleItem_getNamespace,
 	jnc_ModuleItem_getType,
 	jnc_ModuleItem_getSynopsis_v,
-	jnc_ModuleItem_require,
 };
 
 static jnc_AttributeFuncTable g_attributeFuncTable = {

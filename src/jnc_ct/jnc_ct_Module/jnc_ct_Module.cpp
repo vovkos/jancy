@@ -704,12 +704,36 @@ Module::processRequireSet() {
 
 	sl::StringHashTableIterator<RequiredItem> requireIt = m_requireSet.getHead();
 	for (; requireIt; requireIt++) {
-		FindModuleItemResult findResult = m_namespaceMgr.getGlobalNamespace()->findItem(requireIt->getKey());
+		FindModuleItemResult findResult = jnc_g_nullFindModuleItemResult;
+		if (!(requireIt->m_value.m_flags & ModuleRequireFlag_Traverse))
+			findResult = m_namespaceMgr.getGlobalNamespace()->findItem(requireIt->getKey());
+		else { // traverse at each step (not the same as Namespace::findItemTraverse)
+			QualifiedName name;
+			name.parse(requireIt->getKey());
+
+			Namespace* nspace = m_namespaceMgr.getGlobalNamespace();
+			findResult = nspace->findDirectChildItemTraverse(name.getFirstName());
+			if (findResult.m_item) {
+				sl::ConstBoxIterator<sl::StringRef> nameIt = name.getNameList().getHead();
+				for (; nameIt; nameIt++) {
+					Namespace* nspace = findResult.m_item->getNamespace();
+					if (!nspace) {
+						findResult = g_nullFindModuleItemResult;
+						break;
+					}
+
+					findResult = nspace->findDirectChildItemTraverse(*nameIt);
+					if (!findResult.m_item)
+						break;
+				}
+			}
+		}
+
 		if (!findResult.m_result)
 			return false;
 
 		if (!findResult.m_item) {
-			if (!requireIt->m_value.m_isEssential) // not essential
+			if (!(requireIt->m_value.m_flags & ModuleRequireFlag_Essential)) // not essential
 				continue;
 
 			err::setFormatStringError("required module item '%s' not found", requireIt->getKey().sz());
@@ -738,7 +762,7 @@ Module::processRequireSet() {
 			}
 		}
 
-		if (!requireIt->m_value.m_isEssential &&
+		if (!(requireIt->m_value.m_flags & ModuleRequireFlag_Essential) &&
 			findResult.m_item->getItemKind() == ModuleItemKind_Function &&
 			((Function*)findResult.m_item)->isPrototype())
 			continue; // ignore unimplemented prototypes

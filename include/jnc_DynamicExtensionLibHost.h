@@ -231,10 +231,6 @@ jnc_ModuleItem_GetSynopsisFunc(
 	bool_t isQualifiedName
 );
 
-typedef
-bool_t
-jnc_ModuleItem_RequireFunc(jnc_ModuleItem* item);
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_ModuleItemFuncTable {
@@ -246,7 +242,6 @@ struct jnc_ModuleItemFuncTable {
 	jnc_ModuleItem_GetNamespaceFunc* m_getNamespaceFunc;
 	jnc_ModuleItem_GetTypeFunc* m_getTypeFunc;
 	jnc_ModuleItem_GetSynopsisFunc* m_getSynopsisFunc;
-	jnc_ModuleItem_RequireFunc* m_requireFunc;
 };
 
 //..............................................................................
@@ -1265,7 +1260,7 @@ jnc_Module_RequireFunc(
 	jnc_Module* module,
 	jnc_ModuleItemKind itemKind,
 	const char* name,
-	bool_t isEssential
+	uint_t flags
 );
 
 typedef
@@ -1274,7 +1269,7 @@ jnc_Module_RequireTypeFunc(
 	jnc_Module* module,
 	jnc_TypeKind typeKind,
 	const char* name,
-	bool_t isEssential
+	uint_t flags
 );
 
 typedef
