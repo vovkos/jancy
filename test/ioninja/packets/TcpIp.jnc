@@ -1,6 +1,6 @@
 //..............................................................................
 //
-// Packet header definitions for TCP/IP protocol stack
+// Legacy packet header definitions for TCP/IP protocol stack
 //
 
 import "io_base.jncx"
@@ -14,7 +14,10 @@ pragma(Alignment, 1);
 
 //..............................................................................
 
-[ displayName = "Ethernet" ]
+[
+	packetTemplate,
+	displayName = "Ethernet"
+]
 struct EthernetPacket {
 	[ displayName = "Ethernet" ]
 	io.EthernetHdr m_ethernet;
@@ -22,7 +25,10 @@ struct EthernetPacket {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-[ displayName = "ARP" ]
+[
+	packetTemplate,
+	displayName = "ARP"
+]
 struct ArpPacket {
 	[ displayName = "Ethernet" ]
 	io.EthernetHdr m_ethernet;
@@ -33,7 +39,10 @@ struct ArpPacket {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-[ displayName = "IPv4" ]
+[
+	packetTemplate,
+	displayName = "IPv4"
+]
 struct IpPacket {
 	[ displayName = "Ethernet" ]
 	io.EthernetHdr m_ethernet;
@@ -82,7 +91,10 @@ struct IpPacket {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-[ displayName = "ICMP" ]
+[
+	packetTemplate,
+	displayName = "ICMP"
+]
 struct IcmpPacket {
 	[ displayName = "Ethernet" ]
 	io.EthernetHdr m_ethernet;
@@ -137,7 +149,10 @@ struct IcmpPacket {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-[ displayName = "TCP" ]
+[
+	packetTemplate,
+	displayName = "TCP"
+]
 struct TcpPacket {
 	[ displayName = "Ethernet" ]
 	io.EthernetHdr m_ethernet;
@@ -202,7 +217,10 @@ struct TcpPacket {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-[ displayName = "UDP" ]
+[
+	packetTemplate,
+	displayName = "UDP"
+]
 struct UdpPacket {
 	[ displayName = "Ethernet" ]
 	io.EthernetHdr m_ethernet;

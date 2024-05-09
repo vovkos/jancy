@@ -12,6 +12,15 @@ namespace ui {
 
 //..............................................................................
 
+enum InsertActionPos {
+	Tail = 0,
+	Head,
+	BeforeCurrentHead,
+	Default = Tail
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 opaque class Action {
 	bool autoget property m_isVisible;
 	bool autoget property m_isEnabled;
@@ -46,6 +55,8 @@ opaque class Action {
 	) {
 		initialize(null, text, onTriggered);
 	}
+
+	destruct();
 
 protected:
 	void initialize(

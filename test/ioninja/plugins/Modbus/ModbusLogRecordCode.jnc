@@ -8,14 +8,13 @@ import "log_RecordCode.jnc"
 //..............................................................................
 
 enum ModbusLogRecordCode: uint64_t {
-	MasterPacket_Rtu   = 0x01d485febc418db8 | log.RecordCodeFlags.Foldable,
-	SlavePacket_Rtu    = 0x01d485febc418db9 | log.RecordCodeFlags.Foldable,
-	MasterPacket_Ascii = 0x01d485febc418dba | log.RecordCodeFlags.Foldable,
-	SlavePacket_Ascii  = 0x01d485febc418dbb | log.RecordCodeFlags.Foldable,
-	InvalidFunction    = 0x01d485febc418dbc,
-	ParseError         = 0x01d485febc418dbd,
-	MasterPacket_Tcp   = 0x01d485febc418dbe | log.RecordCodeFlags.Foldable,
-	SlavePacket_Tcp    = 0x01d485febc418dbf | log.RecordCodeFlags.Foldable,
+	ParseError          = 0x01da92357a7ca801,
+	Packet_rtu_master   = 0x01da92357a7ca802 | log.RecordCodeFlags.Foldable,
+	Packet_rtu_slave    = 0x01da92357a7ca803 | log.RecordCodeFlags.Foldable,
+	Packet_ascii_master = 0x01da92357a7ca804 | log.RecordCodeFlags.Foldable,
+	Packet_ascii_slave  = 0x01da92357a7ca805 | log.RecordCodeFlags.Foldable,
+	Packet_tcp_master   = 0x01da92357a7ca806 | log.RecordCodeFlags.Foldable,
+	Packet_tcp_slave    = 0x01da92357a7ca807 | log.RecordCodeFlags.Foldable,
 }
 
 //..............................................................................

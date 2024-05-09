@@ -7,7 +7,7 @@
 
 name        = "Modbus Log"
 description = "Modbus log representer"
-guid        = 53603C98-34BC-46EF-BA08-D3274F1057B4
+guid        = 5144b05f-e687-45ca-81bb-6c5f7880a2f3
 icon        = images/modbus.png
 small-icon  = images/modbus-16x16.png
 
@@ -17,18 +17,13 @@ log-representer-func = representModbusLog
 
 ModbusLogRecordCode.jnc
 ModbusLogRepresenter.jnc
-ModbusLog_Pdu.jnc
-ModbusLog_Rtu.jnc
-ModbusLog_Ascii.jnc
-ModbusLog_Tcp.jnc
 
 [records]
 
-81d485febc418db8  # MasterPacket_Rtu
-81d485febc418db9  # SlavePacket_Rtu
-81d485febc418dba  # MasterPacket_Ascii
-81d485febc418dbb  # SlavePacket_Ascii
-01d485febc418dbc  # InvalidFunction
-01d485febc418dbd  # ParseError
-81d485febc418dbe  # MasterPacket_Tcp
-81d485febc418dbf  # SlavePacket_Tcp
+01da92357a7ca801  # ParseError
+81da92357a7ca802  # Packet_rtu_master
+81da92357a7ca803  # Packet_rtu_slave
+81da92357a7ca804  # Packet_ascii_master
+81da92357a7ca805  # Packet_ascii_slave
+81da92357a7ca806  # Packet_tcp_master
+81da92357a7ca807  # Packet_tcp_slave

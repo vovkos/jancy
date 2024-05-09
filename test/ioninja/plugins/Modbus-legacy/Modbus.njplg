@@ -1,0 +1,26 @@
+#..............................................................................
+#
+#  Modbus Analyzer plugin
+#
+
+[plugin]
+
+name        = Modbus Analyzer (legacy)
+description = "Analyzes a Serial/TCP log and generates a secondary log with decoded Modbus messages"
+id          = modbus-legacy
+group       = analyzers
+log-guid    = 53603C98-34BC-46EF-BA08-D3274F1057B4  # modbus-legacy
+icon        = images/modbus.png
+small-icon  = images/modbus-16x16.png
+
+layer-class = ModbusLayer
+pure-layer  = true
+
+[scripts]
+
+ModbusLayer.jnc
+ModbusParserBase.jnc
+ModbusRtuParser.jnc
+ModbusAsciiParser.jnc
+ModbusTcpParser.jnc
+ModbusInfoSet.jnc

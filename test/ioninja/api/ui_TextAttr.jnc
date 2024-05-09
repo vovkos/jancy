@@ -13,12 +13,11 @@ namespace ui {
 //..............................................................................
 
 bitflag enum FontFlags {
-	Bold,
-	Italic,
-	Underline,
-	Strikeout,
-
-	Transparent,
+	Undefined = 0x8000000,
+	Bold      = 0x0000001,
+	Italic    = 0x0000002,
+	Underline = 0x0000004,
+	Strikeout = 0x0000008,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

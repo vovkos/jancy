@@ -1,0 +1,133 @@
+//..............................................................................
+//
+// Modbus ASCII stream parser
+//
+
+class ModbusAsciiParser: ModbusParserBase {
+protected:
+	enum State {
+		Idle,
+		Adu,
+		Cr,
+	}
+
+protected:
+	State m_state;
+
+public:
+	construct(ModbusInfoSet* infoSet) {
+		basetype.construct(io.ModbusProtocol.Ascii, infoSet);
+	}
+
+	override parse(
+		log.Writer* writer,
+		uint64_t timestamp,
+		uint64_t originalRecordCode,
+		void const* p,
+		size_t size
+	);
+
+	override reset();
+
+protected:
+	ModbusLogRecordCode getPacketRecordCode() {
+		return m_modbusRole == io.ModbusRole.Master ?
+			ModbusLogRecordCode.MasterPacket_Ascii :
+			ModbusLogRecordCode.SlavePacket_Ascii;
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void ModbusAsciiParser.parse(
+	log.Writer* writer,
+	uint64_t timestamp,
+	uint64_t originalRecordCode,
+	void const* p,
+	size_t size
+) {
+	updateLastTimestamp(timestamp);
+
+	ModbusLogRecordCode recordCode = getPacketRecordCode();
+
+	void const* p0 = p;
+	void const* adu = p;
+	void const* end = p + size;
+	while (p < end) {
+		switch (m_state) {
+		case State.Idle:
+			p = memchr(p, ':', end - p);
+			if (!p)
+				break2;
+
+			m_state = State.Adu;
+			m_dataBuffer.clear();
+			adu = p;
+			p++;
+			break;
+
+		case State.Adu:
+			p = memchr(p, '\r', end - p);
+			if (!p)
+				break2;
+
+			m_state = State.Cr;
+			p++;
+			break;
+
+		case State.Cr:
+			if (*(char const*)p != '\n') {
+				if (p0 < end) {
+					writer.write(timestamp, originalRecordCode, p0, p - p0);
+					p0 = p;
+				}
+
+				std.setError("Missing '\\n' in Modbus ASCII frame");
+				writer.writeLastError(timestamp, ModbusLogRecordCode.ParseError);
+				m_infoSet.addError();
+				reset();
+				break;
+			}
+
+			// frame completed
+
+			p++;
+			writer.write(timestamp, originalRecordCode, p0, p - p0);
+			p0 = p;
+
+			m_dataBuffer.append(adu, p - adu);
+			writer.write(timestamp, recordCode, m_dataBuffer.m_p, m_dataBuffer.m_size);
+			m_infoSet.addAdu(m_modbusRole);
+
+			if (m_mode == ModbusParserMode.Alternate) {
+				m_modbusRole = (io.ModbusRole) !m_modbusRole;
+				recordCode = getPacketRecordCode();
+			}
+
+			m_state = State.Idle;
+			break;
+		}
+	}
+
+	if (p0 < end)
+		writer.write(timestamp, originalRecordCode, p0, end - p0);
+
+	if (m_state && adu < end) {
+		m_dataBuffer.append(adu, end - adu);
+		if (m_dataBuffer.m_size > io.ModbusMaxAsciiAduSize) {
+			std.setError("Modbus ASCII frame is too big and still incomplete");
+			writer.writeLastError(timestamp, ModbusLogRecordCode.ParseError);
+			m_infoSet.addError();
+			reset();
+		}
+	}
+}
+
+void ModbusAsciiParser.reset() {
+	m_state = State.Idle;
+
+	if (m_mode == ModbusParserMode.Alternate)
+		m_modbusRole = io.ModbusRole.Master;
+}
+
+//..............................................................................

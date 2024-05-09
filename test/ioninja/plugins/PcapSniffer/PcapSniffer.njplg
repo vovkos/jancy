@@ -14,7 +14,6 @@ log-guid    = 074c3414-2622-418a-885d-edfeca2b79e7  # pcap
 icon        = images/sniffer.png
 small-icon  = images/sniffer-16x16.png
 terminal    = false
-detail-pane = true
 sudo        = true
 
 session-class = PcapSnifferSession
@@ -27,4 +26,4 @@ org.jancy.io.pcap
 [scripts]
 
 PcapSnifferSession.jnc
-../NetSnifferLog/NetSnifferLogFilter.jnc
+io_EthernetTemplates.jnc

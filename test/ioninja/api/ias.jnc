@@ -1,6 +1,6 @@
 //..............................................................................
 //
-// Ninja IAS (In-App Scripting) API
+// IO Ninja IAS (In-App Scripting) API
 //
 
 import "log_Writer.jnc"
@@ -16,7 +16,7 @@ import "std_Buffer.jnc"
 // kind of expensive (have to memorize all added converters/filters/etc and
 // remove them all during clean up)
 
-log.Writer* const g_logWriter; // mapped
+log.Writer* const g_logWriter;
 void clearLog();
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -25,9 +25,6 @@ void clearLog();
 
 bool errorcode connect();
 void disconnect();
-
-void initiateConnect();
-void initiateDisconnect();
 
 size_t errorcode transmit(
 	void const* p,
@@ -57,7 +54,7 @@ bool errorcode unreceive( // put back to the receive buffer
 
 size_t errorcode transmitAll(
 	void const* p,
-	size_t size = -1
+	size_t size
 ) {
 	void const* p0 = p;
 	void const* end = p + size;
@@ -73,6 +70,10 @@ size_t errorcode transmitAll(
 	}
 
 	return p - p0;
+}
+
+size_t errorcode transmitAll(string_t text) {
+	return transmitAll(text.m_p, text.m_length);
 }
 
 size_t errorcode receiveAll(
@@ -98,8 +99,11 @@ size_t errorcode receiveAll(
 	void const* p0 = p;
 	void const* end = p + size;
 	while (p < end) {
-		timeout = timeEnd - sys.getTimestamp() / 10000; // adjust timeout
-		size_t result = receive(p, end - p, timeout);
+		uint_t time = sys.getTimestamp() / 10000;
+		if (time >= timeEnd)
+			break;
+
+		size_t result = receive(p, end - p, timeEnd - time);
 		if (!result) // timeout
 			break;
 
@@ -143,22 +147,24 @@ class Session {
 
 //..............................................................................
 
-// two entry points for the script
-// either one of those is required (both are OK, too, of course)
+// entry points for the script (beware the thread context!)
+
+// IAS thread #1 (aka main thread)
 
 [ prototype ]
 void main();
 
-//
-// attention! from `onLogRecord`, you are only allowed to call:
-// - transmit()
-// - receive()
-// - initiateConnect()
-// - initiateDisconnect()
-//
-// the above functions are guaranteed to return immediately; other IAS functions
-// are potentially blocking and could lead to deadlocks during layer operations
-//
+// IAS thread #2 (aka event thread)
+// - not called for direct `transmit()` invokations
+// - kills the ability to track the actual (accepted) size
+
+[ prototype ]
+void pretransmit(
+	void const* p,
+	size_t size
+);
+
+// IAS thread #2 (aka event thread)
 
 [ prototype ]
 void onLogRecord(

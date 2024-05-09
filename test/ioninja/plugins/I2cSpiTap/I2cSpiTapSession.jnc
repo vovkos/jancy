@@ -657,7 +657,7 @@ reactor I2cSpiTapSession.m_uiReactor {
 		m_state == State.Closed ? SessionConnectionState.Disconnected :
 		SessionConnectionState.Connecting;
 
-	m_actionTable[ActionId.Capture].m_text = m_state ? "Close Device" : "Open Device";
+	m_actionTable[ActionId.Capture].m_text = m_state ? "Stop capture" : "Capture";
 	m_actionTable[ActionId.Capture].m_icon = m_iconTable[m_state ? IconId.Stop : IconId.Capture];
 	m_statusPaneTable[StatusPaneId.State].m_text = m_statusTextTable[m_state];
 	m_spiModeProp.m_isEnabled = m_protocolProp.m_value == Protocol.Spi;

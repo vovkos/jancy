@@ -76,27 +76,27 @@ struct DhcpHdr {
 
 	[
 		displayName = "Client IP",
-		formatFunc = formatIpAddress
+		stringify
 	]
-	bigendian uint32_t m_clientAddress;
+	io.Address_ip4 m_clientAddress;
 
 	[
 		displayName = "Your (client) IP",
-		formatFunc = formatIpAddress
+		stringify
 	]
-	bigendian uint32_t m_yourAddress;
+	io.Address_ip4 m_yourAddress;
 
 	[
 		displayName = "Next server IP",
-		formatFunc = formatIpAddress
+		stringify
 	]
-	bigendian uint32_t m_serverAddress;
+	io.Address_ip4 m_serverAddress;
 
 	[
 		displayName = "Relay agent IP",
-		formatFunc = formatIpAddress
+		stringify
 	]
-	bigendian uint32_t m_relayAddress;
+	io.Address_ip4 m_relayAddress;
 
 	[
 		displayName = "Client hardware address",
@@ -351,7 +351,15 @@ string_t formatString(
 	void const* p,
 	size_t size
 ) {
-	return strdup(p, size);
+	return string_t(p, size);
+}
+
+string_t formatEthernetAddress(void const* p) {
+	return ((io.EthernetAddress const*)p).getString();
+}
+
+string_t formatIpAddress(void const* p) {
+	return ((io.Address_ip4 const*)p).getString();
 }
 
 string_t formatDhcpParameterRequestList(

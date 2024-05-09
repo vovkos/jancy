@@ -39,9 +39,9 @@ struct IgmpHdr {
 
 	[
 		displayName = "Group address",
-		formatFunc = formatIpAddress
+		stringify
 	]
-	bigendian uint32_t m_groupAddress;
+	io.Address_ip4 m_groupAddress;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

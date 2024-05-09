@@ -13,6 +13,7 @@ icon        = images/pcap.png
 small-icon  = images/pcap-16x16.png
 
 log-representer-func = representPcapLog
+filter-class         = 
 
 [scripts]
 

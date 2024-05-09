@@ -17,20 +17,22 @@ bitflag enum TcpFlags: uint8_t {
 	Psh,
 	Ack,
 	Urg,
-	Bog,
+	Ece,
+	Cwr,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 string_t formatTcpFlagString(TcpFlags flags) {
-	return $"%c%c%c%c%c%c%c"(
+	return $"%c%c%c%c%c%c%c%c"(
 		(flags & TcpFlags.Fin) ? 'F' : '.',
 		(flags & TcpFlags.Syn) ? 'S' : '.',
 		(flags & TcpFlags.Rst) ? 'R' : '.',
 		(flags & TcpFlags.Psh) ? 'P' : '.',
 		(flags & TcpFlags.Ack) ? 'A' : '.',
 		(flags & TcpFlags.Urg) ? 'U' : '.',
-		(flags & TcpFlags.Bog) ? 'B' : '.'
+		(flags & TcpFlags.Ece) ? 'E' : '.',
+		(flags & TcpFlags.Cwr) ? 'C' : '.'
 	);
 }
 

@@ -148,11 +148,11 @@ bool IpDecoder.decodeIpHdr(
 
 	io.SocketAddress srcAddress;
 	srcAddress.m_family = io.AddressFamily.Ip4;
-	srcAddress.m_ip4.m_address.m_i32 = ipHdr.m_srcAddress;
+	srcAddress.m_ip4.m_address = ipHdr.m_srcAddress;
 
 	io.SocketAddress dstAddress;
 	dstAddress.m_family = io.AddressFamily.Ip4;
-	dstAddress.m_ip4.m_address.m_i32 = ipHdr.m_dstAddress;
+	dstAddress.m_ip4.m_address = ipHdr.m_dstAddress;
 
 	return decodeTransportHdr(timestamp, srcAddress, dstAddress, ipHdr.m_protocol, p, size);
 }

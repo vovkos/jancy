@@ -1,0 +1,74 @@
+//..............................................................................
+//
+// Modbus ASCII stream parser
+//
+
+import "ui_InformationGrid.jnc"
+import "io_Modbus.jnc"
+import "sys_Timer.jnc"
+import "sys_Lock.jnc"
+import "formatInteger.jnc"
+
+//..............................................................................
+
+class ModbusInfoSet {
+protected:
+	enum InfoId {
+		RequestCount, // = io.ModbusRole.Master,
+		ReplyCount,   // = io.ModbusRole.Slave,
+		ErrorCount,
+
+		_Count
+	}
+
+	ui.InformationStatValue* readonly m_infoTable[InfoId._Count];
+
+public:
+	void create(ui.InformationGrid* informationGrid);
+
+	void addAdu(io.ModbusRole role) {
+		m_infoTable[role].m_value++;
+	}
+
+	void addError() {
+		m_infoTable[InfoId.ErrorCount].m_value++;
+	}
+
+	void reset();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void ModbusInfoSet.create(ui.InformationGrid* informationGrid) {
+	ui.InformationGroup* group = informationGrid.createGroup("Modbus statistics");
+
+	m_infoTable[InfoId.RequestCount] = informationGrid.createStatValue(
+		group,,,
+		"Request count",
+		"Number of parsed Modbus requests in the current session"
+	);
+
+	m_infoTable[InfoId.ReplyCount] = informationGrid.createStatValue(
+		group,,,
+		"Reply count",
+		"Number of parsed Modbus replies in the current session"
+	);
+
+	m_infoTable[InfoId.ErrorCount] = informationGrid.createStatValue(
+		group,,,
+		"Error count",
+		"Number of parsed Modbus errors in the current session"
+	);
+
+	for (size_t i = 0; i < countof(m_infoTable); i++) {
+		m_infoTable[i].m_formatFunc = formatIntegerWithThousandSep;
+		m_infoTable[i].forceUpdate();
+	}
+}
+
+void ModbusInfoSet.reset() {
+	for (size_t i = 0; i < countof(m_infoTable); i++)
+		m_infoTable[i].m_value = 0;
+}
+
+//..............................................................................

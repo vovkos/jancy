@@ -38,6 +38,19 @@ uint8_t crc8_ccitt(
 	return crc;
 }
 
+uint8_t lrc(
+	void const* p,
+	size_t size
+) {
+	uint8_t const* b = (uint8_t const*)p;
+	int result = 0;
+
+	for (; size; size--)
+		result += *b++;
+
+	return (result ^ 0xff) + 1;
+}
+
 //..............................................................................
 
 //! @}

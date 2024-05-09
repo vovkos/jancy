@@ -21,6 +21,8 @@ opaque class Property {
 	string_t autoget property m_valueToolTip;
 	bool autoget property m_isEnabled;
 
+	destruct();
+
 	void addChildProperty(
 		Property* prop,
 		Property* beforeProp = null

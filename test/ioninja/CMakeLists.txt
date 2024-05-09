@@ -72,6 +72,27 @@ add_jancy_tests(
 	REQUIRES
 		ModbusLayer
 		representModbusLog
+		layoutModbusRtuRequest
+		layoutModbusRtuReply
+		layoutModbusTcpRequest
+		layoutModbusTcpReply
+	FILES
+		ModbusLayer.jnc
+		ModbusParserBase.jnc
+		ModbusBinParserBase.jnc
+		ModbusRtuParser.jnc
+		ModbusTcpParser.jnc
+		ModbusAsciiParser.jnc
+		ModbusInfoSet.jnc
+		ModbusLogRecordCode.jnc
+		ModbusLogRepresenter.jnc
+		../../protocols/io_ModbusTemplates.jnc
+	FINALIZE_TEST Modbus
+
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/Modbus-legacy
+	REQUIRES
+		ModbusLayer
+		representModbusLog
 	FILES
 		ModbusLayer.jnc
 		ModbusParserBase.jnc
@@ -85,7 +106,7 @@ add_jancy_tests(
 		ModbusLog_Rtu.jnc
 		ModbusLog_Ascii.jnc
 		ModbusLog_Tcp.jnc
-	FINALIZE_TEST Modbus
+	FINALIZE_TEST Modbus-legacy
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/PipeServer
 	REQUIRES
@@ -369,6 +390,7 @@ if(BUILD_JNC_IO_PCAP)
 			representPcapLog
 			representNetSnifferLog
 			detailizeNetSnifferLog
+			layoutEthernetFrame
 		FILES
 			PcapSnifferSession.jnc
 			../PcapLog/PcapLogRecordCode.jnc
@@ -389,6 +411,7 @@ if(BUILD_JNC_IO_PCAP)
 			../NetSnifferLog/Proto_Udp.jnc
 			../NetSnifferLog/Proto_Dns.jnc
 			../NetSnifferLog/Proto_Dhcp.jnc
+			../../protocols/io_EthernetTemplates.jnc
 		FINALIZE_TEST PcapSniffer
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/TcpFlow

@@ -15,6 +15,8 @@ opaque class InformationItem {
 	string_t autoget property m_toolTip;
 	bool autoget property m_isEnabled;
 
+	destruct();
+
 	void addChildItem(
 		InformationItem* item,
 		InformationItem* beforeItem = null

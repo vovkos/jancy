@@ -73,6 +73,45 @@ enum EthernetType: uint16_t {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+struct EthernetAddress {
+	[ displayName = "MAC" ]
+	uint8_t m_mac[6];
+
+	string_t getString() const {
+		return $"%02X:%02X:%02X:%02X:%02X:%02X"(
+			m_mac[0], m_mac[1], m_mac[2],
+			m_mac[3], m_mac[4], m_mac[5]
+		);
+	}
+
+	bool errorcode parse(string_t s);
+
+	alias toString = getString;
+	alias fromString = parse;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool errorcode EthernetAddress.parse(string_t s) {
+	if (s !~
+		"(?i)^\s*([0-9a-f]+):([0-9a-f]+):([0-9a-f]+):"
+		"([0-9a-f]+):([0-9a-f]+):([0-9a-f]+)"
+	) {
+		std.setError("invalid MAC");
+		return false;
+	}
+
+	m_mac[0] = strtoul($1,, 16);
+	m_mac[1] = strtoul($2,, 16);
+	m_mac[2] = strtoul($3,, 16);
+	m_mac[3] = strtoul($4,, 16);
+	m_mac[4] = strtoul($5,, 16);
+	m_mac[5] = strtoul($6,, 16);
+	return true;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 [
 	displayName = "ETHERNET II",
 	formatDigestFunc = formatEthernetDigest
@@ -80,15 +119,15 @@ enum EthernetType: uint16_t {
 struct EthernetHdr {
 	[
 		displayName = "Destination",
-		formatFunc = formatEthernetAddress
+		stringify
 	]
-	uint8_t m_dstAddress[6];
+	EthernetAddress m_dstAddress;
 
 	[
 		displayName = "Source",
-		formatFunc = formatEthernetAddress
+		stringify
 	]
-	uint8_t m_srcAddress[6];
+	EthernetAddress m_srcAddress;
 
 	[ displayName = "Type" ]
 	bigendian EthernetType m_type;
@@ -103,15 +142,15 @@ struct EthernetHdr {
 struct EthernetHdr_ieee8023 {
 	[
 		displayName = "Destination",
-		formatFunc = formatEthernetAddress
+		stringify
 	]
-	uint8_t m_dstAddress[6];
+	EthernetAddress m_dstAddress;
 
 	[
 		displayName = "Source",
-		formatFunc = formatEthernetAddress
+		stringify
 	]
-	uint8_t m_srcAddress[6];
+	EthernetAddress m_srcAddress;
 
 	[ displayName = "Length" ]
 	bigendian uint16_t m_length;
@@ -121,20 +160,7 @@ struct EthernetHdr_ieee8023 {
 
 string_t formatEthernetDigest(void const* p) {
 	EthernetHdr const* hdr = (EthernetHdr const*)p;
-
-	return $"%1 \u2192 %2" (
-		formatEthernetAddress(&hdr.m_srcAddress),
-		formatEthernetAddress(&hdr.m_dstAddress)
-	);
-}
-
-string_t formatEthernetAddress(void const* p) {
-	uchar_t const* mac = (uchar_t const*)p;
-
-	return $"%02X:%02X:%02X:%02X:%02X:%02X"(
-		mac[0], mac[1], mac[2],
-		mac[3], mac[4], mac[5]
-	);
+	return $"%1 \u2192 %2"(hdr.m_srcAddress, hdr.m_dstAddress);
 }
 
 //..............................................................................

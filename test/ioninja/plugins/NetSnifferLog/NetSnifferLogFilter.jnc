@@ -3,28 +3,40 @@
 // Network Sniffer log filter
 //
 
+import "doc_Plugin.jnc"
 import "log_Filter.jnc"
 import "std_HashTable.jnc"
+import "ui_ComboBox.jnc"
+import "ui_PropertyGrid.jnc"
+import "ui_History.jnc"
 import "io_pcap.jncx"
+
+using extension ui.ComboBoxHistory;
 
 //..............................................................................
 
-class NetSnifferLogFilter: log.Filter {
+class NetSnifferLogFilter:
+	doc.LogFilter,
+	log.Filter {
 protected:
+	log.Log* m_log;
 	string_t m_filter;
 	bool m_isOptimized;
+
 	std.HashTable m_pcapFilterMap; // link-type to pcap-filter
+	io.PcapFilter* m_pcapFilterTable[8]; // for fast lookup
+	NetSnifferLogToPcap* m_logToPcap;
+
+	ui.ComboBox* m_filterCombo;
+	ui.StringProperty* m_filterProp;
 
 public:
-	// suspend log engine before calling setFilter
+	construct(doc.PluginHost* pluginHost);
 
-	bool errorcode setFilter(
-		string_t filter,
-		bool isOptimized = true
-	);
-
-protected:
-	io.PcapFilter* getPcapFilter(io.PcapLinkType linkType);
+	override void load(doc.Storage* storage);
+	override void save(doc.Storage* storage);
+	override void updateProperties();
+	override bool errorcode applyProperties();
 
 	override bool filter(
 		uint64_t timestamp,
@@ -32,9 +44,109 @@ protected:
 		void const* p,
 		size_t size
 	);
+
+protected:
+	io.PcapFilter* getPcapFilter(io.PcapLinkType linkType);
+
+	bool errorcode setFilter(
+		string_t filter,
+		bool isOptimized = true
+	);
+
+	bool errorcode applyFilter(bool rebuildLog = false);
+
+	void onApply() {
+		try applyFilter(true);
+	}
+
+	virtual NetSnifferLogToPcap* createLogToPcap() {
+		return new NetSnifferLogToPcap(m_log);
+	}
+
+	void onExport();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+NetSnifferLogFilter.construct(doc.PluginHost* pluginHost) {
+	m_log = pluginHost.m_log;
+
+	pluginHost.m_menu.m_insertActionPos = ui.InsertActionPos.BeforeCurrentHead;
+	pluginHost.m_toolBar.m_insertActionPos = ui.InsertActionPos.BeforeCurrentHead;
+
+	pluginHost.m_toolBar.addLabel("Filter:");
+	m_filterCombo = pluginHost.m_toolBar.addComboBox(-1);
+	m_filterCombo.m_isEditable = true;
+	m_filterCombo.m_onReturnPressed += onApply;
+	m_filterCombo.m_placeholderText = "Enter a pcap-filter...";
+	m_filterCombo.m_toolTip =
+		"View only packets which pass this filter\n"
+		"For a complete syntax reference, google 'pcap-filter'";
+
+	ui.Action* action = new ui.Action("images/apply.png", "Apply filter");
+	action.m_onTriggered += onApply;
+	pluginHost.m_menu.addAction(action);
+	pluginHost.m_toolBar.addAction(action);
+
+	pluginHost.m_menu.m_insertActionPos = ui.InsertActionPos.Tail;
+	pluginHost.m_toolBar.m_insertActionPos = ui.InsertActionPos.Tail;
+
+	action = new ui.Action("images/save-pcap.png", "Export Pcap file (*.pcap)");
+	action.m_onTriggered += onExport;
+	pluginHost.m_menu.addAction(action);
+	pluginHost.m_toolBar.addAction(action);
+
+	ui.GroupProperty* group = pluginHost.m_propertyGrid.createGroupProperty("Pcap filter");
+
+	m_filterProp = pluginHost.m_propertyGrid.createStringProperty(
+		group,,
+		"View filter",
+		"Enter a pcap-filter...",
+		"View only packets which pass this filter\n"
+		"For a complete syntax reference, google 'pcap-filter'"
+	);
+
+	m_log.addFilter(this);
+}
+
+void NetSnifferLogFilter.load(doc.Storage* storage) {
+	m_filterCombo.loadHistory(storage, "viewFilterHistory");
+	m_filterCombo.m_editText = storage.readString("viewFilter");
+}
+
+void NetSnifferLogFilter.save(doc.Storage* storage) {
+	m_filterCombo.saveHistory(storage, "viewFilterHistory");
+	storage.writeString("viewFilter", m_filterCombo.m_editText);
+}
+
+void NetSnifferLogFilter.updateProperties() {
+	m_filterProp.m_value = m_filterCombo.m_editText;
+}
+
+bool errorcode NetSnifferLogFilter.applyProperties() {
+	m_filterCombo.m_editText = m_filterProp.m_value;
+	applyFilter(false);
+	return true;
+}
+
+bool errorcode NetSnifferLogFilter.applyFilter(bool rebuildLog) {
+	m_log.suspend();
+	bool result = try setFilter(m_filterCombo.m_editText);
+	m_log.resume();
+
+	if (!result) {
+		m_filterCombo.m_backgroundColor = ui.StdColor.PastelRed;
+		return false;
+	}
+
+	m_filterCombo.addEditTextToHistory();
+	m_filterCombo.m_backgroundColor = ui.ColorFlags.Undefined;
+
+	if (rebuildLog)
+		m_log.rebuild();
+
+	return true;
+}
 
 bool errorcode NetSnifferLogFilter.setFilter(
 	string_t filter,
@@ -51,20 +163,26 @@ bool errorcode NetSnifferLogFilter.setFilter(
 
 	m_filter = strdup(filter);
 	m_isOptimized = isOptimized;
+	m_pcapFilterTable = null;
+	m_pcapFilterTable[io.PcapLinkType.Ethernet] = pcapFilter;
 	m_pcapFilterMap.clear();
-	m_pcapFilterMap[io.PcapLinkType.Ethernet] = pcapFilter;
 	return true;
 }
 
 io.PcapFilter* NetSnifferLogFilter.getPcapFilter(io.PcapLinkType linkType) {
-	std.MapEntry* entry = m_pcapFilterMap.visit(linkType);
-	io.PcapFilter* pcapFilter = entry.m_value;
-	if (pcapFilter)
-		return pcapFilter;
+	std.MapEntry* entry;
+	if ((size_t)linkType < countof(m_pcapFilterTable)) {
+		if (m_pcapFilterTable[linkType])
+			return m_pcapFilterTable[linkType];
+	} else {
+		entry = m_pcapFilterMap.visit(linkType);
+		io.PcapFilter* pcapFilter = entry.m_value;
+		if (pcapFilter)
+			return pcapFilter;
+	}
 
-	pcapFilter = new io.PcapFilter;
 
-	// if failed, pcap filter will remain empty
+	io.PcapFilter* pcapFilter = new io.PcapFilter;
 
 	try pcapFilter.compile(
 		linkType,
@@ -73,7 +191,11 @@ io.PcapFilter* NetSnifferLogFilter.getPcapFilter(io.PcapLinkType linkType) {
 		m_isOptimized
 	);
 
-	entry.m_value = pcapFilter;
+	if ((size_t)linkType < countof(m_pcapFilterTable))
+		m_pcapFilterTable[linkType] = pcapFilter;
+	else
+		entry.m_value = pcapFilter;
+
 	return pcapFilter;
 }
 
@@ -106,6 +228,13 @@ bool NetSnifferLogFilter.filter(
 	}
 
 	return pcapFilter ? pcapFilter.match(p, size) : true;
+}
+
+void NetSnifferLogFilter.onExport() {
+	if (!m_logToPcap)
+		m_logToPcap = createLogToPcap();
+
+	m_logToPcap.export();
 }
 
 //..............................................................................

@@ -1,0 +1,45 @@
+//..............................................................................
+//
+// Ninja UI - color range tree
+//
+
+namespace ui {
+
+//! \addtogroup api-ui
+//! @{
+
+//..............................................................................
+
+struct ColorRange {
+	intptr_t readonly m_offset;
+	size_t readonly m_length;
+	uint_t readonly m_color;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class ColorRangeTree {
+	size_t const property m_rangeCount;
+
+	construct();
+	destruct();
+
+	void clear();
+
+	void add(
+		intptr_t offset,
+		size_t length,
+		uint_t color
+	);
+
+	size_t flatten(
+		ColorRange* ranges,
+		size_t count
+	);
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace ui

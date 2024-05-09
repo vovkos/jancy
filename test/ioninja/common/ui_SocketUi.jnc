@@ -450,8 +450,8 @@ void SocketPropertySet.restoreDefaults() {
 //..............................................................................
 
 io.SocketOptions getSocketOptions(
-	SocketPropertySet* socketPropSet,
-	BufferPropertySet* bufferPropSet
+	SocketPropertySet const* socketPropSet,
+	BufferPropertySet const* bufferPropSet
 ) {
 	io.SocketOptions options;
 

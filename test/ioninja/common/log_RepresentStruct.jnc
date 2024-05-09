@@ -74,7 +74,7 @@ void representStruct(
 		void const* p = p0 + field.m_offset;
 		string_t displayName = getDisplayName(field);
 
-		if (field.m_type.m_typeKind == jnc.TypeKind.Struct) {
+		if (field.m_type.m_typeKind == jnc.TypeKind.Struct && !field.findAttribute("stringify")) {
 			representation.addHyperText($"%1%2:\t"(indent.m_sz, displayName));
 
 			representStruct(

@@ -1,0 +1,46 @@
+//..............................................................................
+//
+// Modbus RTU/TCP packet template coroutines
+//
+
+import "io_Modbus.jnc"
+
+//..............................................................................
+
+[
+	packetTemplate,
+	displayName = "Modbus RTU (request)",
+	fixedSize
+]
+async void layoutModbusRtuRequest(jnc.DynamicLayout* layout) {
+	await io.layoutModbusAdu(layout, io.ModbusProtocol.Rtu, io.ModbusRole.Master);
+}
+
+[
+	packetTemplate,
+	displayName = "Modbus RTU (reply)",
+	fixedSize
+]
+async void layoutModbusRtuReply(jnc.DynamicLayout* layout) {
+	await io.layoutModbusAdu(layout, io.ModbusProtocol.Rtu, io.ModbusRole.Slave);
+}
+
+[
+	packetTemplate,
+	displayName = "Modbus TCP (request)",
+	fixedSize
+]
+async void layoutModbusTcpRequest(jnc.DynamicLayout* layout) {
+	await io.layoutModbusAdu(layout, io.ModbusProtocol.Tcp, io.ModbusRole.Master);
+}
+
+[
+	packetTemplate,
+	displayName = "Modbus TCP (reply)",
+	fixedSize
+]
+async void layoutModbusTcpReply(jnc.DynamicLayout* layout) {
+	await io.layoutModbusAdu(layout, io.ModbusProtocol.Tcp, io.ModbusRole.Slave);
+}
+
+//..............................................................................

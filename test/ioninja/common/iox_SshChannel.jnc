@@ -12,6 +12,9 @@ import "ui_SshPropertySet.jnc"
 import "ui_BufferPropertySet.jnc"
 import "doc_PluginHost.jnc"
 import "std_Buffer.jnc"
+import "sys_Timer.jnc"
+import "SocketLog/SocketLogRecordCode.jnc"
+import "SshChannel/SshLogRecordCode.jnc"
 
 namespace iox {
 
@@ -25,6 +28,7 @@ public:
 	enum State {
 		Closed,
 		Resolving,
+		ReconnectDelay,
 		TcpConnecting,
 		SshHandshaking,
 		SshAuthenticating,
@@ -40,11 +44,14 @@ public:
 		size_t m_readBufferSize;
 		size_t m_writeBufferSize;
 		uint_t m_defaultPort;
+		ui.AuthenticationMethod m_authenticationMethod;
 		string_t m_privateKeyFileName;
 		bool m_rememberLastPassword;
 		io.SshConnectParams m_sshParams;
 		io.SocketAddress m_localAddress;
 		io.SocketOptions m_socketOptions;
+		bool m_useReconnect;
+		uint_t m_reconnectTimeout;
 	}
 
 protected:
@@ -53,6 +60,8 @@ protected:
 	io.SshChannel m_ssh;
 	ui.LoginDlg* m_loginDlg;
 	std.Buffer m_readBuffer;
+	sys.Timer m_reconnectTimer;
+	uint64_t m_lastReconnectTime;
 	ConnectParams m_connectParams;
 	uint_t m_syncId;
 
@@ -81,6 +90,7 @@ public:
 	static string_t const m_stateStringTable[] = {
 		"Closed",
 		"Resolving...",
+		"Waiting...",
 		"Connecting...",
 		"Handhsaking...",
 		"Authenticating...",
@@ -94,6 +104,8 @@ public:
 public:
 	construct(doc.PluginHost* pluginHost);
 
+	void close();
+
 	bool errorcode connect(
 		string_t addressString,
 		ConnectParams const* params
@@ -103,8 +115,6 @@ public:
 		io.SocketAddress const* address,
 		ConnectParams const* params
 	);
-
-	void disconnect();
 
 	size_t errorcode read(
 		void* p,
@@ -116,6 +126,13 @@ public:
 	size_t errorcode write(
 		void const* p,
 		size_t size
+	);
+
+	static void initConnectParams(
+		ConnectParams* params,
+		ui.SocketPropertySet const* socketPropSet,
+		ui.SshPropertySet const* sshPropSet,
+		ui.BufferPropertySet const* bufferPropSet
 	);
 
 	bool errorcode applyProperties(
@@ -145,11 +162,13 @@ protected:
 		io.SshEvents triggeredEvents
 	);
 
+	void onReconnectTimer(uint_t syncId);
 	void onLoginDlgCompleted(ui.StdDlgButton button);
 	void onConsoleSizeChanged();
 
 	void handleConnectError(std.Error const* error);
 	void handleSshAuthenticateError(std.Error const* error);
+	void startReconnectTimer(uint64_t lastReconnectTime = -1);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -158,6 +177,40 @@ SshChannel.construct(doc.PluginHost* pluginHost) {
 	m_pluginHost = pluginHost;
 	m_pluginHost.m_terminal.m_onConsoleSizeChanged += onConsoleSizeChanged;
 	m_readBuffer.setSize(ui.BufferPropertySet.Defaults.ReadBufferSize);
+}
+
+void SshChannel.close() {
+	switch (m_state) {
+	case State.Closed:
+		return;
+
+	case State.Resolving:
+	case State.TcpConnecting:
+	case State.SshHandshaking:
+	case State.SshAuthenticating:
+	case State.WaitingLoginDlg:
+	case State.SshOpeningChannel:
+	case State.SshRequestingPty:
+	case State.SshStartingProcess:
+		m_logWriter.write(SocketLogRecordCode.ConnectCancelled);
+		break;
+
+	case State.Connected:
+		TcpDisconnectLogRecordParams params;
+		params.m_address = m_remoteAddress;
+
+		m_logWriter.write(
+			SocketLogRecordCode.Disconnected,
+			&params,
+			sizeof(params)
+		);
+		break;
+	}
+
+	m_ssh.close();
+	m_state = State.Closed;
+	m_isTransmitEnabled = false;
+	m_syncId++;
 }
 
 bool errorcode SshChannel.connect(
@@ -196,7 +249,12 @@ bool errorcode SshChannel.connect(
 	io.SocketAddress const* address,
 	ConnectParams const* params
 ) {
-	disconnect();
+	close();
+
+	if (!m_connectParams.m_rememberLastPassword && m_loginDlg) {
+		m_loginDlg.m_password = null;
+		m_loginDlg.m_privateKeyPassphrase = null;
+	}
 
 	m_ssh.m_readBlockSize = params.m_readBlockSize;
 	m_ssh.m_readBufferSize = params.m_readBufferSize;
@@ -231,40 +289,6 @@ catch:
 
 }
 
-void SshChannel.disconnect() {
-	switch (m_state) {
-	case State.Closed:
-		return;
-
-	case State.Resolving:
-	case State.TcpConnecting:
-	case State.SshHandshaking:
-	case State.SshAuthenticating:
-	case State.WaitingLoginDlg:
-	case State.SshOpeningChannel:
-	case State.SshRequestingPty:
-	case State.SshStartingProcess:
-		m_logWriter.write(SocketLogRecordCode.ConnectCancelled);
-		break;
-
-	case State.Connected:
-		TcpDisconnectLogRecordParams params;
-		params.m_address = m_remoteAddress;
-
-		m_logWriter.write(
-			SocketLogRecordCode.Disconnected,
-			&params,
-			sizeof(params)
-		);
-		break;
-	}
-
-	m_ssh.close();
-	m_state = State.Closed;
-	m_isTransmitEnabled = false;
-	m_syncId++;
-}
-
 size_t errorcode SshChannel.write(
 	void const* p,
 	size_t size
@@ -278,13 +302,50 @@ size_t errorcode SshChannel.write(
 	return result;
 }
 
+void SshChannel.initConnectParams(
+	ConnectParams* params,
+	ui.SocketPropertySet const* socketPropSet,
+	ui.SshPropertySet const* sshPropSet,
+	ui.BufferPropertySet const* bufferPropSet
+) {
+	params.m_readBlockSize = bufferPropSet.m_readBlockSizeProp.m_value;
+	params.m_readBufferSize = bufferPropSet.m_readBufferSizeProp.m_value;
+	params.m_writeBufferSize = bufferPropSet.m_writeBufferSizeProp.m_value;
+	params.m_socketOptions = ui.getSocketOptions(socketPropSet, bufferPropSet);
+	params.m_defaultPort = socketPropSet.m_remotePortProp.m_value;
+	params.m_useReconnect = socketPropSet.m_useReconnectProp.m_value;
+	params.m_reconnectTimeout = socketPropSet.m_reconnectTimeoutProp.m_value;
+
+	if (socketPropSet.m_useLocalAddressProp.m_value) {
+		io.SocketAddress const* adapterAddress = socketPropSet.m_adapterProp.m_value;
+		if (adapterAddress)
+			params.m_localAddress = *adapterAddress;
+
+		params.m_localAddress.m_port = (uint16_t)socketPropSet.m_localPortProp.m_value;
+	}
+
+	ui.AuthenticationMethod authenticationMethod = sshPropSet.m_authenticationMethodProp.m_value;
+	params.m_authenticationMethod = authenticationMethod;
+	params.m_rememberLastPassword = sshPropSet.m_rememberLastPasswordProp.m_value;
+	params.m_privateKeyFileName = sshPropSet.m_privateKeyFileProp.m_value;
+	params.m_sshParams.m_userName = sshPropSet.m_userNameProp.m_value;
+
+	if (authenticationMethod == ui.AuthenticationMethod.PrivateKey)
+		params.m_sshParams.m_privateKeyFileName = params.m_privateKeyFileName;
+}
+
 bool errorcode SshChannel.applyProperties(
 	ui.SocketPropertySet const* socketPropSet,
 	ui.SshPropertySet const* sshPropSet,
 	ui.BufferPropertySet const* bufferPropSet
 ) {
 	m_readBuffer.setSize(bufferPropSet.m_readBufferSizeProp.m_value);
-
+	m_connectParams.m_useReconnect = socketPropSet.m_useReconnectProp ?
+		socketPropSet.m_useReconnectProp.m_value :
+		ui.SocketPropertySet.Defaults.UseReconnect;
+	m_connectParams.m_reconnectTimeout = socketPropSet.m_reconnectTimeoutProp ?
+		socketPropSet.m_reconnectTimeoutProp.m_value :
+		ui.SocketPropertySet.Defaults.ReconnectTimeout;
 	return true;
 }
 
@@ -344,18 +405,9 @@ void SshChannel.handleSshAuthenticateError(std.Error const* error) {
 		m_loginDlg.m_onCompleted += onLoginDlgCompleted;
 	}
 
-	m_loginDlg.m_authenticationMethod = m_connectParams.m_sshParams.m_privateKey ?
-		ui.AuthenticationMethod.PrivateKey :
-		ui.AuthenticationMethod.Password;
-
+	m_loginDlg.m_authenticationMethod = m_connectParams.m_authenticationMethod;
 	m_loginDlg.m_userName = m_connectParams.m_sshParams.m_userName;
 	m_loginDlg.m_privateKeyFileName = m_connectParams.m_privateKeyFileName;
-
-	if (!m_connectParams.m_rememberLastPassword) {
-		m_loginDlg.m_password = null;
-		m_loginDlg.m_privateKeyPassphrase = null;
-	}
-
 	m_loginDlg.show();
 
 	m_state = State.WaitingLoginDlg;
@@ -383,16 +435,13 @@ void SshChannel.onLoginDlgCompleted(ui.StdDlgButton button) {
 
 	switch (m_loginDlg.m_authenticationMethod) {
 	case ui.AuthenticationMethod.Password:
-		m_ssh.authenticate(m_loginDlg.m_userName, null, 0, m_loginDlg.m_password);
+		m_ssh.authenticate(m_loginDlg.m_userName, m_loginDlg.m_password);
 		break;
 
 	case ui.AuthenticationMethod.PrivateKey:
-		void const* privateKey = loadFile(m_loginDlg.m_privateKeyFileName);
-
 		m_ssh.authenticate(
 			m_loginDlg.m_userName,
-			privateKey,
-			dynamic sizeof(privateKey),
+			m_loginDlg.m_privateKeyFileName,
 			m_loginDlg.m_privateKeyPassphrase
 		);
 		break;
@@ -400,8 +449,9 @@ void SshChannel.onLoginDlgCompleted(ui.StdDlgButton button) {
 
 	// update connect params and notify the session
 
-	m_connectParams.m_sshParams.m_userName = m_loginDlg.m_userName;
+	m_connectParams.m_authenticationMethod = m_loginDlg.m_authenticationMethod;
 	m_connectParams.m_privateKeyFileName = m_loginDlg.m_privateKeyFileName;
+	m_connectParams.m_sshParams.m_userName = m_loginDlg.m_userName;
 
 	m_onLoginDlgCompleted(
 		m_loginDlg.m_userName,
@@ -508,7 +558,36 @@ void SshChannel.onSshEvent(
 
 catch:
 	m_logWriter.writeLastError(log.StdRecordCode.Error);
-	disconnect();
+	close();
+}
+
+void SshChannel.startReconnectTimer(uint64_t lastReconnectTime) {
+	uint64_t time = sys.getTimestamp();
+	uint64_t delay = (uint64_t)m_connectParams.m_reconnectTimeout * 10000;
+
+	if (time - delay > lastReconnectTime) { // don't spam reconnects if we're insta-rejected
+		onReconnectTimer(m_syncId);
+		return;
+	}
+
+	m_state = State.ReconnectDelay;
+	m_logWriter.write(SocketLogRecordCode.ReconnectDelay);
+
+	m_reconnectTimer.startDueTimer(
+		onReconnectTimer~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler,
+		time + delay
+	);
+}
+
+void SshChannel.onReconnectTimer(uint_t syncId) {
+	if (syncId != m_syncId)
+		return;
+
+	bool result = try connect();
+	m_lastReconnectTime = sys.getTimestamp(); // after connect (connect calls close)
+
+	if (!result && m_connectParams.m_useReconnect)
+		startReconnectTimer();
 }
 
 void SshChannel.onResolverEvent(

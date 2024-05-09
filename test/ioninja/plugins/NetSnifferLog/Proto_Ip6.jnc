@@ -28,8 +28,8 @@ void representIp6Digest(
 	p += sizeof(io.Ip6Hdr);
 	size = ipHdr.m_payloadLength;
 
-	string_t srcString = io.formatIp6Address(&ipHdr.m_srcAddress);
-	string_t dstString = io.formatIp6Address(&ipHdr.m_dstAddress);
+	string_t srcString = ipHdr.m_srcAddress.getString();
+	string_t dstString = ipHdr.m_dstAddress.getString();
 
 	switch (ipHdr.m_nextHeader) {
 	case io.IpProtocol.Icmp6:
@@ -80,8 +80,8 @@ string_t formatIp6Digest(
 	string_t extra = null
 ) {
 	return $"\e[1mIPv6 \e[10;34m%1\e[m \u2192 \e[34m%2\e[m (proto: \e[34m%3\e[m)%4"(
-		io.formatIp6Address(&hdr.m_srcAddress),
-		io.formatIp6Address(&hdr.m_dstAddress),
+		hdr.m_srcAddress,
+		hdr.m_dstAddress,
 		typeof(io.IpProtocol).getValueString(&hdr.m_nextHeader),
 		extra
 	);

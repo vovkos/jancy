@@ -1,7 +1,11 @@
 //..............................................................................
 //
-// Modbus RTU/TCP defitions
+// Modbus RTU/TCP protocol constants and structs
 //
+
+import "ui_Color.jnc"
+import "crc8.jnc"
+import "crc16.jnc"
 
 namespace io {
 
@@ -12,27 +16,27 @@ pragma(Alignment, 1);
 
 //..............................................................................
 
-// Modbus protocol variations
-
 enum ModbusProtocol: uint8_t {
 	Rtu,
 	Ascii,
 	Tcp,
-	RtuIp,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-// Modbus node roles
 
 enum ModbusRole: uint8_t {
 	Master,
 	Slave,
 }
 
-//..............................................................................
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-// function codes
+enum ModbusChecksumKind {
+	Crc, // used in Modbus RTU
+	Lrc, // used in Modbus ASCII
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum ModbusFunc: uint8_t {
 	[ displayName = "Read coils" ]
@@ -47,11 +51,11 @@ enum ModbusFunc: uint8_t {
 	[ displayName = "Read input registers" ]
 	ReadInputRegisters         = 4,
 
-	[ displayName = "Write coil" ]
-	WriteCoil                  = 5,
+	[ displayName = "Write single coil" ]
+	WriteSingleCoil            = 5,
 
-	[ displayName = "Write register" ]
-	WriteRegister              = 6,
+	[ displayName = "Write single register" ]
+	WriteSingleRegister        = 6,
 
 	[ displayName = "Read exception status" ]
 	ReadExceptionStatus	       = 7,
@@ -96,7 +100,7 @@ enum ModbusFunc: uint8_t {
 	ExceptionFlag              = 0x80,
 }
 
-//..............................................................................
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // exception codes
 
@@ -129,36 +133,112 @@ enum ModbusException: uint8_t {
 	GatewayDeviceNoResponse = 11,
 }
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// diagnostic sub-functions
+
+enum ModbusDiagnosticSubFunc: uint16_t {
+	[ displayName = "Return query data" ]
+	ReturnQueryData                     = 0,
+
+	[ displayName = "Restart communications option" ]
+	RestartCommunicationsOption         = 1,
+
+	[ displayName = "Return diagnostic register" ]
+	ReturnDiagnosticRegister            = 2,
+
+	[ displayName = "Change ascii input delimiter" ]
+	ChangeAsciiInputDelimiter           = 3,
+
+	[ displayName = "Force listen only mode" ]
+	ForceListenOnlyMode                 = 4,
+
+	[ displayName = "Clear counters and diagnostic register" ]
+	ClearCountersAndDiagnosticRegister  = 10,
+
+	[ displayName = "Return bus message count" ]
+	ReturnBusMessageCount               = 11,
+
+	[ displayName = "Return bus communication error count" ]
+	ReturnBusCommunicationErrorCount    = 12,
+
+	[ displayName = "Return bus exception error count" ]
+	ReturnBusExceptionErrorCount        = 13,
+
+	[ displayName = "Return server message count" ]
+	ReturnServerMessageCount            = 14,
+
+	[ displayName = "Return server no response count" ]
+	ReturnServerNoResponseCount         = 15,
+
+	[ displayName = "Return server nak count" ]
+	ReturnServerNakCount                = 16,
+
+	[ displayName = "Return server busy count" ]
+	ReturnServerBusyCount               = 17,
+
+	[ displayName = "Return bus character overrun count" ]
+	ReturnBusCharacterOverrunCount      = 18,
+
+	[ displayName = "Clear overrun counter and flag" ]
+	ClearOverrunCounterAndFlag          = 20,
+}
+
 //..............................................................................
+
+// shared attributes for address fields
+
+[
+	displayName = "Address",
+	formatSpec = "0x%04X"
+]
+void ModbusAddressAttr;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // particular function code PDUs
 
-[ displayName = "PDU header" ]
 struct ModbusPduHdr {
 	[ displayName = "Function" ]
-	io.ModbusFunc m_func;
+	ModbusFunc m_func;
+}
+
+struct ModbusReplyPduHdr {
+	[
+		displayName = "Function",
+		displayType = typeof(ModbusFunc)
+	]
+	uint8_t m_func: 7;
+
+	[
+		displayName = "Exception flag",
+		displayType = typeof(bool)
+	]
+	uint8_t m_exceptionFlag: 1;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ModbusExceptionPdu: ModbusPduHdr {
-	[ displayName = "Exception" ]
+// ModbusFunc.Exception (ModbusPduHdr.m_func has ModbusFunc.ExceptionFlag set)
+
+struct ModbusExceptionParams {
+	[ displayName = "Exception code" ]
 	ModbusException m_exception;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ModbusReadPdu: ModbusPduHdr {
-	[ displayName = "Read address" ]
+// ModbusFunc.ReadCoils / ReadDiscreteInputs / ReadHoldingRegisters / ReadInputRegisters
+
+struct ModbusReadParams {
+	[ @ModbusAddressAttr ]
 	bigendian uint16_t m_address;
 
 	[ displayName = "Count" ]
 	bigendian uint16_t m_count;
 }
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct ModbusReadReplyPdu: ModbusPduHdr {
+struct ModbusReadReplyParams {
 	[ displayName = "Size" ]
 	uint8_t m_size;
 
@@ -167,24 +247,64 @@ struct ModbusReadReplyPdu: ModbusPduHdr {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ModbusWritePdu: ModbusPduHdr {
-	[ displayName = "Write address" ]
+struct ModbusBitBank {
+	[ displayName = "[0]" ]
+	uchar_t m_coil0: 1;
+	[ displayName = "[1]" ]
+	uchar_t m_coil1: 1;
+	[ displayName = "[2]" ]
+	uchar_t m_coil2: 1;
+	[ displayName = "[3]" ]
+	uchar_t m_coil3: 1;
+	[ displayName = "[4]" ]
+	uchar_t m_coil4: 1;
+	[ displayName = "[5]" ]
+	uchar_t m_coil5: 1;
+	[ displayName = "[6]" ]
+	uchar_t m_coil6: 1;
+	[ displayName = "[7]" ]
+	uchar_t m_coil7: 1;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// ModbusFunc.WriteSingleCoil/WriteSingleRegister
+
+struct ModbusWriteSingleParams {
+	[ @ModbusAddressAttr ]
 	bigendian uint16_t m_address;
 
 	[ displayName = "Value" ]
 	bigendian uint16_t m_value;
 }
 
+typedef ModbusWriteSingleParams ModbusWriteSingleReplyParams;
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ModbusReadExceptionStatusReplyPdu: ModbusPduHdr {
+// ModbusFunc.ReadExceptionStatus
+
+struct ModbusReadExceptionStatusReplyParams {
 	[ displayName = "Status" ]
 	uint8_t m_status;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ModbusGetCommEventCounterReplyPdu: ModbusPduHdr {
+// ModbusFunc.Diagnostics
+
+struct ModbusDiagnosticsParams {
+	bigendian ModbusDiagnosticSubFunc m_subFunc;
+
+	[ displayName = "Data" ]
+	bigendian uint16_t m_data;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// ModbusFunc.GetCommEventCounter
+
+struct ModbusGetCommEventCounterReplyParams {
 	[ displayName = "Status" ]
 	bigendian uint16_t m_status;
 
@@ -194,7 +314,9 @@ struct ModbusGetCommEventCounterReplyPdu: ModbusPduHdr {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ModbusGetCommEventLogReplyPdu: ModbusReadReplyPdu {
+// ModbusFunc.GetCommEventLog
+
+struct ModbusGetCommEventLogReplyParams: ModbusReadReplyParams {
 	[ displayName = "Status" ]
 	bigendian uint16_t m_status;
 
@@ -209,8 +331,10 @@ struct ModbusGetCommEventLogReplyPdu: ModbusReadReplyPdu {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ModbusWriteMultiplePdu: ModbusPduHdr {
-	[ displayName = "Write address" ]
+// ModbusFunc.WriteMultipleCoils / WriteMultipleRegisters
+
+struct ModbusWriteMultipleParams {
+	[ @ModbusAddressAttr ]
 	bigendian uint16_t m_address;
 
 	[ displayName = "Count" ]
@@ -224,8 +348,30 @@ struct ModbusWriteMultiplePdu: ModbusPduHdr {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ModbusWriteMultipleReplyPdu: ModbusPduHdr {
-	[ displayName = "Write address" ]
+[
+	userAction = "Update size",
+	autorun = "Auto-update size"
+]
+void AutoUpdateSizeAttr;
+
+struct ModbusWriteMultipleCoilsParams: ModbusWriteMultipleParams {
+	[ @AutoUpdateSizeAttr ]
+	void updateSize() {
+		m_size = m_count / 8;
+		if (m_count & 7)
+			m_size++;
+	}
+}
+
+struct ModbusWriteMultipleRegistersParams: ModbusWriteMultipleParams {
+	[ @AutoUpdateSizeAttr ]
+	void updateSize() {
+		m_size = m_count * sizeof(uint16_t);
+	}
+}
+
+struct ModbusWriteMultipleReplyParams {
+	[ @ModbusAddressAttr ]
 	bigendian uint16_t m_address;
 
 	[ displayName = "Count" ]
@@ -234,27 +380,64 @@ struct ModbusWriteMultipleReplyPdu: ModbusPduHdr {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ModbusMaskWritePdu: ModbusPduHdr {
-	[ displayName = "Write address" ]
-	bigendian uint16_t m_address;
+// ModbusFunc.ReadFileRecord/WriteFileRecord
 
-	[ displayName = "AND mask" ]
-	bigendian uint16_t m_andMask;
+typedef ModbusReadReplyParams ModbusReadWriteFileRecordParams;
+typedef ModbusReadReplyPdu ModbusReadWriteFileRecordPdu;
 
-	[ displayName = "OR mask" ]
-	bigendian uint16_t m_orMask;
+struct ModbusFileRecord {
+	uint8_t m_referenceType; // must be 0x06
+	bigendian uint16_t m_fileNumber;
+	bigendian uint16_t m_recordNumber;
+	bigendian uint16_t m_recordCount;
+}
+
+struct ModbusReadFileRecordReply {
+	uint8_t m_size;
+	uint8_t m_referenceType; // must be 0x06
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ModbusReadWriteMultiplePdu: ModbusPduHdr {
-	[ displayName = "Read address" ]
+// ModbusFunc.MaskWriteRegister
+
+struct ModbusMaskWriteParams {
+	[ @ModbusAddressAttr ]
+	bigendian uint16_t m_address;
+
+	[
+		displayName = "AND mask",
+		formatSpec = "0x%04X"
+	]
+	bigendian uint16_t m_andMask;
+
+	[
+		displayName = "OR mask",
+		formatSpec = "0x%04X"
+	]
+	bigendian uint16_t m_orMask;
+}
+
+typedef ModbusMaskWriteParams ModbusMaskWriteReplyParams;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// ModbusFunc.ReadWriteMultipleRegisters
+
+struct ModbusReadWriteMultipleRegistersParams {
+	[
+		displayName = "Read address",
+		formatSpec = "0x%04X"
+	]
 	bigendian uint16_t m_readAddress;
 
 	[ displayName = "Read count" ]
 	bigendian uint16_t m_readCount;
 
-	[ displayName = "Write address" ]
+	[
+		displayName = "Write address",
+		formatSpec = "0x%04X"
+	]
 	bigendian uint16_t m_writeAddress;
 
 	[ displayName = "Write count" ]
@@ -262,18 +445,28 @@ struct ModbusReadWriteMultiplePdu: ModbusPduHdr {
 
 	[ displayName = "Write size" ]
 	uint8_t m_writeSize;
+
+	// followed by data to be written
 }
+
+typedef ModbusReadReplyParams ModbusReadWriteMultipleRegistersReplyParams;
+
+//..............................................................................
+
+// ModbusFunc.ReportServerId
+
+typedef ModbusReadReplyParams ModbusReportServerIdReplyParams;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ModbusReadFifoPdu: ModbusPduHdr {
-	[ displayName = "Address" ]
+// ModbusFunc.ReadFifoQueue
+
+struct ModbusReadFifoQueueParams {
+	[ @ModbusAddressAttr ]
 	bigendian uint16_t m_address;
 }
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct ModbusReadFifoReplyPdu: ModbusPduHdr {
+struct ModbusReadFifoQueueReplyParams {
 	[ displayName = "Byte count" ]
 	bigendian uint16_t m_byteCount;
 
@@ -283,119 +476,25 @@ struct ModbusReadFifoReplyPdu: ModbusPduHdr {
 	// followed by FIFO data
 }
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-enum {
-	ModbusMaxPduSize = sizeof(ModbusWriteMultiplePdu) + 255,
-}
-
-//..............................................................................
-
-// calculates the actual size of PDU (-1 on error)
-
-size_t errorcode getModbusPduSize(
-	ModbusRole role,
-	ModbusPduHdr const* pduHdr,
-	size_t size
-) {
-	if (size < sizeof(ModbusPduHdr))
-		return sizeof(ModbusPduHdr);
-
-	switch (pduHdr.m_func) {
-	case io.ModbusFunc.ReadCoils:
-	case io.ModbusFunc.ReadDiscreteInputs:
-	case io.ModbusFunc.ReadHoldingRegisters:
-	case io.ModbusFunc.ReadInputRegisters:
-	case io.ModbusFunc.ReportServerId:
-		return
-			role == ModbusRole.Master ? sizeof(ModbusReadPdu) :
-			size < sizeof(ModbusReadReplyPdu) ? sizeof(ModbusReadReplyPdu) :
-			sizeof(ModbusReadReplyPdu) + ((ModbusReadReplyPdu const*)pduHdr).m_size;
-
-	case io.ModbusFunc.WriteCoil:
-	case io.ModbusFunc.WriteRegister:
-		return sizeof(ModbusWritePdu);
-
-	case io.ModbusFunc.ReadExceptionStatus:
-		return role == ModbusRole.Master ?
-			sizeof(ModbusPduHdr) :
-			sizeof(ModbusReadExceptionStatusReplyPdu);
-
-	case io.ModbusFunc.Diagnostics:
-		std.setError("ModbusFunc.Diagnostics is unsupported");
-		return -1;
-
-	case io.ModbusFunc.GetCommEventCounter:
-		return role == ModbusRole.Master ?
-			sizeof(ModbusPduHdr) :
-			sizeof(ModbusGetCommEventCounterReplyPdu);
-
-	case io.ModbusFunc.GetCommEventLog:
-		return role == ModbusRole.Master ?
-			sizeof(ModbusPduHdr) :
-			size < sizeof(ModbusGetCommEventLogReplyPdu) ? sizeof(ModbusGetCommEventLogReplyPdu) :
-			sizeof(ModbusReadReplyPdu) + ((ModbusReadReplyPdu const*)pduHdr).m_size;
-
-	case io.ModbusFunc.WriteMultipleCoils:
-	case io.ModbusFunc.WriteMultipleRegisters:
-		return
-			role == ModbusRole.Slave ? sizeof(ModbusWriteMultipleReplyPdu) :
-			size < sizeof(ModbusWriteMultiplePdu) ? sizeof(ModbusWriteMultiplePdu) :
-			sizeof(ModbusWriteMultiplePdu) + ((ModbusWriteMultiplePdu const*)pduHdr).m_size;
-
-	case io.ModbusFunc.ReadFileRecord:
-	case io.ModbusFunc.WriteFileRecord:
-		return
-			size < sizeof(ModbusReadReplyPdu) ? sizeof(ModbusReadReplyPdu) :
-			sizeof(ModbusReadReplyPdu) + ((ModbusReadReplyPdu const*)pduHdr).m_size;
-
-	case io.ModbusFunc.MaskWriteRegister:
-		return sizeof(ModbusMaskWritePdu);
-
-	case io.ModbusFunc.ReadWriteMultipleRegisters:
-		return
-			role == ModbusRole.Master ?
-			size < sizeof(ModbusReadWriteMultiplePdu) ? sizeof(ModbusReadWriteMultiplePdu) :
-			sizeof(ModbusReadWriteMultiplePdu) + ((ModbusReadWriteMultiplePdu const*)pduHdr).m_writeSize :
-			size < sizeof(ModbusReadReplyPdu) ? sizeof(ModbusReadReplyPdu) :
-			sizeof(ModbusReadReplyPdu) + ((ModbusReadReplyPdu const*)pduHdr).m_size;
-
-	case io.ModbusFunc.ReadFifoQueue:
-		return
-			role == ModbusRole.Master ? sizeof(ModbusReadFifoPdu) :
-			size < sizeof(ModbusReadFifoReplyPdu) ? sizeof(ModbusReadFifoReplyPdu) :
-			sizeof(ModbusReadFifoReplyPdu) + ((ModbusReadFifoReplyPdu const*)pduHdr).m_fifoCount * sizeof(uint16_t);
-
-	case io.ModbusFunc.EncapsulatedInterface:
-		std.setError("ModbusFunc.EncapsulatedInterface is unsupported");
-		return -1;
-
-	default:
-		if (pduHdr.m_func & ModbusFunc.ExceptionFlag)
-			return sizeof(ModbusExceptionPdu);
-
-		std.setError("Unknown Modbus function");
-		return -1;
-	}
-}
-
 //..............................................................................
 
 // Modbus ADUs
 
 struct ModbusRtuAduHdr {
-	[ displayName = "Device address" ]
+	[
+		displayName = "Device",
+		formatSpec = "#%d"
+	]
 	uint8_t m_deviceAddress;
 
-	// followed by PDU and CRC16 checksum
+	// followed by PDU, then CRC16 checksum
 }
 
-struct ModbusAsciiAduHdr {
-	[ displayName = "Device address" ]
-	char m_deviceAddress[2];
+struct ModbusRtuAduPduHdr:
+	ModbusRtuAduHdr,
+	ModbusPduHdr {}
 
-	// followed by hex-encoded PDU, LRC8 checksum, and then \r\n
-}
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct ModbusTcpAduHdr {
 	[ displayName = "Transaction ID" ]
@@ -407,39 +506,662 @@ struct ModbusTcpAduHdr {
 	[ displayName = "Length" ]
 	bigendian uint16_t m_length; // length of data following this field
 
-	[ displayName = "Device address" ]
+	[ displayName = "Device" ]
 	uint8_t m_deviceAddress;
 
 	// followed by PDU
 }
 
+struct ModbusTcpAduPduHdr:
+	ModbusTcpAduHdr,
+	ModbusPduHdr {}
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum {
-	ModbusMaxRtuAduSize   = sizeof(ModbusRtuAduHdr) + ModbusMaxPduSize + 2,
-	ModbusMaxAsciiAduSize = 1 + sizeof(ModbusAsciiAduHdr) + ModbusMaxPduSize * 2 + 4,
-	ModbusMaxTcpAduSize = sizeof(ModbusTcpAduHdr) + ModbusMaxPduSize,
+	ModbusFileReferenceType = 6,
+
+	ModbusMaxPduSize        = 253, // historical limit
+	ModbusMaxRtuAduSize     = sizeof(ModbusRtuAduHdr) + ModbusMaxPduSize + 2,
+	ModbusMaxAsciiAduSize   = 1 + (sizeof(ModbusRtuAduHdr) + ModbusMaxPduSize) * 2 + 4, // :(ADU)(LRC)\r\n
+	ModbusMaxTcpAduSize     = sizeof(ModbusTcpAduHdr) + ModbusMaxPduSize,
 }
 
 //..............................................................................
 
-// calculates the actual size of Modbus RTU ADU
+// no need to make this one async -- it doesn't read any preceding data
 
-size_t errorcode getModbusRtuAduSize(
-	ModbusRole role,
-	ModbusRtuAduHdr const* aduHdr,
+void layoutModbusRegisters(
+	jnc.DynamicLayout* layout,
+	size_t count,
 	size_t size
 ) {
-	if (size < sizeof(ModbusRtuAduHdr))
-		return sizeof(ModbusRtuAduHdr);
+	size_t maxCount = size / sizeof(uint16_t);
+	if (count > maxCount)
+		count = maxCount;
 
-	ModbusPduHdr const* pduHdr = (ModbusPduHdr const*)(aduHdr + 1);
-	size_t pduSize = getModbusPduSize(role, pduHdr, size - sizeof(ModbusRtuAduHdr));
-	return pduSize + sizeof(uint8_t) + sizeof(uint16_t);
+	dylayout (layout) {
+		[
+			displayName = "Values",
+			backColor = ui.StdColor.PastelYellow,
+			digestFunc = getModbusRegisterDigest,
+			foldFlag = 2
+		]
+		dyfield values {
+			[ ungroup ]
+			dyfield bigendian uint16_t values[count];
+			
+			if (size & 1)
+				[ displayName = "Padding" ]
+				dyfield uint8_t padding;
+		}
+	}
+}
+
+async void layoutModbusPdu(
+	jnc.DynamicLayout* layout,
+	ModbusRole role
+) {
+	[
+		displayName = "Values",
+		backColor = ui.StdColor.PastelYellow,
+		digestFunc = getModbusBitDigest,
+		foldFlag = 2
+	]
+	void ModbusBitBankAttr;
+
+	dylayout (layout) {
+		[
+			backColor = ui.StdColor.PastelBlue,
+			ungroup
+		]
+		dyfield pdu {
+			ModbusFunc func;
+
+			if (role == ModbusRole.Master) { // request
+				[ ungroup ]
+				dyfield ModbusPduHdr pduHdr;
+				func = pduHdr.m_func;
+			} else {
+				[ ungroup ]
+				dyfield ModbusReplyPduHdr pduHdr;
+				if (pduHdr.m_exceptionFlag) {
+					[ ungroup ]
+					dyfield ModbusExceptionParams params;
+					return;
+				}
+
+				func = (ModbusFunc)pduHdr.m_func;
+			}
+
+			switch (func) {
+			case ModbusFunc.ReadCoils:
+			case ModbusFunc.ReadDiscreteInputs:
+			case ModbusFunc.ReadHoldingRegisters:
+			case ModbusFunc.ReadInputRegisters:
+				if (role == ModbusRole.Master) // request
+					[ ungroup ]
+					dyfield ModbusReadParams params;
+				else { // reply
+					[ ungroup ]
+					dyfield ModbusReadReplyParams params;
+
+					if (func <= ModbusFunc.ReadDiscreteInputs)
+						[ @ModbusBitBankAttr ]
+						dyfield ModbusBitBank values[params.m_size];
+					else
+						layoutModbusRegisters(layout, -1, params.m_size);
+				}
+				break;
+
+
+			case ModbusFunc.WriteSingleCoil:
+			case ModbusFunc.WriteSingleRegister:
+				[ ungroup ]
+				dyfield ModbusWriteSingleParams params; // same for request & reply
+				break;
+
+			case ModbusFunc.ReadExceptionStatus:
+				if (role == ModbusRole.Slave)
+					[ ungroup]
+					dyfield ModbusReadExceptionStatusReplyParams params;
+				break;
+
+			case ModbusFunc.Diagnostics:
+				[ ungroup]
+				dyfield ModbusDiagnosticsParams params;  // same for request & reply
+				break;
+
+			case ModbusFunc.GetCommEventCounter:
+				if (role == ModbusRole.Slave)
+					[ ungroup]
+					dyfield ModbusGetCommEventCounterReplyParams params;
+
+				break;
+
+			case ModbusFunc.GetCommEventLog:
+				if (role == ModbusRole.Slave) {
+					[ ungroup]
+					dyfield ModbusGetCommEventLogReplyParams params;
+
+					if (params.m_size > 6)
+						[
+							displayName = "Values",
+							backColor = ui.StdColor.PastelYellow,
+							foldFlag = 2
+						]
+						dyfield uint8_t data[params.m_size - 3 * sizeof(uint16_t)];
+				}
+				break;
+
+			case ModbusFunc.ReportServerId:
+				if (role == ModbusRole.Slave) {
+					[ ungroup ]
+					dyfield ModbusReportServerIdReplyParams params;
+
+					[
+						displayName = "Server ID",
+						backColor = ui.StdColor.PastelYellow,
+						binary
+					]
+					dyfield uint8_t data[params.m_size];
+				}
+				break; // no extra params
+
+			case ModbusFunc.WriteMultipleCoils:
+				if (role == ModbusRole.Master) { // request
+					[ ungroup ]
+					dyfield ModbusWriteMultipleCoilsParams params;
+
+					[ @ModbusBitBankAttr ]
+					dyfield ModbusBitBank values[params.m_size];
+				} else // reply
+					[ ungroup ]
+					dyfield ModbusWriteMultipleReplyParams reply;
+				break;
+
+			case ModbusFunc.WriteMultipleRegisters:
+				if (role == ModbusRole.Master) { // request
+					[ ungroup ]
+					dyfield ModbusWriteMultipleRegistersParams params;
+					layoutModbusRegisters(layout, params.m_count, params.m_size);
+				} else // reply
+					[ ungroup ]
+					dyfield ModbusWriteMultipleReplyParams params;
+				break;
+
+			case ModbusFunc.ReadFileRecord:
+			case ModbusFunc.WriteFileRecord:
+				[ ungroup ]
+				dyfield ModbusReadWriteFileRecordParams params;
+
+				[
+					displayName = "Records",
+					backColor = ui.StdColor.PastelYellow,
+					binary
+				]
+				dyfield uint8_t data[params.m_size];
+				break;
+
+			case ModbusFunc.MaskWriteRegister:
+				[ ungroup ]
+				dyfield ModbusMaskWriteParams params; // same for request & reply
+				break;
+
+			case ModbusFunc.ReadWriteMultipleRegisters:
+				if (role == ModbusRole.Master) { // request
+					[ ungroup ]
+					dyfield ModbusReadWriteMultipleRegistersParams params;
+					layoutModbusRegisters(layout, params.m_writeCount, params.m_writeSize);
+				} else { // reply
+					[ ungroup ]
+					dyfield ModbusReadReplyParams params;
+					layoutModbusRegisters(layout, -1, params.m_size);
+				}
+				break;
+
+			case ModbusFunc.ReadFifoQueue:
+				if (role == ModbusRole.Master) // request
+					[ ungroup ]
+					dyfield ModbusReadFifoQueueParams params;
+				else {
+					[ ungroup ]
+					dyfield ModbusReadFifoQueueReplyParams params;
+					layoutModbusRegisters(layout, params.m_fifoCount, params.m_byteCount - sizeof(uint16_t));
+				}
+				break;
+
+			case ModbusFunc.EncapsulatedInterface:
+				std.setError("ModbusFunc.EncapsulatedInterface is unsupported");
+				throw;
+
+			default:
+				std.setError("Unknown Modbus function");
+				throw;
+			}
+		}
+	}
+}
+
+void appendModbusPduDigest(
+	std.StringBuilder* digest,
+	void const* p,
+	size_t size,
+	ModbusRole role
+) {
+	jnc.DynamicLayout layout(p, size);
+	dylayout (layout) {
+		static string_t directions[] = {
+			"request",
+			"reply",
+		}
+
+		dyfield ModbusPduHdr pduHdr;
+		if (!(pduHdr.m_func & ModbusFunc.ExceptionFlag))
+			digest.append($"%1 (%2)"(
+				typeof(ModbusFunc).getValueString(pduHdr.m_func),
+				directions[role]
+			));
+		else {
+			dyfield ModbusExceptionParams params;
+			digest.append($"%1 (EXCEPTION: \e[31m%2\e[m)"(
+				typeof(ModbusFunc).getValueString(pduHdr.m_func & ~ModbusFunc.ExceptionFlag),
+				typeof(ModbusException).getValueString(params.m_exception)
+			));
+		}
+
+		switch (pduHdr.m_func) {
+		case ModbusFunc.ReadCoils:
+		case ModbusFunc.ReadDiscreteInputs:
+		case ModbusFunc.ReadHoldingRegisters:
+		case ModbusFunc.ReadInputRegisters:
+			if (role == ModbusRole.Master) {
+				dyfield ModbusReadParams params;
+				digest.append($" Addr: 0x%04x"(params.m_address));
+				if (params.m_count > 1)
+					digest.append($" N: %1"(params.m_count));
+			} else {
+				dyfield ModbusReadReplyParams params;
+				digest.append(' ');
+
+				if (pduHdr.m_func <= ModbusFunc.ReadDiscreteInputs)
+					digest.append(getModbusBitDigest(&params + 1, params.m_size));
+				else
+					digest.append(getModbusRegisterDigest(&params + 1, params.m_size));
+			}
+			break;
+
+		case ModbusFunc.WriteSingleCoil:
+		case ModbusFunc.WriteSingleRegister:
+			dyfield ModbusWriteSingleParams params;
+			digest.append($" Addr: 0x%04x Val: %2"(params.m_address, params.m_value));
+			break;
+
+		case ModbusFunc.WriteMultipleCoils:
+		case ModbusFunc.WriteMultipleRegisters:
+			if (role == ModbusRole.Master) {
+				dyfield ModbusWriteMultipleParams params;
+				digest.append($" Addr: 0x%04x "(params.m_address));
+
+				if (pduHdr.m_func == ModbusFunc.WriteMultipleCoils)
+					digest.append(getModbusBitDigest(&params + 1, params.m_size));
+				else
+					digest.append(getModbusRegisterDigest(&params + 1, params.m_size));
+			} else {
+				dyfield ModbusWriteMultipleReplyParams params;
+				digest.append($" Addr: 0x%04x N: %2"(params.m_address, params.m_count));
+			}
+			break;
+
+		case ModbusFunc.MaskWriteRegister:
+			dyfield ModbusMaskWriteParams params;
+			digest.append(
+				$" Addr: 0x%04x Masks: 0x%04x/0x%04x"(
+				params.m_address,
+				params.m_andMask,
+				params.m_orMask
+			));
+			break;
+
+		case ModbusFunc.ReadWriteMultipleRegisters:
+			if (role == ModbusRole.Master) {
+				dyfield ModbusReadWriteMultipleRegistersParams params;
+				digest.append(
+					$" Addr: 0x%04x/0x%04x "(
+					params.m_readAddress,
+					params.m_writeAddress
+				));
+				digest.append(getModbusRegisterDigest(&params + 1, params.m_writeSize));
+			} else {
+				dyfield ModbusReadReplyParams params;
+				digest.append(' ');
+				digest.append(getModbusRegisterDigest(&params + 1, params.m_size));
+			}
+			break;
+
+		case ModbusFunc.ReadExceptionStatus:
+		case ModbusFunc.Diagnostics:
+		case ModbusFunc.GetCommEventCounter:
+		case ModbusFunc.GetCommEventLog:
+		case ModbusFunc.ReportServerId:
+		case ModbusFunc.ReadFileRecord:
+		case ModbusFunc.WriteFileRecord:
+		case ModbusFunc.ReadFifoQueue:
+		case ModbusFunc.EncapsulatedInterface:
+			break; // not yet
+		}
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+uint16_t crc16_modbus(
+	void const* p,
+	size_t size
+) {
+	return crc16_ansi(p, size, 0xffff);
+}
+
+struct ModbusRtuCrc {
+	[
+		displayName = "CRC",
+		formatFunc  = formatModbusRtuCrc,
+		formatSpec  = "0x%04X"
+	]
+	uint16_t m_crc; // Modbus RTU CRC is little-endian
+
+	[
+		userAction = "Update CRC",
+		autorun = "Auto-update CRC"
+	]
+	void updateCrc() {
+		m_crc = calcCrc();
+	}
+
+	uint16_t calcCrc() const {
+		size_t size = dynamic offsetof(this);
+		return crc16_modbus((char const*)this - size, size);
+	}
+}
+
+string_t getModbusChecksumValidityString(bool isValid) {
+	return isValid ? "\e[32mOK\e[m" : "\e[31mERROR\e[m";
+}
+
+string_t formatModbusRtuCrc(void const* p) {
+	ModbusRtuCrc const* crc = (ModbusRtuCrc const*)p;
+	bool isValid = crc.m_crc == crc.calcCrc();
+	return $"0x%04X\e[m [%2]"(crc.m_crc, getModbusChecksumValidityString(isValid));
+}
+
+string_t formatModbusAsciiLrc(void const* p) {
+	size_t size = dynamic offsetof(p);
+	uint8_t checksum = *(uint8_t const*)p;
+	bool isValid = checksum == lrc(p - size, size);
+	return $"0x%02X\e[m [%2]"(checksum, getModbusChecksumValidityString(isValid));
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+async void layoutModbusAdu(
+	jnc.DynamicLayout* layout,
+	ModbusProtocol protocol,
+	ModbusRole role
+) {
+	[
+		backColor = ui.StdColor.PastelPurple,
+		ungroup
+	]
+	void AduAttr;
+
+	static string_t displayNames[] = {
+		"MODBUS-RTU",
+		"MODBUS-ASCII",
+		"MODBUS-RTU",
+	}
+
+	dylayout (layout) {
+		[
+			displayNameAttr = "\e[1m",
+			backColor = ui.StdColor.PastelGray,
+			digestFunc = getModbusAduDigest,
+			foldFlag = 1,
+			root // root groups are for log only (ungrouped in packet templates)
+		]
+		dyfield adu {
+			// add dynamic attributes for representDynamicLayout / getModbusAduDigest
+			layout.setGroupAttribute("displayName", displayNames[protocol]);
+			layout.setGroupAttribute("protocol", protocol);
+			layout.setGroupAttribute("role", role);
+
+			dylayout (layout) {
+				switch (protocol) {
+				case ModbusProtocol.Rtu:
+					[ @AduAttr ]
+					dyfield ModbusRtuAduHdr aduHdr;
+
+					await layoutModbusPdu(layout, role);
+
+					[ @AduAttr ]
+					dyfield ModbusRtuCrc crc;
+					break;
+
+				case ModbusProtocol.Ascii:
+					[ @AduAttr ]
+					dyfield ModbusRtuAduHdr aduHdr;
+
+					await layoutModbusPdu(layout, role);
+
+					[
+						@AduAttr,
+						displayName = "LRC",
+						formatFunc = formatModbusAsciiLrc
+					]
+					dyfield uint8_t lrc;
+					break;
+
+				case ModbusProtocol.Tcp:
+					[ @AduAttr ]
+					dyfield ModbusTcpAduHdr aduHdr;
+
+					await layoutModbusPdu(layout, role);
+					break;
+				}
+			}
+		}
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+string_t getModbusAduDigest(
+	void const* p,
+	size_t size,
+	jnc.ModuleItemDecl* decl
+) {
+	static string_t arrows[] = {
+		"\u2190", // left arrow
+		"\u2192", // right arrow
+	}
+
+	ModbusProtocol protocol = decl.findAttributeValue("protocol");
+	ModbusRole role = decl.findAttributeValue("role");
+	std.StringBuilder digest;
+
+	switch (protocol) {
+	case ModbusProtocol.Rtu:
+		ModbusRtuAduHdr const* aduHdr = (ModbusRtuAduHdr const*)p;
+		digest := $"Dev: %1 %2 "(aduHdr.m_deviceAddress, arrows[role]);
+
+		appendModbusPduDigest(
+			digest,
+			p + sizeof(ModbusRtuAduHdr),
+			size - sizeof(ModbusRtuAduHdr) - sizeof(uint16_t),
+			role
+		);
+
+		size -= sizeof(uint16_t);
+		uint16_t const* crc = (uint16_t const*)(p + size);
+		if (*crc != crc16_modbus(p, size))
+			digest.append(" [\e[31mCRC ERROR\e[m]");
+
+		break;
+
+	case ModbusProtocol.Ascii:
+		ModbusRtuAduHdr const* aduHdr = (ModbusRtuAduHdr const*)p;
+		digest := $"Dev: %1 %2 "(aduHdr.m_deviceAddress, arrows[role]);
+
+		appendModbusPduDigest(
+			digest,
+			p + sizeof(ModbusRtuAduHdr),
+			size - sizeof(ModbusRtuAduHdr) - sizeof(uint16_t),
+			role
+		);
+
+		size -= sizeof(uint8_t);
+		uint8_t const* checksum = (uint8_t const*)(p + size);
+		if (*checksum != lrc(p, size))
+			digest.append(" [\e[31mLRC ERROR\e[m]");
+
+		break;
+
+	case ModbusProtocol.Tcp:
+		ModbusTcpAduHdr const* aduHdr = (ModbusTcpAduHdr const*)p;
+		digest := $"TID: %04x Dev: %2 %3 "(
+			aduHdr.m_transactionId,
+			aduHdr.m_deviceAddress,
+			arrows[role]
+		);
+
+		appendModbusPduDigest(
+			digest,
+			p + sizeof(ModbusRtuAduHdr),
+			size - sizeof(ModbusRtuAduHdr) - sizeof(uint16_t),
+			role
+		);
+
+		break;
+	}
+
+	return digest.detachString();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum {
+	ModbusDigestValueCount = 3
+}
+
+string_t getModbusRegisterDigest(
+	void const* p0,
+	size_t size
+) {
+	size_t count0 = size / sizeof(uint16_t);
+	size_t count = count0 < ModbusDigestValueCount ? count0 : ModbusDigestValueCount;
+	if (!count)
+		return "{ }";
+
+	bigendian uint16_t const* p = (bigendian uint16_t const*)p0;
+	bigendian uint16_t const* end = p + count;
+
+	std.StringBuilder digest;
+	digest.append('{');
+	for (; p < end; p++)
+		digest.append($" %d,"(*p));
+
+	if (count0 > count)
+		digest.append(" ... }");
+	else {
+		digest.chop(1);
+		digest.append(" }");
+	}
+
+	return digest.detachString();
+}
+
+string_t getModbusBitDigest(
+	void const* p,
+	size_t size
+) {
+	if (!size)
+		return "{ }";
+
+	size_t count0 = size * 8;
+
+	std.StringBuilder digest;
+	digest.append('{');
+
+	uchar_t x = *(uchar_t const*)p;
+	uchar_t mask = 1;
+	for (size_t i = 0; i < ModbusDigestValueCount; i++, x >>= 1)
+		digest.append($" %d,"(x & 1));
+
+	digest.append(" ... }");
+	return digest.detachString();
 }
 
 //..............................................................................
 
-//! @}
+// PDU definitions (for the legacy plugin & packet templates)
+
+struct ModbusExceptionPdu:
+	ModbusPduHdr,
+	ModbusExceptionParams {}
+
+struct ModbusReadPdu:
+	ModbusPduHdr,
+	ModbusReadParams {}
+
+struct ModbusReadReplyPdu:
+	ModbusPduHdr,
+	ModbusReadReplyParams {}
+
+struct ModbusWriteSinglePdu:
+	ModbusPduHdr,
+	ModbusWriteSingleParams {}
+
+typedef ModbusWriteSinglePdu ModbusWriteSingleReplyPdu;
+
+struct ModbusReadExceptionStatusReplyPdu:
+	ModbusPduHdr,
+	ModbusReadExceptionStatusReplyParams {}
+
+struct ModbusGetCommEventCounterReplyPdu:
+	ModbusPduHdr,
+	ModbusGetCommEventCounterReplyParams {}
+
+struct ModbusGetCommEventLogReplyPdu:
+	ModbusPduHdr,
+	ModbusGetCommEventLogReplyParams {}
+
+struct ModbusWriteMultiplePdu:
+	ModbusPduHdr,
+	ModbusWriteMultipleParams {}
+
+struct ModbusWriteMultipleReplyPdu:
+	ModbusPduHdr,
+	ModbusWriteMultipleReplyParams {}
+
+struct ModbusMaskWritePdu:
+	ModbusPduHdr,
+	ModbusMaskWriteParams {}
+
+typedef ModbusMaskWritePdu ModbusMaskWriteReplyPdu;
+
+struct ModbusReadWriteMultipleRegistersPdu:
+	ModbusPduHdr,
+	ModbusReadWriteMultipleRegistersParams {}
+
+typedef ModbusReadReplyPdu ModbusReadWriteMultipleRegistersReplyPdu;
+
+struct ModbusReadFifoQueuePdu:
+	ModbusPduHdr,
+	ModbusReadFifoQueueParams {}
+
+struct ModbusReadFifoQueueReplyPdu:
+	ModbusPduHdr,
+	ModbusReadFifoQueueReplyParams {}
+
+//..............................................................................
 
 } // namespace io

@@ -14,7 +14,7 @@ import "ui_Button.jnc"
 
 class SerialLogFilter:
 	doc.LogFilter,
-	log.FoldingFilter {
+	log.Filter {
 protected:
 	log.Log* m_log;
 
@@ -34,7 +34,7 @@ public:
 	override bool errorcode applyProperties();
 	override void restoreDefaultProperties();
 
-	override uint8_t filter(
+	override bool filter(
 		uint64_t timestamp,
 		uint64_t recordCode,
 		void const* p,
@@ -92,7 +92,7 @@ SerialLogFilter.construct(doc.PluginHost* pluginHost) {
 
 	pluginHost.createForm(groupBox);
 
-	pluginHost.m_log.addFoldingFilter(this);
+	pluginHost.m_log.addFilter(this);
 }
 
 void SerialLogFilter.load(doc.Storage* storage) {
@@ -133,14 +133,12 @@ void SerialLogFilter.restoreDefaultProperties() {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-uint8_t SerialLogFilter.filter(
+bool SerialLogFilter.filter(
 	uint64_t timestamp,
 	uint64_t recordCode,
 	void const* p,
 	size_t size
 ) {
-	bool isVisible = true;
-
 	switch (recordCode) {
 	case SerialLogRecordCode.BaudRateChanged:
 	case SerialLogRecordCode.DataBitsChanged:
@@ -149,26 +147,23 @@ uint8_t SerialLogFilter.filter(
 	case SerialLogRecordCode.FlowControlChanged:
 	case SerialLogRecordCode.ReadModeChanged:
 	case SerialLogRecordCode.ReadIntervalChanged:
-		isVisible = m_serialSettingChangeFilter.m_isVisible;
-		break;
+		return m_serialSettingChangeFilter.m_isVisible;
 
 	case SerialLogRecordCode.ControlLineChanged:
 	case SerialLogRecordCode.RtsChanged:
 	case SerialLogRecordCode.DtrChanged:
 	case SerialLogRecordCode.BreakConditionChanged:
-		isVisible = m_controlLineChangeFilter.m_isVisible;
-		break;
+		return m_controlLineChangeFilter.m_isVisible;
 
 	case SerialLogRecordCode.StatusLineChanged:
-		isVisible = m_statusLineChangeFilter.m_isVisible;
-		break;
+		return m_statusLineChangeFilter.m_isVisible;
 
 	case SerialLogRecordCode.LineError:
-		isVisible = m_lineErrorFilter.m_isVisible;
-		break;
-	}
+		return m_lineErrorFilter.m_isVisible;
 
-	return isVisible ? 0 : log.FoldFlags.Hidden;
+	default:
+		return true;
+	}
 }
 
 //..............................................................................

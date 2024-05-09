@@ -14,19 +14,21 @@ namespace io {
 //..............................................................................
 
 enum IpProtocol: uint8_t {
-	HopByHopOption = 0,
-	Icmp           = 1,
-	Igmp           = 2,
-	Tcp            = 6,
-	Udp            = 17,
-	Icmp6          = 58,
+	HopOpt   = 0,
+	Icmp     = 1,
+	Igmp     = 2,
+	Tcp      = 6,
+	Udp      = 17,
+	Icmp6    = 58,
+	Reserved = 255,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum IpFlags {
-	Mf = 0x01,
-	Df = 0x02,
+bitflag enum IpFlags: uint8_t {
+	Mf       = 0x01,
+	Df       = 0x02,
+	Reserved = 0x04,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -77,37 +79,29 @@ struct IpHdr {
 
 	[
 		displayName = "Source",
-		formatFunc = formatIpAddress
+		stringify
 	]
-	bigendian uint32_t m_srcAddress;
+	io.Address_ip4 m_srcAddress;
 
 	[
 		displayName = "Destination",
-		formatFunc = formatIpAddress
+		stringify
 	]
-	bigendian uint32_t m_dstAddress;
+	io.Address_ip4 m_dstAddress;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 string_t formatIpDigest(void const* p) {
 	IpHdr const* hdr = (IpHdr const*)p;
-
-	return $"%1 \u2192 %2" (
-		formatIpAddress(&hdr.m_srcAddress),
-		formatIpAddress(&hdr.m_dstAddress)
-	);
-}
-
-string_t formatIpAddress(void const* p) {
-	return ((io.Address_ip4 const*)p).getString();
+	return $"%1 \u2192 %2" (hdr.m_srcAddress, hdr.m_dstAddress);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct IpPseudoHdr {
-	bigendian uint32_t m_srcAddress;
-	bigendian uint32_t m_dstAddress;
+	io.Address_ip4 m_srcAddress;
+	io.Address_ip4 m_dstAddress;
 	uint8_t m_zero;
 	uint8_t m_protocol;
 	bigendian uint16_t m_length;

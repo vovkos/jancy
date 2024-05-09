@@ -18,7 +18,6 @@ class SshPropertySet {
 	bitflag enum PropertyId {
 		UserName,
 		AuthenticationMethod,
-		PrivateKeyFile,
 		RememberLastPassword,
 		Process,
 		PtyType,
@@ -26,7 +25,6 @@ class SshPropertySet {
 		All =
 			UserName |
 			AuthenticationMethod |
-			PrivateKeyFile |
 			RememberLastPassword |
 			Process |
 			PtyType,
@@ -34,7 +32,7 @@ class SshPropertySet {
 
 	enum Defaults {
 		AuthenticationMethod = ui.AuthenticationMethod.Password,
-		RememberLastPassword = false,
+		RememberLastPassword = true,
 		ProcessTypeIndex     = 0,
 	}
 
@@ -84,7 +82,7 @@ void SshPropertySet.createProperties(
 			"User name for SSH authentification"
 		);
 
-	if (mask & PropertyId.AuthenticationMethod)
+	if (mask & PropertyId.AuthenticationMethod) {
 		m_authenticationMethodProp = propertyGrid.createEnumProperty(
 			group,,
 			"User authentication",
@@ -93,7 +91,6 @@ void SshPropertySet.createProperties(
 			countof(authenticationMethodTable)
 		);
 
-	if (mask & PropertyId.PrivateKeyFile) {
 		m_privateKeyFileProp = propertyGrid.createFileProperty(
 			group,,
 			"Private key file",
@@ -113,9 +110,9 @@ void SshPropertySet.createProperties(
 
 	if (mask & PropertyId.Process) {
 		static ui.EnumPropertyOption processTypeTable[] = {
-			{ "shell",     "shell" },
-			{ "exec",      "exec" },
-			{ "subsystem", "subsystem" },
+			{ "shell",     (string_t)"shell" },
+			{ "exec",      (string_t)"exec" },
+			{ "subsystem", (string_t)"subsystem" },
 		}
 
 		m_processTypeProp = propertyGrid.createEnumProperty(
@@ -147,20 +144,18 @@ void SshPropertySet.load(doc.Storage* storage) {
 	if (m_userNameProp)
 		m_userNameProp.m_value = storage.readString("userName");
 
-	if (m_authenticationMethodProp)
+	if (m_authenticationMethodProp) {
 		m_authenticationMethodProp.m_value = storage.readInt("authenticationMethod", Defaults.AuthenticationMethod);
-
-	if (m_privateKeyFileProp)
 		m_privateKeyFileProp.m_value = storage.readString("privateKeyFile");
+	}
 
 	if (m_rememberLastPasswordProp)
 		m_rememberLastPasswordProp.m_value = storage.readBool("rememberLastPassword", Defaults.RememberLastPassword);
 
-	if (m_processTypeProp)
+	if (m_processTypeProp) {
 		m_processTypeProp.m_currentIndex = storage.readInt("processTypeIdx", Defaults.ProcessTypeIndex);
-
-	if (m_processParamProp)
 		m_processParamProp.m_value = storage.readString("processParam");
+	}
 
 	if (m_ptyTypeProp)
 		m_ptyTypeProp.m_value = storage.readString("ptyType", DefaultPtyType);
@@ -170,20 +165,18 @@ void SshPropertySet.save(doc.Storage* storage) {
 	if (m_userNameProp)
 		storage.writeString("userName", m_userNameProp.m_value);
 
-	if (m_authenticationMethodProp)
+	if (m_authenticationMethodProp) {
 		storage.writeInt("authenticationMethod", m_authenticationMethodProp.m_value);
-
-	if (m_privateKeyFileProp)
 		storage.writeString("privateKeyFile", m_privateKeyFileProp.m_value);
+	}
 
 	if (m_rememberLastPasswordProp)
 		storage.writeBool("rememberLastPassword", m_rememberLastPasswordProp.m_value);
 
-	if (m_processTypeProp)
+	if (m_processTypeProp) {
 		storage.writeInt("processTypeIdx", m_processTypeProp.m_currentIndex);
-
-	if (m_processParamProp)
 		storage.writeString("processParam", m_processParamProp.m_value);
+	}
 
 	if (m_ptyTypeProp)
 		storage.writeString("ptyType", m_ptyTypeProp.m_value);
@@ -201,11 +194,11 @@ void SshPropertySet.restoreDefaults() {
 }
 
 reactor SshPropertySet.m_uiReactor {
-	m_authenticationMethodProp && m_privateKeyFileProp ?
-		m_privateKeyFileProp.m_isEnabled = m_authenticationMethodProp.m_value == ui.AuthenticationMethod.PrivateKey :
-		0;
+	m_authenticationMethodProp ?
+		m_privateKeyFileProp.m_isEnabled = m_authenticationMethodProp.m_value == ui.AuthenticationMethod.PrivateKey : 0;
 
-	m_processTypeProp ? m_processParamProp.m_isEnabled = m_processTypeProp.m_value != "shell" : 0;
+	m_processTypeProp ?
+		m_processParamProp.m_isEnabled = m_processTypeProp.m_value != "shell" : 0;
 
 	m_processTypeProp ?
 		m_processTypeProp.m_value == "exec" ? m_processParamProp.m_placeholderText = "Enter command line..." :

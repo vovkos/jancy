@@ -1,0 +1,89 @@
+import "io_base.jncx"
+import "io_MappedFile.jnc"
+import "log_exportToPcap.jnc"
+import "ui_Dialog.jnc"
+
+//..............................................................................
+
+class NetSnifferLogToPcap {
+protected:
+	log.Log* m_log;
+	ui.FileDlg* m_fileDlg;
+
+public:
+	construct(log.Log* log) {
+		m_log = log;
+	}
+
+	void export();
+
+protected:
+	void onFileDlgCompleted(ui.StdDlgButton button);
+
+	virtual size_t exportRecord(
+		log.Record const* record,
+		io.MappedFile* pcapFile,
+		uint64_t pcapOffset
+	);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void NetSnifferLogToPcap.export() {
+	if (!m_fileDlg) {
+		m_fileDlg = new ui.FileDlg;
+		m_fileDlg.m_onCompleted += onFileDlgCompleted;
+	}
+
+	m_fileDlg.m_kind = ui.FileDlgKind.Save;
+	m_fileDlg.m_title = "Export Pcap File...";
+	m_fileDlg.m_filter = "Pcap files (*.pcap; *.cap);; All files (*.*)";
+	m_fileDlg.show();
+}
+
+void NetSnifferLogToPcap.onFileDlgCompleted(ui.StdDlgButton button) {
+	if (button != ui.StdDlgButton.Ok)
+		return;
+
+	bool result = try log.exportToPcap(
+		m_log,
+		m_fileDlg.m_filePath,
+		io.PcapLinkType.Ethernet,
+		2 * 1024, // enough for ethernet
+		exportRecord
+	);
+
+	if (!result)
+		m_log.m_writer.writeLastError(log.StdRecordCode.Error);
+}
+
+size_t NetSnifferLogToPcap.exportRecord(
+	log.Record const* record,
+	io.MappedFile* pcapFile,
+	uint64_t pcapOffset
+) {
+	void const* p;
+	size_t size;
+
+	switch (record.m_code) {
+	case NetSnifferLogRecordCode.EthernetPacket:
+	case NetSnifferLogRecordCode.InjectedEthernetPacket:
+		p = record + 1;
+		size = record.m_dataSize;
+		break;
+
+	case NetSnifferLogRecordCode.Packet:
+	case NetSnifferLogRecordCode.InjectedPacket:
+		p = record + 1;
+		p += sizeof(io.PcapLinkType);
+		size = record.m_dataSize - sizeof(io.PcapLinkType);
+		break;
+
+	default:
+		return 0;
+	}
+
+	return log.writePcapPacket(pcapFile, pcapOffset, record.m_timestamp, p, size);
+}
+
+//..............................................................................

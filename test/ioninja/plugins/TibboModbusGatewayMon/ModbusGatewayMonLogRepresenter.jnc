@@ -575,9 +575,9 @@ void representModbusPdu(
 		}
 		break;
 
-	case io.ModbusFunc.WriteCoil:
-	case io.ModbusFunc.WriteRegister:
-		io.ModbusWritePdu const* pdu = (io.ModbusWritePdu const*)hdr;
+	case io.ModbusFunc.WriteSingleCoil:
+	case io.ModbusFunc.WriteSingleRegister:
+		io.ModbusWriteSinglePdu const* pdu = (io.ModbusWriteSinglePdu const*)hdr;
 		representation.addHyperText(
 			$"Address:     \e^!-%1,%2\e[34m0x%(3; 04X)/%3\e[m\n"
 			$"Value:       \e^!-%4,%5\e[34m0x%(6; 04X)/%6\e[m" (

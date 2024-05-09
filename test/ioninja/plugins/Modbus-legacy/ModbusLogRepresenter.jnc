@@ -1,0 +1,65 @@
+//..............................................................................
+//
+// Modbus RTU log record declarations and representer
+//
+
+import "log_Representation.jnc"
+import "io_Modbus.jnc"
+import "ModbusLogRecordCode.jnc"
+
+//..............................................................................
+
+bool representModbusLog(
+	log.Representation* representation,
+	uint64_t recordCode,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+) {
+	switch (recordCode) {
+	case ModbusLogRecordCode.MasterPacket_Rtu:
+		representModbusRtuAdu(representation, io.ModbusRole.Master, p, size, foldFlags);
+		break;
+
+	case ModbusLogRecordCode.SlavePacket_Rtu:
+		representModbusRtuAdu(representation, io.ModbusRole.Slave, p, size, foldFlags);
+		break;
+
+	case ModbusLogRecordCode.MasterPacket_Ascii:
+		representModbusAsciiAdu(representation, io.ModbusRole.Master, p, size, foldFlags);
+		break;
+
+	case ModbusLogRecordCode.SlavePacket_Ascii:
+		representModbusAsciiAdu(representation, io.ModbusRole.Slave, p, size, foldFlags);
+		break;
+
+	case ModbusLogRecordCode.MasterPacket_Tcp:
+		representModbusTcpAdu(representation, io.ModbusRole.Master, p, size, foldFlags);
+		break;
+
+	case ModbusLogRecordCode.SlavePacket_Tcp:
+		representModbusTcpAdu(representation, io.ModbusRole.Slave, p, size, foldFlags);
+		break;
+
+	case ModbusLogRecordCode.InvalidFunction: // legacy
+		uint8_t code = *(uint8_t const*)p;
+		representation.m_lineAttr.m_backColor = ui.StdColor.PastelYellow;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+		representation.addHyperText($"Invalid or unsupported Modbus function: \e[31m0x%(1; 02x)/%1\e[m" (code));
+		return true;
+
+	case ModbusLogRecordCode.ParseError:
+		std.Error const* error = (std.Error const*)p;
+		representation.m_lineAttr.m_backColor = ui.StdColor.PastelYellow;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+		representation.addHyperText($"Modbus parse error: $(error.m_description)");
+		return true;
+
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+//..............................................................................

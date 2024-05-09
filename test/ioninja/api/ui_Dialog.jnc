@@ -59,6 +59,7 @@ opaque class FileDlg {
 	event m_onCompleted(StdDlgButton button);
 
 	construct();
+	destruct();
 
 	void show();
 }
@@ -85,6 +86,7 @@ opaque class LoginDlg {
 	event m_onCompleted(StdDlgButton button);
 
 	construct();
+	destruct();
 
 	void show();
 }
@@ -100,6 +102,7 @@ opaque class MessageDlg {
 	event m_onCompleted(StdDlgButton button);
 
 	construct();
+	destruct();
 
 	void show();
 }
@@ -116,6 +119,7 @@ opaque class ProgressDlg {
 	event m_onButtonClicked(StdDlgButton button);
 
 	construct();
+	destruct();
 
 	void show();
 	void hide();

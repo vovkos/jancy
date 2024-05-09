@@ -1,60 +1,23 @@
-import "doc_PluginHost.jnc"
-import "ui_Dialog.jnc"
+import "NetSnifferLog/NetSnifferLogToPcap.jnc"
 
 //..............................................................................
 
-class EthernetTapLogToPcap {
-protected:
-	doc.PluginHost* m_pluginHost;
-	ui.FileDlg* m_fileDlg;
-
+class EthernetTapLogToPcap: NetSnifferLogToPcap {
 public:
-	event m_onError();
-
-public:
-	construct(doc.PluginHost* pluginHost) {
-		m_pluginHost = pluginHost;
+	construct(log.Log* log) {
+		basetype.construct(log);
 	}
 
-	void export();
-
-protected:
-	void onFileDlgCompleted(ui.StdDlgButton button);
+	override size_t exportRecord(
+		log.Record const* record,
+		io.MappedFile* pcapFile,
+		uint64_t pcapOffset
+	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void EthernetTapLogToPcap.export() {
-	if (!m_fileDlg) {
-		m_fileDlg = new ui.FileDlg;
-		m_fileDlg.m_onCompleted += onFileDlgCompleted;
-	}
-
-	m_fileDlg.m_kind = ui.FileDlgKind.Save;
-	m_fileDlg.m_title = "Export Pcap File...";
-	m_fileDlg.m_filter = "Pcap files (*.pcap; *.cap);; All files (*.*)";
-	m_fileDlg.show();
-}
-
-void EthernetTapLogToPcap.onFileDlgCompleted(ui.StdDlgButton button) {
-	if (button != ui.StdDlgButton.Ok)
-		return;
-
-	bool result = try log.exportToPcap(
-		m_pluginHost.m_log,
-		m_fileDlg.m_filePath,
-		io.PcapLinkType.Ethernet,
-		2 * 1024, // enough for ethernet
-		exportLogRecordToPcap
-	);
-
-	if (!result)
-		m_pluginHost.m_log.m_writer.writeLastError(log.StdRecordCode.Error);
-}
-
-//..............................................................................
-
-size_t exportLogRecordToPcap(
+size_t EthernetTapLogToPcap.exportRecord(
 	log.Record const* record,
 	io.MappedFile* pcapFile,
 	uint64_t pcapOffset

@@ -162,10 +162,10 @@ string_t getArpProtocolAddressString(
 
 	switch (hdr.m_protocolType) {
 	case io.EthernetType.Ip:
-		return hdr.m_protocolLength >= sizeof(io.Address_ip4) ? io.formatIpAddress(p) : "[INCOMPLETE-IPv4]";
+		return hdr.m_protocolLength >= sizeof(io.Address_ip4) ? ((io.Address_ip4 const*)p).getString() : "[INCOMPLETE-IPv4]";
 
 	case io.EthernetType.Ip6:
-		return hdr.m_protocolLength >= sizeof(io.Address_ip6) ? io.formatIp6Address(p) : "[INCOMPLETE-IPv6]";
+		return hdr.m_protocolLength >= sizeof(io.Address_ip6) ? ((io.Address_ip6 const*)p).getString() : "[INCOMPLETE-IPv6]";
 
 	default:
 		return "[UNKNOWN-PROTOCOL]";

@@ -14,7 +14,6 @@ import "ui_BufferPropertySet.jnc"
 import "ui_StdSessionInfoSet.jnc"
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
-import "log_exportToPcap.jnc"
 import "std_Buffer.jnc"
 
 using extension ui.ComboBoxHistory;
@@ -36,10 +35,8 @@ protected:
 	}
 
 	enum ActionId {
-		ApplyFilter,
 		Capture,
 		OpenPcap,
-		ExportPcap,
 		_Count,
 	}
 
@@ -62,7 +59,6 @@ protected:
 	string_t m_captureFilterString;
 	io.IpDefragmenter m_ipDefragmenter;
 	std.Buffer m_readBuffer;
-	NetSnifferLogFilter m_filter;
 	uint_t m_syncId;
 
 	// toolbar, status bar & menu
@@ -70,7 +66,6 @@ protected:
 	ui.Action* m_actionTable[ActionId._Count];
 	ui.Icon* m_iconTable[IconId._Count];
 	ui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
-	ui.ComboBox* m_viewFilterCombo;
 	ui.ComboBox* m_deviceCombo;
 	ui.FileDlg* m_fileDlg;
 
@@ -79,7 +74,6 @@ protected:
 	ui.EnumProperty* m_deviceProp;
 	ui.BoolProperty* m_promisciousProp;
 	ui.StringProperty* m_captureFilterProp;
-	ui.StringProperty* m_viewFilterProp;
 	ui.IntProperty* m_ipFragmentLimitProp;
 	ui.IntProperty* m_ipFragmentTimeoutProp;
 	ui.IntProperty* m_snapshotSizeProp;
@@ -129,11 +123,6 @@ protected:
 	}
 
 	void onOpenPcap();
-	void onExportPcap();
-
-	void onSetViewFilter() {
-		try applyViewFilter(true);
-	}
 
 	void onDeviceComboEnter() {
 		try capture();
@@ -147,7 +136,6 @@ protected:
 	);
 
 	bool errorcode applyCaptureFilter();
-	bool errorcode applyViewFilter(bool rebuildLog = false);
 
 	void processPacket(
 		uint64_t timestamp,
@@ -168,23 +156,10 @@ PcapSnifferSession.construct(doc.PluginHost* pluginHost) {
 	createUi();
 
 	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
-	pluginHost.m_log.addFilter(m_filter);
 }
 
 void PcapSnifferSession.createUi() {
 	// toolbar
-
-	m_pluginHost.m_toolBar.addLabel("Filter:");
-	m_viewFilterCombo = m_pluginHost.m_toolBar.addComboBox(-1);
-	m_viewFilterCombo.m_isEditable = true;
-	m_viewFilterCombo.m_onReturnPressed += onSetViewFilter;
-	m_viewFilterCombo.m_placeholderText = "Enter a pcap-filter...";
-	m_viewFilterCombo.m_toolTip =
-		"View only packets which pass this filter\n"
-		"For a complete syntax reference, google 'pcap-filter'";
-
-	m_actionTable[ActionId.ApplyFilter] = createAction("Apply filter", "images/apply.png");
-	m_actionTable[ActionId.ApplyFilter].m_onTriggered += onSetViewFilter;
 
 	m_pluginHost.m_toolBar.addLabel("Device:");
 	m_deviceCombo = ui.createPcapDeviceComboBox(m_pluginHost.m_toolBar);
@@ -195,14 +170,8 @@ void PcapSnifferSession.createUi() {
 
 	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable [IconId.Capture]);
 	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;
-
-	m_pluginHost.m_menu.addSeparator();
-	m_pluginHost.m_toolBar.addSeparator();
-
 	m_actionTable[ActionId.OpenPcap] = createAction("Open Pcap file (*.pcap)", "images/open-pcap.png");
 	m_actionTable[ActionId.OpenPcap].m_onTriggered += onOpenPcap;
-	m_actionTable[ActionId.ExportPcap] = createAction("Export Pcap file (*.pcap)", "images/save-pcap.png");
-	m_actionTable[ActionId.ExportPcap].m_onTriggered += onExportPcap;
 
 	// status bar
 
@@ -233,14 +202,6 @@ void PcapSnifferSession.createUi() {
 		"Capture filter",
 		"Enter a pcap-filter...",
 		"Capture only packets which pass this filter\n"
-		"For a complete syntax reference, google 'pcap-filter'"
-	);
-
-	m_viewFilterProp = m_pluginHost.m_propertyGrid.createStringProperty(
-		group,,
-		"View filter",
-		"Enter a pcap-filter...",
-		"View only packets which pass this filter\n"
 		"For a complete syntax reference, google 'pcap-filter'"
 	);
 
@@ -321,67 +282,9 @@ void PcapSnifferSession.onOpenPcap() {
 	m_fileDlg.show();
 }
 
-void PcapSnifferSession.onExportPcap() {
-	ensureFileDlg();
-
-	m_fileDlg.m_kind = ui.FileDlgKind.Save;
-	m_fileDlg.m_title = "Export Pcap File...";
-	m_fileDlg.m_filter = "Pcap files (*.pcap; *.cap);; All files (*.*)";
-	m_fileDlg.show();
-}
-
-size_t exportLogRecordToPcap(
-	log.Record const* record,
-	io.MappedFile* pcapFile,
-	uint64_t pcapOffset
-) {
-	void const* p;
-	size_t size;
-
-	switch (record.m_code) {
-	case NetSnifferLogRecordCode.EthernetPacket:
-	case NetSnifferLogRecordCode.InjectedEthernetPacket:
-		p = record + 1;
-		size = record.m_dataSize;
-		break;
-
-	case NetSnifferLogRecordCode.Packet:
-	case NetSnifferLogRecordCode.InjectedPacket:
-		p = record + 1;
-		p += sizeof(io.PcapLinkType);
-		size = record.m_dataSize - sizeof(io.PcapLinkType);
-		break;
-
-	default:
-		return 0;
-	}
-
-	return log.writePcapPacket(pcapFile, pcapOffset, record.m_timestamp, p, size);
-}
-
 void PcapSnifferSession.onFileDlgCompleted(ui.StdDlgButton button) {
-	if (button != ui.StdDlgButton.Ok)
-		return;
-
-	switch (m_fileDlg.m_kind) {
-	case ui.FileDlgKind.Open:
+	if (button == ui.StdDlgButton.Ok)
 		try openPcapFile(m_fileDlg.m_filePath, m_captureFilterProp.m_value);
-		break;
-
-	case ui.FileDlgKind.Save:
-		bool result = try log.exportToPcap(
-			m_pluginHost.m_log,
-			m_fileDlg.m_filePath,
-			io.PcapLinkType.Ethernet,
-			m_snapshotSizeProp.m_value,
-			exportLogRecordToPcap
-		);
-
-		if (!result)
-			m_logWriter.writeLastError(log.StdRecordCode.Error);
-
-		break;
-	}
 }
 
 void PcapSnifferSession.ensureFileDlg() {
@@ -419,7 +322,6 @@ bool errorcode PcapSnifferSession.capture(
 	m_logWriter.write(PcapLogRecordCode.CaptureStarted);
 	waitPcapEvents();
 	m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
-	applyViewFilter();
 	return true;
 
 catch:
@@ -477,25 +379,6 @@ bool errorcode PcapSnifferSession.applyCaptureFilter() {
 	return true;
 }
 
-bool errorcode PcapSnifferSession.applyViewFilter(bool rebuildLog) {
-	m_pluginHost.m_log.suspend();
-	bool result = try m_filter.setFilter(m_viewFilterCombo.m_editText);
-	m_pluginHost.m_log.resume();
-
-	if (!result) {
-		m_viewFilterCombo.m_backgroundColor = ui.StdColor.PastelRed;
-		return false;
-	}
-
-	m_viewFilterCombo.addEditTextToHistory();
-	m_viewFilterCombo.m_backgroundColor = ui.ColorFlags.Undefined;
-
-	if (rebuildLog)
-		m_pluginHost.m_log.rebuild();
-
-	return true;
-}
-
 void PcapSnifferSession.waitPcapEvents() {
 	io.PcapEvents eventMask =
 		io.PcapEvents.IoError |
@@ -507,8 +390,6 @@ void PcapSnifferSession.waitPcapEvents() {
 }
 
 void PcapSnifferSession.load(doc.Storage* storage) {
-	m_viewFilterCombo.loadHistory(storage, "viewFilterHistory");
-	m_viewFilterCombo.m_editText = storage.readString("viewFilter");
 	m_deviceCombo.m_currentIndex = storage.readInt("deviceIdx");
 	m_captureFilterProp.m_value = storage.readString("captureFilter");
 	m_promisciousProp.m_value = storage.readBool("promiscious", Defaults.Promiscious);
@@ -523,8 +404,6 @@ void PcapSnifferSession.load(doc.Storage* storage) {
 
 void PcapSnifferSession.save(doc.Storage* storage) {
 	m_bufferPropertySet.save(storage);
-	m_viewFilterCombo.saveHistory(storage, "viewFilterHistory");
-	storage.writeString("viewFilter", m_viewFilterCombo.m_editText);
 	storage.writeInt("deviceIdx", (int) m_deviceCombo.m_currentIndex);
 	storage.writeString("captureFilter", m_captureFilterProp.m_value);
 	storage.writeBool("promiscious", m_promisciousProp.m_value);
@@ -536,17 +415,13 @@ void PcapSnifferSession.save(doc.Storage* storage) {
 
 void PcapSnifferSession.updateProperties() {
 	m_deviceProp.m_currentIndex = m_deviceCombo.m_currentIndex;
-	m_viewFilterProp.m_value = m_viewFilterCombo.m_editText;
 }
 
 bool errorcode PcapSnifferSession.applyProperties() {
 	m_deviceCombo.m_currentIndex = m_deviceProp.m_currentIndex;
-	m_viewFilterCombo.m_editText = m_viewFilterProp.m_value;
 	m_ipDefragmenter.m_fragmentLimit = m_ipFragmentLimitProp.m_value;
 	m_ipDefragmenter.m_fragmentTimeout = m_ipFragmentTimeoutProp.m_value;
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
-
-	applyViewFilter();
 
 	if (!m_state)
 		return true;

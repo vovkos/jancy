@@ -298,9 +298,9 @@ void representModbusPdu(
 		}
 		break;
 
-	case io.ModbusFunc.WriteCoil:
-	case io.ModbusFunc.WriteRegister:
-		io.ModbusWritePdu const* pdu = (io.ModbusWritePdu const*)hdr;
+	case io.ModbusFunc.WriteSingleCoil:
+	case io.ModbusFunc.WriteSingleRegister:
+		io.ModbusWriteSinglePdu const* pdu = (io.ModbusWriteSinglePdu const*)hdr;
 		representation.addHyperText(
 			$"    Address:   \e^!%1,%2\e[34m0x%(3; 04x)\e[m\n"
 			$"    Value:     \e^!%4,%5\e[34m0x%(6; 04x) (%6)\e[m" (
@@ -395,7 +395,7 @@ void representModbusPdu(
 
 	case io.ModbusFunc.ReadWriteMultipleRegisters:
 		if (role == io.ModbusRole.Master) {
-			io.ModbusReadWriteMultiplePdu const* pdu = (io.ModbusReadWriteMultiplePdu const*)hdr;
+			io.ModbusReadWriteMultipleRegistersPdu const* pdu = (io.ModbusReadWriteMultipleRegistersPdu const*)hdr;
 			representation.addHyperText(
 				$"    R-address: \e^!%1,%2\e[34m0x%(3; 04x)\e[m\n"
 				$"    R-count:   \e^!%4,%5\e[34m%6\e[m\n"
@@ -428,7 +428,7 @@ void representModbusPdu(
 				representation,
 				(bigendian uint16_t const*)(pdu + 1),
 				pdu.m_writeCount,
-				baseOffset + sizeof(io.ModbusReadWriteMultiplePdu) * offsetMultiplier,
+				baseOffset + sizeof(io.ModbusReadWriteMultipleRegistersPdu) * offsetMultiplier,
 				offsetMultiplier,
 				foldFlags
 			);
@@ -517,9 +517,9 @@ string_t getModbusPduDigest(
 		}
 		break;
 
-	case io.ModbusFunc.WriteCoil:
-	case io.ModbusFunc.WriteRegister:
-		io.ModbusWritePdu const* pdu = (io.ModbusWritePdu const*)hdr;
+	case io.ModbusFunc.WriteSingleCoil:
+	case io.ModbusFunc.WriteSingleRegister:
+		io.ModbusWriteSinglePdu const* pdu = (io.ModbusWriteSinglePdu const*)hdr;
 		digest.append($" Addr: \e[34m0x$(pdu.m_address; 04x)\e[m Val: \e[34m$(pdu.m_value)\e[m");
 		break;
 
@@ -557,7 +557,7 @@ string_t getModbusPduDigest(
 
 	case io.ModbusFunc.ReadWriteMultipleRegisters:
 		if (role == io.ModbusRole.Master) {
-			io.ModbusReadWriteMultiplePdu const* pdu = (io.ModbusReadWriteMultiplePdu const*)hdr;
+			io.ModbusReadWriteMultipleRegistersPdu const* pdu = (io.ModbusReadWriteMultipleRegistersPdu const*)hdr;
 			digest.append($" Addr: \e[34m0x$(pdu.m_readAddress; 04x)/0x$(pdu.m_writeAddress; 04x)\e[m ");
 			digest.append(getModbusRegistersDigest(
 				(bigendian uint16_t const*)(pdu + 1),

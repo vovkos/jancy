@@ -1,0 +1,78 @@
+//..............................................................................
+//
+// Modbus TCP stream parser
+//
+
+class ModbusTcpParser: ModbusParserBase {
+protected:
+	size_t m_expectedSize;
+
+public:
+	construct(ModbusInfoSet* infoSet) {
+		basetype.construct(io.ModbusProtocol.Tcp, infoSet);
+	}
+
+	override parse(
+		log.Writer* writer,
+		uint64_t timestamp,
+		uint64_t originalRecordCode,
+		void const* p,
+		size_t size
+	);
+
+	override reset();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void ModbusTcpParser.parse(
+	log.Writer* writer,
+	uint64_t timestamp,
+	uint64_t originalRecordCode,
+	void const* p,
+	size_t size
+) {
+	// write the original data first
+
+	writer.write(timestamp, originalRecordCode, p, size);
+
+	ModbusLogRecordCode recordCode = m_modbusRole == io.ModbusRole.Master ?
+		ModbusLogRecordCode.MasterPacket_Tcp :
+		ModbusLogRecordCode.SlavePacket_Tcp;
+
+	while (size) {
+		if (!m_expectedSize)
+			m_expectedSize = sizeof(io.ModbusTcpAduHdr);
+
+		size_t leftoverSize = m_expectedSize - m_dataBuffer.m_size;
+		if (size < leftoverSize) {
+			m_dataBuffer.append(p, size);
+			break;
+		}
+
+		m_dataBuffer.append(p, leftoverSize);
+		p += leftoverSize;
+		size -= leftoverSize;
+
+		// check ADU size once again (now that we have the TCP ADU hdr)
+
+		io.ModbusTcpAduHdr const* aduHdr = (io.ModbusTcpAduHdr const*)m_dataBuffer.m_p;
+
+		size_t expectedSize = offsetof(io.ModbusTcpAduHdr.m_deviceAddress) + aduHdr.m_length;
+		if (expectedSize > m_expectedSize) {
+			m_expectedSize = expectedSize;
+			continue; // ADU has grown, try again
+		}
+
+		writer.write(timestamp, recordCode, m_dataBuffer.m_p, m_dataBuffer.m_size);
+		m_infoSet.addAdu(m_modbusRole);
+		reset();
+	}
+}
+
+void ModbusTcpParser.reset() {
+	m_dataBuffer.clear();
+	m_expectedSize = 0;
+}
+
+//..............................................................................

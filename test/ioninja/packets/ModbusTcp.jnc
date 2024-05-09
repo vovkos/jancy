@@ -1,6 +1,6 @@
 //..............................................................................
 //
-// Packet template library for Modbus TCP
+// Legacy packet template library for Modbus TCP
 //
 
 import "io_Modbus.jnc"
@@ -14,6 +14,7 @@ pragma(Alignment, 1);
 //..............................................................................
 
 [ 
+	packetTemplate,
 	displayName = "Modbus TCP read",
 	fixedSize
 ]
@@ -44,6 +45,7 @@ struct ModbusTcpReadPacket {
 //..............................................................................
 
 [
+	packetTemplate,
 	displayName = "Modbus TCP write",
 	fixedSize
 ]
@@ -72,7 +74,10 @@ struct ModbusTcpWritePacket {
 
 //..............................................................................
 
-[ displayName = "Modbus TCP write multiple" ]
+[
+	packetTemplate,
+	displayName = "Modbus TCP write multiple"
+]
 struct ModbusTcpWriteMultiplePacket {
 	[ displayName = "ADU" ]
 	io.ModbusTcpAduHdr m_adu;
@@ -101,7 +106,10 @@ struct ModbusTcpWriteMultiplePacket {
 
 //..............................................................................
 
-[ displayName = "Modbus TCP read/write multiple" ]
+[
+	packetTemplate,
+	displayName = "Modbus TCP read/write multiple"
+]
 struct ModbusTcpReadWriteMultiplePacket {
 	[ displayName = "ADU" ]
 	io.ModbusTcpAduHdr m_adu;

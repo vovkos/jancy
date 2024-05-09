@@ -22,7 +22,6 @@ enum ToolButtonStyle {
 	FollowStyle,
 }
 
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 opaque class ToolBar: Widget {
@@ -31,6 +30,7 @@ opaque class ToolBar: Widget {
 	}
 
 	ToolButtonStyle autoget property m_toolButtonStyle;
+	InsertActionPos autoget property m_insertActionPos;
 
 	construct();
 	destruct();

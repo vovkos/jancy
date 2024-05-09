@@ -16,6 +16,8 @@ opaque class StatusPane {
 	string_t autoget property m_text;
 	uint_t autoget property m_width;
 	uint_t autoget property m_color;
+
+	destruct();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

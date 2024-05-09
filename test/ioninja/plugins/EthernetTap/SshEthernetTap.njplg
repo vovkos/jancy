@@ -33,5 +33,3 @@ org.jancy.io.file
 [scripts]
 
 SshEthernetTapSession.jnc
-EthernetTapLogFilter.jnc
-EthernetTapLogToPcap.jnc

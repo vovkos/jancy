@@ -3,9 +3,7 @@
 // Modbus RTU stream parser
 //
 
-import "ModbusLogRecordCode.jnc"
-
-class ModbusRtuParser: ModbusParserBase {
+class ModbusRtuParser: ModbusBinParserBase {
 	// checking for correct serial modbus delays (1.5/3.5 chars) is not possible
 	// due to insufficient precision of timestamps -- we get timestamps of read
 	// completion and no timestamps of individual bytes
@@ -14,46 +12,41 @@ class ModbusRtuParser: ModbusParserBase {
 		MinInterFrameDelay = 500 * 10000, // 500 ms
 	}
 
-protected:
-	size_t m_expectedSize;
-
 public:
 	construct(ModbusInfoSet* infoSet) {
 		basetype.construct(io.ModbusProtocol.Rtu, infoSet);
 	}
 
-	override parse(
+protected:
+	override void preParse(
 		log.Writer* writer,
-		uint64_t timestamp,
-		uint64_t originalRecordCode,
-		void const* p,
-		size_t size
+		uint64_t timestamp
 	);
 
-	override reset();
+	override void postPacket();
 
-protected:
-	ModbusLogRecordCode getPacketRecordCode() {
+	override jnc.Promise* layoutPacket() {
+		return io.layoutModbusAdu(m_packet, io.ModbusProtocol.Rtu, m_modbusRole);
+	}
+
+	override uint64_t getPacketRecordCode() {
 		return m_modbusRole == io.ModbusRole.Master ?
-			ModbusLogRecordCode.MasterPacket_Rtu :
-			ModbusLogRecordCode.SlavePacket_Rtu;
+			ModbusLogRecordCode.Packet_rtu_master :
+			ModbusLogRecordCode.Packet_rtu_slave;
 	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void ModbusRtuParser.parse(
+void ModbusRtuParser.preParse(
 	log.Writer* writer,
-	uint64_t timestamp,
-	uint64_t originalRecordCode,
-	void const* p,
-	size_t size
+	uint64_t timestamp
 ) {
-	if (m_dataBuffer.m_size && timestamp - m_lastTimestamp > MinInterFrameDelay) {
+	if (m_packet.m_isIncomplete && timestamp - m_lastTimestamp > MinInterFrameDelay) {
 		std.setError(
-			$"Incomplete Modbus RTU packet: \e[31m%1\e[m out of \e[31m%2\e[m bytes" (
-			m_dataBuffer.m_size,
-			m_expectedSize
+			$"Incomplete Modbus RTU packet: %1 of %2 bytes" (
+			m_packet.m_bufferSize,
+			m_packet.m_size
 		));
 
 		writer.writeLastError(timestamp, ModbusLogRecordCode.ParseError);
@@ -62,74 +55,17 @@ void ModbusRtuParser.parse(
 	}
 
 	updateLastTimestamp(timestamp);
-
-	void const* p0 = p;
-	void const* end = p + size;
-
-nestedscope:
-	ModbusLogRecordCode recordCode = getPacketRecordCode();
-
-	while (p < end) {
-		size = end - p;
-		if (!m_expectedSize)
-			m_expectedSize = io.getModbusRtuAduSize(m_modbusRole, (io.ModbusRtuAduHdr const*)p, size);
-
-		size_t leftoverSize = m_expectedSize - m_dataBuffer.m_size;
-		if (size < leftoverSize) {
-			m_dataBuffer.append(p, size);
-			break;
-		}
-
-		m_dataBuffer.append(p, leftoverSize);
-		p += leftoverSize;
-
-		// check ADU size once again (as we have appended some data)
-
-		io.ModbusRtuAduHdr const* aduHdr = (io.ModbusRtuAduHdr const*)m_dataBuffer.m_p;
-		size_t expectedSize = io.getModbusRtuAduSize(m_modbusRole, aduHdr, m_dataBuffer.m_size);
-		if (expectedSize > m_expectedSize) {
-			m_expectedSize = expectedSize;
-			continue; // ADU has grown, try again
-		}
-
-		// ADU completed
-
-		writer.write(timestamp, originalRecordCode, p0, p - p0);
-		p0 = p;
-
-		writer.write(timestamp, recordCode, m_dataBuffer.m_p, m_dataBuffer.m_size);
-		m_infoSet.addAdu(m_modbusRole);
-
-		if (m_mode == ModbusParserMode.Alternate) {
-			m_modbusRole = aduHdr.m_deviceAddress != 0 ? // write-only broadcast from master
-				(io.ModbusRole) !m_modbusRole :
-				io.ModbusRole.Master;
-
-			recordCode = getPacketRecordCode();
-		}
-
-		m_dataBuffer.clear();
-		m_expectedSize = 0;
-	}
-
-	if (p0 < end)
-		writer.write(timestamp, originalRecordCode, p0, end - p0);
-
-catch:
-	if (p0 < end)
-		writer.write(timestamp, originalRecordCode, p0, end - p0);
-
-	writer.writeLastError(timestamp, ModbusLogRecordCode.ParseError);
-	m_infoSet.addError();
-	reset();
 }
 
-void ModbusRtuParser.reset() {
-	m_dataBuffer.clear();
-	m_expectedSize = 0;
+void ModbusRtuParser.postPacket() {
+	basetype.postPacket();
+	if (m_mode != ModbusParserMode.Alternate)
+		return;
 
-	if (m_mode == ModbusParserMode.Alternate)
-		m_modbusRole = io.ModbusRole.Master;
+	io.ModbusRtuAduHdr const* aduHdr = (io.ModbusRtuAduHdr const*)m_packet.m_p;
+	m_modbusRole = aduHdr.m_deviceAddress == 0 ? // write-only broadcast from master
+		io.ModbusRole.Master :
+		(io.ModbusRole)!m_modbusRole; // alternate
 }
 
 //..............................................................................

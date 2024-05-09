@@ -40,13 +40,13 @@ void representEthernetDigest(
 		representation.addHyperText(
 			ethernetHdr.m_type <= io.EthernetType.Ieee8023 ?
 				$"\e[1mETHERNET 802.3 \e[10;34m%1\e[m \u2192 \e[34m%2\e[m (\e[34m%3\e[m bytes)"(
-					io.formatEthernetAddress(ethernetHdr.m_srcAddress),
-					io.formatEthernetAddress(ethernetHdr.m_dstAddress),
+					ethernetHdr.m_srcAddress,
+					ethernetHdr.m_dstAddress,
 					(uint16_t)ethernetHdr.m_type
 				) :
 				$"\e[1mETHERNET II \e[10;34m%1\e[m \u2192 \e[34m%2\e[m (type: \e[34m%3\e[m)"(
-					io.formatEthernetAddress(ethernetHdr.m_srcAddress),
-					io.formatEthernetAddress(ethernetHdr.m_dstAddress),
+					ethernetHdr.m_srcAddress,
+					ethernetHdr.m_dstAddress,
 					typeof(io.EthernetType).getValueString(ethernetHdr.m_type, "0x%04X")
 				)
 			);

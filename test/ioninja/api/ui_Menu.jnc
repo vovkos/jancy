@@ -13,6 +13,8 @@ namespace ui {
 //..............................................................................
 
 opaque class Menu {
+	InsertActionPos autoget property m_insertActionPos;
+
 	destruct();
 
 	void addAction(Action* action);

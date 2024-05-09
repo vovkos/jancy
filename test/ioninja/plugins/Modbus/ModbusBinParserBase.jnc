@@ -1,0 +1,90 @@
+//..............................................................................
+//
+// Modbus binary stream parser base class
+//
+
+//..............................................................................
+
+class ModbusBinParserBase: ModbusParserBase {
+protected:
+	jnc.DynamicLayout m_packet;
+
+public:
+	construct(
+		io.ModbusProtocol readonly protocol,
+		ModbusInfoSet* infoSet
+	) {
+		basetype.construct(protocol, infoSet);
+	}
+
+	override void reset() {
+		basetype.reset();
+		m_packet.clear();
+	}
+
+	override void parse(
+		log.Writer* writer,
+		uint64_t timestamp,
+		uint64_t originalRecordCode,
+		void const* p,
+		size_t size
+	);
+
+protected:
+	virtual void preParse(
+		log.Writer* writer,
+		uint64_t timestamp
+	) {}
+
+	virtual void postPacket() {}
+
+	abstract jnc.Promise* layoutPacket();
+	abstract uint64_t getPacketRecordCode();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void ModbusBinParserBase.parse(
+	log.Writer* writer,
+	uint64_t timestamp,
+	uint64_t originalRecordCode,
+	void const* p,
+	size_t size
+) {
+	preParse(writer, timestamp);
+
+	void const* end = p + size;
+	while (p < end) {
+		size = end - p;
+		jnc.Promise const* promise;
+
+		if (m_packet.m_isIncomplete) { // resume the incomplete packet
+			size = m_packet.resume(p, size);
+			promise = m_packet.m_promise;
+		} else { // start a new one
+			m_packet.reset(jnc.DynamicLayoutMode.Stream, p, size);
+			promise = layoutPacket();
+			if (!m_packet.m_isIncomplete)
+				size = m_packet.m_size;
+		}
+
+		writer.write(timestamp, originalRecordCode, p, size);
+		p += size;
+
+		if (promise.m_error) { // exception during layout
+			writer.write(timestamp, ModbusLogRecordCode.ParseError, promise.m_error);
+			m_infoSet.addError();
+			reset();
+			continue;
+		}
+
+		if (m_packet.m_isIncomplete)
+			break;
+
+		writer.write(timestamp, getPacketRecordCode(), m_packet.m_p, m_packet.m_size);
+		m_infoSet.addAdu(m_modbusRole);
+		postPacket();
+	}
+}
+
+//..............................................................................

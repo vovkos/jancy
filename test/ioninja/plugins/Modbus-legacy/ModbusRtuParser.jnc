@@ -1,0 +1,246 @@
+//..............................................................................
+//
+// Modbus RTU stream parser
+//
+
+import "ModbusLogRecordCode.jnc"
+
+class ModbusRtuParser: ModbusParserBase {
+	// checking for correct serial modbus delays (1.5/3.5 chars) is not possible
+	// due to insufficient precision of timestamps -- we get timestamps of read
+	// completion and no timestamps of individual bytes
+
+	enum: uint64_t {
+		MinInterFrameDelay = 500 * 10000, // 500 ms
+	}
+
+protected:
+	size_t m_expectedSize;
+
+public:
+	construct(ModbusInfoSet* infoSet) {
+		basetype.construct(io.ModbusProtocol.Rtu, infoSet);
+	}
+
+	override parse(
+		log.Writer* writer,
+		uint64_t timestamp,
+		uint64_t originalRecordCode,
+		void const* p,
+		size_t size
+	);
+
+	override reset();
+
+protected:
+	ModbusLogRecordCode getPacketRecordCode() {
+		return m_modbusRole == io.ModbusRole.Master ?
+			ModbusLogRecordCode.MasterPacket_Rtu :
+			ModbusLogRecordCode.SlavePacket_Rtu;
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void ModbusRtuParser.parse(
+	log.Writer* writer,
+	uint64_t timestamp,
+	uint64_t originalRecordCode,
+	void const* p,
+	size_t size
+) {
+	if (m_dataBuffer.m_size && timestamp - m_lastTimestamp > MinInterFrameDelay) {
+		std.setError(
+			$"Incomplete Modbus RTU packet: \e[31m%1\e[m out of \e[31m%2\e[m bytes" (
+			m_dataBuffer.m_size,
+			m_expectedSize
+		));
+
+		writer.writeLastError(timestamp, ModbusLogRecordCode.ParseError);
+		m_infoSet.addError();
+		reset();
+	}
+
+	updateLastTimestamp(timestamp);
+
+	void const* p0 = p;
+	void const* end = p + size;
+
+nestedscope:
+	ModbusLogRecordCode recordCode = getPacketRecordCode();
+
+	while (p < end) {
+		size = end - p;
+		if (!m_expectedSize)
+			m_expectedSize = io.getModbusRtuAduSize(m_modbusRole, (io.ModbusRtuAduHdr const*)p, size);
+
+		size_t leftoverSize = m_expectedSize - m_dataBuffer.m_size;
+		if (size < leftoverSize) {
+			m_dataBuffer.append(p, size);
+			break;
+		}
+
+		m_dataBuffer.append(p, leftoverSize);
+		p += leftoverSize;
+
+		// check ADU size once again (as we have appended some data)
+
+		io.ModbusRtuAduHdr const* aduHdr = (io.ModbusRtuAduHdr const*)m_dataBuffer.m_p;
+		size_t expectedSize = io.getModbusRtuAduSize(m_modbusRole, aduHdr, m_dataBuffer.m_size);
+		if (expectedSize > m_expectedSize) {
+			m_expectedSize = expectedSize;
+			continue; // ADU has grown, try again
+		}
+
+		// ADU completed
+
+		writer.write(timestamp, originalRecordCode, p0, p - p0);
+		p0 = p;
+
+		writer.write(timestamp, recordCode, m_dataBuffer.m_p, m_dataBuffer.m_size);
+		m_infoSet.addAdu(m_modbusRole);
+
+		if (m_mode == ModbusParserMode.Alternate) {
+			m_modbusRole = aduHdr.m_deviceAddress != 0 ? // write-only broadcast from master
+				(io.ModbusRole) !m_modbusRole :
+				io.ModbusRole.Master;
+
+			recordCode = getPacketRecordCode();
+		}
+
+		m_dataBuffer.clear();
+		m_expectedSize = 0;
+	}
+
+	if (p0 < end)
+		writer.write(timestamp, originalRecordCode, p0, end - p0);
+
+catch:
+	if (p0 < end)
+		writer.write(timestamp, originalRecordCode, p0, end - p0);
+
+	writer.writeLastError(timestamp, ModbusLogRecordCode.ParseError);
+	m_infoSet.addError();
+	reset();
+}
+
+void ModbusRtuParser.reset() {
+	m_dataBuffer.clear();
+	m_expectedSize = 0;
+
+	if (m_mode == ModbusParserMode.Alternate)
+		m_modbusRole = io.ModbusRole.Master;
+}
+
+// moved from io_Modbus.jnc
+
+namespace io {
+
+//..............................................................................
+
+// calculates the actual size of PDU (-1 on error)
+
+size_t errorcode getModbusPduSize(
+	ModbusRole role,
+	ModbusPduHdr const* pduHdr,
+	size_t size
+) {
+	if (size < sizeof(ModbusPduHdr))
+		return sizeof(ModbusPduHdr);
+
+	switch (pduHdr.m_func) {
+	case io.ModbusFunc.ReadCoils:
+	case io.ModbusFunc.ReadDiscreteInputs:
+	case io.ModbusFunc.ReadHoldingRegisters:
+	case io.ModbusFunc.ReadInputRegisters:
+	case io.ModbusFunc.ReportServerId:
+		return
+			role == ModbusRole.Master ? sizeof(ModbusReadPdu) :
+			size < sizeof(ModbusReadReplyPdu) ? sizeof(ModbusReadReplyPdu) :
+			sizeof(ModbusReadReplyPdu) + ((ModbusReadReplyPdu const*)pduHdr).m_size;
+
+	case io.ModbusFunc.WriteSingleCoil:
+	case io.ModbusFunc.WriteSingleRegister:
+		return sizeof(ModbusWriteSinglePdu);
+
+	case io.ModbusFunc.ReadExceptionStatus:
+		return role == ModbusRole.Master ?
+			sizeof(ModbusPduHdr) :
+			sizeof(ModbusReadExceptionStatusReplyPdu);
+
+	case io.ModbusFunc.Diagnostics:
+		std.setError("ModbusFunc.Diagnostics is unsupported");
+		return -1;
+
+	case io.ModbusFunc.GetCommEventCounter:
+		return role == ModbusRole.Master ?
+			sizeof(ModbusPduHdr) :
+			sizeof(ModbusGetCommEventCounterReplyPdu);
+
+	case io.ModbusFunc.GetCommEventLog:
+		return role == ModbusRole.Master ?
+			sizeof(ModbusPduHdr) :
+			size < sizeof(ModbusGetCommEventLogReplyPdu) ? sizeof(ModbusGetCommEventLogReplyPdu) :
+			sizeof(ModbusReadReplyPdu) + ((ModbusReadReplyPdu const*)pduHdr).m_size;
+
+	case io.ModbusFunc.WriteMultipleCoils:
+	case io.ModbusFunc.WriteMultipleRegisters:
+		return
+			role == ModbusRole.Slave ? sizeof(ModbusWriteMultipleReplyPdu) :
+			size < sizeof(ModbusWriteMultiplePdu) ? sizeof(ModbusWriteMultiplePdu) :
+			sizeof(ModbusWriteMultiplePdu) + ((ModbusWriteMultiplePdu const*)pduHdr).m_size;
+
+	case io.ModbusFunc.ReadFileRecord:
+	case io.ModbusFunc.WriteFileRecord:
+		return
+			size < sizeof(ModbusReadReplyPdu) ? sizeof(ModbusReadReplyPdu) :
+			sizeof(ModbusReadReplyPdu) + ((ModbusReadReplyPdu const*)pduHdr).m_size;
+
+	case io.ModbusFunc.MaskWriteRegister:
+		return sizeof(ModbusMaskWritePdu);
+
+	case io.ModbusFunc.ReadWriteMultipleRegisters:
+		return
+			role == ModbusRole.Master ?
+			size < sizeof(ModbusReadWriteMultipleRegistersPdu) ? sizeof(ModbusReadWriteMultipleRegistersPdu) :
+			sizeof(ModbusReadWriteMultipleRegistersPdu) + ((ModbusReadWriteMultipleRegistersPdu const*)pduHdr).m_writeSize :
+			size < sizeof(ModbusReadReplyPdu) ? sizeof(ModbusReadReplyPdu) :
+			sizeof(ModbusReadReplyPdu) + ((ModbusReadReplyPdu const*)pduHdr).m_size;
+
+	case io.ModbusFunc.ReadFifoQueue:
+		return
+			role == ModbusRole.Master ? sizeof(ModbusReadFifoQueuePdu) :
+			size < sizeof(ModbusReadFifoQueueReplyPdu) ? sizeof(ModbusReadFifoQueueReplyPdu) :
+			sizeof(ModbusReadFifoQueueReplyPdu) + ((ModbusReadFifoQueueReplyPdu const*)pduHdr).m_fifoCount * sizeof(uint16_t);
+
+	case io.ModbusFunc.EncapsulatedInterface:
+		std.setError("ModbusFunc.EncapsulatedInterface is unsupported");
+		return -1;
+
+	default:
+		if (pduHdr.m_func & ModbusFunc.ExceptionFlag)
+			return sizeof(ModbusExceptionPdu);
+
+		std.setError("Unknown Modbus function");
+		return -1;
+	}
+}
+
+// calculates the actual size of Modbus RTU ADU
+
+size_t errorcode getModbusRtuAduSize(
+	ModbusRole role,
+	ModbusRtuAduHdr const* aduHdr,
+	size_t size
+) {
+	if (size < sizeof(ModbusRtuAduHdr))
+		return sizeof(ModbusRtuAduHdr);
+
+	ModbusPduHdr const* pduHdr = (ModbusPduHdr const*)(aduHdr + 1);
+	size_t pduSize = getModbusPduSize(role, pduHdr, size - sizeof(ModbusRtuAduHdr));
+	return pduSize + sizeof(uint8_t) + sizeof(uint16_t);
+}
+
+//..............................................................................
+
+} // namespace io

@@ -83,7 +83,7 @@ io.IpHdr const* IpDefragmenter.defragment(
 	void const* payload = (char const*)ipHdr + ipHdrSize;
 	size = ipHdr.m_totalLength - ipHdrSize;
 
-	uint64_t key = (uint64_t)ipHdr.m_srcAddress | (ipHdr.m_identification << 32);
+	uint64_t key = (uint64_t)ipHdr.m_srcAddress.m_i32 | (ipHdr.m_identification << 32);
 	Chain* chain = m_chainHashTable[key];
 	if (!chain) {
 		chain = createChain(key);

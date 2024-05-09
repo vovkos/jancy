@@ -107,30 +107,22 @@ struct Ip6Hdr {
 
 	[
 		displayName = "Source",
-		formatFunc = formatIp6Address
+		stringify
 	]
-	uint16_t m_srcAddress[8];
+	io.Address_ip6 m_srcAddress;
 
 	[
 		displayName = "Destination",
-		formatFunc = formatIp6Address
+		stringify
 	]
-	uint16_t m_dstAddress[8];
+	io.Address_ip6 m_dstAddress;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 string_t formatIp6Digest(void const* p) {
 	Ip6Hdr const* hdr = (Ip6Hdr const*)p;
-
-	return $"%1 \u2192 %2" (
-		formatIp6Address(&hdr.m_srcAddress),
-		formatIp6Address(&hdr.m_dstAddress)
-	);
-}
-
-string_t formatIp6Address(void const* p) {
-	return ((io.Address_ip6 const*)p).getString();
+	return $"%1 \u2192 %2" (hdr.m_srcAddress, hdr.m_dstAddress);
 }
 
 //..............................................................................

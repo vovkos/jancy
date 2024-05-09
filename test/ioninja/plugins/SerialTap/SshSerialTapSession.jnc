@@ -6,7 +6,6 @@
 import "doc_Session.jnc"
 import "io_base.jncx"
 import "io_Serial.jnc"
-import "io_ssh.jncx"
 import "iox_SshChannel.jnc"
 import "io_HwcProto.jnc"
 import "ui_History.jnc"
@@ -19,7 +18,6 @@ import "ui_GroupBox.jnc"
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
 import "std_Buffer.jnc"
-import "loadFile.jnc"
 
 using extension ui.ComboBoxHistory;
 
@@ -235,7 +233,6 @@ void SshSerialTapSession.createUi() {
 		groupProp,,
 		ui.SshPropertySet.PropertyId.UserName |
 		ui.SshPropertySet.PropertyId.AuthenticationMethod |
-		ui.SshPropertySet.PropertyId.PrivateKeyFile |
 		ui.SshPropertySet.PropertyId.RememberLastPassword
 	);
 
@@ -318,29 +315,21 @@ bool errorcode SshSerialTapSession.connect() {
 	disconnect();
 	startSession();
 
-	string_t addressString = m_addressCombo.m_editText;
-	if (!addressString) {
-		std.setError("address string missing");
-		m_logWriter.writeLastError(log.StdRecordCode.Error);
-		return false;
-	}
-
-	m_addressCombo.addEditTextToHistory();
 	m_baudRate = m_serialUi.m_baudRate;
 	m_dataBits = m_serialUi.m_dataBits;
 	m_stopBits = m_serialUi.m_stopBits;
 	m_parity = m_serialUi.m_parity;
-
 	m_decoder.reset();
 
-	return m_ssh.connect(addressString, createConnectParams());
+	m_addressCombo.addEditTextToHistory();
+	return m_ssh.connect(m_addressCombo.m_editText, createConnectParams());
 }
 
 void SshSerialTapSession.disconnect() {
 	if (!m_ssh.m_state)
 		return;
 
-	m_ssh.disconnect();
+	m_ssh.close();
 	m_stdSessionInfoSet.endSession();
 }
 
@@ -579,43 +568,6 @@ catch:
 }
 
 iox.SshChannel.ConnectParams const* SshSerialTapSession.createConnectParams() {
-	void const* privateKey;
-	string_t lastPassword;
-
-	if (m_sshPropertySet.m_authenticationMethodProp.m_value == ui.AuthenticationMethod.PrivateKey) {
-		privateKey = loadFile(m_sshPropertySet.m_privateKeyFileProp.m_value);
-		lastPassword = m_ssh.getLastPrivateKeyPassphrase();
-	} else {
-		privateKey = null;
-		lastPassword = m_ssh.getLastPassword();
-	}
-
-	iox.SshChannel.ConnectParams* params = new iox.SshChannel.ConnectParams;
-	params.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
-	params.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
-	params.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
-	params.m_socketOptions = ui.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
-	params.m_defaultPort = m_socketPropertySet.m_remotePortProp.m_value;
-
-	if (m_socketPropertySet.m_useLocalAddressProp.m_value) {
-		io.SocketAddress const* adapterAddress = m_socketPropertySet.m_adapterProp.m_value;
-		if (adapterAddress)
-			params.m_localAddress = *adapterAddress;
-
-		params.m_localAddress.m_port = (uint16_t)m_socketPropertySet.m_localPortProp.m_value;
-	}
-
-	params.m_privateKeyFileName = m_sshPropertySet.m_privateKeyFileProp.m_value;
-	params.m_rememberLastPassword = m_sshPropertySet.m_rememberLastPasswordProp.m_value;
-	params.m_sshParams.m_userName = m_sshPropertySet.m_userNameProp.m_value;
-	params.m_sshParams.m_privateKey = privateKey;
-	params.m_sshParams.m_privateKeySize = dynamic sizeof(privateKey);
-	params.m_sshParams.m_channelType = "session";
-	params.m_sshParams.m_processType = "exec";
-
-	if (m_sshPropertySet.m_rememberLastPasswordProp.m_value)
-		params.m_sshParams.m_password = lastPassword;
-
 	static string_t const stopBitsStringTable[] = {
 		"1",
 		"1.5",
@@ -630,7 +582,7 @@ iox.SshChannel.ConnectParams const* SshSerialTapSession.createConnectParams() {
 		"space",
 	}
 
-	string_t extra =
+	string_t cmdLine =
 		"ioninja-hwc --stdin --serial-tap "
 		$"--ser-baud %1 "
 		$"--ser-data %2 "
@@ -642,8 +594,12 @@ iox.SshChannel.ConnectParams const* SshSerialTapSession.createConnectParams() {
 			parityStringTable[m_parity]
 		);
 
-	params.m_sshParams.m_processExtra = extra.m_p;
-	params.m_sshParams.m_processExtraSize = extra.m_length;
+	iox.SshChannel.ConnectParams params;
+	iox.SshChannel.initConnectParams(&params, m_socketPropertySet, m_sshPropertySet, m_bufferPropertySet);
+	params.m_sshParams.m_channelType = "session";
+	params.m_sshParams.m_processType = "exec";
+	params.m_sshParams.m_processExtra = cmdLine.m_p;
+	params.m_sshParams.m_processExtraSize = cmdLine.m_length;
 	return params;
 }
 

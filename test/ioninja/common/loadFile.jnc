@@ -1,23 +1,19 @@
 import "io_base.jncx"
 import "io_File.jnc"
+import "std_Buffer.jnc"
 
 //..............................................................................
 
-// simple helper to load private key files (returning null is OK)
-
-void const* loadFile(string_t fileName) {
-	if (!fileName)
-		return null;
-
+size_t errorcode loadFile(
+	std.Buffer* buffer,
+	string_t fileName
+) {
 	io.File file;
 	file.open(fileName, io.FileOpenFlags.ReadOnly);
-	size_t size = file.m_size; // cache size (file may change)
-	void* p = new char[size];
-	file.read(p, size);
-	return p;
-
-catch:
-	return null;
+	buffer.setSize(file.m_size);
+	size_t result = file.read(buffer.m_p, buffer.m_size);
+	buffer.setSize(result); // update
+	return result;
 }
 
 //..............................................................................
