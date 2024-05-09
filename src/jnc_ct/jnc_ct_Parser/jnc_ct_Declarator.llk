@@ -429,7 +429,7 @@ array_suffix<Declarator* $declarator>
 function_suffix_rslv
 	:	'(' ')'
 	|	'(' TokenKind_Ellipsis
-	|	'(' (type_specifier | type_modifier)
+	|	'(' (type_modifier_sync | type_specifier_sync | qualified_type_name_rslv)
 	;
 
 resolver(function_suffix_rslv)
