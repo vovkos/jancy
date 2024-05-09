@@ -19,9 +19,9 @@
 #endif
 
 #if (_JNC_TRACE_ASYNC_REGION_VALUE)
-#	define JNC_TRACE_ASYNC_REGION_VALUE TRACE
+#	define JNC_TRACE_ASYNC_REGION_VALUE AXL_TRACE
 #else
-#	define JNC_TRACE_ASYNC_REGION_VALUE (void)
+#	define JNC_TRACE_ASYNC_REGION_VALUE(...)
 #endif
 
 namespace jnc {

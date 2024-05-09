@@ -23,27 +23,27 @@
 // #define _JNC_TRACE_GC_REGION 1
 
 #if (_JNC_TRACE_GC_MARK)
-#	define JNC_TRACE_GC_MARK TRACE
+#	define JNC_TRACE_GC_MARK AXL_TRACE
 #else
-#	define JNC_TRACE_GC_MARK (void)
+#	define JNC_TRACE_GC_MARK(...)
 #endif
 
 #if (_JNC_TRACE_GC_COLLECT)
-#	define JNC_TRACE_GC_COLLECT TRACE
+#	define JNC_TRACE_GC_COLLECT AXL_TRACE
 #else
-#	define JNC_TRACE_GC_COLLECT (void)
+#	define JNC_TRACE_GC_COLLECT(...)
 #endif
 
 #if (_JNC_TRACE_GC_DESTRUCT)
-#	define JNC_TRACE_GC_DESTRUCT TRACE
+#	define JNC_TRACE_GC_DESTRUCT AXL_TRACE
 #else
-#	define JNC_TRACE_GC_DESTRUCT (void)
+#	define JNC_TRACE_GC_DESTRUCT(...)
 #endif
 
 #if (_JNC_TRACE_GC_REGION)
-#	define JNC_TRACE_GC_REGION TRACE
+#	define JNC_TRACE_GC_REGION AXL_TRACE
 #else
-#	define JNC_TRACE_GC_REGION (void)
+#	define JNC_TRACE_GC_REGION(...)
 #endif
 
 // #define JNC_DESTRUCT_DELAY 200
