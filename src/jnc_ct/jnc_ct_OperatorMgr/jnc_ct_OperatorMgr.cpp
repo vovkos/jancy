@@ -392,7 +392,7 @@ OperatorMgr::getConditionalOperatorResultType(
 			trueType->cmp(falseType) == 0 ? trueType :
 			(trueType->getTypeKindFlags() & falseType->getTypeKindFlags() & TypeKindFlag_Numeric) ?
 				getConditionalNumericOperatorResultType(trueValue, trueType, falseValue, falseType) :
-				checkCastKind(falseValue, trueType) ? // prefer true-type unless can't cast to true-type
+				getCastKind(falseValue, trueType) ? // prefer true-type unless can't cast to true-type
 					trueType :
 					falseType;
 	}

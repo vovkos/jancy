@@ -144,8 +144,6 @@ Closure::getArgTypeArray(
 	Module* module,
 	sl::Array<FunctionArg*>* argArray
 ) {
-	bool result;
-
 	size_t closureArgCount = m_argValueList.getCount();
 	size_t argCount = argArray->getCount();
 
@@ -163,7 +161,7 @@ Closure::getArgTypeArray(
 
 		ASSERT(i < argCount);
 
-		result = module->m_operatorMgr.checkCastKind(*closureArg, (*argArray) [i]->getType());
+		bool result = module->m_operatorMgr.checkCastKind(*closureArg, (*argArray) [i]->getType());
 		if (!result)
 			return false;
 
