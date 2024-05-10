@@ -293,7 +293,6 @@ SshChannel::authenticate_2(
 }
 
 bool
-JNC_CDECL
 SshChannel::authenticateImpl(const AuthenticateParams& params) {
 	m_lock.lock();
 	if (!(m_activeEvents & SshEvent_SshAuthenticateError)) {
