@@ -200,9 +200,10 @@ CallConv::prepareFunctionType(FunctionType* functionType) {
 	char buffer[256];
 	sl::Array<llvm::Type*> llvmArgTypeArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	llvmArgTypeArray.setCount(argCount);
+	sl::Array<llvm::Type*>::Rwi rwi = llvmArgTypeArray;
 
 	for (size_t i = 0; i < argCount; i++)
-		llvmArgTypeArray[i] = argArray[i]->getType()->getLlvmType();
+		rwi[i] = argArray[i]->getType()->getLlvmType();
 
 	functionType->m_llvmType = llvm::FunctionType::get(
 		functionType->getReturnType()->getLlvmType(),

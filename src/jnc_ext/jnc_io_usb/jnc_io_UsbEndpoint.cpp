@@ -255,7 +255,7 @@ UsbEndpoint::readLoop() {
 				m_activeTransferList.insertTail(transfer); // put it on active list prior to submission
 				m_lock.unlock();
 
-				result = submitTransfer(transfer, transfer->m_buffer, transfer->m_buffer.getCount(), timeout);
+				result = submitTransfer(transfer, transfer->m_buffer.p(), transfer->m_buffer.getCount(), timeout);
 
 				m_lock.lock();
 
@@ -323,7 +323,7 @@ UsbEndpoint::writeLoop() {
 			m_activeTransferList.insertTail(transfer); // put it on active list prior to submission
 			m_lock.unlock();
 
-			result = submitTransfer(transfer, m_writeBlock, m_writeBlock.getCount(), timeout);
+			result = submitTransfer(transfer, m_writeBlock.p(), m_writeBlock.getCount(), timeout);
 
 			m_lock.lock();
 

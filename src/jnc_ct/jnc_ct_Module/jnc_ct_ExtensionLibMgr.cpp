@@ -268,7 +268,7 @@ ExtensionLibMgr::findItem(
 
 	FindModuleItemResult findResult = m_module->m_namespaceMgr.getGlobalNamespace()->findItemImpl<sl::False>(name);
 	if (findResult.m_item)
-		entry->m_itemArray[cacheSlot] = findResult.m_item;
+		entry->m_itemArray.rwi()[cacheSlot] = findResult.m_item;
 
 	return findResult;
 }

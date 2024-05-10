@@ -329,11 +329,12 @@ Pcap::ioThreadFunc() {
 
 	sl::Array<char> readBuffer;
 	readBuffer.setCount(snapshotSize);
+	char* p = readBuffer.p();
 
 	for (;;) {
 		uint64_t timestamp;
 
-		size_t readResult = m_pcap.read(readBuffer, snapshotSize, &timestamp);
+		size_t readResult = m_pcap.read(p, snapshotSize, &timestamp);
 		if ((intptr_t)readResult < 0) {
 			readResult == PCAP_ERROR_BREAK ?
 				setEvents(PcapEvent_Eof) :

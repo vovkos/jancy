@@ -27,6 +27,7 @@ CdeclCallConv_msc64::prepareFunctionType(FunctionType* functionType) {
 	char buffer[256];
 	sl::Array<llvm::Type*> llvmArgTypeArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	llvmArgTypeArray.setCount(argCount);
+	sl::Array<llvm::Type*>::Rwi rwi = llvmArgTypeArray;
 
 	size_t j = 0;
 
@@ -38,7 +39,8 @@ CdeclCallConv_msc64::prepareFunctionType(FunctionType* functionType) {
 
 			argCount++;
 			llvmArgTypeArray.setCount(argCount);
-			llvmArgTypeArray[0] = returnType->getLlvmType();
+			rwi = llvmArgTypeArray;
+			rwi[0] = returnType->getLlvmType();
 			j = 1;
 		}
 	}
@@ -48,12 +50,12 @@ CdeclCallConv_msc64::prepareFunctionType(FunctionType* functionType) {
 	for (size_t i = 0; j < argCount; i++, j++) {
 		Type* type = argArray[i]->getType();
 		if (!(type->getFlags() & TypeFlag_StructRet)) {
-			llvmArgTypeArray[j] = type->getLlvmType();
+			rwi[j] = type->getLlvmType();
 		} else if (type->getSize() <= sizeof(uint64_t)) {
-			llvmArgTypeArray[j] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int64)->getLlvmType();
+			rwi[j] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int64)->getLlvmType();
 			hasCoercedArgs = true;
 		} else {
-			llvmArgTypeArray[j] = type->getDataPtrType_c()->getLlvmType();
+			rwi[j] = type->getDataPtrType_c()->getLlvmType();
 			hasCoercedArgs = true;
 		}
 	}

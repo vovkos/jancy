@@ -566,7 +566,7 @@ Lexer::onRightCurlyBrace() {
 void
 Lexer::onLeftParentheses() {
 	if (!m_parenthesesLevelStack.isEmpty())
-		m_parenthesesLevelStack[m_parenthesesLevelStack.getCount() - 1]++;
+		m_parenthesesLevelStack.rwi()[m_parenthesesLevelStack.getCount() - 1]++;
 
 	createToken('(');
 }
@@ -581,7 +581,7 @@ Lexer::onRightParentheses() {
 			return false;
 		}
 
-		m_parenthesesLevelStack[i]--;
+		m_parenthesesLevelStack.rwi()[i]--;
 	}
 
 	createToken(')');

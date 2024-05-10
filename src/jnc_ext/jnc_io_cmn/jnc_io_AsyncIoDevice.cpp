@@ -325,12 +325,13 @@ AsyncIoDevice::getNextWriteBlock(
 		);
 
 		data->setCount(meta->m_dataSize);
-		size_t result = m_writeBuffer.read(*data, meta->m_dataSize);
+		char* p = data->p();
+		size_t result = m_writeBuffer.read(p, meta->m_dataSize);
 		if (result < meta->m_dataSize) {
 			size_t overflowSize = meta->m_dataSize - result;
 			ASSERT(overflowSize == m_writeOverflowBuffer.getCount());
 
-			memcpy(data->p() + result, m_writeOverflowBuffer, overflowSize);
+			memcpy(p + result, m_writeOverflowBuffer, overflowSize);
 			m_writeOverflowBuffer.clear();
 		}
 

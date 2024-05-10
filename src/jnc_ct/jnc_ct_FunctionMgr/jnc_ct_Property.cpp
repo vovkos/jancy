@@ -659,16 +659,18 @@ Property::createVtableVariable() {
 	if (!result)
 		return false;
 
+	size_t count = m_vtable.getCount();
+
 	char buffer[256];
 	sl::Array<llvm::Constant*> llvmVtable(rc::BufKind_Stack, buffer, sizeof(buffer));
-
-	size_t count = m_vtable.getCount();
 	llvmVtable.setCount(count);
+	sl::Array<llvm::Constant*>::Rwi rwi = llvmVtable;
+
 
 	for (size_t i = 0; i < count; i++) {
 		Function* function = m_vtable[i];
 		ASSERT(function->getStorageKind() != StorageKind_Abstract); // virtual property (we shouldn't request vtable variable)
-		llvmVtable[i] = function->getLlvmFunction();
+		rwi[i] = function->getLlvmFunction();
 	}
 
 	StructType* vtableStructType = m_type->getVtableStructType();

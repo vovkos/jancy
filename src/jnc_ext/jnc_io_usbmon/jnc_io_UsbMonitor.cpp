@@ -406,7 +406,7 @@ UsbMonitor::ioThreadFunc() {
 
 				result =
 					read->m_buffer.setCount(readBlockSize) &&
-					m_monitor.overlappedRead(read->m_buffer, readBlockSize, &read->m_overlapped);
+					m_monitor.overlappedRead(read->m_buffer.p(), readBlockSize, &read->m_overlapped);
 
 				if (!result) {
 					m_overlappedIo->m_overlappedReadPool.put(read);

@@ -96,7 +96,7 @@ LlvmDiBuilder::createSubroutineType(FunctionType* functionType) {
 	sl::Array<llvm::Metadata*> argTypeArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	argTypeArray.setCount(count + 1);
 
-	llvm::Metadata** dst = argTypeArray;
+	llvm::Metadata** dst = argTypeArray.p();
 	*dst = functionType->getReturnType()->getLlvmDiType();
 	dst++;
 
@@ -155,6 +155,7 @@ LlvmDiBuilder::setStructTypeBody(StructType* structType) {
 	char buffer[256];
 	sl::Array<llvm::Metadata*> fieldTypeArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	fieldTypeArray.setCount(count);
+	sl::Array<llvm::Metadata*>::Rwi rwi = fieldTypeArray;
 
 	size_t i = 0;
 
@@ -163,7 +164,7 @@ LlvmDiBuilder::setStructTypeBody(StructType* structType) {
 		const BaseTypeSlot* baseType = *baseTypeIt;
 		sl::String name = baseType->getType()->getQualifiedName();
 
-		fieldTypeArray[i] = m_llvmDiBuilder->createMemberType(
+		rwi[i] = m_llvmDiBuilder->createMemberType(
 			unit->getLlvmDiFile(),
 			!name.isEmpty() ? name.sz() : "UnnamedBaseType",
 			unit->getLlvmDiFile(),
@@ -180,7 +181,7 @@ LlvmDiBuilder::setStructTypeBody(StructType* structType) {
 		Field* field = fieldArray[j];
 		sl::String name = field->getName();
 
-		fieldTypeArray[i] = m_llvmDiBuilder->createMemberType(
+		rwi[i] = m_llvmDiBuilder->createMemberType(
 			unit->getLlvmDiFile(),
 			!name.isEmpty() ? name.sz() : "m_unnamedField",
 			unit->getLlvmDiFile(),
@@ -238,12 +239,13 @@ LlvmDiBuilder::setUnionTypeBody(UnionType* unionType) {
 	char buffer[256];
 	sl::Array<llvm::Metadata*> fieldTypeArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	fieldTypeArray.setCount(count);
+	sl::Array<llvm::Metadata*>::Rwi rwi = fieldTypeArray;
 
 	for (size_t i = 0; i < count; i++) {
 		Field* field = fieldArray[i];
 		sl::String name = field->getName();
 
-		fieldTypeArray[i] = m_llvmDiBuilder->createMemberType(
+		rwi[i] = m_llvmDiBuilder->createMemberType(
 			unit->getLlvmDiFile(),
 			!name.isEmpty() ? name.sz() : "m_unnamedField",
 			unit->getLlvmDiFile(),

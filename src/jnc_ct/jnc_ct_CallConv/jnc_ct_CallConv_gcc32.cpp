@@ -32,11 +32,12 @@ CallConv_gcc32::prepareFunctionType(FunctionType* functionType) {
 	char buffer[256];
 	sl::Array<llvm::Type*> llvmArgTypeArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	llvmArgTypeArray.setCount(argCount);
+	sl::Array<llvm::Type*>::Rwi rwi = llvmArgTypeArray;
 
-	llvmArgTypeArray[0] = returnType->getDataPtrType_c()->getLlvmType();
+	rwi[0] = returnType->getDataPtrType_c()->getLlvmType();
 
 	for (size_t i = 0, j = 1; j < argCount; i++, j++)
-		llvmArgTypeArray[j] = argArray[i]->getType()->getLlvmType();
+		rwi[j] = argArray[i]->getType()->getLlvmType();
 
 	functionType->m_llvmType = llvm::FunctionType::get(
 		m_module->m_typeMgr.getPrimitiveType(TypeKind_Void)->getLlvmType(),

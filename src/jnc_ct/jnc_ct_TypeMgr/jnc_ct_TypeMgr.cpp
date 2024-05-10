@@ -673,8 +673,9 @@ TypeMgr::getFunctionType(
 
 	sl::Array<FunctionArg*> argArray;
 	argArray.setCount(argCount);
+	sl::Array<FunctionArg*>::Rwi rwi = argArray;
 	for (size_t i = 0; i < argCount; i++)
-		argArray[i] = getSimpleFunctionArg(argTypeArray[i]);
+		rwi[i] = getSimpleFunctionArg(argTypeArray[i]);
 
 	sl::String signature;
 	sl::StringRef argSignature;
@@ -906,10 +907,11 @@ TypeMgr::getMemberPropertyType(
 	char buffer[256];
 	sl::Array<FunctionType*> setterTypeOverloadArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	setterTypeOverloadArray.setCount(setterTypeOverloadCount);
+	sl::Array<FunctionType*>::Rwi rwi = setterTypeOverloadArray;
 
 	for (size_t i = 0; i < setterTypeOverloadCount; i++) {
 		FunctionType* overloadType = propertyType->m_setterType.getOverload(i);
-		setterTypeOverloadArray[i] = getMemberMethodType(parentType, overloadType);
+		rwi[i] = getMemberMethodType(parentType, overloadType);
 	}
 
 	PropertyType* memberPropertyType = getPropertyType(
@@ -1034,9 +1036,10 @@ TypeMgr::getMulticastType(FunctionPtrType* functionPtrType) {
 	// overloaded operators
 
 	type->m_binaryOperatorTable.setCountZeroConstruct(BinOpKind__Count);
-	type->m_binaryOperatorTable[BinOpKind_RefAssign] = type->m_methodArray[MulticastMethodKind_Setup];
-	type->m_binaryOperatorTable[BinOpKind_AddAssign] = type->m_methodArray[MulticastMethodKind_Add];
-	type->m_binaryOperatorTable[BinOpKind_SubAssign] = type->m_methodArray[MulticastMethodKind_Remove];
+	sl::Array<OverloadableFunction>::Rwi rwi = type->m_binaryOperatorTable;
+	rwi[BinOpKind_RefAssign] = type->m_methodArray[MulticastMethodKind_Setup];
+	rwi[BinOpKind_AddAssign] = type->m_methodArray[MulticastMethodKind_Add];
+	rwi[BinOpKind_SubAssign] = type->m_methodArray[MulticastMethodKind_Remove];
 	type->m_callOperator = type->m_methodArray[MulticastMethodKind_Call];
 
 	// snapshot closure (snapshot is shared between weak and normal multicasts)

@@ -305,7 +305,7 @@ DeviceMonitor::ioThreadFunc() {
 
 				result =
 					read->m_buffer.setCount(readBlockSize) &&
-					m_monitor.overlappedRead(read->m_buffer, readBlockSize, &read->m_overlapped);
+					m_monitor.overlappedRead(read->m_buffer.p(), readBlockSize, &read->m_overlapped);
 
 				if (!result) {
 					m_overlappedIo->m_overlappedReadPool.put(read);
@@ -375,9 +375,10 @@ DeviceMonitor::ioThreadFunc() {
 		m_activeEvents = 0;
 
 		readBlock.setCount(m_readBlockSize); // update read block size
+		char* p = readBlock.p();
 
 		while (canReadMonitor && !m_readBuffer.isFull()) {
-			ssize_t actualSize = ::read(m_monitor.m_device, readBlock, readBlock.getCount());
+			ssize_t actualSize = ::read(m_monitor.m_device, p, readBlock.getCount());
 			if (actualSize == -1) {
 				if (errno == EAGAIN) {
 					canReadMonitor = false;

@@ -187,7 +187,7 @@ Type::getValueString_1(
 	sl::Array<char> valueBuffer(rc::BufKind_Stack, buffer, sizeof(buffer));
 	valueBuffer.setCount(self->m_item->getSize());
 
-	bool result = value.cast(self->m_item, valueBuffer);
+	bool result = value.cast(self->m_item, valueBuffer.p());
 	return result ?
 		allocateString(self->m_item->getValueString(valueBuffer, (formatSpec >> toAxl).szn())) :
 		g_nullString;

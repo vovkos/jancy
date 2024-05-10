@@ -174,7 +174,7 @@ RegexMatch::getGroup(size_t i) {
 	RegexCapture* capture = jnc::createClass<RegexCapture>(jnc::getCurrentThreadRuntime());
 	capture->m_capture = m_submatchArray_axl[i];
 	capture->m_lastChunk = m_lastChunk;
-	m_submatchArray_jnc[i] = capture;
+	m_submatchArray_jnc.rwi()[i] = capture;
 	return capture;
 }
 
@@ -184,13 +184,13 @@ RegexMatch::ensureSubmatchesCaptured() {
 		size_t count = m_regex->getSwitchCaseCaptureCount(m_id) + 1;
 		if (m_submatchArray_axl.getCount() != count) {
 			m_submatchArray_axl.setCount(count);
-			return m_regex->captureSwitchCaseSubmatches(m_id, m_capture, m_submatchArray_axl, count);
+			return m_regex->captureSwitchCaseSubmatches(m_id, m_capture, m_submatchArray_axl.p(), count);
 		}
 	} else {
 		size_t count = m_regex->getCaptureCount() + 1;
 		if (m_submatchArray_axl.getCount() != count) {
 			m_submatchArray_axl.setCount(count);
-			return m_regex->captureSubmatches(m_capture, m_submatchArray_axl, count);
+			return m_regex->captureSubmatches(m_capture, m_submatchArray_axl.p(), count);
 		}
 	}
 
@@ -270,7 +270,7 @@ Regex::getSwitchCasePattern(
 		self->m_switchCasePatternArray.setCount(count);
 
 	if (!self->m_switchCasePatternArray[id].m_length)
-		self->m_switchCasePatternArray[id] = allocateString(self->m_regex->getSwitchCasePattern(id));
+		self->m_switchCasePatternArray.rwi()[id] = allocateString(self->m_regex->getSwitchCasePattern(id));
 
 	return self->m_switchCasePatternArray[id];
 }
@@ -375,7 +375,7 @@ Regex::captureSubmatches(
 	char buffer[256];
 	sl::Array<re2::Capture> submatchArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	submatchArray.setCount(count);
-	count = m_regex->captureSubmatches(matchText >> toAxl, submatchArray, count);
+	count = m_regex->captureSubmatches(matchText >> toAxl, submatchArray.p(), count);
 	if (count == -1)
 		return -1;
 
@@ -407,7 +407,7 @@ Regex::captureSwitchCaseSubmatches(
 	char buffer[256];
 	sl::Array<re2::Capture> submatchArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	submatchArray.setCount(count);
-	count = m_regex->captureSwitchCaseSubmatches(switchCaseId, matchText >> toAxl, submatchArray, count);
+	count = m_regex->captureSwitchCaseSubmatches(switchCaseId, matchText >> toAxl, submatchArray.p(), count);
 	if (count == -1)
 		return -1;
 

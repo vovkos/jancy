@@ -234,14 +234,14 @@ DerivableType::addMethod(Function* function) {
 		if (m_unaryOperatorTable.isEmpty())
 			m_unaryOperatorTable.setCountZeroConstruct(UnOpKind__Count);
 
-		targetOverloadableFunction = &m_unaryOperatorTable[function->getUnOpKind()];
+		targetOverloadableFunction = &m_unaryOperatorTable.rwi()[function->getUnOpKind()];
 		break;
 
 	case FunctionKind_BinaryOperator:
 		if (m_binaryOperatorTable.isEmpty())
 			m_binaryOperatorTable.setCountZeroConstruct(BinOpKind__Count);
 
-		targetOverloadableFunction = &m_binaryOperatorTable[function->getBinOpKind()];
+		targetOverloadableFunction = &m_binaryOperatorTable.rwi()[function->getBinOpKind()];
 		break;
 
 	case FunctionKind_CallOperator:
@@ -445,7 +445,7 @@ DerivableType::findBaseTypeTraverseImpl(
 		coord->m_offset = slot->m_offset;
 		coord->m_vtableIndex = slot->m_vtableIndex;
 		coord->m_llvmIndexArray.setCount(level + 1);
-		coord->m_llvmIndexArray[level] = slot->m_llvmIndex;
+		coord->m_llvmIndexArray.rwi()[level] = slot->m_llvmIndex;
 		return true;
 	}
 
@@ -459,7 +459,7 @@ DerivableType::findBaseTypeTraverseImpl(
 			if (coord) {
 				coord->m_offset += slot->m_offset;
 				coord->m_vtableIndex += slot->m_vtableIndex;
-				coord->m_llvmIndexArray[level] = slot->m_llvmIndex;
+				coord->m_llvmIndexArray.rwi()[level] = slot->m_llvmIndex;
 			}
 
 			return true;
@@ -512,7 +512,7 @@ DerivableType::findDirectChildItemTraverse(
 				if (findResult.m_item) {
 					if (coord && coord->m_type) {
 						coord->m_offset += field->m_offset;
-						coord->m_llvmIndexArray[level] = field->m_llvmIndex;
+						coord->m_llvmIndexArray.rwi()[level] = field->m_llvmIndex;
 
 						if (m_typeKind == TypeKind_Union) {
 							UnionCoord unionCoord;
@@ -552,7 +552,7 @@ DerivableType::findDirectChildItemTraverse(
 			if (findResult.m_item) {
 				if (coord && coord->m_type) {
 					coord->m_offset += slot->m_offset;
-					coord->m_llvmIndexArray[level] = slot->m_llvmIndex;
+					coord->m_llvmIndexArray.rwi()[level] = slot->m_llvmIndex;
 					coord->m_vtableIndex += slot->m_vtableIndex;
 				}
 

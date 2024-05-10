@@ -72,8 +72,9 @@ ReactorImpl::ReactorImpl() {
 	size_t reactionCount = reactorType->getReactionCount();
 
 	m_reactionArray.setCount(reactionCount);
+	sl::Array<Reaction*>::Rwi rwi = m_reactionArray;
 	for (size_t i = 0; i < reactionCount; i++)
-		m_reactionArray[i] = new Reaction;
+		rwi[i] = new Reaction;
 
 	m_pendingReactionMap.setBitCount(reactionCount);
 }

@@ -36,7 +36,7 @@ initializeUsbLibCapabilities() {
 
 	sl::Array<char> buffer;
 	buffer.setCount(size);
-	readCapabilityParam("org.jancy.io.usb.devices", buffer, size);
+	readCapabilityParam("org.jancy.io.usb.devices", buffer.p(), size);
 
 	const uint32_t* p = (uint32_t*)buffer.cp();
 	const uint32_t* end = p + size / sizeof(uint32_t);

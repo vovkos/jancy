@@ -459,7 +459,7 @@ Socket::sendRecvLoop(
 					result =
 						recv->m_buffer.setCount(readBlockSize) &&
 						m_socket.m_socket.wsaRecvFrom(
-							recv->m_buffer,
+							recv->m_buffer.p(),
 							readBlockSize,
 							NULL,
 							&flags,
@@ -481,7 +481,7 @@ Socket::sendRecvLoop(
 					result =
 						recv->m_buffer.setCount(readBlockSize) &&
 						m_socket.m_socket.wsaRecv(
-							recv->m_buffer,
+							recv->m_buffer.p(),
 							readBlockSize,
 							NULL,
 							&flags,
@@ -571,6 +571,7 @@ Socket::sendRecvLoop(
 		m_activeEvents = baseEvents;
 
 		readBlock.setCount(m_readBlockSize); // update read block size
+		char* p = readBlock.p();
 
 		if (isDatagram) {
 			while (canReadSocket && !m_readBuffer.isFull()) {
@@ -579,7 +580,7 @@ Socket::sendRecvLoop(
 
 				ssize_t actualSize = ::recvfrom(
 					m_socket.m_socket,
-					readBlock,
+					p,
 					readBlock.getCount(),
 					0,
 					&sockAddr.m_addr,

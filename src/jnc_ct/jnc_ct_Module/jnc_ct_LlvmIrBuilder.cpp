@@ -48,7 +48,7 @@ LlvmIrBuilder::setAllocaBlock(BasicBlock* block) {
 	ASSERT(m_llvmAllocaIrBuilder);
 
 	llvm::Instruction* llvmJmp = block->getLlvmBlock()->getTerminator();
-	ASSERT(llvm::isa<llvm::BranchInst> (llvmJmp));
+	ASSERT(llvm::isa<llvm::BranchInst>(llvmJmp));
 
 	m_llvmAllocaIrBuilder->SetInsertPoint(llvmJmp);
 }
@@ -149,7 +149,7 @@ LlvmIrBuilder::restoreInsertPoint(const LlvmIrInsertPoint& insertPoint) {
 llvm::IndirectBrInst*
 LlvmIrBuilder::createIndirectBr(
 	const Value& value,
-	BasicBlock** blockArray,
+	BasicBlock* const* blockArray,
 	size_t blockCount
 ) {
 	ASSERT(m_llvmIrBuilder);
@@ -166,8 +166,8 @@ llvm::SwitchInst*
 LlvmIrBuilder::createSwitch(
 	const Value& value,
 	BasicBlock* defaultBlock,
-	int64_t* constArray,
-	BasicBlock** blockArray,
+	const int64_t* constArray,
+	BasicBlock* const* blockArray,
 	size_t caseCount
 ) {
 	ASSERT(m_llvmIrBuilder);
@@ -194,7 +194,7 @@ LlvmIrBuilder::createSwitch(
 llvm::PHINode*
 LlvmIrBuilder::createPhi(
 	const Value* valueArray,
-	BasicBlock** blockArray,
+	BasicBlock* const* blockArray,
 	size_t count,
 	Value* resultValue
 ) {
@@ -250,14 +250,15 @@ LlvmIrBuilder::createGep(
 	char buffer[256];
 	sl::Array<llvm::Value*> llvmIndexArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	llvmIndexArray.setCount(indexCount);
+	sl::Array<llvm::Value*>::Rwi rwi = llvmIndexArray;
 
 	for (size_t i = 0; i < indexCount; i++)
-		llvmIndexArray[i] = indexArray[i].getLlvmValue();
+		rwi[i] = indexArray[i].getLlvmValue();
 
 	llvm::Value* inst = createGepImpl(
 		elementType->getLlvmType(),
 		value.getLlvmValue(),
-		llvm::ArrayRef<llvm::Value*> (llvmIndexArray, indexCount)
+		llvm::ArrayRef<llvm::Value*>(llvmIndexArray, indexCount)
 	);
 
 	resultValue->setLlvmValue(inst, resultType);
@@ -278,17 +279,18 @@ LlvmIrBuilder::createGep(
 	char buffer[256];
 	sl::Array<llvm::Value*> llvmIndexArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	llvmIndexArray.setCount(indexCount);
+	sl::Array<llvm::Value*>::Rwi rwi = llvmIndexArray;
 
 	for (size_t i = 0; i < indexCount; i++) {
 		Value indexValue;
 		indexValue.setConstInt32(indexArray[i], m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32_u));
-		llvmIndexArray[i] = indexValue.getLlvmValue();
+		rwi[i] = indexValue.getLlvmValue();
 	}
 
 	llvm::Value* inst = createGepImpl(
 		elementType->getLlvmType(),
 		value.getLlvmValue(),
-		llvm::ArrayRef<llvm::Value*> (llvmIndexArray, indexCount)
+		llvm::ArrayRef<llvm::Value*>(llvmIndexArray, indexCount)
 	);
 
 	resultValue->setLlvmValue(inst, resultType);
@@ -312,7 +314,7 @@ LlvmIrBuilder::createCall(
 		(llvm::FunctionType*)functionType->getLlvmType(),
 #endif
 		calleeValue.getLlvmValue(),
-		llvm::ArrayRef<llvm::Value*> (llvmArgValueArray, argCount)
+		llvm::ArrayRef<llvm::Value*>(llvmArgValueArray, argCount)
 	);
 
 	if (resultType->getTypeKind() != TypeKind_Void) {
@@ -343,11 +345,12 @@ LlvmIrBuilder::createCall(
 	char buffer[256];
 	sl::Array<llvm::Value*> llvmArgValueArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	llvmArgValueArray.setCount(argCount);
+	sl::Array<llvm::Value*>::Rwi rwi = llvmArgValueArray;
 
 	sl::ConstBoxIterator<Value> it = argValueList.getHead();
 	for (size_t i = 0; i < argCount; i++, it++) {
 		ASSERT(it);
-		llvmArgValueArray[i] = it->getLlvmValue();
+		rwi[i] = it->getLlvmValue();
 	}
 
 	return createCall(calleeValue, functionType, llvmArgValueArray, argCount, resultType, resultValue);
@@ -367,9 +370,10 @@ LlvmIrBuilder::createCall(
 	char buffer[256];
 	sl::Array<llvm::Value*> llvmArgValueArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	llvmArgValueArray.setCount(argCount);
+	sl::Array<llvm::Value*>::Rwi rwi = llvmArgValueArray;
 
 	for (size_t i = 0; i < argCount; i++)
-		llvmArgValueArray[i] = argArray[i].getLlvmValue();
+		rwi[i] = argArray[i].getLlvmValue();
 
 	return createCall(calleeValue, functionType, llvmArgValueArray, argCount, resultType, resultValue);
 }

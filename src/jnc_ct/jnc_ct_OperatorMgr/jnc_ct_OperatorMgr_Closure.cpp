@@ -67,7 +67,10 @@ OperatorMgr::createClosureObject(
 		}
 
 		closureArgTypeArray.setCount(closureArgCount);
+		sl::Array<Type*>::Rwi typeRwi = closureArgTypeArray;
+
 		closureMap.setCount(closureArgCount);
+		sl::Array<size_t>::Rwi mapRwi = closureMap;
 
 		sl::BoxIterator<Value> closureArgValue = closure->getArgValueList()->getHead();
 
@@ -77,8 +80,8 @@ OperatorMgr::createClosureObject(
 			if (closureArgValue->isEmpty())
 				continue;
 
-			closureArgTypeArray[j] = srcArgArray[i]->getType();
-			closureMap[j] = i;
+			typeRwi[j] = srcArgArray[i]->getType();
+			mapRwi[j] = i;
 			j++;
 		}
 

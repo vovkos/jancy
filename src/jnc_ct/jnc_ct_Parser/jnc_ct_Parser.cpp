@@ -2981,11 +2981,12 @@ Parser::finalizeLiteral(
 	if (argValueList) {
 		argCount = argValueList->getCount();
 		argValueArray.setCount(argCount);
+		sl::Array<Value*>::Rwi rwi = argValueArray;
 
 		sl::BoxIterator<Value> it = argValueList->getHead();
 		for (size_t i = 0; i < argCount; i++, it++) {
 			ASSERT(it);
-			argValueArray[i] = it.p();
+			rwi[i] = it.p();
 		}
 	}
 

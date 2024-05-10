@@ -382,7 +382,7 @@ FileStream::ioThreadFunc() {
 
 				result =
 					read->m_buffer.setCount(readBlockSize) &&
-					m_file.m_file.overlappedRead(read->m_buffer, readBlockSize, &read->m_overlapped);
+					m_file.m_file.overlappedRead(read->m_buffer.p(), readBlockSize, &read->m_overlapped);
 
 				if (!result) {
 					m_overlappedIo->m_overlappedReadPool.put(read);
@@ -480,9 +480,10 @@ FileStream::ioThreadFunc() {
 		m_activeEvents = 0;
 
 		readBlock.setCount(m_readBlockSize); // update read block size
+		char* p = readBlock.p();
 
 		while (canReadFile && !m_readBuffer.isFull()) {
-			ssize_t actualSize = ::read(m_file.m_file, readBlock, readBlock.getCount());
+			ssize_t actualSize = ::read(m_file.m_file, p, readBlock.getCount());
 			if (actualSize == -1) {
 				if (errno == EAGAIN) {
 					canReadFile = false;

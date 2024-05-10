@@ -155,14 +155,14 @@ ClassType::addMethod(Function* function) {
 		if (m_unaryOperatorTable.isEmpty())
 			m_unaryOperatorTable.setCountZeroConstruct(UnOpKind__Count);
 
-		targetOverloadableFunction = &m_unaryOperatorTable[function->getUnOpKind()];
+		targetOverloadableFunction = &m_unaryOperatorTable.rwi()[function->getUnOpKind()];
 		break;
 
 	case FunctionKind_BinaryOperator:
 		if (m_binaryOperatorTable.isEmpty())
 			m_binaryOperatorTable.setCountZeroConstruct(BinOpKind__Count);
 
-		targetOverloadableFunction = &m_binaryOperatorTable[function->getBinOpKind()];
+		targetOverloadableFunction = &m_binaryOperatorTable.rwi()[function->getBinOpKind()];
 		break;
 
 	case FunctionKind_CallOperator:
@@ -280,6 +280,7 @@ ClassType::calcLayout() {
 	char buffer[256];
 	sl::Array<BaseTypeSlot*> ifaceBaseTypeArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	ifaceBaseTypeArray.setCount(baseTypeCount);
+	sl::Array<BaseTypeSlot*>::Rwi baseTypeRwi = ifaceBaseTypeArray;
 
 	sl::Iterator<BaseTypeSlot> slotIt = m_baseTypeList.getHead();
 	for (size_t i = 0; slotIt; i++, slotIt++) {
@@ -318,7 +319,7 @@ ClassType::calcLayout() {
 			m_baseTypeConstructArray.append(slot);
 
 		if (slot->m_type->getTypeKind() != TypeKind_Class) {
-			ifaceBaseTypeArray[i] = m_ifaceStructType->addBaseType(slot->m_type);
+			baseTypeRwi[i] = m_ifaceStructType->addBaseType(slot->m_type);
 			continue;
 		}
 
@@ -328,7 +329,7 @@ ClassType::calcLayout() {
 			return false;
 		}
 
-		ifaceBaseTypeArray[i] = m_ifaceStructType->addBaseType(baseClassType->getIfaceStructType());
+		baseTypeRwi[i] = m_ifaceStructType->addBaseType(baseClassType->getIfaceStructType());
 		slot->m_vtableIndex = m_vtable.getCount();
 		m_vtable.append(baseClassType->m_vtable);
 
@@ -606,12 +607,12 @@ ClassType::overrideVirtualFunction(Function* function) {
 	FunctionArg* origThisArg = function->m_type->m_argArray[0];
 	FunctionArg* thisArg = m_module->m_typeMgr.getSimpleFunctionArg(StorageKind_This, thisArgType, origThisArg->getPtrTypeFlags());
 
-	if (function->m_type->getFlags() & ModuleItemFlag_User) {
-		function->m_type->m_argArray[0] = thisArg;
-	} else {
+	if (function->m_type->getFlags() & ModuleItemFlag_User)
+		function->m_type->m_argArray.rwi()[0] = thisArg;
+	else {
 		sl::Array<FunctionArg*> argArray = function->m_type->m_argArray;
 		argArray.ensureExclusive();
-		argArray[0] = thisArg;
+		argArray.rwi()[0] = thisArg;
 
 		function->m_type = m_module->m_typeMgr.getFunctionType(
 			function->m_type->getReturnType(),
@@ -625,9 +626,9 @@ ClassType::overrideVirtualFunction(Function* function) {
 	function->m_virtualOriginClassType = overridenFunction->m_virtualOriginClassType;
 	function->m_classVtableIndex = overridenFunction->m_classVtableIndex;
 
-	size_t VtableIndex = coord.m_vtableIndex + overridenFunction->m_classVtableIndex;
-	ASSERT(VtableIndex < m_vtable.getCount());
-	m_vtable[VtableIndex] = function;
+	size_t vtableIndex = coord.m_vtableIndex + overridenFunction->m_classVtableIndex;
+	ASSERT(vtableIndex < m_vtable.getCount());
+	m_vtable.rwi()[vtableIndex] = function;
 	return true;
 }
 
@@ -674,6 +675,7 @@ ClassType::prepareForOperatorNew() {
 	char buffer[256];
 	sl::Array<llvm::Constant*> llvmVtable(rc::BufKind_Stack, buffer, sizeof(buffer));
 	llvmVtable.setCount(count);
+	sl::Array<llvm::Constant*>::Rwi rwi = llvmVtable;
 
 	for (size_t i = 0; i < count; i++) {
 		Function* function = m_vtable[i];
@@ -682,7 +684,7 @@ ClassType::prepareForOperatorNew() {
 			return false;
 		}
 
-		llvmVtable[i] = function->getLlvmFunction();
+		rwi[i] = function->getLlvmFunction();
 	}
 
 	llvm::Constant* llvmVtableConst = llvm::ConstantStruct::get(

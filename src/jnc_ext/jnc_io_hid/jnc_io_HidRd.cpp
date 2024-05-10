@@ -203,7 +203,7 @@ HidStandaloneReport::getFieldImpl(size_t i) {
 
 	HidReportField* newField = createClass<HidReportField>(runtime);
 	newField->init(this, m_db, field);
-	m_fieldArray[i] = newField;
+	m_fieldArray.rwi()[i] = newField;
 	return newField;
 }
 
@@ -230,9 +230,11 @@ HidRdCollection::getCollection(size_t i) {
 
 	ASSERT(m_rd && m_collection->getCollectionList().getCount() == m_collectionCount);
 	m_collectionArray.setCountZeroConstruct(m_collectionCount);
+	sl::Array<HidRdCollection*>::Rwi rwi = m_collectionArray;
+
 	sl::ConstIterator<axl::io::HidRdCollection> it = m_collection->getCollectionList().getHead();
 	for (size_t j = 0; it; it++, j++)
-		m_collectionArray[j] = m_rd->getCollection(*it);
+		rwi[j] = m_rd->getCollection(*it);
 
 	return m_collectionArray[i];
 }
@@ -297,9 +299,11 @@ HidRd::getReport(
 
 	Runtime* runtime = getCurrentThreadRuntime();
 	reportArray.setCount(count);
+	sl::Array<HidReport*>::Rwi rwi = reportArray;
+
 	sl::ConstMapIterator<uint_t, axl::io::HidReport> it = reportMap.getHead();
 	for (size_t j = 0; it; it++, j++)
-		reportArray[j] = getReportImpl(&it->m_value);
+		rwi[j] = getReportImpl(&it->m_value);
 
 	return reportArray[i];
 }

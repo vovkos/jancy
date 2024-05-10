@@ -83,7 +83,7 @@ MulticastClassType::compileCallMethod(Function* function) {
 	size_t argCount = function->getType()->getArgArray().getCount();
 	argValueArray.setCount(argCount);
 
-	m_module->m_functionMgr.internalPrologue(function, argValueArray, argCount);
+	m_module->m_functionMgr.internalPrologue(function, argValueArray.p(), argCount);
 
 	Function* getSnapshot = m_methodArray[MulticastMethodKind_GetSnapshot];
 

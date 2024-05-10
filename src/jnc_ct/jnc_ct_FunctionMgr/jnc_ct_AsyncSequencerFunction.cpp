@@ -163,14 +163,15 @@ AsyncSequencerFunction::compile() {
 	char buffer[256];
 	sl::Array<int64_t> stateIdArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	stateIdArray.setCount(count);
+	sl::Array<int64_t>::Rwi rwi = stateIdArray;
 
 	for (size_t i = 0; i < count; i++)
-		stateIdArray[i] = i;
+		rwi[i] = i;
 
 	m_module->m_llvmIrBuilder.createSwitch(
 		stateValue,
 		m_catchBlock,
-		stateIdArray,
+		rwi.p(),
 		asyncBlockArray,
 		count
 	);

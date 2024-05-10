@@ -164,14 +164,15 @@ HidDevice::ioThreadFunc() {
 	ASSERT(m_device.isOpen());
 
 	sl::Array<char> readBuffer;
+	readBuffer.setCount(Def_ReadBlockSize);
 
 	for (;;) {
 		m_lock.lock();
 		uint_t readTimeout = m_readTimeout;
-		readBuffer.setCount(Def_ReadBlockSize);
+		readBuffer.setCount(m_readBlockSize);
 		m_lock.unlock();
 
-		size_t readResult = m_device.read(readBuffer, readBuffer.getCount(), readTimeout);
+		size_t readResult = m_device.read(readBuffer.p(), readBuffer.getCount(), readTimeout);
 		if (readResult == -1) {
 			setIoErrorEvent();
 			break;

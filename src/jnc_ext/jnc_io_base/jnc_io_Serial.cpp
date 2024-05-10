@@ -688,7 +688,7 @@ Serial::ioThreadFunc() {
 
 				result =
 					read->m_buffer.setCount(readBlockSize) &&
-					m_serial.m_serial.overlappedRead(read->m_buffer, readBlockSize, &read->m_overlapped);
+					m_serial.m_serial.overlappedRead(read->m_buffer.p(), readBlockSize, &read->m_overlapped);
 
 				if (!result) {
 					m_overlappedIo->m_overlappedReadPool.put(read);
@@ -784,9 +784,10 @@ Serial::ioThreadFunc() {
 		m_activeEvents = 0;
 
 		readBlock.setCount(m_readBlockSize); // update read block size
+		char* p = readBlock.p();
 
 		while (canReadSerial && !m_readBuffer.isFull()) {
-			ssize_t actualSize = ::read(m_serial.m_serial, readBlock, readBlock.getCount());
+			ssize_t actualSize = ::read(m_serial.m_serial, p, readBlock.getCount());
 
 			if (actualSize == -1) {
 				if (errno == EAGAIN) {

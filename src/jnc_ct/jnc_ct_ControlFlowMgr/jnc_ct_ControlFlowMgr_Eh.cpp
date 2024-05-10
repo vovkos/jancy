@@ -426,17 +426,19 @@ void ControlFlowMgr::finalizeFinallyScope(Scope* scope) {
 	char buffer1[256];
 	sl::Array<int64_t> routeIdxArray(rc::BufKind_Stack, buffer1, sizeof(buffer1));
 	routeIdxArray.setCount(count);
+	sl::Array<int64_t>::Rwi routeIdxRwi = routeIdxArray;
 
 	char buffer2[256];
 	sl::Array<BasicBlock*> blockArray(rc::BufKind_Stack, buffer2, sizeof(buffer2));
 	blockArray.setCount(count);
+	sl::Array<BasicBlock*>::Rwi blockRwi = blockArray;
 
 	sl::HashTableIterator<size_t, BasicBlock*> it = scope->m_finallyBlock->m_finallyRouteMap.getHead();
 	for (size_t i = 0; it; it++, i++) {
 		ASSERT(i < count);
 
-		routeIdxArray[i] = it->getKey();
-		blockArray[i] = it->m_value;
+		routeIdxRwi[i] = it->getKey();
+		blockRwi[i] = it->m_value;
 		it->m_value->markReachable();
 	}
 
@@ -512,19 +514,21 @@ ControlFlowMgr::finalizeDisposableScope(Scope* scope) {
 	char buffer1[256];
 	sl::Array<int64_t> levelArray(rc::BufKind_Stack, buffer1, sizeof(buffer1));
 	levelArray.setCount(count);
+	sl::Array<int64_t>::Rwi levelRwi = levelArray;
 
 	char buffer2[256];
 	sl::Array<BasicBlock*> blockArray(rc::BufKind_Stack, buffer2, sizeof(buffer2));
 	blockArray.setCount(count + 1);
+	sl::Array<BasicBlock*>::Rwi blockRwi = blockArray;
 
 	for (size_t i = 0, j = count; i < count; i++, j--) {
 		BasicBlock* block = createBlock("dispose_variable_block", BasicBlockFlag_Reachable);
-		levelArray[i] = j;
-		blockArray[i] = block;
+		levelRwi[i] = j;
+		blockRwi[i] = block;
 	}
 
 	BasicBlock* followBlock = createBlock("dispose_finally_follow_block");
-	blockArray[count] = followBlock;
+	blockRwi[count] = followBlock;
 
 	for (intptr_t i = count - 1, j = 0; i >= 0; i--, j++) {
 		setCurrentBlock(blockArray[j]);

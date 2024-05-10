@@ -685,11 +685,12 @@ WebSocket::sslReadWriteLoop() {
 		);
 
 		readBlock.setCount(m_readBlockSize); // update read block size
+		char* p = readBlock.p();
 
 		while (canReadSocket && !m_readBuffer.isFull()) {
 			m_lock.unlock();
 
-			size_t actualSize = m_sslState->m_ssl.read(readBlock, readBlock.getCount());
+			size_t actualSize = m_sslState->m_ssl.read(p, readBlock.getCount());
 			if (actualSize == -1) {
 				uint_t error = err::getLastError()->m_code;
 				switch (error) {
@@ -887,7 +888,7 @@ WebSocket::tcpSendRecvLoop() {
 				result =
 					recv->m_buffer.setCount(readBlockSize) &&
 					m_socket.m_socket.wsaRecv(
-						recv->m_buffer,
+						recv->m_buffer.p(),
 						readBlockSize,
 						NULL,
 						&flags,

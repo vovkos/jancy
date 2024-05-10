@@ -132,7 +132,7 @@ CastOperator::cast(
 	sl::Array<char> constData(rc::BufKind_Stack, buffer, sizeof(buffer));
 	constData.setCount(type->getSize());
 
-	bool result = constCast(opValue, type, constData);
+	bool result = constCast(opValue, type, constData.p());
 	if (result) {
 		resultValue->createConst(constData, type);
 		return true;

@@ -322,11 +322,12 @@ SslSocket::sslReadWriteLoop() {
 		m_activeEvents = SocketEvent_TcpConnected | SslSocketEvent_SslHandshakeCompleted;
 
 		readBlock.setCount(m_readBlockSize); // update read block size
+		char* p = readBlock.p();
 
 		while (canReadSocket && !m_readBuffer.isFull()) {
 			m_lock.unlock();
 
-			size_t actualSize = m_ssl.read(readBlock, readBlock.getCount());
+			size_t actualSize = m_ssl.read(p, readBlock.getCount());
 			if (actualSize == -1) {
 				uint_t error = err::getLastError()->m_code;
 				switch (error) {

@@ -198,7 +198,7 @@ Mailslot::ioThreadFunc() {
 
 				result =
 					read->m_buffer.setCount(readBlockSize) &&
-					m_file.m_file.overlappedRead(read->m_buffer, readBlockSize, &read->m_overlapped);
+					m_file.m_file.overlappedRead(read->m_buffer.p(), readBlockSize, &read->m_overlapped);
 
 				if (!result) {
 					m_overlappedIo->m_overlappedReadPool.put(read);

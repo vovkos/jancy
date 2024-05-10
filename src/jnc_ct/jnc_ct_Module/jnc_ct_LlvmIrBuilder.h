@@ -154,7 +154,7 @@ public:
 	llvm::IndirectBrInst*
 	createIndirectBr(
 		const Value& value,
-		BasicBlock** blockArray,
+		BasicBlock* const* blockArray,
 		size_t blockCount
 	);
 
@@ -170,8 +170,8 @@ public:
 	createSwitch(
 		const Value& value,
 		BasicBlock* defaultBlock,
-		int64_t* constArray,
-		BasicBlock** blockArray,
+		const int64_t* constArray,
+		BasicBlock* const* blockArray,
 		size_t caseCount
 	);
 
@@ -190,7 +190,7 @@ public:
 	llvm::PHINode*
 	createPhi(
 		const Value* valueArray,
-		BasicBlock** blockArray,
+		BasicBlock* const* blockArray,
 		size_t count,
 		Value* resultValue
 	);

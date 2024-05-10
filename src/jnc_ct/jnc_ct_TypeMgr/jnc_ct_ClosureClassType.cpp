@@ -116,7 +116,7 @@ FunctionClosureClassType::compileThunkFunction(Function* function) {
 	sl::Array<Value> argValueArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	argValueArray.setCount(argCount);
 
-	m_module->m_functionMgr.internalPrologue(function, argValueArray, argCount);
+	m_module->m_functionMgr.internalPrologue(function, argValueArray.p(), argCount);
 
 	Value thisValue = m_module->m_functionMgr.getThisValue();
 	ASSERT(thisValue);
@@ -171,7 +171,7 @@ PropertyClosureClassType::compileAccessor(Function* accessor) {
 	sl::Array<Value> argValueArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	argValueArray.setCount(argCount);
 
-	m_module->m_functionMgr.internalPrologue(accessor, argValueArray, argCount);
+	m_module->m_functionMgr.internalPrologue(accessor, argValueArray.p(), argCount);
 
 	Value thisValue = m_module->m_functionMgr.getThisValue();
 	ASSERT(thisValue);

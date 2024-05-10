@@ -824,12 +824,12 @@ GcHeap::addStaticRootVariables(
 	char buffer[256];
 	sl::Array<Root> rootArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	rootArray.setCount(count);
+	sl::Array<Root>::Rwi rwi = rootArray;
 
 	for (size_t i = 0; i < count; i++) {
 		ct::Variable* variable = variableArray[i];
-
-		rootArray[i].m_p = variable->getStaticData();
-		rootArray[i].m_type = variable->getType();
+		rwi[i].m_p = variable->getStaticData();
+		rwi[i].m_type = variable->getType();
 	}
 
 	waitIdleAndLock();
@@ -1192,11 +1192,12 @@ GcHeap::addRootArray(
 	sl::Array<Root>* markRootArray = &m_markRootArray[m_currentMarkRootArrayIdx];
 	size_t baseCount = markRootArray->getCount();
 	markRootArray->setCount(baseCount + count);
+	sl::Array<Root>::Rwi rwi = *markRootArray;
 
 	const char* p = (const char*)p0;
 	for (size_t i = 0, j = baseCount; i < count; i++, j++) {
-		(*markRootArray) [j].m_p = p;
-		(*markRootArray) [j].m_type = type;
+		rwi[j].m_p = p;
+		rwi[j].m_type = type;
 		p += type->getSize();
 	}
 }
@@ -1441,12 +1442,13 @@ GcHeap::collect_l(bool isMutatorThread) {
 
 	size_t dstIdx = 0;
 	count = m_destructibleClassBoxArray.getCount();
+	sl::Array<Box*>::Rwi rwi = m_destructibleClassBoxArray;
 	for (size_t i = 0; i < count; i++) {
-		Box* box = m_destructibleClassBoxArray[i];
+		Box* box = rwi[i];
 		ASSERT(!(box->m_flags & BoxFlag_Destructed) && ((ct::ClassType*)box->m_type)->getDestructor());
 
 		if (box->m_flags & (BoxFlag_ClassMark | BoxFlag_ClosureWeakMark)) {
-			m_destructibleClassBoxArray[dstIdx++] = box;
+			rwi[dstIdx++] = box;
 		} else {
 			IfaceHdr* iface = (IfaceHdr*)(box + 1);
 			ASSERT(iface->m_box == box);
@@ -1467,7 +1469,7 @@ GcHeap::collect_l(bool isMutatorThread) {
 
 	if (!m_dynamicDestructArray.isEmpty()) {
 		size_t count = m_dynamicDestructArray.getCount();
-		IfaceHdr** iface = m_dynamicDestructArray;
+		IfaceHdr* const* iface = m_dynamicDestructArray;
 
 		for (size_t i = 0; i < count; i++, iface++)
 			markClass((*iface)->m_box);
@@ -1481,10 +1483,11 @@ GcHeap::collect_l(bool isMutatorThread) {
 
 	dstIdx = 0;
 	count = m_classBoxArray.getCount();
+	rwi = m_classBoxArray;
 	for (size_t i = 0; i < count; i++) {
-		Box* box = m_classBoxArray[i];
+		Box* box = rwi[i];
 		if (box->m_flags & (BoxFlag_ClassMark | BoxFlag_ClosureWeakMark))
-			m_classBoxArray[dstIdx++] = box;
+			rwi[dstIdx++] = box;
 	}
 
 	m_classBoxArray.setCount(dstIdx);
@@ -1510,10 +1513,11 @@ GcHeap::collect_l(bool isMutatorThread) {
 
 	dstIdx = 0;
 	count = m_allocBoxArray.getCount();
+	rwi = m_allocBoxArray;
 	for (size_t i = 0; i < count; i++) {
-		Box* box = m_allocBoxArray[i];
+		Box* box = rwi[i];
 		if (box->m_flags & BoxFlag_WeakMark) {
-			m_allocBoxArray[dstIdx] = box;
+			rwi[dstIdx] = box;
 			dstIdx++;
 		} else {
 			size_t size = box->m_type->getSize();

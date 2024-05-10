@@ -112,12 +112,12 @@ OperatorMgr::getFieldPtrImpl(
 
 	Value opValue = opValueRaw;
 
-	int32_t* llvmIndex = coord->m_llvmIndexArray;
-	int32_t* llvmIndexEnd = llvmIndex + coord->m_llvmIndexArray.getCount();
+	int32_t* llvmIndex = coord->m_llvmIndexArray.p();
+	const int32_t* llvmIndexEnd = llvmIndex + coord->m_llvmIndexArray.getCount();
 	intptr_t unionLevel = -1; // take into account initial 0 in LlvmIndexArray
 
 	size_t unionCount = coord->m_unionCoordArray.getCount();
-	UnionCoord* unionCoord = coord->m_unionCoordArray;
+	const UnionCoord* unionCoord = coord->m_unionCoordArray;
 	for (size_t i = 0; i < unionCount; i++, unionCoord++) {
 		ASSERT(unionCoord->m_level >= unionLevel);
 		size_t llvmIndexDelta = unionCoord->m_level - unionLevel;

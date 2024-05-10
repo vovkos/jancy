@@ -105,7 +105,7 @@ SslCertName::getEntryTable(
 	if (i >= count)
 		self->m_entryArray.setCountZeroConstruct(i + 1);
 
-	self->m_entryArray[i] = createEntry(entry);
+	self->m_entryArray.rwi()[i] = createEntry(entry);
 	return self->m_entryArray[i];
 }
 

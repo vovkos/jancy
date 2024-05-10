@@ -514,9 +514,9 @@ Value::createConst(
 	m_type = type;
 
 	if (p)
-		memcpy(m_constData, p, size);
+		memcpy(m_constData.p(), p, size);
 	else
-		memset(m_constData, 0, size);
+		memset(m_constData.p(), 0, size);
 
 	return true;
 }

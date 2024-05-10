@@ -61,7 +61,10 @@ CdeclCallConv_arm::prepareFunctionType(FunctionType* functionType) {
 	char buffer[256];
 	sl::Array<llvm::Type*> llvmArgTypeArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	llvmArgTypeArray.setCount(argCount);
+	sl::Array<llvm::Type*>::Rwi typeRwi = llvmArgTypeArray;
+
 	functionType->m_argFlagArray.setCountZeroConstruct(argCount);
+	sl::Array<uint_t>::Rwi flagRwi = functionType->m_argFlagArray;
 
 	size_t j = 0;
 
@@ -69,7 +72,8 @@ CdeclCallConv_arm::prepareFunctionType(FunctionType* functionType) {
 		if (returnType->getSize() > m_retCoerceSizeLimit) { // return in memory
 			argCount++;
 			llvmArgTypeArray.setCount(argCount);
-			llvmArgTypeArray[0] = returnType->getDataPtrType_c()->getLlvmType();
+			typeRwi = llvmArgTypeArray;
+			typeRwi[0] = returnType->getDataPtrType_c()->getLlvmType();
 			j = 1;
 
 			returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Void);
@@ -92,15 +96,15 @@ CdeclCallConv_arm::prepareFunctionType(FunctionType* functionType) {
 				hasIntExtArgs = true;
 		} else if (type->getSize() > m_argCoerceSizeLimit) { // pass on stack
 			llvmType = type->getDataPtrType_c()->getLlvmType();
-			functionType->m_argFlagArray[i] = ArgFlag_ByVal;
+			flagRwi[i] = ArgFlag_ByVal;
 			hasByValArgs = true;
 		} else { // coerce
 			llvmType = getArgCoerceType(type)->getLlvmType();
-			functionType->m_argFlagArray[i] = ArgFlag_Coerced;
+			flagRwi[i] = ArgFlag_Coerced;
 			hasCoercedArgs = true;
 		}
 
-		llvmArgTypeArray[j] = llvmType;
+		typeRwi[j] = llvmType;
 	}
 
 	if (hasByValArgs)

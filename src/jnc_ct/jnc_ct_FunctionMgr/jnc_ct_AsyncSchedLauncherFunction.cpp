@@ -30,7 +30,7 @@ AsyncSchedLauncherFunction::compile() {
 	sl::Array<Value> argValueArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	argValueArray.setCount(argCount);
 
-	m_module->m_functionMgr.internalPrologue(this, argValueArray, argCount);
+	m_module->m_functionMgr.internalPrologue(this, argValueArray.p(), argCount);
 
 	Value functionPtrValue = argValueArray[0];
 	Value schedulerValue = argValueArray[1];
