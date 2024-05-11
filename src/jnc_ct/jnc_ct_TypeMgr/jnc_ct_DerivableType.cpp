@@ -431,10 +431,6 @@ DerivableType::findBaseTypeTraverseImpl(
 	BaseTypeCoord* coord,
 	size_t level
 ) {
-	bool result = ensureLayout();
-	if (!result)
-		return false;
-
 	sl::StringHashTableIterator<BaseTypeSlot*> it = m_baseTypeMap.find(type->getSignature());
 	if (it) {
 		if (!coord)
@@ -452,7 +448,7 @@ DerivableType::findBaseTypeTraverseImpl(
 	sl::Iterator<BaseTypeSlot> slotIt = m_baseTypeList.getHead();
 	for (; slotIt; slotIt++) {
 		BaseTypeSlot* slot = *slotIt;
-		ASSERT(slot->m_type);
+		ASSERT(slot->m_type->getFlags() & ModuleItemFlag_LayoutReady);
 
 		bool result = slot->m_type->findBaseTypeTraverseImpl(type, coord, level + 1);
 		if (result) {

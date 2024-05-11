@@ -408,9 +408,8 @@ ClassType::calcLayout() {
 		if (!result)
 			return false;
 
-		size_t VtableIndex = m_vtable.getCount();
-
-		prop->m_parentClassVtableIndex = VtableIndex;
+		size_t vtableIndex = m_vtable.getCount();
+		prop->m_parentClassVtableIndex = vtableIndex;
 		m_vtable.append(prop->m_vtable);
 		m_vtableStructType->append(prop->m_type->getVtableStructType());
 
@@ -418,7 +417,7 @@ ClassType::calcLayout() {
 		for (size_t j = 0; j < accessorCount; j++) {
 			Function* accessor = prop->m_vtable[j];
 			accessor->m_virtualOriginClassType = this;
-			accessor->m_classVtableIndex = VtableIndex + j;
+			accessor->m_classVtableIndex = vtableIndex + j;
 		}
 	}
 
@@ -514,11 +513,9 @@ ClassType::overrideVirtualFunction(Function* function) {
 		return false;
 
 	FunctionKind functionKind = function->getFunctionKind();
-
-	MemberCoord coord;
 	FindModuleItemResult findResult = findDirectChildItemTraverse(
 		function->m_name,
-		&coord,
+		NULL,
 		TraverseFlag_NoExtensionNamespaces |
 		TraverseFlag_NoParentNamespace |
 		TraverseFlag_NoUsingNamespaces |
@@ -620,6 +617,10 @@ ClassType::overrideVirtualFunction(Function* function) {
 			function->m_type->getFlags() & FunctionTypeFlag__All
 		);
 	}
+
+	BaseTypeCoord coord;
+	result = findBaseTypeTraverseImpl(overridenFunction->m_virtualOriginClassType, &coord, 0);
+	ASSERT(result);
 
 	function->m_thisArgType = thisArgType;
 	function->m_thisArgDelta = overridenFunction->m_thisArgDelta - coord.m_offset;

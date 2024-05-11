@@ -53,7 +53,9 @@ OperatorMgr::getVirtualMethod(
 	size_t vtableIndex = function->getClassVtableIndex();
 
 	BaseTypeCoord coord;
-	classType->findBaseTypeTraverse(function->getVirtualOriginClassType(), &coord);
+	bool result = classType->findBaseTypeTraverse(function->getVirtualOriginClassType(), &coord);
+	ASSERT(result);
+
 	vtableIndex += coord.m_vtableIndex;
 
 	// class.vtbl*

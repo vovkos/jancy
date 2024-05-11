@@ -224,7 +224,7 @@ public:
 		Type* type,
 		BaseTypeCoord* coord = NULL
 	) {
-		return findBaseTypeTraverseImpl(type, coord, 0);
+		return ensureLayout() && findBaseTypeTraverseImpl(type, coord, 0);
 	}
 
 	size_t
