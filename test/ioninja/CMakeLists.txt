@@ -536,6 +536,7 @@ if(BUILD_JNC_IO_USB)
 		REQUIRES
 			I2cSpiTapSession
 			representI2cSpiTapLog
+			representFpgaUploaderLog
 		FILES
 			I2cSpiTapSession.jnc
 			I2cSpiTapLogRecordCode.jnc
@@ -543,6 +544,8 @@ if(BUILD_JNC_IO_USB)
 			Decoder.jnc
 			I2cDecoder.jnc
 			SpiDecoder.jnc
+			../FpgaUploaderLog/FpgaUploaderLogRecordCode.jnc
+			../FpgaUploaderLog/FpgaUploaderLogRepresenter.jnc
 		FINALIZE_TEST I2cSpiTap
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/EthernetTap
@@ -550,12 +553,15 @@ if(BUILD_JNC_IO_USB)
 			EthernetTapSession
 			representEthernetTapLog
 			detailizeEthernetTapLog
+			representFpgaUploaderLog
 		FILES
 			EthernetTapSession.jnc
 			EthernetTapLogToPcap.jnc
 			EthernetTapLogFilter.jnc
 			EthernetTapLogRecordCode.jnc
 			EthernetTapLogRepresenter.jnc
+			../FpgaUploaderLog/FpgaUploaderLogRecordCode.jnc
+			../FpgaUploaderLog/FpgaUploaderLogRepresenter.jnc
 			../NetSnifferLog/NetSnifferLogFilter.jnc
 			../NetSnifferLog/NetSnifferLogRecordCode.jnc
 			../NetSnifferLog/NetSnifferLogRepresenter.jnc
