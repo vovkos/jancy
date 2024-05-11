@@ -800,7 +800,7 @@ Serial::ioThreadFunc() {
 				setIoErrorEvent_l(err::Errno(EPIPE));
 				return;
 			} else {
-				addToReadBuffer(readBlock, actualSize);
+				addToReadBuffer(p, actualSize);
 			}
 		}
 

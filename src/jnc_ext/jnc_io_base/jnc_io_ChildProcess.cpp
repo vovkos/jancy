@@ -199,7 +199,7 @@ buildArgvArray(
 		if (pos == -1)
 			break;
 
-		(*string)[pos] = 0;
+		string->rwi()[pos] = 0;
 		string->setSubString(pos + 1);
 	}
 

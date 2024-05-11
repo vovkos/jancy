@@ -710,7 +710,7 @@ SshChannel::sshReadWriteLoop() {
 				setEvents_l(SocketEvent_TcpDisconnected);
 				return;
 			} else {
-				addToReadBuffer(readBlock, actualSize);
+				addToReadBuffer(p, actualSize);
 			}
 		}
 
@@ -808,16 +808,17 @@ SshChannel::sshReadWriteLoop() {
 		m_activeEvents = SshEvent_FullyConnected;
 
 		readBlock.setCount(m_readBlockSize); // update read block size
+		char* p = readBlock.p();
 
 		while (canReadSocket && !m_readBuffer.isFull()) {
 			ssize_t actualSize;
 
 			if (hasPty) {
-				actualSize = ::libssh2_channel_read(m_sshChannel, readBlock, readBlock.getCount());
+				actualSize = ::libssh2_channel_read(m_sshChannel, p, readBlock.getCount());
 			} else { // need to read stderr, too
-				actualSize = ::libssh2_channel_read_stderr(m_sshChannel, readBlock, readBlock.getCount());
+				actualSize = ::libssh2_channel_read_stderr(m_sshChannel, p, readBlock.getCount());
 				if (actualSize == LIBSSH2_ERROR_EAGAIN)
-					actualSize = ::libssh2_channel_read(m_sshChannel, readBlock, readBlock.getCount());
+					actualSize = ::libssh2_channel_read(m_sshChannel, p, readBlock.getCount());
 			}
 
 			if (actualSize == LIBSSH2_ERROR_EAGAIN) {
@@ -829,7 +830,7 @@ SshChannel::sshReadWriteLoop() {
 				setEvents_l(SocketEvent_TcpDisconnected);
 				return;
 			} else {
-				addToReadBuffer(readBlock, actualSize);
+				addToReadBuffer(p, actualSize);
 			}
 		}
 

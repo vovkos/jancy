@@ -472,9 +472,10 @@ UsbMonitor::ioThreadFunc() {
 		m_activeEvents = 0;
 
 		readBlock.setCount(m_readBlockSize); // update read block size
+		char* p = readBlock.p();
 
 		while (canReadMonitor && !m_readBuffer.isFull()) {
-			ssize_t actualSize = ::read(m_monitor, readBlock, readBlock.getCount());
+			ssize_t actualSize = ::read(m_monitor, p, readBlock.getCount());
 			if (actualSize == -1) {
 				if (errno == EAGAIN)
 					canReadMonitor = false;
@@ -483,7 +484,7 @@ UsbMonitor::ioThreadFunc() {
 					return;
 				}
 			} else {
-				result = processIncomingData_l(parser, readBlock, actualSize);
+				result = processIncomingData_l(parser, p, actualSize);
 				if (!result) {
 					setIoErrorEvent_l();
 					return;

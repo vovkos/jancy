@@ -710,7 +710,7 @@ WebSocket::sslReadWriteLoop() {
 				setEvents(SocketEvent_TcpDisconnected);
 				return;
 			} else {
-				result = processIncomingData(readBlock, actualSize);
+				result = processIncomingData(p, actualSize);
 				if (!result)
 					return;
 			}
@@ -972,11 +972,12 @@ WebSocket::sslReadWriteLoop() {
 		);
 
 		readBlock.setCount(m_readBlockSize); // update read block size
+		char* p = readBlock.p();
 
 		while (canReadSocket && !m_readBuffer.isFull()) {
 			m_lock.unlock();
 
-			ssize_t actualSize = m_sslState->m_ssl.read(readBlock, readBlock.getCount());
+			ssize_t actualSize = m_sslState->m_ssl.read(p, readBlock.getCount());
 			if (actualSize == -1) {
 				uint_t error = err::getLastError()->m_code;
 				switch (error) {
@@ -996,7 +997,7 @@ WebSocket::sslReadWriteLoop() {
 				setEvents(SocketEvent_TcpDisconnected);
 				return;
 			} else {
-				result = processIncomingData(readBlock, actualSize);
+				result = processIncomingData(p, actualSize);
 				if (!result)
 					return;
 			}
@@ -1104,9 +1105,10 @@ WebSocket::tcpSendRecvLoop() {
 		uint_t prevActiveEvents = resetActiveEvents(SocketEvent_TcpConnected);
 
 		readBlock.setCount(m_readBlockSize); // update read block size
+		char* p = readBlock.p();
 
 		while (canReadSocket && !m_readBuffer.isFull()) {
-			ssize_t actualSize = ::recv(m_socket.m_socket, readBlock, readBlock.getCount(), 0);
+			ssize_t actualSize = ::recv(m_socket.m_socket, p, readBlock.getCount(), 0);
 			if (actualSize == -1) {
 				if (errno == EAGAIN) {
 					canReadSocket = false;
@@ -1121,7 +1123,7 @@ WebSocket::tcpSendRecvLoop() {
 				);
 				return;
 			} else {
-				result = processIncomingData(readBlock, actualSize);
+				result = processIncomingData(p, actualSize);
 				if (!result)
 					return;
 			}

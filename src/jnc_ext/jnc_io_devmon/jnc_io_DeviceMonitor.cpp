@@ -387,7 +387,7 @@ DeviceMonitor::ioThreadFunc() {
 					return;
 				}
 			} else {
-				addToReadBuffer(readBlock, actualSize);
+				addToReadBuffer(p, actualSize);
 			}
 		}
 

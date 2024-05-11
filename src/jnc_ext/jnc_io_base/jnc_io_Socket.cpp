@@ -595,7 +595,7 @@ Socket::sendRecvLoop(
 						return;
 					}
 				} else {
-					addToReadBuffer(readBlock, actualSize, &sockAddr, sizeof(sockAddr));
+					addToReadBuffer(p, actualSize, &sockAddr, sizeof(sockAddr));
 				}
 			}
 
@@ -632,7 +632,7 @@ Socket::sendRecvLoop(
 			}
 		} else {
 			while (canReadSocket && !m_readBuffer.isFull()) {
-				ssize_t actualSize = ::recv(m_socket.m_socket, readBlock, readBlock.getCount(), 0);
+				ssize_t actualSize = ::recv(m_socket.m_socket, p, readBlock.getCount(), 0);
 				if (actualSize == -1) {
 					if (errno == EAGAIN) {
 						canReadSocket = false;
@@ -647,7 +647,7 @@ Socket::sendRecvLoop(
 					);
 					return;
 				} else {
-					addToReadBuffer(readBlock, actualSize);
+					addToReadBuffer(p, actualSize);
 				}
 			}
 

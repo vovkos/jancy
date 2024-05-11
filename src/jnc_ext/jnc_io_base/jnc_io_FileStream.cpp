@@ -495,7 +495,7 @@ FileStream::ioThreadFunc() {
 				setEvents_l(FileStreamEvent_Eof);
 				return;
 			} else {
-				addToReadBuffer(readBlock, actualSize);
+				addToReadBuffer(p, actualSize);
 			}
 		}
 
