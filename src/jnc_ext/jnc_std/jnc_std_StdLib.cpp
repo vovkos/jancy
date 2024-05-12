@@ -219,8 +219,8 @@ setError_0(DataPtr errorPtr) {
 }
 
 void
-setError_1(DataPtr stringPtr) {
-	err::setError((const char*)stringPtr.m_p);
+setError_1(String string) {
+	err::setError(string >> toAxl);
 }
 
 int
