@@ -132,6 +132,14 @@ public:
 		size_t size
 	);
 
+	// suspend async stream layout until we see the delimiter (e.g., a string null-terminator)
+
+	async size_t asyncScanTo(char c);
+
+	async size_t asyncStrlen() {
+		return await asyncScanTo(0);
+	}
+
 protected:
 	void init();
 

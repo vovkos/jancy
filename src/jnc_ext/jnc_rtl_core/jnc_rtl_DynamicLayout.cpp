@@ -222,33 +222,90 @@ DynamicLayout::resume(
 	DataPtr ptr,
 	size_t size
 ) {
-	if (!m_promise || m_size <= m_bufferSize) {
+	if (!m_promise || !m_awaitKind) {
 		err::setError("dynamic layout is not in a resumable state");
 		dynamicThrow();
 	}
 
-	char* p = (char*)ptr.m_p;
+	char* p0 = (char*)ptr.m_p;
+	char* p = p0;
 	char* end = p + size;
-	char* p0 = p;
 
-	while (p < end) {
+	while (p < end && m_awaitKind) {
 		size_t bufferLeftover = end - p;
-		size_t packetLeftover = m_size - m_bufferSize;
-		if (bufferLeftover < packetLeftover) { // not yet
-			m_bufferSize = m_buffer->append(p, bufferLeftover);
-			return size;
+		size_t packetLeftover = 0;
+		Variant awaitResult = g_nullVariant;
+
+		switch (m_awaitKind) {
+		case AwaitKind_Size:
+			ASSERT(m_size > m_bufferSize);
+			packetLeftover = m_size - m_bufferSize;
+			if (bufferLeftover < packetLeftover) { // not yet
+				m_bufferSize = m_buffer->append(p, bufferLeftover);
+				return size;
+			}
+
+			break;
+
+		case AwaitKind_Char: {
+			char* p2 = (char*)memchr(p, m_awaitChar, bufferLeftover);
+			if (!p2) { // not yet
+				m_bufferSize = m_buffer->append(p, bufferLeftover);
+				return size;
+			}
+
+			packetLeftover = p2 - p; // not including the char!
+			size_t distance = m_bufferSize + packetLeftover - m_awaitCharOffset;
+
+			ct::Module* module = m_promise->m_ifaceHdr.m_box->m_type->getModule();
+			awaitResult.create(&distance, module->m_typeMgr.getPrimitiveType(TypeKind_SizeT));
+			break;
+			}
+
+		default:
+			ASSERT(false);
 		}
 
 		m_bufferSize = m_buffer->append(p, packetLeftover);
+		m_awaitKind = AwaitKind_None; // this await is satisified
 		p += packetLeftover;
 
 		m_ptr = m_buffer->m_ptr;
-		m_promise->complete(g_nullVariant, g_nullDataPtr); // this will resume the layout coroutine
-		if (m_size <= m_bufferSize) // complete
-			break;
+		m_promise->complete(awaitResult, g_nullDataPtr); // this will resume the layout coroutine
 	}
 
 	return p - p0;
+}
+
+Promise*
+JNC_CDECL
+DynamicLayout::asyncScanTo(char c) {
+	ASSERT(!m_awaitKind); // wrong use otherwise
+
+	prepareForAwait();
+
+	char* p0 = (char*)m_ptr.m_p;
+	char* p = p0 + m_size;
+	char* end = p0 + m_bufferSize;
+	char* p2 = p < end ? (char*)memchr(p, c, end - p) : NULL;
+
+	if (!p2) {
+		if (m_mode & DynamicLayoutMode_Stream) {
+			m_awaitKind = AwaitKind_Char;
+			m_awaitCharOffset = m_size;
+			m_awaitChar = c;
+			return m_promise;
+		}
+
+		p2 = end; // if we are not in the stream mode -- report the end of buffer
+	}
+
+	size_t distance = p2 - p;
+	ct::Module* module = m_promise->m_ifaceHdr.m_box->m_type->getModule();
+	Variant result;
+	result.create(&distance, module->m_typeMgr.getPrimitiveType(TypeKind_SizeT));
+	m_promise->complete(result, g_nullDataPtr);
+	return m_promise;
 }
 
 size_t
@@ -265,8 +322,10 @@ DynamicLayout::addStruct(
 
 	m_size += size;
 
-	if (isAsync && (m_mode & DynamicLayoutMode_Stream) && m_size > m_bufferSize)
+	if (isAsync && (m_mode & DynamicLayoutMode_Stream) && m_size > m_bufferSize) {
 		prepareForAwait();
+		m_awaitKind = AwaitKind_Size;
+	}
 
 	return offset;
 }
@@ -290,8 +349,10 @@ DynamicLayout::addArray(
 
 	m_size += size;
 
-	if (isAsync && (m_mode & DynamicLayoutMode_Stream) && m_size > m_bufferSize)
+	if (isAsync && (m_mode & DynamicLayoutMode_Stream) && m_size > m_bufferSize) {
 		prepareForAwait();
+		m_awaitKind = AwaitKind_Size;
+	}
 
 	return offset;
 }

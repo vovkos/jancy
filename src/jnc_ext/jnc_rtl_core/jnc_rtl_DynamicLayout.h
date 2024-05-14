@@ -134,19 +134,28 @@ class DynamicLayout: public DynamicSectionGroup {
 public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(DynamicLayout)
 
+protected:
+	enum AwaitKind {
+		AwaitKind_None,
+		AwaitKind_Size,
+		AwaitKind_Char,
+	};
+
 public:
 	ClassBox<StdBuffer> m_buffer;
 	PromiseImpl* m_auxPromise;
-
 	PromiseImpl* m_promise;
 	DataPtr m_ptr;
 	size_t m_size;
 	size_t m_bufferSize;
-
 	uint_t m_mode;
 
 protected:
 	sl::Array<DynamicSection*> m_groupStack; // groups are already added -- no need to extra mark
+
+	AwaitKind m_awaitKind;
+	size_t m_awaitCharOffset;
+	char m_awaitChar;
 
 public:
 	void
@@ -180,6 +189,10 @@ public:
 		DataPtr ptr,
 		size_t size
 	);
+
+	Promise*
+	JNC_CDECL
+	asyncScanTo(char c);
 
 	size_t
 	JNC_CDECL
