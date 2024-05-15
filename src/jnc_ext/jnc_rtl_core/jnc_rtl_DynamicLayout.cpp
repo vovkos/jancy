@@ -73,6 +73,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(DynamicLayout)
 	JNC_MAP_DESTRUCTOR(&jnc::destruct<DynamicLayout>)
 	JNC_MAP_FUNCTION("reset", &DynamicLayout::reset)
 	JNC_MAP_FUNCTION("resume", &DynamicLayout::resume)
+	JNC_MAP_FUNCTION("asyncScanTo", &DynamicLayout::asyncScanTo)
 	JNC_MAP_FUNCTION("updateGroupSizes", &DynamicLayout::updateGroupSizes)
 	JNC_MAP_FUNCTION("setGroupAttribute", &DynamicLayout::setGroupAttribute)
 	JNC_MAP_FUNCTION("addStruct", &DynamicLayout::addStruct)
@@ -280,7 +281,10 @@ DynamicLayout::resume(
 Promise*
 JNC_CDECL
 DynamicLayout::asyncScanTo(char c) {
-	ASSERT(!m_awaitKind); // wrong use otherwise
+	if (m_awaitKind) {
+		err::setError("dynamic layout is not in an awaitable state");
+		dynamicThrow();
+	}
 
 	prepareForAwait();
 
