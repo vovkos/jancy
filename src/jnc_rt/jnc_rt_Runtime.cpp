@@ -14,6 +14,12 @@
 #include "jnc_ct_Module.h"
 #include "jnc_CallSite.h"
 
+#if (__SANITIZE_ADDRESS__) // asan is using asan_stack_malloc so we can't assume the stack to grow up
+#	define JNC_CHECK_STACK_PRECEDENCE(prev, next) true
+#else
+#	define JNC_CHECK_STACK_PRECEDENCE(prev, next) ((char*)(prev) > (char*)(next))
+#endif
+
 namespace jnc {
 namespace rt {
 
@@ -109,7 +115,7 @@ Runtime::initializeCallSite(CallSite* callSite) {
 	if (prevCallSite) { // found!
 		callSite->m_tls = prevCallSite->m_tls;
 		TlsVariableTable* tlsVariableTable = (TlsVariableTable*)(callSite->m_tls + 1);
-		ASSERT(tlsVariableTable->m_gcShadowStackTop > &callSite->m_gcShadowStackDynamicFrame);
+		ASSERT(JNC_CHECK_STACK_PRECEDENCE(tlsVariableTable->m_gcShadowStackTop, &callSite->m_gcShadowStackDynamicFrame));
 
 		// save exception recovery snapshot
 
@@ -163,7 +169,7 @@ Runtime::uninitializeCallSite(CallSite* callSite) {
 		prevGcShadowStackTop->m_map &&
 		prevGcShadowStackTop->m_map->getMapKind() == ct::GcShadowStackFrameMapKind_Dynamic ||
 		!callSite->m_result &&
-		tlsVariableTable->m_gcShadowStackTop < &callSite->m_gcShadowStackDynamicFrame
+		JNC_CHECK_STACK_PRECEDENCE(&callSite->m_gcShadowStackDynamicFrame, tlsVariableTable->m_gcShadowStackTop)
 	);
 
 	// restore exception recovery snapshot
