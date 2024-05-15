@@ -652,6 +652,10 @@ unary_operator_expr<Value* $value>
 			{
 				return m_module->m_operatorMgr.unaryOperator(UnOpKind_Dec, $value);
 			}
+	|	TokenKind_Await unary_expr<$value>
+			{
+				return m_module->m_operatorMgr.awaitOperator($value);
+			}
 	|	try_operator<$value>
 	|	cast_operator<$value>
 	|	TokenKind_New new_operator_type $t
@@ -847,10 +851,6 @@ primary_expr<Value* $value>
 	|	TokenKind_ReGroup $g
 			{
 				return m_module->m_operatorMgr.getRegexGroup($g.m_data.m_integer, $value);
-			}
-	|	TokenKind_Await expression $e
-			{
-				return m_module->m_operatorMgr.awaitOperator($e.m_value, $value);
 			}
 	|	TokenKind_SizeOf '(' type_name_or_expr $t ')'
 			{
