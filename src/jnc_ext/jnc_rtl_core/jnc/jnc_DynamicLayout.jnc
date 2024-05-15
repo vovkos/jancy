@@ -78,6 +78,10 @@ public:
 		return m_size > m_bufferSize;
 	}
 
+	void const* const property m_end {
+		return m_p + m_size;
+	}
+
 	construct() {
 		init();
 	}
