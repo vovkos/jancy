@@ -70,6 +70,7 @@ JNC_DEFINE_LIB_EX(
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE(UsbLib)
 	JNC_LIB_IMPORT("io_UsbDescriptors.jnc")
+	JNC_LIB_REQUIRE_TYPE_EX(TypeKind_Class, "io.UsbDevice", 0)
 	JNC_LIB_REQUIRE_TYPE(TypeKind_Struct, "io.UsbDeviceDescriptor")
 	JNC_LIB_REQUIRE_TYPE(TypeKind_Struct, "io.UsbConfigurationDescriptor")
 	JNC_LIB_REQUIRE_TYPE(TypeKind_Struct, "io.UsbInterfaceDescriptor")
