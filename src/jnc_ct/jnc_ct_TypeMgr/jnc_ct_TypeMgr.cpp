@@ -726,6 +726,8 @@ TypeMgr::createUserFunctionType(
 
 	if (flags & FunctionTypeFlag_Async) {
 		type->m_asyncReturnType = returnType;
+		if (returnType->getTypeKindFlags() & TypeKindFlag_Import)
+			((ImportType*)returnType)->addFixup(&type->m_asyncReturnType);
 
 		uint_t compileFlags = m_module->getCompileFlags();
 
