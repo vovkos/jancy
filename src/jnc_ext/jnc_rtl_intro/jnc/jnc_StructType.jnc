@@ -27,8 +27,7 @@ enum StructTypeKind {
 
 opaque class StructType: DerivableType {
 	size_t const property m_fieldAlignment;
-	size_t const property m_fieldActualSize;
-	size_t const property m_fieldAlignedSize;
+	size_t const property m_fieldSize;
 
 	construct(intptr p);
 }

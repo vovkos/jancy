@@ -30,8 +30,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 JNC_BEGIN_TYPE_FUNCTION_MAP(StructType)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<StructType, ct::StructType*>))
 	JNC_MAP_CONST_PROPERTY("m_fieldAlignment", &StructType::getFieldAlignment)
-	JNC_MAP_CONST_PROPERTY("m_fieldActualSize", &StructType::getFieldActualSize)
-	JNC_MAP_CONST_PROPERTY("m_fieldAlignedSize", &StructType::getFieldAlignedSize)
+	JNC_MAP_CONST_PROPERTY("m_fieldSize", &StructType::getFieldSize)
 JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................

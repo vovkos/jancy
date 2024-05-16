@@ -34,14 +34,8 @@ public:
 
 	size_t
 	JNC_CDECL
-	getFieldActualSize() {
-		return m_item->getFieldActualSize();
-	}
-
-	size_t
-	JNC_CDECL
-	getFieldAlignedSize() {
-		return m_item->getFieldAlignedSize();
+	getFieldSize() {
+		return m_item->getFieldSize();
 	}
 };
 

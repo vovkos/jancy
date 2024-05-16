@@ -24,8 +24,7 @@ StructType::StructType() {
 	m_structTypeKind = StructTypeKind_Normal;
 	m_flags = TypeFlag_Pod | TypeFlag_StructRet;
 	m_fieldAlignment = 8;
-	m_fieldActualSize = 0;
-	m_fieldAlignedSize = 0;
+	m_fieldSize = 0;
 	m_lastBitField = NULL;
 	m_dynamicStructSectionId = -1;
 }
@@ -152,8 +151,7 @@ StructType::calcLayout() {
 			return false;
 	}
 
-	if (m_fieldAlignedSize > m_fieldActualSize)
-		addLlvmPadding(m_fieldAlignedSize - m_fieldActualSize);
+	m_size = sl::align(m_fieldSize, m_alignment);
 
 	// scan members for gcroots and constructors (but not for auxilary structs such as class iface)
 
@@ -216,27 +214,18 @@ StructType::calcLayout() {
 			return false;
 		}
 
-		if (typeInfo->m_size < m_fieldAlignedSize) {
+		if (typeInfo->m_size < m_size) {
 			err::setFormatStringError(
 				"invalid opaque class type size for '%s' (specified %d bytes; must be at least %d bytes)",
 				getTypeString().sz(),
 				typeInfo->m_size,
-				m_fieldAlignedSize
+				m_size
 			);
 
 			return false;
 		}
 
-		if (typeInfo->m_size > m_fieldAlignedSize) {
-			ArrayType* opaqueDataType = m_module->m_typeMgr.getArrayType(
-				m_module->m_typeMgr.getPrimitiveType(TypeKind_Char),
-				typeInfo->m_size - m_fieldAlignedSize
-			);
-
-			Field* field = createField(opaqueDataType);
-			result = layoutField(field);
-			ASSERT(result);
-		}
+		m_size = typeInfo->m_size;
 
 		if (typeInfo->m_markOpaqueGcRootsFunc)
 			classType->m_flags |= TypeFlag_GcRoot;
@@ -248,6 +237,9 @@ StructType::calcLayout() {
 	}
 
 	if (m_module->hasCodeGen()) {
+		if (m_size > m_fieldSize)
+			addLlvmPadding(m_size - m_fieldSize);
+
 		llvm::StructType* llvmStructType = (llvm::StructType*)getLlvmType();
 		llvmStructType->setBody(
 			llvm::ArrayRef<llvm::Type*> (m_llvmFieldTypeArray, m_llvmFieldTypeArray.getCount()),
@@ -255,7 +247,6 @@ StructType::calcLayout() {
 		);
 	}
 
-	m_size = m_fieldAlignedSize;
 	if (m_size > TypeSizeLimit_StackAllocSize)
 		m_flags |= TypeFlag_NoStack;
 
@@ -294,22 +285,18 @@ StructType::layoutFieldImpl(
 	size_t* offset_o,
 	uint_t* llvmIndex
 ) {
-	size_t alignment = type->getAlignment();
-	if (alignment > m_alignment)
-		m_alignment = AXL_MIN(alignment, m_fieldAlignment);
-
-	size_t offset = getFieldOffset(alignment);
-	if (offset > m_fieldActualSize)
-		addLlvmPadding(offset - m_fieldActualSize);
-
+	size_t offset = getFieldOffset(type);
 	*offset_o = offset;
 
 	if (m_module->hasCodeGen()) {
+		if (offset > m_fieldSize)
+			addLlvmPadding(offset - m_fieldSize);
+
 		*llvmIndex = (uint_t) m_llvmFieldTypeArray.getCount();
 		m_llvmFieldTypeArray.append(type->getLlvmType());
 	}
 
-	setFieldActualSize(offset + type->getSize());
+	m_fieldSize = offset + type->getSize();
 	m_lastBitField = NULL;
 	return true;
 }
@@ -353,63 +340,39 @@ StructType::layoutBitField(Field* field) {
 		return true;
 	}
 
-	size_t alignment = field->m_type->getAlignment();
-	if (alignment > m_alignment)
-		m_alignment = AXL_MIN(alignment, m_fieldAlignment);
-
-	size_t offset = getFieldOffset(alignment);
-
-	if (offset > m_fieldActualSize)
-		addLlvmPadding(offset - m_fieldActualSize);
-
+	size_t offset = getFieldOffset(field->m_type);
 	field->m_offset = offset;
 
 	if (m_module->hasCodeGen()) {
+		if (offset > m_fieldSize)
+			addLlvmPadding(offset - m_fieldSize);
+
 		field->m_llvmIndex = (uint_t) m_llvmFieldTypeArray.getCount();
 		m_llvmFieldTypeArray.append(field->m_type->getLlvmType());
 	}
 
-	setFieldActualSize(offset + field->m_type->getSize());
+	m_fieldSize = offset + field->m_type->getSize();
 	m_lastBitField = field;
 	return true;
 }
 
 size_t
-StructType::getFieldOffset(size_t alignment) {
-	size_t offset = m_fieldActualSize;
-
+StructType::getFieldOffset(Type* type) {
+	size_t alignment = type->getAlignment();
 	if (alignment > m_fieldAlignment)
 		alignment = m_fieldAlignment;
 
-	size_t mod = offset % alignment;
-	if (mod)
-		offset += alignment - mod;
+	if (alignment > m_alignment)
+		m_alignment = alignment;
 
-	return offset;
-}
-
-size_t
-StructType::setFieldActualSize(size_t size) {
-	if (m_fieldActualSize >= size)
-		return m_fieldAlignedSize;
-
-	m_fieldActualSize = size;
-	m_fieldAlignedSize = size;
-
-	size_t mod = size % m_alignment;
-	if (mod)
-		m_fieldAlignedSize += m_alignment - mod;
-
-	return m_fieldAlignedSize;
+	return sl::align(m_fieldSize, alignment);
 }
 
 void
 StructType::addLlvmPadding(size_t size) {
-	if (!m_module->hasCodeGen())
-		return;
-
-	ArrayType* type = m_module->m_typeMgr.getArrayType(m_module->m_typeMgr.getPrimitiveType(TypeKind_Char), size);
-	m_llvmFieldTypeArray.append(type->getLlvmType());
+	ASSERT(m_module->hasCodeGen());
+	llvm::ArrayType* arrayType = llvm::ArrayType::get(m_module->m_typeMgr.getPrimitiveType(TypeKind_Char)->getLlvmType(), size);
+	m_llvmFieldTypeArray.append(arrayType);
 }
 
 void

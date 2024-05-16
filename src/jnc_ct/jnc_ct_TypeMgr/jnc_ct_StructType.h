@@ -39,8 +39,7 @@ protected:
 	StructTypeKind m_structTypeKind;
 
 	size_t m_fieldAlignment;
-	size_t m_fieldActualSize;
-	size_t m_fieldAlignedSize;
+	size_t m_fieldSize;
 
 	sl::Array<llvm::Type*> m_llvmFieldTypeArray;
 	Field* m_lastBitField;
@@ -60,13 +59,8 @@ public:
 	}
 
 	size_t
-	getFieldActualSize() {
-		return m_fieldActualSize;
-	}
-
-	size_t
-	getFieldAlignedSize() {
-		return m_fieldAlignedSize;
+	getFieldSize() {
+		return m_fieldSize;
 	}
 
 	bool
@@ -130,10 +124,7 @@ protected:
 	layoutBitField(Field* field);
 
 	size_t
-	getFieldOffset(size_t alignment);
-
-	size_t
-	setFieldActualSize(size_t size);
+	getFieldOffset(Type* type);
 
 	void
 	addLlvmPadding(size_t size);
