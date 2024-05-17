@@ -42,7 +42,7 @@ ren Lua-%LUA_VERSION% lua
 
 echo Installing OpenSSL...
 
-choco install openssl --no-progress %CHOCO_PLATFORM%
+choco install openssl --version=1.1.1.2000 --no-progress -- %CHOCO_PLATFORM%
 
 set OPENSSL_ROOT_DIR=C:/Program Files%PROGRAM_FILES_DIR_SUFFIX%/OpenSSL%OPENSSL_DIR_SUFFIX%
 
