@@ -97,9 +97,8 @@ set LLVM_RELEASE_NAME=%LLVM_VERSION%-windows-%TARGET_CPU%-msvc15-msvcrt%LLVM_DEB
 set LLVM_DOWNLOAD_FILE=%LLVM_RELEASE_NAME%.7z
 set LLVM_DOWNLOAD_URL=https://github.com/vovkos/llvm-package-windows/releases/download/%LLVM_VERSION%/%LLVM_DOWNLOAD_FILE%
 
-set LUA_VERSION=5.3.5
-set LUA_LIB_NAME=lua53
-set LUA_DOWNLOAD_URL=https://sourceforge.net/projects/luabinaries/files/%LUA_VERSION%/Windows%%20Libraries/Dynamic/lua-%LUA_VERSION%_%LUA_PLATFORM%_%LUA_TOOLCHAIN%_lib.zip/download
+set LUA_VERSION=5.4.5
+set LUA_DOWNLOAD_URL=https://github.com/walterschell/Lua/archive/refs/tags/v%LUA_VERSION%.zip
 
 set RAGEL_DOWNLOAD_URL=https://github.com/eloraiby/ragel-windows/raw/master/ragel.exe
 
