@@ -62,7 +62,8 @@ powershell "Invoke-WebRequest -Uri %LLVM_DOWNLOAD_URL% -OutFile %DOWNLOAD_DIR%\%
 7z x -y %DOWNLOAD_DIR%\%LLVM_DOWNLOAD_FILE% -o%DOWNLOAD_DIR%
 ren %DOWNLOAD_DIR%\%LLVM_RELEASE_NAME% llvm
 
-if "%LLVM_VERSION%" lss "llvm-3.5.0" goto llvm34x
+perl %COMPARE_VERSIONS_PL% %LLVM_VERSION% 3.5
+if %errorlevel% == -1 goto llvm34x
 
 echo set (LLVM_CMAKE_DIR %DOWNLOAD_DIR_CMAKE%/llvm/lib/cmake/llvm) >> paths.cmake
 goto :eof

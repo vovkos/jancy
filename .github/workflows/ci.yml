@@ -7,7 +7,7 @@ on:
 jobs:
     windowsBuild:
         name: Windows Build
-        runs-on: windows-2019
+        runs-on: windows-2022
 
         strategy:
             fail-fast: false
@@ -23,6 +23,7 @@ jobs:
                 LLVM_VERSION:
                 -   llvm-3.4.2
                 -   llvm-8.0.0
+                -   llvm-18.1.6
 
         env:
             RELEASE: ${{ startsWith(github.ref, 'refs/tags/') && matrix.CONFIGURATION == 'Release' }}
@@ -39,7 +40,7 @@ jobs:
             run: |
                 set CONFIGURATION=${{matrix.CONFIGURATION}}
                 set LLVM_VERSION=${{matrix.LLVM_VERSION}}
-                call ci\github-actions\set-env.bat msvc16 ${{matrix.TARGET_CPU}}
+                call ci\github-actions\set-env.bat msvc17 ${{matrix.TARGET_CPU}}
                 call ci\github-actions\install-windows.bat
                 git clone --branch re2s-no-abseil --depth 1 https://github.com/vovkos/re2s
                 git clone --depth 1 https://github.com/vovkos/axl
@@ -56,7 +57,7 @@ jobs:
                 set THIS_DIR=%CD%
                 set THIS_DIR_CMAKE=%THIS_DIR:\=/%
 
-                call ci\github-actions\set-env.bat msvc16 ${{matrix.TARGET_CPU}}
+                call ci\github-actions\set-env.bat msvc17 ${{matrix.TARGET_CPU}}
                 call axl\ci\github-actions\build-re2s.bat
                 call axl\ci\github-actions\build-lua.bat
 
