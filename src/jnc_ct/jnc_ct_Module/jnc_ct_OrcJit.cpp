@@ -130,7 +130,7 @@ OrcJit::create(uint_t optLevel) {
 		return false;
 	}
 
-	llvmTmb->setCodeGenOptLevel((llvm::CodeGenOpt::Level)optLevel);
+	llvmTmb->setCodeGenOptLevel((llvm::CodeGenOptLevel)optLevel);
 
 	llvm::Expected<llvm::DataLayout> llvmDl = llvmTmb->getDefaultDataLayoutForTarget();
 	if (!llvmDl) {

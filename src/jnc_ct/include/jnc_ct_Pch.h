@@ -203,32 +203,26 @@ typedef InitializedPtr<DIFile> DIFile_vn;
 
 #endif
 
-#if (LLVM_VERSION < 0x040000)
-
+#if (LLVM_VERSION_MAJOR < 4)
 typedef unsigned DIFlags;
-
 #else
-
 typedef DINode::DIFlags DIFlags;
-
 #endif
 
-#if (LLVM_VERSION < 0x050000)
-
+#if (LLVM_VERSION_MAJOR < 5)
 typedef SynchronizationScope SynchronizationScope_vn;
 const SynchronizationScope DefaultSynchronizationScope_vn = CrossThread;
-
 #else
-
 typedef SyncScope::ID SynchronizationScope_vn;
 const SyncScope::ID DefaultSynchronizationScope_vn = llvm::SyncScope::System;
-
 #endif
 
-#if (LLVM_VERSION >= 0x080000)
-
+#if (LLVM_VERSION_MAJOR >= 8)
 typedef Instruction TerminatorInst;
+#endif
 
+#if (LLVM_VERSION_MAJOR < 18)
+typedef CodeGenOpt::Level CodeGenOptLevel;
 #endif
 
 } // namespace llvm

@@ -21,7 +21,7 @@ LegacyJit::create(uint_t optLevel) {
 	std::string errorString;
 	engineBuilder.setErrorStr(&errorString);
 	engineBuilder.setEngineKind(llvm::EngineKind::JIT);
-	engineBuilder.setOptLevel((llvm::CodeGenOpt::Level)optLevel);
+	engineBuilder.setOptLevel((llvm::CodeGenOptLevel)optLevel);
 
 	llvm::TargetOptions targetOptions;
 #if (_JNC_CPU_ARM32 || _JNC_CPU_ARM64)

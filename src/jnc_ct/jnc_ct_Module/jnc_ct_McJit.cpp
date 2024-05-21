@@ -77,7 +77,7 @@ McJit::create(uint_t optLevel) {
 	std::string errorString;
 	engineBuilder.setErrorStr(&errorString);
 	engineBuilder.setEngineKind(llvm::EngineKind::JIT);
-	engineBuilder.setOptLevel((llvm::CodeGenOpt::Level)optLevel);
+	engineBuilder.setOptLevel((llvm::CodeGenOptLevel)optLevel);
 
 	llvm::TargetOptions targetOptions;
 	if (optLevel == 0)

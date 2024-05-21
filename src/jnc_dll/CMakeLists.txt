@@ -95,6 +95,13 @@ if(WIN32)
 		wintrust
 		crypt32
 	)
+
+	if(${LLVM_VERSION} VERSION_GREATER_EQUAL 18)
+		target_link_libraries(
+			jnc_dll
+			ws2_32
+		)
+	endif()
 else()
 	target_link_libraries(
 		jnc_dll
