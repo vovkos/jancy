@@ -664,7 +664,7 @@ async void layoutModbusPdu(
 						backColor = ui.StdColor.PastelYellow,
 						binary
 					]
-					dyfield uint8_t data[params.m_size];
+					dyfield char data[params.m_size];
 				}
 				break; // no extra params
 
@@ -700,7 +700,7 @@ async void layoutModbusPdu(
 					backColor = ui.StdColor.PastelYellow,
 					binary
 				]
-				dyfield uint8_t data[params.m_size];
+				dyfield char data[params.m_size];
 				break;
 
 			case ModbusFunc.MaskWriteRegister:

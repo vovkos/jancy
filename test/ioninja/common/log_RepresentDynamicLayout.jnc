@@ -292,7 +292,7 @@ bool representGroupHeader(
 	return true;
 }
 
-bool representArray(
+void representArray(
 	Representation* representation,
 	ui.ColorRangeTree* colorRangeTree,
 	jnc.ModuleItemDecl* decl,
@@ -307,14 +307,31 @@ bool representArray(
 	size_t elementSize = elementType.m_size;
 	size_t arraySize = elementSize * elementCount;
 
-	if (!decl.findAttribute("ungroup")) {
-		if (!representGroupHeader(representation, decl, p, arraySize, foldFlags, indent))
-			return false;
-
-		if (decl.findAttribute("payload")) {
+	if (decl.findAttribute("payload")) {
+		if (representGroupHeader(representation, decl, p, arraySize, foldFlags, indent))
 			representation.addBin(DynamicLayoutBinPartCode.PayloadAttr, p, arraySize);
-			return true;
+		return;
+	}
+
+	if (!decl.findAttribute("ungroup")) {
+		if (elementType.m_typeKind == jnc.TypeKind.Char) { // display char[] as string
+			string_t name = getItemName(decl);
+			string_t value(p, elementCount);
+
+			representation.addHyperText($"%1%2:\t\e^!0x%x,%4,%5\e[34m%6"(
+				indent,
+				name,
+				DynamicLayoutBinPartCode.Raw,
+				offset,
+				elementCount,
+				value
+			));
+
+			return;
 		}
+
+		if (!representGroupHeader(representation, decl, p, arraySize, foldFlags, indent))
+			return;
 
 		indent += "    ";
 	}
@@ -354,8 +371,6 @@ bool representArray(
 			p += elementSize;
 		}
 	}
-
-	return true;
 }
 
 void representFields(

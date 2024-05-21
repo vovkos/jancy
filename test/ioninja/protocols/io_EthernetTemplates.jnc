@@ -145,7 +145,7 @@ protected:
 	packetTemplate,
 	displayName = "Ethernet II"
 ]
-async void layoutEthernetFrame(jnc.DynamicLayout* layout) {
+void layoutEthernetFrame(jnc.DynamicLayout* layout) {
 	dylayout (layout) {
 		[
 			@io.EthernetHdr,

@@ -24,7 +24,10 @@ enum MyEnum: int8_t {
 
 pragma(Alignment, 1);
 
-[ displayName = "My packet" ]
+[
+	packetTemplate,
+	displayName = "My packet"
+]
 struct MyPacket {
 	[ displayName = "Enumeration" ]
 	MyEnum m_field1;
