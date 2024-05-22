@@ -198,8 +198,8 @@ Module::initialize(
 
 	if (!(m_compileFlags & ModuleCompileFlag_DisableCodeGen)) {
 		m_llvmContext = new llvm::LLVMContext;
-#if (LLVM_VERSION_MAJOR >= 15) // disable opaque pointers
-		m_llvmContext->setOpaquePointers(false);
+#if (LLVM_VERSION_MAJOR >= 15 && LLVM_VERSION_MAJOR < 17)
+		m_llvmContext->setOpaquePointers(false); // disable opaque pointer mode
 #endif
 		m_llvmModule = new llvm::Module("jncModule", *m_llvmContext);
 		m_llvmIrBuilder.create();
