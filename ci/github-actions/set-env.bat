@@ -11,6 +11,10 @@
 
 @echo off
 
+:: save CI shell script dir before we shift args
+
+set CI_SH_DIR=%~dp0
+
 :loop
 
 if "%1" == "" goto :finalize
@@ -90,7 +94,7 @@ if "%TARGET_CPU%" == "" goto :amd64
 if "%CONFIGURATION%" == "" (set CONFIGURATION=Release)
 if "%CMAKE_USE_ARCH_OPTIONS%" == "" (set CMAKE_GENERATOR=%CMAKE_GENERATOR%%CMAKE_ARCH_SUFFIX%)
 if not "%CMAKE_USE_ARCH_OPTIONS%" == "" (set CMAKE_OPTIONS=%CMAKE_OPTIONS%%CMAKE_ARCH_OPTIONS%)
-set COMPARE_VERSIONS_PL=%CD%\ci\github-actions\compare-versions.pl
+set COMPARE_VERSIONS_PL=%CI_SH_DIR%\compare-versions.pl
 
 set LLVM_TOOLCHAIN=msvc17
 perl %COMPARE_VERSIONS_PL% %LLVM_VERSION% 13
