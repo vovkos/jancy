@@ -86,7 +86,21 @@ JNC_EXTERN_C
 JNC_EXPORT
 bool_t
 jncDynamicExtensionLibUnload() {
+	// on macOS (at least, Catalina) it sometimes crashes on dlclose that immediately follows
+	//
+	// the reproducible crash sequence:
+	// 1) hid_init
+	// 2) hid_enumerate
+	// 3) hid_free_enumeration (optional, actually)
+	// 4) hid_exit
+	// 5) dlclose
+	//
+	// inserting a small delay between hid_exit and dlclose fixes the crash, but it feels shakey
+	// better leak than crash -- don't call hid_exit
+
+#if (!_JNC_OS_DARWIN)
 	axl::io::hidExit();
+#endif
 	return true;
 }
 
