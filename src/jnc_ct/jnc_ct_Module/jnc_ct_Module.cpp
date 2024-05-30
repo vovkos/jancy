@@ -132,10 +132,8 @@ Module::clear() {
 	m_gcShadowStackMgr.clear();
 	m_codeAssistMgr.clear();
 
-	delete m_jit;
 	clearLlvm();
 
-	m_jit = NULL;
 	m_constructor = NULL;
 	m_config = g_defaultModuleConfig;
 	m_compileFlags = ModuleCompileFlag_StdFlags;
@@ -149,9 +147,11 @@ Module::clearLlvm() {
 	m_llvmIrBuilder.clear();
 	m_llvmDiBuilder.clear();
 
+	delete m_jit;
 	delete m_llvmModule;
 	delete m_llvmContext;
 
+	m_jit = NULL;
 	m_llvmModule = NULL;
 	m_llvmContext = NULL;
 
@@ -593,8 +593,7 @@ Module::createJit() {
 	ASSERT(m_jit);
 	bool result = m_jit->create(m_config.m_jitOptLevel);
 	if (!result) {
-		delete m_jit;
-		m_jit = NULL;
+		clearLlvm(); // JIT takes ownership of the module, so we have to clear all LLVM stuff anyway
 		return false;
 	}
 
