@@ -2330,7 +2330,10 @@ Parser::reactorOnEventStmt(
 	DeclFunctionSuffix* suffix = declarator->getFunctionSuffix();
 	ASSERT(suffix);
 
-	FunctionType* functionType = m_module->m_typeMgr.getFunctionType(suffix->getArgArray());
+	FunctionType* functionType = suffix->getArgArray().isEmpty() ?
+		m_module->m_typeMgr.getFunctionType(suffix->getArgArray()) :
+		m_module->m_typeMgr.createUserFunctionType(suffix->getArgArray());
+
 	Function* handler = m_reactorType->createUnnamedMethod(FunctionKind_Internal, functionType);
 	handler->m_parentUnit = m_module->m_unitMgr.getCurrentUnit();
     handler->m_flags |= ModuleItemFlag_User;
