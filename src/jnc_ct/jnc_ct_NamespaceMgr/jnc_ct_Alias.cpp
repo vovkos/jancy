@@ -86,7 +86,7 @@ Alias::generateDocumentation(
 
 	itemXml->appendFormat(
 		"<initializer>= %s</initializer>\n",
-		getInitializerString().sz()
+		getInitializerString_xml().sz()
 	);
 
 	itemXml->append(doxyBlock->getImportString());

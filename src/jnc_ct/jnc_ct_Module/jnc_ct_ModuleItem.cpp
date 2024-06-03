@@ -18,6 +18,47 @@ namespace ct {
 
 //..............................................................................
 
+void
+initXmlReplaceTable(sl::StringRef* table) {
+	table['&'] = "&amp;";
+	table['<'] = "&lt;";
+	table['>'] = "&gt;";
+	table['"'] = "&quot;";
+	table['\''] = "&apos;";
+}
+
+sl::StringRef
+ModuleItemInitializer::getInitializerString_xml() {
+	static sl::StringRef replaceTable[256] = { 0 };
+	sl::callOnce(initXmlReplaceTable, replaceTable);
+
+	sl::String originalString = getInitializerString();
+	sl::String modifiedString;
+
+	const char* p0 = originalString.cp();
+	const char* end = originalString.getEnd();
+	for (const char* p = p0; p < end; p++) {
+		uchar_t c = *p;
+		if (!replaceTable[c].isEmpty()) {
+			if (p0 < p)
+				modifiedString.append(p0, p - p0);
+
+			modifiedString.append(replaceTable[c]);
+			p0 = p + 1;
+		}
+	}
+
+	if (modifiedString.isEmpty())
+		return originalString;
+
+	if (p0 < end)
+		modifiedString.append(p0, end - p0);
+
+	return modifiedString;
+}
+
+//..............................................................................
+
 ModuleItemDecl::ModuleItemDecl() {
 	m_storageKind = StorageKind_Undefined;
 	m_accessKind = AccessKind_Public; // public by default

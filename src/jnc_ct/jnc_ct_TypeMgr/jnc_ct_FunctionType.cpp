@@ -401,7 +401,7 @@ FunctionType::appendDoxyArgString(sl::String* string) {
 		if (arg->hasInitializer())
 			string->appendFormat(
 				"<defval>%s</defval>\n",
-				arg->getInitializerString().sz()
+				arg->getInitializerString_xml().sz()
 			);
 
 		string->append("</param>\n");

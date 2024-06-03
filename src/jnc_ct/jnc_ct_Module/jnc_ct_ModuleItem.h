@@ -52,6 +52,9 @@ public:
 	getInitializerString() {
 		return Token::getText(m_initializer);
 	}
+
+	sl::StringRef
+	getInitializerString_xml();
 };
 
 //..............................................................................

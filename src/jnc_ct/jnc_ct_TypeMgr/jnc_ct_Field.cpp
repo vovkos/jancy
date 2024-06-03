@@ -91,7 +91,7 @@ Field::generateDocumentation(
 		itemXml->appendFormat("<modifiers>%s</modifiers>\n", ptrTypeFlagString.sz());
 
 	if (!m_initializer.isEmpty())
-		itemXml->appendFormat("<initializer>= %s</initializer>\n", getInitializerString().sz());
+		itemXml->appendFormat("<initializer>= %s</initializer>\n", getInitializerString_xml().sz());
 
 	itemXml->append(doxyBlock->getDescriptionString());
 	itemXml->append(getDoxyLocationString());
