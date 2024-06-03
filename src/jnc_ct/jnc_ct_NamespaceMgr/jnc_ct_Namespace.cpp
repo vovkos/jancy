@@ -492,6 +492,7 @@ Namespace::generateMemberDocumentation(
 			}
 		}
 
+		memberXml.clear();
 		result = item->generateDocumentation(outputDir, &memberXml, indexXml);
 		if (!result)
 			return false;
