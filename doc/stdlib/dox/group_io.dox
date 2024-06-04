@@ -68,21 +68,41 @@
 
 	This section describes types and facilities for enumerating and getting information about installed network adapters.
 
+\defgroup io-ssl
+
+	\title SSL Communications
+	\ingroup io
+	\grouporder 5
+
+	\import io_ssl.jncx
+
+	This section describes types and facilities used when programming OpenSSL-based socket communicatins.
+
 \defgroup io-ssh
 
 	\title SSH Communications
 	\ingroup io
-	\grouporder 5
+	\grouporder 6
 
 	\import io_ssh.jncx
 
 	This section describes types and facilities used when programming SSH (secure-shell) socket communicatins.
+	
+\defgroup io-websocket
 
+	\title WebSockets
+	\ingroup io
+	\grouporder 7
+
+	\import io_websocket.jncx
+
+	This section describes types and facilities for programming WebSockets communications.
+	
 \defgroup io-pcap
 
 	\title Pcap (Packet Capturing Library)
 	\ingroup io
-	\grouporder 6
+	\grouporder 8
 
 	\import io_pcap.jncx
 
@@ -92,17 +112,37 @@
 
 	\title USB Communications
 	\ingroup io
-	\grouporder 7
+	\grouporder 9
 
 	\import io_usb.jncx
 
 	This section describes types and facilities used for accessing USB devices with ``libusb``.
 
+\defgroup io-usbmon
+
+	\title USB Monitoring
+	\ingroup io
+	\grouporder 10
+
+	\import io_usbmon.jncx
+
+	This section describes types and facilities used for monitoring USB devices.
+	
+\defgroup io-hid
+
+	\title HID Communications
+	\ingroup io
+	\grouporder 11
+
+	\import io_hid.jncx
+
+	This section describes types and facilities used for accessing HID (human interface) devices.
+
 \defgroup io-devmon
 
 	\title Device Monitoring
 	\ingroup io
-	\grouporder 8
+	\grouporder 12
 
 	\import io_devmon.jncx
 

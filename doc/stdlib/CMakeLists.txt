@@ -36,10 +36,14 @@ set(
 	--std-lib-doc
 	--no-doxy-comment ///
 	--ignore-import io_base.jncx
+	--ignore-import io_ssl.jncx
+	--ignore-import io_usb.jncx
+	--ignore-import io_usbmon.jncx
 	-X ${XML_DIR}
 
 	${_EXT_DIR}/jnc_rtl_core/jnc/jnc_DataPtr.jnc
 	${_EXT_DIR}/jnc_rtl_core/jnc/jnc_DynamicLib.jnc
+	${_EXT_DIR}/jnc_rtl_core/jnc/jnc_DynamicLayout.jnc
 	${_EXT_DIR}/jnc_rtl_core/jnc/jnc_gc.jnc
 	${_EXT_DIR}/jnc_rtl_core/jnc/jnc_Promise.jnc
 	${_EXT_DIR}/jnc_rtl_core/jnc/jnc_Regex.jnc
@@ -74,10 +78,17 @@ set(
 	-S ${_EXT_DIR}/jnc_sys/jnc
 	-I ${_EXT_DIR}/jnc_io_base/jnc
 	-S ${_EXT_DIR}/jnc_io_base/jnc
+	-I ${_EXT_DIR}/jnc_io_ssl/jnc
+	-S ${_EXT_DIR}/jnc_io_ssl/jnc
 	-S ${_EXT_DIR}/jnc_io_ssh/jnc
 	-S ${_EXT_DIR}/jnc_io_pcap/jnc
+	-I ${_EXT_DIR}/jnc_io_usb/jnc
 	-S ${_EXT_DIR}/jnc_io_usb/jnc
+	-I ${_EXT_DIR}/jnc_io_usbmon/jnc
+	-S ${_EXT_DIR}/jnc_io_usbmon/jnc
+	-S ${_EXT_DIR}/jnc_io_hid/jnc
 	-S ${_EXT_DIR}/jnc_io_devmon/jnc
+	-S ${_EXT_DIR}/jnc_io_websocket/jnc
 	-S ${CMAKE_CURRENT_LIST_DIR}/dox
 )
 
