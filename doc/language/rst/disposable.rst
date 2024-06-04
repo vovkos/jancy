@@ -23,15 +23,14 @@ This method will be called no matter which exit route is taken, be it normal con
 .. rubric:: Example:
 .. ref-code-block:: jnc
 
-	foo ()
-	{
-	    // ...
+	void foo() {
+		// ...
 
-	    disposable io.File file;
-	    file.open ();
+		disposable io.File file;
+		file.open();
 
-	    // work with file...
-	} // <-- file.close () is guaranteed to be called upon exiting the scope
+		// work with file...
+	} // <-- file.close() is guaranteed to be called upon exiting the scope
 
 When program runs out of scope where a variable of disposable class was declared in, Jancy compiler will insert a call to ``dispose`` method (which is usually *aliased* to an actual release methods such as ``close``). This method will be called no matter how the program runs out of scope, be it a normal control flow, ``return``,  ``break``, ``continue`` or an exception.
 
@@ -39,30 +38,26 @@ You can easily write disposable classes yourself. All you have to do is to provi
 
 .. ref-code-block:: jnc
 
-	class MyDisposableClass
-	{
-	    //...
-	    dispose ()
-	    {
-	        printf ("Releasing resources...");
-	    }
+	class MyDisposableClass {
+		//...
+		void dispose() {
+			printf("Releasing resources...");
+		}
 	}
 
-	class MyDbConnection
-	{
-	    //...
-	    disconnect ();
-	    alias dispose = disconnect;
+	class MyDbConnection {
+		//...
+		void disconnect();
+		alias dispose = disconnect;
 	}
 
-	foo ()
-	{
-	    // ...
+	void foo() {
+		// ...
 
-	    disposable MyDisposableClass c;
-	    disposable MyDbConnection db;
+		disposable MyDisposableClass c;
+		disposable MyDbConnection db;
 
-	    // work with c & db...
+		// work with c & db...
 
-	    throw; // <-- c.dispose () and db.disconnect () will get called
+		throw; // <-- c.dispose() and db.disconnect() will get called
 	}

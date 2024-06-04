@@ -48,11 +48,10 @@ Now it's possible to redirect functions (to share implementation) using initiali
 
 Again, checked the IDE and it doesn't work properly::
 
-	class Class
-	{
-		destruct () = close; // underlined as an error
+	class Class {
+		destruct() = close; // underlined as an error
 
-		close ();
+		close();
 	}
 
 Declaration Grammar
@@ -68,8 +67,7 @@ Regex Switches
 Big change in lexer generator. I kept thinking on how to improve automaton functions without compromising the functionality they provide. I feel the concept of automaton functions -- a built-in Ragel/Lex/Flex -- is great, but it's a bit hard to wrap your head around it -- how to invoke automatons, return values from automatons, relations between automatons and recognizers etc. The solution I finally settled on kicks major ass::
 
 		jnc.RegexState state; // may be re-used in a loop, upon receiving the next chunk over IO stream, etc
-		reswitch (state, string)
-		{
+		switch (state, string) {
 		case r"foo\s+\d+": // raw literal to prevent escape expansion as regex-es use different rules
 			// OK to fall-through to next case, just like in a regular switch
 

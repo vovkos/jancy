@@ -22,14 +22,12 @@ This syntax is ideal for declaring interfaces or when the developer prefers to f
 
 .. code-block:: jnc
 
-	int g_simpleProp.get ()
-	{
-	    return rand () % 3;
+	int g_simpleProp.get() {
+		return rand() % 3;
 	}
 
-	g_simpleProp.set (int x)
-	{
-	    // set property value
+	g_simpleProp.set(int x) {
+		// set property value
 	}
 
 Const properties can use a simple declaration syntax:
@@ -38,9 +36,8 @@ Const properties can use a simple declaration syntax:
 
 	int const property g_simpleReadOnlyProp;
 
-	int g_simpleReadOnlyProp.get ()
-	{
-	    return rand () % 3;
+	int g_simpleReadOnlyProp.get() {
+		return rand() % 3;
 	}
 
 For obvious reasons, this simple syntax is only possible if a property has no overloaded setters, in which case you should use the second method: full property declaration.

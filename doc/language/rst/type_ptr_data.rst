@@ -24,22 +24,20 @@ Jancy pointers are **fat** by default and indirectlty contain information about 
 
 .. code-block:: jnc
 
-    foo (size_t i)
-    {
-        int a [] = { 1, 2, 3 };
-        //...
+	void foo(size_t i) {
+		int a[] = { 1, 2, 3 };
+		//...
 
-        int* p = a;
-        p += i;
-        *p = 40;    // <-- error: out-of-bounds
-        a [i] = 40; // <-- error: out-of-bounds
-    }
+		int* p = a;
+		p += i;
+		*p = 40;    // <-- error: out-of-bounds
+		a[i] = 40; // <-- error: out-of-bounds
+	}
 
-    bar ()
-    {
-        //...
-        foo (3);
-    }
+	void bar() {
+		//...
+		foo(3);
+	}
 
 Range is checked on both **array accesses** and **pointer dereferences**.
 
@@ -51,13 +49,12 @@ What about locals, you might ask? Any local taken "fat" address of, is being **l
 
 .. code-block:: jnc
 
-    int* foo ()
-    {
-        int a = 10;
-        // ...
+	int* foo() {
+		int a = 10;
+		// ...
 
-        return &a; // <-- no problem
-    }
+		return &a; // <-- no problem
+	}
 
 There are **no uninitialzed pointers**, either -- Jancy compiler zeros every variable before any user code can touch it.
 
@@ -65,39 +62,33 @@ There is also a danger of **corrupting** or replacing the information used for v
 
 .. code-block:: jnc
 
-    struct PodParent
-    {
-        int m_a;
-    }
+	struct PodParent {
+		int m_a;
+	}
 
-    struct NonPodChild: PodParent
-    {
-        char const* m_s;
-    }
+	struct NonPodChild: PodParent {
+		char const* m_s;
+	}
 
-    union IllegalUnion
-    {
-        intptr_t m_a [2];
-        void* m_p; // <-- error
-    }
+	union IllegalUnion {
+		intptr_t m_a[2];
+		void* m_p; // <-- error
+	}
 
-    upcast (NonPodChild* b)
-    {
-        PodParent* a = b;
-    }
+	void upcast(NonPodChild* b) {
+		PodParent* a = b;
+	}
 
-    reinterpretCast (PodParent* a, NonPodChild* b)
-    {
-        char* p = (char*) a;  // <-- OK
-        char* p2 = (char*) b; // <-- error
-        char const* p3 = (char const*) b; // <-- OK
-    }
+	void reinterpretCast(PodParent* a, NonPodChild* b) {
+		char* p = (char*) a;  // <-- OK
+		char* p2 = (char*) b; // <-- error
+		char const* p3 = (char const*) b; // <-- OK
+	}
 
-    downcast (PodParent* a)
-    {
-        NonPodChild* c = (NonPodChild*) a; // <-- error
-        NonPodChild const* c = (NonPodChild const*) a; // <-- error
-        NonPodChild* c = dynamic (NonPodChild*) a; // OK
-    }
+	void downcast(PodParent* a) {
+		NonPodChild* c = (NonPodChild*) a; // <-- error
+		NonPodChild const* c = (NonPodChild const*) a; // <-- error
+		NonPodChild* c = dynamic (NonPodChild*) a; // OK
+	}
 
 Besides the normal (fat) data **pointer with validators** Jancy also supports ``thin`` data pointers, which only hold the **target address**. This might be useful when writing **performance-critical** code, or for **interoperability** with the external C libraries. ``thin`` pointers are **not safe**, obviously -- they simply lack the information which can be used for safety checks.

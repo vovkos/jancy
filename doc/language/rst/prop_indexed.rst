@@ -18,62 +18,56 @@ Simple indexed property declaration syntax:
 
 .. code-block:: jnc
 
-	int g_x [2];
+	int g_x[2];
 
 	int indexed property g_simpleProp (unsigned i);
 
 	// here the index argument is really used as the array index
 
-	int g_simpleProp.get (unsigned i)
-	{
-	    return g_x [i];
+	int g_simpleProp.get(unsigned i) {
+		return g_x[i];
 	}
 
-	g_simpleProp.set (
-	    unsigned i,
-	    int x
-	    )
-	{
-	    g_x [i] = x;
+	g_simpleProp.set(
+		unsigned i,
+		int x
+	) {
+		g_x[i] = x;
 	}
 
 A similar property declared using full syntax:
 
 .. code-block:: jnc
 
-	property g_prop
-	{
-	    int m_x [2] [2];
+	property g_prop {
+		int m_x[2][2];
 
-	    // more than one index argument could be used
+		// more than one index argument could be used
 
-	    int get (
-	        unsigned i,
-	        unsigned j
-	        )
-	    {
-	        return m_x [i] [j];
-	    }
+		int get(
+			unsigned i,
+			unsigned j
+		) {
+			return m_x[i][j];
+		}
 
-	    set (
-	        unsigned i,
-	        unsigned j,
-	        int x
-	        )
-	    {
-	        m_x [i] [j] = x;
-	    }
+		set(
+			unsigned i,
+			unsigned j,
+			int x
+		) {
+			m_x[i][j] = x;
+		}
 
-	    // setters of indexed property can be overloaded
+		// setters of indexed property can be overloaded
 
-	    set (
-	        unsigned i,
-	        unsigned j,
-	        double x
-	        )
-	    {
-	        m_x [i] [j] = (int) x;
-	    }
+		set(
+			unsigned i,
+			unsigned j,
+			double x
+		) {
+			m_x[i][j] = (int) x;
+		}
 	}
 
 Accessing indexed properties looks like accessing arrays
@@ -81,17 +75,16 @@ Accessing indexed properties looks like accessing arrays
 .. code-block:: jnc
 
 	int indexed property g_prop (
-	    unsigned i,
-	    unsigned j
-	    );
+		unsigned i,
+		unsigned j
+	);
 
-	foo ()
-	{
-	    int value = g_prop [10] [20];
+	void foo() {
+		int value = g_prop[10][20];
 
-	    // ...
+		// ...
 
-	    g_prop [30] [40] = 100;
+		g_prop[30][40] = 100;
 
-	    // ...
+		// ...
 	}

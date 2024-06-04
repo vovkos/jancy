@@ -16,18 +16,16 @@ Besides tradition ``break`` and ``continue`` with the same syntax and symantics 
 
 .. code-block:: jnc
 
-	int a [3] [4] =
-	{
-	    { 1,  2,  3,  4 },
-	    { 5,  6, -7,  8 },
-	    { 9, 10, 11, 12 },
+	int a[3][4] = {
+		{ 1,  2,  3,  4 },
+		{ 5,  6, -7,  8 },
+		{ 9, 10, 11, 12 },
 	};
 
-	for (size_t i = 0; i < countof (a); i++)
-	    for (size_t j = 0; j < countof (a [0]); j++)
-	        if (a [i] [j] < 0)
-	        {
-	            // negative element is found, process it...
+	for (size_t i = 0; i < countof(a); i++)
+		for (size_t j = 0; j < countof(a[0]); j++)
+			if (a[i][j] < 0) {
+				// negative element is found, process it...
 
-	            break2; // exit 2 loops at once
-	        }
+				break2; // exit 2 loops at once
+			}

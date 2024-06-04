@@ -22,23 +22,20 @@ This statement provides a basic conditional branching. If ``condition`` specifie
 .. code-block:: jnc
 
 	if (!result)
-	    printf ($"error: $!\n");
+		printf($"error: $!\n");
 
 It's also possible to have an ``else`` branch which will be executed if condition evaluates to ``false``.
 
 .. code-block:: jnc
 
 	if (i == 0)
-	    printf ("is 0\n");
-	else if (i < 0)
-	{
-	    printf ("is negative\n");
-	    // ...
-	}
-	else
-	{
-	    printf ("is positive\n");
-	    // ...
+		printf("is 0\n");
+	else if (i < 0) {
+		printf("is negative\n");
+		// ...
+	} else {
+		printf("is positive\n");
+		// ...
 	}
 
 while
@@ -50,17 +47,16 @@ In the *pre-conditional* form, ``while`` statement evaluates ``condition`` first
 
 .. code-block:: jnc
 
-	while (!m_queue.isEmpty ())
-	    processQueue ();
+	while (!m_queue.isEmpty())
+		processQueue();
 
 In the *post-conditional* form, ``do-while`` statement executes ``body-statement`` first, then evaluates ``condition``. If it evaluates to ``true`` control is transferred back to ``body-statement``.
 
 .. code-block:: jnc
 
 	bool result;
-	do
-	{
-	    result = processRequest (); // the final request returns false
+	do {
+		result = processRequest(); // the final request returns false
 	} while (result);
 
 for
@@ -70,10 +66,9 @@ Executes the first statement (``init-statement``) inside the parentheses, then e
 
 .. code-block:: jnc
 
-	for (int i = 0; i < countof (nameTable); i++)
-	{
-	    char const* name  = nameTable [i];
-	    // process name ...
+	for (int i = 0; i < countof (nameTable); i++) {
+		char const* name  = nameTable[i];
+		// process name ...
 	}
 
 The above ``for`` loop is *completely* equivalent to the following ``while`` loop:
@@ -81,9 +76,8 @@ The above ``for`` loop is *completely* equivalent to the following ``while`` loo
 .. code-block:: jnc
 
 	int i = 0;
-	while (i < countof (nameTable))
-	{
-	    char const* name  = nameTable [i];
-	    // process name ...
-	    i++;
+	while (i < countof (nameTable)) {
+		char const* name  = nameTable[i];
+		// process name ...
+		i++;
 	}

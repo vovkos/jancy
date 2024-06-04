@@ -25,16 +25,15 @@ Both Java and C++ styles of declaring member access are supported. Contrary to m
 
 .. code-block:: jnc
 
-	class C1
-	{
-	    int m_x; // public by default
+	class C1 {
+		int m_x; // public by default
 
 	protected: // C++-style of access specification
-	    int m_y;
+		int m_y;
 
-	    public int m_z; // Java-style of access specification
+		public int m_z; // Java-style of access specification
 
-	    // ...
+		// ...
 	}
 
 Method Body Placement
@@ -44,57 +43,47 @@ Jancy supports both Java and C++ styles of placing method bodies: it is up to de
 
 .. code-block:: jnc
 
-	class C1
-	{
-	    foo (); // C++-style
+	class C1 {
+		void foo(); // C++-style
 
-	    bar () // Java-style
-	    {
-	        // ...
-	    }
+		void bar() { // Java-style
+			// ...
+		}
 	}
 
 	// out-of-class method definition
 
-	C1.foo ()
-	{
-	    // ...
+	void C1.foo() {
+		// ...
 	}
 
 Construction/Destruction
 ------------------------
 
-Jancy supports in-place field initializers, constructors, destructors, static constructors, static destructors, and preconstructors. Constructors can be overloaded, the rest of construction methods must have no arguments.
-
-Preconstructors are special methods that will be called before any of the overloaded constructors (similar to Java initializer blocks).
+Jancy supports in-place field initializers, constructors, destructors, and static constructors. Constructors can be overloaded, the rest of construction methods must have no arguments.
 
 Constructor and destructor syntax is a bit different from most languages, as Jancy uses explicit keywords.
 
 .. code-block:: jnc
 
-	class C1
-	{
-	    int m_x = 100; // in-place initializer
+	class C1 {
+		int m_x = 100; // in-place initializer
 
-	    static construct ();
-	    static destruct ();
+		static construct();
 
-	    preconstruct ();  // will be called before every overloaded constructor
+		construct();
+		construct(int x);
+		construct(double x);
 
-	    construct ();
-	    construct (int x);
-	    construct (double x);
+		destruct();
 
-	    destruct ();
-
-	    // ...
+		// ...
 	}
 
 	// out-of-class method definitions
 
-	C1.static construct ()
-	{
-	    // ...
+	C1.static construct() {
+		// ...
 	}
 
 	// ...
@@ -109,29 +98,26 @@ Member class fields get allocated on a parent memory block, global class variabl
 
 .. code-block:: jnc
 
-	class C1
-	{
-	    // ...
+	class C1 {
+		// ...
 	}
 
-	class C2
-	{
-	    // ...
+	class C2 {
+		// ...
 
-	    C1 m_classField; // allocated as part of C2 layout
+		C1 m_classField; // allocated as part of C2 layout
 	}
 
 	C2 g_classVariable; // allocated statically
 
-	foo ()
-	{
-	    C1 a;        // allocated on heap (same as: C1* a = heap new C1;)
-	    stack C1 b;  // allocated on stack (same as: C1* b = stack new C1;)
-	    static C2 c; // allocated statically (same as: C1* c = static new C1;)
-	    thread C2 d; // error: thread-local variable cannot be of class type
-	    thread C2* e = new C2; // OK
+	void foo() {
+		C1 a;        // allocated on heap (same as: C1* a = heap new C1;)
+		stack C1 b;  // allocated on stack (same as: C1* b = stack new C1;)
+		static C2 c; // allocated statically (same as: C1* c = static new C1;)
+		thread C2 d; // error: thread-local variable cannot be of class type
+		thread C2* e = new C2; // OK
 
-	    // ...
+		// ...
 	}
 
 	// ...
@@ -140,28 +126,27 @@ Jancy has a small syntactic difference with regard to calling a constructor of a
 
 .. code-block:: jnc
 
-	C1 a (); // is it a function 'a' which returns C1?
-	         //     or a construction of variable 'a' of type C1?
+	C1 a(); // is it a function 'a' which returns C1?
+	// ...or a construction of variable 'a' of type C1?
 
 This ambiguity is even trickier to handle in Jancy given the fact that Jancy does not enforce the **declaration-before-usage** paradigm. To counter the ambiguity, Jancy introduces a slight syntax modification which fully resolves the issue:
 
 .. code-block:: jnc
 
-	class C1
-	{
-	    construct ();
-	    construct (int x);
+	class C1 {
+		construct();
+		construct(int x);
 
-	    // ...
+		// ...
 	}
 
-	C1 g_a construct ();
-	C1 g_b construct (10);
+	C1 g_a construct();
+	C1 g_b construct(10);
 
 	// with operator new there is no ambiguity, so both versions of syntax are OK
 
-	C1* g_c = new C1 construct (20);
-	C1* g_d = new C1 (30);
+	C1* g_c = new C1 construct(20);
+	C1* g_d = new C1(30);
 
 Operator Overloading
 --------------------
@@ -170,20 +155,17 @@ Jancy supports operator overloading. Like in C++, any unary, binary, cast or cal
 
 .. code-block:: jnc
 
-	class C1
-	{
-	    operator += (int d) // overloaded '+=' operator
-	    {
-	        // ...
-	    }
+	class C1 {
+		operator void += (int d) { // overloaded '+=' operator
+			// ...
+		}
 	}
 
-	foo ()
-	{
-	    C1 c;
-	    c += 10;
+	void foo() {
+		C1 c;
+		c += 10;
 
-	    // ...
+		// ...
 	}
 
 Multiple Inheritance
@@ -197,109 +179,86 @@ Virtual methods are declared using keywords ``virtual``, ``abstract``, and ``ove
 
 .. code-block:: jnc
 
-	class I1
-	{
-	    abstract foo ();
+	class I1 {
+		abstract void foo();
 	}
 
-	class C1: I1
-	{
-	    override foo ()
-	    {
-	        // ...
-	    }
+	class C1: I1 {
+		override void foo() {
+			// ...
+		}
 	}
 
-	class I2
-	{
-	    abstract bar ();
+	class I2 {
+		abstract void bar();
 
-	    abstract baz (
-	        int x,
-	        int y
-	        );
+		abstract void baz(
+			int x,
+			int y
+		);
 	}
 
-	class C2: I2
-	{
-	    override baz (
-	        int x,
-	        int y
-	        )
-	    {
-	        // ...
-	    }
+	class C2: I2 {
+		override void baz(
+			int x,
+			int y
+		) {
+			// ...
+		}
 	}
 
-	struct Point
-	{
-	    int m_x;
-	    int m_y;
+	struct Point {
+		int m_x;
+		int m_y;
 	}
 
 	class C3:
-	    C1,
-	    C2,
-	    Point // it's ok to inherit from structs and even unions
-	{
-	    override baz (
-	        int x,
-	        int y
-	        );
-	}
+		C1,
+		C2,
+		Point { // it's ok to inherit from structs and even unions
 
-	// it's ok to use storage specifier in out-of-class definition by the way.
-	// (must match the original one, of course)
-
-	override C3.baz (
-	    int x,
-	    int y
-	    )
-	{
-	    // ...
+		override void baz(
+			int x,
+			int y
+		);
 	}
 
 Jancy provides keywords ``basetype`` and ``basetype1`` .. ``basetype9`` to conveniently reference base types for construction or namespace resolution.
 
 .. code-block:: jnc
 
-	class Base1
-	{
-	    construct (
-	        int x,
-	        int y
-	        );
+	class Base1 {
+		construct(
+			int x,
+			int y
+		);
 
-	    foo ();
+		foo();
 	}
 
-	class Base2
-	{
-	    construct (int x);
+	class Base2 {
+		construct(int x);
 
-	    foo ();
+		void foo();
 	}
 
 	class Derived:
-	    Base1,
-	    Base2
-	{
-	    construct (
-	        int x,
-	        int y,
-	        int z
-	        )
-	    {
-	        basetype1.construct (x, y);
-	        basetype2.construct (z);
+		Base1,
+		Base2 {
+		construct(
+			int x,
+			int y,
+			int z
+		) {
+			basetype1.construct(x, y);
+			basetype2.construct(z);
 
-	        // ...
-	    }
+			// ...
+		}
 
-	    foo ()
-	    {
-	        basetype1.foo ();
+		void foo() {
+			basetype1.foo();
 
-	        // ...
-	    }
+			// ...
+		}
 	}

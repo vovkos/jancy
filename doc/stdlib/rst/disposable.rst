@@ -26,15 +26,14 @@ An easy way for overcoming this problem is to work with objects that do require 
 
 .. ref-code-block:: jnc
 
-	foo ()
-	{
-	    // ...
+	void foo() {
+		// ...
 
-	    disposable `io.File` file;
-	    file.open ();
+		disposable `io.File` file;
+		file.open();
 
-	    // work with file...
-	} // <-- file.close () is guaranteed to be called upon exiting the scope
+		// work with file...
+	} // <-- file.close() is guaranteed to be called upon exiting the scope
 
 When program runs out of scope where a variable of disposable class was declared in, Jancy compiler will insert a call to ``dispose`` method (which is usually *aliased* to an actual release methods such as ``close``). This method will be called no matter how the program runs out of scope, be it a normal control flow, ``return``,  ``break``, ``continue`` or an exception.
 
@@ -42,31 +41,27 @@ You can easily write disposable classes yourself. All you have to do is to provi
 
 .. ref-code-block:: jnc
 
-	class MyDisposableClass
-	{
-	    dispose ()
-	    {
-	        printf ("Releasing resources...");
-	    }
+	class MyDisposableClass {
+		void dispose() {
+			printf("Releasing resources...");
+		}
 	}
 
-	foo ()
-	{
-	    // ...
+	void foo() {
+		// ...
 
-	    disposable MyDisposableClass c;
+		disposable MyDisposableClass c;
 
-	    // work with c...
+		// work with c...
 
-	    throw; // <-- c.dispose () will get called
+		throw; // <-- c.dispose() will get called
 	}
 
 Often times, a class already has a function to release resources (called ``close``, ``release``, etc.); renaming it to ``dispose`` may be undesireable. In such case, you cane make such a class disposable by *aliasing* ``dispose``:
 
 .. ref-code-block:: jnc
 
-	class MyDisposableClass
-	{
+	class MyDisposableClass {
 		void close(); // a natural name for a resource-releasing method
-	    alias dispose = close;
+		alias dispose = close;
 	}

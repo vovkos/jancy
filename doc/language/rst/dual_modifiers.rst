@@ -53,21 +53,18 @@ The implementation relying on dual modifiers looks a lot more natural, as it is 
 
 .. code-block:: jnc
 
-	class C1
-	{
-	    int readonly mreadOnly;
+	class C1 {
+		int readonly mreadOnly;
 
-	    foo ()
-	    {
-	        mreadOnly = 10; // for insiders it's a regular field
-	    }
+		void foo() {
+			mreadOnly = 10; // for insiders it's a regular field
+		}
 	}
 
-	bar ()
-	{
-	    C1 c;
-	    int x = c.mreadOnly; // no problem
-	    c.mreadOnly = 20;    // error: cannot assign to const-location
+	void bar() {
+		C1 c;
+		int x = c.mreadOnly; // no problem
+		c.mreadOnly = 20;    // error: cannot assign to const-location
 	}
 
 event
@@ -81,26 +78,22 @@ The dual modifier ``event`` provides full multicast-access to friends and event-
 
 .. code-block:: jnc
 
-	class C1
-	{
-	    event m_onCompleted ();
+	class C1 {
+		event m_onCompleted();
 
-	    work ()
-	    {
-	        // ...
+		void work() {
+			// ...
 
-	        m_onCompleted (); // insiders have multicast-access to m_onCompleted
-	    }
+			m_onCompleted(); // insiders have multicast-access to m_onCompleted
+		}
 	}
 
-	onCompleted ()
-	{
-	    // ...
+	void onCompleted() {
+		// ...
 	}
 
-	foo ()
-	{
-	    C1 c;
-	    c.m_onCompleted += onCompleted; // aliens have event-access to m_onCompleted
-	    c.m_completeEvent (); // error: aliens have no multicast-access to m_onCompleted
+	void foo() {
+		C1 c;
+		c.m_onCompleted += onCompleted; // aliens have event-access to m_onCompleted
+		c.m_completeEvent(); // error: aliens have no multicast-access to m_onCompleted
 	}

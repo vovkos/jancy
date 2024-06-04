@@ -40,35 +40,30 @@ Unlike in C++, in Jancy it's OK to **derive** from a union:
 
 .. code-block:: jnc
 
-	union MyUnion
-	{
-	    char m_c;
-	    short m_s;
-	    int m_i;
+	union MyUnion {
+		char m_c;
+		short m_s;
+		int m_i;
 	}
 
-	struct MyStruct: MyUnion
-	{
-	    long m_l;
+	struct MyStruct: MyUnion {
+		long m_l;
 	}
 
 The layout will be equivalent to the following C++ code snippet:
 
 .. code-block:: jnc
 
-	struct MyUnion
-	{
-	    union
-	    {
-	        char m_c;
-	        short m_s;
-	        int m_i;
-	    };
+	struct MyUnion {
+		union {
+			char m_c;
+			short m_s;
+			int m_i;
+		};
 	};
 
-	struct MyStruct: MyUnion
-	{
-	    long m_l;
+	struct MyStruct: MyUnion {
+		long m_l;
 	}
 
 Another distinction is needed to prevent unions from being used (intentionally or accidentally) from damaging Jancy meta-data such as virtual function tables or safe pointer validators.
@@ -83,14 +78,12 @@ This rule means, that the following code will **not compile**:
 
 .. code-block:: jnc
 
-	class MyClass
-	{
+	class MyClass {
 		// ...
 	}
 
-	union MyUnion
-	{
+	union MyUnion {
 		MyClass m_c;     // <-- error: non-POD
-	    char const* m_p; // <-- error: non-POD
-	    long m_a [2];
+		char const* m_p; // <-- error: non-POD
+		long m_a[2];
 	}

@@ -16,38 +16,34 @@ Jancy provides an elegant syntax for lazy initialization. Prefix the necessary p
 
 .. code-block:: jnc
 
-	foo ()
-	{
-	    once initialize ();
+	void foo() {
+		once initialize();
 
-	    // ...
+		// ...
 	}
 
 If your lazy initialization requires more than a single statement, enclose the entire block of your initialization code in a compound statement:
 
 .. code-block:: jnc
 
-	foo ()
-	{
-	    once
-	    {
-	        initializeTables ();
-	        initializeMaps ();
-	        initializeIo ();
+	void foo() {
+		once {
+			initializeTables();
+			initializeMaps();
+			initializeIo();
 
-	        // ...
-	    }
+			// ...
+		}
 
-	    // ...
+		// ...
 	}
 
 Jancy also provides a way to run the lazy initialization once per thread. Use **threadlocal once** to achieve this:
 
 .. code-block:: jnc
 
-	foo ()
-	{
-	    threadlocal once initializeThread ();
+	void foo() {
+		threadlocal once initializeThread();
 
-	    // ...
+		// ...
 	}

@@ -26,25 +26,22 @@ But more importantly, it allows creating bindings between *special items*, such 
 
 .. code-block:: jnc
 
-	opaque class EnumProperty: Property
-	{
-	    property m_value
-	    {
-	        variant autoget m_value;
-	        set (variant value);
-	        bindable alias m_onPropChanged = m_onChanged;
-	    }
+	opaque class EnumProperty: Property {
+		property m_value {
+			variant_t autoget m_value;
+			set(variant_t value);
+			bindable alias m_onPropChanged = m_onChanged;
+		}
 
-	    property m_currentIndex
-	    {
-	        size_t autoget m_value;
-	        set (size_t value);
-	        bindable alias m_onPropChanged = m_onChanged;
-	    }
+		property m_currentIndex {
+			size_t autoget m_value;
+			set(size_t value);
+			bindable alias m_onPropChanged = m_onChanged;
+		}
 
-	    event m_onChanged ();
+		event m_onChanged();
 
-	    // ...
+		// ...
 	}
 
 	alias p = very.long.qualified.identifier;
@@ -55,11 +52,10 @@ In the next example, we use the natural method name ``close`` and then define an
 
 .. code-block:: jnc
 
-	opaque class File
-	{
-	    // ...
+	opaque class File {
+		// ...
 
-	    void close ();
+		void close();
 
-	    alias dispose = close;
+		alias dispose = close;
 	}

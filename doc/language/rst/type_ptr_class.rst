@@ -18,24 +18,21 @@ Jancy provides built-in support for a special kind of class pointers: **"weak"**
 
 .. code-block:: jnc
 
-    class C1
-    {
-       //...
-    }
+	class C1 {
+		//...
+	}
 
-    foo ()
-    {
-       C1* c = new C1;
-       C1 weak* w = c;
+	void foo() {
+		C1* c = new C1;
+		C1 weak* w = c;
 
-       // if we lose a strong pointer before GC run, the object will be collected
+		// if we lose a strong pointer before GC run, the object will be collected
 
-       std.collectGarbage ();
+		std.collectGarbage();
 
-       c = w; // try to restore strong pointer
+		c = w; // try to restore strong pointer
 
-       if (c)
-       {
-           // the object is still alive
-       }
-    }
+		if (c) {
+			// the object is still alive
+		}
+	}

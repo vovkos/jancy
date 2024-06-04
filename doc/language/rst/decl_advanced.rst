@@ -37,7 +37,7 @@ A realistic example of a complex declaration could look like:
 
 .. code-block:: jnc
 
-	static int const* function* a [2] () = { foo, bar };
+	static int const* function* a[2]() = { foo, bar };
 
 Here ``static`` is a storage specifier, ``int`` is a type specifier, ``const`` and ``function`` are type modifiers, two ``*`` (asterisks) are pointer prefixes, ``a`` is a declarator name, ``[2]`` is a array suffix, ``()`` is a function suffix and ``= { foo, bar }`` is an initializer. This line declares a static variable ``a`` as an array of two elements of type "pointer to a function which takes no arguments and returns a const-pointer to ``int`` and initializes it with pointers to functions ``foo`` and ``bar``. Wheh! Seriously, it's much easier to read **the code itself** than its explanation.
 
@@ -45,19 +45,19 @@ C/C++ equivalent of the above example would look like:
 
 .. code-block:: jnc
 
-	static int const* (*a [2]) () = { foo, bar };
+	static int const* (*a[2])() = { foo, bar };
 
 Now, if we add one extra layer of function pointers, C/C++ falls short of declaring it in one go (you will receive **function returns function** error); Jancy syntax still allows to do so (not like that could be crucial in any realistic scenario; just a small demonstration of flexibility):
 
 .. code-block:: jnc
 
-	static int const* function* function* a [2] () (int);
+	static int const* function* function* a[2]()(int);
 
 There are no nested declarators in Jancy. Nested declarators in C/C++ emerged as a solution (and in my personal opinion, not an elegant one) to the problem of resolving ambiguities in complex pointer-to-function declarations. Like you just saw, Jancy uses a different approach with type modifiers ``function``, ``property``, ``array``:
 
 .. code-block:: jnc
 
-	int property* function* array* a [2] [3] ();
+	int property* function* array* a[2][3]();
 
 Here ``a`` is an array of three elements of type **pointer to array of two elements of type pointer to a function taking no arguments and returning a pointer to int property**. Speaking formally, the rules for reading Jancy declaration are as follows. First, you start unrolling declarator's pointer prefixes right-to-left. If type modifiers of a pointer prefix requires a suffix, you unroll the first suffix. After all pointer prefixes are unrolled, you unroll the remaining suffixes.
 
@@ -68,15 +68,14 @@ In reality, however, you are unlikely going to need mind-boggling declarations l
 	typedef double DoubleBinaryFunc (double, double);
 	DoubleBinaryFunc* funcPtr; // use new typedef to declare a variable
 
-	typedef int IntArray [10] [20];
-	IntArray foo ();  // use new typedef as a retval type
+	typedef int IntArray[10][20];
+	IntArray foo();  // use new typedef as a retval type
 
 There are other important differences with C/C++. In Jancy named type declaration is **not** a type specifier. The following code, perfectly valid in C/C++ will produce an error in Jancy:
 
 .. code-block:: jnc
 
-	struct Point
-	{
+	struct Point {
 		int m_x;
 		int m_y;
 	} point;
@@ -85,8 +84,7 @@ In Jancy you cannot declare a named type and immediatly use it to declare a vari
 
 .. code-block:: jnc
 
-	struct Point
-	{
+	struct Point {
 		int m_x;
 		int m_y;
 	}
@@ -99,32 +97,15 @@ Jancy does not require **declaration-before-usage** at global scope. Therefore, 
 
 .. code-block:: jnc
 
-	void foo ()
-	{
+	void foo() {
 		A a;
 		B b;
 	}
 
-	struct A
-	{
+	struct A {
 		B* m_b;
 	}
 
-	struct B
-	{
+	struct B {
 		A* m_a;
-	}
-
-It is allowed to omit type specifier; ``void`` type is assumed in this case. This is done to unify rules applied to declaration of normal functions and **special** functions like **constructors**, **destructors**, **setters** etc. In Jancy the following two declarations are equivalent:
-
-.. code-block:: jnc
-
-	void foo ()
-	{
-		//...
-	}
-
-	foo ()
-	{
-		//...
 	}

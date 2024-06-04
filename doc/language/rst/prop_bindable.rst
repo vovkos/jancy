@@ -20,45 +20,40 @@ Simple bindable property declaration syntax:
 
 	int autoget bindable property g_simpleProp;
 
-	g_simpleProp.set (int x)
-	{
-	    if (x == m_value)
-	        return;
+	g_simpleProp.set(int x) {
+		if (x == m_value)
+			return;
 
-	    m_value = x;
-	    m_onChanged (); // name of compiler-generated event is 'm_onChanged'
+		m_value = x;
+		m_onChanged(); // name of compiler-generated event is 'm_onChanged'
 	}
 
-	onPropChanged ()
-	{
-	    // ...
+	onPropChanged() {
+		// ...
 	}
 
-	int main ()
-	{
-	    // ...
+	int main() {
+		// ...
 
-	    bindingof (g_simpleProp) += onPropChanged;
-	    g_simpleProp = 100; // onPropChanged will get called
-	    g_simpleProp = 100; // onPropChanged will NOT get called
+		bindingof(g_simpleProp) += onPropChanged;
+		g_simpleProp = 100; // onPropChanged will get called
+		g_simpleProp = 100; // onPropChanged will NOT get called
 
-	    // ...
+		// ...
 	}
 
 Similar property declared using full syntax:
 
 .. code-block:: jnc
 
-	property g_prop
-	{
-	    autoget int m_x; // 'autoget' field implicitly makes property 'autoget'
-	    bindable event m_e (); //'bindable' event implicitly makes property 'bindable'
+	property g_prop {
+		autoget int m_x; // 'autoget' field implicitly makes property 'autoget'
+		bindable event m_e(); //'bindable' event implicitly makes property 'bindable'
 
-	    set (int x)
-	    {
-	        m_x = x;
-	        m_e ();
-	    }
+		set(int x) {
+			m_x = x;
+			m_e();
+		}
 	}
 
 Bindable Data
@@ -70,18 +65,16 @@ Jancy offers fully compiler-generated properties: getter, setter, back-up field 
 
 	int bindable g_data;
 
-	onDataChanged ()
-	{
-	    // ...
+	onDataChanged() {
+		// ...
 	}
 
-	int main ()
-	{
-	    // ...
+	int main() {
+		// ...
 
-	    bindingof (g_data) += onDataChanged;
-	    g_data = 100; // onDataChanged will get called
-	    g_data = 100; // onDataChanged will NOT get called
+		bindingof(g_data) += onDataChanged;
+		g_data = 100; // onDataChanged will get called
+		g_data = 100; // onDataChanged will NOT get called
 
-	    // ...
+		// ...
 	}

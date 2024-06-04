@@ -24,12 +24,11 @@ Declaring **functions** in Jancy is also similar to any C-family language:
 
 .. code-block:: jnc
 
-	void foo (
-	    int a,
-	    double b
-	    )
-	{
-	    // ...
+	void foo(
+		int a,
+		double b
+	) {
+		// ...
 	}
 
 This defines a function which return no value and takes two arguments of types ``int`` and ``double`` -- again, nothing unexpected here.
@@ -38,6 +37,6 @@ It's important to say a couple of words on **arrays**, however. In Java, C\#, D 
 
 .. code-block:: jnc
 
-	int a [10] [20];
+	int a[10][20];
 
 This declares a two-dimensional array of integers (10 rows and 20 columns) named ``a``. Now let's proceed to something more complex.

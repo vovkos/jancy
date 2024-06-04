@@ -20,13 +20,12 @@ Function redirection solves exactly this problem. Declare a function (it may be 
 
 .. code-block:: jnc
 
-	class Class
-	{
-	    destruct () = close;
+	class Class {
+		destruct() = close;
 
-	    close ();
+		close();
 
-	    void fn () = implementation0;
-	    void fn (int) = implementation1;
-	    void fn (double) = implementation2;
+		void fn() = implementation0;
+		void fn(int) = implementation1;
+		void fn(double) = implementation2;
 	}

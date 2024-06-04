@@ -16,52 +16,45 @@ Jancy offers a way to extend the functionality of existing classes with extensio
 
 .. code-block:: jnc
 
-	class C1
-	{
-	    protected int m_x;
+	class C1 {
+		protected int m_x;
 
-	    construct (int x)
-	    {
-	        printf ("C1.construct (%d)\n", x);
-	        m_x = x;
-	    }
+		construct(int x) {
+			printf("C1.construct(%d)\n", x);
+			m_x = x;
+		}
 
-	    foo ()
-	    {
-	        printf ("C1.foo () { m_x = %d }\n", m_x);
-	    }
+		void foo() {
+			printf("C1.foo() { m_x = %d }\n", m_x);
+		}
 	}
 
-	extension ExtC1: C1
-	{
-	    bar ()
-	    {
-	        // extension method has access to protected data
-	        printf ("C1 (extend).bar () { m_x = %d }\n", m_x);
-	    }
+	extension ExtC1: C1 {
+		void bar() {
+			// extension method has access to protected data
+			printf("C1 (extend).bar() { m_x = %d }\n", m_x);
+		}
 
-	    static baz ()
-	    {
-	        printf ("C1 (extend).baz ()\n");
-	    }
+		static void baz() {
+			printf("C1 (extend).baz()\n");
+		}
 
-	    // constructors cannot be part of extension namespace
-	    construct (double x); // error
+		// constructors cannot be part of extension namespace
+		construct(double x); // error
 
-	    // operator methods cannot be part of extension namespace
-	    int operator += (int x); // error
+		// operator methods cannot be part of extension namespace
+		int operator += (int x); // error
 
-	    // virtual methods cannot be part of extension namespace
-	    virtual baz (); // error
+		// virtual methods cannot be part of extension namespace
+		virtual baz(); // error
 	}
 
 	// entry point
 
-	int main ()
-	{
-	    C1 c (100);
-	    c.foo ();
-	    c.bar ();  // bar () is extension method
-	    C1.baz (); // baz () is static extension method
-	    return 0;
+	int main() {
+		C1 c (100);
+		c.foo();
+		c.bar();  // bar() is extension method
+		C1.baz(); // baz() is static extension method
+		return 0;
 	}

@@ -22,30 +22,26 @@ Simple syntax for declaring autoget property:
 
 	int autoget property g_simpleProp;
 
-	g_simpleProp.set (int x)
-	{
-	    m_value = x; // name of compiler-generated field is 'm_value'
+	g_simpleProp.set(int x) {
+		m_value = x; // name of compiler-generated field is 'm_value'
 	}
 
 The same property declared using full syntax:
 
 .. code-block:: jnc
 
-	property g_prop
-	{
-	    int autoget m_x; // 'autoget' field implicitly makes property 'autoget'
+	property g_prop {
+		int autoget m_x; // 'autoget' field implicitly makes property 'autoget'
 
-	    set (int x)
-	    {
-	        m_x = x;
-	    }
+		set(int x) {
+			m_x = x;
+		}
 
-	    // setters of autoget property can be overloaded
+		// setters of autoget property can be overloaded
 
-	    set (double x)
-	    {
-	        m_x = (int) x;
-	    }
+		set(double x) {
+			m_x = (int)x;
+		}
 	}
 
 Autoget and indexed property modifiers are mutually exclusive.

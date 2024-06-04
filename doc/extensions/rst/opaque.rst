@@ -16,53 +16,51 @@ When implementing the interaction between your Jancy script and the host C/C++ a
 
 .. code-block:: jnc
 
-	opaque class Serial
-	{
-	    uint_t autoget property m_baudRate;
-	    SerialFlowControl autoget property m_flowControl;
-	    uint_t autoget property m_dataBits; // typically 5..8
-	    SerialStopBits autoget property m_stopBits;
-	    SerialParity autoget property m_parity;
+	opaque class Serial {
+		uint_t autoget property m_baudRate;
+		SerialFlowControl autoget property m_flowControl;
+		uint_t autoget property m_dataBits; // typically 5..8
+		SerialStopBits autoget property m_stopBits;
+		SerialParity autoget property m_parity;
 
-	    // ...
+		// ...
 
-	    Serial* operator new ();
+		Serial* operator new();
 	}
 
 The corresponding C++ implementation class would look somewhat like this:
 
 .. code-block:: jnc
 
-	class Serial: public jnc::IfaceHdr
-	{
+	class Serial: public jnc::IfaceHdr {
 	public:
-	    JNC_BEGIN_CLASS ("io.Serial", ApiSlot_Serial)
-	        JNC_AUTOGET_PROPERTY ("m_baudRate",    &Serial::setBaudRate)
-	        JNC_AUTOGET_PROPERTY ("m_flowControl", &Serial::setFlowControl)
-	        JNC_AUTOGET_PROPERTY ("m_dataBits",    &Serial::setDataBits)
-	        JNC_AUTOGET_PROPERTY ("m_stopBits",    &Serial::setStopBits)
-	        JNC_AUTOGET_PROPERTY ("m_parity",      &Serial::setParity)
+		JNC_BEGIN_CLASS ("io.Serial", ApiSlot_Serial)
+			JNC_AUTOGET_PROPERTY ("m_baudRate",    &Serial::setBaudRate)
+			JNC_AUTOGET_PROPERTY ("m_flowControl", &Serial::setFlowControl)
+			JNC_AUTOGET_PROPERTY ("m_dataBits",    &Serial::setDataBits)
+			JNC_AUTOGET_PROPERTY ("m_stopBits",    &Serial::setStopBits)
+			JNC_AUTOGET_PROPERTY ("m_parity",      &Serial::setParity)
 
-	        // ...
+			// ...
 
-	        JNC_OPERATOR_NEW (&Serial::operatorNew)
-	    JNC_API_END_CLASS ()
+			JNC_OPERATOR_NEW (&Serial::operatorNew)
+		JNC_API_END_CLASS()
 
-	    uint_t m_baudRate;
-	    axl::io::SerialFlowControl m_flowControl;
-	    uint_t m_dataBits;
-	    axl::io::SerialStopBits m_stopBits;
-	    axl::io::SerialParity m_parity;
+		uint_t m_baudRate;
+		axl::io::SerialFlowControl m_flowControl;
+		uint_t m_dataBits;
+		axl::io::SerialStopBits m_stopBits;
+		axl::io::SerialParity m_parity;
 
-	    // ...
+		// ...
 
 	protected:
-	    // hidden implementation
+		// hidden implementation
 
-	    axl::io::Serial m_serial;
-	    mt::Lock m_ioLock;
-	    uint_t m_ioFlags;
-	    IoThread m_ioThread;
+		axl::io::Serial m_serial;
+		mt::Lock m_ioLock;
+		uint_t m_ioFlags;
+		IoThread m_ioThread;
 
 	};
 

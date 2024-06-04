@@ -18,23 +18,22 @@ Classic C-style curly-intializers:
 
 .. code-block:: jnc
 
-	int a [] = { 1, 2, 3 }
+	int a[] = { 1, 2, 3 }
 
 It's OK to skip elements leaving them zero-initialized:
 
 .. code-block:: jnc
 
-	int b [10] = { ,, 3, 4,,, 7 }
+	int b[10] = { ,, 3, 4,,, 7 }
 
 You can use both index- and name-based addressing:
 
 .. code-block:: jnc
 
-	struct Point
-	{
-	    int m_x;
-	    int m_y;
-	    int m_z;
+	struct Point {
+		int m_x;
+		int m_y;
+		int m_z;
 	}
 
 	Point point = { 10, m_z = 30 };
@@ -57,7 +56,7 @@ Also, when initializing char arrays, you can mix string literals in:
 
 .. code-block:: jnc
 
-	char buffer [] = {
+	char buffer[] = {
 		10,
 		20,
 		"null-terminated",
@@ -65,4 +64,4 @@ Also, when initializing char arrays, you can mix string literals in:
 		r"\non\null\terminated\",
 		40,
 		0x"ab cd ef"
-		}
+	}

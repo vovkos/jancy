@@ -22,44 +22,41 @@ A function marked by the ``errorcode`` modifier will have its return value inter
 
 .. ref-code-block:: jnc
 
-	bool errorcode bar (
-	    int a,
-	    int b
-	    )
-	{
-	    printf ("bar (%d, %d)\n", a, b);
+	bool errorcode bar(
+		int a,
+		int b
+	) {
+		printf("bar(%d, %d)\n", a, b);
 
-	    if (a > b)
-	        return false; // fail
+		if (a > b)
+			return false; // fail
 
-	    // ...
+		// ...
 
-	    return true;
+		return true;
 	}
 
-	int foo ()
-	{
-	    // use 'try' operator to handle the error code manually...
+	int foo() {
+		// use 'try' operator to handle the error code manually...
 
-	    bool result = try bar (1, -150);
-	    if (!result)
-	    {
-	        printf ("bar failed\n");
-	        // handle the error...
-	    }
+		bool result = try bar(1, -150);
+		if (!result) {
+			printf("bar failed\n");
+			// handle the error...
+		}
 
-	    bar (2, 3);
-	    bar (5, 4); // will fail
+		bar(2, 3);
+		bar(5, 4); // will fail
 
-	    // ...
+		// ...
 
-	    return 0;
+		return 0;
 
-	    // ...or use the 'catch' label to handle it in with exception semantics
+		// ...or use the 'catch' label to handle it in with exception semantics
 
 	catch:
-	    printf ("exception was caught\n");
-	    return -1;
+		printf("exception was caught\n");
+		return -1;
 	}
 
 Note that the both ``try`` and ``catch`` constructs will also properly handle other, non-``errorcode`` exceptions, such as ``null`` pointer access, division by zero and so on.

@@ -331,7 +331,7 @@ Another common pattern is a pointer field which *inherits mutability* from its c
 
 	struct ListEntry {
 		ListEntry cmut* m_next;
-		variant m_value;
+		variant_t m_value;
 	}
 
 The ``cmut`` modifier must be used on the type of a member -- field, method, property. The meaning of ``cmut`` then depends on whether the container is *mutable*:
