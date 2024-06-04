@@ -48,12 +48,12 @@ class JancyLexer(RegexLexer):
                 'import',
                 'namespace',
                 'extension',
-                'dynamiclib',
+                'dylib',
                 'using',
                 'friend',
                 'public',
                 'protected',
-                'alignment',
+                'pragma',
                 'setas',
 
                 'typedef',
@@ -65,6 +65,7 @@ class JancyLexer(RegexLexer):
                 'override',
                 'mutable',
                 'disposable',
+                'dyfield',
 
                 'unsigned',
                 'bigendian',
@@ -92,10 +93,8 @@ class JancyLexer(RegexLexer):
                 'reactor',
                 'async',
 
-                'auto',
                 'anydata',
                 'void',
-                'variant',
                 'bool',
                 'int',
                 'intptr',
@@ -110,7 +109,6 @@ class JancyLexer(RegexLexer):
                 'union',
                 'class',
                 'opaque',
-                'exposed',
                 'bitflag',
 
                 'get',
