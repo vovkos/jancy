@@ -109,7 +109,7 @@ class DynamicLib {
 	}
 
 	/**
-		Opens(loads)a dynamic library.
+		Opens (loads) a dynamic library.
 
 		The function accepts a single ``fileName`` argument, which specifies the
 		name of the library-containing file.
@@ -122,7 +122,7 @@ class DynamicLib {
 	bool errorcode open(string_t fileName);
 
 	/**
-		Closes(releases)a previously loaded dynamic library, does nothing if
+		Closes (releases) a previously loaded dynamic library, does nothing if
 		no library is loaded. This function always succeeds.
 
 		Sometimes it may be convenient to use *disposable* pattern to ensure

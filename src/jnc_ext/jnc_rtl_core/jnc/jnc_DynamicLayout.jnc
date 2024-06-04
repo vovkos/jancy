@@ -13,7 +13,7 @@ import "std_Buffer.jnc"
 
 namespace jnc {
 
-//! \addtogroup rtl-dynamic-layout
+//! \addtogroup rtl-core
 //! @{
 
 //..............................................................................

@@ -108,14 +108,14 @@ void
 JNC_CDECL
 TestStruct::construct_0(jnc::DataPtr selfPtr) {
 	TestStruct* self = (TestStruct*)selfPtr.m_p;
-	printf("TestStruct::construct () { m_x = %d, m_y = %f }\n", self->m_x, self->m_y);
+	printf("TestStruct::construct() { m_x = %d, m_y = %f }\n", self->m_x, self->m_y);
 }
 
 void
 JNC_CDECL
 TestStruct::construct_1(jnc::DataPtr selfPtr, int x) {
 	TestStruct* self = (TestStruct*)selfPtr.m_p;
-	printf("TestStruct::construct (int x = %d) { m_x = %d, m_y = %f }\n", x, self->m_x, self->m_y);
+	printf("TestStruct::construct(int x = %d) { m_x = %d, m_y = %f }\n", x, self->m_x, self->m_y);
 	self->m_x = x;
 }
 
@@ -123,7 +123,7 @@ void
 JNC_CDECL
 TestStruct::construct_2(jnc::DataPtr selfPtr, double y) {
 	TestStruct* self = (TestStruct*)selfPtr.m_p;
-	printf("TestStruct::construct (double y = %f) { m_x = %d, m_y = %f }\n", y, self->m_x, self->m_y);
+	printf("TestStruct::construct(double y = %f) { m_x = %d, m_y = %f }\n", y, self->m_x, self->m_y);
 	self->m_y = y;
 }
 

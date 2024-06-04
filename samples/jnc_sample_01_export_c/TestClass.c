@@ -41,7 +41,7 @@ TestClass_construct(
 	TestClass* self,
 	int value
 ) {
-	printf("  TestClass_construct (%d)\n", value);
+	printf("  TestClass_construct(%d)\n", value);
 
 	self->m_internalValue = value;
 	sprintf(self->m_internalData, "TestClass (%p)", self);

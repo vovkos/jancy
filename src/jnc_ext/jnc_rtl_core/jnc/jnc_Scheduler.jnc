@@ -27,7 +27,7 @@ namespace jnc {
 	approach:
 
 	1) allocate some struct;
-	2) use it to store IO completion event parameters(e.g. completion status,
+	2) use it to store IO completion event parameters (e.g. completion status,
 	   received data size, remote node address etc);
 	3) add this struct to some *request* list;
 	4) send some kind of UI message to wake up the main thread;
