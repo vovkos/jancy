@@ -779,7 +779,7 @@ WARN_LOGFILE           = ${CMAKE_CURRENT_BINARY_DIR}/doxygen-warn.log
 # Note: If this tag is empty the current directory is searched.
 
 INPUT = \
-	${JANCY_INC_DIR} \
+	${JANCY_ROOT_DIR}/include \
 	${CMAKE_CURRENT_LIST_DIR}/dox
 
 # This tag can be used to specify the character encoding of the source files
