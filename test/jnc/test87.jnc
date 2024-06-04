@@ -2,7 +2,7 @@ struct Foo {
 	alias dispose = close;
 
 	construct() {
-		printf("Foo.construct (%p)\n", this);
+		printf("Foo.construct(%p)\n", this);
 	}
 
 	void close() {
@@ -14,7 +14,7 @@ class Bar {
 	alias dispose = close;
 
 	construct() {
-		printf("Bar.construct (%p)\n", this);
+		printf("Bar.construct(%p)\n", this);
 	}
 
 	void close() {

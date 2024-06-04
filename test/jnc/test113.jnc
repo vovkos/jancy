@@ -39,7 +39,7 @@ class C {
 	);
 
 	construct() {
-		printf("C.construct (this: %p)\n", this);
+		printf("C.construct(this: %p)\n", this);
 	}
 
 	reactor m_reactor {

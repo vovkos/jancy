@@ -13,7 +13,7 @@ struct A {
 	int m_x;
 
 	construct(int x) {
-		printf("A.construct (%d)\n", x);
+		printf("A.construct(%d)\n", x);
 		m_x = x;
 	}
 }

@@ -10,7 +10,7 @@
 //..............................................................................
 
 construct() {
-	printf("utils.jnc.construct ()\n");
+	printf("utils.jnc.construct()\n");
 }
 
 destruct() {

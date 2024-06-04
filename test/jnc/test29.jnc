@@ -17,11 +17,11 @@ class C1 {
 	}
 
 	static construct() {
-		printf("C1.static construct ()\n");
+		printf("C1.static construct()\n");
 	}
 
 	construct() {
-		printf("C1.construct ()\n");
+		printf("C1.construct()\n");
 	}
 
 	void foo() {

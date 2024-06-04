@@ -12,7 +12,7 @@
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 int main() {
-//	printf ("main ()\n");
+//	printf("main ()\n");
 
 	void const* p = "suka";
 	void const* end = p + 4;

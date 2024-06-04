@@ -19,7 +19,7 @@ class C1 {
 	int m_x;
 
 	construct(int x) {
-		printf("C1.construct (%d)\n", x);
+		printf("C1.construct(%d)\n", x);
 		m_x = x;
 	}
 }

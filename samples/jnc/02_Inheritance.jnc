@@ -29,7 +29,7 @@ class I1 {
 
 class C1: I1 {
 	construct(int a) {
-		printf("C1.construct (%d)\n", a);
+		printf("C1.construct(%d)\n", a);
 	}
 
 	override void foo() {
@@ -52,7 +52,7 @@ class I2 {
 
 class C2: I2 {
 	construct(int a) {
-		printf("C2.construct (%d)\n", a);
+		printf("C2.construct(%d)\n", a);
 	}
 
 	override void bar() {
@@ -121,7 +121,7 @@ C3.construct(int a) {
 
 	C2.construct(a * 100);
 
-	printf("C3.construct (%d)\n", a);
+	printf("C3.construct(%d)\n", a);
 }
 
 // it's OK to use storage specifier in an out-of-class method implementation

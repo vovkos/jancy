@@ -26,7 +26,7 @@ class C1 {
 	int m_x;
 
 	construct() {
-		printf("C1.construct ()\n");
+		printf("C1.construct()\n");
 		m_x = rand() % 10;
 	}
 }

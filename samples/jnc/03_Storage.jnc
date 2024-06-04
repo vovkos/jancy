@@ -27,7 +27,7 @@ class C1 {
 	// threadlocal int m_threadField3 [4]; // <-- error
 
 	construct(int x) {
-		printf("C1.construct (%d)\n", x);
+		printf("C1.construct(%d)\n", x);
 		m_memberField = x;
 	}
 
@@ -50,7 +50,7 @@ class C2 {
 
 		m_classField.construct(x);
 
-		printf("C2.construct (%d)\n", x);
+		printf("C2.construct(%d)\n", x);
 	}
 
 	destruct() {

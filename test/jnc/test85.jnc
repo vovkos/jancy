@@ -1,7 +1,7 @@
 import "utils.jnc"
 
 construct() {
-	printf("module.construct ()\n");
+	printf("module.construct()\n");
 }
 
 destruct() {

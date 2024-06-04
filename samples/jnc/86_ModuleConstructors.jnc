@@ -16,7 +16,7 @@
 
 class C1 {
 	construct() {
-		printf("C1.construct ()\n");
+		printf("C1.construct()\n");
 	}
 
 	destruct() {
@@ -43,7 +43,7 @@ int foo() {
 // constructed and initialized
 
 construct() {
-	printf("module.construct ()\n");
+	printf("module.construct()\n");
 }
 
 // the module destructor is called before the destruction of static variables

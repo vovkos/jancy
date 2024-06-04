@@ -18,7 +18,7 @@ class C1 {
 	int m_x = -1;
 
 	construct() {
-		printf("C1.construct ()\n");
+		printf("C1.construct()\n");
 	}
 
 	void foo(

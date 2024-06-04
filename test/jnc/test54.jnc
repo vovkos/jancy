@@ -23,7 +23,7 @@ class Foo {
 	) {
 		m_tid = tid;
 		m_oid = oid;
-		printf("Foo.construct (this = %x) { m_tid =  %d; m_oid = %d; } \n", this, m_tid, m_oid);
+		printf("Foo.construct(this = %x) { m_tid =  %d; m_oid = %d; } \n", this, m_tid, m_oid);
 	}
 
 	destruct() {

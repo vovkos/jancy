@@ -19,7 +19,7 @@ class C1 {
 	protected int m_x;
 
 	construct(int x) {
-		printf("C1.construct (%d)\n", x);
+		printf("C1.construct(%d)\n", x);
 		m_x = x;
 	}
 }
@@ -52,7 +52,7 @@ extension C1Ext: C1 {
 	// constructors and operators theoretically can be added, but this is not
 	// currently supported -- only named methods and properties for now
 
-	// construct (double x);    // <-- error
+	// construct(double x);    // <-- error
 	// int operator += (int x); // <-- error
 }
 

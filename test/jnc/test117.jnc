@@ -4,7 +4,7 @@ class C {
 	std.HashTable m_hashTable;
 
 	construct() {
-		printf("C.construct (%p)\n", this);
+		printf("C.construct(%p)\n", this);
 	}
 
 	destruct() {
@@ -27,5 +27,5 @@ int main() {
 }
 
 construct() {
-	printf("module.construct ()\n");
+	printf("module.construct()\n");
 }

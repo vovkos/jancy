@@ -17,7 +17,7 @@
 
 class C1 {
 	construct() {
-		printf("C1.construct ()\n");
+		printf("C1.construct()\n");
 	}
 
 	destruct() {

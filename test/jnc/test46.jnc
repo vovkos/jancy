@@ -13,7 +13,7 @@ import "utils.jnc";
 
 class C1 {
 	construct() {
-		printf("C1.construct ()\n");
+		printf("C1.construct()\n");
 	}
 
 	destruct() {
@@ -25,7 +25,7 @@ class C2 {
 	C1 m_c1;
 
 	construct() {
-		printf("C2.construct ()\n");
+		printf("C2.construct()\n");
 	}
 
 	destruct() {

@@ -5,7 +5,7 @@ int g_objectCount;
 
 class A {
 	construct() {
-		printf("A.construct (%p)\n", this);
+		printf("A.construct(%p)\n", this);
 		g_objectCount++;
 	}
 
@@ -19,7 +19,7 @@ class B: A {
 	A m_a;
 
 	construct() {
-		printf("B.construct (%p)\n", this);
+		printf("B.construct(%p)\n", this);
 		g_objectCount++;
 	}
 

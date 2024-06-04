@@ -18,11 +18,11 @@ class C1 {
 		int m_py = 200;
 
 		static construct() {
-			printf("C1.m_prop.static construct () { m_x = %d, m_px = %d }\n", m_x, m_px);
+			printf("C1.m_prop.static construct() { m_x = %d, m_px = %d }\n", m_x, m_px);
 		}
 
 		construct() {
-			printf("C1.m_prop.construct () { m_x = %d, m_y = %d, m_px = %d, m_py = %d  }\n", m_x, m_y, m_px, m_py);
+			printf("C1.m_prop.construct() { m_x = %d, m_y = %d, m_px = %d, m_py = %d  }\n", m_x, m_y, m_px, m_py);
 		}
 
 		destruct() {
@@ -35,11 +35,11 @@ class C1 {
 	}
 
 	static construct() {
-		printf("C1.static construct () { m_x = %d }\n", m_x);
+		printf("C1.static construct() { m_x = %d }\n", m_x);
 	}
 
 	construct() {
-		printf("C1.construct () { m_x = %d, m_y = %d }\n", m_x, m_y);
+		printf("C1.construct() { m_x = %d, m_y = %d }\n", m_x, m_y);
 	}
 
 	destruct() {

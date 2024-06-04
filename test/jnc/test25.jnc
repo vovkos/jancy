@@ -14,7 +14,7 @@ class OpaqueTest {
 		int x,
 		int y
 	) {
-		printf("OpaqueTest.construct (%d, %d)\n", x, y);
+		printf("OpaqueTest.construct(%d, %d)\n", x, y);
 	}
 
 	void foo() {

@@ -11,7 +11,7 @@
 
 class Resource {
 	construct() {
-		printf("Resource.construct (%p)\n", this);
+		printf("Resource.construct(%p)\n", this);
 	}
 
 	destruct() {

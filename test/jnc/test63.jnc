@@ -11,7 +11,7 @@
 
 class C {
 	construct() {
-		printf("C.construct (%p)\n", this);
+		printf("C.construct(%p)\n", this);
 	}
 
 	destruct() {
