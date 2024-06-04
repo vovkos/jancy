@@ -52,11 +52,19 @@
 
 	This section describes facilities for the in-language regular expressions.
 
+\defgroup rtl-dylayout
+
+	\title Dynamic Layouts
+	\ingroup rtl
+	\grouporder 5
+
+	This section describes dynamic layout types and facilities.
+
 \defgroup rtl-intro
 
 	\title Introspection
 	\ingroup rtl
-	\grouporder 5
+	\grouporder 6
 
 	This section describes facilities for the introspection (i.e., the
 	ability to inspect a program's structure during *runtime*).
