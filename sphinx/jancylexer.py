@@ -156,6 +156,7 @@ class JancyLexer(RegexLexer):
                 'nestedscope',
                 'assert',
                 'await',
+                'dylayout',
 
                 'basetype',
                 'basetype1',
