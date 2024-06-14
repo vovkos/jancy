@@ -12,7 +12,6 @@
 import "jnc_ct_Decl.llk";
 import "jnc_ct_Expr.llk";
 import "jnc_ct_Stmt.llk";
-import "jnc_ct_Reactor.llk";
 import "jnc_ct_DeclarationSpecifier.llk";
 import "jnc_ct_Declarator.llk";
 import "jnc_ct_NamedTypeSpecifier.llk";
@@ -49,7 +48,6 @@ public:
 	enum Mode {
 		Mode_Parse,    // parsing declarations (global/namespaces/type members)
 		Mode_Compile,  // compiling statements and expressions
-		Mode_Reaction, // compiling the 'reaction' method of a reactor (w/ implicit bindings)
 	};
 
 	enum AttributeBlockState {
@@ -134,14 +132,13 @@ public:
 	DerivableType* m_constructorType;
 	Property* m_constructorProperty;
 	ReactorClassType* m_reactorType;
-	Value m_reactionIdxArgValue;
 	Value m_curlyInitializerTargetValue;
 
 public:
 	Parser(
 		Module* module,
-		const PragmaConfig* pragmaConfig = NULL,
-		Mode mode = Mode_Parse
+		const PragmaConfig* pragmaConfig,
+		Mode mode
 	);
 
 	const PragmaConfig*
@@ -438,7 +435,7 @@ protected:
 	declareNamedAttributeBlock(Declarator* declarator);
 
 	bool
-	declareInReaction(Declarator* declarator);
+	declareInReactor(Declarator* declarator);
 
 	GlobalNamespace*
 	declareGlobalNamespace(
@@ -562,12 +559,6 @@ protected:
 
 	bool
 	parseLastPropertyBody(sl::List<Token>* body);
-
-	bool
-	addReactionBinding(const Value& value);
-
-	bool
-	resetReactionBindings();
 
 	bool
 	reactorOnEventStmt(

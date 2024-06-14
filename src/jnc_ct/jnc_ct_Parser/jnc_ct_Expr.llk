@@ -133,7 +133,6 @@ expression_or_empty_list_save_list
 struct {
 	Value m_value;
 }
-start
 expression
 	enter {
 		m_module->m_namespaceMgr.setSourcePos(m_tokenCursor->m_pos);
@@ -144,7 +143,22 @@ expression
 struct {
 	Value m_value;
 }
-start
+reactive_expression
+	enter {
+		m_module->m_namespaceMgr.setSourcePos(m_tokenCursor->m_pos);
+		if (m_module->m_controlFlowMgr.isReactor())
+			m_module->m_controlFlowMgr.enterReactiveExpression();
+	}
+	leave {
+		if (m_module->m_controlFlowMgr.isReactor())
+			m_module->m_controlFlowMgr.leaveReactiveExpression();
+	}
+	:	conditional_expr<&$.m_value>
+	;
+
+struct {
+	Value m_value;
+}
 expression_0
 	enter {
 		m_module->m_controlFlowMgr.lockEmission();
@@ -225,10 +239,8 @@ start
 constant_expr
 	:	conditional_expr<&$.m_value>
 			{
-				if ($.m_value.getValueKind() != ValueKind_Const) {
-					err::setFormatStringError("not a constant expression");
-					return false;
-				}
+				if ($.m_value.getValueKind() != ValueKind_Const)
+					return err::fail("not a constant expression");
 			}
 	;
 
@@ -240,10 +252,9 @@ constant_integer_expr
 	:	expression
 			{
 				if ($1.m_value.getValueKind() != ValueKind_Const ||
-					!($1.m_value.getType()->getTypeKindFlags() & TypeKindFlag_Integer)) {
-					err::setFormatStringError("expression is not integer constant");
-					return false;
-				}
+					!($1.m_value.getType()->getTypeKindFlags() & TypeKindFlag_Integer)
+				)
+					return err::fail("expression is not integer constant");
 
 				bool result = m_module->m_operatorMgr.castOperator(&$1.m_value, TypeKind_Int64);
 				if (!result)
@@ -541,10 +552,6 @@ assignment_operator_expr<Value* $value>
 	local {
 		Value $opValue2;
 	}
-	enter {
-		if (m_mode == Mode_Reaction)  // reset on assignment (actually, not sure if it's the right thing to do)
-			return resetReactionBindings();
-	}
 	:	assignment_operator $o conditional_expr<&$opValue2>
 			{
 				return m_module->m_operatorMgr.binaryOperator($o.m_opKind, $value, $opValue2);
@@ -616,10 +623,6 @@ unary_expr<Value* $value>
 	;
 
 unary_operator_expr<Value* $value>
-	leave {
-		if (m_mode == Mode_Reaction && isBindableType($value->getType()))
-			return addReactionBinding(*$value);
-	}
 	:	'+' unary_expr<$value>
 			{
 				return m_module->m_operatorMgr.unaryOperator(UnOpKind_Plus, $value);
@@ -741,10 +744,6 @@ postfix_expr<Value* $value>
 	;
 
 postfix_operator<Value* $value>
-	leave {
-		if (m_mode == Mode_Reaction && isBindableType($value->getType()))
-			return addReactionBinding(*$value);
-	}
 	:	'(' $l
 			{
 				m_module->m_codeAssistMgr.pushArgumentTipIf($l.m_pos, *$value);
@@ -810,10 +809,6 @@ member_operator<Value* $value>
 // otherwise member operators could not be applied (typeof(int).m_size)
 
 primary_expr<Value* $value>
-	leave {
-		if (m_mode == Mode_Reaction && isBindableType($value->getType()))
-			return addReactionBinding(*$value);
-	}
 	:	'(' conditional_expr<$value> ')'
 	|	literal<$value>
 	|	TokenKind_BaseType
@@ -969,10 +964,8 @@ curly_initializer
 	}
 	:	'{' curly_initializer_item<&$initializer> (',' curly_initializer_item<&$initializer>)* '}'
 			{
-				if (!$initializer.m_count) {
-					err::setFormatStringError("empty curly initializer");
-					return false;
-				}
+				if (!$initializer.m_count)
+					return err::fail("empty curly initializer");
 			}
 	;
 

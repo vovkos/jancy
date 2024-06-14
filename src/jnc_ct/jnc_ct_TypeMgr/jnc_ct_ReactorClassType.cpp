@@ -30,7 +30,6 @@ getReactorMethod(
 		"restart",                 // ReactorMethod_Restart,
 		"!addOnChangedBinding",    // ReactorMethod_AddOnChangedBinding,
 		"!addOnEventBinding",      // ReactorMethod_AddOnEventBinding,
-		"!resetOnChangedBindings", // ReactorMethod_ResetOnChangedBindings,
 	};
 
 	ASSERT(method < countof(nameTable));
@@ -50,7 +49,7 @@ ReactorClassType::ReactorClassType() {
 	m_parentType = NULL;
 	m_parentOffset = 0;
 	m_reactionCount = 0;
-	m_reaction = NULL;
+	m_reactor = NULL;
 }
 
 bool
@@ -59,7 +58,7 @@ ReactorClassType::calcLayout() {
 		err::setFormatStringError("reactor '%s' has no body", getQualifiedName().sz());
 		return false;
 	}
-
+/*
 	// scan for declarations and count reactions
 
 	m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
@@ -67,7 +66,7 @@ ReactorClassType::calcLayout() {
 	Parser parser(m_module, m_pragmaConfig, Parser::Mode_Compile);
 	parser.m_reactorType = this;
 
-	Function* prevFunction = m_module->m_functionMgr.setCurrentFunction(m_reaction); // we need some method for OperatorMgr::getThisValueType to work
+	Function* prevFunction = m_module->m_functionMgr.setCurrentFunction(m_reactorFunction); // we need some method for OperatorMgr::getThisValueType to work
 
 	ParseContext parseContext(m_module, m_parentUnit, this);
 	bool result =
@@ -76,7 +75,9 @@ ReactorClassType::calcLayout() {
 
 	m_module->m_functionMgr.setCurrentFunction(prevFunction);
 	m_reactionCount = parser.getReactionCount();
-	return result;
+	return result; */
+
+	return ClassType::calcLayout();
 }
 
 bool
@@ -88,13 +89,13 @@ ReactorClassType::prepareForOperatorNew() {
 	// explicitly mark Reactor.reaction for compilation as we don't call it directly
 	// it's called from RTL in rtl::ReactorImpl::reactionLoop
 
-	m_module->markForCompile(m_reaction);
+	m_module->markForCompile(m_reactor);
 	return true;
 }
 
 bool
-ReactorClassType::compileReaction(Function* function) {
-	ASSERT(function == m_reaction);
+ReactorClassType::compile(Function* function) {
+	ASSERT(function == m_reactor);
 	ASSERT(!m_body.isEmpty());
 
 	ParseContext parseContext(m_module, m_parentUnit, this);
@@ -102,11 +103,13 @@ ReactorClassType::compileReaction(Function* function) {
 	Value argValueArray[2];
 	m_module->m_functionMgr.internalPrologue(function, argValueArray, countof(argValueArray), &m_bodyPos);
 
-	Parser parser(m_module, m_pragmaConfig, Parser::Mode_Reaction);
+	Parser parser(m_module, m_pragmaConfig, Parser::Mode_Compile);
 	parser.m_reactorType = this;
-	parser.m_reactionIdxArgValue = argValueArray[1];
 
-	bool result = parser.parseBody(SymbolKind_reactor_body, m_bodyPos, m_body);
+	m_module->m_controlFlowMgr.enterReactor(this, argValueArray[1]);
+	bool result = parser.parseBody(SymbolKind_compound_stmt, m_bodyPos, m_body);
+	m_module->m_controlFlowMgr.leaveReactor();
+
 	if (!result)
 		return false;
 

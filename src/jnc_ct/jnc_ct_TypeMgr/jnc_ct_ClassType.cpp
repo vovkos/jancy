@@ -129,6 +129,7 @@ ClassType::addMethod(Function* function) {
 
 	switch (functionKind) {
 	case FunctionKind_Internal:
+	case FunctionKind_Reactor:
 		return true;
 
 	case FunctionKind_StaticConstructor:

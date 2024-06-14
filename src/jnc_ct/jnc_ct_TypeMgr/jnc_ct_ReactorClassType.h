@@ -24,7 +24,6 @@ enum ReactorMethod {
 	ReactorMethod_Restart,
 	ReactorMethod_AddOnChangedBinding,
 	ReactorMethod_AddOnEventBinding,
-	ReactorMethod_ResetOnChangedBindings,
 	ReactorMethod__Count,
 };
 
@@ -41,15 +40,21 @@ getReactorMethod(
 class ReactorClassType: public ClassType {
 	friend class TypeMgr;
 	friend class ClassType;
+	friend class ControlFlowMgr;
 	friend class Parser;
 
 protected:
-	class Reaction: public CompilableFunction {
+	class Reactor: public CompilableFunction {
 	public:
+		Reactor() {
+			m_functionKind = FunctionKind_Reactor;
+			m_flags |= ModuleItemFlag_User;
+		}
+
 		virtual
 		bool
 		compile() {
-			return ((ReactorClassType*)m_parentNamespace)->compileReaction(this);
+			return ((ReactorClassType*)m_parentNamespace)->compile(this);
 		}
 	};
 
@@ -57,7 +62,7 @@ protected:
 	ClassType* m_parentType;
 	size_t m_parentOffset;
 	size_t m_reactionCount;
-	Function* m_reaction;
+	Function* m_reactor;
 	sl::SimpleHashTable<size_t, Function*> m_onEventMap;
 
 public:
@@ -79,8 +84,8 @@ public:
 	}
 
 	Function*
-	getReaction() {
-		return m_reaction;
+	getReactor() {
+		return m_reactor;
 	}
 
 	void
@@ -118,7 +123,7 @@ protected:
 	prepareForOperatorNew();
 
 	bool
-	compileReaction(Function* function);
+	compile(Function* function);
 };
 
 //..............................................................................

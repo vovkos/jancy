@@ -13,6 +13,7 @@
 #include "jnc_ct_OperatorMgr.h"
 #include "jnc_ct_Module.h"
 #include "jnc_ct_ArrayType.h"
+#include "jnc_ct_ReactorClassType.h"
 #include "jnc_rtl_DynamicLayout.h"
 
 namespace jnc {
@@ -1313,6 +1314,12 @@ OperatorMgr::prepareOperand_propertyRef(
 
 		PropertyType* targetType = ptrType->getTargetType();
 		if (!targetType->isIndexed()) {
+			if ((targetType->getFlags() & PropertyTypeFlag_Bindable) && m_module->m_controlFlowMgr.isReactiveExpression()) {
+				bool result = addReactorBinding(*value);
+				if (!result)
+					return false;
+			}
+
 			bool result = getProperty(value);
 			if (!result)
 				return false;

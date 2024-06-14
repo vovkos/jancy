@@ -295,7 +295,7 @@ Module::parseImpl(
 	result = true;
 	bool isEof;
 
-	Parser parser(this);
+	Parser parser(this, NULL, Parser::Mode_Parse);
 	parser.create(fileName, Parser::StartSymbol);
 
 	CodeAssistKind codeAssistKind = m_codeAssistMgr.getCodeAssistKind();

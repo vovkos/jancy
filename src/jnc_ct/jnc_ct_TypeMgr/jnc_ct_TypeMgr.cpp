@@ -1069,12 +1069,15 @@ TypeMgr::getMulticastType(FunctionPtrType* functionPtrType) {
 ClassType*
 TypeMgr::createReactorBaseType() {
 	Type* voidType = getPrimitiveType(TypeKind_Void);
-	Type* eventPtrType = getStdType(StdType_SimpleEventPtr);
-	Type* abstractPtrType = getStdType(StdType_AbstractClassPtr); // onevent statement can have different event types
+	Type* sizeType = getPrimitiveType(TypeKind_SizeT);
+
+	// onevent statement can have different event types
+	Type* addOnEventBindingTypeArgTypeArray[] = { sizeType, getStdType(StdType_AbstractClassPtr) };
+	Type* addOnChangedBindingArgTypeArray[] = { sizeType, getStdType(StdType_SimpleEventPtr) };
 
 	FunctionType* simpleFunctionType = (FunctionType*)getStdType(StdType_SimpleFunction);
-	FunctionType* addOnChangedBindingType = getFunctionType(voidType, &eventPtrType, 1);
-	FunctionType* addOnEventBindingType = getFunctionType(voidType, &abstractPtrType, 1);
+	FunctionType* addOnChangedBindingType = getFunctionType(voidType, addOnChangedBindingArgTypeArray, 2);
+	FunctionType* addOnEventBindingType = getFunctionType(voidType, addOnEventBindingTypeArgTypeArray, 2);
 
 	ClassType* type = createClassType("ReactorBase", "jnc.ReactorBase", 8, ClassTypeFlag_Opaque);
 	type->m_namespaceStatus = NamespaceStatus_Ready;
@@ -1093,7 +1096,6 @@ TypeMgr::createReactorBaseType() {
 	type->createMethod("restart", simpleFunctionType);
 	type->createMethod("!addOnChangedBinding", addOnChangedBindingType);
 	type->createMethod("!addOnEventBinding", addOnEventBindingType);
-	type->createMethod("!resetOnChangedBindings", simpleFunctionType);
 
 	return type;
 }
@@ -1110,22 +1112,20 @@ TypeMgr::createReactorType(
 
 	Type* voidType = getPrimitiveType(TypeKind_Void);
 	Type* sizeType = getPrimitiveType(TypeKind_SizeT);
-	FunctionType* reactionType;
+	FunctionType* reactorFunctionType;
 
-	if (!parentType) {
-		reactionType = getFunctionType(voidType, (Type**)&sizeType, 1);
-	} else {
+	if (!parentType)
+		reactorFunctionType = getFunctionType(voidType, (Type**)&sizeType, 1);
+	else {
 		Type* argTypeArray[] = {
 			parentType->getClassPtrType(ClassPtrTypeKind_Normal, PtrTypeFlag_Safe),
 			sizeType
 		};
 
-		reactionType = getFunctionType(voidType, argTypeArray, 2);
+		reactorFunctionType = getFunctionType(voidType, argTypeArray, 2);
 	}
 
-	type->m_reaction = type->createMethod<ReactorClassType::Reaction>("!reaction", reactionType);
-    type->m_reaction->m_flags |= ModuleItemFlag_User; // reactions use the body of the parent reactor
-
+	type->m_reactor = type->createMethod<ReactorClassType::Reactor>("!react", reactorFunctionType);
 	getStdType(StdType_ReactorClosure); // ensure closure type is created
 	return type;
 }
@@ -1921,7 +1921,7 @@ TypeMgr::parseStdType(
 	Unit* prevUnit = m_module->m_unitMgr.setCurrentUnit(unit);
 	ASSERT(prevUnit);
 
-	Parser parser(m_module);
+	Parser parser(m_module, NULL, Parser::Mode_Parse);
 	parser.create(fileName, SymbolKind_named_type_specifier_save_type);
 #if (_LLK_RANDOM_ERRORS)
 	parser.disableRandomErrors();

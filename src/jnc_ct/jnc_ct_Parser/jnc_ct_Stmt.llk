@@ -79,7 +79,6 @@ statement
 		m_module->m_namespaceMgr.setSourcePos(m_tokenCursor->m_pos);
 	}
 	:	compound_stmt
-	|	expression_stmt
 	|	if_stmt
 	|	switch_stmt
 	|	regex_switch_stmt
@@ -96,6 +95,8 @@ statement
 	|	assert_stmt
 	|	dynamic_layout_stmt
 	|	dynamic_group_stmt
+	|	onevent_stmt
+	|	reactive_expression ';'
 	|	';'
 	;
 
@@ -114,13 +115,9 @@ statement_sync
 	|	TokenKind_Unsafe
 	|	TokenKind_Assert
 	|	TokenKind_DynamicLayout
+	|	TokenKind_OnEvent
 	|	';'
 	|	'{'
-	;
-
-start
-expression_stmt
-	:	expression ';'
 	;
 
 if_stmt
@@ -261,7 +258,7 @@ while_stmt
 		WhileStmt $stmt;
 	}
 	enter {
-		m_module->m_controlFlowMgr.whileStmt_Create(&$stmt, &m_pragmaConfig, popAttributeBlock());
+		return m_module->m_controlFlowMgr.whileStmt_Create(&$stmt, &m_pragmaConfig, popAttributeBlock());
 	}
 	:	TokenKind_While '(' expression $e ')' $a
 			{
@@ -278,7 +275,7 @@ do_stmt
 		DoStmt $stmt;
 	}
 	enter {
-		m_module->m_controlFlowMgr.doStmt_Create(&$stmt);
+		return m_module->m_controlFlowMgr.doStmt_Create(&$stmt);
 	}
 	:	TokenKind_Do
 			{
@@ -299,7 +296,7 @@ for_stmt
 		ForStmt $stmt;
 	}
 	enter {
-		m_module->m_controlFlowMgr.forStmt_Create(&$stmt, &m_pragmaConfig, popAttributeBlock());
+		return m_module->m_controlFlowMgr.forStmt_Create(&$stmt, &m_pragmaConfig, popAttributeBlock());
 	}
 	:	TokenKind_For '('
 			{
@@ -460,6 +457,60 @@ dynamic_group_stmt
 		'}'
 			{
 				closeDynamicGroup();
+			}
+	;
+
+onevent_stmt
+	local {
+		Declarator $declarator;
+	}
+	enter {
+		if (!m_reactorType)
+			return err::fail("'onevent' can only be used inside a reactor");
+	}
+	leave {
+		postDeclarator(&$declarator);
+	}
+	:	TokenKind_OnEvent
+		event_name
+			{
+				postDeclaratorName(&$declarator);
+			}
+		function_suffix<&$declarator>
+		declaration_body_pass1
+			{
+				return reactorOnEventStmt($2.m_valueList, &$declarator, &$4.m_tokenList);
+			}
+	;
+
+struct {
+	sl::BoxList<Value> m_valueList;
+}
+event_name
+	local {
+		sl::List<Token> $tokenList;
+	}
+	:	'(' expression_list ')'
+			{
+				sl::takeOver(&$.m_valueList, &$2.m_valueList)
+			}
+	|	TokenKind_BindingOf '(' expression ')'
+			{
+				Value value;
+				return
+					m_module->m_operatorMgr.getPropertyOnChanged($3.m_value, &value) &&
+					$.m_valueList.insertTail(value);
+			}
+	|	(any // anything until '('
+			{
+				$tokenList.insertTail(m_tokenPool->get($1));
+			}
+		)+
+			{
+				Value value;
+				return
+					m_module->m_operatorMgr.parseExpression(&$tokenList, &value) &&
+					$.m_valueList.insertTail(value);
 			}
 	;
 

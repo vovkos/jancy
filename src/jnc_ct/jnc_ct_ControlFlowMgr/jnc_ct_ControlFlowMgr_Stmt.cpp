@@ -421,18 +421,22 @@ ControlFlowMgr::regexSwitchStmt_Finalize(
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void
+bool
 ControlFlowMgr::whileStmt_Create(
 	WhileStmt* stmt,
 	PragmaConfig* pragmaConfig,
 	AttributeBlock* attributeBlock
 ) {
+	if (isReactor())
+		return err::fail("loop statements are illegal in a reactor");
+
 	setRegexFlags(stmt, pragmaConfig, attributeBlock);
 	stmt->m_conditionBlock = createBlock("while_condition");
 	stmt->m_bodyBlock = createBlock("while_body");
 	stmt->m_followBlock = createBlock("while_follow");
 	follow(stmt->m_conditionBlock);
 	m_regexCondStmt = stmt;
+	return true;
 }
 
 bool
@@ -462,12 +466,16 @@ ControlFlowMgr::whileStmt_Follow(
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void
+bool
 ControlFlowMgr::doStmt_Create(DoStmt* stmt) {
+	if (isReactor())
+		return err::fail("loop statements are illegal in a reactor");
+
 	stmt->m_conditionBlock = createBlock("do_condition");
 	stmt->m_bodyBlock = createBlock("do_body");
 	stmt->m_followBlock = createBlock("do_follow");
 	follow(stmt->m_bodyBlock);
+	return true;
 }
 
 void
@@ -498,17 +506,21 @@ ControlFlowMgr::doStmt_Condition(
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void
+bool
 ControlFlowMgr::forStmt_Create(
 	ForStmt* stmt,
 	PragmaConfig* pragmaConfig,
 	AttributeBlock* attributeBlock
 ) {
+	if (isReactor())
+		return err::fail("loop statements are illegal in a reactor");
+
 	setRegexFlags(stmt, pragmaConfig, attributeBlock);
 	stmt->m_bodyBlock = createBlock("for_body");
 	stmt->m_followBlock = createBlock("for_follow");
 	stmt->m_conditionBlock = stmt->m_bodyBlock;
 	stmt->m_loopBlock = stmt->m_bodyBlock;
+	return true;
 }
 
 void

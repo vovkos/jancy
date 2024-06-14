@@ -12,6 +12,7 @@
 #include "pch.h"
 #include "jnc_ct_OperatorMgr.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_ReactorClassType.h"
 
 namespace jnc {
 namespace ct {
@@ -405,6 +406,28 @@ OperatorMgr::getPropertyOnChanged(
 	return
 		getPropertyBinder(opValue, &binderValue) &&
 		callOperator(binderValue, NULL, resultValue);
+}
+
+bool
+OperatorMgr::addReactorBinding(const Value& opValue) {
+	printf("OperatorMgr::addReactorBinding(%s)\n", opValue.getType()->getTypeString().sz());
+
+	Function* addBindingFunc = getReactorMethod(m_module, ReactorMethod_AddOnChangedBinding);
+	Value onChangedValue;
+
+	m_module->m_controlFlowMgr.m_reactionBindingCount++;
+
+	return
+		getPropertyOnChanged(opValue, &onChangedValue) &&
+		callOperator(
+			addBindingFunc,
+			m_module->m_functionMgr.getThisValue(),
+			Value(
+				m_module->m_controlFlowMgr.getReationIdx(),
+				m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT)
+			),
+			onChangedValue
+		);
 }
 
 //..............................................................................

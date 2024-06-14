@@ -540,9 +540,6 @@ Parser::preDeclaration() {
 
 bool
 Parser::bodylessDeclaration() {
-	if (m_mode == Mode_Reaction)
-		return true; // reactor declarations are already processed at this stage
-
 	ASSERT(m_lastDeclaredItem);
 
 	ModuleItemKind itemKind = m_lastDeclaredItem->getItemKind();
@@ -810,8 +807,8 @@ Parser::useNamespace(
 }
 
 bool
-Parser::declareInReaction(Declarator* declarator) {
-	ASSERT(m_mode == Mode_Reaction && m_reactorType);
+Parser::declareInReactor(Declarator* declarator) {
+	ASSERT(m_reactorType);
 
 	if (!declarator->isSimple()) {
 		err::setFormatStringError("invalid declarator in reactor");
@@ -845,7 +842,7 @@ Parser::declareInReaction(Declarator* declarator) {
 	token->m_data.m_string = name;
 	declarator->m_initializer.insertHead(token);
 
-	Parser parser(m_module, getPragmaConfigSnapshot(), Mode_Reaction);
+	Parser parser(m_module, getPragmaConfigSnapshot(), Mode_Compile);
 	parser.m_reactorType = m_reactorType;
 	parser.m_reactionIdx = m_reactionIdx;
 	return parser.parseTokenList(SymbolKind_expression, &declarator->m_initializer);
@@ -881,8 +878,8 @@ Parser::declareNamedAttributeBlock(Declarator* declarator) {
 
 bool
 Parser::declare(Declarator* declarator) {
-	if (m_mode == Mode_Reaction)
-		return declareInReaction(declarator);
+	if (m_module->m_controlFlowMgr.isReactor())
+		return declareInReactor(declarator);
 
 	m_lastDeclaredItem = NULL;
 
@@ -2294,38 +2291,12 @@ Parser::finalizeDynamicLibType() {
 }
 
 bool
-Parser::addReactionBinding(const Value& value) {
-	ASSERT(m_mode == Mode_Reaction && m_reactorType);
-
-	Function* addBindingFunc = getReactorMethod(m_module, ReactorMethod_AddOnChangedBinding);
-
-	Value thisValue = m_module->m_functionMgr.getThisValue();
-	ASSERT(thisValue);
-
-	Value onChangedValue;
-
-	return
-		m_module->m_operatorMgr.getPropertyOnChanged(value, &onChangedValue) &&
-		m_module->m_operatorMgr.callOperator(addBindingFunc, thisValue, onChangedValue);
-}
-
-bool
-Parser::resetReactionBindings() {
-	Function* resetBindingsFunc = getReactorMethod(m_module, ReactorMethod_ResetOnChangedBindings);
-
-	Value thisValue = m_module->m_functionMgr.getThisValue();
-	ASSERT(thisValue);
-
-	return m_module->m_operatorMgr.callOperator(resetBindingsFunc, thisValue);
-}
-
-bool
 Parser::reactorOnEventStmt(
 	const sl::ConstBoxList<Value>& valueList,
 	Declarator* declarator,
 	sl::List<Token>* tokenList
 ) {
-	ASSERT(m_mode == Mode_Reaction && m_reactorType);
+	ASSERT(m_reactorType);
 
 	DeclFunctionSuffix* suffix = declarator->getFunctionSuffix();
 	ASSERT(suffix);
@@ -2341,9 +2312,7 @@ Parser::reactorOnEventStmt(
     m_reactorType->addOnEventHandler(m_reactionIdx, handler);
 
 	Function* addBindingFunc = getReactorMethod(m_module, ReactorMethod_AddOnEventBinding);
-
 	Value thisValue = m_module->m_functionMgr.getThisValue();
-	ASSERT(thisValue);
 
 	sl::ConstBoxIterator<Value> it = valueList.getHead();
 	for (; it; it++) {

@@ -144,15 +144,5 @@ struct PropertyPtrTypeTuple: sl::ListLink {
 
 //..............................................................................
 
-JNC_INLINE
-bool
-isBindableType(Type* type) {
-	return
-		type->getTypeKind() == TypeKind_PropertyRef &&
-		(((PropertyPtrType*)type)->getTargetType()->getFlags() & PropertyTypeFlag_Bindable) != 0;
-}
-
-//..............................................................................
-
 } // namespace ct
 } // namespace jnc

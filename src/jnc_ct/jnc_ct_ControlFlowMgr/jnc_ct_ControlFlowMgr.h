@@ -14,6 +14,7 @@
 #include "jnc_ct_Value.h"
 #include "jnc_ct_BasicBlock.h"
 #include "jnc_ct_StructType.h"
+#include "jnc_ct_ReactorClassType.h"
 
 namespace jnc {
 namespace ct {
@@ -110,6 +111,7 @@ struct OnceStmt {
 
 class ControlFlowMgr {
 	friend class Module;
+	friend class OperatorMgr;
 
 protected:
 	Module* m_module;
@@ -118,15 +120,23 @@ protected:
 	sl::Array<BasicBlock*> m_asyncBlockArray;
 	sl::Array<BasicBlock*> m_returnBlockArray;
 	sl::Array<BasicBlock*> m_landingPadBlockArray;
+	sl::Array<BasicBlock*> m_reactionBlockArray;
 	BasicBlock* m_currentBlock;
 	BasicBlock* m_unreachableBlock;
 	BasicBlock* m_catchFinallyFollowBlock;
 	BasicBlock* m_returnBlock;
 	BasicBlock* m_dynamicThrowBlock;
 	BasicBlock* m_emissionLockBlock;
+	BasicBlock* m_reactionBlock;
+	BasicBlock* m_reactorSwitchBlock;
+	BasicBlock* m_reactorFollowBlock;
+	llvm::BasicBlock::iterator m_llvmReactionIt;
 	Variable* m_returnValueVariable;
 	Variable* m_finallyRouteIdxVariable;
 	RegexCondStmt* m_regexCondStmt;
+	ReactorClassType* m_reactorType;
+	Value m_reactionIdxValue;
+	size_t m_reactionBindingCount;
 	size_t m_emissionLockCount;
 	size_t m_finallyRouteIdx;
 	size_t m_sjljFrameCount;
@@ -159,6 +169,37 @@ public:
 
 	void
 	unlockEmission();
+
+	bool
+	isReactor() {
+		return m_reactorType != NULL;
+	}
+
+	void
+	enterReactor(
+		ReactorClassType* reactorType,
+		const Value& reactionIdxValue
+	);
+
+	void
+	leaveReactor();
+
+	size_t
+	getReationIdx() {
+		ASSERT(m_reactorType);
+		return m_reactorType->getReactionCount();
+	}
+
+	bool
+	isReactiveExpression() {
+		return m_reactionBlock != NULL;
+	}
+
+	void
+	enterReactiveExpression();
+
+	void
+	leaveReactiveExpression();
 
 	BasicBlock*
 	createBlock(
@@ -407,7 +448,7 @@ public:
 
 	// while stmt
 
-	void
+	bool
 	whileStmt_Create(
 		WhileStmt* stmt,
 		PragmaConfig* pragmaConfig,
@@ -429,7 +470,7 @@ public:
 
 	// do stmt
 
-	void
+	bool
 	doStmt_Create(DoStmt* stmt);
 
 	void
@@ -449,7 +490,7 @@ public:
 
 	// for stmt
 
-	void
+	bool
 	forStmt_Create(
 		ForStmt* stmt,
 		PragmaConfig* pragmaConfig,

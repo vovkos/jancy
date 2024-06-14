@@ -37,7 +37,7 @@ Alias::resolveImpl() {
 
 	m_flags |= AliasFlag_InResolve;
 
-	Parser parser(m_module, m_pragmaConfig);
+	Parser parser(m_module, m_pragmaConfig, Parser::Mode_Parse);
 
 	sl::List<Token> tmpTokenList;
 	cloneTokenList(&tmpTokenList, m_initializer);

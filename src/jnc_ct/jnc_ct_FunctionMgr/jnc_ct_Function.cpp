@@ -162,7 +162,7 @@ Function::compile() {
 
 	// otherwise, a redirected function
 
-	Parser parser(m_module, m_pragmaConfig);
+	Parser parser(m_module, m_pragmaConfig, Parser::Mode_Parse);
 	result = parser.parseTokenList(SymbolKind_qualified_name_save_name, &m_initializer);
 	if (!result)
 		return false;

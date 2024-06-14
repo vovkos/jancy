@@ -43,7 +43,7 @@ jnc_Variant_create(
 
 	GcHeap* gcHeap = getCurrentThreadGcHeap();
 	if (!gcHeap)
-		return err::fail(err::Error("not inside Jancy call-site"));
+		return err::fail("not inside Jancy call-site");
 
 	DataPtr ptr = gcHeap->tryAllocateData(type);
 	if (!ptr.m_p)

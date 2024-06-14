@@ -41,11 +41,11 @@ class BasicBlock: public sl::ListLink {
 
 protected:
 	Module* m_module;
-	uint_t m_flags;
-	sl::String m_name;
+	sl::StringRef m_name;
 	Function* m_function;
 	sl::SimpleHashTable<size_t, BasicBlock*> m_finallyRouteMap;
 	Scope* m_landingPadScope;
+	uint_t m_flags;
 
 	// codegen-only
 
@@ -53,7 +53,11 @@ protected:
 	llvm::DebugLoc m_llvmDebugLoc;
 
 public:
-	BasicBlock();
+	BasicBlock(
+		Module* module,
+		const sl::StringRef& name,
+		uint_t flags = 0
+	);
 
 	Module*
 	getModule() {

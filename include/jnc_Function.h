@@ -58,6 +58,7 @@ enum jnc_FunctionKind {
 	jnc_FunctionKind_SchedLauncher,
 	jnc_FunctionKind_AsyncSchedLauncher,
 	jnc_FunctionKind_AsyncSequencer,
+	jnc_FunctionKind_Reactor,
 	jnc_FunctionKind__Count
 };
 
@@ -236,6 +237,7 @@ const FunctionKind
 	FunctionKind_SchedLauncher       = jnc_FunctionKind_SchedLauncher,
 	FunctionKind_AsyncSchedLauncher  = jnc_FunctionKind_AsyncSchedLauncher,
 	FunctionKind_AsyncSequencer      = jnc_FunctionKind_AsyncSequencer,
+	FunctionKind_Reactor             = jnc_FunctionKind_Reactor,
 	FunctionKind__Count              = jnc_FunctionKind__Count;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

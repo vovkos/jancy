@@ -57,7 +57,6 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(ReactorImpl)
 	JNC_MAP_FUNCTION("restart", &ReactorImpl::restart);
 	JNC_MAP_FUNCTION("!addOnChangedBinding", &ReactorImpl::addOnChangedBinding);
 	JNC_MAP_FUNCTION("!addOnEventBinding", &ReactorImpl::addOnEventBinding);
-	JNC_MAP_FUNCTION("!resetOnChangedBindings", &ReactorImpl::resetOnChangedBindings);
 JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
@@ -85,11 +84,16 @@ ReactorImpl::start() {
 	if (m_state != State_Stopped) // already running
 		return;
 
+	ct::ReactorClassType* reactorType = (ct::ReactorClassType*)m_ifaceHdr.m_box->m_type;
+	ReactionFunc* reactorFunc = (ReactionFunc*)reactorType->getReactor()->getMachineCode();
+
+	m_state = State_Starting;
+	reactorFunc(this, -1);
+	if (m_state == State_Stopped)
+		return;
+
 	m_state = State_Reacting;
-	m_pendingReactionMap.setBitRange(0, -1); // enqueue all reactions
-
 	reactionLoop();
-
 	if (m_state == State_Stopped)
 		return;
 
@@ -124,6 +128,32 @@ ReactorImpl::stop() {
 }
 
 void
+JNC_CDECL
+ReactorImpl::addOnChangedBinding(
+	size_t reactionIdx,
+	Multicast* multicast
+) {
+	if (m_state == State_Stopped)
+		return;
+
+	ASSERT(m_state == State_Starting || m_state == State_Reacting);
+	m_pendingOnChangedBindingArray.append(PendingBinding(reactionIdx, multicast));
+}
+
+void
+JNC_CDECL
+ReactorImpl::addOnEventBinding(
+	size_t reactionIdx,
+	Multicast* multicast
+) {
+	if (m_state == State_Stopped)
+		return;
+
+	ASSERT(m_state == State_Starting || m_state == State_Reacting);
+	m_pendingOnEventBindingArray.append(PendingBinding(reactionIdx, multicast));
+}
+
+void
 ReactorImpl::onChanged(Binding* binding) {
 	m_pendingReactionMap.merge<sl::BitMapOr>(binding->m_reactionMap);
 
@@ -131,9 +161,7 @@ ReactorImpl::onChanged(Binding* binding) {
 		return;
 
 	m_state = State_Reacting;
-
 	reactionLoop();
-
 	if (m_state == State_Stopped)
 		return;
 
@@ -146,8 +174,7 @@ ReactorImpl::reactionLoop() {
 	ASSERT(isClassType(m_ifaceHdr.m_box->m_type, ClassTypeKind_Reactor));
 
 	ct::ReactorClassType* reactorType = (ct::ReactorClassType*)m_ifaceHdr.m_box->m_type;
-	Function* reaction = reactorType->getReaction();
-	ReactionFunc* reactionFunc = (ReactionFunc*)reaction->getMachineCode();
+	ReactionFunc* reactorFunc = (ReactionFunc*)reactorType->getReactor()->getMachineCode();
 
 	size_t parentOffset = reactorType->getParentOffset();
 	IfaceHdr* parent = parentOffset ? (IfaceHdr*)((char*)this - parentOffset) : NULL;
@@ -189,7 +216,7 @@ ReactorImpl::reactionLoop() {
 
 		// run reaction #i
 
-		reactionFunc(this, i);
+		reactorFunc(this, i);
 
 		if (m_state == State_Stopped)
 			return;
@@ -201,7 +228,7 @@ ReactorImpl::reactionLoop() {
 
 		size_t bindingCount = m_pendingOnChangedBindingArray.getCount();
 		for (size_t j = 0; j < bindingCount; j++) {
-			Multicast* multicast = m_pendingOnChangedBindingArray[j];
+			Multicast* multicast = m_pendingOnChangedBindingArray[j].m_multicast;
 			sl::HashTableIterator<Multicast*, Binding*> it = m_bindingMap.visit(multicast);
 			Binding* binding;
 
@@ -248,7 +275,7 @@ ReactorImpl::reactionLoop() {
 
 			size_t bindingCount = m_pendingOnEventBindingArray.getCount();
 			for (size_t j = 0; j < bindingCount; j++) {
-				Multicast* multicast = m_pendingOnEventBindingArray[j];
+				Multicast* multicast = m_pendingOnEventBindingArray[j].m_multicast;
 				Binding* binding = subscribe(multicast, onEventPtr);
 				reaction->m_bindingArray.append(binding);
 			}

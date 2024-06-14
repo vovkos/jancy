@@ -25,6 +25,7 @@ class ReactorImpl: public Reactor {
 protected:
 	enum State {
 		State_Stopped,
+		State_Starting,
 		State_Running,
 		State_Reacting,
 	};
@@ -41,6 +42,24 @@ protected:
 		sl::Array<Binding*> m_bindingArray;
 	};
 
+	struct PendingBinding {
+		size_t m_reactionIdx;
+		Multicast* m_multicast;
+
+		PendingBinding() {
+			m_reactionIdx = 0;
+			m_multicast = NULL;
+		}
+
+		PendingBinding(
+			size_t reactionIdx,
+			Multicast* multicast
+		) {
+			m_reactionIdx = reactionIdx;
+			m_multicast = multicast;
+		}
+	};
+
 	typedef
 	void
 	ReactionFunc(
@@ -52,8 +71,8 @@ protected:
 	State m_state;
 	sl::AutoPtrArray<Reaction> m_reactionArray;
 	sl::BitMap m_pendingReactionMap;
-	sl::Array<Multicast*> m_pendingOnChangedBindingArray;
-	sl::Array<Multicast*> m_pendingOnEventBindingArray;
+	sl::Array<PendingBinding> m_pendingOnChangedBindingArray;
+	sl::Array<PendingBinding> m_pendingOnEventBindingArray;
 	sl::List<Binding> m_bindingList;
 	sl::SimpleHashTable<Multicast*, Binding*> m_bindingMap;
 
@@ -81,24 +100,17 @@ public:
 
 	void
 	JNC_CDECL
-	addOnChangedBinding(Multicast* multicast) {
-		ASSERT(m_state == State_Reacting);
-		m_pendingOnChangedBindingArray.append(multicast);
-	}
+	addOnChangedBinding(
+		size_t reactionIdx,
+		Multicast* multicast
+	);
 
 	void
 	JNC_CDECL
-	addOnEventBinding(Multicast* multicast) {
-		ASSERT(m_state == State_Reacting);
-		m_pendingOnEventBindingArray.append(multicast);
-	}
-
-	void
-	JNC_CDECL
-	resetOnChangedBindings() {
-		ASSERT(m_state == State_Reacting);
-		m_pendingOnChangedBindingArray.clear();
-	}
+	addOnEventBinding(
+		size_t reactionIdx,
+		Multicast* multicast
+	);
 
 protected:
 	void

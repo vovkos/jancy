@@ -1180,6 +1180,9 @@ public:
 		return getPropertyOnChanged(*value, value);
 	}
 
+	bool
+	addReactorBinding(const Value& opValue);
+
 	// misc property functions
 
 	bool
