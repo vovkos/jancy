@@ -136,6 +136,7 @@ ReactorImpl::addOnChangedBinding(
 	if (m_state == State_Stopped)
 		return;
 
+	printf("addOnChangedBinding(%d, %p)\n", reactionIdx, multicast);
 	ASSERT(m_state == State_Starting || m_state == State_Reacting);
 	m_pendingOnChangedBindingArray.append(PendingBinding(reactionIdx, multicast));
 }
@@ -218,7 +219,7 @@ ReactorImpl::reactionLoop() {
 
 		reactorFunc(this, i);
 
-		if (m_state == State_Stopped)
+		if (m_state == State_Stopped) // reactor stopped itself
 			return;
 
 		// subscribe to new events
@@ -281,6 +282,11 @@ ReactorImpl::reactionLoop() {
 			}
 		}
 	}
+}
+
+void
+ReactorImpl::processPendingBindings() {
+
 }
 
 ReactorImpl::Binding*

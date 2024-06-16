@@ -117,6 +117,9 @@ protected:
 	reactionLoop();
 
 	void
+	processPendingBindings();
+
+	void
 	onChanged(Binding* binding);
 
 	static

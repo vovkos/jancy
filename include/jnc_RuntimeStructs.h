@@ -245,7 +245,7 @@ struct jnc_GcShadowStackFrame {
 	void** m_gcRootArray; // stack array
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_GcShadowStackFrameMapBuffer {
 	jnc_ListLink m_link;

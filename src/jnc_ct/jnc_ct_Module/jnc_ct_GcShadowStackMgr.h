@@ -30,7 +30,7 @@ enum GcShadowStackFrameMapKind {
 	GcShadowStackFrameMapKind_Dynamic,
 };
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class GcShadowStackFrameMap: public sl::ListLink {
 	friend class GcShadowStackMgr;

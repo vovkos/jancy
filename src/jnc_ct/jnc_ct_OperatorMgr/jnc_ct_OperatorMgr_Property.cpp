@@ -415,7 +415,8 @@ OperatorMgr::addReactorBinding(const Value& opValue) {
 	Function* addBindingFunc = getReactorMethod(m_module, ReactorMethod_AddOnChangedBinding);
 	Value onChangedValue;
 
-	m_module->m_controlFlowMgr.m_reactionBindingCount++;
+	ASSERT(m_module->m_controlFlowMgr.m_reactorBody);
+	m_module->m_controlFlowMgr.m_reactorBody->m_reactionBindingCount++;
 
 	return
 		getPropertyOnChanged(opValue, &onChangedValue) &&

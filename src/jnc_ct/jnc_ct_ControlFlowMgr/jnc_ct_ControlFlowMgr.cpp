@@ -29,12 +29,10 @@ ControlFlowMgr::ControlFlowMgr() {
 	m_dynamicThrowBlock = NULL;
 	m_catchFinallyFollowBlock = NULL;
 	m_emissionLockBlock = NULL;
-	m_reactionBlock = NULL;
 	m_finallyRouteIdxVariable = NULL;
 	m_returnValueVariable = NULL;
 	m_regexCondStmt = NULL;
-	m_reactorType = NULL;
-	m_reactionBindingCount = 0;
+	m_reactorBody = NULL;
 	m_emissionLockCount = 0;
 	m_finallyRouteIdx = -1;
 	m_sjljFrameCount = 0;
@@ -46,20 +44,17 @@ ControlFlowMgr::clear() {
 	m_asyncBlockArray.clear();
 	m_returnBlockArray.clear();
 	m_landingPadBlockArray.clear();
-	m_reactionBlockArray.clear();
 	m_currentBlock = NULL;
 	m_unreachableBlock = NULL;
 	m_catchFinallyFollowBlock = NULL;
 	m_returnBlock = NULL;
 	m_dynamicThrowBlock = NULL;
 	m_emissionLockBlock = NULL;
-	m_reactionBlock = NULL;
-	m_llvmReactionIt = NULL;
 	m_finallyRouteIdxVariable = NULL;
 	m_returnValueVariable = NULL;
 	m_regexCondStmt = NULL;
-	m_reactorType = NULL;
-	m_reactionBindingCount = 0;
+	delete m_reactorBody;
+	m_reactorBody = NULL;
 	m_emissionLockCount = 0;
 	m_finallyRouteIdx = -1;
 	m_sjljFrameCount = 0;
@@ -91,61 +86,87 @@ ControlFlowMgr::enterReactor(
 	ReactorClassType* reactorType,
 	const Value& reactionIdxValue
 ) {
-	m_reactorType = reactorType;
-	m_reactionIdxValue = reactionIdxValue;
-	m_reactorSwitchBlock = m_currentBlock;
-	m_reactorFollowBlock = createBlock("reactor_follow");
-	m_reactionBlock = NULL;
+	m_reactorBody = new ReactorBody;
+	m_reactorBody->m_reactorType = reactorType;
+	m_reactorBody->m_reactionIdxValue = reactionIdxValue;
+	m_reactorBody->m_reactorSwitchBlock = m_currentBlock;
+	m_reactorBody->m_reactorBodyBlock = createBlock("reactor_body");
+	m_reactorBody->m_reactorFollowBlock = createBlock("reactor_follow");
+	m_reactorBody->m_reactionBlock = NULL;
+	m_reactorBody->m_reactionBindingCount = 0;
+
+	setCurrentBlock(m_reactorBody->m_reactorBodyBlock);
 }
 
 void
 ControlFlowMgr::leaveReactor() {
-	ASSERT(m_reactorType && m_reactorFollowBlock);
-	follow(m_reactorFollowBlock);
+	ASSERT(m_reactorBody);
+	follow(m_reactorBody->m_reactorFollowBlock);
+	setCurrentBlock(m_reactorBody->m_reactorSwitchBlock);
 
-	printf("reactor total reaction count: %d\n", m_reactionBlockArray.getCount());
+	size_t reactionCount = m_reactorBody->m_reactionBlockArray.getCount();
 
-	m_reactorType->m_reactionCount = m_reactionBlockArray.getCount();
-	m_reactorType = NULL;
-	m_reactionBlock = NULL;
-	m_reactorFollowBlock = NULL;
+	if (m_module->hasCodeGen()) {
+		char buffer[256];
+		sl::Array<int64_t> caseIdArray(rc::BufKind_Stack, buffer, sizeof(buffer));
+		caseIdArray.setCount(reactionCount);
+		sl::Array<int64_t>::Rwi rwi = caseIdArray;
+		for (size_t i = 0; i < reactionCount; i++)
+			rwi[i] = i;
+
+		m_module->m_llvmIrBuilder.createSwitch(
+			m_reactorBody->m_reactionIdxValue,
+			m_reactorBody->m_reactorBodyBlock,
+			caseIdArray,
+			m_reactorBody->m_reactionBlockArray,
+			reactionCount
+		);
+	}
+
+	setCurrentBlock(m_reactorBody->m_reactorFollowBlock);
+
+	printf("reactor total reaction count: %d\n", reactionCount);
+
+	m_reactorBody->m_reactorType->m_reactionCount = reactionCount;
+	delete m_reactorBody;
+	m_reactorBody = NULL;
 }
 
 void
 ControlFlowMgr::enterReactiveExpression() {
-	ASSERT(m_reactorType);
-	m_reactionBlock = m_currentBlock;
-	m_llvmReactionIt = !m_currentBlock->getLlvmBlock()->empty() ? &m_currentBlock->getLlvmBlock()->back() : NULL;
-	m_reactionBindingCount = 0;
+	ASSERT(m_reactorBody);
+	m_reactorBody->m_reactionBlock = m_currentBlock;
+	m_reactorBody->m_llvmReactionIt = !m_currentBlock->getLlvmBlock()->empty() ? &m_currentBlock->getLlvmBlock()->back() : NULL;
+	m_reactorBody->m_reactionBindingCount = 0;
 }
 
 void
 ControlFlowMgr::leaveReactiveExpression() {
-	ASSERT(m_reactorType && m_reactionBlock);
+	ASSERT(m_reactorBody && m_reactorBody->m_reactionBlock);
 
-	if (!m_reactionBindingCount) {
-		m_reactionBlock = NULL;
+	if (!m_reactorBody->m_reactionBindingCount) {
+		m_reactorBody->m_reactionBlock = NULL;
 		return; // no bindings, nothing to do
 	}
 
 	BasicBlock* reactionBlock;
 
-	if (!m_llvmReactionIt)
-		reactionBlock = m_reactionBlock;
+	if (!m_reactorBody->m_llvmReactionIt)
+		reactionBlock = m_reactorBody->m_reactionBlock;
 	else {
 		reactionBlock = new BasicBlock(m_module, "reaction_block");
-		reactionBlock->m_function = m_reactionBlock->m_function;
-		reactionBlock->m_llvmBlock = m_reactionBlock->getLlvmBlock()->splitBasicBlock(
-			++m_llvmReactionIt,
+		reactionBlock->m_function = m_reactorBody->m_reactionBlock->m_function;
+		reactionBlock->m_llvmBlock = m_reactorBody->m_reactionBlock->getLlvmBlock()->splitBasicBlock(
+			++m_reactorBody->m_llvmReactionIt,
 			reactionBlock->m_name >> toLlvm
 		);
 
 		m_blockList.insertTail(reactionBlock);
-		setCurrentBlock(m_reactionBlock);
+		setCurrentBlock(m_reactorBody->m_reactionBlock);
 		follow(reactionBlock);
 	}
 
-	size_t reactionIdx = m_reactionBlockArray.getCount();
+	size_t reactionIdx = m_reactorBody->m_reactionBlockArray.getCount();
 	Value reactionIdxValue(reactionIdx, m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT));
 
 	Value cmpValue;
@@ -155,21 +176,21 @@ ControlFlowMgr::leaveReactiveExpression() {
 	bool result =
 		m_module->m_operatorMgr.binaryOperator(
 			BinOpKind_Eq,
-			m_reactionIdxValue,
+			m_reactorBody->m_reactionIdxValue,
 			reactionIdxValue,
 			&cmpValue
 		) &&
 		conditionalJump(
 			cmpValue,
-			m_reactorFollowBlock,
+			m_reactorBody->m_reactorFollowBlock,
 			followBlock,
 			followBlock
 		);
 
 	ASSERT(result);
 
-	m_reactionBlockArray.append(reactionBlock);
-	m_reactionBlock = NULL;
+	m_reactorBody->m_reactionBlockArray.append(reactionBlock);
+	m_reactorBody->m_reactionBlock = NULL;
 }
 
 void

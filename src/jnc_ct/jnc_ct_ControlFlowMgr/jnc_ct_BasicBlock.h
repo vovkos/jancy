@@ -94,7 +94,7 @@ public:
 		return inst && inst->getOpcode() == llvm::Instruction::Ret;
 	}
 
-	const sl::String&
+	const sl::StringRef&
 	getName() {
 		return m_name;
 	}

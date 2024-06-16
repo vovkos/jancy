@@ -78,7 +78,7 @@
 	__jncCallSite.m_result = __jncSjljBranch == 0; \
 	jnc_Runtime_uninitializeCallSite(__jncRuntime, &__jncCallSite);
 
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #define JNC_BEGIN_CALL_SITE(runtime) \
 	{ \

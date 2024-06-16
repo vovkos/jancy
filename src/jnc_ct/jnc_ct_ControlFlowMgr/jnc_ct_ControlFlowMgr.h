@@ -107,6 +107,20 @@ struct OnceStmt {
 	BasicBlock* m_followBlock;
 };
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct ReactorBody {
+	sl::Array<BasicBlock*> m_reactionBlockArray;
+	ReactorClassType* m_reactorType;
+	BasicBlock* m_reactorSwitchBlock;
+	BasicBlock* m_reactorBodyBlock;
+	BasicBlock* m_reactorFollowBlock;
+	BasicBlock* m_reactionBlock;
+	llvm::BasicBlock::iterator m_llvmReactionIt;
+	Value m_reactionIdxValue;
+	size_t m_reactionBindingCount;
+};
+
 //..............................................................................
 
 class ControlFlowMgr {
@@ -120,23 +134,16 @@ protected:
 	sl::Array<BasicBlock*> m_asyncBlockArray;
 	sl::Array<BasicBlock*> m_returnBlockArray;
 	sl::Array<BasicBlock*> m_landingPadBlockArray;
-	sl::Array<BasicBlock*> m_reactionBlockArray;
 	BasicBlock* m_currentBlock;
 	BasicBlock* m_unreachableBlock;
 	BasicBlock* m_catchFinallyFollowBlock;
 	BasicBlock* m_returnBlock;
 	BasicBlock* m_dynamicThrowBlock;
 	BasicBlock* m_emissionLockBlock;
-	BasicBlock* m_reactionBlock;
-	BasicBlock* m_reactorSwitchBlock;
-	BasicBlock* m_reactorFollowBlock;
-	llvm::BasicBlock::iterator m_llvmReactionIt;
 	Variable* m_returnValueVariable;
 	Variable* m_finallyRouteIdxVariable;
 	RegexCondStmt* m_regexCondStmt;
-	ReactorClassType* m_reactorType;
-	Value m_reactionIdxValue;
-	size_t m_reactionBindingCount;
+	ReactorBody* m_reactorBody;
 	size_t m_emissionLockCount;
 	size_t m_finallyRouteIdx;
 	size_t m_sjljFrameCount;
@@ -170,9 +177,11 @@ public:
 	void
 	unlockEmission();
 
+	// reactors
+
 	bool
 	isReactor() {
-		return m_reactorType != NULL;
+		return m_reactorBody != NULL;
 	}
 
 	void
@@ -186,13 +195,13 @@ public:
 
 	size_t
 	getReationIdx() {
-		ASSERT(m_reactorType);
-		return m_reactorType->getReactionCount();
+		ASSERT(m_reactorBody);
+		return m_reactorBody->m_reactionBlockArray.getCount();
 	}
 
 	bool
 	isReactiveExpression() {
-		return m_reactionBlock != NULL;
+		return m_reactorBody && m_reactorBody->m_reactionBlock != NULL;
 	}
 
 	void
