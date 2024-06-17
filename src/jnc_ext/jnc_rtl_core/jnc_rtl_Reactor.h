@@ -21,7 +21,7 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(ReactorImpl)
 
 //..............................................................................
 
-class ReactorImpl: public Reactor {
+class ReactorImpl: public IfaceHdr {
 protected:
 	enum State {
 		State_Stopped,
@@ -30,40 +30,53 @@ protected:
 		State_Reacting,
 	};
 
+	enum Flag {
+		Flag_Active = 0x01, // active
+	};
+
 	struct Binding: sl::ListLink {
-		Multicast* m_multicast;
+		Multicast* m_event;
 		handle_t m_handler;
 		sl::HashTableIterator<Multicast*, Binding*> m_bindingMapIt;
 		sl::BitMap m_reactionMap;
+		uint_t m_flags;
+
+		Binding() {
+			m_flags = 0;
+		}
 	};
 
 	struct Reaction {
-		size_t m_activationCount;
 		sl::Array<Binding*> m_bindingArray;
+		uint_t m_flags;
+
+		Reaction() {
+			m_flags = 0;
+		}
 	};
 
 	struct PendingBinding {
 		size_t m_reactionIdx;
-		Multicast* m_multicast;
+		Multicast* m_event;
 
 		PendingBinding() {
 			m_reactionIdx = 0;
-			m_multicast = NULL;
+			m_event = NULL;
 		}
 
 		PendingBinding(
 			size_t reactionIdx,
-			Multicast* multicast
+			Multicast* event
 		) {
 			m_reactionIdx = reactionIdx;
-			m_multicast = multicast;
+			m_event = event;
 		}
 	};
 
 	typedef
 	void
-	ReactionFunc(
-		Reactor* reactor,
+	ReactorFunc(
+		IfaceHdr* reactor,
 		size_t index
 	);
 
@@ -74,6 +87,8 @@ protected:
 	sl::Array<PendingBinding> m_pendingOnChangedBindingArray;
 	sl::Array<PendingBinding> m_pendingOnEventBindingArray;
 	sl::List<Binding> m_bindingList;
+	sl::Array<Reaction*> m_activeReactionArray;
+	sl::Array<Binding*> m_activeBindingArray;
 	sl::SimpleHashTable<Multicast*, Binding*> m_bindingMap;
 
 public:
@@ -102,14 +117,21 @@ public:
 	JNC_CDECL
 	addOnChangedBinding(
 		size_t reactionIdx,
-		Multicast* multicast
+		Multicast* event
 	);
 
 	void
 	JNC_CDECL
 	addOnEventBinding(
 		size_t reactionIdx,
-		Multicast* multicast
+		Multicast* event
+	);
+
+	void
+	JNC_CDECL
+	enterReactiveStmt(
+		size_t reactionFromIdx,
+		size_t reactionToIdx
 	);
 
 protected:
@@ -125,15 +147,18 @@ protected:
 	static
 	void
 	onChangedThunk(ReactorClosure* closure) {
-		((ReactorImpl*)closure->m_self)->onChanged((Binding*)closure->m_binding);
+		((ReactorImpl*)closure->m_reactor)->onChanged((Binding*)closure->m_binding);
 	}
 
+	bool
+	activateReaction(size_t reactionIdx);
+
 	Binding*
-	subscribe(Multicast* multicast);
+	subscribe(Multicast* event);
 
 	Binding*
 	subscribe(
-		Multicast* multicast,
+		Multicast* event,
 		FunctionPtr functionPtr
 	);
 };

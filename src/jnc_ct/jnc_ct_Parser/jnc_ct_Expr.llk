@@ -143,15 +143,11 @@ expression
 struct {
 	Value m_value;
 }
+start
 reactive_expression
 	enter {
 		m_module->m_namespaceMgr.setSourcePos(m_tokenCursor->m_pos);
-		if (m_module->m_controlFlowMgr.isReactor())
-			m_module->m_controlFlowMgr.enterReactiveExpression();
-	}
-	leave {
-		if (m_module->m_controlFlowMgr.isReactor())
-			m_module->m_controlFlowMgr.leaveReactiveExpression();
+		m_module->m_controlFlowMgr.enterReactiveExpression();
 	}
 	:	conditional_expr<&$.m_value>
 	;

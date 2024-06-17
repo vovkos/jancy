@@ -590,6 +590,21 @@ OperatorMgr::checkAccess(ModuleItemDecl* decl) {
 
 inline
 void
+ControlFlowMgr::enterReactiveExpression() {
+	if (!isReactor())
+		return;
+
+	m_reactorBody->m_reactionBlock = m_currentBlock;
+	m_reactorBody->m_reactionBindingCount = 0;
+
+	if (m_module->hasCodeGen() && !m_currentBlock->getLlvmBlock()->empty())
+		m_reactorBody->m_llvmReactionIt = m_currentBlock->getLlvmBlock()->back();
+}
+
+//..............................................................................
+
+inline
+void
 LlvmIrBuilder::addTypedAttribute(
 	llvm::Function* llvmFunction,
 	unsigned i,

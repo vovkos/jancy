@@ -45,7 +45,15 @@ RegexCondStmt::RegexCondStmt() {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct IfStmt: RegexCondStmt {
+struct ReactiveStmt {
+	size_t m_reactionIdx;
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct IfStmt:
+	RegexCondStmt,
+	ReactiveStmt {
 	BasicBlock* m_thenBlock;
 	BasicBlock* m_elseBlock;
 	BasicBlock* m_followBlock;
@@ -53,7 +61,7 @@ struct IfStmt: RegexCondStmt {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct SwitchStmt {
+struct SwitchStmt: ReactiveStmt {
 	Value m_value;
 	BasicBlock* m_switchBlock;
 	BasicBlock* m_defaultBlock;
@@ -63,7 +71,9 @@ struct SwitchStmt {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct RegexSwitchStmt: RegexCondStmt {
+struct RegexSwitchStmt:
+	RegexCondStmt,
+	ReactiveStmt {
 	Value m_textValue;       // string_t
 	Value m_regexStateValue;
 	re2::Regex m_regex;
@@ -166,6 +176,8 @@ public:
 	void
 	clear();
 
+	// emission lock
+
 	bool
 	isEmissionLocked() {
 		return m_emissionLockCount != 0;
@@ -184,6 +196,12 @@ public:
 		return m_reactorBody != NULL;
 	}
 
+	ReactorClassType*
+	getReactorType() {
+		ASSERT(m_reactorBody);
+		return m_reactorBody->m_reactorType;
+	}
+
 	void
 	enterReactor(
 		ReactorClassType* reactorType,
@@ -194,7 +212,7 @@ public:
 	leaveReactor();
 
 	size_t
-	getReationIdx() {
+	getReactionIdx() {
 		ASSERT(m_reactorBody);
 		return m_reactorBody->m_reactionBlockArray.getCount();
 	}
@@ -207,8 +225,26 @@ public:
 	void
 	enterReactiveExpression();
 
+	size_t
+	finalizeReactiveExpression() { // returns reaction index or -1 if non reactive
+		return isReactor() ? finalizeReactiveExpressionImpl() : -1;
+	}
+
 	void
-	leaveReactiveExpression();
+	finalizeReactiveStmt(size_t reactionIdx);
+
+	void
+	finalizeReaction(size_t reactionIdx);
+
+	bool
+	addOnEventHandler(
+		const sl::BoxList<Value>& valueList,
+		const sl::Array<FunctionArg*>& argArray,
+		const PragmaConfig* pragmaConfig,
+		sl::List<Token>* tokenList
+	);
+
+	// blocks
 
 	BasicBlock*
 	createBlock(
@@ -614,6 +650,9 @@ protected:
 
 	void
 	setSjljFrame(size_t index);
+
+	size_t
+	finalizeReactiveExpressionImpl();
 };
 
 //..............................................................................

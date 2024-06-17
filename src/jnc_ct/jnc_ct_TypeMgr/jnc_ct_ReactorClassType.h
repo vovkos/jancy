@@ -24,6 +24,7 @@ enum ReactorMethod {
 	ReactorMethod_Restart,
 	ReactorMethod_AddOnChangedBinding,
 	ReactorMethod_AddOnEventBinding,
+	ReactorMethod_EnterReactiveStmt,
 	ReactorMethod__Count,
 };
 
@@ -39,8 +40,8 @@ getReactorMethod(
 
 class ReactorClassType: public ClassType {
 	friend class TypeMgr;
-	friend class ClassType;
 	friend class ControlFlowMgr;
+	friend class ClassType;
 	friend class Parser;
 
 protected:
@@ -54,7 +55,7 @@ protected:
 		virtual
 		bool
 		compile() {
-			return ((ReactorClassType*)m_parentNamespace)->compile(this);
+			return ((ReactorClassType*)m_parentNamespace)->compileReaction(this);
 		}
 	};
 
@@ -63,7 +64,7 @@ protected:
 	size_t m_parentOffset;
 	size_t m_reactionCount;
 	Function* m_reactor;
-	sl::SimpleHashTable<size_t, Function*> m_onEventMap;
+	sl::Array<Function*> m_onEventHandlerMap;
 
 public:
 	ReactorClassType();
@@ -92,13 +93,11 @@ public:
 	addOnEventHandler(
 		size_t reactionIdx,
 		Function* function
-	) {
-		m_onEventMap[reactionIdx] = function;
-	}
+	);
 
 	Function*
-	findOnEventHandler(size_t reactionIdx) {
-		return m_onEventMap.findValue(reactionIdx, NULL);
+	getOnEventHandler(size_t reactionIdx) {
+		return m_onEventHandlerMap[reactionIdx];
 	}
 
 protected:
@@ -123,8 +122,22 @@ protected:
 	prepareForOperatorNew();
 
 	bool
-	compile(Function* function);
+	compileReaction(Function* function);
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+void
+ReactorClassType::addOnEventHandler(
+	size_t reactionIdx,
+	Function* function
+) {
+	if (m_onEventHandlerMap.getCount() <= reactionIdx)
+		m_onEventHandlerMap.setCountZeroConstruct(reactionIdx + 1);
+
+	m_onEventHandlerMap.rwi()[reactionIdx] = function;
+}
 
 //..............................................................................
 

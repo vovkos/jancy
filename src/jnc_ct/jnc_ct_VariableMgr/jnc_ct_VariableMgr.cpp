@@ -671,7 +671,7 @@ VariableMgr::createStaticRegexVariable(const re2::Regex& regex) {
 	// create the regex variable
 
 	ClassType* regexType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_Regex);
-	Variable* variable = m_module->m_variableMgr.createVariable(StorageKind_Static, "regex", regexType);
+	Variable* variable = createVariable(StorageKind_Static, "regex", regexType);
 	variable->m_parentNamespace = m_module->m_namespaceMgr.getCurrentScope();
 
 	// initialize and load the regex variable inside a once-block
@@ -711,7 +711,7 @@ VariableMgr::getRegexMatchVariable() {
 		PtrTypeFlag_Const
 	);
 
-	Variable* variable = m_module->m_variableMgr.createSimpleStackVariable("regexMatch", ptrType);
+	Variable* variable = createSimpleStackVariable("regexMatch", ptrType);
 	variable->m_parentNamespace = scope;
 	scope->m_regexMatchVariable = variable;
 	return variable;

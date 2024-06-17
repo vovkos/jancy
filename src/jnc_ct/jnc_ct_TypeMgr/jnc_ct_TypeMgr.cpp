@@ -734,8 +734,8 @@ TypeMgr::createUserFunctionType(
 		// when compiling stdlib docs, we don't add standard types
 
 		returnType = (compileFlags & ModuleCompileFlag_StdLibDoc) ?
-			m_module->m_typeMgr.getStdType(StdType_AbstractClassPtr) :
-			m_module->m_typeMgr.getStdType(StdType_PromisePtr);
+			getStdType(StdType_AbstractClassPtr) :
+			getStdType(StdType_PromisePtr);
 
 		if (flags & FunctionTypeFlag_ErrorCode) {
 			flags &= ~FunctionTypeFlag_ErrorCode;
@@ -1074,14 +1074,15 @@ TypeMgr::createReactorBaseType() {
 	// onevent statement can have different event types
 	Type* addOnEventBindingTypeArgTypeArray[] = { sizeType, getStdType(StdType_AbstractClassPtr) };
 	Type* addOnChangedBindingArgTypeArray[] = { sizeType, getStdType(StdType_SimpleEventPtr) };
+	Type* enterReactiveStmtArgTypeArray[] = { sizeType, sizeType };
 
 	FunctionType* simpleFunctionType = (FunctionType*)getStdType(StdType_SimpleFunction);
 	FunctionType* addOnChangedBindingType = getFunctionType(voidType, addOnChangedBindingArgTypeArray, 2);
 	FunctionType* addOnEventBindingType = getFunctionType(voidType, addOnEventBindingTypeArgTypeArray, 2);
+	FunctionType* enterReactiveStmtType = getFunctionType(voidType, enterReactiveStmtArgTypeArray, 2);
 
 	ClassType* type = createClassType("ReactorBase", "jnc.ReactorBase", 8, ClassTypeFlag_Opaque);
 	type->m_namespaceStatus = NamespaceStatus_Ready;
-	type->createField("m_activationCountLimit", getPrimitiveType(TypeKind_SizeT));
 
 	Function* constructor = m_module->m_functionMgr.createFunction(simpleFunctionType);
 	constructor->m_functionKind = FunctionKind_Constructor;
@@ -1096,7 +1097,7 @@ TypeMgr::createReactorBaseType() {
 	type->createMethod("restart", simpleFunctionType);
 	type->createMethod("!addOnChangedBinding", addOnChangedBindingType);
 	type->createMethod("!addOnEventBinding", addOnEventBindingType);
-
+	type->createMethod("!enterReactiveStmt", enterReactiveStmtType);
 	return type;
 }
 

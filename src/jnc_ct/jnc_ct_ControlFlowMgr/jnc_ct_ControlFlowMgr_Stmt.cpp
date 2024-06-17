@@ -76,6 +76,8 @@ ControlFlowMgr::restoreRegexFlags(
 	pragmaConfig->m_regexFlagMask |= stmt->m_prevPragmaRegexFlagMask;
 }
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 void
 ControlFlowMgr::ifStmt_Create(
 	IfStmt* stmt,
@@ -86,6 +88,7 @@ ControlFlowMgr::ifStmt_Create(
 	stmt->m_thenBlock = createBlock("if_then");
 	stmt->m_elseBlock = createBlock("if_else");
 	stmt->m_followBlock = stmt->m_elseBlock;
+	stmt->m_reactionIdx = -1;
 	m_regexCondStmt = stmt;
 }
 
@@ -97,7 +100,14 @@ ControlFlowMgr::ifStmt_Condition(
 ) {
 	m_regexCondStmt = NULL;
 
-	bool result = conditionalJump(value, stmt->m_thenBlock, stmt->m_elseBlock);
+	Value boolValue;
+	bool result = m_module->m_operatorMgr.castOperator(value, TypeKind_Bool, &boolValue);
+	if (!result)
+		return false;
+
+	stmt->m_reactionIdx = finalizeReactiveExpression();
+
+	result = conditionalJump(boolValue, stmt->m_thenBlock, stmt->m_elseBlock);
 	if (!result)
 		return false;
 
@@ -124,6 +134,9 @@ ControlFlowMgr::ifStmt_Follow(
 	m_module->m_namespaceMgr.closeScope();
 	follow(stmt->m_followBlock);
 	restoreRegexFlags(stmt, pragmaConfig);
+
+	if (stmt->m_reactionIdx != -1)
+		finalizeReactiveStmt(stmt->m_reactionIdx);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -133,6 +146,7 @@ ControlFlowMgr::switchStmt_Create(SwitchStmt* stmt) {
 	stmt->m_switchBlock = NULL;
 	stmt->m_defaultBlock = NULL;
 	stmt->m_followBlock = createBlock("switch_follow");
+	stmt->m_reactionIdx = -1;
 }
 
 bool
@@ -141,10 +155,11 @@ ControlFlowMgr::switchStmt_Condition(
 	const Value& value,
 	const lex::LineCol& pos
 ) {
-	bool result = m_module->m_operatorMgr.castOperator(value, TypeKind_Int, &stmt->m_value);
+	bool result = m_module->m_operatorMgr.castOperator(value, TypeKind_Int64, &stmt->m_value);
 	if (!result)
 		return false;
 
+	stmt->m_reactionIdx = finalizeReactiveExpression();
 	stmt->m_switchBlock = getCurrentBlock();
 
 	BasicBlock* bodyBlock = createBlock("switch_body");
@@ -224,6 +239,9 @@ ControlFlowMgr::switchStmt_Follow(SwitchStmt* stmt) {
 		);
 
 	setCurrentBlock(stmt->m_followBlock);
+
+	if (stmt->m_reactionIdx != -1)
+		finalizeReactiveStmt(stmt->m_reactionIdx);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -239,6 +257,7 @@ ControlFlowMgr::regexSwitchStmt_Create(
 	stmt->m_defaultBlock = NULL;
 	stmt->m_followBlock = createBlock("regex_switch_follow");
 	stmt->m_regex.createSwitch(stmt->m_regexFlags);
+	stmt->m_reactionIdx = -1;
 	m_module->m_variableMgr.getRegexMatchVariable(); // ensure the regex match variable in the parent scope
 }
 
@@ -251,7 +270,16 @@ ControlFlowMgr::regexSwitchStmt_Condition(
 ) {
 	ClassType* regexStateType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_RegexState);
 
-	bool result;
+	bool result = m_module->m_operatorMgr.castOperator(
+		value2 ? value2 : value1,
+		m_module->m_typeMgr.getPrimitiveType(TypeKind_String),
+		&stmt->m_textValue
+	);
+
+	if (!result)
+		return false;
+
+	stmt->m_reactionIdx = finalizeReactiveExpression();
 
 	if (!value2) { // simple-mode -- one parameter (text); create a fresh-new regex-state
 		stmt->m_execMethodName = "execEof";
@@ -264,17 +292,11 @@ ControlFlowMgr::regexSwitchStmt_Condition(
 		if (!regexVariable)
 			return false;
 
-		result =
-			m_module->m_operatorMgr.newOperator(
-				regexStateType,
-				&argValueList,
-				&stmt->m_regexStateValue
-			) &&
-			m_module->m_operatorMgr.castOperator(
-				value1,
-				m_module->m_typeMgr.getPrimitiveType(TypeKind_String),
-				&stmt->m_textValue
-			);
+		result = m_module->m_operatorMgr.newOperator(
+			regexStateType,
+			&argValueList,
+			&stmt->m_regexStateValue
+		);
 	} else { // streaming mode -- two parameters (state, text)
 		stmt->m_execMethodName = "exec";
 
@@ -282,11 +304,6 @@ ControlFlowMgr::regexSwitchStmt_Condition(
 			value1,
 			regexStateType->getClassPtrType(ClassPtrTypeKind_Normal, PtrTypeFlag_Safe),
 			&stmt->m_regexStateValue
-		) &&
-		m_module->m_operatorMgr.castOperator(
-			value2,
-			m_module->m_typeMgr.getPrimitiveType(TypeKind_String),
-			&stmt->m_textValue
 		);
 	}
 
@@ -416,6 +433,10 @@ ControlFlowMgr::regexSwitchStmt_Finalize(
 
 	setCurrentBlock(stmt->m_followBlock);
 	restoreRegexFlags(stmt, pragmaConfig);
+
+	if (stmt->m_reactionIdx != -1)
+		finalizeReactiveStmt(stmt->m_reactionIdx);
+
 	return true;
 }
 
@@ -428,7 +449,7 @@ ControlFlowMgr::whileStmt_Create(
 	AttributeBlock* attributeBlock
 ) {
 	if (isReactor())
-		return err::fail("loop statements are illegal in a reactor");
+		return err::fail("no loops allowed in reactors");
 
 	setRegexFlags(stmt, pragmaConfig, attributeBlock);
 	stmt->m_conditionBlock = createBlock("while_condition");
@@ -469,7 +490,7 @@ ControlFlowMgr::whileStmt_Follow(
 bool
 ControlFlowMgr::doStmt_Create(DoStmt* stmt) {
 	if (isReactor())
-		return err::fail("loop statements are illegal in a reactor");
+		return err::fail("no loops allowed in reactors");
 
 	stmt->m_conditionBlock = createBlock("do_condition");
 	stmt->m_bodyBlock = createBlock("do_body");
@@ -513,7 +534,7 @@ ControlFlowMgr::forStmt_Create(
 	AttributeBlock* attributeBlock
 ) {
 	if (isReactor())
-		return err::fail("loop statements are illegal in a reactor");
+		return err::fail("no loops allowed in reactors");
 
 	setRegexFlags(stmt, pragmaConfig, attributeBlock);
 	stmt->m_bodyBlock = createBlock("for_body");

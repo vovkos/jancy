@@ -48,13 +48,11 @@ Parser::Parser(
 	m_lastNamedType = NULL;
 	m_lastPropertyGetterType = NULL;
 	m_lastPropertyTypeModifiers = 0;
-	m_reactionIdx = 0;
 	m_declarationId = 0;
 	m_topDeclarator = NULL;
 
 	m_constructorType = NULL;
 	m_constructorProperty = NULL;
-	m_reactorType = NULL;
 }
 
 bool
@@ -808,20 +806,21 @@ Parser::useNamespace(
 
 bool
 Parser::declareInReactor(Declarator* declarator) {
-	ASSERT(m_reactorType);
+	ASSERT(m_module->m_controlFlowMgr.isReactor());
 
 	if (!declarator->isSimple()) {
 		err::setFormatStringError("invalid declarator in reactor");
 		return false;
 	}
 
+	ReactorClassType* reactorType = m_module->m_controlFlowMgr.getReactorType();
 	const sl::StringRef& name = declarator->getName().getShortName();
-	FindModuleItemResult findResult = m_reactorType->findDirectChildItem(name);
+	FindModuleItemResult findResult = reactorType->findDirectChildItem(name);
 	if (!findResult.m_result)
 		return false;
 
 	if (!findResult.m_item) {
-		err::setFormatStringError("member '%s' not found in reactor '%s'", name.sz(), m_reactorType->getQualifiedName().sz());
+		err::setFormatStringError("member '%s' not found in reactor '%s'", name.sz(), reactorType->getQualifiedName().sz());
 		return false;
 	}
 
@@ -843,9 +842,16 @@ Parser::declareInReactor(Declarator* declarator) {
 	declarator->m_initializer.insertHead(token);
 
 	Parser parser(m_module, getPragmaConfigSnapshot(), Mode_Compile);
-	parser.m_reactorType = m_reactorType;
-	parser.m_reactionIdx = m_reactionIdx;
-	return parser.parseTokenList(SymbolKind_expression, &declarator->m_initializer);
+
+	bool result = parser.parseTokenList(SymbolKind_reactive_expression, &declarator->m_initializer);
+	if (!result)
+		return false;
+
+	size_t reactionIdx = m_module->m_controlFlowMgr.finalizeReactiveExpression();
+	if (reactionIdx != -1)
+		m_module->m_controlFlowMgr.finalizeReaction(reactionIdx);
+
+	return true;
 }
 
 bool
@@ -2287,40 +2293,6 @@ Parser::finalizeDynamicLibType() {
 		return false;
 
 	m_module->m_namespaceMgr.closeNamespace();
-	return true;
-}
-
-bool
-Parser::reactorOnEventStmt(
-	const sl::ConstBoxList<Value>& valueList,
-	Declarator* declarator,
-	sl::List<Token>* tokenList
-) {
-	ASSERT(m_reactorType);
-
-	DeclFunctionSuffix* suffix = declarator->getFunctionSuffix();
-	ASSERT(suffix);
-
-	FunctionType* functionType = suffix->getArgArray().isEmpty() ?
-		m_module->m_typeMgr.getFunctionType(suffix->getArgArray()) :
-		m_module->m_typeMgr.createUserFunctionType(suffix->getArgArray());
-
-	Function* handler = m_reactorType->createUnnamedMethod(FunctionKind_Internal, functionType);
-	handler->m_parentUnit = m_module->m_unitMgr.getCurrentUnit();
-    handler->m_flags |= ModuleItemFlag_User;
-    handler->setBody(getPragmaConfigSnapshot(), tokenList);
-    m_reactorType->addOnEventHandler(m_reactionIdx, handler);
-
-	Function* addBindingFunc = getReactorMethod(m_module, ReactorMethod_AddOnEventBinding);
-	Value thisValue = m_module->m_functionMgr.getThisValue();
-
-	sl::ConstBoxIterator<Value> it = valueList.getHead();
-	for (; it; it++) {
-		bool result = m_module->m_operatorMgr.callOperator(addBindingFunc, thisValue, *it);
-		if (!result)
-			return false;
-	}
-
 	return true;
 }
 

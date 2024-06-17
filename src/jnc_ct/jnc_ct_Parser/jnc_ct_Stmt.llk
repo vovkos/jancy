@@ -97,6 +97,11 @@ statement
 	|	dynamic_group_stmt
 	|	onevent_stmt
 	|	reactive_expression ';'
+			{
+				size_t reactionIdx = m_module->m_controlFlowMgr.finalizeReactiveExpression();
+				if (reactionIdx != -1)
+					m_module->m_controlFlowMgr.finalizeReaction(reactionIdx);
+			}
 	|	';'
 	;
 
@@ -127,7 +132,7 @@ if_stmt
 	enter {
 		m_module->m_controlFlowMgr.ifStmt_Create(&$stmt, &m_pragmaConfig, popAttributeBlock());
 	}
-	:	TokenKind_If '(' expression $e ')' $a
+	:	TokenKind_If '(' reactive_expression $e ')' $a
 			{
 				return m_module->m_controlFlowMgr.ifStmt_Condition(&$stmt, $e.m_value, $a.m_pos);
 			}
@@ -157,7 +162,7 @@ switch_stmt
 	enter {
 		m_module->m_controlFlowMgr.switchStmt_Create(&$stmt);
 	}
-	:	TokenKind_Switch '(' expression $e ')'
+	:	TokenKind_Switch '(' reactive_expression $e ')'
 		'{' $l
 			{
 				return m_module->m_controlFlowMgr.switchStmt_Condition(&$stmt, $e.m_value, $l.m_pos);
@@ -204,7 +209,7 @@ regex_switch_stmt
 	enter {
 		m_module->m_controlFlowMgr.regexSwitchStmt_Create(&$stmt, &m_pragmaConfig, popAttributeBlock());
 	}
-	:	TokenKind_Switch '(' expression $p1 (',' expression $p2)? ')'
+	:	TokenKind_Switch '(' reactive_expression $p1 (',' reactive_expression $p2)? ')'
 		'{' $l
 			{
 				return m_module->m_controlFlowMgr.regexSwitchStmt_Condition(
@@ -465,7 +470,7 @@ onevent_stmt
 		Declarator $declarator;
 	}
 	enter {
-		if (!m_reactorType)
+		if (!m_module->m_controlFlowMgr.isReactor())
 			return err::fail("'onevent' can only be used inside a reactor");
 	}
 	leave {
@@ -477,9 +482,14 @@ onevent_stmt
 				postDeclaratorName(&$declarator);
 			}
 		function_suffix<&$declarator>
-		declaration_body_pass1
+		declaration_body_pass1 $b
 			{
-				return reactorOnEventStmt($2.m_valueList, &$declarator, &$4.m_tokenList);
+				return m_module->m_controlFlowMgr.addOnEventHandler(
+					$2.m_valueList,
+					$declarator.getFunctionSuffix()->getArgArray(),
+					getPragmaConfigSnapshot(),
+					&$b.m_tokenList
+				);
 			}
 	;
 

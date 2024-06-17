@@ -410,8 +410,6 @@ OperatorMgr::getPropertyOnChanged(
 
 bool
 OperatorMgr::addReactorBinding(const Value& opValue) {
-	printf("OperatorMgr::addReactorBinding(%s)\n", opValue.getType()->getTypeString().sz());
-
 	Function* addBindingFunc = getReactorMethod(m_module, ReactorMethod_AddOnChangedBinding);
 	Value onChangedValue;
 
@@ -424,7 +422,7 @@ OperatorMgr::addReactorBinding(const Value& opValue) {
 			addBindingFunc,
 			m_module->m_functionMgr.getThisValue(),
 			Value(
-				m_module->m_controlFlowMgr.getReationIdx(),
+				m_module->m_controlFlowMgr.getReactionIdx(),
 				m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT)
 			),
 			onChangedValue

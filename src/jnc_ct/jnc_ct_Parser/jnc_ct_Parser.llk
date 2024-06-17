@@ -121,7 +121,6 @@ protected:
 
 	sl::Array<TypeSpecifier*> m_typeSpecifierStack;
 	Declarator* m_topDeclarator; // orphan declarators affect import type resolution
-	size_t m_reactionIdx;
 	size_t m_declarationId;
 
 	dox::Parser m_doxyParser;
@@ -131,7 +130,6 @@ public:
 
 	DerivableType* m_constructorType;
 	Property* m_constructorProperty;
-	ReactorClassType* m_reactorType;
 	Value m_curlyInitializerTargetValue;
 
 public:
@@ -179,11 +177,6 @@ public:
 	void
 	takeOverLastExpressionValueList(sl::BoxList<Value>* list) {
 		sl::takeOver(list, &m_lastExpressionValueList);
-	}
-
-	size_t
-	getReactionCount() {
-		return m_reactionIdx;
 	}
 
 	bool
@@ -559,13 +552,6 @@ protected:
 
 	bool
 	parseLastPropertyBody(sl::List<Token>* body);
-
-	bool
-	reactorOnEventStmt(
-		const sl::ConstBoxList<Value>& valueList,
-		Declarator* declarator,
-		sl::List<Token>* tokenList
-	);
 
 	bool
 	callBaseTypeMemberConstructor(

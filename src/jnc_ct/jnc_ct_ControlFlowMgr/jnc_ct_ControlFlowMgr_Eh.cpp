@@ -607,14 +607,14 @@ void
 ControlFlowMgr::preCreateSjljFrameArray() {
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
 	BasicBlock* prologueBlock = function->getPrologueBlock();
-	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock(prologueBlock);
+	BasicBlock* prevBlock = setCurrentBlock(prologueBlock);
 
 	ASSERT(!m_sjljFrameArrayValue);
 	Type* type = m_module->m_typeMgr.getStdType(StdType_SjljFrame);
 	m_module->m_llvmIrBuilder.createAlloca(type, type->getDataPtrType_c(), &m_sjljFrameArrayValue);
 	Variable* variable = m_module->m_variableMgr.getStdVariable(StdVariable_SjljFrame);
 	m_module->m_llvmIrBuilder.createLoad(variable, variable->getType(), &m_prevSjljFrameValue);
-	m_module->m_controlFlowMgr.setCurrentBlock(prevBlock);
+	setCurrentBlock(prevBlock);
 }
 
 void
@@ -625,9 +625,9 @@ ControlFlowMgr::finalizeSjljFrameArray() {
 	ASSERT(function);
 
 	BasicBlock* prologueBlock = function->getPrologueBlock();
-	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock(prologueBlock);
+	BasicBlock* prevBlock = setCurrentBlock(prologueBlock);
 
-	m_module->m_controlFlowMgr.setCurrentBlock(prologueBlock);
+	setCurrentBlock(prologueBlock);
 	m_module->m_llvmIrBuilder.setInsertPoint(&*prologueBlock->getLlvmBlock()->begin());
 
 	// create sjlj frame array stack variable (no need to zero-init now, GcHeap::openFrameMap will do that)
@@ -686,7 +686,7 @@ ControlFlowMgr::finalizeSjljFrameArray() {
 
 	// done
 
-	m_module->m_controlFlowMgr.setCurrentBlock(prevBlock);
+	setCurrentBlock(prevBlock);
 }
 
 //..............................................................................

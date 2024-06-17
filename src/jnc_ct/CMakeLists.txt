@@ -185,6 +185,7 @@ set(
 	jnc_ct_ControlFlowMgr/jnc_ct_ControlFlowMgr.cpp
 	jnc_ct_ControlFlowMgr/jnc_ct_ControlFlowMgr_Eh.cpp
 	jnc_ct_ControlFlowMgr/jnc_ct_ControlFlowMgr_Stmt.cpp
+	jnc_ct_ControlFlowMgr/jnc_ct_ControlFlowMgr_Reactor.cpp
 )
 
 source_group(

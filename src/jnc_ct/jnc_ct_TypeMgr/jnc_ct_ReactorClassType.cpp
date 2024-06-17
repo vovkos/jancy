@@ -30,6 +30,7 @@ getReactorMethod(
 		"restart",                 // ReactorMethod_Restart,
 		"!addOnChangedBinding",    // ReactorMethod_AddOnChangedBinding,
 		"!addOnEventBinding",      // ReactorMethod_AddOnEventBinding,
+		"!enterReactiveStmt",      // ReactorMethod_EnterReactiveStmt,
 	};
 
 	ASSERT(method < countof(nameTable));
@@ -37,7 +38,6 @@ getReactorMethod(
 	ClassType* reactorType = (ClassType*)module->m_typeMgr.getStdType(StdType_ReactorBase);
 	Function* function = reactorType->getMethodArray() [method];
 	ASSERT(function->getName() == nameTable[method]);
-
 	return function;
 }
 
@@ -94,7 +94,7 @@ ReactorClassType::prepareForOperatorNew() {
 }
 
 bool
-ReactorClassType::compile(Function* function) {
+ReactorClassType::compileReaction(Function* function) {
 	ASSERT(function == m_reactor);
 	ASSERT(!m_body.isEmpty());
 
@@ -104,7 +104,6 @@ ReactorClassType::compile(Function* function) {
 	m_module->m_functionMgr.internalPrologue(function, argValueArray, countof(argValueArray), &m_bodyPos);
 
 	Parser parser(m_module, m_pragmaConfig, Parser::Mode_Compile);
-	parser.m_reactorType = this;
 
 	m_module->m_controlFlowMgr.enterReactor(this, argValueArray[1]);
 	bool result = parser.parseBody(SymbolKind_compound_stmt, m_bodyPos, m_body);
@@ -118,9 +117,12 @@ ReactorClassType::compile(Function* function) {
 	// explicitly mark all event handlers for compilation as we don't call those directly
 	// they are called from RTL in rtl::ReactorImpl::reactionLoop
 
-	sl::MapIterator<size_t, Function*> it = m_onEventMap.getHead();
-	for (; it; it++)
-		m_module->markForCompile(it->m_value);
+	size_t count = m_onEventHandlerMap.getCount();
+	for (size_t i = 0; i < count; i++) {
+		Function* handler = m_onEventHandlerMap[i];
+		if (handler)
+			m_module->markForCompile(handler);
+	}
 
 	return true;
 }
