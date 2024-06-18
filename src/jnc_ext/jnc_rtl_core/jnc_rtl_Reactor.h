@@ -161,6 +161,9 @@ protected:
 		Multicast* event,
 		FunctionPtr functionPtr
 	);
+
+	void
+	unsubscribe(Binding* binding);
 };
 
 //..............................................................................

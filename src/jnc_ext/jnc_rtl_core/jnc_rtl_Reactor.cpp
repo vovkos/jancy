@@ -171,10 +171,6 @@ void
 ReactorImpl::onChanged(Binding* binding) {
 	m_pendingReactionMap.merge<sl::BitMapOr>(binding->m_reactionMap);
 
-	size_t count = m_reactionArray.getCount();
-	for (size_t i = 0; i < count; i++)
-		printf("[%d]: 0x%x\n", i, m_reactionArray[i]->m_flags);
-
 	if (m_state != State_Running)
 		return;
 
@@ -239,9 +235,9 @@ ReactorImpl::processPendingBindings() {
 		sl::HashTableIterator<Multicast*, Binding*> it = m_bindingMap.visit(pendingBinding.m_event);
 		Binding* binding;
 
-		if (it->m_value) {
+		if (it->m_value)
 			binding = it->m_value;
-		} else {
+		else {
 			binding = subscribe(pendingBinding.m_event);
 			binding->m_bindingMapIt = it;
 			it->m_value = binding;
@@ -282,14 +278,10 @@ ReactorImpl::processPendingBindings() {
 	count = m_activeBindingArray.getCount();
 	for (size_t i = 0; i < count; i++) {
 		Binding* binding = m_activeBindingArray[i];
-		if (binding->m_reactionMap.findBit(0) != -1) { // have at least one reaction bound to this event
-			binding->m_flags &= Flag_Active;
-			continue;
-		}
-
-		((rtl::MulticastImpl*)binding->m_event)->removeHandler(binding->m_handler);
-		m_bindingMap.erase(binding->m_bindingMapIt);
-		m_bindingList.erase(binding);
+		if (binding->m_reactionMap.findBit(0) != -1) // have at least one reaction bound to this event
+			binding->m_flags &= ~Flag_Active;
+		else
+			unsubscribe(binding);
 	}
 
 	// reset all active reactions
@@ -300,6 +292,8 @@ ReactorImpl::processPendingBindings() {
 
 	m_activeBindingArray.clear();
 	m_activeReactionArray.clear();
+	m_pendingOnChangedBindingArray.clear();
+	m_pendingOnEventBindingArray.clear();
 }
 
 bool
@@ -363,6 +357,14 @@ ReactorImpl::subscribe(
 	binding->m_handler = ((MulticastImpl*)event)->addHandler(functionPtr);
 	m_bindingList.insertTail(binding);
 	return binding;
+}
+
+void
+ReactorImpl::unsubscribe(Binding* binding) {
+	((rtl::MulticastImpl*)binding->m_event)->removeHandler(binding->m_handler);
+	if (binding->m_bindingMapIt) // onevent bindings are not added to the map
+		m_bindingMap.erase(binding->m_bindingMapIt);
+	m_bindingList.erase(binding);
 }
 
 //..............................................................................

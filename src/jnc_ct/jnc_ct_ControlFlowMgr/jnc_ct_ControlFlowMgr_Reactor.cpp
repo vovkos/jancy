@@ -33,6 +33,7 @@ ControlFlowMgr::enterReactor(
 	m_reactorBody->m_reactionBindingCount = 0;
 
 	setCurrentBlock(m_reactorBody->m_reactorBodyBlock);
+	m_reactorBody->m_reactorBodyBlock->m_flags |= BasicBlockFlag_Jumped | BasicBlockFlag_Reachable;
 }
 
 void
@@ -65,13 +66,16 @@ ControlFlowMgr::leaveReactor() {
 			caseCount++;
 		}
 
-		m_module->m_llvmIrBuilder.createSwitch(
-			m_reactorBody->m_reactionIdxValue,
-			m_reactorBody->m_reactorBodyBlock,
-			caseIdArray,
-			blockArray,
-			reactionCount
-		);
+		if (!caseCount)
+			m_module->m_llvmIrBuilder.createBr(m_reactorBody->m_reactorBodyBlock);
+		else
+			m_module->m_llvmIrBuilder.createSwitch(
+				m_reactorBody->m_reactionIdxValue,
+				m_reactorBody->m_reactorBodyBlock,
+				caseIdArray,
+				blockArray,
+				caseCount
+			);
 	}
 
 	setCurrentBlock(m_reactorBody->m_reactorFollowBlock);
@@ -144,6 +148,7 @@ ControlFlowMgr::finalizeReactiveExpressionImpl() {
 			reactionBlock->m_name >> toLlvm
 		);
 
+		reactionBlock->m_flags |= BasicBlockFlag_Jumped | BasicBlockFlag_Reachable;
 		m_blockList.insertTail(reactionBlock);
 	}
 
