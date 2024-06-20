@@ -166,7 +166,7 @@ Socket::accept(
 	bool isSuspended
 ) {
 	SocketAddress* address = ((SocketAddress*)addressPtr.m_p);
-	Socket* connectionSocket = createClass<Socket> (m_runtime);
+	Socket* connectionSocket = createClass<Socket>(m_runtime);
 
 	m_lock.lock();
 	if (m_pendingIncomingConnectionList.isEmpty()) {

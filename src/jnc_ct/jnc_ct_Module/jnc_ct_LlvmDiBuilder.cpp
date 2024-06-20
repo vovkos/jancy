@@ -104,16 +104,16 @@ LlvmDiBuilder::createSubroutineType(FunctionType* functionType) {
 		*dst = argArray[i]->getType()->getLlvmDiType();
 
 #if (LLVM_VERSION < 0x030600)
-	llvm::DIArray llvmDiTypeArray = m_llvmDiBuilder->getOrCreateArray(llvm::ArrayRef<llvm::Metadata*> (argTypeArray, count + 1));
+	llvm::DIArray llvmDiTypeArray = m_llvmDiBuilder->getOrCreateArray(llvm::ArrayRef<llvm::Metadata*>(argTypeArray, count + 1));
 	return m_llvmDiBuilder->createSubroutineType(unit->getLlvmDiFile(), llvmDiTypeArray);
 #elif (LLVM_VERSION < 0x030700)
-	llvm::DITypeArray llvmDiTypeArray = m_llvmDiBuilder->getOrCreateTypeArray(llvm::ArrayRef<llvm::Metadata*> (argTypeArray, count + 1));
+	llvm::DITypeArray llvmDiTypeArray = m_llvmDiBuilder->getOrCreateTypeArray(llvm::ArrayRef<llvm::Metadata*>(argTypeArray, count + 1));
 	return m_llvmDiBuilder->createSubroutineType(unit->getLlvmDiFile(), llvmDiTypeArray);
 #elif (LLVM_VERSION < 0x030800)
-	llvm::DITypeRefArray llvmDiTypeArray = m_llvmDiBuilder->getOrCreateTypeArray(llvm::ArrayRef<llvm::Metadata*> (argTypeArray, count + 1));
+	llvm::DITypeRefArray llvmDiTypeArray = m_llvmDiBuilder->getOrCreateTypeArray(llvm::ArrayRef<llvm::Metadata*>(argTypeArray, count + 1));
 	return m_llvmDiBuilder->createSubroutineType(unit->getLlvmDiFile(), llvmDiTypeArray);
 #else
-	llvm::DITypeRefArray llvmDiTypeArray = m_llvmDiBuilder->getOrCreateTypeArray(llvm::ArrayRef<llvm::Metadata*> (argTypeArray, count + 1));
+	llvm::DITypeRefArray llvmDiTypeArray = m_llvmDiBuilder->getOrCreateTypeArray(llvm::ArrayRef<llvm::Metadata*>(argTypeArray, count + 1));
 	return m_llvmDiBuilder->createSubroutineType(llvmDiTypeArray);
 #endif
 }
@@ -194,7 +194,7 @@ LlvmDiBuilder::setStructTypeBody(StructType* structType) {
 		);
 	}
 
-	llvm::DINodeArray llvmDiArray = m_llvmDiBuilder->getOrCreateArray(llvm::ArrayRef<llvm::Metadata*> (fieldTypeArray, count));
+	llvm::DINodeArray llvmDiArray = m_llvmDiBuilder->getOrCreateArray(llvm::ArrayRef<llvm::Metadata*>(fieldTypeArray, count));
 
 #if (LLVM_VERSION < 0x030600)
 	llvm::DICompositeType llvmDiType(structType->getLlvmDiType());
@@ -206,7 +206,7 @@ LlvmDiBuilder::setStructTypeBody(StructType* structType) {
 	llvmDiType->replaceOperandWith(4, llvmDiArray);
 #else
 	llvm::DICompositeType* llvmDiType = (llvm::DICompositeType*)structType->getLlvmDiType();
-	ASSERT(llvm::isa<llvm::DICompositeType> (llvmDiType));
+	ASSERT(llvm::isa<llvm::DICompositeType>(llvmDiType));
 	llvmDiType->replaceElements(llvmDiArray);
 #endif
 }
@@ -258,7 +258,7 @@ LlvmDiBuilder::setUnionTypeBody(UnionType* unionType) {
 		);
 	}
 
-	llvm::DINodeArray llvmDiArray = m_llvmDiBuilder->getOrCreateArray(llvm::ArrayRef<llvm::Metadata*> (fieldTypeArray, count));
+	llvm::DINodeArray llvmDiArray = m_llvmDiBuilder->getOrCreateArray(llvm::ArrayRef<llvm::Metadata*>(fieldTypeArray, count));
 
 #if (LLVM_VERSION < 0x030600)
 	llvm::DICompositeType llvmDiType(unionType->getLlvmDiType());
@@ -270,7 +270,7 @@ LlvmDiBuilder::setUnionTypeBody(UnionType* unionType) {
 	llvmDiType->replaceOperandWith(4, llvmDiArray);
 #else
 	llvm::DICompositeType* llvmDiType = (llvm::DICompositeType*)unionType->getLlvmDiType();
-	ASSERT(llvm::isa<llvm::DICompositeType> (llvmDiType));
+	ASSERT(llvm::isa<llvm::DICompositeType>(llvmDiType));
 	llvmDiType->replaceElements(llvmDiArray);
 #endif
 }
@@ -295,7 +295,7 @@ LlvmDiBuilder::createArrayType(ArrayType* arrayType) {
 		p = (ArrayType*)elementType;
 	}
 
-	llvm::DINodeArray llvmDiArray = m_llvmDiBuilder->getOrCreateArray(llvm::ArrayRef<llvm::Metadata*> (dimArray, dimArray.getCount()));
+	llvm::DINodeArray llvmDiArray = m_llvmDiBuilder->getOrCreateArray(llvm::ArrayRef<llvm::Metadata*>(dimArray, dimArray.getCount()));
 
 	return m_llvmDiBuilder->createArrayType(
 		arrayType->getSize() * 8,
@@ -322,7 +322,7 @@ LlvmDiBuilder::createGlobalVariable(Variable* variable) {
 	ASSERT(unit);
 
 	llvm::GlobalVariable* llvmGlobalVariable = (llvm::GlobalVariable*)variable->getLlvmValue();
-	ASSERT(llvm::isa<llvm::GlobalVariable> (llvmGlobalVariable));
+	ASSERT(llvm::isa<llvm::GlobalVariable>(llvmGlobalVariable));
 
 	return m_llvmDiBuilder->createGlobalVariable(
 #if (LLVM_VERSION < 0x030600)
@@ -403,7 +403,7 @@ LlvmDiBuilder::createDeclare(Variable* variable) {
 	llvmInstruction->setDebugLoc(llvmDebugLoc);
 #else
 	llvm::DILocalVariable* llvmDiLocalVariable = (llvm::DILocalVariable*)variable->getLlvmDiDescriptor();
-	ASSERT(llvm::isa<llvm::DILocalVariable> (llvmDiLocalVariable));
+	ASSERT(llvm::isa<llvm::DILocalVariable>(llvmDiLocalVariable));
 	ASSERT((llvm::MDNode*)scope->getLlvmDiScope());
 
 #if (LLVM_VERSION_MAJOR < 12)
@@ -459,7 +459,7 @@ LlvmDiBuilder::createFunction(Function* function) {
 	);
 #elif (LLVM_VERSION < 0x080000)
 	llvm::DISubroutineType* llvmDiSubroutineType = (llvm::DISubroutineType*)function->getType()->getLlvmDiType();
-	ASSERT(llvm::isa<llvm::DISubroutineType> (llvmDiSubroutineType));
+	ASSERT(llvm::isa<llvm::DISubroutineType>(llvmDiSubroutineType));
 
 	llvm::DISubprogram* subprogram = m_llvmDiBuilder->createFunction(
 		unit->getLlvmDiFile(),             // DIScope *Scope
@@ -477,7 +477,7 @@ LlvmDiBuilder::createFunction(Function* function) {
 	return subprogram;
 #else
 	llvm::DISubroutineType* llvmDiSubroutineType = (llvm::DISubroutineType*)function->getType()->getLlvmDiType();
-	ASSERT(llvm::isa<llvm::DISubroutineType> (llvmDiSubroutineType));
+	ASSERT(llvm::isa<llvm::DISubroutineType>(llvmDiSubroutineType));
 
 	llvm::DISubprogram* subprogram = m_llvmDiBuilder->createFunction(
 		unit->getLlvmDiFile(),               // DIScope *Scope

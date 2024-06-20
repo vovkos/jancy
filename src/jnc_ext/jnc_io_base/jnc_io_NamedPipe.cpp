@@ -184,7 +184,7 @@ NamedPipe::accept(bool isSuspended) {
 	wakeIoThread();
 	m_lock.unlock();
 
-	FileStream* fileStream = jnc::createClass<FileStream> (m_runtime);
+	FileStream* fileStream = jnc::createClass<FileStream>(m_runtime);
 	fileStream->m_file.m_file.attach(h);
 	fileStream->setReadParallelism(m_readParallelism);
 	fileStream->setReadBlockSize(m_readBlockSize);

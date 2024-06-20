@@ -103,7 +103,7 @@ UsbInterface::openEndpoint(
 	GcHeap* gcHeap = runtime->getGcHeap();
 	gcHeap->enterNoCollectRegion();
 
-	UsbEndpoint* endpoint = createClass<UsbEndpoint> (runtime);
+	UsbEndpoint* endpoint = createClass<UsbEndpoint>(runtime);
 	endpoint->m_interface = this;
 	endpoint->m_endpointDescriptorPtr.m_p = endpointDescriptor;
 

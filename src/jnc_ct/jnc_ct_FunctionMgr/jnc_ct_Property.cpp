@@ -677,7 +677,7 @@ Property::createVtableVariable() {
 
 	llvm::Constant* llvmVtableConst = llvm::ConstantStruct::get(
 		(llvm::StructType*)vtableStructType->getLlvmType(),
-		llvm::ArrayRef<llvm::Constant*> (llvmVtable, count)
+		llvm::ArrayRef<llvm::Constant*>(llvmVtable, count)
 	);
 
 	m_vtableVariable = m_module->m_variableMgr.createSimpleStaticVariable(

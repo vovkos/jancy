@@ -216,7 +216,7 @@ WebSocket::accept(
 	bool isSuspended
 ) {
 	SocketAddress* address = ((SocketAddress*)addressPtr.m_p);
-	WebSocket* connectionSocket = createClass<WebSocket> (m_runtime);
+	WebSocket* connectionSocket = createClass<WebSocket>(m_runtime);
 
 	m_lock.lock();
 	if (m_pendingIncomingConnectionList.isEmpty()) {

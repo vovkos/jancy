@@ -485,8 +485,8 @@ VariableMgr::createStaticDataPtrValidator(Variable* variable) {
 		&variableEndPtrValue
 	);
 
-	ASSERT(llvm::isa<llvm::Constant> (variablePtrValue.getLlvmValue()));
-	ASSERT(llvm::isa<llvm::Constant> (variableEndPtrValue.getLlvmValue()));
+	ASSERT(llvm::isa<llvm::Constant>(variablePtrValue.getLlvmValue()));
+	ASSERT(llvm::isa<llvm::Constant>(variableEndPtrValue.getLlvmValue()));
 
 	// validator initializer
 
@@ -499,7 +499,7 @@ VariableMgr::createStaticDataPtrValidator(Variable* variable) {
 		&boxPtrValue
 	);
 
-	ASSERT(llvm::isa<llvm::Constant> (boxPtrValue.getLlvmValue()));
+	ASSERT(llvm::isa<llvm::Constant>(boxPtrValue.getLlvmValue()));
 
 	llvmMemberArray[0] = (llvm::Constant*)boxPtrValue.getLlvmValue();
 	llvmMemberArray[1] = (llvm::Constant*)boxPtrValue.getLlvmValue();
@@ -508,7 +508,7 @@ VariableMgr::createStaticDataPtrValidator(Variable* variable) {
 
 	llvm::Constant* llvmValidatorConst = llvm::ConstantStruct::get(
 		(llvm::StructType*)validatorType->getLlvmType(),
-		llvm::ArrayRef<llvm::Constant*> (llvmMemberArray, 4)
+		llvm::ArrayRef<llvm::Constant*>(llvmMemberArray, 4)
 	);
 
 	// box initializer
@@ -522,7 +522,7 @@ VariableMgr::createStaticDataPtrValidator(Variable* variable) {
 
 	llvm::Constant* llvmBoxConst = llvm::ConstantStruct::get(
 		(llvm::StructType*)boxType->getLlvmType(),
-		llvm::ArrayRef<llvm::Constant*> (llvmMemberArray, 4)
+		llvm::ArrayRef<llvm::Constant*>(llvmMemberArray, 4)
 	);
 
 	llvmBoxVariable->setInitializer(llvmBoxConst);

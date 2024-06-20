@@ -36,7 +36,7 @@ createUsbDeviceEntry(
 	Runtime* runtime,
 	const axl::io::UsbDeviceEntry* srcDeviceEntry
 ) {
-	DataPtr resultPtr = createData<UsbDeviceEntry> (runtime);
+	DataPtr resultPtr = createData<UsbDeviceEntry>(runtime);
 	UsbDeviceEntry* deviceEntry = (UsbDeviceEntry*)resultPtr.m_p;
 	initUsbDeviceStrings(deviceEntry, srcDeviceEntry);
 	deviceEntry->m_device = createClass<UsbDevice>(runtime);
@@ -100,7 +100,7 @@ enumerateUsbDevicesNoDesc(DataPtr countPtr) {
 	libusb_device** srcDeviceArray = deviceList;
 
 	for (size_t i = 0; i < count; i++) {
-		UsbDevice* device = createClass<UsbDevice> (runtime);
+		UsbDevice* device = createClass<UsbDevice>(runtime);
 		device->setDevice(srcDeviceArray[i]);
 		dstDeviceArray[i] = device;
 	}

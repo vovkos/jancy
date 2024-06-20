@@ -285,7 +285,7 @@ exec(
 
 	ASSERT(result == -1);
 	err::setLastSystemError();
-	
+
 }
 #endif
 
@@ -559,7 +559,7 @@ ChildProcess::terminate() {
 
 FileStream*
 ChildProcess::createFileStream(AxlOsFile* file) {
-	FileStream* fileStream = jnc::createClass<FileStream> (m_runtime);
+	FileStream* fileStream = jnc::createClass<FileStream>(m_runtime);
 	fileStream->m_file.m_file.attach(file->detach());
 	fileStream->setReadParallelism(m_readParallelism);
 	fileStream->setReadBlockSize(m_readBlockSize);

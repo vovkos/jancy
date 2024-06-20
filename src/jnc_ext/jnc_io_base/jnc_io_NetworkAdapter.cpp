@@ -40,7 +40,7 @@ createNetworkAdapterAddress(
 	const axl::io::NetworkAdapterAddress* srcAddress,
 	NetworkAdapterAddress* prevAddress
 ) {
-	DataPtr addressPtr = createData<NetworkAdapterAddress> (runtime);
+	DataPtr addressPtr = createData<NetworkAdapterAddress>(runtime);
 	NetworkAdapterAddress* address = (NetworkAdapterAddress*)addressPtr.m_p;
 	address->m_address.setSockAddr(srcAddress->m_address);
 	address->m_netMaskBitCount = srcAddress->m_netMaskBitCount;
@@ -57,7 +57,7 @@ createNetworkAdapterDesc(
 	const axl::io::NetworkAdapterDesc* srcAdapter,
 	NetworkAdapterDesc* prevAdapter
 ) {
-	DataPtr adapterPtr = createData<NetworkAdapterDesc> (runtime);
+	DataPtr adapterPtr = createData<NetworkAdapterDesc>(runtime);
 	NetworkAdapterDesc* adapter = (NetworkAdapterDesc*)adapterPtr.m_p;
 	adapter->m_type = srcAdapter->m_type;
 	adapter->m_flags = srcAdapter->m_flags;

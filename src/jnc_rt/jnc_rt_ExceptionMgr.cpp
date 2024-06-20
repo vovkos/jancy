@@ -73,7 +73,7 @@ ExceptionMgr::signalHandler(
 
 	Tls* tls = getCurrentThreadTls();
 	if (!tls) {
-		sl::getSimpleSingleton<ExceptionMgr> ()->invokePrevSignalHandler(signal, signalInfo, context);
+		sl::getSimpleSingleton<ExceptionMgr>()->invokePrevSignalHandler(signal, signalInfo, context);
 		return;
 	}
 
@@ -86,11 +86,11 @@ ExceptionMgr::signalHandler(
 	}
 
 #if (_JNC_NO_EH)
-	sl::getSimpleSingleton<ExceptionMgr> ()->invokePrevSignalHandler(signal, signalInfo, context);
+	sl::getSimpleSingleton<ExceptionMgr>()->invokePrevSignalHandler(signal, signalInfo, context);
 #else
 	TlsVariableTable* tlsVariableTable = (TlsVariableTable*)(tls + 1);
 	if (!tlsVariableTable->m_sjljFrame) {
-		sl::getSimpleSingleton<ExceptionMgr> ()->invokePrevSignalHandler(signal, signalInfo, context);
+		sl::getSimpleSingleton<ExceptionMgr>()->invokePrevSignalHandler(signal, signalInfo, context);
 	} else {
 		const ucontext_t* ucontext = (ucontext_t *)context;
 #	if (_JNC_OS_DARWIN)
@@ -131,7 +131,7 @@ ExceptionMgr::signalHandler_SIGUSR(
 
 	Tls* tls = getCurrentThreadTls();
 	if (!tls)
-		sl::getSimpleSingleton<ExceptionMgr> ()->invokePrevSignalHandler(signal, signalInfo, context);
+		sl::getSimpleSingleton<ExceptionMgr>()->invokePrevSignalHandler(signal, signalInfo, context);
 
 	// do nothing (we gc-handshake manually). but we still need a handler
 }

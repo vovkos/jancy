@@ -86,7 +86,7 @@ Function::convertToMemberMethod(DerivableType* parentType) {
 void
 Function::addTlsVariable(Variable* variable) {
 	llvm::AllocaInst* llvmAlloca = (llvm::AllocaInst*)variable->getLlvmValue();
-	ASSERT(llvmAlloca && llvm::isa<llvm::AllocaInst> (*llvmAlloca));
+	ASSERT(llvmAlloca && llvm::isa<llvm::AllocaInst>(*llvmAlloca));
 
 	TlsVariable tlsVariable;
 	tlsVariable.m_variable = variable;

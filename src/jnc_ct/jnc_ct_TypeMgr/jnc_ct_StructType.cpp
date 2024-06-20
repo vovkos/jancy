@@ -242,7 +242,7 @@ StructType::calcLayout() {
 
 		llvm::StructType* llvmStructType = (llvm::StructType*)getLlvmType();
 		llvmStructType->setBody(
-			llvm::ArrayRef<llvm::Type*> (m_llvmFieldTypeArray, m_llvmFieldTypeArray.getCount()),
+			llvm::ArrayRef<llvm::Type*>(m_llvmFieldTypeArray, m_llvmFieldTypeArray.getCount()),
 			true
 		);
 	}

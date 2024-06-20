@@ -218,7 +218,7 @@ List::allocateListEntry() {
 	Runtime* runtime = getCurrentThreadRuntime();
 	ASSERT(runtime);
 
-	return createData<ListEntry> (runtime);
+	return createData<ListEntry>(runtime);
 }
 
 void

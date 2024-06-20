@@ -43,7 +43,7 @@ void ModulePane::onItemDoubleClicked(QTreeWidgetItem *treeItem, int column) {
 	if(variant.isNull())
 		return;
 
-	jnc::ModuleItemDecl* decl = (jnc::ModuleItemDecl*)variant.value<void*> ();
+	jnc::ModuleItemDecl* decl = (jnc::ModuleItemDecl*)variant.value<void*>();
 	if (!decl)
 		return;
 

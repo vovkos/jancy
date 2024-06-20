@@ -44,12 +44,12 @@ public:
 
 	FunctionPtr
 	removeHandler(handle_t handle) {
-		return removeHandlerImpl<FunctionPtr> (handle);
+		return removeHandlerImpl<FunctionPtr>(handle);
 	}
 
 	void*
 	removeHandler_t(handle_t handle) {
-		return removeHandlerImpl<void*> (handle);
+		return removeHandlerImpl<void*>(handle);
 	}
 
 	FunctionPtr

@@ -207,7 +207,7 @@ CallConv::prepareFunctionType(FunctionType* functionType) {
 
 	functionType->m_llvmType = llvm::FunctionType::get(
 		functionType->getReturnType()->getLlvmType(),
-		llvm::ArrayRef<llvm::Type*> (llvmArgTypeArray, argCount),
+		llvm::ArrayRef<llvm::Type*>(llvmArgTypeArray, argCount),
 		(functionType->getFlags() & FunctionTypeFlag_VarArg) != 0
 	);
 }

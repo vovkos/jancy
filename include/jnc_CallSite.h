@@ -241,7 +241,7 @@ callFunctionImpl_s(
 	bool result;
 
 	JNC_BEGIN_CALL_SITE(runtime)
-		*retVal = callFunctionImpl_u<RetVal> (p);
+		*retVal = callFunctionImpl_u<RetVal>(p);
 	JNC_END_CALL_SITE_EX(&result)
 
 	return result;
@@ -261,7 +261,7 @@ callFunctionImpl_s(
 	bool result;
 
 	JNC_BEGIN_CALL_SITE(runtime)
-		*retVal = callFunctionImpl_u<RetVal> (p, arg);
+		*retVal = callFunctionImpl_u<RetVal>(p, arg);
 	JNC_END_CALL_SITE_EX(&result)
 
 	return result;
@@ -283,7 +283,7 @@ callFunctionImpl_s(
 	bool result;
 
 	JNC_BEGIN_CALL_SITE(runtime)
-		*retVal = callFunctionImpl_u<RetVal> (p, arg1, arg2);
+		*retVal = callFunctionImpl_u<RetVal>(p, arg1, arg2);
 	JNC_END_CALL_SITE_EX(&result)
 
 	return result;
@@ -307,7 +307,7 @@ callFunctionImpl_s(
 	bool result;
 
 	JNC_BEGIN_CALL_SITE(runtime)
-		*retVal = callFunctionImpl_u<RetVal> (p, arg1, arg2, arg3);
+		*retVal = callFunctionImpl_u<RetVal>(p, arg1, arg2, arg3);
 	JNC_END_CALL_SITE_EX(&result)
 
 	return result;
@@ -333,7 +333,7 @@ callFunctionImpl_s(
 	bool result;
 
 	JNC_BEGIN_CALL_SITE(runtime)
-		*retVal = callFunctionImpl_u<RetVal> (p, arg1, arg2, arg3, arg4);
+		*retVal = callFunctionImpl_u<RetVal>(p, arg1, arg2, arg3, arg4);
 	JNC_END_CALL_SITE_EX(&result)
 
 	return result;
@@ -361,7 +361,7 @@ callFunctionImpl_s(
 	bool result;
 
 	JNC_BEGIN_CALL_SITE(runtime)
-		*retVal = callFunctionImpl_u<RetVal> (p, arg1, arg2, arg3, arg4, arg5);
+		*retVal = callFunctionImpl_u<RetVal>(p, arg1, arg2, arg3, arg4, arg5);
 	JNC_END_CALL_SITE_EX(&result)
 
 	return result;
@@ -458,7 +458,7 @@ template <typename RetVal>
 RetVal
 callFunction(Function* function) {
 	void* p = function->getMachineCode();
-	return callFunctionImpl_u<RetVal> (p);
+	return callFunctionImpl_u<RetVal>(p);
 }
 
 template <
@@ -471,7 +471,7 @@ callFunction(
 	Arg arg
 ) {
 	void* p = function->getMachineCode();
-	return callFunctionImpl_u<RetVal> (p, arg);
+	return callFunctionImpl_u<RetVal>(p, arg);
 }
 
 template <
@@ -486,7 +486,7 @@ callFunction(
 	Arg2 arg2
 ) {
 	void* p = function->getMachineCode();
-	return callFunctionImpl_u<RetVal> (p, arg1, arg2);
+	return callFunctionImpl_u<RetVal>(p, arg1, arg2);
 }
 
 template <
@@ -503,7 +503,7 @@ callFunction(
 	Arg3 arg3
 ) {
 	void* p = function->getMachineCode();
-	return callFunctionImpl_u<RetVal> (p, arg1, arg2, arg3);
+	return callFunctionImpl_u<RetVal>(p, arg1, arg2, arg3);
 }
 
 template <
@@ -522,7 +522,7 @@ callFunction(
 	Arg4 arg4
 ) {
 	void* p = function->getMachineCode();
-	return callFunctionImpl_u<RetVal> (p, arg1, arg2, arg3, arg4);
+	return callFunctionImpl_u<RetVal>(p, arg1, arg2, arg3, arg4);
 }
 
 //..............................................................................
@@ -610,7 +610,7 @@ inline
 void
 callVoidFunction(Function* function) {
 	void* p = function->getMachineCode();
-	callFunctionImpl_u<void> (p);
+	callFunctionImpl_u<void>(p);
 }
 
 template <typename Arg>
@@ -620,7 +620,7 @@ callVoidFunction(
 	Arg arg
 ) {
 	void* p = function->getMachineCode();
-	callFunctionImpl_u<void> (p, arg);
+	callFunctionImpl_u<void>(p, arg);
 }
 
 template <
@@ -634,7 +634,7 @@ callVoidFunction(
 	Arg2 arg2
 ) {
 	void* p = function->getMachineCode();
-	callFunctionImpl_u<void> (p, arg1, arg2);
+	callFunctionImpl_u<void>(p, arg1, arg2);
 }
 
 template <
@@ -650,7 +650,7 @@ callVoidFunction(
 	Arg3 arg3
 ) {
 	void* p = function->getMachineCode();
-	callFunctionImpl_u<void> (p, arg1, arg2, arg3);
+	callFunctionImpl_u<void>(p, arg1, arg2, arg3);
 }
 
 template <
@@ -668,7 +668,7 @@ callVoidFunction(
 	Arg4 arg4
 ) {
 	void* p = function->getMachineCode();
-	callFunctionImpl_u<void> (p, arg1, arg2, arg3, arg4);
+	callFunctionImpl_u<void>(p, arg1, arg2, arg3, arg4);
 }
 
 //..............................................................................
@@ -756,7 +756,7 @@ callFunctionPtr(
 template <typename RetVal>
 RetVal
 callFunctionPtr(FunctionPtr ptr) {
-	return callFunctionImpl_u<RetVal> (ptr.m_p, ptr.m_closure);
+	return callFunctionImpl_u<RetVal>(ptr.m_p, ptr.m_closure);
 }
 
 template <
@@ -768,7 +768,7 @@ callFunctionPtr(
 	FunctionPtr ptr,
 	Arg arg
 ) {
-	return callFunctionImpl_u<RetVal> (ptr.m_p, ptr.m_closure, arg);
+	return callFunctionImpl_u<RetVal>(ptr.m_p, ptr.m_closure, arg);
 }
 
 template <
@@ -782,7 +782,7 @@ callFunctionPtr(
 	Arg1 arg1,
 	Arg2 arg2
 ) {
-	return callFunctionImpl_u<RetVal> (ptr.m_p, ptr.m_closure, arg1, arg2);
+	return callFunctionImpl_u<RetVal>(ptr.m_p, ptr.m_closure, arg1, arg2);
 }
 
 template <
@@ -798,7 +798,7 @@ callFunctionPtr(
 	Arg2 arg2,
 	Arg3 arg3
 ) {
-	return callFunctionImpl_u<RetVal> (ptr.m_p, ptr.m_closure, arg1, arg2, arg3);
+	return callFunctionImpl_u<RetVal>(ptr.m_p, ptr.m_closure, arg1, arg2, arg3);
 }
 
 template <
@@ -816,7 +816,7 @@ callFunctionPtr(
 	Arg3 arg3,
 	Arg4 arg4
 ) {
-	return callFunctionImpl_u<RetVal> (ptr.m_p, ptr.m_closure, arg1, arg2, arg3, arg4);
+	return callFunctionImpl_u<RetVal>(ptr.m_p, ptr.m_closure, arg1, arg2, arg3, arg4);
 }
 
 //..............................................................................
@@ -898,7 +898,7 @@ callVoidFunctionPtr(
 inline
 void
 callVoidFunctionPtr(FunctionPtr ptr) {
-	callFunctionImpl_u<void> (ptr.m_p, ptr.m_closure);
+	callFunctionImpl_u<void>(ptr.m_p, ptr.m_closure);
 }
 
 template <typename Arg>
@@ -907,7 +907,7 @@ callVoidFunctionPtr(
 	FunctionPtr ptr,
 	Arg arg
 ) {
-	callFunctionImpl_u<void> (ptr.m_p, ptr.m_closure, arg);
+	callFunctionImpl_u<void>(ptr.m_p, ptr.m_closure, arg);
 }
 
 template <
@@ -920,7 +920,7 @@ callVoidFunctionPtr(
 	Arg1 arg1,
 	Arg2 arg2
 ) {
-	callFunctionImpl_u<void> (ptr.m_p, ptr.m_closure, arg1, arg2);
+	callFunctionImpl_u<void>(ptr.m_p, ptr.m_closure, arg1, arg2);
 }
 
 template <
@@ -935,7 +935,7 @@ callVoidFunctionPtr(
 	Arg2 arg2,
 	Arg3 arg3
 ) {
-	callFunctionImpl_u<void> (ptr.m_p, ptr.m_closure, arg1, arg2, arg3);
+	callFunctionImpl_u<void>(ptr.m_p, ptr.m_closure, arg1, arg2, arg3);
 }
 
 template <
@@ -952,7 +952,7 @@ callVoidFunctionPtr(
 	Arg3 arg3,
 	Arg4 arg4
 ) {
-	callFunctionImpl_u<void> (ptr.m_p, ptr.m_closure, arg1, arg2, arg3, arg4);
+	callFunctionImpl_u<void>(ptr.m_p, ptr.m_closure, arg1, arg2, arg3, arg4);
 }
 
 //..............................................................................

@@ -412,7 +412,7 @@ public:
 
 		llvm::Value* inst = m_llvmIrBuilder->CreateExtractValue(
 			value.getLlvmValue(),
-			llvm::ArrayRef<uint_t> ((uint_t*)indexArray, indexCount)
+			llvm::ArrayRef<uint_t>((uint_t*)indexArray, indexCount)
 		);
 
 		resultValue->setLlvmValue(inst, resultType);
@@ -453,7 +453,7 @@ public:
 		llvm::Value* inst = m_llvmIrBuilder->CreateInsertValue(
 			aggregateValue.getLlvmValue(),
 			memberValue.getLlvmValue(),
-			llvm::ArrayRef<uint_t> ((uint_t*)indexArray, indexCount)
+			llvm::ArrayRef<uint_t>((uint_t*)indexArray, indexCount)
 		);
 
 		resultValue->setLlvmValue(inst, resultType);

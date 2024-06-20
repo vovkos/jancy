@@ -221,7 +221,7 @@ UsbDevice::claimInterface(
 	if (!ifaceDescriptor)
 		err::setError(err::SystemErrorCode_ObjectNameNotFound);
 	else {
-		iface = createClass<UsbInterface> (runtime);
+		iface = createClass<UsbInterface>(runtime);
 		iface->m_device = this;
 		iface->m_interfaceDescriptorPtr.m_p = ifaceDescriptor;
 
@@ -337,7 +337,7 @@ openUsbDevice(
 	UsbDevice* device = NULL;
 	Runtime* runtime = getCurrentThreadRuntime();
 	JNC_BEGIN_CALL_SITE(runtime)
-		device = createClass<UsbDevice> (runtime);
+		device = createClass<UsbDevice>(runtime);
 		device->takeOver(&srcDevice);
 	JNC_END_CALL_SITE()
 

@@ -229,7 +229,7 @@ Runtime::dynamicThrow() {
 	if (tlsVariableTable->m_sjljFrame) {
 		jnc_longJmp(tlsVariableTable->m_sjljFrame->m_jmpBuf, -1);
 	} else {
-		SjljFrame* frame = sys::getTlsPtrSlotValue<SjljFrame> ();
+		SjljFrame* frame = sys::getTlsPtrSlotValue<SjljFrame>();
 		TRACE("-- WARNING: jump to external SJLJ frame: %p\n", frame);
 
 		ASSERT(frame);

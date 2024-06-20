@@ -888,7 +888,7 @@ OperatorMgr::swapByteOrder(
 		llvm::Function* llvmSwapFunc = llvm::Intrinsic::getDeclaration(
 			m_module->getLlvmModule(),
 			llvm::Intrinsic::bswap,
-			llvm::ArrayRef<llvm::Type*> (type->getLlvmType())
+			llvm::ArrayRef<llvm::Type*>(type->getLlvmType())
 		);
 
 		m_module->m_llvmIrBuilder.createCall(

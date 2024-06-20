@@ -817,7 +817,7 @@ FunctionMgr::getStdFunction(StdFunc func) {
 		function->m_llvmFunction = llvm::Intrinsic::getDeclaration(
 			m_module->getLlvmModule(),
 			llvm::Intrinsic::memcpy,
-			llvm::ArrayRef<llvm::Type*> (llvmArgTypeArray, 3)
+			llvm::ArrayRef<llvm::Type*>(llvmArgTypeArray, 3)
 		);
 		break;
 
@@ -843,7 +843,7 @@ FunctionMgr::getStdFunction(StdFunc func) {
 		function->m_llvmFunction = llvm::Intrinsic::getDeclaration(
 			m_module->getLlvmModule(),
 			llvm::Intrinsic::memmove,
-			llvm::ArrayRef<llvm::Type*> (llvmArgTypeArray, 3)
+			llvm::ArrayRef<llvm::Type*>(llvmArgTypeArray, 3)
 		);
 		break;
 
@@ -868,7 +868,7 @@ FunctionMgr::getStdFunction(StdFunc func) {
 		function->m_llvmFunction = llvm::Intrinsic::getDeclaration(
 			m_module->getLlvmModule(),
 			llvm::Intrinsic::memset,
-			llvm::ArrayRef<llvm::Type*> (llvmArgTypeArray, 2)
+			llvm::ArrayRef<llvm::Type*>(llvmArgTypeArray, 2)
 		);
 
 		break;

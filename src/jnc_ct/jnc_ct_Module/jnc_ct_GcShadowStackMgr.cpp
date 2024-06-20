@@ -207,7 +207,7 @@ GcShadowStackMgr::finalizeFrame() {
 
 	// fixup all uses of gc root array
 
-	ASSERT(llvm::isa<llvm::AllocaInst> (m_gcRootArrayValue.getLlvmValue()));
+	ASSERT(llvm::isa<llvm::AllocaInst>(m_gcRootArrayValue.getLlvmValue()));
 	llvm::AllocaInst* llvmAlloca = (llvm::AllocaInst*)m_gcRootArrayValue.getLlvmValue();
 	llvmAlloca->replaceAllUsesWith(gcRootArrayValue.getLlvmValue());
 	llvmAlloca->eraseFromParent();
@@ -266,7 +266,7 @@ GcShadowStackMgr::finalizeFrame() {
 		for (size_t i = 0; i < count; i++) {
 			BasicBlock* block = returnBlockArray[i];
 			llvm::Instruction* llvmRet = block->getLlvmBlock()->getTerminator();
-			ASSERT(llvm::isa<llvm::ReturnInst> (llvmRet));
+			ASSERT(llvm::isa<llvm::ReturnInst>(llvmRet));
 
 			m_module->m_llvmIrBuilder.setInsertPoint(llvmRet);
 			m_module->m_llvmIrBuilder.createStore(prevStackTopValue, stackTopVariable);

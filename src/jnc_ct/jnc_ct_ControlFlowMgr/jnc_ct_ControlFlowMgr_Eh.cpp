@@ -649,7 +649,7 @@ ControlFlowMgr::finalizeSjljFrameArray() {
 
 	// fixup all uses of sjlj frame array
 
-	ASSERT(llvm::isa<llvm::AllocaInst> (m_sjljFrameArrayValue.getLlvmValue()));
+	ASSERT(llvm::isa<llvm::AllocaInst>(m_sjljFrameArrayValue.getLlvmValue()));
 	llvmAlloca = (llvm::AllocaInst*)m_sjljFrameArrayValue.getLlvmValue();
 	llvmAlloca->replaceAllUsesWith(sjljFrameArrayValue.getLlvmValue());
 	llvmAlloca->eraseFromParent();

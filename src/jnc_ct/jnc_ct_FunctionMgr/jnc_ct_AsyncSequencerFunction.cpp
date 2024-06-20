@@ -215,7 +215,7 @@ AsyncSequencerFunction::replaceAllocas() {
 	size_t offset = m_promiseType->m_ifaceStructType->m_size;
 
 	while (it != llvmAllocaBlock->end()) {
-		if (!llvm::isa<llvm::AllocaInst> (it)) {
+		if (!llvm::isa<llvm::AllocaInst>(it)) {
 			it++;
 			continue;
 		}

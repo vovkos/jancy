@@ -61,7 +61,7 @@ public:
 
 		return llvm::ConstantStruct::get(
 			(llvm::StructType*)llvmType,
-			llvm::ArrayRef<llvm::Constant*> (llvmMemberArray, llvmMemberArray.getCount())
+			llvm::ArrayRef<llvm::Constant*>(llvmMemberArray, llvmMemberArray.getCount())
 		);
 	}
 };

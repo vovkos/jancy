@@ -134,7 +134,7 @@ initUsbInterfaceDescriptor(
 
 		UsbInterfaceDescriptor* prevDescriptor = dstDescriptor;
 		for (size_t i = 1; i < (size_t)iface->num_altsetting; i++) {
-			DataPtr descriptorPtr = createData<UsbInterfaceDescriptor> (runtime);
+			DataPtr descriptorPtr = createData<UsbInterfaceDescriptor>(runtime);
 			dstDescriptor = (UsbInterfaceDescriptor*)descriptorPtr.m_p;
 			initUsbInterfaceDescriptor(runtime, dstDescriptor, &iface->altsetting[i]);
 
@@ -197,7 +197,7 @@ createUsbConfigurationDescriptor(
 	DataPtr resultPtr = g_nullDataPtr;
 
 	JNC_BEGIN_CALL_SITE(runtime)
-		resultPtr = createData<UsbConfigurationDescriptor> (runtime);
+		resultPtr = createData<UsbConfigurationDescriptor>(runtime);
 		UsbConfigurationDescriptor* dstDescriptor = (UsbConfigurationDescriptor*)resultPtr.m_p;
 		initUsbConfigurationDescriptor(runtime, dstDescriptor, srcDescriptor);
 	JNC_END_CALL_SITE()
@@ -216,7 +216,7 @@ createUsbDeviceDescriptor(
 	DataPtr resultPtr = g_nullDataPtr;
 
 	JNC_BEGIN_CALL_SITE(runtime)
-		resultPtr = createData<UsbDeviceDescriptor> (runtime);
+		resultPtr = createData<UsbDeviceDescriptor>(runtime);
 		UsbDeviceDescriptor* deviceDescriptor = (UsbDeviceDescriptor*)resultPtr.m_p;
 
 		Type* configDescriptorType = UsbConfigurationDescriptor::getType(runtime->getModule());

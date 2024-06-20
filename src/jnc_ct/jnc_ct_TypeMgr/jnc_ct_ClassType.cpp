@@ -375,7 +375,8 @@ ClassType::calcLayout() {
 		}
 
 		if (field->m_parentNamespace == this && // skip property fields
-			(!field->m_initializer.isEmpty() || isConstructibleType(type)))
+			(!field->m_initializer.isEmpty() || isConstructibleType(type))
+		)
 			m_fieldInitializeArray.append(field);
 	}
 
@@ -691,7 +692,7 @@ ClassType::prepareForOperatorNew() {
 
 	llvm::Constant* llvmVtableConst = llvm::ConstantStruct::get(
 		(llvm::StructType*)m_vtableStructType->getLlvmType(),
-		llvm::ArrayRef<llvm::Constant*> (llvmVtable, count)
+		llvm::ArrayRef<llvm::Constant*>(llvmVtable, count)
 	);
 
 	m_vtableVariable = m_module->m_variableMgr.createSimpleStaticVariable(
