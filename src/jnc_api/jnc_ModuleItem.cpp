@@ -72,6 +72,7 @@ jnc_getStorageKindString(jnc_StorageKind storageKind) {
 		"mutable",                  // StorageKind_Mutable,
 		"disposable",               // StorageKind_Disposable,
 		"dyfield",                  // StorageKind_DynamicField,
+		"reactor-field",            // StorageKind_ReactorField,
 		"this",                     // StorageKind_This,
 	};
 

@@ -805,26 +805,26 @@ Parser::useNamespace(
 }
 
 bool
-Parser::declareInReactor(Declarator* declarator) {
-	ASSERT(m_module->m_controlFlowMgr.isReactor());
-
-	if (!declarator->isSimple()) {
-		err::setFormatStringError("invalid declarator in reactor");
-		return false;
-	}
+Parser::declareReactorField(
+	Declarator* declarator,
+	Type* type,
+	uint_t ptrTypeFlags
+) {
+	ASSERT(m_module->m_controlFlowMgr.isReactor() && declarator->isSimple());
 
 	ReactorClassType* reactorType = m_module->m_controlFlowMgr.getReactorType();
-	const sl::StringRef& name = declarator->getName().getShortName();
-	FindModuleItemResult findResult = reactorType->findDirectChildItem(name);
-	if (!findResult.m_result)
-		return false;
-
-	if (!findResult.m_item) {
-		err::setFormatStringError("member '%s' not found in reactor '%s'", name.sz(), reactorType->getQualifiedName().sz());
+	if (m_storageKind) {
+		// StorageKind_Static should be fine, but we currently have StorageKind_ReactorField only
+		err::setFormatStringError("invalid storage kind in reactor");
 		return false;
 	}
 
-	m_lastDeclaredItem = findResult.m_item;
+	const sl::StringRef& name = declarator->getName().getShortName();
+	Variable* variable = m_module->m_variableMgr.createVariable(StorageKind_ReactorField, name, type, ptrTypeFlags);
+	assignDeclarationAttributes(variable, variable, declarator->m_pos, declarator->m_attributeBlock, NULL);
+	bool result = m_module->m_namespaceMgr.getCurrentNamespace()->addItem(variable);
+	if (!result)
+		return false;
 
 	if (declarator->m_initializer.isEmpty())
 		return true;
@@ -843,7 +843,7 @@ Parser::declareInReactor(Declarator* declarator) {
 
 	Parser parser(m_module, getPragmaConfigSnapshot(), Mode_Compile);
 
-	bool result = parser.parseTokenList(SymbolKind_reactive_expression, &declarator->m_initializer);
+	result = parser.parseTokenList(SymbolKind_reactive_expression, &declarator->m_initializer);
 	if (!result)
 		return false;
 
@@ -884,9 +884,6 @@ Parser::declareNamedAttributeBlock(Declarator* declarator) {
 
 bool
 Parser::declare(Declarator* declarator) {
-	if (m_module->m_controlFlowMgr.isReactor())
-		return declareInReactor(declarator);
-
 	m_lastDeclaredItem = NULL;
 
 	bool isLibrary = m_module->m_namespaceMgr.getCurrentNamespace()->getNamespaceKind() == NamespaceKind_DynamicLib;
@@ -1662,6 +1659,9 @@ Parser::declareData(
 		err::setFormatStringError("'%s' can only be used on property field", getPtrTypeFlagString(ptrTypeFlags & (PtrTypeFlag_AutoGet | PtrTypeFlag_Bindable)).sz());
 		return false;
 	}
+
+	if (m_module->m_controlFlowMgr.isReactor())
+		return declareReactorField(declarator, type, ptrTypeFlags);
 
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
 	StorageKind storageKind = m_storageKind;
@@ -2568,10 +2568,8 @@ Parser::lookupIdentifier(
 		return false;
 	}
 
-	Value thisValue;
 	ModuleItem* item = findResult.m_item;
 	ModuleItemKind itemKind = item->getItemKind();
-
 	switch (itemKind) {
 	case ModuleItemKind_Namespace:
 		value->setNamespace((GlobalNamespace*)item);
@@ -2602,7 +2600,7 @@ Parser::lookupIdentifier(
 			return false;
 
 		if (((Function*)item)->isMember()) {
-			result = m_module->m_operatorMgr.createMemberClosure(value, (Function*)item);
+			result = m_module->m_operatorMgr.createMemberClosure(value);
 			if (!result)
 				return false;
 		}
@@ -2612,7 +2610,7 @@ Parser::lookupIdentifier(
 	case ModuleItemKind_FunctionOverload:
 		value->setFunctionOverload((FunctionOverload*)item);
 		if (((FunctionOverload*)item)->getFlags() & FunctionOverloadFlag_HasMembers) {
-			result = m_module->m_operatorMgr.createMemberClosure(value, (FunctionOverload*)item);
+			result = m_module->m_operatorMgr.createMemberClosure(value);
 			if (!result)
 				return false;
 		}
@@ -2622,7 +2620,7 @@ Parser::lookupIdentifier(
 	case ModuleItemKind_Property:
 		value->setProperty((Property*)item);
 		if (((Property*)item)->isMember()) {
-			result = m_module->m_operatorMgr.createMemberClosure(value, (Property*)item);
+			result = m_module->m_operatorMgr.createMemberClosure(value);
 			if (!result)
 				return false;
 		}
@@ -2665,11 +2663,14 @@ Parser::lookupIdentifier(
 
 	case ModuleItemKind_Field: {
 		Field* field = (Field*)item;
-		if (field->getStorageKind() != StorageKind_DynamicField) { // normal field
-			result =
-				m_module->m_operatorMgr.getThisValue(&thisValue, field) &&
-				m_module->m_operatorMgr.getField(thisValue, field, &coord, value);
+		StorageKind storageKind = field->getStorageKind();
+		if (storageKind != StorageKind_DynamicField) { // regular (or reactor) field
+			Value thisValue;
+			result = m_module->m_operatorMgr.getThisValue(&thisValue);
+			if (!result)
+				return false;
 
+			result = m_module->m_operatorMgr.getField(thisValue, field, &coord, value);
 			if (!result)
 				return false;
 

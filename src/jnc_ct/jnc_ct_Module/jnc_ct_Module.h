@@ -40,6 +40,7 @@ class ParseContext {
 protected:
 	Module* m_module;
 	Unit* m_prevUnit;
+	ReactorBody* m_prevReactorBody;
 	bool m_isNamespaceOpened;
 
 public:
@@ -81,7 +82,7 @@ protected:
 class PreModule {
 protected:
 	PreModule() {
-		Module* prevModule = sys::setTlsPtrSlotValue<Module> ((Module*)this);
+		Module* prevModule = sys::setTlsPtrSlotValue<Module>((Module*)this);
 		ASSERT(prevModule == NULL);
 	}
 
@@ -89,13 +90,13 @@ public:
 	static
 	Module*
 	getCurrentConstructedModule() {
-		return sys::getTlsPtrSlotValue<Module> ();
+		return sys::getTlsPtrSlotValue<Module>();
 	}
 
 protected:
 	void
 	finalizeConstruction() {
-		sys::setTlsPtrSlotValue<Module> (NULL);
+		sys::setTlsPtrSlotValue<Module>(NULL);
 	}
 };
 
@@ -470,6 +471,7 @@ ParseContext::set(
 ) {
 	m_module = module;
 	m_prevUnit = module->m_unitMgr.setCurrentUnit(unit);
+	m_prevReactorBody = module->m_controlFlowMgr.setCurrentReactor(NULL);
 	m_isNamespaceOpened = module->m_namespaceMgr.openNamespaceIf(nspace);
 }
 
@@ -477,6 +479,7 @@ inline
 void
 ParseContext::restore() {
 	m_module->m_unitMgr.setCurrentUnit(m_prevUnit);
+	m_module->m_controlFlowMgr.setCurrentReactor(m_prevReactorBody);
 	if (m_isNamespaceOpened)
 		m_module->m_namespaceMgr.closeNamespace();
 }

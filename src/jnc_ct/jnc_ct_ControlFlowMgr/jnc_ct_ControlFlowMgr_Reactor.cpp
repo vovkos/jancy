@@ -23,65 +23,134 @@ ControlFlowMgr::enterReactor(
 	ReactorClassType* reactorType,
 	const Value& reactionIdxValue
 ) {
+	ASSERT(!m_reactorBody);
+
 	m_reactorBody = new ReactorBody;
 	m_reactorBody->m_reactorType = reactorType;
 	m_reactorBody->m_reactionIdxValue = reactionIdxValue;
-	m_reactorBody->m_reactorSwitchBlock = m_currentBlock;
-	m_reactorBody->m_reactorBodyBlock = createBlock("reactor_body");
-	m_reactorBody->m_reactorFollowBlock = createBlock("reactor_follow");
+	m_reactorBody->m_switchBlock = m_currentBlock;
+	m_reactorBody->m_bodyBlock = createBlock("reactor_body");
+	m_reactorBody->m_followBlock = createBlock("reactor_follow");
 	m_reactorBody->m_reactionBlock = NULL;
 	m_reactorBody->m_reactionBindingCount = 0;
 
-	setCurrentBlock(m_reactorBody->m_reactorBodyBlock);
-	m_reactorBody->m_reactorBodyBlock->m_flags |= BasicBlockFlag_Jumped | BasicBlockFlag_Reachable;
+	setCurrentBlock(m_reactorBody->m_bodyBlock);
+	m_reactorBody->m_bodyBlock->m_flags |= BasicBlockFlag_Jumped | BasicBlockFlag_Reachable;
 }
 
-void
+bool
 ControlFlowMgr::leaveReactor() {
 	ASSERT(m_reactorBody);
-	follow(m_reactorBody->m_reactorFollowBlock);
-	setCurrentBlock(m_reactorBody->m_reactorSwitchBlock);
+	follow(m_reactorBody->m_followBlock);
 
 	size_t reactionCount = m_reactorBody->m_reactionBlockArray.getCount();
+	m_reactorBody->m_reactorType->m_reactionCount = reactionCount;
 
-	if (m_module->hasCodeGen()) {
-		char buffer[256];
-		char buffer2[256];
-		sl::Array<BasicBlock*> blockArray(rc::BufKind_Stack, buffer, sizeof(buffer));
-		sl::Array<int64_t> caseIdArray(rc::BufKind_Stack, buffer2, sizeof(buffer2));
-		blockArray.setCount(reactionCount);
-		caseIdArray.setCount(reactionCount);
-
-		sl::Array<BasicBlock*>::Rwi blockRwi = blockArray;
-		sl::Array<int64_t>::Rwi caseRwi = caseIdArray;
-
-		size_t caseCount = 0;
-		for (size_t i = 0; i < reactionCount; i++) {
-			BasicBlock* block = m_reactorBody->m_reactionBlockArray[i];
-			if (!block)
-				continue;
-
-			blockRwi[caseCount] = block;
-			caseRwi[caseCount] = i;
-			caseCount++;
-		}
-
-		if (!caseCount)
-			m_module->m_llvmIrBuilder.createBr(m_reactorBody->m_reactorBodyBlock);
-		else
-			m_module->m_llvmIrBuilder.createSwitch(
-				m_reactorBody->m_reactionIdxValue,
-				m_reactorBody->m_reactorBodyBlock,
-				caseIdArray,
-				blockArray,
-				caseCount
-			);
+	if (!m_module->hasCodeGen()) { // shortcut
+		delete m_reactorBody;
+		m_reactorBody = NULL;
+		return true;
 	}
 
-	setCurrentBlock(m_reactorBody->m_reactorFollowBlock);
-	m_reactorBody->m_reactorType->m_reactionCount = reactionCount;
+	setCurrentBlock(m_reactorBody->m_switchBlock);
+
+	// replace reactor fields
+
+	if (!m_reactorBody->m_fieldArray.isEmpty()) {
+		sl::String userDataName = m_reactorBody->m_reactorType->getQualifiedName() + ".UserData";
+		ClassType* userDataType = m_module->m_typeMgr.createInternalClassType(userDataName);
+
+		size_t fieldCount = m_reactorBody->m_fieldArray.getCount();
+		for (size_t i = 0; i < fieldCount; i++) {
+			Variable* fieldVariable = m_reactorBody->m_fieldArray[i];
+			Field* field = userDataType->createField(fieldVariable->getType());
+			field->m_name = fieldVariable->getName(); // names can overlap; this is just a tag for debugging
+		}
+
+		bool result = userDataType->require();
+		if (!result)
+			return false;
+
+		m_reactorBody->m_reactorType->m_userDataType = userDataType;
+
+		ClassType* reactorBaseType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_ReactorBase);
+		Field* userDataField = reactorBaseType->getFieldArray()[0];
+
+		Value thisValue = m_module->m_functionMgr.getThisValue();
+		Value userDataValue;
+
+		int32_t gepIdxTable[] = {
+			0, // dereference pointer
+			0, // first base class (jnc.Reactor)
+			userDataField->getLlvmIndex()
+		};
+
+		m_module->m_llvmIrBuilder.createGep(
+			thisValue,
+			m_reactorBody->m_reactorType->getIfaceStructType(),
+			gepIdxTable,
+			countof(gepIdxTable),
+			NULL,
+			&userDataValue
+		);
+
+		m_module->m_llvmIrBuilder.createLoad(userDataValue, userDataField->getType(), &userDataValue);
+		m_module->m_llvmIrBuilder.createBitCast(
+			userDataValue,
+			userDataType->getClassPtrType(ClassPtrTypeKind_Normal, PtrTypeFlag_Safe),
+			&userDataValue
+		);
+
+		Value fieldValue; // avoid construct/destruct in loop
+		for (size_t i = 0; i < fieldCount; i++) {
+			Variable* fieldVariable = m_reactorBody->m_fieldArray[i];
+			Field* field = userDataType->getFieldArray()[i];
+
+			result = m_module->m_operatorMgr.getField(userDataValue, field, &fieldValue);
+			ASSERT(result && llvm::isa<llvm::AllocaInst>(fieldVariable->getLlvmValue()));
+
+			llvm::AllocaInst* llvmAlloca = (llvm::AllocaInst*)fieldVariable->getLlvmValue();
+			llvmAlloca->replaceAllUsesWith(fieldValue.getLlvmValue());
+			llvmAlloca->eraseFromParent();
+		}
+	}
+
+	char buffer[256];
+	char buffer2[256];
+	sl::Array<BasicBlock*> blockArray(rc::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<int64_t> caseIdArray(rc::BufKind_Stack, buffer2, sizeof(buffer2));
+	blockArray.setCount(reactionCount);
+	caseIdArray.setCount(reactionCount);
+
+	sl::Array<BasicBlock*>::Rwi blockRwi = blockArray;
+	sl::Array<int64_t>::Rwi caseRwi = caseIdArray;
+
+	size_t caseCount = 0;
+	for (size_t i = 0; i < reactionCount; i++) {
+		BasicBlock* block = m_reactorBody->m_reactionBlockArray[i];
+		if (!block)
+			continue;
+
+		blockRwi[caseCount] = block;
+		caseRwi[caseCount] = i;
+		caseCount++;
+	}
+
+	if (!caseCount)
+		m_module->m_llvmIrBuilder.createBr(m_reactorBody->m_bodyBlock);
+	else
+		m_module->m_llvmIrBuilder.createSwitch(
+			m_reactorBody->m_reactionIdxValue,
+			m_reactorBody->m_bodyBlock,
+			caseIdArray,
+			blockArray,
+			caseCount
+		);
+
+	setCurrentBlock(m_reactorBody->m_followBlock);
 	delete m_reactorBody;
 	m_reactorBody = NULL;
+	return true;
 }
 
 bool
@@ -183,6 +252,8 @@ ControlFlowMgr::finalizeReactiveStmt(size_t reactionIdx) {
 
 void
 ControlFlowMgr::finalizeReaction(size_t reactionIdx) {
+	ASSERT(m_reactorBody);
+
 	Value cmpValue;
 
 	bool result = m_module->m_operatorMgr.binaryOperator(
@@ -198,7 +269,7 @@ ControlFlowMgr::finalizeReaction(size_t reactionIdx) {
 
 	result = conditionalJump(
 		cmpValue,
-		m_reactorBody->m_reactorFollowBlock,
+		m_reactorBody->m_followBlock,
 		followBlock,
 		followBlock
 	);

@@ -118,6 +118,7 @@ enum jnc_StorageKind {
 	jnc_StorageKind_Mutable,
 	jnc_StorageKind_Disposable,
 	jnc_StorageKind_DynamicField,
+	jnc_StorageKind_ReactorField,
 	jnc_StorageKind_This,
 	jnc_StorageKind__Count,
 };
@@ -423,6 +424,7 @@ const StorageKind
 	StorageKind_Mutable      = jnc_StorageKind_Mutable,
 	StorageKind_Disposable   = jnc_StorageKind_Disposable,
 	StorageKind_DynamicField = jnc_StorageKind_DynamicField,
+	StorageKind_ReactorField = jnc_StorageKind_ReactorField,
 	StorageKind_This         = jnc_StorageKind_This,
 	StorageKind__Count       = jnc_StorageKind__Count;
 

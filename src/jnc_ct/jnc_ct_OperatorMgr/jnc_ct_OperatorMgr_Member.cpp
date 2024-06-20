@@ -133,17 +133,14 @@ OperatorMgr::memberOperator(
 }
 
 bool
-OperatorMgr::createMemberClosure(
-	Value* value,
-	ModuleItemDecl* itemDecl
-) {
+OperatorMgr::createMemberClosure(Value* value) {
 	ValueKind valueKind = value->getValueKind();
 
 	Value thisValue;
 
 	bool result = valueKind == ValueKind_Type || valueKind == ValueKind_FunctionTypeOverload ?
-		getThisValueType(&thisValue, itemDecl) :
-		getThisValue(&thisValue, itemDecl);
+		getThisValueType(&thisValue) :
+		getThisValue(&thisValue);
 
 	if (!result)
 		return false;
@@ -154,10 +151,7 @@ OperatorMgr::createMemberClosure(
 }
 
 bool
-OperatorMgr::getThisValue(
-	Value* value,
-	ModuleItemDecl* itemDecl
-) {
+OperatorMgr::getThisValue(Value* value) {
 	Value thisValue = m_module->m_functionMgr.getThisValue();
 	if (!thisValue) {
 		err::setFormatStringError(
@@ -168,8 +162,7 @@ OperatorMgr::getThisValue(
 		return false;
 	}
 
-	if (!(itemDecl && isReactorClassTypeMember(itemDecl)) &&
-		isClassPtrType(thisValue.getType(), ClassTypeKind_Reactor)) {
+	if (isClassPtrType(thisValue.getType(), ClassTypeKind_Reactor)) {
 		ClassType* classType = ((ClassPtrType*)thisValue.getType())->getTargetType();
 		ReactorClassType* reactorType = (ReactorClassType*)classType;
 		ClassType* parentType = reactorType->getParentType();
@@ -193,10 +186,7 @@ OperatorMgr::getThisValue(
 }
 
 bool
-OperatorMgr::getThisValueType(
-	Value* value,
-	ModuleItemDecl* itemDecl
-) {
+OperatorMgr::getThisValueType(Value* value) {
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
 	if (!function->isMember()) {
 		err::setFormatStringError(
@@ -208,8 +198,7 @@ OperatorMgr::getThisValueType(
 	}
 
 	Type* thisType = function->getThisType();
-	if (!(itemDecl && isReactorClassTypeMember(itemDecl)) &&
-		isClassPtrType(thisType, ClassTypeKind_Reactor)) {
+	if (isClassPtrType(thisType, ClassTypeKind_Reactor)) {
 		ClassType* classType = ((ClassPtrType*)thisType)->getTargetType();
 		ReactorClassType* reactorType = (ReactorClassType*)classType;
 		ClassType* parentType = reactorType->getParentType();

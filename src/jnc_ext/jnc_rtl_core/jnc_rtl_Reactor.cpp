@@ -65,9 +65,9 @@ JNC_END_TYPE_FUNCTION_MAP()
 ReactorImpl::ReactorImpl() {
 	m_state = State_Stopped;
 
-	ASSERT(isClassType(m_box->m_type, ClassTypeKind_Reactor));
+	ASSERT(isClassType(m_ifaceHdr.m_box->m_type, ClassTypeKind_Reactor));
 
-	ct::ReactorClassType* reactorType = (ct::ReactorClassType*)m_box->m_type;
+	ct::ReactorClassType* reactorType = (ct::ReactorClassType*)m_ifaceHdr.m_box->m_type;
 	size_t reactionCount = reactorType->getReactionCount();
 
 	m_reactionArray.setCount(reactionCount);
@@ -84,7 +84,18 @@ ReactorImpl::start() {
 	if (m_state != State_Stopped) // already running
 		return;
 
-	ct::ReactorClassType* reactorType = (ct::ReactorClassType*)m_box->m_type;
+	ct::ReactorClassType* reactorType = (ct::ReactorClassType*)m_ifaceHdr.m_box->m_type;
+	ct::ClassType* userDataType = reactorType->getUserDataType();
+	if (userDataType) {
+		rt::GcHeap* gcHeap = rt::getCurrentThreadRuntime()->getGcHeap();
+		m_userData = gcHeap->allocateClass(userDataType);
+		OverloadableFunction constructor = userDataType->getConstructor();
+		if (constructor) {
+			ConstructFunc* constructFunc = (ConstructFunc*)constructor.getFunction()->getMachineCode();
+			constructFunc(m_userData);
+		}
+	}
+
 	ReactorFunc* reactorFunc = (ReactorFunc*)reactorType->getReactor()->getMachineCode();
 
 	m_state = State_Starting;
@@ -185,11 +196,11 @@ ReactorImpl::onChanged(Binding* binding) {
 
 void
 ReactorImpl::reactionLoop() {
-	ASSERT(isClassType(m_box->m_type, ClassTypeKind_Reactor));
+	ASSERT(isClassType(m_ifaceHdr.m_box->m_type, ClassTypeKind_Reactor));
 
 	// initialize reaction loop
 
-	ct::ReactorClassType* reactorType = (ct::ReactorClassType*)m_box->m_type;
+	ct::ReactorClassType* reactorType = (ct::ReactorClassType*)m_ifaceHdr.m_box->m_type;
 	ReactorFunc* reactorFunc = (ReactorFunc*)reactorType->getReactor()->getMachineCode();
 	size_t reactionCount = m_reactionArray.getCount();
 	m_activeReactionArray.clear();
@@ -223,7 +234,7 @@ ReactorImpl::reactionLoop() {
 
 void
 ReactorImpl::processPendingBindings() {
-	ct::ReactorClassType* reactorType = (ct::ReactorClassType*)m_box->m_type;
+	ct::ReactorClassType* reactorType = (ct::ReactorClassType*)m_ifaceHdr.m_box->m_type;
 	size_t parentOffset = reactorType->getParentOffset();
 	IfaceHdr* parent = parentOffset ? (IfaceHdr*)((char*)this - parentOffset) : NULL;
 
@@ -265,7 +276,7 @@ ReactorImpl::processPendingBindings() {
 
 		FunctionPtr onEventPtr = {
 			onEvent->getMachineCode(),
-			this
+			&m_ifaceHdr
 		};
 
 		Reaction* reaction = m_reactionArray[pendingBinding.m_reactionIdx];

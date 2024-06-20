@@ -38,6 +38,7 @@ typedef struct jnc_Multicast jnc_Multicast;
 typedef struct jnc_McSnapshot jnc_McSnapshot;
 typedef struct jnc_Scheduler jnc_Scheduler;
 typedef struct jnc_SchedulerVtable jnc_SchedulerVtable;
+typedef struct jnc_Reactor jnc_Reactor;
 typedef struct jnc_ReactorClosure jnc_ReactorClosure;
 typedef struct jnc_FmtLiteral jnc_FmtLiteral;
 typedef struct jnc_GcShadowStackFrame jnc_GcShadowStackFrame;
@@ -210,11 +211,20 @@ struct jnc_Scheduler {
 
 //..............................................................................
 
+// reactors
+
+struct jnc_Reactor {
+	jnc_IfaceHdr m_ifaceHdr;
+	jnc_IfaceHdr* m_userData;
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 // closure class used by reactors to subscribe to bindable events
 
 struct jnc_ReactorClosure {
 	jnc_IfaceHdr m_ifaceHdr;
-	jnc_IfaceHdr* m_reactor;
+	jnc_Reactor* m_reactor;
 	void* m_binding; // jnc::rtl::ReactorImpl::Binding*
 };
 
@@ -400,6 +410,7 @@ typedef jnc_Multicast Multicast;
 typedef jnc_McSnapshot McSnapshot;
 typedef jnc_Scheduler Scheduler;
 typedef jnc_SchedulerVtable SchedulerVtable;
+typedef jnc_Reactor Reactor;
 typedef jnc_ReactorClosure ReactorClosure;
 typedef jnc_FmtLiteral FmtLiteral;
 typedef jnc_GcShadowStackFrame GcShadowStackFrame;

@@ -427,9 +427,6 @@ protected:
 	bool
 	declareNamedAttributeBlock(Declarator* declarator);
 
-	bool
-	declareInReactor(Declarator* declarator);
-
 	GlobalNamespace*
 	declareGlobalNamespace(
 		const lex::LineCol& pos,
@@ -473,6 +470,13 @@ protected:
 
 	bool
 	declareData(
+		Declarator* declarator,
+		Type* type,
+		uint_t ptrTypeFlags
+	);
+
+	bool
+	declareReactorField(
 		Declarator* declarator,
 		Type* type,
 		uint_t ptrTypeFlags

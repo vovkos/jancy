@@ -50,6 +50,7 @@ ReactorClassType::ReactorClassType() {
 	m_parentOffset = 0;
 	m_reactionCount = 0;
 	m_reactor = NULL;
+	m_userDataType = NULL;
 }
 
 bool
@@ -58,24 +59,6 @@ ReactorClassType::calcLayout() {
 		err::setFormatStringError("reactor '%s' has no body", getQualifiedName().sz());
 		return false;
 	}
-/*
-	// scan for declarations and count reactions
-
-	m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
-
-	Parser parser(m_module, m_pragmaConfig, Parser::Mode_Compile);
-	parser.m_reactorType = this;
-
-	Function* prevFunction = m_module->m_functionMgr.setCurrentFunction(m_reactorFunction); // we need some method for OperatorMgr::getThisValueType to work
-
-	ParseContext parseContext(m_module, m_parentUnit, this);
-	bool result =
-		parser.parseBody(SymbolKind_reactor_body_0, m_bodyPos, m_body) &&
-		ClassType::calcLayout();
-
-	m_module->m_functionMgr.setCurrentFunction(prevFunction);
-	m_reactionCount = parser.getReactionCount();
-	return result; */
 
 	return ClassType::calcLayout();
 }
@@ -107,8 +90,10 @@ ReactorClassType::compileReaction(Function* function) {
 	Parser parser(m_module, m_pragmaConfig, Parser::Mode_Compile);
 
 	m_module->m_controlFlowMgr.enterReactor(this, argValueArray[argCount - 1]);
-	bool result = parser.parseBody(SymbolKind_compound_stmt, m_bodyPos, m_body);
-	m_module->m_controlFlowMgr.leaveReactor();
+
+	bool result =
+		parser.parseBody(SymbolKind_compound_stmt, m_bodyPos, m_body) &&
+		m_module->m_controlFlowMgr.leaveReactor();
 
 	if (!result)
 		return false;

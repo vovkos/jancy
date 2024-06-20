@@ -64,6 +64,7 @@ protected:
 	size_t m_parentOffset;
 	size_t m_reactionCount;
 	Function* m_reactor;
+	ClassType* m_userDataType;
 	sl::Array<Function*> m_onEventHandlerMap;
 
 public:
@@ -98,6 +99,11 @@ public:
 	Function*
 	getOnEventHandler(size_t reactionIdx) {
 		return m_onEventHandlerMap[reactionIdx];
+	}
+
+	ClassType*
+	getUserDataType() {
+		return m_userDataType;
 	}
 
 protected:
@@ -137,17 +143,6 @@ ReactorClassType::addOnEventHandler(
 		m_onEventHandlerMap.setCountZeroConstruct(reactionIdx + 1);
 
 	m_onEventHandlerMap.rwi()[reactionIdx] = function;
-}
-
-//..............................................................................
-
-inline
-bool
-isReactorClassTypeMember(ModuleItemDecl* itemDecl) {
-	Namespace* nspace = itemDecl->getParentNamespace();
-	return
-		nspace->getNamespaceKind() == NamespaceKind_Type &&
-		isClassType((ClassType*)nspace, ClassTypeKind_Reactor);
 }
 
 //.............................................................................

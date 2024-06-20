@@ -35,16 +35,29 @@ Variable::Variable() {
 
 void
 Variable::prepareLlvmValue() {
-	ASSERT(!m_llvmValue && m_storageKind == StorageKind_Tls);
+	ASSERT(!m_llvmValue && (m_storageKind == StorageKind_Tls || m_storageKind == StorageKind_ReactorField));
 
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
 	BasicBlock* prologueBlock = function->getPrologueBlock();
 	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock(prologueBlock);
 
+	Type* allocaType = m_type->getTypeKind() == TypeKind_Class ?
+		((ClassType*)m_type)->getIfaceStructType() :
+		m_type;
+
 	Value ptrValue;
-	m_llvmValue = m_module->m_llvmIrBuilder.createAlloca(m_type, NULL, &ptrValue);
+	m_llvmValue = m_module->m_llvmIrBuilder.createAlloca(allocaType, NULL, &ptrValue);
 	m_module->m_controlFlowMgr.setCurrentBlock(prevBlock);
-	function->addTlsVariable(this);
+
+	switch (m_storageKind) {
+	case StorageKind_Tls:
+		function->addTlsVariable(this);
+		break;
+
+	case StorageKind_ReactorField:
+		m_module->m_controlFlowMgr.addReactorField(this);
+		break;
+	}
 }
 
 void

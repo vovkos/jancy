@@ -21,7 +21,7 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(ReactorImpl)
 
 //..............................................................................
 
-class ReactorImpl: public IfaceHdr {
+class ReactorImpl: public Reactor {
 protected:
 	enum State {
 		State_Stopped,
@@ -76,7 +76,7 @@ protected:
 	typedef
 	void
 	ReactorFunc(
-		IfaceHdr* reactor,
+		Reactor* reactor,
 		size_t index
 	);
 

@@ -870,22 +870,13 @@ public:
 	// member operators
 
 	bool
-	createMemberClosure(
-		Value* value,
-		ModuleItemDecl* itemDecl = NULL
-	);
+	createMemberClosure(Value* value);
 
 	bool
-	getThisValue(
-		Value* value,
-		ModuleItemDecl* itemDecl = NULL
-	);
+	getThisValue(Value* value);
 
 	bool
-	getThisValueType(
-		Value* value,
-		ModuleItemDecl* itemDecl = NULL
-	);
+	getThisValueType(Value* value);
 
 	Namespace*
 	getValueNamespace(const Value& opValue);

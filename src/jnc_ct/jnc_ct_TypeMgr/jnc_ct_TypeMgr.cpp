@@ -1082,6 +1082,7 @@ TypeMgr::createReactorBaseType() {
 	FunctionType* enterReactiveStmtType = getFunctionType(voidType, enterReactiveStmtArgTypeArray, 2);
 
 	ClassType* type = createClassType("ReactorBase", "jnc.ReactorBase", 8, ClassTypeFlag_Opaque);
+	type->createField("!m_userData", getStdType(StdType_AbstractClassPtr));
 	type->m_namespaceStatus = NamespaceStatus_Ready;
 
 	Function* constructor = m_module->m_functionMgr.createFunction(simpleFunctionType);
@@ -1135,8 +1136,8 @@ FunctionClosureClassType*
 TypeMgr::createReactorClosureType() {
 	FunctionClosureClassType* type = createClassType<FunctionClosureClassType>("ReactorClosure", "jnc.ReactorClosure");
 	type->m_thisArgFieldIdx = 0;
-	type->createField("m_self", type->getClassPtrType());
-	type->createField("m_event", getStdType(StdType_ByteThinPtr));
+	type->createField("m_reactor", ((ClassType*)getStdType(StdType_ReactorBase))->getClassPtrType());
+	type->createField("m_binding", getStdType(StdType_ByteThinPtr));
 	type->ensureLayout();
 	return type;
 }

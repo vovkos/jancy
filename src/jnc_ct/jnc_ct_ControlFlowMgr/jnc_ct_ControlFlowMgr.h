@@ -120,14 +120,16 @@ struct OnceStmt {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct ReactorBody {
+	sl::Array<Variable*> m_fieldArray;
 	sl::Array<BasicBlock*> m_reactionBlockArray;
 	ReactorClassType* m_reactorType;
-	BasicBlock* m_reactorSwitchBlock;
-	BasicBlock* m_reactorBodyBlock;
-	BasicBlock* m_reactorFollowBlock;
+	BasicBlock* m_switchBlock;
+	BasicBlock* m_bodyBlock;
+	BasicBlock* m_followBlock;
 	BasicBlock* m_reactionBlock;
 	llvm::BasicBlock::iterator m_llvmReactionIt;
 	Value m_reactionIdxValue;
+	Value m_userDataValue;
 	size_t m_reactionBindingCount;
 };
 
@@ -196,6 +198,9 @@ public:
 		return m_reactorBody != NULL;
 	}
 
+	ReactorBody*
+	setCurrentReactor(ReactorBody* reactorBody); // for switching parse context
+
 	ReactorClassType*
 	getReactorType() {
 		ASSERT(m_reactorBody);
@@ -208,7 +213,7 @@ public:
 		const Value& reactionIdxValue
 	);
 
-	void
+	bool
 	leaveReactor();
 
 	size_t
@@ -235,6 +240,12 @@ public:
 
 	void
 	finalizeReaction(size_t reactionIdx);
+
+	void
+	addReactorField(Variable* variable) {
+		ASSERT(m_reactorBody);
+		m_reactorBody->m_fieldArray.append(variable);
+	}
 
 	bool
 	addOnEventHandler(
@@ -654,6 +665,16 @@ protected:
 	size_t
 	finalizeReactiveExpressionImpl();
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+ReactorBody*
+ControlFlowMgr::setCurrentReactor(ReactorBody* reactorBody) {
+	ReactorBody* prevReactorBody = m_reactorBody;
+	m_reactorBody = reactorBody;
+	return prevReactorBody;
+}
 
 //..............................................................................
 
