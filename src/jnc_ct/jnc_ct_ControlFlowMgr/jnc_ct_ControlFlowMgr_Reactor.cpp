@@ -54,65 +54,13 @@ ControlFlowMgr::leaveReactor() {
 
 	setCurrentBlock(m_reactorBody->m_switchBlock);
 
-	// replace reactor fields
-
-	if (!m_reactorBody->m_fieldArray.isEmpty()) {
+	if (!m_module->m_variableMgr.getReactorVariableArray().isEmpty()) {
 		sl::String userDataName = m_reactorBody->m_reactorType->getQualifiedName() + ".UserData";
-		ClassType* userDataType = m_module->m_typeMgr.createInternalClassType(userDataName);
-
-		size_t fieldCount = m_reactorBody->m_fieldArray.getCount();
-		for (size_t i = 0; i < fieldCount; i++) {
-			Variable* fieldVariable = m_reactorBody->m_fieldArray[i];
-			Field* field = userDataType->createField(fieldVariable->getType());
-			field->m_name = fieldVariable->getName(); // names can overlap; this is just a tag for debugging
-		}
-
-		bool result = userDataType->require();
-		if (!result)
+		ClassType* userDataType = m_module->m_variableMgr.createReactorUserDataType(userDataName);
+		if (!userDataType)
 			return false;
 
 		m_reactorBody->m_reactorType->m_userDataType = userDataType;
-
-		ClassType* reactorBaseType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_ReactorBase);
-		Field* userDataField = reactorBaseType->getFieldArray()[0];
-
-		Value thisValue = m_module->m_functionMgr.getThisValue();
-		Value userDataValue;
-
-		int32_t gepIdxTable[] = {
-			0, // dereference pointer
-			0, // first base class (jnc.Reactor)
-			userDataField->getLlvmIndex()
-		};
-
-		m_module->m_llvmIrBuilder.createGep(
-			thisValue,
-			m_reactorBody->m_reactorType->getIfaceStructType(),
-			gepIdxTable,
-			countof(gepIdxTable),
-			NULL,
-			&userDataValue
-		);
-
-		m_module->m_llvmIrBuilder.createLoad(userDataValue, userDataField->getType(), &userDataValue);
-		m_module->m_llvmIrBuilder.createBitCast(
-			userDataValue,
-			userDataType->getClassPtrType(ClassPtrTypeKind_Normal, PtrTypeFlag_Safe),
-			&userDataValue
-		);
-
-		Value fieldValue; // avoid construct/destruct in loop
-		for (size_t i = 0; i < fieldCount; i++) {
-			Variable* fieldVariable = m_reactorBody->m_fieldArray[i];
-			Field* field = userDataType->getFieldArray()[i];
-
-			result = m_module->m_operatorMgr.getField(userDataValue, field, &fieldValue);
-			ASSERT(result && llvm::isa<llvm::AllocaInst>(fieldVariable->getLlvmValue()));
-
-			llvm::AllocaInst* llvmAlloca = (llvm::AllocaInst*)fieldVariable->getLlvmValue();
-			llvmAlloca->replaceAllUsesWith(fieldValue.getLlvmValue());
-			llvmAlloca->eraseFromParent();
-		}
 	}
 
 	char buffer[256];

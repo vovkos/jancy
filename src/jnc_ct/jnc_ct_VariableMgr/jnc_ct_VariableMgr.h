@@ -36,6 +36,7 @@ protected:
 	sl::Array<Variable*> m_globalVariableInitializeArray;
 	sl::Array<Variable*> m_liftedStackVariableArray;
 	sl::Array<Variable*> m_argVariableArray;
+	sl::Array<Variable*> m_reactorVariableArray;
 	sl::Array<Variable*> m_tlsVariableArray;
 	Variable* m_currentLiftedStackVariable;
 	StructType* m_tlsStructType;
@@ -102,6 +103,11 @@ public:
 	const sl::Array<Variable*>&
 	getArgVariableArray() {
 		return m_argVariableArray;
+	}
+
+	const sl::Array<Variable*>&
+	getReactorVariableArray() {
+		return m_reactorVariableArray;
 	}
 
 	const sl::Array<Variable*>&
@@ -185,6 +191,9 @@ public:
 
 	bool
 	createTlsStructType();
+
+	ClassType*
+	createReactorUserDataType(const sl::StringRef& name);
 
 	bool
 	allocateVariable(Variable* variable);

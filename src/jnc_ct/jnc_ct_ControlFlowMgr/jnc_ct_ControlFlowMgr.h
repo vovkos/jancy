@@ -120,7 +120,6 @@ struct OnceStmt {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct ReactorBody {
-	sl::Array<Variable*> m_fieldArray;
 	sl::Array<BasicBlock*> m_reactionBlockArray;
 	ReactorClassType* m_reactorType;
 	BasicBlock* m_switchBlock;
@@ -240,12 +239,6 @@ public:
 
 	void
 	finalizeReaction(size_t reactionIdx);
-
-	void
-	addReactorField(Variable* variable) {
-		ASSERT(m_reactorBody);
-		m_reactorBody->m_fieldArray.append(variable);
-	}
 
 	bool
 	addOnEventHandler(

@@ -347,6 +347,10 @@ FunctionMgr::finalizeFunction(
 	for (size_t i = 0; i < count; i++)
 		function->m_tlsVariableArray[i].m_variable->m_llvmValue = NULL;
 
+	count = function->m_reactorVariableArray.getCount();
+	for (size_t i = 0; i < count; i++)
+		function->m_reactorVariableArray[i].m_variable->m_llvmValue = NULL;
+
 	m_thisValue.clear();
 	m_promiseValue.clear();
 	m_currentFunction = NULL;
@@ -590,46 +594,113 @@ FunctionMgr::finalizeNamespaceProperties(const sl::ConstIterator<Property>& prev
 }
 
 void
-FunctionMgr::injectTlsPrologues() {
+FunctionMgr::replaceFieldVariableAllocas() {
 	sl::Iterator<Function> it = m_functionList.getHead();
-	for (; it; it++)
-		if (it->isTlsRequired())
-			injectTlsPrologue(*it);
+	for (; it; it++) {
+		Function* function = *it;
+		if (!function->m_tlsVariableArray.isEmpty() || !function->m_reactorVariableArray.isEmpty())
+			replaceFieldVariableAllocas(function);
+	}
 }
 
 void
-FunctionMgr::injectTlsPrologue(Function* function) {
+FunctionMgr::replaceFieldVariableAllocas(Function* function) {
 	BasicBlock* block = function->getPrologueBlock();
 	ASSERT(block);
 
 	m_module->m_controlFlowMgr.setCurrentBlock(block);
 	m_module->m_llvmIrBuilder.setInsertPoint(&*block->getLlvmBlock()->begin());
 
-	StructType* tlsType = m_module->m_variableMgr.getTlsStructType();
-	Function* getTls = getStdFunction(StdFunc_GetTls);
+	if (!function->m_tlsVariableArray.isEmpty()) {
+		StructType* tlsType = m_module->m_variableMgr.getTlsStructType();
+		Function* getTls = getStdFunction(StdFunc_GetTls);
 
-	Value tlsValue;
-	m_module->m_llvmIrBuilder.createCall(getTls, getTls->getType(), &tlsValue);
+		Value tlsValue;
+		m_module->m_llvmIrBuilder.createCall(getTls, getTls->getType(), &tlsValue);
 
-	// tls variables used in this function
+		Value fieldValue;
+		size_t count = function->m_tlsVariableArray.getCount();
+		for (size_t i = 0; i < count; i++) {
+			Field* field = function->m_tlsVariableArray[i].m_variable->getField();
+			ASSERT(field);
 
-	sl::Array<TlsVariable> tlsVariableArray = function->getTlsVariableArray();
-	size_t count = tlsVariableArray.getCount();
-	for (size_t i = 0; i < count; i++) {
-		Field* field = tlsVariableArray[i].m_variable->getTlsField();
-		ASSERT(field);
+			m_module->m_llvmIrBuilder.createGep2(
+				tlsValue,
+				tlsType,
+				field->getLlvmIndex(),
+				NULL,
+				&fieldValue
+			);
 
-		Value ptrValue;
-		m_module->m_llvmIrBuilder.createGep2(tlsValue, tlsType, field->getLlvmIndex(), NULL, &ptrValue);
-		tlsVariableArray[i].m_llvmAlloca->replaceAllUsesWith(ptrValue.getLlvmValue());
+			function->m_tlsVariableArray[i].m_llvmAlloca->replaceAllUsesWith(fieldValue.getLlvmValue());
+		}
 	}
 
-	// unfortunately, erasing could not be safely done inside the above loop (cause of InsertPoint)
-	// so just have a dedicated loop for erasing alloca's
+	if (!function->m_reactorVariableArray.isEmpty()) {
+		Value thisValue = function->getType()->getCallConv()->getThisArgValue(function);
+		ASSERT(
+			thisValue.getType() == function->getThisType() &&
+			isClassPtrType(thisValue.getType(), ClassTypeKind_Reactor)
+		);
 
-	count = tlsVariableArray.getCount();
+		ReactorClassType* reactorType = (ReactorClassType*)((ClassPtrType*)thisValue.getType())->getTargetType();
+		ClassType* reactorBaseType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_ReactorBase);
+		ClassType* userDataType = reactorType->getUserDataType();
+		StructType* userDataIfaceStructType = userDataType->getIfaceStructType();
+		Field* userDataField = reactorBaseType->getFieldArray()[0];
+
+		int32_t userDataGepIdxTable[] = {
+			0, // dereference pointer
+			0, // first base class (jnc.Reactor)
+			userDataField->getLlvmIndex()
+		};
+
+		Value userDataValue;
+		m_module->m_llvmIrBuilder.createGep(
+			thisValue,
+			reactorType->getIfaceStructType(),
+			userDataGepIdxTable,
+			countof(userDataGepIdxTable),
+			NULL,
+			&userDataValue
+		);
+
+		m_module->m_llvmIrBuilder.createLoad(userDataValue, userDataField->getType(), &userDataValue);
+		m_module->m_llvmIrBuilder.createBitCast(
+			userDataValue,
+			userDataType->getClassPtrType(ClassPtrTypeKind_Normal, PtrTypeFlag_Safe),
+			&userDataValue
+		);
+
+		Value fieldValue;
+		size_t count = function->m_reactorVariableArray.getCount();
+		ASSERT(count == userDataType->getFieldArray().getCount());
+		for (size_t i = 0; i < count; i++) {
+			Field* field = function->m_reactorVariableArray[i].m_variable->getField();
+			ASSERT(field && field == userDataType->getFieldArray()[i]);
+
+			m_module->m_llvmIrBuilder.createGep2(
+				userDataValue,
+				userDataIfaceStructType,
+				field->getLlvmIndex(),
+				NULL,
+				&fieldValue
+			);
+
+			function->m_reactorVariableArray[i].m_llvmAlloca->replaceAllUsesWith(fieldValue.getLlvmValue());
+		}
+	}
+
+	// unfortunately, we can't eraseFromParent in the loops above (InsertPoint could be one of those alloca's)
+	// hence, the dedicated loops for erasing alloca's
+
+	size_t count = function->m_tlsVariableArray.getCount();
 	for (size_t i = 0; i < count; i++)
-		tlsVariableArray[i].m_llvmAlloca->eraseFromParent();
+		function->m_tlsVariableArray[i].m_llvmAlloca->eraseFromParent();
+
+	count = function->m_reactorVariableArray.getCount();
+	for (size_t i = 0; i < count; i++)
+		function->m_reactorVariableArray[i].m_llvmAlloca->eraseFromParent();
 }
 
 void

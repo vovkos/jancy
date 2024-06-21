@@ -805,7 +805,7 @@ Parser::useNamespace(
 }
 
 bool
-Parser::declareReactorField(
+Parser::declareReactorVariable(
 	Declarator* declarator,
 	Type* type,
 	uint_t ptrTypeFlags
@@ -814,36 +814,33 @@ Parser::declareReactorField(
 
 	ReactorClassType* reactorType = m_module->m_controlFlowMgr.getReactorType();
 	if (m_storageKind) {
-		// StorageKind_Static should be fine, but we currently have StorageKind_ReactorField only
+		// StorageKind_Static should be fine, too -- but we currently handle StorageKind_Reactor only
 		err::setFormatStringError("invalid storage kind in reactor");
 		return false;
 	}
 
 	const sl::StringRef& name = declarator->getName().getShortName();
-	Variable* variable = m_module->m_variableMgr.createVariable(StorageKind_ReactorField, name, type, ptrTypeFlags);
+	Variable* variable = m_module->m_variableMgr.createVariable(StorageKind_Reactor, name, type, ptrTypeFlags);
 	assignDeclarationAttributes(variable, variable, declarator->m_pos, declarator->m_attributeBlock, NULL);
-	bool result = m_module->m_namespaceMgr.getCurrentNamespace()->addItem(variable);
+
+	bool result =
+		m_module->m_variableMgr.allocateVariable(variable) &&
+		m_module->m_namespaceMgr.getCurrentNamespace()->addItem(variable);
+
 	if (!result)
 		return false;
 
 	if (declarator->m_initializer.isEmpty())
 		return true;
 
-	// modify initializer so it looks like an assignment expression: name = <initializer>
+	m_module->m_controlFlowMgr.enterReactiveExpression();
 
-	Token* token = m_tokenPool->get();
-	token->m_pos = declarator->m_initializer.getHead()->m_pos;
-	token->m_tokenKind = (TokenKind) '=';
-	declarator->m_initializer.insertHead(token);
+	result = m_module->m_operatorMgr.parseInitializer(
+		variable,
+		&declarator->m_constructor,
+		&declarator->m_initializer
+	);
 
-	token = m_tokenPool->get();
-	token->m_tokenKind = TokenKind_Identifier;
-	token->m_data.m_string = name;
-	declarator->m_initializer.insertHead(token);
-
-	Parser parser(m_module, getPragmaConfigSnapshot(), Mode_Compile);
-
-	result = parser.parseTokenList(SymbolKind_reactive_expression, &declarator->m_initializer);
 	if (!result)
 		return false;
 
@@ -885,6 +882,9 @@ Parser::declareNamedAttributeBlock(Declarator* declarator) {
 bool
 Parser::declare(Declarator* declarator) {
 	m_lastDeclaredItem = NULL;
+
+	if (declarator->getName().isSimple() && declarator->getName().getShortName() == "yyy")
+		printf("declaring yyy\n");
 
 	bool isLibrary = m_module->m_namespaceMgr.getCurrentNamespace()->getNamespaceKind() == NamespaceKind_DynamicLib;
 
@@ -1405,16 +1405,21 @@ Parser::createProperty(Declarator* declarator) {
 		break;
 
 	default:
-		if (m_storageKind && m_storageKind != StorageKind_Static) {
-			err::setFormatStringError("invalid storage specifier '%s' for a global property", getStorageKindString(m_storageKind));
-			return NULL;
-		}
-
 		result = nspace->addItem(prop);
 		if (!result)
 			return NULL;
 
-		prop->m_storageKind = StorageKind_Static;
+		StorageKind storageKind = m_module->m_controlFlowMgr.isReactor() ? StorageKind_Reactor : StorageKind_Static;
+		if (m_storageKind && m_storageKind != storageKind) {
+			err::setFormatStringError(
+				"invalid storage specifier '%s' for property '%s'",
+				getStorageKindString(m_storageKind),
+				prop->getQualifiedName().sz()
+			);
+			return NULL;
+		}
+
+		prop->m_storageKind = storageKind;
 	}
 
 	return prop;
@@ -1661,7 +1666,7 @@ Parser::declareData(
 	}
 
 	if (m_module->m_controlFlowMgr.isReactor())
-		return declareReactorField(declarator, type, ptrTypeFlags);
+		return declareReactorVariable(declarator, type, ptrTypeFlags);
 
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
 	StorageKind storageKind = m_storageKind;

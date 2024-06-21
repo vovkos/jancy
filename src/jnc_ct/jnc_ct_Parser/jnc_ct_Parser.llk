@@ -476,7 +476,7 @@ protected:
 	);
 
 	bool
-	declareReactorField(
+	declareReactorVariable(
 		Declarator* declarator,
 		Type* type,
 		uint_t ptrTypeFlags

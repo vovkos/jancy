@@ -30,6 +30,7 @@ class Field:
 	friend class StructType;
 	friend class UnionType;
 	friend class ClassType;
+	friend class VariableMgr;
 
 protected:
 	Type* m_type;

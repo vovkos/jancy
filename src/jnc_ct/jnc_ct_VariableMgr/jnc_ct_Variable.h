@@ -40,6 +40,7 @@ class Variable:
 	public ModuleItemInitializer {
 	friend class VariableMgr;
 	friend class FunctionMgr;
+	friend class ControlFlowMgr;
 	friend class MemberBlock;
 	friend class Property;
 	friend class Type;
@@ -56,7 +57,7 @@ protected:
 
 	// codegen-only
 
-	Field* m_tlsField;
+	Field* m_field; // field variables only (TLS and reactor locals)
 	void* m_staticData;
 	rc::Ptr<LeanDataPtrValidator> m_leanDataPtrValidator;
 	sl::String m_llvmGlobalVariableName;
@@ -97,9 +98,9 @@ public:
 	}
 
 	Field*
-	getTlsField() {
-		ASSERT(m_storageKind == StorageKind_Tls);
-		return m_tlsField;
+	getField() {
+		ASSERT(m_storageKind == StorageKind_Tls || m_storageKind == StorageKind_Reactor);
+		return m_field;
 	}
 
 	void*
@@ -177,13 +178,28 @@ Variable::getLeanDataPtrValidator() {
 
 //..............................................................................
 
-// after compiling and generating LLVM IR, we need to calc layout of TLS struct type
-// then we can insert instructions to get TLS block in every function and then replace
-// all alloca's temporarily representing TLS variables with GEPs into this TLS block
+// TLS and reactor varialbles are actually fields, but we don't know the exact
+// structure of their respecitve containers the moment we need their LLVM
+// values. As such, we temporarily use `alloca`-s to represent such variables
+// and then replace these `alloca`-s with `gep`s later, when we can calculate
+// the layouts of their containers.
 
-struct TlsVariable {
+struct FieldVariable {
 	Variable* m_variable;
 	llvm::AllocaInst* m_llvmAlloca;
+
+	FieldVariable() {
+		m_variable = NULL;
+		m_llvmAlloca = NULL;
+	}
+
+	FieldVariable(
+		Variable* variable,
+		llvm::AllocaInst* llvmAlloca
+	) {
+		m_variable = variable;
+		m_llvmAlloca = llvmAlloca;
+	}
 };
 
 //..............................................................................

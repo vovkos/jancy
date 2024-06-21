@@ -83,17 +83,6 @@ Function::convertToMemberMethod(DerivableType* parentType) {
 	m_thisType = m_thisArgType;
 }
 
-void
-Function::addTlsVariable(Variable* variable) {
-	llvm::AllocaInst* llvmAlloca = (llvm::AllocaInst*)variable->getLlvmValue();
-	ASSERT(llvmAlloca && llvm::isa<llvm::AllocaInst>(*llvmAlloca));
-
-	TlsVariable tlsVariable;
-	tlsVariable.m_variable = variable;
-	tlsVariable.m_llvmAlloca = llvmAlloca;
-	m_tlsVariableArray.append(tlsVariable);
-}
-
 bool
 Function::require() {
 	if (canCompile())

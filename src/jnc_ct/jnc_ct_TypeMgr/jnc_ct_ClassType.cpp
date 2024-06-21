@@ -145,9 +145,11 @@ ClassType::addMethod(Function* function) {
 		break;
 
 	case FunctionKind_Normal:
-		overloadIdx = addFunction(function);
-		if (overloadIdx == -1)
-			return false;
+		if (function->m_name[0] != '!') { // internal method
+			overloadIdx = addFunction(function);
+			if (overloadIdx == -1)
+				return false;
+		}
 
 		m_methodArray.append(function);
 		return true;

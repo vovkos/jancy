@@ -239,7 +239,7 @@ public:
 	internalEpilogue();
 
 	void
-	injectTlsPrologues();
+	replaceFieldVariableAllocas();
 
 	void
 	replaceAsyncAllocas();
@@ -299,7 +299,7 @@ public:
 
 protected:
 	void
-	injectTlsPrologue(Function* function);
+	replaceFieldVariableAllocas(Function* function);
 
 	void
 	finalizeFunction(

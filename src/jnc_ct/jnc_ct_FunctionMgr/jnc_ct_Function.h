@@ -83,7 +83,9 @@ protected:
 
 	// codegen-only
 
-	sl::Array<TlsVariable> m_tlsVariableArray;
+	sl::Array<FieldVariable> m_tlsVariableArray;
+	sl::Array<FieldVariable> m_reactorVariableArray;
+
 	sl::String m_llvmFunctionName;
 	llvm::Function* m_llvmFunction;
 	llvm::DISubprogram_vn m_llvmDiSubprogram;
@@ -100,11 +102,6 @@ public:
 	bool
 	isEmpty() {
 		return !m_prologueBlock;
-	}
-
-	bool
-	isTlsRequired() {
-		return !m_tlsVariableArray.isEmpty();
 	}
 
 	bool
@@ -223,13 +220,21 @@ public:
 		return m_machineCode;
 	}
 
-	sl::Array<TlsVariable>
+	sl::Array<FieldVariable>
 	getTlsVariableArray() {
 		return m_tlsVariableArray;
 	}
 
+	sl::Array<FieldVariable>
+	getReactorVariableArray() {
+		return m_reactorVariableArray;
+	}
+
 	void
 	addTlsVariable(Variable* variable);
+
+	void
+	addReactorVariable(Variable* variable);
 
 	bool
 	canCompile() {
@@ -258,6 +263,12 @@ protected:
 
 	void
 	prepareLlvmDiSubprogram();
+
+	void
+	addFieldVariable(
+		sl::Array<FieldVariable>* array,
+		Variable* variable
+	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -279,6 +290,23 @@ Function::getLlvmDiSubprogram() {
 
 	return m_llvmDiSubprogram;
 }
+
+inline
+void
+Function::addTlsVariable(Variable* variable) {
+	llvm::AllocaInst* llvmAlloca = (llvm::AllocaInst*)variable->getLlvmValue();
+	ASSERT(llvmAlloca && llvm::isa<llvm::AllocaInst>(*llvmAlloca));
+	m_tlsVariableArray.append(FieldVariable(variable, llvmAlloca));
+}
+
+inline
+void
+Function::addReactorVariable(Variable* variable) {
+	llvm::AllocaInst* llvmAlloca = (llvm::AllocaInst*)variable->getLlvmValue();
+	ASSERT(llvmAlloca && llvm::isa<llvm::AllocaInst>(*llvmAlloca));
+	m_reactorVariableArray.append(FieldVariable(variable, llvmAlloca));
+}
+
 
 //..............................................................................
 

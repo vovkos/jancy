@@ -40,6 +40,7 @@ VariableMgr::clear() {
 	m_globalVariableInitializeArray.clear();
 	m_liftedStackVariableArray.clear();
 	m_argVariableArray.clear();
+	m_reactorVariableArray.clear();
 	m_tlsVariableArray.clear();
 	m_currentLiftedStackVariable = NULL;
 	m_tlsStructType = NULL;
@@ -228,6 +229,10 @@ VariableMgr::allocateVariable(Variable* variable) {
 
 	case StorageKind_Tls:
 		m_tlsVariableArray.append(variable);
+		break;
+
+	case StorageKind_Reactor:
+		m_reactorVariableArray.append(variable);
 		break;
 
 	case StorageKind_Stack:
@@ -609,6 +614,7 @@ VariableMgr::finalizeFunction() {
 
 	m_liftedStackVariableArray.clear();
 	m_argVariableArray.clear();
+	m_reactorVariableArray.clear(); // we already should have used it in createReactorUserDataType()
 	m_extraStackPtrFlags = 0;
 }
 
@@ -726,6 +732,8 @@ VariableMgr::createTlsStructType() {
 	size_t count = m_tlsVariableArray.getCount();
 	for (size_t i = 0; i < count; i++) {
 		Variable* variable = m_tlsVariableArray[i];
+		ASSERT(variable->m_storageKind == StorageKind_Tls);
+
 		result = variable->m_type->ensureLayout();
 		if (!result)
 			return false;
@@ -735,7 +743,7 @@ VariableMgr::createTlsStructType() {
 			return false;
 		}
 
-		variable->m_tlsField = type->createField(variable->m_type);
+		variable->m_field = type->createField(variable->m_type);
 	}
 
 	result = type->ensureLayout();
@@ -744,6 +752,23 @@ VariableMgr::createTlsStructType() {
 
 	m_tlsStructType = type;
 	return true;
+}
+
+ClassType*
+VariableMgr::createReactorUserDataType(const sl::StringRef& name) {
+	ASSERT(!m_reactorVariableArray.isEmpty()); // otherwise, why are we here?
+
+	ClassType* userDataType = m_module->m_typeMgr.createInternalClassType(name);
+	size_t count = m_reactorVariableArray.getCount();
+	for (size_t i = 0; i < count; i++) {
+		Variable* variable = m_reactorVariableArray[i];
+		ASSERT(variable->m_storageKind == StorageKind_Reactor);
+
+		variable->m_field = userDataType->createField(variable->getType());
+		variable->m_field->m_name = variable->getName(); // names can overlap; this is just a tag for debugging
+	}
+
+	return userDataType->require() ? userDataType : NULL;
 }
 
 void

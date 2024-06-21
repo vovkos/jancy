@@ -157,8 +157,10 @@ Property::createOnChanged() {
 			field != NULL &&
 			setOnChanged(field);
 	} else {
+		ASSERT(m_storageKind == StorageKind_Static || m_storageKind == StorageKind_Reactor);
+
 		Variable* variable = m_module->m_variableMgr.createVariable(
-			StorageKind_Static,
+			m_storageKind,
 			name,
 			createQualifiedName(name),
 			type
@@ -231,8 +233,10 @@ Property::createAutoGetValue(Type* type) {
 			field != NULL &&
 			setAutoGetValue(field);
 	} else {
+		ASSERT(m_storageKind == StorageKind_Static || m_storageKind == StorageKind_Reactor);
+
 		Variable* variable = m_module->m_variableMgr.createVariable(
-			StorageKind_Static,
+			m_storageKind,
 			name,
 			createQualifiedName(name),
 			type
@@ -358,6 +362,10 @@ Property::addMethod(Function* function) {
 
 		case StorageKind_Static:
 			break;
+
+		case StorageKind_Reactor:
+			err::setFormatStringError("in-reactor properties not implemented yet");
+			return false;
 
 		default:
 			err::setFormatStringError("invalid storage specifier '%s' for static property member", getStorageKindString(storageKind));

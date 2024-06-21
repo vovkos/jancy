@@ -457,8 +457,8 @@ Module::compileImpl() {
 		if (!result)
 			return false;
 
-		m_functionMgr.injectTlsPrologues();
-		m_functionMgr.replaceAsyncAllocas(); // after replacing TLS allocas!
+		m_functionMgr.replaceFieldVariableAllocas();
+		m_functionMgr.replaceAsyncAllocas(); // after replacing field-variable allocas!
 		m_controlFlowMgr.deleteUnreachableBlocks();
 	}
 

@@ -26,7 +26,7 @@ Variable::Variable() {
 	m_ptrTypeFlags = 0;
 	m_stdVariable = (StdVariable)-1;
 	m_scope = NULL;
-	m_tlsField = NULL;
+	m_field = NULL;
 	m_staticData = NULL;
 	m_llvmGlobalVariable = NULL;
 	m_llvmValue = NULL;
@@ -35,7 +35,7 @@ Variable::Variable() {
 
 void
 Variable::prepareLlvmValue() {
-	ASSERT(!m_llvmValue && (m_storageKind == StorageKind_Tls || m_storageKind == StorageKind_ReactorField));
+	ASSERT(!m_llvmValue && (m_storageKind == StorageKind_Tls || m_storageKind == StorageKind_Reactor));
 
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
 	BasicBlock* prologueBlock = function->getPrologueBlock();
@@ -54,8 +54,8 @@ Variable::prepareLlvmValue() {
 		function->addTlsVariable(this);
 		break;
 
-	case StorageKind_ReactorField:
-		m_module->m_controlFlowMgr.addReactorField(this);
+	case StorageKind_Reactor:
+		function->addReactorVariable(this);
 		break;
 	}
 }

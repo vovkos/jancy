@@ -99,7 +99,6 @@ class ModuleItemDecl: public ModuleItemPos {
 	friend class DoxyHost;
 	friend class Parser;
 	friend class Namespace;
-	friend class ControlFlowMgr;
 	friend class Orphan;
 
 protected:
