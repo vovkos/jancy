@@ -235,6 +235,9 @@ public:
 	}
 
 	void
+	finalizeReactiveExpressionStmt();
+
+	void
 	finalizeReactiveStmt(size_t reactionIdx);
 
 	void
@@ -667,6 +670,14 @@ ControlFlowMgr::setCurrentReactor(ReactorBody* reactorBody) {
 	ReactorBody* prevReactorBody = m_reactorBody;
 	m_reactorBody = reactorBody;
 	return prevReactorBody;
+}
+
+inline
+void
+ControlFlowMgr::finalizeReactiveExpressionStmt() {
+	size_t reactionIdx = finalizeReactiveExpression();
+	if (reactionIdx != -1)
+		finalizeReaction(reactionIdx);
 }
 
 //..............................................................................

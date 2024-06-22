@@ -98,9 +98,7 @@ statement
 	|	onevent_stmt
 	|	reactive_expression ';'
 			{
-				size_t reactionIdx = m_module->m_controlFlowMgr.finalizeReactiveExpression();
-				if (reactionIdx != -1)
-					m_module->m_controlFlowMgr.finalizeReaction(reactionIdx);
+				m_module->m_controlFlowMgr.finalizeReactiveExpressionStmt();
 			}
 	|	';'
 	;

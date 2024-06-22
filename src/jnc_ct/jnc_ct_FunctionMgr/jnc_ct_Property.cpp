@@ -43,8 +43,6 @@ bool
 Property::create(PropertyType* type) {
 	bool result;
 
-	StorageKind storageKind = m_storageKind == StorageKind_Abstract ? StorageKind_Virtual : m_storageKind;
-
 	uint_t getterFlags = 0;
 	uint_t setterFlags = 0;
 
@@ -70,7 +68,6 @@ Property::create(PropertyType* type) {
 			return false;
 	} else {
 		Function* getter = createAccessor(FunctionKind_Getter, getterType);
-		getter->m_storageKind = storageKind;
 		getter->m_flags |= getterFlags;
 
 		if (m_parentType)
@@ -84,7 +81,7 @@ Property::create(PropertyType* type) {
 	if (m_flags & PropertyFlag_AutoSet) {
 		Function* setter = m_module->m_functionMgr.createFunction<AutoSetter>(*type->getSetterType());
 		setter->m_functionKind = FunctionKind_Setter;
-		setter->m_storageKind = storageKind;
+		setter->m_storageKind = getAccessorStorageKind();
 		setter->m_flags |= setterFlags;
 
 		result = addMethod(setter);
@@ -95,7 +92,6 @@ Property::create(PropertyType* type) {
 		for (size_t i = 0; i < setterTypeOverloadCount; i++) {
 			FunctionType* setterType = type->getSetterType()->getOverload(i);
 			Function* setter = createAccessor(FunctionKind_Setter, setterType);
-			setter->m_storageKind = storageKind;
 			setter->m_flags |= setterFlags;
 
 			result = addMethod(setter);
@@ -137,7 +133,6 @@ Property::setOnChanged(
 
 	FunctionType* binderType = (FunctionType*)m_module->m_typeMgr.getStdType(StdType_Binder);
 	Function* binder = createAccessor(FunctionKind_Binder, binderType);
-	binder->m_storageKind = m_storageKind == StorageKind_Abstract ? StorageKind_Virtual : m_storageKind;
 
 	if (m_parentType)
 		binder->m_thisArgTypeFlags = PtrTypeFlag_Const;
@@ -151,7 +146,7 @@ Property::createOnChanged() {
 
 	Type* type = m_module->m_typeMgr.getStdType(StdType_SimpleMulticast);
 
-	if (m_parentType) {
+	if (m_parentType && m_storageKind != StorageKind_Reactor) {
 		Field* field = createField(name, type);
 		return
 			field != NULL &&
@@ -215,7 +210,7 @@ Property::setAutoGetValue(
 
 	Function* getter = m_module->m_functionMgr.createFunction<AutoGetter>(getterType);
 	getter->m_functionKind = FunctionKind_Getter;
-	getter->m_storageKind = m_storageKind == StorageKind_Abstract ? StorageKind_Virtual : m_storageKind;
+	getter->m_storageKind = getAccessorStorageKind();
 
 	if (m_parentType)
 		getter->m_thisArgTypeFlags = PtrTypeFlag_Const;
@@ -227,7 +222,7 @@ bool
 Property::createAutoGetValue(Type* type) {
 	sl::String name = "m_value";
 
-	if (m_parentType) {
+	if (m_parentType && m_storageKind != StorageKind_Reactor) {
 		Field* field = createField(name, type);
 		return
 			field != NULL &&
@@ -297,9 +292,12 @@ Property::createAccessor(
 	FunctionKind functionKind,
 	FunctionType* type
 ) {
-	return functionKind == FunctionKind_Binder ?
+	Function* function = functionKind == FunctionKind_Binder ?
 		m_module->m_functionMgr.createFunction<Binder>(functionKind, type) :
 		m_module->m_functionMgr.createFunction(functionKind, type);
+
+	function->m_storageKind = getAccessorStorageKind();
+	return function;
 }
 
 bool

@@ -751,10 +751,22 @@ public:
 	);
 
 	bool
-	parseInitializer(
+	initialize(
 		const Value& value,
 		sl::List<Token>* constructorTokenList,
 		sl::List<Token>* initializerTokenList
+	);
+
+	bool
+	parseInitializer(
+		const Value& value,
+		sl::List<Token>* tokenList
+	);
+
+	bool
+	parseReactiveInitializer(
+		const Value& value,
+		sl::List<Token>* tokenList
 	);
 
 	bool

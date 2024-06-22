@@ -168,7 +168,12 @@ VariableMgr::allocateNamespaceVariables(const sl::ConstIterator<Variable>& prevI
 
 	sl::Iterator<Variable> it = prevIt ? (Variable*)prevIt.getNext().p() : m_variableList.getHead();
 	for (; it; it++) {
-		ASSERT(it->m_storageKind == StorageKind_Static || it->m_storageKind == StorageKind_Tls);
+		ASSERT(
+			it->m_storageKind == StorageKind_Static ||
+			it->m_storageKind == StorageKind_Tls ||
+			it->m_storageKind == StorageKind_Reactor
+		);
+
 		if (it->m_flags & VariableFlag_Allocated) // already
 			continue;
 
@@ -325,7 +330,7 @@ VariableMgr::initializeVariable(Variable* variable) {
 
 	Unit* prevUnit = variable->m_parentUnit ? m_module->m_unitMgr.setCurrentUnit(variable->m_parentUnit) : NULL;
 
-	bool result = m_module->m_operatorMgr.parseInitializer(
+	bool result = m_module->m_operatorMgr.initialize(
 		variable,
 		&variable->m_constructor,
 		&variable->m_initializer

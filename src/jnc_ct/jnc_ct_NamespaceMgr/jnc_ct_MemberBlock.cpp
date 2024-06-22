@@ -173,7 +173,7 @@ MemberBlock::initializeFields(const Value& thisValue) {
 		if (!result)
 			return false;
 
-		result = module->m_operatorMgr.parseInitializer(
+		result = module->m_operatorMgr.initialize(
 			fieldValue,
 			&field->m_constructor,
 			&field->m_initializer

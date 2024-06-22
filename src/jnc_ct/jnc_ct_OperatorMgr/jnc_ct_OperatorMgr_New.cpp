@@ -209,7 +209,7 @@ OperatorMgr::construct(
 }
 
 bool
-OperatorMgr::parseInitializer(
+OperatorMgr::initialize(
 	const Value& rawValue,
 	sl::List<Token>* constructorTokenList,
 	sl::List<Token>* initializerTokenList
@@ -237,31 +237,40 @@ OperatorMgr::parseInitializer(
 	if (!result)
 		return false;
 
-	if (!initializerTokenList->isEmpty()) {
-		Parser parser(m_module, NULL, Parser::Mode_Compile);
-		const Token* token = *initializerTokenList->getHead();
-		switch (token->m_token) {
-		case TokenKind_Body:
-			parser.m_curlyInitializerTargetValue = value;
-			result = parser.parseBody(SymbolKind_curly_initializer, token->m_pos, token->m_data.m_string);
-			break;
+	return !initializerTokenList->isEmpty() ?
+		parseInitializer(value, initializerTokenList) :
+		true;
+}
 
-		case '{':
-			parser.m_curlyInitializerTargetValue = value;
-			result = parser.parseTokenList(SymbolKind_curly_initializer, initializerTokenList);
-			break;
+bool
+OperatorMgr::parseInitializer(
+	const Value& value,
+	sl::List<Token>* tokenList
+) {
+	ASSERT(!tokenList->isEmpty());
 
-		default:
-			result =
-				parser.parseTokenList(SymbolKind_expression_save_value, initializerTokenList) &&
-				m_module->m_operatorMgr.binaryOperator(BinOpKind_Assign, value, parser.getLastExpressionValue());
-		}
+	bool result;
 
-		if (!result)
-			return false;
+	Parser parser(m_module, NULL, Parser::Mode_Compile);
+	const Token* token = *tokenList->getHead();
+	switch (token->m_token) {
+	case TokenKind_Body:
+		parser.m_curlyInitializerTargetValue = value;
+		result = parser.parseBody(SymbolKind_curly_initializer, token->m_pos, token->m_data.m_string);
+		break;
+
+	case '{':
+		parser.m_curlyInitializerTargetValue = value;
+		result = parser.parseTokenList(SymbolKind_curly_initializer, tokenList);
+		break;
+
+	default:
+		result =
+			parser.parseTokenList(SymbolKind_expression_save_value, tokenList) &&
+			m_module->m_operatorMgr.binaryOperator(BinOpKind_Assign, value, parser.getLastExpressionValue());
 	}
 
-	return true;
+	return result;
 }
 
 bool

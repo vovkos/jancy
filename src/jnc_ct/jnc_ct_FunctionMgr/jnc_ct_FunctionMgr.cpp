@@ -674,25 +674,19 @@ FunctionMgr::replaceFieldVariableAllocas(Function* function) {
 
 		Value fieldValue;
 		size_t count = function->m_reactorVariableArray.getCount();
-		ASSERT(count == userDataType->getFieldArray().getCount());
 		for (size_t i = 0; i < count; i++) {
 			Field* field = function->m_reactorVariableArray[i].m_variable->getField();
-			ASSERT(field && field == userDataType->getFieldArray()[i]);
+			ASSERT(field);
 
-			m_module->m_llvmIrBuilder.createGep2(
-				userDataValue,
-				userDataIfaceStructType,
-				field->getLlvmIndex(),
-				NULL,
-				&fieldValue
-			);
+			bool result = m_module->m_operatorMgr.getField(userDataValue, field, &fieldValue);
+			ASSERT(result);
 
 			function->m_reactorVariableArray[i].m_llvmAlloca->replaceAllUsesWith(fieldValue.getLlvmValue());
 		}
 	}
 
 	// unfortunately, we can't eraseFromParent in the loops above (InsertPoint could be one of those alloca's)
-	// hence, the dedicated loops for erasing alloca's
+	// hence, two dedicated loops below for erasing alloca's
 
 	size_t count = function->m_tlsVariableArray.getCount();
 	for (size_t i = 0; i < count; i++)

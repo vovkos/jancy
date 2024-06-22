@@ -819,36 +819,21 @@ Parser::declareReactorVariable(
 		return false;
 	}
 
+	if (!declarator->m_constructor.isEmpty()) {
+		err::setFormatStringError("reactor variables can't have non-trivial constructors");
+		return false;
+	}
+
 	const sl::StringRef& name = declarator->getName().getShortName();
 	Variable* variable = m_module->m_variableMgr.createVariable(StorageKind_Reactor, name, type, ptrTypeFlags);
 	assignDeclarationAttributes(variable, variable, declarator->m_pos, declarator->m_attributeBlock, NULL);
 
 	bool result =
 		m_module->m_variableMgr.allocateVariable(variable) &&
-		m_module->m_namespaceMgr.getCurrentNamespace()->addItem(variable);
-
-	if (!result)
-		return false;
-
-	if (declarator->m_initializer.isEmpty())
-		return true;
-
-	m_module->m_controlFlowMgr.enterReactiveExpression();
-
-	result = m_module->m_operatorMgr.parseInitializer(
-		variable,
-		&declarator->m_constructor,
-		&declarator->m_initializer
-	);
-
-	if (!result)
-		return false;
-
-	size_t reactionIdx = m_module->m_controlFlowMgr.finalizeReactiveExpression();
-	if (reactionIdx != -1)
-		m_module->m_controlFlowMgr.finalizeReaction(reactionIdx);
-
-	return true;
+		m_module->m_namespaceMgr.getCurrentNamespace()->addItem(variable) && (
+			declarator->m_initializer.isEmpty() ||
+			m_module->m_operatorMgr.parseReactiveInitializer(variable, &declarator->m_initializer)
+		);
 }
 
 bool
@@ -1312,7 +1297,26 @@ Parser::declareProperty(
 
 	if (type) {
 		prop->m_flags |= flags;
-		return prop->create(type);
+
+		if (prop->m_storageKind != StorageKind_Reactor)
+			return prop->create(type);
+
+		sl::ConstIterator<Variable> lastVariableIt = m_module->m_variableMgr.getVariableList().getTail();
+		bool result =
+			prop->create(type) &&
+			m_module->m_variableMgr.allocateNamespaceVariables(lastVariableIt);
+
+		if (!result)
+			return false;
+
+		if (declarator->m_initializer.isEmpty())
+			return true;
+
+		Value propValue = prop;
+		result = m_module->m_operatorMgr.createMemberClosure(&propValue);
+		ASSERT(result);
+
+		return m_module->m_operatorMgr.parseReactiveInitializer(propValue, &declarator->m_initializer);
 	}
 
 	m_lastPropertyTypeModifiers = declarator->getTypeModifiers();
@@ -1409,8 +1413,7 @@ Parser::createProperty(Declarator* declarator) {
 		if (!result)
 			return NULL;
 
-		StorageKind storageKind = m_module->m_controlFlowMgr.isReactor() ? StorageKind_Reactor : StorageKind_Static;
-		if (m_storageKind && m_storageKind != storageKind) {
+		if (m_storageKind && m_storageKind != StorageKind_Static) {
 			err::setFormatStringError(
 				"invalid storage specifier '%s' for property '%s'",
 				getStorageKindString(m_storageKind),
@@ -1419,7 +1422,12 @@ Parser::createProperty(Declarator* declarator) {
 			return NULL;
 		}
 
-		prop->m_storageKind = storageKind;
+		if (!m_module->m_controlFlowMgr.isReactor() || m_storageKind == StorageKind_Static)
+			prop->m_storageKind = StorageKind_Static;
+		else {
+			prop->m_storageKind = StorageKind_Reactor;
+			prop->m_parentType = m_module->m_controlFlowMgr.getReactorType();
+		}
 	}
 
 	return prop;

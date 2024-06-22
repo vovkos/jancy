@@ -202,7 +202,7 @@ public:
 
 	bool
 	isMember() {
-		return m_storageKind >= StorageKind_Member && m_storageKind <= StorageKind_Override;
+		return m_parentType != NULL;
 	}
 
 	bool
@@ -251,6 +251,14 @@ public:
 	);
 
 protected:
+	StorageKind
+	getAccessorStorageKind() {
+		return
+			m_storageKind == StorageKind_Abstract ? StorageKind_Virtual :
+			m_storageKind == StorageKind_Reactor ? StorageKind_Member :
+			m_storageKind;
+	}
+
 	virtual
 	Function*
 	createAccessor(
