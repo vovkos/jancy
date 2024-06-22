@@ -1327,9 +1327,12 @@ EditPrivate::addAutoCompleteNamespace(
 	size_t count = nspace->getItemCount();
 	for (size_t i = 0; i < count; i++) {
 		ModuleItem* item = nspace->getItem(i);
+		QString name = item->getDecl()->getName();
+		if (name.startsWith('!')) // internal item
+			continue;
+
 		ModuleItemKind itemKind = item->getItemKind();
 		Type* type = item->getType();
-		QString name = item->getDecl()->getName();
 		QString synopsis = item->getSynopsis_v();
 		size_t iconIdx = getItemIconIdx(item);
 
