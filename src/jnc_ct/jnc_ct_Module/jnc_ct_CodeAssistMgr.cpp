@@ -115,6 +115,11 @@ CodeAssistMgr::generateCodeAssistImpl(ModuleItem* item) {
 
 	case ModuleItemKind_Type:
 		ASSERT(((Type*)item)->getTypeKindFlags() & TypeKindFlag_Named);
+		if (isClassType((Type*)item, ClassTypeKind_Reactor)) {
+			generateCodeAssistImpl(((ReactorClassType*)item)->getReactor());
+			break;
+		}
+
 		((NamedType*)item)->ensureNamespaceReady();
 		generateCodeAssist();
 		break;
