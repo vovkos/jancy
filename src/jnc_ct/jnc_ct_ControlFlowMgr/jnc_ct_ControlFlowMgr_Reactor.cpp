@@ -11,6 +11,7 @@
 
 #include "pch.h"
 #include "jnc_ct_ControlFlowMgr.h"
+#include "jnc_ct_MulticastClassType.h"
 #include "jnc_ct_Module.h"
 
 namespace jnc {
@@ -119,8 +120,6 @@ ControlFlowMgr::addOnEventHandler(
     handler->m_flags |= ModuleItemFlag_User;
     handler->setBody(pragmaConfig, tokenList);
 
-	AXL_TODO("check onvevent arg signature against all binding sites (valueList)");
-
 	size_t onEventIdx = m_reactorBody->m_reactionBlockArray.getCount();
     m_reactorBody->m_reactorType->addOnEventHandler(onEventIdx, handler);
 	m_reactorBody->m_reactionBlockArray.append(NULL); // onevent occupies one reaction slot
@@ -129,8 +128,27 @@ ControlFlowMgr::addOnEventHandler(
 	Value thisValue = m_module->m_functionMgr.getThisValue();
 	Value onEventIdxValue(onEventIdx, m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT));
 
-	sl::ConstBoxIterator<Value> it = valueList.getHead();
+	sl::String argSignature = functionType->getArgSignature();
+	sl::BoxList<Value>::ConstIterator it = valueList.getHead();
 	for (; it; it++) {
+		Type* type = it->getType();
+		if (!isClassPtrType(type, ClassTypeKind_Multicast)) {
+			err::setFormatStringError("invalid onevent binding site: '%s'", type->getTypeString().sz());
+			return false;
+		}
+
+		MulticastClassType* eventType = (MulticastClassType*)((ClassPtrType*)type)->getTargetType();
+		FunctionType* bindingSiteType = eventType->getTargetType()->getTargetType();
+		if (bindingSiteType->getArgSignature() != argSignature) {
+			err::setFormatStringError(
+				"onevent argument signature mismatch: '%s' vs '%s'",
+				bindingSiteType->getTypeStringSuffix().sz(),
+				functionType->getTypeStringSuffix().sz()
+			);
+
+			return false;
+		}
+
 		bool result = m_module->m_operatorMgr.callOperator(addBindingFunc, thisValue, onEventIdxValue, *it);
 		if (!result)
 			return false;
