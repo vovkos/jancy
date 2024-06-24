@@ -94,24 +94,6 @@ getValueKindString(ValueKind valueKind) {
 
 //..............................................................................
 
-void
-Value::init() {
-	m_valueKind = ValueKind_Void;
-	m_type = NULL;
-	m_variable = NULL;
-	m_llvmValue = NULL;
-}
-
-void
-Value::clear() {
-	m_valueKind = ValueKind_Void;
-	m_type = NULL;
-	m_item = NULL;
-	m_llvmValue = NULL;
-	m_closure = rc::g_nullPtr;
-	m_leanDataPtrValidator = rc::g_nullPtr;
-}
-
 llvm::Constant*
 getLlvmPtrConst(
 	Type* type,
@@ -233,67 +215,6 @@ Value::getLlvmConst(
 	return llvmConst;
 }
 
-Closure*
-Value::createClosure() {
-	m_closure = AXL_RC_NEW(Closure);
-	return m_closure;
-}
-
-void
-Value::setClosure(Closure* closure) {
-	m_closure = closure;
-}
-
-Type*
-Value::getClosureAwareType() const {
-	return m_closure ? m_closure->getClosureType(m_type) : m_type;
-}
-
-void
-Value::setVoid(Module* module) {
-	clear();
-
-	m_valueKind = ValueKind_Void;
-	m_type = module->m_typeMgr.getPrimitiveType(TypeKind_Void);
-}
-
-void
-Value::setNull(Module* module) {
-	clear();
-
-	m_valueKind = ValueKind_Null;
-	m_type = module->m_typeMgr.getPrimitiveType(TypeKind_Void);
-}
-
-void
-Value::setType(Type* type) {
-	clear();
-
-	m_valueKind = type->getTypeKind() != TypeKind_Void ? ValueKind_Type : ValueKind_Void;
-	m_type = type;
-}
-
-void
-Value::setNamespace(GlobalNamespace* nspace) {
-	clear();
-
-	Module* module = nspace->getModule();
-
-	m_valueKind = ValueKind_Namespace;
-	m_namespace = nspace;
-	m_type = module->m_typeMgr.getPrimitiveType(TypeKind_Void);
-}
-
-void
-Value::setNamespace(NamedType* type) {
-	clear();
-
-	Module* module = type->getModule();
-
-	m_valueKind = ValueKind_Namespace;
-	m_namespace = type;
-	m_type = module->m_typeMgr.getPrimitiveType(TypeKind_Void);
-}
 
 void
 Value::setVariable(Variable* variable) {
@@ -357,48 +278,6 @@ Value::trySetFunction(Function* function) {
 	return true;
 }
 
-void
-Value::setFunctionOverload(FunctionOverload* functionOverload) {
-	clear();
-
-	m_valueKind = ValueKind_FunctionOverload;
-	m_functionOverload = functionOverload;
-	m_type = functionOverload->getModule()->m_typeMgr.getPrimitiveType(TypeKind_Void);
-}
-
-bool
-Value::trySetOverloadableFunction(OverloadableFunction function) {
-	if (function->getItemKind() == ModuleItemKind_Function)
-		return trySetFunction(function.getFunction());
-
-	setFunctionOverload(function.getFunctionOverload());
-	return true;
-}
-
-void
-Value::setFunctionTypeOverload(FunctionTypeOverload* functionTypeOverload) {
-	clear();
-
-	m_valueKind = ValueKind_FunctionTypeOverload;
-	m_functionTypeOverload = functionTypeOverload;
-	m_type = functionTypeOverload->getModule()->m_typeMgr.getPrimitiveType(TypeKind_Void);
-}
-
-void
-Value::setProperty(Property* prop) {
-	clear();
-
-	m_valueKind = ValueKind_Property;
-	m_property = prop;
-	m_type = prop->getType()->getPropertyPtrType(
-		TypeKind_PropertyRef,
-		PropertyPtrTypeKind_Thin,
-		PtrTypeFlag_Safe
-	);
-
-	// don't assign LlvmValue (property LlvmValue is only needed for pointers)
-}
-
 bool
 Value::trySetEnumConst(EnumConst* enumConst) {
 	EnumType* enumType = enumConst->getParentEnumType();
@@ -416,78 +295,6 @@ Value::trySetEnumConst(EnumConst* enumConst) {
 			enumType :
 			enumType->getBaseType()
 		);
-}
-
-void
-Value::setField(
-	Field* field,
-	size_t baseOffset
-) {
-	clear();
-
-	m_valueKind = ValueKind_Field;
-	m_field = field;
-	m_type = field->getModule()->m_typeMgr.getPrimitiveType(TypeKind_Void);
-	m_constData.setCount(sizeof(size_t));
-	*(size_t*)m_constData.p() = baseOffset + field->getOffset();
-}
-
-void
-Value::setLlvmValue(
-	llvm::Value* llvmValue,
-	Type* type,
-	ValueKind valueKind
-) {
-	clear();
-
-	m_valueKind = valueKind;
-	m_type = type;
-	m_llvmValue = llvmValue;
-}
-
-LeanDataPtrValidator*
-Value::getLeanDataPtrValidator() const {
-	if (m_leanDataPtrValidator)
-		return m_leanDataPtrValidator;
-
-	ASSERT(m_valueKind == ValueKind_Variable);
-	m_leanDataPtrValidator = m_variable->getLeanDataPtrValidator();
-	return m_leanDataPtrValidator;
-}
-
-void
-Value::setLeanDataPtrValidator(LeanDataPtrValidator* validator) {
-	ASSERT(isDataPtrType(m_type, DataPtrTypeKind_Lean));
-	m_leanDataPtrValidator = validator;
-}
-
-void
-Value::setLeanDataPtrValidator(const Value& originValue) {
-	ASSERT(isDataPtrType(m_type, DataPtrTypeKind_Lean));
-
-	if (originValue.m_leanDataPtrValidator)
-		m_leanDataPtrValidator = originValue.m_leanDataPtrValidator;
-	else if (originValue.m_valueKind == ValueKind_Variable)
-		m_leanDataPtrValidator = originValue.m_variable->getLeanDataPtrValidator();
-	else {
-		m_leanDataPtrValidator = AXL_RC_NEW(LeanDataPtrValidator);
-		m_leanDataPtrValidator->m_originValue = originValue;
-	}
-}
-
-void
-Value::setLeanDataPtrValidator(
-	const Value& originValue,
-	const Value& rangeBeginValue,
-	size_t rangeLength
-) {
-	ASSERT(isDataPtrType(m_type, DataPtrTypeKind_Lean));
-
-	rc::Ptr<LeanDataPtrValidator> validator = AXL_RC_NEW(LeanDataPtrValidator);
-	validator->m_originValue = originValue;
-	validator->m_rangeBeginValue = rangeBeginValue;
-	validator->m_rangeLength = rangeLength;
-	m_leanDataPtrValidator = validator;
 }
 
 bool

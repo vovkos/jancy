@@ -94,5 +94,26 @@ public:
 
 //..............................................................................
 
+inline
+Closure*
+Value::createClosure() {
+	m_closure = AXL_RC_NEW(Closure);
+	return m_closure;
+}
+
+inline
+void
+Value::setClosure(Closure* closure) {
+	m_closure = closure;
+}
+
+inline
+Type*
+Value::getClosureAwareType() const {
+	return m_closure ? m_closure->getClosureType(m_type) : m_type;
+}
+
+//..............................................................................
+
 } // namespace ct
 } // namespace jnc

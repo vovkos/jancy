@@ -658,5 +658,142 @@ LlvmIrBuilder::addTypedAttribute(
 
 //..............................................................................
 
+inline
+void
+Value::init() {
+	m_valueKind = ValueKind_Void;
+	m_type = NULL;
+	m_variable = NULL;
+	m_llvmValue = NULL;
+}
+
+inline
+void
+Value::clear() {
+	m_valueKind = ValueKind_Void;
+	m_type = NULL;
+	m_item = NULL;
+	m_llvmValue = NULL;
+	m_closure = rc::g_nullPtr;
+	m_leanDataPtrValidator = rc::g_nullPtr;
+}
+
+inline
+void
+Value::setVoid(Module* module) {
+	clear();
+	m_valueKind = ValueKind_Void;
+	m_type = module->m_typeMgr.getPrimitiveType(TypeKind_Void);
+}
+
+inline
+void
+Value::setNull(Module* module) {
+	clear();
+	m_valueKind = ValueKind_Null;
+	m_type = module->m_typeMgr.getPrimitiveType(TypeKind_Void);
+}
+
+inline
+void
+Value::setType(Type* type) {
+	clear();
+	m_valueKind = type->getTypeKind() != TypeKind_Void ? ValueKind_Type : ValueKind_Void;
+	m_type = type;
+}
+
+inline
+void
+Value::setNamespace(GlobalNamespace* nspace) {
+	clear();
+	Module* module = nspace->getModule();
+	m_valueKind = ValueKind_Namespace;
+	m_namespace = nspace;
+	m_type = module->m_typeMgr.getPrimitiveType(TypeKind_Void);
+}
+
+inline
+void
+Value::setNamespace(NamedType* type) {
+	clear();
+	Module* module = type->getModule();
+	m_valueKind = ValueKind_Namespace;
+	m_namespace = type;
+	m_type = module->m_typeMgr.getPrimitiveType(TypeKind_Void);
+}
+
+inline
+void
+Value::setFunctionOverload(FunctionOverload* functionOverload) {
+	clear();
+	m_valueKind = ValueKind_FunctionOverload;
+	m_functionOverload = functionOverload;
+	m_type = functionOverload->getModule()->m_typeMgr.getPrimitiveType(TypeKind_Void);
+}
+
+inline
+bool
+Value::trySetOverloadableFunction(OverloadableFunction function) {
+	if (function->getItemKind() == ModuleItemKind_Function)
+		return trySetFunction(function.getFunction());
+
+	setFunctionOverload(function.getFunctionOverload());
+	return true;
+}
+
+inline
+void
+Value::setFunctionTypeOverload(FunctionTypeOverload* functionTypeOverload) {
+	clear();
+	m_valueKind = ValueKind_FunctionTypeOverload;
+	m_functionTypeOverload = functionTypeOverload;
+	m_type = functionTypeOverload->getModule()->m_typeMgr.getPrimitiveType(TypeKind_Void);
+}
+
+inline
+void
+Value::setProperty(Property* prop) {
+	clear();
+
+	m_valueKind = ValueKind_Property;
+	m_property = prop;
+	m_type = prop->getType()->getPropertyPtrType(
+		TypeKind_PropertyRef,
+		PropertyPtrTypeKind_Thin,
+		PtrTypeFlag_Safe
+	);
+
+	// don't assign LlvmValue (property LlvmValue is only needed for pointers)
+}
+
+inline
+void
+Value::setField(
+	Field* field,
+	size_t baseOffset
+) {
+	clear();
+	m_valueKind = ValueKind_Field;
+	m_field = field;
+	m_type = field->getModule()->m_typeMgr.getPrimitiveType(TypeKind_Void);
+	m_constData.setCount(sizeof(size_t));
+	*(size_t*)m_constData.p() = baseOffset + field->getOffset();
+}
+
+inline
+void
+Value::setLlvmValue(
+	llvm::Value* llvmValue,
+	Type* type,
+	ValueKind valueKind
+) {
+	clear();
+	m_valueKind = valueKind;
+	m_type = type;
+	m_llvmValue = llvmValue;
+}
+
+//..............................................................................
+
 } // namespace ct
 } // namespace jnc

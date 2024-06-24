@@ -12,6 +12,7 @@
 #pragma once
 
 #include "jnc_ct_Value.h"
+#include "jnc_ct_Variable.h"
 
 namespace jnc {
 namespace ct {
@@ -77,6 +78,57 @@ protected:
 	void
 	createClassFieldValidator();
 };
+
+//..............................................................................
+
+inline
+LeanDataPtrValidator*
+Value::getLeanDataPtrValidator() const {
+	if (m_leanDataPtrValidator)
+		return m_leanDataPtrValidator;
+
+	ASSERT(m_valueKind == ValueKind_Variable);
+	m_leanDataPtrValidator = m_variable->getLeanDataPtrValidator();
+	return m_leanDataPtrValidator;
+}
+
+inline
+void
+Value::setLeanDataPtrValidator(LeanDataPtrValidator* validator) {
+	ASSERT(isDataPtrType(m_type, DataPtrTypeKind_Lean));
+	m_leanDataPtrValidator = validator;
+}
+
+inline
+void
+Value::setLeanDataPtrValidator(const Value& originValue) {
+	ASSERT(isDataPtrType(m_type, DataPtrTypeKind_Lean));
+
+	if (originValue.m_leanDataPtrValidator)
+		m_leanDataPtrValidator = originValue.m_leanDataPtrValidator;
+	else if (originValue.m_valueKind == ValueKind_Variable)
+		m_leanDataPtrValidator = originValue.m_variable->getLeanDataPtrValidator();
+	else {
+		m_leanDataPtrValidator = AXL_RC_NEW(LeanDataPtrValidator);
+		m_leanDataPtrValidator->m_originValue = originValue;
+	}
+}
+
+inline
+void
+Value::setLeanDataPtrValidator(
+	const Value& originValue,
+	const Value& rangeBeginValue,
+	size_t rangeLength
+) {
+	ASSERT(isDataPtrType(m_type, DataPtrTypeKind_Lean));
+
+	rc::Ptr<LeanDataPtrValidator> validator = AXL_RC_NEW(LeanDataPtrValidator);
+	validator->m_originValue = originValue;
+	validator->m_rangeBeginValue = rangeBeginValue;
+	validator->m_rangeLength = rangeLength;
+	m_leanDataPtrValidator = validator;
+}
 
 //..............................................................................
 
