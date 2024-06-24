@@ -117,6 +117,7 @@ ControlFlowMgr::addOnEventHandler(
 
 	Function* handler = m_reactorBody->m_reactorType->createUnnamedMethod(FunctionKind_Internal, functionType);
 	handler->m_parentUnit = m_module->m_unitMgr.getCurrentUnit();
+	handler->m_parentNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
     handler->m_flags |= ModuleItemFlag_User;
     handler->setBody(pragmaConfig, tokenList);
 
