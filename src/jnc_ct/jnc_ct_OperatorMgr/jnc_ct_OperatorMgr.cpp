@@ -14,6 +14,7 @@
 #include "jnc_ct_Module.h"
 #include "jnc_ct_ArrayType.h"
 #include "jnc_ct_ReactorClassType.h"
+#include "jnc_ct_LeanDataPtrValidator.h"
 #include "jnc_rtl_DynamicLayout.h"
 
 namespace jnc {

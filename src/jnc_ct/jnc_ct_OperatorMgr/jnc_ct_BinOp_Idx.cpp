@@ -13,6 +13,7 @@
 #include "jnc_ct_BinOp_Idx.h"
 #include "jnc_ct_Module.h"
 #include "jnc_ct_ArrayType.h"
+#include "jnc_ct_LeanDataPtrValidator.h"
 
 namespace jnc {
 namespace ct {

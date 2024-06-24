@@ -828,7 +828,7 @@ Parser::declareReactorVariable(
 	Variable* variable = m_module->m_variableMgr.createVariable(StorageKind_Reactor, name, type, ptrTypeFlags);
 	assignDeclarationAttributes(variable, variable, declarator->m_pos, declarator->m_attributeBlock, NULL);
 
-	bool result =
+	return
 		m_module->m_variableMgr.allocateVariable(variable) &&
 		m_module->m_namespaceMgr.getCurrentNamespace()->addItem(variable) && (
 			declarator->m_initializer.isEmpty() ||

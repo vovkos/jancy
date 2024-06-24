@@ -134,16 +134,31 @@ OperatorMgr::memberOperator(
 
 bool
 OperatorMgr::createMemberClosure(Value* value) {
-	ValueKind valueKind = value->getValueKind();
-
 	Value thisValue;
 
-	bool result = valueKind == ValueKind_Type || valueKind == ValueKind_FunctionTypeOverload ?
-		getThisValueType(&thisValue) :
-		getThisValue(&thisValue);
+	bool result;
+	ValueKind valueKind = value->getValueKind();
+	switch (valueKind) {
+	case ValueKind_Type:
+	case ValueKind_FunctionTypeOverload:
+		result = getThisValueType(&thisValue);
+		if (!result)
+			return false;
+		break;
 
-	if (!result)
-		return false;
+	case ValueKind_Property:
+		if (value->getProperty()->getStorageKind() == StorageKind_Reactor) {
+			thisValue = m_module->m_functionMgr.getThisValue();
+			ASSERT(thisValue); // we are inside a reactor function
+		}
+
+		break;
+
+	default:
+		result = getThisValue(&thisValue);
+		if (!result)
+			return false;
+	}
 
 	Closure* closure = value->createClosure();
 	closure->insertThisArgValue(thisValue);
