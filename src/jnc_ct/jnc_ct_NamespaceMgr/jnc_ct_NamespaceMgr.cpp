@@ -289,7 +289,7 @@ NamespaceMgr::openNamespace(Namespace* nspace) {
 
 	m_namespaceStack.append(entry);
 	m_currentNamespace = nspace;
-	m_currentScope = nspace->m_namespaceKind == NamespaceKind_Scope ? (Scope*)nspace : NULL;
+	m_currentScope = NULL;
 	m_currentAccessKind = AccessKind_Public; // always start with 'public'
 }
 
@@ -341,8 +341,8 @@ NamespaceMgr::openInternalScope() {
 		m_module->m_llvmIrBuilder.saveInsertPoint(&scope->m_gcShadowStackFrameMapInsertPoint);
 
 	m_scopeList.insertTail(scope);
-
 	openNamespace(scope);
+	m_currentScope = scope;
 	return scope;
 }
 
