@@ -1114,18 +1114,7 @@ TypeMgr::createReactorType(
 
 	Type* voidType = getPrimitiveType(TypeKind_Void);
 	Type* sizeType = getPrimitiveType(TypeKind_SizeT);
-	FunctionType* reactorFunctionType;
-
-	if (!parentType)
-		reactorFunctionType = getFunctionType(voidType, (Type**)&sizeType, 1);
-	else {
-		Type* argTypeArray[] = {
-			parentType->getClassPtrType(ClassPtrTypeKind_Normal, PtrTypeFlag_Safe),
-			sizeType
-		};
-
-		reactorFunctionType = getFunctionType(voidType, argTypeArray, 2);
-	}
+	FunctionType* reactorFunctionType = getFunctionType(voidType, (Type**)&sizeType, 1);
 
 	type->m_reactor = type->createMethod<ReactorClassType::Reactor>("!react", reactorFunctionType);
 	getStdType(StdType_ReactorClosure); // ensure closure type is created

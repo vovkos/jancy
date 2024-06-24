@@ -82,14 +82,11 @@ ReactorClassType::compileReaction(Function* function) {
 	ASSERT(!m_body.isEmpty());
 
 	ParseContext parseContext(m_module, m_parentUnit, this);
-
-	Value argValueArray[3];
-	size_t argCount = m_parentType ? 3 : 2;
-	m_module->m_functionMgr.internalPrologue(function, argValueArray, argCount, &m_bodyPos);
-
 	Parser parser(m_module, m_pragmaConfig, Parser::Mode_Compile);
 
-	m_module->m_controlFlowMgr.enterReactor(this, argValueArray[argCount - 1]);
+	Value argValueArray[2];
+	m_module->m_functionMgr.internalPrologue(function, argValueArray, countof(argValueArray), &m_bodyPos);
+	m_module->m_controlFlowMgr.enterReactor(this, argValueArray[1]);
 
 	bool result =
 		parser.parseBody(SymbolKind_compound_stmt, m_bodyPos, m_body) &&
