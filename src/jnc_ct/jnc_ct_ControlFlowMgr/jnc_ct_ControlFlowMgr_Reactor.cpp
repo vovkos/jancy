@@ -119,6 +119,8 @@ ControlFlowMgr::addOnEventHandler(
     handler->m_flags |= ModuleItemFlag_User;
     handler->setBody(pragmaConfig, tokenList);
 
+	AXL_TODO("check onvevent arg signature against all binding sites (valueList)");
+
 	size_t onEventIdx = m_reactorBody->m_reactionBlockArray.getCount();
     m_reactorBody->m_reactorType->addOnEventHandler(onEventIdx, handler);
 	m_reactorBody->m_reactionBlockArray.append(NULL); // onevent occupies one reaction slot

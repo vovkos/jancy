@@ -150,9 +150,10 @@ OperatorMgr::createMemberClosure(Value* value) {
 		if (value->getProperty()->getStorageKind() == StorageKind_Reactor) {
 			thisValue = m_module->m_functionMgr.getThisValue();
 			ASSERT(thisValue); // we are inside a reactor function
+			break;
 		}
 
-		break;
+		// else fall through
 
 	default:
 		result = getThisValue(&thisValue);
