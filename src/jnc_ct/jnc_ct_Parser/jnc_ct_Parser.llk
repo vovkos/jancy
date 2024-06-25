@@ -675,6 +675,14 @@ protected:
 	assertCondition(sl::List<Token>* tokenList);
 
 	bool
+	finalizeOnEventStmt(
+		const lex::LineCol& pos,
+		DeclFunctionSuffix* functionSuffix,
+		const sl::BoxList<Value>& valueList,
+		sl::List<Token>* bodyTokenList
+	);
+
+	bool
 	finalizeAssertStmt(
 		const lex::LineCol& pos,
 		const sl::StringRef& conditionText,

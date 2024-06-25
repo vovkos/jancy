@@ -3380,6 +3380,24 @@ Parser::addScopeAnchorToken(
 	stmt->m_scopeAnchorToken = token;
 }
 
+bool
+Parser::finalizeOnEventStmt(
+	const lex::LineCol& pos,
+	DeclFunctionSuffix* functionSuffix,
+	const sl::BoxList<Value>& valueList,
+	sl::List<Token>* bodyTokenList
+) {
+	Function* handler = m_module->m_controlFlowMgr.createOnEventHandler(pos, functionSuffix->getArgArray());
+	bool result = setBody(handler, bodyTokenList);
+	ASSERT(result);
+
+	result = m_module->m_controlFlowMgr.addOnEventBindings(handler, valueList);
+	if (!result)
+		handler->ensureSrcPosError();
+
+	return result;
+}
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void

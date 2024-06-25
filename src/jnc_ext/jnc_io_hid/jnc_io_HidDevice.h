@@ -161,7 +161,6 @@ public:
 		return m_device.sendFeatureReport(ptr.m_p, size);
 	}
 
-
 	handle_t
 	JNC_CDECL
 	wait(

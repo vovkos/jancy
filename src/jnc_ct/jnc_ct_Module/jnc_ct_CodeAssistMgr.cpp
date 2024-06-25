@@ -106,11 +106,13 @@ CodeAssistMgr::generateCodeAssistImpl(ModuleItem* item) {
 			((AsyncLauncherFunction*)item)->generateCodeAssist();
 		else
 			((Function*)item)->compile();
+
+		generateCodeAssist(); // process nested containers
 		break;
 
 	case ModuleItemKind_Namespace:
 		((GlobalNamespace*)item)->ensureNamespaceReady();
-		generateCodeAssist();
+		generateCodeAssist(); // process nested containers
 		break;
 
 	case ModuleItemKind_Type:
@@ -121,7 +123,7 @@ CodeAssistMgr::generateCodeAssistImpl(ModuleItem* item) {
 		}
 
 		((NamedType*)item)->ensureNamespaceReady();
-		generateCodeAssist();
+		generateCodeAssist(); // process nested containers
 		break;
 	}
 

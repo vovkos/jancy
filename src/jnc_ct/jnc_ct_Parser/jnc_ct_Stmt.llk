@@ -475,17 +475,17 @@ onevent_stmt
 		postDeclarator(&$declarator);
 	}
 	:	TokenKind_OnEvent
-		event_name
+		event_name $n
 			{
 				postDeclaratorName(&$declarator);
 			}
 		function_suffix<&$declarator>
 		declaration_body_pass1 $b
 			{
-				return m_module->m_controlFlowMgr.addOnEventHandler(
-					$2.m_valueList,
-					$declarator.getFunctionSuffix()->getArgArray(),
-					getPragmaConfigSnapshot(),
+				return finalizeOnEventStmt(
+					$1.m_pos,
+					$declarator.getFunctionSuffix(),
+					$n.m_valueList,
 					&$b.m_tokenList
 				);
 			}

@@ -243,12 +243,16 @@ public:
 	void
 	finalizeReaction(size_t reactionIdx);
 
+	Function*
+	createOnEventHandler(
+		const lex::LineCol& pos,
+		const sl::Array<FunctionArg*>& argArray
+	);
+
 	bool
-	addOnEventHandler(
-		const sl::BoxList<Value>& valueList,
-		const sl::Array<FunctionArg*>& argArray,
-		const PragmaConfig* pragmaConfig,
-		sl::List<Token>* tokenList
+	addOnEventBindings(
+		Function* handler,
+		const sl::BoxList<Value>& valueList
 	);
 
 	// blocks

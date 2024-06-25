@@ -102,34 +102,42 @@ ControlFlowMgr::leaveReactor() {
 	return true;
 }
 
-bool
-ControlFlowMgr::addOnEventHandler(
-	const sl::BoxList<Value>& valueList,
-	const sl::Array<FunctionArg*>& argArray,
-	const PragmaConfig* pragmaConfig,
-	sl::List<Token>* tokenList
+Function*
+ControlFlowMgr::createOnEventHandler(
+	const lex::LineCol& pos,
+	const sl::Array<FunctionArg*>& argArray
 ) {
 	ASSERT(m_reactorBody);
 
-	FunctionType* functionType = argArray.isEmpty() ?
+	FunctionType* handlerType = argArray.isEmpty() ?
 		m_module->m_typeMgr.getFunctionType(argArray) :
 		m_module->m_typeMgr.createUserFunctionType(argArray);
 
-	Function* handler = m_reactorBody->m_reactorType->createUnnamedMethod(FunctionKind_Internal, functionType);
+	Function* handler = m_reactorBody->m_reactorType->createUnnamedMethod(FunctionKind_Internal, handlerType);
 	handler->m_parentUnit = m_module->m_unitMgr.getCurrentUnit();
 	handler->m_parentNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
+	handler->m_pos = pos;
     handler->m_flags |= ModuleItemFlag_User;
-    handler->setBody(pragmaConfig, tokenList);
 
 	size_t onEventIdx = m_reactorBody->m_reactionBlockArray.getCount();
     m_reactorBody->m_reactorType->addOnEventHandler(onEventIdx, handler);
 	m_reactorBody->m_reactionBlockArray.append(NULL); // onevent occupies one reaction slot
+	return handler;
+}
 
+bool
+ControlFlowMgr::addOnEventBindings(
+	Function* handler,
+	const sl::BoxList<Value>& valueList
+) {
+	ASSERT(!m_reactorBody->m_reactionBlockArray.isEmpty());
+	size_t onEventIdx = m_reactorBody->m_reactionBlockArray.getCount() - 1;
 	Function* addBindingFunc = getReactorMethod(m_module, ReactorMethod_AddOnEventBinding);
 	Value thisValue = m_module->m_functionMgr.getThisValue();
 	Value onEventIdxValue(onEventIdx, m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT));
 
-	sl::String argSignature = functionType->getArgSignature();
+	FunctionType* handlerType = handler->getType()->getShortType();
+	sl::String argSignature = handlerType->getArgSignature();
 	sl::BoxList<Value>::ConstIterator it = valueList.getHead();
 	for (; it; it++) {
 		Type* type = it->getType();
@@ -144,7 +152,7 @@ ControlFlowMgr::addOnEventHandler(
 			err::setFormatStringError(
 				"onevent argument signature mismatch: '%s' vs '%s'",
 				bindingSiteType->getTypeStringSuffix().sz(),
-				functionType->getTypeStringSuffix().sz()
+				handlerType->getTypeStringSuffix().sz()
 			);
 
 			return false;
