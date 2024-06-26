@@ -162,7 +162,7 @@ AsyncRegionMgr::preserveCrossRegionValue(
 			getLlvmInstructionString(llvmAlloca).sz()
 		);
 
-		llvm::Instruction* llvmNextInst = &*++llvm::BasicBlock::iterator(llvmOpInst);
+		llvm::Instruction* llvmNextInst = llvmOpInst->getNextNode();
 		ASSERT(llvmNextInst); // each block must have a terminator, which is never an operand
 		llvmIrBuilder->SetInsertPoint(llvmNextInst);
 		llvmIrBuilder->CreateStore(llvmOpInst, llvmAlloca);

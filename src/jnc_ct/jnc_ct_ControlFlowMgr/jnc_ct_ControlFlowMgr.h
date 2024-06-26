@@ -126,7 +126,7 @@ struct ReactorBody {
 	BasicBlock* m_bodyBlock;
 	BasicBlock* m_followBlock;
 	BasicBlock* m_reactionBlock;
-	llvm::BasicBlock::iterator m_llvmReactionIt;
+	llvm::Instruction* m_llvmReactionInst;
 	Value m_reactionIdxValue;
 	Value m_userDataValue;
 	size_t m_reactionBindingCount;

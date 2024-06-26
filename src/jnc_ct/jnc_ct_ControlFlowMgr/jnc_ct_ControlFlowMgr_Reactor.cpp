@@ -34,6 +34,7 @@ ControlFlowMgr::enterReactor(
 	m_reactorBody->m_followBlock = createBlock("reactor_follow");
 	m_reactorBody->m_reactionBlock = NULL;
 	m_reactorBody->m_reactionBindingCount = 0;
+	m_reactorBody->m_llvmReactionInst = NULL;
 
 	setCurrentBlock(m_reactorBody->m_bodyBlock);
 	m_reactorBody->m_bodyBlock->m_flags |= BasicBlockFlag_Jumped | BasicBlockFlag_Reachable;
@@ -177,7 +178,7 @@ ControlFlowMgr::finalizeReactiveExpressionImpl() {
 
 	BasicBlock* reactionBlock;
 
-	if (!m_reactorBody->m_llvmReactionIt)
+	if (!m_reactorBody->m_llvmReactionInst)
 		reactionBlock = m_reactorBody->m_reactionBlock;
 	else {
 		llvm::BasicBlock* llvmBlock = m_reactorBody->m_reactionBlock->getLlvmBlock();
@@ -190,7 +191,7 @@ ControlFlowMgr::finalizeReactiveExpressionImpl() {
 		reactionBlock = new BasicBlock(m_module, "reaction_block");
 		reactionBlock->m_function = m_reactorBody->m_reactionBlock->m_function;
 		reactionBlock->m_llvmBlock = llvmBlock->splitBasicBlock(
-			++m_reactorBody->m_llvmReactionIt,
+			m_reactorBody->m_llvmReactionInst->getNextNode(),
 			reactionBlock->m_name >> toLlvm
 		);
 
@@ -201,7 +202,7 @@ ControlFlowMgr::finalizeReactiveExpressionImpl() {
 	size_t reactionIdx = m_reactorBody->m_reactionBlockArray.getCount();
 	m_reactorBody->m_reactionBlockArray.append(reactionBlock);
 	m_reactorBody->m_reactionBlock = NULL;
-	m_reactorBody->m_llvmReactionIt = NULL;
+	m_reactorBody->m_llvmReactionInst = NULL;
 	return reactionIdx;
 }
 
