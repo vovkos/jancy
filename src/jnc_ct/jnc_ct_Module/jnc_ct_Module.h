@@ -613,7 +613,7 @@ ControlFlowMgr::enterReactiveExpression() {
 	m_reactorBody->m_reactionBindingCount = 0;
 
 	if (m_module->hasCodeGen() && !m_currentBlock->getLlvmBlock()->empty())
-		m_reactorBody->m_llvmReactionIt = m_currentBlock->getLlvmBlock()->back();
+		m_reactorBody->m_llvmReactionIt = llvm::BasicBlock::iterator(m_currentBlock->getLlvmBlock()->back());
 }
 
 //..............................................................................
