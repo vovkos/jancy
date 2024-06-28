@@ -36,6 +36,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(Pcap)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<Pcap>)
 	JNC_MAP_DESTRUCTOR(&jnc::destruct<Pcap>)
 
+	JNC_MAP_CONST_PROPERTY("m_dlt", &Pcap::getDlt)
 	JNC_MAP_CONST_PROPERTY("m_linkType", &Pcap::getLinkType)
 	JNC_MAP_AUTOGET_PROPERTY("m_isPromiscious", &Pcap::setPromiscious)
 	JNC_MAP_AUTOGET_PROPERTY("m_readTimeout", &Pcap::setReadTimeout)

@@ -115,6 +115,12 @@ public:
 
 	int
 	JNC_CDECL
+	getDlt() {
+		return m_pcap.getDlt();
+	}
+
+	int
+	JNC_CDECL
 	getLinkType() {
 		return m_pcap.getLinkType();
 	}

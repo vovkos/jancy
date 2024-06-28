@@ -30,6 +30,7 @@ enum PcapLinkType {
 	Fddi        = 10,
 	PppSerial   = 50,
 	PppEthernet = 51,
+	Raw         = 101,
 	Ieeee80211  = 105,
 }
 
@@ -173,6 +174,7 @@ opaque class Pcap {
 		SnapshotSize  = 64 * 1024,
 	}
 
+	int const property m_dlt; // result of pcap_datalink (platform-specific)
 	PcapLinkType const property m_linkType;
 	bool autoget property m_isPromiscious;
 	uint_t autoget property m_readTimeout;
