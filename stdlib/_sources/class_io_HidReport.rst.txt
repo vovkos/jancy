@@ -1,0 +1,34 @@
+.. include:: def.rst
+.. index:: pair: class; io.HidReport
+.. _doxid-type_io_hidreport:
+
+class io.HidReport
+==================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class HidReport {
+		// fields
+	
+		:ref:`io.HidReportType<doxid-type_io_hidreporttype>` const :target:`m_reportType<doxid-field_io_hidreport_m_reporttype>`;
+		:ref:`uint_t<doxid-typedef_uint_t>` const :target:`m_reportId<doxid-field_io_hidreport_m_reportid>`;
+		:ref:`size_t<doxid-typedef_size_t>` const :target:`m_bitCount<doxid-field_io_hidreport_m_bitcount>`;
+		:ref:`size_t<doxid-typedef_size_t>` const :target:`m_size<doxid-field_io_hidreport_m_size>`;
+		:ref:`size_t<doxid-typedef_size_t>` const :target:`m_fieldCount<doxid-field_io_hidreport_m_fieldcount>`;
+
+		// properties
+	
+		:ref:`io.HidReportField<doxid-type_io_hidreportfield>` const* const indexed property :target:`m_fieldArray<doxid-property_io_hidreport_m_fieldarray>`(:ref:`size_t<doxid-typedef_size_t>` i);
+
+		// methods
+	
+		:ref:`size_t<doxid-typedef_size_t>` errorcode :target:`saveDecodeInfo<doxid-function_io_hidreport_savedecodeinfo>`(:ref:`std.Buffer<doxid-type_std_buffer>`* buffer) const;
+	};

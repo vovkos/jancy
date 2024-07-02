@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>namespace io &mdash; Jancy Standard Library Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=14d448f4"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+        <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="namespace io.lnx" href="namespace_io_lnx.html" />
+    <link rel="prev" title="Global Namespace" href="global.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy Standard Library Reference
+          </a>
+              <div class="version">
+                1.11
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="group_c-typedefs.html">Standard Typedefs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_rtl.html">RTL (Runtime Library)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_crt.html">C Runtime Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_std.html">General Purpose Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_sys.html">System Facilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_io.html">IO (Input/Output) Library</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="disposable.html">‘disposable’ Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="errorcode.html">‘errorcode’ Functions</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="global.html">Global Namespace</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">namespace io</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="namespace_io_lnx.html">namespace io.lnx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="namespace_io_psx.html">namespace io.psx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="namespace_io_win.html">namespace io.win</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="namespace_jnc.html">namespace jnc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="namespace_std.html">namespace std</a></li>
+<li class="toctree-l2"><a class="reference internal" href="namespace_sys.html">namespace sys</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy Standard Library Reference</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="global.html">Global Namespace</a></li>
+      <li class="breadcrumb-item active">namespace io</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="namespace-io">
+<span id="doxid-namespace-io"></span><span id="index-0"></span><h1>namespace io</h1>
+<div class="toctree-wrapper compound">
+</div>
+<pre class="highlight doxyrest-overview-code-block literal-block"><span></span><span class="k">namespace</span> <span class="n">io</span> <span class="p">{</span>
+
+<span class="c1">// namespaces</span>
+
+<span class="k">namespace</span> <a class="reference internal" href="namespace_io_lnx.html#doxid-namespace-io-lnx"><span class="std std-ref">io.lnx</span></a><span></span><span class="p">;</span>
+<span class="k">namespace</span> <a class="reference internal" href="namespace_io_psx.html#doxid-namespace-io-psx"><span class="std std-ref">io.psx</span></a><span></span><span class="p">;</span>
+<span class="k">namespace</span> <a class="reference internal" href="namespace_io_win.html#doxid-namespace-io-win"><span class="std std-ref">io.win</span></a><span></span><span class="p">;</span>
+
+<span class="c1">// typedefs</span>
+
+<span class="k">typedef</span> <a class="reference internal" href="enum_io_ReadOnlyStreamOptions.html#doxid-type-io-readonlystreamoptions"><span class="std std-ref">io.ReadOnlyStreamOptions</span></a><span></span> <span class="doxyrest-code-target target" id="doxid-typedef-io-mailslotoptions"><span></span><span class="n">MailslotOptions</span></span><span></span><span class="p">;</span>
+<span class="k">typedef</span> <a class="reference internal" href="enum_io_ReadOnlyStreamEvents.html#doxid-type-io-readonlystreamevents"><span class="std std-ref">io.ReadOnlyStreamEvents</span></a><span></span> <span class="doxyrest-code-target target" id="doxid-typedef-io-mailslotevents"><span></span><span class="n">MailslotEvents</span></span><span></span><span class="p">;</span>
+<span class="k">typedef</span> <a class="reference internal" href="enum_io_StreamOptions.html#doxid-type-io-streamoptions"><span class="std std-ref">io.StreamOptions</span></a><span></span> <span class="doxyrest-code-target target" id="doxid-typedef-io-childprocessoptions"><span></span><span class="n">ChildProcessOptions</span></span><span></span><span class="p">;</span>
+<span class="k">typedef</span> <a class="reference internal" href="enum_io_StreamOptions.html#doxid-type-io-streamoptions"><span class="std std-ref">io.StreamOptions</span></a><span></span> <span class="doxyrest-code-target target" id="doxid-typedef-io-usbendpointoptions"><span></span><span class="n">UsbEndpointOptions</span></span><span></span><span class="p">;</span>
+<span class="k">typedef</span> <a class="reference internal" href="enum_io_ReadOnlyStreamEvents.html#doxid-type-io-readonlystreamevents"><span class="std std-ref">io.ReadOnlyStreamEvents</span></a><span></span> <span class="doxyrest-code-target target" id="doxid-typedef-io-usbmonevents"><span></span><span class="n">UsbMonEvents</span></span><span></span><span class="p">;</span>
+<span class="k">typedef</span> <a class="reference internal" href="enum_io_StreamEvents.html#doxid-type-io-streamevents"><span class="std std-ref">io.StreamEvents</span></a><span></span> <span class="doxyrest-code-target target" id="doxid-typedef-io-hiddeviceevents"><span></span><span class="n">HidDeviceEvents</span></span><span></span><span class="p">;</span>
+<span class="k">typedef</span> <a class="reference internal" href="enum_io_ReadOnlyStreamEvents.html#doxid-type-io-readonlystreamevents"><span class="std std-ref">io.ReadOnlyStreamEvents</span></a><span></span> <span class="doxyrest-code-target target" id="doxid-typedef-io-devicemonitorevents"><span></span><span class="n">DeviceMonitorEvents</span></span><span></span><span class="p">;</span>
+
+<span class="c1">// enums</span>
+
+<span class="k">enum</span> <span class="p">{</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-member-enum-187-devicemonitornotifyhdrsignature"><span></span><span class="n">DeviceMonitorNotifyHdrSignature</span></span><span></span> <span class="o">=</span> <span class="sc">&#39;nomt&#39;</span><span class="p">,</span>
+<span class="p">};</span>
+
+<span class="k">enum</span> <a class="reference internal" href="enum_io_AddressFamily.html#doxid-type-io-addressfamily"><span class="std std-ref">AddressFamily</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_ChildProcessEvents.html#doxid-type-io-childprocessevents"><span class="std std-ref">ChildProcessEvents</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_ChildProcessStartFlags.html#doxid-type-io-childprocessstartflags"><span class="std std-ref">ChildProcessStartFlags</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_io_DeviceMonitorMiMsgCode.html#doxid-type-io-devicemonitormimsgcode"><span class="std std-ref">DeviceMonitorMiMsgCode</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_DeviceMonitorMiStartFlags.html#doxid-type-io-devicemonitormistartflags"><span class="std std-ref">DeviceMonitorMiStartFlags</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_DeviceMonitorNotifyFlags.html#doxid-type-io-devicemonitornotifyflags"><span class="std std-ref">DeviceMonitorNotifyFlags</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_io_FileKind.html#doxid-type-io-filekind"><span class="std std-ref">FileKind</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_FileOpenFlags.html#doxid-type-io-fileopenflags"><span class="std std-ref">FileOpenFlags</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_FileStreamEvents.html#doxid-type-io-filestreamevents"><span class="std std-ref">FileStreamEvents</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_FileStreamOptions.html#doxid-type-io-filestreamoptions"><span class="std std-ref">FileStreamOptions</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_io_HidBusType.html#doxid-type-io-hidbustype"><span class="std std-ref">HidBusType</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_HidDeviceOptions.html#doxid-type-io-hiddeviceoptions"><span class="std std-ref">HidDeviceOptions</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_io_HidRdCollectionKind.html#doxid-type-io-hidrdcollectionkind"><span class="std std-ref">HidRdCollectionKind</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_HidRdFlags.html#doxid-type-io-hidrdflags"><span class="std std-ref">HidRdFlags</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_io_HidRdItemId.html#doxid-type-io-hidrditemid"><span class="std std-ref">HidRdItemId</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_HidRdItemMask.html#doxid-type-io-hidrditemmask"><span class="std std-ref">HidRdItemMask</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_io_HidRdUnit.html#doxid-type-io-hidrdunit"><span class="std std-ref">HidRdUnit</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_io_HidRdUnitNibbleRole.html#doxid-type-io-hidrdunitnibblerole"><span class="std std-ref">HidRdUnitNibbleRole</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_io_HidRdUnitSystem.html#doxid-type-io-hidrdunitsystem"><span class="std std-ref">HidRdUnitSystem</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_HidRdValueFlags.html#doxid-type-io-hidrdvalueflags"><span class="std std-ref">HidRdValueFlags</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_io_HidReportType.html#doxid-type-io-hidreporttype"><span class="std std-ref">HidReportType</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_HostNameResolverEvents.html#doxid-type-io-hostnameresolverevents"><span class="std std-ref">HostNameResolverEvents</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_NamedPipeEvents.html#doxid-type-io-namedpipeevents"><span class="std std-ref">NamedPipeEvents</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_NetworkAdapterFlags.html#doxid-type-io-networkadapterflags"><span class="std std-ref">NetworkAdapterFlags</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_io_NetworkAdapterType.html#doxid-type-io-networkadaptertype"><span class="std std-ref">NetworkAdapterType</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_PcapEvents.html#doxid-type-io-pcapevents"><span class="std std-ref">PcapEvents</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_io_PcapLinkType.html#doxid-type-io-pcaplinktype"><span class="std std-ref">PcapLinkType</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_io_Protocol.html#doxid-type-io-protocol"><span class="std std-ref">Protocol</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_ReadOnlyStreamEvents.html#doxid-type-io-readonlystreamevents"><span class="std std-ref">ReadOnlyStreamEvents</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_ReadOnlyStreamOptions.html#doxid-type-io-readonlystreamoptions"><span class="std std-ref">ReadOnlyStreamOptions</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_SerialEvents.html#doxid-type-io-serialevents"><span class="std std-ref">SerialEvents</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_io_SerialFlowControl.html#doxid-type-io-serialflowcontrol"><span class="std std-ref">SerialFlowControl</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_SerialLineErrors.html#doxid-type-io-seriallineerrors"><span class="std std-ref">SerialLineErrors</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_SerialOptions.html#doxid-type-io-serialoptions"><span class="std std-ref">SerialOptions</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_io_SerialParity.html#doxid-type-io-serialparity"><span class="std std-ref">SerialParity</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_SerialPortDescFlags.html#doxid-type-io-serialportdescflags"><span class="std std-ref">SerialPortDescFlags</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_SerialStatusLines.html#doxid-type-io-serialstatuslines"><span class="std std-ref">SerialStatusLines</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_io_SerialStopBits.html#doxid-type-io-serialstopbits"><span class="std std-ref">SerialStopBits</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_SocketEvents.html#doxid-type-io-socketevents"><span class="std std-ref">SocketEvents</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_SocketOptions.html#doxid-type-io-socketoptions"><span class="std std-ref">SocketOptions</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_SshEvents.html#doxid-type-io-sshevents"><span class="std std-ref">SshEvents</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_io_SslCertFormat.html#doxid-type-io-sslcertformat"><span class="std std-ref">SslCertFormat</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_io_SslNid.html#doxid-type-io-sslnid"><span class="std std-ref">SslNid</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_SslSocketEvents.html#doxid-type-io-sslsocketevents"><span class="std std-ref">SslSocketEvents</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_SslStateFlags.html#doxid-type-io-sslstateflags"><span class="std std-ref">SslStateFlags</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_io_SslStdDh.html#doxid-type-io-sslstddh"><span class="std std-ref">SslStdDh</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_SslVerifyMode.html#doxid-type-io-sslverifymode"><span class="std std-ref">SslVerifyMode</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_StreamEvents.html#doxid-type-io-streamevents"><span class="std std-ref">StreamEvents</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_StreamOptions.html#doxid-type-io-streamoptions"><span class="std std-ref">StreamOptions</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_io_UsbClass.html#doxid-type-io-usbclass"><span class="std std-ref">UsbClass</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_io_UsbControlDirection.html#doxid-type-io-usbcontroldirection"><span class="std std-ref">UsbControlDirection</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_io_UsbControlRecipient.html#doxid-type-io-usbcontrolrecipient"><span class="std std-ref">UsbControlRecipient</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_io_UsbControlStdRequest.html#doxid-type-io-usbcontrolstdrequest"><span class="std std-ref">UsbControlStdRequest</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_io_UsbControlType.html#doxid-type-io-usbcontroltype"><span class="std std-ref">UsbControlType</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_UsbDeviceStringId.html#doxid-type-io-usbdevicestringid"><span class="std std-ref">UsbDeviceStringId</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_UsbEndpointEvents.html#doxid-type-io-usbendpointevents"><span class="std std-ref">UsbEndpointEvents</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_UsbEnumFlags.html#doxid-type-io-usbenumflags"><span class="std std-ref">UsbEnumFlags</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_io_UsbIsoSyncType.html#doxid-type-io-usbisosynctype"><span class="std std-ref">UsbIsoSyncType</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_io_UsbIsoUsage.html#doxid-type-io-usbisousage"><span class="std std-ref">UsbIsoUsage</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_UsbMonEnumFlags.html#doxid-type-io-usbmonenumflags"><span class="std std-ref">UsbMonEnumFlags</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_UsbMonOptions.html#doxid-type-io-usbmonoptions"><span class="std std-ref">UsbMonOptions</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_UsbMonTransferFlags.html#doxid-type-io-usbmontransferflags"><span class="std std-ref">UsbMonTransferFlags</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_io_UsbSpeed.html#doxid-type-io-usbspeed"><span class="std std-ref">UsbSpeed</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_io_UsbTransferType.html#doxid-type-io-usbtransfertype"><span class="std std-ref">UsbTransferType</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_WebSocketEvents.html#doxid-type-io-websocketevents"><span class="std std-ref">WebSocketEvents</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_io_WebSocketFrameOpcode.html#doxid-type-io-websocketframeopcode"><span class="std std-ref">WebSocketFrameOpcode</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_io_WebSocketOptions.html#doxid-type-io-websocketoptions"><span class="std std-ref">WebSocketOptions</span></a><span></span><span class="p">;</span>
+
+<span class="c1">// structs</span>
+
+<span class="k">struct</span> <a class="reference internal" href="struct_io_DeviceMonitorMiMsgHdr.html#doxid-type-io-devicemonitormimsghdr"><span class="std std-ref">DeviceMonitorMiMsgHdr</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_io_DeviceMonitorMiStartParams.html#doxid-type-io-devicemonitormistartparams"><span class="std std-ref">DeviceMonitorMiStartParams</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_io_DeviceMonitorNotifyHdr.html#doxid-type-io-devicemonitornotifyhdr"><span class="std std-ref">DeviceMonitorNotifyHdr</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_io_HidDeviceDesc.html#doxid-type-io-hiddevicedesc"><span class="std std-ref">HidDeviceDesc</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_io_HidMonDeviceDesc.html#doxid-type-io-hidmondevicedesc"><span class="std std-ref">HidMonDeviceDesc</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_io_NetworkAdapterAddress.html#doxid-type-io-networkadapteraddress"><span class="std std-ref">NetworkAdapterAddress</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_io_NetworkAdapterDesc.html#doxid-type-io-networkadapterdesc"><span class="std std-ref">NetworkAdapterDesc</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_io_PcapAddress.html#doxid-type-io-pcapaddress"><span class="std std-ref">PcapAddress</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_io_PcapDeviceDesc.html#doxid-type-io-pcapdevicedesc"><span class="std std-ref">PcapDeviceDesc</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_io_PtySize.html#doxid-type-io-ptysize"><span class="std std-ref">PtySize</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_io_SerialPortDesc.html#doxid-type-io-serialportdesc"><span class="std std-ref">SerialPortDesc</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_io_SocketAddress_ip4.html#doxid-type-io-socketaddress-ip4"><span class="std std-ref">SocketAddress_ip4</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_io_SocketAddress_ip6.html#doxid-type-io-socketaddress-ip6"><span class="std std-ref">SocketAddress_ip6</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_io_SshConnectParams.html#doxid-type-io-sshconnectparams"><span class="std std-ref">SshConnectParams</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_io_SslCertNameEntry.html#doxid-type-io-sslcertnameentry"><span class="std std-ref">SslCertNameEntry</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_io_UsbConfigurationDescriptor.html#doxid-type-io-usbconfigurationdescriptor"><span class="std std-ref">UsbConfigurationDescriptor</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_io_UsbControlRequestType.html#doxid-type-io-usbcontrolrequesttype"><span class="std std-ref">UsbControlRequestType</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_io_UsbControlSetup.html#doxid-type-io-usbcontrolsetup"><span class="std std-ref">UsbControlSetup</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_io_UsbDeviceDescriptor.html#doxid-type-io-usbdevicedescriptor"><span class="std std-ref">UsbDeviceDescriptor</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_io_UsbDeviceEntry.html#doxid-type-io-usbdeviceentry"><span class="std std-ref">UsbDeviceEntry</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_io_UsbDeviceStrings.html#doxid-type-io-usbdevicestrings"><span class="std std-ref">UsbDeviceStrings</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_io_UsbEndpointDescriptor.html#doxid-type-io-usbendpointdescriptor"><span class="std std-ref">UsbEndpointDescriptor</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_io_UsbInterfaceDescriptor.html#doxid-type-io-usbinterfacedescriptor"><span class="std std-ref">UsbInterfaceDescriptor</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_io_UsbIsoHdr.html#doxid-type-io-usbisohdr"><span class="std std-ref">UsbIsoHdr</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_io_UsbIsoPacket.html#doxid-type-io-usbisopacket"><span class="std std-ref">UsbIsoPacket</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_io_UsbMonDeviceDesc.html#doxid-type-io-usbmondevicedesc"><span class="std std-ref">UsbMonDeviceDesc</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_io_UsbMonDeviceDescBase.html#doxid-type-io-usbmondevicedescbase"><span class="std std-ref">UsbMonDeviceDescBase</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_io_UsbMonTransferHdr.html#doxid-type-io-usbmontransferhdr"><span class="std std-ref">UsbMonTransferHdr</span></a><span></span><span class="p">;</span>
+
+<span class="c1">// unions</span>
+
+<span class="k">union</span> <a class="reference internal" href="union_io_Address_ip4.html#doxid-type-io-address-ip4"><span class="std std-ref">Address_ip4</span></a><span></span><span class="p">;</span>
+<span class="k">union</span> <a class="reference internal" href="union_io_Address_ip6.html#doxid-type-io-address-ip6"><span class="std std-ref">Address_ip6</span></a><span></span><span class="p">;</span>
+<span class="k">union</span> <a class="reference internal" href="union_io_SocketAddress.html#doxid-type-io-socketaddress"><span class="std std-ref">SocketAddress</span></a><span></span><span class="p">;</span>
+
+<span class="c1">// classes</span>
+
+<span class="k">class</span> <a class="reference internal" href="class_io_ChildProcess.html#doxid-type-io-childprocess"><span class="std std-ref">ChildProcess</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_DeviceMonitor.html#doxid-type-io-devicemonitor"><span class="std std-ref">DeviceMonitor</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_File.html#doxid-type-io-file"><span class="std std-ref">File</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_FileStream.html#doxid-type-io-filestream"><span class="std std-ref">FileStream</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_HidDb.html#doxid-type-io-hiddb"><span class="std std-ref">HidDb</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_HidDevice.html#doxid-type-io-hiddevice"><span class="std std-ref">HidDevice</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_HidRd.html#doxid-type-io-hidrd"><span class="std std-ref">HidRd</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_HidRdCollection.html#doxid-type-io-hidrdcollection"><span class="std std-ref">HidRdCollection</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_HidReport.html#doxid-type-io-hidreport"><span class="std std-ref">HidReport</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_HidReportField.html#doxid-type-io-hidreportfield"><span class="std std-ref">HidReportField</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_HidStandaloneReport.html#doxid-type-io-hidstandalonereport"><span class="std std-ref">HidStandaloneReport</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_HidUsagePage.html#doxid-type-io-hidusagepage"><span class="std std-ref">HidUsagePage</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_HostNameResolver.html#doxid-type-io-hostnameresolver"><span class="std std-ref">HostNameResolver</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_Mailslot.html#doxid-type-io-mailslot"><span class="std std-ref">Mailslot</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_MappedFile.html#doxid-type-io-mappedfile"><span class="std std-ref">MappedFile</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_NamedPipe.html#doxid-type-io-namedpipe"><span class="std std-ref">NamedPipe</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_Pcap.html#doxid-type-io-pcap"><span class="std std-ref">Pcap</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_PcapFilter.html#doxid-type-io-pcapfilter"><span class="std std-ref">PcapFilter</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_Serial.html#doxid-type-io-serial"><span class="std std-ref">Serial</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_Socket.html#doxid-type-io-socket"><span class="std std-ref">Socket</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_SshChannel.html#doxid-type-io-sshchannel"><span class="std std-ref">SshChannel</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_SslCertName.html#doxid-type-io-sslcertname"><span class="std std-ref">SslCertName</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_SslCertificate.html#doxid-type-io-sslcertificate"><span class="std std-ref">SslCertificate</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_SslCipher.html#doxid-type-io-sslcipher"><span class="std std-ref">SslCipher</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_SslSocket.html#doxid-type-io-sslsocket"><span class="std std-ref">SslSocket</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_SslState.html#doxid-type-io-sslstate"><span class="std std-ref">SslState</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_UsbDevice.html#doxid-type-io-usbdevice"><span class="std std-ref">UsbDevice</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_UsbEndpoint.html#doxid-type-io-usbendpoint"><span class="std std-ref">UsbEndpoint</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_UsbInterface.html#doxid-type-io-usbinterface"><span class="std std-ref">UsbInterface</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_UsbMonitor.html#doxid-type-io-usbmonitor"><span class="std std-ref">UsbMonitor</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_WebSocket.html#doxid-type-io-websocket"><span class="std std-ref">WebSocket</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_WebSocketHandshake.html#doxid-type-io-websockethandshake"><span class="std std-ref">WebSocketHandshake</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_io_WebSocketHandshakeHeaders.html#doxid-type-io-websockethandshakeheaders"><span class="std std-ref">WebSocketHandshakeHeaders</span></a><span></span><span class="p">;</span>
+
+<span class="c1">// global functions</span>
+
+<a class="reference internal" href="struct_io_SerialPortDesc.html#doxid-type-io-serialportdesc"><span class="std std-ref">io.SerialPortDesc</span></a><span></span> <span class="k">const</span><span class="o">*</span> <a class="reference internal" href="group_io-serial.html#doxid-function-io-enumerateserialports"><span class="std std-ref">enumerateSerialPorts</span></a><span></span><span class="p">(</span>
+    <a class="reference internal" href="enum_io_SerialPortDescFlags.html#doxid-type-io-serialportdescflags"><span class="std std-ref">io.SerialPortDescFlags</span></a><span></span> <span class="n">flags</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span><span class="o">*</span> <span class="n">count</span> <span class="o">=</span> <span class="k">null</span>
+<span class="p">);</span>
+
+<a class="reference internal" href="struct_io_SerialPortDesc.html#doxid-type-io-serialportdesc"><span class="std std-ref">io.SerialPortDesc</span></a><span></span> <span class="k">const</span><span class="o">*</span> <a class="reference internal" href="group_io-serial.html#doxid-function-io-enumerateserialports-2"><span class="std std-ref">enumerateSerialPorts</span></a><span></span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span><span class="o">*</span> <span class="n">count</span> <span class="o">=</span> <span class="k">null</span><span class="p">);</span>
+<a class="reference internal" href="group_c-typedefs.html#doxid-typedef-string-t"><span class="std std-ref">string_t</span></a><span></span> <a class="reference internal" href="group_io-file.html#doxid-function-io-getfilestreamkindstring"><span class="std std-ref">getFileStreamKindString</span></a><span></span><span class="p">(</span><a class="reference internal" href="enum_io_FileKind.html#doxid-type-io-filekind"><span class="std std-ref">io.FileKind</span></a><span></span> <span class="n">kind</span><span class="p">);</span>
+<a class="reference internal" href="group_c-typedefs.html#doxid-typedef-string-t"><span class="std std-ref">string_t</span></a><span></span> <span class="doxyrest-code-target target" id="doxid-function-io-getsymboliclinktarget"><span></span><span class="n">getSymbolicLinkTarget</span></span><span></span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedef-string-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">name</span><span class="p">);</span>
+<a class="reference internal" href="group_c-typedefs.html#doxid-typedef-string-t"><span class="std std-ref">string_t</span></a><span></span> <span class="doxyrest-code-target target" id="doxid-function-io-gethomedir"><span></span><span class="n">getHomeDir</span></span><span></span><span class="p">();</span>
+<a class="reference internal" href="group_c-typedefs.html#doxid-typedef-string-t"><span class="std std-ref">string_t</span></a><span></span> <span class="doxyrest-code-target target" id="doxid-function-io-gettempdir"><span></span><span class="n">getTempDir</span></span><span></span><span class="p">();</span>
+
+<a class="reference internal" href="group_c-typedefs.html#doxid-typedef-string-t"><span class="std std-ref">string_t</span></a><span></span> <span class="doxyrest-code-target target" id="doxid-function-io-createtempfile"><span></span><span class="n">createTempFile</span></span><span></span><span class="p">(</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-string-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">dir</span> <span class="o">=</span> <span class="k">null</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-string-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">prefix</span> <span class="o">=</span> <span class="k">null</span>
+<span class="p">);</span>
+
+<span class="k">bool</span> <span class="k">errorcode</span> <span class="doxyrest-code-target target" id="doxid-function-io-renamefile"><span></span><span class="n">renameFile</span></span><span></span><span class="p">(</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-string-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">srcFileName</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-string-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">dstFileName</span>
+<span class="p">);</span>
+
+<span class="k">bool</span> <span class="k">errorcode</span> <span class="doxyrest-code-target target" id="doxid-function-io-deletefile"><span></span><span class="n">deleteFile</span></span><span></span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedef-string-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">fileName</span><span class="p">);</span>
+
+<a class="reference internal" href="struct_io_NetworkAdapterDesc.html#doxid-type-io-networkadapterdesc"><span class="std std-ref">io.NetworkAdapterDesc</span></a><span></span> <span class="k">const</span><span class="o">*</span> <a class="reference internal" href="group_io-network-adapter.html#doxid-function-io-enumeratenetworkadapters"><span class="std std-ref">enumerateNetworkAdapters</span></a><span></span><span class="p">(</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span><span class="o">*</span> <span class="n">adapterCount</span> <span class="o">=</span> <span class="k">null</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span><span class="o">*</span> <span class="n">addressCount</span> <span class="o">=</span> <span class="k">null</span>
+<span class="p">);</span>
+
+<a class="reference internal" href="group_c-typedefs.html#doxid-typedef-string-t"><span class="std std-ref">string_t</span></a><span></span> <span class="doxyrest-code-target target" id="doxid-function-io-getsslnidshortname"><span></span><span class="n">getSslNidShortName</span></span><span></span><span class="p">(</span><a class="reference internal" href="enum_io_SslNid.html#doxid-type-io-sslnid"><span class="std std-ref">io.SslNid</span></a><span></span> <span class="n">nid</span><span class="p">);</span>
+<a class="reference internal" href="group_c-typedefs.html#doxid-typedef-string-t"><span class="std std-ref">string_t</span></a><span></span> <span class="doxyrest-code-target target" id="doxid-function-io-getsslnidlongname"><span></span><span class="n">getSslNidLongName</span></span><span></span><span class="p">(</span><a class="reference internal" href="enum_io_SslNid.html#doxid-type-io-sslnid"><span class="std std-ref">io.SslNid</span></a><span></span> <span class="n">nid</span><span class="p">);</span>
+<a class="reference internal" href="struct_io_PcapDeviceDesc.html#doxid-type-io-pcapdevicedesc"><span class="std std-ref">io.PcapDeviceDesc</span></a><span></span> <span class="k">const</span><span class="o">*</span> <a class="reference internal" href="group_io-pcap.html#doxid-function-io-createpcapdevicedesclist"><span class="std std-ref">createPcapDeviceDescList</span></a><span></span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span><span class="o">*</span> <span class="n">count</span> <span class="o">=</span> <span class="k">null</span><span class="p">);</span>
+
+<a class="reference internal" href="class_io_UsbDevice.html#doxid-type-io-usbdevice"><span class="std std-ref">io.UsbDevice</span></a><span></span><span class="o">*</span> <span class="k">errorcode</span> <span class="doxyrest-code-target target" id="doxid-function-io-openusbdevice"><span></span><span class="n">openUsbDevice</span></span><span></span><span class="p">(</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-uint-t"><span class="std std-ref">uint_t</span></a><span></span> <span class="n">vendorId</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-uint-t"><span class="std std-ref">uint_t</span></a><span></span> <span class="n">productId</span>
+<span class="p">);</span>
+
+<a class="reference internal" href="struct_io_UsbDeviceEntry.html#doxid-type-io-usbdeviceentry"><span class="std std-ref">io.UsbDeviceEntry</span></a><span></span> <span class="k">const</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-function-io-enumerateusbdevices"><span></span><span class="n">enumerateUsbDevices</span></span><span></span><span class="p">(</span>
+    <a class="reference internal" href="enum_io_UsbEnumFlags.html#doxid-type-io-usbenumflags"><span class="std std-ref">io.UsbEnumFlags</span></a><span></span> <span class="n">flags</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span><span class="o">*</span> <span class="n">count</span> <span class="o">=</span> <span class="k">null</span>
+<span class="p">);</span>
+
+<a class="reference internal" href="struct_io_UsbDeviceEntry.html#doxid-type-io-usbdeviceentry"><span class="std std-ref">io.UsbDeviceEntry</span></a><span></span> <span class="k">const</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-function-io-enumerateusbdevices-2"><span></span><span class="n">enumerateUsbDevices</span></span><span></span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span><span class="o">*</span> <span class="n">count</span> <span class="o">=</span> <span class="k">null</span><span class="p">);</span>
+<a class="reference internal" href="class_io_UsbDevice.html#doxid-type-io-usbdevice"><span class="std std-ref">io.UsbDevice</span></a><span></span><span class="o">*</span> <span class="k">const</span><span class="o">*</span> <span class="k">errorcode</span> <span class="doxyrest-code-target target" id="doxid-function-io-enumerateusbdevicesnodesc"><span></span><span class="n">enumerateUsbDevicesNoDesc</span></span><span></span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span><span class="o">*</span> <span class="n">count</span> <span class="o">=</span> <span class="k">null</span><span class="p">);</span>
+
+<a class="reference internal" href="struct_io_UsbMonDeviceDesc.html#doxid-type-io-usbmondevicedesc"><span class="std std-ref">io.UsbMonDeviceDesc</span></a><span></span> <span class="k">const</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-function-io-enumerateusbmondevices"><span></span><span class="n">enumerateUsbMonDevices</span></span><span></span><span class="p">(</span>
+    <a class="reference internal" href="enum_io_UsbMonEnumFlags.html#doxid-type-io-usbmonenumflags"><span class="std std-ref">io.UsbMonEnumFlags</span></a><span></span> <span class="n">flags</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span><span class="o">*</span> <span class="n">count</span> <span class="o">=</span> <span class="k">null</span>
+<span class="p">);</span>
+
+<a class="reference internal" href="struct_io_UsbMonDeviceDesc.html#doxid-type-io-usbmondevicedesc"><span class="std std-ref">io.UsbMonDeviceDesc</span></a><span></span> <span class="k">const</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-function-io-enumerateusbmondevices-2"><span></span><span class="n">enumerateUsbMonDevices</span></span><span></span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span><span class="o">*</span> <span class="n">count</span> <span class="o">=</span> <span class="k">null</span><span class="p">);</span>
+<a class="reference internal" href="struct_io_HidDeviceDesc.html#doxid-type-io-hiddevicedesc"><span class="std std-ref">io.HidDeviceDesc</span></a><span></span> <span class="k">const</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-function-io-enumeratehiddevices"><span></span><span class="n">enumerateHidDevices</span></span><span></span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span><span class="o">*</span> <span class="n">count</span> <span class="o">=</span> <span class="k">null</span><span class="p">);</span>
+<a class="reference internal" href="struct_io_HidMonDeviceDesc.html#doxid-type-io-hidmondevicedesc"><span class="std std-ref">io.HidMonDeviceDesc</span></a><span></span> <span class="k">const</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-function-io-enumeratehidmondevices"><span></span><span class="n">enumerateHidMonDevices</span></span><span></span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedef-size-t"><span class="std std-ref">size_t</span></a><span></span><span class="o">*</span> <span class="n">count</span> <span class="o">=</span> <span class="k">null</span><span class="p">);</span>
+<span class="k">bool</span> <span class="doxyrest-code-target target" id="doxid-function-io-ishidrditemsigned"><span></span><span class="n">isHidRdItemSigned</span></span><span></span><span class="p">(</span><a class="reference internal" href="enum_io_HidRdItemId.html#doxid-type-io-hidrditemid"><span class="std std-ref">io.HidRdItemId</span></a><span></span> <span class="n">id</span><span class="p">);</span>
+
+<a class="reference internal" href="enum_io_HidRdUnit.html#doxid-type-io-hidrdunit"><span class="std std-ref">io.HidRdUnit</span></a><span></span> <span class="doxyrest-code-target target" id="doxid-function-io-gethidrdunit"><span></span><span class="n">getHidRdUnit</span></span><span></span><span class="p">(</span>
+    <a class="reference internal" href="enum_io_HidRdUnitNibbleRole.html#doxid-type-io-hidrdunitnibblerole"><span class="std std-ref">io.HidRdUnitNibbleRole</span></a><span></span> <span class="n">role</span><span class="p">,</span>
+    <a class="reference internal" href="enum_io_HidRdUnitSystem.html#doxid-type-io-hidrdunitsystem"><span class="std std-ref">io.HidRdUnitSystem</span></a><span></span> <span class="n">system</span>
+<span class="p">);</span>
+
+<span class="k">int</span> <span class="doxyrest-code-target target" id="doxid-function-io-gethidrdunitexponent"><span></span><span class="n">getHidRdUnitExponent</span></span><span></span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedef-uint-t"><span class="std std-ref">uint_t</span></a><span></span> <span class="n">nibble</span><span class="p">);</span>
+<a class="reference internal" href="group_c-typedefs.html#doxid-typedef-string-t"><span class="std std-ref">string_t</span></a><span></span> <span class="doxyrest-code-target target" id="doxid-function-io-gethidrdcomplexunitstring"><span></span><span class="n">getHidRdComplexUnitString</span></span><span></span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedef-uint32-t"><span class="std std-ref">uint32_t</span></a><span></span> <span class="n">unit</span><span class="p">);</span>
+
+<span class="p">}</span> <span class="c1">// namespace io</span></pre>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="global.html" class="btn btn-neutral float-left" title="Global Namespace" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="namespace_io_lnx.html" class="btn btn-neutral float-right" title="namespace io.lnx" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2024, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,17 @@
+.. include:: def.rst
+.. index:: pair: enum; UsbEnumFlags
+.. _doxid-type_io_usbenumflags:
+
+bitflag enum io.UsbEnumFlags
+============================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum UsbEnumFlags: :ref:`io.UsbDeviceStringId<doxid-type_io_usbdevicestringid>` {
+	    :target:`Hubs<doxid-enum_member_io_usbenumflags_hubs>` = 0x0100,
+	};
+

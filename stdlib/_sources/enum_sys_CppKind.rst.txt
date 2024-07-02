@@ -1,0 +1,20 @@
+.. include:: def.rst
+.. index:: pair: enum; CppKind
+.. _doxid-type_sys_cppkind:
+
+enum sys.CppKind
+================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum CppKind {
+	    :target:`Msc<doxid-enum_member_sys_cppkind_msc>`,
+	    :target:`Gcc<doxid-enum_member_sys_cppkind_gcc>`,
+	    :target:`Icc<doxid-enum_member_sys_cppkind_icc>`,
+	    :target:`Clang<doxid-enum_member_sys_cppkind_clang>`,
+	};
+

@@ -1,0 +1,19 @@
+.. include:: def.rst
+.. index:: pair: enum; UsbControlType
+.. _doxid-type_io_usbcontroltype:
+
+enum io.UsbControlType
+======================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum UsbControlType: :ref:`uint8_t<doxid-typedef_uint8_t>` {
+	    :target:`Standard<doxid-enum_member_io_usbcontroltype_standard>`,
+	    :target:`Class<doxid-enum_member_io_usbcontroltype_class>`,
+	    :target:`Vendor<doxid-enum_member_io_usbcontroltype_vendor>`,
+	};
+

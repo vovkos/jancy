@@ -1,0 +1,48 @@
+.. include:: def.rst
+.. index:: pair: struct; io.UsbMonDeviceDesc
+.. _doxid-type_io_usbmondevicedesc:
+
+struct io.UsbMonDeviceDesc
+==========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct UsbMonDeviceDesc: :ref:`io.UsbMonDeviceDescBase<doxid-type_io_usbmondevicedescbase>` {
+		// fields
+	
+		io.UsbMonDeviceDesc const* :target:`m_next<doxid-field_io_usbmondevicedesc_m_next>`;
+	};
+
+Inherited Members
+-----------------
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-inherited-code-block
+
+	public:
+		// fields
+	
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`m_description<doxid-field_io_usbdevicestrings_m_description>`;
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`m_manufacturer<doxid-field_io_usbdevicestrings_m_manufacturer>`;
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`m_driver<doxid-field_io_usbdevicestrings_m_driver>`;
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`m_manufacturerDescriptor<doxid-field_io_usbdevicestrings_m_manufacturerdescriptor>`;
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`m_productDescriptor<doxid-field_io_usbdevicestrings_m_productdescriptor>`;
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`m_serialNumberDescriptor<doxid-field_io_usbdevicestrings_m_serialnumberdescriptor>`;
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`m_captureDeviceName<doxid-field_io_usbmondevicedescbase_m_capturedevicename>`;
+		:ref:`uint_t<doxid-typedef_uint_t>` :ref:`m_captureDeviceId<doxid-field_io_usbmondevicedescbase_m_capturedeviceid>`;
+		:ref:`uint16_t<doxid-typedef_uint16_t>` :ref:`m_vendorId<doxid-field_io_usbmondevicedescbase_m_vendorid>`;
+		:ref:`uint16_t<doxid-typedef_uint16_t>` :ref:`m_productId<doxid-field_io_usbmondevicedescbase_m_productid>`;
+		:ref:`uint8_t<doxid-typedef_uint8_t>` :ref:`m_address<doxid-field_io_usbmondevicedescbase_m_address>`;
+		:ref:`uint8_t<doxid-typedef_uint8_t>` :ref:`m_port<doxid-field_io_usbmondevicedescbase_m_port>`;
+		:ref:`uint8_t<doxid-typedef_uint8_t>` :ref:`m_class<doxid-field_io_usbmondevicedescbase_m_class>`;
+		:ref:`uint8_t<doxid-typedef_uint8_t>` :ref:`m_subClass<doxid-field_io_usbmondevicedescbase_m_subclass>`;
+		:ref:`io.UsbSpeed<doxid-type_io_usbspeed>` :ref:`m_speed<doxid-field_io_usbmondevicedescbase_m_speed>`;
+

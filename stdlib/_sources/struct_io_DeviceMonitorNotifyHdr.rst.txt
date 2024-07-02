@@ -1,0 +1,28 @@
+.. include:: def.rst
+.. index:: pair: struct; io.DeviceMonitorNotifyHdr
+.. _doxid-type_io_devicemonitornotifyhdr:
+
+struct io.DeviceMonitorNotifyHdr
+================================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct DeviceMonitorNotifyHdr {
+		// fields
+	
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`m_signature<doxid-field_io_devicemonitornotifyhdr_m_signature>`;
+		:ref:`uint16_t<doxid-typedef_uint16_t>` :target:`m_code<doxid-field_io_devicemonitornotifyhdr_m_code>`;
+		:ref:`uint16_t<doxid-typedef_uint16_t>` :target:`m_flags<doxid-field_io_devicemonitornotifyhdr_m_flags>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`m_paramSize<doxid-field_io_devicemonitornotifyhdr_m_paramsize>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`m_processId<doxid-field_io_devicemonitornotifyhdr_m_processid>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`m_threadId<doxid-field_io_devicemonitornotifyhdr_m_threadid>`;
+		:ref:`uint64_t<doxid-typedef_uint64_t>` :target:`m_timestamp<doxid-field_io_devicemonitornotifyhdr_m_timestamp>`;
+	};

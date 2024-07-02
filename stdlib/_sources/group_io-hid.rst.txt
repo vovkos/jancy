@@ -1,0 +1,88 @@
+.. include:: def.rst
+.. index:: pair: group; HID Communications
+.. _doxid-group_io_hid:
+
+HID Communications
+==================
+
+.. toctree::
+	:hidden:
+
+	enum_io_HidBusType.rst
+	enum_io_HidDeviceOptions.rst
+	enum_io_HidRdCollectionKind.rst
+	enum_io_HidRdFlags.rst
+	enum_io_HidRdItemId.rst
+	enum_io_HidRdItemMask.rst
+	enum_io_HidRdUnit.rst
+	enum_io_HidRdUnitNibbleRole.rst
+	enum_io_HidRdUnitSystem.rst
+	enum_io_HidRdValueFlags.rst
+	enum_io_HidReportType.rst
+	struct_io_HidDeviceDesc.rst
+	struct_io_HidMonDeviceDesc.rst
+	class_io_HidDb.rst
+	class_io_HidDevice.rst
+	class_io_HidRd.rst
+	class_io_HidRdCollection.rst
+	class_io_HidReport.rst
+	class_io_HidReportField.rst
+	class_io_HidStandaloneReport.rst
+	class_io_HidUsagePage.rst
+
+This section describes types and facilities used for accessing HID (human interface) devices.
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "io_hid.jncx"
+	
+	// typedefs
+
+	typedef :ref:`io.StreamEvents<doxid-type_io_streamevents>` :target:`io.HidDeviceEvents<doxid-typedef_io_hiddeviceevents>`;
+
+	// enums
+
+	enum :ref:`io.HidBusType<doxid-type_io_hidbustype>`;
+	bitflag enum :ref:`io.HidDeviceOptions<doxid-type_io_hiddeviceoptions>`;
+	enum :ref:`io.HidRdCollectionKind<doxid-type_io_hidrdcollectionkind>`;
+	bitflag enum :ref:`io.HidRdFlags<doxid-type_io_hidrdflags>`;
+	enum :ref:`io.HidRdItemId<doxid-type_io_hidrditemid>`;
+	bitflag enum :ref:`io.HidRdItemMask<doxid-type_io_hidrditemmask>`;
+	enum :ref:`io.HidRdUnit<doxid-type_io_hidrdunit>`;
+	enum :ref:`io.HidRdUnitNibbleRole<doxid-type_io_hidrdunitnibblerole>`;
+	enum :ref:`io.HidRdUnitSystem<doxid-type_io_hidrdunitsystem>`;
+	bitflag enum :ref:`io.HidRdValueFlags<doxid-type_io_hidrdvalueflags>`;
+	enum :ref:`io.HidReportType<doxid-type_io_hidreporttype>`;
+
+	// structs
+
+	struct :ref:`io.HidDeviceDesc<doxid-type_io_hiddevicedesc>`;
+	struct :ref:`io.HidMonDeviceDesc<doxid-type_io_hidmondevicedesc>`;
+
+	// classes
+
+	class :ref:`io.HidDb<doxid-type_io_hiddb>`;
+	class :ref:`io.HidDevice<doxid-type_io_hiddevice>`;
+	class :ref:`io.HidRd<doxid-type_io_hidrd>`;
+	class :ref:`io.HidRdCollection<doxid-type_io_hidrdcollection>`;
+	class :ref:`io.HidReport<doxid-type_io_hidreport>`;
+	class :ref:`io.HidReportField<doxid-type_io_hidreportfield>`;
+	class :ref:`io.HidStandaloneReport<doxid-type_io_hidstandalonereport>`;
+	class :ref:`io.HidUsagePage<doxid-type_io_hidusagepage>`;
+
+	// global functions
+
+	:ref:`io.HidDeviceDesc<doxid-type_io_hiddevicedesc>` const* :target:`io.enumerateHidDevices<doxid-function_io_enumeratehiddevices>`(:ref:`size_t<doxid-typedef_size_t>`* count = null);
+	:ref:`io.HidMonDeviceDesc<doxid-type_io_hidmondevicedesc>` const* :target:`io.enumerateHidMonDevices<doxid-function_io_enumeratehidmondevices>`(:ref:`size_t<doxid-typedef_size_t>`* count = null);
+	bool :target:`io.isHidRdItemSigned<doxid-function_io_ishidrditemsigned>`(:ref:`io.HidRdItemId<doxid-type_io_hidrditemid>` id);
+
+	:ref:`io.HidRdUnit<doxid-type_io_hidrdunit>` :target:`io.getHidRdUnit<doxid-function_io_gethidrdunit>`(
+		:ref:`io.HidRdUnitNibbleRole<doxid-type_io_hidrdunitnibblerole>` role,
+		:ref:`io.HidRdUnitSystem<doxid-type_io_hidrdunitsystem>` system
+	);
+
+	int :target:`io.getHidRdUnitExponent<doxid-function_io_gethidrdunitexponent>`(:ref:`uint_t<doxid-typedef_uint_t>` nibble);
+	:ref:`string_t<doxid-typedef_string_t>` :target:`io.getHidRdComplexUnitString<doxid-function_io_gethidrdcomplexunitstring>`(:ref:`uint32_t<doxid-typedef_uint32_t>` unit);
+

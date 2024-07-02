@@ -1,0 +1,25 @@
+.. include:: def.rst
+.. index:: pair: struct; io.lnx.DeviceMonitorIoctlNotifyParams
+.. _doxid-type_io_lnx_devicemonitorioctlnotifyparams:
+
+struct io.lnx.DeviceMonitorIoctlNotifyParams
+============================================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct DeviceMonitorIoctlNotifyParams {
+		// fields
+	
+		:ref:`uint64_t<doxid-typedef_uint64_t>` :target:`m_fileId<doxid-field_io_lnx_devicemonitorioctlnotifyparams_m_fileid>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`m_code<doxid-field_io_lnx_devicemonitorioctlnotifyparams_m_code>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`m_argSize<doxid-field_io_lnx_devicemonitorioctlnotifyparams_m_argsize>`;
+		:ref:`uint64_t<doxid-typedef_uint64_t>` :target:`m_arg<doxid-field_io_lnx_devicemonitorioctlnotifyparams_m_arg>`;
+	};

@@ -1,0 +1,39 @@
+.. include:: def.rst
+.. index:: pair: enum; HidRdItemMask
+.. _doxid-type_io_hidrditemmask:
+
+bitflag enum io.HidRdItemMask
+=============================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum HidRdItemMask {
+	    :target:`UsagePage<doxid-enum_member_io_hidrditemmask_usagepage>`         = 1<<HidRdItemId.UsagePage,
+	    :target:`LogicalMinimum<doxid-enum_member_io_hidrditemmask_logicalminimum>`    = 1<<HidRdItemId.LogicalMinimum,
+	    :target:`LogicalMaximum<doxid-enum_member_io_hidrditemmask_logicalmaximum>`    = 1<<HidRdItemId.LogicalMaximum,
+	    :target:`PhysicalMinimum<doxid-enum_member_io_hidrditemmask_physicalminimum>`   = 1<<HidRdItemId.PhysicalMinimum,
+	    :target:`PhysicalMaximum<doxid-enum_member_io_hidrditemmask_physicalmaximum>`   = 1<<HidRdItemId.PhysicalMaximum,
+	    :target:`UnitExponent<doxid-enum_member_io_hidrditemmask_unitexponent>`      = 1<<HidRdItemId.UnitExponent,
+	    :target:`Unit<doxid-enum_member_io_hidrditemmask_unit>`              = 1<<HidRdItemId.Unit,
+	    :target:`ReportSize<doxid-enum_member_io_hidrditemmask_reportsize>`        = 1<<HidRdItemId.ReportSize,
+	    :target:`ReportId<doxid-enum_member_io_hidrditemmask_reportid>`          = 1<<HidRdItemId.ReportId,
+	    :target:`ReportCount<doxid-enum_member_io_hidrditemmask_reportcount>`       = 1<<HidRdItemId.ReportCount,
+	    :target:`Usage<doxid-enum_member_io_hidrditemmask_usage>`             = 1<<HidRdItemId.Usage,
+	    :target:`UsageMinimum<doxid-enum_member_io_hidrditemmask_usageminimum>`      = 1<<HidRdItemId.UsageMinimum,
+	    :target:`UsageMaximum<doxid-enum_member_io_hidrditemmask_usagemaximum>`      = 1<<HidRdItemId.UsageMaximum,
+	    :target:`DesignatorIndex<doxid-enum_member_io_hidrditemmask_designatorindex>`   = 1<<HidRdItemId.DesignatorIndex,
+	    :target:`DesignatorMinimum<doxid-enum_member_io_hidrditemmask_designatorminimum>` = 1<<HidRdItemId.DesignatorMinimum,
+	    :target:`DesignatorMaximum<doxid-enum_member_io_hidrditemmask_designatormaximum>` = 1<<HidRdItemId.DesignatorMaximum,
+	    :target:`String<doxid-enum_member_io_hidrditemmask_string>`            = 1<<HidRdItemId.String,
+	    :target:`StringMinimum<doxid-enum_member_io_hidrditemmask_stringminimum>`     = 1<<HidRdItemId.StringMinimum,
+	    :target:`StringMaximum<doxid-enum_member_io_hidrditemmask_stringmaximum>`     = 1<<HidRdItemId.StringMaximum,
+	    :target:`Delimiter<doxid-enum_member_io_hidrditemmask_delimiter>`         = 1<<HidRdItemId.Delimiter,
+	    :target:`AllGlobals<doxid-enum_member_io_hidrditemmask_allglobals>`        =(1<<(HidRdItemId.ReportCount + 1)) - 1,
+	    :target:`AllLocals<doxid-enum_member_io_hidrditemmask_alllocals>`         =((1<<(HidRdItemId.Delimiter + 1)) - 1)& ~((1<<HidRdItemId.Usage) - 1),
+	    :target:`AllUsages<doxid-enum_member_io_hidrditemmask_allusages>`         = Usage | UsageMinimum | UsageMaximum,
+	};
+

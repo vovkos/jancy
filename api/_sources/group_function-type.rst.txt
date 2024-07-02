@@ -1,0 +1,82 @@
+.. index:: pair: group; Function Type
+.. _doxid-group__function-type:
+
+Function Type
+=============
+
+.. toctree::
+	:hidden:
+
+	enum_jnc_FunctionPtrTypeKind.rst
+	enum_jnc_FunctionTypeFlag.rst
+	struct_jnc_FunctionType.rst
+
+Function type defines a signature of a function what it the calling convention, which type is the return value of, how many and which type of arguments a function accepts and so on.
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_FunctionType.h>
+	
+	// enums
+
+	enum :ref:`jnc_FunctionPtrTypeKind<doxid-group__function-type_1gaea149ac2a4106e9dc5e75172ba689b83>`;
+	enum :ref:`jnc_FunctionTypeFlag<doxid-group__function-type_1gac9ba50d4974a369a6e77a3b13e334814>`;
+
+	// structs
+
+	struct :ref:`jnc_FunctionType<doxid-structjnc___function_type>`;
+
+	// global functions
+
+	const char*
+	:target:`jnc_getFunctionTypeFlagString<doxid-group__function-type_1ga1c376a26f68f16c644f195a40eaccee5>`(jnc_FunctionTypeFlag flag);
+
+	const char*
+	:target:`jnc_getFunctionPtrTypeKindString<doxid-group__function-type_1gab43d7e9994eb740bdd4d26f3606b7498>`(jnc_FunctionPtrTypeKind ptrTypeKind);
+
+	:ref:`bool_t<doxid-group__base-def_1ga812d16e5494522586b3784e55d479912>`
+	:target:`jnc_FunctionArg_hasDefaultValue<doxid-group__function-type_1gaec03c4fd98b6c4e29646302415e8d9b7>`(jnc_FunctionArg* arg);
+
+	const char*
+	:target:`jnc_FunctionArg_getDefaultValueString_v<doxid-group__function-type_1ga68b7b3afdabb8636f8c70c0389303f37>`(jnc_FunctionArg* arg);
+
+	:ref:`jnc_Type<doxid-structjnc___type>`*
+	:target:`jnc_FunctionType_getReturnType<doxid-group__function-type_1ga4d020a96db6418920d9035abff16c00d>`(:ref:`jnc_FunctionType<doxid-structjnc___function_type>`* type);
+
+	size_t
+	:target:`jnc_FunctionType_getArgCount<doxid-group__function-type_1ga7403a416a940965054306e137e4ddc05>`(:ref:`jnc_FunctionType<doxid-structjnc___function_type>`* type);
+
+	jnc_FunctionArg*
+	:target:`jnc_FunctionType_getArg<doxid-group__function-type_1ga29834f663764eea14a87a981629ebf78>`(
+		:ref:`jnc_FunctionType<doxid-structjnc___function_type>`* type,
+		size_t index
+	);
+
+	jnc_FunctionPtrType*
+	:target:`jnc_FunctionType_getFunctionPtrType<doxid-group__function-type_1ga78a6dc99e7edfdaa99b0bf69b7879aed>`(
+		:ref:`jnc_FunctionType<doxid-structjnc___function_type>`* type,
+		jnc_TypeKind typeKind,
+		jnc_FunctionPtrTypeKind ptrTypeKind,
+		uint_t flags
+	);
+
+	:ref:`jnc_FunctionType<doxid-structjnc___function_type>`*
+	:target:`jnc_FunctionType_getShortType<doxid-group__function-type_1gaa06fe09488ce7c05ef681fe4f0624f2d>`(:ref:`jnc_FunctionType<doxid-structjnc___function_type>`* type);
+
+	jnc_FunctionPtrTypeKind
+	:target:`jnc_FunctionPtrType_getPtrTypeKind<doxid-group__function-type_1gad679513678580bd72ab754914210afec>`(jnc_FunctionPtrType* type);
+
+	:ref:`jnc_FunctionType<doxid-structjnc___function_type>`*
+	:target:`jnc_FunctionPtrType_getTargetType<doxid-group__function-type_1gac00574c467b4708dfac7ba59b296d711>`(jnc_FunctionPtrType* type);
+
+	size_t
+	:target:`jnc_FunctionTypeOverload_getOverloadCount<doxid-group__function-type_1ga94c50afd3524eb75f887d9dc1fb01321>`(jnc_FunctionTypeOverload* typeOverload);
+
+	:ref:`jnc_FunctionType<doxid-structjnc___function_type>`*
+	:target:`jnc_FunctionTypeOverload_getOverload<doxid-group__function-type_1ga5f5757ce51e41b18fcdc7b6cd89c312f>`(
+		jnc_FunctionTypeOverload* typeOverload,
+		size_t index
+	);
+

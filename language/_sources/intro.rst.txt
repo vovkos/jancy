@@ -1,0 +1,61 @@
+.. .............................................................................
+..
+..  This file is part of the Jancy toolkit.
+..
+..  Jancy is distributed under the MIT license.
+..  For details see accompanying license.txt file,
+..  the public copy of which is also available at:
+..  http://tibbo.com/downloads/archive/jancy/license.txt
+..
+.. .............................................................................
+
+Introduction
+============
+
+Motivation
+----------
+
+Why create yet another programming language? Like, there isn't enough of them already?
+
+I have asked myself these questions hundreds of times, over and over again. I can name dozens of possible arguments against creating a new programming language. I understand all the difficulties a language creator is doomed to face before he can gather any meaningful number of users of the new language. And I still believe that the creation of Jancy was justified. The truth is, Jancy was not created just to fix the infamous fatal flaw of other languages (aka **they didn't write it**). Of course, the passion to invent was a significant driving force, but there was **practical** reasoning besides that.
+
+During the development of a product called `IO Ninja <http://tibbo.com/ninja>`_ (a universal all-in-one low-level IO debugger) we were looking for a scripting language with the support for **safe pointers** and **safe pointer arithmetics**. We wanted to use scripting for adding new protocol analyzers and emulators, and the best way of parsing binary data is by a long shot C-structs and pointer arithmetics.
+
+After not finding such language, we basically had a choice: either we settle for some existing scripting language without safe pointer arithmetics (say, embedded Python) or create a new scripting language -- tailor-suited for the **binary data stream** processing. Create it both for ourselves, and for other developers who could be in need for such a scripting language. Needless to say, we had chosen the latter option -- otherwise, you would not be reading this manual.
+
+Of course, besides featuring safe pointers and safe pointer arithmetics, Jancy offers a long list of other useful but rarely found facilities. So let's outline the distinguishing features of Jancy below. And for those of you wondering **what's in a name**, Jancy is an acronym: [in-between] Java-and-C.
+
+Design Principles
+-----------------
+
+* Object-oriented scripting language for IO and UI programming with C-family syntax
+* ABI (application-binary-interface) compatibility with C
+* Automatic memory management via accurate GC (garbage collection)
+* LLVM (Low Level Virtual Machine) as a back-end
+
+Key Features
+------------
+
+* High level of ABI and source compatibility with C
+* Safe pointers and pointer arithmetic
+* Spreadsheet-like Reactive Programming
+* Efficient regex-based switches for writing incremental lexers/scanners
+* Dynamic structures with variable-length fields
+* Dual error handling model which allows both throw-catch semantics and error code checks -- with the same function!
+
+Other Notable Features
+----------------------
+
+* Properties (the most comprehensive implementation thereof)
+* Multicasts and events (including weak events, which do not require to unsubscribe)
+* Scheduled function pointers
+* Deterministic resource release
+* Multiple inheritance
+* Const-correctness
+* Thread local storage
+* Weak pointers (do not retain objects)
+* Partial application for functions and properties
+* Context-sensitive dual modifiers
+* Bitflag enums
+* Perl-style formatting
+* Hexadimal, binary, raw and multi-line literals

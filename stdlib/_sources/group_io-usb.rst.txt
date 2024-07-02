@@ -1,0 +1,85 @@
+.. include:: def.rst
+.. index:: pair: group; USB Communications
+.. _doxid-group_io_usb:
+
+USB Communications
+==================
+
+.. toctree::
+	:hidden:
+
+	enum_io_UsbClass.rst
+	enum_io_UsbControlDirection.rst
+	enum_io_UsbControlRecipient.rst
+	enum_io_UsbControlStdRequest.rst
+	enum_io_UsbControlType.rst
+	enum_io_UsbDeviceStringId.rst
+	enum_io_UsbEndpointEvents.rst
+	enum_io_UsbIsoSyncType.rst
+	enum_io_UsbIsoUsage.rst
+	enum_io_UsbSpeed.rst
+	enum_io_UsbTransferType.rst
+	struct_io_UsbConfigurationDescriptor.rst
+	struct_io_UsbControlRequestType.rst
+	struct_io_UsbControlSetup.rst
+	struct_io_UsbDeviceDescriptor.rst
+	struct_io_UsbDeviceStrings.rst
+	struct_io_UsbEndpointDescriptor.rst
+	struct_io_UsbInterfaceDescriptor.rst
+	struct_io_UsbIsoHdr.rst
+	struct_io_UsbIsoPacket.rst
+	class_io_UsbDevice.rst
+	class_io_UsbEndpoint.rst
+	class_io_UsbInterface.rst
+
+This section describes types and facilities used for accessing USB devices with ``libusb``.
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "io_usb.jncx"
+	
+	// typedefs
+
+	typedef :ref:`io.StreamOptions<doxid-type_io_streamoptions>` :target:`io.UsbEndpointOptions<doxid-typedef_io_usbendpointoptions>`;
+
+	// enums
+
+	enum :ref:`io.UsbClass<doxid-type_io_usbclass>`;
+	enum :ref:`io.UsbControlDirection<doxid-type_io_usbcontroldirection>`;
+	enum :ref:`io.UsbControlRecipient<doxid-type_io_usbcontrolrecipient>`;
+	enum :ref:`io.UsbControlStdRequest<doxid-type_io_usbcontrolstdrequest>`;
+	enum :ref:`io.UsbControlType<doxid-type_io_usbcontroltype>`;
+	bitflag enum :ref:`io.UsbDeviceStringId<doxid-type_io_usbdevicestringid>`;
+	bitflag enum :ref:`io.UsbEndpointEvents<doxid-type_io_usbendpointevents>`;
+	enum :ref:`io.UsbIsoSyncType<doxid-type_io_usbisosynctype>`;
+	enum :ref:`io.UsbIsoUsage<doxid-type_io_usbisousage>`;
+	enum :ref:`io.UsbSpeed<doxid-type_io_usbspeed>`;
+	enum :ref:`io.UsbTransferType<doxid-type_io_usbtransfertype>`;
+
+	// structs
+
+	struct :ref:`io.UsbConfigurationDescriptor<doxid-type_io_usbconfigurationdescriptor>`;
+	struct :ref:`io.UsbControlRequestType<doxid-type_io_usbcontrolrequesttype>`;
+	struct :ref:`io.UsbControlSetup<doxid-type_io_usbcontrolsetup>`;
+	struct :ref:`io.UsbDeviceDescriptor<doxid-type_io_usbdevicedescriptor>`;
+	struct :ref:`io.UsbDeviceStrings<doxid-type_io_usbdevicestrings>`;
+	struct :ref:`io.UsbEndpointDescriptor<doxid-type_io_usbendpointdescriptor>`;
+	struct :ref:`io.UsbInterfaceDescriptor<doxid-type_io_usbinterfacedescriptor>`;
+	struct :ref:`io.UsbIsoHdr<doxid-type_io_usbisohdr>`;
+	struct :ref:`io.UsbIsoPacket<doxid-type_io_usbisopacket>`;
+
+	// classes
+
+	class :ref:`io.UsbDevice<doxid-type_io_usbdevice>`;
+	class :ref:`io.UsbEndpoint<doxid-type_io_usbendpoint>`;
+	class :ref:`io.UsbInterface<doxid-type_io_usbinterface>`;
+
+	// global functions
+
+	:ref:`io.UsbDevice<doxid-type_io_usbdevice>`* errorcode :target:`io.openUsbDevice<doxid-function_io_openusbdevice>`(
+		:ref:`uint_t<doxid-typedef_uint_t>` vendorId,
+		:ref:`uint_t<doxid-typedef_uint_t>` productId
+	);
+
