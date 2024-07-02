@@ -256,7 +256,7 @@ jobs:
 
     macOsBuild:
         name: macOS Build
-        runs-on: macos-11
+        runs-on: macos-12
 
         strategy:
             fail-fast: false
