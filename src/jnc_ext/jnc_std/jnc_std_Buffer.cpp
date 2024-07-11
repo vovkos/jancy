@@ -63,7 +63,11 @@ Buffer::copy_u(
 	if (!result)
 		return -1;
 
-	memcpy(m_ptr.m_p, src, size);
+	if (src)
+		memcpy(m_ptr.m_p, src, size);
+	else
+		memset(m_ptr.m_p, 0, size);
+
 	m_size = size;
 	return size;
 }
@@ -87,7 +91,11 @@ Buffer::insert_u(
 	if (offset < m_size)
 		memmove(p + offset + size, p + offset, m_size - offset);
 
-	memcpy(p + offset, src, size);
+	if (src)
+		memcpy(p + offset, src, size);
+	else
+		memset(p + offset, 0, size);
+
 	m_size = newSize;
 	return newSize;
 }
