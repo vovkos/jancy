@@ -39,6 +39,7 @@ ConstMgr::createConst(
 	const Value& value
 ) {
 	Const* cnst = new Const;
+	cnst->m_module = m_module;
 	cnst->m_name = name;
 	cnst->m_qualifiedName = qualifiedName;
 	cnst->m_value = value;
