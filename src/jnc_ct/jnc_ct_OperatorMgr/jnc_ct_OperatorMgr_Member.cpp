@@ -315,10 +315,16 @@ OperatorMgr::getNamespaceMember(
 			if (!result)
 				return false;
 
-			resultValue->setLlvmValue(
-				function->getLlvmFunction(),
-				function->getType()->getFunctionPtrType(FunctionPtrTypeKind_Thin)
+			FunctionPtrType* resultType = function->getType()->getFunctionPtrType(
+				TypeKind_FunctionRef,
+				FunctionPtrTypeKind_Thin,
+				PtrTypeFlag_Safe
 			);
+
+			if (m_module->hasCodeGen())
+				resultValue->setLlvmValue(function->getLlvmFunction(), resultType);
+			else
+				resultValue->setType(resultType);
 
 			result = createMemberClosure(resultValue);
 			if (!result)
