@@ -1851,7 +1851,7 @@ Parser::declareData(
 		}
 
 		if (!stmt->m_structType) {
-			StructType* structType = m_module->m_typeMgr.createUnnamedInternalStructType("section", stmt->m_fieldAlignment);
+			StructType* structType = m_module->m_typeMgr.createUnnamedInternalStructType("section", 1);
 
 			bool isAsync = m_module->m_functionMgr.getCurrentFunction()->getFunctionKind() == FunctionKind_AsyncSequencer;
 
@@ -3279,7 +3279,6 @@ Parser::initializeDynamicLayoutStmt(
 	stmt->m_layoutValue = layoutValue;
 	stmt->m_structType = NULL;
 	stmt->m_structBlock = NULL;
-	stmt->m_fieldAlignment = m_pragmaConfig.m_fieldAlignment;
 	stmt->m_callCount = 0;
 
 	Scope* scope = m_module->m_namespaceMgr.openScope(pos, flags);
