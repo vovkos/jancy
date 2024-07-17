@@ -639,6 +639,19 @@ Type::prepareSimpleTypeVariable(StdType stdType) {
 
 	bool result = m_module->m_variableMgr.allocateVariable(m_typeVariable);
 	ASSERT(result);
+
+	if (!(m_module->getCompileFlags() & ModuleCompileFlag_DisableCodeGen)) {
+		struct RtlModuleItem:
+			jnc::Box,
+			jnc::IfaceHdr {
+			jnc::ModuleItem* m_item;
+		};
+
+		ASSERT(m_typeVariable->getType()->getSize() >= sizeof(RtlModuleItem)); // otherwise, invalid opaque info
+		RtlModuleItem* rtlItem = (RtlModuleItem*)m_typeVariable->getStaticData();
+		ASSERT(rtlItem);
+		rtlItem->m_item = this; // so that we can use type attribute values at compile-time
+	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
