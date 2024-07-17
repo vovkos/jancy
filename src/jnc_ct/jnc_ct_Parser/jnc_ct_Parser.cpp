@@ -2360,7 +2360,7 @@ Parser::findBaseType(size_t baseTypeIdx) {
 	ASSERT(function); // should not be called at pass
 
 	DerivableType* parentType = function->getParentType();
-	if (!parentType)
+	if (!parentType || !parentType->ensureNoImports())
 		return NULL;
 
 	BaseTypeSlot* slot = parentType->getBaseTypeByIndex(baseTypeIdx);
