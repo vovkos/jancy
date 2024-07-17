@@ -431,8 +431,10 @@ ClassType::calcLayout() {
 		ASSERT(function->m_storageKind == StorageKind_Abstract || function->m_storageKind == StorageKind_Virtual);
 
 		result = addVirtualFunction(function);
-		if (!result)
+		if (!result) {
+			function->pushSrcPosError();
 			return false;
+		}
 	}
 
 	count = m_overrideMethodArray.getCount();
@@ -441,8 +443,10 @@ ClassType::calcLayout() {
 		ASSERT(function->m_storageKind == StorageKind_Override);
 
 		result = overrideVirtualFunction(function);
-		if (!result)
+		if (!result) {
+			function->pushSrcPosError();
 			return false;
+		}
 	}
 
 	if (m_vtableStructType) {
