@@ -286,8 +286,6 @@ DynamicLayout::asyncScanTo(char c) {
 		dynamicThrow();
 	}
 
-	prepareForAwait();
-
 	char* p0 = (char*)m_ptr.m_p;
 	char* p = p0 + m_size;
 	char* end = p0 + m_bufferSize;
@@ -295,6 +293,7 @@ DynamicLayout::asyncScanTo(char c) {
 
 	if (!p2) {
 		if (m_mode & DynamicLayoutMode_Stream) {
+			prepareForAwait();
 			m_awaitKind = AwaitKind_Char;
 			m_awaitCharOffset = m_size;
 			m_awaitChar = c;
@@ -304,8 +303,9 @@ DynamicLayout::asyncScanTo(char c) {
 		p2 = end; // if we are not in the stream mode -- report the end of buffer
 	}
 
+	preparePromise();
 	size_t distance = p2 - p;
-	ct::Module* module = m_promise->m_ifaceHdr.m_box->m_type->getModule();
+	ct::Module* module = m_box->m_type->getModule();
 	Variant result;
 	result.create(&distance, module->m_typeMgr.getPrimitiveType(TypeKind_SizeT));
 	m_promise->complete(result, g_nullDataPtr);
@@ -419,6 +419,11 @@ DynamicLayout::prepareForAwait() {
 	if (m_buffer->m_ptr.m_p != m_ptr.m_p) // initial invokation
 		m_buffer->copy(m_ptr.m_p, m_bufferSize);
 
+	preparePromise();
+}
+
+void
+DynamicLayout::preparePromise() {
 	if (!m_auxPromise) {
 		m_auxPromise = m_promise;
 		m_promise = createClass<PromiseImpl>(getCurrentThreadRuntime());

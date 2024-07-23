@@ -227,6 +227,9 @@ protected:
 	void
 	prepareForAwait();
 
+	void
+	preparePromise();
+
 	DynamicSection*
 	addSection(
 		DynamicSectionKind sectionKind,
