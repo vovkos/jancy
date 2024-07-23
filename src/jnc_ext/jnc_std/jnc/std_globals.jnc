@@ -12,6 +12,15 @@
 //! \addtogroup crt
 //! @{
 
+bool isspace(utf32_t c);
+bool isprint(utf32_t c);
+bool ispunct(utf32_t c);
+bool isalpha(utf32_t c);
+bool isalnum(utf32_t c);
+bool isdigit(utf32_t c);
+bool isupper(utf32_t c);
+bool islower(utf32_t c);
+
 /**
 	Calculates and returns the length of the string pointed to by ``p``
 	argument. The length of the string is defined as the number of bytes between
