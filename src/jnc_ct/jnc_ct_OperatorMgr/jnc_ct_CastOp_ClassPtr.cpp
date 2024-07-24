@@ -225,5 +225,51 @@ Cast_ClassPtr::llvmCast(
 
 //..............................................................................
 
+CastKind
+Cast_ClassRef::getCastKind(
+	const Value& opValue,
+	Type* type
+) {
+	ASSERT(type->getTypeKind() == TypeKind_ClassRef);
+
+	Type* intermediateSrcType = UnOp_Addr::getResultType(opValue);
+	if (!intermediateSrcType)
+		return CastKind_None;
+
+	ClassPtrType* ptrType = (ClassPtrType*)type;
+	ClassPtrType* intermediateDstType = ptrType->getTargetType()->getClassPtrType(
+		TypeKind_ClassPtr,
+		ptrType->getPtrTypeKind(),
+		ptrType->getFlags() & PtrTypeFlag__All
+	);
+
+	return m_module->m_operatorMgr.getCastKind(intermediateSrcType, intermediateDstType);
+}
+
+bool
+Cast_ClassRef::llvmCast(
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
+) {
+	ASSERT(type->getTypeKind() == TypeKind_ClassRef);
+
+	ClassPtrType* ptrType = (ClassPtrType*)type;
+	ClassPtrType* intermediateType = ptrType->getTargetType()->getClassPtrType(
+		TypeKind_ClassPtr,
+		ptrType->getPtrTypeKind(),
+		ptrType->getFlags() & PtrTypeFlag__All
+	);
+
+	Value intermediateValue;
+
+	return
+		m_module->m_operatorMgr.unaryOperator(UnOpKind_Addr, opValue, &intermediateValue) &&
+		m_module->m_operatorMgr.castOperator(&intermediateValue, intermediateType) &&
+		m_module->m_operatorMgr.unaryOperator(UnOpKind_Indir, intermediateValue, resultValue);
+}
+
+//..............................................................................
+
 } // namespace ct
 } // namespace jnc

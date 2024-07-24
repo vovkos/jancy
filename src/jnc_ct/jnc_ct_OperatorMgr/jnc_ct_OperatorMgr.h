@@ -180,6 +180,7 @@ protected:
 	Cast_DataPtr m_cast_DataPtr;
 	Cast_DataRef m_cast_DataRef;
 	Cast_ClassPtr m_cast_ClassPtr;
+	Cast_ClassRef m_cast_ClassRef;
 	Cast_FunctionPtr m_cast_FunctionPtr;
 	Cast_FunctionRef m_cast_FunctionRef;
 	Cast_PropertyPtr m_cast_PropertyPtr;

@@ -319,7 +319,7 @@ public:
 
 //..............................................................................
 
-// data ref (UnOpKind_Indir => data ptr cast => UnOpKind_Addr)
+// data ref (UnOpKind_Addr => data ptr cast => UnOpKind_Indir)
 
 class Cast_DataRef: public CastOperator {
 public:

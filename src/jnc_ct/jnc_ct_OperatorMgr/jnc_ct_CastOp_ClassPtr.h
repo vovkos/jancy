@@ -50,5 +50,31 @@ public:
 
 //..............................................................................
 
+// class ref (UnOpKind_Addr => class ptr cast => UnOpKind_Indir)
+
+class Cast_ClassRef: public CastOperator {
+public:
+	Cast_ClassRef() {
+		m_opFlags = OpFlag_KeepRef;
+	}
+
+	virtual
+	CastKind
+	getCastKind(
+		const Value& opValue,
+		Type* type
+	);
+
+	virtual
+	bool
+	llvmCast(
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
+	);
+};
+
+//..............................................................................
+
 } // namespace ct
 } // namespace jnc

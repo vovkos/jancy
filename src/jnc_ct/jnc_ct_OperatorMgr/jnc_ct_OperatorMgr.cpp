@@ -146,6 +146,7 @@ OperatorMgr::OperatorMgr() {
 	m_castOperatorTable[TypeKind_DataPtr]       = &m_cast_DataPtr;
 	m_castOperatorTable[TypeKind_DataRef]       = &m_cast_DataRef;
 	m_castOperatorTable[TypeKind_ClassPtr]      = &m_cast_ClassPtr;
+	m_castOperatorTable[TypeKind_ClassRef]      = &m_cast_ClassRef;
 	m_castOperatorTable[TypeKind_FunctionPtr]   = &m_cast_FunctionPtr;
 	m_castOperatorTable[TypeKind_FunctionRef]   = &m_cast_FunctionRef;
 	m_castOperatorTable[TypeKind_PropertyPtr]   = &m_cast_PropertyPtr;
