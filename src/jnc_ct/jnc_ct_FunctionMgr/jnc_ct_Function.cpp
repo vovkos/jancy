@@ -37,6 +37,7 @@ Function::Function() {
 	m_allocaBlock = NULL;
 	m_prologueBlock = NULL;
 	m_scope = NULL;
+	m_declVariable = NULL;
 	m_llvmFunction = NULL;
 	m_machineCode = NULL;
 }

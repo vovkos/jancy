@@ -189,6 +189,13 @@ public:
 	Variable*
 	getRegexMatchVariable();
 
+	Variable*
+	createRtlItemVariable(
+		StdType type,
+		const sl::StringRef& name,
+		ModuleItem* item
+	);
+
 	bool
 	createTlsStructType();
 

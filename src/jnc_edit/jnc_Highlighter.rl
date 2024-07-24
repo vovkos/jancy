@@ -153,6 +153,7 @@ main := |*
 	'sizeof'          |
 	'countof'         |
 	'typeof'          |
+	'declof'          |
 	'offsetof'        |
 	'bindingof'       |
 	'dynamic' ws+ 'sizeof' |

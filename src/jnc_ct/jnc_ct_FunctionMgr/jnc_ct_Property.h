@@ -134,6 +134,7 @@ protected:
 	size_t m_parentClassVtableIndex;
 	sl::Array<Function*> m_vtable;
 	Variable* m_vtableVariable;
+	Variable* m_declVariable;
 
 	ExtensionNamespace* m_extensionNamespace;
 
@@ -238,6 +239,9 @@ public:
 	getVtableVariable() {
 		return m_vtableVariable || createVtableVariable() ? m_vtableVariable : NULL;
 	}
+
+	Variable*
+	getDeclVariable();
 
 	bool
 	finalize(); // resolves autoget/bindable aliases, lays out vtable, creates default constructors

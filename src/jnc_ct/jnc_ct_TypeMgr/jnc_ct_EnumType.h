@@ -45,13 +45,10 @@ class EnumConst:
 protected:
 	EnumType* m_parentEnumType;
 	int64_t m_value;
+	Variable* m_declVariable;
 
 public:
-	EnumConst() {
-		m_itemKind = ModuleItemKind_EnumConst;
-		m_parentEnumType = NULL;
-		m_value = 0;
-	}
+	EnumConst();
 
 	EnumType*
 	getParentEnumType() {
@@ -63,6 +60,9 @@ public:
 		return m_value;
 	}
 
+	Variable*
+	getDeclVariable();
+
 	virtual
 	bool
 	generateDocumentation(
@@ -73,6 +73,16 @@ public:
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+EnumConst::EnumConst() {
+	m_itemKind = ModuleItemKind_EnumConst;
+	m_parentEnumType = NULL;
+	m_value = 0;
+	m_declVariable = NULL;
+}
+
+//..............................................................................
 
 class EnumType: public NamedType {
 	friend class TypeMgr;

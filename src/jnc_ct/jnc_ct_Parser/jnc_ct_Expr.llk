@@ -855,6 +855,10 @@ primary_expr<Value* $value>
 			{
 				return m_module->m_operatorMgr.typeofOperator(OperatorDynamism_Static, $t.m_value, $value);
 			}
+	|	TokenKind_DeclOf '(' type_name_or_expr $t ')'
+			{
+				return m_module->m_operatorMgr.declofOperator($t.m_value, $value);
+			}
 	|	TokenKind_OffsetOf '(' expression_0 $e ')'
 			{
 				return m_module->m_operatorMgr.offsetofOperator(OperatorDynamism_Static, $e.m_value, $value);

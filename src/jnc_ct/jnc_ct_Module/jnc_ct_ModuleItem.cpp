@@ -585,12 +585,6 @@ getEnumConstSynopsis(
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-ModuleItem::ModuleItem() {
-	m_module = NULL;
-	m_itemKind = ModuleItemKind_Undefined;
-	m_flags = 0;
-}
-
 ModuleItemDecl*
 ModuleItem::getDecl() {
 	typedef

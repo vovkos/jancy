@@ -998,6 +998,49 @@ OperatorMgr::typeofOperator(
 }
 
 bool
+OperatorMgr::declofOperator(
+	const Value& opValue,
+	Value* resultValue
+) {
+	Variable* variable = NULL;
+	ModuleItem* item = opValue.getModuleItem();
+	if (!item) {
+		if (opValue.getValueKind() == ValueKind_Type) {
+			Type* type = opValue.getType();
+			if (type->getFlags() & ModuleItemFlag_User)
+				variable = type->getTypeVariable();
+		}
+	} else {
+		ModuleItemKind itemKind = item->getItemKind();
+		switch (itemKind) {
+		case ModuleItemKind_Variable:
+			variable = ((Variable*)item)->getDeclVariable();
+			break;
+
+		case ModuleItemKind_Function:
+			variable = ((Function*)item)->getDeclVariable();
+			break;
+
+		case ModuleItemKind_Property:
+			variable = ((Property*)item)->getDeclVariable();
+			break;
+
+		case ModuleItemKind_EnumConst:
+			variable = ((EnumConst*)item)->getDeclVariable();
+			break;
+		}
+	}
+
+	if (!variable) {
+		err::setFormatStringError("'declof' is only applicable to user items");
+		return false;
+	}
+
+	resultValue->setVariable(variable);
+	return true;
+}
+
+bool
 OperatorMgr::offsetofOperator(
 	OperatorDynamism dynamism,
 	const Value& value,

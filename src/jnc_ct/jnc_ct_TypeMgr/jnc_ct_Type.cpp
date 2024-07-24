@@ -611,49 +611,6 @@ Type::prepareLlvmDiType() {
 	};
 }
 
-void
-Type::prepareSimpleTypeVariable(StdType stdType) {
-	ASSERT(!m_typeVariable && m_module->getCompileState() < ModuleCompileState_Compiled);
-
-	sl::String qualifiedName = "jnc.g_type_" + getSignature();
-	Type* type = m_module->m_typeMgr.getStdType(stdType);
-
-	sl::List<Token> constructor;
-	Token* token = new Token;
-	constructor.insertTail(token);
-	token->m_token = TokenKind_Integer;
-	token->m_data.m_int64_u = (intptr_t)this;
-
-	m_typeVariable = m_module->m_variableMgr.createVariable(
-		StorageKind_Static,
-		sl::String(),
-		qualifiedName,
-		type,
-		0,
-		&constructor
-	);
-
-	m_typeVariable->m_parentUnit = m_module->m_unitMgr.getIntrospectionLibUnit();
-	m_typeVariable->m_parentNamespace = m_module->m_namespaceMgr.getStdNamespace(StdNamespace_Jnc);
-	m_typeVariable->m_flags |= VariableFlag_Type;
-
-	bool result = m_module->m_variableMgr.allocateVariable(m_typeVariable);
-	ASSERT(result);
-
-	if (!(m_module->getCompileFlags() & ModuleCompileFlag_DisableCodeGen)) {
-		struct RtlModuleItem:
-			jnc::Box,
-			jnc::IfaceHdr {
-			jnc::ModuleItem* m_item;
-		};
-
-		ASSERT(m_typeVariable->getType()->getSize() >= sizeof(RtlModuleItem)); // otherwise, invalid opaque info
-		RtlModuleItem* rtlItem = (RtlModuleItem*)m_typeVariable->getStaticData();
-		ASSERT(rtlItem);
-		rtlItem->m_item = this; // so that we can use type attribute values at compile-time
-	}
-}
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 sl::StringRef

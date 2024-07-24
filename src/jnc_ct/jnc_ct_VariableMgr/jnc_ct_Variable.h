@@ -43,7 +43,6 @@ class Variable:
 	friend class ControlFlowMgr;
 	friend class MemberBlock;
 	friend class Property;
-	friend class Type;
 	friend class Parser;
 	friend class Module;
 	friend class Jit;
@@ -54,6 +53,7 @@ protected:
 	StdVariable m_stdVariable;
 	sl::List<Token> m_constructor;
 	Scope* m_scope;
+	Variable* m_declVariable;
 
 	// codegen-only
 
@@ -108,6 +108,9 @@ public:
 
 	LeanDataPtrValidator*
 	getLeanDataPtrValidator();
+
+	Variable*
+	getDeclVariable();
 
 	const sl::String&
 	getLlvmGlobalVariableName() {

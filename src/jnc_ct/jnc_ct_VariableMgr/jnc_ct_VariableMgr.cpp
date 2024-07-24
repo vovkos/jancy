@@ -728,6 +728,54 @@ VariableMgr::getRegexMatchVariable() {
 	return variable;
 }
 
+Variable*
+VariableMgr::createRtlItemVariable(
+	StdType stdType,
+	const sl::StringRef& name,
+	ModuleItem* item
+) {
+	ASSERT(m_module->getCompileState() < ModuleCompileState_Compiled);
+
+	Type* type = m_module->m_typeMgr.getStdType(stdType);
+
+	sl::List<Token> constructor;
+	Token* token = new Token;
+	constructor.insertTail(token);
+	token->m_token = TokenKind_Integer;
+	token->m_data.m_int64_u = (intptr_t)item;
+
+	Variable* variable = createVariable(
+		StorageKind_Static,
+		sl::String(),
+		name,
+		type,
+		0,
+		&constructor
+	);
+
+	variable->m_parentUnit = m_module->m_unitMgr.getIntrospectionLibUnit();
+	variable->m_parentNamespace = m_module->m_namespaceMgr.getStdNamespace(StdNamespace_Jnc);
+	variable->m_flags |= VariableFlag_Type;
+
+	bool result = allocateVariable(variable);
+	ASSERT(result);
+
+	if (!(m_module->getCompileFlags() & ModuleCompileFlag_DisableCodeGen)) {
+		struct RtlModuleItem:
+			jnc::Box,
+			jnc::IfaceHdr {
+			jnc::ModuleItem* m_item;
+		};
+
+		ASSERT(variable->getType()->getSize() >= sizeof(RtlModuleItem)); // otherwise, invalid opaque info
+		RtlModuleItem* rtlItem = (RtlModuleItem*)variable->getStaticData();
+		ASSERT(rtlItem);
+		rtlItem->m_item = item; // so that we can use type attribute values at compile-time
+	}
+
+	return variable;
+}
+
 bool
 VariableMgr::createTlsStructType() {
 	bool result;

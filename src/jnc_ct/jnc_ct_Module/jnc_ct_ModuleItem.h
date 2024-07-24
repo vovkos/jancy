@@ -303,6 +303,15 @@ public:
 	createDoxyRefId();
 };
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+ModuleItem::ModuleItem() {
+	m_module = NULL;
+	m_itemKind = ModuleItemKind_Undefined;
+	m_flags = 0;
+}
+
 //..............................................................................
 
 } // namespace ct

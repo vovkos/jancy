@@ -162,6 +162,7 @@ enum TokenKind {
 	TokenKind_SizeOf,
 	TokenKind_CountOf,
 	TokenKind_TypeOf,
+	TokenKind_DeclOf,
 	TokenKind_OffsetOf,
 	TokenKind_BindingOf,
 
@@ -366,6 +367,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP(TokenName)
 	AXL_LEX_TOKEN_NAME(TokenKind_SizeOf,       "sizeof")
 	AXL_LEX_TOKEN_NAME(TokenKind_CountOf,      "countof")
 	AXL_LEX_TOKEN_NAME(TokenKind_TypeOf,       "typeof")
+	AXL_LEX_TOKEN_NAME(TokenKind_DeclOf,       "declof")
 	AXL_LEX_TOKEN_NAME(TokenKind_OffsetOf,     "offsetof")
 	AXL_LEX_TOKEN_NAME(TokenKind_BindingOf,    "bindingof")
 

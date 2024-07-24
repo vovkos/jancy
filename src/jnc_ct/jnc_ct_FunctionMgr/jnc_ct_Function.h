@@ -80,6 +80,7 @@ protected:
 	BasicBlock* m_allocaBlock;
 	BasicBlock* m_prologueBlock;
 	Scope* m_scope;
+	Variable* m_declVariable;
 
 	// codegen-only
 
@@ -199,6 +200,9 @@ public:
 		return m_prologueBlock;
 	}
 
+	Variable*
+	getDeclVariable();
+
 	bool
 	hasLlvmFunction() {
 		return m_llvmFunction != NULL;
@@ -263,12 +267,6 @@ protected:
 
 	void
 	prepareLlvmDiSubprogram();
-
-	void
-	addFieldVariable(
-		sl::Array<FieldVariable>* array,
-		Variable* variable
-	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

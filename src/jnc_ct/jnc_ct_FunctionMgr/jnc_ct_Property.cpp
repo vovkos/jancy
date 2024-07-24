@@ -37,6 +37,7 @@ Property::Property():
 
 	m_extensionNamespace = NULL;
 	m_vtableVariable = NULL;
+	m_declVariable = NULL;
 }
 
 bool

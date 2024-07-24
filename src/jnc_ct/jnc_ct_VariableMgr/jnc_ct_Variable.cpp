@@ -26,6 +26,7 @@ Variable::Variable() {
 	m_ptrTypeFlags = 0;
 	m_stdVariable = (StdVariable)-1;
 	m_scope = NULL;
+	m_declVariable = NULL;
 	m_field = NULL;
 	m_staticData = NULL;
 	m_llvmGlobalVariable = NULL;
@@ -85,7 +86,6 @@ Variable::prepareStaticData() {
 		Value value((void*)NULL, m_type);
 		m_staticData = (void*)m_module->m_constMgr.saveValue(value).getConstData();
 	}
-
 }
 
 bool

@@ -245,6 +245,7 @@ main := |*
 'sizeof'         { createToken(TokenKind_SizeOf); };
 'countof'        { createToken(TokenKind_CountOf); };
 'typeof'         { createToken(TokenKind_TypeOf); };
+'declof'         { createToken(TokenKind_DeclOf); };
 'offsetof'       { createToken(TokenKind_OffsetOf); };
 'bindingof'      { createToken(TokenKind_BindingOf); };
 

@@ -521,6 +521,78 @@ MemberBlock::createDefaultMethod() {
 	return result ? function : NULL;
 }
 
+//..............................................................................
+
+inline
+void
+Type::prepareSimpleTypeVariable(StdType stdType) {
+	ASSERT(!m_typeVariable);
+	m_typeVariable = m_module->m_variableMgr.createRtlItemVariable(
+		stdType,
+		"jnc.g_type_" + getSignature(),
+		this
+	);
+}
+
+//..............................................................................
+
+inline
+Variable*
+Variable::getDeclVariable() {
+	if (!m_declVariable)
+		m_declVariable = m_module->m_variableMgr.createRtlItemVariable(
+			StdType_Variable,
+			"jnc.g_variable_" + getQualifiedName(),
+			this
+		);
+
+	return m_declVariable;
+}
+
+//..............................................................................
+
+inline
+Variable*
+Function::getDeclVariable() {
+	if (!m_declVariable)
+		m_declVariable = m_module->m_variableMgr.createRtlItemVariable(
+			StdType_Function,
+			"jnc.g_function_" + getQualifiedName(),
+			this
+		);
+
+	return m_declVariable;
+}
+
+//..............................................................................
+
+inline
+Variable*
+Property::getDeclVariable() {
+	if (!m_declVariable)
+		m_declVariable = m_module->m_variableMgr.createRtlItemVariable(
+			StdType_Property,
+			"jnc.g_property_" + getQualifiedName(),
+			this
+		);
+
+	return m_declVariable;
+}
+
+//..............................................................................
+
+inline
+Variable*
+EnumConst::getDeclVariable() {
+	if (!m_declVariable)
+		m_declVariable = m_module->m_variableMgr.createRtlItemVariable(
+			StdType_EnumConst,
+			"jnc.g_enum_" + getQualifiedName(),
+			this
+		);
+
+	return m_declVariable;
+}
 
 //..............................................................................
 

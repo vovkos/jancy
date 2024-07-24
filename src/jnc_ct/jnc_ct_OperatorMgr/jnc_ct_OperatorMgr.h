@@ -653,6 +653,19 @@ public:
 		return typeofOperator(OperatorDynamism_Static, *value, value);
 	}
 
+	// declof
+
+	bool
+	declofOperator(
+		const Value& opValue,
+		Value* resultValue = NULL
+	);
+
+	bool
+	declofOperator(Value* value) {
+		return declofOperator(*value, value);
+	}
+
 	// offsetof
 
 	bool
