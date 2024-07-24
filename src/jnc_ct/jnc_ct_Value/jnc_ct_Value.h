@@ -184,6 +184,11 @@ public:
 		return m_type;
 	}
 
+	ModuleItem*
+	getModuleItem() const {
+		return m_item;
+	}
+
 	Namespace*
 	getNamespace() const {
 		ASSERT(m_valueKind == ValueKind_Namespace);

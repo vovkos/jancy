@@ -235,6 +235,7 @@ Value::setVariable(Variable* variable) {
 		);
 
 		setType(resultType);
+		m_item = variable;
 		return;
 	}
 
@@ -263,6 +264,7 @@ Value::trySetFunction(Function* function) {
 
 	if (!function->getModule()->hasCodeGen()) {
 		setType(resultType);
+		m_item = function;
 		return true;
 	}
 
@@ -289,12 +291,18 @@ Value::trySetEnumConst(EnumConst* enumConst) {
 
 	uint64_t enumValue = enumConst->getValue();
 
-	return createConst(
+	bool result = createConst(
 		&enumValue,
 		(enumType->getFlags() & ModuleItemFlag_LayoutReady) ?
 			enumType :
 			enumType->getBaseType()
 		);
+
+	if (!result)
+		return false;
+
+	m_item = enumConst;
+	return true;
 }
 
 bool
