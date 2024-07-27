@@ -56,6 +56,9 @@ public:
 	) {
 		return (ClassPtrType*)rtl::getType(m_item->getClassPtrType(typeKind, ptrTypeKind, flags));
 	}
+
+	IfaceHdr*
+	createObject();
 };
 
 //..............................................................................

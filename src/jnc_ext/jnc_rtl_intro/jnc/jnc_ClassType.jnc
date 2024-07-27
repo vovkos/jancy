@@ -58,6 +58,8 @@ opaque class ClassType: DerivableType {
 		ClassPtrTypeKind ptrTypeKind = ClassPtrTypeKind.Normal,
 		PtrTypeFlags flags = 0
 	)  const;
+
+	class* errorcode createObject() const;
 }
 
 //..............................................................................

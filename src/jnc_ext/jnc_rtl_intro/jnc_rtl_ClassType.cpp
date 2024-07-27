@@ -11,7 +11,10 @@
 
 #include "pch.h"
 #include "jnc_rtl_ClassType.h"
+#include "jnc_rt_Runtime.h"
+#include "jnc_ct_FunctionOverload.h"
 #include "jnc_Construct.h"
+#include "jnc_CallSite.h"
 
 namespace jnc {
 namespace rtl {
@@ -33,6 +36,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(ClassType)
 	JNC_MAP_CONST_PROPERTY("m_ifaceStructType", &ClassType::getIfaceStructType)
 	JNC_MAP_CONST_PROPERTY("m_classStructType", &ClassType::getClassStructType)
 	JNC_MAP_FUNCTION("getClassPtrType", &ClassType::getClassPtrType)
+	JNC_MAP_FUNCTION("createObject", &ClassType::createObject)
 JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -51,6 +55,45 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(ClassPtrType)
 	JNC_MAP_CONST_PROPERTY("m_ptrTypeKind", &ClassPtrType::getPtrTypeKind)
 	JNC_MAP_CONST_PROPERTY("m_targetType", &ClassPtrType::getTargetType)
 JNC_END_TYPE_FUNCTION_MAP()
+
+//..............................................................................
+
+IfaceHdr*
+ClassType::createObject() {
+	if (m_item->getFlags() & (ClassTypeFlag_HasAbstractMethods | ClassTypeFlag_OpaqueNonCreatable)) {
+		err::setFormatStringError("cannot instantiate '%s'", m_item->getTypeString().sz());
+		return false;
+	}
+
+	IfaceHdr* p = jnc::rt::getCurrentThreadRuntime()->getGcHeap()->allocateClass(m_item);
+	OverloadableFunction constructor = m_item->getConstructor();
+	if (!constructor)
+		return p;
+
+	ct::Function* simpleConstructor = NULL;
+	if (constructor->getItemKind() == jnc_ModuleItemKind_Function) {
+		if (constructor.getFunction()->getType()->getShortType()->getArgArray().isEmpty())
+			simpleConstructor = constructor.getFunction();
+	} else {
+		ct::FunctionOverload* overloadedConstructor = constructor.getFunctionOverload();
+		size_t count = overloadedConstructor->getOverloadCount();
+		for (size_t i = 0; i < count; i++) {
+			ct::Function* overload = overloadedConstructor->getOverload(i);
+			if (overload->getType()->getShortType()->getArgArray().isEmpty()) {
+				simpleConstructor = overload;
+				break;
+			}
+		}
+	}
+
+	if (!simpleConstructor) {
+		err::setError("cannot dynamically instantiate classes with non-trivial constructors");
+		return NULL;
+	}
+
+	callVoidFunction(simpleConstructor, p);
+	return p;
+}
 
 //..............................................................................
 
