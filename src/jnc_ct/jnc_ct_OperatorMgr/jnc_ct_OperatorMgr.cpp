@@ -994,6 +994,15 @@ OperatorMgr::typeofOperator(
 		return false;
 	}
 
+	if (opValue.getValueKind() == ValueKind_Type && type->getTypeKind() == TypeKind_Class) {
+		ClassType* classType = (ClassType*)type;
+		if (!(type->getFlags() & (ClassTypeFlag_HasAbstractMethods | ClassTypeFlag_OpaqueNonCreatable))) {
+			result = classType->require();
+			if (!result)
+				return false;
+		}
+	}
+
 	resultValue->setVariable(type->getTypeVariable());
 	return prepareOperand(resultValue); // turn it into a class pointer
 }
