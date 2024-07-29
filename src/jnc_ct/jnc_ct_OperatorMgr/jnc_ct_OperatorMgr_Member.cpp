@@ -289,7 +289,7 @@ OperatorMgr::getNamespaceMember(
 
 	case ModuleItemKind_Type:
 		if (!(((Type*)item)->getTypeKindFlags() & TypeKindFlag_Named)) {
-			err::setFormatStringError("'%s' cannot be used as expression", ((Type*) item)->getTypeString().sz());
+			err::setFormatStringError("'%s' cannot be used as expression", ((Type*)item)->getTypeString().sz());
 			return false;
 		}
 

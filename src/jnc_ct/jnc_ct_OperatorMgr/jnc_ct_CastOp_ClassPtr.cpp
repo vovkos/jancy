@@ -110,7 +110,7 @@ Cast_ClassPtr::constCast(
 	if (!result)
 		return false;
 
-	*(void**) dst = (char*)srcIface + coord.m_offset;
+	*(void**)dst = (char*)srcIface + coord.m_offset;
 	return true;
 }
 

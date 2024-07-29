@@ -285,8 +285,8 @@ Cast_Fp::getCastOperator(
 	case TypeKind_Double:
 		return
 			srcSize == dstSize ? m_module->m_operatorMgr.getStdCastOperator(StdCast_Copy) :
-			srcSize > dstSize ? (CastOperator*) &m_trunc :
-			(CastOperator*) &m_ext;
+			srcSize > dstSize ? (CastOperator*)&m_trunc :
+			(CastOperator*)&m_ext;
 
 	case TypeKind_Enum:
 		return &m_fromEnum;

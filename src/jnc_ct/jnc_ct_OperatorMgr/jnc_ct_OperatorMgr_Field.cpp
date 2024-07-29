@@ -207,7 +207,7 @@ OperatorMgr::getStructField(
 				);
 			} else {
 				ASSERT(ptrTypeKind == DataPtrTypeKind_Thin);
-				char* p = *(char**) opValue.getConstData();
+				char* p = *(char**)opValue.getConstData();
 				p += field->getOffset();
 				resultValue->createConst(
 					&p,

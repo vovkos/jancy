@@ -73,7 +73,7 @@ Cast_DataPtr_FromArray::constCast(
 		if (((DataPtrType*)type)->getPtrTypeKind() == DataPtrTypeKind_Normal)
 			*(DataPtr*)dst = *(DataPtr*)p;
 		else // thin or lean
-			*(void**) dst = *(void**) p;
+			*(void**)dst = *(void**)p;
 
 		return true;
 	}
@@ -100,7 +100,7 @@ Cast_DataPtr_FromArray::constCast(
 		ptr->m_p = (void*)p;
 		ptr->m_validator = m_module->m_constMgr.createConstDataPtrValidator(p, srcType);
 	} else { // thin or lean
-		*(const void**) dst = p;
+		*(const void**)dst = p;
 	}
 
 	return true;
@@ -654,7 +654,7 @@ Cast_DataPtr_Normal2Thin::constCast(
 	if (offset == -1)
 		return false;
 
-	*(char**) dst = *(char**) opValue.getConstData() + offset;
+	*(char**)dst = *(char**)opValue.getConstData() + offset;
 	return true;
 }
 
@@ -701,7 +701,7 @@ Cast_DataPtr_Thin2Thin::constCast(
 	if (offset == -1)
 		return false;
 
-	*(char**) dst = *(char**) opValue.getConstData() + offset;
+	*(char**)dst = *(char**)opValue.getConstData() + offset;
 	return true;
 }
 

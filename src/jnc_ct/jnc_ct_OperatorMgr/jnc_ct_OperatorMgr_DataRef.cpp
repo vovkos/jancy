@@ -98,7 +98,7 @@ OperatorMgr::loadDataRef(
 
 		DataPtrTypeKind ptrTypeKind = type->getPtrTypeKind();
 		if (ptrTypeKind != DataPtrTypeKind_Normal) {
-			p = *(void**) opValue.getConstData();
+			p = *(void**)opValue.getConstData();
 		} else {
 			DataPtr* ptr = (DataPtr*)opValue.getConstData();
 			result = rtl::tryCheckDataPtrRangeIndirect(ptr->m_p, targetType->getSize(), ptr->m_validator);
@@ -207,7 +207,7 @@ OperatorMgr::storeDataRef(
 
 		DataPtrTypeKind ptrTypeKind = dstType->getPtrTypeKind();
 		if (ptrTypeKind != DataPtrTypeKind_Normal) {
-			p = *(void**) dstValue.getConstData();
+			p = *(void**)dstValue.getConstData();
 		} else {
 			DataPtr* ptr = (DataPtr*)dstValue.getConstData();
 			result = rtl::tryCheckDataPtrRangeIndirect(ptr->m_p, targetType->getSize(), ptr->m_validator);
