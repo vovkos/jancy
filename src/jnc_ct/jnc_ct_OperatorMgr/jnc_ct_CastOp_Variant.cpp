@@ -114,7 +114,6 @@ Cast_FromVariant::constCast(
 	ASSERT(opValue.getType()->getTypeKind() == TypeKind_Variant);
 	Variant* variant = (Variant*)opValue.getConstData();
 
-	Value tmpValue;
 	if (!variant->m_type) {
 		memset(dst, 0, type->getSize());
 		return true;
@@ -125,6 +124,31 @@ Cast_FromVariant::constCast(
 		return false;
 	}
 
+	// special case: jnc.Function -> FunctionPtrType (thin)
+
+	FunctionType* functionType;
+	if ((variant->m_type->getTypeKindFlags() & TypeKindFlag_ClassPtr) &&
+		(type->getTypeKindFlags() & TypeKindFlag_FunctionPtr) &&
+		(((ClassPtrType*)variant->m_type)->getTargetType()->getStdType() == StdType_Function) &&
+		((FunctionPtrType*)type)->getPtrTypeKind() == FunctionPtrTypeKind_Thin
+	) {
+		struct RtlFunction: jnc::IfaceHdr {
+			Function* m_function;
+		};
+
+		RtlFunction* function = (RtlFunction*)variant->m_p;
+		FunctionType* functionType1 = function->m_function->getType();
+		FunctionType* functionType2 = ((FunctionPtrType*)type)->getTargetType();
+		if (functionType1->cmp(functionType2) != 0) { // not an exact match, bail
+			setCastError(function->m_function, type);
+			return false;
+		}
+
+		*(void**)dst = function->m_function->getMachineCode();
+		return true;
+	}
+
+	Value tmpValue;
 	tmpValue.createConst(variant, variant->m_type);
 
 	bool result = m_module->m_operatorMgr.castOperator(&tmpValue, type);
