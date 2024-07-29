@@ -760,7 +760,7 @@ VariableMgr::createRtlItemVariable(
 	bool result = allocateVariable(variable);
 	ASSERT(result);
 
-	if (!(m_module->getCompileFlags() & ModuleCompileFlag_DisableCodeGen)) {
+	if (!(m_module->getCompileFlags() & (ModuleCompileFlag_DisableCodeGen | ModuleCompileFlag_IgnoreOpaqueClassTypeInfo))) {
 		struct RtlModuleItem:
 			jnc::Box,
 			jnc::IfaceHdr {
