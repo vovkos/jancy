@@ -62,7 +62,7 @@ IfaceHdr*
 ClassType::createObject() {
 	if (m_item->getFlags() & (ClassTypeFlag_HasAbstractMethods | ClassTypeFlag_OpaqueNonCreatable)) {
 		err::setFormatStringError("cannot instantiate '%s'", m_item->getTypeString().sz());
-		return false;
+		return NULL;
 	}
 
 	IfaceHdr* p = jnc::rt::getCurrentThreadRuntime()->getGcHeap()->allocateClass(m_item);
