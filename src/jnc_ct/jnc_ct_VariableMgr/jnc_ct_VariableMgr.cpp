@@ -760,19 +760,6 @@ VariableMgr::createRtlItemVariable(
 	bool result = allocateVariable(variable);
 	ASSERT(result);
 
-	if (!(m_module->getCompileFlags() & (ModuleCompileFlag_DisableCodeGen | ModuleCompileFlag_IgnoreOpaqueClassTypeInfo))) {
-		struct RtlModuleItem:
-			jnc::Box,
-			jnc::IfaceHdr {
-			jnc::ModuleItem* m_item;
-		};
-
-		ASSERT(variable->getType()->getSize() >= sizeof(RtlModuleItem)); // otherwise, invalid opaque info
-		RtlModuleItem* rtlItem = (RtlModuleItem*)variable->getStaticData();
-		ASSERT(rtlItem);
-		rtlItem->m_item = item; // so that we can use type attribute values at compile-time
-	}
-
 	return variable;
 }
 

@@ -21,7 +21,7 @@ namespace ct {
 class McJit: public ExecutionEngineJit {
 public:
 	McJit(Module* module):
-		ExecutionEngineJit (module) {
+		ExecutionEngineJit(module) {
 	}
 
 	virtual
