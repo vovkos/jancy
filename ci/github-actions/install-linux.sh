@@ -17,6 +17,7 @@ if [[ $TARGET_CPU != "x86" ]]; then
 	sudo apt-get install -y liblua5.2-dev
 	sudo apt-get install -y libpcap-dev
 	sudo apt-get install -y libudev-dev
+	sudo apt-get install -y libusb-1.0
 	sudo apt-get install -y ${LLVM_VERSION}-dev
 	sudo apt-get install -y libz-dev
 else
@@ -30,6 +31,7 @@ else
 	sudo apt-get install -y liblua5.2-dev:i386
 	sudo apt-get install -y libpcap-dev:i386
 	sudo apt-get install -y libudev-dev:i386
+	sudo apt-get install -y libusb-1.0:i386
 	sudo apt-get install -y python3:i386
 	sudo apt-get install -y ${LLVM_VERSION}-dev:i386
 	sudo apt-get install -y zlib1g-dev:i386
@@ -45,6 +47,7 @@ else
 	echo "set (OPENSSL_LIB_DIR /usr/lib/i386-linux-gnu)" >> paths.cmake
 	echo "set (LUA_LIB_DIR /usr/lib/i386-linux-gnu)" >> paths.cmake
 	echo "set (PCAP_LIB_DIR /usr/lib/i386-linux-gnu)" >> paths.cmake
+	echo "set (LIBUSB_LIB_DIR /usr/lib/i386-linux-gnu)" >> paths.cmake
 	echo "set (ZLIB_ROOT /usr/lib/i386-linux-gnu)" >> paths.cmake
 	echo "set (EXPAT_INC_DIR DISABLED)" >> paths.cmake
 fi

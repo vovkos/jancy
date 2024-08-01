@@ -110,6 +110,8 @@ set LLVM_DOWNLOAD_URL=https://github.com/vovkos/llvm-package-windows/releases/do
 set LUA_VERSION=5.4.5
 set LUA_DOWNLOAD_URL=https://github.com/walterschell/Lua/archive/refs/tags/v%LUA_VERSION%.zip
 
+set OPENSSL_VERSION=1.1.1.2100
+
 set RAGEL_DOWNLOAD_URL=https://github.com/eloraiby/ragel-windows/raw/master/ragel.exe
 
 set CMAKE_CONFIGURE_FLAGS=-G "%CMAKE_GENERATOR%" %CMAKE_OPTIONS%
@@ -124,7 +126,7 @@ set CMAKE_BUILD_FLAGS= ^
 echo ---------------------------------------------------------------------------
 echo LLVM_VERSION:       %LLVM_VERSION%
 echo LLVM_DOWNLOAD_URL:  %LLVM_DOWNLOAD_URL%
-echo LUA_LIB_NAME:       %LUA_LIB_NAME%
 echo LUA_DOWNLOAD_URL:   %LUA_DOWNLOAD_URL%
+echo OPENSSL_VERSION:    %OPENSSL_VERSION%
 echo RAGEL_DOWNLOAD_URL: %RAGEL_DOWNLOAD_URL%
 echo ---------------------------------------------------------------------------

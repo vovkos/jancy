@@ -11,6 +11,8 @@
 
 brew install coreutils
 brew install lua
+brew install libusb
+brew install hidapi
 brew install ragel
 brew install p7zip
 brew install ${LLVM_VERSION}
