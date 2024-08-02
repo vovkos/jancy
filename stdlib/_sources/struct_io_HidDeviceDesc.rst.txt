@@ -1,0 +1,33 @@
+.. include:: def.rst
+.. index:: pair: struct; io.HidDeviceDesc
+.. _doxid-type_io_hiddevicedesc:
+
+struct io.HidDeviceDesc
+=======================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct HidDeviceDesc {
+		// fields
+	
+		io.HidDeviceDesc const* :target:`m_next<doxid-field_io_hiddevicedesc_m_next>`;
+		:ref:`string_t<doxid-typedef_string_t>` :target:`m_path<doxid-field_io_hiddevicedesc_m_path>`;
+		:ref:`string_t<doxid-typedef_string_t>` :target:`m_manufacturer<doxid-field_io_hiddevicedesc_m_manufacturer>`;
+		:ref:`string_t<doxid-typedef_string_t>` :target:`m_product<doxid-field_io_hiddevicedesc_m_product>`;
+		:ref:`string_t<doxid-typedef_string_t>` :target:`m_serialNumber<doxid-field_io_hiddevicedesc_m_serialnumber>`;
+		:ref:`uint16_t<doxid-typedef_uint16_t>` :target:`m_vendorId<doxid-field_io_hiddevicedesc_m_vendorid>`;
+		:ref:`uint16_t<doxid-typedef_uint16_t>` :target:`m_productId<doxid-field_io_hiddevicedesc_m_productid>`;
+		:ref:`uint16_t<doxid-typedef_uint16_t>` :target:`m_usagePage<doxid-field_io_hiddevicedesc_m_usagepage>`;
+		:ref:`uint16_t<doxid-typedef_uint16_t>` :target:`m_usage<doxid-field_io_hiddevicedesc_m_usage>`;
+		:ref:`uint16_t<doxid-typedef_uint16_t>` :target:`m_releaseNumber<doxid-field_io_hiddevicedesc_m_releasenumber>`;
+		:ref:`uint8_t<doxid-typedef_uint8_t>` :target:`m_interfaceId<doxid-field_io_hiddevicedesc_m_interfaceid>`;
+		:ref:`io.HidBusType<doxid-type_io_hidbustype>` :target:`m_busType<doxid-field_io_hiddevicedesc_m_bustype>`;
+	};

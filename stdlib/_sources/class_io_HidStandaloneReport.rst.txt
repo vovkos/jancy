@@ -1,0 +1,55 @@
+.. include:: def.rst
+.. index:: pair: class; io.HidStandaloneReport
+.. _doxid-type_io_hidstandalonereport:
+
+class io.HidStandaloneReport
+============================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class HidStandaloneReport: :ref:`io.HidReport<doxid-type_io_hidreport>` {
+		// construction
+	
+		:target:`construct<doxid-function_io_hidstandalonereport_construct>`();
+		:target:`destruct<doxid-function_io_hidstandalonereport_destruct>`();
+
+		// methods
+	
+		:ref:`size_t<doxid-typedef_size_t>` errorcode :target:`loadDecodeInfo<doxid-function_io_hidstandalonereport_loaddecodeinfo>`(
+			:ref:`io.HidDb<doxid-type_io_hiddb>` const* db,
+			void const* p,
+			:ref:`size_t<doxid-typedef_size_t>` size
+		);
+	};
+
+Inherited Members
+-----------------
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-inherited-code-block
+
+	public:
+		// fields
+	
+		:ref:`io.HidReportType<doxid-type_io_hidreporttype>` const :ref:`m_reportType<doxid-field_io_hidreport_m_reporttype>`;
+		:ref:`uint_t<doxid-typedef_uint_t>` const :ref:`m_reportId<doxid-field_io_hidreport_m_reportid>`;
+		:ref:`size_t<doxid-typedef_size_t>` const :ref:`m_bitCount<doxid-field_io_hidreport_m_bitcount>`;
+		:ref:`size_t<doxid-typedef_size_t>` const :ref:`m_size<doxid-field_io_hidreport_m_size>`;
+		:ref:`size_t<doxid-typedef_size_t>` const :ref:`m_fieldCount<doxid-field_io_hidreport_m_fieldcount>`;
+
+		// properties
+	
+		:ref:`io.HidReportField<doxid-type_io_hidreportfield>` const* const indexed property :ref:`m_fieldArray<doxid-property_io_hidreport_m_fieldarray>`(:ref:`size_t<doxid-typedef_size_t>` i);
+
+		// methods
+	
+		:ref:`size_t<doxid-typedef_size_t>` errorcode :ref:`saveDecodeInfo<doxid-function_io_hidreport_savedecodeinfo>`(:ref:`std.Buffer<doxid-type_std_buffer>`* buffer) const;
+

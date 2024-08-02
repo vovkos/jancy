@@ -1,0 +1,45 @@
+.. include:: def.rst
+.. index:: pair: struct; io.win.DeviceMonitorCreateNamedPipeNotifyParams
+.. _doxid-type_io_win_devicemonitorcreatenamedpipenotifyparams:
+
+struct io.win.DeviceMonitorCreateNamedPipeNotifyParams
+======================================================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct DeviceMonitorCreateNamedPipeNotifyParams: :ref:`io.win.DeviceMonitorCreateNotifyParams<doxid-type_io_win_devicemonitorcreatenotifyparams>` {
+		// fields
+	
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`m_pipeType<doxid-field_io_win_devicemonitorcreatenamedpipenotifyparams_m_pipetype>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`m_readMode<doxid-field_io_win_devicemonitorcreatenamedpipenotifyparams_m_readmode>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`m_completionMode<doxid-field_io_win_devicemonitorcreatenamedpipenotifyparams_m_completionmode>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`m_maxInstanceCount<doxid-field_io_win_devicemonitorcreatenamedpipenotifyparams_m_maxinstancecount>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`m_inBoundQuota<doxid-field_io_win_devicemonitorcreatenamedpipenotifyparams_m_inboundquota>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`m_outBoundQuota<doxid-field_io_win_devicemonitorcreatenamedpipenotifyparams_m_outboundquota>`;
+		:ref:`uint64_t<doxid-typedef_uint64_t>` :target:`m_defaultTimeout<doxid-field_io_win_devicemonitorcreatenamedpipenotifyparams_m_defaulttimeout>`;
+	};
+
+Inherited Members
+-----------------
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-inherited-code-block
+
+	public:
+		// fields
+	
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :ref:`m_options<doxid-field_io_win_devicemonitorcreatenotifyparams_m_options>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :ref:`m_desiredAccess<doxid-field_io_win_devicemonitorcreatenotifyparams_m_desiredaccess>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :ref:`m_shareAccess<doxid-field_io_win_devicemonitorcreatenotifyparams_m_shareaccess>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :ref:`m_fileAttributes<doxid-field_io_win_devicemonitorcreatenotifyparams_m_fileattributes>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :ref:`m_fileNameLength<doxid-field_io_win_devicemonitorcreatenotifyparams_m_filenamelength>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :ref:`_m_padding<doxid-field_io_win_devicemonitorcreatenotifyparams__m_padding>`;
+

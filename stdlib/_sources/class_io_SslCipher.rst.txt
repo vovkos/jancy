@@ -1,0 +1,28 @@
+.. include:: def.rst
+.. index:: pair: class; io.SslCipher
+.. _doxid-type_io_sslcipher:
+
+class io.SslCipher
+==================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class SslCipher {
+		// properties
+	
+		:ref:`string_t<doxid-typedef_string_t>` const property :target:`m_name<doxid-property_io_sslcipher_m_name>`;
+		:ref:`string_t<doxid-typedef_string_t>` const property :target:`m_description<doxid-property_io_sslcipher_m_description>`;
+		:ref:`size_t<doxid-typedef_size_t>` const property :target:`m_bitCount<doxid-property_io_sslcipher_m_bitcount>`;
+
+		// construction
+	
+		:target:`construct<doxid-function_io_sslcipher_construct>`();
+	};

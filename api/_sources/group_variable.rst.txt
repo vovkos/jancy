@@ -1,0 +1,39 @@
+.. index:: pair: group; Variable
+.. _doxid-group__variable:
+
+Variable
+========
+
+.. toctree::
+	:hidden:
+
+	enum_jnc_VariableFlag.rst
+	struct_jnc_Variable.rst
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Variable.h>
+	
+	// enums
+
+	enum :ref:`jnc_VariableFlag<doxid-group__variable_1ga6a7a1f27429a896fe9874136261a4a83>`;
+
+	// structs
+
+	struct :ref:`jnc_Variable<doxid-structjnc___variable>`;
+
+	// global functions
+
+	uint_t
+	:target:`jnc_Variable_getPtrTypeFlags<doxid-group__variable_1ga968e69f2cea7d11815663ae81a7e1e77>`(:ref:`jnc_Variable<doxid-structjnc___variable>`* variable);
+
+	:ref:`bool_t<doxid-group__base-def_1ga812d16e5494522586b3784e55d479912>`
+	:target:`jnc_Variable_hasInitializer<doxid-group__variable_1gabff79d8e480a3b92be8f96ec622ae9b1>`(:ref:`jnc_Variable<doxid-structjnc___variable>`* variable);
+
+	const char*
+	:target:`jnc_Variable_getInitializerString_v<doxid-group__variable_1ga230f7b49b77a1b49da82dfd6c7c8a953>`(:ref:`jnc_Variable<doxid-structjnc___variable>`* variable);
+

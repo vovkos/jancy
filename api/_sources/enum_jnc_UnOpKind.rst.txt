@@ -1,0 +1,29 @@
+.. index:: pair: enum; jnc_UnOpKind
+.. _doxid-group__operators_1gae611bfb523eb332069f2b7030accb665:
+
+enum jnc_UnOpKind
+=================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_OpKind.h>
+
+	enum jnc_UnOpKind {
+	    :target:`jnc_UnOpKind_Undefined<doxid-group__operators_1ggae611bfb523eb332069f2b7030accb665aa88749dfec83b0c95b0f2024963461df>` = 0,
+	    :target:`jnc_UnOpKind_Plus<doxid-group__operators_1ggae611bfb523eb332069f2b7030accb665a9942bb0c8147c7cf467760f874b6baee>`,
+	    :target:`jnc_UnOpKind_Minus<doxid-group__operators_1ggae611bfb523eb332069f2b7030accb665ac2ecbf98c05dd8c8a37435dbf4421e8f>`,
+	    :target:`jnc_UnOpKind_BwNot<doxid-group__operators_1ggae611bfb523eb332069f2b7030accb665a3635fa0ef0292c9c4b9f9447d09613d0>`,
+	    :target:`jnc_UnOpKind_Indir<doxid-group__operators_1ggae611bfb523eb332069f2b7030accb665a6212c04cf713b4cf24847e39d56bb24c>`,
+	    :target:`jnc_UnOpKind_Addr<doxid-group__operators_1ggae611bfb523eb332069f2b7030accb665adf53bad4e00ea01ef31ff5eb00a1914e>`,
+	    :target:`jnc_UnOpKind_LogNot<doxid-group__operators_1ggae611bfb523eb332069f2b7030accb665a622abfb2180dc9df22b46a34b282e009>`,
+	    :target:`jnc_UnOpKind_Inc<doxid-group__operators_1ggae611bfb523eb332069f2b7030accb665a5905513524e77d28f85e8fad4bc7a351>`,
+	    :target:`jnc_UnOpKind_Dec<doxid-group__operators_1ggae611bfb523eb332069f2b7030accb665a291288ec84cb5f570752f5434e790073>`,
+	    :target:`jnc_UnOpKind_PostInc<doxid-group__operators_1ggae611bfb523eb332069f2b7030accb665ac276ebe566dcc46e872e06fc5ee4ea84>`,
+	    :target:`jnc_UnOpKind_PostDec<doxid-group__operators_1ggae611bfb523eb332069f2b7030accb665a0fd9a0a03f91aca78dd192023c7546d1>`,
+	    :target:`jnc_UnOpKind_Ptr<doxid-group__operators_1ggae611bfb523eb332069f2b7030accb665a52b94226cc4dbab303fab929b53d8055>`,
+	    :target:`jnc_UnOpKind__Count<doxid-group__operators_1ggae611bfb523eb332069f2b7030accb665a380a3f2b61ac2ff8cf29b771d206afed>`,
+	};
+

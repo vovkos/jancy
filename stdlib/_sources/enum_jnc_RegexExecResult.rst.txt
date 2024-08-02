@@ -1,0 +1,22 @@
+.. include:: def.rst
+.. index:: pair: enum; RegexExecResult
+.. _doxid-type_jnc_regexexecresult:
+
+enum jnc.RegexExecResult
+========================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum RegexExecResult {
+	    :target:`ErrorInconsistent<doxid-enum_member_jnc_regexexecresult_errorinconsistent>` = -2,
+	    :target:`ErrorOutOfMemory<doxid-enum_member_jnc_regexexecresult_erroroutofmemory>`  = -1,
+	    :target:`Mismatch<doxid-enum_member_jnc_regexexecresult_mismatch>`          = 0,
+	    :target:`Continue<doxid-enum_member_jnc_regexexecresult_continue>`,
+	    :target:`ContinueBackward<doxid-enum_member_jnc_regexexecresult_continuebackward>`,
+	    :target:`Match<doxid-enum_member_jnc_regexexecresult_match>`,
+	};
+
