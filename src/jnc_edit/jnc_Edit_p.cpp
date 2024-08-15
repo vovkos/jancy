@@ -824,14 +824,18 @@ EditPrivate::applyTheme() {
 		m_highlighTable[HighlightKind_PairBrace].format.clearForeground();
 	}
 
-	if (m_syntaxHighlighter)
+	if (m_syntaxHighlighter) {
 		m_syntaxHighlighter->m_theme = &m_theme;
+		m_syntaxHighlighter->rehighlight();
+	}
 
 	if (m_completer)
 		m_completer->popup()->setPalette(m_theme.palette());
 
 	if (m_lineNumberMargin)
 		m_lineNumberMargin->update();
+
+	updateExtraSelections();
 }
 
 void
