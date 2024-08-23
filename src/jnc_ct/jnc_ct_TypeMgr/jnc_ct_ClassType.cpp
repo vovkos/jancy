@@ -629,7 +629,7 @@ ClassType::overrideVirtualFunction(Function* function) {
 	ASSERT(result);
 
 	function->m_thisArgType = thisArgType;
-	function->m_thisArgDelta = overridenFunction->m_thisArgDelta - coord.m_offset;
+	function->m_thisArgDelta = -coord.m_offset;
 	function->m_virtualOriginClassType = overridenFunction->m_virtualOriginClassType;
 	function->m_classVtableIndex = overridenFunction->m_classVtableIndex;
 

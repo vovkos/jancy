@@ -1,0 +1,198 @@
+// critical bug: incorrect this-arg-offset of multiple-level multiple-inheritance
+
+//..............................................................................
+
+class I0 {
+	construct() {
+		printf("I0.construct(%p)\n", this);
+		assert(this == (I0*)g_c);
+	}
+
+	virtual void foo() {
+		printf("I0.foo(%p)\n", this);
+		assert(this == (I0*)g_c);
+	}
+}
+
+class I1 {
+	construct() {
+		printf("I1.construct(%p)\n", this);
+		assert(this == (I1*)g_c);
+	}
+
+	virtual void bar() {
+		printf("I1.bar(%p)\n", this);
+		assert(this == (I1*)g_c);
+	}
+}
+
+class I2 {
+	construct() {
+		printf("I2.construct(%p)\n", this);
+		assert(this == (I2*)g_c);
+	}
+
+	virtual void baz() {
+		printf("I2.baz(%p)\n", this);
+		assert(this == (I2*)g_c);
+	}
+}
+
+class I3 {
+	construct() {
+		printf("I3.construct(%p)\n", this);
+		assert(this == (I3*)g_c);
+	}
+
+	virtual void qux() {
+		printf("I3.qux(%p)\n", this);
+		assert(this == (I3*)g_c);
+	}
+}
+
+class C0: I0, I1 {
+	construct() {
+		printf("C0.construct(%p)\n", this);
+		assert(this == (C0*)g_c);
+	}
+
+	override void foo() {
+		printf("C0.foo(%p)\n", this);
+		assert(this == (C0*)g_c);
+		basetype.foo();
+	}
+
+	override void bar() {
+		printf("C0.bar(%p)\n", this);
+		assert(this == (C0*)g_c);
+		basetype2.bar();
+	}
+}
+
+class C1: I2, I3 {
+	construct() {
+		printf("C1.construct(%p)\n", this);
+		assert(this == (C1*)g_c);
+	}
+
+	override void baz() {
+		printf("C1.baz(%p)\n", this);
+		assert(this == (C1*)g_c);
+		basetype.baz();
+	}
+
+	override void qux() {
+		printf("C1.qux(%p)\n", this);
+		assert(this == (C1*)g_c);
+		basetype2.qux();
+	}
+}
+
+class C2: C0, C1 {
+	construct() {
+		printf("C2.construct(%p)\n", this);
+		assert(this == g_c);
+	}
+
+	override void foo() {
+		printf("C2.foo(%p)\n", this);
+		assert(this == g_c);
+		basetype.foo();
+	}
+
+	override void bar() {
+		printf("C2.bar(%p)\n", this);
+		assert(this == g_c);
+		basetype.bar();
+	}
+
+	override void baz() {
+		printf("C2.baz(%p)\n", this);
+		assert(this == g_c);
+		basetype2.baz();
+	}
+
+	override void qux() {
+		printf("C2.qux(%p)\n", this);
+		assert(this == g_c);
+		basetype2.qux();
+	}
+}
+
+void foo_I0(I0* p) {
+	printf("foo_I0(%p)\n", p);
+	p.foo();
+}
+
+void bar_I1(I1* p) {
+	printf("bar_I1(%p)\n", p);
+	p.bar();
+}
+
+void baz_I2(I2* p) {
+	printf("baz_I2(%p)\n", p);
+	p.baz();
+}
+
+void qux_I3(I3* p) {
+	printf("qux_I3(%p)\n", p);
+	p.qux();
+}
+
+void foo_C0(C0* p) {
+	printf("foo_C0(%p)\n", p);
+	p.foo();
+}
+
+void bar_C0(C0* p) {
+	printf("bar_C0(%p)\n", p);
+	p.bar();
+}
+
+void baz_C1(C1* p) {
+	printf("baz_C1(%p)\n", p);
+	p.baz();
+}
+
+void qux_C1(C1* p) {
+	printf("qux_C1(%p)\n", p);
+	p.qux();
+}
+
+void foo_C2(C2* p) {
+	printf("foo_C2(%p)\n", p);
+	p.foo();
+}
+
+void bar_C2(C2* p) {
+	printf("bar_C2(%p)\n", p);
+	p.bar();
+}
+
+void baz_C2(C2* p) {
+	printf("baz_C2(%p)\n", p);
+	p.baz();
+}
+
+void qux_C2(C2* p) {
+	printf("qux_C2(%p)\n", p);
+	p.qux();
+}
+
+C2 g_c;
+
+int main() {
+	foo_I0(g_c);
+	bar_I1(g_c);
+	baz_I2(g_c);
+	qux_I3(g_c);
+	foo_C0(g_c);
+	bar_C0(g_c);
+	baz_C1(g_c);
+	qux_C1(g_c);
+	foo_C2(g_c);
+	bar_C2(g_c);
+	baz_C2(g_c);
+	qux_C2(g_c);
+	return 0;
+}
