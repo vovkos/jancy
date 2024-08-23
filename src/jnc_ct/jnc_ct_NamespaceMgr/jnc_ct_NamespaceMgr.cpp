@@ -289,7 +289,6 @@ NamespaceMgr::openNamespace(Namespace* nspace) {
 
 	m_namespaceStack.append(entry);
 	m_currentNamespace = nspace;
-	m_currentScope = NULL;
 	m_currentAccessKind = AccessKind_Public; // always start with 'public'
 }
 
