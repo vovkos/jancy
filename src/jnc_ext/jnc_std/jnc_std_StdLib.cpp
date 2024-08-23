@@ -147,6 +147,26 @@ strtot(
 	return result;
 }
 
+inline
+float
+strtofAdapter(
+	const char* string,
+	char** end,
+	int unusedRadix
+) {
+	return strtof(string, end);
+}
+
+inline
+double
+strtodAdapter(
+	const char* string,
+	char** end,
+	int unusedRadix
+) {
+	return strtod(string, end);
+}
+
 int64_t
 strtol_0(
 	String string,
@@ -181,6 +201,38 @@ strtoul_1(
 	int radix
 ) {
 	return strtot<uint64_t>(::_strtoui64, ptr, endPtr, radix);
+}
+
+float
+strtof_0(
+	String string,
+	DataPtr endPtr
+) {
+	return strtot<float>(strtofAdapter, string, endPtr, 0);
+}
+
+float
+strtof_1(
+	DataPtr ptr,
+	DataPtr endPtr
+) {
+	return strtot<float>(strtofAdapter, ptr, endPtr, 0);
+}
+
+double
+strtod_0(
+	String string,
+	DataPtr endPtr
+) {
+	return strtot<float>(strtodAdapter, string, endPtr, 0);
+}
+
+double
+strtod_1(
+	DataPtr ptr,
+	DataPtr endPtr
+) {
+	return strtot<float>(strtodAdapter, ptr, endPtr, 0);
 }
 
 uint32_t
@@ -784,6 +836,10 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_StdLib)
 	JNC_MAP_OVERLOAD(jnc::std::strtol_1)
 	JNC_MAP_FUNCTION("strtoul",  jnc::std::strtoul_0)
 	JNC_MAP_OVERLOAD(jnc::std::strtoul_1)
+	JNC_MAP_FUNCTION("strtof",   jnc::std::strtof_0)
+	JNC_MAP_OVERLOAD(jnc::std::strtof_1)
+	JNC_MAP_FUNCTION("strtod",  jnc::std::strtod_0)
+	JNC_MAP_OVERLOAD(jnc::std::strtod_1)
 	JNC_MAP_FUNCTION("toupper",  toUpper)
 	JNC_MAP_FUNCTION("tolower",  toLower)
 	JNC_MAP_FUNCTION("gets",     jnc::std::gets)

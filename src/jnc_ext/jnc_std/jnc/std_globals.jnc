@@ -432,6 +432,14 @@ long atol(string_t s) {
 	return strtol(s);
 }
 
+float atof(string_t s) {
+	return strtof(s);
+}
+
+double atod(string_t s) {
+	return strtod(s);
+}
+
 long strtol(
 	string_t s,
 	size_t* length = null,
@@ -451,6 +459,30 @@ ulong_t strtoul(
 );
 
 ulong_t strtoul(
+	char const* p,
+	char const** end = null,
+	int radix = 0
+);
+
+float strtof(
+	string_t s,
+	size_t* length = null,
+	int radix = 0
+);
+
+float strtof(
+	char const* p,
+	char const** end = null,
+	int radix = 0
+);
+
+double strtod(
+	string_t s,
+	size_t* length = null,
+	int radix = 0
+);
+
+double strtod(
 	char const* p,
 	char const** end = null,
 	int radix = 0
