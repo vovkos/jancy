@@ -12,6 +12,7 @@
 #include "pch.h"
 #include "jnc_ct_AttributeBlock.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_ParseContext.h"
 
 namespace jnc {
 namespace ct {
@@ -29,7 +30,7 @@ Attribute::prepareValue() {
 		return true;
 	}
 
-	ParseContext parseContext(m_module, m_parentUnit, m_parentNamespace);
+	ParseContext parseContext(ParseContextKind_Expression, m_module, m_parentUnit, m_parentNamespace);
 	bool result = m_module->m_operatorMgr.parseExpression(&m_initializer, &m_value);
 	if (!result)
 		return false;

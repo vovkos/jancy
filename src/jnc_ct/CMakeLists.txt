@@ -97,6 +97,7 @@ set(
 	include/jnc_ct_OrcJit.h
 	include/jnc_ct_Orphan.h
 	include/jnc_ct_Pch.h
+	include/jnc_ct_ParseContext.h
 	include/jnc_ct_PragmaMgr.h
 	include/jnc_ct_Property.h
 	include/jnc_ct_PropertyPtrType.h
@@ -573,6 +574,7 @@ set(
 	jnc_ct_Parser/jnc_ct_DeclTypeCalc.cpp
 	jnc_ct_Parser/jnc_ct_Lexer.cpp
 	jnc_ct_Parser/jnc_ct_Parser.cpp
+	jnc_ct_Parser/jnc_ct_ParseContext.cpp
 )
 
 set(

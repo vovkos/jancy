@@ -13,6 +13,7 @@
 #include "jnc_ct_OperatorMgr.h"
 #include "jnc_ct_Module.h"
 #include "jnc_ct_ArrayType.h"
+#include "jnc_ct_ParseContext.h"
 #include "jnc_ct_Parser.llk.h"
 
 namespace jnc {
@@ -295,7 +296,7 @@ OperatorMgr::parseFunctionArgDefaultValue(
 	const sl::List<Token>& tokenList,
 	Value* resultValue
 ) {
-	ParseContext parseContext(m_module, decl);
+	ParseContext parseContext(ParseContextKind_Expression, m_module, decl);
 	Parser parser(m_module, decl->getPragmaConfig(), Parser::Mode_Compile);
 
 	m_module->m_namespaceMgr.lockSourcePos();

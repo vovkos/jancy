@@ -23,12 +23,15 @@ class Module;
 class ClassType;
 class ExtensionNamespace;
 class DynamicLibNamespace;
+class Parser;
+class ParseContext;
 
 //..............................................................................
 
 class NamespaceMgr {
 	friend class Module;
 	friend class Parser;
+	friend class ParseContext;
 	friend class FunctionMgr;
 	friend class VariableMgr;
 

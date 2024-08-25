@@ -13,6 +13,7 @@
 #include "jnc_ct_AsyncSequencerFunction.h"
 #include "jnc_ct_AsyncRegionMgr.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_ParseContext.h"
 #include "jnc_ct_Parser.llk.h"
 
 namespace jnc {
@@ -36,7 +37,7 @@ AsyncSequencerFunction::compile() {
 
 	bool result;
 
-	ParseContext parseContext(m_module, this);
+	ParseContext parseContext(ParseContextKind_Body, m_module, this);
 
 	Value promiseValue;
 	m_module->m_functionMgr.internalPrologue(this, &promiseValue, 1, &m_bodyPos);

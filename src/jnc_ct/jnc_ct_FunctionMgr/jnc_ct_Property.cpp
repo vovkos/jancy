@@ -12,6 +12,7 @@
 #include "pch.h"
 #include "jnc_ct_Property.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_ParseContext.h"
 
 namespace jnc {
 namespace ct {
@@ -757,7 +758,7 @@ bool
 Property::compileDefaultStaticConstructor() {
 	ASSERT(m_staticConstructor);
 
-	ParseContext parseContext(m_module, m_parentUnit, this);
+	ParseContext parseContext(ParseContextKind_Body, m_module, m_parentUnit, this);
 	m_module->m_functionMgr.internalPrologue(m_staticConstructor);
 
 	primeStaticVariables();
@@ -772,7 +773,7 @@ bool
 Property::compileDefaultConstructor() {
 	Function* constructor = m_constructor.getFunction();
 
-	ParseContext parseContext(m_module, m_parentUnit, this);
+	ParseContext parseContext(ParseContextKind_Body, m_module, m_parentUnit, this);
 
 	Value thisValue;
 	m_module->m_functionMgr.internalPrologue(constructor, &thisValue, 1);

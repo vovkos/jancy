@@ -12,6 +12,7 @@
 #include "pch.h"
 #include "jnc_ct_GlobalNamespace.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_ParseContext.h"
 #include "jnc_ct_Parser.llk.h"
 
 namespace jnc {
@@ -63,7 +64,7 @@ GlobalNamespace::parseBody() {
 	sl::ConstIterator<Variable> lastVariableIt = m_module->m_variableMgr.getVariableList().getTail();
 	sl::ConstIterator<Property> lastPropertyIt = m_module->m_functionMgr.getPropertyList().getTail();
 
-	ParseContext parseContext(m_module, m_parentUnit, this);
+	ParseContext parseContext(ParseContextKind_Body, m_module, m_parentUnit, this);
 
 	bool result = parseBodyImpl(m_parentUnit, m_pragmaConfig, m_bodyPos, m_body);
 	if (!result)

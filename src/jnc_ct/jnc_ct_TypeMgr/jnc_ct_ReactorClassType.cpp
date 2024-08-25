@@ -12,6 +12,7 @@
 #include "pch.h"
 #include "jnc_ct_ReactorClassType.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_ParseContext.h"
 #include "jnc_ct_Parser.llk.h"
 
 namespace jnc {
@@ -81,7 +82,7 @@ ReactorClassType::compileReaction(Function* function) {
 	ASSERT(function == m_reactor);
 	ASSERT(!m_body.isEmpty());
 
-	ParseContext parseContext(m_module, m_parentUnit, this);
+	ParseContext parseContext(ParseContextKind_Body, m_module, m_parentUnit, this);
 	Parser parser(m_module, m_pragmaConfig, Parser::Mode_Compile);
 
 	Value argValueArray[2];

@@ -12,6 +12,7 @@
 #include "pch.h"
 #include "jnc_ct_ArrayType.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_ParseContext.h"
 #include "jnc_rt_GcHeap.h"
 
 namespace jnc {
@@ -101,7 +102,7 @@ ArrayType::calcLayout() {
 
 	if (!m_elementCountInitializer.isEmpty()) {
 		ASSERT(m_parentUnit && m_parentNamespace);
-		ParseContext parseContext(m_module, m_parentUnit, m_parentNamespace);
+		ParseContext parseContext(ParseContextKind_Expression, m_module, m_parentUnit, m_parentNamespace);
 		lex::LineCol pos = m_elementCountInitializer.getHead()->m_pos;
 		int64_t value = 0;
 

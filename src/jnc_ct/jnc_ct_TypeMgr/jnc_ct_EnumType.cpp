@@ -12,6 +12,7 @@
 #include "pch.h"
 #include "jnc_ct_EnumType.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_ParseContext.h"
 #include "jnc_ct_Parser.llk.h"
 
 namespace jnc {
@@ -153,7 +154,7 @@ EnumType::prepareSignature() {
 
 bool
 EnumType::parseBody() {
-	ParseContext parseContext(m_module, m_parentUnit, this);
+	ParseContext parseContext(ParseContextKind_Body, m_module, m_parentUnit, this);
 
 	size_t length = m_body.getLength();
 	ASSERT(length >= 2);
@@ -239,7 +240,7 @@ EnumType::calcLayout() {
 
 	// assign values to consts
 
-	ParseContext parseContext(m_module, m_parentUnit, this);
+	ParseContext parseContext(ParseContextKind_Expression, m_module, m_parentUnit, this);
 	EnumConst* baseConst = findBaseEnumConst();
 
 	return (m_flags & EnumTypeFlag_BitFlag) ?

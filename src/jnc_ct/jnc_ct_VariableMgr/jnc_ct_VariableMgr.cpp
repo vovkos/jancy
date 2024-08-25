@@ -11,9 +11,10 @@
 
 #include "pch.h"
 #include "jnc_ct_VariableMgr.h"
-#include "jnc_ct_Parser.llk.h"
 #include "jnc_ct_Module.h"
 #include "jnc_ct_LeanDataPtrValidator.h"
+#include "jnc_ct_ParseContext.h"
+#include "jnc_ct_Parser.llk.h"
 
 namespace jnc {
 namespace ct {
@@ -833,7 +834,7 @@ VariableMgr::initializeGlobalVariables() {
 		Variable* variable = m_globalVariableInitializeArray[i];
 		ASSERT(variable->m_storageKind == StorageKind_Static);
 
-		ParseContext parseContext(m_module, variable);
+		ParseContext parseContext(ParseContextKind_Expression, m_module, variable);
 		bool result = initializeVariable(variable);
 		if (!result)
 			finalResult = false;
