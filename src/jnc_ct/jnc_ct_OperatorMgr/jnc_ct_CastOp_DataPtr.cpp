@@ -397,6 +397,10 @@ Cast_DataPtr_Base::getCastKind(
 	if (srcDataType->cmp(dstDataType) == 0)
 		return implicitCastKind;
 
+	bool result = srcDataType->ensureLayout() && dstDataType->ensureLayout();
+	if (!result)
+		return CastKind_None;
+
 	bool isSrcPod = (srcDataType->getFlags() & TypeFlag_Pod) != 0;
 	bool isDstPod = (dstDataType->getFlags() & TypeFlag_Pod) != 0;
 	bool isDstDerivable = (dstDataType->getTypeKindFlags() & TypeKindFlag_Derivable) != 0;
@@ -444,6 +448,10 @@ Cast_DataPtr_Base::getOffset(
 
 	if (srcDataType->cmp(dstDataType) == 0)
 		return 0;
+
+	bool result = srcDataType->ensureLayout() && dstDataType->ensureLayout();
+	if (!result)
+		return -1;
 
 	bool isSrcPod = (srcDataType->getFlags() & TypeFlag_Pod) != 0;
 	bool isDstPod = (dstDataType->getFlags() & TypeFlag_Pod) != 0;
