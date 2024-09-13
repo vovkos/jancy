@@ -30,6 +30,16 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
+bool
+detectUsbMon() {
+#if (_AXL_OS_LINUX)
+	return sys::lnx::findModule("usbmon");
+#elif (_AXL_OS_WIN)
+#else
+	return false;
+#endif
+}
+
 DataPtr
 createUsbMonDeviceDesc(
 	Runtime* runtime,

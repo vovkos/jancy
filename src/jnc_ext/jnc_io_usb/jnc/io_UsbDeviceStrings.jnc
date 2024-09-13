@@ -9,6 +9,8 @@
 //
 //..............................................................................
 
+import "io_UsbDescriptors.jnc";
+
 namespace io {
 
 //! \addtogroup io-usb

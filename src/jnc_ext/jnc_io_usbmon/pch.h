@@ -27,6 +27,7 @@
 #	include "axl_io_lnx_UsbMon.h"
 #	include "axl_io_lnx_UsbMonTransferParser.h"
 #	include "axl_io_psx_Pipe.h"
+#	include "axl_sys_lnx_ModuleEnumerator.h"
 #else
 #	error This OS is not currently supported
 #endif

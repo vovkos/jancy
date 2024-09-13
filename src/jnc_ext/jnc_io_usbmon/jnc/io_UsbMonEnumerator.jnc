@@ -45,6 +45,8 @@ bitflag enum UsbMonEnumFlags: UsbDeviceStringId {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+bool detectUsbMon();
+
 UsbMonDeviceDesc const* enumerateUsbMonDevices(
 	UsbMonEnumFlags flags,
 	size_t* count = null
