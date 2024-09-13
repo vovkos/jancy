@@ -13,6 +13,11 @@ initializeDevMonLibCapabilities() {
 	g_devMonCapability = jnc::isCapabilityEnabled("org.jancy.io.devmon");
 }
 
+bool
+detectDeviceMonitor() {
+	return dm::Monitor::isLoaded();
+}
+
 //..............................................................................
 
 JNC_DEFINE_LIB_EX(
@@ -33,6 +38,7 @@ JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE()
 
 JNC_BEGIN_LIB_FUNCTION_MAP(DevMonLib)
 	JNC_MAP_TYPE(jnc::io::DeviceMonitor)
+	JNC_MAP_FUNCTION_Q("io.detectDeviceMonitor", detectDeviceMonitor)
 JNC_END_LIB_FUNCTION_MAP()
 
 //..............................................................................

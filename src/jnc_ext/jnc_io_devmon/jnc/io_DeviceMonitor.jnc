@@ -75,6 +75,10 @@ opaque class DeviceMonitor {
 	async DeviceMonitorEvents asyncWait(DeviceMonitorEvents eventMask);
 }
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool detectDeviceMonitor();
+
 //..............................................................................
 
 //! @}
