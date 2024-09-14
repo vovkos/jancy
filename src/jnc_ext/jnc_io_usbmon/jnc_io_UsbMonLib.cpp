@@ -34,7 +34,7 @@ JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE()
 
 JNC_BEGIN_LIB_FUNCTION_MAP(UsbMonLib)
 	JNC_MAP_TYPE(UsbMonitor)
-	JNC_MAP_FUNCTION_Q("io.detectUsbMon", detectUsbMon)
+	JNC_MAP_FUNCTION_Q("io.detectUsbMon", axl::io::detectUsbMon)
 	JNC_MAP_FUNCTION_Q("io.enumerateUsbMonDevices", enumerateUsbMonDevices)
 JNC_END_LIB_FUNCTION_MAP()
 

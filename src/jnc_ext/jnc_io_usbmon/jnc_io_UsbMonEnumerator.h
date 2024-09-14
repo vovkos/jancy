@@ -33,9 +33,6 @@ enumerateUsbMonDevices(
 	DataPtr countPtr
 );
 
-bool
-detectUsbMon();
-
 //..............................................................................
 
 } // namespace io
