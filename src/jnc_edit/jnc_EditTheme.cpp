@@ -66,7 +66,7 @@ void EditTheme::setDefaultDarkTheme() {
 	invalidatePalette();
 }
 
-const QPalette& EditTheme::createPalette() {
+const QPalette& EditTheme::createPalette() const {
 	setPaletteColor(QPalette::Base, m_colorTable[BaseBack]);
 	setPaletteColor(QPalette::Window, m_colorTable[BaseBack]);
 	setPaletteColor(QPalette::Text, m_colorTable[BaseText]);
@@ -84,7 +84,13 @@ const QPalette& EditTheme::createPalette() {
 	return m_palette;
 }
 
-const QPalette& EditTheme::createReadOnlyPalette() {
+const QPalette& EditTheme::createCompleterPalette() const {
+	m_completerPalette = palette();
+	setPaletteColor(&m_completerPalette, QPalette::HighlightedText, m_colorTable[BaseText]);
+	return m_completerPalette;
+}
+
+const QPalette& EditTheme::createReadOnlyPalette() const {
 	m_readOnlyPalette = palette();
 	setPaletteColor(&m_readOnlyPalette, QPalette::Base, m_colorTable[BaseBackDisabled]);
 	setPaletteColor(&m_readOnlyPalette, QPalette::Inactive, QPalette::Base, m_colorTable[BaseBackDisabled]);

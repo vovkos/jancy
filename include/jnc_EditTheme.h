@@ -79,25 +79,31 @@ public:
 		invalidatePalette();
 	}
 
-	const QPalette& palette() {
-		return m_palette.color(QPalette::Base).isValid() ? m_palette : createPalette();
+	const QPalette& palette() const {
+		return isValidPalette(m_palette) ? m_palette : createPalette();
 	}
 
-	const QPalette& readOnlyPalette() {
-		return m_readOnlyPalette.color(QPalette::Base).isValid() ? m_readOnlyPalette : createReadOnlyPalette();
+	const QPalette& completerPalette() const {
+		return isValidPalette(m_completerPalette) ? m_completerPalette : createCompleterPalette();
+	}
+
+	const QPalette& readOnlyPalette() const {
+		return isValidPalette(m_readOnlyPalette) ? m_readOnlyPalette : createReadOnlyPalette();
 	}
 
 	void setDefaultLightTheme();
 	void setDefaultDarkTheme();
 
 protected:
-	void invalidatePalette() {
-		m_palette.setColor(QPalette::Base, QColor::Invalid);
-		m_readOnlyPalette.setColor(QPalette::Base, QColor::Invalid);
+	bool isValidPalette(const QPalette& palette) const {
+		return palette.color(QPalette::Base).isValid();
 	}
 
-	const QPalette& createPalette();
-	const QPalette& createReadOnlyPalette();
+	void invalidatePalette();
+
+	const QPalette& createPalette() const;
+	const QPalette& createCompleterPalette() const;
+	const QPalette& createReadOnlyPalette() const;
 
 	static void setPaletteColor(
 		QPalette* palette,
@@ -118,20 +124,21 @@ protected:
 		QPalette::ColorGroup group,
 		QPalette::ColorRole role,
 		const QColor& color
-	) {
+	) const {
 		setPaletteColor(&m_palette, group, role, color);
 	}
 
 	void setPaletteColor(
 		QPalette::ColorRole role,
 		const QColor& color
-	) {
+	) const {
 		setPaletteColor(&m_palette, QPalette::All, role, color);
 	}
 
 protected:
 	QColor m_colorTable[RoleCount];
 	mutable QPalette m_palette;
+	mutable QPalette m_completerPalette;
 	mutable QPalette m_readOnlyPalette;
 };
 
@@ -148,6 +155,13 @@ EditTheme::EditTheme(Init init) {
 		setDefaultDarkTheme();
 		break;
 	}
+}
+
+inline
+void EditTheme::invalidatePalette() {
+	m_palette.setColor(QPalette::Base, QColor::Invalid);
+	m_completerPalette.setColor(QPalette::Base, QColor::Invalid);
+	m_readOnlyPalette.setColor(QPalette::Base, QColor::Invalid);
 }
 
 inline

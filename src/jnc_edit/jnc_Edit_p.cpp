@@ -830,7 +830,7 @@ EditPrivate::applyTheme() {
 	}
 
 	if (m_completer)
-		m_completer->popup()->setPalette(m_theme.palette());
+		m_completer->popup()->setPalette(m_theme.completerPalette());
 
 	if (m_lineNumberMargin)
 		m_lineNumberMargin->update();
@@ -1101,7 +1101,8 @@ EditPrivate::ensureCompleter() {
 	popup->setRootIsDecorated(false);
 	popup->setSelectionBehavior(QAbstractItemView::SelectRows);
 	popup->setFont(q->font());
-	popup->setPalette(m_theme.palette());
+	popup->setPalette(m_theme.completerPalette());
+
 	popup->setItemDelegateForColumn(Column_Name, itemDelegate);
 	popup->setItemDelegateForColumn(Column_Synopsis, itemDelegate);
 
