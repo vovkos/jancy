@@ -151,6 +151,21 @@ size_t
 jnc_DynamicLayout_getBufferSize(jnc_DynamicLayout* layout);
 
 JNC_EXTERN_C
+size_t
+jnc_DynamicLayout_getSizeLimit(jnc_DynamicLayout* layout);
+
+JNC_EXTERN_C
+void
+jnc_DynamicLayout_setSizeLimit(
+	jnc_DynamicLayout* layout,
+	size_t size
+);
+
+JNC_EXTERN_C
+uint_t
+jnc_DynamicLayout_getMode(jnc_DynamicLayout* layout);
+
+JNC_EXTERN_C
 void
 jnc_DynamicLayout_reset(
 	jnc_DynamicLayout* layout,
@@ -172,6 +187,26 @@ struct jnc_DynamicLayout: jnc_DynamicSectionGroup {
 	size_t
 	getSize() {
 		return jnc_DynamicLayout_getSize(this);
+	}
+
+	size_t
+	getBufferSize() {
+		return jnc_DynamicLayout_getBufferSize(this);
+	}
+
+	size_t
+	getSizeLimit() {
+		return jnc_DynamicLayout_getSizeLimit(this);
+	}
+
+	void
+	setSizeLimit(size_t limit) {
+		return jnc_DynamicLayout_setSizeLimit(this, limit);
+	}
+
+	uint_t
+	getMode() {
+		return jnc_DynamicLayout_getMode(this);
 	}
 
 	void

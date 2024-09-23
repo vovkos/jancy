@@ -312,6 +312,32 @@ DynamicLayout::asyncScanTo(char c) {
 	return m_promise;
 }
 
+inline
+size_t
+getArraySize(
+	ct::Type* type,
+	size_t elementCount
+) {
+	if (elementCount && type->getSize() > (size_t)-1 / elementCount) {
+		err::setError("dynamic array size overflow");
+		return -1;
+	}
+
+	return type->getSize() * elementCount;
+}
+
+inline
+bool
+DynamicLayout::addSize(size_t size) {
+	if (size > m_sizeLimit || m_size > m_sizeLimit - size) {
+		err::setError("dynamic layout size overflow");
+		return false;
+	}
+
+	m_size += size;
+	return true;
+}
+
 size_t
 JNC_CDECL
 DynamicLayout::addStruct(
@@ -320,11 +346,11 @@ DynamicLayout::addStruct(
 ) {
 	size_t offset = m_size;
 	size_t size = type->getSize();
+	if (!addSize(size))
+		return -1;
 
 	if (m_mode & DynamicLayoutMode_Save)
-		addSection(DynamicSectionKind_Struct, m_size, size, NULL, type);
-
-	m_size += size;
+		addSection(DynamicSectionKind_Struct, offset, size, NULL, type);
 
 	if (isAsync && (m_mode & DynamicLayoutMode_Stream) && m_size > m_bufferSize) {
 		prepareForAwait();
@@ -344,14 +370,15 @@ DynamicLayout::addArray(
 	bool isAsync
 ) {
 	size_t offset = m_size;
-	size_t size = type->getSize() * elementCount;
+	size_t size = getArraySize(type, elementCount);
+	if (size == -1 || !addSize(size))
+		return -1;
+
 	if (m_mode & DynamicLayoutMode_Save) {
-		DynamicSection* section = addSection(DynamicSectionKind_Array, m_size, size, decl, type);
+		DynamicSection* section = addSection(DynamicSectionKind_Array, offset, size, decl, type);
 		section->m_elementCount = elementCount;
 		section->m_ptrTypeFlags = ptrTypeFlags;
 	}
-
-	m_size += size;
 
 	if (isAsync && (m_mode & DynamicLayoutMode_Stream) && m_size > m_bufferSize) {
 		prepareForAwait();

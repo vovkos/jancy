@@ -148,6 +148,7 @@ public:
 	DataPtr m_ptr;
 	size_t m_size;
 	size_t m_bufferSize;
+	size_t m_sizeLimit;
 	uint_t m_mode;
 
 protected:
@@ -158,6 +159,10 @@ protected:
 	char m_awaitChar;
 
 public:
+	DynamicLayout() {
+		m_sizeLimit = -1; // the rest is zero-initialized
+	}
+
 	void
 	JNC_CDECL
 	clear() {
@@ -224,6 +229,9 @@ public:
 	closeGroups(size_t count);
 
 protected:
+	bool
+	addSize(size_t size);
+
 	void
 	prepareForAwait();
 

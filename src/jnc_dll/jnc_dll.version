@@ -314,6 +314,8 @@
 		jnc_createDynamicLayout;
 		jnc_DynamicLayout_getSize;
 		jnc_DynamicLayout_getBufferSize;
+		jnc_DynamicLayout_getSizeLimit;
+		jnc_DynamicLayout_setSizeLimit;
 		jnc_DynamicLayout_reset;
 
 	local: *;
