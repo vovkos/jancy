@@ -67,9 +67,8 @@ class Module: public PreModule {
 
 protected:
 	enum AuxCompileFlag {
-		AuxCompileFlag_SkipAccessChecks = 0x80000000,
-		AuxCompileFlag_IntrospectionLib = 0x40000000,
-		AuxCompileFlag_DynamicLayout    = 0x20000000,
+		AuxCompileFlag_IntrospectionLib = 0x80000000,
+		AuxCompileFlag_DynamicLayout    = 0x40000000,
 	};
 
 	enum AsyncFlag {
@@ -104,6 +103,7 @@ protected:
 	uint_t m_compileFlags;
 	ModuleCompileState m_compileState;
 	size_t m_tryCompileLevel;
+	size_t m_disableAccessCheckLevel;
 	size_t m_compileErrorCount;
 	ModuleCompileErrorHandlerFunc* m_compileErrorHandler;
 	void* m_compileErrorHandlerContext;
@@ -161,17 +161,17 @@ public:
 
 	bool
 	hasAccessChecks() {
-		return (m_compileFlags & AuxCompileFlag_SkipAccessChecks) == 0;
+		return m_disableAccessCheckLevel == 0;
 	}
 
 	void
 	disableAccessChecks() {
-		m_compileFlags |= AuxCompileFlag_SkipAccessChecks;
+		m_disableAccessCheckLevel++;
 	}
 
 	void
 	enableAccessChecks() {
-		m_compileFlags &= ~AuxCompileFlag_SkipAccessChecks;
+		m_disableAccessCheckLevel--;
 	}
 
 	const sl::String&

@@ -55,6 +55,7 @@ Module::Module():
 	m_compileState = ModuleCompileState_Idle;
 	m_asyncFlags = 0;
 	m_tryCompileLevel = 0;
+	m_disableAccessCheckLevel = 0;
 	m_compileErrorCount = 0;
 	m_compileErrorCountLimit = DefaultErrorCountLimit;
 	m_compileErrorHandler = NULL;
@@ -140,6 +141,7 @@ Module::clear() {
 	m_compileState = ModuleCompileState_Idle;
 	m_compileErrorCount = 0;
 	m_tryCompileLevel = 0;
+	m_disableAccessCheckLevel = 0;
 }
 
 void
