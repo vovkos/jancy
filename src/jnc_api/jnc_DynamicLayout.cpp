@@ -120,12 +120,14 @@ jnc_DynamicLayout_getBufferSize(jnc_DynamicLayout* layout) {
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 size_t
 jnc_DynamicLayout_getSizeLimit(jnc_DynamicLayout* layout) {
 	return ((jnc::rtl::DynamicLayout*)layout)->m_sizeLimit;
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_DynamicLayout_setSizeLimit(
 	jnc_DynamicLayout* layout,
@@ -135,6 +137,7 @@ jnc_DynamicLayout_setSizeLimit(
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 uint_t
 jnc_DynamicLayout_getMode(jnc_DynamicLayout* layout) {
 	return ((jnc::rtl::DynamicLayout*)layout)->m_mode;
