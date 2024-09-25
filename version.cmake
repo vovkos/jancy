@@ -10,7 +10,7 @@
 #...............................................................................
 
 set(JANCY_VERSION_MAJOR     1)
-set(JANCY_VERSION_MINOR     11)
+set(JANCY_VERSION_MINOR     12)
 set(JANCY_VERSION_REVISION  0)
 set(JANCY_VERSION_TAG)
 
