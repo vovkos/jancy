@@ -478,14 +478,35 @@ class Lexer: public lex::RagelLexer<Lexer, Token> {
 	friend class lex::RagelLexer<Lexer, Token>;
 
 protected:
-	uint_t m_flags;
-	Token* m_fmtLiteralToken;
-	Token* m_mlLiteralToken;
-	Token* m_bodyToken;
-	size_t m_curlyBraceLevel;
-	int m_mlBinLiteralTokenRadix;
+	enum LiteralExKind {
+		LiteralExKind_Undefined = 0,
 
-	sl::Array<intptr_t> m_parenthesesLevelStack;
+		LiteralExKind_Fmt,
+		LiteralExKind_FmtMl,
+		LiteralExKind_Ml,
+		LiteralExKind_MlEsc,
+
+		LiteralExKind__RadixBase,
+		LiteralExKind_MlBinBin = LiteralExKind__RadixBase + 2,
+		LiteralExKind_MlBinOct = LiteralExKind__RadixBase + 8,
+		LiteralExKind_MlBinDec = LiteralExKind__RadixBase + 10,
+		LiteralExKind_MlBinHex = LiteralExKind__RadixBase + 16,
+	};
+
+	struct FmtLiteralStackEntry {
+		LiteralExKind m_literalKind;
+		int m_level;
+		char m_leftBraceChar;
+	};
+
+protected:
+	uint_t m_flags;
+	Token* m_bodyToken;
+	Token* m_literalExToken;
+	LiteralExKind m_literalExKind;
+	size_t m_curlyBraceLevel;
+
+	sl::Array<FmtLiteralStackEntry> m_fmtLiteralStack;
 	sl::StringRef m_filePath;
 	sl::String m_dir;
 
@@ -577,20 +598,24 @@ protected:
 	Token*
 	createConstIntegerToken(int value);
 
-	// multi-line literals
+	// special literals
 
 	Token*
-	preCreateMlLiteralToken(int radix = 0);
+	preCreateLiteralEx(LiteralExKind literalKind);
 
-	Token*
-	createMlLiteralToken();
+	void
+	finalizeMlLiteralToken();
 
-	// formatting literals
+	void
+	finalizeFmtLiteralToken(TokenKind tokenKind) {
+		createFmtLiteralToken(tokenKind);
+		m_literalExKind = LiteralExKind_Undefined;
+	}
 
-	Token*
-	preCreateFmtLiteralToken();
+	void
+	createFmtOpenerToken();
 
-	Token*
+	void
 	createFmtLiteralToken(
 		TokenKind tokenKind,
 		int param = 0
@@ -620,6 +645,15 @@ protected:
 	Token*
 	createDoxyCommentToken(TokenKind tokenKind);
 
+	void
+	onLeftBrace(char leftBraceChar);
+
+	bool
+	onRightBrace(
+		char leftBraceChar,
+		char rightBraceChar
+	);
+
 	bool
 	onLeftCurlyBrace();
 
@@ -627,19 +661,22 @@ protected:
 	onRightCurlyBrace();
 
 	void
-	onLeftParentheses();
+	onLeftParenthesis() {
+		ASSERT(*ts == '(');
+		onLeftBrace('(');
+	}
 
 	bool
-	onRightParentheses();
+	onRightParenthesis() {
+		ASSERT(*ts == ')');
+		return onRightBrace('(', ')');
+	}
 
 	bool
 	onSemicolon();
 
 	void
 	terminateFmtSpecifier();
-
-	void
-	terminateFmtLiteral();
 
 	// implemented in *.rl
 

@@ -48,14 +48,16 @@ bin = [01];
 exp = [eE][+\-]?dec+;
 id  = [_a-zA-Z] [_a-zA-Z0-9]*;
 ws  = [ \t\r]+;
-nl  = '\n' @{ newLine(p + 1); };
 esc = '\\' [^\n];
+nl  = '\n'
+      @{ newLine(p + 1); };
 
-lit_dq_wo_esc = '"' [^"\n\\]* ["\\]?;
 lit_dq_w_esc  = '"' ([^"\n\\] | esc)* ["\\]?;
-lit_sq        = "'" ([^'\n\\] | esc)* ['\\]?;
-raw_lit_dq    = '"' [^"\n]* '"'?;
-raw_lit_sq    = "'" [^'\n]* "'"?;
+lit_sq_w_esc  = "'" ([^'\n\\] | esc)* ['\\]?;
+lit_dq_wo_esc = '"' [^"\n\\]* ["\\]?;
+lit_sq_wo_esc = "'" [^'\n\\]* ['\\]?;
+lit_dq_raw     = '"' [^"\n]* '"'?;
+lit_sq_raw     = "'" [^'\n]* "'"?;
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -67,7 +69,7 @@ body_main := |*
 '{'          { ++m_curlyBraceLevel; };
 '}'          { if (onRightCurlyBrace()) fret; };
 lit_dq_w_esc ;
-lit_sq       ;
+lit_sq_w_esc ;
 '"""'        { fgoto body_lit_ml; };
 
 '//' [^\n]*  ;
@@ -80,23 +82,34 @@ any          ;
 
 body_lit_ml := |*
 
-'"""'     { fgoto body_main; };
-nl        ;
-any       ;
+'"""'        { fgoto body_main; };
+nl           ;
+any          ;
 
 *|;
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
-# multi-line literal machine
+# multi-line literal machines
 #
+
+lit_ml_begin = '"""' (ws? '\r'? nl)?;
+lit_ml_end   = (nl ws?)? '"""';
 
 lit_ml := |*
 
-(nl ws?)? '"""'
-		  { createMlLiteralToken(); fgoto main; };
-nl        ;
-any       ;
+lit_ml_end   { finalizeMlLiteralToken(); fgoto main; };
+esc          { m_literalExKind = LiteralExKind_MlEsc; };
+nl           ;
+any          ;
+
+*|;
+
+lit_ml_raw := |*
+
+lit_ml_end   { finalizeMlLiteralToken(); fgoto main; };
+nl           ;
+any          ;
 
 *|;
 
@@ -105,25 +118,46 @@ any       ;
 # formatting literal machines
 #
 
+lit_fmt_error    = '$!';
+lit_fmt_id       = '$' id;
+lit_fmt_re_group = '$' dec+;
+lit_fmt_index    = '%' dec+;
+lit_fmt_opener   = [$%] [({];
+lit_fmt_spec     = '%' ([\-+ #0] dec*)? ('.' dec+)? ('l' | 'll' | 'z')? [diuxXfeEgGcsp];
+
 lit_fmt := |*
 
-esc       ;
-'$!'      { createFmtLastErrorDescriptionTokens(); };
-'$' id    { createFmtSimpleIdentifierTokens(); };
-'$' dec+  { createFmtReGroupTokens(); };
-'%' dec+  { createFmtIndexTokens(); };
-'%' ([\-+ #0] dec*)? ('.' dec+)? ('l' | 'll' | 'z')? [diuxXfeEgGcsp]
-          { createFmtSimpleSpecifierTokens(); };
-[$%] '('  { createFmtLiteralToken(TokenKind_FmtLiteral, *ts == '%'); m_parenthesesLevelStack.append(1); fcall main; };
-'"' | nl  { createFmtLiteralToken(TokenKind_Literal); fret; };
-any       ;
+'"' | nl         { finalizeFmtLiteralToken(TokenKind_Literal); fret; };
+lit_fmt_error    { createFmtLastErrorDescriptionTokens(); };
+lit_fmt_id       { createFmtSimpleIdentifierTokens(); };
+lit_fmt_re_group { createFmtReGroupTokens(); };
+lit_fmt_index    { createFmtIndexTokens(); };
+lit_fmt_opener   { createFmtOpenerToken(); fcall main; };
+lit_fmt_spec     { createFmtSimpleSpecifierTokens(); };
+esc              ;
+any              ;
 
 *|;
 
-fmt_spec := |*
+lit_fmt_ml := |*
 
-';' [^")\n]* { createFmtSpecifierToken(); fret; };
-any          { ASSERT(false); fret; };
+lit_ml_end       { finalizeFmtLiteralToken(TokenKind_Literal); fret; };
+lit_fmt_error    { createFmtLastErrorDescriptionTokens(); };
+lit_fmt_id       { createFmtSimpleIdentifierTokens(); };
+lit_fmt_re_group { createFmtReGroupTokens(); };
+lit_fmt_index    { createFmtIndexTokens(); };
+lit_fmt_opener   { createFmtOpenerToken(); fcall main; };
+lit_fmt_spec     { createFmtSimpleSpecifierTokens(); };
+esc              ;
+nl               ;
+any              ;
+
+*|;
+
+lit_fmt_expr_spec := |*
+
+';' [^"})\n]*    { createFmtSpecifierToken(); fret; };
+any              { ASSERT(false); fret; };
 
 *|;
 
@@ -335,15 +369,37 @@ main := |*
 
 # literals
 
-[$fF] '"'        { preCreateFmtLiteralToken(); fcall lit_fmt; };
+lit_dq_wo_esc    { createLiteralToken(1, false); };
+lit_sq_wo_esc    { createCharToken(1, false); };
+lit_dq_w_esc     { createLiteralToken(1, true); };
+lit_sq_w_esc     { createCharToken(1, true); };
+[rR] lit_dq_raw  { createLiteralToken(2, false); };
+[rR] lit_sq_raw  { createCharToken(2, false); };
 
-'"""' (ws? '\r'? nl)?
-				 { preCreateMlLiteralToken(); fgoto lit_ml; };
+'0' [xX] lit_dq_raw
+				 { createBinLiteralToken(16); };
+'0' [oO] lit_dq_raw
+				 { createBinLiteralToken(8); };
+'0' [bB] lit_dq_raw
+				 { createBinLiteralToken(2); };
+'0' [nNdD] lit_dq_raw
+				 { createBinLiteralToken(10); };
 
-'0' [xX] '"""'   { preCreateMlLiteralToken(16); fgoto lit_ml; };
-'0' [oO] '"""'   { preCreateMlLiteralToken(8); fgoto lit_ml; };
-'0' [bB] '"""'   { preCreateMlLiteralToken(2); fgoto lit_ml; };
-'0' [nNdD] '"""' { preCreateMlLiteralToken(10); fgoto lit_ml; };
+[$fF] '"'        { preCreateLiteralEx(LiteralExKind_Fmt); fcall lit_fmt; };
+[$fF] lit_ml_begin
+                 { preCreateLiteralEx(LiteralExKind_FmtMl); fcall lit_fmt_ml; };
+
+lit_ml_begin     { preCreateLiteralEx(LiteralExKind_Ml); fgoto lit_ml; };
+[rR] lit_ml_begin
+				 { preCreateLiteralEx(LiteralExKind_Ml); fgoto lit_ml_raw; };
+'0' [xX] lit_ml_begin
+                 { preCreateLiteralEx(LiteralExKind_MlBinHex); fgoto lit_ml_raw; };
+'0' [oO] lit_ml_begin
+                 { preCreateLiteralEx(LiteralExKind_MlBinOct); fgoto lit_ml_raw; };
+'0' [bB] lit_ml_begin
+                 { preCreateLiteralEx(LiteralExKind_MlBinBin); fgoto lit_ml_raw; };
+'0' [nNdD] lit_ml_begin
+                 { preCreateLiteralEx(LiteralExKind_MlBinDec); fgoto lit_ml_raw; };
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -357,26 +413,13 @@ main := |*
 # other tokens
 
 id               { createStringToken(TokenKind_Identifier); };
-lit_sq           { createCharToken(1, true); };
-lit_dq_wo_esc    { createLiteralToken(1, false); };
-lit_dq_w_esc     { createLiteralToken(1, true); };
-[rR] raw_lit_sq  { createCharToken(2, false); };
-[rR] raw_lit_dq  { createLiteralToken(2, false); };
+
 '0' oct+         { createIntegerToken(8); };
 dec+             { createIntegerToken(10); };
 '0' [xX] hex+    { createIntegerToken(16, 2); };
 '0' [oO] oct+    { createIntegerToken(8, 2); };
 '0' [bB] bin+    { createIntegerToken(2, 2); };
 '0' [nNdD] dec+  { createIntegerToken(10, 2); };
-
-'0' [xX] raw_lit_dq
-				 { createBinLiteralToken(16); };
-'0' [oO] raw_lit_dq
-				 { createBinLiteralToken(8); };
-'0' [bB] raw_lit_dq
-				 { createBinLiteralToken(2); };
-'0' [nNdD] raw_lit_dq
-				 { createBinLiteralToken(10); };
 
 (dec+ '.' dec* | '.' dec+) exp? | dec+ exp
 				 { createFpToken(); };
@@ -394,9 +437,10 @@ dec+             { createIntegerToken(10); };
 '/*' (any | nl)* :>> '*/'?
                  ;
 '{'              { if (onLeftCurlyBrace()) fcall body_main; };
-'('              { onLeftParentheses(); };
-')'              { if (!onRightParentheses()) fret; };
-';'              { if (!onSemicolon()) fcall fmt_spec; };
+'}'              { if (onRightCurlyBrace()) fret; };
+'('              { onLeftParenthesis(); };
+')'              { if (onRightParenthesis()) fret; };
+';'              { if (onSemicolon()) fcall lit_fmt_expr_spec; };
 
 ws | nl          ;
 print            { createToken(ts[0]); };

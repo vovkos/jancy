@@ -24,6 +24,7 @@ protected:
 		BlockState_CommentSl,
 		BlockState_CommentMl,
 		BlockState_LitMl,
+		BlockState_LitMlRaw,
 	};
 
 public:

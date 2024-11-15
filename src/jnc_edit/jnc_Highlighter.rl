@@ -29,10 +29,10 @@ ws     = [ \t\r]+;
 nl     = '\n';
 esc    = '\\' [^\n];
 
-lit_dq     = '"' ([^"\n\\] | esc)* ["\\]?;
-lit_sq     = "'" ([^'\n\\] | esc)* ['\\]?;
-raw_lit_dq = '"' [^"\n]* '"'?;
-raw_lit_sq = "'" [^'\n]* "'"?;
+lit_dq  = '"' ([^"\n\\] | esc)* ["\\]?;
+lit_sq  = "'" ([^'\n\\] | esc)* ['\\]?;
+lit_dq_raw = '"' [^"\n]* '"'?;
+lit_sq_raw = "'" [^'\n]* "'"?;
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -174,23 +174,27 @@ main := |*
 id                ;
 
 (
-	lit_dq            |
-	lit_sq            |
-	[rR] raw_lit_sq   |
-	[rR] raw_lit_dq   |
+	lit_dq       |
+	lit_sq       |
+	[rR] lit_sq_raw |
+	[rR] lit_dq_raw |
+	[$fF] lit_dq |
+	'0' [xXoObBnNdD] lit_dq_raw |
+
 	dec+              |
 	'0' oct+          |
 	'0' [xX] hex+     |
 	'0' [oO] oct+     |
 	'0' [bB] bin+     |
 	'0' [nNdD] dec+   |
-	'0' [xXoObBnNdD] raw_lit_dq |
-	(dec+ '.' dec* | '.' dec+)exp? | dec+ exp |
-	[$fF] lit_dq
+	(dec+ '.' dec* | '.' dec+)exp? | dec+ exp
 )                 { highlightLastToken(EditTheme::Constant); };
 
-(('0' [xXoObBnNdD]) | [$fF])? '"""'
+[$fFrR] '"""'
                   { highlightLastToken(EditTheme::Constant); fgoto lit_ml; };
+
+(('0' [xXoObBnNdD]) | [rR])? '"""'
+                  { highlightLastToken(EditTheme::Constant); fgoto lit_ml_raw; };
 
 '$' dec+          { highlightLastToken(EditTheme::Keyword); };
 
@@ -215,10 +219,17 @@ any* :>> '*/'?    { highlightLastToken(EditTheme::Comment); if (isTokenSuffix("*
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
-# multi-line literal machine
+# multi-line literal machines
 #
 
 lit_ml := |*
+
+(esc | any)* :>> '"""'?
+                  { highlightLastToken(EditTheme::Constant); if (isTokenSuffix("\"\"\"", 3)) fgoto main; };
+
+*|;
+
+lit_ml_raw := |*
 
 any* :>> '"""'?   { highlightLastToken(EditTheme::Constant); if (isTokenSuffix("\"\"\"", 3)) fgoto main; };
 
@@ -246,6 +257,10 @@ JancyHighlighter::exec() {
 	case BlockState_LitMl:
 		cs = jancy_lexer_en_lit_ml;
 		break;
+
+	case BlockState_LitMlRaw:
+		cs = jancy_lexer_en_lit_ml_raw;
+		break;
 	}
 
 	setCurrentBlockState(BlockState_Normal);
@@ -259,6 +274,10 @@ JancyHighlighter::exec() {
 
 	case jancy_lexer_en_lit_ml:
 		setCurrentBlockState(BlockState_LitMl);
+		break;
+
+	case jancy_lexer_en_lit_ml_raw:
+		setCurrentBlockState(BlockState_LitMlRaw);
 		break;
 	}
 }
