@@ -209,12 +209,19 @@ enum TokenKind {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum TokenFlag {
+enum TokenCodeAssistFlag {
 	TokenCodeAssistFlag_Left  = 0x10,
 	TokenCodeAssistFlag_Mid   = 0x20,
 	TokenCodeAssistFlag_Right = 0x40,
 	TokenCodeAssistFlag_At    = 0x70,
 	TokenCodeAssistFlag_After = 0x80,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum FmtLiteralTokenFlag {
+	FmtLiteralTokenFlag_Index = 0x01, // otherwise, the value
+	FmtLiteralTokenFlag_Ml    = 0x02, // needs special treatment in parser
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -493,8 +500,13 @@ protected:
 		LiteralExKind_MlBinHex = LiteralExKind__RadixBase + 16,
 	};
 
-	struct FmtLiteralStackEntry {
+	struct LiteralExInfo {
 		LiteralExKind m_literalKind;
+		const char* m_indent;
+		size_t m_indentLength;
+	};
+
+	struct FmtLiteralStackEntry: LiteralExInfo {
 		int m_level;
 		char m_leftBraceChar;
 	};
@@ -503,7 +515,7 @@ protected:
 	uint_t m_flags;
 	Token* m_bodyToken;
 	Token* m_literalExToken;
-	LiteralExKind m_literalExKind;
+	LiteralExInfo m_literalExInfo;
 	size_t m_curlyBraceLevel;
 
 	sl::Array<FmtLiteralStackEntry> m_fmtLiteralStack;
@@ -600,41 +612,60 @@ protected:
 
 	// special literals
 
+	void
+	initializeMlLiteralInfo(size_t minTokenLength);
+
 	Token*
 	preCreateLiteralEx(LiteralExKind literalKind);
+
+	Token*
+	preCreateMlLiteral(
+		LiteralExKind literalKind,
+		size_t minTokenLength
+	);
+
+	void
+	updateMlLiteralIndent();
 
 	void
 	finalizeMlLiteralToken();
 
+	static
+	sl::String
+	unindentMlLiteral(
+		const sl::StringRef& source,
+		size_t indentLength
+	);
+
 	void
-	finalizeFmtLiteralToken(TokenKind tokenKind) {
-		createFmtLiteralToken(tokenKind);
-		m_literalExKind = LiteralExKind_Undefined;
+	finalizeFmtLiteralToken(uint_t flags = 0) {
+		createFmtLiteralToken(TokenKind_Literal, flags);
+		m_literalExInfo.m_literalKind = LiteralExKind_Undefined;
 	}
 
 	void
-	createFmtOpenerToken();
+	createFmtOpenerToken(uint_t flags = 0);
 
 	void
 	createFmtLiteralToken(
 		TokenKind tokenKind,
-		int param = 0
+		uint_t flags = 0
 	);
 
 	void
-	createFmtSimpleIdentifierTokens();
+	createFmtSimpleIdentifierTokens(uint_t flags = 0);
 
 	void
-	createFmtReGroupTokens();
+	createFmtReGroupTokens(uint_t flags = 0);
 
 	void
-	createFmtLastErrorDescriptionTokens();
+	createFmtLastErrorDescriptionTokens(uint_t flags = 0);
 
 	void
-	createFmtIndexTokens();
+	createFmtIndexTokens(uint_t flags = 0);
 
 	void
-	createFmtSimpleSpecifierTokens();
+	createFmtSimpleSpecifierTokens(uint_t flags = 0);
 
 	Token*
 	createFmtSpecifierToken();

@@ -124,7 +124,9 @@ Lexer::Lexer(uint_t flags) {
 	m_flags = flags;
 	m_bodyToken = NULL;
 	m_literalExToken = NULL;
-	m_literalExKind = LiteralExKind_Undefined;
+	m_literalExInfo.m_literalKind = LiteralExKind_Undefined;
+	m_literalExInfo.m_indent = NULL;
+	m_literalExInfo.m_indentLength = 0;
 	m_curlyBraceLevel = 0;
 }
 
@@ -272,115 +274,112 @@ Lexer::createConstIntegerToken(int value) {
 
 Token*
 Lexer::preCreateLiteralEx(LiteralExKind literalKind) {
-	ASSERT(!m_literalExToken && !m_literalExKind);
+	ASSERT(!m_literalExToken && !m_literalExInfo.m_literalKind);
 	m_literalExToken = preCreateToken(0);
-	m_literalExKind = literalKind;
+	m_literalExInfo.m_literalKind = literalKind;
 	return m_literalExToken;
+}
+
+Token*
+Lexer::preCreateMlLiteral(
+	LiteralExKind literalKind,
+	size_t minTokenLength
+) {
+	ASSERT(!m_literalExToken && !m_literalExInfo.m_literalKind);
+	Token* token = preCreateLiteralEx(literalKind);
+	if (token->m_pos.m_length > minTokenLength) {
+		m_literalExInfo.m_indentLength = te - m_literalExInfo.m_indent;
+		token->m_pos.m_length -= m_literalExInfo.m_indentLength; // indent goes to the literal
+	} else
+		m_literalExInfo.m_indentLength = 0;
+
+	return token;
 }
 
 // multi-line literals
 
-size_t
-getIndentLength(const sl::StringRef& string) {
-	const char* p = string.cp();
-	const char* end = string.getEnd();
-	const char* p0 = p;
-
-	for (; p < end; p++) {
-		char c = *p;
-		if (c != ' ' && c != '\t' && c != '\r')
-			break;
-	}
-
-	return p - p0;
-}
-
-bool
-unindent(
-	sl::String* string,
+sl::String
+Lexer::unindentMlLiteral(
 	const sl::StringRef& source,
-	const sl::StringRef& indent
+	size_t indentLength
 ) {
-	size_t indentLength = indent.getLength();
-	ASSERT(source.getLength() >= indentLength);
+	ASSERT(indentLength && indentLength < source.getLength());
 
-	string->clear();
+	sl::String string;
 
-	const char* p = source.cp();
+	const char* p = source.cp() + indentLength;
 	const char* end = source.getEnd();
 	while (p < end) {
-		size_t chunkLength = end - p;
-		ASSERT(chunkLength > indentLength);
-
-		size_t lineIndentLength = getIndentLength(sl::StringRef(p, chunkLength));
-
-		bool isEmpty = p[lineIndentLength] == '\n';
-		if (isEmpty) {
-			if (lineIndentLength && p[lineIndentLength - 1] == '\r')
-				string->append("\r\n", 2);
-			else
-				string->append('\n');
-
-			p += lineIndentLength + 1;
-		} else {
-			if (lineIndentLength < indentLength || memcmp(p, indent.cp(), indentLength) != 0)
-				return false;
-
-			p += indentLength;
-
-			const char* nl = strchr(p, '\n');
-			ASSERT(nl);
-
-			string->append(p, nl - p + 1);
-			p = nl + 1;
+		size_t length = end - p;
+		const char* nl = (char*)memchr(p, '\n', length);
+		if (!nl) {
+			string.append(p, length);
+			break;
 		}
+
+		nl++;
+		string.append(p, nl - p);
+		p = nl + indentLength; // skip common indent
 	}
 
-	return true;
+	return string;
+}
+
+void
+Lexer::updateMlLiteralIndent() {
+	ASSERT(*ts == '\n' && m_literalExToken && m_literalExInfo.m_literalKind >= LiteralExKind_Ml);
+
+	if (!m_literalExInfo.m_indentLength) // shortcut
+		return;
+
+	const char* indent = ts + 1;
+	size_t indentLength = te - indent;
+	if (m_literalExInfo.m_indentLength > indentLength)
+		m_literalExInfo.m_indentLength = indentLength;
+
+	for (size_t i = 0; i < m_literalExInfo.m_indentLength; i++) {
+		if (m_literalExInfo.m_indent[i] != indent[i]) {
+			m_literalExInfo.m_indentLength = i;
+			break;
+		}
+	}
 }
 
 void
 Lexer::finalizeMlLiteralToken() {
-	ASSERT(m_literalExToken && m_literalExKind >= LiteralExKind_Ml);
+	ASSERT(m_literalExToken && m_literalExInfo.m_literalKind >= LiteralExKind_Ml);
 
 	Token* token = m_literalExToken; // short alias
 	size_t left = token->m_pos.m_length;
 	size_t right = te - ts;
-
-	bool hasNl = *ts == '\n';
-	if (hasNl)
-		right--; // include '\n' into literal
 
 	token->m_pos.m_length = te - token->m_pos.m_p;
 	ASSERT(token->m_pos.m_length >= left + right);
 
 	const char* p = token->m_pos.m_p + left;
 	size_t length = token->m_pos.m_length - (left + right);
+	sl::StringRef string(p, length);
 
-	if (m_literalExKind > LiteralExKind__RadixBase) {
+	if (m_literalExInfo.m_literalKind > LiteralExKind__RadixBase) {
+		int radix = m_literalExInfo.m_literalKind - LiteralExKind__RadixBase;
 		token->m_token = TokenKind_BinLiteral;
-		decodeByteString(&token->m_data.m_binData, m_literalExKind - LiteralExKind__RadixBase, sl::StringRef(p, length));
+		decodeByteString(&token->m_data.m_binData, radix, string);
 	} else {
 		token->m_token = TokenKind_Literal;
 
-		sl::StringRef string(p, length);
-		if (m_literalExKind == LiteralExKind_MlEsc)
+		if (m_literalExInfo.m_indentLength) // first, remove common indent
+			string = unindentMlLiteral(string, m_literalExInfo.m_indentLength);
+
+		if (m_literalExInfo.m_literalKind == LiteralExKind_MlEsc) // then esc-decode
 			string = enc::EscapeEncoding::decode(string);
-
-		if (hasNl && right > 3) {
-			sl::String normalizedString;
-			sl::StringRef indent(ts + 1, right - 3);
-
-			bool hasCommonIndent = unindent(&normalizedString, string, indent);
-			if (hasCommonIndent)
-				string = normalizedString;
-		}
 
 		token->m_data.m_string = string;
 	}
 
+#if (_AXL_DEBUG)
 	m_literalExToken = NULL;
-	m_literalExKind = LiteralExKind_Undefined;
+	m_literalExInfo.m_literalKind = LiteralExKind_Undefined;
+#endif
 }
 
 // formatting literals
@@ -388,13 +387,11 @@ Lexer::finalizeMlLiteralToken() {
 void
 Lexer::createFmtLiteralToken(
 	TokenKind tokenKind,
-	int param
+	uint_t flags
 ) {
-	ASSERT(m_literalExToken && (m_literalExKind == LiteralExKind_Fmt || m_literalExKind == LiteralExKind_FmtMl));
+	ASSERT(m_literalExToken && (m_literalExInfo.m_literalKind == LiteralExKind_Fmt || m_literalExInfo.m_literalKind == LiteralExKind_FmtMl));
 
 	Token* token = m_literalExToken;
-	m_literalExToken = NULL;
-
 	size_t left = token->m_pos.m_length;
 	size_t right = te - ts;
 
@@ -407,27 +404,36 @@ Lexer::createFmtLiteralToken(
 		token->m_pos.m_length - (left + right)
 	));
 
-	token->m_data.m_integer = param;
+	token->m_data.m_integer = flags;
+
+#if (_AXL_DEBUG)
+	m_literalExToken = NULL;
+#endif
 }
 
 void
-Lexer::createFmtOpenerToken() {
-	ASSERT(m_literalExToken && (m_literalExKind == LiteralExKind_Fmt || m_literalExKind == LiteralExKind_FmtMl));
+Lexer::createFmtOpenerToken(uint_t flags) {
+	ASSERT(m_literalExToken && (m_literalExInfo.m_literalKind == LiteralExKind_Fmt || m_literalExInfo.m_literalKind == LiteralExKind_FmtMl));
 
-	createFmtLiteralToken(TokenKind_FmtLiteral, *ts == '%');
+	if (*ts == '%')
+		flags |= FmtLiteralTokenFlag_Index;
+
+	createFmtLiteralToken(TokenKind_FmtLiteral, flags);
 
 	FmtLiteralStackEntry entry;
+	(LiteralExInfo&)entry = m_literalExInfo;
 	entry.m_level = 1;
 	entry.m_leftBraceChar = ts[1];
-	entry.m_literalKind = m_literalExKind;
 	m_fmtLiteralStack.append(entry);
 
-	m_literalExKind = LiteralExKind_Undefined;
+#if (_AXL_DEBUG)
+	m_literalExInfo.m_literalKind = LiteralExKind_Undefined;
+#endif
 }
 
 void
-Lexer::createFmtSimpleIdentifierTokens() {
-	createFmtLiteralToken(TokenKind_FmtLiteral, false);
+Lexer::createFmtSimpleIdentifierTokens(uint_t flags) {
+	createFmtLiteralToken(TokenKind_FmtLiteral, flags);
 
 	// important: prevent stop () -- otherwise we could feed half-created fmt-literal token to the parser
 
@@ -441,8 +447,8 @@ Lexer::createFmtSimpleIdentifierTokens() {
 }
 
 void
-Lexer::createFmtReGroupTokens() {
-	createFmtLiteralToken(TokenKind_FmtLiteral, false);
+Lexer::createFmtReGroupTokens(uint_t flags) {
+	createFmtLiteralToken(TokenKind_FmtLiteral, flags);
 
 	// important: prevent stop () -- otherwise we could feed half-created fmt-literal token to the parser
 
@@ -456,8 +462,8 @@ Lexer::createFmtReGroupTokens() {
 }
 
 void
-Lexer::createFmtLastErrorDescriptionTokens() {
-	createFmtLiteralToken(TokenKind_FmtLiteral, false);
+Lexer::createFmtLastErrorDescriptionTokens(uint_t flags) {
+	createFmtLiteralToken(TokenKind_FmtLiteral, flags);
 
 	// important: prevent stop () -- otherwise we could feed half-created fmt-literal token to the parser
 
@@ -480,8 +486,8 @@ Lexer::createFmtLastErrorDescriptionTokens() {
 }
 
 void
-Lexer::createFmtIndexTokens() {
-	createFmtLiteralToken(TokenKind_FmtLiteral, true);
+Lexer::createFmtIndexTokens(uint_t flags) {
+	createFmtLiteralToken(TokenKind_FmtLiteral, flags | FmtLiteralTokenFlag_Index);
 
 	// important: prevent stop () -- otherwise we could feed half-created fmt-literal token to the parser
 
@@ -495,8 +501,8 @@ Lexer::createFmtIndexTokens() {
 }
 
 void
-Lexer::createFmtSimpleSpecifierTokens() {
-	createFmtLiteralToken(TokenKind_FmtLiteral, true);
+Lexer::createFmtSimpleSpecifierTokens(uint_t flags) {
+	createFmtLiteralToken(TokenKind_FmtLiteral, flags | FmtLiteralTokenFlag_Index);
 
 	// important: prevent stop () -- otherwise we could feed half-created fmt-literal token to the parser
 
@@ -567,9 +573,9 @@ Lexer::onRightBrace(
 	if (!m_fmtLiteralStack.isEmpty()) {
 		FmtLiteralStackEntry& entry = m_fmtLiteralStack.getBack();
 		if (entry.m_leftBraceChar == leftBraceChar && !--entry.m_level) {
-			LiteralExKind literalKind = entry.m_literalKind;
+			m_literalExToken = preCreateToken(0);
+			m_literalExInfo = entry;
 			m_fmtLiteralStack.pop();
-			preCreateLiteralEx(literalKind);
 			return true;
 		}
 	}
@@ -627,11 +633,11 @@ Lexer::onSemicolon() {
 
 void
 Lexer::terminateFmtSpecifier() {
-	ASSERT(!m_literalExToken && !m_literalExKind && !m_fmtLiteralStack.isEmpty());
+	ASSERT(!m_literalExToken && !m_literalExInfo.m_literalKind && !m_fmtLiteralStack.isEmpty());
 
-	LiteralExKind literalKind = m_fmtLiteralStack.getBack().m_literalKind;
+	m_literalExToken = preCreateToken(0);
+	m_literalExInfo = m_fmtLiteralStack.getBack();
 	m_fmtLiteralStack.pop();
-	preCreateLiteralEx(literalKind);
 }
 
 //..............................................................................
