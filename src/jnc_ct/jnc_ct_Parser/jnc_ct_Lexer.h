@@ -36,6 +36,7 @@ enum TokenKind {
 	TokenKind_FmtLiteral,
 	TokenKind_FmtIndex,
 	TokenKind_FmtSpecifier,
+	TokenKind_FmtMlEnd,
 	TokenKind_Body,
 
 	// special declarations
@@ -248,6 +249,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP(TokenName)
 	AXL_LEX_TOKEN_NAME(TokenKind_FmtLiteral,   "fmt-literal")
 	AXL_LEX_TOKEN_NAME(TokenKind_FmtIndex,     "fmt-index")
 	AXL_LEX_TOKEN_NAME(TokenKind_FmtSpecifier, "fmt-specifier")
+	AXL_LEX_TOKEN_NAME(TokenKind_FmtMlEnd,     "fmt-ml-end")
 	AXL_LEX_TOKEN_NAME(TokenKind_Body,         "body")
 
 	// special declarations
@@ -543,6 +545,13 @@ public:
 		lex::RagelBomMode bomMode = lex::RagelBomMode_Skip
 	);
 
+	static
+	sl::String
+	unindentMlLiteral(
+		const sl::StringRef& source,
+		size_t indent
+	);
+
 protected:
 	Token*
 	createKeywordTokenEx(
@@ -612,9 +621,6 @@ protected:
 
 	// special literals
 
-	void
-	initializeMlLiteralInfo(size_t minTokenLength);
-
 	Token*
 	preCreateLiteralEx(LiteralExKind literalKind);
 
@@ -630,16 +636,12 @@ protected:
 	void
 	finalizeMlLiteralToken();
 
-	static
-	sl::String
-	unindentMlLiteral(
-		const sl::StringRef& source,
-		size_t indentLength
-	);
-
 	void
-	finalizeFmtLiteralToken(uint_t flags = 0) {
-		createFmtLiteralToken(TokenKind_Literal, flags);
+	finalizeFmtLiteralToken(
+		TokenKind tokenKind,
+		int params = 0
+	) {
+		createFmtLiteralToken(tokenKind, params);
 		m_literalExInfo.m_literalKind = LiteralExKind_Undefined;
 	}
 
@@ -649,7 +651,7 @@ protected:
 	void
 	createFmtLiteralToken(
 		TokenKind tokenKind,
-		uint_t flags = 0
+		int params = 0
 	);
 
 	void

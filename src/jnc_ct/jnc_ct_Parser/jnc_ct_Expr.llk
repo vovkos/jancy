@@ -922,6 +922,14 @@ literal_atom<Literal* $literal>
 				$literal->m_binData.append($1.m_data.m_binData, $1.m_data.m_binData.getCount());
 				$literal->m_isZeroTerminated = false;
 			}
+	|	TokenKind_FmtMlEnd
+			{
+				finalizeFmtMlLiteral(
+					$literal,
+					$1.m_data.m_string,
+					$1.m_data.m_integer
+				);
+			}
 	|	TokenKind_FmtLiteral expression TokenKind_FmtSpecifier $s?
 			{
 				sl::StringRef fmtSpecifier = &$s ? $s.m_data.m_string : sl::StringRef();
@@ -929,8 +937,8 @@ literal_atom<Literal* $literal>
 					$literal,
 					$1.m_data.m_string,
 					$2.m_value,
-					$1.m_data.m_integer != 0,
-					fmtSpecifier
+					fmtSpecifier,
+					$1.m_data.m_integer
 				);
 			}
 	|	TokenKind_FmtLiteral TokenKind_FmtIndex
@@ -938,7 +946,8 @@ literal_atom<Literal* $literal>
 				addFmtSite(
 					$literal,
 					$1.m_data.m_string,
-					$2.m_data.m_integer
+					$2.m_data.m_integer,
+					$1.m_data.m_integer
 				);
 			}
 	|	TokenKind_FmtLiteral TokenKind_FmtSpecifier
@@ -946,7 +955,8 @@ literal_atom<Literal* $literal>
 				addFmtSite(
 					$literal,
 					$1.m_data.m_string,
-					$2.m_data.m_string
+					$2.m_data.m_string,
+					$1.m_data.m_integer
 				);
 			}
 	;

@@ -27,6 +27,36 @@ namespace ct {
 
 //..............................................................................
 
+inline
+Parser::Literal::Literal() {
+	m_fmtMlOffset = 0;
+	m_fmtIndex = 0;
+	m_isZeroTerminated = false;
+}
+
+Parser::FmtSite*
+Parser::Literal::addFmtSite(
+	const sl::StringRef& string,
+	uint_t flags
+) {
+	size_t offset = m_binData.getCount();
+	m_binData.append(string.cp(), string.getLength());
+
+	FmtSite* site = new FmtSite;
+	site->m_offset = m_binData.getCount();
+	m_fmtSiteList.insertTail(site);
+	m_isZeroTerminated = true;
+
+	if ((flags & FmtLiteralTokenFlag_Ml) && !m_fmtMlFirstIt) {
+		m_fmtMlFirstIt = site;
+		m_fmtMlOffset = offset;
+	}
+
+	return site;
+}
+
+//..............................................................................
+
 Parser::Parser(
 	Module* module,
 	const PragmaConfig* pragmaConfig,
@@ -2850,23 +2880,68 @@ Parser::assignCurlyInitializerItem(
 		m_module->m_operatorMgr.memCpy(memberPtrValue, value, length);
 }
 
+void
+Parser::finalizeFmtMlLiteral(
+	Literal* literal,
+	const sl::StringRef& string,
+	uint_t indent
+) {
+	if (!indent) {
+		literal->m_binData.append(string.cp(), string.getLength());
+		literal->m_isZeroTerminated = true;
+		literal->m_fmtMlFirstIt = NULL;
+		return;
+	}
+
+	// remove common indent and adjust fmt site offsets
+
+	sl::Iterator<FmtSite> it = literal->m_fmtMlFirstIt;
+	size_t srcOffset = literal->m_fmtMlOffset;
+	size_t dstOffset = srcOffset;
+	bool isFirstChunk = true;
+	for (; it; it++) {
+		ASSERT(srcOffset <= it->m_offset);
+		size_t length = it->m_offset - srcOffset;
+		sl::StringRef chunk(literal->m_binData + srcOffset, length);
+		if (isFirstChunk) {
+			chunk = chunk.getSubString(indent);
+			isFirstChunk = false;
+		}
+
+		sl::String unindentedString = Lexer::unindentMlLiteral(chunk, indent);
+		memcpy(literal->m_binData.p() + dstOffset, unindentedString.cp(), unindentedString.getLength());
+		dstOffset += unindentedString.getLength();
+		srcOffset += length;
+
+		ASSERT(it->m_offset == srcOffset && dstOffset <= srcOffset);
+		it->m_offset = dstOffset; // update
+	}
+
+	// unindent and append the final chunk
+
+	sl::String unindentedString = Lexer::unindentMlLiteral(
+		isFirstChunk ? string.getSubString(indent) : string,
+		indent
+	);
+
+	literal->m_binData.setCount(dstOffset);
+	literal->m_binData.append(unindentedString.cp(), unindentedString.getLength());
+	literal->m_isZeroTerminated = true;
+	literal->m_fmtMlFirstIt = NULL;
+}
+
 bool
 Parser::addFmtSite(
 	Literal* literal,
 	const sl::StringRef& string,
 	const Value& value,
-	bool isIndex,
-	const sl::StringRef& fmtSpecifierString
+	const sl::StringRef& fmtSpecifierString,
+	uint_t flags
 ) {
-	literal->m_binData.append(string.cp(), string.getLength());
-
-	FmtSite* site = new FmtSite;
-	site->m_offset = literal->m_binData.getCount();
+	FmtSite* site = literal->addFmtSite(string, flags);
 	site->m_fmtSpecifierString = fmtSpecifierString;
-	literal->m_fmtSiteList.insertTail(site);
-	literal->m_isZeroTerminated = true;
 
-	if (!isIndex) {
+	if (!(flags & FmtLiteralTokenFlag_Index)) {
 		site->m_value = value;
 		return true;
 	}
@@ -2880,7 +2955,7 @@ Parser::addFmtSite(
 	site->m_index = 0;
 	memcpy(&site->m_index, value.getConstData(), value.getType()->getSize());
 
-	literal->m_lastIndex = site->m_index;
+	literal->m_fmtIndex = site->m_index;
 	return true;
 }
 
@@ -2888,32 +2963,24 @@ void
 Parser::addFmtSite(
 	Literal* literal,
 	const sl::StringRef& string,
-	size_t index
+	size_t index,
+	uint_t flags
 ) {
-	literal->m_binData.append(string.cp(), string.getLength());
-
-	FmtSite* site = new FmtSite;
-	site->m_offset = literal->m_binData.getCount();
+	FmtSite* site = literal->addFmtSite(string, flags);
 	site->m_index = index;
-	literal->m_fmtSiteList.insertTail(site);
-	literal->m_lastIndex = index;
-	literal->m_isZeroTerminated = true;
+	literal->m_fmtIndex = index;
 }
 
 void
 Parser::addFmtSite(
 	Literal* literal,
 	const sl::StringRef& string,
-	const sl::StringRef& fmtSpecifierString
+	const sl::StringRef& fmtSpecifierString,
+	uint_t flags
 ) {
-	literal->m_binData.append(string.cp(), string.getLength());
-
-	FmtSite* site = new FmtSite;
-	site->m_offset = literal->m_binData.getCount();
-	site->m_index = ++literal->m_lastIndex;
+	FmtSite* site = literal->addFmtSite(string, flags);
+	site->m_index = ++literal->m_fmtIndex;
 	site->m_fmtSpecifierString = fmtSpecifierString;
-	literal->m_fmtSiteList.insertTail(site);
-	literal->m_isZeroTerminated = true;
 }
 
 bool

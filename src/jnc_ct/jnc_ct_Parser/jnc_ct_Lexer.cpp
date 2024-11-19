@@ -301,13 +301,12 @@ Lexer::preCreateMlLiteral(
 sl::String
 Lexer::unindentMlLiteral(
 	const sl::StringRef& source,
-	size_t indentLength
+	size_t indent
 ) {
-	ASSERT(indentLength && indentLength < source.getLength());
+	ASSERT(indent);
 
 	sl::String string;
-
-	const char* p = source.cp() + indentLength;
+	const char* p = source.cp();
 	const char* end = source.getEnd();
 	while (p < end) {
 		size_t length = end - p;
@@ -319,7 +318,9 @@ Lexer::unindentMlLiteral(
 
 		nl++;
 		string.append(p, nl - p);
-		p = nl + indentLength; // skip common indent
+
+		p = nl + indent;  // skip the common indent
+		ASSERT(p <= end); // otherwise, the common indent was precalculated incorrectly
 	}
 
 	return string;
@@ -327,7 +328,12 @@ Lexer::unindentMlLiteral(
 
 void
 Lexer::updateMlLiteralIndent() {
-	ASSERT(*ts == '\n' && m_literalExToken && m_literalExInfo.m_literalKind >= LiteralExKind_Ml);
+	ASSERT(
+		*ts == '\n' &&
+		m_literalExToken &&
+		m_literalExInfo.m_literalKind >= LiteralExKind_FmtMl &&
+		m_literalExInfo.m_literalKind <= LiteralExKind_MlEsc
+	);
 
 	if (!m_literalExInfo.m_indentLength) // shortcut
 		return;
@@ -368,7 +374,10 @@ Lexer::finalizeMlLiteralToken() {
 		token->m_token = TokenKind_Literal;
 
 		if (m_literalExInfo.m_indentLength) // first, remove common indent
-			string = unindentMlLiteral(string, m_literalExInfo.m_indentLength);
+			string = unindentMlLiteral(
+				string.getSubString(m_literalExInfo.m_indentLength),
+				m_literalExInfo.m_indentLength
+			);
 
 		if (m_literalExInfo.m_literalKind == LiteralExKind_MlEsc) // then esc-decode
 			string = enc::EscapeEncoding::decode(string);
@@ -387,7 +396,7 @@ Lexer::finalizeMlLiteralToken() {
 void
 Lexer::createFmtLiteralToken(
 	TokenKind tokenKind,
-	uint_t flags
+	int params
 ) {
 	ASSERT(m_literalExToken && (m_literalExInfo.m_literalKind == LiteralExKind_Fmt || m_literalExInfo.m_literalKind == LiteralExKind_FmtMl));
 
@@ -404,7 +413,7 @@ Lexer::createFmtLiteralToken(
 		token->m_pos.m_length - (left + right)
 	));
 
-	token->m_data.m_integer = flags;
+	token->m_data.m_integer = params;
 
 #if (_AXL_DEBUG)
 	m_literalExToken = NULL;

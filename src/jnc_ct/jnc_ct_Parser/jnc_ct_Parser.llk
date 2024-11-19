@@ -83,13 +83,18 @@ public:
 	struct Literal {
 		sl::Array<char> m_binData;
 		sl::List<FmtSite> m_fmtSiteList;
-		size_t m_lastIndex;
+		sl::Iterator<FmtSite> m_fmtMlFirstIt;
+		size_t m_fmtMlOffset;
+		size_t m_fmtIndex;
 		bool m_isZeroTerminated;
 
-		Literal() {
-			m_lastIndex = 0;
-			m_isZeroTerminated = false;
-		}
+		Literal();
+
+		FmtSite*
+		addFmtSite(
+			const sl::StringRef& string,
+			uint_t flags
+		);
 	};
 
 	struct StmtPass1 {
@@ -614,27 +619,36 @@ protected:
 		const Value& value
 	);
 
+	void
+	finalizeFmtMlLiteral(
+		Literal* literal,
+		const sl::StringRef& string,
+		uint_t indent
+	);
+
 	bool
 	addFmtSite(
 		Literal* literal,
 		const sl::StringRef& string,
 		const Value& value,
-		bool isIndex,
-		const sl::StringRef& fmtSpecifierString
+		const sl::StringRef& fmtSpecifierString,
+		uint_t flags
 	);
 
 	void
 	addFmtSite(
 		Literal* literal,
 		const sl::StringRef& string,
-		size_t index
+		size_t index,
+		uint_t flags
 	);
 
 	void
 	addFmtSite(
 		Literal* literal,
 		const sl::StringRef& string,
-		const sl::StringRef& fmtSpecifierString
+		const sl::StringRef& fmtSpecifierString,
+		uint_t flags
 	);
 
 	bool

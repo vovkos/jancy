@@ -126,7 +126,7 @@ lit_fmt_spec     = '%' ([\-+ #0] dec*)? ('.' dec+)? ('l' | 'll' | 'z')? [diuxXfe
 
 lit_fmt := |*
 
-'"' | nl         { finalizeFmtLiteralToken(); fret; };
+'"' | nl         { finalizeFmtLiteralToken(TokenKind_Literal); fret; };
 lit_fmt_error    { createFmtLastErrorDescriptionTokens(); };
 lit_fmt_id       { createFmtSimpleIdentifierTokens(); };
 lit_fmt_re_group { createFmtReGroupTokens(); };
@@ -140,7 +140,7 @@ any              ;
 
 lit_fmt_ml := |*
 
-'"""'            { finalizeFmtLiteralToken(FmtLiteralTokenFlag_Ml); fret; };
+'"""'            { finalizeFmtLiteralToken(TokenKind_FmtMlEnd, m_literalExInfo.m_indentLength); fret; };
 lit_fmt_error    { createFmtLastErrorDescriptionTokens(FmtLiteralTokenFlag_Ml); };
 lit_fmt_id       { createFmtSimpleIdentifierTokens(FmtLiteralTokenFlag_Ml); };
 lit_fmt_re_group { createFmtReGroupTokens(FmtLiteralTokenFlag_Ml); };
