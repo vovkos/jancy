@@ -553,10 +553,10 @@ Lexer::createDoxyCommentToken(TokenKind tokenKind) {
 
 void
 Lexer::onLeftBrace(char c) {
-	createToken(c);
-
 	if (!m_fmtLiteralStack.isEmpty())
 		m_fmtLiteralStack.getBack().m_braceLevel++;
+
+	createToken(c);
 }
 
 bool

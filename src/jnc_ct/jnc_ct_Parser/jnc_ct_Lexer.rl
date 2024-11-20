@@ -112,6 +112,14 @@ any     ;
 
 *|;
 
+lit_ml_bin := |*
+
+'"""'   { finalizeMlLiteralToken(); fgoto main; };
+nl      ;
+any     ;
+
+*|;
+
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
 # formatting literal machines
@@ -393,13 +401,13 @@ lit_ml_begin     { preCreateMlLiteral(LiteralExKind_Ml, 3); fgoto lit_ml; };
 [rR] lit_ml_begin
 				 { preCreateMlLiteral(LiteralExKind_Ml, 4); fgoto lit_ml_raw; };
 '0' [xX] lit_ml_begin
-                 { preCreateLiteralEx(LiteralExKind_MlBinHex); fgoto lit_ml_raw; };
+                 { preCreateLiteralEx(LiteralExKind_MlBinHex); fgoto lit_ml_bin; };
 '0' [oO] lit_ml_begin
-                 { preCreateLiteralEx(LiteralExKind_MlBinOct); fgoto lit_ml_raw; };
+                 { preCreateLiteralEx(LiteralExKind_MlBinOct); fgoto lit_ml_bin; };
 '0' [bB] lit_ml_begin
-                 { preCreateLiteralEx(LiteralExKind_MlBinBin); fgoto lit_ml_raw; };
+                 { preCreateLiteralEx(LiteralExKind_MlBinBin); fgoto lit_ml_bin; };
 '0' [nNdD] lit_ml_begin
-                 { preCreateLiteralEx(LiteralExKind_MlBinDec); fgoto lit_ml_raw; };
+                 { preCreateLiteralEx(LiteralExKind_MlBinDec); fgoto lit_ml_bin; };
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
