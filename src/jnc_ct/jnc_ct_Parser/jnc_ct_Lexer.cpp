@@ -221,13 +221,6 @@ Lexer::createLiteralToken(
 }
 
 Token*
-Lexer::createSourceFileToken() {
-	Token* token = createToken(TokenKind_Literal);
-	token->m_data.m_string = m_filePath;
-	return token;
-}
-
-Token*
 Lexer::createSourceDirToken() {
 	if (m_dir.isEmpty())
 		m_dir = m_filePath.isEmpty() ?
@@ -236,6 +229,20 @@ Lexer::createSourceDirToken() {
 
 	Token* token = createToken(TokenKind_Literal);
 	token->m_data.m_string = m_dir;
+	return token;
+}
+
+Token*
+Lexer::createSourceFileToken() {
+	Token* token = createToken(TokenKind_Literal);
+	token->m_data.m_string = m_filePath;
+	return token;
+}
+
+Token*
+Lexer::createSourceLineToken() {
+	Token* token = createToken(TokenKind_Integer);
+	token->m_data.m_integer = m_line + 1;
 	return token;
 }
 

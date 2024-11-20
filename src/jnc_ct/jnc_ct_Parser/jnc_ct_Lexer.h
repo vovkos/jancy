@@ -589,10 +589,13 @@ protected:
 	);
 
 	Token*
+	createSourceDirToken();
+
+	Token*
 	createSourceFileToken();
 
 	Token*
-	createSourceDirToken();
+	createSourceLineToken();
 
 	Token*
 	createBinLiteralToken(int radix);

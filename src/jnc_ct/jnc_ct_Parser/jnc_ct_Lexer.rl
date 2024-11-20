@@ -413,8 +413,9 @@ lit_ml_begin     { preCreateMlLiteral(LiteralExKind_Ml, 3); fgoto lit_ml; };
 
 # lexer-time constants
 
-'__FILE__'       { createSourceFileToken(); };
 '__DIR__'        { createSourceDirToken(); };
+'__FILE__'       { createSourceFileToken(); };
+'__LINE__'       { createSourceLineToken(); };
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
