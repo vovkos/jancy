@@ -1,0 +1,25 @@
+.. index:: pair: struct; jnc_GcShadowStackFrameMapBuffer
+.. _doxid-structjnc___gc_shadow_stack_frame_map_buffer:
+
+struct jnc_GcShadowStackFrameMapBuffer
+======================================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_GcShadowStackFrameMapBuffer {
+		// fields
+	
+		:ref:`jnc_ListLink<doxid-structjnc___list_link>` :target:`m_link<doxid-structjnc___gc_shadow_stack_frame_map_buffer_1a4eabac549a6a715da26cf5b03f2bcf08>`;
+		jnc_GcShadowStackFrameMap* :target:`m_prev<doxid-structjnc___gc_shadow_stack_frame_map_buffer_1a75b62b4cc8920c63d3804ad2b312dba7>`;
+		intptr_t :target:`m_mapKind<doxid-structjnc___gc_shadow_stack_frame_map_buffer_1a7914d29a03ca0fc03c0f756fa3f160c0>`;
+		intptr_t :target:`m_gcRootArray<doxid-structjnc___gc_shadow_stack_frame_map_buffer_1a5bf27237ae5a14f01a1daa06396a520f>`[3];
+		intptr_t :target:`m_gcRootTypeArray<doxid-structjnc___gc_shadow_stack_frame_map_buffer_1adc928de357988fe5c9bf221553170cfc>`[3];
+	};

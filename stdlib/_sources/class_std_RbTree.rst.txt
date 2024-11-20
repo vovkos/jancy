@@ -1,0 +1,53 @@
+.. include:: def.rst
+.. index:: pair: class; std.RbTree
+.. _doxid-type_std_rbtree:
+
+class std.RbTree
+================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "std_RbTree.jnc"
+	
+	class RbTree {
+		// fields
+	
+		:ref:`std.MapEntry<doxid-type_std_mapentry>` cmut* readonly :target:`m_head<doxid-field_std_rbtree_m_head>`;
+		:ref:`std.MapEntry<doxid-type_std_mapentry>` cmut* readonly :target:`m_tail<doxid-field_std_rbtree_m_tail>`;
+		:ref:`size_t<doxid-typedef_size_t>` readonly :target:`m_count<doxid-field_std_rbtree_m_count>`;
+
+		// properties
+	
+		bool const property :target:`m_isEmpty<doxid-property_std_rbtree_m_isempty>`;
+
+		// construction
+	
+		:target:`construct<doxid-function_std_rbtree_construct>`(:ref:`std.CmpFunc<doxid-typedef_std_cmpfunc>` thin* cmpFunc = null);
+		:target:`destruct<doxid-function_std_rbtree_destruct>`();
+
+		// methods
+	
+		void :target:`clear<doxid-function_std_rbtree_clear>`();
+		:ref:`std.MapEntry<doxid-type_std_mapentry>`* errorcode :target:`visit<doxid-function_std_rbtree_visit>`(:ref:`variant_t<doxid-typedef_variant_t>` key);
+		:ref:`std.MapEntry<doxid-type_std_mapentry>` cmut* :target:`find<doxid-function_std_rbtree_find>`(:ref:`variant_t<doxid-typedef_variant_t>` key) const;
+	
+		:ref:`variant_t<doxid-typedef_variant_t>` :target:`findValue<doxid-function_std_rbtree_findvalue>`(
+			:ref:`variant_t<doxid-typedef_variant_t>` key,
+			:ref:`variant_t<doxid-typedef_variant_t>` undefinedValue = null
+		) const;
+	
+		:ref:`std.MapEntry<doxid-type_std_mapentry>`* errorcode :target:`add<doxid-function_std_rbtree_add>`(
+			:ref:`variant_t<doxid-typedef_variant_t>` key,
+			:ref:`variant_t<doxid-typedef_variant_t>` value
+		);
+	
+		void :target:`remove<doxid-function_std_rbtree_remove>`(:ref:`std.MapEntry<doxid-type_std_mapentry>`* entry);
+		bool :target:`removeKey<doxid-function_std_rbtree_removekey>`(:ref:`variant_t<doxid-typedef_variant_t>` key);
+	};

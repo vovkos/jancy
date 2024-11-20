@@ -1,0 +1,79 @@
+.. include:: def.rst
+.. index:: pair: namespace; sys
+.. _doxid-namespace_sys:
+
+namespace sys
+=============
+
+.. toctree::
+	:hidden:
+
+	enum_sys_CppFlags.rst
+	enum_sys_CppKind.rst
+	enum_sys_CpuKind.rst
+	enum_sys_OsFlags.rst
+	enum_sys_OsKind.rst
+	struct_sys_SystemInfo.rst
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	namespace sys {
+
+	// enums
+
+	bitflag enum :ref:`CppFlags<doxid-type_sys_cppflags>`;
+	enum :ref:`CppKind<doxid-type_sys_cppkind>`;
+	enum :ref:`CpuKind<doxid-type_sys_cpukind>`;
+	bitflag enum :ref:`OsFlags<doxid-type_sys_osflags>`;
+	enum :ref:`OsKind<doxid-type_sys_oskind>`;
+	enum :ref:`RegKeyAccess<doxid-type_sys_regkeyaccess>`;
+	enum :ref:`RegStdKey<doxid-type_sys_regstdkey>`;
+	enum :ref:`RegValueType<doxid-type_sys_regvaluetype>`;
+
+	// structs
+
+	struct :ref:`SystemInfo<doxid-type_sys_systeminfo>`;
+
+	// classes
+
+	class :ref:`Event<doxid-type_sys_event>`;
+	class :ref:`Lock<doxid-type_sys_lock>`;
+	class :ref:`NotificationEvent<doxid-type_sys_notificationevent>`;
+	class :ref:`RegKey<doxid-type_sys_regkey>`;
+	class :ref:`Thread<doxid-type_sys_thread>`;
+	class :ref:`Timer<doxid-type_sys_timer>`;
+
+	// global variables
+
+	:ref:`sys.SystemInfo<doxid-type_sys_systeminfo>` const :target:`g_systemInfo<doxid-variable_sys_g_systeminfo>`;
+
+	// properties
+
+	:ref:`string_t<doxid-typedef_string_t>` indexed property :ref:`g_env<doxid-property_sys_g_env>`(:ref:`string_t<doxid-typedef_string_t>` name);
+
+	// global functions
+
+	:ref:`uintptr_t<doxid-typedef_uintptr_t>` :ref:`getCurrentThreadId<doxid-function_sys_getcurrentthreadid>`();
+	:ref:`uint_t<doxid-typedef_uint_t>` :ref:`getCurrentProcessId<doxid-function_sys_getcurrentprocessid>`();
+	:ref:`string_t<doxid-typedef_string_t>` errorcode :target:`getProcessImageName<doxid-function_sys_getprocessimagename>`(:ref:`uint_t<doxid-typedef_uint_t>` pid);
+	void :ref:`sleep<doxid-function_sys_sleep>`(:ref:`uint32_t<doxid-typedef_uint32_t>` timeout);
+	:ref:`uint64_t<doxid-typedef_uint64_t>` :ref:`getTimestamp<doxid-function_sys_gettimestamp>`();
+	:ref:`uint64_t<doxid-typedef_uint64_t>` :ref:`getPreciseTimestamp<doxid-function_sys_getprecisetimestamp>`();
+
+	:ref:`string_t<doxid-typedef_string_t>` :ref:`formatTimestamp<doxid-function_sys_formattimestamp>`(
+		:ref:`uint64_t<doxid-typedef_uint64_t>` timestamp,
+		:ref:`string_t<doxid-typedef_string_t>` format
+	);
+
+	:ref:`string_t<doxid-typedef_string_t>` :ref:`formatTimestamp<doxid-function_sys_formattimestamp_2>`(
+		:ref:`uint64_t<doxid-typedef_uint64_t>` timestamp,
+		int timeZone,
+		:ref:`string_t<doxid-typedef_string_t>` format
+	);
+
+	} // namespace sys

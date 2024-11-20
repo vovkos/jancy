@@ -1,0 +1,18 @@
+.. include:: def.rst
+.. index:: pair: enum; PropertyTypeFlags
+.. _doxid-type_jnc_propertytypeflags:
+
+bitflag enum jnc.PropertyTypeFlags
+==================================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum PropertyTypeFlags {
+	    :target:`Const<doxid-enum_member_jnc_propertytypeflags_const>`    = 0x010000,
+	    :target:`Bindable<doxid-enum_member_jnc_propertytypeflags_bindable>` = 0x020000,
+	};
+

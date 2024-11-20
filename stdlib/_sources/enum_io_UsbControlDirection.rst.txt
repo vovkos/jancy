@@ -1,0 +1,18 @@
+.. include:: def.rst
+.. index:: pair: enum; UsbControlDirection
+.. _doxid-type_io_usbcontroldirection:
+
+enum io.UsbControlDirection
+===========================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum UsbControlDirection: :ref:`uint8_t<doxid-typedef_uint8_t>` {
+	    :target:`Out<doxid-enum_member_io_usbcontroldirection_out>`,
+	    :target:`In<doxid-enum_member_io_usbcontroldirection_in>`,
+	};
+

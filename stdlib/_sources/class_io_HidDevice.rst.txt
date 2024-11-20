@@ -1,0 +1,97 @@
+.. include:: def.rst
+.. index:: pair: class; io.HidDevice
+.. _doxid-type_io_hiddevice:
+
+class io.HidDevice
+==================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class HidDevice {
+		// fields
+	
+		:ref:`io.HidDeviceEvents<doxid-typedef_io_hiddeviceevents>` readonly volatile :target:`m_activeEvents<doxid-field_io_hiddevice_m_activeevents>`;
+		:ref:`std.Error<doxid-type_std_error>` const* readonly volatile :target:`m_ioError<doxid-field_io_hiddevice_m_ioerror>`;
+		bool readonly :target:`m_isOpen<doxid-field_io_hiddevice_m_isopen>`;
+
+		// properties
+	
+		:ref:`size_t<doxid-typedef_size_t>` autoget property :target:`m_readBlockSize<doxid-property_io_hiddevice_m_readblocksize>`;
+		:ref:`size_t<doxid-typedef_size_t>` autoget property :target:`m_readBufferSize<doxid-property_io_hiddevice_m_readbuffersize>`;
+		:ref:`uint_t<doxid-typedef_uint_t>` autoget property :target:`m_readTimeout<doxid-property_io_hiddevice_m_readtimeout>`;
+		:ref:`io.HidDeviceOptions<doxid-type_io_hiddeviceoptions>` autoget property :target:`m_options<doxid-property_io_hiddevice_m_options>`;
+		:ref:`io.HidDeviceDesc<doxid-type_io_hiddevicedesc>`* const property :target:`m_deviceDesc<doxid-property_io_hiddevice_m_devicedesc>`;
+
+		// construction
+	
+		:target:`construct<doxid-function_io_hiddevice_construct>`();
+		:target:`destruct<doxid-function_io_hiddevice_destruct>`();
+
+		// methods
+	
+		bool errorcode :target:`open<doxid-function_io_hiddevice_open>`(:ref:`string_t<doxid-typedef_string_t>` path);
+	
+		bool errorcode :target:`open<doxid-function_io_hiddevice_open_2>`(
+			:ref:`uint16_t<doxid-typedef_uint16_t>` vid,
+			:ref:`uint16_t<doxid-typedef_uint16_t>` pid,
+			:ref:`string_t<doxid-typedef_string_t>` serialNumber = null
+		);
+	
+		void :target:`close<doxid-function_io_hiddevice_close>`();
+	
+		:ref:`size_t<doxid-typedef_size_t>` errorcode :target:`getReportDescriptor<doxid-function_io_hiddevice_getreportdescriptor>`(
+			void* p,
+			:ref:`size_t<doxid-typedef_size_t>` size
+		);
+	
+		:ref:`size_t<doxid-typedef_size_t>` errorcode :target:`getInputReport<doxid-function_io_hiddevice_getinputreport>`(
+			void* p,
+			:ref:`size_t<doxid-typedef_size_t>` size
+		);
+	
+		:ref:`size_t<doxid-typedef_size_t>` errorcode :target:`getFeatureReport<doxid-function_io_hiddevice_getfeaturereport>`(
+			void* p,
+			:ref:`size_t<doxid-typedef_size_t>` size
+		);
+	
+		:ref:`size_t<doxid-typedef_size_t>` errorcode :target:`sendFeatureReport<doxid-function_io_hiddevice_sendfeaturereport>`(
+			void* p,
+			:ref:`size_t<doxid-typedef_size_t>` size
+		);
+	
+		:ref:`size_t<doxid-typedef_size_t>` errorcode :target:`read<doxid-function_io_hiddevice_read>`(
+			void* p,
+			:ref:`size_t<doxid-typedef_size_t>` size
+		);
+	
+		:ref:`size_t<doxid-typedef_size_t>` errorcode :target:`write<doxid-function_io_hiddevice_write>`(
+			void const* p,
+			:ref:`size_t<doxid-typedef_size_t>` size
+		);
+	
+		long errorcode :target:`wait<doxid-function_io_hiddevice_wait>`(
+			:ref:`io.HidDeviceEvents<doxid-typedef_io_hiddeviceevents>` eventMask,
+			void function* handler(io.HidDeviceEvents triggeredEvents)
+		);
+	
+		bool errorcode :target:`cancelWait<doxid-function_io_hiddevice_cancelwait>`(long handle);
+	
+		:ref:`io.HidDeviceEvents<doxid-typedef_io_hiddeviceevents>` :target:`blockingWait<doxid-function_io_hiddevice_blockingwait>`(
+			:ref:`io.HidDeviceEvents<doxid-typedef_io_hiddeviceevents>` eventMask,
+			:ref:`uint_t<doxid-typedef_uint_t>` timeout = -1
+		);
+	
+		:ref:`io.HidDeviceEvents<doxid-typedef_io_hiddeviceevents>` async :target:`asyncWait<doxid-function_io_hiddevice_asyncwait>`(:ref:`io.HidDeviceEvents<doxid-typedef_io_hiddeviceevents>` eventMask);
+
+		// aliases
+	
+		alias :target:`dispose<doxid-alias_io_hiddevice_dispose>` = close;
+	};
