@@ -1,0 +1,45 @@
+// this test was used when debugging multiline formatting literals
+
+//..............................................................................
+
+int main() {
+	char const* s;
+
+	s = $"~abc ${123} $(456) %1~"(789);
+
+	print("---\n");
+	print(s);
+
+	s = 0x"""
+		41 42 43 44 45 46 47 48
+		49 4A 4B 4C 4D 4E 4F 50
+		""";
+
+	print("---\n");
+	print(s);
+
+	s = """
+		\x61\x62\x63
+			def\n
+				ghi
+		xyz  
+		""";
+
+	print("---\n");
+	print(s);
+
+	int x = 123;
+
+	s = $"""    
+		abc 0x$(x; %04X) ${10 + 25; %05d} def
+			abc %1 ${11 + 26; %05d} def
+				abc $x ${12 + 27; %05d} def
+			ghi
+		"""(x);
+
+	print("---\n");
+	print(s);
+
+	print("---\n");
+	return 0;
+}
