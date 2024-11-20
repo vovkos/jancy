@@ -431,8 +431,7 @@ Lexer::createFmtOpenerToken(uint_t flags) {
 
 	FmtLiteralStackEntry entry;
 	(LiteralExInfo&)entry = m_literalExInfo;
-	entry.m_level = 1;
-	entry.m_leftBraceChar = ts[1];
+	entry.m_braceLevel = 1;
 	m_fmtLiteralStack.append(entry);
 
 #if (_AXL_DEBUG)
@@ -441,7 +440,7 @@ Lexer::createFmtOpenerToken(uint_t flags) {
 }
 
 void
-Lexer::createFmtSimpleIdentifierTokens(uint_t flags) {
+Lexer::createFmtIdentifierTokens(uint_t flags) {
 	createFmtLiteralToken(TokenKind_FmtLiteral, flags);
 
 	// important: prevent stop () -- otherwise we could feed half-created fmt-literal token to the parser
@@ -510,7 +509,7 @@ Lexer::createFmtIndexTokens(uint_t flags) {
 }
 
 void
-Lexer::createFmtSimpleSpecifierTokens(uint_t flags) {
+Lexer::createFmtSpecifierTokens(uint_t flags) {
 	createFmtLiteralToken(TokenKind_FmtLiteral, flags | FmtLiteralTokenFlag_Index);
 
 	// important: prevent stop () -- otherwise we could feed half-created fmt-literal token to the parser
@@ -522,17 +521,6 @@ Lexer::createFmtSimpleSpecifierTokens(uint_t flags) {
 
 	m_tokenizeLimit = prevTokenizeLimit;
 	m_literalExToken = preCreateToken(0);
-}
-
-Token*
-Lexer::createFmtSpecifierToken() {
-	ASSERT(*ts == ';');
-	ts++;
-
-	while (ts < te && (*ts == ' ' || *ts == '\t'))
-		ts++;
-
-	return ts < te ? createStringToken(TokenKind_FmtSpecifier) : NULL;
 }
 
 void
@@ -564,24 +552,18 @@ Lexer::createDoxyCommentToken(TokenKind tokenKind) {
 }
 
 void
-Lexer::onLeftBrace(char leftBraceChar) {
-	createToken(leftBraceChar);
+Lexer::onLeftBrace(char c) {
+	createToken(c);
 
-	if (!m_fmtLiteralStack.isEmpty()) {
-		FmtLiteralStackEntry& entry = m_fmtLiteralStack.getBack();
-		if (entry.m_leftBraceChar == leftBraceChar)
-			entry.m_level++;
-	}
+	if (!m_fmtLiteralStack.isEmpty())
+		m_fmtLiteralStack.getBack().m_braceLevel++;
 }
 
 bool
-Lexer::onRightBrace(
-	char leftBraceChar,
-	char rightBraceChar
-) {
+Lexer::onRightBrace(char c) {
 	if (!m_fmtLiteralStack.isEmpty()) {
 		FmtLiteralStackEntry& entry = m_fmtLiteralStack.getBack();
-		if (entry.m_leftBraceChar == leftBraceChar && !--entry.m_level) {
+		if (!--entry.m_braceLevel) {
 			m_literalExToken = preCreateToken(0);
 			m_literalExInfo = entry;
 			m_fmtLiteralStack.pop();
@@ -589,7 +571,7 @@ Lexer::onRightBrace(
 		}
 	}
 
-	createToken(rightBraceChar);
+	createToken(c);
 	return false;
 }
 
@@ -613,7 +595,7 @@ Lexer::onRightCurlyBrace() {
 	ASSERT(*ts == '}');
 
 	if (!(m_flags & LexerFlag_Parse))
-		return onRightBrace('{', '}');
+		return onRightBrace('}');
 
 	ASSERT(m_bodyToken == m_tokenList.getTail().p() && m_curlyBraceLevel);
 
@@ -629,12 +611,8 @@ bool
 Lexer::onSemicolon() {
 	ASSERT(*ts == ';');
 
-	if (!m_fmtLiteralStack.isEmpty()) {
-		if (m_fmtLiteralStack.getBack().m_level == 1) {
-			p = ts - 1; // need to reparse semicolon with 'fmt_spec' machine
-			return true;
-		}
-	}
+	if (!m_fmtLiteralStack.isEmpty() && m_fmtLiteralStack.getBack().m_braceLevel == 1)
+		return true;
 
 	createToken(';');
 	return false;

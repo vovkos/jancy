@@ -3139,7 +3139,7 @@ Parser::appendFmtLiteralValue(
 	const Value& rawSrcValue,
 	const sl::StringRef& fmtSpecifierString
 ) {
-	if (fmtSpecifierString == "B") // binary format
+	if (fmtSpecifierString.isSuffix('B')) // binary format
 		return appendFmtLiteralBinValue(fmtLiteralValue, rawSrcValue);
 
 	Value srcValue;

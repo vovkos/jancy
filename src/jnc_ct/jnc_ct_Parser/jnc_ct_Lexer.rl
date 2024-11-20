@@ -128,11 +128,11 @@ lit_fmt := |*
 
 '"' | nl         { finalizeFmtLiteralToken(TokenKind_Literal); fret; };
 lit_fmt_error    { createFmtLastErrorDescriptionTokens(); };
-lit_fmt_id       { createFmtSimpleIdentifierTokens(); };
+lit_fmt_id       { createFmtIdentifierTokens(); };
 lit_fmt_re_group { createFmtReGroupTokens(); };
 lit_fmt_index    { createFmtIndexTokens(); };
 lit_fmt_opener   { createFmtOpenerToken(); fcall main; };
-lit_fmt_spec     { createFmtSimpleSpecifierTokens(); };
+lit_fmt_spec     { createFmtSpecifierTokens(); };
 esc              ;
 any              ;
 
@@ -142,11 +142,11 @@ lit_fmt_ml := |*
 
 '"""'            { finalizeFmtLiteralToken(TokenKind_FmtMlEnd, m_literalExInfo.m_indentLength); fret; };
 lit_fmt_error    { createFmtLastErrorDescriptionTokens(FmtLiteralTokenFlag_Ml); };
-lit_fmt_id       { createFmtSimpleIdentifierTokens(FmtLiteralTokenFlag_Ml); };
+lit_fmt_id       { createFmtIdentifierTokens(FmtLiteralTokenFlag_Ml); };
 lit_fmt_re_group { createFmtReGroupTokens(FmtLiteralTokenFlag_Ml); };
 lit_fmt_index    { createFmtIndexTokens(FmtLiteralTokenFlag_Ml); };
 lit_fmt_opener   { createFmtOpenerToken(FmtLiteralTokenFlag_Ml); fcall main; };
-lit_fmt_spec     { createFmtSimpleSpecifierTokens(FmtLiteralTokenFlag_Ml); };
+lit_fmt_spec     { createFmtSpecifierTokens(FmtLiteralTokenFlag_Ml); };
 esc              ;
 nl ws?           { updateMlLiteralIndent(); };
 any              ;
@@ -155,7 +155,8 @@ any              ;
 
 lit_fmt_expr_spec := |*
 
-';' [^"})\n]*    { createFmtSpecifierToken(); fret; };
+ws               ;
+[^ \t\r)}"]*     { createStringToken(TokenKind_FmtSpecifier); fret; };
 any              { ASSERT(false); fret; };
 
 *|;

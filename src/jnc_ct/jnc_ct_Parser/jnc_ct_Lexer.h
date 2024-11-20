@@ -509,8 +509,7 @@ protected:
 	};
 
 	struct FmtLiteralStackEntry: LiteralExInfo {
-		int m_level;
-		char m_leftBraceChar;
+		int m_braceLevel;
 	};
 
 protected:
@@ -655,7 +654,7 @@ protected:
 	);
 
 	void
-	createFmtSimpleIdentifierTokens(uint_t flags = 0);
+	createFmtIdentifierTokens(uint_t flags = 0);
 
 	void
 	createFmtReGroupTokens(uint_t flags = 0);
@@ -667,10 +666,7 @@ protected:
 	createFmtIndexTokens(uint_t flags = 0);
 
 	void
-	createFmtSimpleSpecifierTokens(uint_t flags = 0);
-
-	Token*
-	createFmtSpecifierToken();
+	createFmtSpecifierTokens(uint_t flags = 0);
 
 	void
 	createDynamicCastTokens();
@@ -679,13 +675,10 @@ protected:
 	createDoxyCommentToken(TokenKind tokenKind);
 
 	void
-	onLeftBrace(char leftBraceChar);
+	onLeftBrace(char c);
 
 	bool
-	onRightBrace(
-		char leftBraceChar,
-		char rightBraceChar
-	);
+	onRightBrace(char c);
 
 	bool
 	onLeftCurlyBrace();
@@ -702,7 +695,7 @@ protected:
 	bool
 	onRightParenthesis() {
 		ASSERT(*ts == ')');
-		return onRightBrace('(', ')');
+		return onRightBrace(')');
 	}
 
 	bool
