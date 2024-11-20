@@ -1,0 +1,24 @@
+// this test was used when debugging the bitflag enum bw-or & bw-xor issue
+
+//..............................................................................
+
+SerialTapProStatusLines g_lines = 0;
+
+int main() {
+	uint8_t c = (SerialTapProStatusLines)0x12;
+	SerialTapProStatusLines lines = (SerialTapProStatusLines)c;
+	uint8_t mask = lines ^ g_lines;
+	printf("lines: 0x%x, mask: 0x%x\n", lines, mask);
+	assert(lines == 0x12 && mask == 0x12);
+	g_lines = lines;
+	return 0;
+}
+
+bitflag enum SerialTapProStatusLines: uint8_t {
+	Cts,
+	Dsr,
+	Ring,
+	Dcd,
+	Rts,
+	Dtr,
+}
