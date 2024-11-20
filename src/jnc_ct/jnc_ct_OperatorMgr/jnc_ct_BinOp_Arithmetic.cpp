@@ -448,12 +448,9 @@ BinOp_BwOr::op(
 	opValue1.overrideType(rawOpValue1, enumType->getRootType());
 	opValue2.overrideType(rawOpValue2, enumType->getRootType());
 
-	bool result = BinOp_IntegerOnly<BinOp_BwOr>::op(opValue1, opValue2, resultValue);
-	if (!result)
-		return false;
-
-	resultValue->overrideType(enumType);
-	return true;
+	return
+		BinOp_IntegerOnly<BinOp_BwOr>::op(opValue1, opValue2, resultValue) &&
+		m_module->m_operatorMgr.castOperator(resultValue, enumType);
 }
 
 llvm::Value*
@@ -490,12 +487,9 @@ BinOp_BwXor::op(
 	opValue1.overrideType(rawOpValue1, enumType->getRootType());
 	opValue2.overrideType(rawOpValue2, enumType->getRootType());
 
-	bool result = BinOp_IntegerOnly<BinOp_BwXor>::op(opValue1, opValue2, resultValue);
-	if (!result)
-		return false;
-
-	resultValue->overrideType(enumType);
-	return true;
+	return
+		BinOp_IntegerOnly<BinOp_BwXor>::op(opValue1, opValue2, resultValue) &&
+		m_module->m_operatorMgr.castOperator(resultValue, enumType);
 }
 
 llvm::Value*
