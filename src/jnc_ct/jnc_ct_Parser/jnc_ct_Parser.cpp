@@ -1558,7 +1558,18 @@ Parser::finalizeLastProperty(bool hasBody) {
 
 		argArray.append(setterArgType->getSimpleFunctionArg());
 
-		FunctionType* setterType = m_module->m_typeMgr.getFunctionType(argArray);
+		Type* returnType;
+		uint_t typeFlags;
+
+		if (m_lastPropertyTypeModifiers & TypeModifier_ErrorCode) {
+			returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool);
+			typeFlags = FunctionTypeFlag_ErrorCode;
+		} else {
+			returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Void);
+			typeFlags = 0;
+		}
+
+		FunctionType* setterType = m_module->m_typeMgr.getFunctionType(returnType, argArray, typeFlags);
 		Function* setter = m_module->m_functionMgr.createFunction(setterType);
 		setter->m_functionKind = FunctionKind_Setter;
 		setter->m_flags |= ModuleItemFlag_User;

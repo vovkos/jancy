@@ -66,19 +66,21 @@ enum TypeModifierMaskKind {
 
 	TypeModifierMaskKind_Function =
 		TypeModifier_Function |
-		TypeModifier_Unsafe |
 		TypeModifier_ErrorCode |
+		TypeModifier_Unsafe |
 		TypeModifier_Async |
 		TypeModifierMaskKind_CallConv,
 
 	TypeModifierMaskKind_Property =
 		TypeModifier_Property |
-		TypeModifierMaskKind_CallConv |
+		TypeModifier_ErrorCode |
 		TypeModifier_Const |
 		TypeModifier_ReadOnly |
 		TypeModifier_CMut |
+		TypeModifier_AutoGet |
 		TypeModifier_Bindable |
-		TypeModifier_Indexed,
+		TypeModifier_Indexed |
+		TypeModifierMaskKind_CallConv,
 
 	TypeModifierMaskKind_DataPtr =
 		TypeModifier_BigEndian |

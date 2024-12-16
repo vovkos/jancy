@@ -264,10 +264,13 @@ DeclTypeCalc::calcPropertyGetterType(Declarator* declarator) {
 	declarator->addGetterSuffix();
 
 	declarator->m_typeModifiers &= ~(
-		TypeModifier_Const |
 		TypeModifier_Property |
-		TypeModifier_Bindable |
+		TypeModifier_ErrorCode |
+		TypeModifier_Const |
+		TypeModifier_ReadOnly |
+		TypeModifier_CMut |
 		TypeModifier_AutoGet |
+		TypeModifier_Bindable |
 		TypeModifier_Indexed
 	);
 
