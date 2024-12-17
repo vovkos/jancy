@@ -55,6 +55,16 @@ UsbMonitor::UsbMonitor() {
 
 bool
 JNC_CDECL
+UsbMonitor::setKernelBufferSize(size_t size) {
+	if (m_isOpen && !m_monitor.setKernelBufferSize(size))
+		return false;
+
+	m_kernelBufferSize = size;
+	return true;
+}
+
+bool
+JNC_CDECL
 UsbMonitor::setOptions(uint_t options) {
 	if (m_isOpen)
 		return err::fail(err::SystemErrorCode_InvalidDeviceState);

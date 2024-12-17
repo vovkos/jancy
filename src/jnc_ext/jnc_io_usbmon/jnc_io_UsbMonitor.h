@@ -120,9 +120,7 @@ public:
 
 	bool
 	JNC_CDECL
-	setKernelBufferSize(size_t size) {
-		return m_monitor.setKernelBufferSize(size);
-	}
+	setKernelBufferSize(size_t size);
 
 	bool
 	JNC_CDECL

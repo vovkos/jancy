@@ -32,13 +32,13 @@ typedef ReadOnlyStreamEvents UsbMonEvents;
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 opaque class UsbMonitor {
-	uint_t autoget property m_addressFilter;
+	uint_t autoget errorcode property m_addressFilter;
 	uint_t autoget property m_readParallelism;
-	size_t autoget property m_kernelBufferSize; // 0 -- use platform default
+	size_t autoget errorcode property m_kernelBufferSize; // 0 -- use platform default
 	size_t autoget property m_readBlockSize;
-	size_t autoget property m_readBufferSize;
+	size_t autoget errorcode property m_readBufferSize;
 
-	UsbMonOptions autoget property m_options;
+	UsbMonOptions autoget errorcode property m_options;
 	UsbMonEvents readonly volatile m_activeEvents;
 	std.Error const* readonly volatile m_ioError;
 	bool readonly m_isOpen;
