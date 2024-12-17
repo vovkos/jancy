@@ -78,7 +78,6 @@ UsbDevice::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 	gcHeap->markDataPtr(m_langIdTablePtr);
 }
 
-
 void
 UsbDevice::removeInterface(UsbInterface* iface) {
 	m_lock.lock();

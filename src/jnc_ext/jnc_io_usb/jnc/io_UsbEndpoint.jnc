@@ -45,8 +45,8 @@ opaque class UsbEndpoint {
 	uint_t autoget property m_transferTimeout; // both read and write
 	uint_t autoget property m_readParallelism;
 	size_t autoget property m_readBlockSize;
-	size_t autoget property m_readBufferSize;
-	size_t autoget property m_writeBufferSize;
+	size_t autoget errorcode property m_readBufferSize;
+	size_t autoget errorcode property m_writeBufferSize;
 
 	UsbEndpointOptions autoget property m_options;
 

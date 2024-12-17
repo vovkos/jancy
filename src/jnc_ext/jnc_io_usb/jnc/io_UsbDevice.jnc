@@ -22,7 +22,7 @@ namespace io {
 opaque class UsbDevice {
 	UsbDeviceDescriptor const* const property m_deviceDescriptor;
 	UsbConfigurationDescriptor const* const property m_activeConfigurationDescriptor;
-	uint8_t property m_configurationId;
+	uint8_t errorcode property m_configurationId;
 	uint8_t const property m_address;
 	uint8_t const property m_bus;
 	uint8_t const property m_port;
@@ -44,7 +44,7 @@ opaque class UsbDevice {
 		uint_t langId = 0 // use the very first langId
 	);
 
-	bool autoget property m_isAutoDetachKernelDriverEnabled;
+	bool autoget errorcode property m_isAutoDetachKernelDriverEnabled;
 	bool const property m_isKernelDriverActive(uint_t interfaceId);
 	bool errorcode attachKernelDriver(uint_t interfaceId);
 	bool errorcode detachKernelDriver(uint_t interfaceId);

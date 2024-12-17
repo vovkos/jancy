@@ -114,7 +114,9 @@ public:
 	bool
 	JNC_CDECL
 	setConfigurationId(uint8_t configurationId) {
-		return m_isOpen ? m_device.setConfiguration(configurationId) : false;
+		return m_isOpen ?
+			m_device.setConfiguration(configurationId) :
+			err::fail(err::SystemErrorCode_InvalidDeviceState);
 	}
 
 	uint8_t
