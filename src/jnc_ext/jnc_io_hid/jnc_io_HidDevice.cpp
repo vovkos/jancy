@@ -58,13 +58,12 @@ HidDevice::markOpaqueGcRoots(GcHeap* gcHeap) {
 	gcHeap->markDataPtr(m_deviceDescPtr);
 }
 
-bool
+void
 JNC_CDECL
 HidDevice::setReadTimeout(uint_t timeout) {
 	m_lock.lock();
 	m_readTimeout = timeout ? timeout : Def_ReadTimeout;
 	m_lock.unlock();
-	return true;
 }
 
 bool

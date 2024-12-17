@@ -78,7 +78,7 @@ public:
 		return AsyncIoDevice::setReadBufferSize(&m_readBufferSize, size ? size : Def_ReadBufferSize);
 	}
 
-	bool
+	void
 	JNC_CDECL
 	setReadTimeout(uint_t timeout);
 
