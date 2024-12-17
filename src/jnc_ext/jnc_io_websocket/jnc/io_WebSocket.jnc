@@ -93,9 +93,9 @@ opaque class WebSocket {
 	size_t autoget property m_outgoingFragmentationThreshold;
 
 	size_t autoget property m_readBlockSize;
-	size_t autoget property m_readBufferSize;
-	size_t autoget property m_writeBufferSize;
-	WebSocketOptions autoget property m_options;
+	size_t autoget errorcode property m_readBufferSize;
+	size_t autoget errorcode property m_writeBufferSize;
+	WebSocketOptions autoget errorcode property m_options;
 
 	io.WebSocketEvents readonly volatile m_activeEvents;
 	std.Error const* readonly volatile m_ioError;

@@ -164,7 +164,7 @@ public:
 		return SocketBase::setOptions(options);
 	}
 
-	bool
+	void
 	JNC_CDECL
 	setExtraHeaders(WebSocketHandshakeHeaders* headers);
 

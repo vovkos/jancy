@@ -101,13 +101,12 @@ WebSocket::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 	AsyncIoDevice::markOpaqueGcRoots(gcHeap);
 }
 
-bool
+void
 JNC_CDECL
 WebSocket::setExtraHeaders(WebSocketHandshakeHeaders* headers) {
 	m_lock.lock();
 	m_extraHeaders = headers;
 	m_lock.unlock();
-	return true;
 }
 
 bool
