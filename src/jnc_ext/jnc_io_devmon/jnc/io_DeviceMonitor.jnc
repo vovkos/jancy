@@ -27,14 +27,14 @@ typedef ReadOnlyStreamEvents DeviceMonitorEvents;
 opaque class DeviceMonitor {
 	uint_t autoget property m_readParallelism;
 	size_t autoget property m_readBlockSize;
-	size_t autoget property m_readBufferSize;
-	size_t autoget property m_pendingNotifySizeLimit;
+	size_t autoget errorcode property m_readBufferSize;
+	size_t autoget errorcode property m_pendingNotifySizeLimit;
 
 	bool readonly m_isConnected;
-	bool autoget property m_isEnabled;
+	bool autoget errorcode property m_isEnabled;
 
 	string_t readonly m_deviceName;
-	string_t autoget property m_fileNameFilter;
+	string_t autoget errorcode property m_fileNameFilter;
 
 	protected uint_t m_unused;
 
