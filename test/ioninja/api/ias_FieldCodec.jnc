@@ -1,0 +1,65 @@
+//..............................................................................
+//
+// IO Ninja IAS (In-App Scripting) - encoded fields codec for packet templates
+//
+
+import "std_Buffer.jnc"
+
+namespace ias {
+
+//! \addtogroup api-ias
+//! @{
+
+//..............................................................................
+
+// encoded fields of packet templates use this class
+
+class FieldCodec {
+	virtual size_t errorcode decode(
+		std.Buffer* buffer,
+		void const* p,
+		size_t size
+	) {
+		return buffer.copy(p, size);
+	}
+
+	virtual size_t errorcode encode(
+		std.Buffer* buffer,
+		void const* p,
+		size_t size
+	) {
+		return buffer.copy(p, size);
+	}
+
+	virtual size_t errorcode inject(
+		std.Buffer* buffer,
+		size_t offset,
+		size_t originalSize,
+		void const* p,
+		size_t size
+	);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+size_t errorcode FieldCodec.inject(
+	std.Buffer* buffer,
+	size_t offset,
+	size_t originalSize,
+	void const* p,
+	size_t size
+) {
+	if (size < originalSize)
+		buffer.remove(offset, originalSize - size);
+	else if (originalSize < size)
+		buffer.insert(offset, null, size - originalSize);
+
+	memcpy(buffer.m_p + offset, p, size);
+	return buffer.m_size;
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace ias

@@ -8,15 +8,19 @@ import "log_RecordCode.jnc"
 //..............................................................................
 
 enum HidLogRecordCode: uint64_t {
-	Open              = 0x01d9d57271fc2800 | log.RecordCodeFlags.Foldable,
-	OpenError         = 0x01d9d57271fc2801,
-	Close             = 0x01d9d57271fc2802,
-	DeviceInfo        = 0x01d9d57271fc2803 | log.RecordCodeFlags.Foldable,
-	ReportDescriptor  = 0x01d9d57271fc2804 | log.RecordCodeFlags.Foldable,
-	InputReport       = 0x01d9d57271fc2805,
-	OutputReport      = 0x01d9d57271fc2806,
-	GetFeatureReport  = 0x01d9d57271fc2807,
-	SendFeatureReport = 0x01d9d57271fc2808,
+	Open                  = 0x01d9d57271fc2800 | log.RecordCodeFlags.Foldable,
+	OpenError             = 0x01d9d57271fc2801,
+	Close                 = 0x01d9d57271fc2802,
+	DeviceInfo            = 0x01d9d57271fc2803 | log.RecordCodeFlags.Foldable,
+	ReportDescriptor      = 0x01d9d57271fc2804 | log.RecordCodeFlags.Foldable,
+	InputReportNoId       = 0x01d9d57271fc2805,
+	OutputReportNoId      = 0x01d9d57271fc2806,
+	GetFeatureReportNoId  = 0x01d9d57271fc2807,
+	SendFeatureReportNoId = 0x01d9d57271fc2808,
+	InputReport           = 0x01d9d57271fc2809,
+	OutputReport          = 0x01d9d57271fc280a,
+	GetFeatureReport      = 0x01d9d57271fc280b,
+	SendFeatureReport     = 0x01d9d57271fc280c,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

@@ -74,6 +74,8 @@ opaque class ComboBox: Widget {
 		return m_currentIndex = insertItem(index, text, data);
 	}
 
+	void insertSeparator(size_t index);
+
 	bool removeItem(size_t index);
 
 	void setItems(

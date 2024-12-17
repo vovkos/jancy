@@ -34,6 +34,18 @@ void refreshHidMonDeviceListUi(
 	ComboBox* deviceCombo,
 	EnumProperty* deviceProp
 ) {
+	string_t usbmonService = sys.g_systemInfo.m_osKind == sys.OsKind.Windows ?
+		"USBPcap" :
+		"usbmon";
+
+	if (!io.detectUsbMon()) {
+		string_t text = $"(%1 not detected)"(usbmonService);
+		deviceCombo.clear();
+		deviceCombo.addItem(text);
+		deviceProp.addOption(text);
+		return;
+	}
+
 	size_t count;
 	io.HidMonDeviceDesc const* deviceList = io.enumerateHidMonDevices(&count);
 
@@ -52,10 +64,6 @@ void refreshHidMonDeviceListUi(
 
 	deviceCombo.clear();
 
-	string_t captureDevicePrefix = sys.g_systemInfo.m_osKind == sys.OsKind.Windows ?
-		"USBPcap" :
-		"usbmon";
-
 	std.StringBuilder description;
 	std.StringBuilder toolTip;
 
@@ -63,16 +71,14 @@ void refreshHidMonDeviceListUi(
 		io.HidMonDeviceDesc const* device = deviceArray[i];
 		io.HidUsagePage const* page = io.g_hidDb.getUsagePage(device.m_usagePage);
 		string_t product = device.m_productDescriptor ? device.m_productDescriptor : device.m_description;
-		string_t manufacturer = device.m_manufacturerDescriptor ? device.m_manufacturerDescriptor : device.m_manufacturer;
 		string_t usageName = page.getUsageName(device.m_usage);
 
-		description = $"%1%2:%(3; 03d).%4 - %5 by %6 (%7: %8)"(
-			captureDevicePrefix,
+		description = $"%1%2:%(3; 03d) - %4 IF%5 (%6: %7)"(
+			usbmonService,
 			device.m_captureDeviceId,
 			device.m_address,
-			device.m_interfaceId,
 			product,
-			manufacturer,
+			device.m_interfaceId,
 			page.m_name,
 			usageName
 		);
@@ -89,7 +95,7 @@ void refreshHidMonDeviceListUi(
 			$"<tr><td>Usage:</td><td>%10</td></tr>"
 			$"<tr><td>Interface:</td><td>%11</td></tr>"
 			$"<tr><td>IN endpoint:</td><td>0x%(12; 02X)</td></tr>"(
-				captureDevicePrefix,
+				usbmonService,
 				device.m_captureDeviceId,
 				device.m_address,
 				device.m_description,

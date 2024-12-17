@@ -78,6 +78,11 @@ void MonitorFilter.setFilter(
 	switch (filterKind) {
 	case MonitorFilterKind.FileName:
 	case MonitorFilterKind.ProcessName:
+		if (!filter) {
+			m_filterKind = MonitorFilterKind.None; // empty filter means no filter
+			break;
+		}
+
 		// wildcardCompareStringLowerCase() expects wildcard in lower-case
 
 		char* wildcard = strdup(filter);

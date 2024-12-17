@@ -1,0 +1,65 @@
+//..............................................................................
+//
+// Sniffer log RAW IP packets handling
+//
+
+//..............................................................................
+
+void representRawDigest(
+	log.Representation* representation,
+	void const* p,
+	size_t size,
+	int payloadPreviewIconIdx = -1
+) {
+	if (size < sizeof(io.IpHdr)) {
+		representation.addHyperText("\e[1mRAW\e[m [INCOMPLETE]");
+		return;
+	}
+
+	io.IpHdr const* hdr = (io.IpHdr const*)p;
+	switch (hdr.m_version) {
+	case 4:
+		representIpDigest(representation, p, size, payloadPreviewIconIdx);
+		return;
+
+	case 6:
+		representIp6Digest(representation, p, size, payloadPreviewIconIdx);
+		return;
+
+	default:
+		representation.addHyperText($"\e[1mRAW\e[m IP version: \e[34m%d"(hdr.m_version));
+		representPayloadPreview(representation, p, size, payloadPreviewIconIdx);
+	}
+}
+
+void representRawDetails(
+	log.Representation* representation,
+	std.Array* protoRangeArray,
+	void const* p,
+	size_t size,
+	size_t baseOffset,
+	uint_t foldFlags
+) {
+	representation.m_lineAttr.m_backColor = ProtoColor.LinkLayer;
+
+	if (size < sizeof(io.IpHdr)) {
+		representation.addHyperText("\e[1mRAW\e[m [INCOMPLETE]");
+		return;
+	}
+
+	io.IpHdr const* hdr = (io.IpHdr const*)p;
+	switch (hdr.m_version) {
+	case 4:
+		representIpDetails(representation, protoRangeArray, p, size, baseOffset, foldFlags);
+		break;
+
+	case 6:
+		representIp6Details(representation, protoRangeArray, p, size, baseOffset, foldFlags);
+		break;
+
+	default:
+		representation.addHyperText($"\e[1mRAW\e[m IP version: \e[34m%d"(hdr.m_version));
+	}
+}
+
+//..............................................................................

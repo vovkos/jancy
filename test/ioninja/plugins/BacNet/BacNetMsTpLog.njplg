@@ -1,0 +1,27 @@
+//..............................................................................
+//
+// BACnet MS/TP Analyzer log representer plugin
+//
+
+[plugin]
+
+name        = "BACnet MS/TP Analyzer Log"
+description = "BACnet MS/TP Analyzer log representer"
+guid        = 9ade09ff-3c68-4d0e-aeaa-f4cb1f862d5c
+icon        = images/plugin.png
+small-icon  = images/plugin-16x16.png
+
+log-representer-func = representBacNetMsTpLog
+
+[scripts]
+
+BacNetMsTpLogRecordCode.jnc
+BacNetMsTpLogRepresenter.jnc
+BacNetNpdu.jnc
+BacNetApdu.jnc
+
+[records]
+
+01dac7a2551efdc0 # ParseError
+81dac7a2551efdc1 # TxPacket
+81dac7a2551efdc2 # RxPacket

@@ -150,7 +150,7 @@ void HidMonSession.createUi() {
 
 	m_actionTable[ActionId.Refresh]  = createAction("Re-enumerate devices", m_iconTable[IconId.Refresh]);
 	m_actionTable[ActionId.Refresh].m_onTriggered += onRefresh;
-	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable [IconId.Capture]);
+	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable[IconId.Capture]);
 	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;
 	m_actionTable[ActionId.Info] = createAction("HID device info", m_iconTable[IconId.Info]);
 	m_actionTable[ActionId.Info].m_onTriggered += onInfo;
@@ -202,7 +202,7 @@ void HidMonSession.createUi() {
 
 	// information grid
 
-	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Pipe monitor");
+	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("HID monitor");
 
 	m_stdSessionInfoSet.create(m_pluginHost.m_txRxStats, m_pluginHost.m_informationGrid, infoGroup);
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
@@ -220,6 +220,17 @@ bool errorcode HidMonSession.capture() {
 	startSession();
 
 	io.HidMonDeviceDesc const* device = m_deviceCombo.m_currentData;
+	if (!device) {
+		m_logWriter.write(
+			UsbLogRecordCode.UsbMonNotDetected,
+			&sys.g_systemInfo.m_osKind,
+			sizeof(sys.OsKind)
+		);
+
+		std.setError("USB capturing service not detected");
+		return false;
+	}
+
 	m_monitor.m_options = io.UsbMonOptions.CompletedTransfersOnly;
 	m_monitor.m_addressFilter = device.m_address;
 	m_monitor.open(device.m_captureDeviceName);
@@ -420,11 +431,11 @@ void HidMonSession.processData(
 			params.m_status = hdr.m_status;
 			m_logWriter.write(UsbLogRecordCode.TransferError, &params, sizeof(params));
 		} else if (hdr.m_captureSize) {
+			bool hasReportId = (m_rd.m_flags & io.HidRdFlags.HasReportId) != 0;
 			uint64_t recordCode;
 			io.HidReportType reportType;
 			uint_t reportId;
 			uchar_t const* data = (uchar_t const*)(hdr + 1);
-			size_t dataSize = hdr.m_captureSize;
 			bool isRx;
 
 			switch (hdr.m_transferType) {
@@ -438,11 +449,8 @@ void HidMonSession.processData(
 					reportType = io.HidReportType.Output;
 				}
 
-				reportId = 0;
-				if (m_rd.m_flags & io.HidRdFlags.HasReportId) {
-					reportId = *data++;
-					dataSize--;
-				}
+				if (hasReportId)
+					reportId = *data;
 
 				break;
 
@@ -471,16 +479,19 @@ void HidMonSession.processData(
 			}
 
 			if (recordCode) {
+				if (!hasReportId) // use the xxxNoId record codes
+					recordCode -= HidLogRecordCode.InputReport - HidLogRecordCode.InputReportNoId;
+
 				io.HidReport const* report = m_rd.findReport(reportType, reportId);
 				if (report)
-					m_reportWriter.writeReport(recordCode, report, data, dataSize);
+					m_reportWriter.writeReport(recordCode, report, data, hdr.m_captureSize);
 				else
-					m_reportWriter.writeUnknownReport(recordCode, reportId, data, dataSize);
+					m_reportWriter.writeUnknownReport(recordCode, reportId, data, hdr.m_captureSize);
 
 				if (isRx)
-					m_pluginHost.m_txRxStats.addRx(dataSize);
+					m_pluginHost.m_txRxStats.addRx(hdr.m_captureSize);
 				else
-					m_pluginHost.m_txRxStats.addTx(dataSize);
+					m_pluginHost.m_txRxStats.addTx(hdr.m_captureSize);
 			}
 		}
 
@@ -550,7 +561,7 @@ void HidMonSession.restoreDefaultProperties() {
 }
 
 reactor HidMonSession.m_uiReactor {
-	m_title = m_deviceCombo.m_currentText;
+	m_title = $"HID $(m_deviceCombo.m_currentText)";
 	m_actionTable[ActionId.Capture].m_text = m_state ? "Stop Capture" : "Capture";
 	m_actionTable[ActionId.Capture].m_icon = m_iconTable[m_state ? IconId.StopCapture : IconId.Capture];
 	m_actionTable[ActionId.Info].m_isEnabled = m_state;

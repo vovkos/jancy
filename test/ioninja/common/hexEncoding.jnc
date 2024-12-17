@@ -7,8 +7,15 @@ import "std_Buffer.jnc"
 
 //..............................................................................
 
-static bool isspace(char c) { // we don't have these in the Jancy stdlib yet
-	return c == ' ' || c == '\t' || c == '\r' || c == '\n';
+bool isHexStringSep(char c) {
+	switch (c) {
+	case ' ': case '\t': case '\r': case '\n':
+	case '.': case ',': case ';': case ':':
+		return true;
+
+	default:
+		return false;
+	}
 }
 
 size_t decodeHexString(
@@ -23,7 +30,7 @@ size_t decodeHexString(
 	State state = State.Normal;
 
 	buffer.clear();
-	buffer.setSize(source.m_length / 2); // enough to hold everything
+	buffer.setSize(source.m_length / 2 + 1); // enough to hold everything
 
 	char hexCodeString[4] = { 0 };
 	char const* hexCodeEnd;
@@ -36,11 +43,11 @@ size_t decodeHexString(
 
 	size_t size = 0;
 	for (; p < end; p++) {
-		bool isSpace = isspace(*p);
+		bool isSep = isHexStringSep(*p);
 
 		switch (state) {
 		case State.Normal:
-			if (isSpace)
+			if (isSep)
 				break;
 
 			hexCodeString[0] = *p;
@@ -49,15 +56,14 @@ size_t decodeHexString(
 			break;
 
 		case State.Hex:
-			if (!isSpace) {
+			if (!isSep) {
 				hexCodeString[hexCodeLen++] = *p;
 				if (hexCodeLen < 2)
 					break;
 			}
 
 			hexCodeString[hexCodeLen] = 0;
-			x = (uchar_t)strtol(hexCodeString, &hexCodeEnd, 16);
-
+			x = (uchar_t)strtoul(hexCodeString, &hexCodeEnd, 16);
 			if (hexCodeEnd == &hexCodeString[hexCodeLen])
 				buffer[size++] = x;
 			else
@@ -78,6 +84,47 @@ size_t decodeHexString(
 
 	buffer.setSize(size); // adjust size
 	return size;
+}
+
+string_t encodeHexString(
+	void const* p,
+	size_t size,
+	char sep = 0 // 0 means no separator
+) {
+	static char charTable[] = "0123456789ABCDEF";
+
+	if (!size)
+		return null;
+
+	size_t length = size * 2;
+	if (sep)
+		length += size - 1;
+
+	std.Buffer buffer;
+	buffer.setSize(length + 1); // plus null-terminator (not essential)
+
+	char* dst = buffer.m_p;
+	uint8_t const* src = p;
+	uint8_t const* end = p + size;
+
+	if (!sep)
+		for (; src < end; src++) {
+			uint8_t x = *src;
+			*dst++ = charTable[(x >> 4) & 0x0f];
+			*dst++ = charTable[x & 0x0f];
+		}
+	else {
+		memset(dst, sep, length);
+
+		for (; src < end; src++) {
+			uint8_t x = *src;
+			*dst++ = charTable[(x >> 4) & 0x0f];
+			*dst++ = charTable[x & 0x0f];
+			dst++; // sep
+		}
+	}
+
+	return string_t(buffer.m_p, length);
 }
 
 //..............................................................................

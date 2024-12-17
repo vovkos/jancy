@@ -25,7 +25,7 @@ string_t getDeviceInfoString(
 
 	if (!(foldFlags & 1))
 		return
-			$"[\e^+1\e[34m+\e[m] %1 - \e[34m%2\e[m by \e[34m%3"(prefix, product, manufacturer);
+			$"[\e^+1\e[34m+\e[m] %1 - \e[34m%2"(prefix, product);
 
 	string_t driver = manufacturer.m_p + manufacturer.m_length + 1;
 	string_t string =
@@ -312,7 +312,37 @@ bool representUsbLog(
 
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
-		representation.addHyperText($"Transfer error: $(description)");
+		representation.addHyperText($"Transfer error: $description");
+		break;
+
+	case UsbLogRecordCode.UsbMonNotDetected:
+		sys.OsKind osKind = *(sys.OsKind const*)p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+
+		string_t usbmonService;
+		string_t url;
+		switch (osKind) {
+		case sys.OsKind.Windows:
+			usbmonService = "USBPcap";
+			url = "http://ioninja.com/doc/kb/usbpcap_windows_installation.html";
+			break;
+
+		case sys.OsKind.Linux:
+			usbmonService = "usbmon";
+			url = "http://ioninja.com/doc/kb/usbmon_linux_installation.html";
+			break;
+
+		default:
+			representation.addHyperText($"USB capturing service not detected");
+			break2;
+		}
+
+		representation.addHyperText(
+			$"USB capturing service ($usbmonService) not detected\n"
+			$"Read this \e^$url\e[4;34mKB article\e[m for more details"
+		);
+
 		break;
 
 	default:

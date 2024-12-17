@@ -32,6 +32,7 @@ enum UsbLogRecordCode: uint64_t {
 	TransferError         = 0x01d485f4acbf80ca,
 	InterfaceClaimed      = 0x01d485f4acbf80cb,
 	ReadingStarted        = 0x01d485f4acbf80cc,
+	UsbMonNotDetected     = 0x01d485f4acbf80cd,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

@@ -67,16 +67,16 @@ enum {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct SERIAL_LINE_CONTROL {
-    uint8_t StopBits;
-    uint8_t Parity;
-    uint8_t WordLength;
+	uint8_t StopBits;
+	uint8_t Parity;
+	uint8_t WordLength;
 }
 
 struct SERIAL_HANDFLOW {
-    uint32_t ControlHandShake;
-    uint32_t FlowReplace;
-    uint32_t XonLimit;
-    uint32_t XoffLimit;
+	uint32_t ControlHandShake;
+	uint32_t FlowReplace;
+	uint32_t XonLimit;
+	uint32_t XoffLimit;
 }
 
 } // namespace wdk

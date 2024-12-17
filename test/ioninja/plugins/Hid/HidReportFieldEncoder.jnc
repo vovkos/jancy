@@ -1,0 +1,146 @@
+//..............................................................................
+//
+// HID report field encoders
+//
+
+import "ui_PropertyGrid.jnc"
+
+//..............................................................................
+
+class HidReportFieldEncoder {
+public:
+	abstract void encode(
+		void* p,
+		size_t bitOffset
+	);
+
+	abstract void decode(
+		void const* p,
+		size_t bitOffset
+	);
+}
+
+//..............................................................................
+
+class HidReportBitEncoder: HidReportFieldEncoder {
+protected:
+	ui.BoolProperty* m_prop;
+
+public:
+	construct(ui.BoolProperty* prop) {
+		m_prop = prop;
+	}
+
+	override void encode(
+		void* p0,
+		size_t bitOffset
+	);
+
+	override void decode(
+		void const* p0,
+		size_t bitOffset
+	);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void HidReportBitEncoder.encode(
+	void* p0,
+	size_t bitOffset
+) {
+	uint8_t* p = (uint8_t*)(p0 + bitOffset / 8);
+	uint_t value = 1 << (bitOffset & 7);
+	if (m_prop.m_value)
+		*p |= value;
+	else
+		*p &= ~value;
+}
+
+void HidReportBitEncoder.decode(
+	void const* p0,
+	size_t bitOffset
+) {
+	uint8_t const* p = (uint8_t const*)(p0 + bitOffset / 8);
+	uint_t value = 1 << (bitOffset & 7);
+	m_prop.m_value = (*p & value) != 0;
+}
+
+//..............................................................................
+
+class HidReportIntEncoder: HidReportFieldEncoder {
+protected:
+	ui.StringProperty* m_prop;
+	size_t m_bitCount;
+	bool m_isUnsigned;
+
+public:
+	construct(
+		ui.StringProperty* prop,
+		size_t bitCount,
+		bool isUnsigned
+	);
+
+	override void encode(
+		void* p0,
+		size_t bitOffset
+	);
+
+	override void decode(
+		void const* p0,
+		size_t bitOffset
+	);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+HidReportIntEncoder.construct(
+	ui.StringProperty* prop,
+	size_t bitCount,
+	bool isUnsigned
+) {
+	m_prop = prop;
+	m_bitCount = bitCount;
+	m_isUnsigned = isUnsigned;
+}
+
+void HidReportIntEncoder.encode(
+	void* p0,
+	size_t bitOffset
+) {
+	uint_t shift = bitOffset & 7;
+	uint64_t mask = ((uint64_t)1 << m_bitCount) - 1;
+
+	uint64_t value = m_isUnsigned ?
+		strtoul(m_prop.m_value) :
+		strtol(m_prop.m_value);
+
+	uint64_t* p = (uint64_t*)(p0 + bitOffset / 8);
+	*p &= ~(mask << shift);
+	*p |= (value & mask) << shift;
+}
+
+void HidReportIntEncoder.decode(
+	void const* p0,
+	size_t bitOffset
+) {
+	uint_t shift = bitOffset & 7;
+	uint64_t mask = ((uint64_t)1 << m_bitCount) - 1;
+
+	uint64_t const* p = (int64_t const*)(p0 + bitOffset / 8);
+	uint64_t value = (*p >> shift) & mask;
+
+	if (!m_isUnsigned) {
+		uint64_t signBit = (uint64_t)1 << (m_bitCount - 1);
+		if (value & signBit)
+			value |= ~(signBit - 1); // sign-extension
+	}
+
+	if (strnicmp(m_prop.m_value, "0x", 2) == 0)
+		m_prop.m_value = $"0x%llx"(value);
+	else if (m_isUnsigned)
+		m_prop.m_value = $"%llu"(value);
+	else
+		m_prop.m_value = $"%lld"(value);
+}
+
+//..............................................................................

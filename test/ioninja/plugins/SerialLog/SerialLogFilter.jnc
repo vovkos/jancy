@@ -65,21 +65,21 @@ SerialLogFilter.construct(doc.PluginHost* pluginHost) {
 		layout,
 		groupProp,
 		"Serial setting changes",
-		"Show/hide serial setting changes (baud rate, data bits, etc)"
+		"Show/hide serial setting changes (baud rate, data bits, etc.)"
 	);
 
 	m_controlLineChangeFilter.create(
 		layout,
 		groupProp,
-		"Serial control line changes",
-		"Show/hide serial control lines changes (DTR/DSR)"
+		"DTR/RTS changes",
+		"Show/hide serial control lines changes (DTR/RTS)"
 	);
 
 	m_statusLineChangeFilter.create(
 		layout,
 		groupProp,
-		"Serial status line changes",
-		"Show/hide serial control lines changes (RTS/CTS)"
+		"DSR/CTS/DCD/RI changes",
+		"Show/hide serial control lines changes (DSR/CTS/DCD/RI)"
 	);
 
 	m_lineErrorFilter.create(

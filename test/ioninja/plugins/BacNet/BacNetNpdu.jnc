@@ -1,0 +1,91 @@
+//..............................................................................
+//
+// BACnet NPDU (network layer protocol data unit)
+//
+
+import "hexEncoding.jnc"
+
+pragma(Alignment, 1)
+
+//..............................................................................
+
+bitflag enum BacNetNpduControl: uint8_t {
+	Urgent,
+	Critical,
+	ExpectingReply,
+	SourcePresent,
+	Reserved0,
+	DestinationPresent,
+	Reserved1,
+	MessageTypePresent,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct BacNetNpduHdr {
+	[ displayName = "Version" ]
+	uint8_t m_version;
+
+	[ displayName = "Control" ]
+	bigendian BacNetNpduControl m_control;
+}
+
+//..............................................................................
+
+[ displayName = "BACnet NPDU" ]
+void layoutBacNetNpdu(jnc.DynamicLayout* layout) {
+	dylayout (layout) {
+		[ ungroup ]
+		dyfield BacNetNpduHdr hdr;
+
+		if (hdr.m_control & BacNetNpduControl.DestinationPresent) {
+			[ displayName = "DNET" ]
+			dyfield bigendian uint16_t dnet;
+			[ displayName = "DLEN" ]
+			dyfield uint8_t dlen;
+			[
+				displayName = "DADR",
+				formatFunc = formatMacAddress
+			]
+			dyfield char dadr[dlen];
+		}
+
+		if (hdr.m_control & BacNetNpduControl.SourcePresent) {
+			[ displayName = "SNET" ]
+			dyfield bigendian uint16_t snet;
+			[ displayName = "SLEN" ]
+			dyfield uint8_t slen;
+			[
+				displayName = "SADR",
+				formatFunc = formatMacAddress
+			]
+			dyfield char sadr[slen];
+		}
+
+		if (hdr.m_control & BacNetNpduControl.DestinationPresent)
+			[ displayName = "Hop count" ]
+			dyfield uint8_t hopCount;
+
+		if (hdr.m_control & BacNetNpduControl.MessageTypePresent) {
+			[ displayName = "Message type" ]
+			dyfield uint8_t messageType;
+			if (messageType >= 0x80)
+				[
+					displayName = "Vendor ID",
+					formatSpec = "0x%04X"
+				]
+				dyfield bigendian uint16_t vendorId;
+		}
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+string_t formatMacAddress(
+	void const* p,
+	size_t size
+) {
+	return encodeHexString(p, size, ':'); // MAC-address format
+}
+
+//..............................................................................

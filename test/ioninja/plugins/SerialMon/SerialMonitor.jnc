@@ -43,7 +43,7 @@ SerialMonitor.construct(SerialMonSession* session) {
 		break;
 
 	default:
-		std.setError("Unsupported OS");
+		std.setError("unsupported OS");
 		throw;
 	}
 }

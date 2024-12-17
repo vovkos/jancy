@@ -170,7 +170,7 @@ void UdpFlowMonSession.createUi() {
 	m_iconTable[IconId.Capture] = new ui.Icon("images/capture.png");
 	m_iconTable[IconId.StopCapture] = new ui.Icon("images/pause.png");
 
-	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable [IconId.Capture]);
+	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable[IconId.Capture]);
 	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;
 	m_pluginHost.m_toolBar.addSeparator();
 

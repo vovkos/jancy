@@ -230,7 +230,7 @@ void ReplayLogLayer.close() {
 void ReplayLogLayer.handleError() {
 	stop();
 
-	m_progressDlg.m_status = $"<font color=#800>$(std.getLastErrorDescription ())</font>";
+	m_progressDlg.m_status = $"<font color=#800>$(std.getLastErrorDescription())</font>";
 	m_progressDlg.m_buttons = ui.StdDlgButtons.Close;
 }
 
@@ -245,7 +245,7 @@ bool errorcode ReplayLogLayer.readLoop() {
 			if (m_offset)
 				break; // if it happens not on the first record, just stop here (broken log)
 
-			std.setError("Invalid log file format (bad file signature)"); // bad first record
+			std.setError("invalid log file format (bad file signature)"); // bad first record
 			return false;
 		}
 
@@ -344,12 +344,12 @@ void ReplayLogLayer.onPlay() {
 
 	m_hdr = (log.RecordFileHdr const*)m_file.view(0, sizeof(log.RecordFileHdr), true);
 	if (m_hdr.m_signature != log.RecordFileSignature) {
-		std.setError("Invalid log file format (bad file signature)");
+		std.setError("invalid log file format (bad file signature)");
 		throw;
 	}
 
 	if (!m_hdr.m_totalRecordSize) {
-		std.setError("Log file is empty");
+		std.setError("log file is empty");
 		throw;
 	}
 

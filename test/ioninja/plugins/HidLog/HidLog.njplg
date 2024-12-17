@@ -26,7 +26,11 @@ HidLogRepresenter.jnc
 01d9d57271fc2802  # Close
 81d9d57271fc2803  # DeviceInfo
 81d9d57271fc2804  # ReportDescriptor
-01d9d57271fc2805  # InputReport
-01d9d57271fc2806  # OutputReport
-01d9d57271fc2807  # GetFeatureReport
-01d9d57271fc2808  # SendFeatureReport
+01d9d57271fc2805  # InputReportNoId
+01d9d57271fc2806  # OutputReportNoId
+01d9d57271fc2807  # GetFeatureReportNoId
+01d9d57271fc2808  # SendFeatureReportNoId
+01d9d57271fc2809  # InputReport
+01d9d57271fc280a  # OutputReport
+01d9d57271fc280b  # GetFeatureReport
+01d9d57271fc280c  # SendFeatureReport

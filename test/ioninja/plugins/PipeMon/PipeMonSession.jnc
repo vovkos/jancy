@@ -137,11 +137,11 @@ void PipeMonSession.createUi() {
 	// toolbar
 
 	static ui.EnumPropertyOption viewFilterKindTable[] = {
-		{ "None",         log.MonitorFilterKind.None },
-		{ "File name",    log.MonitorFilterKind.FileName },
-		{ "File ID",  log.MonitorFilterKind.FileId },
-		{ "Process", log.MonitorFilterKind.ProcessName },
-		{ "PID",          log.MonitorFilterKind.ProcessId },
+		{ "None",      log.MonitorFilterKind.None },
+		{ "File name", log.MonitorFilterKind.FileName },
+		{ "File ID",   log.MonitorFilterKind.FileId },
+		{ "Process",   log.MonitorFilterKind.ProcessName },
+		{ "PID",       log.MonitorFilterKind.ProcessId },
 	}
 
 	m_viewFilterKindCombo = m_pluginHost.m_toolBar.addComboBox(
@@ -161,7 +161,7 @@ void PipeMonSession.createUi() {
 	m_actionTable[ActionId.ApplyFilter] = createAction("Apply filter", "images/apply.png");
 	m_actionTable[ActionId.ApplyFilter].m_onTriggered += onSetViewFilter;
 
-	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable [IconId.Capture]);
+	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable[IconId.Capture]);
 	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;
 
 	// status bar
@@ -245,6 +245,17 @@ void PipeMonSession.createUi() {
 bool errorcode PipeMonSession.capture() {
 	close();
 	startSession();
+
+	if (!io.detectDeviceMonitor()) {
+		m_logWriter.write(
+			DeviceMonLogRecordCode.DeviceMonNotDetected,
+			&sys.g_systemInfo.m_osKind,
+			sizeof(sys.OsKind)
+		);
+
+		std.setError("device monitoring service (tdevmon) not detected");
+		return false;
+	}
 
 	m_captureFilter = createCaptureFilter();
 	m_npfsMonitor.applyProperties(m_bufferPropertySet, m_pendingNotifySizeLimitProp.m_value);

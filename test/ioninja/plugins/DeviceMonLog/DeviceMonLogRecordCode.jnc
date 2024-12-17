@@ -13,6 +13,7 @@ enum DeviceMonLogRecordCode: uint64_t {
 	CaptureStopped        = 0x01d48710873f2c7c,
 	CaptureError          = 0x01d48710873f2c7d,
 	SetCaptureFilter      = 0x01d48710873f2c7e,
+	DeviceMonNotDetected  = 0x01d48710873f2c7f,
 }
 
 //..............................................................................

@@ -213,19 +213,19 @@ void CypressUploaderSession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("Device:");
 	m_deviceCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 
-	m_actionTable[ActionId.Refresh]  = createAction("Re-enumerate devices", m_iconTable [IconId.Refresh]);
+	m_actionTable[ActionId.Refresh]  = createAction("Re-enumerate devices", m_iconTable[IconId.Refresh]);
 	m_actionTable[ActionId.Refresh].m_onTriggered += enumerateDevices;
 
-	m_actionTable[ActionId.Open] = createAction("Open device", m_iconTable [IconId.Open]);
+	m_actionTable[ActionId.Open] = createAction("Open device", m_iconTable[IconId.Open]);
 	m_actionTable[ActionId.Open].m_onTriggered += onOpenDevice;
 
 	m_pluginHost.m_menu.addSeparator();
 	m_pluginHost.m_toolBar.addSeparator();
 
-	m_actionTable[ActionId.Download] = createAction("Download file", m_iconTable [IconId.Download]);
+	m_actionTable[ActionId.Download] = createAction("Download file", m_iconTable[IconId.Download]);
 	m_actionTable[ActionId.Download].m_onTriggered += onDownloadFile;
 
-	m_actionTable[ActionId.Upload] = createAction("Upload file", m_iconTable [IconId.Upload]);
+	m_actionTable[ActionId.Upload] = createAction("Upload file", m_iconTable[IconId.Upload]);
 	m_actionTable[ActionId.Upload].m_onTriggered += onUploadFile;
 
 	// status bar
@@ -543,7 +543,7 @@ void CypressUploaderSession.onFpgaCheckTimer() {
 	if (m_fpgaCheckRetryNum < m_fpgaCheckRetryCountProp.m_value)
 		return;
 
-	std.setError("Can't load FPGA");
+	std.setError("can't load FPGA");
 	m_logWriter.writeLastError(log.StdRecordCode.Error);
 	cancelFileTransfer();
 

@@ -26,3 +26,4 @@ DeviceMonLogRepresenter.jnc
 01d48710873f2c7c  # CaptureStopped
 01d48710873f2c7d  # CaptureError
 01d48710873f2c7e  # SetCaptureFilter
+01d48710873f2c7f  # DeviceMonNotDetected

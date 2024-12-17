@@ -52,9 +52,9 @@ void refreshHidDeviceListUi(
 
 		HidDeviceEntry* entry = new HidDeviceEntry;
 		entry.m_deviceDesc = desc;
-		entry.m_description = $"%1 by %2 (%3: %4)"(
+		entry.m_description = $"%1 IF%2 (%3: %4)"(
 			desc.m_product,
-			desc.m_manufacturer,
+			desc.m_interfaceId,
 			page.m_name,
 			usageName
 		);
@@ -66,19 +66,19 @@ void refreshHidDeviceListUi(
 			$"<tr><td>Manufacturer:</td><td>%s</td></tr>"
 			$"<tr><td>Vendor ID:</td><td>0x%04X</td></tr>"
 			$"<tr><td>Product ID:</td><td>0x%04X</td></tr>"
-			$"<tr><td>Usage page:</td><td>%s</td></tr>"
-			$"<tr><td>Usage:</td><td>%s</td></tr>"
 			$"<tr><td>Bus:</td><td>%s</td></tr>"
-			$"<tr><td>Interface:</td><td>%d</td></tr>"(
+			$"<tr><td>Interface:</td><td>%d</td></tr>"
+			$"<tr><td>Usage page:</td><td>%s</td></tr>"
+			$"<tr><td>Usage:</td><td>%s</td></tr>"(
 				desc.m_path,
 				desc.m_product,
 				desc.m_manufacturer,
 				desc.m_vendorId,
 				desc.m_productId,
-				page.m_name,
-				usageName,
 				typeof(io.HidBusType).getValueString(desc.m_busType),
-				desc.m_interfaceId
+				desc.m_interfaceId,
+				page.m_name,
+				usageName
 			);
 
 		if (desc.m_serialNumber)

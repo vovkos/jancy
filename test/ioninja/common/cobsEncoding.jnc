@@ -1,0 +1,90 @@
+//! \addtogroup common-enc
+//! @{
+
+// adaptation of the wikipedia COBS C implementation
+
+//..............................................................................
+
+size_t decodeCobs(
+	void* buffer, // must be big enough
+	void const* p,
+	size_t size
+) {
+	uint8_t const* src = p; // encoded input byte pointer
+	uint8_t* dst = buffer; // decoded output byte pointer
+	uint8_t code = 0xff;
+	uint8_t block = 0;
+
+	for (; size--; block--) {
+		if (block) // decode block byte
+			*dst++ = *src++;
+		else {
+			block = *src++; // fetch the next block length
+			if (block && code != 0xff) // encoded zero, write it unless it's delimiter.
+				*dst++ = 0;
+			code = block;
+			if (!code) // delimiter code found
+				break;
+		}
+	}
+
+	return dst - (uint8_t*)buffer;
+}
+
+size_t decodeCobs(
+	std.Buffer* buffer,
+	void const* p,
+	size_t size
+) {
+	buffer.setSize(size); // decode can only decrease the size
+	size_t result = decodeCobs(buffer.m_p, p, size);
+	buffer.setSize(result);
+	return result;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+size_t encodeCobs(
+	void* buffer, // must be big enough
+	void const* p,
+	size_t size
+) {
+	uint8_t const* src = p;
+	uint8_t* dst = buffer; // encoded byte pointer
+	uint8_t* codep = dst++; // output code pointer
+	uint8_t code = 1; // code value
+
+	for (; size--; src++) {
+		uint8_t c = *src;
+		if (c) { // byte not zero, write it
+			*dst++ = c;
+			code++;
+		}
+
+		if (!c || code == 0xff) { // input is zero or block completed, restart
+			*codep = code;
+			code = 1;
+			codep = dst;
+			if (!c || size)
+				dst++;
+		}
+	}
+
+	*codep = code; // write final code value
+	return dst - (uint8_t*)buffer;
+}
+
+size_t encodeCobs(
+	std.Buffer* buffer,
+	void const* p,
+	size_t size
+) {
+	buffer.setSize(size + size / 254 + 1); // min overhead is 1, max overhead is n / 254
+	size_t result = encodeCobs(buffer.m_p, p, size);
+	buffer.setSize(result);
+	return result;
+}
+
+//..............................................................................
+
+//! @}

@@ -27,7 +27,7 @@ struct RecordFileHdr {
 	uint32_t m_auxClassCount : 8;
 	std.Guid m_classGuid;
 
-	// followed by std.Guid [m_classCount]
+	// followed by std.Guid[m_classCount]
 	// followed by aux headers (may be added in further versions)
 	// followed by log records at m_recordOffset
 };

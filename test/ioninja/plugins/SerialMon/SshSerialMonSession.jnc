@@ -167,7 +167,7 @@ void SshSerialMonSession.createUi() {
 	m_iconTable[IconId.Connect] = new ui.Icon("images/capture.png");
 	m_iconTable[IconId.Disconnect] = new ui.Icon("images/pause.png");
 
-	m_actionTable[ActionId.Connect] = createAction("Connect && capture", m_iconTable [IconId.Connect]);
+	m_actionTable[ActionId.Connect] = createAction("Connect && capture", m_iconTable[IconId.Connect]);
 	m_actionTable[ActionId.Connect].m_onTriggered += onConnect;
 
 	// status bar

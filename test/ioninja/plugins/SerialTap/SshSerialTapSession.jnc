@@ -204,7 +204,7 @@ void SshSerialTapSession.createUi() {
 	m_addressCombo.m_onReturnPressed += onAddressComboEnter;
 	m_addressCombo.m_placeholderText = "Enter a remote IP or hostname...";
 
-	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable [IconId.Capture]);
+	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable[IconId.Capture]);
 	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;
 
 	// status bar
@@ -353,7 +353,7 @@ void SshSerialTapSession.save(doc.Storage* storage) {
 
 	m_addressCombo.saveHistory(storage, "addressHistory");
 	storage.writeString("address", m_addressCombo.m_editText);
-	storage.writeBool("flipDteDce", m_actionTable [ActionId.Flip].m_isChecked);
+	storage.writeBool("flipDteDce", m_actionTable[ActionId.Flip].m_isChecked);
 }
 
 void SshSerialTapSession.updateProperties() {

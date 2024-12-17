@@ -58,11 +58,10 @@ void refreshUsbDeviceListUi(
 		string_t product = entry.m_productDescriptor ? entry.m_productDescriptor : entry.m_description;
 		string_t manufacturer = entry.m_manufacturerDescriptor ? entry.m_manufacturerDescriptor : entry.m_manufacturer;
 
-		description = $"%03d:%03d - %3 by %4"(
+		description = $"%03d:%03d - %3"(
 			entry.m_device.m_bus,
 			entry.m_device.m_address,
-			product,
-			manufacturer
+			product
 		);
 
 		toolTip =

@@ -43,6 +43,7 @@ enum Command: uchar_t {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 [
+	packetTemplate,
 	displayName = "Ergodox HID command",
 	fixedSize
 ]

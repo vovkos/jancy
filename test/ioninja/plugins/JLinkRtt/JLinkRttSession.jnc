@@ -734,7 +734,7 @@ void JLinkRttSession.jlinkReadThreadFunc() {
 		);
 
 		if (result < 0) {
-			std.setError("Error reading RTT data");
+			std.setError("error reading RTT data");
 			m_logWriter.writeLastError(log.StdRecordCode.Error);
 			break;
 		}

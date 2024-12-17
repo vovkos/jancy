@@ -32,11 +32,7 @@ void representLoopbackDigest(
 		return;
 
 	default:
-		representation.addHyperText(
-			$"\e[1mLOOPBACK\e[m (address family: \e[34m%(1;d)/0x%(1;x)\e[m)"(
-			family
-		));
-
+		representation.addHyperText($"\e[1mLOOPBACK\e[m family: \e[34m0x%x"(family));
 		representPayloadPreview(representation, p, size, payloadPreviewIconIdx);
 	}
 }
@@ -66,7 +62,7 @@ void representLoopbackDetails(
 		ProtoFoldFlag.LinkLayer
 	);
 
-	ProtoRange range = { baseOffset, sizeof(io.EthernetHdr), ProtoColor.LinkLayer };
+	ProtoRange range = { baseOffset, sizeof(io.LoopbackHdr), ProtoColor.LinkLayer };
 	protoRangeArray.append(range);
 
 	int32_t family = *(int32_t const*)p;
@@ -82,6 +78,9 @@ void representLoopbackDetails(
 	case io.LoopbackProtocolFamily.Ip6:
 		representIp6Details(representation, protoRangeArray, p, size, baseOffset, foldFlags);
 		break;
+
+	default:
+		representation.addHyperText($"\e[1mLOOPBACK\e[m family: \e[34m0x%x"(family));
 	}
 }
 

@@ -31,6 +31,18 @@ void refreshUsbMonDeviceListUi(
 	ComboBox* deviceCombo,
 	EnumProperty* deviceProp
 ) {
+	string_t usbmonService = sys.g_systemInfo.m_osKind == sys.OsKind.Windows ?
+		"USBPcap" :
+		"usbmon";
+
+	if (!io.detectUsbMon()) {
+		string_t text = $"(%1 not detected)"(usbmonService);
+		deviceCombo.clear();
+		deviceCombo.addItem(text);
+		deviceProp.addOption(text);
+		return;
+	}
+
 	size_t count;
 	io.UsbMonDeviceDesc const* deviceList = io.enumerateUsbMonDevices(io.UsbMonEnumFlags.All, &count);
 
@@ -49,10 +61,6 @@ void refreshUsbMonDeviceListUi(
 
 	deviceCombo.clear();
 
-	string_t captureDevicePrefix = sys.g_systemInfo.m_osKind == sys.OsKind.Windows ?
-		"USBPcap" :
-		"usbmon";
-
 	std.StringBuilder description;
 	std.StringBuilder toolTip;
 
@@ -60,14 +68,12 @@ void refreshUsbMonDeviceListUi(
 		io.UsbMonDeviceDesc const* device = deviceArray[i];
 
 		string_t product = device.m_productDescriptor ? device.m_productDescriptor : device.m_description;
-		string_t manufacturer = device.m_manufacturerDescriptor ? device.m_manufacturerDescriptor : device.m_manufacturer;
 
-		description = $"%1%2:%03d - %4 by %5"(
-			captureDevicePrefix,
+		description = $"%1%2:%03d - %4"(
+			usbmonService,
 			device.m_captureDeviceId,
 			device.m_address,
-			product,
-			manufacturer
+			product
 		);
 
 		toolTip =
@@ -79,7 +85,7 @@ void refreshUsbMonDeviceListUi(
 			$"<tr><td>Product&nbsp;ID:</td><td>0x%(7; 04X)</td></tr>"
 			$"<tr><td>Class:</td><td>%8</td></tr>"
 			$"<tr><td>Speed:</td><td>%9</td></tr>"(
-				captureDevicePrefix,
+				usbmonService,
 				device.m_captureDeviceId,
 				device.m_address,
 				device.m_description,

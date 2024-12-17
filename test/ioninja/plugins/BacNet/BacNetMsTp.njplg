@@ -1,0 +1,26 @@
+//..............................................................................
+//
+// BACnet MS/TP Analyzer layer plugin
+//
+
+[plugin]
+
+name        = "BACnet MS/TP Analyzer"
+description = "Analyzes a Serial log and generates a secondary log with decoded BACnet messages"
+id          = bacnet-mstp
+log-guid    = 9ade09ff-3c68-4d0e-aeaa-f4cb1f862d5c # bacnet-mstp-log
+icon        = images/bacnet.png
+small-icon  = images/bacnet-16x16.png
+
+layer-class = BacNetMsTpLayer
+pure-layer  = true
+
+[scripts]
+
+BacNetMsTpLayer.jnc
+BacNetMsTp.jnc
+BacNetMsTpParser.jnc
+BacNetNpdu.jnc
+BacNetApdu.jnc
+
+log_RepresentDynamicLayout.jnc # temporary

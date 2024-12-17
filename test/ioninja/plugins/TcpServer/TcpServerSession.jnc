@@ -177,7 +177,7 @@ void TcpServerSession.createUi() {
 
 	m_iconTable[IconId.Listen] = new ui.Icon("images/listen.png");
 	m_iconTable[IconId.StopListen] = new ui.Icon("images/pause.png");
-	m_actionTable[ActionId.Listen] = createAction("Listen", m_iconTable [IconId.Listen]);
+	m_actionTable[ActionId.Listen] = createAction("Listen", m_iconTable[IconId.Listen]);
 	m_actionTable[ActionId.Listen].m_onTriggered += onListen;
 
 	// form

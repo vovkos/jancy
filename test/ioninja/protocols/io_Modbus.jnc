@@ -4,8 +4,10 @@
 //
 
 import "ui_Color.jnc"
+import "ias_FieldCodec.jnc"
 import "crc8.jnc"
 import "crc16.jnc"
+import "hexEncoding.jnc"
 
 namespace io {
 
@@ -480,6 +482,12 @@ struct ModbusReadFifoQueueReplyParams {
 
 // Modbus ADUs
 
+bitflag enum ModbusAduFlags {
+	AsciiEncoded, // by default, functions expect decoded MODBUS-ASCII (binary)
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 struct ModbusRtuAduHdr {
 	[
 		displayName = "Device",
@@ -506,8 +514,19 @@ struct ModbusTcpAduHdr {
 	[ displayName = "Length" ]
 	bigendian uint16_t m_length; // length of data following this field
 
-	[ displayName = "Device" ]
+	[
+		displayName = "Device",
+		formatSpec = "#%d"
+	]
 	uint8_t m_deviceAddress;
+
+	[
+		userAction = "Update length",
+		autorun = "Auto-update length"
+	]
+	void updateLength() {
+		m_length = dynamic sizeof(&m_length + 1);
+	}
 
 	// followed by PDU
 }
@@ -550,7 +569,7 @@ void layoutModbusRegisters(
 		dyfield values {
 			[ ungroup ]
 			dyfield bigendian uint16_t values[count];
-			
+
 			if (size & 1)
 				[ displayName = "Padding" ]
 				dyfield uint8_t padding;
@@ -736,7 +755,7 @@ async void layoutModbusPdu(
 				throw;
 
 			default:
-				std.setError("Unknown Modbus function");
+				std.setError("unknown Modbus function");
 				throw;
 			}
 		}
@@ -884,6 +903,28 @@ struct ModbusRtuCrc {
 	}
 }
 
+struct ModbusAsciiLrc {
+	[
+		displayName = "LRC",
+		formatFunc  = formatModbusAsciiLrc,
+		formatSpec  = "0x%02X"
+	]
+	uint8_t m_crc; // Modbus RTU CRC is little-endian
+
+	[
+		userAction = "Update LRC",
+		autorun = "Auto-update LRC"
+	]
+	void updateLrc() {
+		m_crc = calcLrc();
+	}
+
+	uint16_t calcLrc() const {
+		size_t size = dynamic offsetof(this);
+		return lrc((char const*)this - size, size);
+	}
+}
+
 string_t getModbusChecksumValidityString(bool isValid) {
 	return isValid ? "\e[32mOK\e[m" : "\e[31mERROR\e[m";
 }
@@ -903,10 +944,74 @@ string_t formatModbusAsciiLrc(void const* p) {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+struct ModbusAsciiCrLf {
+	[
+		displayName = "CR",
+		formatSpec  = "0x%02X"
+	]
+	char m_cr;
+
+	[
+		displayName = "LF",
+		formatSpec  = "0x%02X"
+	]
+	char m_lf;
+
+	[
+		userAction = "Init frame",
+		autorun = "Auto-init frame"
+	]
+	void init() {
+		char* start = (char*)this - dynamic offsetof(this);
+		*start = ':';
+		m_cr = '\r';
+		m_lf = '\n';
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class HexFieldCodec: ias.FieldCodec {
+	override size_t errorcode decode(
+		std.Buffer* buffer,
+		void const* p,
+		size_t size
+	) {
+		return decodeHexString(buffer, string_t(p, size));
+	}
+
+	override size_t errorcode encode(
+		std.Buffer* buffer,
+		void const* p,
+		size_t size
+	) {
+		return buffer.copy(encodeHexString(p, size));
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+[
+	displayName = "Modbus ASCII request ADU (decoded)",
+	fixedSize
+]
+void layoutModbusAsciiDecodedRequestAdu(jnc.DynamicLayout* layout) {
+	io.layoutModbusAdu(layout, io.ModbusProtocol.Ascii, ModbusRole.Master);
+}
+
+[
+	displayName = "Modbus ASCII reply ADU (decoded)",
+	fixedSize
+]
+void layoutModbusAsciiDecodedReplyAdu(jnc.DynamicLayout* layout) {
+	io.layoutModbusAdu(layout, io.ModbusProtocol.Ascii, ModbusRole.Slave);
+}
+
 async void layoutModbusAdu(
 	jnc.DynamicLayout* layout,
 	ModbusProtocol protocol,
-	ModbusRole role
+	ModbusRole role,
+	ModbusAduFlags flags = 0
 ) {
 	[
 		backColor = ui.StdColor.PastelPurple,
@@ -917,7 +1022,7 @@ async void layoutModbusAdu(
 	static string_t displayNames[] = {
 		"MODBUS-RTU",
 		"MODBUS-ASCII",
-		"MODBUS-RTU",
+		"MODBUS-TCP",
 	}
 
 	dylayout (layout) {
@@ -929,7 +1034,7 @@ async void layoutModbusAdu(
 			root // root groups are for log only (ungrouped in packet templates)
 		]
 		dyfield adu {
-			// add dynamic attributes for representDynamicLayout / getModbusAduDigest
+			// dynamic attributes for representDynamicLayout / getModbusAduDigest
 			layout.setGroupAttribute("displayName", displayNames[protocol]);
 			layout.setGroupAttribute("protocol", protocol);
 			layout.setGroupAttribute("role", role);
@@ -947,17 +1052,53 @@ async void layoutModbusAdu(
 					break;
 
 				case ModbusProtocol.Ascii:
-					[ @AduAttr ]
-					dyfield ModbusRtuAduHdr aduHdr;
+					if (flags & ModbusAduFlags.AsciiEncoded) {
+						[
+							backColor = ui.StdColor.PastelGreen,
+							ungroup
+						]
+						void FrameAttr;
 
-					await layoutModbusPdu(layout, role);
+						[
+							@FrameAttr,
+							displayName = "Start",
+							formatSpec = "0x%02X"
+						]
+						dyfield char start;
 
-					[
-						@AduAttr,
-						displayName = "LRC",
-						formatFunc = formatModbusAsciiLrc
-					]
-					dyfield uint8_t lrc;
+						[
+							backColor = ui.StdColor.PastelYellow,
+							displayName = "ADU",
+							valueText = "(Hex-encoded)",
+							codec = typeof(HexFieldCodec)
+						]
+						dyfield adu {
+							// set dynamic packet template attribute depending on the role
+							layout.setGroupAttribute(
+								"packetTemplate",
+								role == ModbusRole.Slave ?
+									declof(layoutModbusAsciiDecodedReplyAdu) :
+									declof(layoutModbusAsciiDecodedRequestAdu)
+							);
+
+							size_t length = await layout.asyncScanTo('\r');
+							dyfield char buffer[length];
+						}
+
+						[
+							@FrameAttr,
+							ungroup
+						]
+						dyfield ModbusAsciiCrLf crlf;
+					} else  {
+						[ @AduAttr ]
+						dyfield ModbusRtuAduHdr aduHdr;
+
+						await layoutModbusPdu(layout, role);
+
+						[ @AduAttr ]
+						dyfield ModbusAsciiLrc lrc;
+					}
 					break;
 
 				case ModbusProtocol.Tcp:
@@ -993,14 +1134,15 @@ string_t getModbusAduDigest(
 		ModbusRtuAduHdr const* aduHdr = (ModbusRtuAduHdr const*)p;
 		digest := $"Dev: %1 %2 "(aduHdr.m_deviceAddress, arrows[role]);
 
+		size -= sizeof(uint16_t); // minus CRC
+
 		appendModbusPduDigest(
 			digest,
 			p + sizeof(ModbusRtuAduHdr),
-			size - sizeof(ModbusRtuAduHdr) - sizeof(uint16_t),
+			size - sizeof(ModbusRtuAduHdr),
 			role
 		);
 
-		size -= sizeof(uint16_t);
 		uint16_t const* crc = (uint16_t const*)(p + size);
 		if (*crc != crc16_modbus(p, size))
 			digest.append(" [\e[31mCRC ERROR\e[m]");
@@ -1011,14 +1153,15 @@ string_t getModbusAduDigest(
 		ModbusRtuAduHdr const* aduHdr = (ModbusRtuAduHdr const*)p;
 		digest := $"Dev: %1 %2 "(aduHdr.m_deviceAddress, arrows[role]);
 
+		size -= sizeof(uint8_t); // minus LRC
+
 		appendModbusPduDigest(
 			digest,
 			p + sizeof(ModbusRtuAduHdr),
-			size - sizeof(ModbusRtuAduHdr) - sizeof(uint16_t),
+			size - sizeof(ModbusRtuAduHdr),
 			role
 		);
 
-		size -= sizeof(uint8_t);
 		uint8_t const* checksum = (uint8_t const*)(p + size);
 		if (*checksum != lrc(p, size))
 			digest.append(" [\e[31mLRC ERROR\e[m]");
@@ -1027,7 +1170,7 @@ string_t getModbusAduDigest(
 
 	case ModbusProtocol.Tcp:
 		ModbusTcpAduHdr const* aduHdr = (ModbusTcpAduHdr const*)p;
-		digest := $"TID: %04x Dev: %2 %3 "(
+		digest := $"TID: %1 Dev: %2 %3 "(
 			aduHdr.m_transactionId,
 			aduHdr.m_deviceAddress,
 			arrows[role]
@@ -1035,8 +1178,8 @@ string_t getModbusAduDigest(
 
 		appendModbusPduDigest(
 			digest,
-			p + sizeof(ModbusRtuAduHdr),
-			size - sizeof(ModbusRtuAduHdr) - sizeof(uint16_t),
+			p + sizeof(ModbusTcpAduHdr),
+			size - sizeof(ModbusTcpAduHdr),
 			role
 		);
 

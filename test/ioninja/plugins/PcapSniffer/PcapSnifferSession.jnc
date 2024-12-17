@@ -168,7 +168,7 @@ void PcapSnifferSession.createUi() {
 	m_iconTable[IconId.Capture] = new ui.Icon("images/capture.png");
 	m_iconTable[IconId.StopCapture] = new ui.Icon("images/pause.png");
 
-	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable [IconId.Capture]);
+	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable[IconId.Capture]);
 	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;
 	m_actionTable[ActionId.OpenPcap] = createAction("Open Pcap file (*.pcap)", "images/open-pcap.png");
 	m_actionTable[ActionId.OpenPcap].m_onTriggered += onOpenPcap;
@@ -511,8 +511,6 @@ void PcapSnifferSession.processPacket(
 
 	m_pluginHost.m_txRxStats.addRx(size);
 
-	// defragment IPv4
-
 	switch (linkType) {
 	case io.PcapLinkType.Loopback:
 		if (size < sizeof(io.LoopbackHdr))
@@ -522,8 +520,11 @@ void PcapSnifferSession.processPacket(
 		if (loopbackHdr.m_protocolFamily != io.LoopbackProtocolFamily.Ip)
 			return;
 
-		p += sizeof(io.LoopbackHdr);
 		size -= sizeof(io.LoopbackHdr);
+		if (size < sizeof(io.IpHdr))
+			return;
+
+		p += sizeof(io.LoopbackHdr);
 		break;
 
 	case io.PcapLinkType.Ethernet:
@@ -534,13 +535,25 @@ void PcapSnifferSession.processPacket(
 		if (ethernetHdr.m_type != io.EthernetType.Ip)
 			return;
 
-		p += sizeof(io.EthernetHdr);
 		size -= sizeof(io.EthernetHdr);
+		if (size < sizeof(io.IpHdr))
+			return;
+
+		p += sizeof(io.EthernetHdr);
 		break;
+
+	case io.PcapLinkType.Raw:
+		io.IpHdr const* ipHdr = (io.IpHdr const*)p;
+		if (size < sizeof(io.IpHdr) || ipHdr.m_version != 4) // not IPv4
+			return;
+
+		break;
+
+	default:
+		return;
 	}
 
-	if (size < sizeof(io.IpHdr))
-		return;
+	// defragment IPv4
 
 	io.IpHdr const* ipHdr = (io.IpHdr const*)p;
 	if ((ipHdr.m_flags & io.IpFlags.Mf) || ipHdr.m_fragmentOffset) {

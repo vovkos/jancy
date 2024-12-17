@@ -27,6 +27,34 @@ async void layoutModbusRtuReply(jnc.DynamicLayout* layout) {
 
 [
 	packetTemplate,
+	displayName = "Modbus ASCII (request)",
+	fixedSize
+]
+async void layoutModbusAsciiRequest(jnc.DynamicLayout* layout) {
+	await io.layoutModbusAdu(
+		layout,
+		io.ModbusProtocol.Ascii,
+		io.ModbusRole.Master,
+		io.ModbusAduFlags.AsciiEncoded
+	);
+}
+
+[
+	packetTemplate,
+	displayName = "Modbus ASCII (reply)",
+	fixedSize
+]
+async void layoutModbusAsciiReply(jnc.DynamicLayout* layout) {
+	await io.layoutModbusAdu(
+		layout,
+		io.ModbusProtocol.Ascii,
+		io.ModbusRole.Slave,
+		io.ModbusAduFlags.AsciiEncoded
+	);
+}
+
+[
+	packetTemplate,
 	displayName = "Modbus TCP (request)",
 	fixedSize
 ]

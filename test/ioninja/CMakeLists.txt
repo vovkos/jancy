@@ -108,6 +108,22 @@ add_jancy_tests(
 		ModbusLog_Tcp.jnc
 	FINALIZE_TEST Modbus-legacy
 
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/BacNet
+	REQUIRES
+		BacNetMsTpLayer
+		representBacNetMsTpLog
+		layoutBacNetMsTp
+		layoutBacNetNpdu
+	FILES
+		BacNetMsTp.jnc
+		BacNetNpdu.jnc
+		BacNetMsTpLayer.jnc
+		BacNetMsTpParser.jnc
+		BacNetMsTpLogRecordCode.jnc
+		BacNetMsTpLogRepresenter.jnc
+	FINALIZE_TEST BacNet
+
+
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/PipeServer
 	REQUIRES
 		PipeServerSession
@@ -404,6 +420,7 @@ if(BUILD_JNC_IO_PCAP)
 			../NetSnifferLog/Proto_Simple.jnc
 			../NetSnifferLog/Proto_Ethernet.jnc
 			../NetSnifferLog/Proto_Loopback.jnc
+			../NetSnifferLog/Proto_Raw.jnc
 			../NetSnifferLog/Proto_Arp.jnc
 			../NetSnifferLog/Proto_Ip.jnc
 			../NetSnifferLog/Proto_Ip6.jnc
@@ -461,6 +478,7 @@ if(BUILD_JNC_IO_PCAP)
 			Proto_Simple.jnc
 			Proto_Ethernet.jnc
 			Proto_Loopback.jnc
+			Proto_Raw.jnc
 			Proto_Arp.jnc
 			Proto_Ip.jnc
 			Proto_Ip6.jnc
@@ -744,7 +762,7 @@ if(BUILD_JNC_IO_HID)
 			representHidLog
 		FILES
 			HidSession.jnc
-			HidReportUi.jnc
+			HidReportFieldEncoder.jnc
 			../HidLog/HidLogReportWriter.jnc
 			../HidLog/HidLogRecordCode.jnc
 			../HidLog/HidLogRepresenter.jnc

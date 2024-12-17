@@ -1,0 +1,32 @@
+//! \addtogroup common-enc
+//! @{
+
+//..............................................................................
+
+void xor(
+	void* p,
+	uint8_t c,
+	size_t size
+) {
+	// xor with a 64-bit mask at a time
+
+	uint64_t mask = c | (c << 8);
+	mask |= mask << 16;
+	mask |= mask << 32;
+
+	uint8_t* end = p + size;
+	uint64_t* p64 = (uint64_t*)p;
+	uint64_t* end64 = p64 + size / sizeof(uint64_t);
+	for (; p64 < end64; p64++)
+		*p64 ^= mask;
+
+	// xor the remainder
+
+	uint8_t* p8 = (uint8_t*)p64;
+	for (; p8 < end; p8++)
+		*p8 ^= c;
+}
+
+//..............................................................................
+
+//! @}

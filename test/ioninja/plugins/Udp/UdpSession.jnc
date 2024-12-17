@@ -189,7 +189,7 @@ void UdpSession.createUi() {
 	m_localPortCombo.m_isEditable = true;
 	m_localPortCombo.m_onReturnPressed += onPortComboEnter;
 
-	m_actionTable[ActionId.Open] = createAction("Open socket", m_iconTable [IconId.Open]);
+	m_actionTable[ActionId.Open] = createAction("Open socket", m_iconTable[IconId.Open]);
 	m_actionTable[ActionId.Open].m_onTriggered += onOpen;
 
 	// status bar

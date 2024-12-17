@@ -13,7 +13,7 @@ pragma(Alignment, 1);
 
 //..............................................................................
 
-[ 
+[
 	packetTemplate,
 	displayName = "Modbus TCP read",
 	fixedSize
@@ -54,13 +54,13 @@ struct ModbusTcpWritePacket {
 	io.ModbusTcpAduHdr m_adu;
 
 	[ displayName = "PDU" ]
-	io.ModbusWritePdu m_pdu;
+	io.ModbusWriteSinglePdu m_pdu;
 
 	[ userAction = "Initialize with defaults" ]
 	void initialize() {
 		*this = null;
 		initializeModbusTcpAdu(&m_adu);
-		m_pdu.m_func = io.ModbusFunc.WriteRegister;
+		m_pdu.m_func = io.ModbusFunc.WriteSingleRegister;
 	}
 
 	[
@@ -115,7 +115,7 @@ struct ModbusTcpReadWriteMultiplePacket {
 	io.ModbusTcpAduHdr m_adu;
 
 	[ displayName = "PDU" ]
-	io.ModbusReadWriteMultiplePdu m_pdu;
+	io.ModbusReadWriteMultipleRegistersPdu m_pdu;
 
 	[ userAction = "Initialize with defaults" ]
 	void initialize() {

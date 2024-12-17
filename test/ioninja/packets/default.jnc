@@ -14,23 +14,31 @@
 //
 //..............................................................................
 
+import "ui_Color.jnc"
 import "crc16.jnc"
 
-enum MyEnum: int8_t {
-	Value1,
-	Value2,
-	Value3,
+//..............................................................................
+
+enum MyCommand: int8_t {
+	Open,
+	Close,
+	Read,
+	Write,
 }
+
+//..............................................................................
+
+// static
 
 pragma(Alignment, 1);
 
 [
 	packetTemplate,
-	displayName = "My packet"
+	displayName = "My packet #1 (static)"
 ]
 struct MyPacket {
-	[ displayName = "Enumeration" ]
-	MyEnum m_field1;
+	[ displayName = "Command" ]
+	MyCommand m_field1;
 
 	[ displayName = "16-bit integer" ]
 	int16_t m_field2;
@@ -49,7 +57,7 @@ struct MyPacket {
 
 	[ userAction = "Initialize" ]
 	void initialize(string_t name) {
-		m_field1 = MyEnum.Value1;
+		m_field1 = MyCommand.Open;
 		m_field2 = 2;
 		m_field3 = 3;
 
@@ -74,6 +82,84 @@ struct MyPacket {
 		autorun = "Auto-update checksum"
 	]
 	void updateChecksum() {
+		m_checksum = 0;
 		m_checksum = crc16_ansi(this, dynamic sizeof(this));
 	}
 }
+
+//..............................................................................
+
+struct Hdr {
+	[
+		displayName = "Packet ID",
+		formatSpec = "#%d"
+	]
+	bigendian uint16_t m_id;
+
+	[ displayName = "Command" ]
+	MyCommand m_command;
+}
+
+struct ReadWrite {
+	[
+		displayName = "Address",
+		formatSpec = "0x%04X"
+	]
+	bigendian uint16_t m_address;
+
+	[ displayName = "Length" ]
+	uint8_t m_length;
+}
+
+[
+	packetTemplate,
+	displayName = "My packet #2 (dynamic)",
+	fixedSize
+]
+void layoutMyPacket(jnc.DynamicLayout* layout) {
+	dylayout (layout) {
+		[
+			backColor = ui.StdColor.PastelPurple,
+			ungroup
+		]
+		dyfield Hdr hdr;
+
+		switch (hdr.m_command) {
+		case MyCommand.Open:
+			[
+				displayName = "Name",
+				backColor = ui.StdColor.PastelYellow
+			]
+			dyfield char name[8];
+			break;
+
+		case MyCommand.Close: // no parameters
+			break;
+
+		case MyCommand.Read:
+			[
+				backColor = ui.StdColor.PastelBlue,
+				ungroup
+			]
+			dyfield ReadWrite read;
+			break;
+
+		case MyCommand.Write:
+			[
+				backColor = ui.StdColor.PastelBlue,
+				ungroup
+			]
+			dyfield ReadWrite write;
+
+			[
+				displayName = "Data",
+				backColor = ui.StdColor.PastelYellow,
+				binary
+			]
+			dyfield char data[write.m_length];
+			break;
+		}
+	}
+}
+
+//..............................................................................

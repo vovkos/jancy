@@ -166,11 +166,11 @@ void HwSerialMonSession.createUi() {
 	m_pluginHost.m_toolBar.addLabel("Sniffer:");
 	m_deviceCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 
-	m_actionTable[ActionId.Refresh] = createAction("Re-enumerate Devices", m_iconTable [IconId.Refresh]);
+	m_actionTable[ActionId.Refresh] = createAction("Re-enumerate Devices", m_iconTable[IconId.Refresh]);
 	m_actionTable[ActionId.Refresh].m_onTriggered += enumerateDevices;
-	m_actionTable[ActionId.Open] = createAction("Open Sniffer Device", m_iconTable [IconId.Open]);
+	m_actionTable[ActionId.Open] = createAction("Open Sniffer Device", m_iconTable[IconId.Open]);
 	m_actionTable[ActionId.Open].m_onTriggered += onOpenDevice;
-	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable [IconId.Open]);
+	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable[IconId.Open]);
 	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;
 
 	// status bar

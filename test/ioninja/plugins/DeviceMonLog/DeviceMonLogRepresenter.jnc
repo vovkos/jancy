@@ -81,6 +81,28 @@ bool representDeviceMonLog  (
 		);
 		break;
 
+	case DeviceMonLogRecordCode.DeviceMonNotDetected:
+		sys.OsKind osKind = *(sys.OsKind const*)p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addHyperText("Device monitoring service (tdevmon) not detected");
+
+		string_t url;
+		switch (osKind) {
+		case sys.OsKind.Windows:
+			url = "https://ioninja.com/doc/kb/tdevmon_windows_installation.html";
+			break;
+
+		case sys.OsKind.Linux:
+			url = "https://ioninja.com/doc/kb/tdevmon_linux_installation.html";
+			break;
+		}
+
+		if (url)
+			representation.addHyperText($"Read this \e^$url\e[4;34mKB article\e[m for more details");
+
+		break;
+
 	default:
 		return false;
 	}

@@ -1,0 +1,54 @@
+//..............................................................................
+//
+// BACnet MS/TP Analyzer log representer
+//
+
+import "log_Representation.jnc"
+import "log_RepresentDynamicLayout.jnc"
+import "BacNetMsTp.jnc"
+
+//..............................................................................
+
+bool representBacNetMsTpLog(
+	log.Representation* representation,
+	uint64_t recordCode,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	switch (recordCode) {
+	case BacNetMsTpLogRecordCode.ParseError:
+		std.Error const* error = (std.Error const*)p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Warning;
+		representation.addHyperText($"\e[1mBacNetMsTp:\e[m parse error: %1"(error.m_description));
+		break;
+
+	case BacNetMsTpLogRecordCode.TxPacket:
+	case BacNetMsTpLogRecordCode.RxPacket:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.TxPacket + recordCode - BacNetMsTpLogRecordCode.TxPacket;
+
+		jnc.DynamicLayout layout(jnc.DynamicLayoutMode.Stream | jnc.DynamicLayoutMode.Save, p, size);
+		jnc.Promise* promise = layoutBacNetMsTp(layout);
+		if (layout.m_isIncomplete) {
+			representation.m_lineAttr.m_backColor = ui.StdColor.PastelYellow;
+			representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+			representation.addHyperText($"Incomplete BacNetMsTp packet: %1 of %2 bytes"(layout.m_bufferSize, layout.m_size));
+		} else if (promise.m_error) {
+			representation.m_lineAttr.m_backColor = ui.StdColor.PastelOrange;
+			representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+			representation.addHyperText($"BacNetMsTp parse error: %1"(promise.m_error.m_description));
+		} else
+			log.representDynamicLayout(representation, layout, foldFlags);
+
+		break;
+
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+//..............................................................................

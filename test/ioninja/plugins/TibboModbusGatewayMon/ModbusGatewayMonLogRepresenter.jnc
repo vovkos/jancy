@@ -27,8 +27,8 @@ bool representModbusGatewayMonLog(
 		break;
 
 	case ModbusGatewayMonLogRecordCode.DumpPacket:
-        io.ModbusRole role;
-        io.ModbusProtocol protocol;
+		io.ModbusRole role;
+		io.ModbusProtocol protocol;
 
 		if ((*(char const*)p & 0x80) == 0x00) {   // IN direction
 			representation.m_lineAttr.m_iconIdx = log.StdLogIcon.RxPacket;
@@ -42,230 +42,229 @@ bool representModbusGatewayMonLog(
 
 		char const* _type;
 		char _id;
-        bool _inDir = false;
-        if (((*(char const*)p) & 0x80) != 0)
-            _inDir = true;
+		bool _inDir = false;
+		if (((*(char const*)p) & 0x80) != 0)
+			_inDir = true;
 
 		switch ((*(char const*)p) & 0x7f) {
 			case 0x00:  // TCP Request
 				_type = "TCP Req";
-                role = io.ModbusRole.Master;
-                protocol = io.ModbusProtocol.Tcp;
+				role = io.ModbusRole.Master;
+				protocol = io.ModbusProtocol.Tcp;
 				break;
 
 			case 0x01:  // TCP Responce
 				_type = "TCP Resp";
-                role = io.ModbusRole.Slave;
-                protocol = io.ModbusProtocol.Tcp;
+				role = io.ModbusRole.Slave;
+				protocol = io.ModbusProtocol.Tcp;
 				break;
 
 			case 0x02:  // TCP Exception
 				_type = "TCP Exception";
-                role = io.ModbusRole.Slave;
-                protocol = io.ModbusProtocol.Tcp;
+				role = io.ModbusRole.Slave;
+				protocol = io.ModbusProtocol.Tcp;
 				break;
 
 			case 0x03:  // RTU Request
 				_type = "RTU Req";
-                role = io.ModbusRole.Master;
-                protocol = io.ModbusProtocol.Rtu;
+				role = io.ModbusRole.Master;
+				protocol = io.ModbusProtocol.Rtu;
 				break;
 
 			case 0x04:  // RTU Responce
 				_type = "RTU Resp";
-                role = io.ModbusRole.Slave;
-                protocol = io.ModbusProtocol.Rtu;
+				role = io.ModbusRole.Slave;
+				protocol = io.ModbusProtocol.Rtu;
 				break;
 
 			case 0x05:  // ASCII Request
 				_type = "ASCII Req";
-                role = io.ModbusRole.Master;
-                protocol = io.ModbusProtocol.Ascii;
+				role = io.ModbusRole.Master;
+				protocol = io.ModbusProtocol.Ascii;
 				break;
 
 			case 0x06:  // ASCII Responce
 				_type = "ASCII Resp";
-                role = io.ModbusRole.Slave;
-                protocol = io.ModbusProtocol.Ascii;
+				role = io.ModbusRole.Slave;
+				protocol = io.ModbusProtocol.Ascii;
 				break;
 
 			default:
 				_type = "Unknown";
-                role = io.ModbusRole.Master;
-                protocol = io.ModbusProtocol.Rtu;
+				role = io.ModbusRole.Master;
+				protocol = io.ModbusProtocol.Rtu;
 				break;
 		}
 
 		char const channel = (*(char const*)(p + 1)) & 0x7f;
-    	io.ModbusRtuAduHdr const* aduHdr;
-        io.ModbusPduHdr const* pduHdr;
-        ModbusMbapHdr const* mbap;
-        size_t size_packet;
-        bool b_tcp = false;
-        uint8_t _base;
+		io.ModbusRtuAduHdr const* aduHdr;
+		io.ModbusPduHdr const* pduHdr;
+		ModbusMbapHdr const* mbap;
+		size_t size_packet;
+		bool b_tcp = false;
+		uint8_t _base;
 
-        // Decode Modbus packet
-        representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
-        representation.m_lineAttr.m_iconIdx = _inDir == true ?
-            log.StdLogIcon.TxPacket :
-            log.StdLogIcon.RxPacket;
+		// Decode Modbus packet
+		representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+		representation.m_lineAttr.m_iconIdx = _inDir == true ?
+			log.StdLogIcon.TxPacket :
+			log.StdLogIcon.RxPacket;
 
-        if (protocol != io.ModbusProtocol.Ascii)
-        {   // RTU, TCP
-            if ((*(char const*)(p + 1) & 0x80) == 0x00) {   // TCP channel
-                // Get IP and PORT info from packet
-                char _strAddr[22];
-                char _i = 0;
-                do {
-                    _strAddr[_i] = *(char const*)(p + _i + 2);
-                    _i++;
-                } while(((*(char const*)(p + _i + 1)) != 0) && (_i < 22));
+		if (protocol != io.ModbusProtocol.Ascii) {   // RTU, TCP
+			if ((*(char const*)(p + 1) & 0x80) == 0x00) {   // TCP channel
+				// Get IP and PORT info from packet
+				char _strAddr[22];
+				char _i = 0;
+				do {
+					_strAddr[_i] = *(char const*)(p + _i + 2);
+					_i++;
+				} while(((*(char const*)(p + _i + 1)) != 0) && (_i < 22));
 
-                // Get Slave ID
-                aduHdr = (io.ModbusRtuAduHdr const*)(p + _i + 8);
-                pduHdr = (io.ModbusPduHdr const*)(p + _i + 9);
-                mbap = (ModbusMbapHdr const*)(p + 2 + _i);
-                _id = aduHdr.m_deviceAddress;
-                representation.addHyperText($"$_type TCP $_strAddr UnitId #$_id");
-                representation.m_lineAttr.m_backColor = ui.StdColor.BrightWhite;
-                representation.addBin(p + 2 + _i, size - 2 - _i);
-                size_packet = size - _i - 8;
-                b_tcp = true;
-                _base = 6;
-            } else {                                    // Serial channel
-                // Get SlaveID
-                aduHdr = (io.ModbusRtuAduHdr const*)(p + 2);
-                pduHdr = (io.ModbusPduHdr const*)(p + 3);
-                _id = aduHdr.m_deviceAddress;
-                representation.addHyperText($"$_type Port#$channel SlaveId #$_id");
-                representation.m_lineAttr.m_backColor = ui.StdColor.BrightWhite;
-                representation.addBin(p + 2, size - 2);
-                size_packet = size - 2;
-                _base = 0;
-            }
+				// Get Slave ID
+				aduHdr = (io.ModbusRtuAduHdr const*)(p + _i + 8);
+				pduHdr = (io.ModbusPduHdr const*)(p + _i + 9);
+				mbap = (ModbusMbapHdr const*)(p + 2 + _i);
+				_id = aduHdr.m_deviceAddress;
+				representation.addHyperText($"$_type TCP $_strAddr UnitId #$_id");
+				representation.m_lineAttr.m_backColor = ui.StdColor.BrightWhite;
+				representation.addBin(p + 2 + _i, size - 2 - _i);
+				size_packet = size - _i - 8;
+				b_tcp = true;
+				_base = 6;
+			} else {                                    // Serial channel
+				// Get SlaveID
+				aduHdr = (io.ModbusRtuAduHdr const*)(p + 2);
+				pduHdr = (io.ModbusPduHdr const*)(p + 3);
+				_id = aduHdr.m_deviceAddress;
+				representation.addHyperText($"$_type Port#$channel SlaveId #$_id");
+				representation.m_lineAttr.m_backColor = ui.StdColor.BrightWhite;
+				representation.addBin(p + 2, size - 2);
+				size_packet = size - 2;
+				_base = 0;
+			}
 
-        	representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+			representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
 
-            if (b_tcp == false) {
-                representation.addHyperText(
-                    $"SlaveId:     \e^!-%1,%2\e[34m0x%(3; 02X)/%3\e[m" (
-                    _base + offsetof(aduHdr.m_deviceAddress),
-                    sizeof(aduHdr.m_deviceAddress),
-                    aduHdr.m_deviceAddress
-                    ));
+			if (b_tcp == false) {
+				representation.addHyperText(
+					$"SlaveId:     \e^!-%1,%2\e[34m0x%(3; 02X)/%3\e[m" (
+					_base + offsetof(aduHdr.m_deviceAddress),
+					sizeof(aduHdr.m_deviceAddress),
+					aduHdr.m_deviceAddress
+					));
 
-                size_t checksumOffset = size_packet - sizeof(uint16_t);
-                uint16_t actualChecksum = *(uint16_t const*)(aduHdr + checksumOffset);
-                uint16_t expectedChecksum = crc16_ansi(aduHdr, checksumOffset, 0xffff);
+				size_t checksumOffset = size_packet - sizeof(uint16_t);
+				uint16_t actualChecksum = *(uint16_t const*)(aduHdr + checksumOffset);
+				uint16_t expectedChecksum = crc16_ansi(aduHdr, checksumOffset, 0xffff);
 
-                if (actualChecksum == expectedChecksum) {
-                    representation.addHyperText(
-                        $"Checksum:    \e^!-%1,%2\e[34m0x%(3; 04X)/%3\e[m [\e[32mOK\e[m]" (
-                        _base + checksumOffset,
-                        sizeof(uint16_t),
-                        actualChecksum
-                        ));
-                } else {
-                    representation.addHyperText(
-                        $"Checksum:    \e^!-%1,%2\e[34m0x%(3; 04X)/%3\e[m [\e[31mERROR\e[m] \e[90m(expected: 0x%(4; 04X)/%4)\e[m" (
-                        _base + checksumOffset,
-                        sizeof(uint16_t),
-                        actualChecksum,
-                        expectedChecksum
-                        ));
-                }
+				if (actualChecksum == expectedChecksum) {
+					representation.addHyperText(
+						$"Checksum:    \e^!-%1,%2\e[34m0x%(3; 04X)/%3\e[m [\e[32mOK\e[m]" (
+						_base + checksumOffset,
+						sizeof(uint16_t),
+						actualChecksum
+						));
+				} else {
+					representation.addHyperText(
+						$"Checksum:    \e^!-%1,%2\e[34m0x%(3; 04X)/%3\e[m [\e[31mERROR\e[m] \e[90m(expected: 0x%(4; 04X)/%4)\e[m" (
+						_base + checksumOffset,
+						sizeof(uint16_t),
+						actualChecksum,
+						expectedChecksum
+						));
+				}
 
-                representModbusPdu(
-                    representation,
-                    role,
-                    pduHdr,
-                    size - sizeof(io.ModbusRtuAduHdr),
-                    sizeof(io.ModbusRtuAduHdr) + _base,
-                    1,
-                    foldFlags
-                    );
-            } else {
-                representModbusMbap(
-                    representation,
-                    role,
-                    mbap,
-                    sizeof(ModbusMbapHdr),
-                    0,
-                    foldFlags
-                    );
+				representModbusPdu(
+					representation,
+					role,
+					pduHdr,
+					size - sizeof(io.ModbusRtuAduHdr),
+					sizeof(io.ModbusRtuAduHdr) + _base,
+					1,
+					foldFlags
+					);
+			} else {
+				representModbusMbap(
+					representation,
+					role,
+					mbap,
+					sizeof(ModbusMbapHdr),
+					0,
+					foldFlags
+					);
 
-                representModbusPdu(
-                    representation,
-                    role,
-                    pduHdr,
-                    size - sizeof(ModbusMbapHdr),
-                    sizeof(io.ModbusRtuAduHdr) + _base,
-                    1,
-                    foldFlags
-                    );
-            }
-        } else
-        {   // ASCII
-            static uint8_t rtu_buffer[256];
-            size_t rtu_size;
+				representModbusPdu(
+					representation,
+					role,
+					pduHdr,
+					size - sizeof(ModbusMbapHdr),
+					sizeof(io.ModbusRtuAduHdr) + _base,
+					1,
+					foldFlags
+					);
+			}
+		} else
+		{   // ASCII
+			static uint8_t rtu_buffer[256];
+			size_t rtu_size;
 
-            rtu_size = representerModbusAsciiConvertRtu(representation, p, size, &rtu_buffer);
-            aduHdr = (io.ModbusRtuAduHdr const*)(&rtu_buffer);
-            pduHdr = (io.ModbusPduHdr const*)(aduHdr + 1);
+			rtu_size = representerModbusAsciiConvertRtu(representation, p, size, &rtu_buffer);
+			aduHdr = (io.ModbusRtuAduHdr const*)(&rtu_buffer);
+			pduHdr = (io.ModbusPduHdr const*)(aduHdr + 1);
 
-            // Get SlaveID
-            _id = aduHdr.m_deviceAddress;
-            representation.addHyperText($"$_type Port#$channel SlaveId #$_id");
-            representation.m_lineAttr.m_backColor = ui.StdColor.BrightWhite;
-            representation.addBin(p + 2, size - 2);
+			// Get SlaveID
+			_id = aduHdr.m_deviceAddress;
+			representation.addHyperText($"$_type Port#$channel SlaveId #$_id");
+			representation.m_lineAttr.m_backColor = ui.StdColor.BrightWhite;
+			representation.addBin(p + 2, size - 2);
 
-            // Check LRC
-            size_t checksumOffset = size - 4 - (sizeof(uint8_t)* 2);
-            size_t checksumOffsetRtu = rtu_size - sizeof(uint8_t);
-            uint8_t actualChecksum = *(uint8_t const*)(aduHdr + checksumOffsetRtu);
-            uint8_t expectedChecksum = 0;
+			// Check LRC
+			size_t checksumOffset = size - 4 - (sizeof(uint8_t)* 2);
+			size_t checksumOffsetRtu = rtu_size - sizeof(uint8_t);
+			uint8_t actualChecksum = *(uint8_t const*)(aduHdr + checksumOffsetRtu);
+			uint8_t expectedChecksum = 0;
 
-            for (uint8_t _i = 0; _i < (rtu_size - 1); _i++)
-                expectedChecksum = expectedChecksum + *(uint8_t const*)(aduHdr + _i);
-            expectedChecksum = 0 - expectedChecksum;
+			for (uint8_t _i = 0; _i < (rtu_size - 1); _i++)
+				expectedChecksum = expectedChecksum + *(uint8_t const*)(aduHdr + _i);
+			expectedChecksum = 0 - expectedChecksum;
 
-           	representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
-            if (expectedChecksum == actualChecksum) {
-                representation.addHyperText(
-                    $"Checksum:    \e^!-%1,%2\e[34m0x%(3; 02X)/%3\e[m [\e[32mOK\e[m]" (
-                    checksumOffset,
-                    sizeof(uint8_t)* 2,
-                    actualChecksum
-                        ));
-            } else {
-                representation.addHyperText(
-                    $"Checksum:      \e^!-%1,%2\e[34m0x%(3; 02X)/%3\e[m [\e[31mERROR\e[m] \e[90m(expected: 0x%(4; 02X)/%4)\e[m" (
-                    checksumOffset,
-                    sizeof(uint8_t)* 2,
-                    actualChecksum,
-                    expectedChecksum
-                    ));
-            }
+		   	representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+			if (expectedChecksum == actualChecksum) {
+				representation.addHyperText(
+					$"Checksum:    \e^!-%1,%2\e[34m0x%(3; 02X)/%3\e[m [\e[32mOK\e[m]" (
+					checksumOffset,
+					sizeof(uint8_t)* 2,
+					actualChecksum
+						));
+			} else {
+				representation.addHyperText(
+					$"Checksum:      \e^!-%1,%2\e[34m0x%(3; 02X)/%3\e[m [\e[31mERROR\e[m] \e[90m(expected: 0x%(4; 02X)/%4)\e[m" (
+					checksumOffset,
+					sizeof(uint8_t)* 2,
+					actualChecksum,
+					expectedChecksum
+					));
+			}
 
-            if (rtu_size != 0) {
-                representation.addHyperText(
-                    $"SlaveId:     \e^!-%1,%2\e[34m0x%(3; 02X)/%3\e[m" (
-                    offsetof(aduHdr.m_deviceAddress) + 1,
-                    sizeof(aduHdr.m_deviceAddress) * 2,
-                    aduHdr.m_deviceAddress
-                    ));
+			if (rtu_size != 0) {
+				representation.addHyperText(
+					$"SlaveId:     \e^!-%1,%2\e[34m0x%(3; 02X)/%3\e[m" (
+					offsetof(aduHdr.m_deviceAddress) + 1,
+					sizeof(aduHdr.m_deviceAddress) * 2,
+					aduHdr.m_deviceAddress
+					));
 
-                representModbusPdu(
-                    representation,
-                    role,
-                    pduHdr,
-                    ((size - 5) / 2) - sizeof(io.ModbusRtuAduHdr),
-                    sizeof(io.ModbusRtuAduHdr) + 2,
-                    2,
-                    foldFlags
-                    );
-            }
-        }
+				representModbusPdu(
+					representation,
+					role,
+					pduHdr,
+					((size - 5) / 2) - sizeof(io.ModbusRtuAduHdr),
+					sizeof(io.ModbusRtuAduHdr) + 2,
+					2,
+					foldFlags
+					);
+			}
+		}
 		break;
 
 	case ModbusGatewayMonLogRecordCode.Log:
@@ -284,72 +283,72 @@ bool representModbusGatewayMonLog(
 
 size_t representerModbusAsciiConvertRtu(
 	log.Representation* representation,
-    void const* bufferIn,
+	void const* bufferIn,
 	size_t size,
-    void* bufferOut
-    ) {
-    char _i = 0;
-    char _ch;
-    uint8_t _byte;
-    uint8_t _index = 0;
-    bool _b_part = false;
-    bool _b_fail = false;
+	void* bufferOut
+	) {
+	char _i = 0;
+	char _ch;
+	uint8_t _byte;
+	uint8_t _index = 0;
+	bool _b_part = false;
+	bool _b_fail = false;
 
-    if ((*(char const*)(bufferIn + 2) == ':')
-        && (*(char const*)(bufferIn + size - 1) == 0x0a)
-        && (*(char const*)(bufferIn + size - 2) == 0x0d)) {
-        if (((size - 5) % 2) == 0) {
-            while (_i < size - 5) {
-                _ch = *(char const*)(bufferIn + _i + 3);
-                if ((_ch >= '0') && (_ch <= '9')) {
-                    if (_b_part == false) {
-                        _byte = (_ch - '0') << 4;
-                        _b_part = true;
-                    } else {
-                        _byte = _byte + (_ch - '0');
-                        *(uint8_t*)(bufferOut + _index++) = _byte;
-                        _b_part = false;
-                    }
-                } else {
-                    if ((_ch >= 'A') && (_ch <= 'F')) {
-                        if (_b_part == false) {
-                            _byte = (_ch - 'A' + 10) << 4;
-                            _b_part = true;
-                        } else {
-                            _byte = _byte + (_ch - 'A' + 10);
-                            *(uint8_t*)(bufferOut + _index++) = _byte;
-                            _b_part = false;
-                        }
-                    } else {
-                        // bad symbol in ASCII packet
-                        _b_fail = true;
-                        _i = size;  // end cycle
-                        representation.m_lineAttr.m_backColor = ui.StdColor.PastelYellow;
-                        representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
-                        representation.addHyperText($"Wrong ASCII symbol");
-                    }
-                }
-                _i++;
-            }
-        } else {
-            // Wrong ASCII packet size
-            _b_fail = true;
-            representation.m_lineAttr.m_backColor = ui.StdColor.PastelYellow;
-            representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
-            representation.addHyperText($"Wrong ASCII packet size");
-        }
-    } else {
-        // Wrong ASCII packet format
-        _b_fail = true;
+	if ((*(char const*)(bufferIn + 2) == ':')
+		&& (*(char const*)(bufferIn + size - 1) == 0x0a)
+		&& (*(char const*)(bufferIn + size - 2) == 0x0d)) {
+		if (((size - 5) % 2) == 0) {
+			while (_i < size - 5) {
+				_ch = *(char const*)(bufferIn + _i + 3);
+				if ((_ch >= '0') && (_ch <= '9')) {
+					if (_b_part == false) {
+						_byte = (_ch - '0') << 4;
+						_b_part = true;
+					} else {
+						_byte = _byte + (_ch - '0');
+						*(uint8_t*)(bufferOut + _index++) = _byte;
+						_b_part = false;
+					}
+				} else {
+					if ((_ch >= 'A') && (_ch <= 'F')) {
+						if (_b_part == false) {
+							_byte = (_ch - 'A' + 10) << 4;
+							_b_part = true;
+						} else {
+							_byte = _byte + (_ch - 'A' + 10);
+							*(uint8_t*)(bufferOut + _index++) = _byte;
+							_b_part = false;
+						}
+					} else {
+						// bad symbol in ASCII packet
+						_b_fail = true;
+						_i = size;  // end cycle
+						representation.m_lineAttr.m_backColor = ui.StdColor.PastelYellow;
+						representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+						representation.addHyperText($"Wrong ASCII symbol");
+					}
+				}
+				_i++;
+			}
+		} else {
+			// Wrong ASCII packet size
+			_b_fail = true;
+			representation.m_lineAttr.m_backColor = ui.StdColor.PastelYellow;
+			representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+			representation.addHyperText($"Wrong ASCII packet size");
+		}
+	} else {
+		// Wrong ASCII packet format
+		_b_fail = true;
 		representation.m_lineAttr.m_backColor = ui.StdColor.PastelYellow;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
-        representation.addHyperText($"Wrong ASCII packet format");
-    }
+		representation.addHyperText($"Wrong ASCII packet format");
+	}
 
-    if (_b_fail == true)
-        return 0;
-    else
-        return _index;
+	if (_b_fail == true)
+		return 0;
+	else
+		return _index;
 }
 
 //..............................................................................
@@ -361,7 +360,7 @@ void representModbusCoils(
 	uint8_t const* p,
 	size_t count,
 	size_t baseOffset,
-    uint8_t mult,
+	uint8_t mult,
 	uint_t foldFlags
 ) {
 	switch (count) {
@@ -400,7 +399,7 @@ void representModbusCoilValues(
 	uint8_t const* p,
 	size_t count,
 	size_t baseOffset,
-    uint8_t mult
+	uint8_t mult
 	) {
 	size_t size = count / 8;
 	if (count & 7)
@@ -430,7 +429,7 @@ void representModbusRegisters(
 	bigendian uint16_t const* p,
 	size_t count,
 	size_t baseOffset,
-    uint8_t mult,
+	uint8_t mult,
 	uint_t foldFlags
 ) {
 	switch (count) {
@@ -469,7 +468,7 @@ void representModbusRegisterValues(
 	bigendian uint16_t const* p,
 	size_t count,
 	size_t baseOffset,
-    uint8_t mult
+	uint8_t mult
 	) {
 	for (size_t i = 0; i < count; i++)
 		representation.addHyperText(
@@ -484,19 +483,19 @@ void representModbusRegisterValues(
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 char const* formatModbusFuncDescription(
-    io.ModbusRole role,
-    io.ModbusFunc func
+	io.ModbusRole role,
+	io.ModbusFunc func
 ) {
-    jnc.EnumType* type = typeof(io.ModbusFunc);
+	jnc.EnumType* type = typeof(io.ModbusFunc);
 
-    return (func & io.ModbusFunc.ExceptionFlag) ?
-        $"%1 (\e[34mEXCEPTION\e[m)" (
-            type.getValueString(func & ~io.ModbusFunc.ExceptionFlag)
-        ) :
-        $"%1 (\e[90m%2\e[m)" (
-            type.getValueString(func),
-            role == io.ModbusRole.Master ? "Request" : "Reply"
-        );
+	return (func & io.ModbusFunc.ExceptionFlag) ?
+		$"%1 (\e[34mEXCEPTION\e[m)" (
+			type.getValueString(func & ~io.ModbusFunc.ExceptionFlag)
+		) :
+		$"%1 (\e[90m%2\e[m)" (
+			type.getValueString(func),
+			role == io.ModbusRole.Master ? "Request" : "Reply"
+		);
 
 }
 
@@ -506,7 +505,7 @@ void representModbusPdu(
 	io.ModbusPduHdr const* hdr,
 	size_t size,
 	size_t baseOffset,
-    uint8_t mult,
+	uint8_t mult,
 	uint_t foldFlags
 ) {
 	representation.addHyperText(
@@ -552,7 +551,7 @@ void representModbusPdu(
 					(uint8_t const*)(pdu + 1),
 					pdu.m_size * 8,
 					baseOffset + sizeof(io.ModbusReadReplyPdu) * mult,
-                    mult,
+					mult,
 					foldFlags
 				);
 			} else {
@@ -568,7 +567,7 @@ void representModbusPdu(
 					representation, (bigendian uint16_t const*)(pdu + 1),
 					pdu.m_size / 2,
 					baseOffset + sizeof(io.ModbusReadReplyPdu) * mult,
-                    mult,
+					mult,
 					foldFlags
 				);
 			}
@@ -620,7 +619,7 @@ void representModbusPdu(
 					(uint8_t const*)(pdu + 1),
 					pdu.m_count,
 					baseOffset + sizeof(io.ModbusWriteMultiplePdu),
-                    mult,
+					mult,
 					foldFlags
 				);
 			else
@@ -629,7 +628,7 @@ void representModbusPdu(
 					(bigendian uint16_t const*)(pdu + 1),
 					pdu.m_count,
 					baseOffset + sizeof(io.ModbusWriteMultiplePdu),
-                    mult,
+					mult,
 					foldFlags
 				);
 		} else {
@@ -664,24 +663,24 @@ void representModbusPdu(
 
 	default:
 		if (hdr.m_func & io.ModbusFunc.ExceptionFlag) {
-            io.ModbusExceptionPdu const* pdu = (io.ModbusExceptionPdu const*)hdr;
+			io.ModbusExceptionPdu const* pdu = (io.ModbusExceptionPdu const*)hdr;
 
-            representation.addHyperText(
-                $"Exception: \e^!-%1,%2\e[31m0x%(3; 02X)/%3\e[m - %4" (
-                baseOffset + offsetof(pdu.m_exception) * mult,
-                sizeof(pdu.m_exception) * mult,
-                pdu.m_exception,
-                typeof(io.ModbusException).getValueString(pdu.m_exception)
-                ));
+			representation.addHyperText(
+				$"Exception: \e^!-%1,%2\e[31m0x%(3; 02X)/%3\e[m - %4" (
+				baseOffset + offsetof(pdu.m_exception) * mult,
+				sizeof(pdu.m_exception) * mult,
+				pdu.m_exception,
+				typeof(io.ModbusException).getValueString(pdu.m_exception)
+				));
 		}
 	}
 }
 
 struct ModbusMbapHdr {
-    bigendian uint16_t m_transactId;
-    bigendian uint16_t m_protocolId;
-    bigendian uint16_t m_sizePdu;
-    uint8_t m_unitId;
+	bigendian uint16_t m_transactId;
+	bigendian uint16_t m_protocolId;
+	bigendian uint16_t m_sizePdu;
+	uint8_t m_unitId;
 }
 
 void representModbusMbap(
@@ -692,26 +691,26 @@ void representModbusMbap(
 	size_t baseOffset,
 	uint_t foldFlags
 ) {
-    representation.addHyperText(
-        $"Transact Id: \e^!-%1,%2\e[34m0x%(3; 04X)/%3\e[m\n"
-        $"Protocol Id: \e^!-%4,%5\e[34m%6\e[m\n"
-        $"Size PDU:    \e^!-%7,%8\e[34m%9\e[m\n"
-        $"Unit Id:     \e^!-%10,%11\e[34m%12\e[m" (
+	representation.addHyperText(
+		$"Transact Id: \e^!-%1,%2\e[34m0x%(3; 04X)/%3\e[m\n"
+		$"Protocol Id: \e^!-%4,%5\e[34m%6\e[m\n"
+		$"Size PDU:    \e^!-%7,%8\e[34m%9\e[m\n"
+		$"Unit Id:     \e^!-%10,%11\e[34m%12\e[m" (
 
-        baseOffset + offsetof(hdr.m_transactId),
-        sizeof(hdr.m_transactId),
-        hdr.m_transactId,
+		baseOffset + offsetof(hdr.m_transactId),
+		sizeof(hdr.m_transactId),
+		hdr.m_transactId,
 
-        baseOffset + offsetof(hdr.m_protocolId),
-        sizeof(hdr.m_protocolId),
-        hdr.m_protocolId,
+		baseOffset + offsetof(hdr.m_protocolId),
+		sizeof(hdr.m_protocolId),
+		hdr.m_protocolId,
 
-        baseOffset + offsetof(hdr.m_sizePdu),
-        sizeof(hdr.m_sizePdu),
-        hdr.m_sizePdu,
+		baseOffset + offsetof(hdr.m_sizePdu),
+		sizeof(hdr.m_sizePdu),
+		hdr.m_sizePdu,
 
-        baseOffset + offsetof(hdr.m_unitId),
-        sizeof(hdr.m_unitId),
-        hdr.m_unitId
-        ));
+		baseOffset + offsetof(hdr.m_unitId),
+		sizeof(hdr.m_unitId),
+		hdr.m_unitId
+		));
 }

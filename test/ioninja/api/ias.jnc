@@ -5,7 +5,7 @@
 
 import "log_Writer.jnc"
 import "log_RecordCode.jnc"
-import "std_Buffer.jnc"
+import "ias_FieldCodec.jnc"
 
 //! \addtogroup api-ias
 //! @{
@@ -133,6 +133,8 @@ variant_t dispatchGet(
 }
 
 namespace ias {
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // sessions that support dispatch iface should normally derive from ias.Session
 

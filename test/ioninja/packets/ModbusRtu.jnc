@@ -95,14 +95,14 @@ struct ModbusRtuWritePacket {
 	io.ModbusRtuAduHdr m_adu;
 
 	[ displayName = "PDU" ]
-	io.ModbusWritePdu m_pdu;
+	io.ModbusWriteSinglePdu m_pdu;
 
 	[ displayName = "CRC" ]
 	uint16_t m_crc;
 
 	[ userAction = "Initialize with defaults" ]
 	void initialize() {
-		initializeModbusRtuPacket(this, io.ModbusFunc.WriteRegister);
+		initializeModbusRtuPacket(this, io.ModbusFunc.WriteSingleRegister);
 		updateChecksum();
 	}
 
@@ -167,7 +167,7 @@ struct ModbusRtuReadWriteMultiplePacket {
 	io.ModbusRtuAduHdr m_adu;
 
 	[ displayName = "PDU" ]
-	io.ModbusReadWriteMultiplePdu m_pdu;
+	io.ModbusReadWriteMultipleRegistersPdu m_pdu;
 
 	[ userAction = "Initialize with defaults" ]
 	void initialize() {

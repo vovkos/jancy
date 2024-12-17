@@ -14,7 +14,6 @@ import "ui_StdSessionInfoSet.jnc"
 import "ui_HidUi.jnc"
 import "ui_GroupBox.jnc"
 import "ui_Button.jnc"
-import "ui_DictionaryWidget.jnc"
 import "ui_LineEdit.jnc"
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
@@ -39,6 +38,8 @@ protected:
 		Refresh,
 		Open,
 		Info,
+		SendReport,
+		GetFeatureReport,
 		_Count,
 	}
 
@@ -48,6 +49,7 @@ protected:
 		Close,
 		Info,
 		Send,
+		Recv,
 		_Count,
 	}
 
@@ -63,9 +65,11 @@ protected:
 	io.HidDevice m_device;
 	io.HidRd m_rd;
 	HidLogReportWriter m_reportWriter;
+	HidReportFieldEncoder** m_reportFieldEncoderArray;
 	std.Buffer m_deviceInfoBuffer;
 	std.Buffer m_rdBuffer;
 	std.Buffer m_readBuffer;
+	std.Buffer m_reportBuffer;
 	uint_t m_syncId;
 
 	// toolbar, status bar & menu
@@ -74,7 +78,8 @@ protected:
 	ui.Icon* m_iconTable[IconId._Count];
 	ui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
 	ui.ComboBox* m_deviceCombo;
-	HidReportUi m_reportUi;
+	ui.ComboBox* m_reportCombo;
+	ui.PropertyGrid* m_reportPropertyGrid;
 
 	// property grid
 
@@ -135,12 +140,17 @@ protected:
 		m_logWriter.write(HidLogRecordCode.ReportDescriptor, m_rdBuffer.m_p, m_rdBuffer.m_size);
 	}
 
+	void onSendReport();
+	void onGetFeatureReport();
+
 	void onHidDeviceEvent(
 		uint_t syncId,
 		io.HidDeviceEvents triggeredEvents
 	);
 
 	void createUi();
+	void updateReportCombo();
+	void updateReportUi(io.HidReport const* report);
 	void waitHidDeviceEvents();
 }
 
@@ -149,7 +159,6 @@ protected:
 HidSession.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
 	m_reportWriter.construct(pluginHost.m_log.m_writer);
-	m_reportUi.construct(pluginHost, m_reportWriter, m_device, m_rd);
 
 	createUi();
 
@@ -169,6 +178,7 @@ void HidSession.createUi() {
 	m_iconTable[IconId.Close] = new ui.Icon("images/close.png");
 	m_iconTable[IconId.Info] = new ui.Icon("images/info.png");
 	m_iconTable[IconId.Send] = new ui.Icon("images/send.png");
+	m_iconTable[IconId.Recv] = new ui.Icon("images/recv.png");
 
 	m_actionTable[ActionId.Refresh] = createAction("Re-enumerate ports", m_iconTable[IconId.Refresh]);
 	m_actionTable[ActionId.Refresh].m_onTriggered += onRefresh;
@@ -176,6 +186,31 @@ void HidSession.createUi() {
 	m_actionTable[ActionId.Open].m_onTriggered += onOpen;
 	m_actionTable[ActionId.Info] = createAction("HID device info", m_iconTable[IconId.Info]);
 	m_actionTable[ActionId.Info].m_onTriggered += onInfo;
+
+	// report form
+
+	ui.VBoxLayout layout;
+	ui.Label label("HID output & feature reports:");
+	layout.addWidget(label);
+	m_reportCombo = new ui.ComboBox;
+	layout.addWidget(m_reportCombo);
+
+	m_reportPropertyGrid = new ui.PropertyGrid;
+	layout.addWidget(m_reportPropertyGrid, 1);
+
+	m_actionTable[ActionId.SendReport] = new ui.Action(m_iconTable[IconId.Send], "Send report");
+	m_actionTable[ActionId.SendReport].m_onTriggered += onSendReport;
+	m_actionTable[ActionId.GetFeatureReport] = new ui.Action(m_iconTable[IconId.Recv], "Get feature report");
+	m_actionTable[ActionId.GetFeatureReport].m_onTriggered += onGetFeatureReport;
+
+	ui.ToolBar reportToolBar;
+	reportToolBar.addStretch();
+	reportToolBar.setIconSize(73, 27); // images/send.png
+	reportToolBar.addAction(m_actionTable[ActionId.GetFeatureReport]);
+	reportToolBar.addAction(m_actionTable[ActionId.SendReport]);
+	layout.addWidget(reportToolBar);
+
+	m_pluginHost.createForm(layout, 1);
 
 	// status bar
 
@@ -229,6 +264,112 @@ void HidSession.createUi() {
 	m_uiReactor.start();
 }
 
+void HidSession.updateReportCombo() {
+	size_t outputReportCount = m_rd.m_reportCount[io.HidReportType.Output];
+	size_t featureReportCount = m_rd.m_reportCount[io.HidReportType.Feature];
+	size_t totalReportCount = outputReportCount + featureReportCount;
+
+	if (!totalReportCount)
+		return;
+
+	ui.ComboItem* reportComboItems = new ui.ComboItem[totalReportCount];
+
+	for (size_t i = 0; i < outputReportCount; i++) {
+		io.HidReport const* report = m_rd.m_reportArray[io.HidReportType.Output][i];
+		reportComboItems[i].m_value = report;
+		reportComboItems[i].m_text = report.m_reportId ?
+			$"Output #%1"(report.m_reportId) :
+			"Output";
+	}
+
+	for (size_t i = 0, j = outputReportCount; i < featureReportCount; i++, j++) {
+		io.HidReport const* report = m_rd.m_reportArray[io.HidReportType.Feature][i];
+		reportComboItems[j].m_value = report;
+		reportComboItems[j].m_text = report.m_reportId ?
+			$"Feature #%1"(report.m_reportId) :
+			"Feature";
+	}
+
+	m_reportCombo.setItems(reportComboItems, totalReportCount);
+	if (outputReportCount && featureReportCount)
+		m_reportCombo.insertSeparator(outputReportCount);
+}
+
+void HidSession.updateReportUi(io.HidReport const* report) {
+	m_reportPropertyGrid.clear();
+	m_reportFieldEncoderArray = null;
+
+	if (!report) {
+		m_reportCombo.m_isEnabled =
+		m_reportPropertyGrid.m_isEnabled =
+		m_actionTable[ActionId.SendReport].m_isEnabled =
+		m_actionTable[ActionId.GetFeatureReport].m_isEnabled = false;
+		return;
+	}
+
+	// calculate the number of encoders
+	ui.GroupProperty* groupProp;
+	size_t encoderCount = 0;
+	for (size_t i = 0; i < report.m_fieldCount; i++) {
+		io.HidReportField const* field = report.m_fieldArray[i];
+		if (!field.m_isPadding)
+			encoderCount += field[io.HidRdItemId.ReportCount];
+	}
+
+	HidReportFieldEncoder** encoderArray = new HidReportFieldEncoder*[encoderCount];
+
+	io.HidUsagePage const* usagePage;
+	size_t encoderIdx = 0;
+	for (size_t i = 0; i < report.m_fieldCount; i++) {
+		io.HidReportField const* field = report.m_fieldArray[i];
+		if (field.m_isPadding)
+			continue;
+
+		bool isUnsigned = field.m_isUnsigned;
+
+		if (usagePage != field.m_usagePage) {
+			usagePage = field.m_usagePage;
+			groupProp = new ui.GroupProperty(usagePage.m_name);
+			m_reportPropertyGrid.addProperty(groupProp);
+		}
+
+		size_t reportSize = field[io.HidRdItemId.ReportSize];
+		size_t reportCount = field[io.HidRdItemId.ReportCount];
+
+		bool hasIndex =
+			reportCount > 1 &&
+			(field.m_valueFlags & io.HidRdValueFlags.Variable) &&
+			field.m_usageArray[0] == field.m_usageArray[1];
+
+		for (size_t j = 0; j < reportCount; j++) {
+			string_t text =
+				!(field.m_valueFlags & io.HidRdValueFlags.Variable) ?
+					$"[$j]:" :
+				hasIndex ?
+					$"%1 [%2]:"(usagePage.getUsageName(field.m_usageArray[j]), j) :
+					$"%1:"(usagePage.getUsageName(field.m_usageArray[j]));
+
+			if (reportSize == 1) {
+				ui.BoolProperty* prop = new ui.BoolProperty(text);
+				groupProp.addChildProperty(prop);
+				encoderArray[encoderIdx++] = new HidReportBitEncoder(prop);
+			} else {
+				ui.StringProperty* prop = new ui.StringProperty(text);
+				prop->m_value = "0";
+				groupProp.addChildProperty(prop);
+				encoderArray[encoderIdx++] = new HidReportIntEncoder(prop, reportSize, isUnsigned);
+			}
+		}
+	}
+
+	m_reportCombo.m_isEnabled = true;
+	m_reportPropertyGrid.resizeNameColumnToContents();
+	m_reportPropertyGrid.m_isEnabled = true;
+	m_actionTable[ActionId.SendReport].m_isEnabled = true;
+	m_actionTable[ActionId.GetFeatureReport].m_isEnabled = report.m_reportType == io.HidReportType.Feature;
+	m_reportFieldEncoderArray = encoderArray;
+}
+
 bool errorcode HidSession.open() {
 	close();
 	startSession();
@@ -268,13 +409,11 @@ bool errorcode HidSession.open() {
 	m_rdBuffer.setSize(size);
 	m_rd.parse(io.g_hidDb, m_rdBuffer.m_p, size);
 	m_logWriter.write(HidLogRecordCode.ReportDescriptor, m_rdBuffer.m_p, size);
-
 	m_reportWriter.reset();
-	m_reportUi.createReportForms();
 	m_state = State.Opened;
 	m_sessionConnectionState = SessionConnectionState.Connected;
 	m_isTransmitEnabled = true;
-
+	updateReportCombo();
 	waitHidDeviceEvents();
 	m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
 	return true;
@@ -292,7 +431,8 @@ void HidSession.close() {
 	m_logWriter.write(HidLogRecordCode.Close);
 	m_device.close();
 	m_rd.clear();
-	m_reportUi.clear();
+	m_reportCombo.clear();
+	m_reportPropertyGrid.clear();
 	m_state = State.Closed;
 	m_sessionConnectionState = SessionConnectionState.Disconnected;
 	m_isTransmitEnabled = false;
@@ -372,29 +512,110 @@ size_t errorcode HidSession.transmit(
 	io.HidReport const* report = m_rd.findReport(io.HidReportType.Output, reportId);
 	if (!report) {
 		std.setError($"HID output #%d not found"(reportId));
-		throw;
+		return -1;
 	}
 
-	if (size < report.m_size + 1) {
+	size_t writeSize = report.m_size + 1; // plus report ID
+	if (size < writeSize) {
 		std.setError($"Incomplete HID output report (expected 1 byte for report ID followed %d bytes of report fields)"(report.m_size));
-		throw;
+		return -1;
 	}
 
-	size_t result = m_device.write(p, report.m_size + 1);
+	size_t result = m_device.write(p, writeSize);
 
 	m_reportWriter.writeReport(
 		HidLogRecordCode.OutputReport,
 		report,
-		p + 1,
-		report.m_size
+		p,
+		writeSize
 	);
 
-	m_pluginHost.m_txRxStats.addTx(report.m_size);
+	m_pluginHost.m_txRxStats.addTx(writeSize);
 	return result;
+}
+
+void HidSession.onSendReport() {
+	io.HidReport const* report = (io.HidReport const*)m_reportCombo.m_currentData;
+	if (!report)
+		return;
+
+	size_t writeSize = report.m_size + 1; // plus report ID
+	m_reportBuffer.setSize(report.m_size + sizeof(uint64_t)); // plus padding for encoder
+	memset(m_reportBuffer.m_p, 0, writeSize);
+
+	// encode
+
+	m_reportBuffer[0] = report.m_reportId; // report ID in the first byte
+	size_t bitOffset = 8; // report ID
+	size_t encoderIdx = 0;
+	for (size_t i = 0; i < report.m_fieldCount; i++) {
+		io.HidReportField const* field = report.m_fieldArray[i];
+		if (field.m_isPadding) {
+			bitOffset += field.m_bitCount;
+			continue;
+		}
+
+		size_t reportSize = field[io.HidRdItemId.ReportSize];
+		size_t reportCount = field[io.HidRdItemId.ReportCount];
+		for (size_t j = 0; j < reportCount; j++) {
+			m_reportFieldEncoderArray[encoderIdx++].encode(m_reportBuffer.m_p, bitOffset);
+			bitOffset += reportSize;
+		}
+	}
+
+	uint64_t recordCode;
+
+	if (report.m_reportType == io.HidReportType.Feature) {
+		m_device.sendFeatureReport(m_reportBuffer.m_p, writeSize);
+		recordCode = HidLogRecordCode.SendFeatureReport;
+	} else {
+		m_device.write(m_reportBuffer.m_p, writeSize);
+		recordCode = HidLogRecordCode.OutputReport;
+	}
+
+	m_reportWriter.writeReport(recordCode, report, m_reportBuffer.m_p, writeSize);
+	m_pluginHost.m_txRxStats.addTx(writeSize);
 
 catch:
-	m_logWriter.writeLastError(log.StdRecordCode.Error);
-	return -1;
+	m_logWriter.write(log.StdRecordCode.Error, std.getLastError());
+}
+
+void HidSession.onGetFeatureReport() {
+	io.HidReport const* report = (io.HidReport const*)m_reportCombo.m_currentData;
+	if (!report)
+		return;
+
+	size_t readSize = report.m_size + 1; // plus report ID;
+	m_reportBuffer.setSize(report.m_size + sizeof(uint64_t)); // plus padding for decoder
+	memset(m_reportBuffer.m_p, 0, readSize);
+	m_reportBuffer[0] = report.m_reportId; // report ID in the first byte
+
+	m_device.getFeatureReport(m_reportBuffer.m_p, readSize);
+	m_reportWriter.writeReport(HidLogRecordCode.GetFeatureReport, report, m_reportBuffer.m_p, readSize);
+	m_pluginHost.m_txRxStats.addRx(readSize);
+
+	// decode
+
+	void* p = m_reportBuffer.m_p + 1;
+	size_t bitOffset = 0;
+	size_t encoderIdx = 0;
+	for (size_t i = 0; i < report.m_fieldCount; i++) {
+		io.HidReportField const* field = report.m_fieldArray[i];
+		if (field.m_isPadding) {
+			bitOffset += field.m_bitCount;
+			continue;
+		}
+
+		size_t reportSize = field[io.HidRdItemId.ReportSize];
+		size_t reportCount = field[io.HidRdItemId.ReportCount];
+		for (size_t j = 0; j < reportCount; j++) {
+			m_reportFieldEncoderArray[encoderIdx++].decode(p, bitOffset);
+			bitOffset += reportSize;
+		}
+	}
+
+catch:
+	m_logWriter.write(log.StdRecordCode.Error, std.getLastError());
 }
 
 void HidSession.onHidDeviceEvent(
@@ -417,18 +638,22 @@ void HidSession.onHidDeviceEvent(
 	if (triggeredEvents & io.HidDeviceEvents.IncomingData) {
 		size_t result = m_device.read(m_readBuffer.m_p, m_readBuffer.m_size);
 		if (result) {
-			uint_t reportId = 0;
+			uint64_t recordCode;
+			uint_t reportId;
 			uchar_t const* p = m_readBuffer.m_p;
 			if (m_rd.m_flags & io.HidRdFlags.HasReportId) {
-				reportId = *p++;
-				result--;
+				reportId = *p;
+				recordCode = HidLogRecordCode.InputReport;
+			} else {
+				reportId = 0;
+				recordCode = HidLogRecordCode.InputReportNoId;
 			}
 
 			io.HidReport const* report = m_rd.findReport(io.HidReportType.Input, reportId);
 			if (report)
-				m_reportWriter.writeReport(HidLogRecordCode.InputReport, report, p, result);
+				m_reportWriter.writeReport(recordCode, report, p, result);
 			else
-				m_reportWriter.writeUnknownReport(HidLogRecordCode.InputReport, reportId, p, result);
+				m_reportWriter.writeUnknownReport(recordCode, reportId, p, result);
 
 			m_pluginHost.m_txRxStats.addRx(result);
 		}
@@ -438,12 +663,13 @@ void HidSession.onHidDeviceEvent(
 }
 
 reactor HidSession.m_uiReactor {
-	m_title = $"HID $(m_deviceCombo.m_editText)";
+	m_title = $"HID $(m_deviceCombo.m_currentText)";
 	m_actionTable[ActionId.Open].m_text = m_state ? "Close" : "Open";
 	m_actionTable[ActionId.Open].m_icon = m_iconTable[m_state ? IconId.Close : IconId.Open];
 	m_actionTable[ActionId.Info].m_isEnabled = m_state;
 	m_readModeProp.m_isEnabled = !m_state;
 	m_statusPaneTable[StatusPaneId.State].m_text = m_state ? "Opened" : "Closed";
+	updateReportUi((io.HidReport const*)m_reportCombo.m_currentData);
 }
 
 //..............................................................................

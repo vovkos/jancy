@@ -3,6 +3,7 @@
 // Ninja UI - property grid
 //
 
+import "ui_Widget.jnc"
 import "ui_ListItem.jnc"
 import "ui_Dictionary.jnc"
 import "std_HashTable.jnc"
@@ -175,14 +176,14 @@ enum FilePropertyMode {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bitflag enum FilePropertyOptions {
-    ShowDirsOnly                = 0x00000001,
-    DontResolveSymlinks         = 0x00000002,
-    DontConfirmOverwrite        = 0x00000004,
-    DontUseSheet                = 0x00000008,
-    DontUseNativeDialog         = 0x00000010,
-    ReadOnly                    = 0x00000020,
-    HideNameFilterDetails       = 0x00000040,
-    DontUseCustomDirectoryIcons = 0x00000080,
+	ShowDirsOnly                = 0x00000001,
+	DontResolveSymlinks         = 0x00000002,
+	DontConfirmOverwrite        = 0x00000004,
+	DontUseSheet                = 0x00000008,
+	DontUseNativeDialog         = 0x00000010,
+	ReadOnly                    = 0x00000020,
+	HideNameFilterDetails       = 0x00000040,
+	DontUseCustomDirectoryIcons = 0x00000080,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -215,7 +216,13 @@ class DictionaryProperty: Property {
 
 //..............................................................................
 
-opaque class PropertyGrid {
+class PropertyGrid: Widget {
+	construct();
+	destruct();
+
+	void clear();
+	void resizeNameColumnToContents();
+
 	void addProperty(
 		Property* prop,
 		Property* beforeProp = null
@@ -392,8 +399,6 @@ opaque class PropertyGrid {
 	) {
 		return createDictionaryProperty(,, name, toolTip);
 	}
-
-	void resizeNameColumnToContents();
 
 protected:
 	void finalizeCreateProperty(

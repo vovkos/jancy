@@ -1,0 +1,16 @@
+//..............................................................................
+//
+// BACnet MS/TP Analyzer log record declarations
+//
+
+import "log_RecordCode.jnc"
+
+//..............................................................................
+
+enum BacNetMsTpLogRecordCode: uint64_t {
+	ParseError = 0x01dac7a2551efdc0,
+	TxPacket   = 0x01dac7a2551efdc1 | log.RecordCodeFlags.Foldable,
+	RxPacket   = 0x01dac7a2551efdc2 | log.RecordCodeFlags.Foldable,
+}
+
+//..............................................................................

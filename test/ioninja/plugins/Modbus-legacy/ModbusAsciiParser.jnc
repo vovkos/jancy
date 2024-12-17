@@ -82,7 +82,7 @@ void ModbusAsciiParser.parse(
 					p0 = p;
 				}
 
-				std.setError("Missing '\\n' in Modbus ASCII frame");
+				std.setError("missing '\\n' in Modbus ASCII frame");
 				writer.writeLastError(timestamp, ModbusLogRecordCode.ParseError);
 				m_infoSet.addError();
 				reset();

@@ -27,6 +27,7 @@ class SerialUi {
 		BaudRate,
 		DataBits,
 		Parity,
+		ParityIgnore,
 		StopBits,
 		FlowControl,
 		Dtr,
@@ -224,6 +225,8 @@ class SerialUi {
 	}
 
 	static EnumPropertyOption const m_dataBitsTable[] = {
+		{ "5 bits", 5 },
+		{ "6 bits", 6 },
 		{ "7 bits", 7 },
 		{ "8 bits", 8 },
 	}
@@ -240,6 +243,15 @@ class SerialUi {
 		{ "Even",  io.SerialParity.Even },
 		{ "Mark",  io.SerialParity.Mark },
 		{ "Space", io.SerialParity.Space },
+	}
+
+	static EnumPropertyOption const m_parityIgnoreTable[] = {
+		{ "None",   io.SerialParity.None },
+		{ "Odd",    io.SerialParity.Odd },
+		{ "Even",   io.SerialParity.Even },
+		{ "Mark",   io.SerialParity.Mark },
+		{ "Space",  io.SerialParity.Space },
+		{ "Ignore", io.SerialParity.Space + 1 },
 	}
 
 	static EnumPropertyOption const m_flowControlTable[] = {
@@ -291,8 +303,13 @@ void SerialUi.createForm(
 		layout.addRow("Data bits:", m_dataBitsCombo);
 	}
 
-	if (mask & ItemId.Parity) {
-		m_parityCombo = new ComboBox(m_parityTable, countof(m_parityTable));
+	if (mask & (ItemId.Parity | ItemId.ParityIgnore)) {
+		m_parityCombo = new ComboBox;
+		if (mask & ItemId.ParityIgnore)
+			m_parityCombo.setItems(m_parityIgnoreTable, countof(m_parityIgnoreTable));
+		else
+			m_parityCombo.setItems(m_parityTable, countof(m_parityTable));
+
 		layout.addRow("Parity:", m_parityCombo);
 	}
 
@@ -514,7 +531,7 @@ bool isSerialPortLess(
 	return port1.m_deviceName < port2.m_deviceName;
 }
 
-void enumerateSerialPorts(
+size_t enumerateSerialPorts(
 	ComboBox* portCombo,
 	ComboProperty* portProp
 ) {
@@ -574,6 +591,7 @@ void enumerateSerialPorts(
 
 	portCombo.m_editText = editText; // restore edit text
 	portProp.setOptions(optionArray, count);
+	return count;
 }
 
 //..............................................................................

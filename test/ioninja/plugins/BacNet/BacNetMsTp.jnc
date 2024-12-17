@@ -1,0 +1,509 @@
+//..............................................................................
+//
+// BACnet MS/TP Analyzer protocol definitions
+//
+
+import "ias_FieldCodec.jnc"
+import "cobsEncoding.jnc"
+import "xor.jnc"
+
+pragma(Alignment, 1)
+
+//..............................................................................
+
+enum {
+	BacNetMsTcpPreamble   = 0x55ff,
+	BacNetExpectedHdrCrc  = 0x55,
+	BacNetExpectedDataCrc = 0xf0b8,
+	BacNetExpectedCobsCrc = 0x1234,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum BacNetMsTcpFrameType: uint8_t {
+	Token                         = 0,
+	PollForMaster                 = 1,
+	PollForMasterReply            = 2,
+	TestRequest                   = 3,
+	TestResponse                  = 4,
+	BacNetDataExpectingReply      = 5,
+	BacNetDataNotExpectingReply   = 6,
+	ReplyPostponed                = 7,
+	ExtendedDataExpectingReply    = 32,
+	ExtendedDataNotExpectingReply = 33
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct BacNetMsTpHdr {
+	[
+		displayName = "Preamble",
+		formatSpec  = "0x%04X"
+	]
+	bigendian uint16_t m_preamble;
+
+	[ displayName = "Frame type" ]
+	BacNetMsTcpFrameType m_frameType;
+
+	[ displayName = "Destination address" ]
+	uint8_t m_destinationAddress;
+
+	[ displayName = "Source address" ]
+	uint8_t m_sourceAddress;
+
+	[ displayName = "Length" ]
+	bigendian uint16_t m_length;
+
+	[
+		displayName = "CRC (header)",
+		formatFunc = formatBacNetMsTpHdrCrc,
+		formatSpec  = "0x%02X"
+	]
+	uint8_t m_crc;
+
+	[
+		userAction = "Update CRC (header)",
+		autorun = "Auto-update CRC (header)"
+	]
+	void updateCrc() {
+		m_preamble = BacNetMsTcpPreamble;
+		m_crc = calcCrc();
+	}
+
+	uint8_t calcCrc() {
+		size_t size = offsetof(BacNetMsTpHdr.m_crc) - offsetof(BacNetMsTpHdr.m_frameType);
+		return ~crc8_bacnet(&m_frameType, size);
+	}
+
+	bool isValidCrc() const {
+		size_t size = sizeof(BacNetMsTpHdr) - offsetof(BacNetMsTpHdr.m_frameType);
+		return crc8_bacnet(&m_frameType, size) == BacNetExpectedHdrCrc;
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct BacNetMsTpDataCrc {
+	[
+		displayName = "CRC (data)",
+		formatFunc  = formatBacNetMsTpDataCrc,
+		formatSpec  = "0x%04X"
+	]
+	uint16_t m_crc; // BACnet stores CRC16 as little-endian
+
+	[
+		userAction = "Update CRC (data)",
+		autorun = "Auto-update CRC (data)"
+	]
+	void updateCrc() {
+		m_crc = calcCrc();
+	}
+
+	uint16_t calcCrc() const {
+		size_t size = dynamic offsetof(this) - sizeof(BacNetMsTpHdr);
+		return ~crc16_bacnet((char const*)this - size, size);
+	}
+
+	bool isValidCrc() const {
+		size_t size = dynamic offsetof(this) - sizeof(BacNetMsTpHdr);
+		return crc16_bacnet((char const*)this - size, size + sizeof(uint16_t)) == BacNetExpectedDataCrc;
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct BacNetMsTpCobsCrc {
+	uint8_t m_cobsCrc[5]; // COBS of CRC32 is 5 bytes
+
+	string_t toString() {
+		return $"0x%08X"(decodeCrc());
+	}
+
+	void fromString(string_t string) {
+		uint32_t crc = strtoul(string);
+		encodeCobs(m_cobsCrc, &crc, sizeof(crc));
+		xor(m_cobsCrc, 0x55, sizeof(m_cobsCrc));
+	}
+
+	[
+		userAction = "Update CRC (data)",
+		autorun = "Auto-update CRC (data)"
+	]
+	void updateCrc() {
+		uint32_t crc = calcCrc();
+		encodeCobs(m_cobsCrc, &crc, sizeof(crc));
+		xor(m_cobsCrc, 0x55, sizeof(m_cobsCrc));
+	}
+
+	uint32_t calcCrc() const {
+		size_t size = dynamic offsetof(this) - sizeof(BacNetMsTpHdr);
+		return ~crc32_bacnet((char const*)this - size, size);
+	}
+
+	uint32_t decodeCrc() const {
+		uint32_t crc;
+		uint8_t cobsCrc[5] = m_cobsCrc;
+		xor(cobsCrc, 0x55, sizeof(cobsCrc));
+		decodeCobs(&crc, cobsCrc, sizeof(cobsCrc));
+		return crc;
+	}
+
+	bool isValidCrc() const {
+		size_t size = dynamic offsetof(this) - sizeof(BacNetMsTpHdr);
+		return calcCrc() == decodeCrc();
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+string_t getBacNetMsTpCrcValidityString(bool isValid) {
+	return isValid ? "\e[32mOK\e[m" : "\e[31mERROR\e[m";
+}
+
+string_t formatBacNetMsTpHdrCrc(void const* p) {
+	BacNetMsTpHdr const* hdr = (BacNetMsTpHdr const*)(p - offsetof(BacNetMsTpHdr.m_crc));
+	return $"0x%02X\e[m [%2]"(hdr.m_crc, getBacNetMsTpCrcValidityString(hdr.isValidCrc()));
+}
+
+string_t formatBacNetMsTpDataCrc(void const* p) {
+	BacNetMsTpDataCrc const* crc = (BacNetMsTpDataCrc const*)p;
+	return $"0x%04X\e[m [%2]"(crc.m_crc, getBacNetMsTpCrcValidityString(crc.isValidCrc()));
+}
+
+string_t formatBacNetMsTpCobsCrc(void const* p, size_t size) {
+	BacNetMsTpCobsCrc const* crc = (BacNetMsTpCobsCrc const*)p;
+	return $"0x%08X\e[m [%2]"(crc.decodeCrc(), getBacNetMsTpCrcValidityString(crc.isValidCrc()));
+}
+
+//..............................................................................
+
+class BacNetCobsCodec: ias.FieldCodec {
+	override size_t errorcode decode(
+		std.Buffer* buffer,
+		void const* p,
+		size_t size
+	) {
+		buffer.setSize(size);
+		memcpy(buffer.m_p, p, size);
+		xor(buffer.m_p, 0x55, size);
+		return decodeCobs(buffer, buffer.m_p, size);
+	}
+
+	override size_t errorcode encode(
+		std.Buffer* buffer,
+		void const* p,
+		size_t size
+	) {
+		size_t encodedSize = encodeCobs(buffer, p, size);
+		xor(buffer.m_p, 0x55, encodedSize);
+		return encodedSize;
+	}
+
+	override size_t errorcode inject(
+		std.Buffer* buffer,
+		size_t offset,
+		size_t originalSize,
+		void const* p,
+		size_t size
+	) {
+		size_t crcOffset = sizeof(BacNetMsTpHdr) + size;
+		size_t packetSize = crcOffset + sizeof(BacNetMsTpCobsCrc);
+		buffer.setSize(packetSize);
+		BacNetMsTpHdr* hdr = (BacNetMsTpHdr*)buffer.m_p;
+		hdr.m_length = size + sizeof(BacNetMsTpCobsCrc) - sizeof(uint16_t);
+		memcpy(hdr + 1, p, size);
+		BacNetMsTpCobsCrc* crc = (BacNetMsTpCobsCrc*)(buffer.m_p + crcOffset);
+		crc.updateCrc();
+		return packetSize;
+	}
+}
+
+//..............................................................................
+
+[
+	packetTemplate,
+	displayName = "BACnet MS/TP",
+	fixedSize
+]
+async void layoutBacNetMsTp(jnc.DynamicLayout* layout) {
+	[
+		backColor = ui.StdColor.PastelPurple,
+		ungroup
+	]
+	static MsTpAttr;
+
+	[
+		displayName = "NPDU",
+		backColor = ui.StdColor.PastelYellow,
+		foldFlag = 2,
+		binary
+	]
+	static DataAttr;
+
+	dylayout (layout) {
+		[
+			displayName = "BACnet MS/TP",
+			displayNameAttr = "\e[1m",
+			backColor = ui.StdColor.PastelGray,
+			digestFunc = getBacNetMsTpDigest,
+			foldFlag = 1,
+			root
+		]
+		dyfield myproto {
+			[ @MsTpAttr ]
+			dyfield BacNetMsTpHdr hdr;
+
+			switch (hdr.m_frameType) {
+			case BacNetMsTcpFrameType.ExtendedDataExpectingReply:
+			case BacNetMsTcpFrameType.ExtendedDataNotExpectingReply:
+				if (hdr.m_length > 3) {
+					[
+						@DataAttr,
+						valueText = "(COBS-encoded)",
+						codec = typeof(BacNetCobsCodec),
+						packetTemplate = declof(layoutBacNetNpdu)
+					]
+					dyfield char cobsData[hdr.m_length - 3];
+
+					[
+						@MsTpAttr,
+						displayName = "CRC (data)",
+						formatFunc = formatBacNetMsTpCobsCrc,
+						stringify
+					]
+					dyfield BacNetMsTpCobsCrc crc;
+				}
+				break;
+
+			default:
+				if (hdr.m_length) {
+					[ @DataAttr ]
+					dyfield char data[hdr.m_length];
+
+					[ @MsTpAttr ]
+					dyfield BacNetMsTpDataCrc crc;
+				}
+			}
+		}
+	}
+}
+
+string_t getBacNetMsTpDigest(
+	void const* p,
+	size_t size
+) {
+	std.StringBuilder digest;
+	jnc.DynamicLayout layout(p, size);
+	dylayout (layout) {
+		dyfield BacNetMsTpHdr hdr;
+		bool isValidCrc = hdr.isValidCrc();
+
+		digest := $"\e[34m%1\e[m \u2192 \e[34m%2\e[m Frame: \e[34m%3\e[m Length: \e[34m%4"(
+			(hdr.m_sourceAddress),
+			(hdr.m_destinationAddress),
+			(typeof(BacNetMsTcpFrameType).getValueString(hdr.m_frameType)),
+			hdr.m_length
+		);
+
+		if (isValidCrc)
+			switch (hdr.m_frameType) {
+			case BacNetMsTcpFrameType.ExtendedDataExpectingReply:
+			case BacNetMsTcpFrameType.ExtendedDataNotExpectingReply:
+				if (hdr.m_length > 3)  {
+					dyfield char cobsData[hdr.m_length - 3];
+					dyfield BacNetMsTpCobsCrc crc;
+					if (!crc.isValidCrc())
+						isValidCrc = false;
+				}
+				break;
+
+			default:
+				if (hdr.m_length) {
+					dyfield char payload[hdr.m_length];
+					dyfield BacNetMsTpDataCrc crc;
+					if (!crc.isValidCrc())
+						isValidCrc = false;
+				}
+			}
+
+		if (!isValidCrc)
+			digest.append(" [\e[31mCRC ERROR\e[m]");
+	}
+
+	return digest.detachString();
+}
+
+//..............................................................................
+
+uint8_t crc8_bacnet(
+	void const* p,
+	size_t size,
+	uint8_t seed = 0xff
+) {
+	static const uint8_t crcTable[256] = {
+		0x00, 0xfe, 0xff, 0x01, 0xfd, 0x03, 0x02, 0xfc, 0xf9, 0x07, 0x06, 0xf8, 0x04, 0xfa, 0xfb, 0x05,
+		0xf1, 0x0f, 0x0e, 0xf0, 0x0c, 0xf2, 0xf3, 0x0d, 0x08, 0xf6, 0xf7, 0x09, 0xf5, 0x0b, 0x0a, 0xf4,
+		0xe1, 0x1f, 0x1e, 0xe0, 0x1c, 0xe2, 0xe3, 0x1d, 0x18, 0xe6, 0xe7, 0x19, 0xe5, 0x1b, 0x1a, 0xe4,
+		0x10, 0xee, 0xef, 0x11, 0xed, 0x13, 0x12, 0xec, 0xe9, 0x17, 0x16, 0xe8, 0x14, 0xea, 0xeb, 0x15,
+		0xc1, 0x3f, 0x3e, 0xc0, 0x3c, 0xc2, 0xc3, 0x3d, 0x38, 0xc6, 0xc7, 0x39, 0xc5, 0x3b, 0x3a, 0xc4,
+		0x30, 0xce, 0xcf, 0x31, 0xcd, 0x33, 0x32, 0xcc, 0xc9, 0x37, 0x36, 0xc8, 0x34, 0xca, 0xcb, 0x35,
+		0x20, 0xde, 0xdf, 0x21, 0xdd, 0x23, 0x22, 0xdc, 0xd9, 0x27, 0x26, 0xd8, 0x24, 0xda, 0xdb, 0x25,
+		0xd1, 0x2f, 0x2e, 0xd0, 0x2c, 0xd2, 0xd3, 0x2d, 0x28, 0xd6, 0xd7, 0x29, 0xd5, 0x2b, 0x2a, 0xd4,
+		0x81, 0x7f, 0x7e, 0x80, 0x7c, 0x82, 0x83, 0x7d, 0x78, 0x86, 0x87, 0x79, 0x85, 0x7b, 0x7a, 0x84,
+		0x70, 0x8e, 0x8f, 0x71, 0x8d, 0x73, 0x72, 0x8c, 0x89, 0x77, 0x76, 0x88, 0x74, 0x8a, 0x8b, 0x75,
+		0x60, 0x9e, 0x9f, 0x61, 0x9d, 0x63, 0x62, 0x9c, 0x99, 0x67, 0x66, 0x98, 0x64, 0x9a, 0x9b, 0x65,
+		0x91, 0x6f, 0x6e, 0x90, 0x6c, 0x92, 0x93, 0x6d, 0x68, 0x96, 0x97, 0x69, 0x95, 0x6b, 0x6a, 0x94,
+		0x40, 0xbe, 0xbf, 0x41, 0xbd, 0x43, 0x42, 0xbc, 0xb9, 0x47, 0x46, 0xb8, 0x44, 0xba, 0xbb, 0x45,
+		0xb1, 0x4f, 0x4e, 0xb0, 0x4c, 0xb2, 0xb3, 0x4d, 0x48, 0xb6, 0xb7, 0x49, 0xb5, 0x4b, 0x4a, 0xb4,
+		0xa1, 0x5f, 0x5e, 0xa0, 0x5c, 0xa2, 0xa3, 0x5d, 0x58, 0xa6, 0xa7, 0x59, 0xa5, 0x5b, 0x5a, 0xa4,
+		0x50, 0xae, 0xaf, 0x51, 0xad, 0x53, 0x52, 0xac, 0xa9, 0x57, 0x56, 0xa8, 0x54, 0xaa, 0xab, 0x55,
+	};
+
+	uint8_t const* b = (uint8_t const*)p;
+	uint8_t crc = seed;
+
+	for (; size; size--) {
+		uint8_t j = *b++ ^ crc;
+		crc = crcTable[j];
+	}
+
+	return crc;
+}
+
+uint16_t crc16_bacnet(
+	void const* p,
+	size_t size,
+	uint16_t seed = 0xffff
+) {
+	static const uint16_t crcTable[256] = {
+		0x0000, 0x1189, 0x2312, 0x329b, 0x4624, 0x57ad, 0x6536, 0x74bf,
+		0x8c48, 0x9dc1, 0xaf5a, 0xbed3, 0xca6c, 0xdbe5, 0xe97e, 0xf8f7,
+		0x1081, 0x0108, 0x3393, 0x221a, 0x56a5, 0x472c, 0x75b7, 0x643e,
+		0x9cc9, 0x8d40, 0xbfdb, 0xae52, 0xdaed, 0xcb64, 0xf9ff, 0xe876,
+		0x2102, 0x308b, 0x0210, 0x1399, 0x6726, 0x76af, 0x4434, 0x55bd,
+		0xad4a, 0xbcc3, 0x8e58, 0x9fd1, 0xeb6e, 0xfae7, 0xc87c, 0xd9f5,
+		0x3183, 0x200a, 0x1291, 0x0318, 0x77a7, 0x662e, 0x54b5, 0x453c,
+		0xbdcb, 0xac42, 0x9ed9, 0x8f50, 0xfbef, 0xea66, 0xd8fd, 0xc974,
+		0x4204, 0x538d, 0x6116, 0x709f, 0x0420, 0x15a9, 0x2732, 0x36bb,
+		0xce4c, 0xdfc5, 0xed5e, 0xfcd7, 0x8868, 0x99e1, 0xab7a, 0xbaf3,
+		0x5285, 0x430c, 0x7197, 0x601e, 0x14a1, 0x0528, 0x37b3, 0x263a,
+		0xdecd, 0xcf44, 0xfddf, 0xec56, 0x98e9, 0x8960, 0xbbfb, 0xaa72,
+		0x6306, 0x728f, 0x4014, 0x519d, 0x2522, 0x34ab, 0x0630, 0x17b9,
+		0xef4e, 0xfec7, 0xcc5c, 0xddd5, 0xa96a, 0xb8e3, 0x8a78, 0x9bf1,
+		0x7387, 0x620e, 0x5095, 0x411c, 0x35a3, 0x242a, 0x16b1, 0x0738,
+		0xffcf, 0xee46, 0xdcdd, 0xcd54, 0xb9eb, 0xa862, 0x9af9, 0x8b70,
+		0x8408, 0x9581, 0xa71a, 0xb693, 0xc22c, 0xd3a5, 0xe13e, 0xf0b7,
+		0x0840, 0x19c9, 0x2b52, 0x3adb, 0x4e64, 0x5fed, 0x6d76, 0x7cff,
+		0x9489, 0x8500, 0xb79b, 0xa612, 0xd2ad, 0xc324, 0xf1bf, 0xe036,
+		0x18c1, 0x0948, 0x3bd3, 0x2a5a, 0x5ee5, 0x4f6c, 0x7df7, 0x6c7e,
+		0xa50a, 0xb483, 0x8618, 0x9791, 0xe32e, 0xf2a7, 0xc03c, 0xd1b5,
+		0x2942, 0x38cb, 0x0a50, 0x1bd9, 0x6f66, 0x7eef, 0x4c74, 0x5dfd,
+		0xb58b, 0xa402, 0x9699, 0x8710, 0xf3af, 0xe226, 0xd0bd, 0xc134,
+		0x39c3, 0x284a, 0x1ad1, 0x0b58, 0x7fe7, 0x6e6e, 0x5cf5, 0x4d7c,
+		0xc60c, 0xd785, 0xe51e, 0xf497, 0x8028, 0x91a1, 0xa33a, 0xb2b3,
+		0x4a44, 0x5bcd, 0x6956, 0x78df, 0x0c60, 0x1de9, 0x2f72, 0x3efb,
+		0xd68d, 0xc704, 0xf59f, 0xe416, 0x90a9, 0x8120, 0xb3bb, 0xa232,
+		0x5ac5, 0x4b4c, 0x79d7, 0x685e, 0x1ce1, 0x0d68, 0x3ff3, 0x2e7a,
+		0xe70e, 0xf687, 0xc41c, 0xd595, 0xa12a, 0xb0a3, 0x8238, 0x93b1,
+		0x6b46, 0x7acf, 0x4854, 0x59dd, 0x2d62, 0x3ceb, 0x0e70, 0x1ff9,
+		0xf78f, 0xe606, 0xd49d, 0xc514, 0xb1ab, 0xa022, 0x92b9, 0x8330,
+		0x7bc7, 0x6a4e, 0x58d5, 0x495c, 0x3de3, 0x2c6a, 0x1ef1, 0x0f78
+	};
+
+	uint8_t const* b = (uint8_t const*)p;
+	uint16_t crc = seed;
+
+	for (; size; size--) {
+		uint8_t j = *b++ ^ crc;
+		crc = (crc >> 8) ^ crcTable[j];
+	}
+
+	return crc;
+}
+
+// CRC32K (Koopman, polynomial: 0x741B8CD7)
+
+uint32_t crc32_bacnet(
+	void const* p,
+	size_t size,
+	uint32_t seed = 0xffffffff
+) {
+	static uint32_t const crcTable[256] = {
+		0x00000000, 0x9695c4ca, 0xfb4839c9, 0x6dddfd03,
+		0x20f3c3cf, 0xb6660705, 0xdbbbfa06, 0x4d2e3ecc,
+		0x41e7879e, 0xd7724354, 0xbaafbe57, 0x2c3a7a9d,
+		0x61144451, 0xf781809b, 0x9a5c7d98, 0x0cc9b952,
+		0x83cf0f3c, 0x155acbf6, 0x788736f5, 0xee12f23f,
+		0xa33cccf3, 0x35a90839, 0x5874f53a, 0xcee131f0,
+		0xc22888a2, 0x54bd4c68, 0x3960b16b, 0xaff575a1,
+		0xe2db4b6d, 0x744e8fa7, 0x199372a4, 0x8f06b66e,
+		0xd1fdae25, 0x47686aef, 0x2ab597ec, 0xbc205326,
+		0xf10e6dea, 0x679ba920, 0x0a465423, 0x9cd390e9,
+		0x901a29bb, 0x068fed71, 0x6b521072, 0xfdc7d4b8,
+		0xb0e9ea74, 0x267c2ebe, 0x4ba1d3bd, 0xdd341777,
+		0x5232a119, 0xc4a765d3, 0xa97a98d0, 0x3fef5c1a,
+		0x72c162d6, 0xe454a61c, 0x89895b1f, 0x1f1c9fd5,
+		0x13d52687, 0x8540e24d, 0xe89d1f4e, 0x7e08db84,
+		0x3326e548, 0xa5b32182, 0xc86edc81, 0x5efb184b,
+		0x7598ec17, 0xe30d28dd, 0x8ed0d5de, 0x18451114,
+		0x556b2fd8, 0xc3feeb12, 0xae231611, 0x38b6d2db,
+		0x347f6b89, 0xa2eaaf43, 0xcf375240, 0x59a2968a,
+		0x148ca846, 0x82196c8c, 0xefc4918f, 0x79515545,
+		0xf657e32b, 0x60c227e1, 0x0d1fdae2, 0x9b8a1e28,
+		0xd6a420e4, 0x4031e42e, 0x2dec192d, 0xbb79dde7,
+		0xb7b064b5, 0x2125a07f, 0x4cf85d7c, 0xda6d99b6,
+		0x9743a77a, 0x01d663b0, 0x6c0b9eb3, 0xfa9e5a79,
+		0xa4654232, 0x32f086f8, 0x5f2d7bfb, 0xc9b8bf31,
+		0x849681fd, 0x12034537, 0x7fdeb834, 0xe94b7cfe,
+		0xe582c5ac, 0x73170166, 0x1ecafc65, 0x885f38af,
+		0xc5710663, 0x53e4c2a9, 0x3e393faa, 0xa8acfb60,
+		0x27aa4d0e, 0xb13f89c4, 0xdce274c7, 0x4a77b00d,
+		0x07598ec1, 0x91cc4a0b, 0xfc11b708, 0x6a8473c2,
+		0x664dca90, 0xf0d80e5a, 0x9d05f359, 0x0b903793,
+		0x46be095f, 0xd02bcd95, 0xbdf63096, 0x2b63f45c,
+		0xeb31d82e, 0x7da41ce4, 0x1079e1e7, 0x86ec252d,
+		0xcbc21be1, 0x5d57df2b, 0x308a2228, 0xa61fe6e2,
+		0xaad65fb0, 0x3c439b7a, 0x519e6679, 0xc70ba2b3,
+		0x8a259c7f, 0x1cb058b5, 0x716da5b6, 0xe7f8617c,
+		0x68fed712, 0xfe6b13d8, 0x93b6eedb, 0x05232a11,
+		0x480d14dd, 0xde98d017, 0xb3452d14, 0x25d0e9de,
+		0x2919508c, 0xbf8c9446, 0xd2516945, 0x44c4ad8f,
+		0x09ea9343, 0x9f7f5789, 0xf2a2aa8a, 0x64376e40,
+		0x3acc760b, 0xac59b2c1, 0xc1844fc2, 0x57118b08,
+		0x1a3fb5c4, 0x8caa710e, 0xe1778c0d, 0x77e248c7,
+		0x7b2bf195, 0xedbe355f, 0x8063c85c, 0x16f60c96,
+		0x5bd8325a, 0xcd4df690, 0xa0900b93, 0x3605cf59,
+		0xb9037937, 0x2f96bdfd, 0x424b40fe, 0xd4de8434,
+		0x99f0baf8, 0x0f657e32, 0x62b88331, 0xf42d47fb,
+		0xf8e4fea9, 0x6e713a63, 0x03acc760, 0x953903aa,
+		0xd8173d66, 0x4e82f9ac, 0x235f04af, 0xb5cac065,
+		0x9ea93439, 0x083cf0f3, 0x65e10df0, 0xf374c93a,
+		0xbe5af7f6, 0x28cf333c, 0x4512ce3f, 0xd3870af5,
+		0xdf4eb3a7, 0x49db776d, 0x24068a6e, 0xb2934ea4,
+		0xffbd7068, 0x6928b4a2, 0x04f549a1, 0x92608d6b,
+		0x1d663b05, 0x8bf3ffcf, 0xe62e02cc, 0x70bbc606,
+		0x3d95f8ca, 0xab003c00, 0xc6ddc103, 0x504805c9,
+		0x5c81bc9b, 0xca147851, 0xa7c98552, 0x315c4198,
+		0x7c727f54, 0xeae7bb9e, 0x873a469d, 0x11af8257,
+		0x4f549a1c, 0xd9c15ed6, 0xb41ca3d5, 0x2289671f,
+		0x6fa759d3, 0xf9329d19, 0x94ef601a, 0x027aa4d0,
+		0x0eb31d82, 0x9826d948, 0xf5fb244b, 0x636ee081,
+		0x2e40de4d, 0xb8d51a87, 0xd508e784, 0x439d234e,
+		0xcc9b9520, 0x5a0e51ea, 0x37d3ace9, 0xa1466823,
+		0xec6856ef, 0x7afd9225, 0x17206f26, 0x81b5abec,
+		0x8d7c12be, 0x1be9d674, 0x76342b77, 0xe0a1efbd,
+		0xad8fd171, 0x3b1a15bb, 0x56c7e8b8, 0xc0522c72,
+	};
+
+	uint8_t const* b = (uint8_t const*)p;
+	uint32_t crc = seed;
+
+	for (; size; size--) {
+		uint8_t j = *b++ ^ crc;
+		crc = (crc >> 8) ^ crcTable[j];
+	}
+
+	return crc;
+}
+
+//..............................................................................

@@ -296,7 +296,7 @@ void SpiTapSession.createUi() {
 	m_modeCombo.adjustSizeToContents();
 	bindingof(m_modeCombo.m_currentIndex) += onModeChanged;
 
-	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable [IconId.Capture]);
+	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable[IconId.Capture]);
 	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;
 
 	// status bar (only one pane)
@@ -735,7 +735,7 @@ void SpiTapSession.save(doc.Storage* storage) {
 	storage.writeInt("endianness", m_endiannessProp.m_value);
 	storage.writeBool("useDualHexView", m_useDualHexViewProp.m_value);
 	storage.writeInt("flushTimeout", m_flushTimeoutProp.m_value);
-	storage.writeBool("flipAB", m_actionTable [ActionId.Flip].m_isChecked);
+	storage.writeBool("flipAB", m_actionTable[ActionId.Flip].m_isChecked);
 
 	m_bufferPropertySet.save(storage);
 }
@@ -759,7 +759,7 @@ bool errorcode SpiTapSession.applyProperties() {
 	uint_t dataBits = m_dataBitsProp.m_value;
 	bool endianness = m_endiannessProp.m_value;
 
-	// baud rate change will be handled inside onBaudRateChanged ()
+	// baud rate change will be handled inside onBaudRateChanged()
 
 	if (m_frequency != frequency) {
 		m_logWriter.write(SpiTapLogRecordCode.FrequencyChanged, &frequency, sizeof(frequency));

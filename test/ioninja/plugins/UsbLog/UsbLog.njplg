@@ -43,3 +43,4 @@ UsbLogRepresenter.jnc
 01d485f4acbf80ca  # TransferError
 01d485f4acbf80cb  # InterfaceClaimed
 01d485f4acbf80cc  # ReadingStarted
+01d485f4acbf80cd  # UsbMonNotDetected

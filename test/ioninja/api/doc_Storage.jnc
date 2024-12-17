@@ -1,6 +1,6 @@
 //..............................................................................
 //
-// Ninja document model: structured storage for plugin serialization
+// Ninja document model - structured storage for plugin serialization
 //
 
 namespace doc {

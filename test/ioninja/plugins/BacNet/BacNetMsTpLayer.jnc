@@ -1,0 +1,69 @@
+//..............................................................................
+//
+// BACnet MS/TP Analyzer layer
+//
+
+import "doc_Layer.jnc"
+
+//..............................................................................
+
+class BacNetMsTpLayer:
+	doc.Layer,
+	log.Converter {
+	static const std.Guid m_guid = "9ade09ff-3c68-4d0e-aeaa-f4cb1f862d5c";
+
+protected:
+	BacNetMsTpParser m_txParser;
+	BacNetMsTpParser m_rxParser;
+
+public:
+	construct(doc.PluginHost* pluginHost);
+
+	override bool convert(
+		log.Writer* writer,
+		uint64_t timestamp,
+		uint64_t recordCode,
+		void const* p,
+		size_t size
+	);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+BacNetMsTpLayer.construct(doc.PluginHost* pluginHost) {
+	basetype1.construct(pluginHost);
+	pluginHost.m_log.addConverter(this, &m_guid);
+}
+
+bool BacNetMsTpLayer.convert(
+	log.Writer* writer,
+	uint64_t timestamp,
+	uint64_t recordCode,
+	void const* p,
+	size_t size
+) {
+	BacNetMsTpParser* parser;
+
+	switch (recordCode) {
+	case log.StdRecordCode.SessionStarted:
+		m_txParser.reset();
+		m_rxParser.reset();
+		return false; // fallback to the original representation
+
+	case log.StdRecordCode.Tx:
+		parser = &m_txParser;
+		break;
+
+	case log.StdRecordCode.Rx:
+		parser = &m_rxParser;
+		break;
+
+	default:
+		return false; // ignore all other record codes
+	}
+
+	parser.parse(writer, timestamp, recordCode, p, size);
+	return true;
+}
+
+//..............................................................................

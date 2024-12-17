@@ -221,7 +221,7 @@ size_t errorcode getModbusPduSize(
 		if (pduHdr.m_func & ModbusFunc.ExceptionFlag)
 			return sizeof(ModbusExceptionPdu);
 
-		std.setError("Unknown Modbus function");
+		std.setError("unknown Modbus function");
 		return -1;
 	}
 }

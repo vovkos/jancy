@@ -392,13 +392,27 @@ bool errorcode SerialSession.open() {
 	params.m_options = m_serial.m_options;
 	params.m_osKind = sys.g_systemInfo.m_osKind;
 
-	m_logWriter.write(
-		SerialLogRecordCode.PortOpened,
-		&params,
-		sizeof(params),
-		portName.m_p,
-		portName.m_length
-	);
+	io.SerialPortDesc const* portDesc = findSerialPortDesc(portName);
+	if (!portDesc)
+		m_logWriter.write(
+			SerialLogRecordCode.PortOpened,
+			&params,
+			sizeof(params),
+			portName.m_p,
+			portName.m_length
+		);
+	else {
+		std.Buffer buffer;
+		packSerialPortDescStrings(buffer, portDesc);
+
+		m_logWriter.write(
+			SerialLogRecordCode.PortOpenedEx,
+			&params,
+			sizeof(params),
+			buffer.m_p,
+			buffer.m_size
+		);
+	}
 
 	m_portName = portName;
 	m_baudRate = m_serial.m_baudRate;
@@ -566,6 +580,7 @@ bool errorcode SerialSession.applyProperties() {
 	return true;
 
 catch:
+	std.pushError("cannot apply properties");
 	m_logWriter.writeLastError(log.StdRecordCode.Error);
 	return false;
 }
@@ -802,7 +817,9 @@ void SerialSession.onBaudRateChanged() {
 	m_baudRate = baudRate;
 
 catch:
+	std.pushError("cannot set baud rate");
 	m_logWriter.writeLastError(log.StdRecordCode.Error);
+	m_serialUi.m_baudRate = m_serial.m_baudRate;
 }
 
 void SerialSession.onDataBitsChanged() {
@@ -817,7 +834,9 @@ void SerialSession.onDataBitsChanged() {
 	m_logWriter.write(SerialLogRecordCode.DataBitsChanged, &dataBits, sizeof(dataBits));
 
 catch:
+	std.pushError("cannot set data bits");
 	m_logWriter.writeLastError(log.StdRecordCode.Error);
+	m_serialUi.m_dataBits = m_serial.m_dataBits;
 }
 
 void SerialSession.onParityChanged() {
@@ -832,7 +851,9 @@ void SerialSession.onParityChanged() {
 	m_logWriter.write(SerialLogRecordCode.ParityChanged, &parity, sizeof(parity));
 
 catch:
+	std.pushError("cannot set parity");
 	m_logWriter.writeLastError(log.StdRecordCode.Error);
+	m_serialUi.m_parity = m_serial.m_parity;
 }
 
 void SerialSession.onStopBitsChanged() {
@@ -847,7 +868,9 @@ void SerialSession.onStopBitsChanged() {
 	m_logWriter.write(SerialLogRecordCode.StopBitsChanged, &stopBits, sizeof(stopBits));
 
 catch:
+	std.pushError("cannot set stop bits");
 	m_logWriter.writeLastError(log.StdRecordCode.Error);
+	m_serialUi.m_stopBits = m_serial.m_stopBits;
 }
 
 void SerialSession.onFlowControlChanged() {
@@ -862,7 +885,9 @@ void SerialSession.onFlowControlChanged() {
 	m_logWriter.write(SerialLogRecordCode.FlowControlChanged, &flowControl, sizeof(flowControl));
 
 catch:
+	std.pushError("cannot set flow control");
 	m_logWriter.writeLastError(log.StdRecordCode.Error);
+	m_serialUi.m_flowControl = m_serial.m_flowControl;
 }
 
 void SerialSession.onDtrChanged() {
@@ -873,6 +898,11 @@ void SerialSession.onDtrChanged() {
 	m_serial.m_dtr = value;
 	m_dtr = value;
 	m_logWriter.write(SerialLogRecordCode.DtrChanged, &value, sizeof(value));
+
+catch:
+	std.pushError("cannot set DTR");
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
+	m_serialUi.m_dtr = m_serial.m_dtr;
 }
 
 void SerialSession.onRtsChanged() {
@@ -883,6 +913,11 @@ void SerialSession.onRtsChanged() {
 	m_serial.m_rts = value;
 	m_rts = value;
 	m_logWriter.write(SerialLogRecordCode.RtsChanged, &value, sizeof(value));
+
+catch:
+	std.pushError("cannot set RTS");
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
+	m_serialUi.m_rts = m_serial.m_rts;
 }
 
 void SerialSession.onBreakConditionChanged() {
@@ -893,6 +928,11 @@ void SerialSession.onBreakConditionChanged() {
 	m_serial.m_breakCondition = value;
 	m_breakCondition = value;
 	m_logWriter.write(SerialLogRecordCode.BreakConditionChanged, &value, sizeof(value));
+
+catch:
+	std.pushError("cannot set BREAK condition");
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
+	m_serialUi.m_breakCondition = m_serial.m_breakCondition;
 }
 
 void SerialSession.updateLineInfoValue(

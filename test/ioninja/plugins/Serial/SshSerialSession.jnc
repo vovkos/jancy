@@ -224,7 +224,7 @@ void SshSerialSession.createUi() {
 	m_portCombo.m_onReturnPressed += onComboEnter;
 	m_portCombo.m_placeholderText = "Enter a serial port name...";
 
-	m_actionTable[ActionId.Connect] = createAction("Connect", m_iconTable [IconId.Connect]);
+	m_actionTable[ActionId.Connect] = createAction("Connect", m_iconTable[IconId.Connect]);
 	m_actionTable[ActionId.Connect].m_onTriggered += onConnect;
 
 	// property grid

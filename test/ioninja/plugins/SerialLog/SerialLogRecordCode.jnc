@@ -4,6 +4,9 @@
 //
 
 import "log_RecordCode.jnc"
+import "io_base.jncx"
+import "io_SerialPortEnumerator.jnc"
+import "std_Buffer.jnc"
 
 //..............................................................................
 
@@ -27,6 +30,8 @@ enum SerialLogRecordCode: uint64_t {
 	LineError             = 0x01d47c8fc7b0f710,
 	BreakConditionChanged = 0x01d47c8fc7b0f711,
 	PortClosed            = 0x01d47c8fc7b0f712,
+	PortOpenedEx          = 0x01d47c8fc7b0f713 | log.RecordCodeFlags.Foldable,
+	CaptureStarted        = 0x01d47c8fc7b0f714 | log.RecordCodeFlags.Foldable,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -51,6 +56,13 @@ struct SerialOpenParams {
 	uint_t m_osKind;
 
 	// followed by port name
+
+	// for SerialLogRecordCode.PortOpenedEx, also followed by
+	// - description
+	// - manufacturer
+	// - hardwareIds
+	// - driver
+	// - location
 }
 
 struct SerialOpenParams_old {
@@ -66,6 +78,36 @@ struct SerialOpenParams_old {
 struct SerialStatusLineChangedParams {
 	io.SerialStatusLines m_lines;
 	io.SerialStatusLines m_mask;
+}
+
+//..............................................................................
+
+io.SerialPortDesc const* findSerialPortDesc(string_t deviceName) {
+	io.SerialPortDesc const* portList = io.enumerateSerialPorts(io.SerialPortDescFlags.All);
+	for (io.SerialPortDesc const* port = portList; port; port = port.m_next)
+		if (port.m_deviceName == deviceName)
+			return port;
+
+
+	return null;
+}
+
+void packSerialPortDescStrings(
+	std.Buffer* buffer,
+	io.SerialPortDesc const* portDesc
+) {
+	buffer.append(portDesc.m_deviceName.m_p, portDesc.m_deviceName.m_length);
+	buffer.append(0);
+	buffer.append(portDesc.m_description.m_p, portDesc.m_description.m_length);
+	buffer.append(0);
+	buffer.append(portDesc.m_manufacturer.m_p, portDesc.m_manufacturer.m_length);
+	buffer.append(0);
+	buffer.append(portDesc.m_hardwareIds.m_p);
+	buffer.append(0);
+	buffer.append(portDesc.m_driver.m_p, portDesc.m_driver.m_length);
+	buffer.append(0);
+	buffer.append(portDesc.m_location.m_p, portDesc.m_location.m_length);
+	buffer.append(0);
 }
 
 //..............................................................................

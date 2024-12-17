@@ -199,24 +199,13 @@ void SerialTapSession.createUi() {
 	m_dtePortCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_dtePortCombo.m_isEditable = true;
 	m_dtePortCombo.m_placeholderText = "Enter a serial port name...";
+	m_dtePortCombo.m_onReturnPressed += onPortComboEnter;
 
 	m_pluginHost.m_toolBar.addSpacing();
 	m_pluginHost.m_toolBar.addLabel("DCE:");
 	m_dcePortCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_dcePortCombo.m_isEditable = true;
-	m_dtePortCombo.m_placeholderText = "Enter a serial port name...";
-
-	size_t portCount;
-	io.SerialPortDesc const* portList = io.enumerateSerialPorts(&portCount);
-	io.SerialPortDesc const* port = portList;
-	for (; port; port = port.m_next) {
-		m_dtePortCombo.addItem(port.m_deviceName, null);
-		m_dcePortCombo.addItem(port.m_deviceName, null);
-	}
-
-	m_dtePortCombo.adjustSizeToContents();
-	m_dcePortCombo.adjustSizeToContents();
-	m_dtePortCombo.m_onReturnPressed += onPortComboEnter;
+	m_dcePortCombo.m_placeholderText = "Enter a serial port name...";
 	m_dcePortCombo.m_onReturnPressed += onPortComboEnter;
 
 	m_actionTable[ActionId.Refresh]  = createAction("Refresh port list", "images/refresh.png");

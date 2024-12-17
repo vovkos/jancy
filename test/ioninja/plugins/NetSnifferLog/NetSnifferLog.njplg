@@ -27,6 +27,7 @@ Protocols.jnc
 Proto_Simple.jnc
 Proto_Ethernet.jnc
 Proto_Loopback.jnc
+Proto_Raw.jnc
 Proto_Arp.jnc
 Proto_Ip.jnc
 Proto_Ip6.jnc

@@ -5,7 +5,7 @@
 
 [plugin]
 
-name        = Modbus Analyzer
+name        = "Modbus Analyzer"
 description = "Analyzes a Serial/TCP log and generates a secondary log with decoded Modbus messages"
 id          = modbus
 group       = analyzers

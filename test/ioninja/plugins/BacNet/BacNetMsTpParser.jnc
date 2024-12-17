@@ -1,0 +1,85 @@
+//..............................................................................
+//
+// BACnet MS/TP Analyzer stream parser
+//
+
+import "log_Writer.jnc"
+
+//..............................................................................
+
+class BacNetMsTpParser {
+protected:
+	jnc.DynamicLayout m_packet;
+
+public:
+	void reset() {
+		m_packet.clear();
+	}
+
+	void parse(
+		log.Writer* writer,
+		uint64_t timestamp,
+		uint64_t recordCode,
+		void const* p,
+		size_t size
+	);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void BacNetMsTpParser.parse(
+	log.Writer* writer,
+	uint64_t timestamp,
+	uint64_t recordCode,
+	void const* p,
+	size_t size
+) {
+	void const* end = p + size;
+	while (p < end) { // loop to detect all packets in this block
+		size = end - p;
+		jnc.Promise const* promise;
+
+		if (m_packet.m_isIncomplete) { // continue the last incomplete packet
+			size = m_packet.resume(p, size);
+			promise = m_packet.m_promise;
+		} else {
+			// a new packet; first, locate STX...
+			void const* stx = memchr(p, 0x55, size);
+			if (!stx) {
+				writer.write(timestamp, recordCode, p, size);
+				break;
+			}
+
+			if (p < stx) { // skip the pre-STX data
+				writer.write(timestamp, recordCode, p, stx - p);
+				p = stx;
+				size = end - stx;
+			}
+
+			// now, start laying out the new packet
+			m_packet.reset(jnc.DynamicLayoutMode.Stream, p, size);
+			promise = layoutBacNetMsTp(m_packet);
+			if (!m_packet.m_isIncomplete)
+				size = m_packet.m_size;
+		}
+
+		// write the original data first
+		writer.write(timestamp, recordCode, p, size);
+		p += size;
+
+		if (promise.m_error) { // exception during layout
+			writer.write(timestamp, BacNetMsTpLogRecordCode.ParseError, promise.m_error);
+			reset();
+			continue;
+		}
+
+		if (m_packet.m_isIncomplete) // not yet
+			break;
+
+		// the packet is successfully laid out; write it to the log after the original data
+		uint64_t packetRecordCode = BacNetMsTpLogRecordCode.TxPacket + recordCode - log.StdRecordCode.Tx;
+		writer.write(timestamp, packetRecordCode, m_packet.m_p, m_packet.m_size);
+	}
+}
+
+//..............................................................................

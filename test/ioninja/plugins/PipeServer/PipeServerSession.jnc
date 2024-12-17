@@ -171,7 +171,7 @@ void PipeServerSession.createUi() {
 	m_iconTable[IconId.StopListen] = new ui.Icon("images/pause.png");
 	m_iconTable[IconId.Disconnect] = new ui.Icon("images/disconnect.png");
 
-	m_actionTable[ActionId.Listen] = createAction("Listen", m_iconTable [IconId.Listen]);
+	m_actionTable[ActionId.Listen] = createAction("Listen", m_iconTable[IconId.Listen]);
 	m_actionTable[ActionId.Listen].m_onTriggered += onListen;
 
 	// form

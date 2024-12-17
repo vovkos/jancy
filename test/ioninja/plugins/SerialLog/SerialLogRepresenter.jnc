@@ -6,8 +6,9 @@
 import "log_Representation.jnc"
 import "io_base.jncx"
 import "io_Serial.jnc"
+import "std_String.jnc"
 import "SerialLogRecordCode.jnc"
- 
+
 //..............................................................................
 
 string_t getTableString(
@@ -67,6 +68,34 @@ string_t getSerialLineErrorString(io.SerialLineErrors errors) {
 		null;
 }
 
+string_t getPortDescString(string_t portName) {
+	string_t description = portName.m_p + portName.m_length + 1;
+	string_t manufacturer = description.m_p + description.m_length + 1;
+	string_t hardwareIds = manufacturer.m_p + manufacturer.m_length + 1;
+	string_t driver = hardwareIds.m_p + hardwareIds.m_length + 1;
+	string_t location = driver.m_p + driver.m_length + 1;
+
+	std.StringBuilder portDescString;
+
+	if (description)
+		portDescString += $"    \e[90mDescription:   \e[34m$description\n";
+
+	if (manufacturer)
+		portDescString += $"    \e[90mManufacturer:  \e[34m$manufacturer\n";
+
+	if (hardwareIds)
+		portDescString += $"    \e[90mHardware ID:   \e[34m$hardwareIds\n";
+
+	if (driver)
+		portDescString += $"    \e[90mDriver:        \e[34m$driver\n";
+
+	if (location)
+		portDescString += $"    \e[90mLocation:      \e[34m$location\n";
+
+	portDescString.chop(1); // chop the trailing newline
+	return portDescString.detachString();
+}
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool representSerialLog(
@@ -94,6 +123,7 @@ bool representSerialLog(
 		"Even",
 		"Mark",
 		"Space",
+		"Ignore",
 	}
 
 	static string_t const readModeTable[] = {
@@ -104,6 +134,7 @@ bool representSerialLog(
 
 	switch (recordCode) {
 	case SerialLogRecordCode.PortOpened:
+	case SerialLogRecordCode.PortOpenedEx:
 		SerialOpenParams const* params = (SerialOpenParams const*)p;
 		string_t name = (char const*)(params + 1);
 
@@ -115,17 +146,15 @@ bool representSerialLog(
 		string_t dsrString = getOnOffString(params.m_statusLines & io.SerialStatusLines.Dsr);
 		string_t ctsString = getOnOffString(params.m_statusLines & io.SerialStatusLines.Cts);
 
-		string_t string;
-
-		if (!(foldFlags & 1)) {
-			string =
-				$"[\e^+1\e[34m+\e[m] Opened port \e[34m$name\e[m "
-				$"baud: \e[34m$(params.m_baudRate)\e[m bps "
+		if (!(foldFlags & 1))
+			representation.addHyperText(
+				$"[\e^+1\e[34m+\e[m] Opened port \e[34m$name $(params.m_baudRate) bps\e[m "
 				$"DTR: $dtrString "
 				$"RTS: $rtsString "
 				$"DSR: $dsrString "
-				$"CTS: $ctsString";
-		} else {
+				$"CTS: $ctsString"
+			);
+		else {
 			string_t flowControlString = getTableString(params.m_flowControl, flowControlStringTable);
 			string_t stopBitsString = getTableString(params.m_stopBits, stopBitsStringTable);
 			string_t parityString = getTableString(params.m_parity, parityStringTable);
@@ -147,20 +176,43 @@ bool representSerialLog(
 					$"    \e[90mRead interval: $readIntervalString\n";
 			}
 
-			string =
+			representation.addHyperText(
 				$"[\e^-1\e[34m-\e[m] Opened port \e[34m$name\n"
-				$"    \e[90mBaud rate:     \e[34m$(params.m_baudRate)\e[m bps\n"
-				$"    \e[90mData bits:     \e[34m$(params.m_dataBits)\e[m bits\n"
+				$"    \e[90mBaud rate:     \e[34m$(params.m_baudRate) bps\n"
+				$"    \e[90mData bits:     \e[34m$(params.m_dataBits) bits\n"
 				$"    \e[90mStop bits:     $stopBitsString\n"
 				$"    \e[90mParity:        \e[34m$parityString\n"
 				$"    \e[90mFlow control:  \e[34m$flowControlString\n$optionString"
 				$"    \e[90mDTR:           $dtrString\n"
 				$"    \e[90mRTS:           $rtsString\n"
 				$"    \e[90mDSR:           $dsrString\n"
-				$"    \e[90mCTS:           $ctsString";
+				$"    \e[90mCTS:           $ctsString"
+			);
+
+			if (recordCode == SerialLogRecordCode.PortOpenedEx) {
+				string_t portDescString = getPortDescString(name);
+				if (portDescString) {
+					representation.addBreak();
+					representation.addHyperText(portDescString);
+				}
+			}
 		}
 
-		representation.addHyperText(string);
+		break;
+
+	case SerialLogRecordCode.CaptureStarted:
+		string_t name = (char const*)p;
+
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Listen;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+
+		if (!(foldFlags & 1))
+			representation.addHyperText($"[\e^+1\e[34m+\e[m] Capture started on \e[34m$name");
+		else {
+			string_t portDescString = getPortDescString(name);
+			representation.addHyperText($"[\e^-1\e[34m-\e[m] Capture started on \e[34m$name\n$portDescString");
+		}
+
 		break;
 
 	case SerialLogRecordCode.PortOpened_old:
@@ -171,13 +223,13 @@ bool representSerialLog(
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
 
 		if (!(foldFlags & 1))
-			representation.addHyperText($"[\e^+1\e[34m+\e[m] Opened port \e[34m$name\e[m at \e[34m$(params.m_baudRate)\e[m bps");
+			representation.addHyperText($"[\e^+1\e[34m+\e[m] Opened port \e[34m$name $(params.m_baudRate) bps");
 		else
 			representation.addHyperText(
 				$"[\e^-1\e[34m-\e[m] Opened port \e[34m$name\n"
-				$"    \e[90mBaud rate:    \e[34m$(params.m_baudRate)\e[m bps\n"
+				$"    \e[90mBaud rate:    \e[34m$(params.m_baudRate) bps\n"
 				$"    \e[90mFlow control: \e[34m%1\n"
-				$"    \e[90mData bits:    \e[34m$(params.m_dataBits)\e[m bits\n"
+				$"    \e[90mData bits:    \e[34m$(params.m_dataBits) bits\n"
 				$"    \e[90mStop bits:    \e[34m%2\n"
 				$"    \e[90mParity:       \e[34m%3" (
 				getTableString(params.m_flowControl, flowControlStringTable),

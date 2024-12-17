@@ -1,15 +1,29 @@
 import "log_Representation.jnc"
 import "log_RepresentStruct.jnc"
 import "ui_ColorRangeTree.jnc"
+import "ias_FieldCodec.jnc"
 
 namespace log {
 
 //..............................................................................
 
 enum DynamicLayoutBinPartCode {
-	Raw = 1,     // raw block following the dynamic layout representation
-	PayloadAttr, // fields marked with the "payload" attribute
+	Binary = 1, // blocks marked with the "binary" attribute
+	Raw,        // raw block following the dynamic layout representation
 }
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class RepresentDynamicLayoutContext {
+	Representation safe* m_representation;
+	ui.ColorRangeTree m_colorRangeTree;
+	uint_t m_foldFlags;
+	uint_t m_rawBinPartCode; // DynamicLayoutBinPartCode.Raw + 0, 1, ...
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+typedef void DynamicLayoutFunc(jnc.DynamicLayout* layout);
 
 typedef string_t ToStringFunc(void const* p);
 
@@ -21,7 +35,15 @@ typedef string_t ToStringFuncEx(
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-string_t getItemName(jnc.ModuleItemDecl* decl) {
+string_t getOffsetHyperlink(
+	uint_t partCode,
+	size_t offset,
+	size_t size
+) {
+	return $"\e^!%1,%2,%3\e\\"(partCode, offset, size);
+}
+
+string_t getItemName(jnc.ModuleItemDecl safe* decl) {
 	string_t name = decl.findAttributeValue("displayName");
 	if (!name)
 		name = decl.m_name;
@@ -30,8 +52,22 @@ string_t getItemName(jnc.ModuleItemDecl* decl) {
 	return attr ? $"%1%2\e[m"(attr, name) : name;
 }
 
+string_t getItemName(
+	jnc.ModuleItemDecl safe* decl,
+	uint_t partCode,
+	size_t offset,
+	size_t size
+) {
+	string_t name = getItemName(decl);
+	if (decl.findAttribute("root")) // don't add hyperlink to root groups
+		return name;
+
+	string_t hyperlink = getOffsetHyperlink(partCode, offset, size);
+	return $"%1%2"(hyperlink, name);
+}
+
 string_t getItemDigest(
-	jnc.ModuleItemDecl* decl,
+	jnc.ModuleItemDecl safe* decl,
 	void const* p,
 	size_t size
 ) {
@@ -44,16 +80,16 @@ string_t getItemDigest(
 }
 
 string_t getItemValueString(
-	jnc.ModuleItemDecl* decl,
-	jnc.Type* type,
+	jnc.ModuleItemDecl safe* decl,
+	jnc.Type safe* type,
 	jnc.PtrTypeFlags ptrTypeFlags = 0,
 	uint_t bitOffset = 0,
 	uint_t bitCount = 0,
 	void const* p
 ) {
-	ToStringFunc thin* formatFunc = decl.findAttributeValue("formatFunc");
+	ToStringFuncEx thin* formatFunc = decl.findAttributeValue("formatFunc");
 	if (formatFunc)
-		return formatFunc(p);
+		return formatFunc(p, type.m_size, decl);
 
 	string_t formatSpec = decl.findAttributeValue("formatSpec");
 	jnc.Type* displayType = decl.findAttributeValue("displayType");
@@ -70,17 +106,17 @@ string_t getItemValueString(
 	return displayPtrType.getTargetValueString(p, formatSpec);
 }
 
-ToStringFunc* getItemValueStringFunc(
-	jnc.ModuleItemDecl* decl,
-	jnc.Type* type,
+ToStringFunc* getElementValueStringFunc(
+	jnc.ModuleItemDecl safe* decl,
+	jnc.Type safe* type,
 	jnc.PtrTypeFlags ptrTypeFlags = 0
 ) {
-	ToStringFunc thin* formatFunc = decl.findAttributeValue("formatFunc");
+	ToStringFuncEx thin* formatFunc = decl.findAttributeValue("elementFormatFunc");
 	if (formatFunc)
-		return formatFunc;
+		return formatFunc~(, type.m_size, decl);
 
-	string_t formatSpec = decl.findAttributeValue("formatSpec");
-	jnc.Type* displayType = decl.findAttributeValue("displayType");
+	string_t formatSpec = decl.findAttributeValue("elementFormatSpec");
+	jnc.Type* displayType = decl.findAttributeValue("elementDisplayType");
 	if (!displayType)
 		displayType = type;
 
@@ -100,9 +136,8 @@ ToStringFunc* getItemValueStringFunc(
 }
 
 void setItemBackColor(
-	Representation* representation,
-	ui.ColorRangeTree* colorRangeTree,
-	jnc.ModuleItemDecl* decl,
+	RepresentDynamicLayoutContext safe* context,
+	jnc.ModuleItemDecl safe* decl,
 	size_t offset,
 	size_t length
 ) {
@@ -111,41 +146,43 @@ void setItemBackColor(
 		return;
 
 	uint_t color = attr.m_value;
-	uint_t prevColor = representation.m_lineAttr.m_backColor;
-	representation.m_lineAttr.m_backColor = color;
-	colorRangeTree.add(offset, length, color);
+	uint_t prevColor = context.m_representation.m_lineAttr.m_backColor;
+	context.m_representation.m_lineAttr.m_backColor = color;
+	context.m_colorRangeTree.add(offset, length, color);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void representDynamicLayout(
-	Representation* representation,
-	jnc.DynamicLayout* layout,
-	uint_t foldFlags
+	Representation safe* representation,
+	jnc.DynamicLayout safe* layout,
+	uint_t foldFlags,
+	uint_t rawBinPartCode = DynamicLayoutBinPartCode.Raw,
+	string_t indent = ""
 ) {
-	ui.ColorRangeTree colorRangeTree;
+	RepresentDynamicLayoutContext context;
+	context.m_representation = representation;
+	context.m_foldFlags = foldFlags;
+	context.m_rawBinPartCode = rawBinPartCode;
 
-	if (!representDynamicSectionGroup(
-		representation,
-		colorRangeTree,
-		layout,
-		0,
-		layout.m_p,
-		foldFlags
-	))
+	log.LineAttr prevAttr = representation.m_lineAttr;
+	bool isExpanded = representDynamicSectionGroup(context, layout, 0, layout.m_p, indent);
+	representation.m_lineAttr = prevAttr; // restore
+
+	if (!isExpanded)
 		return;
 
-	representation.addBreak();
 	representation.m_lineAttr.m_textColor = ui.StdColor.BrightBlack;
-	representation.m_lineAttr.m_backColor = ui.ColorFlags.Undefined;
-	representation.addBin(DynamicLayoutBinPartCode.Raw, layout.m_p, layout.m_size);
+	representation.addBreak();
+	representation.addBin(rawBinPartCode, layout.m_p, layout.m_size);
+	representation.m_lineAttr.m_textColor = prevAttr.m_textColor; // restore again
 
-	size_t rangeCount = colorRangeTree.m_rangeCount;
+	size_t rangeCount = context.m_colorRangeTree.m_rangeCount;
 	if (rangeCount <= 1) // only retro-colorize if there are multiple colors!
 		return;
 
 	ui.ColorRange* ranges = new ui.ColorRange[rangeCount];
-	colorRangeTree.flatten(ranges, rangeCount);
+	context.m_colorRangeTree.flatten(ranges, rangeCount);
 
 	size_t end = layout.m_size;
 	for (size_t i = 0; i < rangeCount; i++) {
@@ -155,93 +192,64 @@ void representDynamicLayout(
 	}
 }
 
-// returns true if expanded
+// returns false if the root group is collapsed
 
 bool representDynamicSectionGroup(
-	Representation* representation,
-	ui.ColorRangeTree* colorRangeTree,
-	jnc.DynamicSectionGroup* group,
-	size_t offset0 = 0,
+	RepresentDynamicLayoutContext safe* context,
+	jnc.DynamicSectionGroup safe* group,
+	size_t offset0,
 	void const* p0,
-	uint_t foldFlags = -1,
-	string_t indent = ""
+	string_t indent
 ) {
-	uint_t baseBackColor = representation.m_lineAttr.m_backColor;
+	uint_t baseBackColor = context.m_representation.m_lineAttr.m_backColor;
 
 	for (size_t i = 0; i < group.m_sectionCount; i++) {
-		jnc.DynamicSection* section = group.m_sectionArray[i];
-		void const* p = p0 + section.m_offset;
+		jnc.DynamicSection safe* section = group.m_sectionArray[i];
 		size_t offset = offset0 + section.m_offset;
+		void const* p = p0 + section.m_offset;
 
 		switch (section.m_sectionKind) {
 		case jnc.DynamicSectionKind.Struct:
-			representFields(
-				representation,
-				colorRangeTree,
-				dynamic (jnc.StructType*)section.m_type,
-				offset,
-				p,
-				foldFlags,
-				indent
-			);
+			jnc.StructType safe* type = dynamic (jnc.StructType*)section.m_type;
+			representFields(context, type, offset, p, indent);
 			break;
 
 		case jnc.DynamicSectionKind.Array:
-			setItemBackColor(
-				representation,
-				colorRangeTree,
-				section.m_decl,
-				offset,
-				section.m_size
-			);
+			jnc.ModuleItemDecl safe* decl = section.m_decl;
+			setItemBackColor(context, decl, offset, section.m_size);
 
-			representArray(
-				representation,
-				colorRangeTree,
-				section.m_decl,
-				section.m_type,
-				section.m_ptrTypeFlags,
-				section.m_elementCount,
-				offset,
-				p,
-				foldFlags,
-				indent
-			);
+			if (!representBinary(context, decl, offset, p, section.m_size, indent))
+				representArray(
+					context,
+					decl,
+					section.m_type,
+					section.m_ptrTypeFlags,
+					section.m_elementCount,
+					offset,
+					p,
+					indent
+				);
 			break;
 
 		case jnc.DynamicSectionKind.Group:
+			jnc.ModuleItemDecl safe* decl = section.m_decl;
+			setItemBackColor(context, decl, offset, section.m_size);
+
 			string_t subIndent;
-
-			setItemBackColor(
-				representation,
-				colorRangeTree,
-				section.m_decl,
-				offset,
-				section.m_size
-			);
-
 			if (section.m_decl.findAttribute("ungroup"))
 				subIndent = indent;
 			else {
-				if (!representGroupHeader(representation, section.m_decl, p, section.m_size, foldFlags, indent))
+				if (!representGroupHeader(context, decl, offset, p, section.m_size, indent))
 					return false;
 
 				subIndent = indent + "    ";
 			}
 
-			representDynamicSectionGroup(
-				representation,
-				colorRangeTree,
-				section,
-				offset0,
-				p0,
-				foldFlags,
-				subIndent
-			);
+			representDynamicSectionGroup(context, section, offset0, p0, subIndent);
 			break;
 		}
 
-		representation.m_lineAttr.m_backColor = baseBackColor; // restore
+		context.m_representation.m_lineAttr.m_backColor = baseBackColor; // restore
 	}
 
 	return true;
@@ -250,22 +258,22 @@ bool representDynamicSectionGroup(
 // returns true if expanded
 
 bool representGroupHeader(
-	Representation* representation,
-	jnc.ModuleItemDecl* decl,
+	RepresentDynamicLayoutContext safe* context,
+	jnc.ModuleItemDecl safe* decl,
+	size_t offset,
 	void const* p,
 	size_t size,
-	uint_t foldFlags,
 	string_t indent
 ) {
-	string_t name = getItemName(decl);
+	string_t name = getItemName(decl, context.m_rawBinPartCode, offset, size);
 	uint_t foldFlag = decl.findAttributeValue("foldFlag");
 
 	// always add \t to preserve the name-value table column position
 
 	if (!foldFlag)
-		representation.addHyperText($"%1%2:\t"(indent, name));
-	else if (foldFlags & foldFlag)
-		representation.addHyperText($"%1[\e^-%2\e[34m-\e[m] %3:\t"(
+		context.m_representation.addHyperText($"%1%2:\t"(indent, name));
+	else if (context.m_foldFlags & foldFlag)
+		context.m_representation.addHyperText($"%1[\e^-%2\e[34m-\e[m] %3:\t"(
 			indent,
 			foldFlag,
 			name
@@ -273,14 +281,14 @@ bool representGroupHeader(
 	else {
 		string_t digest = getItemDigest(decl, p, size);
 		if (digest.m_length)
-			representation.addHyperText($"%1[\e^+%2\e[34m+\e[m] %3:\t%4"(
+			context.m_representation.addHyperText($"%1[\e^+%2\e[34m+\e[m] %3:\t%4"(
 				indent,
 				foldFlag,
 				name,
 				digest
 			));
 		else
-			representation.addHyperText($"%1[\e^+%2\e[34m+\e[m] %3\t"(
+			context.m_representation.addHyperText($"%1[\e^+%2\e[34m+\e[m] %3\t"(
 				indent,
 				foldFlag,
 				name
@@ -292,79 +300,116 @@ bool representGroupHeader(
 	return true;
 }
 
+// returns true if this is a binary (or encoded) field and it was represented
+
+bool representBinary(
+	RepresentDynamicLayoutContext safe* context,
+	jnc.ModuleItemDecl safe* decl,
+	size_t offset,
+	void const* p,
+	size_t size,
+	string_t indent
+) {
+	jnc.ClassType* codecType = decl.findAttributeValue("codec");
+	if (!codecType ||
+		codecType.findBaseTypeOffset(typeof(ias.FieldCodec)) == -1
+	) {
+		if (decl.findAttribute("binary")) {
+			if (representGroupHeader(context, decl, offset, p, size, indent))
+				context.m_representation.addBin(DynamicLayoutBinPartCode.Binary, p, size);
+			return true;
+		}
+
+		return false;
+	}
+
+	if (!representGroupHeader(context, decl, offset, p, size, indent))
+		return true;
+
+	ias.FieldCodec safe* codec = dynamic (ias.FieldCodec*)codecType.createObject();
+	std.Buffer buffer;
+	codec.decode(buffer, p, size);
+
+	DynamicLayoutFunc thin* layoutFunc = decl.findAttributeValue("packetTemplate");
+	if (!layoutFunc) {
+		uint_t prevColor = context.m_representation.m_lineAttr.m_textColor;
+		context.m_representation.m_lineAttr.m_textColor = ui.StdColor.BrightBlack;
+		context.m_representation.addBin(DynamicLayoutBinPartCode.Binary, buffer.m_p, buffer.m_size);
+		context.m_representation.m_lineAttr.m_textColor = prevColor;
+		return true;
+	}
+
+	jnc.DynamicLayout subLayout(jnc.DynamicLayoutMode.Save, buffer.m_p, buffer.m_size);
+	layoutFunc(subLayout);
+
+	representDynamicLayout(
+		context.m_representation,
+		subLayout,
+		context.m_foldFlags,
+		context.m_rawBinPartCode + 1,
+		indent + "    "
+	);
+
+	return true;
+}
+
 void representArray(
-	Representation* representation,
-	ui.ColorRangeTree* colorRangeTree,
-	jnc.ModuleItemDecl* decl,
+	RepresentDynamicLayoutContext safe* context,
+	jnc.ModuleItemDecl safe* decl,
 	jnc.Type* elementType,
 	jnc.PtrTypeFlags ptrTypeFlags,
 	size_t elementCount,
 	size_t offset,
 	void const* p,
-	uint_t foldFlags,
 	string_t indent
 ) {
 	size_t elementSize = elementType.m_size;
 	size_t arraySize = elementSize * elementCount;
 
-	if (decl.findAttribute("payload")) {
-		if (representGroupHeader(representation, decl, p, arraySize, foldFlags, indent))
-			representation.addBin(DynamicLayoutBinPartCode.PayloadAttr, p, arraySize);
-		return;
-	}
-
 	if (!decl.findAttribute("ungroup")) {
-		if (elementType.m_typeKind == jnc.TypeKind.Char) { // display char[] as string
-			string_t name = getItemName(decl);
-			string_t value(p, elementCount);
+		ToStringFuncEx thin* formatFunc = decl.findAttributeValue("formatFunc");
+		string_t value =
+			formatFunc ? formatFunc(p, arraySize, decl) :
+			elementType.m_typeKind == jnc.TypeKind.Char ? string_t(p, elementCount) :
+			null;
 
-			representation.addHyperText($"%1%2:\t\e^!0x%x,%4,%5\e[34m%6"(
+		if (value) {
+			context.m_representation.addHyperText($"%1%2:\t\e[34m%3"(
 				indent,
-				name,
-				DynamicLayoutBinPartCode.Raw,
-				offset,
-				elementCount,
+				getItemName(decl, context.m_rawBinPartCode, offset, arraySize),
 				value
 			));
-
 			return;
 		}
 
-		if (!representGroupHeader(representation, decl, p, arraySize, foldFlags, indent))
+		if (!representGroupHeader(context, decl, offset, p, arraySize, indent))
 			return;
 
 		indent += "    ";
 	}
 
 	if (elementType.m_typeKindFlags & jnc.TypeKindFlags.Derivable) {
-		jnc.DerivableType* derivableType = dynamic (jnc.DerivableType*)elementType;
+		jnc.DerivableType safe* derivableType = dynamic (jnc.DerivableType*)elementType;
 		string_t fieldIndent = indent + "    ";
-		for (size_t i = 0; i < elementCount; i++) {
-			representation.addHyperText($"%1[%2]"(indent, i));
-			representFields(
-				representation,
-				colorRangeTree,
-				derivableType,
-				offset,
-				p,
-				-1, // no folds for array elements
-				fieldIndent
-			);
+		uint_t prevFoldFlags = context.m_foldFlags;
+		context.m_foldFlags = -1; // no individual folds for array elements
 
+		for (size_t i = 0; i < elementCount; i++) {
+			context.m_representation.addHyperText($"%1[%2]"(indent, i));
+			representFields(context, derivableType, offset, p, fieldIndent);
 			p += elementSize;
 			offset += elementSize;
 		}
+
+		context.m_foldFlags = prevFoldFlags; // restore
 	} else {
-		ToStringFunc* getValueStringFunc = getItemValueStringFunc(decl, elementType, ptrTypeFlags);
+		ToStringFunc* getValueStringFunc = getElementValueStringFunc(decl, elementType, ptrTypeFlags);
 		for (size_t i = 0; i < elementCount; i++) {
-			string_t value = getValueStringFunc(p);
-			representation.addHyperText($"%1[%2]:\t\e^!0x%x,%4,%5\e[34m%6"(
+			context.m_representation.addHyperText($"%1%2[%3]:\t\e[34m%4"(
 				indent,
+				getOffsetHyperlink(context.m_rawBinPartCode, offset, arraySize),
 				i,
-				DynamicLayoutBinPartCode.Raw,
-				offset,
-				elementSize,
-				value
+				getValueStringFunc(p)
 			));
 
 			offset += elementSize;
@@ -374,28 +419,23 @@ void representArray(
 }
 
 void representFields(
-	log.Representation* representation,
-	ui.ColorRangeTree* colorRangeTree,
-	jnc.DerivableType* type,
+	RepresentDynamicLayoutContext safe* context,
+	jnc.DerivableType safe* type,
 	size_t offset0,
 	void const* p0,
-	uint_t foldFlags,
 	string_t indent
 ) {
-	uint_t baseBackColor = representation.m_lineAttr.m_backColor;
+	uint_t baseBackColor = context.m_representation.m_lineAttr.m_backColor;
 	string_t fieldIndent = indent + "    ";
 
 	size_t count = type.m_baseTypeCount;
 	for (size_t i = 0; i < count; i++) { // ungroup base types unconditionally
 		jnc.BaseTypeSlot* baseTypeSlot = type.m_baseTypeArray[i];
-		jnc.DerivableType* baseType = baseTypeSlot.m_type;
 		representFields(
-			representation,
-			colorRangeTree,
-			baseType,
+			context,
+			baseTypeSlot.m_type,
 			offset0 + baseTypeSlot.m_offset,
 			p0 + baseTypeSlot.m_offset,
-			foldFlags,
 			indent
 		);
 	}
@@ -407,58 +447,35 @@ void representFields(
 		size_t offset = offset0 + field.m_offset;
 		void const* p = p0 + field.m_offset;
 
-		setItemBackColor(
-			representation,
-			colorRangeTree,
-			field,
-			offset,
-			fieldType.m_size
-		);
+		setItemBackColor(context, field, offset, fieldType.m_size);
 
-		if (fieldType.m_typeKindFlags & jnc.TypeKindFlags.Derivable && !field.findAttribute("stringify")) {
-			jnc.DerivableType* derivableType = dynamic (jnc.DerivableType*)fieldType;
-			if (field.findAttribute("ungroup"))
-				representFields(
-					representation,
-					colorRangeTree,
-					derivableType,
-					offset,
-					p,
-					foldFlags,
-					indent
+		if (!representBinary(context, field, offset, p, fieldType.m_size, indent))
+			if ((fieldType.m_typeKindFlags & jnc.TypeKindFlags.Derivable) &&
+				!field.findAttribute("stringify")
+			) {
+				jnc.DerivableType* derivableType = dynamic (jnc.DerivableType*)fieldType;
+				if (field.findAttribute("ungroup"))
+					representFields(context, derivableType, offset, p, indent);
+				else if (representGroupHeader(context, field, offset, p, fieldType.m_size, indent))
+					representFields(context, derivableType, offset, p, fieldIndent);
+			} else {
+				string_t value = getItemValueString(
+					field,
+					fieldType,
+					field.m_ptrTypeFlags,
+					field.m_bitOffset,
+					field.m_bitCount,
+					p
 				);
-			else if (representGroupHeader(representation, field, p, fieldType.m_size, foldFlags, indent))
-				representFields(
-					representation,
-					colorRangeTree,
-					derivableType,
-					offset,
-					p,
-					foldFlags,
-					fieldIndent
-				);
-		} else {
-			string_t name = getItemName(field);
-			string_t value = getItemValueString(
-				field,
-				fieldType,
-				field.m_ptrTypeFlags,
-				field.m_bitOffset,
-				field.m_bitCount,
-				p
-			);
 
-			representation.addHyperText($"%1%2:\t\e^!0x%x,%4,%5\e[34m%6"(
-				indent,
-				name,
-				DynamicLayoutBinPartCode.Raw,
-				offset,
-				fieldType.m_size,
-				value
-			));
-		}
+				context.m_representation.addHyperText($"%1%2:\t\e[34m%3"(
+					indent,
+					getItemName(field, context.m_rawBinPartCode, offset, fieldType.m_size),
+					value
+				));
+			}
 
-		representation.m_lineAttr.m_backColor = baseBackColor; // restore
+		context.m_representation.m_lineAttr.m_backColor = baseBackColor; // restore
 	}
 }
 

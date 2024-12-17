@@ -4,7 +4,6 @@
 //
 
 import "ui_Widget.jnc"
-import "ui_Layout.jnc"
 
 namespace ui {
 

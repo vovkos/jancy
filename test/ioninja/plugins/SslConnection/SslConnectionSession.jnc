@@ -179,7 +179,7 @@ void SslConnectionSession.createUi() {
 	m_iconTable[IconId.Connect] = new ui.Icon("images/connect.png");
 	m_iconTable[IconId.Disconnect] = new ui.Icon("images/disconnect.png");
 
-	m_actionTable[ActionId.Connect] = createAction("Connect", m_iconTable [IconId.Connect]);
+	m_actionTable[ActionId.Connect] = createAction("Connect", m_iconTable[IconId.Connect]);
 	m_actionTable[ActionId.Connect].m_onTriggered += onConnect;
 
 	// status bar

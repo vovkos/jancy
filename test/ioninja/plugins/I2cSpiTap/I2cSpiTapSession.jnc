@@ -471,7 +471,7 @@ bool errorcode I2cSpiTapSession.gracefulStop() {
 	);
 
 	if (events & io.UsbEndpointEvents.IoError) {
-		std.setError("Stop capture request failed");
+		std.setError("stop capture request failed");
 		return false;
 	}
 
