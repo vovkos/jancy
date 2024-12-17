@@ -366,7 +366,7 @@ opaque class Serial {
 		building a list of supported baud rates, so the only way is to probe.
 	*/
 
-	uint_t autoget property m_baudRate;
+	uint_t autoget errorcode property m_baudRate;
 
 	/**
 		This property is used for getting and setting [#f4]_ flow control, i.e.
@@ -377,7 +377,7 @@ opaque class Serial {
 		See `io.SerialFlowControl` enumeration for the list of valid values.
 	*/
 
-	SerialFlowControl autoget property m_flowControl;
+	SerialFlowControl autoget errorcode property m_flowControl;
 
 	/**
 		This property is used for getting and setting [#f4]_ byte size, i.e. the
@@ -385,7 +385,7 @@ opaque class Serial {
 		values range from ``5`` to ``8``; normally ``8`` data bits are used.
 	*/
 
-	uint_t autoget property m_dataBits; // typically 5..8
+	uint_t autoget errorcode property m_dataBits; // typically 5..8
 
 	/**
 		This property is used for getting and setting [#f4]_ the number of
@@ -396,7 +396,7 @@ opaque class Serial {
 		See `io.SerialStopBits` enumeration for the list of valid values.
 	*/
 
-	SerialStopBits autoget property m_stopBits;
+	SerialStopBits autoget errorcode property m_stopBits;
 
 	/**
 		This property is used for getting and setting [#f4]_ serial parity
@@ -412,7 +412,7 @@ opaque class Serial {
 		See `io.SerialParity` for the list of valid values.
 	*/
 
-	SerialParity autoget property m_parity;
+	SerialParity autoget errorcode property m_parity;
 
 	/**
 		This property is used for getting the values of serial status lines
@@ -423,28 +423,28 @@ opaque class Serial {
 		all are low).
 	*/
 
-	SerialStatusLines const property m_statusLines;
+	SerialStatusLines const errorcode property m_statusLines;
 
 	/**
 		This property is used for getting and setting [#f4]_ ``DTR``
 		(data-terminal-ready) serial control line.
 	*/
 
-	bool autoget property m_dtr;
+	bool autoget errorcode property m_dtr;
 
 	/**
 		This property is used for getting and setting [#f4]_ ``RTS``
 		(ready-to-send) serial control line.
 	*/
 
-	bool autoget property m_rts;
+	bool autoget errorcode property m_rts;
 
 	/**
 		This property is used for getting and setting [#f4]_ ``RTS``
 		(ready-to-send) serial control line.
 	*/
 
-	bool autoget property m_breakCondition;
+	bool autoget errorcode property m_breakCondition;
 
 	// I tried experimenting with polling for status line updates on macOS
 	// due to the lack of TIOCMIWAIT there; however, it seems like standard
@@ -453,13 +453,14 @@ opaque class Serial {
 	// As such, it's disabled by default (m_updateInterval = -1).
 
 	uint_t autoget property m_updateInterval;
-	uint_t autoget property m_readInterval;
+
+	uint_t autoget errorcode property m_readInterval;
 	uint_t autoget property m_readParallelism;
 	size_t autoget property m_readBlockSize;
-	size_t autoget property m_readBufferSize;
-	size_t autoget property m_writeBufferSize;
+	size_t autoget errorcode property m_readBufferSize;
+	size_t autoget errorcode property m_writeBufferSize;
 
-	SerialOptions autoget property m_options;
+	SerialOptions autoget errorcode property m_options;
 
 	SerialEvents readonly volatile m_activeEvents;
 	std.Error const* readonly volatile m_ioError;

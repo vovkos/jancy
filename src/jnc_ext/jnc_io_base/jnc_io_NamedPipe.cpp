@@ -157,7 +157,8 @@ NamedPipe::setOptions(uint_t options) {
 	}
 
 	if ((options & FileStreamOption_MessageNamedPipe) !=
-		(m_options & FileStreamOption_MessageNamedPipe)) {
+		(m_options & FileStreamOption_MessageNamedPipe)
+	) {
 		err::setError(err::SystemErrorCode_InvalidDeviceState);
 		return false;
 	}

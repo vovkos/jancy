@@ -127,7 +127,7 @@ typedef ReadOnlyStreamEvents  MailslotEvents;
 opaque class Mailslot {
 	uint_t autoget property m_readParallelism;
 	size_t autoget property m_readBlockSize;
-	size_t autoget property m_readBufferSize;
+	size_t autoget errorcode property m_readBufferSize;
 
 	MailslotOptions autoget property m_options;
 

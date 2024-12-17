@@ -249,7 +249,7 @@ opaque class File {
 		not return any IO error).
 	*/
 
-	uint64_t property m_position;
+	uint64_t errorcode property m_position;
 
 	construct();
 	destruct();

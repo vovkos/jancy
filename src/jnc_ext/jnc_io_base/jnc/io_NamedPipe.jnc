@@ -83,10 +83,10 @@ opaque class NamedPipe {
 	uint_t autoget property m_backLogLimit;
 	uint_t autoget property m_readParallelism;
 	size_t autoget property m_readBlockSize;
-	size_t autoget property m_readBufferSize;
-	size_t autoget property m_writeBufferSize;
+	size_t autoget errorcode property m_readBufferSize;
+	size_t autoget errorcode property m_writeBufferSize;
 
-	FileStreamOptions autoget property m_options;
+	FileStreamOptions autoget errorcode property m_options;
 
 	NamedPipeEvents readonly volatile m_activeEvents;
 	std.Error const* readonly volatile m_ioError;
