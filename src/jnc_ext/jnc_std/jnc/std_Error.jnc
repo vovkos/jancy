@@ -111,12 +111,14 @@ string_t getLastErrorDescription() {
 */
 
 void setError(Error const* error);
+void pushError(Error const* error);
 
 /**
 	Sets ``errno`` error as the last error of the current thread.
 */
 
 void setErrno(int errno);
+void pushErrno(int errno);
 
 /**
 	Sets string error described by a null-terminated string pointed to by
@@ -127,6 +129,7 @@ void setErrno(int errno);
 */
 
 void setError(string_t string);
+void pushError(string_t string);
 
 //..............................................................................
 

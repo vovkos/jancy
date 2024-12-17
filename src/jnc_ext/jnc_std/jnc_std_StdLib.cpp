@@ -266,13 +266,28 @@ setErrno(int code) {
 }
 
 void
+pushErrno(int code) {
+	err::pushError(err::Errno(code));
+}
+
+void
 setError_0(DataPtr errorPtr) {
 	err::setError((const err::ErrorHdr*)errorPtr.m_p);
 }
 
 void
+pushError_0(DataPtr errorPtr) {
+	err::pushError((const err::ErrorHdr*)errorPtr.m_p);
+}
+
+void
 setError_1(String string) {
 	err::setError(string >> toAxl);
+}
+
+void
+pushError_1(String string) {
+	err::pushError(string >> toAxl);
 }
 
 int
@@ -783,8 +798,11 @@ JNC_DEFINE_LIB(
 JNC_BEGIN_LIB_FUNCTION_MAP(jnc_StdLib)
 	JNC_MAP_FUNCTION_Q("std.getLastError", getLastError)
 	JNC_MAP_FUNCTION_Q("std.setErrno",     setErrno)
+	JNC_MAP_FUNCTION_Q("std.pushErrno",    pushErrno)
 	JNC_MAP_FUNCTION_Q("std.setError",     setError_0)
 	JNC_MAP_OVERLOAD(setError_1)
+	JNC_MAP_FUNCTION_Q("std.pushError",    pushError_0)
+	JNC_MAP_OVERLOAD(pushError_1)
 	JNC_MAP_FUNCTION_Q("std.format",       format)
 	JNC_MAP_FUNCTION_Q("std.sort",         variantSort)
 	JNC_MAP_OVERLOAD(variantSortEx)
