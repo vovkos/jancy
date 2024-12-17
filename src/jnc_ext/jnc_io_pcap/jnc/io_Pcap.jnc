@@ -176,11 +176,11 @@ opaque class Pcap {
 
 	int const property m_dlt; // result of pcap_datalink (platform-specific)
 	PcapLinkType const property m_linkType;
-	bool autoget property m_isPromiscious;
-	uint_t autoget property m_readTimeout;
-	size_t property m_snapshotSize;
-	size_t autoget property m_kernelBufferSize; // 0 -- use platform default
-	size_t autoget property m_readBufferSize;
+	bool autoget errorcode property m_isPromiscious;
+	uint_t autoget errorcode property m_readTimeout;
+	size_t errorcode property m_snapshotSize;
+	size_t autoget errorcode property m_kernelBufferSize; // 0 -- use platform default
+	size_t autoget errorcode property m_readBufferSize;
 
 	/**
 		Holds currently specified capture filter [#f3]_.

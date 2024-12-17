@@ -192,42 +192,37 @@ Pcap::close() {
 	m_filter = g_nullString;
 }
 
-void
+bool
 JNC_CDECL
 Pcap::setPromiscious(bool isPromiscious) {
 	bool result = m_pcap.setPromiscious(isPromiscious);
 	if (!result)
-		dynamicThrow();
+		return false;
 
 	m_isPromiscious = isPromiscious;
+	return true;
 }
 
-void
+bool
 JNC_CDECL
 Pcap::setReadTimeout(uint_t timeout) {
 	bool result = m_pcap.setTimeout(timeout);
 	if (!result)
-		dynamicThrow();
+		return false;
 
 	m_readTimeout = timeout;
+	return true;
 }
 
-void
-JNC_CDECL
-Pcap::setSnapshotSize(size_t size) {
-	bool result = m_pcap.setSnapshotSize(size);
-	if (!result)
-		dynamicThrow();
-}
-
-void
+bool
 JNC_CDECL
 Pcap::setKernelBufferSize(size_t size) {
 	bool result = m_pcap.setBufferSize(size);
 	if (!result)
-		dynamicThrow();
+		return false;
 
 	m_kernelBufferSize = size;
+	return true;
 }
 
 bool

@@ -125,11 +125,11 @@ public:
 		return m_pcap.getLinkType();
 	}
 
-	void
+	bool
 	JNC_CDECL
 	setPromiscious(bool isPromiscious);
 
-	void
+	bool
 	JNC_CDECL
 	setReadTimeout(uint_t timeout);
 
@@ -139,11 +139,13 @@ public:
 		return m_pcap.getSnapshotSize();
 	}
 
-	void
+	bool
 	JNC_CDECL
-	setSnapshotSize(size_t size);
+	setSnapshotSize(size_t size) {
+		return m_pcap.setSnapshotSize(size);
+	}
 
-	void
+	bool
 	JNC_CDECL
 	setKernelBufferSize(size_t size);
 
