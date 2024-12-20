@@ -18,7 +18,6 @@ enum UsbMonOption {
 
 struct UsbMonitorHdr: IfaceHdr {
 	volatile uint_t m_addressFilter;
-	uint_t m_readParallelism;
 	size_t m_kernelBufferSize;
 	size_t m_readBlockSize;
 	size_t m_readBufferSize;
@@ -35,7 +34,6 @@ public:
 	enum Def {
 		Def_SnapshotLength   = 64 * 1024,
 		Def_KernelBufferSize = 512 * 1024,
-		Def_ReadParallelism  = 4,
 		Def_ReadBlockSize    = 128 * 1024,
 		Def_ReadBufferSize   = 1 * 1024 * 1024,
 	};
@@ -118,12 +116,6 @@ public:
 	JNC_CDECL
 	markOpaqueGcRoots(GcHeap* gcHeap) {
 		AsyncIoDevice::markOpaqueGcRoots(gcHeap);
-	}
-
-	void
-	JNC_CDECL
-	setReadParallelism(uint_t count) {
-		AsyncIoDevice::setSetting(&m_readParallelism, count ? count : Def_ReadParallelism);
 	}
 
 	void

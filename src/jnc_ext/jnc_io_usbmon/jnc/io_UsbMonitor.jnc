@@ -33,7 +33,6 @@ typedef ReadOnlyStreamEvents UsbMonEvents;
 
 opaque class UsbMonitor {
 	uint_t autoget errorcode property m_addressFilter;
-	uint_t autoget property m_readParallelism;
 	size_t autoget errorcode property m_kernelBufferSize; // 0 -- use platform default
 	size_t autoget property m_readBlockSize;
 	size_t autoget errorcode property m_readBufferSize;

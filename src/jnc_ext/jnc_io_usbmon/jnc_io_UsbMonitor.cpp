@@ -22,7 +22,6 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(UsbMonitor)
 	JNC_MAP_DESTRUCTOR(&sl::destruct<UsbMonitor>)
 
 	JNC_MAP_AUTOGET_PROPERTY("m_kernelBufferSize", &UsbMonitor::setKernelBufferSize)
-	JNC_MAP_AUTOGET_PROPERTY("m_readParallelism",  &UsbMonitor::setReadParallelism)
 	JNC_MAP_AUTOGET_PROPERTY("m_readBlockSize",    &UsbMonitor::setReadBlockSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_readBufferSize",   &UsbMonitor::setReadBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_addressFilter",    &UsbMonitor::setAddressFilter)
@@ -39,7 +38,6 @@ JNC_END_TYPE_FUNCTION_MAP()
 //..............................................................................
 
 UsbMonitor::UsbMonitor() {
-	m_readParallelism = 1; // Def_ReadParallelism;
 	m_readBlockSize = Def_ReadBlockSize;
 	m_readBufferSize = Def_ReadBufferSize;
 	m_kernelBufferSize = Def_KernelBufferSize;
@@ -386,7 +384,6 @@ UsbMonitor::ioThreadFunc() {
 		// take snapshots before releasing the lock
 
 		bool isReadBufferFull = m_readBuffer.isFull();
-		size_t readParallelism = m_readParallelism;
 		size_t readBlockSize = m_readBlockSize;
 
 		if (m_activeEvents != prevActiveEvents)
@@ -394,25 +391,20 @@ UsbMonitor::ioThreadFunc() {
 		else
 			m_lock.unlock();
 
-		size_t activeReadCount = m_overlappedIo->m_activeOverlappedReadList.getCount();
-		if (!isReadBufferFull && activeReadCount < readParallelism) {
-			size_t newReadCount = readParallelism - activeReadCount;
+		if (!isReadBufferFull && m_overlappedIo->m_activeOverlappedReadList.isEmpty()) {
+			OverlappedRead* read = m_overlappedIo->m_overlappedReadPool.get();
 
-			for (size_t i = 0; i < newReadCount; i++) {
-				OverlappedRead* read = m_overlappedIo->m_overlappedReadPool.get();
+			result =
+				read->m_buffer.setCount(readBlockSize) &&
+				m_monitor.overlappedRead(read->m_buffer.p(), readBlockSize, &read->m_overlapped);
 
-				result =
-					read->m_buffer.setCount(readBlockSize) &&
-					m_monitor.overlappedRead(read->m_buffer.p(), readBlockSize, &read->m_overlapped);
-
-				if (!result) {
-					m_overlappedIo->m_overlappedReadPool.put(read);
-					setIoErrorEvent();
-					return;
-				}
-
-				m_overlappedIo->m_activeOverlappedReadList.insertTail(read);
+			if (!result) {
+				m_overlappedIo->m_overlappedReadPool.put(read);
+				setIoErrorEvent();
+				return;
 			}
+
+			m_overlappedIo->m_activeOverlappedReadList.insertTail(read);
 		}
 
 		if (m_overlappedIo->m_activeOverlappedReadList.isEmpty()) {
