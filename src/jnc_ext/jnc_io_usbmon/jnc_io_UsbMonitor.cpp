@@ -165,44 +165,29 @@ UsbMonitor::setAddressFilter(uint_t address) {
 	return true;
 }
 
-template <typename T>
 bool
-UsbMonitor::processIncomingData_l(
-	T& parser,
-	const void* p0,
-	size_t size
-) {
-	const char* p = (char*)p0;
-
-	return m_transferTracker ?
-		parseCompletedTransfersOnly_l(parser, p, p + size) :
-		parseTransfers_l(parser, p, p + size);
-}
-
-template <typename T>
-bool
-UsbMonitor::parseTransfers_l(
-	T& parser,
+UsbMonitor::parseAllTransfers_l(
+	TransferParser* parser,
+	TransferParserContext* context,
 	const char* p,
 	const char* end
 ) {
-#if (_AXL_OS_LINUX)
-	bool isDeviceMatch = false;
-#endif
-
 	while (p < end) {
-		size_t size = parser.parse(p, end - p);
+		size_t size = parser->parse(p, end - p);
 		if (size == -1)
 			return false;
 
 		const axl::io::UsbMonTransferHdr* hdr;
-		axl::io::UsbMonTransferParserState state = parser.getState();
+		axl::io::UsbMonTransferParserState state = parser->getState();
 		switch (state) {
 		case axl::io::UsbMonTransferParserState_CompleteHeader:
-			hdr = parser.getTransferHdr();
+			hdr = parser->getTransferHdr();
 #if (_AXL_OS_LINUX)
-			isDeviceMatch = !m_addressFilter || hdr->m_address == m_addressFilter;
-			if (!isDeviceMatch)
+			context->m_dataMode = !m_addressFilter || hdr->m_address == m_addressFilter ?
+				TransferDataMode_AddToBuffer :
+				TransferDataMode_Ignore;
+
+			if (!context->m_dataMode)
 				break;
 #endif
 
@@ -210,7 +195,7 @@ UsbMonitor::parseTransfers_l(
 
 			if (hdr->m_transferType == LIBUSB_TRANSFER_TYPE_ISOCHRONOUS)
 				addToReadBuffer(
-					parser.getIsoPacketArray(),
+					parser->getIsoPacketArray(),
 					hdr->m_isoHdr.m_packetCount * sizeof(axl::io::UsbMonIsoPacket)
 				);
 
@@ -219,7 +204,7 @@ UsbMonitor::parseTransfers_l(
 		case axl::io::UsbMonTransferParserState_IncompleteData:
 		case axl::io::UsbMonTransferParserState_CompleteData:
 #if (_AXL_OS_LINUX)
-			if (!isDeviceMatch)
+			if (!context->m_dataMode)
 				break;
 #endif
 			addToReadBuffer(p, size);
@@ -232,35 +217,27 @@ UsbMonitor::parseTransfers_l(
 	return true;
 }
 
-template <typename T>
 bool
 UsbMonitor::parseCompletedTransfersOnly_l(
-	T& parser,
+	TransferParser* parser,
+	TransferParserContext* context,
 	const char* p,
 	const char* end
 ) {
 	ASSERT(m_transferTracker);
 
-	enum DataMode {
-		DataMode_Ignore,
-		DataMode_AddToTransfer,
-		DataMode_AddToBuffer
-	};
-
 	const axl::io::UsbMonTransferHdr* hdr;
 	sl::HashTableIterator<uint64_t, Transfer*> it;
-	Transfer* transfer = NULL;
-	DataMode dataMode = DataMode_Ignore;
 
 	while (p < end) {
-		size_t size = parser.parse(p, end - p);
+		size_t size = parser->parse(p, end - p);
 		if (size == -1)
 			return false;
 
-		axl::io::UsbMonTransferParserState state = parser.getState();
+		axl::io::UsbMonTransferParserState state = parser->getState();
 		switch (state) {
 		case axl::io::UsbMonTransferParserState_CompleteHeader:
-			hdr = parser.getTransferHdr();
+			hdr = parser->getTransferHdr();
 #if (_AXL_OS_LINUX)
 			if (m_addressFilter && hdr->m_address != m_addressFilter) {
 				dataMode = DataMode_Ignore;
@@ -270,44 +247,45 @@ UsbMonitor::parseCompletedTransfersOnly_l(
 
 			if (!(hdr->m_flags & axl::io::UsbMonTransferFlag_Completed)) {
 				if (hdr->m_endpoint & 0x80) { // incomplete in-transfers
-					dataMode = DataMode_Ignore;
+					context->m_dataMode = TransferDataMode_Ignore;
 					break;
 				}
 
-				transfer = m_transferTracker->m_transferPool.get();
+				Transfer* transfer = m_transferTracker->m_transferPool.get();
 				transfer->m_hdr = *hdr;
 				transfer->m_data.clear();
 
 				if (hdr->m_transferType == LIBUSB_TRANSFER_TYPE_ISOCHRONOUS)
-					transfer->m_isoPacketArray = parser.getIsoPacketArray();
+					transfer->m_isoPacketArray = parser->getIsoPacketArray();
 
 				m_transferTracker->m_activeTransferMap.add(hdr->m_id, transfer);
 				m_transferTracker->m_activeTransferList.insertTail(transfer);
-				dataMode = DataMode_AddToTransfer;
+				context->m_transfer = transfer;
+				context->m_dataMode = TransferDataMode_AddToTransfer;
 			} else {
 				if (hdr->m_endpoint & 0x80) { // completed in-transfer
 					addToReadBuffer(hdr, sizeof(axl::io::UsbMonTransferHdr));
 
 					if (hdr->m_transferType == LIBUSB_TRANSFER_TYPE_ISOCHRONOUS)
-						addToReadBuffer(parser.getIsoPacketArray(), hdr->m_isoHdr.m_packetCount * sizeof(axl::io::UsbMonIsoPacket));
+						addToReadBuffer(parser->getIsoPacketArray(), hdr->m_isoHdr.m_packetCount * sizeof(axl::io::UsbMonIsoPacket));
 
-					dataMode = DataMode_AddToBuffer;
+					context->m_dataMode = TransferDataMode_AddToBuffer;
 					break;
 				}
 
-				dataMode = DataMode_Ignore;
+				context->m_dataMode = TransferDataMode_Ignore;
 				it = m_transferTracker->m_activeTransferMap.find(hdr->m_id);
 				if (!it) // ignore completed but untracked out-transfers
 					break;
 
-				transfer = it->m_value;
+				Transfer* transfer = it->m_value;
 				transfer->m_hdr.m_status = hdr->m_status;
 				ASSERT(transfer->m_hdr.m_captureSize == transfer->m_data.getCount());
 
 				addToReadBuffer(&transfer->m_hdr, sizeof(axl::io::UsbMonTransferHdr));
 
 				if (hdr->m_transferType == LIBUSB_TRANSFER_TYPE_ISOCHRONOUS)
-					addToReadBuffer(parser.getIsoPacketArray(), hdr->m_isoHdr.m_packetCount * sizeof(axl::io::UsbMonIsoPacket));
+					addToReadBuffer(parser->getIsoPacketArray(), hdr->m_isoHdr.m_packetCount * sizeof(axl::io::UsbMonIsoPacket));
 
 				addToReadBuffer(transfer->m_data, transfer->m_hdr.m_captureSize);
 				m_transferTracker->m_activeTransferMap.erase(it);
@@ -319,12 +297,13 @@ UsbMonitor::parseCompletedTransfersOnly_l(
 
 		case axl::io::UsbMonTransferParserState_IncompleteData:
 		case axl::io::UsbMonTransferParserState_CompleteData:
-			switch (dataMode) {
-			case DataMode_AddToTransfer:
-				transfer->m_data.append(p, size);
+			switch (context->m_dataMode) {
+			case TransferDataMode_AddToTransfer:
+				ASSERT(context->m_transfer);
+				context->m_transfer->m_data.append(p, size);
 				break;
 
-			case DataMode_AddToBuffer:
+			case TransferDataMode_AddToBuffer:
 				addToReadBuffer(p, size);
 				break;
 			}
@@ -346,6 +325,7 @@ UsbMonitor::ioThreadFunc() {
 
 	bool result;
 	axl::io::win::UsbPcapTransferParser parser;
+	TransferParserContext parserContext;
 
 	HANDLE waitTable[2] = {
 		m_ioThreadEvent.m_event,
@@ -384,7 +364,7 @@ UsbMonitor::ioThreadFunc() {
 			read->m_overlapped.m_completionEvent.reset();
 
 			m_lock.lock(); // the main read buffer must be lock-protected
-			result = processIncomingData_l(parser, read->m_buffer, actualSize);
+			result = processIncomingData_l(&parser, &parserContext, read->m_buffer, actualSize);
 			if (!result) {
 				setIoErrorEvent_l();
 				return;
@@ -452,6 +432,8 @@ UsbMonitor::ioThreadFunc() {
 	ASSERT(m_monitor.isOpen());
 
 	axl::io::lnx::UsbMonTransferParser parser;
+	TransferParserContext parserContext;
+
 	int selectFd = AXL_MAX(m_monitor, m_ioThreadSelfPipe.m_readFile) + 1;
 	bool canReadMonitor = false;
 
@@ -501,7 +483,7 @@ UsbMonitor::ioThreadFunc() {
 					return;
 				}
 			} else {
-				result = processIncomingData_l(parser, p, actualSize);
+				result = processIncomingData_l(&parser, &parserContext, p, actualSize);
 				if (!result) {
 					setIoErrorEvent_l();
 					return;

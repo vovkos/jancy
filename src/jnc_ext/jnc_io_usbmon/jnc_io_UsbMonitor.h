@@ -63,6 +63,10 @@ protected:
 		mem::Pool<OverlappedRead> m_overlappedReadPool;
 		sl::List<OverlappedRead> m_activeOverlappedReadList;
 	};
+
+	typedef axl::io::win::UsbPcapTransferParser TransferParser;
+#elif (_AXL_OS_LINUX)
+	typedef axl::io::lnx::UsbMonTransferParser TransferParser;
 #endif
 
 	struct Transfer: sl::ListLink {
@@ -75,6 +79,22 @@ protected:
 		mem::Pool<Transfer> m_transferPool;
 		sl::List<Transfer> m_activeTransferList;
 		sl::SimpleHashTable<uint64_t, Transfer*> m_activeTransferMap;
+	};
+
+	enum TransferDataMode {
+		TransferDataMode_Ignore = 0,
+		TransferDataMode_AddToTransfer,
+		TransferDataMode_AddToBuffer
+	};
+
+	struct TransferParserContext {
+		Transfer* m_transfer;
+		TransferDataMode m_dataMode;
+
+		TransferParserContext() {
+			m_transfer = NULL;
+			m_dataMode = TransferDataMode_Ignore;
+		}
 	};
 
 protected:
@@ -184,30 +204,50 @@ protected:
 	void
 	ioThreadFunc();
 
-	template <typename T>
 	bool
 	processIncomingData_l(
-		T& parser,
-		const void* p,
+		TransferParser* parser,
+		TransferParserContext* context,
+		const void* p0,
 		size_t size
 	);
 
-	template <typename T>
 	bool
-	parseTransfers_l(
-		T& parser,
+	parseAllTransfers_l(
+		TransferParser* parser,
+		TransferParserContext* context,
 		const char* p,
 		const char* end
 	);
 
-	template <typename T>
 	bool
 	parseCompletedTransfersOnly_l(
-		T& parser,
+		TransferParser* parser,
+		TransferParserContext* context,
 		const char* p,
 		const char* end
 	);
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+bool
+UsbMonitor::processIncomingData_l(
+	TransferParser* parser,
+	TransferParserContext* context,
+	const void* p0,
+	size_t size
+) {
+	const char* p = (char*)p0;
+	const char* end = p + size;
+
+	return m_transferTracker ?
+		parseCompletedTransfersOnly_l(parser, context, p, end) :
+		parseAllTransfers_l(parser, context, p, end);
+}
+
+//..............................................................................
 
 } // namespace io
 } // namespace jnc
