@@ -73,7 +73,7 @@ opaque class HidDevice {
 	);
 
 	size_t errorcode sendFeatureReport(
-		void* p,
+		void const* p,
 		size_t size
 	);
 
