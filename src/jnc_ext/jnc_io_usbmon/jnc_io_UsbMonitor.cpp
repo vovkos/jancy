@@ -238,7 +238,7 @@ UsbMonitor::parseCompletedTransfersOnly_l(
 			hdr = parser->getTransferHdr();
 #if (_AXL_OS_LINUX)
 			if (m_addressFilter && hdr->m_address != m_addressFilter) {
-				dataMode = DataMode_Ignore;
+				context->m_dataMode = TransferDataMode_Ignore;
 				break;
 			}
 #endif
