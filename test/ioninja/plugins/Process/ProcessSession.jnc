@@ -202,7 +202,7 @@ void ProcessSession.createUi() {
 	// form
 
 	ui.VBoxLayout layout;
-	layout.addWidget(new ui.Label("Environment variables:"));
+	layout.addLabel("Environment variables:");
 	m_environmentWidget = new ui.DictionaryWidget;
 	m_environmentWidget.m_keyColumnName = "Variable";
 	m_environmentWidget.m_placeholderText = "No environment variables";

@@ -17,7 +17,6 @@ import "std_Buffer.jnc"
 class UsbMonSession: doc.Session {
 protected:
 	enum Defaults {
-		ReadParallelism  = 4,
 		ReadBlockSize    = 32 * 1024,
 		ReadBufferSize   = 512 * 1024,
 		KernelBufferSize = 1 * 1024 * 1024, // 1MB
@@ -180,14 +179,12 @@ void UsbMonSession.createUi() {
 	m_kernelBufferSizeProp.m_minValue = 4 * 1024;
 	m_kernelBufferSizeProp.m_spinBoxStep = 1024;
 
-	m_bufferPropertySet.m_defaultReadParallelism = Defaults.ReadParallelism;
 	m_bufferPropertySet.m_defaultReadBlockSize = Defaults.ReadBlockSize;
 	m_bufferPropertySet.m_defaultReadBufferSize = Defaults.ReadBufferSize;
 
 	m_bufferPropertySet.createProperties(
 		m_pluginHost.m_propertyGrid,
 		group,,
-		ui.BufferPropertySet.PropertyId.ReadParallelism |
 		ui.BufferPropertySet.PropertyId.ReadBufferSize |
 		ui.BufferPropertySet.PropertyId.ReadBlockSize |
 		ui.BufferPropertySet.PropertyId.NotifyReadBufferFull
@@ -224,6 +221,9 @@ bool errorcode UsbMonSession.capture() {
 		return false;
 	}
 
+	m_monitor.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
+	m_monitor.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
+	m_monitor.m_kernelBufferSize = m_kernelBufferSizeProp.m_value;
 	m_monitor.m_options = io.UsbMonOptions.CompletedTransfersOnly;
 	m_monitor.m_addressFilter = device.m_address;
 	m_monitor.open(device.m_captureDeviceName);
@@ -324,9 +324,8 @@ void UsbMonSession.processData(
 	void const* p,
 	size_t size
 ) {
-	void const* end = p + size;
-	while (p < end) {
-		size_t size = end - p;
+	int i = 0;
+	while (size) {
 		if (m_transferBuffer.m_size < sizeof(io.UsbMonTransferHdr)) {
 			size_t leftoverSize = sizeof(io.UsbMonTransferHdr) - m_transferBuffer.m_size;
 			if (size < leftoverSize) {
@@ -336,6 +335,7 @@ void UsbMonSession.processData(
 
 			m_transferBuffer.append(p, leftoverSize);
 			p += leftoverSize;
+			size -= leftoverSize;
 		}
 
 		io.UsbMonTransferHdr const* hdr = (io.UsbMonTransferHdr const*)m_transferBuffer.m_p;
@@ -354,6 +354,7 @@ void UsbMonSession.processData(
 			m_transferBuffer.append(p, leftoverSize);
 			hdr = (io.UsbMonTransferHdr const*)m_transferBuffer.m_p; // update hdr after append
 			p += leftoverSize;
+			size -= leftoverSize;
 		}
 
 		size_t leftoverSize = transferSize - m_transferBuffer.m_size;
@@ -365,6 +366,7 @@ void UsbMonSession.processData(
 		if (hdr.m_transferType == -1) { // ignore non-transfer URBs
 			m_transferBuffer.clear();
 			p += leftoverSize;
+			size -= leftoverSize;
 			continue;
 		}
 
@@ -421,6 +423,7 @@ void UsbMonSession.processData(
 		m_prevTransferEndpoint = hdr.m_endpoint;
 		m_transferBuffer.clear();
 		p += leftoverSize;
+		size -= leftoverSize;
 	}
 }
 
@@ -473,8 +476,9 @@ bool errorcode UsbMonSession.applyProperties() {
 	if (m_state != State.Opened)
 		return true;
 
-	m_monitor.m_kernelBufferSize = m_kernelBufferSizeProp.m_value;
-	m_monitor.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
+	if (sys.g_systemInfo.m_osKind != sys.OsKind.Windows) // USBPcap can BSOD on kernel buffer size change
+		m_monitor.m_kernelBufferSize = m_kernelBufferSizeProp.m_value;
+
 	m_monitor.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
 	m_monitor.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 	return true;

@@ -14,6 +14,7 @@ icon        = images/hid.png
 small-icon  = images/hid-16x16.png
 
 session-class = HidSession
+dispatch-class = HidDispatch
 
 [required-capabilities]
 
@@ -23,4 +24,10 @@ org.jancy.io.usb
 
 HidSession.jnc
 HidReportFieldEncoder.jnc
+HidDispatchCode.jnc
 ../HidLog/HidLogReportWriter.jnc
+
+[dispatch-scripts]
+
+HidDispatchCode.jnc
+HidDispatch.jnc

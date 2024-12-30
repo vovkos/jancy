@@ -66,7 +66,7 @@ ServerSocketLogFilter.construct(doc.PluginHost* pluginHost) {
 	subLayout.addWidget(m_filterCombo, 1);
 	subLayout.addWidget(applyToolBar);
 
-	layout.addWidget(new ui.Label("Client log filter:"));
+	layout.addLabel("Client log filter:");
 	layout.addLayout(subLayout);
 	pluginHost.createForm(layout);
 

@@ -79,12 +79,14 @@ protected:
 	ui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
 	ui.ComboBox* m_deviceCombo;
 	ui.ComboBox* m_reportCombo;
+	ui.ComboBox* m_transmitModeCombo;
 	ui.PropertyGrid* m_reportPropertyGrid;
 
 	// property grid
 
 	ui.EnumProperty* m_deviceProp;
 	ui.EnumProperty* m_readModeProp;
+	ui.EnumProperty* m_transmitModeProp;
 	ui.BufferPropertySet m_bufferPropertySet;
 
 	// information grid
@@ -112,6 +114,20 @@ public:
 	override size_t errorcode transmit(
 		void const* p,
 		size_t size
+	) {
+		return transmit((HidTransmitMode)m_transmitModeCombo.m_currentData, p, size);
+	}
+
+	size_t errorcode transmit(
+		HidTransmitMode mode,
+		void const* p,
+		size_t size
+	);
+
+	override bool errorcode dispatch(
+		uint_t code,
+		variant_t in,
+		variant_t* out
 	);
 
 	override bool errorcode connectSession() {
@@ -149,7 +165,7 @@ protected:
 	);
 
 	void createUi();
-	void updateReportCombo();
+	void setupReportUi();
 	void updateReportUi(io.HidReport const* report);
 	void waitHidDeviceEvents();
 }
@@ -167,6 +183,16 @@ HidSession.construct(doc.PluginHost* pluginHost) {
 }
 
 void HidSession.createUi() {
+	ui.ListItem readModeOptionTable[] = {
+		{ "Normal (read)",         ReadMode.Normal },
+		{ "Disabled (don't read)", ReadMode.Disabled }
+	}
+
+	ui.ListItem transmitModeOptionTable[] = {
+		{ "Send as output report",  HidTransmitMode.OutputReport },
+		{ "Send as feature report", HidTransmitMode.FeatureReport }
+	}
+
 	// toolbar
 
 	m_pluginHost.m_toolBar.addLabel("Device:");
@@ -190,8 +216,7 @@ void HidSession.createUi() {
 	// report form
 
 	ui.VBoxLayout layout;
-	ui.Label label("HID output & feature reports:");
-	layout.addWidget(label);
+	layout.addLabel("HID output & feature reports:");
 	m_reportCombo = new ui.ComboBox;
 	layout.addWidget(m_reportCombo);
 
@@ -209,6 +234,12 @@ void HidSession.createUi() {
 	reportToolBar.addAction(m_actionTable[ActionId.GetFeatureReport]);
 	reportToolBar.addAction(m_actionTable[ActionId.SendReport]);
 	layout.addWidget(reportToolBar);
+
+	ui.VBoxLayout subLayout;
+	m_transmitModeCombo = new ui.ComboBox(transmitModeOptionTable, countof(transmitModeOptionTable));
+	layout.addLine(); // to stress it applies to the transmit pane
+	layout.addLabel("Transmit mode:");
+	layout.addWidget(m_transmitModeCombo);
 
 	m_pluginHost.createForm(layout, 1);
 
@@ -230,17 +261,20 @@ void HidSession.createUi() {
 		null, 0
 	);
 
-	ui.EnumPropertyOption readModeOptionTable[] = {
-		{ "Normal (read)",         ReadMode.Normal },
-		{ "Disabled (don't read)", ReadMode.Disabled }
-	}
-
 	m_readModeProp = m_pluginHost.m_propertyGrid.createEnumProperty(
 		group,,
 		"Read mode",
 		"Specify the HID input report read mode",
 		readModeOptionTable,
 		countof(readModeOptionTable)
+	);
+
+	m_transmitModeProp = m_pluginHost.m_propertyGrid.createEnumProperty(
+		group,,
+		"Transmit mode",
+		"Specify how the 'Transmit' pane sends data to the HID device",
+		transmitModeOptionTable,
+		countof(transmitModeOptionTable)
 	);
 
 	m_bufferPropertySet.createPropertiesGrouped(
@@ -260,19 +294,31 @@ void HidSession.createUi() {
 	m_pluginHost.m_propertyGrid.resizeNameColumnToContents();
 	m_pluginHost.m_informationGrid.resizeNameColumnToContents();
 
+	setupReportUi();
 	ui.refreshHidDeviceListUi(m_deviceCombo, m_deviceProp);
 	m_uiReactor.start();
 }
 
-void HidSession.updateReportCombo() {
+void HidSession.setupReportUi() {
 	size_t outputReportCount = m_rd.m_reportCount[io.HidReportType.Output];
 	size_t featureReportCount = m_rd.m_reportCount[io.HidReportType.Feature];
-	size_t totalReportCount = outputReportCount + featureReportCount;
+	size_t txReportCount = outputReportCount + featureReportCount;
 
-	if (!totalReportCount)
+	bool isEnabled = txReportCount != 0;
+
+	m_isTransmitEnabled = isEnabled;
+	m_reportCombo.m_isEnabled = isEnabled;
+	m_reportPropertyGrid.m_isEnabled = isEnabled;
+	m_actionTable[ActionId.SendReport].m_isEnabled = isEnabled;
+	m_actionTable[ActionId.GetFeatureReport].m_isEnabled = isEnabled;
+
+	if (!isEnabled) {
+		m_transmitModeCombo.m_isEnabled = false;
+		m_transmitModeProp.m_isEnabled = false;
 		return;
+	}
 
-	ui.ComboItem* reportComboItems = new ui.ComboItem[totalReportCount];
+	ui.ComboItem* reportComboItems = new ui.ComboItem[txReportCount];
 
 	for (size_t i = 0; i < outputReportCount; i++) {
 		io.HidReport const* report = m_rd.m_reportArray[io.HidReportType.Output][i];
@@ -290,22 +336,29 @@ void HidSession.updateReportCombo() {
 			"Feature";
 	}
 
-	m_reportCombo.setItems(reportComboItems, totalReportCount);
-	if (outputReportCount && featureReportCount)
+	m_reportCombo.setItems(reportComboItems, txReportCount);
+
+	bool hasBothKinds = outputReportCount && featureReportCount;
+	m_transmitModeCombo.m_isEnabled = hasBothKinds;
+	m_transmitModeProp.m_isEnabled = hasBothKinds;
+
+	if (hasBothKinds)
 		m_reportCombo.insertSeparator(outputReportCount);
+	else {
+		HidTransmitMode mode = featureReportCount ?
+			HidTransmitMode.FeatureReport :
+			HidTransmitMode.OutputReport;
+		m_transmitModeCombo.m_currentData = mode;
+		m_transmitModeProp.m_value = mode;
+	}
 }
 
 void HidSession.updateReportUi(io.HidReport const* report) {
 	m_reportPropertyGrid.clear();
 	m_reportFieldEncoderArray = null;
 
-	if (!report) {
-		m_reportCombo.m_isEnabled =
-		m_reportPropertyGrid.m_isEnabled =
-		m_actionTable[ActionId.SendReport].m_isEnabled =
-		m_actionTable[ActionId.GetFeatureReport].m_isEnabled = false;
+	if (!report)
 		return;
-	}
 
 	// calculate the number of encoders
 	ui.GroupProperty* groupProp;
@@ -362,10 +415,7 @@ void HidSession.updateReportUi(io.HidReport const* report) {
 		}
 	}
 
-	m_reportCombo.m_isEnabled = true;
 	m_reportPropertyGrid.resizeNameColumnToContents();
-	m_reportPropertyGrid.m_isEnabled = true;
-	m_actionTable[ActionId.SendReport].m_isEnabled = true;
 	m_actionTable[ActionId.GetFeatureReport].m_isEnabled = report.m_reportType == io.HidReportType.Feature;
 	m_reportFieldEncoderArray = encoderArray;
 }
@@ -412,8 +462,7 @@ bool errorcode HidSession.open() {
 	m_reportWriter.reset();
 	m_state = State.Opened;
 	m_sessionConnectionState = SessionConnectionState.Connected;
-	m_isTransmitEnabled = true;
-	updateReportCombo();
+	setupReportUi();
 	waitHidDeviceEvents();
 	m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
 	return true;
@@ -433,6 +482,8 @@ void HidSession.close() {
 	m_rd.clear();
 	m_reportCombo.clear();
 	m_reportPropertyGrid.clear();
+	m_transmitModeCombo.m_isEnabled = false;
+	m_transmitModeProp.m_isEnabled = false;
 	m_state = State.Closed;
 	m_sessionConnectionState = SessionConnectionState.Disconnected;
 	m_isTransmitEnabled = false;
@@ -450,11 +501,16 @@ void HidSession.waitHidDeviceEvents() {
 }
 
 void HidSession.load(doc.Storage* storage) {
-	uint_t vid = storage.readInt("deviceVid");
-	uint_t pid = storage.readInt("devicePid");
 	string_t path = storage.readString("devicePath");
+	size_t index = ui.findHidDeviceComboIndex(m_deviceCombo, path); // try path first
+	if (index == -1) { // try VID:PID:usage
+		uint_t vid = storage.readInt("deviceVid");
+		uint_t pid = storage.readInt("devicePid");
+		uint_t usagePage = storage.readInt("deviceUsagePage");
+		uint_t usage = storage.readInt("deviceUsage");
+		index = ui.findHidDeviceComboIndex(m_deviceCombo, vid, pid, usagePage, usage);
+	}
 
-	size_t index = ui.findHidDeviceComboIndex(m_deviceCombo, vid, pid, path);
 	if (index != -1)
 		m_deviceCombo.m_currentIndex = index;
 
@@ -468,6 +524,8 @@ void HidSession.save(doc.Storage* storage) {
 	if (desc) {
 		storage.writeInt("deviceVid", desc.m_vendorId);
 		storage.writeInt("devicePid", desc.m_productId);
+		storage.writeInt("deviceUsagePage", desc.m_usagePage);
+		storage.writeInt("deviceUsage", desc.m_usage);
 		storage.writeString("devicePath", desc.m_path);
 	}
 
@@ -497,6 +555,7 @@ void HidSession.restoreDefaultProperties() {
 }
 
 size_t errorcode HidSession.transmit(
+	HidTransmitMode mode,
 	void const* p,
 	size_t size
 ) {
@@ -508,30 +567,160 @@ size_t errorcode HidSession.transmit(
 		return -1; // don't throw here
 	}
 
+	struct TransmitDetails {
+		string_t m_description;
+		io.HidReportType m_reportType;
+		uint64_t m_recordCode;
+	};
+
+	static TransmitDetails detailTable[2] = {
+		{
+			"HID output report",
+			io.HidReportType.Output,
+			HidLogRecordCode.OutputReport,
+		},
+		{
+			"HID feature report",
+			io.HidReportType.Feature,
+			HidLogRecordCode.SendFeatureReport
+		},
+	}
+
+	TransmitDetails details = detailTable[mode];
+
 	uint_t reportId = *(uchar_t const*)p;
-	io.HidReport const* report = m_rd.findReport(io.HidReportType.Output, reportId);
+	io.HidReport const* report = m_rd.findReport(details.m_reportType, reportId);
 	if (!report) {
-		std.setError($"HID output #%d not found"(reportId));
+		std.setError($"%1 #%2 not found"(details.m_description, reportId));
 		return -1;
 	}
 
 	size_t writeSize = report.m_size + 1; // plus report ID
 	if (size < writeSize) {
-		std.setError($"Incomplete HID output report (expected 1 byte for report ID followed %d bytes of report fields)"(report.m_size));
+		std.setError(
+			$"Incomplete %1 (expected 1 byte for report ID followed %2 bytes of report fields)"(
+				details.m_description,
+				report.m_size
+			)
+		);
 		return -1;
 	}
 
-	size_t result = m_device.write(p, writeSize);
+	size_t result = details.m_reportType == io.HidReportType.Feature ?
+		m_device.sendFeatureReport(p, writeSize) :
+		m_device.write(p, writeSize);
 
-	m_reportWriter.writeReport(
-		HidLogRecordCode.OutputReport,
-		report,
-		p,
-		writeSize
-	);
-
+	m_reportWriter.writeReport(details.m_recordCode, report, p, writeSize);
 	m_pluginHost.m_txRxStats.addTx(writeSize);
 	return result;
+}
+
+bool errorcode HidSession.dispatch(
+	uint_t code,
+	variant_t in,
+	variant_t* out
+) {
+	switch (code) {
+	case HidDispatchCode.GetDeviceVid:
+		io.HidDeviceDesc const* desc = m_deviceCombo.m_currentData;
+		*out = desc ? desc.m_vendorId : -1;
+		break;
+
+	case HidDispatchCode.GetDevicePid:
+		io.HidDeviceDesc const* desc = m_deviceCombo.m_currentData;
+		*out = desc ? desc.m_productId : -1;
+		break;
+
+	case HidDispatchCode.GetDeviceUsagePage:
+		io.HidDeviceDesc const* desc = m_deviceCombo.m_currentData;
+		*out = desc ? desc.m_usagePage : -1;
+		break;
+
+	case HidDispatchCode.GetDeviceUsage:
+		io.HidDeviceDesc const* desc = m_deviceCombo.m_currentData;
+		*out = desc ? desc.m_usage : -1;
+		break;
+
+	case HidDispatchCode.SetDeviceVidPid:
+		uint32_t vidPid = (uint_t)in;
+		size_t i = ui.findHidDeviceComboIndex(
+			m_deviceCombo,
+			(vidPid >> 16) & 0xffff,
+			vidPid & 0xffff
+		);
+
+		if (i == -1) {
+			std.setError("can't find device with specified VID:PID");
+			return false;
+		}
+
+		m_deviceCombo.m_currentIndex = i;
+		break;
+
+	case HidDispatchCode.SetDeviceVidPidUsage:
+		uint64_t vidPidUsage = (uint64_t)in;
+		size_t i = ui.findHidDeviceComboIndex(
+			m_deviceCombo,
+			(vidPidUsage >> 16) & 0xffff,
+			vidPidUsage & 0xffff,
+			(vidPidUsage >> 48) & 0xffff,
+			(vidPidUsage >> 32) & 0xffff
+		);
+
+		if (i == -1) {
+			std.setError($"can't find device with specified VID:PID and usage $(vidPidUsage; 0x%llx)");
+			return false;
+		}
+
+		m_deviceCombo.m_currentIndex = i;
+		break;
+
+	case HidDispatchCode.GetDevicePath:
+		io.HidDeviceDesc const* desc = m_deviceCombo.m_currentData;
+		*out = desc ? desc.m_path : null;
+		break;
+
+	case HidDispatchCode.SetDevicePath:
+		size_t i = ui.findHidDeviceComboIndex(m_deviceCombo, (string_t)in);
+		if (i == -1) {
+			std.setError("can't find device with specified path");
+			return false;
+		}
+
+		m_deviceCombo.m_currentIndex = i;
+		break;
+
+	case HidDispatchCode.GetTransmitMode:
+		*out = m_transmitModeCombo.m_currentData;
+		break;
+
+	case HidDispatchCode.SetTransmitMode:
+		m_transmitModeCombo.m_currentData = in;
+		break;
+
+	case HidDispatchCode.OpenDevice:
+		return open();
+
+	case HidDispatchCode.CloseDevice:
+		close();
+		break;
+
+	case HidDispatchCode.SendOutputReport:
+		string_t data = in;
+		transmit(HidTransmitMode.OutputReport, data.m_p, data.m_length);
+		break;
+
+	case HidDispatchCode.SendFeatureReport:
+		string_t data = in;
+		transmit(HidTransmitMode.FeatureReport, data.m_p, data.m_length);
+		break;
+
+	default:
+		std.setError("unsupported dispatch code");
+		return false;
+	}
+
+	return true;
 }
 
 void HidSession.onSendReport() {

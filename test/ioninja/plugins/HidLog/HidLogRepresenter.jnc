@@ -189,8 +189,8 @@ void representDeviceInfo(
 		$"    \e[90mProduct ID:\t\e[34m0x%(6; 04X)\n"
 		$"    \e[90mBus:\t\e[34m%7\n"
 		$"    \e[90mInterface:\t\e[34m%8\n"
-		$"    \e[90mUsage page:\t\e[34m%9\n"
-		$"    \e[90mUsage:\t\e[34m%10"(
+		$"    \e[90mUsage page:\t\e[34m0x%(9; 02X) - %10\n"
+		$"    \e[90mUsage:\t\e[34m0x%(11; 02X) - %12"(
 			text,
 			path,
 			product,
@@ -199,13 +199,15 @@ void representDeviceInfo(
 			params.m_productId,
 			typeof(io.HidBusType).getValueString(params.m_busType),
 			params.m_interfaceId,
+			params.m_usagePage,
 			page.m_name,
+			params.m_usage,
 			page.getUsageName(params.m_usage)
 		)
 	);
 
 	if (serialNumber)
-		representation.addHyperText($"    Serial number\t\e[34m%1"(serialNumber));
+		representation.addHyperText($"    \e[90mSerial number:\t\e[34m%1"(serialNumber));
 }
 
 void representCollection(

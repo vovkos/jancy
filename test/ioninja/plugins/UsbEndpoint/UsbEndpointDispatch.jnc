@@ -103,7 +103,7 @@ class UsbEndpointDispatch: ias.Session {
 		uint_t vid,
 		uint_t pid
 	) {
-		return dispatch(UsbEndpointDispatchCode.OpenDeviceVidPid, (vid << 16) | (pid & 0xffff));
+		return dispatch(UsbEndpointDispatchCode.OpenDevice, (vid << 16) | (pid & 0xffff));
 	}
 
 	void closeDevice() {

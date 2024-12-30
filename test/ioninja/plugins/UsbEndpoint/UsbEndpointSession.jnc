@@ -313,7 +313,7 @@ void UsbEndpointSession.createUi() {
 	m_controlIndexEdit.m_onReturnPressed += onControlTransfer;
 
 	ui.HBoxLayout outEpLayout;
-	outEpLayout.addWidget(new ui.Label("OUT endpoint:"));
+	outEpLayout.addLabel("OUT endpoint:");
 	outEpLayout.addWidget(m_outEndpointCombo, 1);
 
 	ui.ToolBar claimToolBar;
@@ -342,12 +342,12 @@ void UsbEndpointSession.createUi() {
 	controlLayout.addRow(controlToolBar);
 
 	ui.VBoxLayout mainLayout;
-	mainLayout.addWidget(new ui.Label("USB interfaces:"));
+	mainLayout.addLabel("USB interfaces:");
 	mainLayout.addWidget(m_interfaceWidget, 1);
 	mainLayout.addWidget(claimToolBar);
 	mainLayout.addLayout(outEpLayout);
 
-	mainLayout.addWidget(new ui.Label("IN endpoints:"));
+	mainLayout.addLabel("IN endpoints:");
 	mainLayout.addWidget(m_inEndpointWidget, 1);
 	mainLayout.addWidget(readToolBar);
 	mainLayout.addWidget(controlGroupBox);
@@ -968,10 +968,10 @@ bool errorcode UsbEndpointSession.dispatch(
 		break;
 
 	case UsbEndpointDispatchCode.OpenDevice:
-		return openDevice();
+		uint_t vidPid = in;
+		if (!vidPid)
+			return openDevice();
 
-	case UsbEndpointDispatchCode.OpenDeviceVidPid:
-		uint_t vidPid = (uint_t)in;
 		size_t i = ui.findUsbDeviceComboIndex(m_deviceCombo, vidPid >> 16, vidPid & 0xffff);
 		if (i == -1) {
 			std.setError("device not found");

@@ -1,0 +1,109 @@
+//..............................................................................
+//
+// HID session dispatch interface for IAS
+//
+
+import "ias.jnc"
+
+//..............................................................................
+
+class HidDispatch: ias.Session {
+	uint_t const property m_deviceVid {
+		return dispatchGet(HidDispatchCode.GetDeviceVid);
+	}
+
+	uint_t const property m_devicePid {
+		return dispatchGet(HidDispatchCode.GetDevicePid);
+	}
+
+	bool errorcode setDeviceVidPid(
+		uint_t vid,
+		uint_t pid
+	) {
+		return dispatch(
+			HidDispatchCode.SetDeviceVidPid,
+			(vid << 16) |
+			(pid & 0xffff)
+		);
+	}
+
+	bool errorcode setDeviceVidPidUsage(
+		uint_t vid,
+		uint_t pid,
+		uint_t usagePage,
+		uint_t usage
+	) {
+		return dispatch(
+			HidDispatchCode.SetDeviceVidPidUsage,
+			((uint64_t)usagePage << 48) |
+			((uint64_t)usage << 32) |
+			(vid << 16) |
+			(pid & 0xffff)
+		);
+	}
+
+	property m_devicePath {
+		string_t get() {
+			return dispatchGet(HidDispatchCode.GetDevicePath);
+		}
+
+		bool errorcode set(string_t path) {
+			return dispatch(HidDispatchCode.SetDevicePath, path);
+		}
+	}
+
+	property m_transmitMode {
+		HidTransmitMode get() {
+			return dispatch(HidDispatchCode.GetTransmitMode);
+		}
+
+		void set(HidTransmitMode mode) {
+			dispatch(HidDispatchCode.SetTransmitMode, mode);
+		}
+	}
+
+	bool errorcode openDevice() {
+		return dispatch(HidDispatchCode.OpenDevice);
+	}
+
+	bool errorcode openDevice(string_t path) {
+		m_devicePath = path;
+		return openDevice();
+	}
+
+	bool errorcode openDevice(
+		uint_t vid,
+		uint_t pid,
+		uint_t usagePage,
+		uint_t usage
+	) {
+		return setDeviceVidPidUsage(vid, pid, usagePage, usage) && openDevice();
+	}
+
+	bool errorcode openDevice(
+		uint_t vid,
+		uint_t pid
+	) {
+		return setDeviceVidPid(vid, pid) && openDevice();
+	}
+
+	void closeDevice() {
+		dispatch(HidDispatchCode.CloseDevice);
+	}
+
+	void sendOutputReport(
+		void const* p,
+		size_t size
+	) {
+		dispatch(HidDispatchCode.SendOutputReport, string_t(p, size));
+	}
+
+	void sendFeatureReport(
+		void const* p,
+		size_t size
+	) {
+		dispatch(HidDispatchCode.SendFeatureReport, string_t(p, size));
+	}
+}
+
+//..............................................................................

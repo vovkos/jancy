@@ -183,8 +183,7 @@ void TcpServerSession.createUi() {
 	// form
 
 	ui.VBoxLayout layout;
-	ui.Label label("Active client(s):");
-	layout.addWidget(label);
+	layout.addLabel("Active client(s):");
 	m_clientWidget = new ui.ListWidget;
 	m_clientWidget.m_placeholderText = "No active clients";
 	layout.addWidget(m_clientWidget, 1);

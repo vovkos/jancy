@@ -47,6 +47,10 @@ class BoxLayout: Layout {
 		Alignment alignment = 0
 	);
 
+	void addLabel(string_t label) {
+		addWidget(new Label(label));
+	}
+
 	void addLayout(
 		Layout* layout,
 		int stretch = 0

@@ -142,7 +142,7 @@ void WebSocketUi.createForm(
 	SettingId settingMask
 ) {
 	if (settingMask & SettingId.Headers) {
-		layout.addWidget(new ui.Label("Extra headers:"));
+		layout.addLabel("Extra headers:");
 		m_headersWidget = new DictionaryWidget;
 		m_headersWidget.m_keyColumnName = "Header";
 		m_headersWidget.m_placeholderText = "No extra headers";

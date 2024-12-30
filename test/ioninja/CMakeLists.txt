@@ -762,11 +762,20 @@ if(BUILD_JNC_IO_HID)
 			representHidLog
 		FILES
 			HidSession.jnc
+			HidDispatchCode.jnc
 			HidReportFieldEncoder.jnc
 			../HidLog/HidLogReportWriter.jnc
 			../HidLog/HidLogRecordCode.jnc
 			../HidLog/HidLogRepresenter.jnc
 		FINALIZE_TEST Hid
+
+		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/Hid
+		REQUIRES
+			HidDispatch
+		FILES
+			HidDispatchCode.jnc
+			HidDispatch.jnc
+		FINALIZE_TEST HidDispatch
 	)
 
 	if(USBMON_AVAILABLE)

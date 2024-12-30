@@ -24,7 +24,6 @@ enum UsbEndpointDispatchCode {
 	GetControlIndex,
 	SetControlIndex,
 	OpenDevice,
-	OpenDeviceVidPid,
 	CloseDevice,
 	ClaimInterface,
 	ReleaseInterface,

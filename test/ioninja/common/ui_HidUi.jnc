@@ -68,8 +68,8 @@ void refreshHidDeviceListUi(
 			$"<tr><td>Product ID:</td><td>0x%04X</td></tr>"
 			$"<tr><td>Bus:</td><td>%s</td></tr>"
 			$"<tr><td>Interface:</td><td>%d</td></tr>"
-			$"<tr><td>Usage page:</td><td>%s</td></tr>"
-			$"<tr><td>Usage:</td><td>%s</td></tr>"(
+			$"<tr><td>Usage&nbsp;page:</td><td>0x%02X - %s</td></tr>"
+			$"<tr><td>Usage:</td><td>0x%02X - %s</td></tr>"(
 				desc.m_path,
 				desc.m_product,
 				desc.m_manufacturer,
@@ -77,12 +77,14 @@ void refreshHidDeviceListUi(
 				desc.m_productId,
 				typeof(io.HidBusType).getValueString(desc.m_busType),
 				desc.m_interfaceId,
+				desc.m_usagePage,
 				page.m_name,
+				desc.m_usage,
 				usageName
 			);
 
 		if (desc.m_serialNumber)
-			toolTip += $"<tr><td>Serial number:</td><td>%s</td></tr>"(desc.m_serialNumber);
+			toolTip += $"<tr><td>Serial&nbsp;number:</td><td>%s</td></tr>"(desc.m_serialNumber);
 
 		toolTip += "</table>";
 
@@ -106,12 +108,15 @@ void refreshHidDeviceListUi(
 	deviceProp.setOptions(optionArray, count);
 
 	if (prevDesc) {
-		size_t index = findHidDeviceComboIndex(
-			deviceCombo,
-			prevDesc.m_vendorId,
-			prevDesc.m_productId,
-			prevDesc.m_path
-		);
+		size_t index = findHidDeviceComboIndex(deviceCombo, prevDesc.m_path);
+		if (index == -1)
+			index = findHidDeviceComboIndex(
+				deviceCombo,
+				prevDesc.m_vendorId,
+				prevDesc.m_productId,
+				prevDesc.m_usagePage,
+				prevDesc.m_usage
+			);
 
 		deviceCombo.m_currentIndex = index != -1 ? index : 0;
 	}
@@ -119,24 +124,50 @@ void refreshHidDeviceListUi(
 
 size_t findHidDeviceComboIndex(
 	ui.ComboBox* deviceCombo,
-	uint_t vid,
-	uint_t pid,
 	string_t path
 ) {
-	size_t bestIndex = -1;
-
-	size_t itemCount = deviceCombo.m_itemCount;
-	for (size_t i = 0; i < itemCount; i++) {
+	for (size_t i = 0; i < deviceCombo.m_itemCount; i++) {
 		io.HidDeviceDesc const* desc = deviceCombo.m_itemData[i];
-		if (desc && desc.m_vendorId == vid && desc.m_productId == pid) {
-			if (desc.m_path == path)
-				return i; // exact match
-
-			bestIndex = i; // VID/PID match, but different path
-		}
+		if (desc && desc.m_path == path)
+			return i;
 	}
 
-	return bestIndex;
+	return -1;
+}
+
+size_t findHidDeviceComboIndex(
+	ui.ComboBox* deviceCombo,
+	uint_t vid,
+	uint_t pid,
+	uint_t usagePage,
+	uint_t usage
+) {
+	for (size_t i = 0; i < deviceCombo.m_itemCount; i++) {
+		io.HidDeviceDesc const* desc = deviceCombo.m_itemData[i];
+		if (desc &&
+			desc.m_vendorId == vid &&
+			desc.m_productId == pid &&
+			desc.m_usagePage == usagePage &&
+			desc.m_usage == usage
+		)
+			return i;
+	}
+
+	return -1;
+}
+
+size_t findHidDeviceComboIndex(
+	ui.ComboBox* deviceCombo,
+	uint_t vid,
+	uint_t pid
+) {
+	for (size_t i = 0; i < deviceCombo.m_itemCount; i++) {
+		io.HidDeviceDesc const* desc = deviceCombo.m_itemData[i];
+		if (desc &&	desc.m_vendorId == vid && desc.m_productId == pid)
+			return i;
+	}
+
+	return -1;
 }
 
 //..............................................................................
