@@ -174,21 +174,11 @@ jnc_String_setPtr(
 			string->m_length = end - p0;
 		}
 	} else if (p0 + length < end) { // length is in-range
-		if (length && !p0[length - 1]) {
-			string->m_ptr_sz = ptr;
-			string->m_length = length - 1;
-		} else {
-			string->m_ptr_sz = !p0[length] ? ptr : jnc::g_nullDataPtr;
-			string->m_length = length;
-		}
+		string->m_ptr_sz = !p0[length] ? ptr : jnc::g_nullDataPtr;
+		string->m_length = length;
 	} else { // length is out-of-range
-		if (p0 < end && !end[-1]) {
-			string->m_ptr_sz = ptr;
-			string->m_length = end - p0 - 1;
-		} else {
-			string->m_ptr_sz = jnc::g_nullDataPtr;
-			string->m_length = end - p0;
-		}
+		string->m_ptr_sz = jnc::g_nullDataPtr;
+		string->m_length = end - p0;
 	}
 }
 
