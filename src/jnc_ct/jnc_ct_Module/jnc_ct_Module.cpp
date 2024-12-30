@@ -179,11 +179,6 @@ Module::initialize(
 ) {
 	clear();
 
-#if (_AXL_GCC_ASAN)
-	// GC guard page safe points do not work with address sanitizer
-	compileFlags |= ModuleCompileFlag_SimpleGcSafePoint;
-#endif
-
 	m_name = name;
 	m_config = config ? *config : g_defaultModuleConfig;
 
@@ -197,6 +192,11 @@ Module::initialize(
 	m_compileFlags = m_config.m_compileFlags;
 	m_compileState = ModuleCompileState_Idle;
 	m_compileErrorCount = 0;
+
+#if (_AXL_GCC_ASAN)
+	// GC guard page safe points do not work with address sanitizer
+	m_compileFlags |= ModuleCompileFlag_SimpleGcSafePoint;
+#endif
 
 	if (!(m_compileFlags & ModuleCompileFlag_DisableCodeGen)) {
 		m_llvmContext = new llvm::LLVMContext;
