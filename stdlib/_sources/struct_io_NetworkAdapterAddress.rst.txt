@@ -1,0 +1,85 @@
+.. include:: def.rst
+.. index:: pair: struct; io.NetworkAdapterAddress
+.. _doxid-type_io_networkadapteraddress:
+
+struct io.NetworkAdapterAddress
+===============================
+
+.. toctree::
+	:hidden:
+
+Overview
+~~~~~~~~
+
+This struct holds information about single address of the network
+adapter. :ref:`More...<details-type_io_networkadapteraddress>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "io_base.jncx"
+	import "io_NetworkAdapter.jnc"
+	
+	struct NetworkAdapterAddress {
+		// fields
+	
+		io.NetworkAdapterAddress const* :ref:`m_next<doxid-field_io_networkadapteraddress_m_next>`;
+		:ref:`io.SocketAddress<doxid-type_io_socketaddress>` :ref:`m_address<doxid-field_io_networkadapteraddress_m_address>`;
+		:ref:`size_t<doxid-typedef_size_t>` :ref:`m_netMaskBitCount<doxid-field_io_networkadapteraddress_m_netmaskbitcount>`;
+	};
+.. _details-type_io_networkadapteraddress:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This struct holds information about single address of the network
+adapter.
+
+A list of network adapter addresses is part of network adapter description
+stored in `io.NetworkAdapterDesc`.
+
+
+
+.. rubric:: See also:
+
+`io.NetworkAdapterDesc`, `io.enumerateNetworkAdapters`
+
+Fields
+------
+
+.. index:: pair: variable; m_next
+.. _doxid-field_io_networkadapteraddress_m_next:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	io.NetworkAdapterAddress const* m_next
+
+Holds a pointer to the next newtwork adatper address or ``null`` if this
+is the last address.
+
+.. index:: pair: variable; m_address
+.. _doxid-field_io_networkadapteraddress_m_address:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`io.SocketAddress<doxid-type_io_socketaddress>` m_address
+
+Holds address of the network adapter as `io.SocketAddress`. ``m_port``
+field of the address should obviously be ignored.
+
+.. index:: pair: variable; m_netMaskBitCount
+.. _doxid-field_io_networkadapteraddress_m_netmaskbitcount:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`size_t<doxid-typedef_size_t>` m_netMaskBitCount
+
+The length, in bits, of the prefix or network part of the IP address.
+For a unicast IPv4 address, any value greater than 32 is an illegal
+value. For a unicast IPv6 address, any value greater than 128 is an
+illegal value.
+

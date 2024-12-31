@@ -1,0 +1,140 @@
+.. include:: def.rst
+.. index:: pair: struct; io.NetworkAdapterDesc
+.. _doxid-type_io_networkadapterdesc:
+
+struct io.NetworkAdapterDesc
+============================
+
+.. toctree::
+	:hidden:
+
+Overview
+~~~~~~~~
+
+This struct holds information about the network adapter. :ref:`More...<details-type_io_networkadapterdesc>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "io_base.jncx"
+	import "io_NetworkAdapter.jnc"
+	
+	struct NetworkAdapterDesc {
+		// fields
+	
+		io.NetworkAdapterDesc const* :ref:`m_next<doxid-field_io_networkadapterdesc_m_next>`;
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`m_name<doxid-field_io_networkadapterdesc_m_name>`;
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`m_description<doxid-field_io_networkadapterdesc_m_description>`;
+		:ref:`io.NetworkAdapterType<doxid-type_io_networkadaptertype>` :ref:`m_type<doxid-field_io_networkadapterdesc_m_type>`;
+		:ref:`io.NetworkAdapterFlags<doxid-type_io_networkadapterflags>` :ref:`m_flags<doxid-field_io_networkadapterdesc_m_flags>`;
+		:ref:`uint8_t<doxid-typedef_uint8_t>` :ref:`m_macAddress<doxid-field_io_networkadapterdesc_m_macaddress>`[];
+		:ref:`io.NetworkAdapterAddress<doxid-type_io_networkadapteraddress>` const* :ref:`m_address<doxid-field_io_networkadapterdesc_m_address>`;
+		:ref:`size_t<doxid-typedef_size_t>` :ref:`m_addressCount<doxid-field_io_networkadapterdesc_m_addresscount>`;
+	};
+.. _details-type_io_networkadapterdesc:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This struct holds information about the network adapter.
+
+A list of network adapter descriptions is returned by
+`io.enumerateNetworkAdapters`.
+
+
+
+.. rubric:: See also:
+
+`io.enumerateNetworkAdapters`
+
+Fields
+------
+
+.. index:: pair: variable; m_next
+.. _doxid-field_io_networkadapterdesc_m_next:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	io.NetworkAdapterDesc const* m_next
+
+Holds a pointer to the next nextwork adapter description or ``null`` if
+this is the last adapter.
+
+.. index:: pair: variable; m_name
+.. _doxid-field_io_networkadapterdesc_m_name:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`string_t<doxid-typedef_string_t>` m_name
+
+Holds the permanent device name of the network adapter.
+
+.. index:: pair: variable; m_description
+.. _doxid-field_io_networkadapterdesc_m_description:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`string_t<doxid-typedef_string_t>` m_description
+
+Holds a human-readable description of the network adapter.
+
+.. index:: pair: variable; m_type
+.. _doxid-field_io_networkadapterdesc_m_type:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`io.NetworkAdapterType<doxid-type_io_networkadaptertype>` m_type
+
+Holds the type the network adapter. For a complete list of types refer
+to `io.NetworkAdapterType` enumeration.
+
+.. index:: pair: variable; m_flags
+.. _doxid-field_io_networkadapterdesc_m_flags:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`io.NetworkAdapterFlags<doxid-type_io_networkadapterflags>` m_flags
+
+Holds the flag optins of the network adapter. For a complete list of
+flag options refer to `io.NetworkAdapterFlags` enumeration.
+
+.. index:: pair: variable; m_macAddress
+.. _doxid-field_io_networkadapterdesc_m_macaddress:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`uint8_t<doxid-typedef_uint8_t>` m_macAddress[]
+
+Holds the hardware Media Access Control (MAC) address of the network
+adapter.
+
+.. index:: pair: variable; m_address
+.. _doxid-field_io_networkadapterdesc_m_address:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`io.NetworkAdapterAddress<doxid-type_io_networkadapteraddress>` const* m_address
+
+Holds a pointer to the head of the list of addresses assigned to this
+network adapter. Iterate through the list by instpecting
+`io.NetworkAdapterAddress.m_next` field.
+
+.. index:: pair: variable; m_addressCount
+.. _doxid-field_io_networkadapterdesc_m_addresscount:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`size_t<doxid-typedef_size_t>` m_addressCount
+
+Holds the total number of addresses on the list pointed to by
+``m_addresses`` field.
+

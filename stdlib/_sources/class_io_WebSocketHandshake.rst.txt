@@ -1,0 +1,35 @@
+.. include:: def.rst
+.. index:: pair: class; io.WebSocketHandshake
+.. _doxid-type_io_websockethandshake:
+
+class io.WebSocketHandshake
+===========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class WebSocketHandshake {
+		// fields
+	
+		:ref:`uint_t<doxid-typedef_uint_t>` readonly :target:`m_httpVersion<doxid-field_io_websockethandshake_m_httpversion>`;
+		:ref:`uint_t<doxid-typedef_uint_t>` readonly :target:`m_statusCode<doxid-field_io_websockethandshake_m_statuscode>`;
+		:ref:`io.WebSocketHandshakeHeaders<doxid-type_io_websockethandshakeheaders>` readonly :target:`m_headers<doxid-field_io_websockethandshake_m_headers>`;
+
+		// properties
+	
+		:ref:`string_t<doxid-typedef_string_t>` const property :target:`m_resource<doxid-property_io_websockethandshake_m_resource>`;
+		:ref:`string_t<doxid-typedef_string_t>` const property :target:`m_reasonPhrase<doxid-property_io_websockethandshake_m_reasonphrase>`;
+		:ref:`string_t<doxid-typedef_string_t>` const property :target:`m_rawData<doxid-property_io_websockethandshake_m_rawdata>`;
+
+		// construction
+	
+		:target:`construct<doxid-function_io_websockethandshake_construct>`();
+		:target:`destruct<doxid-function_io_websockethandshake_destruct>`();
+	};

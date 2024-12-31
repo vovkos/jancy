@@ -1,0 +1,72 @@
+.. include:: def.rst
+.. index:: pair: group; USB Monitoring
+.. _doxid-group_io_usbmon:
+
+USB Monitoring
+==============
+
+.. toctree::
+	:hidden:
+
+	enum_io_win_URB_FUNCTION.rst
+	enum_io_win_USBD_STATUS.rst
+	enum_io_UsbEnumFlags.rst
+	enum_io_UsbMonEnumFlags.rst
+	enum_io_UsbMonOptions.rst
+	enum_io_UsbMonTransferFlags.rst
+	struct_io_UsbDeviceEntry.rst
+	struct_io_UsbMonDeviceDesc.rst
+	struct_io_UsbMonDeviceDescBase.rst
+	struct_io_UsbMonTransferHdr.rst
+	class_io_UsbMonitor.rst
+
+This section describes types and facilities used for monitoring USB devices.
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "io_usbmon.jncx"
+	
+	// typedefs
+
+	typedef :ref:`io.ReadOnlyStreamEvents<doxid-type_io_readonlystreamevents>` :target:`io.UsbMonEvents<doxid-typedef_io_usbmonevents>`;
+
+	// enums
+
+	enum :ref:`io.win.URB_FUNCTION<doxid-type_io_win_urb_function>`;
+	enum :ref:`io.win.USBD_STATUS<doxid-type_io_win_usbd_status>`;
+	bitflag enum :ref:`io.UsbEnumFlags<doxid-type_io_usbenumflags>`;
+	bitflag enum :ref:`io.UsbMonEnumFlags<doxid-type_io_usbmonenumflags>`;
+	bitflag enum :ref:`io.UsbMonOptions<doxid-type_io_usbmonoptions>`;
+	bitflag enum :ref:`io.UsbMonTransferFlags<doxid-type_io_usbmontransferflags>`;
+
+	// structs
+
+	struct :ref:`io.UsbDeviceEntry<doxid-type_io_usbdeviceentry>`;
+	struct :ref:`io.UsbMonDeviceDesc<doxid-type_io_usbmondevicedesc>`;
+	struct :ref:`io.UsbMonDeviceDescBase<doxid-type_io_usbmondevicedescbase>`;
+	struct :ref:`io.UsbMonTransferHdr<doxid-type_io_usbmontransferhdr>`;
+
+	// classes
+
+	class :ref:`io.UsbMonitor<doxid-type_io_usbmonitor>`;
+
+	// global functions
+
+	:ref:`io.UsbDeviceEntry<doxid-type_io_usbdeviceentry>` const* :target:`io.enumerateUsbDevices<doxid-function_io_enumerateusbdevices>`(
+		:ref:`io.UsbEnumFlags<doxid-type_io_usbenumflags>` flags,
+		:ref:`size_t<doxid-typedef_size_t>`* count = null
+	);
+
+	:ref:`io.UsbDeviceEntry<doxid-type_io_usbdeviceentry>` const* :target:`io.enumerateUsbDevices<doxid-function_io_enumerateusbdevices_2>`(:ref:`size_t<doxid-typedef_size_t>`* count = null);
+	:ref:`io.UsbDevice<doxid-type_io_usbdevice>`* const* errorcode :target:`io.enumerateUsbDevicesNoDesc<doxid-function_io_enumerateusbdevicesnodesc>`(:ref:`size_t<doxid-typedef_size_t>`* count = null);
+	bool :target:`io.detectUsbMon<doxid-function_io_detectusbmon>`();
+
+	:ref:`io.UsbMonDeviceDesc<doxid-type_io_usbmondevicedesc>` const* :target:`io.enumerateUsbMonDevices<doxid-function_io_enumerateusbmondevices>`(
+		:ref:`io.UsbMonEnumFlags<doxid-type_io_usbmonenumflags>` flags,
+		:ref:`size_t<doxid-typedef_size_t>`* count = null
+	);
+
+	:ref:`io.UsbMonDeviceDesc<doxid-type_io_usbmondevicedesc>` const* :target:`io.enumerateUsbMonDevices<doxid-function_io_enumerateusbmondevices_2>`(:ref:`size_t<doxid-typedef_size_t>`* count = null);
+

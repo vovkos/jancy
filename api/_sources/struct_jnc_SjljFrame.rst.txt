@@ -1,0 +1,21 @@
+.. index:: pair: struct; jnc_SjljFrame
+.. _doxid-structjnc___sjlj_frame:
+
+struct jnc_SjljFrame
+====================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_SjljFrame {
+		// fields
+	
+		jmp_buf :target:`m_jmpBuf<doxid-structjnc___sjlj_frame_1aeae1c32f041cdd977b3404f384c858de>`;
+	};

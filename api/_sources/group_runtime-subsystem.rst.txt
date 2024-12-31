@@ -1,0 +1,25 @@
+.. index:: pair: group; Runtime Subsystem
+.. _doxid-group__runtime-subsystem:
+
+Runtime Subsystem
+=================
+
+.. toctree::
+	:hidden:
+
+	group_call-site.rst
+	group_gc-heap.rst
+	group_runtime.rst
+	group_runtime-structs.rst
+
+
+
+|	:ref:`Call Site<doxid-group__call-site>`
+|	:ref:`Garbage-Collected Heap<doxid-group__gc-heap>`
+|	:ref:`Runtime<doxid-group__runtime>`
+|	:ref:`Runtime Structures<doxid-group__runtime-structs>`
+|		:ref:`Promise<doxid-group__promise>`
+|		:ref:`String<doxid-group__string>`
+|		:ref:`Variant<doxid-group__variant>`
+
+

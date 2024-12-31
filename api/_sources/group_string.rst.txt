@@ -1,0 +1,77 @@
+.. index:: pair: group; String
+.. _doxid-group__string:
+
+String
+======
+
+.. toctree::
+	:hidden:
+
+	struct_jnc_String.rst
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_String.h>
+	
+	// structs
+
+	struct :ref:`jnc_String<doxid-structjnc___string>`;
+
+	// global variables
+
+	:ref:`JNC_SELECT_ANY<doxid-group__base-def_1gadf3ff658e277ca8ea2878349758bfdf5>` :ref:`jnc_String<doxid-structjnc___string>` :target:`jnc_g_nullString<doxid-group__string_1gadc4d2ea8e4018813a88be94216162fa2>` = { 0 };
+
+	// global functions
+
+	static
+	:ref:`bool_t<doxid-group__base-def_1ga812d16e5494522586b3784e55d479912>`
+	:target:`jnc_String_isEmpty<doxid-group__string_1gaae60c07465bbd843cd092c6746fbf657>`(const :ref:`jnc_String<doxid-structjnc___string>`* string);
+
+	:ref:`bool_t<doxid-group__base-def_1ga812d16e5494522586b3784e55d479912>`
+	:target:`jnc_String_isEqual<doxid-group__string_1ga3fbd5713350caba7faaba20ce41a54e4>`(
+		const :ref:`jnc_String<doxid-structjnc___string>`* string,
+		const :ref:`jnc_String<doxid-structjnc___string>`* string2
+	);
+
+	:ref:`bool_t<doxid-group__base-def_1ga812d16e5494522586b3784e55d479912>`
+	:target:`jnc_String_isEqualIgnoreCase<doxid-group__string_1ga9ae3c9acb8687b76898a524899564731>`(
+		const :ref:`jnc_String<doxid-structjnc___string>`* string,
+		const :ref:`jnc_String<doxid-structjnc___string>`* string2
+	);
+
+	int
+	:target:`jnc_String_cmp<doxid-group__string_1ga4506430d54b7be7c65a98e7a58b47734>`(
+		const :ref:`jnc_String<doxid-structjnc___string>`* string,
+		const :ref:`jnc_String<doxid-structjnc___string>`* string2
+	);
+
+	int
+	:target:`jnc_String_cmpIgnoreCase<doxid-group__string_1ga379e087d4d1e8d81aab6e0dd5c09dde6>`(
+		const :ref:`jnc_String<doxid-structjnc___string>`* string,
+		const :ref:`jnc_String<doxid-structjnc___string>`* string2
+	);
+
+	size_t
+	:target:`jnc_String_hash<doxid-group__string_1ga0ea5d62e58a3969e65e8bd7dc62ace88>`(const :ref:`jnc_String<doxid-structjnc___string>`* string);
+
+	size_t
+	:target:`jnc_String_hashIgnoreCase<doxid-group__string_1ga70d1fc0db00f97e99bca7c7d324a55f5>`(const :ref:`jnc_String<doxid-structjnc___string>`* string);
+
+	:ref:`jnc_DataPtr<doxid-structjnc___data_ptr>`
+	:target:`jnc_String_sz<doxid-group__string_1gac114ada8c9c9a7e2f8655096e3a3f559>`(const :ref:`jnc_String<doxid-structjnc___string>`* string);
+
+	static
+	:ref:`jnc_DataPtr<doxid-structjnc___data_ptr>`
+	:target:`jnc_String_szn<doxid-group__string_1ga00c68eb65ee7ccae3b1d6ff869d168a9>`(const :ref:`jnc_String<doxid-structjnc___string>`* string);
+
+	void
+	:target:`jnc_String_setPtr<doxid-group__string_1ga1f693477d6809b4a68a6db62f9f1faaf>`(
+		:ref:`jnc_String<doxid-structjnc___string>`* string,
+		:ref:`jnc_DataPtr<doxid-structjnc___data_ptr>` ptr,
+		size_t length
+	);
+

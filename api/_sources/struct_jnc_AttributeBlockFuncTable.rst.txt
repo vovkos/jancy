@@ -1,0 +1,24 @@
+.. index:: pair: struct; jnc_AttributeBlockFuncTable
+.. _doxid-structjnc___attribute_block_func_table:
+
+struct jnc_AttributeBlockFuncTable
+==================================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_AttributeBlockFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___attribute_block_func_table_1a02f200ffa6c5cb6cca4f12551aaf0e08>`;
+		jnc_AttributeBlock_GetAttributeCountFunc* :target:`m_getAttributeCountFunc<doxid-structjnc___attribute_block_func_table_1aa589edc2c4c26c4b50bcc1a37e8869a7>`;
+		jnc_AttributeBlock_GetAttributeFunc* :target:`m_getAttributeFunc<doxid-structjnc___attribute_block_func_table_1af6904bbff8c6383e9ebc5c55fead0b3a>`;
+		jnc_AttributeBlock_FindAttributeFunc* :target:`m_findAttributeFunc<doxid-structjnc___attribute_block_func_table_1a3a2f6f9a5eec2b44c1f04177e7912727>`;
+	};

@@ -1,0 +1,53 @@
+.. include:: def.rst
+.. index:: pair: class; jnc.RegexMatch
+.. _doxid-type_jnc_regexmatch:
+
+class jnc.RegexMatch
+====================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class RegexMatch: :ref:`jnc.RegexCapture<doxid-type_jnc_regexcapture>` {
+		// fields
+	
+		:ref:`uint_t<doxid-typedef_uint_t>` readonly :target:`m_id<doxid-field_jnc_regexmatch_m_id>`;
+
+		// properties
+	
+		:ref:`jnc.RegexCapture<doxid-type_jnc_regexcapture>` const* const indexed property :target:`m_groupArray<doxid-property_jnc_regexmatch_m_grouparray>`(:ref:`size_t<doxid-typedef_size_t>` i);
+
+		// construction
+	
+		:target:`destruct<doxid-function_jnc_regexmatch_destruct>`();
+	};
+
+Inherited Members
+-----------------
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-inherited-code-block
+
+	public:
+		// fields
+	
+		:ref:`uint64_t<doxid-typedef_uint64_t>` readonly :ref:`m_offset<doxid-field_jnc_regexcapture_m_offset>`;
+		:ref:`uint64_t<doxid-typedef_uint64_t>` readonly :ref:`m_endOffset<doxid-field_jnc_regexcapture_m_endoffset>`;
+
+		// properties
+	
+		:ref:`uint64_t<doxid-typedef_uint64_t>` const property :ref:`m_length<doxid-property_jnc_regexcapture_m_length>`;
+		bool const property :ref:`m_hasText<doxid-property_jnc_regexcapture_m_hastext>`;
+		:ref:`string_t<doxid-typedef_string_t>` const property :ref:`m_text<doxid-property_jnc_regexcapture_m_text>`;
+
+		// methods
+	
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`toString<doxid-function_jnc_regexcapture_tostring>`() const;
+

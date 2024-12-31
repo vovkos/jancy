@@ -1,0 +1,30 @@
+.. index:: pair: enum; jnc_PtrTypeFlag
+.. _doxid-group__type_1ga7e0413b396878f235f34a74d9e93cf40:
+
+enum jnc_PtrTypeFlag
+====================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Type.h>
+
+	enum jnc_PtrTypeFlag {
+	    :target:`jnc_PtrTypeFlag_Safe<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40a38faad40fb0e7c98c708f5282131cf49>`       = 0x0010000,
+	    :target:`jnc_PtrTypeFlag_Const<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40a67682f57e575c5722a3e661dde05d769>`      = 0x0020000,
+	    :target:`jnc_PtrTypeFlag_ReadOnly<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40a1601387e67fbdf045c14aebf45fc7bff>`   = 0x0040000,
+	    :target:`jnc_PtrTypeFlag_CMut<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40a16302af82ab0a944780d2c2c17db522d>`       = 0x0080000,
+	    :target:`jnc_PtrTypeFlag_Volatile<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40ab1aee93e9a2bde9450ea688161681dfb>`   = 0x0100000,
+	    :target:`jnc_PtrTypeFlag_Event<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40a7dde7ddbb42f57bbbee7ecd3b4be71ee>`      = 0x0200000,
+	    :target:`jnc_PtrTypeFlag_DualEvent<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40a6ed163a3c529f5d9feff7393dc4deffa>`  = 0x0400000,
+	    :target:`jnc_PtrTypeFlag_Bindable<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40a51a895d650d32c1866921265ff6d367a>`   = 0x0800000,
+	    :target:`jnc_PtrTypeFlag_AutoGet<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40a4487885013f56e879ba3e05e0f922193>`    = 0x1000000,
+	    :target:`jnc_PtrTypeFlag_DualTarget<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40ab201162b798debdba83b468ef62ad504>` = 0x2000000,
+	    :target:`jnc_PtrTypeFlag_BigEndian<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40a0a2c44d2d1f9c9273240472ba3e505c8>`  = 0x4000000,
+	    :target:`jnc_PtrTypeFlag_BitField<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40a9547e8466ba68c36100886247496bbbc>`   = 0x8000000,
+	    :target:`jnc_PtrTypeFlag__All<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40a26616a16ba6d65900bcb937c61dd2e50>`       = 0xfff0000,
+	    :target:`jnc_PtrTypeFlag__Dual<doxid-group__type_1gga7e0413b396878f235f34a74d9e93cf40aa978e82b32147b925e9355abd6f2ff2b>`      = 		jnc_PtrTypeFlag_ReadOnly | 		jnc_PtrTypeFlag_CMut | 		jnc_PtrTypeFlag_DualEvent | 		jnc_PtrTypeFlag_DualTarget,
+	};
+

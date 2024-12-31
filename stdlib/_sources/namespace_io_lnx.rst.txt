@@ -1,0 +1,31 @@
+.. include:: def.rst
+.. index:: pair: namespace; io.lnx
+.. _doxid-namespace_io_lnx:
+
+namespace io.lnx
+================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	namespace lnx {
+
+	// enums
+
+	enum :ref:`DeviceMonitorNotifyCode<doxid-type_io_lnx_devicemonitornotifycode>`;
+
+	// structs
+
+	struct :ref:`DeviceMonitorCloseNotifyParams<doxid-type_io_lnx_devicemonitorclosenotifyparams>`;
+	struct :ref:`DeviceMonitorIoctlNotifyParams<doxid-type_io_lnx_devicemonitorioctlnotifyparams>`;
+	struct :ref:`DeviceMonitorOpenNotifyParams<doxid-type_io_lnx_devicemonitoropennotifyparams>`;
+	struct :ref:`DeviceMonitorReadWriteNotifyParams<doxid-type_io_lnx_devicemonitorreadwritenotifyparams>`;
+
+	} // namespace lnx

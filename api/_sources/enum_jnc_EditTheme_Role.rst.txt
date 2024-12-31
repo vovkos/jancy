@@ -1,0 +1,35 @@
+.. index:: pair: enum; Role
+.. _doxid-classjnc_1_1_edit_theme_1a0404eb7a3a3651410669e00c50f1f70b:
+
+enum jnc::EditTheme::Role
+=========================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_EditTheme.h>
+
+	enum Role {
+	    :target:`BaseBackDisabled<doxid-classjnc_1_1_edit_theme_1a0404eb7a3a3651410669e00c50f1f70baf713e30c3421f7e8576db9a93389702d>`,
+	    :target:`BaseBack<doxid-classjnc_1_1_edit_theme_1a0404eb7a3a3651410669e00c50f1f70ba4e2f90b7c07df5a0a54a866773c0910c>`,
+	    :target:`BaseText<doxid-classjnc_1_1_edit_theme_1a0404eb7a3a3651410669e00c50f1f70ba7ffb936ad21d67c3ae4148d3ba9fbd3d>`,
+	    :target:`LineMarginBack<doxid-classjnc_1_1_edit_theme_1a0404eb7a3a3651410669e00c50f1f70baa73c28e3a290dda13a8364d058474c3e>`,
+	    :target:`LineMarginText<doxid-classjnc_1_1_edit_theme_1a0404eb7a3a3651410669e00c50f1f70ba71c06b61053fd9daebe34fef4de461bd>`,
+	    :target:`ErrorBack<doxid-classjnc_1_1_edit_theme_1a0404eb7a3a3651410669e00c50f1f70ba1642682a0591c59235b08d8a263cb7fd>`,
+	    :target:`ErrorText<doxid-classjnc_1_1_edit_theme_1a0404eb7a3a3651410669e00c50f1f70ba8981fc9fa0bef6d13137638515095064>`,
+	    :target:`SelectionBack<doxid-classjnc_1_1_edit_theme_1a0404eb7a3a3651410669e00c50f1f70ba126c57bf28a8c531a75347f6b54c9e78>`,
+	    :target:`SelectionText<doxid-classjnc_1_1_edit_theme_1a0404eb7a3a3651410669e00c50f1f70ba876d5ae1fb061da4b36eb46d1ca06ef4>`,
+	    :target:`SelectionBackInactive<doxid-classjnc_1_1_edit_theme_1a0404eb7a3a3651410669e00c50f1f70ba3f93c0eec53860efb046cc6ef47b36b2>`,
+	    :target:`SelectionTextInactive<doxid-classjnc_1_1_edit_theme_1a0404eb7a3a3651410669e00c50f1f70ba531f33c0c6160ae141ea57e46185f162>`,
+	    :target:`BraceMatchBack<doxid-classjnc_1_1_edit_theme_1a0404eb7a3a3651410669e00c50f1f70baf94a5d649cdec4262fa56b77e7a35172>`,
+	    :target:`BraceMatchText<doxid-classjnc_1_1_edit_theme_1a0404eb7a3a3651410669e00c50f1f70ba2e5b533ff8207503b32e5317d8979e65>`,
+	    :target:`CurrentLineBack<doxid-classjnc_1_1_edit_theme_1a0404eb7a3a3651410669e00c50f1f70bacc695cba749ea318aa8d7b241ab52dc0>`,
+	    :target:`CompleterSynopsisColumn<doxid-classjnc_1_1_edit_theme_1a0404eb7a3a3651410669e00c50f1f70baf111edc1ae6150ebb8aaf57f706f1985>`,
+	    :target:`Keyword<doxid-classjnc_1_1_edit_theme_1a0404eb7a3a3651410669e00c50f1f70ba282e426ff3e3ef6b784bc7c64e31073d>`,
+	    :target:`Constant<doxid-classjnc_1_1_edit_theme_1a0404eb7a3a3651410669e00c50f1f70bafe71c426161dfd4931d13be916ebe8f0>`,
+	    :target:`Comment<doxid-classjnc_1_1_edit_theme_1a0404eb7a3a3651410669e00c50f1f70baf6d45bae06c1a37211ad3f9814b3d774>`,
+	    :target:`RoleCount<doxid-classjnc_1_1_edit_theme_1a0404eb7a3a3651410669e00c50f1f70ba8e916b6cceac87f6df862450b01ba8ed>`,
+	};
+
