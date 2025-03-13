@@ -39,6 +39,10 @@ cmpStringOperator(
 template <typename T>
 class BinOp_Cmp: public BinaryOperator {
 public:
+	BinOp_Cmp() {
+		m_opFlags1 = m_opFlags2 = OpFlag_EnsurePtrTargetLayout | OpFlag_ArrayRefToPtr;
+	}
+
 	virtual
 	bool
 	op(
