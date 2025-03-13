@@ -655,17 +655,15 @@ bool
 ClassType::prepareForOperatorNew() {
 	ASSERT(m_flags & ModuleItemFlag_LayoutReady);
 
-	bool result;
-
-	if (m_destructor && m_destructor->canCompile())
-		m_module->markForCompile(m_destructor);
+	if (m_destructor)
+		m_destructor->require();
 
 	if (m_opaqueClassTypeInfo && m_opaqueClassTypeInfo->m_requireOpaqueItemsFunc)
 		m_opaqueClassTypeInfo->m_requireOpaqueItemsFunc(m_module);
 
 	size_t count = m_classBaseTypeArray.getCount();
 	for (size_t i = 0; i < count; i++) {
-		result = ((ClassType*)m_classBaseTypeArray[i]->getType())->ensureClassFieldsCreatable();
+		bool result = ((ClassType*)m_classBaseTypeArray[i]->getType())->ensureClassFieldsCreatable();
 		if (!result)
 			return false;
 	}
@@ -691,6 +689,7 @@ ClassType::prepareForOperatorNew() {
 			return false;
 		}
 
+		function->require();
 		rwi[i] = function->getLlvmFunction();
 	}
 
