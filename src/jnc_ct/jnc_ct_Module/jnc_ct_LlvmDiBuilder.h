@@ -144,7 +144,7 @@ public:
 		const lex::LineCol& pos
 	);
 
-	llvm::Instruction*
+	llvm::DbgInstPtr
 	createDeclare(Variable* variable);
 };
 

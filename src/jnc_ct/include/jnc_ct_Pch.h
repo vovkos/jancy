@@ -225,6 +225,10 @@ typedef Instruction TerminatorInst;
 typedef CodeGenOpt::Level CodeGenOptLevel;
 #endif
 
+#if (LLVM_VERSION_MAJOR < 19)
+typedef Instruction* DbgInstPtr;
+#endif
+
 } // namespace llvm
 
 //..............................................................................

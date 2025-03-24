@@ -378,7 +378,7 @@ LlvmDiBuilder::createParameterVariable(
 #endif
 }
 
-llvm::Instruction*
+llvm::DbgInstPtr
 LlvmDiBuilder::createDeclare(Variable* variable) {
 	BasicBlock* block = m_module->m_controlFlowMgr.getCurrentBlock();
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
@@ -406,7 +406,7 @@ LlvmDiBuilder::createDeclare(Variable* variable) {
 	ASSERT(llvm::isa<llvm::DILocalVariable>(llvmDiLocalVariable));
 	ASSERT((llvm::MDNode*)scope->getLlvmDiScope());
 
-#if (LLVM_VERSION_MAJOR < 12)
+#	if (LLVM_VERSION_MAJOR < 12)
 	llvm::DebugLoc llvmDebugLoc = llvm::DebugLoc::get(variable->getPos().m_line, variable->getPos().m_col, scope->getLlvmDiScope());
 #	else
 	llvm::DebugLoc llvmDebugLoc = llvm::DILocation::get(
@@ -417,7 +417,7 @@ LlvmDiBuilder::createDeclare(Variable* variable) {
 	);
 #	endif
 
-	llvm::Instruction* llvmInstruction = m_llvmDiBuilder->insertDeclare(
+	llvm::DbgInstPtr llvmInstruction = m_llvmDiBuilder->insertDeclare(
 		variable->getLlvmValue(),
 		llvmDiLocalVariable,
 		m_llvmDiBuilder->createExpression(),
