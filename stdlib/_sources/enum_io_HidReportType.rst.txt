@@ -1,0 +1,20 @@
+.. include:: def.rst
+.. index:: pair: enum; HidReportType
+.. _doxid-type_io_hidreporttype:
+
+enum io.HidReportType
+=====================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum HidReportType {
+	    :target:`Undefined<doxid-enum_member_io_hidreporttype_undefined>` = 0x00,
+	    :target:`Input<doxid-enum_member_io_hidreporttype_input>`     = 0x01,
+	    :target:`Output<doxid-enum_member_io_hidreporttype_output>`    = 0x02,
+	    :target:`Feature<doxid-enum_member_io_hidreporttype_feature>`   = 0x03,
+	};
+

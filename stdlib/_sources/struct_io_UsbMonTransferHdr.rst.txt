@@ -1,0 +1,33 @@
+.. include:: def.rst
+.. index:: pair: struct; io.UsbMonTransferHdr
+.. _doxid-type_io_usbmontransferhdr:
+
+struct io.UsbMonTransferHdr
+===========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct UsbMonTransferHdr {
+		// fields
+	
+		:ref:`uint64_t<doxid-typedef_uint64_t>` :target:`m_id<doxid-field_io_usbmontransferhdr_m_id>`;
+		:ref:`uint64_t<doxid-typedef_uint64_t>` :target:`m_timestamp<doxid-field_io_usbmontransferhdr_m_timestamp>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`m_status<doxid-field_io_usbmontransferhdr_m_status>`;
+		:ref:`uint16_t<doxid-typedef_uint16_t>` :target:`m_urbFunction<doxid-field_io_usbmontransferhdr_m_urbfunction>`;
+		:ref:`io.UsbMonTransferFlags<doxid-type_io_usbmontransferflags>` :target:`m_flags<doxid-field_io_usbmontransferhdr_m_flags>`;
+		:ref:`io.UsbTransferType<doxid-type_io_usbtransfertype>` :target:`m_transferType<doxid-field_io_usbmontransferhdr_m_transfertype>`;
+		:ref:`uint8_t<doxid-typedef_uint8_t>` :target:`m_bus<doxid-field_io_usbmontransferhdr_m_bus>`;
+		:ref:`uint8_t<doxid-typedef_uint8_t>` :target:`m_address<doxid-field_io_usbmontransferhdr_m_address>`;
+		:ref:`uint8_t<doxid-typedef_uint8_t>` :target:`m_endpoint<doxid-field_io_usbmontransferhdr_m_endpoint>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`m_originalSize<doxid-field_io_usbmontransferhdr_m_originalsize>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`m_captureSize<doxid-field_io_usbmontransferhdr_m_capturesize>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`_m_padding<doxid-field_io_usbmontransferhdr__m_padding>`;
+	};

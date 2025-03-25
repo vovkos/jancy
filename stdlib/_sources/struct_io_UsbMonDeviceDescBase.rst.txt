@@ -1,0 +1,47 @@
+.. include:: def.rst
+.. index:: pair: struct; io.UsbMonDeviceDescBase
+.. _doxid-type_io_usbmondevicedescbase:
+
+struct io.UsbMonDeviceDescBase
+==============================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct UsbMonDeviceDescBase: :ref:`io.UsbDeviceStrings<doxid-type_io_usbdevicestrings>` {
+		// fields
+	
+		:ref:`string_t<doxid-typedef_string_t>` :target:`m_captureDeviceName<doxid-field_io_usbmondevicedescbase_m_capturedevicename>`;
+		:ref:`uint_t<doxid-typedef_uint_t>` :target:`m_captureDeviceId<doxid-field_io_usbmondevicedescbase_m_capturedeviceid>`;
+		:ref:`uint16_t<doxid-typedef_uint16_t>` :target:`m_vendorId<doxid-field_io_usbmondevicedescbase_m_vendorid>`;
+		:ref:`uint16_t<doxid-typedef_uint16_t>` :target:`m_productId<doxid-field_io_usbmondevicedescbase_m_productid>`;
+		:ref:`uint8_t<doxid-typedef_uint8_t>` :target:`m_address<doxid-field_io_usbmondevicedescbase_m_address>`;
+		:ref:`uint8_t<doxid-typedef_uint8_t>` :target:`m_port<doxid-field_io_usbmondevicedescbase_m_port>`;
+		:ref:`uint8_t<doxid-typedef_uint8_t>` :target:`m_class<doxid-field_io_usbmondevicedescbase_m_class>`;
+		:ref:`uint8_t<doxid-typedef_uint8_t>` :target:`m_subClass<doxid-field_io_usbmondevicedescbase_m_subclass>`;
+		:ref:`io.UsbSpeed<doxid-type_io_usbspeed>` :target:`m_speed<doxid-field_io_usbmondevicedescbase_m_speed>`;
+	};
+
+Inherited Members
+-----------------
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-inherited-code-block
+
+	public:
+		// fields
+	
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`m_description<doxid-field_io_usbdevicestrings_m_description>`;
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`m_manufacturer<doxid-field_io_usbdevicestrings_m_manufacturer>`;
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`m_driver<doxid-field_io_usbdevicestrings_m_driver>`;
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`m_manufacturerDescriptor<doxid-field_io_usbdevicestrings_m_manufacturerdescriptor>`;
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`m_productDescriptor<doxid-field_io_usbdevicestrings_m_productdescriptor>`;
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`m_serialNumberDescriptor<doxid-field_io_usbdevicestrings_m_serialnumberdescriptor>`;
+

@@ -1,0 +1,27 @@
+.. include:: def.rst
+.. index:: pair: struct; io.UsbDeviceStrings
+.. _doxid-type_io_usbdevicestrings:
+
+struct io.UsbDeviceStrings
+==========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct UsbDeviceStrings {
+		// fields
+	
+		:ref:`string_t<doxid-typedef_string_t>` :target:`m_description<doxid-field_io_usbdevicestrings_m_description>`;
+		:ref:`string_t<doxid-typedef_string_t>` :target:`m_manufacturer<doxid-field_io_usbdevicestrings_m_manufacturer>`;
+		:ref:`string_t<doxid-typedef_string_t>` :target:`m_driver<doxid-field_io_usbdevicestrings_m_driver>`;
+		:ref:`string_t<doxid-typedef_string_t>` :target:`m_manufacturerDescriptor<doxid-field_io_usbdevicestrings_m_manufacturerdescriptor>`;
+		:ref:`string_t<doxid-typedef_string_t>` :target:`m_productDescriptor<doxid-field_io_usbdevicestrings_m_productdescriptor>`;
+		:ref:`string_t<doxid-typedef_string_t>` :target:`m_serialNumberDescriptor<doxid-field_io_usbdevicestrings_m_serialnumberdescriptor>`;
+	};

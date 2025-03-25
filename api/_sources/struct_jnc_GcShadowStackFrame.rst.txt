@@ -1,0 +1,23 @@
+.. index:: pair: struct; jnc_GcShadowStackFrame
+.. _doxid-structjnc___gc_shadow_stack_frame:
+
+struct jnc_GcShadowStackFrame
+=============================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_GcShadowStackFrame {
+		// fields
+	
+		jnc_GcShadowStackFrame* :target:`m_prev<doxid-structjnc___gc_shadow_stack_frame_1a192137a1d56f8f8003ef62e5c7a91657>`;
+		jnc_GcShadowStackFrameMap* :target:`m_map<doxid-structjnc___gc_shadow_stack_frame_1af1ce0c19395f0057106b21054f7a45af>`;
+		void** :target:`m_gcRootArray<doxid-structjnc___gc_shadow_stack_frame_1a1f77fc84a319309af76e1c9c6123f099>`;
+	};

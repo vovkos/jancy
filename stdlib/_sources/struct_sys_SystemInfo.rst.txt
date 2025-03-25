@@ -1,0 +1,29 @@
+.. include:: def.rst
+.. index:: pair: struct; sys.SystemInfo
+.. _doxid-type_sys_systeminfo:
+
+struct sys.SystemInfo
+=====================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct SystemInfo {
+		// fields
+	
+		:ref:`sys.CpuKind<doxid-type_sys_cpukind>` :target:`m_cpuKind<doxid-field_sys_systeminfo_m_cpukind>`;
+		:ref:`sys.OsKind<doxid-type_sys_oskind>` :target:`m_osKind<doxid-field_sys_systeminfo_m_oskind>`;
+		:ref:`sys.OsFlags<doxid-type_sys_osflags>` :target:`m_osFlags<doxid-field_sys_systeminfo_m_osflags>`;
+		:ref:`sys.CppKind<doxid-type_sys_cppkind>` :target:`m_cppKind<doxid-field_sys_systeminfo_m_cppkind>`;
+		:ref:`sys.CppFlags<doxid-type_sys_cppflags>` :target:`m_cppFlags<doxid-field_sys_systeminfo_m_cppflags>`;
+		:ref:`uint_t<doxid-typedef_uint_t>` :target:`m_processorCount<doxid-field_sys_systeminfo_m_processorcount>`;
+		:ref:`size_t<doxid-typedef_size_t>` :target:`m_pageSize<doxid-field_sys_systeminfo_m_pagesize>`;
+		:ref:`size_t<doxid-typedef_size_t>` :target:`m_mappingAlignFactor<doxid-field_sys_systeminfo_m_mappingalignfactor>`;
+	};

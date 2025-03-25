@@ -1,0 +1,21 @@
+.. index:: pair: struct; jnc_UnionTypeFuncTable
+.. _doxid-structjnc___union_type_func_table:
+
+struct jnc_UnionTypeFuncTable
+=============================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_UnionTypeFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___union_type_func_table_1aa465cc98f00b6e2a6156419daa123e5d>`;
+	};

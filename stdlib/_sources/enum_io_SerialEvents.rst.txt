@@ -1,0 +1,45 @@
+.. include:: def.rst
+.. index:: pair: enum; SerialEvents
+.. _doxid-type_io_serialevents:
+
+bitflag enum io.SerialEvents
+============================
+
+Overview
+~~~~~~~~
+
+This enumeration contains codes of all possible events that might
+happen on `io.Serial` object. The set of *active* events is accessible
+via `io.Serial.m_activeEvents`. :ref:`More...<details-type_io_serialevents>`
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum SerialEvents: :ref:`io.StreamEvents<doxid-type_io_streamevents>` {
+	    :target:`CtsOn<doxid-enum_member_io_serialevents_ctson>`,
+	    :target:`CtsOff<doxid-enum_member_io_serialevents_ctsoff>`,
+	    :target:`DsrOn<doxid-enum_member_io_serialevents_dsron>`,
+	    :target:`DsrOff<doxid-enum_member_io_serialevents_dsroff>`,
+	    :target:`RingOn<doxid-enum_member_io_serialevents_ringon>`,
+	    :target:`RingOff<doxid-enum_member_io_serialevents_ringoff>`,
+	    :target:`DcdOn<doxid-enum_member_io_serialevents_dcdon>`,
+	    :target:`DcdOff<doxid-enum_member_io_serialevents_dcdoff>`,
+	    :target:`LineError<doxid-enum_member_io_serialevents_lineerror>`,
+	};
+
+.. _details-type_io_serialevents:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This enumeration contains codes of all possible events that might
+happen on `io.Serial` object. The set of *active* events is accessible
+via `io.Serial.m_activeEvents`.
+
+
+
+.. rubric:: See also:
+
+`io.Serial`
+
