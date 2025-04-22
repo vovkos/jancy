@@ -198,23 +198,31 @@ if(WIN32)
 				${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CONFIGURATION}
 			)
 	endif()
-elseif(APPLE)
-	find_library(IOKIT_FRAMEWORK IOKit)
-	find_library(APPKIT_FRAMEWORK AppKit)
+else()
+	if(APPLE)
+		find_library(IOKIT_FRAMEWORK IOKit)
+		find_library(APPKIT_FRAMEWORK AppKit)
 
-	target_link_libraries(
-		jnc_io_hid
-		${IOKIT_FRAMEWORK}
-		${APPKIT_FRAMEWORK}
-	)
-elseif(LINUX)
-	target_link_libraries(
-		jnc_io_hid
-		udev
-		pthread
-		dl
-		rt
-	)
+		target_link_libraries(
+			jnc_io_hid
+			${IOKIT_FRAMEWORK}
+			${APPKIT_FRAMEWORK}
+		)
+	else()
+		if(LINUX)
+			target_link_libraries(
+				jnc_io_hid
+				udev
+			)
+		endif()
+
+		target_link_libraries(
+			jnc_io_hid
+			pthread
+			dl
+			rt
+		)
+	endif()
 endif()
 
 set_target_properties(

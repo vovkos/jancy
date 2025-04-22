@@ -156,25 +156,17 @@ if(WIN32)
 		jnc_io_usb
 		setupapi
 	)
-elseif(UNIX)
-	if(APPLE)
-		find_library(CORE_FOUNDATION_FRAMEWORK CoreFoundation)
-		find_library(IOKIT_FRAMEWORK IOKit)
+elseif(APPLE)
+	find_library(CORE_FOUNDATION_FRAMEWORK CoreFoundation)
+	find_library(IOKIT_FRAMEWORK IOKit)
 
-		target_link_libraries(
-			jnc_io_usb
-			axl_iok
-			axl_cf
-			${CORE_FOUNDATION_FRAMEWORK}
-			${IOKIT_FRAMEWORK}
-		)
-	else()
-		target_link_libraries(
-			jnc_io_usb
-			dl
-			rt
-		)
-	endif()
+	target_link_libraries(
+		jnc_io_usb
+		axl_iok
+		axl_cf
+		${CORE_FOUNDATION_FRAMEWORK}
+		${IOKIT_FRAMEWORK}
+	)
 endif()
 
 target_link_libraries(
@@ -186,6 +178,15 @@ if(LINUX)
 	target_link_libraries(
 		jnc_io_usb
 		udev
+	)
+endif()
+
+if(UNIX AND NOT APPLE)
+	target_link_libraries(
+		jnc_io_usb
+		pthread
+		dl
+		rt
 	)
 endif()
 

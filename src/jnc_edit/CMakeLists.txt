@@ -235,26 +235,20 @@ if(WIN32)
 		jnc_edit
 		ws2_32
 	)
-elseif(UNIX)
+elseif(NOT APPLE)
 	target_link_libraries(
 		jnc_edit
 		pthread
+		dl
+		rt
 	)
 
-	if(LINUX)
-		target_link_libraries(
-			jnc_edit
-			dl
-			rt
-		)
-
-		set_property(
-			TARGET jnc_edit
-			APPEND_STRING
-			PROPERTY LINK_FLAGS
-			" -Wl,--version-script='${CMAKE_CURRENT_LIST_DIR}/jnc_edit.version'"
-		)
-	endif()
+	set_property(
+		TARGET jnc_edit
+		APPEND_STRING
+		PROPERTY LINK_FLAGS
+		" -Wl,--version-script='${CMAKE_CURRENT_LIST_DIR}/jnc_edit.version'"
+	)
 endif()
 
 set_target_properties(

@@ -180,19 +180,13 @@ if(WIN32)
 		jnc_app
 		ws2_32
 	)
-elseif(UNIX)
+elseif(NOT APPLE)
 	target_link_libraries(
 		jnc_app
 		pthread
+		dl
+		rt
 	)
-
-	if(LINUX)
-		target_link_libraries(
-			jnc_app
-			dl
-			rt
-		)
-	endif()
 endif()
 
 if(UNIX AND OPENSSL_DLL_DIR)

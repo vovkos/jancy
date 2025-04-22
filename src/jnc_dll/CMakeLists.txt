@@ -102,12 +102,7 @@ if(WIN32)
 			ws2_32
 		)
 	endif()
-else()
-	target_link_libraries(
-		jnc_dll
-		pthread
-	)
-
+else(UNIX)
 	if(APPLE)
 		find_library(CORE_FOUNDATION_FRAMEWORK CoreFoundation)
 		find_library(SECURITY_FRAMEWORK Security)
@@ -119,10 +114,11 @@ else()
 			${CORE_FOUNDATION_FRAMEWORK}
 			${SECURITY_FRAMEWORK}
 		)
-	elseif(LINUX)
+	else()
 		target_link_libraries(
 			jnc_dll
 			${OPENSSL_CRYPTO_LIB_NAME}
+			pthread
 			dl
 			rt
 		)

@@ -247,7 +247,10 @@ else()
 endif()
 
 if(BUILD_JNC_IO_USB)
-	target_link_libraries(jnc_mini_ide axl_io_usb_error)
+	target_link_libraries(
+		jnc_mini_ide
+		axl_io_usb_error
+	)
 endif()
 
 if(BUILD_JNC_IO_SSL)
@@ -273,19 +276,13 @@ if(WIN32)
 		jnc_mini_ide
 		ws2_32
 	)
-elseif(UNIX)
+elseif(NOT APPLE)
 	target_link_libraries(
 		jnc_mini_ide
 		pthread
+		dl
+		rt
 	)
-
-	if(LINUX)
-		target_link_libraries(
-			jnc_mini_ide
-			dl
-			rt
-		)
-	endif()
 endif()
 
 if(WIN32 AND QT_DLL_DIR)

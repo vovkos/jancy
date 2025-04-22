@@ -152,16 +152,16 @@ if(WIN32)
 		PROPERTIES
 		LINK_FLAGS "/DELAYLOAD:wpcap.dll"
 	)
-elseif(UNIX)
+else()
 	target_link_libraries(
 		jnc_io_pcap
-		pthread
 		pcap
 	)
 
-	if(LINUX)
+	if(NOT APPLE)
 		target_link_libraries(
 			jnc_io_pcap
+			pthread
 			dl
 			rt
 		)

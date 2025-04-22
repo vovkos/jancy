@@ -201,18 +201,13 @@ else()
 	target_link_llvm_jit_libraries(jnc_sample_03_dialog)
 endif()
 
-if(UNIX)
+if(UNIX AND NOT APPLE)
 	target_link_libraries(
 		jnc_sample_03_dialog
 		pthread
+		dl
+		rt
 	)
-
-	if(NOT APPLE)
-		target_link_libraries(
-			jnc_sample_03_dialog
-			rt
-		)
-	endif()
 endif()
 
 if(WIN32 AND QT_DLL_DIR)

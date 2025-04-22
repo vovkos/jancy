@@ -158,18 +158,13 @@ else()
 	target_link_llvm_jit_libraries(jnc_sample_05_pass_cpp)
 endif()
 
-if(UNIX)
+if(UNIX AND NOT APPLE)
 	target_link_libraries(
 		jnc_sample_05_pass_cpp
 		pthread
+		dl
+		rt
 	)
-
-	if(NOT APPLE)
-		target_link_libraries(
-			jnc_sample_05_pass_cpp
-			rt
-		)
-	endif()
 endif()
 
 add_test(

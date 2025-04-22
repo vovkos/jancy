@@ -133,19 +133,13 @@ if(WIN32)
 		jnc_test_abi
 		ws2_32
 	)
-elseif(UNIX)
+elseif(NOT APPLE)
 	target_link_libraries(
 		jnc_test_abi
 		pthread
+		dl
+		rt
 	)
-
-	if(LINUX)
-		target_link_libraries(
-			jnc_test_abi
-			dl
-			rt
-		)
-	endif()
 endif()
 
 #...............................................................................

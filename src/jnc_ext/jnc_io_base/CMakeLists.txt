@@ -189,12 +189,7 @@ if(WIN32)
 		jnc_io_base
 		ws2_32
 	)
-elseif(UNIX)
-	target_link_libraries(
-		jnc_io_base
-		pthread
-	)
-
+else()
 	if(APPLE)
 		find_library(CORE_FOUNDATION_FRAMEWORK CoreFoundation)
 		find_library(IOKIT_FRAMEWORK IOKit)
@@ -209,6 +204,7 @@ elseif(UNIX)
 	else()
 		target_link_libraries(
 			jnc_io_base
+			pthread
 			dl
 			rt
 		)

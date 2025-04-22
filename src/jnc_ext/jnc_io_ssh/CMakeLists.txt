@@ -142,16 +142,17 @@ if(WIN32)
 		jnc_io_ssh
 		libssh2
 	)
-elseif(UNIX)
+else()
 	target_link_libraries(
 		jnc_io_ssh
 		ssh2
 	)
 
-	if(LINUX)
+	if(NOT APPLE)
 		target_link_libraries(
 			jnc_io_ssh
 			crypto
+			pthread
 			dl
 			rt
 		)
