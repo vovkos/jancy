@@ -28,7 +28,7 @@ endmacro()
 
 #...............................................................................
 
-if((WIN32 OR LINUX) AND LIBUSB_FOUND)
+if(LIBUSB_FOUND AND (WIN32 OR LINUX AND PCAP_FOUND))
 	set(USBMON_AVAILABLE TRUE CACHE INTERNAL "usbmon availability") # use cache to make it global
 else()
 	unset(USBMON_AVAILABLE CACHE)
