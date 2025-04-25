@@ -57,7 +57,7 @@ public:
 	static
 	String
 	JNC_CDECL
-	getText(RegexMatch* self);
+	getText(RegexCapture* self);
 };
 
 //..............................................................................

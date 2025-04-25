@@ -122,7 +122,7 @@ RegexCapture::markOpaqueGcRoots(GcHeap* gcHeap)  {
 }
 
 String
-RegexCapture::getText(RegexMatch* self) {
+RegexCapture::getText(RegexCapture* self) {
 	if (self->m_text.m_ptr.m_p)
 		return self->m_text;
 
