@@ -183,17 +183,17 @@ Lexer::createCharToken(
 		length = string.getLength();
 	}
 
-	if (length > sizeof(int))
-		length = sizeof(int);
+	if (length > sizeof(uint64_t))
+		length = sizeof(uint64_t);
 
-	int result = 0;
-	int shift = 8 * (length - 1);
+	uint64_t result = 0;
+	uint_t shift = 8 * (length - 1);
 
 	const char* end = p + length;
 	for (; p < end; p++, shift -= 8)
 		result |= *(uchar_t*)p << shift;
 
-	token->m_data.m_integer = result;
+	token->m_data.m_int64_u = result;
 	return token;
 }
 
@@ -242,7 +242,7 @@ Lexer::createSourceFileToken() {
 Token*
 Lexer::createSourceLineToken() {
 	Token* token = createToken(TokenKind_Integer);
-	token->m_data.m_integer = m_line + 1;
+	token->m_data.m_int64 = m_line + 1;
 	return token;
 }
 
@@ -269,13 +269,6 @@ Token*
 Lexer::createFpToken() {
 	Token* token = createToken(TokenKind_Fp);
 	token->m_data.m_double = strtod(ts, NULL);
-	return token;
-}
-
-Token*
-Lexer::createConstIntegerToken(int value) {
-	Token* token = createToken(TokenKind_Integer);
-	token->m_data.m_integer = value;
 	return token;
 }
 

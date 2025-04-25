@@ -618,9 +618,6 @@ protected:
 	Token*
 	createFpToken();
 
-	Token*
-	createConstIntegerToken(int value);
-
 	// special literals
 
 	Token*
