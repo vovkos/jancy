@@ -66,6 +66,7 @@ opaque class SslState {
 	SslCertificate const* const property m_peerCertificateChain(size_t i);
 	SslCertificate const* const property m_peerCertificate;
 
+	int property m_securityLevel;
 	SslVerifyMode property m_verifyMode;
 	size_t property m_verifyDepth;
 

@@ -79,6 +79,24 @@ public:
 
 	int
 	JNC_CDECL
+	getSecurityLevel() {
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L) // openssl-1.1.0
+		return m_ssl.getSecurityLevel();
+#else
+		return 0;
+#endif
+	}
+
+	void
+	JNC_CDECL
+	setSecurityLevel(int level) {
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L) // openssl-1.1.0
+		m_ssl.setSecurityLevel(level);
+#endif
+	}
+
+	int
+	JNC_CDECL
 	getVerifyMode() {
 		return m_ssl.getVerifyMode();
 	}

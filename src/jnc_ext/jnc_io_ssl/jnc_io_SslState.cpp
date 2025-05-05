@@ -42,6 +42,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(SslState)
 	JNC_MAP_CONST_PROPERTY("m_peerCertificateChainLength", &SslState::getPeerCertificateChainLength)
 	JNC_MAP_CONST_PROPERTY("m_peerCertificateChain", &SslState::getPeerCertificateChainEntry)
 	JNC_MAP_CONST_PROPERTY("m_peerCertificate", &SslState::getPeerCertificate)
+	JNC_MAP_PROPERTY("m_securityLevel", &SslState::getSecurityLevel, &SslState::setSecurityLevel)
 	JNC_MAP_PROPERTY("m_verifyMode", &SslState::getVerifyMode, &SslState::setVerifyMode)
 	JNC_MAP_PROPERTY("m_verifyDepth", &SslState::getVerifyDepth, &SslState::setVerifyDepth)
 
