@@ -84,14 +84,15 @@ JNC_END_TYPE_FUNCTION_MAP()
 void
 JNC_CDECL
 ModuleItemDecl::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
-	if (!m_cache)
+	Cache* cache = m_cache.get();
+	if (!cache)
 		return;
 
-	gcHeap->markString(m_cache->m_name);
-	gcHeap->markString(m_cache->m_qualifiedName);
-	gcHeap->markClassPtr(m_cache->m_parentUnit);
-	gcHeap->markClassPtr(m_cache->m_parentNamespace);
-	gcHeap->markClassPtr((ModuleItemBase<ct::AttributeBlock>*)m_cache->m_attributeBlock);
+	gcHeap->markString(cache->m_name);
+	gcHeap->markString(cache->m_qualifiedName);
+	gcHeap->markClassPtr(cache->m_parentUnit);
+	gcHeap->markClassPtr(cache->m_parentNamespace);
+	gcHeap->markClassPtr((ModuleItemBase<ct::AttributeBlock>*)cache->m_attributeBlock);
 }
 
 void
@@ -99,13 +100,13 @@ JNC_CDECL
 ModuleItemDecl::initializeDynamicDecl(AttributeBlock* attributeBlock) {
 	ASSERT(m_decl->getAttributeBlock() && (m_decl->getAttributeBlock()->getFlags() & ct::AttributeBlockFlag_Dynamic));
 	m_dynamicDecl = m_decl;
-	getCache()->m_attributeBlock = attributeBlock;
+	m_cache.getOrCreate()->m_attributeBlock = attributeBlock;
 }
 
 String
 JNC_CDECL
 ModuleItemDecl::getName(ModuleItemDecl* self) {
-	Cache* cache = self->getCache();
+	Cache* cache = self->m_cache.getOrCreate();
 	if (!cache->m_name.m_length)
 		cache->m_name = createForeignString(self->m_decl->getName(), false);
 
@@ -115,7 +116,7 @@ ModuleItemDecl::getName(ModuleItemDecl* self) {
 String
 JNC_CDECL
 ModuleItemDecl::getQualifiedName(ModuleItemDecl* self) {
-	Cache* cache = self->getCache();
+	Cache* cache = self->m_cache.getOrCreate();
 	if (!cache->m_name.m_length)
 		cache->m_name = createForeignString(self->m_decl->getQualifiedName(), false);
 
@@ -125,7 +126,7 @@ ModuleItemDecl::getQualifiedName(ModuleItemDecl* self) {
 AttributeBlock*
 JNC_CDECL
 ModuleItemDecl::getAttributeBlock() {
-	Cache* cache = getCache();
+	Cache* cache = m_cache.getOrCreate();
 	if (!cache->m_attributeBlock)
 		cache->m_attributeBlock = rtl::getAttributeBlock(m_decl->getAttributeBlock());
 
@@ -135,7 +136,7 @@ ModuleItemDecl::getAttributeBlock() {
 Namespace*
 JNC_CDECL
 ModuleItemDecl::getParentNamespace() {
-	Cache* cache = getCache();
+	Cache* cache = m_cache.getOrCreate();
 	if (!cache->m_parentNamespace)
 		cache->m_parentNamespace = rtl::getNamespace(m_decl->getParentNamespace());
 
@@ -145,7 +146,7 @@ ModuleItemDecl::getParentNamespace() {
 Unit*
 JNC_CDECL
 ModuleItemDecl::getParentUnit() {
-	Cache* cache = getCache();
+	Cache* cache = m_cache.getOrCreate();
 	if (!cache->m_parentUnit)
 		cache->m_parentUnit = rtl::getUnit(m_decl->getParentUnit());;
 

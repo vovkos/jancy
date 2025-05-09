@@ -26,6 +26,41 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(ModuleItem)
 
 //..............................................................................
 
+template <typename T>
+class CachePtr {
+	T* volatile m_p;
+
+public:
+	CachePtr() {
+		m_p = NULL;
+	}
+
+	~CachePtr() {
+		delete m_p;
+	}
+
+	T*
+	get () const {
+		return m_p;
+	}
+
+	T*
+	getOrCreate() {
+		if (m_p)
+			return m_p;
+
+		T* p = new (mem::ZeroInit) T;
+		if (sys::atomicCmpXchg((volatile size_t*)&m_p, 0, (size_t)p) == 0)
+			return p;
+
+		delete p;
+		ASSERT(m_p);
+		return m_p;
+	}
+};
+
+//..............................................................................
+
 class ModuleItemDecl: public IfaceHdr {
 protected:
 	struct Cache {
@@ -37,7 +72,7 @@ protected:
 	};
 
 protected:
-	Cache* m_cache;
+	CachePtr<Cache> m_cache;
 	ct::ModuleItemDecl* m_decl;
 	ct::ModuleItemDecl* m_dynamicDecl;
 
@@ -47,7 +82,6 @@ public:
 	}
 
 	~ModuleItemDecl() {
-		delete m_cache;
 		delete m_dynamicDecl;
 	}
 
@@ -103,12 +137,6 @@ public:
 	JNC_CDECL
 	getCol() {
 		return m_decl->getPos().m_col;
-	}
-
-protected:
-	Cache*
-	getCache() {
-		return m_cache ? m_cache : m_cache = new (mem::ZeroInit) Cache;
 	}
 };
 

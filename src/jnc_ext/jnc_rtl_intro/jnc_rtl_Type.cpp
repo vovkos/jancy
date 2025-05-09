@@ -107,19 +107,20 @@ JNC_END_TYPE_FUNCTION_MAP()
 void
 JNC_CDECL
 Type::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
-	if (!m_cache)
+	Cache* cache = m_cache.get();
+	if (!cache)
 		return;
 
-	gcHeap->markString(m_cache->m_signature);
-	gcHeap->markString(m_cache->m_typeString);
-	gcHeap->markString(m_cache->m_typeStringPrefix);
-	gcHeap->markString(m_cache->m_typeStringSuffix);
+	gcHeap->markString(cache->m_signature);
+	gcHeap->markString(cache->m_typeString);
+	gcHeap->markString(cache->m_typeStringPrefix);
+	gcHeap->markString(cache->m_typeStringSuffix);
 }
 
 String
 JNC_CDECL
 Type::getSignature(Type* self) {
-	Cache* cache = self->getCache();
+	Cache* cache = self->m_cache.getOrCreate();
 	if (!cache->m_signature.m_length)
 		cache->m_signature = createForeignString(self->m_item->getSignature(), false);
 
@@ -129,7 +130,7 @@ Type::getSignature(Type* self) {
 String
 JNC_CDECL
 Type::getTypeString(Type* self) {
-	Cache* cache = self->getCache();
+	Cache* cache = self->m_cache.getOrCreate();
 	if (!cache->m_typeString.m_length)
 		cache->m_typeString = createForeignString(self->m_item->getTypeString(), false);
 
@@ -139,7 +140,7 @@ Type::getTypeString(Type* self) {
 String
 JNC_CDECL
 Type::getTypeStringPrefix(Type* self) {
-	Cache* cache = self->getCache();
+	Cache* cache = self->m_cache.getOrCreate();
 	if (!cache->m_typeStringPrefix.m_length)
 		cache->m_typeStringPrefix= createForeignString(self->m_item->getTypeStringPrefix(), false);
 
@@ -149,7 +150,7 @@ Type::getTypeStringPrefix(Type* self) {
 String
 JNC_CDECL
 Type::getTypeStringSuffix(Type* self) {
-	Cache* cache = self->getCache();
+	Cache* cache = self->m_cache.getOrCreate();
 	if (!cache->m_typeStringSuffix.m_length)
 		cache->m_typeStringSuffix= createForeignString(self->m_item->getTypeStringSuffix(), false);
 

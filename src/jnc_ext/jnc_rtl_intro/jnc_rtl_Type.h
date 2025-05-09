@@ -38,15 +38,11 @@ protected:
 	};
 
 protected:
-	Cache* m_cache;
+	CachePtr<Cache> m_cache;
 
 public:
 	TypeBase(T* type):
 		ModuleItemBase<T>(type) {}
-
-	~TypeBase() {
-		delete m_cache;
-	}
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -157,11 +153,6 @@ public:
 	}
 
 protected:
-	Cache*
-	getCache() {
-		return m_cache ? m_cache : m_cache = new (mem::ZeroInit) Cache;
-	}
-
 	static
 	bool
 	tryGetStringableValueString(
