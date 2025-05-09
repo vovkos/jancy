@@ -76,6 +76,14 @@ typedef enum jnc_GcShadowStackFrameMapOp jnc_GcShadowStackFrameMapOp;
 
 //..............................................................................
 
+void
+jnc_GcStats_add(
+	jnc_GcStats* gcStats,
+	const jnc_GcStats* gcStats2
+);
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 struct jnc_GcStats {
 	size_t m_currentAllocSize;
 	size_t m_totalAllocSize;
@@ -86,7 +94,32 @@ struct jnc_GcStats {
 	uint64_t m_lastCollectTime;
 	uint64_t m_lastCollectTimeTaken;
 	uint64_t m_totalCollectTimeTaken;
+
+#if (defined __cplusplus)
+	void add(const jnc_GcStats* gcStats) {
+		jnc_GcStats_add(this, gcStats);
+	}
+#endif
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_INLINE
+void
+jnc_GcStats_add(
+	jnc_GcStats* gcStats,
+	const jnc_GcStats* gcStats2
+) {
+	gcStats->m_currentAllocSize += gcStats2->m_currentAllocSize;
+	gcStats->m_totalAllocSize += gcStats2->m_totalAllocSize;
+	gcStats->m_peakAllocSize += gcStats2->m_peakAllocSize;
+	gcStats->m_currentPeriodSize += gcStats2->m_currentPeriodSize;
+	gcStats->m_totalCollectCount += gcStats2->m_totalCollectCount;
+	gcStats->m_lastCollectFreeSize += gcStats2->m_lastCollectFreeSize;
+	gcStats->m_lastCollectTime += gcStats2->m_lastCollectTime;
+	gcStats->m_lastCollectTimeTaken += gcStats2->m_lastCollectTimeTaken;
+	gcStats->m_totalCollectTimeTaken += gcStats2->m_totalCollectTimeTaken;
+}
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
