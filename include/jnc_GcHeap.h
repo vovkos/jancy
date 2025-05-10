@@ -76,6 +76,7 @@ typedef enum jnc_GcShadowStackFrameMapOp jnc_GcShadowStackFrameMapOp;
 
 //..............................................................................
 
+JNC_INLINE
 void
 jnc_GcStats_add(
 	jnc_GcStats* gcStats,
