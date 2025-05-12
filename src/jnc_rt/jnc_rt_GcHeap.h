@@ -153,28 +153,42 @@ public:
 	allocateClass(ct::ClassType* type);
 
 	DataPtr
-	tryAllocateData(ct::Type* type);
+	tryAllocateData(
+		ct::Type* type,
+		const void* initializer = NULL
+	);
 
 	DataPtr
-	allocateData(ct::Type* type);
+	allocateData(
+		ct::Type* type,
+		const void* initializer = NULL
+	);
 
 	DataPtr
 	tryAllocateArray(
 		ct::Type* type,
-		size_t count
+		size_t count,
+		const void* initializer = NULL
 	);
 
 	DataPtr
 	allocateArray(
 		ct::Type* type,
-		size_t count
+		size_t count,
+		const void* initializer = NULL
 	);
 
 	DataPtr
-	tryAllocateBuffer(size_t size);
+	tryAllocateBuffer(
+		size_t size,
+		const void* initializer = NULL
+	);
 
 	DataPtr
-	allocateBuffer(size_t size);
+	allocateBuffer(
+		size_t size,
+		const void* initializer = NULL
+	);
 
 	DataPtrValidator*
 	createDataPtrValidator(

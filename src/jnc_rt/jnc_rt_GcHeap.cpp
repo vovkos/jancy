@@ -430,7 +430,10 @@ GcHeap::addStaticClassFieldDestructors_l(
 }
 
 DataPtr
-GcHeap::tryAllocateData(ct::Type* type) {
+GcHeap::tryAllocateData(
+	ct::Type* type,
+	const void* initializer
+) {
 	size_t size = type->getSize();
 
 	DataBox* box = (DataBox*)mem::allocate(sizeof(DataBox) + size);
@@ -439,7 +442,10 @@ GcHeap::tryAllocateData(ct::Type* type) {
 		return g_nullDataPtr;
 	}
 
-	memset(box + 1, 0, size);
+	if (initializer)
+		memcpy(box + 1, initializer, size);
+	else
+		memset(box + 1, 0, size);
 
 	box->m_box.m_type = type;
 	box->m_box.m_flags = BoxFlag_DataMark | BoxFlag_WeakMark;
@@ -462,8 +468,11 @@ GcHeap::tryAllocateData(ct::Type* type) {
 }
 
 DataPtr
-GcHeap::allocateData(ct::Type* type) {
-	DataPtr ptr = tryAllocateData(type);
+GcHeap::allocateData(
+	ct::Type* type,
+	const void* initializer
+) {
+	DataPtr ptr = tryAllocateData(type, initializer);
 	if (!ptr.m_p) {
 		Runtime::dynamicThrow();
 		ASSERT(false);
@@ -475,7 +484,8 @@ GcHeap::allocateData(ct::Type* type) {
 DataPtr
 GcHeap::tryAllocateArray(
 	ct::Type* type,
-	size_t count
+	size_t count,
+	const void* initializer
 ) {
 	size_t size = type->getSize() * count;
 
@@ -485,7 +495,10 @@ GcHeap::tryAllocateArray(
 		return g_nullDataPtr;
 	}
 
-	memset(box + 1, 0, size);
+	if (initializer)
+		memcpy(box + 1, initializer, size);
+	else
+		memset(box + 1, 0, size);
 
 	box->m_box.m_type = type;
 	box->m_box.m_flags = BoxFlag_DynamicArray | BoxFlag_DataMark | BoxFlag_WeakMark;
@@ -510,9 +523,10 @@ GcHeap::tryAllocateArray(
 DataPtr
 GcHeap::allocateArray(
 	ct::Type* type,
-	size_t count
+	size_t count,
+	const void* initializer
 ) {
-	DataPtr ptr = tryAllocateArray(type, count);
+	DataPtr ptr = tryAllocateArray(type, count, initializer);
 	if (!ptr.m_p) {
 		Runtime::dynamicThrow();
 		ASSERT(false);
@@ -522,21 +536,27 @@ GcHeap::allocateArray(
 }
 
 DataPtr
-GcHeap::tryAllocateBuffer(size_t size) {
+GcHeap::tryAllocateBuffer(
+	size_t size,
+	const void* initializer
+) {
 	ct::Module* module = m_runtime->getModule();
 	ASSERT(module);
 
 	ct::Type* type = module->m_typeMgr.getPrimitiveType(TypeKind_Char);
-	return tryAllocateArray(type, size);
+	return tryAllocateArray(type, size, initializer);
 }
 
 DataPtr
-GcHeap::allocateBuffer(size_t size) {
+GcHeap::allocateBuffer(
+	size_t size,
+	const void* initializer
+) {
 	ct::Module* module = m_runtime->getModule();
 	ASSERT(module);
 
 	ct::Type* type = module->m_typeMgr.getPrimitiveType(TypeKind_Char);
-	return allocateArray(type, size);
+	return allocateArray(type, size, initializer);
 }
 
 DataPtrValidator*
