@@ -15,6 +15,7 @@
 #include "jnc_ct_ArrayType.h"
 #include "jnc_ct_ParseContext.h"
 #include "jnc_ct_Parser.llk.h"
+#include "jnc_rt_Runtime.h"
 
 namespace jnc {
 namespace ct {
@@ -43,6 +44,58 @@ OperatorMgr::newOperator(
 	return
 		gcHeapAllocate(type, elementCountValue, resultValue) &&
 		construct(*resultValue, argValueList);
+}
+
+const void*
+OperatorMgr::createThinDataPtrToConst(const Value& value) {
+	ASSERT(value.getValueKind() == ValueKind_Const);
+
+	if (m_module->getCompileState() < ModuleCompileState_Compiled)
+		return m_module->m_constMgr.saveValue(value).getConstData();
+
+	TRACE("-- WARNING: creating a thin pointer to a newly allocated object on GC heap");
+	rt::Runtime* runtime = rt::getCurrentThreadRuntime();
+	return runtime ?
+		runtime->getGcHeap()->allocateData(value.getType(), value.getConstData()).m_p :
+		NULL;
+}
+
+DataPtr
+OperatorMgr::createDataPtrToConst(const Value& value) {
+	ASSERT(value.getValueKind() == ValueKind_Const);
+
+	if (m_module->getCompileState() < ModuleCompileState_Compiled) {
+		DataPtr ptr;
+		ptr.m_p = (void*)m_module->m_constMgr.saveValue(value).getConstData();
+		ptr.m_validator = m_module->m_constMgr.createConstDataPtrValidator(ptr.m_p, value.getType());
+		return ptr;
+	}
+
+	rt::Runtime* runtime = rt::getCurrentThreadRuntime();
+	return runtime ?
+		runtime->getGcHeap()->allocateData(value.getType(), value.getConstData()) :
+		g_nullDataPtr;
+}
+
+DataPtr
+OperatorMgr::createDataPtrToLiteral(const sl::StringRef& string) {
+	if (m_module->getCompileState() < ModuleCompileState_Compiled) {
+		Value value;
+		value.setCharArray(string, m_module);
+		return createDataPtrToConst(value);
+	}
+
+	rt::Runtime* runtime = rt::getCurrentThreadRuntime();
+	if (!runtime)
+		return g_nullDataPtr;
+
+	DataPtr ptr = rt::getCurrentThreadRuntime()->getGcHeap()->allocateArray(
+		m_module->m_typeMgr.getPrimitiveType(TypeKind_Char),
+		string.getLength() + 1
+	);
+
+	memcpy(ptr.m_p, string.cp(), string.getLength());
+	return ptr;
 }
 
 bool

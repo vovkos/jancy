@@ -893,6 +893,15 @@ public:
 		return newOperator(type, Value(), argValueList, resultValue);
 	}
 
+	const void*
+	createThinDataPtrToConst(const Value& value);
+
+	DataPtr
+	createDataPtrToConst(const Value& value);
+
+	DataPtr
+	createDataPtrToLiteral(const sl::StringRef& string);
+
 	// member operators
 
 	bool
