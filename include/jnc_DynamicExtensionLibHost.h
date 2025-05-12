@@ -953,6 +953,14 @@ struct jnc_PropertyPtrTypeFuncTable {
 
 typedef
 bool_t
+jnc_Variant_CreateFunc(
+	jnc_Variant* variant,
+	const void* p,
+	jnc_Type* type
+);
+
+typedef
+bool_t
 jnc_Variant_CastFunc(
 	const jnc_Variant* variant,
 	jnc_Type* type,
@@ -1032,6 +1040,7 @@ jnc_Variant_FormatFunc(
 
 struct jnc_VariantFuncTable {
 	size_t m_size;
+	jnc_Variant_CreateFunc* m_createFunc;
 	jnc_Variant_CastFunc* m_castFunc;
 	jnc_Variant_UnaryOperatorFunc* m_unaryOperatorFunc;
 	jnc_Variant_BinaryOperatorFunc* m_binaryOperatorFunc;
