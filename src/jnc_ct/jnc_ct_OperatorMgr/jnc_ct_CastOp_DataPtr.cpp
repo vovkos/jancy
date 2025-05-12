@@ -81,26 +81,24 @@ Cast_DataPtr_FromArray::constCast(
 	ASSERT(opValue.getType()->getTypeKind() == TypeKind_Array);
 	ASSERT(type->getTypeKind() == TypeKind_DataPtr);
 
-	ArrayType* srcType = (ArrayType*)opValue.getType();
 	DataPtrType* dstType = (DataPtrType*)type;
-
 	if (!(dstType->getFlags() & PtrTypeFlag_Const)) {
 		setCastError(opValue, type);
 		return false;
 	}
 
-	const Value& savedOpValue = m_module->m_constMgr.saveValue(opValue);
-	const void* p0 = opValue.getConstData();
-	const void* p = savedOpValue.getConstData();
-
-	AXL_TODO("create a global constant holding the array")
-
 	if (dstType->getPtrTypeKind() == DataPtrTypeKind_Normal) {
-		DataPtr* ptr = (DataPtr*)dst;
-		ptr->m_p = (void*)p;
-		ptr->m_validator = m_module->m_constMgr.createConstDataPtrValidator(p, srcType);
+		DataPtr ptr = m_module->m_operatorMgr.createDataPtrToConst(opValue);
+		if (!ptr.m_p)
+			return false;
+
+		*(DataPtr*)dst = ptr;
 	} else { // thin or lean
-		*(const void**)dst = p;
+		void* p = (void*)m_module->m_operatorMgr.createThinDataPtrToConst(opValue);
+		if (!p)
+			return false;
+
+		*(void**)dst = p;
 	}
 
 	return true;

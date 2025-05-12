@@ -78,20 +78,7 @@ Cast_StringBase::preparePtr(
 	return m_module->m_operatorMgr.castOperator(opValue, opType, resultValue);
 }
 
-DataPtr
-Cast_StringBase::saveLiteral(
-	const char* p,
-	size_t length
-) {
-	const Value& value = m_module->m_constMgr.saveLiteral(sl::StringRef(p, length));
-
-	DataPtr ptr;
-	ptr.m_p = (void*)value.getConstData();
-	ptr.m_validator = m_module->m_constMgr.createConstDataPtrValidator(ptr.m_p, value.getType());
-	return ptr;
-}
-
-void
+bool
 Cast_StringBase::finalizeString(
 	String* string,
 	const char* p,
@@ -105,19 +92,26 @@ Cast_StringBase::finalizeString(
 	if (p + length < (char*)validator->m_rangeEnd) { // in-range
 		if (length && !p[length - 1])
 			length--;
-		else if (p[length])
-			ptr = saveLiteral(p, length);
+		else if (p[length]) {
+			ptr = m_module->m_operatorMgr.createDataPtrToLiteral(sl::StringRef(p, length));
+			if (!ptr.m_p)
+				return false;
+		}
 	} else { // out-of-range
 		const char* end = (char*)validator->m_rangeEnd;
 		if (p < end && !end[-1])
 			length = end - p - 1;
-		else
-			ptr = saveLiteral(p, length);
+		else {
+			ptr = m_module->m_operatorMgr.createDataPtrToLiteral(sl::StringRef(p, length));
+			if (!ptr.m_p)
+				return false;
+		}
 	}
 
 	string->m_ptr = ptr;
 	string->m_ptr_sz = ptr;
 	string->m_length = length;
+	return true;
 }
 
 //..............................................................................
@@ -137,8 +131,7 @@ Cast_String_FromPtr::constCast(
 
 	String* string = (String*)dst;
 	DataPtr ptr = *(DataPtr*)opValue.getConstData();
-	finalizeString(string, (char*)ptr.m_p, jnc_strLen(ptr), ptr.m_validator);
-	return true;
+	return finalizeString(string, (char*)ptr.m_p, jnc_strLen(ptr), ptr.m_validator);
 }
 
 bool
@@ -177,16 +170,14 @@ Cast_String_FromArray::constCast(
 
 		DataPtr ptr = *(DataPtr*)ptrValue.getConstData();
 		ArrayType* arrayType = (ArrayType*)((DataPtrType*)opValue.getType())->getTargetType();
-		finalizeString(string, (char*)ptr.m_p, arrayType->getElementCount(), ptr.m_validator);
-		return true;
+		return finalizeString(string, (char*)ptr.m_p, arrayType->getElementCount(), ptr.m_validator);
 	}
 
 	ASSERT(opValue.getType()->getTypeKind() == TypeKind_Array);
 	ArrayType* srcType = (ArrayType*)opValue.getType();
 	size_t length = srcType->getElementCount();
-	DataPtr ptr = saveLiteral((char*)opValue.getConstData(), length);
-	finalizeString(string, (char*)ptr.m_p, length, ptr.m_validator);
-	return true;
+	DataPtr ptr = m_module->m_operatorMgr.createDataPtrToLiteral(sl::StringRef((char*)opValue.getConstData(), length));
+	return finalizeString(string, (char*)ptr.m_p, length, ptr.m_validator);
 }
 
 bool

@@ -35,13 +35,7 @@ protected:
 		Value* resultValue
 	);
 
-	DataPtr
-	saveLiteral(
-		const char* p,
-		size_t length
-	);
-
-	void
+	bool
 	finalizeString(
 		String* string,
 		const char* p,

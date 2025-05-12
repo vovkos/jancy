@@ -31,13 +31,12 @@ Cast_Variant::constCast(
 	memset(variant, 0, sizeof(Variant));
 
 	Type* opType = opValue.getType();
-	if (opType->getSize() <= Variant::DataSize) {
+	if (opType->getSize() <= Variant::DataSize)
 		memcpy(variant, opValue.getConstData(), opType->getSize());
-	} else { // store it as reference
-		const void* p = m_module->m_constMgr.saveValue(opValue).getConstData();
-
-		variant->m_dataPtr.m_p = (void*)p;
-		variant->m_dataPtr.m_validator = m_module->m_constMgr.createConstDataPtrValidator(p, opType);
+	else { // store it as reference
+		variant->m_dataPtr = m_module->m_operatorMgr.createDataPtrToConst(opValue);
+		if (!variant->m_dataPtr.m_p)
+			return false;
 
 		opType = opType->getDataPtrType(
 			TypeKind_DataRef,
