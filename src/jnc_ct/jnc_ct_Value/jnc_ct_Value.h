@@ -592,8 +592,10 @@ public:
 	) {
 		if (string.isEmpty())
 			setEmptyCharArray(module);
-		else
-			setCharArray(string.sz(), string.getLength() + 1, module);
+		else {
+			setCharArray(NULL, string.getLength() + 1, module);
+			memcpy(m_constData.p(), string.cp(), string.getLength());
+		}
 	}
 
 	void
