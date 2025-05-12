@@ -74,17 +74,15 @@ public:
 	);
 
 	const Value&
-	saveValue(const Value& value) {
-		sl::BoxIterator<Value> it = m_valueList.insertTail(value);
-		return *it;
-	}
+	saveValue(const Value& value);
 
 	const Value&
 	saveLiteral(const sl::StringRef& string);
 
 	DataPtr
 	getEmptyLiteralPtr() {
-		return m_emptyLiteralPtr.m_p ? m_emptyLiteralPtr : createEmptyLiteralPtr();
+		ASSERT(m_emptyLiteralPtr.m_p);
+		return m_emptyLiteralPtr;
 	}
 
 	DataPtrValidator*
@@ -97,6 +95,16 @@ protected:
 	DataPtr
 	createEmptyLiteralPtr();
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+const Value&
+ConstMgr::saveLiteral(const sl::StringRef& string) {
+	Value value;
+	value.setCharArray(string, m_module);
+	return saveValue(value);
+}
 
 //..............................................................................
 

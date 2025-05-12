@@ -626,6 +626,16 @@ ControlFlowMgr::enterReactiveExpression() {
 //..............................................................................
 
 inline
+const Value&
+ConstMgr::saveValue(const Value& value) {
+	ASSERT(m_module->getCompileState() < ModuleCompileState_Compiled);
+	sl::BoxIterator<Value> it = m_valueList.insertTail(value);
+	return *it;
+}
+
+//..............................................................................
+
+inline
 void
 LlvmIrBuilder::addTypedAttribute(
 	llvm::Function* llvmFunction,

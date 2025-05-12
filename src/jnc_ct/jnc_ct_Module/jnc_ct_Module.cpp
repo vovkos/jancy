@@ -217,6 +217,8 @@ Module::initialize(
 		m_variableMgr.createStdVariables();
 		m_namespaceMgr.addStdItems();
 	}
+
+	m_constMgr.createEmptyLiteralPtr();
 }
 
 CodeAssist*

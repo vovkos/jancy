@@ -44,15 +44,7 @@ ConstMgr::createConst(
 	cnst->m_qualifiedName = qualifiedName;
 	cnst->m_value = value;
 	m_constList.insertTail(cnst);
-
 	return cnst;
-}
-
-const Value&
-ConstMgr::saveLiteral(const sl::StringRef& string) {
-	Value value;
-	value.setCharArray(string, m_module);
-	return saveValue(value);
 }
 
 DataPtrValidator*
@@ -60,6 +52,7 @@ ConstMgr::createConstDataPtrValidator(
 	const void* p,
 	Type* type
 ) {
+	ASSERT(m_module->getCompileState() < ModuleCompileState_Compiled);
 	DetachedDataBox* box = m_constBoxList.insertTail().p();
 	box->m_box.m_type = type;
 	box->m_box.m_flags = BoxFlag_Detached | BoxFlag_Static | BoxFlag_DataMark | BoxFlag_WeakMark;
@@ -69,7 +62,6 @@ ConstMgr::createConstDataPtrValidator(
 	box->m_validator.m_rangeBegin = p;
 	box->m_validator.m_rangeEnd = (char*)p + type->getSize();
 	box->m_p = (void*)p;
-
 	return &box->m_validator;
 }
 
