@@ -98,14 +98,19 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_INLINE
+inline
 Tls*
 getCurrentThreadTls() {
 	CallSite* callSite = sys::getTlsPtrSlotValue<CallSite>();
-	return callSite ? callSite->m_tls : NULL;
+	if (!callSite) {
+		err::setError("not a valid Jancy callsite");
+		return NULL;
+	}
+
+	return callSite->m_tls;
 }
 
-JNC_INLINE
+inline
 Runtime*
 getCurrentThreadRuntime() {
 	Tls* tls = getCurrentThreadTls();
