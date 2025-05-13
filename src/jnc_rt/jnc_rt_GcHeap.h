@@ -19,6 +19,7 @@ namespace jnc {
 namespace rt {
 
 #define _JNC_TRACK_FOREIGN_DATA 0
+#define _JNC_ALLOC_TOP_FILE     0
 
 //..............................................................................
 
@@ -62,6 +63,24 @@ protected:
 	};
 
 	typedef sl::AuxList<GcMutatorThread, GetGcMutatorThreadLink> MutatorThreadList;
+
+#if (_JNC_ALLOC_TOP_FILE)
+	struct AllocTopEntry {
+		const char* m_typeString;
+		size_t m_count;
+		size_t m_size;
+		size_t m_destructCount;
+		size_t m_destructSize;
+
+		AllocTopEntry() {
+			memset(this, 0, sizeof(AllocTopEntry));
+		}
+
+		bool operator < (const AllocTopEntry& entry) const {
+			return m_size > entry.m_size; // from highest to lowest
+		}
+	};
+#endif
 
 protected:
 	Runtime* m_runtime;
@@ -114,6 +133,10 @@ protected:
 
 	size_t m_allocSizeTrigger;
 	size_t m_periodSizeTrigger;
+
+#if (_JNC_ALLOC_TOP_FILE)
+	io::File m_allocTopFile;
+#endif
 
 public:
 	GcHeap();

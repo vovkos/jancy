@@ -1495,6 +1495,10 @@ GcHeap::collect_l(bool isMutatorThread) {
 
 	// sweep allocated boxes
 
+#if (_JNC_ALLOC_TOP_FILE)
+	sl::StringHashTable<AllocTopEntry> allocTopMap;
+#endif
+
 	m_state = State_Sweep;
 	size_t allocSize = 0;
 
@@ -1512,6 +1516,17 @@ GcHeap::collect_l(bool isMutatorThread) {
 				size *= getDynamicArrayElementCount((DataBox*)box);
 
 			allocSize += size;
+
+#if (_JNC_ALLOC_TOP_FILE)
+			sl::StringHashTableIterator<AllocTopEntry> it = allocTopMap.visit(box->m_type->getTypeString());
+			it->m_value.m_typeString = it->getKey().sz();
+			it->m_value.m_count++;
+			it->m_value.m_size += size;
+			if (box->m_flags & BoxFlag_Destructed) {
+				it->m_value.m_destructCount++;
+				it->m_value.m_destructSize += size;
+			}
+#endif
 		} else if (isShuttingDown)
 			m_postponeFreeBoxArray.append(box);
 		else
@@ -1522,6 +1537,51 @@ GcHeap::collect_l(bool isMutatorThread) {
 	size_t freeSize = m_stats.m_currentAllocSize - allocSize;
 
 	m_allocBoxArray.setCount(dstIdx);
+
+#if (_JNC_ALLOC_TOP_FILE)
+	do {
+		sl::String s;
+		if (!m_allocTopFile.isOpen()) {
+			s = io::getHomeDir();
+			s.appendFormat("/jnc-alloc-top-%llx.txt", sys::getTimestamp());
+			m_allocTopFile.open(s);
+		}
+
+		sl::Array<AllocTopEntry> allocTopArray;
+		size_t allocTopCount = allocTopMap.getCount();
+		allocTopArray.setCount(allocTopCount);
+
+		sl::Array<AllocTopEntry>::Rwi allocTopArrayRwi = allocTopArray.rwi();
+		sl::StringHashTableIterator<AllocTopEntry> allocTopIt = allocTopMap.getHead();
+		for (size_t i = 0; i < allocTopCount; allocTopIt++, i++)
+			allocTopArrayRwi[i] = allocTopIt->m_value;
+
+		std::sort(allocTopArray.p(), allocTopArray.p() + allocTopCount);
+
+		m_allocTopFile.setPosition(0);
+		m_allocTopFile.setSize(0);
+
+		s.format("Total: %d (%d B)\n", dstIdx, allocSize);
+		m_allocTopFile.write(s.cp(), s.getLength());
+		s.format("To destruct: %d\n\n", m_dynamicDestructArray.getCount());
+		m_allocTopFile.write(s.cp(), s.getLength());
+
+		for (size_t i = 0; i < allocTopCount; i++) {
+			s.format(
+				"%s: %d (%d B); to destruct: %d (%d B)\n",
+				allocTopArray[i].m_typeString,
+				allocTopArray[i].m_count,
+				allocTopArray[i].m_size,
+				allocTopArray[i].m_destructCount,
+				allocTopArray[i].m_destructSize
+			);
+
+			m_allocTopFile.write(s.cp(), s.getLength());
+		}
+
+		m_allocTopFile.flush();
+	} while (0);
+#endif
 
 	JNC_TRACE_GC_COLLECT("   ... GcHeap::collect_l () -- sweep complete\n");
 
