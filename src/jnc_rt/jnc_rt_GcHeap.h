@@ -385,16 +385,20 @@ protected:
 	getCurrentGcMutatorThread();
 
 	bool
-	isCollectionTriggered_l();
+	isCollectionTriggered_l() {
+		return
+			m_noCollectMutatorThreadCount == 0 && (
+				m_stats.m_currentPeriodSize >= m_periodSizeTrigger ||
+				m_stats.m_currentAllocSize >= m_allocSizeTrigger
+			);
+	}
+
 
 	bool
 	waitIdleAndLock(); // return true if this thread is registered mutator thread
 
 	void
-	incrementAllocSizeAndLock(size_t size);
-
-	void
-	incrementAllocSize_l(size_t size);
+	waitIdleAndLockForAlloc();
 
 	size_t
 	stopTheWorld_l(bool isMutatorThread);
@@ -404,6 +408,12 @@ protected:
 
 	void
 	collect_l(bool isMutatorThread);
+
+	void
+	addAllocBox_l(
+		Box* box,
+		size_t size
+	);
 
 	void
 	addClassBox_l(Box* box);
@@ -459,6 +469,39 @@ protected:
 	bool
 	abortThrow();
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+void
+GcHeap::waitIdleAndLockForAlloc() {
+	// allocations should only be done in registered mutator threads
+	// otherwise there is risk of loosing new object
+
+	bool isMutatorThread = waitIdleAndLock();
+	ASSERT(isMutatorThread);
+
+	if (isCollectionTriggered_l()) {
+		collect_l(isMutatorThread);
+		waitIdleAndLock();
+	}
+}
+
+inline
+void
+GcHeap::addAllocBox_l(
+	Box* box,
+	size_t size
+) {
+	m_allocBoxArray.append((Box*)box);
+
+	m_stats.m_totalAllocSize += size;
+	m_stats.m_currentAllocSize += size;
+	m_stats.m_currentPeriodSize += size;
+
+	if (m_stats.m_currentAllocSize > m_stats.m_peakAllocSize)
+		m_stats.m_peakAllocSize = m_stats.m_currentAllocSize;
+}
 
 //..............................................................................
 

@@ -224,39 +224,6 @@ GcHeap::waitIdleAndLock() {
 }
 
 bool
-GcHeap::isCollectionTriggered_l() {
-	return
-		m_noCollectMutatorThreadCount == 0 &&
-		(m_stats.m_currentPeriodSize > m_periodSizeTrigger || m_stats.m_currentAllocSize > m_allocSizeTrigger);
-}
-
-void
-GcHeap::incrementAllocSize_l(size_t size) {
-	m_stats.m_totalAllocSize += size;
-	m_stats.m_currentAllocSize += size;
-	m_stats.m_currentPeriodSize += size;
-
-	if (m_stats.m_currentAllocSize > m_stats.m_peakAllocSize)
-		m_stats.m_peakAllocSize = m_stats.m_currentAllocSize;
-}
-
-void
-GcHeap::incrementAllocSizeAndLock(size_t size) {
-	// allocations should only be done in registered mutator threads
-	// otherwise there is risk of loosing new object
-
-	bool isMutatorThread = waitIdleAndLock();
-	ASSERT(isMutatorThread);
-
-	incrementAllocSize_l(size);
-
-	if (isCollectionTriggered_l()) {
-		collect_l(isMutatorThread);
-		waitIdleAndLock();
-	}
-}
-
-bool
 GcHeap::addBoxIfDynamicFrame(Box* box) {
 	Tls* tls = rt::getCurrentThreadTls();
 	ASSERT(tls);
@@ -286,8 +253,8 @@ GcHeap::tryAllocateClass(ct::ClassType* type) {
 	primeClass(box, type);
 	addBoxIfDynamicFrame(box);
 
-	incrementAllocSizeAndLock(size);
-	m_allocBoxArray.append(box);
+	waitIdleAndLockForAlloc();
+	addAllocBox_l(box, size);
 	addClassBox_l(box);
 	m_lock.unlock();
 
@@ -457,8 +424,8 @@ GcHeap::tryAllocateData(
 
 	addBoxIfDynamicFrame((Box*)box);
 
-	incrementAllocSizeAndLock(size);
-	m_allocBoxArray.append((Box*)box);
+	waitIdleAndLockForAlloc();
+	addAllocBox_l((Box*)box, size);
 	m_lock.unlock();
 
 	DataPtr ptr;
@@ -510,8 +477,8 @@ GcHeap::tryAllocateArray(
 
 	addBoxIfDynamicFrame((Box*)box);
 
-	incrementAllocSizeAndLock(size);
-	m_allocBoxArray.append((Box*)box);
+	waitIdleAndLockForAlloc();
+	addAllocBox_l((Box*)box, size);
 	m_lock.unlock();
 
 	DataPtr ptr;
@@ -1529,7 +1496,7 @@ GcHeap::collect_l(bool isMutatorThread) {
 	// sweep allocated boxes
 
 	m_state = State_Sweep;
-	size_t freeSize = 0;
+	size_t allocSize = 0;
 
 	dstIdx = 0;
 	count = m_allocBoxArray.getCount();
@@ -1539,19 +1506,20 @@ GcHeap::collect_l(bool isMutatorThread) {
 		if (box->m_flags & BoxFlag_WeakMark) {
 			rwi[dstIdx] = box;
 			dstIdx++;
-		} else {
+
 			size_t size = box->m_type->getSize();
 			if (box->m_flags & BoxFlag_DynamicArray)
 				size *= getDynamicArrayElementCount((DataBox*)box);
 
-			freeSize += size;
-
-			if (isShuttingDown)
-				m_postponeFreeBoxArray.append(box);
-			else
-				mem::deallocate(box);
-		}
+			allocSize += size;
+		} else if (isShuttingDown)
+			m_postponeFreeBoxArray.append(box);
+		else
+			mem::deallocate(box);
 	}
+
+	ASSERT(allocSize <= m_stats.m_currentAllocSize);
+	size_t freeSize = m_stats.m_currentAllocSize - allocSize;
 
 	m_allocBoxArray.setCount(dstIdx);
 
@@ -1565,7 +1533,7 @@ GcHeap::collect_l(bool isMutatorThread) {
 
 	m_lock.lock();
 	m_state = State_Idle;
-	m_stats.m_currentAllocSize -= freeSize;
+	m_stats.m_currentAllocSize = allocSize;
 	m_stats.m_currentPeriodSize = 0;
 	m_stats.m_lastCollectFreeSize = freeSize;
 	m_stats.m_lastCollectTimeTaken = sys::getTimestamp() - m_stats.m_lastCollectTime;
