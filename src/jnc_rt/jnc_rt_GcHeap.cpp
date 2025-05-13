@@ -1501,20 +1501,20 @@ GcHeap::collect_l(bool isMutatorThread) {
 
 	m_state = State_Sweep;
 	size_t allocSize = 0;
+	size_t freeSize = 0;
 
 	dstIdx = 0;
 	count = m_allocBoxArray.getCount();
 	rwi = m_allocBoxArray;
 	for (size_t i = 0; i < count; i++) {
 		Box* box = rwi[i];
+		size_t size = box->m_type->getSize();
+		if (box->m_flags & BoxFlag_DynamicArray)
+			size *= getDynamicArrayElementCount((DataBox*)box);
+
 		if (box->m_flags & BoxFlag_WeakMark) {
 			rwi[dstIdx] = box;
 			dstIdx++;
-
-			size_t size = box->m_type->getSize();
-			if (box->m_flags & BoxFlag_DynamicArray)
-				size *= getDynamicArrayElementCount((DataBox*)box);
-
 			allocSize += size;
 
 #if (_JNC_ALLOC_TOP_FILE)
@@ -1527,14 +1527,15 @@ GcHeap::collect_l(bool isMutatorThread) {
 				it->m_value.m_destructSize += size;
 			}
 #endif
-		} else if (isShuttingDown)
-			m_postponeFreeBoxArray.append(box);
-		else
-			mem::deallocate(box);
-	}
+		} else {
+			freeSize += size;
 
-	ASSERT(allocSize <= m_stats.m_currentAllocSize);
-	size_t freeSize = m_stats.m_currentAllocSize - allocSize;
+			if (isShuttingDown)
+				m_postponeFreeBoxArray.append(box);
+			else
+				mem::deallocate(box);
+		}
+	}
 
 	m_allocBoxArray.setCount(dstIdx);
 
