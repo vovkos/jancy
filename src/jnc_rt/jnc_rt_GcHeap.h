@@ -481,7 +481,7 @@ protected:
 	runMarkCycle();
 
 	void
-	runDestructCycle_l();
+	runDestructCycle_l(sl::Array<IfaceHdr*>* destructBuffer);
 
 	void
 	parkAtSafePoint(GcMutatorThread* thread);

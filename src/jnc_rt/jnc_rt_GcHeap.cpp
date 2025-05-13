@@ -1669,42 +1669,49 @@ GcHeap::runMarkCycle() {
 }
 
 void
-GcHeap::runDestructCycle_l() {
+GcHeap::runDestructCycle_l(sl::Array<IfaceHdr*>* destructBuffer) {
 	while (!m_dynamicDestructArray.isEmpty()) {
-		size_t i = m_dynamicDestructArray.getCount() - 1;
-		IfaceHdr* iface = m_dynamicDestructArray[i];
+		destructBuffer->forceCopy(m_dynamicDestructArray);
 		m_lock.unlock();
 
-		ct::ClassType* classType = (ct::ClassType*)iface->m_box->m_type;
-		ct::Function* destructor = classType->getDestructor();
-		ASSERT(destructor);
+		size_t count = destructBuffer->getCount();
+		for (intptr_t i = count - 1; i >= 0; i--) {
+			IfaceHdr* iface = (*destructBuffer)[i];
+			ct::ClassType* classType = (ct::ClassType*)iface->m_box->m_type;
+			ct::Function* destructor = classType->getDestructor();
+			ASSERT(destructor);
 
-		JNC_TRACE_GC_DESTRUCT("GcHeap::runDestructCycle_l: destructing %s(%p)\n", classType->getQualifiedName().sz(), iface);
+			JNC_TRACE_GC_DESTRUCT("GcHeap::runDestructCycle_l: destructing %s(%p)\n", classType->getQualifiedName().sz(), iface);
 
-		bool result;
-		JNC_BEGIN_CALL_SITE(m_runtime)
-			callVoidFunction(destructor, iface);
-			iface->m_box->m_flags |= BoxFlag_Invalid;
-		JNC_END_CALL_SITE_EX(&result)
+			bool result;
+			JNC_BEGIN_CALL_SITE(m_runtime)
+				callVoidFunction(destructor, iface);
+				iface->m_box->m_flags |= BoxFlag_Invalid;
+			JNC_END_CALL_SITE_EX(&result)
 
-		if (!result)
-			TRACE(
-				"-- WARNING: runtime error in %s.destruct(): %s\n",
-				classType->getQualifiedName().sz(),
-				err::getLastErrorDescription().sz()
-			);
+			if (!result)
+				TRACE(
+					"-- WARNING: runtime error in %s.destruct(): %s\n",
+					classType->getQualifiedName().sz(),
+					err::getLastErrorDescription().sz()
+				);
 
 #ifdef JNC_DESTRUCT_DELAY
-		sys::sleep(JNC_DESTRUCT_DELAY);
+			sys::sleep(JNC_DESTRUCT_DELAY);
 #endif
+		}
 
 		waitIdleAndLock();
-		m_dynamicDestructArray.remove(i);
+
+		ASSERT(m_dynamicDestructArray.getCount() >= count);
+		m_dynamicDestructArray.remove(0, count);
 	}
 }
 
 void
 GcHeap::destructThreadFunc() {
+	sl::Array<IfaceHdr*> destructBuffer;
+
 	for (;;) {
 		m_destructEvent.wait();
 
@@ -1712,12 +1719,12 @@ GcHeap::destructThreadFunc() {
 		if (m_flags & Flag_TerminateDestructThread)
 			break;
 
-		runDestructCycle_l();
+		runDestructCycle_l(&destructBuffer);
 		m_lock.unlock();
 	}
 
 	for (size_t i = 0; i < GcDef_ShutdownIterationLimit; i++) {
-		runDestructCycle_l();
+		runDestructCycle_l(&destructBuffer);
 
 		while (!m_staticDestructorList.isEmpty()) {
 			StaticDestructor* destructor = m_staticDestructorList.removeTail();
