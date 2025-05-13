@@ -38,7 +38,15 @@ Attribute::prepareValue() {
 	ValueKind valueKind = m_value.getValueKind();
 	switch (valueKind) {
 	case ValueKind_Null:
+		break;
+
 	case ValueKind_Const:
+		if (isCharArrayType(m_value.getType())) {
+			result = m_module->m_operatorMgr.castOperator(&m_value, TypeKind_String);
+			if (!result)
+				return false;
+		}
+
 		break;
 
 	case ValueKind_Variable:
