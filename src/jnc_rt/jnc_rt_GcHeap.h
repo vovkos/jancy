@@ -411,8 +411,8 @@ protected:
 	isCollectionTriggered_l() {
 		return
 			m_noCollectMutatorThreadCount == 0 && (
-				m_stats.m_currentPeriodSize >= m_periodSizeTrigger ||
-				m_stats.m_currentAllocSize >= m_allocSizeTrigger
+				m_stats.m_currentPeriodSize > m_periodSizeTrigger ||
+				m_stats.m_currentAllocSize > m_allocSizeTrigger
 			);
 	}
 
