@@ -81,6 +81,7 @@ getValueKindString(ValueKind valueKind) {
 		"function-overload",      // ValueKind_FunctionOverload,
 		"function-type-overload", // ValueKind_FunctionTypeOverload,
 		"property",               // ValueKind_Property,
+		"field",                  // ValueKind_Field,
 		"llvm-register",          // ValueKind_LlvmRegister,
 		"bool-not",               // ValueKind_BoolNot,
 		"bool-and",               // ValueKind_BoolAnd,
