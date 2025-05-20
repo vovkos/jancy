@@ -159,6 +159,7 @@ if(WIN32)
 elseif(APPLE)
 	find_library(CORE_FOUNDATION_FRAMEWORK CoreFoundation)
 	find_library(IOKIT_FRAMEWORK IOKit)
+	find_library(SECURITY_FRAMEWORK Security)
 
 	target_link_libraries(
 		jnc_io_usb
@@ -166,6 +167,7 @@ elseif(APPLE)
 		axl_cf
 		${CORE_FOUNDATION_FRAMEWORK}
 		${IOKIT_FRAMEWORK}
+		${SECURITY_FRAMEWORK}
 	)
 endif()
 
