@@ -73,15 +73,13 @@ disableLlvmGlobalMerge() {
 
 void*
 Jit::findSymbol(const sl::StringRef& name) {
-#if (_JNC_OS_WIN && _JNC_CPU_X86)
-	bool isUnderscorePrefix = name.isPrefix(sl::StringRef("_", 1, true));
-#else
-	bool isUnderscorePrefix = name.isPrefix(sl::StringRef("_?", 2, true));
-#endif
-
-	sl::StringHashTableIterator<void*> it = isUnderscorePrefix ?
+#if (_JNC_OS_WIN && _JNC_CPU_X86 || _JNC_OS_DARWIN)
+	sl::StringHashTableIterator<void*> it = name.isPrefix('_') ?
 		m_symbolMap.find(name.getSubString(1)) :
 		m_symbolMap.find(name);
+#else
+	sl::StringHashTableIterator<void*> it = m_symbolMap.find(name);
+#endif
 
 	if (!it) {
 		TRACE("JIT: unresolved: %s\n", name.sz());
@@ -104,8 +102,8 @@ Jit::addStdSymbols() {
 	m_symbolMap["_chkstk"] = (void*)_chkstk;
 #	endif
 #elif (_JNC_OS_DARWIN)
-	m_symbolMap["_bzero"] = (void*)bzero;
-	m_symbolMap["___bzero"] = (void*)bzero;
+	m_symbolMap["bzero"] = (void*)bzero;
+	m_symbolMap["__bzero"] = (void*)bzero;
 #endif
 
 #if (JNC_PTR_BITS == 32)
