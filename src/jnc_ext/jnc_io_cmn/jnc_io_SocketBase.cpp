@@ -206,21 +206,21 @@ SocketBase::openSocket(
 
 bool
 SocketBase::open(
-	uint16_t family_jnc,
+	uint16_t family,
 	int protocol,
 	const SocketAddress* address
 ) {
 	close();
 
 	bool result =
-		checkAccess(family_jnc, protocol) &&
-		openSocket(family_jnc, protocol, address);
+		checkAccess(family, protocol) &&
+		openSocket(family, protocol, address);
 
 	if (!result)
 		return false;
 
 	AsyncIoDevice::open();
-	m_family = family_jnc;
+	m_family = family;
 
 	if (protocol != IPPROTO_TCP) {
 		m_ioThreadFlags |= IoThreadFlag_Datagram;

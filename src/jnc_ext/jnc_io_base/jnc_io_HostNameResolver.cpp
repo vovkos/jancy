@@ -158,11 +158,12 @@ HostNameResolver::ioThreadFunc() {
 		}
 
 		sl::StringRef name = m_name;
-		uint_t addrFamily = m_addrFamily;
+		uint_t addrFamily_jnc = m_addrFamily;
 		uint_t port = m_port;
 		m_lock.unlock();
 
-		bool result = axl::io::resolveHostName(&addrArray, name, addrFamily);
+		int addrFamily_s = addrFamily_jnc == AddressFamily_Ip6 ? AF_INET6 : addrFamily_jnc;
+		bool result = axl::io::resolveHostName(&addrArray, name, addrFamily_s);
 
 		m_lock.lock();
 		if (m_ioThreadFlags & IoThreadFlag_Closing) {
@@ -171,7 +172,7 @@ HostNameResolver::ioThreadFunc() {
 		}
 
 		if (name != m_name ||
-			addrFamily != m_addrFamily ||
+			addrFamily_jnc != m_addrFamily ||
 			port != m_port)
 			m_lock.unlock(); // cancelled
 		else if (!result)
@@ -199,7 +200,8 @@ HostNameResolver::complete_l(
 
 	if (name != m_name ||
 		addrFamily != m_addrFamily ||
-		port != m_port) {
+		port != m_port
+	) {
 		m_lock.unlock(); // cancelled during memDup
 		return;
 	}
