@@ -201,6 +201,7 @@ UsbMonitor::parseAllTransfers_l(
 
 		case axl::io::UsbMonTransferParserState_IncompleteData:
 		case axl::io::UsbMonTransferParserState_CompleteData:
+		case axl::io::UsbMonTransferParserState_TruncatedData:
 #if (_AXL_OS_LINUX)
 			if (!context->m_dataMode)
 				break;
@@ -278,14 +279,14 @@ UsbMonitor::parseCompletedTransfersOnly_l(
 
 				Transfer* transfer = it->m_value;
 				transfer->m_hdr.m_status = hdr->m_status;
-				ASSERT(transfer->m_hdr.m_captureSize == transfer->m_data.getCount());
+				ASSERT(transfer->m_hdr.m_capturedDataSize == transfer->m_data.getCount());
 
 				addToReadBuffer(&transfer->m_hdr, sizeof(axl::io::UsbMonTransferHdr));
 
 				if (hdr->m_transferType == LIBUSB_TRANSFER_TYPE_ISOCHRONOUS)
 					addToReadBuffer(parser->getIsoPacketArray(), hdr->m_isoHdr.m_packetCount * sizeof(axl::io::UsbMonIsoPacket));
 
-				addToReadBuffer(transfer->m_data, transfer->m_hdr.m_captureSize);
+				addToReadBuffer(transfer->m_data, transfer->m_hdr.m_capturedDataSize);
 				m_transferTracker->m_activeTransferMap.erase(it);
 				m_transferTracker->m_activeTransferList.remove(transfer);
 				m_transferTracker->m_transferPool.put(transfer);
@@ -295,6 +296,7 @@ UsbMonitor::parseCompletedTransfersOnly_l(
 
 		case axl::io::UsbMonTransferParserState_IncompleteData:
 		case axl::io::UsbMonTransferParserState_CompleteData:
+		case axl::io::UsbMonTransferParserState_TruncatedData:
 			switch (context->m_dataMode) {
 			case TransferDataMode_AddToTransfer:
 				ASSERT(context->m_transfer);
