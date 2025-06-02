@@ -32,7 +32,9 @@ class UsbMonitor:
 
 public:
 	enum Def {
-		Def_SnapshotLength   = 64 * 1024,
+#if (_AXL_OS_WIN)
+		Def_SnapshotSize     = 64 * 1024,
+#endif
 		Def_KernelBufferSize = 512 * 1024,
 		Def_ReadBlockSize    = 128 * 1024,
 		Def_ReadBufferSize   = 1 * 1024 * 1024,
@@ -146,7 +148,7 @@ public:
 	JNC_CDECL
 	open(
 		String captureDeviceName,
-		size_t snapshotLength
+		size_t snapshotSize
 	);
 
 	void

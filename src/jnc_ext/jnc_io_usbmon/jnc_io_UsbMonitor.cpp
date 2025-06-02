@@ -82,7 +82,7 @@ bool
 JNC_CDECL
 UsbMonitor::open(
 	String captureDeviceName,
-	size_t snapshotLength
+	size_t snapshotSize
 ) {
 	close();
 
@@ -90,13 +90,10 @@ UsbMonitor::open(
 	if (!result)
 		return false;
 
-	if (snapshotLength == 0)
-		snapshotLength = Def_SnapshotLength;
-
 #if (_AXL_OS_WIN)
 	result =
 		m_monitor.open(captureDeviceName >> toAxl) &&
-		m_monitor.setSnapshotLength(snapshotLength) &&
+		m_monitor.setSnapshotLength(snapshotSize ? snapshotSize : Def_SnapshotSize) &&
 		m_monitor.setKernelBufferSize(m_kernelBufferSize) &&
 		m_monitor.setFilter(m_addressFilter) &&
 		m_monitor.readPcapHdr();
