@@ -1,0 +1,74 @@
+//..............................................................................
+//
+// Serial Tap Pro session dispatch interface for IAS
+//
+
+import "io_base.jncx"
+import "io_Serial.jnc"
+import "ias.jnc"
+
+//..............................................................................
+
+class SerialTapProDispatch: ias.Session {
+	property m_baudRate {
+		uint_t get() {
+			return dispatchGet(SerialTapProDispatchCode.GetBaudRate);
+		}
+
+		void set(uint_t value) {
+			dispatch(SerialTapProDispatchCode.SetBaudRate, value);
+		}
+	}
+
+	property m_dataBits {
+		uint_t get() {
+			return dispatchGet(SerialTapProDispatchCode.GetDataBits);
+		}
+
+		void set(uint_t value) {
+			dispatch(SerialTapProDispatchCode.SetDataBits, value);
+		}
+	}
+
+	property m_parity {
+		io.SerialParity get() {
+			return dispatchGet(SerialTapProDispatchCode.GetParity);
+		}
+
+		void set(io.SerialParity value) {
+			dispatch(SerialTapProDispatchCode.SetParity, value);
+		}
+	}
+
+	property m_stopBits {
+		io.SerialStopBits get() {
+			return dispatchGet(SerialTapProDispatchCode.GetStopBits);
+		}
+
+		void set(io.SerialStopBits value) {
+			dispatch(SerialTapProDispatchCode.SetStopBits, value);
+		}
+	}
+
+	io.SerialStatusLines const property m_statusLines {
+		return dispatchGet(SerialTapProDispatchCode.GetStatusLines);
+	}
+
+	bool const property m_dtr {
+		return dispatchGet(SerialTapProDispatchCode.GetDtr);
+	}
+
+	bool const property m_rts {
+		return dispatchGet(SerialTapProDispatchCode.GetRts);
+	}
+
+	bool errorcode capture() {
+		return dispatch(SerialTapProDispatchCode.Capture);
+	}
+
+	void stopCapture() {
+		dispatch(SerialTapProDispatchCode.StopCapture);
+	}
+}
+
+//..............................................................................

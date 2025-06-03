@@ -7,6 +7,8 @@
 
 name        = DF1 Analyzer
 description = "Analyzes a Serial/TCP log and generates a secondary log with decoded DF1 messages"
+page        = plugins/df1.html
+help        = user-manual/plugin-df1.html
 id          = df1
 group       = analyzers
 log-guid    = 4eb82c4c-1f48-49a5-92cc-b492e7cfbf92  # DF1

@@ -245,14 +245,16 @@ bool errorcode UdpSession.openSocket() {
 	io.SocketAddress address;
 
 nestedscope:
-	closeSocket();
-	startSession();
-
 	string_t portString = m_localPortCombo.m_editText;
 	m_localPortCombo.addEditTextToHistory();
-
 	address = *(io.SocketAddress const*)m_adapterCombo.m_currentData;
 	address.m_port = (uint16_t)atoi(portString);
+
+	if (m_resolver.m_address.m_family != address.m_family)
+		m_resolver.cancel();
+
+	closeSocket();
+	startSession();
 
 	m_socket.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
 	m_socket.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
@@ -280,8 +282,8 @@ void UdpSession.closeSocket() {
 		return;
 
 	io.SocketAddress address = m_socket.m_address;
-	m_socket.close();
 	m_resolver.cancel();
+	m_socket.close();
 	m_logWriter.write(SocketLogRecordCode.Close, &address, sizeof(address));
 	m_state = State.Closed;
 	m_sessionConnectionState = SessionConnectionState.Disconnected;
@@ -431,8 +433,9 @@ bool errorcode UdpSession.resolve() {
 	m_resolver.cancel();
 	m_remoteAddressCombo.addEditTextToHistory();
 	string_t addressString = m_remoteAddressCombo.m_editText;
+	io.AddressFamily addressFamily = ((io.SocketAddress const*)m_adapterCombo.m_currentData).m_family;
 	m_resolver.m_defaultPort = m_socketPropertySet.m_remotePortProp.m_value;
-	return m_resolver.resolve(addressString);
+	return m_resolver.resolve(addressString, addressFamily);
 }
 
 size_t UdpSession.writeDatagram(

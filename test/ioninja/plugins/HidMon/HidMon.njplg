@@ -7,6 +7,8 @@
 
 name        = "HID Monitor"
 description = "Monitor local HID communications"
+page        = plugins/hid-monitor.html
+help        = user-manual/plugin-hid-monitor.html
 id          = hidmon
 group       = usb
 monitor     = true

@@ -209,22 +209,27 @@ void SslServerSession.createUi() {
 
 	// property grid
 
-	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
-		"SSL connection",
-		"SSL-specific connection settings"
+	ui.GroupProperty* propGroup = m_pluginHost.m_propertyGrid.createGroupProperty(
+		"TCP",
+		"TCP-specific connection settings"
 	);
 
 	m_socketPropertySet.createProperties(
 		m_pluginHost.m_propertyGrid,
-		group,,
+		propGroup,,
 		ui.SocketPropertySet.PropertyId.AllTcpServer
 	);
 
 	m_socketPropertySet.m_defaultLocalPort = Defaults.LocalPort;
 
+	propGroup = m_pluginHost.m_propertyGrid.createGroupProperty(
+		"SSL",
+		"SSL-specific connection settings"
+	);
+
 	m_sslPropertySet.createProperties(
 		m_pluginHost.m_propertyGrid,
-		group,,
+		propGroup,,
 		ui.SslPropertySet.PropertyId.AllServer
 	);
 
@@ -480,6 +485,8 @@ void SslServerSession.onListenerSocketEvent(
 		socket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 		socket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
 		socket.m_options = ui.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
+
+		socket.m_securityLevel = m_sslPropertySet.m_securityLevelProp.m_value;
 		socket.enableCiphers(m_sslPropertySet.m_cipherSetProp.m_value);
 
 		if (m_sslPropertySet.m_useEphemeralDhProp.m_value)

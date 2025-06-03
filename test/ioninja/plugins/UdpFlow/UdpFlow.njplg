@@ -7,6 +7,8 @@
 
 name        = "UDP Flow Analyzer"
 description = "Analyzes Pcap/Ethernet Tap logs and extracts UDP datagrams"
+page        = plugins/udp-flow.html
+help        = user-manual/plugin-udp-flow.html
 id          = udp-flow
 group       = analyzers
 log-guid    = 275d0959-ad5b-4f9c-9439-25993ac35b93  # udp flow

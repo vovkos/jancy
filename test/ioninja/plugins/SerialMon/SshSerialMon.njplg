@@ -7,6 +7,8 @@
 
 name        = "Serial Monitor over SSH"
 description = "Monitor serial communication through one of the installed COM ports on a remote machine over SSH"
+page        = plugins/ssh-serial-monitor.html
+help        = user-manual/plugin-ssh-serial-monitor.html
 id          = ssh-serialmon
 group       = serial
 monitor     = true

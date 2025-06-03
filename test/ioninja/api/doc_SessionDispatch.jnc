@@ -1,0 +1,32 @@
+//..............................................................................
+//
+// Ninja document model - access to the underlying session
+//
+
+namespace doc {
+
+//! \addtogroup api-doc
+//! @{
+
+//..............................................................................
+
+bool errorcode sessionDispatch(
+	uint_t code,
+	variant_t in = null,
+	variant_t* out = null
+);
+
+variant_t sessionDispatchGet(
+	uint_t code,
+	variant_t in = null
+) {
+	variant_t result;
+	sessionDispatch(code, in, &result);
+	return result;
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace doc

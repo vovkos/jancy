@@ -7,6 +7,8 @@
 
 name        = Serial
 description = "Serial communication using one of the installed COM ports on your PC"
+page        = plugins/serial.html
+help        = user-manual/plugin-serial.html
 id          = serial
 group       = serial
 log-guid    = 29725452-e64f-4c0e-a871-776277b68572  # serial

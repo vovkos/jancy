@@ -7,6 +7,8 @@
 
 name        = TCP Proxy
 description = "Passes-through data between a TCP client and a TCP server"
+page        = plugins/tcp-proxy.html
+help        = user-manual/plugin-tcp-proxy.html
 id          = tcp-proxy
 group       = net
 monitor     = true

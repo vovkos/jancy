@@ -6,7 +6,7 @@
 import "doc_Session.jnc"
 import "io_base.jncx"
 import "io_ssl.jncx"
-import "io_HostNameResolver.jnc"
+import "iox_HostNameResolver.jnc"
 import "ui_History.jnc"
 import "ui_SocketUi.jnc"
 import "ui_SslPropertySet.jnc"
@@ -68,7 +68,7 @@ protected:
 
 	State bindable m_state;
 	io.SslSocket m_socket;
-	io.HostNameResolver m_resolver;
+	iox.HostNameResolver m_resolver;
 	io.SocketAddress m_localAddress;
 	io.SocketAddress m_remoteAddress;
 	std.Buffer m_readBuffer;
@@ -139,10 +139,7 @@ protected:
 		try connect();
 	}
 
-	void onResolverEvent(
-		uint_t syncId,
-		io.HostNameResolverEvents triggeredEvents
-	);
+	void onResolveCompleted();
 
 	void onSocketEvent(
 		uint_t syncId,
@@ -160,11 +157,13 @@ protected:
 
 SslConnectionSession.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
+	m_resolver.construct(pluginHost);
 
 	createUi();
 
 	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
 	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
+	m_resolver.m_onCompleted += onResolveCompleted;
 }
 
 void SslConnectionSession.createUi() {
@@ -266,8 +265,6 @@ bool errorcode SslConnectionSession.connect() {
 		);
 	}
 
-	m_logWriter.write(SocketLogRecordCode.Resolving, addressString);
-
 	io.AddressFamily addressFamily = io.AddressFamily.Undefined;
 	if (m_socketPropertySet.m_useLocalAddressProp.m_value) {
 		io.SocketAddress const* adapterAddress = m_socketPropertySet.m_adapterProp.m_value;
@@ -275,13 +272,8 @@ bool errorcode SslConnectionSession.connect() {
 			addressFamily = adapterAddress.m_family;
 	}
 
+	m_resolver.m_defaultPort = m_socketPropertySet.m_remotePortProp.m_value;
 	m_resolver.resolve(addressString, addressFamily);
-
-	m_resolver.wait(
-		io.HostNameResolverEvents.Resolved | io.HostNameResolverEvents.Error,
-		onResolverEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler
-	);
-
 	return true;
 
 catch:
@@ -317,6 +309,7 @@ bool errorcode SslConnectionSession.connect(io.SocketAddress const* remoteAddres
 	m_sessionConnectionState = SessionConnectionState.Connecting;
 	m_remoteAddress = *remoteAddress;
 
+	m_socket.m_securityLevel = m_sslPropertySet.m_securityLevelProp.m_value;
 	m_socket.enableCiphers(m_sslPropertySet.m_cipherSetProp.m_value);
 
 	if (m_sslPropertySet.m_useCertificateProp.m_value) {
@@ -613,31 +606,11 @@ void SslConnectionSession.onSocketEvent(
 	waitSocketEvents();
 }
 
-void SslConnectionSession.onResolverEvent(
-	uint_t syncId,
-	io.HostNameResolverEvents triggeredEvents
-) {
-	if (syncId != m_syncId)
-		return;
-
-	if (triggeredEvents & io.HostNameResolverEvents.Error) {
-		handleSocketError(m_resolver.m_error);
-		return;
-	}
-
-	m_logWriter.write(
-		SocketLogRecordCode.ResolveCompleted,
-		m_resolver.m_addressTable,
-		sizeof(io.SocketAddress)
-	);
-
+void SslConnectionSession.onResolveCompleted() {
 	m_state = State.Closed;
 
-	io.SocketAddress address = m_resolver.m_addressTable[0];
-	if (!address.m_port)
-		address.m_port = m_socketPropertySet.m_remotePortProp.m_value;
-
-	try connect(address);
+	if (m_resolver.m_state == iox.HostNameResolver.State.Resolved)
+		try connect(m_resolver.m_address);
 }
 
 void SslConnectionSession.onReconnectTimer(uint_t syncId) {

@@ -7,6 +7,8 @@
 
 name        = Serial over SSH
 description = "Serial communication using one of the installed COM ports on a remote machine over SSH"
+page        = plugins/ssh-serial.html
+help        = user-manual/plugin-ssh-serial.html
 id          = ssh-serial
 group       = serial
 log-guid    = 29725452-e64f-4c0e-a871-776277b68572  # serial

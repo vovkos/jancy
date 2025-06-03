@@ -86,6 +86,10 @@ class FormLayout: Layout {
 	void addRow(Widget* widget);
 	void addRow(Layout* layout);
 
+	void addLabel(string_t label) {
+		addRow(new Label(label));
+	}
+
 	void addRow(
 		Widget* label,
 		Widget* field

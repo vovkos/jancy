@@ -7,6 +7,8 @@
 
 name        = "HID"
 description = "Perform communications with HID devices"
+page        = plugins/hid.html
+help        = user-manual/plugin-hid.html
 id          = hid
 group       = usb
 log-guid    = cd2c079d-63ff-4b2f-a385-0a4fe3afaac2  # hid

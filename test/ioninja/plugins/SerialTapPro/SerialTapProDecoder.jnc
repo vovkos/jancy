@@ -1,0 +1,204 @@
+//..............................................................................
+//
+// Serial Tap Pro protocol decoder
+//
+
+import "std_Buffer.jnc"
+
+//..............................................................................
+
+class SerialTapProDecoder {
+protected:
+	log.Writer* m_logWriter;
+	log.TxRxStats* m_txRxStats;
+	SerialTapProInfoSet* m_infoSet;
+	uint64_t m_timestamp;
+	SerialTapProRawUsbBulkParams m_recordParams;
+
+public:
+	SerialTapProIface bindable readonly m_serialIface;
+	bool readonly m_isFlipped;
+
+public:
+	construct(
+		log.Writer* logWriter,
+		log.TxRxStats* txRxStats,
+		SerialTapProInfoSet* infoSet
+	);
+
+	void reset(
+		SerialTapProIface iface,
+		SerialTapProLines lines
+	);
+
+	void flip(bool isFlipped);
+
+	void decode(
+		char const* p,
+		size_t size
+	);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+SerialTapProDecoder.construct(
+	log.Writer* logWriter,
+	log.TxRxStats* txRxStats,
+	SerialTapProInfoSet* infoSet
+) {
+	m_logWriter = logWriter;
+	m_txRxStats = txRxStats;
+	m_infoSet = infoSet;
+}
+
+void SerialTapProDecoder.reset(
+	SerialTapProIface iface,
+	SerialTapProLines lines
+) {
+	m_timestamp = sys.getTimestamp();
+	m_serialIface = iface;
+	m_recordParams.m_status = iface;
+	m_recordParams.m_lines = lines;
+}
+
+void SerialTapProDecoder.flip(bool isFlipped) {
+	if (m_isFlipped == isFlipped)
+		return;
+
+	m_isFlipped = isFlipped;
+
+	uint8_t status, status0;
+	SerialTapProLines lines, lines0;
+
+	if (isFlipped) {
+		status = flipSerialTapProOverflows(m_recordParams.m_status);
+		status0 = m_recordParams.m_status;
+		lines = flipSerialTapProLines(m_recordParams.m_lines);
+		lines0 = m_recordParams.m_lines;
+	} else {
+		status = m_recordParams.m_status;
+		status0 = flipSerialTapProOverflows(m_recordParams.m_status);
+		lines = m_recordParams.m_lines;
+		lines0 = flipSerialTapProLines(m_recordParams.m_lines);
+	}
+
+	SerialTapProOverflows overflowMask = (status ^ status0) & SerialTapProOverflows.Mask;
+	if (overflowMask)
+		m_infoSet.setOverflows((SerialTapProOverflows)status);
+
+	SerialTapProLines lineMask = lines ^ lines0;
+	if (lineMask)
+		m_infoSet.updateLines(lines, lineMask);
+}
+
+void SerialTapProDecoder.decode(
+	char const* p0,
+	size_t size
+) {
+	char thin const* p = p0;
+	char thin const* end = p + size;
+	char const* next = p0 + SerialTapProUsb.BulkSize;
+	uint64_t timeDiff = 0;
+	uint8_t status = m_recordParams.m_status;
+	uint8_t status0 = m_recordParams.m_status;
+	SerialTapProLines lines = m_recordParams.m_lines;
+	SerialTapProLines lines0 = m_recordParams.m_lines;
+	uint64_t recordCode = SerialTapProLogRecordCode.RawUsbBulkData; // + m_isFlipped;
+	size_t dataSize_0 = 0;
+	size_t dataSize_1 = 0;
+
+	while (p < end) {
+		SerialTapProNotificationCode code;
+		if (p >= next || !(code = (SerialTapProNotificationCode)*p)) { // skip to the end of bulk
+			size_t offset = p - p0;
+			if (offset) {
+				m_logWriter.write(m_timestamp, recordCode, &m_recordParams, sizeof(m_recordParams), p0, offset);
+				m_recordParams.m_status = status;
+				m_recordParams.m_lines = lines;
+			}
+
+			p = p0 = next;
+			next += SerialTapProUsb.BulkSize;
+			m_timestamp += timeDiff  * 10; // FPGA timestamps are in mcs
+			timeDiff = 0;
+			continue;
+		}
+
+		DecodeUlebResult uleb = decodeUleb(p + 1, end);
+		p = uleb.m_p;
+		timeDiff += uleb.m_value;
+
+		switch (code) {
+		case SerialTapProNotificationCode.Data_0:
+			dataSize_0++;
+			p += 2;
+			break;
+
+		case SerialTapProNotificationCode.Data_1:
+			dataSize_1++;
+			p += 2;
+			break;
+
+		case SerialTapProNotificationCode.StatusLineChange:
+			lines = (SerialTapProLines)*p++;
+			break;
+
+		case SerialTapProNotificationCode.Status:
+			status = *p++;
+			break;
+
+		case SerialTapProNotificationCode.BreakOn_0:
+			lines |= SerialTapProLines.Break_0;
+			break;
+
+		case SerialTapProNotificationCode.BreakOn_1:
+			lines |= SerialTapProLines.Break_1;
+			break;
+
+		case SerialTapProNotificationCode.BreakOff_0:
+			lines &= ~SerialTapProLines.Break_0;
+			break;
+
+		case SerialTapProNotificationCode.BreakOff_1:
+			lines &= ~SerialTapProLines.Break_1;
+			break;
+		}
+	}
+
+	// write the remainder (only possible if a bulk is completely filled)
+
+	if (p0 < end) {
+		m_logWriter.write(m_timestamp, recordCode, &m_recordParams, sizeof(m_recordParams), p0, end - p0);
+		m_recordParams.m_status = status;
+		m_recordParams.m_lines = lines;
+	}
+
+	if (m_isFlipped) {
+		status = flipSerialTapProOverflows(status);
+		status0 = flipSerialTapProOverflows(status0);
+		lines = flipSerialTapProLines(lines);
+		lines0 = flipSerialTapProLines(lines0);
+		size_t t = dataSize_0;
+		dataSize_0 = dataSize_1;
+		dataSize_1 = t;
+	}
+
+	// update stats & the info set
+
+	m_txRxStats.addTx(dataSize_0);
+	m_txRxStats.addRx(dataSize_1);
+
+	if ((status ^ status0) & SerialTapProIface.Mask) {
+		m_serialIface = (SerialTapProIface)(status & SerialTapProIface.Mask);
+		m_infoSet.setIface(m_serialIface);
+	}
+
+	if ((status ^ status0) & SerialTapProOverflows.Mask)
+		m_infoSet.setOverflows((SerialTapProOverflows)status);
+
+	SerialTapProLines lineMask = lines ^ lines0;
+	if (lineMask)
+		m_infoSet.updateLines(lines, lineMask);
+}
+
+//..............................................................................

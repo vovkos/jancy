@@ -7,6 +7,8 @@
 
 name        = "UDP Socket"
 description = "UDP socket without \"connection\" notation"
+page        = plugins/udp-socket.html
+help        = user-manual/plugin-udp-socket.html
 id          = udp
 group       = net
 log-guid    = 7827807e-2ea8-4e86-9344-f016aa77621e  # udp

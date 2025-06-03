@@ -7,6 +7,8 @@
 
 name        = Mailslot
 description = "Reads from server side of mailslot"
+page        = plugins/mailslot.html
+help        = user-manual/plugin-mailslot.html
 id          = mailslot
 monitor     = true
 group       = fs

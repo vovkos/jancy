@@ -7,6 +7,8 @@
 
 name        = "USB Monitor"
 description = "Monitor local USB communications"
+page        = plugins/usb-monitor.html
+help        = user-manual/plugin-usb-monitor.html
 id          = usbmon
 group       = usb
 monitor     = true

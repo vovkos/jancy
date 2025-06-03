@@ -7,6 +7,8 @@
 
 name        = "Serial Monitor"
 description = "Monitor serial communication through one of the installed COM ports on your machine"
+page        = plugins/serial-monitor.html
+help        = user-manual/plugin-serial-monitor.html
 id          = serialmon
 group       = serial
 monitor     = true

@@ -40,7 +40,7 @@ class ModbusLayer:
 		HalfDuplexTimeout = 2000, // reset to master after 2 seconds
 	}
 
-	static const std.Guid m_logGuid = "53603C98-34BC-46EF-BA08-D3274F1057B4";
+	static const std.Guid m_logGuid = "5144b05f-e687-45ca-81bb-6c5f7880a2f3";
 
 protected:
 	ModbusParserBase* m_txParser;

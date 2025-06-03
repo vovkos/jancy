@@ -7,6 +7,8 @@
 
 name        = "Pcap Sniffer"
 description = "Pcap-based network sniffer & protocol analyzer"
+page        = plugins/pcap-sniffer.html
+help        = user-manual/plugin-pcap-sniffer.html
 id          = pcap-sniffer
 group       = net
 log-guid    = b0a872b3-de4b-4f15-88bd-8de55eba7a78  # network sniffer

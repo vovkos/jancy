@@ -7,6 +7,8 @@
 
 name        = Tibbo Modbus Gateway Monitor
 description = "Tibbo Modbus Gateway Monitor plugin"
+page        = plugins/modbus.html
+help        = user-manual/plugin-modbus.html
 id          = modbus-gateway-mon
 monitor     = true
 log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket

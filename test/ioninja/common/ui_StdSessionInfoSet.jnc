@@ -71,13 +71,6 @@ protected:
 	void initialUpdate();
 
 	void onTimer(uint_t syncId);
-
-	void onLogRecord(
-		uint64_t timestamp,
-		uint64_t recordCode,
-		void const* p,
-		size_t size
-	);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

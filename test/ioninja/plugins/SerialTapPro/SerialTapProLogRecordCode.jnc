@@ -1,0 +1,80 @@
+//..............................................................................
+//
+// Serial Tap Pro log record codes
+//
+
+import "log_RecordCode.jnc"
+
+pragma(Alignment, 1);
+
+//..............................................................................
+
+enum SerialTapProLogRecordCode: uint64_t {
+	DeviceOpened              = 0x01db13c48f442500,
+	InterfaceClaimed          = 0x01db13c48f442501,
+	InEndpointOpened          = 0x01db13c48f442502,
+	OutEndpointOpened         = 0x01db13c48f442503,
+	CaptureStarted            = 0x01db13c48f442504 | log.RecordCodeFlags.Foldable,
+	CaptureStopped            = 0x01db13c48f442505,
+	CaptureError              = 0x01db13c48f442506,
+	UnexpectedCode            = 0x01db13c48f442507,
+	IncompleteByte            = 0x01db13c48f442508,
+	FpgaBufferOverflow        = 0x01db13c48f442509,
+	CypressBufferCleared      = 0x01db13c48f44250a,
+	StatusLineChanged         = 0x01db13c48f44250b,
+	TxParityError             = 0x01db13c48f44250c,
+	RxParityError             = 0x01db13c48f44250d,
+	TxFramingError            = 0x01db13c48f44250e,
+	RxFramingError            = 0x01db13c48f44250f,
+	TxBreakOn                 = 0x01db13c48f442510,
+	RxBreakOn                 = 0x01db13c48f442511,
+	TxBreakOff                = 0x01db13c48f442512,
+	RxBreakOff                = 0x01db13c48f442513,
+	TxParityBit               = 0x01db13c48f442514,
+	RxParityBit               = 0x01db13c48f442515,
+	IfaceChanged              = 0x01db13c48f442516,
+	InjectChanged             = 0x01db13c48f442517,
+	Rs485InjectModeChanged    = 0x01db13c48f442518,
+	Rs485InjectChannelChanged = 0x01db13c48f442519,
+	OverflowsChanged          = 0x01db13c48f44251a,
+	RawUsbBulkData            = 0x01db13c48f44251b,
+	RawUsbBulkDataFlipped     = 0x01db13c48f44251c,
+	BaudRateChanged           = 0x01db13c48f44251d,
+	DataBitsChanged           = 0x01db13c48f44251e,
+	StopBitsChanged           = 0x01db13c48f44251f,
+	ParityChanged             = 0x01db13c48f442520,
+}
+
+struct SerialTapProCaptureStartedParams {
+	SerialTapProIface m_iface;
+	SerialTapProRs485Mode m_rs485Mode;
+	SerialTapProBits m_bits;
+	uint_t m_baudRate;
+	SerialTapProLines m_lines;
+	uint8_t m_inject             : 1;
+	uint8_t m_rs485InjectChannel : 1;
+}
+
+struct SerialTapProInjectChangedParams {
+	SerialTapProRs485Mode m_rs485Mode;
+	uint8_t m_rs485              : 1;
+	uint8_t m_inject             : 1;
+	uint8_t m_rs485InjectChannel : 1;
+}
+
+struct SerialTapProStatusLineChangedParams {
+	SerialTapProLines m_lines;
+	SerialTapProLines m_mask;
+}
+
+struct SerialTapProOverflowChangedParams {
+	SerialTapProOverflows m_overflows;
+	SerialTapProOverflows m_mask;
+}
+
+struct SerialTapProRawUsbBulkParams {
+	uint8_t m_status; // SerialTapProIface | SerialTapProOverflows
+	SerialTapProLines m_lines;
+}
+
+//..............................................................................

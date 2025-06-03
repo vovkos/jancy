@@ -7,6 +7,8 @@
 
 name        = SSL Server
 description = "Listens for and accepts SSL connections"
+page        = plugins/ssl-server.html
+help        = user-manual/plugin-ssl-server.html
 id          = ssl-server
 group       = net
 log-guid    = 7940a0d5-a84b-4509-bae4-b5928511472d  # ssl

@@ -7,6 +7,8 @@
 
 name        = "Modbus Analyzer"
 description = "Analyzes a Serial/TCP log and generates a secondary log with decoded Modbus messages"
+page        = plugins/modbus.html
+help        = user-manual/plugin-modbus.html
 id          = modbus
 group       = analyzers
 log-guid    = 5144b05f-e687-45ca-81bb-6c5f7880a2f3  # modbus

@@ -10,7 +10,7 @@ namespace log {
 
 //..............................................................................
 
-class Filter {
+class Filter: AbstractProcessor {
 	abstract bool filter(
 		uint64_t timestamp,
 		uint64_t recordCode,
@@ -23,7 +23,7 @@ class Filter {
 
 //..............................................................................
 
-class FoldingFilter {
+class FoldingFilter: AbstractProcessor {
 	abstract uint8_t filter(
 		uint64_t timestamp,
 		uint64_t recordCode,

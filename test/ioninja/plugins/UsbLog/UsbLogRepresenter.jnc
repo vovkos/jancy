@@ -345,6 +345,13 @@ bool representUsbLog(
 
 		break;
 
+	case UsbLogRecordCode.TruncatedCapture:
+		uint32_t truncated = *(uint32_t const*)p;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Warning;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+		representation.addHyperText($"Previous transfer not fully captured (%1 bytes truncated)"(truncated));
+		break;
+
 	default:
 		return false;
 	}

@@ -1,0 +1,122 @@
+//..............................................................................
+//
+// Serial Tap Pro information grid entries
+//
+
+import "ui_InformationGrid.jnc"
+
+//..............................................................................
+
+class SerialTapProInfoSet {
+protected:
+	enum InfoId {
+		Iface,
+		Cts,
+		Dsr,
+		Ring,
+		Dcd,
+		Rts,
+		Dtr,
+		Break_0,
+		Break_1,
+		Overflows,
+		_Count,
+	}
+
+	ui.InformationValue* m_infoTable[InfoId._Count];
+
+public:
+	bool autoget property m_isEnabled;
+
+	void create(
+		ui.InformationGrid* infoGrid,
+		ui.InformationGroup* infoGroup = null
+	);
+
+	void setIface(SerialTapProIface iface) {
+		m_infoTable[InfoId.Iface].m_value = getSerialTapProIfaceString(iface);
+	}
+
+	void setOverflows(SerialTapProOverflows overflows);
+
+	void updateLines(
+		SerialTapProLines lines,
+		SerialTapProLines mask = (SerialTapProLines)-1
+	);
+
+protected:
+	void setLineState(
+		InfoId infoId,
+		bool state
+	) {
+		m_infoTable[infoId].m_value = state ? "on" : "off";
+		m_infoTable[infoId].m_valueColor = state ? ui.StdColor.BrightRed : ui.StdColor.BrightBlack;
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void SerialTapProInfoSet.create(
+	ui.InformationGrid* infoGrid,
+	ui.InformationGroup* infoGroup
+) {
+	m_infoTable[InfoId.Iface] = infoGrid.createValue(infoGroup,,, "Interface");
+	m_infoTable[InfoId.Dtr] = infoGrid.createValue(infoGroup,,, "DTR");
+	m_infoTable[InfoId.Rts] = infoGrid.createValue(infoGroup,,, "RTS");
+	m_infoTable[InfoId.Dsr] = infoGrid.createValue(infoGroup,,, "DSR");
+	m_infoTable[InfoId.Cts] = infoGrid.createValue(infoGroup,,, "CTS");
+	m_infoTable[InfoId.Dcd] = infoGrid.createValue(infoGroup,,, "DCD");
+	m_infoTable[InfoId.Ring] = infoGrid.createValue(infoGroup,,, "RI");
+	m_infoTable[InfoId.Break_0] = infoGrid.createValue(infoGroup,,, "BREAK (TX)");
+	m_infoTable[InfoId.Break_1] = infoGrid.createValue(infoGroup,,, "BREAK (RX)");
+	m_infoTable[InfoId.Overflows] = infoGrid.createValue(infoGroup,,, "Overflow");
+
+	updateLines(0); // set all off
+}
+
+void SerialTapProInfoSet.m_isEnabled.set(bool isEnabled) {
+	for (size_t i = 0; i < InfoId._Count; i++)
+		m_infoTable[i].m_isEnabled = isEnabled;
+}
+
+void  SerialTapProInfoSet.setOverflows(SerialTapProOverflows overflows) {
+	if (!overflows) {
+		m_infoTable[InfoId.Overflows].m_value = "none";
+		m_infoTable[InfoId.Overflows].m_valueColor = ui.StdColor.BrightBlack;
+		return;
+	}
+
+	m_infoTable[InfoId.Overflows].m_value = getSerialTapProOverflowsString(overflows);
+	m_infoTable[InfoId.Overflows].m_valueColor = ui.StdColor.BrightRed;
+}
+
+void SerialTapProInfoSet.updateLines(
+	SerialTapProLines lines,
+	SerialTapProLines mask
+) {
+	if (mask & SerialTapProLines.Cts)
+		setLineState(InfoId.Cts, lines & SerialTapProLines.Cts);
+
+	if (mask & SerialTapProLines.Dsr)
+		setLineState(InfoId.Dsr, lines & SerialTapProLines.Dsr);
+
+	if (mask & SerialTapProLines.Dcd)
+		setLineState(InfoId.Dcd, lines & SerialTapProLines.Dcd);
+
+	if (mask & SerialTapProLines.Ring)
+		setLineState(InfoId.Ring, lines & SerialTapProLines.Ring);
+
+	if (mask & SerialTapProLines.Rts)
+		setLineState(InfoId.Rts, lines & SerialTapProLines.Rts);
+
+	if (mask & SerialTapProLines.Dtr)
+		setLineState(InfoId.Dtr, lines & SerialTapProLines.Dtr);
+
+	if (mask & SerialTapProLines.Break_0)
+		setLineState(InfoId.Break_0, lines & SerialTapProLines.Break_0);
+
+	if (mask & SerialTapProLines.Break_1)
+		setLineState(InfoId.Break_1, lines & SerialTapProLines.Break_1);
+}
+
+//..............................................................................

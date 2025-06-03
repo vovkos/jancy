@@ -7,6 +7,8 @@
 
 name        = "Stratus EZ-Tap Pro"
 description = "Monitor serial communication using EZ-Tap Pro"
+page        = plugins/ez-tap-pro.html
+help        = user-manual/plugin-ez-tap-pro.html
 id          = ez-tap-pro
 group       = serial
 monitor     = true

@@ -1,0 +1,28 @@
+//..............................................................................
+//
+// Serial Tap Pro session dispatch codes for IAS
+//
+
+//..............................................................................
+
+enum SerialTapProDispatchCode {
+	GetBaudRate,
+	SetBaudRate,
+	GetDataBits,
+	SetDataBits,
+	GetParity,
+	SetParity,
+	GetStopBits,
+	SetStopBits,
+	GetStatusLines,
+	GetDtr,
+	GetRts,
+	Capture,
+	StopCapture,
+}
+
+enum SerialTapProInternalDispatchCode {
+	Flip = 0x1000,
+}
+
+//..............................................................................

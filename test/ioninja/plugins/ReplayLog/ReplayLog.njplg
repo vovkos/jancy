@@ -7,6 +7,8 @@
 
 name        = "Replay Log"
 description = "Replays TX/RX records from a log file with respect to timestamps"
+page        = plugins/replay-log.html
+help        = user-manual/plugin-replay-log.html
 id          = replay-log
 icon        = images/replay.png
 small-icon  = images/replay-16x16.png

@@ -7,6 +7,8 @@
 
 name        = "Pipe Monitor"
 description = "Monitor named pipe communications"
+page        = plugins/pipe-monitor.html
+help        = user-manual/plugin-pipe-monitor.html
 id          = pipemon
 group       = fs
 monitor     = true

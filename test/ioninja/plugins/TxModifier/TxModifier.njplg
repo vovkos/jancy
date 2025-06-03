@@ -7,6 +7,8 @@
 
 name        = "TX Modifier"
 description = "Implements TX modifications (re-transmission, prefixing, suffixing, inter-char delays, etc)"
+page        = plugins/tx-modifier.html
+help        = user-manual/plugin-tx-modifier.html
 id          = tx-modifier
 group       =
 monitor     = false

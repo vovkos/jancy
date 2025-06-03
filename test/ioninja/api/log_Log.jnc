@@ -62,7 +62,11 @@ opaque class Log {
 	void addFoldingFilter(FoldingFilter* filter);
 	void removeAllFoldingFilters();
 
-	void addObserver(ObserverFunc* observerFunc);
+	void addObserver(
+		ObserverFunc* observerFunc,
+		StdRecordCodeAwareness stdRecordCodeAwareness = 0
+	);
+
 	void removeAllObservers();
 
 	void addSelectionProcessor(RangeProcessorFactoryFunc* factoryFunc);

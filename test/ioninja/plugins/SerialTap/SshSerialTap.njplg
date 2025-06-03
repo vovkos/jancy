@@ -7,6 +7,8 @@
 
 name        = "Serial Tap over SSH"
 description = "Monitor serial communication through a Serial Tap connected to a remote machine over SSH"
+page        = plugins/ssh-serial-tap.html
+help        = user-manual/plugin-ssh-serial-tap.html
 id          = ssh-serial-tap
 group       = hw
 monitor     = true

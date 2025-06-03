@@ -19,7 +19,8 @@ protected:
 	enum Defaults {
 		ReadBlockSize    = 32 * 1024,
 		ReadBufferSize   = 512 * 1024,
-		KernelBufferSize = 1 * 1024 * 1024, // 1MB
+		SnapshotSize     = 64 * 1024,
+		KernelBufferSize = 2 * 1024 * 1024, // 1MB
 	}
 
 	enum State {
@@ -64,6 +65,7 @@ protected:
 
 	ui.EnumProperty* m_deviceProp;
 	ui.BufferPropertySet m_bufferPropertySet;
+	ui.IntProperty* m_snapshotSizeProp;
 	ui.IntProperty* m_kernelBufferSizeProp;
 
 	// information grid
@@ -114,9 +116,7 @@ protected:
 
 	void writeIsoTransferPayload(
 		uint64_t recordCode,
-		io.UsbIsoPacket const* packetArray,
-		size_t packetCount,
-		size_t dataSize
+		io.UsbMonTransferHdr const* hdr
 	);
 }
 
@@ -170,6 +170,17 @@ void UsbMonSession.createUi() {
 		"Advanced options controlling performance, throughtput and compatibility"
 	);
 
+	if (sys.g_systemInfo.m_osKind == sys.OsKind.Windows) {
+		m_snapshotSizeProp = m_pluginHost.m_propertyGrid.createIntProperty(
+			group,,
+			"Snapshot size",
+			"Specify the USBPcap snapshot size"
+		);
+
+		m_snapshotSizeProp.m_minValue = 4 * 1024;
+		m_snapshotSizeProp.m_spinBoxStep = 1024;
+	}
+
 	m_kernelBufferSizeProp = m_pluginHost.m_propertyGrid.createIntProperty(
 		group,,
 		"Kernel buffer size",
@@ -221,12 +232,16 @@ bool errorcode UsbMonSession.capture() {
 		return false;
 	}
 
+	size_t snapshotSize = Defaults.SnapshotSize;
+	if (m_snapshotSizeProp)
+		snapshotSize = m_snapshotSizeProp.m_value;
+
 	m_monitor.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
 	m_monitor.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 	m_monitor.m_kernelBufferSize = m_kernelBufferSizeProp.m_value;
 	m_monitor.m_options = io.UsbMonOptions.CompletedTransfersOnly;
 	m_monitor.m_addressFilter = device.m_address;
-	m_monitor.open(device.m_captureDeviceName);
+	m_monitor.open(device.m_captureDeviceName, snapshotSize);
 
 	UsbDeviceParams params;
 	params.m_osKind = sys.g_systemInfo.m_osKind;
@@ -339,7 +354,7 @@ void UsbMonSession.processData(
 		}
 
 		io.UsbMonTransferHdr const* hdr = (io.UsbMonTransferHdr const*)m_transferBuffer.m_p;
-		size_t transferSize = sizeof(io.UsbMonTransferHdr) + hdr.m_captureSize;
+		size_t transferSize = sizeof(io.UsbMonTransferHdr) + hdr.m_capturedDataSize;
 		if (hdr.m_transferType == io.UsbTransferType.Isochronous) {
 			// for iso transfers we need to buffer the whole transfer --
 			// including the iso packet array and the payload -- before writing to log
@@ -396,28 +411,30 @@ void UsbMonSession.processData(
 			break;
 		}
 
-		if (hdr.m_status != 0)
-			writeTransferError(hdr.m_status);
-		else if (hdr.m_captureSize) {
-			uint64_t recordCode = (hdr.m_endpoint & 0x80) ?
-				log.StdRecordCode.Rx :
-				log.StdRecordCode.Tx;
+		if (hdr.m_transferType != -1) { // not a real transfer (could be USBPcap meta-information)
+			if (hdr.m_status != 0)
+				writeTransferError(hdr.m_status);
+			else if (hdr.m_capturedDataSize) {
+				uint64_t recordCode = (hdr.m_endpoint & 0x80) ?
+					log.StdRecordCode.Rx :
+					log.StdRecordCode.Tx;
 
-			if (hdr.m_transferType == io.UsbTransferType.Isochronous)
-				writeIsoTransferPayload(
-					recordCode,
-					(io.UsbIsoPacket const*)(hdr + 1),
-					hdr.m_isoHdr.m_packetCount,
-					hdr.m_captureSize
-				);
-			else
-				m_logWriter.write(
-					recordCode,
-					hdr + 1,
-					m_transferBuffer.m_size - sizeof(io.UsbMonTransferHdr),
-					p,
-					leftoverSize
-				);
+				if (hdr.m_transferType == io.UsbTransferType.Isochronous)
+					writeIsoTransferPayload(recordCode, hdr);
+				else
+					m_logWriter.write(
+						recordCode,
+						hdr + 1,
+						m_transferBuffer.m_size - sizeof(io.UsbMonTransferHdr),
+						p,
+						leftoverSize
+					);
+			}
+
+			if (hdr.m_capturedDataSize < hdr.m_originalDataSize) {
+				uint32_t truncated = hdr.m_originalDataSize - hdr.m_capturedDataSize;
+				m_logWriter.write(UsbLogRecordCode.TruncatedCapture, &truncated, sizeof(truncated));
+			}
 		}
 
 		m_prevTransferEndpoint = hdr.m_endpoint;
@@ -436,18 +453,17 @@ void UsbMonSession.writeTransferError(uint_t status) {
 
 void UsbMonSession.writeIsoTransferPayload(
 	uint64_t recordCode,
-	io.UsbIsoPacket const* packetArray,
-	size_t packetCount,
-	size_t dataSize
+	io.UsbMonTransferHdr const* hdr
 ) {
-	io.UsbIsoPacket const* packet = packetArray;
-	io.UsbIsoPacket const* end = packetArray + packetCount;
-
+	io.UsbIsoPacket const* packet = (io.UsbIsoPacket const*)(hdr + 1);
+	io.UsbIsoPacket const* end = packet + hdr.m_isoHdr.m_packetCount;
 	void const* p = end;
+	uint64_t capturedDataSize64 = hdr.m_capturedDataSize;
+
 	while (packet < end) {
 		if (packet.m_status != 0)
 			writeTransferError(packet.m_status);
-		else
+		else if ((uint64_t)packet.m_offset + packet.m_length <= capturedDataSize64)
 			m_logWriter.write(recordCode, p + packet.m_offset, packet.m_length);
 
 		packet++;
@@ -455,12 +471,33 @@ void UsbMonSession.writeIsoTransferPayload(
 }
 
 void UsbMonSession.load(doc.Storage* storage) {
+	uint_t vid = storage.readInt("deviceVid");
+	uint_t pid = storage.readInt("devicePid");
+	uint_t captureDeviceId = storage.readInt("captureDeviceId");
+	uint_t address = storage.readInt("deviceAddress");
+
+	size_t index = ui.findUsbMonDeviceComboIndex(m_deviceCombo, vid, pid, captureDeviceId, address);
+	if (index != -1)
+		m_deviceCombo.m_currentIndex = index;
+
+	if (m_snapshotSizeProp)
+		m_snapshotSizeProp.m_value = storage.readInt("snapshotSize", Defaults.SnapshotSize);
+
 	m_kernelBufferSizeProp.m_value = storage.readInt("kernelBufferSize", Defaults.KernelBufferSize);
 	m_bufferPropertySet.load(storage);
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 }
 
 void UsbMonSession.save(doc.Storage* storage) {
+	io.UsbMonDeviceDesc const* deviceDesc = m_deviceCombo.m_currentData;
+	if (deviceDesc) {
+		storage.writeInt("deviceVid", deviceDesc.m_vendorId);
+		storage.writeInt("devicePid", deviceDesc.m_productId);
+		storage.writeInt("captureDeviceId", deviceDesc.m_captureDeviceId);
+		storage.writeInt("deviceAddress", deviceDesc.m_address);
+	}
+
+	storage.writeInt("snapshotSize", m_snapshotSizeProp.m_value);
 	storage.writeInt("kernelBufferSize", m_kernelBufferSizeProp.m_value);
 	m_bufferPropertySet.save(storage);
 }
@@ -493,6 +530,11 @@ reactor UsbMonSession.m_uiReactor {
 	m_title = $"USB $(m_deviceCombo.m_currentText)";
 	m_actionTable[ActionId.Capture].m_text = m_state ? "Stop Capture" : "Capture";
 	m_actionTable[ActionId.Capture].m_icon = m_iconTable[m_state ? IconId.StopCapture : IconId.Capture];
+
+	if (m_snapshotSizeProp)
+		m_snapshotSizeProp.m_isEnabled = !m_state;
+
+	m_kernelBufferSizeProp.m_isEnabled = !m_state || sys.g_systemInfo.m_osKind != sys.OsKind.Windows;
 	m_statusPaneTable[StatusPaneId.State].m_text = m_state ? "Capturing" : "Closed";
 }
 

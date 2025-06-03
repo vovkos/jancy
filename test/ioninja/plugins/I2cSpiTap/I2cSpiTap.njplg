@@ -7,6 +7,8 @@
 
 name        = "I2C/SPI Tap"
 description = "Monitor I2C/SPI communication via an I2C/SPI Tap device from Tibbo"
+page        = hardware/i2c-spi-tap.html
+help        = user-manual/plugin-i2c-spi-tap.html
 id          = i2c-spi-tap
 group       = hw
 monitor     = true

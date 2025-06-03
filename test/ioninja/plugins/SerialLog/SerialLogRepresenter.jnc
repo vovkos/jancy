@@ -8,19 +8,9 @@ import "io_base.jncx"
 import "io_Serial.jnc"
 import "std_String.jnc"
 import "SerialLogRecordCode.jnc"
+import "stringUtils.jnc"
 
 //..............................................................................
-
-string_t getTableString(
-	uint_t value,
-	string_t const* table
-) {
-	return value < dynamic countof(table) ? table[value] : "\e[31mundefined\e[m";
-}
-
-string_t getOnOffString(uint_t line) {
-	return line ? "\e[31mon\e[m" : "\e[90moff\e[m";
-}
 
 string_t getStatusLineChangeString(
 	io.SerialStatusLines lines,

@@ -4,19 +4,23 @@
 //
 
 import "doc_Layer.jnc"
+import "ui_ToggleUi.jnc"
+import "ui_GroupBox.jnc"
 
 //..............................................................................
 
 class TxRxFilterLayer:
 	doc.Layer,
 	log.Filter {
-	ui.BoolProperty* m_isTxVisibleProp;
-	ui.BoolProperty* m_isRxVisibleProp;
+	ui.ToggleUi m_isTxVisibleToggle;
+	ui.ToggleUi m_isRxVisibleToggle;
 
 	construct(doc.PluginHost* pluginHost);
 
 	override void load(doc.Storage* storage);
 	override void save(doc.Storage* storage);
+	override void updateProperties();
+	override bool errorcode applyProperties();
 	override void restoreDefaultProperties();
 
 	override bool filter(
@@ -25,39 +29,75 @@ class TxRxFilterLayer:
 		void const* p,
 		size_t size
 	);
+
+protected:
+	void createUi(doc.PluginHost* pluginHost);
+
+	void onRebuildLog() {
+		m_pluginHost.m_log.rebuild();
+	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 TxRxFilterLayer.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
-
-	m_isTxVisibleProp = m_pluginHost.m_propertyGrid.createBoolProperty(
-		"Show TX",
-		"Display TX data log records"
-	);
-
-	m_isRxVisibleProp = m_pluginHost.m_propertyGrid.createBoolProperty(
-		"Show RX",
-		"Display RX data log records"
-	);
-
+	createUi(pluginHost);
 	pluginHost.m_log.addFilter(this);
 }
 
+void TxRxFilterLayer.createUi(doc.PluginHost* pluginHost) {
+	ui.VBoxLayout layout;
+	ui.GroupBox groupBox("TX/RX Filter", layout);
+
+	ui.Action applyAction("images/apply.png", "Rebuild log", onRebuildLog);
+	ui.ToolBar applyToolBar;
+	applyToolBar.addAction(applyAction);
+
+	m_isTxVisibleToggle.create(
+		layout,,
+		pluginHost.m_propertyGrid,
+		"Show TX",
+		"Display TX data log records",
+		true
+	);
+
+	m_isRxVisibleToggle.create(
+		layout,
+		applyToolBar,
+		pluginHost.m_propertyGrid,
+		"Show RX",
+		"Display RX data log records",
+		true
+	);
+
+	pluginHost.createForm(groupBox);
+}
+
 void TxRxFilterLayer.load(doc.Storage* storage) {
-	m_isTxVisibleProp.m_value = storage.readBool("isTxVisibleProp", true);
-	m_isRxVisibleProp.m_value = storage.readBool("isRxVisibleProp", true);
+	m_isTxVisibleToggle := storage.readBool("isTxVisible", true);
+	m_isRxVisibleToggle := storage.readBool("isRxVisible", true);
 }
 
 void TxRxFilterLayer.save(doc.Storage* storage) {
-	storage.writeBool("isTxVisibleProp", m_isTxVisibleProp.m_value);
-	storage.writeBool("isRxVisibleProp", m_isRxVisibleProp.m_value);
+	storage.writeBool("isTxVisible", m_isTxVisibleToggle.m_value);
+	storage.writeBool("isRxVisible", m_isRxVisibleToggle.m_value);
+}
+
+void TxRxFilterLayer.updateProperties() {
+	m_isTxVisibleToggle.update();
+	m_isRxVisibleToggle.update();
+}
+
+bool errorcode TxRxFilterLayer.applyProperties() {
+	m_isTxVisibleToggle.apply();
+	m_isRxVisibleToggle.apply();
+	return true;
 }
 
 void TxRxFilterLayer.restoreDefaultProperties() {
-	m_isTxVisibleProp.m_value = true;
-	m_isRxVisibleProp.m_value = true;
+	m_isTxVisibleToggle.m_value = true;
+	m_isRxVisibleToggle.m_value = true;
 }
 
 bool TxRxFilterLayer.filter(
@@ -68,10 +108,13 @@ bool TxRxFilterLayer.filter(
 ) {
 	switch (recordCode) {
 	case log.StdRecordCode.Tx:
-		return m_isTxVisibleProp.m_value;
+		return m_isTxVisibleToggle.m_value;
 
 	case log.StdRecordCode.Rx:
-		return m_isRxVisibleProp.m_value;
+		return m_isRxVisibleToggle.m_value;
+
+	case log.StdRecordCode.TxRx:
+		return m_isTxVisibleToggle.m_value || m_isRxVisibleToggle.m_value;
 
 	default:
 		return true; // everything else is visible

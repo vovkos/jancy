@@ -59,12 +59,10 @@ size_t errorcode transmitAll(
 	void const* p0 = p;
 	void const* end = p + size;
 	while (p < end) {
-		size_t blockSize = end - p;
-		size_t result = transmit(p, blockSize);
-		if (result < blockSize) { // buffer full, give it some time to flush
-			sys.sleep(250);
-			break;
-		}
+		size_t leftover = end - p;
+		size_t result = transmit(p, leftover);
+		if (result < leftover) // buffer full, give it some time to flush
+			sys.sleep(100);
 
 		p += result;
 	}

@@ -1,0 +1,31 @@
+#...............................................................................
+#
+#  Serial Tap Pro session plugin
+#
+
+[plugin]
+
+name        = "Serial Tap Pro"
+description = "Monitor serial communication through a Serial Tap Pro device from Tibbo"
+id          = serial-tap-pro
+group       = hw
+log-guid    = 3a1ec99b-234a-49a0-be4b-f6e60b80a5c0  # serial tap pro
+log-guid    = b26c1b57-16c7-48a5-bbb9-05ea1ada5368  # fpga uploader
+icon        = images/serialmon.png
+small-icon  = images/serialmon-16x16.png
+
+session-class = SerialTapProSession
+
+[required-capabilities]
+
+com.ioninja.io.serial-tap
+org.jancy.io.file
+
+[scripts]
+
+SerialTapPro.jnc
+SerialTapProSession.jnc
+SerialTapProDecoder.jnc
+SerialTapProInfoSet.jnc
+SerialTapProDispatchCode.jnc
+uleb128.jnc

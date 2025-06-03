@@ -188,16 +188,6 @@ enum ModbusDiagnosticSubFunc: uint16_t {
 
 //..............................................................................
 
-// shared attributes for address fields
-
-[
-	displayName = "Address",
-	formatSpec = "0x%04X"
-]
-void ModbusAddressAttr;
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 // particular function code PDUs
 
 struct ModbusPduHdr {
@@ -233,15 +223,15 @@ struct ModbusExceptionParams {
 // ModbusFunc.ReadCoils / ReadDiscreteInputs / ReadHoldingRegisters / ReadInputRegisters
 
 struct ModbusReadParams {
-	[ @ModbusAddressAttr ]
+	[ displayName = "Starting address" ]
 	bigendian uint16_t m_address;
 
-	[ displayName = "Count" ]
+	[ displayName = "Quantity" ]
 	bigendian uint16_t m_count;
 }
 
 struct ModbusReadReplyParams {
-	[ displayName = "Size" ]
+	[ displayName = "Byte count" ]
 	uint8_t m_size;
 
 	// followed by read data
@@ -273,7 +263,7 @@ struct ModbusBitBank {
 // ModbusFunc.WriteSingleCoil/WriteSingleRegister
 
 struct ModbusWriteSingleParams {
-	[ @ModbusAddressAttr ]
+	[ displayName = "Address" ]
 	bigendian uint16_t m_address;
 
 	[ displayName = "Value" ]
@@ -287,7 +277,7 @@ typedef ModbusWriteSingleParams ModbusWriteSingleReplyParams;
 // ModbusFunc.ReadExceptionStatus
 
 struct ModbusReadExceptionStatusReplyParams {
-	[ displayName = "Status" ]
+	[ displayName = "Output data" ]
 	uint8_t m_status;
 }
 
@@ -336,13 +326,13 @@ struct ModbusGetCommEventLogReplyParams: ModbusReadReplyParams {
 // ModbusFunc.WriteMultipleCoils / WriteMultipleRegisters
 
 struct ModbusWriteMultipleParams {
-	[ @ModbusAddressAttr ]
+	[ displayName = "Starting address" ]
 	bigendian uint16_t m_address;
 
-	[ displayName = "Count" ]
+	[ displayName = "Quantity" ]
 	bigendian uint16_t m_count;
 
-	[ displayName = "Size" ]
+	[ displayName = "Byte count" ]
 	uint8_t m_size;
 
 	// followed by write data
@@ -351,8 +341,8 @@ struct ModbusWriteMultipleParams {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 [
-	userAction = "Update size",
-	autorun = "Auto-update size"
+	userAction = "Update byte count",
+	autorun = "Auto-update byte count"
 ]
 void AutoUpdateSizeAttr;
 
@@ -373,10 +363,10 @@ struct ModbusWriteMultipleRegistersParams: ModbusWriteMultipleParams {
 }
 
 struct ModbusWriteMultipleReplyParams {
-	[ @ModbusAddressAttr ]
+	[ displayName = "Starting address" ]
 	bigendian uint16_t m_address;
 
-	[ displayName = "Count" ]
+	[ displayName = "Quantity" ]
 	bigendian uint16_t m_count;
 }
 
@@ -404,7 +394,7 @@ struct ModbusReadFileRecordReply {
 // ModbusFunc.MaskWriteRegister
 
 struct ModbusMaskWriteParams {
-	[ @ModbusAddressAttr ]
+	[ displayName = "Address" ]
 	bigendian uint16_t m_address;
 
 	[
@@ -433,7 +423,7 @@ struct ModbusReadWriteMultipleRegistersParams {
 	]
 	bigendian uint16_t m_readAddress;
 
-	[ displayName = "Read count" ]
+	[ displayName = "Read quantity" ]
 	bigendian uint16_t m_readCount;
 
 	[
@@ -442,10 +432,10 @@ struct ModbusReadWriteMultipleRegistersParams {
 	]
 	bigendian uint16_t m_writeAddress;
 
-	[ displayName = "Write count" ]
+	[ displayName = "Write quantity" ]
 	bigendian uint16_t m_writeCount;
 
-	[ displayName = "Write size" ]
+	[ displayName = "Write byte count" ]
 	uint8_t m_writeSize;
 
 	// followed by data to be written
@@ -464,7 +454,7 @@ typedef ModbusReadReplyParams ModbusReportServerIdReplyParams;
 // ModbusFunc.ReadFifoQueue
 
 struct ModbusReadFifoQueueParams {
-	[ @ModbusAddressAttr ]
+	[ displayName = "Address" ]
 	bigendian uint16_t m_address;
 }
 
@@ -548,6 +538,10 @@ enum {
 
 //..............................................................................
 
+string_t formatModbusRegister(void const* p) {
+	return $"0x%(1;04X) (%(1;d))"(*(bigendian uint16_t const*)p);
+}
+
 // no need to make this one async -- it doesn't read any preceding data
 
 void layoutModbusRegisters(
@@ -567,7 +561,10 @@ void layoutModbusRegisters(
 			foldFlag = 2
 		]
 		dyfield values {
-			[ ungroup ]
+			[
+				ungroup,
+				elementFormatFunc = formatModbusRegister
+			]
 			dyfield bigendian uint16_t values[count];
 
 			if (size & 1)
@@ -796,7 +793,7 @@ void appendModbusPduDigest(
 		case ModbusFunc.ReadInputRegisters:
 			if (role == ModbusRole.Master) {
 				dyfield ModbusReadParams params;
-				digest.append($" Addr: 0x%04x"(params.m_address));
+				digest.append($" Addr: %1"(params.m_address));
 				if (params.m_count > 1)
 					digest.append($" N: %1"(params.m_count));
 			} else {
@@ -813,14 +810,14 @@ void appendModbusPduDigest(
 		case ModbusFunc.WriteSingleCoil:
 		case ModbusFunc.WriteSingleRegister:
 			dyfield ModbusWriteSingleParams params;
-			digest.append($" Addr: 0x%04x Val: %2"(params.m_address, params.m_value));
+			digest.append($" Addr: %1 Val: %2"(params.m_address, params.m_value));
 			break;
 
 		case ModbusFunc.WriteMultipleCoils:
 		case ModbusFunc.WriteMultipleRegisters:
 			if (role == ModbusRole.Master) {
 				dyfield ModbusWriteMultipleParams params;
-				digest.append($" Addr: 0x%04x "(params.m_address));
+				digest.append($" Addr: %1 "(params.m_address));
 
 				if (pduHdr.m_func == ModbusFunc.WriteMultipleCoils)
 					digest.append(getModbusBitDigest(&params + 1, params.m_size));
@@ -828,14 +825,14 @@ void appendModbusPduDigest(
 					digest.append(getModbusRegisterDigest(&params + 1, params.m_size));
 			} else {
 				dyfield ModbusWriteMultipleReplyParams params;
-				digest.append($" Addr: 0x%04x N: %2"(params.m_address, params.m_count));
+				digest.append($" Addr: %1 N: %2"(params.m_address, params.m_count));
 			}
 			break;
 
 		case ModbusFunc.MaskWriteRegister:
 			dyfield ModbusMaskWriteParams params;
 			digest.append(
-				$" Addr: 0x%04x Masks: 0x%04x/0x%04x"(
+				$" Addr: %1 Masks: 0x%04X/0x%04X"(
 				params.m_address,
 				params.m_andMask,
 				params.m_orMask
@@ -846,7 +843,7 @@ void appendModbusPduDigest(
 			if (role == ModbusRole.Master) {
 				dyfield ModbusReadWriteMultipleRegistersParams params;
 				digest.append(
-					$" Addr: 0x%04x/0x%04x "(
+					$" Addr: %1/%2 "(
 					params.m_readAddress,
 					params.m_writeAddress
 				));
@@ -926,20 +923,24 @@ struct ModbusAsciiLrc {
 }
 
 string_t getModbusChecksumValidityString(bool isValid) {
-	return isValid ? "\e[32mOK\e[m" : "\e[31mERROR\e[m";
+	return isValid ? "" : "";
 }
 
 string_t formatModbusRtuCrc(void const* p) {
 	ModbusRtuCrc const* crc = (ModbusRtuCrc const*)p;
-	bool isValid = crc.m_crc == crc.calcCrc();
-	return $"0x%04X\e[m [%2]"(crc.m_crc, getModbusChecksumValidityString(isValid));
+	uint16_t expected = crc.calcCrc();
+	return crc.m_crc == expected ?
+		$"0x%04X\e[m [\e[32mOK\e[m]"(crc.m_crc) :
+		$"0x%04X\e[m [\e[31mERROR\e[m] \e[90m(expected 0x%04X)"(crc.m_crc, expected);
 }
 
 string_t formatModbusAsciiLrc(void const* p) {
 	size_t size = dynamic offsetof(p);
 	uint8_t checksum = *(uint8_t const*)p;
-	bool isValid = checksum == lrc(p - size, size);
-	return $"0x%02X\e[m [%2]"(checksum, getModbusChecksumValidityString(isValid));
+	uint8_t expected = lrc(p - size, size);
+	return checksum == expected ?
+		$"0x%02X\e[m [\e[32mOK\e[m]"(checksum) :
+		$"0x%02X\e[m [\e[31mERROR\e[m] \e[90m(expected 0x%02X)"(checksum, expected);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -1210,7 +1211,7 @@ string_t getModbusRegisterDigest(
 	std.StringBuilder digest;
 	digest.append('{');
 	for (; p < end; p++)
-		digest.append($" %d,"(*p));
+		digest.append($" 0x%(1;04X) (%(1;d)),"(*p));
 
 	if (count0 > count)
 		digest.append(" ... }");

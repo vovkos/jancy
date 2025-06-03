@@ -1,0 +1,114 @@
+import "ui_Layout.jnc"
+import "ui_Button.jnc"
+import "ui_PropertyGrid.jnc"
+import "ui_ToolBar.jnc"
+
+namespace ui {
+
+//! \addtogroup common
+//! @{
+
+//..............................................................................
+
+class ToggleUi {
+protected:
+	CheckBox* m_checkBox;
+	BoolProperty* m_prop;
+
+public:
+	bool bindable readonly m_value;
+
+	void create(
+		VBoxLayout* layout,
+		ToolBar* toolBar = null,
+		PropertyGrid* propertyGrid,
+		string_t name,
+		string_t toolTip = null,
+		bool value = false
+	) {
+		createImpl(layout, toolBar, propertyGrid, null, name, toolTip, value);
+	}
+
+	void create(
+		VBoxLayout* layout,
+		ToolBar* toolBar = null,
+		GroupProperty* groupProp,
+		string_t name,
+		string_t toolTip = null,
+		bool value = false
+	) {
+		createImpl(layout, toolBar, null, groupProp, name, toolTip, value);
+	}
+
+	void update() {
+		m_prop.m_value = m_value;
+	}
+
+	void apply() {
+		m_value = m_checkBox.m_isChecked = m_prop.m_value;
+	}
+
+	void operator := (bool value);
+
+protected:
+	void onCheckBoxClicked() {
+		m_value = m_checkBox.m_isChecked;
+	}
+
+	void createImpl(
+		VBoxLayout* layout,
+		ToolBar* toolBar,
+		PropertyGrid* propertyGrid,
+		GroupProperty* groupProp,
+		string_t name,
+		string_t toolTip,
+		bool value
+	);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void ToggleUi.createImpl(
+	VBoxLayout* layout,
+	ToolBar* toolBar,
+	PropertyGrid* propertyGrid,
+	GroupProperty* groupProp,
+	string_t name,
+	string_t toolTip,
+	bool value
+) {
+	m_checkBox = new CheckBox(name);
+	m_checkBox.m_toolTip = toolTip;
+	m_checkBox.m_isChecked = value;
+	bindingof(m_checkBox.m_isChecked) += onCheckBoxClicked;
+
+	if (!toolBar)
+		layout.addWidget(m_checkBox);
+	else {
+		ui.HBoxLayout subLayout;
+		subLayout.addWidget(m_checkBox, 1, Alignment.Top);
+		subLayout.addWidget(toolBar);
+		layout.addLayout(subLayout);
+	}
+
+	m_prop = new BoolProperty(name);
+	m_prop.m_toolTip = toolTip;
+	m_prop.m_value = value;
+
+	if (groupProp)
+		groupProp.addChildProperty(m_prop);
+	else
+		propertyGrid.addProperty(m_prop);
+
+	m_value = value;
+}
+
+void ToggleUi.operator := (bool value) {
+	m_value = value;
+	m_checkBox.m_isChecked = value;
+	m_prop.m_value = value;
+}
+
+//..............................................................................
+
+} // namespace ui

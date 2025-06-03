@@ -7,6 +7,8 @@
 
 name        = "XModem"
 description = "Implements XModem protocol for file transmit/receive"
+page        = plugins/xmodem.html
+help        = user-manual/plugin-xmodem.html
 id          = xmodem
 icon        = images/xmodem.png
 small-icon  = images/xmodem-16x16.png

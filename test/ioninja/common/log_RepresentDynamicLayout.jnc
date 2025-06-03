@@ -395,7 +395,12 @@ void representArray(
 		context.m_foldFlags = -1; // no individual folds for array elements
 
 		for (size_t i = 0; i < elementCount; i++) {
-			context.m_representation.addHyperText($"%1[%2]"(indent, i));
+			context.m_representation.addHyperText($"%1%2[%3]:"(
+				indent,
+				getOffsetHyperlink(context.m_rawBinPartCode, offset, elementSize),
+				i
+			));
+
 			representFields(context, derivableType, offset, p, fieldIndent);
 			p += elementSize;
 			offset += elementSize;
@@ -407,7 +412,7 @@ void representArray(
 		for (size_t i = 0; i < elementCount; i++) {
 			context.m_representation.addHyperText($"%1%2[%3]:\t\e[34m%4"(
 				indent,
-				getOffsetHyperlink(context.m_rawBinPartCode, offset, arraySize),
+				getOffsetHyperlink(context.m_rawBinPartCode, offset, elementSize),
 				i,
 				getValueStringFunc(p)
 			));

@@ -1,0 +1,60 @@
+#...............................................................................
+#
+#  Serial Tap Pro Log log plugin
+#
+
+[plugin]
+
+name        = "Serial Tap Pro Log"
+description = "Serial Tap Pro log representer"
+group       = serial
+guid        = 3a1ec99b-234a-49a0-be4b-f6e60b80a5c0
+small-icon  = images/serialmon-16x16.png
+
+log-representer-func = representSerialTapProLog
+log-filter-class     = SerialTapProLogConverter
+
+[scripts]
+
+SerialTapPro.jnc
+SerialTapProLogRecordCode.jnc
+SerialTapProLogRepresenter.jnc
+SerialTapProLogConverter.jnc
+SerialTapProDispatchCode.jnc
+uleb128.jnc
+
+[records]
+
+01db13c48f442500  # DeviceOpened
+01db13c48f442501  # InterfaceClaimed
+01db13c48f442502  # InEndpointOpened
+01db13c48f442503  # OutEndpointOpened
+81db13c48f442504  # CaptureStarted
+01db13c48f442505  # CaptureStopped
+01db13c48f442506  # CaptureError
+01db13c48f442507  # UnexpectedCode
+01db13c48f442508  # IncompleteByte
+01db13c48f442509  # FpgaBufferOverflow
+01db13c48f44250a  # CypressBufferCleared
+01db13c48f44250b  # StatusLineChanged
+01db13c48f44250c  # TxParityError
+01db13c48f44250d  # RxParityError
+01db13c48f44250e  # TxFramingError
+01db13c48f44250f  # RxFramingError
+01db13c48f442510  # TxBreakOn
+01db13c48f442511  # RxBreakOn
+01db13c48f442512  # TxBreakOff
+01db13c48f442513  # RxBreakOff
+01db13c48f442514  # TxParityBit
+01db13c48f442515  # RxParityBit
+01db13c48f442516  # IfaceChanged
+01db13c48f442517  # InjectChanged
+01db13c48f442518  # Rs485InjectModeChanged
+01db13c48f442519  # Rs485InjectChannelChanged
+01db13c48f44251a  # OverflowsChanged
+01db13c48f44251b  # RawUsbBulkData
+01db13c48f44251c  # RawUsbBulkDataFlipped
+01db13c48f44251d  # BaudRateChanged
+01db13c48f44251e  # DataBitsChanged
+01db13c48f44251f  # StopBitsChanged
+01db13c48f442520  # ParityChanged

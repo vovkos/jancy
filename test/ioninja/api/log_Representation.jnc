@@ -19,10 +19,28 @@ enum PartKind {
 	PlainText,
 	HyperText,
 	Bin,
+	Bin9,
 	DualBin,
+	DualBin9,
 	Break,
 	BinPreview,
+	Bin9Preview,
 	DualBinPreview,
+	DualBin9Preview,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// 9-bit data (Bin9) is layoud as such: data..... bin9.....
+// data is a normal 8-bit data byte array
+// bin9 is a bitmap of bytes with 9-bit set (1/8 of data)
+
+size_t getDataSizeWoBin9FromPartSize(size_t partSize) {
+	return partSize * 8 / 9;
+}
+
+size_t getBin9SizeFromDataSize(size_t dataSize) {
+	return (dataSize + 7) / 8;
 }
 
 //..............................................................................
@@ -67,10 +85,13 @@ enum StdLogColor {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bitflag enum LineAttrFlags {
-	TileIcon,
-	Delimiter,
 	Override,
+	TileIcon,
+	_Reserved,
 	Preview,
+	Local,
+	Delimiter,
+	HardDelimiter,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -95,6 +116,15 @@ opaque class Representation {
 		size_t size
 	);
 
+	void addPart(
+		PartKind partKind,
+		uint64_t partCode,
+		void const* p1,
+		size_t size1,
+		void const* p2,
+		size_t size2
+	);
+
 	void retroColorize(
 		intptr_t retroOffset,
 		size_t length,
@@ -102,8 +132,8 @@ opaque class Representation {
 		RetroColorizeFlags flags = 0
 	);
 
-	void addBreak() {
-		addPart(PartKind.Break, 0, null, 0);
+	void addBreak(bool isHardBreak = false) {
+		addPart(PartKind.Break, isHardBreak, null, 0);
 	}
 
 	void addPlainText(
@@ -143,6 +173,40 @@ opaque class Representation {
 		addPart(PartKind.Bin, m_recordCode, p, size);
 	}
 
+	void addBin9(
+		uint64_t partCode,
+		void const* p,
+		size_t size
+	) {
+		addPart(PartKind.Bin9, partCode, p, size);
+	}
+
+	void addBin9(
+		void const* p,
+		size_t size
+	) {
+		addPart(PartKind.Bin9, m_recordCode, p, size);
+	}
+
+	void addBin9(
+		uint64_t partCode,
+		void const* p,
+		size_t size,
+		void const* bin9
+	) {
+		size_t bin9Size = getBin9SizeFromDataSize(size);
+		addPart(PartKind.Bin9, partCode, p, size, bin9, bin9Size);
+	}
+
+	void addBin9(
+		void const* p,
+		size_t size,
+		void const* bin9
+	) {
+		size_t bin9Size = getBin9SizeFromDataSize(size);
+		addPart(PartKind.Bin9, m_recordCode, p, size, bin9, bin9Size);
+	}
+
 	void addBinPreview(
 		uint64_t partCode,
 		void const* p,
@@ -158,14 +222,48 @@ opaque class Representation {
 		addPart(PartKind.BinPreview, m_recordCode, p, size);
 	}
 
+	void addBin9Preview(
+		uint64_t partCode,
+		void const* p,
+		size_t size
+	) {
+		addPart(PartKind.Bin9Preview, partCode, p, size);
+	}
+
+	void addBin9Preview(
+		void const* p,
+		size_t size
+	) {
+		addPart(PartKind.Bin9Preview, m_recordCode, p, size);
+	}
+
+	void addBin9Preview(
+		uint64_t partCode,
+		void const* p,
+		size_t size,
+		void const* bin9
+	) {
+		size_t bin9Size = getBin9SizeFromDataSize(size);
+		addPart(PartKind.Bin9Preview, partCode, p, size, bin9, bin9Size);
+	}
+
+	void addBin9Preview(
+		void const* p,
+		size_t size,
+		void const* bin9
+	) {
+		size_t bin9Size = getBin9SizeFromDataSize(size);
+		addPart(PartKind.Bin9Preview, m_recordCode, p, size, bin9, bin9Size);
+	}
+
 	void addDualBin(
 		uint64_t partCode,
 		void const* p1,
 		void const* p2,
 		size_t size
 	) {
-		void const* p = memcat(p1, size, p2, size);
-		addPart(PartKind.DualBin, partCode, p, size * 2);
+		size *= 2;
+		addPart(PartKind.DualBin, partCode, p1, size, p2, size);
 	}
 
 	void addDualBin(
@@ -182,8 +280,8 @@ opaque class Representation {
 		void const* p2,
 		size_t size
 	) {
-		void const* p = memcat(p1, size, p2, size);
-		addPart(PartKind.DualBinPreview, partCode, p, size * 2);
+		size *= 2;
+		addPart(PartKind.DualBinPreview, partCode, p1, size, p2, size);
 	}
 
 	void addDualBinPreview(

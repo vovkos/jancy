@@ -7,6 +7,8 @@
 
 name        = SSH Channel
 description = "Establishes SSH channel over TCP socket"
+page        = plugins/ssh-channel.html
+help        = user-manual/plugin-ssh-channel.html
 id          = ssh
 group       = net
 log-guid    = 8ec96e77-89df-4dd8-bc14-b995b85de45d  # ssh

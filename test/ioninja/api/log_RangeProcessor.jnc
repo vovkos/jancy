@@ -3,6 +3,8 @@
 // Ninja log - range processor
 //
 
+import "log_RecordCode.jnc"
+
 namespace log {
 
 //! \addtogroup api-log
@@ -10,7 +12,7 @@ namespace log {
 
 //..............................................................................
 
-class RangeProcessor {
+class RangeProcessor: AbstractProcessor {
 	uint64_t m_timestamp;
 	uint64_t m_recordCode;
 	uint64_t m_zoneOffset;

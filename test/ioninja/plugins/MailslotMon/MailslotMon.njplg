@@ -7,6 +7,8 @@
 
 name        = "Mailslot Monitor"
 description = "Monitor mailslot communications"
+page        = plugins/mailslot-monitor.html
+help        = user-manual/plugin-mailslot-monitor.html
 id          = mailslotmon
 group       = fs
 monitor     = true

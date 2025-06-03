@@ -6,7 +6,7 @@
 import "doc_Session.jnc"
 import "io_base.jncx"
 import "io_Socket.jnc"
-import "io_HostNameResolver.jnc"
+import "iox_HostNameResolver.jnc"
 import "ui_History.jnc"
 import "ui_SocketUi.jnc"
 import "ui_StdSessionInfoSet.jnc"
@@ -59,7 +59,7 @@ protected:
 
 	State bindable m_state;
 	io.Socket m_socket;
-	io.HostNameResolver m_resolver;
+	iox.HostNameResolver m_resolver;
 	io.SocketAddress m_remoteAddress;
 	uint_t m_syncId;
 
@@ -113,11 +113,7 @@ protected:
 	void handleConnectError(std.Error const* error);
 
 	void onConnect();
-
-	void onResolverEvent(
-		uint_t syncId,
-		io.HostNameResolverEvents triggeredEvents
-	);
+	void onResolveCompleted();
 
 	void onSocketEvent(
 		uint_t syncId,
@@ -133,6 +129,7 @@ protected:
 
 ModbusGatewayMonSession.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
+	m_resolver.construct(pluginHost);
 
 	m_state = State.Closed;
 
@@ -142,6 +139,7 @@ ModbusGatewayMonSession.construct(doc.PluginHost* pluginHost) {
 
 	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
 	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
+	m_resolver.m_onCompleted += onResolveCompleted;
 }
 
 void ModbusGatewayMonSession.createUi() {
@@ -192,6 +190,9 @@ void ModbusGatewayMonSession.createUi() {
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 
+	m_pluginHost.m_propertyGrid.resizeNameColumnToContents();
+	m_pluginHost.m_informationGrid.resizeNameColumnToContents();
+
 	m_uiReactor.start();
 }
 
@@ -220,7 +221,6 @@ bool errorcode ModbusGatewayMonSession.connect() {
 	}
 
 	m_state = State.Resolving;
-	m_logWriter.write(SocketLogRecordCode.Resolving, addressString);
 
 	io.AddressFamily addressFamily = io.AddressFamily.Undefined;
 	if (m_socketPropertySet.m_useLocalAddressProp.m_value) {
@@ -229,13 +229,8 @@ bool errorcode ModbusGatewayMonSession.connect() {
 			addressFamily = adapterAddress.m_family;
 	}
 
+	m_resolver.m_defaultPort = m_socketPropertySet.m_remotePortProp.m_value;
 	m_resolver.resolve(addressString, addressFamily);
-
-	m_resolver.wait(
-		io.HostNameResolverEvents.Resolved | io.HostNameResolverEvents.Error,
-		onResolverEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler
-	);
-
 	return true;
 
 catch:
@@ -509,31 +504,11 @@ void ModbusGatewayMonSession.onSocketEvent(
 	waitSocketEvents();
 }
 
-void ModbusGatewayMonSession.onResolverEvent(
-	uint_t syncId,
-	io.HostNameResolverEvents triggeredEvents
-) {
-	if (syncId != m_syncId)
-		return;
-
-	if (triggeredEvents & io.HostNameResolverEvents.Error) {
-		handleConnectError(m_resolver.m_error);
-		return;
-	}
-
-	m_logWriter.write(
-		SocketLogRecordCode.ResolveCompleted,
-		m_resolver.m_addressTable,
-		sizeof(io.SocketAddress)
-	);
-
+void ModbusGatewayMonSession.onResolveCompleted() {
 	m_state = State.Closed;
 
-	io.SocketAddress address = m_resolver.m_addressTable[0];
-	if (!address.m_port)
-		address.m_port = m_socketPropertySet.m_remotePortProp.m_value;
-
-	try connect(address);
+	if (m_resolver.m_state == iox.HostNameResolver.State.Resolved)
+		try connect(m_resolver.m_address);
 }
 
 reactor ModbusGatewayMonSession.m_uiReactor {

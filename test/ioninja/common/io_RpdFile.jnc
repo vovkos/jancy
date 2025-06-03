@@ -17,7 +17,7 @@ enum {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct RpdVersion {
-	uint8_t m_hardwareType;
+	uint8_t m_hardwareVersion;
 	uint8_t m_firmwareType;
 	bigendian uint16_t m_firmwareVersion;
 }

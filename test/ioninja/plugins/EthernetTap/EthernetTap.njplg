@@ -7,6 +7,8 @@
 
 name        = "Ethernet Tap"
 description = "Monitor Ethernet packets via an Ethernet Tap device from Tibbo"
+page        = hardware/ethernet-tap.html
+help        = user-manual/plugin-ethernet-tap.html
 id          = ethernet-tap
 group       = hw
 monitor     = true

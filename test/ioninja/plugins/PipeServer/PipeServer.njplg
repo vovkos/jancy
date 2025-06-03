@@ -7,6 +7,8 @@
 
 name        = Pipe Server
 description = "Listens for and accepts named pipe connections"
+page        = plugins/pipe-server.html
+help        = user-manual/plugin-pipe-server.html
 id          = pipe-server
 group       = fs
 log-guid    = d74419a1-789c-4d9a-8d92-bd44ee19c971  # pipe server

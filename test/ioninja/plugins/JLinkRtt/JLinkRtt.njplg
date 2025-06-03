@@ -7,6 +7,8 @@
 
 name        = "J-Link RTT"
 description = "An advanced J-Link RTT terminal"
+page        = plugins/jlink-rtt.html
+help        = user-manual/plugin-jlink-rtt.html
 id          = jlink-rtt
 log-guid    = b1c1cd8b-f182-41fe-af19-f5fc0ab33a16  # jlink-rtt
 log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket

@@ -6,7 +6,7 @@
 import "doc_Session.jnc"
 import "io_base.jncx"
 import "io_Socket.jnc"
-import "io_HostNameResolver.jnc"
+import "iox_HostNameResolver.jnc"
 import "ui_History.jnc"
 import "ui_SocketUi.jnc"
 import "ui_BufferPropertySet.jnc"
@@ -65,7 +65,7 @@ protected:
 
 	State bindable m_state;
 	io.Socket m_socket;
-	io.HostNameResolver m_resolver;
+	iox.HostNameResolver m_resolver;
 	io.SocketAddress m_localAddress;
 	io.SocketAddress m_remoteAddress;
 	std.Buffer m_readBuffer;
@@ -140,16 +140,12 @@ protected:
 		try connect();
 	}
 
-	void onResolverEvent(
-		uint_t syncId,
-		io.HostNameResolverEvents triggeredEvents
-	);
-
 	void onSocketEvent(
 		uint_t syncId,
 		io.SocketEvents triggeredEvents
 	);
 
+	void onResolveCompleted();
 	void onReconnectTimer(uint_t syncId);
 
 	void createUi();
@@ -161,11 +157,13 @@ protected:
 
 TcpConnectionSession.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
+	m_resolver.construct(pluginHost);
 
 	createUi();
 
 	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
 	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
+	m_resolver.m_onCompleted += onResolveCompleted;
 }
 
 void TcpConnectionSession.createUi() {
@@ -241,7 +239,6 @@ bool errorcode TcpConnectionSession.connect() {
 
 	m_state = State.Resolving;
 	m_sessionConnectionState = SessionConnectionState.Connecting;
-	m_logWriter.write(SocketLogRecordCode.Resolving, addressString);
 
 	io.AddressFamily addressFamily = io.AddressFamily.Undefined;
 	if (m_socketPropertySet.m_useLocalAddressProp.m_value) {
@@ -250,13 +247,8 @@ bool errorcode TcpConnectionSession.connect() {
 			addressFamily = adapterAddress.m_family;
 	}
 
+	m_resolver.m_defaultPort = m_socketPropertySet.m_remotePortProp.m_value;
 	m_resolver.resolve(addressString, addressFamily);
-
-	m_resolver.wait(
-		io.HostNameResolverEvents.Resolved | io.HostNameResolverEvents.Error,
-		onResolverEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler
-	);
-
 	return true;
 
 catch:
@@ -350,6 +342,7 @@ void TcpConnectionSession.close() {
 	m_stdSessionInfoSet.endSession();
 	m_isTransmitEnabled = false;
 	m_socket.close();
+	m_resolver.cancel();
 	m_state = State.Closed;
 	m_sessionConnectionState = SessionConnectionState.Disconnected;
 	m_lastReconnectTime = 0;
@@ -362,6 +355,9 @@ void TcpConnectionSession.disconnect() {
 		return;
 
 	case State.Resolving:
+		m_resolver.cancel();
+		break;
+
 	case State.Connecting:
 		m_logWriter.write(SocketLogRecordCode.ConnectCancelled);
 		break;
@@ -580,31 +576,11 @@ void TcpConnectionSession.onSocketEvent(
 	waitSocketEvents();
 }
 
-void TcpConnectionSession.onResolverEvent(
-	uint_t syncId,
-	io.HostNameResolverEvents triggeredEvents
-) {
-	if (syncId != m_syncId)
-		return;
-
-	if (triggeredEvents & io.HostNameResolverEvents.Error) {
-		handleSocketError(m_resolver.m_error);
-		return;
-	}
-
-	m_logWriter.write(
-		SocketLogRecordCode.ResolveCompleted,
-		m_resolver.m_addressTable,
-		sizeof(io.SocketAddress)
-	);
-
+void TcpConnectionSession.onResolveCompleted() {
 	m_state = State.Closed;
 
-	io.SocketAddress address = m_resolver.m_addressTable[0];
-	if (!address.m_port)
-		address.m_port = m_socketPropertySet.m_remotePortProp.m_value;
-
-	try connect(address);
+	if (m_resolver.m_state == iox.HostNameResolver.State.Resolved)
+		try connect(m_resolver.m_address);
 }
 
 void TcpConnectionSession.onReconnectTimer(uint_t syncId) {

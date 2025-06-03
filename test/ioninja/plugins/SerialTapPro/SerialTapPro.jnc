@@ -1,0 +1,204 @@
+//..............................................................................
+//
+// Serial Tap Pro definitions
+//
+
+import "io_usb.jncx"
+import "io_UsbTransfer.jnc"
+import "std_String.jnc"
+
+//..............................................................................
+
+enum SerialTapProUsb {
+	VendorId             = 0x326f,
+	ProductId            = 0x0005,
+	OutEndpoint          = 0x02,
+	InEndpoint           = 0x86,
+	BulkSize             = 512,
+	ControlBufferSize    = 8, // enough for all control transfers
+	ControlInRequestType =
+		io.UsbControlRecipient.Device |
+		(io.UsbControlType.Vendor << 5) |
+		(io.UsbControlDirection.In << 7),
+	ControlOutRequestType =
+		io.UsbControlRecipient.Device |
+		(io.UsbControlType.Vendor << 5) |
+		(io.UsbControlDirection.Out << 7),
+}
+
+enum SerialTapProControlRequestCode {
+	ReadRegister  = 0x58,
+	WriteRegister = 0x59,
+}
+
+enum SerialTapProRegister {
+	Status       = 3,
+	Control      = 4,
+	Time0        = 5,
+	Time1        = 6,
+	Time2        = 7,
+	TxBufferSize = 8,
+	TxQueueSize  = 9,
+	BaudFreq0    = 10,
+	BaudFreq1    = 11,
+	BaudLimit0   = 12,
+	BaudLimit1   = 13,
+	Bits         = 14,
+	Lines        = 15,
+}
+
+bitflag enum SerialTapProControlFlags {
+	Start,
+	AutoBaud,
+	Rs485InjectChannel,
+	Forward,
+	Rts,
+	Dtr,
+	Rs485InjectHalfDuplex,
+}
+
+union SerialTapProBits {
+	uint16_t m_value;
+	struct {
+		uint16_t m_dataBits : 8;
+		uint16_t m_parity   : 4;
+		uint16_t m_stopBits : 4;
+	}
+}
+
+enum SerialTapProNotificationCode: uint8_t {
+	BufferOverflow   = 1,
+	Collision        = 2,
+	Data_0           = 3,
+	Data_1           = 4,
+	StatusLineChange = 5,
+	BreakOn_0        = 7,
+	BreakOn_1        = 8,
+	BreakOff_0       = 9,
+	BreakOff_1       = 10,
+	Status           = 13,
+}
+
+bitflag enum SerialTapProLines: uint8_t {
+	Cts       = 0x01,
+	Dsr       = 0x02,
+	Ring      = 0x04,
+	Dcd       = 0x08,
+	Rts       = 0x10,
+	Dtr       = 0x20,
+	Break_0   = 0x40,
+	Break_1   = 0x80,
+
+	LineMask  = 0x3f,
+	BreakMask = 0xc0,
+}
+
+SerialTapProLines flipSerialTapProLines(SerialTapProLines lines) {
+	return
+		(lines & ~(
+			SerialTapProLines.Cts |
+			SerialTapProLines.Dsr |
+			SerialTapProLines.Rts |
+			SerialTapProLines.Dtr |
+			SerialTapProLines.Break_0 |
+			SerialTapProLines.Break_1
+		)) |
+		((lines & (SerialTapProLines.Cts | SerialTapProLines.Dsr)) << 4) |
+		((lines & (SerialTapProLines.Rts | SerialTapProLines.Dtr)) >> 4) |
+		((lines & SerialTapProLines.Break_0) << 1) |
+		((lines & SerialTapProLines.Break_1) >> 1);
+}
+
+bitflag enum SerialTapProOverflows: uint8_t {
+	Data_0      = 0x80,
+	Data_1      = 0x40,
+	Lines       = 0x20,
+	Break_0     = 0x10,
+	Break_1     = 0x08,
+	Status      = 0x04,
+
+	NonDataMask = 0x3c,
+	Mask        = 0xfc,
+}
+
+uint8_t flipSerialTapProOverflows(uint8_t status) {
+	return
+		(status & ~(
+			SerialTapProOverflows.Data_0 |
+			SerialTapProOverflows.Data_1 |
+			SerialTapProOverflows.Break_0 |
+			SerialTapProOverflows.Break_1
+		)) |
+		((status & (SerialTapProOverflows.Data_0 | SerialTapProOverflows.Break_0)) >> 1) |
+		((status & (SerialTapProOverflows.Data_1 | SerialTapProOverflows.Break_1)) << 1);
+}
+
+string_t getSerialTapProOverflowsString(SerialTapProOverflows overflows) {
+	std.StringBuilder string;
+	if (overflows & SerialTapProOverflows.Data_0)
+		string += "TX ";
+
+	if (overflows & SerialTapProOverflows.Data_1)
+		string += "RX ";
+
+	if (overflows & SerialTapProOverflows.NonDataMask) { // unlikely
+		if (overflows & SerialTapProOverflows.Break_0)
+			string += "BREAK (TX) ";
+
+		if (overflows & SerialTapProOverflows.Break_1)
+			string += "BREAK (RX) ";
+
+		if (overflows & SerialTapProOverflows.Lines)
+			string += "LINES ";
+
+		if (overflows & SerialTapProOverflows.Status)
+			string += "STATUS ";
+	}
+
+	string.chop(1);
+	return string.detachString();
+}
+
+bitflag enum SerialTapProDataFlags: int8_t {
+	ParityBit    = 0x01,
+	FramingError = 0x10,
+	ParityError  = 0x20,
+	ErrorMask    = 0x30,
+}
+
+enum SerialTapProIface: uint8_t {
+	Undefined = 0,
+	Rs485     = 1,
+	Ttl       = 2,
+	Rs232     = 3,
+	Mask      = 0x03,
+}
+
+string_t getSerialTapProIfaceString(SerialTapProIface iface) {
+	static string_t const strings[] = {
+		"Unknown",
+		"RS485/RS422",
+		"TTL",
+		"RS232",
+	}
+
+	return strings[iface & SerialTapProIface.Mask];
+}
+
+enum SerialTapProRs485Mode: uint8_t {
+	HalfDuplex,
+	HalfDuplexForward,
+	FullDuplex,
+}
+
+string_t getSerialTapProRs485ModeString(SerialTapProRs485Mode mode) {
+	static string_t const strings[] = {
+		"Half-duplex",
+		"Half-duplex D1 \u2194 D2",
+		"Full-duplex"
+	}
+
+	return mode < countof(strings) ? strings[mode] : "Unknown";
+}
+
+//..............................................................................

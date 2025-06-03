@@ -14,7 +14,7 @@ enum ProcessLogRecordCode: uint64_t {
 	ProcessCrashed     = 0x01d5d363496d4703,
 	ProcessTerminating = 0x01d5d363496d4704,
 	Detached           = 0x01d5d363496d4705,
-	Stderr             = 0x61d5d363496d4706,
+	Stderr             = 0x01d5d363496d4706 | log.PartCodeFlags.Mergeable,
 }
 
 //..............................................................................

@@ -1,0 +1,384 @@
+//..............................................................................
+//
+// Serial Tap Pro log representer
+//
+
+import "log_Representation.jnc"
+import "io_RpdFile.jnc"
+import "std_String.jnc"
+import "stringUtils.jnc"
+
+//..............................................................................
+
+string_t getStatusLineChangeString(
+	SerialTapProLines lines,
+	SerialTapProLines mask
+) {
+	std.StringBuilder string = "Status line(s) changed:";
+
+	if (mask & SerialTapProLines.Dtr) {
+		string += " DTR: ";
+		string += getOnOffString(lines & SerialTapProLines.Dtr);
+	}
+
+	if (mask & SerialTapProLines.Rts) {
+		string += " RTS: ";
+		string += getOnOffString(lines & SerialTapProLines.Rts);
+	}
+
+	if (mask & SerialTapProLines.Cts) {
+		string += " CTS: ";
+		string += getOnOffString(lines & SerialTapProLines.Cts);
+	}
+
+	if (mask & SerialTapProLines.Dsr) {
+		string += " DSR: ";
+		string += getOnOffString(lines & SerialTapProLines.Dsr);
+	}
+
+	if (mask & SerialTapProLines.Dcd) {
+		string += " DCD: ";
+		string += getOnOffString(lines & SerialTapProLines.Dcd);
+	}
+
+	if (mask & SerialTapProLines.Ring) {
+		string += " RI: ";
+		string += getOnOffString(lines & SerialTapProLines.Ring);
+	}
+
+	return string.detachString();
+}
+
+bool representSerialTapProLog(
+	log.Representation* representation,
+	uint64_t recordCode,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+) {
+	static string_t const stopBitsStringTable[] = {
+		"\e[34m1\e[m bit",
+		"\e[34m1.5\e[m bits",
+		"\e[34m2\e[m bits"
+	}
+
+	static string_t const parityStringTable[] = {
+		"None",
+		"Odd",
+		"Even",
+		"Mark",
+		"Space",
+		"Ignore",
+	}
+
+	switch (recordCode) {
+	case SerialTapProLogRecordCode.DeviceOpened:
+		string_t name = (char const*)p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"Opened tap device \e[34m$name");
+		break;
+
+	case SerialTapProLogRecordCode.InterfaceClaimed:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"Interface \e[34m#0\e[m claimed");
+		break;
+
+	case SerialTapProLogRecordCode.InEndpointOpened:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"In endpoint \e[34m#86\e[m opened");
+		break;
+
+	case SerialTapProLogRecordCode.OutEndpointOpened:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"Out endpoint \e[34m#2\e[m opened");
+		break;
+
+	case SerialTapProLogRecordCode.CaptureStarted:
+		SerialTapProCaptureStartedParams const* params = (SerialTapProCaptureStartedParams const*)p;
+
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+
+		std.StringBuilder string;
+
+		if (!(foldFlags & 1)) {
+			string := $"[\e^+1\e[34m+\e[m] Capture started: \e[34m%1 %2 bps\e[m"(
+				getSerialTapProIfaceString(params.m_iface),
+				params.m_baudRate
+			);
+
+			if (params.m_iface != SerialTapProIface.Rs485)
+				string +=
+					$" DTR: %1 RTS: %2 DSR: %3 CTS: %4"(
+						getOnOffString(params.m_lines & SerialTapProLines.Dtr),
+						getOnOffString(params.m_lines & SerialTapProLines.Rts),
+						getOnOffString(params.m_lines & SerialTapProLines.Dsr),
+						getOnOffString(params.m_lines & SerialTapProLines.Cts)
+					);
+		} else {
+			string_t stopBitsString = getTableString(params.m_bits.m_stopBits, stopBitsStringTable);
+			string_t parityString = getTableString(params.m_bits.m_parity, parityStringTable);
+
+			string :=
+				$"[\e^-1\e[34m-\e[m] Capture started:\n"
+				$"    \e[90mInterface:\t\e[34m%1\n"
+				$"    \e[90mBaud rate:\t\e[34m%2 bps\n"
+				$"    \e[90mData bits:\t\e[34m%3 bits\n"
+				$"    \e[90mParity:\t\e[34m%4\n"
+				$"    \e[90mStop bits:\t%5"(
+					getSerialTapProIfaceString(params.m_iface),
+					params.m_baudRate,
+					params.m_bits.m_dataBits,
+					parityString,
+					stopBitsString
+				);
+
+			if (params.m_iface != SerialTapProIface.Rs485) {
+				string +=
+					"\n"
+					$"    \e[90mDTR:\t%1\n"
+					$"    \e[90mRTS:\t%2\n"
+					$"    \e[90mDSR:\t%3\n"
+					$"    \e[90mCTS:\t%4"(
+						getOnOffString(params.m_lines & SerialTapProLines.Dtr),
+						getOnOffString(params.m_lines & SerialTapProLines.Rts),
+						getOnOffString(params.m_lines & SerialTapProLines.Dsr),
+						getOnOffString(params.m_lines & SerialTapProLines.Cts)
+					);
+
+				if (params.m_iface == SerialTapProIface.Rs232)
+					string +=
+						"\n"
+						$"    \e[90mDCD:\t%1\n"
+						$"    \e[90mRI:\t%2"(
+							getOnOffString(params.m_lines & SerialTapProLines.Dcd),
+							getOnOffString(params.m_lines & SerialTapProLines.Ring)
+						);
+			}
+
+			string +=
+				"\n"
+				$"    \e[90mInjection:\t\e[34m%1"(getOnOffString(params.m_inject));
+
+			representation.addHyperText(string.detachString());
+			if (params.m_inject && params.m_iface == SerialTapProIface.Rs485) {
+				representation.addBreak();
+				representation.addHyperText(
+					$"    \e[90mRS485/422 injection:\n"
+					$"        \e[90mMode:\t\e[34m%1\n"
+					$"        \e[90mInject to:\t\e[34mD%2"(
+						getSerialTapProRs485ModeString(params.m_rs485Mode),
+						params.m_rs485InjectChannel + 1
+					)
+				);
+			}
+		}
+
+		representation.addHyperText(string.detachString());
+		break;
+
+	case SerialTapProLogRecordCode.CaptureStopped:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
+		representation.addHyperText("Capture stopped");
+		break;
+
+	case SerialTapProLogRecordCode.CaptureError:
+		std.Error const* error = (std.Error const*)p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addHyperText($"Cannot open sniffer: $(error.m_description)");
+		break;
+
+	case SerialTapProLogRecordCode.UnexpectedCode:
+		uint_t code = ((uint_t const*)p)[0];
+		uint_t state = ((uint_t const*)p)[1];
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addHyperText($"Unexpected code from sniffer (code: $code, decoder state: $state)");
+		break;
+
+	case SerialTapProLogRecordCode.IncompleteByte:
+		uint_t bitCount = *(uint_t const*)p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Warning;
+		representation.addHyperText($"Incomplete byte received ($(bitCount) bit(s))");
+		break;
+
+	case SerialTapProLogRecordCode.FpgaBufferOverflow:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Warning;
+		representation.addHyperText("Hardware buffer overflow");
+		break;
+
+	case SerialTapProLogRecordCode.CypressBufferCleared:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"Hardware buffer cleared");
+		break;
+
+	case SerialTapProLogRecordCode.StatusLineChanged:
+		SerialTapProStatusLineChangedParams const* params = (SerialTapProStatusLineChangedParams const*)p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+
+		if (params.m_mask & SerialTapProLines.LineMask) {
+			string_t string = getStatusLineChangeString(params.m_lines, params.m_mask);
+			representation.addHyperText(string);
+		}
+
+		if (params.m_mask & SerialTapProLines.Break_0)
+			representation.addHyperText($"TX line BREAK condition: %1"(getOnOffString(params.m_lines & SerialTapProLines.Break_0)));
+
+		if (params.m_mask & SerialTapProLines.Break_1)
+			representation.addHyperText($"RX line BREAK condition: %1"(getOnOffString(params.m_lines & SerialTapProLines.Break_1)));
+
+		break;
+
+	case SerialTapProLogRecordCode.TxParityError:
+	case SerialTapProLogRecordCode.RxParityError:
+	case SerialTapProLogRecordCode.TxFramingError:
+	case SerialTapProLogRecordCode.RxFramingError:
+		static string_t strings[] = {
+			"TX", "PARITY",
+			"RX", "PARITY",
+			"TX", "FRAMING",
+			"RX", "FRAMING",
+		}
+
+		size_t i = (recordCode - SerialTapProLogRecordCode.TxParityError) * 2;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Warning;
+		representation.addHyperText($"%1 line error detected: \e[34m%2"(strings[i], strings[i + 1]));
+		break;
+
+	case SerialTapProLogRecordCode.TxBreakOn:
+	case SerialTapProLogRecordCode.RxBreakOn:
+	case SerialTapProLogRecordCode.TxBreakOff:
+	case SerialTapProLogRecordCode.RxBreakOff:
+		static string_t strings[] = {
+			"TX", "\e[31mon",
+			"RX", "\e[31mon",
+			"TX", "\e[90moff",
+			"RX", "\e[90moff",
+		}
+
+		size_t i = (recordCode - SerialTapProLogRecordCode.TxBreakOn) * 2;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"%1 line BREAK condition: %2"(strings[i], strings[i + 1]));
+		break;
+
+	case SerialTapProLogRecordCode.TxParityBit:
+		representation.m_lineAttr.m_textColor = log.StdLogColor.Tx;
+		representation.m_lineAttr.m_fontFlags = ui.FontFlags.Strikeout;
+		representation.m_lineAttr.m_flags = log.LineAttrFlags.Local;
+		representation.addBin(log.StdRecordCode.Tx, p, size);
+		break;
+
+	case SerialTapProLogRecordCode.RxParityBit:
+		representation.m_lineAttr.m_textColor = log.StdLogColor.Rx;
+		representation.m_lineAttr.m_fontFlags = ui.FontFlags.Strikeout;
+		representation.m_lineAttr.m_flags = log.LineAttrFlags.Local;
+		representation.addBin(log.StdRecordCode.Rx, p, size);
+		break;
+
+	case SerialTapProLogRecordCode.IfaceChanged:
+		SerialTapProIface iface = *(SerialTapProIface const*)p;
+		string_t modeString = getSerialTapProIfaceString(iface);
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"Serial interface changed: \e[34m%1"(modeString));
+		break;
+
+	case SerialTapProLogRecordCode.InjectChanged:
+		SerialTapProInjectChangedParams const* params = (SerialTapProInjectChangedParams const*)p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+
+		std.StringBuilder string = $"Set injection: \e[34m%1"(getOnOffString(params.m_inject));
+		if (params.m_inject && params.m_rs485)
+			string += $"\e[m (RS485 \e[34m%1\e[m, inject to: \e[34mD%2\e[m)"(
+				getSerialTapProRs485ModeString(params.m_rs485Mode),
+				params.m_rs485InjectChannel + 1
+			);
+
+		representation.addHyperText(string.detachString());
+		break;
+
+	case SerialTapProLogRecordCode.Rs485InjectModeChanged:
+		SerialTapProRs485Mode mode = *(SerialTapProRs485Mode const*)p;
+		string_t modeString = getSerialTapProRs485ModeString(mode);
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"Set RS485/RS422 inject mode: \e[34m%1"(modeString));
+		break;
+
+	case SerialTapProLogRecordCode.Rs485InjectChannelChanged:
+		uint8_t channel = *(uint8_t const*)p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"Set RS485/RS422 inject channel: \e[34mD%1"(channel + 1));
+		break;
+
+	case SerialTapProLogRecordCode.OverflowsChanged:
+		SerialTapProOverflowChangedParams const* params = (SerialTapProOverflowChangedParams const*)p;
+		SerialTapProOverflows overflows = params.m_mask & ~params.m_overflows;
+		if (overflows) {
+			representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+			representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+			representation.addHyperText($"Detector ready: \e[34m%1"(getSerialTapProOverflowsString(overflows)));
+		}
+
+		overflows = params.m_mask & params.m_overflows;
+		if (overflows) {
+			representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+			representation.m_lineAttr.m_backColor = log.StdLogColor.Warning;
+			representation.addHyperText($"Detector overflow: \e[34m%1"(getSerialTapProOverflowsString(overflows)));
+		}
+
+		break;
+
+	case SerialTapProLogRecordCode.BaudRateChanged:
+		uint_t baudRate = *(uint_t const*)p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"Set baud rate: \e[34m$baudRate\e[m bps");
+		break;
+
+	case SerialTapProLogRecordCode.DataBitsChanged:
+		uint_t dataBits = *(uint_t const*)p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"Set data bits: \e[34m$dataBits\e[m bits");
+		break;
+
+	case SerialTapProLogRecordCode.StopBitsChanged:
+		uint_t stopBits = *(uint_t const*)p;
+		string_t stopBitsString = getTableString(stopBits, stopBitsStringTable, countof(stopBitsStringTable));
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"Set stop bits: $stopBitsString");
+		break;
+
+	case SerialTapProLogRecordCode.ParityChanged:
+		uint_t parity = *(uint_t const*)p;
+		string_t parityString = getTableString(parity, parityStringTable, countof(parityStringTable));
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"Set parity: \e[34m$parityString");
+		break;
+
+
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+//..............................................................................

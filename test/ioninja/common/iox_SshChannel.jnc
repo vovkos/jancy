@@ -5,7 +5,7 @@
 
 import "io_base.jncx"
 import "io_ssh.jncx"
-import "io_HostNameResolver.jnc"
+import "iox_HostNameResolver.jnc"
 import "ui_Dialog.jnc"
 import "ui_SocketUi.jnc"
 import "ui_SshPropertySet.jnc"
@@ -52,11 +52,13 @@ public:
 		io.SocketOptions m_socketOptions;
 		bool m_useReconnect;
 		uint_t m_reconnectTimeout;
+
+		construct();
 	}
 
 protected:
 	doc.PluginHost* m_pluginHost;
-	io.HostNameResolver m_resolver;
+	iox.HostNameResolver m_resolver;
 	io.SshChannel m_ssh;
 	ui.LoginDlg* m_loginDlg;
 	std.Buffer m_readBuffer;
@@ -152,10 +154,7 @@ public:
 	}
 
 protected:
-	void onResolverEvent(
-		uint_t syncId,
-		io.HostNameResolverEvents triggeredEvents
-	);
+	void onResolveCompleted();
 
 	void onSshEvent(
 		uint_t syncId,
@@ -166,6 +165,7 @@ protected:
 	void onLoginDlgCompleted(ui.StdDlgButton button);
 	void onConsoleSizeChanged();
 
+	void closeImpl();
 	void handleConnectError(std.Error const* error);
 	void handleSshAuthenticateError(std.Error const* error);
 	void startReconnectTimer(uint64_t lastReconnectTime = -1);
@@ -173,10 +173,22 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+SshChannel.ConnectParams.construct() {
+	m_readBlockSize = ui.BufferPropertySet.Defaults.ReadBlockSize;
+	m_readBufferSize = ui.BufferPropertySet.Defaults.ReadBufferSize;
+	m_writeBufferSize = ui.BufferPropertySet.Defaults.WriteBufferSize;
+	m_authenticationMethod = (ui.AuthenticationMethod)ui.SshPropertySet.Defaults.AuthenticationMethod;
+	m_rememberLastPassword = ui.SshPropertySet.Defaults.RememberLastPassword;
+	m_useReconnect = ui.SocketPropertySet.Defaults.UseReconnect;
+	m_reconnectTimeout = ui.SocketPropertySet.Defaults.ReconnectTimeout;
+}
+
 SshChannel.construct(doc.PluginHost* pluginHost) {
+	m_resolver.construct(pluginHost);
 	m_pluginHost = pluginHost;
 	m_pluginHost.m_terminal.m_onConsoleSizeChanged += onConsoleSizeChanged;
 	m_readBuffer.setSize(ui.BufferPropertySet.Defaults.ReadBufferSize);
+	m_resolver.m_onCompleted += onResolveCompleted;
 }
 
 void SshChannel.close() {
@@ -207,9 +219,14 @@ void SshChannel.close() {
 		break;
 	}
 
+	closeImpl();
+}
+
+void SshChannel.closeImpl() {
 	m_ssh.close();
 	m_state = State.Closed;
 	m_isTransmitEnabled = false;
+	m_lastReconnectTime = 0;
 	m_syncId++;
 }
 
@@ -229,19 +246,8 @@ bool errorcode SshChannel.connect(
 	m_state = State.Resolving;
 	m_connectParams = *params; // save for later
 
-	m_logWriter.write(
-		SocketLogRecordCode.Resolving,
-		addressString.m_p,
-		addressString.m_length
-	);
-
+	m_resolver.m_defaultPort = params.m_defaultPort;
 	m_resolver.resolve(addressString, params.m_localAddress.m_family);
-
-	m_resolver.wait(
-		io.HostNameResolverEvents.Resolved | io.HostNameResolverEvents.Error,
-		onResolverEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler
-	);
-
 	return true;
 }
 
@@ -308,27 +314,59 @@ void SshChannel.initConnectParams(
 	ui.SshPropertySet const* sshPropSet,
 	ui.BufferPropertySet const* bufferPropSet
 ) {
-	params.m_readBlockSize = bufferPropSet.m_readBlockSizeProp.m_value;
-	params.m_readBufferSize = bufferPropSet.m_readBufferSizeProp.m_value;
-	params.m_writeBufferSize = bufferPropSet.m_writeBufferSizeProp.m_value;
-	params.m_socketOptions = ui.getSocketOptions(socketPropSet, bufferPropSet);
-	params.m_defaultPort = socketPropSet.m_remotePortProp.m_value;
-	params.m_useReconnect = socketPropSet.m_useReconnectProp.m_value;
-	params.m_reconnectTimeout = socketPropSet.m_reconnectTimeoutProp.m_value;
+	params.m_readBlockSize = bufferPropSet.m_readBlockSizeProp ?
+		bufferPropSet.m_readBlockSizeProp.m_value :
+		ui.BufferPropertySet.Defaults.ReadBlockSize;
 
-	if (socketPropSet.m_useLocalAddressProp.m_value) {
+	params.m_readBufferSize = bufferPropSet.m_readBufferSizeProp ?
+		bufferPropSet.m_readBufferSizeProp.m_value :
+		ui.BufferPropertySet.Defaults.ReadBufferSize;
+
+	params.m_writeBufferSize = bufferPropSet.m_writeBufferSizeProp ?
+		bufferPropSet.m_writeBufferSizeProp.m_value :
+		ui.BufferPropertySet.Defaults.WriteBufferSize;
+
+	params.m_socketOptions = ui.getSocketOptions(socketPropSet, bufferPropSet);
+
+	params.m_defaultPort = socketPropSet.m_remotePortProp ?
+		socketPropSet.m_remotePortProp.m_value :
+		socketPropSet.m_defaultRemotePort;
+
+	params.m_useReconnect = socketPropSet.m_useReconnectProp ?
+		socketPropSet.m_useReconnectProp.m_value :
+		ui.SocketPropertySet.Defaults.UseReconnect;
+
+	params.m_reconnectTimeout = socketPropSet.m_reconnectTimeoutProp ?
+		socketPropSet.m_reconnectTimeoutProp.m_value :
+		ui.SocketPropertySet.Defaults.ReconnectTimeout;
+
+	if (socketPropSet.m_adapterProp &&
+		socketPropSet.m_useLocalAddressProp &&
+		socketPropSet.m_useLocalAddressProp.m_value
+	) {
 		io.SocketAddress const* adapterAddress = socketPropSet.m_adapterProp.m_value;
 		if (adapterAddress)
 			params.m_localAddress = *adapterAddress;
 
-		params.m_localAddress.m_port = (uint16_t)socketPropSet.m_localPortProp.m_value;
+		if (socketPropSet.m_localPortProp)
+			params.m_localAddress.m_port = (uint16_t)socketPropSet.m_localPortProp.m_value;
 	}
 
-	ui.AuthenticationMethod authenticationMethod = sshPropSet.m_authenticationMethodProp.m_value;
+	ui.AuthenticationMethod authenticationMethod = sshPropSet.m_authenticationMethodProp ?
+		sshPropSet.m_authenticationMethodProp.m_value :
+		ui.SshPropertySet.Defaults.AuthenticationMethod;
+
 	params.m_authenticationMethod = authenticationMethod;
-	params.m_rememberLastPassword = sshPropSet.m_rememberLastPasswordProp.m_value;
-	params.m_privateKeyFileName = sshPropSet.m_privateKeyFileProp.m_value;
-	params.m_sshParams.m_userName = sshPropSet.m_userNameProp.m_value;
+
+	params.m_rememberLastPassword = sshPropSet.m_rememberLastPasswordProp ?
+		sshPropSet.m_rememberLastPasswordProp.m_value :
+		ui.SshPropertySet.Defaults.RememberLastPassword;
+
+	if (sshPropSet.m_privateKeyFileProp)
+		params.m_privateKeyFileName = sshPropSet.m_privateKeyFileProp.m_value;
+
+	if (sshPropSet.m_userNameProp)
+		params.m_sshParams.m_userName = sshPropSet.m_userNameProp.m_value;
 
 	if (authenticationMethod == ui.AuthenticationMethod.PrivateKey)
 		params.m_sshParams.m_privateKeyFileName = params.m_privateKeyFileName;
@@ -474,7 +512,12 @@ void SshChannel.onSshEvent(
 		return;
 
 	if (triggeredEvents & io.SshEvents.IoError) {
+		bool isReconnecting = m_lastReconnectTime != 0;
 		handleConnectError(m_ssh.m_ioError);
+
+		if (isReconnecting && m_connectParams.m_useReconnect)
+			startReconnectTimer();
+
 		return;
 	}
 
@@ -538,10 +581,13 @@ void SshChannel.onSshEvent(
 			sizeof(params)
 		);
 
-		m_ssh.close();
-		m_state = State.Closed;
-		m_isTransmitEnabled = false;
+		uint64_t lastReconnectTime = m_lastReconnectTime;
+		closeImpl();
 		m_onDisconnected();
+
+		if (m_connectParams.m_useReconnect)
+			startReconnectTimer(lastReconnectTime);
+
 		return;
 	}
 
@@ -583,38 +629,18 @@ void SshChannel.onReconnectTimer(uint_t syncId) {
 	if (syncId != m_syncId)
 		return;
 
-	bool result = try connect();
+	bool result = try connect(m_remoteAddress, m_connectParams);
 	m_lastReconnectTime = sys.getTimestamp(); // after connect (connect calls close)
 
 	if (!result && m_connectParams.m_useReconnect)
 		startReconnectTimer();
 }
 
-void SshChannel.onResolverEvent(
-	uint_t syncId,
-	io.HostNameResolverEvents triggeredEvents
-) {
-	if (syncId != m_syncId)
-		return;
-
-	if (triggeredEvents & io.HostNameResolverEvents.Error) {
-		handleConnectError(m_resolver.m_error);
-		return;
-	}
-
-	m_logWriter.write(
-		SocketLogRecordCode.ResolveCompleted,
-		m_resolver.m_addressTable,
-		sizeof(io.SocketAddress)
-	);
-
+void SshChannel.onResolveCompleted() {
 	m_state = State.Closed;
-
-	io.SocketAddress address = m_resolver.m_addressTable[0];
-	if (!address.m_port)
-		address.m_port = m_connectParams.m_defaultPort;
-
-	try connect(address, &m_connectParams);
+	
+	if (m_resolver.m_state == iox.HostNameResolver.State.Resolved)
+		try connect(m_resolver.m_address, &m_connectParams);
 }
 
 void SshChannel.onConsoleSizeChanged() {

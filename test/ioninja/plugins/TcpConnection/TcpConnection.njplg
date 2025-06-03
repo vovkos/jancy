@@ -7,6 +7,8 @@
 
 name        = "TCP Connection"
 description = "Establishes connection over TCP socket"
+page        = plugins/tcp-connection.html
+help        = user-manual/plugin-tcp-connection.html
 id          = tcp
 group       = net
 log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket

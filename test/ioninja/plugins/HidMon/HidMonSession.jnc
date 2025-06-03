@@ -381,22 +381,10 @@ void HidMonSession.processData(
 		}
 
 		io.UsbMonTransferHdr const* hdr = (io.UsbMonTransferHdr const*)m_transferBuffer.m_p;
-		size_t transferSize = sizeof(io.UsbMonTransferHdr) + hdr.m_captureSize;
+		size_t transferSize = sizeof(io.UsbMonTransferHdr) + hdr.m_capturedDataSize;
 		if (hdr.m_transferType == io.UsbTransferType.Isochronous) {
-			// for iso transfers we need to buffer the whole transfer --
-			// including the iso packet array and the payload
-
+			// we are not expecting iso transfers, but just in case, handle it to keep stream in-sync
 			transferSize += hdr.m_isoHdr.m_packetCount * sizeof(io.UsbIsoPacket);
-			size_t leftoverSize = transferSize - m_transferBuffer.m_size;
-			if (size < leftoverSize) {
-				m_transferBuffer.append(p, size);
-				break;
-			}
-
-			m_transferBuffer.append(p, leftoverSize);
-			hdr = (io.UsbMonTransferHdr const*)m_transferBuffer.m_p; // update hdr after append
-			p += leftoverSize;
-			size -= leftoverSize;
 		}
 
 		size_t leftoverSize = transferSize - m_transferBuffer.m_size;
@@ -431,7 +419,7 @@ void HidMonSession.processData(
 			params.m_osKind = sys.g_systemInfo.m_osKind;
 			params.m_status = hdr.m_status;
 			m_logWriter.write(UsbLogRecordCode.TransferError, &params, sizeof(params));
-		} else if (hdr.m_captureSize) {
+		} else if (hdr.m_capturedDataSize) {
 			bool hasReportId = (m_rd.m_flags & io.HidRdFlags.HasReportId) != 0;
 			uint64_t recordCode;
 			io.HidReportType reportType;
@@ -485,14 +473,14 @@ void HidMonSession.processData(
 
 				io.HidReport const* report = m_rd.findReport(reportType, reportId);
 				if (report)
-					m_reportWriter.writeReport(recordCode, report, data, hdr.m_captureSize);
+					m_reportWriter.writeReport(recordCode, report, data, hdr.m_capturedDataSize);
 				else
-					m_reportWriter.writeUnknownReport(recordCode, reportId, data, hdr.m_captureSize);
+					m_reportWriter.writeUnknownReport(recordCode, reportId, data, hdr.m_capturedDataSize);
 
 				if (isRx)
-					m_pluginHost.m_txRxStats.addRx(hdr.m_captureSize);
+					m_pluginHost.m_txRxStats.addRx(hdr.m_capturedDataSize);
 				else
-					m_pluginHost.m_txRxStats.addTx(hdr.m_captureSize);
+					m_pluginHost.m_txRxStats.addTx(hdr.m_capturedDataSize);
 			}
 		}
 

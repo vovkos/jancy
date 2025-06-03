@@ -5,7 +5,7 @@
 
 import "doc_Plugin.jnc"
 import "log_Filter.jnc"
-import "ui_LogRecordCodeFilterUi.jnc"
+import "ui_ToggleUi.jnc"
 import "ui_Layout.jnc"
 import "ui_GroupBox.jnc"
 import "ui_Button.jnc"
@@ -18,10 +18,10 @@ class SerialLogFilter:
 protected:
 	log.Log* m_log;
 
-	ui.LogRecordCodeFilterUi m_serialSettingChangeFilter;
-	ui.LogRecordCodeFilterUi m_controlLineChangeFilter;
-	ui.LogRecordCodeFilterUi m_statusLineChangeFilter;
-	ui.LogRecordCodeFilterUi m_lineErrorFilter;
+	ui.ToggleUi m_serialSettingChangeFilter;
+	ui.ToggleUi m_controlLineChangeFilter;
+	ui.ToggleUi m_statusLineChangeFilter;
+	ui.ToggleUi m_lineErrorFilter;
 
 	char const Title[] = "Serial log filter";
 
@@ -62,32 +62,36 @@ SerialLogFilter.construct(doc.PluginHost* pluginHost) {
 	ui.GroupProperty* groupProp = pluginHost.m_propertyGrid.createGroupProperty(Title);
 
 	m_serialSettingChangeFilter.create(
-		layout,
+		layout,,
 		groupProp,
 		"Serial setting changes",
-		"Show/hide serial setting changes (baud rate, data bits, etc.)"
+		"Show/hide serial setting changes (baud rate, data bits, etc.)",
+		true
 	);
 
 	m_controlLineChangeFilter.create(
-		layout,
+		layout,,
 		groupProp,
 		"DTR/RTS changes",
-		"Show/hide serial control lines changes (DTR/RTS)"
+		"Show/hide serial control lines changes (DTR/RTS)",
+		true
 	);
 
 	m_statusLineChangeFilter.create(
-		layout,
+		layout,,
 		groupProp,
 		"DSR/CTS/DCD/RI changes",
-		"Show/hide serial control lines changes (DSR/CTS/DCD/RI)"
+		"Show/hide serial control lines changes (DSR/CTS/DCD/RI)",
+		true
 	);
 
 	m_lineErrorFilter.create(
 		layout,
+		applyToolBar,
 		groupProp,
 		"Serial line errors",
 		"Show/hide serial line errors (FRAMING, PARITY, BREAK)",
-		applyToolBar
+		true
 	);
 
 	pluginHost.createForm(groupBox);
@@ -103,10 +107,10 @@ void SerialLogFilter.load(doc.Storage* storage) {
 }
 
 void SerialLogFilter.save(doc.Storage* storage) {
-	storage.writeBool("serial-setting", m_serialSettingChangeFilter.m_isVisible);
-	storage.writeBool("serial-control", m_controlLineChangeFilter.m_isVisible);
-	storage.writeBool("serial-status", m_statusLineChangeFilter.m_isVisible);
-	storage.writeBool("serial-line-error", m_lineErrorFilter.m_isVisible);
+	storage.writeBool("serial-setting", m_serialSettingChangeFilter.m_value);
+	storage.writeBool("serial-control", m_controlLineChangeFilter.m_value);
+	storage.writeBool("serial-status", m_statusLineChangeFilter.m_value);
+	storage.writeBool("serial-line-error", m_lineErrorFilter.m_value);
 }
 
 void SerialLogFilter.updateProperties() {
@@ -147,19 +151,19 @@ bool SerialLogFilter.filter(
 	case SerialLogRecordCode.FlowControlChanged:
 	case SerialLogRecordCode.ReadModeChanged:
 	case SerialLogRecordCode.ReadIntervalChanged:
-		return m_serialSettingChangeFilter.m_isVisible;
+		return m_serialSettingChangeFilter.m_value;
 
 	case SerialLogRecordCode.ControlLineChanged:
 	case SerialLogRecordCode.RtsChanged:
 	case SerialLogRecordCode.DtrChanged:
 	case SerialLogRecordCode.BreakConditionChanged:
-		return m_controlLineChangeFilter.m_isVisible;
+		return m_controlLineChangeFilter.m_value;
 
 	case SerialLogRecordCode.StatusLineChanged:
-		return m_statusLineChangeFilter.m_isVisible;
+		return m_statusLineChangeFilter.m_value;
 
 	case SerialLogRecordCode.LineError:
-		return m_lineErrorFilter.m_isVisible;
+		return m_lineErrorFilter.m_value;
 
 	default:
 		return true;

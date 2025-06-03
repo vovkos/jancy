@@ -7,6 +7,8 @@
 
 name        = TCP Server
 description = "Listens for and accepts TCP connections"
+page        = plugins/tcp-server.html
+help        = user-manual/plugin-tcp-server.html
 id          = tcp-server
 group       = net
 log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket

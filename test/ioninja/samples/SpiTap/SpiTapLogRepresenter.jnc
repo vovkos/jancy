@@ -5,15 +5,9 @@
 
 import "log_Representation.jnc"
 import "SpiTapLogRecordCode.jnc"
+import "stringUtils.jnc"
 
 //..............................................................................
-
-string_t getTableString(
-	uint_t value,
-	string_t const* table
-) {
-	return value < dynamic countof(table) ? table[value] : "\e[31mundefined\e[m";
-}
 
 bool representSpiTapLog(
 	log.Representation* representation,
@@ -26,6 +20,7 @@ bool representSpiTapLog(
 		"Little-endian (LSBit first)",
 		"Big-endian (MSBit first)",
 	}
+	
 	switch (recordCode) {
 	case SpiTapLogRecordCode.TapOpened:
 		SpiTapOpenParams const* params = (SpiTapOpenParams const*)p;

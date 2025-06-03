@@ -7,7 +7,7 @@ import "doc_Session.jnc"
 import "io_base.jncx"
 import "io_websocket.jncx"
 import "io_WebSocket.jnc"
-import "io_HostNameResolver.jnc"
+import "iox_HostNameResolver.jnc"
 import "iox_WebSocket.jnc"
 import "ui_History.jnc"
 import "ui_SocketUi.jnc"
@@ -78,12 +78,19 @@ protected:
 		SecurePort   = 443,
 	}
 
+	struct ResolverContext {
+		string_t m_resource;
+		string_t m_host;
+		bool m_isSecure;
+	}
+
 protected:
 	// WebSocket
 
 	State bindable m_state;
 	io.WebSocket m_socket;
-	io.HostNameResolver m_resolver;
+	iox.HostNameResolver m_resolver;
+	ResolverContext m_resolverContext;
 	io.SocketAddress m_localAddress;
 	io.SocketAddress m_remoteAddress;
 	std.Buffer m_readBuffer;
@@ -166,13 +173,7 @@ protected:
 		try connect();
 	}
 
-	void onResolverEvent(
-		uint_t syncId,
-		string_t resource,
-		string_t host,
-		bool isSecure,
-		io.HostNameResolverEvents triggeredEvents
-	);
+	void onResolveCompleted();
 
 	void onSocketEvent(
 		uint_t syncId,
@@ -191,11 +192,13 @@ protected:
 
 WebSocketClientSession.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
+	m_resolver.construct(pluginHost);
 
 	createUi();
 
 	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
 	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
+	m_resolver.m_onCompleted += onResolveCompleted;
 }
 
 void WebSocketClientSession.createUi() {
@@ -232,12 +235,12 @@ void WebSocketClientSession.createUi() {
 		"WebSocket-specific connection settings"
 	);
 
+	m_webSocketUi.createProperties(m_pluginHost.m_propertyGrid, propGroup);
+
 	propGroup = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"TCP",
 		"TCP-specific connection settings"
 	);
-
-	m_webSocketUi.createProperties(m_pluginHost.m_propertyGrid, propGroup);
 
 	m_socketPropertySet.createProperties(
 		m_pluginHost.m_propertyGrid,
@@ -290,18 +293,19 @@ bool errorcode WebSocketClientSession.connect() {
 
 	// parse address string
 
-	bool isSecure;
 	string_t host;
 	string_t resource;
+	bool isSecure;
 
-	if (addressString =~ r"ws|(wss)://([^/?]+)(.*)") {
-		isSecure = $1 != null;
+	if (addressString =~ r"(ws|wss)://([^/?]+)(.*)") {
+		isSecure = $1.m_length == 3;
 		host = $2;
+
 		resource = $3.m_length && $3.m_text[0] == '/' ?
 			$3.m_text :
 			strcat("/", $3.m_text);
 	} else {
-		std.setError("invalid WebSocket URI");
+		std.setError("invalid WebSocket URI (ws:// or wss:// expected)");
 		m_logWriter.writeLastError(log.StdRecordCode.Error);
 		return false;
 	}
@@ -317,7 +321,6 @@ bool errorcode WebSocketClientSession.connect() {
 
 	m_state = State.Resolving;
 	m_sessionConnectionState = SessionConnectionState.Connecting;
-	m_logWriter.write(SocketLogRecordCode.Resolving, host);
 
 	io.AddressFamily addressFamily = io.AddressFamily.Undefined;
 	if (m_socketPropertySet.m_useLocalAddressProp.m_value) {
@@ -326,13 +329,12 @@ bool errorcode WebSocketClientSession.connect() {
 			addressFamily = adapterAddress.m_family;
 	}
 
+	m_resolverContext.m_resource = resource;
+	m_resolverContext.m_host = host;
+	m_resolverContext.m_isSecure = isSecure;
+
+	m_resolver.m_defaultPort = isSecure ? Defaults.SecurePort : Defaults.InsecurePort;
 	m_resolver.resolve(host, addressFamily);
-
-	m_resolver.wait(
-		io.HostNameResolverEvents.Resolved | io.HostNameResolverEvents.Error,
-		onResolverEvent~(++m_syncId, resource, host, isSecure) @ m_pluginHost.m_mainThreadScheduler
-	);
-
 	return true;
 
 catch:
@@ -756,34 +758,16 @@ void WebSocketClientSession.onSocketEvent(
 	waitSocketEvents();
 }
 
-void WebSocketClientSession.onResolverEvent(
-	uint_t syncId,
-	string_t resource,
-	string_t host,
-	bool isSecure,
-	io.HostNameResolverEvents triggeredEvents
-) {
-	if (syncId != m_syncId)
-		return;
-
-	if (triggeredEvents & io.HostNameResolverEvents.Error) {
-		handleSocketError(m_resolver.m_error);
-		return;
-	}
-
-	m_logWriter.write(
-		SocketLogRecordCode.ResolveCompleted,
-		m_resolver.m_addressTable,
-		sizeof(io.SocketAddress)
-	);
-
+void WebSocketClientSession.onResolveCompleted() {
 	m_state = State.Closed;
 
-	io.SocketAddress address = m_resolver.m_addressTable[0];
-	if (!address.m_port)
-		address.m_port = isSecure ? Defaults.SecurePort : Defaults.InsecurePort;
-
-	try connect(address, resource, host, isSecure);
+	if (m_resolver.m_state == iox.HostNameResolver.State.Resolved)
+		try connect(
+			m_resolver.m_address,
+			m_resolverContext.m_resource,
+			m_resolverContext.m_host,
+			m_resolverContext.m_isSecure
+		);
 }
 
 void WebSocketClientSession.onReconnectTimer(uint_t syncId) {

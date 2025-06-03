@@ -7,6 +7,8 @@
 
 name        = WebSocket Server
 description = "Implements server-side of WebSocket protocol over TCP or SSL"
+page        = plugins/websocket-server.html
+help        = user-manual/plugin-websocket-server.html
 id          = websocket-server
 group       = net
 log-guid    = 7e211fb4-0040-47c7-a772-15b769cf4dd0  # websocket

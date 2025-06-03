@@ -7,6 +7,8 @@
 
 name        = "TX/RX Filter"
 description = "A simple filter allowing you to exclude TX or/and RX bytes from the log"
+page        = plugins/tx-rx-filter.html
+help        = user-manual/plugin-tx-rx-filter.html
 id          = tx-rx-filter
 icon        = images/filter.png
 small-icon  = images/filter-16x16.png

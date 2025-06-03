@@ -13,7 +13,7 @@ namespace ui {
 bitflag enum ColorFlags {
 	Undefined = 0x80000000,
 	Index     = 0x40000000,
-	IndexMask = 0x3fffffff,
+	IndexMask = 0x0fffffff,
 	RgbMask   = 0x00ffffff,
 }
 

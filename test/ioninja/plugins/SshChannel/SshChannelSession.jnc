@@ -238,7 +238,7 @@ iox.SshChannel.ConnectParams const* SshChannelSession.createConnectParams() {
 	params.m_sshParams.m_processExtra = processExtra.m_p;
 	params.m_sshParams.m_processExtraSize = processExtra.m_length;
 	params.m_sshParams.m_ptyType = m_sshPropertySet.m_ptyTypeProp.m_value;
-	params.m_sshParams.m_ptyHeight = m_pluginHost.m_terminal.m_consoleWidth;
+	params.m_sshParams.m_ptyWidth = m_pluginHost.m_terminal.m_consoleWidth;
 	params.m_sshParams.m_ptyHeight = m_pluginHost.m_terminal.m_consoleHeight;
 	return params;
 }

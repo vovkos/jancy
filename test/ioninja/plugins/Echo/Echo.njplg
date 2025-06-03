@@ -7,6 +7,8 @@
 
 name        = Echo
 description = "Immediatly transmits back received data"
+url         = plugins/echo.html
+help        = user-manual/plugin-echo.html
 kind        = layer
 id          = echo
 icon        = images/echo.png

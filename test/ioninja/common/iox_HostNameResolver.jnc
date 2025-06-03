@@ -5,7 +5,9 @@
 
 import "io_base.jncx"
 import "io_HostNameResolver.jnc"
+import "doc_PluginHost.jnc"
 import "ui_StatusBar.jnc"
+import "../plugins/SocketLog/SocketLogRecordCode.jnc"
 
 namespace iox {
 
@@ -26,7 +28,6 @@ public:
 protected:
 	doc.PluginHost* m_pluginHost;
 	io.HostNameResolver m_resolver;
-	string_t m_addressString;
 	uint_t m_syncId;
 
 	log.Writer* const property m_logWriter {
@@ -35,7 +36,8 @@ protected:
 
 public:
 	State bindable readonly m_state;
-	io.SocketAddress m_address;
+	string_t readonly m_addressString;
+	io.SocketAddress readonly m_address; // resolved address
 	uint_t m_defaultPort;
 	event m_onCompleted();
 
@@ -85,6 +87,7 @@ bool errorcode HostNameResolver.resolve(
 	m_logWriter.sync(m_syncId);
 	m_resolver.resolve(addressString, addressFamily);
 	m_addressString = addressString;
+	m_address.m_family = addressFamily;
 
 	m_resolver.wait(
 		io.HostNameResolverEvents.Resolved | io.HostNameResolverEvents.Error,
@@ -160,15 +163,27 @@ void HostNameResolver.onResolverEvent(
 		return;
 	}
 
-	m_logWriter.write(
-		SocketLogRecordCode.ResolveCompleted,
-		m_resolver.m_addressTable,
-		sizeof(io.SocketAddress)
-	);
+	// prefer IPv4
 
-	m_address = m_resolver.m_addressTable[0];
+	io.SocketAddress const* address = m_resolver.m_addressTable;
+	io.SocketAddress const* end = address + m_resolver.m_addressCount;
+	for (; address < end; address++)
+		if (address.m_family == io.AddressFamily.Ip4) {
+			m_address = *address;
+			break;
+		}
+
+	if (address >= end)
+		m_address = m_resolver.m_addressTable[0]; // no IPv4, take the first one
+
 	if (!m_address.m_port)
 		m_address.m_port = m_defaultPort;
+
+	m_logWriter.write(
+		SocketLogRecordCode.ResolveCompleted,
+		&m_address,
+		sizeof(m_address)
+	);
 
 	m_state = State.Resolved;
 	m_onCompleted();

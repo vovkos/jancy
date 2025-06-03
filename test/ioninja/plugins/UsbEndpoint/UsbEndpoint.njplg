@@ -7,6 +7,8 @@
 
 name        = USB Endpoint
 description = "Low-level direct USB communications with USB endpoints on a device"
+page        = plugins/usb-endpoint.html
+help        = user-manual/plugin-usb-endpoint.html
 id          = usb
 group       = usb
 log-guid    = 3b5bd445-951e-4f76-9d8d-fe97aecbdd73  # usb

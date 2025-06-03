@@ -7,6 +7,8 @@
 
 name        = "Generic Serial Tap"
 description = "Monitor serial communication through a generic dual COM-port tap cable"
+page        = plugins/generic-serial-tap.html
+help        = user-manual/plugin-generic-serial-tap.html
 id          = gen-serial-tap
 group       = serial
 monitor     = true
