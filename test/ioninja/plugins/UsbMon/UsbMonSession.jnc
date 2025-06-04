@@ -20,7 +20,7 @@ protected:
 		ReadBlockSize    = 32 * 1024,
 		ReadBufferSize   = 512 * 1024,
 		SnapshotSize     = 64 * 1024,
-		KernelBufferSize = 2 * 1024 * 1024, // 1MB
+		KernelBufferSize = 1 * 1024 * 1024, // 1 MB
 	}
 
 	enum State {
@@ -497,7 +497,9 @@ void UsbMonSession.save(doc.Storage* storage) {
 		storage.writeInt("deviceAddress", deviceDesc.m_address);
 	}
 
-	storage.writeInt("snapshotSize", m_snapshotSizeProp.m_value);
+	if (m_snapshotSizeProp)
+		storage.writeInt("snapshotSize", m_snapshotSizeProp.m_value);
+
 	storage.writeInt("kernelBufferSize", m_kernelBufferSizeProp.m_value);
 	m_bufferPropertySet.save(storage);
 }
@@ -522,6 +524,9 @@ bool errorcode UsbMonSession.applyProperties() {
 }
 
 void UsbMonSession.restoreDefaultProperties() {
+	if (m_snapshotSizeProp)
+		m_snapshotSizeProp.m_value = Defaults.SnapshotSize;
+
 	m_kernelBufferSizeProp.m_value = Defaults.KernelBufferSize;
 	m_bufferPropertySet.restoreDefaults();
 }
@@ -530,12 +535,12 @@ reactor UsbMonSession.m_uiReactor {
 	m_title = $"USB $(m_deviceCombo.m_currentText)";
 	m_actionTable[ActionId.Capture].m_text = m_state ? "Stop Capture" : "Capture";
 	m_actionTable[ActionId.Capture].m_icon = m_iconTable[m_state ? IconId.StopCapture : IconId.Capture];
+	m_statusPaneTable[StatusPaneId.State].m_text = m_state ? "Capturing" : "Closed";
 
 	if (m_snapshotSizeProp)
 		m_snapshotSizeProp.m_isEnabled = !m_state;
 
 	m_kernelBufferSizeProp.m_isEnabled = !m_state || sys.g_systemInfo.m_osKind != sys.OsKind.Windows;
-	m_statusPaneTable[StatusPaneId.State].m_text = m_state ? "Capturing" : "Closed";
 }
 
 //..............................................................................
