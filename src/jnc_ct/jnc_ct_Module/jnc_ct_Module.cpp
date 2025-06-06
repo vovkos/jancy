@@ -239,15 +239,6 @@ Module::generateCodeAssist(
 	return m_codeAssistMgr.generateCodeAssist();
 }
 
-void
-Module::markForCompile(Function* function) {
-	if (function->m_flags & ModuleItemFlag_NeedCompile)
-		return;
-
-	function->m_flags |= ModuleItemFlag_NeedCompile;
-	m_compileArray.append(function);
-}
-
 bool
 Module::parseImpl(
 	ExtensionLib* lib,

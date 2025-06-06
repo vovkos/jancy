@@ -419,6 +419,16 @@ Module::setAttributeObserver(
 	m_attributeObserverItemKindMask = itemKindMask;
 }
 
+inline
+void
+Module::markForCompile(Function* function) {
+	if (function->m_flags & ModuleItemFlag_NeedCompile)
+		return;
+
+	function->m_flags |= ModuleItemFlag_NeedCompile;
+	m_compileArray.append(function);
+}
+
 //..............................................................................
 
 template <typename T>
@@ -497,6 +507,17 @@ Function::getDeclVariable() {
 		);
 
 	return m_declVariable;
+}
+
+inline
+bool
+Function::require() {
+	if (canCompile())
+		m_module->markForCompile(this);
+	else
+		m_module->m_functionMgr.m_requiredExternalFunctionArray.append(this);
+
+	return true;
 }
 
 //..............................................................................
