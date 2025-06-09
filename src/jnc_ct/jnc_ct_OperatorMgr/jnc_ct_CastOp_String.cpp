@@ -191,13 +191,10 @@ Cast_String_FromArray::llvmCast(
 	if (!isCharArrayRefType(opValue.getType()))
 		return setCastError(opValue, type);
 
-	ArrayType* arrayType = (ArrayType*)((DataPtrType*)opValue.getType())->getTargetType();
-	size_t length = arrayType->getElementCount();
-
 	return m_module->m_operatorMgr.callOperator(
 		m_module->m_functionMgr.getStdFunction(StdFunc_StringCreate),
 		opValue,
-		Value(length, m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT)),
+		Value(-1, m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT)), // calc actual length
 		resultValue
 	);
 }
