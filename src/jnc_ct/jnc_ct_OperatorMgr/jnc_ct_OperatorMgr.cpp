@@ -1012,30 +1012,37 @@ OperatorMgr::declofOperator(
 	const Value& opValue,
 	Value* resultValue
 ) {
-	Variable* variable = NULL;
 	ModuleItem* item = opValue.getModuleItem();
+	ModuleItemDecl* itemDecl = NULL;
+	Variable* variable = NULL;
 	if (!item) {
 		if (opValue.getValueKind() == ValueKind_Type) {
 			Type* type = opValue.getType();
-			if (type->getFlags() & ModuleItemFlag_User)
+			if (type->getTypeKindFlags() & TypeKindFlag_Named) {
+				itemDecl = (NamedType*)type;
 				variable = type->getTypeVariable();
+			}
 		}
 	} else {
 		ModuleItemKind itemKind = item->getItemKind();
 		switch (itemKind) {
 		case ModuleItemKind_Variable:
+			itemDecl = (Variable*)item;
 			variable = ((Variable*)item)->getDeclVariable();
 			break;
 
 		case ModuleItemKind_Function:
+			itemDecl = (Function*)item;
 			variable = ((Function*)item)->getDeclVariable();
 			break;
 
 		case ModuleItemKind_Property:
+			itemDecl = (Property*)item;
 			variable = ((Property*)item)->getDeclVariable();
 			break;
 
 		case ModuleItemKind_EnumConst:
+			itemDecl = (EnumConst*)item;
 			variable = ((EnumConst*)item)->getDeclVariable();
 			break;
 		}
@@ -1045,6 +1052,10 @@ OperatorMgr::declofOperator(
 		err::setFormatStringError("'declof' is only applicable to user items");
 		return false;
 	}
+
+	bool result = itemDecl->ensureAttributeValuesReady();
+	if (!result)
+		return false;
 
 	resultValue->setVariable(variable);
 	return true;
