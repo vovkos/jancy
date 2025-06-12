@@ -321,6 +321,9 @@ protected:
 	void
 	ioThreadFunc();
 
+	bool
+	applyFlowControl(axl::io::SerialFlowControl flowControl);
+
 	void
 	updateStatusLineEvents(uint_t statusLines);
 

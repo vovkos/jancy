@@ -288,17 +288,23 @@ Serial::setFlowControl(axl::io::SerialFlowControl flowControl) {
 		return true;
 	}
 
-	axl::io::SerialSettings settings;
-	settings.m_flowControl = flowControl;
-	settings.m_dtr = m_dtr;
-	settings.m_rts = m_rts;
-
-	bool result = m_serial.setSettings(&settings, axl::io::SerialSettingId_FlowControl);
+	bool result = applyFlowControl(flowControl);
 	if (!result)
 		return false;
 
 	m_flowControl = flowControl;
 	return true;
+}
+
+bool
+Serial::applyFlowControl(axl::io::SerialFlowControl flowControl) {
+	ASSERT(m_isOpen);
+
+	axl::io::SerialSettings settings;
+	settings.m_flowControl = flowControl;
+	settings.m_dtr = m_dtr;
+	settings.m_rts = m_rts;
+	return m_serial.setSettings(&settings, axl::io::SerialSettingId_FlowControl);
 }
 
 bool
@@ -398,9 +404,23 @@ Serial::setBreakCondition(bool breakCondition) {
 		return true;
 	}
 
+#if (_AXL_OS_POSIX)
+	// on POSIX termios, TIOCSBRK is going through TX path and hence can be
+	// blocking in case flow control disallows transmission at the moment
+	if (breakCondition && m_flowControl) {
+		m_serial.purge();
+		applyFlowControl(axl::io::SerialFlowControl_None);
+	}
+#endif
+
 	bool result = m_serial.m_serial.setBreakCondition(breakCondition);
 	if (!result)
 		return false;
+
+#if (_AXL_OS_POSIX)
+	if (!breakCondition && m_flowControl) // restore the original flow control
+		applyFlowControl(m_flowControl);
+#endif
 
 	m_breakCondition = breakCondition;
 	return true;
