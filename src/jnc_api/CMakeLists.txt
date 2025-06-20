@@ -97,24 +97,30 @@ set(
 	jnc_DynamicExtensionLibHost.cpp
 )
 
-# since MSVC16 2019, we can't take address of pure intrinsic `setjmp`
-# hence, compile our own implementation (based on the reactos)
-# alas, simple `enable_language(ASM_NASM)` doesn't cut it :(
-# it seems like NASM support in CMake is half-baked (still)...
+# we compile our own setjmp/longjmp on windows for two reasons:
+# 1) since msvc16 2019, we can't take address of pure intrinsic setjmp
+# 2) msvc longjmp does stack unwinding which can crash with llvm-jitted code
 
-if (WIN32 AND ${CMAKE_SIZEOF_VOID_P} EQUAL 8)
-	set(SETJMP_ASM jnc_setJmp_msc_amd64.asm)
+if(WIN32)
+	if(${TARGET_CPU} STREQUAL "amd64")
+		set(SETJMP_ASM jnc_setJmp_msc_amd64.asm)
 
-	axl_exclude_from_build(${SETJMP_ASM})
+		set_source_files_properties(
+			${SETJMP_ASM}
+			PROPERTIES
+			LANGUAGE ASM_NASM
+		)
+	elseif(${TARGET_CPU} STREQUAL "arm64")
+		set(SETJMP_ASM jnc_setJmp_msc_arm64.asm)
 
-	add_nasm_step(
-		${SETJMP_ASM}.obj
-		${SETJMP_ASM}
-		-f win64
-	)
+		set_source_files_properties(
+			${SETJMP_ASM}
+			PROPERTIES
+			LANGUAGE ASM_MARMASM
+		)
+	endif()
 
 	set(LIB_ASM_LIST ${SETJMP_ASM})
-	set(LIB_OBJ_LIST ${CMAKE_CURRENT_BINARY_DIR}/${SETJMP_ASM}.obj)
 endif()
 
 source_group(
@@ -123,7 +129,6 @@ source_group(
 	${LIB_H_LIST}
 	${LIB_STATIC_CPP_LIST}
 	${LIB_ASM_LIST}
-	${LIB_OBJ_LIST}
 )
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

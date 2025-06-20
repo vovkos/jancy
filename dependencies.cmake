@@ -66,10 +66,6 @@ set(
 		latex
 	)
 
-if (WIN32 AND ${CMAKE_SIZEOF_VOID_P} EQUAL 8)
-	set(AXL_IMPORT_LIST ${AXL_IMPORT_LIST} REQUIRED nasm)
-endif()
-
 set(
 	AXL_IMPORT_DIR_LIST
 

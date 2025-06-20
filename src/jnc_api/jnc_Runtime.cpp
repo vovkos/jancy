@@ -661,8 +661,7 @@ jnc_strengthenClassPtr(jnc_IfaceHdr* iface) {
 
 //..............................................................................
 
-#if (_JNC_OS_WIN)
-#	if (_JNC_CPU_X86)
+#if (_JNC_OS_WIN && _JNC_CPU_X86)
 
 // based on: reactos/sdk/lib/crt/setjmp/i386/setjmp.s
 
@@ -732,22 +731,6 @@ jnc_longJmp(
 	}
 }
 
-#	elif (_JNC_CPU_AMD64)
-#		undef jnc_setJmp
-
-/*
-void
-jnc_longJmp(
-	jmp_buf jmpBuf,
-	int retVal
-) {
-	_JUMP_BUFFER* buffer = (_JUMP_BUFFER*)jmpBuf;
-	buffer->Frame = 0;
-	longjmp(jmpBuf, retVal);
-}
-*/
-
-#	endif
 #endif
 
 //..............................................................................
