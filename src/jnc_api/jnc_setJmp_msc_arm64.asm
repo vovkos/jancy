@@ -4,31 +4,31 @@
 	EXPORT jnc_setJmp
 	EXPORT jnc_longJmp
 
-#define JUMP_BUFFER_Frame     0x00
-#define JUMP_BUFFER_Reserved  0x08
-#define JUMP_BUFFER_X19       0x10
-#define JUMP_BUFFER_X20       0x18
-#define JUMP_BUFFER_X21       0x20
-#define JUMP_BUFFER_X22       0x28
-#define JUMP_BUFFER_X23       0x30
-#define JUMP_BUFFER_X24       0x38
-#define JUMP_BUFFER_X25       0x40
-#define JUMP_BUFFER_X26       0x48
-#define JUMP_BUFFER_X27       0x50
-#define JUMP_BUFFER_X28       0x58
-#define JUMP_BUFFER_Fp        0x60
-#define JUMP_BUFFER_Lr        0x68
-#define JUMP_BUFFER_Sp        0x70
-#define JUMP_BUFFER_Fpcr      0x78
-#define JUMP_BUFFER_Fpsr      0x7c
-#define JUMP_BUFFER_D8        0x80
-#define JUMP_BUFFER_D9        0x88
-#define JUMP_BUFFER_D10       0x90
-#define JUMP_BUFFER_D11       0x98
-#define JUMP_BUFFER_D12       0xa0
-#define JUMP_BUFFER_D13       0xa8
-#define JUMP_BUFFER_D14       0xb0
-#define JUMP_BUFFER_D15       0xb8
+JUMP_BUFFER_Frame     EQU 0x00
+JUMP_BUFFER_Reserved  EQU 0x08
+JUMP_BUFFER_X19       EQU 0x10
+JUMP_BUFFER_X20       EQU 0x18
+JUMP_BUFFER_X21       EQU 0x20
+JUMP_BUFFER_X22       EQU 0x28
+JUMP_BUFFER_X23       EQU 0x30
+JUMP_BUFFER_X24       EQU 0x38
+JUMP_BUFFER_X25       EQU 0x40
+JUMP_BUFFER_X26       EQU 0x48
+JUMP_BUFFER_X27       EQU 0x50
+JUMP_BUFFER_X28       EQU 0x58
+JUMP_BUFFER_Fp        EQU 0x60
+JUMP_BUFFER_Lr        EQU 0x68
+JUMP_BUFFER_Sp        EQU 0x70
+JUMP_BUFFER_Fpcr      EQU 0x78
+JUMP_BUFFER_Fpsr      EQU 0x7c
+JUMP_BUFFER_D8        EQU 0x80
+JUMP_BUFFER_D9        EQU 0x88
+JUMP_BUFFER_D10       EQU 0x90
+JUMP_BUFFER_D11       EQU 0x98
+JUMP_BUFFER_D12       EQU 0xa0
+JUMP_BUFFER_D13       EQU 0xa8
+JUMP_BUFFER_D14       EQU 0xb0
+JUMP_BUFFER_D15       EQU 0xb8
 
 ;
 ;  int
@@ -113,7 +113,7 @@ jnc_longJmp
 
     cmp     x1,     #0
 	mov     x0,     #1
-	csel    x0,     x1,     x0,     ne
+	cselne   x0,     x1,     x0
     ret
 
 	END
