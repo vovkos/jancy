@@ -1721,7 +1721,11 @@ GcHeap::destructThreadFunc() {
 			break;
 
 		runDestructCycle_l(&destructBuffer);
-		m_lock.unlock();
+
+		if (!m_noCollectMutatorThreadCount)
+			collect_l(false);
+		else
+			m_lock.unlock(); // not now
 	}
 
 	for (size_t i = 0; i < GcDef_ShutdownIterationLimit; i++) {
