@@ -1676,6 +1676,14 @@ GcHeap::runDestructCycle_l(sl::Array<IfaceHdr*>* destructBuffer) {
 		m_lock.unlock();
 
 		size_t count = destructBuffer->getCount();
+
+		// avoid registering mutator thread in the tight inner loop below
+
+		// we can actually go even further and make the whole destructThreadFunc a mutator thread,
+		// but then we have to carefully mark all wait regions (and it won't be a huge gain, anyway)
+
+		JNC_BEGIN_CALL_SITE(m_runtime)
+
 		for (intptr_t i = count - 1; i >= 0; i--) {
 			IfaceHdr* iface = (*destructBuffer)[i];
 			ct::ClassType* classType = (ct::ClassType*)iface->m_box->m_type;
@@ -1701,6 +1709,8 @@ GcHeap::runDestructCycle_l(sl::Array<IfaceHdr*>* destructBuffer) {
 			sys::sleep(JNC_DESTRUCT_DELAY);
 #endif
 		}
+
+		JNC_END_CALL_SITE();
 
 		waitIdleAndLock();
 
