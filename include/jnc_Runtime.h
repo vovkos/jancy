@@ -866,8 +866,7 @@ public:
 	}
 
 	~AutoRuntime() {
-		if (m_runtime)
-			jnc_Runtime_destroy(m_runtime);
+		release();
 	}
 
 	operator Runtime* () const {
@@ -876,6 +875,7 @@ public:
 
 	Runtime*
 	operator -> () const {
+		JNC_ASSERT(m_runtime);
 		return m_runtime;
 	}
 
@@ -883,7 +883,22 @@ public:
 	p() const {
 		return m_runtime;
 	}
+
+	void
+	release();
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+void
+AutoRuntime::release() {
+	if (!m_runtime)
+		return;
+
+	jnc_Runtime_destroy(m_runtime);
+	m_runtime = NULL;
+}
 
 //..............................................................................
 

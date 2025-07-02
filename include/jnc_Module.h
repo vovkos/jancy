@@ -878,8 +878,7 @@ public:
 	}
 
 	~AutoModule() {
-		if (m_module)
-			jnc_Module_destroy(m_module);
+		release();
 	}
 
 	operator Module* () const {
@@ -888,6 +887,7 @@ public:
 
 	Module*
 	operator -> () const {
+		JNC_ASSERT(m_module);
 		return m_module;
 	}
 
@@ -895,7 +895,22 @@ public:
 	p() const {
 		return m_module;
 	}
+
+	void
+	release();
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+void
+AutoModule::release() {
+	if (!m_module)
+		return;
+
+	jnc_Module_destroy(m_module);
+	m_module = NULL;
+}
 
 //..............................................................................
 
