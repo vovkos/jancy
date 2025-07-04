@@ -28,16 +28,15 @@
 #include "axl_err_ErrorMgr.h"
 #include "axl_g_Module.h"
 
-#if (_AXL_OS_POSIX)
-#	include "axl_io_psx_Pipe.h"
-#endif
-
 #if (_AXL_OS_WIN)
 #	include "axl_io_win_NamedPipe.h"
 #	include "axl_io_win_File.h"
 #elif (_AXL_OS_POSIX)
 #	include "axl_io_psx_Pipe.h"
 #	include "axl_io_psx_Pty.h"
+#	if (_AXL_OS_DARWIN)
+#		include "axl_sys_drw_Kqueue.h"
+#	endif
 #endif
 
 using namespace axl;

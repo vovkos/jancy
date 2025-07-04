@@ -737,7 +737,51 @@ Serial::ioThreadFunc() {
 	ASSERT(m_serial.isOpen());
 
 	int result;
+#if (_AXL_OS_DARWIN && _JNC_IO_SERIAL_KQUEUE)
+	enum KeventId {
+		KeventId_PipeRead,
+		KeventId_SerialRead,
+		KeventId_SerialWrite,
+		KeventId__Count,
+	};
+
+	struct kevent keventTable[KeventId__Count];
+	EV_SET(
+		&keventTable[KeventId_PipeRead],
+		m_ioThreadSelfPipe.m_readFile,
+		EVFILT_READ,
+		EV_ADD | EV_ENABLE,
+		0,
+		0,
+		(void*)KeventId_PipeRead
+	);
+
+	EV_SET(
+		&keventTable[KeventId_SerialRead],
+		m_serial.m_serial,
+		EVFILT_READ,
+		EV_ADD | EV_DISABLE,
+		0,
+		0,
+		(void*)KeventId_SerialRead
+	);
+
+	EV_SET(
+		&keventTable[KeventId_SerialWrite],
+		m_serial.m_serial,
+		EVFILT_WRITE,
+		EV_ADD | EV_DISABLE,
+		0,
+		0,
+		(void*)KeventId_SerialWrite
+	);
+
+	sys::drw::Kqueue kq;
+	result = kq.change(keventTable, countof(keventTable));
+	ASSERT(result);
+#else
 	int selectFd = AXL_MAX(m_serial.m_serial, m_ioThreadSelfPipe.m_readFile) + 1;
+#endif
 
 	sl::Array<char> readBlock;
 	sl::Array<char> writeBlock;
@@ -753,6 +797,65 @@ Serial::ioThreadFunc() {
 	// read/write loop
 
 	for (;;) {
+#if (_AXL_OS_DARWIN && _JNC_IO_SERIAL_KQUEUE)
+		EV_SET(
+			&keventTable[KeventId_SerialRead],
+			m_serial.m_serial,
+			EVFILT_READ,
+			canReadSerial ? EV_DISABLE : EV_ENABLE,
+			0,
+			0,
+			(void*)KeventId_SerialRead
+		);
+
+		EV_SET(
+			&keventTable[KeventId_SerialWrite],
+			m_serial.m_serial,
+			EVFILT_WRITE,
+			canWriteSerial ? EV_DISABLE : EV_ENABLE,
+			0,
+			0,
+			(void*)KeventId_SerialWrite
+		);
+
+		result = kq.change(&keventTable[KeventId_SerialRead], 2);
+		ASSERT(result);
+#	if (_JNC_IO_SERIAL_POLL)
+		if (updateInterval == -1) {
+			result = kq.wait(keventTable, countof(keventTable));
+		} else {
+			timespec timeout;
+			timeout.tv_sec = updateInterval / 1000;
+			timeout.tv_nsec = (updateInterval * 1000000ULL);
+			result =  kq.wait(keventTable, countof(keventTable), &timeout);
+		}
+#	else
+		result = kq.wait(keventTable, countof(keventTable));
+#	endif
+
+		if (result == -1)
+			break;
+
+		for (int i = 0; i < result; i++) {
+			switch ((intptr_t)keventTable[i].udata) {
+			case KeventId_PipeRead:
+				char buffer[256];
+				m_ioThreadSelfPipe.read(buffer, sizeof(buffer));
+				break;
+
+			case KeventId_SerialRead:
+				canReadSerial = true;
+				break;
+
+			case KeventId_SerialWrite:
+				canWriteSerial = true;
+				break;
+
+			default:
+				ASSERT(false);
+			}
+		}
+#else
 		fd_set readSet = { 0 };
 		fd_set writeSet = { 0 };
 
@@ -764,19 +867,18 @@ Serial::ioThreadFunc() {
 		if (!canWriteSerial)
 			FD_SET(m_serial.m_serial, &writeSet);
 
-#if (_JNC_IO_SERIAL_POLL)
+#	if (_JNC_IO_SERIAL_POLL)
 		if (updateInterval == -1) {
 			result = ::select(selectFd, &readSet, &writeSet, NULL, NULL);
 		} else {
 			timeval timeout;
 			timeout.tv_sec = updateInterval / 1000;
 			timeout.tv_usec = (updateInterval % 1000) * 1000;
-
 			result = ::select(selectFd, &readSet, &writeSet, NULL, &timeout);
 		}
-#else
+#	else
 		result = ::select(selectFd, &readSet, &writeSet, NULL, NULL);
-#endif
+#	endif
 
 		if (result == -1)
 			break;
@@ -791,6 +893,7 @@ Serial::ioThreadFunc() {
 
 		if (FD_ISSET(m_serial.m_serial, &writeSet))
 			canWriteSerial = true;
+#endif
 
 		uint_t statusLines = m_serial.getStatusLines();
 
