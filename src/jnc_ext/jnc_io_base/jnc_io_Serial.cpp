@@ -826,7 +826,7 @@ Serial::ioThreadFunc() {
 		} else {
 			timespec timeout;
 			timeout.tv_sec = updateInterval / 1000;
-			timeout.tv_nsec = (updateInterval * 1000000ULL);
+			timeout.tv_nsec = (updateInterval % 1000) * 1000000ULL;
 			result =  kq.wait(keventTable, countof(keventTable), &timeout);
 		}
 #	else
