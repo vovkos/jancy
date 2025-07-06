@@ -77,6 +77,13 @@ Attribute::prepareValue() {
 
 		break;
 
+	case ValueKind_Type:
+		result = m_module->m_operatorMgr.typeofOperator(&m_value);
+		if (!result)
+			return false;
+
+		break;
+
 	default:
 		err::setFormatStringError("'%s' used as an attribute value", getValueKindString(m_value.getValueKind()));
 		return false;
