@@ -177,6 +177,9 @@ Cast_String_FromArray::constCast(
 	ArrayType* srcType = (ArrayType*)opValue.getType();
 	size_t length = srcType->getElementCount();
 	DataPtr ptr = m_module->m_operatorMgr.createDataPtrToLiteral(sl::StringRef((char*)opValue.getConstData(), length));
+	if (!ptr.m_p)
+		return false;
+
 	return finalizeString(string, (char*)ptr.m_p, length, ptr.m_validator);
 }
 
