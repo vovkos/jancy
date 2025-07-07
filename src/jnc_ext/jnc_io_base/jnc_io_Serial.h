@@ -14,7 +14,7 @@
 #include "jnc_io_AsyncIoDevice.h"
 
 #define _JNC_IO_SERIAL_POLL   1
-#define _JNC_IO_SERIAL_KQUEUE 1
+#define _JNC_IO_SERIAL_KQUEUE 0
 
 namespace jnc {
 namespace io {
