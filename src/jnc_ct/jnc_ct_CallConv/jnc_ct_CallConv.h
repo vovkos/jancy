@@ -47,7 +47,7 @@ enum CallConvKind {
 #	if (_JNC_CPU_AMD64)
 	CallConvKind_Jnccall  = CallConvKind_Jnccall_msc64,
 	CallConvKind_Cdecl    = CallConvKind_Cdecl_msc64,
-#	else
+#	elif (_JNC_CPU_X86)
 	CallConvKind_Jnccall  = CallConvKind_Jnccall_msc32,
 	CallConvKind_Cdecl    = CallConvKind_Cdecl_msc32,
 	CallConvKind_Stdcall  = CallConvKind_Stdcall_msc32,
@@ -63,7 +63,7 @@ enum CallConvKind {
 #	elif (_JNC_CPU_AMD64)
 	CallConvKind_Jnccall  = CallConvKind_Jnccall_gcc64,
 	CallConvKind_Cdecl    = CallConvKind_Cdecl_gcc64,
-#	else
+#	elif (_JNC_CPU_X86)
 	CallConvKind_Jnccall  = CallConvKind_Jnccall_gcc32,
 	CallConvKind_Cdecl    = CallConvKind_Cdecl_gcc32,
 	CallConvKind_Stdcall  = CallConvKind_Stdcall_gcc32,
