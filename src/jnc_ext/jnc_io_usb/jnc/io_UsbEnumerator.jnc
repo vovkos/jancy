@@ -41,7 +41,7 @@ UsbDeviceEntry const* enumerateUsbDevices(size_t* count = null) {
 	return enumerateUsbDevices(0, count);
 }
 
-UsbDevice* const* errorcode enumerateUsbDevicesNoDesc(size_t* count = null);
+UsbDevice* const* enumerateUsbDevicesNoDesc(size_t* count = null);
 
 //..............................................................................
 
