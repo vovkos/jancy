@@ -420,7 +420,7 @@ bool errorcode SshSerialSession.applyProperties() {
 	}
 
 	if (breakCondition != m_breakCondition) {
-		m_logWriter.write(SerialLogRecordCode.RtsChanged, &breakCondition, sizeof(breakCondition));
+		m_logWriter.write(SerialLogRecordCode.BreakConditionChanged, &breakCondition, sizeof(breakCondition));
 		m_breakCondition = breakCondition;
 		writeLineChangeMsg(io.HwcMsgCode.SerialSetDtr, breakCondition);
 	}
@@ -479,7 +479,7 @@ bool errorcode SshSerialSession.connect() {
 	m_flowControl = m_serialUi.m_flowControl;
 	m_dtr = m_serialUi.m_dtr;
 	m_rts = m_serialUi.m_rts;
-	m_breakCondition = m_serialUi.m_breakCondition;
+	m_breakCondition = false; // set later after connect
 	m_decoder.reset();
 
 	m_addressCombo.addEditTextToHistory();
@@ -759,11 +759,16 @@ void SshSerialSession.updateLineInfoValue(
 }
 
 reactor SshSerialSession.m_uiReactor {
-	m_isTransmitEnabled = m_ssh.m_isTransmitEnabled;
-
 	m_title = m_ssh.m_state == State.Connected ?
 		$"Serial $(m_ssh.m_remoteAddress.getString()) $m_portName $m_baudRate bps" :
 		$"Serial $(m_addressCombo.m_currentText) $(m_portCombo.m_currentText) $(m_serialUi.m_baudRateCombo.m_editText)";
+
+	m_isTransmitEnabled = m_ssh.m_isTransmitEnabled && !m_breakCondition;
+
+	if (m_ssh.m_state == State.Connected) { // set BREAK on initial connect
+		if (!m_breakCondition && m_serialUi.m_breakCondition) // exclude bindingof(m_breakCondition)
+			onBreakConditionChanged();
+	}
 
 	m_sessionConnectionState =
 		m_ssh.m_state == State.Connected ? SessionConnectionState.Connected :

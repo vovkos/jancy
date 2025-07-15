@@ -44,3 +44,4 @@ SerialLogFilter.jnc
 01d47c8fc7b0f712  # PortClosed
 81d47c8fc7b0f713  # PortOpenedEx
 81d47c8fc7b0f714  # CaptureStarted
+01d47c8fc7b0f715  # UpdateIntervalChanged

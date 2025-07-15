@@ -16,11 +16,6 @@ string_t getStatusLineChangeString(
 ) {
 	std.StringBuilder string = "Status line(s) changed:";
 
-	if (mask & SerialTapProLines.Dtr) {
-		string += " DTR: ";
-		string += getOnOffString(lines & SerialTapProLines.Dtr);
-	}
-
 	if (mask & SerialTapProLines.Rts) {
 		string += " RTS: ";
 		string += getOnOffString(lines & SerialTapProLines.Rts);
@@ -29,6 +24,11 @@ string_t getStatusLineChangeString(
 	if (mask & SerialTapProLines.Cts) {
 		string += " CTS: ";
 		string += getOnOffString(lines & SerialTapProLines.Cts);
+	}
+
+	if (mask & SerialTapProLines.Dtr) {
+		string += " DTR: ";
+		string += getOnOffString(lines & SerialTapProLines.Dtr);
 	}
 
 	if (mask & SerialTapProLines.Dsr) {
@@ -373,6 +373,12 @@ bool representSerialTapProLog(
 		representation.addHyperText($"Set parity: \e[34m$parityString");
 		break;
 
+	case SerialTapProLogRecordCode.NotificationDelayChanged:
+		uint_t delay = *(uint_t const*)p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"Set notification delay: \e[34m$delay\e[m ms");
+		break;
 
 	default:
 		return false;

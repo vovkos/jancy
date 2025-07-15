@@ -9,6 +9,11 @@ import "std_Buffer.jnc"
 
 class SerialTapProDecoder {
 protected:
+	enum {
+		DeviceTimeSyncThreshold = 500000, // 500 ms
+	}
+
+protected:
 	log.Writer* m_logWriter;
 	log.TxRxStats* m_txRxStats;
 	SerialTapProInfoSet* m_infoSet;
@@ -98,35 +103,42 @@ void SerialTapProDecoder.decode(
 	char thin const* p = p0;
 	char thin const* end = p + size;
 	char const* next = p0 + SerialTapProUsb.BulkSize;
-	uint64_t timeDiff = 0;
+	uint64_t deviceTime = 0;
 	uint8_t status = m_recordParams.m_status;
 	uint8_t status0 = m_recordParams.m_status;
 	SerialTapProLines lines = m_recordParams.m_lines;
 	SerialTapProLines lines0 = m_recordParams.m_lines;
-	uint64_t recordCode = SerialTapProLogRecordCode.RawUsbBulkData; // + m_isFlipped;
 	size_t dataSize_0 = 0;
 	size_t dataSize_1 = 0;
+	bool isTimestampUpdated = false; // update once per USB read (on the first notification)
 
 	while (p < end) {
 		SerialTapProNotificationCode code;
 		if (p >= next || !(code = (SerialTapProNotificationCode)*p)) { // skip to the end of bulk
 			size_t offset = p - p0;
 			if (offset) {
-				m_logWriter.write(m_timestamp, recordCode, &m_recordParams, sizeof(m_recordParams), p0, offset);
+				m_logWriter.write(m_timestamp, SerialTapProLogRecordCode.RawUsbBulkData, &m_recordParams, sizeof(m_recordParams), p0, offset);
 				m_recordParams.m_status = status;
 				m_recordParams.m_lines = lines;
 			}
 
 			p = p0 = next;
 			next += SerialTapProUsb.BulkSize;
-			m_timestamp += timeDiff  * 10; // FPGA timestamps are in mcs
-			timeDiff = 0;
+			m_timestamp += deviceTime  * 10; // device time is in mcs
+			deviceTime = 0;
 			continue;
 		}
 
 		DecodeUlebResult uleb = decodeUleb(p + 1, end);
 		p = uleb.m_p;
-		timeDiff += uleb.m_value;
+		deviceTime += uleb.m_value;
+
+		if (!isTimestampUpdated) {
+			if (deviceTime >= DeviceTimeSyncThreshold)
+				m_timestamp = sys.getTimestamp() - deviceTime * 10;
+
+			isTimestampUpdated = true;
+		}
 
 		switch (code) {
 		case SerialTapProNotificationCode.Data_0:
@@ -168,9 +180,10 @@ void SerialTapProDecoder.decode(
 	// write the remainder (only possible if a bulk is completely filled)
 
 	if (p0 < end) {
-		m_logWriter.write(m_timestamp, recordCode, &m_recordParams, sizeof(m_recordParams), p0, end - p0);
+		m_logWriter.write(m_timestamp, SerialTapProLogRecordCode.RawUsbBulkData, &m_recordParams, sizeof(m_recordParams), p0, end - p0);
 		m_recordParams.m_status = status;
 		m_recordParams.m_lines = lines;
+		m_timestamp += deviceTime  * 10; // device time is in mcs
 	}
 
 	if (m_isFlipped) {

@@ -45,6 +45,8 @@ enum SerialTapProRegister {
 	BaudLimit1   = 13,
 	Bits         = 14,
 	Lines        = 15,
+	Delay0       = 16,
+	Delay1       = 17,
 }
 
 bitflag enum SerialTapProControlFlags {
@@ -68,7 +70,6 @@ union SerialTapProBits {
 
 enum SerialTapProNotificationCode: uint8_t {
 	BufferOverflow   = 1,
-	Collision        = 2,
 	Data_0           = 3,
 	Data_1           = 4,
 	StatusLineChange = 5,

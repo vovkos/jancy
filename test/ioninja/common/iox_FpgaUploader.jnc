@@ -128,18 +128,6 @@ void FpgaUploader.cancel() {
 	complete(false);
 }
 
-void logWriteRpdVersion(log.Writer* writer, io.RpdVersion version) {
-	writer.write(
-		log.StdRecordCode.PlainTextSep,
-		$"hwversion: %1 fmtype: %2 fmversion %3.%4"(
-			version.m_hardwareVersion,
-			version.m_firmwareType,
-			(version.m_firmwareVersion >> 8) & 0xff,
-			version.m_firmwareVersion & 0xff
-		)
-	);
-}
-
 bool errorcode FpgaUploader.update(
 	io.UsbDevice* device,
 	string_t fileName,
@@ -150,16 +138,11 @@ bool errorcode FpgaUploader.update(
 	m_device = device;
 	m_file.open(fileName, io.FileOpenFlags.ReadOnly);
 	io.RpdHdr const* hdr = (io.RpdHdr const*)m_file.view(0, sizeof(io.RpdHdr), false);
-	m_logWriter.write(log.StdRecordCode.PlainTextSep, $"file: $fileName");
-	logWriteRpdVersion(m_logWriter, hdr.m_version);
-
 	m_fileVersion = hdr.m_version;
 	m_baseIndex = baseIndex;
 
 	Status status = getStatus();
 	io.RpdVersion version = getVersion();
-	m_logWriter.write(log.StdRecordCode.PlainTextSep, $"device:");
-	logWriteRpdVersion(m_logWriter, version);
 
 	bool isUpToDate =
 		status == 0 &&

@@ -53,7 +53,7 @@ uleb128.jnc
 01db13c48f442519  # Rs485InjectChannelChanged
 01db13c48f44251a  # OverflowsChanged
 01db13c48f44251b  # RawUsbBulkData
-01db13c48f44251c  # RawUsbBulkDataFlipped
+01db13c48f44251c  # unused
 01db13c48f44251d  # BaudRateChanged
 01db13c48f44251e  # DataBitsChanged
 01db13c48f44251f  # StopBitsChanged

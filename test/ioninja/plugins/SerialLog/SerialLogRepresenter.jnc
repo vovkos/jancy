@@ -361,6 +361,13 @@ bool representSerialLog(
 		representation.addHyperText($"Set read interval: \e[34m$interval\e[m ms");
 		break;
 
+	case SerialLogRecordCode.UpdateIntervalChanged:
+		uint_t interval = *(uint_t const*)p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"Set status line update interval: \e[34m$interval\e[m ms");
+		break;
+
 	case SerialLogRecordCode.BuggyDriverDetected:
 		string_t driver = (char const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;

@@ -24,6 +24,7 @@ protected:
 	enum Defaults {
 		ReadMode         = SerialReadMode.WaitFirstChar,
 		ReadInterval     = 10,
+		UpdateInterval   = 100,
 		UseReopenTimeout = false,
 		ReopenTimeout    = 3000,
 	}
@@ -67,6 +68,7 @@ protected:
 	bool bindable m_dtr;
 	bool bindable m_rts;
 	bool bindable m_breakCondition;
+	bool bindable m_isTransmitBufferReady; // two-stage transmit enabler
 	io.SerialStatusLines bindable m_statusLines;
 
 	std.Buffer m_readBuffer;
@@ -91,6 +93,7 @@ protected:
 	ui.IntProperty* m_reopenTimeoutProp;
 	ui.EnumProperty* m_readModeProp;
 	ui.IntProperty* m_readIntervalProp;
+	ui.IntProperty* m_updateIntervalProp;
 	ui.BufferPropertySet m_bufferPropertySet;
 
 	// information grid
@@ -176,6 +179,10 @@ protected:
 	}
 
 	io.SerialOptions getSerialOptions();
+
+	uint_t getUpdateInterval() {
+		return sys.g_systemInfo.m_osKind == sys.OsKind.Mac ? m_updateIntervalProp.m_value : -1 ;
+	}
 
 	uint_t getReadInterval() {
 		return
@@ -301,10 +308,26 @@ void SerialSession.createUi() {
 
 		m_readIntervalProp.m_minValue = 1;
 	} else {
-		// still, we want valid property pointers, so there's less checking
+		// still, we want valid property pointers so there's less checking
 
 		m_readModeProp = new ui.EnumProperty(null);
 		m_readIntervalProp = new ui.IntProperty(null);
+	}
+
+	if (sys.g_systemInfo.m_osKind == sys.OsKind.Mac) {
+		// these setting only makes sense on macOS
+
+		m_updateIntervalProp = m_pluginHost.m_propertyGrid.createIntProperty(
+			groupProp,,
+			"Status line update interval (ms)",
+			"Due to lack of TIOCMWAIT, status lines are polled with this interval (in milliseconds)"
+		);
+
+		m_updateIntervalProp.m_minValue = 1;
+	} else {
+		// still, we want a valid property pointer so there's less checking
+
+		m_updateIntervalProp = new ui.IntProperty(null);
 	}
 
 	m_bufferPropertySet.createProperties(m_pluginHost.m_propertyGrid, groupProp);
@@ -356,6 +379,7 @@ bool errorcode SerialSession.open() {
 
 	// configure and open
 
+	m_serial.m_updateInterval = getUpdateInterval();
 	m_serial.m_readInterval = getReadInterval();
 	m_serial.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
 	m_serial.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
@@ -370,6 +394,7 @@ bool errorcode SerialSession.open() {
 	m_serial.m_flowControl = m_serialUi.m_flowControl;
 	m_serial.m_dtr = m_serialUi.m_dtr;
 	m_serial.m_rts = m_serialUi.m_rts;
+	m_serial.m_breakCondition = false;
 
 	string_t driverName = io.detectSerialBuggyDriver(portName);
 	if (driverName) {
@@ -418,14 +443,17 @@ bool errorcode SerialSession.open() {
 	m_baudRate = m_serial.m_baudRate;
 	m_dtr = m_serial.m_dtr;
 	m_rts = m_serial.m_rts;
-	m_breakCondition = m_serial.m_breakCondition;
 	m_statusLines = m_serial.m_statusLines;
-	m_isTransmitEnabled = true;
+	m_isTransmitBufferReady = true;
 	m_state = State.Opened;
 	m_sessionConnectionState = SessionConnectionState.Connected;
 
 	waitSerialEvents();
 	m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
+
+	if (m_serialUi.m_breakCondition)
+		onBreakConditionChanged();
+
 	return true;
 
 catch:
@@ -441,7 +469,7 @@ void SerialSession.close() {
 	m_logWriter.write(SerialLogRecordCode.PortClosed);
 	m_stdSessionInfoSet.endSession();
 	m_serial.close();
-	m_isTransmitEnabled = false;
+	m_isTransmitBufferReady = false;
 	m_state = State.Closed;
 	m_sessionConnectionState = SessionConnectionState.Disconnected;
 	m_syncId++;
@@ -455,6 +483,7 @@ void SerialSession.load(doc.Storage* storage) {
 	m_reopenTimeoutProp.m_value = storage.readInt("reopenTimeout", Defaults.ReopenTimeout);
 	m_readModeProp.m_value = storage.readBool("readMode", Defaults.ReadMode);
 	m_readIntervalProp.m_value = storage.readInt("readInterval", Defaults.ReadInterval);
+	m_updateIntervalProp.m_value = storage.readInt("updateInterval", Defaults.UpdateInterval);
 
 	m_bufferPropertySet.load(storage);
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
@@ -468,6 +497,7 @@ void SerialSession.save(doc.Storage* storage) {
 	storage.writeInt("reopenTimeout", m_reopenTimeoutProp.m_value);
 	storage.writeInt("readMode", m_readModeProp.m_value);
 	storage.writeInt("readInterval", m_readIntervalProp.m_value);
+	storage.writeInt("updateInterval", m_updateIntervalProp.m_value);
 
 	m_bufferPropertySet.save(storage);
 }
@@ -499,6 +529,7 @@ bool errorcode SerialSession.applyProperties() {
 	io.SerialFlowControl prevFlowControl = m_serial.m_flowControl;
 	io.SerialOptions prevOptions = m_serial.m_options;
 	uint_t prevReadInterval = m_serial.m_readInterval;
+	uint_t prevUpdateInterval = m_serial.m_updateInterval;
 
 	bool prevDtr = m_serial.m_dtr;
 	bool prevRts = m_serial.m_rts;
@@ -518,9 +549,11 @@ bool errorcode SerialSession.applyProperties() {
 
 	io.SerialOptions options = getSerialOptions();
 	uint_t readInterval = getReadInterval();
+	uint_t updateInterval = getUpdateInterval();
 
 	// try to apply
 
+	m_serial.m_updateInterval = updateInterval;
 	m_serial.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
 	m_serial.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
 	m_serial.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
@@ -577,6 +610,9 @@ bool errorcode SerialSession.applyProperties() {
 	if (readInterval != prevReadInterval)
 		m_logWriter.write(SerialLogRecordCode.ReadIntervalChanged, &readInterval, sizeof(readInterval));
 
+	if (updateInterval != prevUpdateInterval)
+		m_logWriter.write(SerialLogRecordCode.UpdateIntervalChanged, &updateInterval, sizeof(updateInterval));
+
 	return true;
 
 catch:
@@ -591,6 +627,7 @@ void SerialSession.restoreDefaultProperties() {
 	m_reopenTimeoutProp.m_value = Defaults.ReopenTimeout;
 	m_readModeProp.m_value = Defaults.ReadMode;
 	m_readIntervalProp.m_value = Defaults.ReadInterval;
+	m_updateIntervalProp.m_value = Defaults.UpdateInterval;
 	m_bufferPropertySet.restoreDefaults();
 }
 
@@ -608,8 +645,8 @@ size_t errorcode SerialSession.transmit(
 	if (result)
 		m_logWriter.write(log.StdRecordCode.Tx, p, result);
 
-	if (result < size && m_isTransmitEnabled) {
-		m_isTransmitEnabled = false;
+	if (result < size && m_isTransmitBufferReady) {
+		m_isTransmitBufferReady = false;
 		waitSerialEvents();
 	}
 
@@ -735,7 +772,7 @@ void SerialSession.waitSerialEvents() {
 		io.SerialEvents.IncomingData |
 		io.SerialEvents.LineError;
 
-	if (!m_isTransmitEnabled)
+	if (!m_isTransmitBufferReady)
 		eventMask |= io.SerialEvents.WriteBufferReady;
 
 	eventMask |= (m_statusLines & io.SerialStatusLines.Cts) ?
@@ -781,8 +818,8 @@ void SerialSession.onSerialEvent(
 		m_logWriter.write(SerialLogRecordCode.LineError, &errors, sizeof(errors));
 	}
 
-	if (!m_isTransmitEnabled)
-		m_isTransmitEnabled = (triggeredEvents & io.SerialEvents.WriteBufferReady);
+	if (!m_isTransmitBufferReady)
+		m_isTransmitBufferReady = (triggeredEvents & io.SerialEvents.WriteBufferReady);
 
 	io.SerialStatusLines statusLines = m_serial.m_statusLines;
 	io.SerialStatusLines statusLineMask = statusLines ^ m_statusLines;
@@ -967,6 +1004,8 @@ reactor SerialSession.m_uiReactor {
 	updateLineInfoValue(InfoId.Dsr, m_statusLines & io.SerialStatusLines.Dsr);
 	updateLineInfoValue(InfoId.Cts, m_statusLines & io.SerialStatusLines.Cts);
 	updateLineInfoValue(InfoId.BreakCondition, m_breakCondition);
+
+	m_isTransmitEnabled = m_isTransmitBufferReady && !m_breakCondition;
 
 	onevent bindingof(m_portCombo.m_editText)() {
 		m_reopenTimer.stop();

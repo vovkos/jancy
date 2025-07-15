@@ -32,6 +32,7 @@ enum SerialLogRecordCode: uint64_t {
 	PortClosed            = 0x01d47c8fc7b0f712,
 	PortOpenedEx          = 0x01d47c8fc7b0f713 | log.RecordCodeFlags.Foldable,
 	CaptureStarted        = 0x01d47c8fc7b0f714 | log.RecordCodeFlags.Foldable,
+	UpdateIntervalChanged = 0x01d47c8fc7b0f715,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

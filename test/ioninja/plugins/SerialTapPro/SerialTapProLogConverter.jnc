@@ -102,7 +102,7 @@ protected:
 protected:
 	log.Log* m_log;
 
-	ui.ToggleUi m_rawDataToggle;
+	// ui.ToggleUi m_rawDataToggle;
 	ui.ToggleUi m_flipToggle;
 	ui.ToggleUi m_separateBytesToggle;
 	ui.ToggleUi m_parityBitToggle;
@@ -180,12 +180,14 @@ void SerialTapProLogConverter.createUi(doc.PluginHost* pluginHost) {
 
 	bindingof(m_flipToggle.m_value) += onFlip;
 
+	/*
 	m_rawDataToggle.create(
 		layout,,
 		groupProp,
 		"Raw data (debug)",
 		"Show/hide raw USB bulk data (for debugging)"
 	);
+	*/
 
 	m_separateBytesToggle.create(
 		layout,,
@@ -231,7 +233,7 @@ void SerialTapProLogConverter.createUi(doc.PluginHost* pluginHost) {
 
 void SerialTapProLogConverter.load(doc.Storage* storage) {
 	m_flipToggle := storage.readBool("flipDteDce", true);
-	m_rawDataToggle := storage.readBool("rawData", true);
+	// m_rawDataToggle := storage.readBool("rawData", true);
 	m_separateBytesToggle := storage.readBool("separateBytes", true);
 	m_parityBitToggle := storage.readBool("parityBit", true);
 	m_serialSettingChangeToggle := storage.readBool("serialSettingChange", true);
@@ -241,7 +243,7 @@ void SerialTapProLogConverter.load(doc.Storage* storage) {
 
 void SerialTapProLogConverter.save(doc.Storage* storage) {
 	storage.writeBool("flipDteDce", m_flipToggle.m_value);
-	storage.writeBool("rawData", m_rawDataToggle.m_value);
+	// storage.writeBool("rawData", m_rawDataToggle.m_value);
 	storage.writeBool("separateBytes", m_separateBytesToggle.m_value);
 	storage.writeBool("parityBit", m_parityBitToggle.m_value);
 	storage.writeBool("serialSettingChange", m_serialSettingChangeToggle.m_value);
@@ -251,7 +253,7 @@ void SerialTapProLogConverter.save(doc.Storage* storage) {
 
 void SerialTapProLogConverter.updateProperties() {
 	m_flipToggle.update();
-	m_rawDataToggle.update();
+	// m_rawDataToggle.update();
 	m_separateBytesToggle.update();
 	m_parityBitToggle.update();
 	m_serialSettingChangeToggle.update();
@@ -261,7 +263,7 @@ void SerialTapProLogConverter.updateProperties() {
 
 bool errorcode SerialTapProLogConverter.applyProperties() {
 	m_flipToggle.apply();
-	m_rawDataToggle.apply();
+	// m_rawDataToggle.apply();
 	m_separateBytesToggle.apply();
 	m_parityBitToggle.apply();
 	m_serialSettingChangeToggle.apply();
@@ -272,7 +274,7 @@ bool errorcode SerialTapProLogConverter.applyProperties() {
 
 void SerialTapProLogConverter.restoreDefaultProperties() {
 	m_flipToggle := false;
-	m_rawDataToggle := false;
+	// m_rawDataToggle := false;
 	m_separateBytesToggle := false;
 	m_parityBitToggle := false;
 	m_serialSettingChangeToggle := true;
@@ -291,15 +293,14 @@ override bool SerialTapProLogConverter.convert(
 ) {
 	switch (recordCode) {
 	case SerialTapProLogRecordCode.RawUsbBulkData:
-	case SerialTapProLogRecordCode.RawUsbBulkDataFlipped:
 		SerialTapProRawUsbBulkParams params = *(SerialTapProRawUsbBulkParams const*)p;
 		p += sizeof(SerialTapProRawUsbBulkParams);
 		size -= sizeof(SerialTapProRawUsbBulkParams);
 
+		/*
 		if (m_rawDataToggle.m_value)
 			writer.write(timestamp, log.StdRecordCode.Bin, p, size);
-
-		// bool isFlipped = recordCode - SerialTapProLogRecordCode.RawUsbBulkData;
+		*/
 
 		convertSerialTapProRawUsbBulk(
 			writer,
@@ -321,7 +322,7 @@ override bool SerialTapProLogConverter.convert(
 	case SerialTapProLogRecordCode.DataBitsChanged:
 	case SerialTapProLogRecordCode.ParityChanged:
 	case SerialTapProLogRecordCode.StopBitsChanged:
-		if (!m_statusLineChangeToggle.m_value)
+		if (!m_serialSettingChangeToggle.m_value)
 			break;
 
 		// fall through
@@ -373,6 +374,8 @@ void SerialTapProLogConverter.convertSerialTapProRawUsbBulk(
 
 		DecodeUlebResult uleb = decodeUleb(p, end);
 		p = uleb.m_p;
+
+		uint64_t prevTimestamp = timestamp;
 		timestamp += uleb.m_value * 10; // FPGA timestamps are in mcs
 
 		if (notificationCode == SerialTapProNotificationCode.Data_0 || // Rx
@@ -388,8 +391,8 @@ void SerialTapProLogConverter.convertSerialTapProRawUsbBulk(
 				if (dataRecordCode) {
 					size_t size = pd - data;
 					isParityBitVisible ?
-						writer.write(timestamp, dataRecordCode, data, size, bin9, (size + 7) / 8) :
-						writer.write(timestamp, dataRecordCode, data, size);
+						writer.write(prevTimestamp, dataRecordCode, data, size, bin9, (size + 7) / 8) :
+						writer.write(prevTimestamp, dataRecordCode, data, size);
 				}
 
 				dataRecordCode = recordCode;
@@ -422,8 +425,8 @@ void SerialTapProLogConverter.convertSerialTapProRawUsbBulk(
 			if (dataRecordCode) {
 				size_t size = pd - data;
 				isParityBitVisible ?
-					writer.write(timestamp, dataRecordCode, data, size, bin9, (size + 7) / 8) :
-					writer.write(timestamp, dataRecordCode, data, size);
+					writer.write(prevTimestamp, dataRecordCode, data, size, bin9, (size + 7) / 8) :
+					writer.write(prevTimestamp, dataRecordCode, data, size);
 				dataRecordCode = 0;
 			}
 

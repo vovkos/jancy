@@ -38,11 +38,11 @@ enum SerialTapProLogRecordCode: uint64_t {
 	Rs485InjectChannelChanged = 0x01db13c48f442519,
 	OverflowsChanged          = 0x01db13c48f44251a,
 	RawUsbBulkData            = 0x01db13c48f44251b,
-	RawUsbBulkDataFlipped     = 0x01db13c48f44251c,
 	BaudRateChanged           = 0x01db13c48f44251d,
 	DataBitsChanged           = 0x01db13c48f44251e,
-	StopBitsChanged           = 0x01db13c48f44251f,
-	ParityChanged             = 0x01db13c48f442520,
+	ParityChanged             = 0x01db13c48f44251f,
+	StopBitsChanged           = 0x01db13c48f442520,
+	NotificationDelayChanged  = 0x01db13c48f442521,
 }
 
 struct SerialTapProCaptureStartedParams {
