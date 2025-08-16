@@ -248,6 +248,11 @@ getOrphanDecl(ModuleItem* item) {
 	return (Orphan*)item;
 }
 
+ModuleItemDecl*
+getDynamicSectionDecl(ModuleItem* item) {
+	return (DynamicSection*)item;
+}
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 Namespace*
@@ -360,6 +365,20 @@ getBaseTypeSlotType(ModuleItem* item) {
 Type*
 getOrphanType(ModuleItem* item) {
 	return ((Orphan*)item)->getFunctionType();
+}
+
+Type*
+getDynamicSectionType(ModuleItem* item) {
+	DynamicSection* section = (DynamicSection*)item;
+	DynamicSectionKind sectionKind = section->getSectionKind();
+	switch (sectionKind) {
+	case DynamicSectionKind_Field:
+	case DynamicSectionKind_Array:
+		return ((DynamicDataSection*)section)->getType();
+
+	default:
+		return NULL;
+	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -583,6 +602,29 @@ getEnumConstSynopsis(
 	return synopsis;
 }
 
+sl::String
+getDynamicSectionSynopsis(
+	ModuleItem* item,
+	bool isQualifiedName
+) {
+	DynamicSection* section = (DynamicSection*)item;
+	DynamicSectionKind sectionKind = section->getSectionKind();
+	switch (sectionKind) {
+	case DynamicSectionKind_Field:
+	case DynamicSectionKind_Array:
+		return getTypedItemSynopsisImpl(
+			section,
+			((DynamicDataSection*)section)->getType(),
+			isQualifiedName,
+			NULL,
+			((DynamicDataSection*)section)->getPtrTypeFlags()
+		);
+
+	default:
+		return getDefaultSynopsis(item, isQualifiedName);
+	}
+}
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 ModuleItemDecl*
@@ -612,6 +654,7 @@ ModuleItem::getDecl() {
 		getBaseTypeSlotDecl,     // ModuleItemKind_BaseTypeSlot,
 		getOrphanDecl,           // ModuleItemKind_Orphan,
 		getNullDecl,             // ModuleItemKind_LazyImport,
+		getDynamicSectionDecl,   // ModuleItemKind_DynamicSection,
 	};
 
 	ASSERT((size_t)m_itemKind < countof(funcTable));
@@ -645,6 +688,7 @@ ModuleItem::getNamespace() {
 		getNullNamespace,             // ModuleItemKind_BaseTypeSlot,
 		getNullNamespace,             // ModuleItemKind_Orphan,
 		getNullNamespace,             // ModuleItemKind_LazyImport,
+		getNullNamespace,             // ModuleItemKind_DynamicSection,
 	};
 
 	ASSERT((size_t)m_itemKind < countof(funcTable));
@@ -678,6 +722,7 @@ ModuleItem::getType() {
 		getBaseTypeSlotType,     // ModuleItemKind_BaseTypeSlot,
 		getOrphanType,           // ModuleItemKind_Orphan,
 		getNullType,             // ModuleItemKind_LazyImport,
+		getDynamicSectionType,   // ModuleItemKind_DynamicSection,
 	};
 
 	ASSERT((size_t)m_itemKind < countof(funcTable));
@@ -694,26 +739,27 @@ ModuleItem::getSynopsis(bool isQualifiedName) {
 	);
 
 	static GetSynopsisFunc* funcTable[ModuleItemKind__Count] = {
-		getDefaultSynopsis,    // ModuleItemKind_Undefined = 0,
-		getDefaultSynopsis,    // ModuleItemKind_Namespace,
-		getDefaultSynopsis,    // ModuleItemKind_Scope,
-		getDefaultSynopsis,    // ModuleItemKind_Attribute,
-		getDefaultSynopsis,    // ModuleItemKind_AttributeBlock,
-		getTypeSynopsis,       // ModuleItemKind_Type,
-		getTypedefSynopsis,    // ModuleItemKind_Typedef,
-		getAliasSynopsis,      // ModuleItemKind_Alias,
-		getDefaultSynopsis,    // ModuleItemKind_Const,
-		getVariableSynopsis,   // ModuleItemKind_Variable,
-		getFunctionSynopsis,   // ModuleItemKind_Function,
-		getTypedItemSynopsis,  // ModuleItemKind_FunctionArg,
-		getDefaultSynopsis,    // ModuleItemKind_FunctionOverload,
-		getPropertySynopsis,   // ModuleItemKind_Property,
-		getDefaultSynopsis,    // ModuleItemKind_PropertyTemplate,
-		getEnumConstSynopsis,  // ModuleItemKind_EnumConst,
-		getFieldSynopsis,      // ModuleItemKind_Field,
-		getDefaultSynopsis,    // ModuleItemKind_BaseTypeSlot,
-		getDefaultSynopsis,    // ModuleItemKind_Orphan,
-		getDefaultSynopsis,    // ModuleItemKind_LazyImport,
+		getDefaultSynopsis,        // ModuleItemKind_Undefined = 0,
+		getDefaultSynopsis,        // ModuleItemKind_Namespace,
+		getDefaultSynopsis,        // ModuleItemKind_Scope,
+		getDefaultSynopsis,        // ModuleItemKind_Attribute,
+		getDefaultSynopsis,        // ModuleItemKind_AttributeBlock,
+		getTypeSynopsis,           // ModuleItemKind_Type,
+		getTypedefSynopsis,        // ModuleItemKind_Typedef,
+		getAliasSynopsis,          // ModuleItemKind_Alias,
+		getDefaultSynopsis,        // ModuleItemKind_Const,
+		getVariableSynopsis,       // ModuleItemKind_Variable,
+		getFunctionSynopsis,       // ModuleItemKind_Function,
+		getTypedItemSynopsis,      // ModuleItemKind_FunctionArg,
+		getDefaultSynopsis,        // ModuleItemKind_FunctionOverload,
+		getPropertySynopsis,       // ModuleItemKind_Property,
+		getDefaultSynopsis,        // ModuleItemKind_PropertyTemplate,
+		getEnumConstSynopsis,      // ModuleItemKind_EnumConst,
+		getFieldSynopsis,          // ModuleItemKind_Field,
+		getDefaultSynopsis,        // ModuleItemKind_BaseTypeSlot,
+		getDefaultSynopsis,        // ModuleItemKind_Orphan,
+		getDefaultSynopsis,        // ModuleItemKind_LazyImport,
+		getDynamicSectionSynopsis, // ModuleItemKind_DynamicSection,
 	};
 
 	ASSERT((size_t)m_itemKind < countof(funcTable));

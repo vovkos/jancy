@@ -79,7 +79,7 @@ CdeclCallConv_msc64::call(
 ) {
 	Type* returnType = functionType->getReturnType();
 
-	if (!(functionType->getFlags() & FunctionTypeFlag_CoercedArgs) &&
+	if (!(functionType->getFlags() & FunctionTypeFlag_VarArg | FunctionTypeFlag_CoercedArgs) &&
 		!(returnType->getFlags() & TypeFlag_StructRet)
 	)
 		return CallConv::call(calleeValue, functionType, argValueList, resultValue);
@@ -92,7 +92,7 @@ CdeclCallConv_msc64::call(
 			argValueList->insertHead(tmpReturnValue);
 	}
 
-	if (functionType->getFlags() & FunctionTypeFlag_CoercedArgs) {
+	if (functionType->getFlags() & FunctionTypeFlag_VarArg | FunctionTypeFlag_CoercedArgs) {
 		sl::BoxIterator<Value> it = argValueList->getHead();
 		for (; it; it++) {
 			Type* type = it->getType();

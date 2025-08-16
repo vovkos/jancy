@@ -123,6 +123,7 @@ Module::clear() {
 	m_functionMgr.clear();
 	m_variableMgr.clear();
 	m_constMgr.clear();
+	m_dynamicLayoutMgr.clear();
 	m_operatorMgr.clear();
 	m_unitMgr.clear();
 	m_pragmaMgr.clear();

@@ -42,7 +42,9 @@ struct DynamicLayoutStmt: ScopeExtension {
 	StructType* m_structType;
 	BasicBlock* m_structBlock;
 	sl::Array<Value> m_offsetValueArray;
+#if (_JNC_DYLAYOUT_FINALIZE_STRUCT_SECTIONS_ON_CALLS)
 	size_t m_callCount;
+#endif
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

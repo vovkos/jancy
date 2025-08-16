@@ -62,6 +62,7 @@ set(
 	include/jnc_ct_DoxyHost.h
 	include/jnc_ct_DynamicLibClassType.h
 	include/jnc_ct_DynamicLibNamespace.h
+	include/jnc_ct_DynamicLayoutMgr.h
 	include/jnc_ct_EnumType.h
 	include/jnc_ct_ExtensionLibMgr.h
 	include/jnc_ct_ExtensionNamespace.h
@@ -539,6 +540,7 @@ set(
 	jnc_ct_Module/jnc_ct_CapabilityMgr.h
 	jnc_ct_Module/jnc_ct_CodeAssistMgr.h
 	jnc_ct_Module/jnc_ct_DoxyHost.h
+	jnc_ct_Module/jnc_ct_DynamicLayoutMgr.h
 	jnc_ct_Module/jnc_ct_ExtensionLibMgr.h
 	jnc_ct_Module/jnc_ct_GcShadowStackMgr.h
 	jnc_ct_Module/jnc_ct_ImportMgr.h
@@ -558,6 +560,7 @@ set(
 	jnc_ct_Module/jnc_ct_CapabilityMgr.cpp
 	jnc_ct_Module/jnc_ct_CodeAssistMgr.cpp
 	jnc_ct_Module/jnc_ct_DoxyHost.cpp
+	jnc_ct_Module/jnc_ct_DynamicLayoutMgr.cpp
 	jnc_ct_Module/jnc_ct_ExtensionLibMgr.cpp
 	jnc_ct_Module/jnc_ct_GcShadowStackMgr.cpp
 	jnc_ct_Module/jnc_ct_ImportMgr.cpp

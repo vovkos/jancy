@@ -544,7 +544,9 @@ OperatorMgr::callImpl(
 	if (functionType->getFlags() & FunctionTypeFlag_ErrorCode)
 		m_module->m_controlFlowMgr.checkErrorCode(*resultValue, functionType->getReturnType());
 
+#if (_JNC_DYLAYOUT_FINALIZE_STRUCT_SECTIONS_ON_CALLS)
 	m_callCount++;
+#endif
 	return true;
 }
 

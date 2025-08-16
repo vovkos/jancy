@@ -17,6 +17,7 @@
 #include "jnc_ct_FunctionMgr.h"
 #include "jnc_ct_VariableMgr.h"
 #include "jnc_ct_ConstMgr.h"
+#include "jnc_ct_DynamicLayoutMgr.h"
 #include "jnc_ct_ControlFlowMgr.h"
 #include "jnc_ct_OperatorMgr.h"
 #include "jnc_ct_GcShadowStackMgr.h"
@@ -132,6 +133,7 @@ public:
 	FunctionMgr m_functionMgr;
 	VariableMgr m_variableMgr;
 	ConstMgr m_constMgr;
+	DynamicLayoutMgr m_dynamicLayoutMgr;
 	ControlFlowMgr m_controlFlowMgr;
 	OperatorMgr m_operatorMgr;
 	GcShadowStackMgr m_gcShadowStackMgr;

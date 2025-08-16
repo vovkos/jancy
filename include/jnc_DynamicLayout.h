@@ -26,6 +26,7 @@ enum jnc_DynamicSectionKind {
 	jnc_DynamicSectionKind_Undefined = 0,
 	jnc_DynamicSectionKind_Struct,
 	jnc_DynamicSectionKind_Array,
+	jnc_DynamicSectionKind_Field,
 	jnc_DynamicSectionKind_Group,
 };
 
@@ -241,6 +242,7 @@ const DynamicSectionKind
 	DynamicSectionKind_Undefined = jnc_DynamicSectionKind_Undefined,
 	DynamicSectionKind_Struct    = jnc_DynamicSectionKind_Struct,
 	DynamicSectionKind_Array     = jnc_DynamicSectionKind_Array,
+	DynamicSectionKind_Field     = jnc_DynamicSectionKind_Field,
 	DynamicSectionKind_Group     = jnc_DynamicSectionKind_Group;
 
 const DynamicLayoutMode

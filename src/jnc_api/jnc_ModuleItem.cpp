@@ -46,6 +46,7 @@ jnc_getModuleItemKindString(jnc_ModuleItemKind itemKind) {
 		"base-type-slot",              // ModuleItemKind_BaseTypeSlot,
 		"orphan",                      // ModuleItemKind_Orphan,
 		"lazy-import",                 // ModuleItemKind_LazyImport,
+		"dynamic-section",             // ModuleItemKind_DynamicSection,
 	};
 
 	return (size_t)itemKind < jnc_ModuleItemKind__Count ?

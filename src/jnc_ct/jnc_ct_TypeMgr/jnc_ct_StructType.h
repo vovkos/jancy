@@ -40,6 +40,7 @@ protected:
 
 	size_t m_fieldAlignment;
 	size_t m_fieldSize;
+	size_t m_laidOutFieldCount;
 
 	sl::Array<llvm::Type*> m_llvmFieldTypeArray;
 	Field* m_lastBitField;
@@ -65,6 +66,11 @@ public:
 
 	bool
 	append(StructType* type);
+
+	bool
+	ensureLayoutTo(Field* field) {
+		return (field->m_flags & ModuleItemFlag_LayoutReady) ? true : calcLayoutTo(field);
+	}
 
 	virtual
 	void
@@ -108,7 +114,15 @@ protected:
 
 	virtual
 	bool
-	calcLayout();
+	calcLayout() {
+		return calcLayoutTo(NULL);
+	}
+
+	bool
+	calcLayoutTo(Field* field); // NULL means full layout
+
+	bool
+	layoutBaseType(BaseTypeSlot* slot);
 
 	bool
 	layoutField(Field* field);

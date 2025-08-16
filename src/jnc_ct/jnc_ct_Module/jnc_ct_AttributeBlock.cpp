@@ -20,7 +20,7 @@ namespace ct {
 //..............................................................................
 
 bool
-Attribute::prepareValue() {
+Attribute::prepareValue(bool isDynamic) {
 	ASSERT(!(m_flags & AttributeFlag_ValueReady));
 
 	if (m_initializer.isEmpty()) {
@@ -50,14 +50,17 @@ Attribute::prepareValue() {
 		break;
 
 	case ValueKind_Variable:
-		if (!(m_value.getVariable()->getFlags() & VariableFlag_Type)) {
-			err::setFormatStringError(
-				"non-type variable '%s' used as an attribute value",
-				m_value.getVariable()->getQualifiedName().sz()
-			);
+		if (!(m_value.getVariable()->getFlags() & VariableFlag_Type))
+			if (isDynamic)
+				m_flags |= AttributeFlag_DynamicValue | AttributeFlag_VariantReady; // this attribute will be shadowed by a dynamic one
+			else {
+				err::setFormatStringError(
+					"non-type variable '%s' used as an attribute value",
+					m_value.getVariable()->getQualifiedName().sz()
+				);
 
-			return false;
-		}
+				return false;
+			}
 
 		break;
 
@@ -85,8 +88,12 @@ Attribute::prepareValue() {
 		break;
 
 	default:
-		err::setFormatStringError("'%s' used as an attribute value", getValueKindString(m_value.getValueKind()));
-		return false;
+		if (isDynamic)
+			m_flags |= AttributeFlag_DynamicValue | AttributeFlag_VariantReady; // this attribute will be shadowed by a dynamic one
+		else {
+			err::setFormatStringError("'%s' used as an attribute value", getValueKindString(m_value.getValueKind()));
+			return false;
+		}
 	}
 
 	m_flags |= AttributeFlag_ValueReady;
@@ -171,45 +178,48 @@ AttributeBlock::addAttributeBlock(AttributeBlock* attributeBlock) {
 }
 
 bool
-AttributeBlock::prepareAttributeValues() {
+AttributeBlock::prepareAttributeValues(bool isDynamic) {
 	ASSERT(!(m_flags & AttributeBlockFlag_ValuesReady));
 
 	bool finalResult = true;
+	uint_t mask = 0;
 
 	size_t count = m_attributeArray.getCount();
 	for (size_t i = 0; i < count; i++) {
 		Attribute* attribute = m_attributeArray[i];
-		bool result = attribute->ensureValueReady();
-		if (!result)
-			finalResult = false;
+		if (!(attribute->m_flags & AttributeFlag_ValueReady)) {
+			bool result = attribute->prepareValue(isDynamic);
+			if (!result)
+				finalResult = false;
+
+			mask |= attribute->m_flags;
+		}
 	}
 
-	m_flags |= AttributeBlockFlag_ValuesReady;
+	m_flags |= AttributeBlockFlag_ValuesReady | (mask & AttributeBlockFlag_DynamicValues);
 	return finalResult;
 }
 
 void
 AttributeBlock::setDynamicAttributeValue(
-	const sl::StringRef& name,
+	size_t i,
 	const Variant& value
 ) {
 	ASSERT(m_flags & AttributeBlockFlag_Dynamic);
 
-	sl::StringHashTableIterator<Attribute*> it = m_attributeMap.visit(name);
-	if (it->m_value && ((it->m_value)->getFlags() & AttributeFlag_Dynamic)) {
-		it->m_value->m_variant = value;
-		return;
-	}
+	Attribute* attribute = m_attributeArray[i];
+	ASSERT(attribute->m_flags & AttributeFlag_DynamicValue);
 
-	Attribute* attribute = new Attribute;
-	attribute->m_flags |= AttributeFlag_Dynamic | AttributeFlag_ValueReady | AttributeFlag_VariantReady;
-	attribute->m_module = m_module;
-	attribute->m_parentUnit = m_parentUnit;
-	attribute->m_parentNamespace = m_parentNamespace;
-	attribute->m_name = name;
-	attribute->m_variant = value;
-	it->m_value = attribute;
-	m_attributeArray.append(attribute);
+	Attribute* dynamicAttribute = new Attribute;
+	dynamicAttribute->m_flags |= AttributeFlag_Dynamic | AttributeFlag_ValueReady | AttributeFlag_VariantReady;
+	dynamicAttribute->m_module = m_module;
+	dynamicAttribute->m_parentUnit = m_parentUnit;
+	dynamicAttribute->m_parentNamespace = m_parentNamespace;
+	dynamicAttribute->m_name = attribute->m_name;
+	dynamicAttribute->m_pos = attribute->m_pos;
+	dynamicAttribute->m_variant = value;
+	m_attributeArray.rwi()[i] = dynamicAttribute;
+	m_attributeMap[attribute->m_name] = dynamicAttribute;
 }
 
 void

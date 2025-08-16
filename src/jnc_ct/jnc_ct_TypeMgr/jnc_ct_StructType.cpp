@@ -25,6 +25,7 @@ StructType::StructType() {
 	m_flags = TypeFlag_Pod | TypeFlag_StructRet;
 	m_fieldAlignment = 8;
 	m_fieldSize = 0;
+	m_laidOutFieldCount = 0;
 	m_lastBitField = NULL;
 	m_dynamicStructSectionId = -1;
 }
@@ -90,65 +91,43 @@ StructType::append(StructType* type) {
 }
 
 bool
-StructType::calcLayout() {
-	bool result =
-		ensureNamespaceReady() &&
-		ensureAttributeValuesReady();
+StructType::calcLayoutTo(Field* targetField) {
+	ASSERT(!(m_flags & ModuleItemFlag_LayoutReady));
+	ASSERT(!targetField || !(targetField->m_flags & ModuleItemFlag_LayoutReady));
 
-	if (!result)
-		return false;
+	bool result;
 
-	sl::Iterator<BaseTypeSlot> slotIt = m_baseTypeList.getHead();
-	for (; slotIt; slotIt++) {
-		BaseTypeSlot* slot = *slotIt;
-		result = slot->m_type->ensureLayout();
-		if (!result)
-			return false;
-
-		if (!(slot->m_type->getTypeKindFlags() & TypeKindFlag_Derivable) || slot->m_type->getTypeKind() == TypeKind_Class) {
-			err::setFormatStringError("'%s' cannot be a base type of a struct", slot->m_type->getTypeString().sz());
-			return false;
-		}
-
-		sl::StringHashTableIterator<BaseTypeSlot*> it = m_baseTypeMap.visit(slot->m_type->getSignature());
-		if (it->m_value) {
-			err::setFormatStringError(
-				"'%s' is already a base type",
-				slot->m_type->getTypeString().sz()
-			);
-			return false;
-		}
-
-		it->m_value = slot;
-
-		result = slot->m_type->ensureLayout();
-		if (!result)
-			return false;
-
-		if (slot->m_type->getFlags() & TypeFlag_GcRoot) {
-			m_gcRootBaseTypeArray.append(slot);
-			m_flags |= TypeFlag_GcRoot;
-		}
-
-		if (slot->m_type->getConstructor())
-			m_baseTypeConstructArray.append(slot);
-
-		result = layoutFieldImpl(
-			slot->m_type,
-			&slot->m_offset,
-			&slot->m_llvmIndex
-		);
+	if (!m_laidOutFieldCount) {
+		result =
+			ensureNamespaceReady() &&
+			ensureAttributeValuesReady();
 
 		if (!result)
 			return false;
+
+		sl::Iterator<BaseTypeSlot> slotIt = m_baseTypeList.getHead();
+		for (; slotIt; slotIt++) {
+			result = layoutBaseType(*slotIt);
+			if (!result)
+				return false;
+		}
 	}
 
 	size_t count = m_fieldArray.getCount();
-	for (size_t i = 0; i < count; i++) {
+	for (size_t i = m_laidOutFieldCount; i < count; i++) {
 		Field* field = m_fieldArray[i];
 		result = layoutField(field);
-		if (!result)
+		if (!result) {
+			m_laidOutFieldCount = i; // excluding the failed one
 			return false;
+		}
+	}
+
+	m_laidOutFieldCount = count;
+
+	if (targetField) {
+		ASSERT(targetField->m_flags & ModuleItemFlag_LayoutReady); // otherwise, targetField was not part of m_fieldArray
+		return true;
 	}
 
 	m_size = sl::align(m_fieldSize, m_alignment);
@@ -254,10 +233,51 @@ StructType::calcLayout() {
 }
 
 bool
-StructType::layoutField(Field* field) {
-	bool result;
+StructType::layoutBaseType(BaseTypeSlot* slot) {
+	bool result = slot->m_type->ensureLayout();
+	if (!result)
+		return false;
 
-	result =
+	if (!(slot->m_type->getTypeKindFlags() & TypeKindFlag_Derivable) || slot->m_type->getTypeKind() == TypeKind_Class) {
+		err::setFormatStringError("'%s' cannot be a base type of a struct", slot->m_type->getTypeString().sz());
+		return false;
+	}
+
+	sl::StringHashTableIterator<BaseTypeSlot*> it = m_baseTypeMap.visit(slot->m_type->getSignature());
+	if (it->m_value) {
+		err::setFormatStringError(
+			"'%s' is already a base type",
+			slot->m_type->getTypeString().sz()
+		);
+		return false;
+	}
+
+	it->m_value = slot;
+
+	result = slot->m_type->ensureLayout();
+	if (!result)
+		return false;
+
+	if (slot->m_type->getFlags() & TypeFlag_GcRoot) {
+		m_gcRootBaseTypeArray.append(slot);
+		m_flags |= TypeFlag_GcRoot;
+	}
+
+	if (slot->m_type->getConstructor())
+		m_baseTypeConstructArray.append(slot);
+
+	return layoutFieldImpl(
+		slot->m_type,
+		&slot->m_offset,
+		&slot->m_llvmIndex
+	);
+}
+
+bool
+StructType::layoutField(Field* field) {
+	ASSERT(!(field->m_flags & ModuleItemFlag_LayoutReady));
+
+	bool result =
 		field->ensureAttributeValuesReady() &&
 		field->m_type->ensureLayout();
 
@@ -270,13 +290,19 @@ StructType::layoutField(Field* field) {
 		return false;
 	}
 
-	return field->m_bitCount ?
+	result = field->m_bitCount ?
 		layoutBitField(field) :
 		layoutFieldImpl(
 			field->m_type,
 			&field->m_offset,
 			&field->m_llvmIndex
 		);
+
+	if (!result)
+		return false;
+
+	field->m_flags |= ModuleItemFlag_LayoutReady;
+	return true;
 }
 
 bool

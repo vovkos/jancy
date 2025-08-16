@@ -30,8 +30,9 @@ opaque class DynamicSectionGroup {
 
 enum DynamicSectionKind {
 	Undefined,
-	Struct,    // all regular fields are added to the tail struct section
-	Array,     // non-const array fields
+	Struct,    // all regular fields are packed into structs
+	Array,     // a non-const-sized array can't be part of a struct
+	Field,     // a field with dynamic attributes can't be part of a struct
 	Group,     // for grouping
 }
 
@@ -123,11 +124,6 @@ public:
 		reset(0, p, size);
 	}
 
-	void setGroupAttribute(
-		string_t name,
-		variant_t value
-	); // add dynamic attribute to the currently opened group
-
 	void updateGroupSizes(); // when accessing an incomplete layout (e.g. after an exception)
 
 	// only for DynamicLayoutMode.Stream
@@ -165,9 +161,21 @@ protected:
 		bool isAsync
 	);
 
+	size_t errorcode addField(
+		void thin* decl,
+		void thin* type,
+		uint_t ptrTypeFlags,
+		bool isAsync
+	);
+
 	size_t openGroup(void thin* decl);
 	void closeGroup();
 	void closeGroups(size_t count);
+
+	void cdecl setDynamicAttributes( // applies to the last decl
+		size_t count,
+		... // variant_t attr0, attr1, ...
+	);
 }
 
 //..............................................................................

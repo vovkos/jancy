@@ -196,7 +196,9 @@ protected:
 	// unsafe blocks
 
 	intptr_t m_unsafeEnterCount;
+#if (_JNC_DYLAYOUT_FINALIZE_STRUCT_SECTIONS_ON_CALLS)
 	size_t m_callCount;
+#endif
 
 public:
 	OperatorMgr();
@@ -229,11 +231,12 @@ public:
 		return m_unsafeEnterCount > 0;
 	}
 
+#if (_JNC_DYLAYOUT_FINALIZE_STRUCT_SECTIONS_ON_CALLS)
 	size_t
 	getCallCount() {
 		return m_callCount;
 	}
-
+#endif
 	// ensure ptr/ref target layout, load ref, get property, enum->int, bool->int, array->ptr
 	// all that unless specified otherwise with Flags
 

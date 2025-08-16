@@ -24,13 +24,15 @@ enum AttributeFlag {
 	AttributeFlag_VariantReady = 0x020000,
 	AttributeFlag_Shared       = 0x040000,
 	AttributeFlag_Dynamic      = 0x080000,
+	AttributeFlag_DynamicValue = 0x100000,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum AttributeBlockFlag {
-	AttributeBlockFlag_ValuesReady = 0x010000,
-	AttributeBlockFlag_Dynamic     = 0x080000, // same as AttributeFlag_Dynamic
+	AttributeBlockFlag_ValuesReady   = 0x010000,
+	AttributeBlockFlag_Dynamic       = 0x080000, // same as AttributeFlag_Dynamic
+	AttributeBlockFlag_DynamicValues = 0x100000, // same as AttributeFlag_DynamicValue
 };
 
 //..............................................................................
@@ -66,7 +68,7 @@ public:
 
 	bool
 	ensureValueReady() {
-		return (m_flags & AttributeFlag_ValueReady) || prepareValue();
+		return (m_flags & AttributeFlag_ValueReady) || prepareValue(false);
 	}
 
 	void
@@ -77,7 +79,7 @@ public:
 
 protected:
 	bool
-	prepareValue();
+	prepareValue(bool isDynamic);
 
 	void
 	prepareVariant();
@@ -122,18 +124,18 @@ public:
 
 	bool
 	ensureAttributeValuesReady() {
-		return (m_flags & AttributeBlockFlag_ValuesReady) || prepareAttributeValues();
+		return (m_flags & AttributeBlockFlag_ValuesReady) || prepareAttributeValues(false);
 	}
 
 	void
 	setDynamicAttributeValue(
-		const sl::StringRef& name,
+		size_t i,
 		const Variant& value
 	);
 
 protected:
 	bool
-	prepareAttributeValues();
+	prepareAttributeValues(bool isDynamic);
 
 	void
 	deleteDynamicAttributes();
@@ -144,12 +146,12 @@ protected:
 inline
 Attribute*
 AttributeBlock::findAttribute(const sl::StringRef& name) {
-	sl::StringHashTableIterator<Attribute*> it = m_attributeMap.find(name);
-	if (!it)
+	Attribute* attribute = m_attributeMap.findValue(name, NULL);
+	if (!attribute)
 		return NULL;
 
-	ensureAttributeValuesReady();
-	return it->m_value;
+	attribute->ensureValueReady();
+	return attribute;
 }
 
 //..............................................................................

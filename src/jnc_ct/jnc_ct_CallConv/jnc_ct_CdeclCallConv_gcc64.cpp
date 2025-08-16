@@ -148,7 +148,7 @@ CdeclCallConv_gcc64::call(
 	Type* returnType = functionType->getReturnType();
 
 	if (!(returnType->getFlags() & TypeFlag_StructRet) &&
-		!(functionType->getFlags() & (FunctionTypeFlag_ByValArgs | FunctionTypeFlag_CoercedArgs))
+		!(functionType->getFlags() & (FunctionTypeFlag_VarArg | FunctionTypeFlag_ByValArgs | FunctionTypeFlag_CoercedArgs))
 	)
 		return CallConv::call(calleeValue, functionType, argValueList, resultValue);
 

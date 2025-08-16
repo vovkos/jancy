@@ -12,6 +12,7 @@
 #pragma once
 
 #include "jnc_ExtensionLib.h"
+#include "jnc_DynamicLayout.h"
 #include "jnc_StdBuffer.h"
 #include "jnc_rtl_Promise.h"
 
@@ -24,7 +25,6 @@ class DynamicLayout;
 
 JNC_DECLARE_OPAQUE_CLASS_TYPE(DynamicSectionGroup)
 JNC_DECLARE_OPAQUE_CLASS_TYPE(DynamicSection)
-JNC_DECLARE_OPAQUE_CLASS_TYPE(DynamicDecl)
 JNC_DECLARE_OPAQUE_CLASS_TYPE(DynamicLayout)
 
 //..............................................................................
@@ -51,15 +51,6 @@ public:
 };
 
 //..............................................................................
-
-enum DynamicSectionKind {
-	DynamicSectionKind_Undefined,
-	DynamicSectionKind_Struct,
-	DynamicSectionKind_Array,
-	DynamicSectionKind_Group,
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class DynamicSection: public DynamicSectionGroup {
 	friend class DynamicLayout;
@@ -113,12 +104,6 @@ public:
 protected:
 	void
 	createDynamicDecl();
-
-	void
-	setDynamicAttribute(
-		const sl::StringRef& name,
-		const Variant& value
-	);
 };
 
 //..............................................................................
@@ -179,13 +164,6 @@ public:
 
 	void
 	JNC_CDECL
-	setGroupAttribute(
-		String name,
-		Variant value
-	);
-
-	void
-	JNC_CDECL
 	updateGroupSizes();
 
 	size_t
@@ -218,6 +196,15 @@ public:
 
 	size_t
 	JNC_CDECL
+	addField(
+		ct::ModuleItemDecl* decl,
+		ct::Type* type,
+		uint_t ptrTypeFlags,
+		bool isAsync
+	);
+
+	size_t
+	JNC_CDECL
 	openGroup(ct::ModuleItemDecl* decl);
 
 	void
@@ -227,6 +214,13 @@ public:
 	void
 	JNC_CDECL
 	closeGroups(size_t count);
+
+	void
+	JNC_CDECL
+	setDynamicAttributes(
+		size_t count,
+		...
+	);
 
 protected:
 	bool

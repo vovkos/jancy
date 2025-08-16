@@ -75,12 +75,13 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(DynamicLayout)
 	JNC_MAP_FUNCTION("resume", &DynamicLayout::resume)
 	JNC_MAP_FUNCTION("asyncScanTo", &DynamicLayout::asyncScanTo)
 	JNC_MAP_FUNCTION("updateGroupSizes", &DynamicLayout::updateGroupSizes)
-	JNC_MAP_FUNCTION("setGroupAttribute", &DynamicLayout::setGroupAttribute)
 	JNC_MAP_FUNCTION("addStruct", &DynamicLayout::addStruct)
 	JNC_MAP_FUNCTION("addArray", &DynamicLayout::addArray)
+	JNC_MAP_FUNCTION("addField", &DynamicLayout::addField)
 	JNC_MAP_FUNCTION("openGroup", &DynamicLayout::openGroup)
 	JNC_MAP_FUNCTION("closeGroup", &DynamicLayout::closeGroup)
 	JNC_MAP_FUNCTION("closeGroups", &DynamicLayout::closeGroups)
+	JNC_MAP_FUNCTION("setDynamicAttributes", &DynamicLayout::setDynamicAttributes)
 JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
@@ -147,17 +148,6 @@ DynamicSection::getDecl_rtl() {
 }
 
 void
-DynamicSection::setDynamicAttribute(
-	const sl::StringRef& name,
-	const Variant& value
-) {
-	if (!m_dynamicAttributeBlock)
-		createDynamicDecl();
-
-	m_dynamicAttributeBlock->setDynamicAttributeValue(sl::String(name), value);
-}
-
-void
 DynamicSection::createDynamicDecl() {
 	ASSERT(!m_dynamicDecl && !m_dynamicAttributeBlock);
 
@@ -186,25 +176,6 @@ DynamicLayout::reset(
 	m_sectionCount = 0;
 	m_groupStack.clear();
 	m_sectionArray.clear();
-}
-
-void
-JNC_CDECL
-DynamicLayout::setGroupAttribute(
-	String name,
-	Variant value
-) {
-	if (!(m_mode & DynamicLayoutMode_Save))
-		return;
-
-	if (m_groupStack.isEmpty()) {
-		err::setError("no dynamic groups opened");
-		dynamicThrow();
-	}
-
-	DynamicSection* group = m_groupStack.getBack();
-	ASSERT(group->m_sectionKind == DynamicSectionKind_Group);
-	group->setDynamicAttribute(name >> toAxl, value);
 }
 
 void
@@ -388,6 +359,32 @@ DynamicLayout::addArray(
 	return offset;
 }
 
+size_t
+JNC_CDECL
+DynamicLayout::addField(
+	ct::ModuleItemDecl* decl,
+	ct::Type* type,
+	uint_t ptrTypeFlags,
+	bool isAsync
+) {
+	size_t offset = m_size;
+	size_t size = type->getSize();
+	if (!addSize(size))
+		return -1;
+
+	if (m_mode & DynamicLayoutMode_Save) {
+		DynamicSection* section = addSection(DynamicSectionKind_Field, offset, size, decl, type);
+		section->m_ptrTypeFlags = ptrTypeFlags;
+	}
+
+	if (isAsync && (m_mode & DynamicLayoutMode_Stream) && m_size > m_bufferSize) {
+		prepareForAwait();
+		m_awaitKind = AwaitKind_Size;
+	}
+
+	return offset;
+}
+
 DynamicSection*
 DynamicLayout::addSection(
 	DynamicSectionKind sectionKind,
@@ -436,6 +433,43 @@ DynamicLayout::closeGroups(size_t count) {
 	for (size_t i = 0; i < count && !m_groupStack.isEmpty(); i++) {
 		DynamicSection* group = m_groupStack.getBackAndPop();
 		group->m_size = m_size - group->m_offset;
+	}
+}
+
+void
+JNC_CDECL
+DynamicLayout::setDynamicAttributes(
+	size_t dynamicCount,
+	...
+) {
+	if (m_sectionArray.isEmpty()) {
+		ASSERT(false);
+		return; // ignore rather than crash
+	}
+
+	DynamicSection* section;
+	if (m_groupStack.isEmpty())
+		section = m_sectionArray.getBack();
+	else {
+		DynamicSection* group = m_groupStack.getBack();
+		section = !group->m_sectionArray.isEmpty() ? group->m_sectionArray.getBack() : group;
+	}
+
+	ASSERT(section->m_sectionKind != DynamicSectionKind_Struct);
+
+	section->createDynamicDecl();
+
+	const sl::Array<ct::Attribute*>& attributeArray = section->m_dynamicAttributeBlock->getAttributeArray();
+	size_t totalCount = attributeArray.getCount();
+
+	AXL_VA_DECL(va, dynamicCount);
+	for (size_t i = 0, j = 0; i < dynamicCount; i++) {
+		Variant value = axl_va_arg(va, Variant);
+		for (; j < totalCount; j++)
+			if (attributeArray[j]->getFlags() & ct::AttributeFlag_DynamicValue) {
+				section->m_dynamicAttributeBlock->setDynamicAttributeValue(j++, value);
+				break;
+			}
 	}
 }
 

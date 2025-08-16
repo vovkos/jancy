@@ -326,6 +326,38 @@ protected:
 	bool
 	reuseAttributes(const QualifiedName& name);
 
+	bool
+	processAttributes() {
+		if (!m_attributeBlock)
+			return true;
+
+		if (m_attributeBlockState == AttributeBlockState_Created) {
+			m_attributeBlockState = AttributeBlockState_Staged;
+			return true;
+		}
+
+		processUnusedAttributes();
+		return false;
+	}
+
+	bool
+	checkUnusedAttributes() {
+		if (!m_attributeBlock)
+			return true;
+
+		processUnusedAttributes();
+		return false;
+	}
+
+	void
+	processUnusedAttributes();
+
+	size_t
+	prepareDynamicAttributeArgs(
+		sl::BoxList<Value>* argValueList,
+		AttributeBlock* attributeBlock
+	);
+
 	void
 	preDeclaration();
 
@@ -399,32 +431,6 @@ protected:
 
 	AttributeBlock*
 	popAttributeBlock();
-
-	bool
-	processAttributes() {
-		if (!m_attributeBlock)
-			return true;
-
-		if (m_attributeBlockState == AttributeBlockState_Created) {
-			m_attributeBlockState = AttributeBlockState_Staged;
-			return true;
-		}
-
-		processUnusedAttributes();
-		return false;
-	}
-
-	bool
-	checkUnusedAttributes() {
-		if (!m_attributeBlock)
-			return true;
-
-		processUnusedAttributes();
-		return false;
-	}
-
-	void
-	processUnusedAttributes();
 
 	bool
 	declare(Declarator* declarator);

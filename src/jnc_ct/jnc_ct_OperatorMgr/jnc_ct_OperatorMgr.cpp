@@ -154,13 +154,17 @@ OperatorMgr::OperatorMgr() {
 	m_castOperatorTable[TypeKind_TypedefShadow] = &m_cast_Typedef;
 
 	m_unsafeEnterCount = 0;
+#if (_JNC_DYLAYOUT_FINALIZE_STRUCT_SECTIONS_ON_CALLS)
 	m_callCount = 0;
+#endif
 }
 
 void
 OperatorMgr::clear() {
 	m_unsafeEnterCount = 0;
+#if (_JNC_DYLAYOUT_FINALIZE_STRUCT_SECTIONS_ON_CALLS)
 	m_callCount = 0;
+#endif
 }
 
 OverloadableFunction
