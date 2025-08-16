@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "jnc_ct_McJit.h"
+#include "jnc_ct_Module.h"
 
 namespace jnc {
 namespace ct {

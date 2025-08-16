@@ -247,6 +247,42 @@ source_group(
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
+# jnc_ct_Jit folder
+#
+
+set(
+	JIT_H_LIST
+	jnc_ct_Jit/jnc_ct_Jit.h
+	jnc_ct_Jit/jnc_ct_LegacyJit.h
+	jnc_ct_Jit/jnc_ct_McJit.h
+	jnc_ct_Jit/jnc_ct_OrcJit.h
+)
+
+set(
+	JIT_CPP_LIST
+	jnc_ct_Jit/jnc_ct_Jit.cpp
+	jnc_ct_Jit/jnc_ct_LegacyJit.cpp
+	jnc_ct_Jit/jnc_ct_McJit.cpp
+	jnc_ct_Jit/jnc_ct_OrcJit.cpp
+)
+
+source_group(
+	jnc_ct_Jit
+	FILES
+	${JIT_H_LIST}
+	${JIT_CPP_LIST}
+)
+
+if(${LLVM_VERSION} VERSION_GREATER_EQUAL 3.6)
+	axl_exclude_from_build(jnc_ct_Jit/jnc_ct_LegacyJit.cpp)
+endif()
+
+if(${LLVM_VERSION} VERSION_LESS 12.0)
+	axl_exclude_from_build(jnc_ct_Jit/jnc_ct_OrcJit.cpp)
+endif()
+
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#
 # jnc_ct_NamespaceMgr folder
 #
 
@@ -506,15 +542,11 @@ set(
 	jnc_ct_Module/jnc_ct_ExtensionLibMgr.h
 	jnc_ct_Module/jnc_ct_GcShadowStackMgr.h
 	jnc_ct_Module/jnc_ct_ImportMgr.h
-	jnc_ct_Module/jnc_ct_Jit.h
-	jnc_ct_Module/jnc_ct_LegacyJit.h
 	jnc_ct_Module/jnc_ct_LlvmDiBuilder.h
 	jnc_ct_Module/jnc_ct_LlvmIrBuilder.h
 	jnc_ct_Module/jnc_ct_LlvmIrInsertPoint.h
-	jnc_ct_Module/jnc_ct_McJit.h
 	jnc_ct_Module/jnc_ct_Module.h
 	jnc_ct_Module/jnc_ct_ModuleItem.h
-	jnc_ct_Module/jnc_ct_OrcJit.h
 	jnc_ct_Module/jnc_ct_PragmaMgr.h
 	jnc_ct_Module/jnc_ct_UnitMgr.h
 )
@@ -529,14 +561,10 @@ set(
 	jnc_ct_Module/jnc_ct_ExtensionLibMgr.cpp
 	jnc_ct_Module/jnc_ct_GcShadowStackMgr.cpp
 	jnc_ct_Module/jnc_ct_ImportMgr.cpp
-	jnc_ct_Module/jnc_ct_Jit.cpp
-	jnc_ct_Module/jnc_ct_LegacyJit.cpp
 	jnc_ct_Module/jnc_ct_LlvmDiBuilder.cpp
 	jnc_ct_Module/jnc_ct_LlvmIrBuilder.cpp
-	jnc_ct_Module/jnc_ct_McJit.cpp
 	jnc_ct_Module/jnc_ct_Module.cpp
 	jnc_ct_Module/jnc_ct_ModuleItem.cpp
-	jnc_ct_Module/jnc_ct_OrcJit.cpp
 	jnc_ct_Module/jnc_ct_PragmaMgr.cpp
 	jnc_ct_Module/jnc_ct_UnitMgr.cpp
 )
@@ -547,14 +575,6 @@ source_group(
 	${MODULE_H_LIST}
 	${MODULE_CPP_LIST}
 )
-
-if(${LLVM_VERSION} VERSION_GREATER_EQUAL 3.6)
-	axl_exclude_from_build(jnc_ct_Module/jnc_ct_LegacyJit.cpp)
-endif()
-
-if(${LLVM_VERSION} VERSION_LESS 12.0)
-	axl_exclude_from_build(jnc_ct_Module/jnc_ct_OrcJit.cpp)
-endif()
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -819,6 +839,8 @@ add_library(
 	${CONTROLFLOWMGR_CPP_LIST}
 	${FUNCTIONMGR_H_LIST}
 	${FUNCTIONMGR_CPP_LIST}
+	${JIT_H_LIST}
+	${JIT_CPP_LIST}
 	${NAMESPACEMGR_H_LIST}
 	${NAMESPACEMGR_CPP_LIST}
 	${OPERATORMGR_H_LIST}

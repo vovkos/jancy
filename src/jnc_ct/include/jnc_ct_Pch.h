@@ -341,3 +341,5 @@ getFirstFlag(uint_t flags) {
 }
 
 //..............................................................................
+
+// #define _JNC_DYLAYOUT_FINALIZE_STRUCT_SECTIONS_ON_CALLS 1

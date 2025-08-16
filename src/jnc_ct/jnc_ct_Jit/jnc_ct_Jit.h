@@ -11,14 +11,13 @@
 
 #pragma once
 
-#include "jnc_ct_Module.h"
+#include "jnc_ct_Function.h"
+#include "jnc_ct_Variable.h"
 
 namespace jnc {
 namespace ct {
 
 class Module;
-class Function;
-class Variable;
 
 //..............................................................................
 
@@ -82,14 +81,10 @@ protected:
 	addStdSymbols();
 
 	void
-	clearLlvmModule() {
-		m_module->m_llvmModule = NULL;
-	}
+	clearLlvmModule();
 
 	void
-	clearLlvmContext() {
-		m_module->m_llvmContext = NULL;
-	}
+	clearLlvmContext();
 
 	static
 	void
@@ -110,20 +105,10 @@ protected:
 	}
 
 	llvm::Function*
-	getLlvmFunction(Function* function) {
-		return
-			!function->hasLlvmFunction() ? NULL : // never used
-			!function->getLlvmFunctionName().isEmpty() ?
-				m_module->getLlvmModule()->getFunction(function->getLlvmFunctionName() >> toLlvm) :
-				function->getLlvmFunction();
-	}
+	getLlvmFunction(Function* function);
 
 	llvm::GlobalVariable*
-	getLlvmGlobalVariable(Variable* variable) {
-		return !variable->getLlvmGlobalVariableName().isEmpty() ?
-			m_module->getLlvmModule()->getGlobalVariable(variable->getLlvmGlobalVariableName() >> toLlvm) :
-			variable->getLlvmGlobalVariable();
-	}
+	getLlvmGlobalVariable(Variable* variable);
 
 	llvm::GlobalVariable*
 	createLlvmGlobalVariableMapping(Variable* variable);

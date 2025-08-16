@@ -28,6 +28,7 @@
 #include "jnc_ct_DoxyHost.h"
 #include "jnc_ct_LlvmIrBuilder.h"
 #include "jnc_ct_LlvmDiBuilder.h"
+#include "jnc_ct_Jit.h"
 
 namespace jnc {
 namespace ct {
@@ -556,6 +557,38 @@ inline
 bool
 Unit::isRootUnit() {
 	return this == m_module->m_unitMgr.getRootUnit();
+}
+
+//..............................................................................
+
+inline
+void
+Jit::clearLlvmModule() {
+	m_module->m_llvmModule = NULL;
+}
+
+inline
+void
+Jit::clearLlvmContext() {
+	m_module->m_llvmContext = NULL;
+}
+
+inline
+llvm::Function*
+Jit::getLlvmFunction(Function* function) {
+	return
+		!function->hasLlvmFunction() ? NULL : // never used
+		!function->getLlvmFunctionName().isEmpty() ?
+			m_module->getLlvmModule()->getFunction(function->getLlvmFunctionName() >> toLlvm) :
+			function->getLlvmFunction();
+}
+
+inline
+llvm::GlobalVariable*
+Jit::getLlvmGlobalVariable(Variable* variable) {
+	return !variable->getLlvmGlobalVariableName().isEmpty() ?
+		m_module->getLlvmModule()->getGlobalVariable(variable->getLlvmGlobalVariableName() >> toLlvm) :
+		variable->getLlvmGlobalVariable();
 }
 
 //..............................................................................
