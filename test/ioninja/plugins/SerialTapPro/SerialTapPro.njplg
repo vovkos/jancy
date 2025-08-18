@@ -7,6 +7,8 @@
 
 name        = "Serial Tap Pro"
 description = "Monitor serial communication through a Serial Tap Pro device from Tibbo"
+page        = hardware/serial-tap-pro.html
+help        = user-manual/hardware-serial-tap-pro.html
 id          = serial-tap-pro
 group       = hw
 log-guid    = 3a1ec99b-234a-49a0-be4b-f6e60b80a5c0  # serial tap pro

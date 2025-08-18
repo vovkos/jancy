@@ -1028,18 +1028,16 @@ async void layoutModbusAdu(
 
 	dylayout (layout) {
 		[
+			displayName = displayNames[protocol],
 			displayNameAttr = "\e[1m",
 			backColor = ui.StdColor.PastelGray,
 			digestFunc = getModbusAduDigest,
+			protocol = protocol,
+			role = role,
 			foldFlag = 1,
 			root // root groups are for log only (ungrouped in packet templates)
 		]
 		dyfield adu {
-			// dynamic attributes for representDynamicLayout / getModbusAduDigest
-			layout.setGroupAttribute("displayName", displayNames[protocol]);
-			layout.setGroupAttribute("protocol", protocol);
-			layout.setGroupAttribute("role", role);
-
 			dylayout (layout) {
 				switch (protocol) {
 				case ModbusProtocol.Rtu:
@@ -1071,17 +1069,12 @@ async void layoutModbusAdu(
 							backColor = ui.StdColor.PastelYellow,
 							displayName = "ADU",
 							valueText = "(Hex-encoded)",
-							codec = typeof(HexFieldCodec)
+							codec = typeof(HexFieldCodec),
+							packetTemplate = role == ModbusRole.Slave ?
+								declof(layoutModbusAsciiDecodedReplyAdu) :
+								declof(layoutModbusAsciiDecodedRequestAdu)
 						]
 						dyfield adu {
-							// set dynamic packet template attribute depending on the role
-							layout.setGroupAttribute(
-								"packetTemplate",
-								role == ModbusRole.Slave ?
-									declof(layoutModbusAsciiDecodedReplyAdu) :
-									declof(layoutModbusAsciiDecodedRequestAdu)
-							);
-
 							size_t length = await layout.asyncScanTo('\r');
 							dyfield char buffer[length];
 						}
