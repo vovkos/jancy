@@ -40,7 +40,7 @@ enum DynamicSectionKind {
 
 opaque class DynamicSection: DynamicSectionGroup {
 	DynamicSectionKind readonly m_sectionKind;
-	PtrTypeFlags readonly m_ptrTypeFlags;  // for DynamicSectionKind.Array
+	PtrTypeFlags readonly m_ptrTypeFlags;  // for DynamicSectionKind.Array & Field
 	size_t readonly m_elementCount;        // for DynamicSectionKind.Array
 	size_t readonly m_offset;
 	size_t readonly m_size;

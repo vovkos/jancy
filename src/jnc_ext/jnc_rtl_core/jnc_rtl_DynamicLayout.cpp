@@ -443,8 +443,8 @@ DynamicLayout::setDynamicAttributes(
 	...
 ) {
 	if (m_sectionArray.isEmpty()) {
-		ASSERT(false);
-		return; // ignore rather than crash
+		ASSERT(!(m_mode & DynamicLayoutMode_Save));
+		return;
 	}
 
 	DynamicSection* section;
