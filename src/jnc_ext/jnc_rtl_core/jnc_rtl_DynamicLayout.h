@@ -60,18 +60,27 @@ public:
 
 public:
 	uint_t m_sectionKind;
-	uint_t m_ptrTypeFlags;
-	size_t m_elementCount;
 	size_t m_offset;
 	size_t m_size;
 
+	union {
+		size_t m_elementCount;
+		struct {
+			uint_t m_bitOffset;
+			uint_t m_bitCount;
+		};
+	};
+
+	uint_t m_ptrTypeFlags;
+
 protected:
 	ct::Module* m_module;
-	ct::Type* m_type_ct;
+
 	ct::ModuleItemDecl* m_decl_ct;
 	ct::ModuleItemDecl* m_dynamicDecl;
 	ct::AttributeBlock* m_dynamicAttributeBlock;
 
+	ct::Type* m_type_ct;
 	IfaceHdr* m_type_rtl;
 	rtl::ModuleItemDecl* m_decl_rtl;
 
@@ -137,7 +146,11 @@ public:
 	uint_t m_mode;
 
 protected:
-	sl::Array<DynamicSection*> m_groupStack; // groups are already added -- no need to extra mark
+	// sections are already added -- no need to extra mark
+	sl::Array<DynamicSection*> m_groupStack;
+	ct::Type* m_lastBitFieldType;
+	size_t m_lastBitOffset;
+	size_t m_lastBitCount;
 
 	AwaitKind m_awaitKind;
 	size_t m_awaitCharOffset;
@@ -199,6 +212,16 @@ public:
 	addField(
 		ct::ModuleItemDecl* decl,
 		ct::Type* type,
+		uint_t ptrTypeFlags,
+		bool isAsync
+	);
+
+	uint64_t
+	JNC_CDECL
+	addBitField(
+		ct::ModuleItemDecl* decl,
+		ct::Type* type,
+		uint_t bitCount,
 		uint_t ptrTypeFlags,
 		bool isAsync
 	);

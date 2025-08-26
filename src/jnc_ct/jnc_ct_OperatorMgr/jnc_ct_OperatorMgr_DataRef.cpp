@@ -252,6 +252,26 @@ OperatorMgr::extractBitField(
 	uint_t bitCount,
 	Value* resultValue
 ) {
+	Value bitOffsetValue(
+		bitOffset,
+		m_module->m_typeMgr.getPrimitiveType(
+			baseType->getSize() <= 4 ?
+			TypeKind_Int32_u :
+			TypeKind_Int64_u
+		)
+	);
+
+	return extractBitField(rawValue, baseType, bitOffsetValue, bitCount, resultValue);
+}
+
+bool
+OperatorMgr::extractBitField(
+	const Value& rawValue,
+	Type* baseType,
+	const Value& bitOffsetValue,
+	uint_t bitCount,
+	Value* resultValue
+) {
 	bool result;
 
 	TypeKind typeKind = baseType->getSize() <= 4 ? TypeKind_Int32_u : TypeKind_Int64_u;
@@ -260,10 +280,9 @@ OperatorMgr::extractBitField(
 
 	Value value(rawValue, baseType);
 	Value maskValue(mask, type);
-	Value offsetValue(bitOffset, type);
 
 	result =
-		binaryOperator(BinOpKind_Shr, &value, offsetValue) &&
+		binaryOperator(BinOpKind_Shr, &value, bitOffsetValue) &&
 		binaryOperator(BinOpKind_BwAnd, &value, maskValue);
 
 	if (!result)

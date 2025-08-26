@@ -46,13 +46,18 @@ class DynamicDataSection: public DynamicSection {
 	friend class Parser;
 
 protected:
-	Value m_offsetValue;
 	Type* m_type;
+	Value m_offsetValue;
+	Value m_bitOffsetValue;
+	uint_t m_bitCount;
 	uint_t m_ptrTypeFlags;
 
 public:
-	DynamicDataSection() {
-		m_type = NULL;
+	DynamicDataSection();
+
+	Type*
+	getType() const {
+		return m_type;
 	}
 
 	const Value&
@@ -60,9 +65,14 @@ public:
 		return m_offsetValue;
 	}
 
-	Type*
-	getType() const {
-		return m_type;
+	const Value&
+	getBitOffsetValue() const {
+		return m_bitOffsetValue;
+	}
+
+	uint_t
+	getBitCount() const {
+		return m_bitCount;
 	}
 
 	uint_t
@@ -70,6 +80,15 @@ public:
 		return m_ptrTypeFlags;
 	}
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+DynamicDataSection::DynamicDataSection() {
+	m_type = NULL;
+	m_bitCount = 0;
+	m_ptrTypeFlags = 0;
+}
 
 //..............................................................................
 

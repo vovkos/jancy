@@ -420,14 +420,9 @@ OperatorMgr::getClassField(
 		coord->m_llvmIndexArray.append(1);
 
 	Value ptrValue;
-	m_module->m_llvmIrBuilder.createGep(
-		opValue,
-		classType->getIfaceStructType(),
-		coord->m_llvmIndexArray,
-		coord->m_llvmIndexArray.getCount(),
-		NULL,
-		&ptrValue
-	);
+	result = getFieldPtrImpl(opValue,  classType->getIfaceStructType(), coord, NULL, &ptrValue);
+	if (!result)
+		return false;
 
 	if (field->getType()->getTypeKind() == TypeKind_Class) {
 		ClassPtrType* ptrType = ((ClassType*)field->getType())->getClassPtrType(

@@ -1913,8 +1913,10 @@ Parser::declareData(
 						dynamicAttributeArgList.isEmpty() ||
 						m_module->m_operatorMgr.memberOperator(stmt->m_layoutValue, "setDynamicAttributes", &funcValue) &&
 						m_module->m_operatorMgr.callOperator(funcValue, &dynamicAttributeArgList)
-					) &&
-					(!isAsync || m_module->m_operatorMgr.awaitDynamicLayout(stmt->m_layoutValue));
+					) && (
+						!isAsync ||
+						m_module->m_operatorMgr.awaitDynamicLayout(stmt->m_layoutValue)
+					);
 
 				if (!result)
 					return false;
@@ -1930,7 +1932,7 @@ Parser::declareData(
 			return false;
 		}
 
-		if (!dynamicAttributeArgList.isEmpty()) {
+		if (bitCount || !dynamicAttributeArgList.isEmpty()) {
 			result = finalizeDynamicStructSection(stmt);
 			if (!result)
 				return false;
@@ -1950,10 +1952,22 @@ Parser::declareData(
 			Value ptrTypeFlagsValue(ptrTypeFlags, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int_u));
 			Value isAsyncValue(isAsync, m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool));
 			Value offsetValue;
+			Value bitOffsetValue;
 
 			sl::BoxList<Value> argValueList;
 			argValueList.insertTail(declValue);
 			argValueList.insertTail(typeValue);
+
+			sl::StringRef addMethodName;
+
+			if (!bitCount)
+				addMethodName = "addField";
+			else {
+				addMethodName = "addBitField";
+				Value bitCountValue(bitCount, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int_u));
+				argValueList.insertTail(bitCountValue);
+			}
+
 			argValueList.insertTail(ptrTypeFlagsValue);
 			argValueList.insertTail(isAsyncValue);
 
@@ -1961,14 +1975,32 @@ Parser::declareData(
 
 			result =
 				nspace->addItem(field) &&
-				m_module->m_operatorMgr.memberOperator(stmt->m_layoutValue, "addField", &funcValue) &&
-				m_module->m_operatorMgr.callOperator(funcValue, &argValueList, &offsetValue) &&
-				m_module->m_operatorMgr.memberOperator(stmt->m_layoutValue, "setDynamicAttributes", &funcValue) &&
-				m_module->m_operatorMgr.callOperator(funcValue, &dynamicAttributeArgList) &&
-				(!isAsync || m_module->m_operatorMgr.awaitDynamicLayout(stmt->m_layoutValue));
+				m_module->m_operatorMgr.memberOperator(stmt->m_layoutValue, addMethodName, &funcValue) &&
+				m_module->m_operatorMgr.callOperator(funcValue, &argValueList, &offsetValue) && (
+					dynamicAttributeArgList.isEmpty() ||
+					m_module->m_operatorMgr.memberOperator(stmt->m_layoutValue, "setDynamicAttributes", &funcValue) &&
+					m_module->m_operatorMgr.callOperator(funcValue, &dynamicAttributeArgList)
+				) && (
+					!isAsync ||
+					m_module->m_operatorMgr.awaitDynamicLayout(stmt->m_layoutValue)
+				);
 
 			m_module->enableAccessChecks();
+
+			if (bitCount) {
+				Value bitOffsetValue;
+				Value shrValue((int64_t)8, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int_u));
+
+				result =
+					m_module->m_operatorMgr.castOperator(offsetValue, TypeKind_Byte, &bitOffsetValue) &&
+					m_module->m_operatorMgr.binaryOperator(jnc_BinOpKind_Shr, &offsetValue, shrValue);
+
+				field->m_bitCount = bitCount;
+				field->m_bitOffsetValue = bitOffsetValue;
+			}
+
 			field->m_offsetValue = offsetValue;
+
 			return result;
 		}
 
@@ -1999,8 +2031,10 @@ Parser::declareData(
 
 			result =
 				m_module->m_operatorMgr.memberOperator(stmt->m_layoutValue, "addStruct", &funcValue) &&
-				m_module->m_operatorMgr.callOperator(funcValue, typeValue, isAsyncValue, &offsetValue) &&
-				(!isAsync || m_module->m_operatorMgr.awaitDynamicLayout(stmt->m_layoutValue));
+				m_module->m_operatorMgr.callOperator(funcValue, typeValue, isAsyncValue, &offsetValue) && (
+					!isAsync ||
+					m_module->m_operatorMgr.awaitDynamicLayout(stmt->m_layoutValue)
+				);
 
 			m_module->enableAccessChecks();
 
@@ -2016,7 +2050,9 @@ Parser::declareData(
 #endif
 		}
 
-		Field* field = stmt->m_structType->createField(name, type, bitCount, ptrTypeFlags);
+		// bitfields are handled separately (so that we can pack them dynamically)
+
+		Field* field = stmt->m_structType->createField(name, type, 0, ptrTypeFlags);
 		if (!field || !nspace->addItem(field))
 			return false;
 
@@ -2043,6 +2079,11 @@ Parser::declareData(
 
 			dataItem = field;
 		} else {
+			if (bitCount) {
+				err::setError("bit fields are not applicable here");
+				return false;
+			}
+
 			Variable* variable = m_module->m_variableMgr.createVariable(
 				storageKind,
 				name,
@@ -2074,6 +2115,11 @@ Parser::declareData(
 		}
 
 	} else if (storageKind != StorageKind_Member && storageKind != StorageKind_Mutable) {
+		if (bitCount) {
+			err::setError("bit fields are not applicable here");
+			return false;
+		}
+
 		Variable* variable = m_module->m_variableMgr.createVariable(
 			storageKind,
 			name,
@@ -2875,6 +2921,7 @@ Parser::lookupIdentifier(
 
 		Type* ptrType = section->getType()->getDataPtrType(DataPtrTypeKind_Normal, PtrTypeFlag_Const);
 		Value ptrValue;
+		size_t bitCount = section->getBitCount();
 
 		result =
 			m_module->m_operatorMgr.memberOperator(stmt->m_layoutValue, "m_p", &ptrValue) &&
@@ -2882,6 +2929,17 @@ Parser::lookupIdentifier(
 			m_module->m_operatorMgr.castOperator(ptrValue, ptrType, value) && (
 				sectionKind == DynamicSectionKind_Array ||
 				m_module->m_operatorMgr.unaryOperator(UnOpKind_Indir, value)
+			) && (
+				bitCount == 0 ||
+				!m_module->hasCodeGen() ||
+				m_module->m_operatorMgr.loadDataRef(value) &&
+				m_module->m_operatorMgr.extractBitField(
+					*value,
+					section->getType(),
+					section->getBitOffsetValue(),
+					bitCount,
+					value
+				)
 			);
 
 		if (!result)

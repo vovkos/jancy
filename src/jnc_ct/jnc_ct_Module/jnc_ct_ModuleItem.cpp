@@ -372,8 +372,8 @@ getDynamicSectionType(ModuleItem* item) {
 	DynamicSection* section = (DynamicSection*)item;
 	DynamicSectionKind sectionKind = section->getSectionKind();
 	switch (sectionKind) {
-	case DynamicSectionKind_Field:
 	case DynamicSectionKind_Array:
+	case DynamicSectionKind_Field:
 		return ((DynamicDataSection*)section)->getType();
 
 	default:
@@ -610,8 +610,8 @@ getDynamicSectionSynopsis(
 	DynamicSection* section = (DynamicSection*)item;
 	DynamicSectionKind sectionKind = section->getSectionKind();
 	switch (sectionKind) {
-	case DynamicSectionKind_Field:
 	case DynamicSectionKind_Array:
+	case DynamicSectionKind_Field:
 		return getTypedItemSynopsisImpl(
 			section,
 			((DynamicDataSection*)section)->getType(),

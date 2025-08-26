@@ -1297,6 +1297,15 @@ public:
 	);
 
 	bool
+	extractBitField(
+		const Value& value,
+		Type* type,
+		const Value& bitOffsetValue,
+		uint_t bitCount,
+		Value* resultValue
+	);
+
+	bool
 	mergeBitField(
 		const Value& value,
 		const Value& shadowValue,

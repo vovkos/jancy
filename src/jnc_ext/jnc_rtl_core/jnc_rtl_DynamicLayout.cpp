@@ -78,6 +78,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(DynamicLayout)
 	JNC_MAP_FUNCTION("addStruct", &DynamicLayout::addStruct)
 	JNC_MAP_FUNCTION("addArray", &DynamicLayout::addArray)
 	JNC_MAP_FUNCTION("addField", &DynamicLayout::addField)
+	JNC_MAP_FUNCTION("addBitField", &DynamicLayout::addBitField)
 	JNC_MAP_FUNCTION("openGroup", &DynamicLayout::openGroup)
 	JNC_MAP_FUNCTION("closeGroup", &DynamicLayout::closeGroup)
 	JNC_MAP_FUNCTION("closeGroups", &DynamicLayout::closeGroups)
@@ -328,6 +329,7 @@ DynamicLayout::addStruct(
 		m_awaitKind = AwaitKind_Size;
 	}
 
+	m_lastBitFieldType = NULL;
 	return offset;
 }
 
@@ -356,6 +358,7 @@ DynamicLayout::addArray(
 		m_awaitKind = AwaitKind_Size;
 	}
 
+	m_lastBitFieldType = NULL;
 	return offset;
 }
 
@@ -382,7 +385,68 @@ DynamicLayout::addField(
 		m_awaitKind = AwaitKind_Size;
 	}
 
+	m_lastBitFieldType = NULL;
 	return offset;
+}
+
+uint64_t
+JNC_CDECL
+DynamicLayout::addBitField(
+	ct::ModuleItemDecl* decl,
+	ct::Type* type,
+	uint_t bitCount,
+	uint_t ptrTypeFlags,
+	bool isAsync
+) {
+	size_t size = type->getSize();
+	size_t baseBitCount = size * 8;
+	if (bitCount > baseBitCount) {
+		err::setFormatStringError("type of bit field too small for number of bits");
+		return -1;
+	}
+
+	bool isMerged = m_lastBitFieldType && m_lastBitFieldType->cmp(type) == 0;
+
+	size_t bitOffset;
+	if (ptrTypeFlags & PtrTypeFlag_BigEndian) {
+		if (!isMerged) {
+			bitOffset = baseBitCount - bitCount;
+		} else {
+			isMerged = m_lastBitOffset >= bitCount;
+			bitOffset = isMerged ? m_lastBitOffset - bitCount : baseBitCount - bitCount;
+		}
+	} else {
+		if (!isMerged) {
+			bitOffset = 0;
+		} else {
+			size_t lastBitOffset = m_lastBitOffset + m_lastBitCount;
+			isMerged = lastBitOffset + bitCount <= baseBitCount;
+			bitOffset = isMerged ? lastBitOffset : 0;
+		}
+	}
+
+	size_t offset = m_size;
+	if (isMerged)
+		offset -= size;
+	else if (!addSize(size))
+		return -1;
+
+	if (m_mode & DynamicLayoutMode_Save) {
+		DynamicSection* section = addSection(DynamicSectionKind_Field, offset, size, decl, type);
+		section->m_bitOffset = bitOffset;
+		section->m_bitCount = bitCount;
+		section->m_ptrTypeFlags = ptrTypeFlags;
+	}
+
+	if (isAsync && (m_mode & DynamicLayoutMode_Stream) && m_size > m_bufferSize) {
+		prepareForAwait();
+		m_awaitKind = AwaitKind_Size;
+	}
+
+	m_lastBitFieldType = type;
+	m_lastBitOffset = bitOffset;
+	m_lastBitCount = bitCount;
+	return (offset << 8) | bitOffset;
 }
 
 DynamicSection*

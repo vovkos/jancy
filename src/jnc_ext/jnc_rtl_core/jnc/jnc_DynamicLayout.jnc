@@ -32,7 +32,7 @@ enum DynamicSectionKind {
 	Undefined,
 	Struct,    // all regular fields are packed into structs
 	Array,     // a non-const-sized array can't be part of a struct
-	Field,     // a field with dynamic attributes can't be part of a struct
+	Field,     // a bitfield or a field with dynamic attributes
 	Group,     // for grouping
 }
 
@@ -40,13 +40,21 @@ enum DynamicSectionKind {
 
 opaque class DynamicSection: DynamicSectionGroup {
 	DynamicSectionKind readonly m_sectionKind;
-	PtrTypeFlags readonly m_ptrTypeFlags;  // for DynamicSectionKind.Array & Field
-	size_t readonly m_elementCount;        // for DynamicSectionKind.Array
 	size_t readonly m_offset;
 	size_t readonly m_size;
 
-	Type* const property m_type;           // null for DynamicSectionKind.Group
 	ModuleItemDecl* const property m_decl; // null for DynamicSectionKind.Struct
+	Type* const property m_type;           // null for DynamicSectionKind.Group
+
+	union {
+		size_t readonly m_elementCount;    // for DynamicSectionKind.Array
+		struct {                           // for DynamicSectionKind.Field
+			uint_t readonly m_bitOffset;
+			uint_t readonly m_bitCount;
+		}
+	}
+
+	PtrTypeFlags readonly m_ptrTypeFlags;  // for DynamicSectionKind.Array & Field
 
 	destruct();
 }
@@ -164,6 +172,17 @@ protected:
 	size_t errorcode addField(
 		void thin* decl,
 		void thin* type,
+		uint_t ptrTypeFlags,
+		bool isAsync
+	);
+
+	// higher 56-bits - byte offset
+	// lower 8-bits - bit offset
+
+	uint64_t errorcode addBitField(
+		void thin* decl,
+		void thin* type,
+		uint_t bitCount,
 		uint_t ptrTypeFlags,
 		bool isAsync
 	);
