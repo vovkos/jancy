@@ -11,10 +11,8 @@
 
 #include "pch.h"
 #include "jnc_rtl_AttributeBlock.h"
-#include "jnc_ct_Function.h"
-#include "jnc_ct_FunctionType.h"
-#include "jnc_ct_ClassType.h"
 #include "jnc_Construct.h"
+#include "jnc_rt_Runtime.h"
 
 namespace jnc {
 namespace rtl {
@@ -59,10 +57,8 @@ JNC_END_TYPE_FUNCTION_MAP()
 void
 JNC_CDECL
 Attribute::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
-	if (m_dynamicAttributeBlock) {
-		gcHeap->markClassPtr((ModuleItemBase<ct::AttributeBlock>*)m_dynamicAttributeBlock);
+	if (m_item->getFlags() & ct::AttributeFlag_Dynamic)
 		gcHeap->markVariant(m_item->getVariant());
-	}
 }
 
 //..............................................................................
