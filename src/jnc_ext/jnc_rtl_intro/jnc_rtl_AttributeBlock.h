@@ -13,7 +13,6 @@
 
 #include "jnc_rtl_ModuleItem.h"
 #include "jnc_ct_AttributeBlock.h"
-#include "jnc_rt_GcHeap.h"
 
 namespace jnc {
 namespace rtl {
@@ -27,9 +26,6 @@ class Attribute:
 	public ModuleItemBase<ct::Attribute>,
 	public ModuleItemDecl,
 	public ModuleItemInitializer {
-
-protected:
-	AttributeBlock* m_dynamicAttributeBlock;
 
 public:
 	Attribute(ct::Attribute* attribute):
