@@ -2851,21 +2851,14 @@ Parser::lookupIdentifier(
 		// field in a dynamic layout
 
 		uint_t ptrTypeFlags = field->getPtrTypeFlags() | PtrTypeFlag_Const;
-		DataPtrType* ptrType = (ptrTypeFlags & PtrTypeFlag_BitField) ?
-			m_module->m_typeMgr.getDataPtrType(
-				field->getType(),
-				field->getBitOffset(),
-				field->getBitCount(),
-				TypeKind_DataRef,
-				DataPtrTypeKind_Normal,
-				ptrTypeFlags
-			) :
-			m_module->m_typeMgr.getDataPtrType(
-				field->getType(),
-				TypeKind_DataRef,
-				DataPtrTypeKind_Normal,
-				ptrTypeFlags
-			);
+		ASSERT(!(ptrTypeFlags & PtrTypeFlag_BitField)); // bitfields produce dynamic sections
+
+		DataPtrType* ptrType = m_module->m_typeMgr.getDataPtrType(
+			field->getType(),
+			TypeKind_DataRef,
+			DataPtrTypeKind_Normal,
+			ptrTypeFlags
+		);
 
 		if (m_module->m_controlFlowMgr.isEmissionLocked()) { // sizeof/countof/typeof
 			value->setType(ptrType);
