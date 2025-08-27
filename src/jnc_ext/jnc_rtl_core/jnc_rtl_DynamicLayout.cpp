@@ -435,7 +435,7 @@ DynamicLayout::addBitField(
 		DynamicSection* section = addSection(DynamicSectionKind_Field, offset, size, decl, type);
 		section->m_bitOffset = bitOffset;
 		section->m_bitCount = bitCount;
-		section->m_ptrTypeFlags = ptrTypeFlags;
+		section->m_ptrTypeFlags = ptrTypeFlags | PtrTypeFlag_BitField;
 	}
 
 	if (isAsync && (m_mode & DynamicLayoutMode_Stream) && m_size > m_bufferSize) {
