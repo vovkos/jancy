@@ -73,7 +73,19 @@ jnc_DynamicSection_getOffset(jnc_DynamicSection* section);
 
 JNC_EXTERN_C
 size_t
+jnc_DynamicSection_getSize(jnc_DynamicSection* section);
+
+JNC_EXTERN_C
+size_t
 jnc_DynamicSection_getElementCount(jnc_DynamicSection* section);
+
+JNC_EXTERN_C
+uint_t
+jnc_DynamicSection_getBitOffset(jnc_DynamicSection* section);
+
+JNC_EXTERN_C
+uint_t
+jnc_DynamicSection_getBitCount(jnc_DynamicSection* section);
 
 JNC_EXTERN_C
 uint_t
@@ -102,8 +114,23 @@ struct jnc_DynamicSection: jnc_DynamicSectionGroup {
 	}
 
 	size_t
+	getSize() {
+		return jnc_DynamicSection_getSize(this);
+	}
+
+	size_t
 	getElementCount() {
 		return jnc_DynamicSection_getElementCount(this);
+	}
+
+	uint_t
+	getBitOffset() {
+		return jnc_DynamicSection_getBitOffset(this);
+	}
+
+	uint_t
+	getBitCount() {
+		return jnc_DynamicSection_getBitCount(this);
 	}
 
 	uint_t
@@ -181,6 +208,10 @@ jnc_DynamicLayout_clear(jnc_DynamicLayout* layout) {
 	jnc_DynamicLayout_reset(layout, 0, jnc_g_nullDataPtr, 0);
 }
 
+JNC_EXTERN_C
+void
+jnc_DynamicLayout_updateGroupSizes(jnc_DynamicLayout* layout);
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #ifdef __cplusplus
@@ -222,6 +253,11 @@ struct jnc_DynamicLayout: jnc_DynamicSectionGroup {
 		size_t size
 	) {
 		jnc_DynamicLayout_reset(this, mode, ptr, size);
+	}
+
+	void
+	updateGroupSizes() {
+		jnc_DynamicLayout_updateGroupSizes(this);
 	}
 };
 #endif

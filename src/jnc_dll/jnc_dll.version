@@ -307,7 +307,10 @@
 		jnc_DynamicSectionGroup_getSection;
 		jnc_DynamicSection_getSectionKind;
 		jnc_DynamicSection_getOffset;
+		jnc_DynamicSection_getSize;
 		jnc_DynamicSection_getElementCount;
+		jnc_DynamicSection_getBitOffset;
+		jnc_DynamicSection_getBitCount;
 		jnc_DynamicSection_getPtrTypeFlags;
 		jnc_DynamicSection_getType;
 		jnc_DynamicSection_getDecl;
@@ -317,6 +320,7 @@
 		jnc_DynamicLayout_getSizeLimit;
 		jnc_DynamicLayout_setSizeLimit;
 		jnc_DynamicLayout_reset;
+		jnc_DynamicLayout_updateGroupSizes;
 
 	local: *;
 };

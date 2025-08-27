@@ -64,8 +64,29 @@ jnc_DynamicSection_getOffset(jnc_DynamicSection* section) {
 JNC_EXTERN_C
 JNC_EXPORT_O
 size_t
+jnc_DynamicSection_getSize(jnc_DynamicSection* section) {
+	return ((jnc::rtl::DynamicSection*)section)->m_size;
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+size_t
 jnc_DynamicSection_getElementCount(jnc_DynamicSection* section) {
 	return ((jnc::rtl::DynamicSection*)section)->m_elementCount;
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+uint_t
+jnc_DynamicSection_getBitOffset(jnc_DynamicSection* section) {
+	return ((jnc::rtl::DynamicSection*)section)->m_bitOffset;
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+uint_t
+jnc_DynamicSection_getBitCount(jnc_DynamicSection* section) {
+	return ((jnc::rtl::DynamicSection*)section)->m_bitCount;
 }
 
 JNC_EXTERN_C
@@ -153,6 +174,13 @@ jnc_DynamicLayout_reset(
 	size_t size
 ) {
 	((jnc::rtl::DynamicLayout*)layout)->reset(mode, ptr, size);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+void
+jnc_DynamicLayout_updateGroupSizes(jnc_DynamicLayout* layout) {
+	((jnc::rtl::DynamicLayout*)layout)->updateGroupSizes();
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB
