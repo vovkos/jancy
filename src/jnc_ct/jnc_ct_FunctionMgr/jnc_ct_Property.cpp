@@ -221,11 +221,14 @@ Property::setAutoGetValue(
 }
 
 bool
-Property::createAutoGetValue(Type* type) {
+Property::createAutoGetValue(
+	Type* type,
+	uint_t ptrTypeFlags
+) {
 	sl::String name = "m_value";
 
 	if (m_parentType && m_storageKind != StorageKind_Reactor) {
-		Field* field = createField(name, type);
+		Field* field = createField(name, type, 0, ptrTypeFlags);
 		return
 			field != NULL &&
 			setAutoGetValue(field);
@@ -236,7 +239,8 @@ Property::createAutoGetValue(Type* type) {
 			m_storageKind,
 			name,
 			createQualifiedName(name),
-			type
+			type,
+			ptrTypeFlags
 		);
 
 		variable->m_parentNamespace = this;

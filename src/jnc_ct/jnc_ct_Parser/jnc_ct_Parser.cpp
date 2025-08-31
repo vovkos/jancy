@@ -1617,12 +1617,16 @@ Parser::finalizeLastProperty(bool hasBody) {
 
 	// finalize auto-get value
 
+	uint_t autogetValuePtrModifiers = m_lastPropertyTypeModifiers & (TypeModifier_BigEndian | TypeModifier_Volatile);
 	if (m_lastPropertyTypeModifiers & TypeModifier_AutoGet) {
 		if (!prop->m_autoGetValue) {
-			result = prop->createAutoGetValue(prop->m_getter->getType()->getReturnType());
+			result = prop->createAutoGetValue(prop->m_getter->getType()->getReturnType(), autogetValuePtrModifiers);
 			if (!result)
 				return false;
 		}
+	} else if (autogetValuePtrModifiers) {
+		err::setFormatStringError("unused modifier '%s'", getTypeModifierString(m_lastPropertyTypeModifiers & autogetValuePtrModifiers).sz());
+		return false;
 	}
 
 	if (prop->m_getter)

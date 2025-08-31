@@ -80,6 +80,8 @@ enum TypeModifierMaskKind {
 		TypeModifier_AutoGet |
 		TypeModifier_Bindable |
 		TypeModifier_Indexed |
+		TypeModifier_BigEndian |
+		TypeModifier_Volatile |
 		TypeModifierMaskKind_CallConv,
 
 	TypeModifierMaskKind_DataPtr =

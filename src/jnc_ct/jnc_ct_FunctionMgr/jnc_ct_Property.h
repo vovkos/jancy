@@ -194,7 +194,10 @@ public:
 	); // struct-field or variable
 
 	bool
-	createAutoGetValue(Type* type);
+	createAutoGetValue(
+		Type* type,
+		uint_t ptrTypeFlags = 0
+	);
 
 	DerivableType*
 	getParentType() {

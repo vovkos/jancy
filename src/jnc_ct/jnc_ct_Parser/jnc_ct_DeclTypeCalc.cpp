@@ -271,7 +271,9 @@ DeclTypeCalc::calcPropertyGetterType(Declarator* declarator) {
 		TypeModifier_CMut |
 		TypeModifier_AutoGet |
 		TypeModifier_Bindable |
-		TypeModifier_Indexed
+		TypeModifier_Indexed |
+		TypeModifier_BigEndian |
+		TypeModifier_Volatile
 	);
 
 	Type* type = calcType(
