@@ -323,12 +323,19 @@ EnumType::getValueString(
 
 	if (!(m_flags & EnumTypeFlag_BitFlag)) { // shortcut
 		EnumConst* enumConst = findConst(n);
-		return enumConst ? enumConst->m_name : m_baseType->getValueString(p, formatSpec);
+		if (!enumConst)
+			return m_baseType->getValueString(p, formatSpec);
+
+		sl::String string;
+		string = m_baseType->getValueString(p, formatSpec);
+		string += " - ";
+		string += enumConst->m_name;
+		return string;
 	}
 
-	sl::String string;
-
 	int64_t unnamedFlags = 0;
+
+	sl::String namedFlagsString;
 
 	while (n) {
 		int64_t flag = sl::getLoBit64(n);
@@ -341,18 +348,22 @@ EnumType::getValueString(
 		if (!enumConst) {
 			unnamedFlags |= flag;
 		} else {
-			if (!string.isEmpty())
-				string += ", ";
+			if (!namedFlagsString.isEmpty())
+				namedFlagsString += ", ";
 
-			string += enumConst->m_name;
+			namedFlagsString += enumConst->m_name;
 		}
 	}
 
 	if (!formatSpec)
 		formatSpec = "0x%X"; // bitflags are better represented as hex
 
-	if (string.isEmpty())
+	if (namedFlagsString.isEmpty())
 		return m_baseType->getValueString(p, formatSpec);
+
+	sl::String string = m_baseType->getValueString(p, formatSpec);
+	string += " - ";
+	string += namedFlagsString;
 
 	if (unnamedFlags) {
 		string += ", ";
