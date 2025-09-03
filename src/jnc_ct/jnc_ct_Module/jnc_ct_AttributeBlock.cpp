@@ -21,7 +21,10 @@ namespace ct {
 
 bool
 Attribute::prepareValue(bool isDynamic) {
-	ASSERT(!(m_flags & AttributeFlag_ValueReady));
+	ASSERT(
+		!(m_flags & AttributeFlag_ValueReady) &&
+		m_module->getCompileState() < ModuleCompileState_Compiled
+	);
 
 	if (m_initializer.isEmpty()) {
 		m_value.clear();

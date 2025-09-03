@@ -57,7 +57,6 @@ JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Variant
 jnc_Attribute_getValue(jnc_Attribute* attr) {
-	attr->ensureVariantReady();
 	return attr->getVariant();
 }
 

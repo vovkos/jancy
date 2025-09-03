@@ -55,14 +55,11 @@ public:
 	}
 
 	const Value&
-	getValue() {
-		ASSERT(m_flags & AttributeFlag_ValueReady);
-		return m_value;
-	}
+	getValue();
 
 	const Variant&
 	getVariant() {
-		ASSERT(m_flags & AttributeFlag_VariantReady);
+		ensureVariantReady();
 		return m_variant;
 	}
 
@@ -84,6 +81,17 @@ protected:
 	void
 	prepareVariant();
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+const Value&
+Attribute::getValue() {
+	if (!(m_flags & AttributeFlag_ValueReady))
+		TRACE("-- WARNING: accessing an unready attribute value\n");
+
+	return m_value;
+}
 
 //..............................................................................
 
@@ -109,7 +117,6 @@ public:
 
 	const sl::Array<Attribute*>&
 	getAttributeArray() {
-		ensureAttributeValuesReady();
 		return m_attributeArray;
 	}
 
@@ -146,12 +153,7 @@ protected:
 inline
 Attribute*
 AttributeBlock::findAttribute(const sl::StringRef& name) {
-	Attribute* attribute = m_attributeMap.findValue(name, NULL);
-	if (!attribute)
-		return NULL;
-
-	attribute->ensureValueReady();
-	return attribute;
+	return m_attributeMap.findValue(name, NULL);
 }
 
 //..............................................................................

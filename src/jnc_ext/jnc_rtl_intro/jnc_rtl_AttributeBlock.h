@@ -41,7 +41,6 @@ public:
 	Variant
 	JNC_CDECL
 	getValue(Attribute* self) {
-		self->m_item->ensureVariantReady();
 		return self->m_item->getVariant();
 	}
 };
