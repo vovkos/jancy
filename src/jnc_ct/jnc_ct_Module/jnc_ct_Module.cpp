@@ -786,7 +786,10 @@ Module::processCompileArray() {
 		size_t count = compileArray.getCount();
 		for (size_t i = 0; i < compileArray.getCount(); i++) {
 			Function* function = compileArray[i];
-			result = function->compile();
+			result =
+				function->ensureAttributeValuesReady() &&
+				function->compile();
+
 			if (!result) {
 				lex::ensureSrcPosError(
 					function->m_parentUnit ? function->m_parentUnit->getFilePath() : m_name,
