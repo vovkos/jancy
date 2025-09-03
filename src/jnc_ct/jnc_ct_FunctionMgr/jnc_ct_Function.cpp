@@ -85,6 +85,16 @@ Function::convertToMemberMethod(DerivableType* parentType) {
 }
 
 bool
+Function::require() {
+	if (canCompile())
+		m_module->markForCompile(this);
+	else
+		m_module->m_functionMgr.m_requiredExternalFunctionArray.append(this);
+
+	return true;
+}
+
+bool
 Function::compile() {
 	ASSERT(hasBody() || hasInitializer()); // otherwise, what are we doing here?
 	ASSERT(!m_prologueBlock); // otherwise, already compiled

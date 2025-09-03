@@ -512,17 +512,6 @@ Function::getDeclVariable() {
 	return m_declVariable;
 }
 
-inline
-bool
-Function::require() {
-	if (canCompile())
-		m_module->markForCompile(this);
-	else
-		m_module->m_functionMgr.m_requiredExternalFunctionArray.append(this);
-
-	return true;
-}
-
 //..............................................................................
 
 inline
