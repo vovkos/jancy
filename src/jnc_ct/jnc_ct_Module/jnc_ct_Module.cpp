@@ -114,11 +114,11 @@ void
 Module::clear() {
 	m_name.clear();
 	m_compileArray.clear();
-	m_sourceList.clear();
 	m_filePathSet.clear();
 	m_requireSet.clear();
 
 	m_typeMgr.clear();
+	m_attributeMgr.clear();
 	m_namespaceMgr.clear();
 	m_functionMgr.clear();
 	m_variableMgr.clear();
@@ -133,6 +133,8 @@ Module::clear() {
 	m_controlFlowMgr.clear();
 	m_gcShadowStackMgr.clear();
 	m_codeAssistMgr.clear();
+
+	m_sourceList.clear(); // keep strings alive till the end
 
 	clearLlvm();
 

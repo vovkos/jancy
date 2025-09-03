@@ -39,6 +39,7 @@ public:
 
 	void
 	clear() {
+		m_attributeList.clear();
 		m_attributeBlockList.clear();
 	}
 
