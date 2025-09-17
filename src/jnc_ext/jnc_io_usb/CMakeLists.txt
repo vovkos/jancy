@@ -68,7 +68,7 @@ source_group(
 	${JNC_LIST}
 )
 
-touch_if_changed(
+axl_touch_if_changed(
 	${LIB_DEP_H}
 	${JNC_LIST}
 )
@@ -208,7 +208,7 @@ if(WIN32 AND LIBUSB_DLL_DIR)
 			${CMAKE_COMMAND} -E copy
 			${LIBUSB_DLL_DIR}/libusb-1.0.dll
 			${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CONFIGURATION}
-		)
+	)
 endif()
 
 #...............................................................................
@@ -234,7 +234,7 @@ add_custom_command(
 		${JNC_IO_USB_JNCX}
 		${JNC_IO_USB_DLL}
 		${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

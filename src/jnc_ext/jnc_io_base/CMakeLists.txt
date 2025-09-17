@@ -105,7 +105,7 @@ source_group(
 	${JNC_LIST}
 )
 
-touch_if_changed(
+axl_touch_if_changed(
 	${LIB_DEP_H}
 	${JNC_LIST}
 )
@@ -240,7 +240,7 @@ add_custom_command(
 		${JNC_IO_BASE_JNCX}
 		${JNC_IO_BASE_DLL}
 		${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

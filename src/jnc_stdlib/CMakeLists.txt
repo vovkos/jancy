@@ -20,7 +20,7 @@ add_custom_target(
 	ALL
 	DEPENDS
 		${DLL_DIR}/jnc_stdlib.jncx
-	)
+)
 
 add_custom_command(
 	OUTPUT ${DLL_DIR}/jnc_stdlib.jncx
@@ -39,7 +39,7 @@ add_custom_command(
 	COMMAND
 		${7Z_EXE} a -tzip -y ${DLL_DIR}/jnc_stdlib.jncx
 		${CMAKE_CURRENT_LIST_DIR}/.forced.jnc
-	)
+)
 
 set_target_properties(
 	jnc_stdlib_jncx

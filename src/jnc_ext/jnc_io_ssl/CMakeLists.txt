@@ -60,7 +60,7 @@ source_group(
 	${JNC_LIST}
 )
 
-touch_if_changed(
+axl_touch_if_changed(
 	${LIB_DEP_H}
 	${JNC_LIST}
 )
@@ -184,7 +184,7 @@ if(WIN32)
 				${CMAKE_COMMAND} -E copy
 				${_DLL_LIST}
 				${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CONFIGURATION}
-			)
+		)
 	endif()
 endif()
 
@@ -211,7 +211,7 @@ add_custom_command(
 		${JNC_IO_SSL_JNCX}
 		${JNC_IO_SSL_DLL}
 		${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

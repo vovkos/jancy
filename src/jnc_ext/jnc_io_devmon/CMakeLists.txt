@@ -34,7 +34,7 @@ if(NOT DEVMON_FOUND)
 			${CMAKE_CURRENT_LIST_DIR}/jnc/io_win_DeviceMonitorNotify.jnc
 			${CMAKE_CURRENT_LIST_DIR}/jnc/io_lnx_DeviceMonitorNotify.jnc
 			${CMAKE_CURRENT_BINARY_DIR}/.forced.jnc
-		)
+	)
 
 	set_target_properties(
 		jnc_io_devmon_jncx
@@ -98,7 +98,7 @@ source_group(
 	${JNC_LIST}
 )
 
-touch_if_changed(
+axl_touch_if_changed(
 	${LIB_DEP_H}
 	${JNC_LIST}
 )
@@ -238,7 +238,7 @@ add_custom_command(
 		${JNC_IO_DEVMON_DLL}
 		${CMAKE_CURRENT_LIST_DIR}/jnc/io_*.jnc
 		${CMAKE_CURRENT_BINARY_DIR}/.forced.jnc
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

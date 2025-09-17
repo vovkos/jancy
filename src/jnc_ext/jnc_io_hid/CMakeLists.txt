@@ -67,7 +67,7 @@ source_group(
 	${JNC_LIST}
 )
 
-touch_if_changed(
+axl_touch_if_changed(
 	${LIB_DEP_H}
 	${JNC_LIST}
 )
@@ -101,9 +101,9 @@ include_directories(
 )
 
 if(USBMON_AVAILABLE)
-	include_directories(${LIBUSB_INC_DIR})	
+	include_directories(${LIBUSB_INC_DIR})
 	add_definitions(-D_JNC_IO_HIDMON=1)
-	
+
 	if(${CMAKE_GENERATOR} MATCHES "Visual Studio 10")
 		link_directories(${HIDSDK_LIB_DIR})
 	endif()
@@ -196,7 +196,7 @@ if(WIN32)
 				${CMAKE_COMMAND} -E copy
 				${HIDAPI_DLL_DIR}/hidapi.dll
 				${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CONFIGURATION}
-			)
+		)
 	endif()
 else()
 	if(APPLE)

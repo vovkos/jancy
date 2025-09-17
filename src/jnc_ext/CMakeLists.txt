@@ -12,20 +12,6 @@
 set(CMAKE_INSTALL_RPATH)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
-macro(
-	touch_if_changed
-	_FILE
-	# ...
-)
-	set(_DEPENDENCY_LIST ${ARGN})
-
-	add_custom_command(
-		OUTPUT ${_FILE}
-		COMMAND ${CMAKE_COMMAND} -E touch ${_FILE}
-		DEPENDS ${_DEPENDENCY_LIST}
-	)
-endmacro()
-
 #...............................................................................
 
 if(LIBUSB_FOUND AND (WIN32 OR LINUX AND PCAP_FOUND))
