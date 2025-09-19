@@ -102,6 +102,13 @@ if(WIN32)
 			ws2_32
 		)
 	endif()
+
+	if(${LLVM_VERSION} VERSION_GREATER_EQUAL 19)
+		target_link_libraries(
+			jnc_dll
+			ntdll
+		)
+	endif()
 else(UNIX)
 	if(APPLE)
 		find_library(CORE_FOUNDATION_FRAMEWORK CoreFoundation)
