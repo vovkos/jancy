@@ -206,7 +206,7 @@ AsyncSequencerFunction::replaceAllocas() {
 	llvm::Value* llvmPromiseValue = &*llvmArg;
 	llvm::BasicBlock* llvmAllocaBlock = m_allocaBlock->getLlvmBlock();
 	llvm::BasicBlock::iterator it = llvmAllocaBlock->begin();
-	llvm::DataLayout llvmDataLayout(m_module->getLlvmModule());
+	llvm::DataLayout llvmDataLayout(m_module->getLlvmModule()->getDataLayout());
 	Type* byteType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Byte);
 
 	Value bufferValue;
@@ -225,7 +225,12 @@ AsyncSequencerFunction::replaceAllocas() {
 		llvm::Type* llvmPtrType = llvmAlloca->getType();
 		llvm::Type* llvmType = llvmAlloca->getAllocatedType();
 		size_t size = (size_t) llvmDataLayout.getTypeAllocSize(llvmType);
-		size_t typeAlign = llvmDataLayout.getPrefTypeAlignment(llvmType);
+
+#if (LLVM_VERSION_MAJOR < 20)
+	size_t typeAlign = llvmDataLayout.getPrefTypeAlignment(llvmType);
+#else
+	size_t typeAlign = llvmDataLayout.getPrefTypeAlign(llvmType).value();
+#endif
 
 #if (LLVM_VERSION_MAJOR < 15)
 		size_t allocaAlign = llvmAlloca->getAlignment();

@@ -107,6 +107,9 @@
 #	include <llvm/ExecutionEngine/Orc/ExecutionUtils.h>
 #	if (LLVM_VERSION_MAJOR >= 13)
 #		include <llvm/ExecutionEngine/Orc/ExecutorProcessControl.h>
+#		if 	(LLVM_VERSION_MAJOR >= 20)
+#			include <llvm/ExecutionEngine/Orc/AbsoluteSymbols.h>
+#		endif
 #	endif
 #	include <llvm/ExecutionEngine/Orc/IRCompileLayer.h>
 #	include <llvm/ExecutionEngine/Orc/JITTargetMachineBuilder.h>
