@@ -16,6 +16,7 @@
 #include "jnc_ct_ArrayType.h"
 #include "jnc_ct_FunctionOverload.h"
 #include "jnc_ct_LeanDataPtrValidator.h"
+#include "jnc_ct_TypeMgr/jnc_ct_UnionType.h"
 
 namespace jnc {
 namespace ct {
@@ -96,18 +97,116 @@ getValueKindString(ValueKind valueKind) {
 //..............................................................................
 
 llvm::Constant*
-getLlvmPtrConst(
+getLlvmConstantFunc_variant(
 	Type* type,
 	const void* p
 ) {
-	int64_t integer = *(int64_t*)p;
+	type = type->getModule()->m_typeMgr.getStdType(StdType_VariantStruct);
+	return LlvmPodStruct::get((StructType*)type, p);
+}
+
+llvm::Constant*
+getLlvmConstantFunc_string(
+	Type* type,
+	const void* p
+) {
+	type = type->getModule()->m_typeMgr.getStdType(StdType_StringStruct);
+	return LlvmPodStruct::get((StructType*)type, p);
+}
+
+llvm::Constant*
+getLlvmConstantFunc_bool(
+	Type* type,
+	const void* p
+) {
+	uint64_t value = *(bool*)p != 0;
+	return llvm::ConstantInt::get(
+		type->getLlvmType(),
+		llvm::APInt(1, value, false)
+	);
+}
+
+template <
+	typename T,
+	bool isSigned
+>
+llvm::Constant*
+getLlvmConstantFunc_int(
+	Type* type,
+	const void* p
+) {
+	uint64_t value = *(const T*)p;
+	return llvm::ConstantInt::get(
+		type->getLlvmType(),
+		llvm::APInt(sizeof(T) * 8, value, isSigned)
+	);
+}
+
+template <typename T>
+llvm::Constant*
+getLlvmConstantFunc_fp(
+	Type* type,
+	const void* p
+) {
+	return llvm::ConstantFP::get(type->getLlvmType(), *(T*)p);
+}
+
+llvm::Constant*
+getLlvmConstantFunc_enum(
+	Type* type,
+	const void* p
+) {
+	type = ((EnumType*)type)->getRootType();
+	return Value::getLlvmConst(type, p);
+}
+
+llvm::Constant*
+getLlvmConstantFunc_array(
+	Type* type,
+	const void* p
+) {
+	return LlvmPodArray::get((ArrayType*)type, p);
+}
+
+llvm::Constant*
+getLlvmConstantFunc_struct(
+	Type* type,
+	const void* p
+) {
+	return LlvmPodStruct::get((StructType*)type, p);
+}
+
+llvm::Constant*
+getLlvmConstantFunc_union(
+	Type* type,
+	const void* p
+) {
+	return LlvmPodStruct::get(((UnionType*)type)->getStructType(), p);
+}
+
+llvm::Constant*
+getLlvmConstantFunc_ptr(
+	Type* type,
+	const void* p
+) {
+	uint64_t integer = *(const size_t*)p;
 
 	llvm::Constant* llvmConst = llvm::ConstantInt::get(
 		type->getModule()->m_typeMgr.getPrimitiveType(TypeKind_IntPtr_u)->getLlvmType(),
-		llvm::APInt(sizeof(void*)* 8, integer, false)
+		llvm::APInt(JNC_PTR_BITS, integer, false)
 	);
 
 	return llvm::ConstantExpr::getIntToPtr(llvmConst, type->getLlvmType());
+}
+
+llvm::Constant*
+getLlvmConstantFunc_dataPtr(
+	Type* type,
+	const void* p
+) {
+	return ((DataPtrType*)type)->getPtrTypeKind() == DataPtrTypeKind_Normal ?
+		LlvmPodStruct::get((StructType*)type->getModule()->m_typeMgr.getStdType(StdType_DataPtrStruct), p) :
+		getLlvmConstantFunc_ptr(type, p);
 }
 
 llvm::Constant*
@@ -115,107 +214,45 @@ Value::getLlvmConst(
 	Type* type,
 	const void* p
 ) {
-	int64_t integer;
-	double doubleValue;
-	llvm::Constant* llvmConst = NULL;
+	typedef
+	llvm::Constant*
+	GetLlvmConstantFunc(
+		Type* type,
+		const void* p
+	);
 
-	if (type->getTypeKind() == TypeKind_Enum)
-		type = ((EnumType*)type)->getRootType();
-
-	Module* module = type->getModule();
+	GetLlvmConstantFunc* getLlvmConstantFuncTable[TypeKind_ClassRef + 1] = {
+		NULL,                                      // TypeKind_Void
+		getLlvmConstantFunc_variant,               // TypeKind_Variant
+		getLlvmConstantFunc_string,                // TypeKind_String
+		getLlvmConstantFunc_bool,                  // TypeKind_Bool
+		getLlvmConstantFunc_int<int8_t, true>,     // TypeKind_Int8
+		getLlvmConstantFunc_int<uint8_t, false>,   // TypeKind_Int8_u
+		getLlvmConstantFunc_int<int16_t, true>,    // TypeKind_Int16
+		getLlvmConstantFunc_int<uint16_t, false>,  // TypeKind_Int16_u
+		getLlvmConstantFunc_int<int32_t, true>,    // TypeKind_Int32
+		getLlvmConstantFunc_int<uint32_t, false>,  // TypeKind_Int32_u
+		getLlvmConstantFunc_int<int64_t, true>,    // TypeKind_Int64
+		getLlvmConstantFunc_int<uint64_t, false>,  // TypeKind_Int64_u
+		getLlvmConstantFunc_fp<float>,             // TypeKind_Float
+		getLlvmConstantFunc_fp<double>,            // TypeKind_Double
+		getLlvmConstantFunc_array,                 // TypeKind_Array
+		getLlvmConstantFunc_enum,                  // TypeKind_Enum
+		getLlvmConstantFunc_struct,                // TypeKind_Struct
+		getLlvmConstantFunc_union,                 // TypeKind_Union
+		NULL,                                      // TypeKind_Class
+		NULL,                                      // TypeKind_Function
+		NULL,                                      // TypeKind_Property
+		getLlvmConstantFunc_dataPtr,               // TypeKind_DataPtr
+		getLlvmConstantFunc_dataPtr,               // TypeKind_DataRef
+		getLlvmConstantFunc_ptr,                   // TypeKind_ClassPtr
+		getLlvmConstantFunc_ptr,                   // TypeKind_ClassRef
+	};
 
 	TypeKind typeKind = type->getTypeKind();
-	switch (typeKind) {
-	case TypeKind_Bool:
-		integer = *(int8_t*)p != 0;
-		llvmConst = llvm::ConstantInt::get(
-			type->getLlvmType(),
-			llvm::APInt(1, integer)
-		);
-		break;
-
-	case TypeKind_Int8:
-	case TypeKind_Int8_u:
-		integer = *(int8_t*)p;
-		llvmConst = llvm::ConstantInt::get(
-			type->getLlvmType(),
-			llvm::APInt(8, integer, !(type->getTypeKindFlags() & TypeKindFlag_Unsigned))
-		);
-		break;
-
-	case TypeKind_Int16:
-	case TypeKind_Int16_u:
-		integer = *(int16_t*)p;
-		llvmConst = llvm::ConstantInt::get(
-			type->getLlvmType(),
-			llvm::APInt(16, integer, !(type->getTypeKindFlags() & TypeKindFlag_Unsigned))
-		);
-		break;
-
-	case TypeKind_Int32:
-	case TypeKind_Int32_u:
-		integer = *(int32_t*)p;
-		llvmConst = llvm::ConstantInt::get(
-			type->getLlvmType(),
-			llvm::APInt(32, integer, !(type->getTypeKindFlags() & TypeKindFlag_Unsigned))
-		);
-		break;
-
-	case TypeKind_Int64:
-	case TypeKind_Int64_u:
-		integer = *(int64_t*)p;
-		llvmConst = llvm::ConstantInt::get(
-			type->getLlvmType(),
-			llvm::APInt(64, integer, !(type->getTypeKindFlags() & TypeKindFlag_Unsigned))
-		);
-		break;
-
-	case TypeKind_Float:
-		doubleValue = *(float*)p;
-		llvmConst = llvm::ConstantFP::get(type->getLlvmType(), doubleValue);
-		break;
-
-	case TypeKind_Double:
-		doubleValue = *(double*)p;
-		llvmConst = llvm::ConstantFP::get(type->getLlvmType(), doubleValue);
-		break;
-
-	case TypeKind_Variant:
-		llvmConst = LlvmPodStruct::get((StructType*)module->m_typeMgr.getStdType(StdType_VariantStruct), p);
-		break;
-
-	case TypeKind_String:
-		llvmConst = LlvmPodStruct::get((StructType*)module->m_typeMgr.getStdType(StdType_StringStruct), p);
-		break;
-
-	case TypeKind_Array:
-		llvmConst = LlvmPodArray::get((ArrayType*)type, p);
-		break;
-
-	case TypeKind_Struct:
-		llvmConst = LlvmPodStruct::get((StructType*)type, p);
-		break;
-
-	case TypeKind_DataPtr:
-	case TypeKind_DataRef:
-		if (((DataPtrType*)type)->getPtrTypeKind() == DataPtrTypeKind_Normal) {
-			llvmConst = LlvmPodStruct::get((StructType*)module->m_typeMgr.getStdType(StdType_DataPtrStruct), p);
-		} else { // thin or unsafe
-			llvmConst = getLlvmPtrConst(type, p);
-		}
-		break;
-
-	case TypeKind_ClassPtr:
-		llvmConst = getLlvmPtrConst(type, p);
-		break;
-
-	default:
-		ASSERT(false);
-	}
-
-	return llvmConst;
+	ASSERT(typeKind <= countof(getLlvmConstantFuncTable) && getLlvmConstantFuncTable[typeKind] != NULL);
+	return getLlvmConstantFuncTable[typeKind](type, p);
 }
-
 
 void
 Value::setVariable(Variable* variable) {
