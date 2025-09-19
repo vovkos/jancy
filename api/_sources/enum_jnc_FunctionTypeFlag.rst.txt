@@ -1,0 +1,26 @@
+.. index:: pair: enum; jnc_FunctionTypeFlag
+.. _doxid-group__function-type_1gac9ba50d4974a369a6e77a3b13e334814:
+
+enum jnc_FunctionTypeFlag
+=========================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_FunctionType.h>
+
+	enum jnc_FunctionTypeFlag {
+	    :target:`jnc_FunctionTypeFlag_VarArg<doxid-group__function-type_1ggac9ba50d4974a369a6e77a3b13e334814a1c4fb322e4fe74fcad6af39beae5e9b5>`         = 0x010000,
+	    :target:`jnc_FunctionTypeFlag_ErrorCode<doxid-group__function-type_1ggac9ba50d4974a369a6e77a3b13e334814ab25f5af6f1d9bb748e8ab5d8088ecf65>`      = 0x020000,
+	    :target:`jnc_FunctionTypeFlag_ByValArgs<doxid-group__function-type_1ggac9ba50d4974a369a6e77a3b13e334814a07c5126f9fcea85b9d56db3ba44f1cc5>`      = 0x040000,
+	    :target:`jnc_FunctionTypeFlag_CoercedArgs<doxid-group__function-type_1ggac9ba50d4974a369a6e77a3b13e334814a6c4c660d1430fd01257ca0f14d4139e6>`    = 0x080000,
+	    :target:`jnc_FunctionTypeFlag_Unsafe<doxid-group__function-type_1ggac9ba50d4974a369a6e77a3b13e334814ac4a01665bc8432368f502e25f45718df>`         = 0x100000,
+	    :target:`jnc_FunctionTypeFlag_Async<doxid-group__function-type_1ggac9ba50d4974a369a6e77a3b13e334814a0e2a2ebf9234bd905f05077af713e2cc>`          = 0x200000,
+	    :target:`jnc_FunctionTypeFlag_AsyncErrorCode<doxid-group__function-type_1ggac9ba50d4974a369a6e77a3b13e334814a603c6ede6566b097ed18901444c8c8ee>` = 0x400000,
+	    :target:`jnc_FunctionTypeFlag_IntExtArgs<doxid-group__function-type_1ggac9ba50d4974a369a6e77a3b13e334814a58bc89079b323e19724ea481a8b82bad>`     = 0x800000,
+	    :target:`jnc_FunctionTypeFlag__All<doxid-group__function-type_1ggac9ba50d4974a369a6e77a3b13e334814a610f7b9c859d0267dd734931f56378ae>`           = 0xff0000,
+	    :target:`jnc_FunctionTypeFlag__User<doxid-group__function-type_1ggac9ba50d4974a369a6e77a3b13e334814aa9704722cd4292b50a128510e4300288>`          = 		jnc_FunctionTypeFlag_ErrorCode | 		jnc_FunctionTypeFlag_Unsafe | 		jnc_FunctionTypeFlag_Async | 		jnc_FunctionTypeFlag_AsyncErrorCode,
+	};
+

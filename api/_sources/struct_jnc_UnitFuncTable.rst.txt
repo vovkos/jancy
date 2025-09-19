@@ -1,0 +1,25 @@
+.. index:: pair: struct; jnc_UnitFuncTable
+.. _doxid-structjnc___unit_func_table:
+
+struct jnc_UnitFuncTable
+========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_UnitFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___unit_func_table_1a3614a116c39536d37868ee1fc518f6e2>`;
+		jnc_Unit_GetLibFunc* :target:`m_getLibFunc<doxid-structjnc___unit_func_table_1a63d8e544ce52d7348c5ebcf5d176c99a>`;
+		jnc_Unit_GetFilePathFunc* :target:`m_getFilePathFunc<doxid-structjnc___unit_func_table_1a959df5ca783225a3d7f3ced47453f317>`;
+		jnc_Unit_GetFileNameFunc* :target:`m_getFileNameFunc<doxid-structjnc___unit_func_table_1a04d35ed7ff75432806f7b5064496e10b>`;
+		jnc_Unit_GetDirFunc* :target:`m_getDirFunc<doxid-structjnc___unit_func_table_1ac230823d7f56aea9be955e3ef12c78bb>`;
+	};

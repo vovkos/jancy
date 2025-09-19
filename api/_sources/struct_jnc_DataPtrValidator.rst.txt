@@ -1,0 +1,24 @@
+.. index:: pair: struct; jnc_DataPtrValidator
+.. _doxid-structjnc___data_ptr_validator:
+
+struct jnc_DataPtrValidator
+===========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_DataPtrValidator {
+		// fields
+	
+		:ref:`jnc_Box<doxid-structjnc___box>`* :target:`m_validatorBox<doxid-structjnc___data_ptr_validator_1a6d412385788417ceb53e8632074c6185>`;
+		:ref:`jnc_Box<doxid-structjnc___box>`* :target:`m_targetBox<doxid-structjnc___data_ptr_validator_1aef69b99745ff5137337f33476562237f>`;
+		const void* :target:`m_rangeBegin<doxid-structjnc___data_ptr_validator_1afac496d01a0437d3eb3c025d3f905930>`;
+		const void* :target:`m_rangeEnd<doxid-structjnc___data_ptr_validator_1a5ba89a4f4125d8931a7222bd846c9607>`;
+	};

@@ -1,0 +1,39 @@
+.. index:: pair: struct; jnc_RuntimeFuncTable
+.. _doxid-structjnc___runtime_func_table:
+
+struct jnc_RuntimeFuncTable
+===========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_RuntimeFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___runtime_func_table_1a999b7d8c2ba51fa13810d3d98bbd1fa4>`;
+		jnc_Runtime_CreateFunc* :target:`m_createFunc<doxid-structjnc___runtime_func_table_1aff0bef2e687c37d87ab56df2b11f2fb7>`;
+		jnc_Runtime_DestroyFunc* :target:`m_destroyFunc<doxid-structjnc___runtime_func_table_1a492c9d1f6320e1a041fd568bf558fee1>`;
+		jnc_Runtime_GetModuleFunc* :target:`m_getModuleFunc<doxid-structjnc___runtime_func_table_1a93ad731b6c668ebf31872171da5259a9>`;
+		jnc_Runtime_GetGcHeapFunc* :target:`m_getGcHeapFunc<doxid-structjnc___runtime_func_table_1a572156f6bb085d2e8ae5d50d016cf332>`;
+		jnc_Runtime_IsAbortedFunc* :target:`m_isAbortedFunc<doxid-structjnc___runtime_func_table_1a8bc7e494b3b06452c300ea243cdaa40f>`;
+		jnc_Runtime_StartupFunc* :target:`m_startupFunc<doxid-structjnc___runtime_func_table_1a9e35dbbc3255b2eef8d8b0f3490a94c9>`;
+		jnc_Runtime_ShutdownFunc* :target:`m_shutdownFunc<doxid-structjnc___runtime_func_table_1a244305e351af5012c646ab2332486147>`;
+		jnc_Runtime_AbortFunc* :target:`m_abortFunc<doxid-structjnc___runtime_func_table_1aac480643f1f3fe237955b4ec0b170934>`;
+		jnc_Runtime_InitializeCallSiteFunc* :target:`m_initializeCallSiteFunc<doxid-structjnc___runtime_func_table_1a8e34c0b1eebf40e42a66b67135a9d9b8>`;
+		jnc_Runtime_UninitializeCallSiteFunc* :target:`m_uninitializeCallSiteFunc<doxid-structjnc___runtime_func_table_1a5ff97b621fc948d4ae10574a2647b1a2>`;
+		jnc_Runtime_SetSjljFrameFunc* :target:`m_setSjljFrameFunc<doxid-structjnc___runtime_func_table_1a280736cc57d06f9a1369a31f4e5aa3f2>`;
+		jnc_Runtime_GetUserDataFunc* :target:`m_getUserDataFunc<doxid-structjnc___runtime_func_table_1ac3a4c4d62912f44fc93851df50691a00>`;
+		jnc_Runtime_SetUserDataFunc* :target:`m_setUserDataFunc<doxid-structjnc___runtime_func_table_1a77d63efb708dc1c66782496721c4903e>`;
+		jnc_GetCurrentThreadRuntimeFunc* :target:`m_getCurrentThreadRuntimeFunc<doxid-structjnc___runtime_func_table_1a3c89b31822efeb135df16ea71d271b42>`;
+		jnc_GetCurrentThreadTlsFunc* :target:`m_getCurrentThreadTlsFunc<doxid-structjnc___runtime_func_table_1a03c68e9f9227f0bf3c961992d9da4bef>`;
+		jnc_DynamicThrowFunc* :target:`m_dynamicThrowFunc<doxid-structjnc___runtime_func_table_1af2cf22b689c2d4ccf56387748ea48c79>`;
+		jnc_SaveSignalInfoFunc* :target:`m_saveSignalInfoFunc<doxid-structjnc___runtime_func_table_1aa7bb3b19e6da7418bb0c44b808c24806>`;
+		jnc_PrimeClassFunc* :target:`m_primeClassFunc<doxid-structjnc___runtime_func_table_1a4c7e4b7af2dfc04c5c757fd4ad13f454>`;
+	};

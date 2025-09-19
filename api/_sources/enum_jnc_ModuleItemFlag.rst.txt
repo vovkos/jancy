@@ -1,0 +1,22 @@
+.. index:: pair: enum; jnc_ModuleItemFlag
+.. _doxid-group__module-item_1gaf19927f3431c5d3bd0b1c994920aa1b1:
+
+enum jnc_ModuleItemFlag
+=======================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_ModuleItem.h>
+
+	enum jnc_ModuleItemFlag {
+	    :target:`jnc_ModuleItemFlag_User<doxid-group__module-item_1ggaf19927f3431c5d3bd0b1c994920aa1b1a4430999cc3c6378266194a0f02e73a43>`         = 0x01,
+	    :target:`jnc_ModuleItemFlag_Compilable<doxid-group__module-item_1ggaf19927f3431c5d3bd0b1c994920aa1b1ab19972e6d65ee3c7de5703080a766ebb>`   = 0x02,
+	    :target:`jnc_ModuleItemFlag_NeedCompile<doxid-group__module-item_1ggaf19927f3431c5d3bd0b1c994920aa1b1a663ffb13f20315ebb16f03e32563b1d4>`  = 0x04,
+	    :target:`jnc_ModuleItemFlag_InCalcLayout<doxid-group__module-item_1ggaf19927f3431c5d3bd0b1c994920aa1b1a8a092eb7f52783dde797edb0263fe9df>` = 0x10,
+	    :target:`jnc_ModuleItemFlag_LayoutReady<doxid-group__module-item_1ggaf19927f3431c5d3bd0b1c994920aa1b1afc0056190abfc8a0c42f6c881a56f1ec>`  = 0x20,
+	    :target:`jnc_ModuleItemFlag_Constructed<doxid-group__module-item_1ggaf19927f3431c5d3bd0b1c994920aa1b1a2d5230e8a46e8e12666fbf857159062c>`  = 0x40,
+	};
+

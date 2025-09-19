@@ -1,0 +1,22 @@
+.. include:: def.rst
+.. index:: pair: enum; SslNid
+.. _doxid-type_io_sslnid:
+
+enum io.SslNid
+==============
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum SslNid {
+	    :target:`CommonName<doxid-enum_member_io_sslnid_commonname>`             = 13,
+	    :target:`CountryName<doxid-enum_member_io_sslnid_countryname>`            = 14,
+	    :target:`LocalityName<doxid-enum_member_io_sslnid_localityname>`           = 15,
+	    :target:`StateOrProvinceName<doxid-enum_member_io_sslnid_stateorprovincename>`    = 16,
+	    :target:`OrganizationName<doxid-enum_member_io_sslnid_organizationname>`       = 17,
+	    :target:`OrganizationalUnitName<doxid-enum_member_io_sslnid_organizationalunitname>` = 18,
+	};
+

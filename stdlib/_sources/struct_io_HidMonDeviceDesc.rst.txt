@@ -1,0 +1,57 @@
+.. include:: def.rst
+.. index:: pair: struct; io.HidMonDeviceDesc
+.. _doxid-type_io_hidmondevicedesc:
+
+struct io.HidMonDeviceDesc
+==========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct HidMonDeviceDesc: :ref:`io.UsbMonDeviceDescBase<doxid-type_io_usbmondevicedescbase>` {
+		// fields
+	
+		io.HidMonDeviceDesc const* :target:`m_next<doxid-field_io_hidmondevicedesc_m_next>`;
+		:ref:`string_t<doxid-typedef_string_t>` :target:`m_hidDeviceName<doxid-field_io_hidmondevicedesc_m_hiddevicename>`;
+		void const* :target:`m_reportDescriptor<doxid-field_io_hidmondevicedesc_m_reportdescriptor>`;
+		:ref:`size_t<doxid-typedef_size_t>` :target:`m_reportDescriptorSize<doxid-field_io_hidmondevicedesc_m_reportdescriptorsize>`;
+		:ref:`uint16_t<doxid-typedef_uint16_t>` :target:`m_usagePage<doxid-field_io_hidmondevicedesc_m_usagepage>`;
+		:ref:`uint16_t<doxid-typedef_uint16_t>` :target:`m_usage<doxid-field_io_hidmondevicedesc_m_usage>`;
+		:ref:`uint16_t<doxid-typedef_uint16_t>` :target:`m_releaseNumber<doxid-field_io_hidmondevicedesc_m_releasenumber>`;
+		:ref:`uint8_t<doxid-typedef_uint8_t>` :target:`m_interfaceId<doxid-field_io_hidmondevicedesc_m_interfaceid>`;
+		:ref:`uint8_t<doxid-typedef_uint8_t>` :target:`m_inEndpointId<doxid-field_io_hidmondevicedesc_m_inendpointid>`;
+		:ref:`uint8_t<doxid-typedef_uint8_t>` :target:`m_outEndpointId<doxid-field_io_hidmondevicedesc_m_outendpointid>`;
+	};
+
+Inherited Members
+-----------------
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-inherited-code-block
+
+	public:
+		// fields
+	
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`m_description<doxid-field_io_usbdevicestrings_m_description>`;
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`m_manufacturer<doxid-field_io_usbdevicestrings_m_manufacturer>`;
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`m_driver<doxid-field_io_usbdevicestrings_m_driver>`;
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`m_manufacturerDescriptor<doxid-field_io_usbdevicestrings_m_manufacturerdescriptor>`;
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`m_productDescriptor<doxid-field_io_usbdevicestrings_m_productdescriptor>`;
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`m_serialNumberDescriptor<doxid-field_io_usbdevicestrings_m_serialnumberdescriptor>`;
+		:ref:`string_t<doxid-typedef_string_t>` :ref:`m_captureDeviceName<doxid-field_io_usbmondevicedescbase_m_capturedevicename>`;
+		:ref:`uint_t<doxid-typedef_uint_t>` :ref:`m_captureDeviceId<doxid-field_io_usbmondevicedescbase_m_capturedeviceid>`;
+		:ref:`uint16_t<doxid-typedef_uint16_t>` :ref:`m_vendorId<doxid-field_io_usbmondevicedescbase_m_vendorid>`;
+		:ref:`uint16_t<doxid-typedef_uint16_t>` :ref:`m_productId<doxid-field_io_usbmondevicedescbase_m_productid>`;
+		:ref:`uint8_t<doxid-typedef_uint8_t>` :ref:`m_address<doxid-field_io_usbmondevicedescbase_m_address>`;
+		:ref:`uint8_t<doxid-typedef_uint8_t>` :ref:`m_port<doxid-field_io_usbmondevicedescbase_m_port>`;
+		:ref:`uint8_t<doxid-typedef_uint8_t>` :ref:`m_class<doxid-field_io_usbmondevicedescbase_m_class>`;
+		:ref:`uint8_t<doxid-typedef_uint8_t>` :ref:`m_subClass<doxid-field_io_usbmondevicedescbase_m_subclass>`;
+		:ref:`io.UsbSpeed<doxid-type_io_usbspeed>` :ref:`m_speed<doxid-field_io_usbmondevicedescbase_m_speed>`;
+

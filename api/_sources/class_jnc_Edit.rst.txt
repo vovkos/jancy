@@ -1,0 +1,130 @@
+.. index:: pair: class; jnc::Edit
+.. _doxid-classjnc_1_1_edit:
+
+class jnc::Edit
+===============
+
+.. toctree::
+	:hidden:
+
+	enum_jnc_Edit_CodeAssistTrigger.rst
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	class Edit: public QPlainTextEdit {
+	public:
+		// enums
+	
+		enum :ref:`CodeAssistTrigger<doxid-classjnc_1_1_edit_1a1439593b69df07148aec3e2ff8f78c25>`;
+
+		// properties
+	
+		bool
+		:target:`isReadOnly<doxid-classjnc_1_1_edit_1a0656ab670e9a2fa53d5da521e74e5f08>`;
+	
+		bool
+		:target:`isLineNumberMarginEnabled<doxid-classjnc_1_1_edit_1ae8e1ad791ec8c13eb85885ba2b214c7a>`;
+	
+		int
+		:target:`lineNumberMarginWidth<doxid-classjnc_1_1_edit_1a6a8bf9b9972e65d1eeeddf1e24be85c1>`;
+	
+		bool
+		:target:`isCurrentLineHighlightingEnabled<doxid-classjnc_1_1_edit_1a4455a4c69a6469479b2d77618d999a5c>`;
+	
+		bool
+		:target:`isSyntaxHighlightingEnabled<doxid-classjnc_1_1_edit_1ad79379e9dd149b21e372e2d96979e57f>`;
+	
+		int
+		:target:`tabWidth<doxid-classjnc_1_1_edit_1a7c561d7f4f357e1018974f19c11d5f55>`;
+	
+		CodeAssistTriggers
+		:target:`codeAssistTriggers<doxid-classjnc_1_1_edit_1aa493d72005102cb9a9afc2eaecf6cca8>`;
+	
+		QStringList
+		:target:`importDirList<doxid-classjnc_1_1_edit_1a892a6662e405df04dea2b684653293b5>`;
+
+		// construction
+	
+		:target:`Edit<doxid-classjnc_1_1_edit_1afc193e11415971e7690e9a395cf24caf>`(QWidget* parent = NULL);
+		:target:`~Edit<doxid-classjnc_1_1_edit_1a8eef7504958d7914f32df6c34e7540ef>`();
+
+		// methods
+	
+		void
+		:target:`setReadOnly<doxid-classjnc_1_1_edit_1a16a4c744e89dce1103215f8484d4080e>`(bool isReadOnly);
+	
+		bool
+		:target:`isLineNumberMarginEnabled<doxid-classjnc_1_1_edit_1a5ab6574531ffb069aaf91aba6cb2cd16>`();
+	
+		void
+		:target:`enableLineNumberMargin<doxid-classjnc_1_1_edit_1a5d5d63250371d81a3aceaccc10e18eee>`(bool isEnabled);
+	
+		int
+		:target:`lineNumberMarginWidth<doxid-classjnc_1_1_edit_1a0673bad2f75646bd75a4c8c744317a4a>`();
+	
+		bool
+		:target:`isCurrentLineHighlightingEnabled<doxid-classjnc_1_1_edit_1a1d8bcae415273591a4db07a0fbce1349>`();
+	
+		void
+		:target:`enableCurrentLineHighlighting<doxid-classjnc_1_1_edit_1aff3c05dc99d6fc5066487c63f377887a>`(bool isEnabled);
+	
+		bool
+		:target:`isSyntaxHighlightingEnabled<doxid-classjnc_1_1_edit_1a8347c0a75e9e4eb23ea00555a5c55d2b>`();
+	
+		void
+		:target:`enableSyntaxHighlighting<doxid-classjnc_1_1_edit_1ab11ee421eb9377a6b74a15411d36e010>`(bool isEnabled);
+	
+		int
+		:target:`tabWidth<doxid-classjnc_1_1_edit_1a22b1049138b6f12b17111dadb3d46a7f>`();
+	
+		void
+		:target:`setTabWidth<doxid-classjnc_1_1_edit_1a309df3aff7a2e667a600cfd86f3cc7af>`(int width);
+	
+		const :ref:`EditTheme<doxid-classjnc_1_1_edit_theme>`*
+		:target:`theme<doxid-classjnc_1_1_edit_1a18e87bd985f9ccd301283cee18f3ecba>`();
+	
+		void
+		:target:`setTheme<doxid-classjnc_1_1_edit_1a7de9ebf815e43d3e3755736b079d521c>`(const :ref:`EditTheme<doxid-classjnc_1_1_edit_theme>`* theme);
+	
+		CodeAssistTriggers
+		:target:`codeAssistTriggers<doxid-classjnc_1_1_edit_1a5fd2c2399b811e89bbda0ea0c89e64a5>`();
+	
+		void
+		:target:`setCodeAssistTriggers<doxid-classjnc_1_1_edit_1a20ea61cefa5fa5a67a714f252b8c5b26>`(CodeAssistTriggers triggers);
+	
+		QStringList
+		:target:`importDirList<doxid-classjnc_1_1_edit_1a41ff8af1136881423b5169e469f619bf>`();
+	
+		void
+		:target:`setImportDirList<doxid-classjnc_1_1_edit_1a9cce2b019c1c9e154ae5c8d75bc71f50>`(const QStringList& dirList);
+	
+		QStringList
+		:target:`importList<doxid-classjnc_1_1_edit_1aaa6ad9433bb4783d33e735b8ff1753f0>`();
+	
+		void
+		:target:`setImportList<doxid-classjnc_1_1_edit_1a2d4638d73a3b8dde9580eaa73a63b62f>`(const QStringList& importList);
+	
+		QString
+		:target:`extraSource<doxid-classjnc_1_1_edit_1afe776ad72b873425c0b266365ed4c485>`();
+	
+		void
+		:target:`setExtraSource<doxid-classjnc_1_1_edit_1a94b1758e539a51373ba1400c874c7dba>`(const QString& source);
+	
+		void
+		:target:`setTextCursorLineCol<doxid-classjnc_1_1_edit_1a4001084472afc664f875546d61778fa4>`(
+			int line,
+			int col
+		);
+	
+		void
+		:target:`highlightLineTemp<doxid-classjnc_1_1_edit_1ade105b61cfa8e960017630dc8e176331>`(
+			int line,
+			const QColor& backColor,
+			const QColor& textColor = QColor::Invalid
+		);
+	};

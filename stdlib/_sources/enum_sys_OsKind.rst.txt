@@ -1,0 +1,21 @@
+.. include:: def.rst
+.. index:: pair: enum; OsKind
+.. _doxid-type_sys_oskind:
+
+enum sys.OsKind
+===============
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum OsKind {
+	    :target:`Windows<doxid-enum_member_sys_oskind_windows>`,
+	    :target:`Linux<doxid-enum_member_sys_oskind_linux>`,
+	    :target:`Solaris<doxid-enum_member_sys_oskind_solaris>`,
+	    :target:`Bsd<doxid-enum_member_sys_oskind_bsd>`,
+	    :target:`Mac<doxid-enum_member_sys_oskind_mac>`,
+	};
+

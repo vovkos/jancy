@@ -1,0 +1,20 @@
+.. index:: pair: enum; jnc_JitKind
+.. _doxid-group__module_1ga273fd2be7becff269e6d47c4278eedd0:
+
+enum jnc_JitKind
+================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Module.h>
+
+	enum jnc_JitKind {
+	    :target:`jnc_JitKind_Auto<doxid-group__module_1gga273fd2be7becff269e6d47c4278eedd0abbd5f47c01265e1c2a1200355af462bc>`   = 0,
+	    :target:`jnc_JitKind_Legacy<doxid-group__module_1gga273fd2be7becff269e6d47c4278eedd0a8512fedf84832487df5eea19ee38fd84>` = 1,
+	    :target:`jnc_JitKind_McJit<doxid-group__module_1gga273fd2be7becff269e6d47c4278eedd0ac9728457f69445b8e20bd57d07a50e58>`  = 2,
+	    :target:`jnc_JitKind_Orc<doxid-group__module_1gga273fd2be7becff269e6d47c4278eedd0ab50d48c0e3b92b4a7f0287207e65ffe9>`    = 3,
+	};
+
