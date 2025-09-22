@@ -1,0 +1,33 @@
+.. index:: pair: group; Operators
+.. _doxid-group__operators:
+
+Operators
+=========
+
+.. toctree::
+	:hidden:
+
+	enum_jnc_BinOpKind.rst
+	enum_jnc_UnOpKind.rst
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_OpKind.h>
+	
+	// enums
+
+	enum :ref:`jnc_BinOpKind<doxid-group__operators_1ga67d0ce0c5d9543240203773042ee075d>`;
+	enum :ref:`jnc_UnOpKind<doxid-group__operators_1gae611bfb523eb332069f2b7030accb665>`;
+
+	// global functions
+
+	const char*
+	:target:`jnc_getUnOpKindString<doxid-group__operators_1ga95c679ccd87538bb718d3795670aab69>`(jnc_UnOpKind opKind);
+
+	const char*
+	:target:`jnc_getBinOpKindString<doxid-group__operators_1gae91a75c6a3e322f43cde11267ae3be61>`(jnc_BinOpKind opKind);
+

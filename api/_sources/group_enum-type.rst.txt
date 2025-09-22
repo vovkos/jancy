@@ -1,0 +1,47 @@
+.. index:: pair: group; Enum Type
+.. _doxid-group__enum-type:
+
+Enum Type
+=========
+
+.. toctree::
+	:hidden:
+
+	enum_jnc_EnumTypeFlag.rst
+	struct_jnc_EnumType.rst
+
+Enum type defines a mnemonic identification for a set of integer values.
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	// enums
+
+	enum :ref:`jnc_EnumTypeFlag<doxid-group__enum-type_1gaf8769e3605db62644e86830f352f44b0>`;
+
+	// structs
+
+	struct :ref:`jnc_EnumType<doxid-structjnc___enum_type>`;
+
+	// global functions
+
+	int64_t
+	:target:`jnc_EnumConst_getValue<doxid-group__enum-type_1ga3538917ffcc1fbdc01f50e68f57e084c>`(jnc_EnumConst* enumConst);
+
+	:ref:`jnc_Type<doxid-structjnc___type>`*
+	:target:`jnc_EnumType_getBaseType<doxid-group__enum-type_1ga4a586e631b06afe6c3bd844c7dacb36a>`(:ref:`jnc_EnumType<doxid-structjnc___enum_type>`* type);
+
+	:ref:`jnc_Type<doxid-structjnc___type>`*
+	:target:`jnc_EnumType_getRootType<doxid-group__enum-type_1ga379dccc7037c84045d2668009a227f8f>`(:ref:`jnc_EnumType<doxid-structjnc___enum_type>`* type);
+
+	size_t
+	:target:`jnc_EnumType_getConstCount<doxid-group__enum-type_1ga52d8f1dd62e6c4520b08082c4d2d1123>`(:ref:`jnc_EnumType<doxid-structjnc___enum_type>`* type);
+
+	jnc_EnumConst*
+	:target:`jnc_EnumType_getConst<doxid-group__enum-type_1gaf8369adaab2e58186fcb0415fac239d6>`(
+		:ref:`jnc_EnumType<doxid-structjnc___enum_type>`* type,
+		size_t index
+	);
+

@@ -1,0 +1,27 @@
+.. include:: def.rst
+.. index:: pair: struct; io.win.DeviceMonitorCreateNotifyParams
+.. _doxid-type_io_win_devicemonitorcreatenotifyparams:
+
+struct io.win.DeviceMonitorCreateNotifyParams
+=============================================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct DeviceMonitorCreateNotifyParams {
+		// fields
+	
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`m_options<doxid-field_io_win_devicemonitorcreatenotifyparams_m_options>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`m_desiredAccess<doxid-field_io_win_devicemonitorcreatenotifyparams_m_desiredaccess>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`m_shareAccess<doxid-field_io_win_devicemonitorcreatenotifyparams_m_shareaccess>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`m_fileAttributes<doxid-field_io_win_devicemonitorcreatenotifyparams_m_fileattributes>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`m_fileNameLength<doxid-field_io_win_devicemonitorcreatenotifyparams_m_filenamelength>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`_m_padding<doxid-field_io_win_devicemonitorcreatenotifyparams__m_padding>`;
+	};

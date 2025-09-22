@@ -1,0 +1,20 @@
+.. include:: def.rst
+.. index:: pair: enum; RegexFlags
+.. _doxid-type_jnc_regexflags:
+
+bitflag enum jnc.RegexFlags
+===========================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum RegexFlags {
+	    :target:`OneLine<doxid-enum_member_jnc_regexflags_oneline>`         = 0x10,
+	    :target:`Latin1<doxid-enum_member_jnc_regexflags_latin1>`          = 0x20,
+	    :target:`CaseInsensitive<doxid-enum_member_jnc_regexflags_caseinsensitive>` = 0x40,
+	    :target:`WholeWord<doxid-enum_member_jnc_regexflags_wholeword>`       = 0x80,
+	};
+

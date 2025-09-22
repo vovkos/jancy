@@ -1,0 +1,23 @@
+.. index:: pair: enum; jnc_MulticastMethodKind
+.. _doxid-group__class-type_1gacd8ca6b4414694eef9e020bf81ff9a6d:
+
+enum jnc_MulticastMethodKind
+============================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_ClassType.h>
+
+	enum jnc_MulticastMethodKind {
+	    :target:`jnc_MulticastMethodKind_Clear<doxid-group__class-type_1ggacd8ca6b4414694eef9e020bf81ff9a6da2a36bac0b4fa1d6a40f53cb4eee094b5>`,
+	    :target:`jnc_MulticastMethodKind_Setup<doxid-group__class-type_1ggacd8ca6b4414694eef9e020bf81ff9a6da77dfd2b839c59415be32578cf424b74c>`,
+	    :target:`jnc_MulticastMethodKind_Add<doxid-group__class-type_1ggacd8ca6b4414694eef9e020bf81ff9a6da8d8c3550ccfda840510e0330cafb0033>`,
+	    :target:`jnc_MulticastMethodKind_Remove<doxid-group__class-type_1ggacd8ca6b4414694eef9e020bf81ff9a6dab4a7ceafd98d936088a7b76f46b9a38e>`,
+	    :target:`jnc_MulticastMethodKind_GetSnapshot<doxid-group__class-type_1ggacd8ca6b4414694eef9e020bf81ff9a6dac32ceff6c159c504caceba5451d0e5b8>`,
+	    :target:`jnc_MulticastMethodKind_Call<doxid-group__class-type_1ggacd8ca6b4414694eef9e020bf81ff9a6da128bc0ceedc0f692216939f684fc859d>`,
+	    :target:`jnc_MulticastMethodKind__Count<doxid-group__class-type_1ggacd8ca6b4414694eef9e020bf81ff9a6da5c8b9db3baca254a64b5d3469971895f>`,
+	};
+
