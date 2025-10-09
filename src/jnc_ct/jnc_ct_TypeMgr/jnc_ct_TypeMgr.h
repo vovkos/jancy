@@ -699,14 +699,33 @@ public:
 		const QualifiedName& anchorName = QualifiedName()
 	);
 
+	NamedImportType*
+	createNamedImportType(
+		const QualifiedName& name,
+		Namespace* anchorNamespace,
+		const QualifiedName& anchorName
+	);
+
 	ImportPtrType*
 	getImportPtrType(
 		NamedImportType* importType,
 		uint_t typeModifiers
 	);
 
+	ImportPtrType*
+	createImportPtrType(
+		NamedImportType* importType,
+		uint_t typeModifiers
+	);
+
 	ImportIntModType*
 	getImportIntModType(
+		NamedImportType* importType,
+		uint_t typeModifiers
+	);
+
+	ImportIntModType*
+	createImportIntModType(
 		NamedImportType* importType,
 		uint_t typeModifiers
 	);

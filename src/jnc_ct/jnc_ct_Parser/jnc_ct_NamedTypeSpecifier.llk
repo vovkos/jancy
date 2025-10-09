@@ -154,7 +154,10 @@ struct_specifier
 			return declareUnnamedStructOrUnion($.m_type);
 	}
 	:	TokenKind_Struct $s
-		TokenKind_Identifier $n?
+		(
+			TokenKind_Identifier $n
+			template_suffix $t?
+		)?
 		(':' type_name_list $b)?
 			{
 				$.m_type = createStructType(
@@ -185,7 +188,10 @@ union_specifier
 			return declareUnnamedStructOrUnion($.m_type);
 	}
 	:	TokenKind_Union $u
-		TokenKind_Identifier $n?
+		(
+			TokenKind_Identifier $n
+			template_suffix $t?
+		)?
 			{
 				$.m_type = createUnionType(
 					&$n ? $n.m_pos : $u.m_pos,
@@ -215,6 +221,7 @@ resolver(class_specifier_rslv)
 class_specifier
 	:	(TokenKind_Class | TokenKind_OpaqueClass $o)
 		TokenKind_Identifier $n
+		template_suffix $t?
 		(':' type_name_list $b)?
 			{
 				$.m_type = createClassType(

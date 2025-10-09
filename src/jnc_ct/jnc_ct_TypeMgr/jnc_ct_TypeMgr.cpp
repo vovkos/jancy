@@ -1547,6 +1547,21 @@ TypeMgr::getNamedImportType(
 		return type;
 	}
 
+	NamedImportType* type = createNamedImportType(name, anchorNamespace, anchorName);
+	type->m_signature = signature;
+	type->m_flags |= TypeFlag_SignatureReady;
+	it->m_value = type;
+	return type;
+}
+
+NamedImportType*
+TypeMgr::createNamedImportType(
+	const QualifiedName& name,
+	Namespace* anchorNamespace,
+	const QualifiedName& anchorName
+) {
+	ASSERT(anchorNamespace->getNamespaceKind() != NamespaceKind_Scope);
+
 	NamedImportType* type = new NamedImportType;
 	type->m_module = m_module;
 	type->m_name = name;
@@ -1555,11 +1570,8 @@ TypeMgr::getNamedImportType(
 	type->m_qualifiedName = anchorName.isEmpty() ?
 		anchorNamespace->createQualifiedName(name) :
 		anchorNamespace->createQualifiedName(anchorName) + '.' + name.getFullName();
-	type->m_signature = signature;
-	type->m_flags |= TypeFlag_SignatureReady;
 
 	m_typeList.insertTail(type);
-	it->m_value = type;
 	return type;
 }
 
@@ -1576,15 +1588,23 @@ TypeMgr::getImportPtrType(
 		return type;
 	}
 
+	ImportPtrType* type = createImportPtrType(namedImportType, typeModifiers);
+	type->m_signature = signature;
+	type->m_flags |= TypeFlag_SignatureReady;
+	it->m_value = type;
+	return type;
+}
+
+ImportPtrType*
+TypeMgr::createImportPtrType(
+	NamedImportType* namedImportType,
+	uint_t typeModifiers
+) {
 	ImportPtrType* type = new ImportPtrType;
 	type->m_module = m_module;
 	type->m_targetType = namedImportType;
 	type->m_typeModifiers = typeModifiers;
-	type->m_signature = signature;
-	type->m_flags |= TypeFlag_SignatureReady;
-
 	m_typeList.insertTail(type);
-	it->m_value = type;
 	return type;
 }
 
@@ -1601,15 +1621,23 @@ TypeMgr::getImportIntModType(
 		return type;
 	}
 
+	ImportIntModType* type = createImportIntModType(namedImportType, typeModifiers);
+	type->m_signature = signature;
+	type->m_flags |= TypeFlag_SignatureReady;
+	it->m_value = type;
+	return type;
+}
+
+ImportIntModType*
+TypeMgr::createImportIntModType(
+	NamedImportType* namedImportType,
+	uint_t typeModifiers
+) {
 	ImportIntModType* type = new ImportIntModType;
 	type->m_module = m_module;
 	type->m_importType = namedImportType;
 	type->m_typeModifiers = typeModifiers;
-	type->m_signature = signature;
-	type->m_flags |= TypeFlag_SignatureReady;
-
 	m_typeList.insertTail(type);
-	it->m_value = type;
 	return type;
 }
 

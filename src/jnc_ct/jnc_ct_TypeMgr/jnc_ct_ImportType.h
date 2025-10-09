@@ -73,6 +73,10 @@ public:
 			resolve();
 	}
 
+	virtual
+	Type*
+	clone() = 0;
+
 protected:
 	bool
 	resolve();
@@ -136,15 +140,26 @@ public:
 	ImportPtrType*
 	getImportPtrType(uint_t typeModifiers);
 
+	virtual
+	Type*
+	clone();
+
 	static
 	sl::String
 	createSignature(
 		const QualifiedName& name,
 		Namespace* anchorNamespace,
-		const QualifiedName& orphanName
+		const QualifiedName& anchorName
 	);
 
 protected:
+	virtual
+	void
+	prepareSignature() {
+		m_signature = createSignature(m_name, m_anchorNamespace, m_anchorName);
+		m_flags |= TypeFlag_SignatureReady;
+	}
+
 	virtual
 	void
 	prepareTypeString() {
@@ -178,20 +193,31 @@ public:
 		return m_typeModifiers;
 	}
 
+	virtual
+	Type*
+	clone();
+
 	static
 	sl::String
 	createSignature(
-		NamedImportType* importType,
+		NamedImportType* targetType,
 		uint_t typeModifiers
 	) {
 		return sl::formatString(
 			"IP%s:%x",
-			importType->getQualifiedName().sz(),
+			targetType->getQualifiedName().sz(),
 			typeModifiers
 		);
 	}
 
 protected:
+	virtual
+	void
+	prepareSignature() {
+		m_signature = createSignature(m_targetType, m_typeModifiers);
+		m_flags |= TypeFlag_SignatureReady;
+	}
+
 	virtual
 	void
 	prepareTypeString();
@@ -223,6 +249,10 @@ public:
 		return m_typeModifiers;
 	}
 
+	virtual
+	Type*
+	clone();
+
 	static
 	sl::String
 	createSignature(
@@ -237,6 +267,13 @@ public:
 	}
 
 protected:
+	virtual
+	void
+	prepareSignature() {
+		m_signature = createSignature(m_importType, m_typeModifiers);
+		m_flags |= TypeFlag_SignatureReady;
+	}
+
 	virtual
 	void
 	prepareTypeString();

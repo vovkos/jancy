@@ -26,6 +26,7 @@ declarator<TypeSpecifier* $typeSpecifier>
 	}
 	:	declarator_prefix<&$.m_declarator>*
 		declarator_name<&$.m_declarator>
+		template_suffix?
 		declarator_suffix<&$.m_declarator>*
 		declarator_constructor<&$.m_declarator>?
 	;

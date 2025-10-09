@@ -61,16 +61,21 @@ NamedImportType::getImportPtrType(uint_t typeModifiers) {
 	return m_module->m_typeMgr.getImportPtrType(this, typeModifiers);
 }
 
+Type*
+NamedImportType::clone() {
+	return m_module->m_typeMgr.createNamedImportType(m_name, m_anchorNamespace, m_anchorName);
+}
+
 sl::String
 NamedImportType::createSignature(
 	const QualifiedName& name,
 	Namespace* anchorNamespace,
-	const QualifiedName& orphanName
+	const QualifiedName& anchorName
 ) {
 	sl::String signature = "IN" + anchorNamespace->createQualifiedName(name);
-	if (!orphanName.isEmpty()) {
+	if (!anchorName.isEmpty()) {
 		signature += '-';
-		signature += orphanName.getFullName();
+		signature += anchorName.getFullName();
 	}
 
 	return signature;
@@ -142,6 +147,11 @@ ImportPtrType::ImportPtrType() {
 	m_typeModifiers = 0;
 }
 
+Type*
+ImportPtrType::clone() {
+	return m_module->m_typeMgr.createImportPtrType(m_targetType, m_typeModifiers);
+}
+
 void
 ImportPtrType::prepareTypeString() {
 	ASSERT(m_targetType);
@@ -185,6 +195,11 @@ ImportIntModType::ImportIntModType() {
 	m_typeKind = TypeKind_ImportPtr;
 	m_importType = NULL;
 	m_typeModifiers = 0;
+}
+
+Type*
+ImportIntModType::clone() {
+	return m_module->m_typeMgr.createImportIntModType(m_importType, m_typeModifiers);
 }
 
 void

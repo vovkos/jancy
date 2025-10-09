@@ -448,7 +448,7 @@ attribute_block
 			{
 				return createAttributeBlock($1.m_pos);
 			}
-		attribute_declarator(',' attribute_declarator)*
+		attribute_declarator (',' attribute_declarator)*
 		']'
 	;
 
@@ -463,6 +463,27 @@ attribute_declarator
 				return reuseAttributes($2.m_name);
 			}
 	|	epsilon
+	;
+
+//..............................................................................
+
+// templates
+
+struct {
+	sl::BoxList<sl::StringRef> m_nameList;
+}
+template_suffix
+	:	'<'
+		TokenKind_Identifier
+			{
+				$.m_nameList.insertTail($1.m_data.m_string);
+			}
+		(',' TokenKind_Identifier $n2
+			{
+				$.m_nameList.insertTail($n2.m_data.m_string);
+			}
+		)*
+		'>'
 	;
 
 //..............................................................................
