@@ -79,7 +79,7 @@ FunctionMgr::addGlobalCtorDtor(
 	ASSERT((size_t)kind < countof(m_globalCtorDtorArrayTable));
 
 	if (!function->getType()->getArgArray().isEmpty()) {
-		err::setFormatStringError("global constructor cannot have arguments");
+		err::setError("global constructor cannot have arguments");
 		return false;
 	}
 
@@ -727,7 +727,7 @@ llvmFatalErrorHandler(
 bool
 FunctionMgr::jitFunctions() {
 #if (_JNC_LLVM_NO_JIT)
-	err::setFormatStringError("LLVM jitting is disabled");
+	err::setError("LLVM jitting is disabled");
 	return false;
 #endif
 

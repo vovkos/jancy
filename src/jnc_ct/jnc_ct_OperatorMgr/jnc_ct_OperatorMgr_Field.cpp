@@ -225,7 +225,7 @@ OperatorMgr::getStructField(
 
 	if (!(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr)) {
 		if (!coord->m_unionCoordArray.isEmpty()) {
-			err::setFormatStringError("union member operator on registers is not implemented yet");
+			err::setError("union member operator on registers is not implemented yet");
 			return false;
 		}
 
@@ -328,7 +328,7 @@ OperatorMgr::getUnionField(
 	}
 
 	if (opValue.getType()->getTypeKind() != TypeKind_DataRef) {
-		err::setFormatStringError("union member operator on registers is not implemented yet");
+		err::setError("union member operator on registers is not implemented yet");
 		return false;
 	}
 

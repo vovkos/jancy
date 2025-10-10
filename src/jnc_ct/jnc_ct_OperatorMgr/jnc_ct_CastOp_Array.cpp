@@ -93,7 +93,7 @@ Cast_Array::llvmCast(
 	Type* type,
 	Value* resultValue
 ) {
-	err::setFormatStringError("CCast_Array::LlvmCast is not yet implemented");
+	err::setError("CCast_Array::LlvmCast is not yet implemented");
 	return false;
 }
 

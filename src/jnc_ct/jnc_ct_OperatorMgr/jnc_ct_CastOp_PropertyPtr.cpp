@@ -412,12 +412,12 @@ Cast_PropertyPtr_Thin2Thin::llvmCast(
 	ASSERT(type->getTypeKind() == TypeKind_PropertyPtr);
 
 	if (opValue.getClosure()) {
-		err::setFormatStringError("cannot create thin property pointer to a closure");
+		err::setError("cannot create thin property pointer to a closure");
 		return false;
 	}
 
 	if (opValue.getValueKind() != ValueKind_Property) {
-		err::setFormatStringError("can only create thin pointer thunk to a property, not a property pointer");
+		err::setError("can only create thin pointer thunk to a property, not a property pointer");
 		return false;
 	}
 
@@ -429,7 +429,7 @@ Cast_PropertyPtr_Thin2Thin::llvmCast(
 		return m_module->m_operatorMgr.getPropertyThinPtr(prop, NULL, ptrType, resultValue);
 
 	if (prop->getFlags() & PropertyTypeFlag_Bindable) {
-		err::setFormatStringError("bindable properties are not supported yet");
+		err::setError("bindable properties are not supported yet");
 		return false;
 	}
 
@@ -451,7 +451,7 @@ Cast_PropertyPtr_Thin2Weak::llvmCast(
 	ASSERT(type->getTypeKind() == TypeKind_PropertyPtr);
 
 	if (opValue.getClosure() && !opValue.getClosure()->isSimpleClosure()) {
-		err::setFormatStringError("full weak closures are not implemented yet");
+		err::setError("full weak closures are not implemented yet");
 		return false;
 	}
 

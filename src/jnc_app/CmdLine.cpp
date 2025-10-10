@@ -234,7 +234,7 @@ CmdLineParser::finalize() {
 		JncFlag_StdInSrc
 	)) &&
 		m_cmdLine->m_fileNameList.isEmpty()) {
-		err::setFormatStringError("missing input (file-name or --stdin)");
+		err::setError("missing input (file-name or --stdin)");
 		return false;
 	}
 

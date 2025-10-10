@@ -338,7 +338,7 @@ bool
 ControlFlowMgr::breakJump(size_t level) {
 	Scope* targetScope = m_module->m_namespaceMgr.findBreakScope(level);
 	if (!targetScope) {
-		err::setFormatStringError("illegal break");
+		err::setError("illegal break");
 		return false;
 	}
 
@@ -350,7 +350,7 @@ bool
 ControlFlowMgr::continueJump(size_t level) {
 	Scope* targetScope = m_module->m_namespaceMgr.findContinueScope(level);
 	if (!targetScope) {
-		err::setFormatStringError("illegal continue");
+		err::setError("illegal continue");
 		return false;
 	}
 

@@ -324,7 +324,7 @@ Declarator::addUnaryBinaryOperator(
 	}
 
 	if (binOpKind == BinOpKind_Assign) {
-		err::setFormatStringError("assignment operator could not be overloaded");
+		err::setError("assignment operator could not be overloaded");
 		return false;
 	}
 
@@ -392,7 +392,7 @@ Declarator::addGetterSuffix() {
 bool
 Declarator::addBitFieldSuffix(size_t bitCount) {
 	if (m_bitCount || !m_suffixList.isEmpty() || !m_pointerPrefixList.isEmpty()) {
-		err::setFormatStringError("bit field can only be applied to integer type");
+		err::setError("bit field can only be applied to integer type");
 		return false;
 	}
 

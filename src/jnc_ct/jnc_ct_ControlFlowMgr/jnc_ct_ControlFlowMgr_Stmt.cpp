@@ -204,7 +204,7 @@ ControlFlowMgr::switchStmt_Default(
 	uint_t scopeFlags
 ) {
 	if (stmt->m_defaultBlock) {
-		err::setFormatStringError("redefinition of 'default' label of 'switch' statement");
+		err::setError("redefinition of 'default' label of 'switch' statement");
 		return false;
 	}
 
@@ -354,7 +354,7 @@ ControlFlowMgr::regexSwitchStmt_Default(
 	uint_t scopeFlags
 ) {
 	if (stmt->m_defaultBlock) {
-		err::setFormatStringError("redefinition of 'default' label of 'regex switch' statement");
+		err::setError("redefinition of 'default' label of 'regex switch' statement");
 		return false;
 	}
 

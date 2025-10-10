@@ -118,7 +118,7 @@ Cast_DataPtr_FromArray::llvmCast(
 			m_module->m_operatorMgr.castOperator(ptrValue, type, resultValue);
 	}
 
-	err::setFormatStringError("casting from array to pointer is currently only implemented for constants");
+	err::setError("casting from array to pointer is currently only implemented for constants");
 	return false;
 }
 
@@ -260,7 +260,7 @@ Cast_DataPtr_FromClassPtr::llvmCast(
 	}
 
 	if (dstType->getPtrTypeKind() == DataPtrTypeKind_Thin) {
-		err::setFormatStringError("casting from class pointer to fat data pointer is not yet implemented (thin only for now)");
+		err::setError("casting from class pointer to fat data pointer is not yet implemented (thin only for now)");
 		return false;
 	}
 

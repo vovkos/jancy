@@ -395,7 +395,7 @@ NamespaceMgr::openScope(
 
 	if (flags & ScopeFlag_Nested) {
 		if (parentScope->m_flags & (ScopeFlag_Catch | ScopeFlag_Finally | ScopeFlag_Nested)) {
-			err::setFormatStringError("'nestedscope' can only be used before other scope labels");
+			err::setError("'nestedscope' can only be used before other scope labels");
 			return NULL;
 		}
 

@@ -129,7 +129,7 @@ Property::setOnChanged(
 
 	Type* type = item->getType();
 	if (!type) {
-		err::setFormatStringError("invalid bindable item");
+		err::setError("invalid bindable item");
 		return false;
 	}
 
@@ -195,7 +195,7 @@ Property::setAutoGetValue(
 
 	Type* type = item->getType();
 	if (!type) {
-		err::setFormatStringError("invalid autoget item");
+		err::setError("invalid autoget item");
 		return false;
 	}
 
@@ -368,7 +368,7 @@ Property::addMethod(Function* function) {
 			break;
 
 		case StorageKind_Reactor:
-			err::setFormatStringError("in-reactor properties not implemented yet");
+			err::setError("in-reactor properties not implemented yet");
 			return false;
 
 		default:
@@ -393,7 +393,7 @@ Property::addMethod(Function* function) {
 	switch (functionKind) {
 	case FunctionKind_Constructor:
 		if (hasArgs) {
-			err::setFormatStringError("property constructor cannot have arguments");
+			err::setError("property constructor cannot have arguments");
 			return false;
 		}
 
@@ -535,7 +535,7 @@ Property::finalize() {
 	}
 
 	if (!m_getter) {
-		err::setFormatStringError("incomplete property: no 'get' method or 'autoget' field");
+		err::setError("incomplete property: no 'get' method or 'autoget' field");
 		return false;
 	}
 

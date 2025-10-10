@@ -388,7 +388,7 @@ OperatorMgr::parseConstIntegerExpression(
 
 	if (value.getValueKind() != ValueKind_Const ||
 		!(value.getType()->getTypeKindFlags() & TypeKindFlag_Integer)) {
-		err::setFormatStringError("expression is not integer constant");
+		err::setError("expression is not integer constant");
 		return false;
 	}
 
@@ -415,7 +415,7 @@ OperatorMgr::getAutoSizeArrayElementCount(
 		return getAutoSizeArrayElementCount_curly(arrayType, initializerTokenList);
 
 	default:
-		err::setFormatStringError("invalid initializer for auto-size-array");
+		err::setError("invalid initializer for auto-size-array");
 		return -1;
 	}
 }

@@ -316,7 +316,7 @@ ControlFlowMgr::catchLabel(const lex::LineCol& pos) {
 	}
 
 	if (!(scope->m_flags & ScopeFlag_CatchAhead)) {
-		err::setFormatStringError("'catch' is already defined");
+		err::setError("'catch' is already defined");
 		return false;
 	}
 
@@ -370,12 +370,12 @@ ControlFlowMgr::finallyLabel(const lex::LineCol& pos) {
 	}
 
 	if (scope->m_flags & ScopeFlag_CatchAhead) {
-		err::setFormatStringError("'finally' should follow 'catch'");
+		err::setError("'finally' should follow 'catch'");
 		return false;
 	}
 
 	if (!(scope->m_flags & ScopeFlag_FinallyAhead)) {
-		err::setFormatStringError("'finally' is already defined");
+		err::setError("'finally' is already defined");
 		return false;
 	}
 

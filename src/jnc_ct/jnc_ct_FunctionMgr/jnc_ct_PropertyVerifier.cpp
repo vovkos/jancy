@@ -20,7 +20,7 @@ namespace ct {
 bool
 PropertyVerifier::checkSetter(FunctionType* functionType) {
 	if (functionType->getArgArray().isEmpty()) {
-		err::setFormatStringError("'set' must have at least one argument");
+		err::setError("'set' must have at least one argument");
 		return false;
 	}
 
@@ -38,7 +38,7 @@ PropertyVerifier::checkIndexSignature(
 	if (m_indexArgSignature.isEmpty()) {
 		m_indexArgSignature = indexArgSignature;
 	} else if (m_indexArgSignature != indexArgSignature) {
-		err::setFormatStringError("index arguments mismatch in property accessors");
+		err::setError("index arguments mismatch in property accessors");
 		return false;
 	}
 

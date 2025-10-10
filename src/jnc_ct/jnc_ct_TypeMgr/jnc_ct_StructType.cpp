@@ -331,7 +331,7 @@ bool
 StructType::layoutBitField(Field* field) {
 	size_t baseBitCount = field->m_type->getSize() * 8;
 	if (field->m_bitCount > baseBitCount) {
-		err::setFormatStringError("type of bit field too small for number of bits");
+		err::setError("type of bit field too small for number of bits");
 		return false;
 	}
 

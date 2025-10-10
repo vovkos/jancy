@@ -1067,7 +1067,7 @@ OperatorMgr::declofOperator(
 	}
 
 	if (!variable) {
-		err::setFormatStringError("'declof' is only applicable to user items");
+		err::setError("'declof' is only applicable to user items");
 		return false;
 	}
 
@@ -1102,7 +1102,7 @@ OperatorMgr::offsetofOperator(
 	}
 
 	if (value.getValueKind() != ValueKind_Field) {
-		err::setFormatStringError("'offsetof' can only be applied to fields");
+		err::setError("'offsetof' can only be applied to fields");
 		return false;
 	}
 

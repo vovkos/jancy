@@ -41,7 +41,7 @@ LegacyJit::create(uint_t optLevel) {
 
 	void* chkstk = ::GetProcAddress(::GetModuleHandleA("ntdll.dll"), "__chkstk");
 	if (!chkstk) {
-		err::setFormatStringError("__chkstk is not found");
+		err::setError("__chkstk is not found");
 		return false;
 	}
 

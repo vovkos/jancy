@@ -180,7 +180,7 @@ Closure::getFunctionClosureType(FunctionPtrType* ptrType) {
 	FunctionType* type = ptrType->getTargetType();
 
 	if (type->getFlags() & FunctionTypeFlag_VarArg) {
-		err::setFormatStringError("function closures cannot be applied to vararg functions");
+		err::setError("function closures cannot be applied to vararg functions");
 		return NULL;
 	}
 

@@ -44,7 +44,7 @@ OperatorMgr::getVirtualMethod(
 	ASSERT(function->isVirtual());
 
 	if (!closure || !closure->isMemberClosure()) {
-		err::setFormatStringError("virtual function requires an object pointer");
+		err::setError("virtual function requires an object pointer");
 		return false;
 	}
 
@@ -97,7 +97,7 @@ OperatorMgr::getVirtualProperty(
 	ASSERT(prop->isVirtual());
 
 	if (!closure || !closure->isMemberClosure()) {
-		err::setFormatStringError("virtual property requires an object pointer");
+		err::setError("virtual property requires an object pointer");
 		return false;
 	}
 

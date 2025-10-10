@@ -401,7 +401,7 @@ DynamicLayout::addBitField(
 	size_t size = type->getSize();
 	size_t baseBitCount = size * 8;
 	if (bitCount > baseBitCount) {
-		err::setFormatStringError("type of bit field too small for number of bits");
+		err::setError("type of bit field too small for number of bits");
 		return -1;
 	}
 

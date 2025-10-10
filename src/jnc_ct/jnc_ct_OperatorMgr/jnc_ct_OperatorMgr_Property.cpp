@@ -179,7 +179,7 @@ OperatorMgr::getPropertySetter(
 		err::setFormatStringError("const '%s' has no setter", propertyType->getTypeString().sz());
 		return false;
 	} else if (ptrType->getFlags() & PtrTypeFlag_Const) {
-		err::setFormatStringError("'set' is inaccessible via 'const' property pointer");
+		err::setError("'set' is inaccessible via 'const' property pointer");
 		return false;
 	}
 

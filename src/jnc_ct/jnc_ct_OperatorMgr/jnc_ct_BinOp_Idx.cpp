@@ -68,7 +68,7 @@ BinOp_Idx::op(
 			arrayIndexOperator(opValue1, (ArrayType*)opType1, opValue2, resultValue);
 
 	case TypeKind_Variant:
-		err::setFormatStringError("r-value variant index is not implemented yet");
+		err::setError("r-value variant index is not implemented yet");
 		return false;
 
 	case TypeKind_String:
@@ -143,7 +143,7 @@ BinOp_Idx::arrayIndexOperator(
 
 	if (opTypeKind1 != TypeKind_DataRef) {
 		ASSERT(opTypeKind1 == TypeKind_Array);
-		err::setFormatStringError("indexing register-based arrays is not supported yet");
+		err::setError("indexing register-based arrays is not supported yet");
 		return false;
 	}
 

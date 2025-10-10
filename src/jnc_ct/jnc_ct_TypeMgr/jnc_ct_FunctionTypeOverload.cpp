@@ -103,7 +103,7 @@ FunctionTypeOverload::chooseOverload(
 	}
 
 	if (isAmbiguous) {
-		err::setFormatStringError("ambiguous call to overloaded function");
+		err::setError("ambiguous call to overloaded function");
 		return -1;
 	}
 
@@ -153,7 +153,7 @@ FunctionTypeOverload::chooseOverload(
 	}
 
 	if (isAmbiguous) {
-		err::setFormatStringError("ambiguous call to overloaded function");
+		err::setError("ambiguous call to overloaded function");
 		return -1;
 	}
 
@@ -202,7 +202,7 @@ FunctionTypeOverload::chooseOverload(
 	}
 
 	if (isAmbiguous) {
-		err::setFormatStringError("ambiguous call to overloaded function");
+		err::setError("ambiguous call to overloaded function");
 		return -1;
 	}
 
@@ -256,7 +256,7 @@ FunctionTypeOverload::chooseSetterOverload(
 	}
 
 	if (isAmbiguous) {
-		err::setFormatStringError("ambiguous call to overloaded function");
+		err::setError("ambiguous call to overloaded function");
 		return -1;
 	}
 
@@ -272,7 +272,7 @@ FunctionTypeOverload::addOverload(FunctionType* type) {
 		m_type = type;
 		return 0;
 	} else if (type->getArgSignature().cmp(m_type->getArgSignature()) == 0) {
-		err::setFormatStringError("illegal function overload: duplicate argument signature");
+		err::setError("illegal function overload: duplicate argument signature");
 		return -1;
 	}
 
@@ -281,7 +281,7 @@ FunctionTypeOverload::addOverload(FunctionType* type) {
 		FunctionType* overloadType = m_overloadArray[i];
 
 		if (type->getArgSignature().cmp(overloadType->getArgSignature()) == 0) {
-			err::setFormatStringError("illegal function overload: duplicate argument signature");
+			err::setError("illegal function overload: duplicate argument signature");
 			return -1;
 		}
 	}

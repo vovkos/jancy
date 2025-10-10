@@ -138,7 +138,7 @@ DerivableType::chooseIndexerProperty(const Value& opValue) {
 	}
 
 	if (isAmbiguous) {
-		err::setFormatStringError("ambiguous call to overloaded function");
+		err::setError("ambiguous call to overloaded function");
 		return NULL;
 	}
 
@@ -260,7 +260,7 @@ DerivableType::addMethod(Function* function) {
 	case FunctionKind_Getter:
 		argArray = function->getType()->getArgArray();
 		if (argArray.getCount() < 2) {
-			err::setFormatStringError("indexer property getter should take at least one index argument");
+			err::setError("indexer property getter should take at least one index argument");
 			return false;
 		}
 
@@ -271,7 +271,7 @@ DerivableType::addMethod(Function* function) {
 	case FunctionKind_Setter:
 		argArray = function->getType()->getArgArray();
 		if (argArray.getCount() < 3) {
-			err::setFormatStringError("indexer property setter should take at least one index argument");
+			err::setError("indexer property setter should take at least one index argument");
 			return false;
 		}
 

@@ -122,7 +122,7 @@ dataPtrDifferenceOperator(
 	Type* targetType2 = ((DataPtrType*)rawOpValue2.getType())->getTargetType();
 
 	if (targetType1->cmp(targetType2) != 0) {
-		err::setFormatStringError("pointer difference target types mismatch");
+		err::setError("pointer difference target types mismatch");
 		return false;
 	} else if (targetType1->getStdType() == StdType_AbstractData) {
 		err::setError("pointer arithmetic is not applicable to 'anydata' pointers");

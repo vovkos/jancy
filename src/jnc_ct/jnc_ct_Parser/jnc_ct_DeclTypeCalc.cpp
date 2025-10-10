@@ -385,7 +385,7 @@ DeclTypeCalc::getIntegerType(Type* type) {
 ArrayType*
 DeclTypeCalc::getArrayType(Type* elementType) {
 	if (!m_suffix || m_suffix->getSuffixKind() != DeclSuffixKind_Array) {
-		err::setFormatStringError("missing array suffix");
+		err::setError("missing array suffix");
 		return NULL;
 	}
 
@@ -471,7 +471,7 @@ DeclTypeCalc::getFunctionType(Type* returnType) {
 		return NULL;
 
 	if (!m_suffix || m_suffix->getSuffixKind() != DeclSuffixKind_Function) {
-		err::setFormatStringError("missing function suffix");
+		err::setError("missing function suffix");
 		return NULL;
 	}
 
@@ -496,7 +496,7 @@ DeclTypeCalc::getFunctionType(Type* returnType) {
 		}
 
 		if (!(callConvFlags & CallConvFlag_UnsafeVarArg)) {
-			err::setFormatStringError("only 'cdecl' vararg is currently supported");
+			err::setError("only 'cdecl' vararg is currently supported");
 			return NULL;
 		}
 	}
@@ -521,7 +521,7 @@ DeclTypeCalc::getPropertyType(Type* returnType) {
 		return NULL;
 
 	if (returnType->getTypeKind() == TypeKind_Void) {
-		err::setFormatStringError("property cannot return 'void'");
+		err::setError("property cannot return 'void'");
 		return NULL;
 	}
 
@@ -544,7 +544,7 @@ DeclTypeCalc::getPropertyType(Type* returnType) {
 	// indexed property
 
 	if (!m_suffix || m_suffix->getSuffixKind() != DeclSuffixKind_Function) {
-		err::setFormatStringError("missing indexed property suffix");
+		err::setError("missing indexed property suffix");
 		return NULL;
 	}
 
@@ -564,12 +564,12 @@ DeclTypeCalc::getBindableDataType(Type* dataType) {
 		return NULL;
 
 	if (dataType->getTypeKind() == TypeKind_Void) {
-		err::setFormatStringError("bindable data cannot be 'void'");
+		err::setError("bindable data cannot be 'void'");
 		return NULL;
 	}
 
 	if (m_typeModifiers & TypeModifier_Indexed) {
-		err::setFormatStringError("bindable data cannot be 'indexed'");
+		err::setError("bindable data cannot be 'indexed'");
 		return NULL;
 	}
 

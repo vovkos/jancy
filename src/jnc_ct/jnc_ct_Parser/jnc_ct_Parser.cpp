@@ -496,7 +496,7 @@ Parser::popAttributeBlock() {
 void Parser::processUnusedAttributes() {
 	ASSERT(m_attributeBlock);
 
-	err::setFormatStringError("unused attribute block");
+	err::setError("unused attribute block");
 	m_attributeBlock->ensureSrcPosError();
 	m_attributeBlock = NULL;
 	m_attributeBlockState = AttributeBlockState_Undefined;
@@ -618,7 +618,7 @@ Parser::bodylessDeclaration() {
 bool
 Parser::setDeclarationBody(const Token& bodyToken) {
 	if (!m_lastDeclaredItem) {
-		err::setFormatStringError("declaration without declarator cannot have a body");
+		err::setError("declaration without declarator cannot have a body");
 		return false;
 	}
 
@@ -631,7 +631,7 @@ Parser::setDeclarationBody(const Token& bodyToken) {
 	switch (itemKind) {
 	case ModuleItemKind_Function:
 		if (nspace->getNamespaceKind() == NamespaceKind_DynamicLib) {
-			err::setFormatStringError("dynamiclib function cannot have a body");
+			err::setError("dynamiclib function cannot have a body");
 			return false;
 		}
 
@@ -874,12 +874,12 @@ Parser::declareReactorVariable(
 	ReactorClassType* reactorType = m_module->m_controlFlowMgr.getReactorType();
 	if (m_storageKind) {
 		// StorageKind_Static should be fine, too -- but we currently handle StorageKind_Reactor only
-		err::setFormatStringError("invalid storage kind in reactor");
+		err::setError("invalid storage kind in reactor");
 		return false;
 	}
 
 	if (!declarator->m_constructor.isEmpty()) {
-		err::setFormatStringError("reactor variables can't have non-trivial constructors");
+		err::setError("reactor variables can't have non-trivial constructors");
 		return false;
 	}
 
@@ -900,7 +900,7 @@ Parser::declareNamedAttributeBlock(Declarator* declarator) {
 	ASSERT(declarator->m_attributeBlock);
 
 	if (!declarator->isSimple()) {
-		err::setFormatStringError("invalid named attribute block declarator");
+		err::setError("invalid named attribute block declarator");
 		return false;
 	}
 
@@ -931,7 +931,7 @@ Parser::declare(Declarator* declarator) {
 
 	if ((declarator->getTypeModifiers() & TypeModifier_Property) && m_storageKind != StorageKind_Typedef) {
 		if (isLibrary) {
-			err::setFormatStringError("only functions can be part of library");
+			err::setError("only functions can be part of library");
 			return false;
 		}
 
@@ -951,7 +951,7 @@ Parser::declare(Declarator* declarator) {
 	TypeKind typeKind = type->getTypeKind();
 
 	if (isLibrary && typeKind != TypeKind_Function) {
-		err::setFormatStringError("only functions can be part of library");
+		err::setError("only functions can be part of library");
 		return false;
 	}
 
@@ -973,7 +973,7 @@ Parser::declare(Declarator* declarator) {
 			if (!declarator->m_attributeBlock &&
 				!(declarator->m_attributeBlock = popAttributeBlock())
 			) {
-				err::setFormatStringError("illegal use of type 'void'");
+				err::setError("illegal use of type 'void'");
 				return false;
 			}
 
@@ -1038,7 +1038,7 @@ Parser::declareTypedef(
 	ASSERT(m_storageKind == StorageKind_Typedef);
 
 	if (!declarator->isSimple()) {
-		err::setFormatStringError("invalid typedef declarator");
+		err::setError("invalid typedef declarator");
 		return false;
 	}
 
@@ -1078,22 +1078,22 @@ Parser::declareAlias(
 	bool result;
 
 	if (!declarator->m_constructor.isEmpty()) {
-		err::setFormatStringError("alias cannot have constructor");
+		err::setError("alias cannot have constructor");
 		return false;
 	}
 
 	if (declarator->m_initializer.isEmpty()) {
-		err::setFormatStringError("missing alias initializer");
+		err::setError("missing alias initializer");
 		return false;
 	}
 
 	if (!declarator->isSimple()) {
-		err::setFormatStringError("invalid alias declarator");
+		err::setError("invalid alias declarator");
 		return false;
 	}
 
 	if (type->getTypeKind() != TypeKind_Void) {
-		err::setFormatStringError("alias doesn't need a type");
+		err::setError("alias doesn't need a type");
 		return false;
 	}
 
@@ -1343,7 +1343,7 @@ Parser::declareProperty(
 	uint_t flags
 ) {
 	if (!declarator->isSimple()) {
-		err::setFormatStringError("invalid property declarator");
+		err::setError("invalid property declarator");
 		return false;
 	}
 
@@ -1414,7 +1414,7 @@ Parser::createProperty(Declarator* declarator) {
 	NamespaceKind namespaceKind = nspace->getNamespaceKind();
 
 	if (namespaceKind == NamespaceKind_PropertyTemplate) {
-		err::setFormatStringError("property templates cannot have property members");
+		err::setError("property templates cannot have property members");
 		return NULL;
 	}
 
@@ -1553,7 +1553,7 @@ Parser::finalizeLastProperty(bool hasBody) {
 		ASSERT(prop->m_autoGetValue->getItemKind() == ModuleItemKind_Alias); // otherwise, getter would have been created
 	} else {
 		if (!m_lastPropertyGetterType) {
-			err::setFormatStringError("incomplete property: no 'get' method or 'autoget' field");
+			err::setError("incomplete property: no 'get' method or 'autoget' field");
 			return false;
 		}
 
@@ -1643,7 +1643,7 @@ Parser::declareReactor(
 	bool result;
 
 	if (declarator->getDeclaratorKind() != DeclaratorKind_Name) {
-		err::setFormatStringError("invalid reactor declarator");
+		err::setError("invalid reactor declarator");
 		return false;
 	}
 
@@ -1700,7 +1700,7 @@ Parser::declareData(
 	bool result;
 
 	if (!declarator->isSimple()) {
-		err::setFormatStringError("invalid data declarator");
+		err::setError("invalid data declarator");
 		return false;
 	}
 
@@ -1775,7 +1775,7 @@ Parser::declareData(
 
 	case StorageKind_Tls:
 		if (!scope && (!constructor->isEmpty() || !initializer->isEmpty())) {
-			err::setFormatStringError("global 'threadlocal' variables cannot have initializers");
+			err::setError("global 'threadlocal' variables cannot have initializers");
 			return false;
 		}
 
@@ -1791,7 +1791,7 @@ Parser::declareData(
 				break;
 
 		default:
-			err::setFormatStringError("'mutable' can only be applied to member fields");
+			err::setError("'mutable' can only be applied to member fields");
 			return false;
 		}
 
@@ -1799,7 +1799,7 @@ Parser::declareData(
 
 	case StorageKind_Disposable:
 		if (namespaceKind != NamespaceKind_Scope) {
-			err::setFormatStringError("'disposable' can only be applied to local variables");
+			err::setError("'disposable' can only be applied to local variables");
 			return false;
 		}
 
@@ -1827,12 +1827,12 @@ Parser::declareData(
 	case StorageKind_DynamicField: {
 		DynamicLayoutStmt* stmt = findDynamicLayoutStmt();
 		if (!stmt) {
-			err::setFormatStringError("dynamic fields are only allowed inside dynamic layouts");
+			err::setError("dynamic fields are only allowed inside dynamic layouts");
 			return false;
 		}
 
 		if (!constructor->isEmpty() || !initializer->isEmpty()) {
-			err::setFormatStringError("dynamic fields can't have initializers");
+			err::setError("dynamic fields can't have initializers");
 			return false;
 		}
 
@@ -2288,7 +2288,7 @@ Parser::createFormalArg(
 	if (declarator->isSimple()) {
 		name = declarator->getName().getShortName();
 	} else if (declarator->getDeclaratorKind() != DeclaratorKind_Undefined) {
-		err::setFormatStringError("invalid formal argument declarator");
+		err::setError("invalid formal argument declarator");
 		return NULL;
 	}
 
@@ -2507,7 +2507,7 @@ Parser::callBaseTypeMemberConstructor(
 		return false;
 
 	if (!findResult.m_item) {
-		err::setFormatStringError("name '%s' is not found", name.getFullName ().sz());
+		err::setFormatStringError("name '%s' is not found", name.getFullName().sz());
 		return false;
 	}
 
@@ -2523,18 +2523,18 @@ Parser::callBaseTypeMemberConstructor(
 		return callBaseTypeConstructor(((Typedef*)item)->getType(), argList);
 
 	case ModuleItemKind_Property:
-		err::setFormatStringError("property construction is not yet implemented");
+		err::setError("property construction is not yet implemented");
 		return false;
 
 	case ModuleItemKind_Field:
 		return callFieldConstructor((Field*)item, argList);
 
 	case ModuleItemKind_Variable:
-		err::setFormatStringError("static field construction is not yet implemented");
+		err::setError("static field construction is not yet implemented");
 		return false;
 
 	default:
-		err::setFormatStringError("'%s' cannot be used in base-type-member construct list");
+		err::setFormatStringError("'%s' cannot be used in base-type-member construct list", name.getFullName().sz());
 		return false;
 	}
 }
@@ -2667,7 +2667,7 @@ Parser::callFieldConstructor(
 	bool result;
 
 	if (m_constructorProperty) {
-		err::setFormatStringError("property field construction is not yet implemented");
+		err::setError("property field construction is not yet implemented");
 		return false;
 	}
 
@@ -2986,7 +2986,7 @@ Parser::prepareCurlyInitializerNamedItem(
 bool
 Parser::prepareCurlyInitializerIndexedItem(CurlyInitializer* initializer) {
 	if (initializer->m_index == -1) {
-		err::setFormatStringError("indexed-based initializer cannot be used after named-based initializer");
+		err::setError("indexed-based initializer cannot be used after named-based initializer");
 		return false;
 	}
 
@@ -3034,7 +3034,7 @@ Parser::assignCurlyInitializerItem(
 	size_t length = srcType->getElementCount();
 
 	if (dstType->getElementCount() < initializer->m_index + length) {
-		err::setFormatStringError("literal initializer is too big to fit inside the target array");
+		err::setError("literal initializer is too big to fit inside the target array");
 		return false;
 	}
 
@@ -3116,7 +3116,7 @@ Parser::addFmtSite(
 
 	if (value.getValueKind() != ValueKind_Const ||
 		!(value.getType()->getTypeKindFlags() & TypeKindFlag_Integer)) {
-		err::setFormatStringError("expression is not integer constant");
+		err::setError("expression is not integer constant");
 		return false;
 	}
 
@@ -3225,7 +3225,7 @@ Parser::finalizeLiteral(
 		}
 
 		if (value->isEmpty()) {
-			err::setFormatStringError("formatting literals arguments cannot be skipped");
+			err::setError("formatting literals arguments cannot be skipped");
 			return false;
 		}
 
@@ -3416,7 +3416,7 @@ Parser::finalizeRegexSwitchCaseLiteral(
 	bool isZeroTerminated
 ) {
 	if (value.getValueKind() != ValueKind_Const) {
-		err::setFormatStringError("not a constant literal expression");
+		err::setError("not a constant literal expression");
 		return false;
 	}
 

@@ -184,7 +184,7 @@ OperatorMgr::callOperator(
 
 		if ((callOperator->getFlags() & MulticastMethodFlag_InaccessibleViaEventPtr) &&
 			(ptrType->getFlags() & PtrTypeFlag_Event)) {
-			err::setFormatStringError("'call' is inaccessible via 'event' pointer");
+			err::setError("'call' is inaccessible via 'event' pointer");
 			return false;
 		}
 
@@ -433,14 +433,14 @@ OperatorMgr::castArgValueList(
 	// vararg arguments
 
 	if (!isCdeclVarArg) {
-		err::setFormatStringError("only 'cdecl' vararg is currently supported");
+		err::setError("only 'cdecl' vararg is currently supported");
 		return false;
 	}
 
 	for (; argValueIt; argValueIt++) {
 		Value argValue = *argValueIt;
 		if (argValue.isEmpty()) {
-			err::setFormatStringError("vararg arguments cannot be skipped");
+			err::setError("vararg arguments cannot be skipped");
 			return false;
 		}
 
@@ -515,7 +515,7 @@ OperatorMgr::callImpl(
 	uint_t flags = functionType->getFlags();
 
 	if ((flags & FunctionTypeFlag_Unsafe) && !isUnsafeRgn()) {
-		err::setFormatStringError("can only call unsafe functions from unsafe regions");
+		err::setError("can only call unsafe functions from unsafe regions");
 		return false;
 	}
 

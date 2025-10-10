@@ -22,7 +22,7 @@ Type*
 UnOp_Addr::getResultType(const Value& opValue) {
 	if (opValue.getValueKind() == ValueKind_Variable &&
 		opValue.getVariable()->getStorageKind() == StorageKind_Tls) {
-		err::setFormatStringError("cannot take address of a 'threadlocal' variable");
+		err::setError("cannot take address of a 'threadlocal' variable");
 		return NULL;
 	}
 
@@ -65,7 +65,7 @@ UnOp_Addr::getResultType(const Value& opValue) {
 		);
 
 	default:
-		err::setFormatStringError("can only apply unary '&' to a reference");
+		err::setError("can only apply unary '&' to a reference");
 		return NULL;
 	}
 }
@@ -126,7 +126,7 @@ UnOp_Indir::getResultType(const Value& opValue) {
 		);
 
 	default:
-		err::setFormatStringError("can only apply unary '*' to a pointer");
+		err::setError("can only apply unary '*' to a pointer");
 		return NULL;
 	}
 }

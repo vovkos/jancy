@@ -441,7 +441,7 @@ Cast_FunctionPtr_Thin2Thin::llvmCast(
 	ASSERT(type->getTypeKind() == TypeKind_FunctionPtr);
 
 	if (opValue.getClosure()) {
-		err::setFormatStringError("cannot create thin function pointer to a closure");
+		err::setError("cannot create thin function pointer to a closure");
 		return false;
 	}
 
@@ -453,7 +453,7 @@ Cast_FunctionPtr_Thin2Thin::llvmCast(
 	}
 
 	if (opValue.getValueKind() != ValueKind_Function) {
-		err::setFormatStringError("can only create thin pointer thunk to a function, not a function pointer");
+		err::setError("can only create thin pointer thunk to a function, not a function pointer");
 		return false;
 	}
 
