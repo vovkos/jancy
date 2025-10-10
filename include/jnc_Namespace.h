@@ -48,6 +48,7 @@ enum jnc_NamespaceKind {
 	jnc_NamespaceKind_Property,
 	jnc_NamespaceKind_PropertyTemplate,
 	jnc_NamespaceKind_DynamicLib,
+	jnc_NamespaceKind_Template,
 	jnc_NamespaceKind__Count,
 };
 
@@ -198,6 +199,7 @@ const NamespaceKind
 	NamespaceKind_Property         = jnc_NamespaceKind_Property,
 	NamespaceKind_PropertyTemplate = jnc_NamespaceKind_PropertyTemplate,
 	NamespaceKind_DynamicLib       = jnc_NamespaceKind_DynamicLib,
+	NamespaceKind_Template         = jnc_NamespaceKind_Template,
 	NamespaceKind__Count           = jnc_NamespaceKind__Count;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

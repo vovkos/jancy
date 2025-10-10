@@ -927,6 +927,9 @@ bool
 Parser::declare(Declarator* declarator) {
 	m_lastDeclaredItem = NULL;
 
+	if (declarator->isTemplate())
+		m_module->m_namespaceMgr.closeTemplateNamespace();
+
 	bool isLibrary = m_module->m_namespaceMgr.getCurrentNamespace()->getNamespaceKind() == NamespaceKind_DynamicLib;
 
 	if ((declarator->getTypeModifiers() & TypeModifier_Property) && m_storageKind != StorageKind_Typedef) {

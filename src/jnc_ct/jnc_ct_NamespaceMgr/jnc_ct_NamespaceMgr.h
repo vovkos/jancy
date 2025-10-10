@@ -50,9 +50,10 @@ protected:
 	sl::List<Scope> m_scopeList;
 	sl::List<Orphan> m_orphanList;
 	sl::List<Alias> m_aliasList;
+	sl::AutoPtrArray<ScopeExtension> m_scopeExtensionArray;
+	sl::AutoPtrArray<Namespace> m_templateNamespaceArray;
 
 	sl::Array<NamespaceStackEntry> m_namespaceStack;
-	sl::AutoPtrArray<ScopeExtension> m_scopeExtensionArray;
 
 	lex::LineCol m_sourcePos;
 	Namespace* m_currentNamespace;
@@ -111,6 +112,21 @@ public:
 
 	void
 	setSourcePos(const lex::LineCol& pos);
+
+	template <typename T>
+	T*
+	createGlobalNamespace(
+		const sl::StringRef& name,
+		Namespace* parentNamespace = NULL
+	);
+
+	GlobalNamespace*
+	createGlobalNamespace(
+		const sl::StringRef& name,
+		Namespace* parentNamespace = NULL
+	) {
+		return createGlobalNamespace<GlobalNamespace>(name, parentNamespace);
+	}
 
 	template <typename T>
 	T*
@@ -179,23 +195,14 @@ public:
 	void
 	closeScope();
 
+	Namespace*
+	openTemplateNamespace();
+
+	void
+	closeTemplateNamespace();
+
 	AccessKind
 	getAccessKind(Namespace* nspace);
-
-	template <typename T>
-	T*
-	createGlobalNamespace(
-		const sl::StringRef& name,
-		Namespace* parentNamespace = NULL
-	);
-
-	GlobalNamespace*
-	createGlobalNamespace(
-		const sl::StringRef& name,
-		Namespace* parentNamespace = NULL
-	) {
-		return createGlobalNamespace<GlobalNamespace>(name, parentNamespace);
-	}
 
 	Scope*
 	findBreakScope(size_t level);
@@ -245,6 +252,13 @@ NamespaceMgr::createScopeExtension(){
 	T* extension = new T;
 	m_scopeExtensionArray.append(extension);
 	return extension;
+}
+
+inline
+void
+NamespaceMgr::closeTemplateNamespace() {
+	ASSERT(m_currentNamespace && m_currentNamespace->m_namespaceKind == NamespaceKind_Template);
+	closeNamespace();
 }
 
 //..............................................................................

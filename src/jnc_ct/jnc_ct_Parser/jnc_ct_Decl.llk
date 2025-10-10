@@ -470,17 +470,17 @@ attribute_declarator
 // templates
 
 struct {
-	sl::BoxList<sl::StringRef> m_nameList;
+	sl::BoxList<sl::StringRef> m_argList;
 }
 template_suffix
 	:	'<'
 		TokenKind_Identifier
 			{
-				$.m_nameList.insertTail($1.m_data.m_string);
+				$.m_argList.insertTail($1.m_data.m_string);
 			}
 		(',' TokenKind_Identifier $n2
 			{
-				$.m_nameList.insertTail($n2.m_data.m_string);
+				$.m_argList.insertTail($n2.m_data.m_string);
 			}
 		)*
 		'>'

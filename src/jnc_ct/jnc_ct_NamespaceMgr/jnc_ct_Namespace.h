@@ -153,6 +153,12 @@ public:
 		return addItem(item->getName(), item);
 	}
 
+	bool
+	addItem(
+		const sl::StringRef& name,
+		ModuleItem* item
+	);
+
 	void
 	replaceItem(
 		const sl::StringRef& name,
@@ -189,12 +195,6 @@ public:
 protected:
 	void
 	clear();
-
-	bool
-	addItem(
-		const sl::StringRef& name,
-		ModuleItem* item
-	);
 
 	virtual
 	bool

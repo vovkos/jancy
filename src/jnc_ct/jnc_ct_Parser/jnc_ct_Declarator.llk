@@ -26,7 +26,11 @@ declarator<TypeSpecifier* $typeSpecifier>
 	}
 	:	declarator_prefix<&$.m_declarator>*
 		declarator_name<&$.m_declarator>
-		template_suffix?
+		(template_suffix $t
+			{
+				return $.m_declarator.setTemplateSuffix($t.m_argList);
+			}
+		)?
 		declarator_suffix<&$.m_declarator>*
 		declarator_constructor<&$.m_declarator>?
 	;
@@ -67,7 +71,7 @@ special_void_method_declarator_terminator<Declarator* $declarator>
 declarator_list_terminator<
 	TypeSpecifier* $typeSpecifier,
 	Declarator* $declarator
-	>
+>
 	:	declarator_w_curly_initializer<$typeSpecifier, $declarator>
 			{
 				return bodylessDeclaration();
@@ -88,7 +92,7 @@ resolver('=' ('{' | TokenKind_Body))
 declarator_w_curly_initializer<
 	TypeSpecifier* $typeSpecifier,
 	Declarator* $declarator
-	>
+>
 	:	'=' curly_initializer_pass1
 			{
 				sl::takeOver(&$declarator->m_initializer, &$2.m_tokenList);
@@ -100,7 +104,7 @@ declarator_w_curly_initializer<
 declarator_wo_curly_initializer<
 	TypeSpecifier* $typeSpecifier,
 	Declarator* $declarator
-	>
+>
 	:	('=' expression_pass1
 			{
 				sl::takeOver(&$declarator->m_initializer, &$2.m_tokenList);
