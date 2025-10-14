@@ -83,5 +83,28 @@ protected:
 
 //..............................................................................
 
+class ModuleItemUsingSet {
+	friend class Parser;
+
+protected:
+	UsingSet m_usingSet;
+
+public:
+	UsingSet*
+	getUsingSet() {
+		return &m_usingSet;
+	}
+
+	void
+	addUsingSet(UsingSet* usingSet) {
+		m_usingSet.append(usingSet);
+	}
+
+	void
+	addUsingSet(Namespace* anchorNamespace);
+};
+
+//..............................................................................
+
 } // namespace ct
 } // namespace jnc

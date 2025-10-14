@@ -47,6 +47,7 @@ jnc_getModuleItemKindString(jnc_ModuleItemKind itemKind) {
 		"orphan",                      // ModuleItemKind_Orphan,
 		"lazy-import",                 // ModuleItemKind_LazyImport,
 		"dynamic-section",             // ModuleItemKind_DynamicSection,
+		"template",                    // ModuleItemKind_Template,
 	};
 
 	return (size_t)itemKind < jnc_ModuleItemKind__Count ?

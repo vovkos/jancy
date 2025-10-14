@@ -126,8 +126,9 @@ Module::clear() {
 	m_dynamicLayoutMgr.clear();
 	m_operatorMgr.clear();
 	m_unitMgr.clear();
-	m_pragmaMgr.clear();
 	m_importMgr.clear();
+	m_pragmaMgr.clear();
+	m_templateMgr.clear();
 	m_extensionLibMgr.clear();
 	m_doxyModule.clear();
 	m_controlFlowMgr.clear();

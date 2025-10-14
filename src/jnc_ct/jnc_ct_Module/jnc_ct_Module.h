@@ -22,8 +22,9 @@
 #include "jnc_ct_OperatorMgr.h"
 #include "jnc_ct_GcShadowStackMgr.h"
 #include "jnc_ct_UnitMgr.h"
-#include "jnc_ct_PragmaMgr.h"
 #include "jnc_ct_ImportMgr.h"
+#include "jnc_ct_PragmaMgr.h"
+#include "jnc_ct_TemplateMgr.h"
 #include "jnc_ct_ExtensionLibMgr.h"
 #include "jnc_ct_CodeAssistMgr.h"
 #include "jnc_ct_DoxyHost.h"
@@ -138,8 +139,9 @@ public:
 	OperatorMgr m_operatorMgr;
 	GcShadowStackMgr m_gcShadowStackMgr;
 	UnitMgr m_unitMgr;
-	PragmaMgr m_pragmaMgr;
 	ImportMgr m_importMgr;
+	PragmaMgr m_pragmaMgr;
+	TemplateMgr m_templateMgr;
 	ExtensionLibMgr m_extensionLibMgr;
 	CodeAssistMgr m_codeAssistMgr;
 	DoxyHost m_doxyHost;

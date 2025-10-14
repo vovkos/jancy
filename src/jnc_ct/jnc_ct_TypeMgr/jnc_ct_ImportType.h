@@ -117,10 +117,10 @@ protected:
 public:
 	NamedImportType();
 
-	// const QualifiedName&
-	// getName() {
-	// 	return m_name;
-	// }
+	const QualifiedName&
+	getName() {
+		return m_name;
+	}
 
 	Namespace*
 	getAnchorNamespace() {

@@ -454,6 +454,12 @@ protected:
 	);
 
 	bool
+	declareTemplate(
+		Declarator* declarator,
+		Type* type
+	);
+
+	bool
 	declareTypedef(
 		Declarator* declarator,
 		Type* type

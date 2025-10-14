@@ -43,17 +43,6 @@ Function::Function() {
 }
 
 void
-Function::addUsingSet(Namespace* anchorNamespace) {
-	for (Namespace* nspace = anchorNamespace; nspace; nspace = nspace->getParentNamespace())
-		m_usingSet.append(nspace->getUsingSet());
-}
-
-void
-Function::addUsingSet(UsingSet* usingSet) {
-	m_usingSet.append(usingSet);
-}
-
-void
 Function::prepareLlvmFunction() {
 	ASSERT(!m_llvmFunction);
 
@@ -108,7 +97,7 @@ Function::compile() {
 
 	if (hasBody()) { // a function with a body
 		m_module->m_functionMgr.prologue(this, m_bodyPos);
-		m_module->m_namespaceMgr.getCurrentScope()->getUsingSet()->append(&m_usingSet);
+		m_module->m_namespaceMgr.getCurrentScope()->addUsingSet(&m_usingSet);
 
 		Parser parser(m_module, m_pragmaConfig, Parser::Mode_Compile);
 		SymbolKind symbolKind = SymbolKind_compound_stmt;

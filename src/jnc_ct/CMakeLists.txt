@@ -113,6 +113,7 @@ set(
 	include/jnc_ct_StdNamespace.h
 	include/jnc_ct_StdType.h
 	include/jnc_ct_StructType.h
+	include/jnc_ct_TemplateMgr.h
 	include/jnc_ct_ThunkFunction.h
 	include/jnc_ct_ThunkProperty.h
 	include/jnc_ct_Type.h
@@ -550,6 +551,7 @@ set(
 	jnc_ct_Module/jnc_ct_Module.h
 	jnc_ct_Module/jnc_ct_ModuleItem.h
 	jnc_ct_Module/jnc_ct_PragmaMgr.h
+	jnc_ct_Module/jnc_ct_TemplateMgr.h
 	jnc_ct_Module/jnc_ct_UnitMgr.h
 )
 
@@ -569,6 +571,7 @@ set(
 	jnc_ct_Module/jnc_ct_Module.cpp
 	jnc_ct_Module/jnc_ct_ModuleItem.cpp
 	jnc_ct_Module/jnc_ct_PragmaMgr.cpp
+	jnc_ct_Module/jnc_ct_TemplateMgr.cpp
 	jnc_ct_Module/jnc_ct_UnitMgr.cpp
 )
 

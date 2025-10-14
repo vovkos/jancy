@@ -26,12 +26,6 @@ Orphan::Orphan() {
 	m_origin = NULL;
 }
 
-void
-Orphan::addUsingSet(Namespace* anchorNamespace) {
-	for (Namespace* nspace = anchorNamespace; nspace; nspace = nspace->getParentNamespace())
-		m_usingSet.append(nspace->getUsingSet());
-}
-
 ModuleItem*
 Orphan::resolveForCodeAssist(Namespace* nspace) {
 	if (m_functionKind != FunctionKind_Normal && m_declaratorName.isEmpty()) {

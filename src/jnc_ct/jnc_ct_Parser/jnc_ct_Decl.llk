@@ -476,7 +476,7 @@ template_suffix
 	:	'<'
 		TokenKind_Identifier
 			{
-				$.m_argList.insertTail($1.m_data.m_string);
+				$.m_argList.insertTail($2.m_data.m_string);
 			}
 		(',' TokenKind_Identifier $n2
 			{

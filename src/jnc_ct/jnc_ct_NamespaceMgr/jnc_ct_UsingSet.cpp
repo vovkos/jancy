@@ -157,5 +157,13 @@ UsingSet::resolve() {
 
 //..............................................................................
 
+void
+ModuleItemUsingSet::addUsingSet(Namespace* anchorNamespace) {
+	for (Namespace* nspace = anchorNamespace; nspace; nspace = nspace->getParentNamespace())
+		m_usingSet.append(nspace->getUsingSet());
+}
+
+//..............................................................................
+
 } // namespace ct
 } // namespace jnc

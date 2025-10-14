@@ -31,6 +31,7 @@ enum OrphanKind {
 class Orphan:
 	public ModuleItem,
 	public ModuleItemBodyDecl,
+	public ModuleItemUsingSet,
 	public FunctionName {
 	friend class NamespaceMgr;
 	friend class Namespace;
@@ -41,7 +42,6 @@ protected:
 	QualifiedName m_declaratorName;
 	FunctionType* m_functionType;
 	ModuleItem* m_origin;
-	UsingSet m_usingSet;
 
 public:
 	Orphan();
@@ -65,9 +65,6 @@ public:
 	getOrigin() { // after adopted
 		return m_origin;
 	}
-
-	void
-	addUsingSet(Namespace* anchorNamespace);
 
 	bool
 	adopt(ModuleItem* item);

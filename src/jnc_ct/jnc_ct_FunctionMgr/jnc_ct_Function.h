@@ -37,6 +37,7 @@ class Function:
 	public ModuleItem,
 	public ModuleItemBodyDecl,
 	public ModuleItemInitializer,
+	public ModuleItemUsingSet,
 	public FunctionName {
 	friend class Module;
 	friend class Jit;
@@ -75,7 +76,6 @@ protected:
 
 	Property* m_property; // for property gettes/setters
 	ExtensionNamespace* m_extensionNamespace;
-	UsingSet m_usingSet;
 
 	BasicBlock* m_allocaBlock;
 	BasicBlock* m_prologueBlock;
@@ -178,12 +178,6 @@ public:
 
 	void
 	convertToMemberMethod(DerivableType* parentType);
-
-	void
-	addUsingSet(UsingSet* usingSet);
-
-	void
-	addUsingSet(Namespace* anchorNamespace);
 
 	Scope*
 	getScope() {

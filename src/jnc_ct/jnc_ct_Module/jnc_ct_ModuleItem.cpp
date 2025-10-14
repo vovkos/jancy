@@ -253,6 +253,11 @@ getDynamicSectionDecl(ModuleItem* item) {
 	return (DynamicSection*)item;
 }
 
+ModuleItemDecl*
+getTemplateDecl(ModuleItem* item) {
+	return (Template*)item;
+}
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 Namespace*
@@ -379,6 +384,11 @@ getDynamicSectionType(ModuleItem* item) {
 	default:
 		return NULL;
 	}
+}
+
+Type*
+getTemplateType(ModuleItem* item) {
+	return ((Template*)item)->getType();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -625,6 +635,30 @@ getDynamicSectionSynopsis(
 	}
 }
 
+sl::String
+getTemplateSynopsis(
+	ModuleItem* item,
+	bool isQualifiedName
+) {
+	Template* templ = (Template*)item;
+	sl::String synopsis = isQualifiedName ? templ->getQualifiedName() : templ->getName();
+
+	synopsis += '<';
+
+	const sl::Array<NamedImportType*>& argArray = templ->getArgArray();
+	size_t count = argArray.getCount();
+	ASSERT(count);
+	for (size_t i = 0; i < count; i++) {
+		synopsis += argArray[i]->getName().getShortName();
+		synopsis += ", ";
+	}
+
+	synopsis.chop(2);
+	synopsis += '>';
+
+	return synopsis;
+}
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 ModuleItemDecl*
@@ -655,6 +689,7 @@ ModuleItem::getDecl() {
 		getOrphanDecl,           // ModuleItemKind_Orphan,
 		getNullDecl,             // ModuleItemKind_LazyImport,
 		getDynamicSectionDecl,   // ModuleItemKind_DynamicSection,
+		getTemplateDecl,         // ModuleItemKind_Template,
 	};
 
 	ASSERT((size_t)m_itemKind < countof(funcTable));
@@ -689,6 +724,7 @@ ModuleItem::getNamespace() {
 		getNullNamespace,             // ModuleItemKind_Orphan,
 		getNullNamespace,             // ModuleItemKind_LazyImport,
 		getNullNamespace,             // ModuleItemKind_DynamicSection,
+		getNullNamespace,             // ModuleItemKind_Template,
 	};
 
 	ASSERT((size_t)m_itemKind < countof(funcTable));
@@ -723,6 +759,7 @@ ModuleItem::getType() {
 		getOrphanType,           // ModuleItemKind_Orphan,
 		getNullType,             // ModuleItemKind_LazyImport,
 		getDynamicSectionType,   // ModuleItemKind_DynamicSection,
+		getTemplateType,         // ModuleItemKind_Template,
 	};
 
 	ASSERT((size_t)m_itemKind < countof(funcTable));
@@ -760,6 +797,7 @@ ModuleItem::getSynopsis(bool isQualifiedName) {
 		getDefaultSynopsis,        // ModuleItemKind_Orphan,
 		getDefaultSynopsis,        // ModuleItemKind_LazyImport,
 		getDynamicSectionSynopsis, // ModuleItemKind_DynamicSection,
+		getTemplateSynopsis,       // ModuleItemKind_Template,
 	};
 
 	ASSERT((size_t)m_itemKind < countof(funcTable));

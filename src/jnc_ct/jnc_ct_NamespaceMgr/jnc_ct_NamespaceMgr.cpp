@@ -444,6 +444,7 @@ Namespace*
 NamespaceMgr::openTemplateNamespace() {
 	Namespace* nspace = new Namespace;
 	nspace->m_namespaceKind = NamespaceKind_Template;
+	nspace->m_namespaceStatus = NamespaceStatus_Ready;
 	nspace->m_parentNamespace = m_currentNamespace;
 	m_templateNamespaceArray.append(nspace);
 	openNamespace(nspace);

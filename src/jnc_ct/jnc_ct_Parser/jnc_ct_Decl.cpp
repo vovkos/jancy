@@ -410,6 +410,13 @@ Declarator::setTemplateSuffix(const sl::BoxList<sl::StringRef>& templateArgList)
 
 	ASSERT(m_baseType && !m_templateNamespace && m_templateArgArray.isEmpty());
 
+	sl::StringRef baseTypeImportName;
+	if (m_baseType->getTypeKind() == TypeKind_NamedImport) {
+		NamedImportType* importType = (NamedImportType*)m_baseType;
+		if (importType->getName().isSimple())
+			baseTypeImportName = importType->getName().getFirstName();
+	}
+
 	Module* module = m_baseType->getModule();
 	m_templateNamespace = module->m_namespaceMgr.openTemplateNamespace();
 
@@ -417,15 +424,22 @@ Declarator::setTemplateSuffix(const sl::BoxList<sl::StringRef>& templateArgList)
 
 	sl::ConstBoxIterator<sl::StringRef> it = templateArgList.getHead();
 	for (; it; it++) {
+		const sl::StringRef& name = *it;
+
 		NamedImportType* type = module->m_typeMgr.createNamedImportType(
-			QualifiedName(*it),
+			QualifiedName(name),
 			m_templateNamespace,
 			QualifiedName()
 		);
 
-		bool result = m_templateNamespace->addItem(*it, type);
-		if (!result)
+		bool result = m_templateNamespace->addItem(name, type);
+		if (!result) {
 			finalResult = false;
+			continue;
+		}
+
+		if (name == baseTypeImportName)
+			m_baseType = type;
 
 		m_templateArgArray.append(type);
 	}

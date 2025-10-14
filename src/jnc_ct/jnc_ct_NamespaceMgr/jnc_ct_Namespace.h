@@ -49,7 +49,9 @@ enum NamespaceStatus {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class Namespace: public ModuleItemBodyDecl {
+class Namespace:
+	public ModuleItemBodyDecl,
+	public ModuleItemUsingSet {
 	friend class NamespaceMgr;
 	friend class TypeMgr;
 	friend class Parser;
@@ -63,7 +65,6 @@ protected:
 	sl::StringHashTable<ModuleItem*> m_itemMap;
 	sl::StringHashTable<bool> m_friendSet;
 	sl::StringHashTable<DualPtrTypeTuple*> m_dualPtrTypeTupleMap;
-	UsingSet m_usingSet;
 
 public:
 	Namespace() {
@@ -92,11 +93,6 @@ public:
 
 	ModuleItem*
 	getParentItem();
-
-	UsingSet*
-	getUsingSet() {
-		return &m_usingSet;
-	}
 
 	virtual
 	sl::StringRef
