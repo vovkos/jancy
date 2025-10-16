@@ -12,12 +12,13 @@
 #pragma once
 
 #include "jnc_ct_Type.h"
+#include "jnc_ct_GlobalNamespace.h"
 #include "jnc_Function.h"
 
 namespace jnc {
 namespace ct {
 
-class Namespace;
+class Template;
 class Scope;
 class Variable;
 class Function;
@@ -34,6 +35,7 @@ enum ValueKind {
 	ValueKind_Void = 0,
 	ValueKind_Null,
 	ValueKind_Namespace,
+	ValueKind_Template,
 	ValueKind_Type,
 	ValueKind_Const,
 	ValueKind_Variable,
@@ -66,6 +68,7 @@ protected:
 	union {
 		ModuleItem* m_item;
 		Namespace* m_namespace;
+		Template* m_template;
 		Variable* m_variable;
 		Function* m_function;
 		FunctionOverload* m_functionOverload;
@@ -193,6 +196,12 @@ public:
 	getNamespace() const {
 		ASSERT(m_valueKind == ValueKind_Namespace);
 		return m_namespace;
+	}
+
+	Template*
+	getTemplate() const {
+		ASSERT(m_valueKind == ValueKind_Template);
+		return m_template;
 	}
 
 	Variable*
@@ -374,10 +383,23 @@ public:
 	setNull(Module* module);
 
 	void
-	setNamespace(GlobalNamespace* nspace);
+	setNamespace(GlobalNamespace* nspace) {
+		setNamespace(nspace, nspace->getModule());
+	}
 
 	void
-	setNamespace(NamedType* type);
+	setNamespace(NamedType* type) {
+		setNamespace(type, type->getModule());
+	}
+
+	void
+	setNamespace(
+		Namespace* nspace,
+		Module* module
+	);
+
+	void
+	setTemplate(Template* templ);
 
 	void
 	setType(Type* type);

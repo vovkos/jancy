@@ -47,6 +47,51 @@ expression_pass1_item<sl::List<Token>* $tokenList>
 			{
 				$tokenList->insertTail(m_tokenPool->get($3));
 			}
+	|	template_instantiate_operator_pass1<$tokenList>
+	|	any
+			{
+				$tokenList->insertTail(m_tokenPool->get($1));
+			}
+	;
+
+template_instantiate_operator_pass1_rslv
+	:	'<'
+		template_instantiate_operator_pass1_rslv_item*
+		'>'
+	;
+
+template_instantiate_operator_pass1_rslv_item
+	:	qualified_name_rslv
+	|	type_specifier_sync
+	|	type_modifier_sync
+	|	template_instantiate_operator_pass1_rslv
+	|	'*'
+	|	','
+	;
+
+resolver(template_instantiate_operator_pass1_rslv)
+template_instantiate_operator_pass1<sl::List<Token>* $tokenList>
+	:	'<'
+			{
+				$tokenList->insertTail(m_tokenPool->get($1));
+			}
+		template_instantiate_operator_pass1_item<$tokenList>*
+		'>'
+			{
+				$tokenList->insertTail(m_tokenPool->get($3));
+			}
+	;
+
+template_instantiate_operator_pass1_item<sl::List<Token>* $tokenList>
+	:	'<'
+			{
+				$tokenList->insertTail(m_tokenPool->get($1));
+			}
+		template_instantiate_operator_pass1_item<$tokenList>*
+		'>'
+			{
+				$tokenList->insertTail(m_tokenPool->get($3));
+			}
 	|	any
 			{
 				$tokenList->insertTail(m_tokenPool->get($1));
@@ -783,6 +828,7 @@ postfix_operator<Value* $value>
 				return m_module->m_operatorMgr.unaryOperator(UnOpKind_Ptr, $value);
 			}
 		member_operator<$value>
+	|	template_instantiate_operator<$value>
 	;
 
 member_operator<Value* $value>
@@ -798,6 +844,23 @@ member_operator<Value* $value>
 	|	TokenKind_Set
 			{
 				return m_module->m_operatorMgr.getPropertySetter($value);
+			}
+	;
+
+template_instantiate_operator_rslv
+	:	'<' '>'
+	|	'<' type_name
+	;
+
+resolver(template_instantiate_operator_rslv)
+template_instantiate_operator<Value* $value>
+	:	'<' '>'
+			{
+				return err::fail("template instantiation without arguments has no effect");
+			}
+	|	'<' type_name_list '>'
+			{
+				return m_module->m_operatorMgr.templateInstantiateOperator($value, $2.m_typeList);
 			}
 	;
 

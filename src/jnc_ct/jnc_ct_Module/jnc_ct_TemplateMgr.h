@@ -11,12 +11,12 @@
 
 #pragma once
 
+#include "jnc_ct_TemplateType.h"
 #include "jnc_ct_UsingSet.h"
+#include "jnc_ct_Value.h"
 
 namespace jnc {
 namespace ct {
-
-class NamedImportType;
 
 //..............................................................................
 
@@ -27,26 +27,36 @@ class Template:
 	friend class TemplateMgr;
 
 protected:
-	Type* m_type;
-	sl::Array<NamedImportType*> m_argArray;
+	TypeKind m_typeKind;
+	TemplateDeclType* m_declType;
+	sl::Array<TemplateArgType*> m_argArray;
 	sl::StringHashTable<ModuleItem*> m_instantiationMap;
 
 public:
-	Template() {
-		m_itemKind = ModuleItemKind_Template;
-		m_type = NULL;
+	Template();
+
+	TemplateDeclType*
+	getDeclType() {
+		return m_declType;
 	}
 
-	Type*
-	getType() {
-		return m_type;
-	}
-
-	const sl::Array<NamedImportType*>&
+	const sl::Array<TemplateArgType*>&
 	getArgArray() {
 		return m_argArray;
 	}
+
+	ModuleItem*
+	instantiate(const sl::ConstBoxList<Value>& argList);
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+Template::Template() {
+	m_itemKind = ModuleItemKind_Template;
+	m_typeKind = TypeKind_Void;
+	m_declType = NULL;
+}
 
 //..............................................................................
 
@@ -70,8 +80,7 @@ public:
 	createTemplate(
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
-		Type* type,
-		const sl::Array<NamedImportType*>& argArray
+		TemplateDeclType* type
 	);
 };
 

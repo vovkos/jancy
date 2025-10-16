@@ -14,6 +14,7 @@
 #include "jnc_rtl_ModuleItem.h"
 #include "jnc_rtl_Namespace.h"
 #include "jnc_ct_Type.h"
+#include "jnc_ct_Typedef.h"
 #include "jnc_ct_ArrayType.h"
 #include "jnc_ct_DataPtrType.h"
 

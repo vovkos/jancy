@@ -757,6 +757,8 @@ g_formatFuncTable[jnc_TypeKind__Count] = {
 	format_default,                     // TypeKind_ImportPtr
 	format_default,                     // TypeKind_ImportIntMod
 	format_default,                     // TypeKind_TypedefShadow
+	format_default,                     // TypeKind_TemplateArg
+	format_default,                     // TypeKind_TemplateDecl
 };
 
 static

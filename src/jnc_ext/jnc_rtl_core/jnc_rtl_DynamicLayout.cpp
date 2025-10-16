@@ -155,7 +155,7 @@ DynamicSection::createDynamicDecl() {
 	ct::Module* module = getCurrentThreadRuntime()->getModule();
 	m_dynamicAttributeBlock = module->m_attributeMgr.createDynamicAttributeBlock(m_decl_ct);
 	m_dynamicDecl = new ct::ModuleItemDecl;
-	m_dynamicDecl->copy(m_decl_ct, m_dynamicAttributeBlock);
+	m_dynamicDecl->copyDecl(m_decl_ct, m_dynamicAttributeBlock);
 	m_decl_ct = m_dynamicDecl;
 }
 

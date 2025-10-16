@@ -11,6 +11,7 @@
 
 #include "pch.h"
 #include "jnc_ct_ModuleItem.h"
+#include "jnc_ct_TemplateType.h"
 #include "jnc_ct_Module.h"
 
 namespace jnc {
@@ -69,7 +70,7 @@ ModuleItemDecl::ModuleItemDecl() {
 }
 
 void
-ModuleItemDecl::copy(
+ModuleItemDecl::copyDecl(
 	ModuleItemDecl* src,
 	AttributeBlock* attributeBlock
 ) {
@@ -386,11 +387,6 @@ getDynamicSectionType(ModuleItem* item) {
 	}
 }
 
-Type*
-getTemplateType(ModuleItem* item) {
-	return ((Template*)item)->getType();
-}
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 sl::String
@@ -645,11 +641,11 @@ getTemplateSynopsis(
 
 	synopsis += '<';
 
-	const sl::Array<NamedImportType*>& argArray = templ->getArgArray();
+	const sl::Array<TemplateArgType*>& argArray = templ->getArgArray();
 	size_t count = argArray.getCount();
 	ASSERT(count);
 	for (size_t i = 0; i < count; i++) {
-		synopsis += argArray[i]->getName().getShortName();
+		synopsis += argArray[i]->getName();
 		synopsis += ", ";
 	}
 
@@ -759,7 +755,7 @@ ModuleItem::getType() {
 		getOrphanType,           // ModuleItemKind_Orphan,
 		getNullType,             // ModuleItemKind_LazyImport,
 		getDynamicSectionType,   // ModuleItemKind_DynamicSection,
-		getTemplateType,         // ModuleItemKind_Template,
+		getNullType,             // ModuleItemKind_Template,
 	};
 
 	ASSERT((size_t)m_itemKind < countof(funcTable));

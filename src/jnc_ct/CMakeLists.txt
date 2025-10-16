@@ -437,7 +437,9 @@ set(
 	jnc_ct_TypeMgr/jnc_ct_ReactorClassType.h
 	jnc_ct_TypeMgr/jnc_ct_StdType.h
 	jnc_ct_TypeMgr/jnc_ct_StructType.h
+	jnc_ct_TypeMgr/jnc_ct_TemplateType.h
 	jnc_ct_TypeMgr/jnc_ct_Type.h
+	jnc_ct_TypeMgr/jnc_ct_Typedef.h
 	jnc_ct_TypeMgr/jnc_ct_TypeMgr.h
 	jnc_ct_TypeMgr/jnc_ct_UnionType.h
 )
@@ -465,7 +467,9 @@ set(
 	jnc_ct_TypeMgr/jnc_ct_ReactorClassType.cpp
 	jnc_ct_TypeMgr/jnc_ct_StdType.cpp
 	jnc_ct_TypeMgr/jnc_ct_StructType.cpp
+	jnc_ct_TypeMgr/jnc_ct_TemplateType.cpp
 	jnc_ct_TypeMgr/jnc_ct_Type.cpp
+	jnc_ct_TypeMgr/jnc_ct_Typedef.cpp
 	jnc_ct_TypeMgr/jnc_ct_TypeMgr.cpp
 	jnc_ct_TypeMgr/jnc_ct_UnionType.cpp
 )

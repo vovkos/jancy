@@ -70,6 +70,9 @@ public:
 	size_t
 	append(const sl::ConstBoxList<Value>& argValueList);
 
+	size_t
+	append(sl::BoxList<Value>* argValueList); // destructive
+
 	bool
 	apply(sl::BoxList<Value>* argValueList);
 
@@ -90,6 +93,10 @@ public:
 		Module* module,
 		sl::Array<FunctionArg*>* argArray
 	);
+
+protected:
+	sl::ConstBoxIterator<Value>
+	prepend(const sl::ConstBoxList<Value>& argValueList);
 };
 
 //..............................................................................

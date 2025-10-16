@@ -768,9 +768,11 @@ Value::setType(Type* type) {
 
 inline
 void
-Value::setNamespace(GlobalNamespace* nspace) {
+Value::setNamespace(
+	Namespace* nspace,
+	Module* module
+) {
 	clear();
-	Module* module = nspace->getModule();
 	m_valueKind = ValueKind_Namespace;
 	m_namespace = nspace;
 	m_type = module->m_typeMgr.getPrimitiveType(TypeKind_Void);
@@ -778,12 +780,11 @@ Value::setNamespace(GlobalNamespace* nspace) {
 
 inline
 void
-Value::setNamespace(NamedType* type) {
+Value::setTemplate(Template* templ) {
 	clear();
-	Module* module = type->getModule();
-	m_valueKind = ValueKind_Namespace;
-	m_namespace = type;
-	m_type = module->m_typeMgr.getPrimitiveType(TypeKind_Void);
+	m_valueKind = ValueKind_Template;
+	m_template = templ;
+	m_type = templ->getModule()->m_typeMgr.getPrimitiveType(TypeKind_Void);
 }
 
 inline

@@ -85,7 +85,7 @@ OperatorMgr::closureOperator(
 	if (!closure)
 		closure = resultValue->createClosure();
 
-	closure->append(*argValueList);
+	closure->append(argValueList);
 	return true;
 }
 
@@ -195,14 +195,40 @@ OperatorMgr::callOperator(
 		closure->insertThisArgValue(objValue);
 	}
 
+	ValueKind valueKind = opValue.getValueKind();
 	Closure* closure = opValue.getClosure();
+
+	if (valueKind == ValueKind_Template) {
+		Template* templ = opValue.getTemplate();
+		if (!closure || closure->getArgValueList()->getCount() < templ->getArgArray().getCount()) {
+			err::setFormatStringError("template argument deduction is not implemented yet");
+			return false;
+		}
+
+		ModuleItem* item = templ->instantiate(*closure->getArgValueList());
+		if (!item)
+			return false;
+
+		ModuleItemKind itemKind = item->getItemKind();
+		switch (itemKind) {
+		case ModuleItemKind_Function:
+			opValue = Value((Function*)item);
+			break;
+
+		default:
+			err::setFormatStringError("cannot call %s", getModuleItemKindString(itemKind));
+			return false;
+		}
+
+		closure = NULL; // template closure carries template type args
+	}
+
 	if (closure) {
 		result = closure->apply(argValueList);
 		if (!result)
 			return false;
 	}
 
-	ValueKind valueKind = opValue.getValueKind();
 	switch (valueKind) {
 		Function* function;
 		Namespace* nspace;

@@ -1074,7 +1074,7 @@ public:
 		Value* value,
 		sl::BoxList<Value>* argValueList
 	) {
-		return closureOperator(*value,  argValueList, value);
+		return closureOperator(*value, argValueList, value);
 	}
 
 	bool
@@ -1088,17 +1088,21 @@ public:
 		return closureOperator(opValue, &argValueList, resultValue);
 	}
 
+	// closure operators
+
 	bool
-	closureOperator2(
+	templateInstantiateOperator(
 		const Value& opValue,
-		const Value& argValue1,
-		const Value& argValue2,
+		const sl::BoxList<Type*>& typeList,
 		Value* resultValue
+	);
+
+	bool
+	templateInstantiateOperator(
+		Value* value,
+		const sl::BoxList<Type*>& typeList
 	) {
-		sl::BoxList<Value> argValueList;
-		argValueList.insertTail(argValue1);
-		argValueList.insertTail(argValue2);
-		return closureOperator(opValue, &argValueList, resultValue);
+		return templateInstantiateOperator(*value, typeList, value);
 	}
 
 	// property getter

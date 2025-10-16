@@ -73,10 +73,6 @@ public:
 			resolve();
 	}
 
-	virtual
-	Type*
-	clone() = 0;
-
 protected:
 	bool
 	resolve();
@@ -140,10 +136,6 @@ public:
 	ImportPtrType*
 	getImportPtrType(uint_t typeModifiers);
 
-	virtual
-	Type*
-	clone();
-
 	static
 	sl::String
 	createSignature(
@@ -192,10 +184,6 @@ public:
 	getTypeModifiers() {
 		return m_typeModifiers;
 	}
-
-	virtual
-	Type*
-	clone();
 
 	static
 	sl::String
@@ -248,10 +236,6 @@ public:
 	getTypeModifiers() {
 		return m_typeModifiers;
 	}
-
-	virtual
-	Type*
-	clone();
 
 	static
 	sl::String

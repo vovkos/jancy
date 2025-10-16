@@ -11,7 +11,6 @@
 
 #pragma once
 
-#include "jnc_ct_Type.h"
 #include "jnc_ct_Function.h"
 #include "jnc_ct_UnOp.h"
 #include "jnc_ct_BinOp.h"
@@ -20,7 +19,7 @@ namespace jnc {
 namespace ct {
 
 class Declarator;
-class NamedImportType;
+class TemplateArgType;
 
 //..............................................................................
 
@@ -366,7 +365,7 @@ protected:
 	AttributeBlock* m_attributeBlock;
 	dox::Block* m_doxyBlock;
 	Namespace* m_templateNamespace;
-	sl::Array<NamedImportType*> m_templateArgArray;
+	sl::Array<TemplateArgType*> m_templateArgArray;
 	sl::List<DeclPointerPrefix> m_pointerPrefixList;
 	sl::List<DeclSuffix> m_suffixList;
 	sl::List<Token> m_constructor;
@@ -456,12 +455,17 @@ public:
 		return m_doxyBlock;
 	}
 
-	sl::ConstList<DeclPointerPrefix>
+	const sl::Array<TemplateArgType*>&
+	getTemplateArgArray() {
+		return m_templateArgArray;
+	}
+
+	const sl::List<DeclPointerPrefix>&
 	getPointerPrefixList() {
 		return m_pointerPrefixList;
 	}
 
-	sl::ConstList<DeclSuffix>
+	const sl::List<DeclSuffix>&
 	getSuffixList() {
 		return m_suffixList;
 	}

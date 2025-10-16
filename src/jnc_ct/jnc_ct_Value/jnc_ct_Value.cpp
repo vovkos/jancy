@@ -75,6 +75,7 @@ getValueKindString(ValueKind valueKind) {
 		"void",                   // ValueKind_Void = 0,
 		"null",                   // ValueKind_Null,
 		"namespace",              // ValueKind_Namespace,
+		"template",               // ValueKind_Template,
 		"type",                   // ValueKind_Type,
 		"const",                  // ValueKind_Const,
 		"variable",               // ValueKind_Variable,

@@ -69,6 +69,29 @@ size_t
 Closure::append(const sl::ConstBoxList<Value>& argValueList) {
 	ASSERT(!argValueList.isEmpty());
 
+	sl::ConstBoxIterator<Value> externalArg = prepend(argValueList);
+	for (; externalArg; externalArg++)
+		m_argValueList.insertTail(*externalArg);
+
+	return m_argValueList.getCount();
+}
+
+size_t
+Closure::append(sl::BoxList<Value>* argValueList) {
+	ASSERT(!argValueList->isEmpty());
+
+	sl::ConstBoxIterator<Value> externalArg = prepend(*argValueList);
+	while (externalArg) {
+		sl::BoxListEntry<Value>* entry = (sl::BoxListEntry<Value>*)(externalArg++).getEntry();
+		argValueList->removeEntry(entry);
+		m_argValueList.insertTailEntry(entry);
+	}
+
+	return m_argValueList.getCount();
+}
+
+sl::ConstBoxIterator<Value>
+Closure::prepend(const sl::ConstBoxList<Value>& argValueList) {
 	sl::BoxIterator<Value> internalArg = m_argValueList.getHead();
 	sl::ConstBoxIterator<Value> externalArg = argValueList.getHead();
 
@@ -85,13 +108,10 @@ Closure::append(const sl::ConstBoxList<Value>& argValueList) {
 		externalArg++;
 
 		if (!externalArg)
-			return m_argValueList.getCount();
+			break;
 	}
 
-	for (; externalArg; externalArg++)
-		m_argValueList.insertTail(*externalArg);
-
-	return m_argValueList.getCount();
+	return externalArg;
 }
 
 bool

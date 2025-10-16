@@ -23,13 +23,14 @@ Type*
 DeclTypeCalc::calcType(
 	Type* baseType,
 	TypeModifiers* typeModifiers,
-	const sl::ConstList<DeclPointerPrefix>& pointerPrefixList,
-	const sl::ConstList<DeclSuffix>& suffixList,
+	const sl::List<DeclPointerPrefix>& pointerPrefixList,
+	const sl::List<DeclSuffix>& suffixList,
 	Value* elementCountValue,
 	uint_t* flags
 ) {
-	bool result;
+	ASSERT(!(baseType->getTypeKindFlags() & TypeKindFlag_Template)); // should be done outside (micro-opt)
 
+	bool result;
 	Type* type = baseType;
 	m_module = type->getModule();
 
@@ -360,7 +361,7 @@ DeclTypeCalc::getIntegerType(Type* type) {
 	ASSERT(m_typeModifiers & TypeModifierMaskKind_Integer);
 
 	if (type->getTypeKind() == TypeKind_TypedefShadow)
-		type = ((TypedefShadowType*)type)->getTypedef()->getType();
+		type = ((TypedefShadowType*)type)->getActualType();
 
 	if (type->getTypeKind() == TypeKind_NamedImport)
 		return getImportIntModType((NamedImportType*)type);
@@ -464,6 +465,44 @@ DeclTypeCalc::prepareReturnType(Type* type) {
 	return type;
 }
 
+bool
+DeclTypeCalc::instantiateFunctionArgArray(
+	sl::Array<FunctionArg*>* dstArgArray,
+	const sl::Array<FunctionArg*>& srcArgArray
+) {
+	size_t argCount = srcArgArray.getCount();
+	dstArgArray->setCount(argCount);
+	sl::Array<FunctionArg*>::Rwi rwi = dstArgArray->rwi();
+	for (size_t i = 0; i < argCount; i++) {
+		FunctionArg* srcArg = srcArgArray[i];
+		Type* srcArgType = srcArg->getType();
+		ASSERT(srcArgType->getTypeKind() == TypeKind_TemplateDecl);
+		Type* dstArgType = ((TemplateDeclType*)srcArgType)->instantiate(m_templateArgArray);
+		if (!dstArgType)
+			return false;
+
+		if (srcArg->getInitializer()->isEmpty())
+			rwi[i] = m_module->m_typeMgr.createFunctionArg(
+				srcArg->getName(),
+				dstArgType,
+				srcArg->getPtrTypeFlags()
+			);
+		else {
+			sl::List<Token> initializer;
+			cloneTokenList(&initializer, *srcArg->getInitializer());
+
+			rwi[i] = m_module->m_typeMgr.createFunctionArg(
+				srcArg->getName(),
+				dstArgType,
+				srcArg->getPtrTypeFlags(),
+				&initializer
+			);
+		}
+	}
+
+	return true;
+}
+
 FunctionType*
 DeclTypeCalc::getFunctionType(Type* returnType) {
 	returnType = prepareReturnType(returnType);
@@ -506,12 +545,24 @@ DeclTypeCalc::getFunctionType(Type* returnType) {
 
 	m_typeModifiers &= ~TypeModifierMaskKind_Function;
 
-	return m_module->m_typeMgr.createUserFunctionType(
-		callConv,
-		returnType,
-		suffix->getArgArray(),
-		typeFlags
-	);
+	if (m_templateArgArray.isEmpty())
+		return m_module->m_typeMgr.createUserFunctionType(
+			callConv,
+			returnType,
+			suffix->getArgArray(),
+			typeFlags
+		);
+
+	char buffer[256];
+	sl::Array<FunctionArg*> argArray(rc::BufKind_Stack, buffer, sizeof(buffer));
+	return instantiateFunctionArgArray(&argArray, suffix->getArgArray()) ?
+		m_module->m_typeMgr.createUserFunctionType(
+			callConv,
+			returnType,
+			argArray,
+			typeFlags
+		) :
+		NULL;
 }
 
 PropertyType*
@@ -548,6 +599,11 @@ DeclTypeCalc::getPropertyType(Type* returnType) {
 		return NULL;
 	}
 
+	if (!m_templateArgArray.isEmpty()) {
+		err::setError("property cannot be templated");
+		return NULL;
+	}
+
 	DeclFunctionSuffix* suffix = (DeclFunctionSuffix*)*m_suffix--;
 	return m_module->m_typeMgr.createIndexedPropertyType(
 		callConv,
@@ -555,6 +611,17 @@ DeclTypeCalc::getPropertyType(Type* returnType) {
 		suffix->getArgArray(),
 		typeFlags
 	);
+
+	char buffer[256];
+	sl::Array<FunctionArg*> argArray(rc::BufKind_Stack, buffer, sizeof(buffer));
+	return instantiateFunctionArgArray(&argArray, suffix->getArgArray()) ?
+		m_module->m_typeMgr.createIndexedPropertyType(
+			callConv,
+			returnType,
+			suffix->getArgArray(),
+			typeFlags
+		) :
+		NULL;
 }
 
 PropertyType*

@@ -376,6 +376,7 @@ protected:
 		if (bodyToken.m_data.m_codeAssistFlags & TokenCodeAssistFlag_At)
 			m_module->m_codeAssistMgr.m_containerItem = item;
 
+		item->addUsingSet(m_module->m_namespaceMgr.getCurrentNamespace());
 		return item->setBody(getPragmaConfigSnapshot(), bodyToken.m_pos, bodyToken.m_data.m_string);
 	}
 
@@ -394,6 +395,7 @@ protected:
 		)
 			m_module->m_codeAssistMgr.m_containerItem = item;
 
+		item->addUsingSet(m_module->m_namespaceMgr.getCurrentNamespace());
 		return item->setBody(getPragmaConfigSnapshot(), tokenList);
 	}
 
@@ -454,10 +456,7 @@ protected:
 	);
 
 	bool
-	declareTemplate(
-		Declarator* declarator,
-		Type* type
-	);
+	declareTemplate(Declarator* declarator);
 
 	bool
 	declareTypedef(

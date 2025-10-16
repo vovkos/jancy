@@ -97,7 +97,7 @@ enum jnc_TypeKind {
 	jnc_TypeKind_PropertyPtr,         // P
 	jnc_TypeKind_PropertyRef,         // R
 
-	// import types (resolved after linkage)
+	// import types (should be resolved)
 
 	jnc_TypeKind_NamedImport,         // IN
 	jnc_TypeKind_ImportPtr,           // IP
@@ -106,6 +106,11 @@ enum jnc_TypeKind {
 	// when generating documentation, we want to keep typedef shadow in declarations
 
 	jnc_TypeKind_TypedefShadow,       // T
+
+	// template types
+
+	jnc_TypeKind_TemplateArg,         // X
+	jnc_TypeKind_TemplateDecl,        // D
 
 	// meta
 
@@ -161,6 +166,7 @@ enum jnc_TypeKindFlag {
 	jnc_TypeKindFlag_Code         = 0x00020000,
 	jnc_TypeKindFlag_Nullable     = 0x00040000,
 	jnc_TypeKindFlag_ErrorCode    = 0x00080000,
+	jnc_TypeKindFlag_Template     = 0x00100000,
 };
 
 typedef enum jnc_TypeKindFlag jnc_TypeKindFlag;
@@ -649,6 +655,8 @@ const TypeKind
 	TypeKind_ImportPtr           = jnc_TypeKind_ImportPtr,
 	TypeKind_ImportIntMod        = jnc_TypeKind_ImportIntMod,
 	TypeKind_TypedefShadow       = jnc_TypeKind_TypedefShadow,
+	TypeKind_TemplateArg         = jnc_TypeKind_TemplateArg,
+	TypeKind_TemplateDecl        = jnc_TypeKind_TemplateDecl,
 	TypeKind__Count              = jnc_TypeKind__Count,
 	TypeKind__PrimitiveTypeCount = jnc_TypeKind__PrimitiveTypeCount,
 	TypeKind_IntPtr              = jnc_TypeKind_IntPtr,
@@ -688,7 +696,8 @@ const TypeKindFlag
 	TypeKindFlag_Import       = jnc_TypeKindFlag_Import,
 	TypeKindFlag_Code         = jnc_TypeKindFlag_Code,
 	TypeKindFlag_Nullable     = jnc_TypeKindFlag_Nullable,
-	TypeKindFlag_ErrorCode    = jnc_TypeKindFlag_ErrorCode;
+	TypeKindFlag_ErrorCode    = jnc_TypeKindFlag_ErrorCode,
+	TypeKindFlag_Template     = jnc_TypeKindFlag_Template;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

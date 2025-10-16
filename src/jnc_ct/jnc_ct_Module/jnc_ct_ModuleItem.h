@@ -156,12 +156,12 @@ public:
 	findAttribute(const sl::StringRef& name);
 
 	void
-	copy(ModuleItemDecl* src) {
-		copy(src, src->m_attributeBlock);
+	copyDecl(ModuleItemDecl* src) {
+		copyDecl(src, src->m_attributeBlock);
 	}
 
 	void
-	copy(
+	copyDecl(
 		ModuleItemDecl* src,
 		AttributeBlock* attributeBlock
 	);

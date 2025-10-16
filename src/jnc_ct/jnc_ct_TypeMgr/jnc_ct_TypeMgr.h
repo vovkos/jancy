@@ -19,11 +19,14 @@
 #include "jnc_ct_CdeclCallConv_gcc64.h"
 #include "jnc_ct_CdeclCallConv_msc64.h"
 #include "jnc_ct_StructType.h"
+#include "jnc_ct_Typedef.h"
 
 namespace jnc {
 namespace ct {
 
 class Module;
+class Declarator;
+
 class ArrayType;
 class EnumType;
 class StructType;
@@ -47,6 +50,8 @@ class McSnapshotClassType;
 class NamedImportType;
 class ImportPtrType;
 class ImportIntModType;
+class TemplateArgType;
+class TemplateDeclType;
 
 struct DataPtrTypeTuple;
 struct ClassPtrTypeTuple;
@@ -111,7 +116,7 @@ protected:
 	sl::SimpleHashTable<DerivableType*, bool> m_externalReturnTypeSet;
 
 	sl::StringHashTable<Type*> m_typeMap;
-	size_t m_unnamedTypeCounter;
+	size_t m_unnamedTypeId;
 
 public:
 	TypeMgr();
@@ -223,7 +228,7 @@ public:
 	) {
 		return createEnumType(
 			sl::StringRef(),
-			sl::formatString("enum.%d", ++m_unnamedTypeCounter),
+			sl::formatString("enum.%d", createUnnamedTypeId()),
 			baseType,
 			flags
 		);
@@ -246,7 +251,7 @@ public:
 	createUnnamedStructType(size_t fieldAlignment = 8) {
 		return createStructType(
 			sl::StringRef(),
-			sl::formatString("struct.%d", ++m_unnamedTypeCounter),
+			sl::formatString("struct.%d", createUnnamedTypeId()),
 			fieldAlignment
 		);
 	}
@@ -257,7 +262,7 @@ public:
 		size_t fieldAlignment = 8
 	) {
 		return createInternalStructType(
-			sl::formatString("struct.%s.%d", tag.sz(), ++m_unnamedTypeCounter),
+			sl::formatString("struct.%s.%d", tag.sz(), createUnnamedTypeId()),
 			fieldAlignment
 		);
 	}
@@ -273,7 +278,7 @@ public:
 	createUnnamedUnionType(size_t fieldAlignment = 8) {
 		return createUnionType(
 			sl::StringRef(),
-			sl::formatString("union.%d", ++m_unnamedTypeCounter),
+			sl::formatString("union.%d", createUnnamedTypeId()),
 			fieldAlignment
 		);
 	}
@@ -305,7 +310,7 @@ public:
 	) {
 		return createClassType<T>(
 			sl::StringRef(),
-			sl::formatString("class.%d", ++m_unnamedTypeCounter),
+			sl::formatString("class.%d", createUnnamedTypeId()),
 			fieldAlignment,
 			flags
 		);
@@ -344,7 +349,7 @@ public:
 		uint_t flags = 0
 	) {
 		return createInternalClassType<T>(
-			sl::formatString("class.%s.%d", tag.sz(), ++m_unnamedTypeCounter),
+			sl::formatString("class.%s.%d", tag.sz(), createUnnamedTypeId()),
 			fieldAlignment,
 			flags
 		);
@@ -699,21 +704,8 @@ public:
 		const QualifiedName& anchorName = QualifiedName()
 	);
 
-	NamedImportType*
-	createNamedImportType(
-		const QualifiedName& name,
-		Namespace* anchorNamespace,
-		const QualifiedName& anchorName
-	);
-
 	ImportPtrType*
 	getImportPtrType(
-		NamedImportType* importType,
-		uint_t typeModifiers
-	);
-
-	ImportPtrType*
-	createImportPtrType(
 		NamedImportType* importType,
 		uint_t typeModifiers
 	);
@@ -724,11 +716,14 @@ public:
 		uint_t typeModifiers
 	);
 
-	ImportIntModType*
-	createImportIntModType(
-		NamedImportType* importType,
-		uint_t typeModifiers
+	TemplateArgType*
+	getTemplateArgType(
+		const sl::StringRef& name,
+		size_t index
 	);
+
+	TemplateDeclType*
+	createTemplateDeclType(Declarator* declarator);
 
 	Type*
 	foldDualType(
@@ -738,6 +733,11 @@ public:
 	);
 
 protected:
+	size_t
+	createUnnamedTypeId() {
+		return ++m_unnamedTypeId;
+	}
+
 	void
 	addClassType(
 		ClassType* type,

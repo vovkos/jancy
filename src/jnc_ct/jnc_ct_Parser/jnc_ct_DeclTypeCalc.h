@@ -36,10 +36,16 @@ class DeclTypeCalc: protected TypeModifiers {
 protected:
 	Module* m_module;
 	sl::ConstIterator<DeclSuffix> m_suffix;
+	sl::ArrayRef<Type*> m_templateArgArray;
 
 public:
 	DeclTypeCalc() {
 		m_module = NULL;
+	}
+
+	void
+	setTemplateArgArray(const sl::ArrayRef<Type*>& argArray) {
+		m_templateArgArray = argArray;
 	}
 
 	Type*
@@ -62,8 +68,8 @@ public:
 	calcType(
 		Type* baseType,
 		TypeModifiers* typeModifiers,
-		const sl::ConstList<DeclPointerPrefix>& pointerPrefixList,
-		const sl::ConstList<DeclSuffix>& suffixList,
+		const sl::List<DeclPointerPrefix>& pointerPrefixList,
+		const sl::List<DeclSuffix>& suffixList,
 		Value* elementCountValue,
 		uint_t* flags
 	);
@@ -134,6 +140,12 @@ protected:
 
 	Type*
 	prepareReturnType(Type* type);
+
+	bool
+	instantiateFunctionArgArray(
+		sl::Array<FunctionArg*>* dstArgArray,
+		const sl::Array<FunctionArg*>& srcArgArray
+	);
 };
 
 //..............................................................................

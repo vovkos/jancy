@@ -19,6 +19,7 @@
 #include "jnc_ct_ExtensionNamespace.h"
 #include "jnc_ct_AsyncLauncherFunction.h"
 #include "jnc_ct_ReactorClassType.h"
+#include "jnc_ct_TemplateType.h"
 #include "jnc_ct_Parser.llk.h"
 #include "jnc_ct_Parser.llk.cpp"
 
@@ -622,30 +623,23 @@ Parser::setDeclarationBody(const Token& bodyToken) {
 		return false;
 	}
 
-	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	Type* type;
 
 	ModuleItemKind itemKind = m_lastDeclaredItem->getItemKind();
 	switch (itemKind) {
-	case ModuleItemKind_Function: {
-		if (nspace->getNamespaceKind() == NamespaceKind_DynamicLib) {
+	case ModuleItemKind_Function:
+		if (m_module->m_namespaceMgr.getCurrentNamespace()->getNamespaceKind() == NamespaceKind_DynamicLib) {
 			err::setError("dynamiclib function cannot have a body");
 			return false;
 		}
 
-		Function* function = (Function*)m_lastDeclaredItem;
-		function->addUsingSet(nspace);
-		return setBody(function, bodyToken);
-		}
+		return setBody((Function*)m_lastDeclaredItem, bodyToken);
 
 	case ModuleItemKind_Property:
 		return parseLastPropertyBody(bodyToken);
 
-	case ModuleItemKind_Template: {
-		Template* orphan = (Template*)m_lastDeclaredItem;
-		orphan->addUsingSet(nspace);
-		return setBody(orphan, bodyToken);
-		}
+	case ModuleItemKind_Template:
+		return setBody((Template*)m_lastDeclaredItem, bodyToken);
 
 	case ModuleItemKind_Typedef:
 		type = ((Typedef*)m_lastDeclaredItem)->getType();
@@ -663,11 +657,8 @@ Parser::setDeclarationBody(const Token& bodyToken) {
 		type = ((Field*)m_lastDeclaredItem)->getType();
 		break;
 
-	case ModuleItemKind_Orphan: {
-		Orphan* orphan = (Orphan*)m_lastDeclaredItem;
-		orphan->addUsingSet(nspace);
-		return setBody(orphan, bodyToken);
-		}
+	case ModuleItemKind_Orphan:
+		return setBody((Orphan*)m_lastDeclaredItem, bodyToken);
 
 	default:
 		err::setFormatStringError("'%s' cannot have a body", getModuleItemKindString(m_lastDeclaredItem->getItemKind ()));
@@ -933,18 +924,10 @@ bool
 Parser::declare(Declarator* declarator) {
 	m_lastDeclaredItem = NULL;
 
-	bool isTemplate = declarator->isTemplate();
+	if (declarator->isTemplate())
+		return declareTemplate(declarator);
+
 	bool isLibrary = m_module->m_namespaceMgr.getCurrentNamespace()->getNamespaceKind() == NamespaceKind_DynamicLib;
-
-	if (isTemplate) {
-		m_module->m_namespaceMgr.closeTemplateNamespace();
-
-		if (m_mode != Mode_Parse || isLibrary) {
-			err::setError("templates are not allowed here");
-			return false;
-		}
-	}
-
 	if ((declarator->getTypeModifiers() & TypeModifier_Property) && m_storageKind != StorageKind_Typedef) {
 		if (isLibrary) {
 			err::setError("only functions can be part of library");
@@ -957,13 +940,10 @@ Parser::declare(Declarator* declarator) {
 		return declareProperty(declarator, NULL, 0);
 	}
 
-	uint_t declFlags;
+	uint_t declFlags = 0;
 	Type* type = declarator->calcType(&declFlags);
 	if (!type)
 		return false;
-
-	if (isTemplate)
-		return declareTemplate(declarator, type);
 
 	DeclaratorKind declaratorKind = declarator->getDeclaratorKind();
 	uint_t postModifiers = declarator->getPostDeclaratorModifiers();
@@ -1050,25 +1030,19 @@ Parser::assignDeclarationAttributes(
 }
 
 bool
-Parser::declareTemplate(
-	Declarator* declarator,
-	Type* type
-) {
+Parser::declareTemplate(Declarator* declarator) {
+	m_module->m_namespaceMgr.closeTemplateNamespace();
+
 	if (!declarator->isSimple()) {
-		err::setError("invalid typedef declarator");
+		err::setError("invalid template declarator");
 		return false;
 	}
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
+	TemplateDeclType* type = m_module->m_typeMgr.createTemplateDeclType(declarator);
+	declarator = type->getDeclarator();
 	const sl::StringRef& name = declarator->getName().getShortName();
-
-	Template* templ = m_module->m_templateMgr.createTemplate(
-		name,
-		nspace->createQualifiedName(name),
-		type,
-		declarator->m_templateArgArray
-	);
-
+	Template* templ = m_module->m_templateMgr.createTemplate(name, nspace->createQualifiedName(name), type);
 	assignDeclarationAttributes(templ, templ, declarator);
 	return nspace->addItem(name, templ);
 }
@@ -2289,11 +2263,17 @@ Parser::createFormalArg(
 	Declarator* declarator
 ) {
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-
 	uint_t ptrTypeFlags = 0;
-	Type* type = declarator->calcType(&ptrTypeFlags);
-	if (!type)
-		return NULL;
+	Type* type;
+
+	if (nspace->getNamespaceKind() == NamespaceKind_Template) {
+		type = m_module->m_typeMgr.createTemplateDeclType(declarator);
+		declarator = ((TemplateDeclType*)type)->getDeclarator();
+	} else {
+		type = declarator->calcType(&ptrTypeFlags);
+		if (!type)
+			return NULL;
+	}
 
 	TypeKind typeKind = type->getTypeKind();
 	switch (typeKind) {
@@ -2814,6 +2794,10 @@ Parser::lookupIdentifier(
 	switch (itemKind) {
 	case ModuleItemKind_Namespace:
 		value->setNamespace((GlobalNamespace*)item);
+		break;
+
+	case ModuleItemKind_Template:
+		value->setTemplate((Template*)item);
 		break;
 
 	case ModuleItemKind_Typedef:

@@ -29,6 +29,7 @@
 #include "jnc_ct_ClosureClassType.h"
 #include "jnc_ct_MulticastClassType.h"
 #include "jnc_ct_McSnapshotClassType.h"
+#include "jnc_ct_TemplateType.h"
 #include "jnc_ct_Parser.llk.h"
 #include "jnc_Variant.h"
 #include "jnc_String.h"
@@ -59,7 +60,7 @@ TypeMgr::TypeMgr() {
 	setupCallConvArray();
 
 	memset(m_stdTypeArray, 0, sizeof(m_stdTypeArray));
-	m_unnamedTypeCounter = 0;
+	m_unnamedTypeId = 0;
 }
 
 void
@@ -82,7 +83,7 @@ TypeMgr::clear() {
 	setupAllPrimitiveTypes();
 
 	memset(m_stdTypeArray, 0, sizeof(m_stdTypeArray));
-	m_unnamedTypeCounter = 0;
+	m_unnamedTypeId = 0;
 }
 
 void
@@ -1547,21 +1548,6 @@ TypeMgr::getNamedImportType(
 		return type;
 	}
 
-	NamedImportType* type = createNamedImportType(name, anchorNamespace, anchorName);
-	type->m_signature = signature;
-	type->m_flags |= TypeFlag_SignatureReady;
-	it->m_value = type;
-	return type;
-}
-
-NamedImportType*
-TypeMgr::createNamedImportType(
-	const QualifiedName& name,
-	Namespace* anchorNamespace,
-	const QualifiedName& anchorName
-) {
-	ASSERT(anchorNamespace->getNamespaceKind() != NamespaceKind_Scope);
-
 	NamedImportType* type = new NamedImportType;
 	type->m_module = m_module;
 	type->m_name = name;
@@ -1570,8 +1556,11 @@ TypeMgr::createNamedImportType(
 	type->m_qualifiedName = anchorName.isEmpty() ?
 		anchorNamespace->createQualifiedName(name) :
 		anchorNamespace->createQualifiedName(anchorName) + '.' + name.getFullName();
+	type->m_signature = signature;
+	type->m_flags |= TypeFlag_SignatureReady;
 
 	m_typeList.insertTail(type);
+	it->m_value = type;
 	return type;
 }
 
@@ -1588,23 +1577,15 @@ TypeMgr::getImportPtrType(
 		return type;
 	}
 
-	ImportPtrType* type = createImportPtrType(namedImportType, typeModifiers);
-	type->m_signature = signature;
-	type->m_flags |= TypeFlag_SignatureReady;
-	it->m_value = type;
-	return type;
-}
-
-ImportPtrType*
-TypeMgr::createImportPtrType(
-	NamedImportType* namedImportType,
-	uint_t typeModifiers
-) {
 	ImportPtrType* type = new ImportPtrType;
 	type->m_module = m_module;
 	type->m_targetType = namedImportType;
 	type->m_typeModifiers = typeModifiers;
+	type->m_signature = signature;
+	type->m_flags |= TypeFlag_SignatureReady;
+
 	m_typeList.insertTail(type);
+	it->m_value = type;
 	return type;
 }
 
@@ -1621,22 +1602,49 @@ TypeMgr::getImportIntModType(
 		return type;
 	}
 
-	ImportIntModType* type = createImportIntModType(namedImportType, typeModifiers);
-	type->m_signature = signature;
-	type->m_flags |= TypeFlag_SignatureReady;
-	it->m_value = type;
-	return type;
-}
-
-ImportIntModType*
-TypeMgr::createImportIntModType(
-	NamedImportType* namedImportType,
-	uint_t typeModifiers
-) {
 	ImportIntModType* type = new ImportIntModType;
 	type->m_module = m_module;
 	type->m_importType = namedImportType;
 	type->m_typeModifiers = typeModifiers;
+	type->m_signature = signature;
+	type->m_flags |= TypeFlag_SignatureReady;
+
+	m_typeList.insertTail(type);
+	it->m_value = type;
+	return type;
+}
+
+TemplateArgType*
+TypeMgr::getTemplateArgType(
+	const sl::StringRef& name,
+	size_t index
+) {
+	sl::String signature = TemplateArgType::createSignature(name, index);
+	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
+	if (it->m_value) {
+		TemplateArgType* type = (TemplateArgType*)it->m_value;
+		ASSERT(type->m_signature == signature);
+		return type;
+	}
+
+	TemplateArgType* type = new TemplateArgType;
+	type->m_module = m_module;
+	type->m_name = name;
+	type->m_index = index;
+	type->m_signature = signature;
+	type->m_flags |= TypeFlag_SignatureReady;
+
+	m_typeList.insertTail(type);
+	it->m_value = type;
+	return type;
+}
+
+TemplateDeclType*
+TypeMgr::createTemplateDeclType(Declarator* declarator) {
+	TemplateDeclType* type = new TemplateDeclType;
+	type->m_module = m_module;
+	type->m_id = createUnnamedTypeId();
+	sl::takeOver(&type->m_declarator, declarator);
 	m_typeList.insertTail(type);
 	return type;
 }

@@ -12,6 +12,7 @@
 #include "pch.h"
 #include "jnc_ct_Decl.h"
 #include "jnc_ct_DeclTypeCalc.h"
+#include "jnc_ct_TemplateType.h"
 #include "jnc_ct_Module.h"
 
 namespace jnc {
@@ -423,15 +424,10 @@ Declarator::setTemplateSuffix(const sl::BoxList<sl::StringRef>& templateArgList)
 	bool finalResult = true;
 
 	sl::ConstBoxIterator<sl::StringRef> it = templateArgList.getHead();
-	for (; it; it++) {
+	for (size_t i = 0; it; it++, i++) {
 		const sl::StringRef& name = *it;
 
-		NamedImportType* type = module->m_typeMgr.createNamedImportType(
-			QualifiedName(name),
-			m_templateNamespace,
-			QualifiedName()
-		);
-
+		TemplateArgType* type = module->m_typeMgr.getTemplateArgType(name, i);
 		bool result = m_templateNamespace->addItem(name, type);
 		if (!result) {
 			finalResult = false;
