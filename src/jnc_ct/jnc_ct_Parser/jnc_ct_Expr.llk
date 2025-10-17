@@ -228,10 +228,11 @@ expression_list
 			{
 				$.m_valueList.insertTail($1.m_value);
 			}
-		(',' expression $e2
-			{
-				$.m_valueList.insertTail($e2.m_value);
-			}
+		(
+			',' expression $e2
+				{
+					$.m_valueList.insertTail($e2.m_value);
+				}
 		)*
 	;
 
@@ -315,8 +316,7 @@ struct {
 	BasicBlock* m_phiBlock;
 }
 conditional_expr<Value* $value>
-	:	logical_or_expr<$value>
-		(
+	:	logical_or_expr<$value> (
 				{
 					$.m_thenBlock = m_module->m_controlFlowMgr.createBlock("cond_then");
 					$.m_elseBlock = m_module->m_controlFlowMgr.createBlock("cond_else");
@@ -348,8 +348,7 @@ logical_or_expr<Value* $value>
 		BasicBlock* $opBlock2;
 		Value $opValue2;
 	}
-	:	logical_and_expr<$value>
-		(
+	:	logical_and_expr<$value> (
 			TokenKind_LogOr
 				{
 					$opBlock1 = m_module->m_controlFlowMgr.getCurrentBlock();
@@ -371,8 +370,7 @@ logical_and_expr<Value* $value>
 		BasicBlock* $opBlock2;
 		Value $opValue2;
 	}
-	:	inclusive_or_expr<$value>
-		(
+	:	inclusive_or_expr<$value> (
 			TokenKind_LogAnd
 				{
 					$opBlock1 = m_module->m_controlFlowMgr.getCurrentBlock();
@@ -392,11 +390,11 @@ inclusive_or_expr<Value* $value>
 	local {
 		Value $opValue2;
 	}
-	:	exclusive_or_expr<$value>
-		('|' exclusive_or_expr<&$opValue2>
-			{
-				return m_module->m_operatorMgr.binaryOperator(BinOpKind_BwOr, $value, $opValue2);
-			}
+	:	exclusive_or_expr<$value> (
+			'|' exclusive_or_expr<&$opValue2>
+				{
+					return m_module->m_operatorMgr.binaryOperator(BinOpKind_BwOr, $value, $opValue2);
+				}
 		)*
 	;
 
@@ -404,11 +402,11 @@ exclusive_or_expr<Value* $value>
 	local {
 		Value $opValue2;
 	}
-	:	and_expr<$value>
-		('^' and_expr<&$opValue2>
-			{
-				return m_module->m_operatorMgr.binaryOperator(BinOpKind_BwXor, $value, $opValue2);
-			}
+	:	and_expr<$value> (
+			'^' and_expr<&$opValue2>
+				{
+					return m_module->m_operatorMgr.binaryOperator(BinOpKind_BwXor, $value, $opValue2);
+				}
 		)*
 	;
 
@@ -416,11 +414,11 @@ and_expr<Value* $value>
 	local {
 		Value $opValue2;
 	}
-	:	equality_expr<$value>
-		('&' equality_expr<&$opValue2>
-			{
-				return m_module->m_operatorMgr.binaryOperator(BinOpKind_BwAnd, $value, $opValue2);
-			}
+	:	equality_expr<$value> (
+			'&' equality_expr<&$opValue2>
+				{
+					return m_module->m_operatorMgr.binaryOperator(BinOpKind_BwAnd, $value, $opValue2);
+				}
 		)*
 	;
 
@@ -578,11 +576,11 @@ at_expr<Value* $value>
 	local {
 		Value $opValue2;
 	}
-	:	assignment_expr<$value>
-		('@' assignment_expr<&$opValue2>
-			{
-				return m_module->m_operatorMgr.binaryOperator(BinOpKind_At, $value, $opValue2);
-			}
+	:	assignment_expr<$value> (
+			'@' assignment_expr<&$opValue2>
+				{
+					return m_module->m_operatorMgr.binaryOperator(BinOpKind_At, $value, $opValue2);
+				}
 		)*
 	;
 
@@ -735,8 +733,7 @@ cast_operator_rslv
 	local {
 		TypeSpecifier $typeSpecifier;
 	}
-	:	TokenKind_DynamicCast? '('
-		(
+	:	TokenKind_DynamicCast? '(' (
 			type_specifier_sync |
 			type_modifier_sync |
 			qualified_type_name_rslv

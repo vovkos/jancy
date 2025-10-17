@@ -98,7 +98,9 @@ declarator_w_curly_initializer<
 				sl::takeOver(&$declarator->m_initializer, &$2.m_tokenList);
 				return declare($declarator);
 			}
-		(',' declarator_list<$typeSpecifier>)?
+		(
+			',' declarator_list<$typeSpecifier>
+		)?
 	;
 
 declarator_wo_curly_initializer<
@@ -423,10 +425,11 @@ template_suffix
 			{
 				return addTemplateArg($2.m_data.m_string);
 			}
-		(',' TokenKind_Identifier $n2
-			{
-				return addTemplateArg($n2.m_data.m_string);
-			}
+		(
+			',' TokenKind_Identifier $n2
+				{
+					return addTemplateArg($n2.m_data.m_string);
+				}
 		)*
 		'>'
 	;
@@ -488,11 +491,11 @@ function_formal_argument<DeclFunctionSuffix* $functionSuffix>
 			}
 		declarator_prefix<&$declarator>*
 		declarator_name<&$declarator>?
-		declarator_suffix<&$declarator>*
-		('=' expression_pass1 $i
-			{
-				sl::takeOver(&$declarator.m_initializer, &$i.m_tokenList);
-			}
+		declarator_suffix<&$declarator>* (
+			'=' expression_pass1 $i
+				{
+					sl::takeOver(&$declarator.m_initializer, &$i.m_tokenList);
+				}
 		)?
 			{
 				return createFormalArg($functionSuffix, &$declarator) != NULL;

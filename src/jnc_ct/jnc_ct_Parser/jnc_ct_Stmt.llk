@@ -134,8 +134,7 @@ if_stmt
 			{
 				return m_module->m_controlFlowMgr.ifStmt_Condition(&$stmt, $e.m_value, $a.m_pos);
 			}
-		local_branch_declaration
-		(
+		local_branch_declaration (
 			TokenKind_Else $a2
 				{
 					m_module->m_controlFlowMgr.ifStmt_Else(&$stmt, $a2.m_pos);
@@ -306,8 +305,7 @@ for_stmt
 				m_module->m_controlFlowMgr.forStmt_PreInit(&$stmt, $1.m_pos);
 			}
 		(local_item_declaration | expression_or_empty_list ';')
-		for_stmt_condition<&$stmt> ';'
-		(
+		for_stmt_condition<&$stmt> ';' (
 				{
 					m_module->m_controlFlowMgr.forStmt_PreLoop(&$stmt);
 				}

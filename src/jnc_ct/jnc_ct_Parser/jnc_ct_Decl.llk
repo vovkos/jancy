@@ -195,9 +195,8 @@ access_declaration
 	;
 
 pragma_declaration
-	:	TokenKind_Pragma '(' TokenKind_Identifier $i
-		(	','
-			(
+	:	TokenKind_Pragma '(' TokenKind_Identifier $i (
+			',' (
 				constant_integer_expr $v
 					{
 						return pragma($i.m_data.m_string, PragmaState_CustomValue, $v.m_value);
@@ -272,11 +271,12 @@ qualified_name_list
 				sl::BoxIterator<QualifiedName> it = $.m_nameList.insertTail();
 				sl::takeOver(it.p(), &$1.m_name);
 			}
-		(',' qualified_name
-			{
-				sl::BoxIterator<QualifiedName> it = $.m_nameList.insertTail();
-				sl::takeOver(it.p(), &$3.m_name);
-			}
+		(
+			',' qualified_name
+				{
+					sl::BoxIterator<QualifiedName> it = $.m_nameList.insertTail();
+					sl::takeOver(it.p(), &$3.m_name);
+				}
 		)*
 	;
 
@@ -432,10 +432,11 @@ type_name_list
 			{
 				$.m_typeArray.append($1.m_type);
 			}
-		(',' type_name $t2
-			{
-				$.m_typeArray.append($t2.m_type);
-			}
+		(
+			',' type_name $t2
+				{
+					$.m_typeArray.append($t2.m_type);
+				}
 		)*
 	;
 

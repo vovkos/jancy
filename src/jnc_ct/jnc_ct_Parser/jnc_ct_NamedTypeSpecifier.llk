@@ -102,8 +102,7 @@ struct_specifier
 		StructType* $type;
 	}
 	:	TokenKind_Struct
-		(TokenKind_Identifier $n)?
-		(
+		(TokenKind_Identifier $n)? (
 			(':' type_name_list $b1)?
 				{
 					return ($type = createStructType(
@@ -136,8 +135,7 @@ union_specifier
 		UnionType* $type;
 	}
 	:	TokenKind_Union
-		(TokenKind_Identifier $n)?
-		(
+		(TokenKind_Identifier $n)? (
 				{
 					return ($type = createUnionType(
 						&$n ? $n.m_pos : $1.m_pos,
@@ -175,8 +173,7 @@ class_specifier
 		ClassType* $type;
 	}
 	:	(TokenKind_Class | TokenKind_OpaqueClass $o)
-		TokenKind_Identifier $n
-		(
+		TokenKind_Identifier $n (
 			(':' type_name_list $b1)?
 				{
 					return ($type = createClassType(
