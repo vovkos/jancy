@@ -11,39 +11,14 @@
 
 // root
 
-struct {
-	NamedType* m_type;
-}
+start
 named_type_specifier
-	enter {
-		$.m_type = NULL;
-	}
-	leave {
-		if (m_mode == Mode_Compile && $.m_type)
-			return $.m_type->ensureLayout();
-	}
 	:	enum_specifier
-			{
-				$.m_type = $1.m_type;
-			}
 	|	struct_specifier
-			{
-				$.m_type = $1.m_type;
-			}
 	|	union_specifier
-			{
-				$.m_type = $1.m_type;
-			}
 	|	class_specifier
-			{
-				$.m_type = $1.m_type;
-			}
 	|	library_specifier
-			{
-				$.m_type = $1.m_type;
-			}
 	;
-
 
 named_type_specifier_sync
 	:	TokenKind_Enum
@@ -55,32 +30,18 @@ named_type_specifier_sync
 	|	TokenKind_DynamicLib
 	;
 
-start
-named_type_specifier_save_type
-	:	named_type_specifier
-			{
-				m_lastNamedType = $1.m_type;
-			}
-	;
-
 //..............................................................................
 
 // enum
 
 struct {
 	EnumType* m_type;
-	Token::Pos m_pos;
 }
 enum_specifier
-	enter {
-		$.m_type = NULL;
-		$.m_pos = m_tokenCursor->m_pos;
+	local {
+		EnumType* $type;
 	}
-	leave {
-		if ($.m_type && $.m_type->getFlags() & EnumTypeFlag_Exposed)
-			return m_module->m_namespaceMgr.getCurrentNamespace()->exposeEnumConsts($.m_type);
-	}
-	:	(TokenKind_Enum | TokenKind_BitFlagEnum $b)
+	:	(TokenKind_Enum $e | TokenKind_BitFlagEnum $b)
 		TokenKind_Identifier $n?
 		(':' type_name $t)?
 			{
@@ -88,31 +49,25 @@ enum_specifier
 				if (&$b)
 					flags |= EnumTypeFlag_BitFlag;
 
-				$.m_type = createEnumType(
-					&$n ? $n.m_pos : $.m_pos,
+				return ($type = createEnumType(
+					&$n ? $n.m_pos : &$b ? $b.m_pos : $e.m_pos,
 					&$n ? $n.m_data.m_string : sl::String(),
 					&$t ? $t.m_type : NULL,
 					flags
-				);
-
-				if (!$.m_type)
-					return false;
+				)) != NULL;
 			}
-		enum_block<$.m_type>
-	;
-
-enum_block<EnumType* $type>
-	:	(		{
+		(
+				{
 					m_module->m_namespaceMgr.openNamespace($type);
 					$type->m_namespaceStatus = NamespaceStatus_Ready;
 				}
 			'{' enum_const_list '}'
 				{
-					m_module->m_namespaceMgr.closeNamespace();
+					return finalizeEnumType($type);
 				}
-		|	TokenKind_Body
+		|	TokenKind_Body $y
 				{
-					setBody($type, $1);
+					setBody($type, $y);
 				}
 		)
 	;
@@ -142,66 +97,66 @@ enum_const_sync
 
 // struct
 
-struct {
-	StructType* m_type;
-}
 struct_specifier
-	enter {
-		$.m_type = NULL;
+	local {
+		StructType* $type;
 	}
-	leave {
-		if ($.m_type && $.m_type->getName().isEmpty())
-			return declareUnnamedStructOrUnion($.m_type);
-	}
-	:	TokenKind_Struct $s
+	:	TokenKind_Struct
+		(TokenKind_Identifier $n)?
 		(
-			TokenKind_Identifier $n
-			template_suffix $t?
-		)?
-		(':' type_name_list $b)?
-			{
-				$.m_type = createStructType(
-					&$n ? $n.m_pos : $s.m_pos,
-					&$n ? $n.m_data.m_string : sl::String(),
-					&$b ? &$b.m_typeList : NULL
-				);
-
-				if (!$.m_type)
-					return false;
-			}
-		member_block<$.m_type>
+			(':' type_name_list $b1)?
+				{
+					return ($type = createStructType(
+						&$n ? $n.m_pos : $1.m_pos,
+						&$n ? $n.m_data.m_string : sl::String(),
+						&$b1 ? sl::ArrayRef<Type*>($b1.m_typeArray) : sl::ArrayRef<Type*>()
+					)) != NULL;
+				}
+			derivable_type_member_block<$type>
+		|	template_suffix
+			(':' type_name_list $b2)?
+			declaration_body_pass1 $y
+				{
+					return declareTemplate(
+						TypeKind_Struct,
+						&$n,
+						&$b2 ? sl::ArrayRef<Type*>($b2.m_typeArray) : sl::ArrayRef<Type*>(),
+						&$y.m_tokenList
+					) != NULL;
+				}
+		)
 	;
 
 //..............................................................................
 
 // union
 
-struct {
-	UnionType* m_type;
-}
 union_specifier
-	enter {
-		$.m_type = NULL;
+	local {
+		UnionType* $type;
 	}
-	leave {
-		if ($.m_type && $.m_type->getName().isEmpty())
-			return declareUnnamedStructOrUnion($.m_type);
-	}
-	:	TokenKind_Union $u
+	:	TokenKind_Union
+		(TokenKind_Identifier $n)?
 		(
-			TokenKind_Identifier $n
-			template_suffix $t?
-		)?
-			{
-				$.m_type = createUnionType(
-					&$n ? $n.m_pos : $u.m_pos,
-					&$n ? $n.m_data.m_string : sl::String()
-				);
+				{
+					return ($type = createUnionType(
+						&$n ? $n.m_pos : $1.m_pos,
+						&$n ? $n.m_data.m_string : sl::String()
+					)) != NULL;
+				}
+			derivable_type_member_block<$type>
+		|	template_suffix
+			declaration_body_pass1 $y
+				{
+					return declareTemplate(
+						TypeKind_Union,
+						&$n,
+						sl::ArrayRef<Type*>(),
+						&$y.m_tokenList
+					) != NULL;
+				}
 
-				if (!$.m_type)
-					return false;
-			}
-		member_block<$.m_type>
+		)
 	;
 
 //..............................................................................
@@ -214,73 +169,84 @@ class_specifier_rslv
 	:	(TokenKind_Class | TokenKind_OpaqueClass) TokenKind_Identifier
 	;
 
-struct {
-	ClassType* m_type;
-}
 resolver(class_specifier_rslv)
 class_specifier
+	local {
+		ClassType* $type;
+	}
 	:	(TokenKind_Class | TokenKind_OpaqueClass $o)
 		TokenKind_Identifier $n
-		template_suffix $t?
-		(':' type_name_list $b)?
-			{
-				$.m_type = createClassType(
-					$n.m_pos,
-					$n.m_data.m_string,
-					&$b ? &$b.m_typeList : NULL,
-					&$o ? ClassTypeFlag_Opaque : 0
-				);
-
-				if (!$.m_type)
-					return false;
-			}
-		member_block<$.m_type>
-	;
-
-//..............................................................................
-
-// dynamic library
-
-struct {
-	DynamicLibClassType* m_type;
-}
-library_specifier
-	:	TokenKind_DynamicLib TokenKind_Identifier
-			{
-				$.m_type = createDynamicLibType($2.m_pos, $2.m_data.m_string);
-				if (!$.m_type)
-					return false;
-			}
-		(		{
-					m_module->m_namespaceMgr.openNamespace($.m_type->getLibNamespace());
-				}
-			'{' member_block_declaration_list '}'
+		(
+			(':' type_name_list $b1)?
 				{
-					return finalizeDynamicLibType();
+					return ($type = createClassType(
+						$n.m_pos,
+						$n.m_data.m_string,
+						&$b1 ? sl::ArrayRef<Type*>($b1.m_typeArray) : sl::ArrayRef<Type*>(),
+						&$o ? ClassTypeFlag_Opaque : 0
+					)) != NULL;
 				}
-		|	TokenKind_Body $b
+			derivable_type_member_block<$type>
+		|	template_suffix
+			(':' type_name_list $b2)?
+			declaration_body_pass1 $y
 				{
-					return setBody($.m_type->getLibNamespace(), $b);
+					return !&$o ?
+						declareTemplate(
+							TypeKind_Struct,
+							&$n,
+							&$b2 ? sl::ArrayRef<Type*>($b2.m_typeArray) : sl::ArrayRef<Type*>(),
+							&$y.m_tokenList
+						) :
+						err::fail("opaque class cannot be templated");
 				}
 		)
 	;
 
 //..............................................................................
 
-// struct, union, class, property
+// dynamiclib
 
-member_block<NamedType* $type>
-	:	(		{
+library_specifier
+	local {
+		DynamicLibClassType* $type;
+	}
+	:	TokenKind_DynamicLib TokenKind_Identifier
+			{
+				return ($type = createDynamicLibType($2.m_pos, $2.m_data.m_string)) != NULL;
+			}
+		(
+				{
+					m_module->m_namespaceMgr.openNamespace($type->getLibNamespace());
+				}
+			'{' member_block_declaration_list '}'
+				{
+					return finalizeDerivableType($type);
+				}
+		|	TokenKind_Body $y
+				{
+					return setBody($type->getLibNamespace(), $y);
+				}
+		)
+	;
+
+//..............................................................................
+
+// struct, union, class
+
+derivable_type_member_block<DerivableType* $type>
+	:	(
+				{
 					m_module->m_namespaceMgr.openNamespace($type);
 					$type->m_namespaceStatus = NamespaceStatus_Ready;
 				}
 			'{' member_block_declaration_list '}'
 				{
-					m_module->m_namespaceMgr.closeNamespace();
+					return finalizeDerivableType($type);
 				}
-		|	TokenKind_Body
+		|	TokenKind_Body $y
 				{
-					return setBody($type, $1);
+					return setBody($type, $y);
 				}
 		)
 	;

@@ -1639,12 +1639,13 @@ TypeMgr::getTemplateArgType(
 	return type;
 }
 
-TemplateDeclType*
-TypeMgr::createTemplateDeclType(Declarator* declarator) {
-	TemplateDeclType* type = new TemplateDeclType;
+TemplateInstanceType*
+TypeMgr::createTemplateInstanceType(Declarator* declarator) {
+	TemplateInstanceType* type = new TemplateInstanceType;
 	type->m_module = m_module;
 	type->m_id = createUnnamedTypeId();
-	sl::takeOver(&type->m_declarator, declarator);
+	type->m_declarator = new Declarator;
+	sl::takeOver(type->m_declarator, declarator);
 	m_typeList.insertTail(type);
 	return type;
 }
@@ -1949,7 +1950,7 @@ TypeMgr::parseStdType(
 	ASSERT(prevUnit);
 
 	Parser parser(m_module, NULL, Parser::Mode_Parse);
-	parser.create(fileName, SymbolKind_named_type_specifier_save_type);
+	parser.create(fileName, SymbolKind_named_type_specifier);
 #if (_LLK_RANDOM_ERRORS)
 	parser.disableRandomErrors();
 #endif
@@ -1972,8 +1973,15 @@ TypeMgr::parseStdType(
 	if (stdNamespace)
 		m_module->m_namespaceMgr.closeNamespace();
 
-	ASSERT(parser.getLastNamedType());
-	return parser.getLastNamedType();
+	NamedType* type = (NamedType*)parser.getLastDeclaredItem();
+
+	ASSERT(
+		type &&
+		type->getItemKind() == ModuleItemKind_Type &&
+		(type->getTypeKindFlags() & TypeKindFlag_Named)
+	);
+
+	return type;
 }
 
 ClassType*

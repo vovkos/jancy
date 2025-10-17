@@ -117,7 +117,6 @@ protected:
 	AttributeBlockState m_attributeBlockState;
 	AttributeBlock* m_attributeBlock;
 	ModuleItem* m_lastDeclaredItem;
-	NamedType* m_lastNamedType;
 	QualifiedName m_lastQualifiedName;
 	Value m_lastExpressionValue;
 	sl::BoxList<Value> m_lastExpressionValueList;
@@ -125,6 +124,8 @@ protected:
 	uint_t m_lastPropertyTypeModifiers;
 
 	sl::Array<TypeSpecifier*> m_typeSpecifierStack;
+	sl::Array<TemplateArgType*> m_templateArgArray;
+	Namespace* m_templateNamespace;
 	Declarator* m_topDeclarator; // orphan declarators affect import type resolution
 	size_t m_declarationId;
 
@@ -157,11 +158,6 @@ public:
 	ModuleItem*
 	getLastDeclaredItem() {
 		return m_lastDeclaredItem;
-	}
-
-	NamedType*
-	getLastNamedType() {
-		return m_lastNamedType;
 	}
 
 	const QualifiedName&
@@ -389,6 +385,11 @@ protected:
 		ASSERT(!tokenList->isEmpty());
 
 		const Token* head = *tokenList->getHead();
+		if (head->m_token == TokenKind_Body) {
+			ASSERT(tokenList->getCount() == 1);
+			return setBody(item, *head);
+		}
+
 		const Token* tail = *tokenList->getTail();
 		if (head->m_data.m_codeAssistFlags <= TokenCodeAssistFlag_Right &&
 			tail->m_data.m_codeAssistFlags >= TokenCodeAssistFlag_Left
@@ -456,7 +457,27 @@ protected:
 	);
 
 	bool
+	addTemplateArg(const sl::StringRef& name);
+
+	bool
+	prepareTemplateDeclarator(Declarator* declarator);
+
+	Template*
 	declareTemplate(Declarator* declarator);
+
+	Template*
+	declareTemplate(
+		TypeKind typeKind,
+		const Token* nameToken,
+		const sl::ArrayRef<Type*>& baseTypeArray,
+		sl::List<Token>* bodyTokenList
+	);
+
+	Type*
+	instantiateTemplateType(
+		Type* type,
+		const sl::ArrayRef<Type*>& argArray
+	);
 
 	bool
 	declareTypedef(
@@ -499,9 +520,6 @@ protected:
 	);
 
 	bool
-	declareUnnamedStructOrUnion(DerivableType* type);
-
-	bool
 	declareReactor(
 		Declarator* declarator,
 		uint_t ptrTypeFlags
@@ -532,7 +550,7 @@ protected:
 	createStructType(
 		const lex::LineCol& pos,
 		const sl::StringRef& name,
-		sl::BoxList<Type*>* baseTypeList
+		const sl::ArrayRef<Type*>& baseTypeArray
 	);
 
 	UnionType*
@@ -545,7 +563,7 @@ protected:
 	createClassType(
 		const lex::LineCol& pos,
 		const sl::StringRef& name,
-		sl::BoxList<Type*>* baseTypeList,
+		const sl::ArrayRef<Type*>& baseTypeArray,
 		uint_t flags
 	);
 
@@ -556,7 +574,10 @@ protected:
 	);
 
 	bool
-	finalizeDynamicLibType();
+	finalizeEnumType(EnumType* type);
+
+	bool
+	finalizeDerivableType(DerivableType* type);
 
 	Property*
 	createProperty(Declarator* decl);

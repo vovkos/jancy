@@ -1093,16 +1093,16 @@ public:
 	bool
 	templateInstantiateOperator(
 		const Value& opValue,
-		const sl::BoxList<Type*>& typeList,
+		const sl::ArrayRef<Type*>& argArray,
 		Value* resultValue
 	);
 
 	bool
 	templateInstantiateOperator(
 		Value* value,
-		const sl::BoxList<Type*>& typeList
+		const sl::ArrayRef<Type*>& argArray
 	) {
-		return templateInstantiateOperator(*value, typeList, value);
+		return templateInstantiateOperator(*value, argArray, value);
 	}
 
 	// property getter

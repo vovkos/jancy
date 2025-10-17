@@ -51,7 +51,7 @@ class NamedImportType;
 class ImportPtrType;
 class ImportIntModType;
 class TemplateArgType;
-class TemplateDeclType;
+class TemplateInstanceType;
 
 struct DataPtrTypeTuple;
 struct ClassPtrTypeTuple;
@@ -722,8 +722,14 @@ public:
 		size_t index
 	);
 
-	TemplateDeclType*
-	createTemplateDeclType(Declarator* declarator);
+	TemplateInstanceType*
+	createTemplateInstanceType(Declarator* declarator);
+
+	TemplateInstanceType*
+	createTemplateInstanceType(
+		Type* baseType,
+		sl::BoxList<Token*> initializer
+	);
 
 	Type*
 	foldDualType(

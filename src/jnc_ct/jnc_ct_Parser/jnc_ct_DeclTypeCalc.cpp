@@ -476,8 +476,8 @@ DeclTypeCalc::instantiateFunctionArgArray(
 	for (size_t i = 0; i < argCount; i++) {
 		FunctionArg* srcArg = srcArgArray[i];
 		Type* srcArgType = srcArg->getType();
-		ASSERT(srcArgType->getTypeKind() == TypeKind_TemplateDecl);
-		Type* dstArgType = ((TemplateDeclType*)srcArgType)->instantiate(m_templateArgArray);
+		ASSERT(srcArgType->getTypeKind() == TypeKind_TemplateInstance);
+		Type* dstArgType = ((TemplateInstanceType*)srcArgType)->instantiate(m_templateArgArray);
 		if (!dstArgType)
 			return false;
 

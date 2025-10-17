@@ -27,15 +27,16 @@ class Template:
 	friend class TemplateMgr;
 
 protected:
-	TypeKind m_typeKind;
-	TemplateDeclType* m_declType;
+	TypeKind m_derivableTypeKind;
+	TemplateInstanceType* m_declType;
 	sl::Array<TemplateArgType*> m_argArray;
+	sl::ArrayRef<Type*> m_baseTypeArray;
 	sl::StringHashTable<ModuleItem*> m_instantiationMap;
 
 public:
 	Template();
 
-	TemplateDeclType*
+	TemplateInstanceType*
 	getDeclType() {
 		return m_declType;
 	}
@@ -54,7 +55,7 @@ public:
 inline
 Template::Template() {
 	m_itemKind = ModuleItemKind_Template;
-	m_typeKind = TypeKind_Void;
+	m_derivableTypeKind = TypeKind_Void;
 	m_declType = NULL;
 }
 
@@ -80,7 +81,16 @@ public:
 	createTemplate(
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
-		TemplateDeclType* type
+		TemplateInstanceType* declType
+	);
+
+	Template*
+	createTemplate(
+		TypeKind typeKind,
+		const sl::StringRef& name,
+		const sl::StringRef& qualifiedName,
+		const sl::ArrayRef<TemplateArgType*>& argArray,
+		const sl::ArrayRef<Type*>& baseTypeArray
 	);
 };
 

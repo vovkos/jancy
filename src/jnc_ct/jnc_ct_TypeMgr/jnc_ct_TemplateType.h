@@ -49,7 +49,7 @@ public:
 		const sl::StringRef& name,
 		size_t index
 	) {
-		return sl::formatString("X%s$%d", name.sz(), index);
+		return sl::formatString("G%s$%d", index, name.sz());
 	}
 
 protected:
@@ -69,23 +69,28 @@ protected:
 
 //..............................................................................
 
-class TemplateDeclType: public Type {
+class TemplateInstanceType:
+	public Type,
+	public ModuleItemInitializer
+{
 	friend class TypeMgr;
 	friend class Parser;
 
 protected:
+	Declarator* m_declarator;
+	Type* m_baseType;
 	size_t m_id;
-	Declarator m_declarator;
 
 public:
-	TemplateDeclType() {
-		m_typeKind = TypeKind_TemplateDecl;
-		m_id = 0;
+	TemplateInstanceType();
+
+	~TemplateInstanceType() {
+		delete m_declarator;
 	}
 
 	Declarator*
 	getDeclarator() {
-		return &m_declarator;
+		return m_declarator;
 	}
 
 	Type*
@@ -95,7 +100,7 @@ protected:
 	virtual
 	void
 	prepareSignature() {
-		m_signature = sl::formatString("D%d", m_id);
+		m_signature = sl::formatString("X%d", m_id);
 		m_flags |= TypeFlag_SignatureReady;
 	}
 
@@ -105,6 +110,16 @@ protected:
 		getTypeStringTuple()->m_typeStringPrefix = sl::formatString("template-decl-%d", m_id);
 	}
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+TemplateInstanceType::TemplateInstanceType() {
+	m_typeKind = TypeKind_TemplateInstance;
+	m_declarator = NULL;
+	m_baseType = NULL;
+	m_id = 0;
+}
 
 //..............................................................................
 

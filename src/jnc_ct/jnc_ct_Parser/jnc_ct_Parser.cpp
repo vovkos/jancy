@@ -76,11 +76,11 @@ Parser::Parser(
 	m_attributeBlockState = AttributeBlockState_Undefined;
 	m_attributeBlock = NULL;
 	m_lastDeclaredItem = NULL;
-	m_lastNamedType = NULL;
 	m_lastPropertyGetterType = NULL;
 	m_lastPropertyTypeModifiers = 0;
-	m_declarationId = 0;
+	m_templateNamespace = NULL;
 	m_topDeclarator = NULL;
+	m_declarationId = 0;
 
 	m_constructorType = NULL;
 	m_constructorProperty = NULL;
@@ -924,7 +924,7 @@ bool
 Parser::declare(Declarator* declarator) {
 	m_lastDeclaredItem = NULL;
 
-	if (declarator->isTemplate())
+	if (m_templateNamespace)
 		return declareTemplate(declarator);
 
 	bool isLibrary = m_module->m_namespaceMgr.getCurrentNamespace()->getNamespaceKind() == NamespaceKind_DynamicLib;
@@ -1030,8 +1030,48 @@ Parser::assignDeclarationAttributes(
 }
 
 bool
+Parser::addTemplateArg(const sl::StringRef& name) {
+	ASSERT(m_templateNamespace);
+
+	size_t index = m_templateArgArray.getCount();
+	TemplateArgType* type = m_module->m_typeMgr.getTemplateArgType(name, index);
+	bool result = m_templateNamespace->addItem(name, type);
+	if (!result)
+		return false;
+
+	m_templateArgArray.append(type);
+	return true;
+}
+
+bool
+Parser::prepareTemplateDeclarator(Declarator* declarator) {
+	if (declarator->m_declaratorKind != DeclaratorKind_Name) {
+		err::setError("invalid template declarator");
+		return false;
+	}
+
+	sl::takeOver(&declarator->m_templateArgArray, &m_templateArgArray);
+
+	ASSERT(m_templateNamespace);
+	NamedImportType* baseType = (NamedImportType*)declarator->m_baseType;
+	if (baseType->getTypeKind() == TypeKind_NamedImport &&
+		baseType->getName().isSimple()
+	) {
+		sl::StringRef name = baseType->getName().getFirstName();
+		FindModuleItemResult findResult = m_templateNamespace->findDirectChildItem(name);
+		if (findResult.m_item) {
+			ASSERT(findResult.m_item->getItemKind() == ModuleItemKind_Type);
+			declarator->m_baseType = (Type*)findResult.m_item;
+		}
+	}
+
+	return true;
+}
+
+Template*
 Parser::declareTemplate(Declarator* declarator) {
 	m_module->m_namespaceMgr.closeTemplateNamespace();
+	m_templateNamespace = NULL;
 
 	if (!declarator->isSimple()) {
 		err::setError("invalid template declarator");
@@ -1039,12 +1079,63 @@ Parser::declareTemplate(Declarator* declarator) {
 	}
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	TemplateDeclType* type = m_module->m_typeMgr.createTemplateDeclType(declarator);
-	declarator = type->getDeclarator();
+	TemplateInstanceType* type = m_module->m_typeMgr.createTemplateInstanceType(declarator);
+	declarator = type->getDeclarator(); // adjust declarator (original was just moved)
 	const sl::StringRef& name = declarator->getName().getShortName();
 	Template* templ = m_module->m_templateMgr.createTemplate(name, nspace->createQualifiedName(name), type);
+	bool result = nspace->addItem(name, templ);
+	if (!result)
+		return NULL;
+
 	assignDeclarationAttributes(templ, templ, declarator);
-	return nspace->addItem(name, templ);
+	return templ;
+}
+
+Template*
+Parser::declareTemplate(
+	TypeKind typeKind,
+	const Token* nameToken,
+	const sl::ArrayRef<Type*>& baseTypeArray,
+	sl::List<Token>* bodyTokenList
+) {
+	m_module->m_namespaceMgr.closeTemplateNamespace();
+	m_templateNamespace = NULL;
+
+	if (!nameToken) {
+		err::setFormatStringError("unnamed template %s", Token::getName(typeKind));
+		return false;
+	}
+
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
+	Template* templ = m_module->m_templateMgr.createTemplate(
+		typeKind,
+		nameToken->m_data.m_string,
+		nspace->createQualifiedName(nameToken->m_data.m_string),
+		m_templateArgArray,
+		baseTypeArray
+	);
+
+	bool result = nspace->addItem(nameToken->m_data.m_string, templ);
+	if (!result)
+		return NULL;
+
+	assignDeclarationAttributes(templ, templ, nameToken->m_pos);
+	return templ;
+}
+
+Type*
+Parser::instantiateTemplateType(
+	Type* type,
+	const sl::ArrayRef<Type*>& argArray
+) {
+	printf("instantiateTemplateType: %s <", type->getTypeString().sz());
+	size_t count = argArray.getCount();
+	for (size_t i = 0; i < count; i++) {
+		printf("%s, ", argArray[i]->getTypeString().sz());
+	}
+
+	printf("\b\b>\n");
+	return type;
 }
 
 bool
@@ -2246,17 +2337,6 @@ Parser::declareData(
 	return true;
 }
 
-bool
-Parser::declareUnnamedStructOrUnion(DerivableType* type) {
-	m_storageKind = StorageKind_Undefined;
-	m_accessKind = AccessKind_Undefined;
-
-	Declarator declarator;
-	declarator.m_declaratorKind = DeclaratorKind_Name;
-	declarator.m_pos = type->getPos();
-	return declareData(&declarator, type, 0);
-}
-
 FunctionArg*
 Parser::createFormalArg(
 	DeclFunctionSuffix* argSuffix,
@@ -2267,8 +2347,8 @@ Parser::createFormalArg(
 	Type* type;
 
 	if (nspace->getNamespaceKind() == NamespaceKind_Template) {
-		type = m_module->m_typeMgr.createTemplateDeclType(declarator);
-		declarator = ((TemplateDeclType*)type)->getDeclarator();
+		type = m_module->m_typeMgr.createTemplateInstanceType(declarator);
+		declarator = ((TemplateInstanceType*)type)->getDeclarator();
 	} else {
 		type = declarator->calcType(&ptrTypeFlags);
 		if (!type)
@@ -2383,7 +2463,7 @@ StructType*
 Parser::createStructType(
 	const lex::LineCol& pos,
 	const sl::StringRef& name,
-	sl::BoxList<Type*>* baseTypeList
+	const sl::ArrayRef<Type*>& baseTypeArray
 ) {
 	bool result;
 
@@ -2404,13 +2484,11 @@ Parser::createStructType(
 			return NULL;
 	}
 
-	if (baseTypeList) {
-		sl::BoxIterator<Type*> baseType = baseTypeList->getHead();
-		for (; baseType; baseType++) {
-			result = structType->addBaseType(*baseType) != NULL;
-			if (!result)
-				return NULL;
-		}
+	size_t count = baseTypeArray.getCount();
+	for (size_t i = 0; i < count; i++) {
+		result = structType->addBaseType(baseTypeArray[i]) != NULL;
+		if (!result)
+			return NULL;
 	}
 
 	assignDeclarationAttributes(structType, structType, pos);
@@ -2447,7 +2525,7 @@ ClassType*
 Parser::createClassType(
 	const lex::LineCol& pos,
 	const sl::StringRef& name,
-	sl::BoxList<Type*>* baseTypeList,
+	const sl::ArrayRef<Type*>& baseTypeArray,
 	uint_t flags
 ) {
 	bool result;
@@ -2460,13 +2538,11 @@ Parser::createClassType(
 		flags
 	);
 
-	if (baseTypeList) {
-		sl::BoxIterator<Type*> baseType = baseTypeList->getHead();
-		for (; baseType; baseType++) {
-			result = classType->addBaseType(*baseType) != NULL;
-			if (!result)
-				return NULL;
-		}
+	size_t count = baseTypeArray.getCount();
+	for (size_t i = 0; i < count; i++) {
+		result = classType->addBaseType(baseTypeArray[i]) != NULL;
+		if (!result)
+			return NULL;
 	}
 
 	result = nspace->addItem(classType);
@@ -2503,18 +2579,32 @@ Parser::createDynamicLibType(
 }
 
 bool
-Parser::finalizeDynamicLibType() {
-	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	ASSERT(nspace->getNamespaceKind() == NamespaceKind_DynamicLib);
-
-	DynamicLibNamespace* dynamicLibNamespace = (DynamicLibNamespace*)nspace;
-	DynamicLibClassType* dynamicLibType = dynamicLibNamespace->getLibraryType();
-	bool result = dynamicLibType->ensureFunctionTable();
-	if (!result)
-		return false;
-
+Parser::finalizeEnumType(EnumType* type) {
 	m_module->m_namespaceMgr.closeNamespace();
-	return true;
+	m_lastDeclaredItem = type;
+
+	return type->ensureLayout() && (
+		!(type->getFlags() & EnumTypeFlag_Exposed) ||
+		m_module->m_namespaceMgr.getCurrentNamespace()->exposeEnumConsts(type)
+	);
+}
+
+bool
+Parser::finalizeDerivableType(DerivableType* type) {
+	m_module->m_namespaceMgr.closeNamespace();
+	m_lastDeclaredItem = type;
+
+	bool result = type->ensureLayout();
+	if (!result || !type->getName().isEmpty())
+		return result;
+
+	m_storageKind = StorageKind_Undefined;
+	m_accessKind = AccessKind_Undefined;
+
+	Declarator declarator;
+	declarator.m_declaratorKind = DeclaratorKind_Name;
+	declarator.m_pos = type->getPos();
+	return declareData(&declarator, type, 0);
 }
 
 bool

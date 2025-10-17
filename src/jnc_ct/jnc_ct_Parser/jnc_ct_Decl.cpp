@@ -257,7 +257,6 @@ Declarator::Declarator() {
 	m_bitCount = 0;
 	m_postDeclaratorModifiers = 0;
 	m_baseType = NULL;
-	m_templateNamespace = NULL;
 	m_attributeBlock = NULL;
 	m_doxyBlock = NULL;
 }
@@ -400,47 +399,6 @@ Declarator::addBitFieldSuffix(size_t bitCount) {
 
 	m_bitCount = bitCount;
 	return true;
-}
-
-bool
-Declarator::setTemplateSuffix(const sl::BoxList<sl::StringRef>& templateArgList) {
-	if (m_declaratorKind != DeclaratorKind_Name) {
-		err::setError("unnamed methods can't be templated");
-		return false;
-	}
-
-	ASSERT(m_baseType && !m_templateNamespace && m_templateArgArray.isEmpty());
-
-	sl::StringRef baseTypeImportName;
-	if (m_baseType->getTypeKind() == TypeKind_NamedImport) {
-		NamedImportType* importType = (NamedImportType*)m_baseType;
-		if (importType->getName().isSimple())
-			baseTypeImportName = importType->getName().getFirstName();
-	}
-
-	Module* module = m_baseType->getModule();
-	m_templateNamespace = module->m_namespaceMgr.openTemplateNamespace();
-
-	bool finalResult = true;
-
-	sl::ConstBoxIterator<sl::StringRef> it = templateArgList.getHead();
-	for (size_t i = 0; it; it++, i++) {
-		const sl::StringRef& name = *it;
-
-		TemplateArgType* type = module->m_typeMgr.getTemplateArgType(name, i);
-		bool result = m_templateNamespace->addItem(name, type);
-		if (!result) {
-			finalResult = false;
-			continue;
-		}
-
-		if (name == baseTypeImportName)
-			m_baseType = type;
-
-		m_templateArgArray.append(type);
-	}
-
-	return finalResult;
 }
 
 Type*

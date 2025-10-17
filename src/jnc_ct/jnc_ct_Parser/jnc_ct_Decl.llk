@@ -398,7 +398,7 @@ statement_pass1<StmtPass1* $stmt>
 type_name_impl<
 	Type** $type,
 	Value* $countValue
-	>
+>
 	local {
 		Declarator $declarator;
 	}
@@ -425,16 +425,16 @@ type_name
 	;
 
 struct {
-	sl::BoxList<Type*> m_typeList;
+	sl::Array<Type*> m_typeArray;
 }
 type_name_list
 	:	type_name
 			{
-				$.m_typeList.insertTail($1.m_type);
+				$.m_typeArray.append($1.m_type);
 			}
 		(',' type_name $t2
 			{
-				$.m_typeList.insertTail($t2.m_type);
+				$.m_typeArray.append($t2.m_type);
 			}
 		)*
 	;
@@ -463,27 +463,6 @@ attribute_declarator
 				return reuseAttributes($2.m_name);
 			}
 	|	epsilon
-	;
-
-//..............................................................................
-
-// templates
-
-struct {
-	sl::BoxList<sl::StringRef> m_argList;
-}
-template_suffix
-	:	'<'
-		TokenKind_Identifier
-			{
-				$.m_argList.insertTail($2.m_data.m_string);
-			}
-		(',' TokenKind_Identifier $n2
-			{
-				$.m_argList.insertTail($n2.m_data.m_string);
-			}
-		)*
-		'>'
 	;
 
 //..............................................................................

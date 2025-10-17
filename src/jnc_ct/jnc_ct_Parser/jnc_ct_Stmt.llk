@@ -307,7 +307,8 @@ for_stmt
 			}
 		(local_item_declaration | expression_or_empty_list ';')
 		for_stmt_condition<&$stmt> ';'
-		(		{
+		(
+				{
 					m_module->m_controlFlowMgr.forStmt_PreLoop(&$stmt);
 				}
 			expression_list

@@ -316,7 +316,8 @@ struct {
 }
 conditional_expr<Value* $value>
 	:	logical_or_expr<$value>
-		(		{
+		(
+				{
 					$.m_thenBlock = m_module->m_controlFlowMgr.createBlock("cond_then");
 					$.m_elseBlock = m_module->m_controlFlowMgr.createBlock("cond_else");
 					$.m_phiBlock = m_module->m_controlFlowMgr.createBlock("cond_phi");
@@ -854,13 +855,9 @@ template_instantiate_operator_rslv
 
 resolver(template_instantiate_operator_rslv)
 template_instantiate_operator<Value* $value>
-	:	'<' '>'
+	:	'<' type_name_list '>'
 			{
-				return err::fail("template instantiation without arguments has no effect");
-			}
-	|	'<' type_name_list '>'
-			{
-				return m_module->m_operatorMgr.templateInstantiateOperator($value, $2.m_typeList);
+				return m_module->m_operatorMgr.templateInstantiateOperator($value, $2.m_typeArray);
 			}
 	;
 
@@ -1061,7 +1058,8 @@ curly_initializer_named_item<CurlyInitializer* $initializer>
 			{
 				return prepareCurlyInitializerNamedItem($initializer, $n.m_data.m_string);
 			}
-		(	curly_initializer
+		(
+			curly_initializer
 				{
 					$initializer->m_count++;
 				}

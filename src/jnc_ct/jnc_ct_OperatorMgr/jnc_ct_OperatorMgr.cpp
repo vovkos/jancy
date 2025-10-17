@@ -1113,7 +1113,7 @@ OperatorMgr::offsetofOperator(
 bool
 OperatorMgr::templateInstantiateOperator(
 	const Value& opValue,
-	const sl::BoxList<Type*>& typeList,
+	const sl::ArrayRef<Type*>& argArray,
 	Value* resultValue
 ) {
 	if (opValue.getValueKind() != ValueKind_Template) {
@@ -1121,19 +1121,19 @@ OperatorMgr::templateInstantiateOperator(
 		return false;
 	}
 
-	if (typeList.getCount() > opValue.getTemplate()->getArgArray().getCount()) {
+	size_t argCount = argArray.getCount();
+	if (argCount > opValue.getTemplate()->getArgArray().getCount()) {
 		err::setError("too many template arguments");
 		return false;
 	}
 
+	sl::BoxList<Value> valueList;
+	for (size_t i = 0; i < argCount; i++)
+		valueList.insertTail(argArray[i]);
+
 	Closure* closure = resultValue->getClosure();
 	if (!closure)
 		closure = resultValue->createClosure();
-
-	sl::BoxList<Value> valueList;
-	sl::BoxList<Type*>::ConstIterator it = typeList.getHead();
-	for (; it; it++)
-		valueList.insertTail(*it);
 
 	sl::takeOver(closure->getArgValueList(), &valueList);
 	return true;
@@ -1512,7 +1512,7 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandTypeFuncTable[TypeK
 	&OperatorMgr::prepareOperand_import,          // TypeKind_ImportIntMod
 	&OperatorMgr::prepareOperandType_typedef,     // TypeKind_TypedefShadow
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_TemplateArg
-	&OperatorMgr::prepareOperand_nop,             // TypeKind_TemplateDecl
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_TemplateInstance
 };
 
 OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable[TypeKind__Count] = {
@@ -1550,7 +1550,7 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable[TypeKind_
 	&OperatorMgr::prepareOperand_import,      // TypeKind_ImportIntMod
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_TypedefShadow
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_TemplateArg
-	&OperatorMgr::prepareOperand_nop,         // TypeKind_TemplateDecl
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_TemplateInstance
 };
 
 OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandTypeFuncTable_dataRef[TypeKind__Count] = {
@@ -1588,7 +1588,7 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandTypeFuncTable_dataR
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_ImportIntMod
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_TypedefShadow
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_TemplateArg
-	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_TemplateDecl
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_TemplateInstance
 };
 
 OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable_dataRef[TypeKind__Count] = {
@@ -1626,7 +1626,7 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable_dataRef[T
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_ImportIntMod
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_TypedefShadow
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_TemplateArg
-	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_TemplateDecl
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_TemplateInstance
 };
 
 bool

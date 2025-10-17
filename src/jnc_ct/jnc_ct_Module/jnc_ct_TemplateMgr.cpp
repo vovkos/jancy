@@ -90,15 +90,33 @@ Template*
 TemplateMgr::createTemplate(
 	const sl::StringRef& name,
 	const sl::StringRef& qualifiedName,
-	TemplateDeclType* declType
+	TemplateInstanceType* declType
 ) {
 	Template* templ = new Template;
 	templ->m_module = m_module;
 	templ->m_name = name;
 	templ->m_qualifiedName = qualifiedName;
-	templ->m_typeKind = TypeKind_TemplateDecl;
 	templ->m_declType = declType;
 	templ->m_argArray = declType->getDeclarator()->getTemplateArgArray();
+	m_templateList.insertTail(templ);
+	return templ;
+}
+
+Template*
+TemplateMgr::createTemplate(
+	TypeKind typeKind,
+	const sl::StringRef& name,
+	const sl::StringRef& qualifiedName,
+	const sl::ArrayRef<TemplateArgType*>& argArray,
+	const sl::ArrayRef<Type*>& baseTypeArray
+) {
+	Template* templ = new Template;
+	templ->m_module = m_module;
+	templ->m_name = name;
+	templ->m_qualifiedName = qualifiedName;
+	templ->m_derivableTypeKind = typeKind;
+	templ->m_argArray = argArray;
+	templ->m_baseTypeArray = baseTypeArray;
 	m_templateList.insertTail(templ);
 	return templ;
 }

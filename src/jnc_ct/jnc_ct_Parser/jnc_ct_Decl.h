@@ -364,7 +364,6 @@ protected:
 	Type* m_baseType;
 	AttributeBlock* m_attributeBlock;
 	dox::Block* m_doxyBlock;
-	Namespace* m_templateNamespace;
 	sl::Array<TemplateArgType*> m_templateArgArray;
 	sl::List<DeclPointerPrefix> m_pointerPrefixList;
 	sl::List<DeclSuffix> m_suffixList;
@@ -382,11 +381,6 @@ public:
 	bool
 	isQualified() {
 		return m_declaratorKind == DeclaratorKind_Name ? !m_name.isSimple() : !m_name.isEmpty();
-	}
-
-	bool
-	isTemplate() {
-		return m_templateNamespace != NULL;
 	}
 
 	DeclaratorKind
@@ -531,9 +525,6 @@ public:
 	deleteSuffix(DeclSuffix* suffix) {
 		m_suffixList.erase(suffix);
 	}
-
-	bool
-	setTemplateSuffix(const sl::BoxList<sl::StringRef>& templateArgList); // opens template namespace
 
 protected:
 	Type*

@@ -19,8 +19,13 @@ namespace ct {
 //..............................................................................
 
 Type*
-TemplateDeclType::instantiate(const sl::ArrayRef<Type*>& argArray) {
-	Type* baseType = m_declarator.getBaseType();
+TemplateInstanceType::instantiate(const sl::ArrayRef<Type*>& argArray) {
+	if (!m_declarator) {
+		err::setError("templated type instances not supported yet");
+		return NULL;
+	}
+
+	Type* baseType = m_declarator->getBaseType();
 	if (baseType->getTypeKindFlags() & TypeKindFlag_Template) {
 		TypeKind typeKind = baseType->getTypeKind();
 		switch (typeKind) {
@@ -40,9 +45,9 @@ TemplateDeclType::instantiate(const sl::ArrayRef<Type*>& argArray) {
 
 	Type* type = typeCalc.calcType(
 		baseType,
-		&m_declarator,
-		m_declarator.getPointerPrefixList(),
-		m_declarator.getSuffixList(),
+		m_declarator,
+		m_declarator->getPointerPrefixList(),
+		m_declarator->getSuffixList(),
 		NULL,
 		&declFlags
 	);

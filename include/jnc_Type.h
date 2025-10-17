@@ -109,8 +109,8 @@ enum jnc_TypeKind {
 
 	// template types
 
-	jnc_TypeKind_TemplateArg,         // X
-	jnc_TypeKind_TemplateDecl,        // D
+	jnc_TypeKind_TemplateArg,         // G
+	jnc_TypeKind_TemplateInstance,    // X
 
 	// meta
 
@@ -656,7 +656,7 @@ const TypeKind
 	TypeKind_ImportIntMod        = jnc_TypeKind_ImportIntMod,
 	TypeKind_TypedefShadow       = jnc_TypeKind_TypedefShadow,
 	TypeKind_TemplateArg         = jnc_TypeKind_TemplateArg,
-	TypeKind_TemplateDecl        = jnc_TypeKind_TemplateDecl,
+	TypeKind_TemplateInstance    = jnc_TypeKind_TemplateInstance,
 	TypeKind__Count              = jnc_TypeKind__Count,
 	TypeKind__PrimitiveTypeCount = jnc_TypeKind__PrimitiveTypeCount,
 	TypeKind_IntPtr              = jnc_TypeKind_IntPtr,

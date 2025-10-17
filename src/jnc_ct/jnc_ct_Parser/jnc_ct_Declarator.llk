@@ -26,9 +26,9 @@ declarator<TypeSpecifier* $typeSpecifier>
 	}
 	:	declarator_prefix<&$.m_declarator>*
 		declarator_name<&$.m_declarator>
-		(template_suffix $t
+		(template_suffix
 			{
-				return $.m_declarator.setTemplateSuffix($t.m_argList);
+				return prepareTemplateDeclarator(&$.m_declarator);
 			}
 		)?
 		declarator_suffix<&$.m_declarator>*
@@ -113,7 +113,8 @@ declarator_wo_curly_initializer<
 			{
 				return declare($declarator);
 			}
-		(	',' declarator_list<$typeSpecifier>
+		(
+			',' declarator_list<$typeSpecifier>
 		|	';'
 		)
 	;
@@ -392,7 +393,7 @@ operator_name
 
 //..............................................................................
 
-// prefix & suffix
+// prefixes & suffixes
 
 declarator_prefix<Declarator* $declarator>
 	:	'*'
@@ -406,12 +407,28 @@ declarator_prefix<Declarator* $declarator>
 		)*
 	;
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 declarator_suffix<Declarator* $declarator>
 	:	array_suffix<$declarator>
 	|	function_suffix<$declarator>
 	|	bitfield_suffix<$declarator>
+	;
+
+template_suffix
+	:	'<'
+			{
+				m_templateNamespace = m_module->m_namespaceMgr.openTemplateNamespace();
+				m_templateArgArray.clear();
+			}
+		TokenKind_Identifier
+			{
+				return addTemplateArg($2.m_data.m_string);
+			}
+		(',' TokenKind_Identifier $n2
+			{
+				return addTemplateArg($n2.m_data.m_string);
+			}
+		)*
+		'>'
 	;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
