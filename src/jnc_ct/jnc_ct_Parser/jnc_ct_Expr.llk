@@ -302,7 +302,7 @@ constant_integer_expr
 				if (!result)
 					return false;
 
-				$.m_value = $1.m_value.getInt64();
+				$.m_value = m_module->hasCodeGen() ? $1.m_value.getInt64() : 0;
 			}
 	;
 
