@@ -34,9 +34,6 @@ named_type_specifier_sync
 
 // enum
 
-struct {
-	EnumType* m_type;
-}
 enum_specifier
 	local {
 		EnumType* $type;
@@ -63,11 +60,14 @@ enum_specifier
 				}
 			'{' enum_const_list '}'
 				{
+					m_module->m_namespaceMgr.closeNamespace();
 					return finalizeEnumType($type);
 				}
 		|	TokenKind_Body $y
 				{
-					setBody($type, $y);
+					return
+						setBody($type, $y) &&
+						finalizeEnumType($type);
 				}
 		)
 	;
@@ -218,6 +218,7 @@ library_specifier
 				}
 			'{' member_block_declaration_list '}'
 				{
+					m_module->m_namespaceMgr.closeNamespace();
 					return finalizeDerivableType($type);
 				}
 		|	TokenKind_Body $y
@@ -239,11 +240,14 @@ derivable_type_member_block<DerivableType* $type>
 				}
 			'{' member_block_declaration_list '}'
 				{
+					m_module->m_namespaceMgr.closeNamespace();
 					return finalizeDerivableType($type);
 				}
 		|	TokenKind_Body $y
 				{
-					return setBody($type, $y);
+					return
+						setBody($type, $y) &&
+						finalizeDerivableType($type);
 				}
 		)
 	;

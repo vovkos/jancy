@@ -2580,23 +2580,31 @@ Parser::createDynamicLibType(
 
 bool
 Parser::finalizeEnumType(EnumType* type) {
-	m_module->m_namespaceMgr.closeNamespace();
 	m_lastDeclaredItem = type;
 
-	return type->ensureLayout() && (
-		!(type->getFlags() & EnumTypeFlag_Exposed) ||
-		m_module->m_namespaceMgr.getCurrentNamespace()->exposeEnumConsts(type)
-	);
+	if (m_mode == Mode_Compile) {
+		bool result = type->ensureLayout();
+		if (!result)
+			return false;
+	}
+
+	return (type->getFlags() & EnumTypeFlag_Exposed) ?
+		m_module->m_namespaceMgr.getCurrentNamespace()->exposeEnumConsts(type) :
+		true;
 }
 
 bool
 Parser::finalizeDerivableType(DerivableType* type) {
-	m_module->m_namespaceMgr.closeNamespace();
 	m_lastDeclaredItem = type;
 
-	bool result = type->ensureLayout();
-	if (!result || !type->getName().isEmpty())
-		return result;
+	if (m_mode == Mode_Compile) {
+		bool result = type->ensureLayout();
+		if (!result)
+			return false;
+	}
+
+	if (!type->getName().isEmpty())
+		return true;
 
 	m_storageKind = StorageKind_Undefined;
 	m_accessKind = AccessKind_Undefined;

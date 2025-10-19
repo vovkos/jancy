@@ -577,7 +577,19 @@ protected:
 	finalizeEnumType(EnumType* type);
 
 	bool
+	finalizeEnumType(
+		EnumType* type,
+		const Token& bodyToken
+	);
+
+	bool
 	finalizeDerivableType(DerivableType* type);
+
+	bool
+	finalizeDerivableType(
+		DerivableType* type,
+		const Token& bodyToken
+	);
 
 	Property*
 	createProperty(Declarator* decl);
