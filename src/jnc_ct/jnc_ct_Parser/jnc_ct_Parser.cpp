@@ -1102,7 +1102,13 @@ Parser::declareTemplate(
 	m_templateNamespace = NULL;
 
 	if (!nameToken) {
-		err::setFormatStringError("unnamed template %s", Token::getName(typeKind));
+		static const char* stringTable[] = {
+			"struct", // TypeKind_Struct
+			"union",  // TypeKind_Union
+		};
+
+		ASSERT(typeKind >= TypeKind_Struct && typeKind <= TypeKind_Union);
+		err::setFormatStringError("unnamed template %s", stringTable[typeKind - TypeKind_Struct]);
 		return false;
 	}
 

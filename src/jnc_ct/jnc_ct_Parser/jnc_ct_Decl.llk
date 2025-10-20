@@ -149,7 +149,7 @@ import_declaration
 	;
 
 namespace_declaration
-	:	TokenKind_Namespace qualified_name TokenKind_Body
+	:	TokenKind_Namespace pure_qualified_name TokenKind_Body
 			{
 				return declareGlobalNamespace($1.m_pos, $2.m_name, $3) != NULL;
 			}
@@ -232,64 +232,6 @@ setas_value
 
 //..............................................................................
 
-qualified_name_rslv
-	:	TokenKind_Identifier ('.' TokenKind_Identifier)*
-	;
-
-struct {
-	QualifiedName m_name;
-}
-qualified_name
-	:	qualified_name_impl<&$.m_name>
-	;
-
-qualified_name_impl<QualifiedName* $name>
-	:	TokenKind_Identifier
-			{
-				prepareQualifiedNameCodeAssistFallbackIf($1, *$name);
-				$name->addName($1.m_data.m_string);
-			}
-		(
-			'.' $d
-				{
-					prepareQualifiedNameCodeAssistFallbackIf($d, *$name);
-				}
-			TokenKind_Identifier $n
-				{
-					prepareQualifiedNameCodeAssistFallbackIf($n, *$name);
-					$name->addName($n.m_data.m_string);
-				}
-		)*
-	;
-
-struct {
-	sl::BoxList<QualifiedName> m_nameList;
-}
-qualified_name_list
-	:	qualified_name
-			{
-				sl::BoxIterator<QualifiedName> it = $.m_nameList.insertTail();
-				sl::takeOver(it.p(), &$1.m_name);
-			}
-		(
-			',' qualified_name
-				{
-					sl::BoxIterator<QualifiedName> it = $.m_nameList.insertTail();
-					sl::takeOver(it.p(), &$3.m_name);
-				}
-		)*
-	;
-
-start
-qualified_name_save_name
-	:	qualified_name
-			{
-				m_lastQualifiedName = $1.m_name;
-			}
-	;
-
-//..............................................................................
-
 // item declarations
 
 global_item_declaration
@@ -326,120 +268,6 @@ local_item_declaration
 normal_item_declaration
 	:	declaration_specifier_list $s
 		declarator_list<&$s.m_typeSpecifier>
-	;
-
-//..............................................................................
-
-struct {
-	sl::List<Token> m_tokenList;
-}
-declaration_body_pass1
-	:	TokenKind_Body
-			{
-				$.m_tokenList.insertTail(m_tokenPool->get($1));
-			}
-	|	catch (eof) compound_stmt_pass1<&$.m_tokenList>
-	;
-
-compound_stmt_pass1<sl::List<Token>* $tokenList>
-	local {
-		StmtPass1 $stmt;
-	}
-	:	'{'
-			{
-				addScopeAnchorToken(&$stmt, $1);
-			}
-		statement_pass1 <&$stmt>*
-		'}' $r
-			{
-				$tokenList->insertListTail(&$stmt.m_tokenList);
-				$tokenList->insertTail(m_tokenPool->get($r));
-			}
-	;
-
-statement_pass1<StmtPass1* $stmt>
-	:	compound_stmt_pass1<&(*$stmt).m_tokenList>
-	|	TokenKind_Catch
-			{
-				$stmt->m_tokenList.insertTail(m_tokenPool->get($1));
-				$stmt->m_scopeAnchorToken->m_data.m_integer |= ScopeFlag_CatchAhead | ScopeFlag_HasCatch;
-			}
-	|	TokenKind_Finally
-			{
-				$stmt->m_tokenList.insertTail(m_tokenPool->get($1));
-				$stmt->m_scopeAnchorToken->m_data.m_integer |= ScopeFlag_FinallyAhead | ScopeFlag_Finalizable;
-			}
-	|	TokenKind_NestedScope
-			{
-				addScopeAnchorToken($stmt, $1);
-			}
-	|	TokenKind_Case
-			{
-				addScopeAnchorToken($stmt, $1);
-			}
-	|	TokenKind_Default
-			{
-				addScopeAnchorToken($stmt, $1);
-			}
-	|	any
-			{
-				$stmt->m_tokenList.insertTail(m_tokenPool->get($1));
-			}
-	;
-
-//..............................................................................
-
-// type names
-
-type_name_rslv
-	:	type_specifier_sync |
-		type_modifier_sync |
-		qualified_type_name_rslv
-	;
-
-struct {
-	Type* m_type;
-}
-type_name
-	: type_name_impl<&$.m_type, NULL>
-	;
-
-type_name_impl<
-	Type** $type,
-	Value* $countValue
->
-	local {
-		Declarator $declarator;
-	}
-	:	type_specifier_modifier_list
-			{
-				$declarator.setTypeSpecifier(&$1.m_typeSpecifier, m_module);
-			}
-		declarator_prefix<&$declarator>*
-		declarator_suffix<&$declarator>*
-			{
-				Type* type = $declarator.calcType($countValue);
-				if (!type)
-					return false;
-
-				*$type = type;
-			}
-	;
-
-struct {
-	sl::Array<Type*> m_typeArray;
-}
-type_name_list
-	:	type_name
-			{
-				$.m_typeArray.append($1.m_type);
-			}
-		(
-			',' type_name $t2
-				{
-					$.m_typeArray.append($t2.m_type);
-				}
-		)*
 	;
 
 //..............................................................................
