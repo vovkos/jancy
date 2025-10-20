@@ -16,7 +16,8 @@ named_type_specifier
 	:	enum_specifier
 	|	struct_specifier
 	|	union_specifier
-	|	class_specifier
+	|	resolver (TokenKind_Class TokenKind_Identifier) // vs type_specifier:TokenKind_Class
+		class_specifier
 	|	library_specifier
 	;
 
@@ -75,7 +76,7 @@ enum_specifier
 start
 nullable
 enum_const_list
-	:	enum_const catch(enum_const_sync) (',' enum_const)*
+	:	enum_const catch (enum_const_sync) (',' enum_const)*
 	;
 
 nullable
@@ -161,13 +162,6 @@ union_specifier
 
 // class
 
-// conflict with type_specifier:TokenKind_Class
-
-class_specifier_rslv
-	:	(TokenKind_Class | TokenKind_OpaqueClass) TokenKind_Identifier
-	;
-
-resolver(class_specifier_rslv)
 class_specifier
 	local {
 		ClassType* $type;

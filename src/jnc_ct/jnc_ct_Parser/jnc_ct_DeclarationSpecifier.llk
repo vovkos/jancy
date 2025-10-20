@@ -210,7 +210,8 @@ type_specifier
 			{
 				$.m_type = $t.m_type;
 			}
-	|	qualified_type_name $t
+	|	resolver (qualified_type_name_rslv) // vs expression
+		qualified_type_name $t
 			{
 				$.m_type = $t.m_type;
 			}
@@ -253,7 +254,7 @@ basetype_qualified_name
 			}
 	;
 
-// the main conflict of C-family: expression vs declaration
+// the main conflict of C-family: declaration vs expression
 
 qualified_type_name_rslv
 	enter {
@@ -281,7 +282,6 @@ qualified_type_name_rslv
 struct {
 	Type* m_type;
 }
-resolver(qualified_type_name_rslv)
 qualified_type_name
 	:	basetype_qualified_name
 			{

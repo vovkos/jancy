@@ -13,7 +13,7 @@ struct {
 	sl::List<Token> m_tokenList;
 }
 expression_pass1
-	:	catch(eof) expression_pass1_item<&$.m_tokenList>+
+	:	catch (eof) expression_pass1_item<&$.m_tokenList>+
 			{
 				prepareExpressionCodeAssistFallbackIf($.m_tokenList);
 			}
@@ -47,7 +47,8 @@ expression_pass1_item<sl::List<Token>* $tokenList>
 			{
 				$tokenList->insertTail(m_tokenPool->get($3));
 			}
-	|	template_instantiate_operator_pass1<$tokenList>
+	|	resolver (template_instantiate_operator_pass1_rslv)
+		template_instantiate_operator_pass1<$tokenList>
 	|	any
 			{
 				$tokenList->insertTail(m_tokenPool->get($1));
@@ -69,7 +70,6 @@ template_instantiate_operator_pass1_rslv_item
 	|	','
 	;
 
-resolver(template_instantiate_operator_pass1_rslv)
 template_instantiate_operator_pass1<sl::List<Token>* $tokenList>
 	:	'<'
 			{
@@ -104,7 +104,7 @@ struct {
 	sl::List<Token> m_tokenList;
 }
 arg_list_pass1
-	:	catch(eof) '(' arg_list_pass1_item<&$.m_tokenList>* ')'
+	:	catch (eof) '(' arg_list_pass1_item<&$.m_tokenList>* ')'
 	;
 
 arg_list_pass1_item<sl::List<Token>* $tokenList>
@@ -131,7 +131,7 @@ curly_initializer_pass1
 			{
 				$.m_tokenList.insertTail(m_tokenPool->get($1));
 			}
-	|	catch(eof) curly_initializer_pass1_impl<&$.m_tokenList>
+	|	catch (eof) curly_initializer_pass1_impl<&$.m_tokenList>
 	;
 
 curly_initializer_pass1_impl<sl::List<Token>* $tokenList>
@@ -699,8 +699,15 @@ unary_operator_expr<Value* $value>
 			{
 				return m_module->m_operatorMgr.awaitOperator($value);
 			}
-	|	try_operator<$value>
-	|	cast_operator<$value>
+	|	resolver ('(' type_name_rslv) // vs epsilon
+		'(' type_name $t ')' unary_expr<$value>
+			{
+				return m_module->m_operatorMgr.castOperator(OperatorDynamism_Static, $value, $t.m_type);
+			}
+	|	TokenKind_DynamicCast '(' type_name $t ')' unary_expr<$value>
+			{
+				return m_module->m_operatorMgr.castOperator(OperatorDynamism_Dynamic, $value, $t.m_type);
+			}
 	|	TokenKind_New new_operator_type $t
 			{
 				return m_module->m_operatorMgr.newOperator(
@@ -711,6 +718,7 @@ unary_operator_expr<Value* $value>
 				);
 			}
 		new_operator_curly_initializer<$value>?
+	|	try_operator<$value>
 	;
 
 try_operator<Value* $value>
@@ -727,28 +735,6 @@ try_operator<Value* $value>
 			}
 	;
 
-// cast_operator vs epsilon
-
-cast_operator_rslv
-	local {
-		TypeSpecifier $typeSpecifier;
-	}
-	:	TokenKind_DynamicCast? '(' (
-			type_specifier_sync |
-			type_modifier_sync |
-			qualified_type_name_rslv
-		)
-	;
-
-resolver(cast_operator_rslv)
-cast_operator<Value* $value>
-	:	TokenKind_DynamicCast $d? '(' type_name $t ')' unary_expr<$value>
-			{
-				OperatorDynamism dynamism = &$d ? OperatorDynamism_Dynamic : OperatorDynamism_Static;
-				return m_module->m_operatorMgr.castOperator(dynamism, $value, $t.m_type);
-			}
-	;
-
 struct {
 	Type* m_type;
 	Value m_elementCountValue;
@@ -756,17 +742,11 @@ struct {
 }
 new_operator_type
 	:	type_name_impl<&$.m_type, &$.m_elementCountValue>
-	|	new_operator_type_w_constructor<&$.m_type, &$.m_argList>
-	;
-
-// can be left-factorized to avoid resolver
-
-resolver(qualified_name_rslv TokenKind_Construct? '(', 2) // set higher priority than qualified_type_name
-new_operator_type_w_constructor<Type** $type, sl::BoxList<Value>* $argList>
-	:	qualified_type_name $t TokenKind_Construct? '(' expression_or_empty_list $a ')'
+	|	resolver (qualified_name_rslv TokenKind_Construct? '(', 2) // higher priority than qualified_type_name_rslv
+		qualified_type_name $t TokenKind_Construct? '(' expression_or_empty_list $a ')'
 			{
-				*$type = $t.m_type;
-				sl::takeOver($argList, &$a.m_valueList);
+				$.m_type = $t.m_type;
+				sl::takeOver(&$.m_argList, &$a.m_valueList);
 			}
 	;
 
@@ -826,7 +806,8 @@ postfix_operator<Value* $value>
 				return m_module->m_operatorMgr.unaryOperator(UnOpKind_Ptr, $value);
 			}
 		member_operator<$value>
-	|	template_instantiate_operator<$value>
+	|	resolver ('<' type_name_rslv) // vs epsilon
+		template_instantiate_operator<$value>
 	;
 
 member_operator<Value* $value>
@@ -845,12 +826,6 @@ member_operator<Value* $value>
 			}
 	;
 
-template_instantiate_operator_rslv
-	:	'<' '>'
-	|	'<' type_name
-	;
-
-resolver(template_instantiate_operator_rslv)
 template_instantiate_operator<Value* $value>
 	:	'<' type_name_list '>'
 			{
@@ -1041,7 +1016,8 @@ curly_initializer_item<CurlyInitializer* $initializer>
 	local {
 		Value prevCurlyInitializerTargetValue;
 	}
-	:	curly_initializer_named_item<$initializer>
+	:	resolver (TokenKind_Identifier '=') // vs expression:TokenKind_Identifier
+		curly_initializer_named_item<$initializer>
 	|	curly_initializer_indexed_item<$initializer>
 	|	epsilon
 			{
@@ -1049,7 +1025,6 @@ curly_initializer_item<CurlyInitializer* $initializer>
 			}
 	;
 
-resolver(TokenKind_Identifier '=') // conflict with expression:TokenKind_Identifier
 curly_initializer_named_item<CurlyInitializer* $initializer>
 	:	TokenKind_Identifier $n '='
 			{

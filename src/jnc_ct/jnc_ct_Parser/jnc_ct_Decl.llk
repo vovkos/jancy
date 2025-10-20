@@ -123,19 +123,19 @@ local_declaration_sync
 start
 nullable
 global_declaration_list
-	:	catch(global_declaration_sync) global_declaration*
+	:	catch (global_declaration_sync) global_declaration*
 	;
 
 start
 nullable
 member_block_declaration_list
-	:	catch(member_block_declaration_sync) member_block_declaration*
+	:	catch (member_block_declaration_sync) member_block_declaration*
 	;
 
 start
 nullable
 local_declaration_list
-	:	catch(local_declaration_sync) local_declaration*
+	:	catch (local_declaration_sync) local_declaration*
 	;
 
 //..............................................................................
@@ -298,7 +298,14 @@ global_item_declaration
 	}
 	:	normal_item_declaration
 	|	special_void_method_declarator
-	|	qualified_special_void_method_declaration
+	|	resolver (qualified_special_void_method_declaration_rslv, 2) // higher priority than qualified_type_name_rslv
+		declarator_list<NULL>
+	;
+
+// vs type_specifier:TokenKind_Identifier
+
+qualified_special_void_method_declaration_rslv
+	:	(TokenKind_Identifier '.')* special_void_method_declarator_sync
 	;
 
 member_item_declaration
@@ -321,17 +328,6 @@ normal_item_declaration
 		declarator_list<&$s.m_typeSpecifier>
 	;
 
-// conflict vs type_specifier:TokenKind_Identifier
-
-qualified_special_void_method_declaration_rslv
-	:	(TokenKind_Identifier '.')* special_void_method_declarator_sync
-	;
-
-resolver(qualified_special_void_method_declaration_rslv, 2) // higher than qualified_type_name_rslv
-qualified_special_void_method_declaration
-	:	declarator_list<NULL>
-	;
-
 //..............................................................................
 
 struct {
@@ -342,7 +338,7 @@ declaration_body_pass1
 			{
 				$.m_tokenList.insertTail(m_tokenPool->get($1));
 			}
-	|	catch(eof) compound_stmt_pass1<&$.m_tokenList>
+	|	catch (eof) compound_stmt_pass1<&$.m_tokenList>
 	;
 
 compound_stmt_pass1<sl::List<Token>* $tokenList>
@@ -395,6 +391,19 @@ statement_pass1<StmtPass1* $stmt>
 
 // type names
 
+type_name_rslv
+	:	type_specifier_sync |
+		type_modifier_sync |
+		qualified_type_name_rslv
+	;
+
+struct {
+	Type* m_type;
+}
+type_name
+	: type_name_impl<&$.m_type, NULL>
+	;
+
 type_name_impl<
 	Type** $type,
 	Value* $countValue
@@ -415,13 +424,6 @@ type_name_impl<
 
 				*$type = type;
 			}
-	;
-
-struct {
-	Type* m_type;
-}
-type_name
-	: type_name_impl<&$.m_type, NULL>
 	;
 
 struct {

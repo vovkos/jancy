@@ -72,7 +72,8 @@ declarator_list_terminator<
 	TypeSpecifier* $typeSpecifier,
 	Declarator* $declarator
 >
-	:	declarator_w_curly_initializer<$typeSpecifier, $declarator>
+	:	resolver ('=' ('{' | TokenKind_Body)) // expression_pass1 can also start with '{'
+		declarator_w_curly_initializer<$typeSpecifier, $declarator>
 			{
 				return bodylessDeclaration();
 			}
@@ -86,9 +87,8 @@ declarator_list_terminator<
 			}
 	;
 
-// a special grammar rule for curly-initializers (we don't require ';' after a curly-initializer)
+// a special grammar rule for curly-initializers (jancy doesn't require ';' after a curly-initializer)
 
-resolver('=' ('{' | TokenKind_Body))
 declarator_w_curly_initializer<
 	TypeSpecifier* $typeSpecifier,
 	Declarator* $declarator
@@ -413,8 +413,10 @@ declarator_prefix<Declarator* $declarator>
 
 declarator_suffix<Declarator* $declarator>
 	:	array_suffix<$declarator>
-	|	function_suffix<$declarator>
-	|	bitfield_suffix<$declarator>
+	|	resolver (function_suffix_rslv) // vs C++-style constructor calls e.g.: C c(a);
+		function_suffix<$declarator>
+	|	resolver ({ return false; }) // prefer conditional_expr over type-name, e.g.: p = new int : 3
+		bitfield_suffix<$declarator>
 	;
 
 template_suffix
@@ -456,10 +458,9 @@ array_suffix<Declarator* $declarator>
 function_suffix_rslv
 	:	'(' ')'
 	|	'(' TokenKind_Ellipsis
-	|	'(' (type_modifier_sync | type_specifier_sync | qualified_type_name_rslv)
+	|	'(' type_name_rslv
 	;
 
-resolver(function_suffix_rslv)
 function_suffix<Declarator* $declarator>
 	local {
 		DeclFunctionSuffix* $functionSuffix;
@@ -517,7 +518,6 @@ function_modifier<DeclFunctionSuffix* $functionSuffix>
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-resolver({ return false; }) // prefer conditional-expr over type-name, e.g.: p = new int : 3
 bitfield_suffix<Declarator* $declarator>
 	:	':' TokenKind_Integer
 			{

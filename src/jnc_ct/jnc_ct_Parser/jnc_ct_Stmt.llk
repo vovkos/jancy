@@ -28,7 +28,10 @@ constructor_compound_stmt
 			{
 				m_module->m_namespaceMgr.openScope($1.m_pos, $1.m_data.m_integer);
 			}
-		btm_construct_stmt*
+		(
+			resolver (btm_construct_stmt_rslv) // vs epsilon
+			btm_construct_stmt
+		)*
 			{
 				return finalizeBaseTypeMemberConstructBlock();
 			}
@@ -39,39 +42,34 @@ constructor_compound_stmt
 			}
 	;
 
-btm_construct_stmt
-	:	btm_construct_name $n '(' expression_or_empty_list $a ')'
-			{
-				return callBaseTypeMemberConstructor($n.m_name, &$a.m_valueList);
-			}
-	|	TokenKind_BaseType $b '.' TokenKind_Construct '(' expression_or_empty_list $a ')'
-			{
-				return callBaseTypeConstructor($b.m_data.m_integer - 1, &$a.m_valueList);
-			}
+btm_construct_stmt_rslv
+	:	TokenKind_BaseType '.' TokenKind_Construct
+	|	(TokenKind_Identifier '.')+ TokenKind_Construct
 	|	';'
 	;
 
-// conflict with expression:TokenKind_Identifier and type_specifier:TokenKind_Identifier
-
-btm_construct_name_rslv
-	:	TokenKind_Identifier '.' (TokenKind_Identifier '.')* TokenKind_Construct
+btm_construct_stmt
+	:	TokenKind_BaseType '.' TokenKind_Construct '(' expression_or_empty_list $a ')'
+			{
+				return callBaseTypeConstructor($1.m_data.m_integer - 1, &$a.m_valueList);
+			}
+	|	btm_construct_name '(' expression_or_empty_list $a ')'
+			{
+				return callBaseTypeMemberConstructor($1.m_name, &$a.m_valueList);
+			}
+	|	';'
 	;
 
 struct {
 	QualifiedName m_name;
 }
-resolver(btm_construct_name_rslv, 2) // higher priority than qualified_type_name_rslv
 btm_construct_name
-	:	TokenKind_Identifier '.'
-			{
-				$.m_name.addName($1.m_data.m_string);
-			}
-		(
-			TokenKind_Identifier $n2 '.'
+	:	(
+			TokenKind_Identifier '.'
 				{
-					$.m_name.addName($n2.m_data.m_string);
+					$.m_name.addName($1.m_data.m_string);
 				}
-		)*
+		)+
 		TokenKind_Construct
 	;
 
@@ -82,7 +80,8 @@ statement
 	:	compound_stmt
 	|	if_stmt
 	|	switch_stmt
-	|	regex_switch_stmt
+	|	resolver (regex_switch_stmt_rslv) // vs switch_stmt
+		regex_switch_stmt
 	|	while_stmt
 	|	do_stmt
 	|	for_stmt
@@ -95,7 +94,8 @@ statement
 	|	unsafe_stmt
 	|	assert_stmt
 	|	dynamic_layout_stmt
-	|	dynamic_group_stmt
+	|	resolver (TokenKind_DynamicField TokenKind_Identifier? '{') // vs storage_specifier:TokenKind_DynamicField
+		dynamic_group_stmt
 	|	onevent_stmt
 	|	reactive_expression ';'
 			{
@@ -174,7 +174,7 @@ switch_stmt
 
 nullable
 switch_block_stmt_list<SwitchStmt* $stmt>
-	:	catch(switch_stmt_sync) switch_block_stmt<$stmt>*
+	:	catch (switch_stmt_sync) switch_block_stmt<$stmt>*
 	;
 
 switch_block_stmt<SwitchStmt* $stmt>
@@ -199,7 +199,6 @@ regex_switch_stmt_rslv
 			}
 	;
 
-resolver(regex_switch_stmt_rslv)
 regex_switch_stmt
 	local {
 		RegexSwitchStmt $stmt;
@@ -226,7 +225,7 @@ regex_switch_stmt
 
 nullable
 regex_switch_block_stmt_list<RegexSwitchStmt* $stmt>
-	:	catch(switch_stmt_sync) regex_switch_block_stmt<$stmt>*
+	:	catch (switch_stmt_sync) regex_switch_block_stmt<$stmt>*
 	;
 
 regex_switch_block_stmt<RegexSwitchStmt* $stmt>
@@ -450,7 +449,6 @@ dynamic_layout_stmt
 			}
 	;
 
-resolver(TokenKind_DynamicField TokenKind_Identifier? '{')
 dynamic_group_stmt
 	:	TokenKind_DynamicField TokenKind_Identifier $n? '{' $l
 			{

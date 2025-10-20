@@ -831,7 +831,7 @@ lookahead(2, default);
 start
 nullable
 compilation_unit
-	:	catch(compilation_unit_sync) (import_declaration | global_declaration)*
+	:	catch (compilation_unit_sync) (import_declaration | global_declaration)*
 	;
 
 compilation_unit_sync
