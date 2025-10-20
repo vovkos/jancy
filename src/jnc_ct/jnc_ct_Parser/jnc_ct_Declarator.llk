@@ -25,11 +25,11 @@ declarator<TypeSpecifier* $typeSpecifier>
 		postDeclarator(&$.m_declarator);
 	}
 	:	declarator_prefix<&$.m_declarator>*
-		declarator_name<&$.m_declarator>
-		(template_suffix
-			{
-				return prepareTemplateDeclarator(&$.m_declarator);
-			}
+		declarator_name<&$.m_declarator> (
+			template_suffix
+				{
+					return prepareTemplateDeclarator(&$.m_declarator);
+				}
 		)?
 		declarator_suffix<&$.m_declarator>*
 		declarator_constructor<&$.m_declarator>?
@@ -107,10 +107,11 @@ declarator_wo_curly_initializer<
 	TypeSpecifier* $typeSpecifier,
 	Declarator* $declarator
 >
-	:	('=' expression_pass1
-			{
-				sl::takeOver(&$declarator->m_initializer, &$2.m_tokenList);
-			}
+	:	(
+			'=' expression_pass1
+				{
+					sl::takeOver(&$declarator->m_initializer, &$2.m_tokenList);
+				}
 		)?
 			{
 				return declare($declarator);
@@ -402,10 +403,11 @@ declarator_prefix<Declarator* $declarator>
 			{
 				$declarator->addPointerPrefix(m_pragmaConfig.m_pointerModifiers);
 			}
-		(type_modifier $m
-			{
-				return $declarator->addTypeModifier($m.m_typeModifier);
-			}
+		(
+			type_modifier $m
+				{
+					return $declarator->addTypeModifier($m.m_typeModifier);
+				}
 		)*
 	;
 

@@ -66,10 +66,11 @@ btm_construct_name
 			{
 				$.m_name.addName($1.m_data.m_string);
 			}
-		(TokenKind_Identifier $n2 '.'
-			{
-				$.m_name.addName($n2.m_data.m_string);
-			}
+		(
+			TokenKind_Identifier $n2 '.'
+				{
+					$.m_name.addName($n2.m_data.m_string);
+				}
 		)*
 		TokenKind_Construct
 	;
@@ -508,10 +509,11 @@ event_name
 					m_module->m_operatorMgr.getPropertyOnChanged($3.m_value, &value) &&
 					$.m_valueList.insertTail(value);
 			}
-	|	(any // anything until '('
-			{
-				$tokenList.insertTail(m_tokenPool->get($1));
-			}
+	|	(
+			any // anything until '('
+				{
+					$tokenList.insertTail(m_tokenPool->get($1));
+				}
 		)+
 			{
 				Value value;

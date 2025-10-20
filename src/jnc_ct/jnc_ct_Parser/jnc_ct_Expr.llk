@@ -426,11 +426,11 @@ equality_expr<Value* $value>
 	local {
 		Value $opValue2;
 	}
-	:	relational_expr<$value>
-		(equality_operator $o relational_expr<&$opValue2>
-			{
-				return m_module->m_operatorMgr.binaryOperator($o.m_opKind, $value, $opValue2);
-			}
+	:	relational_expr<$value> (
+			equality_operator $o relational_expr<&$opValue2>
+				{
+					return m_module->m_operatorMgr.binaryOperator($o.m_opKind, $value, $opValue2);
+				}
 		)*
 	;
 
@@ -460,11 +460,11 @@ relational_expr<Value* $value>
 	local {
 		Value $opValue2;
 	}
-	:	shift_expr<$value>
-		(relational_operator $o shift_expr<&$opValue2>
-			{
-				return m_module->m_operatorMgr.binaryOperator($o.m_opKind, $value, $opValue2);
-			}
+	:	shift_expr<$value> (
+			relational_operator $o shift_expr<&$opValue2>
+				{
+					return m_module->m_operatorMgr.binaryOperator($o.m_opKind, $value, $opValue2);
+				}
 		)*
 	;
 
@@ -494,11 +494,11 @@ shift_expr<Value* $value>
 	local {
 		Value $opValue2;
 	}
-	:	additive_expr<$value>
-		(shift_operator $o additive_expr<&$opValue2>
-			{
-				return m_module->m_operatorMgr.binaryOperator($o.m_opKind, $value, $opValue2);
-			}
+	:	additive_expr<$value> (
+			shift_operator $o additive_expr<&$opValue2>
+				{
+					return m_module->m_operatorMgr.binaryOperator($o.m_opKind, $value, $opValue2);
+				}
 		)*
 	;
 
@@ -520,11 +520,11 @@ additive_expr<Value* $value>
 	local {
 		Value $opValue2;
 	}
-	:	multiplicative_expr<$value>
-		(additive_operator $o multiplicative_expr<&$opValue2>
-			{
-				return m_module->m_operatorMgr.binaryOperator($o.m_opKind, $value, $opValue2);
-			}
+	:	multiplicative_expr<$value> (
+			additive_operator $o multiplicative_expr<&$opValue2>
+				{
+					return m_module->m_operatorMgr.binaryOperator($o.m_opKind, $value, $opValue2);
+				}
 		)*
 	;
 
@@ -546,11 +546,11 @@ multiplicative_expr<Value* $value>
 	local {
 		Value $opValue2;
 	}
-	:	at_expr<$value>
-		(multiplicative_operator $o at_expr<&$opValue2>
-			{
-				return m_module->m_operatorMgr.binaryOperator($o.m_opKind, $value, $opValue2);
-			}
+	:	at_expr<$value> (
+			multiplicative_operator $o at_expr<&$opValue2>
+				{
+					return m_module->m_operatorMgr.binaryOperator($o.m_opKind, $value, $opValue2);
+				}
 		)*
 	;
 

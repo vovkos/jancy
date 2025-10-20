@@ -270,10 +270,11 @@ qualified_type_name_rslv
 						$n.m_pos
 					) != NULL;
 			}
-		(('(' | '[' | '=') // declarator suffix detected, e.g.: static foo()
-			{
-				return false;
-			}
+		(
+			('(' | '[' | '=') // declarator suffix detected, e.g.: static foo()
+				{
+					return false;
+				}
 		)?
 	;
 
