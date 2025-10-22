@@ -18,12 +18,34 @@ namespace io {
 
 opaque class HidUsagePage {
 	uint_t const m_id;
+
 	string_t const property m_name;
+	string_t const property m_string;
 
 	construct();
 	destruct();
 
 	string_t getUsageName(uint_t usage) const;
+	string_t getUsageString(uint_t usage) const;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+extension HidUsagePageEnumStrings: HidUsagePage {
+	string_t const property m_enumString {
+		return createEnumString(m_id, m_name);
+	}
+
+	string_t getUsageEnumString(uint_t usage) const {
+		return createEnumString(usage, getUsageName(usage));
+	}
+
+	protected static string_t createEnumString(
+		uint_t id,
+		string_t name
+	) {
+		return name.m_length ? $"0x%02X - %s"(id, name) : $"0x%02X"(id);
+	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

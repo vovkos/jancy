@@ -31,9 +31,27 @@ public:
     uint_t m_id;
 
 protected:
+	struct StringCacheEntry {
+		String m_name;
+		String m_string;
+
+		void
+		clear() {
+			m_name = g_nullString;
+			m_string = g_nullString;
+		}
+
+		void
+		mark(jnc::GcHeap* gcHeap) const {
+			gcHeap->markString(m_name);
+			gcHeap->markString(m_string);
+		}
+	};
+
+protected:
 	const axl::io::HidUsagePage* m_page;
-	String m_name;
-	sl::SimpleHashTable<uint_t, String> m_usageNameMap;
+	StringCacheEntry m_pageStringCache;
+	sl::SimpleHashTable<uint_t, StringCacheEntry> m_usageStringCache;
 
 public:
 	void
@@ -48,7 +66,20 @@ public:
 	static
     String
 	JNC_CDECL
+	getString(HidUsagePage* self);
+
+	static
+    String
+	JNC_CDECL
 	getUsageName(
+		HidUsagePage* self,
+		uint_t usage
+	);
+
+	static
+    String
+	JNC_CDECL
+	getUsageString(
 		HidUsagePage* self,
 		uint_t usage
 	);
@@ -64,8 +95,8 @@ void
 HidUsagePage::detach() {
 	m_id = 0;
 	m_page = NULL;
-	m_name = g_nullString;
-	m_usageNameMap.clear();
+	m_pageStringCache.clear();
+	m_usageStringCache.clear();
 }
 
 //..............................................................................

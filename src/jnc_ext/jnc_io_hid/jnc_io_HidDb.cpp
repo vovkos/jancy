@@ -31,7 +31,9 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(HidUsagePage)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<HidUsagePage>)
 	JNC_MAP_DESTRUCTOR(&jnc::destruct<HidUsagePage>)
 	JNC_MAP_CONST_PROPERTY("m_name", &HidUsagePage::getName)
+	JNC_MAP_CONST_PROPERTY("m_string", &HidUsagePage::getString)
 	JNC_MAP_FUNCTION("getUsageName", &HidUsagePage::getUsageName)
+	JNC_MAP_FUNCTION("getUsageString", &HidUsagePage::getUsageString)
 JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -58,11 +60,11 @@ JNC_END_TYPE_FUNCTION_MAP()
 void
 JNC_CDECL
 HidUsagePage::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
-	gcHeap->markString(m_name);
+	m_pageStringCache.mark(gcHeap);
 
-	sl::ConstMapIterator<uint_t, String> it = m_usageNameMap.getHead();
+	sl::ConstMapIterator<uint_t, StringCacheEntry> it = m_usageStringCache.getHead();
 	for (; it; it++)
-		gcHeap->markString(it->m_value);
+		it->m_value.mark(gcHeap);
 }
 
 String
@@ -71,10 +73,22 @@ HidUsagePage::getName(HidUsagePage* self) {
 	if (!self->m_page) // detached
 		return g_nullString;
 
-	if (!self->m_name.m_ptr.m_p)
-		self->m_name = allocateString(self->m_page->getName());
+	if (!self->m_pageStringCache.m_name.m_ptr.m_p)
+		self->m_pageStringCache.m_name = allocateString(self->m_page->getName());
 
-	return self->m_name;
+	return self->m_pageStringCache.m_name;
+}
+
+String
+JNC_CDECL
+HidUsagePage::getString(HidUsagePage* self) {
+	if (!self->m_page) // detached
+		return g_nullString;
+
+	if (!self->m_pageStringCache.m_string.m_ptr.m_p)
+		self->m_pageStringCache.m_string = allocateString(self->m_page->getString());
+
+	return self->m_pageStringCache.m_string;
 }
 
 String
@@ -86,11 +100,44 @@ HidUsagePage::getUsageName(
 	if (!self->m_page) // detached
 		return g_nullString;
 
-	sl::MapIterator<uint_t, String> it = self->m_usageNameMap.visit(usage);
-	if (!it->m_value.m_ptr.m_p)
-		it->m_value = allocateString(self->m_page->getUsageName(usage));
+	sl::MapIterator<uint_t, StringCacheEntry> it = self->m_usageStringCache.find(usage);
+	if (it && it->m_value.m_name.m_ptr.m_p)
+		return it->m_value.m_name;
 
-	return it->m_value;
+	sl::String name = self->m_page->getUsageName(usage);
+	if (name.isEmpty())
+		return g_nullString;
+
+	if (!it)
+		it = self->m_usageStringCache.visit(usage);
+
+	it->m_value.m_name = allocateString(name);
+	return it->m_value.m_name;
+}
+
+String
+JNC_CDECL
+HidUsagePage::getUsageString(
+	HidUsagePage* self,
+	uint_t usage
+) {
+	if (!self->m_page) // detached
+		return g_nullString;
+
+	sl::MapIterator<uint_t, StringCacheEntry> it = self->m_usageStringCache.find(usage);
+	if (it && it->m_value.m_string.m_ptr.m_p)
+		return it->m_value.m_string;
+
+	sl::String name = self->m_page->getUsageName(usage);
+	sl::String string = !name.isEmpty() ? name : axl::io::HidUsagePage::createUnnamedUsageString(usage);
+	if (name.isEmpty())
+		return allocateString(string);
+
+	if (!it)
+		it = self->m_usageStringCache.visit(usage);
+
+	it->m_value.m_string = allocateString(string);
+	return it->m_value.m_string;
 }
 
 //..............................................................................
