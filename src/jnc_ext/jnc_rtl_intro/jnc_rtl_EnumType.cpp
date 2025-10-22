@@ -53,6 +53,8 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(EnumType)
 	JNC_MAP_CONST_PROPERTY("m_constCount", &EnumType::getConstCount)
 	JNC_MAP_CONST_PROPERTY("m_constArray", &EnumType::getConst)
 	JNC_MAP_FUNCTION("findConst", &EnumType::findConst)
+	JNC_MAP_FUNCTION("getValueName", &EnumType::getValueName_0)
+	JNC_MAP_OVERLOAD(&EnumType::getValueName_1)
 JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
@@ -70,6 +72,39 @@ EnumConst::getName(EnumConst* self) {
 		self->m_name = createForeignString(self->m_item->getName(), false);
 
 	return self->m_name;
+}
+
+//..............................................................................
+
+
+String
+JNC_CDECL
+EnumType::getValueName_0(
+	EnumType* self,
+	DataPtr valuePtr,
+	String formatSpec
+) {
+	if (!valuePtr.m_p)
+		return g_nullString;
+
+	return allocateString(self->m_item->getValueName(valuePtr.m_p, (formatSpec >> toAxl).szn()));
+}
+
+String
+JNC_CDECL
+EnumType::getValueName_1(
+	EnumType* self,
+	Variant value,
+	String formatSpec
+) {
+	char buffer[256];
+	sl::Array<char> valueBuffer(rc::BufKind_Stack, buffer, sizeof(buffer));
+	valueBuffer.setCount(self->m_item->getSize());
+
+	bool result = value.cast(self->m_item, valueBuffer.p());
+	return result ?
+		allocateString(self->m_item->getValueName(valueBuffer, (formatSpec >> toAxl).szn())) :
+		g_nullString;
 }
 
 //..............................................................................

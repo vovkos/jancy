@@ -44,6 +44,16 @@ opaque class EnumType: NamedType {
 	construct(intptr p);
 
 	EnumConst* findConst(int64_t value) const;
+
+	string_t getValueName(
+		void const* p,
+		string_t fallbackFormatSpec = null
+	) const;
+
+	string_t getValueName(
+		variant_t value,
+		string_t fallbackFormatSpec = null
+	) const;
 }
 
 //..............................................................................

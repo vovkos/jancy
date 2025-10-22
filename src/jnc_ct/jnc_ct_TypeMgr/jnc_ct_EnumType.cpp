@@ -314,7 +314,8 @@ EnumType::calcBitflagEnumConstValues(EnumConst* baseConst) {
 }
 
 sl::StringRef
-EnumType::getValueString(
+EnumType::getValueStringEx(
+	const sl::StringRef& separator,
 	const void* p,
 	const char* formatSpec
 ) {
@@ -326,9 +327,12 @@ EnumType::getValueString(
 		if (!enumConst)
 			return m_baseType->getValueString(p, formatSpec);
 
+		if (separator.isEmpty())
+			return enumConst->m_name;
+
 		sl::String string;
 		string = m_baseType->getValueString(p, formatSpec);
-		string += " - ";
+		string += separator;
 		string += enumConst->m_name;
 		return string;
 	}
@@ -361,9 +365,15 @@ EnumType::getValueString(
 	if (namedFlagsString.isEmpty())
 		return m_baseType->getValueString(p, formatSpec);
 
-	sl::String string = m_baseType->getValueString(p, formatSpec);
-	string += " - ";
-	string += namedFlagsString;
+	sl::String string;
+
+	if (separator.isEmpty())
+		sl::takeOver(&string, &namedFlagsString);
+	else {
+		string = m_baseType->getValueString(p, formatSpec);
+		string += separator;
+		string += namedFlagsString;
+	}
 
 	if (unnamedFlags) {
 		string += ", ";

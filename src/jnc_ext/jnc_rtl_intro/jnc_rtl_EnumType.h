@@ -89,6 +89,24 @@ public:
 		jnc::EnumConst* enumConst = m_item->findConst(value);
 		return enumConst ? rtl::getEnumConst(enumConst) : NULL;
 	}
+
+	static
+	String
+	JNC_CDECL
+	getValueName_0(
+		EnumType* self,
+		DataPtr valuePtr,
+		String formatSpec
+	);
+
+	static
+	String
+	JNC_CDECL
+	getValueName_1(
+		EnumType* self,
+		Variant value,
+		String formatSpec
+	);
 };
 
 //..............................................................................

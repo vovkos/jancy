@@ -88,6 +88,7 @@ class EnumType: public NamedType {
 	friend class TypeMgr;
 	friend class Parser;
 
+
 protected:
 	Type* m_rootType;
 	Type* m_baseType;
@@ -131,6 +132,24 @@ public:
 	virtual
 	sl::StringRef
 	getValueString(
+		const void* p,
+		const char* formatSpec
+	) {
+		static const sl::StringRef separator(" - ");
+		return getValueStringEx(separator, p, formatSpec);
+	}
+
+	sl::StringRef
+	getValueName(
+		const void* p,
+		const char* formatSpec
+	) {
+		return getValueStringEx(sl::StringRef(), p, formatSpec);
+	}
+
+	sl::StringRef
+	getValueStringEx(
+		const sl::StringRef& separator,
 		const void* p,
 		const char* formatSpec
 	);
