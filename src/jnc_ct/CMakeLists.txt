@@ -771,6 +771,7 @@ add_graco_double_step(
 	jnc_ct_Parser/jnc_ct_DeclarationSpecifier.llk
 	jnc_ct_Parser/jnc_ct_Declarator.llk
 	jnc_ct_Parser/jnc_ct_Expr.llk
+	jnc_ct_Parser/jnc_ct_Name.llk
 	jnc_ct_Parser/jnc_ct_NamedTypeSpecifier.llk
 	jnc_ct_Parser/jnc_ct_Stmt.llk
 )

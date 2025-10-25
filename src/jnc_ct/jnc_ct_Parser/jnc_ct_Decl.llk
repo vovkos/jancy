@@ -149,7 +149,7 @@ import_declaration
 	;
 
 namespace_declaration
-	:	TokenKind_Namespace pure_qualified_name TokenKind_Body
+	:	TokenKind_Namespace qualified_name TokenKind_Body
 			{
 				return declareGlobalNamespace($1.m_pos, $2.m_name, $3) != NULL;
 			}

@@ -42,13 +42,6 @@ qualified_name_impl<QualifiedName* $name>
 	;
 
 struct {
-	QualifiedName m_name;
-}
-pure_qualified_name
-	:	qualified_name_impl<&$.m_name>
-	;
-
-struct {
 	sl::BoxList<QualifiedName> m_nameList;
 }
 qualified_name_list
@@ -78,6 +71,7 @@ qualified_name_save_name
 
 // type names
 
+nullable
 type_name_rslv
 	:	type_specifier_sync |
 		type_modifier_sync |
@@ -129,6 +123,33 @@ type_name_list
 		)*
 	;
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct {
+	sl::BoxList<Token> m_tokenList;
+}
+qualified_name_pass1
+	:	qualified_name_pass1_atom<&$.m_tokenList> (
+			'.' qualified_name_pass1_atom<&$.m_tokenList>
+		)*
+	;
+
+qualified_name_pass1_atom<sl::BoxList<Token>* $tokenList>
+	:	TokenKind_BaseType
+			{
+				$tokenList->insertTail(m_tokenPool->get($1));
+			}
+	|	TokenKind_Identifier
+			{
+				$tokenList->insertTail(m_tokenPool->get($1));
+			}
+		template_instantiate_operator_pass1<$tokenList>?
+	;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// this will go away
+
 struct {
 	size_t m_baseTypeIdx;
 	QualifiedName m_name;
@@ -152,35 +173,66 @@ basetype_qualified_name
 			}
 	;
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 // the main conflict of C-family: declaration vs expression
 
+nullable
 qualified_type_name_rslv
 	enter {
 		if (isTypeSpecified())
 			return false;
 	}
-	:	basetype_qualified_name $n
+	:	resolver ({ return m_mode == Mode_Parse; })
+		epsilon
+	|	qualified_type_name_rslv_impl
+	;
+
+start
+qualified_type_name_rslv_impl
+	:	basetype_qualified_name
 			{
-				return
-					m_mode == Mode_Parse ||
-					findType(
-						$n.m_baseTypeIdx,
-						$n.m_name,
-						$n.m_pos
-					) != NULL;
+				return findType(
+					$1.m_baseTypeIdx,
+					$1.m_name,
+					$1.m_pos
+				) != NULL;
 			}
-		(
-			('(' | '[' | '=') // declarator suffix detected, e.g.: static foo()
-				{
-					return false;
-				}
-		)?
 	;
 
 struct {
 	Type* m_type;
 }
 qualified_type_name
+	:	resolver ({ return m_mode == Mode_Parse; })
+		qualified_type_name_pt
+			{
+				$.m_type = $1.m_type;
+			}
+	|	qualified_type_name_ct
+			{
+				$.m_type = $1.m_type;
+			}
+	;
+
+struct {
+	Type* m_type;
+}
+qualified_type_name_pt
+	:	basetype_qualified_name
+			{
+				return ($.m_type = getType(
+					$1.m_baseTypeIdx,
+					$1.m_name,
+					$1.m_pos
+				)) != NULL;
+			}
+	;
+
+struct {
+	Type* m_type;
+}
+qualified_type_name_ct
 	:	basetype_qualified_name
 			{
 				return ($.m_type = getType(
