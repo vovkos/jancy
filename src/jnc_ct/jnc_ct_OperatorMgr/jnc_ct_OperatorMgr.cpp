@@ -350,11 +350,25 @@ getConditionalOperandType(const Value& value) {
 				PropertyPtrTypeKind_Normal
 			);
 		}
-	} else if (type->getTypeKind() == TypeKind_Array)
-		type = ((ArrayType*)type)->getElementType()->getDataPtrType(
-			DataPtrTypeKind_Normal,
-			value.getValueKind() == ValueKind_Const ? PtrTypeFlag_Const : 0
-		);
+	} else {
+		switch (type->getTypeKind()) {
+		case TypeKind_Array:
+			type = ((ArrayType*)type)->getElementType()->getDataPtrType(
+				DataPtrTypeKind_Normal,
+				value.getValueKind() == ValueKind_Const ? PtrTypeFlag_Const : 0
+			);
+			break;
+		case TypeKind_FunctionRef: {
+			FunctionPtrType* ptrType = (FunctionPtrType*)type;
+			type = ptrType->getTargetType()->getFunctionPtrType(
+				TypeKind_FunctionPtr,
+				ptrType->getPtrTypeKind(),
+				ptrType->getFlags() & (PtrTypeFlag__All & ~PtrTypeFlag_Safe)
+			);
+			break;
+			}
+		}
+	}
 
 	return type;
 }
