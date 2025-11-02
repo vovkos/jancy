@@ -272,10 +272,10 @@ NamespaceMgr::createAlias(
 void
 NamespaceMgr::setSourcePos(const lex::LineCol& pos) {
 	if (!(m_module->getCompileFlags() & ModuleCompileFlag_DebugInfo) ||
-        !m_currentScope ||
-        !(m_module->m_functionMgr.getCurrentFunction()->getFlags() & ModuleItemFlag_User) ||
+		!m_currentScope ||
+		!(m_module->m_functionMgr.getCurrentFunction()->getFlags() & ModuleItemFlag_User) ||
 		m_sourcePosLockCount
-    )
+	)
 		return;
 
 	llvm::DebugLoc llvmDebugLoc = m_module->m_llvmDiBuilder.getDebugLoc(m_currentScope, pos);

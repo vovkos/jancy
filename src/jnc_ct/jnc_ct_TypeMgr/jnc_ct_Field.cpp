@@ -45,7 +45,7 @@ Field::getDataPtrType(
 			ptrTypeKind,
 			flags
 		) :
-	 	m_module->m_typeMgr.getDataPtrType(
+		m_module->m_typeMgr.getDataPtrType(
 			m_type,
 			typeKind,
 			ptrTypeKind,

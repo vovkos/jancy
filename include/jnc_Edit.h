@@ -37,7 +37,7 @@ class JNC_EDIT_EXPORT Edit: public QPlainTextEdit {
 	friend class LineNumberMargin;
 
 public:
-    enum CodeAssistTrigger {
+	enum CodeAssistTrigger {
 		QuickInfoTipOnMouseOverIdentifier      = 0x0001,
 		QuickInfoTipOnCursorOverIdentifier     = 0x0002,
 		ArgumentTipOnCtrlShiftSpace            = 0x0004,
@@ -52,9 +52,9 @@ public:
 		AutoCompleteOnTypeIdentifier           = 0x0800,
 		ImportAutoCompleteOnTypeQuotationMark  = 0x1000,
 		GotoDefinitionOnCtrlClick              = 0x2000,
-    };
+	};
 
-    Q_DECLARE_FLAGS(CodeAssistTriggers, CodeAssistTrigger)
+	Q_DECLARE_FLAGS(CodeAssistTriggers, CodeAssistTrigger)
 
 public:
 	Edit(QWidget* parent = NULL);
@@ -112,10 +112,10 @@ public slots:
 protected:
 	virtual void changeEvent(QEvent* e);
 	virtual void resizeEvent(QResizeEvent* e);
-    virtual void keyPressEvent(QKeyEvent* e);
+	virtual void keyPressEvent(QKeyEvent* e);
 	virtual void enterEvent(QEvent* e);
-    virtual void mousePressEvent(QMouseEvent* e);
-    virtual void mouseMoveEvent(QMouseEvent* e);
+	virtual void mousePressEvent(QMouseEvent* e);
+	virtual void mouseMoveEvent(QMouseEvent* e);
 
 protected:
 	QScopedPointer<EditPrivate> d_ptr;

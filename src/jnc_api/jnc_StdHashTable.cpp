@@ -96,7 +96,7 @@ JNC_EXTERN_C
 JNC_EXPORT_O
 void
 jnc_StdHashTable_clear(jnc_StdHashTable* hashTable) {
-	 ((jnc::std::HashTable*)hashTable)->clear();
+	((jnc::std::HashTable*)hashTable)->clear();
 }
 
 JNC_EXTERN_C
@@ -106,7 +106,7 @@ jnc_StdHashTable_find(
 	jnc_StdHashTable* hashTable,
 	jnc_Variant key
 ) {
-	 return (jnc_StdMapEntry*)jnc::std::HashTable::find((jnc::std::HashTable*)hashTable, key).m_p;
+	return (jnc_StdMapEntry*)jnc::std::HashTable::find((jnc::std::HashTable*)hashTable, key).m_p;
 }
 
 JNC_EXTERN_C
@@ -117,9 +117,9 @@ jnc_StdHashTable_add(
 	jnc_Variant key,
 	jnc_Variant value
 ) {
-	 jnc_StdMapEntry* entry = (jnc_StdMapEntry*)jnc::std::HashTable::visit((jnc::std::HashTable*)hashTable, key).m_p;
-	 entry->m_value = value;
-	 return entry;
+	jnc_StdMapEntry* entry = (jnc_StdMapEntry*)jnc::std::HashTable::visit((jnc::std::HashTable*)hashTable, key).m_p;
+	entry->m_value = value;
+	return entry;
 }
 
 JNC_EXTERN_C

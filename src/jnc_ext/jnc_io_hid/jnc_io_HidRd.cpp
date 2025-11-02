@@ -283,7 +283,7 @@ HidReport*
 JNC_CDECL
 HidRd::getReport(
 	axl::io::HidReportType reportType,
-    size_t i
+	size_t i
 ) {
 	if (!isValidReportType(reportType))
 		return NULL;

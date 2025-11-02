@@ -177,11 +177,11 @@ public:
 	JNC_CDECL
 	close();
 
- #if (_JNC_IO_SERIAL_POLL)
+#if (_JNC_IO_SERIAL_POLL)
 	void
 	JNC_CDECL
 	setUpdateInterval(uint_t interval);
- #endif
+#endif
 
 	bool
 	JNC_CDECL

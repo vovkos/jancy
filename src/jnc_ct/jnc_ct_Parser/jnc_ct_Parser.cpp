@@ -1075,7 +1075,7 @@ Parser::declareTemplate(Declarator* declarator) {
 
 	if (!declarator->isSimple()) {
 		err::setError("invalid template declarator");
-		return false;
+		return NULL;
 	}
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
@@ -1109,7 +1109,7 @@ Parser::declareTemplate(
 
 		ASSERT(typeKind >= TypeKind_Struct && typeKind <= TypeKind_Union);
 		err::setFormatStringError("unnamed template %s", stringTable[typeKind - TypeKind_Struct]);
-		return false;
+		return NULL;
 	}
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();

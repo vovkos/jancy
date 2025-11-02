@@ -126,13 +126,13 @@ bool MdiChild::saveFile(const QString& filePath) {
 }
 
 void MdiChild::setFile(const QString &filePath) {
-	 m_filePath = QFileInfo(filePath).canonicalFilePath();
-	 m_isUntitled = false;
+	m_filePath = QFileInfo(filePath).canonicalFilePath();
+	m_isUntitled = false;
 
-	 document()->setModified(false);
-	 setWindowModified(false);
-	 setWindowTitle(fileName() + "[*]");
- }
+	document()->setModified(false);
+	setWindowModified(false);
+	setWindowTitle(fileName() + "[*]");
+}
 
 bool MdiChild::canClose() {
 	if (document()->isModified()) {

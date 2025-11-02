@@ -84,7 +84,7 @@ jnc_StdBuffer_reserve(
 	jnc_StdBuffer* buffer,
 	size_t size
 ) {
-	 return ((jnc::std::Buffer*)buffer)->reserve(size);
+	return ((jnc::std::Buffer*)buffer)->reserve(size);
 }
 
 JNC_EXTERN_C
@@ -95,7 +95,7 @@ jnc_StdBuffer_copy(
 	const void* p,
 	size_t size
 ) {
-	 return ((jnc::std::Buffer*)buffer)->copy_u(p, size);
+	return ((jnc::std::Buffer*)buffer)->copy_u(p, size);
 }
 
 JNC_EXTERN_C
@@ -107,7 +107,7 @@ jnc_StdBuffer_insert(
 	const void* p,
 	size_t size
 ) {
-	 return ((jnc::std::Buffer*)buffer)->insert_u(offset, p, size);
+	return ((jnc::std::Buffer*)buffer)->insert_u(offset, p, size);
 }
 
 JNC_EXTERN_C
@@ -118,7 +118,7 @@ jnc_StdBuffer_remove(
 	size_t offset,
 	size_t size
 ) {
-	 return ((jnc::std::Buffer*)buffer)->remove(offset, size);
+	return ((jnc::std::Buffer*)buffer)->remove(offset, size);
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

@@ -115,7 +115,7 @@ SslCertName::getOneLine(SslCertName* self) {
 	if (self->m_oneLine.m_ptr.m_p)
 		return self->m_oneLine;
 
-    char* p = X509_NAME_oneline(self->m_name, NULL, 0);
+	char* p = X509_NAME_oneline(self->m_name, NULL, 0);
 	self->m_oneLine = allocateString(p);
 	OPENSSL_free(p);
 

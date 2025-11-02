@@ -77,7 +77,7 @@ protected:
 	};
 
 protected:
-    Edit* q_ptr;
+	Edit* q_ptr;
 	JancyHighlighter* m_syntaxHighlighter;
 	LineNumberMargin* m_lineNumberMargin;
 	int m_tabWidth;

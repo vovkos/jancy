@@ -184,11 +184,11 @@ class_specifier
 				{
 					return !&$o ?
 						declareTemplate(
-							TypeKind_Struct,
+							TypeKind_Class,
 							&$n,
 							&$b2 ? sl::ArrayRef<Type*>($b2.m_typeArray) : sl::ArrayRef<Type*>(),
 							&$y.m_tokenList
-						) :
+						) != 0 :
 						err::fail("opaque class cannot be templated");
 				}
 		)

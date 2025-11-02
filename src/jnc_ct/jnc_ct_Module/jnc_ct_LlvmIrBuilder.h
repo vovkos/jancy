@@ -951,7 +951,7 @@ public:
 			cmpValue.getLlvmValue(),
 			newValue.getLlvmValue(),
 #if (LLVM_VERSION_MAJOR >= 13)
-            llvm::MaybeAlign(),
+			llvm::MaybeAlign(),
 #endif
 			orderingKind,
 #if (LLVM_VERSION >= 0x030500)
@@ -982,7 +982,7 @@ public:
 			cmpValue.getLlvmValue(),
 			newValue.getLlvmValue(),
 #if (LLVM_VERSION_MAJOR >= 13)
-            llvm::MaybeAlign(),
+			llvm::MaybeAlign(),
 #endif
 			successOrderingKind,
 			failureOrderingKind,
@@ -1010,7 +1010,7 @@ public:
 			ptrValue.getLlvmValue(),
 			newValue.getLlvmValue(),
 #if (LLVM_VERSION_MAJOR >= 13)
-            llvm::MaybeAlign(),
+			llvm::MaybeAlign(),
 #endif
 			orderingKind,
 			syncKind

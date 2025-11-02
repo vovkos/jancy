@@ -94,7 +94,7 @@ JNC_EXTERN_C
 JNC_EXPORT_O
 void
 jnc_StdRbTree_clear(jnc_StdRbTree* RbTree) {
-	 ((jnc::std::RbTree*)RbTree)->clear();
+	((jnc::std::RbTree*)RbTree)->clear();
 }
 
 JNC_EXTERN_C
@@ -104,7 +104,7 @@ jnc_StdRbTree_find(
 	jnc_StdRbTree* RbTree,
 	jnc_Variant key
 ) {
-	 return (jnc_StdMapEntry*)jnc::std::RbTree::find((jnc::std::RbTree*)RbTree, key).m_p;
+	return (jnc_StdMapEntry*)jnc::std::RbTree::find((jnc::std::RbTree*)RbTree, key).m_p;
 }
 
 JNC_EXTERN_C
@@ -115,9 +115,9 @@ jnc_StdRbTree_add(
 	jnc_Variant key,
 	jnc_Variant value
 ) {
-	 jnc_StdMapEntry* entry = (jnc_StdMapEntry*)jnc::std::RbTree::visit((jnc::std::RbTree*)RbTree, key).m_p;
-	 entry->m_value = value;
-	 return entry;
+	jnc_StdMapEntry* entry = (jnc_StdMapEntry*)jnc::std::RbTree::visit((jnc::std::RbTree*)RbTree, key).m_p;
+	entry->m_value = value;
+	return entry;
 }
 
 JNC_EXTERN_C

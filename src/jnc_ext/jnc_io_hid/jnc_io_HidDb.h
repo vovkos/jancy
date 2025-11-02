@@ -28,7 +28,7 @@ public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(HidUsagePage)
 
 public:
-    uint_t m_id;
+	uint_t m_id;
 
 protected:
 	struct StringCacheEntry {
@@ -59,12 +59,12 @@ public:
 	markOpaqueGcRoots(jnc::GcHeap* gcHeap);
 
 	static
-    String
+	String
 	JNC_CDECL
 	getName(HidUsagePage* self);
 
 	static
-    String
+	String
 	JNC_CDECL
 	getString(HidUsagePage* self);
 
@@ -120,11 +120,11 @@ public:
 	JNC_CDECL
 	markOpaqueGcRoots(jnc::GcHeap* gcHeap);
 
-    HidUsagePage*
+	HidUsagePage*
 	JNC_CDECL
 	getUsagePage(uint_t page);
 
-    bool
+	bool
 	JNC_CDECL
 	load(String fileName);
 

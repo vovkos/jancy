@@ -33,8 +33,8 @@
 #	define JNC_INIT_EXCEPTION_INFO() \
 		__jncSjljFrame.m_signalInfo.m_signal = 0;
 #	define JNC_SAVE_EXCEPTION_INFO() \
-        if (__jncSjljBranch) \
-            jnc_saveSignalInfo(&__jncSjljFrame);
+		if (__jncSjljBranch) \
+			jnc_saveSignalInfo(&__jncSjljFrame);
 #else // on windows, we save exception information right inside the handler
 #	define JNC_INIT_EXCEPTION_INFO()
 #	define JNC_SAVE_EXCEPTION_INFO()
@@ -46,7 +46,7 @@
 	jnc_SjljFrame __jncSjljFrame; \
 	jnc_SjljFrame* __jncSjljPrevFrame; \
 	int __jncSjljBranch; \
-    int __jncIsSjljFrameRestored = 0; \
+	int __jncIsSjljFrameRestored = 0; \
 	JNC_ASSERT(runtime); \
 	JNC_INIT_EXCEPTION_INFO(); \
 	jnc_Runtime_initializeCallSite(__jncRuntime, &__jncCallSite); \
@@ -55,7 +55,7 @@
 	if (!__jncSjljBranch) {
 
 #define JNC_RESTORE_SJLJ_FRAME() \
-    if (!__jncIsSjljFrameRestored) { \
+	if (!__jncIsSjljFrameRestored) { \
 		jnc_SjljFrame* prev; \
 		JNC_SAVE_EXCEPTION_INFO(); \
 		prev = jnc_Runtime_setSjljFrame(__jncRuntime, __jncSjljPrevFrame); \

@@ -142,15 +142,15 @@ void MainWindow::openFile(QString filePath) {
 }
 
 void MainWindow::saveFile() {
-	 if (MdiChild* mdiChild = activeMdiChild())
-		 if (mdiChild->save())
-			 writeStatus("File saved", 2000);
+	if (MdiChild* mdiChild = activeMdiChild())
+		if (mdiChild->save())
+			writeStatus("File saved", 2000);
 }
 
 void MainWindow::saveAs() {
 	if (MdiChild* mdiChild = activeMdiChild())
-		 if (mdiChild->saveAs())
-			 writeStatus("File saved", 2000);
+		if (mdiChild->saveAs())
+			writeStatus("File saved", 2000);
 }
 
 void MainWindow::createActions() {
@@ -627,9 +627,9 @@ bool
 MainWindow::run() {
 	bool result;
 
-	 MdiChild* mdiChild = activeMdiChild();
-	 if (!mdiChild)
-		 return true;
+	MdiChild* mdiChild = activeMdiChild();
+	if (!mdiChild)
+		return true;
 
 	if (mdiChild->isCompilationNeeded()) {
 		result = compile();
@@ -685,15 +685,15 @@ MdiChild* MainWindow::createMdiChild() {
 }
 
 MdiChild* MainWindow::activeMdiChild() {
-	 QMdiSubWindow* activeSubWindow = m_mdiArea->activeSubWindow();
+	QMdiSubWindow* activeSubWindow = m_mdiArea->activeSubWindow();
 
-	 if (!activeSubWindow && !m_mdiArea->subWindowList().empty())
-		 activeSubWindow = m_mdiArea->subWindowList().at(0);
+	if (!activeSubWindow && !m_mdiArea->subWindowList().empty())
+		activeSubWindow = m_mdiArea->subWindowList().at(0);
 
-	 if (!activeSubWindow)
-		 return 0;
+	if (!activeSubWindow)
+		return 0;
 
-	 return qobject_cast<MdiChild*>(activeSubWindow->widget());
+	return qobject_cast<MdiChild*>(activeSubWindow->widget());
 }
 
 QMdiSubWindow* MainWindow::findMdiSubWindow(const QString& filePath) {

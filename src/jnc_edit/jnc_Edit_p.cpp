@@ -711,7 +711,7 @@ Edit::enterEvent(QEvent* e) {
 //..............................................................................
 
 EditPrivate::EditPrivate() {
-    q_ptr = NULL;
+	q_ptr = NULL;
 	m_syntaxHighlighter = NULL;
 	m_lineNumberMargin = NULL;
 	m_isCurrentLineHighlightingEnabled = false;
@@ -783,7 +783,7 @@ EditPrivate::init() {
 		11, // Icon_Const
 		10, // Icon_Type
 		9,  // Icon_Typedef
- 	};
+	};
 
 	QPixmap imageList(":/Images/ObjectIcons");
 	int iconSize = imageList.height();
@@ -1112,7 +1112,7 @@ EditPrivate::ensureCompleter() {
 	m_completer->setMaxVisibleItems(Limit_MaxVisibleItemCount);
 	m_completer->setPopup(popup);
 
-    QObject::connect(
+	QObject::connect(
 		m_completer, SIGNAL(activated(const QModelIndex&)),
 		this, SLOT(onCompleterActivated(const QModelIndex&))
 	);
@@ -1912,7 +1912,7 @@ void
 EditPrivate::onCompleterActivated(const QModelIndex& index) {
 	Q_Q(Edit);
 
-    QTextCursor cursor = q->textCursor();
+	QTextCursor cursor = q->textCursor();
 
 	Function* function = getPrototypeFunction(index);
 	if (function && getCursorLineSuffix(cursor).trimmed().isEmpty()) {
@@ -1923,7 +1923,7 @@ EditPrivate::onCompleterActivated(const QModelIndex& index) {
 
 		int delta = isNextLineEmpty ? 2 : 3; // inside body after \t
 		cursor.setPosition(cursor.position() - delta);
-	    q->setTextCursor(cursor);
+		q->setTextCursor(cursor);
 		return;
 	}
 
@@ -1945,7 +1945,7 @@ EditPrivate::onCompleterActivated(const QModelIndex& index) {
 		cursor.insertText(completion);
 	}
 
-    q->setTextCursor(cursor);
+	q->setTextCursor(cursor);
 }
 
 void

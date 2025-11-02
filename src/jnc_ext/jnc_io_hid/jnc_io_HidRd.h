@@ -339,7 +339,7 @@ public:
 	JNC_CDECL
 	getReport(
 		axl::io::HidReportType reportType,
-	    size_t i
+		size_t i
 	);
 
 	HidReport*

@@ -20,14 +20,14 @@ namespace ct {
 
 void
 cloneTokenList(
-    sl::List<Token>* clone,
-    const sl::List<Token>& list
+	sl::List<Token>* clone,
+	const sl::List<Token>& list
 ) {
-    clone->clear();
-    mem::Pool<Token>* tokenPool = mem::getCurrentThreadPool<Token>();
-    sl::ConstIterator<Token> it = list.getHead();
-    for (; it; it++)
-        clone->insertTail(tokenPool->get(**it));
+	clone->clear();
+	mem::Pool<Token>* tokenPool = mem::getCurrentThreadPool<Token>();
+	sl::ConstIterator<Token> it = list.getHead();
+	for (; it; it++)
+		clone->insertTail(tokenPool->get(**it));
 }
 
 //..............................................................................

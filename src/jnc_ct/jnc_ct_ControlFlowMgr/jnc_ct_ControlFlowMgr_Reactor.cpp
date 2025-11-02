@@ -118,10 +118,10 @@ ControlFlowMgr::createOnEventHandler(
 	handler->m_parentUnit = m_module->m_unitMgr.getCurrentUnit();
 	handler->m_parentNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
 	handler->m_pos = pos;
-    handler->m_flags |= ModuleItemFlag_User;
+	handler->m_flags |= ModuleItemFlag_User;
 
 	size_t onEventIdx = m_reactorBody->m_reactionBlockArray.getCount();
-    m_reactorBody->m_reactorType->addOnEventHandler(onEventIdx, handler);
+	m_reactorBody->m_reactorType->addOnEventHandler(onEventIdx, handler);
 	m_reactorBody->m_reactionBlockArray.append(NULL); // onevent occupies one reaction slot
 	return handler;
 }

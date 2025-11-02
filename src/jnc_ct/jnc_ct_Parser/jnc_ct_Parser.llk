@@ -107,6 +107,15 @@ public:
 		}
 	};
 
+	struct QualifiedNamePass1 {
+		sl::List<Token> m_tokenList;
+		bool m_isTemplate;
+
+		QualifiedNamePass1() {
+			m_isTemplate = false;
+		}
+	};
+
 protected:
 	Module* m_module;
 	Mode m_mode;
@@ -255,6 +264,9 @@ protected:
 		const QualifiedName& name,
 		const lex::LineCol& pos
 	);
+
+	Type*
+	getImportType(const QualifiedNamePass1& name);
 
 	DerivableType*
 	findBaseType(size_t baseTypeIdx);

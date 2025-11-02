@@ -48,7 +48,7 @@ void ModulePane::onItemDoubleClicked(QTreeWidgetItem *treeItem, int column) {
 		return;
 
 	m_document->setTextCursorLineCol(decl->getLine(), decl->getCol());
-    m_document->centerCursor();
+	m_document->centerCursor();
 	m_document->setFocus();
 }
 
