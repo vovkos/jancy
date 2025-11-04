@@ -37,7 +37,6 @@ setCastError(
 	Type* dstType,
 	CastKind castKind
 ) {
-	ASSERT(dstType->getFlags() & ModuleItemFlag_LayoutReady);
 	const char* format;
 
 	switch (castKind) {

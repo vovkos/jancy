@@ -230,28 +230,14 @@ protected:
 		int64_t value = 0
 	);
 
-	NamedImportType*
-	getNamedImportType(
+	Type*
+	getQualifiedTypeName(
 		const QualifiedName& name,
 		const lex::LineCol& pos
 	);
 
 	Type*
 	getQualifiedTypeName(ModuleItem* item);
-
-	Type*
-	findType(
-		size_t baseTypeIdx,
-		const QualifiedName& name,
-		const lex::LineCol& pos
-	);
-
-	Type*
-	getType(
-		size_t baseTypeIdx,
-		const QualifiedName& name,
-		const lex::LineCol& pos
-	);
 
 	DerivableType*
 	findBaseType(size_t baseTypeIdx);

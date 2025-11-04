@@ -343,14 +343,22 @@ Parser::parseEofToken(
 	return consumeToken(token);
 }
 
-NamedImportType*
-Parser::getNamedImportType(
+Type*
+Parser::getQualifiedTypeName(
 	const QualifiedName& name,
 	const lex::LineCol& pos
 ) {
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	NamedImportType* type = m_module->m_typeMgr.getNamedImportType(name, nspace);
+	if (name.isSimple()) {
+		FindModuleItemResult findResult = nspace->findDirectChildItem(name.getFirstName());
+		if (!findResult.m_result)
+			return NULL;
 
+		if (findResult.m_item)
+			return getQualifiedTypeName(findResult.m_item);
+	}
+
+	NamedImportType* type = m_module->m_typeMgr.getNamedImportType(name, nspace);
 	if (!type->m_parentUnit) {
 		type->m_parentUnit = m_module->m_unitMgr.getCurrentUnit();
 		type->m_pos = pos;
@@ -370,89 +378,16 @@ Parser::getQualifiedTypeName(ModuleItem* item) {
 		return ((Typedef*)item)->getType();
 
 	default:
-		err::setFormatStringError("'%s' is not a type", getModuleItemKindString(item->getItemKind()));
-		return NULL;
-	}
-}
-
-Type*
-Parser::findType(
-	size_t baseTypeIdx,
-	const QualifiedName& name,
-	const lex::LineCol& pos
-) {
-	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-
-	ModuleItem* item;
-
-	if (m_mode == Mode_Parse) {
-		if (baseTypeIdx != -1)
-			return NULL;
-
-		if (!name.isSimple())
-			return getNamedImportType(name, pos);
-
-		FindModuleItemResult findResult = nspace->findDirectChildItem(name.getFirstName());
-		if (!findResult.m_result)
-			return NULL;
-
-		if (!findResult.m_item)
-			return getNamedImportType(name, pos);
-
-		item = findResult.m_item;
-	} else {
-		if (baseTypeIdx != -1) {
-			DerivableType* baseType = findBaseType(baseTypeIdx);
-			if (!baseType)
-				return NULL;
-
-			nspace = baseType;
-
-			if (name.isEmpty())
-				return baseType;
-		}
-
-		FindModuleItemResult findResult = nspace->findItemTraverse(name);
-		if (!findResult.m_item)
-			return NULL;
-
-		item = findResult.m_item;
-	}
-
-	ModuleItemKind itemKind = item->getItemKind();
-	switch (itemKind) {
-	case ModuleItemKind_Type:
-		return (Type*)item;
-
-	case ModuleItemKind_Typedef:
-		return (m_module->getCompileFlags() & ModuleCompileFlag_KeepTypedefShadow) ?
-			((Typedef*)item)->getShadowType() :
-			((Typedef*)item)->getType();
-
-	default:
-		return NULL;
-	}
-}
-
-Type*
-Parser::getType(
-	size_t baseTypeIdx,
-	const QualifiedName& name,
-	const lex::LineCol& pos
-) {
-	Type* type = findType(baseTypeIdx, name, pos);
-	if (!type) {
-		if (baseTypeIdx == -1)
-			err::setFormatStringError("'%s' is not found or not a type", name.getFullName ().sz());
-		else if (name.isEmpty())
-			err::setFormatStringError("'basetype%d' is not found", baseTypeIdx + 1);
-		else
-			err::setFormatStringError("'basetype%d.%s' is not found or not a type", baseTypeIdx + 1, name.getFullName ().sz());
+		ModuleItemDecl* decl = item->getDecl();
+		err::setFormatStringError(
+			"'%s' is not a type",
+			decl ?
+				decl->getQualifiedName().sz() :
+				getModuleItemKindString(item->getItemKind())
+		);
 
 		return NULL;
 	}
-
-	return type;
 }
 
 bool

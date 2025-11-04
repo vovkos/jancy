@@ -146,7 +146,7 @@ qualified_type_name
 	:	resolver ({ return m_mode == Mode_Parse; })
 		qualified_name_pass1
 			{
-				$.m_type = getNamedImportType($1.m_name, $pos);
+				return ($.m_type = getQualifiedTypeName($1.m_name, $pos)) != NULL;
 			}
 	|	qualified_name
 			{
