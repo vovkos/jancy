@@ -23,7 +23,7 @@ StructType::StructType() {
 	m_typeKind = TypeKind_Struct;
 	m_structTypeKind = StructTypeKind_Normal;
 	m_flags = TypeFlag_Pod | TypeFlag_StructRet;
-	m_fieldAlignment = 8;
+	m_fieldAlignment = PragmaDefault_Alignment;
 	m_fieldSize = 0;
 	m_laidOutFieldCount = 0;
 	m_lastBitField = NULL;

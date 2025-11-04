@@ -12,6 +12,7 @@
 #include "pch.h"
 #include "jnc_ct_TemplateMgr.h"
 #include "jnc_ct_DeclTypeCalc.h"
+#include "jnc_ct_UnionType.h"
 #include "jnc_ct_Module.h"
 
 namespace jnc {
@@ -22,56 +23,120 @@ namespace ct {
 ModuleItem*
 Template::instantiate(const sl::ConstBoxList<Value>& argList) {
 	size_t argCount = argList.getCount();
+
+	char buffer[256];
+	sl::Array<Type*> argArray(rc::BufKind_Stack, buffer, sizeof(buffer));
+	argArray.setCount(argCount);
+	sl::Array<Type*>::Rwi rwi = argArray.rwi();
+	sl::ConstBoxIterator<Value> it = argList.getHead();
+	for (size_t i = 0; it; i++, it++)
+		rwi[i] = it->getType();
+
+	return instantiate(argArray);
+}
+
+ModuleItem*
+Template::instantiate(const sl::ArrayRef<Type*>& argArray) {
+	size_t argCount = argArray.getCount();
 	if (argCount != m_argArray.getCount()) {
 		err::setError("incorrect number of template arguments");
 		return NULL;
 	}
 
 	sl::String signature;
-	sl::ConstBoxIterator<Value> it = argList.getHead();
-	for (; it; it++)
-		signature += it->getType()->getSignature();
+	for (size_t i = 0; i < argCount; i++)
+		signature += argArray[i]->getType()->getSignature();
 
 	sl::StringHashTableIterator<ModuleItem*> mapIt = m_instantiationMap.visit(signature);
 	if (mapIt->m_value)
 		return mapIt->m_value;
 
-	if (!m_declType) {
-		err::setError("only templated functions are currently supported");
-		return NULL;
+	ModuleItem* instance;
+	ModuleItemBodyDecl* instanceDecl;
+
+	if (m_declType) {
+		Type* type = m_declType->instantiate(argArray);
+		if (!type)
+			return NULL;
+
+		if (type->getTypeKind() != TypeKind_Function) {
+			err::setError("only templated functions are currently supported");
+			return NULL;
+		}
+
+		Function* function = m_module->m_functionMgr.createFunction((FunctionType*)type);
+		instance = function;
+		instanceDecl = function;
+	} else {
+		DerivableType* type;
+		switch (m_derivableTypeKind) {
+		case TypeKind_Struct:
+			type = m_module->m_typeMgr.createStructType(
+				m_name,
+				m_qualifiedName,
+				m_pragmaConfig->m_fieldAlignment
+			);
+
+			break;
+
+		case TypeKind_Union:
+			type = m_module->m_typeMgr.createUnionType(
+				m_name,
+				m_qualifiedName,
+				m_pragmaConfig->m_fieldAlignment
+			);
+
+			break;
+
+		case TypeKind_Class:
+			type = m_module->m_typeMgr.createClassType(
+				m_name,
+				m_qualifiedName,
+				m_pragmaConfig->m_fieldAlignment
+			);
+
+			break;
+
+		default:
+			ASSERT(false);
+			return NULL;
+		}
+
+		instance = type;
+		instanceDecl = type;
+
+		bool finalResult = true;
+
+		for (size_t i = 0; i < argCount; i++) {
+			TemplateArgType* argType = m_argArray[i];
+			Typedef* tdef = m_module->m_typeMgr.createTypedef(
+				argType->getName(),
+				argType->getName(),
+				argArray[i]
+			);
+
+			bool result = type->addItem(tdef);
+			if (!result)
+				finalResult = false;
+		}
+
+		if (!finalResult)
+			return false;
 	}
 
-	char buffer[256];
-	sl::Array<Type*> argArray(rc::BufKind_Stack, buffer, sizeof(buffer));
-	argArray.setCount(argCount);
-	sl::Array<Type*>::Rwi rwi = argArray.rwi();
-	it = argList.getHead();
-	for (size_t i = 0; it; i++, it++)
-		rwi[i] = it->getType();
-
-	Type* type = m_declType->instantiate(argArray);
-	if (!type)
-		return NULL;
-
-	if (type->getTypeKind() != TypeKind_Function) {
-		err::setError("only templated functions are currently supported");
-		return NULL;
-	}
-
-	Function* function = m_module->m_functionMgr.createFunction((FunctionType*)type);
-	function->copyDecl(this);
+	instanceDecl->copyDecl(this);
 
 	if (!m_body.isEmpty())
-		function->setBody(m_pragmaConfig, m_bodyPos, m_body);
+		instanceDecl->setBody(m_pragmaConfig, m_bodyPos, m_body);
 	else {
 		ASSERT(!m_bodyTokenList.isEmpty());
 		sl::List<Token> body;
 		cloneTokenList(&body, m_bodyTokenList);
-		function->setBody(m_pragmaConfig, &body);
+		instanceDecl->setBody(m_pragmaConfig, &body);
 	}
 
-	mapIt->m_value = function;
-	return function;
+	mapIt->m_value = instance;
+	return instance;
 }
 
 //..............................................................................

@@ -216,7 +216,7 @@ OperatorMgr::callOperator(
 			break;
 
 		default:
-			err::setFormatStringError("cannot call %s", getModuleItemKindString(itemKind));
+			err::setFormatStringError("cannot call '%s'", item->getItemName().sz());
 			return false;
 		}
 

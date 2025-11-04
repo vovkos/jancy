@@ -49,7 +49,7 @@ public:
 		const sl::StringRef& name,
 		size_t index
 	) {
-		return sl::formatString("G%s$%d", index, name.sz());
+		return sl::formatString("G%d%s", index, name.sz());
 	}
 
 protected:

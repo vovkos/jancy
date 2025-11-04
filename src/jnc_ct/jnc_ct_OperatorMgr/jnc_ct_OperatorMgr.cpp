@@ -1110,24 +1110,6 @@ OperatorMgr::offsetofOperator(
 	return true;
 }
 
-ModuleItem*
-OperatorMgr::templateInstantiateOperator(
-	ModuleItem* item,
-	const sl::ArrayRef<Type*>& argArray
-) {
-	if (item->getItemKind() != ModuleItemKind_Template) {
-		err::setFormatStringError("'%s' is not a template", getModuleItemKindString(item->getItemKind()));
-		return NULL;
-	}
-
-	size_t argCount = argArray.getCount();
-	sl::BoxList<Value> valueList;
-	for (size_t i = 0; i < argCount; i++)
-		valueList.insertTail(argArray[i]);
-
-	return ((Template*)item)->instantiate(valueList);
-}
-
 bool
 OperatorMgr::templateInstantiateOperator(
 	const Value& opValue,
@@ -1139,21 +1121,29 @@ OperatorMgr::templateInstantiateOperator(
 		return false;
 	}
 
-	size_t argCount = argArray.getCount();
-	if (argCount > opValue.getTemplate()->getArgArray().getCount()) {
-		err::setError("too many template arguments");
+	Template* templ = opValue.getTemplate();
+	ModuleItem* item = templ->instantiate(argArray);
+	if (!item)
+		return false;
+
+	ModuleItemKind itemKind = item->getItemKind();
+	switch (itemKind) {
+	case ModuleItemKind_Function:
+		return resultValue->trySetFunction((Function*)item);
+
+	case ModuleItemKind_Type:
+		if ((((Type*)item)->getTypeKindFlags() & TypeKindFlag_Named)) {
+			resultValue->setNamespace((NamedType*)item);
+			break;
+		}
+
+		// else fall through
+
+	default:
+		err::setFormatStringError("'%s' cannot be used as expression", ((Type*)item)->getTypeString().sz());
 		return false;
 	}
 
-	sl::BoxList<Value> valueList;
-	for (size_t i = 0; i < argCount; i++)
-		valueList.insertTail(argArray[i]);
-
-	Closure* closure = resultValue->getClosure();
-	if (!closure)
-		closure = resultValue->createClosure();
-
-	sl::takeOver(closure->getArgValueList(), &valueList);
 	return true;
 }
 

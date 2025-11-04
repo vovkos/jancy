@@ -27,11 +27,11 @@ qualified_name
 		) (
 			'.' TokenKind_Identifier $i2
 				{
-					return ($.m_item = m_module->m_operatorMgr.memberOperator($.m_item, $i2.m_data.m_string)) != NULL;
+					return ($.m_item = lookupMember($.m_item, $i2)) != NULL;
 				}
 		|	'<' type_name_list $t '>'
 				{
-					return ($.m_item = m_module->m_operatorMgr.templateInstantiateOperator($.m_item, $t.m_typeArray)) != NULL;
+					return ($.m_item = instantiateTemplate($.m_item, $t.m_typeArray)) != NULL;
 				}
 		)*
 	;

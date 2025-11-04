@@ -49,29 +49,6 @@ OperatorMgr::getValueNamespace(const Value& rawOpValue) {
 		NULL;
 }
 
-ModuleItem*
-OperatorMgr::memberOperator(
-	ModuleItem* item,
-	const sl::StringRef& name
-) {
-	Namespace* nspace = item->getNamespace();
-	if (!nspace) {
-		err::setFormatStringError("member operator cannot be applied to '%s'", getModuleItemKindString(item->getItemKind()));
-		return NULL;
-	}
-
-	FindModuleItemResult result = nspace->findDirectChildItem(name);
-	if (!result.m_result)
-		return NULL;
-
-	if (!result.m_item) {
-		err::setFormatStringError("member '%s' not found", name.sz());
-		return NULL;
-	}
-
-	return result.m_item;
-}
-
 bool
 OperatorMgr::memberOperator(
 	const Value& rawOpValue,
@@ -485,7 +462,7 @@ OperatorMgr::getNamedTypeMember(
 		break;
 
 	default:
-		err::setFormatStringError("invalid member kind '%s'", getModuleItemKindString(memberKind));
+		err::setFormatStringError("invalid member '%s'", member->getItemName().sz());
 		return false;
 	}
 

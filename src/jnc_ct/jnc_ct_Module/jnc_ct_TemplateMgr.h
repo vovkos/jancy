@@ -48,6 +48,9 @@ public:
 
 	ModuleItem*
 	instantiate(const sl::ConstBoxList<Value>& argList);
+
+	ModuleItem*
+	instantiate(const sl::ArrayRef<Type*>& argArray);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

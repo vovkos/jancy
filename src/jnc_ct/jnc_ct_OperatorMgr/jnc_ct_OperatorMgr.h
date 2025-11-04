@@ -949,12 +949,6 @@ public:
 		return memberOperator(*value, name, value);
 	}
 
-	ModuleItem*
-	memberOperator(
-		ModuleItem* item,
-		const sl::StringRef& name
-	);
-
 	// call operators
 
 #if (_JNC_DEBUG)
@@ -1110,12 +1104,6 @@ public:
 	) {
 		return templateInstantiateOperator(*value, argArray, value);
 	}
-
-	ModuleItem*
-	templateInstantiateOperator(
-		ModuleItem* item,
-		const sl::ArrayRef<Type*>& argArray
-	);
 
 	// property getter
 

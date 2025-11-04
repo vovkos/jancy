@@ -239,6 +239,12 @@ protected:
 	Type*
 	getQualifiedTypeName(ModuleItem* item);
 
+	ModuleItem*
+	instantiateTemplate(
+		ModuleItem* item,
+		const sl::ArrayRef<Type*>& argArray
+	);
+
 	DerivableType*
 	findBaseType(size_t baseTypeIdx);
 
@@ -629,6 +635,12 @@ protected:
 	lookupIdentifier(
 		const Token& token,
 		Value* value
+	);
+
+	ModuleItem*
+	lookupMember(
+		ModuleItem* item,
+		const Token& token
 	);
 
 	bool

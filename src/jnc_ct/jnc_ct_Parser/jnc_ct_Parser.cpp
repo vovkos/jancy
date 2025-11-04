@@ -378,16 +378,22 @@ Parser::getQualifiedTypeName(ModuleItem* item) {
 		return ((Typedef*)item)->getType();
 
 	default:
-		ModuleItemDecl* decl = item->getDecl();
-		err::setFormatStringError(
-			"'%s' is not a type",
-			decl ?
-				decl->getQualifiedName().sz() :
-				getModuleItemKindString(item->getItemKind())
-		);
-
+		err::setFormatStringError("'%s' is not a type", item->getItemName().sz());
 		return NULL;
 	}
+}
+
+ModuleItem*
+Parser::instantiateTemplate(
+	ModuleItem* item,
+	const sl::ArrayRef<Type*>& argArray
+) {
+	if (item->getItemKind() != ModuleItemKind_Template) {
+		err::setFormatStringError("'%s' is not a template", item->getItemName().sz());
+		return NULL;
+	}
+
+	return ((Template*)item)->instantiate(argArray);
 }
 
 bool
@@ -587,7 +593,7 @@ Parser::setDeclarationBody(const Token& bodyToken) {
 		return setBody((Orphan*)m_lastDeclaredItem, bodyToken);
 
 	default:
-		err::setFormatStringError("'%s' cannot have a body", getModuleItemKindString(m_lastDeclaredItem->getItemKind ()));
+		err::setFormatStringError("'%s' cannot have a body", m_lastDeclaredItem->getItemName().sz());
 		return false;
 	}
 
@@ -1056,6 +1062,7 @@ Parser::declareTemplate(
 		return NULL;
 
 	assignDeclarationAttributes(templ, templ, nameToken->m_pos);
+	setBody(templ, bodyTokenList);
 	return templ;
 }
 
@@ -3020,6 +3027,28 @@ Parser::lookupIdentifier(
 
 	return true;
 }
+
+ModuleItem*
+Parser::lookupMember(
+	ModuleItem* item,
+	const Token& token
+) {
+	Namespace* nspace = item->getNamespace();
+	if (!nspace) {
+		err::setFormatStringError("member operator cannot be applied to '%s'", item->getItemName().sz());
+		return NULL;
+	}
+
+	FindModuleItemResult result = nspace->findDirectChildItem(token.m_data.m_string);
+	if (!result.m_result)
+		return NULL;
+
+	if (!result.m_item) {
+		err::setFormatStringError("'%s' is not a member of '%s'", token.m_data.m_string.sz(), item->getItemName().sz());
+		return NULL;
+	}
+
+	return result.m_item;}
 
 bool
 Parser::prepareCurlyInitializerNamedItem(
