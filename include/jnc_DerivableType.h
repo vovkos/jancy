@@ -40,6 +40,14 @@
 
 //..............................................................................
 
+enum jnc_FieldFlag {
+	jnc_FieldFlag_LayoutReady = jnc_TypeFlag_LayoutReady, // so that a typo doesn't break things
+};
+
+typedef enum jnc_FieldFlag jnc_FieldFlag;
+
+//..............................................................................
+
 JNC_INLINE
 jnc_DerivableType*
 jnc_BaseTypeSlot_getType(jnc_BaseTypeSlot* baseType) {
@@ -359,6 +367,13 @@ jnc_isConstructibleType(jnc_Type* type) {
 #ifdef __cplusplus
 
 namespace jnc {
+
+//..............................................................................
+
+typedef jnc_FieldFlag FieldFlag;
+
+const FieldFlag
+	FieldFlag_LayoutReady = jnc_FieldFlag_LayoutReady;
 
 //..............................................................................
 

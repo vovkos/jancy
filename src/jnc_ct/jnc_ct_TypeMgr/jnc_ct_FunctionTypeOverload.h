@@ -162,12 +162,12 @@ public:
 
 	bool
 	ensureNoImports() const {
-		return (m_flags & (ModuleItemFlag_LayoutReady | TypeFlag_NoImports)) ? true : prepareImports();
+		return (m_flags & (TypeFlag_LayoutReady | TypeFlag_NoImports)) ? true : prepareImports();
 	}
 
 	bool
 	ensureLayout() const {
-		return (m_flags & ModuleItemFlag_LayoutReady) ? true : prepareLayout();
+		return (m_flags & TypeFlag_LayoutReady) ? true : prepareLayout();
 	}
 
 protected:

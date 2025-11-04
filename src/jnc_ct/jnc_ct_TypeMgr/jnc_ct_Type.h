@@ -181,13 +181,13 @@ public:
 
 	size_t
 	getSize() {
-		ASSERT(m_flags & ModuleItemFlag_LayoutReady);
+		ASSERT(m_flags & TypeFlag_LayoutReady);
 		return m_size;
 	}
 
 	size_t
 	getAlignment() {
-		ASSERT(m_flags & ModuleItemFlag_LayoutReady);
+		ASSERT(m_flags & TypeFlag_LayoutReady);
 		return m_alignment;
 	}
 
@@ -247,12 +247,12 @@ public:
 
 	bool
 	ensureLayout() {
-		return (m_flags & ModuleItemFlag_LayoutReady) ? true : prepareLayout();
+		return (m_flags & TypeFlag_LayoutReady) ? true : prepareLayout();
 	}
 
 	bool
 	ensureNoImports() {
-		return (m_flags & (TypeFlag_NoImports | ModuleItemFlag_LayoutReady)) ? true : prepareImports();
+		return (m_flags & (TypeFlag_NoImports | TypeFlag_LayoutReady)) ? true : prepareImports();
 	}
 
 	ArrayType*

@@ -91,7 +91,7 @@ DerivableType::getFieldByIndex(size_t index) {
 
 Property*
 DerivableType::getIndexerProperty(Type* argType) {
-	ASSERT(!(m_flags & ModuleItemFlag_LayoutReady));
+	ASSERT(!(m_flags & TypeFlag_LayoutReady));
 
 	sl::StringHashTableIterator<Property*> it = m_indexerPropertyMap.visit(argType->getSignature());
 	if (it->m_value)
@@ -449,7 +449,7 @@ DerivableType::findBaseTypeTraverseImpl(
 	sl::Iterator<BaseTypeSlot> slotIt = m_baseTypeList.getHead();
 	for (; slotIt; slotIt++) {
 		BaseTypeSlot* slot = *slotIt;
-		ASSERT(slot->m_type->getFlags() & ModuleItemFlag_LayoutReady);
+		ASSERT(slot->m_type->getFlags() & TypeFlag_LayoutReady);
 
 		bool result = slot->m_type->findBaseTypeTraverseImpl(type, coord, level + 1);
 		if (result) {

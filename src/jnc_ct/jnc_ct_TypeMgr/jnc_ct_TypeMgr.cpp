@@ -1299,7 +1299,7 @@ TypeMgr::getDataPtrType(
 	if (targetType->getTypeKindFlags() & TypeKindFlag_Import)
 		((ImportType*)targetType)->addFixup(&type->m_targetType);
 	else
-		type->m_flags |= ModuleItemFlag_LayoutReady;
+		type->m_flags |= TypeFlag_LayoutReady;
 
 	m_typeList.insertTail(type);
 	it->m_value = type;
@@ -1360,7 +1360,7 @@ TypeMgr::getDataPtrType(
 	if (targetType->getTypeKindFlags() & TypeKindFlag_Import)
 		((ImportType*)targetType)->addFixup(&type->m_targetType);
 	else
-		type->m_flags |= ModuleItemFlag_LayoutReady;
+		type->m_flags |= TypeFlag_LayoutReady;
 
 	m_typeList.insertTail(type);
 	tuple->m_ptrTypeArray[i1][i2][i3][i4][i5] = type;
@@ -1377,7 +1377,7 @@ TypeMgr::getClassPtrType(
 	ASSERT((size_t)ptrTypeKind < ClassPtrTypeKind__Count);
 	ASSERT(!(flags & ~PtrTypeFlag__All));
 
-	flags |= ModuleItemFlag_LayoutReady | TypeFlag_GcRoot;
+	flags |= TypeFlag_LayoutReady | TypeFlag_GcRoot;
 
 	ClassPtrTypeTuple* tuple;
 
@@ -1438,7 +1438,7 @@ TypeMgr::getFunctionPtrType(
 		flags |=
 			TypeFlag_GcRoot |
 			TypeFlag_StructRet |
-			(functionType->getFlags() & ModuleItemFlag_LayoutReady);
+			(functionType->getFlags() & TypeFlag_LayoutReady);
 
 	if (functionType->m_flags & FunctionTypeFlag_Unsafe)
 		flags &= ~PtrTypeFlag_Safe;
@@ -1478,7 +1478,7 @@ TypeMgr::getPropertyPtrType(
 	ASSERT((size_t)ptrTypeKind < PropertyPtrTypeKind__Count);
 	ASSERT(!(flags & ~PtrTypeFlag__All));
 
-	flags |= ModuleItemFlag_LayoutReady;
+	flags |= TypeFlag_LayoutReady;
 
 	if (ptrTypeKind != PropertyPtrTypeKind_Thin)
 		flags |= TypeFlag_GcRoot | TypeFlag_StructRet;
@@ -1785,13 +1785,13 @@ TypeMgr::setupAllPrimitiveTypes() {
 		PodFlags =
 			TypeFlag_Pod |
 			TypeFlag_SignatureFinal |
-			ModuleItemFlag_LayoutReady,
+			TypeFlag_LayoutReady,
 
 		StructFlags =
 			TypeFlag_StructRet |
 			TypeFlag_GcRoot |
 			TypeFlag_SignatureFinal |
-			ModuleItemFlag_LayoutReady,
+			TypeFlag_LayoutReady,
 	};
 
 	setupPrimitiveType(TypeKind_Void,      "v",    0, 0, PodFlags);
@@ -1879,7 +1879,7 @@ TypeMgr::setupPrimitiveType(
 	const sl::StringRef& signature,
 	size_t size,
 	size_t alignment,
-	uint_t flags = TypeFlag_Pod | TypeFlag_SignatureFinal | ModuleItemFlag_LayoutReady
+	uint_t flags
 ) {
 	ASSERT(typeKind < TypeKind__PrimitiveTypeCount);
 

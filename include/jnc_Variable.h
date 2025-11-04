@@ -38,9 +38,9 @@
 //..............................................................................
 
 enum jnc_VariableFlag {
-	jnc_VariableFlag_Allocated = 0x010000, // for TLS values we can't rely on m_llvmValue being NULL
-	jnc_VariableFlag_Arg       = 0x020000,
-	jnc_VariableFlag_Type      = 0x040000, // static introspection type variable
+	jnc_VariableFlag_Allocated = 0x0100, // for TLS values we can't rely on m_llvmValue being NULL
+	jnc_VariableFlag_Arg       = 0x0200,
+	jnc_VariableFlag_Type      = 0x0400, // static introspection type variable
 };
 
 typedef enum jnc_VariableFlag jnc_VariableFlag;

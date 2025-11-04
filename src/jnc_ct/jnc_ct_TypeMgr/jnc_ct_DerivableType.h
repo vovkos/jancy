@@ -11,6 +11,7 @@
 
 #pragma once
 
+#include "jnc_DerivableType.h"
 #include "jnc_ct_MemberBlock.h"
 
 namespace jnc {

@@ -180,6 +180,8 @@ jnc_getTypeKindFlags(jnc_TypeKind typeKind);
 //..............................................................................
 
 enum jnc_TypeFlag {
+	jnc_TypeFlag_LayoutReady    = 0x0010,
+	jnc_TypeFlag_InCalcLayout   = 0x0020,
 	jnc_TypeFlag_Pod            = 0x0100, // plain-old-data
 	jnc_TypeFlag_GcRoot         = 0x0200, // is or contains gc-traceable pointers
 	jnc_TypeFlag_StructRet      = 0x0400, // return through hidden 1st arg (gcc32 callconv)
@@ -712,6 +714,8 @@ getTypeKindFlags(TypeKind typeKind) {
 typedef jnc_TypeFlag TypeFlag;
 
 const TypeFlag
+	TypeFlag_InCalcLayout   = jnc_TypeFlag_InCalcLayout,
+	TypeFlag_LayoutReady    = jnc_TypeFlag_LayoutReady,
 	TypeFlag_Pod            = jnc_TypeFlag_Pod,
 	TypeFlag_GcRoot         = jnc_TypeFlag_GcRoot,
 	TypeFlag_StructRet      = jnc_TypeFlag_StructRet,

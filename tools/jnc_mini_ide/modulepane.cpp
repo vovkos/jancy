@@ -170,7 +170,7 @@ void ModulePane::addType(QTreeWidgetItem *parent, jnc::Type *type) {
 
 	QTreeWidgetItem *item = insertItem(itemName, parent);
 
-	if (type->getFlags() & jnc::ModuleItemFlag_LayoutReady) {
+	if (type->getFlags() & jnc::TypeFlag_LayoutReady) {
 		QString toolTip = QString("%1 (sizeof = %2)").arg (type->getTypeString()).arg (type->getSize ());
 		item->setToolTip(0, toolTip);
 	}

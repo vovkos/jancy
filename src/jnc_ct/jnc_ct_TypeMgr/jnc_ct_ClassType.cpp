@@ -653,7 +653,7 @@ ClassType::ensureClassFieldsCreatable() {
 
 bool
 ClassType::prepareForOperatorNew() {
-	ASSERT(m_flags & ModuleItemFlag_LayoutReady);
+	ASSERT(m_flags & TypeFlag_LayoutReady);
 
 	if (m_destructor)
 		m_destructor->require();

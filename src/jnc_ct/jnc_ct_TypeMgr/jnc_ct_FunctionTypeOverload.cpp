@@ -306,7 +306,7 @@ FunctionTypeOverload::copy(
 
 bool
 FunctionTypeOverload::prepareImports() const {
-	ASSERT(!(m_flags & (ModuleItemFlag_LayoutReady | TypeFlag_NoImports)));
+	ASSERT(!(m_flags & (TypeFlag_LayoutReady | TypeFlag_NoImports)));
 	ASSERT(m_type);
 
 	bool result = m_type->ensureNoImports();
@@ -326,7 +326,7 @@ FunctionTypeOverload::prepareImports() const {
 
 bool
 FunctionTypeOverload::prepareLayout() const {
-	ASSERT(!(m_flags & ModuleItemFlag_LayoutReady));
+	ASSERT(!(m_flags & TypeFlag_LayoutReady));
 	ASSERT(m_type);
 
 	bool result = m_type->ensureLayout();
@@ -340,7 +340,7 @@ FunctionTypeOverload::prepareLayout() const {
 			return false;
 	}
 
-	m_flags |= ModuleItemFlag_LayoutReady;
+	m_flags |= TypeFlag_LayoutReady;
 	return true;
 }
 

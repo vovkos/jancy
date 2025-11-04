@@ -332,7 +332,7 @@ Value::trySetEnumConst(EnumConst* enumConst) {
 
 	bool result = createConst(
 		&enumValue,
-		(enumType->getFlags() & ModuleItemFlag_LayoutReady) ?
+		(enumType->getFlags() & TypeFlag_LayoutReady) ?
 			enumType :
 			enumType->getBaseType()
 		);

@@ -30,7 +30,7 @@ getEnumTypeFlagString(uint_t flags);
 //..............................................................................
 
 enum EnumConstFlag {
-	EnumConstFlag_ValueReady = 0x010000,
+	EnumConstFlag_ValueReady = 0x0100,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

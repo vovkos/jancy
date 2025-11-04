@@ -427,10 +427,10 @@ Module::setAttributeObserver(
 inline
 void
 Module::markForCompile(Function* function) {
-	if (function->m_flags & ModuleItemFlag_NeedCompile)
+	if (function->m_flags & FunctionFlag_CompilePending)
 		return;
 
-	function->m_flags |= ModuleItemFlag_NeedCompile;
+	function->m_flags |= FunctionFlag_CompilePending;
 	m_compileArray.append(function);
 }
 

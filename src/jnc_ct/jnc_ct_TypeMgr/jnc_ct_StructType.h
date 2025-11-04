@@ -69,7 +69,7 @@ public:
 
 	bool
 	ensureLayoutTo(Field* field) {
-		return (field->m_flags & ModuleItemFlag_LayoutReady) ? true : calcLayoutTo(field);
+		return (field->m_flags & FieldFlag_LayoutReady) ? true : calcLayoutTo(field);
 	}
 
 	virtual

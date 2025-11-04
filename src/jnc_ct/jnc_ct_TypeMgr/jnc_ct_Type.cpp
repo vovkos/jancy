@@ -352,7 +352,7 @@ Type::getSimpleFunctionArg(uint_t ptrTypeFlags) {
 
 bool
 Type::prepareImports() {
-	ASSERT(!(m_flags & (ModuleItemFlag_LayoutReady | TypeFlag_NoImports)));
+	ASSERT(!(m_flags & (TypeFlag_LayoutReady | TypeFlag_NoImports)));
 
 	bool result = resolveImports();
 	if (!result)
@@ -364,9 +364,9 @@ Type::prepareImports() {
 
 bool
 Type::prepareLayout() {
-	ASSERT(!(m_flags & ModuleItemFlag_LayoutReady));
+	ASSERT(!(m_flags & TypeFlag_LayoutReady));
 
-	if (m_flags & ModuleItemFlag_InCalcLayout) {
+	if (m_flags & TypeFlag_InCalcLayout) {
 		ModuleItemDecl* decl = getDecl();
 		ASSERT(decl); // recursion is only possible with named types
 
@@ -374,15 +374,14 @@ Type::prepareLayout() {
 		return false;
 	}
 
-	m_flags |= ModuleItemFlag_InCalcLayout;
-
+	m_flags |= TypeFlag_InCalcLayout;
 	bool result = calcLayout();
 	if (!result) {
-		m_flags &= ~ModuleItemFlag_InCalcLayout;
+		m_flags &= ~TypeFlag_InCalcLayout;
 		return false;
 	}
 
-	m_flags |= ModuleItemFlag_LayoutReady; // no need to clear ModuleItemFlag_InCalcLayout
+	m_flags |= TypeFlag_LayoutReady; // no need to clear ModuleItemFlag_InCalcLayout
 	return true;
 }
 

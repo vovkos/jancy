@@ -147,7 +147,7 @@ void
 FunctionPtrType::prepareLlvmDiType() {
 	m_llvmDiType = m_ptrTypeKind != FunctionPtrTypeKind_Thin ?
 		m_module->m_typeMgr.getStdType(StdType_FunctionPtrStruct)->getLlvmDiType() :
-		(m_targetType->getFlags() & ModuleItemFlag_LayoutReady) ?
+		(m_targetType->getFlags() & TypeFlag_LayoutReady) ?
 			m_module->m_llvmDiBuilder.createPointerType(m_targetType) :
 			m_module->m_llvmDiBuilder.createPointerType(m_module->m_typeMgr.getStdType(StdType_SimpleFunction));
 }

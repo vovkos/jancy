@@ -236,7 +236,7 @@ public:
 
 	bool
 	canCompile() {
-		return hasBody() || hasInitializer() || (m_flags & (m_flags & ModuleItemFlag_Compilable));
+		return hasBody() || hasInitializer() || (m_flags & FunctionFlag_Compilable);
 	}
 
 	virtual
@@ -305,7 +305,7 @@ Function::addReactorVariable(Variable* variable) {
 class CompilableFunction: public Function {
 public:
 	CompilableFunction() {
-		m_flags |= ModuleItemFlag_Compilable;
+		m_flags |= FunctionFlag_Compilable;
 	}
 };
 

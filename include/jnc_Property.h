@@ -52,11 +52,11 @@ typedef enum jnc_PropertyKind jnc_PropertyKind;
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum jnc_PropertyFlag {
-	jnc_PropertyFlag_Const     = 0x010000,
-	jnc_PropertyFlag_Bindable  = 0x020000,
-	jnc_PropertyFlag_AutoGet   = 0x100000,
-	jnc_PropertyFlag_AutoSet   = 0x200000,
-	jnc_PropertyFlag_Finalized = 0x800000,
+	jnc_PropertyFlag_Const     = 0x0100,
+	jnc_PropertyFlag_Bindable  = 0x0200,
+	jnc_PropertyFlag_AutoGet   = 0x1000,
+	jnc_PropertyFlag_AutoSet   = 0x2000,
+	jnc_PropertyFlag_Finalized = 0x8000,
 };
 
 typedef enum jnc_PropertyFlag jnc_PropertyFlag;

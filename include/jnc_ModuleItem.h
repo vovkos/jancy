@@ -89,12 +89,8 @@ jnc_getModuleItemKindString(jnc_ModuleItemKind itemKind);
 //..............................................................................
 
 enum jnc_ModuleItemFlag {
-	jnc_ModuleItemFlag_User         = 0x01,
-	jnc_ModuleItemFlag_Compilable   = 0x02,
-	jnc_ModuleItemFlag_NeedCompile  = 0x04,
-	jnc_ModuleItemFlag_InCalcLayout = 0x10,
-	jnc_ModuleItemFlag_LayoutReady  = 0x20,
-	jnc_ModuleItemFlag_Constructed  = 0x40, // base type slots, fields, variables, properties
+	jnc_ModuleItemFlag_User        = 0x01, // all user-declared items
+	jnc_ModuleItemFlag_Constructed = 0x02, // base type slots, fields, variables, properties
 };
 
 typedef enum jnc_ModuleItemFlag jnc_ModuleItemFlag;
@@ -402,12 +398,8 @@ getModuleItemKindString(ModuleItemKind itemKind) {
 typedef jnc_ModuleItemFlag ModuleItemFlag;
 
 const ModuleItemFlag
-	ModuleItemFlag_User         = jnc_ModuleItemFlag_User,
-	ModuleItemFlag_Compilable   = jnc_ModuleItemFlag_Compilable,
-	ModuleItemFlag_NeedCompile  = jnc_ModuleItemFlag_NeedCompile,
-	ModuleItemFlag_InCalcLayout = jnc_ModuleItemFlag_InCalcLayout,
-	ModuleItemFlag_LayoutReady  = jnc_ModuleItemFlag_LayoutReady,
-	ModuleItemFlag_Constructed  = jnc_ModuleItemFlag_Constructed;
+	ModuleItemFlag_User        = jnc_ModuleItemFlag_User,
+	ModuleItemFlag_Constructed = jnc_ModuleItemFlag_Constructed;
 
 //..............................................................................
 

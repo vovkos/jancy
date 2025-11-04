@@ -92,8 +92,8 @@ StructType::append(StructType* type) {
 
 bool
 StructType::calcLayoutTo(Field* targetField) {
-	ASSERT(!(m_flags & ModuleItemFlag_LayoutReady));
-	ASSERT(!targetField || !(targetField->m_flags & ModuleItemFlag_LayoutReady));
+	ASSERT(!(m_flags & TypeFlag_LayoutReady));
+	ASSERT(!targetField || !(targetField->m_flags & FieldFlag_LayoutReady));
 
 	bool result;
 
@@ -126,7 +126,7 @@ StructType::calcLayoutTo(Field* targetField) {
 	m_laidOutFieldCount = count;
 
 	if (targetField) {
-		ASSERT(targetField->m_flags & ModuleItemFlag_LayoutReady); // otherwise, targetField was not part of m_fieldArray
+		ASSERT(targetField->m_flags & FieldFlag_LayoutReady); // otherwise, targetField was not part of m_fieldArray
 		return true;
 	}
 
@@ -275,7 +275,7 @@ StructType::layoutBaseType(BaseTypeSlot* slot) {
 
 bool
 StructType::layoutField(Field* field) {
-	ASSERT(!(field->m_flags & ModuleItemFlag_LayoutReady));
+	ASSERT(!(field->m_flags & FieldFlag_LayoutReady));
 
 	bool result =
 		field->ensureAttributeValuesReady() &&
@@ -301,7 +301,7 @@ StructType::layoutField(Field* field) {
 	if (!result)
 		return false;
 
-	field->m_flags |= ModuleItemFlag_LayoutReady;
+	field->m_flags |= FieldFlag_LayoutReady;
 	return true;
 }
 
