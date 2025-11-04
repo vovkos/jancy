@@ -9,9 +9,9 @@
 #
 #...............................................................................
 
-set(JANCY_VERSION_MAJOR     1)
-set(JANCY_VERSION_MINOR     12)
-set(JANCY_VERSION_REVISION  1)
+set(JANCY_VERSION_MAJOR     2)
+set(JANCY_VERSION_MINOR     0)
+set(JANCY_VERSION_REVISION  0)
 set(JANCY_VERSION_TAG)
 
 set(JANCY_VERSION_FULL "${JANCY_VERSION_MAJOR}.${JANCY_VERSION_MINOR}.${JANCY_VERSION_REVISION}")
