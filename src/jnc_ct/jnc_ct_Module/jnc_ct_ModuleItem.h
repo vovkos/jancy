@@ -278,13 +278,18 @@ public:
 	Type*
 	getType();
 
-	sl::String
-	getSynopsis(bool isQualifiedName = true);
+	sl::StringRef
+	getSynopsis(uint_t flags = ModuleItemSynopsisFlag_Default);
+
+	sl::StringRef
+	getItemName() { // useful for error messages
+		return getSynopsis(ModuleItemSynopsisFlag_QualifiedName);
+	}
 
 	virtual
 	bool
 	require() {
-		err::setFormatStringError("don't know how to require '%s'", getModuleItemKindString(m_itemKind));
+		err::setFormatStringError("don't know how to require %s", getModuleItemKindString(m_itemKind));
 		return false;
 	}
 

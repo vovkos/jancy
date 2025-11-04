@@ -749,8 +749,9 @@ Module::processRequireSet() {
 		if (requireIt->m_value.m_itemKind != ModuleItemKind_Undefined) {
 			if (findResult.m_item->getItemKind() != requireIt->m_value.m_itemKind) {
 				err::setFormatStringError(
-					"required module item '%s' item kind mismatch: '%s'",
+					"required module item '%s' item kind mismatch: %s vs %s",
 					requireIt->getKey().sz(),
+					getModuleItemKindString(requireIt->m_value.m_itemKind),
 					getModuleItemKindString(findResult.m_item->getItemKind())
 				);
 				return false;

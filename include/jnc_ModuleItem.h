@@ -95,6 +95,18 @@ enum jnc_ModuleItemFlag {
 
 typedef enum jnc_ModuleItemFlag jnc_ModuleItemFlag;
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum jnc_ModuleItemSynopsisFlag {
+	jnc_ModuleItemSynopsisFlag_QualifiedName = 0x01,
+	jnc_ModuleItemSynopsisFlag_Declaration   = 0x02,
+	jnc_ModuleItemSynopsisFlag_Default =
+		jnc_ModuleItemSynopsisFlag_QualifiedName |
+		jnc_ModuleItemSynopsisFlag_Declaration
+};
+
+typedef enum jnc_ModuleItemSynopsisFlag jnc_ModuleItemSynopsisFlag;
+
 /// @}
 /// \addtogroup module-item-decl
 /// @{
@@ -287,7 +299,7 @@ JNC_EXTERN_C
 const char*
 jnc_ModuleItem_getSynopsis_v(
 	jnc_ModuleItem* item,
-	bool_t isQualifiedName
+	uint_t flags
 );
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -326,8 +338,8 @@ struct jnc_ModuleItem {
 	}
 
 	const char*
-	getSynopsis_v(bool isQualifiedName = true) {
-		return jnc_ModuleItem_getSynopsis_v(this, isQualifiedName);
+	getSynopsis_v(uint_t flags = jnc_ModuleItemSynopsisFlag_Default) {
+		return jnc_ModuleItem_getSynopsis_v(this, flags);
 	}
 };
 
@@ -400,6 +412,15 @@ typedef jnc_ModuleItemFlag ModuleItemFlag;
 const ModuleItemFlag
 	ModuleItemFlag_User        = jnc_ModuleItemFlag_User,
 	ModuleItemFlag_Constructed = jnc_ModuleItemFlag_Constructed;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+typedef jnc_ModuleItemSynopsisFlag ModuleItemSynopsisFlag;
+
+const ModuleItemSynopsisFlag
+	ModuleItemSynopsisFlag_QualifiedName = jnc_ModuleItemSynopsisFlag_QualifiedName,
+	ModuleItemSynopsisFlag_Declaration   = jnc_ModuleItemSynopsisFlag_Declaration,
+	ModuleItemSynopsisFlag_Default       = jnc_ModuleItemSynopsisFlag_Default;
 
 //..............................................................................
 

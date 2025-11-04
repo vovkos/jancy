@@ -207,9 +207,9 @@ JNC_EXTERN_C
 const char*
 jnc_ModuleItem_getSynopsis_v(
 	jnc_ModuleItem* item,
-	bool_t isQualifiedName
+	uint_t flags
 ) {
-	return jnc_g_dynamicExtensionLibHost->m_moduleItemFuncTable->m_getSynopsisFunc(item, isQualifiedName);
+	return jnc_g_dynamicExtensionLibHost->m_moduleItemFuncTable->m_getSynopsisFunc(item, flags);
 }
 
 #else // _JNC_DYNAMIC_EXTENSION_LIB
@@ -294,9 +294,9 @@ JNC_EXPORT_O
 const char*
 jnc_ModuleItem_getSynopsis_v(
 	jnc_ModuleItem* item,
-	bool_t isQualifiedName
+	uint_t flags
 ) {
-	return *jnc::getTlsStringBuffer() = item->getSynopsis(isQualifiedName != 0);
+	return *jnc::getTlsStringBuffer() = item->getSynopsis(flags);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

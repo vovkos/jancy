@@ -74,6 +74,8 @@ ModuleItemDecl::copyDecl(
 	ModuleItemDecl* src,
 	AttributeBlock* attributeBlock
 ) {
+	m_parentUnit = src->m_parentUnit;
+	m_pos = src->m_pos;
 	m_storageKind = src->m_storageKind;
 	m_accessKind = src->m_accessKind;
 	m_name = src->m_name;
@@ -389,25 +391,28 @@ getDynamicSectionType(ModuleItem* item) {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-sl::String
+sl::StringRef
 getDefaultSynopsis(
 	ModuleItem* item,
-	bool isQualifiedName
+	uint_t flags
 ) {
-	sl::String synopsis = getModuleItemKindString(item->getItemKind());
 	ModuleItemDecl* decl = item->getDecl();
-	if (decl) {
-		synopsis += ' ';
-		synopsis += isQualifiedName ? decl->getQualifiedName() : decl->getName();
-	}
+	if (!decl)
+		return getModuleItemKindString(item->getItemKind());
+
+	sl::String synopsis = getModuleItemKindString(item->getItemKind());
+	synopsis += ' ';
+	synopsis += (flags & ModuleItemSynopsisFlag_QualifiedName) ?
+		decl->getQualifiedName() :
+		decl->getName();
 
 	return synopsis;
 }
 
-sl::String
+sl::StringRef
 getTypeSynopsis(
 	ModuleItem* item,
-	bool isQualifiedName
+	uint_t flags
 ) {
 	Type* type = (Type*)item;
 	if (!(type->getTypeKindFlags() & TypeKindFlag_Named))
@@ -442,15 +447,18 @@ getTypeSynopsis(
 	synopsis += ' ';
 
 	NamedType* namedType = (NamedType*)type;
-	synopsis += isQualifiedName ? namedType->getQualifiedName() : namedType->getName();
+	synopsis += (flags & ModuleItemSynopsisFlag_QualifiedName) ?
+		namedType->getQualifiedName() :
+		namedType->getName();
+
 	return synopsis;
 }
 
-sl::String
+sl::StringRef
 getTypedItemSynopsisImpl(
 	ModuleItemDecl* decl,
 	Type* type,
-	bool isQualifiedName,
+	uint_t flags,
 	const char* prefix = NULL,
 	uint_t ptrTypeFlags = 0
 ) {
@@ -468,63 +476,69 @@ getTypedItemSynopsisImpl(
 		synopsis += ' ';
 	}
 
-	synopsis += isQualifiedName ? decl->getQualifiedName() : decl->getName();
+	synopsis += (flags & ModuleItemSynopsisFlag_QualifiedName) ?
+		decl->getQualifiedName() :
+		decl->getName();
+
 	synopsis += type->getTypeStringSuffix();
 	return synopsis;
 }
 
-sl::String
+sl::StringRef
 getTypedItemSynopsis(
 	ModuleItem* item,
-	bool isQualifiedName
+	uint_t flags
 ) {
-	return getTypedItemSynopsisImpl(item->getDecl(), item->getType(), isQualifiedName);
+	return getTypedItemSynopsisImpl(item->getDecl(), item->getType(), flags);
 }
 
-sl::String
+sl::StringRef
 getTypedefSynopsis(
 	ModuleItem* item,
-	bool isQualifiedName
+	uint_t flags
 ) {
 	Typedef* tdef = (Typedef*)item;
 
-	return getTypedItemSynopsisImpl(tdef, tdef->getType(), isQualifiedName, "typedef ");
+	return getTypedItemSynopsisImpl(tdef, tdef->getType(), flags, "typedef ");
 }
 
-sl::String
+sl::StringRef
 getAliasSynopsis(
 	ModuleItem* item,
-	bool isQualifiedName
+	uint_t flags
 ) {
 	Alias* alias = (Alias*)item;
 
 	sl::String synopsis = "alias ";
-	synopsis += isQualifiedName ? alias->getQualifiedName() : alias->getName();
+	synopsis += (flags & ModuleItemSynopsisFlag_QualifiedName) ?
+		alias->getQualifiedName() :
+		alias->getName();
+
 	synopsis += " = ";
 	synopsis += alias->getInitializerString();
 	return synopsis;
 }
 
-sl::String
+sl::StringRef
 getVariableSynopsis(
 	ModuleItem* item,
-	bool isQualifiedName
+	uint_t flags
 ) {
 	Variable* variable = (Variable*)item;
 
 	return getTypedItemSynopsisImpl(
 		variable,
 		variable->getType(),
-		isQualifiedName,
+		flags,
 		NULL,
 		variable->getPtrTypeFlags()
 	);
 }
 
-sl::String
+sl::StringRef
 getFunctionSynopsis(
 	ModuleItem* item,
-	bool isQualifiedName
+	uint_t flags
 ) {
 	Function* function = (Function*)item;
 
@@ -532,7 +546,7 @@ getFunctionSynopsis(
 		return getTypedItemSynopsisImpl(
 			function,
 			function->getType(),
-			isQualifiedName
+			flags
 		);
 
 	FunctionType* type = function->getType();
@@ -540,7 +554,9 @@ getFunctionSynopsis(
 
 	sl::String synopsis = type->getReturnType()->getTypeString();
 	synopsis += ' ';
-	synopsis += isQualifiedName ? function->getQualifiedName() : function->getName();
+	synopsis += (flags & ModuleItemSynopsisFlag_QualifiedName) ?
+		function->getQualifiedName() :
+		function->getName();
 	synopsis += type->getShortType()->getTypeStringSuffix();
 
 	uint_t ptrFlags = type->getThisArgType()->getFlags();
@@ -550,10 +566,10 @@ getFunctionSynopsis(
 	return synopsis;
 }
 
-sl::String
+sl::StringRef
 getPropertySynopsis(
 	ModuleItem* item,
-	bool isQualifiedName
+	uint_t flags
 ) {
 	Property* prop = (Property*)item;
 
@@ -561,7 +577,7 @@ getPropertySynopsis(
 		getTypedItemSynopsisImpl(
 			prop,
 			prop->getType(),
-			isQualifiedName
+			flags
 		);
 
 	PropertyType* type = prop->getType();
@@ -575,43 +591,48 @@ getPropertySynopsis(
 	}
 
 	synopsis += " property ";
-	synopsis += isQualifiedName ? prop->getQualifiedName() : prop->getName();
+	synopsis += (flags & ModuleItemSynopsisFlag_QualifiedName) ?
+		prop->getQualifiedName() :
+		prop->getName();
 	synopsis += type->getShortType()->getTypeStringSuffix();
 	return synopsis;
 }
 
-sl::String
+sl::StringRef
 getFieldSynopsis(
 	ModuleItem* item,
-	bool isQualifiedName
+	uint_t flags
 ) {
 	Field* field = (Field*)item;
 
 	return getTypedItemSynopsisImpl(
 		field,
 		field->getType(),
-		isQualifiedName,
+		flags,
 		NULL,
 		field->getPtrTypeFlags()
 	);
 }
 
-sl::String
+sl::StringRef
 getEnumConstSynopsis(
 	ModuleItem* item,
-	bool isQualifiedName
+	uint_t flags
 ) {
 	EnumConst* enumConst = (EnumConst*)item;
 
 	sl::String synopsis = "const ";
-	synopsis += isQualifiedName ? enumConst->getQualifiedName() : enumConst->getName();
+	synopsis += (flags & ModuleItemSynopsisFlag_QualifiedName) ?
+		enumConst->getQualifiedName() :
+		enumConst->getName();
+
 	return synopsis;
 }
 
-sl::String
+sl::StringRef
 getDynamicSectionSynopsis(
 	ModuleItem* item,
-	bool isQualifiedName
+	uint_t flags
 ) {
 	DynamicSection* section = (DynamicSection*)item;
 	DynamicSectionKind sectionKind = section->getSectionKind();
@@ -621,23 +642,25 @@ getDynamicSectionSynopsis(
 		return getTypedItemSynopsisImpl(
 			section,
 			((DynamicDataSection*)section)->getType(),
-			isQualifiedName,
+			flags,
 			NULL,
 			((DynamicDataSection*)section)->getPtrTypeFlags()
 		);
 
 	default:
-		return getDefaultSynopsis(item, isQualifiedName);
+		return getDefaultSynopsis(item, flags);
 	}
 }
 
-sl::String
+sl::StringRef
 getTemplateSynopsis(
 	ModuleItem* item,
-	bool isQualifiedName
+	uint_t flags
 ) {
 	Template* templ = (Template*)item;
-	sl::String synopsis = isQualifiedName ? templ->getQualifiedName() : templ->getName();
+	sl::String synopsis = (flags & ModuleItemSynopsisFlag_QualifiedName) ?
+		templ->getQualifiedName() :
+		templ->getName();
 
 	synopsis += '<';
 
@@ -762,13 +785,13 @@ ModuleItem::getType() {
 	return funcTable[(size_t)m_itemKind](this);
 }
 
-sl::String
-ModuleItem::getSynopsis(bool isQualifiedName) {
+sl::StringRef
+ModuleItem::getSynopsis(uint_t flags) {
 	typedef
-	sl::String
+	sl::StringRef
 	GetSynopsisFunc(
 		ModuleItem* item,
-		bool isQualifiedName
+		uint_t flags
 	);
 
 	static GetSynopsisFunc* funcTable[ModuleItemKind__Count] = {
@@ -796,8 +819,17 @@ ModuleItem::getSynopsis(bool isQualifiedName) {
 		getTemplateSynopsis,       // ModuleItemKind_Template,
 	};
 
+	if (!(flags & ModuleItemSynopsisFlag_Declaration)) {
+		ModuleItemDecl* decl = getDecl();
+		return
+			!decl ? sl::String(getModuleItemKindString(m_itemKind)) :
+			(flags & ModuleItemSynopsisFlag_QualifiedName) ?
+				decl->getQualifiedName() :
+				decl->getName();
+	}
+
 	ASSERT((size_t)m_itemKind < countof(funcTable));
-	return funcTable[(size_t)m_itemKind](this, isQualifiedName);
+	return funcTable[(size_t)m_itemKind](this, flags);
 }
 
 sl::String

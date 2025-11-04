@@ -228,7 +228,7 @@ typedef
 const char*
 jnc_ModuleItem_GetSynopsisFunc(
 	jnc_ModuleItem* item,
-	bool_t isQualifiedName
+	uint_t flags
 );
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
