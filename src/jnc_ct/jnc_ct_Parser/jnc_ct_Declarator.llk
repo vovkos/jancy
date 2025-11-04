@@ -453,7 +453,7 @@ array_suffix<Declarator* $declarator>
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-// the infamous conflict of C++ constructible object declaration, e.g.: C c(a);
+// vs C++ constructible object declaration, e.g.: C c(a);
 
 function_suffix_rslv
 	:	'(' ')'

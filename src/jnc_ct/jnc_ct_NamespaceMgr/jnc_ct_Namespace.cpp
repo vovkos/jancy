@@ -106,13 +106,19 @@ Namespace::resolveOrphans() {
 			continue;
 		}
 
-		sl::StringRef name = orphan->m_declaratorName.removeFirstName();
-		FindModuleItemResult findResult = findDirectChildItem(name);
+		QualifiedNameAtom atom = orphan->m_declaratorName.removeFirstName();
+		if (atom.m_atomKind != QualifiedNameAtomKind_Name) {
+			err::setFormatStringError("invalid orphan name '%s'", atom.getString().sz());
+			orphan->pushSrcPosError();
+			return false;
+		}
+
+		FindModuleItemResult findResult = findDirectChildItem(atom.m_name);
 		if (!findResult.m_result)
 			return false;
 
 		if (!findResult.m_item) {
-			err::setFormatStringError("'%s' not found", name.sz());
+			err::setFormatStringError("'%s' not found", atom.m_name.sz());
 			orphan->pushSrcPosError();
 			return false;
 		}
@@ -129,7 +135,7 @@ Namespace::resolveOrphans() {
 
 		Namespace* nspace = findResult.m_item->getNamespace();
 		if (!nspace) {
-			err::setFormatStringError("'%s' is a %s, not a namespace", name.sz(), getModuleItemKindString(findResult.m_item->getItemKind()));
+			err::setFormatStringError("'%s' is a %s, not a namespace", atom.m_name.sz(), getModuleItemKindString(findResult.m_item->getItemKind()));
 			orphan->pushSrcPosError();
 			return false;
 		}
@@ -276,13 +282,13 @@ Namespace::findItem(const QualifiedName& name) {
 	if (!findResult.m_item)
 		return findResult;
 
-	sl::ConstBoxIterator<sl::StringRef> nameIt = name.getNameList().getHead();
-	for (; nameIt; nameIt++) {
+	sl::ConstBoxIterator<QualifiedNameAtom> it = name.getNameList().getHead();
+	for (; it; it++) {
 		Namespace* nspace = findResult.m_item->getNamespace();
 		if (!nspace)
 			return g_nullFindModuleItemResult;
 
-		findResult = nspace->findItem(*nameIt);
+		findResult = nspace->findDirectChildItem(*it);
 		if (!findResult.m_item)
 			return findResult;
 	}
@@ -296,11 +302,17 @@ Namespace::findItemTraverse(
 	MemberCoord* coord,
 	uint_t flags
 ) {
-	FindModuleItemResult findResult = findDirectChildItemTraverse(name.getFirstName(), coord, flags);
+	QualifiedNameAtom atom = name.getFirstName();
+	if (atom.m_atomKind != QualifiedNameAtomKind_Name) {
+		err::setError("finding non-name atoms is not implemented yet");
+		return g_errorFindModuleItemResult;
+	}
+
+	FindModuleItemResult findResult = findDirectChildItemTraverse(atom.m_name, coord, flags);
 	if (!findResult.m_item)
 		return findResult;
 
-	sl::ConstBoxIterator<sl::StringRef> nameIt = name.getNameList().getHead();
+	sl::ConstBoxIterator<QualifiedNameAtom> nameIt = name.getNameList().getHead();
 	for (; nameIt; nameIt++) {
 		Namespace* nspace = findResult.m_item->getNamespace();
 		if (!nspace)

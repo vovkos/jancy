@@ -17,35 +17,59 @@ namespace ct {
 
 //..............................................................................
 
-void
-QualifiedName::addName(const sl::StringRef& name) {
-	if (m_first.isEmpty())
-		m_first = name;
-	else
-		m_list.insertTail(name);
+sl::StringRef
+QualifiedNameAtom::getString() const {
+	static const sl::StringRef baseTypeStringTable[] = {
+		"basetype",
+		"basetype2",
+		"basetype4",
+		"basetype5",
+		"basetype6",
+		"basetype7",
+		"basetype8",
+		"basetype9",
+	};
+
+	return
+		m_atomKind == QualifiedNameAtomKind_Name ? m_name :
+		m_atomKind == QualifiedNameAtomKind_BaseTypeIdx ?
+			m_baseTypeIdx < countof(baseTypeStringTable) ?
+				baseTypeStringTable[m_baseTypeIdx] :
+				sl::formatString("basetype%d", m_baseTypeIdx) :
+		sl::StringRef();
 }
 
-sl::StringRef
-QualifiedName::removeFirstName() {
-	sl::StringRef name = m_first;
+//..............................................................................
 
-	if (m_list.isEmpty())
-		m_first.clear();
+void
+QualifiedName::addName(const QualifiedNameAtom& name) {
+	if (m_firstName.isEmpty())
+		m_firstName = name;
 	else
-		m_first = m_list.removeHead();
+		m_nameList.insertTail(name);
+}
+
+QualifiedNameAtom
+QualifiedName::removeFirstName() {
+	QualifiedNameAtom name = m_firstName;
+
+	if (m_nameList.isEmpty())
+		m_firstName.clear();
+	else
+		m_firstName = m_nameList.removeHead();
 
 	return name;
 }
 
-sl::StringRef
+QualifiedNameAtom
 QualifiedName::removeLastName() {
-	sl::StringRef name;
+	QualifiedNameAtom name;
 
-	if (m_list.isEmpty()) {
-		name = m_first;
-		m_first.clear();
+	if (m_nameList.isEmpty()) {
+		name = m_firstName;
+		m_firstName.clear();
 	} else {
-		name = m_list.removeTail();
+		name = m_nameList.removeTail();
 	}
 
 	return name;
@@ -53,14 +77,14 @@ QualifiedName::removeLastName() {
 
 sl::StringRef
 QualifiedName::getFullName() const {
-	if (m_list.isEmpty())
-		return m_first;
+	if (m_nameList.isEmpty())
+		return m_firstName.getString();
 
-	sl::String name = m_first;
-	sl::ConstBoxIterator<sl::StringRef> it = m_list.getHead();
+	sl::String name = m_firstName.getString();
+	sl::ConstBoxIterator<QualifiedNameAtom> it = m_nameList.getHead();
 	for (; it; it++) {
 		name.append('.');
-		name.append(*it);
+		name.append(it->getString());
 	}
 
 	return name;
@@ -88,12 +112,12 @@ QualifiedName::parse(const sl::StringRef& name) {
 
 void
 QualifiedName::copy(const QualifiedName& name) {
-	m_first = name.m_first;
-	m_list.clear();
+	m_firstName = name.m_firstName;
+	m_nameList.clear();
 
-	sl::ConstBoxIterator<sl::StringRef> it = name.m_list.getHead();
+	sl::ConstBoxIterator<QualifiedNameAtom> it = name.m_nameList.getHead();
 	for (; it; it++)
-		m_list.insertTail(*it);
+		m_nameList.insertTail(*it);
 }
 
 //..............................................................................

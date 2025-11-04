@@ -795,7 +795,10 @@ postfix_operator<Value* $value>
 			}
 		member_operator<$value>
 	|	resolver ('<' type_name_rslv) // vs epsilon
-		template_instantiate_operator<$value>
+		'<' type_name_list '>'
+			{
+				return m_module->m_operatorMgr.templateInstantiateOperator($value, $2.m_typeArray);
+			}
 	;
 
 member_operator<Value* $value>
@@ -811,13 +814,6 @@ member_operator<Value* $value>
 	|	TokenKind_Set
 			{
 				return m_module->m_operatorMgr.getPropertySetter($value);
-			}
-	;
-
-template_instantiate_operator<Value* $value>
-	:	'<' type_name_list '>'
-			{
-				return m_module->m_operatorMgr.templateInstantiateOperator($value, $2.m_typeArray);
 			}
 	;
 

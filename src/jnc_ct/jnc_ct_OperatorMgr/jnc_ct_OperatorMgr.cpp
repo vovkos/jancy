@@ -1110,6 +1110,24 @@ OperatorMgr::offsetofOperator(
 	return true;
 }
 
+ModuleItem*
+OperatorMgr::templateInstantiateOperator(
+	ModuleItem* item,
+	const sl::ArrayRef<Type*>& argArray
+) {
+	if (item->getItemKind() != ModuleItemKind_Template) {
+		err::setFormatStringError("'%s' is not a template", getModuleItemKindString(item->getItemKind()));
+		return NULL;
+	}
+
+	size_t argCount = argArray.getCount();
+	sl::BoxList<Value> valueList;
+	for (size_t i = 0; i < argCount; i++)
+		valueList.insertTail(argArray[i]);
+
+	return ((Template*)item)->instantiate(valueList);
+}
+
 bool
 OperatorMgr::templateInstantiateOperator(
 	const Value& opValue,

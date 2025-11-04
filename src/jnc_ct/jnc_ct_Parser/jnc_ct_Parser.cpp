@@ -343,30 +343,6 @@ Parser::parseEofToken(
 	return consumeToken(token);
 }
 
-bool
-Parser::isTypeSpecified() {
-	if (m_typeSpecifierStack.isEmpty())
-		return false;
-
-	AXL_TODO("process declarations like `unsigned int32_t a; bigendian b;`")
-
-	// if we've seen 'unsigned' or 'bigendian', assume 'int' is implied.
-	// checking for 'property' is required for full property syntax e.g.:
-	// property foo { int get (); }
-	// here 'foo' should be a declarator, not import-type-specifier
-	// the same logic applies to 'reactor'
-
-	TypeSpecifier* typeSpecifier = m_typeSpecifierStack.getBack();
-	return
-		typeSpecifier->getType() != NULL ||
-		typeSpecifier->getTypeModifiers() & (
-			TypeModifier_Unsigned |
-			// TypeModifier_BigEndian |
-			TypeModifier_Property |
-			TypeModifier_Reactor
-		);
-}
-
 NamedImportType*
 Parser::getNamedImportType(
 	const QualifiedName& name,
@@ -381,6 +357,22 @@ Parser::getNamedImportType(
 	}
 
 	return type;
+}
+
+Type*
+Parser::getQualifiedTypeName(ModuleItem* item) {
+	ModuleItemKind itemKind = item->getItemKind();
+	switch (itemKind) {
+	case ModuleItemKind_Type:
+		return (Type*)item;
+
+	case ModuleItemKind_Typedef:
+		return ((Typedef*)item)->getType();
+
+	default:
+		err::setFormatStringError("'%s' is not a type", getModuleItemKindString(item->getItemKind()));
+		return NULL;
+	}
 }
 
 Type*
@@ -400,8 +392,7 @@ Parser::findType(
 		if (!name.isSimple())
 			return getNamedImportType(name, pos);
 
-		sl::String shortName = name.getShortName();
-		FindModuleItemResult findResult = nspace->findDirectChildItem(shortName);
+		FindModuleItemResult findResult = nspace->findDirectChildItem(name.getFirstName());
 		if (!findResult.m_result)
 			return NULL;
 
@@ -741,23 +732,28 @@ Parser::postDeclarator(Declarator* declarator) {
 GlobalNamespace*
 Parser::getGlobalNamespace(
 	GlobalNamespace* parentNamespace,
-	const sl::StringRef& name,
+	const QualifiedNameAtom& name,
 	const lex::LineCol& pos
 ) {
 	GlobalNamespace* nspace;
 
-	FindModuleItemResult findResult = parentNamespace->findDirectChildItem(name);
+	if (name.m_atomKind != QualifiedNameAtomKind_Name) {
+		err::setFormatStringError("invalid namespace name");
+		return NULL;
+	}
+
+	FindModuleItemResult findResult = parentNamespace->findDirectChildItem(name.m_name);
 	if (!findResult.m_result)
 		return NULL;
 
 	if (!findResult.m_item) {
-		nspace = m_module->m_namespaceMgr.createGlobalNamespace(name, parentNamespace);
+		nspace = m_module->m_namespaceMgr.createGlobalNamespace(name.m_name, parentNamespace);
 		nspace->m_parentUnit = m_module->m_unitMgr.getCurrentUnit();
 		nspace->m_pos = pos;
 		parentNamespace->addItem(nspace);
 	} else {
 		if (findResult.m_item->getItemKind() != ModuleItemKind_Namespace) {
-			err::setFormatStringError("'%s' exists and is not a namespace", parentNamespace->createQualifiedName(name).sz());
+			err::setFormatStringError("'%s' exists and is not a namespace", parentNamespace->createQualifiedName(name.m_name).sz());
 			return NULL;
 		}
 
@@ -775,7 +771,7 @@ Parser::declareGlobalNamespace(
 ) {
 	Namespace* currentNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
 	if (currentNamespace->getNamespaceKind() != NamespaceKind_Global) {
-		err::setFormatStringError("cannot open global namespace in '%s'", getNamespaceKindString(currentNamespace->getNamespaceKind ()));
+		err::setFormatStringError("cannot open global namespace in '%s'", getNamespaceKindString(currentNamespace->getNamespaceKind()));
 		return NULL;
 	}
 
@@ -783,7 +779,7 @@ Parser::declareGlobalNamespace(
 	if (!nspace)
 		return NULL;
 
-	sl::ConstBoxIterator<sl::StringRef> it = name.getNameList().getHead();
+	sl::ConstBoxIterator<QualifiedNameAtom> it = name.getNameList().getHead();
 	for (; it; it++) {
 		nspace = getGlobalNamespace(nspace, *it, pos);
 		if (!nspace)
@@ -880,7 +876,7 @@ Parser::declareReactorVariable(
 		return false;
 	}
 
-	const sl::StringRef& name = declarator->getName().getShortName();
+	const sl::StringRef& name = declarator->getSimpleName();
 	Variable* variable = m_module->m_variableMgr.createVariable(StorageKind_Reactor, name, type, ptrTypeFlags);
 	assignDeclarationAttributes(variable, variable, declarator->m_pos, declarator->m_attributeBlock, NULL);
 
@@ -906,7 +902,7 @@ Parser::declareNamedAttributeBlock(Declarator* declarator) {
 	AttributeBlock* attributeBlock = m_module->m_attributeMgr.createAttributeBlock();
 	attributeBlock->m_parentNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
 	attributeBlock->m_parentUnit = m_module->m_unitMgr.getCurrentUnit();
-	attributeBlock->m_name = declarator->getName().getShortName();
+	attributeBlock->m_name = declarator->getSimpleName();
 	attributeBlock->m_qualifiedName = nspace->createQualifiedName(attributeBlock->m_name);
 	attributeBlock->m_attributeBlock = declarator->m_attributeBlock;
 	attributeBlock->m_pos = declarator->m_pos;
@@ -1057,8 +1053,7 @@ Parser::prepareTemplateDeclarator(Declarator* declarator) {
 	if (baseType->getTypeKind() == TypeKind_NamedImport &&
 		baseType->getName().isSimple()
 	) {
-		sl::StringRef name = baseType->getName().getFirstName();
-		FindModuleItemResult findResult = m_templateNamespace->findDirectChildItem(name);
+		FindModuleItemResult findResult = m_templateNamespace->findDirectChildItem(baseType->getName().getFirstName());
 		if (findResult.m_item) {
 			ASSERT(findResult.m_item->getItemKind() == ModuleItemKind_Type);
 			declarator->m_baseType = (Type*)findResult.m_item;
@@ -1081,7 +1076,7 @@ Parser::declareTemplate(Declarator* declarator) {
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	TemplateInstanceType* type = m_module->m_typeMgr.createTemplateInstanceType(declarator);
 	declarator = type->getDeclarator(); // adjust declarator (original was just moved)
-	const sl::StringRef& name = declarator->getName().getShortName();
+	const sl::StringRef& name = declarator->getSimpleName();
 	Template* templ = m_module->m_templateMgr.createTemplate(name, nspace->createQualifiedName(name), type);
 	bool result = nspace->addItem(name, templ);
 	if (!result)
@@ -1129,21 +1124,6 @@ Parser::declareTemplate(
 	return templ;
 }
 
-Type*
-Parser::instantiateTemplateType(
-	Type* type,
-	const sl::ArrayRef<Type*>& argArray
-) {
-	printf("instantiateTemplateType: %s <", type->getTypeString().sz());
-	size_t count = argArray.getCount();
-	for (size_t i = 0; i < count; i++) {
-		printf("%s, ", argArray[i]->getTypeString().sz());
-	}
-
-	printf("\b\b>\n");
-	return type;
-}
-
 bool
 Parser::declareTypedef(
 	Declarator* declarator,
@@ -1157,7 +1137,7 @@ Parser::declareTypedef(
 	}
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	const sl::StringRef& name = declarator->getName().getShortName();
+	const sl::StringRef& name = declarator->getSimpleName();
 	FindModuleItemResult findResult = nspace->findDirectChildItem(name);
 
 	if (!findResult.m_result)
@@ -1212,7 +1192,7 @@ Parser::declareAlias(
 	}
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	const sl::StringRef& name = declarator->getName().getShortName();
+	const sl::StringRef& name = declarator->getSimpleName();
 	sl::List<Token>* initializer = &declarator->m_initializer;
 
 	Alias* alias = m_module->m_namespaceMgr.createAlias(name, nspace->createQualifiedName(name), initializer);
@@ -1329,10 +1309,11 @@ Parser::declareFunction(
 		functionName->m_thisArgTypeFlags = PtrTypeFlag_Const;
 
 	switch (functionKind) {
-	case FunctionKind_Normal:
-		functionItemDecl->m_name = declarator->getName().getShortName();
+	case FunctionKind_Normal: {
+		functionItemDecl->m_name = declarator->getShortName();
 		functionItemDecl->m_qualifiedName = nspace->createQualifiedName(functionItemDecl->m_name);
 		break;
+		}
 
 	case FunctionKind_UnaryOperator:
 		functionName->m_unOpKind = declarator->getUnOpKind();
@@ -1520,6 +1501,8 @@ Parser::createPropertyTemplate() {
 
 Property*
 Parser::createProperty(Declarator* declarator) {
+	ASSERT(declarator->isSimple());
+
 	bool result;
 
 	m_lastDeclaredItem = NULL;
@@ -1532,7 +1515,7 @@ Parser::createProperty(Declarator* declarator) {
 		return NULL;
 	}
 
-	const sl::StringRef& name = declarator->getName().getShortName();
+	const sl::StringRef& name = declarator->getSimpleName();
 	Property* prop = m_module->m_functionMgr.createProperty(name, nspace->createQualifiedName(name));
 
 	assignDeclarationAttributes(prop, prop, declarator);
@@ -1781,8 +1764,6 @@ Parser::declareReactor(
 		return false;
 	}
 
-	const sl::StringRef& name = declarator->getName().getShortName();
-
 	if (declarator->isQualified()) {
 		Orphan* orphan = m_module->m_namespaceMgr.createOrphan(OrphanKind_Reactor, NULL);
 		orphan->m_functionKind = FunctionKind_Normal;
@@ -1790,6 +1771,7 @@ Parser::declareReactor(
 		assignDeclarationAttributes(orphan, orphan, declarator);
 		nspace->addOrphan(orphan);
 	} else {
+		const sl::StringRef& name = declarator->getSimpleName();
 		ReactorClassType* type = m_module->m_typeMgr.createReactorType(
 			name,
 			nspace->createQualifiedName(name),
@@ -1828,7 +1810,7 @@ Parser::declareData(
 		return false;
 	}
 
-	const sl::StringRef& name = declarator->getName().getShortName();
+	const sl::StringRef& name = declarator->getSimpleName();
 	size_t bitCount = declarator->getBitCount();
 	sl::List<Token>* constructor = &declarator->m_constructor;
 	sl::List<Token>* initializer = &declarator->m_initializer;
@@ -2395,7 +2377,7 @@ Parser::createFormalArg(
 	sl::String name;
 
 	if (declarator->isSimple()) {
-		name = declarator->getName().getShortName();
+		name = declarator->getSimpleName();
 	} else if (declarator->getDeclaratorKind() != DeclaratorKind_Undefined) {
 		err::setError("invalid formal argument declarator");
 		return NULL;
@@ -2873,6 +2855,26 @@ Parser::finalizeBaseTypeMemberConstructBlock() {
 	}
 }
 
+ModuleItem*
+Parser::lookupIdentifier(
+	const Token& token,
+	MemberCoord* coord
+) {
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
+
+	FindModuleItemResult findResult = nspace->findDirectChildItemTraverse(token.m_data.m_string, coord);
+	if (!findResult.m_result)
+		return NULL;
+
+	if (!findResult.m_item) {
+		err::setFormatStringError("undeclared identifier '%s'", token.m_data.m_string.sz());
+		lex::pushSrcPosError(m_module->m_unitMgr.getCurrentUnit()->getFilePath(), token.m_pos);
+		return NULL;
+	}
+
+	return findResult.m_item;
+}
+
 bool
 Parser::lookupIdentifier(
 	const Token& token,
@@ -2880,20 +2882,11 @@ Parser::lookupIdentifier(
 ) {
 	bool result;
 
-	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-
 	MemberCoord coord;
-	FindModuleItemResult findResult = nspace->findDirectChildItemTraverse(token.m_data.m_string, &coord);
-	if (!findResult.m_result)
+	ModuleItem* item = lookupIdentifier(token, &coord);
+	if (!item)
 		return false;
 
-	if (!findResult.m_item) {
-		err::setFormatStringError("undeclared identifier '%s'", token.m_data.m_string.sz());
-		lex::pushSrcPosError(m_module->m_unitMgr.getCurrentUnit()->getFilePath(), token.m_pos);
-		return false;
-	}
-
-	ModuleItem* item = findResult.m_item;
 	ModuleItemKind itemKind = item->getItemKind();
 	switch (itemKind) {
 	case ModuleItemKind_Namespace:

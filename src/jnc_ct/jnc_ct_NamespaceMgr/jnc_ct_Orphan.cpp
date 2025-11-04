@@ -33,7 +33,7 @@ Orphan::resolveForCodeAssist(Namespace* nspace) {
 		return m_origin;
 	}
 
-	sl::StringRef name = m_declaratorName.removeFirstName();
+	QualifiedNameAtom name = m_declaratorName.removeFirstName();
 	FindModuleItemResult findResult = nspace->findDirectChildItem(name);
 	if (!findResult.m_result || !findResult.m_item)
 		return NULL;

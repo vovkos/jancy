@@ -107,15 +107,6 @@ public:
 		}
 	};
 
-	struct QualifiedNamePass1 {
-		sl::List<Token> m_tokenList;
-		bool m_isTemplate;
-
-		QualifiedNamePass1() {
-			m_isTemplate = false;
-		}
-	};
-
 protected:
 	Module* m_module;
 	Mode m_mode;
@@ -245,11 +236,8 @@ protected:
 		const lex::LineCol& pos
 	);
 
-	sl::String
-	getQualifiedTypeNameString(
-		size_t baseTypeIdx,
-		const QualifiedName& name
-	);
+	Type*
+	getQualifiedTypeName(ModuleItem* item);
 
 	Type*
 	findType(
@@ -264,9 +252,6 @@ protected:
 		const QualifiedName& name,
 		const lex::LineCol& pos
 	);
-
-	Type*
-	getImportType(const QualifiedNamePass1& name);
 
 	DerivableType*
 	findBaseType(size_t baseTypeIdx);
@@ -311,7 +296,9 @@ protected:
 	}
 
 	bool
-	isTypeSpecified();
+	isTypeSpecified() {
+		return !m_typeSpecifierStack.isEmpty() && m_typeSpecifierStack.getBack()->getType();
+	}
 
 	bool
 	isRegexSwitchExpr(const Value& e) {
@@ -434,7 +421,7 @@ protected:
 	GlobalNamespace*
 	getGlobalNamespace(
 		GlobalNamespace* parentNamespace,
-		const sl::StringRef& name,
+		const QualifiedNameAtom& name,
 		const lex::LineCol& pos
 	);
 
@@ -484,12 +471,6 @@ protected:
 		const Token* nameToken,
 		const sl::ArrayRef<Type*>& baseTypeArray,
 		sl::List<Token>* bodyTokenList
-	);
-
-	Type*
-	instantiateTemplateType(
-		Type* type,
-		const sl::ArrayRef<Type*>& argArray
 	);
 
 	bool
@@ -651,6 +632,12 @@ protected:
 
 	bool
 	finalizeBaseTypeMemberConstructBlock();
+
+	ModuleItem*
+	lookupIdentifier(
+		const Token& token,
+		MemberCoord* coord = NULL
+	);
 
 	bool
 	lookupIdentifier(

@@ -713,9 +713,9 @@ Module::processRequireSet() {
 			name.parse(requireIt->getKey());
 
 			Namespace* nspace = m_namespaceMgr.getGlobalNamespace();
-			findResult = nspace->findDirectChildItemTraverse(name.getFirstName());
+			findResult = nspace->findDirectChildItem(name.getFirstName());
 			if (findResult.m_item) {
-				sl::ConstBoxIterator<sl::StringRef> nameIt = name.getNameList().getHead();
+				sl::ConstBoxIterator<QualifiedNameAtom> nameIt = name.getNameList().getHead();
 				for (; nameIt; nameIt++) {
 					Namespace* nspace = findResult.m_item->getNamespace();
 					if (!nspace) {
@@ -723,7 +723,12 @@ Module::processRequireSet() {
 						break;
 					}
 
-					findResult = nspace->findDirectChildItemTraverse(*nameIt);
+					if (nameIt->m_atomKind != QualifiedNameAtomKind_Name) {
+						findResult = g_nullFindModuleItemResult;
+						break;
+					}
+
+					findResult = nspace->findDirectChildItemTraverse(nameIt->m_name);
 					if (!findResult.m_item)
 						break;
 				}

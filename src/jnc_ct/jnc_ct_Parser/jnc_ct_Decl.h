@@ -419,6 +419,18 @@ public:
 		return m_name;
 	}
 
+	const sl::StringRef&
+	getSimpleName() {
+		ASSERT(isSimple());
+		return m_name.getFirstName().m_name;
+	}
+
+	const sl::StringRef&
+	getShortName() {
+		ASSERT(m_name.getShortName().m_atomKind == QualifiedNameAtomKind_Name);
+		return m_name.getShortName().m_name;
+	}
+
 	const lex::LineCol&
 	getPos() {
 		return m_pos;

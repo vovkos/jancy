@@ -149,7 +149,7 @@ import_declaration
 	;
 
 namespace_declaration
-	:	TokenKind_Namespace qualified_name TokenKind_Body
+	:	TokenKind_Namespace qualified_name_pass1 TokenKind_Body
 			{
 				return declareGlobalNamespace($1.m_pos, $2.m_name, $3) != NULL;
 			}
@@ -289,7 +289,7 @@ attribute_declarator
 			{
 				return createAttribute($1.m_pos, $1.m_data.m_string, &$i ? &$i.m_tokenList : NULL);
 			}
-	|	'@' qualified_name
+	|	'@' qualified_name_pass1
 			{
 				return reuseAttributes($2.m_name);
 			}

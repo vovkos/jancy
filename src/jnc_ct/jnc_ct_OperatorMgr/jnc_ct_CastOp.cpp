@@ -37,6 +37,7 @@ setCastError(
 	Type* dstType,
 	CastKind castKind
 ) {
+	ASSERT(dstType->getFlags() & ModuleItemFlag_LayoutReady);
 	const char* format;
 
 	switch (castKind) {
@@ -74,8 +75,8 @@ setCastError(
 
 	default:
 		opValueString = opValue.getValueKind() == ValueKind_Const ?
-			getConstTypeString(opValue.getType ()) :
-			opValue.getType()->getTypeString();
+			getConstTypeString(opValue.getType()) :
+			opValue.getClosureAwareType()->getTypeString();
 	}
 
 	return err::setFormatStringError(format, opValueString.sz(), dstType->getTypeString().sz());

@@ -15,48 +15,32 @@ struct {
 	ModuleItem* m_item;
 }
 qualified_name
-	local {
-		Value $value;
-	}
-	enter {
-		m_module->m_controlFlowMgr.lockEmission(); // prevent member_operator from emitting code
-	}
-	leave {
-		m_module->m_controlFlowMgr.unlockEmission();
-	}
 	:	(
 			TokenKind_BaseType
 				{
-					return getBaseType($1.m_data.m_integer - 1, &$value);
+					return ($.m_item = getBaseType($1.m_data.m_integer - 1)) != NULL;
 				}
-		|	TokenKind_Identifier $i
+		|	TokenKind_Identifier $i1
 				{
-					return lookupIdentifier($i, &$value);
+					return ($.m_item = lookupIdentifier($i1)) != NULL;
 				}
-		)
-		qualified_name_operator<&$value>*
-			{
-				if (!($.m_item = $value.getModuleItem()))
-				return err::fail("qualified name does not refer to a module item");
-			}
-	;
-
-qualified_name_operator<Value* $value>
-	:	'.' member_operator<$value>
-	|	template_instantiate_operator<$value>
-	;
-
-start
-qualified_name_save_value
-	:	qualified_name
-			{
-				m_lastDeclaredItem = $1.m_item;
-			}
+		) (
+			'.' TokenKind_Identifier $i2
+				{
+					return ($.m_item = m_module->m_operatorMgr.memberOperator($.m_item, $i2.m_data.m_string)) != NULL;
+				}
+		|	'<' type_name_list $t '>'
+				{
+					return ($.m_item = m_module->m_operatorMgr.templateInstantiateOperator($.m_item, $t.m_typeArray)) != NULL;
+				}
+		)*
 	;
 
 qualified_name_rslv
-	:	(TokenKind_BaseType | TokenKind_Identifier)
-		(
+	:	(
+			TokenKind_BaseType
+		|	TokenKind_Identifier
+		) (
 			'.' TokenKind_Identifier
 		|   template_instantiate_operator_pass1_rslv
 		)*
@@ -65,110 +49,59 @@ qualified_name_rslv
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct {
-	QualifiedNamePass1 m_name;
+	QualifiedName m_name;
 }
 qualified_name_pass1
 	:	qualified_name_pass1_atom<&$.m_name> (
 			'.' $d
 				{
-					$.m_name.m_tokenList.insertTail(m_tokenPool->get($d));
+					prepareQualifiedNameCodeAssistFallbackIf($d, $.m_name);
+					if ($.m_name.isTemplate())
+						$.m_name.addTemplateToken(m_tokenPool->get($d));
 				}
 			qualified_name_pass1_atom<&$.m_name>
 		)*
 	;
 
-qualified_name_pass1_atom<QualifiedNamePass1* $name>
+qualified_name_pass1_atom<QualifiedName* $name>
 	:	TokenKind_BaseType
 			{
-				$name->m_tokenList.insertTail(m_tokenPool->get($1));
+				prepareQualifiedNameCodeAssistFallbackIf($1, *$name);
+				if ($name->isTemplate())
+					$name->addTemplateToken(m_tokenPool->get($1));
+				else
+					$name->addName($1.m_data.m_integer - 1);
 			}
 	|	TokenKind_Identifier
 			{
-				$name->m_tokenList.insertTail(m_tokenPool->get($1));
-			}
-		(
-			template_instantiate_operator_pass1<&(*$name).m_tokenList>
-				{
-					$name->m_isTemplate = true;
-				}
-		)?
-	;
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-// the main conflict of C-family: declaration vs expression
-
-nullable
-qualified_type_name_rslv
-	enter {
-		if (isTypeSpecified())
-			return false;
-	}
-	:	resolver ({ return m_mode == Mode_Parse; })
-		epsilon
-	|	qualified_name
-			{
-				return $1.m_item->getItemKind() == ModuleItemKind_Type;
-			}
-	;
-
-struct {
-	Type* m_type;
-}
-qualified_type_name
-	:	resolver ({ return m_mode == Mode_Parse; })
-		qualified_name_pass1
-			{
-				$.m_type = getImportType($1.m_name);
-			}
-	|	qualified_name
-			{
-				if (($.m_type = (Type*)$1.m_item)->getItemKind() != ModuleItemKind_Type)
-					return err::fail("qualified name does not refer to a type");
-			}
-	;
-
-//..............................................................................
-
-// legacy qualified names (will eventually go)
-
-struct {
-	QualifiedName m_name;
-}
-pure_qualified_name
-	:	pure_qualified_name_impl<&$.m_name>
-	;
-
-pure_qualified_name_impl<QualifiedName* $name>
-	:	TokenKind_Identifier
-			{
 				prepareQualifiedNameCodeAssistFallbackIf($1, *$name);
-				$name->addName($1.m_data.m_string);
+				if ($name->isTemplate())
+					$name->addTemplateToken(m_tokenPool->get($1));
+				else
+					$name->addName($1.m_data.m_string);
 			}
-		(
-			'.' $d
-				{
-					prepareQualifiedNameCodeAssistFallbackIf($d, *$name);
-				}
-			TokenKind_Identifier $n
-				{
-					prepareQualifiedNameCodeAssistFallbackIf($n, *$name);
-					$name->addName($n.m_data.m_string);
-				}
-		)*
+		(template_instantiate_operator_pass1<(*$name).getTemplateTokenList()>)?
+	;
+
+start
+qualified_name_save_name
+	:	qualified_name_pass1
+			{
+				m_lastQualifiedName = $1.m_name;
+			}
 	;
 
 struct {
 	sl::BoxList<QualifiedName> m_nameList;
 }
 qualified_name_list
-	:	pure_qualified_name
+	:	qualified_name_pass1
 			{
 				sl::BoxIterator<QualifiedName> it = $.m_nameList.insertTail();
 				sl::takeOver(it.p(), &$1.m_name);
 			}
 		(
-			',' pure_qualified_name
+			',' qualified_name_pass1
 				{
 					sl::BoxIterator<QualifiedName> it = $.m_nameList.insertTail();
 					sl::takeOver(it.p(), &$3.m_name);
@@ -176,11 +109,48 @@ qualified_name_list
 		)*
 	;
 
-start
-qualified_name_save_name
-	:	pure_qualified_name
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// the main conflict of C-family: declaration vs expression
+
+qualified_type_name_rslv
+	enter {
+		if (isTypeSpecified())
+			return false;
+	}
+	:	resolver ({ return m_mode == Mode_Parse; })
+		qualified_name_rslv
+		(
+			(',' | ';' | '=' | '(' | '[' | '{' | TokenKind_Body) // the name is a declarator
+				{
+					return false;
+				}
+		)?
+	|	qualified_name
 			{
-				m_lastQualifiedName = $1.m_name;
+				ModuleItemKind itemKind = $1.m_item->getItemKind();
+				return itemKind == ModuleItemKind_Type || itemKind == ModuleItemKind_Typedef;
+			}
+	;
+
+struct {
+	Type* m_type;
+}
+qualified_type_name
+	local {
+		lex::LineCol $pos;
+	}
+	enter {
+		$pos = m_tokenCursor->m_pos;
+	}
+	:	resolver ({ return m_mode == Mode_Parse; })
+		qualified_name_pass1
+			{
+				$.m_type = getNamedImportType($1.m_name, $pos);
+			}
+	|	qualified_name
+			{
+				return ($.m_type = getQualifiedTypeName($1.m_item)) != NULL;
 			}
 	;
 
@@ -188,11 +158,10 @@ qualified_name_save_name
 
 // type names
 
-nullable
 type_name_rslv
-	:	type_specifier_sync |
-		type_modifier_sync |
-		qualified_type_name_rslv
+	:	type_specifier_sync
+	|	type_modifier_sync
+	|	qualified_type_name_rslv
 	;
 
 struct {

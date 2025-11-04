@@ -112,6 +112,9 @@ public:
 	findDirectChildItem(const sl::StringRef& name);
 
 	FindModuleItemResult
+	findDirectChildItem(const QualifiedNameAtom& name);
+
+	FindModuleItemResult
 	findItem(const QualifiedName& name);
 
 	FindModuleItemResult
@@ -210,6 +213,17 @@ protected:
 
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+FindModuleItemResult
+Namespace::findDirectChildItem(const QualifiedNameAtom& name) {
+	if (name.m_atomKind != QualifiedNameAtomKind_Name) {
+		err::setError("finding non-name atoms is not implemented yet");
+		return g_errorFindModuleItemResult;
+	}
+
+	return findDirectChildItem(name.m_name);
+}
 
 template <typename CanParse>
 FindModuleItemResult
