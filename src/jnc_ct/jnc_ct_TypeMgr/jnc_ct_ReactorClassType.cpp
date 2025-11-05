@@ -37,7 +37,7 @@ getReactorMethod(
 	ASSERT(method < countof(nameTable));
 
 	ClassType* reactorType = (ClassType*)module->m_typeMgr.getStdType(StdType_ReactorBase);
-	Function* function = reactorType->getMethodArray() [method];
+	Function* function = reactorType->getMethodArray()[method];
 	ASSERT(function->getName() == nameTable[method]);
 	return function;
 }

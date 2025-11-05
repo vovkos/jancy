@@ -117,7 +117,7 @@ DerivableType::chooseIndexerProperty(const Value& opValue) {
 		if (!result)
 			return NULL;
 
-		FunctionArg* indexArg = getterType->getArgArray() [1];
+		FunctionArg* indexArg = getterType->getArgArray()[1];
 		CastKind castKind = m_module->m_operatorMgr.getCastKind(opValue, indexArg->getType());
 		if (!castKind)
 			continue;

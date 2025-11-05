@@ -138,7 +138,7 @@ jnc_FunctionType_getArg(
 	jnc_FunctionType* type,
 	size_t index
 ) {
-	return type->getArgArray() [index];
+	return type->getArgArray()[index];
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

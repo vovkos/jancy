@@ -69,7 +69,7 @@ Function::convertToMemberMethod(DerivableType* parentType) {
 	m_type = parentType->getMemberMethodType(m_type, m_thisArgTypeFlags);
 
 	ASSERT(!m_type->getArgArray().isEmpty());
-	m_thisArgType = m_type->getArgArray() [0]->getType();
+	m_thisArgType = m_type->getArgArray()[0]->getType();
 	m_thisType = m_thisArgType;
 }
 

@@ -625,7 +625,7 @@ strCpy(
 		memcpy(dstPtr.m_p, srcPtr.m_p, dstLength);
 	} else {
 		memcpy(dstPtr.m_p, srcPtr.m_p, srcLength);
-		((char*)dstPtr.m_p) [srcLength] = 0;
+		((char*)dstPtr.m_p)[srcLength] = 0;
 	}
 }
 

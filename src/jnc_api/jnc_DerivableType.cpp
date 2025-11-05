@@ -259,7 +259,7 @@ jnc_DerivableType_getBaseType(
 	jnc_DerivableType* type,
 	size_t index
 ) {
-	return type->getBaseTypeArray() [index];
+	return type->getBaseTypeArray()[index];
 }
 
 JNC_EXTERN_C

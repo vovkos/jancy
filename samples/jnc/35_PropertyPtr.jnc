@@ -118,13 +118,13 @@ int main() {
 	// use an index operator to capture index arguments in the closure, thus
 	// reducing dimensions of an indexed property or completely de-indexing it
 
-	int property* p4 = &(g_baz[0] [1]);
+	int property* p4 = &(g_baz[0][1]);
 	*p4 = 300;
 
 	// like with function pointers, it's OK to skip indexes when capturing
 
-	int indexed property* p5(size_t) = &(g_baz[] [0]);
-	(*p5) [1] = 400;
+	int indexed property* p5(size_t) = &(g_baz[][0]);
+	(*p5)[1] = 400;
 
 	return 0;
 }

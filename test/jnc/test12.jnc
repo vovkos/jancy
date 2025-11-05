@@ -19,7 +19,7 @@ int main() {
 	char* c = *p;
 
 	size_t i = 5;
-	char x = (*p) [i];
+	char x = (*p)[i];
 	assert(x == 6);
 
 	return 0;

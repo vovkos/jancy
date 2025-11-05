@@ -76,7 +76,7 @@ jnc_AttributeBlock_getAttribute(
 	jnc_AttributeBlock* block,
 	size_t index
 ) {
-	return block->getAttributeArray() [index];
+	return block->getAttributeArray()[index];
 }
 
 JNC_EXTERN_C

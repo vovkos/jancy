@@ -234,7 +234,7 @@ FunctionTypeOverload::chooseSetterOverload(
 	size_t count = m_overloadArray.getCount();
 	for (size_t i = 0; i < count; i++) {
 		FunctionType* overloadType = m_overloadArray[i];
-		Type* setterValueArgType = overloadType->getArgArray() [setterValueIdx]->getType();
+		Type* setterValueArgType = overloadType->getArgArray()[setterValueIdx]->getType();
 
 		CastKind castKind = module->m_operatorMgr.getCastKind(value, setterValueArgType);
 		if (!castKind)

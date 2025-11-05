@@ -86,7 +86,7 @@ initUsbEndpointDescriptor(
 UsbEndpointDescriptor*
 UsbInterfaceDescriptor::findEndpointDescriptor(uint8_t endpointId) {
 	for (size_t i = 0; i < m_endpointCount; i++) {
-		UsbEndpointDescriptor* endpointDescriptor = &((UsbEndpointDescriptor*)m_endpointTable.m_p) [i];
+		UsbEndpointDescriptor* endpointDescriptor = &((UsbEndpointDescriptor*)m_endpointTable.m_p)[i];
 		if (endpointDescriptor->m_endpointId == endpointId)
 			return endpointDescriptor;
 	}
@@ -154,7 +154,7 @@ UsbConfigurationDescriptor::findInterfaceDescriptor(
 	if (interfaceId >= m_interfaceCount)
 		return NULL;
 
-	UsbInterfaceDescriptor* ifaceDescriptor = &((UsbInterfaceDescriptor*)m_interfaceDescriptorTable.m_p) [interfaceId];
+	UsbInterfaceDescriptor* ifaceDescriptor = &((UsbInterfaceDescriptor*)m_interfaceDescriptorTable.m_p)[interfaceId];
 	for (size_t i = 0; i < altSettingId; i++) {
 		if (!ifaceDescriptor->m_nextAltSettingInterfacePtr.m_p)
 			return NULL;

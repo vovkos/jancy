@@ -96,7 +96,7 @@ jnc_EnumType_getConst(
 	jnc_EnumType* type,
 	size_t index
 ) {
-	return type->getConstArray() [index];
+	return type->getConstArray()[index];
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB
