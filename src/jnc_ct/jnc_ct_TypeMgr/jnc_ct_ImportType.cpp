@@ -56,11 +56,6 @@ NamedImportType::NamedImportType() {
 	m_anchorNamespace = NULL;
 }
 
-ImportPtrType*
-NamedImportType::getImportPtrType(uint_t typeModifiers) {
-	return m_module->m_typeMgr.getImportPtrType(this, typeModifiers);
-}
-
 sl::String
 NamedImportType::createSignature(
 	const QualifiedName& name,
@@ -136,15 +131,9 @@ NamedImportType::resolveImports() {
 
 //..............................................................................
 
-ImportPtrType::ImportPtrType() {
-	m_typeKind = TypeKind_ImportPtr;
-	m_targetType = NULL;
-	m_typeModifiers = 0;
-}
-
 void
 ImportPtrType::prepareTypeString() {
-	ASSERT(m_targetType);
+	ASSERT(m_baseType);
 	TypeStringTuple* tuple = getTypeStringTuple();
 
 	if (m_actualType) {
@@ -154,24 +143,25 @@ ImportPtrType::prepareTypeString() {
 	}
 
 	sl::String string = "import ";
+	string += m_baseType->getQualifiedName();
+
 	if (m_typeModifiers) {
-		string += getTypeModifierString(m_typeModifiers);
 		string += ' ';
+		string += getTypeModifierString(m_typeModifiers);
 	}
 
-	string += m_targetType->getQualifiedName();
 	string += '*';
 	tuple->m_typeStringPrefix = string;
 }
 
 bool
 ImportPtrType::resolveImports() {
-	bool result = m_targetType->ensureResolved();
+	bool result = m_baseType->ensureResolved();
 	if (!result)
 		return false;
 
 	DeclTypeCalc typeCalc;
-	m_actualType = typeCalc.calcPtrType(m_targetType->getActualType(), m_typeModifiers);
+	m_actualType = typeCalc.calcPtrType(m_baseType->getActualType(), m_typeModifiers);
 	if (!m_actualType)
 		return false;
 
@@ -180,12 +170,6 @@ ImportPtrType::resolveImports() {
 }
 
 //..............................................................................
-
-ImportIntModType::ImportIntModType() {
-	m_typeKind = TypeKind_ImportPtr;
-	m_importType = NULL;
-	m_typeModifiers = 0;
-}
 
 void
 ImportIntModType::prepareTypeString() {
@@ -196,24 +180,23 @@ ImportIntModType::prepareTypeString() {
 		return;
 	}
 
-	sl::String string = "import ";
-	if (m_typeModifiers) {
-		string += getTypeModifierString(m_typeModifiers);
-		string += ' ';
-	}
+	ASSERT(m_typeModifiers);
 
-	string += m_importType->getQualifiedName();
+	sl::String string = "import ";
+	string += getTypeModifierString(m_typeModifiers);
+	string += ' ';
+	string += m_baseType->getQualifiedName();
 	tuple->m_typeStringPrefix = string;
 }
 
 bool
 ImportIntModType::resolveImports() {
-	bool result = m_importType->ensureResolved();
+	bool result = m_baseType->ensureResolved();
 	if (!result)
 		return false;
 
 	DeclTypeCalc typeCalc;
-	m_actualType = typeCalc.calcIntModType(m_importType->getActualType(), m_typeModifiers);
+	m_actualType = typeCalc.calcIntModType(m_baseType->getActualType(), m_typeModifiers);
 	if (!m_actualType)
 		return false;
 

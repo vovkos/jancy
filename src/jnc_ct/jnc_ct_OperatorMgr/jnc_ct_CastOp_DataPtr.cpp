@@ -27,12 +27,8 @@ Cast_DataPtr_FromArray::getCastKind(
 	Type* type
 ) {
 	if (isArrayRefType(opValue.getType())) {
-		Value ptrValue;
-		bool result = m_module->m_operatorMgr.prepareOperandType(opValue, &ptrValue, OpFlag_ArrayRefToPtr);
-		if (!result)
-			return CastKind_None;
-
-		return m_module->m_operatorMgr.getCastKind(ptrValue, type);
+		Type* ptrType = m_module->m_operatorMgr.prepareArrayRefType((DataPtrType*)opValue.getType());
+		return m_module->m_operatorMgr.getCastKind(ptrType, type);
 	}
 
 	ASSERT(opValue.getType()->getTypeKind() == TypeKind_Array);
@@ -62,10 +58,9 @@ Cast_DataPtr_FromArray::constCast(
 ) {
 	if (isArrayRefType(opValue.getType())) {
 		Value ptrValue;
-		bool result =
-			m_module->m_operatorMgr.prepareOperand(opValue, &ptrValue, OpFlag_ArrayRefToPtr) &&
-			m_module->m_operatorMgr.castOperator(&ptrValue, type);
+		m_module->m_operatorMgr.prepareArrayRef(opValue, &ptrValue);
 
+		bool result = m_module->m_operatorMgr.castOperator(&ptrValue, type);
 		if (!result)
 			return false;
 
@@ -112,10 +107,8 @@ Cast_DataPtr_FromArray::llvmCast(
 ) {
 	if (isArrayRefType(opValue.getType())) {
 		Value ptrValue;
-
-		return
-			m_module->m_operatorMgr.prepareOperand(opValue, &ptrValue, OpFlag_ArrayRefToPtr) &&
-			m_module->m_operatorMgr.castOperator(ptrValue, type, resultValue);
+		m_module->m_operatorMgr.prepareArrayRef(opValue, &ptrValue);
+		return m_module->m_operatorMgr.castOperator(ptrValue, type, resultValue);
 	}
 
 	err::setError("casting from array to pointer is currently only implemented for constants");

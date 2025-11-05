@@ -181,6 +181,24 @@ PropertyType::resolveImports() {
 	return true;
 }
 
+bool
+PropertyType::deduceTemplateArgs(
+	sl::Array<Type*>* templateArgTypeArray,
+	Type* referenceType
+) {
+	TypeKind typeKind = referenceType->getTypeKind();
+	if (typeKind != TypeKind_Property) {
+		setTemplateArgDeductionError(referenceType);
+		return false;
+	}
+
+	PropertyType* type = (PropertyType*)referenceType;
+	return m_getterType->getReturnType()->deduceTemplateArgs(
+		templateArgTypeArray,
+		type->m_getterType->getReturnType()
+	);
+}
+
 //..............................................................................
 
 } // namespace ct

@@ -119,6 +119,8 @@ enum TypeModifierMaskKind {
 		TypeModifierMaskKind_FunctionPtr |
 		TypeModifierMaskKind_PropertyPtr,
 
+	TypeModifierMaskKind_TemplatePtr = TypeModifierMaskKind_ImportPtr,
+
 	TypeModifierMaskKind_DeclPtr =
 		TypeModifier_BigEndian |
 		TypeModifier_Const |
@@ -348,8 +350,9 @@ enum DeclaratorKind {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class Declarator: public TypeModifiers {
-	friend class Parser;
 	friend class DeclTypeCalc;
+	friend class Parser;
+	friend class TypeMgr;
 
 protected:
 	DeclaratorKind m_declaratorKind;

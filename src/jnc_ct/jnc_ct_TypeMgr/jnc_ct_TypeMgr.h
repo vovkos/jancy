@@ -19,6 +19,8 @@
 #include "jnc_ct_CdeclCallConv_gcc64.h"
 #include "jnc_ct_CdeclCallConv_msc64.h"
 #include "jnc_ct_StructType.h"
+#include "jnc_ct_ImportType.h"
+#include "jnc_ct_TemplateType.h"
 #include "jnc_ct_Typedef.h"
 
 namespace jnc {
@@ -38,7 +40,6 @@ class DataPtrType;
 class ClassPtrType;
 class FunctionPtrType;
 class PropertyPtrType;
-class ImportType;
 class ReactorClassType;
 class DynamicLibClassType;
 class ClosureClassType;
@@ -47,11 +48,6 @@ class PropertyClosureClassType;
 class DataClosureClassType;
 class MulticastClassType;
 class McSnapshotClassType;
-class NamedImportType;
-class ImportPtrType;
-class ImportIntModType;
-class TemplateArgType;
-class TemplateInstanceType;
 
 struct DataPtrTypeTuple;
 struct ClassPtrTypeTuple;
@@ -704,17 +700,31 @@ public:
 		const QualifiedName& anchorName = QualifiedName()
 	);
 
-	ImportPtrType*
-	getImportPtrType(
-		NamedImportType* importType,
+	template <
+		typename T,
+		typename B
+	>
+	T*
+	getModType(
+		B* baseType,
 		uint_t typeModifiers
 	);
 
+	ImportPtrType*
+	getImportPtrType(
+		NamedImportType* baseType,
+		uint_t typeModifiers
+	) {
+		return getModType<ImportPtrType>(baseType, typeModifiers);
+	}
+
 	ImportIntModType*
 	getImportIntModType(
-		NamedImportType* importType,
+		NamedImportType* baseType,
 		uint_t typeModifiers
-	);
+	) {
+		return getModType<ImportIntModType>(baseType, typeModifiers);
+	}
 
 	TemplateArgType*
 	getTemplateArgType(
@@ -722,14 +732,24 @@ public:
 		size_t index
 	);
 
-	TemplateInstanceType*
-	createTemplateInstanceType(Declarator* declarator);
+	TemplatePtrType*
+	getTemplatePtrType(
+		TemplateArgType* baseType,
+		uint_t typeModifiers
+	) {
+		return getModType<TemplatePtrType>(baseType, typeModifiers);
+	}
 
-	TemplateInstanceType*
-	createTemplateInstanceType(
-		Type* baseType,
-		sl::BoxList<Token*> initializer
-	);
+	TemplateIntModType*
+	getTemplateIntModType(
+		TemplateArgType* baseType,
+		uint_t typeModifiers
+	) {
+		return getModType<TemplateIntModType>(baseType, typeModifiers);
+	}
+
+	TemplateDeclType*
+	createTemplateDeclType(Declarator* declarator);
 
 	Type*
 	foldDualType(
@@ -896,6 +916,34 @@ TypeMgr::createInternalClassType(
 ) {
 	T* type = createClassType<T>(sl::StringRef(), tag, fieldAlignment, flags);
 	type->m_namespaceStatus = NamespaceStatus_Ready;
+	return type;
+}
+
+template <
+	typename T,
+	typename B
+>
+T*
+TypeMgr::getModType(
+	B* baseType,
+	uint_t typeModifiers
+) {
+	sl::String signature = T::createSignature(baseType, typeModifiers);
+	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
+	if (it->m_value) {
+		ASSERT(it->m_value->m_signature == signature);
+		return (T*)it->m_value;
+	}
+
+	T* type = new T;
+	type->m_module = m_module;
+	type->m_baseType = baseType;
+	type->m_typeModifiers = typeModifiers;
+	type->m_signature = signature;
+	type->m_flags |= TypeFlag_SignatureReady;
+
+	m_typeList.insertTail(type);
+	it->m_value = type;
 	return type;
 }
 

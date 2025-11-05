@@ -88,7 +88,7 @@ getInt64TypeKind_u(uint64_t integer);
 JNC_INLINE
 TypeKind
 getUnsignedIntegerTypeKind(TypeKind typeKind) {
-	return !(getTypeKindFlags(typeKind) & TypeKindFlag_Unsigned) ?
+	return (getTypeKindFlags(typeKind) & TypeKindFlag_Signed) ?
 		(TypeKind)(typeKind + 1) :
 		typeKind;
 }
@@ -313,7 +313,25 @@ public:
 		rt::GcHeap* gcHeap
 	);
 
+	virtual
+	bool
+	deduceTemplateArgs(
+		sl::Array<Type*>* templateArgTypeArray,
+		Type* referenceType
+	) {
+		return true; // scalar types deduce nothing
+	}
+
 protected:
+	void
+	setTemplateArgDeductionError(Type* argValueType) {
+		err::setFormatStringError(
+			"incompatible types while deducing template argument: '%s' vs '%s'",
+			argValueType->getTypeString().sz(),
+			getTypeString().sz()
+		);
+	}
+
 	TypeStringTuple*
 	getTypeStringTuple();
 
@@ -453,6 +471,68 @@ protected:
 	virtual
 	void
 	prepareDoxyLinkedText();
+};
+
+//..............................................................................
+
+template <
+	typename T,
+	typename B,
+	TypeKind typeKind,
+	uint16_t signaturePrefix
+>
+class ModType: public T {
+	friend class TypeMgr;
+
+protected:
+	B* m_baseType;
+	uint_t m_typeModifiers;
+
+public:
+	ModType() {
+		m_typeKind = typeKind;
+		m_baseType = NULL;
+		m_typeModifiers = 0;
+	}
+
+	B*
+	getBaseType() {
+		return m_baseType;
+	}
+
+	uint_t
+	getTypeModifiers() {
+		return m_typeModifiers;
+	}
+
+	static
+	sl::String
+	createSignature(
+		B* baseType,
+		uint_t typeModifiers
+	) {
+		const sl::StringRef& baseSignature = baseType->getSignature();
+		size_t baseSignatureLength = baseSignature.getLength();
+
+		sl::String signature;
+		char* p = signature.createBuffer(2 + baseSignatureLength + 10);
+		*(uint16_t*)p = signaturePrefix;
+		p += sizeof(uint16_t);
+		memcpy(p, baseSignature.cp(), baseSignatureLength);
+		p += baseSignatureLength;
+		int length = sprintf(p, ":%x", typeModifiers);
+		p += length;
+		signature.overrideLength(p - signature.cp());
+		return signature;
+	}
+
+protected:
+	virtual
+	void
+	prepareSignature() {
+		m_signature = createSignature(m_baseType, m_typeModifiers);
+		m_flags |= TypeFlag_SignatureReady;
+	}
 };
 
 //..............................................................................

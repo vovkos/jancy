@@ -73,6 +73,9 @@ public:
 	size_t
 	append(sl::BoxList<Value>* argValueList); // destructive
 
+	size_t
+	append(const sl::ArrayRef<Type*>& argTypeArray);
+
 	bool
 	apply(sl::BoxList<Value>* argValueList);
 

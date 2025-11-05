@@ -139,6 +139,58 @@ Template::instantiate(const sl::ArrayRef<Type*>& argArray) {
 	return instance;
 }
 
+bool
+Template::deduceArgs(
+	sl::Array<Type*>* templateArgArray,
+	const sl::ConstBoxList<Value>& argTypeList,
+	const sl::ConstBoxList<Value>& argValueList
+) {
+	Type* declTypeInstance = m_declType->getInstance();
+	if (!declTypeInstance)
+		return false;
+
+	if (declTypeInstance->getTypeKind() != TypeKind_Function) {
+		err::setError("only templated functions are currently supported");
+		return false;
+	}
+
+	FunctionType* functionType = (FunctionType*)declTypeInstance;
+	const sl::Array<FunctionArg*>& functionArgArray = functionType->getArgArray();
+	size_t functionArgCount = functionArgArray.getCount();
+	if (functionArgCount != argValueList.getCount()) {
+		err::setFormatStringError("'%s' does not take %d arguments", m_qualifiedName.sz(), argValueList.getCount());
+		return false;
+	}
+
+	size_t templateArgCount = m_argArray.getCount();
+	templateArgArray->setCountZeroConstruct(templateArgCount);
+
+	bool result = true;
+	sl::ConstBoxIterator<Value> argValueIt = argValueList.getHead();
+	for (size_t i = 0; i < functionArgCount; i++, argValueIt++) {
+		Value argTypeValue;
+
+		result =
+			m_module->m_operatorMgr.prepareOperandType(*argValueIt, &argTypeValue) &&
+			functionArgArray[i]->getType()->deduceTemplateArgs(templateArgArray, argTypeValue.getType()) &&
+			result;
+	}
+
+	for (size_t i = 0; i < templateArgCount; i++) {
+		if (!(*templateArgArray)[i]) {
+			err::setFormatStringError(
+				"cannot deduce argument '%s' of template '%s'",
+				m_argArray[i]->getName().sz(),
+				m_qualifiedName.sz()
+			);
+
+			return false;
+		}
+	}
+
+	return result;
+}
+
 //..............................................................................
 
 TemplateMgr::TemplateMgr() {
@@ -155,7 +207,7 @@ Template*
 TemplateMgr::createTemplate(
 	const sl::StringRef& name,
 	const sl::StringRef& qualifiedName,
-	TemplateInstanceType* declType
+	TemplateDeclType* declType
 ) {
 	Template* templ = new Template;
 	templ->m_module = m_module;

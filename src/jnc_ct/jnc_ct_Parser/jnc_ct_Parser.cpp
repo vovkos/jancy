@@ -1015,7 +1015,7 @@ Parser::declareTemplate(Declarator* declarator) {
 	}
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	TemplateInstanceType* type = m_module->m_typeMgr.createTemplateInstanceType(declarator);
+	TemplateDeclType* type = m_module->m_typeMgr.createTemplateDeclType(declarator);
 	declarator = type->getDeclarator(); // adjust declarator (original was just moved)
 	const sl::StringRef& name = declarator->getSimpleName();
 	Template* templ = m_module->m_templateMgr.createTemplate(name, nspace->createQualifiedName(name), type);
@@ -2277,8 +2277,8 @@ Parser::createFormalArg(
 	Type* type;
 
 	if (nspace->getNamespaceKind() == NamespaceKind_Template) {
-		type = m_module->m_typeMgr.createTemplateInstanceType(declarator);
-		declarator = ((TemplateInstanceType*)type)->getDeclarator();
+		type = m_module->m_typeMgr.createTemplateDeclType(declarator);
+		declarator = ((TemplateDeclType*)type)->getDeclarator();
 	} else {
 		type = declarator->calcType(&ptrTypeFlags);
 		if (!type)
@@ -3433,7 +3433,7 @@ Parser::appendFmtLiteralValue(
 	}
 
 	Function* append = m_module->m_functionMgr.getStdFunction(appendFunc);
-	Type* argType = append->getType()->getArgArray() [2]->getType();
+	Type* argType = append->getType()->getArgArray()[2]->getType();
 
 	Value argValue;
 	result = m_module->m_operatorMgr.castOperator(srcValue, argType, &argValue);

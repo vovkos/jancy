@@ -172,6 +172,23 @@ FunctionPtrType::markGcRoots(
 		gcHeap->weakMark(box);
 }
 
+bool
+FunctionPtrType::deduceTemplateArgs(
+	sl::Array<Type*>* templateArgTypeArray,
+	Type* referenceType
+) {
+	TypeKind typeKind = referenceType->getTypeKind();
+	if (typeKind != TypeKind_FunctionPtr) {
+		setTemplateArgDeductionError(referenceType);
+		return false;
+	}
+
+	return m_targetType->deduceTemplateArgs(
+		templateArgTypeArray,
+		((FunctionPtrType*)referenceType)->getTargetType()
+	);
+}
+
 //..............................................................................
 
 } // namespace ct

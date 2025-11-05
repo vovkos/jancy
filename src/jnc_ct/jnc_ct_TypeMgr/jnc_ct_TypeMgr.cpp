@@ -24,7 +24,6 @@
 #include "jnc_ct_ClassPtrType.h"
 #include "jnc_ct_FunctionPtrType.h"
 #include "jnc_ct_PropertyPtrType.h"
-#include "jnc_ct_ImportType.h"
 #include "jnc_ct_ReactorClassType.h"
 #include "jnc_ct_ClosureClassType.h"
 #include "jnc_ct_MulticastClassType.h"
@@ -1154,9 +1153,8 @@ TypeMgr::getFunctionClosureClassType(
 
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
 	if (it->m_value) {
-		FunctionClosureClassType* type = (FunctionClosureClassType*)it->m_value;
-		ASSERT(type->m_signature == signature);
-		return type;
+		ASSERT(it->m_value->m_signature == signature);
+		return (FunctionClosureClassType*)it->m_value;
 	}
 
 	FunctionClosureClassType* type = createUnnamedInternalClassType<FunctionClosureClassType>("FunctionClosure");
@@ -1203,9 +1201,8 @@ TypeMgr::getPropertyClosureClassType(
 
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
 	if (it->m_value) {
-		PropertyClosureClassType* type = (PropertyClosureClassType*)it->m_value;
-		ASSERT(type->m_signature == signature);
-		return type;
+		ASSERT(it->m_value->m_signature == signature);
+		return (PropertyClosureClassType*)it->m_value;
 	}
 
 	PropertyClosureClassType* type = createUnnamedInternalClassType<PropertyClosureClassType>("PropertyClosure");
@@ -1245,9 +1242,8 @@ TypeMgr::getDataClosureClassType(
 
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
 	if (it->m_value) {
-		DataClosureClassType* type = (DataClosureClassType*)it->m_value;
-		ASSERT(type->m_signature == signature);
-		return type;
+		ASSERT(it->m_value->m_signature == signature);
+		return (DataClosureClassType*)it->m_value;
 	}
 
 	DataClosureClassType* type = createUnnamedInternalClassType<DataClosureClassType>("DataClosure");
@@ -1280,9 +1276,8 @@ TypeMgr::getDataPtrType(
 	sl::String signature = DataPtrType::createSignature(targetType, bitOffset, bitCount, typeKind, ptrTypeKind, flags);
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
 	if (it->m_value) {
-		DataPtrType* type = (DataPtrType*)it->m_value;
-		ASSERT(type->m_signature == signature);
-		return type;
+		ASSERT(it->m_value->m_signature == signature);
+		return (DataPtrType*)it->m_value;
 	}
 
 	DataPtrType* type = new DataPtrType;
@@ -1546,9 +1541,8 @@ TypeMgr::getNamedImportType(
 	sl::String signature = NamedImportType::createSignature(name, anchorNamespace, anchorName);
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
 	if (it->m_value) {
-		NamedImportType* type = (NamedImportType*)it->m_value;
-		ASSERT(type->m_signature == signature);
-		return type;
+		ASSERT(it->m_value->m_signature == signature);
+		return (NamedImportType*)it->m_value;
 	}
 
 	NamedImportType* type = new NamedImportType;
@@ -1567,56 +1561,6 @@ TypeMgr::getNamedImportType(
 	return type;
 }
 
-ImportPtrType*
-TypeMgr::getImportPtrType(
-	NamedImportType* namedImportType,
-	uint_t typeModifiers
-) {
-	sl::String signature = ImportPtrType::createSignature(namedImportType, typeModifiers);
-	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
-	if (it->m_value) {
-		ImportPtrType* type = (ImportPtrType*)it->m_value;
-		ASSERT(type->m_signature == signature);
-		return type;
-	}
-
-	ImportPtrType* type = new ImportPtrType;
-	type->m_module = m_module;
-	type->m_targetType = namedImportType;
-	type->m_typeModifiers = typeModifiers;
-	type->m_signature = signature;
-	type->m_flags |= TypeFlag_SignatureReady;
-
-	m_typeList.insertTail(type);
-	it->m_value = type;
-	return type;
-}
-
-ImportIntModType*
-TypeMgr::getImportIntModType(
-	NamedImportType* namedImportType,
-	uint_t typeModifiers
-) {
-	sl::String signature = ImportIntModType::createSignature(namedImportType, typeModifiers);
-	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
-	if (it->m_value) {
-		ImportIntModType* type = (ImportIntModType*)it->m_value;
-		ASSERT(type->m_signature == signature);
-		return type;
-	}
-
-	ImportIntModType* type = new ImportIntModType;
-	type->m_module = m_module;
-	type->m_importType = namedImportType;
-	type->m_typeModifiers = typeModifiers;
-	type->m_signature = signature;
-	type->m_flags |= TypeFlag_SignatureReady;
-
-	m_typeList.insertTail(type);
-	it->m_value = type;
-	return type;
-}
-
 TemplateArgType*
 TypeMgr::getTemplateArgType(
 	const sl::StringRef& name,
@@ -1625,9 +1569,8 @@ TypeMgr::getTemplateArgType(
 	sl::String signature = TemplateArgType::createSignature(name, index);
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
 	if (it->m_value) {
-		TemplateArgType* type = (TemplateArgType*)it->m_value;
-		ASSERT(type->m_signature == signature);
-		return type;
+		ASSERT(it->m_value->m_signature == signature);
+		return (TemplateArgType*)it->m_value;
 	}
 
 	TemplateArgType* type = new TemplateArgType;
@@ -1642,13 +1585,16 @@ TypeMgr::getTemplateArgType(
 	return type;
 }
 
-TemplateInstanceType*
-TypeMgr::createTemplateInstanceType(Declarator* declarator) {
-	TemplateInstanceType* type = new TemplateInstanceType;
+TemplateDeclType*
+TypeMgr::createTemplateDeclType(Declarator* declarator) {
+	TemplateDeclType* type = new TemplateDeclType;
 	type->m_module = m_module;
 	type->m_id = createUnnamedTypeId();
-	type->m_declarator = new Declarator;
-	sl::takeOver(type->m_declarator, declarator);
+	sl::takeOver(&type->m_declarator, declarator);
+
+	if (type->m_declarator.m_baseType->getTypeKindFlags() & TypeKindFlag_Import)
+		((ImportType*)type->m_declarator.m_baseType)->addFixup(&type->m_declarator.m_baseType);
+
 	m_typeList.insertTail(type);
 	return type;
 }

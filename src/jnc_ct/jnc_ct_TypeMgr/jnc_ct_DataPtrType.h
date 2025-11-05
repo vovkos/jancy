@@ -95,6 +95,13 @@ public:
 		const char* formatSpec = NULL
 	);
 
+	virtual
+	bool
+	deduceTemplateArgs(
+		sl::Array<Type*>* templateArgTypeArray,
+		Type* referenceType
+	);
+
 protected:
 	virtual
 	bool

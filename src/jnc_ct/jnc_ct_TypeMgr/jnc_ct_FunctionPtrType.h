@@ -101,6 +101,13 @@ public:
 		rt::GcHeap* gcHeap
 	);
 
+	virtual
+	bool
+	deduceTemplateArgs(
+		sl::Array<Type*>* templateArgTypeArray,
+		Type* referenceType
+	);
+
 protected:
 	virtual
 	bool

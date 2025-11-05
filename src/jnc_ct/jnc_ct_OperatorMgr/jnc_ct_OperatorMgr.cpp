@@ -1122,7 +1122,26 @@ OperatorMgr::templateInstantiateOperator(
 	}
 
 	Template* templ = opValue.getTemplate();
-	ModuleItem* item = templ->instantiate(argArray);
+	size_t argCount = argArray.getCount();
+	Closure* closure = resultValue->getClosure();
+	size_t closureArgCount = closure ? closure->getArgValueList()->getCount() : 0;
+	if (argCount + closureArgCount < templ->getArgArray().getCount()) { // not enough args for instantiation
+		if (!closure)
+			closure = resultValue->createClosure();
+
+		closure->append(argArray);
+		return true;
+	}
+
+	ModuleItem* item;
+
+	if (!closure)
+		item = templ->instantiate(argArray);
+	else {
+		closure->append(argArray);
+		item = templ->instantiate(*closure->getArgValueList());
+	}
+
 	if (!item)
 		return false;
 
@@ -1254,14 +1273,8 @@ OperatorMgr::prepareOperandType_dataRef_array(
 
 	if (opFlags & OpFlag_LoadArrayRef)
 		*value = ptrType->getTargetType();
-	else if (opFlags & OpFlag_ArrayRefToPtr) {
-		ArrayType* arrayType = (ArrayType*)ptrType->getTargetType();
-		*value = arrayType->getElementType()->getDataPtrType(
-			TypeKind_DataPtr,
-			ptrType->getPtrTypeKind(),
-			ptrType->getFlags() & PtrTypeFlag__All
-		);
-	}
+	else if (opFlags & OpFlag_ArrayRefToPtr)
+		*value = prepareArrayRefType(ptrType);
 
 	return true;
 }
@@ -1520,7 +1533,9 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandTypeFuncTable[TypeK
 	&OperatorMgr::prepareOperand_import,          // TypeKind_ImportIntMod
 	&OperatorMgr::prepareOperandType_typedef,     // TypeKind_TypedefShadow
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_TemplateArg
-	&OperatorMgr::prepareOperand_nop,             // TypeKind_TemplateInstance
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_TemplatePtr
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_TemplateIntMod
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_TemplateDecl
 };
 
 OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable[TypeKind__Count] = {
@@ -1558,7 +1573,9 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable[TypeKind_
 	&OperatorMgr::prepareOperand_import,      // TypeKind_ImportIntMod
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_TypedefShadow
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_TemplateArg
-	&OperatorMgr::prepareOperand_nop,         // TypeKind_TemplateInstance
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_TemplatePtr
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_TemplateIntMod
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_TemplateDecl
 };
 
 OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandTypeFuncTable_dataRef[TypeKind__Count] = {
@@ -1596,7 +1613,9 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandTypeFuncTable_dataR
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_ImportIntMod
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_TypedefShadow
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_TemplateArg
-	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_TemplateInstance
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_TemplatePtr
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_TemplateIntMod
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_TemplateDecl
 };
 
 OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable_dataRef[TypeKind__Count] = {
@@ -1634,7 +1653,9 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable_dataRef[T
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_ImportIntMod
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_TypedefShadow
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_TemplateArg
-	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_TemplateInstance
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_TemplatePtr
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_TemplateIntMod
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_TemplateDecl
 };
 
 bool
@@ -1736,8 +1757,7 @@ OperatorMgr::prepareArrayRef(
 	DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind();
 
 	ArrayType* arrayType = (ArrayType*)ptrType->getTargetType();
-	Type* elementType = arrayType->getElementType();
-	DataPtrType* resultType = elementType->getDataPtrType(
+	DataPtrType* resultType = arrayType->getElementType()->getDataPtrType(
 		TypeKind_DataPtr,
 		ptrTypeKind,
 		ptrType->getFlags() & PtrTypeFlag__All

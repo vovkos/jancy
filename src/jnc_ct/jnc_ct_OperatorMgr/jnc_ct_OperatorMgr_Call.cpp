@@ -200,12 +200,18 @@ OperatorMgr::callOperator(
 
 	if (valueKind == ValueKind_Template) {
 		Template* templ = opValue.getTemplate();
-		if (!closure || closure->getArgValueList()->getCount() < templ->getArgArray().getCount()) {
-			err::setFormatStringError("template argument deduction is not implemented yet");
-			return false;
-		}
 
-		ModuleItem* item = templ->instantiate(*closure->getArgValueList());
+		sl::Array<Type*> argTypeArray;
+		result = templ->deduceArgs(
+			&argTypeArray,
+			closure ? *closure->getArgValueList() : sl::ConstBoxList<Value>(),
+			*argValueList
+		);
+
+		if (!result)
+			return false;
+
+		ModuleItem* item = templ->instantiate(argTypeArray);
 		if (!item)
 			return false;
 

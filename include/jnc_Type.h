@@ -109,8 +109,10 @@ enum jnc_TypeKind {
 
 	// template types
 
-	jnc_TypeKind_TemplateArg,         // G
-	jnc_TypeKind_TemplateInstance,    // X
+	jnc_TypeKind_TemplateArg,         // XA
+	jnc_TypeKind_TemplatePtr,         // XP
+	jnc_TypeKind_TemplateIntMod,      // XI
+	jnc_TypeKind_TemplateDecl,        // XD
 
 	// meta
 
@@ -150,7 +152,8 @@ typedef enum jnc_TypeKind jnc_TypeKind;
 
 enum jnc_TypeKindFlag {
 	jnc_TypeKindFlag_Integer      = 0x00000001,
-	jnc_TypeKindFlag_Unsigned     = 0x00000002,
+	jnc_TypeKindFlag_Signed       = 0x00000002,
+	jnc_TypeKindFlag_Unsigned     = 0x00000004,
 	jnc_TypeKindFlag_Fp           = 0x00000008,
 	jnc_TypeKindFlag_Numeric      = 0x00000010,
 	jnc_TypeKindFlag_Aggregate    = 0x00000020,
@@ -658,7 +661,9 @@ const TypeKind
 	TypeKind_ImportIntMod        = jnc_TypeKind_ImportIntMod,
 	TypeKind_TypedefShadow       = jnc_TypeKind_TypedefShadow,
 	TypeKind_TemplateArg         = jnc_TypeKind_TemplateArg,
-	TypeKind_TemplateInstance    = jnc_TypeKind_TemplateInstance,
+	TypeKind_TemplatePtr         = jnc_TypeKind_TemplatePtr,
+	TypeKind_TemplateIntMod      = jnc_TypeKind_TemplateIntMod,
+	TypeKind_TemplateDecl        = jnc_TypeKind_TemplateDecl,
 	TypeKind__Count              = jnc_TypeKind__Count,
 	TypeKind__PrimitiveTypeCount = jnc_TypeKind__PrimitiveTypeCount,
 	TypeKind_IntPtr              = jnc_TypeKind_IntPtr,
@@ -683,6 +688,7 @@ typedef jnc_TypeKindFlag TypeKindFlag;
 
 const TypeKindFlag
 	TypeKindFlag_Integer      = jnc_TypeKindFlag_Integer,
+	TypeKindFlag_Signed       = jnc_TypeKindFlag_Signed,
 	TypeKindFlag_Unsigned     = jnc_TypeKindFlag_Unsigned,
 	TypeKindFlag_Fp           = jnc_TypeKindFlag_Fp,
 	TypeKindFlag_Numeric      = jnc_TypeKindFlag_Numeric,

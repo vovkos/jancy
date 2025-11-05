@@ -28,8 +28,6 @@ DeclTypeCalc::calcType(
 	Value* elementCountValue,
 	uint_t* flags
 ) {
-	ASSERT(!(baseType->getTypeKindFlags() & TypeKindFlag_Template)); // should be done outside (micro-opt)
-
 	bool result;
 	Type* type = baseType;
 	m_module = type->getModule();
@@ -108,7 +106,13 @@ DeclTypeCalc::calcType(
 			break;
 
 		case TypeKind_NamedImport:
-			type = getImportPtrType((NamedImportType*)type);
+			type = m_module->m_typeMgr.getImportPtrType((NamedImportType*)type, m_typeModifiers & TypeModifierMaskKind_ImportPtr);
+			m_typeModifiers &= ~TypeModifierMaskKind_ImportPtr;
+			break;
+
+		case TypeKind_TemplateArg:
+			type = m_module->m_typeMgr.getTemplatePtrType((TemplateArgType*)type, m_typeModifiers & TypeModifierMaskKind_TemplatePtr);
+			m_typeModifiers &= ~TypeModifierMaskKind_TemplatePtr;
 			break;
 
 		default:
@@ -345,41 +349,39 @@ DeclTypeCalc::getPtrTypeFlags(
 	return true;
 }
 
-uint_t
-DeclTypeCalc::getPropertyFlags() {
-	uint_t flags = 0;
-
-	if (m_typeModifiers & TypeModifier_AutoGet)
-		flags |= PropertyFlag_AutoGet;
-
-	m_typeModifiers &= ~TypeModifier_AutoGet;
-	return flags;
-}
-
 Type*
 DeclTypeCalc::getIntegerType(Type* type) {
 	ASSERT(m_typeModifiers & TypeModifierMaskKind_Integer);
 
-	if (type->getTypeKind() == TypeKind_TypedefShadow)
+	uint_t typeModifiers = m_typeModifiers & TypeModifierMaskKind_Integer;
+	m_typeModifiers &= ~TypeModifierMaskKind_Integer;
+
+	TypeKind typeKind = type->getTypeKind();
+	if (typeKind == TypeKind_TypedefShadow)
 		type = ((TypedefShadowType*)type)->getActualType();
 
-	if (type->getTypeKind() == TypeKind_NamedImport)
-		return getImportIntModType((NamedImportType*)type);
+	switch (typeKind) {
+	case TypeKind_NamedImport:
+		return m_module->m_typeMgr.getImportIntModType((NamedImportType*)type, typeModifiers);
+
+	case TypeKind_TemplateArg:
+		return m_module->m_typeMgr.getTemplateIntModType((TemplateArgType*)type, typeModifiers);
+	}
 
 	if (!(type->getTypeKindFlags() & TypeKindFlag_Integer)) {
 		err::setFormatStringError("'%s' modifier cannot be applied to '%s'",
-			getTypeModifierString(m_typeModifiers & TypeModifierMaskKind_Integer).sz(),
+			getTypeModifierString(typeModifiers).sz(),
 			type->getTypeString().sz()
 		);
 		return NULL;
 	}
 
-	if (m_typeModifiers & TypeModifier_Unsigned) {
-		TypeKind modTypeKind = getUnsignedIntegerTypeKind(type->getTypeKind());
-		type = m_module->m_typeMgr.getPrimitiveType(modTypeKind);
+	if (typeModifiers & TypeModifier_Unsigned) {
+		TypeKind modTypeKind = getUnsignedIntegerTypeKind(typeKind);
+		if (modTypeKind != typeKind)
+			type = m_module->m_typeMgr.getPrimitiveType(modTypeKind);
 	}
 
-	m_typeModifiers &= ~TypeModifierMaskKind_Integer;
 	return type;
 }
 
@@ -454,9 +456,9 @@ DeclTypeCalc::prepareReturnType(Type* type) {
 			return NULL;
 		}
 
-		if (m_typeModifiers & TypeModifierMaskKind_Integer) {
+		if (m_typeModifiers & TypeModifierMaskKind_Integer)
 			return getIntegerType(type);
-		} else if (type->getStdType() == StdType_AbstractData) {
+		else if (type->getStdType() == StdType_AbstractData) {
 			err::setError("can only use 'anydata' in pointer declaration");
 			return NULL;
 		}
@@ -476,8 +478,8 @@ DeclTypeCalc::instantiateFunctionArgArray(
 	for (size_t i = 0; i < argCount; i++) {
 		FunctionArg* srcArg = srcArgArray[i];
 		Type* srcArgType = srcArg->getType();
-		ASSERT(srcArgType->getTypeKind() == TypeKind_TemplateInstance);
-		Type* dstArgType = ((TemplateInstanceType*)srcArgType)->instantiate(m_templateArgArray);
+		ASSERT(srcArgType->getTypeKind() == TypeKind_TemplateDecl);
+		Type* dstArgType = ((TemplateDeclType*)srcArgType)->instantiate(m_templateArgArray);
 		if (!dstArgType)
 			return false;
 
@@ -732,20 +734,6 @@ DeclTypeCalc::getPropertyPtrType(PropertyType* propertyType) {
 	m_typeModifiers &= ~TypeModifierMaskKind_PropertyPtr;
 
 	return propertyType->getPropertyPtrType(ptrTypeKind, typeFlags);
-}
-
-ImportPtrType*
-DeclTypeCalc::getImportPtrType(NamedImportType* importType) {
-	uint_t typeModifiers = m_typeModifiers & TypeModifierMaskKind_ImportPtr;
-	m_typeModifiers &= ~TypeModifierMaskKind_ImportPtr;
-	return m_module->m_typeMgr.getImportPtrType(importType, typeModifiers);
-}
-
-ImportIntModType*
-DeclTypeCalc::getImportIntModType(NamedImportType* importType) {
-	uint_t typeModifiers = m_typeModifiers & TypeModifierMaskKind_Integer;
-	m_typeModifiers &= ~TypeModifierMaskKind_Integer;
-	return m_module->m_typeMgr.getImportIntModType(importType, typeModifiers);
 }
 
 //..............................................................................

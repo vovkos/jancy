@@ -19,7 +19,12 @@ namespace ct {
 
 //..............................................................................
 
-class TemplateArgType: public Type {
+class TemplateType : public Type {
+};
+
+//..............................................................................
+
+class TemplateArgType: public TemplateType {
 	friend class TypeMgr;
 	friend class Parser;
 
@@ -49,8 +54,15 @@ public:
 		const sl::StringRef& name,
 		size_t index
 	) {
-		return sl::formatString("G%d%s", index, name.sz());
+		return sl::formatString("XA%d%s", index, name.sz());
 	}
+
+	virtual
+	bool
+	deduceTemplateArgs(
+		sl::Array<Type*>* templateArgTypeArray,
+		Type* referenceType
+	);
 
 protected:
 	virtual
@@ -65,32 +77,106 @@ protected:
 	prepareTypeString() {
 		getTypeStringTuple()->m_typeStringPrefix = m_name;
 	}
+
+	Type*
+	selectTemplateArg(
+		Type* type1,
+		Type* type2
+	);
 };
 
 //..............................................................................
 
-class TemplateInstanceType:
-	public Type,
-	public ModuleItemInitializer
+template <
+	typename T,
+	TypeKind typeKind,
+	uint16_t signaturePrefix
+>
+class TemplateModType: public ModType<
+	TemplateType,
+	T,
+	typeKind,
+	signaturePrefix
+> {
+protected:
+	void
+	setTemplateArgDeductionError(Type* argValueType) {
+		err::setFormatStringError(
+			"incompatible types while deducing template argument '%s': '%s' vs '%s'",
+			m_baseType->getName().sz(),
+			argValueType->getTypeString().sz(),
+			getTypeString().sz()
+		);
+	}
+};
+
+//..............................................................................
+
+class TemplatePtrType: public TemplateModType<
+	TemplateArgType,
+	TypeKind_TemplatePtr,
+	'PX'
+> {
+public:
+	virtual
+	bool
+	deduceTemplateArgs(
+		sl::Array<Type*>* templateArgTypeArray,
+		Type* referenceType
+	);
+
+protected:
+	virtual
+	void
+	prepareTypeString();
+};
+
+//..............................................................................
+
+class TemplateIntModType: public TemplateModType<
+	TemplateArgType,
+	TypeKind_TemplateIntMod,
+	'IX'
+> {
+public:
+	virtual
+	bool
+	deduceTemplateArgs(
+		sl::Array<Type*>* templateArgTypeArray,
+		Type* referenceType
+	);
+
+protected:
+	virtual
+	void
+	prepareTypeString();
+};
+
+//..............................................................................
+
+class TemplateDeclType: public TemplateType
 {
 	friend class TypeMgr;
 	friend class Parser;
 
 protected:
-	Declarator* m_declarator;
-	Type* m_baseType;
+	Declarator m_declarator;
+	Type* m_instance; // includes TemplateType-s
 	size_t m_id;
 
 public:
-	TemplateInstanceType();
-
-	~TemplateInstanceType() {
-		delete m_declarator;
-	}
+	TemplateDeclType();
 
 	Declarator*
 	getDeclarator() {
-		return m_declarator;
+		return &m_declarator;
+	}
+
+	Type*
+	getInstance() {
+		return m_instance ?
+			m_instance :
+			m_instance = instantiate(*(sl::ArrayRef<Type*>*)&m_declarator.getTemplateArgArray());
 	}
 
 	Type*
@@ -100,7 +186,7 @@ protected:
 	virtual
 	void
 	prepareSignature() {
-		m_signature = sl::formatString("X%d", m_id);
+		m_signature = sl::formatString("XD%d", m_id);
 		m_flags |= TypeFlag_SignatureReady;
 	}
 
@@ -114,10 +200,9 @@ protected:
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
-TemplateInstanceType::TemplateInstanceType() {
-	m_typeKind = TypeKind_TemplateInstance;
-	m_declarator = NULL;
-	m_baseType = NULL;
+TemplateDeclType::TemplateDeclType() {
+	m_typeKind = TypeKind_TemplateDecl;
+	m_instance = NULL;
 	m_id = 0;
 }
 

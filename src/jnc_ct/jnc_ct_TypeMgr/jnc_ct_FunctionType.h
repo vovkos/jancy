@@ -196,6 +196,13 @@ public:
 	void
 	appendDoxyArgString(sl::String* string);
 
+	virtual
+	bool
+	deduceTemplateArgs(
+		sl::Array<Type*>* templateArgTypeArray,
+		Type* referenceType
+	);
+
 protected:
 	virtual
 	bool

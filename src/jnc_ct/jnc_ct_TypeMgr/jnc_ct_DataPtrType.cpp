@@ -185,6 +185,31 @@ DataPtrType::getTargetValueString(
 	return m_targetType->getValueString(&n, formatSpec);
 }
 
+bool
+DataPtrType::deduceTemplateArgs(
+	sl::Array<Type*>* templateArgTypeArray,
+	Type* referenceType
+) {
+	TypeKind typeKind = referenceType->getTypeKind();
+	switch (typeKind) {
+	case TypeKind_DataRef:
+		if (((DataPtrType*)referenceType)->getTargetType()->getTypeKind() != TypeKind_Array)
+			break;
+
+		referenceType = m_module->m_operatorMgr.prepareArrayRefType((DataPtrType*)referenceType);
+		// and fall through
+
+	case TypeKind_DataPtr:
+		return m_targetType->deduceTemplateArgs(
+			templateArgTypeArray,
+			((DataPtrType*)referenceType)->getTargetType()
+		);
+	}
+
+	setTemplateArgDeductionError(referenceType);
+	return false;
+}
+
 //..............................................................................
 
 } // namespace ct

@@ -145,6 +145,23 @@ PropertyPtrType::markGcRoots(
 		gcHeap->weakMark(box);
 }
 
+bool
+PropertyPtrType::deduceTemplateArgs(
+	sl::Array<Type*>* templateArgTypeArray,
+	Type* referenceType
+) {
+	TypeKind typeKind = referenceType->getTypeKind();
+	if (typeKind != TypeKind_PropertyPtr) {
+		setTemplateArgDeductionError(referenceType);
+		return false;
+	}
+
+	return m_targetType->deduceTemplateArgs(
+		templateArgTypeArray,
+		((PropertyPtrType*)referenceType)->getTargetType()
+	);
+}
+
 //..............................................................................
 
 } // namespace ct

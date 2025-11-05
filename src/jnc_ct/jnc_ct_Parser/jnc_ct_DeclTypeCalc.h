@@ -12,6 +12,7 @@
 #pragma once
 
 #include "jnc_ct_Decl.h"
+#include "jnc_Property.h"
 
 namespace jnc {
 namespace ct {
@@ -132,12 +133,6 @@ protected:
 	PropertyPtrType*
 	getPropertyPtrType(PropertyType* propertyType);
 
-	ImportPtrType*
-	getImportPtrType(NamedImportType* importType);
-
-	ImportIntModType*
-	getImportIntModType(NamedImportType* importType);
-
 	Type*
 	prepareReturnType(Type* type);
 
@@ -147,6 +142,18 @@ protected:
 		const sl::Array<FunctionArg*>& srcArgArray
 	);
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+uint_t
+DeclTypeCalc::getPropertyFlags() {
+	if (!(m_typeModifiers & TypeModifier_AutoGet))
+		return 0;
+
+	m_typeModifiers &= ~TypeModifier_AutoGet;
+	return PropertyFlag_AutoGet;
+}
 
 //..............................................................................
 

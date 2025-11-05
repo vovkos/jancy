@@ -28,7 +28,7 @@ class Template:
 
 protected:
 	TypeKind m_derivableTypeKind;
-	TemplateInstanceType* m_declType;
+	TemplateDeclType* m_declType;
 	sl::Array<TemplateArgType*> m_argArray;
 	sl::ArrayRef<Type*> m_baseTypeArray;
 	sl::StringHashTable<ModuleItem*> m_instantiationMap;
@@ -36,7 +36,7 @@ protected:
 public:
 	Template();
 
-	TemplateInstanceType*
+	TemplateDeclType*
 	getDeclType() {
 		return m_declType;
 	}
@@ -51,6 +51,13 @@ public:
 
 	ModuleItem*
 	instantiate(const sl::ArrayRef<Type*>& argArray);
+
+	bool
+	deduceArgs(
+		sl::Array<Type*>* templateArgArray,
+		const sl::ConstBoxList<Value>& argTypeList,
+		const sl::ConstBoxList<Value>& argValueList
+	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -84,7 +91,7 @@ public:
 	createTemplate(
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
-		TemplateInstanceType* declType
+		TemplateDeclType* declType
 	);
 
 	Template*

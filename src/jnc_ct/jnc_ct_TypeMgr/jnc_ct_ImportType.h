@@ -133,9 +133,6 @@ public:
 		return m_qualifiedName;
 	}
 
-	ImportPtrType*
-	getImportPtrType(uint_t typeModifiers);
-
 	static
 	sl::String
 	createSignature(
@@ -165,47 +162,13 @@ protected:
 
 //..............................................................................
 
-class ImportPtrType: public ImportType {
-	friend class TypeMgr;
-
+class ImportPtrType: public ModType<
+	ImportType,
+	NamedImportType,
+	TypeKind_ImportPtr,
+	'PI'
+> {
 protected:
-	NamedImportType* m_targetType;
-	uint_t m_typeModifiers;
-
-public:
-	ImportPtrType();
-
-	NamedImportType*
-	getTargetType() {
-		return m_targetType;
-	}
-
-	uint_t
-	getTypeModifiers() {
-		return m_typeModifiers;
-	}
-
-	static
-	sl::String
-	createSignature(
-		NamedImportType* targetType,
-		uint_t typeModifiers
-	) {
-		return sl::formatString(
-			"IP%s:%x",
-			targetType->getQualifiedName().sz(),
-			typeModifiers
-		);
-	}
-
-protected:
-	virtual
-	void
-	prepareSignature() {
-		m_signature = createSignature(m_targetType, m_typeModifiers);
-		m_flags |= TypeFlag_SignatureReady;
-	}
-
 	virtual
 	void
 	prepareTypeString();
@@ -217,47 +180,13 @@ protected:
 
 //..............................................................................
 
-class ImportIntModType: public ImportType {
-	friend class TypeMgr;
-
+class ImportIntModType: public ModType<
+	ImportType,
+	NamedImportType,
+	TypeKind_ImportIntMod,
+	'II'
+> {
 protected:
-	NamedImportType* m_importType;
-	uint_t m_typeModifiers; // unsigned, bigendian
-
-public:
-	ImportIntModType();
-
-	NamedImportType*
-	getImportType() {
-		return m_importType;
-	}
-
-	uint_t
-	getTypeModifiers() {
-		return m_typeModifiers;
-	}
-
-	static
-	sl::String
-	createSignature(
-		NamedImportType* importType,
-		uint_t typeModifiers
-	) {
-		return sl::formatString(
-			"II%s:%x",
-			importType->getQualifiedName().sz(),
-			typeModifiers
-		);
-	}
-
-protected:
-	virtual
-	void
-	prepareSignature() {
-		m_signature = createSignature(m_importType, m_typeModifiers);
-		m_flags |= TypeFlag_SignatureReady;
-	}
-
 	virtual
 	void
 	prepareTypeString();

@@ -39,38 +39,42 @@ jnc_getTypeKindFlags(jnc_TypeKind typeKind) {
 		jnc_TypeKindFlag_ErrorCode,
 
 		jnc_TypeKindFlag_Integer |      // jnc_TypeKind_Int8
+		jnc_TypeKindFlag_Signed |
 		jnc_TypeKindFlag_Numeric |
 		jnc_TypeKindFlag_ErrorCode,
 
-		jnc_TypeKindFlag_Unsigned |     // jnc_TypeKind_Int8_u
-		jnc_TypeKindFlag_Integer |
+		jnc_TypeKindFlag_Integer |      // jnc_TypeKind_Int8_u
+		jnc_TypeKindFlag_Unsigned |
 		jnc_TypeKindFlag_Numeric |
 		jnc_TypeKindFlag_ErrorCode,
 
 		jnc_TypeKindFlag_Integer |      // jnc_TypeKind_Int16
+		jnc_TypeKindFlag_Signed |
 		jnc_TypeKindFlag_Numeric |
 		jnc_TypeKindFlag_ErrorCode,
 
-		jnc_TypeKindFlag_Unsigned |     // jnc_TypeKind_Int16_u
-		jnc_TypeKindFlag_Integer |
+		jnc_TypeKindFlag_Integer |      // jnc_TypeKind_Int16_u
+		jnc_TypeKindFlag_Unsigned |
 		jnc_TypeKindFlag_Numeric |
 		jnc_TypeKindFlag_ErrorCode,
 
 		jnc_TypeKindFlag_Integer |      // jnc_TypeKind_Int32
+		jnc_TypeKindFlag_Signed |
 		jnc_TypeKindFlag_Numeric |
 		jnc_TypeKindFlag_ErrorCode,
 
-		jnc_TypeKindFlag_Unsigned |     // jnc_TypeKind_Int32_u
-		jnc_TypeKindFlag_Integer |
+		jnc_TypeKindFlag_Integer |      // jnc_TypeKind_Int32_u
+		jnc_TypeKindFlag_Unsigned |
 		jnc_TypeKindFlag_Numeric |
 		jnc_TypeKindFlag_ErrorCode,
 
 		jnc_TypeKindFlag_Integer |      // jnc_TypeKind_Int64
+		jnc_TypeKindFlag_Signed |
 		jnc_TypeKindFlag_Numeric |
 		jnc_TypeKindFlag_ErrorCode,
 
-		jnc_TypeKindFlag_Unsigned |     // jnc_TypeKind_Int64_u
-		jnc_TypeKindFlag_Integer |
+		jnc_TypeKindFlag_Integer |      // jnc_TypeKind_Int64_u
+		jnc_TypeKindFlag_Unsigned |
 		jnc_TypeKindFlag_Numeric |
 		jnc_TypeKindFlag_ErrorCode,
 
@@ -157,7 +161,18 @@ jnc_getTypeKindFlags(jnc_TypeKind typeKind) {
 		// ^ don't fail due to non-error-code during doc-generation & code-assist
 
 		jnc_TypeKindFlag_Template,     // jnc_TypeKind_TemplateArg
-		jnc_TypeKindFlag_Template,     // jnc_TypeKind_TemplateInstance
+
+		jnc_TypeKindFlag_Template |    // jnc_TypeKind_TemplatePtr
+		jnc_TypeKindFlag_Ptr |
+		jnc_TypeKindFlag_Nullable |
+		jnc_TypeKindFlag_ErrorCode,
+
+		jnc_TypeKindFlag_Template |    // jnc_TypeKind_TemplateIntMod
+		jnc_TypeKindFlag_Integer |
+		jnc_TypeKindFlag_Numeric |
+		jnc_TypeKindFlag_ErrorCode,
+
+		jnc_TypeKindFlag_Template,     // jnc_TypeKind_TemplateDecl
 	};
 
 	return typeKind < jnc_TypeKind__Count ? flagTable[typeKind] : 0;

@@ -134,6 +134,13 @@ public:
 		uint_t flags
 	);
 
+	virtual
+	bool
+	deduceTemplateArgs(
+		sl::Array<Type*>* templateArgTypeArray,
+		Type* referenceType
+	);
+
 protected:
 	virtual
 	void

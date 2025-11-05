@@ -39,6 +39,7 @@
 #include "jnc_ct_DataPtrType.h"
 #include "jnc_ct_ClassPtrType.h"
 #include "jnc_ct_ClassType.h"
+#include "jnc_ct_ArrayType.h"
 #include "jnc_ct_StdFunction.h"
 #include "jnc_ct_Property.h"
 
@@ -279,6 +280,16 @@ public:
 	bool
 	prepareDataPtr(Value* value) {
 		return prepareDataPtr(*value, value);
+	}
+
+	DataPtrType*
+	prepareArrayRefType(DataPtrType* type)  {
+		ASSERT(type->getTargetType()->getTypeKind() == TypeKind_Array);
+		return ((ArrayType*)type->getTargetType())->getElementType()->getDataPtrType(
+			TypeKind_DataPtr,
+			type->getPtrTypeKind(),
+			type->getFlags() & PtrTypeFlag__All
+		);
 	}
 
 	void

@@ -90,6 +90,16 @@ Closure::append(sl::BoxList<Value>* argValueList) {
 	return m_argValueList.getCount();
 }
 
+size_t
+Closure::append(const sl::ArrayRef<Type*>& argTypeArray) {
+	sl::BoxList<Value> argList;
+	size_t argCount = argTypeArray.getCount();
+	for (size_t i = 0; i < argCount; i++)
+		argList.insertTail(Value(argTypeArray[i]));
+
+	return append(&argList);
+}
+
 sl::ConstBoxIterator<Value>
 Closure::prepend(const sl::ConstBoxList<Value>& argValueList) {
 	sl::BoxIterator<Value> internalArg = m_argValueList.getHead();
@@ -181,7 +191,7 @@ Closure::getArgTypeArray(
 
 		ASSERT(i < argCount);
 
-		bool result = module->m_operatorMgr.checkCastKind(*closureArg, (*argArray) [i]->getType());
+		bool result = module->m_operatorMgr.checkCastKind(*closureArg, (*argArray)[i]->getType());
 		if (!result)
 			return false;
 
