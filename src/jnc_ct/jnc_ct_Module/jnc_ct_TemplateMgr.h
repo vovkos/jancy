@@ -18,7 +18,17 @@
 namespace jnc {
 namespace ct {
 
+class Template;
+
 //..............................................................................
+
+struct TemplateInstance {
+	ModuleItem* m_item;
+	Template* m_template;
+	sl::ArrayRef<Type*> m_argArray;
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class Template:
 	public ModuleItem,
@@ -31,7 +41,7 @@ protected:
 	TemplateDeclType* m_declType;
 	sl::Array<TemplateArgType*> m_argArray;
 	sl::ArrayRef<Type*> m_baseTypeArray;
-	sl::StringHashTable<ModuleItem*> m_instantiationMap;
+	sl::StringHashTable<TemplateInstance> m_instanceMap;
 
 public:
 	Template();

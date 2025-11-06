@@ -76,7 +76,17 @@ Function::compile() {
 
 	if (hasBody()) { // a function with a body
 		m_module->m_functionMgr.prologue(this, m_bodyPos);
-		m_module->m_namespaceMgr.getCurrentScope()->addUsingSet(&m_usingSet);
+		Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
+
+		if (m_templateInstance) {
+			const sl::Array<TemplateArgType*>& templateArgArray = m_templateInstance->m_template->getArgArray();
+			size_t argCount = templateArgArray.getCount();
+			ASSERT(argCount == m_templateInstance->m_argArray.getCount());
+			for (size_t i = 0; i < argCount; i++)
+				scope->addItem(templateArgArray[i]->getName(), m_templateInstance->m_argArray[i]);
+		}
+
+		scope->addUsingSet(&m_usingSet);
 
 		Parser parser(m_module, m_pragmaConfig, Parser::Mode_Compile);
 		SymbolKind symbolKind = SymbolKind_compound_stmt;

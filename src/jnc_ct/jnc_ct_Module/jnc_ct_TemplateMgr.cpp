@@ -47,12 +47,13 @@ Template::instantiate(const sl::ArrayRef<Type*>& argArray) {
 	for (size_t i = 0; i < argCount; i++)
 		signature += argArray[i]->getType()->getSignature();
 
-	sl::StringHashTableIterator<ModuleItem*> mapIt = m_instantiationMap.visit(signature);
-	if (mapIt->m_value)
-		return mapIt->m_value;
+	sl::StringHashTableIterator<TemplateInstance> mapIt = m_instanceMap.visit(signature);
+	TemplateInstance* instance = &mapIt->m_value;
+	if (instance->m_item)
+		return instance->m_item;
 
-	ModuleItem* instance;
-	ModuleItemBodyDecl* instanceDecl;
+	ModuleItem* item;
+	ModuleItemBodyDecl* itemDecl;
 
 	if (m_declType) {
 		Type* type = m_declType->instantiate(argArray);
@@ -65,8 +66,9 @@ Template::instantiate(const sl::ArrayRef<Type*>& argArray) {
 		}
 
 		Function* function = m_module->m_functionMgr.createFunction((FunctionType*)type);
-		instance = function;
-		instanceDecl = function;
+		function->m_templateInstance = &mapIt->m_value;
+		item = function;
+		itemDecl = function;
 	} else {
 		DerivableType* type;
 		switch (m_derivableTypeKind) {
@@ -102,9 +104,6 @@ Template::instantiate(const sl::ArrayRef<Type*>& argArray) {
 			return NULL;
 		}
 
-		instance = type;
-		instanceDecl = type;
-
 		bool finalResult = true;
 
 		for (size_t i = 0; i < argCount; i++) {
@@ -122,21 +121,27 @@ Template::instantiate(const sl::ArrayRef<Type*>& argArray) {
 
 		if (!finalResult)
 			return false;
+
+		type->m_templateInstance = instance;
+		item = type;
+		itemDecl = type;
 	}
 
-	instanceDecl->copyDecl(this);
+	itemDecl->copyDecl(this);
 
 	if (!m_body.isEmpty())
-		instanceDecl->setBody(m_pragmaConfig, m_bodyPos, m_body);
+		itemDecl->setBody(m_pragmaConfig, m_bodyPos, m_body);
 	else {
 		ASSERT(!m_bodyTokenList.isEmpty());
 		sl::List<Token> body;
 		cloneTokenList(&body, m_bodyTokenList);
-		instanceDecl->setBody(m_pragmaConfig, &body);
+		itemDecl->setBody(m_pragmaConfig, &body);
 	}
 
-	mapIt->m_value = instance;
-	return instance;
+	instance->m_item = item;
+	instance->m_template = this;
+	instance->m_argArray = argArray;
+	return item;
 }
 
 bool
