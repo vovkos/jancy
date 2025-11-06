@@ -66,7 +66,6 @@ member_block_declaration
 	|	friend_declaration
 	|	access_declaration
 	|	member_item_declaration
-	|   setas_declaration
 	|	';'
 	;
 
@@ -77,7 +76,6 @@ member_block_declaration_sync
 	|	TokenKind_Friend
 	|	TokenKind_Public
 	|	TokenKind_Protected
-	|	TokenKind_SetAs
 	|	';'
 	;
 
@@ -212,22 +210,6 @@ pragma_declaration
 			}
 		)
 		')'
-	;
-
-setas_declaration
-	:	TokenKind_SetAs '='? setas_value ';'
-	|	TokenKind_SetAs '(' setas_value ')'
-	;
-
-setas_value
-	:	type_name
-			{
-				return setSetAsType($1.m_type);
-			}
-	|	TokenKind_Default
-			{
-				return setSetAsType(NULL);
-			}
 	;
 
 //..............................................................................

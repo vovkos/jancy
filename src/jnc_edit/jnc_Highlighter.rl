@@ -53,7 +53,6 @@ main := |*
 	'public'          |
 	'protected'       |
 	'pragma'          |
-	'setas'           |
 
 	'typedef'         |
 	'alias'           |

@@ -167,8 +167,6 @@ protected:
 	sl::Array<BaseTypeSlot*> m_baseTypeConstructArray;
 	sl::Array<BaseTypeSlot*> m_baseTypeDestructArray;
 
-	Type* m_setAsType;
-
 	// overloaded operators
 
 	sl::Array<OverloadableFunction> m_unaryOperatorTable;
@@ -239,11 +237,6 @@ public:
 	sl::Array<BaseTypeSlot*>
 	getGcRootBaseTypeArray() {
 		return m_gcRootBaseTypeArray;
-	}
-
-	Type*
-	getSetAsType() {
-		return m_setAsType;
 	}
 
 	OverloadableFunction

@@ -50,7 +50,6 @@ enum TokenKind {
 	TokenKind_Public,
 	TokenKind_Protected,
 	TokenKind_Pragma,
-	TokenKind_SetAs,
 
 	// storage specifiers
 
@@ -263,7 +262,6 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP(TokenName)
 	AXL_LEX_TOKEN_NAME(TokenKind_Public,       "public")
 	AXL_LEX_TOKEN_NAME(TokenKind_Protected,    "protected")
 	AXL_LEX_TOKEN_NAME(TokenKind_Pragma,       "pragma")
-	AXL_LEX_TOKEN_NAME(TokenKind_SetAs,        "setas")
 
 	// storage specifiers
 

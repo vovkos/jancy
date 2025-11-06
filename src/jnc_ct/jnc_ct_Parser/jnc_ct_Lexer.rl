@@ -189,7 +189,6 @@ main := |*
 'public'         { createToken(TokenKind_Public); };
 'protected'      { createToken(TokenKind_Protected); };
 'pragma'         { createToken(TokenKind_Pragma); };
-'setas'          { createToken(TokenKind_SetAs); };
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

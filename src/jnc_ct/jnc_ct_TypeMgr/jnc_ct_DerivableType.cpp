@@ -43,7 +43,6 @@ DerivableType::DerivableType():
 	MemberBlock(this) {
 	m_operatorVararg = NULL;
 	m_operatorCdeclVararg = NULL;
-	m_setAsType = NULL;
 }
 
 FunctionType*

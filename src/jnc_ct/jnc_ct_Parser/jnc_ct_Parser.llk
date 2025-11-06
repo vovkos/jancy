@@ -258,9 +258,6 @@ protected:
 	);
 
 	bool
-	setSetAsType(Type* type);
-
-	bool
 	setStorageKind(StorageKind storageKind);
 
 	bool

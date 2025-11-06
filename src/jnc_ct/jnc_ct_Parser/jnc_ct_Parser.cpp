@@ -396,28 +396,6 @@ Parser::instantiateTemplate(
 	return ((Template*)item)->instantiate(argArray);
 }
 
-bool
-Parser::setSetAsType(Type* type) {
-	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	if (nspace->getNamespaceKind() != NamespaceKind_Type) {
-		err::setFormatStringError("invalid setas in '%s'", nspace->getQualifiedName().sz());
-		return false;
-	}
-
-	DerivableType* derivableType = (DerivableType*)(NamedType*)nspace;
-	if (derivableType->m_setAsType) {
-		err::setFormatStringError("setas redefinition for '%s'", derivableType->getTypeString().sz());
-		return false;
-	}
-
-	derivableType->m_setAsType = type;
-
-	if (type->getTypeKindFlags() & TypeKindFlag_Import)
-		((ImportType*)type)->addFixup(&derivableType->m_setAsType);
-
-	return true;
-}
-
 AttributeBlock*
 Parser::popAttributeBlock() {
 	AttributeBlock* attributeBlock = m_attributeBlock;
@@ -1615,12 +1593,6 @@ Parser::finalizeLastProperty(bool hasBody) {
 		sl::Array<FunctionArg*> argArray = getterType->getArgArray();
 
 		Type* setterArgType = getterType->getReturnType();
-		if (setterArgType->getTypeKindFlags() & TypeKindFlag_Derivable) {
-			Type* setAsType = ((DerivableType*)setterArgType)->getSetAsType();
-			if (setAsType)
-				setterArgType = setAsType;
-		}
-
 		argArray.append(setterArgType->getSimpleFunctionArg());
 
 		Type* returnType;
