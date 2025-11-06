@@ -54,6 +54,15 @@ public:
 	getArgDoxyLinkedText();
 };
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+FunctionArg::FunctionArg() {
+	m_itemKind = ModuleItemKind_FunctionArg;
+	m_type = NULL;
+	m_ptrTypeFlags = 0;
+}
+
 //..............................................................................
 
 struct FunctionArgTuple: sl::ListLink {

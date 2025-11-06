@@ -44,16 +44,6 @@ getReactorMethod(
 
 //..............................................................................
 
-ReactorClassType::ReactorClassType() {
-	m_classTypeKind = ClassTypeKind_Reactor;
-	m_namespaceStatus = NamespaceStatus_Ready;
-	m_parentType = NULL;
-	m_parentOffset = 0;
-	m_reactionCount = 0;
-	m_reactor = NULL;
-	m_userDataType = NULL;
-}
-
 bool
 ReactorClassType::calcLayout() {
 	if (m_body.isEmpty()) {

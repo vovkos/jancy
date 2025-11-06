@@ -19,13 +19,6 @@ namespace ct {
 
 //..............................................................................
 
-PropertyPtrType::PropertyPtrType() {
-	m_typeKind = TypeKind_PropertyPtr;
-	m_ptrTypeKind = PropertyPtrTypeKind_Normal;
-	m_alignment = sizeof(void*);
-	m_targetType = NULL;
-}
-
 sl::String
 PropertyPtrType::createSignature(
 	PropertyType* propertyType,

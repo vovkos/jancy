@@ -12,23 +12,11 @@
 #include "pch.h"
 #include "jnc_ct_StructType.h"
 #include "jnc_ct_Module.h"
-#include "jnc_ct_ArrayType.h"
 
 namespace jnc {
 namespace ct {
 
 //..............................................................................
-
-StructType::StructType() {
-	m_typeKind = TypeKind_Struct;
-	m_structTypeKind = StructTypeKind_Normal;
-	m_flags = TypeFlag_Pod | TypeFlag_StructRet;
-	m_fieldAlignment = PragmaDefault_Alignment;
-	m_fieldSize = 0;
-	m_laidOutFieldCount = 0;
-	m_lastBitField = NULL;
-	m_dynamicStructSectionId = -1;
-}
 
 void
 StructType::prepareLlvmType() {

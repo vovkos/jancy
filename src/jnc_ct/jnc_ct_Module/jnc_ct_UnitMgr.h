@@ -32,7 +32,10 @@ protected:
 	llvm::DIFile_vn m_llvmDiFile;
 
 public:
-	Unit();
+	Unit() {
+		m_module = NULL;
+		m_lib = NULL;
+	}
 
 	inline
 	bool

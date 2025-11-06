@@ -155,6 +155,18 @@ protected:
 	}
 };
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+FunctionPtrType::FunctionPtrType() {
+	m_typeKind = TypeKind_FunctionPtr;
+	m_ptrTypeKind = FunctionPtrTypeKind_Normal;
+	m_alignment = sizeof(void*);
+	m_targetType = NULL;
+	m_multicastType = NULL;
+}
+
+
 //..............................................................................
 
 struct FunctionPtrTypeTuple: sl::ListLink {

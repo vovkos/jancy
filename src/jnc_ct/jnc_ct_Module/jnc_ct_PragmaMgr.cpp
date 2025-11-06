@@ -43,15 +43,6 @@ getPragmaName(Pragma pragmaKind) {
 
 //..............................................................................
 
-void
-PragmaConfig::reset() {
-	m_fieldAlignment = PragmaDefault_Alignment;
-	m_pointerModifiers = 0;
-	m_enumFlags = 0;
-	m_regexFlags = 0;
-	m_regexFlagMask = 0;
-}
-
 bool
 PragmaConfig::setPragma(
 	Pragma pragmaKind,

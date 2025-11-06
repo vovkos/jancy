@@ -87,13 +87,6 @@ EnumConst::generateDocumentation(
 
 //..............................................................................
 
-EnumType::EnumType() {
-	m_typeKind = TypeKind_Enum;
-	m_flags = TypeFlag_Pod;
-	m_rootType = NULL;
-	m_baseType = NULL;
-}
-
 bool
 EnumType::isBaseType(EnumType* type) {
 	if (m_baseType->getTypeKind() != TypeKind_Enum ||

@@ -134,6 +134,17 @@ protected:
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
+ReactorClassType::ReactorClassType() {
+	m_classTypeKind = ClassTypeKind_Reactor;
+	m_namespaceStatus = NamespaceStatus_Ready;
+	m_parentType = NULL;
+	m_parentOffset = 0;
+	m_reactionCount = 0;
+	m_reactor = NULL;
+	m_userDataType = NULL;
+}
+
+inline
 void
 ReactorClassType::addOnEventHandler(
 	size_t reactionIdx,

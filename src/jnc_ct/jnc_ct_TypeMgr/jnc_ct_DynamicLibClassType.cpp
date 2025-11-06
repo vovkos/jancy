@@ -20,12 +20,6 @@ namespace ct {
 
 //..............................................................................
 
-DynamicLibClassType::DynamicLibClassType() {
-	m_libNamespace = NULL;
-	m_classTypeKind = ClassTypeKind_DynamicLib;
-	m_namespaceStatus = NamespaceStatus_Ready;
-}
-
 DynamicLibNamespace*
 DynamicLibClassType::createLibNamespace() {
 	m_libNamespace = m_module->m_namespaceMgr.createGlobalNamespace<DynamicLibNamespace>("lib", this);

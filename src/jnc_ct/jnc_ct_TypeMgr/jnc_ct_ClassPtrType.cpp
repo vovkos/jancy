@@ -19,14 +19,6 @@ namespace ct {
 
 //..............................................................................
 
-ClassPtrType::ClassPtrType() {
-	m_typeKind = TypeKind_ClassPtr;
-	m_ptrTypeKind = ClassPtrTypeKind_Normal;
-	m_targetType = NULL;
-	m_size = sizeof(void*);
-	m_alignment = sizeof(void*);
-}
-
 sl::String
 ClassPtrType::createSignature(
 	ClassType* classType,

@@ -97,6 +97,16 @@ protected:
 	getItemUnnamedMethod(ModuleItem* item);
 };
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+Orphan::Orphan() {
+	m_itemKind = ModuleItemKind_Orphan;
+	m_orphanKind = OrphanKind_Undefined;
+	m_functionType = NULL;
+	m_origin = NULL;
+}
+
 //..............................................................................
 
 } // namespace ct

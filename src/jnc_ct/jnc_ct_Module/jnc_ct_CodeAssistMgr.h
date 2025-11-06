@@ -88,6 +88,18 @@ public:
 	}
 };
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+CodeAssist::CodeAssist() {
+	m_codeAssistKind = CodeAssistKind_Undefined;
+	m_offset = 0;
+	m_module = NULL;
+	m_flags = 0;
+	m_item = NULL;
+	m_itemParam = 0;
+}
+
 //..............................................................................
 
 class CodeAssistMgr {

@@ -51,11 +51,6 @@ ImportType::resolve() {
 
 //..............................................................................
 
-NamedImportType::NamedImportType() {
-	m_typeKind = TypeKind_NamedImport;
-	m_anchorNamespace = NULL;
-}
-
 sl::String
 NamedImportType::createSignature(
 	const QualifiedName& name,

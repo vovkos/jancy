@@ -96,6 +96,19 @@ public:
 	);
 };
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+Field::Field() {
+	m_itemKind = ModuleItemKind_Field;
+	m_type = NULL;
+	m_offset = 0;
+	m_bitOffset = 0;
+	m_bitCount = 0;
+	m_ptrTypeFlags = 0;
+	m_llvmIndex = -1;
+}
+
 //..............................................................................
 
 } // namespace ct

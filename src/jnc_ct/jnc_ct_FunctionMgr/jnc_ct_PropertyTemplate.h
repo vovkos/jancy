@@ -56,6 +56,17 @@ public:
 	calcType();
 };
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+PropertyTemplate::PropertyTemplate() {
+	m_itemKind = ModuleItemKind_PropertyTemplate;
+	m_namespaceKind = NamespaceKind_PropertyTemplate;
+	m_namespaceStatus = NamespaceStatus_Ready;
+	m_getterType = NULL;
+	m_typeFlags = 0;
+}
+
 //..............................................................................
 
 } // namespace ct

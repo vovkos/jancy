@@ -19,17 +19,6 @@ namespace ct {
 
 //..............................................................................
 
-PropertyType::PropertyType() {
-	m_typeKind = TypeKind_Property;
-
-	m_getterType = NULL;
-	m_binderType = NULL;
-	m_stdObjectMemberPropertyType = NULL;
-	m_shortType = NULL;
-	m_vtableStructType = NULL;
-	m_propertyPtrTypeTuple = NULL;
-}
-
 PropertyPtrType*
 PropertyType::getPropertyPtrType(
 	TypeKind typeKind,

@@ -19,15 +19,6 @@ namespace ct {
 
 //..............................................................................
 
-DataPtrType::DataPtrType() {
-	m_typeKind = TypeKind_DataPtr;
-	m_ptrTypeKind = DataPtrTypeKind_Normal;
-	m_targetType = NULL;
-	m_alignment = sizeof(void*);
-	m_bitOffset = 0;
-	m_bitCount = 0;
-}
-
 sl::String
 DataPtrType::createSignature(
 	Type* targetType,

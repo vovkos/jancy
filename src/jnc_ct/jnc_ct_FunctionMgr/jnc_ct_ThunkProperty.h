@@ -25,7 +25,10 @@ protected:
 	Property* m_targetProperty;
 
 public:
-	ThunkProperty();
+	ThunkProperty() {
+		m_propertyKind = PropertyKind_Thunk;
+		m_targetProperty = NULL;
+	}
 
 	bool
 	create(

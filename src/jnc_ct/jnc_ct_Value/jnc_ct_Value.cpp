@@ -210,6 +210,8 @@ getLlvmConstantFunc_dataPtr(
 		getLlvmConstantFunc_ptr(type, p);
 }
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 llvm::Constant*
 Value::getLlvmConst(
 	Type* type,

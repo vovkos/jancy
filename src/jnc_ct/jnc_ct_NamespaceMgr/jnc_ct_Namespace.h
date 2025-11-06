@@ -256,6 +256,15 @@ Namespace::findItemImpl(const sl::StringRef& name) {
 
 //..............................................................................
 
+inline
+void
+ModuleItemDecl::prepareQualifiedName() {
+	ASSERT(m_qualifiedName.isEmpty());
+	m_qualifiedName = m_parentNamespace ? m_parentNamespace->createQualifiedName(m_name) : m_name;
+}
+
+//..............................................................................
+
 JNC_INLINE
 err::Error
 setRedefinitionError(const sl::StringRef& name) {

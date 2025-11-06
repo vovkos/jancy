@@ -21,27 +21,6 @@ namespace ct {
 
 //..............................................................................
 
-Function::Function() {
-	m_itemKind = ModuleItemKind_Function;
-	m_functionKind = FunctionKind_Normal;
-	m_type = NULL;
-	m_castOpType = NULL;
-	m_thisArgType = NULL;
-	m_thisType = NULL;
-	m_thisArgDelta = 0;
-	m_thisArgTypeFlags = 0;
-	m_virtualOriginClassType = NULL;
-	m_property = NULL;
-	m_extensionNamespace = NULL;
-	m_classVtableIndex = -1;
-	m_allocaBlock = NULL;
-	m_prologueBlock = NULL;
-	m_scope = NULL;
-	m_declVariable = NULL;
-	m_llvmFunction = NULL;
-	m_machineCode = NULL;
-}
-
 void
 Function::prepareLlvmFunction() {
 	ASSERT(!m_llvmFunction);

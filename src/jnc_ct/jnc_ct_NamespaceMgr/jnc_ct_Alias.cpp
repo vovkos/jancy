@@ -19,11 +19,6 @@ namespace ct {
 
 //..............................................................................
 
-Alias::Alias() {
-	m_itemKind = ModuleItemKind_Alias;
-	m_targetItem = NULL;
-}
-
 bool
 Alias::resolveImpl() {
 	bool result;

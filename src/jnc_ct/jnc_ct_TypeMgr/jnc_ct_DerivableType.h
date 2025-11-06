@@ -23,6 +23,7 @@ class UnionType;
 class ClassType;
 class Function;
 class Property;
+struct TemplateInstance;
 
 //..............................................................................
 
@@ -68,6 +69,17 @@ public:
 	}
 };
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+BaseTypeSlot::BaseTypeSlot() {
+	m_itemKind = ModuleItemKind_BaseTypeSlot;
+	m_type = NULL;
+	m_offset = 0;
+	m_llvmIndex = -1;
+	m_vtableIndex = -1;
+}
+
 //..............................................................................
 
 class BaseTypeCoord {
@@ -87,6 +99,16 @@ public:
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+BaseTypeCoord::BaseTypeCoord():
+	m_llvmIndexArray(rc::BufKind_Field, m_buffer, sizeof(m_buffer)) {
+	m_type = NULL;
+	m_offset = 0;
+	m_vtableIndex = 0;
+}
+
+//..............................................................................
 
 // unfortunately, LLVM does not natively support unions
 // therefore, unnamed unions on the way to a member need special handling
@@ -115,6 +137,7 @@ class DerivableType:
 	public NamedType,
 	public MemberBlock {
 	friend class Parser;
+	friend class Template;
 
 protected:
 	class DefaultStaticConstructor: public CompilableFunction {
@@ -158,6 +181,8 @@ protected:
 	};
 
 protected:
+	TemplateInstance* m_templateInstance;
+
 	// base types
 
 	sl::StringHashTable<BaseTypeSlot*> m_baseTypeMap;
@@ -180,6 +205,11 @@ protected:
 
 public:
 	DerivableType();
+
+	TemplateInstance*
+	getTemplateInstance() {
+		return m_templateInstance;
+	}
 
 	virtual
 	Type*
@@ -381,6 +411,16 @@ protected:
 		size_t baseTypeLevel
 	);
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+DerivableType::DerivableType():
+	MemberBlock(this) {
+	m_templateInstance = NULL;
+	m_operatorVararg = NULL;
+	m_operatorCdeclVararg = NULL;
+}
 
 //..............................................................................
 

@@ -19,28 +19,6 @@ namespace ct {
 
 //..............................................................................
 
-Property::Property():
-	MemberBlock(this) {
-	m_itemKind = ModuleItemKind_Property;
-	m_namespaceKind = NamespaceKind_Property;
-	m_namespaceStatus = NamespaceStatus_Ready;
-	m_propertyKind = PropertyKind_Normal;
-	m_type = NULL;
-
-	m_getter = NULL;
-	m_binder = NULL;
-
-	m_autoGetValue = NULL;
-	m_onChanged = NULL;
-
-	m_parentType = NULL;
-	m_parentClassVtableIndex = -1;
-
-	m_extensionNamespace = NULL;
-	m_vtableVariable = NULL;
-	m_declVariable = NULL;
-}
-
 bool
 Property::create(PropertyType* type) {
 	bool result;

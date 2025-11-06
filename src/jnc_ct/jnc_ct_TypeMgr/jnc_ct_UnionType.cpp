@@ -18,12 +18,6 @@ namespace ct {
 
 //..............................................................................
 
-UnionType::UnionType() {
-	m_typeKind = TypeKind_Union;
-	m_flags = TypeFlag_Pod;
-	m_structType = NULL;
-}
-
 Field*
 UnionType::createFieldImpl(
 	const sl::StringRef& name,

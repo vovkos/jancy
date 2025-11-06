@@ -81,6 +81,16 @@ protected:
 	resolve();
 };
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+void
+UsingSet::clear() {
+	m_globalNamespaceArray.clear();
+	m_extensionNamespaceArray.clear();
+	m_importNamespaceList.clear();
+}
+
 //..............................................................................
 
 class ModuleItemUsingSet {

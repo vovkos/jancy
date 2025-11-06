@@ -18,13 +18,6 @@ namespace ct {
 
 //..............................................................................
 
-Unit::Unit() {
-	m_module = NULL;
-	m_lib = NULL;
-}
-
-//..............................................................................
-
 UnitMgr::UnitMgr() {
 	m_module = Module::getCurrentConstructedModule();
 	ASSERT(m_module);

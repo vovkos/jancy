@@ -12,6 +12,7 @@
 #pragma once
 
 #include "jnc_ct_DerivableType.h"
+#include "jnc_ct_Pragma.h"
 
 namespace jnc {
 namespace ct {
@@ -143,6 +144,20 @@ protected:
 	void
 	addLlvmPadding(size_t size);
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+StructType::StructType() {
+	m_typeKind = TypeKind_Struct;
+	m_structTypeKind = StructTypeKind_Normal;
+	m_flags = TypeFlag_Pod | TypeFlag_StructRet;
+	m_fieldAlignment = PragmaDefault_Alignment;
+	m_fieldSize = 0;
+	m_laidOutFieldCount = 0;
+	m_lastBitField = NULL;
+	m_dynamicStructSectionId = -1;
+}
 
 //..............................................................................
 

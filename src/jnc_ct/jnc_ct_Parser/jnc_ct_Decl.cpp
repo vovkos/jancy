@@ -248,19 +248,6 @@ DeclFunctionSuffix::addFunctionTypeFlag(FunctionTypeFlag flag) {
 
 //..............................................................................
 
-Declarator::Declarator() {
-	m_declaratorKind = DeclaratorKind_Undefined;
-	m_functionKind = FunctionKind_Undefined;
-	m_unOpKind = UnOpKind_Undefined;
-	m_binOpKind = BinOpKind_Undefined;
-	m_castOpType = NULL;
-	m_bitCount = 0;
-	m_postDeclaratorModifiers = 0;
-	m_baseType = NULL;
-	m_attributeBlock = NULL;
-	m_doxyBlock = NULL;
-}
-
 void
 Declarator::setTypeSpecifier(
 	TypeSpecifier* typeSpecifier,

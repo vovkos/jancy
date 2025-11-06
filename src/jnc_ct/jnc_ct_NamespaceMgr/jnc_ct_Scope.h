@@ -164,6 +164,27 @@ protected:
 	}
 };
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+Scope::Scope() {
+	m_itemKind = ModuleItemKind_Scope;
+	m_namespaceKind = NamespaceKind_Scope;
+	m_namespaceStatus = NamespaceStatus_Ready;
+	m_function = NULL;
+	m_breakBlock = NULL;
+	m_continueBlock = NULL;
+	m_catchBlock = NULL;
+	m_finallyBlock = NULL;
+	m_tryExpr = NULL;
+	m_dynamicLayoutStmt = NULL;
+	m_firstStackVariable = NULL;
+	m_regexMatchVariable = NULL;
+	m_disposeLevelVariable = NULL;
+	m_gcShadowStackFrameMap = NULL;
+	m_sjljFrameIdx = -1;
+}
+
 //..............................................................................
 
 } // namespace ct

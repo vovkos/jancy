@@ -129,6 +129,22 @@ public:
 	}
 };
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+BasicBlock::BasicBlock(
+	Module* module,
+	const sl::StringRef& name,
+	uint_t flags
+) {
+	m_module = module;
+	m_name = name;
+	m_flags = flags;
+	m_function = NULL;
+	m_landingPadScope = NULL;
+	m_llvmBlock = NULL;
+}
+
 //..............................................................................
 
 } // namespace ct

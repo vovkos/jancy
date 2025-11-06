@@ -185,6 +185,16 @@ protected:
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
+ModuleItemDecl::ModuleItemDecl() {
+	m_storageKind = StorageKind_Undefined;
+	m_accessKind = AccessKind_Public; // public by default
+	m_parentNamespace = NULL;
+	m_pragmaConfig = NULL;
+	m_attributeBlock = NULL;
+	m_doxyBlock = NULL;
+}
+
+inline
 const sl::StringRef&
 ModuleItemDecl::getQualifiedName() {
 	if (m_qualifiedName.isEmpty())

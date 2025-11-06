@@ -20,13 +20,6 @@ namespace ct {
 //..............................................................................
 
 void
-UsingSet::clear() {
-	m_globalNamespaceArray.clear();
-	m_extensionNamespaceArray.clear();
-	m_importNamespaceList.clear();
-}
-
-void
 UsingSet::append(const UsingSet* src) {
 	m_globalNamespaceArray.append(src->m_globalNamespaceArray);
 	m_extensionNamespaceArray.append(src->m_extensionNamespaceArray);

@@ -198,21 +198,6 @@ getPtrTypeFlagsFromModifiers(uint_t modifiers) {
 
 //..............................................................................
 
-Type::Type() {
-	m_itemKind = ModuleItemKind_Type;
-	m_typeKind = TypeKind_Void;
-	m_stdType = (StdType)-1;
-	m_size = 0;
-	m_alignment = 1;
-	m_llvmType = NULL;
-	m_typeVariable = NULL;
-	m_typeStringTuple = NULL;
-	m_simplePropertyTypeTuple = NULL;
-	m_functionArgTuple = NULL;
-	m_dataPtrTypeTuple = NULL;
-	m_dualTypeTuple = NULL;
-}
-
 const sl::StringRef&
 Type::getTypeString() {
 	TypeStringTuple* tuple = getTypeStringTuple();

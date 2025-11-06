@@ -246,6 +246,18 @@ protected:
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
+FunctionType::FunctionType() {
+	m_typeKind = TypeKind_Function;
+	m_callConv = NULL;
+	m_returnType = NULL;
+	m_asyncReturnType = NULL;
+	m_shortType = this;
+	m_stdObjectMemberMethodType = NULL;
+	m_functionPtrTypeTuple = NULL;
+	m_functionPtrTypeTuple = NULL;
+}
+
+inline
 const sl::StringRef&
 FunctionType::getArgSignature() {
 	if (!(m_flags & TypeFlag_SignatureFinal))

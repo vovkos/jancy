@@ -137,6 +137,17 @@ protected:
 	appendPointerStringSuffix(sl::String* string);
 };
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+ClassPtrType::ClassPtrType() {
+	m_typeKind = TypeKind_ClassPtr;
+	m_ptrTypeKind = ClassPtrTypeKind_Normal;
+	m_targetType = NULL;
+	m_size = sizeof(void*);
+	m_alignment = sizeof(void*);
+}
+
 //..............................................................................
 
 struct ClassPtrTypeTuple: sl::ListLink {

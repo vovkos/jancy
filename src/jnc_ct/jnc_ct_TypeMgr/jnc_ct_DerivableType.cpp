@@ -20,31 +20,6 @@ namespace ct {
 
 //..............................................................................
 
-BaseTypeSlot::BaseTypeSlot() {
-	m_itemKind = ModuleItemKind_BaseTypeSlot;
-	m_type = NULL;
-	m_offset = 0;
-	m_llvmIndex = -1;
-	m_vtableIndex = -1;
-}
-
-//..............................................................................
-
-BaseTypeCoord::BaseTypeCoord():
-	m_llvmIndexArray(rc::BufKind_Field, m_buffer, sizeof(m_buffer)) {
-	m_type = NULL;
-	m_offset = 0;
-	m_vtableIndex = 0;
-}
-
-//..............................................................................
-
-DerivableType::DerivableType():
-	MemberBlock(this) {
-	m_operatorVararg = NULL;
-	m_operatorCdeclVararg = NULL;
-}
-
 FunctionType*
 DerivableType::getMemberMethodType(
 	FunctionType* shortType,

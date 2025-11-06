@@ -34,14 +34,6 @@ getFunctionPtrTypeKindString(FunctionPtrTypeKind ptrTypeKind) {
 
 //..............................................................................
 
-FunctionPtrType::FunctionPtrType() {
-	m_typeKind = TypeKind_FunctionPtr;
-	m_ptrTypeKind = FunctionPtrTypeKind_Normal;
-	m_alignment = sizeof(void*);
-	m_targetType = NULL;
-	m_multicastType = NULL;
-}
-
 ClassType*
 FunctionPtrType::getMulticastType() {
 	return m_module->m_typeMgr.getMulticastType(this);

@@ -43,17 +43,6 @@ getFunctionTypeFlagString(uint_t flags) {
 
 //..............................................................................
 
-FunctionType::FunctionType() {
-	m_typeKind = TypeKind_Function;
-	m_callConv = NULL;
-	m_returnType = NULL;
-	m_asyncReturnType = NULL;
-	m_shortType = this;
-	m_stdObjectMemberMethodType = NULL;
-	m_functionPtrTypeTuple = NULL;
-	m_functionPtrTypeTuple = NULL;
-}
-
 DerivableType*
 FunctionType::getThisTargetType() {
 	Type* thisArgType = getThisArgType();

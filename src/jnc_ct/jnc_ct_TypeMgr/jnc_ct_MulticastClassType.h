@@ -90,6 +90,19 @@ protected:
 	compileCallMethod(Function* function);
 };
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+MulticastClassType::MulticastClassType() {
+	m_classTypeKind = ClassTypeKind_Multicast;
+	m_namespaceStatus = NamespaceStatus_Ready;
+	m_targetType = NULL;
+	m_snapshotType = NULL;
+	m_eventClassPtrTypeTuple = NULL;
+	memset(m_fieldArray, 0, sizeof(m_fieldArray));
+	memset(m_methodArray, 0, sizeof(m_methodArray));
+}
+
 //..............................................................................
 
 } // namespace ct

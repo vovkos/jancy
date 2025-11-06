@@ -43,11 +43,7 @@ protected:
 	uint_t m_thisArgTypeFlags;
 
 public:
-	FunctionName() {
-		m_functionKind = FunctionKind_Undefined;
-		m_castOpType = NULL;
-		m_thisArgTypeFlags = 0;
-	}
+	FunctionName();
 
 	FunctionKind
 	getFunctionKind() {
@@ -83,6 +79,15 @@ public:
 		return m_thisArgTypeFlags;
 	}
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+FunctionName::FunctionName() {
+	m_functionKind = FunctionKind_Undefined;
+	m_castOpType = NULL;
+	m_thisArgTypeFlags = 0;
+}
 
 //..............................................................................
 

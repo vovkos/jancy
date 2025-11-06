@@ -20,12 +20,6 @@ namespace ct {
 
 //..............................................................................
 
-ClosureClassType::ClosureClassType() {
-	m_namespaceStatus = NamespaceStatus_Ready;
-	m_flags |= ClassTypeFlag_Closure;
-	m_thisArgFieldIdx = -1;
-}
-
 sl::String
 ClosureClassType::createSignature(
 	Type* targetType, // function or property
@@ -101,11 +95,6 @@ ClosureClassType::strengthen(IfaceHdr* p) {
 
 //..............................................................................
 
-FunctionClosureClassType::FunctionClosureClassType() {
-	m_classTypeKind = ClassTypeKind_FunctionClosure;
-	m_thunkFunction = NULL;
-}
-
 bool
 FunctionClosureClassType::compileThunkFunction(Function* function) {
 	ASSERT(function == m_thunkFunction);
@@ -153,11 +142,6 @@ PropertyClosureClassType::ThunkProperty::createAccessor(
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-PropertyClosureClassType::PropertyClosureClassType() {
-	m_classTypeKind = ClassTypeKind_PropertyClosure;
-	m_thunkProperty = NULL;
-}
 
 bool
 PropertyClosureClassType::compileAccessor(Function* accessor) {
@@ -242,11 +226,6 @@ DataClosureClassType::ThunkProperty::createAccessor(
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-DataClosureClassType::DataClosureClassType() {
-	m_classTypeKind = ClassTypeKind_DataClosure;
-	m_thunkProperty = NULL;
-}
 
 sl::String
 DataClosureClassType::createSignature(

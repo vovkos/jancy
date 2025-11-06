@@ -49,6 +49,15 @@ public:
 	);
 };
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+Typedef::Typedef() {
+	m_itemKind = ModuleItemKind_Typedef;
+	m_type = NULL;
+	m_shadowType = NULL;
+}
+
 //..............................................................................
 
 class TypedefShadowType:

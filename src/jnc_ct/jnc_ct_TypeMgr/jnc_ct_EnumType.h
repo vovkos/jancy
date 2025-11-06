@@ -217,6 +217,16 @@ protected:
 	calcEnumConstValues(EnumConst* baseConst);
 };
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+EnumType::EnumType() {
+	m_typeKind = TypeKind_Enum;
+	m_flags = TypeFlag_Pod;
+	m_rootType = NULL;
+	m_baseType = NULL;
+}
+
 //..............................................................................
 
 JNC_INLINE

@@ -153,6 +153,18 @@ protected:
 	appendPointerStringSuffix(sl::String* string);
 };
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+DataPtrType::DataPtrType() {
+	m_typeKind = TypeKind_DataPtr;
+	m_ptrTypeKind = DataPtrTypeKind_Normal;
+	m_targetType = NULL;
+	m_alignment = sizeof(void*);
+	m_bitOffset = 0;
+	m_bitCount = 0;
+}
+
 //..............................................................................
 
 struct DataPtrTypeTuple: sl::ListLink {

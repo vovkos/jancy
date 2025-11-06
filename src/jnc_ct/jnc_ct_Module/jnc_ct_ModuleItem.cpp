@@ -60,15 +60,6 @@ ModuleItemInitializer::getInitializerString_xml() {
 
 //..............................................................................
 
-ModuleItemDecl::ModuleItemDecl() {
-	m_storageKind = StorageKind_Undefined;
-	m_accessKind = AccessKind_Public; // public by default
-	m_parentNamespace = NULL;
-	m_pragmaConfig = NULL;
-	m_attributeBlock = NULL;
-	m_doxyBlock = NULL;
-}
-
 void
 ModuleItemDecl::copyDecl(
 	ModuleItemDecl* src,
@@ -84,12 +75,6 @@ ModuleItemDecl::copyDecl(
 	m_pragmaConfig = src->m_pragmaConfig;
 	m_attributeBlock = attributeBlock;
 	m_doxyBlock = src->m_doxyBlock;
-}
-
-void
-ModuleItemDecl::prepareQualifiedName() {
-	ASSERT(m_qualifiedName.isEmpty());
-	m_qualifiedName = m_parentNamespace ? m_parentNamespace->createQualifiedName(m_name) : m_name;
 }
 
 sl::String

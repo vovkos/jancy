@@ -18,11 +18,6 @@ namespace ct {
 
 //..............................................................................
 
-ThunkFunction::ThunkFunction() {
-	m_functionKind = FunctionKind_Thunk;
-	m_targetFunction = NULL;
-}
-
 bool
 ThunkFunction::compile() {
 	ASSERT(m_targetFunction);

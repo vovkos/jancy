@@ -99,6 +99,7 @@ set(
 	include/jnc_ct_Orphan.h
 	include/jnc_ct_Pch.h
 	include/jnc_ct_ParseContext.h
+	include/jnc_ct_Pragma.h
 	include/jnc_ct_PragmaMgr.h
 	include/jnc_ct_Property.h
 	include/jnc_ct_PropertyPtrType.h
@@ -554,6 +555,7 @@ set(
 	jnc_ct_Module/jnc_ct_LlvmIrInsertPoint.h
 	jnc_ct_Module/jnc_ct_Module.h
 	jnc_ct_Module/jnc_ct_ModuleItem.h
+	jnc_ct_Module/jnc_ct_Pragma.h
 	jnc_ct_Module/jnc_ct_PragmaMgr.h
 	jnc_ct_Module/jnc_ct_TemplateMgr.h
 	jnc_ct_Module/jnc_ct_UnitMgr.h

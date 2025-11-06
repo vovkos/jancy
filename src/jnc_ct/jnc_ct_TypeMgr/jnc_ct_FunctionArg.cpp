@@ -18,12 +18,6 @@ namespace ct {
 
 //..............................................................................
 
-FunctionArg::FunctionArg() {
-	m_itemKind = ModuleItemKind_FunctionArg;
-	m_type = NULL;
-	m_ptrTypeFlags = 0;
-}
-
 sl::String
 FunctionArg::getArgString() {
 	sl::String string;

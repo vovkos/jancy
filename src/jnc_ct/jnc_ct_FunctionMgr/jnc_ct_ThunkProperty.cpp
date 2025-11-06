@@ -18,11 +18,6 @@ namespace ct {
 
 //..............................................................................
 
-ThunkProperty::ThunkProperty() {
-	m_propertyKind = PropertyKind_Thunk;
-	m_targetProperty = NULL;
-}
-
 bool
 ThunkProperty::create(
 	Property* targetProperty,

@@ -19,17 +19,6 @@ namespace ct {
 
 //..............................................................................
 
-CodeAssist::CodeAssist() {
-	m_codeAssistKind = CodeAssistKind_Undefined;
-	m_offset = 0;
-	m_module = NULL;
-	m_flags = 0;
-	m_item = NULL;
-	m_itemParam = 0;
-}
-
-//..............................................................................
-
 CodeAssistMgr::CodeAssistMgr() {
 	m_module = Module::getCurrentConstructedModule();
 	ASSERT(m_module);

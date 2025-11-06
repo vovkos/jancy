@@ -58,6 +58,15 @@ protected:
 	);
 };
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+ClosureClassType::ClosureClassType() {
+	m_namespaceStatus = NamespaceStatus_Ready;
+	m_flags |= ClassTypeFlag_Closure;
+	m_thisArgFieldIdx = -1;
+}
+
 //..............................................................................
 
 class FunctionClosureClassType: public ClosureClassType {
@@ -88,6 +97,14 @@ protected:
 	bool
 	compileThunkFunction(Function* function);
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+FunctionClosureClassType::FunctionClosureClassType() {
+	m_classTypeKind = ClassTypeKind_FunctionClosure;
+	m_thunkFunction = NULL;
+}
 
 //..............................................................................
 
@@ -129,6 +146,14 @@ protected:
 	bool
 	compileAccessor(Function* accessor);
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+PropertyClosureClassType::PropertyClosureClassType() {
+	m_classTypeKind = ClassTypeKind_PropertyClosure;
+	m_thunkProperty = NULL;
+}
 
 //..............................................................................
 
@@ -189,6 +214,14 @@ protected:
 	bool
 	compileSetter(Function* setter);
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+DataClosureClassType::DataClosureClassType() {
+	m_classTypeKind = ClassTypeKind_DataClosure;
+	m_thunkProperty = NULL;
+}
 
 //..............................................................................
 

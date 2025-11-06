@@ -222,6 +222,19 @@ protected:
 	prepareForOperatorNew();
 };
 
+inline
+ClassType::ClassType() {
+	m_typeKind = TypeKind_Class;
+	m_classTypeKind = ClassTypeKind_Normal;
+	m_flags = TypeFlag_NoStack;
+	m_ifaceStructType = NULL;
+	m_classStructType = NULL;
+	m_vtableStructType = NULL;
+	m_classPtrTypeTuple = NULL;
+	m_vtableVariable = NULL;
+	m_opaqueClassTypeInfo = NULL;
+}
+
 //..............................................................................
 
 } // namespace ct

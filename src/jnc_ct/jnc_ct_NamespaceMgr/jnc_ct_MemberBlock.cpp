@@ -18,13 +18,6 @@ namespace ct {
 
 //..............................................................................
 
-MemberBlock::MemberBlock(ModuleItem* parent) {
-	m_parent = parent;
-	m_staticConstructorOnceFlagVariable = NULL;
-	m_staticConstructor = NULL;
-	m_destructor = NULL;
-}
-
 Namespace*
 MemberBlock::getParentNamespaceImpl() {
 	ASSERT(

@@ -20,16 +20,6 @@ namespace ct {
 
 //..............................................................................
 
-ArrayType::ArrayType() {
-	m_typeKind = TypeKind_Array;
-	m_flags = TypeFlag_StructRet;
-	m_parentUnit = NULL;
-	m_parentNamespace = NULL;
-	m_elementType = NULL;
-	m_rootType = NULL;
-	m_elementCount = -1;
-}
-
 Type*
 ArrayType::getRootType() {
 	if (!m_rootType)

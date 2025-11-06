@@ -18,12 +18,6 @@ namespace ct {
 
 //..............................................................................
 
-Typedef::Typedef() {
-	m_itemKind = ModuleItemKind_Typedef;
-	m_type = NULL;
-	m_shadowType = NULL;
-}
-
 TypedefShadowType*
 Typedef::getShadowType() {
 	if (!m_shadowType)

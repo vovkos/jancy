@@ -42,7 +42,10 @@ protected:
 	err::Error m_resolveError;
 
 public:
-	Alias();
+	Alias() {
+		m_itemKind = ModuleItemKind_Alias;
+		m_targetItem = NULL;
+	}
 
 	bool
 	isResolved() {

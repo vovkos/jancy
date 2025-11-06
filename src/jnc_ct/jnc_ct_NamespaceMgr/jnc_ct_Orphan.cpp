@@ -19,13 +19,6 @@ namespace ct {
 
 //..............................................................................
 
-Orphan::Orphan() {
-	m_itemKind = ModuleItemKind_Orphan;
-	m_orphanKind = OrphanKind_Undefined;
-	m_functionType = NULL;
-	m_origin = NULL;
-}
-
 ModuleItem*
 Orphan::resolveForCodeAssist(Namespace* nspace) {
 	if (m_functionKind != FunctionKind_Normal && m_declaratorName.isEmpty()) {

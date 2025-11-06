@@ -19,14 +19,6 @@ namespace ct {
 
 //..............................................................................
 
-McSnapshotClassType::McSnapshotClassType() {
-	m_classTypeKind = ClassTypeKind_McSnapshot;
-	m_namespaceStatus = NamespaceStatus_Ready;
-	m_targetType = NULL;
-	memset(m_fieldArray, 0, sizeof(m_fieldArray));
-	memset(m_methodArray, 0, sizeof(m_methodArray));
-}
-
 void
 McSnapshotClassType::prepareTypeString() {
 	TypeStringTuple* tuple = getTypeStringTuple();

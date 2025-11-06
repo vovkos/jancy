@@ -111,7 +111,10 @@ protected:
 	sl::StringRef m_qualifiedName;
 
 public:
-	NamedImportType();
+	NamedImportType() {
+		m_typeKind = TypeKind_NamedImport;
+		m_anchorNamespace = NULL;
+	}
 
 	const QualifiedName&
 	getName() {
