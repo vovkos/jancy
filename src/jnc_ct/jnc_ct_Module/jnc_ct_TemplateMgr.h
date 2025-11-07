@@ -56,11 +56,22 @@ public:
 		return m_argArray;
 	}
 
+	bool
+	isEqual(Template* templ) { // allow comparing items from different modules
+		return this == templ || m_qualifiedName.isEqual(templ->m_qualifiedName);
+	}
+
 	ModuleItem*
 	instantiate(const sl::ConstBoxList<Value>& argList);
 
 	ModuleItem*
 	instantiate(const sl::ArrayRef<Type*>& argArray);
+
+	ModuleItem*
+	instantiate(
+		Unit* unit,
+		const sl::List<Token>& argArrayTokenList
+	);
 
 	bool
 	deduceArgs(
@@ -68,6 +79,10 @@ public:
 		const sl::ConstBoxList<Value>& argTypeList,
 		const sl::ConstBoxList<Value>& argValueList
 	);
+
+protected:
+	Namespace*
+	openTemplateNamespace(const sl::ArrayRef<Type*>& argArray);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

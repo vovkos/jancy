@@ -695,9 +695,9 @@ public:
 
 	NamedImportType*
 	getNamedImportType(
-		const QualifiedName& name,
+		QualifiedName* name, // destructive
 		Namespace* anchorNamespace,
-		const QualifiedName& anchorName = QualifiedName()
+		QualifiedName* anchorName = NULL // destructive
 	);
 
 	template <

@@ -112,7 +112,10 @@ public:
 	findDirectChildItem(const sl::StringRef& name);
 
 	FindModuleItemResult
-	findDirectChildItem(const QualifiedNameAtom& name);
+	findDirectChildItem(
+		Unit* unit,
+		const QualifiedNameAtom& name
+	);
 
 	FindModuleItemResult
 	findItem(const QualifiedName& name);
@@ -127,14 +130,18 @@ public:
 		return findItemImpl<sl::False>(name);
 	}
 
-	template <typename Only>
-	FindModuleItemResult
-	findItemImpl(const sl::StringRef& name);
-
 	virtual
 	FindModuleItemResult
 	findDirectChildItemTraverse(
 		const sl::StringRef& name,
+		MemberCoord* coord = NULL,
+		uint_t flags = 0
+	);
+
+	FindModuleItemResult
+	findDirectChildItemTraverse(
+		Unit* unit,
+		const QualifiedNameAtom& name,
 		MemberCoord* coord = NULL,
 		uint_t flags = 0
 	);
@@ -192,6 +199,17 @@ public:
 	resolveOrphans();
 
 protected:
+	template <typename CanParse>
+	FindModuleItemResult
+	findItemImpl(const sl::StringRef& name);
+
+	FindModuleItemResult
+	finalizeFindTemplate(
+		Unit* unit,
+		const QualifiedNameAtom& name,
+		FindModuleItemResult findResult
+	);
+
 	void
 	clear();
 
@@ -213,17 +231,6 @@ protected:
 
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-inline
-FindModuleItemResult
-Namespace::findDirectChildItem(const QualifiedNameAtom& name) {
-	if (name.m_atomKind != QualifiedNameAtomKind_Name) {
-		err::setError("finding non-name atoms is not implemented yet");
-		return g_errorFindModuleItemResult;
-	}
-
-	return findDirectChildItem(name.m_name);
-}
 
 template <typename CanParse>
 FindModuleItemResult

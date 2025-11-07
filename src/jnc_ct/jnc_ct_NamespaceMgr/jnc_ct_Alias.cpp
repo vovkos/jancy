@@ -36,7 +36,7 @@ Alias::resolveImpl() {
 
 	sl::List<Token> tmpTokenList;
 	cloneTokenList(&tmpTokenList, m_initializer);
-	result = parser.parseTokenList(SymbolKind_qualified_name_save_name, &tmpTokenList);
+	result = parser.parseTokenList(SymbolKind_qualified_name_save, &tmpTokenList);
 	if (!result)
 		return false;
 

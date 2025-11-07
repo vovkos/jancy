@@ -56,8 +56,6 @@ qualified_name_pass1
 			'.' $d
 				{
 					prepareQualifiedNameCodeAssistFallbackIf($d, $.m_name);
-					if ($.m_name.isTemplate())
-						$.m_name.addTemplateToken(m_tokenPool->get($d));
 				}
 			qualified_name_pass1_atom<&$.m_name>
 		)*
@@ -67,27 +65,26 @@ qualified_name_pass1_atom<QualifiedName* $name>
 	:	TokenKind_BaseType
 			{
 				prepareQualifiedNameCodeAssistFallbackIf($1, *$name);
-				if ($name->isTemplate())
-					$name->addTemplateToken(m_tokenPool->get($1));
-				else
-					$name->addName($1.m_data.m_integer - 1);
+				$name->addBaseType($1.m_data.m_integer - 1);
 			}
 	|	TokenKind_Identifier
 			{
 				prepareQualifiedNameCodeAssistFallbackIf($1, *$name);
-				if ($name->isTemplate())
-					$name->addTemplateToken(m_tokenPool->get($1));
-				else
-					$name->addName($1.m_data.m_string);
+				$name->addName($1.m_data.m_string);
 			}
-		(template_instantiate_operator_pass1<(*$name).getTemplateTokenList()>)?
+		(
+			template_instantiate_operator_pass1<(*$name).getTemplateTokenList()>
+				{
+					$name->finalizeTemplateTokenList(m_module->m_unitMgr.getCurrentUnit());
+				}
+		)?
 	;
 
 start
-qualified_name_save_name
+qualified_name_save
 	:	qualified_name_pass1
 			{
-				m_lastQualifiedName = $1.m_name;
+				sl::takeOver(&m_lastQualifiedName, &$1.m_name);
 			}
 	;
 
@@ -146,7 +143,7 @@ qualified_type_name
 	:	resolver ({ return m_mode == Mode_Parse; })
 		qualified_name_pass1
 			{
-				return ($.m_type = getQualifiedTypeName($1.m_name, $pos)) != NULL;
+				return ($.m_type = getQualifiedTypeName(&$1.m_name, $pos)) != NULL;
 			}
 	|	qualified_name
 			{
@@ -207,6 +204,14 @@ type_name_list
 					$.m_typeArray.append($t2.m_type);
 				}
 		)*
+	;
+
+start
+type_name_list_save
+	: type_name_list
+		{
+			sl::takeOver(&m_lastTypeArray, &$1.m_typeArray);
+		}
 	;
 
 //..............................................................................

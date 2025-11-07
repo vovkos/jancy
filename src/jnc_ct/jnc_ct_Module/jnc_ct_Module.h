@@ -594,7 +594,7 @@ CodeAssistMgr::prepareQualifiedNameFallback(
 ) {
 	m_fallbackMode = FallbackMode_QualifiedName;
 	m_fallbackNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
-	m_fallbackNamePrefix = namePrefix;
+	m_fallbackNamePrefix.copy(namePrefix);
 	m_fallbackToken = token;
 }
 

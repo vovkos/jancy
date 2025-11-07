@@ -14,6 +14,7 @@
 #include "jnc_ct_DeclTypeCalc.h"
 #include "jnc_ct_UnionType.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_Parser.llk.h"
 
 namespace jnc {
 namespace ct {
@@ -56,7 +57,9 @@ Template::instantiate(const sl::ArrayRef<Type*>& argArray) {
 	ModuleItemBodyDecl* itemDecl;
 
 	if (m_declType) {
+		openTemplateNamespace(argArray);
 		Type* type = m_declType->instantiate(argArray);
+		m_module->m_namespaceMgr.closeTemplateNamespace();
 		if (!type)
 			return NULL;
 
@@ -104,23 +107,10 @@ Template::instantiate(const sl::ArrayRef<Type*>& argArray) {
 			return NULL;
 		}
 
-		bool finalResult = true;
-
 		for (size_t i = 0; i < argCount; i++) {
-			TemplateArgType* argType = m_argArray[i];
-			Typedef* tdef = m_module->m_typeMgr.createTypedef(
-				argType->getName(),
-				argType->getName(),
-				argArray[i]
-			);
-
-			bool result = type->addItem(tdef);
-			if (!result)
-				finalResult = false;
+			bool result = type->addItem(m_argArray[i]->getName(), argArray[i]);
+			ASSERT(result);
 		}
-
-		if (!finalResult)
-			return false;
 
 		type->m_templateInstance = instance;
 		item = type;
@@ -144,22 +134,45 @@ Template::instantiate(const sl::ArrayRef<Type*>& argArray) {
 	return item;
 }
 
+ModuleItem*
+Template::instantiate(
+	Unit* unit,
+	const sl::List<Token>& argArrayTokenList
+) {
+	sl::List<Token> tokenList;
+	cloneTokenList(&tokenList, argArrayTokenList);
+
+	Unit* prevUnit = m_module->m_unitMgr.setCurrentUnit(unit);
+	Parser parser(m_module, m_pragmaConfig, Parser::Mode_Compile);
+	bool result = parser.parseTokenList(SymbolKind_type_name_list_save, &tokenList);
+	m_module->m_unitMgr.setCurrentUnit(prevUnit);
+	if (!result)
+		return NULL;
+
+	return instantiate(parser.getLastTypeArray());
+}
+
 bool
 Template::deduceArgs(
 	sl::Array<Type*>* templateArgArray,
 	const sl::ConstBoxList<Value>& argTypeList,
 	const sl::ConstBoxList<Value>& argValueList
 ) {
-	Type* declTypeInstance = m_declType->getInstance();
-	if (!declTypeInstance)
-		return false;
+	Type* deductionType = m_declType->getDeductionType();
+	if (!deductionType) {
+		openTemplateNamespace(*(sl::Array<Type*>*)&m_argArray);
+		deductionType = m_declType->createDeductionType();
+		m_module->m_namespaceMgr.closeTemplateNamespace();
+		if (!deductionType)
+			return false;
+	}
 
-	if (declTypeInstance->getTypeKind() != TypeKind_Function) {
+	if (deductionType->getTypeKind() != TypeKind_Function) {
 		err::setError("only templated functions are currently supported");
 		return false;
 	}
 
-	FunctionType* functionType = (FunctionType*)declTypeInstance;
+	FunctionType* functionType = (FunctionType*)deductionType;
 	const sl::Array<FunctionArg*>& functionArgArray = functionType->getArgArray();
 	size_t functionArgCount = functionArgArray.getCount();
 	if (functionArgCount != argValueList.getCount()) {
@@ -194,6 +207,19 @@ Template::deduceArgs(
 	}
 
 	return result;
+}
+
+Namespace*
+Template::openTemplateNamespace(const sl::ArrayRef<Type*>& argArray) {
+	Namespace* nspace = m_module->m_namespaceMgr.openTemplateNamespace();
+
+	size_t argCount = argArray.getCount();
+	for (size_t i = 0; i < argCount; i++) {
+		bool result = nspace->addItem(m_argArray[i]->getName(), argArray[i]);
+		ASSERT(result);
+	}
+
+	return nspace;
 }
 
 //..............................................................................

@@ -130,7 +130,6 @@ member_block_declaration_list
 	:	catch (member_block_declaration_sync) member_block_declaration*
 	;
 
-start
 nullable
 local_declaration_list
 	:	catch (local_declaration_sync) local_declaration*
@@ -163,7 +162,7 @@ extension_declaration
 using_declaration
 	:	TokenKind_Using using_namespace_kind qualified_name_list ';'
 			{
-				return useNamespace($3.m_nameList, $2.m_namespaceKind, $1.m_pos);
+				return useNamespace(&$3.m_nameList, $2.m_namespaceKind, $1.m_pos);
 			}
 	;
 

@@ -169,8 +169,7 @@ FunctionPtrType::deduceTemplateArgs(
 	sl::Array<Type*>* templateArgTypeArray,
 	Type* referenceType
 ) {
-	TypeKind typeKind = referenceType->getTypeKind();
-	if (typeKind != TypeKind_FunctionPtr) {
+	if (referenceType->getTypeKind() != TypeKind_FunctionPtr) {
 		setTemplateArgDeductionError(referenceType);
 		return false;
 	}

@@ -409,8 +409,7 @@ FunctionType::deduceTemplateArgs(
 	sl::Array<Type*>* templateArgTypeArray,
 	Type* referenceType
 ) {
-	TypeKind typeKind = referenceType->getTypeKind();
-	if (typeKind != TypeKind_Function) {
+	if (referenceType->getTypeKind() != TypeKind_Function) {
 		setTemplateArgDeductionError(referenceType);
 		return false;
 	}
@@ -426,7 +425,10 @@ FunctionType::deduceTemplateArgs(
 	for (size_t i = 0; i < argCount; i++) {
 		FunctionArg* selfArg = m_argArray[i];
 		FunctionArg* referenceArg = type->m_argArray[i];
-		result = selfArg->getType()->deduceTemplateArgs(templateArgTypeArray, referenceArg->getType()) && result;
+		result = selfArg->getType()->deduceTemplateArgs(
+			templateArgTypeArray,
+			referenceArg->getType()
+		) && result;
 	}
 
 	if (selfArgCount != referenceArgCount) {

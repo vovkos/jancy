@@ -26,8 +26,9 @@ Orphan::resolveForCodeAssist(Namespace* nspace) {
 		return m_origin;
 	}
 
-	QualifiedNameAtom name = m_declaratorName.removeFirstName();
-	FindModuleItemResult findResult = nspace->findDirectChildItem(name);
+	QualifiedNameAtom atom;
+	m_declaratorName.removeFirstAtom(&atom);
+	FindModuleItemResult findResult = nspace->findDirectChildItem(m_declaratorName.getUnit(), atom);
 	if (!findResult.m_result || !findResult.m_item)
 		return NULL;
 
@@ -169,7 +170,7 @@ Orphan::adoptOrphanFunction(ModuleItem* item) {
 	ASSERT(originFunction->m_functionKind == m_functionKind);
 
 	copySrcPos(originFunction);
-	originFunction->addUsingSet(&m_usingSet);
+	originFunction->addUsingSet(m_usingSet);
 
 	FunctionType* originType = originFunction->getType();
 	if (originType->getFlags() & ModuleItemFlag_User) {
@@ -220,7 +221,7 @@ Orphan::adoptOrphanReactor(ModuleItem* item) {
 
 	copySrcPos(originType);
 	copySrcPos(originReactor);
-	originReactor->addUsingSet(&m_usingSet);
+	originReactor->addUsingSet(m_usingSet);
 
 	return
 		originType->setBody(m_pragmaConfig, m_bodyPos, m_body) &&

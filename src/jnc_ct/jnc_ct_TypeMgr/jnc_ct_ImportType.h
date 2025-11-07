@@ -105,10 +105,9 @@ class NamedImportType:
 	friend class Parser;
 
 protected:
-	QualifiedName m_name;
 	Namespace* m_anchorNamespace;
+	QualifiedName m_name;
 	QualifiedName m_anchorName;
-	sl::StringRef m_qualifiedName;
 
 public:
 	NamedImportType() {
@@ -131,32 +130,25 @@ public:
 		return m_anchorName;
 	}
 
-	const sl::StringRef&
-	getQualifiedName() {
-		return m_qualifiedName;
-	}
-
 	static
 	sl::String
 	createSignature(
 		const QualifiedName& name,
 		Namespace* anchorNamespace,
-		const QualifiedName& anchorName
+		const QualifiedName* anchorName = NULL
 	);
 
 protected:
 	virtual
 	void
 	prepareSignature() {
-		m_signature = createSignature(m_name, m_anchorNamespace, m_anchorName);
+		m_signature = createSignature(m_name, m_anchorNamespace, &m_anchorName);
 		m_flags |= TypeFlag_SignatureReady;
 	}
 
 	virtual
 	void
-	prepareTypeString() {
-		getTypeStringTuple()->m_typeStringPrefix = sl::formatString("import %s", getQualifiedName().sz());
-	}
+	prepareTypeString();
 
 	virtual
 	bool

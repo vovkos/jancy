@@ -43,13 +43,13 @@ public:
 	clear();
 
 	void
-	append(const UsingSet* src);
+	append(const UsingSet& src);
 
 	bool
 	addNamespace(
 		Namespace* anchorNamespace,
 		NamespaceKind namespaceKind,
-		const QualifiedName& name
+		QualifiedName* name // destructive
 	);
 
 	void
@@ -106,7 +106,7 @@ public:
 	}
 
 	void
-	addUsingSet(UsingSet* usingSet) {
+	addUsingSet(const UsingSet& usingSet) {
 		m_usingSet.append(usingSet);
 	}
 

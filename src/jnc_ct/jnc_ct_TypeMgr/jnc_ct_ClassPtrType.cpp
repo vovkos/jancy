@@ -121,6 +121,22 @@ ClassPtrType::calcFoldedDualType(
 	return m_module->m_typeMgr.getClassPtrType(m_targetType, m_typeKind, m_ptrTypeKind, flags);
 }
 
+bool
+ClassPtrType::deduceTemplateArgs(
+	sl::Array<Type*>* templateArgTypeArray,
+	Type* referenceType
+) {
+	if (referenceType->getTypeKind() != TypeKind_ClassPtr) {
+		setTemplateArgDeductionError(referenceType);
+		return false;
+	}
+
+	return m_targetType->deduceTemplateArgs(
+		templateArgTypeArray,
+		((ClassPtrType*)referenceType)->getTargetType()
+	);
+}
+
 //..............................................................................
 
 } // namespace ct

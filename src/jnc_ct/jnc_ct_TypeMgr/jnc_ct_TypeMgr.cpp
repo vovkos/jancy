@@ -1532,13 +1532,13 @@ TypeMgr::getPropertyVtableStructType(PropertyType* propertyType) {
 
 NamedImportType*
 TypeMgr::getNamedImportType(
-	const QualifiedName& name,
+	QualifiedName* name,
 	Namespace* anchorNamespace,
-	const QualifiedName& anchorName
+	QualifiedName* anchorName
 ) {
 	ASSERT(anchorNamespace->getNamespaceKind() != NamespaceKind_Scope);
 
-	sl::String signature = NamedImportType::createSignature(name, anchorNamespace, anchorName);
+	sl::String signature = NamedImportType::createSignature(*name, anchorNamespace, anchorName);
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
 	if (it->m_value) {
 		ASSERT(it->m_value->m_signature == signature);
@@ -1547,12 +1547,12 @@ TypeMgr::getNamedImportType(
 
 	NamedImportType* type = new NamedImportType;
 	type->m_module = m_module;
-	type->m_name = name;
 	type->m_anchorNamespace = anchorNamespace;
-	type->m_anchorName = anchorName;
-	type->m_qualifiedName = anchorName.isEmpty() ?
-		anchorNamespace->createQualifiedName(name) :
-		anchorNamespace->createQualifiedName(anchorName) + '.' + name.getFullName();
+
+	if (anchorName)
+		sl::takeOver(&type->m_anchorName, anchorName);
+
+	sl::takeOver(&type->m_name, name);
 	type->m_signature = signature;
 	type->m_flags |= TypeFlag_SignatureReady;
 

@@ -82,6 +82,12 @@ TemplatePtrType::deduceTemplateArgs(
 			((DataPtrType*)referenceType)->getTargetType()
 		);
 
+	case TypeKind_ClassPtr:
+		return m_baseType->deduceTemplateArgs(
+			templateArgTypeArray,
+			((ClassPtrType*)referenceType)->getTargetType()
+		);
+
 	case TypeKind_FunctionPtr:
 		return m_baseType->deduceTemplateArgs(
 			templateArgTypeArray,
@@ -150,6 +156,10 @@ TemplateIntModType::prepareTypeString() {
 
 Type*
 TemplateDeclType::instantiate(const sl::ArrayRef<Type*>& argArray) {
+	bool result = m_declarator.getBaseType()->ensureNoImports();
+	if (!result)
+		return NULL;
+
 	Type* baseType = m_declarator.getBaseType();
 	if (baseType->getTypeKindFlags() & TypeKindFlag_Template) {
 		TypeKind typeKind = baseType->getTypeKind();

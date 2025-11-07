@@ -165,6 +165,13 @@ public:
 		return (m_flags & ClassTypeFlag_Creatable) ? true : prepareForOperatorNew();
 	}
 
+	virtual
+	bool
+	deduceTemplateArgs(
+		sl::Array<Type*>* templateArgTypeArray,
+		Type* referenceType
+	);
+
 protected:
 	void
 	markGcRootsImpl(

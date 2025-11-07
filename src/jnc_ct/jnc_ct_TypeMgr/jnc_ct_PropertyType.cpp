@@ -175,8 +175,7 @@ PropertyType::deduceTemplateArgs(
 	sl::Array<Type*>* templateArgTypeArray,
 	Type* referenceType
 ) {
-	TypeKind typeKind = referenceType->getTypeKind();
-	if (typeKind != TypeKind_Property) {
+	if (referenceType->getTypeKind() != TypeKind_Property) {
 		setTemplateArgDeductionError(referenceType);
 		return false;
 	}

@@ -280,7 +280,7 @@ OperatorMgr::initialize(
 	sl::BoxList<Value> argList;
 	if (!constructorTokenList->isEmpty()) {
 		Parser parser(m_module, NULL, Parser::Mode_Compile);
-		result = parser.parseTokenList(SymbolKind_expression_or_empty_list_save_list, constructorTokenList);
+		result = parser.parseTokenList(SymbolKind_expression_or_empty_list_save, constructorTokenList);
 		if (!result)
 			return false;
 
@@ -320,7 +320,7 @@ OperatorMgr::parseInitializer(
 
 	default:
 		result =
-			parser.parseTokenList(SymbolKind_expression_save_value, tokenList) &&
+			parser.parseTokenList(SymbolKind_expression_save, tokenList) &&
 			m_module->m_operatorMgr.binaryOperator(BinOpKind_Assign, value, parser.getLastExpressionValue());
 	}
 
@@ -355,7 +355,7 @@ OperatorMgr::parseFunctionArgDefaultValue(
 	m_module->m_namespaceMgr.lockSourcePos();
 	sl::List<Token> tmpTokenList;
 	cloneTokenList(&tmpTokenList, tokenList);
-	bool result = parser.parseTokenList(SymbolKind_expression_save_value, &tmpTokenList);
+	bool result = parser.parseTokenList(SymbolKind_expression_save, &tmpTokenList);
 	m_module->m_namespaceMgr.unlockSourcePos();
 
 	*resultValue = parser.getLastExpressionValue();
@@ -369,7 +369,7 @@ OperatorMgr::parseExpression(
 ) {
 	Parser parser(m_module, NULL, Parser::Mode_Compile);
 
-	bool result = parser.parseTokenList(SymbolKind_expression_save_value, expressionTokenList);
+	bool result = parser.parseTokenList(SymbolKind_expression_save, expressionTokenList);
 	if (!result)
 		return false;
 

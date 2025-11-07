@@ -121,6 +121,7 @@ protected:
 	QualifiedName m_lastQualifiedName;
 	Value m_lastExpressionValue;
 	sl::BoxList<Value> m_lastExpressionValueList;
+	sl::Array<Type*> m_lastTypeArray;
 	FunctionType* m_lastPropertyGetterType;
 	uint_t m_lastPropertyTypeModifiers;
 
@@ -174,6 +175,11 @@ public:
 	const sl::BoxList<Value>&
 	getLastExpressionValueList() {
 		return m_lastExpressionValueList;
+	}
+
+	const sl::Array<Type*>&
+	getLastTypeArray() {
+		return m_lastTypeArray;
 	}
 
 	void
@@ -232,7 +238,7 @@ protected:
 
 	Type*
 	getQualifiedTypeName(
-		const QualifiedName& name,
+		QualifiedName* name,
 		const lex::LineCol& pos
 	);
 
@@ -416,7 +422,7 @@ protected:
 
 	bool
 	useNamespace(
-		const sl::BoxList<QualifiedName>& nameList,
+		sl::BoxList<QualifiedName>* nameList,
 		NamespaceKind namespaceKind,
 		const lex::LineCol& pos
 	);
@@ -826,7 +832,10 @@ lookahead(2, default);
 start
 nullable
 compilation_unit
-	:	catch (compilation_unit_sync) (import_declaration | global_declaration)*
+	:	catch (compilation_unit_sync) (
+			import_declaration
+		|	global_declaration
+		)*
 	;
 
 compilation_unit_sync

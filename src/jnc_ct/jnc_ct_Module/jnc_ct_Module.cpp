@@ -712,10 +712,11 @@ Module::processRequireSet() {
 			QualifiedName name;
 			name.parse(requireIt->getKey());
 
+			// safe to pass NULL as Unit* because QualifiedName::parse yields names (no templates)
 			Namespace* nspace = m_namespaceMgr.getGlobalNamespace();
-			findResult = nspace->findDirectChildItem(name.getFirstName());
+			findResult = nspace->findDirectChildItem(NULL, name.getFirstAtom());
 			if (findResult.m_item) {
-				sl::ConstBoxIterator<QualifiedNameAtom> nameIt = name.getNameList().getHead();
+				sl::ConstBoxIterator<QualifiedNameAtom> nameIt = name.getAtomList().getHead();
 				for (; nameIt; nameIt++) {
 					Namespace* nspace = findResult.m_item->getNamespace();
 					if (!nspace) {

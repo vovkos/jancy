@@ -16,31 +16,27 @@
 namespace jnc {
 namespace ct {
 
+class Unit;
+
 //..............................................................................
 
 enum QualifiedNameAtomKind {
 	QualifiedNameAtomKind_Empty,
+	QualifiedNameAtomKind_BaseType,
 	QualifiedNameAtomKind_Name,
-	QualifiedNameAtomKind_BaseTypeIdx,
+	QualifiedNameAtomKind_Template,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct QualifiedNameAtom {
 	QualifiedNameAtomKind m_atomKind;
-	size_t m_baseTypeIdx;
-	sl::StringRef m_name;
+	size_t m_baseTypeIdx; // QualifiedNameAtomKind_BaseType
+	sl::StringRef m_name; // QualifiedNameAtomKind_Name
+	sl::List<Token> m_templateTokenList; // QualifiedNameAtomKind_Template
 
 	QualifiedNameAtom() {
 		m_atomKind = QualifiedNameAtomKind_Empty;
-		m_baseTypeIdx = -1;
-	}
-
-	QualifiedNameAtom(const sl::StringRef& name);
-
-	QualifiedNameAtom(size_t baseTypeIdx) {
-		m_atomKind = QualifiedNameAtomKind_BaseTypeIdx;
-		m_baseTypeIdx = baseTypeIdx;
 	}
 
 	bool
@@ -48,95 +44,98 @@ struct QualifiedNameAtom {
 		return !m_atomKind;
 	}
 
+	sl::StringRef
+	getString() const;
+
 	void
 	clear() {
 		m_atomKind = QualifiedNameAtomKind_Empty;
 	}
 
-	sl::StringRef
-	getString() const;
+	void
+	copy(const QualifiedNameAtom& atom);
+
+	void
+	setName(const sl::StringRef& name) {
+		m_atomKind = QualifiedNameAtomKind_Name;
+		m_name = name;
+	}
+
+	void
+	setBaseType(size_t baseTypeIdx) {
+		m_atomKind = QualifiedNameAtomKind_BaseType;
+		m_baseTypeIdx = baseTypeIdx;
+	}
 };
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-inline
-QualifiedNameAtom::QualifiedNameAtom(const sl::StringRef& name) {
-	m_atomKind = QualifiedNameAtomKind_Name;
-	m_baseTypeIdx = -1;
-	m_name = name;
-}
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class QualifiedName {
 protected:
-	QualifiedNameAtom m_firstName;
-	sl::BoxList<QualifiedNameAtom> m_nameList;
-	sl::List<Token> m_templateTokenList;
+	Unit* m_unit;
+	QualifiedNameAtom m_firstAtom;
+	sl::BoxList<QualifiedNameAtom> m_atomList;
 
 public:
-	QualifiedName() {}
-
-	explicit
-	QualifiedName(const sl::StringRef& name) {
-		m_firstName.m_name = name;
-	}
-
-	explicit
-	QualifiedName(size_t baseTypeIdx) {
-		m_firstName.m_baseTypeIdx = baseTypeIdx;
-	}
-
-	QualifiedName(const QualifiedName& name) {
-		copy(name);
-	}
-
-	QualifiedName&
-	operator = (const QualifiedName& name) {
-		copy(name);
-		return *this;
+	QualifiedName() {
+		m_unit = NULL;
 	}
 
 	bool
 	isEmpty() const {
-		return m_firstName.isEmpty();
+		return m_firstAtom.isEmpty();
+	}
+
+	bool
+	isQualified() const {
+		return !m_atomList.isEmpty();
 	}
 
 	bool
 	isSimple() const {
-		return m_nameList.isEmpty() && m_templateTokenList.isEmpty();
+		return m_atomList.isEmpty() && m_firstAtom.m_atomKind != QualifiedNameAtomKind_Template;
 	}
 
-	bool
-	isTemplate() const {
-		return !m_templateTokenList.isEmpty();
+	Unit*
+	getUnit() const {
+		return m_unit;
 	}
 
 	const QualifiedNameAtom&
-	getFirstName() const {
-		return m_firstName;
+	getFirstAtom() const {
+		return m_firstAtom;
+	}
+
+	QualifiedNameAtom*
+	getLastAtom() {
+		return !m_atomList.isEmpty() ? &*m_atomList.getTail() : &m_firstAtom;
 	}
 
 	const sl::BoxList<QualifiedNameAtom>&
-	getNameList() const {
-		return m_nameList;
+	getAtomList() const {
+		return m_atomList;
 	}
 
-	sl::List<Token>*
-	getTemplateTokenList() {
-		return &m_templateTokenList;
-	}
-
-	const QualifiedNameAtom&
-	getShortName() const {
-		return !m_nameList.isEmpty() ? *m_nameList.getTail() : m_firstName;
-	}
+	const sl::StringRef&
+	getShortName() const;
 
 	sl::StringRef
 	getFullName() const;
 
+	sl::List<Token>*
+	getTemplateTokenList() {
+		ASSERT(getLastAtom()->m_atomKind == QualifiedNameAtomKind_Name);
+		return &getLastAtom()->m_templateTokenList;
+	}
+
 	void
-	clear();
+	finalizeTemplateTokenList(Unit* unit);
+
+	void
+	clear() {
+		m_firstAtom.clear();
+		m_atomList.clear();
+	}
 
 	void
 	copy(const QualifiedName& name);
@@ -145,28 +144,63 @@ public:
 	parse(const sl::StringRef& name);
 
 	void
-	addName(const QualifiedNameAtom& name);
-
-	void
-	addTemplateToken(Token* token) {
-		m_templateTokenList.insertTail(token);
+	addName(const sl::StringRef& name) {
+		addAtom()->setName(name);
 	}
 
-	QualifiedNameAtom
-	removeFirstName();
+	void
+	addBaseType(size_t baseTypeIdx) {
+		addAtom()->setBaseType(baseTypeIdx);
+	}
 
-	QualifiedNameAtom
-	removeLastName();
+	void
+	removeFirstAtom(QualifiedNameAtom* atom);
+
+	void
+	removeLastAtom();
+
+protected:
+	QualifiedNameAtom*
+	addAtom() {
+		return m_firstAtom.isEmpty() ? &m_firstAtom : &*m_atomList.insertTail();
+	}
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
+const sl::StringRef&
+QualifiedName::getShortName() const {
+	const QualifiedNameAtom& atom = !m_atomList.isEmpty() ? *m_atomList.getTail() : m_firstAtom;
+	ASSERT(atom.m_atomKind == QualifiedNameAtomKind_Name);
+	return atom.m_name;
+}
+
+inline
 void
-QualifiedName::clear() {
-	m_firstName.clear();
-	m_nameList.clear();
-	m_templateTokenList.clear();
+QualifiedName::finalizeTemplateTokenList(Unit* unit) {
+	QualifiedNameAtom* atom = getLastAtom();
+
+	ASSERT(
+		atom->m_atomKind == QualifiedNameAtomKind_Name &&
+		atom->m_templateTokenList.getHead()->m_tokenKind == '<' &&
+		atom->m_templateTokenList.getTail()->m_tokenKind == '>' &&
+		(!m_unit || m_unit == unit)
+	);
+
+	atom->m_atomKind = QualifiedNameAtomKind_Template;
+	atom->m_templateTokenList.eraseHead();
+	atom->m_templateTokenList.eraseTail();
+	m_unit = unit;
+}
+
+inline
+void
+QualifiedName::removeLastAtom() {
+	if (m_atomList.isEmpty())
+		m_firstAtom.clear();
+	else
+		m_atomList.eraseTail();
 }
 
 //..............................................................................

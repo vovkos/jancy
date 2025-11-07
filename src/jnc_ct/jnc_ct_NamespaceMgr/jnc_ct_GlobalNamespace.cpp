@@ -112,11 +112,8 @@ GlobalNamespace::parseBodyImpl(
 		body.getSubString(1, length - 2)
 	);
 
-	if (!result)
-		return false;
-
 	m_module->m_unitMgr.setCurrentUnit(prevUnit);
-	return true;
+	return result;
 }
 
 bool

@@ -43,7 +43,7 @@ AsyncLauncherFunction::compile() {
 	m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
 
 	m_module->m_functionMgr.prologue(this, m_bodyPos);
-	m_module->m_namespaceMgr.getCurrentScope()->addUsingSet(&m_usingSet);
+	m_module->m_namespaceMgr.getCurrentScope()->addUsingSet(m_usingSet);
 
 	sl::Array<Variable*> argVariableArray = m_module->m_variableMgr.getArgVariableArray();
 	size_t argCount = argVariableArray.getCount();

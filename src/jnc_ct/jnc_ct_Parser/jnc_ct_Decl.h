@@ -383,7 +383,7 @@ public:
 
 	bool
 	isQualified() {
-		return m_declaratorKind == DeclaratorKind_Name ? !m_name.isSimple() : !m_name.isEmpty();
+		return m_declaratorKind == DeclaratorKind_Name ? m_name.isQualified() : !m_name.isEmpty();
 	}
 
 	DeclaratorKind
@@ -425,13 +425,12 @@ public:
 	const sl::StringRef&
 	getSimpleName() {
 		ASSERT(isSimple());
-		return m_name.getFirstName().m_name;
+		return m_name.getFirstAtom().m_name;
 	}
 
 	const sl::StringRef&
 	getShortName() {
-		ASSERT(m_name.getShortName().m_atomKind == QualifiedNameAtomKind_Name);
-		return m_name.getShortName().m_name;
+		return m_name.getShortName();
 	}
 
 	const lex::LineCol&

@@ -161,7 +161,7 @@ class TemplateDeclType: public TemplateType
 
 protected:
 	Declarator m_declarator;
-	Type* m_instance; // includes TemplateType-s
+	Type* m_deductionType; // includes TemplateType-s
 	size_t m_id;
 
 public:
@@ -173,10 +173,14 @@ public:
 	}
 
 	Type*
-	getInstance() {
-		return m_instance ?
-			m_instance :
-			m_instance = instantiate(*(sl::ArrayRef<Type*>*)&m_declarator.getTemplateArgArray());
+	getDeductionType() {
+		return m_deductionType;
+	}
+
+	Type*
+	createDeductionType() {
+		ASSERT(!m_deductionType);
+		return m_deductionType = instantiate(*(sl::ArrayRef<Type*>*)&m_declarator.getTemplateArgArray());
 	}
 
 	Type*
@@ -202,7 +206,7 @@ protected:
 inline
 TemplateDeclType::TemplateDeclType() {
 	m_typeKind = TypeKind_TemplateDecl;
-	m_instance = NULL;
+	m_deductionType = NULL;
 	m_id = 0;
 }
 

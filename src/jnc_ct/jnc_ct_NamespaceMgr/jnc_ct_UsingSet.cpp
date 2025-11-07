@@ -20,14 +20,16 @@ namespace ct {
 //..............................................................................
 
 void
-UsingSet::append(const UsingSet* src) {
-	m_globalNamespaceArray.append(src->m_globalNamespaceArray);
-	m_extensionNamespaceArray.append(src->m_extensionNamespaceArray);
+UsingSet::append(const UsingSet& src) {
+	m_globalNamespaceArray.append(src.m_globalNamespaceArray);
+	m_extensionNamespaceArray.append(src.m_extensionNamespaceArray);
 
-	sl::ConstIterator<ImportNamespace> it = src->m_importNamespaceList.getHead();
+	sl::ConstIterator<ImportNamespace> it = src.m_importNamespaceList.getHead();
 	for (; it; it++) {
 		ImportNamespace* importNamespace = new ImportNamespace;
-		*importNamespace = **it;
+		importNamespace->m_namespaceKind = it->m_namespaceKind;
+		importNamespace->m_anchorNamespace = it->m_anchorNamespace;
+		importNamespace->m_name.copy(it->m_name);
 		m_importNamespaceList.insertTail(importNamespace);
 	}
 }
@@ -78,35 +80,35 @@ bool
 UsingSet::addNamespace(
 	Namespace* anchorNamespace,
 	NamespaceKind namespaceKind,
-	const QualifiedName& name
+	QualifiedName* name
 ) {
-	FindModuleItemResult findResult = anchorNamespace->findItemTraverse(name);
+	FindModuleItemResult findResult = anchorNamespace->findItemTraverse(*name);
 	if (!findResult.m_result)
 		return false;
 
 	if (!findResult.m_item) {
 		Module* module = anchorNamespace->getParentItem()->getModule();
 		if (module->getCompileState() >= ModuleCompileState_Parsed) {
-			err::setFormatStringError("namespace '%s' not found", name.getFullName().sz());
+			err::setFormatStringError("namespace '%s' not found", name->getFullName().sz());
 			return false;
 		}
 
 		ImportNamespace* importNamespace = new ImportNamespace;
 		importNamespace->m_anchorNamespace = anchorNamespace;
 		importNamespace->m_namespaceKind = namespaceKind;
-		importNamespace->m_name = name;
+		sl::takeOver(&importNamespace->m_name, name);
 		m_importNamespaceList.insertTail(importNamespace);
 		return true;
 	}
 
 	if (findResult.m_item->getItemKind() != ModuleItemKind_Namespace) {
-		err::setFormatStringError("'%s' is a %s, not a namespace", name.getFullName ().sz(), getModuleItemKindString(findResult.m_item->getItemKind()));
+		err::setFormatStringError("'%s' is a %s, not a namespace", name->getFullName ().sz(), getModuleItemKindString(findResult.m_item->getItemKind()));
 		return false;
 	}
 
 	GlobalNamespace* nspace = (GlobalNamespace*)findResult.m_item;
 	if (nspace->getNamespaceKind() != namespaceKind) {
-		err::setFormatStringError("'%s' is not %s", name.getFullName ().sz(), getNamespaceKindString(namespaceKind));
+		err::setFormatStringError("'%s' is not %s", name->getFullName ().sz(), getNamespaceKindString(namespaceKind));
 		return false;
 	}
 
@@ -136,7 +138,7 @@ UsingSet::resolve() {
 		result = addNamespace(
 			importNamespace->m_anchorNamespace,
 			importNamespace->m_namespaceKind,
-			importNamespace->m_name
+			&importNamespace->m_name
 		);
 
 		if (!result)
@@ -153,7 +155,7 @@ UsingSet::resolve() {
 void
 ModuleItemUsingSet::addUsingSet(Namespace* anchorNamespace) {
 	for (Namespace* nspace = anchorNamespace; nspace; nspace = nspace->getParentNamespace())
-		m_usingSet.append(nspace->getUsingSet());
+		m_usingSet.append(*nspace->getUsingSet());
 }
 
 //..............................................................................

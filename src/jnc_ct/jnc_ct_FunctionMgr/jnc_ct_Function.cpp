@@ -86,7 +86,7 @@ Function::compile() {
 				scope->addItem(templateArgArray[i]->getName(), m_templateInstance->m_argArray[i]);
 		}
 
-		scope->addUsingSet(&m_usingSet);
+		scope->addUsingSet(m_usingSet);
 
 		Parser parser(m_module, m_pragmaConfig, Parser::Mode_Compile);
 		SymbolKind symbolKind = SymbolKind_compound_stmt;
@@ -131,7 +131,7 @@ Function::compile() {
 	// otherwise, a redirected function
 
 	Parser parser(m_module, m_pragmaConfig, Parser::Mode_Parse);
-	result = parser.parseTokenList(SymbolKind_qualified_name_save_name, &m_initializer);
+	result = parser.parseTokenList(SymbolKind_qualified_name_save, &m_initializer);
 	if (!result)
 		return false;
 

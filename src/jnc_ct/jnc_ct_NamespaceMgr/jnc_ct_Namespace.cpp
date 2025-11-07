@@ -106,7 +106,8 @@ Namespace::resolveOrphans() {
 			continue;
 		}
 
-		QualifiedNameAtom atom = orphan->m_declaratorName.removeFirstName();
+		QualifiedNameAtom atom;
+		orphan->m_declaratorName.removeFirstAtom(&atom);
 		if (atom.m_atomKind != QualifiedNameAtomKind_Name) {
 			err::setFormatStringError("invalid orphan name '%s'", atom.getString().sz());
 			orphan->pushSrcPosError();
@@ -277,18 +278,46 @@ Namespace::findDirectChildItem(const sl::StringRef& name) {
 }
 
 FindModuleItemResult
+Namespace::findDirectChildItem(
+	Unit* unit,
+	const QualifiedNameAtom& name
+) {
+	Template* templ;
+	switch (name.m_atomKind) {
+	case QualifiedNameAtomKind_BaseType:
+		err::setError("finding basetypes is not implemented yet");
+		return g_errorFindModuleItemResult;
+
+	case QualifiedNameAtomKind_Name:
+		return findDirectChildItem(name.m_name);
+
+	case QualifiedNameAtomKind_Template:
+		return finalizeFindTemplate(
+			unit,
+			name,
+			findDirectChildItem(name.m_name)
+		);
+
+	default:
+		ASSERT(false);
+		return g_nullFindModuleItemResult;
+	}
+}
+
+FindModuleItemResult
 Namespace::findItem(const QualifiedName& name) {
-	FindModuleItemResult findResult = findDirectChildItem(name.getFirstName());
+	Unit* unit = name.getUnit();
+	FindModuleItemResult findResult = findDirectChildItem(unit, name.getFirstAtom());
 	if (!findResult.m_item)
 		return findResult;
 
-	sl::ConstBoxIterator<QualifiedNameAtom> it = name.getNameList().getHead();
+	sl::ConstBoxIterator<QualifiedNameAtom> it = name.getAtomList().getHead();
 	for (; it; it++) {
 		Namespace* nspace = findResult.m_item->getNamespace();
 		if (!nspace)
 			return g_nullFindModuleItemResult;
 
-		findResult = nspace->findDirectChildItem(*it);
+		findResult = nspace->findDirectChildItem(unit, *it);
 		if (!findResult.m_item)
 			return findResult;
 	}
@@ -302,23 +331,18 @@ Namespace::findItemTraverse(
 	MemberCoord* coord,
 	uint_t flags
 ) {
-	QualifiedNameAtom atom = name.getFirstName();
-	if (atom.m_atomKind != QualifiedNameAtomKind_Name) {
-		err::setError("finding non-name atoms is not implemented yet");
-		return g_errorFindModuleItemResult;
-	}
-
-	FindModuleItemResult findResult = findDirectChildItemTraverse(atom.m_name, coord, flags);
+	Unit* unit = name.getUnit();
+	FindModuleItemResult findResult = findDirectChildItemTraverse(unit, name.getFirstAtom(), coord, flags);
 	if (!findResult.m_item)
 		return findResult;
 
-	sl::ConstBoxIterator<QualifiedNameAtom> nameIt = name.getNameList().getHead();
+	sl::ConstBoxIterator<QualifiedNameAtom> nameIt = name.getAtomList().getHead();
 	for (; nameIt; nameIt++) {
 		Namespace* nspace = findResult.m_item->getNamespace();
 		if (!nspace)
 			return g_nullFindModuleItemResult;
 
-		findResult = nspace->findDirectChildItem(*nameIt);
+		findResult = nspace->findDirectChildItem(unit, *nameIt);
 		if (!findResult.m_item)
 			return findResult;
 	}
@@ -352,6 +376,57 @@ Namespace::findDirectChildItemTraverse(
 	return !(flags & TraverseFlag_NoParentNamespace) && m_parentNamespace ?
 		m_parentNamespace->findDirectChildItemTraverse(name, coord, flags & ~TraverseFlag_NoThis) :
 		g_nullFindModuleItemResult;
+}
+
+FindModuleItemResult
+Namespace::findDirectChildItemTraverse(
+	Unit* unit,
+	const QualifiedNameAtom& name,
+	MemberCoord* coord,
+	uint_t flags
+) {
+	Template* templ;
+	switch (name.m_atomKind) {
+	case QualifiedNameAtomKind_BaseType:
+		err::setError("finding basetypes is not implemented yet");
+		return g_errorFindModuleItemResult;
+
+	case QualifiedNameAtomKind_Name:
+		return findDirectChildItemTraverse(name.m_name, coord, flags);
+
+	case QualifiedNameAtomKind_Template:
+		return finalizeFindTemplate(
+			unit,
+			name,
+			findDirectChildItemTraverse(name.m_name, coord, flags)
+		);
+
+	default:
+		ASSERT(false);
+		return g_nullFindModuleItemResult;
+	}
+
+}
+
+inline
+FindModuleItemResult
+Namespace::finalizeFindTemplate(
+	Unit* unit,
+	const QualifiedNameAtom& name,
+	FindModuleItemResult findResult
+) {
+	if (!findResult.m_item)
+		return findResult;
+
+	if (findResult.m_item->getItemKind() != ModuleItemKind_Template) {
+		err::setFormatStringError("'%s' is not a template", findResult.m_item->getItemName().sz());
+		return g_errorFindModuleItemResult;
+	}
+
+	ModuleItem* item = ((Template*)findResult.m_item)->instantiate(unit, name.m_templateTokenList);
+	return item ?
+		FindModuleItemResult(item) :
+		g_errorFindModuleItemResult;
 }
 
 bool

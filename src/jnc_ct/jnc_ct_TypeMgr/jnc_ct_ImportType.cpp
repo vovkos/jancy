@@ -55,15 +55,31 @@ sl::String
 NamedImportType::createSignature(
 	const QualifiedName& name,
 	Namespace* anchorNamespace,
-	const QualifiedName& anchorName
+	const QualifiedName* anchorName
 ) {
 	sl::String signature = "IN" + anchorNamespace->createQualifiedName(name);
-	if (!anchorName.isEmpty()) {
+	if (anchorName) {
 		signature += '-';
-		signature += anchorName.getFullName();
+		signature += anchorName->getFullName();
 	}
 
 	return signature;
+}
+
+void
+NamedImportType::prepareTypeString() {
+	TypeStringTuple* tuple = getTypeStringTuple();
+
+	tuple->m_typeStringPrefix = m_anchorName.isEmpty() ?
+		sl::formatString(
+			"import %s",
+			m_anchorNamespace->createQualifiedName(m_name).sz()
+		) :
+		sl::formatString(
+			"import %s.%s",
+			m_anchorNamespace->createQualifiedName(m_anchorName).sz(),
+			m_name.getFullName().sz()
+		);
 }
 
 bool
@@ -137,8 +153,7 @@ ImportPtrType::prepareTypeString() {
 		return;
 	}
 
-	sl::String string = "import ";
-	string += m_baseType->getQualifiedName();
+	sl::String string = m_baseType->getTypeString();
 
 	if (m_typeModifiers) {
 		string += ' ';
@@ -177,10 +192,9 @@ ImportIntModType::prepareTypeString() {
 
 	ASSERT(m_typeModifiers);
 
-	sl::String string = "import ";
-	string += getTypeModifierString(m_typeModifiers);
+	sl::String string = getTypeModifierString(m_typeModifiers);
 	string += ' ';
-	string += m_baseType->getQualifiedName();
+	string += m_baseType->getTypeString();
 	tuple->m_typeStringPrefix = string;
 }
 

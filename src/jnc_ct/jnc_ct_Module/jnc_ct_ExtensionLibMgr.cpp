@@ -247,7 +247,7 @@ ExtensionLibMgr::findItem(
 	ASSERT(m_module);
 
 	if (cacheSlot == -1) // no caching for this item
-		return m_module->m_namespaceMgr.getGlobalNamespace()->findItemImpl<sl::False>(name);
+		return m_module->m_namespaceMgr.getGlobalNamespace()->findItemNoParse(name);
 
 	ItemCacheEntry* entry;
 	ItemCacheMap::Iterator it = m_itemCacheMap.visit(libGuid);
@@ -266,7 +266,7 @@ ExtensionLibMgr::findItem(
 	if (entry->m_itemArray[cacheSlot])
 		return FindModuleItemResult(entry->m_itemArray[cacheSlot]);
 
-	FindModuleItemResult findResult = m_module->m_namespaceMgr.getGlobalNamespace()->findItemImpl<sl::False>(name);
+	FindModuleItemResult findResult = m_module->m_namespaceMgr.getGlobalNamespace()->findItemNoParse(name);
 	if (findResult.m_item)
 		entry->m_itemArray.rwi()[cacheSlot] = findResult.m_item;
 

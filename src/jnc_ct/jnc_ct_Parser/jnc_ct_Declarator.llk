@@ -49,7 +49,6 @@ special_void_method_declarator
 			{
 				$.m_declarator.m_attributeBlock = popAttributeBlock();
 				$.m_declarator.m_doxyBlock = m_doxyParser.popBlock();
-
 				postDeclaratorName(&$.m_declarator);
 			}
 		function_suffix<&$.m_declarator>

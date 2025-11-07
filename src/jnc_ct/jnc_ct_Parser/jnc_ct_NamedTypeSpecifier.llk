@@ -11,7 +11,6 @@
 
 // root
 
-start
 named_type_specifier
 	:	enum_specifier
 	|	struct_specifier

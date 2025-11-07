@@ -345,12 +345,13 @@ Parser::parseEofToken(
 
 Type*
 Parser::getQualifiedTypeName(
-	const QualifiedName& name,
+	QualifiedName* name,
 	const lex::LineCol& pos
 ) {
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	if (name.isSimple()) {
-		FindModuleItemResult findResult = nspace->findDirectChildItem(name.getFirstName());
+	if (name->isSimple()) {
+		// safe to pass NULL as Unit* because name is simple (no templates)
+		FindModuleItemResult findResult = nspace->findDirectChildItem(NULL, name->getFirstAtom());
 		if (!findResult.m_result)
 			return NULL;
 
@@ -624,16 +625,20 @@ Parser::postDeclaratorName(Declarator* declarator) {
 	// need to re-anchor the import, e.g.:
 	// A C.foo(); <-- here 'A' should be searched for starting with 'C'
 
-	QualifiedName anchorName = m_topDeclarator->m_name;
+	QualifiedName anchorName;
+	anchorName.copy(m_topDeclarator->m_name);
 	if (m_topDeclarator->getDeclaratorKind() == DeclaratorKind_Name)
-		anchorName.removeLastName();
+		anchorName.removeLastAtom();
 
 	ASSERT(!anchorName.isEmpty());
 
+	QualifiedName name;
+	name.copy(((NamedImportType*)declarator->m_baseType)->m_name);
+
 	NamedImportType* importType = m_module->m_typeMgr.getNamedImportType(
-		((NamedImportType*)declarator->m_baseType)->m_name,
+		&name,
 		m_module->m_namespaceMgr.getCurrentNamespace(),
-		anchorName
+		&anchorName
 	);
 
 	importType->m_parentUnit = m_module->m_unitMgr.getCurrentUnit();
@@ -694,11 +699,11 @@ Parser::declareGlobalNamespace(
 		return NULL;
 	}
 
-	GlobalNamespace* nspace = getGlobalNamespace((GlobalNamespace*)currentNamespace, name.getFirstName(), pos);
+	GlobalNamespace* nspace = getGlobalNamespace((GlobalNamespace*)currentNamespace, name.getFirstAtom(), pos);
 	if (!nspace)
 		return NULL;
 
-	sl::ConstBoxIterator<QualifiedNameAtom> it = name.getNameList().getHead();
+	sl::ConstBoxIterator<QualifiedNameAtom> it = name.getAtomList().getHead();
 	for (; it; it++) {
 		nspace = getGlobalNamespace(nspace, *it, pos);
 		if (!nspace)
@@ -758,16 +763,17 @@ Parser::declareExtensionNamespace(
 
 bool
 Parser::useNamespace(
-	const sl::BoxList<QualifiedName>& nameList,
+	sl::BoxList<QualifiedName>* nameList,
 	NamespaceKind namespaceKind,
 	const lex::LineCol& pos
 ) {
 	bool result;
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 
-	sl::ConstBoxIterator<QualifiedName> it = nameList.getHead();
-	for (; it; it++) {
-		result = nspace->m_usingSet.addNamespace(nspace, namespaceKind, *it);
+	while (!nameList->isEmpty()) {
+		sl::BoxListEntry<QualifiedName>* entry = nameList->removeHeadEntry();
+		result = nspace->m_usingSet.addNamespace(nspace, namespaceKind, &entry->m_value);
+		delete entry;
 		if (!result)
 			return false;
 	}
@@ -972,7 +978,12 @@ Parser::prepareTemplateDeclarator(Declarator* declarator) {
 	if (baseType->getTypeKind() == TypeKind_NamedImport &&
 		baseType->getName().isSimple()
 	) {
-		FindModuleItemResult findResult = m_templateNamespace->findDirectChildItem(baseType->getName().getFirstName());
+		const QualifiedName& baseTypeName = baseType->getName();
+		FindModuleItemResult findResult = m_templateNamespace->findDirectChildItem(
+			baseTypeName.getUnit(),
+			baseTypeName.getFirstAtom()
+		);
+
 		if (findResult.m_item) {
 			ASSERT(findResult.m_item->getItemKind() == ModuleItemKind_Type);
 			declarator->m_baseType = (Type*)findResult.m_item;
@@ -1197,7 +1208,7 @@ Parser::declareFunction(
 	if (declarator->isQualified()) {
 		Orphan* orphan = m_module->m_namespaceMgr.createOrphan(OrphanKind_Function, type);
 		orphan->m_functionKind = functionKind;
-		orphan->m_declaratorName = declarator->getName();
+		orphan->m_declaratorName.copy(declarator->getName());
 
 		functionItem = orphan;
 		functionItemDecl = orphan;
@@ -1681,7 +1692,7 @@ Parser::declareReactor(
 	if (declarator->isQualified()) {
 		Orphan* orphan = m_module->m_namespaceMgr.createOrphan(OrphanKind_Reactor, NULL);
 		orphan->m_functionKind = FunctionKind_Normal;
-		orphan->m_declaratorName = declarator->getName();
+		orphan->m_declaratorName.copy(declarator->getName());
 		assignDeclarationAttributes(orphan, orphan, declarator);
 		nspace->addOrphan(orphan);
 	} else {
@@ -1868,7 +1879,7 @@ Parser::declareData(
 			Value countValue;
 
 			result =
-				parser.parseTokenList(SymbolKind_expression_save_value, arrayType->getElementCountInitializer()) &&
+				parser.parseTokenList(SymbolKind_expression_save, arrayType->getElementCountInitializer()) &&
 				m_module->m_operatorMgr.castOperator(parser.m_lastExpressionValue, TypeKind_SizeT, &countValue);
 
 			if (!result)

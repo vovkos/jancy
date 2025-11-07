@@ -32,56 +32,60 @@ QualifiedNameAtom::getString() const {
 
 	return
 		m_atomKind == QualifiedNameAtomKind_Name ? m_name :
-		m_atomKind == QualifiedNameAtomKind_BaseTypeIdx ?
+		m_atomKind == QualifiedNameAtomKind_BaseType ?
 			m_baseTypeIdx < countof(baseTypeStringTable) ?
 				baseTypeStringTable[m_baseTypeIdx] :
 				sl::formatString("basetype%d", m_baseTypeIdx) :
 		sl::StringRef();
 }
 
+void
+QualifiedNameAtom::copy(const QualifiedNameAtom& atom) {
+	m_atomKind = atom.m_atomKind;
+
+	switch (atom.m_atomKind) {
+	case QualifiedNameAtomKind_BaseType:
+		m_baseTypeIdx = atom.m_baseTypeIdx;
+		break;
+
+	case QualifiedNameAtomKind_Name:
+		m_name = atom.m_name;
+		break;
+
+	case QualifiedNameAtomKind_Template: {
+		m_name = atom.m_name;
+		m_templateTokenList.clear();
+
+		axl::mem::Pool<Token>* tokenPool = axl::mem::getCurrentThreadPool<Token>();
+		sl::ConstIterator<Token> it = atom.m_templateTokenList.getHead();
+		for (; it; it++)
+			m_templateTokenList.insertTail(tokenPool->get(**it));
+
+		break;
+		}
+	}
+}
+
 //..............................................................................
 
 void
-QualifiedName::addName(const QualifiedNameAtom& name) {
-	if (m_firstName.isEmpty())
-		m_firstName = name;
-	else
-		m_nameList.insertTail(name);
-}
+QualifiedName::removeFirstAtom(QualifiedNameAtom* atom) {
+	sl::takeOver(atom, &m_firstAtom);
 
-QualifiedNameAtom
-QualifiedName::removeFirstName() {
-	QualifiedNameAtom name = m_firstName;
-
-	if (m_nameList.isEmpty())
-		m_firstName.clear();
-	else
-		m_firstName = m_nameList.removeHead();
-
-	return name;
-}
-
-QualifiedNameAtom
-QualifiedName::removeLastName() {
-	QualifiedNameAtom name;
-
-	if (m_nameList.isEmpty()) {
-		name = m_firstName;
-		m_firstName.clear();
-	} else {
-		name = m_nameList.removeTail();
+	if (!m_atomList.isEmpty()) {
+		sl::BoxListEntry<QualifiedNameAtom>* entry = m_atomList.removeHeadEntry();
+		sl::takeOver(&m_firstAtom, &entry->m_value);
+		delete entry;
 	}
-
-	return name;
 }
 
 sl::StringRef
 QualifiedName::getFullName() const {
-	if (m_nameList.isEmpty())
-		return m_firstName.getString();
+	if (m_atomList.isEmpty())
+		return m_firstAtom.getString();
 
-	sl::String name = m_firstName.getString();
-	sl::ConstBoxIterator<QualifiedNameAtom> it = m_nameList.getHead();
+	sl::String name = m_firstAtom.getString();
+	sl::ConstBoxIterator<QualifiedNameAtom> it = m_atomList.getHead();
 	for (; it; it++) {
 		name.append('.');
 		name.append(it->getString());
@@ -112,12 +116,12 @@ QualifiedName::parse(const sl::StringRef& name) {
 
 void
 QualifiedName::copy(const QualifiedName& name) {
-	m_firstName = name.m_firstName;
-	m_nameList.clear();
+	m_firstAtom.copy(name.m_firstAtom);
+	m_atomList.clear();
 
-	sl::ConstBoxIterator<QualifiedNameAtom> it = name.m_nameList.getHead();
+	sl::ConstBoxIterator<QualifiedNameAtom> it = name.m_atomList.getHead();
 	for (; it; it++)
-		m_nameList.insertTail(*it);
+		m_atomList.insertTail()->copy(*it);
 }
 
 //..............................................................................
