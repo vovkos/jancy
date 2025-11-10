@@ -261,7 +261,7 @@ public:
 
 	bool
 	isDerivedType(Type* baseType) {
-		return cmp(baseType) == 0 || findBaseTypeTraverse(baseType);
+		return isEqual(baseType) || findBaseTypeTraverse(baseType);
 	}
 
 	sl::Array<BaseTypeSlot*>

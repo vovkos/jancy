@@ -66,7 +66,7 @@ UsingSet::findExtensionItem(
 		if (!result)
 			return g_errorFindModuleItemResult;
 
-		if (nspace->getType()->cmp(type) == 0) {
+		if (nspace->getType()->isEqual(type)) {
 			FindModuleItemResult findResult = nspace->findDirectChildItem(name);
 			if (!findResult.m_result || findResult.m_item)
 				return findResult;

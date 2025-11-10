@@ -246,7 +246,7 @@ FunctionMgr::createThisValue() {
 	}
 
 	Value thisArgValue = function->getType()->getCallConv()->getThisArgValue(function);
-	if (function->m_thisArgType->cmp(function->m_thisType) == 0) {
+	if (function->m_thisArgType->isEqual(function->m_thisType)) {
 		if (function->m_thisType->getTypeKind() != TypeKind_DataPtr)
 			m_thisValue = thisArgValue;
 		else
@@ -428,7 +428,7 @@ FunctionMgr::getDirectThunkFunction(
 	FunctionType* thunkFunctionType,
 	bool hasUnusedClosure
 ) {
-	if (!hasUnusedClosure && targetFunction->m_type->cmp(thunkFunctionType) == 0)
+	if (!hasUnusedClosure && targetFunction->m_type->isEqual(thunkFunctionType))
 		return targetFunction;
 
 	char signatureChar = 'D';
@@ -469,7 +469,7 @@ FunctionMgr::getDirectThunkProperty(
 	PropertyType* thunkPropertyType,
 	bool hasUnusedClosure
 ) {
-	if (!hasUnusedClosure && targetProperty->m_type->cmp(thunkPropertyType) == 0)
+	if (!hasUnusedClosure && targetProperty->m_type->isEqual(thunkPropertyType))
 		return targetProperty;
 
 	sl::String signature;

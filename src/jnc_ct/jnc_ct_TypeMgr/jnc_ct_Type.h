@@ -240,9 +240,9 @@ public:
 	Value
 	getErrorCodeValue();
 
-	int
-	cmp(Type* type) {
-		return type != this ? getSignature().cmp(type->getSignature()) : 0;
+	bool
+	isEqual(Type* type) {
+		return type == this || getSignature().isEqual(type->getSignature());
 	}
 
 	bool

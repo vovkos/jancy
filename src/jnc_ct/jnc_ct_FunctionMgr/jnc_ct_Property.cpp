@@ -180,7 +180,7 @@ Property::setAutoGetValue(
 	FunctionType* getterType = m_module->m_typeMgr.getFunctionType(type, NULL, 0);
 
 	if (m_getter) {
-		if (m_getter->getType()->getReturnType()->cmp(type) != 0) {
+		if (!m_getter->getType()->getReturnType()->isEqual(type)) {
 			err::setFormatStringError("'autoget %s' does not match property declaration", type->getTypeString().sz());
 			return false;
 		}

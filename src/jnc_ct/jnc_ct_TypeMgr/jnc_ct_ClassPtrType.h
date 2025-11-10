@@ -182,7 +182,7 @@ isClassPtrType(
 ) {
 	return
 		(type->getTypeKindFlags() & TypeKindFlag_ClassPtr) &&
-		((ClassPtrType*)type)->getTargetType()->cmp(classType) == 0;
+		((ClassPtrType*)type)->getTargetType()->isEqual(classType);
 }
 
 JNC_INLINE

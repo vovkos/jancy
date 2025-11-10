@@ -121,7 +121,7 @@ dataPtrDifferenceOperator(
 	Type* targetType1 = ((DataPtrType*)rawOpValue1.getType())->getTargetType();
 	Type* targetType2 = ((DataPtrType*)rawOpValue2.getType())->getTargetType();
 
-	if (targetType1->cmp(targetType2) != 0) {
+	if (!targetType1->isEqual(targetType2)) {
 		err::setError("pointer difference target types mismatch");
 		return false;
 	} else if (targetType1->getStdType() == StdType_AbstractData) {
@@ -380,7 +380,7 @@ getBitFlagEnumBwOrXorResultType(
 		return NULL;
 
 	return
-		opType1->cmp(opType2) == 0 ? opType1 :
+		opType1->isEqual(opType2) ? opType1 :
 		opType2->isBaseType(opType1) ? opType2 :
 		opType1->isBaseType(opType2) ? opType1 :
 		NULL;

@@ -192,7 +192,8 @@ Cast_PropertyPtr_Thin2Fat::llvmCast(
 
 	if (isSimpleClosure &&
 		srcPropertyType->isMemberPropertyType() &&
-		srcPropertyType->getShortType()->cmp(dstPropertyType) == 0) {
+		srcPropertyType->getShortType()->isEqual(dstPropertyType)
+	) {
 		return llvmCast_NoThunkSimpleClosure(
 			opValue,
 			simpleClosureObjValue,
@@ -425,7 +426,7 @@ Cast_PropertyPtr_Thin2Thin::llvmCast(
 	PropertyType* targetType = ptrType->getTargetType();
 	Property* prop = opValue.getProperty();
 
-	if (prop->getType()->cmp(targetType) == 0)
+	if (prop->getType()->isEqual(targetType))
 		return m_module->m_operatorMgr.getPropertyThinPtr(prop, NULL, ptrType, resultValue);
 
 	if (prop->getFlags() & PropertyTypeFlag_Bindable) {
@@ -496,7 +497,7 @@ Cast_PropertyPtr::constCast(
 	PropertyPtrType* srcType = (PropertyPtrType*)opValue.getType();
 
 	if (dstType->getPtrTypeKind() != srcType->getPtrTypeKind() ||
-		dstType->getTargetType()->cmp(srcType->getTargetType()) != 0 ||
+		!dstType->getTargetType()->isEqual(srcType->getTargetType()) ||
 		(dstType->getFlags() & PtrTypeFlag_Safe) &&
 		!(srcType->getFlags() & PtrTypeFlag_Safe))
 		return false;

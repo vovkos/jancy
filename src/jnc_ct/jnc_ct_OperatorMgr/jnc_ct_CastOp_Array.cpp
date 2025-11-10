@@ -42,7 +42,7 @@ Cast_Array::getCastKind(
 	size_t srcElementCount = srcArrayType->getElementCount();
 
 	return
-		dstElementType->cmp(srcElementType) == 0 ||
+		dstElementType->isEqual(srcElementType) ||
 		(dstElementType->getTypeKindFlags() & TypeKindFlag_Integer) &&
 		(srcElementType->getTypeKindFlags() & TypeKindFlag_Integer) &&
 		dstElementType->getSize() == srcElementType->getSize() ?
@@ -70,7 +70,7 @@ Cast_Array::constCast(
 	ArrayType* srcArrayType = (ArrayType*)opType;
 	Type* srcElementType = srcArrayType->getElementType();
 
-	if (dstElementType->cmp(srcElementType) == 0 ||
+	if (dstElementType->isEqual(srcElementType) ||
 		(dstElementType->getTypeKindFlags() & TypeKindFlag_Integer) &&
 		(srcElementType->getTypeKindFlags() & TypeKindFlag_Integer) &&
 		dstElementType->getSize() == srcElementType->getSize()) {

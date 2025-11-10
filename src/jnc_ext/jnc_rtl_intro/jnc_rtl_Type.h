@@ -101,10 +101,10 @@ public:
 	JNC_CDECL
 	getTypeStringSuffix(Type* self);
 
-	int
+	bool
 	JNC_CDECL
-	cmp(Type* type) {
-		return m_item->cmp(type->m_item);
+	isEqual(Type* type) {
+		return m_item->isEqual(type->m_item);
 	}
 
 	static

@@ -44,7 +44,7 @@ Cast_DataPtr_FromArray::getCastKind(
 	Type* ptrDataType = dstType->getTargetType();
 
 	return
-		arrayElementType->cmp(ptrDataType) == 0 ? CastKind_Implicit :
+		arrayElementType->isEqual(ptrDataType) ? CastKind_Implicit :
 		(arrayElementType->getFlags() & TypeFlag_Pod) ?
 			ptrDataType->getTypeKind() == TypeKind_Void ? CastKind_Implicit :
 			(ptrDataType->getFlags() & TypeFlag_Pod) ? CastKind_Explicit : CastKind_None : CastKind_None;
@@ -385,7 +385,7 @@ Cast_DataPtr_Base::getCastKind(
 	Type* srcDataType = srcType->getTargetType();
 	Type* dstDataType = dstType->getTargetType();
 
-	if (srcDataType->cmp(dstDataType) == 0)
+	if (srcDataType->isEqual(dstDataType))
 		return implicitCastKind;
 
 	bool result = srcDataType->ensureLayout() && dstDataType->ensureLayout();
@@ -437,7 +437,7 @@ Cast_DataPtr_Base::getOffset(
 	Type* srcDataType = srcType->getTargetType();
 	Type* dstDataType = dstType->getTargetType();
 
-	if (srcDataType->cmp(dstDataType) == 0)
+	if (srcDataType->isEqual(dstDataType))
 		return 0;
 
 	bool result = srcDataType->ensureLayout() && dstDataType->ensureLayout();

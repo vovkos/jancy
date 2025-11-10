@@ -405,7 +405,7 @@ DynamicLayout::addBitField(
 		return -1;
 	}
 
-	bool isMerged = m_lastBitFieldType && m_lastBitFieldType->cmp(type) == 0;
+	bool isMerged = m_lastBitFieldType && m_lastBitFieldType->isEqual(type);
 
 	size_t bitOffset;
 	if (ptrTypeFlags & PtrTypeFlag_BigEndian) {

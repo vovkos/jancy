@@ -43,7 +43,7 @@ TemplateArgType::selectTemplateArg(
 	Type* type1,
 	Type* type2
 ) {
-	if (type1->cmp(type2) == 0)
+	if (type1->isEqual(type2))
 		return type1;
 
 	Type* type = getArithmeticOperatorResultType(type1, type2);

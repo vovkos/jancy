@@ -54,7 +54,7 @@ OperatorMgr::getVirtualMethod(
 
 	BaseTypeCoord coord;
 	ClassType* virtualOriginClassType = function->getVirtualOriginClassType();
-	if (classType->cmp(virtualOriginClassType) != 0) {
+	if (!classType->isEqual(virtualOriginClassType)) {
 		bool result = classType->findBaseTypeTraverse(virtualOriginClassType, &coord);
 		ASSERT(result);
 	}

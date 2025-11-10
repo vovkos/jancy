@@ -216,12 +216,12 @@ jnc_Type_getTypeString(jnc_Type* type) {
 }
 
 JNC_EXTERN_C
-int
-jnc_Type_cmp(
+bool_t
+jnc_Type_isEqual(
 	jnc_Type* type,
 	jnc_Type* type2
 ) {
-	return jnc_g_dynamicExtensionLibHost->m_typeFuncTable->m_cmpFunc(type, type2);
+	return jnc_g_dynamicExtensionLibHost->m_typeFuncTable->m_isEqualFunc(type, type2);
 }
 
 JNC_EXTERN_C
@@ -349,12 +349,12 @@ jnc_Type_getTypeStringSuffix(jnc_Type* type) {
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
-jnc_Type_cmp(
+bool_t
+jnc_Type_isEqual(
 	jnc_Type* type,
 	jnc_Type* type2
 ) {
-	return type->cmp(type2);
+	return type->isEqual(type2);
 }
 
 JNC_EXTERN_C

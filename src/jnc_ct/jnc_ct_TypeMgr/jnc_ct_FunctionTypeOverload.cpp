@@ -27,13 +27,13 @@ FunctionTypeOverload::findOverload(FunctionType* type) const {
 	if (!result)
 		return -1;
 
-	if (type->cmp(m_type) == 0)
+	if (type->isEqual(m_type))
 		return 0;
 
 	size_t count = m_overloadArray.getCount();
 	for (size_t i = 0; i < count; i++) {
 		FunctionType* overloadType = m_overloadArray[i];
-		if (type->cmp(overloadType) == 0)
+		if (type->isEqual(overloadType))
 			return i + 1;
 	}
 
@@ -49,13 +49,13 @@ FunctionTypeOverload::findShortOverload(FunctionType* type) const {
 	if (!result)
 		return -1;
 
-	if (type->cmp(m_type->getShortType()) == 0)
+	if (type->isEqual(m_type->getShortType()))
 		return 0;
 
 	size_t count = m_overloadArray.getCount();
 	for (size_t i = 0; i < count; i++) {
 		FunctionType* overloadType = m_overloadArray[i];
-		if (type->cmp(overloadType->getShortType()) == 0)
+		if (type->isEqual(overloadType->getShortType()))
 			return i + 1;
 	}
 
@@ -271,7 +271,7 @@ FunctionTypeOverload::addOverload(FunctionType* type) {
 	if (!m_type) {
 		m_type = type;
 		return 0;
-	} else if (type->getArgSignature().cmp(m_type->getArgSignature()) == 0) {
+	} else if (type->getArgSignature().isEqual(m_type->getArgSignature())) {
 		err::setError("illegal function overload: duplicate argument signature");
 		return -1;
 	}
@@ -280,7 +280,7 @@ FunctionTypeOverload::addOverload(FunctionType* type) {
 	for (size_t i = 0; i < count; i++) {
 		FunctionType* overloadType = m_overloadArray[i];
 
-		if (type->getArgSignature().cmp(overloadType->getArgSignature()) == 0) {
+		if (type->getArgSignature().isEqual(overloadType->getArgSignature())) {
 			err::setError("illegal function overload: duplicate argument signature");
 			return -1;
 		}

@@ -1078,7 +1078,8 @@ Parser::declareTypedef(
 		ModuleItem* prevItem = findResult.m_item;
 
 		if (prevItem->getItemKind() != ModuleItemKind_Typedef ||
-			((Typedef*)prevItem)->getType()->cmp(type) != 0) {
+			!((Typedef*)prevItem)->getType()->isEqual(type)
+		) {
 			setRedefinitionError(name);
 			return false;
 		}
@@ -1573,7 +1574,7 @@ Parser::finalizeLastProperty(bool hasBody) {
 	// finalize getter
 
 	if (prop->m_getter) {
-		if (m_lastPropertyGetterType && m_lastPropertyGetterType->cmp(prop->m_getter->getType()) != 0) {
+		if (m_lastPropertyGetterType && !m_lastPropertyGetterType->isEqual(prop->m_getter->getType())) {
 			err::setFormatStringError("getter type '%s' does not match property declaration", prop->m_getter->getType ()->getTypeString().sz());
 			return false;
 		}

@@ -138,7 +138,7 @@ Cast_FromVariant::constCast(
 		RtlFunction* function = (RtlFunction*)variant->m_p;
 		FunctionType* functionType1 = function->m_function->getType();
 		FunctionType* functionType2 = ((FunctionPtrType*)type)->getTargetType();
-		if (functionType1->cmp(functionType2) != 0) { // not an exact match, bail
+		if (!functionType1->isEqual(functionType2)) { // not an exact match, bail
 			setCastError(function->m_function, type);
 			return false;
 		}

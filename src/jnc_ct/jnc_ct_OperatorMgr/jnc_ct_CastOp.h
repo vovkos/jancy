@@ -195,7 +195,7 @@ public:
 		const Value& opValue,
 		Type* type
 	) {
-		return opValue.getType()->cmp(type) == 0 ? CastKind_Identity : CastKind_Implicit;
+		return opValue.getType()->isEqual(type) ? CastKind_Identity : CastKind_Implicit;
 	}
 
 	virtual
@@ -232,7 +232,7 @@ public:
 		const Value& opValue,
 		Type* type
 	) {
-		return opValue.getType()->cmp(type) == 0 ? CastKind_Identity : CastKind_Implicit;
+		return opValue.getType()->isEqual(type) ? CastKind_Identity : CastKind_Implicit;
 	}
 
 	virtual

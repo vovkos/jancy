@@ -323,7 +323,7 @@ StructType::layoutBitField(Field* field) {
 		return false;
 	}
 
-	bool isMerged = m_lastBitField && m_lastBitField->getType()->cmp(field->m_type) == 0;
+	bool isMerged = m_lastBitField && m_lastBitField->getType()->isEqual(field->m_type);
 
 	size_t bitOffset;
 	if (field->m_ptrTypeFlags & PtrTypeFlag_BigEndian) {

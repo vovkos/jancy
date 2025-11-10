@@ -36,7 +36,7 @@ isMulticastToMulticast(
 	MulticastClassType* srcMcType = (MulticastClassType*)srcType->getTargetType();
 	MulticastClassType* dstMcType = (MulticastClassType*)dstType->getTargetType();
 
-	return srcMcType->getTargetType()->cmp(dstMcType->getTargetType()) == 0;
+	return srcMcType->getTargetType()->isEqual(dstMcType->getTargetType());
 }
 
 //..............................................................................
@@ -65,7 +65,7 @@ Cast_ClassPtr::getCastKind(
 
 	return
 		(dstClassType->getClassTypeKind() == ClassTypeKind_Abstract) ||
-		srcClassType->cmp(dstClassType) == 0 ||
+		srcClassType->isEqual(dstClassType) ||
 		isMulticastToMulticast(srcType, dstType) ||
 		srcClassType->findBaseTypeTraverse(dstClassType) ?
 		isSrcConst == isDstConst ?
@@ -100,7 +100,8 @@ Cast_ClassPtr::constCast(
 	if (srcIface == NULL ||
 		dstClassType->getClassTypeKind() == ClassTypeKind_Abstract ||
 		isMulticastToMulticast(srcType, dstType) ||
-		srcClassType->cmp(dstClassType) == 0) {
+		srcClassType->isEqual(dstClassType)
+	) {
 		*(void**)dst = srcIface;
 		return true;
 	}
@@ -161,7 +162,7 @@ Cast_ClassPtr::llvmCast(
 		return true;
 	}
 
-	if (srcClassType->cmp(dstClassType) == 0) {
+	if (srcClassType->isEqual(dstClassType)) {
 		resultValue->overrideType(opValue, type);
 		return true;
 	}

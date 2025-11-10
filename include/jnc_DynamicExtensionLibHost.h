@@ -472,8 +472,8 @@ const char*
 jnc_Type_GetTypeStringFunc(jnc_Type* type);
 
 typedef
-int
-jnc_Type_CmpFunc(
+bool_t
+jnc_Type_IsEqualFunc(
 	jnc_Type* type,
 	jnc_Type* type2
 );
@@ -528,7 +528,7 @@ struct jnc_TypeFuncTable {
 	jnc_Type_GetTypeKindFunc* m_getTypeKindFunc;
 	jnc_Type_GetSizeFunc* m_getSizeFunc;
 	jnc_Type_GetTypeStringFunc* m_getTypeStringFunc;
-	jnc_Type_CmpFunc* m_cmpFunc;
+	jnc_Type_IsEqualFunc* m_isEqualFunc;
 	jnc_Type_GetArrayTypeFunc* m_getArrayTypeFunc;
 	jnc_Type_GetBitFieldDataPtrTypeFunc* m_getBitFieldDataPtrTypeFunc;
 	jnc_Type_GetDataPtrTypeFunc* m_getDataPtrTypeFunc;

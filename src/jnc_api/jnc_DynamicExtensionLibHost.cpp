@@ -136,7 +136,7 @@ static jnc_TypeFuncTable g_typeFuncTable = {
 	jnc_Type_getTypeKind,
 	jnc_Type_getSize,
 	jnc_Type_getTypeString,
-	jnc_Type_cmp,
+	jnc_Type_isEqual,
 	jnc_Type_getArrayType,
 	jnc_Type_getBitFieldDataPtrType,
 	jnc_Type_getDataPtrType,

@@ -156,7 +156,7 @@ Function::compile() {
 	switch (itemKind) {
 	case ModuleItemKind_Function:
 		targetFunction = (Function*)findResult.m_item;
-		if (isCtorDtor || targetFunction->getType()->cmp(m_type) == 0) {
+		if (isCtorDtor || targetFunction->getType()->isEqual(m_type)) {
 			targetValue = targetFunction;
 			targetFunction = NULL;
 		}

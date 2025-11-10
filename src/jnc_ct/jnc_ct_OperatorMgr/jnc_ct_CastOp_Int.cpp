@@ -297,7 +297,7 @@ Cast_Enum::getCastKind(
 	Type* type
 ) {
 	ASSERT(type->getTypeKind() == TypeKind_Enum);
-	ASSERT(type->cmp(opValue.getType()) != 0); // identity should have been handled earlier
+	ASSERT(!type->isEqual(opValue.getType())); // identity should have been handled earlier
 
 	Type* opType = opValue.getType();
 

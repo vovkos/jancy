@@ -171,7 +171,7 @@ opaque class Type: ModuleItem {
 	construct(intptr p);
 	destruct();
 
-	int cmp(Type* type) const;
+	bool isEqual(Type* type) const;
 
 	ArrayType* getArrayType(size_t elementCount) const;
 

@@ -573,7 +573,7 @@ ClassType::overrideVirtualFunction(Function* function) {
 
 	if (overridenFunction) {
 		ASSERT(!overridenOverload);
-		result = overridenFunction->getType()->getShortType()->cmp(function->getType()->getShortType()) == 0;
+		result = overridenFunction->getType()->getShortType()->isEqual(function->getType()->getShortType());
 	} else {
 		ASSERT(overridenOverload);
 		overridenFunction = overridenOverload->findShortOverload(function->getType()->getShortType());

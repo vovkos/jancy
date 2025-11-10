@@ -384,7 +384,7 @@ OperatorMgr::getConditionalOperatorResultType(
 	Type* trueType = getConditionalOperandType(trueValue);
 	Type* falseType = getConditionalOperandType(falseValue);
 
-	if (trueType->cmp(falseType) == 0)
+	if (trueType->isEqual(falseType))
 		resultType = trueType;
 	else {
 		uint_t trueFlags = OpFlag_KeepBool | OpFlag_KeepEnum;
@@ -410,7 +410,7 @@ OperatorMgr::getConditionalOperatorResultType(
 		falseType = falseTypeValue.getType();
 
 		resultType =
-			trueType->cmp(falseType) == 0 ? trueType :
+			trueType->isEqual(falseType) ? trueType :
 			(trueType->getTypeKindFlags() & falseType->getTypeKindFlags() & TypeKindFlag_Numeric) ?
 				getConditionalNumericOperatorResultType(trueValue, trueType, falseValue, falseType) :
 				getCastKind(falseValue, trueType) ? // prefer true-type unless can't cast to true-type
@@ -559,7 +559,7 @@ OperatorMgr::castOperator(
 	}
 
 	Type* opType = opValue.getType();
-	if (opType->cmp(type) == 0) { // identity, try to shortcut
+	if (opType->isEqual(type)) { // identity, try to shortcut
 		if (opValue.hasLlvmValue()) {
 			*resultValue = opValue;
 			return true;
@@ -714,7 +714,7 @@ OperatorMgr::getCastKind(
 
 	Type* opType = opValue.getType();
 	return
-		opType->cmp(type) == 0 ? CastKind_Identity :
+		opType->isEqual(type) ? CastKind_Identity :
 		opType->getTypeKind() == TypeKind_Variant ? CastKind_ImplicitCrossFamily :
 		op->getCastKind(opValue, type);
 }

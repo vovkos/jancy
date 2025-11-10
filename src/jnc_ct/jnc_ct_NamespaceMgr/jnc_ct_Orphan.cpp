@@ -151,7 +151,7 @@ Orphan::adoptOrphanFunction(ModuleItem* item) {
 	Function* originFunction =
 		origin->getItemKind() == ModuleItemKind_FunctionOverload ?
 			origin.getFunctionOverload()->findShortOverload(m_functionType) :
-		origin.getFunction()->getType()->getShortType()->cmp(m_functionType) == 0 ?
+		origin.getFunction()->getType()->getShortType()->isEqual(m_functionType) ?
 			origin.getFunction() :
 			NULL;
 

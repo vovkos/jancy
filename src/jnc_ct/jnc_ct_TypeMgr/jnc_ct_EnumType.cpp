@@ -90,13 +90,14 @@ EnumConst::generateDocumentation(
 bool
 EnumType::isBaseType(EnumType* type) {
 	if (m_baseType->getTypeKind() != TypeKind_Enum ||
-		type->getRootType()->cmp(m_rootType) != 0) // fast-exit
-		return false;
+		!type->getRootType()->isEqual(m_rootType)
+	)
+		return false; // fast-exit
 
 	EnumType* baseType = (EnumType*)m_baseType;
 
 	for (;;) {
-		if (type->cmp(baseType) == 0)
+		if (type->isEqual(baseType))
 			return true;
 
 		baseType = (EnumType*)baseType->getBaseType();

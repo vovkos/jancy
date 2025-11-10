@@ -108,7 +108,7 @@ dynamicCastDataPtr(
 		p = (char*)ptr.m_p - offset;
 	}
 
-	if (srcType->cmp(type) == 0) {
+	if (srcType->isEqual(type)) {
 		ptr.m_p = p;
 		return ptr;
 	}
@@ -136,7 +136,7 @@ dynamicCastClassPtr(
 
 	ASSERT(iface->m_box->m_type->getTypeKind() == TypeKind_Class);
 	ClassType* classType = (ClassType*)iface->m_box->m_type;
-	if (classType->cmp(type) == 0)
+	if (classType->isEqual(type))
 		return iface;
 
 	size_t offset = classType->findBaseTypeOffset(type);

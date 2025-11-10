@@ -323,7 +323,7 @@ jnc_Variant_relationalOperator(
 
 	// try memcmp fallback for equality and inequality
 
-	if ((opKind != jnc_BinOpKind_Eq && opKind != jnc_BinOpKind_Ne) || opType1->cmp(opType2) != 0)
+	if ((opKind != jnc_BinOpKind_Eq && opKind != jnc_BinOpKind_Ne) || !opType1->isEqual(opType2))
 		return false;
 
 	const void* p1;

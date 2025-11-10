@@ -26,7 +26,7 @@ OperatorMgr::getPropertyThinPtr(
 	PropertyPtrType* ptrType,
 	Value* resultValue
 ) {
-	ASSERT(prop->getType()->cmp(ptrType->getTargetType()) == 0);
+	ASSERT(prop->getType()->isEqual(ptrType->getTargetType()));
 
 	bool result = getPropertyVtable(prop, closure, resultValue);
 	if (!result)

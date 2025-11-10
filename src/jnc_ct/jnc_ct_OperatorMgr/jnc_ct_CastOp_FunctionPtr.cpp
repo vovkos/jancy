@@ -300,7 +300,8 @@ Cast_FunctionPtr_Thin2Fat::llvmCast(
 
 	if (isSimpleClosure &&
 		srcFunctionType->isMemberMethodType() &&
-		srcFunctionType->getShortType()->cmp(dstFunctionType) == 0) {
+		srcFunctionType->getShortType()->isEqual(dstFunctionType)
+	) {
 		return llvmCast_NoThunkSimpleClosure(
 			opValue,
 			simpleClosureValue,
@@ -447,7 +448,7 @@ Cast_FunctionPtr_Thin2Thin::llvmCast(
 
 	FunctionType* srcType = ((FunctionPtrType*)opValue.getType())->getTargetType();
 	FunctionType* dstType = ((FunctionPtrType*)type)->getTargetType();
-	if (srcType->cmp(dstType) == 0) {
+	if (srcType->isEqual(dstType)) {
 		resultValue->overrideType(opValue, type);
 		return true;
 	}
@@ -482,7 +483,7 @@ areCompatibleArgTypes(
 
 	size_t count = opType->getArgArray().getCount();
 	for (size_t i = 0; i < count; i++)
-		if (opType->getArgArray()[i]->getType()->cmp(type->getArgArray()[i]->getType()) != 0)
+		if (!opType->getArgArray()[i]->getType()->isEqual(type->getArgArray()[i]->getType()))
 			return false;
 
 	return true;
@@ -496,7 +497,7 @@ areCompatibleReturnTypes(
 	Type* type
 ) {
 	return
-		opType->cmp(type) == 0 ||
+		opType->isEqual(type) ||
 		!(opType->getFlags() & TypeFlag_StructRet) &&
 		type->getTypeKind() == TypeKind_Void;
 }
@@ -509,7 +510,7 @@ areCompatibleFunctionTypes(
 	FunctionType* type
 ) {
 	return
-		opType->cmp(type) == 0 ||
+		opType->isEqual(type) ||
 		opType->getCallConv()->getCallConvKind() == type->getCallConv()->getCallConvKind() &&
 		areCompatibleArgTypes(opType, type) &&
 		areCompatibleReturnTypes(opType->getReturnType(), type->getReturnType());

@@ -378,7 +378,7 @@ jnc_Type_getTypeStringSuffix(jnc_Type* type);
 
 JNC_EXTERN_C
 int
-jnc_Type_cmp(
+jnc_Type_isEqual(
 	jnc_Type* type,
 	jnc_Type* type2
 );
@@ -461,9 +461,9 @@ struct jnc_Type: jnc_ModuleItem {
 		return jnc_Type_getTypeStringSuffix(this);
 	}
 
-	int
-	cmp(jnc_Type* type) {
-		return jnc_Type_cmp(this, type);
+	bool_t
+	isEqual(jnc_Type* type) {
+		return jnc_Type_isEqual(this, type);
 	}
 
 	jnc_DataPtrType*

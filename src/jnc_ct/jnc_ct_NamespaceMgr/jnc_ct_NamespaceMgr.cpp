@@ -470,7 +470,7 @@ NamespaceMgr::getAccessKind(Namespace* targetNamespace) {
 				continue;
 
 			if (nspace == targetNamespace ||
-				targetNamespace->getQualifiedName().cmp(nspace->getQualifiedName()) == 0 ||
+				targetNamespace->getQualifiedName().isEqual(nspace->getQualifiedName()) ||
 				targetNamespace->m_friendSet.find(nspace->getQualifiedName()))
 				return AccessKind_Protected;
 		}
@@ -485,7 +485,7 @@ NamespaceMgr::getAccessKind(Namespace* targetNamespace) {
 			continue;
 
 		if (nspace == targetNamespace ||
-			targetNamespace->getQualifiedName().cmp(nspace->getQualifiedName()) == 0 ||
+			targetNamespace->getQualifiedName().isEqual(nspace->getQualifiedName()) ||
 			targetNamespace->m_friendSet.find(nspace->getQualifiedName()))
 			return AccessKind_Protected;
 
