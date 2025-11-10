@@ -30,13 +30,23 @@ QualifiedNameAtom::getString() const {
 		"basetype9",
 	};
 
-	return
-		m_atomKind == QualifiedNameAtomKind_Name ? m_name :
-		m_atomKind == QualifiedNameAtomKind_BaseType ?
-			m_baseTypeIdx < countof(baseTypeStringTable) ?
-				baseTypeStringTable[m_baseTypeIdx] :
-				sl::formatString("basetype%d", m_baseTypeIdx) :
-		sl::StringRef();
+	switch (m_atomKind) {
+	case QualifiedNameAtomKind_BaseType:
+		return m_baseTypeIdx < countof(baseTypeStringTable) ?
+			baseTypeStringTable[m_baseTypeIdx] :
+			sl::formatString("basetype%d", m_baseTypeIdx);
+
+	case QualifiedNameAtomKind_Name:
+		return m_name;
+
+	case QualifiedNameAtomKind_Template:
+		return m_name + '<' + Token::getText(m_templateTokenList) + '>';
+
+	default:
+		ASSERT(false);
+		return sl::StringRef();
+
+	}
 }
 
 void
