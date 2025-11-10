@@ -367,6 +367,13 @@ public:
 		return findDirectChildItemTraverse(name, coord, flags, 0);
 	}
 
+	virtual
+	bool
+	deduceTemplateArgs(
+		sl::Array<Type*>* templateArgTypeArray,
+		Type* referenceType
+	);
+
 protected:
 	virtual
 	bool

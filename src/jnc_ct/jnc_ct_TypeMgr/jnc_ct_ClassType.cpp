@@ -754,38 +754,6 @@ ClassType::markGcRootsImpl(
 		m_opaqueClassTypeInfo->m_markOpaqueGcRootsFunc(iface, gcHeap);
 }
 
-bool
-ClassType::deduceTemplateArgs(
-	sl::Array<Type*>* templateArgTypeArray,
-	Type* referenceType
-) {
-	if (!m_templateInstance)
-		return true; // can't deduce from a non-templated class
-
-	if (referenceType->getTypeKind() != TypeKind_Class) {
-		setTemplateArgDeductionError(referenceType);
-		return false;
-	}
-
-	TemplateInstance* referenceInstance = ((ClassType*)referenceType)->getTemplateInstance();
-	if (!referenceInstance ||
-		!referenceInstance->m_template->isEqual(m_templateInstance->m_template)
-	) {
-		setTemplateArgDeductionError(referenceType);
-		return false;
-	}
-
-	bool result = true;
-	size_t argCount = m_templateInstance->m_argArray.getCount();
-	for (size_t i = 0; i < argCount; i++)
-		result = m_templateInstance->m_argArray[i]->deduceTemplateArgs(
-			templateArgTypeArray,
-			referenceInstance->m_argArray[i]
-		) && result;
-
-	return true;
-}
-
 //..............................................................................
 
 } // namespace ct
