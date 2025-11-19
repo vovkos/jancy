@@ -146,6 +146,7 @@ NamespaceMgr::addStdItems() {
 		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_ulong_t)) &&
 		globalNspace->addItem(jncNspace) &&
 		globalNspace->addItem(stdNspace) &&
+		jncNspace->addItem("global", globalNspace) &&
 		jncNspace->addItem("GcStats", gcImport) &&
 		jncNspace->addItem("GcTriggers", gcImport) &&
 		jncNspace->addItem("getGcStats", gcImport) &&
