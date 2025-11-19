@@ -620,8 +620,11 @@ Module::jit() {
 		m_jit->prepare() &&
 		m_functionMgr.jitFunctions();
 
-	if (!result)
+	if (!result) {
+		delete m_jit; // JIT throws and gets into an inconsistent state; it's best to delete it immediately
+		m_jit = NULL;
 		return false;
+	}
 
 	m_compileState = ModuleCompileState_Jitted;
 	return true;
