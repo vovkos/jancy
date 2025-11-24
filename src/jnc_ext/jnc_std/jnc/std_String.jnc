@@ -36,12 +36,13 @@ class StringBuilder {
 		return m_p[offset];
 	}
 
-	void set(
+	bool errorcode set(
 		size_t offset,
 		char e
 	) {
 		boundsCheck(offset);
 		m_p[offset] = e;
+		return true;
 	}
 
 	size_t errorcode operator := (string_t string) {
@@ -156,11 +157,13 @@ class StringBuilder {
 	string_t errorcode cloneString();
 
 protected:
-	void boundsCheck(size_t offset) {
+	bool errorcode boundsCheck(size_t offset) {
 		if (offset >= m_length) {
 			std.setError($"attempt to access out-of-bounds offset $offset (length: $m_length)");
-			throw;
+			return false;
 		}
+
+		return true;
 	}
 }
 

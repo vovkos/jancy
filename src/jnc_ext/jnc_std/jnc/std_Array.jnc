@@ -28,12 +28,13 @@ class Array {
 		return m_p[index];
 	}
 
-	void set(
+	bool errorcode set(
 		size_t index,
 		variant_t e
 	) {
 		boundsCheck(index);
 		m_p[index] = e;
+		return true;
 	}
 
 	void clear();
@@ -94,11 +95,13 @@ class Array {
 	}
 
 protected:
-	void boundsCheck(size_t index) const {
+	bool errorcode boundsCheck(size_t index) const {
 		if (index >= m_count) {
 			std.setError($"attempt to access out-of-bounds index $index (count: $m_count)");
-			throw;
+			return false;
 		}
+
+		return true;
 	}
 }
 
