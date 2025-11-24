@@ -28,7 +28,7 @@ ModulePane::ModulePane(QWidget *parent)
 bool ModulePane::build(jnc::Module* module, MdiChild* document) {
 	clear();
 	jnc::GlobalNamespace* globalNamespace = module->getGlobalNamespace();
-	addNamespace(0, globalNamespace);
+	addNamespace(NULL, globalNamespace);
 	m_document = document;
 	return true;
 }
@@ -84,25 +84,29 @@ bool ModulePane::addItemAttributes(QTreeWidgetItem *parent, jnc::ModuleItemDecl 
 	return true;
 }
 
-void ModulePane::addNamespace(QTreeWidgetItem *parent,
-	jnc::GlobalNamespace *globalNamespace) {
+void ModulePane::addNamespace(
+	QTreeWidgetItem *parent,
+	jnc::GlobalNamespace *globalNamespace
+) {
 	jnc::ModuleItemKind itemKind = globalNamespace->getItemKind();
 
 	QTreeWidgetItem *treeItem = 0;
+	bool isGlobal = !globalNamespace->getDecl()->getParentNamespace();
 
-	if (itemKind == jnc::ModuleItemKind_Scope) {
+	if (itemKind == jnc::ModuleItemKind_Scope)
 		treeItem = insertItem("scope", parent);
-	} else if (!globalNamespace->getDecl()->getParentNamespace()) {
+	else if (isGlobal)
 		treeItem = insertItem("global", parent);
-	} else {
+	else {
 		QString text;
-		text.sprintf("namespace %s",
-			(const char *)globalNamespace->getDecl()->getName());
-
+		text.sprintf("namespace %s", globalNamespace->getDecl()->getName());
 		treeItem = insertItem(text, parent);
 	}
 
 	treeItem->setData(0, Qt::UserRole, qVariantFromValue((void*)globalNamespace->getDecl()));
+
+	if (isGlobal && parent)
+		return; // special handling for jnc.global
 
 	jnc::Namespace* nspace = globalNamespace->getNamespace();
 	size_t count = nspace->getItemCount();
