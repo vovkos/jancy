@@ -1830,6 +1830,9 @@ TypeMgr::setupPrimitiveType(
 	ASSERT(typeKind < TypeKind__PrimitiveTypeCount);
 
 	Type* type = &m_primitiveTypeArray[typeKind];
+#if (_JNC_DEBUG)
+	*(sl::ListLink*)type = sl::g_nullListLink; // make it look nice in debugger
+#endif
 	type->m_module = m_module;
 	type->m_typeKind = typeKind;
 	type->m_signature = signature;
@@ -1859,6 +1862,9 @@ TypeMgr::setupStdTypedef(
 	ASSERT(typeKind < TypeKind__PrimitiveTypeCount);
 
 	Typedef* tdef = &m_stdTypedefArray[stdTypedef];
+#if (_JNC_DEBUG)
+	*(sl::ListLink*)tdef = sl::g_nullListLink; // make it look nice in debugger
+#endif
 	tdef->m_module = m_module;
 	tdef->m_name = name;
 	tdef->m_qualifiedName = name;
