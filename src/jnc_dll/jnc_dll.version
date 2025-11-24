@@ -117,6 +117,10 @@
 		jnc_MulticastClassType_getMethod;
 		jnc_MulticastClassType_getTargetType;
 		jnc_getClassPtrTypeKindString;
+		jnc_Template_getDerivableTypeKind;
+		jnc_Template_getDeclType;
+		jnc_Template_getArgCount;
+		jnc_Template_getArg;
 		jnc_Alias_isResolved;
 		jnc_Alias_getInitializerString_v;
 		jnc_Alias_getTargetItem;

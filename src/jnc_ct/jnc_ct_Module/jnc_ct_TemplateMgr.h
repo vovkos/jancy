@@ -47,6 +47,11 @@ protected:
 public:
 	Template();
 
+	TypeKind
+	getDerivableTypeKind() {
+		return m_derivableTypeKind;
+	}
+
 	TemplateDeclType*
 	getDeclType() {
 		return m_declType;
