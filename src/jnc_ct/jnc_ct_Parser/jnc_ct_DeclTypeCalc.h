@@ -12,7 +12,6 @@
 #pragma once
 
 #include "jnc_ct_Decl.h"
-#include "jnc_Property.h"
 
 namespace jnc {
 namespace ct {
@@ -146,13 +145,14 @@ protected:
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
-uint_t
-DeclTypeCalc::getPropertyFlags() {
-	if (!(m_typeModifiers & TypeModifier_AutoGet))
-		return 0;
+bool
+DeclTypeCalc::checkUnusedModifiers() {
+	if (m_typeModifiers) {
+		err::setFormatStringError("unused modifier '%s'", getTypeModifierString(m_typeModifiers).sz());
+		return false;
+	}
 
-	m_typeModifiers &= ~TypeModifier_AutoGet;
-	return PropertyFlag_AutoGet;
+	return true;
 }
 
 //..............................................................................

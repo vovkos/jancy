@@ -42,6 +42,7 @@
 #include "jnc_ct_ArrayType.h"
 #include "jnc_ct_StdFunction.h"
 #include "jnc_ct_Property.h"
+#include "jnc_ct_Closure.h"
 
 namespace jnc {
 namespace ct {

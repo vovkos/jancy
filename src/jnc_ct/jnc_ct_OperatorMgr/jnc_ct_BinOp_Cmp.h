@@ -11,9 +11,9 @@
 
 #pragma once
 
+#include "jnc_String.h"
 #include "jnc_ct_BinOp.h"
 #include "jnc_ct_UnOp_Arithmetic.h"
-#include "jnc_String.h"
 
 namespace jnc {
 namespace ct {

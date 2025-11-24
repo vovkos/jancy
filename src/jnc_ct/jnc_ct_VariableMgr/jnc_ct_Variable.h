@@ -11,6 +11,7 @@
 
 #pragma once
 
+#include "jnc_Variable.h"
 #include "jnc_ct_ModuleItem.h"
 #include "jnc_ct_LlvmIrInsertPoint.h"
 

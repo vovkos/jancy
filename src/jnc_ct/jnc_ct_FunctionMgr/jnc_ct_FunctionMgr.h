@@ -16,7 +16,6 @@
 #include "jnc_ct_Property.h"
 #include "jnc_ct_PropertyTemplate.h"
 #include "jnc_ct_StdFunction.h"
-#include "jnc_ClassType.h"
 
 namespace jnc {
 namespace ct {

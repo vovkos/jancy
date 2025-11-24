@@ -11,8 +11,8 @@
 
 #pragma once
 
-#include "jnc_ct_Value.h"
 #include "jnc_DynamicLayout.h"
+#include "jnc_ct_Value.h"
 
 namespace jnc {
 namespace ct {

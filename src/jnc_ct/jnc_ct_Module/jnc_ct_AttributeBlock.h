@@ -11,7 +11,8 @@
 
 #pragma once
 
-#include "jnc_Variant.h"
+#include "jnc_AttributeBlock.h"
+#include "jnc_ct_AttributeBlock.h"
 #include "jnc_ct_Value.h"
 
 namespace jnc {

@@ -22,6 +22,7 @@ set(
 	${JANCY_ROOT_DIR}/include/jnc_Error.h
 	${JANCY_ROOT_DIR}/include/jnc_ModuleItem.h
 	${JANCY_ROOT_DIR}/include/jnc_AttributeBlock.h
+	${JANCY_ROOT_DIR}/include/jnc_Template.h
 	${JANCY_ROOT_DIR}/include/jnc_Type.h
 	${JANCY_ROOT_DIR}/include/jnc_DerivableType.h
 	${JANCY_ROOT_DIR}/include/jnc_ArrayType.h
@@ -62,6 +63,7 @@ set(
 	jnc_Error.cpp
 	jnc_ModuleItem.cpp
 	jnc_AttributeBlock.cpp
+	jnc_Template.cpp
 	jnc_Type.cpp
 	jnc_DerivableType.cpp
 	jnc_ArrayType.cpp

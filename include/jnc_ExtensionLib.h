@@ -15,6 +15,8 @@
 
 #include "jnc_DynamicExtensionLibHost.h"
 #include "jnc_Module.h"
+#include "jnc_Property.h"
+#include "jnc_DerivableType.h"
 
 /**
 

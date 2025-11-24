@@ -11,6 +11,7 @@
 
 #pragma once
 
+#include "jnc_StructType.h"
 #include "jnc_ct_DerivableType.h"
 #include "jnc_ct_Pragma.h"
 

@@ -11,10 +11,10 @@
 
 #pragma once
 
+#include "jnc_Namespace.h"
 #include "jnc_ct_ModuleItem.h"
 #include "jnc_ct_QualifiedName.h"
 #include "jnc_ct_UsingSet.h"
-#include "jnc_Namespace.h"
 
 namespace jnc {
 namespace ct {

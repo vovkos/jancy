@@ -15,6 +15,7 @@
 #include "jnc_DynamicExtensionLibHost.h"
 #include "jnc_Error.h"
 #include "jnc_Capability.h"
+#include "jnc_AttributeBlock.h"
 #include "jnc_Type.h"
 #include "jnc_ArrayType.h"
 #include "jnc_EnumType.h"
@@ -23,7 +24,9 @@
 #include "jnc_Property.h"
 #include "jnc_Namespace.h"
 #include "jnc_Variant.h"
+#include "jnc_Variable.h"
 #include "jnc_Module.h"
+#include "jnc_Unit.h"
 #include "jnc_Runtime.h"
 #include "jnc_GcHeap.h"
 

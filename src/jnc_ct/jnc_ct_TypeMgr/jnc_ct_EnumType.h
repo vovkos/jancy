@@ -11,8 +11,8 @@
 
 #pragma once
 
-#include "jnc_ct_Type.h"
 #include "jnc_EnumType.h"
+#include "jnc_ct_Type.h"
 
 namespace jnc {
 namespace ct {

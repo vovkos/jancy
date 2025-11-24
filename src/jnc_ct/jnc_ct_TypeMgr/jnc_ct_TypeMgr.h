@@ -18,10 +18,9 @@
 #include "jnc_ct_CallConv_gcc32.h"
 #include "jnc_ct_CdeclCallConv_gcc64.h"
 #include "jnc_ct_CdeclCallConv_msc64.h"
+#include "jnc_ct_Typedef.h"
 #include "jnc_ct_StructType.h"
 #include "jnc_ct_ImportType.h"
-#include "jnc_ct_TemplateType.h"
-#include "jnc_ct_Typedef.h"
 
 namespace jnc {
 namespace ct {
@@ -48,6 +47,10 @@ class PropertyClosureClassType;
 class DataClosureClassType;
 class MulticastClassType;
 class McSnapshotClassType;
+class TemplateArgType;
+class TemplatePtrType;
+class TemplateIntModType;
+class TemplateDeclType;
 
 struct DataPtrTypeTuple;
 struct ClassPtrTypeTuple;

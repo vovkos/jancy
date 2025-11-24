@@ -11,6 +11,7 @@
 
 #pragma once
 
+#include "jnc_Template.h"
 #include "jnc_ct_TemplateType.h"
 #include "jnc_ct_UsingSet.h"
 #include "jnc_ct_Value.h"

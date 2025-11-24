@@ -11,10 +11,9 @@
 
 #pragma once
 
+#include "jnc_GcHeap.h"
 #include "jnc_ct_Value.h"
 #include "jnc_ct_LlvmIrInsertPoint.h"
-#include "jnc_RuntimeStructs.h"
-#include "jnc_GcHeap.h"
 
 namespace jnc {
 namespace ct {

@@ -11,9 +11,9 @@
 
 #pragma once
 
+#include "jnc_Type.h"
 #include "jnc_ct_ModuleItem.h"
 #include "jnc_ct_StdNamespace.h"
-#include "jnc_Type.h"
 
 namespace jnc {
 namespace ct {

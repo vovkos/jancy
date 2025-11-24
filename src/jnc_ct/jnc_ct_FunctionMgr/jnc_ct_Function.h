@@ -11,16 +11,14 @@
 
 #pragma once
 
+#include "jnc_Function.h"
 #include "jnc_ct_FunctionType.h"
 #include "jnc_ct_FunctionName.h"
 #include "jnc_ct_BasicBlock.h"
-#include "jnc_ct_Value.h"
-#include "jnc_ct_Closure.h"
 #include "jnc_ct_UnOp.h"
 #include "jnc_ct_BinOp.h"
 #include "jnc_ct_Variable.h"
 #include "jnc_ct_AttributeBlock.h"
-#include "jnc_Function.h"
 
 namespace jnc {
 namespace ct {

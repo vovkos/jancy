@@ -11,9 +11,9 @@
 
 #pragma once
 
+#include "jnc_Function.h"
 #include "jnc_ct_Type.h"
 #include "jnc_ct_GlobalNamespace.h"
-#include "jnc_Function.h"
 
 namespace jnc {
 namespace ct {

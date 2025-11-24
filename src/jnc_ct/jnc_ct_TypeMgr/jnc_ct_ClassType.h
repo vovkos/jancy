@@ -11,9 +11,8 @@
 
 #pragma once
 
-#include "jnc_ct_DerivableType.h"
-#include "jnc_RuntimeStructs.h"
 #include "jnc_ClassType.h"
+#include "jnc_ct_DerivableType.h"
 
 namespace jnc {
 namespace ct {

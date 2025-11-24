@@ -13,21 +13,10 @@
 
 #define _JNC_MODULE_H
 
-#include "jnc_AttributeBlock.h"
+#include "jnc_Type.h"
 #include "jnc_Namespace.h"
-#include "jnc_Alias.h"
-#include "jnc_Variable.h"
-#include "jnc_Function.h"
-#include "jnc_Property.h"
-#include "jnc_ArrayType.h"
-#include "jnc_EnumType.h"
-#include "jnc_DerivableType.h"
-#include "jnc_StructType.h"
-#include "jnc_UnionType.h"
-#include "jnc_ClassType.h"
 #include "jnc_CodeAssist.h"
-#include "jnc_DynamicLayout.h"
-#include "jnc_Unit.h"
+#include "jnc_RuntimeStructs.h"
 
 /**
 

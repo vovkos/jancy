@@ -11,6 +11,7 @@
 
 #pragma once
 
+#include "jnc_Module.h"
 #include "jnc_ct_TypeMgr.h"
 #include "jnc_ct_AttributeMgr.h"
 #include "jnc_ct_NamespaceMgr.h"

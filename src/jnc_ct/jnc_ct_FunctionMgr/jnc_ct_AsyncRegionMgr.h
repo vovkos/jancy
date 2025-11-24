@@ -12,7 +12,6 @@
 #pragma once
 
 #include "jnc_ct_Pch.h"
-#include "jnc_Def.h"
 
 namespace jnc {
 namespace ct {

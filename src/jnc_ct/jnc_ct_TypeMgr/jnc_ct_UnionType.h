@@ -11,6 +11,7 @@
 
 #pragma once
 
+#include "jnc_UnionType.h"
 #include "jnc_ct_StructType.h"
 
 namespace jnc {

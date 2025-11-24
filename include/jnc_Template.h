@@ -11,7 +11,7 @@
 
 #pragma once
 
-#define _JNC_ALIAS_H
+#define _JNC_TEMPLATE_H
 
 #include "jnc_ModuleItem.h"
 
@@ -21,35 +21,29 @@
 //..............................................................................
 
 JNC_EXTERN_C
-const char*
-jnc_Alias_getInitializerString_v(jnc_Alias* alias);
+size_t
+jnc_Template_getArgCount(jnc_Template* templ);
 
 JNC_EXTERN_C
-bool_t
-jnc_Alias_isResolved(jnc_Alias* alias);
-
-JNC_EXTERN_C
-jnc_ModuleItem*
-jnc_Alias_getTargetItem(jnc_Alias* alias);
+jnc_Type*
+jnc_Template_getArg(
+	jnc_Template* templ,
+	size_t index
+);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 
-struct jnc_Alias: jnc_ModuleItem {
-	const char*
-	getInitializerString_v() {
-		return jnc_Alias_getInitializerString_v(this);
+struct jnc_Template: jnc_ModuleItem {
+	size_t
+	getArgCount() {
+		return jnc_Template_getArgCount(this);
 	}
 
-	bool
-	isResolved() {
-		return jnc_Alias_isResolved(this) != 0;
-	}
-
-	jnc_ModuleItem*
-	getTargetItem() {
-		return jnc_Alias_getTargetItem(this);
+	jnc_Type*
+	getArg(size_t index) {
+		return jnc_Template_getArg(this, index);
 	}
 };
 

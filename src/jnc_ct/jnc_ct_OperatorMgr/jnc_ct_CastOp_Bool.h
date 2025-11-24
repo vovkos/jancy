@@ -11,8 +11,8 @@
 
 #pragma once
 
-#include "jnc_ct_CastOp.h"
 #include "jnc_String.h"
+#include "jnc_ct_CastOp.h"
 
 namespace jnc {
 namespace ct {

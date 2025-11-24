@@ -15,7 +15,6 @@
 #include "jnc_ct_DeclTypeCalc.h"
 #include "jnc_ct_ArrayType.h"
 #include "jnc_ct_EnumType.h"
-#include "jnc_ct_StructType.h"
 #include "jnc_ct_UnionType.h"
 #include "jnc_ct_ClassType.h"
 #include "jnc_ct_FunctionType.h"

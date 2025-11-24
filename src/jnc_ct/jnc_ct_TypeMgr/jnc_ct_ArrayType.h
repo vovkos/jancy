@@ -11,9 +11,9 @@
 
 #pragma once
 
+#include "jnc_ArrayType.h"
 #include "jnc_ct_Type.h"
 #include "jnc_ct_Function.h"
-#include "jnc_ArrayType.h"
 
 namespace jnc {
 namespace ct {

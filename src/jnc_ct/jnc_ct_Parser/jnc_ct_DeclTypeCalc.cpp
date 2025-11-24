@@ -298,16 +298,6 @@ DeclTypeCalc::calcPropertyGetterType(Declarator* declarator) {
 }
 
 bool
-DeclTypeCalc::checkUnusedModifiers() {
-	if (m_typeModifiers) {
-		err::setFormatStringError("unused modifier '%s'", getTypeModifierString(m_typeModifiers).sz());
-		return false;
-	}
-
-	return true;
-}
-
-bool
 DeclTypeCalc::getPtrTypeFlags(
 	Type* type,
 	uint_t* flags_o
@@ -347,6 +337,16 @@ DeclTypeCalc::getPtrTypeFlags(
 	m_typeModifiers &= ~TypeModifierMaskKind_DeclPtr;
 	*flags_o = flags;
 	return true;
+}
+
+inline
+uint_t
+DeclTypeCalc::getPropertyFlags() {
+	if (!(m_typeModifiers & TypeModifier_AutoGet))
+		return 0;
+
+	m_typeModifiers &= ~TypeModifier_AutoGet;
+	return PropertyFlag_AutoGet;
 }
 
 Type*

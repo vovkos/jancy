@@ -11,11 +11,11 @@
 
 #pragma once
 
+#include "jnc_Property.h"
 #include "jnc_ct_PropertyType.h"
 #include "jnc_ct_PropertyVerifier.h"
 #include "jnc_ct_Function.h"
 #include "jnc_ct_MemberBlock.h"
-#include "jnc_Property.h"
 
 namespace jnc {
 namespace ct {
