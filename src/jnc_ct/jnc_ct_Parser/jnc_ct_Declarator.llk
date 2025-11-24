@@ -421,7 +421,7 @@ declarator_suffix<Declarator* $declarator>
 template_suffix
 	:	'<'
 			{
-				m_templateNamespace = m_module->m_namespaceMgr.openTemplateNamespace();
+				m_module->m_namespaceMgr.openTemplateNamespace();
 				m_templateArgArray.clear();
 			}
 		TokenKind_Identifier

@@ -78,7 +78,6 @@ Parser::Parser(
 	m_lastDeclaredItem = NULL;
 	m_lastPropertyGetterType = NULL;
 	m_lastPropertyTypeModifiers = 0;
-	m_templateNamespace = NULL;
 	m_topDeclarator = NULL;
 	m_declarationId = 0;
 
@@ -121,7 +120,7 @@ Parser::tokenizeBody(
 
 		case TokenKind_Error:
 			err::setFormatStringError("invalid character '\\x%02x'", (uchar_t)token0->m_data.m_integer);
-			lex::pushSrcPosError(unit->getFilePath(), token0->m_pos);
+			pushSrcPosError(token0->m_pos);
 			return false;
 		}
 
@@ -845,12 +844,12 @@ bool
 Parser::declare(Declarator* declarator) {
 	m_lastDeclaredItem = NULL;
 
-	if (m_templateNamespace)
+	NamespaceKind nspaceKind = m_module->m_namespaceMgr.getCurrentNamespace()->getNamespaceKind();
+	if (nspaceKind == NamespaceKind_Template)
 		return declareTemplate(declarator);
 
-	bool isLibrary = m_module->m_namespaceMgr.getCurrentNamespace()->getNamespaceKind() == NamespaceKind_DynamicLib;
 	if ((declarator->getTypeModifiers() & TypeModifier_Property) && m_storageKind != StorageKind_Typedef) {
-		if (isLibrary) {
+		if (nspaceKind == NamespaceKind_DynamicLib) {
 			err::setError("only functions can be part of library");
 			return false;
 		}
@@ -870,7 +869,7 @@ Parser::declare(Declarator* declarator) {
 	uint_t postModifiers = declarator->getPostDeclaratorModifiers();
 	TypeKind typeKind = type->getTypeKind();
 
-	if (isLibrary && typeKind != TypeKind_Function) {
+	if (nspaceKind == NamespaceKind_DynamicLib && typeKind != TypeKind_Function) {
 		err::setError("only functions can be part of library");
 		return false;
 	}
@@ -952,11 +951,12 @@ Parser::assignDeclarationAttributes(
 
 bool
 Parser::addTemplateArg(const sl::StringRef& name) {
-	ASSERT(m_templateNamespace);
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
+	ASSERT(nspace->getNamespaceKind() == NamespaceKind_Template);
 
 	size_t index = m_templateArgArray.getCount();
 	TemplateArgType* type = m_module->m_typeMgr.getTemplateArgType(name, index);
-	bool result = m_templateNamespace->addItem(name, type);
+	bool result = nspace->addItem(name, type);
 	if (!result)
 		return false;
 
@@ -966,6 +966,9 @@ Parser::addTemplateArg(const sl::StringRef& name) {
 
 bool
 Parser::prepareTemplateDeclarator(Declarator* declarator) {
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
+	ASSERT(nspace->getNamespaceKind() == NamespaceKind_Template);
+
 	if (declarator->m_declaratorKind != DeclaratorKind_Name) {
 		err::setError("invalid template declarator");
 		return false;
@@ -973,13 +976,12 @@ Parser::prepareTemplateDeclarator(Declarator* declarator) {
 
 	sl::takeOver(&declarator->m_templateArgArray, &m_templateArgArray);
 
-	ASSERT(m_templateNamespace);
 	NamedImportType* baseType = (NamedImportType*)declarator->m_baseType;
 	if (baseType->getTypeKind() == TypeKind_NamedImport &&
 		baseType->getName().isSimple()
 	) {
 		const QualifiedName& baseTypeName = baseType->getName();
-		FindModuleItemResult findResult = m_templateNamespace->findDirectChildItem(
+		FindModuleItemResult findResult = nspace->findDirectChildItem(
 			baseTypeName.getUnit(),
 			baseTypeName.getFirstAtom()
 		);
@@ -995,18 +997,21 @@ Parser::prepareTemplateDeclarator(Declarator* declarator) {
 
 Template*
 Parser::declareTemplate(Declarator* declarator) {
+	Namespace* templNspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	m_module->m_namespaceMgr.closeTemplateNamespace();
-	m_templateNamespace = NULL;
 
 	if (!declarator->isSimple()) {
 		err::setError("invalid template declarator");
 		return NULL;
 	}
 
-	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	TemplateDeclType* type = m_module->m_typeMgr.createTemplateDeclType(declarator);
 	declarator = type->getDeclarator(); // adjust declarator (original was just moved)
 	const sl::StringRef& name = declarator->getSimpleName();
+	if (!checkTemplateName(declarator->getPos(), name, templNspace))
+		return NULL;
+
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	Template* templ = m_module->m_templateMgr.createTemplate(name, nspace->createQualifiedName(name), type);
 	bool result = nspace->addItem(name, templ);
 	if (!result)
@@ -1019,38 +1024,31 @@ Parser::declareTemplate(Declarator* declarator) {
 Template*
 Parser::declareTemplate(
 	TypeKind typeKind,
-	const Token* nameToken,
+	const Token& nameToken,
 	const sl::ArrayRef<Type*>& baseTypeArray,
 	sl::List<Token>* bodyTokenList
 ) {
+	Namespace* templNspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	m_module->m_namespaceMgr.closeTemplateNamespace();
-	m_templateNamespace = NULL;
 
-	if (!nameToken) {
-		static const char* stringTable[] = {
-			"struct", // TypeKind_Struct
-			"union",  // TypeKind_Union
-		};
-
-		ASSERT(typeKind >= TypeKind_Struct && typeKind <= TypeKind_Union);
-		err::setFormatStringError("unnamed template %s", stringTable[typeKind - TypeKind_Struct]);
+	const sl::StringRef& name = nameToken.m_data.m_string;
+	if (!checkTemplateName(nameToken.m_pos, name, templNspace))
 		return NULL;
-	}
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	Template* templ = m_module->m_templateMgr.createTemplate(
 		typeKind,
-		nameToken->m_data.m_string,
-		nspace->createQualifiedName(nameToken->m_data.m_string),
+		name,
+		nspace->createQualifiedName(name),
 		m_templateArgArray,
 		baseTypeArray
 	);
 
-	bool result = nspace->addItem(nameToken->m_data.m_string, templ);
+	bool result = nspace->addItem(name, templ);
 	if (!result)
 		return NULL;
 
-	assignDeclarationAttributes(templ, templ, nameToken->m_pos);
+	assignDeclarationAttributes(templ, templ, nameToken.m_pos);
 	setBody(templ, bodyTokenList);
 	return templ;
 }
@@ -2794,7 +2792,7 @@ Parser::lookupIdentifier(
 
 	if (!findResult.m_item) {
 		err::setFormatStringError("undeclared identifier '%s'", token.m_data.m_string.sz());
-		lex::pushSrcPosError(m_module->m_unitMgr.getCurrentUnit()->getFilePath(), token.m_pos);
+		pushSrcPosError(token.m_pos);
 		return NULL;
 	}
 

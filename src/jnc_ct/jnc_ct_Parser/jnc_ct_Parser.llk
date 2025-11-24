@@ -127,7 +127,6 @@ protected:
 
 	sl::Array<TypeSpecifier*> m_typeSpecifierStack;
 	sl::Array<TemplateArgType*> m_templateArgArray;
-	Namespace* m_templateNamespace;
 	Declarator* m_topDeclarator; // orphan declarators affect import type resolution
 	size_t m_declarationId;
 
@@ -208,6 +207,11 @@ public:
 	);
 
 protected:
+	void
+	pushSrcPosError(const lex::LineCol& pos) {
+		lex::pushSrcPosError(m_module->m_unitMgr.getCurrentUnit()->getFilePath(), pos);
+	}
+
 	RecoveryAction
 	processError(ErrorKind errorKind) {
 		return m_module->processCompileError((ModuleCompileErrorKind)errorKind) ?
@@ -457,13 +461,27 @@ protected:
 	bool
 	prepareTemplateDeclarator(Declarator* declarator);
 
+	bool
+	checkTemplateName(
+		const lex::LineCol& pos,
+		const sl::StringRef& name,
+		Namespace* templNspace
+	) {
+		if (!templNspace->findDirectChildItem(name).m_item)
+			return true;
+
+		err::setFormatStringError("template name '%s' conflicts with template arguments", name.sz());
+		pushSrcPosError(pos);
+		return false;
+	}
+
 	Template*
 	declareTemplate(Declarator* declarator);
 
 	Template*
 	declareTemplate(
 		TypeKind typeKind,
-		const Token* nameToken,
+		const Token& nameToken,
 		const sl::ArrayRef<Type*>& baseTypeArray,
 		sl::List<Token>* bodyTokenList
 	);
