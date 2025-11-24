@@ -54,7 +54,6 @@ Template::instantiate(const sl::ArrayRef<Type*>& argArray) {
 		return instance->m_item;
 
 	ModuleItem* item;
-	ModuleItemBodyDecl* itemDecl;
 
 	if (m_declType) {
 		openTemplateNamespace(argArray);
@@ -63,15 +62,21 @@ Template::instantiate(const sl::ArrayRef<Type*>& argArray) {
 		if (!type)
 			return NULL;
 
-		if (type->getTypeKind() != TypeKind_Function) {
-			err::setError("only templated functions are currently supported");
-			return NULL;
-		}
+		if (m_storageKind == StorageKind_Typedef) {
+			Typedef* tdef = m_module->m_typeMgr.createTypedef(m_name, m_qualifiedName, type);
+			copyDecl(tdef);
+			item = tdef;
+		} else {
+			if (type->getTypeKind() != TypeKind_Function) {
+				err::setError("cannot instantiate template '%s' (not a function)");
+				return NULL;
+			}
 
-		Function* function = m_module->m_functionMgr.createFunction((FunctionType*)type);
-		function->m_templateInstance = &mapIt->m_value;
-		item = function;
-		itemDecl = function;
+			Function* function = m_module->m_functionMgr.createFunction((FunctionType*)type);
+			function->m_templateInstance = &mapIt->m_value;
+			copyDecl(function);
+			item = function;
+		}
 	} else {
 		DerivableType* type;
 		switch (m_derivableTypeKind) {
@@ -113,19 +118,8 @@ Template::instantiate(const sl::ArrayRef<Type*>& argArray) {
 		}
 
 		type->m_templateInstance = instance;
+		copyDecl(type);
 		item = type;
-		itemDecl = type;
-	}
-
-	itemDecl->copyDecl(this);
-
-	if (!m_body.isEmpty())
-		itemDecl->setBody(m_pragmaConfig, m_bodyPos, m_body);
-	else {
-		ASSERT(!m_bodyTokenList.isEmpty());
-		sl::List<Token> body;
-		cloneTokenList(&body, m_bodyTokenList);
-		itemDecl->setBody(m_pragmaConfig, &body);
 	}
 
 	instance->m_item = item;
@@ -168,7 +162,7 @@ Template::deduceArgs(
 	}
 
 	if (deductionType->getTypeKind() != TypeKind_Function) {
-		err::setError("only templated functions are currently supported");
+		err::setFormatStringError("cannot deduce arguments of template '%s' (not a function)", m_qualifiedName.sz());
 		return false;
 	}
 

@@ -66,6 +66,12 @@ public:
 
 protected:
 	virtual
+	bool
+	resolveImports() {
+		return true;
+	}
+
+	virtual
 	void
 	prepareSignature() {
 		m_signature = createSignature(m_name, m_index);
@@ -99,6 +105,12 @@ class TemplateModType: public ModType<
 	signaturePrefix
 > {
 protected:
+	virtual
+	bool
+	resolveImports() {
+		return true;
+	}
+
 	void
 	setTemplateArgDeductionError(Type* argValueType) {
 		err::setFormatStringError(
@@ -154,8 +166,7 @@ protected:
 
 //..............................................................................
 
-class TemplateDeclType: public TemplateType
-{
+class TemplateDeclType: public TemplateType {
 	friend class TypeMgr;
 	friend class Parser;
 

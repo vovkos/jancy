@@ -83,6 +83,14 @@ public:
 protected:
 	Namespace*
 	openTemplateNamespace(const sl::ArrayRef<Type*>& argArray);
+
+	void
+	copyDecl(ModuleItemDecl* itemDecl) {
+		itemDecl->copyDecl(this);
+	}
+
+	void
+	copyDecl(ModuleItemBodyDecl* itemDecl);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -92,6 +100,22 @@ Template::Template() {
 	m_itemKind = ModuleItemKind_Template;
 	m_derivableTypeKind = TypeKind_Void;
 	m_declType = NULL;
+}
+
+inline
+void
+Template::copyDecl(ModuleItemBodyDecl* itemDecl) {
+	ASSERT(hasBody());
+
+	itemDecl->copyDecl(this);
+
+	if (!m_body.isEmpty())
+		itemDecl->setBody(m_pragmaConfig, m_bodyPos, m_body);
+	else {
+		sl::List<Token> body;
+		cloneTokenList(&body, m_bodyTokenList);
+		itemDecl->setBody(m_pragmaConfig, &body);
+	}
 }
 
 //..............................................................................
