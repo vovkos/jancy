@@ -161,6 +161,10 @@ void ModulePane::addItem(QTreeWidgetItem *parent, jnc::ModuleItem *item) {
 		addAlias(parent, (jnc::Alias*)item);
 		break;
 
+	case jnc::ModuleItemKind_Template:
+		addTemplate(parent, (jnc::Template*)item);
+		break;
+
 	default:
 		name.sprintf("item %p of kind %d", item, itemKind);
 
@@ -334,4 +338,31 @@ void ModulePane::addAlias(QTreeWidgetItem* parent, jnc::Alias* alias) {
 
 	QTreeWidgetItem *item = insertItem(name, parent);
 	item->setData(0, Qt::UserRole, qVariantFromValue((void*)alias->getDecl()));
+}
+
+void ModulePane::addTemplate(QTreeWidgetItem* parent, jnc::Template* templ) {
+	QString name;
+	jnc::StorageKind storageKind =  templ->getDecl()->getStorageKind();
+	if (storageKind) {
+		name = jnc::getStorageKindString(storageKind);
+		name += ' ';
+	} else {
+		static const char* stringTable[] = {
+			"struct",
+			"union",
+			"class",
+		};
+
+		jnc::TypeKind typeKind = templ->getDerivableTypeKind();
+		if (typeKind) {
+			size_t i = typeKind - jnc::TypeKind_Struct;
+			ASSERT(i < countof(stringTable));
+			name = stringTable[i];
+			name += ' ';
+		}
+	}
+
+	name += templ->getSynopsis_v();
+	QTreeWidgetItem *item = insertItem(name, parent);
+	item->setData(0, Qt::UserRole, qVariantFromValue((void*)templ->getDecl()));
 }

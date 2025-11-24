@@ -34,7 +34,7 @@ private:
 	void addNamespace(QTreeWidgetItem* parent, jnc::GlobalNamespace* globalNamespace);
 	void addItem(QTreeWidgetItem* parent, jnc::ModuleItem* item);
 	void addType(QTreeWidgetItem* parent, jnc::Type* type);
-	void addTypedef(QTreeWidgetItem* parent, jnc::Typedef* typed);
+	void addTypedef(QTreeWidgetItem* parent, jnc::Typedef* tdef);
 	void addEnumConst(QTreeWidgetItem* parent, jnc::EnumConst* member);
 	void addValue(QTreeWidgetItem* parent, const QString& name, jnc::Type* type, uint_t ptrTypeFlags, jnc::ModuleItem* item);
 	void addFunction(QTreeWidgetItem* parent, jnc::Function* function);
@@ -42,6 +42,7 @@ private:
 	void addOverloadableFunction(QTreeWidgetItem* parent, jnc::OverloadableFunction function);
 	void addProperty(QTreeWidgetItem* parent, jnc::Property* prop);
 	void addAlias(QTreeWidgetItem* parent, jnc::Alias* alias);
+	void addTemplate(QTreeWidgetItem* parent, jnc::Template* templ);
 	void addEnumTypeMembers(QTreeWidgetItem* parent, jnc::EnumType* type);
 	void addDerivableTypeMembers(QTreeWidgetItem* parent, jnc::DerivableType* type);
 

@@ -70,3 +70,8 @@ using namespace axl;
 #include "jnc_CallSite.h"
 #include "jnc_Error.h"
 #include "jnc_Edit.h"
+#include "jnc_Variable.h"
+#include "jnc_AttributeBlock.h"
+#include "jnc_EnumType.h"
+#include "jnc_Alias.h"
+#include "jnc_Template.h"
