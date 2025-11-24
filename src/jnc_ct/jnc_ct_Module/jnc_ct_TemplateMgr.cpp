@@ -112,9 +112,12 @@ Template::instantiate(const sl::ArrayRef<Type*>& argArray) {
 			return NULL;
 		}
 
+		bool result = type->addItem(type->getName(), type);
+		ASSERT(result); // should have been checked
+
 		for (size_t i = 0; i < argCount; i++) {
-			bool result = type->addItem(m_argArray[i]->getName(), argArray[i]);
-			ASSERT(result);
+			result = type->addItem(m_argArray[i]->getName(), argArray[i]);
+			ASSERT(result); // should have been checked
 		}
 
 		type->m_templateInstance = instance;
