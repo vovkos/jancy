@@ -113,11 +113,14 @@ Template::instantiate(const sl::ArrayRef<Type*>& argArray) {
 		}
 
 		bool result = type->addItem(type->getName(), type);
-		ASSERT(result); // should have been checked
+		ASSERT(result); // should have been checked in parser
 
 		for (size_t i = 0; i < argCount; i++) {
-			result = type->addItem(m_argArray[i]->getName(), argArray[i]);
-			ASSERT(result); // should have been checked
+			const sl::StringRef& name = m_argArray[i]->getName();
+			Typedef* tdef = m_module->m_typeMgr.createTypedef(name, name, argArray[i]);
+			result = type->addItem(tdef);
+			ASSERT(result); // should have been checked in parser
+		}
 		}
 
 		type->m_templateInstance = instance;
