@@ -1205,9 +1205,12 @@ Parser::declareFunction(
 	FunctionName* functionName;
 
 	if (declarator->isQualified()) {
-		Orphan* orphan = m_module->m_namespaceMgr.createOrphan(OrphanKind_Function, type);
-		orphan->m_functionKind = functionKind;
-		orphan->m_declaratorName.copy(declarator->getName());
+		Orphan* orphan = m_module->m_namespaceMgr.createOrphan(
+			OrphanKind_Function,
+			declarator->getName(),
+			functionKind,
+			type
+		);
 
 		functionItem = orphan;
 		functionItemDecl = orphan;
@@ -1689,9 +1692,13 @@ Parser::declareReactor(
 	}
 
 	if (declarator->isQualified()) {
-		Orphan* orphan = m_module->m_namespaceMgr.createOrphan(OrphanKind_Reactor, NULL);
-		orphan->m_functionKind = FunctionKind_Normal;
-		orphan->m_declaratorName.copy(declarator->getName());
+		Orphan* orphan = m_module->m_namespaceMgr.createOrphan(
+			OrphanKind_Reactor,
+			declarator->getName(),
+			FunctionKind_Normal,
+			NULL
+		);
+
 		assignDeclarationAttributes(orphan, orphan, declarator);
 		nspace->addOrphan(orphan);
 	} else {

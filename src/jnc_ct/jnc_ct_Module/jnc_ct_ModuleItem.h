@@ -229,6 +229,11 @@ public:
 		return m_body;
 	}
 
+	const sl::List<Token> &
+	getBodyTokenList() const {
+		return m_bodyTokenList;
+	}
+
 	bool
 	setBody(
 		const PragmaConfig* pragmaConfig,

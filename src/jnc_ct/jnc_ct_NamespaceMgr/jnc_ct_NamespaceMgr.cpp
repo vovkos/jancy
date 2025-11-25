@@ -244,12 +244,16 @@ NamespaceMgr::addStdItems() {
 Orphan*
 NamespaceMgr::createOrphan(
 	OrphanKind orphanKind,
+	const QualifiedName& declaratorName,
+	FunctionKind functionKind,
 	FunctionType* functionType
 ) {
 	Orphan* orphan = new Orphan;
 	orphan->m_module = m_module;
 	orphan->m_orphanKind = orphanKind;
+	orphan->m_functionKind = functionKind;
 	orphan->m_functionType = functionType;
+	orphan->m_declaratorName.copy(declaratorName);
 	m_orphanList.insertTail(orphan);
 	return orphan;
 }

@@ -11,7 +11,8 @@
 
 #pragma once
 
-#include "jnc_ct_Function.h"
+#include "jnc_ct_UsingSet.h"
+#include "jnc_ct_FunctionName.h"
 
 namespace jnc {
 namespace ct {
@@ -106,6 +107,19 @@ Orphan::Orphan() {
 	m_functionType = NULL;
 	m_origin = NULL;
 }
+
+//..............................................................................
+
+class OrphanArray {
+protected:
+	sl::Array<Orphan*> m_orphanArray;
+
+public:
+	void
+	addOrphan(Orphan* orphan) {
+		m_orphanArray.append(orphan);
+	}
+};
 
 //..............................................................................
 

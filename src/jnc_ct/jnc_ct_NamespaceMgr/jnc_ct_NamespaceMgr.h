@@ -85,6 +85,8 @@ public:
 	Orphan*
 	createOrphan(
 		OrphanKind orphanKind,
+		const QualifiedName& declaratorName,
+		FunctionKind functionKind,
 		FunctionType* functionType
 	);
 

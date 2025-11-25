@@ -15,6 +15,7 @@
 #include "jnc_ct_ModuleItem.h"
 #include "jnc_ct_QualifiedName.h"
 #include "jnc_ct_UsingSet.h"
+#include "jnc_ct_Orphan.h"
 
 namespace jnc {
 namespace ct {
@@ -51,7 +52,8 @@ enum NamespaceStatus {
 
 class Namespace:
 	public ModuleItemBodyDecl,
-	public ModuleItemUsingSet {
+	public ModuleItemUsingSet,
+	public OrphanArray {
 	friend class NamespaceMgr;
 	friend class TypeMgr;
 	friend class Parser;
@@ -61,7 +63,6 @@ protected:
 	NamespaceStatus m_namespaceStatus;
 	err::Error m_parseError;
 	sl::Array<ModuleItem*> m_itemArray;
-	sl::Array<Orphan*> m_orphanArray;
 	sl::StringHashTable<ModuleItem*> m_itemMap;
 	sl::StringHashTable<bool> m_friendSet;
 	sl::StringHashTable<DualPtrTypeTuple*> m_dualPtrTypeTupleMap;
@@ -175,11 +176,6 @@ public:
 
 	size_t
 	addFunction(Function* function); // returns overload idx or -1 on error
-
-	void
-	addOrphan(Orphan* orphan) {
-		m_orphanArray.append(orphan);
-	}
 
 	Const*
 	createConst(

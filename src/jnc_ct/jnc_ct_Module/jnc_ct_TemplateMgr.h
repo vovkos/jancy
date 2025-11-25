@@ -14,6 +14,7 @@
 #include "jnc_Template.h"
 #include "jnc_ct_TemplateType.h"
 #include "jnc_ct_UsingSet.h"
+#include "jnc_ct_Orphan.h"
 #include "jnc_ct_Value.h"
 
 namespace jnc {
@@ -34,7 +35,8 @@ struct TemplateInstance {
 class Template:
 	public ModuleItem,
 	public ModuleItemBodyDecl,
-	public ModuleItemUsingSet {
+	public ModuleItemUsingSet,
+	public OrphanArray {
 	friend class TemplateMgr;
 
 protected:
@@ -96,7 +98,16 @@ protected:
 	}
 
 	void
-	copyDecl(ModuleItemBodyDecl* itemDecl);
+	copyDecl(ModuleItemBodyDecl* itemDecl) {
+		copyDecl(itemDecl, this);
+	}
+
+	static
+	void
+	copyDecl(
+		ModuleItemBodyDecl* dstDecl,
+		ModuleItemBodyDecl* srcDecl
+	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -110,17 +121,20 @@ Template::Template() {
 
 inline
 void
-Template::copyDecl(ModuleItemBodyDecl* itemDecl) {
-	ASSERT(hasBody());
+Template::copyDecl(
+	ModuleItemBodyDecl* dstDecl,
+	ModuleItemBodyDecl* srcDecl
+) {
+	ASSERT(srcDecl->hasBody());
 
-	itemDecl->copyDecl(this);
+	dstDecl->copyDecl(srcDecl);
 
-	if (!m_body.isEmpty())
-		itemDecl->setBody(m_pragmaConfig, m_bodyPos, m_body);
+	if (!srcDecl->getBody().isEmpty())
+		dstDecl->setBody(srcDecl->getPragmaConfig(), srcDecl->getBodyPos(), srcDecl->getBody());
 	else {
-		sl::List<Token> body;
-		cloneTokenList(&body, m_bodyTokenList);
-		itemDecl->setBody(m_pragmaConfig, &body);
+		sl::List<Token> tokenList;
+		cloneTokenList(&tokenList, srcDecl->getBodyTokenList());
+		dstDecl->setBody(srcDecl->getPragmaConfig(), &tokenList);
 	}
 }
 

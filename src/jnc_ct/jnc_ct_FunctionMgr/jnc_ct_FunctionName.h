@@ -17,12 +17,6 @@
 namespace jnc {
 namespace ct {
 
-class DerivableType;
-class ClassType;
-class PropertyType;
-class Property;
-class Scope;
-
 //..............................................................................
 
 // shared between Function, FunctionOverload and Orphan

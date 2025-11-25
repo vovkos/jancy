@@ -121,6 +121,19 @@ Template::instantiate(const sl::ArrayRef<Type*>& argArray) {
 			result = type->addItem(tdef);
 			ASSERT(result); // should have been checked in parser
 		}
+
+		size_t orphanCount = m_orphanArray.getCount();
+		for (size_t i = 0; i < orphanCount; i++) {
+			Orphan* srcOrphan = m_orphanArray[i];
+			Orphan* orphan = m_module->m_namespaceMgr.createOrphan(
+				srcOrphan->getOrphanKind(),
+				srcOrphan->getDeclaratorName(),
+				srcOrphan->getFunctionKind(),
+				srcOrphan->getFunctionType()
+			);
+
+			copyDecl(orphan, srcOrphan);
+			type->addOrphan(orphan);
 		}
 
 		type->m_templateInstance = instance;

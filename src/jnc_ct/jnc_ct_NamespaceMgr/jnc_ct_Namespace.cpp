@@ -80,13 +80,119 @@ Namespace::createQualifiedName(const sl::StringRef& name) {
 	return qualifiedName;
 }
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool
+addOrphanFail(
+	ModuleItem* item,
+	Orphan* orphan
+) {
+	err::setFormatStringError(
+		"'%s' is a %s, not a namespace",
+		item->getSynopsis().sz(),
+		getModuleItemKindString(item->getItemKind())
+	);
+
+	orphan->pushSrcPosError();
+	return false;
+}
+
+bool
+addOrphanToNamespace(
+	ModuleItem* item,
+	Orphan* orphan
+) {
+	((GlobalNamespace*)item)->addOrphan(orphan);
+	return true;
+}
+
+bool
+addOrphanToType(
+	ModuleItem* item,
+	Orphan* orphan
+) {
+	if ((((Type*)item)->getTypeKindFlags() & TypeKindFlag_Named))
+		return addOrphanFail(item, orphan);
+
+	((NamedType*)item)->addOrphan(orphan);
+	return true;
+}
+
+bool
+addOrphanToTypedef(
+	ModuleItem* item,
+	Orphan* orphan
+) {
+	return addOrphanToType(((Typedef*)item)->getType(), orphan);
+}
+
+bool
+addOrphanToProperty(
+	ModuleItem* item,
+	Orphan* orphan
+) {
+	((Property*)item)->addOrphan(orphan);
+	return true;
+}
+
+bool
+addOrphanToPropertyTemplate(
+	ModuleItem* item,
+	Orphan* orphan
+) {
+	((PropertyTemplate*)item)->addOrphan(orphan);
+	return true;
+}
+
+bool
+addOrphanToTemplate(
+	ModuleItem* item,
+	Orphan* orphan
+) {
+	((Template*)item)->addOrphan(orphan);
+	return true;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 bool
 Namespace::resolveOrphans() {
-	bool result;
-
 	if (m_orphanArray.isEmpty())
 		return true;
 
+	typedef
+	bool
+	AdoptOrphanFunc(
+		ModuleItem* item,
+		Orphan*	orphan
+	);
+
+	static AdoptOrphanFunc* addOrphanFuncTable[ModuleItemKind__Count] = {
+		addOrphanFail,               // ModuleItemKind_Undefined = 0,
+		addOrphanToNamespace,        // ModuleItemKind_Namespace,
+		addOrphanFail,               // ModuleItemKind_Scope,
+		addOrphanFail,               // ModuleItemKind_Attribute,
+		addOrphanFail,               // ModuleItemKind_AttributeBlock,
+		addOrphanToType,             // ModuleItemKind_Type,
+		addOrphanToTypedef,          // ModuleItemKind_Typedef,
+		addOrphanFail,               // ModuleItemKind_Alias,
+		addOrphanFail,               // ModuleItemKind_Const,
+		addOrphanFail,               // ModuleItemKind_Variable,
+		addOrphanFail,               // ModuleItemKind_Function,
+		addOrphanFail,               // ModuleItemKind_FunctionArg,
+		addOrphanFail,               // ModuleItemKind_FunctionOverload,
+		addOrphanToProperty,         // ModuleItemKind_Property,
+		addOrphanToPropertyTemplate, // ModuleItemKind_PropertyTemplate,
+		addOrphanFail,               // ModuleItemKind_EnumConst,
+		addOrphanFail,               // ModuleItemKind_Field,
+		addOrphanFail,               // ModuleItemKind_BaseTypeSlot,
+		addOrphanFail,               // ModuleItemKind_Orphan,
+		addOrphanFail,               // ModuleItemKind_LazyImport,
+		addOrphanFail,               // ModuleItemKind_DynamicSection,
+		addOrphanToTemplate,         // ModuleItemKind_Template,
+	};
+
+	bool result;
 	char buffer[256];
 	sl::Array<Property*> propertyArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	ModuleItem* nspaceItem = getParentItem();
@@ -134,17 +240,16 @@ Namespace::resolveOrphans() {
 			continue;
 		}
 
-		Namespace* nspace = findResult.m_item->getNamespace();
-		if (!nspace) {
-			err::setFormatStringError("'%s' is a %s, not a namespace", atom.m_name.sz(), getModuleItemKindString(findResult.m_item->getItemKind()));
+		ModuleItemKind itemKind = findResult.m_item->getItemKind();
+		ASSERT((size_t)itemKind < countof(addOrphanFuncTable));
+		result = addOrphanFuncTable[(size_t)itemKind](findResult.m_item, orphan);
+		if (!result) {
 			orphan->pushSrcPosError();
 			return false;
 		}
 
-		nspace->addOrphan(orphan);
-
-		if (nspace->getNamespaceKind() == NamespaceKind_Property)
-			propertyArray.append((Property*)nspace);
+		if (itemKind == ModuleItemKind_Property)
+			propertyArray.append((Property*)findResult.m_item);
 	}
 
 	count = propertyArray.getCount();

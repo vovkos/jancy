@@ -45,7 +45,6 @@ QualifiedNameAtom::getString() const {
 	default:
 		ASSERT(false);
 		return sl::StringRef();
-
 	}
 }
 
