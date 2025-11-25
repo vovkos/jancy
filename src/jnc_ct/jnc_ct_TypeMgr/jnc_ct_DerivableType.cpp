@@ -298,6 +298,52 @@ DerivableType::addProperty(Property* prop) {
 	return true;
 }
 
+void
+DerivableType::prepareSignature() {
+	char prefixTable[] = {
+		'S', // TypeKind_Struct
+		'U', // TypeKind_Union
+		'C', // TypeKind_Class
+	};
+
+	size_t i = m_typeKind - TypeKind_Struct;
+	ASSERT(i < countof(prefixTable));
+
+	sl::String signature;
+	signature.reserve(1 + m_qualifiedName.getLength());
+	signature = prefixTable[i];
+	signature += m_qualifiedName;
+
+	if (m_templateInstance)
+		signature.appendFormat(".%d", m_module->m_typeMgr.createUnnamedTypeId());
+
+	m_signature = std::move(signature);
+	m_flags |= TypeFlag_SignatureFinal;
+}
+
+void
+DerivableType::prepareTypeString() {
+	if (!m_templateInstance) {
+		NamedType::prepareSignature();
+		return;
+	}
+
+	sl::String typeString = getQualifiedName();
+	typeString += '<';
+
+	size_t argCount = m_templateInstance->m_argArray.getCount();
+	if (argCount) {
+		typeString += m_templateInstance->m_argArray[0]->getTypeString();
+		for (size_t i = 1; i < argCount; i++) {
+			typeString += ", ";
+			typeString += m_templateInstance->m_argArray[i]->getTypeString();
+		}
+	}
+
+	typeString += '>';
+	getTypeStringTuple()->m_typeStringPrefix = typeString;
+}
+
 bool
 DerivableType::parseBody() {
 	sl::ConstIterator<Variable> lastVariableIt = m_module->m_variableMgr.getVariableList().getTail();

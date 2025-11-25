@@ -761,12 +761,12 @@ public:
 		bool isContainerConst
 	);
 
-protected:
 	size_t
 	createUnnamedTypeId() {
 		return ++m_unnamedTypeId;
 	}
 
+protected:
 	void
 	addClassType(
 		ClassType* type,

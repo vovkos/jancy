@@ -376,6 +376,14 @@ public:
 
 protected:
 	virtual
+	void
+	prepareSignature();
+
+	virtual
+	void
+	prepareTypeString();
+
+	virtual
 	bool
 	parseBody();
 

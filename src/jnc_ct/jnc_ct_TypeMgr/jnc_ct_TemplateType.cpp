@@ -194,6 +194,21 @@ TemplateDeclType::instantiate(const sl::ArrayRef<Type*>& argArray) {
 	return type;
 }
 
+void
+TemplateDeclType::prepareSignature() {
+	size_t id = m_module->m_typeMgr.createUnnamedTypeId();
+	m_signature = sl::formatString("XD%d", id);
+	m_flags |= TypeFlag_SignatureReady;
+}
+
+void
+TemplateDeclType::prepareTypeString() {
+	Type* deductionType = getDeductionType();
+	TypeStringTuple* tuple = getTypeStringTuple();
+	tuple->m_typeStringPrefix = deductionType->getTypeStringPrefix();
+	tuple->m_typeStringPrefix = deductionType->getTypeStringSuffix();
+}
+
 //..............................................................................
 
 } // namespace ct

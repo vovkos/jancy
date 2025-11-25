@@ -62,13 +62,6 @@ protected:
 
 	virtual
 	void
-	prepareSignature() {
-		m_signature = 'U' + m_qualifiedName;
-		m_flags |= TypeFlag_SignatureFinal;
-	}
-
-	virtual
-	void
 	prepareLlvmType() {
 		m_llvmType = getStructType()->getLlvmType();
 	}

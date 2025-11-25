@@ -1588,7 +1588,6 @@ TemplateDeclType*
 TypeMgr::createTemplateDeclType(Declarator* declarator) {
 	TemplateDeclType* type = new TemplateDeclType;
 	type->m_module = m_module;
-	type->m_id = createUnnamedTypeId();
 	sl::takeOver(&type->m_declarator, declarator);
 
 	if (type->m_declarator.m_baseType->getTypeKindFlags() & TypeKindFlag_Import)

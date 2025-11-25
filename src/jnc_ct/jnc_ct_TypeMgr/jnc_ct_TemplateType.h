@@ -173,10 +173,12 @@ class TemplateDeclType: public TemplateType {
 protected:
 	Declarator m_declarator;
 	Type* m_deductionType; // includes TemplateType-s
-	size_t m_id;
 
 public:
-	TemplateDeclType();
+	TemplateDeclType() {
+		m_typeKind = TypeKind_TemplateDecl;
+		m_deductionType = NULL;
+	}
 
 	Declarator*
 	getDeclarator() {
@@ -200,26 +202,12 @@ public:
 protected:
 	virtual
 	void
-	prepareSignature() {
-		m_signature = sl::formatString("XD%d", m_id);
-		m_flags |= TypeFlag_SignatureReady;
-	}
+	prepareSignature();
 
 	virtual
 	void
-	prepareTypeString() {
-		getTypeStringTuple()->m_typeStringPrefix = sl::formatString("template-decl-%d", m_id);
-	}
+	prepareTypeString();
 };
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-inline
-TemplateDeclType::TemplateDeclType() {
-	m_typeKind = TypeKind_TemplateDecl;
-	m_deductionType = NULL;
-	m_id = 0;
-}
 
 //..............................................................................
 
