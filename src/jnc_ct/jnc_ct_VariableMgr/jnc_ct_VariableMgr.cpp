@@ -73,7 +73,6 @@ VariableMgr::getStdVariable(StdVariable stdVariable) {
 	case StdVariable_SjljFrame:
 		variable = createVariable(
 			StorageKind_Tls,
-			"g_sjljFrame",
 			"jnc.g_sjljFrame",
 			m_module->m_typeMgr.getStdType(StdType_SjljFrame)->getDataPtrType_c()
 		);
@@ -82,7 +81,6 @@ VariableMgr::getStdVariable(StdVariable stdVariable) {
 	case StdVariable_GcShadowStackTop:
 		variable = createVariable(
 			StorageKind_Tls,
-			"g_gcShadowStackTop",
 			"jnc.g_gcShadowStackTop",
 			m_module->m_typeMgr.getStdType(StdType_GcShadowStackFrame)->getDataPtrType_c()
 		);
@@ -91,7 +89,6 @@ VariableMgr::getStdVariable(StdVariable stdVariable) {
 	case StdVariable_GcSafePointTrigger:
 		variable = createVariable(
 			StorageKind_Static,
-			"g_gcSafePointTrigger",
 			"jnc.g_gcSafePointTrigger",
 			m_module->m_typeMgr.getPrimitiveType(TypeKind_IntPtr)->getDataPtrType_c()
 		);
@@ -100,7 +97,6 @@ VariableMgr::getStdVariable(StdVariable stdVariable) {
 	case StdVariable_NullPtrCheckSink:
 		variable = createVariable(
 			StorageKind_Static,
-			"g_nullPtrCheckSink",
 			"jnc.g_nullPtrCheckSink",
 			m_module->m_typeMgr.getPrimitiveType(TypeKind_Byte)
 		);
@@ -109,7 +105,6 @@ VariableMgr::getStdVariable(StdVariable stdVariable) {
 	case StdVariable_AsyncScheduler:
 		variable = createVariable(
 			StorageKind_Tls,
-			"g_asyncScheduler",
 			"jnc.g_asyncScheduler",
 			m_module->m_typeMgr.getStdType(StdType_AbstractClassPtr)
 		);
@@ -132,7 +127,6 @@ Variable*
 VariableMgr::createVariable(
 	StorageKind storageKind,
 	const sl::StringRef& name,
-	const sl::StringRef& qualifiedName,
 	Type* type,
 	uint_t ptrTypeFlags,
 	sl::List<Token>* constructor,
@@ -144,7 +138,6 @@ VariableMgr::createVariable(
 	Variable* variable = new Variable;
 	variable->m_module = m_module;
 	variable->m_name = name;
-	variable->m_qualifiedName = qualifiedName;
 	variable->m_type = type;
 	variable->m_storageKind = storageKind;
 	variable->m_ptrTypeFlags = ptrTypeFlags;
@@ -210,7 +203,7 @@ VariableMgr::allocateVariable(Variable* variable) {
 	switch (variable->m_storageKind) {
 	case StorageKind_Static:
 		ASSERT(!variable->m_llvmGlobalVariable);
-		variable->m_llvmGlobalVariable = createLlvmGlobalVariable(variable->m_type, variable->m_qualifiedName);
+		variable->m_llvmGlobalVariable = createLlvmGlobalVariable(variable->m_type, variable->getLinkId());
 
 		variable->m_llvmValue = isClassType ?
 			(llvm::Value*)m_module->m_llvmIrBuilder.createGep2(variable->m_llvmGlobalVariable, variable->m_type, 1, NULL, &ptrValue) :
@@ -272,7 +265,7 @@ VariableMgr::createSimpleStackVariable(
 	Type* type,
 	uint_t ptrTypeFlags
 ) {
-	Variable* variable = createVariable(StorageKind_Stack, name, name, type, ptrTypeFlags);
+	Variable* variable = createVariable(StorageKind_Stack, name, type, ptrTypeFlags);
 	bool result = allocateVariable(variable);
 	ASSERT(result);
 	return variable;
@@ -468,7 +461,7 @@ VariableMgr::createStaticDataPtrValidator(Variable* variable) {
 	StructType* boxType = (StructType*)m_module->m_typeMgr.getStdType(StdType_DetachedDataBox);
 	StructType* validatorType = (StructType*)m_module->m_typeMgr.getStdType(StdType_DataPtrValidator);
 
-	sl::String boxName = variable->getQualifiedName() + ".box";
+	sl::String boxName = variable->getLinkId() + ".box";
 
 	llvm::GlobalVariable* llvmBoxVariable = new llvm::GlobalVariable(
 		*m_module->getLlvmModule(),
@@ -718,11 +711,8 @@ VariableMgr::getRegexMatchVariable() {
 	if (scope->m_regexMatchVariable)
 		return scope->m_regexMatchVariable;
 
-	ClassPtrType* ptrType = ((ClassType*)m_module->m_typeMgr.getStdType(StdType_RegexMatch))->getClassPtrType(
-		ClassPtrTypeKind_Normal,
-		PtrTypeFlag_Const
-	);
-
+	ClassType* matchType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_RegexMatch);
+	ClassPtrType* ptrType = matchType->getClassPtrType(ClassPtrTypeKind_Normal, PtrTypeFlag_Const);
 	Variable* variable = createSimpleStackVariable("regexMatch", ptrType);
 	variable->m_parentNamespace = scope;
 	scope->m_regexMatchVariable = variable;
@@ -745,15 +735,7 @@ VariableMgr::createRtlItemVariable(
 	token->m_token = TokenKind_Integer;
 	token->m_data.m_int64_u = (intptr_t)item;
 
-	Variable* variable = createVariable(
-		StorageKind_Static,
-		sl::String(),
-		name,
-		type,
-		0,
-		&constructor
-	);
-
+	Variable* variable = createVariable(StorageKind_Static, name, type, 0, &constructor);
 	variable->m_parentUnit = m_module->m_unitMgr.getIntrospectionLibUnit();
 	variable->m_parentNamespace = m_module->m_namespaceMgr.getStdNamespace(StdNamespace_Jnc);
 	variable->m_flags |= VariableFlag_Type;
@@ -834,7 +816,7 @@ VariableMgr::initializeGlobalVariables() {
 		Variable* variable = m_globalVariableInitializeArray[i];
 		ASSERT(variable->m_storageKind == StorageKind_Static);
 
-		ParseContext parseContext(ParseContextKind_Expression, m_module, variable);
+		ParseContext parseContext(ParseContextKind_Expression, m_module, *variable);
 		bool result = initializeVariable(variable);
 		if (!result)
 			finalResult = false;

@@ -422,13 +422,17 @@ DeclTypeCalc::getArrayType(Type* elementType) {
 	m_typeModifiers &= ~TypeModifier_Array;
 
 	sl::List<Token>* elementCountInitializer = suffix->getElementCountInitializer();
-	if (!elementCountInitializer->isEmpty())
-		return m_module->m_typeMgr.createArrayType(elementType, elementCountInitializer);
+	if (!elementCountInitializer->isEmpty()) {
+		UserArrayType* arrayType = m_module->m_typeMgr.createArrayType<UserArrayType>(elementType, ModuleItemFlag_User);
+		arrayType->captureContext(m_module);
+		sl::takeOver(&arrayType->m_initializer, elementCountInitializer);
+		return arrayType;
+	}
 
 	size_t elementCount = suffix->getElementCount();
-	return elementCount == -1 ?
-		m_module->m_typeMgr.createAutoSizeArrayType(elementType) :
-		m_module->m_typeMgr.getArrayType(elementType, elementCount);
+	return elementCount != -1 ?
+		m_module->m_typeMgr.getArrayType(elementType, elementCount) :
+		m_module->m_typeMgr.createArrayType<ArrayType>(elementType, ArrayTypeFlag_AutoSize);
 }
 
 Type*
@@ -483,7 +487,7 @@ DeclTypeCalc::instantiateFunctionArgArray(
 		if (!dstArgType)
 			return false;
 
-		if (srcArg->getInitializer()->isEmpty())
+		if (srcArg->getInitializer().isEmpty())
 			rwi[i] = m_module->m_typeMgr.createFunctionArg(
 				srcArg->getName(),
 				dstArgType,
@@ -491,7 +495,7 @@ DeclTypeCalc::instantiateFunctionArgArray(
 			);
 		else {
 			sl::List<Token> initializer;
-			cloneTokenList(&initializer, *srcArg->getInitializer());
+			cloneTokenList(&initializer, srcArg->getInitializer());
 
 			rwi[i] = m_module->m_typeMgr.createFunctionArg(
 				srcArg->getName(),

@@ -52,11 +52,6 @@ public:
 		return m_actualType;
 	}
 
-	sl::Array<Type**>
-	getFixupArray() {
-		return m_fixupArray;
-	}
-
 	void
 	addFixup(Type** type) {
 		m_fixupArray.append(type);
@@ -105,14 +100,12 @@ class NamedImportType:
 	friend class Parser;
 
 protected:
-	Namespace* m_anchorNamespace;
 	QualifiedName m_name;
-	QualifiedName m_anchorName;
+	QualifiedName m_baseName;
 
 public:
 	NamedImportType() {
 		m_typeKind = TypeKind_NamedImport;
-		m_anchorNamespace = NULL;
 	}
 
 	const QualifiedName&
@@ -120,35 +113,23 @@ public:
 		return m_name;
 	}
 
-	Namespace*
-	getAnchorNamespace() {
-		return m_anchorNamespace;
-	}
-
 	const QualifiedName&
-	getAnchorName() {
-		return m_anchorName;
+	getBaseName() {
+		return m_baseName;
 	}
 
 	static
 	sl::String
 	createSignature(
+		Namespace* parentNamespace,
 		const QualifiedName& name,
-		Namespace* anchorNamespace,
-		const QualifiedName* anchorName = NULL
+		const QualifiedName* baseName = NULL
 	);
 
 protected:
 	virtual
-	void
-	prepareSignature() {
-		m_signature = createSignature(m_name, m_anchorNamespace, &m_anchorName);
-		m_flags |= TypeFlag_SignatureReady;
-	}
-
-	virtual
-	void
-	prepareTypeString();
+	sl::StringRef
+	createItemString(size_t index);
 
 	virtual
 	bool
@@ -165,8 +146,8 @@ class ImportPtrType: public ModType<
 > {
 protected:
 	virtual
-	void
-	prepareTypeString();
+	sl::StringRef
+	createItemString(size_t index);
 
 	virtual
 	bool
@@ -183,8 +164,8 @@ class ImportIntModType: public ModType<
 > {
 protected:
 	virtual
-	void
-	prepareTypeString();
+	sl::StringRef
+	createItemString(size_t index);
 
 	virtual
 	bool

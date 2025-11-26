@@ -71,7 +71,6 @@ void printStructTypeInfo(jnc.StructType* type) {
 		"size:       %d\n"
 		"alignment:  %d\n"
 		"name:       %s\n"
-		"qname:      %s\n"
 		"pos:        %s(%d:%d)\n\n",
 		type,
 		type.m_typeString,
@@ -79,7 +78,6 @@ void printStructTypeInfo(jnc.StructType* type) {
 		type.m_size,
 		type.m_alignment,
 		type.m_name,
-		type.m_qualifiedName,
 		type.m_parentUnit.m_filePath,
 		type.m_line + 1,
 		type.m_col + 1

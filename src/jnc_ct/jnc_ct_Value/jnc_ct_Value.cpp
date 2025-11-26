@@ -323,7 +323,7 @@ Value::trySetFunction(Function* function) {
 
 bool
 Value::trySetEnumConst(EnumConst* enumConst) {
-	EnumType* enumType = enumConst->getParentEnumType();
+	EnumType* enumType = enumConst->getType();
 	if (!(enumConst->getFlags() & EnumConstFlag_ValueReady)) {
 		bool result = enumType->ensureLayout();
 		if (!result)

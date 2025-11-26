@@ -18,58 +18,51 @@ namespace ct {
 //..............................................................................
 
 bool
-PropertyVerifier::checkSetter(FunctionType* functionType) {
-	if (functionType->getArgArray().isEmpty()) {
-		err::setError("'set' must have at least one argument");
-		return false;
-	}
-
-	return checkIndexSignature(FunctionKind_Setter, functionType);
-}
-
-bool
 PropertyVerifier::checkIndexSignature(
 	FunctionKind functionKind,
 	FunctionType* functionType
 ) {
 	ASSERT(functionKind == FunctionKind_Getter || functionKind == FunctionKind_Setter);
 
-	sl::String indexArgSignature = createIndexArgSignature(functionKind, functionType);
-	if (m_indexArgSignature.isEmpty()) {
-		m_indexArgSignature = indexArgSignature;
-	} else if (m_indexArgSignature != indexArgSignature) {
-		err::setError("index arguments mismatch in property accessors");
-		return false;
-	}
-
-	return true;
-}
-
-sl::String
-PropertyVerifier::createIndexArgSignature(
-	FunctionKind functionKind,
-	FunctionType* functionType
-) {
-	ASSERT(functionKind == FunctionKind_Getter || functionKind == FunctionKind_Setter);
-
-	sl::String string;
-
-	// refine!!!
-
 	if (functionType->isMemberMethodType())
 		functionType = functionType->getShortType();
 
-	if (functionKind == FunctionKind_Getter) {
-		functionType->appendArgSignature(&string);
-		return string;
+	sl::ArrayRef<FunctionArg*> indexArgArray;
+
+	if (functionKind == FunctionKind_Getter)
+		indexArgArray = functionType->getArgArray();
+	if (functionKind == FunctionKind_Setter) {
+		size_t count = functionType->getArgArray().getCount();
+		if (!count) {
+			err::setError("'set' must have at least one argument");
+			return false;
+		}
+
+		indexArgArray = sl::ArrayRef<FunctionArg*>(functionType->getArgArray().cp(), count - 1);
 	}
 
-	sl::Array<FunctionArg*> argArray = functionType->getArgArray();
-	size_t argCount = argArray.getCount();
-	ASSERT(argCount);
+	if (!m_isInitialized) {
+		m_indexArgArray = indexArgArray;
+		m_isInitialized = true;
+		return true;
+	}
 
-	FunctionType::appendArgSignature(&string, argArray, argCount - 1, 0);
-	return string;
+	size_t count = indexArgArray.getCount();
+	if (count != m_indexArgArray.getCount()) {
+		err::setError("index argument count mismatch in property accessors");
+		return false;
+	}
+
+	for (size_t i = 0; i < count; i++) {
+		Type* type1 = indexArgArray[i]->getItemType();
+		Type* type2 = m_indexArgArray[i]->getItemType();
+		if (!type1->isEqual(type2)) {
+			err::setError("index argument type mismatch in property accessors");
+			return false;
+		}
+	}
+
+	return true;
 }
 
 //..............................................................................

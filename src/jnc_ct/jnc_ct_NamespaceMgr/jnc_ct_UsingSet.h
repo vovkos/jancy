@@ -28,7 +28,7 @@ class NamedType;
 class UsingSet {
 protected:
 	struct ImportNamespace: sl::ListLink {
-		Namespace* m_anchorNamespace;
+		ModuleItemContext m_context;
 		NamespaceKind m_namespaceKind;
 		QualifiedName m_name;
 	};
@@ -47,7 +47,7 @@ public:
 
 	bool
 	addNamespace(
-		Namespace* anchorNamespace,
+		const ModuleItemContext& context,
 		NamespaceKind namespaceKind,
 		QualifiedName* name // destructive
 	);

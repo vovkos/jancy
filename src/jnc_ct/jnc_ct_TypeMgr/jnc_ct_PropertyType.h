@@ -147,16 +147,8 @@ protected:
 	prepareSignature();
 
 	virtual
-	void
-	prepareTypeString();
-
-	virtual
-	void
-	prepareDoxyLinkedText();
-
-	virtual
-	void
-	prepareDoxyTypeString();
+	sl::StringRef
+	createItemString(size_t index);
 
 	virtual
 	void

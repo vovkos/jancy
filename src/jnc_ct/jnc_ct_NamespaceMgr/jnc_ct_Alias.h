@@ -26,8 +26,7 @@ enum AliasFlag {
 //..............................................................................
 
 class Alias:
-	public ModuleItem,
-	public ModuleItemDecl,
+	public ModuleItemWithDecl<>,
 	public ModuleItemInitializer {
 	friend class NamespaceMgr;
 
@@ -55,13 +54,19 @@ public:
 
 	Type*
 	getType() {
-		return ensureResolved() ? m_targetItem->getType() : NULL;
+		return ensureResolved() ? m_targetItem->getItemType() : NULL;
 	}
 
 	ModuleItem*
 	getTargetItem() {
 		ASSERT(m_targetItem);
 		return m_targetItem;
+	}
+
+	virtual
+	Type*
+	getItemType() {
+		return getType();
 	}
 
 	virtual
@@ -81,6 +86,10 @@ public:
 	}
 
 protected:
+	virtual
+	sl::StringRef
+	createItemString(size_t index);
+
 	bool
 	resolve();
 

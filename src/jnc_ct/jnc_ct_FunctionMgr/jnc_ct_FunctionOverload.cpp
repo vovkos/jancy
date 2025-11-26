@@ -60,6 +60,16 @@ FunctionOverload::generateDocumentation(
 	return true;
 }
 
+sl::StringRef
+FunctionOverload::createItemString(size_t index) {
+	if (index != ModuleItemStringKind_Synopsis)
+		return createItemStringImpl(index, this);
+
+	sl::String string = createItemStringImpl(index, this);
+	string.appendFormat(" (%d overloads)", m_overloadArray.getCount());
+	return string;
+}
+
 //..............................................................................
 
 } // namespace ct

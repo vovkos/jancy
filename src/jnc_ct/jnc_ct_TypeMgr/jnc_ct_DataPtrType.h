@@ -117,16 +117,12 @@ protected:
 	void
 	prepareSignature() {
 		m_signature = createSignature(m_targetType, m_bitOffset, m_bitCount, m_typeKind, m_ptrTypeKind, m_flags);
-		m_flags |= m_targetType->getFlags() & TypeFlag_SignatureFinal;
+		m_flags |= m_targetType->getFlags() & TypeFlag_SignatureMask;
 	}
 
 	virtual
-	void
-	prepareTypeString();
-
-	virtual
-	void
-	prepareDoxyLinkedText();
+	sl::StringRef
+	createItemString(size_t index);
 
 	virtual
 	void
@@ -148,9 +144,6 @@ protected:
 		bool isAlien,
 		bool isContainerConst
 	);
-
-	void
-	appendPointerStringSuffix(sl::String* string);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

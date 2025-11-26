@@ -21,27 +21,27 @@ namespace ct {
 
 class PropertyVerifier {
 protected:
-	sl::String m_indexArgSignature; // all accessors must have matching index arg signature
+	sl::ArrayRef<FunctionArg*> m_indexArgArray;
+	bool m_isInitialized;
 
 public:
+	PropertyVerifier() {
+		m_isInitialized = false;
+	}
+
 	bool
 	checkGetter(FunctionType* functionType) {
 		return checkIndexSignature(FunctionKind_Getter, functionType);
 	}
 
 	bool
-	checkSetter(FunctionType* functionType);
+	checkSetter(FunctionType* functionType) {
+		return checkIndexSignature(FunctionKind_Setter, functionType);
+	}
 
 protected:
 	bool
 	checkIndexSignature(
-		FunctionKind functionKind,
-		FunctionType* functionType
-	);
-
-	static
-	sl::String
-	createIndexArgSignature(
 		FunctionKind functionKind,
 		FunctionType* functionType
 	);

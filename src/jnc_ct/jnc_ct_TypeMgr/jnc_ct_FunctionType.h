@@ -56,57 +56,57 @@ public:
 	FunctionType();
 
 	CallConv*
-	getCallConv() {
+	getCallConv() const {
 		return m_callConv;
 	}
 
 	Type*
-	getReturnType() {
+	getReturnType() const {
 		return m_returnType;
 	}
 
 	Type*
-	getAsyncReturnType() {
+	getAsyncReturnType() const {
 		ASSERT(m_flags & FunctionTypeFlag_Async);
 		return m_asyncReturnType;
 	}
 
 	const sl::Array<FunctionArg*>&
-	getArgArray() {
+	getArgArray() const {
 		return m_argArray;
 	}
 
 	const sl::Array<uint_t>&
-	getArgFlagArray() {
+	getArgFlagArray() const {
 		return m_argFlagArray;
 	}
 
 	const sl::StringRef&
-	getArgSignature();
+	getArgSignature() const;
 
 	sl::StringRef
-	getTypeModifierString();
+	getTypeModifierString() const;
 
 	bool
-	isMemberMethodType() {
+	isMemberMethodType() const {
 		return !m_argArray.isEmpty() && m_argArray[0]->getStorageKind() == StorageKind_This;
 	}
 
 	FunctionArg*
-	getThisArg() {
+	getThisArg() const {
 		return isMemberMethodType() ? m_argArray[0] : NULL;
 	}
 
 	Type*
-	getThisArgType() {
+	getThisArgType() const {
 		return isMemberMethodType() ? m_argArray[0]->getType() : NULL;
 	}
 
 	DerivableType*
-	getThisTargetType();
+	getThisTargetType() const;
 
 	FunctionType*
-	getShortType() {
+	getShortType() const {
 		return m_shortType;
 	}
 
@@ -139,6 +139,7 @@ public:
 
 	// signature functions return TypeFlag_SignatureFinal or 0
 
+	template <typename T>
 	static
 	uint_t
 	createSignature(
@@ -146,11 +147,12 @@ public:
 		sl::StringRef* argSignature,
 		CallConv* callConv,
 		Type* returnType,
-		Type* const* argTypeArray,
+		T* const* argArray,
 		size_t argCount,
 		uint_t flags
 	);
 
+	template <typename T>
 	static
 	uint_t
 	createSignature(
@@ -158,10 +160,19 @@ public:
 		sl::StringRef* argSignature,
 		CallConv* callConv,
 		Type* returnType,
-		FunctionArg* const* argArray,
-		size_t argCount,
+		const sl::ArrayRef<T>& argArray,
 		uint_t flags
-	);
+	) {
+		return createSignature(
+			signature,
+			argSignature,
+			callConv,
+			returnType,
+			argArray.cp(),
+			argArray.getCount(),
+			flags
+		);
+	}
 
 	static
 	void
@@ -170,31 +181,8 @@ public:
 		uint_t flags
 	);
 
-	static
-	uint_t
-	appendArgSignature(
-		sl::String* string,
-		Type* const* argTypeArray,
-		size_t argCount,
-		uint_t flags
-	);
-
-	static
-	uint_t
-	appendArgSignature(
-		sl::String* string,
-		FunctionArg* const* argArray,
-		size_t argCount,
-		uint_t flags
-	);
-
-	uint_t
-	appendArgSignature(sl::String* string) {
-		return appendArgSignature(string, m_argArray, m_argArray.getCount(), m_flags);
-	}
-
 	void
-	appendDoxyArgString(sl::String* string);
+	appendDoxyArgString(sl::String* string) const;
 
 	virtual
 	bool
@@ -217,16 +205,12 @@ protected:
 	prepareSignature();
 
 	virtual
-	void
-	prepareTypeString();
+	sl::StringRef
+	createItemString(size_t index);
 
-	virtual
-	void
-	prepareDoxyLinkedText();
-
-	virtual
-	void
-	prepareDoxyTypeString();
+	template <bool IsDoxyLinkedText>
+	sl::String
+	createArgString();
 
 	virtual
 	void
@@ -259,11 +243,48 @@ FunctionType::FunctionType() {
 
 inline
 const sl::StringRef&
-FunctionType::getArgSignature() {
-	if (!(m_flags & TypeFlag_SignatureFinal))
-		prepareSignature();
+FunctionType::getArgSignature() const {
+	if (m_flags & TypeFlag_SignatureFinal)
+		return m_argSignature;
+
+	if (!(m_flags & TypeFlag_SignatureReady) || (m_flags & TypeFlag_LayoutReady))
+		((FunctionType*)this)->prepareSignature(); // could be called multiple times
 
 	return m_argSignature;
+}
+
+template <typename T>
+uint_t
+FunctionType::createSignature(
+	sl::String* string,
+	sl::StringRef* argSignature,
+	CallConv* callConv,
+	Type* returnType,
+	T* const* argArray,
+	size_t argCount,
+	uint_t flags
+) {
+	*string = 'F';
+	appendFlagSignature(string, flags);
+	*string += getCallConvSignature(callConv->getCallConvKind());
+	*string += returnType->getSignature();
+
+	size_t length = string->getLength();
+	uint_t signatureFlags = TypeFlag_SignatureFinal;
+	*string += '(';
+
+	for (size_t i = 0; i < argCount; i++) {
+		Type* type = argArray[i]->T::getItemType(); // avoid virtual call
+		*string += type->getSignature();
+		signatureFlags &= type->getFlags();
+	}
+
+	if (flags & FunctionTypeFlag_VarArg)
+		*string += '.';
+
+	*string += ')';
+	*argSignature = string->getSubString(length);
+	return (signatureFlags & returnType->getFlags()) | TypeFlag_SignatureReady;
 }
 
 //..............................................................................

@@ -27,8 +27,8 @@ UsingSet::append(const UsingSet& src) {
 	sl::ConstIterator<ImportNamespace> it = src.m_importNamespaceList.getHead();
 	for (; it; it++) {
 		ImportNamespace* importNamespace = new ImportNamespace;
+		importNamespace->m_context = it->m_context;
 		importNamespace->m_namespaceKind = it->m_namespaceKind;
-		importNamespace->m_anchorNamespace = it->m_anchorNamespace;
 		importNamespace->m_name.copy(it->m_name);
 		m_importNamespaceList.insertTail(importNamespace);
 	}
@@ -78,23 +78,23 @@ UsingSet::findExtensionItem(
 
 bool
 UsingSet::addNamespace(
-	Namespace* anchorNamespace,
+	const ModuleItemContext& context,
 	NamespaceKind namespaceKind,
 	QualifiedName* name
 ) {
-	FindModuleItemResult findResult = anchorNamespace->findItemTraverse(*name);
+	FindModuleItemResult findResult = context.getParentNamespace()->findItemTraverse(context, *name);
 	if (!findResult.m_result)
 		return false;
 
 	if (!findResult.m_item) {
-		Module* module = anchorNamespace->getParentItem()->getModule();
+		Module* module = context.getParentUnit()->getModule();
 		if (module->getCompileState() >= ModuleCompileState_Parsed) {
 			err::setFormatStringError("namespace '%s' not found", name->getFullName().sz());
 			return false;
 		}
 
 		ImportNamespace* importNamespace = new ImportNamespace;
-		importNamespace->m_anchorNamespace = anchorNamespace;
+		importNamespace->m_context = context;
 		importNamespace->m_namespaceKind = namespaceKind;
 		sl::takeOver(&importNamespace->m_name, name);
 		m_importNamespaceList.insertTail(importNamespace);
@@ -136,7 +136,7 @@ UsingSet::resolve() {
 	while (!m_importNamespaceList.isEmpty()) {
 		ImportNamespace* importNamespace = m_importNamespaceList.removeHead();
 		result = addNamespace(
-			importNamespace->m_anchorNamespace,
+			importNamespace->m_context,
 			importNamespace->m_namespaceKind,
 			&importNamespace->m_name
 		);

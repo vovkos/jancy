@@ -18,12 +18,14 @@ namespace ct {
 
 //..............................................................................
 
-TypedefShadowType*
-Typedef::getShadowType() {
-	if (!m_shadowType)
-		m_shadowType = m_module->m_typeMgr.createTypedefShadowType(this);
+sl::StringRef
+Typedef::createItemString(size_t index) {
+	if (index != ModuleItemStringKind_Synopsis)
+		return createItemStringImpl(index, this);
 
-	return m_shadowType;
+	sl::String synopsis = "typedef ";
+	synopsis += createSynopsisImpl(this, m_type, 0);
+	return synopsis;
 }
 
 bool
@@ -50,7 +52,6 @@ Typedef::generateDocumentation(
 	itemXml->append(doxyBlock->getDescriptionString());
 	itemXml->append(getDoxyLocationString());
 	itemXml->append("</memberdef>\n");
-
 	return true;
 }
 
@@ -69,6 +70,7 @@ TypedefShadowType::calcLayout() {
 	return true;
 }
 
+/*
 void
 TypedefShadowType::prepareDoxyLinkedText() {
 	Unit* unit = m_typedef->getParentUnit();
@@ -82,9 +84,10 @@ TypedefShadowType::prepareDoxyLinkedText() {
 	getTypeStringTuple()->m_doxyLinkedTextPrefix.format(
 		"<ref refid=\"%s\">%s</ref>",
 		refId.sz(),
-		getQualifiedName().sz()
+		getItemName().sz()
 	);
 }
+*/
 
 //..............................................................................
 

@@ -35,37 +35,7 @@ Namespace::clear() {
 	m_dualPtrTypeTupleMap.clear();
 	m_usingSet.clear();
 }
-
-ModuleItem*
-Namespace::getParentItem() {
-	switch (m_namespaceKind) {
-	case NamespaceKind_Global:
-		return (GlobalNamespace*)this;
-
-	case NamespaceKind_Scope:
-		return (Scope*)this;
-
-	case NamespaceKind_Type:
-		return (NamedType*)this;
-
-	case NamespaceKind_Extension:
-		return (ExtensionNamespace*)this;
-
-	case NamespaceKind_Property:
-		return (Property*)this;
-
-	case NamespaceKind_PropertyTemplate:
-		return (PropertyTemplate*)this;
-
-	case NamespaceKind_DynamicLib:
-		return (DynamicLibNamespace*)this;
-
-	default:
-		ASSERT(false);
-		return NULL;
-	}
-}
-
+/*
 sl::StringRef
 Namespace::createQualifiedName(const sl::StringRef& name) {
 	sl::String qualifiedName = getQualifiedName();
@@ -79,6 +49,7 @@ Namespace::createQualifiedName(const sl::StringRef& name) {
 
 	return qualifiedName;
 }
+*/
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -89,7 +60,7 @@ addOrphanFail(
 ) {
 	err::setFormatStringError(
 		"'%s' is a %s, not a namespace",
-		item->getSynopsis().sz(),
+		item->getItemName().sz(),
 		getModuleItemKindString(item->getItemKind())
 	);
 
@@ -111,7 +82,7 @@ addOrphanToType(
 	ModuleItem* item,
 	Orphan* orphan
 ) {
-	if ((((Type*)item)->getTypeKindFlags() & TypeKindFlag_Named))
+	if (!(((Type*)item)->getTypeKindFlags() & TypeKindFlag_Named))
 		return addOrphanFail(item, orphan);
 
 	((NamedType*)item)->addOrphan(orphan);
@@ -195,14 +166,14 @@ Namespace::resolveOrphans() {
 	bool result;
 	char buffer[256];
 	sl::Array<Property*> propertyArray(rc::BufKind_Stack, buffer, sizeof(buffer));
-	ModuleItem* nspaceItem = getParentItem();
+	ModuleItem* nspaceItem = getDeclItem();
 
 	size_t count = m_orphanArray.getCount();
 	for (size_t i = 0; i < count; i++) {
 		Orphan* orphan = m_orphanArray[i];
 		FunctionKind functionKind = orphan->getFunctionKind();
 
-		if (functionKind != FunctionKind_Normal && orphan->m_declaratorName.isEmpty()) {
+		if (functionKind != FunctionKind_Normal && !orphan->m_declaratorNamePos) {
 			result = orphan->adopt(nspaceItem);
 			if (!result) {
 				orphan->pushSrcPosError();
@@ -212,10 +183,9 @@ Namespace::resolveOrphans() {
 			continue;
 		}
 
-		QualifiedNameAtom atom;
-		orphan->m_declaratorName.removeFirstAtom(&atom);
+		const QualifiedNameAtom& atom = orphan->m_declaratorNamePos.next(orphan->m_declaratorName);
 		if (atom.m_atomKind != QualifiedNameAtomKind_Name) {
-			err::setFormatStringError("invalid orphan name '%s'", atom.getString().sz());
+			err::setFormatStringError("invalid orphan name '%s'", orphan->getItemName().sz());
 			orphan->pushSrcPosError();
 			return false;
 		}
@@ -225,12 +195,12 @@ Namespace::resolveOrphans() {
 			return false;
 
 		if (!findResult.m_item) {
-			err::setFormatStringError("'%s' not found", atom.m_name.sz());
+			err::setFormatStringError("'%s' not part of '%s'", atom.m_name.sz(), getDeclItem()->getItemName().sz());
 			orphan->pushSrcPosError();
 			return false;
 		}
 
-		if (functionKind == FunctionKind_Normal && orphan->m_declaratorName.isEmpty()) {
+		if (functionKind == FunctionKind_Normal && !orphan->m_declaratorNamePos) {
 			result = orphan->adopt(findResult.m_item);
 			if (!result) {
 				orphan->pushSrcPosError();
@@ -335,6 +305,17 @@ Namespace::parseLazyImports() {
 
 FindModuleItemResult
 Namespace::findDirectChildItem(const sl::StringRef& name) {
+	if (m_namespaceKind == NamespaceKind_Type && name == m_name) { // shortcut to selftype
+		NamedType* type = (NamedType*)this;
+		if (!(type->getTypeKindFlags() & TypeKindFlag_Derivable))
+			return FindModuleItemResult(type);
+
+		TemplateInstance* templateInstance = ((DerivableType*)type)->getTemplateInstance();
+		return templateInstance ?
+			FindModuleItemResult(templateInstance->m_template) :
+			FindModuleItemResult(type);
+	}
+
 	bool result = ensureNamespaceReady();
 	if (!result)
 		return g_errorFindModuleItemResult;
@@ -384,24 +365,20 @@ Namespace::findDirectChildItem(const sl::StringRef& name) {
 
 FindModuleItemResult
 Namespace::findDirectChildItem(
-	Unit* unit,
-	const QualifiedNameAtom& name
+	const ModuleItemContext& context,
+	const QualifiedNameAtom& atom
 ) {
 	Template* templ;
-	switch (name.m_atomKind) {
+	switch (atom.m_atomKind) {
 	case QualifiedNameAtomKind_BaseType:
 		err::setError("finding basetypes is not implemented yet");
 		return g_errorFindModuleItemResult;
 
 	case QualifiedNameAtomKind_Name:
-		return findDirectChildItem(name.m_name);
+		return findDirectChildItem(atom.m_name);
 
 	case QualifiedNameAtomKind_Template:
-		return finalizeFindTemplate(
-			unit,
-			name,
-			findDirectChildItem(name.m_name)
-		);
+		return finalizeFindTemplate(context, atom, findDirectChildItem(atom.m_name));
 
 	default:
 		ASSERT(false);
@@ -410,9 +387,11 @@ Namespace::findDirectChildItem(
 }
 
 FindModuleItemResult
-Namespace::findItem(const QualifiedName& name) {
-	Unit* unit = name.getUnit();
-	FindModuleItemResult findResult = findDirectChildItem(unit, name.getFirstAtom());
+Namespace::findItem(
+	const ModuleItemContext& context,
+	const QualifiedName& name
+) {
+	FindModuleItemResult findResult = findDirectChildItem(context, name.getFirstAtom());
 	if (!findResult.m_item)
 		return findResult;
 
@@ -422,7 +401,7 @@ Namespace::findItem(const QualifiedName& name) {
 		if (!nspace)
 			return g_nullFindModuleItemResult;
 
-		findResult = nspace->findDirectChildItem(unit, *it);
+		findResult = nspace->findDirectChildItem(context, *it);
 		if (!findResult.m_item)
 			return findResult;
 	}
@@ -432,12 +411,12 @@ Namespace::findItem(const QualifiedName& name) {
 
 FindModuleItemResult
 Namespace::findItemTraverse(
+	const ModuleItemContext& context,
 	const QualifiedName& name,
 	MemberCoord* coord,
 	uint_t flags
 ) {
-	Unit* unit = name.getUnit();
-	FindModuleItemResult findResult = findDirectChildItemTraverse(unit, name.getFirstAtom(), coord, flags);
+	FindModuleItemResult findResult = findDirectChildItemTraverse(context, name.getFirstAtom(), coord, flags);
 	if (!findResult.m_item)
 		return findResult;
 
@@ -447,7 +426,7 @@ Namespace::findItemTraverse(
 		if (!nspace)
 			return g_nullFindModuleItemResult;
 
-		findResult = nspace->findDirectChildItem(unit, *nameIt);
+		findResult = nspace->findDirectChildItem(context, *nameIt);
 		if (!findResult.m_item)
 			return findResult;
 	}
@@ -485,26 +464,27 @@ Namespace::findDirectChildItemTraverse(
 
 FindModuleItemResult
 Namespace::findDirectChildItemTraverse(
-	Unit* unit,
-	const QualifiedNameAtom& name,
+	const ModuleItemContext& context,
+	const QualifiedNameAtom& atom,
 	MemberCoord* coord,
 	uint_t flags
 ) {
 	Template* templ;
-	switch (name.m_atomKind) {
+	switch (atom.m_atomKind) {
 	case QualifiedNameAtomKind_BaseType:
 		err::setError("finding basetypes is not implemented yet");
 		return g_errorFindModuleItemResult;
 
 	case QualifiedNameAtomKind_Name:
-		return findDirectChildItemTraverse(name.m_name, coord, flags);
+		return findDirectChildItemTraverse(atom.m_name, coord, flags);
 
 	case QualifiedNameAtomKind_Template:
-		return finalizeFindTemplate(
-			unit,
-			name,
-			findDirectChildItemTraverse(name.m_name, coord, flags)
-		);
+		if (context.isNullContext()) {
+			err::setError("templates are not allowed here");
+			return g_errorFindModuleItemResult;
+		}
+
+		return finalizeFindTemplate(context, atom, findDirectChildItemTraverse(atom.m_name, coord, flags));
 
 	default:
 		ASSERT(false);
@@ -516,8 +496,8 @@ Namespace::findDirectChildItemTraverse(
 inline
 FindModuleItemResult
 Namespace::finalizeFindTemplate(
-	Unit* unit,
-	const QualifiedNameAtom& name,
+	const ModuleItemContext& context,
+	const QualifiedNameAtom& atom,
 	FindModuleItemResult findResult
 ) {
 	if (!findResult.m_item)
@@ -528,10 +508,25 @@ Namespace::finalizeFindTemplate(
 		return g_errorFindModuleItemResult;
 	}
 
-	ModuleItem* item = ((Template*)findResult.m_item)->instantiate(unit, name.m_templateTokenList);
+	ModuleItem* item = ((Template*)findResult.m_item)->instantiate(context, atom.m_templateTokenList);
 	return item ?
 		FindModuleItemResult(item) :
 		g_errorFindModuleItemResult;
+}
+
+NamedType*
+Namespace::findTemplateInstanceType(Template* templ) {
+	for (Namespace* nspace = this; nspace; nspace = nspace->getParentNamespace()) {
+		if (nspace->m_namespaceKind != NamespaceKind_Type)
+			continue;
+
+		NamedType* type = (NamedType*)nspace;
+		TemplateInstance* templateInstance = type->getTemplateInstance();
+		if (templateInstance && templateInstance->m_template == templ)
+			return type;
+	}
+
+	return NULL;
 }
 
 bool
@@ -599,7 +594,7 @@ Namespace::createConst(
 	ASSERT(value.getType());
 
 	Module* module = value.getType()->getModule();
-	Const* cnst = module->m_constMgr.createConst(name, createQualifiedName(name), value);
+	Const* cnst = module->m_constMgr.createConst(name, value);
 	bool result = addItem(cnst);
 	if (!result)
 		return NULL;
@@ -663,7 +658,7 @@ Namespace::generateMemberDocumentation(
 			continue;
 
 		if (item->getItemKind() == ModuleItemKind_EnumConst) {
-			EnumType* enumType = ((EnumConst*)item)->getParentEnumType();
+			EnumType* enumType = ((EnumConst*)item)->getType();
 			if (enumType != this) { // otherwise, we are being called on behalf of EnumType
 				if (!enumType->getName().isEmpty()) // exposed enum, not unnamed
 					continue;
@@ -675,7 +670,7 @@ Namespace::generateMemberDocumentation(
 				for (i++; i < count; i++) {
 					item = m_itemArray[i];
 					if (item->getItemKind() != ModuleItemKind_EnumConst ||
-						((EnumConst*)item)->getParentEnumType() != enumType)
+						((EnumConst*)item)->getType() != enumType)
 						break;
 				}
 

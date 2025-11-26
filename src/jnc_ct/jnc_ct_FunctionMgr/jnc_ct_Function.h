@@ -33,8 +33,7 @@ struct TemplateInstance;
 //..............................................................................
 
 class Function:
-	public ModuleItem,
-	public ModuleItemBodyDecl,
+	public ModuleItemWithBodyDecl,
 	public ModuleItemInitializer,
 	public ModuleItemUsingSet,
 	public FunctionName {
@@ -96,19 +95,19 @@ protected:
 public:
 	Function();
 
-	FunctionType*
-	getType() {
-		return m_type;
-	}
-
 	TemplateInstance*
 	getTemplateInstance() {
 		return m_templateInstance;
 	}
 
+	FunctionType*
+	getType() {
+		return m_type;
+	}
+
 	bool
 	isEmpty() {
-		return !m_prologueBlock;
+		return m_prologueBlock == NULL;
 	}
 
 	bool
@@ -246,6 +245,12 @@ public:
 	}
 
 	virtual
+	Type*
+	getItemType() {
+		return m_type;
+	}
+
+	virtual
 	bool
 	require();
 
@@ -262,6 +267,14 @@ public:
 	);
 
 protected:
+	virtual
+	sl::StringRef
+	createLinkId();
+
+	virtual
+	sl::StringRef
+	createItemString(size_t index);
+
 	void
 	prepareLlvmFunction();
 

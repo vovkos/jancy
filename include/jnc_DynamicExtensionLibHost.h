@@ -142,10 +142,6 @@ const char*
 jnc_ModuleItemDecl_GetNameFunc(jnc_ModuleItemDecl* decl);
 
 typedef
-const char*
-jnc_ModuleItemDecl_GetQualifiedNameFunc(jnc_ModuleItemDecl* decl);
-
-typedef
 jnc_StorageKind
 jnc_ModuleItemDecl_GetStorageKindFunc(jnc_ModuleItemDecl* decl);
 
@@ -165,12 +161,16 @@ jnc_ModuleItemDecl_FindAttributeFunc(
 );
 
 typedef
+jnc_Unit*
+jnc_ModuleItemDecl_GetParentUnitFunc(jnc_ModuleItemDecl* decl);
+
+typedef
 jnc_Namespace*
 jnc_ModuleItemDecl_GetParentNamespaceFunc(jnc_ModuleItemDecl* decl);
 
 typedef
-jnc_Unit*
-jnc_ModuleItemDecl_GetParentUnitFunc(jnc_ModuleItemDecl* decl);
+jnc_ModuleItem*
+jnc_ModuleItemDecl_GetDeclItemFunc(jnc_ModuleItemDecl* decl);
 
 typedef
 int
@@ -185,13 +185,13 @@ jnc_ModuleItemDecl_GetColFunc(jnc_ModuleItemDecl* decl);
 struct jnc_ModuleItemDeclFuncTable {
 	size_t m_size;
 	jnc_ModuleItemDecl_GetNameFunc* m_getNameFunc;
-	jnc_ModuleItemDecl_GetQualifiedNameFunc* m_getQualifiedNameFunc;
 	jnc_ModuleItemDecl_GetStorageKindFunc* m_getStorageKindFunc;
 	jnc_ModuleItemDecl_GetAccessKindFunc* m_getAccessKindFunc;
 	jnc_ModuleItemDecl_GetAttributeBlockFunc* m_getAttributeBlockFunc;
 	jnc_ModuleItemDecl_FindAttributeFunc* m_findAttributeFunc;
-	jnc_ModuleItemDecl_GetParentNamespaceFunc* m_getParentNamespaceFunc;
 	jnc_ModuleItemDecl_GetParentUnitFunc* m_getParentUnitFunc;
+	jnc_ModuleItemDecl_GetParentNamespaceFunc* m_getParentNamespaceFunc;
+	jnc_ModuleItemDecl_GetDeclItemFunc* m_getDeclItemFunc;
 	jnc_ModuleItemDecl_GetLineFunc* m_getLineFunc;
 	jnc_ModuleItemDecl_GetColFunc* m_getColFunc;
 };
@@ -226,9 +226,9 @@ jnc_ModuleItem_GetTypeFunc(jnc_ModuleItem* item);
 
 typedef
 const char*
-jnc_ModuleItem_GetSynopsisFunc(
+jnc_ModuleItem_GetItemStringFunc(
 	jnc_ModuleItem* item,
-	uint_t flags
+	size_t index
 );
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -241,7 +241,7 @@ struct jnc_ModuleItemFuncTable {
 	jnc_ModuleItem_GetDeclFunc* m_getDeclFunc;
 	jnc_ModuleItem_GetNamespaceFunc* m_getNamespaceFunc;
 	jnc_ModuleItem_GetTypeFunc* m_getTypeFunc;
-	jnc_ModuleItem_GetSynopsisFunc* m_getSynopsisFunc;
+	jnc_ModuleItem_GetItemStringFunc* m_getItemStringFunc;
 };
 
 //..............................................................................
@@ -296,14 +296,6 @@ jnc_NamespaceKind
 jnc_Namespace_GetNamespaceKindFunc(jnc_Namespace* nspace);
 
 typedef
-jnc_Namespace*
-jnc_Namespace_GetParentNamespaceFunc(jnc_Namespace* nspace);
-
-typedef
-jnc_ModuleItem*
-jnc_Namespace_GetParentItemFunc(jnc_Namespace* nspace);
-
-typedef
 size_t
 jnc_Namespace_GetItemCountFunc(jnc_Namespace* nspace);
 
@@ -327,8 +319,6 @@ struct jnc_NamespaceFuncTable {
 	size_t m_size;
 	jnc_Namespace_IsReadyFunc* m_isReadyFunc;
 	jnc_Namespace_GetNamespaceKindFunc* m_getNamespaceKindFunc;
-	jnc_Namespace_GetParentNamespaceFunc* m_getParentNamespaceFunc;
-	jnc_Namespace_GetParentItemFunc* m_getParentItemFunc;
 	jnc_Namespace_GetItemCountFunc* m_getItemCountFunc;
 	jnc_Namespace_GetItemFunc* m_getItemFunc;
 	jnc_Namespace_FindItemFunc* m_findDirectChildItemFunc;

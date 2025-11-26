@@ -1311,7 +1311,7 @@ EditPrivate::addAutoCompleteNamespace(
 ) {
 	NamespaceKind namespaceKind = nspace->getNamespaceKind();
 	if (namespaceKind == NamespaceKind_Type) {
-		NamedType* namedType = (NamedType*)nspace->getParentItem();
+		NamedType* namedType = (NamedType*)nspace->getDeclItem();
 		if (namedType->getTypeKind() == TypeKind_Enum) {
 			EnumType* enumType = (EnumType*)namedType;
 			Type* baseType = enumType->getBaseType();
@@ -1338,7 +1338,7 @@ EditPrivate::addAutoCompleteNamespace(
 
 		ModuleItemKind itemKind = item->getItemKind();
 		Type* type = item->getType();
-		QString synopsis = item->getSynopsis_v();
+		QString synopsis = item->getItemString(ModuleItemStringKind_QualifiedName);
 		size_t iconIdx = getItemIconIdx(item);
 
 		QStandardItem* nameItem = new QStandardItem;
@@ -1878,7 +1878,7 @@ getPrototypeDeclString(
 
 	QString text = returnType->getTypeString();
 	text += ' ';
-	text += function->getDecl()->getQualifiedName();
+	text += function->getItemString(ModuleItemStringKind_QualifiedName);
 	text += isMl ? "(\n\t" : "(";
 
 	for (size_t i = 0; i < argCount; i++) {

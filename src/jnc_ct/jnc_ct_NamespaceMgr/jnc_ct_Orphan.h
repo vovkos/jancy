@@ -30,8 +30,7 @@ enum OrphanKind {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class Orphan:
-	public ModuleItem,
-	public ModuleItemBodyDecl,
+	public ModuleItemWithBodyDecl,
 	public ModuleItemUsingSet,
 	public FunctionName {
 	friend class NamespaceMgr;
@@ -41,33 +40,28 @@ class Orphan:
 protected:
 	OrphanKind m_orphanKind;
 	QualifiedName m_declaratorName;
+	QualifiedNamePos m_declaratorNamePos;
 	FunctionType* m_functionType;
-	ModuleItem* m_origin;
 
 public:
 	Orphan();
 
 	OrphanKind
-	getOrphanKind() {
+	getOrphanKind() const {
 		return m_orphanKind;
 	}
 
 	const QualifiedName&
-	getDeclaratorName() {
+	getDeclaratorName() const {
 		return m_declaratorName;
 	}
 
 	FunctionType*
-	getFunctionType() {
+	getFunctionType() const {
 		return m_functionType;
 	}
 
 	ModuleItem*
-	getOrigin() { // after adopted
-		return m_origin;
-	}
-
-	bool
 	adopt(ModuleItem* item);
 
 	ModuleItem*
@@ -75,14 +69,24 @@ public:
 		return resolveForCodeAssist(m_parentNamespace);
 	}
 
+	virtual
+	Type*
+	getItemType() {
+		return (Type*)m_functionType;
+	}
+
 protected:
+	virtual
+	sl::StringRef
+	createItemString(size_t index);
+
 	ModuleItem*
 	resolveForCodeAssist(Namespace* nspace);
 
-	bool
+	Function*
 	adoptOrphanFunction(ModuleItem* item);
 
-	bool
+	Function*
 	adoptOrphanReactor(ModuleItem* item);
 
 	bool
@@ -105,7 +109,6 @@ Orphan::Orphan() {
 	m_itemKind = ModuleItemKind_Orphan;
 	m_orphanKind = OrphanKind_Undefined;
 	m_functionType = NULL;
-	m_origin = NULL;
 }
 
 //..............................................................................

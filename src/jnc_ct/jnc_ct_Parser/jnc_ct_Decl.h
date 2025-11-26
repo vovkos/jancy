@@ -352,6 +352,7 @@ enum DeclaratorKind {
 class Declarator: public TypeModifiers {
 	friend class DeclTypeCalc;
 	friend class Parser;
+	friend class NamespaceMgr;
 	friend class TypeMgr;
 
 protected:

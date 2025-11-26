@@ -34,7 +34,7 @@ ClassType::getVtableStructType() {
 	if (m_vtableStructType)
 		return m_vtableStructType;
 
-	m_vtableStructType = m_module->m_typeMgr.createUnnamedInternalStructType(createQualifiedName("Vtable"));
+	m_vtableStructType = m_module->m_typeMgr.createInternalStructType(getSignature() + ".Vtable");
 	return m_vtableStructType;
 }
 
@@ -189,7 +189,6 @@ ClassType::addMethod(Function* function) {
 		return false;
 	}
 
-	function->m_qualifiedName = createQualifiedName(getFunctionKindString(functionKind));
 	return addUnnamedMethod(function, targetFunction, targetOverloadableFunction);
 }
 
@@ -236,6 +235,21 @@ ClassType::prepareLlvmType() {
 void
 ClassType::prepareLlvmDiType() {
 	m_llvmDiType = getClassStructType()->getLlvmDiType();
+}
+
+sl::StringRef
+ClassType::createItemString(size_t index) {
+	if (m_stdType != StdType_AbstractClass)
+		return DerivableType::createItemString(index);
+
+	switch (index) {
+	case TypeStringKind_Prefix:
+	case TypeStringKind_DoxyLinkedTextPrefix:
+		return "class";
+
+	default:
+		return DerivableType::createItemString(index);
+	}
 }
 
 bool
@@ -520,7 +534,7 @@ ClassType::overrideVirtualFunction(Function* function) {
 		return false;
 
 	if (!findResult.m_item) {
-		err::setFormatStringError("cannot override '%s': method not found", function->getQualifiedName().sz());
+		err::setFormatStringError("cannot override '%s': method not found", function->getItemName().sz());
 		return false;
 	}
 
@@ -548,7 +562,7 @@ ClassType::overrideVirtualFunction(Function* function) {
 		case FunctionKind_Setter:
 			setter = ((Property*)member)->getSetter();
 			if (!setter) {
-				err::setFormatStringError("cannot override '%s': property has no setter", function->getQualifiedName().sz());
+				err::setFormatStringError("cannot override '%s': property has no setter", function->getItemName().sz());
 				return false;
 			}
 
@@ -560,14 +574,14 @@ ClassType::overrideVirtualFunction(Function* function) {
 			break;
 
 		default:
-			err::setFormatStringError("cannot override '%s': function kind mismatch", function->getQualifiedName().sz());
+			err::setFormatStringError("cannot override '%s': function kind mismatch", function->getItemName().sz());
 			return false;
 		}
 
 		break;
 
 	default:
-		err::setFormatStringError("cannot override '%s': not a method or property", function->getQualifiedName().sz());
+		err::setFormatStringError("cannot override '%s': not a method or property", function->getItemName().sz());
 		return false;
 	}
 
@@ -581,12 +595,12 @@ ClassType::overrideVirtualFunction(Function* function) {
 	}
 
 	if (!result) {
-		err::setFormatStringError("cannot override '%s': method signature mismatch", function->getQualifiedName().sz());
+		err::setFormatStringError("cannot override '%s': method signature mismatch", function->getItemName().sz());
 		return false;
 	}
 
 	if (!overridenFunction->isVirtual()) {
-		err::setFormatStringError("cannot override '%s': method is not virtual", function->getQualifiedName().sz());
+		err::setFormatStringError("cannot override '%s': method is not virtual", function->getItemName().sz());
 		return false;
 	}
 
@@ -673,7 +687,7 @@ ClassType::prepareForOperatorNew() {
 	for (size_t i = 0; i < count; i++) {
 		Function* function = m_vtable[i];
 		if (function->getStorageKind() == StorageKind_Abstract) {
-			err::setFormatStringError("abstract class '%s'", getQualifiedName().sz());
+			err::setFormatStringError("abstract class '%s'", getItemName().sz());
 			return false;
 		}
 
@@ -687,7 +701,7 @@ ClassType::prepareForOperatorNew() {
 	);
 
 	m_vtableVariable = m_module->m_variableMgr.createSimpleStaticVariable(
-		createQualifiedName("m_vtable"),
+		getSignature() + ".m_vtable",
 		m_vtableStructType,
 		Value(llvmVtableConst, m_vtableStructType)
 	);

@@ -22,8 +22,7 @@ class Function;
 //..............................................................................
 
 class FunctionOverload:
-	public ModuleItem,
-	public ModuleItemDecl,
+	public ModuleItemWithDecl<>,
 	public FunctionName {
 	friend class FunctionMgr;
 
@@ -161,6 +160,11 @@ public:
 		sl::String* itemXml,
 		sl::String* indexXml
 	);
+
+protected:
+	virtual
+	sl::StringRef
+	createItemString(size_t index);
 };
 
 //..............................................................................

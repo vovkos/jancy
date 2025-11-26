@@ -18,6 +18,37 @@ namespace ct {
 
 //..............................................................................
 
+Type*
+DynamicSection::getItemType() {
+	switch (m_sectionKind) {
+	case DynamicSectionKind_Array:
+	case DynamicSectionKind_Field:
+		return ((DynamicDataSection*)this)->getType();
+
+	default:
+		return NULL;
+	}
+}
+
+sl::StringRef
+DynamicSection::createItemString(size_t index) {
+	switch (m_sectionKind) {
+	case DynamicSectionKind_Array:
+	case DynamicSectionKind_Field:
+		return createItemStringImpl(
+			index,
+			this,
+			((DynamicDataSection*)this)->getType(),
+			((DynamicDataSection*)this)->getPtrTypeFlags()
+		);
+
+	default:
+		return createItemStringImpl(index, this);
+	}
+}
+
+//..............................................................................
+
 DynamicLayoutMgr::DynamicLayoutMgr() {
 	m_module = Module::getCurrentConstructedModule();
 	ASSERT(m_module);
@@ -38,7 +69,6 @@ DynamicLayoutMgr::createDataSection(
 	DynamicDataSection* section = new DynamicDataSection;
 	section->m_sectionKind = sectionKind;
 	section->m_name = name;
-	section->m_qualifiedName = name;
 	section->m_storageKind = StorageKind_DynamicField;
 	section->m_type = type;
 	section->m_ptrTypeFlags = ptrTypeFlags;
@@ -51,7 +81,6 @@ DynamicLayoutMgr::createGroup(const sl::StringRef& name) {
 	DynamicSection* section = new DynamicSection;
 	section->m_sectionKind = DynamicSectionKind_Group;
 	section->m_name = name;
-	section->m_qualifiedName = name;
 	section->m_storageKind = StorageKind_DynamicField;
 	m_sectionList.insertTail(section);
 	return section;

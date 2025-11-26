@@ -28,9 +28,7 @@ CodeAssistMgr::CodeAssistMgr() {
 	m_codeAssist = NULL;
 	m_offset = -1;
 	m_containerItem = NULL;
-
 	m_fallbackMode = FallbackMode_None;
-	m_fallbackNamespace = NULL;
 }
 
 void
@@ -45,7 +43,6 @@ CodeAssistMgr::clear() {
 
 	m_fallbackMode = FallbackMode_None;
 	m_fallbackToken.m_token = 0;
-	m_fallbackNamespace = NULL;
 	m_fallbackNamePrefix.clear();
 	m_fallbackExpression.clear();
 }
@@ -245,12 +242,14 @@ CodeAssistMgr::createImportCodeAssist(size_t offset) {
 
 CodeAssist*
 CodeAssistMgr::createFallbackCodeAssist() {
-	ASSERT(m_fallbackNamespace);
-
 	switch (m_fallbackMode) {
 	case FallbackMode_QualifiedName:
 		if (!m_fallbackNamePrefix.isEmpty()) {
-			FindModuleItemResult findItemResult = m_fallbackNamespace->findItemTraverse(m_fallbackNamePrefix, NULL);
+			FindModuleItemResult findItemResult = m_fallbackContext.getParentNamespace()->findItemTraverse(
+				m_fallbackContext,
+				m_fallbackNamePrefix
+			);
+
 			Namespace* nspace = findItemResult.m_item ? findItemResult.m_item->getNamespace() : NULL;
 			if (!nspace)
 				return NULL;
@@ -291,13 +290,13 @@ CodeAssistMgr::createFallbackCodeAssist() {
 		case CodeAssistKind_AutoComplete:
 			return createAutoComplete(
 				m_fallbackToken.m_pos.m_offset,
-				m_fallbackNamespace,
+				m_fallbackContext.getParentNamespace(),
 				CodeAssistFlag_AutoCompleteFallback |
 				CodeAssistFlag_IncludeParentNamespace
 			);
 
 		case CodeAssistKind_QuickInfoTip: {
-			FindModuleItemResult findItemResult = m_fallbackNamespace->findItem(m_fallbackToken.m_data.m_string);
+			FindModuleItemResult findItemResult = m_fallbackContext.getParentNamespace()->findItem(m_fallbackToken.m_data.m_string);
 			return findItemResult.m_item ?
 				createQuickInfoTip(m_fallbackToken.m_pos.m_offset, findItemResult.m_item) :
 				NULL;
@@ -314,7 +313,7 @@ CodeAssistMgr::createFallbackCodeAssist() {
 		return m_codeAssistKind == CodeAssistKind_AutoComplete ?
 			createAutoComplete(
 				m_offset,
-				m_fallbackNamespace,
+				m_fallbackContext.getParentNamespace(),
 				CodeAssistFlag_AutoCompleteFallback |
 				CodeAssistFlag_IncludeParentNamespace
 			) :
@@ -333,7 +332,7 @@ CodeAssistMgr::createFallbackCodeAssist() {
 	Value value;
 	FunctionType* functionType = (FunctionType*)m_module->m_typeMgr.getStdType(StdType_SimpleFunction);
 	Function* function = m_module->m_functionMgr.createInternalFunction("jnci.expressionFallbackContainter", functionType);
-	function->m_parentNamespace = m_fallbackNamespace;
+	function->m_parentNamespace = m_fallbackContext.getParentNamespace();
 	m_module->m_functionMgr.prologue(function, m_fallbackExpression.getHead()->m_pos);
 	m_module->m_operatorMgr.parseExpression(&m_fallbackExpression, &value);
 	m_module->m_functionMgr.epilogue();

@@ -187,7 +187,7 @@ OrcJit::mapVariable(
 	void* p
 ) {
 	if (variable->getStorageKind() != StorageKind_Static) {
-		err::setFormatStringError("attempt to map non-global variable: %s", variable->getQualifiedName().sz());
+		err::setFormatStringError("attempt to map non-global variable: %s", variable->getItemName().sz());
 		return false;
 	}
 
@@ -202,7 +202,7 @@ OrcJit::mapVariable(
 
 	sl::StringHashTableIterator<void*> it = m_symbolMap.visit(llvmMapping->getName().data());
 	if (it->m_value) {
-		err::setFormatStringError("attempt to re-map variable: %s", variable->getQualifiedName().sz());
+		err::setFormatStringError("attempt to re-map variable: %s", variable->getItemName().sz());
 		return false;
 	}
 
@@ -226,7 +226,7 @@ OrcJit::mapFunction(
 
 	sl::StringHashTableIterator<void*> it = m_symbolMap.visit(llvmFunction->getName().data());
 	if (it->m_value) {
-		err::setFormatStringError("attempt to re-map function: %s/%s", function->getQualifiedName().sz(), llvmFunction->getName().data());
+		err::setFormatStringError("attempt to re-map function: %s/%s", function->getItemName().sz(), llvmFunction->getName().data());
 		return false;
 	}
 

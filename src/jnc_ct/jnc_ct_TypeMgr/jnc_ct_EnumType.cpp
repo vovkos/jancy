@@ -58,6 +58,22 @@ getEnumTypeFlagString(uint_t flags) {
 
 //..............................................................................
 
+sl::StringRef
+EnumConst::createItemString(size_t index) {
+	if (index != ModuleItemStringKind_Synopsis)
+		return createItemStringImpl(index, this);
+
+	sl::String synopsis = "const ";
+	synopsis += getItemName();
+
+	if (!m_initializer.isEmpty()) {
+		synopsis += " = ";
+		synopsis += getInitializerString();
+	}
+
+	return synopsis;
+}
+
 bool
 EnumConst::generateDocumentation(
 	const sl::StringRef& outputDir,
@@ -114,7 +130,7 @@ EnumType::createConst(
 	EnumConst* enumConst = new EnumConst;
 	enumConst->m_module = m_module;
 	enumConst->m_parentUnit = m_parentUnit;
-	enumConst->m_parentEnumType = this;
+	enumConst->m_parentNamespace = this;
 	enumConst->m_name = name;
 
 	if (initializer)
@@ -128,22 +144,6 @@ EnumType::createConst(
 		return NULL;
 
 	return enumConst;
-}
-
-void
-EnumType::prepareSignature() {
-	const char* stringTable[] = {
-		"EE", // 0
-		"EC", // 1 - EnumTypeFlag_Exposed
-		"EF", // 2 - EnumTypeFlag_BitFlag
-		"EZ", // 3 - EnumTypeFlag_Exposed | EnumTypeFlag_BitFlag
-	};
-
-	size_t i = (m_flags & EnumTypeFlag__All) >> 16;
-	ASSERT(i < countof(stringTable));
-
-	m_signature = stringTable[i] + m_qualifiedName;
-	m_flags |= TypeFlag_SignatureFinal;
 }
 
 bool

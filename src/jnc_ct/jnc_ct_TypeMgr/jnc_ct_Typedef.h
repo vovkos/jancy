@@ -20,9 +20,7 @@ class TypedefShadowType;
 
 //..............................................................................
 
-class Typedef:
-	public ModuleItem,
-	public ModuleItemDecl {
+class Typedef: public ModuleItemWithDecl<> {
 	friend class TypeMgr;
 
 protected:
@@ -33,12 +31,24 @@ public:
 	Typedef();
 
 	Type*
-	getType() {
+	getType() const {
 		return m_type;
 	}
 
 	TypedefShadowType*
-	getShadowType();
+	getShadowType() const;
+
+	virtual
+	Type*
+	getItemType() {
+		return m_type;
+	}
+
+	virtual
+	Namespace*
+	getNamespace() {
+		return m_type->getNamespace();
+	}
 
 	virtual
 	bool
@@ -47,6 +57,14 @@ public:
 		sl::String* itemXml,
 		sl::String* indexXml
 	);
+
+protected:
+	virtual
+	sl::StringRef
+	createItemString(size_t index);
+
+	void
+	prepareShadowType();
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -58,11 +76,18 @@ Typedef::Typedef() {
 	m_shadowType = NULL;
 }
 
+inline
+TypedefShadowType*
+Typedef::getShadowType() const {
+	if (!m_shadowType)
+		((Typedef*)this)->prepareShadowType();
+
+	return m_shadowType;
+}
+
 //..............................................................................
 
-class TypedefShadowType:
-	public Type,
-	public ModuleItemDecl {
+class TypedefShadowType: public ModuleItemWithDecl<Type> {
 	friend class TypeMgr;
 
 protected:
@@ -88,19 +113,9 @@ protected:
 	virtual
 	void
 	prepareSignature() {
-		m_signature = "T" + m_typedef->getQualifiedName();
-		m_flags |= TypeFlag_SignatureFinal;
+		m_signature = m_typedef->getType()->getSignature();
+		m_flags |= m_typedef->getType()->getFlags() & TypeFlag_SignatureMask;
 	}
-
-	virtual
-	void
-	prepareTypeString() {
-		getTypeStringTuple()->m_typeStringPrefix = getQualifiedName();
-	}
-
-	virtual
-	void
-	prepareDoxyLinkedText();
 
 	virtual
 	void

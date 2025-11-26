@@ -33,7 +33,7 @@ Attribute::prepareValue(bool isDynamic) {
 		return true;
 	}
 
-	ParseContext parseContext(ParseContextKind_Expression, m_module, m_parentUnit, m_parentNamespace);
+	ParseContext parseContext(ParseContextKind_Expression, m_module, *this);
 	bool result = m_module->m_operatorMgr.parseExpression(&m_initializer, &m_value);
 	if (!result)
 		return false;
@@ -59,7 +59,7 @@ Attribute::prepareValue(bool isDynamic) {
 			else {
 				err::setFormatStringError(
 					"non-type variable '%s' used as an attribute value",
-					m_value.getVariable()->getQualifiedName().sz()
+					m_value.getVariable()->getItemName().sz()
 				);
 
 				return false;
@@ -71,7 +71,7 @@ Attribute::prepareValue(bool isDynamic) {
 		if (m_value.getFunction()->getStorageKind() != StorageKind_Static) {
 			err::setFormatStringError(
 				"non-static function '%s' used as an attribute value",
-				m_value.getFunction()->getQualifiedName().sz()
+				m_value.getFunction()->getItemName().sz()
 			);
 
 			return false;

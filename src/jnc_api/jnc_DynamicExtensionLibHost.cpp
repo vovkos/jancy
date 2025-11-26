@@ -52,13 +52,13 @@ static jnc_CapabilityFuncTable g_capabilityFuncTable = {
 static jnc_ModuleItemDeclFuncTable g_moduleItemDeclFuncTable = {
 	sizeof(jnc_ModuleItemDeclFuncTable),
 	jnc_ModuleItemDecl_getName,
-	jnc_ModuleItemDecl_getQualifiedName,
 	jnc_ModuleItemDecl_getStorageKind,
 	jnc_ModuleItemDecl_getAccessKind,
 	jnc_ModuleItemDecl_getAttributeBlock,
 	jnc_ModuleItemDecl_findAttribute,
-	jnc_ModuleItemDecl_getParentNamespace,
 	jnc_ModuleItemDecl_getParentUnit,
+	jnc_ModuleItemDecl_getParentNamespace,
+	jnc_ModuleItemDecl_getDeclItem,
 	jnc_ModuleItemDecl_getLine,
 	jnc_ModuleItemDecl_getCol,
 };
@@ -71,7 +71,7 @@ static jnc_ModuleItemFuncTable g_moduleItemFuncTable = {
 	jnc_ModuleItem_getDecl,
 	jnc_ModuleItem_getNamespace,
 	jnc_ModuleItem_getType,
-	jnc_ModuleItem_getSynopsis_v,
+	jnc_ModuleItem_getItemString,
 };
 
 static jnc_AttributeFuncTable g_attributeFuncTable = {
@@ -89,8 +89,6 @@ static jnc_NamespaceFuncTable g_namespaceFuncTable = {
 	sizeof(jnc_NamespaceFuncTable),
 	jnc_Namespace_isReady,
 	jnc_Namespace_getNamespaceKind,
-	jnc_Namespace_getParentNamespace,
-	jnc_Namespace_getParentItem,
 	jnc_Namespace_getItemCount,
 	jnc_Namespace_getItem,
 	jnc_Namespace_findDirectChildItem,

@@ -46,6 +46,8 @@ class ReactorClassType: public ClassType {
 
 protected:
 	class Reactor: public CompilableFunction {
+		friend class ReactorClassType;
+
 	public:
 		Reactor() {
 			m_functionKind = FunctionKind_Reactor;
@@ -54,16 +56,14 @@ protected:
 
 		virtual
 		bool
-		compile() {
-			return ((ReactorClassType*)m_parentNamespace)->compileReaction(this);
-		}
+		compile();
 	};
 
 protected:
 	ClassType* m_parentType;
 	size_t m_parentOffset;
 	size_t m_reactionCount;
-	Function* m_reactor;
+	Reactor* m_reactor;
 	ClassType* m_userDataType;
 	sl::Array<Function*> m_onEventHandlerMap;
 
@@ -87,7 +87,7 @@ public:
 
 	Function*
 	getReactor() {
-		return m_reactor;
+		return m_reactor ? m_reactor : createReactor();
 	}
 
 	void
@@ -108,27 +108,19 @@ public:
 
 protected:
 	virtual
+	sl::StringRef
+	createItemString(size_t index);
+
+	virtual
 	bool
 	calcLayout();
-
-	virtual
-	void
-	prepareTypeString() {
-		getTypeStringTuple()->m_typeStringPrefix = "reactor";
-	}
-
-	virtual
-	void
-	prepareDoxyLinkedText() {
-		getTypeStringTuple()->m_doxyLinkedTextPrefix = "reactor";
-	}
 
 	virtual
 	bool
 	prepareForOperatorNew();
 
-	bool
-	compileReaction(Function* function);
+	Function*
+	createReactor();
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

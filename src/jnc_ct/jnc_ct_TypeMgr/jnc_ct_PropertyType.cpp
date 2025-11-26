@@ -104,54 +104,36 @@ PropertyType::prepareSignature() {
 	m_flags |= signatureFlags;
 }
 
-void
-PropertyType::prepareTypeString() {
-	TypeStringTuple* tuple = getTypeStringTuple();
-	Type* returnType = getReturnType();
+sl::StringRef
+PropertyType::createItemString(size_t index) {
+	switch (index) {
+	case TypeStringKind_Prefix:
+	case TypeStringKind_DoxyLinkedTextPrefix: {
+		Type* returnType = getReturnType();
+		sl::String string = returnType->getItemString(index);
+		sl::StringRef modifierString = getTypeModifierString();
+		if (!modifierString.isEmpty()) {
+			string += ' ';
+			string += modifierString;
+		}
 
-	sl::String string = returnType->getTypeStringPrefix();
-	sl::String modifierString = getTypeModifierString();
-	if (!modifierString.isEmpty()) {
-		string += ' ';
-		string += modifierString;
+		string += " property";
+		return string;
+		}
+
+	case TypeStringKind_Suffix:
+	case TypeStringKind_DoxyLinkedTextSuffix:
+		return m_getterType->getItemString(index);
+
+	case TypeStringKind_DoxyTypeString: {
+		sl::String string = Type::createItemString(index);
+		m_getterType->appendDoxyArgString(&string);
+		return string;
+		}
+
+	default:
+		return Type::createItemString(index);
 	}
-
-	string += " property";
-	tuple->m_typeStringPrefix = string;
-
-	if (isIndexed())
-		tuple->m_typeStringSuffix = m_getterType->getTypeStringSuffix();
-
-	tuple->m_typeStringSuffix += returnType->getTypeStringSuffix();
-}
-
-void
-PropertyType::prepareDoxyLinkedText() {
-	TypeStringTuple* tuple = getTypeStringTuple();
-	Type* returnType = getReturnType();
-
-	tuple->m_doxyLinkedTextPrefix = returnType->getDoxyLinkedTextPrefix();
-
-	sl::String modifierString = getTypeModifierString();
-	if (!modifierString.isEmpty()) {
-		tuple->m_doxyLinkedTextPrefix += ' ';
-		tuple->m_doxyLinkedTextPrefix += modifierString;
-	}
-
-	tuple->m_doxyLinkedTextPrefix += " property";
-
-	if (isIndexed())
-		tuple->m_doxyLinkedTextSuffix = m_getterType->getDoxyLinkedTextSuffix();
-
-	tuple->m_doxyLinkedTextSuffix += returnType->getDoxyLinkedTextSuffix();
-}
-
-void
-PropertyType::prepareDoxyTypeString() {
-	Type::prepareDoxyTypeString();
-
-	if (isIndexed())
-		m_getterType->appendDoxyArgString(&getTypeStringTuple()->m_doxyTypeString);
 }
 
 bool

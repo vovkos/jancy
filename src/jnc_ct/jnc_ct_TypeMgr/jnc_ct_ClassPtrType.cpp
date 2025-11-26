@@ -27,9 +27,9 @@ ClassPtrType::createSignature(
 	uint_t flags
 ) {
 	static const char* stringTable[] = {
-		"P",
+		"Pn",
 		"Pw",
-		"R",
+		"Rn",
 		"Rw"
 	};
 
@@ -38,37 +38,35 @@ ClassPtrType::createSignature(
 
 	sl::String signature = stringTable[i];
 	signature += getPtrTypeFlagSignature(flags);
+	signature += '&';
 	signature += classType->getSignature();
 	return signature;
 }
 
-void
-ClassPtrType::appendPointerStringSuffix(sl::String* string) {
-	sl::StringRef ptrTypeFlagString = getPtrTypeFlagString(m_flags);
-	if (!ptrTypeFlagString.isEmpty()) {
-		*string += ' ';
-		*string += ptrTypeFlagString;
+sl::StringRef
+ClassPtrType::createItemString(size_t index) {
+	switch (index) {
+	case TypeStringKind_Prefix:
+	case TypeStringKind_DoxyLinkedTextPrefix: {
+		sl::String string = m_targetType->getItemString(index);
+		sl::StringRef ptrTypeFlagString = getPtrTypeFlagString(m_flags);
+		if (!ptrTypeFlagString.isEmpty()) {
+			string += ' ';
+			string += ptrTypeFlagString;
+		}
+
+		if (m_ptrTypeKind != ClassPtrTypeKind_Normal) {
+			string += ' ';
+			string += getClassPtrTypeKindString(m_ptrTypeKind);
+		}
+
+		string += m_typeKind == TypeKind_ClassRef ? "&" : "*";
+		return string;
+		}
+
+	default:
+		return Type::createItemString(index);
 	}
-
-	if (m_ptrTypeKind != ClassPtrTypeKind_Normal) {
-		*string += ' ';
-		*string += getClassPtrTypeKindString(m_ptrTypeKind);
-	}
-
-	*string += m_typeKind == TypeKind_ClassRef ? "&" : "*";
-}
-
-void
-ClassPtrType::prepareTypeString() {
-	sl::String string = m_targetType->getTypeString();
-	appendPointerStringSuffix(&string);
-	getTypeStringTuple()->m_typeStringPrefix = string;
-}
-
-void
-ClassPtrType::prepareDoxyLinkedText() {
-	getTypeStringTuple()->m_doxyLinkedTextPrefix = m_targetType->getDoxyLinkedTextPrefix();
-	appendPointerStringSuffix(&getTypeStringTuple()->m_doxyLinkedTextPrefix);
 }
 
 void

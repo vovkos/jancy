@@ -19,9 +19,7 @@ namespace ct {
 
 //..............................................................................
 
-class Const:
-	public ModuleItem,
-	public ModuleItemDecl {
+class Const: public ModuleItemWithDecl<> {
 	friend class ConstMgr;
 	friend class Parser;
 
@@ -38,6 +36,12 @@ public:
 	const Value&
 	getValue() {
 		return m_value;
+	}
+
+	virtual
+	Type*
+	getItemType() {
+		return m_value.getType();
 	}
 };
 
@@ -69,7 +73,6 @@ public:
 	Const*
 	createConst(
 		const sl::StringRef& name,
-		const sl::StringRef& qualifiedName,
 		const Value& value
 	);
 

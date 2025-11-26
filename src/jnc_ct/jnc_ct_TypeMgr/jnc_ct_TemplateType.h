@@ -48,15 +48,6 @@ public:
 		return m_index;
 	}
 
-	static
-	sl::String
-	createSignature(
-		const sl::StringRef& name,
-		size_t index
-	) {
-		return sl::formatString("XA%d%s", index, name.sz());
-	}
-
 	virtual
 	bool
 	deduceTemplateArgs(
@@ -66,22 +57,17 @@ public:
 
 protected:
 	virtual
+	void
+	prepareSignature();
+
+	virtual
+	sl::StringRef
+	createItemString(size_t index);
+
+	virtual
 	bool
 	resolveImports() {
 		return true;
-	}
-
-	virtual
-	void
-	prepareSignature() {
-		m_signature = createSignature(m_name, m_index);
-		m_flags |= TypeFlag_SignatureReady;
-	}
-
-	virtual
-	void
-	prepareTypeString() {
-		getTypeStringTuple()->m_typeStringPrefix = m_name;
 	}
 
 	Type*
@@ -139,8 +125,8 @@ public:
 
 protected:
 	virtual
-	void
-	prepareTypeString();
+	sl::StringRef
+	createItemString(size_t index);
 };
 
 //..............................................................................
@@ -160,8 +146,8 @@ public:
 
 protected:
 	virtual
-	void
-	prepareTypeString();
+	sl::StringRef
+	createItemString(size_t index);
 };
 
 //..............................................................................
@@ -205,8 +191,10 @@ protected:
 	prepareSignature();
 
 	virtual
-	void
-	prepareTypeString();
+	sl::StringRef
+	createItemString(size_t index) {
+		return getDeductionType()->getItemString(index);
+	}
 };
 
 //..............................................................................

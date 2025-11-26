@@ -22,6 +22,7 @@ namespace ct {
 
 enum StructTypeKind {
 	StructTypeKind_Normal,
+	StructTypeKind_AbstractData,
 	StructTypeKind_IfaceStruct,
 	StructTypeKind_ClassStruct,
 	StructTypeKind_UnionStruct,
@@ -92,6 +93,10 @@ protected:
 		sl::List<Token>* constructor,
 		sl::List<Token>* initializer
 	);
+
+	virtual
+	sl::StringRef
+	createItemString(size_t index);
 
 	virtual
 	void

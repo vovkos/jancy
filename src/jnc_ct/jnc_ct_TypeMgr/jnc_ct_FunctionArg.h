@@ -21,8 +21,7 @@ class Type;
 //..............................................................................
 
 class FunctionArg:
-	public ModuleItem,
-	public ModuleItemDecl,
+	public ModuleItemWithDecl<>,
 	public ModuleItemInitializer {
 	friend class TypeMgr;
 	friend class Function;
@@ -42,16 +41,20 @@ public:
 		return m_type;
 	}
 
+	virtual
+	Type*
+	getItemType() {
+		return m_type;
+	}
+
 	uint_t
 	getPtrTypeFlags() {
 		return m_ptrTypeFlags;
 	}
 
-	sl::String
-	getArgString();
-
-	sl::String
-	getArgDoxyLinkedText();
+	template <bool IsDoxyLinkedText>
+	void
+	appendArgString(sl::String* string);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -61,6 +64,33 @@ FunctionArg::FunctionArg() {
 	m_itemKind = ModuleItemKind_FunctionArg;
 	m_type = NULL;
 	m_ptrTypeFlags = 0;
+}
+
+template <bool IsDoxyLinkedText>
+void
+FunctionArg::appendArgString(sl::String* string) {
+	*string += IsDoxyLinkedText ?
+		m_type->getDoxyLinkedTextPrefix() :
+		m_type->getTypeStringPrefix();
+
+	if (m_storageKind == StorageKind_This)
+		*string += " this";
+	else if (!m_name.isEmpty()) {
+		*string += ' ';
+		*string += m_name;
+	}
+
+	sl::StringRef suffix = IsDoxyLinkedText ?
+		m_type->getDoxyLinkedTextSuffix() :
+		m_type->getTypeStringSuffix();
+
+	if (!suffix.isEmpty())
+		*string += suffix;
+
+	if (!m_initializer.isEmpty()) {
+		*string += " = ";
+		*string += getInitializerString();
+	}
 }
 
 //..............................................................................

@@ -23,13 +23,10 @@ class UnionType;
 class ClassType;
 class Function;
 class Property;
-struct TemplateInstance;
 
 //..............................................................................
 
-class BaseTypeSlot:
-	public ModuleItem,
-	public ModuleItemDecl {
+class BaseTypeSlot: public ModuleItemWithDecl<> {
 	friend class DerivableType;
 	friend class StructType;
 	friend class ClassType;
@@ -66,6 +63,12 @@ public:
 	uint_t
 	getLlvmIndex() const {
 		return m_llvmIndex;
+	}
+
+	virtual
+	Type*
+	getItemType() {
+		return (Type*)m_type;
 	}
 };
 
@@ -181,8 +184,6 @@ protected:
 	};
 
 protected:
-	TemplateInstance* m_templateInstance;
-
 	// base types
 
 	sl::StringHashTable<BaseTypeSlot*> m_baseTypeMap;
@@ -205,11 +206,6 @@ protected:
 
 public:
 	DerivableType();
-
-	TemplateInstance*
-	getTemplateInstance() {
-		return m_templateInstance;
-	}
 
 	virtual
 	Type*
@@ -367,22 +363,7 @@ public:
 		return findDirectChildItemTraverse(name, coord, flags, 0);
 	}
 
-	virtual
-	bool
-	deduceTemplateArgs(
-		sl::Array<Type*>* templateArgTypeArray,
-		Type* referenceType
-	);
-
 protected:
-	virtual
-	void
-	prepareSignature();
-
-	virtual
-	void
-	prepareTypeString();
-
 	virtual
 	bool
 	parseBody();
@@ -432,7 +413,6 @@ protected:
 inline
 DerivableType::DerivableType():
 	MemberBlock(this) {
-	m_templateInstance = NULL;
 	m_operatorVararg = NULL;
 	m_operatorCdeclVararg = NULL;
 }

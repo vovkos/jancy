@@ -140,7 +140,7 @@ protected:
 	sl::List<ArgumentTip> m_argumentTipStack;
 
 	FallbackMode m_fallbackMode;
-	Namespace* m_fallbackNamespace;
+	ModuleItemContext m_fallbackContext;
 	QualifiedName m_fallbackNamePrefix;
 	sl::List<Token> m_fallbackExpression;
 	Token m_fallbackToken;

@@ -18,9 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-class GlobalNamespace:
-	public ModuleItem,
-	public Namespace {
+class GlobalNamespace: public ModuleItemWithNamespace<> {
 	friend class NamespaceMgr;
 
 protected:
@@ -67,6 +65,14 @@ public:
 	);
 
 protected:
+	virtual
+	sl::StringRef
+	createLinkId();
+
+	virtual
+	sl::StringRef
+	createItemString(size_t index);
+
 	virtual
 	bool
 	parseBody();

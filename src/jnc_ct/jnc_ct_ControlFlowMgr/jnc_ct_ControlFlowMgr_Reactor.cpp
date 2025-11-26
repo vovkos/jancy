@@ -57,7 +57,7 @@ ControlFlowMgr::leaveReactor() {
 	setCurrentBlock(m_reactorBody->m_switchBlock);
 
 	if (!m_module->m_variableMgr.getReactorVariableArray().isEmpty()) {
-		sl::String userDataName = m_reactorBody->m_reactorType->getQualifiedName() + ".UserData";
+		sl::String userDataName = m_reactorBody->m_reactorType->getSignature() + ".UserData";
 		ClassType* userDataType = m_module->m_variableMgr.createReactorUserDataType(userDataName);
 		if (!userDataType)
 			return false;

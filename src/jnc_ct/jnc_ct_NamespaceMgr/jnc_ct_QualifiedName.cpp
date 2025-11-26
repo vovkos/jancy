@@ -77,30 +77,16 @@ QualifiedNameAtom::copy(const QualifiedNameAtom& atom) {
 
 //..............................................................................
 
-void
-QualifiedName::removeFirstAtom(QualifiedNameAtom* atom) {
-	sl::takeOver(atom, &m_firstAtom);
-
-	if (!m_atomList.isEmpty()) {
-		sl::BoxListEntry<QualifiedNameAtom>* entry = m_atomList.removeHeadEntry();
-		sl::takeOver(&m_firstAtom, &entry->m_value);
-		delete entry;
-	}
-}
-
-sl::StringRef
-QualifiedName::getFullName() const {
-	if (m_atomList.isEmpty())
-		return m_firstAtom.getString();
-
-	sl::String name = m_firstAtom.getString();
+size_t
+QualifiedName::appendFullName(sl::String* string) const {
+	string->append(m_firstAtom.getString());
 	sl::ConstBoxIterator<QualifiedNameAtom> it = m_atomList.getHead();
 	for (; it; it++) {
-		name.append('.');
-		name.append(it->getString());
+		string->append('.');
+		string->append(it->getString());
 	}
 
-	return name;
+	return string->getLength();
 }
 
 void

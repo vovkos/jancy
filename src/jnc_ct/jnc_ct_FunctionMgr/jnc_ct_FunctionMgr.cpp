@@ -95,12 +95,10 @@ void
 FunctionMgr::addFunction(
 	Function* function,
 	const sl::StringRef& name,
-	const sl::StringRef& qualifiedName,
 	FunctionType* type
 ) {
 	function->m_module = m_module;
 	function->m_name = name;
-	function->m_qualifiedName = qualifiedName;
 	function->m_type = type;
 	m_functionList.insertTail(function);
 }
@@ -120,12 +118,10 @@ FunctionMgr::createFunctionOverload(Function* function) {
 void
 FunctionMgr::addProperty(
 	Property* prop,
-	const sl::StringRef& name,
-	const sl::StringRef& qualifiedName
+	const sl::StringRef& name
 ) {
 	prop->m_module = m_module;
 	prop->m_name = name;
-	prop->m_qualifiedName = qualifiedName;
 	m_propertyList.insertTail(prop);
 }
 
@@ -316,7 +312,7 @@ FunctionMgr::epilogue() {
 	if (isBroken) {
 		err::setFormatStringError(
 			"LLVM verification fail for '%s'",
-			function->getQualifiedName().sz()
+			function->getItemName().sz()
 		);
 
 		return false;
@@ -451,7 +447,6 @@ FunctionMgr::getDirectThunkFunction(
 		return it->m_value;
 
 	ThunkFunction* thunkFunction = createFunction<ThunkFunction>(
-		sl::String(),
 		"jnc.directThunkFunction",
 		thunkFunctionType
 	);
@@ -484,11 +479,7 @@ FunctionMgr::getDirectThunkProperty(
 	if (it->m_value)
 		return it->m_value;
 
-	ThunkProperty* thunkProperty = createProperty<ThunkProperty>(
-		sl::String(),
-		"jnc.g_directThunkProperty"
-	);
-
+	ThunkProperty* thunkProperty = createProperty<ThunkProperty>("jnc.g_directThunkProperty");
 	thunkProperty->m_storageKind = StorageKind_Static;
 
 	bool result = thunkProperty->create(targetProperty, thunkPropertyType, hasUnusedClosure);
@@ -518,11 +509,7 @@ FunctionMgr::getDirectDataThunkProperty(
 	if (it->m_value)
 		return it->m_value;
 
-	DataThunkProperty* thunkProperty = createProperty<DataThunkProperty>(
-		sl::String(),
-		"jnc.g_directDataThunkProperty"
-	);
-
+	DataThunkProperty* thunkProperty = createProperty<DataThunkProperty>("jnc.g_directDataThunkProperty");
 	thunkProperty->m_storageKind = StorageKind_Static;
 	thunkProperty->m_targetVariable = targetVariable;
 
@@ -556,7 +543,6 @@ FunctionMgr::getSchedLauncherFunction(FunctionPtrType* targetFunctionPtrType) {
 		FunctionType* launcherFunctionType = m_module->m_typeMgr.getFunctionType(returnType, argArray);
 
 		launcherFunction = createFunction<AsyncSchedLauncherFunction>(
-			sl::String(),
 			"jnc.asyncSchedLauncher",
 			launcherFunctionType
 		);
@@ -564,7 +550,6 @@ FunctionMgr::getSchedLauncherFunction(FunctionPtrType* targetFunctionPtrType) {
 		FunctionType* launcherFunctionType = m_module->m_typeMgr.getFunctionType(argArray);
 
 		launcherFunction = createFunction<SchedLauncherFunction>(
-			sl::String(),
 			"jnc.schedLauncher",
 			launcherFunctionType
 		);
@@ -754,7 +739,7 @@ FunctionMgr::jitFunctions() {
 	for (size_t i = 0; i < count; i++) {
 		Function* function = m_requiredExternalFunctionArray[i];
 		if (!function->getMachineCode()) {
-			err::setFormatStringError("unresolved required external function: %s", function->getQualifiedName().sz());
+			err::setFormatStringError("unresolved required external function '%s'", function->getItemName().sz());
 			return false;
 		}
 	}

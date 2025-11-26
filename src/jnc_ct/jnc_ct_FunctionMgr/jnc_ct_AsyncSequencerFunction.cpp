@@ -30,7 +30,7 @@ AsyncSequencerFunction::compile() {
 
 	bool result;
 
-	ParseContext parseContext(ParseContextKind_Body, m_module, this);
+	ParseContext parseContext(ParseContextKind_Body, m_module, *this);
 
 	Value promiseValue;
 	m_module->m_functionMgr.internalPrologue(this, &promiseValue, 1, &m_bodyPos);

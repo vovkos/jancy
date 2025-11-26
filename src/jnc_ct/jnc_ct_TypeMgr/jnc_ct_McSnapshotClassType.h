@@ -64,16 +64,8 @@ public:
 
 protected:
 	virtual
-	void
-	prepareTypeString();
-
-	virtual
-	void
-	prepareDoxyLinkedText();
-
-	virtual
-	void
-	prepareDoxyTypeString();
+	sl::StringRef
+	createItemString(size_t index);
 
 	bool
 	compileCallMethod(Function* function);

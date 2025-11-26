@@ -249,6 +249,9 @@ protected:
 	Type*
 	getQualifiedTypeName(ModuleItem* item);
 
+	bool
+	isQualifiedTypeName(ModuleItem* item);
+
 	ModuleItem*
 	instantiateTemplate(
 		ModuleItem* item,
@@ -400,6 +403,15 @@ protected:
 	}
 
 	void
+	setItemPos(
+		ModuleItemPos* itemPos,
+		const lex::LineCol& pos
+	) {
+		itemPos->captureContext(m_module);
+		itemPos->m_pos = pos;
+	}
+
+	void
 	assignDeclarationAttributes(
 		ModuleItem* item,
 		ModuleItemDecl* decl,
@@ -426,9 +438,9 @@ protected:
 
 	bool
 	useNamespace(
-		sl::BoxList<QualifiedName>* nameList,
+		const lex::LineCol& pos,
 		NamespaceKind namespaceKind,
-		const lex::LineCol& pos
+		sl::BoxList<QualifiedName>* nameList
 	);
 
 	AttributeBlock*

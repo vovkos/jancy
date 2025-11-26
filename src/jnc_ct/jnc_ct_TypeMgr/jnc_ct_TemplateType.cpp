@@ -19,6 +19,24 @@ namespace ct {
 
 //..............................................................................
 
+void
+TemplateArgType::prepareSignature() {
+	m_signature = sl::formatString("XA%d", m_module->createUnnamedLinkId());
+	m_flags |= TypeFlag_SignatureFinal;
+}
+
+sl::StringRef
+TemplateArgType::createItemString(size_t index) {
+	switch (index) {
+	case TypeStringKind_Prefix:
+	case TypeStringKind_DoxyLinkedTextPrefix:
+		return m_name;
+
+	default:
+		return TemplateType::createItemString(index);
+	}
+}
+
 bool
 TemplateArgType::deduceTemplateArgs(
 	sl::Array<Type*>* templateArgTypeArray,
@@ -105,19 +123,24 @@ TemplatePtrType::deduceTemplateArgs(
 	return false;
 }
 
-void
-TemplatePtrType::prepareTypeString() {
-	ASSERT(m_baseType);
-	TypeStringTuple* tuple = getTypeStringTuple();
+sl::StringRef
+TemplatePtrType::createItemString(size_t index) {
+	switch (index) {
+	case TypeStringKind_Prefix:
+	case TypeStringKind_DoxyLinkedTextPrefix: {
+		sl::String string = m_baseType->getItemString(index);
+		if (m_typeModifiers) {
+			string += ' ';
+			string += getTypeModifierString(m_typeModifiers);
+		}
 
-	sl::String string = m_baseType->getName();
-	if (m_typeModifiers) {
-		string += ' ';
-		string += getTypeModifierString(m_typeModifiers);
+		string += '*';
+		return string;
+		}
+
+	default:
+		return TemplateType::createItemString(index);
 	}
-
-	string += '*';
-	tuple->m_typeStringPrefix = string;
 }
 
 //..............................................................................
@@ -142,14 +165,20 @@ TemplateIntModType::deduceTemplateArgs(
 	return m_baseType->deduceTemplateArgs(templateArgTypeArray, referenceType);
 }
 
-void
-TemplateIntModType::prepareTypeString() {
-	ASSERT(m_typeModifiers);
+sl::StringRef
+TemplateIntModType::createItemString(size_t index) {
+	switch (index) {
+	case TypeStringKind_Prefix:
+	case TypeStringKind_DoxyLinkedTextPrefix: {
+		sl::String string = getTypeModifierString(m_typeModifiers);
+		string += ' ';
+		string += m_baseType->getItemString(index);
+		return string;
+		}
 
-	sl::String string = getTypeModifierString(m_typeModifiers);
-	string += ' ';
-	string += m_baseType->getName();
-	getTypeStringTuple()->m_typeStringPrefix = string;
+	default:
+		return TemplateType::createItemString(index);
+	}
 }
 
 //..............................................................................
@@ -196,17 +225,8 @@ TemplateDeclType::instantiate(const sl::ArrayRef<Type*>& argArray) {
 
 void
 TemplateDeclType::prepareSignature() {
-	size_t id = m_module->m_typeMgr.createUnnamedTypeId();
-	m_signature = sl::formatString("XD%d", id);
-	m_flags |= TypeFlag_SignatureReady;
-}
-
-void
-TemplateDeclType::prepareTypeString() {
-	Type* deductionType = getDeductionType();
-	TypeStringTuple* tuple = getTypeStringTuple();
-	tuple->m_typeStringPrefix = deductionType->getTypeStringPrefix();
-	tuple->m_typeStringPrefix = deductionType->getTypeStringSuffix();
+	m_signature = sl::formatString("XD%d", m_module->createUnnamedLinkId());
+	m_flags |= TypeFlag_SignatureFinal;
 }
 
 //..............................................................................

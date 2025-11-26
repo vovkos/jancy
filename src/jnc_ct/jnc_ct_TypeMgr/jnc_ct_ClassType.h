@@ -183,6 +183,10 @@ protected:
 	);
 
 	virtual
+	sl::StringRef
+	createItemString(size_t index);
+
+	virtual
 	void
 	prepareLlvmType();
 

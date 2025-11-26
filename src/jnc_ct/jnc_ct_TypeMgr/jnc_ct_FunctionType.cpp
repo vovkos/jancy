@@ -44,7 +44,7 @@ getFunctionTypeFlagString(uint_t flags) {
 //..............................................................................
 
 DerivableType*
-FunctionType::getThisTargetType() {
+FunctionType::getThisTargetType() const {
 	Type* thisArgType = getThisArgType();
 	if (!thisArgType)
 		return NULL;
@@ -105,98 +105,8 @@ FunctionType::appendFlagSignature(
 		*string += 'e';
 }
 
-uint_t
-FunctionType::appendArgSignature(
-	sl::String* string,
-	Type* const* argTypeArray,
-	size_t argCount,
-	uint_t typeFlags
-) {
-	uint_t signatureFlags = TypeFlag_SignatureFinal;
-	*string += '(';
-
-	for (size_t i = 0; i < argCount; i++) {
-		Type* type = argTypeArray[i];
-		*string += type->getSignature();
-		*string += ',';
-		signatureFlags &= type->getFlags() & TypeFlag_SignatureFinal;
-	}
-
-	if (typeFlags & FunctionTypeFlag_VarArg)
-		*string += '.';
-
-	*string += ')';
-	return signatureFlags;
-}
-
-uint_t
-FunctionType::appendArgSignature(
-	sl::String* string,
-	FunctionArg* const* argArray,
-	size_t argCount,
-	uint_t typeFlags
-) {
-	uint_t signatureFlags = TypeFlag_SignatureFinal;
-	*string += '(';
-
-	for (size_t i = 0; i < argCount; i++) {
-		Type* type = argArray[i]->getType();
-		*string += type->getSignature();
-		*string += ',';
-		signatureFlags &= type->getFlags() & TypeFlag_SignatureFinal;
-	}
-
-	if (typeFlags & FunctionTypeFlag_VarArg)
-		*string += '.';
-
-	*string += ')';
-	return signatureFlags;
-}
-
-uint_t
-FunctionType::createSignature(
-	sl::String* string,
-	sl::StringRef* argSignature,
-	CallConv* callConv,
-	Type* returnType,
-	Type* const* argTypeArray,
-	size_t argCount,
-	uint_t flags
-) {
-	*string = 'F';
-	appendFlagSignature(string, flags);
-	*string += getCallConvSignature(callConv->getCallConvKind());
-	*string += returnType->getSignature();
-
-	size_t length = string->getLength();
-	uint_t signatureFlags = appendArgSignature(string, argTypeArray, argCount, flags);
-	*argSignature = string->getSubString(length);
-	return signatureFlags;
-}
-
-uint_t
-FunctionType::createSignature(
-	sl::String* string,
-	sl::StringRef* argSignature,
-	CallConv* callConv,
-	Type* returnType,
-	FunctionArg* const* argArray,
-	size_t argCount,
-	uint_t flags
-) {
-	*string = 'F';
-	appendFlagSignature(string, flags);
-	*string += getCallConvSignature(callConv->getCallConvKind());
-	*string += returnType->getSignature();
-
-	size_t length = string->getLength();
-	uint_t signatureFlags = appendArgSignature(string, argArray, argCount, flags);
-	*argSignature = string->getSubString(length);
-	return signatureFlags;
-}
-
 sl::StringRef
-FunctionType::getTypeModifierString() {
+FunctionType::getTypeModifierString() const {
 	sl::String string;
 
 	if (m_flags & (FunctionTypeFlag_ErrorCode | FunctionTypeFlag_AsyncErrorCode))
@@ -260,101 +170,80 @@ FunctionType::calcLayout() {
 			return false;
 	}
 
-	return true;
+	return m_shortType == this || m_shortType->ensureLayout();
 }
 
 void
 FunctionType::prepareSignature() {
 	sl::String signature;
-	uint_t signatureFlags = createSignature(
+	uint_t flags = createSignature(
 		&signature,
 		&m_argSignature,
 		m_callConv,
 		m_returnType,
 		m_argArray,
-		m_argArray.getCount(),
 		m_flags
 	);
 
 	m_signature = signature;
-	m_flags |= signatureFlags;
+	m_flags |= flags;
 }
 
-void
-FunctionType::prepareTypeString() {
-	TypeStringTuple* tuple = getTypeStringTuple();
-	Type* returnType = (m_flags & FunctionTypeFlag_Async) ? m_asyncReturnType : m_returnType;
+sl::StringRef
+FunctionType::createItemString(size_t index) {
+	switch (index) {
+	case TypeStringKind_Prefix:
+	case TypeStringKind_DoxyLinkedTextPrefix: {
+		Type* returnType = (m_flags & FunctionTypeFlag_Async) ? m_asyncReturnType : m_returnType;
+		sl::StringRef modifierString = getTypeModifierString();
+		return modifierString.isEmpty() ?
+			returnType->getItemString(index) :
+			returnType->getItemString(index) + ' ' + modifierString;
+		}
 
-	sl::StringRef modifierString = getTypeModifierString();
-	tuple->m_typeStringPrefix = modifierString.isEmpty() ?
-		returnType->getTypeStringPrefix() :
-		returnType->getTypeStringPrefix() + ' ' + modifierString;
+	case TypeStringKind_Suffix:
+		return createArgString<false>();
 
-	tuple->m_typeStringSuffix = "(";
+	case TypeStringKind_DoxyLinkedTextSuffix:
+		return createArgString<true>();
 
-	if (!m_argArray.isEmpty()) {
-		tuple->m_typeStringSuffix += m_argArray[0]->getArgString();
+	case TypeStringKind_DoxyTypeString: {
+		sl::String string = Type::createItemString(index);
+		appendDoxyArgString(&string);
+		return string;
+		}
+
+	default:
+		return Type::createItemString(index);
+	}
+}
+
+template <bool IsDoxyLinkedText>
+sl::String
+FunctionType::createArgString() {
+	sl::String string;
+
+	if (m_argArray.isEmpty())
+		string = (m_flags & FunctionTypeFlag_VarArg) ? "(...)" : "()";
+	else {
+		string = '(';
+		m_argArray[0]->appendArgString<IsDoxyLinkedText>(&string);
 
 		size_t count = m_argArray.getCount();
 		for (size_t i = 1; i < count; i++) {
-			tuple->m_typeStringSuffix += ", ";
-			tuple->m_typeStringSuffix += m_argArray[i]->getArgString();
+			string += ", ";
+			m_argArray[i]->appendArgString<IsDoxyLinkedText>(&string);
 		}
 
 		if (m_flags & FunctionTypeFlag_VarArg)
-			tuple->m_typeStringSuffix += ", ";
+			string += ", ...)";
+		else
+			string += ')';
 	}
 
-	if (!(m_flags & FunctionTypeFlag_VarArg))
-		tuple->m_typeStringSuffix += ")";
-	else
-		tuple->m_typeStringSuffix += "...)";
-
-	tuple->m_typeStringSuffix += returnType->getTypeStringSuffix();
-}
-
-void
-FunctionType::prepareDoxyLinkedText() {
-	TypeStringTuple* tuple = getTypeStringTuple();
 	Type* returnType = (m_flags & FunctionTypeFlag_Async) ? m_asyncReturnType : m_returnType;
-
-	tuple->m_doxyLinkedTextPrefix = returnType->getDoxyLinkedTextPrefix();
-
-	sl::String modifierString = getTypeModifierString();
-	if (!modifierString.isEmpty()) {
-		tuple->m_doxyLinkedTextPrefix += ' ';
-		tuple->m_doxyLinkedTextPrefix += getTypeModifierString();
-	}
-
-	bool isUserType = (m_flags & ModuleItemFlag_User) != 0;
-
-	tuple->m_doxyLinkedTextSuffix = "(";
-
-	if (!m_argArray.isEmpty()) {
-		tuple->m_doxyLinkedTextSuffix += m_argArray[0]->getArgDoxyLinkedText();
-
-		size_t count = m_argArray.getCount();
-		for (size_t i = 1; i < count; i++) {
-			tuple->m_doxyLinkedTextSuffix += ", ";
-			tuple->m_doxyLinkedTextSuffix += m_argArray[i]->getArgDoxyLinkedText();
-		}
-
-		if (m_flags & FunctionTypeFlag_VarArg)
-			tuple->m_doxyLinkedTextSuffix += ", ";
-	}
-
-	if (!(m_flags & FunctionTypeFlag_VarArg))
-		tuple->m_doxyLinkedTextSuffix += ")";
-	else
-		tuple->m_doxyLinkedTextSuffix += "...)";
-
-	tuple->m_doxyLinkedTextSuffix += returnType->getDoxyLinkedTextSuffix();
-}
-
-void
-FunctionType::prepareDoxyTypeString() {
-	Type::prepareDoxyTypeString();
-	appendDoxyArgString(&getTypeStringTuple()->m_doxyTypeString);
+	string += returnType->getTypeStringSuffix();
+	return string;
 }
 
 void
@@ -369,7 +258,7 @@ FunctionType::prepareLlvmDiType() {
 }
 
 void
-FunctionType::appendDoxyArgString(sl::String* string) {
+FunctionType::appendDoxyArgString(sl::String* string) const {
 	size_t count = m_argArray.getCount();
 	for (size_t i = 0; i < count; i++) {
 		FunctionArg* arg = m_argArray[i];

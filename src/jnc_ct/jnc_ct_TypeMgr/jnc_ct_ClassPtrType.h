@@ -112,12 +112,8 @@ protected:
 	}
 
 	virtual
-	void
-	prepareTypeString();
-
-	virtual
-	void
-	prepareDoxyLinkedText();
+	sl::StringRef
+	createItemString(size_t index);
 
 	virtual
 	void
@@ -139,9 +135,6 @@ protected:
 		bool isAlien,
 		bool isContainerConst
 	);
-
-	void
-	appendPointerStringSuffix(sl::String* string);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

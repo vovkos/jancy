@@ -21,11 +21,50 @@ namespace ct {
 
 //..............................................................................
 
+sl::StringRef
+Function::createLinkId() {
+	if (!m_name.isEmpty())
+		return createLinkIdImpl(m_module);
+
+	sl::StringRef name = getFunctionKindString(m_functionKind);
+	sl::StringRef parentLinkId;
+	if (m_parentNamespace)
+		parentLinkId = m_parentNamespace->getDeclItem()->getLinkId();
+
+	if (parentLinkId.isEmpty())
+		return name;
+
+	sl::String linkId = parentLinkId;
+	linkId += '.';
+	linkId += name;
+	return linkId;
+}
+
+sl::StringRef
+Function::createItemString(size_t index) {
+	if (index != ModuleItemStringKind_Synopsis || !isMember())
+		return createItemStringImpl(index, this, m_type, 0);
+
+	m_type->ensureNoImports();
+
+	sl::String synopsis = m_type->getReturnType()->getTypeStringPrefix();
+	synopsis += ' ';
+	synopsis += getItemName();
+	synopsis += m_type->getShortType()->getTypeStringSuffix();
+	m_type->getReturnType()->getTypeStringSuffix();
+
+	uint_t ptrFlags = m_type->getThisArgType()->getFlags();
+	if (ptrFlags & PtrTypeFlag_Const)
+		synopsis += " const";
+
+	return synopsis;
+}
+
 void
 Function::prepareLlvmFunction() {
 	ASSERT(!m_llvmFunction);
 
-	sl::String llvmName = '?' + getQualifiedName(); // as to avoid linking conflicts
+	sl::String llvmName = '?' + getLinkId(); // as to avoid linking conflicts
 	m_llvmFunction = m_type->getCallConv()->createLlvmFunction(m_type, llvmName);
 
 	if (canCompile())
@@ -92,7 +131,8 @@ Function::compile() {
 		SymbolKind symbolKind = SymbolKind_compound_stmt;
 
 		if (m_functionKind == FunctionKind_Constructor ||
-			m_functionKind == FunctionKind_StaticConstructor) {
+			m_functionKind == FunctionKind_StaticConstructor
+		) {
 			NamespaceKind namespaceKind = m_parentNamespace->getNamespaceKind();
 			switch (namespaceKind) {
 			case NamespaceKind_Type:
@@ -135,7 +175,7 @@ Function::compile() {
 	if (!result)
 		return false;
 
-	FindModuleItemResult findResult = m_parentNamespace->findItemTraverse(parser.getLastQualifiedName());
+	FindModuleItemResult findResult = m_parentNamespace->findItemTraverse(*this, parser.getLastQualifiedName());
 	if (!findResult.m_result)
 		return false;
 

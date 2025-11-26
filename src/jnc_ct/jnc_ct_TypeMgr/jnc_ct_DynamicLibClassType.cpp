@@ -41,7 +41,7 @@ DynamicLibClassType::ensureFunctionTable() {
 
 	size_t functionCount = m_libNamespace->getFunctionCount();
 	if (!functionCount) {
-		err::setFormatStringError("dynamiclib '%s' has no functions", getQualifiedName().sz());
+		err::setFormatStringError("dynamiclib '%s' has no functions", getItemName().sz());
 		return false;
 	}
 

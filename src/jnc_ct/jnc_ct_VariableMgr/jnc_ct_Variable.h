@@ -36,8 +36,7 @@ enum StdVariable {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class Variable:
-	public ModuleItem,
-	public ModuleItemDecl,
+	public ModuleItemWithDecl<>,
 	public ModuleItemInitializer {
 	friend class VariableMgr;
 	friend class FunctionMgr;
@@ -133,6 +132,12 @@ public:
 	}
 
 	virtual
+	Type*
+	getItemType() {
+		return m_type;
+	}
+
+	virtual
 	bool
 	generateDocumentation(
 		const sl::StringRef& outputDir,
@@ -141,6 +146,12 @@ public:
 	);
 
 protected:
+	virtual
+	sl::StringRef
+	createItemString(size_t index) {
+		return createItemStringImpl(index, this, m_type, m_ptrTypeFlags);
+	}
+
 	void
 	prepareLlvmValue();
 

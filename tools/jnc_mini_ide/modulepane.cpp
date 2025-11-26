@@ -362,7 +362,7 @@ void ModulePane::addTemplate(QTreeWidgetItem* parent, jnc::Template* templ) {
 		}
 	}
 
-	name += templ->getSynopsis_v();
+	name += templ->getDecl()->getName();
 	QTreeWidgetItem *item = insertItem(name, parent);
 	item->setData(0, Qt::UserRole, qVariantFromValue((void*)templ->getDecl()));
 }

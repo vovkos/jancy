@@ -19,8 +19,7 @@ namespace ct {
 //..............................................................................
 
 class Field:
-	public ModuleItem,
-	public ModuleItemDecl,
+	public ModuleItemWithDecl<>,
 	public ModuleItemInitializer {
 	friend class Parser;
 	friend class TypeMgr;
@@ -88,12 +87,25 @@ public:
 	);
 
 	virtual
+	Type*
+	getItemType() {
+		return m_type;
+	}
+
+	virtual
 	bool
 	generateDocumentation(
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
 	);
+
+protected:
+	virtual
+	sl::StringRef
+	createItemString(size_t index) {
+		return createItemStringImpl(index, this, m_type, m_ptrTypeFlags);
+	}
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

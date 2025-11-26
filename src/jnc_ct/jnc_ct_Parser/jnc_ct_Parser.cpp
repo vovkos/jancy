@@ -349,8 +349,7 @@ Parser::getQualifiedTypeName(
 ) {
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	if (name->isSimple()) {
-		// safe to pass NULL as Unit* because name is simple (no templates)
-		FindModuleItemResult findResult = nspace->findDirectChildItem(NULL, name->getFirstAtom());
+		FindModuleItemResult findResult = nspace->findDirectChildItem(name->getFirstAtom());
 		if (!findResult.m_result)
 			return NULL;
 
@@ -358,10 +357,11 @@ Parser::getQualifiedTypeName(
 			return getQualifiedTypeName(findResult.m_item);
 	}
 
-	NamedImportType* type = m_module->m_typeMgr.getNamedImportType(name, nspace);
-	if (!type->m_parentUnit) {
-		type->m_parentUnit = m_module->m_unitMgr.getCurrentUnit();
-		type->m_pos = pos;
+	Type* type = m_module->m_typeMgr.getNamedImportType(nspace, name);
+	if (type->getTypeKind() == TypeKind_NamedImport) {
+		NamedImportType* importType = (NamedImportType*)type;
+		if (!importType->m_parentUnit)
+			setItemPos(importType, pos);
 	}
 
 	return type;
@@ -377,9 +377,31 @@ Parser::getQualifiedTypeName(ModuleItem* item) {
 	case ModuleItemKind_Typedef:
 		return ((Typedef*)item)->getType();
 
+	case ModuleItemKind_Template:
+		if (Type* type = m_module->m_namespaceMgr.getCurrentNamespace()->findTemplateInstanceType((Template*)item))
+			return type;
+
+		// else fall though
+
 	default:
 		err::setFormatStringError("'%s' is not a type", item->getItemName().sz());
 		return NULL;
+	}
+}
+
+bool
+Parser::isQualifiedTypeName(ModuleItem* item) {
+	ModuleItemKind itemKind = item->getItemKind();
+	switch (itemKind) {
+	case ModuleItemKind_Type:
+	case ModuleItemKind_Typedef:
+		return true;
+
+	case ModuleItemKind_Template:
+		return m_module->m_namespaceMgr.getCurrentNamespace()->findTemplateInstanceType((Template*)item);
+
+	default:
+		return false;
 	}
 }
 
@@ -455,7 +477,7 @@ Parser::reuseAttributes(const QualifiedName& name) {
 	ASSERT(m_attributeBlock);
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	FindModuleItemResult findResult = nspace->findItemTraverse(name);
+	FindModuleItemResult findResult = nspace->findItemTraverse(*m_attributeBlock, name);
 	if (!findResult.m_result)
 		return false;
 
@@ -518,7 +540,7 @@ Parser::bodylessDeclaration() {
 	case ModuleItemKind_Orphan:
 		err::setFormatStringError(
 			"orphan '%s' without a body",
-			m_lastDeclaredItem->getDecl()->getQualifiedName().sz()
+			m_lastDeclaredItem->getItemName().sz()
 		);
 		return false;
 	}
@@ -634,16 +656,15 @@ Parser::postDeclaratorName(Declarator* declarator) {
 	QualifiedName name;
 	name.copy(((NamedImportType*)declarator->m_baseType)->m_name);
 
-	NamedImportType* importType = m_module->m_typeMgr.getNamedImportType(
-		&name,
-		m_module->m_namespaceMgr.getCurrentNamespace(),
-		&anchorName
-	);
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
+	Type* type = m_module->m_typeMgr.getNamedImportType(nspace, &name, &anchorName);
+	if (type->getTypeKind() == TypeKind_NamedImport) {
+		NamedImportType* importType = (NamedImportType*)type;
+		if (!importType->m_parentUnit)
+			setItemPos(importType, declarator->getPos());
+	}
 
-	importType->m_parentUnit = m_module->m_unitMgr.getCurrentUnit();
-	importType->m_pos = declarator->getPos();
-
-	declarator->m_baseType = importType;
+	declarator->m_baseType = type;
 }
 
 void
@@ -676,7 +697,7 @@ Parser::getGlobalNamespace(
 		parentNamespace->addItem(nspace);
 	} else {
 		if (findResult.m_item->getItemKind() != ModuleItemKind_Namespace) {
-			err::setFormatStringError("'%s' exists and is not a namespace", parentNamespace->createQualifiedName(name.m_name).sz());
+			err::setFormatStringError("'%s' exists and is not a namespace", findResult.m_item->getItemName().sz());
 			return NULL;
 		}
 
@@ -762,22 +783,23 @@ Parser::declareExtensionNamespace(
 
 bool
 Parser::useNamespace(
-	sl::BoxList<QualifiedName>* nameList,
+	const lex::LineCol& pos,
 	NamespaceKind namespaceKind,
-	const lex::LineCol& pos
+	sl::BoxList<QualifiedName>* nameList
 ) {
-	bool result;
+	ModuleItemContext context(m_module);
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 
+	bool finalResult = true;
 	while (!nameList->isEmpty()) {
 		sl::BoxListEntry<QualifiedName>* entry = nameList->removeHeadEntry();
-		result = nspace->m_usingSet.addNamespace(nspace, namespaceKind, &entry->m_value);
+		bool result = nspace->m_usingSet.addNamespace(context, namespaceKind, &entry->m_value);
 		delete entry;
 		if (!result)
-			return false;
+			finalResult = false;
 	}
 
-	return true;
+	return finalResult;
 }
 
 bool
@@ -827,7 +849,6 @@ Parser::declareNamedAttributeBlock(Declarator* declarator) {
 	attributeBlock->m_parentNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
 	attributeBlock->m_parentUnit = m_module->m_unitMgr.getCurrentUnit();
 	attributeBlock->m_name = declarator->getSimpleName();
-	attributeBlock->m_qualifiedName = nspace->createQualifiedName(attributeBlock->m_name);
 	attributeBlock->m_attributeBlock = declarator->m_attributeBlock;
 	attributeBlock->m_pos = declarator->m_pos;
 	attributeBlock->m_flags |= ModuleItemFlag_User;
@@ -932,9 +953,7 @@ Parser::assignDeclarationAttributes(
 	if (!attributeBlock)
 		attributeBlock = popAttributeBlock();
 
-	decl->m_pos = pos;
-	decl->m_parentUnit = m_module->m_unitMgr.getCurrentUnit();
-	decl->m_parentNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
+	setItemPos(decl, pos);
 	decl->m_pragmaConfig = getPragmaConfigSnapshot();
 	decl->m_attributeBlock = attributeBlock;
 
@@ -955,7 +974,7 @@ Parser::addTemplateArg(const sl::StringRef& name) {
 	ASSERT(nspace->getNamespaceKind() == NamespaceKind_Template);
 
 	size_t index = m_templateArgArray.getCount();
-	TemplateArgType* type = m_module->m_typeMgr.getTemplateArgType(name, index);
+	TemplateArgType* type = m_module->m_typeMgr.createTemplateArgType(name, index);
 	bool result = nspace->addItem(name, type);
 	if (!result)
 		return false;
@@ -980,12 +999,7 @@ Parser::prepareTemplateDeclarator(Declarator* declarator) {
 	if (baseType->getTypeKind() == TypeKind_NamedImport &&
 		baseType->getName().isSimple()
 	) {
-		const QualifiedName& baseTypeName = baseType->getName();
-		FindModuleItemResult findResult = nspace->findDirectChildItem(
-			baseTypeName.getUnit(),
-			baseTypeName.getFirstAtom()
-		);
-
+		FindModuleItemResult findResult = nspace->findDirectChildItem(baseType->getName().getFirstAtom());
 		if (findResult.m_item) {
 			ASSERT(findResult.m_item->getItemKind() == ModuleItemKind_Type);
 			declarator->m_baseType = (Type*)findResult.m_item;
@@ -1012,7 +1026,7 @@ Parser::declareTemplate(Declarator* declarator) {
 		return NULL;
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	Template* templ = m_module->m_templateMgr.createTemplate(name, nspace->createQualifiedName(name), type);
+	Template* templ = m_module->m_templateMgr.createTemplate(name, type);
 	bool result = nspace->addItem(name, templ);
 	if (!result)
 		return NULL;
@@ -1039,7 +1053,6 @@ Parser::declareTemplate(
 	Template* templ = m_module->m_templateMgr.createTemplate(
 		typeKind,
 		name,
-		nspace->createQualifiedName(name),
 		m_templateArgArray,
 		baseTypeArray
 	);
@@ -1088,7 +1101,7 @@ Parser::declareTypedef(
 		return true;
 	}
 
-	Typedef* tdef = m_module->m_typeMgr.createTypedef(name, nspace->createQualifiedName(name), type);
+	Typedef* tdef = m_module->m_typeMgr.createTypedef(name, type);
 	assignDeclarationAttributes(tdef, tdef, declarator);
 	return nspace->addItem(name, tdef);
 }
@@ -1123,9 +1136,7 @@ Parser::declareAlias(
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	const sl::StringRef& name = declarator->getSimpleName();
-	sl::List<Token>* initializer = &declarator->m_initializer;
-
-	Alias* alias = m_module->m_namespaceMgr.createAlias(name, nspace->createQualifiedName(name), initializer);
+	Alias* alias = m_module->m_namespaceMgr.createAlias(name, &declarator->m_initializer);
 	assignDeclarationAttributes(alias, alias, declarator);
 
 	if (nspace->getNamespaceKind() == NamespaceKind_Property) {
@@ -1200,102 +1211,53 @@ Parser::declareFunction(
 		return true;
 	}
 
-	ModuleItem* functionItem;
-	ModuleItemDecl* functionItemDecl;
-	FunctionName* functionName;
-
 	if (declarator->isQualified()) {
-		Orphan* orphan = m_module->m_namespaceMgr.createOrphan(
-			OrphanKind_Function,
-			declarator->getName(),
-			functionKind,
-			type
-		);
-
-		functionItem = orphan;
-		functionItemDecl = orphan;
-		functionName = orphan;
-		nspace->addOrphan(orphan);
-	} else {
-		Function* function;
-
-		if (type->getFlags() & FunctionTypeFlag_Async) {
-			function = m_module->m_functionMgr.createFunction<AsyncLauncherFunction>(
-				sl::StringRef(),
-				sl::StringRef(),
-				type
-			);
-		} else {
-			function = m_module->m_functionMgr.createFunction(type);
-			function->m_functionKind = functionKind;
-		}
-
-		functionItem = function;
-		functionItemDecl = function;
-		functionName = function;
-
-		if (!declarator->m_initializer.isEmpty())
-			sl::takeOver(&function->m_initializer, &declarator->m_initializer);
-	}
-
-	if (postModifiers & PostDeclaratorModifier_Const)
-		functionName->m_thisArgTypeFlags = PtrTypeFlag_Const;
-
-	switch (functionKind) {
-	case FunctionKind_Normal: {
-		functionItemDecl->m_name = declarator->getShortName();
-		functionItemDecl->m_qualifiedName = nspace->createQualifiedName(functionItemDecl->m_name);
-		break;
-		}
-
-	case FunctionKind_UnaryOperator:
-		functionName->m_unOpKind = declarator->getUnOpKind();
-		functionItemDecl->m_qualifiedName = sl::formatString(
-			"%s.unary operator %s",
-			nspace->getQualifiedName().sz(),
-			getUnOpKindString(functionName->m_unOpKind)
-		);
-		break;
-
-	case FunctionKind_BinaryOperator:
-		functionName->m_binOpKind = declarator->getBinOpKind();
-		functionItemDecl->m_qualifiedName = sl::formatString(
-			"%s.binary operator %s",
-			nspace->getQualifiedName().sz(),
-			getBinOpKindString(functionName->m_binOpKind)
-		);
-		break;
-
-	case FunctionKind_CastOperator:
-		functionName->m_castOpType = declarator->getCastOpType();
-		functionItemDecl->m_qualifiedName = sl::formatString(
-			"%s.cast operator %s",
-			nspace->getQualifiedName().sz(),
-			functionName->m_castOpType->getTypeString().sz()
-		);
-		break;
-
-	default:
-		functionItemDecl->m_qualifiedName = sl::formatString(
-			"%s.%s",
-			nspace->getQualifiedName().sz(),
-			getFunctionKindString(functionKind)
-		);
-	}
-
-	assignDeclarationAttributes(functionItem, functionItemDecl, declarator);
-
-	if (functionItem->getItemKind() == ModuleItemKind_Orphan) {
 		if (namespaceKind == NamespaceKind_DynamicLib) {
-			err::setFormatStringError("illegal orphan in dynamiclib '%s'", nspace->getQualifiedName().sz());
+			err::setFormatStringError("illegal orphan in dynamiclib '%s'", nspace->getDeclItem()->getItemName().sz());
 			return false;
 		}
 
+		Orphan* orphan = m_module->m_namespaceMgr.createOrphan(OrphanKind_Function, declarator, functionKind, type);
+		assignDeclarationAttributes(orphan, orphan, declarator);
+		nspace->addOrphan(orphan);
 		return true;
 	}
 
-	ASSERT(functionItem->getItemKind() == ModuleItemKind_Function);
-	Function* function = (Function*)functionItem;
+	Function* function;
+
+	if (type->getFlags() & FunctionTypeFlag_Async)
+		function = m_module->m_functionMgr.createFunction<AsyncLauncherFunction>(sl::StringRef(), type);
+	else {
+		function = m_module->m_functionMgr.createFunction(type);
+		function->m_functionKind = functionKind;
+	}
+
+	if (!declarator->m_initializer.isEmpty())
+		sl::takeOver(&function->m_initializer, &declarator->m_initializer);
+
+	if (postModifiers & PostDeclaratorModifier_Const)
+		function->m_thisArgTypeFlags = PtrTypeFlag_Const;
+
+	switch (functionKind) {
+	case FunctionKind_Normal:
+		function->m_name = declarator->getShortName();
+		break;
+
+	case FunctionKind_UnaryOperator:
+		function->m_unOpKind = declarator->getUnOpKind();
+		break;
+
+	case FunctionKind_BinaryOperator:
+		function->m_binOpKind = declarator->getBinOpKind();
+		break;
+
+	case FunctionKind_CastOperator:
+		function->m_castOpType = declarator->getCastOpType();
+		break;
+	}
+
+	assignDeclarationAttributes(function, function, declarator);
+
 	TypeKind typeKind;
 
 	switch (namespaceKind) {
@@ -1448,9 +1410,7 @@ Parser::createProperty(Declarator* declarator) {
 		return NULL;
 	}
 
-	const sl::StringRef& name = declarator->getSimpleName();
-	Property* prop = m_module->m_functionMgr.createProperty(name, nspace->createQualifiedName(name));
-
+	Property* prop = m_module->m_functionMgr.createProperty(declarator->getSimpleName());
 	assignDeclarationAttributes(prop, prop, declarator);
 
 	TypeKind typeKind;
@@ -1503,7 +1463,7 @@ Parser::createProperty(Declarator* declarator) {
 			err::setFormatStringError(
 				"invalid storage specifier '%s' for property '%s'",
 				getStorageKindString(m_storageKind),
-				prop->getQualifiedName().sz()
+				prop->getItemName().sz()
 			);
 			return NULL;
 		}
@@ -1531,7 +1491,7 @@ Parser::parseLastPropertyBody(const Token& bodyToken) {
 					finalizeLastProperty(true) &&
 					setBody(prop->m_getter, bodyToken);
 
-		err::setFormatStringError("simple read-write property '%s' can't have a body", prop->getQualifiedName().sz());
+		err::setFormatStringError("simple read-write property '%s' can't have a body", prop->getItemName().sz());
 		return false;
 	}
 
@@ -1673,7 +1633,6 @@ Parser::declareReactor(
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	NamespaceKind namespaceKind = nspace->getNamespaceKind();
-
 	NamedType* parentType = NULL;
 
 	switch (namespaceKind) {
@@ -1692,30 +1651,15 @@ Parser::declareReactor(
 	}
 
 	if (declarator->isQualified()) {
-		Orphan* orphan = m_module->m_namespaceMgr.createOrphan(
-			OrphanKind_Reactor,
-			declarator->getName(),
-			FunctionKind_Normal,
-			NULL
-		);
-
+		Orphan* orphan = m_module->m_namespaceMgr.createOrphan(OrphanKind_Reactor, declarator, FunctionKind_Normal, NULL);
 		assignDeclarationAttributes(orphan, orphan, declarator);
 		nspace->addOrphan(orphan);
-	} else {
-		const sl::StringRef& name = declarator->getSimpleName();
-		ReactorClassType* type = m_module->m_typeMgr.createReactorType(
-			name,
-			nspace->createQualifiedName(name),
-			(ClassType*)parentType
-		);
-
-		assignDeclarationAttributes(type, type, declarator);
-		result = declareData(declarator, type, ptrTypeFlags);
-		if (!result)
-			return false;
+		return true;
 	}
 
-	return true;
+	ReactorClassType* type = m_module->m_typeMgr.createReactorType(declarator->getSimpleName(), (ClassType*)parentType);
+	assignDeclarationAttributes(type, type, declarator);
+	return declareData(declarator, type, ptrTypeFlags);
 }
 
 bool
@@ -1880,12 +1824,13 @@ Parser::declareData(
 		bool isAsync = m_module->m_functionMgr.getCurrentFunction()->getFunctionKind() == FunctionKind_AsyncSequencer;
 
 		if (type->getTypeKind() == TypeKind_Array) {
+			ASSERT(type->getFlags() & ModuleItemFlag_User);
 			Parser parser(m_module, NULL, Parser::Mode_Compile);
-			ArrayType* arrayType = (ArrayType*)type;
+			UserArrayType* arrayType = (UserArrayType*)type;
 			Value countValue;
 
 			result =
-				parser.parseTokenList(SymbolKind_expression_save, arrayType->getElementCountInitializer()) &&
+				parser.parseTokenList(SymbolKind_expression_save, &arrayType->m_initializer) &&
 				m_module->m_operatorMgr.castOperator(parser.m_lastExpressionValue, TypeKind_SizeT, &countValue);
 
 			if (!result)
@@ -2051,7 +1996,8 @@ Parser::declareData(
 		}
 
 		if (!stmt->m_structType) {
-			StructType* structType = m_module->m_typeMgr.createUnnamedInternalStructType("section", 1);
+			sl::String tag = sl::formatString("section-%d", m_module->createUnnamedLinkId());
+			StructType* structType = m_module->m_typeMgr.createInternalStructType(tag, 1);
 
 			Value funcValue;
 			Value typeValue(&structType, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
@@ -2118,7 +2064,6 @@ Parser::declareData(
 			Variable* variable = m_module->m_variableMgr.createVariable(
 				storageKind,
 				name,
-				nspace->createQualifiedName(name),
 				type,
 				ptrTypeFlags,
 				constructor,
@@ -2154,7 +2099,6 @@ Parser::declareData(
 		Variable* variable = m_module->m_variableMgr.createVariable(
 			storageKind,
 			name,
-			nspace->createQualifiedName(name),
 			type,
 			ptrTypeFlags,
 			constructor,
@@ -2251,6 +2195,7 @@ Parser::declareData(
 			return false;
 
 		assignDeclarationAttributes(field, field, declarator);
+		sl::StringRef s = field->getLinkId();
 	}
 
 	return true;
@@ -2340,13 +2285,7 @@ Parser::createEnumType(
 		flags |= EnumTypeFlag_Exposed;
 		enumType = m_module->m_typeMgr.createUnnamedEnumType(baseType, flags);
 	} else {
-		enumType = m_module->m_typeMgr.createEnumType(
-			name,
-			nspace->createQualifiedName(name),
-			baseType,
-			flags
-		);
-
+		enumType = m_module->m_typeMgr.createEnumType(name, baseType, flags);
 		if (!enumType)
 			return NULL;
 
@@ -2387,17 +2326,9 @@ Parser::createStructType(
 	bool result;
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	StructType* structType = NULL;
+	StructType* structType = m_module->m_typeMgr.createStructType(name, m_pragmaConfig.m_fieldAlignment);
 
-	if (name.isEmpty())
-		structType = m_module->m_typeMgr.createUnnamedStructType(m_pragmaConfig.m_fieldAlignment);
-	else {
-		structType = m_module->m_typeMgr.createStructType(
-			name,
-			nspace->createQualifiedName(name),
-			m_pragmaConfig.m_fieldAlignment
-		);
-
+	if (!name.isEmpty()) {
 		result = nspace->addItem(structType);
 		if (!result)
 			return NULL;
@@ -2420,17 +2351,9 @@ Parser::createUnionType(
 	const sl::StringRef& name
 ) {
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	UnionType* unionType = NULL;
+	UnionType* unionType = m_module->m_typeMgr.createUnionType(name, m_pragmaConfig.m_fieldAlignment);
 
-	if (name.isEmpty())
-		unionType = m_module->m_typeMgr.createUnnamedUnionType(m_pragmaConfig.m_fieldAlignment);
-	else {
-		unionType = m_module->m_typeMgr.createUnionType(
-			name,
-			nspace->createQualifiedName(name),
-			m_pragmaConfig.m_fieldAlignment
-		);
-
+	if (!name.isEmpty()) {
 		bool result = nspace->addItem(unionType);
 		if (!result)
 			return NULL;
@@ -2450,12 +2373,7 @@ Parser::createClassType(
 	bool result;
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	ClassType* classType = m_module->m_typeMgr.createClassType(
-		name,
-		nspace->createQualifiedName(name),
-		m_pragmaConfig.m_fieldAlignment,
-		flags
-	);
+	ClassType* classType = m_module->m_typeMgr.createClassType(name, m_pragmaConfig.m_fieldAlignment, flags);
 
 	size_t count = baseTypeArray.getCount();
 	for (size_t i = 0; i < count; i++) {
@@ -2480,7 +2398,7 @@ Parser::createDynamicLibType(
 	bool result;
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	DynamicLibClassType* classType = m_module->m_typeMgr.createClassType<DynamicLibClassType>(name, nspace->createQualifiedName(name));
+	DynamicLibClassType* classType = m_module->m_typeMgr.createClassType<DynamicLibClassType>(name);
 	Type* baseType = m_module->m_typeMgr.getStdType(StdType_DynamicLib);
 
 	result =
@@ -2541,8 +2459,8 @@ Parser::callBaseTypeMemberConstructor(
 ) {
 	ASSERT(m_constructorType || m_constructorProperty);
 
-	Namespace* nspace = m_module->m_functionMgr.getCurrentFunction()->getParentNamespace();
-	FindModuleItemResult findResult = nspace->findItemTraverse(name);
+	Function* function = m_module->m_functionMgr.getCurrentFunction();
+	FindModuleItemResult findResult = function->getParentNamespace()->findItemTraverse(*function, name);
 	if (!findResult.m_result)
 		return false;
 
@@ -2627,7 +2545,7 @@ Parser::callBaseTypeConstructor(
 	ASSERT(m_constructorType || m_constructorProperty);
 
 	if (m_constructorProperty) {
-		err::setFormatStringError("'%s.construct' cannot have base-type constructor calls", m_constructorProperty->getQualifiedName().sz());
+		err::setFormatStringError("'%s.construct' cannot have base-type constructor calls", m_constructorProperty->getItemName().sz());
 		return false;
 	}
 
@@ -2646,7 +2564,7 @@ Parser::callBaseTypeConstructor(
 	ASSERT(m_constructorType || m_constructorProperty);
 
 	if (m_constructorProperty) {
-		err::setFormatStringError("'%s.construct' cannot have base-type constructor calls", m_constructorProperty->getQualifiedName().sz());
+		err::setFormatStringError("'%s.construct' cannot have base-type constructor calls", m_constructorProperty->getItemName().sz());
 		return false;
 	}
 

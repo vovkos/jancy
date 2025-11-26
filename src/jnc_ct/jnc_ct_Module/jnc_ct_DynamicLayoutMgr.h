@@ -19,9 +19,7 @@ namespace ct {
 
 //..............................................................................
 
-class DynamicSection:
-	public ModuleItem,
-	public ModuleItemDecl {
+class DynamicSection: public ModuleItemWithDecl<> {
 	friend class DynamicLayoutMgr;
 
 protected:
@@ -37,6 +35,15 @@ public:
 	getSectionKind() const {
 		return m_sectionKind;
 	}
+
+	virtual
+	Type*
+	getItemType();
+
+protected:
+	virtual
+	sl::StringRef
+	createItemString(size_t index);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

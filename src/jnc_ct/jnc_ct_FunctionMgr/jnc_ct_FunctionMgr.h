@@ -130,17 +130,15 @@ public:
 	T*
 	createFunction(
 		const sl::StringRef& name,
-		const sl::StringRef& qualifiedName,
 		FunctionType* type
 	);
 
 	Function*
 	createFunction(
 		const sl::StringRef& name,
-		const sl::StringRef& qualifiedName,
 		FunctionType* type
 	) {
-		return createFunction<Function>(name, qualifiedName, type);
+		return createFunction<Function>(name, type);
 	}
 
 	template <typename T>
@@ -161,7 +159,7 @@ public:
 	template <typename T>
 	T*
 	createFunction(FunctionType* type) {
-		return createFunction<T>(sl::String(), sl::String(), type);
+		return createFunction<T>(sl::String(), type);
 	}
 
 	Function*
@@ -189,17 +187,11 @@ public:
 
 	template <typename T>
 	T*
-	createProperty(
-		const sl::StringRef& name,
-		const sl::StringRef& qualifiedName
-	);
+	createProperty(const sl::StringRef& name);
 
 	Property*
-	createProperty(
-		const sl::StringRef& name,
-		const sl::StringRef& qualifiedName
-	) {
-		return createProperty<Property>(name, qualifiedName);
+	createProperty(const sl::StringRef& name) {
+		return createProperty<Property>(name);
 	}
 
 	template <typename T>
@@ -319,15 +311,13 @@ protected:
 	addFunction(
 		Function* function,
 		const sl::StringRef& name,
-		const sl::StringRef& qualifiedName,
 		FunctionType* type
 	);
 
 	void
 	addProperty(
 		Property* prop,
-		const sl::StringRef& name,
-		const sl::StringRef& qualifiedName
+		const sl::StringRef& name
 	);
 };
 
@@ -337,11 +327,10 @@ template <typename T>
 T*
 FunctionMgr::createFunction(
 	const sl::StringRef& name,
-	const sl::StringRef& qualifiedName,
 	FunctionType* type
 ) {
 	T* function = new T;
-	addFunction(function, name, qualifiedName, type);
+	addFunction(function, name, type);
 	return function;
 }
 
@@ -351,7 +340,7 @@ FunctionMgr::createFunction(
 	FunctionKind functionKind,
 	FunctionType* type
 ) {
-	T* function = createFunction<T>(sl::String(), sl::String(), type);
+	T* function = createFunction<T>(sl::String(), type);
 	function->m_functionKind = functionKind;
 	return function;
 }
@@ -362,26 +351,23 @@ FunctionMgr::createInternalFunction(
 	const sl::StringRef& tag,
 	FunctionType* type
 ) {
-	T* function = createFunction<T>(sl::StringRef(), tag, type);
+	T* function = createFunction<T>(tag, type);
 	function->m_functionKind = FunctionKind_Internal;
 	return function;
 }
 
 template <typename T>
 T*
-FunctionMgr::createProperty(
-	const sl::StringRef& name,
-	const sl::StringRef& qualifiedName
-) {
+FunctionMgr::createProperty(const sl::StringRef& name) {
 	T* prop = new T;
-	addProperty(prop, name, qualifiedName);
+	addProperty(prop, name);
 	return prop;
 }
 
 template <typename T>
 T*
 FunctionMgr::createInternalProperty(const sl::StringRef& tag) {
-	T* prop = createProperty<T>(sl::StringRef(), tag);
+	T* prop = createProperty<T>(tag);
 	prop->m_propertyKind = PropertyKind_Internal;
 	return prop;
 }

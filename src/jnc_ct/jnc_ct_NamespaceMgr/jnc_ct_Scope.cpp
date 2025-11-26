@@ -36,6 +36,20 @@ Scope::findGcShadowStackFrameMap() {
 	return m_gcShadowStackFrameMap;
 }
 
+sl::StringRef
+Scope::createItemString(size_t index) {
+	switch (index) {
+	case ModuleItemStringKind_QualifiedName:
+		return sl::StringRef(); // don't use (unnamed)
+
+	case ModuleItemStringKind_Synopsis:
+		return "scope";
+
+	default:
+		return sl::StringRef();
+	}
+}
+
 //..............................................................................
 
 } // namespace ct

@@ -89,23 +89,24 @@ jnc_getModuleItemKindString(jnc_ModuleItemKind itemKind);
 //..............................................................................
 
 enum jnc_ModuleItemFlag {
-	jnc_ModuleItemFlag_User        = 0x01, // all user-declared items
-	jnc_ModuleItemFlag_Constructed = 0x02, // base type slots, fields, variables, properties
+	jnc_ModuleItemFlag_User        = 0x01,  // all user-declared items
+	jnc_ModuleItemFlag_Constructed = 0x02,  // base type slots, fields, variables, properties
+	jnc_ModuleItemFlag_LinkIdReady = 0x04,
 };
 
 typedef enum jnc_ModuleItemFlag jnc_ModuleItemFlag;
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+//..............................................................................
 
-enum jnc_ModuleItemSynopsisFlag {
-	jnc_ModuleItemSynopsisFlag_QualifiedName = 0x01,
-	jnc_ModuleItemSynopsisFlag_Declaration   = 0x02,
-	jnc_ModuleItemSynopsisFlag_Default =
-		jnc_ModuleItemSynopsisFlag_QualifiedName |
-		jnc_ModuleItemSynopsisFlag_Declaration
+enum jnc_ModuleItemStringKind {
+	jnc_ModuleItemStringKind_QualifiedName = 0,
+	jnc_ModuleItemStringKind_Synopsis,
+	jnc_ModuleItemStringKind__Count,
 };
 
-typedef enum jnc_ModuleItemSynopsisFlag jnc_ModuleItemSynopsisFlag;
+typedef enum jnc_ModuleItemStringKind jnc_ModuleItemStringKind;
+
+//..............................................................................
 
 /// @}
 /// \addtogroup module-item-decl
@@ -165,10 +166,6 @@ const char*
 jnc_ModuleItemDecl_getName(jnc_ModuleItemDecl* decl);
 
 JNC_EXTERN_C
-const char*
-jnc_ModuleItemDecl_getQualifiedName(jnc_ModuleItemDecl* decl);
-
-JNC_EXTERN_C
 jnc_StorageKind
 jnc_ModuleItemDecl_getStorageKind(jnc_ModuleItemDecl* decl);
 
@@ -188,12 +185,16 @@ jnc_ModuleItemDecl_findAttribute(
 );
 
 JNC_EXTERN_C
+jnc_Unit*
+jnc_ModuleItemDecl_getParentUnit(jnc_ModuleItemDecl* decl);
+
+JNC_EXTERN_C
 jnc_Namespace*
 jnc_ModuleItemDecl_getParentNamespace(jnc_ModuleItemDecl* decl);
 
 JNC_EXTERN_C
-jnc_Unit*
-jnc_ModuleItemDecl_getParentUnit(jnc_ModuleItemDecl* decl);
+jnc_ModuleItem*
+jnc_ModuleItemDecl_getDeclItem(jnc_ModuleItemDecl* decl);
 
 JNC_EXTERN_C
 int
@@ -217,11 +218,6 @@ struct jnc_ModuleItemDecl {
 		return jnc_ModuleItemDecl_getName(this);
 	}
 
-	const char*
-	getQualifiedName() {
-		return jnc_ModuleItemDecl_getQualifiedName(this);
-	}
-
 	jnc_StorageKind
 	getStorageKind() {
 		return jnc_ModuleItemDecl_getStorageKind(this);
@@ -242,14 +238,19 @@ struct jnc_ModuleItemDecl {
 		return jnc_ModuleItemDecl_findAttribute(this, name);
 	}
 
+	jnc_Unit*
+	getParentUnit() {
+		return jnc_ModuleItemDecl_getParentUnit(this);
+	}
+
 	jnc_Namespace*
 	getParentNamespace() {
 		return jnc_ModuleItemDecl_getParentNamespace(this);
 	}
 
-	jnc_Unit*
-	getParentUnit() {
-		return jnc_ModuleItemDecl_getParentUnit(this);
+	jnc_ModuleItem*
+	getDeclItem() {
+		return jnc_ModuleItemDecl_getDeclItem(this);
 	}
 
 	int
@@ -297,9 +298,9 @@ jnc_ModuleItem_getType(jnc_ModuleItem* item);
 
 JNC_EXTERN_C
 const char*
-jnc_ModuleItem_getSynopsis_v(
+jnc_ModuleItem_getItemString(
 	jnc_ModuleItem* item,
-	uint_t flags
+	size_t index
 );
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -338,8 +339,8 @@ struct jnc_ModuleItem {
 	}
 
 	const char*
-	getSynopsis_v(uint_t flags = jnc_ModuleItemSynopsisFlag_Default) {
-		return jnc_ModuleItem_getSynopsis_v(this, flags);
+	getItemString(size_t index = jnc_ModuleItemStringKind_Synopsis) {
+		return jnc_ModuleItem_getItemString(this, index);
 	}
 };
 
@@ -411,16 +412,17 @@ typedef jnc_ModuleItemFlag ModuleItemFlag;
 
 const ModuleItemFlag
 	ModuleItemFlag_User        = jnc_ModuleItemFlag_User,
-	ModuleItemFlag_Constructed = jnc_ModuleItemFlag_Constructed;
+	ModuleItemFlag_Constructed = jnc_ModuleItemFlag_Constructed,
+	ModuleItemFlag_LinkIdReady = jnc_ModuleItemFlag_LinkIdReady;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-typedef jnc_ModuleItemSynopsisFlag ModuleItemSynopsisFlag;
+typedef jnc_ModuleItemStringKind ModuleItemStringKind;
 
-const ModuleItemSynopsisFlag
-	ModuleItemSynopsisFlag_QualifiedName = jnc_ModuleItemSynopsisFlag_QualifiedName,
-	ModuleItemSynopsisFlag_Declaration   = jnc_ModuleItemSynopsisFlag_Declaration,
-	ModuleItemSynopsisFlag_Default       = jnc_ModuleItemSynopsisFlag_Default;
+const ModuleItemStringKind
+	ModuleItemStringKind_QualifiedName = jnc_ModuleItemStringKind_QualifiedName,
+	ModuleItemStringKind_Synopsis      = jnc_ModuleItemStringKind_Synopsis,
+	ModuleItemStringKind__Count        = jnc_ModuleItemStringKind__Count;
 
 //..............................................................................
 

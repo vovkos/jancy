@@ -80,15 +80,15 @@ getLlvmTypeString(llvm::Type* llvmType) {
 const char*
 getPtrTypeFlagString(PtrTypeFlag flag) {
 	static const char* stringTable[] = {
-		"safe",       // PtrTypeFlag_Safe      = 0x0010000
-		"const",      // PtrTypeFlag_Const     = 0x0020000
-		"readonly",   // PtrTypeFlag_ReadOnly  = 0x0040000
-		"cmut",       // PtrTypeFlag_CMut      = 0x0080000
-		"volatile",   // PtrTypeFlag_Volatile  = 0x0100000
-		"event",      // PtrTypeFlag_Event     = 0x0200000
-		"dualevent",  // PtrTypeFlag_DualEvent = 0x0400000
-		"bindable",   // PtrTypeFlag_Bindable  = 0x0800000
-		"autoget",    // PtrTypeFlag_AutoGet   = 0x1000000
+		"safe",       // PtrTypeFlag_Safe       = 0x0010000
+		"const",      // PtrTypeFlag_Const      = 0x0020000
+		"readonly",   // PtrTypeFlag_ReadOnly   = 0x0040000
+		"cmut",       // PtrTypeFlag_CMut       = 0x0080000
+		"volatile",   // PtrTypeFlag_Volatile   = 0x0100000
+		"event",      // PtrTypeFlag_Event      = 0x0200000
+		"dualevent",  // PtrTypeFlag_DualEvent  = 0x0400000
+		"bindable",   // PtrTypeFlag_Bindable   = 0x0800000
+		"autoget",    // PtrTypeFlag_AutoGet    = 0x1000000
 		"dualtarget", // PtrTypeFlag_DualTarget = 0x2000000, // data ptr only
 		"bigendian",  // PtrTypeFlag_BigEndian  = 0x4000000, // data ptr only
 		"bitfield",   // PtrTypeFlag_BitField   = 0x8000000, // data ptr only
@@ -198,79 +198,6 @@ getPtrTypeFlagsFromModifiers(uint_t modifiers) {
 
 //..............................................................................
 
-const sl::StringRef&
-Type::getTypeString() {
-	TypeStringTuple* tuple = getTypeStringTuple();
-	if (!tuple->m_typeString.isEmpty())
-		return tuple->m_typeString;
-
-	prepareTypeString();
-	if (tuple->m_typeStringPrefix.isEmpty())
-		prepareTypeString();
-	ASSERT(!tuple->m_typeStringPrefix.isEmpty());
-
-	tuple->m_typeString = tuple->m_typeStringSuffix.isEmpty() ?
-		tuple->m_typeStringPrefix :
-		tuple->m_typeStringPrefix + ' ' + tuple->m_typeStringSuffix;
-
-	return tuple->m_typeString;
-}
-
-const sl::StringRef&
-Type::getTypeStringPrefix() {
-	TypeStringTuple* tuple = getTypeStringTuple();
-	if (tuple->m_typeStringPrefix.isEmpty()) {
-		prepareTypeString();
-		ASSERT(!tuple->m_typeStringPrefix.isEmpty());
-	}
-
-	return tuple->m_typeStringPrefix;
-}
-
-const sl::String&
-Type::getTypeStringSuffix() {
-	TypeStringTuple* tuple = getTypeStringTuple();
-	if (tuple->m_typeStringPrefix.isEmpty()) { // this is not a typo, we still need to check prefix string!
-		prepareTypeString();
-		ASSERT(!tuple->m_typeStringPrefix.isEmpty());
-	}
-
-	return tuple->m_typeStringSuffix;
-}
-
-const sl::String&
-Type::getDoxyTypeString() {
-	TypeStringTuple* tuple = getTypeStringTuple();
-	if (tuple->m_doxyTypeString.isEmpty()) {
-		prepareDoxyTypeString();
-		ASSERT(!tuple->m_doxyTypeString.isEmpty());
-	}
-
-	return tuple->m_doxyTypeString;
-}
-
-const sl::String&
-Type::getDoxyLinkedTextPrefix() {
-	TypeStringTuple* tuple = getTypeStringTuple();
-	if (tuple->m_doxyLinkedTextPrefix.isEmpty()) {
-		prepareDoxyLinkedText();
-		ASSERT(!tuple->m_doxyLinkedTextPrefix.isEmpty());
-	}
-
-	return tuple->m_doxyLinkedTextPrefix;
-}
-
-const sl::String&
-Type::getDoxyLinkedTextSuffix() {
-	TypeStringTuple* tuple = getTypeStringTuple();
-	if (tuple->m_doxyLinkedTextPrefix.isEmpty()) { // this is not a typo, we still need to check prefix string!
-		prepareDoxyLinkedText();
-		ASSERT(!tuple->m_doxyLinkedTextPrefix.isEmpty());
-	}
-
-	return tuple->m_doxyLinkedTextSuffix;
-}
-
 Value
 Type::getUndefValue() {
 	llvm::Value* llvmValue = llvm::UndefValue::get(getLlvmType());
@@ -352,10 +279,7 @@ Type::prepareLayout() {
 	ASSERT(!(m_flags & TypeFlag_LayoutReady));
 
 	if (m_flags & TypeFlag_InCalcLayout) {
-		ModuleItemDecl* decl = getDecl();
-		ASSERT(decl); // recursion is only possible with named types
-
-		err::setFormatStringError("can't calculate layout of '%s' due to recursion", decl->getQualifiedName().sz());
+		err::setFormatStringError("can't calculate layout of '%s' due to recursion", getItemName().sz());
 		return false;
 	}
 
@@ -366,13 +290,53 @@ Type::prepareLayout() {
 		return false;
 	}
 
-	m_flags |= TypeFlag_LayoutReady; // no need to clear ModuleItemFlag_InCalcLayout
+	m_flags |= TypeFlag_LayoutReady; // no need to clear TypeFlag_InCalcLayout
 	return true;
 }
 
-void
-Type::prepareTypeString() {
-	static const char* stringTable[TypeKind__PrimitiveTypeCount] = {
+sl::StringRef
+Type::createItemString(size_t index) {
+	switch (index) {
+	case TypeStringKind_Prefix:
+		break;
+
+	case TypeStringKind_TypeName: {
+		sl::StringRef prefix = getTypeStringPrefix();
+		sl::StringRef suffix = getTypeStringSuffix();
+		return suffix.isEmpty() ? prefix : prefix + ' ' + suffix;
+		}
+
+	case ModuleItemStringKind_Synopsis:
+		return getTypeString();
+
+	case TypeStringKind_DoxyLinkedTextPrefix:
+		return getTypeStringPrefix();
+
+	case TypeStringKind_DoxyLinkedTextSuffix:
+		return getTypeStringSuffix();
+
+	case TypeStringKind_DoxyTypeString: {
+		sl::String  string = "<type>";
+		string += getDoxyLinkedTextPrefix();
+		string += "</type>\n";
+
+		AXL_TODO("add compile-option for whether to use doxy-linked-text instead of plain-text")
+
+		sl::String suffix = getDoxyLinkedTextSuffix();
+		if (!suffix.isEmpty()) { // suffix should be ready by now
+			string += "<argsstring>";
+			string += suffix;
+			string += "</argsstring>\n";
+		}
+
+		return string;
+		}
+
+	default:
+		return sl::StringRef();
+	}
+
+	static sl::StringRef stringTable[TypeKind__PrimitiveTypeCount] = {
 		"void",
 		"variant_t",
 		"string_t",
@@ -390,32 +354,7 @@ Type::prepareTypeString() {
 	};
 
 	ASSERT(m_typeKind < TypeKind__PrimitiveTypeCount);
-	TypeStringTuple* tuple = getTypeStringTuple();
-	tuple->m_typeStringPrefix = stringTable[m_typeKind];
-}
-
-void
-Type::prepareDoxyLinkedText() {
-	TypeStringTuple* tuple = getTypeStringTuple();
-	tuple->m_doxyLinkedTextPrefix = getTypeStringPrefix();
-	tuple->m_doxyLinkedTextSuffix = getTypeStringSuffix();
-}
-
-void
-Type::prepareDoxyTypeString() {
-	TypeStringTuple* tuple = getTypeStringTuple();
-	tuple->m_doxyTypeString = "<type>";
-	tuple->m_doxyTypeString += getDoxyLinkedTextPrefix();
-	tuple->m_doxyTypeString += "</type>\n";
-
-	AXL_TODO("add compile-option for whether to use doxy-linked-text instead of plain-text")
-
-	sl::String suffix = getTypeStringSuffix();
-	if (!suffix.isEmpty()) { // suffix should be ready by now
-		tuple->m_doxyTypeString += "<argsstring>";
-		tuple->m_doxyTypeString += suffix;
-		tuple->m_doxyTypeString += "</argsstring>\n";
-	}
+	return stringTable[m_typeKind];
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -791,20 +730,123 @@ Type::markGcRoots(
 
 //..............................................................................
 
-void
-NamedType::prepareDoxyLinkedText() {
-	if (!m_parentUnit || m_parentUnit->getLib()) { // don't reference imported libraries
-		Type::prepareDoxyLinkedText();
-		return;
+bool
+NamedType::deduceTemplateArgs(
+	sl::Array<Type*>* templateArgTypeArray,
+	Type* referenceType
+) {
+	if (!m_templateInstance)
+		return true; // can't deduce from a non-templated class
+
+	if (referenceType->getTypeKind() != m_typeKind) {
+		setTemplateArgDeductionError(referenceType);
+		return false;
 	}
 
-	dox::Block* doxyBlock = m_module->m_doxyHost.getItemBlock(this);
-	sl::String refId = doxyBlock->getRefId();
-	getTypeStringTuple()->m_doxyLinkedTextPrefix.format(
-		"<ref refid=\"%s\">%s</ref>",
-		refId.sz(),
-		getQualifiedName().sz()
-	);
+	TemplateInstance* referenceInstance = ((DerivableType*)referenceType)->getTemplateInstance();
+	if (!referenceInstance ||
+		referenceInstance->m_template != m_templateInstance->m_template
+	) {
+		setTemplateArgDeductionError(referenceType);
+		return false;
+	}
+
+	bool result = true;
+	size_t argCount = m_templateInstance->m_argArray.getCount();
+	for (size_t i = 0; i < argCount; i++)
+		result = m_templateInstance->m_argArray[i]->deduceTemplateArgs(
+			templateArgTypeArray,
+			referenceInstance->m_argArray[i]
+		) && result;
+
+	return true;
+}
+
+sl::StringRef
+NamedType::createLinkId() {
+	if (!m_templateInstance)
+		return createLinkIdImpl(m_module);
+
+	sl::String linkId = createLinkIdImpl(m_module);
+	m_templateInstance->appendArgLinkId(&linkId);
+	return linkId;
+}
+
+sl::StringRef
+NamedType::createItemString(size_t index) {
+	switch (index) {
+	case TypeStringKind_Prefix: {
+		if (!m_templateInstance)
+			return createQualifiedNameImpl(m_module);
+
+		sl::String string = createQualifiedNameImpl(m_module);
+		m_templateInstance->appendArgString(&string);
+		return string;
+		}
+
+	case ModuleItemStringKind_Synopsis:
+		break;
+
+	case TypeStringKind_DoxyLinkedTextPrefix:
+		if (m_parentUnit && !m_parentUnit->getLib()) // don't reference imported libraries
+			return sl::formatString(
+				"<ref refid=\"%s\">%s</ref>",
+				m_module->m_doxyHost.getItemBlock(this)->getRefId().sz(),
+				getItemName().sz()
+			);
+
+		// else fall through
+
+	default:
+		return Type::createItemString(index);
+	}
+
+	static const sl::StringRef typeKindStringTable[] = {
+		"enum",            // TypeKind_Enum,
+		"struct",          // TypeKind_Struct,
+		"union",           // TypeKind_Union,
+		"class",           // TypeKind_Class,
+	};
+
+	sl::String synopsis;
+
+	switch (m_typeKind) {
+	case TypeKind_Enum:
+		synopsis = getEnumTypeFlagString(m_flags);
+		if (!synopsis.isEmpty())
+			synopsis += ' ';
+		break;
+
+	case TypeKind_Class:
+		if (m_flags & ClassTypeFlag_Opaque)
+			synopsis = "opaque ";
+		break;
+	}
+
+	size_t i = m_typeKind - TypeKind_Enum;
+	ASSERT(i < countof(typeKindStringTable));
+
+	synopsis += typeKindStringTable[i];
+	synopsis += ' ';
+	synopsis += getItemName();
+	return synopsis;
+}
+
+
+void
+NamedType::prepareSignature() {
+	static const char prefixTable[] = {
+		'E', // TypeKind_Enum
+		'S', // TypeKind_Struct
+		'U', // TypeKind_Union
+		'C', // TypeKind_Class
+	};
+
+	size_t i = m_typeKind - TypeKind_Enum;
+	ASSERT(i < countof(prefixTable));
+
+	m_signature = prefixTable[i] + getLinkId() + '$';
+	m_flags |= TypeFlag_SignatureFinal;
 }
 
 //..............................................................................

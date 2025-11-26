@@ -19,24 +19,26 @@ namespace ct {
 
 //..............................................................................
 
-void
-McSnapshotClassType::prepareTypeString() {
-	TypeStringTuple* tuple = getTypeStringTuple();
-	tuple->m_typeStringPrefix = m_targetType->getTypeModifierString() + " mcsnapshot";
-	tuple->m_typeStringSuffix = m_targetType->getTargetType()->getTypeStringSuffix();
-}
+sl::StringRef
+McSnapshotClassType::createItemString(size_t index) {
+	switch (index) {
+	case TypeStringKind_Prefix:
+	case TypeStringKind_DoxyLinkedTextPrefix:
+		return m_targetType->getTypeModifierString() + " mcsnapshot";
 
-void
-McSnapshotClassType::prepareDoxyLinkedText() {
-	TypeStringTuple* tuple = getTypeStringTuple();
-	tuple->m_doxyLinkedTextPrefix = m_targetType->getTypeModifierString() + " mcsnapshot";
-	tuple->m_doxyLinkedTextSuffix = m_targetType->getTargetType()->getDoxyLinkedTextSuffix();
-}
+	case TypeStringKind_Suffix:
+	case TypeStringKind_DoxyLinkedTextSuffix:
+		return m_targetType->getTargetType()->getItemString(index);
 
-void
-McSnapshotClassType::prepareDoxyTypeString() {
-	Type::prepareDoxyTypeString();
-	m_targetType->getTargetType()->appendDoxyArgString(&getTypeStringTuple()->m_doxyTypeString);
+	case TypeStringKind_DoxyTypeString: {
+		sl::String string = Type::createItemString(index);
+		m_targetType->getTargetType()->appendDoxyArgString(&string);
+		return string;
+		}
+
+	default:
+		return ClassType::createItemString(index);
+	}
 }
 
 bool

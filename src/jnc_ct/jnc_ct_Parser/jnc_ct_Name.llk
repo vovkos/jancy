@@ -75,7 +75,7 @@ qualified_name_pass1_atom<QualifiedName* $name>
 		(
 			template_instantiate_operator_pass1<(*$name).getTemplateTokenList()>
 				{
-					$name->finalizeTemplateTokenList(m_module->m_unitMgr.getCurrentUnit());
+					$name->finalizeTemplateTokenList();
 				}
 		)?
 	;
@@ -125,8 +125,7 @@ qualified_type_name_rslv
 		)?
 	|	qualified_name
 			{
-				ModuleItemKind itemKind = $1.m_item->getItemKind();
-				return itemKind == ModuleItemKind_Type || itemKind == ModuleItemKind_Typedef;
+				return isQualifiedTypeName($1.m_item);
 			}
 	;
 

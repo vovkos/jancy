@@ -130,24 +130,11 @@ public:
 	createVariable(
 		StorageKind storageKind,
 		const sl::StringRef& name,
-		const sl::StringRef& qualifiedName,
 		Type* type,
 		uint_t ptrTypeFlags = 0,
 		sl::List<Token>* constructor = NULL,
 		sl::List<Token>* initializer = NULL
 	);
-
-	Variable*
-	createVariable(
-		StorageKind storageKind,
-		const sl::StringRef& name,
-		Type* type,
-		uint_t ptrTypeFlags = 0,
-		sl::List<Token>* constructor = NULL,
-		sl::List<Token>* initializer = NULL
-	) {
-		return createVariable(storageKind, name, name, type, ptrTypeFlags, constructor, initializer);
-	}
 
 	Variable*
 	createSimpleStackVariable(

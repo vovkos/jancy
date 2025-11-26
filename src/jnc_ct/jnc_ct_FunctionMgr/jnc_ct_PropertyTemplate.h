@@ -19,11 +19,9 @@ namespace ct {
 //..............................................................................
 
 // we need to keep namespaces for property templates cause other module items
-// could potentially have pointers to them via m_pParentNamespace
+// could potentially have pointers to them via m_parentNamespace
 
-class PropertyTemplate:
-	public ModuleItem,
-	public Namespace {
+class PropertyTemplate: public ModuleItemWithNamespace<> {
 	friend class FunctionMgr;
 	friend class Parser;
 
@@ -54,6 +52,12 @@ public:
 
 	PropertyType*
 	calcType();
+
+	virtual
+	Type*
+	getItemType() {
+		return calcType();
+	}
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

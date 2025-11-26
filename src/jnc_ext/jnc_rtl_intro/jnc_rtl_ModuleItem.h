@@ -65,7 +65,6 @@ class ModuleItemDecl: public IfaceHdr {
 protected:
 	struct Cache {
 		String m_name;
-		String m_qualifiedName;
 		AttributeBlock* m_attributeBlock;
 		Namespace* m_parentNamespace;
 		Unit* m_parentUnit;
@@ -97,11 +96,6 @@ public:
 	String
 	JNC_CDECL
 	getName(ModuleItemDecl* self);
-
-	static
-	String
-	JNC_CDECL
-	getQualifiedName(ModuleItemDecl* self);
 
 	StorageKind
 	JNC_CDECL
@@ -205,7 +199,7 @@ public:
 	Type*
 	JNC_CDECL
 	getType() {
-		return rtl::getType(m_item->getType());
+		return rtl::getType(m_item->getItemType());
 	}
 };
 

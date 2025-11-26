@@ -23,8 +23,7 @@ namespace ct {
 //..............................................................................
 
 class Property:
-	public ModuleItem,
-	public Namespace,
+	public ModuleItemWithNamespace<>,
 	public MemberBlock {
 	friend class TypeMgr;
 	friend class MemberBlock;
@@ -226,6 +225,12 @@ public:
 	createType();
 
 	virtual
+	Type*
+	getItemType() {
+		return m_type;
+	}
+
+	virtual
 	bool
 	addMethod(Function* function);
 
@@ -258,6 +263,10 @@ public:
 	);
 
 protected:
+	virtual
+	sl::StringRef
+	createItemString(size_t index);
+
 	StorageKind
 	getAccessorStorageKind() {
 		return

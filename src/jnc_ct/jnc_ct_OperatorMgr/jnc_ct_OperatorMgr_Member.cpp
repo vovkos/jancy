@@ -172,7 +172,7 @@ OperatorMgr::getThisValue(Value* value) {
 	if (!thisValue) {
 		err::setFormatStringError(
 			"function '%s' has no 'this' pointer",
-			m_module->m_functionMgr.getCurrentFunction ()->getQualifiedName().sz()
+			m_module->m_functionMgr.getCurrentFunction()->getItemName().sz()
 		);
 
 		return false;
@@ -207,7 +207,7 @@ OperatorMgr::getThisValueType(Value* value) {
 	if (!function->isMember()) {
 		err::setFormatStringError(
 			"function '%s' has no 'this' pointer",
-			m_module->m_functionMgr.getCurrentFunction()->getQualifiedName().sz()
+			m_module->m_functionMgr.getCurrentFunction()->getItemName().sz()
 		);
 
 		return false;
@@ -258,7 +258,7 @@ OperatorMgr::getNamespaceMember(
 		return false;
 
 	if (!findResult.m_item) {
-		err::setFormatStringError("'%s' is not a member of '%s'", name.sz(), nspace->getQualifiedName().sz());
+		err::setFormatStringError("'%s' is not a member of '%s'", name.sz(), nspace->getDeclItem()->getItemName().sz());
 		return false;
 	}
 
@@ -307,7 +307,7 @@ OperatorMgr::getNamespaceMember(
 		function = (Function*)item;
 		if (function->isVirtual()) {
 			if (function->getStorageKind() == StorageKind_Abstract) {
-				err::setFormatStringError("'%s' is abstract", function->getQualifiedName().sz());
+				err::setFormatStringError("'%s' is abstract", function->getItemName().sz());
 				return false;
 			}
 
@@ -377,7 +377,11 @@ OperatorMgr::getNamespaceMember(
 
 	case ModuleItemKind_Field:
 		if (nspace->getNamespaceKind() != NamespaceKind_Type) {
-			err::setFormatStringError("'%s.%s' cannot be used as expression", nspace->getQualifiedName().sz(), name.sz());
+			err::setFormatStringError(
+				"'%s.%s' cannot be used as expression",
+				nspace->getDeclItem()->getItemName().sz(),
+				name.sz()
+			);
 			return false;
 		}
 
@@ -390,7 +394,11 @@ OperatorMgr::getNamespaceMember(
 		break;
 
 	default:
-		err::setFormatStringError("'%s.%s' cannot be used as expression", nspace->getQualifiedName().sz(), name.sz());
+		err::setFormatStringError(
+			"'%s.%s' cannot be used as expression",
+			nspace->getDeclItem()->getItemName().sz(),
+			name.sz()
+		);
 		return false;
 	};
 

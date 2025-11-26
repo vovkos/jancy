@@ -71,7 +71,7 @@ DerivableType::getIndexerProperty(Type* argType) {
 	if (it->m_value)
 		return it->m_value;
 
-	Property* prop = m_module->m_functionMgr.createInternalProperty(createQualifiedName("m_indexer"));
+	Property* prop = m_module->m_functionMgr.createInternalProperty(getSignature() + ".m_indexer");
 	prop->m_storageKind = StorageKind_Member;
 	it->m_value = prop;
 	return prop;
@@ -262,7 +262,6 @@ DerivableType::addMethod(Function* function) {
 		return false;
 	}
 
-	function->m_qualifiedName = createQualifiedName(getFunctionKindString(functionKind));
 	return addUnnamedMethod(function, targetFunction, targetOverloadableFunction);
 }
 
@@ -296,52 +295,6 @@ DerivableType::addProperty(Property* prop) {
 
 	m_propertyArray.append(prop);
 	return true;
-}
-
-void
-DerivableType::prepareSignature() {
-	char prefixTable[] = {
-		'S', // TypeKind_Struct
-		'U', // TypeKind_Union
-		'C', // TypeKind_Class
-	};
-
-	size_t i = m_typeKind - TypeKind_Struct;
-	ASSERT(i < countof(prefixTable));
-
-	sl::String signature;
-	signature.reserve(1 + m_qualifiedName.getLength());
-	signature = prefixTable[i];
-	signature += m_qualifiedName;
-
-	if (m_templateInstance)
-		signature.appendFormat(".%d", m_module->m_typeMgr.createUnnamedTypeId());
-
-	m_signature = std::move(signature);
-	m_flags |= TypeFlag_SignatureFinal;
-}
-
-void
-DerivableType::prepareTypeString() {
-	if (!m_templateInstance) {
-		NamedType::prepareSignature();
-		return;
-	}
-
-	sl::String typeString = getQualifiedName();
-	typeString += '<';
-
-	size_t argCount = m_templateInstance->m_argArray.getCount();
-	if (argCount) {
-		typeString += m_templateInstance->m_argArray[0]->getTypeString();
-		for (size_t i = 1; i < argCount; i++) {
-			typeString += ", ";
-			typeString += m_templateInstance->m_argArray[i]->getTypeString();
-		}
-	}
-
-	typeString += '>';
-	getTypeStringTuple()->m_typeStringPrefix = typeString;
 }
 
 bool
@@ -625,7 +578,7 @@ DerivableType::generateDocumentation(
 		"<compound kind='%s' refid='%s'><name>%s</name></compound>\n",
 		kind,
 		doxyBlock->getRefId().sz(),
-		getQualifiedName().sz()
+		getItemName().sz()
 	);
 
 	sl::String constructorXml;
@@ -667,7 +620,7 @@ DerivableType::generateDocumentation(
 		else
 			itemXml->appendFormat("<basecompoundref refid='%s'>", refId.sz());
 
-		itemXml->appendFormat("%s</basecompoundref>\n", baseType->getQualifiedName().sz());
+		itemXml->appendFormat("%s</basecompoundref>\n", baseType->getItemName().sz());
 	}
 
 	if (!constructorXml.isEmpty() || !destructorXml.isEmpty()) {
@@ -754,38 +707,6 @@ DerivableType::compileDefaultDestructor() {
 		return false;
 
 	m_module->m_functionMgr.internalEpilogue();
-	return true;
-}
-
-bool
-DerivableType::deduceTemplateArgs(
-	sl::Array<Type*>* templateArgTypeArray,
-	Type* referenceType
-) {
-	if (!m_templateInstance)
-		return true; // can't deduce from a non-templated class
-
-	if (referenceType->getTypeKind() != m_typeKind) {
-		setTemplateArgDeductionError(referenceType);
-		return false;
-	}
-
-	TemplateInstance* referenceInstance = ((DerivableType*)referenceType)->getTemplateInstance();
-	if (!referenceInstance ||
-		!referenceInstance->m_template->isEqual(m_templateInstance->m_template)
-	) {
-		setTemplateArgDeductionError(referenceType);
-		return false;
-	}
-
-	bool result = true;
-	size_t argCount = m_templateInstance->m_argArray.getCount();
-	for (size_t i = 0; i < argCount; i++)
-		result = m_templateInstance->m_argArray[i]->deduceTemplateArgs(
-			templateArgTypeArray,
-			referenceInstance->m_argArray[i]
-		) && result;
-
 	return true;
 }
 

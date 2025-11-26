@@ -37,6 +37,7 @@ class Value;
 struct DataPtrTypeTuple;
 struct SimplePropertyTypeTuple;
 struct FunctionArgTuple;
+struct TemplateInstance;
 
 //..............................................................................
 
@@ -117,17 +118,6 @@ getLlvmTypeString(llvm::Type* llvmType);
 
 //..............................................................................
 
-struct TypeStringTuple {
-	sl::StringRef m_typeString;
-	sl::StringRef m_typeStringPrefix;
-	sl::String m_typeStringSuffix;
-	sl::String m_doxyTypeString;
-	sl::String m_doxyLinkedTextPrefix;
-	sl::String m_doxyLinkedTextSuffix;
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 struct DualTypeTuple: sl::ListLink {
 	Type* m_typeArray[2][2]; // alien-friend x container-const-non-const
 };
@@ -143,10 +133,9 @@ protected:
 	StdType m_stdType;
 	size_t m_size;
 	size_t m_alignment;
-	sl::StringRef m_signature;
+	sl::StringRef m_signature; // not part of StringCache for performance
 
 	Variable* m_typeVariable;
-	TypeStringTuple* m_typeStringTuple;
 	SimplePropertyTypeTuple* m_simplePropertyTypeTuple;
 	FunctionArgTuple* m_functionArgTuple;
 	DataPtrTypeTuple* m_dataPtrTypeTuple;
@@ -160,8 +149,10 @@ protected:
 public:
 	Type();
 
-	~Type() {
-		delete m_typeStringTuple;
+	virtual
+	Type*
+	getItemType() {
+		return this;
 	}
 
 	TypeKind
@@ -192,25 +183,37 @@ public:
 	}
 
 	const sl::StringRef&
-	getSignature();
+	getSignature() const;
 
 	const sl::StringRef&
-	getTypeString();
+	getTypeString() {
+		return getItemString(TypeStringKind_TypeName);
+	}
 
 	const sl::StringRef&
-	getTypeStringPrefix();
+	getTypeStringPrefix() {
+		return getItemString(TypeStringKind_Prefix);
+	}
 
-	const sl::String&
-	getTypeStringSuffix();
+	const sl::StringRef&
+	getTypeStringSuffix() {
+		return getItemString(TypeStringKind_Suffix);
+	}
 
-	const sl::String&
-	getDoxyTypeString();
+	const sl::StringRef&
+	getDoxyTypeString() {
+		return getItemString(TypeStringKind_DoxyTypeString);
+	}
 
-	const sl::String&
-	getDoxyLinkedTextPrefix();
+	const sl::StringRef&
+	getDoxyLinkedTextPrefix() {
+		return getItemString(TypeStringKind_DoxyLinkedTextPrefix);
+	}
 
-	const sl::String&
-	getDoxyLinkedTextSuffix();
+	const sl::StringRef&
+	getDoxyLinkedTextSuffix() {
+		return getItemString(TypeStringKind_DoxyLinkedTextSuffix);
+	}
 
 	sl::String
 	getLlvmTypeString() {
@@ -222,6 +225,11 @@ public:
 
 	llvm::DIType_vn
 	getLlvmDiType();
+
+	bool
+	isEqual(Type* type) const {
+		return type == this || type->getSignature() == getSignature();
+	}
 
 	bool
 	hasTypeVariable() {
@@ -239,11 +247,6 @@ public:
 
 	Value
 	getErrorCodeValue();
-
-	bool
-	isEqual(Type* type) {
-		return type == this || getSignature().isEqual(type->getSignature());
-	}
 
 	bool
 	ensureLayout() {
@@ -323,24 +326,6 @@ public:
 	}
 
 protected:
-	void
-	setTemplateArgDeductionError(Type* argValueType) {
-		err::setFormatStringError(
-			"incompatible types while deducing template argument: '%s' vs '%s'",
-			argValueType->getTypeString().sz(),
-			getTypeString().sz()
-		);
-	}
-
-	TypeStringTuple*
-	getTypeStringTuple();
-
-	bool
-	prepareImports();
-
-	bool
-	prepareLayout();
-
 	virtual
 	void
 	prepareSignature() {
@@ -348,16 +333,14 @@ protected:
 	}
 
 	virtual
-	void
-	prepareTypeString();
+	sl::StringRef
+	createItemString(size_t index);
 
-	virtual
-	void
-	prepareDoxyTypeString();
+	bool
+	prepareImports();
 
-	virtual
-	void
-	prepareDoxyLinkedText();
+	bool
+	prepareLayout();
 
 	virtual
 	void
@@ -400,6 +383,15 @@ protected:
 
 	void
 	prepareSimpleTypeVariable(StdType stdType);
+
+	void
+	setTemplateArgDeductionError(Type* argValueType) {
+		err::setFormatStringError(
+			"incompatible types while deducing template argument: '%s' vs '%s'",
+			argValueType->getTypeString().sz(),
+			getTypeString().sz()
+		);
+	}
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -413,27 +405,21 @@ Type::Type() {
 	m_alignment = 1;
 	m_llvmType = NULL;
 	m_typeVariable = NULL;
-	m_typeStringTuple = NULL;
 	m_simplePropertyTypeTuple = NULL;
 	m_functionArgTuple = NULL;
 	m_dataPtrTypeTuple = NULL;
 	m_dualTypeTuple = NULL;
 }
 
-inline
-TypeStringTuple*
-Type::getTypeStringTuple() {
-	if (!m_typeStringTuple)
-		m_typeStringTuple = new TypeStringTuple;
-
-	return m_typeStringTuple;
-}
 
 inline
 const sl::StringRef&
-Type::getSignature() {
-	if (!(m_flags & (TypeFlag_SignatureFinal | TypeFlag_SignatureReady)))
-		prepareSignature(); // could be called multiple times
+Type::getSignature() const {
+	if (m_flags & TypeFlag_SignatureFinal)
+		return m_signature;
+
+	if (!(m_flags & TypeFlag_SignatureReady) || (m_flags & TypeFlag_LayoutReady))
+		((Type*)this)->prepareSignature(); // could be called multiple times
 
 	return m_signature;
 }
@@ -467,26 +453,42 @@ Type::getTypeVariable() {
 
 //..............................................................................
 
-class NamedType:
-	public Type,
-	public Namespace {
+class NamedType: public ModuleItemWithNamespace<Type> {
 	friend class Parser;
+
+protected:
+	TemplateInstance* m_templateInstance;
 
 public:
 	NamedType() {
 		m_namespaceKind = NamespaceKind_Type;
+		m_templateInstance = NULL;
 	}
+
+	TemplateInstance*
+	getTemplateInstance() {
+		return m_templateInstance;
+	}
+
+	virtual
+	bool
+	deduceTemplateArgs(
+		sl::Array<Type*>* templateArgTypeArray,
+		Type* referenceType
+	);
 
 protected:
 	virtual
-	void
-	prepareTypeString() {
-		getTypeStringTuple()->m_typeStringPrefix = getQualifiedName();
-	}
+	sl::StringRef
+	createLinkId();
+
+	virtual
+	sl::StringRef
+	createItemString(size_t index);
 
 	virtual
 	void
-	prepareDoxyLinkedText();
+	prepareSignature();
 };
 
 //..............................................................................

@@ -83,14 +83,6 @@ jnc_NamespaceKind
 jnc_Namespace_getNamespaceKind(jnc_Namespace* nspace);
 
 JNC_EXTERN_C
-jnc_Namespace*
-jnc_Namespace_getParentNamespace(jnc_Namespace* nspace);
-
-JNC_EXTERN_C
-jnc_ModuleItem*
-jnc_Namespace_getParentItem(jnc_Namespace* nspace);
-
-JNC_EXTERN_C
 size_t
 jnc_Namespace_getItemCount(jnc_Namespace* nspace);
 
@@ -125,7 +117,7 @@ jnc_Namespace_findItemNoParse(
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
-struct jnc_Namespace {
+struct jnc_Namespace: jnc_ModuleItemDecl {
 	bool
 	isReady() {
 		return jnc_Namespace_isReady(this) != 0;
@@ -134,16 +126,6 @@ struct jnc_Namespace {
 	jnc_NamespaceKind
 	getNamespaceKind() {
 		return jnc_Namespace_getNamespaceKind(this);
-	}
-
-	jnc_Namespace*
-	getParentNamespace() {
-		return jnc_Namespace_getParentNamespace(this);
-	}
-
-	jnc_ModuleItem*
-	getParentItem() {
-		return jnc_Namespace_getParentItem(this);
 	}
 
 	size_t

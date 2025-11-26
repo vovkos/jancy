@@ -26,7 +26,8 @@ class GcShadowStackFrameMap;
 //..............................................................................
 
 struct ScopeExtension {
-	virtual ~ScopeExtension() {}
+	virtual
+	~ScopeExtension() {}
 };
 
 struct TryExpr: ScopeExtension {
@@ -69,9 +70,7 @@ enum ScopeFlag {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class Scope:
-	public ModuleItem,
-	public Namespace {
+class Scope: public ModuleItemWithNamespace<> {
 	friend class NamespaceMgr;
 	friend class ControlFlowMgr;
 	friend class FunctionMgr;
@@ -149,13 +148,17 @@ public:
 		return m_tryExpr ? m_tryExpr->m_catchBlock : m_catchBlock;
 	}
 
+protected:
 	virtual
 	sl::StringRef
-	createQualifiedName(const sl::StringRef& name) {
-		return name;
+	createLinkId() {
+		return sl::StringRef();
 	}
 
-protected:
+	virtual
+	sl::StringRef
+	createItemString(size_t index);
+
 	virtual
 	bool
 	parseBody() {

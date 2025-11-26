@@ -32,10 +32,6 @@
 #include "jnc_Variant.h"
 #include "jnc_String.h"
 
-// it's very common for classes and structs to reference themselves
-// in pointer fields, retvals, arguments etc
-// adding self to the namespace avoids creating unnecessary import types
-
 namespace jnc {
 namespace ct {
 
@@ -58,7 +54,6 @@ TypeMgr::TypeMgr() {
 	setupCallConvArray();
 
 	memset(m_stdTypeArray, 0, sizeof(m_stdTypeArray));
-	m_unnamedTypeId = 0;
 }
 
 void
@@ -81,7 +76,6 @@ TypeMgr::clear() {
 	setupAllPrimitiveTypes();
 
 	memset(m_stdTypeArray, 0, sizeof(m_stdTypeArray));
-	m_unnamedTypeId = 0;
 }
 
 void
@@ -316,39 +310,6 @@ TypeMgr::getStdType(StdType stdType) {
 }
 
 ArrayType*
-TypeMgr::createAutoSizeArrayType(Type* elementType) {
-	ArrayType* type = new ArrayType;
-	type->m_flags |= ArrayTypeFlag_AutoSize;
-	type->m_module = m_module;
-	type->m_elementType = elementType;
-	m_typeList.insertTail(type);
-
-	if (elementType->getTypeKindFlags() & TypeKindFlag_Import)
-		((ImportType*)elementType)->addFixup(&type->m_elementType);
-
-	return type;
-}
-
-ArrayType*
-TypeMgr::createArrayType(
-	Type* elementType,
-	sl::List<Token>* elementCountInitializer
-) {
-	ArrayType* type = new ArrayType;
-	type->m_module = m_module;
-	type->m_elementType = elementType;
-	sl::takeOver(&type->m_elementCountInitializer, elementCountInitializer);
-	type->m_parentUnit = m_module->m_unitMgr.getCurrentUnit();
-	type->m_parentNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
-	m_typeList.insertTail(type);
-
-	if (elementType->getTypeKindFlags() & TypeKindFlag_Import)
-		((ImportType*)elementType)->addFixup(&type->m_elementType);
-
-	return type;
-}
-
-ArrayType*
 TypeMgr::getArrayType(
 	Type* elementType,
 	size_t elementCount
@@ -358,17 +319,13 @@ TypeMgr::getArrayType(
 	if (it->m_value)
 		return (ArrayType*)it->m_value;
 
-	ArrayType* type = new ArrayType;
-	type->m_module = m_module;
-	type->m_elementType = elementType;
+	ArrayType* type = createArrayType<ArrayType>(
+		elementType,
+		elementType->getFlags() & (TypeFlag_SignatureReady | TypeFlag_SignatureFinal)
+	);
+
 	type->m_elementCount = elementCount;
 	type->m_signature = signature;
-	type->m_flags |= elementType->getFlags() & TypeFlag_SignatureFinal;
-	m_typeList.insertTail(type);
-
-	if (elementType->getTypeKindFlags() & TypeKindFlag_Import)
-		((ImportType*)elementType)->addFixup(&type->m_elementType);
-
 	it->m_value = type;
 	return type;
 }
@@ -376,13 +333,11 @@ TypeMgr::getArrayType(
 Typedef*
 TypeMgr::createTypedef(
 	const sl::StringRef& name,
-	const sl::StringRef& qualifiedName,
 	Type* type
 ) {
 	Typedef* tdef = new Typedef;
 	tdef->m_module = m_module;
 	tdef->m_name = name;
-	tdef->m_qualifiedName = qualifiedName;
 	tdef->m_type = type;
 	m_typedefList.insertTail(tdef);
 
@@ -402,7 +357,6 @@ TypeMgr::createTypedefShadowType(Typedef* tdef) {
 	type->m_storageKind = tdef->m_storageKind;
 	type->m_accessKind = tdef->m_accessKind;
 	type->m_name = tdef->m_name;
-	type->m_qualifiedName = tdef->m_qualifiedName;
 	type->m_attributeBlock = tdef->m_attributeBlock;
 	type->m_typedef = tdef;
 	m_typeList.insertTail(type);
@@ -413,7 +367,6 @@ TypeMgr::createTypedefShadowType(Typedef* tdef) {
 EnumType*
 TypeMgr::createEnumType(
 	const sl::StringRef& name,
-	const sl::StringRef& qualifiedName,
 	Type* baseType,
 	uint_t flags
 ) {
@@ -421,7 +374,6 @@ TypeMgr::createEnumType(
 
 	EnumType* type = new EnumType;
 	type->m_name = name;
-	type->m_qualifiedName = qualifiedName;
 
 	if (!baseType)
 		baseType = getPrimitiveType(TypeKind_Int);
@@ -440,20 +392,12 @@ TypeMgr::createEnumType(
 StructType*
 TypeMgr::createStructType(
 	const sl::StringRef& name,
-	const sl::StringRef& qualifiedName,
 	size_t fieldAlignment
 ) {
 	StructType* type = new StructType;
 	type->m_module = m_module;
 	type->m_name = name;
-	type->m_qualifiedName = qualifiedName;
 	type->m_fieldAlignment = fieldAlignment;
-
-#ifdef _JNC_NAMED_TYPE_ADD_SELF
-	if (!name.isEmpty())
-		type->addItem(type);
-#endif
-
 	m_typeList.insertTail(type);
 	return type;
 }
@@ -461,20 +405,13 @@ TypeMgr::createStructType(
 UnionType*
 TypeMgr::createUnionType(
 	const sl::StringRef& name,
-	const sl::StringRef& qualifiedName,
 	size_t fieldAlignment
 ) {
 	UnionType* type = new UnionType;
 	type->m_module = m_module;
 	type->m_name = name;
-	type->m_qualifiedName = qualifiedName;
 
-#ifdef _JNC_NAMED_TYPE_ADD_SELF
-	if (!name.isEmpty())
-		type->addItem(type);
-#endif
-
-	StructType* unionStructType = createUnnamedInternalStructType(type->createQualifiedName("Struct"), fieldAlignment);
+	StructType* unionStructType = createInternalStructType("Struct", fieldAlignment);
 	unionStructType->m_parentNamespace = type;
 	unionStructType->m_structTypeKind = StructTypeKind_UnionStruct;
 	type->m_structType = unionStructType;
@@ -487,7 +424,6 @@ void
 TypeMgr::addClassType(
 	ClassType* type,
 	const sl::StringRef& name,
-	const sl::StringRef& qualifiedName,
 	size_t fieldAlignment,
 	uint_t flags
 ) {
@@ -495,20 +431,14 @@ TypeMgr::addClassType(
 
 	type->m_module = m_module;
 	type->m_name = name;
-	type->m_qualifiedName = qualifiedName;
 	type->m_flags |= flags;
 
-#ifdef _JNC_NAMED_TYPE_ADD_SELF
-	if (!name.isEmpty())
-		type->addItem(type);
-#endif
-
-	StructType* ifaceStructType = createUnnamedInternalStructType(type->createQualifiedName("Iface"), fieldAlignment);
+	StructType* ifaceStructType = createInternalStructType("Iface", fieldAlignment);
 	ifaceStructType->m_structTypeKind = StructTypeKind_IfaceStruct;
 	ifaceStructType->m_parentNamespace = type;
 	ifaceStructType->m_storageKind = StorageKind_Member;
 
-	StructType* classStructType = createUnnamedInternalStructType(type->createQualifiedName("Class"), fieldAlignment);
+	StructType* classStructType = createInternalStructType("Class", fieldAlignment);
 	classStructType->m_structTypeKind = StructTypeKind_ClassStruct;
 	classStructType->m_parentNamespace = type;
 	classStructType->createField("!m_box", getStdType(StdType_Box));
@@ -548,7 +478,6 @@ TypeMgr::createFunctionArg(
 	FunctionArg* functionArg = new FunctionArg;
 	functionArg->m_module = m_module;
 	functionArg->m_name = name;
-	functionArg->m_qualifiedName = name;
 	functionArg->m_type = type;
 	functionArg->m_ptrTypeFlags = ptrTypeFlags;
 
@@ -634,7 +563,6 @@ TypeMgr::getFunctionType(
 		callConv,
 		returnType,
 		argArray,
-		argArray.getCount(),
 		flags
 	);
 
@@ -670,12 +598,6 @@ TypeMgr::getFunctionType(
 	ASSERT(callConv && returnType);
 	ASSERT(!(flags & ~FunctionTypeFlag__All));
 
-	sl::Array<FunctionArg*> argArray;
-	argArray.setCount(argCount);
-	sl::Array<FunctionArg*>::Rwi rwi = argArray;
-	for (size_t i = 0; i < argCount; i++)
-		rwi[i] = getSimpleFunctionArg(argTypeArray[i]);
-
 	sl::String signature;
 	sl::StringRef argSignature;
 	flags |= FunctionType::createSignature(
@@ -692,11 +614,17 @@ TypeMgr::getFunctionType(
 	if (it->m_value)
 		return (FunctionType*)it->m_value;
 
+	sl::Array<FunctionArg*> argArray;
+	argArray.setCount(argCount);
+	sl::Array<FunctionArg*>::Rwi rwi = argArray;
+	for (size_t i = 0; i < argCount; i++)
+		rwi[i] = getSimpleFunctionArg(argTypeArray[i]);
+
 	FunctionType* type = new FunctionType;
 	type->m_module = m_module;
 	type->m_callConv = callConv;
 	type->m_returnType = returnType;
-	type->m_argArray = argArray;
+	type->m_argArray = std::move(argArray);
 	type->m_signature = signature;
 	type->m_argSignature = argSignature;
 	type->m_flags = flags;
@@ -974,7 +902,8 @@ TypeMgr::getMulticastType(FunctionPtrType* functionPtrType) {
 		return NULL;
 	}
 
-	MulticastClassType* type = createUnnamedInternalClassType<MulticastClassType>("Multicast");
+	sl::StringRef signature = functionPtrType->getSignature();
+	MulticastClassType* type = createInternalClassType<MulticastClassType>(signature + ".Multicast");
 	type->m_targetType = functionPtrType;
 	type->m_flags |= (functionPtrType->m_flags & TypeFlag_GcRoot);
 
@@ -1045,7 +974,7 @@ TypeMgr::getMulticastType(FunctionPtrType* functionPtrType) {
 
 	// snapshot closure (snapshot is shared between weak and normal multicasts)
 
-	McSnapshotClassType* snapshotType = createUnnamedInternalClassType<McSnapshotClassType>("McSnapshot");
+	McSnapshotClassType* snapshotType = createInternalClassType<McSnapshotClassType>(signature + ".McSnapshot");
 	snapshotType->m_targetType = functionPtrType->getUnWeakPtrType();
 	snapshotType->m_flags |= (functionPtrType->m_flags & TypeFlag_GcRoot);
 
@@ -1080,9 +1009,8 @@ TypeMgr::createReactorBaseType() {
 	FunctionType* addOnEventBindingType = getFunctionType(voidType, addOnEventBindingTypeArgTypeArray, 2);
 	FunctionType* enterReactiveStmtType = getFunctionType(voidType, enterReactiveStmtArgTypeArray, 2);
 
-	ClassType* type = createClassType("ReactorBase", "jnc.ReactorBase", 8, ClassTypeFlag_Opaque);
+	ClassType* type = createInternalClassType("jnc.ReactorBase", 8, ClassTypeFlag_Opaque);
 	type->createField("!m_userData", getStdType(StdType_AbstractClassPtr));
-	type->m_namespaceStatus = NamespaceStatus_Ready;
 
 	Function* constructor = m_module->m_functionMgr.createFunction(simpleFunctionType);
 	constructor->m_functionKind = FunctionKind_Constructor;
@@ -1104,25 +1032,17 @@ TypeMgr::createReactorBaseType() {
 ReactorClassType*
 TypeMgr::createReactorType(
 	const sl::StringRef& name,
-	const sl::StringRef& qualifiedName,
 	ClassType* parentType
 ) {
-	ReactorClassType* type = createClassType<ReactorClassType>(name, qualifiedName);
+	ReactorClassType* type = createClassType<ReactorClassType>(name);
 	type->addBaseType(getStdType(StdType_ReactorBase));
 	type->m_parentType = parentType;
-
-	Type* voidType = getPrimitiveType(TypeKind_Void);
-	Type* sizeType = getPrimitiveType(TypeKind_SizeT);
-	FunctionType* reactorFunctionType = getFunctionType(voidType, (Type**)&sizeType, 1);
-
-	type->m_reactor = type->createMethod<ReactorClassType::Reactor>("!react", reactorFunctionType);
-	getStdType(StdType_ReactorClosure); // ensure closure type is created
 	return type;
 }
 
 FunctionClosureClassType*
 TypeMgr::createReactorClosureType() {
-	FunctionClosureClassType* type = createClassType<FunctionClosureClassType>("ReactorClosure", "jnc.ReactorClosure");
+	FunctionClosureClassType* type = createInternalClassType<FunctionClosureClassType>("jnc.ReactorClosure");
 	type->m_thisArgFieldIdx = 0;
 	type->createField("m_reactor", ((ClassType*)getStdType(StdType_ReactorBase))->getClassPtrType());
 	type->createField("m_binding", getStdType(StdType_ByteThinPtr));
@@ -1156,12 +1076,12 @@ TypeMgr::getFunctionClosureClassType(
 		return (FunctionClosureClassType*)it->m_value;
 	}
 
-	FunctionClosureClassType* type = createUnnamedInternalClassType<FunctionClosureClassType>("FunctionClosure");
+	sl::String typeName = signature + ".FunctionClosure";
+	FunctionClosureClassType* type = createInternalClassType<FunctionClosureClassType>(typeName);
 	type->m_signature = signature;
 	type->m_flags |= TypeFlag_SignatureFinal;
 	type->m_closureMap.copy(closureMap, argCount);
 	type->m_thisArgFieldIdx = thisArgIdx + 1;
-
 	type->createField("m_target", targetType->getFunctionPtrType(FunctionPtrTypeKind_Thin));
 
 	sl::String argFieldName;
@@ -1170,7 +1090,8 @@ TypeMgr::getFunctionClosureClassType(
 		type->createField(argFieldName, argTypeArray[i]);
 	}
 
-	Function* thunkFunction = m_module->m_functionMgr.createInternalFunction<FunctionClosureClassType::ThunkFunction>("jnc.thunkFunction", thunkType);
+	sl::String thunkName = typeName + ".thunkFunction";
+	Function* thunkFunction = m_module->m_functionMgr.createInternalFunction<FunctionClosureClassType::ThunkFunction>(thunkName, thunkType);
 	type->addMethod(thunkFunction);
 	type->m_thunkFunction = thunkFunction;
 
@@ -1204,12 +1125,12 @@ TypeMgr::getPropertyClosureClassType(
 		return (PropertyClosureClassType*)it->m_value;
 	}
 
-	PropertyClosureClassType* type = createUnnamedInternalClassType<PropertyClosureClassType>("PropertyClosure");
+	sl::String typeName = signature + ".PropertyClosure";
+	PropertyClosureClassType* type = createInternalClassType<PropertyClosureClassType>(typeName);
 	type->m_signature = signature;
 	type->m_flags |= TypeFlag_SignatureFinal;
 	type->m_closureMap.copy(closureMap, argCount);
 	type->m_thisArgFieldIdx = thisArgIdx + 1;
-
 	type->createField("m_target", targetType->getPropertyPtrType(PropertyPtrTypeKind_Thin));
 
 	sl::String argFieldName;
@@ -1219,7 +1140,8 @@ TypeMgr::getPropertyClosureClassType(
 		type->createField(argFieldName, argTypeArray[i]);
 	}
 
-	Property* thunkProperty = m_module->m_functionMgr.createInternalProperty<PropertyClosureClassType::ThunkProperty>(type->createQualifiedName("m_thunkProperty"));
+	sl::String thunkName = typeName + ".m_thunkProperty";
+	Property* thunkProperty = m_module->m_functionMgr.createInternalProperty<PropertyClosureClassType::ThunkProperty>(thunkName);
 	type->addProperty(thunkProperty);
 	type->m_thunkProperty = thunkProperty;
 
@@ -1238,19 +1160,20 @@ TypeMgr::getDataClosureClassType(
 	ASSERT(m_module->getCompileState() >= ModuleCompileState_Parsed); // signatures are final
 
 	sl::String signature = DataClosureClassType::createSignature(targetType, thunkType);
-
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
 	if (it->m_value) {
 		ASSERT(it->m_value->m_signature == signature);
 		return (DataClosureClassType*)it->m_value;
 	}
 
-	DataClosureClassType* type = createUnnamedInternalClassType<DataClosureClassType>("DataClosure");
+	sl::String typeName = signature + ".DataClosure";
+	DataClosureClassType* type = createInternalClassType<DataClosureClassType>(typeName);
 	type->m_signature = signature;
 	type->m_flags |= TypeFlag_SignatureFinal;
 	type->createField("!m_target", targetType->getDataPtrType());
 
-	Property* thunkProperty = m_module->m_functionMgr.createInternalProperty<DataClosureClassType::ThunkProperty>(type->createQualifiedName("m_thunkProperty"));
+	sl::String thunkName = typeName + ".m_thunkProperty";
+	Property* thunkProperty = m_module->m_functionMgr.createInternalProperty<DataClosureClassType::ThunkProperty>(thunkName);
 	type->addProperty(thunkProperty);
 	type->m_thunkProperty = thunkProperty;
 
@@ -1288,7 +1211,7 @@ TypeMgr::getDataPtrType(
 	type->m_bitOffset = bitOffset;
 	type->m_bitCount = bitCount;
 	type->m_signature = signature;
-	type->m_flags = flags | TypeFlag_SignatureReady;
+	type->m_flags = flags | targetType->getFlags() & TypeFlag_SignatureMask;
 
 	if (targetType->getTypeKindFlags() & TypeKindFlag_Import)
 		((ImportType*)targetType)->addFixup(&type->m_targetType);
@@ -1506,7 +1429,8 @@ TypeMgr::getPropertyVtableStructType(PropertyType* propertyType) {
 	if (propertyType->m_vtableStructType)
 		return propertyType->m_vtableStructType;
 
-	StructType* type = createUnnamedInternalStructType("PropertyVtable");
+	sl::StringRef signature = propertyType->getSignature();
+	StructType* type = createInternalStructType(signature + ".PropertyVtable");
 
 	if (propertyType->getFlags() & PropertyTypeFlag_Bindable)
 		type->createField("!m_binder", propertyType->m_binderType->getFunctionPtrType(FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe));
@@ -1529,27 +1453,28 @@ TypeMgr::getPropertyVtableStructType(PropertyType* propertyType) {
 	return type;
 }
 
-NamedImportType*
+Type*
 TypeMgr::getNamedImportType(
+	Namespace* parentNamespace,
 	QualifiedName* name,
-	Namespace* anchorNamespace,
-	QualifiedName* anchorName
+	QualifiedName* baseName
 ) {
-	ASSERT(anchorNamespace->getNamespaceKind() != NamespaceKind_Scope);
+	ASSERT(parentNamespace->getNamespaceKind() != NamespaceKind_Scope);
 
-	sl::String signature = NamedImportType::createSignature(*name, anchorNamespace, anchorName);
+	sl::String signature = NamedImportType::createSignature(parentNamespace, *name, baseName);
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
 	if (it->m_value) {
 		ASSERT(it->m_value->m_signature == signature);
-		return (NamedImportType*)it->m_value;
+		NamedImportType* type = (NamedImportType*)it->m_value;
+		return type->isResolved() ? type->getActualType() : type;
 	}
 
 	NamedImportType* type = new NamedImportType;
 	type->m_module = m_module;
-	type->m_anchorNamespace = anchorNamespace;
+	type->m_parentNamespace = parentNamespace;
 
-	if (anchorName)
-		sl::takeOver(&type->m_anchorName, anchorName);
+	if (baseName)
+		sl::takeOver(&type->m_baseName, baseName);
 
 	sl::takeOver(&type->m_name, name);
 	type->m_signature = signature;
@@ -1561,26 +1486,15 @@ TypeMgr::getNamedImportType(
 }
 
 TemplateArgType*
-TypeMgr::getTemplateArgType(
+TypeMgr::createTemplateArgType(
 	const sl::StringRef& name,
 	size_t index
 ) {
-	sl::String signature = TemplateArgType::createSignature(name, index);
-	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
-	if (it->m_value) {
-		ASSERT(it->m_value->m_signature == signature);
-		return (TemplateArgType*)it->m_value;
-	}
-
 	TemplateArgType* type = new TemplateArgType;
 	type->m_module = m_module;
 	type->m_name = name;
 	type->m_index = index;
-	type->m_signature = signature;
-	type->m_flags |= TypeFlag_SignatureReady;
-
 	m_typeList.insertTail(type);
-	it->m_value = type;
 	return type;
 }
 
@@ -1728,28 +1642,30 @@ TypeMgr::setupAllPrimitiveTypes() {
 	enum {
 		PodFlags =
 			TypeFlag_Pod |
+			TypeFlag_SignatureReady |
 			TypeFlag_SignatureFinal |
 			TypeFlag_LayoutReady,
 
 		StructFlags =
 			TypeFlag_StructRet |
 			TypeFlag_GcRoot |
+			TypeFlag_SignatureReady |
 			TypeFlag_SignatureFinal |
 			TypeFlag_LayoutReady,
 	};
 
-	setupPrimitiveType(TypeKind_Void,      "v",    0, 0, PodFlags);
-	setupPrimitiveType(TypeKind_Bool,      "b",    1, 1, PodFlags);
-	setupPrimitiveType(TypeKind_Int8,      "i8",   1, 1, PodFlags);
-	setupPrimitiveType(TypeKind_Int8_u,    "u8",   1, 1, PodFlags);
-	setupPrimitiveType(TypeKind_Int16,     "i16",  2, 2, PodFlags);
-	setupPrimitiveType(TypeKind_Int16_u,   "u16",  2, 2, PodFlags);
-	setupPrimitiveType(TypeKind_Int32,     "i32",  4, 4, PodFlags);
-	setupPrimitiveType(TypeKind_Int32_u,   "u32",  4, 4, PodFlags);
-	setupPrimitiveType(TypeKind_Int64,     "i64",  8, 8, PodFlags);
-	setupPrimitiveType(TypeKind_Int64_u,   "u64",  8, 8, PodFlags);
-	setupPrimitiveType(TypeKind_Float,     "f",    4, 4, PodFlags);
-	setupPrimitiveType(TypeKind_Double,    "d",    8, 8, PodFlags);
+	setupPrimitiveType(TypeKind_Void,    "v", 0, 0, PodFlags);
+	setupPrimitiveType(TypeKind_Bool,    "b", 1, 1, PodFlags);
+	setupPrimitiveType(TypeKind_Int8,    "c", 1, 1, PodFlags);
+	setupPrimitiveType(TypeKind_Int8_u,  "y", 1, 1, PodFlags);
+	setupPrimitiveType(TypeKind_Int16,   "h", 2, 2, PodFlags);
+	setupPrimitiveType(TypeKind_Int16_u, "w", 2, 2, PodFlags);
+	setupPrimitiveType(TypeKind_Int32,   "i", 4, 4, PodFlags);
+	setupPrimitiveType(TypeKind_Int32_u, "d", 4, 4, PodFlags);
+	setupPrimitiveType(TypeKind_Int64,   "l", 8, 8, PodFlags);
+	setupPrimitiveType(TypeKind_Int64_u, "q", 8, 8, PodFlags);
+	setupPrimitiveType(TypeKind_Float,   "f", 4, 4, PodFlags);
+	setupPrimitiveType(TypeKind_Double,  "e", 8, 8, PodFlags);
 
 	// variant & string require special treatment
 
@@ -1865,7 +1781,6 @@ TypeMgr::setupStdTypedef(
 #endif
 	tdef->m_module = m_module;
 	tdef->m_name = name;
-	tdef->m_qualifiedName = name;
 	tdef->m_type = &m_primitiveTypeArray[typeKind];
 }
 
@@ -1939,27 +1854,17 @@ TypeMgr::parseStdType(
 
 ClassType*
 TypeMgr::createAbstractClassType() {
-	static sl::String typeString = "class";
-
 	ClassType* type = createInternalClassType("jnc.AbstractClass");
 	type->m_classTypeKind = ClassTypeKind_Abstract;
-	TypeStringTuple* tuple = type->getTypeStringTuple();
-	tuple->m_typeStringPrefix = typeString;
-	tuple->m_doxyLinkedTextPrefix = typeString;
 	type->ensureLayout();
 	return type;
 }
 
 StructType*
 TypeMgr::createAbstractDataType() {
-	static sl::String typeString = "anydata";
-
 	StructType* type = createInternalStructType("jnc.AbstractData");
-	TypeStringTuple* tuple = type->getTypeStringTuple();
-	tuple->m_typeStringPrefix = typeString;
-	tuple->m_doxyLinkedTextPrefix = typeString;
+	type->m_structTypeKind = StructTypeKind_AbstractData;
 	type->ensureLayout();
-
 	type->m_flags |= TypeFlag_GcRoot;
 	type->m_flags &= ~TypeFlag_Pod;
 	return type;
@@ -2052,7 +1957,7 @@ StructType*
 TypeMgr::createStringStructType() {
 	// m_p && m_length are accessible directly (e.g.: string_t s; file.write(s.m_p, s.m_length);
 
-	StructType* type = createInternalStructType("string_t");
+	StructType* type = createInternalStructType("jnc.string_t");
 	type->createField("m_p", getStdType(StdType_CharConstPtr), 0, PtrTypeFlag_ReadOnly);
 	type->createField("!m_ptr_sz", getStdType(StdType_CharConstPtr));
 	type->createField("m_length", getPrimitiveType(TypeKind_SizeT), 0, PtrTypeFlag_ReadOnly);

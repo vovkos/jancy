@@ -18,9 +18,24 @@ namespace ct {
 
 //..............................................................................
 
+sl::StringRef
+StructType::createItemString(size_t index) {
+	if (m_stdType != StdType_AbstractData)
+		return DerivableType::createItemString(index);
+
+	switch (index) {
+	case TypeStringKind_Prefix:
+	case TypeStringKind_DoxyLinkedTextPrefix:
+		return "anydata";
+
+	default:
+		return DerivableType::createItemString(index);
+	}
+}
+
 void
 StructType::prepareLlvmType() {
-	m_llvmType = llvm::StructType::create(*m_module->getLlvmContext(), getQualifiedName().sz());
+	m_llvmType = llvm::StructType::create(*m_module->getLlvmContext(), getSignature() >> toLlvm);
 }
 
 Field*
@@ -175,7 +190,7 @@ StructType::calcLayoutTo(Field* targetField) {
 	) {
 		ClassType* classType = (ClassType*)m_parentNamespace;
 
-		const OpaqueClassTypeInfo* typeInfo = m_module->m_extensionLibMgr.findOpaqueClassTypeInfo(classType->getQualifiedName());
+		const OpaqueClassTypeInfo* typeInfo = m_module->m_extensionLibMgr.findOpaqueClassTypeInfo(classType->getItemName());
 		if (!typeInfo) {
 			err::setFormatStringError("opaque class type info is missing for '%s'", classType->getTypeString().sz());
 			return false;

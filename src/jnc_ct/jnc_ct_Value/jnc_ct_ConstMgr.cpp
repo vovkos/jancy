@@ -35,13 +35,11 @@ ConstMgr::clear() {
 Const*
 ConstMgr::createConst(
 	const sl::StringRef& name,
-	const sl::StringRef& qualifiedName,
 	const Value& value
 ) {
 	Const* cnst = new Const;
 	cnst->m_module = m_module;
 	cnst->m_name = name;
-	cnst->m_qualifiedName = qualifiedName;
 	cnst->m_value = value;
 	m_constList.insertTail(cnst);
 	return cnst;

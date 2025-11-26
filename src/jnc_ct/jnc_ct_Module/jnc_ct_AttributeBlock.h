@@ -39,8 +39,7 @@ enum AttributeBlockFlag {
 //..............................................................................
 
 class Attribute:
-	public ModuleItem,
-	public ModuleItemDecl,
+	public ModuleItemWithDecl<>,
 	public ModuleItemInitializer {
 	friend class AttributeBlock;
 	friend class AttributeMgr;
@@ -53,6 +52,12 @@ public:
 	Attribute() {
 		m_itemKind = ModuleItemKind_Attribute;
 		m_variant = g_nullVariant;
+	}
+
+	virtual
+	Type*
+	getItemType() {
+		return getValue().getType();
 	}
 
 	const Value&
@@ -96,9 +101,7 @@ Attribute::getValue() {
 
 //..............................................................................
 
-class AttributeBlock:
-	public ModuleItem,
-	public ModuleItemDecl {
+class AttributeBlock: public ModuleItemWithDecl<> {
 	friend class Parser;
 	friend class AttributeMgr;
 
@@ -111,6 +114,7 @@ public:
 		m_itemKind = ModuleItemKind_AttributeBlock;
 	}
 
+	virtual
 	~AttributeBlock() {
 		if (m_flags & AttributeBlockFlag_Dynamic)
 			deleteDynamicAttributes();
@@ -161,7 +165,7 @@ AttributeBlock::findAttribute(const sl::StringRef& name) {
 
 inline
 Attribute*
-ModuleItemDecl::findAttribute(const sl::StringRef& name) {
+ModuleItemDecl::findAttribute(const sl::StringRef& name) const {
 	return m_attributeBlock ? m_attributeBlock->findAttribute(name) : NULL;
 }
 

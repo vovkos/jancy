@@ -53,40 +53,57 @@ ImportType::resolve() {
 
 sl::String
 NamedImportType::createSignature(
+	Namespace* parentNamespace,
 	const QualifiedName& name,
-	Namespace* anchorNamespace,
-	const QualifiedName* anchorName
+	const QualifiedName* baseName
 ) {
-	sl::String signature = "IN" + anchorNamespace->createQualifiedName(name);
-	if (anchorName) {
+	sl::StringRef parentSignature = parentNamespace->getDeclItem()->getLinkId();
+	sl::String signature = "IN";
+	signature += parentSignature;
+	if (!parentSignature.isEmpty())
+		signature += '.';
+
+	name.appendFullName(&signature);
+
+	if (baseName) {
 		signature += '-';
-		signature += anchorName->getFullName();
+		baseName->appendFullName(&signature);
 	}
 
 	return signature;
 }
 
-void
-NamedImportType::prepareTypeString() {
-	TypeStringTuple* tuple = getTypeStringTuple();
+sl::StringRef
+NamedImportType::createItemString(size_t index) {
+	switch (index) {
+	case TypeStringKind_Prefix:
+	case TypeStringKind_DoxyLinkedTextPrefix: {
+		sl::String string = "import ";
+		sl::StringRef parentName = m_parentNamespace->getDeclItem()->getItemName();
+		if (!parentName.isEmpty()) {
+			string += parentName;
+			string += '.';
+		}
 
-	tuple->m_typeStringPrefix = m_anchorName.isEmpty() ?
-		sl::formatString(
-			"import %s",
-			m_anchorNamespace->createQualifiedName(m_name).sz()
-		) :
-		sl::formatString(
-			"import %s.%s",
-			m_anchorNamespace->createQualifiedName(m_anchorName).sz(),
-			m_name.getFullName().sz()
-		);
+		if (!m_baseName.isEmpty()) {
+			string += m_baseName.getFullName();
+			string += '.';
+		}
+
+		string += m_name.getFullName();
+		return string;
+		}
+
+	default:
+		return ImportType::createItemString(index);
+	}
 }
 
 bool
 NamedImportType::resolveImports() {
-	Namespace* anchorNamespace = m_anchorNamespace;
-	if (!m_anchorName.isEmpty()) {
-		FindModuleItemResult findResult = anchorNamespace->findItemTraverse(m_anchorName);
+	Namespace* anchorNamespace = m_parentNamespace;
+	if (!m_baseName.isEmpty()) {
+		FindModuleItemResult findResult = anchorNamespace->findItemTraverse(*this, m_baseName);
 		if (!findResult.m_result) {
 			pushSrcPosError();
 			return false;
@@ -95,7 +112,10 @@ NamedImportType::resolveImports() {
 		anchorNamespace = findResult.m_item ? findResult.m_item->getNamespace() : NULL;
 	}
 
-	FindModuleItemResult findResult = anchorNamespace ? anchorNamespace->findItemTraverse(m_name) : g_nullFindModuleItemResult;
+	FindModuleItemResult findResult = anchorNamespace ?
+		anchorNamespace->findItemTraverse(*this, m_name) :
+		g_nullFindModuleItemResult;
+
 	if (!findResult.m_result) {
 		pushSrcPosError();
 		return false;
@@ -120,6 +140,13 @@ NamedImportType::resolveImports() {
 			((Typedef*)item)->getType();
 		break;
 
+	case ModuleItemKind_Template:
+		m_actualType = anchorNamespace->findTemplateInstanceType((Template*)item);
+		if (m_actualType)
+			break;
+
+		// else fall through
+
 	default:
 		err::setFormatStringError("'%s' is not a type", getTypeString().sz());
 		pushSrcPosError();
@@ -142,26 +169,24 @@ NamedImportType::resolveImports() {
 
 //..............................................................................
 
-void
-ImportPtrType::prepareTypeString() {
-	ASSERT(m_baseType);
-	TypeStringTuple* tuple = getTypeStringTuple();
+sl::StringRef
+ImportPtrType::createItemString(size_t index) {
+	switch (index) {
+	case TypeStringKind_Prefix:
+	case TypeStringKind_DoxyLinkedTextPrefix: {
+		sl::String string = m_baseType->getItemString(index);
+		if (m_typeModifiers) {
+			string += ' ';
+			string += getTypeModifierString(m_typeModifiers);
+		}
 
-	if (m_actualType) {
-		tuple->m_typeStringPrefix = m_actualType->getTypeStringPrefix();
-		tuple->m_typeStringSuffix = m_actualType->getTypeStringSuffix();
-		return;
+		string += '*';
+		return string;
+		}
+
+	default:
+		return ImportType::createItemString(index);
 	}
-
-	sl::String string = m_baseType->getTypeString();
-
-	if (m_typeModifiers) {
-		string += ' ';
-		string += getTypeModifierString(m_typeModifiers);
-	}
-
-	string += '*';
-	tuple->m_typeStringPrefix = string;
 }
 
 bool
@@ -181,21 +206,20 @@ ImportPtrType::resolveImports() {
 
 //..............................................................................
 
-void
-ImportIntModType::prepareTypeString() {
-	TypeStringTuple* tuple = getTypeStringTuple();
+sl::StringRef
+ImportIntModType::createItemString(size_t index) {
+	switch (index) {
+	case TypeStringKind_Prefix:
+	case TypeStringKind_DoxyLinkedTextPrefix: {
+		sl::String string = getTypeModifierString(m_typeModifiers);
+		string += ' ';
+		string += m_baseType->getItemString(index);
+		return string;
+		}
 
-	if (m_actualType) {
-		tuple->m_typeStringPrefix = m_actualType->getTypeStringPrefix();
-		return;
+	default:
+		return ImportType::createItemString(index);
 	}
-
-	ASSERT(m_typeModifiers);
-
-	sl::String string = getTypeModifierString(m_typeModifiers);
-	string += ' ';
-	string += m_baseType->getTypeString();
-	tuple->m_typeStringPrefix = string;
 }
 
 bool

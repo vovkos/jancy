@@ -106,6 +106,7 @@ protected:
 	ModuleConfig m_config;
 	uint_t m_compileFlags;
 	ModuleCompileState m_compileState;
+	size_t m_unnamedLinkId;
 	size_t m_tryCompileLevel;
 	size_t m_disableAccessCheckLevel;
 	size_t m_compileErrorCount;
@@ -213,6 +214,11 @@ public:
 	void
 	leaveTryCompile() {
 		m_tryCompileLevel--;
+	}
+
+	size_t
+	createUnnamedLinkId() {
+		return ++m_unnamedLinkId;
 	}
 
 	bool
@@ -437,17 +443,22 @@ Module::markForCompile(Function* function) {
 
 //..............................................................................
 
+inline
+void
+ModuleItemContext::captureContext(Module* module) {
+	m_parentUnit = module->m_unitMgr.getCurrentUnit();
+	m_parentNamespace = module->m_namespaceMgr.getCurrentNamespace();
+}
+
+//..............................................................................
+
 template <typename T>
 T*
 MemberBlock::createMethod(
 	const sl::StringRef& name,
 	FunctionType* shortType
 ) {
-	T* function = m_parent->getModule()->m_functionMgr.createFunction<T>(
-		name,
-		getParentNamespaceImpl()->createQualifiedName(name),
-		shortType
-	);
+	T* function = m_parent->getModule()->m_functionMgr.createFunction<T>(name, shortType);
 	return addMethod(function) ? function : NULL;
 }
 
@@ -467,7 +478,7 @@ T*
 MemberBlock::createDefaultMethod() {
 	Module* module = m_parent->getModule();
 	FunctionType* type = (FunctionType*)module->m_typeMgr.getStdType(StdType_SimpleFunction);
-	T* function = module->m_functionMgr.createFunction<T>(sl::StringRef(), sl::StringRef(), type);
+	T* function = module->m_functionMgr.createFunction<T>(sl::StringRef(), type);
 	bool result = addMethod(function);
 	return result ? function : NULL;
 }
@@ -488,12 +499,21 @@ Type::prepareSimpleTypeVariable(StdType stdType) {
 //..............................................................................
 
 inline
+void
+Typedef::prepareShadowType() {
+	ASSERT(!m_shadowType);
+	m_shadowType = m_module->m_typeMgr.createTypedefShadowType(this);
+}
+
+//..............................................................................
+
+inline
 Variable*
 Variable::getDeclVariable() {
 	if (!m_declVariable)
 		m_declVariable = m_module->m_variableMgr.createRtlItemVariable(
 			StdType_Variable,
-			"jnc.g_variable_" + getQualifiedName(),
+			"jnc.g_decl." + getLinkId(),
 			this
 		);
 
@@ -508,7 +528,7 @@ Function::getDeclVariable() {
 	if (!m_declVariable)
 		m_declVariable = m_module->m_variableMgr.createRtlItemVariable(
 			StdType_Function,
-			"jnc.g_function_" + getQualifiedName(),
+			"jnc.g_decl." + getLinkId(),
 			this
 		);
 
@@ -523,7 +543,7 @@ Property::getDeclVariable() {
 	if (!m_declVariable)
 		m_declVariable = m_module->m_variableMgr.createRtlItemVariable(
 			StdType_Property,
-			"jnc.g_property_" + getQualifiedName(),
+			"jnc.g_decl." + getLinkId(),
 			this
 		);
 
@@ -538,7 +558,7 @@ EnumConst::getDeclVariable() {
 	if (!m_declVariable)
 		m_declVariable = m_module->m_variableMgr.createRtlItemVariable(
 			StdType_EnumConst,
-			"jnc.g_enum_" + getQualifiedName(),
+			"jnc.g_decl." + getLinkId(),
 			this
 		);
 
@@ -594,7 +614,7 @@ CodeAssistMgr::prepareQualifiedNameFallback(
 	const Token& token
 ) {
 	m_fallbackMode = FallbackMode_QualifiedName;
-	m_fallbackNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
+	m_fallbackContext.captureContext(m_module);
 	m_fallbackNamePrefix.copy(namePrefix);
 	m_fallbackToken = token;
 }
@@ -604,7 +624,7 @@ void
 CodeAssistMgr::prepareExpressionFallback(const sl::List<Token>& expression) {
 	ASSERT(!expression.isEmpty());
 	m_fallbackMode = FallbackMode_Expression;
-	m_fallbackNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
+	m_fallbackContext.captureContext(m_module);
 	cloneTokenList(&m_fallbackExpression, expression);
 }
 
@@ -613,7 +633,7 @@ void
 CodeAssistMgr::prepareIdentifierFallback(const Token& token) {
 	if (m_fallbackMode <= FallbackMode_Identifier) { // only if no better fallbacks
 		m_fallbackMode = FallbackMode_Identifier;
-		m_fallbackNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
+		m_fallbackContext.captureContext(m_module);
 		m_fallbackToken = token;
 	}
 }
@@ -623,7 +643,7 @@ void
 CodeAssistMgr::prepareNamespaceFallback() {
 	if (m_fallbackMode <= FallbackMode_Namespace) { // only if no better fallbacks
 		m_fallbackMode = FallbackMode_Namespace;
-		m_fallbackNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
+		m_fallbackContext.captureContext(m_module);
 	}
 }
 
@@ -637,7 +657,7 @@ OperatorMgr::checkAccess(ModuleItemDecl* decl) {
 		decl->getAccessKind() != AccessKind_Public &&
 		m_module->m_namespaceMgr.getAccessKind(nspace) == AccessKind_Public
 	) {
-		err::setFormatStringError("'%s' is protected", decl->getQualifiedName().sz());
+		err::setFormatStringError("'%s' is protected", decl->getDeclItem()->getItemName().sz());
 		return false;
 	}
 

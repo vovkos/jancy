@@ -65,7 +65,7 @@ setCastError(
 		break;
 
 	case ValueKind_FunctionOverload:
-		opValueString = opValue.getFunctionOverload()->getQualifiedName();
+		opValueString = opValue.getFunctionOverload()->getItemName();
 		break;
 
 	case ValueKind_FunctionTypeOverload:

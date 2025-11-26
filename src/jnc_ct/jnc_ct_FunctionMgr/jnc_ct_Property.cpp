@@ -91,9 +91,9 @@ Property::setOnChanged(
 ) {
 	if (m_onChanged && !isForced) {
 		err::setFormatStringError(
-			"'%s' already has 'bindable %s'",
-			getQualifiedName().sz(),
-			m_onChanged->getDecl()->getQualifiedName().sz()
+			"'%s' already has bindable event '%s'",
+			getItemName().sz(),
+			m_onChanged->getItemName().sz()
 		);
 
 		return false;
@@ -105,7 +105,7 @@ Property::setOnChanged(
 	if (item->getItemKind() == ModuleItemKind_Alias)
 		return true; // will be fixed up later
 
-	Type* type = item->getType();
+	Type* type = item->getItemType();
 	if (!type) {
 		err::setError("invalid bindable item");
 		return false;
@@ -122,7 +122,7 @@ Property::setOnChanged(
 
 bool
 Property::createOnChanged() {
-	sl::String name = "m_onChanged";
+	const sl::StringRef name = "m_onChanged";
 
 	Type* type = m_module->m_typeMgr.getStdType(StdType_SimpleMulticast);
 
@@ -134,13 +134,7 @@ Property::createOnChanged() {
 	} else {
 		ASSERT(m_storageKind == StorageKind_Static || m_storageKind == StorageKind_Reactor);
 
-		Variable* variable = m_module->m_variableMgr.createVariable(
-			m_storageKind,
-			name,
-			createQualifiedName(name),
-			type
-		);
-
+		Variable* variable = m_module->m_variableMgr.createVariable(m_storageKind, name, type);
 		variable->m_parentNamespace = this;
 		m_staticVariableArray.append(variable);
 
@@ -157,9 +151,9 @@ Property::setAutoGetValue(
 ) {
 	if (m_autoGetValue && !isForced) {
 		err::setFormatStringError(
-			"'%s' already has 'autoget %s'",
-			getQualifiedName().sz(),
-			m_autoGetValue->getDecl()->getQualifiedName().sz()
+			"'%s' already has autoget '%s'",
+			getItemName().sz(),
+			m_autoGetValue->getItemName().sz()
 		);
 
 		return false;
@@ -171,7 +165,7 @@ Property::setAutoGetValue(
 	if (item->getItemKind() == ModuleItemKind_Alias)
 		return true; // will be fixed up later
 
-	Type* type = item->getType();
+	Type* type = item->getItemType();
 	if (!type) {
 		err::setError("invalid autoget item");
 		return false;
@@ -203,7 +197,7 @@ Property::createAutoGetValue(
 	Type* type,
 	uint_t ptrTypeFlags
 ) {
-	sl::String name = "m_value";
+	const sl::StringRef name = "m_value";
 
 	if (m_parentType && m_storageKind != StorageKind_Reactor) {
 		Field* field = createField(name, type, 0, ptrTypeFlags);
@@ -216,7 +210,6 @@ Property::createAutoGetValue(
 		Variable* variable = m_module->m_variableMgr.createVariable(
 			m_storageKind,
 			name,
-			createQualifiedName(name),
 			type,
 			ptrTypeFlags
 		);
@@ -403,7 +396,7 @@ Property::addMethod(Function* function) {
 
 	case FunctionKind_Setter:
 		if (m_flags & PropertyFlag_Const) {
-			err::setFormatStringError("const property '%s' cannot have setters", getQualifiedName().sz());
+			err::setFormatStringError("const property '%s' cannot have setters", getItemName().sz());
 			return false;
 		}
 
@@ -425,12 +418,11 @@ Property::addMethod(Function* function) {
 		err::setFormatStringError(
 			"invalid %s in '%s'",
 			getFunctionKindString(functionKind),
-			getQualifiedName().sz()
+			getItemName().sz()
 		);
 		return false;
 	}
 
-	function->m_qualifiedName = createQualifiedName(getFunctionKindString(functionKind));
 	return addUnnamedMethod(function, targetFunction, targetOverloadableFunction);
 }
 
@@ -671,7 +663,7 @@ Property::createVtableVariable() {
 	);
 
 	m_vtableVariable = m_module->m_variableMgr.createSimpleStaticVariable(
-		getQualifiedName() + ".m_vtable",
+		getLinkId() + ".m_vtable",
 		vtableStructType,
 		Value(llvmVtableConst, vtableStructType)
 	);
@@ -740,7 +732,7 @@ bool
 Property::compileDefaultStaticConstructor() {
 	ASSERT(m_staticConstructor);
 
-	ParseContext parseContext(ParseContextKind_Body, m_module, m_parentUnit, this);
+	ParseContext parseContext(ParseContextKind_Body, m_module, *this);
 	m_module->m_functionMgr.internalPrologue(m_staticConstructor);
 
 	primeStaticVariables();
@@ -755,7 +747,7 @@ bool
 Property::compileDefaultConstructor() {
 	Function* constructor = m_constructor.getFunction();
 
-	ParseContext parseContext(ParseContextKind_Body, m_module, m_parentUnit, this);
+	ParseContext parseContext(ParseContextKind_Body, m_module, *this);
 
 	Value thisValue;
 	m_module->m_functionMgr.internalPrologue(constructor, &thisValue, 1);
@@ -861,6 +853,27 @@ Property::compileBinder() {
 
 	m_module->m_functionMgr.internalEpilogue();
 	return true;
+}
+
+sl::StringRef
+Property::createItemString(size_t index) {
+	if (index != ModuleItemStringKind_Synopsis || !isMember())
+		return createItemStringImpl(index, this, m_type, 0);
+
+	m_type->ensureNoImports();
+
+	sl::String synopsis = m_type->getReturnType()->getTypeStringPrefix();
+	sl::StringRef typeModifierString = m_type->getShortType()->getTypeModifierString();
+	if (!typeModifierString.isEmpty()) {
+		synopsis += ' ';
+		synopsis += typeModifierString;
+	}
+
+	synopsis += " property ";
+	synopsis += getItemName();
+	synopsis += m_type->getShortType()->getTypeStringSuffix();
+	synopsis += m_type->getReturnType()->getTypeStringSuffix();
+	return synopsis;
 }
 
 //..............................................................................

@@ -56,19 +56,19 @@ enum jnc_TypeKind {
 
 	// little-endian integers
 
-	jnc_TypeKind_Int8,                // i8
-	jnc_TypeKind_Int8_u,              // u8
-	jnc_TypeKind_Int16,               // i16
-	jnc_TypeKind_Int16_u,             // u16
-	jnc_TypeKind_Int32,               // i32
-	jnc_TypeKind_Int32_u,             // u32
-	jnc_TypeKind_Int64,               // i64
-	jnc_TypeKind_Int64_u,             // u64
+	jnc_TypeKind_Int8,                // c
+	jnc_TypeKind_Int8_u,              // y
+	jnc_TypeKind_Int16,               // h
+	jnc_TypeKind_Int16_u,             // w
+	jnc_TypeKind_Int32,               // i
+	jnc_TypeKind_Int32_u,             // d
+	jnc_TypeKind_Int64,               // l
+	jnc_TypeKind_Int64_u,             // q
 
 	// floating point
 
 	jnc_TypeKind_Float,               // f
-	jnc_TypeKind_Double,              // d
+	jnc_TypeKind_Double,              // e
 
 	// derived types
 
@@ -79,7 +79,7 @@ enum jnc_TypeKind {
 	jnc_TypeKind_Enum,                // E
 	jnc_TypeKind_Struct,              // S
 	jnc_TypeKind_Union,               // U
-	jnc_TypeKind_Class,               // CC/CO/CB/CA/CF/CD (class/object/box/reactor-iface/f-closure/d-closure)
+	jnc_TypeKind_Class,               // C
 
 	// function types
 
@@ -97,7 +97,7 @@ enum jnc_TypeKind {
 	jnc_TypeKind_PropertyPtr,         // P
 	jnc_TypeKind_PropertyRef,         // R
 
-	// import types (should be resolved)
+	// import types (pseudo-types -- will be resolved and replaced)
 
 	jnc_TypeKind_NamedImport,         // IN
 	jnc_TypeKind_ImportPtr,           // IP
@@ -107,7 +107,7 @@ enum jnc_TypeKind {
 
 	jnc_TypeKind_TypedefShadow,       // T
 
-	// template types
+	// template types (pseudo-types -- only exist before instantiation)
 
 	jnc_TypeKind_TemplateArg,         // XA
 	jnc_TypeKind_TemplatePtr,         // XP
@@ -183,16 +183,16 @@ jnc_getTypeKindFlags(jnc_TypeKind typeKind);
 //..............................................................................
 
 enum jnc_TypeFlag {
-	jnc_TypeFlag_LayoutReady    = 0x0010,
-	jnc_TypeFlag_InCalcLayout   = 0x0020,
+	jnc_TypeFlag_SignatureReady = 0x0010,  // signature is ready (but can change due to imports)
+	jnc_TypeFlag_SignatureFinal = 0x0020,  // signature is ready and final (won't change)
+	jnc_TypeFlag_SignatureMask  = 0x0030,
+	jnc_TypeFlag_InCalcLayout   = 0x0040,
+	jnc_TypeFlag_LayoutReady    = 0x0080,
 	jnc_TypeFlag_Pod            = 0x0100, // plain-old-data
 	jnc_TypeFlag_GcRoot         = 0x0200, // is or contains gc-traceable pointers
 	jnc_TypeFlag_StructRet      = 0x0400, // return through hidden 1st arg (gcc32 callconv)
-	jnc_TypeFlag_NoStack        = 0x0800, // try to avoid allocation on stack
+	jnc_TypeFlag_NoStack        = 0x1000, // try to avoid allocation on stack
 	jnc_TypeFlag_NoImports      = 0x2000, // all imports resolved (when generating documentation)
-	jnc_TypeFlag_SignatureReady = 0x4000, // signature is ready for use (but can depend on imports)
-	jnc_TypeFlag_SignatureFinal = 0x8000, // signature is ready & final (doesn't depend on imports)
-	jnc_TypeFlag__All           = 0xffff,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -224,6 +224,20 @@ enum jnc_PtrTypeFlag {
 JNC_EXTERN_C
 const char*
 jnc_getPtrTypeFlagString_v(uint_t flags);
+
+//..............................................................................
+
+enum jnc_TypeStringKind {
+	jnc_TypeStringKind_TypeName = jnc_ModuleItemStringKind_QualifiedName,
+	jnc_TypeStringKind_Prefix = jnc_ModuleItemStringKind__Count,
+	jnc_TypeStringKind_Suffix,
+	jnc_TypeStringKind_DoxyTypeString,
+	jnc_TypeStringKind_DoxyLinkedTextPrefix,
+	jnc_TypeStringKind_DoxyLinkedTextSuffix,
+	jnc_TypeStringKind__Count
+};
+
+typedef enum jnc_TypeStringKind jnc_TypeStringKind;
 
 //..............................................................................
 
@@ -720,16 +734,16 @@ getTypeKindFlags(TypeKind typeKind) {
 typedef jnc_TypeFlag TypeFlag;
 
 const TypeFlag
+	TypeFlag_SignatureReady = jnc_TypeFlag_SignatureReady,
+	TypeFlag_SignatureFinal = jnc_TypeFlag_SignatureFinal,
+	TypeFlag_SignatureMask  = jnc_TypeFlag_SignatureMask,
 	TypeFlag_InCalcLayout   = jnc_TypeFlag_InCalcLayout,
 	TypeFlag_LayoutReady    = jnc_TypeFlag_LayoutReady,
 	TypeFlag_Pod            = jnc_TypeFlag_Pod,
 	TypeFlag_GcRoot         = jnc_TypeFlag_GcRoot,
 	TypeFlag_StructRet      = jnc_TypeFlag_StructRet,
 	TypeFlag_NoStack        = jnc_TypeFlag_NoStack,
-	TypeFlag_NoImports      = jnc_TypeFlag_NoImports,
-	TypeFlag_SignatureReady = jnc_TypeFlag_SignatureReady,
-	TypeFlag_SignatureFinal = jnc_TypeFlag_SignatureFinal,
-	TypeFlag__All           = jnc_TypeFlag__All;
+	TypeFlag_NoImports      = jnc_TypeFlag_NoImports;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -751,6 +765,19 @@ const PtrTypeFlag
 
 	PtrTypeFlag__All       = jnc_PtrTypeFlag__All,
 	PtrTypeFlag__Dual      = jnc_PtrTypeFlag__Dual;
+
+//..............................................................................
+
+typedef jnc_TypeStringKind TypeStringKind;
+
+const TypeStringKind
+	TypeStringKind_TypeName             = jnc_TypeStringKind_TypeName,
+	TypeStringKind_Prefix               = jnc_TypeStringKind_Prefix,
+	TypeStringKind_Suffix               = jnc_TypeStringKind_Suffix,
+	TypeStringKind_DoxyTypeString       = jnc_TypeStringKind_DoxyTypeString,
+	TypeStringKind_DoxyLinkedTextPrefix = jnc_TypeStringKind_DoxyLinkedTextPrefix,
+	TypeStringKind_DoxyLinkedTextSuffix = jnc_TypeStringKind_DoxyLinkedTextSuffix,
+	TypeStringKind__Count               = jnc_TypeStringKind__Count;
 
 //..............................................................................
 

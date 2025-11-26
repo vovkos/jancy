@@ -349,7 +349,7 @@ OperatorMgr::parseFunctionArgDefaultValue(
 	const sl::List<Token>& tokenList,
 	Value* resultValue
 ) {
-	ParseContext parseContext(ParseContextKind_Expression, m_module, decl);
+	ParseContext parseContext(ParseContextKind_Expression, m_module, *decl);
 	Parser parser(m_module, decl->getPragmaConfig(), Parser::Mode_Compile);
 
 	m_module->m_namespaceMgr.lockSourcePos();
@@ -387,7 +387,8 @@ OperatorMgr::parseConstIntegerExpression(
 		return false;
 
 	if (value.getValueKind() != ValueKind_Const ||
-		!(value.getType()->getTypeKindFlags() & TypeKindFlag_Integer)) {
+		!(value.getType()->getTypeKindFlags() & TypeKindFlag_Integer)
+	) {
 		err::setError("expression is not integer constant");
 		return false;
 	}

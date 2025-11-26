@@ -45,9 +45,49 @@ getReactorMethod(
 //..............................................................................
 
 bool
+ReactorClassType::Reactor::compile() {
+	ReactorClassType* reactorType = (ReactorClassType*)m_parentNamespace;
+	const sl::StringRef& body = reactorType->getBody();
+	const lex::LineColOffset& bodyPos = reactorType->getBodyPos();
+
+	ASSERT(!body.isEmpty());
+
+	ParseContext parseContext(ParseContextKind_Body, m_module, m_parentUnit, reactorType);
+	Parser parser(m_module, m_pragmaConfig, Parser::Mode_Compile);
+
+	Value argValueArray[2];
+	m_module->m_functionMgr.internalPrologue(this, argValueArray, countof(argValueArray), &bodyPos);
+	m_module->m_controlFlowMgr.enterReactor(reactorType, argValueArray[1]);
+
+	bool result =
+		parser.parseBody(SymbolKind_compound_stmt, bodyPos, body) &&
+		m_module->m_controlFlowMgr.leaveReactor();
+
+	if (!result)
+		return false;
+
+	m_module->m_functionMgr.internalEpilogue();
+	return true;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+sl::StringRef
+ReactorClassType::createItemString(size_t index) {
+	switch (index) {
+	case TypeStringKind_Prefix:
+	case TypeStringKind_DoxyLinkedTextPrefix:
+		return "reactor";
+
+	default:
+		return ClassType::createItemString(index);
+	}
+}
+
+bool
 ReactorClassType::calcLayout() {
 	if (m_body.isEmpty()) {
-		err::setFormatStringError("reactor '%s' has no body", getQualifiedName().sz());
+		err::setFormatStringError("reactor '%s' has no body", getItemName().sz());
 		return false;
 	}
 
@@ -60,33 +100,10 @@ ReactorClassType::prepareForOperatorNew() {
 	if (!result)
 		return false;
 
-	// explicitly mark Reactor.reaction for compilation as we don't call it directly
+	// explicitly mark react() for compilation as we don't call it directly
 	// it's called from RTL in rtl::ReactorImpl::reactionLoop
 
-	m_module->markForCompile(m_reactor);
-	return true;
-}
-
-bool
-ReactorClassType::compileReaction(Function* function) {
-	ASSERT(function == m_reactor);
-	ASSERT(!m_body.isEmpty());
-
-	ParseContext parseContext(ParseContextKind_Body, m_module, m_parentUnit, this);
-	Parser parser(m_module, m_pragmaConfig, Parser::Mode_Compile);
-
-	Value argValueArray[2];
-	m_module->m_functionMgr.internalPrologue(function, argValueArray, countof(argValueArray), &m_bodyPos);
-	m_module->m_controlFlowMgr.enterReactor(this, argValueArray[1]);
-
-	bool result =
-		parser.parseBody(SymbolKind_compound_stmt, m_bodyPos, m_body) &&
-		m_module->m_controlFlowMgr.leaveReactor();
-
-	if (!result)
-		return false;
-
-	m_module->m_functionMgr.internalEpilogue();
+	m_module->markForCompile(getReactor());
 
 	// explicitly mark all event handlers for compilation as we don't call those directly
 	// they are called from RTL in rtl::ReactorImpl::reactionLoop
@@ -98,7 +115,21 @@ ReactorClassType::compileReaction(Function* function) {
 			m_module->markForCompile(handler);
 	}
 
+	// ensure closure type is created -- it's used in rtl::ReactorImpl::reactionLoop
+	m_module->m_typeMgr.getStdType(StdType_ReactorClosure);
 	return true;
+}
+
+Function*
+ReactorClassType::createReactor() {
+	ASSERT(!m_reactor);
+
+	Type* voidType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Void);
+	Type* sizeType = m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT);
+	FunctionType* functionType = m_module->m_typeMgr.getFunctionType(voidType, (Type**)&sizeType, 1);
+	m_reactor = createMethod<Reactor>("!react", functionType);
+	m_reactor->m_parentUnit = m_parentUnit;
+	return m_reactor;
 }
 
 //..............................................................................

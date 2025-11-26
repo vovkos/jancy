@@ -25,6 +25,7 @@ class ExtensionNamespace;
 class DynamicLibNamespace;
 class Parser;
 class ParseContext;
+class Declarator;
 
 //..............................................................................
 
@@ -42,6 +43,20 @@ protected:
 		AccessKind m_accessKind;
 	};
 
+	class TemplateNamespace: public Namespace {
+	public:
+		TemplateNamespace() {
+			m_namespaceKind = NamespaceKind_Template;
+			m_namespaceStatus = NamespaceStatus_Ready;
+		}
+
+		virtual
+		ModuleItem*
+		getDeclItem() {
+			return NULL;
+		}
+	};
+
 protected:
 	Module* m_module;
 
@@ -51,7 +66,7 @@ protected:
 	sl::List<Orphan> m_orphanList;
 	sl::List<Alias> m_aliasList;
 	sl::AutoPtrArray<ScopeExtension> m_scopeExtensionArray;
-	sl::AutoPtrArray<Namespace> m_templateNamespaceArray;
+	sl::AutoPtrArray<TemplateNamespace> m_templateNamespaceArray;
 
 	sl::Array<NamespaceStackEntry> m_namespaceStack;
 
@@ -85,15 +100,17 @@ public:
 	Orphan*
 	createOrphan(
 		OrphanKind orphanKind,
-		const QualifiedName& declaratorName,
+		Declarator* declarator,
 		FunctionKind functionKind,
 		FunctionType* functionType
 	);
 
+	Orphan*
+	cloneOrphan(const Orphan* srcOrphan);
+
 	Alias*
 	createAlias(
 		const sl::StringRef& name,
-		const sl::StringRef& qualifiedName,
 		sl::List<Token>* initializer
 	);
 

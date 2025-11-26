@@ -21,7 +21,7 @@ class Unit;
 //..............................................................................
 
 enum QualifiedNameAtomKind {
-	QualifiedNameAtomKind_Empty,
+	QualifiedNameAtomKind_Empty = 0,
 	QualifiedNameAtomKind_BaseType,
 	QualifiedNameAtomKind_Name,
 	QualifiedNameAtomKind_Template,
@@ -41,7 +41,7 @@ struct QualifiedNameAtom {
 
 	bool
 	isEmpty() const {
-		return !m_atomKind;
+		return m_atomKind == QualifiedNameAtomKind_Empty;
 	}
 
 	sl::StringRef
@@ -72,15 +72,10 @@ struct QualifiedNameAtom {
 
 class QualifiedName {
 protected:
-	Unit* m_unit;
 	QualifiedNameAtom m_firstAtom;
 	sl::BoxList<QualifiedNameAtom> m_atomList;
 
 public:
-	QualifiedName() {
-		m_unit = NULL;
-	}
-
 	bool
 	isEmpty() const {
 		return m_firstAtom.isEmpty();
@@ -94,11 +89,6 @@ public:
 	bool
 	isSimple() const {
 		return m_atomList.isEmpty() && m_firstAtom.m_atomKind != QualifiedNameAtomKind_Template;
-	}
-
-	Unit*
-	getUnit() const {
-		return m_unit;
 	}
 
 	const QualifiedNameAtom&
@@ -122,6 +112,9 @@ public:
 	sl::StringRef
 	getFullName() const;
 
+	size_t
+	appendFullName(sl::String* string) const;
+
 	sl::List<Token>*
 	getTemplateTokenList() {
 		ASSERT(getLastAtom()->m_atomKind == QualifiedNameAtomKind_Name);
@@ -129,7 +122,7 @@ public:
 	}
 
 	void
-	finalizeTemplateTokenList(Unit* unit);
+	finalizeTemplateTokenList();
 
 	void
 	clear() {
@@ -154,9 +147,6 @@ public:
 	}
 
 	void
-	removeFirstAtom(QualifiedNameAtom* atom);
-
-	void
 	removeLastAtom();
 
 protected:
@@ -177,21 +167,30 @@ QualifiedName::getShortName() const {
 }
 
 inline
+sl::StringRef
+QualifiedName::getFullName() const {
+	if (m_atomList.isEmpty())
+		return m_firstAtom.getString();
+
+	sl::String string;
+	appendFullName(&string);
+	return string;
+}
+
+inline
 void
-QualifiedName::finalizeTemplateTokenList(Unit* unit) {
+QualifiedName::finalizeTemplateTokenList() {
 	QualifiedNameAtom* atom = getLastAtom();
 
 	ASSERT(
 		atom->m_atomKind == QualifiedNameAtomKind_Name &&
 		atom->m_templateTokenList.getHead()->m_tokenKind == '<' &&
-		atom->m_templateTokenList.getTail()->m_tokenKind == '>' &&
-		(!m_unit || m_unit == unit)
+		atom->m_templateTokenList.getTail()->m_tokenKind == '>'
 	);
 
 	atom->m_atomKind = QualifiedNameAtomKind_Template;
 	atom->m_templateTokenList.eraseHead();
 	atom->m_templateTokenList.eraseTail();
-	m_unit = unit;
 }
 
 inline
@@ -201,6 +200,58 @@ QualifiedName::removeLastAtom() {
 		m_firstAtom.clear();
 	else
 		m_atomList.eraseTail();
+}
+
+//..............................................................................
+
+class QualifiedNamePos {
+protected:
+	static const QualifiedNameAtom m_emptyAtom;
+	const QualifiedNameAtom* m_atom;
+
+public:
+	QualifiedNamePos() {
+		m_atom = &m_emptyAtom;
+	}
+
+	QualifiedNamePos(const QualifiedNameAtom* atom) {
+		m_atom = atom;
+	}
+
+	operator bool () const {
+		return !m_atom->isEmpty();
+	}
+
+	const QualifiedNameAtom& operator * () const {
+		return *m_atom;
+	}
+
+	const QualifiedNameAtom* operator -> () const  {
+		return m_atom;
+	}
+
+	const QualifiedNameAtom&
+	next(const QualifiedName& name);
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+AXL_SELECT_ANY const QualifiedNameAtom QualifiedNamePos::m_emptyAtom;
+
+inline
+const QualifiedNameAtom&
+QualifiedNamePos::next(const QualifiedName & name) {
+	if (m_atom->isEmpty())
+		return m_emptyAtom;
+
+	const QualifiedNameAtom& prevAtom = *m_atom;
+
+	sl::ConstBoxIterator<QualifiedNameAtom> it = m_atom == &name.getFirstAtom() ?
+		name.getAtomList().getHead() :
+		sl::ConstBoxIterator<QualifiedNameAtom>(containerof(m_atom, sl::BoxListEntry<QualifiedNameAtom>, m_value)).getNext();
+
+	m_atom = it ? &*it : &m_emptyAtom;
+	return prevAtom;
 }
 
 //..............................................................................

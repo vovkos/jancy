@@ -19,6 +19,22 @@ namespace ct {
 
 //..............................................................................
 
+sl::StringRef
+Alias::createItemString(size_t index) {
+	if (index != ModuleItemStringKind_Synopsis)
+		return createItemStringImpl(index, this);
+
+	sl::String synopsis = "alias ";
+	synopsis += getItemName();
+
+	if (!m_initializer.isEmpty()) {
+		synopsis += " = ";
+		synopsis += getInitializerString();
+	}
+
+	return synopsis;
+}
+
 bool
 Alias::resolveImpl() {
 	bool result;
@@ -26,7 +42,7 @@ Alias::resolveImpl() {
 	ASSERT(!m_targetItem);
 
 	if (m_flags & AliasFlag_InResolve) {
-		err::setFormatStringError("can't resolve '%s' due to recursion", getQualifiedName().sz());
+		err::setFormatStringError("can't resolve alias '%s' due to recursion", getItemName().sz());
 		return false;
 	}
 
@@ -40,7 +56,7 @@ Alias::resolveImpl() {
 	if (!result)
 		return false;
 
-	FindModuleItemResult findResult = m_parentNamespace->findItemTraverse(parser.getLastQualifiedName());
+	FindModuleItemResult findResult = m_parentNamespace->findItemTraverse(*this, parser.getLastQualifiedName());
 	if (!findResult.m_result)
 		return false;
 

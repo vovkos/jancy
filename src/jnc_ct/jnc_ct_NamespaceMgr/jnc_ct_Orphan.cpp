@@ -21,27 +21,22 @@ namespace ct {
 
 ModuleItem*
 Orphan::resolveForCodeAssist(Namespace* nspace) {
-	if (m_functionKind != FunctionKind_Normal && m_declaratorName.isEmpty()) {
-		adopt(nspace->getParentItem());
-		return m_origin;
-	}
+	if (m_functionKind != FunctionKind_Normal && !m_declaratorNamePos)
+		return adopt(nspace->getDeclItem());
 
-	QualifiedNameAtom atom;
-	m_declaratorName.removeFirstAtom(&atom);
-	FindModuleItemResult findResult = nspace->findDirectChildItem(m_declaratorName.getUnit(), atom);
+	const QualifiedNameAtom& atom = m_declaratorNamePos.next(m_declaratorName);
+	FindModuleItemResult findResult = nspace->findDirectChildItem(*this, atom);
 	if (!findResult.m_result || !findResult.m_item)
 		return NULL;
 
-	if (m_functionKind == FunctionKind_Normal && m_declaratorName.isEmpty()) {
-		adopt(findResult.m_item);
-		return m_origin;
-	}
+	if (m_functionKind == FunctionKind_Normal && !m_declaratorNamePos)
+		return adopt(findResult.m_item);
 
 	nspace = findResult.m_item->getNamespace();
 	return nspace ? resolveForCodeAssist(nspace) : NULL;
 }
 
-bool
+ModuleItem*
 Orphan::adopt(ModuleItem* item) {
 	switch (m_orphanKind) {
 	case OrphanKind_Function:
@@ -52,7 +47,7 @@ Orphan::adopt(ModuleItem* item) {
 
 	default:
 		ASSERT(false);
-		return true;
+		return NULL;
 	}
 }
 
@@ -104,7 +99,7 @@ Orphan::getItemUnnamedMethod(ModuleItem* item) {
 	return OverloadableFunction();
 }
 
-bool
+Function*
 Orphan::adoptOrphanFunction(ModuleItem* item) {
 	bool result;
 	OverloadableFunction origin;
@@ -122,22 +117,19 @@ Orphan::adoptOrphanFunction(ModuleItem* item) {
 			break;
 
 		default:
-			err::setFormatStringError("'%s' is not a function", getQualifiedName().sz());
-			return false;
+			err::setFormatStringError("'%s' is not a function", getItemName().sz());
+			return NULL;
 		}
 	} else {
 		origin = getItemUnnamedMethod(item);
 		if (!origin) {
-			ModuleItemDecl* decl = item->getDecl();
-			ASSERT(decl);
-
 			err::setFormatStringError(
 				"'%s' has no '%s'",
-				decl->getQualifiedName().sz(),
+				item->getItemName().sz(),
 				getFunctionKindString(m_functionKind)
 			);
 
-			return false;
+			return NULL;
 		}
 	}
 
@@ -146,7 +138,7 @@ Orphan::adoptOrphanFunction(ModuleItem* item) {
 		origin.ensureLayout();
 
 	if (!result)
-		return false;
+		return NULL;
 
 	Function* originFunction =
 		origin->getItemKind() == ModuleItemKind_FunctionOverload ?
@@ -156,15 +148,13 @@ Orphan::adoptOrphanFunction(ModuleItem* item) {
 			NULL;
 
 	if (!originFunction) {
-		err::setFormatStringError("'%s': overload not found", getQualifiedName().sz());
-		return false;
+		err::setFormatStringError("'%s': overload not found", getItemName().sz());
+		return NULL;
 	}
 
-	m_origin = originFunction;
-
 	if (!(originFunction->m_flags & ModuleItemFlag_User)) {
-		err::setFormatStringError("'%s' is a compiler-generated function", getQualifiedName().sz());
-		return false;
+		err::setFormatStringError("'%s' is a compiler-generated function", getItemName().sz());
+		return NULL;
 	}
 
 	ASSERT(originFunction->m_functionKind == m_functionKind);
@@ -176,7 +166,7 @@ Orphan::adoptOrphanFunction(ModuleItem* item) {
 	if (originType->getFlags() & ModuleItemFlag_User) {
 		result = copyArgNames(originType);
 		if (!result)
-			return false;
+			return NULL;
 	} else {
 		sl::Array<FunctionArg*> argArray = m_functionType->getArgArray();
 		if (originType->isMemberMethodType())
@@ -192,10 +182,12 @@ Orphan::adoptOrphanFunction(ModuleItem* item) {
 
 	return
 		originFunction->setBody(m_pragmaConfig, m_bodyPos, m_body) &&
-		verifyStorageKind(originFunction);
+		verifyStorageKind(originFunction) ?
+			originFunction :
+			NULL;
 }
 
-bool
+Function*
 Orphan::adoptOrphanReactor(ModuleItem* item) {
 	Type* itemType = NULL;
 
@@ -211,13 +203,12 @@ Orphan::adoptOrphanReactor(ModuleItem* item) {
 	}
 
 	if (!itemType || !isClassType(itemType, ClassTypeKind_Reactor)) {
-		err::setFormatStringError("'%s' is not a reactor", getQualifiedName().sz());
-		return false;
+		err::setFormatStringError("'%s' is not a reactor", getItemName().sz());
+		return NULL;
 	}
 
 	ReactorClassType* originType = (ReactorClassType*)itemType ;
 	Function* originReactor = originType->getReactor();
-	m_origin = originReactor;
 
 	copySrcPos(originType);
 	copySrcPos(originReactor);
@@ -225,7 +216,9 @@ Orphan::adoptOrphanReactor(ModuleItem* item) {
 
 	return
 		originType->setBody(m_pragmaConfig, m_bodyPos, m_body) &&
-		verifyStorageKind(originReactor);
+		verifyStorageKind(originReactor) ?
+			originReactor :
+			NULL;
 }
 
 bool
@@ -255,7 +248,6 @@ Orphan::copyArgNames(FunctionType* targetFunctionType) {
 		}
 
 		dstArg->m_name = srcArg->m_name;
-		dstArg->m_qualifiedName = srcArg->m_qualifiedName;
 	}
 
 	return true;
@@ -266,7 +258,7 @@ Orphan::verifyStorageKind(ModuleItemDecl* targetDecl) {
 	if (!m_storageKind || m_storageKind == targetDecl->getStorageKind())
 		return true;
 
-	err::setFormatStringError("storage specifier mismatch for orphan '%s'", getQualifiedName().sz());
+	err::setFormatStringError("storage specifier mismatch for orphan '%s'", getItemName().sz());
 	return false;
 }
 
@@ -274,6 +266,43 @@ void
 Orphan::copySrcPos(ModuleItemDecl* targetDecl) {
 	targetDecl->m_parentUnit = m_parentUnit;
 	targetDecl->m_pos = m_pos;
+}
+
+sl::StringRef
+Orphan::createItemString(size_t index) {
+	switch (index) {
+	case ModuleItemStringKind_QualifiedName:
+		break;
+
+	case ModuleItemStringKind_Synopsis: {
+		sl::StringRef name = getItemString(ModuleItemStringKind_QualifiedName);
+		switch (m_orphanKind) {
+		case OrphanKind_Function:
+			return createItemStringImpl(index, this, m_functionType, 0);
+
+		case OrphanKind_Reactor:
+			return "reactor " + name;
+
+		default:
+			ASSERT(false);
+			return sl::StringRef();
+		}
+		}
+
+	default:
+		return sl::StringRef();
+	}
+
+	sl::StringRef parentName = m_parentNamespace->getDeclItem()->getItemName();
+	sl::StringRef declaratorName = m_declaratorName.getFullName();
+
+	if (m_functionKind == FunctionKind_Normal)
+		return parentName.isEmpty() ? declaratorName : parentName + '.' + declaratorName;
+
+	sl::String string = parentName.isEmpty() ? declaratorName : parentName + '.' + declaratorName;
+	string += '.';
+	string += getFunctionKindString(m_functionKind);
+	return string;
 }
 
 //..............................................................................

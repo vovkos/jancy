@@ -109,12 +109,6 @@ jnc_ModuleItemDecl_getName(jnc_ModuleItemDecl* decl) {
 }
 
 JNC_EXTERN_C
-const char*
-jnc_ModuleItemDecl_getQualifiedName(jnc_ModuleItemDecl* decl) {
-	return jnc_g_dynamicExtensionLibHost->m_moduleItemDeclFuncTable->m_getQualifiedNameFunc(decl);
-}
-
-JNC_EXTERN_C
 jnc_StorageKind
 jnc_ModuleItemDecl_getStorageKind(jnc_ModuleItemDecl* decl) {
 	return jnc_g_dynamicExtensionLibHost->m_moduleItemDeclFuncTable->m_getStorageKindFunc(decl);
@@ -142,15 +136,21 @@ jnc_ModuleItemDecl_findAttribute(
 }
 
 JNC_EXTERN_C
+jnc_Unit*
+jnc_ModuleItemDecl_getParentUnit(jnc_ModuleItemDecl* decl) {
+	return jnc_g_dynamicExtensionLibHost->m_moduleItemDeclFuncTable->m_getParentUnitFunc(decl);
+}
+
+JNC_EXTERN_C
 jnc_Namespace*
 jnc_ModuleItemDecl_getParentNamespace(jnc_ModuleItemDecl* decl) {
 	return jnc_g_dynamicExtensionLibHost->m_moduleItemDeclFuncTable->m_getParentNamespaceFunc(decl);
 }
 
 JNC_EXTERN_C
-jnc_Unit*
-jnc_ModuleItemDecl_getParentUnit(jnc_ModuleItemDecl* decl) {
-	return jnc_g_dynamicExtensionLibHost->m_moduleItemDeclFuncTable->m_getParentUnitFunc(decl);
+jnc_ModuleItem*
+jnc_ModuleItemDecl_getDeclItem(jnc_ModuleItemDecl* decl) {
+	return jnc_g_dynamicExtensionLibHost->m_moduleItemDeclFuncTable->m_getDeclItemFunc(decl);
 }
 
 JNC_EXTERN_C
@@ -205,11 +205,11 @@ jnc_ModuleItem_getType(jnc_ModuleItem* item) {
 
 JNC_EXTERN_C
 const char*
-jnc_ModuleItem_getSynopsis_v(
+jnc_ModuleItem_getItemString(
 	jnc_ModuleItem* item,
-	uint_t flags
+	size_t index
 ) {
-	return jnc_g_dynamicExtensionLibHost->m_moduleItemFuncTable->m_getSynopsisFunc(item, flags);
+	return jnc_g_dynamicExtensionLibHost->m_moduleItemFuncTable->m_getItemStringFunc(item, index);
 }
 
 #else // _JNC_DYNAMIC_EXTENSION_LIB
@@ -221,13 +221,6 @@ JNC_EXPORT_O
 const char*
 jnc_ModuleItemDecl_getName(jnc_ModuleItemDecl* decl) {
 	return decl->getName().sz();
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-const char*
-jnc_ModuleItemDecl_getQualifiedName(jnc_ModuleItemDecl* decl) {
-	return decl->getQualifiedName().sz();
 }
 
 JNC_EXTERN_C
@@ -263,6 +256,13 @@ jnc_ModuleItemDecl_findAttribute(
 
 JNC_EXTERN_C
 JNC_EXPORT_O
+jnc_Unit*
+jnc_ModuleItemDecl_getParentUnit(jnc_ModuleItemDecl* decl) {
+	return decl->getParentUnit();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Namespace*
 jnc_ModuleItemDecl_getParentNamespace(jnc_ModuleItemDecl* decl) {
 	return decl->getParentNamespace();
@@ -270,9 +270,9 @@ jnc_ModuleItemDecl_getParentNamespace(jnc_ModuleItemDecl* decl) {
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-jnc_Unit*
-jnc_ModuleItemDecl_getParentUnit(jnc_ModuleItemDecl* decl) {
-	return decl->getParentUnit();
+jnc_ModuleItem*
+jnc_ModuleItemDecl_getDeclItem(jnc_ModuleItemDecl* decl) {
+	return decl->getDeclItem();
 }
 
 JNC_EXTERN_C
@@ -287,16 +287,6 @@ JNC_EXPORT_O
 int
 jnc_ModuleItemDecl_getCol(jnc_ModuleItemDecl* decl) {
 	return decl->getPos().m_col;
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-const char*
-jnc_ModuleItem_getSynopsis_v(
-	jnc_ModuleItem* item,
-	uint_t flags
-) {
-	return *jnc::getTlsStringBuffer() = item->getSynopsis(flags);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -340,7 +330,17 @@ JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Type*
 jnc_ModuleItem_getType(jnc_ModuleItem* item) {
-	return item->getType();
+	return item->getItemType();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+const char*
+jnc_ModuleItem_getItemString(
+	jnc_ModuleItem* item,
+	size_t index
+) {
+	return *jnc::getTlsStringBuffer() = item->getItemString(index);
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

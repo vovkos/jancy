@@ -92,7 +92,7 @@ LegacyJit::mapVariable(
 	ASSERT(m_llvmExecutionEngine);
 
 	if (variable->getStorageKind() != StorageKind_Static) {
-		err::setFormatStringError("attempt to map non-global variable: %s", variable->getQualifiedName().sz());
+		err::setFormatStringError("attempt to map non-global variable: %s", variable->getItemName().sz());
 		return false;
 	}
 

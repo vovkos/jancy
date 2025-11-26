@@ -29,10 +29,10 @@ DataPtrType::createSignature(
 	uint_t flags
 ) {
 	static const char* stringTable[] = {
-		"P",
+		"Pn",
 		"Pl",
 		"Pt",
-		"R",
+		"Rn",
 		"Rl",
 		"Rt"
 	};
@@ -42,9 +42,10 @@ DataPtrType::createSignature(
 
 	sl::String signature = stringTable[i];
 	if (bitCount)
-		signature.appendFormat(":%d:%d", bitOffset, bitCount);
+		signature.appendFormat(":%d:%d", bitOffset, bitOffset + bitCount);
 
 	signature += getPtrTypeFlagSignature(flags);
+	signature += '&';
 	signature += targetType->getSignature();
 	return signature;
 }
@@ -62,40 +63,37 @@ DataPtrType::calcLayout() {
 	return true;
 }
 
-void
-DataPtrType::prepareTypeString() {
-	TypeStringTuple* tuple = getTypeStringTuple();
-	sl::String string = m_targetType->getTypeString();
-	appendPointerStringSuffix(&string);
-	tuple->m_typeStringPrefix = string;
-	tuple->m_typeStringSuffix = m_targetType->getTypeStringSuffix();
-}
+sl::StringRef
+DataPtrType::createItemString(size_t index) {
+	switch (index) {
+	case TypeStringKind_Prefix:
+	case TypeStringKind_DoxyLinkedTextPrefix: {
+		sl::String string = m_targetType->getItemString(index);
+		sl::StringRef ptrTypeFlagString = getPtrTypeFlagString(m_flags);
+		if (!ptrTypeFlagString.isEmpty()) {
+			string += ' ';
+			string += ptrTypeFlagString;
+		}
 
-void
-DataPtrType::prepareDoxyLinkedText() {
-	TypeStringTuple* tuple = getTypeStringTuple();
-	tuple->m_doxyLinkedTextPrefix = m_targetType->getDoxyLinkedTextPrefix();
-	appendPointerStringSuffix(&tuple->m_doxyLinkedTextPrefix);
-	tuple->m_doxyLinkedTextSuffix = m_targetType->getDoxyLinkedTextSuffix();
-}
+		if (m_ptrTypeKind != DataPtrTypeKind_Normal) {
+			string += ' ';
+			string += getDataPtrTypeKindString(m_ptrTypeKind);
+		}
 
-void
-DataPtrType::appendPointerStringSuffix(sl::String* string) {
-	sl::StringRef ptrTypeFlagString = getPtrTypeFlagString(m_flags);
-	if (!ptrTypeFlagString.isEmpty()) {
-		*string += ' ';
-		*string += ptrTypeFlagString;
+		if (m_targetType->getTypeKind() == TypeKind_Array)
+			string += " array";
+
+		string += m_typeKind == TypeKind_DataRef ? "&" : "*";
+		return string;
+		}
+
+	case TypeStringKind_Suffix:
+	case TypeStringKind_DoxyLinkedTextSuffix:
+		return m_targetType->getItemString(index);
+
+	default:
+		return Type::createItemString(index);
 	}
-
-	if (m_ptrTypeKind != DataPtrTypeKind_Normal) {
-		*string += ' ';
-		*string += getDataPtrTypeKindString(m_ptrTypeKind);
-	}
-
-	if (m_targetType->getTypeKind() == TypeKind_Array)
-		*string += " array";
-
-	*string += m_typeKind == TypeKind_DataRef ? "&" : "*";
 }
 
 void

@@ -28,13 +28,18 @@ struct TemplateInstance {
 	ModuleItem* m_item;
 	Template* m_template;
 	sl::ArrayRef<Type*> m_argArray;
+
+	size_t
+	appendArgLinkId(sl::String* string) const;
+
+	size_t
+	appendArgString(sl::String* string) const;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class Template:
-	public ModuleItem,
-	public ModuleItemBodyDecl,
+	public ModuleItemWithBodyDecl,
 	public ModuleItemUsingSet,
 	public OrphanArray {
 	friend class TemplateMgr;
@@ -64,11 +69,6 @@ public:
 		return m_argArray;
 	}
 
-	bool
-	isEqual(Template* templ) { // allow comparing items from different modules
-		return this == templ || m_qualifiedName.isEqual(templ->m_qualifiedName);
-	}
-
 	ModuleItem*
 	instantiate(const sl::ConstBoxList<Value>& argList);
 
@@ -77,7 +77,7 @@ public:
 
 	ModuleItem*
 	instantiate(
-		Unit* unit,
+		const ModuleItemContext& context,
 		const sl::List<Token>& argArrayTokenList
 	);
 
@@ -89,6 +89,10 @@ public:
 	);
 
 protected:
+	virtual
+	sl::StringRef
+	createItemString(size_t index);
+
 	Namespace*
 	openTemplateNamespace(const sl::ArrayRef<Type*>& argArray);
 
@@ -154,12 +158,13 @@ public:
 	}
 
 	void
-	clear();
+	clear() {
+		m_templateList.clear();
+	}
 
 	Template*
 	createTemplate(
 		const sl::StringRef& name,
-		const sl::StringRef& qualifiedName,
 		TemplateDeclType* declType
 	);
 
@@ -167,7 +172,6 @@ public:
 	createTemplate(
 		TypeKind typeKind,
 		const sl::StringRef& name,
-		const sl::StringRef& qualifiedName,
 		const sl::ArrayRef<TemplateArgType*>& argArray,
 		const sl::ArrayRef<Type*>& baseTypeArray
 	);

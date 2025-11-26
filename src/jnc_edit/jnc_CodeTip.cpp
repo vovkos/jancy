@@ -64,7 +64,7 @@ CodeTip::showQuickInfoTip(
 	m_functionTypeOverloadIdx = 0;
 	m_argumentIdx = 0;
 
-	showText(pos, item->getSynopsis_v());
+	showText(pos, item->getItemString(ModuleItemStringKind_Synopsis));
 }
 
 void

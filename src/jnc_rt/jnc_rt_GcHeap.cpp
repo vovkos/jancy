@@ -283,7 +283,7 @@ GcHeap::addClassBox_l(Box* box) {
 	m_classBoxArray.append(box); // after all the fields
 
 	if (classType->getDestructor()) {
-		JNC_TRACE_GC_DESTRUCT("GcHeap::addClassBox_l: adding destructible %s(%p)\n", classType->getQualifiedName().sz(), ifaceHdr);
+		JNC_TRACE_GC_DESTRUCT("GcHeap::addClassBox_l: adding destructible %s(%p)\n", classType->getItemName().sz(), ifaceHdr);
 		m_destructibleClassBoxArray.append(box);
 	}
 }
@@ -1690,7 +1690,7 @@ GcHeap::runDestructCycle_l(sl::Array<IfaceHdr*>* destructBuffer) {
 			ct::Function* destructor = classType->getDestructor();
 			ASSERT(destructor);
 
-			JNC_TRACE_GC_DESTRUCT("GcHeap::runDestructCycle_l: destructing %s(%p)\n", classType->getQualifiedName().sz(), iface);
+			JNC_TRACE_GC_DESTRUCT("GcHeap::runDestructCycle_l: destructing %s(%p)\n", classType->getItemName().sz(), iface);
 
 			bool result;
 			JNC_BEGIN_CALL_SITE(m_runtime)
@@ -1701,7 +1701,7 @@ GcHeap::runDestructCycle_l(sl::Array<IfaceHdr*>* destructBuffer) {
 			if (!result)
 				TRACE(
 					"-- WARNING: runtime error in %s.destruct(): %s\n",
-					classType->getQualifiedName().sz(),
+					classType->getItemName().sz(),
 					err::getLastErrorDescription().sz()
 				);
 

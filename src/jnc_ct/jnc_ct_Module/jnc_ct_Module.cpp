@@ -52,6 +52,7 @@ Module::Module():
 	m_config = g_defaultModuleConfig;
 	m_compileFlags = ModuleCompileFlag_StdFlags;
 	m_compileState = ModuleCompileState_Idle;
+	m_unnamedLinkId = 0;
 	m_asyncFlags = 0;
 	m_tryCompileLevel = 0;
 	m_disableAccessCheckLevel = 0;
@@ -195,6 +196,7 @@ Module::initialize(
 	m_compileFlags = m_config.m_compileFlags;
 	m_compileState = ModuleCompileState_Idle;
 	m_compileErrorCount = 0;
+	m_unnamedLinkId = m_config.m_unnamedLinkIdBase;
 
 #if (_AXL_GCC_ASAN)
 	// GC guard page safe points do not work with address sanitizer
@@ -708,22 +710,17 @@ Module::processRequireSet() {
 		if (!(requireIt->m_value.m_flags & ModuleRequireFlag_Traverse))
 			findResult = m_namespaceMgr.getGlobalNamespace()->findItem(requireIt->getKey());
 		else { // traverse at each step (not the same as Namespace::findItemTraverse)
+			Namespace* nspace = m_namespaceMgr.getGlobalNamespace();
 			QualifiedName name;
 			name.parse(requireIt->getKey());
-
-			// safe to pass NULL as Unit* because QualifiedName::parse yields names (no templates)
-			Namespace* nspace = m_namespaceMgr.getGlobalNamespace();
-			findResult = nspace->findDirectChildItem(NULL, name.getFirstAtom());
+			ASSERT(name.getFirstAtom().m_atomKind == QualifiedNameAtomKind_Name);
+			findResult = nspace->findDirectChildItem(name.getFirstAtom().m_name);
 			if (findResult.m_item) {
 				sl::ConstBoxIterator<QualifiedNameAtom> nameIt = name.getAtomList().getHead();
 				for (; nameIt; nameIt++) {
+					ASSERT(nameIt->m_atomKind == QualifiedNameAtomKind_Name);
 					Namespace* nspace = findResult.m_item->getNamespace();
 					if (!nspace) {
-						findResult = g_nullFindModuleItemResult;
-						break;
-					}
-
-					if (nameIt->m_atomKind != QualifiedNameAtomKind_Name) {
 						findResult = g_nullFindModuleItemResult;
 						break;
 					}

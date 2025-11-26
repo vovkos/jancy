@@ -47,10 +47,10 @@ FunctionPtrType::createSignature(
 	uint_t flags
 ) {
 	static const char* stringTable[] = {
-		"P",
+		"Pn",
 		"Pw",
 		"Pt",
-		"R",
+		"Rn",
 		"Rw",
 		"Rt"
 	};
@@ -60,6 +60,7 @@ FunctionPtrType::createSignature(
 
 	sl::String signature = stringTable[i];
 	signature += getPtrTypeFlagSignature(flags);
+	signature += '&';
 	signature += functionType->getSignature();
 	return signature;
 }
@@ -85,47 +86,35 @@ FunctionPtrType::getTypeModifierString() {
 	return string;
 }
 
-void
-FunctionPtrType::prepareTypeString() {
-	TypeStringTuple* tuple = getTypeStringTuple();
-	Type* returnType = m_targetType->getReturnType();
+sl::StringRef
+FunctionPtrType::createItemString(size_t index) {
+	switch (index) {
+	case TypeStringKind_Prefix:
+	case TypeStringKind_DoxyLinkedTextPrefix: {
+		sl::String string = m_targetType->getItemString(index);
+		sl::StringRef modifierString = getTypeModifierString();
+		if (!modifierString.isEmpty()) {
+			string += ' ';
+			string += modifierString;
+		}
 
-	sl::String string = returnType->getTypeStringPrefix();
-	sl::StringRef modifierString = getTypeModifierString();
-	if (!modifierString.isEmpty()) {
-		string += ' ';
-		string += modifierString;
+		string += m_typeKind == TypeKind_FunctionRef ? " function&" : " function*";
+		return string;
+		}
+
+	case TypeStringKind_Suffix:
+	case TypeStringKind_DoxyLinkedTextSuffix:
+		return m_targetType->getItemString(index);
+
+	case TypeStringKind_DoxyTypeString: {
+		sl::String string = Type::createItemString(index);
+		m_targetType->appendDoxyArgString(&string);
+		return string;
+		}
+
+	default:
+		return Type::createItemString(index);
 	}
-
-	string += m_typeKind == TypeKind_FunctionRef ? " function&" : " function*";
-	tuple->m_typeStringPrefix = string;
-	tuple->m_typeStringSuffix = m_targetType->getTypeStringSuffix();
-	tuple->m_typeStringSuffix += returnType->getTypeStringSuffix();
-}
-
-void
-FunctionPtrType::prepareDoxyLinkedText() {
-	TypeStringTuple* tuple = getTypeStringTuple();
-	Type* returnType = m_targetType->getReturnType();
-
-	tuple->m_doxyLinkedTextPrefix = returnType->getDoxyLinkedTextPrefix();
-
-	sl::StringRef modifierString = getTypeModifierString();
-	if (!modifierString.isEmpty()) {
-		tuple->m_doxyLinkedTextPrefix += ' ';
-		tuple->m_doxyLinkedTextPrefix += modifierString;
-	}
-
-	tuple->m_doxyLinkedTextPrefix += m_typeKind == TypeKind_FunctionRef ? " function&" : " function*";
-
-	tuple->m_doxyLinkedTextSuffix = m_targetType->getDoxyLinkedTextSuffix();
-	tuple->m_doxyLinkedTextSuffix += returnType->getDoxyLinkedTextSuffix();
-}
-
-void
-FunctionPtrType::prepareDoxyTypeString() {
-	Type::prepareDoxyTypeString();
-	m_targetType->appendDoxyArgString(&getTypeStringTuple()->m_doxyTypeString);
 }
 
 void

@@ -471,7 +471,7 @@ ControlFlowMgr::ret(const Value& value) {
 		if (returnType->getTypeKind() != TypeKind_Void) {
 			err::setFormatStringError(
 				"function '%s' must return '%s' value",
-				function->getQualifiedName().sz(),
+				function->getItemName().sz(),
 				returnType->getTypeString().sz()
 			);
 			return false;
@@ -490,7 +490,7 @@ ControlFlowMgr::ret(const Value& value) {
 		if (returnType->getTypeKind() == TypeKind_Void) {
 			err::setFormatStringError(
 				"void function '%s' returning '%s' value",
-				function->getQualifiedName().sz(),
+				function->getItemName().sz(),
 				value.getType()->getTypeString().sz()
 			);
 			return false;
@@ -552,14 +552,14 @@ ControlFlowMgr::checkReturn() {
 	} else if (m_returnBlockArray.isEmpty()) {
 		err::setFormatStringError(
 			"function '%s' must return '%s' value",
-			function->getQualifiedName().sz(),
+			function->getItemName().sz(),
 			returnType->getTypeString().sz()
 		);
 		return false;
 	} else {
 		err::setFormatStringError(
 			"not all control paths in function '%s' return a value",
-			function->getQualifiedName().sz()
+			function->getItemName().sz()
 		);
 		return false;
 	}

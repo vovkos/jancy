@@ -36,14 +36,12 @@ enum EnumConstFlag {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class EnumConst:
-	public ModuleItem,
-	public ModuleItemDecl,
+	public ModuleItemWithDecl<>,
 	public ModuleItemInitializer {
 	friend class EnumType;
 	friend class Namespace;
 
 protected:
-	EnumType* m_parentEnumType;
 	int64_t m_value;
 	Variable* m_declVariable;
 
@@ -51,9 +49,7 @@ public:
 	EnumConst();
 
 	EnumType*
-	getParentEnumType() {
-		return m_parentEnumType;
-	}
+	getType();
 
 	int64_t
 	getValue() {
@@ -64,12 +60,23 @@ public:
 	getDeclVariable();
 
 	virtual
+	Type*
+	getItemType() {
+		return (Type*)getType();
+	}
+
+	virtual
 	bool
 	generateDocumentation(
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
 	);
+
+protected:
+	virtual
+	sl::StringRef
+	createItemString(size_t index);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -77,7 +84,6 @@ public:
 inline
 EnumConst::EnumConst() {
 	m_itemKind = ModuleItemKind_EnumConst;
-	m_parentEnumType = NULL;
 	m_value = 0;
 	m_declVariable = NULL;
 }
@@ -173,10 +179,6 @@ public:
 protected:
 	virtual
 	void
-	prepareSignature();
-
-	virtual
-	void
 	prepareLlvmType() {
 		m_llvmType = m_baseType->getLlvmType();
 	}
@@ -225,6 +227,17 @@ EnumType::EnumType() {
 	m_flags = TypeFlag_Pod;
 	m_rootType = NULL;
 	m_baseType = NULL;
+}
+
+//..............................................................................
+
+// must be after declaration of EnumType for downcast to work
+
+inline
+EnumType*
+EnumConst::getType() {
+	ASSERT(m_parentNamespace->getNamespaceKind() == NamespaceKind_Type);
+	return (EnumType*)m_parentNamespace;
 }
 
 //..............................................................................

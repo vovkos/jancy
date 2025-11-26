@@ -14,10 +14,40 @@
 #include "jnc_ct_DeclTypeCalc.h"
 #include "jnc_ct_UnionType.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_ParseContext.h"
 #include "jnc_ct_Parser.llk.h"
 
 namespace jnc {
 namespace ct {
+
+//..............................................................................
+
+size_t
+TemplateInstance::appendArgLinkId(sl::String* string) const {
+	*string += '<';
+
+	size_t argCount = m_argArray.getCount();
+	for (size_t i = 0; i < argCount; i++)
+		*string += m_argArray[i]->getSignature();
+
+	*string += '>';
+	return string->getLength();
+}
+
+size_t
+TemplateInstance::appendArgString(sl::String* string) const {
+	*string += '<';
+
+	*string += m_argArray[0]->getTypeString();
+	size_t argCount = m_argArray.getCount();
+	for (size_t i = 1; i < argCount; i++) {
+		*string += ", ";
+		*string += m_argArray[i]->getSignature();
+	}
+
+	*string += '>';
+	return string->getLength();
+}
 
 //..............................................................................
 
@@ -46,7 +76,7 @@ Template::instantiate(const sl::ArrayRef<Type*>& argArray) {
 
 	sl::String signature;
 	for (size_t i = 0; i < argCount; i++)
-		signature += argArray[i]->getType()->getSignature();
+		signature += argArray[i]->getSignature();
 
 	sl::StringHashTableIterator<TemplateInstance> mapIt = m_instanceMap.visit(signature);
 	TemplateInstance* instance = &mapIt->m_value;
@@ -63,7 +93,7 @@ Template::instantiate(const sl::ArrayRef<Type*>& argArray) {
 			return NULL;
 
 		if (m_storageKind == StorageKind_Typedef) {
-			Typedef* tdef = m_module->m_typeMgr.createTypedef(m_name, m_qualifiedName, type);
+			Typedef* tdef = m_module->m_typeMgr.createTypedef(m_name, type);
 			copyDecl(tdef);
 			item = tdef;
 		} else {
@@ -81,30 +111,15 @@ Template::instantiate(const sl::ArrayRef<Type*>& argArray) {
 		DerivableType* type;
 		switch (m_derivableTypeKind) {
 		case TypeKind_Struct:
-			type = m_module->m_typeMgr.createStructType(
-				m_name,
-				m_qualifiedName,
-				m_pragmaConfig->m_fieldAlignment
-			);
-
+			type = m_module->m_typeMgr.createStructType(m_name, m_pragmaConfig->m_fieldAlignment);
 			break;
 
 		case TypeKind_Union:
-			type = m_module->m_typeMgr.createUnionType(
-				m_name,
-				m_qualifiedName,
-				m_pragmaConfig->m_fieldAlignment
-			);
-
+			type = m_module->m_typeMgr.createUnionType(m_name, m_pragmaConfig->m_fieldAlignment);
 			break;
 
 		case TypeKind_Class:
-			type = m_module->m_typeMgr.createClassType(
-				m_name,
-				m_qualifiedName,
-				m_pragmaConfig->m_fieldAlignment
-			);
-
+			type = m_module->m_typeMgr.createClassType(m_name, m_pragmaConfig->m_fieldAlignment);
 			break;
 
 		default:
@@ -112,26 +127,17 @@ Template::instantiate(const sl::ArrayRef<Type*>& argArray) {
 			return NULL;
 		}
 
-		bool result = type->addItem(type->getName(), type);
-		ASSERT(result); // should have been checked in parser
-
 		for (size_t i = 0; i < argCount; i++) {
 			const sl::StringRef& name = m_argArray[i]->getName();
-			Typedef* tdef = m_module->m_typeMgr.createTypedef(name, name, argArray[i]);
-			result = type->addItem(tdef);
+			Typedef* tdef = m_module->m_typeMgr.createTypedef(name, argArray[i]);
+			bool result = type->addItem(tdef);
 			ASSERT(result); // should have been checked in parser
 		}
 
 		size_t orphanCount = m_orphanArray.getCount();
 		for (size_t i = 0; i < orphanCount; i++) {
 			Orphan* srcOrphan = m_orphanArray[i];
-			Orphan* orphan = m_module->m_namespaceMgr.createOrphan(
-				srcOrphan->getOrphanKind(),
-				srcOrphan->getDeclaratorName(),
-				srcOrphan->getFunctionKind(),
-				srcOrphan->getFunctionType()
-			);
-
+			Orphan* orphan = m_module->m_namespaceMgr.cloneOrphan(srcOrphan);
 			copyDecl(orphan, srcOrphan);
 			type->addOrphan(orphan);
 		}
@@ -149,20 +155,16 @@ Template::instantiate(const sl::ArrayRef<Type*>& argArray) {
 
 ModuleItem*
 Template::instantiate(
-	Unit* unit,
+	const ModuleItemContext& context,
 	const sl::List<Token>& argArrayTokenList
 ) {
 	sl::List<Token> tokenList;
 	cloneTokenList(&tokenList, argArrayTokenList);
 
-	Unit* prevUnit = m_module->m_unitMgr.setCurrentUnit(unit);
+	ParseContext parseContext(ParseContextKind_TypeName, m_module, context);
 	Parser parser(m_module, m_pragmaConfig, Parser::Mode_Compile);
 	bool result = parser.parseTokenList(SymbolKind_type_name_list_save, &tokenList);
-	m_module->m_unitMgr.setCurrentUnit(prevUnit);
-	if (!result)
-		return NULL;
-
-	return instantiate(parser.getLastTypeArray());
+	return result ? instantiate(parser.getLastTypeArray()) : NULL;
 }
 
 bool
@@ -181,7 +183,7 @@ Template::deduceArgs(
 	}
 
 	if (deductionType->getTypeKind() != TypeKind_Function) {
-		err::setFormatStringError("cannot deduce arguments of template '%s' (not a function)", m_qualifiedName.sz());
+		err::setFormatStringError("cannot deduce arguments of template '%s' (not a function)", getItemName().sz());
 		return false;
 	}
 
@@ -189,7 +191,7 @@ Template::deduceArgs(
 	const sl::Array<FunctionArg*>& functionArgArray = functionType->getArgArray();
 	size_t functionArgCount = functionArgArray.getCount();
 	if (functionArgCount != argValueList.getCount()) {
-		err::setFormatStringError("'%s' does not take %d arguments", m_qualifiedName.sz(), argValueList.getCount());
+		err::setFormatStringError("'%s' does not take %d arguments", getItemName().sz(), argValueList.getCount());
 		return false;
 	}
 
@@ -212,7 +214,7 @@ Template::deduceArgs(
 			err::setFormatStringError(
 				"cannot deduce argument '%s' of template '%s'",
 				m_argArray[i]->getName().sz(),
-				m_qualifiedName.sz()
+				getItemName().sz()
 			);
 
 			return false;
@@ -220,6 +222,33 @@ Template::deduceArgs(
 	}
 
 	return result;
+}
+
+sl::StringRef
+Template::createItemString(size_t index) {
+	switch (index) {
+	case ModuleItemStringKind_QualifiedName:
+		break;
+	case ModuleItemStringKind_Synopsis:
+		return "template " + getItemName();
+	default:
+		return sl::StringRef();
+	}
+
+	sl::String string = createQualifiedNameImpl(m_module);
+	string += '<';
+
+	size_t count = m_argArray.getCount();
+	ASSERT(count);
+
+	string += m_argArray[0]->getName();
+	for (size_t i = 1; i < count; i++) {
+		string += ", ";
+		string += m_argArray[i]->getName();
+	}
+
+	string += '>';
+	return string;
 }
 
 Namespace*
@@ -242,21 +271,14 @@ TemplateMgr::TemplateMgr() {
 	ASSERT(m_module);
 }
 
-void
-TemplateMgr::clear() {
-	m_templateList.clear();
-}
-
 Template*
 TemplateMgr::createTemplate(
 	const sl::StringRef& name,
-	const sl::StringRef& qualifiedName,
 	TemplateDeclType* declType
 ) {
 	Template* templ = new Template;
 	templ->m_module = m_module;
 	templ->m_name = name;
-	templ->m_qualifiedName = qualifiedName;
 	templ->m_declType = declType;
 	templ->m_argArray = declType->getDeclarator()->getTemplateArgArray();
 	m_templateList.insertTail(templ);
@@ -267,14 +289,12 @@ Template*
 TemplateMgr::createTemplate(
 	TypeKind typeKind,
 	const sl::StringRef& name,
-	const sl::StringRef& qualifiedName,
 	const sl::ArrayRef<TemplateArgType*>& argArray,
 	const sl::ArrayRef<Type*>& baseTypeArray
 ) {
 	Template* templ = new Template;
 	templ->m_module = m_module;
 	templ->m_name = name;
-	templ->m_qualifiedName = qualifiedName;
 	templ->m_derivableTypeKind = typeKind;
 	templ->m_argArray = argArray;
 	templ->m_baseTypeArray = baseTypeArray;

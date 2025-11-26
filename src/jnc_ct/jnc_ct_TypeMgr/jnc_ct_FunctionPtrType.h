@@ -110,6 +110,17 @@ public:
 
 protected:
 	virtual
+	void
+	prepareSignature() {
+		m_signature = createSignature(m_targetType, m_typeKind, m_ptrTypeKind, m_flags);
+		m_flags |= m_targetType->getFlags() & TypeFlag_SignatureMask;
+	}
+
+	virtual
+	sl::StringRef
+	createItemString(size_t index);
+
+	virtual
 	bool
 	resolveImports() {
 		return m_targetType->ensureNoImports();
@@ -120,25 +131,6 @@ protected:
 	calcLayout() {
 		return m_targetType->ensureLayout();
 	}
-
-	virtual
-	void
-	prepareSignature() {
-		m_signature = createSignature(m_targetType, m_typeKind, m_ptrTypeKind, m_flags);
-		m_flags |= m_targetType->getFlags() & TypeFlag_SignatureFinal;
-	}
-
-	virtual
-	void
-	prepareTypeString();
-
-	virtual
-	void
-	prepareDoxyLinkedText();
-
-	virtual
-	void
-	prepareDoxyTypeString();
 
 	virtual
 	void

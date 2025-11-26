@@ -64,18 +64,15 @@ NamespaceMgr::NamespaceMgr() {
 	jnc->m_namespaceStatus = NamespaceStatus_Ready;
 	jnc->m_parentNamespace = global;
 	jnc->m_name = jncName;
-	jnc->m_qualifiedName = jncName;
 
 	std->m_module = m_module;
 	std->m_parentNamespace = global;
 	std->m_name = stdName;
-	std->m_qualifiedName = stdName;
 
 	internal->m_module = m_module;
 	internal->m_namespaceStatus = NamespaceStatus_Ready;
 	internal->m_parentNamespace = global;
 	internal->m_name = jncName;
-	internal->m_qualifiedName = jncName;
 
 	m_currentNamespace = global;
 	m_currentScope = NULL;
@@ -244,7 +241,7 @@ NamespaceMgr::addStdItems() {
 Orphan*
 NamespaceMgr::createOrphan(
 	OrphanKind orphanKind,
-	const QualifiedName& declaratorName,
+	Declarator* declarator,
 	FunctionKind functionKind,
 	FunctionType* functionType
 ) {
@@ -253,7 +250,59 @@ NamespaceMgr::createOrphan(
 	orphan->m_orphanKind = orphanKind;
 	orphan->m_functionKind = functionKind;
 	orphan->m_functionType = functionType;
-	orphan->m_declaratorName.copy(declaratorName);
+
+	switch (functionKind) {
+	case FunctionKind_Normal:
+		orphan->m_name = declarator->getShortName();
+		break;
+
+	case FunctionKind_UnaryOperator:
+		orphan->m_unOpKind = declarator->getUnOpKind();
+		break;
+
+	case FunctionKind_BinaryOperator:
+		orphan->m_binOpKind = declarator->getBinOpKind();
+		break;
+
+	case FunctionKind_CastOperator:
+		orphan->m_castOpType = declarator->getCastOpType();
+		break;
+	}
+
+	sl::takeOver(&orphan->m_declaratorName, &declarator->m_name);
+	orphan->m_declaratorNamePos = &orphan->m_declaratorName.getFirstAtom();
+	m_orphanList.insertTail(orphan);
+	return orphan;
+}
+
+Orphan*
+NamespaceMgr::cloneOrphan(const Orphan* srcOrphan) {
+	Orphan* orphan = new Orphan;
+	orphan->m_module = m_module;
+	orphan->m_orphanKind = srcOrphan->m_orphanKind;
+	orphan->m_functionKind = srcOrphan->m_functionKind;
+	orphan->m_functionType = srcOrphan->m_functionType;
+
+	switch (orphan->m_functionKind) {
+	case FunctionKind_Normal:
+		orphan->m_name = srcOrphan->m_name;
+		break;
+
+	case FunctionKind_UnaryOperator:
+		orphan->m_unOpKind = srcOrphan->m_unOpKind;
+		break;
+
+	case FunctionKind_BinaryOperator:
+		orphan->m_binOpKind = orphan->m_binOpKind;
+		break;
+
+	case FunctionKind_CastOperator:
+		orphan->m_castOpType = orphan->m_castOpType;
+		break;
+	}
+
+	orphan->m_declaratorName.copy(srcOrphan->m_declaratorName);
+	orphan->m_declaratorNamePos = &orphan->m_declaratorName.getFirstAtom();
 	m_orphanList.insertTail(orphan);
 	return orphan;
 }
@@ -261,13 +310,11 @@ NamespaceMgr::createOrphan(
 Alias*
 NamespaceMgr::createAlias(
 	const sl::StringRef& name,
-	const sl::StringRef& qualifiedName,
 	sl::List<Token>* initializer
 ) {
 	Alias* alias = new Alias;
 	alias->m_module = m_module;
 	alias->m_name = name;
-	alias->m_qualifiedName = qualifiedName;
 	sl::takeOver(&alias->m_initializer, initializer);
 	m_aliasList.insertTail(alias);
 	return alias;
@@ -446,9 +493,7 @@ NamespaceMgr::closeScope() {
 
 Namespace*
 NamespaceMgr::openTemplateNamespace() {
-	Namespace* nspace = new Namespace;
-	nspace->m_namespaceKind = NamespaceKind_Template;
-	nspace->m_namespaceStatus = NamespaceStatus_Ready;
+	TemplateNamespace* nspace = new TemplateNamespace;
 	nspace->m_parentNamespace = m_currentNamespace;
 	m_templateNamespaceArray.append(nspace);
 	openNamespace(nspace);
@@ -470,12 +515,10 @@ NamespaceMgr::getAccessKind(Namespace* targetNamespace) {
 
 	if (targetNamespace->m_namespaceKind != NamespaceKind_Type) {
 		for (; nspace; nspace = nspace->m_parentNamespace) {
-			if (!nspace->isNamed())
+			if (nspace->isNamed())
 				continue;
 
-			if (nspace == targetNamespace ||
-				targetNamespace->getQualifiedName().isEqual(nspace->getQualifiedName()) ||
-				targetNamespace->m_friendSet.find(nspace->getQualifiedName()))
+			if (nspace == targetNamespace || targetNamespace->m_friendSet.find(nspace))
 				return AccessKind_Protected;
 		}
 
@@ -488,9 +531,7 @@ NamespaceMgr::getAccessKind(Namespace* targetNamespace) {
 		if (!nspace->isNamed())
 			continue;
 
-		if (nspace == targetNamespace ||
-			targetNamespace->getQualifiedName().isEqual(nspace->getQualifiedName()) ||
-			targetNamespace->m_friendSet.find(nspace->getQualifiedName()))
+		if (nspace == targetNamespace || targetNamespace->m_friendSet.find(nspace))
 			return AccessKind_Protected;
 
 		if (nspace->m_namespaceKind == NamespaceKind_Type) {

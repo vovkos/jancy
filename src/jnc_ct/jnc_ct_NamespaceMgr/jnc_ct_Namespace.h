@@ -64,7 +64,7 @@ protected:
 	err::Error m_parseError;
 	sl::Array<ModuleItem*> m_itemArray;
 	sl::StringHashTable<ModuleItem*> m_itemMap;
-	sl::StringHashTable<bool> m_friendSet;
+	sl::SimpleHashTable<Namespace*, bool> m_friendSet;
 	sl::StringHashTable<DualPtrTypeTuple*> m_dualPtrTypeTupleMap;
 
 public:
@@ -92,34 +92,30 @@ public:
 	bool
 	parseLazyImports();
 
-	ModuleItem*
-	getParentItem();
-
-	virtual
-	sl::StringRef
-	createQualifiedName(const sl::StringRef& name);
-
-	sl::StringRef
-	createQualifiedName(const QualifiedName& name) {
-		return createQualifiedName(name.getFullName());
-	}
-
-	bool
-	isFriend(Namespace* nspace) {
-		return m_friendSet.find(nspace->getQualifiedName()) != NULL;
-	}
-
 	FindModuleItemResult
 	findDirectChildItem(const sl::StringRef& name);
 
 	FindModuleItemResult
+	findDirectChildItem(const QualifiedNameAtom& atom) {
+		return findDirectChildItem(ModuleItemContext(), atom);
+	}
+
+	FindModuleItemResult
 	findDirectChildItem(
-		Unit* unit,
-		const QualifiedNameAtom& name
+		const ModuleItemContext& context,
+		const QualifiedNameAtom& atom
 	);
 
 	FindModuleItemResult
-	findItem(const QualifiedName& name);
+	findItem(const QualifiedName& name) {
+		return findItem(ModuleItemContext(), name);
+	}
+
+	FindModuleItemResult
+	findItem(
+		const ModuleItemContext& context,
+		const QualifiedName& name
+	);
 
 	FindModuleItemResult
 	findItem(const sl::StringRef& name) {
@@ -141,8 +137,17 @@ public:
 
 	FindModuleItemResult
 	findDirectChildItemTraverse(
-		Unit* unit,
-		const QualifiedNameAtom& name,
+		const QualifiedNameAtom& atom,
+		MemberCoord* coord = NULL,
+		uint_t flags = 0
+	) {
+		return findDirectChildItemTraverse(ModuleItemContext(), atom, coord, flags);
+	}
+
+	FindModuleItemResult
+	findDirectChildItemTraverse(
+		const ModuleItemContext& context,
+		const QualifiedNameAtom& atom,
 		MemberCoord* coord = NULL,
 		uint_t flags = 0
 	);
@@ -152,7 +157,20 @@ public:
 		const QualifiedName& name,
 		MemberCoord* coord = NULL,
 		uint_t flags = 0
+	) {
+		return findItemTraverse(ModuleItemContext(), name, coord, flags);
+	}
+
+	FindModuleItemResult
+	findItemTraverse(
+		const ModuleItemContext& context,
+		const QualifiedName& name,
+		MemberCoord* coord = NULL,
+		uint_t flags = 0
 	);
+
+	NamedType*
+	findTemplateInstanceType(Template* templ);
 
 	template <typename T>
 	bool
@@ -201,8 +219,8 @@ protected:
 
 	FindModuleItemResult
 	finalizeFindTemplate(
-		Unit* unit,
-		const QualifiedNameAtom& name,
+		const ModuleItemContext& context,
+		const QualifiedNameAtom& atom,
 		FindModuleItemResult findResult
 	);
 
@@ -259,12 +277,43 @@ Namespace::findItemImpl(const sl::StringRef& name) {
 
 //..............................................................................
 
-inline
-void
-ModuleItemDecl::prepareQualifiedName() {
-	ASSERT(m_qualifiedName.isEmpty());
-	m_qualifiedName = m_parentNamespace ? m_parentNamespace->createQualifiedName(m_name) : m_name;
-}
+template <typename T = ModuleItem>
+class ModuleItemWithNamespace:
+	public T,
+	public Namespace
+{
+public:
+	virtual
+	ModuleItem*
+	getDeclItem() {
+		return this;
+	}
+
+	virtual
+	ModuleItemDecl*
+	getDecl() {
+		return this;
+	}
+
+	virtual
+	Namespace*
+	getNamespace() {
+		return this;
+	}
+
+protected:
+	virtual
+	sl::StringRef
+	createLinkId() {
+		return createLinkIdImpl(m_module);
+	}
+
+	virtual
+	sl::StringRef
+	createItemString(size_t index) {
+		return createItemStringImpl(index, this); // minimal default fallback
+	}
+};
 
 //..............................................................................
 

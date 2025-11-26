@@ -19,24 +19,26 @@ namespace ct {
 
 //..............................................................................
 
-void
-MulticastClassType::prepareTypeString() {
-	TypeStringTuple* tuple = getTypeStringTuple();
-	tuple->m_typeStringPrefix = m_targetType->getTypeModifierString() + " multicast";
-	tuple->m_typeStringSuffix = m_targetType->getTargetType()->getTypeStringSuffix();
-}
+sl::StringRef
+MulticastClassType::createItemString(size_t index) {
+	switch (index) {
+	case TypeStringKind_Prefix:
+	case TypeStringKind_DoxyLinkedTextPrefix:
+		return m_targetType->getTypeModifierString() + " multicast";
 
-void
-MulticastClassType::prepareDoxyLinkedText() {
-	TypeStringTuple* tuple = getTypeStringTuple();
-	tuple->m_doxyLinkedTextPrefix = m_targetType->getTypeModifierString() + " multicast";
-	tuple->m_doxyLinkedTextSuffix = m_targetType->getTargetType()->getDoxyLinkedTextSuffix();
-}
+	case TypeStringKind_Suffix:
+	case TypeStringKind_DoxyLinkedTextSuffix:
+		return m_targetType->getTargetType()->getItemString(index);
 
-void
-MulticastClassType::prepareDoxyTypeString() {
-	Type::prepareDoxyTypeString();
-	m_targetType->getTargetType()->appendDoxyArgString(&getTypeStringTuple()->m_doxyTypeString);
+	case TypeStringKind_DoxyTypeString: {
+		sl::String string = Type::createItemString(index);
+		m_targetType->getTargetType()->appendDoxyArgString(&string);
+		return string;
+		}
+
+	default:
+		return ClassType::createItemString(index);
+	}
 }
 
 bool

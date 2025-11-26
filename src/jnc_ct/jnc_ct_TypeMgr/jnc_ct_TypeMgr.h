@@ -29,6 +29,7 @@ class Module;
 class Declarator;
 
 class ArrayType;
+class UserArrayType;
 class EnumType;
 class StructType;
 class UnionType;
@@ -115,7 +116,6 @@ protected:
 	sl::SimpleHashTable<DerivableType*, bool> m_externalReturnTypeSet;
 
 	sl::StringHashTable<Type*> m_typeMap;
-	size_t m_unnamedTypeId;
 
 public:
 	TypeMgr();
@@ -187,13 +187,11 @@ public:
 		return getPrimitiveType(getInt64TypeKind_u(integer));
 	}
 
-	ArrayType*
-	createAutoSizeArrayType(Type* elementType);
-
-	ArrayType*
+	template <class T>
+	T*
 	createArrayType(
 		Type* elementType,
-		sl::List<Token>* elementCountInitializer
+		uint_t flags = 0
 	);
 
 	ArrayType*
@@ -205,7 +203,6 @@ public:
 	Typedef*
 	createTypedef(
 		const sl::StringRef& name,
-		const sl::StringRef& qualifiedName,
 		Type* type
 	);
 
@@ -215,7 +212,6 @@ public:
 	EnumType*
 	createEnumType(
 		const sl::StringRef& name,
-		const sl::StringRef& qualifiedName,
 		Type* baseType = NULL,
 		uint_t flags = 0
 	);
@@ -225,18 +221,12 @@ public:
 		Type* baseType = NULL,
 		uint_t flags = 0
 	) {
-		return createEnumType(
-			sl::StringRef(),
-			sl::formatString("enum.%d", createUnnamedTypeId()),
-			baseType,
-			flags
-		);
+		return createEnumType(sl::StringRef(), baseType, flags);
 	}
 
 	StructType*
 	createStructType(
 		const sl::StringRef& name,
-		const sl::StringRef& qualifiedName,
 		size_t fieldAlignment = 8
 	);
 
@@ -246,47 +236,16 @@ public:
 		size_t fieldAlignment = 8
 	);
 
-	StructType*
-	createUnnamedStructType(size_t fieldAlignment = 8) {
-		return createStructType(
-			sl::StringRef(),
-			sl::formatString("struct.%d", createUnnamedTypeId()),
-			fieldAlignment
-		);
-	}
-
-	StructType*
-	createUnnamedInternalStructType(
-		const sl::StringRef& tag,
-		size_t fieldAlignment = 8
-	) {
-		return createInternalStructType(
-			sl::formatString("struct.%s.%d", tag.sz(), createUnnamedTypeId()),
-			fieldAlignment
-		);
-	}
-
 	UnionType*
 	createUnionType(
 		const sl::StringRef& name,
-		const sl::StringRef& qualifiedName,
 		size_t fieldAlignment = 8
 	);
-
-	UnionType*
-	createUnnamedUnionType(size_t fieldAlignment = 8) {
-		return createUnionType(
-			sl::StringRef(),
-			sl::formatString("union.%d", createUnnamedTypeId()),
-			fieldAlignment
-		);
-	}
 
 	template <typename T>
 	T*
 	createClassType(
 		const sl::StringRef& name,
-		const sl::StringRef& qualifiedName,
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
 	);
@@ -294,11 +253,10 @@ public:
 	ClassType*
 	createClassType(
 		const sl::StringRef& name,
-		const sl::StringRef& qualifiedName,
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
 	) {
-		return createClassType<ClassType>(name, qualifiedName, fieldAlignment, flags);
+		return createClassType<ClassType>(name, fieldAlignment, flags);
 	}
 
 	template <typename T>
@@ -307,12 +265,7 @@ public:
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
 	) {
-		return createClassType<T>(
-			sl::StringRef(),
-			sl::formatString("class.%d", createUnnamedTypeId()),
-			fieldAlignment,
-			flags
-		);
+		return createClassType<T>(sl::StringRef(), fieldAlignment, flags);
 	}
 
 	ClassType*
@@ -338,29 +291,6 @@ public:
 		uint_t flags = 0
 	) {
 		return createInternalClassType<ClassType>(tag, fieldAlignment, flags);
-	}
-
-	template <typename T>
-	T*
-	createUnnamedInternalClassType(
-		const sl::StringRef& tag,
-		size_t fieldAlignment = 8,
-		uint_t flags = 0
-	) {
-		return createInternalClassType<T>(
-			sl::formatString("class.%s.%d", tag.sz(), createUnnamedTypeId()),
-			fieldAlignment,
-			flags
-		);
-	}
-
-	ClassType*
-	createUnnamedInternalClassType(
-		const sl::StringRef& tag,
-		size_t fieldAlignment = 8,
-		uint_t flags = 0
-	) {
-		return createUnnamedInternalClassType<ClassType>(tag, fieldAlignment, flags);
 	}
 
 	void
@@ -582,7 +512,6 @@ public:
 	ReactorClassType*
 	createReactorType(
 		const sl::StringRef& name,
-		const sl::StringRef& qualifiedName,
 		ClassType* parentType
 	);
 
@@ -696,11 +625,11 @@ public:
 	StructType*
 	getPropertyVtableStructType(PropertyType* propertyType);
 
-	NamedImportType*
+	Type* // returns resolved type if available
 	getNamedImportType(
+		Namespace* parentNamespace,
 		QualifiedName* name, // destructive
-		Namespace* anchorNamespace,
-		QualifiedName* anchorName = NULL // destructive
+		QualifiedName* baseName = NULL // destructive
 	);
 
 	template <
@@ -730,7 +659,7 @@ public:
 	}
 
 	TemplateArgType*
-	getTemplateArgType(
+	createTemplateArgType(
 		const sl::StringRef& name,
 		size_t index
 	);
@@ -761,17 +690,11 @@ public:
 		bool isContainerConst
 	);
 
-	size_t
-	createUnnamedTypeId() {
-		return ++m_unnamedTypeId;
-	}
-
 protected:
 	void
 	addClassType(
 		ClassType* type,
 		const sl::StringRef& name,
-		const sl::StringRef& qualifiedName,
 		size_t fieldAlignment,
 		uint_t flags
 	);
@@ -892,8 +815,26 @@ TypeMgr::createInternalStructType(
 	const sl::StringRef& tag,
 	size_t fieldAlignment
 ) {
-	StructType* type = createStructType(sl::StringRef(), tag, fieldAlignment);
+	StructType* type = createStructType(tag, fieldAlignment);
 	type->m_namespaceStatus = NamespaceStatus_Ready;
+	return type;
+}
+
+template <class T>
+T*
+TypeMgr::createArrayType(
+	Type* elementType,
+	uint_t flags
+) {
+	T* type = new T;
+	type->m_module = m_module;
+	type->m_elementType = elementType;
+	type->m_flags |= flags;
+	m_typeList.insertTail(type);
+
+	if (elementType->getTypeKindFlags() & TypeKindFlag_Import)
+		((ImportType*)elementType)->addFixup(&type->m_elementType);
+
 	return type;
 }
 
@@ -901,12 +842,11 @@ template <typename T>
 T*
 TypeMgr::createClassType(
 	const sl::StringRef& name,
-	const sl::StringRef& qualifiedName,
 	size_t fieldAlignment,
 	uint_t flags
 ) {
 	T* type = new T;
-	addClassType(type, name, qualifiedName, fieldAlignment, flags);
+	addClassType(type, name, fieldAlignment, flags);
 	return type;
 }
 
@@ -917,7 +857,7 @@ TypeMgr::createInternalClassType(
 	size_t fieldAlignment,
 	uint_t flags
 ) {
-	T* type = createClassType<T>(sl::StringRef(), tag, fieldAlignment, flags);
+	T* type = createClassType<T>(tag, fieldAlignment, flags);
 	type->m_namespaceStatus = NamespaceStatus_Ready;
 	return type;
 }

@@ -148,13 +148,22 @@ DynamicSection::getDecl_rtl() {
 	return m_decl_rtl;
 }
 
+class DynamicDecl: public ct::ModuleItemDecl {
+public:
+	virtual
+	ct::ModuleItem*
+	getDeclItem() {
+		return NULL;
+	}
+};
+
 void
 DynamicSection::createDynamicDecl() {
 	ASSERT(!m_dynamicDecl && !m_dynamicAttributeBlock);
 
 	ct::Module* module = getCurrentThreadRuntime()->getModule();
 	m_dynamicAttributeBlock = module->m_attributeMgr.createDynamicAttributeBlock(m_decl_ct);
-	m_dynamicDecl = new ct::ModuleItemDecl;
+	m_dynamicDecl = new DynamicDecl;
 	m_dynamicDecl->copyDecl(m_decl_ct, m_dynamicAttributeBlock);
 	m_decl_ct = m_dynamicDecl;
 }

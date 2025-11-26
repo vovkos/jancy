@@ -20,28 +20,31 @@ namespace ct {
 
 //..............................................................................
 
-Type*
-ArrayType::getRootType() {
-	if (!m_rootType)
-		m_rootType = m_elementType->getTypeKind() == TypeKind_Array ?
-			((ArrayType*)m_elementType)->getRootType() :
-			m_elementType;
+void
+ArrayType::prepareRootType() {
+	ASSERT(!m_rootType);
 
-	return m_rootType;
+	Type* elementType = m_elementType;
+	while (elementType->getTypeKind() == TypeKind_Array)
+		elementType = ((ArrayType*)elementType)->m_elementType;
+
+	m_rootType = elementType;
 }
 
-void
-ArrayType::prepareTypeString() {
-	TypeStringTuple* tuple = getTypeStringTuple();
-	tuple->m_typeStringPrefix = getRootType()->getTypeString();
-	tuple->m_typeStringSuffix = createDimensionString();
-}
+sl::StringRef
+ArrayType::createItemString(size_t index) {
+	switch (index) {
+	case TypeStringKind_Prefix:
+	case TypeStringKind_DoxyLinkedTextPrefix:
+		return getRootType()->getItemString(index);
 
-void
-ArrayType::prepareDoxyLinkedText() {
-	TypeStringTuple* tuple = getTypeStringTuple();
-	tuple->m_doxyLinkedTextPrefix = getRootType()->getDoxyLinkedTextPrefix();
-	tuple->m_doxyLinkedTextSuffix = createDimensionString();
+	case TypeStringKind_Suffix:
+	case TypeStringKind_DoxyLinkedTextSuffix:
+		return createDimensionString();
+
+	default:
+		return Type::createItemString(index);
+	}
 }
 
 sl::String
@@ -56,7 +59,7 @@ ArrayType::createDimensionString() {
 	Type* elementType = m_elementType;
 	while (elementType->getTypeKind() == TypeKind_Array) {
 		ArrayType* arrayType = (ArrayType*)elementType;
-		string.appendFormat(" [%d]", arrayType->m_elementCount);
+		string.appendFormat("[%d]", arrayType->m_elementCount);
 		elementType = arrayType->m_elementType;
 	}
 
@@ -65,6 +68,8 @@ ArrayType::createDimensionString() {
 
 bool
 ArrayType::calcLayout() {
+	ASSERT(m_elementCount != -1);
+
 	bool result = m_elementType->ensureLayout();
 	if (!result)
 		return false;
@@ -76,8 +81,8 @@ ArrayType::calcLayout() {
 
 	// ensure update
 
-	delete m_typeStringTuple;
-	m_typeStringTuple = NULL;
+	delete m_stringCache;
+	m_stringCache = NULL;
 	m_rootType = NULL;
 
 	uint_t rootTypeFlags = getRootType()->getFlags();
@@ -87,38 +92,6 @@ ArrayType::calcLayout() {
 		m_flags |= TypeFlag_GcRoot;
 
 	m_alignment = m_elementType->getAlignment();
-
-	// calculate size
-
-	if (!m_elementCountInitializer.isEmpty()) {
-		ASSERT(m_parentUnit && m_parentNamespace);
-		ParseContext parseContext(ParseContextKind_Expression, m_module, m_parentUnit, m_parentNamespace);
-		lex::LineCol pos = m_elementCountInitializer.getHead()->m_pos;
-		int64_t value = 0;
-
-		Value prevThisValue = m_module->m_functionMgr.overrideThisValue(Value());
-		result = m_module->m_operatorMgr.parseConstIntegerExpression(&m_elementCountInitializer, &value);
-		m_module->m_functionMgr.overrideThisValue(prevThisValue);
-
-		if (!result)
-			return false;
-
-		if (value <= 0) {
-			err::setFormatStringError("invalid array size '%lld'\n", value);
-			lex::pushSrcPosError(m_parentUnit->getFilePath(), pos);
-			return false;
-		}
-
-#if (JNC_PTR_SIZE == 4)
-		if (value >= (uint32_t) -1) {
-			err::setFormatStringError("array size '%lld' is too big\n", value);
-			lex::pushSrcPosError(m_parentUnit->getFilePath(), pos);
-			return false;
-		}
-#endif
-
-		m_elementCount = (size_t)value;
-	}
 
 	m_size = m_elementType->getSize() * m_elementCount;
 	if (m_size > TypeSizeLimit_StackAllocSize)
@@ -168,6 +141,42 @@ ArrayType::markGcRoots(
 void
 ArrayType::prepareLlvmDiType() {
 	m_llvmDiType = m_module->m_llvmDiBuilder.createArrayType(this);
+}
+
+//..............................................................................
+
+bool
+UserArrayType::calcLayout() {
+	if (m_initializer.isEmpty()) // for dyfield arrays, we parse initializer in Parser::declareData
+		return ArrayType::calcLayout();
+
+	ParseContext parseContext(ParseContextKind_Expression, m_module, *this);
+	lex::LineCol pos = m_initializer.getHead()->m_pos;
+	int64_t value = 0;
+
+	Value prevThisValue = m_module->m_functionMgr.overrideThisValue(Value());
+	bool result = m_module->m_operatorMgr.parseConstIntegerExpression(&m_initializer, &value);
+	m_module->m_functionMgr.overrideThisValue(prevThisValue);
+
+	if (!result)
+		return false;
+
+	if (value <= 0) {
+		err::setFormatStringError("invalid array size '%lld'\n", value);
+		lex::pushSrcPosError(m_parentUnit->getFilePath(), pos);
+		return false;
+	}
+
+#if (JNC_PTR_SIZE == 4)
+	if (value >= (uint32_t) -1) {
+		err::setFormatStringError("array size '%lld' is too big\n", value);
+		lex::pushSrcPosError(m_parentUnit->getFilePath(), pos);
+		return false;
+	}
+#endif
+
+	m_elementCount = (size_t)value;
+	return ArrayType::calcLayout();
 }
 
 //..............................................................................

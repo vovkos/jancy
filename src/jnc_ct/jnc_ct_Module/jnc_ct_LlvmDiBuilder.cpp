@@ -39,8 +39,8 @@ LlvmDiBuilder::create() {
 	m_llvmDiBuilder->createCompileUnit(
 		llvm::dwarf::DW_LANG_C99,
 #if (LLVM_VERSION < 0x040000)
-		m_module->getName().sz(),
-		io::getCurrentDir().sz(),
+		m_module->getName() >> toLlvm,
+		io::getCurrentDir() >> toLlvm,
 #else
 		createFile(m_module->getName(), io::getCurrentDir()),
 #endif
@@ -125,7 +125,7 @@ LlvmDiBuilder::createEmptyStructType(StructType* structType) {
 
 	return m_llvmDiBuilder->createStructType(
 		unit->getLlvmDiFile(),
-		structType->getQualifiedName().sz(),
+		structType->getItemName() >> toLlvm,
 		unit->getLlvmDiFile(),
 		structType->getPos().m_line + 1,
 		structType->getSize() * 8,
@@ -162,11 +162,10 @@ LlvmDiBuilder::setStructTypeBody(StructType* structType) {
 	sl::ConstIterator<BaseTypeSlot> baseTypeIt = baseTypeList.getHead();
 	for (; baseTypeIt; i++, baseTypeIt++) {
 		const BaseTypeSlot* baseType = *baseTypeIt;
-		sl::String name = baseType->getType()->getQualifiedName();
 
 		rwi[i] = m_llvmDiBuilder->createMemberType(
 			unit->getLlvmDiFile(),
-			!name.isEmpty() ? name.sz() : "UnnamedBaseType",
+			baseType->getType()->getItemName() >> toLlvm,
 			unit->getLlvmDiFile(),
 			baseType->getPos().m_line + 1,
 			baseType->getType()->getSize() * 8,
@@ -179,11 +178,13 @@ LlvmDiBuilder::setStructTypeBody(StructType* structType) {
 
 	for (size_t j = 0; j < fieldCount; i++, j++) {
 		Field* field = fieldArray[j];
-		sl::String name = field->getName();
+		sl::StringRef name = field->getName();
+		if (name.isEmpty())
+			name = "m_unnamedField";
 
 		rwi[i] = m_llvmDiBuilder->createMemberType(
 			unit->getLlvmDiFile(),
-			!name.isEmpty() ? name.sz() : "m_unnamedField",
+			name >> toLlvm,
 			unit->getLlvmDiFile(),
 			field->getPos().m_line + 1,
 			field->getType()->getSize() * 8,
@@ -218,7 +219,7 @@ LlvmDiBuilder::createEmptyUnionType(UnionType* unionType) {
 
 	return m_llvmDiBuilder->createUnionType(
 		unit->getLlvmDiFile(),
-		unionType->getQualifiedName().sz(),
+		unionType->getItemName() >> toLlvm,
 		unit->getLlvmDiFile(),
 		unionType->getPos().m_line + 1,
 		unionType->getSize() * 8,
@@ -243,11 +244,13 @@ LlvmDiBuilder::setUnionTypeBody(UnionType* unionType) {
 
 	for (size_t i = 0; i < count; i++) {
 		Field* field = fieldArray[i];
-		sl::String name = field->getName();
+		sl::StringRef name = field->getName();
+		if (name.isEmpty())
+			name = "m_unnamedField";
 
 		rwi[i] = m_llvmDiBuilder->createMemberType(
 			unit->getLlvmDiFile(),
-			!name.isEmpty() ? name.sz() : "m_unnamedField",
+			name >> toLlvm,
 			unit->getLlvmDiFile(),
 			field->getPos().m_line + 1,
 			field->getType()->getSize() * 8,
@@ -332,8 +335,8 @@ LlvmDiBuilder::createGlobalVariable(Variable* variable) {
 #else
 		NULL, // DIScope* Context
 #endif
-		variable->getQualifiedName().sz(), // StringRef Name
-		variable->getQualifiedName().sz(), // StringRef LinkageName
+		variable->getItemName() >> toLlvm, // StringRef Name
+		variable->getLinkId() >> toLlvm,   // StringRef LinkageName
 		unit->getLlvmDiFile(),
 		variable->getPos().m_line + 1,
 		variable->getType()->getLlvmDiType(),
@@ -357,7 +360,7 @@ LlvmDiBuilder::createParameterVariable(
 	return m_llvmDiBuilder->createLocalVariable(
 		llvm::dwarf::DW_TAG_arg_variable,
 		scope->getLlvmDiScope(),
-		variable->getName().sz(),
+		variable->getName() >> toLlvm,
 		unit->getLlvmDiFile(),
 		variable->getPos().m_line + 1,
 		variable->getType()->getLlvmDiType(),
@@ -367,7 +370,7 @@ LlvmDiBuilder::createParameterVariable(
 #else
 	return m_llvmDiBuilder->createParameterVariable(
 		scope->getLlvmDiScope(),
-		variable->getName().sz(),
+		variable->getName() >> toLlvm,
 		argumentIdx + 1,
 		unit->getLlvmDiFile(),
 		variable->getPos().m_line + 1,
@@ -443,8 +446,8 @@ LlvmDiBuilder::createFunction(Function* function) {
 
 	return m_llvmDiBuilder->createFunction(
 		unit->getLlvmDiFile(),             // DIDescriptor Scope
-		function->getQualifiedName().sz(), // StringRef Name
-		function->getQualifiedName().sz(), // StringRef LinkageName
+		function->getItemName() >> toLlvm, // StringRef Name
+		function->getLinkId() >> toLlvm,   // StringRef LinkageName
 		unit->getLlvmDiFile(),             // DIFile File
 		declPos.m_line + 1,                // unsigned LineNo
 		llvmDiSubroutineType,              // DICompositeType Ty
@@ -463,8 +466,8 @@ LlvmDiBuilder::createFunction(Function* function) {
 
 	llvm::DISubprogram* subprogram = m_llvmDiBuilder->createFunction(
 		unit->getLlvmDiFile(),             // DIScope *Scope
-		function->getQualifiedName().sz(), // StringRef Name
-		function->getQualifiedName().sz(), // StringRef LinkageName
+		function->getItemName() >> toLlvm, // StringRef Name
+		function->getLinkId() >> toLlvm,   // StringRef LinkageName
 		unit->getLlvmDiFile(),             // DIFile *File
 		declPos.m_line + 1,                // unsigned LineNo
 		llvmDiSubroutineType,              // DISubroutineType *Ty
@@ -481,8 +484,8 @@ LlvmDiBuilder::createFunction(Function* function) {
 
 	llvm::DISubprogram* subprogram = m_llvmDiBuilder->createFunction(
 		unit->getLlvmDiFile(),               // DIScope *Scope
-		function->getQualifiedName().sz(),   // StringRef Name
-		function->getQualifiedName().sz(),   // StringRef LinkageName
+		function->getItemName() >> toLlvm,   // StringRef Name
+		function->getLinkId() >> toLlvm,     // StringRef LinkageName
 		unit->getLlvmDiFile(),               // DIFile *File
 		declPos.m_line + 1,                  // unsigned LineNo
 		llvmDiSubroutineType,                // DISubroutineType *Ty

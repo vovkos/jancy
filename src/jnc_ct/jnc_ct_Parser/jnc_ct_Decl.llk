@@ -162,7 +162,7 @@ extension_declaration
 using_declaration
 	:	TokenKind_Using using_namespace_kind qualified_name_list ';'
 			{
-				return useNamespace(&$3.m_nameList, $2.m_namespaceKind, $1.m_pos);
+				return useNamespace($1.m_pos, $2.m_namespaceKind, &$3.m_nameList);
 			}
 	;
 

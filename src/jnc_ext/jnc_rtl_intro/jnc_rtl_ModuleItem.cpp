@@ -35,7 +35,6 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(ModuleItemDecl)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<ModuleItemDecl, ct::ModuleItemDecl*>))
 	JNC_MAP_DESTRUCTOR(&jnc::destruct<ModuleItemDecl>)
 	JNC_MAP_CONST_PROPERTY("m_name", &ModuleItemDecl::getName)
-	JNC_MAP_CONST_PROPERTY("m_qualifiedName", &ModuleItemDecl::getQualifiedName)
 	JNC_MAP_CONST_PROPERTY("m_storageKind", &ModuleItemDecl::getStorageKind)
 	JNC_MAP_CONST_PROPERTY("m_accessKind", &ModuleItemDecl::getAccessKind)
 	JNC_MAP_CONST_PROPERTY("m_attributeBlock", &ModuleItemDecl::getAttributeBlock)
@@ -89,7 +88,6 @@ ModuleItemDecl::markOpaqueGcRoots(jnc::GcHeap* gcHeap) {
 		return;
 
 	gcHeap->markString(cache->m_name);
-	gcHeap->markString(cache->m_qualifiedName);
 	gcHeap->markClassPtr(cache->m_parentUnit);
 	gcHeap->markClassPtr(cache->m_parentNamespace);
 	gcHeap->markClassPtr((ModuleItemBase<ct::AttributeBlock>*)cache->m_attributeBlock);
@@ -109,16 +107,6 @@ ModuleItemDecl::getName(ModuleItemDecl* self) {
 	Cache* cache = self->m_cache.getOrCreate();
 	if (!cache->m_name.m_length)
 		cache->m_name = createForeignString(self->m_decl->getName(), false);
-
-	return cache->m_name;
-}
-
-String
-JNC_CDECL
-ModuleItemDecl::getQualifiedName(ModuleItemDecl* self) {
-	Cache* cache = self->m_cache.getOrCreate();
-	if (!cache->m_name.m_length)
-		cache->m_name = createForeignString(self->m_decl->getQualifiedName(), false);
 
 	return cache->m_name;
 }

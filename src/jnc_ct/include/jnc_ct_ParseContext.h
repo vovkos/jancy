@@ -23,6 +23,7 @@ struct ReactorBody;
 enum ParseContextKind {
 	ParseContextKind_Body,
 	ParseContextKind_Expression,
+	ParseContextKind_TypeName,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -47,9 +48,9 @@ public:
 	ParseContext(
 		ParseContextKind contextKind,
 		Module* module,
-		ModuleItemDecl* decl
+		const ModuleItemContext& itemContext
 	) {
-		set(contextKind, module, decl->getParentUnit(), decl->getParentNamespace());
+		set(contextKind, module, itemContext.getParentUnit(), itemContext.getParentNamespace());
 	}
 
 	~ParseContext() {

@@ -42,7 +42,7 @@ public:
 	EnumType*
 	JNC_CDECL
 	getParentType() {
-		return (EnumType*)rtl::getType(m_item->getParentEnumType());
+		return (EnumType*)rtl::getType(m_item->getType());
 	}
 
 	static

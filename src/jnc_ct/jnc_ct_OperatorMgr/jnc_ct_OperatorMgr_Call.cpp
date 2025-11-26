@@ -276,7 +276,7 @@ OperatorMgr::callOperator(
 				unaryOperator(UnOpKind_Indir, ptrValue, resultValue);
 		}
 
-		err::setFormatStringError("cannot call '%s'", nspace->getQualifiedName().sz());
+		err::setFormatStringError("cannot call '%s'", nspace->getDeclItem()->getItemName().sz());
 		return false;
 	}
 
@@ -413,7 +413,7 @@ OperatorMgr::castArgValueList(
 				return false;
 			}
 
-			result = parseFunctionArgDefaultValue(arg, closure, *arg->getInitializer(), &argValue);
+			result = parseFunctionArgDefaultValue(arg, closure, arg->getInitializer(), &argValue);
 			if (!result)
 				return false;
 		}
@@ -443,7 +443,7 @@ OperatorMgr::castArgValueList(
 			return false;
 		}
 
-		result = parseFunctionArgDefaultValue(arg, closure, *arg->getInitializer(), &argValue);
+		result = parseFunctionArgDefaultValue(arg, closure, arg->getInitializer(), &argValue);
 		if (!result)
 			return false;
 

@@ -27,10 +27,10 @@ PropertyPtrType::createSignature(
 	uint_t flags
 ) {
 	static const char* stringTable[] = {
-		"P",
+		"Pn",
 		"Pw",
 		"Pt",
-		"R",
+		"Rn",
 		"Rw",
 		"Rt"
 	};
@@ -40,68 +40,52 @@ PropertyPtrType::createSignature(
 
 	sl::String signature = stringTable[i];
 	signature += getPtrTypeFlagSignature(flags);
+	signature += '&';
 	signature += propertyType->getSignature();
 	return signature;
 }
 
-void
-PropertyPtrType::prepareTypeString() {
-	TypeStringTuple* tuple = getTypeStringTuple();
-	Type* returnType = m_targetType->getReturnType();
+sl::StringRef
+PropertyPtrType::createItemString(size_t index) {
+	switch (index) {
+	case TypeStringKind_Prefix:
+	case TypeStringKind_DoxyLinkedTextPrefix: {
+		Type* returnType = m_targetType->getReturnType();
+		sl::String string = returnType->getItemString(index);
+		sl::StringRef ptrTypeFlagString = getPtrTypeFlagString(m_flags);
+		if (!ptrTypeFlagString.isEmpty()) {
+			string += ' ';
+			string += ptrTypeFlagString;
+		}
 
-	sl::String string = returnType->getTypeStringPrefix();
-	sl::StringRef ptrTypeFlagString = getPtrTypeFlagString(m_flags);
-	if (!ptrTypeFlagString.isEmpty()) {
-		string += ' ';
-		string += ptrTypeFlagString;
+		if (m_ptrTypeKind != PropertyPtrTypeKind_Normal) {
+			string += ' ';
+			string += getPropertyPtrTypeKindString(m_ptrTypeKind);
+		}
+
+		sl::StringRef modifierString = m_targetType->getTypeModifierString();
+		if (!modifierString.isEmpty()) {
+			string += ' ';
+			string += modifierString;
+		}
+
+		string += m_typeKind == TypeKind_PropertyRef ? " property&" : " property*";
+		return string;
+		}
+
+	case TypeStringKind_Suffix:
+	case TypeStringKind_DoxyLinkedTextSuffix:
+		return m_targetType->getGetterType()->getItemString(index);
+
+	case TypeStringKind_DoxyTypeString: {
+		sl::String string = Type::createItemString(index);
+		m_targetType->getGetterType()->appendDoxyArgString(&string);
+		return string;
+		}
+
+	default:
+		return Type::createItemString(index);
 	}
-
-	if (m_ptrTypeKind != PropertyPtrTypeKind_Normal) {
-		string += ' ';
-		string += getPropertyPtrTypeKindString(m_ptrTypeKind);
-	}
-
-	string += m_typeKind == TypeKind_PropertyRef ? " property&" : " property*";
-	tuple->m_typeStringPrefix = string;
-
-	if (m_targetType->isIndexed())
-		tuple->m_typeStringSuffix += m_targetType->getGetterType()->getTypeStringSuffix();
-
-	tuple->m_typeStringSuffix += returnType->getTypeStringSuffix();
-}
-
-void
-PropertyPtrType::prepareDoxyLinkedText() {
-	TypeStringTuple* tuple = getTypeStringTuple();
-	Type* returnType = m_targetType->getReturnType();
-
-	tuple->m_doxyLinkedTextPrefix = returnType->getDoxyLinkedTextPrefix();
-
-	sl::StringRef ptrTypeFlagString = getPtrTypeFlagString(m_flags);
-	if (!ptrTypeFlagString.isEmpty()) {
-		tuple->m_doxyLinkedTextPrefix += ' ';
-		tuple->m_doxyLinkedTextPrefix += ptrTypeFlagString;
-	}
-
-	if (m_ptrTypeKind != PropertyPtrTypeKind_Normal) {
-		tuple->m_doxyLinkedTextPrefix += ' ';
-		tuple->m_doxyLinkedTextPrefix += getPropertyPtrTypeKindString(m_ptrTypeKind);
-	}
-
-	tuple->m_doxyLinkedTextPrefix += m_typeKind == TypeKind_PropertyRef ? " property&" : " property*";
-
-	if (m_targetType->isIndexed())
-		tuple->m_doxyLinkedTextSuffix += m_targetType->getGetterType()->getDoxyLinkedTextSuffix();
-
-	tuple->m_doxyLinkedTextSuffix += returnType->getDoxyLinkedTextSuffix();
-}
-
-void
-PropertyPtrType::prepareDoxyTypeString() {
-	Type::prepareDoxyTypeString();
-
-	if (m_targetType->isIndexed())
-		m_targetType->getGetterType()->appendDoxyArgString(&getTypeStringTuple()->m_doxyTypeString);
 }
 
 void

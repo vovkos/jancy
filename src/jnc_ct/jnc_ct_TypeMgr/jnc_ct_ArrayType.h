@@ -25,13 +25,9 @@ class ArrayType: public Type {
 	friend class Parser;
 
 protected:
-	Unit* m_parentUnit;
-	Namespace* m_parentNamespace;
 	Type* m_elementType;
 	Type* m_rootType;
 	size_t m_elementCount;
-
-	sl::List<Token> m_elementCountInitializer;
 
 public:
 	ArrayType();
@@ -47,11 +43,6 @@ public:
 	size_t
 	getElementCount() {
 		return m_elementCount;
-	}
-
-	sl::List<Token>*
-	getElementCountInitializer() {
-		return &m_elementCountInitializer;
 	}
 
 	static
@@ -83,13 +74,6 @@ public:
 
 protected:
 	virtual
-	void
-	prepareSignature() {
-		m_signature = createSignature(m_elementType, m_elementCount);
-		m_flags |= m_elementType->getFlags() & TypeFlag_SignatureFinal;
-	}
-
-	virtual
 	bool
 	resolveImports() {
 		return m_elementType->ensureNoImports();
@@ -101,14 +85,20 @@ protected:
 
 	virtual
 	void
-	prepareTypeString();
+	prepareSignature() {
+		m_signature = createSignature(m_elementType, m_elementCount);
+		m_flags |= m_elementType->getFlags() & TypeFlag_SignatureMask;
+	}
 
 	virtual
-	void
-	prepareDoxyLinkedText();
+	sl::StringRef
+	createItemString(size_t index);
 
 	sl::String
 	createDimensionString();
+
+	void
+	prepareRootType();
 
 	virtual
 	void
@@ -134,12 +124,38 @@ inline
 ArrayType::ArrayType() {
 	m_typeKind = TypeKind_Array;
 	m_flags = TypeFlag_StructRet;
-	m_parentUnit = NULL;
-	m_parentNamespace = NULL;
 	m_elementType = NULL;
 	m_rootType = NULL;
 	m_elementCount = -1;
 }
+
+inline
+Type*
+ArrayType::getRootType() {
+	if (!m_rootType)
+		prepareRootType();
+
+	return m_rootType;
+}
+
+//..............................................................................
+
+class UserArrayType:
+	public ArrayType,
+	public ModuleItemContext,
+	public ModuleItemInitializer {
+
+	friend class DeclTypeCalc;
+public:
+	UserArrayType() {
+		m_flags |= ModuleItemFlag_User;
+	}
+
+protected:
+	virtual
+	bool
+	calcLayout();
+};
 
 //..............................................................................
 

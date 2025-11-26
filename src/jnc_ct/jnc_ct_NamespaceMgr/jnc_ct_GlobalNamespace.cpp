@@ -44,14 +44,40 @@ GlobalNamespace::addBody(
 	m_namespaceStatus = NamespaceStatus_ParseRequired;
 }
 
+sl::StringRef
+GlobalNamespace::createLinkId() {
+	return this != m_module->m_namespaceMgr.getGlobalNamespace() ?
+		createLinkIdImpl(m_module) :
+		sl::StringRef();
+}
+
+sl::StringRef
+GlobalNamespace::createItemString(size_t index) {
+	switch (index) {
+	case ModuleItemStringKind_QualifiedName:
+		return this == m_module->m_namespaceMgr.getGlobalNamespace() ?
+			sl::StringRef() :
+			createQualifiedNameImpl(m_module);
+
+	case ModuleItemStringKind_Synopsis:
+		return this == m_module->m_namespaceMgr.getGlobalNamespace() ?
+			sl::StringRef("global namespace") :
+			sl::StringRef("namespace" + createQualifiedNameImpl(m_module));
+
+	default:
+		return sl::StringRef();
+	}
+}
+
 sl::String
 GlobalNamespace::createDoxyRefId() {
 	sl::String refId;
 
-	if (this == m_module->m_namespaceMgr.getGlobalNamespace()) {
+	if (this == m_module->m_namespaceMgr.getGlobalNamespace())
 		refId = JNC_GLOBAL_NAMESPACE_DOXID;
-	} else {
-		refId.format("namespace_%s", getQualifiedName().sz());
+	else {
+		refId = "namespace_";
+		refId += getItemString(ModuleItemStringKind_QualifiedName);
 		refId.replace('.', '_');
 		refId.makeLowerCase();
 	}
@@ -125,21 +151,21 @@ GlobalNamespace::generateDocumentation(
 	dox::Block* doxyBlock = m_module->m_doxyHost.getItemBlock(this);
 
 	const char* kind;
-	const char* name;
+	sl::StringRef name;
 
 	if (this == m_module->m_namespaceMgr.getGlobalNamespace()) {
 		kind = "file";
 		name = "global";
 	} else {
 		kind = "namespace";
-		name = getQualifiedName().sz();
+		name = getItemName();
 	}
 
 	indexXml->appendFormat(
 		"<compound kind='%s' refid='%s'><name>%s</name></compound>\n",
 		kind,
 		doxyBlock->getRefId().sz(),
-		name
+		name.sz()
 	);
 
 	itemXml->format(
@@ -147,7 +173,7 @@ GlobalNamespace::generateDocumentation(
 		"<compoundname>%s</compoundname>\n",
 		kind,
 		doxyBlock->getRefId().sz(),
-		name
+		name.sz()
 	);
 
 	sl::String memberXml;
