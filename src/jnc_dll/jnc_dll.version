@@ -27,8 +27,9 @@
 		jnc_ModuleItemDecl_getCol;
 		jnc_ModuleItemDecl_getLine;
 		jnc_ModuleItemDecl_getName;
-		jnc_ModuleItemDecl_getParentNamespace;
 		jnc_ModuleItemDecl_getParentUnit;
+		jnc_ModuleItemDecl_getParentNamespace;
+		jnc_ModuleItemDecl_getDeclItem;
 		jnc_ModuleItemDecl_getQualifiedName;
 		jnc_ModuleItemDecl_getStorageKind;
 		jnc_ModuleItemDecl_findAttribute;
@@ -38,7 +39,7 @@
 		jnc_ModuleItem_getModule;
 		jnc_ModuleItem_getNamespace;
 		jnc_ModuleItem_getType;
-		jnc_ModuleItem_getSynopsis_v;
+		jnc_ModuleItem_getItemString;
 		jnc_getAccessKindString;
 		jnc_getModuleItemKindString;
 		jnc_getStorageKindString;
@@ -141,7 +142,6 @@
 		jnc_Namespace_isReady;
 		jnc_Namespace_getParentItem;
 		jnc_Namespace_getNamespaceKind;
-		jnc_Namespace_getParentNamespace;
 		jnc_Namespace_getItemCount;
 		jnc_Namespace_getItem;
 		jnc_Namespace_findDirectChildItem;

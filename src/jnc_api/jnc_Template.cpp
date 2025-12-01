@@ -25,24 +25,28 @@
 #else // _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_TypeKind
 jnc_Template_getDerivableTypeKind(jnc_Template* templ) {
 	return templ->getDerivableTypeKind();
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Type*
 jnc_Template_getDeclType(jnc_Template* templ) {
 	return templ->getDeclType();
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 size_t
 jnc_Template_getArgCount(jnc_Template* templ) {
 	return templ->getArgArray().getCount();
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Type*
 jnc_Template_getArg(
 	jnc_Template* templ,
