@@ -508,7 +508,7 @@ protected:
 
 public:
 	ModType() {
-		m_typeKind = typeKind;
+		this->m_typeKind = typeKind;
 		m_baseType = NULL;
 		m_typeModifiers = 0;
 	}
@@ -548,8 +548,8 @@ protected:
 	virtual
 	void
 	prepareSignature() {
-		m_signature = createSignature(m_baseType, m_typeModifiers);
-		m_flags |= TypeFlag_SignatureReady;
+		this->m_signature = createSignature(m_baseType, m_typeModifiers);
+		this->m_flags |= TypeFlag_SignatureReady;
 	}
 };
 

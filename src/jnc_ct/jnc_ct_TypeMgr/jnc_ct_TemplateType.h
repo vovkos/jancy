@@ -101,9 +101,9 @@ protected:
 	setTemplateArgDeductionError(Type* argValueType) {
 		err::setFormatStringError(
 			"incompatible types while deducing template argument '%s': '%s' vs '%s'",
-			m_baseType->getName().sz(),
+			this->m_baseType->getName().sz(),
 			argValueType->getTypeString().sz(),
-			getTypeString().sz()
+			this->getTypeString().sz()
 		);
 	}
 };

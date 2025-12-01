@@ -305,7 +305,7 @@ protected:
 	virtual
 	sl::StringRef
 	createLinkId() {
-		return createLinkIdImpl(m_module);
+		return createLinkIdImpl(this->m_module);
 	}
 
 	virtual

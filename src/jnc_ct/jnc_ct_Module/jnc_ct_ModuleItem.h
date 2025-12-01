@@ -578,13 +578,13 @@ protected:
 	virtual
 	sl::StringRef
 	createLinkId() {
-		return createLinkIdImpl(m_module);
+		return this->createLinkIdImpl(this->m_module);
 	}
 
 	virtual
 	sl::StringRef
 	createItemString(size_t index) {
-		return createItemStringImpl(index, this); // minimal default fallback
+		return this->createItemStringImpl(index, this); // minimal default fallback
 	}
 };
 
