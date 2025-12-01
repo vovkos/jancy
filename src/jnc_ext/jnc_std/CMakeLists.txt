@@ -65,6 +65,7 @@ set(
 	jnc/std_MapEntry.jnc
 	jnc/std_HashTable.jnc
 	jnc/std_RbTree.jnc
+	jnc/stdt_List.jnc
 )
 
 source_group(

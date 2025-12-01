@@ -1,0 +1,265 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace stdt {
+
+//! \addtogroup std-container
+//! @{
+
+//..............................................................................
+
+/**
+	\import std_List.jnc
+
+	This struct holds information about a single entry of a doubly linked list.
+
+	\sa `std.List`
+*/
+
+struct ListEntry<T> {
+	/**
+		Holds a pointer to the next list entry on the list or ``null`` if this
+		is the last entry.
+	*/
+
+	ListEntry cmut* readonly m_next;
+
+	/**
+		Holds a pointer to the previous list entry on the list or ``null`` if
+		this is the first entry.
+	*/
+
+	ListEntry cmut* readonly m_prev;
+
+	/**
+		Holds the actual data value of the list entry.
+	*/
+
+	T m_data;
+}
+
+//..............................................................................
+
+/**
+	\import std_List.jnc
+
+	\brief This class provides a doubly linked list container for values.
+
+	A typical sequence of steps when working with a doubly linked list usually
+	looks like this:
+
+	* Add items using *insert* methods: ``insertHead``, ``insertTail``,
+	  ``insertBefore``, ``insertAfter``;
+	* Remove items using *remove* methods: ``removeHead``, ``removeTail``,
+	  ``removeBefore``, ``removeAfter``, ``remove``;
+	* Iterate over items by starting with ``m_head`` or ``m_tail`` and then move
+	  to the next element by inspecting `std.ListEntry.m_next` or
+	  `std.ListEntry.m_prev`.
+
+	.. rubric:: Sample code:
+
+	.. ref-code-block::
+
+		std.List list;
+
+		// add items...
+
+		int a[] = { 10, 20, 30, 40, 50, }
+
+		for (size_t i = 0; i < countof(a); i++)
+			list.insertTail(a[i]);
+
+		// iterate over list...
+
+		std.ListEntry* e = list.m_head;
+		for (; e; e = e.m_next) {
+			// access e.m_data...
+		}
+
+	\sa `std.ListEntry`
+*/
+
+class List<T> {
+	typedef ListEntry<T> ListEntry;
+
+	/**
+		Holds a pointer to the *list head* (the first element of the list) or
+		``null`` if the list is empty.
+	*/
+
+	ListEntry* readonly m_head;
+
+	/**
+		Holds a pointer to the *list tail* (the last element of the list) or
+		``null`` if the list is empty.
+	*/
+
+	ListEntry* readonly m_tail;
+
+	/**
+		Holds number of elements on the list.
+	*/
+
+	size_t readonly m_count;
+
+	/**
+		Removes all elements from the lists.
+	*/
+
+	void clear();
+
+	/**
+		Moves all the elements from the source list ``list`` to this list.
+
+		After the take-over, ``list`` will be empty and this list will contain
+		the same elements as ``list`` originally did.
+
+		This operation is performed in constant time no matter the size of the
+		source list -- so it's always more efficient than clearing the list
+		first and then adding all the items from the source list in a loop.
+	*/
+
+	void takeOver(List* list);
+
+	/**
+		Adds item ``data``  to the list.
+
+		Returns a pointer to the new `std.ListEntry`.
+
+		Equivalent to ``insertTail``.
+	*/
+
+	ListEntry* errorcode append(T data) {
+		return insertTail(data);
+	}
+
+	/**
+		Inserts item ``data`` to the head of the list.
+
+		Returns a pointer to the new `std.ListEntry`.
+	*/
+
+	ListEntry* errorcode insertHead(T data);
+
+	/**
+		Inserts item ``data`` to the tail of the list.
+
+		Returns a pointer to the new `std.ListEntry`.
+	*/
+
+	ListEntry* errorcode insertTail(T data);
+
+	/**
+		Inserts item ``data`` before the item entry pointed to by ``entry``
+		argument.
+
+		If ``entry == null`` then this method is equivalent to ``insertTail``.
+
+		Returns a pointer to the new `std.ListEntry`.
+	*/
+
+	ListEntry* errorcode insertBefore(
+		T data,
+		ListEntry* before
+	);
+
+	/**
+		Inserts item ``data`` after the item entry pointed to by ``entry``
+		argument.
+
+		If ``entry == null`` then this method is equivalent to ``insertHead``.
+
+		Returns a pointer to the new `std.ListEntry`.
+	*/
+
+	ListEntry* errorcode insertAfter(
+		T data,
+		ListEntry* before
+	);
+
+	/**
+		Moves item entry pointed to by ``entry`` to the head of the list.
+
+		After this call ``m_head`` will be pointing to ``entry``.
+	*/
+
+	void moveToHead(ListEntry* entry);
+
+	/**
+		Moves item entry pointed to by  ``entry`` to the tail of the list.
+
+		After this call ``m_tail`` will be pointing to ``entry``.
+	*/
+
+	void moveToTail(ListEntry* entry);
+
+	/**
+		Moves item entry pointed to by ``entry`` before item entry pointed to
+		by  ``before``.
+
+		If ``entry == null`` then this method is equivalent to ``moveToTail``.
+	*/
+
+	void moveBefore(
+		ListEntry* entry,
+		ListEntry* before
+	);
+
+	/**
+		Moves item entry pointed to by  ``entry`` after item entry pointed to by
+		``after``.
+
+		If ``after == null`` then this method is equivalent to ``moveToHead``.
+	*/
+
+	void moveAfter(
+		ListEntry* entry,
+		ListEntry* before
+	);
+
+	/**
+		Removes head item entry.
+
+		Returns the value of `std.ListEntry.m_data` field of the removed list
+		head.
+
+		If list is empty at the moment of removal does nothing and returns
+		``null``.
+	*/
+
+	T removeHead();
+
+	/**
+		Removes tail item entry.
+
+		Returns the value of `std.ListEntry.m_data` field of the removed list
+		tail.
+
+		If list is empty at the moment of removal does nothing and returns
+		``null``.
+	*/
+
+	T removeTail();
+
+	/**
+		Removes item entry pointed to by ``entry``.
+
+		Returns the value of ``entry.m_data`` field.
+	*/
+
+	T remove(ListEntry* entry);
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace stdt
