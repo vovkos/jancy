@@ -30,6 +30,7 @@ set(
 	include/jnc_ct_BinOp_Cmp.h
 	include/jnc_ct_BinOp_Idx.h
 	include/jnc_ct_BinOp_Logic.h
+	include/jnc_ct_CallConvKind.h
 	include/jnc_ct_CallConv.h
 	include/jnc_ct_CallConv_gcc32.h
 	include/jnc_ct_CallConv_msc32.h
@@ -145,6 +146,7 @@ source_group(
 
 set(
 	CALLCONV_H_LIST
+	jnc_ct_CallConv/jnc_ct_CallConvKind.h
 	jnc_ct_CallConv/jnc_ct_CallConv.h
 	jnc_ct_CallConv/jnc_ct_CallConv_gcc32.h
 	jnc_ct_CallConv/jnc_ct_CallConv_msc32.h
@@ -156,6 +158,7 @@ set(
 
 set(
 	CALLCONV_CPP_LIST
+	jnc_ct_CallConv/jnc_ct_CallConvKind.cpp
 	jnc_ct_CallConv/jnc_ct_CallConv.cpp
 	jnc_ct_CallConv/jnc_ct_CallConv_gcc32.cpp
 	jnc_ct_CallConv/jnc_ct_CallConv_msc32.cpp

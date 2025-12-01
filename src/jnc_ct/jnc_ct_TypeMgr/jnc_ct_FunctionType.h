@@ -14,17 +14,17 @@
 #include "jnc_FunctionType.h"
 #include "jnc_ct_Type.h"
 #include "jnc_ct_FunctionArg.h"
+#include "jnc_ct_CallConvKind.h"
 
 namespace jnc {
 namespace ct {
 
-class CallConv;
 class FunctionPtrType;
 class NamedType;
 class ClassType;
 class ClassPtrType;
 class ReactorClassType;
-class CdeclCallConv_msc64;
+class CallConv;
 class Function;
 
 struct FunctionPtrTypeTuple;
@@ -145,7 +145,7 @@ public:
 	createSignature(
 		sl::String* signature,
 		sl::StringRef* argSignature,
-		CallConv* callConv,
+		CallConvKind callConvKind,
 		Type* returnType,
 		T* const* argArray,
 		size_t argCount,
@@ -158,7 +158,7 @@ public:
 	createSignature(
 		sl::String* signature,
 		sl::StringRef* argSignature,
-		CallConv* callConv,
+		CallConvKind callConvKind,
 		Type* returnType,
 		const sl::ArrayRef<T>& argArray,
 		uint_t flags
@@ -166,7 +166,7 @@ public:
 		return createSignature(
 			signature,
 			argSignature,
-			callConv,
+			callConvKind,
 			returnType,
 			argArray.cp(),
 			argArray.getCount(),
@@ -258,7 +258,7 @@ uint_t
 FunctionType::createSignature(
 	sl::String* string,
 	sl::StringRef* argSignature,
-	CallConv* callConv,
+	CallConvKind callConvKind,
 	Type* returnType,
 	T* const* argArray,
 	size_t argCount,
@@ -266,7 +266,7 @@ FunctionType::createSignature(
 ) {
 	*string = 'F';
 	appendFlagSignature(string, flags);
-	*string += getCallConvSignature(callConv->getCallConvKind());
+	*string += getCallConvSignature(callConvKind);
 	*string += returnType->getSignature();
 
 	size_t length = string->getLength();

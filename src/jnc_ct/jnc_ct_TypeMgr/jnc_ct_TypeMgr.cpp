@@ -560,7 +560,7 @@ TypeMgr::getFunctionType(
 	flags |= FunctionType::createSignature(
 		&signature,
 		&argSignature,
-		callConv,
+		callConv->getCallConvKind(),
 		returnType,
 		argArray,
 		flags
@@ -603,7 +603,7 @@ TypeMgr::getFunctionType(
 	flags |= FunctionType::createSignature(
 		&signature,
 		&argSignature,
-		callConv,
+		callConv->getCallConvKind(),
 		returnType,
 		argTypeArray,
 		argCount,

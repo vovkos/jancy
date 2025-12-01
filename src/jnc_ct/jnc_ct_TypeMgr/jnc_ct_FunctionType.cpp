@@ -179,7 +179,7 @@ FunctionType::prepareSignature() {
 	uint_t flags = createSignature(
 		&signature,
 		&m_argSignature,
-		m_callConv,
+		m_callConv->getCallConvKind(),
 		m_returnType,
 		m_argArray,
 		m_flags
