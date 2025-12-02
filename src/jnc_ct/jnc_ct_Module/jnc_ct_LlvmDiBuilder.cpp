@@ -471,10 +471,10 @@ LlvmDiBuilder::createFunction(Function* function) {
 	ASSERT(llvm::isa<llvm::DISubroutineType>(llvmDiSubroutineType));
 
 	llvm::DISubprogram* subprogram = m_llvmDiBuilder->createFunction(
-		unit->getLlvmDiFile(),             // DIScope *Scope
+		unit->getLlvmDiFile(),          // DIScope *Scope
 		function->getItemName() >> toLlvm, // StringRef Name
 		function->getLinkId() >> toLlvm,   // StringRef LinkageName
-		unit->getLlvmDiFile(),             // DIFile *File
+		unit->getLlvmDiFile(),          // DIFile *File
 		declPos.m_line + 1,                // unsigned LineNo
 		llvmDiSubroutineType,              // DISubroutineType *Ty
 		false,                             // bool isLocalToUnit
@@ -482,7 +482,9 @@ LlvmDiBuilder::createFunction(Function* function) {
 		scopePos.m_line + 1                // unsigned ScopeLine
 	);
 
+#	if (LLVM_VERSION >= 0x030800)
 	function->getLlvmFunction()->setSubprogram(subprogram);
+#	endif
 	return subprogram;
 #else
 	llvm::DISubroutineType* llvmDiSubroutineType = (llvm::DISubroutineType*)function->getType()->getLlvmDiType();
