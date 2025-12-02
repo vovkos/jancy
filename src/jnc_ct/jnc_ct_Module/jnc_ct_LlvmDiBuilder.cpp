@@ -140,7 +140,7 @@ LlvmDiBuilder::createEmptyStructType(StructType* structType) {
 	);
 }
 
-void
+llvm::DIType_vn
 LlvmDiBuilder::setStructTypeBody(StructType* structType) {
 	Unit* unit = m_module->m_unitMgr.getCurrentUnit();
 	ASSERT(unit);
@@ -208,8 +208,11 @@ LlvmDiBuilder::setStructTypeBody(StructType* structType) {
 #else
 	llvm::DICompositeType* llvmDiType = (llvm::DICompositeType*)structType->getLlvmDiType();
 	ASSERT(llvm::isa<llvm::DICompositeType>(llvmDiType));
+	llvm::TypedTrackingMDRef<llvm::DICompositeType> tracker(llvmDiType);
 	llvmDiType->replaceElements(llvmDiArray);
+	llvmDiType = tracker;
 #endif
+	return llvmDiType;
 }
 
 llvm::DIType_vn
@@ -229,7 +232,7 @@ LlvmDiBuilder::createEmptyUnionType(UnionType* unionType) {
 	);
 }
 
-void
+llvm::DIType_vn
 LlvmDiBuilder::setUnionTypeBody(UnionType* unionType) {
 	Unit* unit = m_module->m_unitMgr.getCurrentUnit();
 	ASSERT(unit);
@@ -274,8 +277,11 @@ LlvmDiBuilder::setUnionTypeBody(UnionType* unionType) {
 #else
 	llvm::DICompositeType* llvmDiType = (llvm::DICompositeType*)unionType->getLlvmDiType();
 	ASSERT(llvm::isa<llvm::DICompositeType>(llvmDiType));
+	llvm::TypedTrackingMDRef<llvm::DICompositeType> tracker(llvmDiType);
 	llvmDiType->replaceElements(llvmDiArray);
+	llvmDiType = tracker;
 #endif
+	return llvmDiType;
 }
 
 llvm::DIType_vn

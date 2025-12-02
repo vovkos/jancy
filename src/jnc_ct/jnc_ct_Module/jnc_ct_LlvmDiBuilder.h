@@ -108,13 +108,13 @@ public:
 	llvm::DIType_vn
 	createEmptyStructType(StructType* structType);
 
-	void
+	llvm::DIType_vn
 	setStructTypeBody(StructType* structType);
 
 	llvm::DIType_vn
 	createEmptyUnionType(UnionType* unionType);
 
-	void
+	llvm::DIType_vn
 	setUnionTypeBody(UnionType* unionType);
 
 	llvm::DIType_vn

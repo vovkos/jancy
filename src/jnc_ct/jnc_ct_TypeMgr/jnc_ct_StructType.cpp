@@ -407,7 +407,7 @@ StructType::addLlvmPadding(size_t size) {
 void
 StructType::prepareLlvmDiType() {
 	m_llvmDiType = m_module->m_llvmDiBuilder.createEmptyStructType(this);
-	m_module->m_llvmDiBuilder.setStructTypeBody(this);
+	m_llvmDiType = m_module->m_llvmDiBuilder.setStructTypeBody(this); // update
 }
 
 void

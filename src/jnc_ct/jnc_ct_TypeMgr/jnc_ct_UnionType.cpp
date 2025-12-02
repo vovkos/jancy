@@ -138,7 +138,7 @@ UnionType::calcLayout() {
 void
 UnionType::prepareLlvmDiType() {
 	m_llvmDiType = m_module->m_llvmDiBuilder.createEmptyUnionType(this);
-	m_module->m_llvmDiBuilder.setUnionTypeBody(this);
+	m_llvmDiType = m_module->m_llvmDiBuilder.setUnionTypeBody(this);
 }
 
 //..............................................................................
