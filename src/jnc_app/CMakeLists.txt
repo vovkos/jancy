@@ -225,7 +225,7 @@ else()
 endif()
 
 axl_create_setting(
-	JANCY_DEBUG_INFO
+	JANCY_TEST_DEBUG_INFO
 	DESCRIPTION "Compile tests with debug information"
 	DEFAULT ${_DEBUG_INFO_DEFAULT}
 	" "
