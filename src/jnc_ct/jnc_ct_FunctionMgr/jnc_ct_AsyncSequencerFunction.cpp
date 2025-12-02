@@ -199,7 +199,11 @@ AsyncSequencerFunction::replaceAllocas() {
 	llvm::Value* llvmPromiseValue = &*llvmArg;
 	llvm::BasicBlock* llvmAllocaBlock = m_allocaBlock->getLlvmBlock();
 	llvm::BasicBlock::iterator it = llvmAllocaBlock->begin();
+#if (LLVM_VERSION >= 0x030500 && LLVM_VERSION < 0x030700)
+	llvm::DataLayout llvmDataLayout(m_module->getLlvmModule());
+#else
 	llvm::DataLayout llvmDataLayout(m_module->getLlvmModule()->getDataLayout());
+#endif
 	Type* byteType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Byte);
 
 	Value bufferValue;
