@@ -52,7 +52,7 @@ Module::Module():
 	m_config = g_defaultModuleConfig;
 	m_compileFlags = ModuleCompileFlag_StdFlags;
 	m_compileState = ModuleCompileState_Idle;
-	m_unnamedLinkId = 0;
+	m_uniqueLinkId = 0;
 	m_asyncFlags = 0;
 	m_tryCompileLevel = 0;
 	m_disableAccessCheckLevel = 0;
@@ -196,7 +196,7 @@ Module::initialize(
 	m_compileFlags = m_config.m_compileFlags;
 	m_compileState = ModuleCompileState_Idle;
 	m_compileErrorCount = 0;
-	m_unnamedLinkId = m_config.m_unnamedLinkIdBase;
+	m_uniqueLinkId = m_config.m_uniqueLinkIdBase;
 
 #if (_AXL_GCC_ASAN)
 	// GC guard page safe points do not work with address sanitizer

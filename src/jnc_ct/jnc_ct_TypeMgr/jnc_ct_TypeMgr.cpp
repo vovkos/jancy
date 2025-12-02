@@ -411,7 +411,7 @@ TypeMgr::createUnionType(
 	type->m_module = m_module;
 	type->m_name = name;
 
-	StructType* unionStructType = createInternalStructType("Struct", fieldAlignment);
+	StructType* unionStructType = createInternalStructType("!Struct", fieldAlignment);
 	unionStructType->m_parentNamespace = type;
 	unionStructType->m_structTypeKind = StructTypeKind_UnionStruct;
 	type->m_structType = unionStructType;
@@ -433,14 +433,14 @@ TypeMgr::addClassType(
 	type->m_name = name;
 	type->m_flags |= flags;
 
-	StructType* ifaceStructType = createInternalStructType("Iface", fieldAlignment);
-	ifaceStructType->m_structTypeKind = StructTypeKind_IfaceStruct;
+	StructType* ifaceStructType = createInternalStructType("!Iface", fieldAlignment);
 	ifaceStructType->m_parentNamespace = type;
+	ifaceStructType->m_structTypeKind = StructTypeKind_IfaceStruct;
 	ifaceStructType->m_storageKind = StorageKind_Member;
 
-	StructType* classStructType = createInternalStructType("Class", fieldAlignment);
-	classStructType->m_structTypeKind = StructTypeKind_ClassStruct;
+	StructType* classStructType = createInternalStructType("!Class", fieldAlignment);
 	classStructType->m_parentNamespace = type;
+	classStructType->m_structTypeKind = StructTypeKind_ClassStruct;
 	classStructType->createField("!m_box", getStdType(StdType_Box));
 	classStructType->createField("!m_iface", ifaceStructType);
 
@@ -898,12 +898,12 @@ TypeMgr::getMulticastType(FunctionPtrType* functionPtrType) {
 
 	Type* returnType = functionPtrType->getTargetType()->getReturnType();
 	if (returnType->getTypeKind() != TypeKind_Void) {
-		err::setFormatStringError("multicast cannot only return 'void', not '%s'", returnType->getTypeString().sz());
+		err::setFormatStringError("multicast can only return 'void', not '%s'", returnType->getTypeString().sz());
 		return NULL;
 	}
 
-	sl::StringRef signature = functionPtrType->getSignature();
-	MulticastClassType* type = createInternalClassType<MulticastClassType>(signature + ".Multicast");
+	sl::String typeName = m_module->createUniqueName("Multicast");
+	MulticastClassType* type = createInternalClassType<MulticastClassType>(typeName);
 	type->m_targetType = functionPtrType;
 	type->m_flags |= (functionPtrType->m_flags & TypeFlag_GcRoot);
 
@@ -974,7 +974,8 @@ TypeMgr::getMulticastType(FunctionPtrType* functionPtrType) {
 
 	// snapshot closure (snapshot is shared between weak and normal multicasts)
 
-	McSnapshotClassType* snapshotType = createInternalClassType<McSnapshotClassType>(signature + ".McSnapshot");
+	McSnapshotClassType* snapshotType = createInternalClassType<McSnapshotClassType>("!McSnapshot");
+	snapshotType->m_parentNamespace = type;
 	snapshotType->m_targetType = functionPtrType->getUnWeakPtrType();
 	snapshotType->m_flags |= (functionPtrType->m_flags & TypeFlag_GcRoot);
 
@@ -1076,7 +1077,7 @@ TypeMgr::getFunctionClosureClassType(
 		return (FunctionClosureClassType*)it->m_value;
 	}
 
-	sl::String typeName = signature + ".FunctionClosure";
+	sl::String typeName = m_module->createUniqueName("FunctionClosure");
 	FunctionClosureClassType* type = createInternalClassType<FunctionClosureClassType>(typeName);
 	type->m_signature = signature;
 	type->m_flags |= TypeFlag_SignatureFinal;
@@ -1090,7 +1091,7 @@ TypeMgr::getFunctionClosureClassType(
 		type->createField(argFieldName, argTypeArray[i]);
 	}
 
-	sl::String thunkName = typeName + ".thunkFunction";
+	sl::String thunkName = typeName + "!thunkFunction";
 	Function* thunkFunction = m_module->m_functionMgr.createInternalFunction<FunctionClosureClassType::ThunkFunction>(thunkName, thunkType);
 	type->addMethod(thunkFunction);
 	type->m_thunkFunction = thunkFunction;
@@ -1125,7 +1126,7 @@ TypeMgr::getPropertyClosureClassType(
 		return (PropertyClosureClassType*)it->m_value;
 	}
 
-	sl::String typeName = signature + ".PropertyClosure";
+	sl::String typeName = m_module->createUniqueName("PropertyClosure");
 	PropertyClosureClassType* type = createInternalClassType<PropertyClosureClassType>(typeName);
 	type->m_signature = signature;
 	type->m_flags |= TypeFlag_SignatureFinal;
@@ -1140,7 +1141,7 @@ TypeMgr::getPropertyClosureClassType(
 		type->createField(argFieldName, argTypeArray[i]);
 	}
 
-	sl::String thunkName = typeName + ".m_thunkProperty";
+	sl::String thunkName = typeName + "!m_thunkProperty";
 	Property* thunkProperty = m_module->m_functionMgr.createInternalProperty<PropertyClosureClassType::ThunkProperty>(thunkName);
 	type->addProperty(thunkProperty);
 	type->m_thunkProperty = thunkProperty;
@@ -1166,13 +1167,13 @@ TypeMgr::getDataClosureClassType(
 		return (DataClosureClassType*)it->m_value;
 	}
 
-	sl::String typeName = signature + ".DataClosure";
+	sl::String typeName = m_module->createUniqueName("PropertyClosure");
 	DataClosureClassType* type = createInternalClassType<DataClosureClassType>(typeName);
 	type->m_signature = signature;
 	type->m_flags |= TypeFlag_SignatureFinal;
 	type->createField("!m_target", targetType->getDataPtrType());
 
-	sl::String thunkName = typeName + ".m_thunkProperty";
+	sl::String thunkName = typeName + "!m_thunkProperty";
 	Property* thunkProperty = m_module->m_functionMgr.createInternalProperty<DataClosureClassType::ThunkProperty>(thunkName);
 	type->addProperty(thunkProperty);
 	type->m_thunkProperty = thunkProperty;
@@ -1429,8 +1430,8 @@ TypeMgr::getPropertyVtableStructType(PropertyType* propertyType) {
 	if (propertyType->m_vtableStructType)
 		return propertyType->m_vtableStructType;
 
-	sl::StringRef signature = propertyType->getSignature();
-	StructType* type = createInternalStructType(signature + ".PropertyVtable");
+	sl::String typeName = m_module->createUniqueName("PropertyVtable");
+	StructType* type = createInternalStructType(typeName);
 
 	if (propertyType->getFlags() & PropertyTypeFlag_Bindable)
 		type->createField("!m_binder", propertyType->m_binderType->getFunctionPtrType(FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe));

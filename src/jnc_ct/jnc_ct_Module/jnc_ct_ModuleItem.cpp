@@ -70,7 +70,7 @@ ModuleItemDecl::createLinkIdImpl(Module* module) const {
 		return !m_name.isEmpty() ?
 			m_name :
 			module->m_namespaceMgr.getGlobalNamespace() != this ?
-				sl::StringRef(sl::formatString("unnamed-%d", module->createUnnamedLinkId())) :
+				sl::StringRef(module->createUniqueName("unnamed")) :
 				sl::StringRef();
 
 	sl::String linkId = parentLinkId;
@@ -78,7 +78,7 @@ ModuleItemDecl::createLinkIdImpl(Module* module) const {
 		linkId += '.';
 		linkId += m_name;
 	} else
-		linkId.appendFormat(".unnamed-%d", module->createUnnamedLinkId());
+		linkId.appendFormat(module->createUniqueName("unnamed"));
 
 	return linkId;
 }
@@ -132,9 +132,9 @@ sl::StringRef
 ModuleItem::createLinkId() {
 	ASSERT(false); // shouldn't be called for this item
 	return sl::formatString(
-		"%s-%d",
+		"%s.%d",
 		getModuleItemKindString(m_itemKind),
-		m_module->createUnnamedLinkId()
+		m_module->createUniqueLinkId()
 	);
 }
 

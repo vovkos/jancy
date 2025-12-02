@@ -232,7 +232,7 @@ public:
 
 	StructType*
 	createInternalStructType(
-		const sl::StringRef& tag,
+		const sl::StringRef& name,
 		size_t fieldAlignment = 8
 	);
 
@@ -279,18 +279,18 @@ public:
 	template <typename T>
 	T*
 	createInternalClassType(
-		const sl::StringRef& tag,
+		const sl::StringRef& name,
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
 	);
 
 	ClassType*
 	createInternalClassType(
-		const sl::StringRef& tag,
+		const sl::StringRef& name,
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
 	) {
-		return createInternalClassType<ClassType>(tag, fieldAlignment, flags);
+		return createInternalClassType<ClassType>(name, fieldAlignment, flags);
 	}
 
 	void
@@ -812,10 +812,10 @@ protected:
 inline
 StructType*
 TypeMgr::createInternalStructType(
-	const sl::StringRef& tag,
+	const sl::StringRef& name,
 	size_t fieldAlignment
 ) {
-	StructType* type = createStructType(tag, fieldAlignment);
+	StructType* type = createStructType(name, fieldAlignment);
 	type->m_namespaceStatus = NamespaceStatus_Ready;
 	return type;
 }
@@ -853,11 +853,11 @@ TypeMgr::createClassType(
 template <typename T>
 T*
 TypeMgr::createInternalClassType(
-	const sl::StringRef& tag,
+	const sl::StringRef& name,
 	size_t fieldAlignment,
 	uint_t flags
 ) {
-	T* type = createClassType<T>(tag, fieldAlignment, flags);
+	T* type = createClassType<T>(name, fieldAlignment, flags);
 	type->m_namespaceStatus = NamespaceStatus_Ready;
 	return type;
 }

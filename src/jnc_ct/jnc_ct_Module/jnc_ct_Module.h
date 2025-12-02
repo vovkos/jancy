@@ -106,7 +106,7 @@ protected:
 	ModuleConfig m_config;
 	uint_t m_compileFlags;
 	ModuleCompileState m_compileState;
-	size_t m_unnamedLinkId;
+	size_t m_uniqueLinkId;
 	size_t m_tryCompileLevel;
 	size_t m_disableAccessCheckLevel;
 	size_t m_compileErrorCount;
@@ -217,8 +217,13 @@ public:
 	}
 
 	size_t
-	createUnnamedLinkId() {
-		return ++m_unnamedLinkId;
+	createUniqueLinkId() {
+		return m_uniqueLinkId++;
+	}
+
+	sl::String
+	createUniqueName(const sl::StringRef& prefix) {
+		return sl::formatString("%s-%d", prefix.sz(), createUniqueLinkId());
 	}
 
 	bool

@@ -21,7 +21,7 @@ namespace ct {
 
 void
 TemplateArgType::prepareSignature() {
-	m_signature = sl::formatString("XA%d", m_module->createUnnamedLinkId());
+	m_signature = sl::formatString("XA%d", m_module->createUniqueLinkId());
 	m_flags |= TypeFlag_SignatureFinal;
 }
 
@@ -225,7 +225,7 @@ TemplateDeclType::instantiate(const sl::ArrayRef<Type*>& argArray) {
 
 void
 TemplateDeclType::prepareSignature() {
-	m_signature = sl::formatString("XD%d", m_module->createUnnamedLinkId());
+	m_signature = sl::formatString("XD%d", m_module->createUniqueLinkId());
 	m_flags |= TypeFlag_SignatureFinal;
 }
 

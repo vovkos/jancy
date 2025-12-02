@@ -170,16 +170,16 @@ public:
 	template <typename T>
 	T*
 	createInternalFunction(
-		const sl::StringRef& tag,
+		const sl::StringRef& name,
 		FunctionType* type
 	);
 
 	Function*
 	createInternalFunction(
-		const sl::StringRef& tag,
+		const sl::StringRef& name,
 		FunctionType* type
 	) {
-		return createInternalFunction<Function>(tag, type);
+		return createInternalFunction<Function>(name, type);
 	}
 
 	FunctionOverload*
@@ -196,11 +196,11 @@ public:
 
 	template <typename T>
 	T*
-	createInternalProperty(const sl::StringRef& tag);
+	createInternalProperty(const sl::StringRef& name);
 
 	Property*
-	createInternalProperty(const sl::StringRef& tag) {
-		return createInternalProperty<Property>(tag);
+	createInternalProperty(const sl::StringRef& name) {
+		return createInternalProperty<Property>(name);
 	}
 
 	PropertyTemplate*
@@ -348,10 +348,10 @@ FunctionMgr::createFunction(
 template <typename T>
 T*
 FunctionMgr::createInternalFunction(
-	const sl::StringRef& tag,
+	const sl::StringRef& name,
 	FunctionType* type
 ) {
-	T* function = createFunction<T>(tag, type);
+	T* function = createFunction<T>(name, type);
 	function->m_functionKind = FunctionKind_Internal;
 	return function;
 }
@@ -366,8 +366,8 @@ FunctionMgr::createProperty(const sl::StringRef& name) {
 
 template <typename T>
 T*
-FunctionMgr::createInternalProperty(const sl::StringRef& tag) {
-	T* prop = createProperty<T>(tag);
+FunctionMgr::createInternalProperty(const sl::StringRef& name) {
+	T* prop = createProperty<T>(name);
 	prop->m_propertyKind = PropertyKind_Internal;
 	return prop;
 }

@@ -78,7 +78,6 @@ MulticastClassType::compileCallMethod(Function* function) {
 	m_module->m_functionMgr.internalPrologue(function, argValueArray.p(), argCount);
 
 	Function* getSnapshot = m_methodArray[MulticastMethodKind_GetSnapshot];
-
 	Value snapshotValue;
 	result = m_module->m_operatorMgr.callOperator(getSnapshot, argValueArray[0], &snapshotValue);
 	if (!result)

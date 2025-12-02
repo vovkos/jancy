@@ -461,7 +461,7 @@ VariableMgr::createStaticDataPtrValidator(Variable* variable) {
 	StructType* boxType = (StructType*)m_module->m_typeMgr.getStdType(StdType_DetachedDataBox);
 	StructType* validatorType = (StructType*)m_module->m_typeMgr.getStdType(StdType_DataPtrValidator);
 
-	sl::String boxName = variable->getLinkId() + ".box";
+	sl::String boxName = variable->getLinkId() + "!box";
 
 	llvm::GlobalVariable* llvmBoxVariable = new llvm::GlobalVariable(
 		*m_module->getLlvmModule(),
@@ -778,9 +778,10 @@ VariableMgr::createTlsStructType() {
 }
 
 ClassType*
-VariableMgr::createReactorUserDataType(const sl::StringRef& name) {
+VariableMgr::createReactorUserDataType() {
 	ASSERT(!m_reactorVariableArray.isEmpty()); // otherwise, why are we here?
 
+	sl::String name = m_module->createUniqueName("ReactorUserData");
 	ClassType* userDataType = m_module->m_typeMgr.createInternalClassType(name);
 	size_t count = m_reactorVariableArray.getCount();
 	for (size_t i = 0; i < count; i++) {

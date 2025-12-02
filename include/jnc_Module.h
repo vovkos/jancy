@@ -173,7 +173,7 @@ struct jnc_ModuleConfig {
 	jnc_JitKind m_jitKind;
 	uint_t m_jitOptLevel;
 	uint_t m_compileFlags;
-	size_t m_unnamedLinkIdBase;
+	size_t m_uniqueLinkIdBase;
 };
 
 typedef struct jnc_ModuleConfig jnc_ModuleConfig;

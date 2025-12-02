@@ -28,8 +28,8 @@ AsyncLauncherFunction::compile() {
 
 	// prepare promise class type
 
-	sl::String linkId = getLinkId();
-	ClassType* promiseType = m_module->m_typeMgr.createInternalClassType(linkId + ".Promise");
+	sl::String promiseName = m_module->createUniqueName("Promise");
+	ClassType* promiseType = m_module->m_typeMgr.createInternalClassType(promiseName);
 	promiseType->addBaseType(m_module->m_typeMgr.getStdType(StdType_Promise));
 
 	if (isMember())
@@ -91,7 +91,7 @@ AsyncLauncherFunction::compile() {
 	FunctionType* functionType = m_module->m_typeMgr.getFunctionType(&argType, 1, flags);
 
 	AsyncSequencerFunction* sequencerFunc = m_module->m_functionMgr.createFunction<AsyncSequencerFunction>(
-		linkId + ".sequencer",
+		promiseName + "!sequencer",
 		functionType
 	);
 

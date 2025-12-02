@@ -34,7 +34,8 @@ ClassType::getVtableStructType() {
 	if (m_vtableStructType)
 		return m_vtableStructType;
 
-	m_vtableStructType = m_module->m_typeMgr.createInternalStructType(getSignature() + ".Vtable");
+	m_vtableStructType = m_module->m_typeMgr.createInternalStructType("!Vtable");
+	m_vtableStructType->m_parentNamespace = this;
 	return m_vtableStructType;
 }
 
@@ -701,7 +702,7 @@ ClassType::prepareForOperatorNew() {
 	);
 
 	m_vtableVariable = m_module->m_variableMgr.createSimpleStaticVariable(
-		getSignature() + ".m_vtable",
+		getLinkId() + "!m_vtable",
 		m_vtableStructType,
 		Value(llvmVtableConst, m_vtableStructType)
 	);

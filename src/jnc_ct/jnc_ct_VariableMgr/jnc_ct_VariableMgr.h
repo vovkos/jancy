@@ -187,7 +187,7 @@ public:
 	createTlsStructType();
 
 	ClassType*
-	createReactorUserDataType(const sl::StringRef& name);
+	createReactorUserDataType();
 
 	bool
 	allocateVariable(Variable* variable);

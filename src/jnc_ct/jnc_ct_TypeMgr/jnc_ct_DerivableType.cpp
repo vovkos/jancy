@@ -71,7 +71,9 @@ DerivableType::getIndexerProperty(Type* argType) {
 	if (it->m_value)
 		return it->m_value;
 
-	Property* prop = m_module->m_functionMgr.createInternalProperty(getSignature() + ".m_indexer");
+	Property* prop = m_module->m_functionMgr.createInternalProperty("!m_indexer");
+	prop->m_parentNamespace = this;
+	prop->m_parentType = this;
 	prop->m_storageKind = StorageKind_Member;
 	it->m_value = prop;
 	return prop;

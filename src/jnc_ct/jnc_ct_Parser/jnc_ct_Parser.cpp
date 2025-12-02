@@ -1996,8 +1996,8 @@ Parser::declareData(
 		}
 
 		if (!stmt->m_structType) {
-			sl::String tag = sl::formatString("section-%d", m_module->createUnnamedLinkId());
-			StructType* structType = m_module->m_typeMgr.createInternalStructType(tag, 1);
+			sl::String name = m_module->createUniqueName("Section");
+			StructType* structType = m_module->m_typeMgr.createInternalStructType(name, 1);
 
 			Value funcValue;
 			Value typeValue(&structType, m_module->m_typeMgr.getStdType(StdType_ByteThinPtr));
