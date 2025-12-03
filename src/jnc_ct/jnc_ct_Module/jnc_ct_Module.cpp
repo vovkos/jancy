@@ -198,7 +198,7 @@ Module::initialize(
 	m_compileErrorCount = 0;
 	m_uniqueLinkId = m_config.m_uniqueLinkIdBase;
 
-#if (_AXL_GCC_ASAN)
+#if (_JNC_ASAN)
 	// GC guard page safe points do not work with address sanitizer
 	m_compileFlags |= ModuleCompileFlag_SimpleGcSafePoint;
 #endif

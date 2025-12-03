@@ -31,6 +31,11 @@
 #	ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
 #		define _WINSOCK_DEPRECATED_NO_WARNINGS 1
 #	endif
+
+#	ifdef __SANITIZE_ADDRESS__
+#		define _DISABLE_VECTOR_ANNOTATION 1 // suppress STL ASAN-vs-no-ASAN errors
+#		define _DISABLE_STRING_ANNOTATION 1 // suppress STL ASAN-vs-no-ASAN errors
+#	endif
 #endif
 
 #include "jnc_Config.h"

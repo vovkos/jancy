@@ -255,7 +255,13 @@ typedef wchar_t           utf32_t;
 
 #	define JNC_GCC_ALIGN(n)
 #	define JNC_GCC_MSC_STRUCT
-#	define JNC_GCC_NO_ASAN
+
+#	ifdef __SANITIZE_ADDRESS__
+#		define _JNC_ASAN 1
+#		define _DISABLE_VECTOR_ANNOTATION 1 // suppress STL ASAN-vs-no-ASAN errors
+#		define _DISABLE_STRING_ANNOTATION 1 // suppress STL ASAN-vs-no-ASAN errors
+#	endif
+#	define JNC_NO_ASAN
 #elif (_JNC_CPP_GCC)
 #	if (_JNC_CPU_X86)
 #		define JNC_CDECL   __attribute__((cdecl))
@@ -281,13 +287,13 @@ typedef wchar_t           utf32_t;
 
 #	ifdef __has_feature
 #		if (__has_feature(address_sanitizer))
-#	 		define _JNC_GCC_ASAN 1
+#	 		define _JNC_ASAN 1
 #		endif
 #	elif (defined(__SANITIZE_ADDRESS__))
-# 		define _JNC_GCC_ASAN 1
+# 		define _JNC_ASAN 1
 #	endif
 
-#	define JNC_GCC_NO_ASAN __attribute__((no_sanitize_address))
+#	define JNC_NO_ASAN __attribute__((no_sanitize_address))
 #endif
 
 #ifdef __cplusplus
