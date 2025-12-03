@@ -29,6 +29,7 @@ public:
 		m_functionKind = FunctionKind_Thunk;
 		m_targetFunction = NULL;
 	}
+
 	virtual
 	bool
 	compile();

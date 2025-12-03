@@ -177,6 +177,9 @@ Cast_FromVariant::llvmCast(
 		return false;
 
 	m_module->m_llvmIrBuilder.createLoad(tmpValue, type, resultValue);
+	if (type->getFlags() & TypeFlag_GcRoot)
+		m_module->m_gcShadowStackMgr.markGcRoot(tmpValue, type);
+
 	return true;
 }
 

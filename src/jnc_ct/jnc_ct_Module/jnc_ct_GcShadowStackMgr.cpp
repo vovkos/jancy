@@ -78,8 +78,6 @@ GcShadowStackMgr::finalizeScope(Scope* scope) {
 void
 GcShadowStackMgr::createTmpGcRoot(const Value& value) {
 	Type* type = value.getType();
-	ASSERT(type->getFlags() & TypeFlag_GcRoot);
-
 	Value ptrValue;
 	m_module->m_llvmIrBuilder.createAlloca(type, NULL, &ptrValue);
 	m_module->m_llvmIrBuilder.createStore(value, ptrValue);
@@ -91,6 +89,8 @@ GcShadowStackMgr::markGcRoot(
 	const Value& ptrValue,
 	Type* type
 ) {
+	ASSERT(type->getFlags() & TypeFlag_GcRoot);
+
 	if (!m_frameVariable)
 		preCreateFrame();
 

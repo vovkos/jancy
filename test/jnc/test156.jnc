@@ -1,0 +1,29 @@
+// dynamic cast of variants didn't mark gc roots of results
+// collection can happen between casting of arguments
+// to reproduce the bug, force collection on every allocation
+
+//..............................................................................
+
+void bar(
+	char const* p1,
+	char const* p2,
+	char const* p3,
+	char const* p4
+) {
+	printf("bar(%s, %s, %s, %s)\n", p1, p2, p3, p4);
+	assert(strcmp(p1, "abc") == 0);
+	assert(strcmp(p2, "def") == 0);
+	assert(strcmp(p3, "ghi") == 0);
+	assert(strcmp(p4, "jkl") == 0);
+}
+
+int main() {
+	variant_t v1 = "abc"; // will be stored in-variant and will need casting
+	variant_t v2 = "def";
+	variant_t v3 = "ghi";
+	variant_t v4 = "jkl";
+	bar(v1, v2, v3, v4);
+	return 0;
+}
+
+//..............................................................................
