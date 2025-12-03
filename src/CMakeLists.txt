@@ -47,7 +47,7 @@ if(BUILD_JNC_STDLIB)
 	add_subdirectory(jnc_stdlib)
 endif()
 
-if (QT_FOUND)
+if(QT_FOUND)
 	option(
 		BUILD_JNC_EDIT
 		"Build jnc_edit (QT-based code-assisting editor)"

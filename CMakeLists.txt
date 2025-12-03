@@ -16,7 +16,7 @@ project(jancy)
 include(cmake/axl_cmake.cmake NO_POLICY_SCOPE)
 
 if(WIN32)
-	if (${TARGET_CPU} STREQUAL "amd64")
+	if(${TARGET_CPU} STREQUAL "amd64")
 		enable_language(ASM_NASM)
 	elseif(${TARGET_CPU} STREQUAL "arm64")
 		enable_language(ASM_MARMASM)

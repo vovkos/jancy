@@ -62,7 +62,7 @@ if(NOT BUILD_JNC_IO_HID)
 	)
 endif()
 
-if (NOT WIN32)
+if(NOT WIN32)
 	list(
 		REMOVE_ITEM
 		TEST_JNC_LIST

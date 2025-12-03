@@ -292,7 +292,7 @@ add_jancy_tests
 		if("${_ARG}" MATCHES "NAME_PREFIX|WORKING_DIRECTORY|FLAGS|TESTS|REQUIRES|FILES|FINALIZE_TEST")
 			set(_COMMAND ${_ARG})
 
-			if (${_COMMAND} MATCHES "S$") # a list -- clear it
+			if(${_COMMAND} MATCHES "S$") # a list -- clear it
 				string(REGEX REPLACE "S$" "_LIST" _LIST "${_COMMAND}")
 				set(_${_LIST})
 			endif()
