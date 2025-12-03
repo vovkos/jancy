@@ -43,7 +43,7 @@ convertToUtf8(
 	p[requiredLength] = 0; // ensure zero-termination
 
 	::WideCharToMultiByte(CP_UTF8, 0, string, (int)length, p, requiredLength, NULL, NULL);
-	return std::unique_ptr<char>(p);
+	return std::unique_ptr<char[]>(p);
 }
 
 #endif
