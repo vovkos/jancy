@@ -34,19 +34,19 @@ typedef enum Error Error;
 const char*
 convertToUtf8(
 	const wchar_t* string,
-	size_t length
+	int length
 ) {
 	char* p;
 	int requiredLength;
 
-	requiredLength = WideCharToMultiByte(CP_UTF8, 0, string, (int)length, NULL, 0, NULL, NULL);
+	requiredLength = WideCharToMultiByte(CP_UTF8, 0, string, length, NULL, 0, NULL, NULL);
 	if (!requiredLength)
 		return NULL;
 
 	p = malloc(requiredLength + 1);
 	p[requiredLength] = 0; // ensure zero-termination
 
-	WideCharToMultiByte(CP_UTF8, 0, string, (int)length, p, requiredLength, NULL, NULL);
+	WideCharToMultiByte(CP_UTF8, 0, string, length, p, requiredLength, NULL, NULL);
 	return p;
 }
 

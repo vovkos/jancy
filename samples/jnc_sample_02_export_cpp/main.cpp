@@ -30,19 +30,19 @@ enum Error {
 
 #if (_JNC_OS_WIN)
 
-std::unique_ptr<char>
+std::unique_ptr<char[]>
 convertToUtf8(
 	const wchar_t* string,
-	size_t length = -1
+	int length = -1
 ) {
-	int requiredLength = ::WideCharToMultiByte(CP_UTF8, 0, string, (int)length, NULL, 0, NULL, NULL);
+	int requiredLength = ::WideCharToMultiByte(CP_UTF8, 0, string, length, NULL, 0, NULL, NULL);
 	if (!requiredLength)
-		return std::unique_ptr<char>();
+		return std::unique_ptr<char[]>();
 
 	char* p = new char[requiredLength + 1];
 	p[requiredLength] = 0; // ensure zero-termination
 
-	::WideCharToMultiByte(CP_UTF8, 0, string, (int)length, p, requiredLength, NULL, NULL);
+	::WideCharToMultiByte(CP_UTF8, 0, string, length, p, requiredLength, NULL, NULL);
 	return std::unique_ptr<char[]>(p);
 }
 
@@ -80,7 +80,7 @@ main(
 		result = module->parse("script.jnc", g_script, sizeof(g_script) - 1);
 	} else {
 #if (_JNC_OS_WIN)
-		std::unique_ptr<char> fileName_utf8 = convertToUtf8(argv[1]);
+		std::unique_ptr<char[]> fileName_utf8 = convertToUtf8(argv[1]);
 		const char* fileName = fileName_utf8.get();
 #else
 		const char* fileName = argv[1];
