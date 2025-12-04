@@ -1,0 +1,80 @@
+.. include:: def.rst
+.. index:: pair: class; io.ChildProcess
+.. _doxid-type_io_childprocess:
+
+class io.ChildProcess
+=====================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class ChildProcess {
+		// fields
+	
+		:ref:`io.FileStream<doxid-type_io_filestream>`* readonly :target:`m_stderr<doxid-field_io_childprocess_m_stderr>`;
+		:ref:`io.ChildProcessEvents<doxid-type_io_childprocessevents>` readonly volatile :target:`m_activeEvents<doxid-field_io_childprocess_m_activeevents>`;
+		:ref:`std.Error<doxid-type_std_error>` const* readonly volatile :target:`m_ioError<doxid-field_io_childprocess_m_ioerror>`;
+		bool readonly :target:`m_isOpen<doxid-field_io_childprocess_m_isopen>`;
+
+		// properties
+	
+		:ref:`uint_t<doxid-typedef_uint_t>` autoget property :target:`m_readParallelism<doxid-property_io_childprocess_m_readparallelism>`;
+		:ref:`size_t<doxid-typedef_size_t>` autoget property :target:`m_readBlockSize<doxid-property_io_childprocess_m_readblocksize>`;
+		:ref:`size_t<doxid-typedef_size_t>` autoget property :target:`m_readBufferSize<doxid-property_io_childprocess_m_readbuffersize>`;
+		:ref:`size_t<doxid-typedef_size_t>` autoget property :target:`m_writeBufferSize<doxid-property_io_childprocess_m_writebuffersize>`;
+		:ref:`io.ChildProcessOptions<doxid-typedef_io_childprocessoptions>` autoget property :target:`m_options<doxid-property_io_childprocess_m_options>`;
+		:ref:`uint_t<doxid-typedef_uint_t>` const property :target:`m_pid<doxid-property_io_childprocess_m_pid>`;
+		:ref:`uint_t<doxid-typedef_uint_t>` const property :target:`m_exitCode<doxid-property_io_childprocess_m_exitcode>`;
+		:ref:`io.PtySize<doxid-type_io_ptysize>` property :target:`m_ptySize<doxid-property_io_childprocess_m_ptysize>`;
+
+		// construction
+	
+		:target:`construct<doxid-function_io_childprocess_construct>`();
+		:target:`destruct<doxid-function_io_childprocess_destruct>`();
+
+		// methods
+	
+		bool errorcode :target:`start<doxid-function_io_childprocess_start>`(
+			:ref:`string_t<doxid-typedef_string_t>` commandLine,
+			:ref:`std.HashTable<doxid-type_std_hashtable>` const* environment = null,
+			:ref:`io.ChildProcessStartFlags<doxid-type_io_childprocessstartflags>` flags = 0
+		);
+	
+		bool errorcode :target:`terminate<doxid-function_io_childprocess_terminate>`();
+		void :target:`close<doxid-function_io_childprocess_close>`();
+	
+		:ref:`size_t<doxid-typedef_size_t>` errorcode :target:`read<doxid-function_io_childprocess_read>`(
+			void* p,
+			:ref:`size_t<doxid-typedef_size_t>` size
+		);
+	
+		:ref:`size_t<doxid-typedef_size_t>` errorcode :target:`write<doxid-function_io_childprocess_write>`(
+			void const* p,
+			:ref:`size_t<doxid-typedef_size_t>` size
+		);
+	
+		long errorcode :target:`wait<doxid-function_io_childprocess_wait>`(
+			:ref:`io.ChildProcessEvents<doxid-type_io_childprocessevents>` eventMask,
+			void function* handler(io.ChildProcessEvents triggeredEvents)
+		);
+	
+		bool errorcode :target:`cancelWait<doxid-function_io_childprocess_cancelwait>`(long handle);
+	
+		:ref:`io.ChildProcessEvents<doxid-type_io_childprocessevents>` :target:`blockingWait<doxid-function_io_childprocess_blockingwait>`(
+			:ref:`io.ChildProcessEvents<doxid-type_io_childprocessevents>` eventMask,
+			:ref:`uint_t<doxid-typedef_uint_t>` timeout = -1
+		);
+	
+		:ref:`io.ChildProcessEvents<doxid-type_io_childprocessevents>` async :target:`asyncWait<doxid-function_io_childprocess_asyncwait>`(:ref:`io.ChildProcessEvents<doxid-type_io_childprocessevents>` eventMask);
+
+		// aliases
+	
+		alias :target:`dispose<doxid-alias_io_childprocess_dispose>` = close;
+	};

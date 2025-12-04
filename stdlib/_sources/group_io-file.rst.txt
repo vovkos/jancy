@@ -1,0 +1,120 @@
+.. include:: def.rst
+.. index:: pair: group; Generic File IO
+.. _doxid-group_io_file:
+
+Generic File IO
+===============
+
+.. toctree::
+	:hidden:
+
+	enum_io_ChildProcessEvents.rst
+	enum_io_ChildProcessStartFlags.rst
+	enum_io_FileKind.rst
+	enum_io_FileOpenFlags.rst
+	enum_io_FileStreamEvents.rst
+	enum_io_FileStreamOptions.rst
+	enum_io_NamedPipeEvents.rst
+	enum_io_ReadOnlyStreamEvents.rst
+	enum_io_ReadOnlyStreamOptions.rst
+	enum_io_StreamEvents.rst
+	enum_io_StreamOptions.rst
+	struct_io_PtySize.rst
+	class_io_ChildProcess.rst
+	class_io_File.rst
+	class_io_FileStream.rst
+	class_io_Mailslot.rst
+	class_io_MappedFile.rst
+	class_io_NamedPipe.rst
+
+Overview
+~~~~~~~~
+
+This section describes types and facilities for working with files and generic IO devices. :ref:`More...<details-group_io_file>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "io_base.jncx"
+	import "io_File.jnc"
+	import "io_FileStream.jnc"
+	import "io_MappedFile.jnc"
+	import "io_Mailslot.jnc"
+	import "io_NamedPipe.jnc"
+	
+	// typedefs
+
+	typedef :ref:`io.ReadOnlyStreamOptions<doxid-type_io_readonlystreamoptions>` :target:`io.MailslotOptions<doxid-typedef_io_mailslotoptions>`;
+	typedef :ref:`io.ReadOnlyStreamEvents<doxid-type_io_readonlystreamevents>` :target:`io.MailslotEvents<doxid-typedef_io_mailslotevents>`;
+	typedef :ref:`io.StreamOptions<doxid-type_io_streamoptions>` :target:`io.ChildProcessOptions<doxid-typedef_io_childprocessoptions>`;
+
+	// enums
+
+	bitflag enum :ref:`io.ChildProcessEvents<doxid-type_io_childprocessevents>`;
+	bitflag enum :ref:`io.ChildProcessStartFlags<doxid-type_io_childprocessstartflags>`;
+	enum :ref:`io.FileKind<doxid-type_io_filekind>`;
+	bitflag enum :ref:`io.FileOpenFlags<doxid-type_io_fileopenflags>`;
+	bitflag enum :ref:`io.FileStreamEvents<doxid-type_io_filestreamevents>`;
+	bitflag enum :ref:`io.FileStreamOptions<doxid-type_io_filestreamoptions>`;
+	bitflag enum :ref:`io.NamedPipeEvents<doxid-type_io_namedpipeevents>`;
+	bitflag enum :ref:`io.ReadOnlyStreamEvents<doxid-type_io_readonlystreamevents>`;
+	bitflag enum :ref:`io.ReadOnlyStreamOptions<doxid-type_io_readonlystreamoptions>`;
+	bitflag enum :ref:`io.StreamEvents<doxid-type_io_streamevents>`;
+	bitflag enum :ref:`io.StreamOptions<doxid-type_io_streamoptions>`;
+
+	// structs
+
+	struct :ref:`io.PtySize<doxid-type_io_ptysize>`;
+
+	// classes
+
+	class :ref:`io.ChildProcess<doxid-type_io_childprocess>`;
+	class :ref:`io.File<doxid-type_io_file>`;
+	class :ref:`io.FileStream<doxid-type_io_filestream>`;
+	class :ref:`io.Mailslot<doxid-type_io_mailslot>`;
+	class :ref:`io.MappedFile<doxid-type_io_mappedfile>`;
+	class :ref:`io.NamedPipe<doxid-type_io_namedpipe>`;
+
+	// global functions
+
+	:ref:`string_t<doxid-typedef_string_t>` :ref:`io.getFileStreamKindString<doxid-function_io_getfilestreamkindstring>`(:ref:`io.FileKind<doxid-type_io_filekind>` kind);
+	:ref:`string_t<doxid-typedef_string_t>` :target:`io.getSymbolicLinkTarget<doxid-function_io_getsymboliclinktarget>`(:ref:`string_t<doxid-typedef_string_t>` name);
+	:ref:`string_t<doxid-typedef_string_t>` :target:`io.getHomeDir<doxid-function_io_gethomedir>`();
+	:ref:`string_t<doxid-typedef_string_t>` :target:`io.getTempDir<doxid-function_io_gettempdir>`();
+
+	:ref:`string_t<doxid-typedef_string_t>` :target:`io.createTempFile<doxid-function_io_createtempfile>`(
+		:ref:`string_t<doxid-typedef_string_t>` dir = null,
+		:ref:`string_t<doxid-typedef_string_t>` prefix = null
+	);
+
+	bool errorcode :target:`io.renameFile<doxid-function_io_renamefile>`(
+		:ref:`string_t<doxid-typedef_string_t>` srcFileName,
+		:ref:`string_t<doxid-typedef_string_t>` dstFileName
+	);
+
+	bool errorcode :target:`io.deleteFile<doxid-function_io_deletefile>`(:ref:`string_t<doxid-typedef_string_t>` fileName);
+
+.. _details-group_io_file:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This section describes types and facilities for working with files and generic IO devices.
+
+Global Functions
+----------------
+
+.. index:: pair: function; getFileStreamKindString
+.. _doxid-function_io_getfilestreamkindstring:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`string_t<doxid-typedef_string_t>` io.getFileStreamKindString(:ref:`io.FileKind<doxid-type_io_filekind>` kind)
+
+Returns string representation of the ``kind`` argument. In case ``kind``
+does not correspond to any known file stream kind(e.g. you have casted a
+random integer number to `io.FileKind` enumeration type), string
+``unknown device`` is returned.
+

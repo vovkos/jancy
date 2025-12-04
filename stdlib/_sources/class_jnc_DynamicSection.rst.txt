@@ -1,0 +1,50 @@
+.. include:: def.rst
+.. index:: pair: class; jnc.DynamicSection
+.. _doxid-type_jnc_dynamicsection:
+
+class jnc.DynamicSection
+========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class DynamicSection: :ref:`jnc.DynamicSectionGroup<doxid-type_jnc_dynamicsectiongroup>` {
+		// fields
+	
+		:ref:`jnc.DynamicSectionKind<doxid-type_jnc_dynamicsectionkind>` readonly :target:`m_sectionKind<doxid-field_jnc_dynamicsection_m_sectionkind>`;
+		:ref:`size_t<doxid-typedef_size_t>` readonly :target:`m_offset<doxid-field_jnc_dynamicsection_m_offset>`;
+		:ref:`size_t<doxid-typedef_size_t>` readonly :target:`m_size<doxid-field_jnc_dynamicsection_m_size>`;
+		:ref:`jnc.PtrTypeFlags<doxid-type_jnc_ptrtypeflags>` readonly :target:`m_ptrTypeFlags<doxid-field_jnc_dynamicsection_m_ptrtypeflags>`;
+
+		// properties
+	
+		:ref:`jnc.ModuleItemDecl<doxid-type_jnc_moduleitemdecl>`* const property :target:`m_decl<doxid-property_jnc_dynamicsection_m_decl>`;
+		:ref:`jnc.Type<doxid-type_jnc_type>`* const property :target:`m_type<doxid-property_jnc_dynamicsection_m_type>`;
+
+		// construction
+	
+		:target:`destruct<doxid-function_jnc_dynamicsection_destruct>`();
+	};
+
+Inherited Members
+-----------------
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-inherited-code-block
+
+	public:
+		// fields
+	
+		:ref:`size_t<doxid-typedef_size_t>` readonly :ref:`m_sectionCount<doxid-field_jnc_dynamicsectiongroup_m_sectioncount>`;
+
+		// properties
+	
+		jnc.DynamicSection* const indexed property :ref:`m_sectionArray<doxid-property_jnc_dynamicsectiongroup_m_sectionarray>`(:ref:`size_t<doxid-typedef_size_t>` index);
+

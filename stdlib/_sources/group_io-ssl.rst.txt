@@ -1,0 +1,57 @@
+.. include:: def.rst
+.. index:: pair: group; SSL Communications
+.. _doxid-group_io_ssl:
+
+SSL Communications
+==================
+
+.. toctree::
+	:hidden:
+
+	enum_io_SslCertFormat.rst
+	enum_io_SslNid.rst
+	enum_io_SslSocketEvents.rst
+	enum_io_SslStateFlags.rst
+	enum_io_SslStdDh.rst
+	enum_io_SslVerifyMode.rst
+	struct_io_SslCertNameEntry.rst
+	class_io_SslCertName.rst
+	class_io_SslCertificate.rst
+	class_io_SslCipher.rst
+	class_io_SslSocket.rst
+	class_io_SslState.rst
+
+This section describes types and facilities used when programming OpenSSL-based socket communicatins.
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "io_ssl.jncx"
+	
+	// enums
+
+	enum :ref:`io.SslCertFormat<doxid-type_io_sslcertformat>`;
+	enum :ref:`io.SslNid<doxid-type_io_sslnid>`;
+	bitflag enum :ref:`io.SslSocketEvents<doxid-type_io_sslsocketevents>`;
+	bitflag enum :ref:`io.SslStateFlags<doxid-type_io_sslstateflags>`;
+	enum :ref:`io.SslStdDh<doxid-type_io_sslstddh>`;
+	bitflag enum :ref:`io.SslVerifyMode<doxid-type_io_sslverifymode>`;
+
+	// structs
+
+	struct :ref:`io.SslCertNameEntry<doxid-type_io_sslcertnameentry>`;
+
+	// classes
+
+	class :ref:`io.SslCertName<doxid-type_io_sslcertname>`;
+	class :ref:`io.SslCertificate<doxid-type_io_sslcertificate>`;
+	class :ref:`io.SslCipher<doxid-type_io_sslcipher>`;
+	class :ref:`io.SslSocket<doxid-type_io_sslsocket>`;
+	class :ref:`io.SslState<doxid-type_io_sslstate>`;
+
+	// global functions
+
+	:ref:`string_t<doxid-typedef_string_t>` :target:`io.getSslNidShortName<doxid-function_io_getsslnidshortname>`(:ref:`io.SslNid<doxid-type_io_sslnid>` nid);
+	:ref:`string_t<doxid-typedef_string_t>` :target:`io.getSslNidLongName<doxid-function_io_getsslnidlongname>`(:ref:`io.SslNid<doxid-type_io_sslnid>` nid);
+

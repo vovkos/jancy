@@ -1,0 +1,28 @@
+.. include:: def.rst
+.. index:: pair: namespace; io.HidUsagePageEnumStrings
+.. _doxid-namespace_io_hidusagepageenumstrings:
+
+namespace io.HidUsagePageEnumStrings
+====================================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	namespace HidUsagePageEnumStrings {
+
+	// properties
+
+	:ref:`string_t<doxid-typedef_string_t>` const property :target:`m_enumString<doxid-property_io_hidusagepageenumstrings_m_enumstring>`;
+
+	// global functions
+
+	:ref:`string_t<doxid-typedef_string_t>` :target:`getUsageEnumString<doxid-function_io_hidusagepageenumstrings_getusageenumstring>`(:ref:`uint_t<doxid-typedef_uint_t>` usage) const;
+
+	} // namespace HidUsagePageEnumStrings

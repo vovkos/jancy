@@ -1,0 +1,25 @@
+.. index:: pair: enum; jnc_ClassTypeKind
+.. _doxid-group__class-type_1gaabc853915c16d345a018ec3ccce9ea25:
+
+enum jnc_ClassTypeKind
+======================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_ClassType.h>
+
+	enum jnc_ClassTypeKind {
+	    :target:`jnc_ClassTypeKind_Normal<doxid-group__class-type_1ggaabc853915c16d345a018ec3ccce9ea25a3fc7c74a8dfbc0009d48ca509a269011>`          = 0,
+	    :target:`jnc_ClassTypeKind_Abstract<doxid-group__class-type_1ggaabc853915c16d345a018ec3ccce9ea25a17ad67d2601bc455e9b1c25574d7f16a>`,
+	    :target:`jnc_ClassTypeKind_Multicast<doxid-group__class-type_1ggaabc853915c16d345a018ec3ccce9ea25a7f1099192433cb8809c381d8be5c8cdf>`,
+	    :target:`jnc_ClassTypeKind_McSnapshot<doxid-group__class-type_1ggaabc853915c16d345a018ec3ccce9ea25ae426dd1bcabbe4891c568765be82c4fc>`,
+	    :target:`jnc_ClassTypeKind_Reactor<doxid-group__class-type_1ggaabc853915c16d345a018ec3ccce9ea25af7759e2045b788ff91cb07623bb20799>`,
+	    :target:`jnc_ClassTypeKind_FunctionClosure<doxid-group__class-type_1ggaabc853915c16d345a018ec3ccce9ea25ade25c9ec8c31c13843fc610afcaf01bb>`,
+	    :target:`jnc_ClassTypeKind_PropertyClosure<doxid-group__class-type_1ggaabc853915c16d345a018ec3ccce9ea25afcb8076ad4293481c0de90525f94cb0e>`,
+	    :target:`jnc_ClassTypeKind_DataClosure<doxid-group__class-type_1ggaabc853915c16d345a018ec3ccce9ea25a8af86884337ed13272e92d2ebd072a89>`,
+	    :target:`jnc_ClassTypeKind_DynamicLib<doxid-group__class-type_1ggaabc853915c16d345a018ec3ccce9ea25a57ea00ab5815cd812d1a94d54afecd66>`,
+	};
+

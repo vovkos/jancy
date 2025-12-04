@@ -1,0 +1,104 @@
+.. index:: pair: group; Runtime Structures
+.. _doxid-group__runtime-structs:
+
+Runtime Structures
+==================
+
+.. toctree::
+	:hidden:
+
+	group_promise.rst
+	group_string.rst
+	group_variant.rst
+	enum_jnc_BoxFlag.rst
+	struct_jnc_Box.rst
+	struct_jnc_CallSite.rst
+	struct_jnc_DataBox.rst
+	struct_jnc_DataPtr.rst
+	struct_jnc_DataPtrValidator.rst
+	struct_jnc_DetachedDataBox.rst
+	struct_jnc_FmtLiteral.rst
+	struct_jnc_FunctionPtr.rst
+	struct_jnc_GcMutatorThread.rst
+	struct_jnc_GcShadowStackFrame.rst
+	struct_jnc_GcShadowStackFrameMapBuffer.rst
+	struct_jnc_IfaceHdr.rst
+	struct_jnc_McSnapshot.rst
+	struct_jnc_Multicast.rst
+	struct_jnc_OpaqueClassTypeInfo.rst
+	struct_jnc_PropertyPtr.rst
+	struct_jnc_Reactor.rst
+	struct_jnc_ReactorClosure.rst
+	struct_jnc_Scheduler.rst
+	struct_jnc_SchedulerVtable.rst
+	struct_jnc_SjljFrame.rst
+	struct_jnc_Tls.rst
+	struct_jnc_TlsVariableTable.rst
+
+
+
+|	:ref:`Promise<doxid-group__promise>`
+|	:ref:`String<doxid-group__string>`
+|	:ref:`Variant<doxid-group__variant>`
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_RuntimeStructs.h>
+	
+	// typedefs
+
+	typedef void :target:`jnc_Scheduler_ScheduleFunc<doxid-group__runtime-structs_1gaba3ff31f3ab863a90a7c3658fa60f828>`(
+		jnc_Scheduler *scheduler,
+		jnc_FunctionPtr functionPtr
+		);
+
+	typedef void :target:`jnc_MarkOpaqueGcRootsFunc<doxid-group__runtime-structs_1ga541946d96a61bfe6c500246933a21620>`(
+		jnc_IfaceHdr *iface,
+		jnc_GcHeap *gcHeap
+		);
+
+	typedef void :target:`jnc_RequireOpaqueItemsFunc<doxid-group__runtime-structs_1ga4fe2e6cb647e3f7a8d98b8f5dded5ba4>`(jnc_Module *module);
+	typedef void :target:`jnc_StaticConstructFunc<doxid-group__runtime-structs_1ga5edb583d717af3ed24c1dfdd95b2ab0b>`();
+	typedef void :target:`jnc_StaticDestructFunc<doxid-group__runtime-structs_1ga18544a702df951584b2f78cbec350b64>`();
+	typedef void :target:`jnc_ConstructFunc<doxid-group__runtime-structs_1ga036714e78f2e43e2e026fc11f94d12b4>`(jnc_IfaceHdr *iface);
+	typedef void :target:`jnc_DestructFunc<doxid-group__runtime-structs_1ga1389ed906e2bda2284bbe8c86804995c>`(jnc_IfaceHdr *iface);
+
+	// enums
+
+	enum :ref:`jnc_BoxFlag<doxid-group__runtime-structs_1ga7688aba6ff22cec33210cec8cbf1bf7f>`;
+
+	// structs
+
+	struct :ref:`jnc_Box<doxid-structjnc___box>`;
+	struct :ref:`jnc_CallSite<doxid-structjnc___call_site>`;
+	struct :ref:`jnc_DataBox<doxid-structjnc___data_box>`;
+	struct :ref:`jnc_DataPtr<doxid-structjnc___data_ptr>`;
+	struct :ref:`jnc_DataPtrValidator<doxid-structjnc___data_ptr_validator>`;
+	struct :ref:`jnc_DetachedDataBox<doxid-structjnc___detached_data_box>`;
+	struct :ref:`jnc_FmtLiteral<doxid-structjnc___fmt_literal>`;
+	struct :ref:`jnc_FunctionPtr<doxid-structjnc___function_ptr>`;
+	struct :ref:`jnc_GcMutatorThread<doxid-structjnc___gc_mutator_thread>`;
+	struct :ref:`jnc_GcShadowStackFrame<doxid-structjnc___gc_shadow_stack_frame>`;
+	struct :ref:`jnc_GcShadowStackFrameMapBuffer<doxid-structjnc___gc_shadow_stack_frame_map_buffer>`;
+	struct :ref:`jnc_IfaceHdr<doxid-structjnc___iface_hdr>`;
+	struct :ref:`jnc_McSnapshot<doxid-structjnc___mc_snapshot>`;
+	struct :ref:`jnc_Multicast<doxid-structjnc___multicast>`;
+	struct :ref:`jnc_OpaqueClassTypeInfo<doxid-structjnc___opaque_class_type_info>`;
+	struct :ref:`jnc_PropertyPtr<doxid-structjnc___property_ptr>`;
+	struct :ref:`jnc_Reactor<doxid-structjnc___reactor>`;
+	struct :ref:`jnc_ReactorClosure<doxid-structjnc___reactor_closure>`;
+	struct :ref:`jnc_Scheduler<doxid-structjnc___scheduler>`;
+	struct :ref:`jnc_SchedulerVtable<doxid-structjnc___scheduler_vtable>`;
+	struct :ref:`jnc_SjljFrame<doxid-structjnc___sjlj_frame>`;
+	struct :ref:`jnc_Tls<doxid-structjnc___tls>`;
+	struct :ref:`jnc_TlsVariableTable<doxid-structjnc___tls_variable_table>`;
+
+	// global variables
+
+	:ref:`JNC_SELECT_ANY<doxid-group__base-def_1gadf3ff658e277ca8ea2878349758bfdf5>` :ref:`jnc_DataPtr<doxid-structjnc___data_ptr>` :target:`jnc_g_nullDataPtr<doxid-group__runtime-structs_1gaed7efa7186258edceda15c480d0e76ac>` = { 0 };
+	:ref:`JNC_SELECT_ANY<doxid-group__base-def_1gadf3ff658e277ca8ea2878349758bfdf5>` :ref:`jnc_FunctionPtr<doxid-structjnc___function_ptr>` :target:`jnc_g_nullFunctionPtr<doxid-group__runtime-structs_1gaed3df82473e64656253c9aeade50d969>` = { 0 };
+	:ref:`JNC_SELECT_ANY<doxid-group__base-def_1gadf3ff658e277ca8ea2878349758bfdf5>` :ref:`jnc_PropertyPtr<doxid-structjnc___property_ptr>` :target:`jnc_g_nullPropertyPtr<doxid-group__runtime-structs_1ga9cd4e6605a1ffd30ad9ccada10ca3a82>` = { 0 };
+

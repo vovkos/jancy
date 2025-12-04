@@ -1,0 +1,23 @@
+.. include:: def.rst
+.. index:: pair: struct; io.DeviceMonitorMiStartParams
+.. _doxid-type_io_devicemonitormistartparams:
+
+struct io.DeviceMonitorMiStartParams
+====================================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct DeviceMonitorMiStartParams {
+		// fields
+	
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`m_version<doxid-field_io_devicemonitormistartparams_m_version>`;
+		:ref:`uint32_t<doxid-typedef_uint32_t>` :target:`m_flags<doxid-field_io_devicemonitormistartparams_m_flags>`;
+	};
