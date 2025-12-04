@@ -150,7 +150,7 @@ TemplateIntModType::deduceTemplateArgs(
 	sl::Array<Type*>* templateArgTypeArray,
 	Type* referenceType
 ) {
-	if (!referenceType->getTypeKindFlags() & TypeKindFlag_Integer) {
+	if (!(referenceType->getTypeKindFlags() & TypeKindFlag_Integer)) {
 		setTemplateArgDeductionError(referenceType);
 		return false;
 	}
