@@ -39,8 +39,16 @@ QualifiedNameAtom::getString() const {
 	case QualifiedNameAtomKind_Name:
 		return m_name;
 
-	case QualifiedNameAtomKind_Template:
-		return m_name + '<' + Token::getText(m_templateTokenList) + '>';
+	case QualifiedNameAtomKind_Template: {
+		sl::String argString = Token::getText(m_templateTokenList);
+		sl::String string;
+		string.reserve(m_name.getLength() + argString.getLength() + 2);
+		string.forceCopy(m_name);
+		string += '<';
+		string += argString;
+		string += '>';
+		return string;
+		}
 
 	default:
 		ASSERT(false);
