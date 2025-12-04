@@ -845,7 +845,13 @@ NamedType::prepareSignature() {
 	size_t i = m_typeKind - TypeKind_Enum;
 	ASSERT(i < countof(prefixTable));
 
-	m_signature = prefixTable[i] + getLinkId() + '$';
+	const sl::StringRef& linkId = getLinkId();
+	sl::String signature;
+	signature.reserve(linkId.getLength() + 2);
+	signature = prefixTable[i];
+	signature += linkId;
+	signature += '$';
+	m_signature = std::move(signature);
 	m_flags |= TypeFlag_SignatureFinal;
 }
 
