@@ -288,17 +288,11 @@ endif()
 if(WIN32 AND QT_DLL_DIR)
 	set(_DEBUG_SUFFIX $<$<CONFIG:Debug>:d>)
 
-	add_custom_command(
-		TARGET jnc_mini_ide
-		POST_BUILD
-		COMMAND
-			echo Copying DLL files for jnc_mini_ide...
-		COMMAND
-			${CMAKE_COMMAND} -E copy
-			${QT_DLL_DIR}/Qt5Core${_DEBUG_SUFFIX}.dll
-			${QT_DLL_DIR}/Qt5Gui${_DEBUG_SUFFIX}.dll
-			${QT_DLL_DIR}/Qt5Widgets${_DEBUG_SUFFIX}.dll
-			${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CONFIGURATION}
+	axl_copy_dlls_for_target(
+		jnc_mini_ide
+		${QT_DLL_DIR}/Qt5Core${_DEBUG_SUFFIX}.dll
+		${QT_DLL_DIR}/Qt5Gui${_DEBUG_SUFFIX}.dll
+		${QT_DLL_DIR}/Qt5Widgets${_DEBUG_SUFFIX}.dll
 	)
 
 	qt5_create_qt_conf(${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug)

@@ -181,18 +181,7 @@ if(WIN32)
 		)
 	endif()
 
-	if(_DLL_LIST)
-		add_custom_command(
-			TARGET jnc_io_ssh
-			POST_BUILD
-			COMMAND
-				echo Copying DLL files for jnc_io_ssh...
-			COMMAND
-				${CMAKE_COMMAND} -E copy
-				${_DLL_LIST}
-				${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CONFIGURATION}
-		)
-	endif()
+	axl_copy_dlls_for_target(jnc_io_ssh ${_DLL_LIST})
 endif()
 
 #...............................................................................

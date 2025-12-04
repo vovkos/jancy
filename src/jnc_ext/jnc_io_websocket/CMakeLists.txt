@@ -166,30 +166,12 @@ set_target_properties(
 	FOLDER extensions
 )
 
-if(WIN32)
-	set(_DLL_LIST)
-
-	if(OPENSSL_DLL_DIR)
-		list(
-			APPEND
-			_DLL_LIST
-			${OPENSSL_DLL_DIR}/${OPENSSL_SSL_DLL_NAME}.dll
-			${OPENSSL_DLL_DIR}/${OPENSSL_CRYPTO_DLL_NAME}.dll
-		)
-	endif()
-
-	if(_DLL_LIST)
-		add_custom_command(
-			TARGET jnc_io_websocket
-			POST_BUILD
-			COMMAND
-				echo Copying DLL files for jnc_io_websocket...
-			COMMAND
-				${CMAKE_COMMAND} -E copy
-				${_DLL_LIST}
-				${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CONFIGURATION}
-		)
-	endif()
+if(WIN32 AND OPENSSL_DLL_DIR)
+	axl_copy_dlls_for_target(
+		jnc_io_websocket
+		${OPENSSL_DLL_DIR}/${OPENSSL_SSL_DLL_NAME}.dll
+		${OPENSSL_DLL_DIR}/${OPENSSL_CRYPTO_DLL_NAME}.dll
+	)
 endif()
 
 #...............................................................................

@@ -123,11 +123,6 @@ add_library(
 	${JNC_LIST}
 )
 
-add_custom_target(
-	jnc_io_hid_jnc
-	DEPENDS
-)
-
 target_compile_definitions(
 	jnc_io_hid
 	PUBLIC
@@ -187,15 +182,9 @@ if(WIN32)
 	endif()
 
 	if(HIDAPI_DLL_DIR)
-		add_custom_command(
-			TARGET jnc_io_hid
-			POST_BUILD
-			COMMAND
-				echo Copying DLL files for jnc_io_hid...
-			COMMAND
-				${CMAKE_COMMAND} -E copy
-				${HIDAPI_DLL_DIR}/hidapi.dll
-				${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CONFIGURATION}
+		axl_copy_dlls_for_target(
+			jnc_io_hid
+			${HIDAPI_DLL_DIR}/hidapi.dll
 		)
 	endif()
 else()
