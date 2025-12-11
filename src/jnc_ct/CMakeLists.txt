@@ -115,6 +115,7 @@ set(
 	include/jnc_ct_StdNamespace.h
 	include/jnc_ct_StdType.h
 	include/jnc_ct_StructType.h
+	include/jnc_ct_TemplateType.h
 	include/jnc_ct_TemplateMgr.h
 	include/jnc_ct_ThunkFunction.h
 	include/jnc_ct_ThunkProperty.h

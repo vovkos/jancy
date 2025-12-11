@@ -43,18 +43,11 @@ protected:
 		AccessKind m_accessKind;
 	};
 
-	class TemplateNamespace: public Namespace {
-	public:
-		TemplateNamespace() {
-			m_namespaceKind = NamespaceKind_Template;
-			m_namespaceStatus = NamespaceStatus_Ready;
-		}
+	class TemplateSuffix: public ModuleItemWithNamespace<> {
+		friend class NamespaceMgr;
 
-		virtual
-		ModuleItem*
-		getDeclItem() {
-			return NULL;
-		}
+	public:
+		TemplateSuffix();
 	};
 
 protected:
@@ -66,7 +59,7 @@ protected:
 	sl::List<Orphan> m_orphanList;
 	sl::List<Alias> m_aliasList;
 	sl::AutoPtrArray<ScopeExtension> m_scopeExtensionArray;
-	sl::AutoPtrArray<TemplateNamespace> m_templateNamespaceArray;
+	sl::AutoPtrArray<TemplateSuffix> m_templateSuffixArray;
 
 	sl::Array<NamespaceStackEntry> m_namespaceStack;
 
@@ -215,10 +208,13 @@ public:
 	closeScope();
 
 	Namespace*
-	openTemplateNamespace();
+	openTemplateSuffix();
 
 	void
-	closeTemplateNamespace();
+	closeTemplateSuffix()  {
+		ASSERT(m_currentNamespace && m_currentNamespace->m_namespaceKind == NamespaceKind_TemplateSuffix);
+		closeNamespace();
+	}
 
 	AccessKind
 	getAccessKind(Namespace* nspace);
@@ -254,6 +250,15 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+inline
+NamespaceMgr::TemplateSuffix::TemplateSuffix() {
+	m_itemKind = ModuleItemKind_TemplateSuffix;
+	m_namespaceKind = NamespaceKind_TemplateSuffix;
+	m_namespaceStatus = NamespaceStatus_Ready;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 template <typename T>
 T*
 NamespaceMgr::createGlobalNamespace(
@@ -271,13 +276,6 @@ NamespaceMgr::createScopeExtension(){
 	T* extension = new T;
 	m_scopeExtensionArray.append(extension);
 	return extension;
-}
-
-inline
-void
-NamespaceMgr::closeTemplateNamespace() {
-	ASSERT(m_currentNamespace && m_currentNamespace->m_namespaceKind == NamespaceKind_Template);
-	closeNamespace();
 }
 
 //..............................................................................

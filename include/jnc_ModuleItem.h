@@ -75,6 +75,7 @@ enum jnc_ModuleItemKind {
 	jnc_ModuleItemKind_LazyImport,
 	jnc_ModuleItemKind_DynamicSection,
 	jnc_ModuleItemKind_Template,
+	jnc_ModuleItemKind_TemplateSuffix,
 	jnc_ModuleItemKind__Count,
 };
 
@@ -396,6 +397,7 @@ const ModuleItemKind
 	ModuleItemKind_LazyImport       = jnc_ModuleItemKind_LazyImport,
 	ModuleItemKind_DynamicSection   = jnc_ModuleItemKind_DynamicSection,
 	ModuleItemKind_Template         = jnc_ModuleItemKind_Template,
+	ModuleItemKind_TemplateSuffix   = jnc_ModuleItemKind_TemplateSuffix,
 	ModuleItemKind__Count           = jnc_ModuleItemKind__Count;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

@@ -421,20 +421,18 @@ declarator_suffix<Declarator* $declarator>
 template_suffix
 	:	'<'
 			{
-				m_module->m_namespaceMgr.openTemplateNamespace();
+				m_module->m_namespaceMgr.openTemplateSuffix();
 				m_templateArgArray.clear();
 			}
-		TokenKind_Identifier
-			{
-				return addTemplateArg($2.m_data.m_string);
-			}
-		(
-			',' TokenKind_Identifier $n2
-				{
-					return addTemplateArg($n2.m_data.m_string);
-				}
-		)*
+		template_arg (',' template_arg)*
 		'>'
+	;
+
+template_arg
+	:	TokenKind_Identifier ('=' type_name $d)?
+			{
+				return addTemplateArg($1.m_data.m_string, &$d ? $d.m_type : NULL);
+			}
 	;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

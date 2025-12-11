@@ -86,9 +86,9 @@ Template::instantiate(const sl::ArrayRef<Type*>& argArray) {
 	ModuleItem* item;
 
 	if (m_declType) {
-		openTemplateNamespace(argArray);
+		openTemplateSuffix(argArray);
 		Type* type = m_declType->instantiate(argArray);
-		m_module->m_namespaceMgr.closeTemplateNamespace();
+		m_module->m_namespaceMgr.closeTemplateSuffix();
 		if (!type)
 			return NULL;
 
@@ -175,9 +175,9 @@ Template::deduceArgs(
 ) {
 	Type* deductionType = m_declType->getDeductionType();
 	if (!deductionType) {
-		openTemplateNamespace(*(sl::Array<Type*>*)&m_argArray);
+		openTemplateSuffix(*(sl::Array<Type*>*)&m_argArray);
 		deductionType = m_declType->createDeductionType();
-		m_module->m_namespaceMgr.closeTemplateNamespace();
+		m_module->m_namespaceMgr.closeTemplateSuffix();
 		if (!deductionType)
 			return false;
 	}
@@ -252,16 +252,16 @@ Template::createItemString(size_t index) {
 }
 
 Namespace*
-Template::openTemplateNamespace(const sl::ArrayRef<Type*>& argArray) {
-	Namespace* nspace = m_module->m_namespaceMgr.openTemplateNamespace();
+Template::openTemplateSuffix(const sl::ArrayRef<Type*>& argArray) {
+	Namespace* suffix = m_module->m_namespaceMgr.openTemplateSuffix();
 
 	size_t argCount = argArray.getCount();
 	for (size_t i = 0; i < argCount; i++) {
-		bool result = nspace->addItem(m_argArray[i]->getName(), argArray[i]);
+		bool result = suffix->addItem(m_argArray[i]->getName(), argArray[i]);
 		ASSERT(result);
 	}
 
-	return nspace;
+	return suffix;
 }
 
 //..............................................................................

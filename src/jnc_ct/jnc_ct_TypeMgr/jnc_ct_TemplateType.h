@@ -31,12 +31,10 @@ class TemplateArgType: public TemplateType {
 protected:
 	sl::StringRef m_name;
 	size_t m_index;
+	Type* m_defaultType;
 
 public:
-	TemplateArgType() {
-		m_typeKind = TypeKind_TemplateArg;
-		m_index = 0;
-	}
+	TemplateArgType();
 
 	const sl::StringRef&
 	getName() {
@@ -46,6 +44,11 @@ public:
 	size_t
 	getIndex() {
 		return m_index;
+	}
+
+	Type*
+	getDefaultType() {
+		return m_defaultType;
 	}
 
 	virtual
@@ -76,6 +79,15 @@ protected:
 		Type* type2
 	);
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+TemplateArgType::TemplateArgType() {
+	m_typeKind = TypeKind_TemplateArg;
+	m_index = 0;
+	m_defaultType = NULL;
+}
 
 //..............................................................................
 

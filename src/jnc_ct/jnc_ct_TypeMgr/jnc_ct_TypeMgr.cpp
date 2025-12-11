@@ -1489,12 +1489,14 @@ TypeMgr::getNamedImportType(
 TemplateArgType*
 TypeMgr::createTemplateArgType(
 	const sl::StringRef& name,
-	size_t index
+	size_t index,
+	Type* defaultType
 ) {
 	TemplateArgType* type = new TemplateArgType;
 	type->m_module = m_module;
 	type->m_name = name;
 	type->m_index = index;
+	type->m_defaultType = defaultType;
 	m_typeList.insertTail(type);
 	return type;
 }

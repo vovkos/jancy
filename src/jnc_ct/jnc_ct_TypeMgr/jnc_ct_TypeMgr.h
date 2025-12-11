@@ -661,7 +661,8 @@ public:
 	TemplateArgType*
 	createTemplateArgType(
 		const sl::StringRef& name,
-		size_t index
+		size_t index,
+		Type* defaultType = NULL
 	);
 
 	TemplatePtrType*

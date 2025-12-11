@@ -94,7 +94,7 @@ protected:
 	createItemString(size_t index);
 
 	Namespace*
-	openTemplateNamespace(const sl::ArrayRef<Type*>& argArray);
+	openTemplateSuffix(const sl::ArrayRef<Type*>& argArray);
 
 	void
 	copyDecl(ModuleItemDecl* itemDecl) {
