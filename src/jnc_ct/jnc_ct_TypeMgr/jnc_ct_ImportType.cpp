@@ -129,20 +129,21 @@ NamedImportType::resolveImports() {
 
 	ModuleItem* item = findResult.m_item;
 	ModuleItemKind itemKind = item->getItemKind();
+	Type* type;
 	switch (itemKind) {
 	case ModuleItemKind_Type:
-		m_actualType = (Type*)item;
+		type = (Type*)item;
 		break;
 
 	case ModuleItemKind_Typedef:
-		m_actualType = (m_module->getCompileFlags() & ModuleCompileFlag_KeepTypedefShadow) ?
+		type = (m_module->getCompileFlags() & ModuleCompileFlag_KeepTypedefShadow) ?
 			((Typedef*)item)->getShadowType() :
 			((Typedef*)item)->getType();
 		break;
 
 	case ModuleItemKind_Template:
-		m_actualType = anchorNamespace->findTemplateInstanceType((Template*)item);
-		if (m_actualType)
+		type = anchorNamespace->findTemplateInstanceType((Template*)item);
+		if (type)
 			break;
 
 		// else fall through
@@ -153,16 +154,17 @@ NamedImportType::resolveImports() {
 		return false;
 	}
 
-	if (m_actualType->getTypeKindFlags() & TypeKindFlag_Import) {
-		ImportType* type = (ImportType*)m_actualType;
-		bool result = ((ImportType*)type)->ensureResolved();
+	if (type->getTypeKindFlags() & TypeKindFlag_Import) {
+		ImportType* importType = (ImportType*)type;
+		bool result = importType->ensureResolved();
 		if (!result)
 			return false;
 
-		m_actualType = type->getActualType();
-		ASSERT(!(m_actualType->getTypeKindFlags() & TypeKindFlag_Import));
+		type = importType->getActualType();
+		ASSERT(!(type->getTypeKindFlags() & TypeKindFlag_Import));
 	}
 
+	m_actualType = type;
 	applyFixups();
 	return true;
 }
