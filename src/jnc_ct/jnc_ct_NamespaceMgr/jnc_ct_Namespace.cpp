@@ -493,7 +493,6 @@ Namespace::findDirectChildItemTraverse(
 
 }
 
-inline
 FindModuleItemResult
 Namespace::finalizeFindTemplate(
 	const ModuleItemContext& context,
@@ -503,12 +502,38 @@ Namespace::finalizeFindTemplate(
 	if (!findResult.m_item)
 		return findResult;
 
-	if (findResult.m_item->getItemKind() != ModuleItemKind_Template) {
+	Template* templ;
+	ModuleItemKind itemKind = findResult.m_item->getItemKind();
+	switch (itemKind) {
+	case ModuleItemKind_Template:
+		templ = ((Template*)findResult.m_item);
+		break;
+
+	case ModuleItemKind_Typedef:
+		Namespace* nspace;
+		if (((Typedef*)findResult.m_item)->isRecursive() &&
+			(nspace = ((Typedef*)findResult.m_item)->getGrandParentNamespace())
+		) {
+			findResult = nspace->findDirectChildItemTraverse(atom.m_name);
+			if (!findResult.m_item)
+				return findResult;
+
+			if (findResult.m_item->getItemKind() == ModuleItemKind_Template) {
+				templ = ((Template*)findResult.m_item);
+				break;
+			}
+
+			break;
+		}
+
+		// else fall through
+
+	default:
 		err::setFormatStringError("'%s' is not a template", findResult.m_item->getItemName().sz());
 		return g_errorFindModuleItemResult;
 	}
 
-	ModuleItem* item = ((Template*)findResult.m_item)->instantiate(context, atom.m_templateTokenList);
+	ModuleItem* item = templ->instantiate(context, atom.m_templateTokenList);
 	return item ?
 		FindModuleItemResult(item) :
 		g_errorFindModuleItemResult;

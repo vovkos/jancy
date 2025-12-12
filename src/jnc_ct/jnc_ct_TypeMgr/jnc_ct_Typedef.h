@@ -30,6 +30,9 @@ protected:
 public:
 	Typedef();
 
+	bool
+	isRecursive() const;
+
 	Type*
 	getType() const {
 		return m_type;
@@ -74,6 +77,32 @@ Typedef::Typedef() {
 	m_itemKind = ModuleItemKind_Typedef;
 	m_type = NULL;
 	m_shadowType = NULL;
+}
+
+//
+// we need to explicitly handle recursion cases like this:
+//
+// typedef int A;
+//
+// struct B<T> {
+//	...
+// }
+//
+// struct C<T> {
+//	typedef A A;
+//	typedef B<T> B;
+//	...
+// }
+//
+// lookup in typedef's grandparent namespace to resolve recursion
+//
+
+inline
+bool
+Typedef::isRecursive() const {
+	return
+		(m_type->getTypeKindFlags() & TypeKindFlag_Import) &&
+		(m_type->getFlags() & ImportTypeFlag_InResolve);
 }
 
 inline

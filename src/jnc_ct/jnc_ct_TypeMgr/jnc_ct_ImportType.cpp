@@ -101,30 +101,45 @@ NamedImportType::createItemString(size_t index) {
 
 bool
 NamedImportType::resolveImports() {
-	Namespace* anchorNamespace = m_parentNamespace;
+	Namespace* nspace = m_parentNamespace;
 	if (!m_baseName.isEmpty()) {
-		FindModuleItemResult findResult = anchorNamespace->findItemTraverse(*this, m_baseName);
+		FindModuleItemResult findResult = nspace->findItemTraverse(*this, m_baseName);
 		if (!findResult.m_result) {
 			pushSrcPosError();
 			return false;
 		}
 
-		anchorNamespace = findResult.m_item ? findResult.m_item->getNamespace() : NULL;
+		nspace = findResult.m_item ? findResult.m_item->getNamespace() : NULL;
+		if (!nspace) {
+			err::setFormatStringError("'%s' is not a namespace", m_baseName.getFullName().sz());
+			pushSrcPosError();
+			return false;
+		}
 	}
 
-	FindModuleItemResult findResult = anchorNamespace ?
-		anchorNamespace->findItemTraverse(*this, m_name) :
-		g_nullFindModuleItemResult;
+	m_actualType = resolveImpl(nspace);
+	if (!m_actualType)
+		return false;
 
+	applyFixups();
+	return true;
+}
+
+Type*
+NamedImportType::resolveImpl(
+	Namespace* nspace,
+	bool isResolvingRecursion
+) {
+	FindModuleItemResult findResult = nspace->findItemTraverse(*this, m_name);
 	if (!findResult.m_result) {
 		pushSrcPosError();
-		return false;
+		return NULL;
 	}
 
 	if (!findResult.m_item) {
 		err::setFormatStringError("unresolved import '%s'", getTypeString().sz());
 		pushSrcPosError();
-		return false;
+		return NULL;
 	}
 
 	ModuleItem* item = findResult.m_item;
@@ -136,13 +151,20 @@ NamedImportType::resolveImports() {
 		break;
 
 	case ModuleItemKind_Typedef:
-		type = (m_module->getCompileFlags() & ModuleCompileFlag_KeepTypedefShadow) ?
-			((Typedef*)item)->getShadowType() :
-			((Typedef*)item)->getType();
+		if (m_module->getCompileFlags() & ModuleCompileFlag_KeepTypedefShadow)
+			return ((Typedef*)item)->getShadowType();
+
+		if (((Typedef*)item)->isRecursive() &&
+			!isResolvingRecursion &&
+			(nspace = ((Typedef*)item)->getGrandParentNamespace())
+		)
+			return resolveImpl(nspace, true);
+
+		type = ((Typedef*)item)->getType();
 		break;
 
 	case ModuleItemKind_Template:
-		type = anchorNamespace->findTemplateInstanceType((Template*)item);
+		type = nspace->findTemplateInstanceType((Template*)item);
 		if (type)
 			break;
 
@@ -151,22 +173,20 @@ NamedImportType::resolveImports() {
 	default:
 		err::setFormatStringError("'%s' is not a type", getTypeString().sz());
 		pushSrcPosError();
+		return NULL;
+	}
+
+	if (!(type->getTypeKindFlags() & TypeKindFlag_Import))
+		return type;
+
+	ImportType* importType = (ImportType*)type;
+	bool result = importType->ensureResolved();
+	if (!result)
 		return false;
-	}
 
-	if (type->getTypeKindFlags() & TypeKindFlag_Import) {
-		ImportType* importType = (ImportType*)type;
-		bool result = importType->ensureResolved();
-		if (!result)
-			return false;
-
-		type = importType->getActualType();
-		ASSERT(!(type->getTypeKindFlags() & TypeKindFlag_Import));
-	}
-
-	m_actualType = type;
-	applyFixups();
-	return true;
+	type = importType->getActualType();
+	ASSERT(!(type->getTypeKindFlags() & TypeKindFlag_Import));
+	return type;
 }
 
 //..............................................................................

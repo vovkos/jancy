@@ -126,6 +126,12 @@ protected:
 	virtual
 	bool
 	resolveImports();
+
+	Type*
+	resolveImpl(
+		Namespace* nspace,
+		bool isResolvingRecursion = false
+	);
 };
 
 //..............................................................................
