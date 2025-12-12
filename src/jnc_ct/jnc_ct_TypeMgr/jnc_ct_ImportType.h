@@ -18,14 +18,6 @@
 namespace jnc {
 namespace ct {
 
-class ImportPtrType;
-
-//..............................................................................
-
-enum ImportTypeFlag {
-	ImportTypeFlag_InResolve = 0x010000, // used for detection of import/typedef loops
-};
-
 //..............................................................................
 
 class ImportType: public Type {

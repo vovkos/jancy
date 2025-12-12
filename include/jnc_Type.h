@@ -183,16 +183,22 @@ jnc_getTypeKindFlags(jnc_TypeKind typeKind);
 //..............................................................................
 
 enum jnc_TypeFlag {
-	jnc_TypeFlag_SignatureReady = 0x0010,  // signature is ready (but can change due to imports)
-	jnc_TypeFlag_SignatureFinal = 0x0020,  // signature is ready and final (won't change)
+	jnc_TypeFlag_SignatureReady = 0x0010, // signature is ready (but can change due to imports)
+	jnc_TypeFlag_SignatureFinal = 0x0020, // signature is ready and final (won't change)
 	jnc_TypeFlag_SignatureMask  = 0x0030,
-	jnc_TypeFlag_InCalcLayout   = 0x0040,
+	jnc_TypeFlag_InCalcLayout   = 0x0040, // detect layout recursion loops
 	jnc_TypeFlag_LayoutReady    = 0x0080,
 	jnc_TypeFlag_Pod            = 0x0100, // plain-old-data
 	jnc_TypeFlag_GcRoot         = 0x0200, // is or contains gc-traceable pointers
 	jnc_TypeFlag_StructRet      = 0x0400, // return through hidden 1st arg (gcc32 callconv)
 	jnc_TypeFlag_NoStack        = 0x1000, // try to avoid allocation on stack
 	jnc_TypeFlag_NoImports      = 0x2000, // all imports resolved (when generating documentation)
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum jnc_ImportTypeFlag {
+	jnc_ImportTypeFlag_InResolve = 0x010000, // detect import recursion loops
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -744,6 +750,13 @@ const TypeFlag
 	TypeFlag_StructRet      = jnc_TypeFlag_StructRet,
 	TypeFlag_NoStack        = jnc_TypeFlag_NoStack,
 	TypeFlag_NoImports      = jnc_TypeFlag_NoImports;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+typedef jnc_ImportTypeFlag ImportTypeFlag;
+
+const ImportTypeFlag
+	ImportTypeFlag_InResolve = jnc_ImportTypeFlag_InResolve;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
