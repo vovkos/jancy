@@ -46,6 +46,9 @@ public:
 	}
 
 	size_t
+	countNonEmptyArgs();
+
+	size_t
 	getThisArgIdx() {
 		return m_thisArgIdx;
 	}
@@ -101,6 +104,21 @@ protected:
 	sl::ConstBoxIterator<Value>
 	prepend(const sl::ConstBoxList<Value>& argValueList);
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+size_t
+Closure::countNonEmptyArgs() {
+	size_t count = 0;
+	sl::BoxIterator<Value> it = m_argValueList.getHead();
+	for (; it; it++) {
+		if (!it->isEmpty())
+			count++;
+	}
+
+	return count;
+}
 
 //..............................................................................
 

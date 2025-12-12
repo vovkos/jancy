@@ -243,13 +243,23 @@ Template::deduceArgs(
 	size_t templateArgCount = m_argArray.getCount();
 	templateArgArray->setCountZeroConstruct(templateArgCount);
 
+	if (!argTypeList.isEmpty()) {
+		sl::Array<Type*>::Rwi rwi = templateArgArray->rwi();
+		sl::ConstBoxIterator<Value> it = argTypeList.getHead();
+		for (size_t i = 0; i < templateArgCount && it; i++, it++) {
+			Type* type = it->getType();
+			if (type)
+				rwi[i] = type;
+		}
+	}
+
 	bool result = true;
-	sl::ConstBoxIterator<Value> argValueIt = argValueList.getHead();
-	for (size_t i = 0; i < functionArgCount; i++, argValueIt++) {
+	sl::ConstBoxIterator<Value> it = argValueList.getHead();
+	for (size_t i = 0; i < functionArgCount; i++, it++) {
 		Value argTypeValue;
 
 		result =
-			m_module->m_operatorMgr.prepareOperandType(*argValueIt, &argTypeValue) &&
+			m_module->m_operatorMgr.prepareOperandType(*it, &argTypeValue) &&
 			functionArgArray[i]->getType()->deduceTemplateArgs(templateArgArray, argTypeValue.getType()) &&
 			result;
 	}

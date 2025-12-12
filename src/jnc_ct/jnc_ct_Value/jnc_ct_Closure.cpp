@@ -94,8 +94,10 @@ size_t
 Closure::append(const sl::ArrayRef<Type*>& argTypeArray) {
 	sl::BoxList<Value> argList;
 	size_t argCount = argTypeArray.getCount();
-	for (size_t i = 0; i < argCount; i++)
-		argList.insertTail(Value(argTypeArray[i]));
+	for (size_t i = 0; i < argCount; i++) {
+		Type* type = argTypeArray[i];
+		argList.insertTail(type ? Value(type) : Value());
+	}
 
 	return append(&argList);
 }

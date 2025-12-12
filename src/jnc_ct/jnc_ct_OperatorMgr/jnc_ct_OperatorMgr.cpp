@@ -1127,16 +1127,18 @@ OperatorMgr::templateInstantiateOperator(
 	}
 
 	Template* templ = opValue.getTemplate();
-	size_t argCount = argArray.getCount();
-	Closure* closure = resultValue->getClosure();
-	size_t closureArgCount = closure ? closure->getArgValueList()->getCount() : 0;
-	if (argCount + closureArgCount < templ->getArgArray().getCount()) { // not enough args for instantiation
-		if (!closure)
-			closure = resultValue->createClosure();
 
-		closure->append(argArray);
+	AXL_TODO("avoid creating Closure in OperatorMgr::templateInstantiateOperator when possible")
+	Closure* closure = opValue.getClosure();
+	if (closure)
+		resultValue->setClosure(closure);
+	else
+		closure = resultValue->createClosure();
+
+	closure->append(argArray);
+
+	if (closure->countNonEmptyArgs() < templ->getArgArray().getCount()) // not enough args for instantiation
 		return true;
-	}
 
 	ModuleItem* item;
 	if (!closure)
