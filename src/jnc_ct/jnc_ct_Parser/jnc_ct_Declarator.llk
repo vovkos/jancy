@@ -429,9 +429,9 @@ template_suffix
 	;
 
 template_arg
-	:	TokenKind_Identifier ('=' type_name $d)?
+	:	TokenKind_Identifier ('=' type_name_declarator $d)?
 			{
-				return addTemplateArg($1.m_data.m_string, &$d ? $d.m_type : NULL);
+				return addTemplateArg($1.m_data.m_string, &$d ? &$d.m_declarator : NULL);
 			}
 	;
 

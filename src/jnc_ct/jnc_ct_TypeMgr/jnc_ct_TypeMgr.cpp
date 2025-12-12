@@ -1490,13 +1490,16 @@ TemplateArgType*
 TypeMgr::createTemplateArgType(
 	const sl::StringRef& name,
 	size_t index,
-	Type* defaultType
+	Declarator* defaultTypeDeclarator
 ) {
 	TemplateArgType* type = new TemplateArgType;
 	type->m_module = m_module;
 	type->m_name = name;
 	type->m_index = index;
-	type->m_defaultType = defaultType;
+
+	if (defaultTypeDeclarator)
+		type->m_defaultType = createTemplateDeclType(defaultTypeDeclarator);
+
 	m_typeList.insertTail(type);
 	return type;
 }

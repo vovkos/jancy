@@ -17,6 +17,8 @@
 namespace jnc {
 namespace ct {
 
+class TemplateDeclType;
+
 //..............................................................................
 
 class TemplateType : public Type {
@@ -31,7 +33,7 @@ class TemplateArgType: public TemplateType {
 protected:
 	sl::StringRef m_name;
 	size_t m_index;
-	Type* m_defaultType;
+	TemplateDeclType* m_defaultType;
 
 public:
 	TemplateArgType();
@@ -46,7 +48,7 @@ public:
 		return m_index;
 	}
 
-	Type*
+	TemplateDeclType*
 	getDefaultType() {
 		return m_defaultType;
 	}

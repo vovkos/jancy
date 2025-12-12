@@ -470,7 +470,7 @@ protected:
 	bool
 	addTemplateArg(
 		const sl::StringRef& name,
-		Type* defaultType
+		Declarator* defaultTypeDeclarator
 	);
 
 	bool

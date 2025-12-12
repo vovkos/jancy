@@ -398,7 +398,7 @@ Parser::isQualifiedTypeName(ModuleItem* item) {
 		return true;
 
 	case ModuleItemKind_Template:
-		return m_module->m_namespaceMgr.getCurrentNamespace()->findTemplateInstanceType((Template*)item);
+		return ((Template*)item)->getDerivableTypeKind() != TypeKind_Void;
 
 	default:
 		return false;
@@ -971,13 +971,13 @@ Parser::assignDeclarationAttributes(
 bool
 Parser::addTemplateArg(
 	const sl::StringRef& name,
-	Type* defaultType
+	Declarator* defaultTypeDeclarator
 ) {
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	ASSERT(nspace->getNamespaceKind() == NamespaceKind_TemplateSuffix);
 
 	size_t index = m_templateArgArray.getCount();
-	TemplateArgType* type = m_module->m_typeMgr.createTemplateArgType(name, index, defaultType);
+	TemplateArgType* type = m_module->m_typeMgr.createTemplateArgType(name, index, defaultTypeDeclarator);
 	bool result = nspace->addItem(name, type);
 	if (!result)
 		return false;
@@ -2198,7 +2198,6 @@ Parser::declareData(
 			return false;
 
 		assignDeclarationAttributes(field, field, declarator);
-		sl::StringRef s = field->getLinkId();
 	}
 
 	return true;
