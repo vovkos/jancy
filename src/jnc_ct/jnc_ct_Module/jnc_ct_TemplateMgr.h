@@ -27,7 +27,7 @@ class Template;
 struct TemplateInstance {
 	ModuleItem* m_item;
 	Template* m_template;
-	sl::ArrayRef<Type*> m_argArray;
+	sl::Array<Type*> m_argArray;
 
 	size_t
 	appendArgLinkId(sl::String* string) const;
@@ -48,7 +48,7 @@ protected:
 	TypeKind m_derivableTypeKind;
 	TemplateDeclType* m_declType;
 	sl::Array<TemplateArgType*> m_argArray;
-	sl::ArrayRef<Type*> m_baseTypeArray;
+	sl::Array<Type*> m_baseTypeArray;
 	sl::StringHashTable<TemplateInstance> m_instanceMap;
 
 public:
@@ -112,6 +112,9 @@ protected:
 		ModuleItemBodyDecl* dstDecl,
 		ModuleItemBodyDecl* srcDecl
 	);
+
+	ModuleItem*
+	instantiateImpl(const sl::ArrayRef<Type*>& argArray);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

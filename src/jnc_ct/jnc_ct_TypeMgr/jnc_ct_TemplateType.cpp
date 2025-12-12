@@ -195,6 +195,11 @@ TemplateDeclType::instantiate(const sl::ArrayRef<Type*>& argArray) {
 		switch (typeKind) {
 		case TypeKind_TemplateArg:
 			baseType = argArray[((TemplateArgType*)baseType)->getIndex()];
+			if (!baseType) { // instantiating default type
+				err::setFormatStringError("invalid reference to '%s'", ((TemplateArgType*)baseType)->getName().sz());
+				return NULL;
+			}
+
 			break;
 
 		default:

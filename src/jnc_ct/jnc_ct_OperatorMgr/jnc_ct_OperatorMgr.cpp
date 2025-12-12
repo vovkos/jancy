@@ -1116,6 +1116,11 @@ OperatorMgr::templateInstantiateOperator(
 	const sl::ArrayRef<Type*>& argArray,
 	Value* resultValue
 ) {
+	if (argArray.isEmpty()) {
+		err::setError("template instantiation operator without arguments has no effect");
+		return false;
+	}
+
 	if (opValue.getValueKind() != ValueKind_Template) {
 		err::setFormatStringError("'%s' is not a template", getValueKindString(opValue.getValueKind()));
 		return false;
@@ -1134,7 +1139,6 @@ OperatorMgr::templateInstantiateOperator(
 	}
 
 	ModuleItem* item;
-
 	if (!closure)
 		item = templ->instantiate(argArray);
 	else {

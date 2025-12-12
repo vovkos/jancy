@@ -53,26 +53,71 @@ TemplateInstance::appendArgString(sl::String* string) const {
 
 ModuleItem*
 Template::instantiate(const sl::ConstBoxList<Value>& argList) {
-	size_t argCount = argList.getCount();
-
 	char buffer[256];
 	sl::Array<Type*> argArray(rc::BufKind_Stack, buffer, sizeof(buffer));
-	argArray.setCount(argCount);
+	argArray.setCount(argList.getCount());
 	sl::Array<Type*>::Rwi rwi = argArray.rwi();
 	sl::ConstBoxIterator<Value> it = argList.getHead();
-	for (size_t i = 0; it; i++, it++)
-		rwi[i] = it->getType();
+	for (size_t i = 0; it; i++, it++) {
+		Type* type = it->getType();
+		rwi[i] = type;
+	}
 
 	return instantiate(argArray);
 }
 
 ModuleItem*
-Template::instantiate(const sl::ArrayRef<Type*>& argArray) {
-	size_t argCount = argArray.getCount();
-	if (argCount != m_argArray.getCount()) {
-		err::setError("incorrect number of template arguments");
+Template::instantiate(const sl::ArrayRef<Type*>& argArray0) {
+	size_t argCount = m_argArray.getCount();
+	size_t actualArgCount = argArray0.getCount();
+	if (actualArgCount > argCount) {
+		err::setFormatStringError("too many template arguments for '%s'", getItemName().sz());
 		return NULL;
 	}
+
+	if (actualArgCount == argCount && argArray0.find(NULL) == -1)
+		return instantiateImpl(argArray0);
+
+	char buffer[256];
+	sl::Array<Type*> argArray(rc::BufKind_Stack, buffer, sizeof(buffer));
+	argArray.setCountZeroConstruct(argCount);
+	memcpy(argArray.p(), argArray0, actualArgCount * sizeof(Type*));
+
+	openTemplateSuffix(argArray);
+
+	sl::Array<Type*>::Rwi rwi = argArray.rwi();
+	for (size_t i = 0; i < argCount; i++) {
+		if (argArray[i])
+			continue;
+
+		TemplateDeclType* defaultType = m_argArray[i]->getDefaultType();
+		if (!defaultType) {
+			err::setFormatStringError(
+				"argument '%s' of template '%s' has no default type",
+				m_argArray[i]->getName().sz(),
+				getItemName().sz()
+			);
+			m_module->m_namespaceMgr.closeTemplateSuffix();
+			return NULL;
+		}
+
+		Type* type = defaultType->instantiate(argArray);
+		if (!type) {
+			m_module->m_namespaceMgr.closeTemplateSuffix();
+			return NULL;
+		}
+
+		rwi[i] = type;
+	}
+
+	m_module->m_namespaceMgr.closeTemplateSuffix();
+	return instantiateImpl(argArray);
+}
+
+ModuleItem*
+Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
+	size_t argCount = argArray.getCount();
+	ASSERT(argCount == m_argArray.getCount());
 
 	sl::String signature;
 	for (size_t i = 0; i < argCount; i++)
@@ -163,7 +208,7 @@ Template::instantiate(
 
 	ParseContext parseContext(ParseContextKind_TypeName, m_module, context);
 	Parser parser(m_module, m_pragmaConfig, Parser::Mode_Compile);
-	bool result = parser.parseTokenList(SymbolKind_type_name_list_save, &tokenList);
+	bool result = parser.parseTokenList(SymbolKind_type_name_or_empty_list_save, &tokenList);
 	return result ? instantiate(parser.getLastTypeArray()) : NULL;
 }
 
@@ -257,8 +302,11 @@ Template::openTemplateSuffix(const sl::ArrayRef<Type*>& argArray) {
 
 	size_t argCount = argArray.getCount();
 	for (size_t i = 0; i < argCount; i++) {
-		bool result = suffix->addItem(m_argArray[i]->getName(), argArray[i]);
-		ASSERT(result);
+		Type* argType = argArray[i];
+		if (argType) {
+			bool result = suffix->addItem(m_argArray[i]->getName(), argType);
+			ASSERT(result); // should have been checked in parser
+		}
 	}
 
 	return suffix;
