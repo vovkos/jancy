@@ -29,7 +29,7 @@ qualified_name
 				{
 					return ($.m_item = lookupMember($.m_item, $i2)) != NULL;
 				}
-		|	'<' type_name_list $t '>'
+		|	'<' type_name_or_empty_list $t '>'
 				{
 					return ($.m_item = instantiateTemplate($.m_item, $t.m_typeArray)) != NULL;
 				}
@@ -164,24 +164,40 @@ struct {
 	Type* m_type;
 }
 type_name
-	: type_name_impl<&$.m_type, NULL>
+	:	type_name_impl<&$.m_type, NULL>
+	;
+
+struct {
+	Type* m_type;
+}
+nullable
+type_name_or_empty
+	:	type_name_impl<&$.m_type, NULL>
+	|	epsilon
+			{
+				$.m_type = NULL;
+			}
+	;
+
+struct {
+	Declarator m_declarator;
+}
+type_name_declarator
+	:	declaration_specifier_list $s
+			{
+				$.m_declarator.setTypeSpecifier(&$s.m_typeSpecifier, m_module);
+			}
+		declarator_prefix<&$.m_declarator>*
+		declarator_suffix<&$.m_declarator>*
 	;
 
 type_name_impl<
 	Type** $type,
 	Value* $countValue
 >
-	local {
-		Declarator $declarator;
-	}
-	:	type_specifier_modifier_list
+	:	type_name_declarator
 			{
-				$declarator.setTypeSpecifier(&$1.m_typeSpecifier, m_module);
-			}
-		declarator_prefix<&$declarator>*
-		declarator_suffix<&$declarator>*
-			{
-				Type* type = $declarator.calcType($countValue);
+				Type* type = $1.m_declarator.calcType($countValue);
 				if (!type)
 					return false;
 
@@ -205,9 +221,37 @@ type_name_list
 		)*
 	;
 
+struct {
+	sl::Array<Type*> m_typeArray;
+}
+nullable
+type_name_or_empty_list
+	:	type_name
+			{
+				$.m_typeArray.append($1.m_type);
+			}
+		(
+			',' type_name_or_empty $t2
+				{
+					$.m_typeArray.append($t2.m_type);
+				}
+		)*
+	|		{
+				$.m_typeArray.append(NULL);
+			}
+		(
+			',' type_name_or_empty $t2
+				{
+					$.m_typeArray.append($t2.m_type);
+				}
+		)+
+	|	epsilon
+	;
+
 start
-type_name_list_save
-	: type_name_list
+nullable
+type_name_or_empty_list_save
+	: type_name_or_empty_list
 		{
 			sl::takeOver(&m_lastTypeArray, &$1.m_typeArray);
 		}

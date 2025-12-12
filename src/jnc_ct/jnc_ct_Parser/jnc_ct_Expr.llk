@@ -791,8 +791,8 @@ postfix_operator<Value* $value>
 				return m_module->m_operatorMgr.unaryOperator(UnOpKind_Ptr, $value);
 			}
 		member_operator<$value>
-	|	resolver ('<' type_name_rslv) // vs epsilon
-		'<' type_name_list '>'
+	|	resolver ('<' ( '>' | type_name_rslv)) // vs epsilon
+		'<' type_name_or_empty_list '>'
 			{
 				return m_module->m_operatorMgr.templateInstantiateOperator($value, $2.m_typeArray);
 			}
