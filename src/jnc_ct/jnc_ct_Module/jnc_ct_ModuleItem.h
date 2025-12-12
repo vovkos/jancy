@@ -86,6 +86,9 @@ public:
 		return m_parentNamespace;
 	}
 
+	Namespace*
+	getGrandParentNamespace() const;
+
 	bool
 	isNullContext() const {
 		return m_parentNamespace == NULL;

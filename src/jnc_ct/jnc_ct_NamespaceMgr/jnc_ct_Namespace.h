@@ -317,6 +317,14 @@ protected:
 
 //..............................................................................
 
+inline
+Namespace*
+ModuleItemContext::getGrandParentNamespace() const {
+	return m_parentNamespace ? m_parentNamespace->getParentNamespace() : NULL;
+}
+
+//..............................................................................
+
 JNC_INLINE
 err::Error
 setRedefinitionError(const sl::StringRef& name) {
