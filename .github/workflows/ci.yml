@@ -255,10 +255,15 @@ jobs:
 
     macOsBuild:
         name: macOS Build
-        runs-on: macos-13
+        runs-on: ${{ matrix.OS }}
+
         strategy:
             fail-fast: false
             matrix:
+                OS:
+                -   macos-15
+                -   macos-15-intel
+
                 CONFIGURATION:
                 -   Debug
                 -   Release
