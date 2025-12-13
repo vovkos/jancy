@@ -182,7 +182,7 @@ NamedImportType::resolveImpl(
 	ImportType* importType = (ImportType*)type;
 	bool result = importType->ensureResolved();
 	if (!result)
-		return false;
+		return NULL;
 
 	type = importType->getActualType();
 	ASSERT(!(type->getTypeKindFlags() & TypeKindFlag_Import));
