@@ -1338,7 +1338,7 @@ EditPrivate::addAutoCompleteNamespace(
 
 		ModuleItemKind itemKind = item->getItemKind();
 		Type* type = item->getType();
-		QString synopsis = item->getItemString(ModuleItemStringKind_QualifiedName);
+		QString synopsis = item->getItemString(ModuleItemStringKind_Synopsis);
 		size_t iconIdx = getItemIconIdx(item);
 
 		QStandardItem* nameItem = new QStandardItem;
