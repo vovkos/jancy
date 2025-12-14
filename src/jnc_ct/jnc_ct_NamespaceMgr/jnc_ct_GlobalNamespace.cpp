@@ -62,7 +62,7 @@ GlobalNamespace::createItemString(size_t index) {
 	case ModuleItemStringKind_Synopsis:
 		return this == m_module->m_namespaceMgr.getGlobalNamespace() ?
 			sl::StringRef("global namespace") :
-			sl::StringRef("namespace" + createQualifiedNameImpl(m_module));
+			sl::StringRef("namespace " + createQualifiedNameImpl(m_module));
 
 	default:
 		return sl::StringRef();

@@ -42,7 +42,7 @@ TemplateInstance::appendArgString(sl::String* string) const {
 	size_t argCount = m_argArray.getCount();
 	for (size_t i = 1; i < argCount; i++) {
 		*string += ", ";
-		*string += m_argArray[i]->getSignature();
+		*string += m_argArray[i]->getTypeString();
 	}
 
 	*string += '>';
