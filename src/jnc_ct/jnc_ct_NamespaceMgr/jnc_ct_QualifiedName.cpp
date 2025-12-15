@@ -127,6 +127,19 @@ QualifiedName::copy(const QualifiedName& name) {
 		m_atomList.insertTail()->copy(*it);
 }
 
+void
+QualifiedName::copy(
+	const QualifiedName& name,
+	const QualifiedNamePos& pos0
+) {
+	QualifiedNamePos pos = pos0;
+	m_firstAtom.copy(*pos);
+	m_atomList.clear();
+
+	for (pos.next(name); pos; pos.next(name))
+		m_atomList.insertTail()->copy(*pos);
+}
+
 //..............................................................................
 
 } // namespace ct

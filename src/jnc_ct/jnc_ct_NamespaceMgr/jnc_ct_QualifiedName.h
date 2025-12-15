@@ -17,6 +17,7 @@ namespace jnc {
 namespace ct {
 
 class Unit;
+class QualifiedName;
 
 //..............................................................................
 
@@ -67,6 +68,42 @@ struct QualifiedNameAtom {
 		m_baseTypeIdx = baseTypeIdx;
 	}
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class QualifiedNamePos {
+protected:
+	static const QualifiedNameAtom m_emptyAtom;
+	const QualifiedNameAtom* m_atom;
+
+public:
+	QualifiedNamePos() {
+		m_atom = &m_emptyAtom;
+	}
+
+	QualifiedNamePos(const QualifiedNameAtom* atom) {
+		m_atom = atom;
+	}
+
+	operator bool () const {
+		return !m_atom->isEmpty();
+	}
+
+	const QualifiedNameAtom& operator * () const {
+		return *m_atom;
+	}
+
+	const QualifiedNameAtom* operator -> () const  {
+		return m_atom;
+	}
+
+	const QualifiedNameAtom&
+	next(const QualifiedName& name);
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+AXL_SELECT_ANY const QualifiedNameAtom QualifiedNamePos::m_emptyAtom;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -132,6 +169,12 @@ public:
 
 	void
 	copy(const QualifiedName& name);
+
+	void
+	copy(
+		const QualifiedName& name,
+		const QualifiedNamePos& pos
+	);
 
 	void
 	parse(const sl::StringRef& name);
@@ -202,41 +245,7 @@ QualifiedName::removeLastAtom() {
 		m_atomList.eraseTail();
 }
 
-//..............................................................................
-
-class QualifiedNamePos {
-protected:
-	static const QualifiedNameAtom m_emptyAtom;
-	const QualifiedNameAtom* m_atom;
-
-public:
-	QualifiedNamePos() {
-		m_atom = &m_emptyAtom;
-	}
-
-	QualifiedNamePos(const QualifiedNameAtom* atom) {
-		m_atom = atom;
-	}
-
-	operator bool () const {
-		return !m_atom->isEmpty();
-	}
-
-	const QualifiedNameAtom& operator * () const {
-		return *m_atom;
-	}
-
-	const QualifiedNameAtom* operator -> () const  {
-		return m_atom;
-	}
-
-	const QualifiedNameAtom&
-	next(const QualifiedName& name);
-};
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-AXL_SELECT_ANY const QualifiedNameAtom QualifiedNamePos::m_emptyAtom;
 
 inline
 const QualifiedNameAtom&

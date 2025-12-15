@@ -301,7 +301,7 @@ NamespaceMgr::cloneOrphan(const Orphan* srcOrphan) {
 		break;
 	}
 
-	orphan->m_declaratorName.copy(srcOrphan->m_declaratorName);
+	orphan->m_declaratorName.copy(srcOrphan->m_declaratorName, srcOrphan->m_declaratorNamePos);
 	orphan->m_declaratorNamePos = &orphan->m_declaratorName.getFirstAtom();
 	m_orphanList.insertTail(orphan);
 	return orphan;
