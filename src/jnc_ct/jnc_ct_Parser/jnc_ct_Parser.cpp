@@ -914,16 +914,10 @@ Parser::declare(Declarator* declarator) {
 		return false;
 
 	DeclaratorKind declaratorKind = declarator->getDeclaratorKind();
-	uint_t postModifiers = declarator->getPostDeclaratorModifiers();
 	TypeKind typeKind = type->getTypeKind();
 
 	if (nspaceKind == NamespaceKind_DynamicLib && typeKind != TypeKind_Function) {
 		err::setError("only functions can be part of library");
-		return false;
-	}
-
-	if (postModifiers != 0 && typeKind != TypeKind_Function) {
-		err::setFormatStringError("unused post-declarator modifier '%s'", getPostDeclaratorModifierString(postModifiers).sz());
 		return false;
 	}
 
@@ -947,7 +941,7 @@ Parser::declare(Declarator* declarator) {
 			return declareNamedAttributeBlock(declarator);
 
 		case TypeKind_Function:
-			return declareFunction(declarator, (FunctionType*)type);
+			return declareFunction(declarator, (FunctionType*)type, declFlags);
 
 		case TypeKind_Property:
 			return declareProperty(declarator, (PropertyType*)type, declFlags);
@@ -1026,7 +1020,7 @@ Parser::prepareTemplateDeclarator(Declarator* declarator) {
 	QualifiedNameAtom* atom = declarator->m_name.getLastAtom();
 	ASSERT(atom->m_atomKind == QualifiedNameAtomKind_Name);
 	sl::takeOver(&atom->m_templateDeclArgArray, &m_templateArgArray);
-	atom->m_atomKind == QualifiedNameAtomKind_TemplateDeclSuffix;
+	atom->m_atomKind = QualifiedNameAtomKind_TemplateDeclSuffix;
 
 	NamedImportType* baseType = (NamedImportType*)declarator->m_baseType;
 	if (baseType->getTypeKind() == TypeKind_NamedImport &&
@@ -1196,12 +1190,12 @@ Parser::declareAlias(
 bool
 Parser::declareFunction(
 	Declarator* declarator,
-	FunctionType* type
+	FunctionType* type,
+	uint_t thisArgTypeFlags
 ) {
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	NamespaceKind namespaceKind = nspace->getNamespaceKind();
 	DeclaratorKind declaratorKind = declarator->getDeclaratorKind();
-	uint_t postModifiers = declarator->getPostDeclaratorModifiers();
 	FunctionKind functionKind = declarator->getFunctionKind();
 	bool hasArgs = !type->getArgArray().isEmpty();
 
@@ -1235,8 +1229,8 @@ Parser::declareFunction(
 			return false;
 		}
 
-		if (postModifiers) {
-			err::setFormatStringError("unused post-declarator modifier '%s'", getPostDeclaratorModifierString(postModifiers).sz());
+		if (thisArgTypeFlags) {
+			err::setFormatStringError("unused modifiers '%s'", getPtrTypeFlagString(thisArgTypeFlags).sz());
 			return false;
 		}
 
@@ -1288,13 +1282,17 @@ Parser::declareFunction(
 		break;
 	}
 
-	if (declarator->getPostDeclaratorModifiers() & PostDeclaratorModifier_Const)
-		function->m_thisArgTypeFlags = PtrTypeFlag_Const;
+	function->m_thisArgTypeFlags = thisArgTypeFlags;
 
 	if (!declarator->m_initializer.isEmpty())
 		sl::takeOver(&function->m_initializer, &declarator->m_initializer);
 
 	assignDeclarationAttributes(function, function, declarator);
+
+	if (function->m_storageKind == StorageKind_Static && thisArgTypeFlags) {
+		err::setFormatStringError("static method cannot be '%s'", getPtrTypeFlagString(thisArgTypeFlags).sz());
+		return false;
+	}
 
 	switch (namespaceKind) {
 	case NamespaceKind_Extension:
@@ -1309,6 +1307,11 @@ Parser::declareFunction(
 			return ((UnionType*)nspace)->addMethod(function);
 
 		case TypeKind_Class:
+			if (thisArgTypeFlags & PtrTypeFlag_ThinThis) {
+				err::setError("'this' of class methods is already 'thin'");
+				return false;
+			}
+
 			return ((ClassType*)nspace)->addMethod(function);
 
 		default:
@@ -1325,8 +1328,8 @@ Parser::declareFunction(
 		// and fall through
 
 	default:
-		if (postModifiers) {
-			err::setFormatStringError("unused post-declarator modifier '%s'", getPostDeclaratorModifierString(postModifiers).sz());
+		if (thisArgTypeFlags) {
+			err::setFormatStringError("unused modifier '%s'", getPtrTypeFlagString(thisArgTypeFlags).sz());
 			return false;
 		}
 

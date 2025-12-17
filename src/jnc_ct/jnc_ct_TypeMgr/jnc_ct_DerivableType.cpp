@@ -144,11 +144,6 @@ DerivableType::addMethod(Function* function) {
 
 	switch (storageKind) {
 	case StorageKind_Static:
-		if (thisArgTypeFlags) {
-			err::setFormatStringError("static method cannot be '%s'", getPtrTypeFlagString(thisArgTypeFlags).sz());
-			return false;
-		}
-
 		break;
 
 	case StorageKind_Undefined:

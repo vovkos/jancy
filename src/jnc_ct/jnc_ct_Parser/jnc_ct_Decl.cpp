@@ -199,42 +199,6 @@ TypeSpecifier::setType(Type* type) {
 
 //..............................................................................
 
-const char*
-getPostDeclaratorModifierString(PostDeclaratorModifier modifier) {
-	static const char* stringTable[] = {
-		"const",    // PostDeclaratorModifier_Const  = 0x01,
-	};
-
-	size_t i = sl::getLoBitIdx8((uint8_t)modifier);
-	return i < countof(stringTable) ?
-		stringTable[i] :
-		"undefined-post-declarator-modifier";
-}
-
-sl::StringRef
-getPostDeclaratorModifierString(uint_t modifiers) {
-	if (!modifiers)
-		return sl::String();
-
-	PostDeclaratorModifier modifier = getFirstFlag<PostDeclaratorModifier>(modifiers);
-	sl::StringRef string0 = getPostDeclaratorModifierString(modifier);
-	modifiers &= ~modifier;
-	if (!modifiers)
-		return string0;
-
-	sl::String string = string0;
-	while (modifiers) {
-		modifier = getFirstFlag<PostDeclaratorModifier>(modifiers);
-		string += ' ';
-		string += getPostDeclaratorModifierString(modifier);
-		modifiers &= ~modifier;
-	}
-
-	return string;
-}
-
-//..............................................................................
-
 bool
 DeclFunctionSuffix::addFunctionTypeFlag(FunctionTypeFlag flag) {
 	if (m_functionTypeFlags & flag) {
@@ -320,17 +284,6 @@ Declarator::addUnaryBinaryOperator(
 	m_functionKind = FunctionKind_UnaryOperator; // temp; will be adjusted later in Parser::declareFunction
 	m_unOpKind = unOpKind;
 	m_binOpKind = binOpKind;
-	return true;
-}
-
-bool
-Declarator::setPostDeclaratorModifier(PostDeclaratorModifier modifier) {
-	if (m_postDeclaratorModifiers & modifier) {
-		err::setFormatStringError("type modifier '%s' used more than once", getPostDeclaratorModifierString(modifier));
-		return false;
-	}
-
-	m_postDeclaratorModifiers |= modifier;
 	return true;
 }
 

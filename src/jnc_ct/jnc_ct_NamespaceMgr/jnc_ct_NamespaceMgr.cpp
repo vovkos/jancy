@@ -251,6 +251,13 @@ NamespaceMgr::createOrphan(
 	orphan->m_functionKind = functionKind;
 	orphan->m_type = type;
 
+	uint_t modifiers = declarator->getTypeModifiers();
+	if (modifiers & TypeModifier_Const)
+		orphan->m_thisArgTypeFlags |= PtrTypeFlag_Const;
+
+	if (modifiers & TypeModifier_Thin)
+		orphan->m_thisArgTypeFlags |= PtrTypeFlag_ThinThis;
+
 	switch (functionKind) {
 	case FunctionKind_Normal:
 		orphan->m_name = declarator->getShortName();
@@ -268,9 +275,6 @@ NamespaceMgr::createOrphan(
 		orphan->m_castOpType = declarator->getCastOpType();
 		break;
 	}
-
-	if (declarator->getPostDeclaratorModifiers() & PostDeclaratorModifier_Const)
-		orphan->m_thisArgTypeFlags = PtrTypeFlag_Const;
 
 	sl::takeOver(&orphan->m_declaratorName, &declarator->m_name);
 	orphan->m_declaratorNamePos = &orphan->m_declaratorName.getFirstAtom();

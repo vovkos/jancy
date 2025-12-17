@@ -204,20 +204,21 @@ enum jnc_ImportTypeFlag {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum jnc_PtrTypeFlag {
-	jnc_PtrTypeFlag_Safe       = 0x0010000, // all ptr
-	jnc_PtrTypeFlag_Const      = 0x0020000, // class & data ptr
-	jnc_PtrTypeFlag_ReadOnly   = 0x0040000, // class & data ptr
-	jnc_PtrTypeFlag_CMut       = 0x0080000, // class & data ptr
-	jnc_PtrTypeFlag_Volatile   = 0x0100000, // class & data ptr
-	jnc_PtrTypeFlag_Event      = 0x0200000, // multicast-class only
-	jnc_PtrTypeFlag_DualEvent  = 0x0400000, // multicast-class only
-	jnc_PtrTypeFlag_Bindable   = 0x0800000, // multicast-class only
-	jnc_PtrTypeFlag_AutoGet    = 0x1000000, // data ptr only
-	jnc_PtrTypeFlag_DualTarget = 0x2000000, // data ptr only
-	jnc_PtrTypeFlag_BigEndian  = 0x4000000, // data ptr only
-	jnc_PtrTypeFlag_BitField   = 0x8000000, // data ptr only
+	jnc_PtrTypeFlag_Safe       = 0x00010000, // all ptr
+	jnc_PtrTypeFlag_Const      = 0x00020000, // class, data ptr, function
+	jnc_PtrTypeFlag_ReadOnly   = 0x00040000, // class & data ptr
+	jnc_PtrTypeFlag_CMut       = 0x00080000, // class & data ptr
+	jnc_PtrTypeFlag_Volatile   = 0x00100000, // class & data ptr
+	jnc_PtrTypeFlag_Event      = 0x00200000, // multicast-class only
+	jnc_PtrTypeFlag_DualEvent  = 0x00400000, // multicast-class only
+	jnc_PtrTypeFlag_Bindable   = 0x00800000, // multicast-class only
+	jnc_PtrTypeFlag_AutoGet    = 0x01000000, // data ptr only
+	jnc_PtrTypeFlag_DualTarget = 0x02000000, // data ptr only
+	jnc_PtrTypeFlag_BigEndian  = 0x04000000, // data ptr only
+	jnc_PtrTypeFlag_BitField   = 0x08000000, // data ptr only
+	jnc_PtrTypeFlag_ThinThis   = 0x10000000, // function only (converts to DataPtrTypeKind_Thin)
 
-	jnc_PtrTypeFlag__All       = 0xfff0000,
+	jnc_PtrTypeFlag__All       = 0x1fff0000,
 	jnc_PtrTypeFlag__Dual =
 		jnc_PtrTypeFlag_ReadOnly |
 		jnc_PtrTypeFlag_CMut |
@@ -775,6 +776,7 @@ const PtrTypeFlag
 	PtrTypeFlag_DualTarget = jnc_PtrTypeFlag_DualTarget,
 	PtrTypeFlag_BigEndian  = jnc_PtrTypeFlag_BigEndian,
 	PtrTypeFlag_BitField   = jnc_PtrTypeFlag_BitField,
+	PtrTypeFlag_ThinThis   = jnc_PtrTypeFlag_ThinThis,
 
 	PtrTypeFlag__All       = jnc_PtrTypeFlag__All,
 	PtrTypeFlag__Dual      = jnc_PtrTypeFlag__Dual;

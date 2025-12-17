@@ -514,7 +514,11 @@ function_formal_argument<DeclFunctionSuffix* $functionSuffix>
 function_modifier<DeclFunctionSuffix* $functionSuffix>
 	:	TokenKind_Const
 			{
-				return $functionSuffix->getDeclarator()->setPostDeclaratorModifier(PostDeclaratorModifier_Const);
+				return $functionSuffix->getDeclarator()->addTypeModifier(TypeModifier_Const);
+			}
+	|	TokenKind_Thin
+			{
+				return $functionSuffix->getDeclarator()->addTypeModifier(TypeModifier_Thin);
 			}
 	;
 

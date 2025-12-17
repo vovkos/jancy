@@ -243,7 +243,9 @@ FunctionMgr::createThisValue() {
 
 	Value thisArgValue = function->getType()->getCallConv()->getThisArgValue(function);
 	if (function->m_thisArgType->isEqual(function->m_thisType)) {
-		if (function->m_thisType->getTypeKind() != TypeKind_DataPtr)
+		if (function->m_thisType->getTypeKind() != TypeKind_DataPtr ||
+			(function->m_thisArgTypeFlags & PtrTypeFlag_ThinThis)
+		)
 			m_thisValue = thisArgValue;
 		else
 			m_module->m_operatorMgr.makeLeanDataPtr(thisArgValue, &m_thisValue);

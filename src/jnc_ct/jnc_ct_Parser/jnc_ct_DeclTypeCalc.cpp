@@ -186,9 +186,6 @@ DeclTypeCalc::calcType(
 			if (!type)
 				return NULL;
 
-			if (!checkUnusedModifiers())
-				return NULL;
-
 			break;
 
 		default:
@@ -196,15 +193,12 @@ DeclTypeCalc::calcType(
 		}
 	}
 
-	if (!(type->getTypeKindFlags() & TypeKindFlag_Code) && flags != NULL) {
-		if (m_typeModifiers & TypeModifier_CMut) {
-			err::setError("redundant 'cmut'"); // must be applied to explicit pointers only
-			return NULL;
-		}
-
-		result = getPtrTypeFlags(type, flags);
-		if (!result)
-			return NULL;
+	if (flags != NULL) {
+		TypeKind typeKind = type->getTypeKind();
+		if (typeKind == TypeKind_Function)
+			*flags = getThisArgTypeFlags();
+		else if (typeKind != TypeKind_Property)
+			*flags = getDataPtrTypeFlags();
 	}
 
 	if (!checkUnusedModifiers())
@@ -297,11 +291,8 @@ DeclTypeCalc::calcPropertyGetterType(Declarator* declarator) {
 	return (FunctionType*)type;
 }
 
-bool
-DeclTypeCalc::getPtrTypeFlags(
-	Type* type,
-	uint_t* flags_o
-) {
+uint_t
+DeclTypeCalc::getDataPtrTypeFlags() {
 	uint_t flags = 0;
 
 	if (m_typeModifiers & TypeModifier_Const)
@@ -314,19 +305,11 @@ DeclTypeCalc::getPtrTypeFlags(
 	if (m_typeModifiers & TypeModifier_BigEndian)
 		flags |= PtrTypeFlag_BigEndian;
 
-	if (m_typeModifiers & TypeModifier_Volatile) {
-		if (type->getTypeKindFlags() & TypeKindFlag_Code) {
-			err::setFormatStringError("'volatile' cannot be applied to '%s'", type->getTypeString().sz());
-			return false;
-		}
-
+	if (m_typeModifiers & TypeModifier_Volatile)
 		flags |= PtrTypeFlag_Volatile;
-	}
 
-	if (m_typeModifiers & TypeModifier_Event) { // convert 'event' to 'dualevent'
-		ASSERT(isClassType(type, ClassTypeKind_Multicast));
+	if (m_typeModifiers & TypeModifier_Event) // convert 'event' to 'dualevent'
 		flags |= PtrTypeFlag_DualEvent;
-	}
 
 	if (m_typeModifiers & TypeModifier_Bindable)
 		flags |= PtrTypeFlag_Bindable;
@@ -334,9 +317,32 @@ DeclTypeCalc::getPtrTypeFlags(
 	if (m_typeModifiers & TypeModifier_AutoGet)
 		flags |= PtrTypeFlag_AutoGet;
 
-	m_typeModifiers &= ~TypeModifierMaskKind_DeclPtr;
-	*flags_o = flags;
-	return true;
+	m_typeModifiers &= ~(
+		TypeModifier_Const |
+		TypeModifier_ReadOnly |
+		TypeModifier_CMut |
+		TypeModifier_BigEndian |
+		TypeModifier_Volatile |
+		TypeModifier_Event |
+		TypeModifier_Bindable |
+		TypeModifier_AutoGet
+	);
+
+	return flags;
+}
+
+uint_t
+DeclTypeCalc::getThisArgTypeFlags() {
+	uint_t flags = 0;
+
+	if (m_typeModifiers & TypeModifier_Const)
+		flags |= PtrTypeFlag_Const;
+
+	if (m_typeModifiers & TypeModifier_Thin)
+		flags |= PtrTypeFlag_ThinThis;
+
+	m_typeModifiers &= ~(TypeModifier_Const | TypeModifier_Thin);
+	return flags;
 }
 
 inline

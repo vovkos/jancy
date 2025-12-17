@@ -93,11 +93,11 @@ protected:
 	bool
 	checkUnusedModifiers();
 
-	bool
-	getPtrTypeFlags(
-		Type* type,
-		uint_t* flags
-	);
+	uint_t
+	getDataPtrTypeFlags();
+
+	uint_t
+	getThisArgTypeFlags();
 
 	uint_t
 	getPropertyFlags();

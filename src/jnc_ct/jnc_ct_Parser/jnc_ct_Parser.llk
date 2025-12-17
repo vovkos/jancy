@@ -536,7 +536,8 @@ protected:
 	bool
 	declareFunction(
 		Declarator* declarator,
-		FunctionType* type
+		FunctionType* type,
+		uint_t thisArgTypeFlags
 	);
 
 	bool

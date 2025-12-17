@@ -122,17 +122,6 @@ enum TypeModifierMaskKind {
 
 	TypeModifierMaskKind_TemplatePtr = TypeModifierMaskKind_ImportPtr,
 
-	TypeModifierMaskKind_DeclPtr =
-		TypeModifier_BigEndian |
-		TypeModifier_Const |
-		TypeModifier_ReadOnly |
-		TypeModifier_CMut |
-		TypeModifier_Volatile |
-		TypeModifier_Event |
-		TypeModifier_DualEvent |
-		TypeModifier_Bindable |
-		TypeModifier_AutoGet,
-
 	TypeModifierMaskKind_PtrKind =
 		TypeModifier_Weak |
 		TypeModifier_Thin,
@@ -327,20 +316,6 @@ public:
 
 //..............................................................................
 
-enum PostDeclaratorModifier {
-	PostDeclaratorModifier_Const = 0x01,
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-const char*
-getPostDeclaratorModifierString(PostDeclaratorModifier modifier);
-
-sl::StringRef
-getPostDeclaratorModifierString(uint_t modifiers);
-
-//..............................................................................
-
 enum DeclaratorKind {
 	DeclaratorKind_Undefined = 0,
 	DeclaratorKind_Name,
@@ -365,7 +340,6 @@ protected:
 	QualifiedName m_name;
 	lex::LineCol m_pos;
 	size_t m_bitCount;
-	uint_t m_postDeclaratorModifiers;
 	Type* m_baseType;
 	AttributeBlock* m_attributeBlock;
 	dox::Block* m_doxyBlock;
@@ -444,11 +418,6 @@ public:
 		return m_bitCount;
 	}
 
-	int
-	getPostDeclaratorModifiers() {
-		return m_postDeclaratorModifiers;
-	}
-
 	Type*
 	getBaseType() {
 		return m_baseType;
@@ -479,9 +448,6 @@ public:
 	getSuffixList() {
 		return m_suffixList;
 	}
-
-	bool
-	setPostDeclaratorModifier(PostDeclaratorModifier modifier);
 
 	DeclFunctionSuffix*
 	getFunctionSuffix() {
@@ -560,7 +526,6 @@ Declarator::Declarator() {
 	m_binOpKind = BinOpKind_Undefined;
 	m_castOpType = NULL;
 	m_bitCount = 0;
-	m_postDeclaratorModifiers = 0;
 	m_baseType = NULL;
 	m_attributeBlock = NULL;
 	m_doxyBlock = NULL;

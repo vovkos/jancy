@@ -210,7 +210,9 @@ public:
 	virtual
 	Type*
 	getThisArgType(uint_t ptrTypeFlags) {
-		return (Type*)getDataPtrType(DataPtrTypeKind_Normal, ptrTypeFlags);
+		return (ptrTypeFlags & PtrTypeFlag_ThinThis) ?
+			(Type*)getDataPtrType(DataPtrTypeKind_Thin, ptrTypeFlags & ~PtrTypeFlag_ThinThis) :
+			(Type*)getDataPtrType(DataPtrTypeKind_Normal, ptrTypeFlags);
 	}
 
 	FunctionType*
