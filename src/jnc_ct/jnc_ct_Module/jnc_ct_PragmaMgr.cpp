@@ -51,11 +51,11 @@ PragmaConfig::setPragma(
 ) {
 	switch (state) {
 	case PragmaState_Default:
-		value = pragmaKind >= Pragma__FirstBoolDefaultTrue;
+		value = pragmaKind >= Pragma_FirstBoolDefaultTrue;
 		break;
 
 	case PragmaState_NoValue:
-		if (pragmaKind < Pragma__FirstBool) {
+		if (pragmaKind < Pragma_FirstBool) {
 			err::setFormatStringError("pragma '%s' requires a value", getPragmaName(pragmaKind));
 			return false;
 		}
