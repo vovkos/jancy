@@ -317,7 +317,7 @@ Declarator::addUnaryBinaryOperator(
 	}
 
 	m_declaratorKind = DeclaratorKind_UnaryBinaryOperator;
-	m_functionKind = FunctionKind_UnaryOperator; // temp; will be adjusted later in CParser::DeclareFunction
+	m_functionKind = FunctionKind_UnaryOperator; // temp; will be adjusted later in Parser::declareFunction
 	m_unOpKind = unOpKind;
 	m_binOpKind = binOpKind;
 	return true;

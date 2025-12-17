@@ -93,10 +93,15 @@ public:
 	Orphan*
 	createOrphan(
 		OrphanKind orphanKind,
-		Declarator* declarator,
 		FunctionKind functionKind,
-		FunctionType* functionType
+		Declarator* declarator, // destructive
+		Type* type
 	);
+
+	Orphan*
+	createOrphanReactor(Declarator* declarator) { // destructive
+		return createOrphan(OrphanKind_Reactor, FunctionKind_Normal, declarator, NULL);
+	}
 
 	Orphan*
 	cloneOrphan(const Orphan* srcOrphan);
@@ -211,10 +216,10 @@ public:
 	openTemplateSuffix();
 
 	void
-	closeTemplateSuffix()  {
-		ASSERT(m_currentNamespace && m_currentNamespace->m_namespaceKind == NamespaceKind_TemplateSuffix);
-		closeNamespace();
-	}
+	closeTemplateSuffix();
+
+	void
+	closeAllTemplateSuffixes();
 
 	AccessKind
 	getAccessKind(Namespace* nspace);
@@ -276,6 +281,24 @@ NamespaceMgr::createScopeExtension(){
 	T* extension = new T;
 	m_scopeExtensionArray.append(extension);
 	return extension;
+}
+
+inline
+void
+NamespaceMgr::closeTemplateSuffix() {
+	ASSERT(m_currentNamespace->m_namespaceKind == NamespaceKind_TemplateSuffix);
+	closeNamespace();
+	ASSERT(m_currentNamespace->m_namespaceKind != NamespaceKind_TemplateSuffix);
+}
+
+inline
+void
+NamespaceMgr::closeAllTemplateSuffixes()  {
+	ASSERT(m_currentNamespace->m_namespaceKind == NamespaceKind_TemplateSuffix);
+
+	do
+		closeNamespace();
+	while (m_currentNamespace->m_namespaceKind == NamespaceKind_TemplateSuffix);
 }
 
 //..............................................................................

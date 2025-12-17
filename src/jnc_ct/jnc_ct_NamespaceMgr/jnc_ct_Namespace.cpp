@@ -184,18 +184,14 @@ Namespace::resolveOrphans() {
 		}
 
 		const QualifiedNameAtom& atom = orphan->m_declaratorNamePos.next(orphan->m_declaratorName);
-		if (atom.m_atomKind != QualifiedNameAtomKind_Name) {
-			err::setFormatStringError("invalid orphan name '%s'", orphan->getItemName().sz());
+		FindModuleItemResult findResult = findDirectChildItem(atom);
+		if (!findResult.m_result) {
 			orphan->pushSrcPosError();
 			return false;
 		}
 
-		FindModuleItemResult findResult = findDirectChildItem(atom.m_name);
-		if (!findResult.m_result)
-			return false;
-
 		if (!findResult.m_item) {
-			err::setFormatStringError("'%s' not part of '%s'", atom.m_name.sz(), getDeclItem()->getItemName().sz());
+			err::setFormatStringError("'%s' not part of '%s'", atom.getString().sz(), getDeclItem()->getItemName().sz());
 			orphan->pushSrcPosError();
 			return false;
 		}
@@ -377,7 +373,8 @@ Namespace::findDirectChildItem(
 	case QualifiedNameAtomKind_Name:
 		return findDirectChildItem(atom.m_name);
 
-	case QualifiedNameAtomKind_Template:
+	case QualifiedNameAtomKind_TemplateDeclSuffix:
+	case QualifiedNameAtomKind_TemplateInstantiateOperator:
 		return finalizeFindTemplate(context, atom, findDirectChildItem(atom.m_name));
 
 	default:
@@ -478,7 +475,8 @@ Namespace::findDirectChildItemTraverse(
 	case QualifiedNameAtomKind_Name:
 		return findDirectChildItemTraverse(atom.m_name, coord, flags);
 
-	case QualifiedNameAtomKind_Template:
+	case QualifiedNameAtomKind_TemplateDeclSuffix:
+	case QualifiedNameAtomKind_TemplateInstantiateOperator:
 		if (context.isNullContext()) {
 			err::setError("templates are not allowed here");
 			return g_errorFindModuleItemResult;
@@ -533,10 +531,34 @@ Namespace::finalizeFindTemplate(
 		return g_errorFindModuleItemResult;
 	}
 
-	ModuleItem* item = templ->instantiate(context, atom.m_templateTokenList);
-	return item ?
-		FindModuleItemResult(item) :
-		g_errorFindModuleItemResult;
+	switch (atom.m_atomKind) {
+	case QualifiedNameAtomKind_TemplateDeclSuffix: {
+		const sl::Array<TemplateArgType*> argArray = templ->getArgArray();
+		size_t count = argArray.getCount();
+		if (atom.m_templateDeclArgArray.getCount() != count) {
+			err::setFormatStringError("template signature mismatch for '%s'", findResult.m_item->getItemName().sz());
+			return g_errorFindModuleItemResult;
+		}
+
+		for (size_t i = 0; i < count; i++)
+			if (atom.m_templateDeclArgArray[i]->getName() != argArray[i]->getName()) {
+				err::setFormatStringError("template signature mismatch for '%s'", findResult.m_item->getItemName().sz());
+				return g_errorFindModuleItemResult;
+			}
+
+		break;
+		}
+
+	case QualifiedNameAtomKind_TemplateInstantiateOperator: {
+		ModuleItem* item = templ->instantiate(context, atom.m_templateInstTokenList);
+		findResult = item ? FindModuleItemResult(item) : g_errorFindModuleItemResult;
+		}
+
+	default:
+		ASSERT(false);
+	}
+
+	return findResult;
 }
 
 NamedType*

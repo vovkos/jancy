@@ -79,6 +79,8 @@ Parser::Parser(
 	m_lastPropertyGetterType = NULL;
 	m_lastPropertyTypeModifiers = 0;
 	m_topDeclarator = NULL;
+	m_namedImportAnchor = NULL;
+	m_topDeclaratorTemplateArgCount = 0;
 	m_declarationId = 0;
 
 	m_constructorType = NULL;
@@ -636,33 +638,37 @@ Parser::setAccessKind(AccessKind accessKind) {
 }
 
 void
-Parser::postDeclaratorName(Declarator* declarator) {
-	if (!m_topDeclarator)
-		m_topDeclarator = declarator;
+Parser::preDeclarator(
+	Declarator* declarator,
+	TypeSpecifier* typeSpecifier
+) {
+	declarator->setTypeSpecifier(typeSpecifier, m_module);
+	if (m_topDeclarator)
+		return;
 
+	m_topDeclarator = declarator;
+	m_namedImportAnchor = NULL;
+	m_topDeclaratorTemplateArgCount = 0;
+}
+
+void
+Parser::postDeclaratorName(Declarator* declarator) {
 	if (!m_topDeclarator->isQualified() || declarator->m_baseType->getTypeKind() != TypeKind_NamedImport)
 		return;
 
 	// need to re-anchor the import, e.g.:
 	// A C.foo(); <-- here 'A' should be searched for starting with 'C'
 
-	QualifiedName anchorName;
-	anchorName.copy(m_topDeclarator->m_name);
-	if (m_topDeclarator->getDeclaratorKind() == DeclaratorKind_Name)
-		anchorName.removeLastAtom();
-
-	ASSERT(!anchorName.isEmpty());
-
-	QualifiedName name;
-	name.copy(((NamedImportType*)declarator->m_baseType)->m_name);
-
+	NamedImportAnchor* anchor = ensureNamedImportAnchor();
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	Type* type = m_module->m_typeMgr.getNamedImportType(nspace, &name, &anchorName);
-	if (type->getTypeKind() == TypeKind_NamedImport) {
-		NamedImportType* importType = (NamedImportType*)type;
-		if (!importType->m_parentUnit)
-			setItemPos(importType, declarator->getPos());
-	}
+	NamedImportType* type = m_module->m_typeMgr.getAnchoredNamedImportType(
+		nspace,
+		anchor,
+		((NamedImportType*)declarator->m_baseType)->m_name
+	);
+
+	if (!type->m_parentUnit)
+		setItemPos(type, declarator->getPos());
 
 	declarator->m_baseType = type;
 }
@@ -671,6 +677,27 @@ void
 Parser::postDeclarator(Declarator* declarator) {
 	if (declarator == m_topDeclarator)
 		m_topDeclarator = NULL;
+}
+
+bool
+Parser::addTemplateSuffixToDeclarator(Declarator* declarator) {
+	if (declarator != m_topDeclarator)
+		return err::fail("only top-level declarator can be templated");
+
+	QualifiedNameAtom* atom = declarator->m_name.getLastAtom();
+	ASSERT(atom->m_atomKind == QualifiedNameAtomKind_Name);
+	atom->m_atomKind = QualifiedNameAtomKind_TemplateDeclSuffix;
+	m_topDeclaratorTemplateArgCount += m_templateArgArray.getCount();
+	sl::takeOver(&atom->m_templateDeclArgArray, &m_templateArgArray);
+	return true;
+}
+
+NamedImportAnchor*
+Parser::ensureNamedImportAnchor() {
+	if (!m_namedImportAnchor)
+		m_namedImportAnchor = m_module->m_typeMgr.createNamedImportAnchor();
+
+	return m_namedImportAnchor;
 }
 
 GlobalNamespace*
@@ -996,7 +1023,10 @@ Parser::prepareTemplateDeclarator(Declarator* declarator) {
 		return false;
 	}
 
-	sl::takeOver(&declarator->m_templateArgArray, &m_templateArgArray);
+	QualifiedNameAtom* atom = declarator->m_name.getLastAtom();
+	ASSERT(atom->m_atomKind == QualifiedNameAtomKind_Name);
+	sl::takeOver(&atom->m_templateDeclArgArray, &m_templateArgArray);
+	atom->m_atomKind == QualifiedNameAtomKind_TemplateDeclSuffix;
 
 	NamedImportType* baseType = (NamedImportType*)declarator->m_baseType;
 	if (baseType->getTypeKind() == TypeKind_NamedImport &&
@@ -1012,33 +1042,37 @@ Parser::prepareTemplateDeclarator(Declarator* declarator) {
 	return true;
 }
 
-Template*
+bool
 Parser::declareTemplate(Declarator* declarator) {
 	Namespace* templNspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	m_module->m_namespaceMgr.closeTemplateSuffix();
+	m_module->m_namespaceMgr.closeAllTemplateSuffixes();
 
 	if (!declarator->isSimple()) {
-		err::setError("invalid template declarator");
-		return NULL;
+		TemplateDeclType* type = m_module->m_typeMgr.createTemplateDeclType(declarator);
+		declarator = type->getDeclarator(); // adjust declarator (original was just moved)
+		Orphan* orphan = m_module->m_namespaceMgr.createOrphan(OrphanKind_Template, declarator->getFunctionKind(), declarator, type);
+		assignDeclarationAttributes(orphan, orphan, declarator);
+		m_module->m_namespaceMgr.getCurrentNamespace()->addOrphan(orphan);
+		return true;
 	}
 
 	TemplateDeclType* type = m_module->m_typeMgr.createTemplateDeclType(declarator);
 	declarator = type->getDeclarator(); // adjust declarator (original was just moved)
 	const sl::StringRef& name = declarator->getSimpleName();
 	if (!checkTemplateName(declarator->getPos(), name, templNspace))
-		return NULL;
+		return false;
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	Template* templ = m_module->m_templateMgr.createTemplate(name, type);
 	bool result = nspace->addItem(name, templ);
 	if (!result)
-		return NULL;
+		return false;
 
 	assignDeclarationAttributes(templ, templ, declarator);
-	return templ;
+	return true;
 }
 
-Template*
+bool
 Parser::declareTemplate(
 	TypeKind typeKind,
 	const Token& nameToken,
@@ -1050,7 +1084,7 @@ Parser::declareTemplate(
 
 	const sl::StringRef& name = nameToken.m_data.m_string;
 	if (!checkTemplateName(nameToken.m_pos, name, templNspace))
-		return NULL;
+		return false;
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	Template* templ = m_module->m_templateMgr.createTemplate(
@@ -1062,11 +1096,11 @@ Parser::declareTemplate(
 
 	bool result = nspace->addItem(name, templ);
 	if (!result)
-		return NULL;
+		return false;
 
 	assignDeclarationAttributes(templ, templ, nameToken.m_pos);
 	setBody(templ, bodyTokenList);
-	return templ;
+	return true;
 }
 
 bool
@@ -1220,7 +1254,8 @@ Parser::declareFunction(
 			return false;
 		}
 
-		Orphan* orphan = m_module->m_namespaceMgr.createOrphan(OrphanKind_Function, declarator, functionKind, type);
+		Orphan* orphan = m_module->m_namespaceMgr.createOrphan(OrphanKind_Function, functionKind, declarator, type);
+		orphan->m_namedImportAnchor = getNamedImportAnchor();
 		assignDeclarationAttributes(orphan, orphan, declarator);
 		nspace->addOrphan(orphan);
 		return true;
@@ -1234,12 +1269,6 @@ Parser::declareFunction(
 		function = m_module->m_functionMgr.createFunction(type);
 		function->m_functionKind = functionKind;
 	}
-
-	if (!declarator->m_initializer.isEmpty())
-		sl::takeOver(&function->m_initializer, &declarator->m_initializer);
-
-	if (postModifiers & PostDeclaratorModifier_Const)
-		function->m_thisArgTypeFlags = PtrTypeFlag_Const;
 
 	switch (functionKind) {
 	case FunctionKind_Normal:
@@ -1259,17 +1288,20 @@ Parser::declareFunction(
 		break;
 	}
 
-	assignDeclarationAttributes(function, function, declarator);
+	if (declarator->getPostDeclaratorModifiers() & PostDeclaratorModifier_Const)
+		function->m_thisArgTypeFlags = PtrTypeFlag_Const;
 
-	TypeKind typeKind;
+	if (!declarator->m_initializer.isEmpty())
+		sl::takeOver(&function->m_initializer, &declarator->m_initializer);
+
+	assignDeclarationAttributes(function, function, declarator);
 
 	switch (namespaceKind) {
 	case NamespaceKind_Extension:
 		return ((ExtensionNamespace*)nspace)->addMethod(function);
 
 	case NamespaceKind_Type:
-		typeKind = ((NamedType*)nspace)->getTypeKind();
-		switch (typeKind) {
+		switch (TypeKind typeKind = ((NamedType*)nspace)->getTypeKind()) {
 		case TypeKind_Struct:
 			return ((StructType*)nspace)->addMethod(function);
 
@@ -1627,14 +1659,20 @@ Parser::declareReactor(
 	Declarator* declarator,
 	uint_t ptrTypeFlags
 ) {
-	bool result;
-
 	if (declarator->getDeclaratorKind() != DeclaratorKind_Name) {
 		err::setError("invalid reactor declarator");
 		return false;
 	}
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
+	if (declarator->isQualified()) {
+		Orphan* orphan = m_module->m_namespaceMgr.createOrphanReactor(declarator);
+		orphan->m_namedImportAnchor = getNamedImportAnchor();
+		assignDeclarationAttributes(orphan, orphan, declarator);
+		nspace->addOrphan(orphan);
+		return true;
+	}
+
 	NamespaceKind namespaceKind = nspace->getNamespaceKind();
 	NamedType* parentType = NULL;
 
@@ -1651,13 +1689,6 @@ Parser::declareReactor(
 	if (parentType && parentType->getTypeKind() != TypeKind_Class) {
 		err::setFormatStringError("'%s' cannot contain reactor members", parentType->getTypeString().sz());
 		return false;
-	}
-
-	if (declarator->isQualified()) {
-		Orphan* orphan = m_module->m_namespaceMgr.createOrphan(OrphanKind_Reactor, declarator, FunctionKind_Normal, NULL);
-		assignDeclarationAttributes(orphan, orphan, declarator);
-		nspace->addOrphan(orphan);
-		return true;
 	}
 
 	ReactorClassType* type = m_module->m_typeMgr.createReactorType(declarator->getSimpleName(), (ClassType*)parentType);
@@ -2444,6 +2475,8 @@ Parser::finalizeDerivableType(DerivableType* type) {
 
 	if (!type->getName().isEmpty())
 		return true;
+
+	// unroll unnamed type
 
 	m_storageKind = StorageKind_Undefined;
 	m_accessKind = AccessKind_Undefined;

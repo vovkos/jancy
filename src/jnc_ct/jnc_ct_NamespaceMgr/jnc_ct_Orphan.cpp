@@ -38,6 +38,25 @@ Orphan::resolveForCodeAssist(Namespace* nspace) {
 
 ModuleItem*
 Orphan::adopt(ModuleItem* item) {
+	if (m_namedImportAnchor)
+		m_namedImportAnchor->m_namespace = item->getDecl()->getParentNamespace();
+
+	if (m_orphanKind == OrphanKind_Template) {
+		Type* type = m_templateDeclType->instantiate(m_templateArgArray);
+		if (!type)
+			return NULL;
+
+		if (type->getTypeKind() == TypeKind_Function) {
+			m_functionType = (FunctionType*)type;
+			return adoptOrphanFunction(item);
+		} else if (type->getStdType() == StdType_ReactorBase)
+			return adoptOrphanReactor(item);
+		else {
+			err::setFormatStringError("invalid template orphan type '%s'", type->getTypeString().sz());
+			return NULL;
+		}
+	}
+
 	switch (m_orphanKind) {
 	case OrphanKind_Function:
 		return adoptOrphanFunction(item);
@@ -282,6 +301,9 @@ Orphan::createItemString(size_t index) {
 
 		case OrphanKind_Reactor:
 			return "reactor " + name;
+
+		case OrphanKind_Template:
+			return createItemStringImpl(index, this, m_templateDeclType, 0);
 
 		default:
 			ASSERT(false);

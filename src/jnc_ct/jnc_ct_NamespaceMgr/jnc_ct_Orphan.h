@@ -18,13 +18,16 @@ namespace jnc {
 namespace ct {
 
 class FunctionType;
+class TemplateDeclType;
+struct NamedImportAnchor;
 
 //..............................................................................
 
 enum OrphanKind {
 	OrphanKind_Undefined,
 	OrphanKind_Function,
-	OrphanKind_Reactor
+	OrphanKind_Reactor,
+	OrphanKind_Template,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -41,7 +44,15 @@ protected:
 	OrphanKind m_orphanKind;
 	QualifiedName m_declaratorName;
 	QualifiedNamePos m_declaratorNamePos;
-	FunctionType* m_functionType;
+	NamedImportAnchor* m_namedImportAnchor;
+
+	union {
+		Type* m_type;
+		FunctionType* m_functionType;
+		TemplateDeclType* m_templateDeclType;
+	};
+
+	sl::Array<Type*> m_templateArgArray;
 
 public:
 	Orphan();
@@ -56,9 +67,24 @@ public:
 		return m_declaratorName;
 	}
 
-	FunctionType*
-	getFunctionType() const {
-		return m_functionType;
+	NamedImportAnchor*
+	getNamedImportAnchor() {
+		return m_namedImportAnchor;
+	}
+
+	Type*
+	getType() const {
+		return m_type;
+	}
+
+	const sl::Array<Type*>&
+	getTemplateArgArray() const {
+		return m_templateArgArray;
+	}
+
+	size_t
+	appendTemplateArgArray(const sl::ArrayRef<Type*>& argArray) {
+		return m_templateArgArray.append(argArray);
 	}
 
 	ModuleItem*
@@ -72,7 +98,7 @@ public:
 	virtual
 	Type*
 	getItemType() {
-		return (Type*)m_functionType;
+		return m_type;
 	}
 
 protected:
@@ -108,7 +134,10 @@ inline
 Orphan::Orphan() {
 	m_itemKind = ModuleItemKind_Orphan;
 	m_orphanKind = OrphanKind_Undefined;
+	m_functionKind = FunctionKind_Normal;
+	m_namedImportAnchor = NULL;
 	m_functionType = NULL;
+	m_templateDeclType = NULL;
 }
 
 //..............................................................................

@@ -19,18 +19,17 @@ struct {
 }
 declarator<TypeSpecifier* $typeSpecifier>
 	enter {
-		$.m_declarator.setTypeSpecifier($typeSpecifier, m_module);
+		preDeclarator(&$.m_declarator, $typeSpecifier);
 	}
 	leave {
 		postDeclarator(&$.m_declarator);
 	}
 	:	declarator_prefix<&$.m_declarator>*
-		declarator_name<&$.m_declarator> (
-			template_suffix
-				{
+		declarator_name<&$.m_declarator>
+			{
+				if (&$.m_declarator == m_topDeclarator && m_topDeclaratorTemplateArgCount)
 					return prepareTemplateDeclarator(&$.m_declarator);
-				}
-		)?
+			}
 		declarator_suffix<&$.m_declarator>*
 		declarator_constructor<&$.m_declarator>?
 	;
@@ -40,7 +39,7 @@ struct {
 }
 special_void_method_declarator
 	enter {
-		$.m_declarator.setTypeSpecifier(NULL, m_module);
+		preDeclarator(&$.m_declarator, NULL);
 	}
 	leave {
 		postDeclarator(&$.m_declarator);
@@ -150,6 +149,12 @@ declarator_qualifier<Declarator* $declarator>
 				prepareQualifiedNameCodeAssistFallbackIf($1, $declarator->getName());
 				return $declarator->addName($1.m_data.m_string);
 			}
+		(
+			template_decl_suffix
+				{
+					return addTemplateSuffixToDeclarator($declarator);
+				}
+		)?
 	|	TokenKind_Get
 			{
 				return $declarator->addUnnamedMethod(FunctionKind_Getter);
@@ -418,7 +423,7 @@ declarator_suffix<Declarator* $declarator>
 		bitfield_suffix<$declarator>
 	;
 
-template_suffix
+template_decl_suffix
 	:	'<'
 			{
 				m_module->m_namespaceMgr.openTemplateSuffix();

@@ -73,9 +73,9 @@ qualified_name_pass1_atom<QualifiedName* $name>
 				$name->addName($1.m_data.m_string);
 			}
 		(
-			template_instantiate_operator_pass1<(*$name).getTemplateTokenList()>
+			template_instantiate_operator_pass1<(*$name).getTemplateInstTokenList()>
 				{
-					$name->finalizeTemplateTokenList();
+					$name->finalizeTemplateInstTokenList();
 				}
 		)?
 	;

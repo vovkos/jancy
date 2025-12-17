@@ -11,15 +11,16 @@
 
 #pragma once
 
-#include "jnc_ct_Function.h"
-#include "jnc_ct_UnOp.h"
-#include "jnc_ct_BinOp.h"
+#include "jnc_ct_FunctionName.h"
+#include "jnc_ct_QualifiedName.h"
+#include "jnc_ct_Value.h"
 
 namespace jnc {
 namespace ct {
 
 class Declarator;
 class TemplateArgType;
+struct NamedImportAnchor;
 
 //..............................................................................
 
@@ -368,7 +369,6 @@ protected:
 	Type* m_baseType;
 	AttributeBlock* m_attributeBlock;
 	dox::Block* m_doxyBlock;
-	sl::Array<TemplateArgType*> m_templateArgArray;
 	sl::List<DeclPointerPrefix> m_pointerPrefixList;
 	sl::List<DeclSuffix> m_suffixList;
 	sl::List<Token> m_constructor;
@@ -466,7 +466,8 @@ public:
 
 	const sl::Array<TemplateArgType*>&
 	getTemplateArgArray() {
-		return m_templateArgArray;
+		ASSERT(m_name.getLastAtom()->m_atomKind == QualifiedNameAtomKind_TemplateDeclSuffix);
+		return m_name.getLastAtom()->m_templateDeclArgArray;
 	}
 
 	const sl::List<DeclPointerPrefix>&

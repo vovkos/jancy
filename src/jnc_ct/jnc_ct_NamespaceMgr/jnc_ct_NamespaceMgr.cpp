@@ -241,15 +241,15 @@ NamespaceMgr::addStdItems() {
 Orphan*
 NamespaceMgr::createOrphan(
 	OrphanKind orphanKind,
-	Declarator* declarator,
 	FunctionKind functionKind,
-	FunctionType* functionType
+	Declarator* declarator,
+	Type* type
 ) {
 	Orphan* orphan = new Orphan;
 	orphan->m_module = m_module;
 	orphan->m_orphanKind = orphanKind;
 	orphan->m_functionKind = functionKind;
-	orphan->m_functionType = functionType;
+	orphan->m_type = type;
 
 	switch (functionKind) {
 	case FunctionKind_Normal:
@@ -268,6 +268,9 @@ NamespaceMgr::createOrphan(
 		orphan->m_castOpType = declarator->getCastOpType();
 		break;
 	}
+
+	if (declarator->getPostDeclaratorModifiers() & PostDeclaratorModifier_Const)
+		orphan->m_thisArgTypeFlags = PtrTypeFlag_Const;
 
 	sl::takeOver(&orphan->m_declaratorName, &declarator->m_name);
 	orphan->m_declaratorNamePos = &orphan->m_declaratorName.getFirstAtom();

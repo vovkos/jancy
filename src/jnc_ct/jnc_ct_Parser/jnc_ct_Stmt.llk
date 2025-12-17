@@ -465,6 +465,7 @@ onevent_stmt
 		Declarator $declarator;
 	}
 	enter {
+		preDeclarator(&$declarator, NULL);
 		if (!m_module->m_controlFlowMgr.isReactor())
 			return err::fail("'onevent' can only be used inside a reactor");
 	}

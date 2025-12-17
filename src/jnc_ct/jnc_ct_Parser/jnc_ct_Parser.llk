@@ -126,8 +126,10 @@ protected:
 	uint_t m_lastPropertyTypeModifiers;
 
 	sl::Array<TypeSpecifier*> m_typeSpecifierStack;
-	sl::Array<TemplateArgType*> m_templateArgArray;
 	Declarator* m_topDeclarator; // orphan declarators affect import type resolution
+	NamedImportAnchor* m_namedImportAnchor;
+	sl::Array<TemplateArgType*> m_templateArgArray;
+	size_t m_topDeclaratorTemplateArgCount;
 	size_t m_declarationId;
 
 	dox::Parser m_doxyParser;
@@ -277,10 +279,27 @@ protected:
 	setAccessKind(AccessKind accessKind);
 
 	void
+	preDeclarator(
+		Declarator* declarator,
+		TypeSpecifier* typeSpecifier
+	);
+
+	void
 	postDeclaratorName(Declarator* declarator);
 
 	void
 	postDeclarator(Declarator* declarator);
+
+	bool
+	addTemplateSuffixToDeclarator(Declarator* declarator);
+
+	NamedImportAnchor*
+	getNamedImportAnchor() {
+		return m_namedImportAnchor;
+	}
+
+	NamedImportAnchor*
+	ensureNamedImportAnchor();
 
 	void
 	pushTypeSpecifier(TypeSpecifier* typeSpecifier) {
@@ -490,10 +509,10 @@ protected:
 		return false;
 	}
 
-	Template*
+	bool
 	declareTemplate(Declarator* declarator);
 
-	Template*
+	bool
 	declareTemplate(
 		TypeKind typeKind,
 		const Token& nameToken,
