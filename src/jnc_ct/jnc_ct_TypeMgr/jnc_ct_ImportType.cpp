@@ -55,7 +55,7 @@ sl::String
 NamedImportType::createSignature(
 	Namespace* parentNamespace,
 	const QualifiedName& name,
-	const QualifiedName* baseName
+	const NamedImportAnchor* anchor
 ) {
 	sl::StringRef parentSignature = parentNamespace->getDeclItem()->getLinkId();
 	sl::String signature = "IN";
@@ -64,11 +64,10 @@ NamedImportType::createSignature(
 		signature += '.';
 
 	name.appendFullName(&signature);
+	signature += '$';
 
-	if (baseName) {
-		signature += '-';
-		baseName->appendFullName(&signature);
-	}
+	if (anchor)
+		signature.appendFormat("-%d", anchor->m_linkId);
 
 	return signature;
 }
@@ -79,14 +78,11 @@ NamedImportType::createItemString(size_t index) {
 	case TypeStringKind_Prefix:
 	case TypeStringKind_DoxyLinkedTextPrefix: {
 		sl::String string = "import ";
-		sl::StringRef parentName = m_parentNamespace->getDeclItem()->getItemName();
+
+		Namespace* nspace = m_anchor && m_anchor->m_namespace ? m_anchor->m_namespace : m_parentNamespace;
+		sl::StringRef parentName = nspace->getDeclItem()->getItemName();
 		if (!parentName.isEmpty()) {
 			string += parentName;
-			string += '.';
-		}
-
-		if (!m_baseName.isEmpty()) {
-			string += m_baseName.getFullName();
 			string += '.';
 		}
 
@@ -101,22 +97,7 @@ NamedImportType::createItemString(size_t index) {
 
 bool
 NamedImportType::resolveImports() {
-	Namespace* nspace = m_parentNamespace;
-	if (!m_baseName.isEmpty()) {
-		FindModuleItemResult findResult = nspace->findItemTraverse(*this, m_baseName);
-		if (!findResult.m_result) {
-			pushSrcPosError();
-			return false;
-		}
-
-		nspace = findResult.m_item ? findResult.m_item->getNamespace() : NULL;
-		if (!nspace) {
-			err::setFormatStringError("'%s' is not a namespace", m_baseName.getFullName().sz());
-			pushSrcPosError();
-			return false;
-		}
-	}
-
+	Namespace* nspace = m_anchor && m_anchor->m_namespace ? m_anchor->m_namespace : m_parentNamespace;
 	m_actualType = resolveImpl(nspace);
 	if (!m_actualType)
 		return false;

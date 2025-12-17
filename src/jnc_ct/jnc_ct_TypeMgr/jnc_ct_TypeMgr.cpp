@@ -70,6 +70,7 @@ TypeMgr::clear() {
 	m_propertyPtrTypeTupleList.clear();
 	m_dualTypeTupleList.clear();
 	m_typeMap.clear();
+	m_namedImportAnchorArray.clear();
 	m_multicastClassTypeArray.clear();
 	m_externalReturnTypeSet.clear();
 
@@ -1457,12 +1458,11 @@ TypeMgr::getPropertyVtableStructType(PropertyType* propertyType) {
 Type*
 TypeMgr::getNamedImportType(
 	Namespace* parentNamespace,
-	QualifiedName* name,
-	QualifiedName* baseName
+	QualifiedName* name
 ) {
 	ASSERT(parentNamespace->getNamespaceKind() != NamespaceKind_Scope);
 
-	sl::String signature = NamedImportType::createSignature(parentNamespace, *name, baseName);
+	sl::String signature = NamedImportType::createSignature(parentNamespace, *name);
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
 	if (it->m_value) {
 		ASSERT(it->m_value->m_signature == signature);
@@ -1473,11 +1473,35 @@ TypeMgr::getNamedImportType(
 	NamedImportType* type = new NamedImportType;
 	type->m_module = m_module;
 	type->m_parentNamespace = parentNamespace;
-
-	if (baseName)
-		sl::takeOver(&type->m_baseName, baseName);
-
 	sl::takeOver(&type->m_name, name);
+	type->m_signature = signature;
+	type->m_flags |= TypeFlag_SignatureReady;
+
+	m_typeList.insertTail(type);
+	it->m_value = type;
+	return type;
+}
+
+NamedImportType*
+TypeMgr::getAnchoredNamedImportType(
+	Namespace* parentNamespace,
+	NamedImportAnchor* anchor,
+	const QualifiedName& name
+) {
+	ASSERT(parentNamespace->getNamespaceKind() != NamespaceKind_Scope);
+
+	sl::String signature = NamedImportType::createSignature(parentNamespace, name, anchor);
+	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
+	if (it->m_value) {
+		ASSERT(it->m_value->m_signature == signature && !((NamedImportType*)it->m_value)->isResolved());
+		return (NamedImportType*)it->m_value;
+	}
+
+	NamedImportType* type = new NamedImportType;
+	type->m_module = m_module;
+	type->m_parentNamespace = parentNamespace;
+	type->m_anchor = anchor;
+	type->m_name.copy(name);
 	type->m_signature = signature;
 	type->m_flags |= TypeFlag_SignatureReady;
 

@@ -457,6 +457,17 @@ ModuleItemContext::captureContext(Module* module) {
 
 //..............................................................................
 
+inline
+NamedImportAnchor*
+TypeMgr::createNamedImportAnchor() {
+	NamedImportAnchor* anchor = new NamedImportAnchor;
+	anchor->m_linkId = m_module->createUniqueLinkId();
+	m_namedImportAnchorArray.append(anchor);
+	return anchor;
+}
+
+//..............................................................................
+
 template <typename T>
 T*
 MemberBlock::createMethod(

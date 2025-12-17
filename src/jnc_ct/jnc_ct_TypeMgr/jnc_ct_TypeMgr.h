@@ -113,6 +113,7 @@ protected:
 	sl::List<DualTypeTuple> m_dualTypeTupleList;
 
 	sl::Array<MulticastClassType*> m_multicastClassTypeArray;
+	sl::AutoPtrArray<NamedImportAnchor> m_namedImportAnchorArray;
 	sl::SimpleHashTable<DerivableType*, bool> m_externalReturnTypeSet;
 
 	sl::StringHashTable<Type*> m_typeMap;
@@ -625,11 +626,20 @@ public:
 	StructType*
 	getPropertyVtableStructType(PropertyType* propertyType);
 
+	NamedImportAnchor*
+	createNamedImportAnchor();
+
 	Type* // returns resolved type if available
 	getNamedImportType(
 		Namespace* parentNamespace,
-		QualifiedName* name, // destructive
-		QualifiedName* baseName = NULL // destructive
+		QualifiedName* name // destructive
+	);
+
+	NamedImportType*
+	getAnchoredNamedImportType(
+		Namespace* parentNamespace,
+		NamedImportAnchor* anchor,
+		const QualifiedName& name
 	);
 
 	template <

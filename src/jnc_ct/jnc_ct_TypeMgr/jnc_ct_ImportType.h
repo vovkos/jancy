@@ -13,7 +13,6 @@
 
 #include "jnc_ct_Type.h"
 #include "jnc_ct_Namespace.h"
-#include "jnc_ct_Decl.h"
 
 namespace jnc {
 namespace ct {
@@ -85,6 +84,18 @@ protected:
 
 //..............................................................................
 
+struct NamedImportAnchor {
+	Namespace* m_namespace;
+	size_t m_linkId;
+
+	NamedImportAnchor() {
+		m_namespace = NULL;
+		m_linkId = 0;
+	}
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 class NamedImportType:
 	public ImportType,
 	public ModuleItemPos {
@@ -92,12 +103,18 @@ class NamedImportType:
 	friend class Parser;
 
 protected:
+	NamedImportAnchor* m_anchor;
 	QualifiedName m_name;
-	QualifiedName m_baseName;
 
 public:
 	NamedImportType() {
 		m_typeKind = TypeKind_NamedImport;
+		m_anchor = NULL;
+	}
+
+	const NamedImportAnchor*
+	getAnchor() {
+		return m_anchor;
 	}
 
 	const QualifiedName&
@@ -105,17 +122,12 @@ public:
 		return m_name;
 	}
 
-	const QualifiedName&
-	getBaseName() {
-		return m_baseName;
-	}
-
 	static
 	sl::String
 	createSignature(
 		Namespace* parentNamespace,
 		const QualifiedName& name,
-		const QualifiedName* baseName = NULL
+		const NamedImportAnchor* anchor = NULL
 	);
 
 protected:
