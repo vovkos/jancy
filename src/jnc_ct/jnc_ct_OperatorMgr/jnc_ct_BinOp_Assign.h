@@ -23,7 +23,7 @@ public:
 	BinOp_Assign() {
 		m_opKind = BinOpKind_Assign;
 		m_opFlags1 = OpFlag_KeepRef;
-		m_opFlags2 = OpFlag_KeepEnum | OpFlag_KeepBool | OpFlag_KeepStringRef;
+		m_opFlags2 = OpFlag_KeepEnum | OpFlag_KeepBool | OpFlag_KeepStringRef | OpFlag_KeepDerivableRef;
 	}
 
 	virtual
