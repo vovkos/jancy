@@ -281,28 +281,16 @@ NamespaceMgr::cloneOrphan(const Orphan* srcOrphan) {
 	orphan->m_module = m_module;
 	orphan->m_orphanKind = srcOrphan->m_orphanKind;
 	orphan->m_functionKind = srcOrphan->m_functionKind;
-	orphan->m_functionType = srcOrphan->m_functionType;
-
-	switch (orphan->m_functionKind) {
-	case FunctionKind_Normal:
-		orphan->m_name = srcOrphan->m_name;
-		break;
-
-	case FunctionKind_UnaryOperator:
-		orphan->m_unOpKind = srcOrphan->m_unOpKind;
-		break;
-
-	case FunctionKind_BinaryOperator:
-		orphan->m_binOpKind = orphan->m_binOpKind;
-		break;
-
-	case FunctionKind_CastOperator:
-		orphan->m_castOpType = orphan->m_castOpType;
-		break;
-	}
-
+	orphan->m_functionKindSpecific = srcOrphan->m_functionKindSpecific;
+	orphan->m_name = srcOrphan->m_name;
+	orphan->m_type = srcOrphan->m_type;
+	orphan->m_thisArgTypeFlags = srcOrphan->m_thisArgTypeFlags;
 	orphan->m_declaratorName.copy(srcOrphan->m_declaratorName, srcOrphan->m_declaratorNamePos);
 	orphan->m_declaratorNamePos = &orphan->m_declaratorName.getFirstAtom();
+	orphan->m_templateArgArray = srcOrphan->m_templateArgArray;
+	orphan->copyDecl(srcOrphan);
+	orphan->copyBody(srcOrphan);
+
 	m_orphanList.insertTail(orphan);
 	return orphan;
 }

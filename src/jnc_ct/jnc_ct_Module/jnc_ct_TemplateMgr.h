@@ -133,16 +133,8 @@ Template::copyDecl(
 	ModuleItemBodyDecl* srcDecl
 ) {
 	ASSERT(srcDecl->hasBody());
-
 	dstDecl->copyDecl(srcDecl);
-
-	if (!srcDecl->getBody().isEmpty())
-		dstDecl->setBody(srcDecl->getPragmaConfig(), srcDecl->getBodyPos(), srcDecl->getBody());
-	else {
-		sl::List<Token> tokenList;
-		cloneTokenList(&tokenList, srcDecl->getBodyTokenList());
-		dstDecl->setBody(srcDecl->getPragmaConfig(), &tokenList);
-	}
+	dstDecl->copyBody(srcDecl);
 }
 
 //..............................................................................

@@ -22,19 +22,17 @@ namespace ct {
 // shared between Function, FunctionOverload and Orphan
 
 class FunctionName {
-	friend class Parser;
-
 protected:
 	FunctionKind m_functionKind;
+	uint_t m_thisArgTypeFlags;
 
 	union {
+		void* m_functionKindSpecific;
 		UnOpKind m_unOpKind;
 		BinOpKind m_binOpKind;
 		Type* m_castOpType;
 		Function* m_asyncLauncher;
 	};
-
-	uint_t m_thisArgTypeFlags;
 
 public:
 	FunctionName();
@@ -79,7 +77,7 @@ public:
 inline
 FunctionName::FunctionName() {
 	m_functionKind = FunctionKind_Undefined;
-	m_castOpType = NULL;
+	m_functionKindSpecific = NULL;
 	m_thisArgTypeFlags = 0;
 }
 

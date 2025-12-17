@@ -180,7 +180,7 @@ public:
 	findAttribute(const sl::StringRef& name) const;
 
 	void
-	copyDecl(ModuleItemDecl* src) {
+	copyDecl(const ModuleItemDecl* src) {
 		copyDecl(src, src->m_attributeBlock);
 	}
 
@@ -314,6 +314,9 @@ public:
 		sl::List<Token>* tokenList
 	);
 
+	bool
+	copyBody(const ModuleItemBodyDecl* srcDecl);
+
 protected:
 	bool
 	canSetBody();
@@ -349,6 +352,18 @@ ModuleItemBodyDecl::setBody(
 	m_pragmaConfig = pragmaConfig;
 	m_bodyPos = tokenList->getHead()->m_pos;
 	sl::takeOver(&m_bodyTokenList, tokenList);
+	return true;
+}
+
+inline
+bool
+ModuleItemBodyDecl::copyBody(const ModuleItemBodyDecl* srcDecl) {
+	if (!srcDecl->getBody().isEmpty())
+		return setBody(srcDecl->getPragmaConfig(), srcDecl->getBodyPos(), srcDecl->getBody());
+
+	sl::List<Token> tokenList;
+	cloneTokenList(&tokenList, srcDecl->getBodyTokenList());
+	setBody(srcDecl->getPragmaConfig(), &tokenList);
 	return true;
 }
 
