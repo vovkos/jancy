@@ -1330,9 +1330,9 @@ Parser::declareFunction(
 			return false;
 		}
 
-		if (!m_storageKind) {
+		if (!m_storageKind)
 			function->m_storageKind = StorageKind_Static;
-		} else if (m_storageKind != StorageKind_Static) {
+		else if (m_storageKind != StorageKind_Static) {
 			err::setFormatStringError("invalid storage specifier '%s' for a global function", getStorageKindString(m_storageKind));
 			return false;
 		}

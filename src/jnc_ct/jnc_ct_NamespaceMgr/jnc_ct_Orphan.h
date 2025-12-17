@@ -134,10 +134,8 @@ inline
 Orphan::Orphan() {
 	m_itemKind = ModuleItemKind_Orphan;
 	m_orphanKind = OrphanKind_Undefined;
-	m_functionKind = FunctionKind_Normal;
 	m_namedImportAnchor = NULL;
-	m_functionType = NULL;
-	m_templateDeclType = NULL;
+	m_type = NULL;
 }
 
 //..............................................................................

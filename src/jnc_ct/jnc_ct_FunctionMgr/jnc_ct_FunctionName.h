@@ -76,7 +76,7 @@ public:
 
 inline
 FunctionName::FunctionName() {
-	m_functionKind = FunctionKind_Undefined;
+	m_functionKind = FunctionKind_Normal;
 	m_functionKindSpecific = NULL;
 	m_thisArgTypeFlags = 0;
 }
