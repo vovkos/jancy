@@ -63,33 +63,6 @@ FunctionType::getThisTargetType() const {
 	}
 }
 
-FunctionPtrType*
-FunctionType::getFunctionPtrType(
-	TypeKind typeKind,
-	FunctionPtrTypeKind ptrTypeKind,
-	uint_t flags
-) {
-	return m_module->m_typeMgr.getFunctionPtrType(this, typeKind, ptrTypeKind, flags);
-}
-
-ClassType*
-FunctionType::getMulticastType() {
-	return m_module->m_typeMgr.getMulticastType(this);
-}
-
-FunctionType*
-FunctionType::getMemberMethodType(
-	DerivableType* parentType,
-	uint_t thisArgTypeFlags
-) {
-	return m_module->m_typeMgr.getMemberMethodType(parentType, this, thisArgTypeFlags);
-}
-
-FunctionType*
-FunctionType::getStdObjectMemberMethodType() {
-	return m_module->m_typeMgr.getStdObjectMemberMethodType(this);
-}
-
 void
 FunctionType::appendFlagSignature(
 	sl::String* string,

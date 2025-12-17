@@ -232,36 +232,6 @@ Type::getErrorCodeValue() {
 	return errorCodeValue;
 }
 
-ArrayType*
-Type::getArrayType(size_t elementCount) {
-	return m_module->m_typeMgr.getArrayType(this, elementCount);
-}
-
-DataPtrType*
-Type::getDataPtrType(
-	uint_t bitOffset,
-	uint_t bitCount,
-	TypeKind typeKind,
-	DataPtrTypeKind ptrTypeKind,
-	uint_t flags
-) {
-	return m_module->m_typeMgr.getDataPtrType(this, bitOffset, bitCount, typeKind, ptrTypeKind, flags);
-}
-
-DataPtrType*
-Type::getDataPtrType(
-	TypeKind typeKind,
-	DataPtrTypeKind ptrTypeKind,
-	uint_t flags
-) {
-	return m_module->m_typeMgr.getDataPtrType(this, typeKind, ptrTypeKind, flags);
-}
-
-FunctionArg*
-Type::getSimpleFunctionArg(uint_t ptrTypeFlags) {
-	return m_module->m_typeMgr.getSimpleFunctionArg(this, ptrTypeFlags);
-}
-
 bool
 Type::prepareImports() {
 	ASSERT(!(m_flags & (TypeFlag_LayoutReady | TypeFlag_NoImports)));

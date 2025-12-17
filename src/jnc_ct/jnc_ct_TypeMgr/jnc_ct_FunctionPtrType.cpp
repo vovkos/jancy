@@ -34,11 +34,6 @@ getFunctionPtrTypeKindString(FunctionPtrTypeKind ptrTypeKind) {
 
 //..............................................................................
 
-ClassType*
-FunctionPtrType::getMulticastType() {
-	return m_module->m_typeMgr.getMulticastType(this);
-}
-
 sl::String
 FunctionPtrType::createSignature(
 	FunctionType* functionType,

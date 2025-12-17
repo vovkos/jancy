@@ -417,6 +417,14 @@ DerivableType::DerivableType():
 	m_operatorCdeclVararg = NULL;
 }
 
+inline
+size_t
+DerivableType::findBaseTypeOffset(Type* type) {
+	jnc::ct::BaseTypeCoord coord;
+	bool result = findBaseTypeTraverse(type, &coord);
+	return result ? coord.m_offset : -1;
+}
+
 //..............................................................................
 
 } // namespace ct

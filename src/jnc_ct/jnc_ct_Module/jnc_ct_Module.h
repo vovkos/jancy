@@ -502,6 +502,40 @@ MemberBlock::createDefaultMethod() {
 //..............................................................................
 
 inline
+ArrayType*
+Type::getArrayType(size_t elementCount) {
+	return m_module->m_typeMgr.getArrayType(this, elementCount);
+}
+
+inline
+DataPtrType*
+Type::getDataPtrType(
+	uint_t bitOffset,
+	uint_t bitCount,
+	TypeKind typeKind,
+	DataPtrTypeKind ptrTypeKind,
+	uint_t flags
+) {
+	return m_module->m_typeMgr.getDataPtrType(this, bitOffset, bitCount, typeKind, ptrTypeKind, flags);
+}
+
+inline
+DataPtrType*
+Type::getDataPtrType(
+	TypeKind typeKind,
+	DataPtrTypeKind ptrTypeKind,
+	uint_t flags
+) {
+	return m_module->m_typeMgr.getDataPtrType(this, typeKind, ptrTypeKind, flags);
+}
+
+inline
+FunctionArg*
+Type::getSimpleFunctionArg(uint_t ptrTypeFlags) {
+	return m_module->m_typeMgr.getSimpleFunctionArg(this, ptrTypeFlags);
+}
+
+inline
 void
 Type::prepareSimpleTypeVariable(StdType stdType) {
 	ASSERT(!m_typeVariable);
@@ -510,6 +544,112 @@ Type::prepareSimpleTypeVariable(StdType stdType) {
 		"jnc.g_type_" + getSignature(),
 		this
 	);
+}
+
+//..............................................................................
+
+inline
+FunctionPtrType*
+FunctionType::getFunctionPtrType(
+	TypeKind typeKind,
+	FunctionPtrTypeKind ptrTypeKind,
+	uint_t flags
+) {
+	return m_module->m_typeMgr.getFunctionPtrType(this, typeKind, ptrTypeKind, flags);
+}
+
+inline
+ClassType*
+FunctionType::getMulticastType() {
+	return m_module->m_typeMgr.getMulticastType(this);
+}
+
+inline
+FunctionType*
+FunctionType::getMemberMethodType(
+	DerivableType* parentType,
+	uint_t thisArgTypeFlags
+) {
+	return m_module->m_typeMgr.getMemberMethodType(parentType, this, thisArgTypeFlags);
+}
+
+inline
+FunctionType*
+FunctionType::getStdObjectMemberMethodType() {
+	return m_module->m_typeMgr.getStdObjectMemberMethodType(this);
+}
+
+//..............................................................................
+
+inline
+ClassType*
+FunctionPtrType::getMulticastType() {
+	return m_module->m_typeMgr.getMulticastType(this);
+}
+
+//..............................................................................
+
+inline
+PropertyPtrType*
+PropertyType::getPropertyPtrType(
+	TypeKind typeKind,
+	PropertyPtrTypeKind ptrTypeKind,
+	uint_t flags
+) {
+	return m_module->m_typeMgr.getPropertyPtrType(this, typeKind, ptrTypeKind, flags);
+}
+
+inline
+PropertyType*
+PropertyType::getMemberPropertyType(ClassType* classType) {
+	return m_module->m_typeMgr.getMemberPropertyType(classType, this);
+}
+
+inline
+PropertyType*
+PropertyType::getStdObjectMemberPropertyType() {
+	return m_module->m_typeMgr.getStdObjectMemberPropertyType(this);
+}
+
+inline
+PropertyType*
+PropertyType::getShortType() {
+	return m_module->m_typeMgr.getShortPropertyType(this);
+}
+
+inline
+StructType*
+PropertyType::getVtableStructType() {
+	return m_module->m_typeMgr.getPropertyVtableStructType(this);
+}
+
+//..............................................................................
+
+inline
+FunctionType*
+DerivableType::getMemberMethodType(
+	FunctionType* shortType,
+	uint_t thisArgTypeFlags
+) {
+	return m_module->m_typeMgr.getMemberMethodType(this, shortType, thisArgTypeFlags);
+}
+
+inline
+PropertyType*
+DerivableType::getMemberPropertyType(PropertyType* shortType) {
+	return m_module->m_typeMgr.getMemberPropertyType(this, shortType);
+}
+
+//..............................................................................
+
+inline
+ClassPtrType*
+ClassType::getClassPtrType(
+	TypeKind typeKind,
+	ClassPtrTypeKind ptrTypeKind,
+	uint_t flags
+) {
+	return m_module->m_typeMgr.getClassPtrType(this, typeKind, ptrTypeKind, flags);
 }
 
 //..............................................................................

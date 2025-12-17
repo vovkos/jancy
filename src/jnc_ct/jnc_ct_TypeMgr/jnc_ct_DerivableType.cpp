@@ -20,19 +20,6 @@ namespace ct {
 
 //..............................................................................
 
-FunctionType*
-DerivableType::getMemberMethodType(
-	FunctionType* shortType,
-	uint_t thisArgTypeFlags
-) {
-	return m_module->m_typeMgr.getMemberMethodType(this, shortType, thisArgTypeFlags);
-}
-
-PropertyType*
-DerivableType::getMemberPropertyType(PropertyType* shortType) {
-	return m_module->m_typeMgr.getMemberPropertyType(this, shortType);
-}
-
 FindModuleItemResult
 DerivableType::findItemInExtensionNamespaces(const sl::StringRef& name) {
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
@@ -144,13 +131,6 @@ DerivableType::addBaseType(Type* type) {
 	m_baseTypeList.insertTail(slot);
 	m_baseTypeArray.append(slot);
 	return slot;
-}
-
-size_t
-DerivableType::findBaseTypeOffset(Type* type) {
-	jnc::ct::BaseTypeCoord coord;
-	bool result = findBaseTypeTraverse(type, &coord);
-	return result ? coord.m_offset : -1;
 }
 
 bool

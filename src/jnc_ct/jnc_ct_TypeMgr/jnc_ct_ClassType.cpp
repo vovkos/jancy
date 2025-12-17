@@ -20,15 +20,6 @@ namespace ct {
 
 //..............................................................................
 
-ClassPtrType*
-ClassType::getClassPtrType(
-	TypeKind typeKind,
-	ClassPtrTypeKind ptrTypeKind,
-	uint_t flags
-) {
-	return m_module->m_typeMgr.getClassPtrType(this, typeKind, ptrTypeKind, flags);
-}
-
 StructType*
 ClassType::getVtableStructType() {
 	if (m_vtableStructType)

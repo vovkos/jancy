@@ -19,35 +19,6 @@ namespace ct {
 
 //..............................................................................
 
-PropertyPtrType*
-PropertyType::getPropertyPtrType(
-	TypeKind typeKind,
-	PropertyPtrTypeKind ptrTypeKind,
-	uint_t flags
-) {
-	return m_module->m_typeMgr.getPropertyPtrType(this, typeKind, ptrTypeKind, flags);
-}
-
-PropertyType*
-PropertyType::getMemberPropertyType(ClassType* classType) {
-	return m_module->m_typeMgr.getMemberPropertyType(classType, this);
-}
-
-PropertyType*
-PropertyType::getStdObjectMemberPropertyType() {
-	return m_module->m_typeMgr.getStdObjectMemberPropertyType(this);
-}
-
-PropertyType*
-PropertyType::getShortType() {
-	return m_module->m_typeMgr.getShortPropertyType(this);
-}
-
-StructType*
-PropertyType::getVtableStructType() {
-	return m_module->m_typeMgr.getPropertyVtableStructType(this);
-}
-
 uint_t
 PropertyType::createSignature(
 	sl::String* string,
