@@ -11,6 +11,7 @@
 
 #include "pch.h"
 #include "jnc_ct_QualifiedName.h"
+#include "jnc_ct_TemplateType.h"
 
 namespace jnc {
 namespace ct {
@@ -39,8 +40,26 @@ QualifiedNameAtom::getString() const {
 	case QualifiedNameAtomKind_Name:
 		return m_name;
 
-	case QualifiedNameAtomKind_Template: {
-		sl::String argString = Token::getText(m_templateTokenList);
+	case QualifiedNameAtomKind_TemplateDeclSuffix: {
+		size_t count = m_templateDeclArgArray.getCount();
+		ASSERT(count);
+		sl::String string;
+		string.reserve(m_name.getLength() + count * 3);
+		string.forceCopy(m_name);
+		string += '<';
+		string += m_templateDeclArgArray[0]->getName();
+
+		for (size_t i = 1; i < count; i++) {
+			string += ", ";
+			string += m_templateDeclArgArray[0]->getName();
+		}
+
+		string += '>';
+		return string;
+		}
+
+	case QualifiedNameAtomKind_TemplateInstantiateOperator: {
+		sl::String argString = Token::getText(m_templateInstTokenList);
 		sl::String string;
 		string.reserve(m_name.getLength() + argString.getLength() + 2);
 		string.forceCopy(m_name);
@@ -69,14 +88,19 @@ QualifiedNameAtom::copy(const QualifiedNameAtom& atom) {
 		m_name = atom.m_name;
 		break;
 
-	case QualifiedNameAtomKind_Template: {
+	case QualifiedNameAtomKind_TemplateDeclSuffix:
 		m_name = atom.m_name;
-		m_templateTokenList.clear();
+		m_templateDeclArgArray = atom.m_templateDeclArgArray;
+		break;
+
+	case QualifiedNameAtomKind_TemplateInstantiateOperator: {
+		m_name = atom.m_name;
+		m_templateInstTokenList.clear();
 
 		axl::mem::Pool<Token>* tokenPool = axl::mem::getCurrentThreadPool<Token>();
-		sl::ConstIterator<Token> it = atom.m_templateTokenList.getHead();
+		sl::ConstIterator<Token> it = atom.m_templateInstTokenList.getHead();
 		for (; it; it++)
-			m_templateTokenList.insertTail(tokenPool->get(**it));
+			m_templateInstTokenList.insertTail(tokenPool->get(**it));
 
 		break;
 		}

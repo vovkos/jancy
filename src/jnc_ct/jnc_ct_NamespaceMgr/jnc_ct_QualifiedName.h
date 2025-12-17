@@ -18,6 +18,7 @@ namespace ct {
 
 class Unit;
 class QualifiedName;
+class TemplateArgType;
 
 //..............................................................................
 
@@ -25,7 +26,9 @@ enum QualifiedNameAtomKind {
 	QualifiedNameAtomKind_Empty = 0,
 	QualifiedNameAtomKind_BaseType,
 	QualifiedNameAtomKind_Name,
-	QualifiedNameAtomKind_Template,
+	QualifiedNameAtomKind_FirstTemplate,
+	QualifiedNameAtomKind_TemplateDeclSuffix = QualifiedNameAtomKind_FirstTemplate,
+	QualifiedNameAtomKind_TemplateInstantiateOperator,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -34,7 +37,8 @@ struct QualifiedNameAtom {
 	QualifiedNameAtomKind m_atomKind;
 	size_t m_baseTypeIdx; // QualifiedNameAtomKind_BaseType
 	sl::StringRef m_name; // QualifiedNameAtomKind_Name
-	sl::List<Token> m_templateTokenList; // QualifiedNameAtomKind_Template
+	sl::Array<TemplateArgType*> m_templateDeclArgArray; // QualifiedNameAtomKind_TemplateDeclSuffix
+	sl::List<Token> m_templateInstTokenList; // QualifiedNameAtomKind_TemplateInstantiateOperator
 
 	QualifiedNameAtom() {
 		m_atomKind = QualifiedNameAtomKind_Empty;
@@ -125,7 +129,7 @@ public:
 
 	bool
 	isSimple() const {
-		return m_atomList.isEmpty() && m_firstAtom.m_atomKind != QualifiedNameAtomKind_Template;
+		return m_atomList.isEmpty() && m_firstAtom.m_atomKind < QualifiedNameAtomKind_FirstTemplate;
 	}
 
 	const QualifiedNameAtom&
@@ -153,13 +157,13 @@ public:
 	appendFullName(sl::String* string) const;
 
 	sl::List<Token>*
-	getTemplateTokenList() {
+	getTemplateInstTokenList() {
 		ASSERT(getLastAtom()->m_atomKind == QualifiedNameAtomKind_Name);
-		return &getLastAtom()->m_templateTokenList;
+		return &getLastAtom()->m_templateInstTokenList;
 	}
 
 	void
-	finalizeTemplateTokenList();
+	finalizeTemplateInstTokenList();
 
 	void
 	clear() {
@@ -222,18 +226,18 @@ QualifiedName::getFullName() const {
 
 inline
 void
-QualifiedName::finalizeTemplateTokenList() {
+QualifiedName::finalizeTemplateInstTokenList() {
 	QualifiedNameAtom* atom = getLastAtom();
 
 	ASSERT(
 		atom->m_atomKind == QualifiedNameAtomKind_Name &&
-		atom->m_templateTokenList.getHead()->m_tokenKind == '<' &&
-		atom->m_templateTokenList.getTail()->m_tokenKind == '>'
+		atom->m_templateInstTokenList.getHead()->m_tokenKind == '<' &&
+		atom->m_templateInstTokenList.getTail()->m_tokenKind == '>'
 	);
 
-	atom->m_atomKind = QualifiedNameAtomKind_Template;
-	atom->m_templateTokenList.eraseHead();
-	atom->m_templateTokenList.eraseTail();
+	atom->m_atomKind = QualifiedNameAtomKind_TemplateInstantiateOperator;
+	atom->m_templateInstTokenList.eraseHead();
+	atom->m_templateInstTokenList.eraseTail();
 }
 
 inline
