@@ -13,6 +13,7 @@
 #include "jnc_rtl_ClassType.h"
 #include "jnc_rt_Runtime.h"
 #include "jnc_ct_FunctionOverload.h"
+#include "jnc_ct_Module.h"
 #include "jnc_Construct.h"
 #include "jnc_CallSite.h"
 

@@ -18,6 +18,7 @@
 #	include "jnc_ct_FunctionType.h"
 #	include "jnc_ct_FunctionTypeOverload.h"
 #	include "jnc_ct_FunctionPtrType.h"
+#	include "jnc_ct_Module.h"
 #endif
 
 //..............................................................................

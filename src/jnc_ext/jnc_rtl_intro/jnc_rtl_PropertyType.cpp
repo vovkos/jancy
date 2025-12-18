@@ -11,6 +11,7 @@
 
 #include "pch.h"
 #include "jnc_rtl_PropertyType.h"
+#include "jnc_ct_Module.h"
 #include "jnc_Construct.h"
 
 namespace jnc {

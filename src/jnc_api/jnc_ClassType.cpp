@@ -19,6 +19,7 @@
 #	include "jnc_ct_ClassPtrType.h"
 #	include "jnc_ct_MulticastClassType.h"
 #	include "jnc_ct_McSnapshotClassType.h"
+#	include "jnc_ct_Module.h"
 #endif
 
 //..............................................................................
