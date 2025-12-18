@@ -18,24 +18,21 @@ if [[ $TARGET_CPU != "x86" ]]; then
 	sudo apt-get install -y libpcap-dev
 	sudo apt-get install -y libudev-dev
 	sudo apt-get install -y libusb-1.0
-	sudo apt-get install -y ${LLVM_VERSION}-dev
 	sudo apt-get install -y libz-dev
+	sudo apt-get install -y ${LLVM_VERSION}-dev
 else
 	sudo dpkg --add-architecture i386
 	sudo apt-get -qq update
 
 	sudo apt-get remove -y python3
-
-	echo installing...
-
+	sudo apt-get install -y python3:i386
 	sudo apt-get install -y liblua5.2-dev:i386
 	sudo apt-get install -y libpcap-dev:i386
 	sudo apt-get install -y libudev-dev:i386
 	sudo apt-get install -y libusb-1.0:i386
-	sudo apt-get install -y python3:i386
-	sudo apt-get install -y ${LLVM_VERSION}-dev:i386
-	sudo apt-get install -y zlib1g-dev:i386
 	sudo apt-get install -y libssl-dev:i386
+	sudo apt-get install -y zlib1g-dev:i386
+	sudo apt-get install -y ${LLVM_VERSION}-dev:i386
 
 	# install g++-multilib -- in the end, after i386 packages!
 
