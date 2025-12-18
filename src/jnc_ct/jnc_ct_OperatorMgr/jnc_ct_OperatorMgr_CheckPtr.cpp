@@ -67,7 +67,8 @@ OperatorMgr::checkDataPtrRange(const Value& value) {
 
 	if (m_module->m_operatorMgr.isUnsafeRgn() ||
 		(type->getFlags() & PtrTypeFlag_Safe) ||
-		ptrTypeKind == DataPtrTypeKind_Thin)
+		ptrTypeKind == DataPtrTypeKind_Thin
+	)
 		return true;
 
 	size_t targetSize = type->getTargetType()->getSize();

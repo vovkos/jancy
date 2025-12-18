@@ -666,6 +666,12 @@ Cast_DataPtr_Normal2Thin::llvmCast(
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr);
 	ASSERT(type->getTypeKind() == TypeKind_DataPtr);
 
+	if (type->getFlags() & PtrTypeFlag_Safe) {
+		bool result = m_module->m_operatorMgr.checkDataPtrRange(opValue);
+		if (!result)
+			return false;
+	}
+
 	Value ptrValue;
 	m_module->m_llvmIrBuilder.createExtractValue(opValue, 0, NULL, &ptrValue);
 	return getOffsetUnsafePtrValue(ptrValue, (DataPtrType*)opValue.getType(), (DataPtrType*)type, false, resultValue);
@@ -681,6 +687,12 @@ Cast_DataPtr_Lean2Thin::llvmCast(
 ) {
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr);
 	ASSERT(type->getTypeKind() == TypeKind_DataPtr);
+
+	if (type->getFlags() & PtrTypeFlag_Safe) {
+		bool result = m_module->m_operatorMgr.checkDataPtrRange(opValue);
+		if (!result)
+			return false;
+	}
 
 	return getOffsetUnsafePtrValue(opValue, (DataPtrType*)opValue.getType(), (DataPtrType*)type, false, resultValue);
 }
@@ -702,6 +714,24 @@ Cast_DataPtr_Thin2Thin::constCast(
 
 	*(char**)dst = *(char**)opValue.getConstData() + offset;
 	return true;
+}
+
+bool
+Cast_DataPtr_Thin2Thin::llvmCast(
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
+) {
+	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr);
+	ASSERT(type->getTypeKind() == TypeKind_DataPtr);
+
+	if (type->getFlags() & PtrTypeFlag_Safe)
+		if (!(opValue.getType()->getFlags() & PtrTypeFlag_Safe)) {
+			err::setFormatStringError("cannot validate '%s'", opValue.getType()->getTypeString().sz());
+			return false;
+		}
+
+	return getOffsetUnsafePtrValue(opValue, (DataPtrType*)opValue.getType(), (DataPtrType*)type, false, resultValue);
 }
 
 //..............................................................................
