@@ -1729,7 +1729,7 @@ Parser::declareData(
 
 	if (isAutoSizeArrayType(type)) {
 		if (initializer->isEmpty()) {
-			err::setFormatStringError("auto-size array '%s' should have initializer", type->getTypeString().sz());
+			err::setFormatStringError("auto-size array '%s' must be initialized", type->getTypeString().sz());
 			return false;
 		}
 
@@ -1743,6 +1743,13 @@ Parser::declareData(
 			if (!result)
 				return false;
 		}
+	} else if (
+		(type->getTypeKindFlags() & TypeKindFlag_Ptr) &&
+		(type->getFlags() & PtrTypeFlag_Safe) &&
+		initializer->isEmpty()
+	) {
+		err::setFormatStringError("safe pointer '%s' must be initialized", type->getTypeString().sz());
+		return false;
 	}
 
 	bool isDisposable = false;
