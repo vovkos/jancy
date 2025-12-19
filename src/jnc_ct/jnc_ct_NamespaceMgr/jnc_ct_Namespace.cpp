@@ -537,6 +537,7 @@ Namespace::finalizeFindTemplate(
 	case QualifiedNameAtomKind_TemplateInstantiateOperator: {
 		ModuleItem* item = templ->instantiate(context, atom.m_templateInstTokenList);
 		findResult = item ? FindModuleItemResult(item) : g_errorFindModuleItemResult;
+		break;
 		}
 
 	default:
