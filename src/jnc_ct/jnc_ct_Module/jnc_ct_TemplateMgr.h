@@ -55,17 +55,17 @@ public:
 	Template();
 
 	TypeKind
-	getDerivableTypeKind() {
+	getDerivableTypeKind() const {
 		return m_derivableTypeKind;
 	}
 
 	TemplateDeclType*
-	getDeclType() {
+	getDeclType() const {
 		return m_declType;
 	}
 
 	const sl::Array<TemplateArgType*>&
-	getArgArray() {
+	getArgArray() const {
 		return m_argArray;
 	}
 
@@ -86,7 +86,7 @@ public:
 		sl::Array<Type*>* templateArgArray,
 		const sl::ConstBoxList<Value>& argTypeList,
 		const sl::ConstBoxList<Value>& argValueList
-	);
+	) const;
 
 protected:
 	virtual
@@ -94,15 +94,18 @@ protected:
 	createItemString(size_t index);
 
 	Namespace*
-	openTemplateSuffix(const sl::ArrayRef<Type*>& argArray);
+	openTemplateInstNamespace(
+		const sl::ArrayRef<Type*>& argArray,
+		DerivableType* instanceType = NULL
+	) const;
 
 	void
-	copyDecl(ModuleItemDecl* itemDecl) {
+	copyDecl(ModuleItemDecl* itemDecl) const {
 		itemDecl->copyDecl(this);
 	}
 
 	void
-	copyDecl(ModuleItemBodyDecl* itemDecl) {
+	copyDecl(ModuleItemBodyDecl* itemDecl) const {
 		copyDecl(itemDecl, this);
 	}
 
@@ -110,7 +113,7 @@ protected:
 	void
 	copyDecl(
 		ModuleItemBodyDecl* dstDecl,
-		ModuleItemBodyDecl* srcDecl
+		const ModuleItemBodyDecl* srcDecl
 	);
 
 	ModuleItem*
@@ -130,7 +133,7 @@ inline
 void
 Template::copyDecl(
 	ModuleItemBodyDecl* dstDecl,
-	ModuleItemBodyDecl* srcDecl
+	const ModuleItemBodyDecl* srcDecl
 ) {
 	ASSERT(srcDecl->hasBody());
 	dstDecl->copyDecl(srcDecl);

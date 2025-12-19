@@ -83,7 +83,7 @@ Template::instantiate(const sl::ArrayRef<Type*>& argArray0) {
 	argArray.setCountZeroConstruct(argCount);
 	memcpy(argArray.p(), argArray0, actualArgCount * sizeof(Type*));
 
-	openTemplateSuffix(argArray);
+	openTemplateInstNamespace(argArray);
 
 	sl::Array<Type*>::Rwi rwi = argArray.rwi();
 	for (size_t i = 0; i < argCount; i++) {
@@ -97,20 +97,20 @@ Template::instantiate(const sl::ArrayRef<Type*>& argArray0) {
 				m_argArray[i]->getName().sz(),
 				getItemName().sz()
 			);
-			m_module->m_namespaceMgr.closeTemplateSuffix();
+			m_module->m_namespaceMgr.closeTemplateInstNamespace();
 			return NULL;
 		}
 
 		Type* type = defaultType->instantiate(argArray);
 		if (!type) {
-			m_module->m_namespaceMgr.closeTemplateSuffix();
+			m_module->m_namespaceMgr.closeTemplateInstNamespace();
 			return NULL;
 		}
 
 		rwi[i] = type;
 	}
 
-	m_module->m_namespaceMgr.closeTemplateSuffix();
+	m_module->m_namespaceMgr.closeTemplateInstNamespace();
 	return instantiateImpl(argArray);
 }
 
@@ -131,9 +131,9 @@ Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
 	ModuleItem* item;
 
 	if (m_declType) {
-		openTemplateSuffix(argArray);
+		openTemplateInstNamespace(argArray);
 		Type* type = m_declType->instantiate(argArray);
-		m_module->m_namespaceMgr.closeTemplateSuffix();
+		m_module->m_namespaceMgr.closeTemplateInstNamespace();
 		if (!type)
 			return NULL;
 
@@ -219,12 +219,12 @@ Template::deduceArgs(
 	sl::Array<Type*>* templateArgArray,
 	const sl::ConstBoxList<Value>& argTypeList,
 	const sl::ConstBoxList<Value>& argValueList
-) {
+) const {
 	Type* deductionType = m_declType->getDeductionType();
 	if (!deductionType) {
-		openTemplateSuffix(*(sl::Array<Type*>*)&m_argArray);
+		openTemplateInstNamespace(*(sl::Array<Type*>*)&m_argArray);
 		deductionType = m_declType->createDeductionType();
-		m_module->m_namespaceMgr.closeTemplateSuffix();
+		m_module->m_namespaceMgr.closeTemplateInstNamespace();
 		if (!deductionType)
 			return false;
 	}

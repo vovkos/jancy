@@ -75,7 +75,7 @@ enum jnc_ModuleItemKind {
 	jnc_ModuleItemKind_LazyImport,
 	jnc_ModuleItemKind_DynamicSection,
 	jnc_ModuleItemKind_Template,
-	jnc_ModuleItemKind_TemplateSuffix,
+	jnc_ModuleItemKind_TemplateNamespace,
 	jnc_ModuleItemKind__Count,
 };
 
@@ -375,30 +375,30 @@ namespace jnc {
 typedef jnc_ModuleItemKind ModuleItemKind;
 
 const ModuleItemKind
-	ModuleItemKind_Undefined        = jnc_ModuleItemKind_Undefined,
-	ModuleItemKind_Namespace        = jnc_ModuleItemKind_Namespace,
-	ModuleItemKind_Attribute        = jnc_ModuleItemKind_Attribute,
-	ModuleItemKind_AttributeBlock   = jnc_ModuleItemKind_AttributeBlock,
-	ModuleItemKind_Scope            = jnc_ModuleItemKind_Scope,
-	ModuleItemKind_Type             = jnc_ModuleItemKind_Type,
-	ModuleItemKind_Typedef          = jnc_ModuleItemKind_Typedef,
-	ModuleItemKind_Alias            = jnc_ModuleItemKind_Alias,
-	ModuleItemKind_Const            = jnc_ModuleItemKind_Const,
-	ModuleItemKind_Variable         = jnc_ModuleItemKind_Variable,
-	ModuleItemKind_Function         = jnc_ModuleItemKind_Function,
-	ModuleItemKind_FunctionArg      = jnc_ModuleItemKind_FunctionArg,
-	ModuleItemKind_FunctionOverload = jnc_ModuleItemKind_FunctionOverload,
-	ModuleItemKind_Property         = jnc_ModuleItemKind_Property,
-	ModuleItemKind_PropertyTemplate = jnc_ModuleItemKind_PropertyTemplate,
-	ModuleItemKind_EnumConst        = jnc_ModuleItemKind_EnumConst,
-	ModuleItemKind_Field            = jnc_ModuleItemKind_Field,
-	ModuleItemKind_BaseTypeSlot     = jnc_ModuleItemKind_BaseTypeSlot,
-	ModuleItemKind_Orphan           = jnc_ModuleItemKind_Orphan,
-	ModuleItemKind_LazyImport       = jnc_ModuleItemKind_LazyImport,
-	ModuleItemKind_DynamicSection   = jnc_ModuleItemKind_DynamicSection,
-	ModuleItemKind_Template         = jnc_ModuleItemKind_Template,
-	ModuleItemKind_TemplateSuffix   = jnc_ModuleItemKind_TemplateSuffix,
-	ModuleItemKind__Count           = jnc_ModuleItemKind__Count;
+	ModuleItemKind_Undefined         = jnc_ModuleItemKind_Undefined,
+	ModuleItemKind_Namespace         = jnc_ModuleItemKind_Namespace,
+	ModuleItemKind_Attribute         = jnc_ModuleItemKind_Attribute,
+	ModuleItemKind_AttributeBlock    = jnc_ModuleItemKind_AttributeBlock,
+	ModuleItemKind_Scope             = jnc_ModuleItemKind_Scope,
+	ModuleItemKind_Type              = jnc_ModuleItemKind_Type,
+	ModuleItemKind_Typedef           = jnc_ModuleItemKind_Typedef,
+	ModuleItemKind_Alias             = jnc_ModuleItemKind_Alias,
+	ModuleItemKind_Const             = jnc_ModuleItemKind_Const,
+	ModuleItemKind_Variable          = jnc_ModuleItemKind_Variable,
+	ModuleItemKind_Function          = jnc_ModuleItemKind_Function,
+	ModuleItemKind_FunctionArg       = jnc_ModuleItemKind_FunctionArg,
+	ModuleItemKind_FunctionOverload  = jnc_ModuleItemKind_FunctionOverload,
+	ModuleItemKind_Property          = jnc_ModuleItemKind_Property,
+	ModuleItemKind_PropertyTemplate  = jnc_ModuleItemKind_PropertyTemplate,
+	ModuleItemKind_EnumConst         = jnc_ModuleItemKind_EnumConst,
+	ModuleItemKind_Field             = jnc_ModuleItemKind_Field,
+	ModuleItemKind_BaseTypeSlot      = jnc_ModuleItemKind_BaseTypeSlot,
+	ModuleItemKind_Orphan            = jnc_ModuleItemKind_Orphan,
+	ModuleItemKind_LazyImport        = jnc_ModuleItemKind_LazyImport,
+	ModuleItemKind_DynamicSection    = jnc_ModuleItemKind_DynamicSection,
+	ModuleItemKind_Template          = jnc_ModuleItemKind_Template,
+	ModuleItemKind_TemplateNamespace = jnc_ModuleItemKind_TemplateNamespace,
+	ModuleItemKind__Count            = jnc_ModuleItemKind__Count;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

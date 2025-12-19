@@ -243,7 +243,6 @@ protected:
 	);
 };
 
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 template <typename CanParse>
@@ -314,6 +313,36 @@ protected:
 		return createItemStringImpl(index, this); // minimal default fallback
 	}
 };
+
+//..............................................................................
+
+class TemplateNamespace: public ModuleItemWithNamespace<> {
+	friend class NamespaceMgr;
+	DerivableType* m_instanceType;
+
+public:
+	TemplateNamespace(NamespaceKind namespaceKind);
+
+	DerivableType*
+	getInstanceType() const {
+		return m_instanceType;
+	}
+
+protected:
+	virtual
+	sl::StringRef
+	createItemString(size_t index);
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+TemplateNamespace::TemplateNamespace(NamespaceKind namespaceKind) {
+	m_itemKind = ModuleItemKind_TemplateNamespace;
+	m_namespaceKind = namespaceKind;
+	m_namespaceStatus = NamespaceStatus_Ready;
+	m_instanceType = NULL;
+}
 
 //..............................................................................
 

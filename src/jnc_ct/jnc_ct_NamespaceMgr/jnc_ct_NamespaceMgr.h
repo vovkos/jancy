@@ -43,13 +43,6 @@ protected:
 		AccessKind m_accessKind;
 	};
 
-	class TemplateSuffix: public ModuleItemWithNamespace<> {
-		friend class NamespaceMgr;
-
-	public:
-		TemplateSuffix();
-	};
-
 protected:
 	Module* m_module;
 
@@ -59,7 +52,7 @@ protected:
 	sl::List<Orphan> m_orphanList;
 	sl::List<Alias> m_aliasList;
 	sl::AutoPtrArray<ScopeExtension> m_scopeExtensionArray;
-	sl::AutoPtrArray<TemplateSuffix> m_templateSuffixArray;
+	sl::AutoPtrArray<TemplateNamespace> m_templateNamespaceArray;
 
 	sl::Array<NamespaceStackEntry> m_namespaceStack;
 
@@ -213,13 +206,29 @@ public:
 	closeScope();
 
 	Namespace*
-	openTemplateSuffix();
+	openTemplateDeclNamespace() {
+		return openTemplateNamespace(NamespaceKind_TemplateDeclaration);
+	}
 
 	void
-	closeTemplateSuffix();
+	closeTemplateDeclNamespace() {
+		ASSERT(m_currentNamespace->m_namespaceKind == NamespaceKind_TemplateDeclaration);
+		closeNamespace();
+	}
 
 	void
-	closeAllTemplateSuffixes();
+	closeAllTemplateDeclNamespaces();
+
+	Namespace*
+	openTemplateInstNamespace(DerivableType* type = NULL) {
+		return openTemplateNamespace(NamespaceKind_TemplateInstantiation, type);
+	}
+
+	void
+	closeTemplateInstNamespace() {
+		ASSERT(m_currentNamespace->m_namespaceKind == NamespaceKind_TemplateInstantiation);
+		closeNamespace();
+	}
 
 	AccessKind
 	getAccessKind(Namespace* nspace);
@@ -251,16 +260,13 @@ protected:
 		const sl::StringRef& name,
 		Namespace* parentNamespace
 	);
+
+	TemplateNamespace*
+	openTemplateNamespace(
+		NamespaceKind namespaceKind,
+		DerivableType* instanceType = NULL
+	);
 };
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-inline
-NamespaceMgr::TemplateSuffix::TemplateSuffix() {
-	m_itemKind = ModuleItemKind_TemplateSuffix;
-	m_namespaceKind = NamespaceKind_TemplateSuffix;
-	m_namespaceStatus = NamespaceStatus_Ready;
-}
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -285,20 +291,27 @@ NamespaceMgr::createScopeExtension(){
 
 inline
 void
-NamespaceMgr::closeTemplateSuffix() {
-	ASSERT(m_currentNamespace->m_namespaceKind == NamespaceKind_TemplateSuffix);
-	closeNamespace();
-	ASSERT(m_currentNamespace->m_namespaceKind != NamespaceKind_TemplateSuffix);
-}
-
-inline
-void
-NamespaceMgr::closeAllTemplateSuffixes()  {
-	ASSERT(m_currentNamespace->m_namespaceKind == NamespaceKind_TemplateSuffix);
+NamespaceMgr::closeAllTemplateDeclNamespaces()  {
+	ASSERT(m_currentNamespace->m_namespaceKind == NamespaceKind_TemplateDeclaration);
 
 	do
 		closeNamespace();
-	while (m_currentNamespace->m_namespaceKind == NamespaceKind_TemplateSuffix);
+	while (m_currentNamespace->m_namespaceKind == NamespaceKind_TemplateDeclaration);
+}
+
+inline
+TemplateNamespace*
+NamespaceMgr::openTemplateNamespace(
+	NamespaceKind namespaceKind,
+	DerivableType* instanceType
+) {
+	TemplateNamespace* nspace = new TemplateNamespace(namespaceKind);
+	nspace->m_module = m_module;
+	nspace->m_parentNamespace = m_currentNamespace;
+	nspace->m_instanceType = instanceType;
+	m_templateNamespaceArray.append(nspace);
+	openNamespace(nspace);
+	return nspace;
 }
 
 //..............................................................................

@@ -48,7 +48,8 @@ enum jnc_NamespaceKind {
 	jnc_NamespaceKind_Property,
 	jnc_NamespaceKind_PropertyTemplate,
 	jnc_NamespaceKind_DynamicLib,
-	jnc_NamespaceKind_TemplateSuffix,
+	jnc_NamespaceKind_TemplateDeclaration,
+	jnc_NamespaceKind_TemplateInstantiation,
 	jnc_NamespaceKind__Count,
 };
 
@@ -173,16 +174,17 @@ namespace jnc {
 typedef jnc_NamespaceKind NamespaceKind;
 
 const NamespaceKind
-	NamespaceKind_Undefined        = jnc_NamespaceKind_Undefined,
-	NamespaceKind_Global           = jnc_NamespaceKind_Global,
-	NamespaceKind_Scope            = jnc_NamespaceKind_Scope,
-	NamespaceKind_Type             = jnc_NamespaceKind_Type,
-	NamespaceKind_Extension        = jnc_NamespaceKind_Extension,
-	NamespaceKind_Property         = jnc_NamespaceKind_Property,
-	NamespaceKind_PropertyTemplate = jnc_NamespaceKind_PropertyTemplate,
-	NamespaceKind_DynamicLib       = jnc_NamespaceKind_DynamicLib,
-	NamespaceKind_TemplateSuffix   = jnc_NamespaceKind_TemplateSuffix,
-	NamespaceKind__Count           = jnc_NamespaceKind__Count;
+	NamespaceKind_Undefined             = jnc_NamespaceKind_Undefined,
+	NamespaceKind_Global                = jnc_NamespaceKind_Global,
+	NamespaceKind_Scope                 = jnc_NamespaceKind_Scope,
+	NamespaceKind_Type                  = jnc_NamespaceKind_Type,
+	NamespaceKind_Extension             = jnc_NamespaceKind_Extension,
+	NamespaceKind_Property              = jnc_NamespaceKind_Property,
+	NamespaceKind_PropertyTemplate      = jnc_NamespaceKind_PropertyTemplate,
+	NamespaceKind_DynamicLib            = jnc_NamespaceKind_DynamicLib,
+	NamespaceKind_TemplateDeclaration   = jnc_NamespaceKind_TemplateDeclaration,
+	NamespaceKind_TemplateInstantiation = jnc_NamespaceKind_TemplateInstantiation,
+	NamespaceKind__Count                = jnc_NamespaceKind__Count;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

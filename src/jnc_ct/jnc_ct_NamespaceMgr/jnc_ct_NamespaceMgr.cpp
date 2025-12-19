@@ -91,7 +91,7 @@ NamespaceMgr::clear() {
 	m_orphanList.clear();
 	m_aliasList.clear();
 	m_scopeExtensionArray.clear();
-	m_templateSuffixArray.clear();
+	m_templateNamespaceArray.clear();
 	m_namespaceStack.clear();
 	m_sourcePos.clear();
 	m_currentNamespace = &m_stdNamespaceArray[StdNamespace_Global];
@@ -484,16 +484,6 @@ NamespaceMgr::closeScope() {
 
 	if ((flags & (ScopeFlag_Nested | ScopeFlag_Disposable)) && !(flags & (ScopeFlag_CatchAhead | ScopeFlag_FinallyAhead)))
 		closeScope();
-}
-
-Namespace*
-NamespaceMgr::openTemplateSuffix() {
-	TemplateSuffix* suffix = new TemplateSuffix;
-	suffix->m_module = m_module;
-	suffix->m_parentNamespace = m_currentNamespace;
-	m_templateSuffixArray.append(suffix);
-	openNamespace(suffix);
-	return suffix;
 }
 
 AccessKind

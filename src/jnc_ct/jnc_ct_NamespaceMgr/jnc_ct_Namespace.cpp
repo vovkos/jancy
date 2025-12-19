@@ -35,21 +35,6 @@ Namespace::clear() {
 	m_dualPtrTypeTupleMap.clear();
 	m_usingSet.clear();
 }
-/*
-sl::StringRef
-Namespace::createQualifiedName(const sl::StringRef& name) {
-	sl::String qualifiedName = getQualifiedName();
-	if (qualifiedName.isEmpty())
-		return name;
-
-	if (!name.isEmpty()) {
-		qualifiedName.append('.');
-		qualifiedName.append(name);
-	}
-
-	return qualifiedName;
-}
-*/
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -790,6 +775,19 @@ Namespace::generateMemberDocumentation(
 		}
 
 	return true;
+}
+
+//..............................................................................
+
+sl::StringRef
+TemplateNamespace::createItemString(size_t index) {
+	switch (index) {
+	case ModuleItemStringKind_Synopsis:
+		return sl::StringRef("template namespace");
+
+	default:
+		return sl::StringRef();
+	}
 }
 
 //..............................................................................

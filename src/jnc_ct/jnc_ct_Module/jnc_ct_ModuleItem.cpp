@@ -130,7 +130,7 @@ ModuleItemDecl::createSynopsisImpl(
 
 sl::StringRef
 ModuleItem::createLinkId() {
-	ASSERT(m_itemKind == ModuleItemKind_TemplateSuffix); // shouldn't be called for other items
+	ASSERT(m_itemKind == ModuleItemKind_TemplateNamespace); // shouldn't be called for other items
 	sl::StringRef prefix = getModuleItemKindString(m_itemKind);
 	return m_module->createUniqueName(prefix);
 }

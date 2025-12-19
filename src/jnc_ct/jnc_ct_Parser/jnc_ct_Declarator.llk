@@ -426,7 +426,7 @@ declarator_suffix<Declarator* $declarator>
 template_decl_suffix
 	:	'<'
 			{
-				m_module->m_namespaceMgr.openTemplateSuffix();
+				m_module->m_namespaceMgr.openTemplateDeclNamespace();
 				m_templateArgArray.clear();
 			}
 		template_arg (',' template_arg)*
