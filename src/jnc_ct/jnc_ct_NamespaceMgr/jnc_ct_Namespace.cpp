@@ -550,13 +550,22 @@ Namespace::finalizeFindTemplate(
 NamedType*
 Namespace::findTemplateInstanceType(Template* templ) {
 	for (Namespace* nspace = this; nspace; nspace = nspace->getParentNamespace()) {
-		if (nspace->m_namespaceKind != NamespaceKind_Type)
-			continue;
+		switch (nspace->m_namespaceKind) {
+		case NamespaceKind_Type: {
+			NamedType* type = (NamedType*)nspace;
+			TemplateInstance* templateInstance = type->getTemplateInstance();
+			if (templateInstance && templateInstance->m_template == templ)
+				return type;
 
-		NamedType* type = (NamedType*)nspace;
-		TemplateInstance* templateInstance = type->getTemplateInstance();
-		if (templateInstance && templateInstance->m_template == templ)
-			return type;
+			break;
+			}
+
+		case NamespaceKind_TemplateInstantiation:
+			if (DerivableType* type = ((TemplateNamespace*)nspace)->getInstanceType())
+				return type;
+
+			break;
+		}
 	}
 
 	return NULL;

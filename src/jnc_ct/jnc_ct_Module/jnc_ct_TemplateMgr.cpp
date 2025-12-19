@@ -125,10 +125,11 @@ Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
 
 	sl::StringHashTableIterator<TemplateInstance> mapIt = m_instanceMap.visit(signature);
 	TemplateInstance* instance = &mapIt->m_value;
+	instance->m_template = this;
+	instance->m_argArray = argArray;
+
 	if (instance->m_item)
 		return instance->m_item;
-
-	ModuleItem* item;
 
 	if (m_declType) {
 		openTemplateInstNamespace(argArray);
@@ -140,7 +141,7 @@ Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
 		if (m_storageKind == StorageKind_Typedef) {
 			Typedef* tdef = m_module->m_typeMgr.createTypedef(m_name, type);
 			copyDecl(tdef);
-			item = tdef;
+			instance->m_item = tdef;
 		} else {
 			if (type->getTypeKind() != TypeKind_Function) {
 				err::setError("cannot instantiate template '%s' (not a function)");
@@ -150,7 +151,7 @@ Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
 			Function* function = m_module->m_functionMgr.createFunction((FunctionType*)type);
 			function->m_templateInstance = &mapIt->m_value;
 			copyDecl(function);
-			item = function;
+			instance->m_item = function;
 		}
 	} else {
 		DerivableType* type;
@@ -172,11 +173,31 @@ Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
 			return NULL;
 		}
 
+		// link and make it findable right away
+		instance->m_item = type;
+		type->m_templateInstance = instance;
+
 		for (size_t i = 0; i < argCount; i++) {
 			const sl::StringRef& name = m_argArray[i]->getName();
 			Typedef* tdef = m_module->m_typeMgr.createTypedef(name, argArray[i]);
 			bool result = type->addItem(tdef);
 			ASSERT(result); // should have been checked in parser
+		}
+
+		size_t baseCount = m_baseTypeArray.getCount();
+		if (baseCount) {
+			openTemplateInstNamespace(argArray, type);
+
+			for (size_t i = 0; i < baseCount; i++) {
+				Type* baseType = m_baseTypeArray[i]->instantiate(argArray);
+				bool result = baseType && type->addBaseType(baseType);
+				if (!result) {
+					m_module->m_namespaceMgr.closeTemplateInstNamespace();
+					return NULL;
+				}
+			}
+
+			m_module->m_namespaceMgr.closeTemplateInstNamespace();
 		}
 
 		size_t orphanCount = m_orphanArray.getCount();
@@ -189,15 +210,10 @@ Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
 			type->addOrphan(orphan);
 		}
 
-		type->m_templateInstance = instance;
 		copyDecl(type);
-		item = type;
 	}
 
-	instance->m_item = item;
-	instance->m_template = this;
-	instance->m_argArray = argArray;
-	return item;
+	return instance->m_item;
 }
 
 ModuleItem*
@@ -309,19 +325,22 @@ Template::createItemString(size_t index) {
 }
 
 Namespace*
-Template::openTemplateSuffix(const sl::ArrayRef<Type*>& argArray) {
-	Namespace* suffix = m_module->m_namespaceMgr.openTemplateSuffix();
+Template::openTemplateInstNamespace(
+	const sl::ArrayRef<Type*>& argArray,
+	DerivableType* instanceType
+) const {
+	Namespace* nspace = m_module->m_namespaceMgr.openTemplateInstNamespace(instanceType);
 
 	size_t argCount = argArray.getCount();
 	for (size_t i = 0; i < argCount; i++) {
 		Type* argType = argArray[i];
 		if (argType) {
-			bool result = suffix->addItem(m_argArray[i]->getName(), argType);
+			bool result = nspace->addItem(m_argArray[i]->getName(), argType);
 			ASSERT(result); // should have been checked in parser
 		}
 	}
 
-	return suffix;
+	return nspace;
 }
 
 //..............................................................................
@@ -350,7 +369,7 @@ TemplateMgr::createTemplate(
 	TypeKind typeKind,
 	const sl::StringRef& name,
 	const sl::ArrayRef<TemplateArgType*>& argArray,
-	const sl::ArrayRef<Type*>& baseTypeArray
+	const sl::ArrayRef<TemplateDeclType*>& baseTypeArray
 ) {
 	Template* templ = new Template;
 	templ->m_module = m_module;

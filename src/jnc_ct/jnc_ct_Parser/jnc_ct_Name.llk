@@ -222,6 +222,22 @@ type_name_list
 	;
 
 struct {
+	sl::Array<TemplateDeclType*> m_typeArray;
+}
+template_type_name_list
+	:	type_name_declarator
+			{
+				$.m_typeArray.append(m_module->m_typeMgr.createTemplateDeclType(&$1.m_declarator));
+			}
+		(
+			',' type_name_declarator $t2
+				{
+					$.m_typeArray.append(m_module->m_typeMgr.createTemplateDeclType(&$t2.m_declarator));
+				}
+		)*
+	;
+
+struct {
 	sl::Array<Type*> m_typeArray;
 }
 nullable

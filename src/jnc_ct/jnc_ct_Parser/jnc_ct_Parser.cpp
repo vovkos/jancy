@@ -893,7 +893,7 @@ Parser::declare(Declarator* declarator) {
 	m_lastDeclaredItem = NULL;
 
 	NamespaceKind nspaceKind = m_module->m_namespaceMgr.getCurrentNamespace()->getNamespaceKind();
-	if (nspaceKind == NamespaceKind_TemplateSuffix)
+	if (nspaceKind == NamespaceKind_TemplateDeclaration)
 		return declareTemplate(declarator);
 
 	if ((declarator->getTypeModifiers() & TypeModifier_Property) && m_storageKind != StorageKind_Typedef) {
@@ -995,7 +995,7 @@ Parser::addTemplateArg(
 	Declarator* defaultTypeDeclarator
 ) {
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	ASSERT(nspace->getNamespaceKind() == NamespaceKind_TemplateSuffix);
+	ASSERT(nspace->getNamespaceKind() == NamespaceKind_TemplateDeclaration);
 
 	size_t index = m_templateArgArray.getCount();
 	TemplateArgType* type = m_module->m_typeMgr.createTemplateArgType(name, index, defaultTypeDeclarator);
@@ -1010,7 +1010,7 @@ Parser::addTemplateArg(
 bool
 Parser::prepareTemplateDeclarator(Declarator* declarator) {
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	ASSERT(nspace->getNamespaceKind() == NamespaceKind_TemplateSuffix);
+	ASSERT(nspace->getNamespaceKind() == NamespaceKind_TemplateDeclaration);
 
 	if (declarator->m_declaratorKind != DeclaratorKind_Name) {
 		err::setError("invalid template declarator");
@@ -1039,7 +1039,7 @@ Parser::prepareTemplateDeclarator(Declarator* declarator) {
 bool
 Parser::declareTemplate(Declarator* declarator) {
 	Namespace* templNspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	m_module->m_namespaceMgr.closeAllTemplateSuffixes();
+	m_module->m_namespaceMgr.closeAllTemplateDeclNamespaces();
 
 	if (!declarator->isSimple()) {
 		TemplateDeclType* type = m_module->m_typeMgr.createTemplateDeclType(declarator);
@@ -1070,11 +1070,11 @@ bool
 Parser::declareTemplate(
 	TypeKind typeKind,
 	const Token& nameToken,
-	const sl::ArrayRef<Type*>& baseTypeArray,
+	const sl::Array<TemplateDeclType*>& baseTypeArray,
 	sl::List<Token>* bodyTokenList
 ) {
 	Namespace* templNspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	m_module->m_namespaceMgr.closeTemplateSuffix();
+	m_module->m_namespaceMgr.closeTemplateDeclNamespace();
 
 	const sl::StringRef& name = nameToken.m_data.m_string;
 	if (!checkTemplateName(nameToken.m_pos, name, templNspace))
@@ -2253,7 +2253,7 @@ Parser::createFormalArg(
 	uint_t ptrTypeFlags = 0;
 	Type* type;
 
-	if (nspace->getNamespaceKind() == NamespaceKind_TemplateSuffix) {
+	if (nspace->getNamespaceKind() == NamespaceKind_TemplateDeclaration) {
 		type = m_module->m_typeMgr.createTemplateDeclType(declarator);
 		declarator = ((TemplateDeclType*)type)->getDeclarator();
 	} else {
@@ -2364,7 +2364,7 @@ StructType*
 Parser::createStructType(
 	const lex::LineCol& pos,
 	const sl::StringRef& name,
-	const sl::ArrayRef<Type*>& baseTypeArray
+	const sl::Array<Type*>& baseTypeArray
 ) {
 	bool result;
 
@@ -2410,7 +2410,7 @@ ClassType*
 Parser::createClassType(
 	const lex::LineCol& pos,
 	const sl::StringRef& name,
-	const sl::ArrayRef<Type*>& baseTypeArray,
+	const sl::Array<Type*>& baseTypeArray,
 	uint_t flags
 ) {
 	bool result;

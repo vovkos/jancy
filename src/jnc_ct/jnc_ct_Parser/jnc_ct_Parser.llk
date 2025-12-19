@@ -516,7 +516,7 @@ protected:
 	declareTemplate(
 		TypeKind typeKind,
 		const Token& nameToken,
-		const sl::ArrayRef<Type*>& baseTypeArray,
+		const sl::Array<TemplateDeclType*>& baseTypeArray,
 		sl::List<Token>* bodyTokenList
 	);
 
@@ -592,7 +592,7 @@ protected:
 	createStructType(
 		const lex::LineCol& pos,
 		const sl::StringRef& name,
-		const sl::ArrayRef<Type*>& baseTypeArray
+		const sl::Array<Type*>& baseTypeArray
 	);
 
 	UnionType*
@@ -605,8 +605,8 @@ protected:
 	createClassType(
 		const lex::LineCol& pos,
 		const sl::StringRef& name,
-		const sl::ArrayRef<Type*>& baseTypeArray,
-		uint_t flags
+		const sl::Array<Type*>& baseTypeArray,
+		uint_t flags = 0
 	);
 
 	DynamicLibClassType*

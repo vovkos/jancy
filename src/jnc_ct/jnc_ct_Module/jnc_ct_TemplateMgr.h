@@ -48,7 +48,7 @@ protected:
 	TypeKind m_derivableTypeKind;
 	TemplateDeclType* m_declType;
 	sl::Array<TemplateArgType*> m_argArray;
-	sl::Array<Type*> m_baseTypeArray;
+	sl::Array<TemplateDeclType*> m_baseTypeArray;
 	sl::StringHashTable<TemplateInstance> m_instanceMap;
 
 public:
@@ -67,6 +67,11 @@ public:
 	const sl::Array<TemplateArgType*>&
 	getArgArray() const {
 		return m_argArray;
+	}
+
+	const sl::Array<TemplateDeclType*>&
+	getBaseTypeArray() const {
+		return m_baseTypeArray;
 	}
 
 	ModuleItem*
@@ -171,7 +176,7 @@ public:
 		TypeKind typeKind,
 		const sl::StringRef& name,
 		const sl::ArrayRef<TemplateArgType*>& argArray,
-		const sl::ArrayRef<Type*>& baseTypeArray
+		const sl::ArrayRef<TemplateDeclType*>& baseTypeArray
 	);
 };
 

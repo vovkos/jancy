@@ -17,15 +17,16 @@ named_type_specifier
 	|	union_specifier
 	|	resolver (TokenKind_Class TokenKind_Identifier) // vs type_specifier:TokenKind_Class
 		class_specifier
+	|	opaque_class_specifier
 	|	library_specifier
 	;
 
 named_type_specifier_sync
 	:	TokenKind_Enum
+	|	TokenKind_BitFlagEnum
 	|	TokenKind_Struct
 	|	TokenKind_Union
 	|	TokenKind_Class
-	|	TokenKind_BitFlagEnum
 	|	TokenKind_OpaqueClass
 	|	TokenKind_DynamicLib
 	;
@@ -108,20 +109,20 @@ struct_specifier
 				{
 					return ($type = createStructType(
 						&$n1 ? $n1.m_pos : $1.m_pos,
-						&$n1 ? $n1.m_data.m_string : sl::String(),
-						&$b1 ? sl::ArrayRef<Type*>($b1.m_typeArray) : sl::ArrayRef<Type*>()
+						&$n1 ? $n1.m_data.m_string : sl::StringRef(),
+						&$b1 ? $b1.m_typeArray : sl::Array<Type*>()
 					)) != NULL;
 				}
 			derivable_type_member_block<$type>
 		|	TokenKind_Identifier $n2
 			template_decl_suffix
-			(':' type_name_list $b2)?
+			(':' template_type_name_list $b2)?
 			declaration_body_pass1 $y
 				{
 					return declareTemplate(
 						TypeKind_Struct,
 						$n2,
-						&$b2 ? sl::ArrayRef<Type*>($b2.m_typeArray) : sl::ArrayRef<Type*>(),
+						&$b2 ? $b2.m_typeArray : sl::Array<TemplateDeclType*>(),
 						&$y.m_tokenList
 					);
 				}
@@ -141,7 +142,7 @@ union_specifier
 				{
 					return ($type = createUnionType(
 						&$n1 ? $n1.m_pos : $1.m_pos,
-						&$n1 ? $n1.m_data.m_string : sl::String()
+						&$n1 ? $n1.m_data.m_string : sl::StringRef()
 					)) != NULL;
 				}
 			derivable_type_member_block<$type>
@@ -152,7 +153,7 @@ union_specifier
 					return declareTemplate(
 						TypeKind_Union,
 						$n2,
-						sl::ArrayRef<Type*>(),
+						sl::Array<TemplateDeclType*>(),
 						&$y.m_tokenList
 					);
 				}
@@ -168,32 +169,49 @@ class_specifier
 	local {
 		ClassType* $type;
 	}
-	:	(TokenKind_Class | TokenKind_OpaqueClass $o)
+	:	TokenKind_Class
 		TokenKind_Identifier $n (
 			(':' type_name_list $b1)?
 				{
 					return ($type = createClassType(
 						$n.m_pos,
 						$n.m_data.m_string,
-						&$b1 ? sl::ArrayRef<Type*>($b1.m_typeArray) : sl::ArrayRef<Type*>(),
-						&$o ? ClassTypeFlag_Opaque : 0
+						&$b1 ? $b1.m_typeArray : sl::Array<Type*>()
 					)) != NULL;
 				}
 			derivable_type_member_block<$type>
 		|	template_decl_suffix
-			(':' type_name_list $b2)?
+			(':' template_type_name_list $b2)?
 			declaration_body_pass1 $y
 				{
-					return !&$o ?
-						declareTemplate(
-							TypeKind_Class,
-							$n,
-							&$b2 ? sl::ArrayRef<Type*>($b2.m_typeArray) : sl::ArrayRef<Type*>(),
-							&$y.m_tokenList
-						) :
-						err::fail("opaque class cannot be templated");
+					return declareTemplate(
+						TypeKind_Class,
+						$n,
+						&$b2 ? $b2.m_typeArray : sl::Array<TemplateDeclType*>(),
+						&$y.m_tokenList
+					);
 				}
 		)
+	;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque_class_specifier
+	local {
+		ClassType* $type;
+	}
+	:	TokenKind_OpaqueClass
+		TokenKind_Identifier $n
+		(':' type_name_list $b)?
+			{
+				return ($type = createClassType(
+					$n.m_pos,
+					$n.m_data.m_string,
+					&$b ? $b.m_typeArray : sl::Array<Type*>(),
+					ClassTypeFlag_Opaque
+				)) != NULL;
+			}
+		derivable_type_member_block<$type>
 	;
 
 //..............................................................................
