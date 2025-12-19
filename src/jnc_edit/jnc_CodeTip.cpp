@@ -64,7 +64,8 @@ CodeTip::showQuickInfoTip(
 	m_functionTypeOverloadIdx = 0;
 	m_argumentIdx = 0;
 
-	showText(pos, item->getItemString(ModuleItemStringKind_Synopsis));
+	QString text = highlightJancySource(item->getItemString(ModuleItemStringKind_Synopsis), m_theme);
+	showText(pos, text);
 }
 
 void

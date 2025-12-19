@@ -49,10 +49,10 @@ highlightJancySource(
 				continue;
 
 			if (range.start > pos)
-				html += blockText.mid(pos, range.start - pos);
+				html += blockText.mid(pos, range.start - pos).toHtmlEscaped();
 
 			html += QString("<span style='color: #%1'>").arg(color, 6, 16, QChar('0'));
-			html += blockText.mid(range.start, range.length);
+			html += blockText.mid(range.start, range.length).toHtmlEscaped();
 			html += "</span>";
 
 			pos = range.start + range.length;
@@ -61,7 +61,7 @@ highlightJancySource(
 		int blockEnd = block.position() + block.length();
 
 		if (blockEnd > pos)
-			html += blockText.mid(pos);
+			html += blockText.mid(pos).toHtmlEscaped();
 
 		pos = blockEnd;
 	}
