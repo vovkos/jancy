@@ -97,8 +97,17 @@ NamedImportType::createItemString(size_t index) {
 
 bool
 NamedImportType::resolveImports() {
-	Namespace* nspace = m_anchor && m_anchor->m_namespace ? m_anchor->m_namespace : m_parentNamespace;
-	m_actualType = resolveImpl(nspace);
+	Namespace* nspace;
+	if (m_anchor && m_anchor->m_namespace)
+		nspace = m_anchor->m_namespace;
+	else if (m_parentNamespace->getNamespaceKind() != NamespaceKind_TemplateDeclaration)
+		nspace = m_parentNamespace;
+	else {
+		nspace = m_module->m_namespaceMgr.getCurrentNamespace();
+		ASSERT(nspace->getNamespaceKind() == NamespaceKind_TemplateInstantiation);
+	}
+
+	m_actualType = resolveImpl(ModuleItemContext(m_parentUnit, nspace), nspace);
 	if (!m_actualType)
 		return false;
 
@@ -108,10 +117,11 @@ NamedImportType::resolveImports() {
 
 Type*
 NamedImportType::resolveImpl(
+	const ModuleItemContext& context,
 	Namespace* nspace,
 	bool isResolvingRecursion
 ) {
-	FindModuleItemResult findResult = nspace->findItemTraverse(*this, m_name);
+	FindModuleItemResult findResult = nspace->findItemTraverse(context, m_name);
 	if (!findResult.m_result) {
 		pushSrcPosError();
 		return NULL;
@@ -139,7 +149,7 @@ NamedImportType::resolveImpl(
 			!isResolvingRecursion &&
 			(nspace = ((Typedef*)item)->getGrandParentNamespace())
 		)
-			return resolveImpl(nspace, true);
+			return resolveImpl(context, nspace, true);
 
 		type = ((Typedef*)item)->getType();
 		break;

@@ -68,8 +68,14 @@ protected:
 
 public:
 	ModuleItemContext() {
-		m_parentUnit = NULL;
-		m_parentNamespace = NULL;
+		setup(NULL, NULL);
+	}
+
+	ModuleItemContext(
+		Unit* parentUnit,
+		Namespace* parentNamespace
+	) {
+		setup(parentUnit, parentNamespace);
 	}
 
 	ModuleItemContext(Module* module) {
@@ -96,6 +102,15 @@ public:
 
 	void
 	captureContext(Module* module);
+
+	void
+	setup(
+		Unit* parentUnit,
+		Namespace* parentNamespace
+	) {
+		m_parentUnit = parentUnit;
+		m_parentNamespace = parentNamespace;
+	}
 };
 
 //..............................................................................

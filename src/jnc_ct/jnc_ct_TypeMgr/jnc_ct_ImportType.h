@@ -141,6 +141,7 @@ protected:
 
 	Type*
 	resolveImpl(
+		const ModuleItemContext& context,
 		Namespace* nspace,
 		bool isResolvingRecursion = false
 	);

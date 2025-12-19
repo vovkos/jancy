@@ -451,8 +451,7 @@ Module::markForCompile(Function* function) {
 inline
 void
 ModuleItemContext::captureContext(Module* module) {
-	m_parentUnit = module->m_unitMgr.getCurrentUnit();
-	m_parentNamespace = module->m_namespaceMgr.getCurrentNamespace();
+	setup(module->m_unitMgr.getCurrentUnit(), module->m_namespaceMgr.getCurrentNamespace());
 }
 
 //..............................................................................
