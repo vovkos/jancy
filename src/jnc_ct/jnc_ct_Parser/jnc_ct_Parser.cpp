@@ -1046,27 +1046,33 @@ Parser::addTemplateArg(
 
 bool
 Parser::prepareTemplateDeclarator(Declarator* declarator) {
-	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	ASSERT(nspace->getNamespaceKind() == NamespaceKind_TemplateDeclaration);
+	ASSERT(m_templateArgArray.isEmpty()); // should already be taken by one of the name atoms
 
 	if (declarator->m_declaratorKind != DeclaratorKind_Name) {
 		err::setError("invalid template declarator");
 		return false;
 	}
 
-	QualifiedNameAtom* atom = declarator->m_name.getLastAtom();
-	ASSERT(atom->m_atomKind == QualifiedNameAtomKind_Name);
-	sl::takeOver(&atom->m_templateDeclArgArray, &m_templateArgArray);
-	atom->m_atomKind = QualifiedNameAtomKind_TemplateDeclSuffix;
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
+	ASSERT(nspace->getNamespaceKind() == NamespaceKind_TemplateDeclaration);
 
 	NamedImportType* baseType = (NamedImportType*)declarator->m_baseType;
 	if (baseType->getTypeKind() == TypeKind_NamedImport &&
 		baseType->getName().isSimple()
 	) {
-		FindModuleItemResult findResult = nspace->findDirectChildItem(baseType->getName().getFirstAtom());
-		if (findResult.m_item) {
-			ASSERT(findResult.m_item->getItemKind() == ModuleItemKind_Type);
-			declarator->m_baseType = (Type*)findResult.m_item;
+		for (;;) {
+			FindModuleItemResult findResult = nspace->findDirectChildItem(baseType->getName().getFirstAtom());
+			if (findResult.m_item) {
+				ASSERT(findResult.m_item->getItemKind() == ModuleItemKind_Type);
+				declarator->m_baseType = (Type*)findResult.m_item;
+				break;
+			}
+
+			// orphans could generate multiple nested template namespaces -- try all of them
+
+			nspace = nspace->getParentNamespace();
+			if (nspace->getNamespaceKind() != NamespaceKind_TemplateDeclaration)
+				break;
 		}
 	}
 
