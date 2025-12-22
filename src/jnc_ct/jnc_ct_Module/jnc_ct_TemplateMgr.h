@@ -99,10 +99,7 @@ protected:
 	createItemString(size_t index);
 
 	Namespace*
-	openTemplateInstNamespace(
-		const sl::ArrayRef<Type*>& argArray,
-		DerivableType* instanceType = NULL
-	) const;
+	openTemplateInstNamespace(const sl::ArrayRef<Type*>& argArray) const;
 
 	void
 	copyDecl(ModuleItemDecl* itemDecl) const {
@@ -120,6 +117,9 @@ protected:
 		ModuleItemBodyDecl* dstDecl,
 		const ModuleItemBodyDecl* srcDecl
 	);
+
+	bool
+	setDefaultArgs(sl::Array<Type*>* argArray);
 
 	ModuleItem*
 	instantiateImpl(const sl::ArrayRef<Type*>& argArray);

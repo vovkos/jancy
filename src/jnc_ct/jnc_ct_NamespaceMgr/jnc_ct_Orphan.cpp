@@ -42,7 +42,9 @@ Orphan::adopt(ModuleItem* item) {
 		m_namedImportAnchor->m_namespace = item->getDecl()->getParentNamespace();
 
 	if (m_orphanKind == OrphanKind_Template) {
+		m_module->m_namespaceMgr.openNamespace(m_templateInstNamespace);
 		Type* type = m_templateDeclType->instantiate(m_templateArgArray);
+		m_module->m_namespaceMgr.closeTemplateInstNamespace();
 		if (!type)
 			return NULL;
 

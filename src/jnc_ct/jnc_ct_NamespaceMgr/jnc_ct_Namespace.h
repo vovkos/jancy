@@ -323,6 +323,9 @@ protected:
 
 class TemplateNamespace: public ModuleItemWithNamespace<> {
 	friend class NamespaceMgr;
+	friend class Template;
+
+protected:
 	DerivableType* m_instanceType;
 
 public:

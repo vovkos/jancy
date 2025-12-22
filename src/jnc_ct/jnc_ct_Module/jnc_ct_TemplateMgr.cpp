@@ -75,8 +75,12 @@ Template::instantiate(const sl::ArrayRef<Type*>& argArray0) {
 		return NULL;
 	}
 
-	if (actualArgCount == argCount && argArray0.find(NULL) == -1)
-		return instantiateImpl(argArray0);
+	if (actualArgCount == argCount && argArray0.find(NULL) == -1) {
+		openTemplateInstNamespace(argArray0);
+		ModuleItem* item = instantiateImpl(argArray0);
+		m_module->m_namespaceMgr.closeTemplateInstNamespace();
+		return item;
+	}
 
 	char buffer[256];
 	sl::Array<Type*> argArray(rc::BufKind_Stack, buffer, sizeof(buffer));
@@ -84,9 +88,16 @@ Template::instantiate(const sl::ArrayRef<Type*>& argArray0) {
 	memcpy(argArray.p(), argArray0, actualArgCount * sizeof(Type*));
 
 	openTemplateInstNamespace(argArray);
+	ModuleItem* item = setDefaultArgs(&argArray) ? instantiateImpl(argArray) : NULL;
+	m_module->m_namespaceMgr.closeTemplateInstNamespace();
+	return item;
+}
 
-	sl::Array<Type*>::Rwi rwi = argArray.rwi();
-	for (size_t i = 0; i < argCount; i++) {
+bool
+Template::setDefaultArgs(sl::Array<Type*>* argArray) {
+	size_t count = argArray->getCount();
+	sl::Array<Type*>::Rwi rwi = argArray->rwi();
+	for (size_t i = 0; i < count; i++) {
 		if (argArray[i])
 			continue;
 
@@ -97,21 +108,18 @@ Template::instantiate(const sl::ArrayRef<Type*>& argArray0) {
 				m_argArray[i]->getName().sz(),
 				getItemName().sz()
 			);
-			m_module->m_namespaceMgr.closeTemplateInstNamespace();
-			return NULL;
+
+			return false;
 		}
 
-		Type* type = defaultType->instantiate(argArray);
-		if (!type) {
-			m_module->m_namespaceMgr.closeTemplateInstNamespace();
-			return NULL;
-		}
+		Type* type = defaultType->instantiate(*argArray);
+		if (!type)
+			return false;
 
 		rwi[i] = type;
 	}
 
-	m_module->m_namespaceMgr.closeTemplateInstNamespace();
-	return instantiateImpl(argArray);
+	return true;
 }
 
 ModuleItem*
@@ -132,9 +140,7 @@ Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
 		return instance->m_item;
 
 	if (m_declType) {
-		openTemplateInstNamespace(argArray);
 		Type* type = m_declType->instantiate(argArray);
-		m_module->m_namespaceMgr.closeTemplateInstNamespace();
 		if (!type)
 			return NULL;
 
@@ -173,9 +179,13 @@ Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
 			return NULL;
 		}
 
+		TemplateNamespace* nspace = (TemplateNamespace*)m_module->m_namespaceMgr.getCurrentNamespace();
+		ASSERT(nspace->getNamespaceKind() == NamespaceKind_TemplateInstantiation);
+
 		// link and make it findable right away
 		instance->m_item = type;
 		type->m_templateInstance = instance;
+		nspace->m_instanceType = type;
 
 		for (size_t i = 0; i < argCount; i++) {
 			const sl::StringRef& name = m_argArray[i]->getName();
@@ -185,28 +195,17 @@ Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
 		}
 
 		size_t baseCount = m_baseTypeArray.getCount();
-		if (baseCount) {
-			openTemplateInstNamespace(argArray, type);
-
-			for (size_t i = 0; i < baseCount; i++) {
-				Type* baseType = m_baseTypeArray[i]->instantiate(argArray);
-				bool result = baseType && type->addBaseType(baseType);
-				if (!result) {
-					m_module->m_namespaceMgr.closeTemplateInstNamespace();
-					return NULL;
-				}
-			}
-
-			m_module->m_namespaceMgr.closeTemplateInstNamespace();
+		for (size_t i = 0; i < baseCount; i++) {
+			Type* baseType = m_baseTypeArray[i]->instantiate(argArray);
+			bool result = baseType && type->addBaseType(baseType);
+			if (!result)
+				return NULL;
 		}
 
 		size_t orphanCount = m_orphanArray.getCount();
 		for (size_t i = 0; i < orphanCount; i++) {
-			Orphan* srcOrphan = m_orphanArray[i];
-			Orphan* orphan = m_module->m_namespaceMgr.cloneOrphan(srcOrphan);
-			if (orphan->getOrphanKind() == OrphanKind_Template)
-				orphan->appendTemplateArgArray(argArray);
-
+			Orphan* orphan = m_module->m_namespaceMgr.cloneOrphan(m_orphanArray[i]);
+			orphan->addTemplateInstantiation(argArray, nspace);
 			type->addOrphan(orphan);
 		}
 
@@ -325,11 +324,8 @@ Template::createItemString(size_t index) {
 }
 
 Namespace*
-Template::openTemplateInstNamespace(
-	const sl::ArrayRef<Type*>& argArray,
-	DerivableType* instanceType
-) const {
-	Namespace* nspace = m_module->m_namespaceMgr.openTemplateInstNamespace(instanceType);
+Template::openTemplateInstNamespace(const sl::ArrayRef<Type*>& argArray) const {
+	Namespace* nspace = m_module->m_namespaceMgr.openTemplateInstNamespace(*this);
 
 	size_t argCount = argArray.getCount();
 	for (size_t i = 0; i < argCount; i++) {

@@ -295,6 +295,7 @@ NamespaceMgr::cloneOrphan(const Orphan* srcOrphan) {
 	orphan->m_declaratorName.copy(srcOrphan->m_declaratorName, srcOrphan->m_declaratorNamePos);
 	orphan->m_declaratorNamePos = &orphan->m_declaratorName.getFirstAtom();
 	orphan->m_templateArgArray = srcOrphan->m_templateArgArray;
+	orphan->m_templateInstNamespace = srcOrphan->m_templateInstNamespace;
 	orphan->copyDecl(srcOrphan);
 	orphan->copyBody(srcOrphan);
 

@@ -19,6 +19,7 @@ namespace ct {
 
 class FunctionType;
 class TemplateDeclType;
+class TemplateNamespace;
 struct NamedImportAnchor;
 
 //..............................................................................
@@ -53,6 +54,7 @@ protected:
 	};
 
 	sl::Array<Type*> m_templateArgArray;
+	TemplateNamespace* m_templateInstNamespace;
 
 public:
 	Orphan();
@@ -77,15 +79,11 @@ public:
 		return m_type;
 	}
 
-	const sl::Array<Type*>&
-	getTemplateArgArray() const {
-		return m_templateArgArray;
-	}
-
-	size_t
-	appendTemplateArgArray(const sl::ArrayRef<Type*>& argArray) {
-		return m_templateArgArray.append(argArray);
-	}
+	void
+	addTemplateInstantiation(
+		const sl::ArrayRef<Type*>& argArray,
+		TemplateNamespace* nspace
+	);
 
 	ModuleItem*
 	adopt(ModuleItem* item);
@@ -136,6 +134,18 @@ Orphan::Orphan() {
 	m_orphanKind = OrphanKind_Undefined;
 	m_namedImportAnchor = NULL;
 	m_type = NULL;
+	m_templateInstNamespace = NULL;
+}
+
+inline
+void
+Orphan::addTemplateInstantiation(
+	const sl::ArrayRef<Type*>& argArray,
+	TemplateNamespace* nspace
+) {
+	ASSERT(m_orphanKind == OrphanKind_Template);
+	m_templateArgArray.append(argArray);
+	m_templateInstNamespace = nspace; // only the last matters
 }
 
 //..............................................................................

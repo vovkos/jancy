@@ -205,29 +205,27 @@ public:
 	void
 	closeScope();
 
-	Namespace*
+	TemplateNamespace*
 	openTemplateDeclNamespace() {
-		return openTemplateNamespace(NamespaceKind_TemplateDeclaration);
+		return openTemplateNamespace(NamespaceKind_TemplateDeclaration, ModuleItemContext(m_module));
 	}
 
 	void
 	closeTemplateDeclNamespace() {
-		ASSERT(m_currentNamespace->m_namespaceKind == NamespaceKind_TemplateDeclaration);
-		closeNamespace();
+		closeTemplateNamespace(NamespaceKind_TemplateDeclaration);
 	}
 
 	void
 	closeAllTemplateDeclNamespaces();
 
-	Namespace*
-	openTemplateInstNamespace(DerivableType* type = NULL) {
-		return openTemplateNamespace(NamespaceKind_TemplateInstantiation, type);
+	TemplateNamespace*
+	openTemplateInstNamespace(const ModuleItemContext& context) {
+		return openTemplateNamespace(NamespaceKind_TemplateInstantiation, context);
 	}
 
 	void
 	closeTemplateInstNamespace() {
-		ASSERT(m_currentNamespace->m_namespaceKind == NamespaceKind_TemplateInstantiation);
-		closeNamespace();
+		closeTemplateNamespace(NamespaceKind_TemplateInstantiation);
 	}
 
 	AccessKind
@@ -264,8 +262,14 @@ protected:
 	TemplateNamespace*
 	openTemplateNamespace(
 		NamespaceKind namespaceKind,
-		DerivableType* instanceType = NULL
+		const ModuleItemContext& context
 	);
+
+	void
+	closeTemplateNamespace(NamespaceKind namespaceKind) {
+		ASSERT(m_currentNamespace->m_namespaceKind == namespaceKind);
+		closeNamespace();
+	}
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -283,7 +287,7 @@ NamespaceMgr::createGlobalNamespace(
 
 template <typename T>
 T*
-NamespaceMgr::createScopeExtension(){
+NamespaceMgr::createScopeExtension() {
 	T* extension = new T;
 	m_scopeExtensionArray.append(extension);
 	return extension;
@@ -291,7 +295,7 @@ NamespaceMgr::createScopeExtension(){
 
 inline
 void
-NamespaceMgr::closeAllTemplateDeclNamespaces()  {
+NamespaceMgr::closeAllTemplateDeclNamespaces() {
 	ASSERT(m_currentNamespace->m_namespaceKind == NamespaceKind_TemplateDeclaration);
 
 	do
@@ -303,12 +307,11 @@ inline
 TemplateNamespace*
 NamespaceMgr::openTemplateNamespace(
 	NamespaceKind namespaceKind,
-	DerivableType* instanceType
+	const ModuleItemContext& context
 ) {
 	TemplateNamespace* nspace = new TemplateNamespace(namespaceKind);
 	nspace->m_module = m_module;
-	nspace->m_parentNamespace = m_currentNamespace;
-	nspace->m_instanceType = instanceType;
+	*(ModuleItemContext*)nspace = context;
 	m_templateNamespaceArray.append(nspace);
 	openNamespace(nspace);
 	return nspace;
