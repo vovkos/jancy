@@ -494,6 +494,25 @@ Parser::reuseAttributes(const QualifiedName& name) {
 	return true;
 }
 
+bool
+Parser::postDeclaration() {
+	if (m_module->m_namespaceMgr.getCurrentNamespace()->getNamespaceKind() == NamespaceKind_TemplateDeclaration)
+		m_module->m_namespaceMgr.closeAllTemplateDeclNamespaces(); // error recovery
+
+	m_declarationId++;
+
+	if (!m_attributeBlock)
+		return true;
+
+	if (m_attributeBlockState == AttributeBlockState_Created) {
+		m_attributeBlockState = AttributeBlockState_Staged;
+		return true;
+	}
+
+	processUnusedAttributes();
+	return false;
+}
+
 size_t
 Parser::prepareDynamicAttributeArgs(
 	sl::BoxList<Value>* argList,
