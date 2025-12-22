@@ -147,9 +147,6 @@ public:
 		return m_atomList;
 	}
 
-	const sl::StringRef&
-	getShortName() const;
-
 	sl::StringRef
 	getFullName() const;
 
@@ -204,14 +201,6 @@ protected:
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-inline
-const sl::StringRef&
-QualifiedName::getShortName() const {
-	const QualifiedNameAtom& atom = !m_atomList.isEmpty() ? *m_atomList.getTail() : m_firstAtom;
-	ASSERT(atom.m_atomKind == QualifiedNameAtomKind_Name);
-	return atom.m_name;
-}
 
 inline
 sl::StringRef

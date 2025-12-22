@@ -405,7 +405,7 @@ public:
 
 	const sl::StringRef&
 	getShortName() {
-		return m_name.getShortName();
+		return m_name.getLastAtom()->m_name;
 	}
 
 	const lex::LineCol&
