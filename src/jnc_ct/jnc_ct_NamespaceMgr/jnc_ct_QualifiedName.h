@@ -26,9 +26,9 @@ enum QualifiedNameAtomKind {
 	QualifiedNameAtomKind_Empty = 0,
 	QualifiedNameAtomKind_BaseType,
 	QualifiedNameAtomKind_Name,
-	QualifiedNameAtomKind_FirstTemplate,
-	QualifiedNameAtomKind_TemplateDeclSuffix = QualifiedNameAtomKind_FirstTemplate,
+	QualifiedNameAtomKind_TemplateDeclSuffix,
 	QualifiedNameAtomKind_TemplateInstantiateOperator,
+	QualifiedNameAtomKind_FirstTemplate = QualifiedNameAtomKind_TemplateDeclSuffix,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

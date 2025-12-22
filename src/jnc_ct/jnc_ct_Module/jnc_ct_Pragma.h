@@ -27,21 +27,21 @@ enum PragmaState {
 enum Pragma {
 	Pragma_Undefined = 0,
 	Pragma_Alignment,
-	Pragma_FirstBoolDefaultFalse,
-	Pragma_FirstBool              = Pragma_FirstBoolDefaultFalse,
-	Pragma_ThinPointers           = Pragma_FirstBoolDefaultFalse,
+	Pragma_ThinPointers,
 	Pragma_ExposedEnums,
 	Pragma_RegexAnchored,
 	Pragma_RegexFullMatch,
 	Pragma_RegexCaseInsensitive,
 	Pragma_RegexLatin1,
 	Pragma_RegexOneLine,
-	Pragma_FirstBoolDefaultTrue,
-	Pragma_RegexUnanchored        = Pragma_FirstBoolDefaultTrue,
+	Pragma_RegexUnanchored,
 	Pragma_RegexCaseSensitive,
 	Pragma_RegexUtf8,
 	Pragma_RegexMultiLine,
 	Pragma__Count,
+	Pragma_FirstBool             = Pragma_ThinPointers,
+	Pragma_FirstBoolDefaultFalse = Pragma_ThinPointers,
+	Pragma_FirstBoolDefaultTrue  = Pragma_RegexUnanchored,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
