@@ -215,6 +215,12 @@ public:
 			(Type*)getDataPtrType(DataPtrTypeKind_Normal, ptrTypeFlags);
 	}
 
+	virtual
+	MemberBlock*
+	getMemberBlock() {
+		return this;
+	}
+
 	FunctionType*
 	getMemberMethodType(
 		FunctionType* shortType,

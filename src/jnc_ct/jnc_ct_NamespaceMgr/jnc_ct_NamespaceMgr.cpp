@@ -499,25 +499,33 @@ NamespaceMgr::getAccessKind(Namespace* targetNamespace) {
 		return AccessKind_Public;
 	}
 
-	if (targetNamespace->m_namespaceKind != NamespaceKind_Type) {
-		for (; nspace; nspace = nspace->m_parentNamespace) {
-			if (nspace->isNamed())
-				continue;
+	MemberBlock* block = targetNamespace->getMemberBlock();
+	const FriendSet* friendSet = block && block->getFriendSet().ensureResolved() ?
+		&block->getFriendSet() :
+		NULL;
 
-			if (nspace == targetNamespace || targetNamespace->m_friendSet.find(nspace))
-				return AccessKind_Protected;
-		}
+	if (targetNamespace->m_namespaceKind != NamespaceKind_Type) {
+		if (friendSet)
+			for (; nspace; nspace = nspace->m_parentNamespace) {
+				if (!nspace->isNamed())
+					continue;
+
+				if (targetNamespace == nspace || friendSet->isFriend(nspace))
+					return AccessKind_Protected;
+			}
 
 		return AccessKind_Public;
 	}
 
 	NamedType* targetType = (NamedType*)targetNamespace;
 
+
+
 	for (; nspace; nspace = nspace->m_parentNamespace) {
 		if (!nspace->isNamed())
 			continue;
 
-		if (nspace == targetNamespace || targetNamespace->m_friendSet.find(nspace))
+		if (targetNamespace == nspace || friendSet && friendSet->isFriend(nspace))
 			return AccessKind_Protected;
 
 		if (nspace->m_namespaceKind == NamespaceKind_Type) {

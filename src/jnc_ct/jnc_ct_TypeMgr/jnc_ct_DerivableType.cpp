@@ -24,7 +24,7 @@ FindModuleItemResult
 DerivableType::findItemInExtensionNamespaces(const sl::StringRef& name) {
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	while (nspace) {
-		FindModuleItemResult findResult = nspace->getUsingSet()->findExtensionItem(this, name);
+		FindModuleItemResult findResult = nspace->getUsingSet().findExtensionItem(this, name);
 		if (!findResult.m_result || findResult.m_item)
 			return findResult;
 

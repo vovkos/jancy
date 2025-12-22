@@ -147,6 +147,12 @@ public:
 		return m_propertyKind;
 	}
 
+	virtual
+	MemberBlock*
+	getMemberBlock() {
+		return this;
+	}
+
 	PropertyType*
 	getType() {
 		return m_type;

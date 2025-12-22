@@ -13,6 +13,7 @@
 
 #include "jnc_ct_Function.h"
 #include "jnc_ct_Field.h"
+#include "jnc_ct_NamespaceSet.h"
 
 namespace jnc {
 namespace ct {
@@ -24,6 +25,7 @@ class Value;
 //..............................................................................
 
 class MemberBlock {
+	friend class Parser;
 	friend class VariableMgr;
 
 protected:
@@ -47,6 +49,8 @@ protected:
 	sl::Array<Property*> m_propertyStaticConstructArray;
 	sl::Array<Property*> m_propertyConstructArray;
 	sl::Array<Property*> m_propertyDestructArray;
+
+	FriendSet m_friendSet;
 
 public:
 	MemberBlock(ModuleItem* parent);
@@ -94,6 +98,11 @@ public:
 	Function*
 	getDestructor() const {
 		return m_destructor;
+	}
+
+	const FriendSet&
+	getFriendSet() const {
+		return m_friendSet;
 	}
 
 	Field*

@@ -11,32 +11,20 @@
 
 #pragma once
 
-#include "jnc_Namespace.h"
-#include "jnc_ct_ModuleItem.h"
-#include "jnc_ct_QualifiedName.h"
+#include "jnc_ct_NamespaceSet.h"
 
 namespace jnc {
 namespace ct {
 
-class NamespaceMgr;
 class GlobalNamespace;
 class ExtensionNamespace;
-class NamedType;
 
 //..............................................................................
 
-class UsingSet {
-protected:
-	struct ImportNamespace: sl::ListLink {
-		ModuleItemContext m_context;
-		NamespaceKind m_namespaceKind;
-		QualifiedName m_name;
-	};
-
+class UsingSet: public NamespaceSet {
 protected:
 	sl::Array<GlobalNamespace*> m_globalNamespaceArray;
 	sl::Array<ExtensionNamespace*> m_extensionNamespaceArray;
-	sl::List<ImportNamespace> m_importNamespaceList;
 
 public:
 	void
@@ -44,13 +32,6 @@ public:
 
 	void
 	append(const UsingSet& src);
-
-	bool
-	addNamespace(
-		const ModuleItemContext& context,
-		NamespaceKind namespaceKind,
-		QualifiedName* name // destructive
-	);
 
 	void
 	addGlobalNamespace(GlobalNamespace* nspace) {
@@ -63,22 +44,18 @@ public:
 	}
 
 	FindModuleItemResult
-	findItem(const sl::StringRef& name);
+	findItem(const sl::StringRef& name) const;
 
 	FindModuleItemResult
 	findExtensionItem(
 		NamedType* type,
 		const sl::StringRef& name
-	);
+	) const;
 
 protected:
+	virtual
 	bool
-	ensureResolved() {
-		return m_importNamespaceList.isEmpty() ? true : resolve();
-	}
-
-	bool
-	resolve();
+	addNamespaceImpl(Namespace* nspace);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -86,9 +63,17 @@ protected:
 inline
 void
 UsingSet::clear() {
+	NamespaceSet::clear();
 	m_globalNamespaceArray.clear();
 	m_extensionNamespaceArray.clear();
-	m_importNamespaceList.clear();
+}
+
+inline
+void
+UsingSet::append(const UsingSet& src) {
+	NamespaceSet::append(src);
+	m_globalNamespaceArray.append(src.m_globalNamespaceArray);
+	m_extensionNamespaceArray.append(src.m_extensionNamespaceArray);
 }
 
 //..............................................................................
@@ -100,9 +85,9 @@ protected:
 	UsingSet m_usingSet;
 
 public:
-	UsingSet*
+	const UsingSet&
 	getUsingSet() {
-		return &m_usingSet;
+		return m_usingSet;
 	}
 
 	void

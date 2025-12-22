@@ -809,8 +809,7 @@ Parser::declareExtensionNamespace(
 }
 
 bool
-Parser::useNamespace(
-	const lex::LineCol& pos,
+Parser::useNamespaces(
 	NamespaceKind namespaceKind,
 	sl::BoxList<QualifiedName>* nameList
 ) {
@@ -821,6 +820,25 @@ Parser::useNamespace(
 	while (!nameList->isEmpty()) {
 		sl::BoxListEntry<QualifiedName>* entry = nameList->removeHeadEntry();
 		bool result = nspace->m_usingSet.addNamespace(context, namespaceKind, &entry->m_value);
+		delete entry;
+		if (!result)
+			finalResult = false;
+	}
+
+	return finalResult;
+}
+
+bool
+Parser::addFriends(sl::BoxList<QualifiedName>* nameList) {
+	ModuleItemContext context(m_module);
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
+	MemberBlock* block = nspace->getMemberBlock();
+	ASSERT(block);
+
+	bool finalResult = true;
+	while (!nameList->isEmpty()) {
+		sl::BoxListEntry<QualifiedName>* entry = nameList->removeHeadEntry();
+		bool result = block->m_friendSet.addNamespace(context, NamespaceKind_Undefined, &entry->m_value);
 		delete entry;
 		if (!result)
 			finalResult = false;

@@ -23,9 +23,9 @@ namespace ct {
 class DerivableType;
 class EnumType;
 class Const;
-class MemberCoord;
 class Value;
-class Orphan;
+class MemberCoord;
+class MemberBlock;
 
 struct DualPtrTypeTuple;
 
@@ -64,7 +64,6 @@ protected:
 	err::Error m_parseError;
 	sl::Array<ModuleItem*> m_itemArray;
 	sl::StringHashTable<ModuleItem*> m_itemMap;
-	sl::SimpleHashTable<Namespace*, bool> m_friendSet;
 	sl::StringHashTable<DualPtrTypeTuple*> m_dualPtrTypeTupleMap;
 
 public:
@@ -74,13 +73,19 @@ public:
 	}
 
 	NamespaceKind
-	getNamespaceKind() {
+	getNamespaceKind() const {
 		return m_namespaceKind;
 	}
 
 	bool
-	isNamespaceReady() {
+	isNamespaceReady() const {
 		return m_namespaceStatus == NamespaceStatus_Ready;
+	}
+
+	virtual
+	MemberBlock*
+	getMemberBlock() {
+		return NULL;
 	}
 
 	bool
@@ -342,6 +347,15 @@ TemplateNamespace::TemplateNamespace(NamespaceKind namespaceKind) {
 	m_namespaceKind = namespaceKind;
 	m_namespaceStatus = NamespaceStatus_Ready;
 	m_instanceType = NULL;
+}
+
+//..............................................................................
+
+inline
+void
+ModuleItemUsingSet::addUsingSet(Namespace* anchorNamespace) {
+	for (Namespace* nspace = anchorNamespace; nspace; nspace = nspace->getParentNamespace())
+		m_usingSet.append(nspace->getUsingSet());
 }
 
 //..............................................................................

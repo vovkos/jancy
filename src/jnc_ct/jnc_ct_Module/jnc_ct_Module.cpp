@@ -341,7 +341,7 @@ Module::parseImpl(
 		} while (!isEof);
 	}
 
-	m_namespaceMgr.getGlobalNamespace()->getUsingSet()->clear();
+	m_namespaceMgr.getGlobalNamespace()->clearUsingSet();
 	return result;
 }
 

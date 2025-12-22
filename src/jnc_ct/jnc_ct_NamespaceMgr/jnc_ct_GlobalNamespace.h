@@ -44,6 +44,11 @@ public:
 		m_extraBodyList.clear();
 	}
 
+	void
+	clearUsingSet() {
+		m_usingSet.clear();
+	}
+
 	virtual
 	sl::String
 	createDoxyRefId();

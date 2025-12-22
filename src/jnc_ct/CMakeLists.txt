@@ -94,6 +94,7 @@ set(
 	include/jnc_ct_ModuleItem.h
 	include/jnc_ct_MulticastClassType.h
 	include/jnc_ct_Namespace.h
+	include/jnc_ct_NamespaceSet.h
 	include/jnc_ct_NamespaceMgr.h
 	include/jnc_ct_OperatorMgr.h
 	include/jnc_ct_OrcJit.h
@@ -301,6 +302,7 @@ set(
 	jnc_ct_NamespaceMgr/jnc_ct_GlobalNamespace.h
 	jnc_ct_NamespaceMgr/jnc_ct_MemberBlock.h
 	jnc_ct_NamespaceMgr/jnc_ct_Namespace.h
+	jnc_ct_NamespaceMgr/jnc_ct_NamespaceSet.h
 	jnc_ct_NamespaceMgr/jnc_ct_NamespaceMgr.h
 	jnc_ct_NamespaceMgr/jnc_ct_Orphan.h
 	jnc_ct_NamespaceMgr/jnc_ct_QualifiedName.h
@@ -317,6 +319,7 @@ set(
 	jnc_ct_NamespaceMgr/jnc_ct_GlobalNamespace.cpp
 	jnc_ct_NamespaceMgr/jnc_ct_MemberBlock.cpp
 	jnc_ct_NamespaceMgr/jnc_ct_Namespace.cpp
+	jnc_ct_NamespaceMgr/jnc_ct_NamespaceSet.cpp
 	jnc_ct_NamespaceMgr/jnc_ct_NamespaceMgr.cpp
 	jnc_ct_NamespaceMgr/jnc_ct_Orphan.cpp
 	jnc_ct_NamespaceMgr/jnc_ct_QualifiedName.cpp

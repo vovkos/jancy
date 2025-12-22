@@ -456,11 +456,13 @@ protected:
 	);
 
 	bool
-	useNamespace(
-		const lex::LineCol& pos,
+	useNamespaces(
 		NamespaceKind namespaceKind,
 		sl::BoxList<QualifiedName>* nameList
 	);
+
+	bool
+	addFriends(sl::BoxList<QualifiedName>* nameList);
 
 	AttributeBlock*
 	popAttributeBlock();
