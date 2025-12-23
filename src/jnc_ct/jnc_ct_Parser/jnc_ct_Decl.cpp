@@ -234,10 +234,8 @@ Declarator::setTypeSpecifier(
 
 bool
 Declarator::addName(sl::String name) {
-	if (m_functionKind && m_functionKind != FunctionKind_Normal) {
-		err::setFormatStringError("cannot further qualify '%s' declarator", getFunctionKindString(m_functionKind));
+	if (!preQualify())
 		return false;
-	}
 
 	m_declaratorKind = DeclaratorKind_Name;
 	m_functionKind = FunctionKind_Normal;
@@ -247,10 +245,8 @@ Declarator::addName(sl::String name) {
 
 bool
 Declarator::addUnnamedMethod(FunctionKind functionKind) {
-	if (m_functionKind && m_functionKind != FunctionKind_Normal) {
-		err::setFormatStringError("cannot further qualify '%s' declarator", getFunctionKindString(m_functionKind));
+	if (!preQualify())
 		return false;
-	}
 
 	m_declaratorKind = DeclaratorKind_UnnamedMethod;
 	m_functionKind = functionKind;
@@ -259,10 +255,13 @@ Declarator::addUnnamedMethod(FunctionKind functionKind) {
 
 bool
 Declarator::addCastOperator(Type* type) {
+	if (!preQualify())
+		return false;
+
 	m_declaratorKind = DeclaratorKind_UnnamedMethod;
 	m_functionKind = FunctionKind_CastOperator;
 	m_castOpType = type;
-	return false;
+	return true;
 }
 
 bool
@@ -270,10 +269,8 @@ Declarator::addUnaryBinaryOperator(
 	UnOpKind unOpKind,
 	BinOpKind binOpKind
 ) {
-	if (m_functionKind && m_functionKind != FunctionKind_Normal) {
-		err::setFormatStringError("cannot further qualify '%s' declarator", getFunctionKindString(m_functionKind));
+	if (!preQualify())
 		return false;
-	}
 
 	if (binOpKind == BinOpKind_Assign) {
 		err::setError("assignment operator could not be overloaded");

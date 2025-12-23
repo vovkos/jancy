@@ -509,6 +509,9 @@ public:
 	}
 
 protected:
+	bool
+	preQualify();
+
 	Type*
 	calcTypeImpl(
 		Value* elementCountValue,
@@ -529,6 +532,17 @@ Declarator::Declarator() {
 	m_baseType = NULL;
 	m_attributeBlock = NULL;
 	m_doxyBlock = NULL;
+}
+
+inline
+bool
+Declarator::preQualify() {
+	if (m_functionKind && m_functionKind != FunctionKind_Normal) {
+		err::setFormatStringError("cannot further qualify '%s'", getFunctionKindString(m_functionKind));
+		return false;
+	}
+
+	return true;
 }
 
 //..............................................................................

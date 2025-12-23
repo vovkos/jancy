@@ -182,6 +182,10 @@ DerivableType::addMethod(Function* function) {
 		m_methodArray.append(function);
 		return true;
 
+	case FunctionKind_CastOperator:
+		m_castOperatorArray.append(function);
+		return true;
+
 	case FunctionKind_UnaryOperator:
 		if (m_unaryOperatorTable.isEmpty())
 			m_unaryOperatorTable.setCountZeroConstruct(UnOpKind__Count);

@@ -180,12 +180,29 @@ type_name_or_empty
 	;
 
 struct {
+	Type* m_type;
+}
+type_name_no_suffix
+	local {
+		Declarator $declarator;
+	}
+	:	declaration_specifier_list
+			{
+				$declarator.setTypeSpecifier(&$1.m_typeSpecifier, m_module);
+			}
+		declarator_prefix<&$declarator>*
+			{
+				return ($.m_type = $declarator.calcType()) != NULL;
+			}
+	;
+
+struct {
 	Declarator m_declarator;
 }
 type_name_declarator
-	:	declaration_specifier_list $s
+	:	declaration_specifier_list
 			{
-				$.m_declarator.setTypeSpecifier(&$s.m_typeSpecifier, m_module);
+				$.m_declarator.setTypeSpecifier(&$1.m_typeSpecifier, m_module);
 			}
 		declarator_prefix<&$.m_declarator>*
 		declarator_suffix<&$.m_declarator>*
@@ -197,11 +214,7 @@ type_name_impl<
 >
 	:	type_name_declarator
 			{
-				Type* type = $1.m_declarator.calcType($countValue);
-				if (!type)
-					return false;
-
-				*$type = type;
+				return (*$type = $1.m_declarator.calcType($countValue)) != NULL;
 			}
 	;
 

@@ -188,7 +188,7 @@ operator_declarator_qualifier<Declarator* $declarator>
 			{
 				return $declarator->addUnaryBinaryOperator($1.m_unOpKind, $1.m_binOpKind);
 			}
-	|	type_name
+	|	type_name_no_suffix
 			{
 				return $declarator->addCastOperator($1.m_type);
 			}
