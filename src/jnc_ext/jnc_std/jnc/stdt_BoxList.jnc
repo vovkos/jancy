@@ -1,0 +1,108 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+import "stdt_List.jnc"
+
+namespace stdt {
+
+//! \addtogroup std-container
+//! @{
+
+//..............................................................................
+
+struct BoxListEntry<T>: ListLink<BoxListEntry> {
+	T m_value;
+
+	construct() {}
+
+	construct(T value) {
+		m_value = value;
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct BoxIterator<T> {
+	typedef BoxListEntry<T> Entry;	
+	Entry* readonly m_p;
+
+	construct(Entry* p = null) {
+		m_p = p;
+	}
+
+	operator bool () {
+		return m_p != null;
+	}
+
+	T operator * () thin {
+		return m_p.m_value;
+	}
+
+ 	T operator := (T value) thin {
+ 		return m_p.m_value = value;
+ 	}
+
+ 	BoxIterator operator ++ () thin {
+ 		m_p = m_p.m_next;
+ 		return *this;
+ 	}
+
+ 	BoxIterator postfix operator ++ () thin {
+ 		BoxIterator saved = *this;
+ 		m_p = m_p.m_next;
+ 		return saved;
+ 	}
+
+ 	BoxIterator operator -- () thin {
+ 		m_p = m_p.m_prev;
+ 		return *this;
+ 	}
+
+ 	BoxIterator postfix operator -- () thin {
+ 		BoxIterator saved = *this;
+ 		m_p = m_p.m_prev;
+ 		return saved;
+ 	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class BoxList<T>: List<BoxListEntry<T> > {
+	typedef BoxListEntry<T> Entry;	
+	typedef BoxIterator<T> Iterator;
+
+	Iterator append(T value) {
+		return insertTail(value);
+	}
+
+	Iterator insertHead(T value);
+	Iterator insertTail(T value);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+Iterator BoxList<T>.insertHead(T value) {
+	Entry* p = new Entry(value);
+	basetype.insertHead(p);
+	return Iterator(p);
+}
+
+Iterator BoxList<T>.insertTail(T value) {
+	Entry* p = new Entry(value);
+	basetype.insertHead(p);
+	return Iterator(p);
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace stdt
