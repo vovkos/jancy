@@ -1760,6 +1760,13 @@ protected:
 		Value* resultValue
 	);
 
+	Function*
+	findCastOperator(
+		const Value& opValue,
+		Type* type,
+		CastKind* castKind = NULL
+	);
+
 	bool
 	castArgValueList(
 		FunctionType* functionType,

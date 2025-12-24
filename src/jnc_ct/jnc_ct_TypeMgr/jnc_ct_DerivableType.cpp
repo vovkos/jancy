@@ -20,6 +20,30 @@ namespace ct {
 
 //..............................................................................
 
+Function*
+DerivableType::findCastOperator(
+	Type* type,
+	CastKind* castKind
+) {
+	CastKind bestCastKind = CastKind_None;
+	Function* bestCastOperator = NULL;
+	size_t count = m_castOperatorArray.getCount();
+	for (size_t i = 0; i < count; i++) {
+		Function* castOperator = m_castOperatorArray[i];
+		Type* returnType = castOperator->getType()->getReturnType();
+		CastKind castKind = m_module->m_operatorMgr.getCastKind(returnType, type);
+		if (bestCastKind < castKind) {
+			bestCastKind = castKind;
+			bestCastOperator = castOperator;
+		}
+	}
+
+	if (castKind)
+		*castKind = bestCastKind;
+
+	return bestCastOperator;
+}
+
 FindModuleItemResult
 DerivableType::findItemInExtensionNamespaces(const sl::StringRef& name) {
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();

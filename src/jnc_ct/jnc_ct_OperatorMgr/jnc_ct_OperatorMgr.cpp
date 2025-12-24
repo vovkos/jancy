@@ -537,6 +537,14 @@ OperatorMgr::castOperator(
 		return true;
 	}
 
+	// first, try cast operator methods
+
+	Function* castMethod = findCastOperator(rawOpValue, type);
+	if (castMethod)
+		return
+			callOperator(castMethod, rawOpValue, resultValue) &&
+			castOperator(resultValue, type);
+
 	TypeKind typeKind = type->getTypeKind();
 	ASSERT((size_t)typeKind < TypeKind__Count);
 
@@ -591,6 +599,32 @@ OperatorMgr::castOperator(
 		err::setFormatStringError("cannot dynamically cast to '%s'", type->getTypeString().sz());
 		return false;
 	}
+}
+
+Function*
+OperatorMgr::findCastOperator(
+	const Value& opValue,
+	Type* type,
+	CastKind* castKind
+) {
+	Type* opType = opValue.getType();
+	uint_t opTypeKindFlags = opType->getTypeKindFlags();
+	if (opTypeKindFlags & TypeKindFlag_ClassPtr)
+		return (((ClassPtrType*)opType)->getTargetType())->findCastOperator(type, castKind);
+
+	if (opTypeKindFlags & TypeKindFlag_DataPtr) {
+		Type* targetType = ((DataPtrType*)opType)->getTargetType();
+		if (targetType->getTypeKindFlags() & TypeKindFlag_Derivable)
+			return ((DerivableType*)targetType)->findCastOperator(type, castKind);
+	}
+
+	if (!(opTypeKindFlags & TypeKindFlag_Derivable))
+		return NULL;
+
+	Function* castOperator = ((DerivableType*)opType)->findCastOperator(type, castKind);
+	return castOperator && (castOperator->getThisArgType()->getFlags() & PtrTypeFlag_Const) ?
+		castOperator :
+		NULL;
 }
 
 bool
@@ -695,6 +729,11 @@ OperatorMgr::getCastKind(
 ) {
 	if (rawOpValue.getValueKind() == ValueKind_Null)
 		return (type->getTypeKindFlags() & TypeKindFlag_Nullable) ? CastKind_Identity : CastKind_None;
+
+	CastKind castKind;
+	Function* castMethod = findCastOperator(rawOpValue, type, &castKind);
+	if (castMethod)
+		return castKind;
 
 	TypeKind typeKind = type->getTypeKind();
 	ASSERT((size_t)typeKind < TypeKind__Count);

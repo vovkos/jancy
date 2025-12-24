@@ -258,6 +258,9 @@ Declarator::addCastOperator(Type* type) {
 	if (!preQualify())
 		return false;
 
+	if (m_baseType->getTypeKind() != TypeKind_Void || !m_pointerPrefixList.isEmpty())
+		return err::fail("invalid cast operator declaration");
+
 	m_baseType = type;
 	m_declaratorKind = DeclaratorKind_UnnamedMethod;
 	m_functionKind = FunctionKind_CastOperator;

@@ -13,6 +13,7 @@
 
 #include "jnc_DerivableType.h"
 #include "jnc_ct_MemberBlock.h"
+#include "jnc_ct_CastOp.h"
 
 namespace jnc {
 namespace ct {
@@ -198,7 +199,6 @@ protected:
 	sl::Array<OverloadableFunction> m_unaryOperatorTable;
 	sl::Array<OverloadableFunction> m_binaryOperatorTable;
 	sl::Array<Function*> m_castOperatorArray;
-	sl::StringHashTable<Function*> m_castOperatorMap;
 	OverloadableFunction m_callOperator;
 	Function* m_operatorVararg;
 	Function* m_operatorCdeclVararg;
@@ -289,10 +289,10 @@ public:
 	}
 
 	Function*
-	getCastOperator(Type* type) {
-		sl::StringHashTableIterator<Function*> it = m_castOperatorMap.find(type->getSignature());
-		return it ? it->m_value : NULL;
-	}
+	findCastOperator(
+		Type* type,
+		CastKind* castKind = NULL
+	);
 
 	OverloadableFunction
 	getCallOperator() {
