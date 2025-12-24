@@ -481,15 +481,6 @@ OperatorMgr::getNamedTypeMember(
 	if (decl->getStorageKind() == StorageKind_Static)
 		return true;
 
-	AXL_TODO("remove explicit addr operator and instead allow implicit cast named_type& -> named_type*")
-
-	Value thisArgValue = opValue;
-	if (namedType->getTypeKind() != TypeKind_Class) {
-		result = unaryOperator(UnOpKind_Addr, &thisArgValue);
-		if (!result)
-			return false;
-	}
-
 	if (isClassType(namedType, ClassTypeKind_Multicast)) {
 		ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_ClassPtr);
 		if ((member->getFlags() & MulticastMethodFlag_InaccessibleViaEventPtr) &&
@@ -500,7 +491,7 @@ OperatorMgr::getNamedTypeMember(
 	}
 
 	Closure* closure = resultValue->createClosure();
-	closure->insertThisArgValue(thisArgValue);
+	closure->insertThisArgValue(opValue);
 	return true;
 }
 
