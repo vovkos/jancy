@@ -226,7 +226,11 @@ Cast_DataPtr_FromRvalue::llvmCast(
 	Type* type,
 	Value* resultValue
 ) {
-	ASSERT(type->getTypeKind() == TypeKind_DataPtr && (type->getFlags() & PtrTypeFlag_Const));
+	ASSERT(
+		type->getTypeKind() == TypeKind_DataPtr &&
+		(type->getFlags() & PtrTypeFlag_Const) &&
+		(opValue.getType()->getTypeKindFlags() & TypeKindFlag_Derivable)
+	);
 
 	Value rvalueStorage = m_module->m_variableMgr.createSimpleStackVariable("rvalue_storage", opValue.getType());
 	bool result = m_module->m_operatorMgr.storeDataRef(rvalueStorage, opValue);
@@ -819,7 +823,10 @@ Cast_DataPtr::getCastOperator(
 		return &m_fromPropertyPtr;
 
 	default:
-		if ((dstPtrType->getFlags() & PtrTypeFlag_Const) && srcType->isEqual(dstPtrType->getTargetType()))
+		if ((dstPtrType->getFlags() & PtrTypeFlag_Const) &&
+			(srcType->getTypeKindFlags() & TypeKindFlag_Derivable) &&
+			srcType->isEqual(dstPtrType->getTargetType())
+		)
 			return &m_fromRvalue;
 
 		return NULL;
