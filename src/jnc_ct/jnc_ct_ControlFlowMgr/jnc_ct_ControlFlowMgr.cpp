@@ -246,9 +246,9 @@ ControlFlowMgr::getReturnBlock() {
 		}
 	}
 
-	m_currentBlock->m_flags |= BasicBlockFlag_Return;
-	m_returnBlockArray.append(m_currentBlock);
-
+	ASSERT(m_currentBlock == m_returnBlock);
+	m_returnBlock->m_flags |= BasicBlockFlag_Return;
+	m_returnBlockArray.append(m_returnBlock);
 	setCurrentBlock(prevBlock);
 	return m_returnBlock;
 }
@@ -446,7 +446,7 @@ ControlFlowMgr::asyncRet(BasicBlock* nextBlock) {
 
 	m_module->m_llvmIrBuilder.createRet();
 
-	ASSERT(!(m_currentBlock->m_flags & BasicBlockFlag_Return));
+	ASSERT(!(m_currentBlock->m_flags & BasicBlockFlag_Return) || m_currentBlock == m_unreachableBlock);
 	m_currentBlock->m_flags |= BasicBlockFlag_Return;
 	m_returnBlockArray.append(m_currentBlock);
 	setCurrentBlock(nextBlock ? nextBlock : getUnreachableBlock());
@@ -523,7 +523,7 @@ ControlFlowMgr::ret(const Value& value) {
 			functionType->getCallConv()->ret(function, returnValue);
 	}
 
-	ASSERT(!(m_currentBlock->m_flags & BasicBlockFlag_Return));
+	ASSERT(!(m_currentBlock->m_flags & BasicBlockFlag_Return) || m_currentBlock == m_unreachableBlock);
 	m_currentBlock->m_flags |= BasicBlockFlag_Return;
 	m_returnBlockArray.append(m_currentBlock);
 	setCurrentBlock(getUnreachableBlock());
@@ -545,11 +545,11 @@ ControlFlowMgr::checkReturn() {
 		returnType = function->getType()->getReturnType();
 	}
 
-	if (!(m_currentBlock->m_flags & BasicBlockFlag_Reachable)) {
+	if (!(m_currentBlock->m_flags & BasicBlockFlag_Reachable))
 		m_module->m_llvmIrBuilder.createUnreachable(); // just to make LLVM happy
-	} else if (returnType->getTypeKind() == TypeKind_Void) {
+	else if (returnType->getTypeKind() == TypeKind_Void)
 		ret();
-	} else if (m_returnBlockArray.isEmpty()) {
+	else if (m_returnBlockArray.isEmpty()) {
 		err::setFormatStringError(
 			"function '%s' must return '%s' value",
 			function->getItemName().sz(),
