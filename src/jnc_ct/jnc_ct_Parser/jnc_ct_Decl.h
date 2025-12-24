@@ -336,7 +336,6 @@ protected:
 	FunctionKind m_functionKind;
 	UnOpKind m_unOpKind;
 	BinOpKind m_binOpKind;
-	Type* m_castOpType;
 	QualifiedName m_name;
 	lex::LineCol m_pos;
 	size_t m_bitCount;
@@ -379,11 +378,6 @@ public:
 	BinOpKind
 	getBinOpKind() {
 		return m_binOpKind;
-	}
-
-	Type*
-	getCastOpType() {
-		return m_castOpType;
 	}
 
 	void
@@ -527,7 +521,6 @@ Declarator::Declarator() {
 	m_functionKind = FunctionKind_Undefined;
 	m_unOpKind = UnOpKind_Undefined;
 	m_binOpKind = BinOpKind_Undefined;
-	m_castOpType = NULL;
 	m_bitCount = 0;
 	m_baseType = NULL;
 	m_attributeBlock = NULL;

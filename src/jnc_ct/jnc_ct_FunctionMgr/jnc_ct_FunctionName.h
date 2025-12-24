@@ -30,7 +30,6 @@ protected:
 		void* m_functionKindSpecific;
 		UnOpKind m_unOpKind;
 		BinOpKind m_binOpKind;
-		Type* m_castOpType;
 		Function* m_asyncLauncher;
 	};
 
@@ -52,12 +51,6 @@ public:
 	getBinOpKind() {
 		ASSERT(m_functionKind == FunctionKind_BinaryOperator);
 		return m_binOpKind;
-	}
-
-	Type*
-	getCastOpType() {
-		ASSERT(m_functionKind == FunctionKind_CastOperator);
-		return m_castOpType;
 	}
 
 	Function*

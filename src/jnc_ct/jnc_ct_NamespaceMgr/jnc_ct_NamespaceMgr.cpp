@@ -270,10 +270,6 @@ NamespaceMgr::createOrphan(
 	case FunctionKind_BinaryOperator:
 		orphan->m_binOpKind = declarator->getBinOpKind();
 		break;
-
-	case FunctionKind_CastOperator:
-		orphan->m_castOpType = declarator->getCastOpType();
-		break;
 	}
 
 	sl::takeOver(&orphan->m_declaratorName, &declarator->m_name);

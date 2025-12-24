@@ -1319,10 +1319,6 @@ Parser::declareFunction(
 	case FunctionKind_BinaryOperator:
 		function->m_binOpKind = declarator->getBinOpKind();
 		break;
-
-	case FunctionKind_CastOperator:
-		function->m_castOpType = declarator->getCastOpType();
-		break;
 	}
 
 	function->m_thisArgTypeFlags = thisArgTypeFlags;

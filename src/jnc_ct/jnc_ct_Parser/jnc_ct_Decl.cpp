@@ -258,9 +258,9 @@ Declarator::addCastOperator(Type* type) {
 	if (!preQualify())
 		return false;
 
+	m_baseType = type;
 	m_declaratorKind = DeclaratorKind_UnnamedMethod;
 	m_functionKind = FunctionKind_CastOperator;
-	m_castOpType = type;
 	return true;
 }
 
