@@ -211,6 +211,32 @@ Cast_DataPtr_FromString::llvmCast(
 
 //..............................................................................
 
+bool
+Cast_DataPtr_FromRvalue::constCast(
+	const Value& opValue,
+	Type* type,
+	void* dst
+) {
+	return err::fail("TODO: implement rvalue -> const pointer const cast");
+}
+
+bool
+Cast_DataPtr_FromRvalue::llvmCast(
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
+) {
+	ASSERT(type->getTypeKind() == TypeKind_DataPtr && (type->getFlags() & PtrTypeFlag_Const));
+
+	Value rvalueStorage = m_module->m_variableMgr.createSimpleStackVariable("rvalue_storage", opValue.getType());
+	bool result = m_module->m_operatorMgr.storeDataRef(rvalueStorage, opValue);
+	ASSERT(result);
+
+	return m_module->m_operatorMgr.castOperator(rvalueStorage, type, resultValue);
+}
+
+//..............................................................................
+
 CastKind
 Cast_DataPtr_FromClassPtr::getCastKind(
 	const Value& opValue,
@@ -793,6 +819,9 @@ Cast_DataPtr::getCastOperator(
 		return &m_fromPropertyPtr;
 
 	default:
+		if ((dstPtrType->getFlags() & PtrTypeFlag_Const) && srcType->isEqual(dstPtrType->getTargetType()))
+			return &m_fromRvalue;
+
 		return NULL;
 	}
 

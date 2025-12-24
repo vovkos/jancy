@@ -84,6 +84,38 @@ public:
 
 //..............................................................................
 
+// rvalue -> const data ptr
+
+class Cast_DataPtr_FromRvalue: public CastOperator {
+public:
+	virtual
+	CastKind
+	getCastKind(
+		const Value& opValue,
+		Type* type
+	) {
+		return CastKind_Implicit;
+	}
+
+	virtual
+	bool
+	constCast(
+		const Value& opValue,
+		Type* type,
+		void* dst
+	);
+
+	virtual
+	bool
+	llvmCast(
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
+	);
+};
+
+//..............................................................................
+
 // class ptr -> data ptr
 
 class Cast_DataPtr_FromClassPtr: public CastOperator {
@@ -303,6 +335,7 @@ class Cast_DataPtr: public Cast_Master {
 protected:
 	Cast_DataPtr_FromArray m_fromArray;
 	Cast_DataPtr_FromString m_fromString;
+	Cast_DataPtr_FromRvalue m_fromRvalue;
 	Cast_DataPtr_FromClassPtr m_fromClassPtr;
 	Cast_DataPtr_FromFunctionPtr m_fromFunctionPtr;
 	Cast_DataPtr_FromPropertyPtr m_fromPropertyPtr;

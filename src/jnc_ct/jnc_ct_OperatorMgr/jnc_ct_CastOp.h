@@ -107,7 +107,7 @@ public:
 		Type* type,
 		void* dst
 	) {
-		return false;
+		return err::fail(err::SystemErrorCode_NotImplemented);
 	}
 
 	virtual
