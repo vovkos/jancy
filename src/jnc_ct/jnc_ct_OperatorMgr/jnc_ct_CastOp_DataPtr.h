@@ -94,7 +94,7 @@ public:
 		const Value& opValue,
 		Type* type
 	) {
-		return CastKind_Implicit;
+		return CastKind_ImplicitCrossFamily; // to avoid ambiguity with "proper" ptr casts
 	}
 
 	virtual
