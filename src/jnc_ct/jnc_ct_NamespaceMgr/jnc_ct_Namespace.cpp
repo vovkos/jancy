@@ -285,29 +285,27 @@ Namespace::parseLazyImports() {
 
 FindModuleItemResult
 Namespace::findDirectChildItem(const sl::StringRef& name) {
-	if (m_namespaceKind == NamespaceKind_Type && name == m_name) { // shortcut to selftype
-		NamedType* type = (NamedType*)this;
-		if (!(type->getTypeKindFlags() & TypeKindFlag_Derivable))
-			return FindModuleItemResult(type);
-
-		TemplateInstance* templateInstance = ((DerivableType*)type)->getTemplateInstance();
-		return templateInstance ?
-			FindModuleItemResult(templateInstance->m_template) :
-			FindModuleItemResult(type);
-	}
-
 	bool result = ensureNamespaceReady();
 	if (!result)
 		return g_errorFindModuleItemResult;
 
 	sl::StringHashTableIterator<ModuleItem*> it = m_itemMap.find(name);
-	if (!it)
+	if (!it) {
+		if (m_namespaceKind == NamespaceKind_Type && name == m_name) { // fallback to selftype
+			NamedType* type = (NamedType*)this;
+			if (!(type->getTypeKindFlags() & TypeKindFlag_Derivable))
+				return FindModuleItemResult(type);
+
+			TemplateInstance* templateInstance = ((DerivableType*)type)->getTemplateInstance();
+			return templateInstance ?
+				FindModuleItemResult(templateInstance->m_template) :
+				FindModuleItemResult(type);
+		}
+
 		return g_nullFindModuleItemResult;
+	}
 
 	ModuleItem* item = it->m_value;
-	if (!item)
-		return g_nullFindModuleItemResult;
-
 	if (item->getItemKind() == ModuleItemKind_Alias) {
 		Alias* alias = (Alias*)item;
 		result = alias->ensureResolved();
