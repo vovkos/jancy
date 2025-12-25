@@ -787,12 +787,6 @@ public:
 	);
 
 	bool
-	parseInitializer(
-		const Value& value,
-		sl::List<Token>* tokenList
-	);
-
-	bool
 	parseReactiveInitializer(
 		const Value& value,
 		sl::List<Token>* tokenList

@@ -268,62 +268,74 @@ OperatorMgr::initialize(
 	sl::List<Token>* constructorTokenList,
 	sl::List<Token>* initializerTokenList
 ) {
-	bool result;
-
 	Value value = rawValue;
-
 	if (rawValue.getType()->getTypeKind() == TypeKind_DataRef)
 		value.overrideType(((DataPtrType*)rawValue.getType())->getUnConstPtrType());
 	else if (rawValue.getType()->getTypeKind() == TypeKind_ClassRef)
 		value.overrideType(((ClassPtrType*)rawValue.getType())->getUnConstPtrType());
 
-	sl::BoxList<Value> argList;
-	if (!constructorTokenList->isEmpty()) {
+	bool hasConstructor = !constructorTokenList->isEmpty();
+	bool hasInitializer = !initializerTokenList->isEmpty();
+
+	if (hasConstructor) {
 		Parser parser(m_module, NULL, Parser::Mode_Compile);
-		result = parser.parseTokenList(SymbolKind_expression_or_empty_list_save, constructorTokenList);
+		bool result = parser.parseTokenList(SymbolKind_expression_or_empty_list_save, constructorTokenList);
 		if (!result)
 			return false;
 
+		sl::BoxList<Value> argList;
 		parser.takeOverLastExpressionValueList(&argList);
+		result = construct(value, &argList);
+		if (!result)
+			return false;
 	}
 
-	result = construct(value, &argList);
-	if (!result)
-		return false;
-
-	return !initializerTokenList->isEmpty() ?
-		parseInitializer(value, initializerTokenList) :
-		true;
-}
-
-bool
-OperatorMgr::parseInitializer(
-	const Value& value,
-	sl::List<Token>* tokenList
-) {
-	ASSERT(!tokenList->isEmpty());
-
-	bool result;
+	if (!hasInitializer)
+		return hasConstructor ? true : construct(value);
 
 	Parser parser(m_module, NULL, Parser::Mode_Compile);
-	const Token* token = *tokenList->getHead();
+	const Token* token = *initializerTokenList->getHead();
 	switch (token->m_token) {
 	case TokenKind_Body:
 		parser.m_curlyInitializerTargetValue = value;
-		result = parser.parseBody(SymbolKind_curly_initializer, token->m_pos, token->m_data.m_string);
-		break;
+		return
+			(hasConstructor || construct(value)) &&
+			parser.parseBody(SymbolKind_curly_initializer, token->m_pos, token->m_data.m_string);
 
 	case '{':
 		parser.m_curlyInitializerTargetValue = value;
-		result = parser.parseTokenList(SymbolKind_curly_initializer, tokenList);
-		break;
+		return
+			(hasConstructor || construct(value)) &&
+			parser.parseTokenList(SymbolKind_curly_initializer, initializerTokenList);
 
 	default:
-		result =
-			parser.parseTokenList(SymbolKind_expression_save, tokenList) &&
-			m_module->m_operatorMgr.binaryOperator(BinOpKind_Assign, value, parser.getLastExpressionValue());
-	}
+		bool result = parser.parseTokenList(SymbolKind_expression_save, initializerTokenList);
+		if (!result)
+			return false;
 
+		if (hasConstructor)
+			return m_module->m_operatorMgr.binaryOperator(BinOpKind_Assign, value, parser.getLastExpressionValue());
+
+		sl::BoxList<Value> argList;
+		argList.insertTail(parser.getLastExpressionValue());
+		return construct(value, &argList);
+	}
+}
+
+bool
+OperatorMgr::parseReactiveInitializer(
+	const Value& value,
+	sl::List<Token>* tokenList
+) {
+	Parser parser(m_module, NULL, Parser::Mode_Compile);
+
+	m_module->m_controlFlowMgr.enterReactiveExpression();
+
+	bool result =
+		parser.parseTokenList(SymbolKind_expression_save, tokenList) &&
+		m_module->m_operatorMgr.binaryOperator(BinOpKind_Assign, value, parser.getLastExpressionValue());
+
+	m_module->m_controlFlowMgr.finalizeReactiveExpressionStmt();
 	return result;
 }
 

@@ -819,18 +819,6 @@ OperatorMgr::checkAccess(ModuleItemDecl* decl) {
 	return true;
 }
 
-inline
-bool
-OperatorMgr::parseReactiveInitializer(
-	const Value& value,
-	sl::List<Token>* tokenList
-) {
-	m_module->m_controlFlowMgr.enterReactiveExpression();
-	bool result = m_module->m_operatorMgr.parseInitializer(value, tokenList);
-	m_module->m_controlFlowMgr.finalizeReactiveExpressionStmt();
-	return result;
-}
-
 //..............................................................................
 
 inline
