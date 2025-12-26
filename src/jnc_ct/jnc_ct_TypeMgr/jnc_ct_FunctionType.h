@@ -253,6 +253,28 @@ FunctionType::getArgSignature() const {
 	return m_argSignature;
 }
 
+inline
+uint_t
+appendFunctionArgSignature(
+	sl::String* string,
+	Type* type
+) {
+	*string += type->getSignature();
+	return type->getFlags();
+}
+
+inline
+uint_t
+appendFunctionArgSignature(
+	sl::String* string,
+	FunctionArg* arg
+) {
+	if (arg->getStorageKind() == StorageKind_This)
+		*string += '&';
+
+	return appendFunctionArgSignature(string, arg->getType());
+}
+
 template <typename T>
 uint_t
 FunctionType::createSignature(
@@ -273,11 +295,8 @@ FunctionType::createSignature(
 	uint_t signatureFlags = TypeFlag_SignatureFinal;
 	*string += '(';
 
-	for (size_t i = 0; i < argCount; i++) {
-		Type* type = argArray[i]->T::getItemType(); // avoid virtual call
-		*string += type->getSignature();
-		signatureFlags &= type->getFlags();
-	}
+	for (size_t i = 0; i < argCount; i++)
+		signatureFlags &= appendFunctionArgSignature(string, argArray[i]);
 
 	if (flags & FunctionTypeFlag_VarArg)
 		*string += '.';

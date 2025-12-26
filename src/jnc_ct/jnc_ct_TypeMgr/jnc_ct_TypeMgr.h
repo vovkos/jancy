@@ -345,6 +345,40 @@ public:
 	getFunctionType(
 		CallConv* callConv,
 		Type* returnType,
+		Type* const* argType,
+		size_t argCount,
+		uint_t flags = 0
+	);
+
+	FunctionType*
+	getFunctionType(
+		Type* returnType,
+		Type* const* argType,
+		size_t argCount,
+		uint_t flags = 0
+	) {
+		return getFunctionType(m_callConvArray[CallConvKind_Default], returnType, argType, argCount, flags);
+	}
+
+	FunctionType*
+	getFunctionType(
+		Type* const* argType,
+		size_t argCount,
+		uint_t flags = 0
+	) {
+		return getFunctionType(
+			m_callConvArray[CallConvKind_Default],
+			&m_primitiveTypeArray[TypeKind_Void],
+			argType,
+			argCount,
+			flags
+		);
+	}
+
+	FunctionType*
+	getFunctionType(
+		CallConv* callConv,
+		Type* returnType,
 		const sl::Array<FunctionArg*>& argArray,
 		uint_t flags = 0
 	);
@@ -372,7 +406,7 @@ public:
 	}
 
 	FunctionType*
-	getFunctionType(
+	createUserFunctionType(
 		CallConv* callConv,
 		Type* returnType,
 		Type* const* argType,
@@ -381,22 +415,22 @@ public:
 	);
 
 	FunctionType*
-	getFunctionType(
+	createUserFunctionType(
 		Type* returnType,
 		Type* const* argType,
 		size_t argCount,
 		uint_t flags = 0
 	) {
-		return getFunctionType(m_callConvArray[CallConvKind_Default], returnType, argType, argCount, flags);
+		return createUserFunctionType(m_callConvArray[CallConvKind_Default], returnType, argType, argCount, flags);
 	}
 
 	FunctionType*
-	getFunctionType(
+	createUserFunctionType(
 		Type* const* argType,
 		size_t argCount,
 		uint_t flags = 0
 	) {
-		return getFunctionType(
+		return createUserFunctionType(
 			m_callConvArray[CallConvKind_Default],
 			&m_primitiveTypeArray[TypeKind_Void],
 			argType,
@@ -819,6 +853,24 @@ protected:
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+FunctionType*
+TypeMgr::createUserFunctionType(
+	CallConv* callConv,
+	Type* returnType,
+	Type* const* argType,
+	size_t argCount,
+	uint_t flags
+) {
+	sl::Array<FunctionArg*> argArray;
+	argArray.setCount(argCount);
+	sl::Array<FunctionArg*>::Rwi rwi = argArray;
+	for (size_t i = 0; i < argCount; i++)
+		rwi[i] = createFunctionArg(sl::StringRef(), argType[i]);
+
+	return createUserFunctionType(callConv, returnType, argArray, flags);
+}
 
 inline
 StructType*

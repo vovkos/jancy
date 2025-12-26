@@ -110,7 +110,7 @@ ControlFlowMgr::createOnEventHandler(
 	ASSERT(m_reactorBody);
 
 	FunctionType* handlerType = argArray.isEmpty() ?
-		m_module->m_typeMgr.getFunctionType(argArray) :
+		m_module->m_typeMgr.getFunctionType(NULL, 0) :
 		m_module->m_typeMgr.createUserFunctionType(argArray);
 
 	Function* handler = m_reactorBody->m_reactorType->createUnnamedMethod(FunctionKind_Internal, handlerType);

@@ -550,48 +550,6 @@ FunctionType*
 TypeMgr::getFunctionType(
 	CallConv* callConv,
 	Type* returnType,
-	const sl::Array<FunctionArg*>& argArray,
-	uint_t flags
-) {
-	ASSERT(callConv && returnType);
-	ASSERT(!(flags & ~FunctionTypeFlag__All));
-
-	sl::String signature;
-	sl::StringRef argSignature;
-	flags |= FunctionType::createSignature(
-		&signature,
-		&argSignature,
-		callConv->getCallConvKind(),
-		returnType,
-		argArray,
-		flags
-	);
-
-	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
-	if (it->m_value)
-		return (FunctionType*)it->m_value;
-
-	FunctionType* type = new FunctionType;
-	type->m_module = m_module;
-	type->m_callConv = callConv;
-	type->m_returnType = returnType;
-	type->m_argArray = argArray;
-	type->m_signature = signature;
-	type->m_argSignature = argSignature;
-	type->m_flags = flags;
-	m_typeList.insertTail(type);
-
-	if (returnType->getTypeKindFlags() & TypeKindFlag_Import)
-		((ImportType*)returnType)->addFixup(&type->m_returnType);
-
-	it->m_value = type;
-	return type;
-}
-
-FunctionType*
-TypeMgr::getFunctionType(
-	CallConv* callConv,
-	Type* returnType,
 	Type* const* argTypeArray,
 	size_t argCount,
 	uint_t flags
@@ -626,6 +584,48 @@ TypeMgr::getFunctionType(
 	type->m_callConv = callConv;
 	type->m_returnType = returnType;
 	type->m_argArray = std::move(argArray);
+	type->m_signature = signature;
+	type->m_argSignature = argSignature;
+	type->m_flags = flags;
+	m_typeList.insertTail(type);
+
+	if (returnType->getTypeKindFlags() & TypeKindFlag_Import)
+		((ImportType*)returnType)->addFixup(&type->m_returnType);
+
+	it->m_value = type;
+	return type;
+}
+
+FunctionType*
+TypeMgr::getFunctionType(
+	CallConv* callConv,
+	Type* returnType,
+	const sl::Array<FunctionArg*>& argArray,
+	uint_t flags
+) {
+	ASSERT(callConv && returnType);
+	ASSERT(!(flags & ~FunctionTypeFlag__All));
+
+	sl::String signature;
+	sl::StringRef argSignature;
+	flags |= FunctionType::createSignature(
+		&signature,
+		&argSignature,
+		callConv->getCallConvKind(),
+		returnType,
+		argArray,
+		flags
+	);
+
+	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
+	if (it->m_value)
+		return (FunctionType*)it->m_value;
+
+	FunctionType* type = new FunctionType;
+	type->m_module = m_module;
+	type->m_callConv = callConv;
+	type->m_returnType = returnType;
+	type->m_argArray = argArray;
 	type->m_signature = signature;
 	type->m_argSignature = argSignature;
 	type->m_flags = flags;

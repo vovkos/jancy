@@ -1049,7 +1049,7 @@ FunctionMgr::getStdFunction(StdFunc func) {
 		argTypeArray[0] = m_module->m_typeMgr.getPrimitiveType(TypeKind_String)->getDataPtrType_c();
 		argTypeArray[1] = m_module->m_typeMgr.getStdType(StdType_CharConstPtr);
 		argTypeArray[2] = m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT);
-		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 3);
+		functionType = m_module->m_typeMgr.createUserFunctionType(returnType, argTypeArray, 3);
 		arg = functionType->getArgArray()[2];
 		Lexer::tokenizeString(&arg->m_initializer, "-1");
 		arg->m_parentUnit = m_module->m_unitMgr.getCoreLibUnit();
@@ -1061,7 +1061,7 @@ FunctionMgr::getStdFunction(StdFunc func) {
 		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_String);
 		argTypeArray[0] = m_module->m_typeMgr.getStdType(StdType_CharConstPtr);
 		argTypeArray[1] = m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT);
-		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 2);
+		functionType = m_module->m_typeMgr.createUserFunctionType(returnType, argTypeArray, 2);
 		arg = functionType->getArgArray()[1];
 		Lexer::tokenizeString(&arg->m_initializer, "-1");
 		arg->m_parentUnit = m_module->m_unitMgr.getCoreLibUnit();

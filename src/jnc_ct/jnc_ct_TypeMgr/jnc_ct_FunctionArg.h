@@ -37,7 +37,7 @@ public:
 	FunctionArg();
 
 	Type*
-	getType() {
+	getType() const {
 		return m_type;
 	}
 
@@ -48,7 +48,7 @@ public:
 	}
 
 	uint_t
-	getPtrTypeFlags() {
+	getPtrTypeFlags() const {
 		return m_ptrTypeFlags;
 	}
 
