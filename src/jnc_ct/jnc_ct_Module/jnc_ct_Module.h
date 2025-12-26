@@ -474,7 +474,9 @@ MemberBlock::createMethod(
 	FunctionType* shortType
 ) {
 	T* function = m_parent->getModule()->m_functionMgr.createFunction<T>(name, shortType);
-	return addMethod(function) ? function : NULL;
+	bool result = addMethod(function);
+	ASSERT(result);
+	return function;
 }
 
 template <typename T>
@@ -485,7 +487,9 @@ MemberBlock::createUnnamedMethod(
 ) {
 	T* function = m_parent->getModule()->m_functionMgr.createFunction<T>(shortType);
 	function->m_functionKind = functionKind;
-	return addMethod(function) ? function : NULL;
+	bool result = addMethod(function);
+	ASSERT(result);
+	return function;
 }
 
 template <typename T>
@@ -495,7 +499,8 @@ MemberBlock::createDefaultMethod() {
 	FunctionType* type = (FunctionType*)module->m_typeMgr.getStdType(StdType_SimpleFunction);
 	T* function = module->m_functionMgr.createFunction<T>(sl::StringRef(), type);
 	bool result = addMethod(function);
-	return result ? function : NULL;
+	ASSERT(result);
+	return function;
 }
 
 //..............................................................................

@@ -171,6 +171,19 @@ protected:
 		}
 	};
 
+	class DefaultCopyConstructor: public CompilableFunction {
+	public:
+		DefaultCopyConstructor() {
+			m_functionKind = FunctionKind_Constructor;
+		}
+
+		virtual
+		bool
+		compile() {
+			return ((DerivableType*)m_parentNamespace)->compileDefaultCopyConstructor();
+		}
+	};
+
 	class DefaultDestructor: public CompilableFunction {
 	public:
 		DefaultDestructor() {
@@ -383,6 +396,18 @@ protected:
 	Property*
 	getIndexerProperty(Type* argType);
 
+	bool
+	isCopyContructor(Function* ctor) {
+		const sl::Array<FunctionArg*> argArray = ctor->getType()->getArgArray();
+		return argArray.getCount() == 2 && isEqual(argArray[1]->getType());
+	}
+
+	Function*
+	findCopyConstructor();
+
+	Function*
+	createDefaultCopyConstructor();
+
 	FindModuleItemResult
 	findItemInExtensionNamespaces(const sl::StringRef& name);
 
@@ -391,6 +416,9 @@ protected:
 
 	bool
 	compileDefaultConstructor();
+
+	bool
+	compileDefaultCopyConstructor();
 
 	bool
 	compileDefaultDestructor();

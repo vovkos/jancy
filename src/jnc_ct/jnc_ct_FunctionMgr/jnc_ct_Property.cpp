@@ -532,27 +532,19 @@ Property::finalize() {
 
 	if (!m_staticConstructor &&
 		(!m_staticVariableInitializeArray.isEmpty() ||
-		!m_propertyStaticConstructArray.isEmpty())) {
-		result = createDefaultMethod<DefaultStaticConstructor>() != NULL;
-		if (!result)
-			return false;
-	}
+		!m_propertyStaticConstructArray.isEmpty())
+	)
+		createDefaultMethod<DefaultStaticConstructor>();
 
 	if (m_parentType &&
 		!m_constructor &&
 		(!m_fieldInitializeArray.isEmpty() ||
-		!m_propertyConstructArray.isEmpty())) {
-		result = createDefaultMethod<DefaultConstructor>() != NULL;
-		if (!result)
-			return false;
-	}
+		!m_propertyConstructArray.isEmpty())
+	)
+		createDefaultMethod<DefaultConstructor>();
 
-	if (!m_destructor &&
-		!m_propertyDestructArray.isEmpty()) {
-		result = createDefaultMethod<DefaultDestructor>() != NULL;
-		if (!result)
-			return false;
-	}
+	if (!m_destructor && !m_propertyDestructArray.isEmpty())
+		createDefaultMethod<DefaultDestructor>();
 
 	if (!m_parentType) {
 		m_module->m_variableMgr.appendGlobalVariablePrimeArray(m_staticVariablePrimeArray);

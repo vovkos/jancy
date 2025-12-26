@@ -44,6 +44,36 @@ DerivableType::findCastOperator(
 	return bestCastOperator;
 }
 
+Function*
+DerivableType::findCopyConstructor() {
+	ASSERT(m_constructor);
+	if (m_constructor->getItemKind() == ModuleItemKind_Function) {
+		Function* ctor = m_constructor.getFunction();
+		return isCopyContructor(ctor) ? ctor : NULL;
+	}
+
+	FunctionOverload* ctorOverload = m_constructor.getFunctionOverload();
+	size_t count = ctorOverload->getOverloadCount();
+	for (size_t i = 0; i < count; i++) {
+		Function* ctor = ctorOverload->getOverload(i);
+		if (isCopyContructor(ctor))
+			return ctor;
+	}
+
+	return NULL;
+}
+
+Function*
+DerivableType::createDefaultCopyConstructor() {
+	Type* argType = this;
+	FunctionType* ctorType = (FunctionType*)m_module->m_typeMgr.getFunctionType(&argType, 1);
+	Function* ctor = m_module->m_functionMgr.createFunction<DefaultCopyConstructor>(sl::StringRef(), ctorType);
+	ctor->m_thisArgTypeFlags = PtrTypeFlag_ThinThis | PtrTypeFlag_Safe;
+	bool result = addMethod(ctor);
+	ASSERT(result);
+	return ctor;
+}
+
 FindModuleItemResult
 DerivableType::findItemInExtensionNamespaces(const sl::StringRef& name) {
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
@@ -159,13 +189,9 @@ DerivableType::addBaseType(Type* type) {
 
 bool
 DerivableType::addMethod(Function* function) {
-	StorageKind storageKind = function->getStorageKind();
-	FunctionKind functionKind = function->getFunctionKind();
-	uint_t functionKindFlags = getFunctionKindFlags(functionKind);
-	uint_t thisArgTypeFlags = function->m_thisArgTypeFlags;
-
 	function->m_parentNamespace = this;
 
+	StorageKind storageKind = function->getStorageKind();
 	switch (storageKind) {
 	case StorageKind_Static:
 		break;
@@ -189,6 +215,7 @@ DerivableType::addMethod(Function* function) {
 	OverloadableFunction* targetOverloadableFunction = NULL;
 	size_t overloadIdx;
 
+	FunctionKind functionKind = function->getFunctionKind();
 	switch (functionKind) {
 	case FunctionKind_StaticConstructor:
 		targetFunction = &m_staticConstructor;
@@ -675,7 +702,9 @@ DerivableType::compileDefaultStaticConstructor() {
 
 bool
 DerivableType::compileDefaultConstructor() {
-	Function* constructor = m_constructor.getFunction();
+	Function* constructor = m_constructor->getItemKind() == ModuleItemKind_Function ?
+		m_constructor.getFunction() :
+		m_constructor.getFunctionOverload()->getOverload(0);
 
 	Value thisValue;
 	m_module->m_namespaceMgr.openNamespace(this);
@@ -686,6 +715,29 @@ DerivableType::compileDefaultConstructor() {
 		callStaticConstructor() &&
 		initializeFields(thisValue) &&
 		callPropertyConstructors(thisValue);
+
+	if (!result)
+		return false;
+
+	m_module->m_functionMgr.internalEpilogue();
+	m_module->m_namespaceMgr.closeNamespace();
+	return true;
+}
+
+bool
+DerivableType::compileDefaultCopyConstructor() {
+	size_t overloadCount = m_constructor.getFunctionOverload()->getOverloadCount();
+	Function* constructor = m_constructor.getFunctionOverload()->getOverload(overloadCount - 1);
+
+	Value argValues[2];
+	m_module->m_namespaceMgr.openNamespace(this);
+	m_module->m_functionMgr.internalPrologue(constructor, argValues, 2);
+
+	Value selfValue;
+
+	bool result =
+		m_module->m_operatorMgr.unaryOperator(UnOpKind_Indir, argValues[0], &selfValue) &&
+		m_module->m_operatorMgr.binaryOperator(BinOpKind_Assign, selfValue, argValues[1]);
 
 	if (!result)
 		return false;

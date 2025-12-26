@@ -168,21 +168,20 @@ StructType::calcLayoutTo(Field* targetField) {
 
 		if (!m_staticConstructor &&
 			(!m_staticVariableInitializeArray.isEmpty() ||
-			!m_propertyStaticConstructArray.isEmpty())) {
-			result = createDefaultMethod<DefaultStaticConstructor>() != NULL;
-			if (!result)
-				return false;
-		}
+			!m_propertyStaticConstructArray.isEmpty())
+		)
+			createDefaultMethod<DefaultStaticConstructor>();
 
 		if (!m_constructor &&
 			(m_staticConstructor ||
 			!m_baseTypeConstructArray.isEmpty() ||
 			!m_fieldInitializeArray.isEmpty() ||
-			!m_propertyConstructArray.isEmpty())) {
-			result = createDefaultMethod<DefaultConstructor>() != NULL;
-			if (!result)
-				return false;
-		}
+			!m_propertyConstructArray.isEmpty())
+		)
+			createDefaultMethod<DefaultConstructor>();
+
+		if (m_constructor && !findCopyConstructor())
+			createDefaultCopyConstructor();
 	} else if (
 		m_structTypeKind == StructTypeKind_IfaceStruct &&
 		(((ClassType*)m_parentNamespace)->getFlags() & ClassTypeFlag_Opaque) &&

@@ -196,10 +196,10 @@ OperatorMgr::zeroInitialize(const Value& value) {
 
 bool
 OperatorMgr::construct(
-	const Value& rawOpValue,
+	const Value& opValue,
 	sl::BoxList<Value>* argList
 ) {
-	Type* type = rawOpValue.getType();
+	Type* type = opValue.getType();
 	TypeKind ptrTypeKind = type->getTypeKind();
 
 	switch (ptrTypeKind) {
@@ -218,48 +218,36 @@ OperatorMgr::construct(
 		return false;
 	}
 
+	Value thisValue;
 	OverloadableFunction constructor;
-
 	if (type->getTypeKind() == TypeKind_String) {
 		if (!argList || argList->isEmpty())
 			return true;
+
 		constructor = m_module->m_functionMgr.getStdFunction(StdFunc_StringConstruct);
-	} else if (type->getTypeKindFlags() & TypeKindFlag_Derivable) {
-		DerivableType* derivableType = (DerivableType*)type;
+		bool result = unaryOperator(UnOpKind_Addr, opValue, &thisValue);
+		ASSERT(result);
+	} else if (type->getTypeKindFlags() & TypeKindFlag_Derivable)
 		constructor = ((DerivableType*)type)->getConstructor();
-		if (constructor &&
-			constructor->getItemKind() == ModuleItemKind_Function &&
-			!checkAccess(constructor.getFunction())
-		)
-			return false;
+
+	if (constructor) {
+		sl::BoxList<Value> emptyArgList;
+		if (!argList)
+			argList = &emptyArgList;
+
+		argList->insertHead(thisValue ? thisValue : opValue);
+		return callOperator(constructor, argList);
 	}
 
-	if (!constructor) {
-		if (argList && !argList->isEmpty()) {
-			if (argList->getCount() == 1)
-				return binaryOperator(BinOpKind_Assign, rawOpValue, *argList->getHead());
+	if (argList && !argList->isEmpty()) {
+		if (argList->getCount() == 1)
+			return binaryOperator(BinOpKind_Assign, opValue, *argList->getHead());
 
-			err::setFormatStringError("'%s' has no constructor", type->getTypeString().sz());
-			return false;
-		}
-
-		return true;
+		err::setFormatStringError("'%s' has no constructor", type->getTypeString().sz());
+		return false;
 	}
 
-	sl::BoxList<Value> emptyArgList;
-	if (!argList)
-		argList = &emptyArgList;
-
-	Value opValue = rawOpValue;
-	if (ptrTypeKind == TypeKind_DataRef || ptrTypeKind == TypeKind_ClassRef) {
-		bool result = unaryOperator(UnOpKind_Addr, &opValue);
-		if (!result)
-			return false;
-	}
-
-	argList->insertHead(opValue);
-
-	return callOperator(constructor, argList);
+	return true;
 }
 
 bool

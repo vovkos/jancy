@@ -111,20 +111,19 @@ UnionType::calcLayout() {
 
 	if (!m_staticConstructor &&
 		(!m_staticVariableInitializeArray.isEmpty() ||
-		!m_propertyStaticConstructArray.isEmpty())) {
-		result = createDefaultMethod<DefaultStaticConstructor>() != NULL;
-		if (!result)
-			return false;
-	}
+		!m_propertyStaticConstructArray.isEmpty())
+	)
+		createDefaultMethod<DefaultStaticConstructor>();
 
 	if (!m_constructor &&
 		(m_staticConstructor ||
 		!m_fieldInitializeArray.isEmpty() ||
-		!m_propertyConstructArray.isEmpty())) {
-		result = createDefaultMethod<DefaultConstructor>() != NULL;
-		if (!result)
-			return false;
-	}
+		!m_propertyConstructArray.isEmpty())
+	)
+		createDefaultMethod<DefaultConstructor>();
+
+	if (m_constructor && !findCopyConstructor())
+		createDefaultCopyConstructor();
 
 	m_size = m_structType->getSize();
 	m_alignment = m_structType->getAlignment();
