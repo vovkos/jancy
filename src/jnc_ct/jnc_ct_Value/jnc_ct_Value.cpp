@@ -185,6 +185,35 @@ getLlvmConstantFunc_union(
 	return LlvmPodStruct::get(((UnionType*)type)->getStructType(), p);
 }
 
+bool
+isAllZeros(
+	const void* p0,
+	size_t size
+) {
+	const size_t* p = (size_t*)p0;
+	const size_t* end = p + size / AXL_PTR_SIZE;
+	for (; p < end; p++)
+		if (*p)
+			return false;
+
+	size_t leftover = size & (AXL_PTR_SIZE - 1);
+	if (!leftover)
+		return true;
+
+	size_t tail = 0;
+	memcpy(&tail, p, leftover);
+	return tail == 0;
+}
+
+llvm::Constant*
+getLlvmConstantFunc_null(
+	Type* type,
+	const void* p
+) {
+	ASSERT(isAllZeros(p, type->getSize()));
+	return llvm::Constant::getNullValue(type->getLlvmType());
+}
+
 llvm::Constant*
 getLlvmConstantFunc_ptr(
 	Type* type,
@@ -224,8 +253,8 @@ Value::getLlvmConst(
 		const void* p
 	);
 
-	GetLlvmConstantFunc* getLlvmConstantFuncTable[TypeKind_ClassRef + 1] = {
-		NULL,                                      // TypeKind_Void
+	GetLlvmConstantFunc* getLlvmConstantFuncTable[TypeKind_PropertyRef + 1] = {
+		NULL,                                      // TypeKind_Void (should never happen)
 		getLlvmConstantFunc_variant,               // TypeKind_Variant
 		getLlvmConstantFunc_string,                // TypeKind_String
 		getLlvmConstantFunc_bool,                  // TypeKind_Bool
@@ -243,17 +272,21 @@ Value::getLlvmConst(
 		getLlvmConstantFunc_enum,                  // TypeKind_Enum
 		getLlvmConstantFunc_struct,                // TypeKind_Struct
 		getLlvmConstantFunc_union,                 // TypeKind_Union
-		NULL,                                      // TypeKind_Class
-		NULL,                                      // TypeKind_Function
-		NULL,                                      // TypeKind_Property
+		getLlvmConstantFunc_null,                  // TypeKind_Class
+		NULL,                                      // TypeKind_Function (should never happen)
+		NULL,                                      // TypeKind_Property (should never happen)
 		getLlvmConstantFunc_dataPtr,               // TypeKind_DataPtr
 		getLlvmConstantFunc_dataPtr,               // TypeKind_DataRef
 		getLlvmConstantFunc_ptr,                   // TypeKind_ClassPtr
 		getLlvmConstantFunc_ptr,                   // TypeKind_ClassRef
+		getLlvmConstantFunc_null,                  // TypeKind_FunctionPtr
+		getLlvmConstantFunc_null,                  // TypeKind_FunctionRef
+		getLlvmConstantFunc_null,                  // TypeKind_PropertyPtr
+		getLlvmConstantFunc_null,                  // TypeKind_PropertyRef
 	};
 
 	TypeKind typeKind = type->getTypeKind();
-	ASSERT(typeKind <= countof(getLlvmConstantFuncTable) && getLlvmConstantFuncTable[typeKind] != NULL);
+	ASSERT(typeKind < countof(getLlvmConstantFuncTable) && getLlvmConstantFuncTable[typeKind] != NULL);
 	return getLlvmConstantFuncTable[typeKind](type, p);
 }
 

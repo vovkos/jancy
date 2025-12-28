@@ -200,52 +200,6 @@ getPtrTypeFlagsFromModifiers(uint_t modifiers) {
 
 //..............................................................................
 
-Value
-Type::getUndefValue() {
-	llvm::Value* llvmValue = llvm::UndefValue::get(getLlvmType());
-	return Value(llvmValue, this);
-}
-
-Value
-Type::getZeroValue() {
-	AXL_TODO("Type::getZeroValue () probably should return ValueKind_Const")
-
-	if (!m_module->hasCodeGen()) {
-		Value value;
-		value.createConst(NULL, this);
-		return value;
-	}
-
-	llvm::Value* llvmValue = llvm::Constant::getNullValue(getLlvmType());
-	return Value(llvmValue, this);
-}
-
-Value
-Type::getErrorCodeValue() {
-	uint_t typeKindFlags = getTypeKindFlags();
-	ASSERT(typeKindFlags & TypeKindFlag_ErrorCode);
-
-	if (m_typeKind == TypeKind_Bool || !(typeKindFlags & TypeKindFlag_Integer))
-		return getZeroValue();
-
-	Value errorCodeValue;
-	uint64_t minusOne = -1;
-	errorCodeValue.createConst(&minusOne, this);
-	return errorCodeValue;
-}
-
-bool
-Type::prepareImports() {
-	ASSERT(!(m_flags & (TypeFlag_LayoutReady | TypeFlag_NoImports)));
-
-	bool result = resolveImports();
-	if (!result)
-		return false;
-
-	m_flags |= TypeFlag_NoImports;
-	return true;
-}
-
 bool
 Type::prepareLayout() {
 	ASSERT(!(m_flags & TypeFlag_LayoutReady));

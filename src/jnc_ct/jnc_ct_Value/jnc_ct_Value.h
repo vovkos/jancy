@@ -651,11 +651,35 @@ Value::getLlvmValue() const {
 
 //..............................................................................
 
-struct DynamicFieldValueInfo: rc::RefCount {
-	Value m_parentValue;
-	DerivableType* m_parentType;
-	Field* m_field;
-};
+inline
+Value
+Type::getZeroValue() {
+	Value value;
+	value.createConst(NULL, this);
+	return value;
+}
+
+inline
+Value
+Type::getUndefValue() {
+	llvm::Value* llvmValue = llvm::UndefValue::get(getLlvmType());
+	return Value(llvmValue, this);
+}
+
+inline
+Value
+Type::getErrorCodeValue() {
+	uint_t typeKindFlags = getTypeKindFlags();
+	ASSERT(typeKindFlags & TypeKindFlag_ErrorCode);
+
+	if (m_typeKind == TypeKind_Bool || !(typeKindFlags & TypeKindFlag_Integer))
+		return getZeroValue();
+
+	Value errorCodeValue;
+	uint64_t minusOne = -1;
+	errorCodeValue.createConst(&minusOne, this);
+	return errorCodeValue;
+}
 
 //..............................................................................
 

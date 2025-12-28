@@ -451,6 +451,19 @@ Type::getTypeVariable() {
 	return m_typeVariable;
 }
 
+inline
+bool
+Type::prepareImports() {
+	ASSERT(!(m_flags & (TypeFlag_LayoutReady | TypeFlag_NoImports)));
+
+	bool result = resolveImports();
+	if (!result)
+		return false;
+
+	m_flags |= TypeFlag_NoImports;
+	return true;
+}
+
 //..............................................................................
 
 class NamedType: public ModuleItemWithNamespace<Type> {
