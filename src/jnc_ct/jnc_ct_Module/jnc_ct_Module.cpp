@@ -466,6 +466,7 @@ Module::compileImpl() {
 		m_llvmDiBuilder.finalize();
 
 	m_compileState = ModuleCompileState_Compiled;
+	m_compileFlags |= AuxCompileFlag_ConstOperatorOnly;
 	return true;
 }
 

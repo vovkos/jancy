@@ -71,8 +71,9 @@ class Module: public PreModule {
 
 protected:
 	enum AuxCompileFlag {
-		AuxCompileFlag_IntrospectionLib = 0x80000000,
-		AuxCompileFlag_DynamicLayout    = 0x40000000,
+		AuxCompileFlag_IntrospectionLib  = 0x80000000,
+		AuxCompileFlag_DynamicLayout     = 0x40000000,
+		AuxCompileFlag_ConstOperatorOnly = 0x20000000,
 	};
 
 	enum AsyncFlag {
@@ -179,6 +180,20 @@ public:
 	void
 	enableAccessChecks() {
 		m_disableAccessCheckLevel--;
+	}
+
+	bool
+	isConstOperatorOnly() {
+		return (m_compileFlags & AuxCompileFlag_ConstOperatorOnly) != 0;
+	}
+
+	uint_t
+	setConstOperatorOnly();
+
+	void
+	restoreConstOperatorOnly(uint_t prevFlags) {
+		m_compileFlags &= ~AuxCompileFlag_ConstOperatorOnly;
+		m_compileFlags |= prevFlags & AuxCompileFlag_ConstOperatorOnly;
 	}
 
 	const sl::String&
@@ -422,6 +437,14 @@ Module::RequiredItem::RequiredItem(
 	m_itemKind = ModuleItemKind_Type;
 	m_typeKind = typeKind;
 	m_flags = flags;
+}
+
+inline
+uint_t
+Module::setConstOperatorOnly() {
+	uint_t prevFlags = m_compileFlags;
+	m_compileFlags |= AuxCompileFlag_ConstOperatorOnly;
+	return prevFlags;
 }
 
 inline
