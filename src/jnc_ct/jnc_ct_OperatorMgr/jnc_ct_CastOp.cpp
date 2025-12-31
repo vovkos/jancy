@@ -128,23 +128,7 @@ CastOperator::cast(
 		return true;
 	}
 
-	char buffer[256];
-	sl::Array<char> constData(rc::BufKind_Stack, buffer, sizeof(buffer));
-	constData.setCount(type->getSize());
-
-	bool result = constCast(opValue, type, constData.p());
-	if (result) {
-		resultValue->createConst(constData, type);
-		return true;
-	}
-
-	// if const-cast is not available or fails, try full cast -- but only at compile-time!
-
-	if (m_module->getCompileState() < ModuleCompileState_Compiled && m_module->hasCodeGen())
-		return llvmCast(opValue, type, resultValue);
-
-	setCastError(opValue, type);
-	return false;
+	return constCastImpl(opValue, type, resultValue);
 }
 
 //..............................................................................
@@ -246,29 +230,7 @@ Cast_Master::getCastKind(
 }
 
 bool
-Cast_Master::constCast(
-	const Value& rawOpValue,
-	Type* type,
-	void* dst
-) {
-	CastOperator* op = getCastOperator(rawOpValue, type);
-	if (!op)
-		return false;
-
-	Value opValue = rawOpValue;
-
-	uint_t opFlags = op->getOpFlags();
-	if (opFlags != m_opFlags) {
-		bool result = m_module->m_operatorMgr.prepareOperand(&opValue, opFlags);
-		if (!result)
-			return false;
-	}
-
-	return op->constCast(opValue, type, dst);
-}
-
-bool
-Cast_Master::llvmCast(
+Cast_Master::cast(
 	const Value& rawOpValue,
 	Type* type,
 	Value* resultValue
@@ -288,7 +250,7 @@ Cast_Master::llvmCast(
 			return false;
 	}
 
-	return op->llvmCast(opValue, type, resultValue);
+	return op->cast(opValue, type, resultValue);
 }
 
 //..............................................................................
@@ -336,49 +298,7 @@ Cast_SuperMaster::getCastKind(
 }
 
 bool
-Cast_SuperMaster::constCast(
-	const Value& rawOpValue,
-	Type* type,
-	void* dst
-) {
-	CastOperator* operator1 = NULL;
-	CastOperator* operator2 = NULL;
-	Type* intermediateType = NULL;
-
-	bool result = getCastOperators(
-		rawOpValue,
-		type,
-		&operator1,
-		&operator2,
-		&intermediateType
-	);
-
-	if (!result)
-		return false;
-
-	ASSERT(operator1);
-
-	Value srcValue = rawOpValue;
-
-	uint_t opFlags1 = operator1->getOpFlags();
-	if (opFlags1 != m_opFlags) {
-		bool result = m_module->m_operatorMgr.prepareOperand(&srcValue, opFlags1);
-		if (!result)
-			return false;
-	}
-
-	if (!operator2)
-		return operator1->constCast(srcValue, type, dst);
-
-	Value tmpValue;
-	return
-		tmpValue.createConst(NULL, intermediateType) &&
-		operator1->constCast(srcValue, intermediateType, tmpValue.getConstData()) &&
-		operator2->constCast(tmpValue, type, dst);
-}
-
-bool
-Cast_SuperMaster::llvmCast(
+Cast_SuperMaster::cast(
 	const Value& rawOpValue,
 	Type* type,
 	Value* resultValue
@@ -412,12 +332,12 @@ Cast_SuperMaster::llvmCast(
 	}
 
 	if (!operator2)
-		return operator1->llvmCast(opValue, type, resultValue);
+		return operator1->cast(opValue, type, resultValue);
 
 	Value tmpValue;
 	return
-		operator1->llvmCast(opValue, intermediateType, &tmpValue) &&
-		operator2->llvmCast(tmpValue, type, resultValue);
+		operator1->cast(opValue, intermediateType, &tmpValue) &&
+		operator2->cast(tmpValue, type, resultValue);
 }
 
 //..............................................................................

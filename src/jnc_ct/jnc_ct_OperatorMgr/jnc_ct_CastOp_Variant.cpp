@@ -20,6 +20,22 @@ namespace ct {
 //..............................................................................
 
 bool
+Cast_Variant::cast(
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
+) {
+	if (opValue.getValueKind() != ValueKind_Const)
+		return llvmCast(opValue, type, resultValue);
+
+	if (opValue.getType()->getSize() <= Variant::DataSize || m_module->isConstOperatorOnly())
+		return constCastImpl(opValue, type, resultValue);
+
+	Variable* constVar = m_module->m_variableMgr.createSimpleStaticVariable("const", opValue.getType(), opValue, PtrTypeFlag_Const);
+	return llvmCast(constVar, type, resultValue);
+}
+
+bool
 Cast_Variant::constCast(
 	const Value& opValue,
 	Type* type,

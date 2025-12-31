@@ -153,6 +153,22 @@ Cast_String_FromPtr::llvmCast(
 //..............................................................................
 
 bool
+Cast_String_FromArray::cast(
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
+) {
+	if (opValue.getValueKind() != ValueKind_Const)
+		return llvmCast(opValue, type, resultValue);
+
+	if (m_module->isConstOperatorOnly())
+		return constCastImpl(opValue, type, resultValue);
+
+	Variable* constVar = m_module->m_variableMgr.createSimpleStaticVariable("const", opValue.getType(), opValue, PtrTypeFlag_Const);
+	return llvmCast(constVar, type, resultValue);
+}
+
+bool
 Cast_String_FromArray::constCast(
 	const Value& opValue,
 	Type* type,

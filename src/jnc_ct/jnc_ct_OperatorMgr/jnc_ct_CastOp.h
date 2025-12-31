@@ -107,6 +107,7 @@ public:
 		Type* type,
 		void* dst
 	) {
+		ASSERT(false);
 		return err::fail(err::SystemErrorCode_NotImplemented);
 	}
 
@@ -116,15 +117,48 @@ public:
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
-	) = 0;
+	) {
+		ASSERT(false);
+		return err::fail(err::SystemErrorCode_NotImplemented);
+	}
 
+	virtual
 	bool
 	cast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
 	);
+
+protected:
+	bool
+	constCastImpl(
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
+	);
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+bool
+CastOperator::constCastImpl(
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
+) {
+	char buffer[256];
+	sl::Array<char> constData(rc::BufKind_Stack, buffer, sizeof(buffer));
+	constData.setCount(type->getSize());
+
+	bool result = constCast(opValue, type, constData.p());
+	if (!result)
+		return false;
+
+	resultValue->createConst(constData, type);
+	return true;
+}
 
 //..............................................................................
 
@@ -267,15 +301,7 @@ public:
 
 	virtual
 	bool
-	constCast(
-		const Value& opValue,
-		Type* type,
-		void* dst
-	);
-
-	virtual
-	bool
-	llvmCast(
+	cast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -304,15 +330,7 @@ public:
 
 	virtual
 	bool
-	constCast(
-		const Value& opValue,
-		Type* type,
-		void* dst
-	);
-
-	virtual
-	bool
-	llvmCast(
+	cast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue

@@ -51,6 +51,22 @@ Cast_DataPtr_FromArray::getCastKind(
 }
 
 bool
+Cast_DataPtr_FromArray::cast(
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
+) {
+	if (opValue.getValueKind() != ValueKind_Const)
+		return llvmCast(opValue, type, resultValue);
+
+	if (m_module->isConstOperatorOnly())
+		return constCastImpl(opValue, type, resultValue);
+
+	Variable* constVar = m_module->m_variableMgr.createSimpleStaticVariable("const", opValue.getType(), opValue, PtrTypeFlag_Const);
+	return llvmCast(constVar, type, resultValue);
+}
+
+bool
 Cast_DataPtr_FromArray::constCast(
 	const Value& opValue,
 	Type* type,
@@ -105,14 +121,11 @@ Cast_DataPtr_FromArray::llvmCast(
 	Type* type,
 	Value* resultValue
 ) {
-	if (isArrayRefType(opValue.getType())) {
-		Value ptrValue;
-		m_module->m_operatorMgr.prepareArrayRef(opValue, &ptrValue);
-		return m_module->m_operatorMgr.castOperator(ptrValue, type, resultValue);
-	}
+	ASSERT(isArrayRefType(opValue.getType()));
 
-	err::setError("casting from array to pointer is currently only implemented for constants");
-	return false;
+	Value ptrValue;
+	m_module->m_operatorMgr.prepareArrayRef(opValue, &ptrValue);
+	return m_module->m_operatorMgr.castOperator(ptrValue, type, resultValue);
 }
 
 //..............................................................................

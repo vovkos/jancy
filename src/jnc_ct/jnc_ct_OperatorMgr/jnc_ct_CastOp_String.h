@@ -107,6 +107,14 @@ class Cast_String_FromArray: public Cast_StringBase {
 public:
 	virtual
 	bool
+	cast(
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
+	);
+
+	virtual
+	bool
 	constCast(
 		const Value& opValue,
 		Type* type,
