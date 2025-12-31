@@ -36,26 +36,19 @@ Cast_Struct::getCastKind(
 	if (!constructor || m_recursionStopper)
 		return CastKind_None;
 
-	CastKind castKind;
+	CastKind castKind = CastKind_None;
 	Value argValueArray[2];
 	argValueArray[0].setType(structType->getDataPtrType());
 	argValueArray[1] = opValue;
 
 	m_recursionStopper = true;
 
-	if (constructor->getItemKind() == ModuleItemKind_Function) {
-		FunctionTypeOverload type = constructor.getFunction()->getType();
-		bool result = type.chooseOverload(argValueArray, 2, &castKind) != -1;
-		if (!result)
-			return CastKind_None;
-	} else {
-		Function* overload = constructor.getFunctionOverload()->chooseOverload(argValueArray, 2, &castKind);
-		if (!overload)
-			return CastKind_None;
-	}
+	if (constructor->getItemKind() == ModuleItemKind_FunctionOverload)
+		constructor.getFunctionOverload()->chooseOverload(argValueArray, 2, &castKind);
+	else
+		castKind = m_module->m_operatorMgr.getArgCastKind(constructor.getFunction()->getType(), argValueArray, 2);
 
 	m_recursionStopper = false;
-
 	return AXL_MIN(castKind, CastKind_ImplicitCrossFamily);
 }
 
@@ -123,14 +116,11 @@ Cast_Struct::llvmCast(
 
 	Variable* tmpVariable = m_module->m_variableMgr.createSimpleStackVariable("tmpStruct", type);
 
-	Value tmpValue;
 	result =
-		m_module->m_operatorMgr.unaryOperator(UnOpKind_Addr, tmpVariable, &tmpValue) &&
-		m_module->m_operatorMgr.callOperator(constructor, tmpValue, opValue) &&
+		m_module->m_operatorMgr.callOperator(constructor, tmpVariable, opValue) &&
 		m_module->m_operatorMgr.loadDataRef(tmpVariable, resultValue);
 
 	m_recursionStopper = false;
-
 	return result;
 }
 
