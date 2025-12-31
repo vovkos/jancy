@@ -293,13 +293,13 @@ protected:
 	bool
 	addTemplateSuffixToDeclarator(Declarator* declarator);
 
-	NamedImportAnchor*
-	getNamedImportAnchor() {
-		return m_namedImportAnchor;
-	}
-
-	NamedImportAnchor*
-	ensureNamedImportAnchor();
+	Orphan*
+	createOrphan(
+		OrphanKind orphanKind,
+		FunctionKind functionKind,
+		Declarator* declarator,
+		Type* type
+	);
 
 	void
 	pushTypeSpecifier(TypeSpecifier* typeSpecifier) {
@@ -378,37 +378,14 @@ protected:
 	setBody(
 		T* item,
 		const Token& bodyToken
-	) {
-		if (bodyToken.m_data.m_codeAssistFlags & TokenCodeAssistFlag_At)
-			m_module->m_codeAssistMgr.m_containerItem = item;
-
-		item->addUsingSet(m_module->m_namespaceMgr.getCurrentNamespace());
-		return item->setBody(getPragmaConfigSnapshot(), bodyToken.m_pos, bodyToken.m_data.m_string);
-	}
+	);
 
 	template <typename T>
 	bool
 	setBody(
 		T* item,
 		sl::List<Token>* tokenList
-	) {
-		ASSERT(!tokenList->isEmpty());
-
-		const Token* head = *tokenList->getHead();
-		if (head->m_token == TokenKind_Body) {
-			ASSERT(tokenList->getCount() == 1);
-			return setBody(item, *head);
-		}
-
-		const Token* tail = *tokenList->getTail();
-		if (head->m_data.m_codeAssistFlags <= TokenCodeAssistFlag_Right &&
-			tail->m_data.m_codeAssistFlags >= TokenCodeAssistFlag_Left
-		)
-			m_module->m_codeAssistMgr.m_containerItem = item;
-
-		item->addUsingSet(m_module->m_namespaceMgr.getCurrentNamespace());
-		return item->setBody(getPragmaConfigSnapshot(), tokenList);
-	}
+	);
 
 	void
 	setItemPos(
@@ -491,14 +468,7 @@ protected:
 		const lex::LineCol& pos,
 		const sl::StringRef& name,
 		Namespace* templNspace
-	) {
-		if (!templNspace->findDirectChildItem(name).m_item)
-			return true;
-
-		err::setFormatStringError("template name '%s' conflicts with template arguments", name.sz());
-		pushSrcPosError(pos);
-		return false;
-	}
+	);
 
 	bool
 	declareTemplate(Declarator* declarator);

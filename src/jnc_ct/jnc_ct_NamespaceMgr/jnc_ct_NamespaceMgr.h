@@ -92,11 +92,6 @@ public:
 	);
 
 	Orphan*
-	createOrphanReactor(Declarator* declarator) { // destructive
-		return createOrphan(OrphanKind_Reactor, FunctionKind_Normal, declarator, NULL);
-	}
-
-	Orphan*
 	cloneOrphan(const Orphan* srcOrphan);
 
 	Alias*
