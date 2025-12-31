@@ -350,17 +350,8 @@ Parser::getQualifiedTypeName(
 	const lex::LineCol& pos
 ) {
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	if (name->isSimple()) {
-		FindModuleItemResult findResult = nspace->findDirectChildItem(name->getFirstAtom());
-		if (!findResult.m_result)
-			return NULL;
-
-		if (findResult.m_item)
-			return getQualifiedTypeName(findResult.m_item);
-	}
-
 	Type* type = m_module->m_typeMgr.getNamedImportType(nspace, name);
-	if (type->getTypeKind() == TypeKind_NamedImport) {
+	if (type->getTypeKind() == TypeKind_NamedImport) { // maybe resolved already?
 		NamedImportType* importType = (NamedImportType*)type;
 		if (!importType->m_parentUnit)
 			setItemPos(importType, pos);
@@ -383,7 +374,7 @@ Parser::getQualifiedTypeName(ModuleItem* item) {
 		if (Type* type = m_module->m_namespaceMgr.getCurrentNamespace()->findTemplateInstanceType((Template*)item))
 			return type;
 
-		// else fall though
+		// else fall through
 
 	default:
 		err::setFormatStringError("'%s' is not a type", item->getItemName().sz());
