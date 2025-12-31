@@ -623,31 +623,6 @@ Cast_DataPtr_Normal2Normal::llvmCast(
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool
-Cast_DataPtr_Lean2Normal::constCast(
-	const Value& opValue,
-	Type* type,
-	void* dst
-) {
-	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr);
-	ASSERT(type->getTypeKind() == TypeKind_DataPtr);
-
-	DataPtrType* srcPtrType = (DataPtrType*)opValue.getType();
-	ASSERT(srcPtrType->getPtrTypeKind() == DataPtrTypeKind_Lean);
-
-	size_t offset = getOffset(srcPtrType, (DataPtrType*)type, NULL);
-	if (offset == -1)
-		return false;
-
-	DataPtr* dstPtr = (DataPtr*)dst;
-	const void* src = opValue.getConstData();
-	const void* p = (char*)src + offset;
-
-	dstPtr->m_p = (void*)p;
-	dstPtr->m_validator = m_module->m_constMgr.createConstDataPtrValidator(p, srcPtrType->getTargetType());
-	return true;
-}
-
-bool
 Cast_DataPtr_Lean2Normal::llvmCast(
 	const Value& opValue,
 	Type* type,
