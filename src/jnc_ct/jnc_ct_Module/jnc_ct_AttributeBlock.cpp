@@ -186,6 +186,7 @@ AttributeBlock::prepareAttributeValues(bool isDynamic) {
 
 	bool finalResult = true;
 	uint_t mask = 0;
+	uint_t prevFlags = m_module->setConstOperatorOnly(); // don't use statics
 
 	size_t count = m_attributeArray.getCount();
 	for (size_t i = 0; i < count; i++) {
@@ -199,6 +200,7 @@ AttributeBlock::prepareAttributeValues(bool isDynamic) {
 		}
 	}
 
+	m_module->restoreConstOperatorOnly(prevFlags);
 	m_flags |= AttributeBlockFlag_ValuesReady | (mask & AttributeBlockFlag_DynamicValues);
 	return finalResult;
 }
