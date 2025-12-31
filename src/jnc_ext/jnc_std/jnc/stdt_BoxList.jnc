@@ -21,9 +21,9 @@ namespace stdt {
 struct BoxListEntry<T>: ListLink<BoxListEntry> {
 	T m_value;
 
-	construct() {}
+	construct() thin {}
 
-	construct(T value) {
+	construct(T value) thin {
 		m_value = value;
 	}
 }
@@ -31,14 +31,14 @@ struct BoxListEntry<T>: ListLink<BoxListEntry> {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct BoxIterator<T> {
-	typedef BoxListEntry<T> Entry;	
+	typedef BoxListEntry<T> Entry;
 	Entry* readonly m_p;
 
-	construct(Entry* p = null) {
+	construct(Entry* p = null) thin {
 		m_p = p;
 	}
 
-	operator bool () {
+	operator bool () thin {
 		return m_p != null;
 	}
 
@@ -76,7 +76,7 @@ struct BoxIterator<T> {
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class BoxList<T>: List<BoxListEntry<T> > {
-	typedef BoxListEntry<T> Entry;	
+	typedef BoxListEntry<T> Entry;
 	typedef BoxIterator<T> Iterator;
 
 	Iterator append(T value) {
@@ -85,6 +85,46 @@ class BoxList<T>: List<BoxListEntry<T> > {
 
 	Iterator insertHead(T value);
 	Iterator insertTail(T value);
+
+	void insertBefore(
+		T value,
+		Iterator beforeIt
+	);
+
+	void insertAfter(
+		T value,
+		Iterator afterIt
+	);
+
+	void moveToHead(Iterator it) {
+		basetype.remove(it.m_p);
+		basetype.insertHead(it.m_p);
+	}
+
+	void moveToTail(Iterator it) {
+		basetype.remove(it.m_p);
+		basetype.insertTail(it.m_p);
+	}
+
+	void moveBefore(
+		Iterator it,
+		Iterator beforeIt
+	) {
+		basetype.remove(it.m_p);
+		basetype.insertBefore(it.m_p, beforeIt.m_p);
+	}
+
+	void moveAfter(
+		Iterator it,
+		Iterator afterIt
+	) {
+		basetype.remove(it.m_p);
+		basetype.insertAfter(it.m_p, afterIt.m_p);
+	}
+
+	void remove(Iterator it) {
+		basetype.remove(it.m_p);
+	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -97,7 +137,7 @@ Iterator BoxList<T>.insertHead(T value) {
 
 Iterator BoxList<T>.insertTail(T value) {
 	Entry* p = new Entry(value);
-	basetype.insertHead(p);
+	basetype.insertTail(p);
 	return Iterator(p);
 }
 
