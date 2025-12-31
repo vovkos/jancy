@@ -24,7 +24,55 @@ struct ListLink<T> {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+struct Iterator<T> {
+	typedef T Entry;
+
+	T* readonly m_p;
+
+	construct(T* p = null) thin {
+		m_p = p;
+	}
+
+	operator bool () thin const {
+		return m_p != null;
+	}
+
+	T* operator * () thin const {
+		return m_p;
+	}
+
+	T* operator -> () thin const {
+		return m_p;
+	}
+
+	Iterator operator ++ () thin {
+		m_p = m_p.m_next;
+		return *this;
+	}
+
+	Iterator postfix operator ++ () thin {
+		Iterator saved = *this;
+		m_p = m_p.m_next;
+		return saved;
+	}
+
+	Iterator operator -- () thin {
+		m_p = m_p.m_prev;
+		return *this;
+	}
+
+	Iterator postfix operator -- () thin {
+		Iterator saved = *this;
+		m_p = m_p.m_prev;
+		return saved;
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 class List<T> {
+	typedef Iterator<T> Iterator;
+
 	T* readonly m_head;
 	T* readonly m_tail;
 	size_t readonly m_count;
@@ -32,52 +80,48 @@ class List<T> {
 	void clear();
 	void takeOver(List* list);
 
-	void append(T* p) {
-		insertTail(p);
+	Iterator append(T* p) {
+		return insertTail(p);
 	}
 
-	void insertHead(T* p);
-	void insertTail(T* p);
+	Iterator insertHead(T* p);
+	Iterator insertTail(T* p);
 
-	void insertBefore(
+	Iterator insertBefore(
 		T* p,
-		T* before
+		Iterator beforeIt
 	);
 
-	void insertAfter(
+	Iterator insertAfter(
 		T* p,
-		T* after
+		Iterator afterIt
 	);
 
-	void moveToHead(T* p) {
-		remove(p);
-		insertHead(p);
+	void moveToHead(Iterator it) {
+		insertHead(remove(it));
 	}
 
-	void moveToTail(T* p) {
-		remove(p);
-		insertTail(p);
+	void moveToTail(Iterator it) {
+		insertTail(remove(it));
 	}
 
 	void moveBefore(
-		T* p,
-		T* before
+		Iterator it,
+		Iterator beforeIt
 	) {
-		remove(p);
-		insertBefore(p, before);
+		insertBefore(remove(it), beforeIt);
 	}
 
 	void moveAfter(
-		T* p,
-		T* after
+		Iterator it,
+		Iterator afterIt
 	) {
-		remove(p);
-		insertAfter(p, after);
+		insertAfter(remove(it), afterIt);
 	}
 
 	T* removeHead();
 	T* removeTail();
-	void remove(T* p);
+	T* remove(Iterator it);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -95,7 +139,7 @@ void List<T>.takeOver(List* list) {
 	list.clear();
 }
 
-void List<T>.insertHead(T* p) {
+Iterator List<T>.insertHead(T* p) {
 	p.m_prev = null;
 	p.m_next = m_head;
 
@@ -106,9 +150,10 @@ void List<T>.insertHead(T* p) {
 
 	m_head = p;
 	m_count++;
+	return p;
 }
 
-void List<T>.insertTail(T* p) {
+Iterator List<T>.insertTail(T* p) {
 	p.m_next = null;
 	p.m_prev = m_tail;
 
@@ -119,15 +164,17 @@ void List<T>.insertTail(T* p) {
 
 	m_tail = p;
 	m_count++;
+	return p;
 }
 
-void List<T>.insertBefore(
+Iterator List<T>.insertBefore(
 	T* p,
-	T* before
+	Iterator beforeIt
 ) {
-	if (!before)
+	if (!beforeIt)
 		return insertTail(p);
 
+	T* before = beforeIt.m_p;
 	T* prev = before.m_prev;
 	p.m_next = before;
 	p.m_prev = prev;
@@ -139,15 +186,17 @@ void List<T>.insertBefore(
 		m_head = p;
 
 	m_count++;
+	return p;
 }
 
-void List<T>.insertAfter(
+Iterator List<T>.insertAfter(
 	T* p,
-	T* after
+	Iterator afterIt
 ) {
-	if (!after)
+	if (!afterIt)
 		return insertHead(p);
 
+	T* after = afterIt.m_p;
 	T* next = after.m_next;
 	p.m_prev = afterLink;
 	p.m_next = next;
@@ -159,6 +208,7 @@ void List<T>.insertAfter(
 		m_tail = p;
 
 	m_count++;
+	return p;
 }
 
 T* List<T>.removeHead() {
@@ -173,7 +223,8 @@ T* List<T>.removeTail() {
 	return p;
 }
 
-void List<T>.remove(T* p) {
+T* List<T>.remove(Iterator it) {
+	T* p = it.m_p;
 	T* next = p.m_next;
 	T* prev = p.m_prev;
 
@@ -188,7 +239,7 @@ void List<T>.remove(T* p) {
 		m_tail = prev;
 
 	m_count--;
-	return it.m_p;
+	return p;
 }
 
 //..............................................................................

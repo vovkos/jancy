@@ -30,16 +30,9 @@ struct BoxListEntry<T>: ListLink<BoxListEntry> {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct BoxIterator<T> {
-	typedef BoxListEntry<T> Entry;
-	Entry* readonly m_p;
-
+struct BoxIterator<T>: Iterator<BoxListEntry<T> > {
 	construct(Entry* p = null) thin {
-		m_p = p;
-	}
-
-	operator bool () thin {
-		return m_p != null;
+		basetype.construct(p);
 	}
 
 	T operator * () thin {
@@ -96,34 +89,16 @@ class BoxList<T>: List<BoxListEntry<T> > {
 		Iterator afterIt
 	);
 
-	void moveToHead(Iterator it) {
-		basetype.remove(it.m_p);
-		basetype.insertHead(it.m_p);
+	T removeHead() {
+		return *basetype.removeHead();
 	}
 
-	void moveToTail(Iterator it) {
-		basetype.remove(it.m_p);
-		basetype.insertTail(it.m_p);
+	T removeTail() {
+		return *basetype.removeTail();
 	}
 
-	void moveBefore(
-		Iterator it,
-		Iterator beforeIt
-	) {
-		basetype.remove(it.m_p);
-		basetype.insertBefore(it.m_p, beforeIt.m_p);
-	}
-
-	void moveAfter(
-		Iterator it,
-		Iterator afterIt
-	) {
-		basetype.remove(it.m_p);
-		basetype.insertAfter(it.m_p, afterIt.m_p);
-	}
-
-	void remove(Iterator it) {
-		basetype.remove(it.m_p);
+	T remove(Iterator it) {
+		return *basetype.remove(it);
 	}
 }
 
