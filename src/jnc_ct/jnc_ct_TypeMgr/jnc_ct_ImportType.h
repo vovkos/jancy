@@ -130,6 +130,9 @@ public:
 		const NamedImportAnchor* anchor = NULL
 	);
 
+	Type*
+	lookup(); // without resolving and applying fixups
+
 protected:
 	virtual
 	sl::StringRef

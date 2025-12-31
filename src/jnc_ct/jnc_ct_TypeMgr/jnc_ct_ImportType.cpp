@@ -95,8 +95,8 @@ NamedImportType::createItemString(size_t index) {
 	}
 }
 
-bool
-NamedImportType::resolveImports() {
+Type*
+NamedImportType::lookup() {
 	Namespace* nspace;
 	if (m_anchor && m_anchor->m_namespace)
 		nspace = m_anchor->m_namespace;
@@ -107,7 +107,12 @@ NamedImportType::resolveImports() {
 		ASSERT(nspace->getNamespaceKind() == NamespaceKind_TemplateInstantiation);
 	}
 
-	m_actualType = resolveImpl(ModuleItemContext(m_parentUnit, nspace), nspace);
+	return resolveImpl(ModuleItemContext(m_parentUnit, nspace), nspace);
+}
+
+bool
+NamedImportType::resolveImports() {
+	m_actualType = lookup();
 	if (!m_actualType)
 		return false;
 

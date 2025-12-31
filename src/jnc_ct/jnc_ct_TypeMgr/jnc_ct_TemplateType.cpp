@@ -185,11 +185,22 @@ TemplateIntModType::createItemString(size_t index) {
 
 Type*
 TemplateDeclType::instantiate(const sl::ArrayRef<Type*>& argArray) {
-	bool result = m_declarator.getBaseType()->ensureNoImports();
-	if (!result)
-		return NULL;
-
 	Type* baseType = m_declarator.getBaseType();
+	if (baseType->getTypeKind() == TypeKind_NamedImport) {
+		NamedImportType* importType = (NamedImportType*)baseType;
+		if (importType->getAnchor()) {
+			baseType = importType->lookup(); // without resolving and applying fixups
+			if (!baseType)
+				return NULL;
+		} else {
+			bool result = importType->ensureResolved();
+			if (!result)
+				return NULL;
+
+			baseType = importType->getActualType();
+		}
+	}
+
 	if (baseType->getTypeKindFlags() & TypeKindFlag_Template) {
 		TypeKind typeKind = baseType->getTypeKind();
 		switch (typeKind) {
