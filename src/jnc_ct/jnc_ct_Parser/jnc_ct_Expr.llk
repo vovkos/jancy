@@ -278,16 +278,14 @@ struct {
 constant_integer_expr
 	:	expression
 			{
+				Type* type = $1.m_value.getType();
 				if ($1.m_value.getValueKind() != ValueKind_Const ||
-					!($1.m_value.getType()->getTypeKindFlags() & TypeKindFlag_Integer)
+					!(type->getTypeKindFlags() & TypeKindFlag_Integer)
 				)
 					return err::fail("expression is not integer constant");
 
-				bool result = m_module->m_operatorMgr.castOperator(&$1.m_value, TypeKind_Int64);
-				if (!result)
-					return false;
-
-				$.m_value = $1.m_value.getInt64();
+				$.m_value = 0;
+				memcpy(&$.m_value, $1.m_value.getConstData(), type->getSize());
 			}
 	;
 
