@@ -557,14 +557,14 @@ OperatorMgr::castOperator(
 	if (!resultValue)
 		resultValue = &unusedResultValue;
 
-	result = prepareOperand(rawOpValue, &opValue, op->getOpFlags());
-	if (!result)
-		return false;
-
-	if (!m_module->hasCodeGen() && opValue.getValueKind() != ValueKind_Const) {
+	if (!m_module->hasCodeGen()) { // shortcut
 		resultValue->setType(type);
 		return true;
 	}
+
+	result = prepareOperand(rawOpValue, &opValue, op->getOpFlags());
+	if (!result)
+		return false;
 
 	Type* opType = opValue.getType();
 	if (opType->isEqual(type)) { // identity, try to shortcut
