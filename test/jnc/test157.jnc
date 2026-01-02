@@ -1,0 +1,71 @@
+﻿struct ListLink<T> {
+	T* m_next;
+	T* m_prev;
+}
+
+struct BoxListEntry<T>: ListLink<BoxListEntry> {
+	T m_value;
+
+	construct() thin {}
+
+	construct(T value) thin {
+		m_value = value;
+	}
+}
+
+struct BoxIteratorBase<T>: IteratorBase<BoxListEntry<T> > {
+	T operator * () thin const {
+		return m_p.m_value;
+	}
+
+ 	T operator := (T value) thin {
+ 		return m_p.m_value = value;
+ 	}
+}
+
+typedef IteratorImpl<BoxIteratorBase<T> > BoxIterator<T>;
+
+class BoxList<T>: List<BoxListEntry<T> > {
+	typedef BoxListEntry<T> Entry;
+	typedef BoxIterator<T> Iterator;
+}
+
+struct IteratorBase<T> {
+	typedef T Entry;
+
+	T* m_p;
+
+	T* operator * () thin const {
+		return m_p;
+	}
+}
+
+struct IteratorImpl<I>: I {
+	construct(Entry* p = null) thin {
+		m_p = p;
+	}
+}
+
+typedef IteratorImpl<IteratorBase<T> > Iterator<T>;
+
+class List<T> {
+	typedef Iterator<T> Iterator;
+
+	T* readonly m_head;
+	T* readonly m_tail;
+	size_t readonly m_count;
+
+	Iterator insertHead(T* p) {
+		return p;
+	}
+}
+
+int main() {
+	BoxList<int> list;
+	BoxListEntry<int>* p = new BoxListEntry<int>(10);
+	list.insertHead(p);
+	BoxIterator<int> it = p;
+	it := 100;	
+	printf("operator *: %d\n", *it);
+	return 0;
+}
