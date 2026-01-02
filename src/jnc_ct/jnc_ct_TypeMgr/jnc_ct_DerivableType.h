@@ -209,9 +209,9 @@ protected:
 
 	// overloaded operators
 
-	sl::Array<OverloadableFunction> m_unaryOperatorTable;
-	sl::Array<OverloadableFunction> m_binaryOperatorTable;
-	sl::Array<Function*> m_castOperatorArray;
+	sl::Array<OverloadableFunction> m_unaryOperatorArray;
+	sl::Array<OverloadableFunction> m_binaryOperatorArray;
+	sl::StringHashTable<Function*> m_castOperatorMap;
 	OverloadableFunction m_callOperator;
 	Function* m_operatorVararg;
 	Function* m_operatorCdeclVararg;
@@ -286,19 +286,29 @@ public:
 		return m_gcRootBaseTypeArray;
 	}
 
+	const sl::Array<OverloadableFunction>&
+	getUnaryOperatorArray() {
+		return m_unaryOperatorArray;
+	}
+
 	OverloadableFunction
 	getUnaryOperator(UnOpKind opKind) {
-		return (size_t)opKind < m_unaryOperatorTable.getCount() ? m_unaryOperatorTable[opKind] : OverloadableFunction();
+		return (size_t)opKind < m_unaryOperatorArray.getCount() ? m_unaryOperatorArray[opKind] : OverloadableFunction();
+	}
+
+	const sl::Array<OverloadableFunction>&
+	getBinaryOperatorArray() {
+		return m_binaryOperatorArray;
 	}
 
 	OverloadableFunction
 	getBinaryOperator(BinOpKind opKind) {
-		return (size_t)opKind < m_binaryOperatorTable.getCount() ? m_binaryOperatorTable[opKind] : OverloadableFunction();
+		return (size_t)opKind < m_binaryOperatorArray.getCount() ? m_binaryOperatorArray[opKind] : OverloadableFunction();
 	}
 
-	const sl::Array<Function*>&
-	getCastOperatorArray() {
-		return m_castOperatorArray;
+	const sl::StringHashTable<Function*>&
+	getCastOperatorMap() {
+		return m_castOperatorMap;
 	}
 
 	Function*
@@ -392,6 +402,28 @@ protected:
 	virtual
 	bool
 	resolveImports();
+
+	template <typename T>
+	void
+	combineOperators(
+		T* dst,
+		T src
+	) {
+		if (!*dst)
+			*dst = src;
+	}
+
+	void
+	combineOperatorArrays(
+		sl::Array<OverloadableFunction>* dstArray,
+		const sl::ArrayRef<OverloadableFunction>& srcArray
+	);
+
+	void
+	combineOperatorMaps(
+		sl::StringHashTable<Function*>* dstMap,
+		const sl::StringHashTable<Function*>& srcMap
+	);
 
 	Property*
 	getIndexerProperty(Type* argType);

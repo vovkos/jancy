@@ -582,14 +582,10 @@ jnc_DerivableType_GetBinaryOperatorFunc(
 );
 
 typedef
-size_t
-jnc_DerivableType_GetCastOperatorCountFunc(jnc_DerivableType* type);
-
-typedef
 jnc_Function*
-jnc_DerivableType_GetCastOperatorFunc(
+jnc_DerivableType_FindCastOperatorFunc(
 	jnc_DerivableType* type,
-	size_t index
+	jnc_Type* targetType
 );
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -602,8 +598,7 @@ struct jnc_DerivableTypeFuncTable {
 	jnc_DerivableType_GetUnaryOperatorFunc* m_getUnaryOperatorFunc;
 	jnc_DerivableType_GetBinaryOperatorFunc* m_getBinaryOperatorFunc;
 	jnc_DerivableType_GetOverloadableMethodFunc* m_getCallOperatorFunc;
-	jnc_DerivableType_GetCastOperatorCountFunc* m_getCastOperatorCountFunc;
-	jnc_DerivableType_GetCastOperatorFunc* m_getCastOperatorFunc;
+	jnc_DerivableType_FindCastOperatorFunc* m_findCastOperatorFunc;
 };
 
 //..............................................................................

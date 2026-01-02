@@ -111,18 +111,12 @@ jnc_DerivableType_getCallOperator(jnc_DerivableType* type) {
 }
 
 JNC_EXTERN_C
-size_t
-jnc_DerivableType_getCastOperatorCount(jnc_DerivableType* type) {
-	return jnc_g_dynamicExtensionLibHost->m_derivableTypeFuncTable->m_getCastOperatorCountFunc(type);
-}
-
-JNC_EXTERN_C
 jnc_Function*
-jnc_DerivableType_getCastOperator(
+jnc_DerivableType_findCastOperator(
 	jnc_DerivableType* type,
-	size_t index
+	jnc_Type* targetType
 ) {
-	return jnc_g_dynamicExtensionLibHost->m_derivableTypeFuncTable->m_getCastOperatorFunc(type, index);
+	return jnc_g_dynamicExtensionLibHost->m_derivableTypeFuncTable->m_findCastOperatorFunc(type, targetType);
 }
 
 #else // _JNC_DYNAMIC_EXTENSION_LIB
@@ -230,19 +224,12 @@ jnc_DerivableType_getCallOperator(jnc_DerivableType* type) {
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-size_t
-jnc_DerivableType_getCastOperatorCount(jnc_DerivableType* type) {
-	return type->getCastOperatorArray().getCount();
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_Function*
-jnc_DerivableType_getCastOperator(
+jnc_DerivableType_findCastOperator(
 	jnc_DerivableType* type,
-	size_t index
+	jnc_Type* targetType
 ) {
-	return type->getCastOperatorArray()[index];
+	return type->findCastOperator(targetType);
 }
 
 JNC_EXTERN_C

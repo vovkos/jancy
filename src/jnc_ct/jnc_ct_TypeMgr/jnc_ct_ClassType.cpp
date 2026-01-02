@@ -127,19 +127,23 @@ ClassType::addMethod(Function* function) {
 		m_methodArray.append(function);
 		return true;
 
-	case FunctionKind_UnaryOperator:
-		if (m_unaryOperatorTable.isEmpty())
-			m_unaryOperatorTable.setCountZeroConstruct(UnOpKind__Count);
+	case FunctionKind_UnaryOperator: {
+		size_t i = function->getUnOpKind();
+		if (i >= m_unaryOperatorArray.getCount())
+			m_unaryOperatorArray.setCountZeroConstruct(i + 1);
 
-		targetOverloadableFunction = &m_unaryOperatorTable.rwi()[function->getUnOpKind()];
+		targetOverloadableFunction = &m_unaryOperatorArray.rwi()[i];
 		break;
+		}
 
-	case FunctionKind_BinaryOperator:
-		if (m_binaryOperatorTable.isEmpty())
-			m_binaryOperatorTable.setCountZeroConstruct(BinOpKind__Count);
+	case FunctionKind_BinaryOperator: {
+		size_t i = function->getBinOpKind();
+		if (i >= m_binaryOperatorArray.getCount())
+			m_binaryOperatorArray.setCountZeroConstruct(i + 1);
 
-		targetOverloadableFunction = &m_binaryOperatorTable.rwi()[function->getBinOpKind()];
+		targetOverloadableFunction = &m_binaryOperatorArray.rwi()[i];
 		break;
+		}
 
 	case FunctionKind_CallOperator:
 		targetOverloadableFunction = &m_callOperator;
@@ -330,6 +334,11 @@ ClassType::calcLayout() {
 
 		if (baseClassType->m_destructor)
 			m_baseTypeDestructArray.append(slot);
+
+		combineOperatorArrays(&m_unaryOperatorArray, slot->m_type->getUnaryOperatorArray());
+		combineOperatorArrays(&m_binaryOperatorArray, slot->m_type->getBinaryOperatorArray());
+		combineOperatorMaps(&m_castOperatorMap, slot->m_type->getCastOperatorMap());
+		combineOperators(&m_callOperator, slot->m_type->getCallOperator());
 	}
 
 	// finalize iface layout

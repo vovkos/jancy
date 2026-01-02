@@ -27,9 +27,9 @@ DerivableType::findCastOperator(
 ) {
 	CastKind bestCastKind = CastKind_None;
 	Function* bestCastOperator = NULL;
-	size_t count = m_castOperatorArray.getCount();
-	for (size_t i = 0; i < count; i++) {
-		Function* castOperator = m_castOperatorArray[i];
+	sl::StringHashTableIterator<Function*> it = m_castOperatorMap.getHead();
+	for (; it; it++) {
+		Function* castOperator = it->m_value;
 		Type* returnType = castOperator->getType()->getReturnType();
 		CastKind castKind = m_module->m_operatorMgr.getCastKind(returnType, type);
 		if (bestCastKind < castKind) {
@@ -233,23 +233,30 @@ DerivableType::addMethod(Function* function) {
 		m_methodArray.append(function);
 		return true;
 
-	case FunctionKind_CastOperator:
-		m_castOperatorArray.append(function);
-		return true;
-
-	case FunctionKind_UnaryOperator:
-		if (m_unaryOperatorTable.isEmpty())
-			m_unaryOperatorTable.setCountZeroConstruct(UnOpKind__Count);
-
-		targetOverloadableFunction = &m_unaryOperatorTable.rwi()[function->getUnOpKind()];
+	case FunctionKind_CastOperator: {
+		Type* returnType = function->getType()->getReturnType();
+		sl::StringHashTableIterator<Function*> it = m_castOperatorMap.visit(returnType->getSignature());
+		targetFunction = &it->m_value;
 		break;
+		}
 
-	case FunctionKind_BinaryOperator:
-		if (m_binaryOperatorTable.isEmpty())
-			m_binaryOperatorTable.setCountZeroConstruct(BinOpKind__Count);
+	case FunctionKind_UnaryOperator: {
+		size_t i = function->getUnOpKind();
+		if (i >= m_unaryOperatorArray.getCount())
+			m_unaryOperatorArray.setCountZeroConstruct(i + 1);
 
-		targetOverloadableFunction = &m_binaryOperatorTable.rwi()[function->getBinOpKind()];
+		targetOverloadableFunction = &m_unaryOperatorArray.rwi()[i];
 		break;
+		}
+
+	case FunctionKind_BinaryOperator: {
+		size_t i = function->getBinOpKind();
+		if (i >= m_binaryOperatorArray.getCount())
+			m_binaryOperatorArray.setCountZeroConstruct(i + 1);
+
+		targetOverloadableFunction = &m_binaryOperatorArray.rwi()[i];
+		break;
+		}
 
 	case FunctionKind_CallOperator:
 		targetOverloadableFunction = &m_callOperator;
@@ -429,6 +436,41 @@ DerivableType::callBaseTypeDestructors(const Value& thisValue) {
 	}
 
 	return true;
+}
+
+void
+DerivableType::combineOperatorArrays(
+	sl::Array<OverloadableFunction>* dstArray,
+	const sl::ArrayRef<OverloadableFunction>& srcArray
+) {
+	size_t dstCount = dstArray->getCount();
+	size_t srcCount = srcArray.getCount();
+	size_t cmnCount;
+
+	if (dstCount >= srcCount)
+		cmnCount = srcCount;
+	else {
+		dstArray->append(srcArray.cp() + dstCount, srcCount - dstCount);
+		cmnCount = dstCount;
+	}
+
+	sl::Array<OverloadableFunction>::Rwi rwi = dstArray->rwi();
+	for (size_t i = 0; i < cmnCount; i++)
+		if (!rwi[i])
+			rwi[i] = srcArray[i];
+}
+
+void
+DerivableType::combineOperatorMaps(
+	sl::StringHashTable<Function*>* dstMap,
+	const sl::StringHashTable<Function*>& srcMap
+) {
+	sl::ConstStringHashTableIterator<Function*> srcIt = srcMap.getHead();
+	for (; srcIt; srcIt++) {
+		sl::StringHashTableIterator<Function*> dstIt = dstMap->visit(srcIt->getKey());
+		if (!dstIt->m_value)
+			dstIt->m_value = srcIt->m_value;
+	}
 }
 
 bool

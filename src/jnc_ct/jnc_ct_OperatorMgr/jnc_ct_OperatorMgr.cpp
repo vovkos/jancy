@@ -197,11 +197,15 @@ OperatorMgr::unaryOperator(
 ) {
 	ASSERT((size_t)opKind < UnOpKind__Count);
 
-	OverloadableFunction function = getOverloadedUnaryOperator(opKind, rawOpValue);
-	if (function) {
+	OverloadableFunction opFunc = getOverloadedUnaryOperator(opKind, rawOpValue);
+	if (opFunc) {
 		sl::BoxList<Value> argList;
 		argList.insertTail(rawOpValue);
-		return callOperator(function, &argList, resultValue);
+
+		Value opFuncValue;
+		return
+			opFuncValue.trySetOverloadableFunction(opFunc) &&
+			callOperator(opFuncValue, &argList, resultValue);
 	}
 
 	Value opValue;
@@ -259,9 +263,9 @@ OperatorMgr::binaryOperator(
 
 	bool result;
 
-	OverloadableFunction function = getOverloadedBinaryOperator(opKind, rawOpValue1);
-	if (function) {
-		if (function->getFlags() & MulticastMethodFlag_InaccessibleViaEventPtr) {
+	OverloadableFunction opFunc = getOverloadedBinaryOperator(opKind, rawOpValue1);
+	if (opFunc) {
+		if (opFunc->getFlags() & MulticastMethodFlag_InaccessibleViaEventPtr) {
 			Value opValue1;
 			result = prepareOperandType(rawOpValue1, &opValue1);
 			if (!result)
@@ -277,7 +281,11 @@ OperatorMgr::binaryOperator(
 		sl::BoxList<Value> argList;
 		argList.insertTail(rawOpValue1);
 		argList.insertTail(rawOpValue2);
-		return callOperator(function, &argList, resultValue);
+
+		Value opFuncValue;
+		return
+			opFuncValue.trySetOverloadableFunction(opFunc) &&
+			callOperator(opFuncValue, &argList, resultValue);
 	}
 
 	Value opValue1;

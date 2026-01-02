@@ -256,9 +256,12 @@ StructType::layoutBaseType(BaseTypeSlot* slot) {
 
 	it->m_value = slot;
 
-	result = slot->m_type->ensureLayout();
-	if (!result)
-		return false;
+	if (m_structTypeKind == StructTypeKind_Normal) {
+		combineOperatorArrays(&m_unaryOperatorArray, slot->m_type->getUnaryOperatorArray());
+		combineOperatorArrays(&m_binaryOperatorArray, slot->m_type->getBinaryOperatorArray());
+		combineOperatorMaps(&m_castOperatorMap, slot->m_type->getCastOperatorMap());
+		combineOperators(&m_callOperator, slot->m_type->getCallOperator());
+	}
 
 	if (slot->m_type->getFlags() & TypeFlag_GcRoot) {
 		m_gcRootBaseTypeArray.append(slot);

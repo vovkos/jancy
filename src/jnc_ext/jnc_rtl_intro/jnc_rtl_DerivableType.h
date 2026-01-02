@@ -102,21 +102,14 @@ public:
 
 	Function*
 	JNC_CDECL
-	getCallOperator() {
-		return rtl::getFunction(m_item->getCallOperator());
-	}
-
-	size_t
-	JNC_CDECL
-	getCastOperatorCount() {
-		return m_item->getCastOperatorArray().getCount();
+	findCastOperator(Type* type) {
+		return rtl::getFunction(m_item->findCastOperator(type->getItem()));
 	}
 
 	Function*
 	JNC_CDECL
-	getCastOperator(size_t index) {
-		size_t count = m_item->getCastOperatorArray().getCount();
-		return index < count ? rtl::getFunction(m_item->getCastOperatorArray()[index]) : NULL;
+	getCallOperator() {
+		return rtl::getFunction(m_item->getCallOperator());
 	}
 };
 

@@ -88,12 +88,11 @@ EXPORTS
 	jnc_Field_getPtrTypeFlags
 	jnc_Field_getOffset
 	jnc_DerivableType_findBaseTypeOffset
+	jnc_DerivableType_findCastOperator
 	jnc_DerivableType_getBaseType
 	jnc_DerivableType_getBaseTypeCount
 	jnc_DerivableType_getBinaryOperator
 	jnc_DerivableType_getCallOperator
-	jnc_DerivableType_getCastOperatorCount
-	jnc_DerivableType_getCastOperator
 	jnc_DerivableType_getConstructor
 	jnc_DerivableType_getDestructor
 	jnc_DerivableType_getField

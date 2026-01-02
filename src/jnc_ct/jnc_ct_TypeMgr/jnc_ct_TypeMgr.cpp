@@ -966,8 +966,8 @@ TypeMgr::getMulticastType(FunctionPtrType* functionPtrType) {
 
 	// overloaded operators
 
-	type->m_binaryOperatorTable.setCountZeroConstruct(BinOpKind__Count);
-	sl::Array<OverloadableFunction>::Rwi rwi = type->m_binaryOperatorTable;
+	type->m_binaryOperatorArray.setCountZeroConstruct(BinOpKind_SubAssign + 1);
+	sl::Array<OverloadableFunction>::Rwi rwi = type->m_binaryOperatorArray;
 	rwi[BinOpKind_RefAssign] = type->m_methodArray[MulticastMethodKind_Setup];
 	rwi[BinOpKind_AddAssign] = type->m_methodArray[MulticastMethodKind_Add];
 	rwi[BinOpKind_SubAssign] = type->m_methodArray[MulticastMethodKind_Remove];

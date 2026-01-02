@@ -275,11 +275,11 @@ ModuleItemDecl::copyDecl(
 	AttributeBlock* attributeBlock
 ) {
 	m_parentUnit = src->m_parentUnit;
+	m_parentNamespace = src->m_parentNamespace;
 	m_pos = src->m_pos;
 	m_storageKind = src->m_storageKind;
 	m_accessKind = src->m_accessKind;
 	m_name = src->m_name;
-	m_parentNamespace = src->m_parentNamespace;
 	m_pragmaConfig = src->m_pragmaConfig;
 	m_attributeBlock = attributeBlock;
 	m_doxyBlock = src->m_doxyBlock;

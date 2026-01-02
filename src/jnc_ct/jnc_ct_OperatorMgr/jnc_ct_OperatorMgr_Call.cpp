@@ -176,20 +176,22 @@ OperatorMgr::callOperator(
 	if (opValue.getType()->getTypeKind() == TypeKind_ClassPtr) {
 		ClassPtrType* ptrType = (ClassPtrType*)opValue.getType();
 
-		OverloadableFunction callOperator = ptrType->getTargetType()->getCallOperator();
-		if (!callOperator) {
+		OverloadableFunction opFunc = ptrType->getTargetType()->getCallOperator();
+		if (!opFunc) {
 			err::setFormatStringError("cannot call '%s'", ptrType->getTypeString().sz());
 			return false;
 		}
 
-		if ((callOperator->getFlags() & MulticastMethodFlag_InaccessibleViaEventPtr) &&
+		if ((opFunc->getFlags() & MulticastMethodFlag_InaccessibleViaEventPtr) &&
 			(ptrType->getFlags() & PtrTypeFlag_Event)) {
 			err::setError("'call' is inaccessible via 'event' pointer");
 			return false;
 		}
 
 		Value objValue = opValue;
-		opValue = callOperator;
+		result = opValue.trySetOverloadableFunction(opFunc);
+		if (!result)
+			return false;
 
 		Closure* closure = opValue.createClosure();
 		closure->insertThisArgValue(objValue);

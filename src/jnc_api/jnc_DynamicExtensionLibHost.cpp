@@ -173,8 +173,7 @@ static jnc_DerivableTypeFuncTable g_derivableTypeFuncTable = {
 	jnc_DerivableType_getUnaryOperator,
 	jnc_DerivableType_getBinaryOperator,
 	jnc_DerivableType_getCallOperator,
-	jnc_DerivableType_getCastOperatorCount,
-	jnc_DerivableType_getCastOperator,
+	jnc_DerivableType_findCastOperator,
 };
 
 static jnc_ArrayTypeFuncTable g_arrayTypeFuncTable = {

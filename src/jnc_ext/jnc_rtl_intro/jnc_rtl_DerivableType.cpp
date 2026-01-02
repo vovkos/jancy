@@ -49,12 +49,11 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(DerivableType)
 	JNC_MAP_CONSTRUCTOR((&jnc::construct<DerivableType, ct::DerivableType*>))
 	JNC_MAP_CONST_PROPERTY("m_baseTypeCount", &DerivableType::getBaseTypeCount)
 	JNC_MAP_CONST_PROPERTY("m_baseTypeArray", &DerivableType::getBaseType)
-	JNC_MAP_FUNCTION("findBaseTypeOffset", &DerivableType::findBaseTypeOffset);
-	JNC_MAP_CONST_PROPERTY("m_unaryOperatorTable", &DerivableType::getUnaryOperator)
-	JNC_MAP_CONST_PROPERTY("m_binaryOperatorTable", &DerivableType::getBinaryOperator)
+	JNC_MAP_CONST_PROPERTY("m_unaryOperatorArray", &DerivableType::getUnaryOperator)
+	JNC_MAP_CONST_PROPERTY("m_binaryOperatorArray", &DerivableType::getBinaryOperator)
 	JNC_MAP_CONST_PROPERTY("m_callOperator", &DerivableType::getCallOperator)
-	JNC_MAP_CONST_PROPERTY("m_castOperatorCount", &DerivableType::getCastOperatorCount)
-	JNC_MAP_CONST_PROPERTY("m_castOperatorArray", &DerivableType::getCastOperator)
+	JNC_MAP_FUNCTION("findBaseTypeOffset", &DerivableType::findBaseTypeOffset)
+	JNC_MAP_FUNCTION("findCastOperator", &DerivableType::findCastOperator)
 JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................

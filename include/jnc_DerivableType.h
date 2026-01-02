@@ -173,14 +173,10 @@ jnc_OverloadableFunction
 jnc_DerivableType_getCallOperator(jnc_DerivableType* type);
 
 JNC_EXTERN_C
-size_t
-jnc_DerivableType_getCastOperatorCount(jnc_DerivableType* type);
-
-JNC_EXTERN_C
 jnc_Function*
-jnc_DerivableType_getCastOperator(
+jnc_DerivableType_findCastOperator(
 	jnc_DerivableType* type,
-	size_t index
+	jnc_Type* targetType
 );
 
 JNC_EXTERN_C
@@ -280,14 +276,9 @@ struct jnc_DerivableType: jnc_NamedType {
 		return jnc_DerivableType_getCallOperator(this);
 	}
 
-	size_t
-	getCastOperatorCount() {
-		return jnc_DerivableType_getCastOperatorCount(this);
-	}
-
 	jnc_Function*
-	getCastOperator(size_t index) {
-		return jnc_DerivableType_getCastOperator(this, index);
+	findCastOperator(jnc_Type* type) {
+		return jnc_DerivableType_findCastOperator(this, type);
 	}
 
 	size_t

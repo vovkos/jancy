@@ -30,48 +30,30 @@ struct BoxListEntry<T>: ListLink<BoxListEntry> {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct BoxIterator<T>: Iterator<BoxListEntry<T> > {
-	construct(Entry* p = null) thin {
-		basetype.construct(p);
+struct BoxIteratorBase<T>: IteratorBase<BoxListEntry<T> > {
+	T operator * () thin const {
+		return m_p.m_value;
 	}
 
-	T operator * () thin {
-		return m_p.m_value;
+	T* operator -> () thin const {
+		return &m_p.m_value;
 	}
 
  	T operator := (T value) thin {
  		return m_p.m_value = value;
  	}
-
- 	BoxIterator operator ++ () thin {
- 		m_p = m_p.m_next;
- 		return *this;
- 	}
-
- 	BoxIterator postfix operator ++ () thin {
- 		BoxIterator saved = *this;
- 		m_p = m_p.m_next;
- 		return saved;
- 	}
-
- 	BoxIterator operator -- () thin {
- 		m_p = m_p.m_prev;
- 		return *this;
- 	}
-
- 	BoxIterator postfix operator -- () thin {
- 		BoxIterator saved = *this;
- 		m_p = m_p.m_prev;
- 		return saved;
- 	}
 }
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+typedef IteratorImpl<BoxIteratorBase<T> > BoxIterator<T>;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class BoxList<T>: List<BoxListEntry<T> > {
 	typedef BoxListEntry<T> Entry;
 	typedef BoxIterator<T> Iterator;
-
+/*
 	Iterator append(T value) {
 		return insertTail(value);
 	}
@@ -99,11 +81,11 @@ class BoxList<T>: List<BoxListEntry<T> > {
 
 	T remove(Iterator it) {
 		return *basetype.remove(it);
-	}
+	} */
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
+/*
 Iterator BoxList<T>.insertHead(T value) {
 	Entry* p = new Entry(value);
 	basetype.insertHead(p);
@@ -114,7 +96,7 @@ Iterator BoxList<T>.insertTail(T value) {
 	Entry* p = new Entry(value);
 	basetype.insertTail(p);
 	return Iterator(p);
-}
+} */
 
 //..............................................................................
 

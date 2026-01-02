@@ -182,7 +182,8 @@ Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
 		TemplateNamespace* nspace = (TemplateNamespace*)m_module->m_namespaceMgr.getCurrentNamespace();
 		ASSERT(nspace->getNamespaceKind() == NamespaceKind_TemplateInstantiation);
 
-		// link and make it findable right away
+		// prepare decl info, link, and make it findable right away
+		copyDecl(type);
 		instance->m_item = type;
 		type->m_templateInstance = instance;
 		nspace->m_instanceType = type;
@@ -208,8 +209,6 @@ Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
 			orphan->addTemplateInstantiation(argArray, nspace);
 			type->addOrphan(orphan);
 		}
-
-		copyDecl(type);
 	}
 
 	return instance->m_item;

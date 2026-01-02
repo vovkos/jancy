@@ -24,18 +24,10 @@ struct ListLink<T> {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct Iterator<T> {
+struct IteratorBase<T> {
 	typedef T Entry;
 
 	T* readonly m_p;
-
-	construct(T* p = null) thin {
-		m_p = p;
-	}
-
-	operator bool () thin const {
-		return m_p != null;
-	}
 
 	T* operator * () thin const {
 		return m_p;
@@ -44,29 +36,45 @@ struct Iterator<T> {
 	T* operator -> () thin const {
 		return m_p;
 	}
+}
 
-	Iterator operator ++ () thin {
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct IteratorImpl<I>: I {
+	construct(Entry* p = null) thin {
+		m_p = p;
+	}
+
+	operator bool () thin const {
+		return m_p != null;
+	}
+
+	IteratorImpl operator ++ () thin {
 		m_p = m_p.m_next;
 		return *this;
 	}
 
-	Iterator postfix operator ++ () thin {
-		Iterator saved = *this;
+	IteratorImpl postfix operator ++ () thin {
+		IteratorImpl saved = *this;
 		m_p = m_p.m_next;
 		return saved;
 	}
 
-	Iterator operator -- () thin {
+	IteratorImpl operator -- () thin {
 		m_p = m_p.m_prev;
 		return *this;
 	}
 
-	Iterator postfix operator -- () thin {
-		Iterator saved = *this;
+	IteratorImpl postfix operator -- () thin {
+		IteratorImpl saved = *this;
 		m_p = m_p.m_prev;
 		return saved;
 	}
 }
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+typedef IteratorImpl<IteratorBase<T> > Iterator<T>;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -76,16 +84,18 @@ class List<T> {
 	T* readonly m_head;
 	T* readonly m_tail;
 	size_t readonly m_count;
-
+/*
 	void clear();
 	void takeOver(List* list);
 
 	Iterator append(T* p) {
 		return insertTail(p);
 	}
-
-	Iterator insertHead(T* p);
-	Iterator insertTail(T* p);
+*/
+	Iterator insertHead(T* p) {
+		return p;
+	}
+/*	Iterator insertTail(T* p);
 
 	Iterator insertBefore(
 		T* p,
@@ -121,11 +131,11 @@ class List<T> {
 
 	T* removeHead();
 	T* removeTail();
-	T* remove(Iterator it);
+	T* remove(Iterator it); */
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
+/*
 void List<T>.clear() {
 	m_head = null;
 	m_tail = null;
@@ -241,7 +251,7 @@ T* List<T>.remove(Iterator it) {
 	m_count--;
 	return p;
 }
-
+*/
 //..............................................................................
 
 //! @}

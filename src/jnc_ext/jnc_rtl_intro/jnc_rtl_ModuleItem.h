@@ -169,6 +169,11 @@ public:
 	ModuleItemBase(T* moduleItem) {
 		m_item = moduleItem;
 	}
+
+	T*
+	getItem() {
+		return m_item;
+	}
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
