@@ -1134,7 +1134,7 @@ Parser::declareTemplate(Declarator* declarator) {
 	Namespace* templNspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	m_module->m_namespaceMgr.closeAllTemplateDeclNamespaces();
 
-	if (!declarator->isSimple()) {
+	if (declarator->isQualified()) {
 		TemplateDeclType* type = m_module->m_typeMgr.createTemplateDeclType(declarator);
 		declarator = type->getDeclarator(); // adjust declarator (original was just moved)
 		createOrphan(OrphanKind_Template, declarator->getFunctionKind(), declarator, type);
