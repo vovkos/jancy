@@ -80,7 +80,6 @@ Parser::Parser(
 	m_lastPropertyTypeModifiers = 0;
 	m_topDeclarator = NULL;
 	m_namedImportAnchor = NULL;
-	m_topDeclaratorTemplateArgCount = 0;
 	m_declarationId = 0;
 
 	m_constructorType = NULL;
@@ -344,18 +343,15 @@ Parser::parseEofToken(
 	return consumeToken(token);
 }
 
-Type*
+NamedImportType*
 Parser::getQualifiedTypeName(
 	QualifiedName* name,
 	const lex::LineCol& pos
 ) {
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	Type* type = m_module->m_typeMgr.getNamedImportType(nspace, name);
-	if (type->getTypeKind() == TypeKind_NamedImport) { // maybe resolved already?
-		NamedImportType* importType = (NamedImportType*)type;
-		if (!importType->m_parentUnit)
-			setItemPos(importType, pos);
-	}
+	NamedImportType* type = m_module->m_typeMgr.getNamedImportType(nspace, name);
+	if (!type->m_parentUnit)
+		setItemPos(type, pos);
 
 	return type;
 }
@@ -695,31 +691,48 @@ Parser::preDeclarator(
 
 	m_topDeclarator = declarator;
 	m_namedImportAnchor = NULL;
-	m_topDeclaratorTemplateArgCount = 0;
 }
 
 void
 Parser::postDeclaratorName(Declarator* declarator) {
-	if (!m_topDeclarator->isQualified() || declarator->m_baseType->getTypeKind() != TypeKind_NamedImport)
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
+	if (declarator->m_baseType->getTypeKind() != TypeKind_NamedImport)
 		return;
 
-	// need to re-anchor the import, e.g.:
-	// A C.foo(); <-- here 'A' should be searched for starting with 'C'
+	if (m_topDeclarator->isQualified()) {
+		// need to re-anchor the import:
+		// A C.foo();  <-- here 'A' should be searched for starting with 'C'
 
-	if (!m_namedImportAnchor)
-		m_namedImportAnchor = m_module->m_typeMgr.createNamedImportAnchor();
+		if (!m_namedImportAnchor)
+			m_namedImportAnchor = m_module->m_typeMgr.createNamedImportAnchor();
 
-	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	NamedImportType* type = m_module->m_typeMgr.getAnchoredNamedImportType(
-		nspace,
-		m_namedImportAnchor,
-		((NamedImportType*)declarator->m_baseType)->m_name
-	);
+		NamedImportType* importType = m_module->m_typeMgr.getAnchoredNamedImportType(
+			nspace,
+			m_namedImportAnchor,
+			((NamedImportType*)declarator->m_baseType)->m_name
+		);
 
-	if (!type->m_parentUnit)
-		setItemPos(type, declarator->getPos());
+		if (!importType->m_parentUnit)
+			setItemPos(importType, declarator->getPos());
 
-	declarator->m_baseType = type;
+		declarator->m_baseType = importType;
+	} else if (
+		declarator == m_topDeclarator && // imports in lower-level declarators are already parented by template namespace
+		nspace->getNamespaceKind() == NamespaceKind_TemplateDeclaration
+	) {
+		// need to re-anchor the import:
+		// T foo<T>();  <-- here 'T' should be searched for starting with template namespace
+
+		NamedImportType* importType = (NamedImportType*)declarator->m_baseType;
+		ASSERT(importType->m_parentNamespace != nspace);
+
+		QualifiedName name;
+		name.copy(importType->m_name);
+		importType = m_module->m_typeMgr.getNamedImportType(nspace, &name);
+		ASSERT(importType->getTypeKind() == TypeKind_NamedImport && !importType->m_parentUnit);
+		setItemPos(importType, declarator->getPos());
+		declarator->m_baseType = importType;
+	}
 }
 
 void
@@ -736,7 +749,6 @@ Parser::addTemplateSuffixToDeclarator(Declarator* declarator) {
 	QualifiedNameAtom* atom = declarator->m_name.getLastAtom();
 	ASSERT(atom->m_atomKind == QualifiedNameAtomKind_Name);
 	atom->m_atomKind = QualifiedNameAtomKind_TemplateDeclSuffix;
-	m_topDeclaratorTemplateArgCount += m_templateArgArray.getCount();
 	sl::takeOver(&atom->m_templateDeclArgArray, &m_templateArgArray);
 	return true;
 }
@@ -1077,41 +1089,6 @@ Parser::addTemplateArg(
 		return false;
 
 	m_templateArgArray.append(type);
-	return true;
-}
-
-bool
-Parser::prepareTemplateDeclarator(Declarator* declarator) {
-	ASSERT(m_templateArgArray.isEmpty()); // should already be taken by one of the name atoms
-
-	if (declarator->m_declaratorKind != DeclaratorKind_Name) {
-		err::setError("invalid template declarator");
-		return false;
-	}
-
-	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	ASSERT(nspace->getNamespaceKind() == NamespaceKind_TemplateDeclaration);
-
-	NamedImportType* baseType = (NamedImportType*)declarator->m_baseType;
-	if (baseType->getTypeKind() == TypeKind_NamedImport &&
-		baseType->getName().isSimple()
-	) {
-		for (;;) {
-			FindModuleItemResult findResult = nspace->findDirectChildItem(baseType->getName().getFirstAtom());
-			if (findResult.m_item) {
-				ASSERT(findResult.m_item->getItemKind() == ModuleItemKind_Type);
-				declarator->m_baseType = (Type*)findResult.m_item;
-				break;
-			}
-
-			// orphans could generate multiple nested template namespaces -- try all of them
-
-			nspace = nspace->getParentNamespace();
-			if (nspace->getNamespaceKind() != NamespaceKind_TemplateDeclaration)
-				break;
-		}
-	}
-
 	return true;
 }
 

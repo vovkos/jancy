@@ -26,10 +26,6 @@ declarator<TypeSpecifier* $typeSpecifier>
 	}
 	:	declarator_prefix<&$.m_declarator>*
 		declarator_name<&$.m_declarator>
-			{
-				if (&$.m_declarator == m_topDeclarator && m_topDeclaratorTemplateArgCount)
-					return prepareTemplateDeclarator(&$.m_declarator);
-			}
 		declarator_suffix<&$.m_declarator>*
 		declarator_constructor<&$.m_declarator>?
 	;

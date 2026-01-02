@@ -129,7 +129,6 @@ protected:
 	Declarator* m_topDeclarator; // orphan declarators affect import type resolution
 	NamedImportAnchor* m_namedImportAnchor;
 	sl::Array<TemplateArgType*> m_templateArgArray;
-	size_t m_topDeclaratorTemplateArgCount;
 	size_t m_declarationId;
 
 	dox::Parser m_doxyParser;
@@ -242,7 +241,7 @@ protected:
 		int64_t value = 0
 	);
 
-	Type*
+	NamedImportType*
 	getQualifiedTypeName(
 		QualifiedName* name,
 		const lex::LineCol& pos
@@ -459,9 +458,6 @@ protected:
 		const sl::StringRef& name,
 		Declarator* defaultTypeDeclarator
 	);
-
-	bool
-	prepareTemplateDeclarator(Declarator* declarator);
 
 	bool
 	checkTemplateName(
