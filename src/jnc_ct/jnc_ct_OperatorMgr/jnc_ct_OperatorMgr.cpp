@@ -1179,14 +1179,7 @@ OperatorMgr::templateInstantiateOperator(
 	if (closure->countNonEmptyArgs() < templ->getArgArray().getCount()) // not enough args for instantiation
 		return true;
 
-	ModuleItem* item;
-	if (!closure)
-		item = templ->instantiate(argArray);
-	else {
-		closure->append(argArray);
-		item = templ->instantiate(*closure->getArgValueList());
-	}
-
+	ModuleItem* item = templ->instantiate(*closure->getArgValueList());
 	if (!item)
 		return false;
 
