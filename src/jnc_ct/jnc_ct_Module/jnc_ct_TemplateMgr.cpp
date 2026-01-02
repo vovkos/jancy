@@ -150,7 +150,7 @@ Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
 			instance->m_item = tdef;
 		} else {
 			if (type->getTypeKind() != TypeKind_Function) {
-				err::setError("cannot instantiate template '%s' (not a function)");
+				err::setFormatStringError("cannot instantiate template '%s' (not a function)", getItemName().sz());
 				return NULL;
 			}
 
