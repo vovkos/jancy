@@ -397,11 +397,6 @@ public:
 		return m_name.getFirstAtom().m_name;
 	}
 
-	const sl::StringRef&
-	getShortName() {
-		return m_name.getLastAtom()->m_name;
-	}
-
 	const lex::LineCol&
 	getPos() {
 		return m_pos;

@@ -1143,7 +1143,7 @@ Parser::declareTemplate(Declarator* declarator) {
 
 	TemplateDeclType* type = m_module->m_typeMgr.createTemplateDeclType(declarator);
 	declarator = type->getDeclarator(); // adjust declarator (original was just moved)
-	const sl::StringRef& name = declarator->getSimpleName();
+	const sl::StringRef& name = declarator->getName().getFirstAtom().m_name;
 	if (!checkTemplateName(declarator->getPos(), name, templNspace))
 		return false;
 
@@ -1354,7 +1354,7 @@ Parser::declareFunction(
 
 	switch (functionKind) {
 	case FunctionKind_Normal:
-		function->m_name = declarator->getShortName();
+		function->m_name = declarator->getSimpleName();
 		break;
 
 	case FunctionKind_UnaryOperator:
@@ -1755,6 +1755,8 @@ Parser::declareReactor(
 		createOrphan(OrphanKind_Reactor, FunctionKind_Normal, declarator, NULL);
 		return true;
 	}
+
+	ASSERT(declarator->isSimple());
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	NamespaceKind namespaceKind = nspace->getNamespaceKind();

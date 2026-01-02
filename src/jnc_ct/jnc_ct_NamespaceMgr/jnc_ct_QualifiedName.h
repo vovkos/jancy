@@ -137,6 +137,11 @@ public:
 		return m_firstAtom;
 	}
 
+	const QualifiedNameAtom*
+	getLastAtom() const {
+		return !m_atomList.isEmpty() ? &*m_atomList.getTail() : &m_firstAtom;
+	}
+
 	QualifiedNameAtom*
 	getLastAtom() {
 		return !m_atomList.isEmpty() ? &*m_atomList.getTail() : &m_firstAtom;

@@ -260,7 +260,7 @@ NamespaceMgr::createOrphan(
 
 	switch (functionKind) {
 	case FunctionKind_Normal:
-		orphan->m_name = declarator->getShortName();
+		orphan->m_name = declarator->getName().getLastAtom()->m_name;
 		break;
 
 	case FunctionKind_UnaryOperator:
