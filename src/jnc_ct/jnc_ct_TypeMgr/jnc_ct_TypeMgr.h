@@ -663,7 +663,7 @@ public:
 	NamedImportAnchor*
 	createNamedImportAnchor();
 
-	Type* // returns resolved type if available
+	NamedImportType*
 	getNamedImportType(
 		Namespace* parentNamespace,
 		QualifiedName* name // destructive

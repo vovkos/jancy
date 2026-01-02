@@ -1455,7 +1455,7 @@ TypeMgr::getPropertyVtableStructType(PropertyType* propertyType) {
 	return type;
 }
 
-Type*
+NamedImportType*
 TypeMgr::getNamedImportType(
 	Namespace* parentNamespace,
 	QualifiedName* name
@@ -1465,9 +1465,8 @@ TypeMgr::getNamedImportType(
 	sl::String signature = NamedImportType::createSignature(parentNamespace, *name);
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
 	if (it->m_value) {
-		ASSERT(it->m_value->m_signature == signature);
-		NamedImportType* type = (NamedImportType*)it->m_value;
-		return type->isResolved() ? type->getActualType() : type;
+		ASSERT(it->m_value->m_signature == signature && !((NamedImportType*)it->m_value)->isResolved());
+		return (NamedImportType*)it->m_value;
 	}
 
 	NamedImportType* type = new NamedImportType;
