@@ -106,12 +106,20 @@ DeclTypeCalc::calcType(
 			break;
 
 		case TypeKind_ImportTypeName:
-			type = m_module->m_typeMgr.getImportPtrType((ImportTypeName*)type, m_typeModifiers & TypeModifierMaskKind_ImportPtr);
+			type = m_module->m_typeMgr.getModType<ImportPtrType>(
+				(ImportTypeName*)type,
+				m_typeModifiers & TypeModifierMaskKind_ImportPtr
+			);
+
 			m_typeModifiers &= ~TypeModifierMaskKind_ImportPtr;
 			break;
 
 		case TypeKind_TemplateArg:
-			type = m_module->m_typeMgr.getTemplatePtrType((TemplateArgType*)type, m_typeModifiers & TypeModifierMaskKind_TemplatePtr);
+			type = m_module->m_typeMgr.getModType<TemplatePtrType>(
+				(TemplateArgType*)type,
+				m_typeModifiers & TypeModifierMaskKind_TemplatePtr
+			);
+
 			m_typeModifiers &= ~TypeModifierMaskKind_TemplatePtr;
 			break;
 
@@ -368,10 +376,10 @@ DeclTypeCalc::getIntegerType(Type* type) {
 
 	switch (typeKind) {
 	case TypeKind_ImportTypeName:
-		return m_module->m_typeMgr.getImportIntModType((ImportTypeName*)type, typeModifiers);
+		return m_module->m_typeMgr.getModType<ImportIntModType>((ImportTypeName*)type, typeModifiers);
 
 	case TypeKind_TemplateArg:
-		return m_module->m_typeMgr.getTemplateIntModType((TemplateArgType*)type, typeModifiers);
+		return m_module->m_typeMgr.getModType<TemplateIntModType>((TemplateArgType*)type, typeModifiers);
 	}
 
 	if (!(type->getTypeKindFlags() & TypeKindFlag_Integer)) {

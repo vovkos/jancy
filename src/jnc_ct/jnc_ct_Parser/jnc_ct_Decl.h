@@ -20,7 +20,6 @@ namespace ct {
 
 class Declarator;
 class TemplateArgType;
-struct ImportTypeNameAnchor;
 
 //..............................................................................
 

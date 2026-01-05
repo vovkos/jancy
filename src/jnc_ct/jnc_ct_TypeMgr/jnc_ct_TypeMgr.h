@@ -662,6 +662,16 @@ public:
 	StructType*
 	getPropertyVtableStructType(PropertyType* propertyType);
 
+	template <
+		typename T,
+		typename B
+	>
+	T*
+	getModType(
+		B* baseType,
+		uint_t typeModifiers
+	);
+
 	ImportTypeNameAnchor*
 	createImportTypeNameAnchor();
 
@@ -678,32 +688,6 @@ public:
 		const QualifiedName& name
 	);
 
-	template <
-		typename T,
-		typename B
-	>
-	T*
-	getModType(
-		B* baseType,
-		uint_t typeModifiers
-	);
-
-	ImportPtrType*
-	getImportPtrType(
-		ImportTypeName* baseType,
-		uint_t typeModifiers
-	) {
-		return getModType<ImportPtrType>(baseType, typeModifiers);
-	}
-
-	ImportIntModType*
-	getImportIntModType(
-		ImportTypeName* baseType,
-		uint_t typeModifiers
-	) {
-		return getModType<ImportIntModType>(baseType, typeModifiers);
-	}
-
 	TemplateArgType*
 	createTemplateArgType(
 		const sl::StringRef& name,
@@ -716,22 +700,6 @@ public:
 		Namespace* parentNamespace,
 		QualifiedName* name // destructive
 	);
-
-	TemplatePtrType*
-	getTemplatePtrType(
-		TemplateType* baseType,
-		uint_t typeModifiers
-	) {
-		return getModType<TemplatePtrType>(baseType, typeModifiers);
-	}
-
-	TemplateIntModType*
-	getTemplateIntModType(
-		TemplateType* baseType,
-		uint_t typeModifiers
-	) {
-		return getModType<TemplateIntModType>(baseType, typeModifiers);
-	}
 
 	TemplateDeclType*
 	createTemplateDeclType(Declarator* declarator);
