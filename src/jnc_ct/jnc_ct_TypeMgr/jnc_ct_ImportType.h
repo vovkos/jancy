@@ -113,7 +113,7 @@ public:
 	}
 
 	const ImportTypeNameAnchor*
-	getAnchor() {
+	getAnchor() const {
 		return m_anchor;
 	}
 
@@ -134,6 +134,22 @@ protected:
 	bool
 	resolveImports();
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+sl::String
+ImportTypeName::createSignature(
+	Namespace* parentNamespace,
+	const QualifiedName& name,
+	const ImportTypeNameAnchor* anchor
+) {
+	sl::String signature = TypeName::createSignature('IN', parentNamespace, name);
+	if (anchor)
+		signature.appendFormat("-%d", anchor->m_linkId);
+
+	return signature;
+}
 
 //..............................................................................
 

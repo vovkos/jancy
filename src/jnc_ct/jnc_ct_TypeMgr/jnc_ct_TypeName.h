@@ -39,6 +39,14 @@ public:
 	Type*
 	lookupType(Namespace* nspace) const;
 
+	static
+	sl::String
+	createSignature(
+		uint16_t signaturePrefix,
+		Namespace* parentNamespace,
+		const QualifiedName& name
+	);
+
 protected:
 	Type*
 	lookupTypeImpl(
@@ -47,6 +55,9 @@ protected:
 		uint_t compileFlags,
 		bool isResolvingRecursion
 	) const;
+
+	sl::String
+	createTypeString(const sl::StringRef& prefix);
 };
 
 //..............................................................................

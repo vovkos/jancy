@@ -117,7 +117,9 @@ public:
 	createSignature(
 		Namespace* parentNamespace,
 		const QualifiedName& name
-	);
+	) {
+		return TypeName::createSignature('NX', parentNamespace, name);
+	}
 
 protected:
 	virtual

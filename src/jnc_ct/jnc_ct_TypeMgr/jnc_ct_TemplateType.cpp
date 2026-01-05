@@ -80,38 +80,12 @@ TemplateArgType::selectTemplateArg(
 
 //..............................................................................
 
-sl::String
-TemplateTypeName::createSignature(
-	Namespace* parentNamespace,
-	const QualifiedName& name
-) {
-	sl::StringRef parentSignature = parentNamespace->getDeclItem()->getLinkId();
-	sl::String signature = "XN";
-	signature += parentSignature;
-	if (!parentSignature.isEmpty())
-		signature += '.';
-
-	name.appendFullName(&signature);
-	signature += '$';
-	return signature;
-}
-
 sl::StringRef
 TemplateTypeName::createItemString(size_t index) {
 	switch (index) {
 	case TypeStringKind_Prefix:
-	case TypeStringKind_DoxyLinkedTextPrefix: {
-		sl::String string = "template ";
-
-		sl::StringRef parentName = m_parentNamespace->getDeclItem()->getItemName();
-		if (!parentName.isEmpty()) {
-			string += parentName;
-			string += '.';
-		}
-
-		string += m_name.getFullName();
-		return string;
-	}
+	case TypeStringKind_DoxyLinkedTextPrefix:
+		return TypeName::createTypeString("template ");
 
 	default:
 		return TemplateType::createItemString(index);
@@ -245,7 +219,12 @@ TemplateDeclType::instantiate(const sl::ArrayRef<Type*>& argArray) {
 
 	case TypeKind_TemplateTypeName: {
 		Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-		ASSERT(nspace->getNamespaceKind() == NamespaceKind_TemplateInstantiation);
+
+		ASSERT(
+			nspace->getNamespaceKind() == NamespaceKind_TemplateInstantiation ||
+			nspace->getNamespaceKind() == NamespaceKind_Type &&
+			((NamedType*)nspace)->getTemplateInstance()
+		);
 
 		baseType = ((TemplateTypeName*)baseType)->lookupType(nspace);
 		if (!baseType)

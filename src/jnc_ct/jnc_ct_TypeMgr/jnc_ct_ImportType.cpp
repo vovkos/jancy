@@ -50,44 +50,12 @@ ImportType::resolve() {
 
 //..............................................................................
 
-sl::String
-ImportTypeName::createSignature(
-	Namespace* parentNamespace,
-	const QualifiedName& name,
-	const ImportTypeNameAnchor* anchor
-) {
-	sl::StringRef parentSignature = parentNamespace->getDeclItem()->getLinkId();
-	sl::String signature = "IN";
-	signature += parentSignature;
-	if (!parentSignature.isEmpty())
-		signature += '.';
-
-	name.appendFullName(&signature);
-	signature += '$';
-
-	if (anchor)
-		signature.appendFormat("-%d", anchor->m_linkId);
-
-	return signature;
-}
-
 sl::StringRef
 ImportTypeName::createItemString(size_t index) {
 	switch (index) {
 	case TypeStringKind_Prefix:
-	case TypeStringKind_DoxyLinkedTextPrefix: {
-		sl::String string = "import ";
-
-		Namespace* nspace = m_anchor && m_anchor->m_namespace ? m_anchor->m_namespace : m_parentNamespace;
-		sl::StringRef parentName = nspace->getDeclItem()->getItemName();
-		if (!parentName.isEmpty()) {
-			string += parentName;
-			string += '.';
-		}
-
-		string += m_name.getFullName();
-		return string;
-		}
+	case TypeStringKind_DoxyLinkedTextPrefix:
+		return TypeName::createTypeString("import ");
 
 	default:
 		return ImportType::createItemString(index);

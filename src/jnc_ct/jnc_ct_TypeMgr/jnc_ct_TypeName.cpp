@@ -18,6 +18,37 @@ namespace ct {
 
 //..............................................................................
 
+sl::String
+TypeName::createSignature(
+	uint16_t signaturePrefix,
+	Namespace* parentNamespace,
+	const QualifiedName& name
+) {
+	sl::String signature((char*)&signaturePrefix, 2);
+	sl::StringRef parentSignature = parentNamespace->getDeclItem()->getLinkId();
+	signature += parentSignature;
+	if (!parentSignature.isEmpty())
+		signature += '.';
+
+	name.appendFullName(&signature);
+	signature += '$';
+	return signature;
+}
+
+sl::String
+TypeName::createTypeString(const sl::StringRef& prefix) {
+	sl::String string = prefix;
+
+	sl::StringRef parentName = m_parentNamespace->getDeclItem()->getItemName();
+	if (!parentName.isEmpty()) {
+		string += parentName;
+		string += '.';
+	}
+
+	string += m_name.getFullName();
+	return string;
+}
+
 Type*
 TypeName::lookupTypeImpl(
 	const ModuleItemContext& context,
@@ -34,7 +65,7 @@ TypeName::lookupTypeImpl(
 	}
 
 	if (!findResult.m_item) {
-		err::setFormatStringError("unresolved import '%s'", m_name.getFullName().sz());
+		err::setFormatStringError("unresolved type '%s'", m_name.getFullName().sz());
 		pushSrcPosError();
 		return NULL;
 	}
