@@ -12,6 +12,7 @@
 #pragma once
 
 #include "jnc_ct_Type.h"
+#include "jnc_ct_TypeName.h"
 #include "jnc_ct_Namespace.h"
 
 namespace jnc {
@@ -98,13 +99,12 @@ struct ImportTypeNameAnchor {
 
 class ImportTypeName:
 	public ImportType,
-	public ModuleItemPos {
+	public TypeName {
 	friend class TypeMgr;
 	friend class Parser;
 
 protected:
 	ImportTypeNameAnchor* m_anchor;
-	QualifiedName m_name;
 
 public:
 	ImportTypeName() {
@@ -115,11 +115,6 @@ public:
 	const ImportTypeNameAnchor*
 	getAnchor() {
 		return m_anchor;
-	}
-
-	const QualifiedName&
-	getName() {
-		return m_name;
 	}
 
 	static

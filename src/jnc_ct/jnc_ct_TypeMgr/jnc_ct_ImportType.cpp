@@ -11,7 +11,6 @@
 
 #include "pch.h"
 #include "jnc_ct_ImportType.h"
-#include "jnc_ct_TypeNameFinder.h"
 #include "jnc_ct_Module.h"
 #include "jnc_ct_DeclTypeCalc.h"
 
@@ -97,18 +96,11 @@ ImportTypeName::createItemString(size_t index) {
 
 bool
 ImportTypeName::resolveImports() {
-	Namespace* nspace;
-	if (m_anchor && m_anchor->m_namespace)
-		nspace = m_anchor->m_namespace;
-	else if (m_parentNamespace->getNamespaceKind() != NamespaceKind_TemplateDeclaration)
-		nspace = m_parentNamespace;
-	else {
-		nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-		ASSERT(nspace->getNamespaceKind() == NamespaceKind_TemplateInstantiation);
-	}
+	Namespace* nspace = m_anchor && m_anchor->m_namespace ?
+		m_anchor->m_namespace :
+		m_parentNamespace;
 
-	TypeNameFinder finder(m_parentUnit, nspace, m_pos);
-	m_actualType = finder.find(m_name);
+	m_actualType = lookupType(nspace);
 	if (!m_actualType)
 		return false;
 

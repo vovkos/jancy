@@ -1534,7 +1534,7 @@ TypeMgr::getTemplateTypeName(
 ) {
 	ASSERT(parentNamespace->getNamespaceKind() == NamespaceKind_TemplateDeclaration);
 
-	sl::String signature = ImportTypeName::createSignature(parentNamespace, *name);
+	sl::String signature = TemplateTypeName::createSignature(parentNamespace, *name);
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
 	if (it->m_value) {
 		ASSERT(it->m_value->m_signature == signature);

@@ -11,7 +11,6 @@
 
 #include "pch.h"
 #include "jnc_ct_TemplateType.h"
-#include "jnc_ct_TypeNameFinder.h"
 #include "jnc_ct_DeclTypeCalc.h"
 #include "jnc_ct_Module.h"
 
@@ -235,29 +234,33 @@ TemplateIntModType::createItemString(size_t index) {
 Type*
 TemplateDeclType::instantiate(const sl::ArrayRef<Type*>& argArray) {
 	Type* baseType = m_declarator.getBaseType();
-	if (baseType->getTypeKind() == TypeKind_ImportTypeName) {
-		ImportTypeName* importType = (ImportTypeName*)baseType;
-		TypeNameFinder finder(*importType);
-		baseType = finder.find(importType->getName()); // without resolving and applying fixups
+	switch (baseType->getTypeKind()) {
+	case TypeKind_TemplateArg:
+		baseType = argArray[((TemplateArgType*)baseType)->getIndex()];
+		if (!baseType) { // instantiating default type
+			err::setFormatStringError("invalid reference to '%s'", ((TemplateArgType*)baseType)->getName().sz());
+			return NULL;
+		}
+		break;
+
+	case TypeKind_TemplateTypeName: {
+		Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
+		ASSERT(nspace->getNamespaceKind() == NamespaceKind_TemplateInstantiation);
+
+		baseType = ((TemplateTypeName*)baseType)->lookupType(nspace);
 		if (!baseType)
 			return NULL;
-	}
+		break;
+		}
 
-	if (baseType->getTypeKindFlags() & TypeKindFlag_Template) {
-		TypeKind typeKind = baseType->getTypeKind();
-		switch (typeKind) {
-		case TypeKind_TemplateArg:
-			baseType = argArray[((TemplateArgType*)baseType)->getIndex()];
-			if (!baseType) { // instantiating default type
-				err::setFormatStringError("invalid reference to '%s'", ((TemplateArgType*)baseType)->getName().sz());
+	default:
+		if (baseType->getTypeKindFlags() & TypeKindFlag_Import) {
+			ImportType* importType = (ImportType*)baseType;
+			bool result = importType->ensureResolved();
+			if (!result)
 				return NULL;
-			}
 
-			break;
-
-		default:
-			err::setFormatStringError("invalid template base type: %s", baseType->getTypeString().sz());
-			return NULL;
+			baseType = importType->getActualType();
 		}
 	}
 

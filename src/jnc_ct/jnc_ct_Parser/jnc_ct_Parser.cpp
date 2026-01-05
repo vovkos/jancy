@@ -343,17 +343,23 @@ Parser::parseEofToken(
 	return consumeToken(token);
 }
 
-ImportTypeName*
+Type*
 Parser::getQualifiedTypeName(
 	QualifiedName* name,
 	const lex::LineCol& pos
 ) {
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	ImportTypeName* type = m_module->m_typeMgr.getImportTypeName(nspace, name);
-	if (!type->m_parentUnit)
-		setItemPos(type, pos);
-
-	return type;
+	if (nspace->getNamespaceKind() == NamespaceKind_TemplateDeclaration) {
+		TemplateTypeName* type = m_module->m_typeMgr.getTemplateTypeName(nspace, name);
+		if (!type->m_parentUnit)
+			setItemPos(type, pos);
+		return type;
+	} else {
+		ImportTypeName* type = m_module->m_typeMgr.getImportTypeName(nspace, name);
+		if (!type->m_parentUnit)
+			setItemPos(type, pos);
+		return type;
+	}
 }
 
 Type*
@@ -699,7 +705,24 @@ Parser::postDeclaratorName(Declarator* declarator) {
 	if (declarator->m_baseType->getTypeKind() != TypeKind_ImportTypeName)
 		return;
 
-	if (m_topDeclarator->isQualified()) {
+	if (
+		declarator == m_topDeclarator && // imports in lower-level declarators are already parented by template namespace
+		nspace->getNamespaceKind() == NamespaceKind_TemplateDeclaration
+	) {
+		// need to replace import with template type name:
+		// T foo<T>();  <-- here 'T' should be searched for starting with template inst namespace
+
+		ImportTypeName* typeName = (ImportTypeName*)declarator->m_baseType;
+		ASSERT(typeName->m_parentNamespace != nspace);
+
+		QualifiedName name;
+		name.copy(typeName->m_name);
+		TemplateTypeName* baseType = m_module->m_typeMgr.getTemplateTypeName(nspace, &name);
+		if (!baseType->m_parentUnit)
+			setItemPos(baseType, declarator->getPos());
+
+		declarator->m_baseType = baseType;
+	} else if (m_topDeclarator->isQualified()) {
 		// need to re-anchor the import:
 		// A C.foo();  <-- here 'A' should be searched for starting with 'C'
 
@@ -715,22 +738,6 @@ Parser::postDeclaratorName(Declarator* declarator) {
 		if (!importType->m_parentUnit)
 			setItemPos(importType, declarator->getPos());
 
-		declarator->m_baseType = importType;
-	} else if (
-		declarator == m_topDeclarator && // imports in lower-level declarators are already parented by template namespace
-		nspace->getNamespaceKind() == NamespaceKind_TemplateDeclaration
-	) {
-		// need to re-anchor the import:
-		// T foo<T>();  <-- here 'T' should be searched for starting with template namespace
-
-		ImportTypeName* importType = (ImportTypeName*)declarator->m_baseType;
-		ASSERT(importType->m_parentNamespace != nspace);
-
-		QualifiedName name;
-		name.copy(importType->m_name);
-		importType = m_module->m_typeMgr.getImportTypeName(nspace, &name);
-		ASSERT(importType->getTypeKind() == TypeKind_ImportTypeName && !importType->m_parentUnit);
-		setItemPos(importType, declarator->getPos());
 		declarator->m_baseType = importType;
 	}
 }

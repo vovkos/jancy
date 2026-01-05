@@ -12,50 +12,41 @@
 #pragma once
 
 #include "jnc_ct_ModuleItem.h"
+#include "jnc_ct_QualifiedName.h"
 
 namespace jnc {
 namespace ct {
 
-class QualifiedName;
+class Type;
 
 //..............................................................................
 
-class TypeNameFinder: public ModuleItemPos {
+class TypeName: public ModuleItemPos {
 protected:
-	uint_t m_compileFlags;
+	QualifiedName m_name;
 
 public:
-	TypeNameFinder(const ModuleItemPos& origin) {
-		setup(origin.getParentUnit(), origin.getParentNamespace(), origin.getPos());
-	}
-
-	TypeNameFinder(
-		Unit* unit,
-		Namespace* nspace,
-		const lex::LineCol& pos
-	) {
-		setup(unit, nspace, pos);
+	const QualifiedName&
+	getName() const {
+		return m_name;
 	}
 
 	Type*
-	find(const QualifiedName& name) {
-		return findImpl(m_parentNamespace, name, false);
+	lookupType() const {
+		return lookupType(m_parentNamespace);
 	}
+
+	Type*
+	lookupType(Namespace* nspace) const;
 
 protected:
-	void
-	setup(
-		Unit* parentUnit,
-		Namespace* parentNamespace,
-		const lex::LineCol& pos
-	);
-
 	Type*
-	findImpl(
+	lookupTypeImpl(
+		const ModuleItemContext& context,
 		Namespace* nspace,
-		const QualifiedName& name,
+		uint_t compileFlags,
 		bool isResolvingRecursion
-	);
+	) const;
 };
 
 //..............................................................................

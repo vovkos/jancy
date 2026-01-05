@@ -12,6 +12,7 @@
 #pragma once
 
 #include "jnc_ct_Type.h"
+#include "jnc_ct_TypeName.h"
 #include "jnc_ct_Decl.h"
 
 namespace jnc {
@@ -95,21 +96,13 @@ TemplateArgType::TemplateArgType() {
 
 class TemplateTypeName:
 	public TemplateType,
-	public ModuleItemPos {
+	public TypeName {
 	friend class TypeMgr;
 	friend class Parser;
-
-protected:
-	QualifiedName m_name;
 
 public:
 	TemplateTypeName() {
 		m_typeKind = TypeKind_TemplateTypeName;
-	}
-
-	const QualifiedName&
-	getName() {
-		return m_name;
 	}
 
 	virtual

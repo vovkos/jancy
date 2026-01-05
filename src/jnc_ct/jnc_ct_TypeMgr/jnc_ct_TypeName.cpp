@@ -10,7 +10,7 @@
 //..............................................................................
 
 #include "pch.h"
-#include "jnc_ct_TypeNameFinder.h"
+#include "jnc_ct_TypeName.h"
 #include "jnc_ct_Module.h"
 
 namespace jnc {
@@ -18,31 +18,23 @@ namespace ct {
 
 //..............................................................................
 
-void
-TypeNameFinder::setup(
-	Unit* parentUnit,
-	Namespace* parentNamespace,
-	const lex::LineCol& pos
-) {
-	ModuleItemContext::setup(parentUnit, parentNamespace);
-	m_pos = pos;
-	m_compileFlags = parentUnit->getModule()->getCompileFlags();
-}
-
 Type*
-TypeNameFinder::findImpl(
+TypeName::lookupTypeImpl(
+	const ModuleItemContext& context,
 	Namespace* nspace,
-	const QualifiedName& name,
-	bool isResolvingRecursion = false
-) {
-	FindModuleItemResult findResult = nspace->findItemTraverse(*this, name);
+	uint_t compileFlags,
+	bool isResolvingRecursion
+) const {
+	ASSERT(nspace->getNamespaceKind() != NamespaceKind_TemplateDeclaration);
+
+	FindModuleItemResult findResult = nspace->findItemTraverse(context, m_name);
 	if (!findResult.m_result) {
 		pushSrcPosError();
 		return NULL;
 	}
 
 	if (!findResult.m_item) {
-		err::setFormatStringError("unresolved import '%s'", name.getFullName().sz());
+		err::setFormatStringError("unresolved import '%s'", m_name.getFullName().sz());
 		pushSrcPosError();
 		return NULL;
 	}
@@ -56,14 +48,14 @@ TypeNameFinder::findImpl(
 		break;
 
 	case ModuleItemKind_Typedef:
-		if (m_compileFlags & ModuleCompileFlag_KeepTypedefShadow)
+		if (compileFlags & ModuleCompileFlag_KeepTypedefShadow)
 			return ((Typedef*)item)->getShadowType();
 
 		if (((Typedef*)item)->isRecursive() &&
 			!isResolvingRecursion &&
 			(nspace = ((Typedef*)item)->getGrandParentNamespace())
 		)
-			return findImpl(nspace, name, true);
+			return lookupTypeImpl(context, nspace, compileFlags, true);
 
 		type = ((Typedef*)item)->getType();
 		break;
@@ -76,7 +68,7 @@ TypeNameFinder::findImpl(
 		// else fall through
 
 	default:
-		err::setFormatStringError("'%s' is not a type", name.getFullName().sz());
+		err::setFormatStringError("'%s' is not a type", m_name.getFullName().sz());
 		pushSrcPosError();
 		return NULL;
 	}

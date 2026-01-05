@@ -241,7 +241,7 @@ protected:
 		int64_t value = 0
 	);
 
-	ImportTypeName*
+	Type*
 	getQualifiedTypeName(
 		QualifiedName* name,
 		const lex::LineCol& pos

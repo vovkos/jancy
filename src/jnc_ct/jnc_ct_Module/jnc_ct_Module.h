@@ -490,6 +490,19 @@ TypeMgr::createImportTypeNameAnchor() {
 
 //..............................................................................
 
+inline
+Type*
+TypeName::lookupType(Namespace* nspace) const {
+	return lookupTypeImpl(
+		ModuleItemContext(m_parentUnit, nspace),
+		nspace,
+		m_parentUnit->getModule()->getCompileFlags(),
+		false
+	);
+}
+
+//..............................................................................
+
 template <typename T>
 T*
 MemberBlock::createMethod(
