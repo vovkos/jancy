@@ -557,11 +557,18 @@ Namespace::findTemplateInstanceType(Template* templ) {
 			break;
 			}
 
-		case NamespaceKind_TemplateInstantiation:
-			if (DerivableType* type = ((TemplateNamespace*)nspace)->getInstanceType())
+		case NamespaceKind_TemplateInstantiation: {
+			DerivableType* type = ((TemplateNamespace*)nspace)->getInstanceType();
+			if (!type)
+				break;
+
+			TemplateInstance* templateInstance = type->getTemplateInstance();
+			ASSERT(templateInstance);
+			if (templateInstance->m_template == templ)
 				return type;
 
 			break;
+			}
 		}
 	}
 
