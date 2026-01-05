@@ -1,0 +1,45 @@
+﻿// first version that works with a full implementation of list templates
+
+import "stdt_BoxList.jnc"
+
+//..............................................................................
+
+class C: stdt.ListLink<C> {
+	int m_x;
+
+	construct(int x) {
+		m_x = x;
+	}
+}
+
+void testList() {
+	stdt.List<C> list;
+	for (size_t i = 0; i < 10; i++) {
+		list.insertHead(new C(i));
+		list.insertTail(new C(i));
+	}	
+
+	stdt.Iterator<C> it = list.m_head;
+	for (; it; it++)
+		printf("%d\n", it->m_x);
+}
+
+void testBoxList() {
+	stdt.BoxList<int> list;
+	for (size_t i = 100; i < 110; i++) {
+		list.insertHead(i);
+		list.insertTail(i);
+	}
+
+	stdt.BoxIterator<int> it = list.m_head;
+	for (; it; it++)
+		printf("%d\n", *it);
+}
+
+int main() {
+	testList();
+	testBoxList();
+	return 0;
+}
+
+//..............................................................................

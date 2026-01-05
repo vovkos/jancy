@@ -53,7 +53,7 @@ typedef IteratorImpl<BoxIteratorBase<T> > BoxIterator<T>;
 class BoxList<T>: List<BoxListEntry<T> > {
 	typedef BoxListEntry<T> Entry;
 	typedef BoxIterator<T> Iterator;
-/*
+
 	Iterator append(T value) {
 		return insertTail(value);
 	}
@@ -81,11 +81,11 @@ class BoxList<T>: List<BoxListEntry<T> > {
 
 	T remove(Iterator it) {
 		return *basetype.remove(it);
-	} */
+	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-/*
+
 Iterator BoxList<T>.insertHead(T value) {
 	Entry* p = new Entry(value);
 	basetype.insertHead(p);
@@ -96,7 +96,7 @@ Iterator BoxList<T>.insertTail(T value) {
 	Entry* p = new Entry(value);
 	basetype.insertTail(p);
 	return Iterator(p);
-} */
+}
 
 //..............................................................................
 

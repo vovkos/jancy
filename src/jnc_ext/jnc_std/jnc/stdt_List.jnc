@@ -84,18 +84,16 @@ class List<T> {
 	T* readonly m_head;
 	T* readonly m_tail;
 	size_t readonly m_count;
-/*
+
 	void clear();
 	void takeOver(List* list);
 
 	Iterator append(T* p) {
 		return insertTail(p);
 	}
-*/
-	Iterator insertHead(T* p) {
-		return p;
-	}
-/*	Iterator insertTail(T* p);
+
+	Iterator insertHead(T* p);
+	Iterator insertTail(T* p);
 
 	Iterator insertBefore(
 		T* p,
@@ -131,11 +129,11 @@ class List<T> {
 
 	T* removeHead();
 	T* removeTail();
-	T* remove(Iterator it); */
+	T* remove(Iterator it);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-/*
+
 void List<T>.clear() {
 	m_head = null;
 	m_tail = null;
@@ -251,7 +249,7 @@ T* List<T>.remove(Iterator it) {
 	m_count--;
 	return p;
 }
-*/
+
 //..............................................................................
 
 //! @}

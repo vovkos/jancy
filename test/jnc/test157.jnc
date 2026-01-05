@@ -1,4 +1,10 @@
-﻿struct ListLink<T> {
+﻿// this test was used as a during redesign to fix template typename resolution 
+// originally, everything worked through named import types, but resolving 
+// import types resulted in hard-to-control fixups (e.g., inside basetypes)
+
+//..............................................................................
+
+struct ListLink<T> {
 	T* m_next;
 	T* m_prev;
 }
@@ -69,3 +75,5 @@ int main() {
 	printf("operator *: %d\n", *it);
 	return 0;
 }
+
+//..............................................................................
