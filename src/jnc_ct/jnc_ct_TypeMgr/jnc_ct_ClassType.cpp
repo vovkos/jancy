@@ -430,7 +430,7 @@ ClassType::calcLayout() {
 
 		result = addVirtualFunction(function);
 		if (!result) {
-			function->pushSrcPosError();
+			function->ensureSrcPosError();
 			return false;
 		}
 	}
@@ -442,7 +442,7 @@ ClassType::calcLayout() {
 
 		result = overrideVirtualFunction(function);
 		if (!result) {
-			function->pushSrcPosError();
+			function->ensureSrcPosError();
 			return false;
 		}
 	}

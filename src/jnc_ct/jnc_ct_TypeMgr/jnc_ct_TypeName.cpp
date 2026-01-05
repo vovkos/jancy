@@ -60,7 +60,7 @@ TypeName::lookupTypeImpl(
 
 	FindModuleItemResult findResult = nspace->findItemTraverse(context, m_name);
 	if (!findResult.m_result) {
-		pushSrcPosError();
+		ensureSrcPosError();
 		return NULL;
 	}
 

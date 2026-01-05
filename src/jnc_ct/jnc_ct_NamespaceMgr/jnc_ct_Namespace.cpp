@@ -160,7 +160,7 @@ Namespace::resolveOrphans() {
 		if (functionKind != FunctionKind_Normal && !orphan->m_declaratorNamePos) {
 			result = orphan->resolve(nspaceItem);
 			if (!result) {
-				orphan->pushSrcPosError();
+				orphan->ensureSrcPosError();
 				return false;
 			}
 
@@ -170,7 +170,7 @@ Namespace::resolveOrphans() {
 		const QualifiedNameAtom& atom = orphan->m_declaratorNamePos.next(orphan->m_declaratorName);
 		FindModuleItemResult findResult = findDirectChildItem(atom);
 		if (!findResult.m_result) {
-			orphan->pushSrcPosError();
+			orphan->ensureSrcPosError();
 			return false;
 		}
 
@@ -183,7 +183,7 @@ Namespace::resolveOrphans() {
 		if (functionKind == FunctionKind_Normal && !orphan->m_declaratorNamePos) {
 			result = orphan->resolve(findResult.m_item);
 			if (!result) {
-				orphan->pushSrcPosError();
+				orphan->ensureSrcPosError();
 				return false;
 			}
 
@@ -194,7 +194,7 @@ Namespace::resolveOrphans() {
 		ASSERT((size_t)itemKind < countof(addOrphanFuncTable));
 		result = addOrphanFuncTable[(size_t)itemKind](findResult.m_item, orphan);
 		if (!result) {
-			orphan->pushSrcPosError();
+			orphan->ensureSrcPosError();
 			return false;
 		}
 
