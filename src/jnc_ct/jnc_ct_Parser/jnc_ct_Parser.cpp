@@ -359,7 +359,7 @@ Parser::getQualifiedTypeName(
 		itemPos = typeName;
 	} else {
 		// for nested declarators, use top-level anchor
-		ImportTypeName* typeName = m_module->m_typeMgr.getImportTypeName(nspace, name, m_importTypeNameAnchor);
+		ImportTypeName* typeName = m_module->m_typeMgr.getImportTypeName(nspace, name, getImportTypeNameAnchor());
 		type = typeName;
 		itemPos = typeName;
 	}
@@ -742,9 +742,9 @@ Parser::postDeclaratorName(Declarator* declarator) {
 			declarator,
 			m_module->m_typeMgr.getTemplateTypeName(nspace, &name)
 		);
-	} else if (m_topDeclarator->isQualified()) {
-		if (!m_importTypeNameAnchor )
-			m_importTypeNameAnchor = m_module->m_typeMgr.createImportTypeNameAnchor();
+	} else if (declarator->isQualified()) {
+		ASSERT(!m_importTypeNameAnchor);
+		m_importTypeNameAnchor = m_module->m_typeMgr.createImportTypeNameAnchor();
 
 		replaceDeclaratorTypeName(
 			declarator,

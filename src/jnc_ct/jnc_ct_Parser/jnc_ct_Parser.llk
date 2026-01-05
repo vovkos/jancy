@@ -277,6 +277,14 @@ protected:
 	bool
 	setAccessKind(AccessKind accessKind);
 
+	ImportTypeNameAnchor*
+	getImportTypeNameAnchor() {
+		return
+			!m_topDeclarator || !m_topDeclarator->isQualified() ? NULL :
+			m_importTypeNameAnchor ? m_importTypeNameAnchor :
+			m_importTypeNameAnchor = m_module->m_typeMgr.createImportTypeNameAnchor();
+	}
+
 	template <typename T>
 	void
 	replaceDeclaratorTypeName(
