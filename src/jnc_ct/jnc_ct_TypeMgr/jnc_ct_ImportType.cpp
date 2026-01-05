@@ -11,7 +11,7 @@
 
 #include "pch.h"
 #include "jnc_ct_ImportType.h"
-#include "jnc_ct_Decl.h"
+#include "jnc_ct_TypeNameFinder.h"
 #include "jnc_ct_Module.h"
 #include "jnc_ct_DeclTypeCalc.h"
 
@@ -52,10 +52,10 @@ ImportType::resolve() {
 //..............................................................................
 
 sl::String
-NamedImportType::createSignature(
+ImportTypeName::createSignature(
 	Namespace* parentNamespace,
 	const QualifiedName& name,
-	const NamedImportAnchor* anchor
+	const ImportTypeNameAnchor* anchor
 ) {
 	sl::StringRef parentSignature = parentNamespace->getDeclItem()->getLinkId();
 	sl::String signature = "IN";
@@ -73,7 +73,7 @@ NamedImportType::createSignature(
 }
 
 sl::StringRef
-NamedImportType::createItemString(size_t index) {
+ImportTypeName::createItemString(size_t index) {
 	switch (index) {
 	case TypeStringKind_Prefix:
 	case TypeStringKind_DoxyLinkedTextPrefix: {
@@ -95,8 +95,8 @@ NamedImportType::createItemString(size_t index) {
 	}
 }
 
-Type*
-NamedImportType::lookup() {
+bool
+ImportTypeName::resolveImports() {
 	Namespace* nspace;
 	if (m_anchor && m_anchor->m_namespace)
 		nspace = m_anchor->m_namespace;
@@ -107,82 +107,13 @@ NamedImportType::lookup() {
 		ASSERT(nspace->getNamespaceKind() == NamespaceKind_TemplateInstantiation);
 	}
 
-	return resolveImpl(ModuleItemContext(m_parentUnit, nspace), nspace);
-}
-
-bool
-NamedImportType::resolveImports() {
-	m_actualType = lookup();
+	TypeNameFinder finder(m_parentUnit, nspace, m_pos);
+	m_actualType = finder.find(m_name);
 	if (!m_actualType)
 		return false;
 
 	applyFixups();
 	return true;
-}
-
-Type*
-NamedImportType::resolveImpl(
-	const ModuleItemContext& context,
-	Namespace* nspace,
-	bool isResolvingRecursion
-) {
-	FindModuleItemResult findResult = nspace->findItemTraverse(context, m_name);
-	if (!findResult.m_result) {
-		pushSrcPosError();
-		return NULL;
-	}
-
-	if (!findResult.m_item) {
-		err::setFormatStringError("unresolved import '%s'", getTypeString().sz());
-		pushSrcPosError();
-		return NULL;
-	}
-
-	ModuleItem* item = findResult.m_item;
-	ModuleItemKind itemKind = item->getItemKind();
-	Type* type;
-	switch (itemKind) {
-	case ModuleItemKind_Type:
-		type = (Type*)item;
-		break;
-
-	case ModuleItemKind_Typedef:
-		if (m_module->getCompileFlags() & ModuleCompileFlag_KeepTypedefShadow)
-			return ((Typedef*)item)->getShadowType();
-
-		if (((Typedef*)item)->isRecursive() &&
-			!isResolvingRecursion &&
-			(nspace = ((Typedef*)item)->getGrandParentNamespace())
-		)
-			return resolveImpl(context, nspace, true);
-
-		type = ((Typedef*)item)->getType();
-		break;
-
-	case ModuleItemKind_Template:
-		type = nspace->findTemplateInstanceType((Template*)item);
-		if (type)
-			break;
-
-		// else fall through
-
-	default:
-		err::setFormatStringError("'%s' is not a type", getTypeString().sz());
-		pushSrcPosError();
-		return NULL;
-	}
-
-	if (!(type->getTypeKindFlags() & TypeKindFlag_Import))
-		return type;
-
-	ImportType* importType = (ImportType*)type;
-	bool result = importType->ensureResolved();
-	if (!result)
-		return NULL;
-
-	type = importType->getActualType();
-	ASSERT(!(type->getTypeKindFlags() & TypeKindFlag_Import));
-	return type;
 }
 
 //..............................................................................

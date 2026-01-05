@@ -20,7 +20,7 @@ namespace ct {
 class FunctionType;
 class TemplateDeclType;
 class TemplateNamespace;
-struct NamedImportAnchor;
+struct ImportTypeNameAnchor;
 
 //..............................................................................
 
@@ -45,7 +45,7 @@ protected:
 	OrphanKind m_orphanKind;
 	QualifiedName m_declaratorName;
 	QualifiedNamePos m_declaratorNamePos;
-	NamedImportAnchor* m_namedImportAnchor;
+	ImportTypeNameAnchor* m_importTypeNameAnchor;
 
 	union {
 		Type* m_type;
@@ -69,9 +69,9 @@ public:
 		return m_declaratorName;
 	}
 
-	NamedImportAnchor*
-	getNamedImportAnchor() {
-		return m_namedImportAnchor;
+	ImportTypeNameAnchor*
+	getImportTypeNameAnchor() {
+		return m_importTypeNameAnchor;
 	}
 
 	Type*
@@ -132,7 +132,7 @@ inline
 Orphan::Orphan() {
 	m_itemKind = ModuleItemKind_Orphan;
 	m_orphanKind = OrphanKind_Undefined;
-	m_namedImportAnchor = NULL;
+	m_importTypeNameAnchor = NULL;
 	m_type = NULL;
 	m_templateInstNamespace = NULL;
 }

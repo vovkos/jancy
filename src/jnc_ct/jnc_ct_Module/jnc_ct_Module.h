@@ -480,11 +480,11 @@ ModuleItemContext::captureContext(Module* module) {
 //..............................................................................
 
 inline
-NamedImportAnchor*
-TypeMgr::createNamedImportAnchor() {
-	NamedImportAnchor* anchor = new NamedImportAnchor;
+ImportTypeNameAnchor*
+TypeMgr::createImportTypeNameAnchor() {
+	ImportTypeNameAnchor* anchor = new ImportTypeNameAnchor;
 	anchor->m_linkId = m_module->createUniqueLinkId();
-	m_namedImportAnchorArray.append(anchor);
+	m_importTypeNameAnchorArray.append(anchor);
 	return anchor;
 }
 

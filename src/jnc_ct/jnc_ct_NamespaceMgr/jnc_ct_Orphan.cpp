@@ -38,8 +38,8 @@ Orphan::resolveForCodeAssist(Namespace* nspace) {
 
 ModuleItem*
 Orphan::adopt(ModuleItem* item) {
-	if (m_namedImportAnchor)
-		m_namedImportAnchor->m_namespace = item->getDecl()->getParentNamespace();
+	if (m_importTypeNameAnchor)
+		m_importTypeNameAnchor->m_namespace = item->getDecl()->getParentNamespace();
 
 	if (m_orphanKind == OrphanKind_Template) {
 		m_module->m_namespaceMgr.openNamespace(m_templateInstNamespace);

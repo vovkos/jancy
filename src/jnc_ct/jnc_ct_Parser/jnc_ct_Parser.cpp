@@ -79,7 +79,7 @@ Parser::Parser(
 	m_lastPropertyGetterType = NULL;
 	m_lastPropertyTypeModifiers = 0;
 	m_topDeclarator = NULL;
-	m_namedImportAnchor = NULL;
+	m_importTypeNameAnchor = NULL;
 	m_declarationId = 0;
 
 	m_constructorType = NULL;
@@ -343,13 +343,13 @@ Parser::parseEofToken(
 	return consumeToken(token);
 }
 
-NamedImportType*
+ImportTypeName*
 Parser::getQualifiedTypeName(
 	QualifiedName* name,
 	const lex::LineCol& pos
 ) {
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	NamedImportType* type = m_module->m_typeMgr.getNamedImportType(nspace, name);
+	ImportTypeName* type = m_module->m_typeMgr.getImportTypeName(nspace, name);
 	if (!type->m_parentUnit)
 		setItemPos(type, pos);
 
@@ -690,26 +690,26 @@ Parser::preDeclarator(
 		return;
 
 	m_topDeclarator = declarator;
-	m_namedImportAnchor = NULL;
+	m_importTypeNameAnchor = NULL;
 }
 
 void
 Parser::postDeclaratorName(Declarator* declarator) {
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	if (declarator->m_baseType->getTypeKind() != TypeKind_NamedImport)
+	if (declarator->m_baseType->getTypeKind() != TypeKind_ImportTypeName)
 		return;
 
 	if (m_topDeclarator->isQualified()) {
 		// need to re-anchor the import:
 		// A C.foo();  <-- here 'A' should be searched for starting with 'C'
 
-		if (!m_namedImportAnchor)
-			m_namedImportAnchor = m_module->m_typeMgr.createNamedImportAnchor();
+		if (!m_importTypeNameAnchor)
+			m_importTypeNameAnchor = m_module->m_typeMgr.createImportTypeNameAnchor();
 
-		NamedImportType* importType = m_module->m_typeMgr.getAnchoredNamedImportType(
+		ImportTypeName* importType = m_module->m_typeMgr.getAnchoredImportTypeName(
 			nspace,
-			m_namedImportAnchor,
-			((NamedImportType*)declarator->m_baseType)->m_name
+			m_importTypeNameAnchor,
+			((ImportTypeName*)declarator->m_baseType)->m_name
 		);
 
 		if (!importType->m_parentUnit)
@@ -723,13 +723,13 @@ Parser::postDeclaratorName(Declarator* declarator) {
 		// need to re-anchor the import:
 		// T foo<T>();  <-- here 'T' should be searched for starting with template namespace
 
-		NamedImportType* importType = (NamedImportType*)declarator->m_baseType;
+		ImportTypeName* importType = (ImportTypeName*)declarator->m_baseType;
 		ASSERT(importType->m_parentNamespace != nspace);
 
 		QualifiedName name;
 		name.copy(importType->m_name);
-		importType = m_module->m_typeMgr.getNamedImportType(nspace, &name);
-		ASSERT(importType->getTypeKind() == TypeKind_NamedImport && !importType->m_parentUnit);
+		importType = m_module->m_typeMgr.getImportTypeName(nspace, &name);
+		ASSERT(importType->getTypeKind() == TypeKind_ImportTypeName && !importType->m_parentUnit);
 		setItemPos(importType, declarator->getPos());
 		declarator->m_baseType = importType;
 	}
@@ -761,7 +761,7 @@ Parser::createOrphan(
 	Type* type
 ) {
 	Orphan* orphan = m_module->m_namespaceMgr.createOrphan(orphanKind, functionKind, declarator, type);
-	orphan->m_namedImportAnchor = m_namedImportAnchor;
+	orphan->m_importTypeNameAnchor = m_importTypeNameAnchor;
 	assignDeclarationAttributes(orphan, orphan, declarator);
 	m_module->m_namespaceMgr.getCurrentNamespace()->addOrphan(orphan);
 	return orphan;

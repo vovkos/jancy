@@ -93,6 +93,47 @@ TemplateArgType::TemplateArgType() {
 
 //..............................................................................
 
+class TemplateTypeName:
+	public TemplateType,
+	public ModuleItemPos {
+	friend class TypeMgr;
+	friend class Parser;
+
+protected:
+	QualifiedName m_name;
+
+public:
+	TemplateTypeName() {
+		m_typeKind = TypeKind_TemplateTypeName;
+	}
+
+	const QualifiedName&
+	getName() {
+		return m_name;
+	}
+
+	virtual
+	bool
+	deduceTemplateArgs(
+		sl::Array<Type*>* templateArgTypeArray,
+		Type* referenceType
+	);
+
+	static
+	sl::String
+	createSignature(
+		Namespace* parentNamespace,
+		const QualifiedName& name
+	);
+
+protected:
+	virtual
+	sl::StringRef
+	createItemString(size_t index);
+};
+
+//..............................................................................
+
 template <
 	typename T,
 	TypeKind typeKind,
@@ -110,22 +151,12 @@ protected:
 	resolveImports() {
 		return true;
 	}
-
-	void
-	setTemplateArgDeductionError(Type* argValueType) {
-		err::setFormatStringError(
-			"incompatible types while deducing template argument '%s': '%s' vs '%s'",
-			this->m_baseType->getName().sz(),
-			argValueType->getTypeString().sz(),
-			this->getTypeString().sz()
-		);
-	}
 };
 
 //..............................................................................
 
 class TemplatePtrType: public TemplateModType<
-	TemplateArgType,
+	TemplateType,
 	TypeKind_TemplatePtr,
 	'PX'
 > {
@@ -146,7 +177,7 @@ protected:
 //..............................................................................
 
 class TemplateIntModType: public TemplateModType<
-	TemplateArgType,
+	TemplateType,
 	TypeKind_TemplateIntMod,
 	'IX'
 > {

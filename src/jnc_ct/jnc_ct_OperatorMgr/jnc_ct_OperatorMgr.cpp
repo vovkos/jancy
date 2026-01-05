@@ -1574,14 +1574,15 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandTypeFuncTable[TypeK
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_FunctionRef
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_PropertyPtr
 	&OperatorMgr::prepareOperandType_propertyRef, // TypeKind_PropertyRef
-	&OperatorMgr::prepareOperand_import,          // TypeKind_NamedImport
+	&OperatorMgr::prepareOperand_import,          // TypeKind_ImportTypeName
 	&OperatorMgr::prepareOperand_import,          // TypeKind_ImportPtr
 	&OperatorMgr::prepareOperand_import,          // TypeKind_ImportIntMod
-	&OperatorMgr::prepareOperandType_typedef,     // TypeKind_TypedefShadow
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_TemplateArg
+	&OperatorMgr::prepareOperand_nop,             // TypeKind_TemplateTypeName
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_TemplatePtr
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_TemplateIntMod
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_TemplateDecl
+	&OperatorMgr::prepareOperandType_typedef,     // TypeKind_TypedefShadow
 };
 
 OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable[TypeKind__Count] = {
@@ -1614,14 +1615,15 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable[TypeKind_
 	&OperatorMgr::prepareOperand_functionRef, // TypeKind_FunctionRef
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_PropertyPtr
 	&OperatorMgr::prepareOperand_propertyRef, // TypeKind_PropertyRef
-	&OperatorMgr::prepareOperand_import,      // TypeKind_NamedImport
+	&OperatorMgr::prepareOperand_import,      // TypeKind_ImportTypeName
 	&OperatorMgr::prepareOperand_import,      // TypeKind_ImportPtr
 	&OperatorMgr::prepareOperand_import,      // TypeKind_ImportIntMod
-	&OperatorMgr::prepareOperand_nop,         // TypeKind_TypedefShadow
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_TemplateArg
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_TemplateTypeName
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_TemplatePtr
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_TemplateIntMod
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_TemplateDecl
+	&OperatorMgr::prepareOperand_nop,         // TypeKind_TypedefShadow
 };
 
 OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandTypeFuncTable_dataRef[TypeKind__Count] = {
@@ -1654,14 +1656,15 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandTypeFuncTable_dataR
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_FunctionRef
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_PropertyPtr
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_PropertyRef
-	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_NamedImport
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_ImportTypeName
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_ImportPtr
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_ImportIntMod
-	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_TypedefShadow
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_TemplateArg
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_TemplateTypeName
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_TemplatePtr
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_TemplateIntMod
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_TemplateDecl
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_TypedefShadow
 };
 
 OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable_dataRef[TypeKind__Count] = {
@@ -1694,14 +1697,15 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable_dataRef[T
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_FunctionRef
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_PropertyPtr
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_PropertyRef
-	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_NamedImport
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_ImportTypeName
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_ImportPtr
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_ImportIntMod
-	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_TypedefShadow
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_TemplateArg
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_TemplateTypeName
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_TemplatePtr
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_TemplateIntMod
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_TemplateDecl
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_TypedefShadow
 };
 
 bool

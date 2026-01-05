@@ -157,22 +157,23 @@ jnc_getTypeKindFlags(jnc_TypeKind typeKind) {
 		jnc_TypeKindFlag_Numeric |
 		jnc_TypeKindFlag_ErrorCode,
 
-		jnc_TypeKindFlag_ErrorCode,     // jnc_TypeKind_TypedefShadow
-		// ^ don't fail due to non-error-code during doc-generation & code-assist
+		jnc_TypeKindFlag_Template,      // jnc_TypeKind_TemplateArg
+		jnc_TypeKindFlag_Template,      // jnc_TypeKind_TemplateTypeName
 
-		jnc_TypeKindFlag_Template,     // jnc_TypeKind_TemplateArg
-
-		jnc_TypeKindFlag_Template |    // jnc_TypeKind_TemplatePtr
+		jnc_TypeKindFlag_Template |     // jnc_TypeKind_TemplatePtr
 		jnc_TypeKindFlag_Ptr |
 		jnc_TypeKindFlag_Nullable |
 		jnc_TypeKindFlag_ErrorCode,
 
-		jnc_TypeKindFlag_Template |    // jnc_TypeKind_TemplateIntMod
+		jnc_TypeKindFlag_Template |     // jnc_TypeKind_TemplateIntMod
 		jnc_TypeKindFlag_Integer |
 		jnc_TypeKindFlag_Numeric |
 		jnc_TypeKindFlag_ErrorCode,
 
-		jnc_TypeKindFlag_Template,     // jnc_TypeKind_TemplateDecl
+		jnc_TypeKindFlag_Template,      // jnc_TypeKind_TemplateDecl
+
+		jnc_TypeKindFlag_ErrorCode,     // jnc_TypeKind_TypedefShadow
+		// ^ don't fail due to non-error-code during doc-generation & code-assist
 	};
 
 	return typeKind < jnc_TypeKind__Count ? flagTable[typeKind] : 0;

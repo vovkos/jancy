@@ -25,14 +25,16 @@ JNC_EXPORT_O
 const char*
 jnc_getNamespaceKindString(jnc_NamespaceKind namespaceKind) {
 	static const char* stringTable[jnc_NamespaceKind__Count] = {
-		"undefined-namespace-kind",  // jnc_Namespace_Undefined = 0,
-		"global-namespace",          // jnc_Namespace_Global,
-		"scope",                     // jnc_Namespace_Scope,
-		"named-type",                // jnc_Namespace_Type,
-		"extension-namespace",       // jnc_Namespace_Extension,
-		"property",                  // jnc_Namespace_Property,
-		"property-template",         // jnc_Namespace_PropertyTemplate,
-		"library",                   // jnc_Namespace_Library,
+		"undefined-namespace-kind",  // jnc_NamespaceKind_Undefined = 0,
+		"global-namespace",          // jnc_NamespaceKind_Global,
+		"scope",                     // jnc_NamespaceKind_Scope,
+		"named-type",                // jnc_NamespaceKind_Type,
+		"extension-namespace",       // jnc_NamespaceKind_Extension,
+		"property",                  // jnc_NamespaceKind_Property,
+		"property-template",         // jnc_NamespaceKind_PropertyTemplate,
+		"library",                   // jnc_NamespaceKind_DynamicLib,
+		"template-declaration",      // jnc_NamespaceKind_TemplateDeclaration,
+		"template-instantiation",    // jnc_NamespaceKind_TemplateInstantiation,
 	};
 
 	return (size_t)namespaceKind < jnc_NamespaceKind__Count ?

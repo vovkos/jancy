@@ -99,20 +99,21 @@ enum jnc_TypeKind {
 
 	// import types (pseudo-types -- will be resolved and replaced)
 
-	jnc_TypeKind_NamedImport,         // IN
+	jnc_TypeKind_ImportTypeName,      // IN
 	jnc_TypeKind_ImportPtr,           // IP
 	jnc_TypeKind_ImportIntMod,        // II
-
-	// when generating documentation, we want to keep typedef shadow in declarations
-
-	jnc_TypeKind_TypedefShadow,       // T
 
 	// template types (pseudo-types -- only exist before instantiation)
 
 	jnc_TypeKind_TemplateArg,         // XA
+	jnc_TypeKind_TemplateTypeName,    // XN
 	jnc_TypeKind_TemplatePtr,         // XP
 	jnc_TypeKind_TemplateIntMod,      // XI
 	jnc_TypeKind_TemplateDecl,        // XD
+
+	// when generating documentation, we want to keep typedef shadow in declarations
+
+	jnc_TypeKind_TypedefShadow,       // T
 
 	// meta
 
@@ -677,14 +678,15 @@ const TypeKind
 	TypeKind_FunctionRef         = jnc_TypeKind_FunctionRef,
 	TypeKind_PropertyPtr         = jnc_TypeKind_PropertyPtr,
 	TypeKind_PropertyRef         = jnc_TypeKind_PropertyRef,
-	TypeKind_NamedImport         = jnc_TypeKind_NamedImport,
+	TypeKind_ImportTypeName      = jnc_TypeKind_ImportTypeName,
 	TypeKind_ImportPtr           = jnc_TypeKind_ImportPtr,
 	TypeKind_ImportIntMod        = jnc_TypeKind_ImportIntMod,
-	TypeKind_TypedefShadow       = jnc_TypeKind_TypedefShadow,
 	TypeKind_TemplateArg         = jnc_TypeKind_TemplateArg,
+	TypeKind_TemplateTypeName    = jnc_TypeKind_TemplateTypeName,
 	TypeKind_TemplatePtr         = jnc_TypeKind_TemplatePtr,
 	TypeKind_TemplateIntMod      = jnc_TypeKind_TemplateIntMod,
 	TypeKind_TemplateDecl        = jnc_TypeKind_TemplateDecl,
+	TypeKind_TypedefShadow       = jnc_TypeKind_TypedefShadow,
 	TypeKind__Count              = jnc_TypeKind__Count,
 	TypeKind__PrimitiveTypeCount = jnc_TypeKind__PrimitiveTypeCount,
 	TypeKind_IntPtr              = jnc_TypeKind_IntPtr,

@@ -279,14 +279,15 @@ getType(ct::Type* type) {
 
 		// shouldn't happen at runtime
 
-		StdType_Type,              // TypeKind_NamedImport,
+		StdType_Type,              // TypeKind_ImportTypeName,
 		StdType_Type,              // TypeKind_ImportPtr,
 		StdType_Type,              // TypeKind_ImportIntMod,
-		StdType_Type,              // TypeKind_TypedefShadow,
 		StdType_Type,              // TypeKind_TemplateArg,
+		StdType_Type,              // TypeKind_TemplateTypeName,
 		StdType_Type,              // TypeKind_TemplatePtr,
 		StdType_Type,              // TypeKind_TemplateIntMod,
 		StdType_Type,              // TypeKind_TemplateDecl,
+		StdType_Type,              // TypeKind_TypedefShadow,
 	};
 
 	TypeKind typeKind = type->getTypeKind();

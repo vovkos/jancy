@@ -127,7 +127,7 @@ protected:
 
 	sl::Array<TypeSpecifier*> m_typeSpecifierStack;
 	Declarator* m_topDeclarator; // orphan declarators affect import type resolution
-	NamedImportAnchor* m_namedImportAnchor;
+	ImportTypeNameAnchor* m_importTypeNameAnchor;
 	sl::Array<TemplateArgType*> m_templateArgArray;
 	size_t m_declarationId;
 
@@ -241,7 +241,7 @@ protected:
 		int64_t value = 0
 	);
 
-	NamedImportType*
+	ImportTypeName*
 	getQualifiedTypeName(
 		QualifiedName* name,
 		const lex::LineCol& pos

@@ -105,8 +105,8 @@ DeclTypeCalc::calcType(
 			type = getPropertyPtrType((PropertyType*)type);
 			break;
 
-		case TypeKind_NamedImport:
-			type = m_module->m_typeMgr.getImportPtrType((NamedImportType*)type, m_typeModifiers & TypeModifierMaskKind_ImportPtr);
+		case TypeKind_ImportTypeName:
+			type = m_module->m_typeMgr.getImportPtrType((ImportTypeName*)type, m_typeModifiers & TypeModifierMaskKind_ImportPtr);
 			m_typeModifiers &= ~TypeModifierMaskKind_ImportPtr;
 			break;
 
@@ -367,8 +367,8 @@ DeclTypeCalc::getIntegerType(Type* type) {
 		type = ((TypedefShadowType*)type)->getActualType();
 
 	switch (typeKind) {
-	case TypeKind_NamedImport:
-		return m_module->m_typeMgr.getImportIntModType((NamedImportType*)type, typeModifiers);
+	case TypeKind_ImportTypeName:
+		return m_module->m_typeMgr.getImportIntModType((ImportTypeName*)type, typeModifiers);
 
 	case TypeKind_TemplateArg:
 		return m_module->m_typeMgr.getTemplateIntModType((TemplateArgType*)type, typeModifiers);

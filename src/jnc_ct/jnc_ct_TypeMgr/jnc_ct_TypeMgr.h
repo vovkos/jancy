@@ -48,7 +48,9 @@ class PropertyClosureClassType;
 class DataClosureClassType;
 class MulticastClassType;
 class McSnapshotClassType;
+class TemplateType;
 class TemplateArgType;
+class TemplateTypeName;
 class TemplatePtrType;
 class TemplateIntModType;
 class TemplateDeclType;
@@ -113,7 +115,7 @@ protected:
 	sl::List<DualTypeTuple> m_dualTypeTupleList;
 
 	sl::Array<MulticastClassType*> m_multicastClassTypeArray;
-	sl::AutoPtrArray<NamedImportAnchor> m_namedImportAnchorArray;
+	sl::AutoPtrArray<ImportTypeNameAnchor> m_importTypeNameAnchorArray;
 	sl::SimpleHashTable<DerivableType*, bool> m_externalReturnTypeSet;
 
 	sl::StringHashTable<Type*> m_typeMap;
@@ -660,19 +662,19 @@ public:
 	StructType*
 	getPropertyVtableStructType(PropertyType* propertyType);
 
-	NamedImportAnchor*
-	createNamedImportAnchor();
+	ImportTypeNameAnchor*
+	createImportTypeNameAnchor();
 
-	NamedImportType*
-	getNamedImportType(
+	ImportTypeName*
+	getImportTypeName(
 		Namespace* parentNamespace,
 		QualifiedName* name // destructive
 	);
 
-	NamedImportType*
-	getAnchoredNamedImportType(
+	ImportTypeName*
+	getAnchoredImportTypeName(
 		Namespace* parentNamespace,
-		NamedImportAnchor* anchor,
+		ImportTypeNameAnchor* anchor,
 		const QualifiedName& name
 	);
 
@@ -688,7 +690,7 @@ public:
 
 	ImportPtrType*
 	getImportPtrType(
-		NamedImportType* baseType,
+		ImportTypeName* baseType,
 		uint_t typeModifiers
 	) {
 		return getModType<ImportPtrType>(baseType, typeModifiers);
@@ -696,7 +698,7 @@ public:
 
 	ImportIntModType*
 	getImportIntModType(
-		NamedImportType* baseType,
+		ImportTypeName* baseType,
 		uint_t typeModifiers
 	) {
 		return getModType<ImportIntModType>(baseType, typeModifiers);
@@ -709,9 +711,15 @@ public:
 		Declarator* defaultTypeDeclarator = NULL
 	);
 
+	TemplateTypeName*
+	getTemplateTypeName(
+		Namespace* parentNamespace,
+		QualifiedName* name // destructive
+	);
+
 	TemplatePtrType*
 	getTemplatePtrType(
-		TemplateArgType* baseType,
+		TemplateType* baseType,
 		uint_t typeModifiers
 	) {
 		return getModType<TemplatePtrType>(baseType, typeModifiers);
@@ -719,7 +727,7 @@ public:
 
 	TemplateIntModType*
 	getTemplateIntModType(
-		TemplateArgType* baseType,
+		TemplateType* baseType,
 		uint_t typeModifiers
 	) {
 		return getModType<TemplateIntModType>(baseType, typeModifiers);

@@ -290,7 +290,7 @@ NamespaceMgr::cloneOrphan(const Orphan* srcOrphan) {
 	orphan->m_thisArgTypeFlags = srcOrphan->m_thisArgTypeFlags;
 	orphan->m_declaratorName.copy(srcOrphan->m_declaratorName, srcOrphan->m_declaratorNamePos);
 	orphan->m_declaratorNamePos = &orphan->m_declaratorName.getFirstAtom();
-	orphan->m_namedImportAnchor = srcOrphan->m_namedImportAnchor;
+	orphan->m_importTypeNameAnchor = srcOrphan->m_importTypeNameAnchor;
 	orphan->m_templateArgArray = srcOrphan->m_templateArgArray;
 	orphan->m_templateInstNamespace = srcOrphan->m_templateInstNamespace;
 	orphan->copyDecl(srcOrphan);

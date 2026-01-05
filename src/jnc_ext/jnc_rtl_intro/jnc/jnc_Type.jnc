@@ -67,13 +67,21 @@ enum TypeKind {
 	PropertyPtr,
 	PropertyRef,
 
-	// import types (resolved after linkage)
+	// import pseudo-types (resolved on as-needed basis)
 
-	NamedImport,
+	ImportTypeName,
 	ImportPtr,
 	ImportIntMod,
 
-	// when generating documentation, we want to keep typedef shadow in declarations
+	// template psedo-types (resolved during instantiation)
+
+	TemplateArg,
+	TemplateTypeName,
+	TemplatePtr,
+	TemplateIntMod,
+	TemplateDecl,
+
+	// when generating documentation or code assist, we want to keep typedef names
 
 	TypedefShadow,
 

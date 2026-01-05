@@ -84,11 +84,11 @@ protected:
 
 //..............................................................................
 
-struct NamedImportAnchor {
+struct ImportTypeNameAnchor {
 	Namespace* m_namespace;
 	size_t m_linkId;
 
-	NamedImportAnchor() {
+	ImportTypeNameAnchor() {
 		m_namespace = NULL;
 		m_linkId = 0;
 	}
@@ -96,23 +96,23 @@ struct NamedImportAnchor {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class NamedImportType:
+class ImportTypeName:
 	public ImportType,
 	public ModuleItemPos {
 	friend class TypeMgr;
 	friend class Parser;
 
 protected:
-	NamedImportAnchor* m_anchor;
+	ImportTypeNameAnchor* m_anchor;
 	QualifiedName m_name;
 
 public:
-	NamedImportType() {
-		m_typeKind = TypeKind_NamedImport;
+	ImportTypeName() {
+		m_typeKind = TypeKind_ImportTypeName;
 		m_anchor = NULL;
 	}
 
-	const NamedImportAnchor*
+	const ImportTypeNameAnchor*
 	getAnchor() {
 		return m_anchor;
 	}
@@ -127,11 +127,8 @@ public:
 	createSignature(
 		Namespace* parentNamespace,
 		const QualifiedName& name,
-		const NamedImportAnchor* anchor = NULL
+		const ImportTypeNameAnchor* anchor = NULL
 	);
-
-	Type*
-	lookup(); // without resolving and applying fixups
 
 protected:
 	virtual
@@ -141,20 +138,13 @@ protected:
 	virtual
 	bool
 	resolveImports();
-
-	Type*
-	resolveImpl(
-		const ModuleItemContext& context,
-		Namespace* nspace,
-		bool isResolvingRecursion = false
-	);
 };
 
 //..............................................................................
 
 class ImportPtrType: public ModType<
 	ImportType,
-	NamedImportType,
+	ImportTypeName,
 	TypeKind_ImportPtr,
 	'PI'
 > {
@@ -172,7 +162,7 @@ protected:
 
 class ImportIntModType: public ModType<
 	ImportType,
-	NamedImportType,
+	ImportTypeName,
 	TypeKind_ImportIntMod,
 	'II'
 > {

@@ -11,6 +11,7 @@
 
 #include "pch.h"
 #include "jnc_ct_TemplateType.h"
+#include "jnc_ct_TypeNameFinder.h"
 #include "jnc_ct_DeclTypeCalc.h"
 #include "jnc_ct_Module.h"
 
@@ -76,6 +77,54 @@ TemplateArgType::selectTemplateArg(
 	);
 
 	return NULL;
+}
+
+//..............................................................................
+
+sl::String
+TemplateTypeName::createSignature(
+	Namespace* parentNamespace,
+	const QualifiedName& name
+) {
+	sl::StringRef parentSignature = parentNamespace->getDeclItem()->getLinkId();
+	sl::String signature = "XN";
+	signature += parentSignature;
+	if (!parentSignature.isEmpty())
+		signature += '.';
+
+	name.appendFullName(&signature);
+	signature += '$';
+	return signature;
+}
+
+sl::StringRef
+TemplateTypeName::createItemString(size_t index) {
+	switch (index) {
+	case TypeStringKind_Prefix:
+	case TypeStringKind_DoxyLinkedTextPrefix: {
+		sl::String string = "template ";
+
+		sl::StringRef parentName = m_parentNamespace->getDeclItem()->getItemName();
+		if (!parentName.isEmpty()) {
+			string += parentName;
+			string += '.';
+		}
+
+		string += m_name.getFullName();
+		return string;
+	}
+
+	default:
+		return TemplateType::createItemString(index);
+	}
+}
+
+bool
+TemplateTypeName::deduceTemplateArgs(
+	sl::Array<Type*>* templateArgTypeArray,
+	Type* referenceType
+) {
+	return err::fail("TemplateTypeName::deduceTemplateArgs is not implemented");
 }
 
 //..............................................................................
@@ -186,19 +235,12 @@ TemplateIntModType::createItemString(size_t index) {
 Type*
 TemplateDeclType::instantiate(const sl::ArrayRef<Type*>& argArray) {
 	Type* baseType = m_declarator.getBaseType();
-	if (baseType->getTypeKind() == TypeKind_NamedImport) {
-		NamedImportType* importType = (NamedImportType*)baseType;
-		if (importType->getAnchor()) {
-			baseType = importType->lookup(); // without resolving and applying fixups
-			if (!baseType)
-				return NULL;
-		} else {
-			bool result = importType->ensureResolved();
-			if (!result)
-				return NULL;
-
-			baseType = importType->getActualType();
-		}
+	if (baseType->getTypeKind() == TypeKind_ImportTypeName) {
+		ImportTypeName* importType = (ImportTypeName*)baseType;
+		TypeNameFinder finder(*importType);
+		baseType = finder.find(importType->getName()); // without resolving and applying fixups
+		if (!baseType)
+			return NULL;
 	}
 
 	if (baseType->getTypeKindFlags() & TypeKindFlag_Template) {

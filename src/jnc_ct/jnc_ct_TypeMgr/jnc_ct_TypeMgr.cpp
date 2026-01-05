@@ -70,7 +70,7 @@ TypeMgr::clear() {
 	m_propertyPtrTypeTupleList.clear();
 	m_dualTypeTupleList.clear();
 	m_typeMap.clear();
-	m_namedImportAnchorArray.clear();
+	m_importTypeNameAnchorArray.clear();
 	m_multicastClassTypeArray.clear();
 	m_externalReturnTypeSet.clear();
 
@@ -1233,7 +1233,7 @@ TypeMgr::getDataPtrType(
 	uint_t flags
 ) {
 	ASSERT((size_t)ptrTypeKind < DataPtrTypeKind__Count);
-	ASSERT(targetType->getTypeKind() != TypeKind_NamedImport); // for imports, getImportPtrType() should be called
+	ASSERT(targetType->getTypeKind() != TypeKind_ImportTypeName); // for imports, getImportPtrType() should be called
 	ASSERT(typeKind != TypeKind_DataRef || targetType->m_typeKind != TypeKind_DataRef); // double reference
 	ASSERT(!(flags & ~PtrTypeFlag__All));
 
@@ -1455,21 +1455,21 @@ TypeMgr::getPropertyVtableStructType(PropertyType* propertyType) {
 	return type;
 }
 
-NamedImportType*
-TypeMgr::getNamedImportType(
+ImportTypeName*
+TypeMgr::getImportTypeName(
 	Namespace* parentNamespace,
 	QualifiedName* name
 ) {
 	ASSERT(parentNamespace->getNamespaceKind() != NamespaceKind_Scope);
 
-	sl::String signature = NamedImportType::createSignature(parentNamespace, *name);
+	sl::String signature = ImportTypeName::createSignature(parentNamespace, *name);
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
 	if (it->m_value) {
-		ASSERT(it->m_value->m_signature == signature && !((NamedImportType*)it->m_value)->isResolved());
-		return (NamedImportType*)it->m_value;
+		ASSERT(it->m_value->m_signature == signature && !((ImportTypeName*)it->m_value)->isResolved());
+		return (ImportTypeName*)it->m_value;
 	}
 
-	NamedImportType* type = new NamedImportType;
+	ImportTypeName* type = new ImportTypeName;
 	type->m_module = m_module;
 	type->m_parentNamespace = parentNamespace;
 	sl::takeOver(&type->m_name, name);
@@ -1481,22 +1481,22 @@ TypeMgr::getNamedImportType(
 	return type;
 }
 
-NamedImportType*
-TypeMgr::getAnchoredNamedImportType(
+ImportTypeName*
+TypeMgr::getAnchoredImportTypeName(
 	Namespace* parentNamespace,
-	NamedImportAnchor* anchor,
+	ImportTypeNameAnchor* anchor,
 	const QualifiedName& name
 ) {
 	ASSERT(parentNamespace->getNamespaceKind() != NamespaceKind_Scope);
 
-	sl::String signature = NamedImportType::createSignature(parentNamespace, name, anchor);
+	sl::String signature = ImportTypeName::createSignature(parentNamespace, name, anchor);
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
 	if (it->m_value) {
-		ASSERT(it->m_value->m_signature == signature && !((NamedImportType*)it->m_value)->isResolved());
-		return (NamedImportType*)it->m_value;
+		ASSERT(it->m_value->m_signature == signature && !((ImportTypeName*)it->m_value)->isResolved());
+		return (ImportTypeName*)it->m_value;
 	}
 
-	NamedImportType* type = new NamedImportType;
+	ImportTypeName* type = new ImportTypeName;
 	type->m_module = m_module;
 	type->m_parentNamespace = parentNamespace;
 	type->m_anchor = anchor;
@@ -1524,6 +1524,32 @@ TypeMgr::createTemplateArgType(
 		type->m_defaultType = createTemplateDeclType(defaultTypeDeclarator);
 
 	m_typeList.insertTail(type);
+	return type;
+}
+
+TemplateTypeName*
+TypeMgr::getTemplateTypeName(
+	Namespace* parentNamespace,
+	QualifiedName* name // destructive
+) {
+	ASSERT(parentNamespace->getNamespaceKind() == NamespaceKind_TemplateDeclaration);
+
+	sl::String signature = ImportTypeName::createSignature(parentNamespace, *name);
+	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
+	if (it->m_value) {
+		ASSERT(it->m_value->m_signature == signature);
+		return (TemplateTypeName*)it->m_value;
+	}
+
+	TemplateTypeName* type = new TemplateTypeName;
+	type->m_module = m_module;
+	type->m_parentNamespace = parentNamespace;
+	sl::takeOver(&type->m_name, name);
+	type->m_signature = signature;
+	type->m_flags |= TypeFlag_SignatureReady;
+
+	m_typeList.insertTail(type);
+	it->m_value = type;
 	return type;
 }
 

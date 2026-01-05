@@ -122,6 +122,7 @@ set(
 	include/jnc_ct_ThunkProperty.h
 	include/jnc_ct_Type.h
 	include/jnc_ct_TypeMgr.h
+	include/jnc_ct_TypeNameFinder.h
 	include/jnc_ct_UnionType.h
 	include/jnc_ct_UnitMgr.h
 	include/jnc_ct_UnOp.h
@@ -449,6 +450,7 @@ set(
 	jnc_ct_TypeMgr/jnc_ct_Type.h
 	jnc_ct_TypeMgr/jnc_ct_Typedef.h
 	jnc_ct_TypeMgr/jnc_ct_TypeMgr.h
+	jnc_ct_TypeMgr/jnc_ct_TypeNameFinder.h
 	jnc_ct_TypeMgr/jnc_ct_UnionType.h
 )
 
@@ -479,6 +481,7 @@ set(
 	jnc_ct_TypeMgr/jnc_ct_Type.cpp
 	jnc_ct_TypeMgr/jnc_ct_Typedef.cpp
 	jnc_ct_TypeMgr/jnc_ct_TypeMgr.cpp
+	jnc_ct_TypeMgr/jnc_ct_TypeNameFinder.cpp
 	jnc_ct_TypeMgr/jnc_ct_UnionType.cpp
 )
 
