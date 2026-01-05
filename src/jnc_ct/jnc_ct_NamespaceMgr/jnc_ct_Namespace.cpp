@@ -158,7 +158,7 @@ Namespace::resolveOrphans() {
 		FunctionKind functionKind = orphan->getFunctionKind();
 
 		if (functionKind != FunctionKind_Normal && !orphan->m_declaratorNamePos) {
-			result = orphan->adopt(nspaceItem);
+			result = orphan->resolve(nspaceItem);
 			if (!result) {
 				orphan->pushSrcPosError();
 				return false;
@@ -181,7 +181,7 @@ Namespace::resolveOrphans() {
 		}
 
 		if (functionKind == FunctionKind_Normal && !orphan->m_declaratorNamePos) {
-			result = orphan->adopt(findResult.m_item);
+			result = orphan->resolve(findResult.m_item);
 			if (!result) {
 				orphan->pushSrcPosError();
 				return false;

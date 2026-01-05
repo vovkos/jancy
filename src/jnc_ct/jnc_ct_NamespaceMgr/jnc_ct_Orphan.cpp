@@ -22,7 +22,7 @@ namespace ct {
 ModuleItem*
 Orphan::resolveForCodeAssist(Namespace* nspace) {
 	if (m_functionKind != FunctionKind_Normal && !m_declaratorNamePos)
-		return adopt(nspace->getDeclItem());
+		return resolve(nspace->getDeclItem());
 
 	const QualifiedNameAtom& atom = m_declaratorNamePos.next(m_declaratorName);
 	FindModuleItemResult findResult = nspace->findDirectChildItem(*this, atom);
@@ -30,29 +30,30 @@ Orphan::resolveForCodeAssist(Namespace* nspace) {
 		return NULL;
 
 	if (m_functionKind == FunctionKind_Normal && !m_declaratorNamePos)
-		return adopt(findResult.m_item);
+		return resolve(findResult.m_item);
 
 	nspace = findResult.m_item->getNamespace();
 	return nspace ? resolveForCodeAssist(nspace) : NULL;
 }
 
 ModuleItem*
-Orphan::adopt(ModuleItem* item) {
+Orphan::resolve(ModuleItem* item) {
+	Namespace* parentNamespace = item->getDecl()->getParentNamespace();
 	if (m_importTypeNameAnchor)
-		m_importTypeNameAnchor->m_namespace = item->getDecl()->getParentNamespace();
+		m_importTypeNameAnchor->m_namespace = parentNamespace;
 
 	if (m_orphanKind == OrphanKind_Template) {
-		m_module->m_namespaceMgr.openNamespace(m_templateInstNamespace);
+		m_module->m_namespaceMgr.openNamespace(parentNamespace);
 		Type* type = m_templateDeclType->instantiate(m_templateArgArray);
-		m_module->m_namespaceMgr.closeTemplateInstNamespace();
+		m_module->m_namespaceMgr.closeNamespace();
 		if (!type)
 			return NULL;
 
 		if (type->getTypeKind() == TypeKind_Function) {
 			m_functionType = (FunctionType*)type;
-			return adoptOrphanFunction(item);
+			return resolveToFunction(item);
 		} else if (type->getStdType() == StdType_ReactorBase)
-			return adoptOrphanReactor(item);
+			return resolveToReactor(item);
 		else {
 			err::setFormatStringError("invalid template orphan type '%s'", type->getTypeString().sz());
 			return NULL;
@@ -61,10 +62,10 @@ Orphan::adopt(ModuleItem* item) {
 
 	switch (m_orphanKind) {
 	case OrphanKind_Function:
-		return adoptOrphanFunction(item);
+		return resolveToFunction(item);
 
 	case OrphanKind_Reactor:
-		return adoptOrphanReactor(item);
+		return resolveToReactor(item);
 
 	default:
 		ASSERT(false);
@@ -121,7 +122,7 @@ Orphan::getItemUnnamedMethod(ModuleItem* item) {
 }
 
 Function*
-Orphan::adoptOrphanFunction(ModuleItem* item) {
+Orphan::resolveToFunction(ModuleItem* item) {
 	bool result;
 	OverloadableFunction origin;
 
@@ -209,7 +210,7 @@ Orphan::adoptOrphanFunction(ModuleItem* item) {
 }
 
 Function*
-Orphan::adoptOrphanReactor(ModuleItem* item) {
+Orphan::resolveToReactor(ModuleItem* item) {
 	Type* itemType = NULL;
 
 	ModuleItemKind itemKind = item->getItemKind();

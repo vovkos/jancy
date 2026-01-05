@@ -206,7 +206,7 @@ Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
 		size_t orphanCount = m_orphanArray.getCount();
 		for (size_t i = 0; i < orphanCount; i++) {
 			Orphan* orphan = m_module->m_namespaceMgr.cloneOrphan(m_orphanArray[i]);
-			orphan->addTemplateInstantiation(argArray, nspace);
+			orphan->addTemplateInstantiation(argArray);
 			type->addOrphan(orphan);
 		}
 	}

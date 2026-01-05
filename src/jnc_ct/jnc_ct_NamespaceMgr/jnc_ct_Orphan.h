@@ -19,7 +19,6 @@ namespace ct {
 
 class FunctionType;
 class TemplateDeclType;
-class TemplateNamespace;
 struct ImportTypeNameAnchor;
 
 //..............................................................................
@@ -54,7 +53,6 @@ protected:
 	};
 
 	sl::Array<Type*> m_templateArgArray;
-	TemplateNamespace* m_templateInstNamespace;
 
 public:
 	Orphan();
@@ -80,13 +78,13 @@ public:
 	}
 
 	void
-	addTemplateInstantiation(
-		const sl::ArrayRef<Type*>& argArray,
-		TemplateNamespace* nspace
-	);
+	addTemplateInstantiation(const sl::ArrayRef<Type*>& argArray) {
+		ASSERT(m_orphanKind == OrphanKind_Template);
+		m_templateArgArray.append(argArray);
+	}
 
 	ModuleItem*
-	adopt(ModuleItem* item);
+	resolve(ModuleItem* item);
 
 	ModuleItem*
 	resolveForCodeAssist() {
@@ -108,10 +106,10 @@ protected:
 	resolveForCodeAssist(Namespace* nspace);
 
 	Function*
-	adoptOrphanFunction(ModuleItem* item);
+	resolveToFunction(ModuleItem* item);
 
 	Function*
-	adoptOrphanReactor(ModuleItem* item);
+	resolveToReactor(ModuleItem* item);
 
 	bool
 	verifyStorageKind(ModuleItemDecl* targetDecl);
@@ -134,18 +132,6 @@ Orphan::Orphan() {
 	m_orphanKind = OrphanKind_Undefined;
 	m_importTypeNameAnchor = NULL;
 	m_type = NULL;
-	m_templateInstNamespace = NULL;
-}
-
-inline
-void
-Orphan::addTemplateInstantiation(
-	const sl::ArrayRef<Type*>& argArray,
-	TemplateNamespace* nspace
-) {
-	ASSERT(m_orphanKind == OrphanKind_Template);
-	m_templateArgArray.append(argArray);
-	m_templateInstNamespace = nspace; // only the last matters
 }
 
 //..............................................................................
