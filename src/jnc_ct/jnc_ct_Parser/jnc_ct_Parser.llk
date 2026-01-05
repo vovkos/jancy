@@ -277,6 +277,13 @@ protected:
 	bool
 	setAccessKind(AccessKind accessKind);
 
+	template <typename T>
+	void
+	replaceDeclaratorTypeName(
+		Declarator* declarator,
+		T* typeName
+	);
+
 	void
 	preDeclarator(
 		Declarator* declarator,

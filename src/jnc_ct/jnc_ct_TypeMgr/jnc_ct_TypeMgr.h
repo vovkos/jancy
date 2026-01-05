@@ -678,14 +678,15 @@ public:
 	ImportTypeName*
 	getImportTypeName(
 		Namespace* parentNamespace,
-		QualifiedName* name // destructive
+		QualifiedName* name, // destructive
+		ImportTypeNameAnchor* anchor = NULL
 	);
 
 	ImportTypeName*
 	getAnchoredImportTypeName(
 		Namespace* parentNamespace,
-		ImportTypeNameAnchor* anchor,
-		const QualifiedName& name
+		const QualifiedName& name,
+		ImportTypeNameAnchor* anchor
 	);
 
 	TemplateArgType*
