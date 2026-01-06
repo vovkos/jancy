@@ -1029,6 +1029,7 @@ public:
 		Value* resultValue
 	) {
 		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateBitCast(opValue.getLlvmValue(), type);
 		resultValue->setLlvmValue(inst, NULL);
 		return inst;

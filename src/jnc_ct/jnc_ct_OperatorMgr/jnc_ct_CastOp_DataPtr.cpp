@@ -536,20 +536,20 @@ Cast_DataPtr_Base::getOffsetUnsafePtrValue(
 		Type* targetType = srcType->getTargetType();
 		srcType = targetType->getDataPtrType_c();
 
-		Value tmpValue;
-		m_module->m_llvmIrBuilder.createBitCast(ptrValue, srcType, &tmpValue);
+		Value typedPtrValue;
+		m_module->m_llvmIrBuilder.createBitCast(ptrValue, srcType, &typedPtrValue);
 
 		m_module->m_llvmIrBuilder.createGep(
-			tmpValue,
+			typedPtrValue,
 			targetType,
 			coord.m_llvmIndexArray,
 			coord.m_llvmIndexArray.getCount(),
 			dstType,
-			&tmpValue
+			resultValue
 		);
 
 		if (isFat)
-			m_module->m_llvmIrBuilder.createBitCast(tmpValue, dstType, resultValue);
+			m_module->m_llvmIrBuilder.createBitCast(*resultValue, dstType, resultValue);
 
 		return true;
 	}
