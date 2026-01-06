@@ -28,17 +28,85 @@ public:
 	static
 	llvm::Constant*
 	get(
+		llvm::Type* llvmType,
+		const void* p,
+		size_t size
+	) {
+		return getImpl(llvm::StringRef((char*)p, size), llvmType);
+	}
+
+	static
+	llvm::Constant*
+	get(
 		ArrayType* type,
 		const void* p
 	) {
-		llvm::Type* llvmType = type->getLlvmType();
-		return getImpl(llvm::StringRef((char*)p, type->getSize()), llvmType);
+		return get(type->getLlvmType(), p, type->getSize());
 	}
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class LlvmPodStruct {
+protected:
+	char _m_buffer[256];
+	sl::Array<llvm::Constant*> m_llvmMemberArray;
+	llvm::StructType* m_llvmType;
+	size_t m_llvmIdx;
+	size_t m_offset;
+	char* m_p;
+
+	LlvmPodStruct(
+		StructType* type,
+		const void* p0
+	):
+		m_llvmMemberArray(rc::BufKind_Field, _m_buffer, sizeof(_m_buffer)) {
+		ASSERT(type->getFlags() & TypeFlag_LayoutReady);
+		ASSERT(llvm::isa<llvm::StructType>(*type->getLlvmType()));
+		m_llvmType = (llvm::StructType*)type->getLlvmType();
+		m_llvmIdx = 0;
+		m_offset = 0;
+		m_p = (char*)p0;
+	}
+
+	void
+	addPaddingIf(size_t offset) {
+		ASSERT(offset >= m_offset);
+		if (offset == m_offset)
+			return;
+
+		llvm::Type* llvmType = m_llvmType->getElementType(m_llvmIdx++);
+		ASSERT(
+			llvmType->getArrayElementType()->getTypeID() == llvm::Type::IntegerTyID &&
+			llvmType->getArrayNumElements() == offset - m_offset
+		);
+
+		m_llvmMemberArray.append(LlvmPodArray::get(llvmType, m_p + m_offset, offset - m_offset));
+		m_offset = offset;
+	}
+
+	void
+	add(
+		size_t offset,
+		Type* type
+	) {
+		addPaddingIf(offset);
+
+		llvm::Type* llvmType = m_llvmType->getElementType(m_llvmIdx++);
+		ASSERT(llvmType == type->getLlvmType());
+
+		m_llvmMemberArray.append((llvm::Constant*)jnc::ct::Value(m_p + offset, type).getLlvmValue());
+		m_offset += type->getSize();
+	}
+
+	llvm::Constant*
+	finalize() {
+		return llvm::ConstantStruct::get(
+			(llvm::StructType*)m_llvmType,
+			llvm::ArrayRef<llvm::Constant*>(m_llvmMemberArray, m_llvmMemberArray.getCount())
+		);
+	}
+
 public:
 	static
 	llvm::Constant*
@@ -46,24 +114,24 @@ public:
 		StructType* type,
 		const void* p
 	) {
-		llvm::Type* llvmType = type->getLlvmType();
+		LlvmPodStruct layout(type, p);
 
-		char buffer[256];
-		sl::Array<llvm::Constant*> llvmMemberArray(rc::BufKind_Stack, buffer, sizeof(buffer));
-
-		const sl::Array<Field*>& fieldArray = type->getFieldArray();
-		size_t count = fieldArray.getCount();
-
-		for (size_t i = 0; i < count; i++) {
-			Field* field = fieldArray[i];
-			jnc::ct::Value memberConst((char*)p + field->getOffset(), field->getType());
-			llvmMemberArray.append((llvm::Constant*)memberConst.getLlvmValue());
+		const sl::Array<BaseTypeSlot*>& baseTypeArray = type->getBaseTypeArray();
+		size_t baseTypeCount = baseTypeArray.getCount();
+		for (size_t i = 0; i < baseTypeCount; i++) {
+			BaseTypeSlot* slot = baseTypeArray[i];
+			layout.add(slot->getOffset(), slot->getType());
 		}
 
-		return llvm::ConstantStruct::get(
-			(llvm::StructType*)llvmType,
-			llvm::ArrayRef<llvm::Constant*>(llvmMemberArray, llvmMemberArray.getCount())
-		);
+		const sl::Array<Field*>& fieldArray = type->getFieldArray();
+		size_t fieldCount = fieldArray.getCount();
+		for (size_t i = 0; i < fieldCount; i++) {
+			Field* field = fieldArray[i];
+			layout.add(field->getOffset(), field->getType());
+		}
+
+		layout.addPaddingIf(type->getSize());
+		return layout.finalize();
 	}
 };
 
