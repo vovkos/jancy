@@ -85,8 +85,8 @@ class List<
 	typedef T Entry;
 	typedef I Iterator;
 
-	T* readonly m_head;
-	T* readonly m_tail;
+	T cmut* readonly m_head;
+	T cmut* readonly m_tail;
 	size_t readonly m_count;
 
 	void clear();
