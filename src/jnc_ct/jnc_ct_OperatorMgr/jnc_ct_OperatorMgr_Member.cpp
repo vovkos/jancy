@@ -393,6 +393,17 @@ OperatorMgr::getNamespaceMember(
 		decl = (Field*)item;
 		break;
 
+	case ModuleItemKind_Template:
+		resultValue->setTemplate((Template*)item);
+		if (((Template*)item)->getStorageKind() == StorageKind_Member) {
+			result = createMemberClosure(resultValue);
+			if (!result)
+				return false;
+		}
+
+		decl = (Template*)item;
+		break;
+
 	default:
 		err::setFormatStringError(
 			"'%s.%s' cannot be used as expression",
