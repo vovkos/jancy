@@ -17,7 +17,7 @@ namespace stdt {
 //..............................................................................
 
 struct ListLink<T> {
-	friend List<T>;
+	friend List;
 	T cmut* readonly m_next;
 	T cmut* readonly m_prev;
 }
