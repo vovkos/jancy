@@ -1,0 +1,164 @@
+﻿// chatgpt-generated unit test for stdt.BoxList
+
+import "stdt_BoxList.jnc"
+
+//..............................................................................
+
+void test_empty_list() {
+	stdt.BoxList<int> list;
+
+	assert(list.m_head == null);
+	assert(list.m_tail == null);
+	assert(list.m_count == 0);
+}
+
+void test_insert_head_tail() {
+	stdt.BoxList<int> list;
+
+	list.insertHead(1);
+
+	assert(list.m_head != null);
+	assert(list.m_tail != null);
+	assert(list.m_count == 1);
+	assert(list.m_head.m_value == 1);
+
+	list.insertTail(2);
+
+	assert(list.m_count == 2);
+	assert(list.m_head.m_value == 1);
+	assert(list.m_tail.m_value == 2);
+}
+
+void test_iterator_forward_backward() {
+	stdt.BoxList<int> list;
+
+	list.append(1);
+	list.append(2);
+	list.append(3);
+
+	int sum = 0;
+	for (auto it = stdt.BoxIterator<int>(list.m_head); it; ++it)
+		sum += *it;
+
+	assert(sum == 6);
+
+	sum = 0;
+	for (auto it = stdt.BoxIterator<int>(list.m_tail); it; --it)
+		sum += *it;
+
+	assert(sum == 6);
+}
+
+void test_insert_before() {
+	stdt.BoxList<int> list;
+
+	list.append(1);
+	list.append(3);
+
+	list.insertBefore(2, stdt.BoxIterator<int>(list.m_tail));
+
+	assert(list.m_count == 3);
+	assert(list.m_head.m_value == 1);
+	assert(list.m_head.m_next.m_value == 2);
+	assert(list.m_tail.m_value == 3);
+}
+
+void test_insert_after() {
+	stdt.BoxList<int> list;
+
+	list.append(1);
+	list.append(3);
+
+	list.insertAfter(2, stdt.BoxIterator<int>(list.m_head));
+
+	assert(list.m_count == 3);
+	assert(list.m_head.m_value == 1);
+	assert(list.m_head.m_next.m_value == 2);
+	assert(list.m_tail.m_value == 3);
+}
+
+void test_remove_head_tail() {
+	stdt.BoxList<int> list;
+
+	list.append(1);
+	list.append(2);
+	list.append(3);
+
+	int v = list.removeHead();
+	assert(v == 1);
+	assert(list.m_head.m_value == 2);
+	assert(list.m_count == 2);
+
+	v = list.removeTail();
+	assert(v == 3);
+	assert(list.m_tail.m_value == 2);
+	assert(list.m_count == 1);
+}
+
+void test_remove_middle() {
+	stdt.BoxList<int> list;
+
+	list.append(1);
+	list.append(2);
+	list.append(3);
+
+	auto it = stdt.BoxIterator<int>(list.m_head.m_next);
+	int v = list.remove(it);
+
+	assert(v == 2);
+	assert(list.m_count == 2);
+	assert(list.m_head.m_value == 1);
+	assert(list.m_tail.m_value == 3);
+}
+
+void test_move_ops() {
+	stdt.BoxList<int> list;
+
+	list.append(1);
+	list.append(2);
+	list.append(3);
+
+	list.moveToHead(stdt.BoxIterator<int>(list.m_tail));
+
+	assert(list.m_head.m_value == 3);
+	assert(list.m_head.m_next.m_value == 1);
+
+	list.moveToTail(stdt.BoxIterator<int>(list.m_head));
+
+	assert(list.m_tail.m_value == 3);
+}
+
+void test_takeover() {
+	stdt.BoxList<int> a;
+	stdt.BoxList<int> b;
+
+	b.append(1);
+	b.append(2);
+
+	a.takeOver(&b);
+
+	assert(a.m_count == 2);
+	assert(a.m_head.m_value == 1);
+	assert(a.m_tail.m_value == 2);
+
+	assert(b.m_head == null);
+	assert(b.m_tail == null);
+	assert(b.m_count == 0);
+}
+
+//..............................................................................
+
+int main() {
+	test_empty_list();
+	test_insert_head_tail();
+	test_iterator_forward_backward();
+	test_insert_before();
+	test_insert_after();
+	test_remove_head_tail();
+	test_remove_middle();
+	test_move_ops();
+	test_takeover();
+	return 0;
+}
+
+//..............................................................................
