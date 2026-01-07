@@ -78,8 +78,12 @@ typedef IteratorImpl<IteratorBase<T> > Iterator<T>;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class List<T> {
-	typedef Iterator<T> Iterator;
+class List<
+	T,
+	I = Iterator<T>
+> {
+	typedef T Entry;
+	typedef I Iterator;
 
 	T* readonly m_head;
 	T* readonly m_tail;
@@ -140,20 +144,20 @@ class List<T> {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void List<T>.clear() {
+void List<T, I>.clear() {
 	m_head = null;
 	m_tail = null;
 	m_count = 0;
 }
 
-void List<T>.takeOver(List* list) {
+void List<T, I>.takeOver(List* list) {
 	m_head = list.m_head;
 	m_tail = list.m_tail;
 	m_count = list.m_count;
 	list.clear();
 }
 
-Iterator List<T>.insertHead(T* p) {
+Iterator List<T, I>.insertHead(T* p) {
 	p.m_prev = null;
 	p.m_next = m_head;
 
@@ -167,7 +171,7 @@ Iterator List<T>.insertHead(T* p) {
 	return p;
 }
 
-Iterator List<T>.insertTail(T* p) {
+Iterator List<T, I>.insertTail(T* p) {
 	p.m_next = null;
 	p.m_prev = m_tail;
 
@@ -181,7 +185,7 @@ Iterator List<T>.insertTail(T* p) {
 	return p;
 }
 
-Iterator List<T>.insertBefore(
+Iterator List<T, I>.insertBefore(
 	T* p,
 	Iterator beforeIt
 ) {
@@ -203,7 +207,7 @@ Iterator List<T>.insertBefore(
 	return p;
 }
 
-Iterator List<T>.insertAfter(
+Iterator List<T, I>.insertAfter(
 	T* p,
 	Iterator afterIt
 ) {
@@ -225,7 +229,7 @@ Iterator List<T>.insertAfter(
 	return p;
 }
 
-T* List<T>.remove(Iterator it) {
+T* List<T, I>.remove(Iterator it) {
 	T* p = it.m_p;
 	T* next = p.m_next;
 	T* prev = p.m_prev;
