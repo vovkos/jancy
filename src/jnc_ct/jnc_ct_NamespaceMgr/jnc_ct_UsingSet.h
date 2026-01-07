@@ -55,7 +55,10 @@ public:
 protected:
 	virtual
 	bool
-	addNamespaceImpl(Namespace* nspace);
+	addNamespaceImpl(
+		ModuleItem* item,
+		NamespaceKind namespaceKind
+	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

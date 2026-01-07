@@ -71,19 +71,7 @@ NamespaceSet::addNamespace(
 		}
 	}
 
-	Namespace* nspace = item->getNamespace();
-	if (!nspace) {
-		err::setFormatStringError("'%s' is a %s, not a namespace", name->getFullName ().sz(), getModuleItemKindString(item->getItemKind()));
-		return false;
-	}
-
-	if (namespaceKind && namespaceKind != nspace->getNamespaceKind()) {
-		err::setFormatStringError("'%s' is not %s", name->getFullName ().sz(), getNamespaceKindString(namespaceKind));
-		return false;
-	}
-
-	addNamespaceImpl(nspace);
-	return true;
+	return addNamespaceImpl(item, namespaceKind);
 }
 
 bool
@@ -113,14 +101,29 @@ NamespaceSet::resolve() {
 //..............................................................................
 
 bool
-FriendSet::addNamespaceImpl(Namespace* nspace) {
-	sl::HashTableIterator<Namespace*, bool> it = m_friendSet.visit(nspace);
-	if (it->m_value) {
-		err::setFormatStringError("'%s' is already added", nspace->getDeclItem()->getItemName().sz());
+FriendSet::addNamespaceImpl(
+	ModuleItem* item,
+	NamespaceKind namespaceKind
+) {
+	bool* p;
+	if (item->getItemKind() == ModuleItemKind_Template)
+		p = &m_templateSet.visit((Template*)item)->m_value;
+	else {
+		Namespace* nspace = item->getNamespace();
+		if (nspace)
+			p = &m_namespaceSet.visit(nspace)->m_value;
+		else {
+			err::setFormatStringError("'%s' can't be a friend", item->getItemName().sz());
+			return false;
+		}
+	}
+
+	if (*p) {
+		err::setFormatStringError("'%s' is already a friend", item->getItemName().sz());
 		return false;
 	}
 
-	it->m_value = true;
+	*p = true;
 	return true;
 }
 

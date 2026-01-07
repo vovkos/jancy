@@ -182,5 +182,20 @@ public:
 
 //..............................................................................
 
+inline
+bool
+FriendSet::isFriend(Namespace* nspace) const {
+	if (m_namespaceSet.find(nspace))
+		return true;
+
+	if (nspace->getNamespaceKind() != NamespaceKind_Type || m_templateSet.isEmpty())
+		return false;
+
+	TemplateInstance* instance = ((NamedType*)nspace)->getTemplateInstance();
+	return instance && m_templateSet.find(instance->m_template);
+}
+
+//..............................................................................
+
 } // namespace ct
 } // namespace jnc

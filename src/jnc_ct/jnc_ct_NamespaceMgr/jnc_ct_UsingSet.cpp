@@ -62,8 +62,22 @@ UsingSet::findExtensionItem(
 }
 
 bool
-UsingSet::addNamespaceImpl(Namespace* nspace) {
-	NamespaceKind namespaceKind = nspace->getNamespaceKind();
+UsingSet::addNamespaceImpl(
+	ModuleItem* item,
+	NamespaceKind namespaceKind
+) {
+	Namespace* nspace = (Namespace*)item;
+	if (!nspace) {
+		err::setFormatStringError("'%s' is a %s, not a namespace", item->getItemName().sz(), getModuleItemKindString(item->getItemKind()));
+		return false;
+	}
+
+	if (!namespaceKind)
+		namespaceKind = nspace->getNamespaceKind();
+	else if (namespaceKind != nspace->getNamespaceKind()) {
+		err::setFormatStringError("'%s' is not %s", item->getItemName().sz(), getNamespaceKindString(namespaceKind));
+		return false;
+	}
 
 	switch (namespaceKind) {
 	case NamespaceKind_Global:

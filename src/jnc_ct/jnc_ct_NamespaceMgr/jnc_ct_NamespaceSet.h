@@ -55,7 +55,10 @@ protected:
 
 	virtual
 	bool
-	addNamespaceImpl(Namespace* nspace) = 0;
+	addNamespaceImpl(
+		ModuleItem* item,
+		NamespaceKind namespaceKind
+	) = 0;
 
 	bool
 	resolve();
@@ -65,18 +68,20 @@ protected:
 
 class FriendSet: public NamespaceSet {
 protected:
-	sl::SimpleHashTable<Namespace*, bool> m_friendSet;
+	sl::SimpleHashTable<Namespace*, bool> m_namespaceSet;
+	sl::SimpleHashTable<Template*, bool> m_templateSet;
 
 public:
 	bool
-	isFriend(Namespace* nspace) const {
-		return m_friendSet.find(nspace);
-	}
+	isFriend(Namespace* nspace) const;
 
 protected:
 	virtual
 	bool
-	addNamespaceImpl(Namespace* nspace);
+	addNamespaceImpl(
+		ModuleItem* item,
+		NamespaceKind namespaceKind
+	);
 };
 
 //..............................................................................
