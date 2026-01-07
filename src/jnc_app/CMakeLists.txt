@@ -272,6 +272,7 @@ add_jancy_tests
 	set(
 		_BASE_FLAG_LIST
 		--import-dir ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION>
+		--assert
 		${JANCY_TEST_MODE}
 		${JANCY_TEST_DEBUG_INFO}
 		${JANCY_TEST_IR_OPT_LEVEL}

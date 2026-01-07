@@ -87,6 +87,10 @@ CmdLineParser::onSwitch(
 		m_cmdLine->m_moduleConfig.m_compileFlags |= jnc::ModuleCompileFlag_DebugInfo;
 		break;
 
+	case CmdLineSwitch_Assert:
+		m_cmdLine->m_moduleConfig.m_compileFlags |= jnc::ModuleCompileFlag_Assert;
+		break;
+
 	case CmdLineSwitch_Jit:
 		m_cmdLine->m_flags &= ~JncFlag_Run;
 		m_cmdLine->m_flags |= JncFlag_Jit;

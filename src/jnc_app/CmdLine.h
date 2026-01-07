@@ -69,6 +69,7 @@ enum CmdLineSwitch {
 	CmdLineSwitch_PrintReturnValue,
 	CmdLineSwitch_LlvmIr,
 	CmdLineSwitch_DebugInfo,
+	CmdLineSwitch_Assert,
 	CmdLineSwitch_Jit,
 	CmdLineSwitch_McJit,
 #if (_JNC_LLVM_JIT_ORC)
@@ -175,6 +176,11 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE(CmdLineSwitchTable, CmdLineSwitch)
 		CmdLineSwitch_DebugInfo,
 		"g", "debug", "debug-info", NULL,
 		"Generate debug information"
+	)
+	AXL_SL_CMD_LINE_SWITCH_2(
+		CmdLineSwitch_Assert,
+		"a", "assert", NULL,
+		"Enable 'assert' statements"
 	)
 	AXL_SL_CMD_LINE_SWITCH_2(
 		CmdLineSwitch_Jit,

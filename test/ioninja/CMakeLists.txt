@@ -13,7 +13,16 @@ if(NOT ${BUILD_JNC_APP})
 	return()
 endif()
 
-set(_COMMON_FLAGS -c --ignore-opaque -I ../../api -I ../../common -I ../../protocols -I ../../plugins)
+set(
+	_COMMON_FLAGS
+	-c
+	--ignore-opaque
+	-I ../../api
+	-I ../../common
+	-I ../../protocols
+	-I ../../plugins
+)
+
 set(JANCY_TEST_JIT_KIND " ") # don't append JIT kind to command line (infers JITting which we don't want)
 
 add_jancy_tests(
