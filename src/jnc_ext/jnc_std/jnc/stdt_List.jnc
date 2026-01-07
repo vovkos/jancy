@@ -127,8 +127,14 @@ class List<T> {
 		insertAfter(remove(it), afterIt);
 	}
 
-	T* removeHead();
-	T* removeTail();
+	T* removeHead() {
+		return remove(m_head);
+	}
+
+	T* removeTail() {
+		return remove(m_tail);
+	}
+
 	T* remove(Iterator it);
 }
 
@@ -216,18 +222,6 @@ Iterator List<T>.insertAfter(
 		m_tail = p;
 
 	m_count++;
-	return p;
-}
-
-T* List<T>.removeHead() {
-	T* p = m_head;
-	remove(p);
-	return p;
-}
-
-T* List<T>.removeTail() {
-	T* p = m_head;
-	remove(p);
 	return p;
 }
 
