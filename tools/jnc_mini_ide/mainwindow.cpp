@@ -537,6 +537,9 @@ bool MainWindow::compile() {
 		moduleConfig.m_compileFlags |= jnc::ModuleCompileFlag_DebugInfo;
 #endif
 
+	if (m_assertAction->isChecked())
+		moduleConfig.m_compileFlags |= jnc::ModuleCompileFlag_Assert;
+
 	if (m_mcJitAction->isChecked())
 		moduleConfig.m_jitKind = jnc::JitKind_McJit;
 #if (_JNC_LLVM_JIT_ORC)
@@ -557,9 +560,6 @@ bool MainWindow::compile() {
 		m_module->addStaticLib(jnc::SysLib_getLib());
 		m_module->addImportDir(m_libDir.toUtf8().constData());
 	}
-
-	if (m_assertAction->isChecked())
-		moduleConfig.m_compileFlags |= jnc::ModuleCompileFlag_Assert;
 
 	m_module->addStaticLib(TestLib_getLib());
 
