@@ -98,7 +98,7 @@ Template::setDefaultArgs(sl::Array<Type*>* argArray) {
 	size_t count = argArray->getCount();
 	sl::Array<Type*>::Rwi rwi = argArray->rwi();
 	for (size_t i = 0; i < count; i++) {
-		if (argArray[i])
+		if (rwi[i])
 			continue;
 
 		TemplateDeclType* defaultType = m_argArray[i]->getDefaultType();
