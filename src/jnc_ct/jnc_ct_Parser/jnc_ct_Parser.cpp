@@ -3560,30 +3560,34 @@ Parser::assertStmt(
 	if (!(m_module->getCompileFlags() & ModuleCompileFlag_Assert))
 		return true;
 
+	lex::LineCol pos = conditionTokenList->getHead()->m_pos;
+	const sl::StringRef conditionText = Token::getText(*conditionTokenList);
+
 	Value conditionValue;
 	bool result = m_module->m_operatorMgr.parseExpression(conditionTokenList, &conditionValue);
 	if (!result)
-		return NULL;
+		return false;
+
+	if (!m_module->hasCodeGen())
+		return true;
 
 	BasicBlock* failBlock = m_module->m_controlFlowMgr.createBlock("assert_fail");
 	BasicBlock* continueBlock = m_module->m_controlFlowMgr.createBlock("assert_continue");
 
 	result = m_module->m_controlFlowMgr.conditionalJump(conditionValue, continueBlock, failBlock, failBlock);
 	if (!result)
-		return NULL;
+		return false;
 
 	Function* assertionFailure = m_module->m_functionMgr.getStdFunction(StdFunc_AssertionFailure);
 	Unit* unit = m_module->m_unitMgr.getCurrentUnit();
-	int line = conditionTokenList->getHead()->m_pos.m_line;
-	const sl::StringRef conditionText = Token::getText(*conditionTokenList);
 
 	sl::BoxList<Value> argValueList;
 	argValueList.insertTail(m_module->m_variableMgr.getStaticLiteralVariable(unit->getFilePath()));
-	argValueList.insertTail(Value(line, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int)));
+	argValueList.insertTail(Value(pos.m_line, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int)));
 	argValueList.insertTail(m_module->m_variableMgr.getStaticLiteralVariable(conditionText));
 
 	if (!message.isEmpty())
-		argValueList.insertTail(m_module->m_variableMgr.getStaticLiteralVariable(unit->getFilePath()));
+		argValueList.insertTail(m_module->m_variableMgr.getStaticLiteralVariable(message));
 	else {
 		Value nullValue;
 		nullValue.setNull(m_module);

@@ -532,9 +532,9 @@ assertionFailure(
 	const char* message
 ) {
 	sl::String string;
-	string.format("%s(%d): assertion (%s) failed", fileName, line + 1, condition);
+	string.format("%s(%d): assertion failure: %s", fileName, line + 1, condition);
 	if (message)
-		string.appendFormat("; %s", message);
+		string.appendFormat(" (%s)", message);
 
 	err::setError(string);
 	string.release(); // release before throwing (sl::String::~String will not be called)
