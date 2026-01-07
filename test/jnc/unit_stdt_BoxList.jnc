@@ -37,13 +37,13 @@ void test_iterator_forward_backward() {
 	list.append(3);
 
 	int sum = 0;
-	for (auto it = stdt.BoxIterator<int>(list.m_head); it; ++it)
+	for (stdt.BoxIterator<int> it = stdt.BoxIterator<int>(list.m_head); it; ++it)
 		sum += *it;
 
 	assert(sum == 6);
 
 	sum = 0;
-	for (auto it = stdt.BoxIterator<int>(list.m_tail); it; --it)
+	for (stdt.BoxIterator<int> it = stdt.BoxIterator<int>(list.m_tail); it; --it)
 		sum += *it;
 
 	assert(sum == 6);
@@ -102,7 +102,7 @@ void test_remove_middle() {
 	list.append(2);
 	list.append(3);
 
-	auto it = stdt.BoxIterator<int>(list.m_head.m_next);
+	stdt.BoxIterator<int> it = stdt.BoxIterator<int>(list.m_head.m_next);
 	int v = list.remove(it);
 
 	assert(v == 2);
