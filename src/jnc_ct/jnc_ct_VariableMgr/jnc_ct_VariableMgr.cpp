@@ -51,15 +51,6 @@ VariableMgr::clear() {
 	memset(m_stdVariableArray, 0, sizeof(m_stdVariableArray));
 }
 
-void
-VariableMgr::createStdVariables() {
-	// these variables are required even if not used (so the layout of TLS remains the same)
-
-	getStdVariable(StdVariable_SjljFrame);
-	getStdVariable(StdVariable_GcShadowStackTop);
-	getStdVariable(StdVariable_AsyncScheduler);
-}
-
 Variable*
 VariableMgr::getStdVariable(StdVariable stdVariable) {
 	ASSERT((size_t)stdVariable < StdVariable__Count);
@@ -121,19 +112,6 @@ VariableMgr::getStdVariable(StdVariable stdVariable) {
 
 	variable->m_stdVariable = stdVariable;
 	m_stdVariableArray[stdVariable] = variable;
-	return variable;
-}
-
-Variable*
-VariableMgr::getStaticLiteralVariable(const sl::StringRef& string) {
-	sl::StringHashTableIterator<Variable*> it = m_staticLiteralMap.visit(string);
-	if (it->m_value)
-		return it->m_value;
-
-	Value value;
-	value.setCharArray(string, m_module);
-	Variable* variable = createSimpleStaticVariable("literal", value.getType(), value, PtrTypeFlag_Const);
-	it->m_value = variable;
 	return variable;
 }
 
@@ -271,38 +249,6 @@ VariableMgr::allocateVariable(Variable* variable) {
 
 	variable->m_flags |= VariableFlag_Allocated;
 	return true;
-}
-
-Variable*
-VariableMgr::createSimpleStackVariable(
-	const sl::StringRef& name,
-	Type* type,
-	uint_t ptrTypeFlags
-) {
-	Variable* variable = createVariable(StorageKind_Stack, name, type, ptrTypeFlags);
-	bool result = allocateVariable(variable);
-	ASSERT(result);
-	return variable;
-}
-
-Variable*
-VariableMgr::createSimpleStaticVariable(
-	const sl::StringRef& name,
-	Type* type,
-	const Value& value,
-	uint_t ptrTypeFlags
-) {
-	ASSERT(type->getTypeKind() != TypeKind_Class);
-
-	Variable* variable = createVariable(StorageKind_Static, name, type, ptrTypeFlags);
-	variable->m_llvmGlobalVariable = createLlvmGlobalVariable(type, name, value);
-	variable->m_llvmValue = variable->m_llvmGlobalVariable;
-	variable->m_flags |= VariableFlag_Allocated;
-
-	if (type->getFlags() & TypeFlag_GcRoot)
-		m_staticGcRootArray.append(variable);
-
-	return variable;
 }
 
 bool

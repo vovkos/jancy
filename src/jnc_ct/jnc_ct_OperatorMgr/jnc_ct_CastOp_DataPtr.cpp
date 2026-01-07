@@ -64,7 +64,7 @@ Cast_DataPtr_FromArray::cast(
 
 	Type* opType = opValue.getType();
 	Variable* constVar = isCharArrayType(opType) ?
-		m_module->m_variableMgr.getStaticLiteralVariable(sl::StringRef((char*)opValue.getConstData(), opType->getSize())) :
+		m_module->m_variableMgr.getStaticLiteralVariable((char*)opValue.getConstData(), opType->getSize()) :
 		m_module->m_variableMgr.createSimpleStaticVariable("const", opType, opValue, PtrTypeFlag_Const);
 
 	return llvmCast(constVar, type, resultValue);
