@@ -206,9 +206,9 @@ Iterator List<T>.insertAfter(
 
 	T* after = afterIt.m_p;
 	T* next = after.m_next;
-	p.m_prev = afterLink;
+	p.m_prev = after;
 	p.m_next = next;
-	afterLink.m_next = p;
+	after.m_next = p;
 
 	if (next)
 		next.m_prev = p;
