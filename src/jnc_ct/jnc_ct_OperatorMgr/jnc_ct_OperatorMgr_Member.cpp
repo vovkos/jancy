@@ -556,15 +556,14 @@ OperatorMgr::getVariantMember(
 	resultValue->setProperty(prop);
 
 	Value variantValue;
-	Value nameValue = m_module->m_constMgr.saveLiteral(name);
-
 	bool result = unaryOperator(UnOpKind_Addr, opValue, &variantValue);
 	if (!result)
 		return false;
 
+	Variable* nameVar = m_module->m_variableMgr.getStaticLiteralVariable(name);
 	Closure* closure = resultValue->createClosure();
 	closure->append(variantValue);
-	closure->append(nameValue);
+	closure->append(nameVar);
 	return true;
 }
 

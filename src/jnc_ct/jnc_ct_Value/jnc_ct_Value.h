@@ -240,11 +240,6 @@ public:
 		return m_field;
 	}
 
-	sl::Array<char>
-	getConstDataArray() const {
-		return m_constData;
-	}
-
 	const void*
 	getConstData() const {
 		ASSERT(m_valueKind == ValueKind_Const || m_valueKind == ValueKind_Field);

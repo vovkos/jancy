@@ -62,7 +62,11 @@ Cast_DataPtr_FromArray::cast(
 	if (m_module->isConstOperatorOnly())
 		return constCastImpl(opValue, type, resultValue);
 
-	Variable* constVar = m_module->m_variableMgr.createSimpleStaticVariable("const", opValue.getType(), opValue, PtrTypeFlag_Const);
+	Type* opType = opValue.getType();
+	Variable* constVar = isCharArrayType(opType) ?
+		m_module->m_variableMgr.getStaticLiteralVariable(sl::StringRef((char*)opValue.getConstData(), opType->getSize())) :
+		m_module->m_variableMgr.createSimpleStaticVariable("const", opType, opValue, PtrTypeFlag_Const);
+
 	return llvmCast(constVar, type, resultValue);
 }
 

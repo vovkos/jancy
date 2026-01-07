@@ -37,6 +37,7 @@ VariableMgr::clear() {
 	m_variableList.clear();
 	m_staticGcRootArray.clear();
 	m_staticVariableArray.clear();
+	m_staticLiteralMap.clear();
 	m_globalVariablePrimeArray.clear();
 	m_globalVariableInitializeArray.clear();
 	m_liftedStackVariableArray.clear();
@@ -120,6 +121,19 @@ VariableMgr::getStdVariable(StdVariable stdVariable) {
 
 	variable->m_stdVariable = stdVariable;
 	m_stdVariableArray[stdVariable] = variable;
+	return variable;
+}
+
+Variable*
+VariableMgr::getStaticLiteralVariable(const sl::StringRef& string) {
+	sl::StringHashTableIterator<Variable*> it = m_staticLiteralMap.visit(string);
+	if (it->m_value)
+		return it->m_value;
+
+	Value value;
+	value.setCharArray(string, m_module);
+	Variable* variable = createSimpleStaticVariable("literal", value.getType(), value, PtrTypeFlag_Const);
+	it->m_value = variable;
 	return variable;
 }
 

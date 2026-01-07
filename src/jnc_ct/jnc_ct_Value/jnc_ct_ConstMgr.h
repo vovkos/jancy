@@ -56,7 +56,6 @@ protected:
 	sl::BoxList<Value> m_valueList;
 	sl::List<Const> m_constList;
 	sl::BoxList<DetachedDataBox> m_constBoxList;
-
 	DataPtr m_emptyLiteralPtr;
 
 public:

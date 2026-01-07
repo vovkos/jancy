@@ -38,6 +38,7 @@ protected:
 	sl::Array<Variable*> m_argVariableArray;
 	sl::Array<Variable*> m_reactorVariableArray;
 	sl::Array<Variable*> m_tlsVariableArray;
+	sl::StringHashTable<Variable*> m_staticLiteralMap;
 	Variable* m_currentLiftedStackVariable;
 	StructType* m_tlsStructType;
 	uint_t m_extraStackPtrFlags;
@@ -125,6 +126,9 @@ public:
 	getCurrentLiftedStackVariable() {
 		return m_currentLiftedStackVariable;
 	}
+
+	Variable*
+	getStaticLiteralVariable(const sl::StringRef& string);
 
 	Variable*
 	createVariable(
