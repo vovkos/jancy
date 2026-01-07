@@ -1196,6 +1196,11 @@ OperatorMgr::templateInstantiateOperator(
 	case ModuleItemKind_Function:
 		return resultValue->trySetFunction((Function*)item);
 
+	case ModuleItemKind_Typedef:
+		item = ((Typedef*)item)->getType();
+
+		// and fall through
+
 	case ModuleItemKind_Type:
 		if ((((Type*)item)->getTypeKindFlags() & TypeKindFlag_Named)) {
 			resultValue->setNamespace((NamedType*)item);
