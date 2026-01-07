@@ -1,0 +1,184 @@
+﻿// chatgpt-generated unit test for stdt.List
+
+import "stdt_List.jnc"
+
+//..............................................................................
+
+struct TestNode: stdt.ListLink<TestNode> {
+	int m_value;
+}
+
+//..............................................................................
+
+void test_empty_list() {
+	stdt.List<TestNode> list;
+
+	assert(list.m_head == null);
+	assert(list.m_tail == null);
+	assert(list.m_count == 0);
+}
+
+void test_insert_head_tail() {
+	stdt.List<TestNode> list;
+
+	TestNode a = { m_value = 1 };
+	TestNode b = { m_value = 2 };
+
+	list.insertHead(&a);
+
+	assert(list.m_head == &a);
+	assert(list.m_tail == &a);
+	assert(list.m_count == 1);
+
+	list.insertTail(&b);
+
+	assert(list.m_head == &a);
+	assert(list.m_tail == &b);
+	assert(a.m_next == &b);
+	assert(b.m_prev == &a);
+	assert(list.m_count == 2);
+}
+
+void test_iterator_forward_backward() {
+	stdt.List<TestNode> list;
+
+	TestNode a = { m_value = 1 };
+	TestNode b = { m_value = 2 };
+	TestNode c = { m_value = 3 };
+
+	list.insertTail(&a);
+	list.insertTail(&b);
+	list.insertTail(&c);
+
+	int sum = 0;
+	for (stdt.Iterator<TestNode> it = stdt.Iterator<TestNode>(&a); it; ++it)
+		sum += it->m_value;
+
+	assert(sum == 6);
+
+	sum = 0;
+	for (stdt.Iterator<TestNode> it = stdt.Iterator<TestNode>(&c); it; --it)
+		sum += it->m_value;
+
+	assert(sum == 6);
+}
+
+void test_insert_before() {
+	stdt.List<TestNode> list;
+
+	TestNode a = { m_value = 1 };
+	TestNode b = { m_value = 2 };
+	TestNode c = { m_value = 3 };
+
+	list.insertTail(&a);
+	list.insertTail(&c);
+
+	list.insertBefore(&b, stdt.Iterator<TestNode>(&c));
+
+	assert(list.m_head == &a);
+	assert(a.m_next == &b);
+	assert(b.m_prev == &a);
+	assert(b.m_next == &c);
+	assert(c.m_prev == &b);
+	assert(list.m_count == 3);
+}
+
+void test_remove_head_tail() {
+	stdt.List<TestNode> list;
+
+	TestNode a = { m_value = 1 };
+	TestNode b = { m_value = 2 };
+
+	list.insertTail(&a);
+	list.insertTail(&b);
+
+	TestNode* p = list.removeHead();
+	assert(p == &a);
+	assert(list.m_head == &b);
+	assert(list.m_tail == &b);
+	assert(list.m_count == 1);
+
+	p = list.removeTail();
+	assert(p == &b);
+	assert(list.m_head == null);
+	assert(list.m_tail == null);
+	assert(list.m_count == 0);
+}
+
+void test_remove_middle() {
+	stdt.List<TestNode> list;
+
+	TestNode a = { m_value = 1 };
+	TestNode b = { m_value = 2 };
+	TestNode c = { m_value = 3 };
+
+	list.insertTail(&a);
+	list.insertTail(&b);
+	list.insertTail(&c);
+
+	TestNode* p = list.remove(stdt.Iterator<TestNode>(&b));
+
+	assert(p == &b);
+	assert(a.m_next == &c);
+	assert(c.m_prev == &a);
+	assert(list.m_count == 2);
+}
+
+void test_move_ops() {
+	stdt.List<TestNode> list;
+
+	TestNode a = { m_value = 1 };
+	TestNode b = { m_value = 2 };
+	TestNode c = { m_value = 3 };
+
+	list.insertTail(&a);
+	list.insertTail(&b);
+	list.insertTail(&c);
+
+	list.moveToHead(stdt.Iterator<TestNode>(&c));
+
+	assert(list.m_head == &c);
+	assert(c.m_next == &a);
+
+	list.moveToTail(stdt.Iterator<TestNode>(&c));
+
+	assert(list.m_tail == &c);
+	assert(b.m_next == &c);
+}
+
+void test_takeover() {
+	stdt.List<TestNode> a;
+	stdt.List<TestNode> b;
+
+	TestNode x = { m_value = 1 };
+	TestNode y = { m_value = 2 };
+
+	b.insertTail(&x);
+	b.insertTail(&y);
+
+	a.takeOver(&b);
+
+	assert(a.m_head == &x);
+	assert(a.m_tail == &y);
+	assert(a.m_count == 2);
+
+	assert(b.m_head == null);
+	assert(b.m_tail == null);
+	assert(b.m_count == 0);
+}
+
+//..............................................................................
+
+int main() {
+	test_empty_list();
+	test_insert_head_tail();
+	test_iterator_forward_backward();
+	test_insert_before();
+	test_remove_head_tail();
+	test_remove_middle();
+	test_move_ops();
+	test_takeover();
+	return 0;
+}
+
+//..............................................................................
