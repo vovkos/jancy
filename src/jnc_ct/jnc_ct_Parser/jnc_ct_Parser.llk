@@ -755,9 +755,6 @@ protected:
 		bool isZeroTerminated
 	);
 
-	BasicBlock*
-	assertCondition(sl::List<Token>* tokenList);
-
 	bool
 	finalizeOnEventStmt(
 		const lex::LineCol& pos,
@@ -767,11 +764,9 @@ protected:
 	);
 
 	bool
-	finalizeAssertStmt(
-		const lex::LineCol& pos,
-		const sl::StringRef& conditionText,
-		const Value& messageValue,
-		BasicBlock* continueBlock
+	assertStmt(
+		sl::List<Token>* conditionTokenList,
+		const sl::StringRef& message
 	);
 
 	DynamicLayoutStmt*

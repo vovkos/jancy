@@ -3552,12 +3552,16 @@ Parser::finalizeRegexSwitchCaseLiteral(
 	return true;
 }
 
-BasicBlock*
-Parser::assertCondition(sl::List<Token>* tokenList) {
-	bool result;
+bool
+Parser::assertStmt(
+	sl::List<Token>* conditionTokenList,
+	const sl::StringRef& message
+) {
+	if (!(m_module->getCompileFlags() & ModuleCompileFlag_Assert))
+		return true;
 
 	Value conditionValue;
-	result = m_module->m_operatorMgr.parseExpression(tokenList, &conditionValue);
+	bool result = m_module->m_operatorMgr.parseExpression(conditionTokenList, &conditionValue);
 	if (!result)
 		return NULL;
 
@@ -3568,42 +3572,25 @@ Parser::assertCondition(sl::List<Token>* tokenList) {
 	if (!result)
 		return NULL;
 
-	return continueBlock;
-}
-
-bool
-Parser::finalizeAssertStmt(
-	const lex::LineCol& pos,
-	const sl::StringRef& conditionText,
-	const Value& messageValue,
-	BasicBlock* continueBlock
-) {
-	sl::String fileName = m_module->m_unitMgr.getCurrentUnit()->getFilePath();
-
-	Value fileNameValue;
-	Value lineValue;
-	Value conditionValue;
-
-	fileNameValue.setCharArray(fileName, m_module);
-	lineValue.setConstInt32(pos.m_line, m_module);
-	conditionValue.setCharArray(conditionText, m_module);
-
 	Function* assertionFailure = m_module->m_functionMgr.getStdFunction(StdFunc_AssertionFailure);
+	Unit* unit = m_module->m_unitMgr.getCurrentUnit();
+	int line = conditionTokenList->getHead()->m_pos.m_line;
+	const sl::StringRef conditionText = Token::getText(*conditionTokenList);
 
 	sl::BoxList<Value> argValueList;
-	argValueList.insertTail(fileNameValue);
-	argValueList.insertTail(lineValue);
-	argValueList.insertTail(conditionValue);
+	argValueList.insertTail(m_module->m_variableMgr.getStaticLiteralVariable(unit->getFilePath()));
+	argValueList.insertTail(Value(line, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int)));
+	argValueList.insertTail(m_module->m_variableMgr.getStaticLiteralVariable(conditionText));
 
-	if (messageValue) {
-		argValueList.insertTail(messageValue);
-	} else {
+	if (!message.isEmpty())
+		argValueList.insertTail(m_module->m_variableMgr.getStaticLiteralVariable(unit->getFilePath()));
+	else {
 		Value nullValue;
 		nullValue.setNull(m_module);
 		argValueList.insertTail(nullValue);
 	}
 
-	bool result = m_module->m_operatorMgr.callOperator(assertionFailure, &argValueList);
+	result = m_module->m_operatorMgr.callOperator(assertionFailure, &argValueList);
 	if (!result)
 		return false;
 

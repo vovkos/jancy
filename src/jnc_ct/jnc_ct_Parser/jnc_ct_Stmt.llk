@@ -412,24 +412,9 @@ unsafe_stmt
 	;
 
 assert_stmt
-	local {
-		BasicBlock* $continueBlock;
-		sl::StringRef $conditionText;
-	}
-	:	TokenKind_Assert '(' expression_pass1 $c
+	:	TokenKind_Assert '(' expression_pass1 (',' TokenKind_Literal $m)? ')'
 			{
-				$conditionText = Token::getText($c.m_tokenList);
-				$continueBlock = assertCondition(&$c.m_tokenList);
-				return $continueBlock != NULL;
-			}
-		(',' expression $m)? ')'
-			{
-				return finalizeAssertStmt(
-					$1.m_pos,
-					$conditionText,
-					&$m ? $m.m_value : Value(),
-					$continueBlock
-				);
+				return assertStmt(&$3.m_tokenList, &$m ? $m.m_data.m_string : sl::StringRef());
 			}
 	;
 

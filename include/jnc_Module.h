@@ -45,6 +45,7 @@
 
 enum jnc_ModuleCompileFlag {
 	jnc_ModuleCompileFlag_DebugInfo                     = 0x00000001,
+	jnc_ModuleCompileFlag_Assert                        = 0x00000002,
 	jnc_ModuleCompileFlag_SimpleGcSafePoint             = 0x00000004,
 	jnc_ModuleCompileFlag_GcSafePointInPrologue         = 0x00000010,
 	jnc_ModuleCompileFlag_GcSafePointInInternalPrologue = 0x00000020,
@@ -810,6 +811,7 @@ typedef jnc_ModuleCompileFlag ModuleCompileFlag;
 
 const ModuleCompileFlag
 	ModuleCompileFlag_DebugInfo                     = jnc_ModuleCompileFlag_DebugInfo,
+	ModuleCompileFlag_Assert                        = jnc_ModuleCompileFlag_Assert,
 	ModuleCompileFlag_SimpleGcSafePoint             = jnc_ModuleCompileFlag_SimpleGcSafePoint,
 	ModuleCompileFlag_GcSafePointInPrologue         = jnc_ModuleCompileFlag_GcSafePointInPrologue,
 	ModuleCompileFlag_GcSafePointInInternalPrologue = jnc_ModuleCompileFlag_GcSafePointInInternalPrologue,
