@@ -22,6 +22,7 @@
 // #define _NO_GC 1
 
 #define DEFAULT_STDLIB           true
+#define DEFAULT_ASSERT           true
 #define DEFAULT_DEBUG_INFO       false
 #define DEFAULT_OPTIMIZE         false
 #define DEFAULT_DISABLE_CODE_GEN false
@@ -193,6 +194,10 @@ void MainWindow::createActions() {
 	m_stdlibAction->setCheckable(true);
 	m_stdlibAction->setChecked(DEFAULT_STDLIB);
 
+	m_assertAction = new QAction("&Asserts", this);
+	m_assertAction->setCheckable(true);
+	m_assertAction->setChecked(DEFAULT_ASSERT);
+
 	m_signedExtensionsAction = new QAction("&Signed Extensions", this);
 	m_signedExtensionsAction->setCheckable(true);
 
@@ -260,6 +265,7 @@ void MainWindow::createMenu() {
 
 	m_compileMenu = menuBar()->addMenu("&Compile");
 	m_compileMenu->addAction(m_stdlibAction);
+	m_compileMenu->addAction(m_assertAction);
 	m_compileMenu->addAction(m_signedExtensionsAction);
 	m_compileMenu->addAction(m_simpleGcSafePointAction);
 	m_compileMenu->addAction(m_disableCodeGenAction);
@@ -551,6 +557,9 @@ bool MainWindow::compile() {
 		m_module->addStaticLib(jnc::SysLib_getLib());
 		m_module->addImportDir(m_libDir.toUtf8().constData());
 	}
+
+	if (m_assertAction->isChecked())
+		moduleConfig.m_compileFlags |= jnc::ModuleCompileFlag_Assert;
 
 	m_module->addStaticLib(TestLib_getLib());
 

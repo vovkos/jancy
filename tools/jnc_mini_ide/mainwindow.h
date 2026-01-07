@@ -111,6 +111,7 @@ private:
 	QAction* m_compileAction;
 	QAction* m_runAction;
 	QAction* m_stdlibAction;
+	QAction* m_assertAction;
 	QAction* m_simpleGcSafePointAction;
 	QAction* m_debugInfoAction;
 	QAction* m_disableCodeGenAction;
