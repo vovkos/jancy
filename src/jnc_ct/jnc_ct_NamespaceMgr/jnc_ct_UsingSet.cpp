@@ -66,7 +66,7 @@ UsingSet::addNamespaceImpl(
 	ModuleItem* item,
 	NamespaceKind namespaceKind
 ) {
-	Namespace* nspace = (Namespace*)item;
+	Namespace* nspace = item->getNamespace();
 	if (!nspace) {
 		err::setFormatStringError("'%s' is a %s, not a namespace", item->getItemName().sz(), getModuleItemKindString(item->getItemKind()));
 		return false;
