@@ -38,12 +38,17 @@ Orphan::resolveForCodeAssist(Namespace* nspace) {
 
 ModuleItem*
 Orphan::resolve(ModuleItem* item) {
-	Namespace* parentNamespace = item->getDecl()->getParentNamespace();
+	Namespace* nspace = m_functionKind == FunctionKind_Normal ?
+		item->getDecl()->getParentNamespace() :
+		item->getNamespace();
+
+	ASSERT(nspace);
+
 	if (m_importTypeNameAnchor)
-		m_importTypeNameAnchor->m_namespace = parentNamespace;
+		m_importTypeNameAnchor->m_namespace = nspace;
 
 	if (m_orphanKind == OrphanKind_Template) {
-		m_module->m_namespaceMgr.openNamespace(parentNamespace);
+		m_module->m_namespaceMgr.openNamespace(nspace);
 		Type* type = m_templateDeclType->instantiate(m_templateArgArray);
 		m_module->m_namespaceMgr.closeNamespace();
 		if (!type)
