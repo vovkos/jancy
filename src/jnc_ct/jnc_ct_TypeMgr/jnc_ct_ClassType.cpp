@@ -336,6 +336,7 @@ ClassType::calcLayout() {
 		combineOperatorArrays(&m_binaryOperatorArray, slot->m_type->getBinaryOperatorArray());
 		combineOperatorMaps(&m_castOperatorMap, slot->m_type->getCastOperatorMap());
 		combineOperators(&m_callOperator, slot->m_type->getCallOperator());
+		combineOperators(&m_indexerProperty, slot->m_type->getIndexerProperty());
 	}
 
 	// finalize iface layout
