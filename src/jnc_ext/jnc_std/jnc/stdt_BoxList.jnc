@@ -18,7 +18,7 @@ namespace stdt {
 
 //..............................................................................
 
-struct BoxListEntry<T>: ListLink<BoxListEntry> {
+struct BoxListEntry<T>: ListEntry<BoxListEntry> {
 	T m_value;
 
 	construct() thin {}

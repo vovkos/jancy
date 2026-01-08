@@ -4,7 +4,7 @@ import "stdt_BoxList.jnc"
 
 //..............................................................................
 
-class C: stdt.ListLink<C> {
+class C: stdt.ListEntry<C> {
 	int m_x;
 
 	construct(int x) {
@@ -17,7 +17,7 @@ void testList() {
 	for (size_t i = 0; i < 10; i++) {
 		list.insertHead(new C(i));
 		list.insertTail(new C(i));
-	}	
+	}
 
 	stdt.Iterator<C> it = list.m_head;
 	for (; it; it++)

@@ -1,15 +1,15 @@
-﻿// this test was used as a during redesign to fix template typename resolution 
-// originally, everything worked through named import types, but resolving 
+﻿// this test was used as a during redesign to fix template typename resolution
+// originally, everything worked through named import types, but resolving
 // import types resulted in hard-to-control fixups (e.g., inside basetypes)
 
 //..............................................................................
 
-struct ListLink<T> {
+struct ListEntry<T> {
 	T* m_next;
 	T* m_prev;
 }
 
-struct BoxListEntry<T>: ListLink<BoxListEntry> {
+struct BoxListEntry<T>: ListEntry<BoxListEntry> {
 	T m_value;
 
 	construct() thin {}
@@ -71,7 +71,7 @@ int main() {
 	BoxListEntry<int>* p = new BoxListEntry<int>(10);
 	list.insertHead(p);
 	BoxIterator<int> it = p;
-	it := 100;	
+	it := 100;
 	printf("operator *: %d\n", *it);
 	return 0;
 }

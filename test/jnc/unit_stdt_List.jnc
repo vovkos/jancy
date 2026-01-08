@@ -4,7 +4,7 @@ import "stdt_List.jnc"
 
 //..............................................................................
 
-struct TestNode: stdt.ListLink<TestNode> {
+struct TestNode: stdt.ListEntry<TestNode> {
 	int m_value;
 }
 

@@ -9,6 +9,8 @@
 //
 //..............................................................................
 
+import "stdt_ListEntry.jnc"
+
 namespace stdt {
 
 //! \addtogroup std-container
@@ -16,72 +18,7 @@ namespace stdt {
 
 //..............................................................................
 
-struct ListLink<T> {
-	friend List;
-	T cmut* readonly m_next;
-	T cmut* readonly m_prev;
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct IteratorBase<T> {
-	typedef T Entry;
-
-	T* readonly m_p;
-
-	T* operator * () thin const {
-		return m_p;
-	}
-
-	T* operator -> () thin const {
-		return m_p;
-	}
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct IteratorImpl<I>: I {
-	construct(Entry* p = null) thin {
-		m_p = p;
-	}
-
-	operator bool () thin const {
-		return m_p != null;
-	}
-
-	IteratorImpl operator ++ () thin {
-		m_p = m_p.m_next;
-		return *this;
-	}
-
-	IteratorImpl postfix operator ++ () thin {
-		IteratorImpl saved = *this;
-		m_p = m_p.m_next;
-		return saved;
-	}
-
-	IteratorImpl operator -- () thin {
-		m_p = m_p.m_prev;
-		return *this;
-	}
-
-	IteratorImpl postfix operator -- () thin {
-		IteratorImpl saved = *this;
-		m_p = m_p.m_prev;
-		return saved;
-	}
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-typedef IteratorImpl<IteratorBase<T> > Iterator<T>;
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-class List<
-	T,
-	I = Iterator<T>
-> {
+class List<T, I = Iterator<T> > {
 	typedef T Entry;
 	typedef I Iterator;
 
