@@ -215,7 +215,7 @@ protected:
 	OverloadableFunction m_callOperator;
 	Function* m_operatorVararg;
 	Function* m_operatorCdeclVararg;
-	sl::StringHashTable<Property*> m_indexerPropertyMap;
+	Property* m_indexerProperty;
 
 public:
 	DerivableType();
@@ -332,13 +332,15 @@ public:
 		return m_operatorCdeclVararg;
 	}
 
-	bool
-	hasIndexerProperties() {
-		return !m_indexerPropertyMap.isEmpty();
+	Property*
+	getIndexerProperty() {
+		return m_indexerProperty;
 	}
 
 	Property*
-	chooseIndexerProperty(const Value& opValue);
+	ensureIndexerProperty() {
+		return m_indexerProperty ? m_indexerProperty : createIndexerProperty();
+	}
 
 	Field*
 	getFieldByIndex(size_t index);
@@ -426,7 +428,7 @@ protected:
 	);
 
 	Property*
-	getIndexerProperty(Type* argType);
+	createIndexerProperty();
 
 	bool
 	isCopyContructor(Function* ctor) {
@@ -483,6 +485,7 @@ DerivableType::DerivableType():
 	MemberBlock(this) {
 	m_operatorVararg = NULL;
 	m_operatorCdeclVararg = NULL;
+	m_indexerProperty = NULL;
 }
 
 inline

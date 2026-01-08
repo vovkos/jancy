@@ -100,7 +100,8 @@ Orphan::getItemUnnamedMethod(ModuleItem* item) {
 		}
 	} else if (
 		item->getItemKind() == ModuleItemKind_Type &&
-		(((Type*)item)->getTypeKindFlags() & TypeKindFlag_Derivable)) {
+		(((Type*)item)->getTypeKindFlags() & TypeKindFlag_Derivable)
+	) {
 		DerivableType* type = (DerivableType*)item;
 		switch (m_functionKind) {
 		case FunctionKind_Constructor:
@@ -120,6 +121,16 @@ Orphan::getItemUnnamedMethod(ModuleItem* item) {
 
 		case FunctionKind_CallOperator:
 			return type->getCallOperator();
+
+		case FunctionKind_Getter:
+			if (Property* prop = type->getIndexerProperty())
+				return prop ->getGetter();
+			break;
+
+		case FunctionKind_Setter:
+			if (Property* prop = type->getIndexerProperty())
+				return prop->getSetter();
+			break;
 		}
 	}
 

@@ -74,10 +74,7 @@ protected:
 	);
 
 	Property*
-	getDerivableTypeIndexerProperty(
-		DerivableType* derivableType,
-		const Value& opValue2
-	);
+	getDerivableTypeIndexerProperty(DerivableType* derivableType);
 };
 
 //..............................................................................

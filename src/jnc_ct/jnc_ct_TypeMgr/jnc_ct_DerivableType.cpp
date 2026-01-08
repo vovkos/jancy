@@ -105,61 +105,15 @@ DerivableType::getFieldByIndex(size_t index) {
 }
 
 Property*
-DerivableType::getIndexerProperty(Type* argType) {
-	ASSERT(!(m_flags & TypeFlag_LayoutReady));
-
-	sl::StringHashTableIterator<Property*> it = m_indexerPropertyMap.visit(argType->getSignature());
-	if (it->m_value)
-		return it->m_value;
+DerivableType::createIndexerProperty() {
+	ASSERT(!(m_flags & TypeFlag_LayoutReady) && !m_indexerProperty);
 
 	Property* prop = m_module->m_functionMgr.createInternalProperty("!m_indexer");
 	prop->m_parentNamespace = this;
 	prop->m_parentType = this;
 	prop->m_storageKind = StorageKind_Member;
-	it->m_value = prop;
+	m_indexerProperty = prop;
 	return prop;
-}
-
-Property*
-DerivableType::chooseIndexerProperty(const Value& opValue) {
-	CastKind bestCastKind = CastKind_None;
-	Property* bestProperty = NULL;
-	bool isAmbiguous = false;
-
-	sl::StringHashTableIterator<Property*> it = m_indexerPropertyMap.getHead();
-	for (; it; it++) {
-		Property* prop = it->m_value;
-		FunctionType* getterType = prop->m_getter->getType();
-		bool result = getterType->ensureLayout();
-		if (!result)
-			return NULL;
-
-		FunctionArg* indexArg = getterType->getArgArray()[1];
-		CastKind castKind = m_module->m_operatorMgr.getCastKind(opValue, indexArg->getType());
-		if (!castKind)
-			continue;
-
-		if (castKind == bestCastKind)
-			isAmbiguous = true;
-
-		if (castKind > bestCastKind) {
-			bestProperty = prop;
-			bestCastKind = castKind;
-			isAmbiguous = false;
-		}
-	}
-
-	if (!bestProperty) {
-		err::setFormatStringError("none of the %d indexer properties accept the specified index argument", m_indexerPropertyMap.getCount());
-		return NULL;
-	}
-
-	if (isAmbiguous) {
-		err::setError("ambiguous call to overloaded function");
-		return NULL;
-	}
-
-	return bestProperty;
 }
 
 BaseTypeSlot*
@@ -209,7 +163,6 @@ DerivableType::addMethod(Function* function) {
 		return false;
 	}
 
-	Property* indexerProperty;
 	sl::Array<FunctionArg*> argArray;
 	Function** targetFunction = NULL;
 	OverloadableFunction* targetOverloadableFunction = NULL;
@@ -277,8 +230,7 @@ DerivableType::addMethod(Function* function) {
 			return false;
 		}
 
-		indexerProperty = getIndexerProperty(argArray[1]->getType());
-		targetFunction = &indexerProperty->m_getter;
+		targetFunction = &ensureIndexerProperty()->m_getter;
 		break;
 
 	case FunctionKind_Setter:
@@ -288,8 +240,7 @@ DerivableType::addMethod(Function* function) {
 			return false;
 		}
 
-		indexerProperty = getIndexerProperty(argArray[1]->getType());
-		targetOverloadableFunction = &indexerProperty->m_setter;
+		targetOverloadableFunction = &ensureIndexerProperty()->m_setter;
 		break;
 
 	default:

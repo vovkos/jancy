@@ -96,7 +96,6 @@ ClassType::addMethod(Function* function) {
 		return false;
 	}
 
-	Property* indexerProperty;
 	sl::Array<FunctionArg*> argArray;
 	Function** targetFunction = NULL;
 	OverloadableFunction* targetOverloadableFunction = NULL;
@@ -156,8 +155,7 @@ ClassType::addMethod(Function* function) {
 			return false;
 		}
 
-		indexerProperty = getIndexerProperty(argArray[1]->getType());
-		targetFunction = &indexerProperty->m_getter;
+		targetFunction = &ensureIndexerProperty()->m_getter;
 		break;
 
 	case FunctionKind_Setter:
@@ -167,8 +165,7 @@ ClassType::addMethod(Function* function) {
 			return false;
 		}
 
-		indexerProperty = getIndexerProperty(argArray[1]->getType());
-		targetOverloadableFunction = &indexerProperty->m_setter;
+		targetOverloadableFunction = &ensureIndexerProperty()->m_setter;
 		break;
 
 	default:

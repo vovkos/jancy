@@ -279,36 +279,17 @@ BinOp_Idx::derivableTypeIndexOperator(
 	const Value& opValue2,
 	Value* resultValue
 ) {
-	Property* prop = getDerivableTypeIndexerProperty(derivableType, opValue2);
-	if (!prop)
+	Property* prop = derivableType->getIndexerProperty();
+	if (!prop) {
+		err::setFormatStringError("'%s' has no indexer property", derivableType->getTypeString().sz());
 		return false;
-
+	}
 	resultValue->setProperty(prop);
 	Closure* closure = resultValue->createClosure();
 	closure->getArgValueList()->insertTail(opValue1);
 	closure->getArgValueList()->insertTail(opValue2);
 
 	return true;
-}
-
-Property*
-BinOp_Idx::getDerivableTypeIndexerProperty(
-	DerivableType* derivableType,
-	const Value& opValue2
-) {
-	if (derivableType->hasIndexerProperties())
-		return derivableType->chooseIndexerProperty(opValue2);
-
-	sl::Array<BaseTypeSlot*> baseTypeArray = derivableType->getBaseTypeArray();
-	size_t count = baseTypeArray.getCount();
-	for (size_t i = 0; i < count; i ++) {
-		DerivableType* baseType = baseTypeArray[i]->getType();
-		if (baseType->hasIndexerProperties())
-			return baseType->chooseIndexerProperty(opValue2);
-	}
-
-	err::setFormatStringError("'%s' has no indexer properties", derivableType->getTypeString().sz());
-	return NULL;
 }
 
 //..............................................................................
