@@ -1655,17 +1655,32 @@ protected:
 
 	// overloaded operators
 
+	DerivableType*
+	getOverloadedOperatorCandidateType(const Value& opValue);
+
 	OverloadableFunction
 	getOverloadedUnaryOperator(
 		UnOpKind opKind,
 		const Value& opValue
-	);
+	) {
+		DerivableType* type = getOverloadedOperatorCandidateType(opValue);
+		return type ? type->getUnaryOperator(opKind) : OverloadableFunction();
+	}
 
 	OverloadableFunction
 	getOverloadedBinaryOperator(
 		BinOpKind opKind,
-		const Value& opValue1
-	);
+		const Value& opValue
+	) {
+		DerivableType* type = getOverloadedOperatorCandidateType(opValue);
+		return type ? type->getBinaryOperator(opKind) : OverloadableFunction();
+	}
+
+	OverloadableFunction
+	getOverloadedCallOperator(const Value& opValue) {
+		DerivableType* type = getOverloadedOperatorCandidateType(opValue);
+		return type ? type->getCallOperator() : OverloadableFunction();
+	}
 
 	// member operators
 

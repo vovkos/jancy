@@ -167,26 +167,20 @@ OperatorMgr::clear() {
 #endif
 }
 
-OverloadableFunction
-OperatorMgr::getOverloadedUnaryOperator(
-	UnOpKind opKind,
-	const Value& opValue
-) {
+DerivableType*
+OperatorMgr::getOverloadedOperatorCandidateType(const Value& opValue) {
 	Value opTypeValue;
 	bool result = prepareOperandType(opValue, &opTypeValue);
 	if (!result)
-		return OverloadableFunction();
+		return NULL;
 
 	Type* opType = opTypeValue.getType();
-	if (opType->getTypeKind() == TypeKind_ClassPtr) {
-		ClassPtrType* ptrType = (ClassPtrType*)opType;
-		return ptrType->getTargetType()->getUnaryOperator(opKind);
-	} else if (opType->getTypeKindFlags() & TypeKindFlag_Derivable) {
-		DerivableType* derivableType = (DerivableType*)opType;
-		return derivableType->getUnaryOperator(opKind);
-	}
+	uint_t opTypeKindFlags = opType->getTypeKindFlags();
 
-	return OverloadableFunction();
+	return
+		(opTypeKindFlags & TypeKindFlag_ClassPtr) ? ((ClassPtrType*)opType)->getTargetType() :
+		(opTypeKindFlags & TypeKindFlag_Derivable) ? (DerivableType*)opType :
+		NULL;
 }
 
 bool
@@ -199,13 +193,11 @@ OperatorMgr::unaryOperator(
 
 	OverloadableFunction opFunc = getOverloadedUnaryOperator(opKind, rawOpValue);
 	if (opFunc) {
-		sl::BoxList<Value> argList;
-		argList.insertTail(rawOpValue);
-
 		Value opFuncValue;
+
 		return
 			opFuncValue.trySetOverloadableFunction(opFunc) &&
-			callOperator(opFuncValue, &argList, resultValue);
+			callOperator(opFuncValue, rawOpValue, resultValue);
 	}
 
 	Value opValue;
@@ -230,28 +222,6 @@ OperatorMgr::unaryOperator(
 	return op->op(opValue, resultValue);
 }
 
-OverloadableFunction
-OperatorMgr::getOverloadedBinaryOperator(
-	BinOpKind opKind,
-	const Value& opValue
-) {
-	Value opTypeValue;
-	bool result = prepareOperandType(opValue, &opTypeValue);
-	if (!result)
-		return OverloadableFunction();
-
-	Type* opType = opTypeValue.getType();
-	if (opType->getTypeKind() == TypeKind_ClassPtr) {
-		ClassPtrType* ptrType = (ClassPtrType*)opType;
-		return ptrType->getTargetType()->getBinaryOperator(opKind);
-	} else if (opType->getTypeKindFlags() & TypeKindFlag_Derivable) {
-		DerivableType* derivableType = (DerivableType*)opType;
-		return derivableType->getBinaryOperator(opKind);
-	}
-
-	return OverloadableFunction();
-}
-
 bool
 OperatorMgr::binaryOperator(
 	BinOpKind opKind,
@@ -261,13 +231,11 @@ OperatorMgr::binaryOperator(
 ) {
 	ASSERT((size_t)opKind < BinOpKind__Count);
 
-	bool result;
-
 	OverloadableFunction opFunc = getOverloadedBinaryOperator(opKind, rawOpValue1);
 	if (opFunc) {
 		if (opFunc->getFlags() & MulticastMethodFlag_InaccessibleViaEventPtr) {
 			Value opValue1;
-			result = prepareOperandType(rawOpValue1, &opValue1);
+			bool result = prepareOperandType(rawOpValue1, &opValue1);
 			if (!result)
 				return false;
 
@@ -278,14 +246,11 @@ OperatorMgr::binaryOperator(
 			}
 		}
 
-		sl::BoxList<Value> argList;
-		argList.insertTail(rawOpValue1);
-		argList.insertTail(rawOpValue2);
-
 		Value opFuncValue;
+
 		return
 			opFuncValue.trySetOverloadableFunction(opFunc) &&
-			callOperator(opFuncValue, &argList, resultValue);
+			callOperator(opFuncValue, rawOpValue1, rawOpValue2, resultValue);
 	}
 
 	Value opValue1;
@@ -298,7 +263,7 @@ OperatorMgr::binaryOperator(
 	BinaryOperator* op = m_binaryOperatorTable[opKind];
 	ASSERT(op);
 
-	result =
+	bool result =
 		prepareOperand(rawOpValue1, &opValue1, op->getOpFlags1()) &&
 		prepareOperand(rawOpValue2, &opValue2, op->getOpFlags2());
 

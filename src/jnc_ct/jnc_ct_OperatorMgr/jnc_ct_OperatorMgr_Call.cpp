@@ -169,32 +169,39 @@ OperatorMgr::callOperator(
 	if (!argValueList)
 		argValueList = &emptyArgValueList;
 
-	result = prepareOperand(rawOpValue, &opValue, 0);
+	result = prepareOperand(rawOpValue, &opValue, OpFlag_KeepDerivableRef);
 	if (!result)
 		return false;
 
-	if (opValue.getType()->getTypeKind() == TypeKind_ClassPtr) {
-		ClassPtrType* ptrType = (ClassPtrType*)opValue.getType();
-
-		OverloadableFunction opFunc = ptrType->getTargetType()->getCallOperator();
-		if (!opFunc) {
-			err::setFormatStringError("cannot call '%s'", ptrType->getTypeString().sz());
-			return false;
-		}
-
+	OverloadableFunction opFunc = getOverloadedCallOperator(opValue);
+	if (opFunc) {
 		if ((opFunc->getFlags() & MulticastMethodFlag_InaccessibleViaEventPtr) &&
-			(ptrType->getFlags() & PtrTypeFlag_Event)) {
+			(opValue.getType()->getFlags() & PtrTypeFlag_Event)
+		) {
 			err::setError("'call' is inaccessible via 'event' pointer");
 			return false;
 		}
 
-		Value objValue = opValue;
-		result = opValue.trySetOverloadableFunction(opFunc);
-		if (!result)
-			return false;
+		Value thisValue;
 
-		Closure* closure = opValue.createClosure();
-		closure->insertThisArgValue(objValue);
+		if (opFunc->getItemKind() == ModuleItemKind_Function) {
+			if (opFunc.getFunction()->isMember())
+				thisValue = opValue;
+
+			result = opValue.trySetFunction(opFunc.getFunction());
+			if (!result)
+				return false;
+		} else {
+			if (opFunc->getFlags() & FunctionOverloadFlag_HasMembers)
+				thisValue = opValue;
+
+			opValue.setFunctionOverload(opFunc.getFunctionOverload());
+		}
+
+		if (thisValue) {
+			Closure* closure = opValue.createClosure();
+			closure->insertThisArgValue(thisValue);
+		}
 	}
 
 	ValueKind valueKind = opValue.getValueKind();

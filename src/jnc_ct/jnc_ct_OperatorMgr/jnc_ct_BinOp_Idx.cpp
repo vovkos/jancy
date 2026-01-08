@@ -284,11 +284,11 @@ BinOp_Idx::derivableTypeIndexOperator(
 		err::setFormatStringError("'%s' has no indexer property", derivableType->getTypeString().sz());
 		return false;
 	}
+
 	resultValue->setProperty(prop);
 	Closure* closure = resultValue->createClosure();
 	closure->getArgValueList()->insertTail(opValue1);
 	closure->getArgValueList()->insertTail(opValue2);
-
 	return true;
 }
 
