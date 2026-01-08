@@ -46,6 +46,8 @@
 #include "std_HashTable.jnc.cpp"
 ;static char g_std_RbTreeSrc[] =
 #include "std_RbTree.jnc.cpp"
+;static char g_stdt_ArraySrc[] =
+#include "stdt_Array.jnc.cpp"
 ;static char g_stdt_ListSrc[] =
 #include "stdt_List.jnc.cpp"
 ;static char g_stdt_BoxListSrc[] =
@@ -900,6 +902,7 @@ JNC_BEGIN_LIB_SOURCE_FILE_TABLE(jnc_StdLib)
 	JNC_LIB_SOURCE_FILE("std_HashTable.jnc", g_std_HashTableSrc)
 	JNC_LIB_SOURCE_FILE("std_RbTree.jnc",    g_std_RbTreeSrc)
 
+	JNC_LIB_SOURCE_FILE("stdt_Array.jnc",    g_stdt_ArraySrc)
 	JNC_LIB_SOURCE_FILE("stdt_List.jnc",     g_stdt_ListSrc)
 	JNC_LIB_SOURCE_FILE("stdt_BoxList.jnc",  g_stdt_BoxListSrc)
 

@@ -1,0 +1,227 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace stdt {
+
+//! \addtogroup std-container
+//! @{
+
+//..............................................................................
+
+class Array<T> {
+	T cmut* readonly m_p;
+	size_t readonly m_count;
+	size_t readonly m_maxCount;
+
+	T get(size_t index) const {
+		boundsCheck(index);
+		return m_p[index];
+	}
+
+	bool errorcode set(
+		size_t index,
+		T e
+	);
+
+	void clear() {
+		memset(m_p, 0, m_count * sizeof(T*)); // keep the buffer but drop potential gc roots
+		count = 0;
+	}
+
+	T* detach();
+	bool errorcode setCount(size_t count);
+	bool errorcode reserve(size_t count);
+
+	size_t errorcode copy(
+		T const* p,
+		size_t count
+	);
+
+	size_t errorcode copy(T value);
+
+	size_t errorcode append(
+		T const* p,
+		size_t count
+	);
+
+	size_t errorcode append(T value);
+
+	size_t errorcode insert(
+		size_t index,
+		T const* p,
+		size_t count
+	);
+
+	size_t errorcode insert(
+		size_t index,
+		T value
+	);
+
+	size_t remove(
+		size_t index,
+		size_t count = 1
+	);
+
+protected:
+	bool errorcode boundsCheck(size_t index) const;
+
+	T* errorcode insertSpace(
+		size_t index,
+		size_t count
+	);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool errorcode Array<T>.set(
+	size_t index,
+	T e
+) {
+	boundsCheck(index);
+	m_p[index] = e;
+	return true;
+}
+
+T* Array<T>.detach() {
+	T* p = m_p;
+	m_p = null;
+	m_count = 0;
+	m_maxCount = 0;
+	return p;
+}
+
+bool errorcode Array<T>.setCount(size_t count) {
+	if (count == m_count)
+		return true;
+
+	if (count < m_count)
+		memset(m_p + count, 0, (m_count - count) * sizeof(T));
+	else if (count > m_maxCount)
+		reserve(count);
+
+	m_count = count;
+	return true;
+}
+
+bool errorcode Array<T>.reserve(size_t count) {
+	if (count <= m_maxCount)
+		return true;
+
+	size_t maxCount = std.getAllocSize(count * sizeof(T)) / sizeof(T);
+	T* p = new T[maxCount];
+	memcpy(p, m_p, m_count * sizeof(T));
+	m_p = p;
+	m_maxCount = maxCount;
+	return true;
+}
+
+size_t errorcode Array<T>.copy(
+	T const* p,
+	size_t count
+) {
+	setCount(count);
+	memcpy(m_p, p, count * sizeof(T));
+	return count;
+}
+
+size_t errorcode Array<T>.copy(T value) {
+	setCount(1);
+	*m_p = value;
+	return 1;
+}
+
+size_t errorcode Array<T>.append(
+	T const* p,
+	size_t count
+) {
+	size_t index = m_count;
+	setCount(m_count + count);
+	memcpy(m_p + index, p, count * sizeof(T));
+	return m_count;
+}
+
+size_t errorcode Array<T>.append(T value) {
+	size_t index = m_count;
+	setCount(m_count + 1);
+	m_p[index] = value;
+	return m_count;
+}
+
+size_t errorcode Array<T>.insert(
+	size_t index,
+	T const* p,
+	size_t count
+) {
+	T* dst = insertSpace(index, count);
+	memcpy(dst, p, count * sizeof(T));
+	return m_count;
+}
+
+size_t errorcode Array<T>.insert(
+	size_t index,
+	T value
+) {
+	T* dst = insertSpace(index, 1);
+	*dst = value;
+	return m_count;
+}
+
+size_t Array<T>.remove(
+	size_t index,
+	size_t count
+) {
+	if (index > m_count)
+		index = m_count;
+
+	size_t maxRemoveCount = m_count - index;
+	if (count > maxRemoveCount)
+		count = maxRemoveCount;
+
+	if (!count)
+		return m_count;
+
+	size_t newCount = m_count - count;
+	size_t tailIdx = index + count;
+	memmove(m_p + index, m_p + tailIdx, (m_count - tailIdx) * sizeof(T));
+	memset(m_p + newCount, 0, count * sizeof(T));
+	m_count = newCount;
+	return newCount;
+}
+
+bool errorcode Array<T>.boundsCheck(size_t index) const {
+	if (index >= m_count) {
+		std.setError($"attempt to access out-of-bounds index $index (count: $m_count)");
+		return false;
+	}
+
+	return true;
+}
+
+T* errorcode Array<T>.insertSpace(
+	size_t index,
+	size_t count
+) {
+	size_t newCount = m_count + count;
+	reserve(newCount);
+	if (index > m_count)
+		index = m_count;
+
+	T* dst = m_p + index;
+	if (index < m_count)
+		memmove(dst + count, dst, (m_count - index) * sizeof(T));
+
+	m_count = newCount;
+	return dst;
+}
+
+//..............................................................................
+
+} // namespace std

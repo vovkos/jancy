@@ -1,0 +1,207 @@
+﻿// chatgpt-generated unit test for stdt.BoxList
+
+import "stdt_Array.jnc"
+
+//..............................................................................
+
+void test_empty_array() {
+	stdt.Array<int> a;
+
+	assert(a.m_count == 0);
+	assert(a.m_maxCount == 0);
+}
+
+void test_set_and_get() {
+	stdt.Array<int> a;
+
+	a.setCount(3);
+	a[0] = 10;
+	a[1] = 20;
+	a[2] = 30;
+
+	assert(a[0] == 10);
+	assert(a[1] == 20);
+	assert(a[2] == 30);
+}
+
+void test_copy_from_ptr() {
+	stdt.Array<int> a;
+
+	int src[] = { 1, 2, 3, 4 };
+
+	size_t n = a.copy(src, 4);
+	assert(n == 4);
+	assert(a.m_count == 4);
+
+	for (size_t i = 0; i < 4; i++)
+		assert(a[i] == src[i]);
+}
+
+void test_copy_single_value() {
+	stdt.Array<int> a;
+
+	size_t n = a.copy(42);
+	assert(n == 1);
+	assert(a.m_count == 1);
+	assert(a[0] == 42);
+}
+
+void test_append_values() {
+	stdt.Array<int> a;
+
+	a.append(1);
+	a.append(2);
+	a.append(3);
+
+	assert(a.m_count == 3);
+	assert(a[0] == 1);
+	assert(a[1] == 2);
+	assert(a[2] == 3);
+}
+
+void test_append_array() {
+	stdt.Array<int> a;
+
+	int src[] = { 10, 20, 30 };
+
+	a.append(src, 3);
+
+	assert(a.m_count == 3);
+	assert(a[0] == 10);
+	assert(a[1] == 20);
+	assert(a[2] == 30);
+}
+
+void test_insert_single() {
+	stdt.Array<int> a;
+
+	a.append(1);
+	a.append(3);
+
+	a.insert(1, 2);
+
+	assert(a.m_count == 3);
+	assert(a[0] == 1);
+	assert(a[1] == 2);
+	assert(a[2] == 3);
+}
+
+void test_insert_array() {
+	stdt.Array<int> a;
+
+	a.append(1);
+	a.append(4);
+
+	int src[] = { 2, 3 };
+	a.insert(1, src, 2);
+
+	assert(a.m_count == 4);
+	assert(a[0] == 1);
+	assert(a[1] == 2);
+	assert(a[2] == 3);
+	assert(a[3] == 4);
+}
+
+void test_remove_middle() {
+	stdt.Array<int> a;
+
+	for (int i = 0; i < 5; i++)
+		a.append(i); // 0 1 2 3 4
+
+	size_t n = a.remove(1, 2); // remove 1,2
+	assert(n == 3);
+
+	assert(a[0] == 0);
+	assert(a[1] == 3);
+	assert(a[2] == 4);
+}
+
+void test_remove_head_tail() {
+	stdt.Array<int> a;
+
+	for (int i = 0; i < 4; i++)
+		a.append(i); // 0 1 2 3
+
+	a.remove(0);
+	assert(a.m_count == 3);
+	assert(a[0] == 1);
+
+	a.remove(a.m_count - 1);
+	assert(a.m_count == 2);
+	assert(a[1] == 2);
+}
+
+void test_set_count_grow_and_shrink() {
+	stdt.Array<int> a;
+
+	a.setCount(5);
+	assert(a.m_count == 5);
+	int* p = a.m_p;
+
+	a.setCount(2);
+	assert(a.m_count == 2);
+	assert(a.m_p == p); // shouldn't change
+}
+
+void test_reserve() {
+	stdt.Array<int> a;
+
+	a.reserve(100);
+	assert(a.m_maxCount >= 100);
+
+	a.append(1);
+	assert(a[0] == 1);
+}
+
+void test_detach() {
+	stdt.Array<int> a;
+
+	a.append(1);
+	a.append(2);
+
+	int* p = a.detach();
+	assert(p[0] == 1);
+	assert(p[1] == 2);
+
+	assert(a.m_count == 0);
+	assert(a.m_maxCount == 0);
+	assert(a.m_p == null);
+}
+
+void test_bounds_check() {
+	stdt.Array<int> a;
+
+	a.append(1);
+
+	bool error = false;
+	try {
+		a[1] = 2; // out-of-bounds via operator[]
+		assert(false);
+	catch:
+		error = true;
+	}
+
+	assert(error);
+}
+
+//..............................................................................
+
+int main() {
+	test_empty_array();
+	test_set_and_get();
+	test_copy_from_ptr();
+	test_copy_single_value();
+	test_append_values();
+	test_append_array();
+	test_insert_single();
+	test_insert_array();
+	test_remove_middle();
+	test_remove_head_tail();
+	test_set_count_grow_and_shrink();
+	test_reserve();
+	test_detach();
+	test_bounds_check();
+	return 0;
+}
+
+//..............................................................................
