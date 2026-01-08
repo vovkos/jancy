@@ -259,6 +259,11 @@ getErrorPtr(const err::ErrorHdr* error) {
 	return resultPtr;
 }
 
+size_t
+getAllocSize(size_t size) {
+	return sl::getAllocSize(size);
+}
+
 DataPtr
 getLastError() {
 	return getErrorPtr(err::getLastError());
@@ -800,6 +805,7 @@ JNC_DEFINE_LIB(
 )
 
 JNC_BEGIN_LIB_FUNCTION_MAP(jnc_StdLib)
+	JNC_MAP_FUNCTION_Q("std.getAllocSize", getAllocSize)
 	JNC_MAP_FUNCTION_Q("std.getLastError", getLastError)
 	JNC_MAP_FUNCTION_Q("std.setErrno",     setErrno)
 	JNC_MAP_FUNCTION_Q("std.pushErrno",    pushErrno)

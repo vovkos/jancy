@@ -572,18 +572,18 @@ typedef bool LessFunc(
 	variant_t e2
 );
 
-void
-sort(
+void sort(
 	variant_t* p,
 	size_t count
 );
 
-void
-sort(
+void sort(
 	variant_t* p,
 	size_t count,
 	LessFunc* lessFunc
 );
+
+size_t getAllocSize(size_t size);
 
 //..............................................................................
 
