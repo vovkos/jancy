@@ -91,7 +91,7 @@ void Array<T>.clear() {
 		memset_u(m_p, 0, m_count * sizeof(T*)); // keep the buffer but drop potential gc roots
 	}
 
-	count = 0;
+	m_count = 0;
 }
 
 T* Array<T>.detach() {
