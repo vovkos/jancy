@@ -50,7 +50,7 @@ public:
 	virtual
 	Namespace*
 	getNamespace() {
-		return m_type->getNamespace();
+		return m_type->ensureNoImports() ? m_type->getNamespace() : NULL;
 	}
 
 	virtual
