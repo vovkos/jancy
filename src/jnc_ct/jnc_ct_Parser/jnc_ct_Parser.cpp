@@ -2838,7 +2838,6 @@ Parser::lookupIdentifier(
 	MemberCoord* coord
 ) {
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-
 	FindModuleItemResult findResult = nspace->findDirectChildItemTraverse(token.m_data.m_string, coord);
 	if (!findResult.m_result)
 		return NULL;
@@ -2949,7 +2948,13 @@ Parser::lookupIdentifier(
 			if (!result)
 				return false;
 
-			m_module->m_operatorMgr.finalizeDualType(thisValue, field, value);
+			m_module->m_operatorMgr.finalizeDualType(
+				thisValue,
+				field,
+				m_module->m_namespaceMgr.getCurrentNamespace(),
+				value
+			);
+
 			break;
 		}
 

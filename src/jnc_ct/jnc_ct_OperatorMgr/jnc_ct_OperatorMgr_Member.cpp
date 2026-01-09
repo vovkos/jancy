@@ -231,13 +231,20 @@ void
 OperatorMgr::foldDualType(
 	const Value& opValue,
 	ModuleItemDecl* decl,
+	Namespace* viaNamespace,
 	Value* resultValue
 ) {
 	Type* type = resultValue->getType();
 	ASSERT(isDualType(type));
 
-	Namespace* nspace = decl->getParentNamespace();
-	bool isAlien = m_module->m_namespaceMgr.getAccessKind(nspace) == AccessKind_Public;
+	Namespace* parentNamespace = decl->getParentNamespace();
+
+	bool isAlien =
+		m_module->m_namespaceMgr.getAccessKind(parentNamespace) == AccessKind_Public && (
+			viaNamespace == parentNamespace ||
+			m_module->m_namespaceMgr.getAccessKind(viaNamespace) == AccessKind_Public
+		);
+
 	bool isConst = (opValue.getType()->getFlags() & PtrTypeFlag_Const) != 0;
 
 	type = m_module->m_typeMgr.foldDualType(type, isAlien, isConst);
@@ -279,7 +286,7 @@ OperatorMgr::getNamespaceMember(
 		break;
 
 	case ModuleItemKind_Typedef:
-		result = checkAccess((Typedef*)item);
+		result = checkAccess((Typedef*)item, nspace);
 		if (!result)
 			return false;
 
@@ -413,7 +420,7 @@ OperatorMgr::getNamespaceMember(
 		return false;
 	};
 
-	return finalizeMemberOperator(Value(), decl, resultValue);
+	return finalizeMemberOperator(Value(), decl, nspace, resultValue);
 }
 
 bool
@@ -455,7 +462,7 @@ OperatorMgr::getNamedTypeMember(
 
 		return
 			getField(opValue, namedType, (Field*)member, &coord, resultValue) &&
-			finalizeMemberOperator(opValue, (Field*)member, resultValue);
+			finalizeMemberOperator(opValue, (Field*)member, namedType, resultValue);
 
 	case ModuleItemKind_Variable:
 		resultValue->setVariable((Variable*)member);
@@ -485,7 +492,7 @@ OperatorMgr::getNamedTypeMember(
 		return false;
 	}
 
-	result = finalizeMemberOperator(opValue, decl, resultValue);
+	result = finalizeMemberOperator(opValue, decl, namedType, resultValue);
 	if (!result)
 		return false;
 

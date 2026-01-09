@@ -515,9 +515,6 @@ NamespaceMgr::getAccessKind(Namespace* targetNamespace) {
 	}
 
 	NamedType* targetType = (NamedType*)targetNamespace;
-
-
-
 	for (; nspace; nspace = nspace->m_parentNamespace) {
 		if (!nspace->isNamed())
 			continue;

@@ -1488,16 +1488,20 @@ public:
 	// access check
 
 	bool
-	checkAccess(ModuleItemDecl* decl);
+	checkAccess(
+		ModuleItemDecl* decl,
+		Namespace* viaNamespace
+	);
 
 	void
 	finalizeDualType(
 		const Value& opValue,
 		ModuleItemDecl* decl,
+		Namespace* viaNamespace,
 		Value* resultValue
 	) {
 		if (isDualType(resultValue->getType()))
-			foldDualType(opValue, decl, resultValue);
+			foldDualType(opValue, decl, viaNamespace, resultValue);
 	}
 
 protected:
@@ -1741,10 +1745,11 @@ protected:
 	finalizeMemberOperator(
 		const Value& opValue,
 		ModuleItemDecl* decl,
+		Namespace* viaNamespace,
 		Value* resultValue
 	) {
-		finalizeDualType(opValue, decl, resultValue);
-		return checkAccess(decl);
+		finalizeDualType(opValue, decl, viaNamespace, resultValue);
+		return checkAccess(decl, viaNamespace);
 	}
 
 	bool
@@ -1821,6 +1826,7 @@ protected:
 	foldDualType(
 		const Value& opValue,
 		ModuleItemDecl* decl,
+		Namespace* viaNamespace,
 		Value* resultValue
 	);
 };

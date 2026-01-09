@@ -245,12 +245,10 @@ OperatorMgr::callOperator(
 	}
 
 	switch (valueKind) {
-		Function* function;
-		Namespace* nspace;
-
-	case ValueKind_FunctionOverload:
-		function = opValue.getFunctionOverload()->chooseOverload(*argValueList);
-		if (!function || !checkAccess(function))
+	case ValueKind_FunctionOverload: {
+		AXL_TODO("somehow record via-namespace in Value::FunctionOverload")
+		Function* function = opValue.getFunctionOverload()->chooseOverload(*argValueList);
+		if (!function || !checkAccess(function, function->getParentNamespace()))
 			return false;
 
 		result = opValue.trySetFunction(function);
@@ -259,9 +257,10 @@ OperatorMgr::callOperator(
 
 		opValue.setClosure(closure);
 		break;
+		}
 
-	case ValueKind_Function:
-		function = opValue.getFunction();
+	case ValueKind_Function: {
+		Function* function = opValue.getFunction();
 		if (function->isVirtual()) {
 			result = getVirtualMethod(function, closure, &opValue);
 			if (!result)
@@ -269,9 +268,10 @@ OperatorMgr::callOperator(
 		}
 
 		return callImpl(opValue, function->getType(), argValueList, resultValue);
+		}
 
 	case ValueKind_Namespace:
-		nspace = opValue.getNamespace();
+		Namespace* nspace = opValue.getNamespace();
 		if (nspace->getNamespaceKind() == NamespaceKind_Type) {
 			NamedType* type = (NamedType*)nspace;
 			if (type->getStdType() == StdType_StringStruct) {

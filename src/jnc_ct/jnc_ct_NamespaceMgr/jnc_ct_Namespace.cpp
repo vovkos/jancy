@@ -434,10 +434,10 @@ Namespace::findDirectChildItemTraverse(
 		if (!findResult.m_result)
 			return findResult;
 
-		if (findResult.m_item) {
-			findResult.m_result = findResult.m_item->getModule()->m_operatorMgr.checkAccess(findResult.m_item->getDecl());
-			return findResult;
-		}
+		if (findResult.m_item)
+			return findResult.m_item->getModule()->m_operatorMgr.checkAccess(findResult.m_item->getDecl(), this) ?
+				findResult :
+				g_errorFindModuleItemResult;
 	}
 
 	return !(flags & TraverseFlag_NoParentNamespace) && m_parentNamespace ?

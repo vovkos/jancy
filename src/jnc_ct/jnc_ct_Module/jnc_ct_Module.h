@@ -847,17 +847,26 @@ CodeAssistMgr::prepareNamespaceFallback() {
 
 inline
 bool
-OperatorMgr::checkAccess(ModuleItemDecl* decl) {
-	Namespace* nspace = decl->getParentNamespace();
-	if (m_module->hasAccessChecks() &&
-		decl->getAccessKind() != AccessKind_Public &&
-		m_module->m_namespaceMgr.getAccessKind(nspace) == AccessKind_Public
-	) {
-		err::setFormatStringError("'%s' is protected", decl->getDeclItem()->getItemName().sz());
-		return false;
-	}
+OperatorMgr::checkAccess(
+	ModuleItemDecl* decl,
+	Namespace* viaNamespace
+) {
+	ASSERT(viaNamespace);
 
-	return true;
+	if (!m_module->hasAccessChecks() || decl->getAccessKind() == AccessKind_Public)
+		return true;
+
+	Namespace* parentNamespace = decl->getParentNamespace();
+	if (m_module->m_namespaceMgr.getAccessKind(parentNamespace) == AccessKind_Protected)
+		return true;
+
+	if (viaNamespace != parentNamespace &&
+		m_module->m_namespaceMgr.getAccessKind(viaNamespace) == AccessKind_Protected
+	)
+		return true;
+
+	err::setFormatStringError("'%s' is protected", decl->getDeclItem()->getItemName().sz());
+	return false;
 }
 
 //..............................................................................
