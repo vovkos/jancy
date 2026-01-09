@@ -160,17 +160,15 @@ public:
 	FindModuleItemResult
 	findItemTraverse(
 		const QualifiedName& name,
-		MemberCoord* coord = NULL,
 		uint_t flags = 0
 	) {
-		return findItemTraverse(ModuleItemContext(), name, coord, flags);
+		return findItemTraverse(ModuleItemContext(), name, flags);
 	}
 
 	FindModuleItemResult
 	findItemTraverse(
 		const ModuleItemContext& context,
 		const QualifiedName& name,
-		MemberCoord* coord = NULL,
 		uint_t flags = 0
 	);
 

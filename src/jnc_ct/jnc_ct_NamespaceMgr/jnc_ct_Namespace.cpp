@@ -392,12 +392,16 @@ FindModuleItemResult
 Namespace::findItemTraverse(
 	const ModuleItemContext& context,
 	const QualifiedName& name,
-	MemberCoord* coord,
 	uint_t flags
 ) {
-	FindModuleItemResult findResult = findDirectChildItemTraverse(context, name.getFirstAtom(), coord, flags);
+	FindModuleItemResult findResult = findDirectChildItemTraverse(context, name.getFirstAtom(), NULL, flags);
 	if (!findResult.m_item)
 		return findResult;
+
+	flags |=
+		TraverseFlag_NoParentNamespace |
+		TraverseFlag_NoUsingNamespaces |
+		TraverseFlag_NoExtensionNamespaces; // look up in this and base types only
 
 	sl::ConstBoxIterator<QualifiedNameAtom> nameIt = name.getAtomList().getHead();
 	for (; nameIt; nameIt++) {
@@ -405,7 +409,7 @@ Namespace::findItemTraverse(
 		if (!nspace)
 			return g_nullFindModuleItemResult;
 
-		findResult = nspace->findDirectChildItem(context, *nameIt);
+		findResult = nspace->findDirectChildItemTraverse(context, *nameIt, NULL, flags);
 		if (!findResult.m_item)
 			return findResult;
 	}
