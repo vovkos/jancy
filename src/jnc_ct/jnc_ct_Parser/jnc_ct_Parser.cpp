@@ -1850,6 +1850,7 @@ Parser::declareData(
 	case StorageKind_Undefined:
 		switch (namespaceKind) {
 		case NamespaceKind_Scope:
+			type = type->getActualTypeIfImport(); // get rid of imports at this stage
 			storageKind = (type->getFlags() & TypeFlag_NoStack) ? StorageKind_Heap : StorageKind_Stack;
 			break;
 

@@ -233,14 +233,7 @@ TemplateDeclType::instantiate(const sl::ArrayRef<Type*>& argArray) {
 		}
 
 	default:
-		if (baseType->getTypeKindFlags() & TypeKindFlag_Import) {
-			ImportType* importType = (ImportType*)baseType;
-			bool result = importType->ensureResolved();
-			if (!result)
-				return NULL;
-
-			baseType = importType->getActualType();
-		}
+		baseType = baseType->getActualTypeIfImport();
 	}
 
 	DeclTypeCalc typeCalc;

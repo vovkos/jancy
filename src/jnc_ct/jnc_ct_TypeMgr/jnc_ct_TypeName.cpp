@@ -104,17 +104,7 @@ TypeName::lookupTypeImpl(
 		return NULL;
 	}
 
-	if (!(type->getTypeKindFlags() & TypeKindFlag_Import))
-		return type;
-
-	ImportType* importType = (ImportType*)type;
-	bool result = importType->ensureResolved();
-	if (!result)
-		return NULL;
-
-	type = importType->getActualType();
-	ASSERT(!(type->getTypeKindFlags() & TypeKindFlag_Import));
-	return type;
+	return type->getActualTypeIfImport();
 };
 
 //..............................................................................

@@ -258,6 +258,9 @@ public:
 		return (m_flags & (TypeFlag_NoImports | TypeFlag_LayoutReady)) ? true : prepareImports();
 	}
 
+	Type*
+	getActualTypeIfImport();
+
 	ArrayType*
 	getArrayType(size_t elementCount);
 

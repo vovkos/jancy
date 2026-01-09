@@ -40,7 +40,7 @@ public:
 
 	Type*
 	getActualType() {
-		ASSERT(m_actualType);
+		ASSERT(m_actualType && !(m_actualType->getTypeKindFlags() & TypeKindFlag_Import));
 		return m_actualType;
 	}
 
@@ -186,6 +186,22 @@ protected:
 	bool
 	resolveImports();
 };
+
+//..............................................................................
+
+inline
+Type*
+Type::getActualTypeIfImport() {
+	if (!(getTypeKindFlags() & TypeKindFlag_Import))
+		return this;
+
+	ImportType* importType = (ImportType*)this;
+	bool result = importType->ensureResolved();
+	if (!result)
+		return NULL;
+
+	return importType->getActualType();
+}
 
 //..............................................................................
 
