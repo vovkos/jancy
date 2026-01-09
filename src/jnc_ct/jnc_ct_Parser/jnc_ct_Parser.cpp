@@ -3074,7 +3074,14 @@ Parser::lookupMember(
 		return NULL;
 	}
 
-	FindModuleItemResult result = nspace->findDirectChildItem(token.m_data.m_string);
+	FindModuleItemResult result = nspace->findDirectChildItemTraverse(
+		token.m_data.m_string,
+		NULL,
+		TraverseFlag_NoParentNamespace |
+		TraverseFlag_NoUsingNamespaces |
+		TraverseFlag_NoExtensionNamespaces
+	);
+
 	if (!result.m_result)
 		return NULL;
 
