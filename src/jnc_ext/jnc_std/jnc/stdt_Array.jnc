@@ -31,11 +31,7 @@ class Array<T> {
 		T e
 	);
 
-	void clear() {
-		memset(m_p, 0, m_count * sizeof(T*)); // keep the buffer but drop potential gc roots
-		count = 0;
-	}
-
+	void clear();
 	T* detach();
 	bool errorcode setCount(size_t count);
 	bool errorcode reserve(size_t count);
@@ -90,6 +86,14 @@ bool errorcode Array<T>.set(
 	return true;
 }
 
+void Array<T>.clear() {
+	unsafe {
+		memset_u(m_p, 0, m_count * sizeof(T*)); // keep the buffer but drop potential gc roots
+	}
+
+	count = 0;
+}
+
 T* Array<T>.detach() {
 	T* p = m_p;
 	m_p = null;
@@ -103,7 +107,9 @@ bool errorcode Array<T>.setCount(size_t count) {
 		return true;
 
 	if (count < m_count)
-		memset(m_p + count, 0, (m_count - count) * sizeof(T));
+		unsafe {
+			memset_u(m_p + count, 0, (m_count - count) * sizeof(T));
+		}
 	else if (count > m_maxCount)
 		reserve(count);
 
@@ -117,7 +123,11 @@ bool errorcode Array<T>.reserve(size_t count) {
 
 	size_t maxCount = std.getAllocSize(count * sizeof(T)) / sizeof(T);
 	T* p = new T[maxCount];
-	memcpy(p, m_p, m_count * sizeof(T));
+
+	unsafe {
+		memcpy_u(p, m_p, m_count * sizeof(T));
+	}
+
 	m_p = p;
 	m_maxCount = maxCount;
 	return true;
@@ -128,7 +138,11 @@ size_t errorcode Array<T>.copy(
 	size_t count
 ) {
 	setCount(count);
-	memcpy(m_p, p, count * sizeof(T));
+
+	usafe {
+		memcpy_u(m_p, p, count * sizeof(T));
+	}
+
 	return count;
 }
 
@@ -144,7 +158,11 @@ size_t errorcode Array<T>.append(
 ) {
 	size_t index = m_count;
 	setCount(m_count + count);
-	memcpy(m_p + index, p, count * sizeof(T));
+
+	unsafe {
+		memcpy_u(m_p + index, p, count * sizeof(T));
+	}
+
 	return m_count;
 }
 
@@ -161,7 +179,11 @@ size_t errorcode Array<T>.insert(
 	size_t count
 ) {
 	T* dst = insertSpace(index, count);
-	memcpy(dst, p, count * sizeof(T));
+
+	unsafe {
+		memcpy_u(dst, p, count * sizeof(T));
+	}
+
 	return m_count;
 }
 
@@ -190,8 +212,12 @@ size_t Array<T>.remove(
 
 	size_t newCount = m_count - count;
 	size_t tailIdx = index + count;
-	memmove(m_p + index, m_p + tailIdx, (m_count - tailIdx) * sizeof(T));
-	memset(m_p + newCount, 0, count * sizeof(T));
+
+	unsafe {
+		memmove_u(m_p + index, m_p + tailIdx, (m_count - tailIdx) * sizeof(T));
+		memset_u(m_p + newCount, 0, count * sizeof(T));
+	}
+
 	m_count = newCount;
 	return newCount;
 }
@@ -216,7 +242,9 @@ T* errorcode Array<T>.insertSpace(
 
 	T* dst = m_p + index;
 	if (index < m_count)
-		memmove(dst + count, dst, (m_count - index) * sizeof(T));
+		unsafe {
+			memmove_u(dst + count, dst, (m_count - index) * sizeof(T));
+		}
 
 	m_count = newCount;
 	return dst;

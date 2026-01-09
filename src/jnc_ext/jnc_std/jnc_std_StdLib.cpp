@@ -830,55 +830,58 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_StdLib)
 	JNC_MAP_FUNCTION("isupper", enc::isUpperCase)
 	JNC_MAP_FUNCTION("islower", enc::isLowerCase)
 
-	JNC_MAP_FUNCTION("strlen",   jnc::strLen)
-	JNC_MAP_FUNCTION("strcmp",   strCmp)
-	JNC_MAP_FUNCTION("strncmp",  strnCmp)
-	JNC_MAP_FUNCTION("stricmp",  striCmp)
-	JNC_MAP_FUNCTION("strnicmp", strniCmp)
-	JNC_MAP_FUNCTION("strchr",   strChr)  // const overload
-	JNC_MAP_OVERLOAD(strChr)              // non-const overload
-	JNC_MAP_FUNCTION("strrchr",  strrChr) // const overload
-	JNC_MAP_OVERLOAD(strrChr)             // non-const overload
-	JNC_MAP_FUNCTION("strichr",  striChr) // const overload
-	JNC_MAP_OVERLOAD(striChr)             // non-const overload
-	JNC_MAP_FUNCTION("strpbrk",  strpBrk) // const overload
-	JNC_MAP_OVERLOAD(strpBrk)             // non-const overload
-	JNC_MAP_FUNCTION("strstr",   strStr)  // const overload
-	JNC_MAP_OVERLOAD(strStr)              // non-const overload
-	JNC_MAP_FUNCTION("stristr",  striStr) // const overload
-	JNC_MAP_OVERLOAD(striStr)             // non-const overload
-	JNC_MAP_FUNCTION("strcpy",   strCpy)
-	JNC_MAP_FUNCTION("strcat",   strCat)
-	JNC_MAP_FUNCTION("strdup",   strDup)
-	JNC_MAP_FUNCTION("strdjb2",  strDjb2)
-	JNC_MAP_FUNCTION("stridjb2", striDjb2)
-	JNC_MAP_FUNCTION("memcmp",   memCmp)
-	JNC_MAP_FUNCTION("memchr",   memChr)  // const overload
-	JNC_MAP_OVERLOAD(memChr)              // non-const overload
-	JNC_MAP_FUNCTION("memmem",   memMem)  // const overload
-	JNC_MAP_OVERLOAD(memMem)              // non-const overload
-	JNC_MAP_FUNCTION("memcpy",   memCpy)
-	JNC_MAP_FUNCTION("memmove",  memMove)
-	JNC_MAP_FUNCTION("memset",   memSet)
-	JNC_MAP_FUNCTION("memcat",   memCat)
-	JNC_MAP_FUNCTION("memdup",   memDup)
-	JNC_MAP_FUNCTION("memdjb2",  memDjb2)
-	JNC_MAP_FUNCTION("rand",     ::rand)
-	JNC_MAP_FUNCTION("strtol",   jnc::std::strtol_0)
+	JNC_MAP_FUNCTION("strlen",    jnc::strLen)
+	JNC_MAP_FUNCTION("strcmp",    strCmp)
+	JNC_MAP_FUNCTION("strncmp",   strnCmp)
+	JNC_MAP_FUNCTION("stricmp",   striCmp)
+	JNC_MAP_FUNCTION("strnicmp",  strniCmp)
+	JNC_MAP_FUNCTION("strchr",    strChr)  // const overload
+	JNC_MAP_OVERLOAD(strChr)               // non-const overload
+	JNC_MAP_FUNCTION("strrchr",   strrChr) // const overload
+	JNC_MAP_OVERLOAD(strrChr)              // non-const overload
+	JNC_MAP_FUNCTION("strichr",   striChr) // const overload
+	JNC_MAP_OVERLOAD(striChr)              // non-const overload
+	JNC_MAP_FUNCTION("strpbrk",   strpBrk) // const overload
+	JNC_MAP_OVERLOAD(strpBrk)              // non-const overload
+	JNC_MAP_FUNCTION("strstr",    strStr)  // const overload
+	JNC_MAP_OVERLOAD(strStr)               // non-const overload
+	JNC_MAP_FUNCTION("stristr",   striStr) // const overload
+	JNC_MAP_OVERLOAD(striStr)              // non-const overload
+	JNC_MAP_FUNCTION("strcpy",    strCpy)
+	JNC_MAP_FUNCTION("strcat",    strCat)
+	JNC_MAP_FUNCTION("strdup",    strDup)
+	JNC_MAP_FUNCTION("strdjb2",   strDjb2)
+	JNC_MAP_FUNCTION("stridjb2",  striDjb2)
+	JNC_MAP_FUNCTION("memcmp",    memCmp)
+	JNC_MAP_FUNCTION("memchr",    memChr)  // const overload
+	JNC_MAP_OVERLOAD(memChr)               // non-const overload
+	JNC_MAP_FUNCTION("memmem",    memMem)  // const overload
+	JNC_MAP_OVERLOAD(memMem)               // non-const overload
+	JNC_MAP_FUNCTION("memcpy",    memCpy)
+	JNC_MAP_FUNCTION("memcpy_u",  ::memcpy)
+	JNC_MAP_FUNCTION("memmove",   memMove)
+	JNC_MAP_FUNCTION("memmove_u", ::memmove)
+	JNC_MAP_FUNCTION("memset",    memSet)
+	JNC_MAP_FUNCTION("memset_u",  ::memset)
+	JNC_MAP_FUNCTION("memcat",    memCat)
+	JNC_MAP_FUNCTION("memdup",    memDup)
+	JNC_MAP_FUNCTION("memdjb2",   memDjb2)
+	JNC_MAP_FUNCTION("rand",      ::rand)
+	JNC_MAP_FUNCTION("strtol",    jnc::std::strtol_0)
 	JNC_MAP_OVERLOAD(jnc::std::strtol_1)
-	JNC_MAP_FUNCTION("strtoul",  jnc::std::strtoul_0)
+	JNC_MAP_FUNCTION("strtoul",   jnc::std::strtoul_0)
 	JNC_MAP_OVERLOAD(jnc::std::strtoul_1)
-	JNC_MAP_FUNCTION("strtof",   jnc::std::strtof_0)
+	JNC_MAP_FUNCTION("strtof",    jnc::std::strtof_0)
 	JNC_MAP_OVERLOAD(jnc::std::strtof_1)
-	JNC_MAP_FUNCTION("strtod",   jnc::std::strtod_0)
+	JNC_MAP_FUNCTION("strtod",    jnc::std::strtod_0)
 	JNC_MAP_OVERLOAD(jnc::std::strtod_1)
-	JNC_MAP_FUNCTION("toupper",  toUpper)
-	JNC_MAP_FUNCTION("tolower",  toLower)
-	JNC_MAP_FUNCTION("gets",     jnc::std::gets)
-	JNC_MAP_FUNCTION("print",    jnc::std::print)
-	JNC_MAP_FUNCTION("print_u",  print_u)
-	JNC_MAP_FUNCTION("perror",   jnc::std::perror)
-	JNC_MAP_FUNCTION("printf",   jnc::std::printf)
+	JNC_MAP_FUNCTION("toupper",   toUpper)
+	JNC_MAP_FUNCTION("tolower",   toLower)
+	JNC_MAP_FUNCTION("gets",      jnc::std::gets)
+	JNC_MAP_FUNCTION("print",     jnc::std::print)
+	JNC_MAP_FUNCTION("print_u",   print_u)
+	JNC_MAP_FUNCTION("perror",    jnc::std::perror)
+	JNC_MAP_FUNCTION("printf",    jnc::std::printf)
 
 	JNC_MAP_TYPE(Guid)
 	JNC_MAP_TYPE(Error)

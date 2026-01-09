@@ -329,6 +329,12 @@ void memcpy(
 	size_t size
 );
 
+void unsafe memcpy_u(
+	void thin* dst,
+	void thin const* src,
+	size_t size
+);
+
 /**
 	Moves memory block ``src:size`` [#f2]_ to the(possibly overlapping) buffer
 	pointed to by ``dst``.
@@ -340,6 +346,12 @@ void memmove(
 	size_t size
 );
 
+void unsafe memmove_u(
+	void thin* dst,
+	void thin const* src,
+	size_t size
+);
+
 /**
 	Copies character ``c`` to each of the first ``size`` bytes of memory block
 	pointed to by ``p``.
@@ -347,6 +359,12 @@ void memmove(
 
 void memset(
 	void* p,
+	int c,
+	size_t size
+);
+
+void unsafe memset_u(
+	void thin* p,
 	int c,
 	size_t size
 );
