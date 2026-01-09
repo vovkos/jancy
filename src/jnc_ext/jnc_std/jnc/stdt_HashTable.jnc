@@ -1,0 +1,255 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+import "stdt_Array.jnc"
+import "stdt_BoxList.jnc"
+import "stdt_MapEntry.jnc"
+import "stdt_Operator.jnc"
+
+namespace stdt {
+
+//! \addtogroup std-container
+//! @{
+
+//..............................................................................
+
+typedef BoxList<HashTableEntry<K, V>*> HashTableBucket<K, V>;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct HashTableEntry<K, V>: MapEntry<K, V> {
+	friend HashTable;
+
+	typedef HashTableBucket<K, V> Bucket;
+
+protected:
+	Bucket* readonly m_bucket;
+	Bucket.Iterator readonly m_bucketIt;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+typedef Iterator<HashTableEntry<K, V> > HashTableIterator<K, V>;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class HashTable<K, V, H, E = Eq<K> > {
+	typedef K Key;
+	typedef V Value;
+	typedef H Hash;
+	typedef E Eq;
+	typedef HashTableBucket<K, V> Bucket;
+	typedef HashTableEntry<K, V> Entry;
+	typedef HashTableIterator<K, V> Iterator;
+
+	enum {
+		InitialBucketCount = 32,
+		ResizeThreshold    = 75,
+	};
+
+protected:
+	List<Entry> m_list;
+	Array<Bucket*> m_table;
+	H m_hash;
+	E m_eq;
+
+public:
+	construct(
+		H hash = H(),
+		E eq = E()
+	) {
+		m_hash = hash;
+		m_eq = eq;
+	}
+
+	V get(K key) const;
+
+	void set(
+		K key,
+		V value
+	) {
+		add(key, value);
+	}
+
+	Iterator const property m_head {
+		return m_list.m_head;
+	}
+
+	Iterator const property m_tail {
+		return m_list.m_head;
+	}
+
+	size_t const property m_count {
+		return m_list.m_count;
+	}
+
+	void clear() {
+		m_list.clear();
+		m_table.clear();
+	}
+
+	void setBucketCount(size_t count);
+
+	Iterator visit(K key);
+	Iterator find(K key) const;
+
+	V findValue(
+		K key,
+		V undefinedValue = null
+	) const {
+		Iterator it = find(key);
+		return it ? *it : undefinedValue;
+	}
+
+	Iterator add(
+		K key,
+		V value
+	);
+
+	Iterator addIfNotExists(
+		K key,
+		V value
+	);
+
+	void remove(Iterator it);
+	bool removeKey(K key);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+V HashTable<K, V, H, E>.get(K key) const {
+	Iterator it = find(key);
+	if (!it) {
+		std.setError($"key not found");
+		throw;
+	}
+
+	return *it;
+}
+
+Iterator HashTable<K, V, H, E>.visit(K key) {
+	if (!m_table.m_count)
+		m_table.setCount(InitialBucketCount);
+
+	size_t bucketIdx = m_hash(key) % m_table.m_count;
+	Bucket* bucket = m_table[bucketIdx];
+	if (!bucket)
+		m_table[bucketIdx] = bucket = new Bucket;
+	else
+		for (Bucket.Iterator it = bucket.m_head; it; it++) {
+			Entry* entry = *it;
+			if (m_eq(key, entry.m_key))
+				return entry;
+		}
+
+	Entry* entry = new Entry;
+	entry.m_key = key;
+	entry.m_bucket = bucket;
+	entry.m_bucketIt = bucket.insertTail(entry);
+	m_list.insertTail(entry);
+
+	size_t loadFactor = (size_t)((uint64_t)m_list.m_count * 100 / m_table.m_count);
+	if (loadFactor > ResizeThreshold)
+		setBucketCount(m_table.m_count * 2);
+
+	return entry;
+}
+
+Iterator HashTable<K, V, H, E>.find(K key) const {
+	if (!m_table.m_count)
+		return null;
+
+	size_t bucketIdx = m_hash(key) % m_table.m_count;
+	Bucket* bucket = m_table[bucketIdx];
+	if (!bucket)
+		return null;
+
+	for (Bucket.Iterator it = bucket.m_head; it; it++) {
+		Entry* entry = *it;
+		if (m_eq(key, entry.m_key))
+			return entry.m_value;
+	}
+
+	return null;
+}
+
+Iterator HashTable<K, V, H, E>.add(
+	K key,
+	V value
+) {
+	Iterator it = visit(key);
+	it := value;
+	return it;
+}
+
+Iterator HashTable<K, V, H, E>.addIfNotExists(
+	K key,
+	V value
+) {
+	size_t prevCount = m_list.m_count;
+	Iterator it = visit(key);
+	if (m_list.m_count == prevCount)
+		return null;
+
+	it := value;
+	return it;
+}
+
+bool HashTable<K, V, H, E>.removeKey(K key) {
+	Iterator it = find(key);
+	if (!it)
+		return false;
+
+	remove(it);
+	return true;
+}
+
+void HashTable<K, V, H, E>.setBucketCount(size_t count) {
+	Array<Bucket*> newTable;
+	newTable.setCount(count);
+
+	for (size_t i = 0; i < m_table.m_count; i++) {
+		Bucket* bucket = m_table[i];
+		if (!bucket)
+			continue;
+
+		while (!bucket.isEmpty()) {
+			Entry* entry = bucket.basetype.removeHead();
+			size_t newBucketIdx = m_hash(entry.m_key) % count;
+			Bucket* newBucket = table[bucketIdx];
+			if (!newBucket)
+				table[bucketIdx] = newBucket = new Bucket;
+
+			entry.m_bucket = newBucket;
+			entry.m_bucketIt = newBucket.basetype.insertTail(bucketEntry);
+
+			/*
+			Bucket.Entry* bucketEntry = bucket.basetype.removeHead();
+			Entry* entry = bucketEntry.m_value;
+			size_t newBucketIdx = m_hash(entry.m_key) % count;
+			Bucket* newBucket = table[bucketIdx];
+			if (!newBucket)
+				table[bucketIdx] = newBucket = new Bucket;
+
+			entry.m_bucket = newBucket;
+			entry.m_bucketIt = newBucket.basetype.insertTail(bucketEntry);
+			*/
+		}
+	}
+
+	m_table.takeOver(&newTable);
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace stdt

@@ -54,6 +54,12 @@
 #include "stdt_List.jnc.cpp"
 ;static char g_stdt_BoxListSrc[] =
 #include "stdt_BoxList.jnc.cpp"
+;static char g_stdt_MapEntrySrc[] =
+#include "stdt_MapEntry.jnc.cpp"
+;static char g_stdt_HashTableSrc[] =
+#include "stdt_HashTable.jnc.cpp"
+;static char g_stdt_OperatorSrc[] =
+#include "stdt_Operator.jnc.cpp"
 ;
 
 namespace jnc {
@@ -911,6 +917,9 @@ JNC_BEGIN_LIB_SOURCE_FILE_TABLE(jnc_StdLib)
 	JNC_LIB_SOURCE_FILE("stdt_ListEntry.jnc", g_stdt_ListEntrySrc)
 	JNC_LIB_SOURCE_FILE("stdt_List.jnc",      g_stdt_ListSrc)
 	JNC_LIB_SOURCE_FILE("stdt_BoxList.jnc",   g_stdt_BoxListSrc)
+	JNC_LIB_SOURCE_FILE("stdt_MapEntry.jnc",  g_stdt_MapEntrySrc)
+	JNC_LIB_SOURCE_FILE("stdt_HashTable.jnc", g_stdt_HashTableSrc)
+	JNC_LIB_SOURCE_FILE("stdt_Operator.jnc",  g_stdt_OperatorSrc)
 
 	JNC_LIB_IMPORT("std_globals.jnc")
 	JNC_LIB_IMPORT("std_Error.jnc")

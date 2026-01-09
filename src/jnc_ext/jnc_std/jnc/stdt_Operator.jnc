@@ -1,0 +1,97 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace stdt {
+
+//! \addtogroup stdt-operator
+//! @{
+
+//..............................................................................
+
+struct Eq<T> {
+	static bool operator () (
+		T a,
+		T b
+	) {
+		return a == b;
+	}
+}
+
+struct Ne<T> {
+	static bool operator () (
+		T a,
+		T b
+	) {
+		return a != b;
+	}
+}
+
+struct Lt<T> {
+	static bool operator () (
+		T a,
+		T b
+	) {
+		return a < b;
+	}
+}
+
+struct Le<T> {
+	static bool operator () (
+		T a,
+		T b
+	) {
+		return a <= b;
+	}
+}
+
+struct Gt<T> {
+	static bool operator () (
+		T a,
+		T b
+	) {
+		return a > b;
+	}
+}
+
+struct Ge<T> {
+	static bool operator () (
+		T a,
+		T b
+	) {
+		return a >= b;
+	}
+}
+
+//..............................................................................
+
+struct HashId<T> {
+	static size_t operator () (T key) {
+		return (size_t)key;
+	}
+}
+
+struct HashDjb2<T> {
+	static size_t operator () (T const* key) {
+		return djb2(key, sizeof(T));
+	}
+}
+
+struct HashString {
+	static size_t operator () (string_t key) {
+		return djb2(key.m_p, key.m_length);
+	}
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace stdt
