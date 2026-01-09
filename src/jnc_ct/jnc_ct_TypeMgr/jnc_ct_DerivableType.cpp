@@ -536,11 +536,11 @@ DerivableType::findDirectChildItemTraverse(
 		sl::Iterator<BaseTypeSlot> slotIt = m_baseTypeList.getHead();
 		for (; slotIt; slotIt++) {
 			BaseTypeSlot* slot = *slotIt;
-			if (slot->m_type->getTypeKindFlags() & TypeKindFlag_Import) // unresolved yet
-				continue;
+			bool result = slot->m_type->ensureNoImports();
+			if (!result)
+				return g_errorFindModuleItemResult;
 
-			DerivableType* baseType = slot->m_type;
-			FindModuleItemResult findResult = baseType->findDirectChildItemTraverse(name, coord, modFlags, nextLevel);
+			FindModuleItemResult findResult = slot->m_type->findDirectChildItemTraverse(name, coord, modFlags, nextLevel);
 			if (!findResult.m_result)
 				return findResult;
 
