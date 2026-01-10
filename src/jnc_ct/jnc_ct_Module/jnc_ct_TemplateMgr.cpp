@@ -224,7 +224,7 @@ Template::instantiate(
 
 	ParseContext parseContext(ParseContextKind_TypeName, m_module, context);
 	Parser parser(m_module, m_pragmaConfig, Parser::Mode_Compile);
-	bool result = parser.parseTokenList(SymbolKind_type_name_or_empty_list_save, &tokenList);
+	bool result = parser.parseTokenList(SymbolKind_template_inst_type_name_list_save, &tokenList);
 	return result ? instantiate(parser.getLastTypeArray()) : NULL;
 }
 

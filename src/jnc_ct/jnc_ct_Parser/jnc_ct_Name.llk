@@ -29,7 +29,7 @@ qualified_name
 				{
 					return ($.m_item = lookupMember($.m_item, $i2)) != NULL;
 				}
-		|	'<' type_name_or_empty_list $t '>'
+		|	'<' template_inst_type_name_list $t '>'
 				{
 					return ($.m_item = instantiateTemplate($.m_item, $t.m_typeArray)) != NULL;
 				}
@@ -254,15 +254,15 @@ struct {
 	sl::Array<Type*> m_typeArray;
 }
 nullable
-type_name_or_empty_list
+template_inst_type_name_list
 	:	type_name
 			{
-				$.m_typeArray.append($1.m_type);
+				$.m_typeArray.append($1.m_type->getActualTypeIfImport());
 			}
 		(
 			',' type_name_or_empty $t2
 				{
-					$.m_typeArray.append($t2.m_type);
+					$.m_typeArray.append($t2.m_type ? $t2.m_type->getActualTypeIfImport() : NULL);
 				}
 		)*
 	|		{
@@ -271,7 +271,7 @@ type_name_or_empty_list
 		(
 			',' type_name_or_empty $t2
 				{
-					$.m_typeArray.append($t2.m_type);
+					$.m_typeArray.append($t2.m_type ? $t2.m_type->getActualTypeIfImport() : NULL);
 				}
 		)+
 	|	epsilon
@@ -279,8 +279,8 @@ type_name_or_empty_list
 
 start
 nullable
-type_name_or_empty_list_save
-	: type_name_or_empty_list
+template_inst_type_name_list_save
+	: template_inst_type_name_list
 		{
 			sl::takeOver(&m_lastTypeArray, &$1.m_typeArray);
 		}

@@ -790,7 +790,7 @@ postfix_operator<Value* $value>
 			}
 		member_operator<$value>
 	|	resolver ('<' ('>' | ',' | type_name_rslv)) // vs epsilon
-		'<' type_name_or_empty_list '>'
+		'<' template_inst_type_name_list '>'
 			{
 				return m_module->m_operatorMgr.templateInstantiateOperator($value, $2.m_typeArray);
 			}
