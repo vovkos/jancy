@@ -149,7 +149,7 @@ size_t errorcode Array<T>.copy(
 ) {
 	setCount(count);
 
-	usafe {
+	unsafe {
 		memcpy_u(m_p, p, count * sizeof(T));
 	}
 
