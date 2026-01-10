@@ -22,7 +22,7 @@ namespace ct {
 Type*
 DeclTypeCalc::calcType(
 	Type* baseType,
-	TypeModifiers* typeModifiers,
+	uint_t typeModifiers,
 	const sl::List<DeclPointerPrefix>& pointerPrefixList,
 	const sl::List<DeclSuffix>& suffixList,
 	Value* elementCountValue,
@@ -131,7 +131,7 @@ DeclTypeCalc::calcType(
 			return NULL;
 	}
 
-	takeOverTypeModifiers(typeModifiers);
+	m_typeModifiers = typeModifiers;
 
 	if (m_typeModifiers & TypeModifierMaskKind_Integer) {
 		type = getIntegerType(type);
@@ -261,42 +261,6 @@ DeclTypeCalc::calcIntModType(
 		return NULL;
 
 	return type;
-}
-
-FunctionType*
-DeclTypeCalc::calcPropertyGetterType(Declarator* declarator) {
-	uint_t typeModifiers = declarator->getTypeModifiers();
-	ASSERT(typeModifiers & TypeModifier_Property);
-
-	declarator->addGetterSuffix();
-
-	declarator->m_typeModifiers &= ~(
-		TypeModifier_Property |
-		TypeModifier_ErrorCode |
-		TypeModifier_Const |
-		TypeModifier_ReadOnly |
-		TypeModifier_CMut |
-		TypeModifier_AutoGet |
-		TypeModifier_Bindable |
-		TypeModifier_Indexed |
-		TypeModifier_BigEndian |
-		TypeModifier_Volatile
-	);
-
-	Type* type = calcType(
-		declarator->getBaseType(),
-		declarator,
-		declarator->getPointerPrefixList(),
-		declarator->getSuffixList(),
-		NULL,
-		NULL
-	);
-
-	if (!type)
-		return NULL;
-
-	ASSERT(type->getTypeKind() == TypeKind_Function);
-	return (FunctionType*)type;
 }
 
 uint_t

@@ -50,15 +50,15 @@ public:
 
 	Type*
 	calcType(
-		Declarator* declarator,
+		const Declarator& declarator,
 		Value* elementCountValue,
 		uint_t* flags
 	) {
 		return calcType(
-			declarator->getBaseType(),
-			declarator,
-			declarator->getPointerPrefixList(),
-			declarator->getSuffixList(),
+			declarator.getBaseType(),
+			declarator.getTypeModifiers(),
+			declarator.getPointerPrefixList(),
+			declarator.getSuffixList(),
 			elementCountValue,
 			flags
 		);
@@ -67,7 +67,7 @@ public:
 	Type*
 	calcType(
 		Type* baseType,
-		TypeModifiers* typeModifiers,
+		uint_t typeModifiers,
 		const sl::List<DeclPointerPrefix>& pointerPrefixList,
 		const sl::List<DeclSuffix>& suffixList,
 		Value* elementCountValue,
@@ -85,9 +85,6 @@ public:
 		Type* type,
 		uint_t typeModifiers
 	);
-
-	FunctionType*
-	calcPropertyGetterType(Declarator* declarator);
 
 protected:
 	bool

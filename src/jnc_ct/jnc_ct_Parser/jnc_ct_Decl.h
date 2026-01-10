@@ -178,12 +178,6 @@ public:
 	int
 	clearTypeModifiers(int modifierMask);
 
-	void
-	takeOverTypeModifiers(TypeModifiers* modifiers) {
-		m_typeModifiers = modifiers->m_typeModifiers;
-		modifiers->m_typeModifiers = 0;
-	}
-
 protected:
 	bool
 	checkAntiTypeModifiers(int modifierMask);
@@ -272,7 +266,7 @@ public:
 	}
 
 	size_t
-	getElementCount() {
+	getElementCount() const {
 		return m_elementCount;
 	}
 
@@ -350,32 +344,32 @@ public:
 	Declarator();
 
 	bool
-	isSimple() {
+	isSimple() const	{
 		return m_declaratorKind == DeclaratorKind_Name && m_name.isSimple();
 	}
 
 	bool
-	isQualified() {
+	isQualified() const {
 		return m_declaratorKind == DeclaratorKind_Name ? m_name.isQualified() : !m_name.isEmpty();
 	}
 
 	DeclaratorKind
-	getDeclaratorKind() {
+	getDeclaratorKind() const {
 		return m_declaratorKind;
 	}
 
 	FunctionKind
-	getFunctionKind() {
+	getFunctionKind() const {
 		return m_functionKind;
 	}
 
 	UnOpKind
-	getUnOpKind() {
+	getUnOpKind() const {
 		return m_unOpKind;
 	}
 
 	BinOpKind
-	getBinOpKind() {
+	getBinOpKind() const {
 		return m_binOpKind;
 	}
 
@@ -386,54 +380,54 @@ public:
 	);
 
 	const QualifiedName&
-	getName() {
+	getName() const {
 		return m_name;
 	}
 
 	const sl::StringRef&
-	getSimpleName() {
+	getSimpleName() const {
 		ASSERT(isSimple());
 		return m_name.getFirstAtom().m_name;
 	}
 
 	const lex::LineCol&
-	getPos() {
+	getPos() const {
 		return m_pos;
 	}
 
 	size_t
-	getBitCount() {
+	getBitCount() const {
 		return m_bitCount;
 	}
 
 	Type*
-	getBaseType() {
+	getBaseType() const {
 		return m_baseType;
 	}
 
 	AttributeBlock*
-	getAttributeBlock() {
+	getAttributeBlock() const {
 		return m_attributeBlock;
 	}
 
 	dox::Block*
-	getDoxyBlock() {
+	getDoxyBlock() const {
 		return m_doxyBlock;
 	}
 
 	const sl::Array<TemplateArgType*>&
-	getTemplateArgArray() {
+	getTemplateArgArray() const {
 		ASSERT(m_name.getLastAtom()->m_atomKind == QualifiedNameAtomKind_TemplateDeclSuffix);
 		return m_name.getLastAtom()->m_templateDeclArgArray;
 	}
 
 	const sl::List<DeclPointerPrefix>&
-	getPointerPrefixList() {
+	getPointerPrefixList() const {
 		return m_pointerPrefixList;
 	}
 
 	const sl::List<DeclSuffix>&
-	getSuffixList() {
+	getSuffixList() const {
 		return m_suffixList;
 	}
 
@@ -444,17 +438,17 @@ public:
 	}
 
 	Type*
-	calcType() {
+	calcType() const {
 		return calcTypeImpl(NULL, NULL);
 	}
 
 	Type*
-	calcType(Value* elementCountValue) {
+	calcType(Value* elementCountValue) const {
 		return calcTypeImpl(elementCountValue, NULL);
 	}
 
 	Type*
-	calcType(uint_t* flags) {
+	calcType(uint_t* flags) const {
 		return calcTypeImpl(NULL, flags);
 	}
 
@@ -504,7 +498,7 @@ protected:
 	calcTypeImpl(
 		Value* elementCountValue,
 		uint_t* flags
-	);
+	) const;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

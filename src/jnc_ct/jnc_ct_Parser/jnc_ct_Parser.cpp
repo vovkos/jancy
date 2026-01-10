@@ -1447,6 +1447,44 @@ Parser::declareFunction(
 	return result != -1 || m_module->m_codeAssistMgr.getCodeAssistKind(); // when doing code-assist, ignore redefinition errors
 }
 
+FunctionType*
+Parser::calcPropertyGetterType(Declarator* declarator) {
+	uint_t typeModifiers = declarator->getTypeModifiers();
+	ASSERT(typeModifiers & TypeModifier_Property);
+
+	typeModifiers &= ~(
+		TypeModifier_Property |
+		TypeModifier_ErrorCode |
+		TypeModifier_Const |
+		TypeModifier_ReadOnly |
+		TypeModifier_CMut |
+		TypeModifier_AutoGet |
+		TypeModifier_Bindable |
+		TypeModifier_Indexed |
+		TypeModifier_BigEndian |
+		TypeModifier_Volatile
+	);
+
+	declarator->addGetterSuffix();
+
+	DeclTypeCalc typeCalc;
+
+	Type* type = typeCalc.calcType(
+		declarator->getBaseType(),
+		typeModifiers,
+		declarator->getPointerPrefixList(),
+		declarator->getSuffixList(),
+		NULL,
+		NULL
+	);
+
+	if (!type)
+		return NULL;
+
+	ASSERT(type->getTypeKind() == TypeKind_Function);
+	return (FunctionType*)type;
+}
+
 bool
 Parser::declareProperty(
 	Declarator* declarator,
@@ -1492,9 +1530,9 @@ Parser::declareProperty(
 
 	if (declarator->getBaseType()->getTypeKind() != TypeKind_Void ||
 		!declarator->getPointerPrefixList().isEmpty() ||
-		!declarator->getSuffixList().isEmpty()) {
-		DeclTypeCalc typeCalc;
-		m_lastPropertyGetterType = typeCalc.calcPropertyGetterType(declarator);
+		!declarator->getSuffixList().isEmpty()
+	) {
+		m_lastPropertyGetterType = calcPropertyGetterType(declarator);
 		if (!m_lastPropertyGetterType)
 			return false;
 	} else {

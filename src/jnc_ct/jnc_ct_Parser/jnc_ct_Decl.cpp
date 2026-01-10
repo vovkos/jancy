@@ -222,8 +222,7 @@ Declarator::setTypeSpecifier(
 		return;
 	}
 
-	takeOverTypeModifiers(typeSpecifier);
-
+	m_typeModifiers = typeSpecifier->getTypeModifiers();
 	m_baseType = typeSpecifier->getType();
 	if (!m_baseType) {
 		m_baseType = (m_typeModifiers & (TypeModifier_Unsigned | TypeModifier_BigEndian)) ?
@@ -290,8 +289,8 @@ Declarator::addUnaryBinaryOperator(
 void
 Declarator::addPointerPrefix(uint_t modifiers) {
 	DeclPointerPrefix* prefix = new DeclPointerPrefix;
-	prefix->takeOverTypeModifiers(this);
-	prefix->m_typeModifiers |= modifiers;
+	prefix->m_typeModifiers = m_typeModifiers | modifiers;
+	m_typeModifiers = 0;
 	m_pointerPrefixList.insertTail(prefix);
 }
 
@@ -345,9 +344,9 @@ Type*
 Declarator::calcTypeImpl(
 	Value* elementCountValue,
 	uint_t* flags
-) {
+) const {
 	DeclTypeCalc typeCalc;
-	return typeCalc.calcType(this, elementCountValue, flags);
+	return typeCalc.calcType(*this, elementCountValue, flags);
 }
 
 //..............................................................................

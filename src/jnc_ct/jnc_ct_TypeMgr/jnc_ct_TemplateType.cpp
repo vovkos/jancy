@@ -215,6 +215,7 @@ TemplateDeclType::instantiate(const sl::ArrayRef<Type*>& argArray) {
 			err::setFormatStringError("invalid reference to '%s'", ((TemplateArgType*)baseType)->getName().sz());
 			return NULL;
 		}
+
 		break;
 
 	case TypeKind_TemplateTypeName: {
@@ -229,6 +230,7 @@ TemplateDeclType::instantiate(const sl::ArrayRef<Type*>& argArray) {
 		baseType = ((TemplateTypeName*)baseType)->lookupType(nspace);
 		if (!baseType)
 			return NULL;
+
 		break;
 		}
 
@@ -242,7 +244,7 @@ TemplateDeclType::instantiate(const sl::ArrayRef<Type*>& argArray) {
 
 	Type* type = typeCalc.calcType(
 		baseType,
-		&m_declarator,
+		m_declarator.getTypeModifiers(),
 		m_declarator.getPointerPrefixList(),
 		m_declarator.getSuffixList(),
 		NULL,

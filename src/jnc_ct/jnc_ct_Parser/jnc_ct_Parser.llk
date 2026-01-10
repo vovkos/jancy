@@ -605,6 +605,9 @@ protected:
 		const Token& bodyToken
 	);
 
+	FunctionType*
+	calcPropertyGetterType(Declarator* declarator);
+
 	Property*
 	createProperty(Declarator* decl);
 
