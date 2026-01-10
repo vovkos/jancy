@@ -51,7 +51,7 @@ QualifiedNameAtom::getString() const {
 
 		for (size_t i = 1; i < count; i++) {
 			string += ", ";
-			string += m_templateDeclArgArray[0]->getName();
+			string += m_templateDeclArgArray[i]->getName();
 		}
 
 		string += '>';
@@ -149,19 +149,6 @@ QualifiedName::copy(const QualifiedName& name) {
 	sl::ConstBoxIterator<QualifiedNameAtom> it = name.m_atomList.getHead();
 	for (; it; it++)
 		m_atomList.insertTail()->copy(*it);
-}
-
-void
-QualifiedName::copy(
-	const QualifiedName& name,
-	const QualifiedNamePos& pos0
-) {
-	QualifiedNamePos pos = pos0;
-	m_firstAtom.copy(*pos);
-	m_atomList.clear();
-
-	for (pos.next(name); pos; pos.next(name))
-		m_atomList.insertTail()->copy(*pos);
 }
 
 //..............................................................................
