@@ -156,7 +156,6 @@ Namespace::resolveOrphans() {
 	for (size_t i = 0; i < count; i++) {
 		Orphan* orphan = m_orphanArray[i];
 		FunctionKind functionKind = orphan->getFunctionKind();
-
 		if (functionKind != FunctionKind_Normal && !orphan->m_declaratorNamePos) {
 			result = orphan->resolve(nspaceItem);
 			if (!result) {
@@ -167,7 +166,7 @@ Namespace::resolveOrphans() {
 			continue;
 		}
 
-		const QualifiedNameAtom& atom = orphan->m_declaratorNamePos.next(orphan->m_declaratorName);
+		const QualifiedNameAtom& atom = orphan->m_declaratorNamePos.next(*orphan->m_declaratorName);
 		FindModuleItemResult findResult = findDirectChildItem(atom);
 		if (!findResult.m_result) {
 			orphan->ensureSrcPosError();

@@ -42,7 +42,7 @@ class Orphan:
 
 protected:
 	OrphanKind m_orphanKind;
-	QualifiedName m_declaratorName;
+	QualifiedName* m_declaratorName;
 	QualifiedNamePos m_declaratorNamePos;
 	ImportTypeNameAnchor* m_importTypeNameAnchor;
 
@@ -55,7 +55,7 @@ protected:
 	sl::Array<Type*> m_templateArgArray;
 
 public:
-	Orphan();
+	Orphan(QualifiedName* declaratorName);
 
 	OrphanKind
 	getOrphanKind() const {
@@ -64,7 +64,7 @@ public:
 
 	const QualifiedName&
 	getDeclaratorName() const {
-		return m_declaratorName;
+		return *m_declaratorName;
 	}
 
 	ImportTypeNameAnchor*
@@ -127,9 +127,10 @@ protected:
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
-Orphan::Orphan() {
+Orphan::Orphan(QualifiedName* declaratorName) {
 	m_itemKind = ModuleItemKind_Orphan;
 	m_orphanKind = OrphanKind_Undefined;
+	m_declaratorName = declaratorName;
 	m_importTypeNameAnchor = NULL;
 	m_type = NULL;
 }
@@ -145,6 +146,19 @@ public:
 	addOrphan(Orphan* orphan) {
 		m_orphanArray.append(orphan);
 	}
+};
+
+//..............................................................................
+
+class MasterOrphan: public Orphan {
+	friend class NamespaceMgr;
+
+protected:
+	QualifiedName m_declaratorName0;
+
+public:
+	MasterOrphan():
+		Orphan(&m_declaratorName0) {}
 };
 
 //..............................................................................

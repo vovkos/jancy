@@ -245,7 +245,7 @@ NamespaceMgr::createOrphan(
 	Declarator* declarator,
 	Type* type
 ) {
-	Orphan* orphan = new Orphan;
+	MasterOrphan* orphan = new MasterOrphan;
 	orphan->m_module = m_module;
 	orphan->m_orphanKind = orphanKind;
 	orphan->m_functionKind = functionKind;
@@ -272,15 +272,15 @@ NamespaceMgr::createOrphan(
 		break;
 	}
 
-	sl::takeOver(&orphan->m_declaratorName, &declarator->m_name);
-	orphan->m_declaratorNamePos = &orphan->m_declaratorName.getFirstAtom();
+	sl::takeOver(&orphan->m_declaratorName0, &declarator->m_name);
+	orphan->m_declaratorNamePos = &orphan->m_declaratorName0.getFirstAtom();
 	m_orphanList.insertTail(orphan);
 	return orphan;
 }
 
 Orphan*
 NamespaceMgr::cloneOrphan(const Orphan* srcOrphan) {
-	Orphan* orphan = new Orphan;
+	Orphan* orphan = new Orphan(srcOrphan->m_declaratorName);
 	orphan->m_module = m_module;
 	orphan->m_orphanKind = srcOrphan->m_orphanKind;
 	orphan->m_functionKind = srcOrphan->m_functionKind;
@@ -288,8 +288,7 @@ NamespaceMgr::cloneOrphan(const Orphan* srcOrphan) {
 	orphan->m_name = srcOrphan->m_name;
 	orphan->m_type = srcOrphan->m_type;
 	orphan->m_thisArgTypeFlags = srcOrphan->m_thisArgTypeFlags;
-	orphan->m_declaratorName.copy(srcOrphan->m_declaratorName, srcOrphan->m_declaratorNamePos);
-	orphan->m_declaratorNamePos = &orphan->m_declaratorName.getFirstAtom();
+	orphan->m_declaratorNamePos = srcOrphan->m_declaratorNamePos;
 	orphan->m_importTypeNameAnchor = srcOrphan->m_importTypeNameAnchor;
 	orphan->m_templateArgArray = srcOrphan->m_templateArgArray;
 	orphan->copyDecl(srcOrphan);

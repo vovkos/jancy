@@ -24,7 +24,7 @@ Orphan::resolveForCodeAssist(Namespace* nspace) {
 	if (m_functionKind != FunctionKind_Normal && !m_declaratorNamePos)
 		return resolve(nspace->getDeclItem());
 
-	const QualifiedNameAtom& atom = m_declaratorNamePos.next(m_declaratorName);
+	const QualifiedNameAtom& atom = m_declaratorNamePos.next(*m_declaratorName);
 	FindModuleItemResult findResult = nspace->findDirectChildItem(*this, atom);
 	if (!findResult.m_result || !findResult.m_item)
 		return NULL;
@@ -335,7 +335,7 @@ Orphan::createItemString(size_t index) {
 	}
 
 	sl::StringRef parentName = m_parentNamespace->getDeclItem()->getItemName();
-	sl::StringRef declaratorName = m_declaratorName.getFullName();
+	sl::StringRef declaratorName = m_declaratorName->getFullName();
 
 	if (m_functionKind == FunctionKind_Normal)
 		return parentName.isEmpty() ? declaratorName : parentName + '.' + declaratorName;

@@ -175,13 +175,7 @@ public:
 
 	void
 	copy(const QualifiedName& name);
-
-	void
-	copy(
-		const QualifiedName& name,
-		const QualifiedNamePos& pos
-	);
-
+	
 	void
 	parse(const sl::StringRef& name);
 
