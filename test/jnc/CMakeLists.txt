@@ -14,6 +14,7 @@ file(
 	TEST_JNC_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	test*.jnc
+	unit*.jnc
 )
 
 file(
