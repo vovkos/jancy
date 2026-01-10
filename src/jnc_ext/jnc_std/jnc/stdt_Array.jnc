@@ -32,7 +32,9 @@ class Array<T> {
 	);
 
 	void clear();
+	void takeOver(Array* src);
 	T* detach();
+
 	bool errorcode setCount(size_t count);
 	bool errorcode reserve(size_t count);
 
@@ -92,6 +94,14 @@ void Array<T>.clear() {
 	}
 
 	m_count = 0;
+}
+
+void Array<T>.takeOver(Array* src) {
+	assert(src != this);
+
+	m_count = src.m_count;
+	m_maxCount = src.m_maxCount;
+	m_p = src.detach();
 }
 
 T* Array<T>.detach() {

@@ -221,15 +221,15 @@ void HashTable<K, V, H, E>.setBucketCount(size_t count) {
 		if (!bucket)
 			continue;
 
-		while (!bucket.isEmpty()) {
-			Entry* entry = bucket.basetype.removeHead();
+		while (bucket.m_count) {
+			Entry* entry = bucket.removeHead();
 			size_t newBucketIdx = m_hash(entry.m_key) % count;
-			Bucket* newBucket = table[bucketIdx];
+			Bucket* newBucket = newTable[newBucketIdx];
 			if (!newBucket)
-				table[bucketIdx] = newBucket = new Bucket;
+				newTable[newBucketIdx] = newBucket = new Bucket;
 
 			entry.m_bucket = newBucket;
-			entry.m_bucketIt = newBucket.basetype.insertTail(bucketEntry);
+			entry.m_bucketIt = newBucket.insertTail(entry);
 
 			/*
 			Bucket.Entry* bucketEntry = bucket.basetype.removeHead();

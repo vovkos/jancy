@@ -27,7 +27,7 @@ class List<T, I = Iterator<T> > {
 	size_t readonly m_count;
 
 	void clear();
-	void takeOver(List* list);
+	void takeOver(List* src);
 
 	Iterator append(T* p) {
 		return insertTail(p);
@@ -87,11 +87,13 @@ void List<T, I>.clear() {
 	m_count = 0;
 }
 
-void List<T, I>.takeOver(List* list) {
-	m_head = list.m_head;
-	m_tail = list.m_tail;
-	m_count = list.m_count;
-	list.clear();
+void List<T, I>.takeOver(List* src) {
+	assert(src != this);
+
+	m_head = src.m_head;
+	m_tail = src.m_tail;
+	m_count = src.m_count;
+	src.clear();
 }
 
 Iterator List<T, I>.insertHead(T* p) {
