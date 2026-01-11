@@ -78,6 +78,47 @@ typedef IteratorImpl<IteratorBase<T> > Iterator<T>;
 
 //..............................................................................
 
+struct BoxListEntry<T>: ListEntry<BoxListEntry> {
+	typedef T Value;
+
+	T m_value;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct AbstractBoxIteratorBase<T>: IteratorBase<T> { // also used in hash tables and trees
+	typedef T.Value Value;
+
+	T.Value operator * () thin const {
+		return m_p.m_value;
+	}
+
+	T.Value* operator -> () thin const {
+		return &m_p.m_value;
+	}
+
+ 	T.Value operator := (T value) thin {
+ 		return m_p.m_value = value;
+ 	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+typedef AbstractBoxIteratorBase<BoxListEntry<T> > BoxIteratorBase<T>;
+typedef IteratorImpl<BoxIteratorBase<T> > BoxIterator<T>;
+
+//..............................................................................
+
+struct MapEntry<K, V>: ListEntry<MapEntry> {
+	typedef K Key;
+	typedef V Value;
+
+	K readonly m_key;
+	V m_value;
+}
+
+//..............................................................................
+
 //! @}
 
 } // namespace stdt

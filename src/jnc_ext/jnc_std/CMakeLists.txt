@@ -67,9 +67,7 @@ set(
 	jnc/std_RbTree.jnc
 	jnc/stdt_Array.jnc
 	jnc/stdt_ListEntry.jnc
-	jnc/stdt_MapEntry.jnc
 	jnc/stdt_List.jnc
-	jnc/stdt_BoxList.jnc
 	jnc/stdt_HashTable.jnc
 	jnc/stdt_Operator.jnc
 )

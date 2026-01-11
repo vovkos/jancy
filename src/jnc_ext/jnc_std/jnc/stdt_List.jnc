@@ -189,6 +189,48 @@ T* List<T, I>.remove(Iterator it) {
 
 //..............................................................................
 
+class BoxList<T>: List<BoxListEntry<T>, BoxIterator<T> > {
+	Iterator append(T value) {
+		return insertTail(value);
+	}
+
+	Iterator insertHead(T value) {
+		return basetype.insertHead(new Entry(value));
+	}
+
+	Iterator insertTail(T value) {
+		return basetype.insertTail(new Entry(value));
+	}
+
+	Iterator insertBefore(
+		T value,
+		Iterator beforeIt
+	) {
+		return basetype.insertBefore(new Entry(value), beforeIt);
+	}
+
+	Iterator insertAfter(
+		T value,
+		Iterator afterIt
+	) {
+		return basetype.insertAfter(new Entry(value), afterIt);
+	}
+
+	T removeHead() {
+		return basetype.removeHead().m_value;
+	}
+
+	T removeTail() {
+		return basetype.removeTail().m_value;
+	}
+
+	T remove(Iterator it) {
+		return basetype.remove(it).m_value;
+	}
+}
+
+//..............................................................................
+
 //! @}
 
 } // namespace stdt

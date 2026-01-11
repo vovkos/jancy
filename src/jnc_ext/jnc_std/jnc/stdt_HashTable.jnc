@@ -37,7 +37,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-typedef Iterator<HashTableEntry<K, V> > HashTableIterator<K, V>;
+typedef IteratorImpl<MapIteratorBase<HashTableEntry<K, V> > > HashTableIterator<K, V>;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -175,7 +175,7 @@ Iterator HashTable<K, V, H, E>.find(K key) const {
 	for (Bucket.Iterator it = bucket.m_head; it; it++) {
 		Entry* entry = *it;
 		if (m_eq(key, entry.m_key))
-			return entry.m_value;
+			return entry;
 	}
 
 	return null;
