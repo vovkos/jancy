@@ -1,0 +1,186 @@
+﻿// chatgpt-generated unit test for stdt.HashTable
+
+import "stdt_HashTable.jnc"
+
+//..............................................................................
+
+void test_empty() {
+	stdt.HashTable<int, int, stdt.HashId<int> > ht;
+
+	assert(ht.m_count == 0);
+	assert(!ht.find(1));
+}
+
+void test_add_and_find() {
+	stdt.HashTable<int, int, stdt.HashId<int> > ht;
+
+	ht.add(1, 10);
+	ht.add(2, 20);
+
+	assert(ht.m_count == 2);
+
+	stdt.HashTableIterator<int, int> it1 = ht.find(1);
+	stdt.HashTableIterator<int, int> it2 = ht.find(2);
+
+	assert(it1);
+	assert(it2);
+	assert(it1->m_value == 10);
+	assert(it2->m_value == 20);
+}
+
+void test_add_overwrite() {
+	stdt.HashTable<int, int, stdt.HashId<int> > ht;
+
+	ht.add(1, 10);
+	ht.add(1, 42);
+
+	assert(ht.m_count == 1);
+
+	stdt.HashTableIterator<int, int> it = ht.find(1);
+	assert(it);
+	assert(it->m_value == 42);
+}
+
+void test_add_if_not_exists() {
+	stdt.HashTable<int, int, stdt.HashId<int> > ht;
+
+	stdt.HashTableIterator<int, int> it1 = ht.addIfNotExists(1, 10);
+	assert(it1);
+	assert(ht.m_count == 1);
+
+	stdt.HashTableIterator<int, int> it2 = ht.addIfNotExists(1, 20);
+	assert(!it2);
+	assert(ht.m_count == 1);
+
+	stdt.HashTableIterator<int, int> it = ht.find(1);
+	assert(it);
+	assert(it->m_value == 10);
+}
+
+void test_remove_key() {
+	stdt.HashTable<int, int, stdt.HashId<int> > ht;
+
+	ht.add(1, 10);
+	ht.add(2, 20);
+
+	assert(ht.removeKey(1));
+	assert(ht.m_count == 1);
+	assert(!ht.find(1));
+	assert(ht.find(2));
+
+	assert(!ht.removeKey(3));
+}
+
+void test_iteration_order() {
+	stdt.HashTable<int, int, stdt.HashId<int> > ht;
+
+	ht.add(1, 10);
+	ht.add(2, 20);
+	ht.add(3, 30);
+
+	int sum = 0;
+
+	for (stdt.HashTableIterator<int, int> it = ht.m_head; it; it++)
+		sum += it->m_value;
+
+	assert(sum == 60);
+}
+
+void test_resize() {
+	stdt.HashTable<int, int, stdt.HashId<int> > ht;
+
+	for (int i = 0; i < 200; i++)
+		ht.add(i, i * 2);
+
+	assert(ht.m_count == 200);
+
+	for (int i = 0; i < 200; i++) {
+		stdt.HashTableIterator<int, int> it = ht.find(i);
+		assert(it);
+		assert(it->m_value == i * 2);
+	}
+}
+
+void test_clear() {
+	stdt.HashTable<int, int, stdt.HashId<int> > ht;
+
+	ht.add(1, 10);
+	ht.add(2, 20);
+
+	assert(ht.m_count == 2);
+
+	ht.clear();
+
+	assert(ht.m_count == 0);
+	assert(!ht.find(1));
+	assert(!ht.find(2));
+}
+
+void test_indexer_set_and_get() {
+	stdt.HashTable<int, int, stdt.HashId<int> > ht;
+
+	ht[1] = 10;
+	ht[2] = 20;
+
+	assert(ht.m_count == 2);
+
+	int a = ht[1];
+	int b = ht[2];
+
+	assert(a == 10);
+	assert(b == 20);
+}
+
+void test_indexer_overwrite() {
+	stdt.HashTable<int, int, stdt.HashId<int> > ht;
+
+	ht[1] = 10;
+	ht[1] = 42;
+
+	assert(ht.m_count == 1);
+	assert(ht[1] == 42);
+}
+
+void test_indexer_creates_entry() {
+	stdt.HashTable<int, int, stdt.HashId<int> > ht;
+
+	ht[5] = 123;
+
+	assert(ht.m_count == 1);
+	assert(ht.find(5));
+	assert(ht[5] == 123);
+}
+
+void test_indexer_get_missing_throws() {
+	stdt.HashTable<int, int, stdt.HashId<int> > ht;
+
+	bool error = false;
+
+	try {
+		int x = ht[1];
+	catch:
+		error = true;
+	}
+
+	assert(error);
+}
+
+//..............................................................................
+
+int main() {
+	test_empty();
+	test_add_and_find();
+	test_add_overwrite();
+	test_add_if_not_exists();
+	test_remove_key();
+	test_iteration_order();
+	test_resize();
+	test_clear();
+	test_indexer_set_and_get();
+	test_indexer_overwrite();
+	test_indexer_creates_entry();
+	test_indexer_get_missing_throws();
+	return 0;
+}
+
+//..............................................................................
