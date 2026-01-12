@@ -90,7 +90,7 @@ bool errorcode Array<T>.set(
 
 void Array<T>.clear() {
 	unsafe {
-		memset_u(m_p, 0, m_count * sizeof(T*)); // keep the buffer but drop potential gc roots
+		memset_u(m_p, 0, m_count * sizeof(T)); // keep the buffer but drop potential gc roots
 	}
 
 	m_count = 0;
