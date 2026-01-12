@@ -133,6 +133,52 @@ OperatorMgr::memberOperator(
 }
 
 bool
+OperatorMgr::baseTypeOperator(
+	const Value& rawOpValue,
+	size_t baseTypeIdx,
+	Value* resultValue
+) {
+	Value opValue;
+	prepareOperandType(rawOpValue, &opValue, OpFlag_KeepEnum);
+
+	Type* opType = opValue.getType();
+	uint_t opTypeKindFlags = opType->getTypeKindFlags();
+	Type* targetType =
+		(opTypeKindFlags & TypeKindFlag_DataPtr) ? ((DataPtrType*)opType)->getTargetType() :
+		(opTypeKindFlags & TypeKindFlag_ClassPtr) ? ((DataPtrType*)opType)->getTargetType() :
+		opType;
+
+	if (!(targetType->getTypeKindFlags() & TypeKindFlag_Derivable)) {
+		err::setFormatStringError("basetype operator cannot be applied to '%s'", opType->getTypeString().sz());
+		return false;
+	}
+
+	DerivableType* derivableType = (DerivableType*)targetType;
+	BaseTypeSlot* slot = derivableType->getBaseTypeByIndex(baseTypeIdx);
+	if (!slot)
+		return false;
+
+	uint_t ptrTypeFlags = opType->getFlags() & PtrTypeFlag__All;
+
+	DerivableType* baseType = slot->getType();
+	Type* castType = (opTypeKindFlags & TypeKindFlag_Ptr) ?
+		baseType->getTypeKind() == TypeKind_Class ?
+			(Type*)((ClassType*)baseType)->getClassPtrType(
+				opType->getTypeKind(),
+				ClassPtrTypeKind_Normal,
+				ptrTypeFlags
+			) :
+			baseType->getDataPtrType(
+				TypeKind_DataPtr,
+				DataPtrTypeKind_Lean,
+				ptrTypeFlags
+			) :
+		baseType;
+
+	return castOperator(opValue, castType, resultValue);
+}
+
+bool
 OperatorMgr::createMemberClosure(Value* value) {
 	Value thisValue;
 

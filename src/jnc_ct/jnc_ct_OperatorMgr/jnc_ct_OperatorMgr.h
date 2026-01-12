@@ -955,6 +955,21 @@ public:
 		return memberOperator(*value, name, value);
 	}
 
+	bool
+	baseTypeOperator(
+		const Value& opValue,
+		size_t baseTypeIdx,
+		Value* resultValue
+	);
+
+	bool
+	baseTypeOperator(
+		Value* value,
+		size_t baseTypeIdx
+	) {
+		return baseTypeOperator(*value, baseTypeIdx, value);
+	}
+
 	// call operators
 
 #if (_JNC_DEBUG)

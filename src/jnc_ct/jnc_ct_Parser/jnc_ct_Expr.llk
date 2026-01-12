@@ -802,6 +802,10 @@ member_operator<Value* $value>
 				createMemberCodeAssistIf($1, *$value);
 				return m_module->m_operatorMgr.memberOperator($value, $1.m_data.m_string);
 			}
+	|	TokenKind_BaseType
+			{
+				return m_module->m_operatorMgr.baseTypeOperator($value, $1.m_data.m_integer - 1);
+			}
 	|	TokenKind_Get
 			{
 				return m_module->m_operatorMgr.getPropertyGetter($value);
