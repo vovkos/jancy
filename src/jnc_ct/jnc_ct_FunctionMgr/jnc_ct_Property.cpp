@@ -302,18 +302,12 @@ Property::addMethod(Function* function) {
 			// and fall through
 
 		case StorageKind_Member:
-			if (functionKind == FunctionKind_Getter)
-				function->m_thisArgTypeFlags |= PtrTypeFlag_Const;
-
 			function->convertToMemberMethod(m_parentType);
 			break;
 
 		case StorageKind_Abstract:
 		case StorageKind_Virtual:
 		case StorageKind_Override:
-			if (functionKind == FunctionKind_Getter)
-				function->m_thisArgTypeFlags |= PtrTypeFlag_Const;
-
 			if (m_parentType->getTypeKind() != TypeKind_Class) {
 				err::setFormatStringError("virtual method cannot be added to '%s'", m_parentType->getTypeString().sz());
 				return false;
