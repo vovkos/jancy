@@ -30,7 +30,7 @@ int main() {
 	return 0;
 
 catch:
-	printf("error caught: %s\n", std.getLastError ().m_description);
+	printf("error caught: %s\n", std.getLastError().m_description);
 	return -1;
 }
 

@@ -48,7 +48,7 @@ int main() {
 
 	bool result = try foo(-1);
 	if (!result) {
-		printf("foo failed (%s)\n", std.getLastError ().m_description);
+		printf("foo failed (%s)\n", std.getLastError().m_description);
 	}
 
 	foo(150);
@@ -57,7 +57,7 @@ int main() {
 	return -1;
 
 catch:
-	printf("error caught (%s)\n", std.getLastError ().m_description);
+	printf("error caught (%s)\n", std.getLastError().m_description);
 	return 0;
 }
 
