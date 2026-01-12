@@ -40,8 +40,8 @@ struct IteratorBase<T> {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct IteratorImpl<I>: I {
-	construct(Entry* p = null) thin {
+struct IteratorImpl<T>: T {
+	construct(T.Entry* p = null) thin {
 		m_p = p;
 	}
 
@@ -82,34 +82,41 @@ struct BoxListEntry<T>: ListEntry<BoxListEntry> {
 	typedef T Value;
 
 	T m_value;
+
+	construct() {}
+
+	construct(T value) {
+		m_value = value;
+	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct AbstractBoxIteratorBase<T>: IteratorBase<T> { // also used in hash tables and trees
-	typedef T.Value Value;
+struct ValueIteratorBase<T>: IteratorBase<T> {
+	T.Value operator := (T.Value value) thin const {
+		return m_p.m_value = value;
+	}
+}
 
-	T.Value operator * () thin const {
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct BoxIteratorBase<T>: ValueIteratorBase<BoxListEntry<T> > {
+	T operator * () thin const {
 		return m_p.m_value;
 	}
 
-	T.Value* operator -> () thin const {
+	T* operator -> () thin const {
 		return &m_p.m_value;
 	}
-
- 	T.Value operator := (T value) thin {
- 		return m_p.m_value = value;
- 	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-typedef AbstractBoxIteratorBase<BoxListEntry<T> > BoxIteratorBase<T>;
 typedef IteratorImpl<BoxIteratorBase<T> > BoxIterator<T>;
 
 //..............................................................................
 
-struct MapEntry<K, V>: ListEntry<MapEntry> {
+struct MapEntryBase<T, K, V>: ListEntry<T> {
 	typedef K Key;
 	typedef V Value;
 
