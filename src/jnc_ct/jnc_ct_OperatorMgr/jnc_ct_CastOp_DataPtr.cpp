@@ -228,6 +228,21 @@ Cast_DataPtr_FromString::llvmCast(
 
 //..............................................................................
 
+CastKind
+Cast_DataPtr_FromRvalue::getCastKind(
+	const Value& opValue,
+	Type* type
+) {
+	ASSERT(
+		type->getTypeKind() == TypeKind_DataPtr &&
+		(type->getFlags() & PtrTypeFlag_Const)
+	);
+
+	Type* targetType = ((DataPtrType*)type)->getTargetType();
+	CastKind castKind = m_module->m_operatorMgr.getCastKind(opValue, targetType);
+	return AXL_MIN(castKind, CastKind_ImplicitCrossFamily); // to avoid ambiguity with "proper" ptr casts
+}
+
 bool
 Cast_DataPtr_FromRvalue::constCast(
 	const Value& opValue,
@@ -249,11 +264,12 @@ Cast_DataPtr_FromRvalue::llvmCast(
 		(opValue.getType()->getTypeKindFlags() & TypeKindFlag_Derivable)
 	);
 
-	Value rvalueStorage = m_module->m_variableMgr.createSimpleStackVariable("rvalue_storage", opValue.getType());
-	bool result = m_module->m_operatorMgr.storeDataRef(rvalueStorage, opValue);
-	ASSERT(result);
+	Type* targetType = ((DataPtrType*)type)->getTargetType();
+	Value rvalueStorage = m_module->m_variableMgr.createSimpleStackVariable("rvalue_storage", targetType);
 
-	return m_module->m_operatorMgr.castOperator(rvalueStorage, type, resultValue);
+	return
+		m_module->m_operatorMgr.storeDataRef(rvalueStorage, opValue) &&
+		m_module->m_operatorMgr.castOperator(rvalueStorage, type, resultValue);
 }
 
 //..............................................................................
@@ -816,10 +832,13 @@ Cast_DataPtr::getCastOperator(
 
 	default:
 		if ((dstPtrType->getFlags() & PtrTypeFlag_Const) &&
-			(srcType->getTypeKindFlags() & TypeKindFlag_Derivable) &&
-			srcType->isEqual(dstPtrType->getTargetType())
-		)
-			return &m_fromRvalue;
+			(srcType->getTypeKindFlags() & TypeKindFlag_Derivable)
+		) {
+			Type* targetType = dstPtrType->getTargetType();
+			CastKind castKind = m_module->m_operatorMgr.getCastKind(opValue, targetType);
+			if (castKind >= CastKind_Implicit)
+				return &m_fromRvalue;
+		}
 
 		return NULL;
 	}
