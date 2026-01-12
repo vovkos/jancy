@@ -92,21 +92,17 @@ struct BoxListEntry<T>: ListEntry<BoxListEntry> {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ValueIteratorBase<T>: IteratorBase<T> {
-	T.Value operator := (T.Value value) thin const {
-		return m_p.m_value = value;
-	}
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct BoxIteratorBase<T>: ValueIteratorBase<BoxListEntry<T> > {
+struct BoxIteratorBase<T>: IteratorBase<BoxListEntry<T> > {
 	T operator * () thin const {
 		return m_p.m_value;
 	}
 
 	T* operator -> () thin const {
 		return &m_p.m_value;
+	}
+
+	T.Value operator := (T.Value value) thin const {
+		return m_p.m_value = value;
 	}
 }
 
