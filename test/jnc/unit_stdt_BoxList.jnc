@@ -1,6 +1,6 @@
 ﻿// chatgpt-generated unit test for stdt.BoxList
 
-import "stdt_BoxList.jnc"
+import "stdt_List.jnc"
 
 //..............................................................................
 

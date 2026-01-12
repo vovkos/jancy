@@ -1,6 +1,6 @@
 ﻿// first version that works with a full implementation of list templates
 
-import "stdt_BoxList.jnc"
+import "stdt_List.jnc"
 
 //..............................................................................
 
