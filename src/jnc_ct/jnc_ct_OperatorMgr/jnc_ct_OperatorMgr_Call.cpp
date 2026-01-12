@@ -270,23 +270,35 @@ OperatorMgr::callOperator(
 		return callImpl(opValue, function->getType(), argValueList, resultValue);
 		}
 
-	case ValueKind_Namespace:
+	case ValueKind_Namespace: {
 		Namespace* nspace = opValue.getNamespace();
-		if (nspace->getNamespaceKind() == NamespaceKind_Type) {
-			NamedType* type = (NamedType*)nspace;
-			if (type->getStdType() == StdType_StringStruct) {
-				opValue = m_module->m_functionMgr.getStdFunction(StdFunc_StringCreate);
-				break;
-			}
-
-			Value ptrValue;
-			return
-				newOperator(type, argValueList, &ptrValue) &&
-				unaryOperator(UnOpKind_Indir, ptrValue, resultValue);
+		if (nspace->getNamespaceKind() != NamespaceKind_Type) {
+			err::setFormatStringError("cannot call '%s'", nspace->getDeclItem()->getItemName().sz());
+			return false;
 		}
 
-		err::setFormatStringError("cannot call '%s'", nspace->getDeclItem()->getItemName().sz());
-		return false;
+		NamedType* type = (NamedType*)nspace;
+		if (type->getStdType() == StdType_StringStruct) {
+			opValue = m_module->m_functionMgr.getStdFunction(StdFunc_StringCreate);
+			break;
+		}
+
+		StorageKind storageKind = (type->getFlags() & TypeFlag_NoStack) ? StorageKind_Heap : StorageKind_Stack;
+		Variable* variable = m_module->m_variableMgr.createVariable(storageKind, "temporary", type);
+		result = m_module->m_variableMgr.allocateVariable(variable);
+		if (!result)
+			return false;
+
+		if (storageKind == StorageKind_Stack)
+			m_module->m_variableMgr.preInitializeStackVariable(variable);
+
+		result = m_module->m_operatorMgr.construct(variable, argValueList);
+		if (!result)
+			return false;
+
+		resultValue->setVariable(variable);
+		return true;
+		}
 	}
 
 	Type* opType = opValue.getType();

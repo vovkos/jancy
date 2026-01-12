@@ -209,6 +209,9 @@ public:
 	initializeVariable(Variable* variable);
 
 	void
+	preInitializeStackVariable(Variable* variable);
+
+	void
 	liftStackVariable(Variable* variable);
 
 	bool

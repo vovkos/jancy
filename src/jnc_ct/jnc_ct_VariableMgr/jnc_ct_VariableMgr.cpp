@@ -251,6 +251,21 @@ VariableMgr::allocateVariable(Variable* variable) {
 	return true;
 }
 
+void
+VariableMgr::preInitializeStackVariable(Variable* variable) {
+	ASSERT(variable->m_storageKind == StorageKind_Stack);
+
+	if (variable->m_type->getFlags() & TypeFlag_GcRoot) {
+		m_module->m_operatorMgr.zeroInitialize(variable);
+		m_module->m_gcShadowStackMgr.markGcRoot(variable, variable->m_type);
+	} else if (
+		(variable->m_type->getTypeKindFlags() & TypeKindFlag_Aggregate) ||
+		variable->m_initializer.isEmpty()
+	) {
+		m_module->m_operatorMgr.zeroInitialize(variable);
+	}
+}
+
 bool
 VariableMgr::initializeVariable(Variable* variable) {
 	if (m_module->hasCodeGen())
@@ -269,13 +284,7 @@ VariableMgr::initializeVariable(Variable* variable) {
 			break;
 
 		case StorageKind_Stack:
-			if (variable->m_type->getFlags() & TypeFlag_GcRoot) {
-				m_module->m_operatorMgr.zeroInitialize(variable);
-				m_module->m_gcShadowStackMgr.markGcRoot(variable, variable->m_type);
-			} else if ((variable->m_type->getTypeKindFlags() & TypeKindFlag_Aggregate) || variable->m_initializer.isEmpty()) {
-				m_module->m_operatorMgr.zeroInitialize(variable);
-			}
-
+			preInitializeStackVariable(variable);
 			break;
 
 		default:
