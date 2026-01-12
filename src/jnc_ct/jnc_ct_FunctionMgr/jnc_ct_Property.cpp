@@ -183,7 +183,6 @@ Property::setAutoGetValue(
 	}
 
 	Function* getter = m_module->m_functionMgr.createFunction<AutoGetter>(getterType);
-	getter->m_functionKind = FunctionKind_Getter;
 	getter->m_storageKind = getAccessorStorageKind();
 
 	if (m_parentType)

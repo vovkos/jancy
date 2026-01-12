@@ -1706,12 +1706,17 @@ Parser::finalizeLastProperty(bool hasBody) {
 			return false;
 		}
 
-		Function* getter = (m_lastPropertyTypeModifiers & TypeModifier_AutoGet) ?
-			m_module->m_functionMgr.createFunction<Property::AutoGetter>(m_lastPropertyGetterType) :
-			m_module->m_functionMgr.createFunction(m_lastPropertyGetterType);
+		Function* getter;
+		if (m_lastPropertyTypeModifiers & TypeModifier_AutoGet)
+			getter = m_module->m_functionMgr.createFunction<Property::AutoGetter>(m_lastPropertyGetterType);
+		else {
+			getter = m_module->m_functionMgr.createFunction(m_lastPropertyGetterType);
+			getter->m_functionKind = FunctionKind_Getter;
+			getter->m_flags |= ModuleItemFlag_User; // otherwise, can't set body
+		}
 
-		getter->m_functionKind = FunctionKind_Getter;
-		getter->m_flags |= ModuleItemFlag_User;
+		if (prop->m_parentType)
+			getter->m_thisArgTypeFlags = PtrTypeFlag_Const;
 
 		result = prop->addMethod(getter);
 		if (!result)
