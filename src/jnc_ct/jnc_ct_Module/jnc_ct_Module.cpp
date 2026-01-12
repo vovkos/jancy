@@ -193,10 +193,11 @@ Module::initialize(
 		m_config.m_jitKind = JitKind_McJit;
 #endif
 
+	m_uniqueLinkId = m_config.m_uniqueLinkIdBase;
 	m_compileFlags = m_config.m_compileFlags;
 	m_compileState = ModuleCompileState_Idle;
 	m_compileErrorCount = 0;
-	m_uniqueLinkId = m_config.m_uniqueLinkIdBase;
+	err::setError(&err::g_noError);
 
 #if (_JNC_ASAN)
 	// GC guard page safe points do not work with address sanitizer
