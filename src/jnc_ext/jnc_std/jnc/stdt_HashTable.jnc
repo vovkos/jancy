@@ -32,7 +32,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-typedef IteratorImpl<ValueIteratorBase<HashTableEntry<K, V> > > HashTableIterator<K, V>;
+typedef IteratorImpl<IteratorBase<HashTableEntry<K, V> > > HashTableIterator<K, V>;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -109,7 +109,7 @@ public:
 		V undefinedValue = null
 	) const {
 		Iterator it = find(key);
-		return it ? *it : undefinedValue;
+		return it ? it->m_value : undefinedValue;
 	}
 
 	Iterator add(
@@ -135,7 +135,7 @@ V HashTable<K, V, H, E>.get(K key) const {
 		throw;
 	}
 
-	return *it;
+	return it->m_value;
 }
 
 Iterator HashTable<K, V, H, E>.visit(K key) {
@@ -189,7 +189,7 @@ Iterator HashTable<K, V, H, E>.add(
 	V value
 ) {
 	Iterator it = visit(key);
-	it := value;
+	it->m_value = value;
 	return it;
 }
 
@@ -202,8 +202,16 @@ Iterator HashTable<K, V, H, E>.addIfNotExists(
 	if (m_list.m_count == prevCount)
 		return null;
 
-	it := value;
+	it->m_value = value;
 	return it;
+}
+
+void HashTable<K, V, H, E>.remove(Iterator it) {
+	Entry* entry = *it;
+	entry.m_bucket.remove(entry.m_bucketIt);
+	entry.m_bucket = null;
+	entry.m_bucketIt = null;
+	m_list.remove(entry);
 }
 
 bool HashTable<K, V, H, E>.removeKey(K key) {
@@ -227,7 +235,7 @@ void HashTable<K, V, H, E>.setBucketCount(size_t count) {
 		if (!bucket)
 			m_table[bucketIdx] = bucket = new Bucket;
 
-		// avoid Bucket.Entry allocations
+		// use basetype to reuse all Bucket.Entry without reallocations
 		Bucket.Entry* bucketEntry = entry.m_bucket.basetype.remove(entry.m_bucketIt);
 		entry.m_bucketIt = bucket.basetype.insertTail(bucketEntry);
 		entry.m_bucket = bucket;
