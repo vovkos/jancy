@@ -10,8 +10,7 @@
 //..............................................................................
 
 import "stdt_Array.jnc"
-import "stdt_BoxList.jnc"
-import "stdt_MapEntry.jnc"
+import "stdt_List.jnc"
 import "stdt_Operator.jnc"
 
 namespace stdt {
@@ -21,11 +20,7 @@ namespace stdt {
 
 //..............................................................................
 
-typedef BoxList<HashTableEntry<K, V>*> HashTableBucket<K, V>;
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct HashTableEntry<K, V>: MapEntry<K, V> {
+struct HashTableEntry<K, V>: MapEntryBase<HashTableEntry, K, V> {
 	friend HashTable;
 
 	typedef HashTableBucket<K, V> Bucket;
@@ -37,7 +32,11 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-typedef IteratorImpl<MapIteratorBase<HashTableEntry<K, V> > > HashTableIterator<K, V>;
+typedef IteratorImpl<ValueIteratorBase<HashTableEntry<K, V> > > HashTableIterator<K, V>;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+typedef BoxList<HashTableEntry<K, V>*> HashTableBucket<K, V>;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -46,9 +45,9 @@ class HashTable<K, V, H, E = Eq<K> > {
 	typedef V Value;
 	typedef H Hash;
 	typedef E Eq;
-	typedef HashTableBucket<K, V> Bucket;
 	typedef HashTableEntry<K, V> Entry;
 	typedef HashTableIterator<K, V> Iterator;
+	typedef HashTableBucket<K, V> Bucket;
 
 	enum {
 		InitialBucketCount = 32,
@@ -79,12 +78,16 @@ public:
 		add(key, value);
 	}
 
-	Iterator const property m_head {
-		return m_list.m_head;
+	property m_head {
+		Entry cmut* get() {
+			return m_list.m_head;
+		}
 	}
 
-	Iterator const property m_tail {
-		return m_list.m_head;
+	property m_tail {
+		Entry cmut* get() {
+			return m_list.m_tail;
+		}
 	}
 
 	size_t const property m_count {
@@ -213,39 +216,22 @@ bool HashTable<K, V, H, E>.removeKey(K key) {
 }
 
 void HashTable<K, V, H, E>.setBucketCount(size_t count) {
-	Array<Bucket*> newTable;
-	newTable.setCount(count);
+	m_table.clear();
+	m_table.setCount(count);
 
-	for (size_t i = 0; i < m_table.m_count; i++) {
-		Bucket* bucket = m_table[i];
+	Iterator it = m_head;
+	for (; it; it++) {
+		Entry* entry = it.m_p;
+		size_t bucketIdx = m_hash(entry.m_key) % count;
+		Bucket* bucket = m_table[bucketIdx];
 		if (!bucket)
-			continue;
+			m_table[bucketIdx] = bucket = new Bucket;
 
-		while (bucket.m_count) {
-			Entry* entry = bucket.removeHead();
-			size_t newBucketIdx = m_hash(entry.m_key) % count;
-			Bucket* newBucket = newTable[newBucketIdx];
-			if (!newBucket)
-				newTable[newBucketIdx] = newBucket = new Bucket;
-
-			entry.m_bucket = newBucket;
-			entry.m_bucketIt = newBucket.insertTail(entry);
-
-			/*
-			Bucket.Entry* bucketEntry = bucket.basetype.removeHead();
-			Entry* entry = bucketEntry.m_value;
-			size_t newBucketIdx = m_hash(entry.m_key) % count;
-			Bucket* newBucket = table[bucketIdx];
-			if (!newBucket)
-				table[bucketIdx] = newBucket = new Bucket;
-
-			entry.m_bucket = newBucket;
-			entry.m_bucketIt = newBucket.basetype.insertTail(bucketEntry);
-			*/
-		}
+		// avoid Bucket.Entry allocations
+		Bucket.Entry* bucketEntry = entry.m_bucket.basetype.remove(entry.m_bucketIt);
+		entry.m_bucketIt = bucket.basetype.insertTail(bucketEntry);
+		entry.m_bucket = bucket;
 	}
-
-	m_table.takeOver(&newTable);
 }
 
 //..............................................................................
