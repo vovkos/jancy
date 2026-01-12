@@ -139,7 +139,7 @@ OperatorMgr::baseTypeOperator(
 	Value* resultValue
 ) {
 	Value opValue;
-	prepareOperandType(rawOpValue, &opValue, OpFlag_KeepEnum);
+	prepareOperand(rawOpValue, &opValue, OpFlag_KeepEnum);
 
 	Type* opType = opValue.getType();
 	uint_t opTypeKindFlags = opType->getTypeKindFlags();
