@@ -130,9 +130,7 @@ FunctionType::calcLayout() {
 			return false;
 	}
 
-	if ((m_flags & FunctionTypeFlag_ErrorCode) &&
-		!(m_returnType->getTypeKindFlags() & TypeKindFlag_ErrorCode)
-	) {
+	if ((m_flags & FunctionTypeFlag_ErrorCode) && !isErrorCodeType(m_returnType)) {
 		err::setFormatStringError("'%s' cannot be used as error code", m_returnType->getTypeString().sz());
 		return false;
 	}

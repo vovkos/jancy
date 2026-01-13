@@ -210,7 +210,7 @@ ControlFlowMgr::endTryOperator(
 	if (type->getTypeKind() == TypeKind_Void) {
 		value->setConstBool(true, m_module);
 		errorValue.setConstBool(false, m_module);
-	} else if (type->getTypeKindFlags() & TypeKindFlag_ErrorCode) {
+	} else if (isErrorCodeType(type)) {
 		errorValue = type->getErrorCodeValue();
 	} else {
 		err::setFormatStringError("'%s' cannot be used as error code", type->getTypeString().sz());
@@ -250,7 +250,7 @@ ControlFlowMgr::checkErrorCode(
 ) {
 	bool result;
 
-	ASSERT(returnType->getTypeKindFlags() & TypeKindFlag_ErrorCode);
+	ASSERT(isErrorCodeType(returnType));
 
 	Value indicatorValue;
 	if (returnType->getTypeKind() == TypeKind_Bool || !(returnType->getTypeKindFlags() & TypeKindFlag_Integer)) {

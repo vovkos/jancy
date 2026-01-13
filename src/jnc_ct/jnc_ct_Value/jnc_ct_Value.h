@@ -664,10 +664,9 @@ Type::getUndefValue() {
 inline
 Value
 Type::getErrorCodeValue() {
-	uint_t typeKindFlags = getTypeKindFlags();
-	ASSERT(typeKindFlags & TypeKindFlag_ErrorCode);
+	ASSERT(isErrorCodeType(this));
 
-	if (m_typeKind == TypeKind_Bool || !(typeKindFlags & TypeKindFlag_Integer))
+	if (m_typeKind == TypeKind_Bool || !(getTypeKindFlags()& TypeKindFlag_Integer))
 		return getZeroValue();
 
 	Value errorCodeValue;
