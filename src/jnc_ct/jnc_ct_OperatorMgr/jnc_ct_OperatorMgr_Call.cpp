@@ -289,7 +289,7 @@ OperatorMgr::callOperator(
 		if (!result)
 			return false;
 
-		if (storageKind == StorageKind_Stack)
+		if (storageKind == StorageKind_Stack && m_module->hasCodeGen())
 			m_module->m_variableMgr.preInitializeStackVariable(variable);
 
 		result = m_module->m_operatorMgr.construct(variable, argValueList);
