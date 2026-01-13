@@ -25,7 +25,7 @@ Cast_Struct::getCastKind(
 ) {
 	if (opValue.getType()->getTypeKind() == TypeKind_Struct) {
 		StructType* srcStructType = (StructType*)opValue.getType();
-		if (srcStructType->findBaseType(type))
+		if (srcStructType->findBaseTypeTraverse(type))
 			return CastKind_Implicit;
 	}
 
