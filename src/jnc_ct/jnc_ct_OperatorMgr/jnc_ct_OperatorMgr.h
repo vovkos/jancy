@@ -446,56 +446,43 @@ public:
 		Closure* closure,
 		FunctionType* functionType,
 		FunctionArg* const* argArray,
-		size_t argCount
+		size_t argCount,
+		bool isFunctionPtrCast = false
 	);
 
 	CastKind
 	getArgCastKind(
 		FunctionType* functionType,
 		FunctionArg* const* argArray,
-		size_t argCount
+		size_t argCount,
+		bool isFunctionPtrCast = false
 	) {
-		return getArgCastKind(NULL, functionType, argArray, argCount);
+		return getArgCastKind(NULL, functionType, argArray, argCount, isFunctionPtrCast);
 	}
 
 	CastKind
 	getArgCastKind(
 		FunctionType* functionType,
 		const Value* argValueArray,
-		size_t argCount
+		size_t argCount,
+		bool isFunctionPtrCast = false
 	);
 
 	CastKind
 	getArgCastKind(
-		Closure* closure,
 		FunctionType* functionType,
-		const sl::Array<FunctionArg*>& argArray
-	) {
-		return getArgCastKind(closure, functionType, argArray, argArray.getCount());
-	}
-
-	CastKind
-	getArgCastKind(
-		FunctionType* functionType,
-		const sl::Array<FunctionArg*>& argArray
-	) {
-		return getArgCastKind(NULL, functionType, argArray, argArray.getCount());
-	}
-
-	CastKind
-	getArgCastKind(
-		FunctionType* functionType,
-		const sl::ConstBoxList<Value>& argValueList
+		const sl::ConstBoxList<Value>& argValueList,
+		bool isFunctionPtrCast = false
 	);
 
 	CastKind
-	getFunctionCastKind(
+	getFunctionPtrCastKind(
 		FunctionType* srcType,
 		FunctionType* dstType
 	);
 
 	CastKind
-	getPropertyCastKind(
+	getPropertyPtrCastKind(
 		PropertyType* srcType,
 		PropertyType* dstType
 	);

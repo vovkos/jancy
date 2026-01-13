@@ -736,7 +736,8 @@ OperatorMgr::getArgCastKind(
 	Closure* closure,
 	FunctionType* functionType,
 	FunctionArg* const* actualArgArray,
-	size_t actualArgCount
+	size_t actualArgCount,
+	bool isFunctionPtrCast
 ) {
 	sl::Array<FunctionArg*> formalArgArray = functionType->getArgArray();
 	if (closure) {
@@ -747,9 +748,10 @@ OperatorMgr::getArgCastKind(
 
 	CastKind worstCastKind = CastKind_Identity;
 	size_t formalArgCount = formalArgArray.getCount();
-	if (actualArgCount > formalArgCount)
-		worstCastKind = CastKind_ImplicitLossyFuntionCall;
-	else while (actualArgCount < formalArgCount) {
+	if (actualArgCount > formalArgCount) {
+		if (!(functionType->getFlags() & FunctionTypeFlag_VarArg))
+			worstCastKind = isFunctionPtrCast ? CastKind_ImplicitLossyFuntionCall : CastKind_None;
+	} else while (actualArgCount < formalArgCount) {
 		formalArgCount--;
 		if (!formalArgArray[formalArgCount]->hasInitializer())
 			return CastKind_None;
@@ -774,14 +776,16 @@ CastKind
 OperatorMgr::getArgCastKind(
 	FunctionType* functionType,
 	const Value* argValueArray,
-	size_t actualArgCount
+	size_t actualArgCount,
+	bool isFunctionPtrCast
 ) {
 	CastKind worstCastKind = CastKind_Identity;
 	sl::Array<FunctionArg*> formalArgArray = functionType->getArgArray();
 	size_t formalArgCount = formalArgArray.getCount();
-	if (actualArgCount > formalArgCount)
-		worstCastKind = CastKind_ImplicitLossyFuntionCall;
-	else while (actualArgCount < formalArgCount) {
+	if (actualArgCount > formalArgCount) {
+		if (!(functionType->getFlags() & FunctionTypeFlag_VarArg))
+			worstCastKind = isFunctionPtrCast ? CastKind_ImplicitLossyFuntionCall : CastKind_None;
+	} else while (actualArgCount < formalArgCount) {
 		formalArgCount--;
 		if (!formalArgArray[formalArgCount]->hasInitializer())
 			return CastKind_None;
@@ -809,15 +813,17 @@ OperatorMgr::getArgCastKind(
 CastKind
 OperatorMgr::getArgCastKind(
 	FunctionType* functionType,
-	const sl::ConstBoxList<Value>& argList
+	const sl::ConstBoxList<Value>& argList,
+	bool isFunctionPtrCast
 ) {
 	CastKind worstCastKind = CastKind_Identity;
 	size_t actualArgCount = argList.getCount();
 	sl::Array<FunctionArg*> formalArgArray = functionType->getArgArray();
 	size_t formalArgCount = formalArgArray.getCount();
-	if (actualArgCount > formalArgCount)
-		worstCastKind = CastKind_ImplicitLossyFuntionCall;
-	else while (actualArgCount < formalArgCount) {
+	if (actualArgCount > formalArgCount) {
+		if (!(functionType->getFlags() & FunctionTypeFlag_VarArg))
+			worstCastKind = isFunctionPtrCast ? CastKind_ImplicitLossyFuntionCall : CastKind_None;
+	} else while (actualArgCount < formalArgCount) {
 		formalArgCount--;
 		if (!formalArgArray[formalArgCount]->hasInitializer())
 			return CastKind_None;
@@ -843,11 +849,12 @@ OperatorMgr::getArgCastKind(
 }
 
 CastKind
-OperatorMgr::getFunctionCastKind(
+OperatorMgr::getFunctionPtrCastKind(
 	FunctionType* srcType,
 	FunctionType* dstType
 ) {
-	CastKind argCastKind = getArgCastKind(srcType, dstType->getArgArray());
+	const sl::Array<FunctionArg*>& dstArgArray = dstType->getArgArray();
+	CastKind argCastKind = getArgCastKind(srcType, dstArgArray, dstArgArray.getCount(), true);
 	if (!argCastKind)
 		return CastKind_None;
 
@@ -862,11 +869,11 @@ OperatorMgr::getFunctionCastKind(
 }
 
 CastKind
-OperatorMgr::getPropertyCastKind(
+OperatorMgr::getPropertyPtrCastKind(
 	PropertyType* srcType,
 	PropertyType* dstType
 ) {
-	CastKind castKind = getFunctionCastKind(srcType->getGetterType(), dstType->getGetterType());
+	CastKind castKind = getFunctionPtrCastKind(srcType->getGetterType(), dstType->getGetterType());
 	if (!castKind)
 		return CastKind_None;
 
