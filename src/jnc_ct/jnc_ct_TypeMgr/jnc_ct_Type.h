@@ -591,6 +591,29 @@ getDirectRefType(
 
 //..............................................................................
 
+bool
+isImplicitCast(
+	Type* srcType,
+	Type* dstType
+);
+
+inline
+bool
+isImplicitCast(
+	Type* srcType,
+	TypeKind dstTypeKind
+) {
+	return isImplicitCast(srcType, getSimpleType(dstTypeKind, srcType->getModule()));
+}
+
+inline
+bool
+isErrorCodeType(Type* type) {
+	return
+		(type->getTypeKindFlags() & TypeKindFlag_ErrorCode) ||
+		isImplicitCast(type, TypeKind_Bool);
+}
+
 inline
 bool
 isDualType(Type* type) {
@@ -612,8 +635,13 @@ isStringableType(Type* type);
 bool
 isWeakPtrType(Type* type);
 
+inline
 bool
-isSafePtrType(Type* type);
+isSafePtrType(Type* type) {
+	return
+		(type->getTypeKindFlags() & TypeKindFlag_Ptr) &&
+		(type->getFlags() & PtrTypeFlag_Safe);
+}
 
 bool
 isWeakPtrType(Type* type);

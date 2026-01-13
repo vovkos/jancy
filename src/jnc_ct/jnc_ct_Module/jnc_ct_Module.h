@@ -1074,5 +1074,36 @@ Value::setLlvmValue(
 
 //..............................................................................
 
+inline
+Type*
+getSimpleType(
+	TypeKind typeKind,
+	Module* module
+) {
+	return module->m_typeMgr.getPrimitiveType(typeKind);
+}
+
+inline
+Type*
+getSimpleType(
+	StdType stdType,
+	Module* module
+) {
+	return module->m_typeMgr.getStdType(stdType);
+}
+
+inline
+bool
+isImplicitCast(
+	Type* srcType,
+	Type* dstType
+) {
+	Module* module = srcType->getModule();
+	CastKind castKind = module->m_operatorMgr.getCastKind(srcType, dstType);
+	return castKind >= CastKind_Implicit;
+}
+
+//..............................................................................
+
 } // namespace ct
 } // namespace jnc

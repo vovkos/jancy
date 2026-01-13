@@ -784,22 +784,6 @@ NamedType::prepareSignature() {
 //..............................................................................
 
 Type*
-getSimpleType(
-	TypeKind typeKind,
-	Module* module
-) {
-	return module->m_typeMgr.getPrimitiveType(typeKind);
-}
-
-Type*
-getSimpleType(
-	StdType stdType,
-	Module* module
-) {
-	return module->m_typeMgr.getStdType(stdType);
-}
-
-Type*
 getDirectRefType(
 	Type* type,
 	uint_t ptrTypeFlags
@@ -876,13 +860,6 @@ isStringableType(DerivableType* type) {
 		functionType->getReturnType()->getTypeKind() == TypeKind_String &&
 		functionType->getArgArray().getCount() == 1 &&
 		functionType->isMemberMethodType();
-}
-
-bool
-isSafePtrType(Type* type) {
-	return
-		(type->getTypeKindFlags() & TypeKindFlag_Ptr) &&
-		(type->getFlags() & PtrTypeFlag_Safe);
 }
 
 bool
