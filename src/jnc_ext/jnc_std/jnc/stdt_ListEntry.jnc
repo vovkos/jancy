@@ -24,57 +24,81 @@ struct ListEntry<T> {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct IteratorBase<T> {
-	typedef T Entry;
+struct IteratorBase<P> {
+	typedef P EntryPtr;
 
-	T* readonly m_p;
-
-	T* operator * () thin const {
-		return m_p;
-	}
-
-	T* operator -> () thin const {
-		return m_p;
-	}
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct IteratorImpl<T>: T {
-	construct(T.Entry* p = null) thin {
-		m_p = p;
-	}
+	P readonly m_p;
 
 	operator bool () thin const {
 		return m_p != null;
 	}
 
-	IteratorImpl operator ++ () thin {
+	P operator * () thin const {
+		return m_p;
+	}
+
+	P operator -> () thin const {
+		return m_p;
+	}
+
+	P operator ++ () thin {
+		return m_p = m_p.m_next;
+	}
+
+	P operator -- () thin {
+		return m_p = m_p.m_prev;
+	}
+
+	P postfix operator ++ () thin {
+		P p0 = m_p;
 		m_p = m_p.m_next;
-		return *this;
+		return p0;
 	}
 
-	IteratorImpl postfix operator ++ () thin {
-		IteratorImpl saved = *this;
-		m_p = m_p.m_next;
-		return saved;
-	}
-
-	IteratorImpl operator -- () thin {
+	P postfix operator -- () thin {
+		P p0 = m_p;
 		m_p = m_p.m_prev;
-		return *this;
-	}
-
-	IteratorImpl postfix operator -- () thin {
-		IteratorImpl saved = *this;
-		m_p = m_p.m_prev;
-		return saved;
+		return p0;
 	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-typedef IteratorImpl<IteratorBase<T> > Iterator<T>;
+struct IteratorImpl<M, C>: M {
+	typedef ConstIteratorImpl<M, C> ConstIterator;
+
+	construct() thin {}
+
+	construct(EntryPtr p) thin {
+		m_p = p;
+	}
+}
+
+struct ConstIteratorImpl<M, C>: C {
+	typedef IteratorImpl<M, C> Iterator;
+
+	construct() thin {}
+
+	construct(EntryPtr p) thin {
+		m_p = p;
+	}
+
+	construct(Iterator it) thin {
+		m_p = it.m_p;
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+typedef IteratorImpl<
+	IteratorBase<T*>,
+	IteratorBase<T const*>
+> Iterator<T>;
+
+typedef ConstIteratorImpl<
+	IteratorBase<T*>,
+	IteratorBase<T const*>
+> ConstIterator<T>;
 
 //..............................................................................
 
@@ -83,32 +107,42 @@ struct BoxListEntry<T>: ListEntry<BoxListEntry> {
 
 	T m_value;
 
-	construct() {}
+	construct() thin {}
 
-	construct(T value) {
+	construct(T value) thin {
 		m_value = value;
 	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct BoxIteratorBase<T>: IteratorBase<BoxListEntry<T> > {
+struct BoxIteratorBase<T, P, E>: IteratorBase<E> {
 	T operator * () thin const {
 		return m_p.m_value;
 	}
 
-	T* operator -> () thin const {
+	P operator -> () thin const {
 		return &m_p.m_value;
 	}
+}
 
-	T.Value operator := (T.Value value) thin const {
+struct BoxMutableIteratorBase<T, P, E>: BoxIteratorBase<T, P, E> {
+	T operator := (T value) thin const {
 		return m_p.m_value = value;
 	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-typedef IteratorImpl<BoxIteratorBase<T> > BoxIterator<T>;
+typedef IteratorImpl<
+	BoxMutableIteratorBase<T, T*, BoxListEntry<T>*>,
+	BoxIteratorBase<T, T const*, BoxListEntry<T> const*>
+> BoxIterator<T>;
+
+typedef ConstIteratorImpl<
+	BoxMutableIteratorBase<T, T*, BoxListEntry<T>*>,
+	BoxIteratorBase<T, T const*, BoxListEntry<T> const*>
+> BoxConstIterator<T>;
 
 //..............................................................................
 

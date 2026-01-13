@@ -32,10 +32,8 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-typedef IteratorImpl<IteratorBase<HashTableEntry<K, V> > > HashTableIterator<K, V>;
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
+typedef Iterator<HashTableEntry<K, V> > HashTableIterator<K, V>;
+typedef ConstIterator<HashTableEntry<K, V> > HashTableConstIterator<K, V>;
 typedef BoxList<HashTableEntry<K, V>*> HashTableBucket<K, V>;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -47,6 +45,7 @@ class HashTable<K, V, H, E = Eq<K> > {
 	typedef E Eq;
 	typedef HashTableEntry<K, V> Entry;
 	typedef HashTableIterator<K, V> Iterator;
+	typedef HashTableConstIterator<K, V> ConstIterator;
 	typedef HashTableBucket<K, V> Bucket;
 
 	enum {
@@ -55,7 +54,7 @@ class HashTable<K, V, H, E = Eq<K> > {
 	};
 
 protected:
-	List<Entry> m_list;
+	List<Entry, Iterator> m_list;
 	Array<Bucket*> m_table;
 	H m_hash;
 	E m_eq;
@@ -71,11 +70,12 @@ public:
 
 	V get(K key) const;
 
-	void set(
+	V set(
 		K key,
 		V value
 	) {
 		add(key, value);
+		return value;
 	}
 
 	property m_head {
@@ -99,16 +99,16 @@ public:
 		m_table.clear();
 	}
 
-	void setBucketCount(size_t count);
+	bool errorcode setBucketCount(size_t count);
 
-	Iterator visit(K key);
-	Iterator find(K key) const;
+	Iterator errorcode visit(K key);
+	Entry cmut* find(K key) const;
 
 	V findValue(
 		K key,
 		V undefinedValue = null
 	) const {
-		Iterator it = find(key);
+		ConstIterator it = find(key);
 		return it ? it->m_value : undefinedValue;
 	}
 
@@ -138,7 +138,7 @@ V HashTable<K, V, H, E>.get(K key) const {
 	return it->m_value;
 }
 
-Iterator HashTable<K, V, H, E>.visit(K key) {
+Iterator errorcode HashTable<K, V, H, E>.visit(K key) {
 	if (!m_table.m_count)
 		m_table.setCount(InitialBucketCount);
 
@@ -166,7 +166,7 @@ Iterator HashTable<K, V, H, E>.visit(K key) {
 	return entry;
 }
 
-Iterator HashTable<K, V, H, E>.find(K key) const {
+Entry cmut* HashTable<K, V, H, E>.find(K key) const {
 	if (!m_table.m_count)
 		return null;
 
@@ -223,7 +223,7 @@ bool HashTable<K, V, H, E>.removeKey(K key) {
 	return true;
 }
 
-void HashTable<K, V, H, E>.setBucketCount(size_t count) {
+bool errorcode HashTable<K, V, H, E>.setBucketCount(size_t count) {
 	m_table.clear();
 	m_table.setCount(count);
 
@@ -240,6 +240,8 @@ void HashTable<K, V, H, E>.setBucketCount(size_t count) {
 		entry.m_bucketIt = bucket.basetype.insertTail(bucketEntry);
 		entry.m_bucket = bucket;
 	}
+
+	return true;
 }
 
 //..............................................................................
