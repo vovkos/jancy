@@ -19,7 +19,7 @@ namespace std {
 //! \import std_Buffer.jnc
 
 class Buffer {
-	char cmut* readonly m_p;
+	char constif* readonly m_p;
 	size_t readonly m_size;
 	size_t readonly m_maxSize;
 

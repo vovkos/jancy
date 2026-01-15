@@ -17,7 +17,7 @@ namespace stdt {
 //..............................................................................
 
 class Array<T> {
-	T cmut* readonly m_p;
+	T constif* readonly m_p;
 	size_t readonly m_count;
 	size_t readonly m_maxCount;
 

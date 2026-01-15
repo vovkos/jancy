@@ -79,13 +79,13 @@ public:
 	}
 
 	property m_head {
-		Entry cmut* get() {
+		Entry constif* get() const? {
 			return m_list.m_head;
 		}
 	}
 
 	property m_tail {
-		Entry cmut* get() {
+		Entry constif* get() const? {
 			return m_list.m_tail;
 		}
 	}
@@ -102,7 +102,7 @@ public:
 	bool errorcode setBucketCount(size_t count);
 
 	Iterator errorcode visit(K key);
-	Entry cmut* find(K key) const;
+	Entry constif* find(K key) const?;
 
 	V findValue(
 		K key,
@@ -129,7 +129,7 @@ public:
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 V HashTable<K, V, H, E>.get(K key) const {
-	Iterator it = find(key);
+	ConstIterator it = find(key);
 	if (!it) {
 		std.setError($"key not found");
 		throw;
@@ -166,7 +166,7 @@ Iterator errorcode HashTable<K, V, H, E>.visit(K key) {
 	return entry;
 }
 
-Entry cmut* HashTable<K, V, H, E>.find(K key) const {
+Entry constif* HashTable<K, V, H, E>.find(K key) const? {
 	if (!m_table.m_count)
 		return null;
 

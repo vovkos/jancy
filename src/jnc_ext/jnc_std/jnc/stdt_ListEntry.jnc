@@ -18,8 +18,8 @@ namespace stdt {
 
 struct ListEntry<T> {
 	friend List;
-	T cmut* readonly m_next;
-	T cmut* readonly m_prev;
+	T constif* readonly m_next;
+	T constif* readonly m_prev;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

@@ -28,8 +28,8 @@ typedef int CmpFunc(
 //! \import std_RbTree.jnc
 
 opaque class RbTree {
-	MapEntry cmut* readonly m_head;
-	MapEntry cmut* readonly m_tail;
+	MapEntry constif* readonly m_head;
+	MapEntry constif* readonly m_tail;
 	size_t readonly m_count;
 
 	construct(CmpFunc thin* cmpFunc = null);
@@ -54,7 +54,7 @@ opaque class RbTree {
 	void clear();
 
 	MapEntry* errorcode visit(variant_t key);
-	MapEntry cmut* find(variant_t key) const;
+	MapEntry constif* find(variant_t key) const?;
 
 	variant_t findValue(
 		variant_t key,

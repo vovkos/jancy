@@ -30,14 +30,14 @@ struct ListEntry {
 		is the last entry.
 	*/
 
-	ListEntry cmut* readonly m_next;
+	ListEntry constif* readonly m_next;
 
 	/**
 		Holds a pointer to the previous list entry on the list or ``null`` if
 		this is the first entry.
 	*/
 
-	ListEntry cmut* readonly m_prev;
+	ListEntry constif* readonly m_prev;
 
 	/**
 		Opaque field used for internal validation of the list entry. Must be

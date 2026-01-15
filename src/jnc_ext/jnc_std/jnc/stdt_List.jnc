@@ -23,8 +23,8 @@ class List<T, I = Iterator<T> > {
 	typedef I Iterator;
 	typedef I.ConstIterator ConstIterator;
 
-	T cmut* readonly m_head;
-	T cmut* readonly m_tail;
+	T constif* readonly m_head;
+	T constif* readonly m_tail;
 	size_t readonly m_count;
 
 	void clear();

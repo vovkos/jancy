@@ -19,8 +19,8 @@ namespace std {
 //! \import std_MapEntry.jnc
 
 struct MapEntry {
-	MapEntry cmut* readonly m_next;
-	MapEntry cmut* readonly m_prev;
+	MapEntry constif* readonly m_next;
+	MapEntry constif* readonly m_prev;
 
 	variant_t const m_key;
 	variant_t m_value;

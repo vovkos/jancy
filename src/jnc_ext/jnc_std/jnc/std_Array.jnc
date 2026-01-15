@@ -19,7 +19,7 @@ namespace std {
 //! \import std_Array.jnc
 
 class Array {
-	variant_t cmut* readonly m_p;
+	variant_t constif* readonly m_p;
 	size_t readonly m_count;
 	size_t readonly m_maxCount;
 
