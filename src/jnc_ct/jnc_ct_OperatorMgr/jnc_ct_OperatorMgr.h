@@ -1764,7 +1764,6 @@ protected:
 	bool
 	callImpl(
 		const Value& pfnValue,
-		FunctionType* functionType,
 		sl::BoxList<Value>* argValueList,
 		Value* resultValue
 	);

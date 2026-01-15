@@ -269,7 +269,7 @@ OperatorMgr::callOperator(
 				return false;
 		}
 
-		return callImpl(opValue, function->getType(), argValueList, resultValue);
+		return callImpl(opValue, argValueList, resultValue);
 		}
 
 	case ValueKind_Namespace: {
@@ -314,7 +314,7 @@ OperatorMgr::callOperator(
 	FunctionPtrType* functionPtrType = (FunctionPtrType*)opValue.getType();
 	return functionPtrType->hasClosure() ?
 		callClosureFunctionPtr(opValue, argValueList, resultValue) :
-		callImpl(opValue, functionPtrType->getTargetType(), argValueList, resultValue);
+		callImpl(opValue, argValueList, resultValue);
 }
 
 FunctionTypeOverload
@@ -538,9 +538,7 @@ OperatorMgr::callClosureFunctionPtr(
 	Value* resultValue
 ) {
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_FunctionPtr);
-
-	FunctionPtrType* functionPtrType = (FunctionPtrType*)opValue.getType();
-	FunctionType* functionType = functionPtrType->getTargetType();
+	FunctionType* functionType = ((FunctionPtrType*)opValue.getType())->getTargetType();
 	FunctionType* abstractMethodType = functionType->getStdObjectMemberMethodType();
 	FunctionPtrType* functionThinPtrType = abstractMethodType->getFunctionPtrType(FunctionPtrTypeKind_Thin);
 
@@ -557,16 +555,17 @@ OperatorMgr::callClosureFunctionPtr(
 	}
 
 	argValueList->insertHead(ifaceValue);
-	return callImpl(pfnValue, abstractMethodType, argValueList, resultValue);
+	return callImpl(pfnValue, argValueList, resultValue);
 }
 
 bool
 OperatorMgr::callImpl(
 	const Value& pfnValue,
-	FunctionType* functionType,
 	sl::BoxList<Value>* argValueList,
 	Value* resultValue
 ) {
+	ASSERT(pfnValue.getType()->getTypeKindFlags() & TypeKindFlag_FunctionPtr);
+	FunctionType* functionType = ((FunctionPtrType*)pfnValue.getType())->getTargetType();
 	uint_t flags = functionType->getFlags();
 
 	if ((flags & FunctionTypeFlag_Unsafe) && !isUnsafeRgn()) {
@@ -602,6 +601,7 @@ OperatorMgr::callImpl(
 #if (_JNC_DYLAYOUT_FINALIZE_STRUCT_SECTIONS_ON_CALLS)
 	m_callCount++;
 #endif
+
 	return true;
 }
 
