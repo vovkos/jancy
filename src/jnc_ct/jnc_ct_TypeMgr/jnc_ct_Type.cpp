@@ -82,14 +82,14 @@ getPtrTypeFlagString(PtrTypeFlag flag) {
 	static const char* stringTable[] = {
 		"safe",       // PtrTypeFlag_Safe       = 0x00010000
 		"const",      // PtrTypeFlag_Const      = 0x00020000
-		"readonly",   // PtrTypeFlag_ReadOnly   = 0x00040000
-		"cmut",       // PtrTypeFlag_CMut       = 0x00080000
-		"volatile",   // PtrTypeFlag_Volatile   = 0x00100000
-		"event",      // PtrTypeFlag_Event      = 0x00200000
-		"dualevent",  // PtrTypeFlag_DualEvent  = 0x00400000
-		"bindable",   // PtrTypeFlag_Bindable   = 0x00800000
-		"autoget",    // PtrTypeFlag_AutoGet    = 0x01000000
-		"dualtarget", // PtrTypeFlag_DualTarget = 0x02000000
+		"const?",     // PtrTypeFlag_MaybeConst = 0x00040000
+		"constif",    // PtrTypeFlag_ConstIf    = 0x00080000
+		"readonly",   // PtrTypeFlag_ReadOnly   = 0x00100000
+		"volatile",   // PtrTypeFlag_Volatile   = 0x00200000
+		"event",      // PtrTypeFlag_Event      = 0x00400000
+		"dualevent",  // PtrTypeFlag_DualEvent  = 0x00800000
+		"bindable",   // PtrTypeFlag_Bindable   = 0x01000000
+		"autoget",    // PtrTypeFlag_AutoGet    = 0x02000000
 		"bigendian",  // PtrTypeFlag_BigEndian  = 0x04000000
 		"bitfield",   // PtrTypeFlag_BitField   = 0x08000000
 		"thin",       // PtrTypeFlag_ThinThis   = 0x10000000
@@ -131,14 +131,14 @@ getPtrTypeFlagSignature(PtrTypeFlag flag) {
 	static const char* stringTable[] = {
 		"s",  // PtrTypeFlag_Safe       = 0x00010000
 		"c",  // PtrTypeFlag_Const      = 0x00020000
-		"r",  // PtrTypeFlag_ReadOnly   = 0x00040000
-		"m",  // PtrTypeFlag_CMut       = 0x00080000
-		"v",  // PtrTypeFlag_Volatile   = 0x00100000
-		"e",  // PtrTypeFlag_Event      = 0x00200000
-		"d",  // PtrTypeFlag_DualEvent  = 0x00400000
-		"b",  // PtrTypeFlag_Bindable   = 0x00800000
-		"a",  // PtrTypeFlag_AutoGet    = 0x01000000
-		"t",  // PtrTypeFlag_DualTarget = 0x02000000
+		"m",  // PtrTypeFlag_MaybeConst = 0x00040000
+		"i",  // PtrTypeFlag_ConstIf    = 0x00080000
+		"r",  // PtrTypeFlag_ReadOnly   = 0x00100000
+		"v",  // PtrTypeFlag_Volatile   = 0x00200000
+		"e",  // PtrTypeFlag_Event      = 0x00400000
+		"d",  // PtrTypeFlag_DualEvent  = 0x00800000
+		"b",  // PtrTypeFlag_Bindable   = 0x01000000
+		"a",  // PtrTypeFlag_AutoGet    = 0x02000000
 		"n",  // PtrTypeFlag_BigEndian  = 0x04000000
 		"f",  // PtrTypeFlag_BitField   = 0x08000000
 		"h",  // PtrTypeFlag_ThinThis   = 0x10000000
@@ -187,10 +187,12 @@ getPtrTypeFlagsFromModifiers(uint_t modifiers) {
 
 	if (modifiers & TypeModifier_Const)
 		flags |= PtrTypeFlag_Const;
+	else if (modifiers & TypeModifier_MaybeConst)
+		flags |= PtrTypeFlag_MaybeConst;
+	else if (modifiers & TypeModifier_ConstIf)
+		flags |= PtrTypeFlag_ConstIf;
 	else if (modifiers & TypeModifier_ReadOnly)
 		flags |= PtrTypeFlag_ReadOnly;
-	else if (modifiers & TypeModifier_CMut)
-		flags |= PtrTypeFlag_CMut;
 
 	if (modifiers & TypeModifier_Event)
 		flags |= PtrTypeFlag_Event;

@@ -1502,7 +1502,7 @@ public:
 		Namespace* viaNamespace,
 		Value* resultValue
 	) {
-		if (isDualType(resultValue->getType()))
+		if (resultValue->getType()->getFlags() & TypeFlag_Dual)
 			foldDualType(opValue, decl, viaNamespace, resultValue);
 	}
 

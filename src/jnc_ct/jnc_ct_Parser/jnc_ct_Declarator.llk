@@ -512,6 +512,10 @@ function_modifier<DeclFunctionSuffix* $functionSuffix>
 			{
 				return $functionSuffix->getDeclarator()->addTypeModifier(TypeModifier_Const);
 			}
+	|	TokenKind_MaybeConst
+			{
+				return $functionSuffix->getDeclarator()->addTypeModifier(TypeModifier_MaybeConst);
+			}
 	|	TokenKind_Thin
 			{
 				return $functionSuffix->getDeclarator()->addTypeModifier(TypeModifier_Thin);

@@ -122,14 +122,9 @@ Cast_PropertyPtr_Base::getCastKind(
 	if (!srcPtrType)
 		return CastKind_None;
 
-	PropertyPtrType* dstPtrType = (PropertyPtrType*)type;
-	if ((srcPtrType->getFlags() & PtrTypeFlag_Const) &&
-		!(dstPtrType->getFlags() & PtrTypeFlag_Const))
-		return CastKind_None;
-
 	return m_module->m_operatorMgr.getPropertyPtrCastKind(
 		srcPtrType->getTargetType(),
-		dstPtrType->getTargetType()
+		((PropertyPtrType*)type)->getTargetType()
 	);
 }
 

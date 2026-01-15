@@ -69,8 +69,9 @@ enum TokenKind {
 	TokenKind_Unsigned,
 	TokenKind_BigEndian,
 	TokenKind_Const,
+	TokenKind_MaybeConst,
+	TokenKind_ConstIf,
 	TokenKind_ReadOnly,
-	TokenKind_CMut,
 	TokenKind_Volatile,
 	TokenKind_Weak,
 	TokenKind_Thin,
@@ -281,8 +282,9 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP(TokenName)
 	AXL_LEX_TOKEN_NAME(TokenKind_Unsigned,     "unsigned")
 	AXL_LEX_TOKEN_NAME(TokenKind_BigEndian,    "bigendian")
 	AXL_LEX_TOKEN_NAME(TokenKind_Const,        "const")
+	AXL_LEX_TOKEN_NAME(TokenKind_MaybeConst,   "const?")
+	AXL_LEX_TOKEN_NAME(TokenKind_ConstIf,      "constif")
 	AXL_LEX_TOKEN_NAME(TokenKind_ReadOnly,     "readonly")
-	AXL_LEX_TOKEN_NAME(TokenKind_CMut,         "cmut")
 	AXL_LEX_TOKEN_NAME(TokenKind_Volatile,     "volatile")
 	AXL_LEX_TOKEN_NAME(TokenKind_Weak,         "weak")
 	AXL_LEX_TOKEN_NAME(TokenKind_Thin,         "thin")

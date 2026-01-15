@@ -118,6 +118,43 @@ FunctionType::resolveImports() {
 	return true;
 }
 
+Type*
+FunctionType::calcFoldedDualType(
+	bool isAlien,
+	uint_t ptrFlags
+) {
+	ASSERT(m_flags & TypeFlag_Dual);
+
+	Type* returnType = m_returnType->getActualTypeIfDual(isAlien, ptrFlags);
+
+	size_t count = m_argArray.getCount();
+	sl::Array<FunctionArg*> argArray;
+	argArray.setCount(count);
+	sl::Array<FunctionArg*>::Rwi rwi = argArray.rwi();
+
+	for (size_t i = 0; i < count; i++) {
+		FunctionArg* arg = m_argArray[i];
+		Type* argType = arg->getType();
+		rwi[i] = (argType->getFlags() & TypeFlag_Dual) ?
+			m_module->m_typeMgr.cloneFunctionArgOverrideType(arg, argType->foldDualType(isAlien, ptrFlags)) :
+			arg;
+	}
+
+	return (m_flags & ModuleItemFlag_User) ?
+		m_module->m_typeMgr.createUserFunctionType(
+			m_callConv,
+			returnType,
+			argArray,
+			m_flags & FunctionTypeFlag__All
+		) :
+		m_module->m_typeMgr.getFunctionType(
+			m_callConv,
+			returnType,
+			argArray,
+			m_flags & FunctionTypeFlag__All
+		);
+}
+
 bool
 FunctionType::calcLayout() {
 	bool result = m_returnType->ensureLayout();
@@ -158,7 +195,7 @@ FunctionType::prepareSignature() {
 	);
 
 	m_signature = signature;
-	m_flags |= flags;
+	m_flags |= flags & TypeFlag_SignatureMask;
 }
 
 sl::StringRef

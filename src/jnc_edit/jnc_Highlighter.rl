@@ -71,6 +71,7 @@ main := |*
 	'unsigned'        |
 	'bigendian'       |
 	'const'           |
+	'constif'         |
 	'cmut'            |
 	'readonly'        |
 	'volatile'        |

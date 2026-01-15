@@ -31,6 +31,7 @@ protected:
 public:
 	ImportType() {
 		m_actualType = NULL;
+		m_flags |= TypeFlag_Import;
 	}
 
 	bool

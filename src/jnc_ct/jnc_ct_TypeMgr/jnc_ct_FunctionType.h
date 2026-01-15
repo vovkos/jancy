@@ -197,6 +197,13 @@ protected:
 	resolveImports();
 
 	virtual
+	Type*
+	calcFoldedDualType(
+		bool isAlien,
+		uint_t ptrFlags
+	);
+
+	virtual
 	bool
 	calcLayout();
 
@@ -291,19 +298,29 @@ FunctionType::createSignature(
 	*string += getCallConvSignature(callConvKind);
 	*string += returnType->getSignature();
 
+	uint_t returnTypeFlags = returnType->getFlags();
+	uint_t signatureFlags = returnTypeFlags & TypeFlag_SignatureFinal;
+	uint_t propagageFlags = returnTypeFlags;
+
 	size_t length = string->getLength();
-	uint_t signatureFlags = TypeFlag_SignatureFinal;
 	*string += '(';
 
-	for (size_t i = 0; i < argCount; i++)
-		signatureFlags &= appendFunctionArgSignature(string, argArray[i]);
+	for (size_t i = 0; i < argCount; i++) {
+		uint_t argTypeFlags = appendFunctionArgSignature(string, argArray[i]);
+		signatureFlags &= argTypeFlags;
+		propagageFlags |= argTypeFlags;
+	}
 
 	if (flags & FunctionTypeFlag_VarArg)
 		*string += '.';
 
 	*string += ')';
 	*argSignature = string->getSubString(length);
-	return (signatureFlags & returnType->getFlags()) | TypeFlag_SignatureReady;
+
+	return
+		signatureFlags |
+		TypeFlag_SignatureReady |
+		(propagageFlags & TypeFlag_PropagateMask);
 }
 
 //..............................................................................

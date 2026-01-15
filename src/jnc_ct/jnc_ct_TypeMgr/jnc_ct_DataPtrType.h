@@ -102,6 +102,13 @@ public:
 		Type* referenceType
 	);
 
+	virtual
+	Type*
+	calcFoldedDualType(
+		bool isAlien,
+		uint_t ptrFlags
+	);
+
 protected:
 	virtual
 	bool
@@ -137,13 +144,6 @@ protected:
 	prepareTypeVariable() {
 		prepareSimpleTypeVariable(StdType_DataPtrType);
 	}
-
-	virtual
-	Type*
-	calcFoldedDualType(
-		bool isAlien,
-		bool isContainerConst
-	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -161,7 +161,7 @@ DataPtrType::DataPtrType() {
 //..............................................................................
 
 struct DataPtrTypeTuple: sl::ListLink {
-	DataPtrType* m_ptrTypeArray[2][3][4][2][2]; // ref x kind x const/readonly/cmut x volatile x safe
+	DataPtrType* m_ptrTypeArray[2][3][5][2][2]; // ref x kind x const/const?/constif/readonly x volatile x safe
 	DataPtrTypeTuple* m_bigEndianTuple; // same for PtrTypeFlag_BigEndian
 };
 

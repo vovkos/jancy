@@ -24,32 +24,32 @@ class TemplateArgType;
 //..............................................................................
 
 enum TypeModifier {
-	TypeModifier_Unsigned    = 0x00000001,
-	TypeModifier_BigEndian   = 0x00000002,
-	TypeModifier_Const       = 0x00000004,
-	TypeModifier_ReadOnly    = 0x00000008,
-	TypeModifier_Volatile    = 0x00000010,
-	TypeModifier_Weak        = 0x00000020,
-	TypeModifier_Thin        = 0x00000040,
-	TypeModifier_Safe        = 0x00000080,
-	TypeModifier_Cdecl       = 0x00000100,
-	TypeModifier_Stdcall     = 0x00000200,
-	TypeModifier_Array       = 0x00000400,
-	TypeModifier_Function    = 0x00000800,
-	TypeModifier_Property    = 0x00001000,
-	TypeModifier_Bindable    = 0x00002000,
-	TypeModifier_AutoGet     = 0x00004000,
-	TypeModifier_Indexed     = 0x00008000,
-	TypeModifier_Multicast   = 0x00010000,
-	TypeModifier_Event       = 0x00020000,
-	TypeModifier_DualEvent   = 0x00040000,
-	TypeModifier_Reactor     = 0x00080000,
-	TypeModifier_Thiscall    = 0x00100000,
-	TypeModifier_Jnccall     = 0x00200000,
-	TypeModifier_Unsafe      = 0x00400000,
-	TypeModifier_ErrorCode   = 0x00800000,
-	TypeModifier_CMut        = 0x01000000,
-	TypeModifier_Async       = 0x02000000,
+	TypeModifier_Unsigned   = 0x00000001,
+	TypeModifier_BigEndian  = 0x00000002,
+	TypeModifier_Const      = 0x00000004,
+	TypeModifier_MaybeConst = 0x00000008,
+	TypeModifier_ConstIf    = 0x00000010,
+	TypeModifier_ReadOnly   = 0x00000020,
+	TypeModifier_Volatile   = 0x00000040,
+	TypeModifier_Weak       = 0x00000080,
+	TypeModifier_Thin       = 0x00000100,
+	TypeModifier_Safe       = 0x00000200,
+	TypeModifier_Cdecl      = 0x00000400,
+	TypeModifier_Stdcall    = 0x00000800,
+	TypeModifier_Array      = 0x00001000,
+	TypeModifier_Function   = 0x00002000,
+	TypeModifier_Property   = 0x00004000,
+	TypeModifier_Bindable   = 0x00008000,
+	TypeModifier_AutoGet    = 0x00010000,
+	TypeModifier_Indexed    = 0x00020000,
+	TypeModifier_Multicast  = 0x00040000,
+	TypeModifier_Event      = 0x00080000,
+	TypeModifier_Reactor    = 0x00100000,
+	TypeModifier_Thiscall   = 0x00200000,
+	TypeModifier_Jnccall    = 0x00400000,
+	TypeModifier_Unsafe     = 0x00800000,
+	TypeModifier_ErrorCode  = 0x01000000,
+	TypeModifier_Async      = 0x02000000,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -76,7 +76,6 @@ enum TypeModifierMaskKind {
 		TypeModifier_ErrorCode |
 		TypeModifier_Const |
 		TypeModifier_ReadOnly |
-		TypeModifier_CMut |
 		TypeModifier_AutoGet |
 		TypeModifier_Bindable |
 		TypeModifier_Indexed |
@@ -88,19 +87,20 @@ enum TypeModifierMaskKind {
 		TypeModifier_BigEndian |
 		TypeModifier_Safe |
 		TypeModifier_Const |
+		TypeModifier_MaybeConst |
+		TypeModifier_ConstIf |
 		TypeModifier_ReadOnly |
-		TypeModifier_CMut |
 		TypeModifier_Volatile |
 		TypeModifier_Thin,
 
 	TypeModifierMaskKind_ClassPtr =
 		TypeModifier_Safe |
 		TypeModifier_Const |
+		TypeModifier_MaybeConst |
+		TypeModifier_ConstIf |
 		TypeModifier_ReadOnly |
-		TypeModifier_CMut |
 		TypeModifier_Volatile |
 		TypeModifier_Event |
-		TypeModifier_DualEvent |
 		TypeModifier_Weak,
 
 	TypeModifierMaskKind_FunctionPtr =
@@ -133,14 +133,19 @@ enum TypeModifierMaskKind {
 
 	TypeModifierMaskKind_Const =
 		TypeModifier_Const |
+		TypeModifier_MaybeConst |
+		TypeModifier_ConstIf |
 		TypeModifier_ReadOnly |
-		TypeModifier_CMut |
-		TypeModifier_Event |
-		TypeModifier_DualEvent,
+		TypeModifier_Event,
 
 	TypeModifierMaskKind_Event =
 		TypeModifierMaskKind_Const |
 		TypeModifierMaskKind_TypeKind,
+
+	TypeModifierMaskKind_Dual =
+		TypeModifier_ConstIf |
+		TypeModifier_ReadOnly |
+		TypeModifier_Event,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

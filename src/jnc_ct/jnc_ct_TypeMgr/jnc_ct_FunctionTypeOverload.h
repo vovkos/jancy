@@ -62,6 +62,11 @@ public:
 		return m_type->getModule();
 	}
 
+	uint_t
+	getFlags() const {
+		return m_flags;
+	}
+
 	bool
 	isEmpty() const {
 		return m_type == NULL;
@@ -154,6 +159,9 @@ public:
 	size_t
 	addOverload(FunctionType* type);
 
+	size_t
+	forceAddOverload(FunctionType* type);
+
 	void
 	copy(
 		FunctionType* const* typeArray,
@@ -177,6 +185,20 @@ protected:
 	bool
 	prepareLayout() const;
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+size_t
+FunctionTypeOverload::forceAddOverload(FunctionType* type) {
+	if (!m_type) {
+		m_type = type;
+		return 0;
+	}
+
+	m_overloadArray.append(type);
+	return m_overloadArray.getCount();
+}
 
 //..............................................................................
 

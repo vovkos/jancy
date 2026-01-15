@@ -123,11 +123,11 @@ enum jnc_TypeKind {
 	// aliases
 
 #if (JNC_PTR_BITS == 64)
-	jnc_TypeKind_IntPtr     = jnc_TypeKind_Int64,
-	jnc_TypeKind_IntPtr_u   = jnc_TypeKind_Int64_u,
+	jnc_TypeKind_IntPtr   = jnc_TypeKind_Int64,
+	jnc_TypeKind_IntPtr_u = jnc_TypeKind_Int64_u,
 #else
-	jnc_TypeKind_IntPtr     = jnc_TypeKind_Int32,
-	jnc_TypeKind_IntPtr_u   = jnc_TypeKind_Int32_u,
+	jnc_TypeKind_IntPtr   = jnc_TypeKind_Int32,
+	jnc_TypeKind_IntPtr_u = jnc_TypeKind_Int32_u,
 #endif
 
 	jnc_TypeKind_SizeT    = jnc_TypeKind_IntPtr_u,
@@ -152,25 +152,25 @@ typedef enum jnc_TypeKind jnc_TypeKind;
 // useful for simple checks
 
 enum jnc_TypeKindFlag {
-	jnc_TypeKindFlag_Integer      = 0x00000001,
-	jnc_TypeKindFlag_Signed       = 0x00000002,
-	jnc_TypeKindFlag_Unsigned     = 0x00000004,
-	jnc_TypeKindFlag_Fp           = 0x00000008,
-	jnc_TypeKindFlag_Numeric      = 0x00000010,
-	jnc_TypeKindFlag_Aggregate    = 0x00000020,
-	jnc_TypeKindFlag_Named        = 0x00000100,
-	jnc_TypeKindFlag_Derivable    = 0x00000200,
-	jnc_TypeKindFlag_DataPtr      = 0x00000400,
-	jnc_TypeKindFlag_ClassPtr     = 0x00000800,
-	jnc_TypeKindFlag_FunctionPtr  = 0x00001000,
-	jnc_TypeKindFlag_PropertyPtr  = 0x00002000,
-	jnc_TypeKindFlag_Ptr          = 0x00004000,
-	jnc_TypeKindFlag_Ref          = 0x00008000,
-	jnc_TypeKindFlag_Import       = 0x00010000,
-	jnc_TypeKindFlag_Code         = 0x00020000,
-	jnc_TypeKindFlag_Nullable     = 0x00040000,
-	jnc_TypeKindFlag_ErrorCode    = 0x00080000,
-	jnc_TypeKindFlag_Template     = 0x00100000,
+	jnc_TypeKindFlag_Integer     = 0x00000001,
+	jnc_TypeKindFlag_Signed      = 0x00000002,
+	jnc_TypeKindFlag_Unsigned    = 0x00000004,
+	jnc_TypeKindFlag_Fp          = 0x00000008,
+	jnc_TypeKindFlag_Numeric     = 0x00000010,
+	jnc_TypeKindFlag_Aggregate   = 0x00000020,
+	jnc_TypeKindFlag_Named       = 0x00000100,
+	jnc_TypeKindFlag_Derivable   = 0x00000200,
+	jnc_TypeKindFlag_DataPtr     = 0x00000400,
+	jnc_TypeKindFlag_ClassPtr    = 0x00000800,
+	jnc_TypeKindFlag_FunctionPtr = 0x00001000,
+	jnc_TypeKindFlag_PropertyPtr = 0x00002000,
+	jnc_TypeKindFlag_Ptr         = 0x00004000,
+	jnc_TypeKindFlag_Ref         = 0x00008000,
+	jnc_TypeKindFlag_Import      = 0x00010000,
+	jnc_TypeKindFlag_Code        = 0x00020000,
+	jnc_TypeKindFlag_Nullable    = 0x00040000,
+	jnc_TypeKindFlag_ErrorCode   = 0x00080000,
+	jnc_TypeKindFlag_Template    = 0x00100000,
 };
 
 typedef enum jnc_TypeKindFlag jnc_TypeKindFlag;
@@ -194,6 +194,10 @@ enum jnc_TypeFlag {
 	jnc_TypeFlag_StructRet      = 0x0400, // return through hidden 1st arg (gcc32 callconv)
 	jnc_TypeFlag_NoStack        = 0x1000, // try to avoid allocation on stack
 	jnc_TypeFlag_NoImports      = 0x2000, // all imports resolved (when generating documentation)
+	jnc_TypeFlag_Import         = 0x0008, // contains imports (supersedes TypeFlag_NoImports)
+	jnc_TypeFlag_Dual           = 0x4000, // should be folded in member operator
+	jnc_TypeFlag_MaybeConst     = 0x8000, // const? anchor (only one const? argument allowed)
+	jnc_TypeFlag_PropagateMask  = 0xc008, // derived types should propagate these flags
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -206,25 +210,19 @@ enum jnc_ImportTypeFlag {
 
 enum jnc_PtrTypeFlag {
 	jnc_PtrTypeFlag_Safe       = 0x00010000, // all ptr
-	jnc_PtrTypeFlag_Const      = 0x00020000, // class, data ptr, function
-	jnc_PtrTypeFlag_ReadOnly   = 0x00040000, // class & data ptr
-	jnc_PtrTypeFlag_CMut       = 0x00080000, // class & data ptr
-	jnc_PtrTypeFlag_Volatile   = 0x00100000, // class & data ptr
-	jnc_PtrTypeFlag_Event      = 0x00200000, // multicast-class only
-	jnc_PtrTypeFlag_DualEvent  = 0x00400000, // multicast-class only
-	jnc_PtrTypeFlag_Bindable   = 0x00800000, // multicast-class only
-	jnc_PtrTypeFlag_AutoGet    = 0x01000000, // data ptr only
-	jnc_PtrTypeFlag_DualTarget = 0x02000000, // data ptr only
+	jnc_PtrTypeFlag_Const      = 0x00020000, // class, data ptr
+	jnc_PtrTypeFlag_MaybeConst = 0x00040000, // class, data ptr
+	jnc_PtrTypeFlag_ConstIf    = 0x00080000, // class & data ptr (dual)
+	jnc_PtrTypeFlag_ReadOnly   = 0x00100000, // class & data ptr (dual)
+	jnc_PtrTypeFlag_Volatile   = 0x00200000, // class & data ptr
+	jnc_PtrTypeFlag_Event      = 0x00400000, // multicast-class only
+	jnc_PtrTypeFlag_DualEvent  = 0x00800000, // multicast-class only
+	jnc_PtrTypeFlag_Bindable   = 0x01000000, // multicast-class only
+	jnc_PtrTypeFlag_AutoGet    = 0x02000000, // data ptr only
 	jnc_PtrTypeFlag_BigEndian  = 0x04000000, // data ptr only
 	jnc_PtrTypeFlag_BitField   = 0x08000000, // data ptr only
-	jnc_PtrTypeFlag_ThinThis   = 0x10000000, // function only (converts to DataPtrTypeKind_Thin)
-
+	jnc_PtrTypeFlag_ThinThis   = 0x10000000, // 'this' arg only
 	jnc_PtrTypeFlag__All       = 0x1fff0000,
-	jnc_PtrTypeFlag__Dual =
-		jnc_PtrTypeFlag_ReadOnly |
-		jnc_PtrTypeFlag_CMut |
-		jnc_PtrTypeFlag_DualEvent |
-		jnc_PtrTypeFlag_DualTarget,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -237,7 +235,7 @@ jnc_getPtrTypeFlagString_v(uint_t flags);
 
 enum jnc_TypeStringKind {
 	jnc_TypeStringKind_TypeName = jnc_ModuleItemStringKind_QualifiedName,
-	jnc_TypeStringKind_Prefix = jnc_ModuleItemStringKind__Count,
+	jnc_TypeStringKind_Prefix   = jnc_ModuleItemStringKind__Count,
 	jnc_TypeStringKind_Suffix,
 	jnc_TypeStringKind_DoxyTypeString,
 	jnc_TypeStringKind_DoxyLinkedTextPrefix,
@@ -710,25 +708,25 @@ const TypeKind
 typedef jnc_TypeKindFlag TypeKindFlag;
 
 const TypeKindFlag
-	TypeKindFlag_Integer      = jnc_TypeKindFlag_Integer,
-	TypeKindFlag_Signed       = jnc_TypeKindFlag_Signed,
-	TypeKindFlag_Unsigned     = jnc_TypeKindFlag_Unsigned,
-	TypeKindFlag_Fp           = jnc_TypeKindFlag_Fp,
-	TypeKindFlag_Numeric      = jnc_TypeKindFlag_Numeric,
-	TypeKindFlag_Aggregate    = jnc_TypeKindFlag_Aggregate,
-	TypeKindFlag_Named        = jnc_TypeKindFlag_Named,
-	TypeKindFlag_Derivable    = jnc_TypeKindFlag_Derivable,
-	TypeKindFlag_DataPtr      = jnc_TypeKindFlag_DataPtr,
-	TypeKindFlag_ClassPtr     = jnc_TypeKindFlag_ClassPtr,
-	TypeKindFlag_FunctionPtr  = jnc_TypeKindFlag_FunctionPtr,
-	TypeKindFlag_PropertyPtr  = jnc_TypeKindFlag_PropertyPtr,
-	TypeKindFlag_Ptr          = jnc_TypeKindFlag_Ptr,
-	TypeKindFlag_Ref          = jnc_TypeKindFlag_Ref,
-	TypeKindFlag_Import       = jnc_TypeKindFlag_Import,
-	TypeKindFlag_Code         = jnc_TypeKindFlag_Code,
-	TypeKindFlag_Nullable     = jnc_TypeKindFlag_Nullable,
-	TypeKindFlag_ErrorCode    = jnc_TypeKindFlag_ErrorCode,
-	TypeKindFlag_Template     = jnc_TypeKindFlag_Template;
+	TypeKindFlag_Integer     = jnc_TypeKindFlag_Integer,
+	TypeKindFlag_Signed      = jnc_TypeKindFlag_Signed,
+	TypeKindFlag_Unsigned    = jnc_TypeKindFlag_Unsigned,
+	TypeKindFlag_Fp          = jnc_TypeKindFlag_Fp,
+	TypeKindFlag_Numeric     = jnc_TypeKindFlag_Numeric,
+	TypeKindFlag_Aggregate   = jnc_TypeKindFlag_Aggregate,
+	TypeKindFlag_Named       = jnc_TypeKindFlag_Named,
+	TypeKindFlag_Derivable   = jnc_TypeKindFlag_Derivable,
+	TypeKindFlag_DataPtr     = jnc_TypeKindFlag_DataPtr,
+	TypeKindFlag_ClassPtr    = jnc_TypeKindFlag_ClassPtr,
+	TypeKindFlag_FunctionPtr = jnc_TypeKindFlag_FunctionPtr,
+	TypeKindFlag_PropertyPtr = jnc_TypeKindFlag_PropertyPtr,
+	TypeKindFlag_Ptr         = jnc_TypeKindFlag_Ptr,
+	TypeKindFlag_Ref         = jnc_TypeKindFlag_Ref,
+	TypeKindFlag_Import      = jnc_TypeKindFlag_Import,
+	TypeKindFlag_Code        = jnc_TypeKindFlag_Code,
+	TypeKindFlag_Nullable    = jnc_TypeKindFlag_Nullable,
+	TypeKindFlag_ErrorCode   = jnc_TypeKindFlag_ErrorCode,
+	TypeKindFlag_Template    = jnc_TypeKindFlag_Template;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -752,7 +750,11 @@ const TypeFlag
 	TypeFlag_GcRoot         = jnc_TypeFlag_GcRoot,
 	TypeFlag_StructRet      = jnc_TypeFlag_StructRet,
 	TypeFlag_NoStack        = jnc_TypeFlag_NoStack,
-	TypeFlag_NoImports      = jnc_TypeFlag_NoImports;
+	TypeFlag_NoImports      = jnc_TypeFlag_NoImports,
+	TypeFlag_Import         = jnc_TypeFlag_Import,
+	TypeFlag_Dual           = jnc_TypeFlag_Dual,
+	TypeFlag_MaybeConst     = jnc_TypeFlag_MaybeConst,
+	TypeFlag_PropagateMask  = jnc_TypeFlag_PropagateMask;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -768,20 +770,18 @@ typedef jnc_PtrTypeFlag PtrTypeFlag;
 const PtrTypeFlag
 	PtrTypeFlag_Safe       = jnc_PtrTypeFlag_Safe,
 	PtrTypeFlag_Const      = jnc_PtrTypeFlag_Const,
+	PtrTypeFlag_MaybeConst = jnc_PtrTypeFlag_MaybeConst,
+	PtrTypeFlag_ConstIf    = jnc_PtrTypeFlag_ConstIf,
 	PtrTypeFlag_ReadOnly   = jnc_PtrTypeFlag_ReadOnly,
-	PtrTypeFlag_CMut       = jnc_PtrTypeFlag_CMut,
 	PtrTypeFlag_Volatile   = jnc_PtrTypeFlag_Volatile,
 	PtrTypeFlag_Event      = jnc_PtrTypeFlag_Event,
 	PtrTypeFlag_DualEvent  = jnc_PtrTypeFlag_DualEvent,
 	PtrTypeFlag_Bindable   = jnc_PtrTypeFlag_Bindable,
 	PtrTypeFlag_AutoGet    = jnc_PtrTypeFlag_AutoGet,
-	PtrTypeFlag_DualTarget = jnc_PtrTypeFlag_DualTarget,
 	PtrTypeFlag_BigEndian  = jnc_PtrTypeFlag_BigEndian,
 	PtrTypeFlag_BitField   = jnc_PtrTypeFlag_BitField,
 	PtrTypeFlag_ThinThis   = jnc_PtrTypeFlag_ThinThis,
-
-	PtrTypeFlag__All       = jnc_PtrTypeFlag__All,
-	PtrTypeFlag__Dual      = jnc_PtrTypeFlag__Dual;
+	PtrTypeFlag__All       = jnc_PtrTypeFlag__All;
 
 //..............................................................................
 

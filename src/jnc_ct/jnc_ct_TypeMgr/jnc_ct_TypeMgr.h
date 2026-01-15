@@ -313,6 +313,12 @@ public:
 	);
 
 	FunctionArg*
+	cloneFunctionArgOverrideType(
+		FunctionArg* arg,
+		Type* type
+	);
+
+	FunctionArg*
 	getSimpleFunctionArg(
 		StorageKind storageKind,
 		Type* type,
@@ -669,7 +675,8 @@ public:
 	T*
 	getModType(
 		B* baseType,
-		uint_t typeModifiers
+		uint_t typeModifiers,
+		uint_t flags = 0
 	);
 
 	ImportTypeNameAnchor*
@@ -709,7 +716,7 @@ public:
 	foldDualType(
 		Type* type,
 		bool isAlien,
-		bool isContainerConst
+		uint_t ptrFlags
 	);
 
 protected:
@@ -832,6 +839,20 @@ protected:
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
+FunctionArg*
+TypeMgr::cloneFunctionArgOverrideType(
+	FunctionArg* arg,
+	Type* type
+) {
+	if (arg->m_initializer.isEmpty())
+		return createFunctionArg(arg->m_name, type, arg->m_ptrTypeFlags);
+
+	sl::List<Token> initializer;
+	cloneTokenList(&initializer, arg->m_initializer);
+	return createFunctionArg(arg->m_name, type, arg->m_ptrTypeFlags, &initializer);
+}
+
+inline
 FunctionType*
 TypeMgr::createUserFunctionType(
 	CallConv* callConv,
@@ -909,7 +930,8 @@ template <
 T*
 TypeMgr::getModType(
 	B* baseType,
-	uint_t typeModifiers
+	uint_t typeModifiers,
+	uint_t flags
 ) {
 	sl::String signature = T::createSignature(baseType, typeModifiers);
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
@@ -918,12 +940,16 @@ TypeMgr::getModType(
 		return (T*)it->m_value;
 	}
 
+	flags |=
+		(baseType->m_flags & TypeFlag_PropagateMask) |
+		TypeFlag_SignatureReady;
+
 	T* type = new T;
 	type->m_module = m_module;
 	type->m_baseType = baseType;
 	type->m_typeModifiers = typeModifiers;
 	type->m_signature = signature;
-	type->m_flags |= TypeFlag_SignatureReady;
+	type->m_flags = flags;
 
 	m_typeList.insertTail(type);
 	it->m_value = type;

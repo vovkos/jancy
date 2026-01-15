@@ -127,6 +127,16 @@ protected:
 	}
 
 	virtual
+	Type*
+	calcFoldedDualType(
+		bool isAlien,
+		uint_t ptrFlags
+	) {
+		FunctionType* targetType = (FunctionType*)m_targetType->foldDualType(isAlien, ptrFlags);
+		return targetType->getFunctionPtrType(m_typeKind, m_ptrTypeKind, m_flags & PtrTypeFlag__All);
+	}
+
+	virtual
 	bool
 	calcLayout() {
 		return m_targetType->ensureLayout();

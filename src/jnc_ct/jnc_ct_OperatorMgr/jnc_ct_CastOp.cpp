@@ -18,6 +18,52 @@ namespace ct {
 
 //..............................................................................
 
+CastKind
+getConstCastKind(
+	uint_t srcFlags,
+	uint_t dstFlags
+) {
+	static CastKind castKindTable[5][5] = {
+		{	// 0 - mutable
+			CastKind_Implicit,           // 0 - mutable
+			CastKind_ImplicitCrossConst, // 1 - const
+			CastKind_ImplicitCrossConst, // 2 - const?
+			CastKind_None,               // 3 - invalid
+			CastKind_ImplicitCrossConst, // 4 - constif
+		},
+		{	// 1 - const
+			CastKind_None,               // 0 - mutable
+			CastKind_Implicit,           // 1 - const
+			CastKind_Implicit,           // 2 - const?
+			CastKind_None,               // 3 - invalid
+			CastKind_None,               // 4 - constif
+		},
+		{	// 2 - const?
+			CastKind_None,               // 0 - mutable
+			CastKind_Implicit,           // 1 - const
+			CastKind_Implicit,           // 2 - const?
+			CastKind_None,               // 3 - invalid
+			CastKind_Implicit,           // 4 - constif
+		},
+		{	// 3 - invalid
+		},
+		{	// 4 - constif
+			CastKind_None,               // 0 - mutable
+			CastKind_Implicit,           // 1 - const
+			CastKind_Implicit,           // 2 - const?
+			CastKind_None,               // 3 - invalid
+			CastKind_Implicit,           // 4 - constif
+		},
+	};
+
+	size_t srcIdx = getConstPtrFlagIdx(srcFlags);
+	size_t dstIdx = getConstPtrFlagIdx(dstFlags);
+	ASSERT(srcIdx < countof(castKindTable) && dstIdx < countof(castKindTable));
+	return castKindTable[srcIdx][dstIdx];
+}
+
+static
+inline
 sl::String
 getConstTypeString(Type* type) {
 	sl::String string = type->getTypeStringPrefix() + " const";

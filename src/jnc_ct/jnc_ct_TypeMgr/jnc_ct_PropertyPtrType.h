@@ -110,6 +110,16 @@ protected:
 	}
 
 	virtual
+	Type*
+	calcFoldedDualType(
+		bool isAlien,
+		uint_t ptrFlags
+	) {
+		PropertyType* targetType = (PropertyType*)m_targetType->foldDualType(isAlien, ptrFlags);
+		return targetType->getPropertyPtrType(m_typeKind, m_ptrTypeKind, m_flags & PtrTypeFlag__All);
+	}
+
+	virtual
 	void
 	prepareSignature() {
 		m_signature = createSignature(m_targetType, m_typeKind, m_ptrTypeKind, m_flags);

@@ -99,24 +99,23 @@ ClassPtrType::markGcRoots(
 Type*
 ClassPtrType::calcFoldedDualType(
 	bool isAlien,
-	bool isContainerConst
+	uint_t ptrFlags
 ) {
-	ASSERT(isDualType(this));
-
-	uint_t flags = m_flags & (PtrTypeFlag__All & ~(PtrTypeFlag_ReadOnly | PtrTypeFlag_CMut | PtrTypeFlag_DualEvent));
+	ASSERT(m_flags & TypeFlag_Dual);
+	uint_t flags = m_flags & PtrTypeFlag__All & ~(PtrTypeFlag_ReadOnly | PtrTypeFlag_ConstIf | PtrTypeFlag_DualEvent);
 
 	if (isAlien) {
 		if (m_flags & PtrTypeFlag_ReadOnly)
 			flags |= PtrTypeFlag_Const;
+		else if (m_flags & PtrTypeFlag_ConstIf)
+			flags |= ptrFlags;
 
 		if (m_flags & PtrTypeFlag_DualEvent)
 			flags |= PtrTypeFlag_Event;
-	}
+	} else if (m_flags & PtrTypeFlag_ConstIf)
+		flags |= ptrFlags;
 
-	if ((m_flags & PtrTypeFlag_CMut) && isContainerConst)
-		flags |= PtrTypeFlag_Const;
-
-	return m_module->m_typeMgr.getClassPtrType(m_targetType, m_typeKind, m_ptrTypeKind, flags);
+	return m_targetType->getClassPtrType(m_typeKind, m_ptrTypeKind, flags);
 }
 
 bool

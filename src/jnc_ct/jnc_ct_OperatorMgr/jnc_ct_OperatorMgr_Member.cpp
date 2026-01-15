@@ -186,7 +186,6 @@ OperatorMgr::createMemberClosure(Value* value) {
 	ValueKind valueKind = value->getValueKind();
 	switch (valueKind) {
 	case ValueKind_Type:
-	case ValueKind_FunctionTypeOverload:
 		result = getThisValueType(&thisValue);
 		if (!result)
 			return false;
@@ -280,8 +279,7 @@ OperatorMgr::foldDualType(
 	Namespace* viaNamespace,
 	Value* resultValue
 ) {
-	Type* type = resultValue->getType();
-	ASSERT(isDualType(type));
+	ASSERT(resultValue->getType()->getFlags() & TypeFlag_Dual);
 
 	Namespace* parentNamespace = decl->getParentNamespace();
 
@@ -291,10 +289,13 @@ OperatorMgr::foldDualType(
 			m_module->m_namespaceMgr.getAccessKind(viaNamespace) == AccessKind_Public
 		);
 
-	bool isConst = (opValue.getType()->getFlags() & PtrTypeFlag_Const) != 0;
+	Type* opType = opValue.getType();
+	uint_t ptrFlags = (opType->getTypeKindFlags() & (TypeKindFlag_DataPtr | TypeKindFlag_ClassPtr)) ?
+		opType->getFlags() & (PtrTypeFlag_Const | PtrTypeFlag_MaybeConst | PtrTypeFlag_ConstIf) :
+		0;
 
-	type = m_module->m_typeMgr.foldDualType(type, isAlien, isConst);
-	resultValue->overrideType(type);
+	Type* resultType = m_module->m_typeMgr.foldDualType(resultValue->getType(), isAlien, ptrFlags);
+	resultValue->overrideType(resultType);
 }
 
 bool

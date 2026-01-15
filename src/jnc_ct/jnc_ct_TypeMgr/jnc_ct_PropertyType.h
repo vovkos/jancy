@@ -164,7 +164,26 @@ protected:
 
 	virtual
 	bool
-	resolveImports();
+	resolveImports() {
+		return
+			m_getterType->ensureNoImports() &&
+			(m_setterType.isEmpty() || m_setterType.ensureNoImports());
+	}
+
+	virtual
+	bool
+	calcLayout() {
+		return
+			m_getterType->ensureLayout() &&
+			(m_setterType.isEmpty() || m_setterType.ensureLayout());
+	}
+
+	virtual
+	Type*
+	calcFoldedDualType(
+		bool isAlien,
+		uint_t ptrFlags
+	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

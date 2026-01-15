@@ -119,7 +119,7 @@ getLlvmTypeString(llvm::Type* llvmType);
 //..............................................................................
 
 struct DualTypeTuple: sl::ListLink {
-	Type* m_typeArray[2][2]; // alien-friend x container-const-non-const
+	Type* m_typeArray[2][5]; // alien-friend x container-const/const?/constif
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -261,6 +261,20 @@ public:
 	Type*
 	getActualTypeIfImport();
 
+	Type*
+	getActualTypeIfDual(
+		bool isAlien,
+		uint_t ptrFlags
+	) {
+		return (m_flags & TypeFlag_Dual) ? foldDualType(isAlien, ptrFlags) : this;
+	}
+
+	Type*
+	foldDualType(
+		bool isAlien,
+		uint_t ptrFlags
+	);
+
 	ArrayType*
 	getArrayType(size_t elementCount);
 
@@ -378,7 +392,7 @@ protected:
 	Type*
 	calcFoldedDualType(
 		bool isAlien,
-		bool isContainerConst
+		uint_t ptrFlags
 	) {
 		ASSERT(false);
 		return this;
@@ -571,6 +585,16 @@ protected:
 
 //..............................................................................
 
+inline
+uint_t
+getConstPtrFlagIdx(uint_t ptrFlags) {
+	// PtrTypeFlag_Const      = 0x00020000, // class, data ptr
+	// PtrTypeFlag_MaybeConst = 0x00040000, // class, data ptr
+	// PtrTypeFlag_ConstIf    = 0x00080000, // class & data ptr (dual)
+
+	return (ptrFlags >> 17) & 7;
+} // returns 0 .. 4 (3 unused)
+
 Type*
 getSimpleType(
 	TypeKind typeKind,
@@ -612,12 +636,6 @@ isErrorCodeType(Type* type) {
 	return
 		(type->getTypeKindFlags() & TypeKindFlag_ErrorCode) ||
 		isImplicitCast(type, TypeKind_Bool);
-}
-
-inline
-bool
-isDualType(Type* type) {
-	return (type->getFlags() & PtrTypeFlag__Dual) != 0;
 }
 
 bool

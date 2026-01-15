@@ -32,16 +32,23 @@ PropertyType::createSignature(
 		*string += 'b';
 
 	*string += getterType->getSignature();
+
 	uint_t signatureFlags = getterType->getFlags() & TypeFlag_SignatureFinal;
+	uint_t propagageFlags = getterType->getFlags();
 
 	size_t overloadCount = setterType.getOverloadCount();
 	for (size_t i = 0; i < overloadCount; i++) {
 		FunctionType* overloadType = setterType.getOverload(i);
 		*string += overloadType->getSignature();
-		signatureFlags &= overloadType->getFlags() & TypeFlag_SignatureFinal;
+		uint_t overloadTypeFlags = overloadType->getFlags();
+		signatureFlags &= overloadTypeFlags;
+		propagageFlags |= overloadTypeFlags;
 	}
 
-	return signatureFlags;
+	return
+		signatureFlags |
+		TypeFlag_SignatureReady |
+		(propagageFlags & TypeFlag_PropagateMask);
 }
 
 sl::StringRef
@@ -72,7 +79,7 @@ PropertyType::prepareSignature() {
 	sl::String signature;
 	uint_t signatureFlags = createSignature(&signature, m_getterType, m_setterType, m_flags);
 	m_signature = signature;
-	m_flags |= signatureFlags;
+	m_flags |= signatureFlags & TypeFlag_SignatureMask;
 }
 
 sl::StringRef
@@ -107,20 +114,27 @@ PropertyType::createItemString(size_t index) {
 	}
 }
 
-bool
-PropertyType::resolveImports() {
-	bool result = m_getterType->ensureNoImports();
-	if (!result)
-		return false;
+Type*
+PropertyType::calcFoldedDualType(
+	bool isAlien,
+	uint_t ptrFlags
+) {
+	ASSERT(m_flags & TypeFlag_Dual);
+
+	FunctionType* getterType = (FunctionType*)m_getterType->getActualTypeIfDual(isAlien, ptrFlags);
+	FunctionTypeOverload setterType;
 
 	size_t count = m_setterType.getOverloadCount();
 	for (size_t i = 0; i < count; i++) {
-		bool result = m_setterType.getOverload(i)->ensureNoImports();
-		if (!result)
-			return false;
+		FunctionType* overloadType = (FunctionType*)m_setterType.getOverload(i)->getActualTypeIfDual(isAlien, ptrFlags);
+		setterType.forceAddOverload(overloadType);
 	}
 
-	return true;
+	return m_module->m_typeMgr.getPropertyType(
+		getterType,
+		setterType,
+		m_flags & PropertyTypeFlag__All
+	);
 }
 
 bool

@@ -108,7 +108,8 @@ DeclTypeCalc::calcType(
 		case TypeKind_ImportTypeName:
 			type = m_module->m_typeMgr.getModType<ImportPtrType>(
 				(ImportTypeName*)type,
-				m_typeModifiers & TypeModifierMaskKind_ImportPtr
+				m_typeModifiers & TypeModifierMaskKind_ImportPtr,
+				(m_typeModifiers & TypeModifierMaskKind_Dual) ? TypeFlag_Dual : 0
 			);
 
 			m_typeModifiers &= ~TypeModifierMaskKind_ImportPtr;
@@ -117,7 +118,8 @@ DeclTypeCalc::calcType(
 		case TypeKind_TemplateArg:
 			type = m_module->m_typeMgr.getModType<TemplatePtrType>(
 				(TemplateArgType*)type,
-				m_typeModifiers & TypeModifierMaskKind_TemplatePtr
+				m_typeModifiers & TypeModifierMaskKind_TemplatePtr,
+				(m_typeModifiers & TypeModifierMaskKind_Dual) ? TypeFlag_Dual : 0
 			);
 
 			m_typeModifiers &= ~TypeModifierMaskKind_TemplatePtr;
@@ -269,10 +271,12 @@ DeclTypeCalc::getDataPtrTypeFlags() {
 
 	if (m_typeModifiers & TypeModifier_Const)
 		flags |= PtrTypeFlag_Const;
+	else if (m_typeModifiers & TypeModifier_MaybeConst)
+		flags |= PtrTypeFlag_MaybeConst;
+	else if (m_typeModifiers & TypeModifier_ConstIf)
+		flags |= PtrTypeFlag_ConstIf;
 	else if (m_typeModifiers & TypeModifier_ReadOnly)
 		flags |= PtrTypeFlag_ReadOnly;
-	else if (m_typeModifiers & TypeModifier_CMut)
-		flags |= PtrTypeFlag_CMut;
 
 	if (m_typeModifiers & TypeModifier_BigEndian)
 		flags |= PtrTypeFlag_BigEndian;
@@ -291,8 +295,9 @@ DeclTypeCalc::getDataPtrTypeFlags() {
 
 	m_typeModifiers &= ~(
 		TypeModifier_Const |
+		TypeModifier_MaybeConst |
+		TypeModifier_ConstIf |
 		TypeModifier_ReadOnly |
-		TypeModifier_CMut |
 		TypeModifier_BigEndian |
 		TypeModifier_Volatile |
 		TypeModifier_Event |
@@ -310,10 +315,13 @@ DeclTypeCalc::getThisArgTypeFlags() {
 	if (m_typeModifiers & TypeModifier_Const)
 		flags |= PtrTypeFlag_Const;
 
+	if (m_typeModifiers & TypeModifier_MaybeConst)
+		flags |= PtrTypeFlag_MaybeConst;
+
 	if (m_typeModifiers & TypeModifier_Thin)
 		flags |= PtrTypeFlag_ThinThis;
 
-	m_typeModifiers &= ~(TypeModifier_Const | TypeModifier_Thin);
+	m_typeModifiers &= ~(TypeModifier_Const | TypeModifier_MaybeConst | TypeModifier_Thin);
 	return flags;
 }
 
@@ -465,23 +473,7 @@ DeclTypeCalc::instantiateFunctionArgArray(
 		if (!dstArgType)
 			return false;
 
-		if (srcArg->getInitializer().isEmpty())
-			rwi[i] = m_module->m_typeMgr.createFunctionArg(
-				srcArg->getName(),
-				dstArgType,
-				srcArg->getPtrTypeFlags()
-			);
-		else {
-			sl::List<Token> initializer;
-			cloneTokenList(&initializer, srcArg->getInitializer());
-
-			rwi[i] = m_module->m_typeMgr.createFunctionArg(
-				srcArg->getName(),
-				dstArgType,
-				srcArg->getPtrTypeFlags(),
-				&initializer
-			);
-		}
+		rwi[i] = m_module->m_typeMgr.cloneFunctionArgOverrideType(srcArg, dstArgType);
 	}
 
 	return true;

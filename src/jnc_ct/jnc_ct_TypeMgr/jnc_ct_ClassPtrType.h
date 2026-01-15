@@ -103,6 +103,13 @@ public:
 		Type* referenceType
 	);
 
+	virtual
+	Type*
+	calcFoldedDualType(
+		bool isAlien,
+		uint_t ptrFlags
+	);
+
 protected:
 	virtual
 	void
@@ -128,13 +135,6 @@ protected:
 	prepareTypeVariable() {
 		prepareSimpleTypeVariable(StdType_ClassPtrType);
 	}
-
-	virtual
-	Type*
-	calcFoldedDualType(
-		bool isAlien,
-		bool isContainerConst
-	);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -151,7 +151,7 @@ ClassPtrType::ClassPtrType() {
 //..............................................................................
 
 struct ClassPtrTypeTuple: sl::ListLink {
-	ClassPtrType* m_ptrTypeArray[2][2][4][2][2]; // ref x kind x const/readonly/cmut x volatile x checked
+	ClassPtrType* m_ptrTypeArray[2][2][6][2][2]; // ref x kind x const/const?/constif/readonly/event x volatile x checked
 };
 
 //..............................................................................

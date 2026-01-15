@@ -269,13 +269,17 @@ type_modifier
 			{
 				$.m_typeModifier = TypeModifier_Const;
 			}
+	|	TokenKind_MaybeConst
+			{
+				$.m_typeModifier = TypeModifier_MaybeConst;
+			}
+	|	TokenKind_ConstIf
+			{
+				$.m_typeModifier = TypeModifier_ConstIf;
+			}
 	|	TokenKind_ReadOnly
 			{
 				$.m_typeModifier = TypeModifier_ReadOnly;
-			}
-	|	TokenKind_CMut
-			{
-				$.m_typeModifier = TypeModifier_CMut;
 			}
 	|	TokenKind_Volatile
 			{
@@ -363,8 +367,9 @@ type_modifier_sync
 	:	TokenKind_Unsigned
 	|	TokenKind_BigEndian
 	|	TokenKind_Const
+	|	TokenKind_MaybeConst
+	|	TokenKind_ConstIf
 	|	TokenKind_ReadOnly
-	|	TokenKind_CMut
 	|	TokenKind_Volatile
 	|	TokenKind_Weak
 	|	TokenKind_Thin

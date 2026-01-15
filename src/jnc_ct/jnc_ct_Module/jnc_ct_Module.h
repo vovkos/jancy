@@ -570,6 +570,15 @@ Type::getDataPtrType(
 }
 
 inline
+Type*
+Type::foldDualType(
+	bool isAlien,
+	uint_t ptrFlags
+) {
+	return m_module->m_typeMgr.foldDualType(this, isAlien, ptrFlags);
+}
+
+inline
 FunctionArg*
 Type::getSimpleFunctionArg(uint_t ptrTypeFlags) {
 	return m_module->m_typeMgr.getSimpleFunctionArg(this, ptrTypeFlags);

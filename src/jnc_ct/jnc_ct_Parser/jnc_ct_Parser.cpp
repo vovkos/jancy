@@ -1457,7 +1457,6 @@ Parser::calcPropertyGetterType(Declarator* declarator) {
 		TypeModifier_ErrorCode |
 		TypeModifier_Const |
 		TypeModifier_ReadOnly |
-		TypeModifier_CMut |
 		TypeModifier_AutoGet |
 		TypeModifier_Bindable |
 		TypeModifier_Indexed |

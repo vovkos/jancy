@@ -131,23 +131,19 @@ DataPtrType::markGcRoots(
 Type*
 DataPtrType::calcFoldedDualType(
 	bool isAlien,
-	bool isContainerConst
+	uint_t ptrFlags
 ) {
-	ASSERT(isDualType(this));
+	ASSERT(m_flags & TypeFlag_Dual);
 
-	Type* targetType = (m_flags & PtrTypeFlag_DualTarget) ?
-		m_module->m_typeMgr.foldDualType(m_targetType, isAlien, isContainerConst) :
-		m_targetType;
-
-	uint_t flags = m_flags & (PtrTypeFlag__All & ~(PtrTypeFlag_ReadOnly | PtrTypeFlag_CMut | PtrTypeFlag_DualTarget));
+	Type* targetType = m_targetType->getActualTypeIfDual(isAlien, ptrFlags);
+	uint_t flags = m_flags & PtrTypeFlag__All & ~(PtrTypeFlag_ReadOnly | PtrTypeFlag_ConstIf);
 
 	if ((m_flags & PtrTypeFlag_ReadOnly) && isAlien)
 		flags |= PtrTypeFlag_Const;
+	else if (m_flags & PtrTypeFlag_ConstIf)
+		flags |= ptrFlags;
 
-	if ((m_flags & PtrTypeFlag_CMut) && isContainerConst)
-		flags |= PtrTypeFlag_Const;
-
-	return m_module->m_typeMgr.getDataPtrType(targetType, m_typeKind, m_ptrTypeKind, flags);
+	return targetType->getDataPtrType(m_typeKind, m_ptrTypeKind, flags);
 }
 
 sl::StringRef

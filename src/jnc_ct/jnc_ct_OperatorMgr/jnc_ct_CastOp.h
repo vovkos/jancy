@@ -36,6 +36,12 @@ enum CastKind {
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+CastKind
+getConstCastKind(
+	uint_t srcFlags,
+	uint_t dstFlags
+);
+
 err::Error
 setCastError(
 	const Value& opValue,

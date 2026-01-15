@@ -212,8 +212,10 @@ main := |*
 'unsigned'       { createToken(TokenKind_Unsigned); };
 'bigendian'      { createToken(TokenKind_BigEndian); };
 'const'          { createToken(TokenKind_Const); };
+'const' ws* '?'  { createToken(TokenKind_MaybeConst); };
+'constif'        { createToken(TokenKind_ConstIf); };
+'cmut'           { createToken(TokenKind_ConstIf); }; # for legacy code support
 'readonly'       { createToken(TokenKind_ReadOnly); };
-'cmut'           { createToken(TokenKind_CMut); };
 'volatile'       { createToken(TokenKind_Volatile); };
 'weak'           { createToken(TokenKind_Weak); };
 'thin'           { createToken(TokenKind_Thin); };
