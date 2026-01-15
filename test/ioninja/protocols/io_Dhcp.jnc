@@ -129,8 +129,8 @@ string_t formatDhcpDigest(void const* p) {
 	DhcpOptionHdr const* messageType = findDhcpOption(DhcpOptionType.DhcpMessageType, options, end - options);
 
 	string_t typeString = messageType ?
-		typeof(DhcpMessageType).getValueString(messageType + 1) :
-		typeof(DhcpOpcode).getValueString(&hdr.m_opcode);
+		typeof(DhcpMessageType).getValueName(messageType + 1) :
+		typeof(DhcpOpcode).getValueName(&hdr.m_opcode);
 
 	return $"%1 (ID: 0x%08X)"(typeString, hdr.m_id);
 }

@@ -6,6 +6,7 @@
 import "doc_Session.jnc"
 import "io_usbmon.jncx"
 import "io_hid.jncx"
+import "io_HidEnumerator.jnc"
 import "io_HidMonEnumerator.jnc"
 import "ui_BufferPropertySet.jnc"
 import "ui_StdSessionInfoSet.jnc"
@@ -13,6 +14,7 @@ import "ui_HidMonUi.jnc"
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
 import "std_Buffer.jnc"
+import "UsbLog/UsbLogRecordCode.jnc"
 
 //..............................................................................
 

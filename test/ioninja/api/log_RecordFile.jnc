@@ -22,13 +22,13 @@ struct RecordFileHdr {
 	uint32_t m_version;
 	uint64_t m_recordCount;
 	uint64_t m_totalRecordSize;
-	uint32_t _m_reserved;
-	uint32_t m_recordOffset  : 24;
-	uint32_t m_auxClassCount : 8;
-	std.Guid m_classGuid;
+	uint32_t m_lastRecordSize;
+	uint32_t m_recordOffset        : 24;
+	uint32_t m_auxRepresenterCount : 8;
+	std.Guid m_representerGuid;
 
-	// followed by std.Guid[m_classCount]
-	// followed by aux headers (may be added in further versions)
+	// followed by std.Guid[m_auxRepresenterCount]
+	// followed by aux headers (such as layered log metadata)
 	// followed by log records at m_recordOffset
 };
 

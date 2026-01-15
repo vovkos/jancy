@@ -10,6 +10,7 @@ description = "Analyzes a Serial/TCP log and generates a secondary log with deco
 page        = plugins/df1.html
 help        = user-manual/plugin-df1.html
 id          = df1
+guid        = aae5bcf3-96f6-4e6b-9df1-ad63f3c3d1d7
 group       = analyzers
 log-guid    = 4eb82c4c-1f48-49a5-92cc-b492e7cfbf92  # DF1
 icon        = images/df1.png

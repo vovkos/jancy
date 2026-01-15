@@ -15,6 +15,8 @@ import "ui_StdSessionInfoSet.jnc"
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
 import "std_Buffer.jnc"
+import "SocketLog/SocketLogRecordCode.jnc"
+import "SslLog/SslLogRecordCode.jnc"
 
 using extension ui.ComboBoxHistory;
 
@@ -393,6 +395,7 @@ void SslConnectionSession.handleSocketError(std.Error const* error) {
 void SslConnectionSession.close() {
 	m_stdSessionInfoSet.endSession();
 	m_isTransmitEnabled = false;
+	m_resolver.cancel();
 	m_socket.close();
 	m_state = State.Closed;
 	m_sessionConnectionState = SessionConnectionState.Disconnected;
@@ -406,6 +409,9 @@ void SslConnectionSession.disconnect() {
 		return;
 
 	case State.Resolving:
+		m_resolver.cancel();
+		break;
+
 	case State.TcpConnecting:
 	case State.SslHandshaking:
 		m_logWriter.write(SocketLogRecordCode.ConnectCancelled);

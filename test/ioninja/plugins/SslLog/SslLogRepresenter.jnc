@@ -5,7 +5,6 @@
 
 import "io_ssl.jncx"
 import "log_Representation.jnc"
-import "SslLogRecordCode.jnc"
 import "SocketLog/SocketLogRecordCode.jnc"
 
 //..............................................................................

@@ -3,10 +3,9 @@
 // Generic file log representer
 //
 
-import "log_Representation.jnc"
 import "io_base.jncx"
 import "io_FileStream.jnc"
-import "FileLogRecordCode.jnc"
+import "log_Representation.jnc"
 
 //..............................................................................
 

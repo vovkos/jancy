@@ -54,7 +54,7 @@ void representPacket(
 
 	if (!foldFlags) {
 		representation.addHyperText($"[\e^+1\e[34m+\e[m] \e[1mOSDP\e[m %1 %2 \e[34m%3"(
-			typeof(OsdpCmdReplyCode).getValueString(cmdReply.m_code),
+			typeof(OsdpCmdReplyCode).getValueName(cmdReply.m_code),
 			hdr.m_direction ? "\u2190" : "\u2192",
 			hdr.m_address
 		));

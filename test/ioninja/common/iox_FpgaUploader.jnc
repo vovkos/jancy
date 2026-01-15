@@ -84,14 +84,20 @@ public:
 
 	void cancel();
 
+	io.RpdVersion getVersion(io.UsbDevice* device);
+
 	bool errorcode update(
 		io.UsbDevice* device,
 		string_t fileName,
-		size_t baseIndex
+		size_t baseIndex,
+		bool skipVersionCheck = false
 	);
 
 protected:
-	io.RpdVersion getVersion();
+	io.RpdVersion getVersion() {
+		return getVersion(m_device);
+	}
+
 	Status getStatus();
 	void erase(bool isCheckRequired);
 	void sendFirstBlock(bool isCheckRequired);
@@ -100,7 +106,7 @@ protected:
 	void finalizeLoad();
 	void complete(bool result);
 
-	bool checkStatus();
+	bool checkStatus(Status errorMask);
 
 	void onProgressDlgButtonClicked(ui.StdDlgButton button);
 	void onTimer(uint_t syncId);
@@ -131,7 +137,8 @@ void FpgaUploader.cancel() {
 bool errorcode FpgaUploader.update(
 	io.UsbDevice* device,
 	string_t fileName,
-	size_t baseIndex
+	size_t baseIndex,
+	bool skipVersionCheck
 ) {
 	cancel();
 
@@ -141,19 +148,21 @@ bool errorcode FpgaUploader.update(
 	m_fileVersion = hdr.m_version;
 	m_baseIndex = baseIndex;
 
-	Status status = getStatus();
-	io.RpdVersion version = getVersion();
+	if (!skipVersionCheck) {
+		Status status = getStatus();
+		io.RpdVersion version = getVersion();
 
-	bool isUpToDate =
-		status == 0 &&
-		version.m_firmwareType == m_fileVersion.m_firmwareType &&
-		version.m_firmwareVersion >= m_fileVersion.m_firmwareVersion;
+		bool isUpToDate =
+			status == 0 &&
+			version.m_firmwareType == m_fileVersion.m_firmwareType &&
+			version.m_firmwareVersion >= m_fileVersion.m_firmwareVersion;
 
-	if (isUpToDate) {
-		m_logWriter.write(FpgaUploaderLogRecordCode.FirmwareUpToDate);
-		m_onUpdateCompleted(true);
-		m_file.close();
-		return true;
+		if (isUpToDate) {
+			m_logWriter.write(FpgaUploaderLogRecordCode.FirmwareUpToDate);
+			m_onUpdateCompleted(true);
+			m_file.close();
+			return true;
+		}
 	}
 
 	char const* p = strrchr(fileName, '/');
@@ -169,19 +178,17 @@ bool errorcode FpgaUploader.update(
 
 	m_state = State.PreErase;
 	erase(true);
-
 	return true;
 
 catch:
-	m_logWriter.writeLastError(log.StdRecordCode.Error);
 	cancel();
-	return false;
+	return false; // don't write log error (session will do that)
 }
 
-io.RpdVersion FpgaUploader.getVersion() {
+io.RpdVersion FpgaUploader.getVersion(io.UsbDevice* device) {
 	io.RpdVersion version;
 
-	m_device.controlTransfer(
+	device.controlTransfer(
 		UsbControlReqType.VendorIn,
 		UsbControlReqCode.GetVersion,
 		0,
@@ -209,7 +216,7 @@ Status FpgaUploader.getStatus() {
 }
 
 void FpgaUploader.erase(bool isCheckRequired) {
-	if (isCheckRequired && !checkStatus())
+	if (isCheckRequired && !checkStatus(0))
 		return;
 
 	m_logWriter.write(FpgaUploaderLogRecordCode.ErasingFlash);
@@ -225,12 +232,12 @@ void FpgaUploader.erase(bool isCheckRequired) {
 		0
 	);
 
-	if (checkStatus())
+	if (checkStatus(Status.FlashWriteError))
 		sendFirstBlock(false);
 }
 
 void FpgaUploader.load(bool isCheckRequired) {
-	if (isCheckRequired && !checkStatus())
+	if (isCheckRequired && !checkStatus(Status.FlashWriteError))
 		return;
 
 	m_logWriter.write(FpgaUploaderLogRecordCode.EnablingFpga);
@@ -246,12 +253,12 @@ void FpgaUploader.load(bool isCheckRequired) {
 		0
 	);
 
-	if (checkStatus())
+	if (checkStatus(Status.AppLoadError))
 		finalizeLoad();
 }
 
 void FpgaUploader.sendFirstBlock(bool isCheckRequired) {
-	if (isCheckRequired && !checkStatus())
+	if (isCheckRequired && !checkStatus(Status.FlashWriteError))
 		return;
 
 	m_logWriter.write(FpgaUploaderLogRecordCode.UploadingFirmware);
@@ -265,7 +272,7 @@ void FpgaUploader.sendFirstBlock(bool isCheckRequired) {
 }
 
 void FpgaUploader.sendNextBlock(bool isCheckRequired) {
-	if (isCheckRequired && !checkStatus())
+	if (isCheckRequired && !checkStatus(Status.FlashWriteError))
 		return;
 
 	if (m_fileOffset >= m_fileSize) {
@@ -280,7 +287,6 @@ void FpgaUploader.sendNextBlock(bool isCheckRequired) {
 		size = leftover;
 
 	void const* p = m_file.view(m_fileOffset, size);
-
 	m_block.setSize(size);
 	memcpy(m_block.m_p, p, size);
 
@@ -301,6 +307,9 @@ void FpgaUploader.sendNextBlock(bool isCheckRequired) {
 }
 
 void FpgaUploader.finalizeLoad() {
+	if (!checkStatus(Status.InvalidApp | Status.FlashWriteError | Status.AppLoadError))
+		return;
+
 	io.RpdVersion version = getVersion();
 
 	if (version.m_firmwareType == m_fileVersion.m_firmwareType &&
@@ -326,9 +335,20 @@ void FpgaUploader.complete(bool result) {
 	m_onUpdateCompleted(result);
 }
 
-bool FpgaUploader.checkStatus() {
+bool FpgaUploader.checkStatus(Status errorMask) {
 	for (size_t i = 0; i < StatusCheckCount; i++) {
 		Status status = getStatus();
+		if (status & errorMask) {
+			std.setError($"FPGA loader error at index 0x%x: %2"(
+				m_baseIndex + (m_fileOffset - sizeof(io.RpdHdr)) / AtomSize,
+				typeof(Status).getValueString(status))
+			);
+
+			m_logWriter.writeLastError(log.StdRecordCode.Error);
+			complete(false);
+			return false;
+		}
+
 		if (!(status & (Status.FlashBusy | Status.FpgaBusy)))
 			return true;
 	}

@@ -1,0 +1,57 @@
+//..............................................................................
+//
+// Modbus layer dispatch interface for IAS
+//
+
+import "io_Modbus.jnc"
+import "ias_PluginDispatch.jnc"
+
+//..............................................................................
+
+class ModbusDispatch: ias.PluginDispatch {
+	property m_protocol {
+		io.ModbusProtocol get() {
+			return dispatchGet(ModbusDispatchCode.GetProtocol);
+		}
+
+		void set(io.ModbusProtocol value) {
+			dispatch(ModbusDispatchCode.SetProtocol, value);
+		}
+	}
+
+	property m_streamRoles {
+		ModbusStreamRoles get() {
+			return dispatchGet(ModbusDispatchCode.GetStreamRoles);
+		}
+
+		void set(ModbusStreamRoles value) {
+			dispatch(ModbusDispatchCode.SetStreamRoles, value);
+		}
+	}
+
+	property m_halfDuplexMode {
+		ModbusHalfDuplexMode get() {
+			return dispatchGet(ModbusDispatchCode.GetHalfDuplexMode);
+		}
+
+		void set(ModbusHalfDuplexMode value) {
+			dispatch(ModbusDispatchCode.SetHalfDuplexMode, value);
+		}
+	}
+
+	property m_halfDuplexTimeout {
+		uint_t get() {
+			return dispatchGet(ModbusDispatchCode.GetHalfDuplexTimeout);
+		}
+
+		void set(uint_t value) {
+			dispatch(ModbusDispatchCode.SetHalfDuplexTimeout, value);
+		}
+	}
+
+	construct(intptr handle) {
+		basetype.construct(handle);
+	}
+}
+
+//..............................................................................

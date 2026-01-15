@@ -10,6 +10,7 @@ description = "Analyzes Pcap/Ethernet Tap logs and extracts TCP streams"
 page        = plugins/tcp-flow.html
 help        = user-manual/plugin-tcp-flow.html
 id          = tcp-flow
+guid        = 34e78ed4-4f8c-4386-88c7-faa2c718ce2a
 group       = analyzers
 log-guid    = 5a6cc363-3ace-4db8-9224-3d972d16b30d  # tcp flow
 log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket

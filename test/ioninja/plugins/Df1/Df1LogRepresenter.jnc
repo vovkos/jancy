@@ -5,7 +5,6 @@
 
 import "log_Representation.jnc"
 import "log_RepresentStruct.jnc"
-import "Df1LogRecordCode.jnc"
 import "io_Df1.jnc"
 import "crc16.jnc"
 
@@ -98,16 +97,16 @@ string_t getChecksumDetailString(
 string_t getCmdString(io.Df1AppMsgHdr const* hdr) {
 	return hdr.m_direction != io.Df1CmdDirection.Command ?
 		$"%1 %2"(
-			typeof(io.Df1CmdPrefix).getValueString(hdr.m_command, "0x%02X"),
-			typeof(io.Df1CmdDirection).getValueString(hdr.m_direction)
+			typeof(io.Df1CmdPrefix).getValueName(hdr.m_command, "0x%02X"),
+			typeof(io.Df1CmdDirection).getValueName(hdr.m_direction)
 		) :
-		typeof(io.Df1CmdPrefix).getValueString(hdr.m_command, "0x%02X");
+		typeof(io.Df1CmdPrefix).getValueName(hdr.m_command, "0x%02X");
 }
 
 string_t getStatusString(io.Df1AppMsgHdr const* hdr) {
 	return hdr.m_localStatus ?
-		typeof(io.Df1LocalStatus).getValueString(hdr.m_localStatus) :
-		typeof(io.Df1RemoteStatus).getValueString(hdr.m_remoteStatus);
+		typeof(io.Df1LocalStatus).getValueName(hdr.m_localStatus) :
+		typeof(io.Df1RemoteStatus).getValueName(hdr.m_remoteStatus);
 }
 
 void addColorRange(
@@ -400,7 +399,7 @@ string_t getAppMsgDigest(
 	case io.Df1CmdPrefix.Command07:
 	case io.Df1CmdPrefix.Command0F:
 		if (hdr.m_direction != io.Df1CmdDirection.Command) {
-			cmdString = typeof(io.Df1CmdDirection).getValueString(hdr.m_direction);
+			cmdString = typeof(io.Df1CmdDirection).getValueName(hdr.m_direction);
 			break;
 		}
 
@@ -408,7 +407,7 @@ string_t getAppMsgDigest(
 			return"[\e[31mINCOMPLETE\e[m]";
 
 		io.Df1CmdFnc fnc = (io.Df1CmdFnc)(hdr.m_command << 8 | *p);
-		cmdString = typeof(io.Df1CmdFnc).getValueString(fnc, "0x%04X");
+		cmdString = typeof(io.Df1CmdFnc).getValueName(fnc, "0x%04X");
 		break;
 
 	default:
@@ -507,7 +506,7 @@ void representAppMsg(
 			representation.addHyperText(
 				$"[\e^+%1\e[34m+\e[m] \e[1mFNC\e[m %2"(
 				Df1FoldFlag.FuncLayer,
-				type.getValueString(fnc, "0x%04X")
+				type.getValueName(fnc, "0x%04X")
 			));
 		} else {
 			representation.addHyperText(

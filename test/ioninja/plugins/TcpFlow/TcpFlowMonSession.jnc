@@ -15,6 +15,7 @@ import "ui_StdSessionInfoSet.jnc"
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
 import "std_Buffer.jnc"
+import "PcapLog/PcapLogRecordCode.jnc"
 
 using extension ui.ComboBoxHistory;
 

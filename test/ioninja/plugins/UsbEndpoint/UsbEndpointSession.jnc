@@ -13,11 +13,11 @@ import "ui_StdSessionInfoSet.jnc"
 import "ui_GroupBox.jnc"
 import "ui_ListWidget.jnc"
 import "ui_LineEdit.jnc"
-
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
 import "std_Buffer.jnc"
 import "std_List.jnc"
+import "UsbLog/UsbLogRecordCode.jnc"
 
 //..............................................................................
 
@@ -477,7 +477,7 @@ void UsbEndpointSession.createUi() {
 void UsbEndpointSession.addInterface(io.UsbInterfaceDescriptor const* ifaceDesc) {
 	string_t description = ifaceDesc.m_stringDescriptorId ?
 		m_device.getStringDescriptor(ifaceDesc.m_stringDescriptorId) :
-		typeof(io.UsbClass).getValueString(ifaceDesc.m_class);
+		typeof(io.UsbClass).getValueName(ifaceDesc.m_class);
 
 	string_t name = ifaceDesc.m_altSettingId ?
 		$"IF%1.%2 - %3"(ifaceDesc.m_interfaceId, ifaceDesc.m_altSettingId, description) :
@@ -599,7 +599,7 @@ bool errorcode UsbEndpointSession.claimInterfaces() {
 			string_t name = $"%1 - EP%2 - %3"(
 				ifaceName,
 				epDesc.m_endpointId & ~0x80,
-				typeof(io.UsbTransferType).getValueString(epDesc.m_transferType)
+				typeof(io.UsbTransferType).getValueName(epDesc.m_transferType)
 			);
 
 			EndpointInfo* epInfo = new EndpointInfo;

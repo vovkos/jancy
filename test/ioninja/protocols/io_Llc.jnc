@@ -100,8 +100,8 @@ string_t formatLlcDigest(void const* p) {
 	LlcHdr const* hdr = (LlcHdr const*)p;
 
 	return $"%1 \u2192 %2" (
-		typeof(Lsap).getValueString(&hdr.m_ssap),
-		typeof(Lsap).getValueString(&hdr.m_dsap)
+		typeof(Lsap).getValueName(&hdr.m_ssap),
+		typeof(Lsap).getValueName(&hdr.m_dsap)
 	);
 }
 

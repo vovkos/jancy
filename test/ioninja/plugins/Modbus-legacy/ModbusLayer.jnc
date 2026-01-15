@@ -11,6 +11,7 @@ import "io_base.jncx"
 import "io_Serial.jnc"
 import "ui_GroupBox.jnc"
 import "ui_SpinBox.jnc"
+import "ModbusLogRecordCode.jnc"
 import "SerialLog/SerialLogRecordCode.jnc"
 
 //..............................................................................

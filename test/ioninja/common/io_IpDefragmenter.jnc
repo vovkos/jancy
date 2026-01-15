@@ -5,7 +5,7 @@
 
 import "std_List.jnc"
 import "std_HashTable.jnc"
-import "io_TcpIp.jnc"
+import "io_Ip.jnc"
 
 namespace io {
 

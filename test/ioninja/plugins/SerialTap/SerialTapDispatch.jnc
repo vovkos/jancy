@@ -5,11 +5,11 @@
 
 import "io_base.jncx"
 import "io_Serial.jnc"
-import "ias.jnc"
+import "ias_PluginDispatch.jnc"
 
 //..............................................................................
 
-class SerialTapDispatch: ias.Session {
+class SerialTapDispatch: ias.PluginDispatch {
 	property m_baudRate {
 		uint_t get() {
 			return dispatchGet(SerialTapDispatchCode.GetBaudRate);
@@ -60,6 +60,10 @@ class SerialTapDispatch: ias.Session {
 
 	bool const property m_rts {
 		return dispatchGet(SerialTapDispatchCode.GetRts);
+	}
+
+	construct(intptr handle) {
+		basetype.construct(handle);
 	}
 
 	bool errorcode capture() {

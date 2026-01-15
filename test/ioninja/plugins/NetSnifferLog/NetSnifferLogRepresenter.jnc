@@ -3,13 +3,12 @@
 // Sniffer log representer
 //
 
+import "io_pcap.jncx"
 import "log_Representation.jnc"
 import "log_Writer.jnc"
 import "log_RepresentStruct.jnc"
-import "io_pcap.jncx"
 import "std_Array.jnc"
 import "Protocols.jnc"
-import "NetSnifferLogRecordCode.jnc"
 
 //..............................................................................
 

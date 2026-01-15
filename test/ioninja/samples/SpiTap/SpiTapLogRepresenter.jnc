@@ -4,7 +4,6 @@
 //
 
 import "log_Representation.jnc"
-import "SpiTapLogRecordCode.jnc"
 import "stringUtils.jnc"
 
 //..............................................................................
@@ -20,7 +19,7 @@ bool representSpiTapLog(
 		"Little-endian (LSBit first)",
 		"Big-endian (MSBit first)",
 	}
-	
+
 	switch (recordCode) {
 	case SpiTapLogRecordCode.TapOpened:
 		SpiTapOpenParams const* params = (SpiTapOpenParams const*)p;

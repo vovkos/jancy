@@ -3,10 +3,9 @@
 // UDP log representer
 //
 
-import "UdpLogRecordCode.jnc"
-import "log_Representation.jnc"
 import "io_base.jncx"
 import "io_SocketAddress.jnc"
+import "log_Representation.jnc"
 
 //..............................................................................
 

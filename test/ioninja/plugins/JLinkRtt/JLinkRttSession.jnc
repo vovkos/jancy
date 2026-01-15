@@ -14,7 +14,7 @@ import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
 import "std_Buffer.jnc"
 import "sys_Thread.jnc"
-
+import "JLinkRttLogRecordCode.jnc"
 import "SocketLog/SocketLogRecordCode.jnc"
 
 using extension ui.ComboBoxHistory;

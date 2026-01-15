@@ -7,7 +7,7 @@ import "io_base.jncx"
 import "io_HostNameResolver.jnc"
 import "doc_PluginHost.jnc"
 import "ui_StatusBar.jnc"
-import "../plugins/SocketLog/SocketLogRecordCode.jnc"
+import "SocketLog/SocketLogRecordCode.jnc"
 
 namespace iox {
 

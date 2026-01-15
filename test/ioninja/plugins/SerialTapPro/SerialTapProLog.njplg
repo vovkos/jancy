@@ -56,5 +56,10 @@ uleb128.jnc
 01db13c48f44251c  # unused
 01db13c48f44251d  # BaudRateChanged
 01db13c48f44251e  # DataBitsChanged
-01db13c48f44251f  # StopBitsChanged
-01db13c48f442520  # ParityChanged
+01db13c48f44251f  # ParityChanged
+01db13c48f442520  # StopBitsChanged
+01db13c48f442521  # NotificationDelayChanged
+01db13c48f442522  # AbrChanged
+01db13c48f442523  # 
+01db13c48f442524  # 
+01db13c48f442525  # 

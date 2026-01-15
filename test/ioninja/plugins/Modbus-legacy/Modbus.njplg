@@ -10,6 +10,7 @@ description = "Analyzes a Serial/TCP log and generates a secondary log with deco
 page        = plugins/modbus.html
 help        = user-manual/plugin-modbus.html
 id          = modbus-legacy
+guid        = ff9501e5-cd12-4318-b97e-fd5974cbd54b
 group       = analyzers
 log-guid    = 53603C98-34BC-46EF-BA08-D3274F1057B4  # modbus-legacy
 icon        = images/modbus.png

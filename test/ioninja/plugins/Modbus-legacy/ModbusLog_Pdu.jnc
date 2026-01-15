@@ -208,19 +208,22 @@ void representModbusRegisterValues(
 
 string_t formatModbusFuncDescription(
 	io.ModbusRole role,
-	io.ModbusFunc func
+	io.ModbusFunc func,
+	bool isCodeIncluded
 ) {
-	jnc.EnumType* type = typeof(io.ModbusFunc);
+	bool isException = (func & io.ModbusFunc.ExceptionFlag) != 0;
+	func = (io.ModbusFunc)(func & ~io.ModbusFunc.ExceptionFlag);
 
-	return (func & io.ModbusFunc.ExceptionFlag) ?
-		$"%1 (\e[34mEXCEPTION\e[m)" (
-			type.getValueString(func & ~io.ModbusFunc.ExceptionFlag)
-		) :
+	string_t funcName = isCodeIncluded ?
+		typeof(io.ModbusFunc).getValueString(func) :
+		typeof(io.ModbusFunc).getValueName(func);
+
+	return isException ?
+		$"%1 (\e[34mEXCEPTION\e[m)" (funcName) :
 		$"%1 (\e[90m%2\e[m)" (
-			type.getValueString(func),
+			funcName,
 			role == io.ModbusRole.Master ? "Request" : "Reply"
 		);
-
 }
 
 void representModbusPdu(
@@ -237,7 +240,7 @@ void representModbusPdu(
 		baseOffset + offsetof(hdr.m_func) * offsetMultiplier,
 		sizeof(hdr.m_func) * offsetMultiplier,
 		hdr.m_func,
-		formatModbusFuncDescription(role, hdr.m_func)
+		formatModbusFuncDescription(role, hdr.m_func, true)
 	));
 
 	switch (hdr.m_func) {
@@ -469,10 +472,9 @@ void representModbusPdu(
 			io.ModbusExceptionPdu const* pdu = (io.ModbusExceptionPdu const*)hdr;
 
 			representation.addHyperText(
-				$"    Exception: \e^!%1,%2\e[31m%3\e[m - %4" (
+				$"    Exception: \e^!%1,%2\e[31m%3" (
 				baseOffset + offsetof(pdu.m_exception) * offsetMultiplier,
 				sizeof(pdu.m_exception) * offsetMultiplier,
-				pdu.m_exception,
 				typeof(io.ModbusException).getValueString(pdu.m_exception)
 			));
 		}
@@ -487,7 +489,7 @@ string_t getModbusPduDigest(
 
 	digest.append($"Fn: \e[34m%1\e[m %2" (
 		hdr.m_func,
-		formatModbusFuncDescription(role, hdr.m_func)
+		formatModbusFuncDescription(role, hdr.m_func, false)
 	));
 
 	switch (hdr.m_func) {
@@ -591,7 +593,7 @@ string_t getModbusPduDigest(
 			digest.append(
 				$" Err: \e[31m%1\e[m %2" (
 				pdu.m_exception,
-				typeof(io.ModbusException).getValueString(pdu.m_exception)
+				typeof(io.ModbusException).getValueName(pdu.m_exception)
 			));
 		}
 	}

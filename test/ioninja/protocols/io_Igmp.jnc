@@ -25,7 +25,10 @@ enum IgmpType: uint8_t {
 	formatDigestFunc = formatIgmpDigest
 ]
 struct IgmpHdr {
-	[ displayName = "Type" ]
+	[
+		displayName = "Type",
+		formatSpec = "0x%02X"
+	]
 	IgmpType m_type;
 
 	[ displayName = "Max resp time" ]
@@ -48,7 +51,7 @@ struct IgmpHdr {
 
 string_t formatIgmpDigest(void const* p) {
 	IgmpHdr const* hdr = (IgmpHdr const*)p;
-	return typeof(IgmpType).getValueString(&hdr.m_type);
+	return typeof(IgmpType).getValueName(&hdr.m_type);
 }
 
 //..............................................................................

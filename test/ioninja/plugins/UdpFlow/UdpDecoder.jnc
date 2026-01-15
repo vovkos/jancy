@@ -4,6 +4,7 @@
 //
 
 import "io_IpDecoder.jnc"
+import "io_Udp.jnc"
 import "log_Writer.jnc"
 
 threadlocal log.Writer* g_logWriter;

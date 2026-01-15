@@ -16,6 +16,7 @@ import "log_ChecksumCalc.jnc"
 import "std_Buffer.jnc"
 import "std_String.jnc"
 import "sys_Timer.jnc"
+import "SerialLog/SerialLogRecordCode.jnc"
 
 //..............................................................................
 

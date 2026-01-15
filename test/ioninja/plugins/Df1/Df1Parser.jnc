@@ -5,6 +5,7 @@
 
 import "std_Buffer.jnc"
 import "io_Df1.jnc"
+import "Df1LogRecordCode.jnc"
 
 //..............................................................................
 

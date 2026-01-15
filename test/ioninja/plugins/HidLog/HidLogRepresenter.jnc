@@ -3,13 +3,14 @@
 // HID log representer
 //
 
-import "log_Representation.jnc"
 import "io_hid.jncx"
 import "io_HidRd.jnc"
 import "io_HidEnumerator.jnc"
 import "io_AutoHidDb.jnc"
-import "HidLogRecordCode.jnc"
+import "log_Representation.jnc"
 import "std_String.jnc"
+
+using extension io.HidUsagePageEnumStrings;
 
 //..............................................................................
 
@@ -189,8 +190,8 @@ void representDeviceInfo(
 		$"    \e[90mProduct ID:\t\e[34m0x%(6; 04X)\n"
 		$"    \e[90mBus:\t\e[34m%7\n"
 		$"    \e[90mInterface:\t\e[34m%8\n"
-		$"    \e[90mUsage page:\t\e[34m0x%(9; 02X) - %10\n"
-		$"    \e[90mUsage:\t\e[34m0x%(11; 02X) - %12"(
+		$"    \e[90mUsage page:\t\e[34m0x%9\n"
+		$"    \e[90mUsage:\t\e[34m%10"(
 			text,
 			path,
 			product,
@@ -199,10 +200,8 @@ void representDeviceInfo(
 			params.m_productId,
 			typeof(io.HidBusType).getValueString(params.m_busType),
 			params.m_interfaceId,
-			params.m_usagePage,
-			page.m_name,
-			params.m_usage,
-			page.getUsageName(params.m_usage)
+			page.m_enumString,
+			page.getUsageEnumString(params.m_usage)
 		)
 	);
 
@@ -221,8 +220,8 @@ void representCollection(
 		$"%1    \e[90mUsage:\t\e[34m%4"(
 			indent.m_p,
 			typeof(io.HidRdCollectionKind).getValueString(collection.m_collectionKind),
-			collection.m_usagePage.m_name,
-			collection.m_usagePage.getUsageName(collection.m_usage)
+			collection.m_usagePage.m_enumString,
+			collection.m_usagePage.getUsageEnumString(collection.m_usage)
 		)
 	);
 
@@ -248,7 +247,7 @@ void representFieldArray(
 			continue;
 		}
 
-		string_t kind = typeof(io.HidReportType).getValueString(field.m_report.m_reportType);
+		string_t kind = typeof(io.HidReportType).getValueName(field.m_report.m_reportType);
 		representation.addHyperText($"%s\e[90m%s:\t\e[34m%d-bit"(indent.m_p, kind, field.m_bitCount));
 
 		indent.append(' ', 4);
@@ -258,22 +257,22 @@ void representFieldArray(
 			representation.addHyperText($"%s\e[90mFlags:\t\e[34m%s"(indent.m_p, text));
 		}
 
-		representation.addHyperText($"%s\e[90mUsagePage:\t\e[34m%s"(indent.m_p, field.m_usagePage.m_name));
+		representation.addHyperText($"%s\e[90mUsagePage:\t\e[34m%s"(indent.m_p, field.m_usagePage.m_enumString));
 
 		if (field.isSet(io.HidRdItemId.Usage)) {
 			for (size_t i = 0; i < field.m_usageCount; i++) {
-				string_t text = field.m_usagePage.getUsageName(field.m_usageArray[i]);
+				string_t text = field.m_usagePage.getUsageEnumString(field.m_usageArray[i]);
 				representation.addHyperText($"%s\e[90mUsage:\t\e[34m%s"(indent.m_p, text));
 			}
 		}
 
 		if (field.isSet(io.HidRdItemId.UsageMinimum)) {
-			string_t text = field.m_usagePage.getUsageName(field[io.HidRdItemId.UsageMinimum]);
+			string_t text = field.m_usagePage.getUsageEnumString(field[io.HidRdItemId.UsageMinimum]);
 			representation.addHyperText($"%s\e[90mUsageMinimum:\t\e[34m%s"(indent.m_p, text));
 		}
 
 		if (field.isSet(io.HidRdItemId.UsageMaximum)) {
-			string_t text = field.m_usagePage.getUsageName(field[io.HidRdItemId.UsageMaximum]);
+			string_t text = field.m_usagePage.getUsageEnumString(field[io.HidRdItemId.UsageMaximum]);
 			representation.addHyperText($"%s\e[90mUsageMaximum:\t\e[34m%s"(indent.m_p, text));
 		}
 
@@ -299,7 +298,7 @@ void representItem(
 		representation.addHyperText(
 			$"%s\e[90m%s:\t\e[34m%d"(
 				indent.m_p,
-				typeof(io.HidRdItemId).getValueString(id),
+				typeof(io.HidRdItemId).getValueName(id),
 				field[id]
 			)
 		);
@@ -409,11 +408,11 @@ void representReportFields(
 			int value = extractValue(p, size, bitOffset, reportSize, isUnsigned);
 			if (value)
 				if (!(field.m_valueFlags & io.HidRdValueFlags.Variable)) {
-					string_t usageName = field.m_usagePage.getUsageName(usageMin + value);
+					string_t usageName = field.m_usagePage.getUsageEnumString(usageMin + value);
 					representation.addHyperText($"[%d]:\t\e[34m%s"(i, usageName));
 				} else {
 					uint_t usage = field.m_usageArray[baseUsageIdx + i];
-					string_t usageName = field.m_usagePage.getUsageName(usage);
+					string_t usageName = field.m_usagePage.getUsageString(usage);
 					representation.addHyperText(
 						hasIndex ?
 							$"%s [%d]:\t\e[34m%d"(usageName, i,value) :

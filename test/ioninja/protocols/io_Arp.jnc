@@ -36,7 +36,10 @@ struct ArpHdr {
 	[ displayName = "Hardware type" ]
 	bigendian ArpHardwareType m_hardwareType;
 
-	[ displayName = "Protocol type" ]
+	[
+		displayName = "Protocol type",
+		formatSpec = "0x%04X"
+	]
 	bigendian EthernetType m_protocolType;
 
 	[ displayName = "Hardware size" ]
@@ -53,7 +56,7 @@ struct ArpHdr {
 
 string_t formatArpDigest(void const* p) {
 	ArpHdr const* hdr = (ArpHdr const*)p;
-	return typeof(ArpOpcode).getValueString(hdr.m_opcode);
+	return typeof(ArpOpcode).getValueName(hdr.m_opcode);
 }
 
 //..............................................................................

@@ -3,17 +3,41 @@
 // HID session dispatch interface for IAS
 //
 
-import "ias.jnc"
+import "ias_PluginDispatch.jnc"
 
 //..............................................................................
 
-class HidDispatch: ias.Session {
+class HidDispatch: ias.PluginDispatch {
 	uint_t const property m_deviceVid {
 		return dispatchGet(HidDispatchCode.GetDeviceVid);
 	}
 
 	uint_t const property m_devicePid {
 		return dispatchGet(HidDispatchCode.GetDevicePid);
+	}
+
+	property m_devicePath {
+		string_t get() {
+			return dispatchGet(HidDispatchCode.GetDevicePath);
+		}
+
+		bool errorcode set(string_t path) {
+			return dispatch(HidDispatchCode.SetDevicePath, path);
+		}
+	}
+
+	property m_transmitMode {
+		HidTransmitMode get() {
+			return dispatch(HidDispatchCode.GetTransmitMode);
+		}
+
+		void set(HidTransmitMode mode) {
+			dispatch(HidDispatchCode.SetTransmitMode, mode);
+		}
+	}
+
+	construct(intptr handle) {
+		basetype.construct(handle);
 	}
 
 	bool errorcode setDeviceVidPid(
@@ -40,26 +64,6 @@ class HidDispatch: ias.Session {
 			(vid << 16) |
 			(pid & 0xffff)
 		);
-	}
-
-	property m_devicePath {
-		string_t get() {
-			return dispatchGet(HidDispatchCode.GetDevicePath);
-		}
-
-		bool errorcode set(string_t path) {
-			return dispatch(HidDispatchCode.SetDevicePath, path);
-		}
-	}
-
-	property m_transmitMode {
-		HidTransmitMode get() {
-			return dispatch(HidDispatchCode.GetTransmitMode);
-		}
-
-		void set(HidTransmitMode mode) {
-			dispatch(HidDispatchCode.SetTransmitMode, mode);
-		}
 	}
 
 	bool errorcode openDevice() {

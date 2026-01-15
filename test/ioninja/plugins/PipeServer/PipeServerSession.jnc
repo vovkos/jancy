@@ -15,6 +15,7 @@ import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
 import "std_Buffer.jnc"
 import "std_List.jnc"
+import "PipeServerLogRecordCode.jnc"
 
 using extension ui.ComboBoxHistory;
 

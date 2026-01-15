@@ -3,11 +3,10 @@
 // Serial log representer
 //
 
-import "log_Representation.jnc"
 import "io_base.jncx"
 import "io_Serial.jnc"
+import "log_Representation.jnc"
 import "std_String.jnc"
-import "SerialLogRecordCode.jnc"
 import "stringUtils.jnc"
 
 //..............................................................................

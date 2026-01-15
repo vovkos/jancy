@@ -5,11 +5,11 @@
 
 import "io_base.jncx"
 import "io_Serial.jnc"
-import "ias.jnc"
+import "ias_PluginDispatch.jnc"
 
 //..............................................................................
 
-class SerialDispatch: ias.Session {
+class SerialDispatch: ias.PluginDispatch {
 	property m_portName {
 		string_t get() {
 			return dispatchGet(SerialDispatchCode.GetPortName);
@@ -104,6 +104,10 @@ class SerialDispatch: ias.Session {
 		void set(bool value) {
 			dispatch(SerialDispatchCode.SetBreakCondition, value);
 		}
+	}
+
+	construct(intptr handle) {
+		basetype.construct(handle);
 	}
 
 	bool errorcode open(string_t portName = null) { // null = use m_portName

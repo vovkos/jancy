@@ -6,7 +6,6 @@
 import "log_Representation.jnc"
 import "log_RepresentDynamicLayout.jnc"
 import "io_Modbus.jnc"
-import "ModbusLogRecordCode.jnc"
 
 //..............................................................................
 

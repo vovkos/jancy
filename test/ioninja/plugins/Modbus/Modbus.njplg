@@ -10,13 +10,16 @@ description = "Analyzes a Serial/TCP log and generates a secondary log with deco
 page        = plugins/modbus.html
 help        = user-manual/plugin-modbus.html
 id          = modbus
+guid        = f65db0f1-f28e-4981-a6e5-3272d726923a
 group       = analyzers
 log-guid    = 5144b05f-e687-45ca-81bb-6c5f7880a2f3  # modbus
 icon        = images/modbus.png
 small-icon  = images/modbus-16x16.png
 
-layer-class = ModbusLayer
-pure-layer  = true
+layer-class       = ModbusLayer
+dispatch-class    = ModbusDispatch
+dispatch-variable = g_modbus
+pure-layer        = true
 
 [scripts]
 
@@ -27,7 +30,13 @@ ModbusRtuParser.jnc
 ModbusTcpParser.jnc
 ModbusAsciiParser.jnc
 ModbusInfoSet.jnc
+ModbusDispatchCode.jnc
 
 io_Modbus.jnc
 io_ModbusTemplates.jnc
 log_RepresentDynamicLayout.jnc
+
+[dispatch-scripts]
+
+ModbusDispatchCode.jnc
+ModbusDispatch.jnc

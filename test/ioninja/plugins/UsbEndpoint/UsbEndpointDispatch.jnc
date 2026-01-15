@@ -5,11 +5,11 @@
 
 import "io_usb.jncx"
 import "io_UsbTransfer.jnc"
-import "ias.jnc"
+import "ias_PluginDispatch.jnc"
 
 //..............................................................................
 
-class UsbEndpointDispatch: ias.Session {
+class UsbEndpointDispatch: ias.PluginDispatch {
 	uint_t const property m_deviceVid {
 		return dispatchGet(UsbEndpointDispatchCode.GetDeviceVid);
 	}
@@ -93,6 +93,10 @@ class UsbEndpointDispatch: ias.Session {
 		void set(uint_t value) {
 			dispatch(UsbEndpointDispatchCode.SetControlIndex, value);
 		}
+	}
+
+	construct(intptr handle) {
+		basetype.construct(handle);
 	}
 
 	bool errorcode openDevice() {

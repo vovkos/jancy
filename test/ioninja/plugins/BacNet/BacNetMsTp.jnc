@@ -301,7 +301,7 @@ string_t getBacNetMsTpDigest(
 		digest := $"\e[34m%1\e[m \u2192 \e[34m%2\e[m Frame: \e[34m%3\e[m Length: \e[34m%4"(
 			(hdr.m_sourceAddress),
 			(hdr.m_destinationAddress),
-			(typeof(BacNetMsTcpFrameType).getValueString(hdr.m_frameType)),
+			(typeof(BacNetMsTcpFrameType).getValueName(hdr.m_frameType)),
 			hdr.m_length
 		);
 

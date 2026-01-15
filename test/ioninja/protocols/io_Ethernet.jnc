@@ -129,7 +129,10 @@ struct EthernetHdr {
 	]
 	EthernetAddress m_srcAddress;
 
-	[ displayName = "Type" ]
+	[ 
+		displayName = "Type",
+		formatSpec = "0x%04X"
+	]
 	bigendian EthernetType m_type;
 }
 

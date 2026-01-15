@@ -59,7 +59,7 @@ struct IcmpHdr {
 
 string_t formatIcmpDigest(void const* p) {
 	IcmpHdr const* hdr = (IcmpHdr const*)p;
-	return typeof(IcmpType).getValueString(&hdr.m_type);
+	return typeof(IcmpType).getValueName(&hdr.m_type);
 }
 
 //..............................................................................

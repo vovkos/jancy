@@ -197,6 +197,9 @@ void SshChannel.close() {
 		return;
 
 	case State.Resolving:
+		m_resolver.cancel();
+		break;
+
 	case State.TcpConnecting:
 	case State.SshHandshaking:
 	case State.SshAuthenticating:
@@ -223,6 +226,7 @@ void SshChannel.close() {
 }
 
 void SshChannel.closeImpl() {
+	m_resolver.cancel();
 	m_ssh.close();
 	m_state = State.Closed;
 	m_isTransmitEnabled = false;

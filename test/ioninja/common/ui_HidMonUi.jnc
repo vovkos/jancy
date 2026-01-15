@@ -18,6 +18,8 @@ namespace ui {
 //! \addtogroup common-ui
 //! @{
 
+using extension io.HidUsagePageEnumStrings;
+
 //..............................................................................
 
 bool isHidMonDeviceLess(
@@ -71,7 +73,6 @@ void refreshHidMonDeviceListUi(
 		io.HidMonDeviceDesc const* device = deviceArray[i];
 		io.HidUsagePage const* page = io.g_hidDb.getUsagePage(device.m_usagePage);
 		string_t product = device.m_productDescriptor ? device.m_productDescriptor : device.m_description;
-		string_t usageName = page.getUsageName(device.m_usage);
 
 		description = $"%1%2:%(3; 03d) - %4 IF%5 (%6: %7)"(
 			usbmonService,
@@ -79,8 +80,8 @@ void refreshHidMonDeviceListUi(
 			device.m_address,
 			product,
 			device.m_interfaceId,
-			page.m_name,
-			usageName
+			page.m_string,
+			page.getUsageString(device.m_usage)
 		);
 
 		toolTip =
@@ -103,8 +104,8 @@ void refreshHidMonDeviceListUi(
 				device.m_vendorId,
 				device.m_productId,
 				typeof(io.UsbSpeed).getValueString(device.m_speed),
-				page.m_name,
-				usageName,
+				page.m_enumString,
+				page.getUsageEnumString(device.m_usage),
 				device.m_interfaceId,
 				device.m_inEndpointId
 			);

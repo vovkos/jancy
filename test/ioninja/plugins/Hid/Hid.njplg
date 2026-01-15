@@ -15,8 +15,9 @@ log-guid    = cd2c079d-63ff-4b2f-a385-0a4fe3afaac2  # hid
 icon        = images/hid.png
 small-icon  = images/hid-16x16.png
 
-session-class = HidSession
-dispatch-class = HidDispatch
+session-class     = HidSession
+dispatch-class    = HidDispatch
+dispatch-variable = g_hid
 
 [required-capabilities]
 

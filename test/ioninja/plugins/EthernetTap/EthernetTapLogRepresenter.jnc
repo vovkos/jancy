@@ -5,8 +5,8 @@
 
 import "log_Representation.jnc"
 import "log_Writer.jnc"
-import "NetSnifferLog/NetSnifferLog.jnc"
 import "crc32.jnc"
+import "NetSnifferLog/NetSnifferLog.jnc"
 
 //..............................................................................
 

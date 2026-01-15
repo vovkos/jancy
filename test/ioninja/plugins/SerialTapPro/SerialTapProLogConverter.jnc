@@ -102,7 +102,7 @@ protected:
 protected:
 	log.Log* m_log;
 
-	// ui.ToggleUi m_rawDataToggle;
+	ui.ToggleUi m_rawDataToggle;
 	ui.ToggleUi m_flipToggle;
 	ui.ToggleUi m_separateBytesToggle;
 	ui.ToggleUi m_parityBitToggle;
@@ -180,14 +180,12 @@ void SerialTapProLogConverter.createUi(doc.PluginHost* pluginHost) {
 
 	bindingof(m_flipToggle.m_value) += onFlip;
 
-	/*
 	m_rawDataToggle.create(
 		layout,,
 		groupProp,
 		"Raw data (debug)",
 		"Show/hide raw USB bulk data (for debugging)"
 	);
-	*/
 
 	m_separateBytesToggle.create(
 		layout,,
@@ -297,10 +295,8 @@ override bool SerialTapProLogConverter.convert(
 		p += sizeof(SerialTapProRawUsbBulkParams);
 		size -= sizeof(SerialTapProRawUsbBulkParams);
 
-		/*
 		if (m_rawDataToggle.m_value)
 			writer.write(timestamp, log.StdRecordCode.Bin, p, size);
-		*/
 
 		convertSerialTapProRawUsbBulk(
 			writer,
@@ -441,7 +437,7 @@ void SerialTapProLogConverter.convertSerialTapProRawUsbBulk(
 					break;
 				}
 
-				SerialTapProLines mask = lines ^ lines0;
+				SerialTapProLines mask = (lines ^ lines0) & ~(SerialTapProLines.Break_0 | SerialTapProLines.Break_1);
 				if (!mask)
 					break;
 
@@ -461,7 +457,9 @@ void SerialTapProLogConverter.convertSerialTapProRawUsbBulk(
 				break;
 
 			case SerialTapProNotificationCode.Status:
-				uint8_t status = *p++;
+				uint16_t status = *(uint16_t const thin*)p;
+				p += 2;
+
 				if (isFlipped)
 					status = flipSerialTapProOverflows(status);
 
@@ -480,6 +478,14 @@ void SerialTapProLogConverter.convertSerialTapProRawUsbBulk(
 
 				status0 = status;
 				break;
+
+			/*
+			case SerialTapProNotificationCode.EdgeFall_0:
+			case SerialTapProNotificationCode.EdgeRise_0:
+			case SerialTapProNotificationCode.EdgeFall_1:
+			case SerialTapProNotificationCode.EdgeRise_1:
+				writer.write(timestamp, log.StdRecordCode.PlainTextSep, $"code: %d uleb: %lld mcs"(notificationCode, uleb.m_value));
+				break; */
 			}
 		}
 	}

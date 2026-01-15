@@ -10,6 +10,8 @@ import "ui_BufferPropertySet.jnc"
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
 import "std_Buffer.jnc"
+import "SerialLog/SerialLogRecordCode.jnc"
+import "DeviceMonLog/DeviceMonLogRecordCode.jnc"
 
 //..............................................................................
 

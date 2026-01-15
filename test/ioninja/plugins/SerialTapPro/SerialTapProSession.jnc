@@ -8,13 +8,18 @@ import "io_usb.jncx"
 import "io_UsbDevice.jnc"
 import "io_UsbEnumerator.jnc"
 import "iox_FpgaUploader.jnc"
+import "io_abr.jncx"
 import "ui_SerialUi.jnc"
 import "ui_LineEdit.jnc"
+import "ui_Button.jnc"
+import "ui_GroupBox.jnc"
 import "ui_BufferPropertySet.jnc"
+import "ui_StdSessionInfoSet.jnc"
 import "ui_StdSessionInfoSet.jnc"
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
 import "std_Buffer.jnc"
+import "SerialTapProLogRecordCode.jnc"
 
 //..............................................................................
 
@@ -26,13 +31,18 @@ protected:
 	}
 
 	enum Defaults {
-		NotificationDelay = 20,
-		Inject            = false,
-		Rs485Mode         = SerialTapProRs485Mode.HalfDuplex,
-		Rs485Channel      = 0,
-		ReadParallelism   = 4,
-		ReadBlockSize     = 64 * 1024,
-		ReadBufferSize    = 1 * 1024 * 1024,
+		NotificationDelay        = 20,
+		Inject                   = false,
+		Rs485Mode                = SerialTapProRs485Mode.HalfDuplex,
+		Rs485Channel             = 0,
+		AbrStdBaudRateOnly       = true,
+		AbrBaudRateGridCellCount = 10000,
+		AbrEdgeErrorTolerance    = 10,   // 10%
+		AbrHarmioncTolerance     = 10,   // 10%
+		AbrHorizon               = 1000, // 1 sec
+		ReadParallelism          = 4,
+		ReadBlockSize            = 64 * 1024,
+		ReadBufferSize           = 1 * 1024 * 1024,
 	}
 
 	enum {
@@ -41,17 +51,20 @@ protected:
 		FpgaUploadBaseIndex       = 0x2000,
 		FpgaFreq                  = 48000000,
 		BaudRateCap               = 2500000,  // artificial cap (brave ones can edit this)
+		AbrBaudRateCap            = 1000000, // should't go any higher with 1 mcs precision
 	}
 
 	enum State {
 		Closed,
-		Uploading,
+		UploadingBootloader,
+		UploadingFirmware,
 		Capturing,
 	}
 
 	string_t m_statusTextTable[] = {
 		"Closed",
-		"Uploading",
+		"Uploading bootloader",
+		"Uploading firmware",
 		"Capturing",
 	}
 
@@ -84,7 +97,8 @@ protected:
 		_Count,
 	}
 
-	static string_t const FirmwareFileName = __DIR__ "/firmware/serial-tap-pro-1.1.rpd";
+	static string_t const BooloaderFileName = __DIR__ "/firmware/serial-tap-pro-1.2-bl.rpd";
+	static string_t const FirmwareFileName = __DIR__ "/firmware/serial-tap-pro-1.3.rpd";
 
 protected:
 	// usb
@@ -98,6 +112,7 @@ protected:
 	std.Buffer m_readBuffer;
 	std.Buffer m_controlBuffer;
 	SerialTapProDecoder m_decoder;
+	io.AutoBaudRate* m_abr[2];
 
 	uint_t m_baudRate;
 	uint_t m_dataBits;
@@ -111,14 +126,15 @@ protected:
 	// serial tap pro ui
 
 	ui.SerialUi m_serialUi;
+	ui.CheckBox* m_abrEnableCheckBoxes[2];
 	ui.GroupBox* m_injectGroupBox;
 	ui.ComboBox* m_rs485ModeCombo;
 	ui.ComboBox* m_rs485ChannelCombo;
 	bool bindable m_isTransmitUsbBufferReady;
 
+	/*
 	// read/write register debug ui
 
-	/*
 	ui.LineEdit* m_registerEdit;
 	ui.LineEdit* m_registerValueEdit;
 	*/
@@ -134,6 +150,11 @@ protected:
 
 	ui.EnumProperty* m_deviceProp;
 	ui.IntProperty* m_notificationDelayProp;
+	ui.BoolProperty* m_abrEnableProps[2];
+	ui.BoolProperty* m_abrStdBaudRateOnlyProp;
+	ui.IntProperty* m_abrBaudRateGridCellCountProp;
+	ui.IntProperty* m_abrEdgeErrorToleranceProp;
+	ui.IntProperty* m_abrHorizonProp;
 	ui.BufferPropertySet m_bufferPropertySet;
 
 	// information grid
@@ -193,6 +214,7 @@ protected:
 	void onRs485ModeChanged();
 	void onRs485ChannelChanged();
 	void onDtrRtsChanged();
+	void onAbrChanged();
 
 	void onUpdateCompleted(bool result);
 
@@ -228,6 +250,9 @@ protected:
 		io.SerialStopBits stopBits
 	);
 
+	io.AutoBaudRate* constructAbr()[2];
+	void configureAbr(SerialTapProLines lines);
+
 	uint16_t readRegister(SerialTapProRegister register);
 
 	bool errorcode writeRegister(
@@ -241,10 +266,19 @@ protected:
 SerialTapProSession.construct(doc.PluginHost* pluginHost) {
 	basetype.construct(pluginHost);
 	m_uploader.construct(pluginHost);
-	m_decoder.construct(pluginHost.m_log.m_writer, pluginHost.m_txRxStats, m_serialTapProInfoSet);
+
+	m_decoder.construct(
+		pluginHost.m_log.m_writer,
+		pluginHost.m_txRxStats,
+		m_serialTapProInfoSet,
+		constructAbr()
+	);
 
 	m_controlBuffer.setSize(SerialTapProUsb.ControlBufferSize);
 	m_uploader.m_onUpdateCompleted += onUpdateCompleted;
+
+	for (size_t i = 0; i < 2; i++)
+		m_abr[i].m_onChanged += m_serialTapProInfoSet.updateAbr~(i, m_abr[i]) @ pluginHost.m_mainThreadScheduler;
 
 	createUi();
 
@@ -289,11 +323,9 @@ void SerialTapProSession.createUi() {
 	m_actionTable[ActionId.Test].m_onTriggered += onTest;
 	*/
 
-	// status bar
-
 	m_statusPaneTable[StatusPaneId.State] = m_pluginHost.m_statusBar.addPane(, 80);
 
-	// property grid
+	// form & property grid
 
 	ui.GroupProperty* groupProp = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Connection",
@@ -329,7 +361,62 @@ void SerialTapProSession.createUi() {
 	bindingof(m_serialUi.m_dataBitsCombo.m_currentIndex) += onDataBitsChanged;
 	bindingof(m_serialUi.m_parityCombo.m_currentIndex) += onParityChanged;
 	bindingof(m_serialUi.m_stopBitsCombo.m_currentIndex) += onStopBitsChanged;
+
+	serialLayout.addLine(ui.FrameShadow.Sunken);
+
+	groupProp = m_pluginHost.m_propertyGrid.createGroupProperty(
+		"Auto baud rate detector",
+		"Automatic baud rate detection settings"
+	);
+
+	string_t abrNames[] = {
+		"Auto-detect baud rate (TX)",
+		"Auto-detect baud rate (RX)"
+	}
+
+	string_t abrTooltips[] = {
+		"Enable auto baud rate detector on TX line",
+		"Enable auto baud rate detector on RX line"
+	}
+
+	for (size_t i = 0; i < 2; i++) {
+		ui.CheckBox checkBox(abrNames[i]);
+		checkBox.m_onClicked += onAbrChanged;
+		serialLayout.addRow(checkBox);
+		m_abrEnableCheckBoxes[i] = checkBox;
+
+		m_abrEnableProps[i] = m_pluginHost.m_propertyGrid.createBoolProperty(
+			groupProp,,
+			abrNames[i],
+			abrTooltips[i]
+		);
+	}
+
 	m_pluginHost.createForm(serialGroupBox);
+
+	m_abrStdBaudRateOnlyProp = m_pluginHost.m_propertyGrid.createBoolProperty(
+		groupProp,,
+		"Standard baud rates only",
+		"Limit auto baud rate detector to standard baud rates only"
+	);
+
+	m_abrBaudRateGridCellCountProp = m_pluginHost.m_propertyGrid.createIntProperty(
+		groupProp,,
+		"Baud rate grid cell count",
+		"Number of cells in the baud rate approximation grid"
+	);
+
+	m_abrEdgeErrorToleranceProp = m_pluginHost.m_propertyGrid.createIntProperty(
+		groupProp,,
+		"Edge error tolerance (%)",
+		"Auto baud rate detector ignores edge errors within this tolerance (percents)"
+	);
+
+	m_abrHorizonProp = m_pluginHost.m_propertyGrid.createIntProperty(
+		groupProp,,
+		"Horizon (ms)",
+		"Maximum event horizon for auto baud rate detector (ms)"
+	);
 
 	static ui.ComboItem const rs485ModeItems[] = {
 		{ "Half-duplex",              SerialTapProRs485Mode.HalfDuplex },
@@ -428,7 +515,20 @@ void SerialTapProSession.onUpdateCompleted(bool result) {
 		return;
 	}
 
-	startCapture();
+	switch (m_state) {
+	case State.UploadingBootloader:
+		m_state = State.UploadingFirmware;
+		m_uploader.update(m_device, FirmwareFileName, FpgaUploadBaseIndex);
+		break;
+
+	case State.UploadingFirmware:
+		startCapture();
+		break;
+
+	default:
+		stopCapture();
+		return;
+	}
 
 catch:
 	m_logWriter.writeLastError(SerialTapProLogRecordCode.CaptureError);
@@ -477,7 +577,18 @@ bool errorcode SerialTapProSession.capture() {
 	m_device = m_deviceCombo.m_currentData;
 	m_device.open();
 	m_logWriter.write(SerialTapProLogRecordCode.DeviceOpened, m_deviceCombo.m_currentText);
-	return m_uploader.update(m_device, FirmwareFileName, FpgaUploadBaseIndex);
+
+	string_t fileName;
+	io.RpdVersion version = m_uploader.getVersion(m_device);
+	if (version.m_firmwareVersion < 0x0102) {
+		m_state = State.UploadingBootloader;
+		m_uploader.update(m_device, BooloaderFileName, FpgaUploadBaseIndex, true);
+	} else {
+		m_state = State.UploadingFirmware;
+		m_uploader.update(m_device, FirmwareFileName, FpgaUploadBaseIndex);
+	}
+
+	return true;
 
 catch:
 	m_logWriter.writeLastError(SerialTapProLogRecordCode.CaptureError);
@@ -505,21 +616,23 @@ bool errorcode SerialTapProSession.startCapture() {
 	m_stopBits = m_serialUi.m_stopBits;
 	m_notificationDelay = m_notificationDelayProp.m_value;
 
+	setBaudRate(m_baudRate);
+	setBits(m_dataBits, m_parity, m_stopBits);
+	setNotificationDelay(m_notificationDelay);
+	waitInEndpointEvents();
+
 	writeRegister(SerialTapProRegister.Time2, 0);
 	writeRegister(SerialTapProRegister.Time1, 0);
 	writeRegister(SerialTapProRegister.Time0, 0);
 
-	setBaudRate(m_baudRate);
-	setBits(m_dataBits, m_parity, m_stopBits);
-	setNotificationDelay(m_notificationDelay);
-
-	waitInEndpointEvents();
-	writeRegister(SerialTapProRegister.Control, calcControl());
+	uint16_t control = calcControl();
+	writeRegister(SerialTapProRegister.Control, control);
 
 	m_txBufferSize = readRegister(SerialTapProRegister.TxBufferSize);
 	SerialTapProIface iface = (SerialTapProIface)(readRegister(SerialTapProRegister.Status) & SerialTapProIface.Mask);
 	SerialTapProLines lines = (SerialTapProLines)readRegister(SerialTapProRegister.Lines);
 	m_decoder.reset(iface, lines); // decoder operates on original lines
+	configureAbr(lines); // abr operate on original lines
 
 	if (m_decoder.m_isFlipped)
 		lines = flipSerialTapProLines(lines);
@@ -535,6 +648,9 @@ bool errorcode SerialTapProSession.startCapture() {
 	params.m_rs485Mode = m_rs485ModeCombo.m_currentData;
 	params.m_rs485InjectChannel = m_rs485ChannelCombo.m_currentIndex;
 	m_logWriter.write(SerialTapProLogRecordCode.CaptureStarted, &params, sizeof(params));
+
+	if (control & (SerialTapProControlFlags.Edges_0 | SerialTapProControlFlags.Edges_1))
+		m_logWriter.write(SerialTapProLogRecordCode.AbrChanged, &control, sizeof(control));
 
 	m_serialTapProInfoSet.setIface(iface);
 	m_serialTapProInfoSet.setOverflows(0);
@@ -571,10 +687,17 @@ bool errorcode SerialTapProSession.flushInEndpoint() {
 }
 
 SerialTapProControlFlags SerialTapProSession.calcControl() {
-	if (!m_injectGroupBox.m_isChecked)
-		return SerialTapProControlFlags.Start;
-
 	SerialTapProControlFlags control = SerialTapProControlFlags.Start;
+
+	if (m_abrEnableCheckBoxes[0].m_isChecked)
+		control |= SerialTapProControlFlags.Edges_0;
+
+	if (m_abrEnableCheckBoxes[1].m_isChecked)
+		control |= SerialTapProControlFlags.Edges_1;
+
+	if (!m_injectGroupBox.m_isChecked)
+		return control;
+
 	SerialTapProRs485Mode rs485Mode = m_rs485ModeCombo.m_currentData;
 	switch (rs485Mode) {
 	case SerialTapProRs485Mode.HalfDuplex:
@@ -652,6 +775,37 @@ bool errorcode SerialTapProSession.setBits(
 	return true;
 }
 
+io.AutoBaudRate* SerialTapProSession.constructAbr()[2] {
+	m_abr[0] = new io.AutoBaudRate;
+	m_abr[1] = new io.AutoBaudRate;
+	return m_abr;
+}
+
+void SerialTapProSession.configureAbr(SerialTapProLines lines) {
+	size_t baudRateGridCount = m_abrStdBaudRateOnlyProp.m_value ? 0 : m_abrBaudRateGridCellCountProp.m_value;
+	double edgeErrorTolerance = m_abrEdgeErrorToleranceProp.m_value / 100.0;
+	uint64_t horizon = m_abrHorizonProp.m_value * 10000; // in 100-nsec interval
+
+	for (size_t i = 0; i < 2; i++) {
+		io.AutoBaudRate* abr = m_abr[i];
+		if (!m_abrEnableCheckBoxes[i].m_isChecked) {
+			if (abr.m_isOpen) {
+				abr.close();
+				m_serialTapProInfoSet.updateAbr(i, abr);
+			}
+		} else {
+			if (!abr.m_isOpen || baudRateGridCount != abr.m_baudGridCellCount) {
+				bool uart = lines & (SerialTapProLines.Data_0 << i);
+				abr.create(AbrBaudRateCap, baudRateGridCount, uart);
+				m_serialTapProInfoSet.updateAbr(i, abr);
+			}
+
+			abr.m_edgeErrorTolerance = edgeErrorTolerance;
+			abr.m_horizon = horizon;
+		}
+	}
+}
+
 uint16_t SerialTapProSession.readRegister(SerialTapProRegister register) {
 	*(uint16_t bigendian*)m_controlBuffer.m_p = 0; // zero it first
 
@@ -712,15 +866,17 @@ void SerialTapProSession.stopCapture(bool isGraceful) {
 		m_device = null;
 	}
 
-	if (m_state) {
+	if (m_state >= State.Capturing) {
 		m_stdSessionInfoSet.endSession();
 		m_logWriter.write(SerialTapProLogRecordCode.CaptureStopped);
-		m_state = State.Closed;
 	}
 
+	m_abr[0].close();
+	m_abr[1].close();
 	m_uploader.cancel();
 	m_outEpSyncId++;
 	m_inEpSyncId++;
+	m_state = State.Closed;
 }
 
 void SerialTapProSession.waitOutEndpointEvents() {
@@ -785,6 +941,10 @@ void SerialTapProSession.load(doc.Storage* storage) {
 	m_serialUi.load(storage);
 	m_deviceCombo.m_currentIndex = storage.readInt("deviceIdx");
 	m_notificationDelayProp.m_value = storage.readInt("notificationDelay", Defaults.NotificationDelay);
+	m_abrStdBaudRateOnlyProp.m_value = storage.readBool("abrStdBaudRateOnly", Defaults.AbrStdBaudRateOnly);
+	m_abrBaudRateGridCellCountProp.m_value = storage.readInt("abrBaudRateGridCellCount", Defaults.AbrBaudRateGridCellCount);
+	m_abrEdgeErrorToleranceProp.m_value = storage.readInt("abrEdgeErrorToleranceProp", Defaults.AbrEdgeErrorTolerance);
+	m_abrHorizonProp.m_value = storage.readInt("abrHorizon", Defaults.AbrHorizon);
 	m_injectGroupBox.m_isChecked = storage.readBool("inject", Defaults.Inject);
 	m_rs485ModeCombo.m_currentIndex = storage.readInt("rs485Mode", Defaults.Rs485Mode);
 	m_rs485ChannelCombo.m_currentIndex = storage.readInt("rs485Channel", Defaults.Rs485Channel);
@@ -796,6 +956,10 @@ void SerialTapProSession.save(doc.Storage* storage) {
 	m_serialUi.save(storage);
 	storage.writeInt("deviceIdx", m_deviceCombo.m_currentIndex);
 	storage.writeInt("notificationDelay", m_notificationDelayProp.m_value);
+	storage.writeBool("abrStdBaudRateOnly", m_abrStdBaudRateOnlyProp.m_value);
+	storage.writeInt("abrBaudRateGridCellCount", m_abrBaudRateGridCellCountProp.m_value);
+	storage.writeInt("abrEdgeErrorToleranceProp", m_abrEdgeErrorToleranceProp.m_value);
+	storage.writeInt("abrHorizon", m_abrHorizonProp.m_value);
 	storage.writeBool("inject", m_injectGroupBox.m_isChecked);
 	storage.writeInt("rs485Mode", m_rs485ModeCombo.m_currentIndex);
 	storage.writeInt("rs485Channel", m_rs485ChannelCombo.m_currentIndex);
@@ -804,7 +968,8 @@ void SerialTapProSession.save(doc.Storage* storage) {
 
 void SerialTapProSession.updateProperties() {
 	m_serialUi.updateProperties();
-
+	m_abrEnableProps[0].m_value = m_abrEnableCheckBoxes[0].m_isChecked;
+	m_abrEnableProps[1].m_value = m_abrEnableCheckBoxes[1].m_isChecked;
 	m_deviceProp.m_currentIndex = m_deviceCombo.m_currentIndex;
 }
 
@@ -816,8 +981,11 @@ bool errorcode SerialTapProSession.applyProperties() {
 	m_readBuffer.detach(); // drop buffer, so we re-allocate each time
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 
-	if (m_state != State.Capturing)
+	if (m_state != State.Capturing) {
+		m_abrEnableCheckBoxes[0].m_isChecked = m_abrEnableProps[0].m_value;
+		m_abrEnableCheckBoxes[1].m_isChecked = m_abrEnableProps[1].m_value;
 		return true;
+	}
 
 	uint_t baudRate = m_serialUi.m_baudRate;
 	uint_t dataBits = m_serialUi.m_dataBits;
@@ -857,6 +1025,19 @@ bool errorcode SerialTapProSession.applyProperties() {
 		m_notificationDelay = notificationDelay;
 	}
 
+	SerialTapProLines lines = (SerialTapProLines)readRegister(SerialTapProRegister.Lines);
+	configureAbr(lines);
+
+	uint16_t oldControl = calcControl();
+	m_abrEnableCheckBoxes[0].m_isChecked = m_abrEnableProps[0].m_value;
+	m_abrEnableCheckBoxes[1].m_isChecked = m_abrEnableProps[1].m_value;
+
+	uint16_t newControl = calcControl();
+	if ((newControl ^ oldControl) & (SerialTapProControlFlags.Edges_0 | SerialTapProControlFlags.Edges_1)) {
+		writeRegister(SerialTapProRegister.Control, newControl);
+		m_logWriter.write(SerialTapProLogRecordCode.AbrChanged, &newControl, sizeof(newControl));
+	}
+
 	m_inEndpoint.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
 	m_inEndpoint.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 	return true;
@@ -868,6 +1049,12 @@ catch:
 
 void SerialTapProSession.restoreDefaultProperties() {
 	m_notificationDelayProp.m_value = Defaults.NotificationDelay;
+	m_abrEnableProps[0].m_value = false;
+	m_abrEnableProps[1].m_value = false;
+	m_abrStdBaudRateOnlyProp.m_value = Defaults.AbrStdBaudRateOnly;
+	m_abrBaudRateGridCellCountProp.m_value = Defaults.AbrBaudRateGridCellCount;
+	m_abrEdgeErrorToleranceProp.m_value = Defaults.AbrEdgeErrorTolerance;
+	m_abrHorizonProp.m_value = Defaults.AbrHorizon;
 	m_serialUi.restoreDefaultProperties();
 	m_bufferPropertySet.restoreDefaults();
 }
@@ -1050,6 +1237,21 @@ catch:
 	m_logWriter.writeLastError(log.StdRecordCode.Error);
 }
 
+void SerialTapProSession.onAbrChanged() {
+	if (m_state != State.Capturing)
+		return;
+
+	SerialTapProLines lines = (SerialTapProLines)readRegister(SerialTapProRegister.Lines);
+	configureAbr(lines);
+
+	uint16_t control = calcControl();
+	writeRegister(SerialTapProRegister.Control, control);
+	m_logWriter.write(SerialTapProLogRecordCode.AbrChanged, &control, sizeof(control));
+
+catch:
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
+}
+
 void SerialTapProSession.onInjectChanged() {
 	if (m_state != State.Capturing)
 		return;
@@ -1145,7 +1347,13 @@ reactor SerialTapProSession.m_uiReactor {
 		m_state == State.Capturing &&
 		m_decoder.m_serialIface == SerialTapProIface.Rs485;
 
-	m_serialTapProInfoSet.m_isEnabled = m_state == State.Capturing;
+	m_serialTapProInfoSet.enable(
+		m_state == State.Capturing,
+		m_abrEnableCheckBoxes[0].m_isChecked,
+		m_abrEnableCheckBoxes[1].m_isChecked
+	);
+
+	m_abrBaudRateGridCellCountProp.m_isEnabled = !m_abrStdBaudRateOnlyProp.m_value;
 
 	m_isTransmitEnabled =
 		m_state == State.Capturing &&

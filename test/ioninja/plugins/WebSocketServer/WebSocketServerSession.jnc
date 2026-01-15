@@ -17,6 +17,9 @@ import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
 import "std_List.jnc"
 import "std_Buffer.jnc"
+import "WebSocketLog/WebSocketLogRecordCode.jnc"
+import "SocketLog/SocketLogRecordCode.jnc"
+import "SslLog/SslLogRecordCode.jnc"
 
 using extension ui.ComboBoxHistory;
 

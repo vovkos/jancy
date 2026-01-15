@@ -3,13 +3,11 @@
 // TCP Connection session dispatch interface for IAS
 //
 
-import "io_base.jncx"
-import "io_Socket.jnc"
-import "ias.jnc"
+import "ias_PluginDispatch.jnc"
 
 //..............................................................................
 
-class TcpConnectionDispatch: ias.Session {
+class TcpConnectionDispatch: ias.PluginDispatch {
 	property m_remoteAddress {
 		string_t get() {
 			return dispatchGet(TcpConnectionDispatchCode.GetRemoteAddress);
@@ -28,6 +26,10 @@ class TcpConnectionDispatch: ias.Session {
 		void set(uint_t value) {
 			dispatch(TcpConnectionDispatchCode.SetRemotePort, value);
 		}
+	}
+
+	construct(intptr handle) {
+		basetype.construct(handle);
 	}
 
 	bool errorcode connect(string_t address = null) { // null = use m_remoteAddress

@@ -49,14 +49,16 @@ enum SerialTapProRegister {
 	Delay1       = 17,
 }
 
-bitflag enum SerialTapProControlFlags {
+bitflag enum SerialTapProControlFlags: uint16_t {
 	Start,
-	AutoBaud,
+	Reserved,
 	Rs485InjectChannel,
 	Forward,
 	Rts,
 	Dtr,
 	Rs485InjectHalfDuplex,
+	Edges_0,
+	Edges_1,
 }
 
 union SerialTapProBits {
@@ -72,26 +74,32 @@ enum SerialTapProNotificationCode: uint8_t {
 	BufferOverflow   = 1,
 	Data_0           = 3,
 	Data_1           = 4,
-	StatusLineChange = 5,
+	StatusLineChange = 5, // 1 byte
 	BreakOn_0        = 7,
 	BreakOn_1        = 8,
 	BreakOff_0       = 9,
 	BreakOff_1       = 10,
-	Status           = 13,
+	Status           = 13, // 2 byte
+	EdgeFall_0       = 14,
+	EdgeRise_0       = 15,
+	EdgeFall_1       = 16,
+	EdgeRise_1       = 17,
 }
 
-bitflag enum SerialTapProLines: uint8_t {
-	Cts       = 0x01,
-	Dsr       = 0x02,
-	Ring      = 0x04,
-	Dcd       = 0x08,
-	Rts       = 0x10,
-	Dtr       = 0x20,
-	Break_0   = 0x40,
-	Break_1   = 0x80,
+bitflag enum SerialTapProLines: uint16_t {
+	Cts       = 0x0001,
+	Dsr       = 0x0002,
+	Ring      = 0x0004,
+	Dcd       = 0x0008,
+	Rts       = 0x0010,
+	Dtr       = 0x0020,
+	Break_0   = 0x0040,
+	Break_1   = 0x0080,
+	Data_0    = 0x0100,
+	Data_1    = 0x0200,
 
-	LineMask  = 0x3f,
-	BreakMask = 0xc0,
+	LineMask  = 0x003f,
+	BreakMask = 0x00c0,
 }
 
 SerialTapProLines flipSerialTapProLines(SerialTapProLines lines) {
@@ -102,40 +110,60 @@ SerialTapProLines flipSerialTapProLines(SerialTapProLines lines) {
 			SerialTapProLines.Rts |
 			SerialTapProLines.Dtr |
 			SerialTapProLines.Break_0 |
-			SerialTapProLines.Break_1
+			SerialTapProLines.Break_1 |
+			SerialTapProLines.Data_0 |
+			SerialTapProLines.Data_1
 		)) |
 		((lines & (SerialTapProLines.Cts | SerialTapProLines.Dsr)) << 4) |
 		((lines & (SerialTapProLines.Rts | SerialTapProLines.Dtr)) >> 4) |
-		((lines & SerialTapProLines.Break_0) << 1) |
-		((lines & SerialTapProLines.Break_1) >> 1);
+		((lines & (SerialTapProLines.Break_0 | SerialTapProLines.Data_0)) << 1) |
+		((lines & (SerialTapProLines.Break_1 | SerialTapProLines.Data_1)) >> 1);
 }
 
-bitflag enum SerialTapProOverflows: uint8_t {
-	Data_0      = 0x80,
-	Data_1      = 0x40,
-	Lines       = 0x20,
-	Break_0     = 0x10,
-	Break_1     = 0x08,
-	Status      = 0x04,
+bitflag enum SerialTapProOverflows: uint16_t {
+	Edge_1      = 0x0200,
+	Edge_0      = 0x0100,
+	Data_1      = 0x0080,
+	Data_0      = 0x0040,
+	Lines       = 0x0020,
+	Break_1     = 0x0010,
+	Break_0     = 0x0008,
+	Status      = 0x0004,
 
-	NonDataMask = 0x3c,
-	Mask        = 0xfc,
+	NonDataMask = 0x003c,
+	Mask        = 0x00fc,
 }
 
-uint8_t flipSerialTapProOverflows(uint8_t status) {
+uint16_t flipSerialTapProOverflows(uint16_t status) {
 	return
 		(status & ~(
+			SerialTapProOverflows.Edge_0 |
+			SerialTapProOverflows.Edge_1 |
 			SerialTapProOverflows.Data_0 |
 			SerialTapProOverflows.Data_1 |
 			SerialTapProOverflows.Break_0 |
 			SerialTapProOverflows.Break_1
-		)) |
-		((status & (SerialTapProOverflows.Data_0 | SerialTapProOverflows.Break_0)) >> 1) |
-		((status & (SerialTapProOverflows.Data_1 | SerialTapProOverflows.Break_1)) << 1);
+		)) | ((status & (
+				SerialTapProOverflows.Edge_0 |
+				SerialTapProOverflows.Data_0 |
+				SerialTapProOverflows.Break_0
+			)) >> 1
+		) | ((status & (
+				SerialTapProOverflows.Edge_1 |
+				SerialTapProOverflows.Data_1 |
+				SerialTapProOverflows.Break_1
+			)) << 1
+		);
 }
 
 string_t getSerialTapProOverflowsString(SerialTapProOverflows overflows) {
 	std.StringBuilder string;
+	if (overflows & SerialTapProOverflows.Edge_0)
+		string += "EDGE (TX) ";
+
+	if (overflows & SerialTapProOverflows.Edge_1)
+		string += "EDGE (RX) ";
+
 	if (overflows & SerialTapProOverflows.Data_0)
 		string += "TX ";
 

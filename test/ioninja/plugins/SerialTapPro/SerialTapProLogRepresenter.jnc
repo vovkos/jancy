@@ -231,12 +231,6 @@ bool representSerialTapProLog(
 			representation.addHyperText(string);
 		}
 
-		if (params.m_mask & SerialTapProLines.Break_0)
-			representation.addHyperText($"TX line BREAK condition: %1"(getOnOffString(params.m_lines & SerialTapProLines.Break_0)));
-
-		if (params.m_mask & SerialTapProLines.Break_1)
-			representation.addHyperText($"RX line BREAK condition: %1"(getOnOffString(params.m_lines & SerialTapProLines.Break_1)));
-
 		break;
 
 	case SerialTapProLogRecordCode.TxParityError:
@@ -378,6 +372,16 @@ bool representSerialTapProLog(
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addHyperText($"Set notification delay: \e[34m$delay\e[m ms");
+		break;
+
+	case SerialTapProLogRecordCode.AbrChanged:
+		SerialTapProControlFlags flags = *(SerialTapProControlFlags const*)p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"Auto baud rate detection: TX: %1 RX: %2"(
+			getOnOffString(flags & SerialTapProControlFlags.Edges_0),
+			getOnOffString(flags & SerialTapProControlFlags.Edges_1)
+		));
 		break;
 
 	default:

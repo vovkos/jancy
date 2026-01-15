@@ -17,6 +17,7 @@ import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
 import "std_Buffer.jnc"
 import "sys_Timer.jnc"
+import "UsbLog/UsbLogRecordCode.jnc"
 
 //..............................................................................
 

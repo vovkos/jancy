@@ -10,6 +10,7 @@ description = "Analyzes a Serial log and generates a secondary log with decoded 
 page        = plugins/bacnet.html
 help        = user-manual/plugin-bacnet.html
 id          = bacnet-mstp
+guid        = a402da22-5b59-40b5-9d80-305b64bf21ab
 group       = analyzers
 log-guid    = 9ade09ff-3c68-4d0e-aeaa-f4cb1f862d5c # bacnet-mstp-log
 icon        = images/bacnet.png

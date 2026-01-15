@@ -18,6 +18,8 @@ namespace ui {
 //! \addtogroup common-ui
 //! @{
 
+using extension io.HidUsagePageEnumStrings;
+
 //..............................................................................
 
 struct HidDeviceEntry {
@@ -48,15 +50,14 @@ void refreshHidDeviceListUi(
 	std.StringBuilder toolTip;
 	for (size_t i = 0; i < count; i++, desc = desc.m_next) {
 		io.HidUsagePage const* page = io.g_hidDb.getUsagePage(desc.m_usagePage);
-		string_t usageName = page.getUsageName(desc.m_usage);
 
 		HidDeviceEntry* entry = new HidDeviceEntry;
 		entry.m_deviceDesc = desc;
 		entry.m_description = $"%1 IF%2 (%3: %4)"(
 			desc.m_product,
 			desc.m_interfaceId,
-			page.m_name,
-			usageName
+			page.m_string,
+			page.getUsageString(desc.m_usage)
 		);
 
 		toolTip =
@@ -68,8 +69,8 @@ void refreshHidDeviceListUi(
 			$"<tr><td>Product ID:</td><td>0x%04X</td></tr>"
 			$"<tr><td>Bus:</td><td>%s</td></tr>"
 			$"<tr><td>Interface:</td><td>%d</td></tr>"
-			$"<tr><td>Usage&nbsp;page:</td><td>0x%02X - %s</td></tr>"
-			$"<tr><td>Usage:</td><td>0x%02X - %s</td></tr>"(
+			$"<tr><td>Usage&nbsp;page:</td><td>%s</td></tr>"
+			$"<tr><td>Usage:</td><td>%s</td></tr>"(
 				desc.m_path,
 				desc.m_product,
 				desc.m_manufacturer,
@@ -77,10 +78,8 @@ void refreshHidDeviceListUi(
 				desc.m_productId,
 				typeof(io.HidBusType).getValueString(desc.m_busType),
 				desc.m_interfaceId,
-				desc.m_usagePage,
-				page.m_name,
-				desc.m_usage,
-				usageName
+				page.m_enumString,
+				page.getUsageEnumString(desc.m_usage)
 			);
 
 		if (desc.m_serialNumber)

@@ -4,8 +4,11 @@
 //
 
 import "io_IpDecoder.jnc"
+import "io_Tcp.jnc"
 import "log_Writer.jnc"
 import "std_HashTable.jnc"
+import "TcpFlowLogRecordCode.jnc"
+import "SocketLog/SocketLogRecordCode.jnc"
 
 threadlocal log.Writer* g_logWriter;
 
@@ -57,7 +60,6 @@ protected:
 	}
 
 protected:
-	io.IpDefragmenter m_ipDefragmenter;
 	std.HashTable m_connectionMap;
 	std.List m_connectionList;
 	Connection* m_currentConnection;
@@ -122,8 +124,7 @@ void TcpDecoder.setup(
 	uint_t ipFragmentTimeout,
 	size_t outOfSeqLimit
 ) {
-	m_ipDefragmenter.m_fragmentLimit = ipFramentLimit;
-	m_ipDefragmenter.m_fragmentTimeout = ipFragmentTimeout;
+	setupDefragmenter(ipFramentLimit, ipFragmentTimeout);
 
 	std.ListEntry* entry = m_connectionList.m_head;
 	for (; entry; entry = entry.m_next) {
@@ -136,7 +137,7 @@ void TcpDecoder.setup(
 }
 
 void TcpDecoder.reset() {
-	m_ipDefragmenter.reset();
+	basetype.reset();
 	m_connectionList.clear();
 	m_connectionMap.clear();
 	m_currentConnection = null;

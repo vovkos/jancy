@@ -3,10 +3,9 @@
 // TCP Monitor log representer
 //
 
-import "log_Representation.jnc"
 import "io_base.jncx"
 import "io_SocketAddress.jnc"
-import "TcpFlowLogRecordCode.jnc"
+import "log_Representation.jnc"
 
 //..............................................................................
 

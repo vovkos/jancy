@@ -6,7 +6,6 @@
 import "io_base.jncx"
 import "io_SocketAddress.jnc"
 import "log_Representation.jnc"
-import "PcapLogRecordCode.jnc"
 
 //..............................................................................
 

@@ -43,6 +43,7 @@ enum SerialTapProLogRecordCode: uint64_t {
 	ParityChanged             = 0x01db13c48f44251f,
 	StopBitsChanged           = 0x01db13c48f442520,
 	NotificationDelayChanged  = 0x01db13c48f442521,
+	AbrChanged                = 0x01db13c48f442522,
 }
 
 struct SerialTapProCaptureStartedParams {
@@ -73,7 +74,7 @@ struct SerialTapProOverflowChangedParams {
 }
 
 struct SerialTapProRawUsbBulkParams {
-	uint8_t m_status; // SerialTapProIface | SerialTapProOverflows
+	uint16_t m_status; // SerialTapProIface | SerialTapProOverflows
 	SerialTapProLines m_lines;
 }
 

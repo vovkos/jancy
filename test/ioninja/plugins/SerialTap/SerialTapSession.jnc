@@ -16,6 +16,7 @@ import "ui_GroupBox.jnc"
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
 import "std_Buffer.jnc"
+import "SerialLog/SerialLogRecordCode.jnc"
 
 namespace cy {
 
@@ -333,7 +334,7 @@ void SerialTapSession.createUi() {
 
 	m_actionTable[ActionId.Flip] = createAction("Flip DTE/DCE", "images/flip.png");
 	m_actionTable[ActionId.Flip].m_isCheckable = true;
-	m_actionTable[ActionId.Flip].m_onTriggered = flipDteDce;
+	m_actionTable[ActionId.Flip].m_onTriggered += flipDteDce;
 
 	// status bar (only one pane)
 

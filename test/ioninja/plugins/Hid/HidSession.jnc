@@ -382,7 +382,7 @@ void HidSession.updateReportUi(io.HidReport const* report) {
 
 		if (usagePage != field.m_usagePage) {
 			usagePage = field.m_usagePage;
-			groupProp = new ui.GroupProperty(usagePage.m_name);
+			groupProp = new ui.GroupProperty(usagePage.m_string);
 			m_reportPropertyGrid.addProperty(groupProp);
 		}
 
@@ -399,8 +399,8 @@ void HidSession.updateReportUi(io.HidReport const* report) {
 				!(field.m_valueFlags & io.HidRdValueFlags.Variable) ?
 					$"[$j]:" :
 				hasIndex ?
-					$"%1 [%2]:"(usagePage.getUsageName(field.m_usageArray[j]), j) :
-					$"%1:"(usagePage.getUsageName(field.m_usageArray[j]));
+					$"%1 [%2]:"(usagePage.getUsageString(field.m_usageArray[j]), j) :
+					$"%1:"(usagePage.getUsageString(field.m_usageArray[j]));
 
 			if (reportSize == 1) {
 				ui.BoolProperty* prop = new ui.BoolProperty(text);

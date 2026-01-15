@@ -1,0 +1,47 @@
+//..............................................................................
+//
+// IO Ninja IAS (In-App Scripting) - plugin dispatch base
+//
+
+namespace ias {
+
+//! \addtogroup api-ias
+//! @{
+
+//..............................................................................
+
+// plugins that implement dispatch should derive their companion dispatch class
+// from ias.PluginDispatch
+
+class PluginDispatch {
+	protected const uint_t m_internalId;
+
+	string_t const property m_id;
+	string_t const property m_name;
+	string_t const property m_description;
+	string_t const property m_pluginDir;
+
+	construct(uint_t internalId);
+
+protected:
+	bool errorcode dispatch(
+		uint_t code,
+		variant_t in = null,
+		variant_t* out = null
+	);
+
+	variant_t dispatchGet(
+		uint_t code,
+		variant_t in = null
+	) {
+		variant_t result;
+		dispatch(code, in, &result);
+		return result;
+	}
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace ias

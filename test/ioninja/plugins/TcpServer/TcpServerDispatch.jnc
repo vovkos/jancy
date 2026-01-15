@@ -3,13 +3,11 @@
 // TCP Server dispatch interface for IAS
 //
 
-import "io_base.jncx"
-import "io_Socket.jnc"
-import "ias.jnc"
+import "ias_PluginDispatch.jnc"
 
 //..............................................................................
 
-class TcpServerDispatch: ias.Session {
+class TcpServerDispatch: ias.PluginDispatch {
 	property m_localPort {
 		uint_t get() {
 			return dispatchGet(TcpServerDispatchCode.GetLocalPort);
@@ -18,6 +16,10 @@ class TcpServerDispatch: ias.Session {
 		void set(uint_t value) {
 			dispatch(TcpServerDispatchCode.SetLocalPort, value);
 		}
+	}
+
+	construct(intptr handle) {
+		basetype.construct(handle);
 	}
 
 	bool errorcode listen() {

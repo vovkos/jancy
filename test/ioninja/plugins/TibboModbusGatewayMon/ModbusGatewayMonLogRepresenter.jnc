@@ -6,7 +6,6 @@
 import "log_Representation.jnc"
 import "io_Modbus.jnc"
 import "crc16.jnc"
-import "ModbusGatewayMonLogRecordCode.jnc"
 import "SocketLog/SocketLogRecordCode.jnc"
 
 //..............................................................................

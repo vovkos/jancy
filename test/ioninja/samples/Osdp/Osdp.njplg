@@ -8,6 +8,7 @@
 name        = "OSDP Analyzer"
 description = "Analyzes a Serial log and generates a secondary log with decoded OSDP messages"
 id          = osdp
+guid        = e590afed-38a0-4bbf-9689-8cc9d68ea66d
 group       = analyzers
 log-guid    = d5efd9a3-9be1-45ca-8366-c20b0aa80f46  # OSDP
 icon        = images/osdp.png

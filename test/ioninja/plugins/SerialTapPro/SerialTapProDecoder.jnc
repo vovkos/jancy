@@ -4,13 +4,14 @@
 //
 
 import "std_Buffer.jnc"
+import "io_abr.jncx"
 
 //..............................................................................
 
 class SerialTapProDecoder {
 protected:
 	enum {
-		DeviceTimeSyncThreshold = 500000, // 500 ms
+		DeviceTimeSyncThreshold = 500000,  // 500 ms (in mcsec)
 	}
 
 protected:
@@ -19,6 +20,8 @@ protected:
 	SerialTapProInfoSet* m_infoSet;
 	uint64_t m_timestamp;
 	SerialTapProRawUsbBulkParams m_recordParams;
+	io.AutoBaudRate* m_abr[2];
+	uint64_t m_abrTime[2];
 
 public:
 	SerialTapProIface bindable readonly m_serialIface;
@@ -28,7 +31,8 @@ public:
 	construct(
 		log.Writer* logWriter,
 		log.TxRxStats* txRxStats,
-		SerialTapProInfoSet* infoSet
+		SerialTapProInfoSet* infoSet,
+		io.AutoBaudRate* abr[2]
 	);
 
 	void reset(
@@ -49,11 +53,13 @@ public:
 SerialTapProDecoder.construct(
 	log.Writer* logWriter,
 	log.TxRxStats* txRxStats,
-	SerialTapProInfoSet* infoSet
+	SerialTapProInfoSet* infoSet,
+	io.AutoBaudRate* abr[2]
 ) {
 	m_logWriter = logWriter;
 	m_txRxStats = txRxStats;
 	m_infoSet = infoSet;
+	m_abr = abr;
 }
 
 void SerialTapProDecoder.reset(
@@ -64,6 +70,7 @@ void SerialTapProDecoder.reset(
 	m_serialIface = iface;
 	m_recordParams.m_status = iface;
 	m_recordParams.m_lines = lines;
+	m_abrTime[0] = m_abrTime[1] = m_timestamp;
 }
 
 void SerialTapProDecoder.flip(bool isFlipped) {
@@ -104,8 +111,8 @@ void SerialTapProDecoder.decode(
 	char thin const* end = p + size;
 	char const* next = p0 + SerialTapProUsb.BulkSize;
 	uint64_t deviceTime = 0;
-	uint8_t status = m_recordParams.m_status;
-	uint8_t status0 = m_recordParams.m_status;
+	uint16_t status = m_recordParams.m_status;
+	uint16_t status0 = m_recordParams.m_status;
 	SerialTapProLines lines = m_recordParams.m_lines;
 	SerialTapProLines lines0 = m_recordParams.m_lines;
 	size_t dataSize_0 = 0;
@@ -156,7 +163,8 @@ void SerialTapProDecoder.decode(
 			break;
 
 		case SerialTapProNotificationCode.Status:
-			status = *p++;
+			status = *(uint16_t const thin*)p;
+			p += 2;
 			break;
 
 		case SerialTapProNotificationCode.BreakOn_0:
@@ -173,6 +181,17 @@ void SerialTapProDecoder.decode(
 
 		case SerialTapProNotificationCode.BreakOff_1:
 			lines &= ~SerialTapProLines.Break_1;
+			break;
+
+		case SerialTapProNotificationCode.EdgeFall_0:
+		case SerialTapProNotificationCode.EdgeRise_0:
+		case SerialTapProNotificationCode.EdgeFall_1:
+		case SerialTapProNotificationCode.EdgeRise_1:
+			size_t i = (code - SerialTapProNotificationCode.EdgeFall_0) / 2;
+			bool uart = code & 1;
+			uint64_t time = m_timestamp + deviceTime * 10;
+			m_abr[i].addEdge(time - m_abrTime[i], uart);
+			m_abrTime[i] = time;
 			break;
 		}
 	}

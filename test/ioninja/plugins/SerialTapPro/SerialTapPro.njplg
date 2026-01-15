@@ -16,7 +16,9 @@ log-guid    = b26c1b57-16c7-48a5-bbb9-05ea1ada5368  # fpga uploader
 icon        = images/serialmon.png
 small-icon  = images/serialmon-16x16.png
 
-session-class = SerialTapProSession
+session-class     = SerialTapProSession
+dispatch-class    = SerialTapProDispatch
+dispatch-variable = g_serialTap
 
 [required-capabilities]
 
@@ -31,3 +33,8 @@ SerialTapProDecoder.jnc
 SerialTapProInfoSet.jnc
 SerialTapProDispatchCode.jnc
 uleb128.jnc
+
+[dispatch-scripts]
+
+SerialTapProDispatchCode.jnc
+SerialTapProDispatch.jnc

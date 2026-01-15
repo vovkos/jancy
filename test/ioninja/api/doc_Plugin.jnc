@@ -43,6 +43,15 @@ class Plugin: PluginConfig {
 		size_t size
 	);
 
+	virtual bool errorcode dispatch(
+		uint_t code,
+		variant_t in,
+		variant_t* out = null
+	) {
+		std.setError("this plugin doesn't support IAS dispatch");
+		return false;
+	}
+
 	ui.Action* createAction(
 		string_t text,
 		ui.Icon* icon = null,

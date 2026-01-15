@@ -1,0 +1,47 @@
+//..............................................................................
+//
+// Modbus layer dispatch codes for IAS
+//
+
+//..............................................................................
+
+enum ModbusDispatchCode {
+	GetProtocol,
+	SetProtocol,
+	GetStreamRoles,
+	SetStreamRoles,
+	GetHalfDuplexMode,
+	SetHalfDuplexMode,
+	GetHalfDuplexTimeout,
+	SetHalfDuplexTimeout,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum ModbusStreamRoles {
+	TxMasterRxSlave,
+	RxMasterTxSlave,
+	TxHalfDuplex,
+	RxHalfDuplex,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum ModbusHalfDuplexMode {
+	Alternate,
+	RtsMaster,
+	RtsSlave,
+	CtsMaster,
+	CtsSlave,
+}
+
+//..............................................................................
+
+namespace io { // group these together with other Modbus constants
+
+alias ModbusStreamRoles = jnc.global.ModbusStreamRoles;
+alias ModbusHalfDuplexMode = jnc.global.ModbusHalfDuplexMode;
+
+} // namespace io
+
+//..............................................................................

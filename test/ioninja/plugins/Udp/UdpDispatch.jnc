@@ -3,13 +3,11 @@
 // UDP Socket session dispatch interface for IAS
 //
 
-import "io_base.jncx"
-import "io_Socket.jnc"
-import "ias.jnc"
+import "ias_PluginDispatch.jnc"
 
 //..............................................................................
 
-class UdpDispatch: ias.Session {
+class UdpDispatch: ias.PluginDispatch {
 	property m_remoteAddress {
 		string_t get() {
 			return dispatchGet(UdpDispatchCode.GetRemoteAddress);
@@ -38,6 +36,10 @@ class UdpDispatch: ias.Session {
 		void set(uint_t value) {
 			dispatch(UdpDispatchCode.SetLocalPort, value);
 		}
+	}
+
+	construct(intptr handle) {
+		basetype.construct(handle);
 	}
 
 	bool errorcode open() {

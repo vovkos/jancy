@@ -237,7 +237,7 @@ string_t formatDnsDigest(void const* p) {
 	uint_t opcode = hdr.m_opcode;
 
 	return $"%1 (ID: 0x%04X%3)"(
-		typeof(DnsOpcode).getValueString(&opcode),
+		typeof(DnsOpcode).getValueName(&opcode),
 		hdr.m_id,
 		hdr.m_isReply ? ", reply" : null
 	);

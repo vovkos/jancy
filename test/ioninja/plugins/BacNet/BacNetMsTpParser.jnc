@@ -4,6 +4,7 @@
 //
 
 import "log_Writer.jnc"
+import "BacNetMsTpLogRecordCode.jnc"
 
 //..............................................................................
 

@@ -5,7 +5,6 @@
 
 import "log_Representation.jnc"
 import "io_Modbus.jnc"
-import "ModbusLogRecordCode.jnc"
 
 //..............................................................................
 

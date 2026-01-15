@@ -3,11 +3,10 @@
 // USB log packet declarations and representer
 //
 
-import "log_Representation.jnc"
-import "UsbLogRecordCode.jnc"
 import "io_usbmon.jncx"
 import "io_UsbDescriptors.jnc"
 import "io_win_UsbdStatus.jnc"
+import "log_Representation.jnc"
 
 //..............................................................................
 
@@ -131,7 +130,7 @@ bool representUsbLog(
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 
 		string_t ifaceInfo = getInterfaceInfoString(params);
-		string_t className = typeof(io.UsbClass).getValueString(params.m_class);
+		string_t className = typeof(io.UsbClass).getValueName(params.m_class);
 		representation.addHyperText($"Claimed interface \e[34m%1 - %2"(ifaceInfo, className));
 		break;
 
@@ -163,7 +162,7 @@ bool representUsbLog(
 		representation.addHyperText(
 			$"Started reading from endpoint \e[34mEP%1 - %2"(
 				params.m_endpointId & ~0x80,
-				typeof(io.UsbTransferType).getValueString(params.m_transferType)
+				typeof(io.UsbTransferType).getValueName(params.m_transferType)
 			)
 		);
 		break;
@@ -233,20 +232,15 @@ bool representUsbLog(
 			log.StdLogIcon.RxPacket :
 			log.StdLogIcon.TxPacket;
 
-		string_t recipient = typeof(io.UsbControlRecipient).getValueString(setup.m_requestType.m_recipient);
-		string_t type = typeof(io.UsbControlType).getValueString(setup.m_requestType.m_type);
-		string_t direction = typeof(io.UsbControlDirection).getValueString(setup.m_requestType.m_direction);
-		string_t request = typeof(io.UsbControlStdRequest).getValueString(setup.m_request);
-
 		string_t string = !(foldFlags & 1) ?
 			$"[\e^+1\e[34m+\e[m] \e[1mCONTROL\e[m "
 			$"%1 %2 "
 			$"Req: \e[34m%3\e[m "
 			$"Val: \e[34m0x%(4;04X)\e[m "
 			$"Idx: \e[34m0x%(5;04X)"(
-				recipient,
-				type,
-				request,
+				typeof(io.UsbControlRecipient).getValueName(setup.m_requestType.m_recipient),
+				typeof(io.UsbControlType).getValueName(setup.m_requestType.m_type),
+				typeof(io.UsbControlStdRequest).getValueName(setup.m_request),
 				setup.m_value,
 				setup.m_index
 			) :
@@ -260,10 +254,10 @@ bool representUsbLog(
 			$"    \e[90mIndex:\t\e[34m0x%(7;04X)\n"
 			$"    \e[90mLength:\t\e[34m%8"(
 				setup.m_requestType.m_value,
-				recipient,
-				type,
-				direction,
-				request,
+				typeof(io.UsbControlRecipient).getValueString(setup.m_requestType.m_recipient),
+				typeof(io.UsbControlType).getValueString(setup.m_requestType.m_type),
+				typeof(io.UsbControlDirection).getValueString(setup.m_requestType.m_direction),
+				typeof(io.UsbControlStdRequest).getValueString(setup.m_request),
 				setup.m_value,
 				setup.m_index,
 				setup.m_length

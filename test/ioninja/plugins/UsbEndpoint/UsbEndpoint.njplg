@@ -15,9 +15,10 @@ log-guid    = 3b5bd445-951e-4f76-9d8d-fe97aecbdd73  # usb
 icon        = images/usb.png
 small-icon  = images/usb-16x16.png
 
-session-class  = UsbEndpointSession
-dispatch-class = UsbEndpointDispatch
-null-packets   = true
+session-class     = UsbEndpointSession
+dispatch-class    = UsbEndpointDispatch
+dispatch-variable = g_usb
+null-packets      = true
 
 [required-capabilities]
 

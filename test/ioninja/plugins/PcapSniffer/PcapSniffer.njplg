@@ -28,4 +28,3 @@ org.jancy.io.pcap
 [scripts]
 
 PcapSnifferSession.jnc
-io_EthernetTemplates.jnc

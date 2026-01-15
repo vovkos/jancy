@@ -5,8 +5,8 @@
 
 import "doc_Layer.jnc"
 import "ui_History.jnc"
-import "../NetSnifferLog/NetSnifferLogRecordCode.jnc"
-import "../EthernetTap/EthernetTapLogRecordCode.jnc"
+import "NetSnifferLog/NetSnifferLogRecordCode.jnc"
+import "EthernetTap/EthernetTapLogRecordCode.jnc"
 
 using extension ui.ComboBoxHistory;
 

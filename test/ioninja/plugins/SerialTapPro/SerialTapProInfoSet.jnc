@@ -4,6 +4,7 @@
 //
 
 import "ui_InformationGrid.jnc"
+import "io_abr.jncx"
 
 //..............................................................................
 
@@ -20,17 +21,23 @@ protected:
 		Break_0,
 		Break_1,
 		Overflows,
+		Abr_0,
+		Abr_1,
 		_Count,
 	}
 
 	ui.InformationValue* m_infoTable[InfoId._Count];
 
 public:
-	bool autoget property m_isEnabled;
-
 	void create(
 		ui.InformationGrid* infoGrid,
 		ui.InformationGroup* infoGroup = null
+	);
+
+	void enable(
+		bool isEnabled,
+		bool isAbrEnabled_0,
+		bool isAbrEnabled_1
 	);
 
 	void setIface(SerialTapProIface iface) {
@@ -42,6 +49,11 @@ public:
 	void updateLines(
 		SerialTapProLines lines,
 		SerialTapProLines mask = (SerialTapProLines)-1
+	);
+
+	void updateAbr(
+		size_t channel,
+		io.AutoBaudRate* abr
 	);
 
 protected:
@@ -71,12 +83,23 @@ void SerialTapProInfoSet.create(
 	m_infoTable[InfoId.Break_1] = infoGrid.createValue(infoGroup,,, "BREAK (RX)");
 	m_infoTable[InfoId.Overflows] = infoGrid.createValue(infoGroup,,, "Overflow");
 
+	ui.InformationGroup* subGroup = infoGrid.createGroup(infoGroup,, "Auto baud rate detector");
+	m_infoTable[InfoId.Abr_0] = infoGrid.createValue(subGroup,,, "Baud rate (TX)");
+	m_infoTable[InfoId.Abr_1] = infoGrid.createValue(subGroup,,, "Baud rate (RX)");
+
 	updateLines(0); // set all off
 }
 
-void SerialTapProInfoSet.m_isEnabled.set(bool isEnabled) {
-	for (size_t i = 0; i < InfoId._Count; i++)
+void SerialTapProInfoSet.enable(
+	bool isEnabled,
+	bool isAbrEnabled_0,
+	bool isAbrEnabled_1
+) {
+	for (size_t i = 0; i < InfoId.Abr_0; i++)
 		m_infoTable[i].m_isEnabled = isEnabled;
+
+	m_infoTable[InfoId.Abr_0].m_isEnabled = isEnabled && isAbrEnabled_0;
+	m_infoTable[InfoId.Abr_1].m_isEnabled = isEnabled && isAbrEnabled_1;
 }
 
 void  SerialTapProInfoSet.setOverflows(SerialTapProOverflows overflows) {
@@ -117,6 +140,15 @@ void SerialTapProInfoSet.updateLines(
 
 	if (mask & SerialTapProLines.Break_1)
 		setLineState(InfoId.Break_1, lines & SerialTapProLines.Break_1);
+}
+
+void SerialTapProInfoSet.updateAbr(
+	size_t channel,
+	io.AutoBaudRate* abr
+) {
+	m_infoTable[InfoId.Abr_0 + channel].m_value = abr.m_baudRate ?
+		$"%1 bps %2 bits"(abr.m_baudRate, abr.m_frameBits) :
+		"unknown";
 }
 
 //..............................................................................

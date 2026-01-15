@@ -15,8 +15,9 @@ log-guid    = 29725452-e64f-4c0e-a871-776277b68572  # serial
 icon        = images/serial.png
 small-icon  = images/serial-16x16.png
 
-session-class  = SerialSession
-dispatch-class = SerialDispatch
+session-class     = SerialSession
+dispatch-class    = SerialDispatch
+dispatch-variable = g_serial
 
 [required-capabilities]
 

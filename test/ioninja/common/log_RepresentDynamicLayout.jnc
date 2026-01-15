@@ -33,6 +33,12 @@ typedef string_t ToStringFuncEx(
 	jnc.ModuleItemDecl* decl
 );
 
+typedef string_t IndexToStringFunc(size_t index);
+
+string_t stdIndexToString(size_t index) {
+	return $"[%1]"(index);
+}
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 string_t getOffsetHyperlink(
@@ -111,12 +117,12 @@ ToStringFunc* getElementValueStringFunc(
 	jnc.Type safe* type,
 	jnc.PtrTypeFlags ptrTypeFlags = 0
 ) {
-	ToStringFuncEx thin* formatFunc = decl.findAttributeValue("elementFormatFunc");
+	ToStringFuncEx thin* formatFunc = decl.findAttributeValue("valueFormatFunc");
 	if (formatFunc)
 		return formatFunc~(, type.m_size, decl);
 
-	string_t formatSpec = decl.findAttributeValue("elementFormatSpec");
-	jnc.Type* displayType = decl.findAttributeValue("elementDisplayType");
+	string_t formatSpec = decl.findAttributeValue("valueFormatSpec");
+	jnc.Type* displayType = decl.findAttributeValue("valueDisplayType");
 	if (!displayType)
 		displayType = type;
 
@@ -208,33 +214,46 @@ bool representDynamicSectionGroup(
 		size_t offset = offset0 + section.m_offset;
 		void const* p = p0 + section.m_offset;
 
-		switch (section.m_sectionKind) {
-		case jnc.DynamicSectionKind.Struct:
+		if (section.m_sectionKind == jnc.DynamicSectionKind.Struct) { // shortcut
 			jnc.StructType safe* type = dynamic (jnc.StructType*)section.m_type;
 			representFields(context, type, offset, p, indent);
+			continue;
+		}
+
+		jnc.ModuleItemDecl safe* decl = section.m_decl;
+		setItemBackColor(context, decl, offset, section.m_size);
+		if (representBinary(context, decl, offset, p, section.m_size, indent))
+			continue;
+
+		switch (section.m_sectionKind) {
+		case jnc.DynamicSectionKind.Array:
+			representArray(
+				context,
+				decl,
+				section.m_type,
+				section.m_ptrTypeFlags,
+				section.m_elementCount,
+				offset,
+				p,
+				indent
+			);
 			break;
 
-		case jnc.DynamicSectionKind.Array:
-			jnc.ModuleItemDecl safe* decl = section.m_decl;
-			setItemBackColor(context, decl, offset, section.m_size);
-
-			if (!representBinary(context, decl, offset, p, section.m_size, indent))
-				representArray(
-					context,
-					decl,
-					section.m_type,
-					section.m_ptrTypeFlags,
-					section.m_elementCount,
-					offset,
-					p,
-					indent
-				);
+		case jnc.DynamicSectionKind.Field:
+			representField(
+				context,
+				decl,
+				section.m_type,
+				section.m_ptrTypeFlags,
+				section.m_bitOffset,
+				section.m_bitCount,
+				offset,
+				p,
+				indent
+			);
 			break;
 
 		case jnc.DynamicSectionKind.Group:
-			jnc.ModuleItemDecl safe* decl = section.m_decl;
-			setItemBackColor(context, decl, offset, section.m_size);
-
 			string_t subIndent;
 			if (section.m_decl.findAttribute("ungroup"))
 				subIndent = indent;
@@ -390,7 +409,7 @@ void representArray(
 
 	if (elementType.m_typeKindFlags & jnc.TypeKindFlags.Derivable) {
 		jnc.DerivableType safe* derivableType = dynamic (jnc.DerivableType*)elementType;
-		string_t fieldIndent = indent + "    ";
+		string_t nextIndent = indent + "    ";
 		uint_t prevFoldFlags = context.m_foldFlags;
 		context.m_foldFlags = -1; // no individual folds for array elements
 
@@ -401,7 +420,7 @@ void representArray(
 				i
 			));
 
-			representFields(context, derivableType, offset, p, fieldIndent);
+			representFields(context, derivableType, offset, p, nextIndent);
 			p += elementSize;
 			offset += elementSize;
 		}
@@ -409,11 +428,15 @@ void representArray(
 		context.m_foldFlags = prevFoldFlags; // restore
 	} else {
 		ToStringFunc* getValueStringFunc = getElementValueStringFunc(decl, elementType, ptrTypeFlags);
+		IndexToStringFunc* getIndexStringFunc = decl.findAttributeValue("indexFormatFunc");
+		if (!getIndexStringFunc)
+			getIndexStringFunc = stdIndexToString;
+
 		for (size_t i = 0; i < elementCount; i++) {
-			context.m_representation.addHyperText($"%1%2[%3]:\t\e[34m%4"(
+			context.m_representation.addHyperText($"%1%2%3:\t\e[34m%4"(
 				indent,
 				getOffsetHyperlink(context.m_rawBinPartCode, offset, elementSize),
-				i,
+				getIndexStringFunc(i),
 				getValueStringFunc(p)
 			));
 
@@ -430,9 +453,6 @@ void representFields(
 	void const* p0,
 	string_t indent
 ) {
-	uint_t baseBackColor = context.m_representation.m_lineAttr.m_backColor;
-	string_t fieldIndent = indent + "    ";
-
 	size_t count = type.m_baseTypeCount;
 	for (size_t i = 0; i < count; i++) { // ungroup base types unconditionally
 		jnc.BaseTypeSlot* baseTypeSlot = type.m_baseTypeArray[i];
@@ -445,6 +465,7 @@ void representFields(
 		);
 	}
 
+	uint_t baseBackColor = context.m_representation.m_lineAttr.m_backColor;
 	count = type.m_fieldCount;
 	for (size_t i = 0; i < count; i++) {
 		jnc.Field* field = type.m_fieldArray[i];
@@ -455,32 +476,56 @@ void representFields(
 		setItemBackColor(context, field, offset, fieldType.m_size);
 
 		if (!representBinary(context, field, offset, p, fieldType.m_size, indent))
-			if ((fieldType.m_typeKindFlags & jnc.TypeKindFlags.Derivable) &&
-				!field.findAttribute("stringify")
-			) {
-				jnc.DerivableType* derivableType = dynamic (jnc.DerivableType*)fieldType;
-				if (field.findAttribute("ungroup"))
-					representFields(context, derivableType, offset, p, indent);
-				else if (representGroupHeader(context, field, offset, p, fieldType.m_size, indent))
-					representFields(context, derivableType, offset, p, fieldIndent);
-			} else {
-				string_t value = getItemValueString(
-					field,
-					fieldType,
-					field.m_ptrTypeFlags,
-					field.m_bitOffset,
-					field.m_bitCount,
-					p
-				);
-
-				context.m_representation.addHyperText($"%1%2:\t\e[34m%3"(
-					indent,
-					getItemName(field, context.m_rawBinPartCode, offset, fieldType.m_size),
-					value
-				));
-			}
+			representField(
+				context,
+				field,
+				fieldType,
+				field.m_ptrTypeFlags,
+				field.m_bitOffset,
+				field.m_bitCount,
+				offset,
+				p,
+				indent
+			);
 
 		context.m_representation.m_lineAttr.m_backColor = baseBackColor; // restore
+	}
+}
+
+void representField(
+	RepresentDynamicLayoutContext safe* context,
+	jnc.ModuleItemDecl safe* decl,
+	jnc.Type safe* type,
+	jnc.PtrTypeFlags ptrTypeFlags,
+	uint_t bitOffset = 0,
+	uint_t bitCount = 0,
+	size_t offset,
+	void const* p,
+	string_t indent
+) {
+	if ((type.m_typeKindFlags & jnc.TypeKindFlags.Derivable) &&
+		!decl.findAttribute("stringify")
+	) {
+		jnc.DerivableType* derivableType = dynamic (jnc.DerivableType*)type;
+		if (decl.findAttribute("ungroup"))
+			representFields(context, derivableType, offset, p, indent);
+		else if (representGroupHeader(context, decl, offset, p, type.m_size, indent))
+			representFields(context, derivableType, offset, p, indent + "    ");
+	} else {
+		string_t value = getItemValueString(
+			decl,
+			type,
+			ptrTypeFlags,
+			bitOffset,
+			bitCount,
+			p
+		);
+
+		context.m_representation.addHyperText($"%1%2:\t\e[34m%3"(
+			indent,
+			getItemName(decl, context.m_rawBinPartCode, offset, type.m_size),
+			value
+		));
 	}
 }
 

@@ -15,6 +15,7 @@ import "log_ChecksumCalc.jnc"
 import "std_List.jnc"
 import "std_Buffer.jnc"
 import "sys_Timer.jnc"
+import "SerialLog/SerialLogRecordCode.jnc"
 
 //..............................................................................
 
@@ -277,7 +278,7 @@ void EzTapProSession.createUi() {
 
 	m_actionTable[ActionId.Flip] = createAction("Flip DTE/DCE", "images/flip.png");
 	m_actionTable[ActionId.Flip].m_isCheckable = true;
-	m_actionTable[ActionId.Flip].m_onTriggered = flipDteDce;
+	m_actionTable[ActionId.Flip].m_onTriggered += flipDteDce;
 
 	// status bar (only one pane)
 

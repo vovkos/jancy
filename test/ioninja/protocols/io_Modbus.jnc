@@ -5,6 +5,7 @@
 
 import "ui_Color.jnc"
 import "ias_FieldCodec.jnc"
+import "std_String.jnc"
 import "crc8.jnc"
 import "crc16.jnc"
 import "hexEncoding.jnc"
@@ -235,27 +236,6 @@ struct ModbusReadReplyParams {
 	uint8_t m_size;
 
 	// followed by read data
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct ModbusBitBank {
-	[ displayName = "[0]" ]
-	uchar_t m_coil0: 1;
-	[ displayName = "[1]" ]
-	uchar_t m_coil1: 1;
-	[ displayName = "[2]" ]
-	uchar_t m_coil2: 1;
-	[ displayName = "[3]" ]
-	uchar_t m_coil3: 1;
-	[ displayName = "[4]" ]
-	uchar_t m_coil4: 1;
-	[ displayName = "[5]" ]
-	uchar_t m_coil5: 1;
-	[ displayName = "[6]" ]
-	uchar_t m_coil6: 1;
-	[ displayName = "[7]" ]
-	uchar_t m_coil7: 1;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -538,14 +518,22 @@ enum {
 
 //..............................................................................
 
-string_t formatModbusRegister(void const* p) {
+string_t formatModbusRegisterAddress(
+	size_t address,
+	size_t i
+) {
+	return $"%1"(address + i);
+}
+
+string_t formatModbusRegisterValue(void const* p) {
 	return $"0x%(1;04X) (%(1;d))"(*(bigendian uint16_t const*)p);
 }
 
-// no need to make this one async -- it doesn't read any preceding data
+// no need to make these two async -- it doesn't read any preceding data
 
 void layoutModbusRegisters(
 	jnc.DynamicLayout* layout,
+	size_t address,
 	size_t count,
 	size_t size
 ) {
@@ -555,7 +543,7 @@ void layoutModbusRegisters(
 
 	dylayout (layout) {
 		[
-			displayName = "Values",
+			displayName = "Registers",
 			backColor = ui.StdColor.PastelYellow,
 			digestFunc = getModbusRegisterDigest,
 			foldFlag = 2
@@ -563,7 +551,8 @@ void layoutModbusRegisters(
 		dyfield values {
 			[
 				ungroup,
-				elementFormatFunc = formatModbusRegister
+				indexFormatFunc = address != -1 ? formatModbusRegisterAddress~(address) : null,
+				valueFormatFunc = formatModbusRegisterValue,
 			]
 			dyfield bigendian uint16_t values[count];
 
@@ -574,18 +563,36 @@ void layoutModbusRegisters(
 	}
 }
 
+void layoutModbusBits(
+	jnc.DynamicLayout* layout,
+	string_t displayName,
+	size_t address,
+	size_t count,
+	size_t size
+) {
+	size_t maxCount = size * 8;
+	if (count > maxCount)
+		count = maxCount;
+
+	dylayout (layout) {
+		[
+			displayName = displayName,
+			backColor = ui.StdColor.PastelYellow,
+			digestFunc = getModbusBitDigest,
+			foldFlag = 2
+		]
+		dyfield values {
+			for (size_t i = 0; i < count; i++)
+				[ displayName = formatModbusRegisterAddress(address, i) ]
+				dyfield uint8_t value : 1;
+		}
+	}
+}
+
 async void layoutModbusPdu(
 	jnc.DynamicLayout* layout,
 	ModbusRole role
 ) {
-	[
-		displayName = "Values",
-		backColor = ui.StdColor.PastelYellow,
-		digestFunc = getModbusBitDigest,
-		foldFlag = 2
-	]
-	void ModbusBitBankAttr;
-
 	dylayout (layout) {
 		[
 			backColor = ui.StdColor.PastelBlue,
@@ -619,14 +626,19 @@ async void layoutModbusPdu(
 					[ ungroup ]
 					dyfield ModbusReadParams params;
 				else { // reply
+					static string_t bitDisplayNames[] = {
+						null,
+						"Coils",
+						"Inputs"
+					}
+
 					[ ungroup ]
 					dyfield ModbusReadReplyParams params;
 
 					if (func <= ModbusFunc.ReadDiscreteInputs)
-						[ @ModbusBitBankAttr ]
-						dyfield ModbusBitBank values[params.m_size];
+						layoutModbusBits(layout, bitDisplayNames[func], 0, -1, params.m_size);
 					else
-						layoutModbusRegisters(layout, -1, params.m_size);
+						layoutModbusRegisters(layout, -1, -1, params.m_size);
 				}
 				break;
 
@@ -688,9 +700,7 @@ async void layoutModbusPdu(
 				if (role == ModbusRole.Master) { // request
 					[ ungroup ]
 					dyfield ModbusWriteMultipleCoilsParams params;
-
-					[ @ModbusBitBankAttr ]
-					dyfield ModbusBitBank values[params.m_size];
+					layoutModbusBits(layout, "Coils", params.m_address, params.m_count, params.m_size);
 				} else // reply
 					[ ungroup ]
 					dyfield ModbusWriteMultipleReplyParams reply;
@@ -700,7 +710,7 @@ async void layoutModbusPdu(
 				if (role == ModbusRole.Master) { // request
 					[ ungroup ]
 					dyfield ModbusWriteMultipleRegistersParams params;
-					layoutModbusRegisters(layout, params.m_count, params.m_size);
+					layoutModbusRegisters(layout, params.m_address, params.m_count, params.m_size);
 				} else // reply
 					[ ungroup ]
 					dyfield ModbusWriteMultipleReplyParams params;
@@ -728,11 +738,11 @@ async void layoutModbusPdu(
 				if (role == ModbusRole.Master) { // request
 					[ ungroup ]
 					dyfield ModbusReadWriteMultipleRegistersParams params;
-					layoutModbusRegisters(layout, params.m_writeCount, params.m_writeSize);
+					layoutModbusRegisters(layout, params.m_writeAddress, params.m_writeCount, params.m_writeSize);
 				} else { // reply
 					[ ungroup ]
 					dyfield ModbusReadReplyParams params;
-					layoutModbusRegisters(layout, -1, params.m_size);
+					layoutModbusRegisters(layout, -1, -1, params.m_size);
 				}
 				break;
 
@@ -743,7 +753,7 @@ async void layoutModbusPdu(
 				else {
 					[ ungroup ]
 					dyfield ModbusReadFifoQueueReplyParams params;
-					layoutModbusRegisters(layout, params.m_fifoCount, params.m_byteCount - sizeof(uint16_t));
+					layoutModbusRegisters(layout, -1, params.m_fifoCount, params.m_byteCount - sizeof(uint16_t));
 				}
 				break;
 
@@ -775,13 +785,13 @@ void appendModbusPduDigest(
 		dyfield ModbusPduHdr pduHdr;
 		if (!(pduHdr.m_func & ModbusFunc.ExceptionFlag))
 			digest.append($"%1 (%2)"(
-				typeof(ModbusFunc).getValueString(pduHdr.m_func),
+				typeof(ModbusFunc).getValueName(pduHdr.m_func),
 				directions[role]
 			));
 		else {
 			dyfield ModbusExceptionParams params;
 			digest.append($"%1 (EXCEPTION: \e[31m%2\e[m)"(
-				typeof(ModbusFunc).getValueString(pduHdr.m_func & ~ModbusFunc.ExceptionFlag),
+				typeof(ModbusFunc).getValueName(pduHdr.m_func & ~ModbusFunc.ExceptionFlag),
 				typeof(ModbusException).getValueString(params.m_exception)
 			));
 		}

@@ -14,6 +14,7 @@ import "ui_History.jnc"
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
 import "std_Buffer.jnc"
+import "EthernetTapLogRecordCode.jnc"
 
 using extension ui.ComboBoxHistory;
 

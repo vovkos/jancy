@@ -9,6 +9,8 @@ import "io_SocketAddress.jnc"
 import "io_IpDefragmenter.jnc"
 import "io_Ethernet.jnc"
 import "io_Loopback.jnc"
+import "io_Ip.jnc"
+import "io_Ip6.jnc"
 
 namespace io {
 
