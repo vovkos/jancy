@@ -93,6 +93,7 @@ add_jancy_tests(
 		ModbusTcpParser.jnc
 		ModbusAsciiParser.jnc
 		ModbusInfoSet.jnc
+		ModbusDispatchCode.jnc
 		ModbusLogRecordCode.jnc
 		ModbusLogRepresenter.jnc
 		../../protocols/io_ModbusTemplates.jnc
@@ -558,27 +559,6 @@ if(BUILD_JNC_IO_USB)
 			SerialTapDispatchCode.jnc
 			SerialTapDispatch.jnc
 		FINALIZE_TEST SerialTapDispatch
-
-		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/SerialTapPro
-		REQUIRES
-			SerialTapProSession
-			SerialTapProLogConverter
-			representSerialTapProLog
-			representFpgaUploaderLog
-		FILES
-			SerialTapPro.jnc
-			SerialTapProSession.jnc
-			SerialTapProDecoder.jnc
-			SerialTapProInfoSet.jnc
-			SerialTapProDispatchCode.jnc
-			SerialTapProLogRecordCode.jnc
-			SerialTapProLogRepresenter.jnc
-			SerialTapProLogConverter.jnc
-			SerialTapProDispatchCode.jnc
-			../FpgaUploaderLog/FpgaUploaderLogRecordCode.jnc
-			../FpgaUploaderLog/FpgaUploaderLogRepresenter.jnc
-			../../common/uleb128.jnc
-		FINALIZE_TEST SerialTapPro
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/I2cSpiTap
 		REQUIRES
