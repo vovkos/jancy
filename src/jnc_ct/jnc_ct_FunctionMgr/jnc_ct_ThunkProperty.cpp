@@ -38,7 +38,7 @@ ThunkProperty::create(
 	);
 
 	OverloadableFunction targetSetter = targetProperty->getSetter();
-	FunctionTypeOverload* thunkSetterType = thunkPropertyType->getSetterType();
+	const FunctionTypeOverload* thunkSetterType = thunkPropertyType->getSetterType();
 
 	size_t setterCount = thunkSetterType->getOverloadCount();
 	if (setterCount && !targetSetter) {

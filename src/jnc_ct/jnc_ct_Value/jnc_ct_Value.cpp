@@ -149,7 +149,6 @@ getValueKindString(ValueKind valueKind) {
 		"variable",               // ValueKind_Variable,
 		"function",               // ValueKind_Function,
 		"function-overload",      // ValueKind_FunctionOverload,
-		"function-type-overload", // ValueKind_FunctionTypeOverload,
 		"property",               // ValueKind_Property,
 		"field",                  // ValueKind_Field,
 		"llvm-register",          // ValueKind_LlvmRegister,
@@ -328,47 +327,40 @@ Value::getLlvmConst(
 	return getLlvmConstantFuncTable[typeKind](type, p);
 }
 
-void
-Value::setVariable(Variable* variable) {
-	clear();
-
-	Module* module = variable->getModule();
-
-	if (!module->hasCodeGen()) {
-		bool result = variable->getType()->ensureLayout();
-		if (!result) {
-			setVoid(module);
-			return;
-		}
-
-		Type* resultType = getDirectRefType(
-			variable->getType(),
-			variable->getPtrTypeFlags() | PtrTypeFlag_Safe
-		);
-
-		setType(resultType);
-		m_item = variable;
-		return;
-	}
+bool
+Value::trySetVariable(Variable* variable) {
+	bool result = variable->getType()->ensureLayout();
+	if (!result)
+		return false;
 
 	Type* resultType = getDirectRefType(
 		variable->getType(),
 		variable->getPtrTypeFlags() | PtrTypeFlag_Safe
 	);
 
+	if (!variable->getModule()->hasCodeGen()) {
+		setType(resultType);
+		m_item = variable;
+		return true;
+	}
+
+	clear();
+
 	m_valueKind = ValueKind_Variable;
 	m_variable = variable;
 	m_type = resultType;
 	m_llvmValue = variable->getLlvmValue();
+	return true;
 }
 
-bool
-Value::trySetFunction(Function* function) {
-	bool result = function->getType()->ensureLayout();
-	if (!result)
-		return false;
+void
+Value::setFunction(
+	Function* function,
+	FunctionType* functionType
+) {
+	ASSERT(functionType->getFlags() & TypeFlag_LayoutReady);
 
-	FunctionPtrType* resultType = function->getType()->getFunctionPtrType(
+	FunctionPtrType* resultType = functionType->getFunctionPtrType(
 		TypeKind_FunctionRef,
 		FunctionPtrTypeKind_Thin,
 		PtrTypeFlag_Safe
@@ -377,7 +369,7 @@ Value::trySetFunction(Function* function) {
 	if (!function->getModule()->hasCodeGen()) {
 		setType(resultType);
 		m_item = function;
-		return true;
+		return;
 	}
 
 	clear();
@@ -388,7 +380,41 @@ Value::trySetFunction(Function* function) {
 
 	if (!function->isVirtual())
 		m_llvmValue = function->getLlvmFunction();
+}
 
+bool
+Value::trySetFunctionOverload(FunctionOverload* functionOverload) {
+	bool result = functionOverload->getTypeOverload().ensureLayout();
+	if (!result)
+		return false;
+
+	clear();
+
+	m_valueKind = ValueKind_FunctionOverload;
+	m_functionOverload = functionOverload;
+
+	AXL_TODO("encode function type overload in Value");
+	m_type = functionOverload->getModule()->m_typeMgr.getPrimitiveType(TypeKind_Void);
+	return true;
+}
+
+bool
+Value::trySetProperty(Property* prop) {
+	bool result = prop->getType()->ensureLayout();
+	if (!result)
+		return false;
+
+	clear();
+
+	m_valueKind = ValueKind_Property;
+	m_property = prop;
+	m_type = prop->getType()->getPropertyPtrType(
+		TypeKind_PropertyRef,
+		PropertyPtrTypeKind_Thin,
+		PtrTypeFlag_Safe
+	);
+
+	// don't assign LlvmValue (property LlvmValue is only needed for pointers)
 	return true;
 }
 

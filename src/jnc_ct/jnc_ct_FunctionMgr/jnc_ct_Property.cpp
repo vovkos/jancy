@@ -58,8 +58,10 @@ Property::create(PropertyType* type) {
 			return false;
 	}
 
+	FunctionTypeOverload* setterTypeOverload = type->getSetterType();
+
 	if (m_flags & PropertyFlag_AutoSet) {
-		Function* setter = m_module->m_functionMgr.createFunction<AutoSetter>(*type->getSetterType());
+		Function* setter = m_module->m_functionMgr.createFunction<AutoSetter>(*setterTypeOverload);
 		setter->m_functionKind = FunctionKind_Setter;
 		setter->m_storageKind = getAccessorStorageKind();
 		setter->m_flags |= setterFlags;
@@ -68,9 +70,9 @@ Property::create(PropertyType* type) {
 		if (!result)
 			return false;
 	} else {
-		size_t setterTypeOverloadCount = type->getSetterType()->getOverloadCount();
+		size_t setterTypeOverloadCount = setterTypeOverload->getOverloadCount();
 		for (size_t i = 0; i < setterTypeOverloadCount; i++) {
-			FunctionType* setterType = type->getSetterType()->getOverload(i);
+			FunctionType* setterType = setterTypeOverload->getOverload(i);
 			Function* setter = createAccessor(FunctionKind_Setter, setterType);
 			setter->m_flags |= setterFlags;
 

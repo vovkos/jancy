@@ -195,7 +195,9 @@ OperatorMgr::callOperator(
 			if (opFunc->getFlags() & FunctionOverloadFlag_HasMembers)
 				thisValue = opValue;
 
-			opValue.setFunctionOverload(opFunc.getFunctionOverload());
+			result = opValue.trySetFunctionOverload(opFunc.getFunctionOverload());
+			if (!result)
+				return false;
 		}
 
 		if (thisValue) {

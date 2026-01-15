@@ -1002,47 +1002,28 @@ Value::setTemplate(Template* templ) {
 }
 
 inline
-void
-Value::setFunctionOverload(FunctionOverload* functionOverload) {
-	clear();
-	m_valueKind = ValueKind_FunctionOverload;
-	m_functionOverload = functionOverload;
-	m_type = functionOverload->getModule()->m_typeMgr.getPrimitiveType(TypeKind_Void);
-}
-
-inline
 bool
-Value::trySetOverloadableFunction(OverloadableFunction function) {
-	if (function->getItemKind() == ModuleItemKind_Function)
-		return trySetFunction(function.getFunction());
+Value::trySetFunction(Function* function) {
+	bool result = function->getType()->ensureLayout();
+	if (!result)
+		return false;
 
-	setFunctionOverload(function.getFunctionOverload());
+	setFunction(function, function->getType());
 	return true;
 }
 
 inline
 void
-Value::setFunctionTypeOverload(FunctionTypeOverload* functionTypeOverload) {
-	clear();
-	m_valueKind = ValueKind_FunctionTypeOverload;
-	m_functionTypeOverload = functionTypeOverload;
-	m_type = functionTypeOverload->getModule()->m_typeMgr.getPrimitiveType(TypeKind_Void);
-}
+Value::setOverloadableFunction(
+	OverloadableFunction function,
+	const FunctionTypeOverload& functionTypeOverload
+) {
+	if (function->getItemKind() == ModuleItemKind_Function) {
+		setFunction(function.getFunction(), functionTypeOverload.getOverload(0));
+		return;
+	}
 
-inline
-void
-Value::setProperty(Property* prop) {
-	clear();
-
-	m_valueKind = ValueKind_Property;
-	m_property = prop;
-	m_type = prop->getType()->getPropertyPtrType(
-		TypeKind_PropertyRef,
-		PropertyPtrTypeKind_Thin,
-		PtrTypeFlag_Safe
-	);
-
-	// don't assign LlvmValue (property LlvmValue is only needed for pointers)
+	setFunctionOverload(function.getFunctionOverload());
 }
 
 inline

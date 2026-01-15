@@ -2932,24 +2932,43 @@ Parser::lookupIdentifier(
 		break;
 
 	case ModuleItemKind_Variable:
-		value->setVariable((Variable*)item);
-		break;
-
-	case ModuleItemKind_Function:
-		result = value->trySetFunction((Function*)item);
+		result = value->trySetVariable((Variable*)item);
 		if (!result)
 			return false;
 
-		if (((Function*)item)->isMember()) {
-			result = m_module->m_operatorMgr.createMemberClosure(value);
-			if (!result)
-				return false;
-		}
-
 		break;
 
+	case ModuleItemKind_Function: {
+		Function* function = (Function*)item;
+		if (!function->isMember()) {
+			result = value->trySetFunction(function);
+			if (!result)
+				return false;
+
+			break;
+		}
+
+		result =
+			value->trySetFunction(function) &&
+			m_module->m_operatorMgr.createMemberClosure(value);
+
+		if (!result)
+			return false;
+
+		m_module->m_operatorMgr.finalizeDualType(
+			value->getClosure()->getThisArgValue(),
+			function,
+			m_module->m_namespaceMgr.getCurrentNamespace(),
+			value
+		);
+		break;
+		}
+
 	case ModuleItemKind_FunctionOverload:
-		value->setFunctionOverload((FunctionOverload*)item);
+		result = value->trySetFunctionOverload((FunctionOverload*)item);
+		if (!result)
+			return false;
+
 		if (((FunctionOverload*)item)->getFlags() & FunctionOverloadFlag_HasMembers) {
 			result = m_module->m_operatorMgr.createMemberClosure(value);
 			if (!result)
@@ -2958,15 +2977,27 @@ Parser::lookupIdentifier(
 
 		break;
 
-	case ModuleItemKind_Property:
-		value->setProperty((Property*)item);
-		if (((Property*)item)->isMember()) {
-			result = m_module->m_operatorMgr.createMemberClosure(value);
-			if (!result)
-				return false;
-		}
+	case ModuleItemKind_Property: {
+		Property* prop = (Property*)item;
+		result = value->trySetProperty(prop);
+		if (!result)
+			return false;
 
+		if (!prop->isMember())
+			break;
+
+		result = m_module->m_operatorMgr.createMemberClosure(value);
+		if (!result)
+			return false;
+
+		m_module->m_operatorMgr.finalizeDualType(
+			value->getClosure()->getThisArgValue(),
+			prop,
+			m_module->m_namespaceMgr.getCurrentNamespace(),
+			value
+		);
 		break;
+		}
 
 	case ModuleItemKind_EnumConst:
 		result = value->trySetEnumConst((EnumConst*)item);

@@ -351,7 +351,10 @@ OperatorMgr::getNamespaceMember(
 		break;
 
 	case ModuleItemKind_Variable:
-		resultValue->setVariable((Variable*)item);
+		result = resultValue->trySetVariable((Variable*)item);
+		if (!result)
+			return false;
+
 		decl = (Variable*)item;
 		break;
 
@@ -398,7 +401,7 @@ OperatorMgr::getNamespaceMember(
 		break;
 
 	case ModuleItemKind_FunctionOverload:
-		resultValue->setFunctionOverload((FunctionOverload*)item);
+		result = resultValue->trySetFunctionOverload((FunctionOverload*)item);
 
 		if (((FunctionOverload*)item)->getFlags() & FunctionOverloadFlag_HasMembers) {
 			result = createMemberClosure(resultValue);
@@ -410,7 +413,10 @@ OperatorMgr::getNamespaceMember(
 		break;
 
 	case ModuleItemKind_Property:
-		resultValue->setProperty((Property*)item);
+		result = resultValue->trySetProperty((Property*)item);
+		if (!result)
+			return false;
+
 		if (((Property*)item)->isMember()) {
 			result = createMemberClosure(resultValue);
 			if (!result)
@@ -511,7 +517,10 @@ OperatorMgr::getNamedTypeMember(
 			finalizeMemberOperator(opValue, (Field*)member, namedType, resultValue);
 
 	case ModuleItemKind_Variable:
-		resultValue->setVariable((Variable*)member);
+		result = resultValue->trySetVariable((Variable*)member);
+		if (!result)
+			return false;
+
 		decl = (Variable*)member;
 		break;
 
@@ -524,12 +533,18 @@ OperatorMgr::getNamedTypeMember(
 		break;
 
 	case ModuleItemKind_FunctionOverload:
-		resultValue->setFunctionOverload((FunctionOverload*)member);
+		result = resultValue->trySetFunctionOverload((FunctionOverload*)member);
+		if (!result)
+			return false;
+
 		decl = (FunctionOverload*)member;
 		break;
 
 	case ModuleItemKind_Property:
-		resultValue->setProperty((Property*)member);
+		result = resultValue->trySetProperty((Property*)member);
+		if (!result)
+			return false;
+
 		decl = (Property*)member;
 		break;
 
@@ -595,12 +610,13 @@ OperatorMgr::getVariantMember(
 	Value* resultValue
 ) {
 	Property* prop = m_module->m_functionMgr.getStdProperty(StdProp_VariantIndex);
-	resultValue->setProperty(prop);
-
 	Value variantValue;
 	Value indexValue(index, m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT));
 
-	bool result = unaryOperator(UnOpKind_Addr, opValue, &variantValue);
+	bool result =
+		resultValue->trySetProperty(prop) &&
+		unaryOperator(UnOpKind_Addr, opValue, &variantValue);
+
 	if (!result)
 		return false;
 
@@ -617,10 +633,12 @@ OperatorMgr::getVariantMember(
 	Value* resultValue
 ) {
 	Property* prop = m_module->m_functionMgr.getStdProperty(StdProp_VariantMember);
-	resultValue->setProperty(prop);
-
 	Value variantValue;
-	bool result = unaryOperator(UnOpKind_Addr, opValue, &variantValue);
+
+	bool result =
+		resultValue->trySetProperty(prop) &&
+		unaryOperator(UnOpKind_Addr, opValue, &variantValue);
+
 	if (!result)
 		return false;
 

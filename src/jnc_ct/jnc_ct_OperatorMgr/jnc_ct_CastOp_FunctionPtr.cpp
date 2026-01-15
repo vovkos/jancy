@@ -25,16 +25,11 @@ Cast_FunctionPtr_FromOverload::getCastKind(
 	const Value& opValue,
 	Type* type
 ) {
-	ValueKind valueKind = opValue.getValueKind();
-	ASSERT(valueKind == ValueKind_FunctionOverload || valueKind == ValueKind_FunctionTypeOverload);
-
-	const FunctionTypeOverload* typeOverload = valueKind == ValueKind_FunctionOverload ?
-		&opValue.getFunctionOverload()->getTypeOverload() :
-		opValue.getFunctionTypeOverload();
-
+	ASSERT(opValue.getValueKind() == ValueKind_FunctionOverload);
 	ASSERT(type->getTypeKind() == TypeKind_FunctionPtr);
-	FunctionType* functionType = ((FunctionPtrType*)type)->getTargetType();
 
+	const FunctionTypeOverload* typeOverload = &opValue.getFunctionOverload()->getTypeOverload();
+	FunctionType* functionType = ((FunctionPtrType*)type)->getTargetType();
 	CastKind castKind;
 	size_t index = typeOverload->chooseOverload(opValue.getClosure(), functionType->getArgArray(), &castKind);
 	return index == -1 ? CastKind_None : castKind;
@@ -565,7 +560,7 @@ Cast_FunctionPtr::getCastOperator(
 	TypeKind typeKind = srcType->getTypeKind();
 	switch (typeKind) {
 	case TypeKind_Void:
-		ASSERT(opValue.getValueKind() == ValueKind_FunctionOverload || opValue.getValueKind() == ValueKind_FunctionTypeOverload);
+		ASSERT(opValue.getValueKind() == ValueKind_FunctionOverload);
 		return &m_fromOverload;
 
 	case TypeKind_FunctionPtr:

@@ -217,10 +217,12 @@ BinOp_Idx::variantIndexOperator(
 	Value* resultValue
 ) {
 	Property* prop = m_module->m_functionMgr.getStdProperty(StdProp_VariantIndex);
-	resultValue->setProperty(prop);
 
 	Value variantValue;
-	bool result = m_module->m_operatorMgr.unaryOperator(UnOpKind_Addr, opValue1, &variantValue);
+	bool result =
+		resultValue->trySetProperty(prop) &&
+		m_module->m_operatorMgr.unaryOperator(UnOpKind_Addr, opValue1, &variantValue);
+
 	if (!result)
 		return false;
 
@@ -285,7 +287,10 @@ BinOp_Idx::derivableTypeIndexOperator(
 		return false;
 	}
 
-	resultValue->setProperty(prop);
+	bool result = resultValue->trySetProperty(prop);
+	if (!result)
+		return false;
+
 	Closure* closure = resultValue->createClosure();
 	closure->getArgValueList()->insertTail(opValue1);
 	closure->getArgValueList()->insertTail(opValue2);

@@ -68,10 +68,6 @@ setCastError(
 		opValueString = opValue.getFunctionOverload()->getItemName();
 		break;
 
-	case ValueKind_FunctionTypeOverload:
-		opValueString = "overloaded-function";
-		break;
-
 	default:
 		opValueString = opValue.getValueKind() == ValueKind_Const ?
 			getConstTypeString(opValue.getType()) :

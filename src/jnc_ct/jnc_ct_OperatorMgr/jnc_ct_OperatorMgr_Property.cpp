@@ -119,21 +119,17 @@ OperatorMgr::getPropertyGetter(
 	if (!result)
 		return false;
 
-	if (opValue.getValueKind() == ValueKind_Property) {
-		result = resultValue->trySetFunction(opValue.getProperty()->getGetter());
-		if (!result)
-			return false;
-
-		resultValue->setClosure(opValue.getClosure());
-		return true;
-	}
-
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_PropertyPtr);
-
 	PropertyPtrType* ptrType = (PropertyPtrType*)opValue.getType();
 	PropertyType* propertyType = ptrType->hasClosure() ?
 		ptrType->getTargetType()->getStdObjectMemberPropertyType() :
 		ptrType->getTargetType();
+
+	if (opValue.getValueKind() == ValueKind_Property) {
+		resultValue->setFunction(opValue.getProperty()->getGetter(), propertyType->getGetterType());
+		resultValue->setClosure(opValue.getClosure());
+		return true;
+	}
 
 	Value vtableValue;
 	result = getPropertyVtable(opValue, &vtableValue);
@@ -143,9 +139,9 @@ OperatorMgr::getPropertyGetter(
 	size_t index = (propertyType->getFlags() & PropertyTypeFlag_Bindable) ? 1 : 0;
 	FunctionPtrType* getterPtrType = propertyType->getGetterType()->getFunctionPtrType(FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe);
 
-	if (!m_module->hasCodeGen()) {
+	if (!m_module->hasCodeGen())
 		resultValue->setType(getterPtrType);
-	} else {
+	else {
 		Value pfnValue;
 		m_module->m_llvmIrBuilder.createGep2(vtableValue, propertyType->getVtableStructType(), index, NULL, &pfnValue);
 		m_module->m_llvmIrBuilder.createLoad(pfnValue, getterPtrType, resultValue);
@@ -169,7 +165,6 @@ OperatorMgr::getPropertySetter(
 		return false;
 
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_PropertyPtr);
-
 	PropertyPtrType* ptrType = (PropertyPtrType*)opValue.getType();
 	PropertyType* propertyType = ptrType->hasClosure() ?
 		ptrType->getTargetType()->getStdObjectMemberPropertyType() :
@@ -184,7 +179,11 @@ OperatorMgr::getPropertySetter(
 	}
 
 	if (opValue.getValueKind() == ValueKind_Property) {
-		*resultValue = opValue.getProperty()->getSetter();
+		resultValue->setOverloadableFunction(
+			opValue.getProperty()->getSetter(),
+			*propertyType->getSetterType()
+		);
+
 		resultValue->setClosure(opValue.getClosure());
 		return true;
 	}
@@ -213,9 +212,9 @@ OperatorMgr::getPropertySetter(
 	if (!result)
 		return false;
 
-	if (!m_module->hasCodeGen()) {
+	if (!m_module->hasCodeGen())
 		resultValue->setType(setterPtrType);
-	} else {
+	else {
 		size_t index = (propertyType->getFlags() & PropertyTypeFlag_Bindable) ? 2 : 1;
 		index += i;
 

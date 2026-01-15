@@ -77,8 +77,11 @@ ControlFlowMgr::throwException(const Value& value) {
 		return err::fail("missing or invalid `std.setError`");
 
 	Value setError;
-	setError.setFunctionOverload((jnc::FunctionOverload*)findResult.m_item);
-	bool result = m_module->m_operatorMgr.callOperator(setError, value);
+
+	bool result =
+		setError.trySetFunctionOverload((jnc::FunctionOverload*)findResult.m_item) &&
+		m_module->m_operatorMgr.callOperator(setError, value);
+
 	if (!result)
 		return false;
 

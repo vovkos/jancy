@@ -41,7 +41,6 @@ enum ValueKind {
 	ValueKind_Variable,
 	ValueKind_Function,
 	ValueKind_FunctionOverload,
-	ValueKind_FunctionTypeOverload,
 	ValueKind_Property,
 	ValueKind_Field,
 	ValueKind_LlvmRegister,
@@ -72,7 +71,6 @@ protected:
 		Variable* m_variable;
 		Function* m_function;
 		FunctionOverload* m_functionOverload;
-		FunctionTypeOverload* m_functionTypeOverload;
 		Property* m_property;
 		Field* m_field;
 	};
@@ -142,11 +140,6 @@ public:
 	Value(OverloadableFunction function) {
 		init();
 		setOverloadableFunction(function);
-	}
-
-	Value(FunctionTypeOverload* functionTypeOverload) {
-		init();
-		setFunctionTypeOverload(functionTypeOverload);
 	}
 
 	Value(Property* prop) {
@@ -220,12 +213,6 @@ public:
 	getFunctionOverload() const {
 		ASSERT(m_valueKind == ValueKind_FunctionOverload);
 		return m_functionOverload;
-	}
-
-	FunctionTypeOverload*
-	getFunctionTypeOverload() const {
-		ASSERT(m_valueKind == ValueKind_FunctionTypeOverload);
-		return m_functionTypeOverload;
 	}
 
 	Property*
@@ -400,7 +387,13 @@ public:
 	setType(Type* type);
 
 	void
-	setVariable(Variable* variable);
+	setVariable(Variable* variable) {
+		bool result = trySetVariable(variable);
+		ASSERT(result);
+	}
+
+	bool
+	trySetVariable(Variable* variable);
 
 	void
 	setFunction(Function* function) {
@@ -408,11 +401,23 @@ public:
 		ASSERT(result);
 	}
 
+	void
+	setFunction(
+		Function* function,
+		FunctionType* functionType
+	);
+
 	bool
 	trySetFunction(Function* function);
 
 	void
-	setFunctionOverload(FunctionOverload* functionOverload);
+	setFunctionOverload(FunctionOverload* functionOverload) {
+		bool result = trySetFunctionOverload(functionOverload);
+		ASSERT(result);
+	}
+
+	bool
+	trySetFunctionOverload(FunctionOverload* functionOverload);
 
 	void
 	setOverloadableFunction(OverloadableFunction function) {
@@ -420,14 +425,27 @@ public:
 		ASSERT(result);
 	}
 
+	void
+	setOverloadableFunction(
+		OverloadableFunction function,
+		const FunctionTypeOverload& functionTypeOverload
+	);
+
 	bool
-	trySetOverloadableFunction(OverloadableFunction function);
+	trySetOverloadableFunction(OverloadableFunction function) {
+		return function->getItemKind() == ModuleItemKind_Function ?
+			trySetFunction(function.getFunction()) :
+			trySetFunctionOverload(function.getFunctionOverload());
+	}
 
 	void
-	setFunctionTypeOverload(FunctionTypeOverload* functionTypeOverload);
+	setProperty(Property* prop) {
+		bool result = trySetProperty(prop);
+		ASSERT(result);
+	}
 
-	void
-	setProperty(Property* prop);
+	bool
+	trySetProperty(Property* prop);
 
 	void
 	setEnumConst(EnumConst* enumConst) {

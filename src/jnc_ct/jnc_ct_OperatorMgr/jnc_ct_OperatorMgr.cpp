@@ -877,8 +877,8 @@ OperatorMgr::getPropertyPtrCastKind(
 	if (!castKind)
 		return CastKind_None;
 
-	FunctionTypeOverload* srcSetterType = srcType->getSetterType();
-	FunctionTypeOverload* dstSetterType = dstType->getSetterType();
+	const FunctionTypeOverload* srcSetterType = srcType->getSetterType();
+	const FunctionTypeOverload* dstSetterType = dstType->getSetterType();
 
 	CastKind worstCastKind = castKind;
 
@@ -1699,7 +1699,6 @@ OperatorMgr::prepareOperandType(
 		return true;
 
 	case ValueKind_FunctionOverload:
-	case ValueKind_FunctionTypeOverload:
 		*resultValue = opValue;
 		return true;
 
@@ -1747,7 +1746,6 @@ OperatorMgr::prepareOperand(
 		return true;
 
 	case ValueKind_FunctionOverload:
-	case ValueKind_FunctionTypeOverload:
 		*resultValue = opValue;
 		return true;
 	}
