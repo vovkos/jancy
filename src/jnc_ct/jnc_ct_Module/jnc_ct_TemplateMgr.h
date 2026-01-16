@@ -98,7 +98,7 @@ protected:
 	sl::StringRef
 	createItemString(size_t index);
 
-	Namespace*
+	TemplateNamespace*
 	openTemplateInstNamespace(const sl::ArrayRef<Type*>& argArray) const;
 
 	void

@@ -93,8 +93,27 @@ Template::instantiate(const sl::ArrayRef<Type*>& argArray0) {
 	return item;
 }
 
+TemplateNamespace*
+Template::openTemplateInstNamespace(const sl::ArrayRef<Type*>& argArray) const {
+	TemplateNamespace* nspace = m_module->m_namespaceMgr.openTemplateInstNamespace(*this);
+
+	size_t count = argArray.getCount();
+	for (size_t i = 0; i < count; i++) {
+		Type* type = argArray[i];
+		if (type) {
+			bool result = nspace->addItem(m_argArray[i]->getName(), type);
+			ASSERT(result); // should have been checked in parser
+		}
+	}
+
+	return nspace;
+}
+
 bool
 Template::setDefaultArgs(sl::Array<Type*>* argArray) {
+	TemplateNamespace* nspace = (TemplateNamespace*)m_module->m_namespaceMgr.getCurrentNamespace();
+	ASSERT(nspace->getNamespaceKind() == NamespaceKind_TemplateInstantiation);
+
 	size_t count = argArray->getCount();
 	sl::Array<Type*>::Rwi rwi = argArray->rwi();
 	for (size_t i = 0; i < count; i++) {
@@ -117,6 +136,8 @@ Template::setDefaultArgs(sl::Array<Type*>* argArray) {
 			return false;
 
 		rwi[i] = type;
+		bool result = nspace->addItem(m_argArray[i]->getName(), type);
+		ASSERT(result); // should have been checked in parser
 	}
 
 	return true;
@@ -320,22 +341,6 @@ Template::createItemString(size_t index) {
 
 	string += '>';
 	return string;
-}
-
-Namespace*
-Template::openTemplateInstNamespace(const sl::ArrayRef<Type*>& argArray) const {
-	Namespace* nspace = m_module->m_namespaceMgr.openTemplateInstNamespace(*this);
-
-	size_t argCount = argArray.getCount();
-	for (size_t i = 0; i < argCount; i++) {
-		Type* argType = argArray[i];
-		if (argType) {
-			bool result = nspace->addItem(m_argArray[i]->getName(), argType);
-			ASSERT(result); // should have been checked in parser
-		}
-	}
-
-	return nspace;
 }
 
 //..............................................................................
