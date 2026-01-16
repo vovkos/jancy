@@ -78,21 +78,9 @@ public:
 		return value;
 	}
 
-	property m_head {
-		Entry constif* get() const? {
-			return m_list.m_head;
-		}
-	}
-
-	property m_tail {
-		Entry constif* get() const? {
-			return m_list.m_tail;
-		}
-	}
-
-	size_t const property m_count {
-		return m_list.m_count;
-	}
+	alias m_head = m_list.m_head;
+	alias m_tail = m_list.m_tail;
+	alias m_count = m_list.m_count;
 
 	void clear() {
 		m_list.clear();
