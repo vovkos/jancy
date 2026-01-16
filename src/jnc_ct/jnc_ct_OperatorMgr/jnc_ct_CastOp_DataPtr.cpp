@@ -547,7 +547,6 @@ Cast_DataPtr_Base::getOffsetUnsafePtrValue(
 	Value* resultValue
 ) {
 	BaseTypeCoord coord;
-
 	size_t offset = getOffset(srcType, dstType, &coord);
 	if (offset == -1)
 		return false;

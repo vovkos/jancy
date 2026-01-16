@@ -13,6 +13,7 @@
 
 #include "jnc_DerivableType.h"
 #include "jnc_ct_MemberBlock.h"
+#include "jnc_ct_MemberCoord.h"
 #include "jnc_ct_CastOp.h"
 
 namespace jnc {
@@ -83,57 +84,6 @@ BaseTypeSlot::BaseTypeSlot() {
 	m_llvmIndex = -1;
 	m_vtableIndex = -1;
 }
-
-//..............................................................................
-
-class BaseTypeCoord {
-	AXL_DISABLE_COPY(BaseTypeCoord)
-
-protected:
-	char m_buffer[256];
-
-public:
-	DerivableType* m_type;
-	size_t m_offset;
-	sl::Array<int32_t> m_llvmIndexArray;
-	size_t m_vtableIndex;
-
-public:
-	BaseTypeCoord();
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-inline
-BaseTypeCoord::BaseTypeCoord():
-	m_llvmIndexArray(rc::BufKind_Field, m_buffer, sizeof(m_buffer)) {
-	m_type = NULL;
-	m_offset = 0;
-	m_vtableIndex = 0;
-}
-
-//..............................................................................
-
-// unfortunately, LLVM does not natively support unions
-// therefore, unnamed unions on the way to a member need special handling
-
-struct UnionCoord {
-	UnionType* m_type;
-	intptr_t m_level; // signed for simplier comparisons
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-class MemberCoord: public BaseTypeCoord {
-protected:
-	char m_buffer[256];
-
-public:
-	sl::Array<UnionCoord> m_unionCoordArray;
-
-	MemberCoord():
-		m_unionCoordArray(rc::BufKind_Field, m_buffer, sizeof(m_buffer)) {}
-};
 
 //..............................................................................
 

@@ -19,6 +19,38 @@ namespace ct {
 
 //..............................................................................
 
+inline
+bool
+failWithFindError(
+	const QualifiedName& name,
+	FindModuleItemResult findResult
+) {
+	ASSERT(!findResult.m_item);
+
+	if (findResult.m_result)
+		err::setFormatStringError("'%s' not found", name.getFullName().sz());
+
+	return false;
+}
+
+//..............................................................................
+
+FindModuleItemResult
+Alias::finalizeFindAlias(
+	FindModuleItemResult findResult,
+	MemberCoord* coord
+) {
+	bool result = ensureResolved();
+	if (!result)
+		return g_errorFindModuleItemResult;
+
+	if (coord)
+		coord->append(m_targetCoord);
+
+	findResult.m_item = m_targetItem;
+	return findResult;
+}
+
 sl::StringRef
 Alias::createItemString(size_t index) {
 	if (index != ModuleItemStringKind_Synopsis)
@@ -56,27 +88,86 @@ Alias::resolveImpl() {
 	if (!result)
 		return false;
 
-	FindModuleItemResult findResult = m_parentNamespace->findItemTraverse(*this, parser.getLastQualifiedName());
-	if (!findResult.m_result)
-		return false;
+	const QualifiedName& name = parser.getLastQualifiedName();
 
-	if (!findResult.m_item) {
-		err::setFormatStringError("name '%s' is not found", parser.getLastQualifiedName().getFullName().sz());
-		return false;
+	// pass this as context to allow template instantiation
+
+	MemberCoord coord;
+	FindModuleItemResult findResult = m_parentNamespace->findDirectChildItemTraverse(*this, name.getFirstAtom(), &coord);
+	if (!findResult.m_item)
+		return failWithFindError(name, findResult);
+
+	// for qualification names, look up in this and base types only
+
+	enum {
+		FindFlags =
+			TraverseFlag_NoParentNamespace |
+			TraverseFlag_NoUsingNamespaces |
+			TraverseFlag_NoExtensionNamespaces
+	};
+
+	sl::ConstBoxIterator<QualifiedNameAtom> nameIt = name.getAtomList().getHead();
+	for (; nameIt; nameIt++) {
+		Namespace* nspace = findResult.m_item->getNamespace();
+		if (nspace)
+			coord.reset();
+		else {
+			ModuleItemKind itemKind = findResult.m_item->getItemKind();
+			switch (itemKind) {
+			case ModuleItemKind_Field: {
+				// member operators should respect MemberCoord::m_variable and adjust opValue accordingly
+
+				AXL_TODO("support aliases to fields within statics");
+				if (coord.m_variable) {
+					err::setError("fields within statics not supported yet");
+					return false;
+				}
+
+				Field* field = (Field*)findResult.m_item;
+				Type* fieldType = field->getType();
+				DerivableType* parentType = field->getParentType();
+				result = parentType->ensureLayout();
+				if (!result)
+					return false;
+
+				coord.m_flags |= MemberCoordFlag_Member;
+				coord.m_offset += field->getOffset();
+				coord.m_llvmIndexArray.append(field->getLlvmIndex());
+
+				if (fieldType->getTypeKind() == TypeKind_Class)
+					coord.m_llvmIndexArray.append(1); // iface struct
+
+				nspace = field->getType()->getNamespace();
+				break;
+				}
+
+			case ModuleItemKind_Variable:
+				coord.reset();
+				coord.m_variable = (Variable*)findResult.m_item;
+				nspace = ((Variable*)findResult.m_item)->getType()->getNamespace();
+				break;
+			}
+
+			if (!nspace) {
+				err::setFormatStringError("'%s' is not a namespace", findResult.m_item->getItemName().sz());
+				return false;
+			}
+		}
+
+		MemberCoord nextCoord;
+		findResult = nspace->findDirectChildItemTraverse(*this, *nameIt, &nextCoord, FindFlags);
+		if (!findResult.m_item)
+			return failWithFindError(name, findResult);
+
+		coord.append(nextCoord);
 	}
 
+	if (!(coord.m_flags & MemberCoordFlag_Member)) // can replace simple item
+		m_parentNamespace->replaceItem(m_name, findResult.m_item);
+
+	// otherwise, we need member coords
 	m_targetItem = findResult.m_item;
-	if (m_targetItem->getItemKind() == ModuleItemKind_Alias) {
-		Alias* alias = (Alias*)m_targetItem;
-		result = alias->ensureResolved();
-		if (!result)
-			return false;
-
-		m_targetItem = alias->getTargetItem();
-		ASSERT(m_targetItem->getItemKind() != ModuleItemKind_Alias);
-	}
-
-	m_parentNamespace->replaceItem(m_name, m_targetItem);
+	m_targetCoord = coord;
 	return true;
 }
 

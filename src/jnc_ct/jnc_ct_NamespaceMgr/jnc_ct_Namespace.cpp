@@ -305,15 +305,6 @@ Namespace::findDirectChildItem(const sl::StringRef& name) {
 	}
 
 	ModuleItem* item = it->m_value;
-	if (item->getItemKind() == ModuleItemKind_Alias) {
-		Alias* alias = (Alias*)item;
-		result = alias->ensureResolved();
-		if (!result)
-			return g_errorFindModuleItemResult;
-
-		item = alias->getTargetItem();
-	}
-
 	if (item->getItemKind() != ModuleItemKind_LazyImport)
 		return FindModuleItemResult(item);
 
@@ -424,8 +415,13 @@ Namespace::findDirectChildItemTraverse(
 ) {
 	if (!(flags & TraverseFlag_NoThis)) {
 		FindModuleItemResult findResult = findDirectChildItem(name);
-		if (!findResult.m_result || findResult.m_item)
-			return findResult;
+		if (!findResult.m_result)
+			return g_errorFindModuleItemResult;
+
+		if (findResult.m_item)
+			return findResult.m_item->getItemKind() == ModuleItemKind_Alias ?
+				((Alias*)findResult.m_item)->finalizeFindAlias(findResult, coord) :
+				findResult;
 	}
 
 	if (!(flags & TraverseFlag_NoUsingNamespaces)) {

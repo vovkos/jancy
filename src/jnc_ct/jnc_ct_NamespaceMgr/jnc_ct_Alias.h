@@ -13,6 +13,8 @@
 
 #include "jnc_Alias.h"
 #include "jnc_ct_ModuleItem.h"
+#include "jnc_ct_MemberCoord.h"
+#include "jnc_ct_QualifiedName.h"
 
 namespace jnc {
 namespace ct {
@@ -39,6 +41,7 @@ protected:
 
 protected:
 	ModuleItem* m_targetItem;
+	MemberCoord m_targetCoord;
 	err::Error m_resolveError;
 
 public:
@@ -63,6 +66,12 @@ public:
 		return m_targetItem;
 	}
 
+	const MemberCoord&
+	getTargetCoord() {
+		ASSERT(m_targetItem);
+		return m_targetCoord;
+	}
+
 	virtual
 	Type*
 	getItemType() {
@@ -84,6 +93,12 @@ public:
 			m_resolveError ? err::fail(m_resolveError) :
 			resolve();
 	}
+
+	FindModuleItemResult
+	finalizeFindAlias(
+		FindModuleItemResult findResult,
+		MemberCoord* coord = NULL
+	);
 
 protected:
 	virtual

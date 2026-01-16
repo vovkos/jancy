@@ -436,7 +436,6 @@ DerivableType::findBaseTypeTraverseImpl(
 			return true;
 
 		BaseTypeSlot* slot = it->m_value;
-		coord->m_type = slot->m_type;
 		coord->m_offset = slot->m_offset;
 		coord->m_vtableIndex = slot->m_vtableIndex;
 		coord->m_llvmIndexArray.setCount(level + 1);
@@ -478,18 +477,30 @@ DerivableType::findDirectChildItemTraverse(
 
 		if (findResult.m_item) {
 			if (coord) {
-				coord->m_type = this;
-				coord->m_llvmIndexArray.setCount(level);
+				ASSERT(coord->m_llvmIndexArray.isEmpty());
+				ASSERT(coord->m_unionCoordArray.isEmpty());
+				ASSERT(coord->m_flags == 0);
 
-				if (m_typeKind == TypeKind_Union) {
-					UnionCoord unionCoord;
-					unionCoord.m_type = (UnionType*)this;
-					unionCoord.m_level = level;
-					coord->m_unionCoordArray.insert(0, unionCoord);
+				StorageKind storageKind = findResult.m_item->getDecl()->getStorageKind();
+				if (
+					storageKind >= StorageKind_Alias && // alias can point to a member
+					storageKind <= StorageKind_Mutable
+				) {
+					coord->m_flags = MemberCoordFlag_Member;
+					coord->m_llvmIndexArray.setCount(level);
+
+					if (m_typeKind == TypeKind_Union) {
+						UnionCoord unionCoord;
+						unionCoord.m_type = (UnionType*)this;
+						unionCoord.m_level = level;
+						coord->m_unionCoordArray.copy(unionCoord);
+					}
 				}
 			}
 
-			return findResult;
+			return findResult.m_item->getItemKind() == ModuleItemKind_Alias ?
+				((Alias*)findResult.m_item)->finalizeFindAlias(findResult, coord) :
+				findResult;
 		}
 
 		uint_t modFlags = flags | TraverseFlag_NoParentNamespace;
@@ -505,7 +516,7 @@ DerivableType::findDirectChildItemTraverse(
 					return findResult;
 
 				if (findResult.m_item) {
-					if (coord && coord->m_type) {
+					if (coord && (coord->m_flags & MemberCoordFlag_Member)) {
 						coord->m_offset += field->m_offset;
 						coord->m_llvmIndexArray.rwi()[level] = field->m_llvmIndex;
 
@@ -545,7 +556,7 @@ DerivableType::findDirectChildItemTraverse(
 				return findResult;
 
 			if (findResult.m_item) {
-				if (coord && coord->m_type) {
+				if (coord && (coord->m_flags & MemberCoordFlag_Member)) {
 					coord->m_offset += slot->m_offset;
 					coord->m_llvmIndexArray.rwi()[level] = slot->m_llvmIndex;
 					coord->m_vtableIndex += slot->m_vtableIndex;

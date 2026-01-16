@@ -417,7 +417,7 @@ OperatorMgr::getClassField(
 	coord->m_llvmIndexArray.append(field->getLlvmIndex());
 
 	if (field->getType()->getTypeKind() == TypeKind_Class)
-		coord->m_llvmIndexArray.append(1);
+		coord->m_llvmIndexArray.append(1); // iface struct
 
 	Value ptrValue;
 	result = getFieldPtrImpl(opValue,  classType->getIfaceStructType(), coord, NULL, &ptrValue);

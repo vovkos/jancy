@@ -90,6 +90,7 @@ set(
 	include/jnc_ct_McJit.h
 	include/jnc_ct_McSnapshotClassType.h
 	include/jnc_ct_MemberBlock.h
+	include/jnc_ct_MemberCoord.h
 	include/jnc_ct_Module.h
 	include/jnc_ct_ModuleItem.h
 	include/jnc_ct_MulticastClassType.h
@@ -440,6 +441,7 @@ set(
 	jnc_ct_TypeMgr/jnc_ct_FunctionTypeOverload.h
 	jnc_ct_TypeMgr/jnc_ct_ImportType.h
 	jnc_ct_TypeMgr/jnc_ct_McSnapshotClassType.h
+	jnc_ct_TypeMgr/jnc_ct_MemberCoord.h
 	jnc_ct_TypeMgr/jnc_ct_MulticastClassType.h
 	jnc_ct_TypeMgr/jnc_ct_PropertyPtrType.h
 	jnc_ct_TypeMgr/jnc_ct_PropertyType.h
