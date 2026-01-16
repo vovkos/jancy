@@ -48,12 +48,20 @@
 #include "std_RbTree.jnc.cpp"
 ;static char g_stdt_ArraySrc[] =
 #include "stdt_Array.jnc.cpp"
-;static char g_stdt_ListEntrySrc[] =
-#include "stdt_ListEntry.jnc.cpp"
+;static char g_stdt_IteratorSrc[] =
+#include "stdt_Iterator.jnc.cpp"
 ;static char g_stdt_ListSrc[] =
 #include "stdt_List.jnc.cpp"
+;static char g_stdt_BoxListSrc[] =
+#include "stdt_BoxList.jnc.cpp"
+;static char g_stdt_MapSrc[] =
+#include "stdt_Map.jnc.cpp"
 ;static char g_stdt_HashTableSrc[] =
 #include "stdt_HashTable.jnc.cpp"
+;static char g_stdt_BinTreeSrc[] =
+#include "stdt_BinTree.jnc.cpp"
+;static char g_stdt_RbTreeSrc[] =
+#include "stdt_RbTree.jnc.cpp"
 ;static char g_stdt_OperatorSrc[] =
 #include "stdt_Operator.jnc.cpp"
 ;
@@ -910,9 +918,13 @@ JNC_BEGIN_LIB_SOURCE_FILE_TABLE(jnc_StdLib)
 	JNC_LIB_SOURCE_FILE("std_RbTree.jnc",    g_std_RbTreeSrc)
 
 	JNC_LIB_SOURCE_FILE("stdt_Array.jnc",     g_stdt_ArraySrc)
-	JNC_LIB_SOURCE_FILE("stdt_ListEntry.jnc", g_stdt_ListEntrySrc)
+	JNC_LIB_SOURCE_FILE("stdt_Iterator.jnc",  g_stdt_IteratorSrc)
 	JNC_LIB_SOURCE_FILE("stdt_List.jnc",      g_stdt_ListSrc)
+	JNC_LIB_SOURCE_FILE("stdt_BoxList.jnc",   g_stdt_BoxListSrc)
+	JNC_LIB_SOURCE_FILE("stdt_Map.jnc",       g_stdt_MapSrc)
 	JNC_LIB_SOURCE_FILE("stdt_HashTable.jnc", g_stdt_HashTableSrc)
+	JNC_LIB_SOURCE_FILE("stdt_BinTree.jnc",   g_stdt_BinTreeSrc)
+	JNC_LIB_SOURCE_FILE("stdt_RbTree.jnc",    g_stdt_RbTreeSrc)
 	JNC_LIB_SOURCE_FILE("stdt_Operator.jnc",  g_stdt_OperatorSrc)
 
 	JNC_LIB_IMPORT("std_globals.jnc")

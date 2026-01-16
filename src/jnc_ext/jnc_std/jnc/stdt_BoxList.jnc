@@ -1,0 +1,109 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+import "stdt_List.jnc"
+
+namespace stdt {
+
+//! \addtogroup std-container
+//! @{
+
+//..............................................................................
+
+struct BoxListEntry<T>: ListEntry<BoxListEntry> {
+	typedef T Value;
+
+	T m_value;
+
+	construct() thin {}
+
+	construct(T value) thin {
+		m_value = value;
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct BoxIteratorBase<T, P, E>: IteratorBase<E> {
+	T operator * () thin const {
+		return m_p.m_value;
+	}
+
+	P operator -> () thin const {
+		return &m_p.m_value;
+	}
+}
+
+struct BoxMutableIteratorBase<T, P, E>: BoxIteratorBase<T, P, E> {
+	T operator := (T value) thin const {
+		return m_p.m_value = value;
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+typedef IteratorImpl<
+	BoxMutableIteratorBase<T, T*, BoxListEntry<T>*>,
+	BoxIteratorBase<T, T const*, BoxListEntry<T> const*>
+> BoxIterator<T>;
+
+typedef ConstIteratorImpl<
+	BoxMutableIteratorBase<T, T*, BoxListEntry<T>*>,
+	BoxIteratorBase<T, T const*, BoxListEntry<T> const*>
+> BoxConstIterator<T>;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class BoxList<T>: List<BoxListEntry<T>, BoxIterator<T> > {
+	Iterator append(T value) {
+		return insertTail(value);
+	}
+
+	Iterator insertHead(T value) {
+		return basetype.insertHead(new Entry(value));
+	}
+
+	Iterator insertTail(T value) {
+		return basetype.insertTail(new Entry(value));
+	}
+
+	Iterator insertBefore(
+		T value,
+		Iterator beforeIt
+	) {
+		return basetype.insertBefore(new Entry(value), beforeIt);
+	}
+
+	Iterator insertAfter(
+		T value,
+		Iterator afterIt
+	) {
+		return basetype.insertAfter(new Entry(value), afterIt);
+	}
+
+	T removeHead() {
+		return basetype.removeHead().m_value;
+	}
+
+	T removeTail() {
+		return basetype.removeTail().m_value;
+	}
+
+	T remove(Iterator it) {
+		return basetype.remove(it).m_value;
+	}
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace stdt

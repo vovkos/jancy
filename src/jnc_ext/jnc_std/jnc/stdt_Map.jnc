@@ -1,0 +1,134 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+import "stdt_List.jnc"
+import "stdt_Operator.jnc"
+
+namespace stdt {
+
+//! \addtogroup std-container
+//! @{
+
+//..............................................................................
+
+struct MapEntryBase<T, K, V>: ListEntry<T> {
+	typedef K Key;
+	typedef V Value;
+
+	K readonly m_key;
+	V m_value;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class MapBase<T> {
+	typedef T Entry;
+	typedef T.Key Key;
+	typedef T.Value Value;
+	typedef stdt.Iterator<T> Iterator;
+	typedef stdt.ConstIterator<T> ConstIterator;
+
+protected:
+	List<T> m_list;
+
+public:
+	alias m_head = m_list.m_head;
+	alias m_tail = m_list.m_tail;
+	alias m_count = m_list.m_count;
+
+	void clear() {
+		m_list.clear();
+	}
+}
+
+//..............................................................................
+
+class MapImpl<T>: T {
+public:
+	Value get(Key key) const;
+
+	Value set(
+		Key key,
+		Value value
+	) {
+		add(key, value);
+		return value;
+	}
+
+	Value findValue(
+		Key key,
+		Value undefinedValue = null
+	) const {
+		ConstIterator it = find(key);
+		return it ? it->m_value : undefinedValue;
+	}
+
+	Iterator add(
+		Key key,
+		Value value
+	);
+
+	Iterator addIfNotExists(
+		Key key,
+		Value value
+	);
+
+	bool removeKey(Key key);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+Value MapImpl<T>.get(Key key) const {
+	ConstIterator it = find(key);
+	if (!it) {
+		std.setError("key not found");
+		throw;
+	}
+
+	return it->m_value;
+}
+
+Iterator MapImpl<T>.add(
+	Key key,
+	Value value
+) {
+	Iterator it = visit(key);
+	it->m_value = value;
+	return it;
+}
+
+Iterator MapImpl<T>.addIfNotExists(
+	Key key,
+	Value value
+) {
+	size_t prevCount = m_list.m_count;
+	Iterator it = visit(key);
+	if (m_list.m_count == prevCount)
+		return null;
+
+	it->m_value = value;
+	return it;
+}
+
+bool MapImpl<T>.removeKey(Key key) {
+	Iterator it = find(key);
+	if (!it)
+		return false;
+
+	remove(it);
+	return true;
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace stdt

@@ -9,9 +9,9 @@
 //
 //..............................................................................
 
+import "stdt_Map.jnc"
 import "stdt_Array.jnc"
-import "stdt_List.jnc"
-import "stdt_Operator.jnc"
+import "stdt_BoxList.jnc"
 
 namespace stdt {
 
@@ -21,7 +21,7 @@ namespace stdt {
 //..............................................................................
 
 struct HashTableEntry<K, V>: MapEntryBase<HashTableEntry, K, V> {
-	friend HashTable;
+	friend HashTableBase;
 
 	typedef HashTableBucket<K, V> Bucket;
 
@@ -38,14 +38,21 @@ typedef BoxList<HashTableEntry<K, V>*> HashTableBucket<K, V>;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class HashTable<K, V, H, E = Eq<K> > {
-	typedef K Key;
-	typedef V Value;
+class HashTable<K, V, H, E = Eq<K> >: MapImpl<HashTableBase<K, V, H, E> > {
+	construct(
+		H hash = H(),
+		E eq = E()
+	) {
+		m_hash = hash;
+		m_eq = eq;
+	}
+}
+
+//..............................................................................
+
+class HashTableBase<K, V, H, E>: MapBase<HashTableEntry<K, V> > {
 	typedef H Hash;
 	typedef E Eq;
-	typedef HashTableEntry<K, V> Entry;
-	typedef HashTableIterator<K, V> Iterator;
-	typedef HashTableConstIterator<K, V> ConstIterator;
 	typedef HashTableBucket<K, V> Bucket;
 
 	enum {
@@ -54,79 +61,43 @@ class HashTable<K, V, H, E = Eq<K> > {
 	};
 
 protected:
-	List<Entry, Iterator> m_list;
 	Array<Bucket*> m_table;
 	H m_hash;
 	E m_eq;
 
 public:
-	construct(
-		H hash = H(),
-		E eq = E()
-	) {
-		m_hash = hash;
-		m_eq = eq;
-	}
-
-	V get(K key) const;
-
-	V set(
-		K key,
-		V value
-	) {
-		add(key, value);
-		return value;
-	}
-
-	alias m_head = m_list.m_head;
-	alias m_tail = m_list.m_tail;
-	alias m_count = m_list.m_count;
-
 	void clear() {
-		m_list.clear();
+		basetype.clear();
 		m_table.clear();
 	}
 
-	bool errorcode setBucketCount(size_t count);
-
-	Iterator errorcode visit(K key);
 	Entry constif* find(K key) const?;
-
-	V findValue(
-		K key,
-		V undefinedValue = null
-	) const {
-		ConstIterator it = find(key);
-		return it ? it->m_value : undefinedValue;
-	}
-
-	Iterator add(
-		K key,
-		V value
-	);
-
-	Iterator addIfNotExists(
-		K key,
-		V value
-	);
-
+	Iterator errorcode visit(K key);
 	void remove(Iterator it);
-	bool removeKey(K key);
+	bool errorcode setBucketCount(size_t count);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-V HashTable<K, V, H, E>.get(K key) const {
-	ConstIterator it = find(key);
-	if (!it) {
-		std.setError($"key not found");
-		throw;
+Entry constif* HashTableBase<K, V, H, E>.find(K key) const? {
+	if (!m_table.m_count)
+		return null;
+
+	size_t bucketIdx = m_hash(key) % m_table.m_count;
+	Bucket* bucket = m_table[bucketIdx];
+	if (!bucket)
+		return null;
+
+	for (Bucket.Iterator it = bucket.m_head; it; it++) {
+		Entry* entry = *it;
+		if (m_eq(key, entry.m_key))
+			return entry;
 	}
 
-	return it->m_value;
+	return null;
 }
 
-Iterator errorcode HashTable<K, V, H, E>.visit(K key) {
+Iterator errorcode HashTableBase<K, V, H, E>.visit(K key) {
 	if (!m_table.m_count)
 		m_table.setCount(InitialBucketCount);
 
@@ -154,47 +125,7 @@ Iterator errorcode HashTable<K, V, H, E>.visit(K key) {
 	return entry;
 }
 
-Entry constif* HashTable<K, V, H, E>.find(K key) const? {
-	if (!m_table.m_count)
-		return null;
-
-	size_t bucketIdx = m_hash(key) % m_table.m_count;
-	Bucket* bucket = m_table[bucketIdx];
-	if (!bucket)
-		return null;
-
-	for (Bucket.Iterator it = bucket.m_head; it; it++) {
-		Entry* entry = *it;
-		if (m_eq(key, entry.m_key))
-			return entry;
-	}
-
-	return null;
-}
-
-Iterator HashTable<K, V, H, E>.add(
-	K key,
-	V value
-) {
-	Iterator it = visit(key);
-	it->m_value = value;
-	return it;
-}
-
-Iterator HashTable<K, V, H, E>.addIfNotExists(
-	K key,
-	V value
-) {
-	size_t prevCount = m_list.m_count;
-	Iterator it = visit(key);
-	if (m_list.m_count == prevCount)
-		return null;
-
-	it->m_value = value;
-	return it;
-}
-
-void HashTable<K, V, H, E>.remove(Iterator it) {
+void HashTableBase<K, V, H, E>.remove(Iterator it) {
 	Entry* entry = *it;
 	entry.m_bucket.remove(entry.m_bucketIt);
 	entry.m_bucket = null;
@@ -202,16 +133,7 @@ void HashTable<K, V, H, E>.remove(Iterator it) {
 	m_list.remove(entry);
 }
 
-bool HashTable<K, V, H, E>.removeKey(K key) {
-	Iterator it = find(key);
-	if (!it)
-		return false;
-
-	remove(it);
-	return true;
-}
-
-bool errorcode HashTable<K, V, H, E>.setBucketCount(size_t count) {
+bool errorcode HashTableBase<K, V, H, E>.setBucketCount(size_t count) {
 	m_table.clear();
 	m_table.setCount(count);
 

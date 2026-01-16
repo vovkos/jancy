@@ -70,6 +70,15 @@ struct Ge<T> {
 	}
 }
 
+struct Cmp<T> {
+	static int operator () (
+		T a,
+		T b
+	) {
+		return a < b ? -1 : a > b ? 1 : 0;
+	}
+}
+
 //..............................................................................
 
 struct HashId<T> {

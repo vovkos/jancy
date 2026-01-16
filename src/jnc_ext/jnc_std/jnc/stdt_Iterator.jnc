@@ -16,14 +16,6 @@ namespace stdt {
 
 //..............................................................................
 
-struct ListEntry<T> {
-	friend List;
-	T constif* readonly m_next;
-	T constif* readonly m_prev;
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 struct IteratorBase<P> {
 	typedef P EntryPtr;
 
@@ -62,7 +54,7 @@ struct IteratorBase<P> {
 	}
 }
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+//..............................................................................
 
 struct IteratorImpl<M, C>: M {
 	typedef ConstIteratorImpl<M, C> ConstIterator;
@@ -99,60 +91,6 @@ typedef ConstIteratorImpl<
 	IteratorBase<T*>,
 	IteratorBase<T const*>
 > ConstIterator<T>;
-
-//..............................................................................
-
-struct BoxListEntry<T>: ListEntry<BoxListEntry> {
-	typedef T Value;
-
-	T m_value;
-
-	construct() thin {}
-
-	construct(T value) thin {
-		m_value = value;
-	}
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct BoxIteratorBase<T, P, E>: IteratorBase<E> {
-	T operator * () thin const {
-		return m_p.m_value;
-	}
-
-	P operator -> () thin const {
-		return &m_p.m_value;
-	}
-}
-
-struct BoxMutableIteratorBase<T, P, E>: BoxIteratorBase<T, P, E> {
-	T operator := (T value) thin const {
-		return m_p.m_value = value;
-	}
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-typedef IteratorImpl<
-	BoxMutableIteratorBase<T, T*, BoxListEntry<T>*>,
-	BoxIteratorBase<T, T const*, BoxListEntry<T> const*>
-> BoxIterator<T>;
-
-typedef ConstIteratorImpl<
-	BoxMutableIteratorBase<T, T*, BoxListEntry<T>*>,
-	BoxIteratorBase<T, T const*, BoxListEntry<T> const*>
-> BoxConstIterator<T>;
-
-//..............................................................................
-
-struct MapEntryBase<T, K, V>: ListEntry<T> {
-	typedef K Key;
-	typedef V Value;
-
-	K readonly m_key;
-	V m_value;
-}
 
 //..............................................................................
 

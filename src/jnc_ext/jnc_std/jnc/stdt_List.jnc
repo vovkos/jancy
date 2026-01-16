@@ -9,7 +9,7 @@
 //
 //..............................................................................
 
-import "stdt_ListEntry.jnc"
+import "stdt_Iterator.jnc"
 
 namespace stdt {
 
@@ -17,6 +17,15 @@ namespace stdt {
 //! @{
 
 //..............................................................................
+
+struct ListEntry<T> {
+	friend List;
+
+	T constif* readonly m_next;
+	T constif* readonly m_prev;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class List<T, I = Iterator<T> > {
 	typedef T Entry;
@@ -30,41 +39,41 @@ class List<T, I = Iterator<T> > {
 	void clear();
 	void takeOver(List* src);
 
-	Iterator append(T* p) {
+	I append(T* p) {
 		return insertTail(p);
 	}
 
-	Iterator insertHead(T* p);
-	Iterator insertTail(T* p);
+	I insertHead(T* p);
+	I insertTail(T* p);
 
-	Iterator insertBefore(
+	I insertBefore(
 		T* p,
-		Iterator beforeIt
+		I beforeIt
 	);
 
-	Iterator insertAfter(
+	I insertAfter(
 		T* p,
-		Iterator afterIt
+		I afterIt
 	);
 
-	void moveToHead(Iterator it) {
+	void moveToHead(I it) {
 		insertHead(remove(it));
 	}
 
-	void moveToTail(Iterator it) {
+	void moveToTail(I it) {
 		insertTail(remove(it));
 	}
 
 	void moveBefore(
-		Iterator it,
-		Iterator beforeIt
+		I it,
+		I beforeIt
 	) {
 		insertBefore(remove(it), beforeIt);
 	}
 
 	void moveAfter(
-		Iterator it,
-		Iterator afterIt
+		I it,
+		I afterIt
 	) {
 		insertAfter(remove(it), afterIt);
 	}
@@ -77,7 +86,7 @@ class List<T, I = Iterator<T> > {
 		return remove(m_tail);
 	}
 
-	T* remove(Iterator it);
+	T* remove(I it);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -97,7 +106,7 @@ void List<T, I>.takeOver(List* src) {
 	src.clear();
 }
 
-Iterator List<T, I>.insertHead(T* p) {
+I List<T, I>.insertHead(T* p) {
 	p.m_prev = null;
 	p.m_next = m_head;
 
@@ -111,7 +120,7 @@ Iterator List<T, I>.insertHead(T* p) {
 	return p;
 }
 
-Iterator List<T, I>.insertTail(T* p) {
+I List<T, I>.insertTail(T* p) {
 	p.m_next = null;
 	p.m_prev = m_tail;
 
@@ -125,9 +134,9 @@ Iterator List<T, I>.insertTail(T* p) {
 	return p;
 }
 
-Iterator List<T, I>.insertBefore(
+I List<T, I>.insertBefore(
 	T* p,
-	Iterator beforeIt
+	I beforeIt
 ) {
 	if (!beforeIt)
 		return insertTail(p);
@@ -147,9 +156,9 @@ Iterator List<T, I>.insertBefore(
 	return p;
 }
 
-Iterator List<T, I>.insertAfter(
+I List<T, I>.insertAfter(
 	T* p,
-	Iterator afterIt
+	I afterIt
 ) {
 	if (!afterIt)
 		return insertHead(p);
@@ -169,7 +178,7 @@ Iterator List<T, I>.insertAfter(
 	return p;
 }
 
-T* List<T, I>.remove(Iterator it) {
+T* List<T, I>.remove(I it) {
 	T* p = it.m_p;
 	T* next = p.m_next;
 	T* prev = p.m_prev;
@@ -186,48 +195,6 @@ T* List<T, I>.remove(Iterator it) {
 
 	m_count--;
 	return p;
-}
-
-//..............................................................................
-
-class BoxList<T>: List<BoxListEntry<T>, BoxIterator<T> > {
-	Iterator append(T value) {
-		return insertTail(value);
-	}
-
-	Iterator insertHead(T value) {
-		return basetype.insertHead(new Entry(value));
-	}
-
-	Iterator insertTail(T value) {
-		return basetype.insertTail(new Entry(value));
-	}
-
-	Iterator insertBefore(
-		T value,
-		Iterator beforeIt
-	) {
-		return basetype.insertBefore(new Entry(value), beforeIt);
-	}
-
-	Iterator insertAfter(
-		T value,
-		Iterator afterIt
-	) {
-		return basetype.insertAfter(new Entry(value), afterIt);
-	}
-
-	T removeHead() {
-		return basetype.removeHead().m_value;
-	}
-
-	T removeTail() {
-		return basetype.removeTail().m_value;
-	}
-
-	T remove(Iterator it) {
-		return basetype.remove(it).m_value;
-	}
 }
 
 //..............................................................................
