@@ -49,6 +49,9 @@ public:
 		return m_type;
 	}
 
+	DerivableType*
+	getParentType();
+
 	size_t
 	getOffset() {
 		return m_offset;

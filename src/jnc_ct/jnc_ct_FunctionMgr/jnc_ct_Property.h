@@ -359,5 +359,20 @@ Property::Property():
 
 //..............................................................................
 
+inline
+DerivableType*
+Field::getParentType() {
+	NamespaceKind namespaceKind = m_parentNamespace->getNamespaceKind();
+	if (namespaceKind == NamespaceKind_Type)
+		return (DerivableType*)m_parentNamespace;
+
+	ASSERT(namespaceKind == NamespaceKind_Property);
+	DerivableType* parentType = ((Property*)m_parentNamespace)->getParentType();
+	ASSERT(parentType);
+	return parentType;
+}
+
+//..............................................................................
+
 } // namespace ct
 } // namespace jnc
