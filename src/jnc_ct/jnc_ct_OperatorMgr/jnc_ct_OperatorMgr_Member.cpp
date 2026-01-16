@@ -320,12 +320,6 @@ OperatorMgr::getNamespaceMember(
 	ModuleItem* item = findResult.m_item;
 	ModuleItemKind itemKind = item->getItemKind();
 
-	if (itemKind == ModuleItemKind_Alias) {
-		item = ((Alias*)item)->getTargetItem();
-		itemKind = item->getItemKind();
-		ASSERT(itemKind != ModuleItemKind_Alias); // should have been resolved at calclayout stage
-	}
-
 	switch (itemKind) {
 	case ModuleItemKind_Namespace:
 		resultValue->setNamespace((GlobalNamespace*)item);
