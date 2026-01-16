@@ -1697,9 +1697,9 @@ Parser::finalizeLastProperty(bool hasBody) {
 			err::setFormatStringError("getter type '%s' does not match property declaration", prop->m_getter->getType ()->getTypeString().sz());
 			return false;
 		}
-	} else if (prop->m_autoGetValue) {
+	} else if (prop->m_autoGetValue)
 		ASSERT(prop->m_autoGetValue->getItemKind() == ModuleItemKind_Alias); // otherwise, getter would have been created
-	} else {
+	else {
 		if (!m_lastPropertyGetterType) {
 			err::setError("incomplete property: no 'get' method or 'autoget' field");
 			return false;
@@ -2363,6 +2363,7 @@ Parser::declareData(
 		if (!field)
 			return false;
 
+		m_storageKind = storageKind;
 		assignDeclarationAttributes(field, field, declarator);
 	}
 

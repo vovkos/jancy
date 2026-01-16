@@ -61,12 +61,12 @@ const char*
 jnc_getStorageKindString(jnc_StorageKind storageKind) {
 	static const char* stringTable[jnc_StorageKind__Count] = {
 		"undefined-storage-class",  // StorageKind_Undefined = 0,
-		"alias",                    // StorageKind_Alias,
 		"typedef",                  // StorageKind_Typedef,
 		"static",                   // StorageKind_Static,
 		"threadlocal",              // StorageKind_Tls,
 		"stack",                    // StorageKind_Stack,
 		"heap",                     // StorageKind_Heap,
+		"alias",                    // StorageKind_Alias,
 		"member",                   // StorageKind_Member,
 		"abstract",                 // StorageKind_Abstract,
 		"virtual",                  // StorageKind_Virtual,

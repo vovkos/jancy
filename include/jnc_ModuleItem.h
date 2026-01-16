@@ -117,12 +117,12 @@ typedef enum jnc_ModuleItemStringKind jnc_ModuleItemStringKind;
 
 enum jnc_StorageKind {
 	jnc_StorageKind_Undefined = 0,
-	jnc_StorageKind_Alias,
 	jnc_StorageKind_Typedef,
 	jnc_StorageKind_Static,
 	jnc_StorageKind_Tls,
 	jnc_StorageKind_Stack,
 	jnc_StorageKind_Heap,
+	jnc_StorageKind_Alias,
 	jnc_StorageKind_Member,
 	jnc_StorageKind_Abstract,
 	jnc_StorageKind_Virtual,
@@ -432,12 +432,12 @@ typedef jnc_StorageKind StorageKind;
 
 const StorageKind
 	StorageKind_Undefined    = jnc_StorageKind_Undefined,
-	StorageKind_Alias        = jnc_StorageKind_Alias,
 	StorageKind_Typedef      = jnc_StorageKind_Typedef,
 	StorageKind_Static       = jnc_StorageKind_Static,
 	StorageKind_Tls          = jnc_StorageKind_Tls,
 	StorageKind_Stack        = jnc_StorageKind_Stack,
 	StorageKind_Heap         = jnc_StorageKind_Heap,
+	StorageKind_Alias        = jnc_StorageKind_Alias,
 	StorageKind_Member       = jnc_StorageKind_Member,
 	StorageKind_Abstract     = jnc_StorageKind_Abstract,
 	StorageKind_Virtual      = jnc_StorageKind_Virtual,
