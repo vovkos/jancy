@@ -23,22 +23,25 @@ namespace stdt {
 struct HashTableEntry<K, V>: MapEntryBase<HashTableEntry, K, V> {
 	friend HashTableBase;
 
-	typedef HashTableBucket<K, V> Bucket;
+	typedef BoxList<HashTableEntry*> Bucket;
 
 protected:
 	Bucket* readonly m_bucket;
 	Bucket.Iterator readonly m_bucketIt;
+
+	construct(K key = null) {
+		basetype.construct(key);
+	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 typedef Iterator<HashTableEntry<K, V> > HashTableIterator<K, V>;
 typedef ConstIterator<HashTableEntry<K, V> > HashTableConstIterator<K, V>;
-typedef BoxList<HashTableEntry<K, V>*> HashTableBucket<K, V>;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class HashTable<K, V, H, E = Eq<K> >: MapImpl<HashTableBase<K, V, H, E> > {
+class HashTable<K, V, H, E = Eq<K> >: MapImpl<HashTableBase<HashTableEntry<K, V>, H, E> > {
 	construct(
 		H hash = H(),
 		E eq = E()
@@ -50,10 +53,10 @@ class HashTable<K, V, H, E = Eq<K> >: MapImpl<HashTableBase<K, V, H, E> > {
 
 //..............................................................................
 
-class HashTableBase<K, V, H, E>: MapBase<HashTableEntry<K, V> > {
+class HashTableBase<T, H, E>: MapBase<T> {
 	typedef H Hash;
 	typedef E Eq;
-	typedef HashTableBucket<K, V> Bucket;
+	typedef BoxList<T*> Bucket;
 
 	enum {
 		InitialBucketCount = 32,
@@ -71,15 +74,15 @@ public:
 		m_table.clear();
 	}
 
-	Entry constif* find(K key) const?;
-	Iterator errorcode visit(K key);
+	T constif* find(Key key) const?;
+	Iterator errorcode visit(Key key);
 	void remove(Iterator it);
 	bool errorcode setBucketCount(size_t count);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-Entry constif* HashTableBase<K, V, H, E>.find(K key) const? {
+T constif* HashTableBase<T, H, E>.find(Key key) const? {
 	if (!m_table.m_count)
 		return null;
 
@@ -89,15 +92,15 @@ Entry constif* HashTableBase<K, V, H, E>.find(K key) const? {
 		return null;
 
 	for (Bucket.Iterator it = bucket.m_head; it; it++) {
-		Entry* entry = *it;
-		if (m_eq(key, entry.m_key))
-			return entry;
+		T* p = *it;
+		if (m_eq(key, p.m_key))
+			return p;
 	}
 
 	return null;
 }
 
-Iterator errorcode HashTableBase<K, V, H, E>.visit(K key) {
+Iterator errorcode HashTableBase<T, H, E>.visit(Key key) {
 	if (!m_table.m_count)
 		m_table.setCount(InitialBucketCount);
 
@@ -107,48 +110,47 @@ Iterator errorcode HashTableBase<K, V, H, E>.visit(K key) {
 		m_table[bucketIdx] = bucket = new Bucket;
 	else
 		for (Bucket.Iterator it = bucket.m_head; it; it++) {
-			Entry* entry = *it;
-			if (m_eq(key, entry.m_key))
-				return entry;
+			T* p = *it;
+			if (m_eq(key, p.m_key))
+				return p;
 		}
 
-	Entry* entry = new Entry;
-	entry.m_key = key;
-	entry.m_bucket = bucket;
-	entry.m_bucketIt = bucket.insertTail(entry);
-	m_list.insertTail(entry);
+	T* p = new T(key);
+	p.m_bucket = bucket;
+	p.m_bucketIt = bucket.insertTail(p);
+	m_list.insertTail(p);
 
 	size_t loadFactor = (size_t)((uint64_t)m_list.m_count * 100 / m_table.m_count);
 	if (loadFactor > ResizeThreshold)
 		setBucketCount(m_table.m_count * 2);
 
-	return entry;
+	return p;
 }
 
-void HashTableBase<K, V, H, E>.remove(Iterator it) {
-	Entry* entry = *it;
-	entry.m_bucket.remove(entry.m_bucketIt);
-	entry.m_bucket = null;
-	entry.m_bucketIt = null;
-	m_list.remove(entry);
+void HashTableBase<T, H, E>.remove(Iterator it) {
+	T* p = *it;
+	p.m_bucket.remove(p.m_bucketIt);
+	p.m_bucket = null;
+	p.m_bucketIt = null;
+	m_list.remove(p);
 }
 
-bool errorcode HashTableBase<K, V, H, E>.setBucketCount(size_t count) {
+bool errorcode HashTableBase<T, H, E>.setBucketCount(size_t count) {
 	m_table.clear();
 	m_table.setCount(count);
 
 	Iterator it = m_head;
 	for (; it; it++) {
-		Entry* entry = it.m_p;
-		size_t bucketIdx = m_hash(entry.m_key) % count;
+		T* p = it.m_p;
+		size_t bucketIdx = m_hash(p.m_key) % count;
 		Bucket* bucket = m_table[bucketIdx];
 		if (!bucket)
 			m_table[bucketIdx] = bucket = new Bucket;
 
-		// use basetype to reuse all Bucket.Entry without reallocations
-		Bucket.Entry* bucketEntry = entry.m_bucket.basetype.remove(entry.m_bucketIt);
-		entry.m_bucketIt = bucket.basetype.insertTail(bucketEntry);
-		entry.m_bucket = bucket;
+		// use basetype to reuse all bucket entries and avoid gc allocations
+		Bucket.Entry* bucketEntry = p.m_bucket.basetype.remove(p.m_bucketIt);
+		p.m_bucket = bucket;
+		p.m_bucketIt = bucket.basetype.insertTail(bucketEntry);
 	}
 
 	return true;

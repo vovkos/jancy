@@ -18,8 +18,79 @@ namespace stdt {
 
 //..............................................................................
 
+struct RbTreeNode<K, V>: BinTreeNodeBase<RbTreeNode, K, V> {
+	friend RbTreeBase;
+
+	enum Color: uint8_t {
+		Black = 0,
+		Red   = 1
+	}
+
+	Color readonly m_color;
+
+	construct(K key = null) thin {
+		basetype.construct(key);
+	}
+
+	void exchange(T* p) thin {
+		Color tmp = m_color;
+		m_color = p.m_color;
+		p.m_color = tmp;
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+typedef Iterator<RbTreeEntry<K, V> > RbTreeIterator<K, V>;
+typedef ConstIterator<RbTreeEntry<K, V> > RbTreeConstIterator<K, V>;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class RbTree<K, V, C = stdt.Cmp<K> >: MapImpl<BinTreeVisitRemoveImpl<RbTreeBase<RbTreeNode<K, V>, C> > > {
+	construct(C cmp = C()) {
+		m_cmp = cmp;
+	}
+}
+
+//..............................................................................
+
+class RbTreeBase<T, C>: BinTreeBase<T, C> {
+protected:
+	void rebalanceOnInsert(T* p);
+
+	void rebalanceOnRemove(
+		T* p,
+		T* child
+	);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void RbTreeBase<T, C>.rebalanceOnInsert(T* p) {
+	// ...
+}
+
+void RbTreeBase<T, C>.rebalanceOnRemove(
+	T* p,
+	T* child
+) {
+	// ...
+}
+
 //..............................................................................
 
 //! @}
 
 } // namespace stdt
+
+//..............................................................................
+
+int main() {
+	stdt.RbTree<int, int> map;
+	map.clear();
+	map.find(10);
+	map.visit(10);
+	return 0;
+}
+
+//..............................................................................

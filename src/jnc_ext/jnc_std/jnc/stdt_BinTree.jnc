@@ -20,11 +20,18 @@ namespace stdt {
 
 struct BinTreeNodeBase<T, K, V>: MapEntryBase<T, K, V> {
 	friend BinTreeBase;
+	friend BinTreeVisitRemoveImpl;
 
 	T constif* readonly m_parent;
 	T constif* readonly m_left;
 	T constif* readonly m_right;
-};
+
+	construct(K key) thin { // intentionally no default
+		basetype.construct(key);
+	}
+
+	void exchange(T* p) thin {}
+}
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -36,24 +43,36 @@ protected:
 	C m_cmp;
 
 public:
-	construct(C cmp) {
-		m_cmp = cmp;
-	}
-
 	void clear() {
 		basetype.clear();
 		m_root = null;
 	}
 
 	T constif* find(Key key) const?;
-	Iterator visit(Key key);
-	void remove(Iterator it);
 
 protected:
+	void rotateLeft(T* p);
+	void rotateRight(T* p);
+
+	T* insert(
+		Key key,
+		T* parent,
+		int cmp
+	);
+
+	T* replaceWithChild(T* p);
+
 	void exchange(
 		T* p1,
 		T* p2
 	);
+
+	void rebalanceOnInsert(T* p) {}
+
+	void rebalanceOnRemove(
+		T* p,
+		T* child
+	) {}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -63,30 +82,20 @@ T constif* BinTreeBase<T, C>.find(Key key) const? {
 	while (p) {
 		int cmp = m_cmp(key, p.m_key);
 		if (cmp == 0)
-			break;
-
-		p = cmp < 0 ? p.m_left : p.m_right;
-	}
-
-	return p;
-}
-
-Iterator BinTreeBase<T, C>.visit(Key key) {
-	T* parent = null;
-	T* p = m_root;
-	int cmp;
-
-	while (p) {
-		cmp = m_cmp(key, p.m_key);
-		if (cmp == 0)
 			return p;
 
-		parent = p;
 		p = cmp < 0 ? p.m_left : p.m_right;
 	}
 
-	p = new T;
-	p.m_key = key;
+	return null;
+}
+
+T* BinTreeBase<T, C>.insert(
+	Key key,
+	T* parent,
+	int cmp
+) {
+	T* p = new T(key);
 	p.m_parent = parent;
 
 	if (!parent) {
@@ -100,19 +109,76 @@ Iterator BinTreeBase<T, C>.visit(Key key) {
 		m_list.insertAfter(p, parent);
 	}
 
-	// rebalance on insert at p
+	return p;
 }
 
-void BinTreeBase<T, C>.remove(Iterator it) {
-	T* p = *it;
+T* BinTreeBase<T, C>.replaceWithChild(T* p) {
 	if (p.m_left && p.m_right) {
-		T* next = (Node*)p.m_next;
-		// asset(next == getLeftmostChild(p.m_right));
-		exchange(p, next);
+		// assert(p.m_next == getLeftmostChild(p.m_right));
+		// assert(p.m_prev == getRightmostChild(p.m_left));
+		exchange(p, p.m_next);
 	}
 
+	T* child = p.m_right ? p.m_right : p.m_left;
+	if (!p.m_parent) {
+		assert(p == m_root);
+		m_root = child;
+	} else if (p == p.m_parent.m_left)
+		p.m_parent.m_left = child;
+	else {
+		assert(p == p.m_parent.m_right);
+		p.m_parent.m_right = child;
+	}
+
+	if (child)
+		child.m_parent = p.m_parent;
+
 	m_list.remove(p);
-	// rebalance on remove at p
+	return child;
+}
+
+void BinTreeBase<T, C>.rotateLeft(T* x) {
+	T* y = x.m_right;
+	assert(y);
+
+	x.m_right = y.m_left;
+
+	if (y.m_left)
+		y.m_left.m_parent = x;
+
+	y.m_parent = x.m_parent;
+
+	if (!x.m_parent)
+		m_root = y;
+	else if (x == x.m_parent.m_left)
+		x.m_parent.m_left = y;
+	else
+		x.m_parent.m_right = y;
+
+	y.m_left = x;
+	x.m_parent = y;
+}
+
+void BinTreeBase<T, C>.rotateRight(T* x) {
+	T* y = x.m_left;
+	assert(y);
+
+	x.m_left = y.m_right;
+
+	if (y.m_right)
+		y.m_right.m_parent = x;
+
+	y.m_parent = x.m_parent;
+
+	if (!x.m_parent)
+		m_root = y;
+	else if (x == x.m_parent.m_right)
+		x.m_parent.m_right = y;
+	else
+		x.m_parent.m_left = y;
+
+	y.m_right = x;
+	x.m_parent = y;
 }
 
 void BinTreeBase<T, C>.exchange(
@@ -171,67 +237,68 @@ void BinTreeBase<T, C>.exchange(
 
 	if (!p1.m_parent)
 		m_root = p1;
-	else if (p1.m_parent->m_left == p2)
-		p1.m_parent->m_left = p1;
+	else if (p1.m_parent.m_left == p2)
+		p1.m_parent.m_left = p1;
 	else
-		p1.m_parent->m_right = p1;
+		p1.m_parent.m_right = p1;
 
 	if (!p2.m_parent)
 		m_root = p2;
-	else if (p2.m_parent->m_left == p1)
-		p2.m_parent->m_left = p2;
+	else if (p2.m_parent.m_left == p1)
+		p2.m_parent.m_left = p2;
 	else
-		p2.m_parent->m_right = p2;
+		p2.m_parent.m_right = p2;
 
 	// fixup children
 
 	if (p1.m_left)
-		p1.m_left->m_parent = p1;
+		p1.m_left.m_parent = p1;
 
 	if (p1.m_right)
-		p1.m_right->m_parent = p1;
+		p1.m_right.m_parent = p1;
 
 	if (p2.m_left)
-		p2.m_left->m_parent = p2;
+		p2.m_left.m_parent = p2;
 
 	if (p2.m_right)
-		p2.m_right->m_parent = p2;
+		p2.m_right.m_parent = p2;
 
-	T.onXcg(p1, p2);
+	p1.exchange(p2);
 }
 
 //..............................................................................
 
-struct RbTreeNode<K, V>: BinTreeNodeBase<RbTreeNode, K, V> {
-	enum Color: uint8_t {
-		Black = 0,
-		Red   = 1
-	};
-
-	Color readonly m_color;
-
-	static void onExchange(
-		RbTreeNode* p1,
-		RbTreeNode* p2
-	) {
-		Color tmp = p1.m_color;
-		p1.m_color = p2.m_color;
-		p2.m_color = tmp;
-	}
-};
+class BinTreeVisitRemoveImpl<T>: T {
+public:
+	Iterator visit(Key key);
+	void remove(Iterator it);
+}
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-typedef Iterator<RbTreeEntry<K, V> > RbTreeIterator<K, V>;
-typedef ConstIterator<RbTreeEntry<K, V> > RbTreeConstIterator<K, V>;
-typedef BoxList<RbTreeEntry<K, V>*> RbTreeBucket<K, V>;
+Iterator BinTreeVisitRemoveImpl<T>.visit(Key key) {
+	Entry* parent = null;
+	Entry* p = m_root;
+	int cmp;
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+	while (p) {
+		cmp = m_cmp(key, p.m_key);
+		if (cmp == 0)
+			return p;
 
-class RbTree<K, V, C  = stdt.Cmp<K> >: BinTreeBase<RbTreeNode<K, V>, C> {
-	construct(C cmp = C()) {
-		basetype.construct(cmp);
+		parent = p;
+		p = cmp < 0 ? p.m_left : p.m_right;
 	}
+
+	p = insert(key, parent, cmp);
+	rebalanceOnInsert(p);
+	return p;
+}
+
+void BinTreeVisitRemoveImpl<T>.remove(Iterator it) {
+	Entry* p = *it;
+	Entry* child = replaceWithChild(p);
+	rebalanceOnRemove(p, child);
 }
 
 //..............................................................................
@@ -239,15 +306,3 @@ class RbTree<K, V, C  = stdt.Cmp<K> >: BinTreeBase<RbTreeNode<K, V>, C> {
 //! @}
 
 } // namespace std
-
-//..............................................................................
-
-int main() {
-	stdt.RbTree<int, int> map;
-	map.clear();
-	map.find(10);
-	map.visit(10);
-	return 0;
-}
-
-//..............................................................................

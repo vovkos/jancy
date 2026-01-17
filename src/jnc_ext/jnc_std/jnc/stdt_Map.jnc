@@ -25,6 +25,10 @@ struct MapEntryBase<T, K, V>: ListEntry<T> {
 
 	K readonly m_key;
 	V m_value;
+
+	construct(K key = null) thin {
+		m_key = key;
+	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
