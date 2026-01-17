@@ -28,60 +28,72 @@ uint_t
 jnc_getTypeKindFlags(jnc_TypeKind typeKind) {
 	static uint_t flagTable[jnc_TypeKind__Count] = {
 		0,                              // jnc_TypeKind_Void
-		jnc_TypeKindFlag_Nullable |
-		jnc_TypeKindFlag_ErrorCode,     // jnc_TypeKind_Variant
 
-		jnc_TypeKindFlag_Nullable |
-		jnc_TypeKindFlag_ErrorCode,     // jnc_TypeKind_String
+		jnc_TypeKindFlag_Nullable |     // jnc_TypeKind_Variant
+		jnc_TypeKindFlag_ErrorCode,
+
+		jnc_TypeKindFlag_Nullable |     // jnc_TypeKind_String
+		jnc_TypeKindFlag_ErrorCode,
 
 		jnc_TypeKindFlag_Integer |      // jnc_TypeKind_Bool
 		jnc_TypeKindFlag_Numeric |
+		jnc_TypeKindFlag_Nullable |
 		jnc_TypeKindFlag_ErrorCode,
 
 		jnc_TypeKindFlag_Integer |      // jnc_TypeKind_Int8
 		jnc_TypeKindFlag_Signed |
 		jnc_TypeKindFlag_Numeric |
+		jnc_TypeKindFlag_Nullable |
 		jnc_TypeKindFlag_ErrorCode,
 
 		jnc_TypeKindFlag_Integer |      // jnc_TypeKind_Int8_u
 		jnc_TypeKindFlag_Unsigned |
 		jnc_TypeKindFlag_Numeric |
+		jnc_TypeKindFlag_Nullable |
 		jnc_TypeKindFlag_ErrorCode,
 
 		jnc_TypeKindFlag_Integer |      // jnc_TypeKind_Int16
 		jnc_TypeKindFlag_Signed |
 		jnc_TypeKindFlag_Numeric |
+		jnc_TypeKindFlag_Nullable |
 		jnc_TypeKindFlag_ErrorCode,
 
 		jnc_TypeKindFlag_Integer |      // jnc_TypeKind_Int16_u
 		jnc_TypeKindFlag_Unsigned |
 		jnc_TypeKindFlag_Numeric |
+		jnc_TypeKindFlag_Nullable |
 		jnc_TypeKindFlag_ErrorCode,
 
 		jnc_TypeKindFlag_Integer |      // jnc_TypeKind_Int32
 		jnc_TypeKindFlag_Signed |
 		jnc_TypeKindFlag_Numeric |
+		jnc_TypeKindFlag_Nullable |
 		jnc_TypeKindFlag_ErrorCode,
 
 		jnc_TypeKindFlag_Integer |      // jnc_TypeKind_Int32_u
 		jnc_TypeKindFlag_Unsigned |
 		jnc_TypeKindFlag_Numeric |
+		jnc_TypeKindFlag_Nullable |
 		jnc_TypeKindFlag_ErrorCode,
 
 		jnc_TypeKindFlag_Integer |      // jnc_TypeKind_Int64
 		jnc_TypeKindFlag_Signed |
 		jnc_TypeKindFlag_Numeric |
+		jnc_TypeKindFlag_Nullable |
 		jnc_TypeKindFlag_ErrorCode,
 
 		jnc_TypeKindFlag_Integer |      // jnc_TypeKind_Int64_u
 		jnc_TypeKindFlag_Unsigned |
 		jnc_TypeKindFlag_Numeric |
+		jnc_TypeKindFlag_Nullable |
 		jnc_TypeKindFlag_ErrorCode,
 
 		jnc_TypeKindFlag_Fp |           // jnc_TypeKind_Float
+		jnc_TypeKindFlag_Nullable |
 		jnc_TypeKindFlag_Numeric,
 
 		jnc_TypeKindFlag_Fp |           // jnc_TypeKind_Double
+		jnc_TypeKindFlag_Nullable |
 		jnc_TypeKindFlag_Numeric,
 
 		jnc_TypeKindFlag_Aggregate |
@@ -90,6 +102,7 @@ jnc_getTypeKindFlags(jnc_TypeKind typeKind) {
 		jnc_TypeKindFlag_Named |        // jnc_TypeKind_Enum
 		jnc_TypeKindFlag_Integer |
 		jnc_TypeKindFlag_Numeric |
+		jnc_TypeKindFlag_Nullable |
 		jnc_TypeKindFlag_ErrorCode,
 
 		jnc_TypeKindFlag_Aggregate |    // jnc_TypeKind_Struct
@@ -155,6 +168,7 @@ jnc_getTypeKindFlags(jnc_TypeKind typeKind) {
 		jnc_TypeKindFlag_Import |       // jnc_TypeKind_ImportIntMod
 		jnc_TypeKindFlag_Integer |
 		jnc_TypeKindFlag_Numeric |
+		jnc_TypeKindFlag_Nullable |
 		jnc_TypeKindFlag_ErrorCode,
 
 		jnc_TypeKindFlag_Template,      // jnc_TypeKind_TemplateArg
@@ -168,6 +182,7 @@ jnc_getTypeKindFlags(jnc_TypeKind typeKind) {
 		jnc_TypeKindFlag_Template |     // jnc_TypeKind_TemplateIntMod
 		jnc_TypeKindFlag_Integer |
 		jnc_TypeKindFlag_Numeric |
+		jnc_TypeKindFlag_Nullable |
 		jnc_TypeKindFlag_ErrorCode,
 
 		jnc_TypeKindFlag_Template,      // jnc_TypeKind_TemplateDecl
