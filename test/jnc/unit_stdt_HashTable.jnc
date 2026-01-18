@@ -1,4 +1,4 @@
-﻿// chatgpt-generated unit test for stdt.HashTable
+﻿// chatgpt-generated unit test for stdt.HashTable<K, V, H, E>
 
 import "stdt_HashTable.jnc"
 

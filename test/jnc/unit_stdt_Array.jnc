@@ -1,4 +1,4 @@
-﻿// chatgpt-generated unit test for stdt.Array
+﻿// chatgpt-generated unit test for stdt.Array<T>
 
 import "stdt_Array.jnc"
 

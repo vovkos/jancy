@@ -1,0 +1,188 @@
+﻿// chatgpt-generated unit test for stdt.RbTree<K, V, C>
+
+import "stdt_RbTree.jnc"
+
+//..............................................................................
+
+void test_empty_tree() {
+	stdt.RbTree<int, int> t;
+	assert(t.m_count == 0);
+}
+
+void test_insert_single() {
+	stdt.RbTree<int, int> t;
+	t[1] = 10;
+
+	assert(t.m_count == 1);
+	assert(t[1] == 10);
+}
+
+void test_insert_ordered() {
+	stdt.RbTree<int, int> t;
+
+	for (int i = 0; i < 100; i++)
+		t[i] = i * 10;
+
+	assert(t.m_count == 100);
+
+	for (int i = 0; i < 100; i++)
+		assert(t[i] == i * 10);
+}
+
+void test_insert_reverse() {
+	stdt.RbTree<int, int> t;
+
+	for (int i = 99; i >= 0; i--)
+		t[i] = i;
+
+	assert(t.m_count == 100);
+
+	for (int i = 0; i < 100; i++)
+		assert(t[i] == i);
+}
+
+void test_insert_random() {
+	stdt.RbTree<int, int> t;
+
+	int keys[100];
+	for (int i = 0; i < 100; i++)
+		keys[i] = i;
+
+	for (int i = 99; i > 0; i--) {
+		int j = i % 7;
+		int tmp = keys[i];
+		keys[i] = keys[j];
+		keys[j] = tmp;
+	}
+
+	for (int i = 0; i < 100; i++)
+		t[keys[i]] = keys[i] * 2;
+
+	assert(t.m_count == 100);
+
+	for (int i = 0; i < 100; i++)
+		assert(t[i] == i * 2);
+}
+
+void test_update_existing() {
+	stdt.RbTree<int, int> t;
+
+	t[1] = 10;
+	t[1] = 20;
+
+	assert(t.m_count == 1);
+	assert(t[1] == 20);
+}
+
+void test_remove_leaf() {
+	stdt.RbTree<int, int> t;
+
+	t[2] = 20;
+	t[1] = 10;
+	t[3] = 30;
+
+	assert(t.removeKey(1));
+	assert(t.m_count == 2);
+	assert(!t.find(1));
+}
+
+void test_remove_root() {
+	stdt.RbTree<int, int> t;
+
+	t[1] = 10;
+	assert(t.removeKey(1));
+	assert(t.m_count == 0);
+}
+
+void test_remove_internal_nodes() {
+	stdt.RbTree<int, int> t;
+
+	for (int i = 0; i < 20; i++)
+		t[i] = i;
+
+	assert(t.removeKey(10));
+	assert(t.removeKey(5));
+	assert(t.removeKey(15));
+
+	assert(t.m_count == 17);
+
+	for (int i = 0; i < 20; i++) {
+		if (i == 10 || i == 5 || i == 15)
+			assert(!t.find(i));
+		else
+			assert(t[i] == i);
+	}
+}
+
+void test_remove_all() {
+	stdt.RbTree<int, int> t;
+
+	for (int i = 0; i < 50; i++)
+		t[i] = i;
+
+	for (int i = 0; i < 50; i++)
+		assert(t.removeKey(i));
+
+	assert(t.m_count == 0);
+	assert(!t.m_head);
+	assert(!t.m_tail);
+}
+
+void test_iteration_order() {
+	stdt.RbTree<int, int> t;
+
+	for (int i = 0; i < 10; i++)
+		t[i] = i;
+
+	int expected = 0;
+	for (
+		stdt.Iterator<stdt.RbTreeNode<int, int> > it = t.m_head;
+		it;
+		it++
+	) {
+		assert(it->m_key == expected);
+		expected++;
+	}
+
+	assert(expected == 10);
+}
+
+void test_stress_insert_remove() {
+	stdt.RbTree<int, int> t;
+
+	for (int round = 0; round < 10; round++) {
+		for (int i = 0; i < 100; i++)
+			t[i] = i;
+
+		for (int i = 0; i < 100; i += 2)
+			assert(t.removeKey(i));
+
+		for (int i = 1; i < 100; i += 2)
+			assert(t[i] == i);
+
+		for (int i = 1; i < 100; i += 2)
+			assert(t.removeKey(i));
+
+		assert(t.m_count == 0);
+	}
+}
+
+//..............................................................................
+
+int main() {
+	test_empty_tree();
+	test_insert_single();
+	test_insert_ordered();
+	test_insert_reverse();
+	test_insert_random();
+	test_update_existing();
+	test_remove_leaf();
+	test_remove_root();
+	test_remove_internal_nodes();
+	test_remove_all();
+	test_iteration_order();
+	test_stress_insert_remove();
+	return 0;
+}
+
+//..............................................................................

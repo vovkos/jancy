@@ -1,4 +1,4 @@
-﻿// chatgpt-generated unit test for stdt.List
+﻿// chatgpt-generated unit test for stdt.List<T, I>
 
 import "stdt_List.jnc"
 

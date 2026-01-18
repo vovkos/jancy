@@ -1,4 +1,4 @@
-﻿// chatgpt-generated unit test for stdt.BoxList
+﻿// chatgpt-generated unit test for stdt.BoxList<T>
 
 import "stdt_BoxList.jnc"
 
