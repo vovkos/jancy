@@ -412,7 +412,7 @@ unsafe_stmt
 	;
 
 assert_stmt
-	:	TokenKind_Assert '(' expression_pass1 (',' TokenKind_Literal $m)? ')'
+	:	TokenKind_Assert '(' expression_pass1 (',' TokenKind_Literal $m)? ')' ';'
 			{
 				return assertStmt(&$3.m_tokenList, &$m ? $m.m_data.m_string : sl::StringRef());
 			}
