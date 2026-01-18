@@ -167,6 +167,37 @@ void test_stress_insert_remove() {
 	}
 }
 
+void test_takeover() {
+	stdt.RbTree<int, int> src;
+	stdt.RbTree<int, int> dst;
+
+	for (int i = 0; i < 20; i++)
+		src[i] = i * 10;
+
+	assert(src.m_count == 20);
+	assert(dst.m_count == 0);
+
+	dst.takeOver(&src);
+
+	assert(src.m_count == 0);
+	assert(!src.m_head);
+	assert(!src.m_tail);
+
+	assert(dst.m_count == 20);
+
+	for (int i = 0; i < 20; i++)
+		assert(dst[i] == i * 10);
+
+	// ensure destination is still usable after takeover
+	for (int i = 20; i < 30; i++)
+		dst[i] = i * 10;
+
+	assert(dst.m_count == 30);
+
+	for (int i = 0; i < 30; i++)
+		assert(dst[i] == i * 10);
+}
+
 //..............................................................................
 
 int main() {
@@ -182,6 +213,7 @@ int main() {
 	test_remove_all();
 	test_iteration_order();
 	test_stress_insert_remove();
+	test_takeover();
 	return 0;
 }
 

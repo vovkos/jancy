@@ -74,6 +74,11 @@ public:
 		m_table.clear();
 	}
 
+	void takeOver(HashTableBase* src) {
+		basetype.takeOver(src);
+		m_table.takeOver(&src.m_table);
+	}
+
 	T constif* find(Key key) const?;
 	Iterator errorcode visit(Key key);
 	void remove(Iterator it);

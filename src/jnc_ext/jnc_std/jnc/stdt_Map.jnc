@@ -51,6 +51,10 @@ public:
 	void clear() {
 		m_list.clear();
 	}
+
+	void takeOver(MapBase* src) {
+		m_list.takeOver(&src.m_list);
+	}
 }
 
 //..............................................................................

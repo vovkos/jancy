@@ -49,6 +49,8 @@ public:
 		m_root = null;
 	}
 
+	void takeOver(BinTreeBase* src);
+
 	T constif* find(Key key) const?;
 
 protected:
@@ -78,6 +80,12 @@ protected:
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void BinTreeBase<T, C>.takeOver(BinTreeBase* src) {
+	basetype.takeOver(src);
+	m_root = src.m_root;
+	src.m_root = null;
+}
 
 T constif* BinTreeBase<T, C>.find(Key key) const? {
 	T constif* p = m_root;

@@ -165,6 +165,38 @@ void test_indexer_get_missing_throws() {
 	assert(error);
 }
 
+void test_takeover() {
+	stdt.HashTable<int, int, stdt.HashId<int> > src;
+	stdt.HashTable<int, int, stdt.HashId<int> > dst;
+
+	for (int i = 0; i < 50; i++)
+		src[i] = i * 3;
+
+	assert(src.m_count == 50);
+	assert(dst.m_count == 0);
+
+	dst.takeOver(&src);
+
+	assert(src.m_count == 0);
+	assert(!src.m_head);
+	assert(!src.find(0));
+	assert(!src.find(25));
+
+	assert(dst.m_count == 50);
+
+	for (int i = 0; i < 50; i++)
+		assert(dst[i] == i * 3);
+
+	// destination must remain usable after takeover
+	for (int i = 50; i < 70; i++)
+		dst[i] = i * 3;
+
+	assert(dst.m_count == 70);
+
+	for (int i = 0; i < 70; i++)
+		assert(dst[i] == i * 3);
+}
+
 //..............................................................................
 
 int main() {
@@ -180,6 +212,7 @@ int main() {
 	test_indexer_overwrite();
 	test_indexer_creates_entry();
 	test_indexer_get_missing_throws();
+	test_takeover();
 	return 0;
 }
 
