@@ -337,12 +337,12 @@ void testPtr() {
 
 void testFloat() {
 	float retval = funcFloat((float) 3.1415, (float) 2.7182);
-	assert(retval > (float) 2.7182 && retval < (float) 3.1415)
+	assert(retval > (float) 2.7182 && retval < (float) 3.1415);
 }
 
 void testDouble() {
 	double retval = funcDouble(3.1415, 2.7182);
-	assert(retval > 2.7182 && retval < 3.1415)
+	assert(retval > 2.7182 && retval < 3.1415);
 }
 
 //..............................................................................
