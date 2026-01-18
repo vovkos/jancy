@@ -18,31 +18,26 @@ namespace stdt {
 
 //..............................................................................
 
-struct RbTreeNode<K, V>: BinTreeNodeBase<RbTreeNode, K, V> {
-	friend RbTreeBase;
-
-	enum Color: uint8_t {
-		Black = 0,
-		Red   = 1
-	}
-
-	Color readonly m_color;
-
-	construct(K key = null) thin {
-		basetype.construct(key);
-	}
-
-	void exchange(T* p) thin {
-		Color tmp = m_color;
-		m_color = p.m_color;
-		p.m_color = tmp;
-	}
+enum RbTreeColor: uint8_t {
+	Black = 0,
+	Red   = 1
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-typedef Iterator<RbTreeEntry<K, V> > RbTreeIterator<K, V>;
-typedef ConstIterator<RbTreeEntry<K, V> > RbTreeConstIterator<K, V>;
+struct RbTreeNode<K, V>: BinTreeNodeBase<RbTreeNode, K, V, RbTreeColor> {
+	friend RbTreeBase;
+
+	alias m_color = m_param;
+
+	construct(K key = null) thin {
+		basetype.construct(key);
+		m_param = RbTreeColor.Red; // new nodes are red
+	}
+}
+
+typedef Iterator<RbTreeNode<K, V> > RbTreeIterator<K, V>;
+typedef ConstIterator<RbTreeNode<K, V> > RbTreeConstIterator<K, V>;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -56,6 +51,12 @@ class RbTree<K, V, C = stdt.Cmp<K> >: MapImpl<BinTreeVisitRemoveImpl<RbTreeBase<
 
 class RbTreeBase<T, C>: BinTreeBase<T, C> {
 protected:
+	static RbTreeColor getColor(T const* p) {
+		return p ? p.m_color : RbTreeColor.Black;
+	}
+
+	static size_t assertValid(T const* p);
+
 	void rebalanceOnInsert(T* p);
 
 	void rebalanceOnRemove(
@@ -66,15 +67,165 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-void RbTreeBase<T, C>.rebalanceOnInsert(T* p) {
-	// ...
+size_t RbTreeBase<T, C>.assertValid(T const* p) {
+	if (!p)
+		return 1;
+
+	size_t leftCount = assertValid(p.m_left);
+	size_t rightCount = assertValid(p.m_right);
+
+	// should be the same count of black nodes on the way down
+	assert(leftCount == rightCount);
+
+	if (p.m_color == RbTreeColor.Black)
+		return leftCount + 1;
+
+	// red color cannot have red children
+	assert(getColor(p.m_left) == RbTreeColor.Black);
+	assert(getColor(p.m_right) == RbTreeColor.Black);
+	return leftCount;
+}
+
+void RbTreeBase<T, C>.rebalanceOnInsert(T* x) {
+	// x.m_color = RbTreeColor.Red; // make new node red
+
+	// check Red-Black properties
+	while (x != m_root && x.m_parent.m_color == RbTreeColor.Red) {
+		// we have a violation
+		if (x.m_parent == x.m_parent.m_parent.m_left) {
+			T* y = x.m_parent.m_parent.m_right;
+			if (getColor(y) == RbTreeColor.Red) {
+				// uncle is red
+				x.m_parent.m_color = RbTreeColor.Black;
+				y.m_color = RbTreeColor.Black;
+				x.m_parent.m_parent.m_color = RbTreeColor.Red;
+				x = x.m_parent.m_parent;
+			} else {
+				// uncle is black
+				if (x == x.m_parent.m_right) {
+					// make x a m_left child
+					x = x.m_parent;
+					rotateLeft(x);
+				}
+
+				// recolor and rotate
+				x.m_parent.m_color = RbTreeColor.Black;
+				x.m_parent.m_parent.m_color = RbTreeColor.Red;
+				rotateRight(x.m_parent.m_parent);
+			}
+		} else {
+			// mirror image of above code
+			T* y = x.m_parent.m_parent.m_left;
+			if (getColor(y) == RbTreeColor.Red) {
+				// uncle is red
+				x.m_parent.m_color = RbTreeColor.Black;
+				y.m_color = RbTreeColor.Black;
+				x.m_parent.m_parent.m_color = RbTreeColor.Red;
+				x = x.m_parent.m_parent;
+			} else {
+				// uncle is black
+				if (x == x.m_parent.m_left) {
+					x = x.m_parent;
+					rotateRight(x);
+				}
+
+				x.m_parent.m_color = RbTreeColor.Black;
+				x.m_parent.m_parent.m_color = RbTreeColor.Red;
+				rotateLeft(x.m_parent.m_parent);
+			}
+		}
+	}
+
+	m_root.m_color = RbTreeColor.Black;
+	assert(assertValid(m_root));
 }
 
 void RbTreeBase<T, C>.rebalanceOnRemove(
 	T* p,
-	T* child
+	T* x
 ) {
-	// ...
+	// no need to fixup red node deletion
+	if (p.m_color == RbTreeColor.Red)
+		return;
+
+	p = p.m_parent;
+	while (x != m_root && getColor(x) == RbTreeColor.Black) {
+		// due to invariants of RB-tree black node must have a non-null sibling
+		// if this sibling is red, both of its children are non-null black
+
+		if (x == p.m_left) {
+			T* w = p.m_right; // non-null, see above
+
+			if (w.m_color == RbTreeColor.Red) {
+				w.m_color = RbTreeColor.Black;
+				p.m_color = RbTreeColor.Red;
+				rotateLeft(p);
+				w = p.m_right; // non-null black, see above
+			}
+
+			// w is non-null black
+
+			if (getColor(w.m_left) == RbTreeColor.Black &&
+				getColor(w.m_right) == RbTreeColor.Black) {
+				w.m_color = RbTreeColor.Red;
+				x = p;
+			} else { // at least one of w children is red
+				if (getColor(w.m_right) == RbTreeColor.Black) {
+					// w.m_left is red
+					w.m_left.m_color = RbTreeColor.Black;
+					w.m_color = RbTreeColor.Red;
+					rotateRight(w);
+					w = p.m_right; // non-null black (just rotated here)
+				}
+
+				w.m_color = p.m_color;
+				p.m_color = RbTreeColor.Black;
+				w.m_right.m_color = RbTreeColor.Black; // w.m_right is non-null
+
+				rotateLeft(p);
+				x = m_root;
+			}
+		} else {
+			T* w = p.m_left; // non-null, see above
+
+			if (w.m_color == RbTreeColor.Red) {
+				w.m_color = RbTreeColor.Black;
+				p.m_color = RbTreeColor.Red;
+				rotateRight(p);
+				w = p.m_left; // non-null black, see above
+			}
+
+			// w is non-null black
+
+			if (getColor(w.m_left) == RbTreeColor.Black &&
+				getColor(w.m_right) == RbTreeColor.Black) {
+				w.m_color = RbTreeColor.Red;
+				x = p;
+			} else { // at least one of w children is red
+				if (getColor(w.m_left) == RbTreeColor.Black) {
+					// w.m_right is red
+					w.m_right.m_color = RbTreeColor.Black;
+					w.m_color = RbTreeColor.Red;
+					rotateLeft(w);
+					w = p.m_left; // non-null black (just rotated)
+				}
+
+				w.m_color = p.m_color;
+				p.m_color = RbTreeColor.Black;
+				w.m_left.m_color = RbTreeColor.Black; // w.m_left is non-null
+
+				rotateRight(p);
+				x = m_root;
+			}
+		}
+
+		p = x.m_parent;
+	}
+
+	if (x)
+		x.m_color = RbTreeColor.Black;
+
+	assert(assertValid(m_root));
 }
 
 //..............................................................................
@@ -82,15 +233,3 @@ void RbTreeBase<T, C>.rebalanceOnRemove(
 //! @}
 
 } // namespace stdt
-
-//..............................................................................
-
-int main() {
-	stdt.RbTree<int, int> map;
-	map.clear();
-	map.find(10);
-	map.visit(10);
-	return 0;
-}
-
-//..............................................................................

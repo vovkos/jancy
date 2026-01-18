@@ -18,19 +18,20 @@ namespace stdt {
 
 //..............................................................................
 
-struct BinTreeNodeBase<T, K, V>: MapEntryBase<T, K, V> {
+struct BinTreeNodeBase<T, K, V, P>: MapEntryBase<T, K, V> {
 	friend BinTreeBase;
 	friend BinTreeVisitRemoveImpl;
+
+	typedef P Param;
 
 	T constif* readonly m_parent;
 	T constif* readonly m_left;
 	T constif* readonly m_right;
+	P readonly m_param;
 
-	construct(K key) thin { // intentionally no default
+	construct(K key) thin { // no default by intention (must derive from Base)
 		basetype.construct(key);
 	}
-
-	void exchange(T* p) thin {}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -51,16 +52,17 @@ public:
 	T constif* find(Key key) const?;
 
 protected:
+	static T* getLeftmostChild(T* p);
+	static T* getRightmostChild(T* p);
 	void rotateLeft(T* p);
 	void rotateRight(T* p);
+	T* replaceWithChild(T* p);
 
 	T* insert(
 		Key key,
 		T* parent,
 		int cmp
 	);
-
-	T* replaceWithChild(T* p);
 
 	void exchange(
 		T* p1,
@@ -90,51 +92,18 @@ T constif* BinTreeBase<T, C>.find(Key key) const? {
 	return null;
 }
 
-T* BinTreeBase<T, C>.insert(
-	Key key,
-	T* parent,
-	int cmp
-) {
-	T* p = new T(key);
-	p.m_parent = parent;
-
-	if (!parent) {
-		m_root = p;
-		m_list.insertTail(p);
-	} else if (cmp < 0) {
-		parent.m_left = p;
-		m_list.insertBefore(p, parent);
-	} else {
-		parent.m_right = p;
-		m_list.insertAfter(p, parent);
-	}
+T* BinTreeBase<T, C>.getLeftmostChild(T* p) {
+	while (p.m_left)
+		p = p.m_left;
 
 	return p;
 }
 
-T* BinTreeBase<T, C>.replaceWithChild(T* p) {
-	if (p.m_left && p.m_right) {
-		// assert(p.m_next == getLeftmostChild(p.m_right));
-		// assert(p.m_prev == getRightmostChild(p.m_left));
-		exchange(p, p.m_next);
-	}
+T* BinTreeBase<T, C>.getRightmostChild(T* p) {
+	while (p.m_right)
+		p = p.m_right;
 
-	T* child = p.m_right ? p.m_right : p.m_left;
-	if (!p.m_parent) {
-		assert(p == m_root);
-		m_root = child;
-	} else if (p == p.m_parent.m_left)
-		p.m_parent.m_left = child;
-	else {
-		assert(p == p.m_parent.m_right);
-		p.m_parent.m_right = child;
-	}
-
-	if (child)
-		child.m_parent = p.m_parent;
-
-	m_list.remove(p);
-	return child;
+	return p;
 }
 
 void BinTreeBase<T, C>.rotateLeft(T* x) {
@@ -179,6 +148,53 @@ void BinTreeBase<T, C>.rotateRight(T* x) {
 
 	y.m_right = x;
 	x.m_parent = y;
+}
+
+T* BinTreeBase<T, C>.replaceWithChild(T* p) {
+	if (p.m_left && p.m_right) {
+		assert(p.m_next == getLeftmostChild(p.m_right));
+		assert(p.m_prev == getRightmostChild(p.m_left));
+		exchange(p, p.m_next);
+	}
+
+	T* child = p.m_right ? p.m_right : p.m_left;
+	if (!p.m_parent) {
+		assert(p == m_root);
+		m_root = child;
+	} else if (p == p.m_parent.m_left)
+		p.m_parent.m_left = child;
+	else {
+		assert(p == p.m_parent.m_right);
+		p.m_parent.m_right = child;
+	}
+
+	if (child)
+		child.m_parent = p.m_parent;
+
+	m_list.remove(p);
+	return child;
+}
+
+T* BinTreeBase<T, C>.insert(
+	Key key,
+	T* parent,
+	int cmp
+) {
+	T* p = new T(key);
+	p.m_parent = parent;
+
+	if (!parent) {
+		m_root = p;
+		m_list.insertTail(p);
+	} else if (cmp < 0) {
+		parent.m_left = p;
+		m_list.insertBefore(p, parent);
+	} else {
+		parent.m_right = p;
+		m_list.insertAfter(p, parent);
+	}
+
+	return p;
 }
 
 void BinTreeBase<T, C>.exchange(
@@ -263,7 +279,11 @@ void BinTreeBase<T, C>.exchange(
 	if (p2.m_right)
 		p2.m_right.m_parent = p2;
 
-	p1.exchange(p2);
+	// exchange params
+
+	Entry.Param tmp = p1.m_param;
+	p1.m_param = p2.m_param;
+	p2.m_param = tmp;
 }
 
 //..............................................................................
