@@ -71,30 +71,30 @@ struct Guid {
 
 	uint8_t m_data4[8];
 
-	construct() {}
+	construct() thin {}
 
-	construct(string_t string) {
+	construct(string_t string) thin {
 		parse(string);
 	}
 
-	bool isEqual(Guid const* op) const {
+	bool isEqual(Guid const* op) thin const {
 		return memcmp(this, op, sizeof(Guid)) == 0;
 	}
 
-	bool operator == (Guid const* op) const {
+	bool operator == (Guid const* op) thin const {
 		return isEqual(op);
 	}
 
-	bool operator != (Guid const* op) const {
+	bool operator != (Guid const* op) thin const {
 		return !isEqual(op);
 	}
 
-	void operator := (string_t string) {
+	void operator := (string_t string) thin {
 		parse(string);
 	}
 
-	string_t getString(GuidStringFlags flags = 0);
-	bool errorcode parse(string_t string);
+	string_t getString(GuidStringFlags flags = 0) thin;
+	bool errorcode parse(string_t string) thin;
 }
 
 //..............................................................................

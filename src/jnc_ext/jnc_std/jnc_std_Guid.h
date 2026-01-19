@@ -12,6 +12,7 @@
 #pragma once
 
 #include "jnc_ExtensionLib.h"
+#include "jnc_Runtime.h"
 
 namespace jnc {
 namespace std {
@@ -25,19 +26,18 @@ struct Guid: sl::Guid {
 
 	static
 	String
-	JNC_CDECL
 	getString(
-		DataPtr selfPtr,
+		Guid* self,
 		uint_t flags
-	);
+	) {
+		return allocateString(self->sl::Guid::getString(flags));
+	}
 
-	static
 	bool
 	JNC_CDECL
-	parse(
-		DataPtr selfPtr,
-		String stringPtr
-	);
+	parse(String string) {
+		return sl::Guid::parse(string >> toAxl);
+	}
 };
 
 //..............................................................................
