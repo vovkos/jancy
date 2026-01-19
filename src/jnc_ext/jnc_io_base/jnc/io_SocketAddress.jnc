@@ -118,13 +118,13 @@ union Address_ip4 {
 		sets the description of parsing error and returns ``false`` [#f1]_.
 	*/
 
-	bool errorcode parse(string_t string);
+	bool errorcode parse(string_t string) thin;
 
 	/**
 		Creates and returns a string representation of the address.
 	*/
 
-	string_t getString() const;
+	string_t getString() thin const;
 
 	/**
 		Effectively makes ``io.Address_ip4`` a *stringable* class.
@@ -172,13 +172,13 @@ union Address_ip6 {
 		sets the description of parsing error and returns ``false`` [#f1]_.
 	*/
 
-	bool errorcode parse(string_t string);
+	bool errorcode parse(string_t string) thin;
 
 	/**
 		Creates and returns a string representation of the address.
 	*/
 
-	string_t getString() const;
+	string_t getString() thin const;
 
 	/**
 		Effectively makes ``io.Address_ip6`` a *stringable* class.
@@ -232,7 +232,7 @@ struct SocketAddress_ip4 {
 	Address_ip4 m_address;
 
 	/**
-		Extra padding to ensure binary compatibility wiht ``sockaddr_in``.
+		Extra padding to ensure binary compatibility with ``sockaddr_in``.
 	*/
 
 	char _m_padding[8];
@@ -242,7 +242,7 @@ struct SocketAddress_ip4 {
 		addresses are equal and ``false`` otherwise.
 	*/
 
-	bool isEqual(SocketAddress_ip4 const* address) const;
+	bool isEqual(SocketAddress_ip4 const* address) thin const;
 
 	/**
 		Checks two ``IP4`` socket addresses for *matching*. The term matching
@@ -258,7 +258,7 @@ struct SocketAddress_ip4 {
 		Returns ``true`` if addresses *match* and ``false`` otherwise.
 	*/
 
-	bool isMatch(SocketAddress_ip4 const* filterAddress) const;
+	bool isMatch(SocketAddress_ip4 const* filterAddress) thin const;
 
 	/**
 		Constructs the address from a string representation in ``string``
@@ -268,13 +268,13 @@ struct SocketAddress_ip4 {
 		sets the description of parsing error and returns ``false`` [#f1]_.
 	*/
 
-	bool errorcode parse(string_t string);
+	bool errorcode parse(string_t string) thin;
 
 	/**
 		Creates and returns a string representation of the address.
 	*/
 
-	string_t getString() const;
+	string_t getString() thin const;
 
 	/**
 		Effectively makes ``io.SocketAddress_ip4`` a *stringable* class.
@@ -342,7 +342,7 @@ struct SocketAddress_ip6 {
 		addresses are equal and ``false`` otherwise.
 	*/
 
-	bool isEqual(SocketAddress_ip6 const* address) const;
+	bool isEqual(SocketAddress_ip6 const* address) thin const;
 
 	/**
 		Checks two ``IP6`` socket addresses for *matching*. The term *matching*
@@ -358,7 +358,7 @@ struct SocketAddress_ip6 {
 		Returns ``true`` if addresses *match* and ``false`` otherwise.
 	*/
 
-	bool isMatch(SocketAddress_ip6 const* filterAddress) const;
+	bool isMatch(SocketAddress_ip6 const* filterAddress) thin const;
 
 	/**
 		Constructs the address from a string representation in ``string``
@@ -368,13 +368,13 @@ struct SocketAddress_ip6 {
 		sets the description of parsing error and returns ``false`` [#f1]_.
 	*/
 
-	bool errorcode parse(string_t string);
+	bool errorcode parse(string_t string) thin;
 
 	/**
 		Creates and returns a string representation of the address.
 	*/
 
-	string_t getString() const;
+	string_t getString() thin const;
 
 	/**
 		Effectively makes ``io.SocketAddress_ip6`` a *stringable* class.
@@ -437,7 +437,7 @@ union SocketAddress {
 		addresses are equal and ``false`` otherwise.
 	*/
 
-	bool isEqual(SocketAddress const* addr) const;
+	bool isEqual(SocketAddress const* addr) thin const;
 
 	/**
 		Checks two socket addresses for *matching*. See
@@ -447,7 +447,7 @@ union SocketAddress {
 		Returns ``true`` if addresses *match* and ``false`` otherwise.
 	*/
 
-	bool isMatch(SocketAddress const* filterAddress) const;
+	bool isMatch(SocketAddress const* filterAddress) thin const;
 
 	/**
 		Constructs the address from a string representation in ``string``
@@ -457,13 +457,13 @@ union SocketAddress {
 		sets the description of parsing error and returns ``false`` [#f1]_.
 	*/
 
-	bool errorcode parse(string_t string);
+	bool errorcode parse(string_t string) thin;
 
 	/**
 		Creates and returns a string representation of the address.
 	*/
 
-	string_t getString() const;
+	string_t getString() thin const;
 
 	/**
 		Effectively makes ``io.SocketAddress`` a *stringable* class.

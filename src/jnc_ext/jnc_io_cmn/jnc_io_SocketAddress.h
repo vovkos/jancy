@@ -35,19 +35,16 @@ enum AddressFamily {
 struct Address_ip4: public in_addr {
 	JNC_DECLARE_TYPE_STATIC_METHODS(Address_ip4)
 
-	static
 	bool
-	parse(
-		DataPtr selfPtr,
-		String string
-	) {
-		return axl::io::parseAddr_ip4((in_addr*)selfPtr.m_p, string >> toAxl);
+	JNC_CDECL
+	parse(String string) {
+		return axl::io::parseAddr_ip4(this, string >> toAxl);
 	}
 
 	static
 	String
-	getString(DataPtr selfPtr) {
-		return allocateString(axl::io::getAddrString_ip4((in_addr*)selfPtr.m_p));
+	getString(Address_ip4* self) {
+		return allocateString(axl::io::getAddrString_ip4(self));
 	}
 };
 
@@ -56,19 +53,16 @@ struct Address_ip4: public in_addr {
 struct Address_ip6: public in6_addr {
 	JNC_DECLARE_TYPE_STATIC_METHODS(Address_ip6)
 
-	static
 	bool
-	parse(
-		DataPtr selfPtr,
-		String string
-	) {
-		return axl::io::parseAddr_ip6((in6_addr*)selfPtr.m_p, string >> toAxl);
+	JNC_CDECL
+	parse(String string) {
+		return axl::io::parseAddr_ip6(this, string >> toAxl);
 	}
 
 	static
 	String
-	getString(DataPtr selfPtr) {
-		return allocateString(axl::io::getAddrString_ip6((in6_addr*)selfPtr.m_p));
+	getString(Address_ip6* self) {
+		return allocateString(axl::io::getAddrString_ip6(self));
 	}
 };
 
@@ -77,37 +71,28 @@ struct Address_ip6: public in6_addr {
 struct SocketAddress_ip4: public sockaddr_in {
 	JNC_DECLARE_TYPE_STATIC_METHODS(SocketAddress_ip4)
 
-	static
 	bool
-	isEqual(
-		DataPtr selfPtr,
-		DataPtr addressPtr
-	) {
-		return axl::io::isSockAddrEqual_ip4((sockaddr_in*)selfPtr.m_p, (sockaddr_in*)addressPtr.m_p);
+	JNC_CDECL
+	isEqual(DataPtr addressPtr) {
+		return axl::io::isSockAddrEqual_ip4(this, (sockaddr_in*)addressPtr.m_p);
 	}
 
-	static
 	bool
-	isMatch(
-		DataPtr selfPtr,
-		DataPtr addressPtr
-	) {
-		return axl::io::isSockAddrMatch_ip4((sockaddr_in*)selfPtr.m_p, (sockaddr_in*)addressPtr.m_p);
+	JNC_CDECL
+	isMatch(DataPtr addressPtr) {
+		return axl::io::isSockAddrMatch_ip4(this, (sockaddr_in*)addressPtr.m_p);
 	}
 
-	static
 	bool
-	parse(
-		DataPtr selfPtr,
-		String string
-	) {
-		return axl::io::parseSockAddr_ip4((sockaddr_in*)selfPtr.m_p, string >> toAxl);
+	JNC_CDECL
+	parse(String string) {
+		return axl::io::parseSockAddr_ip4(this, string >> toAxl);
 	}
 
 	static
 	String
-	getString(DataPtr selfPtr) {
-		return allocateString(axl::io::getSockAddrString_ip4((sockaddr_in*)selfPtr.m_p));
+	getString(SocketAddress_ip4* self) {
+		return allocateString(axl::io::getSockAddrString_ip4(self));
 	}
 };
 
@@ -116,37 +101,28 @@ struct SocketAddress_ip4: public sockaddr_in {
 struct SocketAddress_ip6: public sockaddr_in6 {
 	JNC_DECLARE_TYPE_STATIC_METHODS(SocketAddress_ip6)
 
-	static
 	bool
-	isEqual(
-		DataPtr selfPtr,
-		DataPtr addressPtr
-	) {
-		return axl::io::isSockAddrEqual_ip6((sockaddr_in6*)selfPtr.m_p, (sockaddr_in6*)addressPtr.m_p);
+	JNC_CDECL
+	isEqual(DataPtr addressPtr) {
+		return axl::io::isSockAddrEqual_ip6(this, (sockaddr_in6*)addressPtr.m_p);
 	}
 
-	static
 	bool
-	isMatch(
-		DataPtr selfPtr,
-		DataPtr addressPtr
-	) {
-		return axl::io::isSockAddrMatch_ip6((sockaddr_in6*)selfPtr.m_p, (sockaddr_in6*)addressPtr.m_p);
+	JNC_CDECL
+	isMatch(DataPtr addressPtr) {
+		return axl::io::isSockAddrMatch_ip6(this, (sockaddr_in6*)addressPtr.m_p);
 	}
 
-	static
 	bool
-	parse(
-		DataPtr selfPtr,
-		String string
-	) {
-		return axl::io::parseSockAddr_ip6((sockaddr_in6*)selfPtr.m_p, string >> toAxl);
+	JNC_CDECL
+	parse(String string) {
+		return axl::io::parseSockAddr_ip6(this, string >> toAxl);
 	}
 
 	static
 	String
-	getString(DataPtr selfPtr) {
-		return allocateString(axl::io::getSockAddrString_ip6((sockaddr_in6*)selfPtr.m_p));
+	getString(SocketAddress_ip6* self) {
+		return allocateString(axl::io::getSockAddrString_ip6(self));
 	}
 };
 
@@ -165,31 +141,26 @@ struct SocketAddress {
 		sockaddr_in6 m_addr_ip6;
 	};
 
-	static
 	bool
-	isEqual(
-		DataPtr selfPtr,
-		DataPtr addressPtr
-	);
+	JNC_CDECL
+	isEqual(DataPtr addressPtr) {
+		return getSockAddr().isEqual(((SocketAddress*)addressPtr.m_p)->getSockAddr());
+	}
 
-	static
 	bool
-	isMatch(
-		DataPtr selfPtr,
-		DataPtr addressPtr
-	);
+	JNC_CDECL
+	isMatch(DataPtr addressPtr) {
+		return getSockAddr().isMatch(((SocketAddress*)addressPtr.m_p)->getSockAddr());
+	}
 
-	static
 	bool
-	parse(
-		DataPtr selfPtr,
-		String string
-	);
+	JNC_CDECL
+	parse(String string);
 
 	static
 	String
-	getString(DataPtr selfPtr) {
-		return allocateString(((SocketAddress*)selfPtr.m_p)->getSockAddr().getString());
+	getString(SocketAddress* self) {
+		return allocateString(self->getSockAddr().getString());
 	}
 
 	axl::io::SockAddr

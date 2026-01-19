@@ -19,36 +19,13 @@ namespace io {
 //..............................................................................
 
 bool
-SocketAddress::isEqual(
-	DataPtr selfPtr,
-	DataPtr addressPtr
-) {
-	axl::io::SockAddr sockAddr1 = ((SocketAddress*)selfPtr.m_p)->getSockAddr();
-	axl::io::SockAddr sockAddr2 = ((SocketAddress*)addressPtr.m_p)->getSockAddr();
-	return sockAddr1.isEqual(sockAddr2);
-}
-
-bool
-SocketAddress::isMatch(
-	DataPtr selfPtr,
-	DataPtr addressPtr
-) {
-	axl::io::SockAddr sockAddr1 = ((SocketAddress*)selfPtr.m_p)->getSockAddr();
-	axl::io::SockAddr sockAddr2 = ((SocketAddress*)addressPtr.m_p)->getSockAddr();
-	return sockAddr1.isMatch(sockAddr2);
-}
-
-bool
-SocketAddress::parse(
-	DataPtr selfPtr,
-	String string
-) {
+SocketAddress::parse(String string) {
 	axl::io::SockAddr sockAddr;
 	bool result = sockAddr.parse(string >> toAxl);
 	if (!result)
 		return false;
 
-	((SocketAddress*)selfPtr.m_p)->setSockAddr(sockAddr);
+	setSockAddr(sockAddr);
 	return true;
 }
 
@@ -94,7 +71,7 @@ JNC_DEFINE_TYPE(
 )
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Address_ip4)
-	JNC_MAP_FUNCTION("parse",     &Address_ip4::parse)
+	JNC_MAP_FUNCTION("parse", &Address_ip4::parse)
 	JNC_MAP_FUNCTION("getString", &Address_ip4::getString)
 JNC_END_TYPE_FUNCTION_MAP()
 
@@ -108,7 +85,7 @@ JNC_DEFINE_TYPE(
 )
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Address_ip6)
-	JNC_MAP_FUNCTION("parse",     &Address_ip6::parse)
+	JNC_MAP_FUNCTION("parse", &Address_ip6::parse)
 	JNC_MAP_FUNCTION("getString", &Address_ip6::getString)
 JNC_END_TYPE_FUNCTION_MAP()
 
@@ -122,9 +99,9 @@ JNC_DEFINE_TYPE(
 )
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(SocketAddress_ip4)
-	JNC_MAP_FUNCTION("isEqual",   &SocketAddress_ip4::isEqual)
-	JNC_MAP_FUNCTION("isMatch",   &SocketAddress_ip4::isMatch)
-	JNC_MAP_FUNCTION("parse",     &SocketAddress_ip4::parse)
+	JNC_MAP_FUNCTION("isEqual", &SocketAddress_ip4::isEqual)
+	JNC_MAP_FUNCTION("isMatch", &SocketAddress_ip4::isMatch)
+	JNC_MAP_FUNCTION("parse", &SocketAddress_ip4::parse)
 	JNC_MAP_FUNCTION("getString", &SocketAddress_ip4::getString)
 JNC_END_TYPE_FUNCTION_MAP()
 
@@ -138,9 +115,9 @@ JNC_DEFINE_TYPE(
 )
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(SocketAddress_ip6)
-	JNC_MAP_FUNCTION("isEqual",   &SocketAddress_ip6::isEqual)
-	JNC_MAP_FUNCTION("isMatch",   &SocketAddress_ip6::isMatch)
-	JNC_MAP_FUNCTION("parse",     &SocketAddress_ip6::parse)
+	JNC_MAP_FUNCTION("isEqual", &SocketAddress_ip6::isEqual)
+	JNC_MAP_FUNCTION("isMatch", &SocketAddress_ip6::isMatch)
+	JNC_MAP_FUNCTION("parse", &SocketAddress_ip6::parse)
 	JNC_MAP_FUNCTION("getString", &SocketAddress_ip6::getString)
 JNC_END_TYPE_FUNCTION_MAP()
 
@@ -154,9 +131,9 @@ JNC_DEFINE_TYPE(
 )
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(SocketAddress)
-	JNC_MAP_FUNCTION("isEqual",   &SocketAddress::isEqual)
-	JNC_MAP_FUNCTION("isMatch",   &SocketAddress::isMatch)
-	JNC_MAP_FUNCTION("parse",     &SocketAddress::parse)
+	JNC_MAP_FUNCTION("isEqual", &SocketAddress::isEqual)
+	JNC_MAP_FUNCTION("isMatch", &SocketAddress::isMatch)
+	JNC_MAP_FUNCTION("parse", &SocketAddress::parse)
 	JNC_MAP_FUNCTION("getString", &SocketAddress::getString)
 JNC_END_TYPE_FUNCTION_MAP()
 
