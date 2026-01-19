@@ -308,6 +308,7 @@ DeclTypeCalc::getDataPtrTypeFlags() {
 	return flags;
 }
 
+inline
 uint_t
 DeclTypeCalc::getThisArgTypeFlags() {
 	uint_t flags = 0;

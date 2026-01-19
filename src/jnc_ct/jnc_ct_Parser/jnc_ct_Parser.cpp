@@ -1461,7 +1461,8 @@ Parser::calcPropertyGetterType(Declarator* declarator) {
 		TypeModifier_Bindable |
 		TypeModifier_Indexed |
 		TypeModifier_BigEndian |
-		TypeModifier_Volatile
+		TypeModifier_Volatile |
+		TypeModifier_Thin
 	);
 
 	declarator->addGetterSuffix();
@@ -1690,6 +1691,18 @@ Parser::finalizeLastProperty(bool hasBody) {
 	if (prop->getType())
 		return true;
 
+	uint_t thisArgTypeFlags;
+	if (!(m_lastPropertyTypeModifiers & TypeModifier_Thin))
+		thisArgTypeFlags = 0;
+	else {
+		if (!prop->m_parentType) {
+			err::setFormatStringError("unused modifier 'thin'");
+			return false;
+		}
+
+		thisArgTypeFlags = PtrTypeFlag_ThinThis;
+	}
+
 	// finalize getter
 
 	if (prop->m_getter) {
@@ -1715,7 +1728,7 @@ Parser::finalizeLastProperty(bool hasBody) {
 		}
 
 		if (prop->m_parentType)
-			getter->m_thisArgTypeFlags = PtrTypeFlag_Const;
+			getter->m_thisArgTypeFlags = thisArgTypeFlags | PtrTypeFlag_Const;
 
 		result = prop->addMethod(getter);
 		if (!result)
@@ -1746,6 +1759,9 @@ Parser::finalizeLastProperty(bool hasBody) {
 		Function* setter = m_module->m_functionMgr.createFunction(setterType);
 		setter->m_functionKind = FunctionKind_Setter;
 		setter->m_flags |= ModuleItemFlag_User;
+
+		if (prop->m_parentType)
+			setter->m_thisArgTypeFlags = thisArgTypeFlags;
 
 		result = prop->addMethod(setter);
 		if (!result)
