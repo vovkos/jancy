@@ -24,6 +24,12 @@ JNC_DECLARE_TYPE(Guid)
 struct Guid: sl::Guid {
 	JNC_DECLARE_TYPE_STATIC_METHODS(Guid)
 
+	bool
+	JNC_CDECL
+	isEqual(DataPtr ptr) {
+		return memcmp(this, ptr.m_p, sizeof(sl::Guid)) == 0;
+	}
+
 	static
 	String
 	getString(

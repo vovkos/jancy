@@ -26,6 +26,7 @@ JNC_DEFINE_TYPE(
 )
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Guid)
+	JNC_MAP_FUNCTION("isEqual", &Guid::isEqual)
 	JNC_MAP_FUNCTION("getString", &Guid::getString)
 	JNC_MAP_FUNCTION("parse", &Guid::parse)
 JNC_END_TYPE_FUNCTION_MAP()

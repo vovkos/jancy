@@ -77,10 +77,6 @@ struct Guid {
 		parse(string);
 	}
 
-	bool isEqual(Guid const* op) thin const {
-		return memcmp(this, op, sizeof(Guid)) == 0;
-	}
-
 	bool operator == (Guid const* op) thin const {
 		return isEqual(op);
 	}
@@ -93,6 +89,7 @@ struct Guid {
 		parse(string);
 	}
 
+	bool isEqual(Guid const* op) thin const;
 	string_t getString(GuidStringFlags flags = 0) thin;
 	bool errorcode parse(string_t string) thin;
 }
