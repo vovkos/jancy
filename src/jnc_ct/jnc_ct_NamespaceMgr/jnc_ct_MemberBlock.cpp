@@ -66,8 +66,10 @@ MemberBlock::scanPropertyCtorDtors() {
 		if (prop->getStaticConstructor())
 			m_propertyStaticConstructArray.append(prop);
 
-		if (prop->getConstructor())
+		if (prop->getConstructor()) {
 			m_propertyConstructArray.append(prop);
+			m_constructorThinThisFlag &= prop->getConstructorThinThisFlag();
+		}
 
 		if (prop->getDestructor())
 			m_propertyDestructArray.append(prop);

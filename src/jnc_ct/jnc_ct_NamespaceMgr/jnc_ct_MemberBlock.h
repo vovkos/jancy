@@ -41,6 +41,7 @@ protected:
 	Function* m_staticConstructor;
 	OverloadableFunction m_constructor;
 	Function* m_destructor;
+	uint_t m_constructorThinThisFlag;
 
 	sl::Array<Field*> m_gcRootFieldArray;
 	sl::Array<Variable*> m_staticVariablePrimeArray;
@@ -93,6 +94,11 @@ public:
 	OverloadableFunction
 	getConstructor() const {
 		return m_constructor;
+	}
+
+	uint_t
+	getConstructorThinThisFlag() const {
+		return m_constructorThinThisFlag;
 	}
 
 	Function*
@@ -191,7 +197,7 @@ protected:
 
 	template <typename T>
 	T*
-	createDefaultMethod();
+	createDefaultMethod(uint_t thisArgTypeFlags = 0);
 
 	virtual
 	Field*
@@ -229,6 +235,7 @@ MemberBlock::MemberBlock(ModuleItem* parent) {
 	m_staticConstructorOnceFlagVariable = NULL;
 	m_staticConstructor = NULL;
 	m_destructor = NULL;
+	m_constructorThinThisFlag = PtrTypeFlag_ThinThis;
 }
 
 //..............................................................................

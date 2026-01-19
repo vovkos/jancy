@@ -176,6 +176,7 @@ DerivableType::addMethod(Function* function) {
 
 	case FunctionKind_Constructor:
 		targetOverloadableFunction = &m_constructor;
+		m_constructorThinThisFlag &= function->getThisArgTypeFlags();
 		break;
 
 	case FunctionKind_Normal:

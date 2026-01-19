@@ -153,9 +153,12 @@ StructType::calcLayoutTo(Field* targetField) {
 				m_flags |= TypeFlag_GcRoot;
 			}
 
-			if (field->m_parentNamespace == this && // skip property fields
-				(!field->m_initializer.isEmpty() || isConstructibleType(type)))
-				m_fieldInitializeArray.append(field);
+			if (field->m_parentNamespace == this) // skip property fields
+				if (isConstructibleType(field->m_type)) {
+					m_fieldInitializeArray.append(field);
+					m_constructorThinThisFlag &= ((DerivableType*)field->m_type)->getConstructorThinThisFlag();
+				} else if (!field->m_initializer.isEmpty())
+					m_fieldInitializeArray.append(field);
 		}
 
 		scanStaticVariables();
@@ -178,7 +181,7 @@ StructType::calcLayoutTo(Field* targetField) {
 			!m_fieldInitializeArray.isEmpty() ||
 			!m_propertyConstructArray.isEmpty())
 		)
-			createDefaultMethod<DefaultConstructor>();
+			createDefaultMethod<DefaultConstructor>(m_constructorThinThisFlag);
 
 		if (m_constructor && !findCopyConstructor())
 			createDefaultCopyConstructor();
@@ -269,8 +272,10 @@ StructType::layoutBaseType(BaseTypeSlot* slot) {
 		m_flags |= TypeFlag_GcRoot;
 	}
 
-	if (slot->m_type->getConstructor())
+	if (slot->m_type->getConstructor()) {
 		m_baseTypeConstructArray.append(slot);
+		m_constructorThinThisFlag &= slot->getType()->getConstructorThinThisFlag();
+	}
 
 	return layoutFieldImpl(
 		slot->m_type,

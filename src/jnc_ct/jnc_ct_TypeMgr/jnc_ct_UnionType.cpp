@@ -87,9 +87,12 @@ UnionType::calcLayout() {
 
 		field->m_llvmIndex = i; // llvmIndex is used in unions!
 
-		if (field->m_parentNamespace == this && // skip property fields
-			(!field->m_initializer.isEmpty() || isConstructibleType(field->m_type)))
-			m_fieldInitializeArray.append(field);
+		if (field->m_parentNamespace == this) // skip property fields
+			if (isConstructibleType(field->m_type)) {
+				m_fieldInitializeArray.append(field);
+				m_constructorThinThisFlag &= ((DerivableType*)field->m_type)->getConstructorThinThisFlag();
+			} else if (!field->m_initializer.isEmpty())
+				m_fieldInitializeArray.append(field);
 	}
 
 	ASSERT(largestFieldType);
@@ -120,7 +123,7 @@ UnionType::calcLayout() {
 		!m_fieldInitializeArray.isEmpty() ||
 		!m_propertyConstructArray.isEmpty())
 	)
-		createDefaultMethod<DefaultConstructor>();
+		createDefaultMethod<DefaultConstructor>(m_constructorThinThisFlag);
 
 	if (m_constructor && !findCopyConstructor())
 		createDefaultCopyConstructor();

@@ -519,7 +519,10 @@ Property::finalize() {
 		if (!result)
 			return false;
 
-		if (!field->m_initializer.isEmpty() || isConstructibleType(field->m_type))
+		if (isConstructibleType(field->m_type)) {
+			m_fieldInitializeArray.append(field);
+			m_constructorThinThisFlag &= ((DerivableType*)field->m_type)->getConstructorThinThisFlag();
+		} else if (!field->m_initializer.isEmpty())
 			m_fieldInitializeArray.append(field);
 	}
 
@@ -536,7 +539,7 @@ Property::finalize() {
 		(!m_fieldInitializeArray.isEmpty() ||
 		!m_propertyConstructArray.isEmpty())
 	)
-		createDefaultMethod<DefaultConstructor>();
+		createDefaultMethod<DefaultConstructor>(m_parentType->getTypeKind() != TypeKind_Class ? m_constructorThinThisFlag : 0);
 
 	if (!m_destructor && !m_propertyDestructArray.isEmpty())
 		createDefaultMethod<DefaultDestructor>();

@@ -229,6 +229,7 @@ ClassType::ClassType() {
 	m_classPtrTypeTuple = NULL;
 	m_vtableVariable = NULL;
 	m_opaqueClassTypeInfo = NULL;
+	m_constructorThinThisFlag = 0;
 }
 
 //..............................................................................

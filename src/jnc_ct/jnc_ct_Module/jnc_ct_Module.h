@@ -530,10 +530,11 @@ MemberBlock::createUnnamedMethod(
 
 template <typename T>
 T*
-MemberBlock::createDefaultMethod() {
+MemberBlock::createDefaultMethod(uint_t thisArgTypeFlags) {
 	Module* module = m_parent->getModule();
 	FunctionType* type = (FunctionType*)module->m_typeMgr.getStdType(StdType_SimpleFunction);
 	T* function = module->m_functionMgr.createFunction<T>(sl::StringRef(), type);
+	function->m_thisArgTypeFlags = thisArgTypeFlags;
 	bool result = addMethod(function);
 	ASSERT(result);
 	return function;
