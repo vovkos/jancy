@@ -27,7 +27,7 @@ JNC_DEFINE_TYPE(
 )
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Error)
-	JNC_MAP_CONST_PROPERTY("m_description", Error::getDescription_s)
+	JNC_MAP_CONST_PROPERTY("m_description", Error::getDescription)
 JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................

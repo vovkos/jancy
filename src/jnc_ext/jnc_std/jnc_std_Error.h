@@ -24,15 +24,10 @@ JNC_DECLARE_TYPE(Error)
 struct Error: err::ErrorHdr {
 	JNC_DECLARE_TYPE_STATIC_METHODS(Error)
 
-	String
-	getDescription() {
-		return allocateString(err::ErrorHdr::getDescription());
-	}
-
 	static
 	String
-	getDescription_s(DataPtr selfPtr) {
-		return ((Error*)selfPtr.m_p)->getDescription();
+	getDescription(Error* self) {
+		return allocateString(self->err::ErrorHdr::getDescription());
 	}
 };
 

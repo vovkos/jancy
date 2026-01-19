@@ -72,7 +72,7 @@ struct Error {
 			printf($"cannot open file: $s\n");
 	*/
 
-	string_t const property m_description;
+	string_t const property m_description thin;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
