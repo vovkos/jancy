@@ -67,8 +67,8 @@ protected:
 	);
 
 	void exchange(
-		T* p1,
-		T* p2
+		T* prev,
+		T* next
 	);
 
 	void rebalanceOnInsert(T* p) {}
@@ -162,7 +162,13 @@ T* BinTreeBase<T, C>.replaceWithChild(T* p) {
 	if (p.m_left && p.m_right) {
 		assert(p.m_next == getLeftmostChild(p.m_right));
 		assert(p.m_prev == getRightmostChild(p.m_left));
+
 		exchange(p, p.m_next);
+		assert(!p.m_left);
+
+		// same effect:
+		// exchange(p.m_prev, p);
+		// assert(!p.m_right);
 	}
 
 	T* child = p.m_right ? p.m_right : p.m_left;
@@ -206,92 +212,85 @@ T* BinTreeBase<T, C>.insert(
 }
 
 void BinTreeBase<T, C>.exchange(
-	T* p1,
-	T* p2
+	T* prev,
+	T* next
 ) {
-	T* oldParent = p1.m_parent;
-	T* oldLeft = p1.m_left;
-	T* oldRight = p1.m_right;
+	assert(prev != next.m_right);
+	assert(next != prev.m_left);
 
 	// special cases: direct parent-child relations
 
-	if (p1 == p2.m_left) {
-		p1.m_left = p2;
-		p1.m_right = p2.m_right;
-		p1.m_parent = p2.m_parent;
+	if (prev == next.m_left) {
+		T* oldLeft = prev.m_left;
+		T* oldRight = prev.m_right;
 
-		p2.m_left = oldLeft;
-		p2.m_right = oldRight;
-		p2.m_parent = p1;
-	} else if (p1 == p2.m_right) {
-		p1.m_left = p2.m_left;
-		p1.m_right = p2;
-		p1.m_parent = p2.m_parent;
+		prev.m_left = next;
+		prev.m_right = next.m_right;
+		prev.m_parent = next.m_parent;
 
-		p2.m_left = oldLeft;
-		p2.m_right = oldRight;
-		p2.m_parent = p1;
-	} else if (p2 == p1.m_left) {
-		p1.m_left = p2.m_left;
-		p1.m_right = p2.m_right;
-		p1.m_parent = p2;
+		next.m_left = oldLeft;
+		next.m_right = oldRight;
+		next.m_parent = prev;
+	} else if (next == prev.m_right) {
+		T* oldParent = prev.m_parent;
+		T* oldLeft = prev.m_left;
 
-		p2.m_left = p1;
-		p2.m_right = oldRight;
-		p2.m_parent = oldParent;
-	} else if (p2 == p1.m_right) {
-		p1.m_left = p2.m_left;
-		p1.m_right = p2.m_right;
-		p1.m_parent = p2;
+		prev.m_left = next.m_left;
+		prev.m_right = next.m_right;
+		prev.m_parent = next;
 
-		p2.m_left = oldLeft;
-		p2.m_right = p1;
-		p2.m_parent = oldParent;
+		next.m_left = oldLeft;
+		next.m_right = prev;
+		next.m_parent = oldParent;
 	} else {
-		p1.m_left = p2.m_left;
-		p1.m_right = p2.m_right;
-		p1.m_parent = p2.m_parent;
+		T* oldParent = prev.m_parent;
+		T* oldLeft = prev.m_left;
+		T* oldRight = prev.m_right;
 
-		p2.m_left = oldLeft;
-		p2.m_right = oldRight;
-		p2.m_parent = oldParent;
+		prev.m_left = next.m_left;
+		prev.m_right = next.m_right;
+		prev.m_parent = next.m_parent;
+
+		next.m_left = oldLeft;
+		next.m_right = oldRight;
+		next.m_parent = oldParent;
 	}
 
 	// fixup parents
 
-	if (!p1.m_parent)
-		m_root = p1;
-	else if (p1.m_parent.m_left == p2)
-		p1.m_parent.m_left = p1;
+	if (!prev.m_parent)
+		m_root = prev;
+	else if (prev.m_parent.m_left == next)
+		prev.m_parent.m_left = prev;
 	else
-		p1.m_parent.m_right = p1;
+		prev.m_parent.m_right = prev;
 
-	if (!p2.m_parent)
-		m_root = p2;
-	else if (p2.m_parent.m_left == p1)
-		p2.m_parent.m_left = p2;
+	if (!next.m_parent)
+		m_root = next;
+	else if (next.m_parent.m_left == prev)
+		next.m_parent.m_left = next;
 	else
-		p2.m_parent.m_right = p2;
+		next.m_parent.m_right = next;
 
 	// fixup children
 
-	if (p1.m_left)
-		p1.m_left.m_parent = p1;
+	if (prev.m_left)
+		prev.m_left.m_parent = prev;
 
-	if (p1.m_right)
-		p1.m_right.m_parent = p1;
+	if (prev.m_right)
+		prev.m_right.m_parent = prev;
 
-	if (p2.m_left)
-		p2.m_left.m_parent = p2;
+	if (next.m_left)
+		next.m_left.m_parent = next;
 
-	if (p2.m_right)
-		p2.m_right.m_parent = p2;
+	if (next.m_right)
+		next.m_right.m_parent = next;
 
 	// exchange params
 
-	Entry.Param tmp = p1.m_param;
-	p1.m_param = p2.m_param;
-	p2.m_param = tmp;
+	Entry.Param tmp = prev.m_param;
+	prev.m_param = next.m_param;
+	next.m_param = tmp;
 }
 
 //..............................................................................
