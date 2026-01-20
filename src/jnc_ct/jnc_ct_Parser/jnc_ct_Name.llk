@@ -136,10 +136,10 @@ qualified_type_name
 	local {
 		lex::LineCol $pos;
 	}
-	enter {
-		$pos = m_tokenCursor->m_pos;
-	}
 	:	resolver ({ return m_mode == Mode_Parse; })
+			{
+				$pos = m_tokenCursor->m_pos;
+			}
 		qualified_name_pass1
 			{
 				return ($.m_type = getQualifiedTypeName(&$1.m_name, $pos)) != NULL;
