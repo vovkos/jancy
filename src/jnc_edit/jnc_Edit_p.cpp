@@ -1277,7 +1277,17 @@ EditPrivate::createArgumentTip(
 
 size_t
 EditPrivate::getItemIconIdx(ModuleItem* item) {
-	static const size_t iconIdxTable[ModuleItemKind__Count] = {
+	ModuleItemKind itemKind = item->getItemKind();
+	if (itemKind == ModuleItemKind_Template) {
+		Template* templ = (Template*)item;
+		return
+			templ->getDerivableTypeKind() != TypeKind_Void ||
+			templ->getDecl()->getStorageKind() == StorageKind_Typedef ?
+				Icon_Type :
+				Icon_Function;
+	}
+
+	static const size_t iconTable[ModuleItemKind__Count] = {
 		Icon_Object,    // ModuleItemKind_Undefined
 		Icon_Namespace, // ModuleItemKind_Namespace
 		Icon_Object,    // ModuleItemKind_Attribute
@@ -1297,11 +1307,10 @@ EditPrivate::getItemIconIdx(ModuleItem* item) {
 		Icon_Variable,  // ModuleItemKind_Field
 		Icon_Type,      // ModuleItemKind_BaseTypeSlot
 		Icon_Function,  // ModuleItemKind_Orphan
-		Icon_Object,    // ModuleItemKind_LazyImport
 	};
 
-	ModuleItemKind itemKind = item->getItemKind();
-	return ((size_t)itemKind < countof(iconIdxTable)) ? iconIdxTable[itemKind] : Icon_Object;
+	ASSERT((size_t)itemKind < countof(iconTable));
+	return iconTable[itemKind];
 }
 
 void

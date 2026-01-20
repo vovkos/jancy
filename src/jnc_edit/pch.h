@@ -54,6 +54,7 @@ using namespace axl;
 #include "jnc_CodeAssist.h"
 #include "jnc_EnumType.h"
 #include "jnc_AttributeBlock.h"
+#include "jnc_Template.h"
 #include "jnc_Error.h"
 
 // on macOS, QT flips ControlModifier and MetaModifier

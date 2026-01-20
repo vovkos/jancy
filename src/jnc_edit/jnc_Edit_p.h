@@ -46,7 +46,7 @@ protected:
 	};
 
 	enum Icon {
-		Icon_Object,
+		Icon_Object = 0,
 		Icon_Namespace,
 		Icon_Event,
 		Icon_Function,
