@@ -123,9 +123,9 @@ qualified_type_name_rslv
 					return false;
 				}
 		)?
-	|	qualified_name
+	|	qualified_name_pass1
 			{
-				return isQualifiedTypeName($1.m_item);
+				return isQualifiedTypeName($1.m_name);
 			}
 	;
 

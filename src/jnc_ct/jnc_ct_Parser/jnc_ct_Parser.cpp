@@ -392,8 +392,82 @@ Parser::getQualifiedTypeName(ModuleItem* item) {
 	}
 }
 
+inline
 bool
-Parser::isQualifiedTypeName(ModuleItem* item) {
+isIndendedTypeName(ModuleItem* item) {
+	return
+		item->getItemKind() == ModuleItemKind_Type ||
+		item->getItemKind() == ModuleItemKind_Template &&
+		((Template*)item)->getDerivableTypeKind() != TypeKind_Void;
+}
+
+bool
+Parser::isQualifiedTypeName(const QualifiedName& name) {
+	// failed instantiation could still be an intended type name
+	// so we do manual traversal step-by-step to treat errors gracefully
+
+	ModuleItemContext context(m_module);
+	ModuleItem* item = NULL;
+	QualifiedNamePos pos = &name.getFirstAtom();
+	for (size_t i = 0; pos; i++) {
+		const QualifiedNameAtom& atom = pos.next(name);
+		Namespace* nspace;
+		uint_t traverseFlags;
+
+		if (i == 0) {
+			nspace = context.getParentNamespace();
+			traverseFlags = 0;
+		} else {
+			nspace = item->getNamespace();
+			if (!nspace)
+				return isIndendedTypeName(item);
+
+			// for nested qualifiers, look up in this and base types only
+			traverseFlags =
+				TraverseFlag_NoParentNamespace |
+				TraverseFlag_NoUsingNamespaces |
+				TraverseFlag_NoExtensionNamespaces;
+		}
+
+		switch (atom.m_atomKind) {
+		case QualifiedNameAtomKind_BaseType:
+			if (i != 0)
+				return true; // nested basetype operators not supported, but still looks like a type name
+
+			item = findBaseType(atom.m_baseTypeIdx);
+			if (!item)
+				return true; // still looks like a type name
+
+			break;
+
+		case QualifiedNameAtomKind_Name: {
+			FindModuleItemResult findResult = nspace->findDirectChildItemTraverse(atom.m_name, NULL, traverseFlags);
+			if (!findResult.m_item)
+				return false;
+
+			item = findResult.m_item;
+			break;
+			}
+
+		case QualifiedNameAtomKind_TemplateInstantiateOperator: {
+			FindModuleItemResult findResult = nspace->findDirectChildItemTraverse(atom.m_name, NULL, traverseFlags);
+			if (!findResult.m_item)
+				return false;
+
+			item = findResult.m_item;
+			findResult = nspace->finalizeFindTemplate(context, atom, item);
+			if (!findResult.m_item)
+				return isIndendedTypeName(item);
+
+			item = findResult.m_item;
+			break;
+			}
+
+		default:
+			return false;
+		}
+	}
+
 	ModuleItemKind itemKind = item->getItemKind();
 	switch (itemKind) {
 	case ModuleItemKind_Type:
@@ -2687,7 +2761,7 @@ Parser::callBaseTypeMemberConstructor(
 DerivableType*
 Parser::findBaseType(size_t baseTypeIdx) {
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
-	ASSERT(function); // should not be called at pass
+	ASSERT(function); // should not be called during Mode_Parse
 
 	DerivableType* parentType = function->getParentType();
 	if (!parentType || !parentType->ensureNoImports())

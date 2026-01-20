@@ -346,8 +346,10 @@ Namespace::findDirectChildItem(
 		return findDirectChildItem(atom.m_name);
 
 	case QualifiedNameAtomKind_TemplateDeclSuffix:
-	case QualifiedNameAtomKind_TemplateInstantiateOperator:
-		return finalizeFindTemplate(context, atom, findDirectChildItem(atom.m_name));
+	case QualifiedNameAtomKind_TemplateInstantiateOperator: {
+		FindModuleItemResult findResult = findDirectChildItem(atom.m_name);
+		return findResult.m_item ? finalizeFindTemplate(context, atom, findResult.m_item) : findResult;
+		}
 
 	default:
 		ASSERT(false);
@@ -457,13 +459,15 @@ Namespace::findDirectChildItemTraverse(
 		return findDirectChildItemTraverse(atom.m_name, coord, flags);
 
 	case QualifiedNameAtomKind_TemplateDeclSuffix:
-	case QualifiedNameAtomKind_TemplateInstantiateOperator:
+	case QualifiedNameAtomKind_TemplateInstantiateOperator: {
 		if (context.isNullContext()) {
 			err::setError("templates are not allowed here");
 			return g_errorFindModuleItemResult;
 		}
 
-		return finalizeFindTemplate(context, atom, findDirectChildItemTraverse(atom.m_name, coord, flags));
+		FindModuleItemResult findResult = findDirectChildItemTraverse(atom.m_name, coord, flags);
+		return findResult.m_item ? finalizeFindTemplate(context, atom, findResult.m_item) : findResult;
+		}
 
 	default:
 		ASSERT(false);
@@ -476,29 +480,31 @@ FindModuleItemResult
 Namespace::finalizeFindTemplate(
 	const ModuleItemContext& context,
 	const QualifiedNameAtom& atom,
-	FindModuleItemResult findResult
+	ModuleItem* item
 ) {
-	if (!findResult.m_item)
-		return findResult;
+	ASSERT(
+		atom.m_atomKind == QualifiedNameAtomKind_TemplateDeclSuffix ||
+		atom.m_atomKind == QualifiedNameAtomKind_TemplateInstantiateOperator
+	);
 
 	Template* templ;
-	ModuleItemKind itemKind = findResult.m_item->getItemKind();
+	ModuleItemKind itemKind = item->getItemKind();
 	switch (itemKind) {
 	case ModuleItemKind_Template:
-		templ = ((Template*)findResult.m_item);
+		templ = (Template*)item;
 		break;
 
 	case ModuleItemKind_Typedef:
 		Namespace* nspace;
-		if (((Typedef*)findResult.m_item)->isRecursive() &&
-			(nspace = ((Typedef*)findResult.m_item)->getGrandParentNamespace())
+		if (((Typedef*)item)->isRecursive() &&
+			(nspace = ((Typedef*)item)->getGrandParentNamespace())
 		) {
-			findResult = nspace->findDirectChildItemTraverse(atom.m_name);
+			FindModuleItemResult findResult = nspace->findDirectChildItemTraverse(atom.m_name);
 			if (!findResult.m_item)
 				return findResult;
 
 			if (findResult.m_item->getItemKind() == ModuleItemKind_Template) {
-				templ = ((Template*)findResult.m_item);
+				item = templ = ((Template*)findResult.m_item);
 				break;
 			}
 
@@ -508,7 +514,7 @@ Namespace::finalizeFindTemplate(
 		// else fall through
 
 	default:
-		err::setFormatStringError("'%s' is not a template", findResult.m_item->getItemName().sz());
+		err::setFormatStringError("'%s' is not a template", item->getItemName().sz());
 		return g_errorFindModuleItemResult;
 	}
 
@@ -517,13 +523,13 @@ Namespace::finalizeFindTemplate(
 		const sl::Array<TemplateArgType*> argArray = templ->getArgArray();
 		size_t count = argArray.getCount();
 		if (atom.m_templateDeclArgArray.getCount() != count) {
-			err::setFormatStringError("template signature mismatch for '%s'", findResult.m_item->getItemName().sz());
+			err::setFormatStringError("template signature mismatch for '%s'", item->getItemName().sz());
 			return g_errorFindModuleItemResult;
 		}
 
 		for (size_t i = 0; i < count; i++)
 			if (atom.m_templateDeclArgArray[i]->getName() != argArray[i]->getName()) {
-				err::setFormatStringError("template signature mismatch for '%s'", findResult.m_item->getItemName().sz());
+				err::setFormatStringError("template signature mismatch for '%s'", item->getItemName().sz());
 				return g_errorFindModuleItemResult;
 			}
 
@@ -531,8 +537,10 @@ Namespace::finalizeFindTemplate(
 		}
 
 	case QualifiedNameAtomKind_TemplateInstantiateOperator: {
-		ModuleItem* item = templ->instantiate(context, atom.m_templateInstTokenList);
-		findResult = item ? FindModuleItemResult(item) : g_errorFindModuleItemResult;
+		item = templ->instantiate(context, atom.m_templateInstTokenList);
+		if (!item)
+			return g_errorFindModuleItemResult;
+
 		break;
 		}
 
@@ -540,7 +548,7 @@ Namespace::finalizeFindTemplate(
 		ASSERT(false);
 	}
 
-	return findResult;
+	return FindModuleItemResult(item);
 }
 
 NamedType*

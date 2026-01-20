@@ -251,7 +251,7 @@ protected:
 	getQualifiedTypeName(ModuleItem* item);
 
 	bool
-	isQualifiedTypeName(ModuleItem* item);
+	isQualifiedTypeName(const QualifiedName& name);
 
 	ModuleItem*
 	instantiateTemplate(

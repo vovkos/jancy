@@ -172,6 +172,13 @@ public:
 		uint_t flags = 0
 	);
 
+	FindModuleItemResult
+	finalizeFindTemplate(
+		const ModuleItemContext& context,
+		const QualifiedNameAtom& atom,
+		ModuleItem* item
+	);
+
 	NamedType*
 	findTemplateInstanceType(Template* templ);
 
@@ -219,13 +226,6 @@ protected:
 	template <typename CanParse>
 	FindModuleItemResult
 	findItemImpl(const sl::StringRef& name);
-
-	FindModuleItemResult
-	finalizeFindTemplate(
-		const ModuleItemContext& context,
-		const QualifiedNameAtom& atom,
-		FindModuleItemResult findResult
-	);
 
 	void
 	clear();
