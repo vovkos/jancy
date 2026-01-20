@@ -249,20 +249,27 @@ Template::instantiate(
 	return result ? instantiate(parser.getLastTypeArray()) : NULL;
 }
 
+Type*
+Template::ensureDeductionType() const {
+	Type* deductionType = m_declType->getDeductionType();
+	if (deductionType)
+		return deductionType;
+
+	openTemplateInstNamespace(*(sl::Array<Type*>*)&m_argArray);
+	deductionType = m_declType->createDeductionType();
+	m_module->m_namespaceMgr.closeTemplateInstNamespace();
+	return deductionType;
+}
+
 bool
 Template::deduceArgs(
 	sl::Array<Type*>* templateArgArray,
 	const sl::ConstBoxList<Value>& argTypeList,
 	const sl::ConstBoxList<Value>& argValueList
 ) const {
-	Type* deductionType = m_declType->getDeductionType();
-	if (!deductionType) {
-		openTemplateInstNamespace(*(sl::Array<Type*>*)&m_argArray);
-		deductionType = m_declType->createDeductionType();
-		m_module->m_namespaceMgr.closeTemplateInstNamespace();
-		if (!deductionType)
-			return false;
-	}
+	Type* deductionType = ensureDeductionType();
+	if (!deductionType)
+		return false;
 
 	if (deductionType->getTypeKind() != TypeKind_Function) {
 		err::setFormatStringError("cannot deduce arguments of template '%s' (not a function)", getItemName().sz());
@@ -318,11 +325,44 @@ Template::deduceArgs(
 
 sl::StringRef
 Template::createItemString(size_t index) {
+	static const sl::StringRef derivableTypeKindStringTable[] = {
+		"struct",          // TypeKind_Struct,
+		"union",           // TypeKind_Union,
+		"class",           // TypeKind_Class,
+	};
+
 	switch (index) {
 	case ModuleItemStringKind_QualifiedName:
 		break;
-	case ModuleItemStringKind_Synopsis:
-		return "template " + getItemName();
+
+	case ModuleItemStringKind_Synopsis: {
+		if (m_derivableTypeKind != TypeKind_Void)
+			return
+				sl::String(derivableTypeKindStringTable[m_derivableTypeKind - TypeKind_Struct]) +
+				' ' +
+				getItemName();
+
+		Type* deductionType = ensureDeductionType();
+		if (!deductionType) {
+			sl::String string = m_storageKind == StorageKind_Typedef ?
+				"typedef " :
+				"template ";
+
+			string += getItemName();
+			return string;
+		}
+
+		sl::String string;
+		if (m_storageKind == StorageKind_Typedef)
+			string = "typedef ";
+
+		string += deductionType->getTypeStringPrefix();
+		string += ' ';
+		string += getItemName();
+		string += deductionType->getTypeStringSuffix();
+		return string;
+		}
+
 	default:
 		return sl::StringRef();
 	}

@@ -140,6 +140,12 @@ public:
 
 protected:
 	virtual
+	sl::StringRef
+	createItemString(size_t index) {
+		return m_typedef->getItemString(index);
+	}
+
+	virtual
 	void
 	prepareSignature() {
 		m_signature = m_typedef->getType()->getSignature();

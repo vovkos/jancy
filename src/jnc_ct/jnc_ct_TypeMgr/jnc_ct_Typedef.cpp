@@ -20,12 +20,20 @@ namespace ct {
 
 sl::StringRef
 Typedef::createItemString(size_t index) {
-	if (index != ModuleItemStringKind_Synopsis)
+	switch (index) {
+	case ModuleItemStringKind_QualifiedName:
 		return createItemStringImpl(index, this);
 
-	sl::String synopsis = "typedef ";
-	synopsis += createSynopsisImpl(this, m_type, 0);
-	return synopsis;
+	case ModuleItemStringKind_Synopsis:
+		break;
+
+	default:
+		m_type->ensureNoImports();
+		return m_type->getItemString(index);
+	}
+
+	m_type->ensureNoImports();
+	return "typedef " + createSynopsisImpl(this, m_type, 0);
 }
 
 bool

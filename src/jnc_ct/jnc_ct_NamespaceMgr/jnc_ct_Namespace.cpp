@@ -804,7 +804,7 @@ sl::StringRef
 TemplateNamespace::createItemString(size_t index) {
 	switch (index) {
 	case ModuleItemStringKind_Synopsis:
-		return sl::StringRef("template namespace");
+		return "template namespace";
 
 	default:
 		return sl::StringRef();

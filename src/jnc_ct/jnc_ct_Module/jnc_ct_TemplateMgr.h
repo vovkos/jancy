@@ -94,6 +94,9 @@ public:
 	) const;
 
 protected:
+	Type*
+	ensureDeductionType() const;
+
 	virtual
 	sl::StringRef
 	createItemString(size_t index);
