@@ -2,15 +2,17 @@
 
 import "stdt_RbTree.jnc"
 
+using namespace stdt;
+
 //..............................................................................
 
 void test_empty_tree() {
-	stdt.RbTree<int, int> t;
+	RbTree<int, int> t;
 	assert(t.m_count == 0);
 }
 
 void test_insert_single() {
-	stdt.RbTree<int, int> t;
+	RbTree<int, int> t;
 	t[1] = 10;
 
 	assert(t.m_count == 1);
@@ -18,7 +20,7 @@ void test_insert_single() {
 }
 
 void test_insert_ordered() {
-	stdt.RbTree<int, int> t;
+	RbTree<int, int> t;
 
 	for (int i = 0; i < 100; i++)
 		t[i] = i * 10;
@@ -30,7 +32,7 @@ void test_insert_ordered() {
 }
 
 void test_insert_reverse() {
-	stdt.RbTree<int, int> t;
+	RbTree<int, int> t;
 
 	for (int i = 99; i >= 0; i--)
 		t[i] = i;
@@ -42,7 +44,7 @@ void test_insert_reverse() {
 }
 
 void test_insert_random() {
-	stdt.RbTree<int, int> t;
+	RbTree<int, int> t;
 
 	int keys[100];
 	for (int i = 0; i < 100; i++)
@@ -65,7 +67,7 @@ void test_insert_random() {
 }
 
 void test_update_existing() {
-	stdt.RbTree<int, int> t;
+	RbTree<int, int> t;
 
 	t[1] = 10;
 	t[1] = 20;
@@ -75,7 +77,7 @@ void test_update_existing() {
 }
 
 void test_remove_leaf() {
-	stdt.RbTree<int, int> t;
+	RbTree<int, int> t;
 
 	t[2] = 20;
 	t[1] = 10;
@@ -87,7 +89,7 @@ void test_remove_leaf() {
 }
 
 void test_remove_root() {
-	stdt.RbTree<int, int> t;
+	RbTree<int, int> t;
 
 	t[1] = 10;
 	assert(t.removeKey(1));
@@ -95,7 +97,7 @@ void test_remove_root() {
 }
 
 void test_remove_internal_nodes() {
-	stdt.RbTree<int, int> t;
+	RbTree<int, int> t;
 
 	for (int i = 0; i < 20; i++)
 		t[i] = i;
@@ -115,7 +117,7 @@ void test_remove_internal_nodes() {
 }
 
 void test_remove_all() {
-	stdt.RbTree<int, int> t;
+	RbTree<int, int> t;
 
 	for (int i = 0; i < 50; i++)
 		t[i] = i;
@@ -129,14 +131,14 @@ void test_remove_all() {
 }
 
 void test_iteration_order() {
-	stdt.RbTree<int, int> t;
+	RbTree<int, int> t;
 
 	for (int i = 0; i < 10; i++)
 		t[i] = i;
 
 	int expected = 0;
 	for (
-		stdt.Iterator<stdt.RbTreeNode<int, int> > it = t.m_head;
+		Iterator<RbTreeNode<int, int> > it = t.m_head;
 		it;
 		it++
 	) {
@@ -148,7 +150,7 @@ void test_iteration_order() {
 }
 
 void test_stress_insert_remove() {
-	stdt.RbTree<int, int> t;
+	RbTree<int, int> t;
 
 	for (int round = 0; round < 10; round++) {
 		for (int i = 0; i < 100; i++)
@@ -168,8 +170,8 @@ void test_stress_insert_remove() {
 }
 
 void test_takeover() {
-	stdt.RbTree<int, int> src;
-	stdt.RbTree<int, int> dst;
+	RbTree<int, int> src;
+	RbTree<int, int> dst;
 
 	for (int i = 0; i < 20; i++)
 		src[i] = i * 10;

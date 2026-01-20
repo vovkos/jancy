@@ -2,17 +2,19 @@
 
 import "stdt_Array.jnc"
 
+using namespace stdt;
+
 //..............................................................................
 
 void test_empty_array() {
-	stdt.Array<int> a;
+	Array<int> a;
 
 	assert(a.m_count == 0);
 	assert(a.m_maxCount == 0);
 }
 
 void test_set_and_get() {
-	stdt.Array<int> a;
+	Array<int> a;
 
 	a.setCount(3);
 	a[0] = 10;
@@ -25,7 +27,7 @@ void test_set_and_get() {
 }
 
 void test_copy_from_ptr() {
-	stdt.Array<int> a;
+	Array<int> a;
 
 	int src[] = { 1, 2, 3, 4 };
 
@@ -38,7 +40,7 @@ void test_copy_from_ptr() {
 }
 
 void test_copy_single_value() {
-	stdt.Array<int> a;
+	Array<int> a;
 
 	size_t n = a.copy(42);
 	assert(n == 1);
@@ -47,7 +49,7 @@ void test_copy_single_value() {
 }
 
 void test_append_values() {
-	stdt.Array<int> a;
+	Array<int> a;
 
 	a.append(1);
 	a.append(2);
@@ -60,7 +62,7 @@ void test_append_values() {
 }
 
 void test_append_array() {
-	stdt.Array<int> a;
+	Array<int> a;
 
 	int src[] = { 10, 20, 30 };
 
@@ -73,7 +75,7 @@ void test_append_array() {
 }
 
 void test_insert_single() {
-	stdt.Array<int> a;
+	Array<int> a;
 
 	a.append(1);
 	a.append(3);
@@ -87,7 +89,7 @@ void test_insert_single() {
 }
 
 void test_insert_array() {
-	stdt.Array<int> a;
+	Array<int> a;
 
 	a.append(1);
 	a.append(4);
@@ -103,7 +105,7 @@ void test_insert_array() {
 }
 
 void test_remove_middle() {
-	stdt.Array<int> a;
+	Array<int> a;
 
 	for (int i = 0; i < 5; i++)
 		a.append(i); // 0 1 2 3 4
@@ -117,7 +119,7 @@ void test_remove_middle() {
 }
 
 void test_remove_head_tail() {
-	stdt.Array<int> a;
+	Array<int> a;
 
 	for (int i = 0; i < 4; i++)
 		a.append(i); // 0 1 2 3
@@ -132,7 +134,7 @@ void test_remove_head_tail() {
 }
 
 void test_set_count_grow_and_shrink() {
-	stdt.Array<int> a;
+	Array<int> a;
 
 	a.setCount(5);
 	assert(a.m_count == 5);
@@ -144,7 +146,7 @@ void test_set_count_grow_and_shrink() {
 }
 
 void test_reserve() {
-	stdt.Array<int> a;
+	Array<int> a;
 
 	a.reserve(100);
 	assert(a.m_maxCount >= 100);
@@ -154,7 +156,7 @@ void test_reserve() {
 }
 
 void test_detach() {
-	stdt.Array<int> a;
+	Array<int> a;
 
 	a.append(1);
 	a.append(2);
@@ -169,7 +171,7 @@ void test_detach() {
 }
 
 void test_bounds_check() {
-	stdt.Array<int> a;
+	Array<int> a;
 
 	a.append(1);
 

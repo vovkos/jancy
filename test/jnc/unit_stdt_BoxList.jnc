@@ -2,10 +2,12 @@
 
 import "stdt_BoxList.jnc"
 
+using namespace stdt;
+
 //..............................................................................
 
 void test_empty_list() {
-	stdt.BoxList<int> list;
+	BoxList<int> list;
 
 	assert(list.m_head == null);
 	assert(list.m_tail == null);
@@ -13,7 +15,7 @@ void test_empty_list() {
 }
 
 void test_insert_head_tail() {
-	stdt.BoxList<int> list;
+	BoxList<int> list;
 
 	list.insertHead(1);
 
@@ -30,32 +32,32 @@ void test_insert_head_tail() {
 }
 
 void test_iterator_forward_backward() {
-	stdt.BoxList<int> list;
+	BoxList<int> list;
 
 	list.append(1);
 	list.append(2);
 	list.append(3);
 
 	int sum = 0;
-	for (stdt.BoxIterator<int> it = stdt.BoxIterator<int>(list.m_head); it; ++it)
+	for (BoxIterator<int> it = BoxIterator<int>(list.m_head); it; ++it)
 		sum += *it;
 
 	assert(sum == 6);
 
 	sum = 0;
-	for (stdt.BoxIterator<int> it = stdt.BoxIterator<int>(list.m_tail); it; --it)
+	for (BoxIterator<int> it = BoxIterator<int>(list.m_tail); it; --it)
 		sum += *it;
 
 	assert(sum == 6);
 }
 
 void test_insert_before() {
-	stdt.BoxList<int> list;
+	BoxList<int> list;
 
 	list.append(1);
 	list.append(3);
 
-	list.insertBefore(2, stdt.BoxIterator<int>(list.m_tail));
+	list.insertBefore(2, BoxIterator<int>(list.m_tail));
 
 	assert(list.m_count == 3);
 	assert(list.m_head.m_value == 1);
@@ -64,12 +66,12 @@ void test_insert_before() {
 }
 
 void test_insert_after() {
-	stdt.BoxList<int> list;
+	BoxList<int> list;
 
 	list.append(1);
 	list.append(3);
 
-	list.insertAfter(2, stdt.BoxIterator<int>(list.m_head));
+	list.insertAfter(2, BoxIterator<int>(list.m_head));
 
 	assert(list.m_count == 3);
 	assert(list.m_head.m_value == 1);
@@ -78,7 +80,7 @@ void test_insert_after() {
 }
 
 void test_remove_head_tail() {
-	stdt.BoxList<int> list;
+	BoxList<int> list;
 
 	list.append(1);
 	list.append(2);
@@ -96,13 +98,13 @@ void test_remove_head_tail() {
 }
 
 void test_remove_middle() {
-	stdt.BoxList<int> list;
+	BoxList<int> list;
 
 	list.append(1);
 	list.append(2);
 	list.append(3);
 
-	stdt.BoxIterator<int> it = stdt.BoxIterator<int>(list.m_head.m_next);
+	BoxIterator<int> it = BoxIterator<int>(list.m_head.m_next);
 	int v = list.remove(it);
 
 	assert(v == 2);
@@ -112,25 +114,25 @@ void test_remove_middle() {
 }
 
 void test_move_ops() {
-	stdt.BoxList<int> list;
+	BoxList<int> list;
 
 	list.append(1);
 	list.append(2);
 	list.append(3);
 
-	list.moveToHead(stdt.BoxIterator<int>(list.m_tail));
+	list.moveToHead(BoxIterator<int>(list.m_tail));
 
 	assert(list.m_head.m_value == 3);
 	assert(list.m_head.m_next.m_value == 1);
 
-	list.moveToTail(stdt.BoxIterator<int>(list.m_head));
+	list.moveToTail(BoxIterator<int>(list.m_head));
 
 	assert(list.m_tail.m_value == 3);
 }
 
 void test_takeover() {
-	stdt.BoxList<int> a;
-	stdt.BoxList<int> b;
+	BoxList<int> a;
+	BoxList<int> b;
 
 	b.append(1);
 	b.append(2);

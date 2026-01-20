@@ -2,25 +2,27 @@
 
 import "stdt_HashTable.jnc"
 
+using namespace stdt;
+
 //..............................................................................
 
 void test_empty() {
-	stdt.HashTable<int, int, stdt.HashId<int> > ht;
+	HashTable<int, int, HashId<int> > ht;
 
 	assert(ht.m_count == 0);
 	assert(!ht.find(1));
 }
 
 void test_add_and_find() {
-	stdt.HashTable<int, int, stdt.HashId<int> > ht;
+	HashTable<int, int, HashId<int> > ht;
 
 	ht.add(1, 10);
 	ht.add(2, 20);
 
 	assert(ht.m_count == 2);
 
-	stdt.HashTableIterator<int, int> it1 = ht.find(1);
-	stdt.HashTableIterator<int, int> it2 = ht.find(2);
+	HashTableIterator<int, int> it1 = ht.find(1);
+	HashTableIterator<int, int> it2 = ht.find(2);
 
 	assert(it1);
 	assert(it2);
@@ -29,36 +31,36 @@ void test_add_and_find() {
 }
 
 void test_add_overwrite() {
-	stdt.HashTable<int, int, stdt.HashId<int> > ht;
+	HashTable<int, int, HashId<int> > ht;
 
 	ht.add(1, 10);
 	ht.add(1, 42);
 
 	assert(ht.m_count == 1);
 
-	stdt.HashTableIterator<int, int> it = ht.find(1);
+	HashTableIterator<int, int> it = ht.find(1);
 	assert(it);
 	assert(it->m_value == 42);
 }
 
 void test_add_if_not_exists() {
-	stdt.HashTable<int, int, stdt.HashId<int> > ht;
+	HashTable<int, int, HashId<int> > ht;
 
-	stdt.HashTableIterator<int, int> it1 = ht.addIfNotExists(1, 10);
+	HashTableIterator<int, int> it1 = ht.addIfNotExists(1, 10);
 	assert(it1);
 	assert(ht.m_count == 1);
 
-	stdt.HashTableIterator<int, int> it2 = ht.addIfNotExists(1, 20);
+	HashTableIterator<int, int> it2 = ht.addIfNotExists(1, 20);
 	assert(!it2);
 	assert(ht.m_count == 1);
 
-	stdt.HashTableIterator<int, int> it = ht.find(1);
+	HashTableIterator<int, int> it = ht.find(1);
 	assert(it);
 	assert(it->m_value == 10);
 }
 
 void test_remove_key() {
-	stdt.HashTable<int, int, stdt.HashId<int> > ht;
+	HashTable<int, int, HashId<int> > ht;
 
 	ht.add(1, 10);
 	ht.add(2, 20);
@@ -72,7 +74,7 @@ void test_remove_key() {
 }
 
 void test_iteration_order() {
-	stdt.HashTable<int, int, stdt.HashId<int> > ht;
+	HashTable<int, int, HashId<int> > ht;
 
 	ht.add(1, 10);
 	ht.add(2, 20);
@@ -80,14 +82,14 @@ void test_iteration_order() {
 
 	int sum = 0;
 
-	for (stdt.HashTableIterator<int, int> it = ht.m_head; it; it++)
+	for (HashTableIterator<int, int> it = ht.m_head; it; it++)
 		sum += it->m_value;
 
 	assert(sum == 60);
 }
 
 void test_resize() {
-	stdt.HashTable<int, int, stdt.HashId<int> > ht;
+	HashTable<int, int, HashId<int> > ht;
 
 	for (int i = 0; i < 200; i++)
 		ht.add(i, i * 2);
@@ -95,14 +97,14 @@ void test_resize() {
 	assert(ht.m_count == 200);
 
 	for (int i = 0; i < 200; i++) {
-		stdt.HashTableIterator<int, int> it = ht.find(i);
+		HashTableIterator<int, int> it = ht.find(i);
 		assert(it);
 		assert(it->m_value == i * 2);
 	}
 }
 
 void test_clear() {
-	stdt.HashTable<int, int, stdt.HashId<int> > ht;
+	HashTable<int, int, HashId<int> > ht;
 
 	ht.add(1, 10);
 	ht.add(2, 20);
@@ -117,7 +119,7 @@ void test_clear() {
 }
 
 void test_indexer_set_and_get() {
-	stdt.HashTable<int, int, stdt.HashId<int> > ht;
+	HashTable<int, int, HashId<int> > ht;
 
 	ht[1] = 10;
 	ht[2] = 20;
@@ -132,7 +134,7 @@ void test_indexer_set_and_get() {
 }
 
 void test_indexer_overwrite() {
-	stdt.HashTable<int, int, stdt.HashId<int> > ht;
+	HashTable<int, int, HashId<int> > ht;
 
 	ht[1] = 10;
 	ht[1] = 42;
@@ -142,7 +144,7 @@ void test_indexer_overwrite() {
 }
 
 void test_indexer_creates_entry() {
-	stdt.HashTable<int, int, stdt.HashId<int> > ht;
+	HashTable<int, int, HashId<int> > ht;
 
 	ht[5] = 123;
 
@@ -152,7 +154,7 @@ void test_indexer_creates_entry() {
 }
 
 void test_indexer_get_missing_throws() {
-	stdt.HashTable<int, int, stdt.HashId<int> > ht;
+	HashTable<int, int, HashId<int> > ht;
 
 	bool error = false;
 
@@ -166,8 +168,8 @@ void test_indexer_get_missing_throws() {
 }
 
 void test_takeover() {
-	stdt.HashTable<int, int, stdt.HashId<int> > src;
-	stdt.HashTable<int, int, stdt.HashId<int> > dst;
+	HashTable<int, int, HashId<int> > src;
+	HashTable<int, int, HashId<int> > dst;
 
 	for (int i = 0; i < 50; i++)
 		src[i] = i * 3;
