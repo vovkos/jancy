@@ -35,15 +35,6 @@ public:
 	getSectionKind() const {
 		return m_sectionKind;
 	}
-
-	virtual
-	Type*
-	getItemType();
-
-protected:
-	virtual
-	sl::StringRef
-	createItemString(size_t index);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -67,6 +58,12 @@ public:
 		return m_type;
 	}
 
+	virtual
+	Type*
+	getItemType() {
+		return m_type;
+	}
+
 	const Value&
 	getOffsetValue() const {
 		return m_offsetValue;
@@ -86,6 +83,11 @@ public:
 	getPtrTypeFlags() const {
 		return m_ptrTypeFlags;
 	}
+
+protected:
+	virtual
+	sl::StringRef
+	createItemString(size_t index);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

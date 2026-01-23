@@ -43,6 +43,16 @@ Field::getDataPtrType(
 		);
 }
 
+sl::StringRef
+Field::createItemString(size_t index) {
+	if (m_storageKind != StorageKind_DynamicField ||
+		index != ModuleItemStringKind_Synopsis
+	)
+		return createItemStringImpl(index, this, m_type, m_ptrTypeFlags);
+
+	return "dyfield " + createItemStringImpl(index, this, m_type, m_ptrTypeFlags);
+}
+
 bool
 Field::generateDocumentation(
 	const sl::StringRef& outputDir,

@@ -18,33 +18,26 @@ namespace ct {
 
 //..............................................................................
 
-Type*
-DynamicSection::getItemType() {
-	switch (m_sectionKind) {
-	case DynamicSectionKind_Array:
-	case DynamicSectionKind_Field:
-		return ((DynamicDataSection*)this)->getType();
-
-	default:
-		return NULL;
-	}
-}
-
 sl::StringRef
-DynamicSection::createItemString(size_t index) {
+DynamicDataSection::createItemString(size_t index) {
+	Type* type;
 	switch (m_sectionKind) {
 	case DynamicSectionKind_Array:
+		type = m_type->getArrayType(-1);
+		break;
+
 	case DynamicSectionKind_Field:
-		return createItemStringImpl(
-			index,
-			this,
-			((DynamicDataSection*)this)->getType(),
-			((DynamicDataSection*)this)->getPtrTypeFlags()
-		);
+		type = m_type;
+		break;
 
 	default:
 		return createItemStringImpl(index, this);
 	}
+
+	sl::StringRef string = createItemStringImpl(index, this, type, m_ptrTypeFlags);
+	return index != ModuleItemStringKind_Synopsis ?
+		string :
+		sl::StringRef("dyfield " + string);
 }
 
 //..............................................................................

@@ -106,9 +106,7 @@ public:
 protected:
 	virtual
 	sl::StringRef
-	createItemString(size_t index) {
-		return createItemStringImpl(index, this, m_type, m_ptrTypeFlags);
-	}
+	createItemString(size_t index);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
