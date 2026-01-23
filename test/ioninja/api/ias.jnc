@@ -121,7 +121,7 @@ size_t errorcode receiveAll(
 void main();
 
 // IAS thread #2 (aka event thread)
-// - not called for direct `transmit()` invokations
+// - not called for direct `transmit()` invocations
 // - kills the ability to track the actual (accepted) size
 
 [ prototype ]

@@ -605,25 +605,45 @@ Namespace::addFunction(Function* function) {
 	size_t result = 0;
 
 	sl::StringHashTableIterator<ModuleItem*> it = m_itemMap.visit(function->m_name);
-	if (!it->m_value) {
+	if (!it->m_value)
 		it->m_value = function;
-	} else {
+	else {
 		ModuleItemKind itemKind = it->m_value->getItemKind();
 		switch (itemKind) {
-		case ModuleItemKind_Function:
-			if (((Function*)it->m_value)->isPrototype()) { // replace the prototype
+		case ModuleItemKind_Function: {
+			Function* prevFunction = (Function*)it->m_value;
+			if (prevFunction->isPrototype()) { // replace the prototype
 				it->m_value = function;
 				break;
+			} else if (function->isPrototype()) {
+				if (!prevFunction->getType()->isEqual(function->getType())) {
+					err::setFormatStringError("function prototype mismatch: '%s'", function->getType()->getTypeString().sz());
+					return -1;
+				}
+
+				return 0;
 			}
 
-			it->m_value = function->getModule()->m_functionMgr.createFunctionOverload((Function*)it->m_value);
+			it->m_value = function->getModule()->m_functionMgr.createFunctionOverload(prevFunction);
+			}
 			// and fall through
 
-		case ModuleItemKind_FunctionOverload:
-			result = ((FunctionOverload*)it->m_value)->addOverload(function);
+		case ModuleItemKind_FunctionOverload: {
+			FunctionOverload* overload = (FunctionOverload*)it->m_value;
+			if (function->isPrototype()) {
+				if (overload->getTypeOverload().findOverload(function->getType()) == -1) {
+					err::setFormatStringError("function prototype mismatch: '%s'", function->getType()->getTypeString().sz());
+					return -1;
+				}
+
+				return 0;
+			}
+
+			result = overload->addOverload(function);
 			if (result == -1)
 				return -1;
 			break;
+			}
 
 		case ModuleItemKind_LazyImport:
 			it->m_value = function;
