@@ -2095,7 +2095,7 @@ Parser::declareData(
 			if (!result)
 				return false;
 
-			if (parser.m_lastExpressionValue.getValueKind() == ValueKind_Const) {
+			if (countValue.getValueKind() == ValueKind_Const) {
 				arrayType->m_elementCount = countValue.getSizeT();
 				result = arrayType->ensureLayout();
 				if (!result)
