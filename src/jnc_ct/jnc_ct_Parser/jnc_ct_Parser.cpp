@@ -2255,7 +2255,7 @@ Parser::declareData(
 		}
 
 		if (!stmt->m_structType) {
-			sl::String name = m_module->createUniqueName("Section");
+			sl::String name = m_module->createUniqueName("!DySection");
 			StructType* structType = m_module->m_typeMgr.createInternalStructType(name, 1);
 
 			Value funcValue;

@@ -89,7 +89,7 @@ ModuleItemDecl::createQualifiedNameImpl(Module* module) const {
 		m_parentNamespace->getDeclItem()->getItemString(ModuleItemStringKind_QualifiedName) :
 		sl::StringRef();
 
-	if (parentName.isEmpty())
+	if (parentName.isEmpty() || parentName[0] == '!') // internal name
 		return !m_name.isEmpty() ? m_name :	"(unnamed)";
 
 	sl::String string = parentName;
