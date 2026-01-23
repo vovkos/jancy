@@ -109,7 +109,7 @@ ModuleItemDecl::createSynopsisImpl(
 	Type* type,
 	uint_t ptrTypeFlags
 ) const {
-	type->ensureNoImports();
+	type = type->getActualTypeIfImport();
 
 	sl::String synopsis;
 	synopsis = type->getTypeStringPrefix();
