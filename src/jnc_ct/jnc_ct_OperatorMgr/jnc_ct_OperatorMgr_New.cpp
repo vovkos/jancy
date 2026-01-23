@@ -389,6 +389,11 @@ OperatorMgr::parseConstIntegerExpression(
 	if (value.getValueKind() != ValueKind_Const ||
 		!(value.getType()->getTypeKindFlags() & TypeKindFlag_Integer)
 	) {
+		if (!m_module->hasCodeGen()) {
+			*integer = 0; // allow during code-assist/documentation
+			return true;
+		}
+
 		err::setError("expression is not integer constant");
 		return false;
 	}
