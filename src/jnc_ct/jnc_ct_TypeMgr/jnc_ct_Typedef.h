@@ -141,9 +141,7 @@ public:
 protected:
 	virtual
 	sl::StringRef
-	createItemString(size_t index) {
-		return m_typedef->getItemString(index);
-	}
+	createItemString(size_t index);
 
 	virtual
 	void

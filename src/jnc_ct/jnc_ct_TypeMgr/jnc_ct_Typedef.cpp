@@ -26,10 +26,6 @@ Typedef::createItemString(size_t index) {
 
 	case ModuleItemStringKind_Synopsis:
 		break;
-
-	default:
-		m_type->ensureNoImports();
-		return m_type->getItemString(index);
 	}
 
 	m_type->ensureNoImports();
@@ -65,6 +61,41 @@ Typedef::generateDocumentation(
 
 //..............................................................................
 
+sl::StringRef
+TypedefShadowType::createItemString(size_t index) {
+	switch (index) {
+	case ModuleItemStringKind_QualifiedName:
+	case ModuleItemStringKind_Synopsis:
+		return m_typedef->getItemString(index);
+
+	case TypeStringKind_Prefix:
+		return m_typedef->getItemName();
+
+	case TypeStringKind_DoxyLinkedTextPrefix: {
+		Unit* unit = m_typedef->getParentUnit();
+		if (!unit || unit->getLib()) // don't reference imported libraries
+			return m_typedef->getItemName();
+
+		dox::Block* doxyBlock = m_module->m_doxyHost.getItemBlock(m_typedef);
+		sl::String refId = doxyBlock->getRefId();
+		return sl::formatString(
+			"<ref refid=\"%s\">%s</ref>",
+			refId.sz(),
+			getItemName().sz()
+		);
+		}
+
+	case TypeStringKind_DoxyTypeString:
+		return sl::formatString(
+			"<type>%s</type>",
+			m_typedef->getItemString(TypeStringKind_DoxyLinkedTextPrefix).sz()
+		);
+
+	default:
+		return sl::StringRef();
+	}
+}
+
 bool
 TypedefShadowType::calcLayout() {
 	bool result = m_typedef->getType()->ensureLayout();
@@ -77,25 +108,6 @@ TypedefShadowType::calcLayout() {
 	m_alignment = type->getAlignment();
 	return true;
 }
-
-/*
-void
-TypedefShadowType::prepareDoxyLinkedText() {
-	Unit* unit = m_typedef->getParentUnit();
-	if (!unit || unit->getLib()) { // don't reference imported libraries
-		Type::prepareDoxyLinkedText();
-		return;
-	}
-
-	dox::Block* doxyBlock = m_module->m_doxyHost.getItemBlock(m_typedef);
-	sl::String refId = doxyBlock->getRefId();
-	getTypeStringTuple()->m_doxyLinkedTextPrefix.format(
-		"<ref refid=\"%s\">%s</ref>",
-		refId.sz(),
-		getItemName().sz()
-	);
-}
-*/
 
 //..............................................................................
 
