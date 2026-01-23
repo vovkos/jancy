@@ -300,8 +300,8 @@ public:
 
 	CodeAssist*
 	generateCodeAssist(
+		const sl::StringRef& fileName,
 		jnc_CodeAssistKind kind,
-		Module* cacheModule,
 		size_t offset,
 		const sl::StringRef& source
 	);

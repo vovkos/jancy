@@ -473,8 +473,8 @@ JNC_EXTERN_C
 jnc_CodeAssist*
 jnc_Module_generateCodeAssist(
 	jnc_Module* module,
+	const char* fileName,
 	jnc_CodeAssistKind kind,
-	jnc_Module* cacheModule,
 	size_t offset,
 	const char* source,
 	size_t length
@@ -764,13 +764,13 @@ struct jnc_Module {
 
 	jnc_CodeAssist*
 	generateCodeAssist(
+		const char* fileName,
 		jnc_CodeAssistKind kind,
-		jnc_Module* cacheModule,
 		size_t offset,
 		const char* source,
 		size_t length = -1
 	) {
-		return jnc_Module_generateCodeAssist(this, kind, cacheModule, offset, source, length);
+		return jnc_Module_generateCodeAssist(this, fileName, kind, offset, source, length);
 	}
 
 	void

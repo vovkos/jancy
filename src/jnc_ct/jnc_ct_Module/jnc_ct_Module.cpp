@@ -229,8 +229,8 @@ Module::initialize(
 
 CodeAssist*
 Module::generateCodeAssist(
+	const sl::StringRef& fileName,
 	jnc_CodeAssistKind kind,
-	Module* cacheModule,
 	size_t offset,
 	const sl::StringRef& source
 ) {
@@ -239,8 +239,8 @@ Module::generateCodeAssist(
 		ModuleCompileFlag_IgnoreOpaqueClassTypeInfo |
 		ModuleCompileFlag_KeepTypedefShadow;
 
-	m_codeAssistMgr.initialize(kind, cacheModule, offset);
-	parse("code-assist-source", source);
+	m_codeAssistMgr.initialize(kind, offset);
+	parse(fileName, source);
 	parseImports();
 	return m_codeAssistMgr.generateCodeAssist();
 }

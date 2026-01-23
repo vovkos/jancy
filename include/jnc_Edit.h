@@ -33,6 +33,9 @@ class JNC_EDIT_EXPORT Edit: public QPlainTextEdit {
 	Q_PROPERTY(int tabWidth READ tabWidth WRITE setTabWidth)
 	Q_PROPERTY(CodeAssistTriggers codeAssistTriggers READ codeAssistTriggers WRITE setCodeAssistTriggers)
 	Q_PROPERTY(QStringList importDirList READ importDirList WRITE setImportDirList)
+	Q_PROPERTY(QStringList importList READ importList WRITE setImportList)
+	Q_PROPERTY(QString fileName READ fileName WRITE setFileName)
+	Q_PROPERTY(QString extraSource READ extraSource WRITE setExtraSource)
 
 	friend class LineNumberMargin;
 
@@ -80,6 +83,8 @@ public:
 	void setImportDirList(const QStringList& dirList);
 	QStringList importList();
 	void setImportList(const QStringList& importList);
+	QString fileName();
+	void setFileName(const QString& fileName);
 	QString extraSource();
 	void setExtraSource(const QString& source);
 

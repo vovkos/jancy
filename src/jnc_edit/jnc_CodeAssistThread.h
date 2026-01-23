@@ -20,9 +20,9 @@ class CodeAssistThread: public QThread {
 
 protected:
 	rc::Ptr<Module> m_module;
-	rc::Ptr<Module> m_cacheModule;
-	CodeAssistKind m_codeAssistKind;
+	sl::String m_fileName;
 	sl::String m_source;
+	CodeAssistKind m_codeAssistKind;
 	size_t m_offset;
 
 public:
@@ -49,16 +49,16 @@ public:
 
 	void
 	request(
+		const QString& fileName,
 		CodeAssistKind kind,
-		const rc::Ptr<Module>& cacheModule,
 		int position,
 		const QString& source
 	);
 
 	void
 	request(
+		const sl::StringRef& fileName,
 		CodeAssistKind kind,
-		const rc::Ptr<Module>& cacheModule,
 		size_t offset,
 		const sl::StringRef& source
 	);

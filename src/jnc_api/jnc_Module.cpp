@@ -656,13 +656,13 @@ JNC_EXPORT_O
 jnc_CodeAssist*
 jnc_Module_generateCodeAssist(
 	jnc_Module* module,
+	const char* fileName,
 	jnc_CodeAssistKind kind,
-	jnc_Module* cacheModule,
 	size_t offset,
 	const char* source,
 	size_t length
 ) {
-	return module->generateCodeAssist(kind, cacheModule, offset, sl::StringRef(source, length));
+	return module->generateCodeAssist(fileName, kind, offset, sl::StringRef(source, length));
 }
 
 JNC_EXTERN_C

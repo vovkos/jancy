@@ -38,6 +38,7 @@ void MdiChild::newFile() {
 
 	m_filePath = tr("document%1").arg(sequenceNumber++);
 	setWindowTitle(m_filePath + "[*]");
+	setFileName(m_filePath);
 
 	connect(document(), SIGNAL(contentsChanged()),
 			this, SLOT(documentWasModified()));
@@ -127,17 +128,18 @@ bool MdiChild::saveFile(const QString& filePath) {
 
 void MdiChild::setFile(const QString &filePath) {
 	m_filePath = QFileInfo(filePath).canonicalFilePath();
+	setFileName(m_filePath);
 	m_isUntitled = false;
 
 	document()->setModified(false);
 	setWindowModified(false);
-	setWindowTitle(fileName() + "[*]");
+	setWindowTitle(name() + "[*]");
 }
 
 bool MdiChild::canClose() {
 	if (document()->isModified()) {
 		QString message = QString("%1 has been modified.\n"
-			"Do you want to save your changes?").arg(fileName());
+			"Do you want to save your changes?").arg(name());
 
 		QMessageBox::StandardButton result;
 		result = QMessageBox::warning(this, "Close File", message,

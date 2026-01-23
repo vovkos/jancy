@@ -26,7 +26,7 @@ public:
 		return m_filePath;
 	}
 
-	QString fileName() {
+	QString name() {
 		return QFileInfo(m_filePath).fileName();
 	}
 

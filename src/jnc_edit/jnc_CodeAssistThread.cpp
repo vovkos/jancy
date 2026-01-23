@@ -20,6 +20,7 @@ namespace jnc {
 CodeAssistThread::CodeAssistThread(QObject* parent):
 	QThread(parent) {
 	m_codeAssistKind = CodeAssistKind_Undefined;
+	m_offset = 0;
 
 	rc::Ptr<AutoModule> autoModule = AXL_RC_NEW(rc::Box<AutoModule>);
 	m_module.attach(autoModule->p(), autoModule.getRefCount());
@@ -28,25 +29,32 @@ CodeAssistThread::CodeAssistThread(QObject* parent):
 
 void
 CodeAssistThread::request(
+	const QString& fileName,
 	CodeAssistKind kind,
-	const rc::Ptr<Module>& cacheModule,
 	int position,
 	const QString& source
 ) {
+	QByteArray fileNameUtf8 = fileName.toUtf8();
 	QByteArray sourceUtf8 = source.toUtf8();
 	size_t offset = source.left(position).toUtf8().count();
-	request(kind, cacheModule, offset, sl::StringRef(sourceUtf8.data(), sourceUtf8.size()));
+
+	request(
+		sl::StringRef(fileNameUtf8.data(), fileNameUtf8.size()),
+		kind,
+		offset,
+		sl::StringRef(sourceUtf8.data(), sourceUtf8.size())
+	);
 }
 
 void
 CodeAssistThread::request(
+	const sl::StringRef& fileName,
 	CodeAssistKind kind,
-	const rc::Ptr<Module>& cacheModule,
 	size_t offset,
 	const sl::StringRef& source
 ) {
+	m_fileName = fileName;
 	m_codeAssistKind = kind;
-	m_cacheModule = cacheModule;
 	m_offset = offset;
 	m_source = source;
 
@@ -82,8 +90,8 @@ CodeAssistThread::run() {
 		m_module->addSourceImport(NULL, m_extraSource.cp(), m_extraSource.getLength());
 
 	m_module->generateCodeAssist(
+		m_fileName.cp(),
 		m_codeAssistKind,
-		m_cacheModule,
 		m_offset,
 		m_source.cp(),
 		m_source.getLength()

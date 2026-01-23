@@ -23,7 +23,6 @@ CodeAssistMgr::CodeAssistMgr() {
 	m_module = Module::getCurrentConstructedModule();
 	ASSERT(m_module);
 
-	m_cacheModule = NULL;
 	m_codeAssistKind = CodeAssistKind_Undefined;
 	m_codeAssist = NULL;
 	m_offset = -1;
@@ -34,7 +33,6 @@ CodeAssistMgr::CodeAssistMgr() {
 void
 CodeAssistMgr::clear() {
 	freeCodeAssist();
-	m_cacheModule = NULL;
 	m_codeAssistKind = CodeAssistKind_Undefined;
 	m_codeAssist = NULL;
 	m_offset = -1;
@@ -50,13 +48,11 @@ CodeAssistMgr::clear() {
 void
 CodeAssistMgr::initialize(
 	jnc_CodeAssistKind kind,
-	Module* cacheModule,
 	size_t offset
 ) {
 	clear();
 
 	m_codeAssistKind = kind;
-	m_cacheModule = cacheModule;
 	m_offset = offset;
 }
 

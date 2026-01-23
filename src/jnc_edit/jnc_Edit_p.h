@@ -84,6 +84,7 @@ protected:
 	Edit::CodeAssistTriggers m_codeAssistTriggers;
 	QStringList m_importDirList;
 	QStringList m_importList;
+	QString m_fileName;
 	QString m_extraSource;
 	CodeAssistThread* m_thread;
 	rc::Ptr<Module> m_lastCodeAssistModule;

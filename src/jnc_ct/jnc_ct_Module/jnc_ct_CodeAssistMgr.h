@@ -132,7 +132,6 @@ protected:
 
 protected:
 	Module* m_module;
-	Module* m_cacheModule;
 	CodeAssistKind m_codeAssistKind;
 	CodeAssist* m_codeAssist;
 	size_t m_offset;
@@ -178,7 +177,6 @@ public:
 	void
 	initialize(
 		CodeAssistKind kind,
-		Module* cacheModule,
 		size_t offset
 	);
 

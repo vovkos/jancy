@@ -463,6 +463,18 @@ Edit::setImportList(const QStringList& importList) {
 }
 
 QString
+Edit::fileName() {
+	Q_D(Edit);
+	return d->m_fileName;
+}
+
+void
+Edit::setFileName(const QString& fileName) {
+	Q_D(Edit);
+	d->m_fileName = fileName;
+}
+
+QString
 Edit::extraSource() {
 	Q_D(Edit);
 	return d->m_extraSource;
@@ -1031,7 +1043,8 @@ EditPrivate::startCodeAssistThread(
 		this, SLOT(onThreadFinished())
 	);
 
-	m_thread->request(kind, rc::g_nullPtr, position, q->toPlainText());
+	ASSERT(!m_fileName.isEmpty());
+	m_thread->request(m_fileName, kind, position, q->toPlainText());
 }
 
 void
