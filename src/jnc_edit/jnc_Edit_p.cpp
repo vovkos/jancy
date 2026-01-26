@@ -335,8 +335,12 @@ EditPrivate::startCodeAssistThread(
 		this, SLOT(onThreadFinished())
 	);
 
-	ASSERT(!m_fileName.isEmpty());
-	m_thread->request(m_fileName, kind, position, q->toPlainText());
+	m_thread->request(
+		!m_fileName.isEmpty() ? m_fileName : QStringLiteral("untitled-source"),
+		kind,
+		position,
+		q->toPlainText()
+	);
 }
 
 void
