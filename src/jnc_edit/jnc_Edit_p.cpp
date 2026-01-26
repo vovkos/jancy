@@ -14,416 +14,19 @@
 #include "jnc_CodeTip.h"
 #include "moc_jnc_Edit.cpp"
 #include "moc_jnc_Edit_p.cpp"
+#include "jnc_CursorUtils.h"
 #include "qrc_res.cpp"
 
 namespace jnc {
 
 //..............................................................................
 
-static class Init {
-public:
-	Init() {
-		g_defaultDarkTheme.setDefaultDarkTheme();
-	}
-} g_init;
-
-//..............................................................................
-
-lex::LineCol
-getCursorLineCol(const QTextCursor& cursor0) {
-	QTextCursor cursor = cursor0;
-	cursor.movePosition(QTextCursor::StartOfLine);
-
-	int line = 0;
-	while (cursor.positionInBlock() > 0) {
-		line++;
-		cursor.movePosition(QTextCursor::Up);
-	}
-
-	QTextBlock block = cursor.block().previous();
-	while (block.isValid()) {
-		line += block.lineCount();
-		block = block.previous();
-	}
-
-	return lex::LineCol(line, cursor0.columnNumber());
-}
-
-bool
-isCursorMultiLineSelection(const QTextCursor& cursor0) {
-	if (!cursor0.hasSelection())
-		return false;
-
-	QTextCursor cursor = cursor0;
-	int start = cursor.anchor();
-	int end = cursor.position();
-
-	if (start > end) {
-		int t = start;
-		start = end;
-		end = t;
-	}
-
-	cursor.setPosition(start);
-	cursor.movePosition(QTextCursor::StartOfLine);
-	cursor.movePosition(QTextCursor::Down);
-	return cursor.position() <= end;
-}
-
-bool
-isCursorAtStartOfLine(const QTextCursor& cursor0) {
-	QTextCursor cursor = cursor0;
-	int position = cursor.position();
-	cursor.movePosition(QTextCursor::StartOfLine);
-	return cursor.position() == position;
-}
-
-inline
-bool
-isCursorAtEndOfLineIgnoreSpace(const QTextCursor& cursor0) {
-	QTextCursor cursor = cursor0;
-	cursor.setPosition(cursor.position());
-	cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
-	return cursor.selectedText().trimmed().isEmpty();
-}
-
-inline
-int
-getCursorStartOfLinePosition(const QTextCursor& cursor0) {
-	QTextCursor cursor = cursor0;
-	cursor.movePosition(QTextCursor::StartOfLine);
-	return cursor.position();
-}
-
-inline
-int
-getCursorEndOfLinePosition(const QTextCursor& cursor0) {
-	QTextCursor cursor = cursor0;
-	cursor.movePosition(QTextCursor::EndOfLine);
-	return cursor.position();
-}
-
-QString
-getCursorLinePrefix(const QTextCursor& cursor0) {
-	QTextCursor cursor = cursor0;
-	int position = cursor.position();
-	cursor.setPosition(position);
-	cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
-	return cursor.selectedText();
-}
-
-QString
-getCursorLineSuffix(const QTextCursor& cursor0) {
-	QTextCursor cursor = cursor0;
-	int position = cursor.position();
-	cursor.setPosition(position);
-	cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
-	return cursor.selectedText();
-}
-
-bool
-isCursorLineEmpty(const QTextCursor& cursor0) {
-	QTextCursor cursor = cursor0;
-	cursor.select(QTextCursor::LineUnderCursor);
-	return cursor.selectedText().trimmed().isEmpty();
-}
-
-bool
-isCursorNextLineEmpty(const QTextCursor& cursor0) {
-	QTextCursor cursor = cursor0;
-	cursor.movePosition(QTextCursor::Down);
-	return isCursorLineEmpty(cursor);
-}
-
-QString
-getCursorPrevWord(const QTextCursor& cursor0) {
-	QTextCursor cursor = cursor0;
-	cursor.movePosition(QTextCursor::PreviousWord, QTextCursor::KeepAnchor);
-	return cursor.selectedText();
-}
-
-QChar
-getCursorPrevChar(const QTextCursor& cursor0) {
-	QTextCursor cursor = cursor0;
-	int position = cursor.position();
-	cursor.setPosition(position);
-
-	int sol = getCursorStartOfLinePosition(cursor);
-	if (position <= sol)
-		return QChar();
-
-	cursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
-	QString selection = cursor.selectedText();
-	return !selection.isEmpty() ? selection.at(0) : QChar();
-}
-
-QChar
-getCursorNextChar(const QTextCursor& cursor0) {
-	QTextCursor cursor = cursor0;
-	int position = cursor.position();
-	cursor.setPosition(position);
-
-	int eol = getCursorEndOfLinePosition(cursor);
-	if (position >= eol)
-		return QChar();
-
-	cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
-	QString selection = cursor.selectedText();
-	return !selection.isEmpty() ? selection.at(0) : QChar();
-}
-
-bool
-isCursorOnIndent(const QTextCursor& cursor0) {
-	QTextCursor cursor = cursor0;
-	int position = cursor.position();
-	cursor.movePosition(QTextCursor::StartOfLine);
-
-	if (cursor.position() == position) // already was at start-of-line
-		return getCursorNextChar(cursor).isSpace();
-
-	cursor.setPosition(position, QTextCursor::KeepAnchor);
-	QString selection = cursor.selectedText();
-	return !selection.isEmpty() && selection.at(0).isSpace() && selection.trimmed().isEmpty();
-}
-
-bool
-hasCursorHighlightColor(const QTextCursor& cursor) {
-	if (cursor.atBlockEnd() && cursor.block().userState() != 0)
-		return true;
-
-#if (QT_VERSION >= 0x050600)
-	QVector<QTextLayout::FormatRange> formats = cursor.block().layout()->formats();
-#else
-	QList<QTextLayout::FormatRange> formats = cursor.block().layout()->additionalFormats();
-#endif
-
-	// binary search
-
-	int pos = cursor.positionInBlock();
-	int left = 0;
-	int right = formats.count();
-
-	while (left < right) {
-		int i = (left + right) / 2;
-
-		QTextLayout::FormatRange range = formats[i];
-		int end = range.start + range.length;
-
-		if (pos < range.start)
-			right = i;
-		else if (pos > end)
-			left = i + 1;
-		else
-			return true;
-	}
-
-	return false;
-}
-
-void
-moveCursorWithLimit(
-	QTextCursor* cursor,
-	const QTextCursor& limitCursor,
-	QTextCursor::MoveOperation op,
-	QTextCursor::MoveMode mode = QTextCursor::MoveAnchor,
-	int n = 1
-) {
-	int pos = cursor->position();
-	cursor->movePosition(op, mode, n);
-
-	if (cursor->position() == pos) // didn't change, use limit
-		*cursor = limitCursor;
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-inline
-bool
-isLeftBrace(QChar c) {
-	switch (c.unicode()) {
-	case '(':
-	case '[':
-	case '{':
-		return true;
-
-	default:
-		return false;
-	}
-}
-
-inline
-bool
-isRightBrace(QChar c) {
-	switch (c.unicode()) {
-	case ')':
-	case ']':
-	case '}':
-		return true;
-
-	default:
-		return false;
-	}
-}
-
-QChar
-getLeftBrace(QChar c) {
-	switch (c.unicode()) {
-	case ')':
-		return '(';
-
-	case ']':
-		return '[';
-
-	case '}':
-		return '{';
-
-	default:
-		return c;
-	}
-}
-
-QChar
-getRightBrace(QChar c) {
-	switch (c.unicode()) {
-	case '(':
-		return ')';
-
-	case '[':
-		return ']';
-
-	case '{':
-		return '}';
-
-	default:
-		return c;
-	}
-}
-
-PairBrace
-checkBraceMatch(QChar ch) {
-	switch (ch.unicode()) {
-	case '(':
-		return PairBrace(')');
-
-	case '[':
-		return PairBrace(']');
-
-	case '{':
-		return PairBrace('}');
-
-	case ')':
-		return PairBrace('(', true);
-
-	case ']':
-		return PairBrace('[', true);
-
-	case '}':
-		return PairBrace('{', true);
-
-	default:
-		return PairBrace();
-	}
-}
-
-bool
-isBraceAutoComplete(QChar nextCh) {
-	switch (nextCh.unicode()) {
-	case 0:
-	case ' ':
-	case '\t':
-	case ')':
-	case ']':
-	case '}':
-	case ',':
-	case ';':
-		return true;
-
-	default:
-		return false;
-	}
-}
-
-//..............................................................................
-
 Edit::Edit(QWidget *parent):
-	QPlainTextEdit(parent),
-	d_ptr(new EditPrivate) {
+	EditBase(parent, new EditPrivate) {
 	Q_D(Edit);
-
 	d->q_ptr = this;
+	d->m_syntaxHighlighter = createSyntaxHighlighter();
 	d->init();
-}
-
-Edit::~Edit() {}
-
-bool
-Edit::isLineNumberMarginEnabled() {
-	Q_D(Edit);
-	return d->m_lineNumberMargin != NULL;
-}
-
-void
-Edit::enableLineNumberMargin(bool isEnabled) {
-	Q_D(Edit);
-	d->enableLineNumberMargin(isEnabled);
-}
-
-int Edit::lineNumberMarginWidth() {
-	Q_D(Edit);
-	return d->m_lineNumberMargin ? d->m_lineNumberMargin->width() : 0;
-}
-
-bool
-Edit::isCurrentLineHighlightingEnabled() {
-	Q_D(Edit);
-	return d->m_isCurrentLineHighlightingEnabled;
-}
-
-void
-Edit::enableCurrentLineHighlighting(bool isEnabled) {
-	Q_D(Edit);
-	d->enableCurrentLineHighlighting(isEnabled);
-}
-
-bool
-Edit::isSyntaxHighlightingEnabled() {
-	Q_D(Edit);
-	return d->m_syntaxHighlighter != NULL;
-}
-
-void
-Edit::enableSyntaxHighlighting(bool isEnabled) {
-	Q_D(Edit);
-	d->enableSyntaxHighlighting(isEnabled);
-}
-
-int
-Edit::tabWidth() {
-	Q_D(Edit);
-	return d->m_tabWidth;
-}
-
-void
-Edit::setTabWidth(int width) {
-	Q_D(Edit);
-
-	d->m_tabWidth = width;
-	setTabStopWidth(fontMetrics().width(' ') * width);
-}
-
-const EditTheme*
-Edit::theme() {
-	Q_D(Edit);
-	return &d->m_theme;
-}
-
-void
-Edit::setTheme(const EditTheme* theme) {
-	Q_D(Edit);
-
-	d->m_theme = *theme;
-	d->applyTheme();
-	viewport()->update();
 }
 
 Edit::CodeAssistTriggers
@@ -463,18 +66,6 @@ Edit::setImportList(const QStringList& importList) {
 }
 
 QString
-Edit::fileName() {
-	Q_D(Edit);
-	return d->m_fileName;
-}
-
-void
-Edit::setFileName(const QString& fileName) {
-	Q_D(Edit);
-	d->m_fileName = fileName;
-}
-
-QString
 Edit::extraSource() {
 	Q_D(Edit);
 	return d->m_extraSource;
@@ -484,37 +75,6 @@ void
 Edit::setExtraSource(const QString& source) {
 	Q_D(Edit);
 	d->m_extraSource = source;
-}
-
-void
-Edit::setTextCursorLineCol(
-	int line,
-	int col
-) {
-	Q_D(Edit);
-	setTextCursor(d->getCursorFromLineCol(line, col));
-}
-
-void
-Edit::highlightLineTemp(
-	int line,
-	const QColor& backColor,
-	const QColor& textColor
-) {
-	Q_D(Edit);
-
-	QTextEdit::ExtraSelection selection;
-	selection.cursor = d->getCursorFromLineCol(line, 0);
-	selection.format.setProperty(QTextFormat::FullWidthSelection, true);
-
-	if (backColor.isValid())
-		selection.format.setBackground(backColor);
-
-	if (textColor.isValid())
-		selection.format.setForeground(textColor);
-
-	d->m_highlighTable[EditPrivate::HighlightKind_Temp] = selection;
-	d->updateExtraSelections();
 }
 
 void
@@ -541,54 +101,10 @@ Edit::gotoDefinition() {
 	d->requestCodeAssist(0, CodeAssistKind_GotoDefinition);
 }
 
-void
-Edit::indentSelection() {
-	Q_D(Edit);
-	d->indentSelection();
-}
-
-void
-Edit::unindentSelection() {
-	Q_D(Edit);
-	d->unindentSelection();
-}
-
-void
-Edit::setReadOnly(bool isReadOnly) {
-	Q_D(Edit);
-	QPlainTextEdit::setReadOnly(isReadOnly);
-	d->applyPalette();
-	d->updateExtraSelections();
-}
-
-void
-Edit::changeEvent(QEvent* e) {
-	Q_D(Edit);
-
-	QPlainTextEdit::changeEvent(e);
-
-	QEvent::Type type = e->type();
-	switch (type) {
-	case QEvent::FontChange:
-		d->updateFont();
-		break;
-
-	case QEvent::EnabledChange:
-		d->updateExtraSelections();
-		break;
-
-	// QEvent::ReadOnlyChange was introduced in QT-5.4; to support older QTs, don't rely on it.
-	}
-}
-
-void
-Edit::resizeEvent(QResizeEvent *e) {
-	Q_D(Edit);
-
-	QPlainTextEdit::resizeEvent(e);
-
-	if (d->m_lineNumberMargin)
-		d->updateLineNumberMarginGeometry();
+HighlighterBase*
+Edit::createSyntaxHighlighter() {
+ 	Q_D(Edit);
+	return new JancyHighlighter(document(), &d->m_theme);
 }
 
 void
@@ -604,27 +120,6 @@ Edit::keyPressEvent(QKeyEvent* e) {
 		case Qt::Key_Escape:
 			d->hideCodeAssist();
 			QPlainTextEdit::keyPressEvent(e);
-			break;
-
-		case Qt::Key_Enter:
-		case Qt::Key_Return:
-			d->keyPressEnter(e);
-			break;
-
-		case Qt::Key_Tab:
-			d->keyPressTab(e);
-			break;
-
-		case Qt::Key_Backtab:
-			d->keyPressBacktab(e);
-			break;
-
-		case Qt::Key_Backspace:
-			d->keyPressBackspace(e);
-			break;
-
-		case Qt::Key_Home:
-			d->keyPressHome(e);
 			break;
 
 		case Qt::Key_Up:
@@ -651,7 +146,8 @@ Edit::keyPressEvent(QKeyEvent* e) {
 				d->keyPressPrintChar(e);
 			else
 				QPlainTextEdit::keyPressEvent(e);
-		} else
+		}
+	else
 		switch (key) {
 		case Qt::Key_Escape:
 		case Qt::Key_Enter:
@@ -661,10 +157,6 @@ Edit::keyPressEvent(QKeyEvent* e) {
 		case Qt::Key_Up:
 		case Qt::Key_Down:
 			e->ignore(); // let the completer do the default processing
-			break;
-
-		case Qt::Key_Home:
-			d->keyPressHome(e);
 			break;
 
 		case Qt::Key_Space:
@@ -720,15 +212,10 @@ Edit::enterEvent(QEvent* e) {
 	}
 }
 
+
 //..............................................................................
 
 EditPrivate::EditPrivate() {
-	q_ptr = NULL;
-	m_syntaxHighlighter = NULL;
-	m_lineNumberMargin = NULL;
-	m_isCurrentLineHighlightingEnabled = false;
-	m_isExtraSelectionUpdateRequired = false;
-	m_tabWidth = 4;
 	m_thread = NULL;
 	m_codeTip = NULL;
 	m_completer = NULL;
@@ -748,41 +235,11 @@ EditPrivate::EditPrivate() {
 		Edit::AutoCompleteOnTypeIdentifier |
 		Edit::ImportAutoCompleteOnTypeQuotationMark |
 		Edit::GotoDefinitionOnCtrlClick;
-
-	m_highlighTable[HighlightKind_CurrentLine].format.setProperty(QTextFormat::FullWidthSelection, true);
 }
 
 void
 EditPrivate::init() {
-	Q_Q(Edit);
-
-#if (_JNC_OS_DARWIN)
-	QFont font("Menlo", 12);
-#elif (_JNC_OS_WIN)
-	QFont font("Consolas", 10);
-#else
-	QFont font("Monospace", 9);
-#endif
-
-	font.setFixedPitch(true);
-	font.setKerning(false);
-	font.setStyleHint(
-		QFont::Monospace,
-		(QFont::StyleStrategy)(QFont::NoFontMerging | QFont::ForceIntegerMetrics)
-	);
-
-	q->setFont(font);
-	q->setWordWrapMode(QTextOption::NoWrap);
-	q->setMouseTracking(true);
-
-	enableSyntaxHighlighting(true);
-	enableLineNumberMargin(true);
-	enableCurrentLineHighlighting(true);
-
-	QObject::connect(
-		q, SIGNAL(cursorPositionChanged()),
-		this, SLOT(onCursorPositionChanged())
-	);
+	EditBasePrivate::init();
 
 	static const size_t iconIdxTable[] = {
 		0,  // Icon_Object
@@ -802,171 +259,6 @@ EditPrivate::init() {
 
 	for (size_t i = 0; i < countof(m_iconTable); i++)
 		m_iconTable[i] = imageList.copy(iconIdxTable[i] * iconSize, 0, iconSize, iconSize);
-
-	applyTheme();
-}
-
-void
-EditPrivate::applyTheme() {
-	applyPalette();
-
-	QColor color;
-
-	color = m_theme.color(EditTheme::CurrentLineBack);
-	if (color.isValid())
-		m_highlighTable[HighlightKind_CurrentLine].format.setBackground(color);
-	else
-		m_highlighTable[HighlightKind_CurrentLine].format.clearBackground();
-
-	color = m_theme.color(EditTheme::BraceMatchBack);
-	if (color.isValid()) {
-		m_highlighTable[HighlightKind_AnchorBrace].format.setBackground(color);
-		m_highlighTable[HighlightKind_PairBrace].format.setBackground(color);
-	} else {
-		m_highlighTable[HighlightKind_AnchorBrace].format.clearBackground();
-		m_highlighTable[HighlightKind_PairBrace].format.clearBackground();
-	}
-
-	color = m_theme.color(EditTheme::BraceMatchText);
-	if (color.isValid()) {
-		m_highlighTable[HighlightKind_AnchorBrace].format.setForeground(color);
-		m_highlighTable[HighlightKind_PairBrace].format.setForeground(color);
-	} else {
-		m_highlighTable[HighlightKind_AnchorBrace].format.clearForeground();
-		m_highlighTable[HighlightKind_PairBrace].format.clearForeground();
-	}
-
-	if (m_syntaxHighlighter) {
-		m_syntaxHighlighter->m_theme = &m_theme;
-		m_syntaxHighlighter->rehighlight();
-	}
-
-	if (m_completer)
-		m_completer->popup()->setPalette(m_theme.completerPalette());
-
-	if (m_lineNumberMargin)
-		m_lineNumberMargin->update();
-
-	updateExtraSelections();
-}
-
-void
-EditPrivate::applyPalette() {
-	Q_Q(Edit);
-
-	q->setPalette(
-		q->isReadOnly() ?
-			m_theme.readOnlyPalette() :
-			m_theme.palette()
-	);
-}
-
-void
-EditPrivate::enableSyntaxHighlighting(bool isEnabled) {
-	Q_Q(Edit);
-
-	if (isEnabled) {
-		if (!m_syntaxHighlighter)
-			m_syntaxHighlighter = new JancyHighlighter(q->document(), &m_theme);
-	} else if (m_syntaxHighlighter) {
-		m_syntaxHighlighter->setDocument(NULL);
-		delete m_syntaxHighlighter;
-		m_syntaxHighlighter = NULL;
-	}
-}
-
-void
-EditPrivate::enableLineNumberMargin(bool isEnabled) {
-	Q_Q(Edit);
-
-	if (isEnabled) {
-		if (m_lineNumberMargin)
-			return;
-
-		m_lineNumberMargin = new LineNumberMargin(q);
-		q->setViewportMargins(m_lineNumberMargin->width(), 0, 0, 0);
-		updateLineNumberMarginGeometry();
-		m_lineNumberMargin->show();
-
-		QObject::connect(
-			q, SIGNAL(updateRequest(const QRect&, int)),
-			this, SLOT(updateLineNumberMargin(const QRect&, int))
-		);
-	} else {
-		if (!m_lineNumberMargin)
-			return;
-
-		QObject::disconnect(
-			q, SIGNAL(updateRequest(const QRect&, int)),
-			this, SLOT(updateLineNumberMargin(const QRect&, int))
-		);
-
-		q->setViewportMargins(0, 0, 0, 0);
-		delete m_lineNumberMargin;
-		m_lineNumberMargin = NULL;
-	}
-}
-
-void
-EditPrivate::enableCurrentLineHighlighting(bool isEnabled) {
-	Q_Q(Edit);
-
-	if (isEnabled == m_isCurrentLineHighlightingEnabled)
-		return;
-
-	if (isEnabled)
-		highlightCurrentLine();
-	else
-		m_highlighTable[HighlightKind_CurrentLine].cursor = QTextCursor();
-
-	m_isCurrentLineHighlightingEnabled = isEnabled;
-	updateExtraSelections();
-}
-
-void
-EditPrivate::updateExtraSelections() {
-	Q_Q(Edit);
-
-	QList<QTextEdit::ExtraSelection> list;
-
-	if (q->isEnabled() && !q->isReadOnly())
-		for (size_t i = 0; i < countof(m_highlighTable); i++)
-			if (!m_highlighTable[i].cursor.isNull())
-				list.append(m_highlighTable[i]);
-
-	q->setExtraSelections(list);
-	m_isExtraSelectionUpdateRequired = false;
-}
-
-void
-EditPrivate::updateFont() {
-	Q_Q(Edit);
-
-	q->setTabStopWidth(q->fontMetrics().width(' ') * m_tabWidth);
-
-	if (m_codeTip)
-		m_codeTip->setFont(q->font());
-
-	if (m_lineNumberMargin) {
-		m_lineNumberMargin->updateFontMetrics();
-		q->setViewportMargins(m_lineNumberMargin->width(), 0, 0, 0);
-	}
-}
-
-void
-EditPrivate::updateLineNumberMarginGeometry() {
-	ASSERT(m_lineNumberMargin);
-
-	Q_Q(Edit);
-
-	QRect rect = q->contentsRect();
-
-	m_lineNumberMargin->setGeometry(
-		rect.left(),
-		rect.top(),
-		m_lineNumberMargin->width(),
-		rect.height()
-	);
 }
 
 void
@@ -1059,35 +351,6 @@ EditPrivate::hideCodeAssist() {
 	m_lastCodeAssistKind = CodeAssistKind_Undefined;
 	m_lastCodeAssistPosition = -1;
 	m_thread = NULL;
-}
-
-void
-EditPrivate::updateLineNumberMargin(
-	const QRect& rect,
-	int dy
-) {
-	ASSERT(m_lineNumberMargin);
-
-	if (dy)
-		m_lineNumberMargin->scroll(0, dy);
-	else
-		m_lineNumberMargin->update(
-			0,
-			rect.y(),
-			m_lineNumberMargin->width(),
-			rect.height()
-		);
-}
-
-void
-EditPrivate::highlightCurrentLine() {
-	Q_Q(Edit);
-
-	QTextCursor cursor = q->textCursor();
-	cursor.clearSelection();
-	m_highlighTable[HighlightKind_CurrentLine].cursor = cursor;
-
-	m_isExtraSelectionUpdateRequired = true;
 }
 
 void
@@ -1191,31 +454,6 @@ EditPrivate::applyCompleter() {
 		onCompleterActivated(index);
 
 	hideCodeAssist();
-}
-
-QTextCursor
-EditPrivate::getCursorFromLineCol(
-	int line,
-	int col
-) {
-	Q_Q(Edit);
-
-	QTextCursor cursor = q->textCursor();
-	cursor.setPosition(0);
-	cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, line);
-	cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, col);
-	return cursor;
-}
-
-QTextCursor
-EditPrivate::getCursorFromOffset(size_t offset) {
-	Q_Q(Edit);
-
-	QString prefix = q->toPlainText().toUtf8().left(offset);
-	int position = prefix.length();
-	QTextCursor cursor = q->textCursor();
-	cursor.setPosition(position);
-	return cursor;
 }
 
 QTextCursor
@@ -1481,69 +719,6 @@ EditPrivate::createImportAutoComplete(Module* module) {
 }
 
 void
-EditPrivate::indentSelection() {
-	Q_Q(Edit);
-
-	QTextCursor cursor = q->textCursor();
-	int start = cursor.selectionStart();
-	int end = cursor.selectionEnd();
-
-	cursor.beginEditBlock();
-	cursor.setPosition(start);
-	cursor.movePosition(QTextCursor::StartOfLine);
-
-	QTextCursor endCursor = cursor;
-	endCursor.setPosition(end);
-
-	for (; cursor < endCursor; moveCursorWithLimit(&cursor, endCursor, QTextCursor::Down))
-		cursor.insertText(QChar('\t'));
-
-	cursor.endEditBlock();
-}
-
-void
-EditPrivate::unindentSelection() {
-	Q_Q(Edit);
-
-	QTextCursor cursor = q->textCursor();
-
-	int start = cursor.selectionStart();
-	int end = isCursorMultiLineSelection(cursor) ?
-		cursor.selectionEnd() :
-		getCursorEndOfLinePosition(cursor);
-
-	cursor.beginEditBlock();
-	cursor.setPosition(start);
-	cursor.movePosition(QTextCursor::StartOfLine);
-
-	QTextCursor endCursor = cursor;
-	endCursor.setPosition(end);
-
-	for (; cursor < endCursor; moveCursorWithLimit(&cursor, endCursor, QTextCursor::Down)) {
-		if (!isCursorOnIndent(cursor))
-			continue;
-
-		cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
-
-		QString indent = cursor.selectedText();
-		int length = indent.length();
-		int delta = AXL_MIN(m_tabWidth, length);
-
-		for (int i = 0; i < delta; i++)
-			if (indent.at(i) == '\t') {
-				delta = i + 1;
-				break;
-			}
-
-		cursor.movePosition(QTextCursor::StartOfLine);
-		cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, delta);
-		cursor.removeSelectedText();
-	}
-
-	cursor.endEditBlock();
-}
-
-void
 EditPrivate::keyPressControlSpace(QKeyEvent* e) {
 	Q_Q(Edit);
 
@@ -1554,124 +729,6 @@ EditPrivate::keyPressControlSpace(QKeyEvent* e) {
 		if (m_codeAssistTriggers & Edit::AutoCompleteOnCtrlSpace)
 			requestCodeAssist(0, CodeAssistKind_AutoComplete);
 	}
-}
-
-void
-EditPrivate::keyPressHome(QKeyEvent* e) {
-	Q_Q(Edit);
-
-	Qt::KeyboardModifiers modifiers = e->modifiers();
-	if (modifiers & Qt::ControlModifier) {
-		q->QPlainTextEdit::keyPressEvent(e);
-		return;
-	}
-
-	QTextCursor::MoveMode moveMode = (modifiers & Qt::ShiftModifier) ?
-		QTextCursor::KeepAnchor :
-		QTextCursor::MoveAnchor;
-
-	QTextCursor cursor = q->textCursor();
-	bool isNextWord;
-
-	if (isCursorAtStartOfLine(cursor)) {
-		isNextWord = isCursorOnIndent(cursor);
-	} else {
-		bool wasOnIndent = isCursorOnIndent(cursor);
-		cursor.movePosition(QTextCursor::StartOfLine, moveMode);
-		isNextWord = !wasOnIndent && isCursorOnIndent(cursor);
-	}
-
-	if (isNextWord)
-		cursor.movePosition(QTextCursor::NextWord, moveMode);
-
-	q->setTextCursor(cursor);
-}
-
-void
-EditPrivate::keyPressTab(QKeyEvent* e) {
-	Q_Q(Edit);
-
-	if (e->modifiers() & Qt::ShiftModifier) // unindent
-		return keyPressBacktab(e);
-
-	QTextCursor cursor = q->textCursor();
-	if (isCursorMultiLineSelection(cursor))
-		indentSelection();
-	else
-		q->QPlainTextEdit::keyPressEvent(e);
-}
-
-void
-EditPrivate::keyPressBacktab(QKeyEvent* e) {
-	Q_Q(Edit);
-
-	QTextCursor cursor = q->textCursor();
-	if (isCursorMultiLineSelection(cursor) || isCursorOnIndent(cursor))
-		unindentSelection();
-}
-
-void
-EditPrivate::keyPressEnter(QKeyEvent* e) {
-	Q_Q(Edit);
-
-	QTextCursor cursor = q->textCursor();
-	if (cursor.hasSelection())
-		cursor.setPosition(cursor.selectionStart());
-
-	int position = cursor.position();
-	cursor.movePosition(QTextCursor::StartOfLine);
-	if (!isCursorOnIndent(cursor)) {
-		q->QPlainTextEdit::keyPressEvent(e);
-		return;
-	}
-
-	bool isSol = cursor.position() == position;
-	cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
-	QString indent = cursor.selectedText();
-
-	cursor = q->textCursor();
-	cursor.beginEditBlock();
-	cursor.insertText(QChar('\n'));
-
-	if (isCursorOnIndent(cursor))
-		cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor); // select new "random" indent
-
-	cursor.insertText(indent); // insert proper indent
-
-	if (isSol) {
-		cursor.movePosition(QTextCursor::StartOfLine);
-		q->setTextCursor(cursor);
-	}
-
-	cursor.movePosition(QTextCursor::Up);
-	cursor.movePosition(QTextCursor::EndOfLine);
-	cursor.movePosition(QTextCursor::PreviousWord);
-	cursor.movePosition(QTextCursor::EndOfWord);
-	cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
-	cursor.removeSelectedText();
-	cursor.endEditBlock();
-}
-
-void
-EditPrivate::keyPressBackspace(QKeyEvent* e) {
-	Q_Q(Edit);
-
-	QTextCursor cursor = q->textCursor();
-	if (cursor.hasSelection()) {
-		q->QPlainTextEdit::keyPressEvent(e);
-		return;
-	}
-
-	QChar prev = getCursorPrevChar(cursor);
-	if (isLeftBrace(prev)) {
-		QChar next = getCursorNextChar(cursor);
-		if (next == getRightBrace(prev)) {
-			cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
-			cursor.removeSelectedText();
-		}
-	}
-
-	q->QPlainTextEdit::keyPressEvent(e);
 }
 
 void
@@ -1686,32 +743,10 @@ EditPrivate::keyPressPrintChar(QKeyEvent* e) {
 	bool isImportAutoComplete;
 
 	switch (c) {
-	case ')':
-	case ']':
-	case '}':
-		if (cursor.hasSelection() || getCursorNextChar(cursor) != c || hasCursorHighlightColor(cursor)) {
-			q->QPlainTextEdit::keyPressEvent(e);
-			break;
-		}
-
-		cursor.movePosition(QTextCursor::NextCharacter);
-		q->setTextCursor(cursor);
-		break;
-
 	case '(':
 	case '[':
 	case '{':
-		q->QPlainTextEdit::keyPressEvent(e);
-
-		if (hasCursorHighlightColor(cursor))
-			break;
-
-		if (isBraceAutoComplete(getCursorNextChar(cursor))) {
-			cursor = q->textCursor();
-			cursor.insertText(getRightBrace(c));
-			cursor.movePosition(QTextCursor::PreviousCharacter);
-			q->setTextCursor(cursor);
-		}
+		EditBasePrivate::keyPressPrintChar(e);
 
 		if ((m_codeAssistTriggers & Edit::ArgumentTipOnTypeLeftParenthesis) && c == '(')
 			requestCodeAssist(CodeAssistDelay_ArgumentTipInitial, CodeAssistKind_ArgumentTip);
@@ -1719,7 +754,7 @@ EditPrivate::keyPressPrintChar(QKeyEvent* e) {
 		break;
 
 	case '.':
-		q->QPlainTextEdit::keyPressEvent(e);
+		EditBasePrivate::keyPressPrintChar(e);
 
 		if ((m_codeAssistTriggers & Edit::AutoCompleteOnTypeDot) && !hasCursorHighlightColor(cursor))
 			requestCodeAssist(CodeAssistDelay_AutoComplete, CodeAssistKind_AutoComplete);
@@ -1727,7 +762,7 @@ EditPrivate::keyPressPrintChar(QKeyEvent* e) {
 		break;
 
 	case ',':
-		q->QPlainTextEdit::keyPressEvent(e);
+		EditBasePrivate::keyPressPrintChar(e);
 
 		if ((m_codeAssistTriggers & Edit::ArgumentTipOnTypeComma) && !hasCursorHighlightColor(cursor))
 			requestCodeAssist(CodeAssistDelay_ArgumentTipComma, CodeAssistKind_ArgumentTip);
@@ -1739,7 +774,7 @@ EditPrivate::keyPressPrintChar(QKeyEvent* e) {
 			((m_codeAssistTriggers & Edit::ImportAutoCompleteOnTypeQuotationMark) &&
 			getCursorLinePrefix(cursor).trimmed() == "import");
 
-		q->QPlainTextEdit::keyPressEvent(e);
+		EditBasePrivate::keyPressPrintChar(e);
 
 		if (isImportAutoComplete)
 			requestCodeAssist(CodeAssistDelay_AutoComplete, CodeAssistKind_AutoComplete);
@@ -1747,7 +782,7 @@ EditPrivate::keyPressPrintChar(QKeyEvent* e) {
 		break;
 
 	default:
-		q->QPlainTextEdit::keyPressEvent(e);
+		EditBasePrivate::keyPressPrintChar(e);
 	}
 }
 
@@ -1760,84 +795,6 @@ EditPrivate::timerEvent(QTimerEvent* e) {
 
 	m_codeAssistTimer.stop();
 	startCodeAssistThread(m_pendingCodeAssistKind, m_pendingCodeAssistPosition);
-}
-
-void
-EditPrivate::matchBraces() {
-	Q_Q(Edit);
-
-	if (!m_highlighTable[HighlightKind_AnchorBrace].cursor.isNull()) { // clear first
-		m_highlighTable[HighlightKind_AnchorBrace].cursor = QTextCursor();
-		m_highlighTable[HighlightKind_PairBrace].cursor = QTextCursor();
-		m_isExtraSelectionUpdateRequired = true;
-	}
-
-	QTextCursor cursor = q->textCursor();
-	if (cursor.hasSelection())
-		return;
-
-	QChar brace = getCursorNextChar(cursor);
-	PairBrace pair = checkBraceMatch(brace);
-	if (!pair) {
-		brace = getCursorPrevChar(cursor);
-		pair = checkBraceMatch(brace);
-		if (!pair)
-			return;
-
-		cursor.movePosition(QTextCursor::PreviousCharacter);
-	}
-
-	if (hasCursorHighlightColor(cursor))
-		return;
-
-	QString text = q->toPlainText();
-
-	int pos = cursor.position();
-	int matchPos = -1;
-
-	if (pair.m_isBackwardSearch)
-		for (int i = pos - 1, level = 1; i >= 0; i--) {
-			QChar c = text.at(i);
-
-			if (c == brace) {
-				cursor.setPosition(i);
-				if (!hasCursorHighlightColor(cursor))
-					level++;
-			} else if (c == pair.m_c) {
-				cursor.setPosition(i);
-				if (!hasCursorHighlightColor(cursor) && !--level) {
-					matchPos = i;
-					break;
-				}
-			}
-		} else
-		for (int i = pos + 1, level = 1, length = text.length(); i < length; i++) {
-			QChar c = text.at(i);
-			if (c == brace) {
-				cursor.setPosition(i);
-				if (!hasCursorHighlightColor(cursor))
-					level++;
-			} else if (c == pair.m_c) {
-				cursor.setPosition(i);
-				if (!hasCursorHighlightColor(cursor) && !--level) {
-					matchPos = i;
-					break;
-				}
-			}
-		}
-
-	if (matchPos == -1)
-		return;
-
-	cursor.setPosition(pos);
-	m_highlighTable[HighlightKind_AnchorBrace].cursor = cursor;
-	m_highlighTable[HighlightKind_AnchorBrace].cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
-
-	cursor.setPosition(matchPos);
-	m_highlighTable[HighlightKind_PairBrace].cursor = cursor;
-	m_highlighTable[HighlightKind_PairBrace].cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
-
-	m_isExtraSelectionUpdateRequired = true;
 }
 
 void

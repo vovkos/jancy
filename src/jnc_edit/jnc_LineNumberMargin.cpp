@@ -11,16 +11,14 @@
 
 #include "pch.h"
 #include "jnc_LineNumberMargin.h"
-#include "jnc_Edit.h"
 #include "moc_jnc_LineNumberMargin.cpp"
-
-// #define _JNC_EDIT_LINE_NUMBER_MARGIN_BG 1
+#include "jnc_EditBase.h"
 
 namespace jnc {
 
 //..............................................................................
 
-LineNumberMargin::LineNumberMargin(Edit* edit):
+LineNumberMargin::LineNumberMargin(EditBase* edit):
 	QWidget(edit) {
 	updateFontMetrics();
 }
@@ -37,7 +35,7 @@ LineNumberMargin::paintEvent(QPaintEvent* e) {
 	QPainter painter(this);
 	QRectF paintRect = e->rect();
 
-	Edit* edit = (Edit*)parentWidget();
+	EditBase* edit = (EditBase*)parentWidget();
 	int lineHeight = edit->fontMetrics().height();
 
 	QTextBlock block = edit->firstVisibleBlock();

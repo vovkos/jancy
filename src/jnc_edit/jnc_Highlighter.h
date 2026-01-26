@@ -11,17 +11,18 @@
 
 #pragma once
 
-#include "jnc_EditTheme.h"
+#include "jnc_HighlighterBase.h"
 
 namespace jnc {
 
 //..............................................................................
 
-class JancyHighlighter: public lex::QtRagelSyntaxHighlighter<JancyHighlighter> {
+class JancyHighlighter: public lex::QtRagelSyntaxHighlighter<JancyHighlighter, HighlighterBase> {
 protected:
+	typedef lex::QtRagelSyntaxHighlighter<JancyHighlighter, HighlighterBase> BaseClass;
+
 	enum BlockState {
 		BlockState_Normal,
-		BlockState_CommentSl,
 		BlockState_CommentMl,
 		BlockState_LitMl,
 		BlockState_LitMlRaw,
@@ -35,27 +36,14 @@ public:
 		QTextDocument* document,
 		const EditTheme* theme
 	):
-		lex::QtRagelSyntaxHighlighter<JancyHighlighter>(document) {
+		BaseClass(document) {
 		m_theme = theme;
 	}
 
 protected:
-	bool
-	isTokenSuffix(const sl::StringRef& suffix) {
-		return sl::StringRef(ts, te - ts).isSuffix(suffix);
-	}
-
-	bool
-	isTokenSuffix(
-		const char* p,
-		size_t length
-	) {
-		return sl::StringRef(ts, te - ts).isSuffix(sl::StringRef(p, length));
-	}
-
 	void
 	highlightLastToken(EditTheme::Role role) {
-		lex::QtRagelSyntaxHighlighter<JancyHighlighter>::highlightLastToken(m_theme->color(role));
+		BaseClass::highlightLastToken(m_theme->color(role));
 	}
 
 public:

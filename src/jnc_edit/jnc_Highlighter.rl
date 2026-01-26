@@ -159,7 +159,10 @@ main := |*
 	'dynamic' ws+ 'sizeof' |
 	'dynamic' ws+ 'countofof' |
 	'dynamic' ws+ 'typeofof'
-)                 { highlightLastToken(EditTheme::Keyword); };
+)
+	{
+		highlightLastToken(EditTheme::Keyword);
+	};
 
 'dynamic' ws+ '('
 	{
@@ -190,15 +193,15 @@ id                ;
 	(dec+ '.' dec* | '.' dec+)exp? | dec+ exp
 )                 { highlightLastToken(EditTheme::Constant); };
 
-[$fFrR] '"""'
+[$fF]? '"""'
                   { highlightLastToken(EditTheme::Constant); fgoto lit_ml; };
 
-(('0' [xXoObBnNdD]) | [rR])? '"""'
+(('0' [xXoObBnNdD]) | [rR]) '"""'
                   { highlightLastToken(EditTheme::Constant); fgoto lit_ml_raw; };
 
 '$' dec+          { highlightLastToken(EditTheme::Keyword); };
 
-'//' any*         { highlightLastToken(EditTheme::Comment); setCurrentBlockState(BlockState_CommentSl); };
+'//' any*         { highlightLastToken(EditTheme::Comment); };
 '/*'              { highlightLastToken(EditTheme::Comment); fgoto comment_ml; };
 
 ws | nl           ;
@@ -213,7 +216,7 @@ any               ;
 
 comment_ml := |*
 
-any* :>> '*/'?    { highlightLastToken(EditTheme::Comment); if (isTokenSuffix("*/", 2)) fgoto main; };
+any* :>> '*/'?    { highlightLastToken(EditTheme::Comment); if (isLastTokenSuffix("*/", 2)) fgoto main; };
 
 *|;
 
@@ -225,13 +228,13 @@ any* :>> '*/'?    { highlightLastToken(EditTheme::Comment); if (isTokenSuffix("*
 lit_ml := |*
 
 (esc | any)* :>> '"""'?
-                  { highlightLastToken(EditTheme::Constant); if (isTokenSuffix("\"\"\"", 3)) fgoto main; };
+                  { highlightLastToken(EditTheme::Constant); if (isLastTokenSuffix("\"\"\"", 3)) fgoto main; };
 
 *|;
 
 lit_ml_raw := |*
 
-any* :>> '"""'?   { highlightLastToken(EditTheme::Constant); if (isTokenSuffix("\"\"\"", 3)) fgoto main; };
+any* :>> '"""'?   { highlightLastToken(EditTheme::Constant); if (isLastTokenSuffix("\"\"\"", 3)) fgoto main; };
 
 *|;
 

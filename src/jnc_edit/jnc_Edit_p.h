@@ -12,7 +12,7 @@
 #pragma once
 
 #include "jnc_Edit.h"
-#include "jnc_LineNumberMargin.h"
+#include "jnc_EditBase_p.h"
 #include "jnc_Highlighter.h"
 #include "jnc_CodeTip.h"
 #include "jnc_CodeAssistThread.h"
@@ -23,7 +23,7 @@ class CodeTip;
 
 //..............................................................................
 
-class EditPrivate: public QObject {
+class EditPrivate: public EditBasePrivate {
 	Q_OBJECT
 	Q_DECLARE_PUBLIC(Edit)
 
@@ -59,14 +59,6 @@ protected:
 		Icon__Count,
 	};
 
-	enum HighlightKind {
-		HighlightKind_CurrentLine,
-		HighlightKind_AnchorBrace,
-		HighlightKind_PairBrace,
-		HighlightKind_Temp,
-		HighlightKind__Count,
-	};
-
 	enum CodeAssistDelay {
 		CodeAssistDelay_None               = 0,
 		CodeAssistDelay_AutoComplete       = 100,
@@ -77,14 +69,9 @@ protected:
 	};
 
 protected:
-	Edit* q_ptr;
-	JancyHighlighter* m_syntaxHighlighter;
-	LineNumberMargin* m_lineNumberMargin;
-	int m_tabWidth;
 	Edit::CodeAssistTriggers m_codeAssistTriggers;
 	QStringList m_importDirList;
 	QStringList m_importList;
-	QString m_fileName;
 	QString m_extraSource;
 	CodeAssistThread* m_thread;
 	rc::Ptr<Module> m_lastCodeAssistModule;
@@ -99,43 +86,12 @@ protected:
 	QIcon m_iconTable[Icon__Count];
 	QBasicTimer m_codeAssistTimer;
 	QFileIconProvider m_fileIconProvider;
-	QTextEdit::ExtraSelection m_highlighTable[HighlightKind__Count];
-	EditTheme m_theme;
-	bool m_isExtraSelectionUpdateRequired;
-	bool m_isCurrentLineHighlightingEnabled;
 
 protected:
 	EditPrivate();
 
 	void
 	init();
-
-	void
-	setReadOnly(bool isReadOnly);
-
-	void
-	applyTheme();
-
-	void
-	applyPalette();
-
-	void
-	enableSyntaxHighlighting(bool isEnabled);
-
-	void
-	enableLineNumberMargin(bool isEnabled);
-
-	void
-	enableCurrentLineHighlighting(bool isEnabled);
-
-	void
-	updateFont();
-
-	void
-	updateLineNumberMarginGeometry();
-
-	void
-	updateExtraSelections();
 
 	void
 	requestCodeAssist(
@@ -230,18 +186,6 @@ protected:
 	getItemIconIdx(ModuleItem* item);
 
 	QTextCursor
-	getCursorFromLineCol(
-		int line,
-		int col
-	);
-
-	QTextCursor
-	getCursorFromOffset(size_t offset);
-
-	void
-	highlightCurrentLine();
-
-	QTextCursor
 	getLastCodeAssistCursor();
 
 	QRect
@@ -262,31 +206,7 @@ protected:
 	getPrototypeFunction(const QModelIndex& index);
 
 	void
-	indentSelection();
-
-	void
-	unindentSelection();
-
-	void
-	matchBraces();
-
-	void
 	keyPressControlSpace(QKeyEvent* e);
-
-	void
-	keyPressHome(QKeyEvent* e);
-
-	void
-	keyPressTab(QKeyEvent* e);
-
-	void
-	keyPressBacktab(QKeyEvent* e);
-
-	void
-	keyPressEnter(QKeyEvent* e);
-
-	void
-	keyPressBackspace(QKeyEvent* e);
 
 	void
 	keyPressPrintChar(QKeyEvent* e);
@@ -296,7 +216,6 @@ protected:
 	timerEvent(QTimerEvent* e);
 
 private slots:
-	void updateLineNumberMargin(const QRect&, int);
 	void onCursorPositionChanged();
 	void onCompleterActivated(const QModelIndex& index);
 	void onCodeAssistReady();
@@ -325,29 +244,6 @@ public:
 		const QStyleOptionViewItem& option0,
 		const QModelIndex& index
 	) const;
-};
-
-//..............................................................................
-
-struct PairBrace {
-	QChar m_c;
-	bool m_isBackwardSearch;
-
-	PairBrace() {
-		m_isBackwardSearch = false;
-	}
-
-	PairBrace(
-		QChar c,
-		bool isBackwardSearch = false
-	) {
-		m_c = c;
-		m_isBackwardSearch = isBackwardSearch;
-	}
-
-	operator bool () const {
-		return !m_c.isNull();
-	}
 };
 
 //..............................................................................

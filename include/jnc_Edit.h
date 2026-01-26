@@ -11,33 +11,22 @@
 
 #pragma once
 
-#include <QPlainTextEdit>
-#include "jnc_EditTheme.h"
+#include "jnc_EditBase.h"
 
 namespace jnc {
 
 class EditPrivate;
-class LineNumberMargin;
 
 //..............................................................................
 
-class JNC_EDIT_EXPORT Edit: public QPlainTextEdit {
+class JNC_EDIT_EXPORT Edit: public EditBase {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(Edit)
 	Q_DISABLE_COPY(Edit)
-	Q_PROPERTY(bool isReadOnly READ isReadOnly WRITE setReadOnly)
-	Q_PROPERTY(bool isLineNumberMarginEnabled READ isLineNumberMarginEnabled WRITE enableLineNumberMargin)
-	Q_PROPERTY(int lineNumberMarginWidth READ lineNumberMarginWidth)
-	Q_PROPERTY(bool isCurrentLineHighlightingEnabled READ isCurrentLineHighlightingEnabled WRITE enableCurrentLineHighlighting)
-	Q_PROPERTY(bool isSyntaxHighlightingEnabled READ isSyntaxHighlightingEnabled WRITE enableSyntaxHighlighting)
-	Q_PROPERTY(int tabWidth READ tabWidth WRITE setTabWidth)
 	Q_PROPERTY(CodeAssistTriggers codeAssistTriggers READ codeAssistTriggers WRITE setCodeAssistTriggers)
 	Q_PROPERTY(QStringList importDirList READ importDirList WRITE setImportDirList)
 	Q_PROPERTY(QStringList importList READ importList WRITE setImportList)
-	Q_PROPERTY(QString fileName READ fileName WRITE setFileName)
 	Q_PROPERTY(QString extraSource READ extraSource WRITE setExtraSource)
-
-	friend class LineNumberMargin;
 
 public:
 	enum CodeAssistTrigger {
@@ -61,69 +50,31 @@ public:
 
 public:
 	Edit(QWidget* parent = NULL);
-	~Edit();
 
 	// properties
 
-	void setReadOnly(bool isReadOnly);
-	bool isLineNumberMarginEnabled();
-	void enableLineNumberMargin(bool isEnabled);
-	int lineNumberMarginWidth();
-	bool isCurrentLineHighlightingEnabled();
-	void enableCurrentLineHighlighting(bool isEnabled);
-	bool isSyntaxHighlightingEnabled();
-	void enableSyntaxHighlighting(bool isEnabled);
-	int tabWidth();
-	void setTabWidth(int width);
-	const EditTheme* theme();
-	void setTheme(const EditTheme* theme);
 	CodeAssistTriggers codeAssistTriggers();
 	void setCodeAssistTriggers(CodeAssistTriggers triggers);
 	QStringList importDirList();
 	void setImportDirList(const QStringList& dirList);
 	QStringList importList();
 	void setImportList(const QStringList& importList);
-	QString fileName();
-	void setFileName(const QString& fileName);
 	QString extraSource();
 	void setExtraSource(const QString& source);
 
-	// selection/highlighth operations
-
-	void setTextCursorLineCol(
-		int line,
-		int col
-	);
-
-	void highlightLineTemp(
-		int line,
-		const QColor& backColor,
-		const QColor& textColor = QColor::Invalid
-	);
-
 public slots:
-	// code-assist
-
 	void quickInfoTip();
 	void argumentTip();
 	void autoComplete();
 	void gotoDefinition();
 
-	// indent
-
-	void indentSelection();
-	void unindentSelection();
-
 protected:
-	virtual void changeEvent(QEvent* e);
-	virtual void resizeEvent(QResizeEvent* e);
+	virtual HighlighterBase* createSyntaxHighlighter();
+
 	virtual void keyPressEvent(QKeyEvent* e);
 	virtual void enterEvent(QEvent* e);
 	virtual void mousePressEvent(QMouseEvent* e);
 	virtual void mouseMoveEvent(QMouseEvent* e);
-
-protected:
-	QScopedPointer<EditPrivate> d_ptr;
 };
 
 //..............................................................................

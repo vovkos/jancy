@@ -1,4 +1,4 @@
-//..............................................................................
+﻿//..............................................................................
 //
 //  This file is part of the Jancy toolkit.
 //
@@ -11,28 +11,29 @@
 
 #pragma once
 
-namespace jnc {
+#include "jnc_EditTheme.h"
 
-class EditBase;
+namespace jnc {
 
 //..............................................................................
 
-class LineNumberMargin: public QWidget {
-	Q_OBJECT
-
-protected:
-	int m_anchorPos;
-
+class HighlighterBase: public QSyntaxHighlighter {
 public:
-	LineNumberMargin(EditBase* edit);
+	HighlighterBase(QTextDocument* document): QSyntaxHighlighter(document) {
+		m_theme = NULL;
+	}
 
-	void
-	updateFontMetrics();
+	const jnc::EditTheme* theme() {
+		return m_theme;
+	}
+
+	void setTheme(const jnc::EditTheme* theme) {
+		m_theme = theme;
+		rehighlight();
+	}
 
 protected:
-	virtual
-	void
-	paintEvent(QPaintEvent* e);
+	const jnc::EditTheme* m_theme;
 };
 
 //..............................................................................

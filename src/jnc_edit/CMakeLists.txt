@@ -23,24 +23,30 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
 set(
 	LIB_H_LIST
-	${JANCY_ROOT_DIR}/include/jnc_Edit.h
+	${JANCY_ROOT_DIR}/include/jnc_HighlighterBase.h
 	${JANCY_ROOT_DIR}/include/jnc_EditTheme.h
+	${JANCY_ROOT_DIR}/include/jnc_EditBase.h
+	${JANCY_ROOT_DIR}/include/jnc_Edit.h
 	${JANCY_ROOT_DIR}/include/jnc_CodeAssist.h
+	jnc_Highlighter.h
+	jnc_EditBase_p.h
 	jnc_Edit_p.h
 	jnc_LineNumberMargin.h
-	jnc_Highlighter.h
 	jnc_CodeAssistThread.h
 	jnc_CodeTip.h
+	jnc_CursorUtils.h
 )
 
 set(
 	LIB_CPP_LIST
-	jnc_Edit_p.cpp
 	jnc_EditTheme.cpp
+	jnc_EditBase_p.cpp
+	jnc_Edit_p.cpp
 	jnc_LineNumberMargin.cpp
 	jnc_Highlighter.cpp
 	jnc_CodeAssistThread.cpp
 	jnc_CodeTip.cpp
+	jnc_CursorUtils.cpp
 )
 
 set(
@@ -88,7 +94,9 @@ file(MAKE_DIRECTORY ${GEN_DIR})
 
 set(
 	MOC_H_LIST
+	${JANCY_ROOT_DIR}/include/jnc_EditBase.h
 	${JANCY_ROOT_DIR}/include/jnc_Edit.h
+	jnc_EditBase_p.h
 	jnc_Edit_p.h
 	jnc_LineNumberMargin.h
 	jnc_CodeAssistThread.h
@@ -126,9 +134,9 @@ axl_exclude_from_build(${GEN_RL_CPP_LIST})  # include "*.rl.cpp" manually
 source_group(
 	gen
 	FILES
-	${GEN_RL_CPP_LIST}
-	${GEN_QRC_CPP_LIST}
 	${GEN_MOC_CPP_LIST}
+	${GEN_QRC_CPP_LIST}
+	${GEN_RL_CPP_LIST}
 )
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -136,7 +144,7 @@ source_group(
 # pch folder
 #
 
-set(PCH_H   pch.h)
+set(PCH_H pch.h)
 
 source_group(
 	pch
