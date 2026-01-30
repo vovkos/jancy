@@ -29,6 +29,8 @@ Edit::Edit(QWidget *parent):
 	d->init();
 }
 
+Edit::~Edit() {}
+
 Edit::CodeAssistTriggers
 Edit::codeAssistTriggers() {
 	Q_D(Edit);

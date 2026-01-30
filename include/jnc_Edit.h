@@ -50,6 +50,7 @@ public:
 
 public:
 	Edit(QWidget* parent = NULL);
+	~Edit();
 
 	// properties
 
