@@ -1,0 +1,22 @@
+.. include:: def.rst
+.. index:: pair: enum; PropertyKind
+.. _doxid-typejnc_propertykind:
+
+enum jnc.PropertyKind
+=====================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum PropertyKind {
+	    :target:`Undefined<doxid-enum_memberjnc_propertykind_undefined>` = 0,
+	    :target:`Normal<doxid-enum_memberjnc_propertykind_normal>`,
+	    :target:`Thunk<doxid-enum_memberjnc_propertykind_thunk>`,
+	    :target:`DataThunk<doxid-enum_memberjnc_propertykind_datathunk>`,
+	    :target:`Internal<doxid-enum_memberjnc_propertykind_internal>`,
+	    :target:`_Count<doxid-enum_memberjnc_propertykind__count>`,
+	};
+

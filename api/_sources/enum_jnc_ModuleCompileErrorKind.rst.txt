@@ -1,0 +1,19 @@
+.. index:: pair: enum; jnc_ModuleCompileErrorKind
+.. _doxid-group__module_1ga250a486e0a8a424632bd0c584c38e207:
+
+enum jnc_ModuleCompileErrorKind
+===============================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Module.h>
+
+	enum jnc_ModuleCompileErrorKind {
+	    :target:`jnc_ModuleCompileErrorKind_ParseSyntax<doxid-group__module_1gga250a486e0a8a424632bd0c584c38e207ae05042ef6fb41d1eb20a0cec3b695127>`,
+	    :target:`jnc_ModuleCompileErrorKind_ParseSemantic<doxid-group__module_1gga250a486e0a8a424632bd0c584c38e207a8aa7d701573c55f9ee0d8c52e94aaa79>`,
+	    :target:`jnc_ModuleCompileErrorKind_PostParse<doxid-group__module_1gga250a486e0a8a424632bd0c584c38e207a6ad199930da5a9606b7133888b1b186f>`,
+	};
+

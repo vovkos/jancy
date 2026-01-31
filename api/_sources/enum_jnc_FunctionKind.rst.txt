@@ -1,0 +1,37 @@
+.. index:: pair: enum; jnc_FunctionKind
+.. _doxid-group__function_1ga30c269aa3b279da8a08681273a18b065:
+
+enum jnc_FunctionKind
+=====================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Function.h>
+
+	enum jnc_FunctionKind {
+	    :target:`jnc_FunctionKind_Undefined<doxid-group__function_1gga30c269aa3b279da8a08681273a18b065ad1cf49c6a491822599930c772ce56987>`           = 0,
+	    :target:`jnc_FunctionKind_Normal<doxid-group__function_1gga30c269aa3b279da8a08681273a18b065a234cc444f1c43502cc36ba12b7fdf60a>`,
+	    :target:`jnc_FunctionKind_Getter<doxid-group__function_1gga30c269aa3b279da8a08681273a18b065a825cbc721c7849ba7d6ae3ec5217189b>`,
+	    :target:`jnc_FunctionKind_Setter<doxid-group__function_1gga30c269aa3b279da8a08681273a18b065af0deb44bd0e9074f9f4819de839683cf>`,
+	    :target:`jnc_FunctionKind_Binder<doxid-group__function_1gga30c269aa3b279da8a08681273a18b065ac35d7b5b454758b15c5ad31f464eaecc>`,
+	    :target:`jnc_FunctionKind_StaticConstructor<doxid-group__function_1gga30c269aa3b279da8a08681273a18b065af940e70b963aac226a895e7f79a7f394>`,
+	    :target:`jnc_FunctionKind_Constructor<doxid-group__function_1gga30c269aa3b279da8a08681273a18b065a7634d6d1b40025405a8f0f311020e2fd>`,
+	    :target:`jnc_FunctionKind_Destructor<doxid-group__function_1gga30c269aa3b279da8a08681273a18b065ad8dd159155b47450fffd2163cf0765e5>`,
+	    :target:`jnc_FunctionKind_CallOperator<doxid-group__function_1gga30c269aa3b279da8a08681273a18b065ab63aa19a4aa76fa06ceb4d36cc2bf8b2>`,
+	    :target:`jnc_FunctionKind_CastOperator<doxid-group__function_1gga30c269aa3b279da8a08681273a18b065aad1788b3c2497db8417df79da46a7032>`,
+	    :target:`jnc_FunctionKind_UnaryOperator<doxid-group__function_1gga30c269aa3b279da8a08681273a18b065a8993961a144ed80f09545324599939de>`,
+	    :target:`jnc_FunctionKind_BinaryOperator<doxid-group__function_1gga30c269aa3b279da8a08681273a18b065ad1795d8484be83c18aac9311237476b7>`,
+	    :target:`jnc_FunctionKind_OperatorVararg<doxid-group__function_1gga30c269aa3b279da8a08681273a18b065ad54669ff7a4db48dc0d0545552993625>`,
+	    :target:`jnc_FunctionKind_OperatorCdeclVararg<doxid-group__function_1gga30c269aa3b279da8a08681273a18b065a9685c3ba8bad5e9cc2f27d1e6ecfab74>`,
+	    :target:`jnc_FunctionKind_Internal<doxid-group__function_1gga30c269aa3b279da8a08681273a18b065aff3997233216c69a4ba40640478a542f>`,
+	    :target:`jnc_FunctionKind_Thunk<doxid-group__function_1gga30c269aa3b279da8a08681273a18b065aed59b9100471f6456440f6dae8fbf396>`,
+	    :target:`jnc_FunctionKind_SchedLauncher<doxid-group__function_1gga30c269aa3b279da8a08681273a18b065a44d15921c53cd62b2066923d8c6607e2>`,
+	    :target:`jnc_FunctionKind_AsyncSchedLauncher<doxid-group__function_1gga30c269aa3b279da8a08681273a18b065ab14d9f950fdbfd2d27a6c2db3b1019f0>`,
+	    :target:`jnc_FunctionKind_AsyncSequencer<doxid-group__function_1gga30c269aa3b279da8a08681273a18b065a2de57b343710807935fee23d445bf44c>`,
+	    :target:`jnc_FunctionKind_Reactor<doxid-group__function_1gga30c269aa3b279da8a08681273a18b065a89272f9b23321be11c4343c32592f022>`,
+	    :target:`jnc_FunctionKind__Count<doxid-group__function_1gga30c269aa3b279da8a08681273a18b065a84b9c708bdf2eb6888c0624919b0190f>`,
+	};
+

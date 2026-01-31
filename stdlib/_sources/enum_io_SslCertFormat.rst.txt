@@ -1,0 +1,18 @@
+.. include:: def.rst
+.. index:: pair: enum; SslCertFormat
+.. _doxid-typeio_sslcertformat:
+
+enum io.SslCertFormat
+=====================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum SslCertFormat {
+	    :target:`Pem<doxid-enum_memberio_sslcertformat_pem>`,
+	    :target:`Der<doxid-enum_memberio_sslcertformat_der>`,
+	};
+

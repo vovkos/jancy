@@ -1,0 +1,59 @@
+.. include:: def.rst
+.. index:: pair: class; io.HostNameResolver
+.. _doxid-typeio_hostnameresolver:
+
+class io.HostNameResolver
+=========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class HostNameResolver {
+		// fields
+	
+		:ref:`io.SocketAddress<doxid-typeio_socketaddress>` const* readonly volatile :target:`m_addressTable<doxid-fieldio_hostnameresolver_m_addresstable>`;
+		typedef unsigned long size_t readonly volatile :target:`m_addressCount<doxid-fieldio_hostnameresolver_m_addresscount>`;
+		:ref:`io.HostNameResolverEvents<doxid-typeio_hostnameresolverevents>` readonly volatile :target:`m_activeEvents<doxid-fieldio_hostnameresolver_m_activeevents>`;
+		:ref:`std.Error<doxid-typestd_error>` const* readonly volatile :target:`m_error<doxid-fieldio_hostnameresolver_m_error>`;
+		bool readonly :target:`m_isOpen<doxid-fieldio_hostnameresolver_m_isopen>`;
+
+		// construction
+	
+		:target:`construct<doxid-functionio_hostnameresolver_construct>`();
+		:target:`destruct<doxid-functionio_hostnameresolver_destruct>`();
+
+		// methods
+	
+		bool errorcode :target:`resolve<doxid-functionio_hostnameresolver_resolve>`(
+			:ref:`string_t<doxid-typedefstring_t>` name,
+			:ref:`io.AddressFamily<doxid-typeio_addressfamily>` family = AddressFamily.Undefined
+		);
+	
+		void :target:`cancel<doxid-functionio_hostnameresolver_cancel>`();
+		void :target:`close<doxid-functionio_hostnameresolver_close>`();
+	
+		long errorcode :target:`wait<doxid-functionio_hostnameresolver_wait>`(
+			:ref:`io.HostNameResolverEvents<doxid-typeio_hostnameresolverevents>` eventMask,
+			void function* handler(io.HostNameResolverEvents triggeredEvents)
+		);
+	
+		bool errorcode :target:`cancelWait<doxid-functionio_hostnameresolver_cancelwait>`(long handle);
+	
+		:ref:`io.HostNameResolverEvents<doxid-typeio_hostnameresolverevents>` :target:`blockingWait<doxid-functionio_hostnameresolver_blockingwait>`(
+			:ref:`io.HostNameResolverEvents<doxid-typeio_hostnameresolverevents>` eventMask,
+			:ref:`uint_t<doxid-typedefuint_t>` timeout = -1
+		);
+	
+		:ref:`io.HostNameResolverEvents<doxid-typeio_hostnameresolverevents>` async :target:`asyncWait<doxid-functionio_hostnameresolver_asyncwait>`(:ref:`io.HostNameResolverEvents<doxid-typeio_hostnameresolverevents>` eventMask);
+
+		// aliases
+	
+		alias :target:`dispose<doxid-aliasio_hostnameresolver_dispose>` = cancel;
+	};

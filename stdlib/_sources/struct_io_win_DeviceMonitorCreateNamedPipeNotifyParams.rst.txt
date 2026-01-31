@@ -1,0 +1,45 @@
+.. include:: def.rst
+.. index:: pair: struct; io.win.DeviceMonitorCreateNamedPipeNotifyParams
+.. _doxid-typeio_win_devicemonitorcreatenamedpipenotifyparams:
+
+struct io.win.DeviceMonitorCreateNamedPipeNotifyParams
+======================================================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct DeviceMonitorCreateNamedPipeNotifyParams: :ref:`io.win.DeviceMonitorCreateNotifyParams<doxid-typeio_win_devicemonitorcreatenotifyparams>` {
+		// fields
+	
+		typedef unsigned int uint32_t :target:`m_pipeType<doxid-fieldio_win_devicemonitorcreatenamedpipenotifyparams_m_pipetype>`;
+		typedef unsigned int uint32_t :target:`m_readMode<doxid-fieldio_win_devicemonitorcreatenamedpipenotifyparams_m_readmode>`;
+		typedef unsigned int uint32_t :target:`m_completionMode<doxid-fieldio_win_devicemonitorcreatenamedpipenotifyparams_m_completionmode>`;
+		typedef unsigned int uint32_t :target:`m_maxInstanceCount<doxid-fieldio_win_devicemonitorcreatenamedpipenotifyparams_m_maxinstancecount>`;
+		typedef unsigned int uint32_t :target:`m_inBoundQuota<doxid-fieldio_win_devicemonitorcreatenamedpipenotifyparams_m_inboundquota>`;
+		typedef unsigned int uint32_t :target:`m_outBoundQuota<doxid-fieldio_win_devicemonitorcreatenamedpipenotifyparams_m_outboundquota>`;
+		typedef unsigned long uint64_t :target:`m_defaultTimeout<doxid-fieldio_win_devicemonitorcreatenamedpipenotifyparams_m_defaulttimeout>`;
+	};
+
+Inherited Members
+-----------------
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-inherited-code-block
+
+	public:
+		// fields
+	
+		typedef unsigned int uint32_t :ref:`m_options<doxid-fieldio_win_devicemonitorcreatenotifyparams_m_options>`;
+		typedef unsigned int uint32_t :ref:`m_desiredAccess<doxid-fieldio_win_devicemonitorcreatenotifyparams_m_desiredaccess>`;
+		typedef unsigned int uint32_t :ref:`m_shareAccess<doxid-fieldio_win_devicemonitorcreatenotifyparams_m_shareaccess>`;
+		typedef unsigned int uint32_t :ref:`m_fileAttributes<doxid-fieldio_win_devicemonitorcreatenotifyparams_m_fileattributes>`;
+		typedef unsigned int uint32_t :ref:`m_fileNameLength<doxid-fieldio_win_devicemonitorcreatenotifyparams_m_filenamelength>`;
+		typedef unsigned int uint32_t :ref:`_m_padding<doxid-fieldio_win_devicemonitorcreatenotifyparams__m_padding>`;
+

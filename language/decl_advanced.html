@@ -1,0 +1,215 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Advanced Declarations &mdash; Jancy Language Manual</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Curly Initializers" href="decl_curly.html" />
+    <link rel="prev" title="Simple Declarations" href="decl_simple.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy Language Manual
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="language.html">Jancy Language</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="hello_world.html">Hello World</a></li>
+<li class="toctree-l2"><a class="reference internal" href="type_primitive.html">Primitive Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="decl_simple.html">Simple Declarations</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Advanced Declarations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="decl_curly.html">Curly Initializers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="decl_storage.html">Storage Specifiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="literals.html">Literals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="aliases.html">Aliases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="function_redirection.html">Function Redirection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cflow.html">Control Flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prop.html">Properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nspace.html">Namespaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="type_named.html">Named Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="type_ptr.html">Pointer Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multicasts.html">Multicasts and Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reactive.html">Reactive Programming</a></li>
+<li class="toctree-l2"><a class="reference internal" href="regex_switches.html">Regex Switches</a></li>
+<li class="toctree-l2"><a class="reference internal" href="schedulers.html">Schedulers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamic_structs.html">Dynamic Structs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dual_modifiers.html">Dual Modifiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exceptions.html">Exception Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="disposable.html">Deterministic Resource Release</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="c_compatibility.html">Compatibility with C</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy Language Manual</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="language.html">Jancy Language</a></li>
+      <li class="breadcrumb-item active">Advanced Declarations</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="advanced-declarations">
+<h1>Advanced Declarations</h1>
+<p>Just like C/C++ (and even more so) Jancy allows declaring quite sophisticated entities in one go; therefore, declarations in Jancy can be rather complex, and both specifier and declarator can be composite.</p>
+<p>Specifiers can contain:</p>
+<ul class="simple">
+<li><p>Access specifiers (<code class="docutils literal notranslate"><span class="pre">public</span></code> or <code class="docutils literal notranslate"><span class="pre">protected</span></code>)</p></li>
+<li><p>Storage specifiers (e.g. <code class="docutils literal notranslate"><span class="pre">static</span></code>, <code class="docutils literal notranslate"><span class="pre">typedef</span></code>, <code class="docutils literal notranslate"><span class="pre">virtual</span></code> etc)</p></li>
+<li><p>Type specifiers (e.g. <code class="docutils literal notranslate"><span class="pre">char</span></code>, <code class="docutils literal notranslate"><span class="pre">int</span></code>, <code class="docutils literal notranslate"><span class="pre">double</span></code> etc)</p></li>
+<li><p>Type modifiers (e.g. <code class="docutils literal notranslate"><span class="pre">const</span></code>, <code class="docutils literal notranslate"><span class="pre">volatile</span></code>, <code class="docutils literal notranslate"><span class="pre">unsigned</span></code> etc)</p></li>
+</ul>
+<p>Declarators can contain:</p>
+<ul class="simple">
+<li><p>Type modifiers (e.g. <code class="docutils literal notranslate"><span class="pre">const</span></code>, <code class="docutils literal notranslate"><span class="pre">volatile</span></code>, <code class="docutils literal notranslate"><span class="pre">unsigned</span></code> etc)</p></li>
+<li><p>Pointer prefixes (<code class="docutils literal notranslate"><span class="pre">*</span></code>)</p></li>
+<li><p>Declarator identifiers (e.g. <code class="docutils literal notranslate"><span class="pre">myVariable</span></code>)</p></li>
+<li><p>Declarator special function kind (e.g. <code class="docutils literal notranslate"><span class="pre">construct</span></code>, <code class="docutils literal notranslate"><span class="pre">get</span></code>, <code class="docutils literal notranslate"><span class="pre">set</span></code> etc)</p></li>
+<li><p>Array suffixes (e.g. <code class="docutils literal notranslate"><span class="pre">[10]</span></code>)</p></li>
+<li><p>Function suffixes (e.g. <code class="docutils literal notranslate"><span class="pre">(int,</span> <span class="pre">double)</span></code>)</p></li>
+<li><p>Bitfied suffixes (e.g. <code class="docutils literal notranslate"><span class="pre">:</span> <span class="pre">10</span></code>)</p></li>
+<li><p>Initializers (e.g. <code class="docutils literal notranslate"><span class="pre">=</span> <span class="pre">0</span></code>)</p></li>
+<li><p>Function bodies  (e.g. <code class="docutils literal notranslate"><span class="pre">{</span> <span class="pre">return</span> <span class="pre">0;</span> <span class="pre">}</span></code>)</p></li>
+</ul>
+<p>A realistic example of a complex declaration could look like:</p>
+<div class="highlight-jnc notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="k">int</span> <span class="k">const</span><span class="o">*</span> <span class="k">function</span><span class="o">*</span> <span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">]()</span> <span class="o">=</span> <span class="p">{</span> <span class="n">foo</span><span class="p">,</span> <span class="n">bar</span> <span class="p">};</span>
+</pre></div>
+</div>
+<p>Here <code class="docutils literal notranslate"><span class="pre">static</span></code> is a storage specifier, <code class="docutils literal notranslate"><span class="pre">int</span></code> is a type specifier, <code class="docutils literal notranslate"><span class="pre">const</span></code> and <code class="docutils literal notranslate"><span class="pre">function</span></code> are type modifiers, two <code class="docutils literal notranslate"><span class="pre">*</span></code> (asterisks) are pointer prefixes, <code class="docutils literal notranslate"><span class="pre">a</span></code> is a declarator name, <code class="docutils literal notranslate"><span class="pre">[2]</span></code> is a array suffix, <code class="docutils literal notranslate"><span class="pre">()</span></code> is a function suffix and <code class="docutils literal notranslate"><span class="pre">=</span> <span class="pre">{</span> <span class="pre">foo,</span> <span class="pre">bar</span> <span class="pre">}</span></code> is an initializer. This line declares a static variable <code class="docutils literal notranslate"><span class="pre">a</span></code> as an array of two elements of type “pointer to a function which takes no arguments and returns a const-pointer to <code class="docutils literal notranslate"><span class="pre">int</span></code> and initializes it with pointers to functions <code class="docutils literal notranslate"><span class="pre">foo</span></code> and <code class="docutils literal notranslate"><span class="pre">bar</span></code>. Wheh! Seriously, it’s much easier to read <strong>the code itself</strong> than its explanation.</p>
+<p>C/C++ equivalent of the above example would look like:</p>
+<div class="highlight-jnc notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="k">int</span> <span class="k">const</span><span class="o">*</span> <span class="p">(</span><span class="o">*</span><span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">])()</span> <span class="o">=</span> <span class="p">{</span> <span class="n">foo</span><span class="p">,</span> <span class="n">bar</span> <span class="p">};</span>
+</pre></div>
+</div>
+<p>Now, if we add one extra layer of function pointers, C/C++ falls short of declaring it in one go (you will receive <strong>function returns function</strong> error); Jancy syntax still allows to do so (not like that could be crucial in any realistic scenario; just a small demonstration of flexibility):</p>
+<div class="highlight-jnc notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="k">int</span> <span class="k">const</span><span class="o">*</span> <span class="k">function</span><span class="o">*</span> <span class="k">function</span><span class="o">*</span> <span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">]()(</span><span class="k">int</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>There are no nested declarators in Jancy. Nested declarators in C/C++ emerged as a solution (and in my personal opinion, not an elegant one) to the problem of resolving ambiguities in complex pointer-to-function declarations. Like you just saw, Jancy uses a different approach with type modifiers <code class="docutils literal notranslate"><span class="pre">function</span></code>, <code class="docutils literal notranslate"><span class="pre">property</span></code>, <code class="docutils literal notranslate"><span class="pre">array</span></code>:</p>
+<div class="highlight-jnc notranslate"><div class="highlight"><pre><span></span><span class="k">int</span> <span class="k">property</span><span class="o">*</span> <span class="k">function</span><span class="o">*</span> <span class="k">array</span><span class="o">*</span> <span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">3</span><span class="p">]();</span>
+</pre></div>
+</div>
+<p>Here <code class="docutils literal notranslate"><span class="pre">a</span></code> is an array of three elements of type <strong>pointer to array of two elements of type pointer to a function taking no arguments and returning a pointer to int property</strong>. Speaking formally, the rules for reading Jancy declaration are as follows. First, you start unrolling declarator’s pointer prefixes right-to-left. If type modifiers of a pointer prefix requires a suffix, you unroll the first suffix. After all pointer prefixes are unrolled, you unroll the remaining suffixes.</p>
+<p>In reality, however, you are unlikely going to need mind-boggling declarations like the one above. It’s always possible to split an overcomplicated declaration into two (or more) using good-old typedefs: just like in C/C++, Jancy declarations with <code class="docutils literal notranslate"><span class="pre">typedef</span></code> storage specifier result in creation of a type alias:</p>
+<div class="highlight-jnc notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">double</span> <span class="n">DoubleBinaryFunc</span> <span class="p">(</span><span class="k">double</span><span class="p">,</span> <span class="k">double</span><span class="p">);</span>
+<span class="n">DoubleBinaryFunc</span><span class="o">*</span> <span class="n">funcPtr</span><span class="p">;</span> <span class="c1">// use new typedef to declare a variable</span>
+
+<span class="k">typedef</span> <span class="k">int</span> <span class="n">IntArray</span><span class="p">[</span><span class="mi">10</span><span class="p">][</span><span class="mi">20</span><span class="p">];</span>
+<span class="n">IntArray</span> <span class="n">foo</span><span class="p">();</span>  <span class="c1">// use new typedef as a retval type</span>
+</pre></div>
+</div>
+<p>There are other important differences with C/C++. In Jancy named type declaration is <strong>not</strong> a type specifier. The following code, perfectly valid in C/C++ will produce an error in Jancy:</p>
+<div class="highlight-jnc notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="n">Point</span> <span class="p">{</span>
+    <span class="k">int</span> <span class="n">m_x</span><span class="p">;</span>
+    <span class="k">int</span> <span class="n">m_y</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">point</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>In Jancy you cannot declare a named type and immediatly use it to declare a variable or a field. Therefore, to fix previous example, we need to simply split a single declaration into two:</p>
+<div class="highlight-jnc notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="n">Point</span> <span class="p">{</span>
+    <span class="k">int</span> <span class="n">m_x</span><span class="p">;</span>
+    <span class="k">int</span> <span class="n">m_y</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">Point</span> <span class="n">point</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Note that declaration of a named type does not need to end with a semicolon (needless to say, it will also compile should you add a semicolon).</p>
+<p>Jancy does not require <strong>declaration-before-usage</strong> at global scope. Therefore, there is no need to create so-called <strong>forward declarations</strong> of functions or types, so the following example will compile in Jancy, but not in C/C++:</p>
+<div class="highlight-jnc notranslate"><div class="highlight"><pre><span></span><span class="k">void</span> <span class="n">foo</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">A</span> <span class="n">a</span><span class="p">;</span>
+    <span class="n">B</span> <span class="n">b</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">struct</span> <span class="n">A</span> <span class="p">{</span>
+    <span class="n">B</span><span class="o">*</span> <span class="n">m_b</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">struct</span> <span class="n">B</span> <span class="p">{</span>
+    <span class="n">A</span><span class="o">*</span> <span class="n">m_a</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="decl_simple.html" class="btn btn-neutral float-left" title="Simple Declarations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="decl_curly.html" class="btn btn-neutral float-right" title="Curly Initializers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

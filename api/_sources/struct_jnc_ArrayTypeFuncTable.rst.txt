@@ -1,0 +1,23 @@
+.. index:: pair: struct; jnc_ArrayTypeFuncTable
+.. _doxid-structjnc___array_type_func_table:
+
+struct jnc_ArrayTypeFuncTable
+=============================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_ArrayTypeFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___array_type_func_table_1a4d66e267dd739ea00842b8307210b731>`;
+		jnc_ArrayType_GetElementTypeFunc* :target:`m_getElementTypeFunc<doxid-structjnc___array_type_func_table_1a366430ccaa6bda0bc95149bcee85ec7d>`;
+		jnc_ArrayType_GetElementCountFunc* :target:`m_GetElementCountFunc<doxid-structjnc___array_type_func_table_1a70db74e9a27ad0415bf0f4f5114ee07b>`;
+	};

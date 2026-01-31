@@ -1,0 +1,64 @@
+.. include:: def.rst
+.. index:: pair: class; std.Array
+.. _doxid-typestd_array:
+
+class std.Array
+===============
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "std_Array.jnc"
+	
+	class Array {
+		// fields
+	
+		:ref:`variant_t<doxid-typedefvariant_t>` constif* readonly :target:`m_p<doxid-fieldstd_array_m_p>`;
+		typedef unsigned long size_t readonly :target:`m_count<doxid-fieldstd_array_m_count>`;
+		typedef unsigned long size_t readonly :target:`m_maxCount<doxid-fieldstd_array_m_maxcount>`;
+
+		// methods
+	
+		void :target:`clear<doxid-functionstd_array_clear>`();
+		void :target:`detach<doxid-functionstd_array_detach>`();
+		bool errorcode :target:`setCount<doxid-functionstd_array_setcount>`(:ref:`size_t<doxid-typedefsize_t>` count);
+		bool errorcode :target:`reserve<doxid-functionstd_array_reserve>`(:ref:`size_t<doxid-typedefsize_t>` count);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`copy<doxid-functionstd_array_copy>`(
+			:ref:`variant_t<doxid-typedefvariant_t>` const* p,
+			:ref:`size_t<doxid-typedefsize_t>` count
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`copy<doxid-functionstd_array_copy_2>`(:ref:`variant_t<doxid-typedefvariant_t>` e);
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`append<doxid-functionstd_array_append>`(:ref:`variant_t<doxid-typedefvariant_t>` e);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`append<doxid-functionstd_array_append_2>`(
+			:ref:`variant_t<doxid-typedefvariant_t>` const* p,
+			:ref:`size_t<doxid-typedefsize_t>` count
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`insert<doxid-functionstd_array_insert>`(
+			:ref:`size_t<doxid-typedefsize_t>` index,
+			:ref:`variant_t<doxid-typedefvariant_t>` const* p,
+			:ref:`size_t<doxid-typedefsize_t>` count
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`insert<doxid-functionstd_array_insert_2>`(
+			:ref:`size_t<doxid-typedefsize_t>` index,
+			:ref:`variant_t<doxid-typedefvariant_t>` e
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` :target:`remove<doxid-functionstd_array_remove>`(
+			:ref:`size_t<doxid-typedefsize_t>` index,
+			:ref:`size_t<doxid-typedefsize_t>` count = 1
+		);
+	
+		void :target:`sort<doxid-functionstd_array_sort>`();
+		void :target:`sort<doxid-functionstd_array_sort_2>`(:ref:`std.LessFunc<doxid-typedefstd_lessfunc>`* lessFunc);
+	};

@@ -1,0 +1,288 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Base Definitions &mdash; Jancy C API Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="struct jnc_Guid" href="struct_jnc_Guid.html" />
+    <link rel="prev" title="Jancy C API Reference" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy C API Reference
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Base Definitions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_Guid.html">struct jnc_Guid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_ListLink.html">struct jnc_ListLink</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#detailed-documentation">Detailed Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#typedefs">Typedefs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#macros">Macros</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="group_error-subsystem.html">Error Subsystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_extension-lib-subsystem.html">Extension Libraries Subsystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_module-subsystem.html">Module Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_runtime-subsystem.html">Runtime Subsystem</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="global.html">Global Namespace</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy C API Reference</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Base Definitions</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="base-definitions">
+<span id="doxid-group-base-def"></span><span id="index-0"></span><h1>Base Definitions</h1>
+<div class="toctree-wrapper compound">
+</div>
+<section id="overview">
+<h2>Overview</h2>
+<p>This section describes base global definitions of Jancy C API. <a class="reference internal" href="#details-group-base-def"><span class="std std-ref">More…</span></a></p>
+<pre class="highlight doxyrest-overview-code-block literal-block"><span></span><span class="cp">#include</span> <span class="cpf">&lt;jnc_Def.h&gt;</span>
+
+<span class="c1">// typedefs</span>
+
+<span class="k">typedef</span> <span class="kt">int</span> <a class="reference internal" href="#doxid-group-base-def-1ga812d16e5494522586b3784e55d479912"><span class="std std-ref">bool_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <span class="kt">unsigned</span> <span class="kt">int</span> <a class="reference internal" href="#doxid-group-base-def-1ga12a1e9b3ce141648783a82445d02b58d"><span class="std std-ref">uint_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <span class="kt">unsigned</span> <span class="kt">char</span> <a class="reference internal" href="#doxid-group-base-def-1ga124ea0f8f4a23a0a286b5582137f0b8d"><span class="std std-ref">uchar_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <span class="kt">unsigned</span> <span class="kt">short</span> <a class="reference internal" href="#doxid-group-base-def-1gad32f74eab70f4b87dac7fa0c0508ce29"><span class="std std-ref">ushort_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <span class="kt">unsigned</span> <span class="kt">long</span> <a class="reference internal" href="#doxid-group-base-def-1ga95c0f4cc152cbacf72a7d70d7077dc96"><span class="std std-ref">ulong_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <span class="kt">uint8_t</span> <a class="reference internal" href="#doxid-group-base-def-1ga0661d7d1353e0bca70c64563f635b034"><span class="std std-ref">byte_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <span class="kt">uint16_t</span> <a class="reference internal" href="#doxid-group-base-def-1gac0285e32cda95936805a40a03834a079"><span class="std std-ref">word_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <span class="kt">uint32_t</span> <a class="reference internal" href="#doxid-group-base-def-1gabea8065ed82cda6a2a31592be9cd96b2"><span class="std std-ref">dword_t</span></a><span></span><span class="p">;</span>
+<span class="k">typedef</span> <span class="kt">uint64_t</span> <a class="reference internal" href="#doxid-group-base-def-1ga7c6e07c0e75050634483ce87e1d4c6cb"><span class="std std-ref">qword_t</span></a><span></span><span class="p">;</span>
+
+<span class="c1">// structs</span>
+
+<span class="k">struct</span> <a class="reference internal" href="struct_jnc_Guid.html#doxid-structjnc-guid"><span class="std std-ref">jnc_Guid</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_jnc_ListLink.html#doxid-structjnc-list-link"><span class="std std-ref">jnc_ListLink</span></a><span></span><span class="p">;</span>
+
+<span class="c1">// global functions</span>
+
+<span class="kt">void</span>
+<span class="doxyrest-code-target target" id="doxid-group-base-def-1gabd8e4643c6002f5e816c289528a048fa"><span></span><span class="n">jnc_initialize</span></span><span></span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">reserved</span><span class="p">);</span>
+
+<span class="c1">// macros</span>
+
+<span class="cp">#define </span><a class="reference internal" href="#doxid-group-base-def-1ga41365cfdb4186feb5a764b46778350e2"><span class="std std-ref">JNC_ASSERT</span></a><span></span>
+
+<span class="cp">#define </span><a class="reference internal" href="#doxid-group-base-def-1ga8a752107254f22b1eb36cb6803614ad3"><span class="std std-ref">JNC_DEFINE_GUID</span></a><span></span><span class="p">(</span> \
+    <span class="n">n</span><span class="p">,</span> \
+    <span class="n">l</span><span class="p">,</span> \
+    <span class="n">s1</span><span class="p">,</span> \
+    <span class="n">s2</span><span class="p">,</span> \
+    <span class="n">b1</span><span class="p">,</span> \
+    <span class="n">b2</span><span class="p">,</span> \
+    <span class="n">b3</span><span class="p">,</span> \
+    <span class="n">b4</span><span class="p">,</span> \
+    <span class="n">b5</span><span class="p">,</span> \
+    <span class="n">b6</span><span class="p">,</span> \
+    <span class="n">b7</span><span class="p">,</span> \
+    <span class="n">b8</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><a class="reference internal" href="#doxid-group-base-def-1gab7044681e7d6ed8e8597d1f1724a91e6"><span class="std std-ref">JNC_EXTERN_C</span></a><span></span>
+<span class="cp">#define </span><a class="reference internal" href="#doxid-group-base-def-1gaa9dd2b82597fa1f7584a58c2ccb52346"><span class="std std-ref">JNC_INLINE</span></a><span></span>
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-base-def-1ga09b7be7064265680ef9968c3a0daf056"><span></span><span class="n">JNC_PTR_BITS</span></span><span></span>
+<span class="cp">#define </span><a class="reference internal" href="#doxid-group-base-def-1gac72eb674125d6c29d46168896e22231e"><span class="std std-ref">JNC_PTR_SIZE</span></a><span></span>
+<span class="cp">#define </span><a class="reference internal" href="#doxid-group-base-def-1gadf3ff658e277ca8ea2878349758bfdf5"><span class="std std-ref">JNC_SELECT_ANY</span></a><span></span>
+<span class="cp">#define </span><a class="reference internal" href="#doxid-group-base-def-1gac3e5dd1212165d07c21cf8e42c8f2f8e"><span class="std std-ref">_JNC_CPP_CLANG</span></a><span></span>
+<span class="cp">#define </span><a class="reference internal" href="#doxid-group-base-def-1gae8d48fecbd4d71ae875687a81e628207"><span class="std std-ref">_JNC_CPP_GCC</span></a><span></span>
+<span class="cp">#define </span><a class="reference internal" href="#doxid-group-base-def-1ga4941936ab80e0651d377a8fac045b79b"><span class="std std-ref">_JNC_CPP_MSC</span></a><span></span>
+<span class="cp">#define </span><a class="reference internal" href="#doxid-group-base-def-1ga00e7d26c19d5920b1649857b7bb4270e"><span class="std std-ref">_JNC_CPU_AMD64</span></a><span></span>
+<span class="cp">#define </span><a class="reference internal" href="#doxid-group-base-def-1ga3f36421faf3aa1f104d2c76d9468c00d"><span class="std std-ref">_JNC_CPU_X86</span></a><span></span>
+<span class="cp">#define </span><a class="reference internal" href="#doxid-group-base-def-1ga29e50e6ee100ceefe3c221705d859fc7"><span class="std std-ref">_JNC_DEBUG</span></a><span></span>
+<span class="cp">#define </span><a class="reference internal" href="#doxid-group-base-def-1gae812e575bdb2f0b5d3372adfae0c47af"><span class="std std-ref">_JNC_OS_BSD</span></a><span></span>
+<span class="cp">#define </span><a class="reference internal" href="#doxid-group-base-def-1gae2856681f4f608def5aeabe626ed7521"><span class="std std-ref">_JNC_OS_DARWIN</span></a><span></span>
+<span class="cp">#define </span><a class="reference internal" href="#doxid-group-base-def-1gaab0f9e52f49016ad573e91a6b0912495"><span class="std std-ref">_JNC_OS_LINUX</span></a><span></span>
+<span class="cp">#define </span><a class="reference internal" href="#doxid-group-base-def-1gaad9543e0a8c46c2ea8c91d88c7b648df"><span class="std std-ref">_JNC_OS_POSIX</span></a><span></span>
+<span class="cp">#define </span><a class="reference internal" href="#doxid-group-base-def-1gae45670a576265b583297d9e8367308bf"><span class="std std-ref">_JNC_OS_SOLARIS</span></a><span></span>
+<span class="cp">#define </span><a class="reference internal" href="#doxid-group-base-def-1ga9d37c94fd927cf617495e3b0809fc768"><span class="std std-ref">_JNC_OS_WIN</span></a><span></span>
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-base-def-1ga786132414c30f947907be33a4c28125a"><span></span><span class="n">__STDC_CONSTANT_MACROS</span></span><span></span>
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-base-def-1gaeb7e7a856ab7a794b05b6b63ef36ea3e"><span></span><span class="n">__STDC_LIMIT_MACROS</span></span></pre>
+</section>
+<section id="detailed-documentation">
+<span id="details-group-base-def"></span><h2>Detailed Documentation</h2>
+<p>This section describes base global definitions of Jancy C API.</p>
+<section id="typedefs">
+<h3>Typedefs</h3>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-group-base-def-1ga7c6e07c0e75050634483ce87e1d4c6cb"><span id="index-9"></span><span id="doxid-group-base-def-1gabea8065ed82cda6a2a31592be9cd96b2"></span><span id="index-8"></span><span id="doxid-group-base-def-1gac0285e32cda95936805a40a03834a079"></span><span id="index-7"></span><span id="doxid-group-base-def-1ga0661d7d1353e0bca70c64563f635b034"></span><span id="index-6"></span><span id="doxid-group-base-def-1ga95c0f4cc152cbacf72a7d70d7077dc96"></span><span id="index-5"></span><span id="doxid-group-base-def-1gad32f74eab70f4b87dac7fa0c0508ce29"></span><span id="index-4"></span><span id="doxid-group-base-def-1ga124ea0f8f4a23a0a286b5582137f0b8d"></span><span id="index-3"></span><span id="doxid-group-base-def-1ga12a1e9b3ce141648783a82445d02b58d"></span><span id="index-2"></span><span id="doxid-group-base-def-1ga812d16e5494522586b3784e55d479912"></span><span id="index-1"></span><span></span><span class="k">typedef</span> <span class="kt">int</span> <span class="n">bool_t</span>
+<span class="k">typedef</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">uint_t</span>
+<span class="k">typedef</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">uchar_t</span>
+<span class="k">typedef</span> <span class="kt">unsigned</span> <span class="kt">short</span> <span class="n">ushort_t</span>
+<span class="k">typedef</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">ulong_t</span>
+<span class="k">typedef</span> <span class="kt">uint8_t</span> <span class="n">byte_t</span>
+<span class="k">typedef</span> <span class="kt">uint16_t</span> <span class="n">word_t</span>
+<span class="k">typedef</span> <span class="kt">uint32_t</span> <span class="n">dword_t</span>
+<span class="k">typedef</span> <span class="kt">uint64_t</span> <span class="n">qword_t</span></pre>
+<p>Common integer type aliases in addition to the ones defined in <code class="docutils literal notranslate"><span class="pre">&lt;stdint.h&gt;</span></code>, i.e. <code class="docutils literal notranslate"><span class="pre">int8_t</span></code>, <code class="docutils literal notranslate"><span class="pre">uint8_t</span></code>, <code class="docutils literal notranslate"><span class="pre">int16_t</span></code>, <code class="docutils literal notranslate"><span class="pre">uint16_t</span></code>, <code class="docutils literal notranslate"><span class="pre">int32_t</span></code>, <code class="docutils literal notranslate"><span class="pre">uint32_t</span></code>, <code class="docutils literal notranslate"><span class="pre">int64_t</span></code>, <code class="docutils literal notranslate"><span class="pre">uint64_t</span></code>, <code class="docutils literal notranslate"><span class="pre">intptr_t</span></code>, <code class="docutils literal notranslate"><span class="pre">uintptr_t</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">bool_t</span></code> aliases to <code class="docutils literal notranslate"><span class="pre">int</span></code> and is used to denote boolean values.</p>
+<p><code class="docutils literal notranslate"><span class="pre">uchar_t</span></code> and <code class="docutils literal notranslate"><span class="pre">byte_t</span></code> alias to unsigned integer type with width of 8 bits.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ushort_t</span></code> and <code class="docutils literal notranslate"><span class="pre">word_t</span></code> alias to unsigned integer type with width of 16 bits.</p>
+<p><code class="docutils literal notranslate"><span class="pre">uint_t</span></code>, <code class="docutils literal notranslate"><span class="pre">ulong_t</span></code> and <code class="docutils literal notranslate"><span class="pre">dword_t</span></code> alias to unsigned integer type with width of 32 bits.</p>
+<p><code class="docutils literal notranslate"><span class="pre">qword_t</span></code> aliases to unsigned integer type with width of 64 bits.</p>
+</section>
+<section id="macros">
+<h3>Macros</h3>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-group-base-def-1ga41365cfdb4186feb5a764b46778350e2"><span id="index-10"></span><span></span><span class="cp">#define JNC_ASSERT</span></pre>
+<p>On <code class="docutils literal notranslate"><span class="pre">Debug</span></code> builds, this macro causes an <strong>assertion check</strong>: it calculates the value of its argument, and if it is <code class="docutils literal notranslate"><span class="pre">false</span></code>, then a corresponding message is displayed and a program is terminated.</p>
+<p>The exact way of displaying an assertion message and its format is platform dependent, but it always includes the location of failing <code class="docutils literal notranslate"><span class="pre">JNC_ASSERT</span></code> macro and the actual expression which caused it to fail.</p>
+<p class="rubric">Sample:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>test_cpp: /home/user/test_cpp/main.cpp:100: int main(int, char**): Assertion `line &lt; lineCount&#39; failed.
+</pre></div>
+</div>
+<p>On <code class="docutils literal notranslate"><span class="pre">Release</span></code> builds, this macro does nothing(expands to an empty sequence).</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-group-base-def-1ga8a752107254f22b1eb36cb6803614ad3"><span id="index-11"></span><span></span><span class="cp">#define JNC_DEFINE_GUID( \</span>
+<span class="cp">    n, \</span>
+<span class="cp">    l, \</span>
+<span class="cp">    s1, \</span>
+<span class="cp">    s2, \</span>
+<span class="cp">    b1, \</span>
+<span class="cp">    b2, \</span>
+<span class="cp">    b3, \</span>
+<span class="cp">    b4, \</span>
+<span class="cp">    b5, \</span>
+<span class="cp">    b6, \</span>
+<span class="cp">    b7, \</span>
+<span class="cp">    b8 \</span>
+<span class="cp">)</span></pre>
+<p>A cross-platform equivalent of the Win32 <code class="docutils literal notranslate"><span class="pre">DEFINE_GUID</span></code> macro.</p>
+<p>This macro is used to define a constant holding the <strong>GUID</strong> (Globally Unique Identifier).</p>
+<p>To generate a new GUID use any online GUID-creation tool and select the <code class="docutils literal notranslate"><span class="pre">DEFINE_GUID</span></code> format; then replace <code class="docutils literal notranslate"><span class="pre">DEFINE_GUID</span></code> with <code class="docutils literal notranslate"><span class="pre">JNC_DEFINE_GUID</span></code>.</p>
+<p class="rubric">Sample:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// {384498AC-90AF-4634-B083-2A9B02D62680}</span>
+
+<span class="n">JNC_DEFINE_GUID</span><span class="p">(</span>
+    <span class="n">g_testLibGuid</span><span class="p">,</span>
+    <span class="mh">0x384498ac</span><span class="p">,</span> <span class="mh">0x90af</span><span class="p">,</span> <span class="mh">0x4634</span><span class="p">,</span> <span class="mh">0xb0</span><span class="p">,</span> <span class="mh">0x83</span><span class="p">,</span> <span class="mh">0x2a</span><span class="p">,</span> <span class="mh">0x9b</span><span class="p">,</span> <span class="mh">0x2</span><span class="p">,</span> <span class="mh">0xd6</span><span class="p">,</span> <span class="mh">0x26</span><span class="p">,</span> <span class="mh">0x80</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-group-base-def-1gab7044681e7d6ed8e8597d1f1724a91e6"><span id="index-12"></span><span></span><span class="cp">#define JNC_EXTERN_C</span></pre>
+<p>Set to <code class="docutils literal notranslate"><span class="pre">extern</span> <span class="pre">&quot;C&quot;</span></code> if C/C++ compiler is compiling C++ code; undefined in pure C code.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-group-base-def-1gaa9dd2b82597fa1f7584a58c2ccb52346"><span id="index-13"></span><span></span><span class="cp">#define JNC_INLINE</span></pre>
+<p>A compiler-independent macro used to declare an <strong>inline</strong> function.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-group-base-def-1gac72eb674125d6c29d46168896e22231e"><span id="index-14"></span><span></span><span class="cp">#define JNC_PTR_SIZE</span></pre>
+<p>Size of data/code pointer on the current processor architecture.</p>
+<p><code class="docutils literal notranslate"><span class="pre">JNC_PTR_SIZE</span></code> equals <code class="docutils literal notranslate"><span class="pre">4</span></code> on <code class="docutils literal notranslate"><span class="pre">JNC_CPU_X86</span></code>; equals <code class="docutils literal notranslate"><span class="pre">8</span></code> on <code class="docutils literal notranslate"><span class="pre">JNC_CPU_AMD64</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">JNC_PTR_BITS</span></code> equals <code class="docutils literal notranslate"><span class="pre">32</span></code> on <code class="docutils literal notranslate"><span class="pre">JNC_CPU_X86</span></code>; equals <code class="docutils literal notranslate"><span class="pre">64</span></code> on <code class="docutils literal notranslate"><span class="pre">JNC_CPU_AMD64</span></code>.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-group-base-def-1gadf3ff658e277ca8ea2878349758bfdf5"><span id="index-15"></span><span></span><span class="cp">#define JNC_SELECT_ANY</span></pre>
+<p>A compiler-independent macro used to define a (variable/constant) data inside a <code class="docutils literal notranslate"><span class="pre">.h</span></code> header file.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-group-base-def-1gac3e5dd1212165d07c21cf8e42c8f2f8e"><span id="index-18"></span><span id="doxid-group-base-def-1gae8d48fecbd4d71ae875687a81e628207"></span><span id="index-17"></span><span id="doxid-group-base-def-1ga4941936ab80e0651d377a8fac045b79b"></span><span id="index-16"></span><span></span><span class="cp">#define _JNC_CPP_MSC</span>
+<span class="cp">#define _JNC_CPP_GCC</span>
+<span class="cp">#define _JNC_CPP_CLANG</span></pre>
+<p><code class="docutils literal notranslate"><span class="pre">_JNC_CPP_MSC</span></code> is set to <code class="docutils literal notranslate"><span class="pre">1</span></code> if the C/C++ compiler is <strong>Microsoft Visual C/C++</strong>; undefined otherwise.</p>
+<p><code class="docutils literal notranslate"><span class="pre">_JNC_CPP_GCC</span></code> is set to <code class="docutils literal notranslate"><span class="pre">1</span></code> if the C/C++ compiler is <strong>GCC</strong> (GNU C/C++); undefined otherwise.</p>
+<p><code class="docutils literal notranslate"><span class="pre">_JNC_CPP_CLANG</span></code> is set to <code class="docutils literal notranslate"><span class="pre">1</span></code> if the C/C++ compiler is <strong>Clang</strong> (LLVM/Clang); undefined otherwise.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-group-base-def-1ga00e7d26c19d5920b1649857b7bb4270e"><span id="index-20"></span><span id="doxid-group-base-def-1ga3f36421faf3aa1f104d2c76d9468c00d"></span><span id="index-19"></span><span></span><span class="cp">#define _JNC_CPU_X86</span>
+<span class="cp">#define _JNC_CPU_AMD64</span></pre>
+<p><code class="docutils literal notranslate"><span class="pre">_JNC_CPU_X86</span></code> is set to <code class="docutils literal notranslate"><span class="pre">1</span></code> if the processor architecture is <strong>32-bit Intel x86</strong>; undefined otherwise.</p>
+<p><code class="docutils literal notranslate"><span class="pre">_JNC_CPU_AMD64</span></code> is set to <code class="docutils literal notranslate"><span class="pre">1</span></code> if the processor architecture is <strong>64-bit AMD64</strong> (x64/Intel x86_64); undefined otherwise.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-group-base-def-1ga29e50e6ee100ceefe3c221705d859fc7"><span id="index-21"></span><span></span><span class="cp">#define _JNC_DEBUG</span></pre>
+<p>Set to <code class="docutils literal notranslate"><span class="pre">1</span></code> if the build configuration is <code class="docutils literal notranslate"><span class="pre">Debug</span></code>; undefined otherwise.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-group-base-def-1gae2856681f4f608def5aeabe626ed7521"><span id="index-27"></span><span id="doxid-group-base-def-1gae812e575bdb2f0b5d3372adfae0c47af"></span><span id="index-26"></span><span id="doxid-group-base-def-1gae45670a576265b583297d9e8367308bf"></span><span id="index-25"></span><span id="doxid-group-base-def-1gaab0f9e52f49016ad573e91a6b0912495"></span><span id="index-24"></span><span id="doxid-group-base-def-1gaad9543e0a8c46c2ea8c91d88c7b648df"></span><span id="index-23"></span><span id="doxid-group-base-def-1ga9d37c94fd927cf617495e3b0809fc768"></span><span id="index-22"></span><span></span><span class="cp">#define _JNC_OS_WIN</span>
+<span class="cp">#define _JNC_OS_POSIX</span>
+<span class="cp">#define _JNC_OS_LINUX</span>
+<span class="cp">#define _JNC_OS_SOLARIS</span>
+<span class="cp">#define _JNC_OS_BSD</span>
+<span class="cp">#define _JNC_OS_DARWIN</span></pre>
+<p><code class="docutils literal notranslate"><span class="pre">_JNC_OS_WIN</span></code>  is set to <code class="docutils literal notranslate"><span class="pre">1</span></code> if the target operating system is <strong>Microsoft Windows</strong>; undefined otherwise.</p>
+<p><code class="docutils literal notranslate"><span class="pre">_JNC_OS_POSIX</span></code> is set to <code class="docutils literal notranslate"><span class="pre">1</span></code> if the target operating system is <strong>POSIX</strong>-compliant (Linux/Mac OS X/BSD/etc); undefined otherwise.</p>
+<p><code class="docutils literal notranslate"><span class="pre">_JNC_OS_LINUX</span></code>  is set to <code class="docutils literal notranslate"><span class="pre">1</span></code> if the target operating system is <strong>Linux</strong>; undefined otherwise. On Linux systems <code class="docutils literal notranslate"><span class="pre">_JNC_OS_POSIX</span></code> is also set to <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">_JNC_OS_SOLARIS</span></code> is set to <code class="docutils literal notranslate"><span class="pre">1</span></code> if the target operating system is <strong>Oracle Solaris</strong>; undefined otherwise. On Solaris systems <code class="docutils literal notranslate"><span class="pre">_JNC_OS_POSIX</span></code> is also set to <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">_JNC_OS_BSD</span></code> is set to <code class="docutils literal notranslate"><span class="pre">1</span></code> if the target operating system is <strong>BSD</strong>-family (OpenBSD/FreeBSD/Mac OS X etc); undefined otherwise. On BSD systems <code class="docutils literal notranslate"><span class="pre">_JNC_OS_POSIX</span></code> is also set to <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">_JNC_OS_DARWIN</span></code> is set to <code class="docutils literal notranslate"><span class="pre">1</span></code> if the target operating system is <strong>Apple Darwin</strong> (Mac OS X/iOS/etc); undefined otherwise. On Darwin systems <code class="docutils literal notranslate"><span class="pre">_JNC_OS_POSIX</span></code> and <code class="docutils literal notranslate"><span class="pre">_JNC_OS_BSD</span></code> are also set to <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Jancy C API Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="struct_jnc_Guid.html" class="btn btn-neutral float-right" title="struct jnc_Guid" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,316 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>class std.List &mdash; Jancy Standard Library Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="class std.RbTree" href="class_std_RbTree.html" />
+    <link rel="prev" title="class std.HashTable" href="class_std_HashTable.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy Standard Library Reference
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="group_stdt-operator.html">stdt-operator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_c-typedefs.html">Standard Typedefs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_rtl.html">RTL (Runtime Library)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_crt.html">C Runtime Functions</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="group_std.html">General Purpose Library</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="group_std-container.html">Containers &amp; Collections</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="enum_stdt_RbTreeColor.html">enum stdt.RbTreeColor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="struct_std_ListEntry.html">struct std.ListEntry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="struct_std_MapEntry.html">struct std.MapEntry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_std_Array.html">class std.Array</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_std_Buffer.html">class std.Buffer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_std_HashTable.html">class std.HashTable</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">class std.List</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#detailed-documentation">Detailed Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="class_std_RbTree.html">class std.RbTree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_std_StringHashTable.html">class std.StringHashTable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_std_StringHashTableIgnoreCase.html">class std.StringHashTableIgnoreCase</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="group_std-string.html">Strings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_std-error.html">Error Facilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_std-misc.html">Miscellaneous Facilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="group_sys.html">System Facilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_io.html">IO (Input/Output) Library</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="disposable.html">‘disposable’ Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="errorcode.html">‘errorcode’ Functions</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="global.html">Global Namespace</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy Standard Library Reference</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="group_std.html">General Purpose Library</a></li>
+          <li class="breadcrumb-item"><a href="group_std-container.html">Containers &amp; Collections</a></li>
+      <li class="breadcrumb-item active">class std.List</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="class-std-list">
+<span id="doxid-typestd-list"></span><span id="index-0"></span><h1>class std.List</h1>
+<div class="toctree-wrapper compound">
+</div>
+<section id="overview">
+<h2>Overview</h2>
+<p>This class provides a doubly linked list container for <code class="docutils literal notranslate"><span class="pre">variant_t</span></code>
+values. <a class="reference internal" href="#details-typestd-list"><span class="std std-ref">More…</span></a></p>
+<pre class="highlight doxyrest-overview-code-block literal-block"><span></span><span class="k">import</span> <span class="s">&quot;std_List.jnc&quot;</span>
+
+<span class="k">class</span> <span class="n">List</span> <span class="p">{</span>
+    <span class="c1">// fields</span>
+
+    <a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="k">readonly</span> <a class="reference internal" href="#doxid-fieldstd-list-m-head"><span class="std std-ref">m_head</span></a><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="k">readonly</span> <a class="reference internal" href="#doxid-fieldstd-list-m-tail"><span class="std std-ref">m_tail</span></a><span></span><span class="p">;</span>
+    <span class="k">typedef</span> <span class="k">unsigned</span> <span class="k">long</span> <span class="n">size_t</span> <span class="k">readonly</span> <a class="reference internal" href="#doxid-fieldstd-list-m-count"><span class="std std-ref">m_count</span></a><span></span><span class="p">;</span>
+
+    <span class="c1">// methods</span>
+
+    <span class="k">void</span> <a class="reference internal" href="#doxid-functionstd-list-clear"><span class="std std-ref">clear</span></a><span></span><span class="p">();</span>
+    <span class="k">void</span> <a class="reference internal" href="#doxid-functionstd-list-takeover"><span class="std std-ref">takeOver</span></a><span></span><span class="p">(</span><span class="n">std</span><span class="p">.</span><span class="n">List</span><span class="o">*</span> <span class="n">list</span><span class="p">);</span>
+    <a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="k">errorcode</span> <a class="reference internal" href="#doxid-functionstd-list-add"><span class="std std-ref">add</span></a><span></span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedefvariant-t"><span class="std std-ref">variant_t</span></a><span></span> <span class="n">data</span><span class="p">);</span>
+    <a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="k">errorcode</span> <a class="reference internal" href="#doxid-functionstd-list-inserthead"><span class="std std-ref">insertHead</span></a><span></span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedefvariant-t"><span class="std std-ref">variant_t</span></a><span></span> <span class="n">data</span><span class="p">);</span>
+    <a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="k">errorcode</span> <a class="reference internal" href="#doxid-functionstd-list-inserttail"><span class="std std-ref">insertTail</span></a><span></span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedefvariant-t"><span class="std std-ref">variant_t</span></a><span></span> <span class="n">data</span><span class="p">);</span>
+
+    <a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="k">errorcode</span> <a class="reference internal" href="#doxid-functionstd-list-insertbefore"><span class="std std-ref">insertBefore</span></a><span></span><span class="p">(</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefvariant-t"><span class="std std-ref">variant_t</span></a><span></span> <span class="n">item</span><span class="p">,</span>
+        <a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="n">before</span>
+    <span class="p">);</span>
+
+    <a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="k">errorcode</span> <a class="reference internal" href="#doxid-functionstd-list-insertafter"><span class="std std-ref">insertAfter</span></a><span></span><span class="p">(</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefvariant-t"><span class="std std-ref">variant_t</span></a><span></span> <span class="n">item</span><span class="p">,</span>
+        <a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="n">before</span>
+    <span class="p">);</span>
+
+    <span class="k">void</span> <a class="reference internal" href="#doxid-functionstd-list-movetohead"><span class="std std-ref">moveToHead</span></a><span></span><span class="p">(</span><a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="n">entry</span><span class="p">);</span>
+    <span class="k">void</span> <a class="reference internal" href="#doxid-functionstd-list-movetotail"><span class="std std-ref">moveToTail</span></a><span></span><span class="p">(</span><a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="n">entry</span><span class="p">);</span>
+
+    <span class="k">void</span> <a class="reference internal" href="#doxid-functionstd-list-movebefore"><span class="std std-ref">moveBefore</span></a><span></span><span class="p">(</span>
+        <a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="n">entry</span><span class="p">,</span>
+        <a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="n">before</span>
+    <span class="p">);</span>
+
+    <span class="k">void</span> <a class="reference internal" href="#doxid-functionstd-list-moveafter"><span class="std std-ref">moveAfter</span></a><span></span><span class="p">(</span>
+        <a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="n">entry</span><span class="p">,</span>
+        <a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="n">before</span>
+    <span class="p">);</span>
+
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefvariant-t"><span class="std std-ref">variant_t</span></a><span></span> <a class="reference internal" href="#doxid-functionstd-list-removehead"><span class="std std-ref">removeHead</span></a><span></span><span class="p">();</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefvariant-t"><span class="std std-ref">variant_t</span></a><span></span> <a class="reference internal" href="#doxid-functionstd-list-removetail"><span class="std std-ref">removeTail</span></a><span></span><span class="p">();</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefvariant-t"><span class="std std-ref">variant_t</span></a><span></span> <a class="reference internal" href="#doxid-functionstd-list-remove"><span class="std std-ref">remove</span></a><span></span><span class="p">(</span><a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="n">entry</span><span class="p">);</span>
+<span class="p">};</span></pre>
+</section>
+<section id="detailed-documentation">
+<span id="details-typestd-list"></span><h2>Detailed Documentation</h2>
+<p>This class provides a doubly linked list container for <code class="docutils literal notranslate"><span class="pre">variant_t</span></code>
+values.</p>
+<p>A typical sequence of steps when working with a doubly linked list usually
+looks like this:</p>
+<ul class="simple">
+<li><p>Add items using <em>insert</em> methods: <code class="docutils literal notranslate"><span class="pre">insertHead</span></code>, <code class="docutils literal notranslate"><span class="pre">insertTail</span></code>,
+<code class="docutils literal notranslate"><span class="pre">insertBefore</span></code>, <code class="docutils literal notranslate"><span class="pre">insertAfter</span></code>;</p></li>
+<li><p>Remove items using <em>remove</em> methods: <code class="docutils literal notranslate"><span class="pre">removeHead</span></code>, <code class="docutils literal notranslate"><span class="pre">removeTail</span></code>,
+<code class="docutils literal notranslate"><span class="pre">removeBefore</span></code>, <code class="docutils literal notranslate"><span class="pre">removeAfter</span></code>, <code class="docutils literal notranslate"><span class="pre">remove</span></code>;</p></li>
+<li><p>Iterate over items by starting with <code class="docutils literal notranslate"><span class="pre">m_head</span></code> or <code class="docutils literal notranslate"><span class="pre">m_tail</span></code> and then move
+to the next element by inspecting <code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="struct_std_ListEntry.html#doxid-fieldstd-listentry-m-next"><span class="std std-ref"><span class="pre">std.ListEntry.m_next</span></span></a></code> or
+<code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="struct_std_ListEntry.html#doxid-fieldstd-listentry-m-prev"><span class="std std-ref"><span class="pre">std.ListEntry.m_prev</span></span></a></code>.</p></li>
+</ul>
+<p class="rubric">Sample code:</p>
+<pre class="highlight literal-block"><span></span><span class="n">std</span><span class="p">.</span><span class="n">List</span> <span class="n">list</span><span class="p">;</span>
+
+<span class="c1">// add items...</span>
+
+<span class="k">int</span> <span class="n">a</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="p">}</span>
+
+<span class="k">for</span> <span class="p">(</span><span class="n">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="k">countof</span><span class="p">(</span><span class="n">a</span><span class="p">);</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="n">list</span><span class="p">.</span><span class="n">insertTail</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+
+<span class="c1">// iterate over list...</span>
+
+<span class="n">std</span><span class="p">.</span><span class="n">ListEntry</span><span class="o">*</span> <span class="n">e</span> <span class="o">=</span> <span class="n">list</span><span class="p">.</span><span class="n">m_head</span><span class="p">;</span>
+<span class="k">for</span> <span class="p">(;</span> <span class="n">e</span><span class="p">;</span> <span class="n">e</span> <span class="o">=</span> <span class="n">e</span><span class="p">.</span><span class="n">m_next</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// access e.m_data...</span>
+<span class="p">}</span></pre>
+<p class="rubric">See also:</p>
+<p><code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref"><span class="pre">std.ListEntry</span></span></a></code></p>
+<section id="fields">
+<h3>Fields</h3>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-fieldstd-list-m-head"><span id="index-1"></span><a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="k">readonly</span> <span class="n">m_head</span></pre>
+<p>Holds a pointer to the <em>list head</em> (the first element of the list) or
+<code class="docutils literal notranslate"><span class="pre">null</span></code> if the list is empty.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-fieldstd-list-m-tail"><span id="index-2"></span><a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="k">readonly</span> <span class="n">m_tail</span></pre>
+<p>Holds a pointer to the <em>list tail</em> (the last element of the list) or
+<code class="docutils literal notranslate"><span class="pre">null</span></code> if the list is empty.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-fieldstd-list-m-count"><span id="index-3"></span><span></span><span class="k">typedef</span> <span class="k">unsigned</span> <span class="k">long</span> <span class="n">size_t</span> <span class="k">readonly</span> <span class="n">m_count</span></pre>
+<p>Holds number of elements on the list.</p>
+</section>
+<section id="methods">
+<h3>Methods</h3>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionstd-list-clear"><span id="index-4"></span><span></span><span class="k">void</span> <span class="n">clear</span><span class="p">()</span></pre>
+<p>Removes all elements from the lists.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionstd-list-takeover"><span id="index-5"></span><span></span><span class="k">void</span> <span class="n">takeOver</span><span class="p">(</span><span class="n">std</span><span class="p">.</span><span class="n">List</span><span class="o">*</span> <span class="n">list</span><span class="p">)</span></pre>
+<p>Moves all the elements from the source list <code class="docutils literal notranslate"><span class="pre">list</span></code> to this list.</p>
+<p>After the take-over, <code class="docutils literal notranslate"><span class="pre">list</span></code> will be empty and this list will contain
+the same elements as <code class="docutils literal notranslate"><span class="pre">list</span></code> originally did.</p>
+<p>This operation is performed in constant time no matter the size of the
+source list – so it’s always more efficient than clearing the list
+first and then adding all the items from the source list in a loop.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionstd-list-add"><span id="index-6"></span><a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="k">errorcode</span> <span class="n">add</span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedefvariant-t"><span class="std std-ref">variant_t</span></a><span></span> <span class="n">data</span><span class="p">)</span></pre>
+<p>Adds item <code class="docutils literal notranslate"><span class="pre">data</span></code>  to the list.</p>
+<p>Returns a pointer to the new <code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref"><span class="pre">std.ListEntry</span></span></a></code>.</p>
+<p>Equivalent to <code class="docutils literal notranslate"><span class="pre">insertTail</span></code>.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionstd-list-inserthead"><span id="index-7"></span><a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="k">errorcode</span> <span class="n">insertHead</span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedefvariant-t"><span class="std std-ref">variant_t</span></a><span></span> <span class="n">data</span><span class="p">)</span></pre>
+<p>Inserts item <code class="docutils literal notranslate"><span class="pre">data</span></code> to the head of the list.</p>
+<p>Returns a pointer to the new <code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref"><span class="pre">std.ListEntry</span></span></a></code>.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionstd-list-inserttail"><span id="index-8"></span><a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="k">errorcode</span> <span class="n">insertTail</span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedefvariant-t"><span class="std std-ref">variant_t</span></a><span></span> <span class="n">data</span><span class="p">)</span></pre>
+<p>Inserts item <code class="docutils literal notranslate"><span class="pre">data</span></code> to the tail of the list.</p>
+<p>Returns a pointer to the new <code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref"><span class="pre">std.ListEntry</span></span></a></code>.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionstd-list-insertbefore"><span id="index-9"></span><a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="k">errorcode</span> <span class="n">insertBefore</span><span class="p">(</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefvariant-t"><span class="std std-ref">variant_t</span></a><span></span> <span class="n">item</span><span class="p">,</span>
+    <a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="n">before</span>
+<span class="p">)</span></pre>
+<p>Inserts item <code class="docutils literal notranslate"><span class="pre">data</span></code> before the item entry pointed to by <code class="docutils literal notranslate"><span class="pre">entry</span></code>
+argument.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">entry</span> <span class="pre">==</span> <span class="pre">null</span></code> then this method is equivalent to <code class="docutils literal notranslate"><span class="pre">insertTail</span></code>.</p>
+<p>Returns a pointer to the new <code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref"><span class="pre">std.ListEntry</span></span></a></code>.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionstd-list-insertafter"><span id="index-10"></span><a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="k">errorcode</span> <span class="n">insertAfter</span><span class="p">(</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefvariant-t"><span class="std std-ref">variant_t</span></a><span></span> <span class="n">item</span><span class="p">,</span>
+    <a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="n">before</span>
+<span class="p">)</span></pre>
+<p>Inserts item <code class="docutils literal notranslate"><span class="pre">data</span></code> after the item entry pointed to by <code class="docutils literal notranslate"><span class="pre">entry</span></code>
+argument.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">entry</span> <span class="pre">==</span> <span class="pre">null</span></code> then this method is equivalent to <code class="docutils literal notranslate"><span class="pre">insertHead</span></code>.</p>
+<p>Returns a pointer to the new <code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref"><span class="pre">std.ListEntry</span></span></a></code>.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionstd-list-movetohead"><span id="index-11"></span><span></span><span class="k">void</span> <span class="n">moveToHead</span><span class="p">(</span><a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="n">entry</span><span class="p">)</span></pre>
+<p>Moves item entry pointed to by <code class="docutils literal notranslate"><span class="pre">entry</span></code> to the head of the list.</p>
+<p>After this call <code class="docutils literal notranslate"><span class="pre">m_head</span></code> will be pointing to <code class="docutils literal notranslate"><span class="pre">entry</span></code>.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionstd-list-movetotail"><span id="index-12"></span><span></span><span class="k">void</span> <span class="n">moveToTail</span><span class="p">(</span><a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="n">entry</span><span class="p">)</span></pre>
+<p>Moves item entry pointed to by  <code class="docutils literal notranslate"><span class="pre">entry</span></code> to the tail of the list.</p>
+<p>After this call <code class="docutils literal notranslate"><span class="pre">m_tail</span></code> will be pointing to <code class="docutils literal notranslate"><span class="pre">entry</span></code>.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionstd-list-movebefore"><span id="index-13"></span><span></span><span class="k">void</span> <span class="n">moveBefore</span><span class="p">(</span>
+    <a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="n">entry</span><span class="p">,</span>
+    <a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="n">before</span>
+<span class="p">)</span></pre>
+<p>Moves item entry pointed to by <code class="docutils literal notranslate"><span class="pre">entry</span></code> before item entry pointed to
+by  <code class="docutils literal notranslate"><span class="pre">before</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">entry</span> <span class="pre">==</span> <span class="pre">null</span></code> then this method is equivalent to <code class="docutils literal notranslate"><span class="pre">moveToTail</span></code>.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionstd-list-moveafter"><span id="index-14"></span><span></span><span class="k">void</span> <span class="n">moveAfter</span><span class="p">(</span>
+    <a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="n">entry</span><span class="p">,</span>
+    <a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="n">before</span>
+<span class="p">)</span></pre>
+<p>Moves item entry pointed to by  <code class="docutils literal notranslate"><span class="pre">entry</span></code> after item entry pointed to by
+<code class="docutils literal notranslate"><span class="pre">after</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">after</span> <span class="pre">==</span> <span class="pre">null</span></code> then this method is equivalent to <code class="docutils literal notranslate"><span class="pre">moveToHead</span></code>.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionstd-list-removehead"><span id="index-15"></span><a class="reference internal" href="group_c-typedefs.html#doxid-typedefvariant-t"><span class="std std-ref">variant_t</span></a><span></span> <span class="n">removeHead</span><span class="p">()</span></pre>
+<p>Removes head item entry.</p>
+<p>Returns the value of <code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="struct_std_ListEntry.html#doxid-fieldstd-listentry-m-data"><span class="std std-ref"><span class="pre">std.ListEntry.m_data</span></span></a></code> field of the removed list
+head.</p>
+<p>If list is empty at the moment of removal does nothing and returns
+<code class="docutils literal notranslate"><span class="pre">null</span></code>.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionstd-list-removetail"><span id="index-16"></span><a class="reference internal" href="group_c-typedefs.html#doxid-typedefvariant-t"><span class="std std-ref">variant_t</span></a><span></span> <span class="n">removeTail</span><span class="p">()</span></pre>
+<p>Removes tail item entry.</p>
+<p>Returns the value of <code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="struct_std_ListEntry.html#doxid-fieldstd-listentry-m-data"><span class="std std-ref"><span class="pre">std.ListEntry.m_data</span></span></a></code> field of the removed list
+tail.</p>
+<p>If list is empty at the moment of removal does nothing and returns
+<code class="docutils literal notranslate"><span class="pre">null</span></code>.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionstd-list-remove"><span id="index-17"></span><a class="reference internal" href="group_c-typedefs.html#doxid-typedefvariant-t"><span class="std std-ref">variant_t</span></a><span></span> <span class="n">remove</span><span class="p">(</span><a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">std.ListEntry</span></a><span></span><span class="o">*</span> <span class="n">entry</span><span class="p">)</span></pre>
+<p>Removes item entry pointed to by <code class="docutils literal notranslate"><span class="pre">entry</span></code>.</p>
+<p>Returns the value of <code class="docutils literal notranslate"><span class="pre">entry.m_data</span></code> field.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="class_std_HashTable.html" class="btn btn-neutral float-left" title="class std.HashTable" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="class_std_RbTree.html" class="btn btn-neutral float-right" title="class std.RbTree" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

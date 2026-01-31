@@ -1,0 +1,67 @@
+.. include:: def.rst
+.. index:: pair: enum; SerialStopBits
+.. _doxid-typeio_serialstopbits:
+
+enum io.SerialStopBits
+======================
+
+Overview
+~~~~~~~~
+
+This enumeration lists all possible values for stop bits setting of
+the serial port. :ref:`More...<details-typeio_serialstopbits>`
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum SerialStopBits {
+	    :ref:`_1<doxid-enum_memberio_serialstopbits__1>`,
+	    :ref:`_15<doxid-enum_memberio_serialstopbits__15>`,
+	    :ref:`_2<doxid-enum_memberio_serialstopbits__2>`,
+	};
+
+.. _details-typeio_serialstopbits:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This enumeration lists all possible values for stop bits setting of
+the serial port.
+
+Stop bits are auxillary(non-data) bits sent at the end of each character to
+re-synchronize the receiver; normally 1 stop bit is used.
+
+Enum Values
+-----------
+
+.. index:: pair: enumvalue; _1
+.. _doxid-enum_memberio_serialstopbits__1:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	_1
+
+One stop bit.
+
+.. index:: pair: enumvalue; _15
+.. _doxid-enum_memberio_serialstopbits__15:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	_15
+
+One and a half stop bit (1.5 bit duration).
+
+.. index:: pair: enumvalue; _2
+.. _doxid-enum_memberio_serialstopbits__2:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	_2
+
+Two stop bits.
+

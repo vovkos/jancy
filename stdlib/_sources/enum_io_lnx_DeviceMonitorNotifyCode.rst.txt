@@ -1,0 +1,27 @@
+.. include:: def.rst
+.. index:: pair: enum; DeviceMonitorNotifyCode
+.. _doxid-typeio_lnx_devicemonitornotifycode:
+
+enum io.lnx.DeviceMonitorNotifyCode
+===================================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum DeviceMonitorNotifyCode: typedef unsigned short uint16_t {
+	    :target:`Undefined<doxid-enum_memberio_lnx_devicemonitornotifycode_undefined>`     = 0,
+	    :target:`Open<doxid-enum_memberio_lnx_devicemonitornotifycode_open>`,
+	    :target:`Close<doxid-enum_memberio_lnx_devicemonitornotifycode_close>`,
+	    :target:`Read<doxid-enum_memberio_lnx_devicemonitornotifycode_read>`,
+	    :target:`Write<doxid-enum_memberio_lnx_devicemonitornotifycode_write>`,
+	    :target:`UnlockedIoctl<doxid-enum_memberio_lnx_devicemonitornotifycode_unlockedioctl>`,
+	    :target:`CompatIoctl<doxid-enum_memberio_lnx_devicemonitornotifycode_compatioctl>`,
+	    :target:`DataDropped<doxid-enum_memberio_lnx_devicemonitornotifycode_datadropped>`,
+	    :target:`ReadIter<doxid-enum_memberio_lnx_devicemonitornotifycode_readiter>`,
+	    :target:`WriteIter<doxid-enum_memberio_lnx_devicemonitornotifycode_writeiter>`,
+	    :target:`Count<doxid-enum_memberio_lnx_devicemonitornotifycode_count>`,
+	};
+

@@ -1,0 +1,33 @@
+.. index:: pair: enum; jnc_StorageKind
+.. _doxid-group__module-item-decl_1ga17754d5a085a1de491f093eaba57214c:
+
+enum jnc_StorageKind
+====================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_ModuleItem.h>
+
+	enum jnc_StorageKind {
+	    :target:`jnc_StorageKind_Undefined<doxid-group__module-item-decl_1gga17754d5a085a1de491f093eaba57214ca2ddecaed891a642e2ba28ecc85a8142b>`    = 0,
+	    :target:`jnc_StorageKind_Typedef<doxid-group__module-item-decl_1gga17754d5a085a1de491f093eaba57214ca79112aa00b76c1565a3694da417338af>`,
+	    :target:`jnc_StorageKind_Static<doxid-group__module-item-decl_1gga17754d5a085a1de491f093eaba57214ca8a56f38c605d8520cfb95a53db581671>`,
+	    :target:`jnc_StorageKind_Tls<doxid-group__module-item-decl_1gga17754d5a085a1de491f093eaba57214cac4f0d3171be33332fc0ba61daaf38b16>`,
+	    :target:`jnc_StorageKind_Stack<doxid-group__module-item-decl_1gga17754d5a085a1de491f093eaba57214ca2948c7068edee1b2481b56e86c1e8701>`,
+	    :target:`jnc_StorageKind_Heap<doxid-group__module-item-decl_1gga17754d5a085a1de491f093eaba57214ca4ab0199fd0f1eb4eeb66822e52f5adbd>`,
+	    :target:`jnc_StorageKind_Alias<doxid-group__module-item-decl_1gga17754d5a085a1de491f093eaba57214ca58ff3b5ba66acbc70785c22d939b596b>`,
+	    :target:`jnc_StorageKind_Member<doxid-group__module-item-decl_1gga17754d5a085a1de491f093eaba57214caeb01d2e23730c940f67515c4a36d612d>`,
+	    :target:`jnc_StorageKind_Abstract<doxid-group__module-item-decl_1gga17754d5a085a1de491f093eaba57214caca26a1dc34bef0875f6de58c2ca63646>`,
+	    :target:`jnc_StorageKind_Virtual<doxid-group__module-item-decl_1gga17754d5a085a1de491f093eaba57214ca628f2f5ee006fc506c8dcc8f659bb0af>`,
+	    :target:`jnc_StorageKind_Override<doxid-group__module-item-decl_1gga17754d5a085a1de491f093eaba57214cafef3c15b24b3b6449ec04c90c329c5af>`,
+	    :target:`jnc_StorageKind_Mutable<doxid-group__module-item-decl_1gga17754d5a085a1de491f093eaba57214cadc9f07f04298663e28e6a1e239ef7788>`,
+	    :target:`jnc_StorageKind_Disposable<doxid-group__module-item-decl_1gga17754d5a085a1de491f093eaba57214ca45a00b67b5c211816f34cd03d0a1f903>`,
+	    :target:`jnc_StorageKind_DynamicField<doxid-group__module-item-decl_1gga17754d5a085a1de491f093eaba57214cad715483ef00235e7a01138f6b249e3cd>`,
+	    :target:`jnc_StorageKind_Reactor<doxid-group__module-item-decl_1gga17754d5a085a1de491f093eaba57214ca3dd1d618fbff11459173b244434d516c>`,
+	    :target:`jnc_StorageKind_This<doxid-group__module-item-decl_1gga17754d5a085a1de491f093eaba57214ca3e719ce799ff5f8c5ca5daa7951713ac>`,
+	    :target:`jnc_StorageKind__Count<doxid-group__module-item-decl_1gga17754d5a085a1de491f093eaba57214ca1ff827e5b7da5da00c531aba4bb6dc65>`,
+	};
+

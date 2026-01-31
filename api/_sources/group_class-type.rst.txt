@@ -1,0 +1,128 @@
+.. index:: pair: group; Class Type
+.. _doxid-group__class-type:
+
+Class Type
+==========
+
+.. toctree::
+	:hidden:
+
+	enum_jnc_ClassPtrTypeKind.rst
+	enum_jnc_ClassTypeFlag.rst
+	enum_jnc_ClassTypeKind.rst
+	enum_jnc_McSnapshotFieldKind.rst
+	enum_jnc_McSnapshotMethodKind.rst
+	enum_jnc_MulticastFieldKind.rst
+	enum_jnc_MulticastMethodFlag.rst
+	enum_jnc_MulticastMethodKind.rst
+	struct_jnc_ClassType.rst
+
+Overview
+~~~~~~~~
+
+Class type is used to describe a class in Jancy. :ref:`More...<details-group__class-type>`
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_ClassType.h>
+	
+	// enums
+
+	enum :ref:`jnc_ClassPtrTypeKind<doxid-group__class-type_1ga6d95ee929f936ee9736784099a7f47c6>`;
+	enum :ref:`jnc_ClassTypeFlag<doxid-group__class-type_1ga3849b3418662f7b9eacbb3462d37234f>`;
+	enum :ref:`jnc_ClassTypeKind<doxid-group__class-type_1gaabc853915c16d345a018ec3ccce9ea25>`;
+	enum :ref:`jnc_McSnapshotFieldKind<doxid-group__class-type_1ga0f3d5b3a46d8826e56d63fc72f644d69>`;
+	enum :ref:`jnc_McSnapshotMethodKind<doxid-group__class-type_1ga3d91403e9792f9daedf0a9910587442b>`;
+	enum :ref:`jnc_MulticastFieldKind<doxid-group__class-type_1ga7410b29a98a1eb6465b35a5163e59f68>`;
+	enum :ref:`jnc_MulticastMethodFlag<doxid-group__class-type_1ga2b11f523d0ef5e51265e3180bbeab5f5>`;
+	enum :ref:`jnc_MulticastMethodKind<doxid-group__class-type_1gacd8ca6b4414694eef9e020bf81ff9a6d>`;
+
+	// structs
+
+	struct :ref:`jnc_ClassType<doxid-structjnc___class_type>`;
+
+	// global functions
+
+	const char*
+	:target:`jnc_getClassPtrTypeKindString<doxid-group__class-type_1ga2cc399228a9d22bd02ce06f85ac20914>`(jnc_ClassPtrTypeKind ptrTypeKind);
+
+	jnc_ClassTypeKind
+	:target:`jnc_ClassType_getClassTypeKind<doxid-group__class-type_1ga14587f1f43a03c64ff5c7d1c8bfd53e9>`(:ref:`jnc_ClassType<doxid-structjnc___class_type>`* type);
+
+	:ref:`jnc_StructType<doxid-structjnc___struct_type>`*
+	:target:`jnc_ClassType_getIfaceStructType<doxid-group__class-type_1ga00e8e78cb3801456e775873070a9c573>`(:ref:`jnc_ClassType<doxid-structjnc___class_type>`* type);
+
+	jnc_ClassPtrType*
+	:target:`jnc_ClassType_getClassPtrType<doxid-group__class-type_1ga2896657e1e99fec05ba7fbc31c687ec8>`(
+		:ref:`jnc_ClassType<doxid-structjnc___class_type>`* type,
+		jnc_TypeKind typeKind,
+		jnc_ClassPtrTypeKind ptrTypeKind,
+		uint_t flags
+	);
+
+	jnc_ClassPtrTypeKind
+	:target:`jnc_ClassPtrType_getPtrTypeKind<doxid-group__class-type_1ga8f05c35bd55b74476455c207567471ab>`(jnc_ClassPtrType* type);
+
+	:ref:`jnc_ClassType<doxid-structjnc___class_type>`*
+	:target:`jnc_ClassPtrType_getTargetType<doxid-group__class-type_1ga677a4fb5a625a364a7444af08d71d5a6>`(jnc_ClassPtrType* type);
+
+	jnc_FunctionPtrType*
+	:target:`jnc_MulticastClassType_getTargetType<doxid-group__class-type_1gaaa37ff0f105533ac03dbf1939c5d5221>`(jnc_MulticastClassType* type);
+
+	static
+	:ref:`jnc_FunctionType<doxid-structjnc___function_type>`*
+	:target:`jnc_MulticastClassType_getFunctionType<doxid-group__class-type_1gaa014592d26e6abd60237bbf985e78a36>`(jnc_MulticastClassType* type);
+
+	:ref:`jnc_Function<doxid-structjnc___function>`*
+	:target:`jnc_MulticastClassType_getMethod<doxid-group__class-type_1gac9ab85a53eb74673aa0baba8cc340d3c>`(
+		jnc_MulticastClassType* type,
+		jnc_MulticastMethodKind method
+	);
+
+	jnc_FunctionPtrType*
+	:target:`jnc_McSnapshotClassType_getTargetType<doxid-group__class-type_1ga8068cbe7a4f66f5117b83d280c477cce>`(jnc_McSnapshotClassType* type);
+
+	static
+	:ref:`jnc_FunctionType<doxid-structjnc___function_type>`*
+	:target:`jnc_McSnapshotClassType_getFunctionType<doxid-group__class-type_1ga8d6052f697e46bc50f7887fcd99a5b8c>`(jnc_McSnapshotClassType* type);
+
+	:ref:`jnc_Function<doxid-structjnc___function>`*
+	:target:`jnc_McSnapshotClassType_getMethod<doxid-group__class-type_1gac54ff2c0a46dda3c5f5183382c5e5de9>`(
+		jnc_McSnapshotClassType* type,
+		jnc_McSnapshotMethodKind method
+	);
+
+	static
+	:ref:`bool_t<doxid-group__base-def_1ga812d16e5494522586b3784e55d479912>`
+	:target:`jnc_isClassType<doxid-group__class-type_1ga8b2c2674a7de870879ec2b1a9e9f11cc>`(
+		:ref:`jnc_Type<doxid-structjnc___type>`* type,
+		jnc_ClassTypeKind classTypeKind
+	);
+
+	static
+	:ref:`bool_t<doxid-group__base-def_1ga812d16e5494522586b3784e55d479912>`
+	:target:`jnc_isOpaqueClassType<doxid-group__class-type_1ga1a52acc97df9b19523e5d004ed3577b5>`(:ref:`jnc_Type<doxid-structjnc___type>`* type);
+
+	static
+	:ref:`bool_t<doxid-group__base-def_1ga812d16e5494522586b3784e55d479912>`
+	:target:`jnc_isClosureClassType<doxid-group__class-type_1ga991f90ddf92ddfa35aa58606543c9a9c>`(:ref:`jnc_Type<doxid-structjnc___type>`* type);
+
+	static
+	:ref:`bool_t<doxid-group__base-def_1ga812d16e5494522586b3784e55d479912>`
+	:target:`jnc_isDestructibleClassType<doxid-group__class-type_1gad574e12018da5620209d56108e3baef5>`(:ref:`jnc_Type<doxid-structjnc___type>`* type);
+
+	static
+	void*
+	:target:`jnc_getMulticastCallMethodMachineCode<doxid-group__class-type_1gaa38a7e5fa51ea040199aef6b0e98cdda>`(:ref:`jnc_Multicast<doxid-structjnc___multicast>`* multicast);
+
+.. _details-group__class-type:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+Class type is used to describe a class in Jancy.
+
+Unlike structs and unions, classes can contain destructors and virtual functions.
+

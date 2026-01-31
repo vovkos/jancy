@@ -1,0 +1,25 @@
+.. include:: def.rst
+.. index:: pair: struct; String
+.. _doxid-typestring:
+
+struct String
+=============
+
+.. toctree::
+	:hidden:
+
+The internal implementation of the built-in string type. Fields ``m_p`` and
+``m_length`` can be accessed directly. To get the contents of ``m_sz``, cast
+a string to ``char const*``.
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct String {
+		// fields
+	
+		char const* readonly :target:`m_p<doxid-fieldstring_m_p>`;
+		typedef unsigned long size_t readonly :target:`m_length<doxid-fieldstring_m_length>`;
+	};

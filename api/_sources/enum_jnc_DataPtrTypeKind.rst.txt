@@ -1,0 +1,20 @@
+.. index:: pair: enum; jnc_DataPtrTypeKind
+.. _doxid-group__type_1gaee65443935548f532c20a1c633c4b140:
+
+enum jnc_DataPtrTypeKind
+========================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Type.h>
+
+	enum jnc_DataPtrTypeKind {
+	    :target:`jnc_DataPtrTypeKind_Normal<doxid-group__type_1ggaee65443935548f532c20a1c633c4b140ac32bb4e08b4f70bcd3ac68557b114db4>` = 0,
+	    :target:`jnc_DataPtrTypeKind_Lean<doxid-group__type_1ggaee65443935548f532c20a1c633c4b140a4947de9dc2b85f05d878d3c272917262>`,
+	    :target:`jnc_DataPtrTypeKind_Thin<doxid-group__type_1ggaee65443935548f532c20a1c633c4b140adc404f873cf29d86de58a813887c9fdd>`,
+	    :target:`jnc_DataPtrTypeKind__Count<doxid-group__type_1ggaee65443935548f532c20a1c633c4b140a059f8aa4c8bae08d65e2d94ac084714a>`,
+	};
+

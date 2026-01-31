@@ -1,0 +1,213 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>namespace std &mdash; Jancy Standard Library Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="namespace stdt" href="namespace_stdt.html" />
+    <link rel="prev" title="namespace jnc" href="namespace_jnc.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy Standard Library Reference
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="group_stdt-operator.html">stdt-operator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_c-typedefs.html">Standard Typedefs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_rtl.html">RTL (Runtime Library)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_crt.html">C Runtime Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_std.html">General Purpose Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_sys.html">System Facilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_io.html">IO (Input/Output) Library</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="disposable.html">‘disposable’ Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="errorcode.html">‘errorcode’ Functions</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="global.html">Global Namespace</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="namespace_io.html">namespace io</a></li>
+<li class="toctree-l2"><a class="reference internal" href="namespace_jnc.html">namespace jnc</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">namespace std</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="namespace_stdt.html">namespace stdt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="namespace_sys.html">namespace sys</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy Standard Library Reference</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="global.html">Global Namespace</a></li>
+      <li class="breadcrumb-item active">namespace std</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="namespace-std">
+<span id="doxid-namespace-std"></span><span id="index-0"></span><h1>namespace std</h1>
+<div class="toctree-wrapper compound">
+</div>
+<pre class="highlight doxyrest-overview-code-block literal-block"><span></span><span class="k">namespace</span> <span class="n">std</span> <span class="p">{</span>
+
+<span class="c1">// typedefs</span>
+
+<span class="k">typedef</span> <span class="k">bool</span> <span class="doxyrest-code-target target" id="doxid-typedefstd-lessfunc"><span></span><span class="n">LessFunc</span></span><span></span><span class="p">(</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefvariant-t"><span class="std std-ref">variant_t</span></a><span></span> <span class="n">e1</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefvariant-t"><span class="std std-ref">variant_t</span></a><span></span> <span class="n">e2</span>
+<span class="p">);</span>
+
+<span class="k">typedef</span> <a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="doxyrest-code-target target" id="doxid-typedefstd-hashfunc"><span></span><span class="n">HashFunc</span></span><span></span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedefvariant-t"><span class="std std-ref">variant_t</span></a><span></span> <span class="n">key</span><span class="p">);</span>
+
+<span class="k">typedef</span> <span class="k">bool</span> <span class="doxyrest-code-target target" id="doxid-typedefstd-isequalfunc"><span></span><span class="n">IsEqualFunc</span></span><span></span><span class="p">(</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefvariant-t"><span class="std std-ref">variant_t</span></a><span></span> <span class="n">key1</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefvariant-t"><span class="std std-ref">variant_t</span></a><span></span> <span class="n">key2</span>
+<span class="p">);</span>
+
+<span class="k">typedef</span> <span class="k">int</span> <span class="doxyrest-code-target target" id="doxid-typedefstd-cmpfunc"><span></span><span class="n">CmpFunc</span></span><span></span><span class="p">(</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefvariant-t"><span class="std std-ref">variant_t</span></a><span></span> <span class="n">key1</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefvariant-t"><span class="std std-ref">variant_t</span></a><span></span> <span class="n">key2</span>
+<span class="p">);</span>
+
+<span class="c1">// enums</span>
+
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_std_GuidStringFlags.html#doxid-typestd-guidstringflags"><span class="std std-ref">GuidStringFlags</span></a><span></span><span class="p">;</span>
+
+<span class="c1">// structs</span>
+
+<span class="k">struct</span> <a class="reference internal" href="struct_std_Error.html#doxid-typestd-error"><span class="std std-ref">Error</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_std_Guid.html#doxid-typestd-guid"><span class="std std-ref">Guid</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_std_ListEntry.html#doxid-typestd-listentry"><span class="std std-ref">ListEntry</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_std_MapEntry.html#doxid-typestd-mapentry"><span class="std std-ref">MapEntry</span></a><span></span><span class="p">;</span>
+
+<span class="c1">// classes</span>
+
+<span class="k">class</span> <a class="reference internal" href="class_std_Array.html#doxid-typestd-array"><span class="std std-ref">Array</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_std_Buffer.html#doxid-typestd-buffer"><span class="std std-ref">Buffer</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_std_HashTable.html#doxid-typestd-hashtable"><span class="std std-ref">HashTable</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_std_List.html#doxid-typestd-list"><span class="std std-ref">List</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_std_RbTree.html#doxid-typestd-rbtree"><span class="std std-ref">RbTree</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_std_StringBuilder.html#doxid-typestd-stringbuilder"><span class="std std-ref">StringBuilder</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_std_StringHashTable.html#doxid-typestd-stringhashtable"><span class="std std-ref">StringHashTable</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_std_StringHashTableIgnoreCase.html#doxid-typestd-stringhashtableignorecase"><span class="std std-ref">StringHashTableIgnoreCase</span></a><span></span><span class="p">;</span>
+
+<span class="c1">// global variables</span>
+
+<a class="reference internal" href="struct_std_Guid.html#doxid-typestd-guid"><span class="std std-ref">std.Guid</span></a><span></span> <span class="doxyrest-code-target target" id="doxid-variablestd-g-errnoguid"><span></span><span class="n">g_errnoGuid</span></span><span></span> <span class="o">=</span> <span class="p">{</span> <span class="mh">0x25a6a7b5</span><span class="p">,</span> <span class="mh">0xf662</span><span class="p">,</span> <span class="mh">0x48ae</span><span class="p">,</span> <span class="p">{</span> <span class="mh">0xbc</span><span class="p">,</span> <span class="mh">0xb6</span><span class="p">,</span> <span class="mh">0x9a</span><span class="p">,</span> <span class="mh">0x5c</span><span class="p">,</span> <span class="mh">0xb5</span><span class="p">,</span> <span class="mh">0xce</span><span class="p">,</span> <span class="mh">0x5b</span><span class="p">,</span> <span class="mh">0xb9</span> <span class="p">}</span> <span class="p">};</span>
+<a class="reference internal" href="struct_std_Guid.html#doxid-typestd-guid"><span class="std std-ref">std.Guid</span></a><span></span> <span class="doxyrest-code-target target" id="doxid-variablestd-g-winerrorguid"><span></span><span class="n">g_winErrorGuid</span></span><span></span> <span class="o">=</span> <span class="p">{</span> <span class="mh">0x54e100e8</span><span class="p">,</span> <span class="mh">0x2137</span><span class="p">,</span> <span class="mh">0x40b8</span><span class="p">,</span> <span class="p">{</span> <span class="mh">0xbc</span><span class="p">,</span> <span class="mh">0xd8</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0xac</span><span class="p">,</span> <span class="mh">0x1d</span><span class="p">,</span> <span class="mh">0x0b</span><span class="p">,</span> <span class="mh">0xaa</span><span class="p">,</span> <span class="mh">0x16</span> <span class="p">}</span> <span class="p">};</span>
+<a class="reference internal" href="struct_std_Guid.html#doxid-typestd-guid"><span class="std std-ref">std.Guid</span></a><span></span> <span class="doxyrest-code-target target" id="doxid-variablestd-g-ntstatusguid"><span></span><span class="n">g_ntStatusGuid</span></span><span></span> <span class="o">=</span> <span class="p">{</span> <span class="mh">0x81443347</span><span class="p">,</span> <span class="mh">0x3bc9</span><span class="p">,</span> <span class="mh">0x4d5e</span><span class="p">,</span> <span class="p">{</span> <span class="mh">0x8b</span><span class="p">,</span> <span class="mh">0x23</span><span class="p">,</span> <span class="mh">0x32</span><span class="p">,</span> <span class="mh">0xd7</span><span class="p">,</span> <span class="mh">0x80</span><span class="p">,</span> <span class="mh">0xed</span><span class="p">,</span> <span class="mh">0xb5</span><span class="p">,</span> <span class="mh">0x2b</span> <span class="p">}</span> <span class="p">};</span>
+
+<span class="c1">// global functions</span>
+
+<a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="k">cdecl</span> <a class="reference internal" href="group_std-string.html#doxid-functionstd-format"><span class="std std-ref">format</span></a><span></span><span class="p">(</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">fmtSpecifier</span><span class="p">,</span>
+    <span class="p">...</span>
+<span class="p">);</span>
+
+<span class="k">void</span> <span class="doxyrest-code-target target" id="doxid-functionstd-sort"><span></span><span class="n">sort</span></span><span></span><span class="p">(</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefvariant-t"><span class="std std-ref">variant_t</span></a><span></span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">count</span>
+<span class="p">);</span>
+
+<span class="k">void</span> <span class="doxyrest-code-target target" id="doxid-functionstd-sort-2"><span></span><span class="n">sort</span></span><span></span><span class="p">(</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefvariant-t"><span class="std std-ref">variant_t</span></a><span></span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">count</span><span class="p">,</span>
+    <a class="reference internal" href="#doxid-typedefstd-lessfunc"><span class="std std-ref">std.LessFunc</span></a><span></span><span class="o">*</span> <span class="n">lessFunc</span>
+<span class="p">);</span>
+
+<a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="doxyrest-code-target target" id="doxid-functionstd-getallocsize"><span></span><span class="n">getAllocSize</span></span><span></span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">size</span><span class="p">);</span>
+<a class="reference internal" href="struct_std_Error.html#doxid-typestd-error"><span class="std std-ref">std.Error</span></a><span></span> <span class="k">const</span><span class="o">*</span> <a class="reference internal" href="group_std-error.html#doxid-functionstd-getlasterror"><span class="std std-ref">getLastError</span></a><span></span><span class="p">();</span>
+<a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <a class="reference internal" href="group_std-error.html#doxid-functionstd-getlasterrordescription"><span class="std std-ref">getLastErrorDescription</span></a><span></span><span class="p">();</span>
+<span class="k">void</span> <a class="reference internal" href="group_std-error.html#doxid-functionstd-seterror"><span class="std std-ref">setError</span></a><span></span><span class="p">(</span><a class="reference internal" href="struct_std_Error.html#doxid-typestd-error"><span class="std std-ref">std.Error</span></a><span></span> <span class="k">const</span><span class="o">*</span> <span class="n">error</span><span class="p">);</span>
+<span class="k">void</span> <span class="doxyrest-code-target target" id="doxid-functionstd-pusherror"><span></span><span class="n">pushError</span></span><span></span><span class="p">(</span><a class="reference internal" href="struct_std_Error.html#doxid-typestd-error"><span class="std std-ref">std.Error</span></a><span></span> <span class="k">const</span><span class="o">*</span> <span class="n">error</span><span class="p">);</span>
+<span class="k">void</span> <a class="reference internal" href="group_std-error.html#doxid-functionstd-seterrno"><span class="std std-ref">setErrno</span></a><span></span><span class="p">(</span><span class="k">int</span> <span class="n">errno</span><span class="p">);</span>
+<span class="k">void</span> <span class="doxyrest-code-target target" id="doxid-functionstd-pusherrno"><span></span><span class="n">pushErrno</span></span><span></span><span class="p">(</span><span class="k">int</span> <span class="n">errno</span><span class="p">);</span>
+<span class="k">void</span> <a class="reference internal" href="group_std-error.html#doxid-functionstd-seterror-2"><span class="std std-ref">setError</span></a><span></span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">string</span><span class="p">);</span>
+<span class="k">void</span> <span class="doxyrest-code-target target" id="doxid-functionstd-pusherror-2"><span></span><span class="n">pushError</span></span><span></span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">string</span><span class="p">);</span>
+
+<span class="p">}</span> <span class="c1">// namespace std</span></pre>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="namespace_jnc.html" class="btn btn-neutral float-left" title="namespace jnc" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="namespace_stdt.html" class="btn btn-neutral float-right" title="namespace stdt" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,234 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dual Modifiers &mdash; Jancy Language Manual</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Exception Handling" href="exceptions.html" />
+    <link rel="prev" title="Dynamic Structs" href="dynamic_structs.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy Language Manual
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="language.html">Jancy Language</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="hello_world.html">Hello World</a></li>
+<li class="toctree-l2"><a class="reference internal" href="type_primitive.html">Primitive Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="decl_simple.html">Simple Declarations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="decl_advanced.html">Advanced Declarations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="decl_curly.html">Curly Initializers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="decl_storage.html">Storage Specifiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="literals.html">Literals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="aliases.html">Aliases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="function_redirection.html">Function Redirection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cflow.html">Control Flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prop.html">Properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nspace.html">Namespaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="type_named.html">Named Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="type_ptr.html">Pointer Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multicasts.html">Multicasts and Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reactive.html">Reactive Programming</a></li>
+<li class="toctree-l2"><a class="reference internal" href="regex_switches.html">Regex Switches</a></li>
+<li class="toctree-l2"><a class="reference internal" href="schedulers.html">Schedulers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamic_structs.html">Dynamic Structs</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Dual Modifiers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#readonly">readonly</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#event">event</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="exceptions.html">Exception Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="disposable.html">Deterministic Resource Release</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="c_compatibility.html">Compatibility with C</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy Language Manual</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="language.html">Jancy Language</a></li>
+      <li class="breadcrumb-item active">Dual Modifiers</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="dual-modifiers">
+<span id="id1"></span><h1>Dual Modifiers</h1>
+<p>The namespace member access control model of Jancy differs from that of most object-oriented languages.</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>There are only two access specifiers:</dt><dd><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">public</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">protected</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Member access can be specified in two styles:</dt><dd><ul>
+<li><p>C++-style (i.e. a label)</p></li>
+<li><p>Java-style (i.e. a declaration specifier)</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>The default access specifier is public – even for classes</p></li>
+<li><p>Global namespace members can also have access specifiers just like named type members (and why not?)</p></li>
+</ul>
+<p>The main difference, of course, is the first one. For each namespace the rest of the namespaces falls into one of the two categories:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Friends</dt><dd><ul>
+<li><p>This namespace</p></li>
+<li><p>Nested namespaces</p></li>
+<li><p>Namespaces of derived types</p></li>
+<li><p>Extension namespaces</p></li>
+<li><p>Namespaces declared as <strong>friends</strong></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Aliens</dt><dd><ul>
+<li><p>Everybody else</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Friends have access to all the members including protected ones. Aliens can only access public members.</p>
+<p>Admittedly, this approach definitely affords the developer a much lesser degree of flexibility in fine-tuning of who-can-access-what (other object oriented languages typically provide from three to five access specifiers).</p>
+<p>On the positive side, this simplified binary model of friends vs aliens and opens up the possibility of dual modifiers, that is, the modifiers having one meaning for friends and another for aliens.</p>
+<section id="readonly">
+<h2>readonly</h2>
+<p>One of the most common elements used in virtually every program is a read-only field. A class sets and modifies a field; all users of the class can only read this field.</p>
+<p>Conventionally this is implemented by declaring a private field and a public getter.</p>
+<p>The implementation relying on dual modifiers looks a lot more natural, as it is compact – Jancy’s dual modifier <code class="docutils literal notranslate"><span class="pre">readonly</span></code> is ignored by friends and means <code class="docutils literal notranslate"><span class="pre">const</span></code> for aliens:</p>
+<div class="highlight-jnc notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="n">C1</span> <span class="p">{</span>
+    <span class="k">int</span> <span class="k">readonly</span> <span class="n">mreadOnly</span><span class="p">;</span>
+
+    <span class="k">void</span> <span class="n">foo</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">mreadOnly</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span> <span class="c1">// for insiders it&#39;s a regular field</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">void</span> <span class="n">bar</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">C1</span> <span class="n">c</span><span class="p">;</span>
+    <span class="k">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">c</span><span class="p">.</span><span class="n">mreadOnly</span><span class="p">;</span> <span class="c1">// no problem</span>
+    <span class="n">c</span><span class="p">.</span><span class="n">mreadOnly</span> <span class="o">=</span> <span class="mi">20</span><span class="p">;</span>    <span class="c1">// error: cannot assign to const-location</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="event">
+<h2>event</h2>
+<p>Events represent yet another extremely common programming element that requires dual access control.</p>
+<p>The owner of an event must have the full control over this event, including the possibility of actually firing it. Subscribers are only able to add and remove event handlers.</p>
+<p>The dual modifier <code class="docutils literal notranslate"><span class="pre">event</span></code> provides full multicast-access to friends and event-only access to aliens:</p>
+<div class="highlight-jnc notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="n">C1</span> <span class="p">{</span>
+    <span class="k">event</span> <span class="n">m_onCompleted</span><span class="p">();</span>
+
+    <span class="k">void</span> <span class="n">work</span><span class="p">()</span> <span class="p">{</span>
+        <span class="c1">// ...</span>
+
+        <span class="n">m_onCompleted</span><span class="p">();</span> <span class="c1">// insiders have multicast-access to m_onCompleted</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">void</span> <span class="n">onCompleted</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+
+<span class="k">void</span> <span class="n">foo</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">C1</span> <span class="n">c</span><span class="p">;</span>
+    <span class="n">c</span><span class="p">.</span><span class="n">m_onCompleted</span> <span class="o">+=</span> <span class="n">onCompleted</span><span class="p">;</span> <span class="c1">// aliens have event-access to m_onCompleted</span>
+    <span class="n">c</span><span class="p">.</span><span class="n">m_completeEvent</span><span class="p">();</span> <span class="c1">// error: aliens have no multicast-access to m_onCompleted</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="dynamic_structs.html" class="btn btn-neutral float-left" title="Dynamic Structs" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="exceptions.html" class="btn btn-neutral float-right" title="Exception Handling" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

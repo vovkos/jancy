@@ -1,0 +1,198 @@
+.. include:: def.rst
+.. index:: pair: class; io.NamedPipe
+.. _doxid-typeio_namedpipe:
+
+class io.NamedPipe
+==================
+
+.. toctree::
+	:hidden:
+
+Overview
+~~~~~~~~
+
+This class provides high-level asynchronous interface for the
+*server* side of Windows named pipes. Windows named pipes are widely
+used for IPC(Inter-Process Communications) between applications,
+services and drivers on Windows platform. :ref:`More...<details-typeio_namedpipe>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "io_base.jncx"
+	import "io_NamedPipe.jnc"
+	
+	class NamedPipe {
+		// fields
+	
+		:ref:`io.NamedPipeEvents<doxid-typeio_namedpipeevents>` readonly volatile :target:`m_activeEvents<doxid-fieldio_namedpipe_m_activeevents>`;
+		:ref:`std.Error<doxid-typestd_error>` const* readonly volatile :target:`m_ioError<doxid-fieldio_namedpipe_m_ioerror>`;
+		bool readonly :ref:`m_isOpen<doxid-fieldio_namedpipe_m_isopen>`;
+
+		// properties
+	
+		:ref:`uint_t<doxid-typedefuint_t>` autoget property :target:`m_backLogLimit<doxid-propertyio_namedpipe_m_backloglimit>`;
+		:ref:`uint_t<doxid-typedefuint_t>` autoget property :target:`m_readParallelism<doxid-propertyio_namedpipe_m_readparallelism>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_readBlockSize<doxid-propertyio_namedpipe_m_readblocksize>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_readBufferSize<doxid-propertyio_namedpipe_m_readbuffersize>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_writeBufferSize<doxid-propertyio_namedpipe_m_writebuffersize>`;
+		:ref:`io.FileStreamOptions<doxid-typeio_filestreamoptions>` autoget property :target:`m_options<doxid-propertyio_namedpipe_m_options>`;
+
+		// construction
+	
+		:target:`construct<doxid-functionio_namedpipe_construct>`();
+		:target:`destruct<doxid-functionio_namedpipe_destruct>`();
+
+		// methods
+	
+		bool errorcode :ref:`open<doxid-functionio_namedpipe_open>`(:ref:`string_t<doxid-typedefstring_t>` name);
+		void :ref:`close<doxid-functionio_namedpipe_close>`();
+		:ref:`io.FileStream<doxid-typeio_filestream>`* :ref:`accept<doxid-functionio_namedpipe_accept>`(bool isSuspended = false);
+	
+		long errorcode :target:`wait<doxid-functionio_namedpipe_wait>`(
+			:ref:`io.NamedPipeEvents<doxid-typeio_namedpipeevents>` eventMask,
+			void function* handler(io.NamedPipeEvents triggeredEvents)
+		);
+	
+		bool errorcode :target:`cancelWait<doxid-functionio_namedpipe_cancelwait>`(long handle);
+	
+		:ref:`io.NamedPipeEvents<doxid-typeio_namedpipeevents>` :target:`blockingWait<doxid-functionio_namedpipe_blockingwait>`(
+			:ref:`io.NamedPipeEvents<doxid-typeio_namedpipeevents>` eventMask,
+			:ref:`uint_t<doxid-typedefuint_t>` timeout = -1
+		);
+	
+		:ref:`io.NamedPipeEvents<doxid-typeio_namedpipeevents>` async :target:`asyncWait<doxid-functionio_namedpipe_asyncwait>`(:ref:`io.NamedPipeEvents<doxid-typeio_namedpipeevents>` eventMask);
+
+		// aliases
+	
+		alias :ref:`dispose<doxid-aliasio_namedpipe_dispose>` = close;
+	};
+.. _details-typeio_namedpipe:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This class provides high-level asynchronous interface for the
+*server* side of Windows named pipes. Windows named pipes are widely
+used for IPC(Inter-Process Communications) between applications,
+services and drivers on Windows platform.
+
+For working from the *client* side of a named pipe, please use `io.File`
+class.
+
+A typical sequence of steps when working with a named pipe server looks
+something like this:
+
+* Open a server-side named pipe with ``open`` method;
+* Assign IO event handler with ``wait`` method. You would probably also
+  want to *schedule* your event handler to be run in particular
+  environment(e.g., in a specific thread) and partially apply some
+  syncrhonization ID to discard late events;
+* When `io.NamedPipeEvents.IncomingConnection` event is fired, accept a
+  client connection using ``accept`` method;
+* Communicate with the client via `io.FileStream` returned by ``accept``;
+* Close named pipe server and accepted client file streams when no longer
+  needed with ``close`` method.
+
+
+
+.. rubric:: See also:
+
+`io.NamedPipeEvents`, `io.File`, `io.FileStream`
+
+Fields
+------
+
+.. index:: pair: variable; m_isOpen
+.. _doxid-fieldio_namedpipe_m_isopen:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool readonly m_isOpen
+
+Holds the open status for serial port, i.e. ``true`` if opened;
+``false`` otherwise.
+
+Methods
+-------
+
+.. index:: pair: function; open
+.. _doxid-functionio_namedpipe_open:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool errorcode open(:ref:`string_t<doxid-typedefstring_t>` name)
+
+Opens server-side named pipe(s), effectively starting a named pipe
+server.
+
+The function accepts three arguments. The first one, ``name``, is used
+to specify the name of the server-side named pipe. The second one,
+``flags``, allows you to set  The last and final one, ``backlog``,
+specifies the size of the server backlog. Server backlog is defined as
+the maximum length of the queue of *pending* client-side connections,
+i.e. connections which has not been accepted via ``accept`` method yet.
+
+Returns ``true`` on success. If the named pipe server could not be
+opened, IO error supplied by operating system is set and then the
+function returns ``false`` [#f1]_.
+
+.. index:: pair: function; close
+.. _doxid-functionio_namedpipe_close:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	void close()
+
+Closes all previously opened server-side named pipes in the backlog;
+does nothing if the named pipe server is not started. This function
+always succeeds.
+
+Sometimes it may be convenient to use *disposable* pattern to ensure
+timely invokation of ``close`` [#f2]_.
+
+.. index:: pair: function; accept
+.. _doxid-functionio_namedpipe_accept:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`io.FileStream<doxid-typeio_filestream>`* accept(bool isSuspended = false)
+
+Accepts a client connection and returns a resulting `io.FileStream`
+object to communicate with this particular client. To terminate a
+client connection, issue ``close`` method on the client file stream
+object.
+
+If method fails, ``null`` value is returned [#f1]_.
+
+Aliases
+-------
+
+.. index:: pair: alias; dispose
+.. _doxid-aliasio_namedpipe_dispose:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	alias dispose = close
+
+Effectively makes ``io.NamedPipe`` a *disposable* class [#f2]_.
+
+
+---------------------
+
+.. rubric:: Footnotes
+
+.. [#f1]
+
+	|footnote-errorcode|
+
+.. [#f2]
+
+	|footnote-disposable|
+

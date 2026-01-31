@@ -1,0 +1,73 @@
+.. include:: def.rst
+.. index:: pair: class; io.UsbEndpoint
+.. _doxid-typeio_usbendpoint:
+
+class io.UsbEndpoint
+====================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class UsbEndpoint {
+		// fields
+	
+		:ref:`io.UsbInterface<doxid-typeio_usbinterface>`* const :target:`m_parentInterface<doxid-fieldio_usbendpoint_m_parentinterface>`;
+		:ref:`io.UsbEndpointDescriptor<doxid-typeio_usbendpointdescriptor>` const* const :target:`m_endpointDescriptor<doxid-fieldio_usbendpoint_m_endpointdescriptor>`;
+		:ref:`io.UsbEndpointEvents<doxid-typeio_usbendpointevents>` readonly volatile :target:`m_activeEvents<doxid-fieldio_usbendpoint_m_activeevents>`;
+		:ref:`std.Error<doxid-typestd_error>` const* readonly volatile :target:`m_ioError<doxid-fieldio_usbendpoint_m_ioerror>`;
+		bool readonly :target:`m_isOpen<doxid-fieldio_usbendpoint_m_isopen>`;
+
+		// properties
+	
+		:ref:`uint_t<doxid-typedefuint_t>` autoget property :target:`m_transferTimeout<doxid-propertyio_usbendpoint_m_transfertimeout>`;
+		:ref:`uint_t<doxid-typedefuint_t>` autoget property :target:`m_readParallelism<doxid-propertyio_usbendpoint_m_readparallelism>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_readBlockSize<doxid-propertyio_usbendpoint_m_readblocksize>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_readBufferSize<doxid-propertyio_usbendpoint_m_readbuffersize>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_writeBufferSize<doxid-propertyio_usbendpoint_m_writebuffersize>`;
+		:ref:`io.UsbEndpointOptions<doxid-typedefio_usbendpointoptions>` autoget property :target:`m_options<doxid-propertyio_usbendpoint_m_options>`;
+
+		// construction
+	
+		:target:`construct<doxid-functionio_usbendpoint_construct>`();
+		:target:`destruct<doxid-functionio_usbendpoint_destruct>`();
+
+		// methods
+	
+		void :target:`close<doxid-functionio_usbendpoint_close>`();
+		void :target:`unsuspend<doxid-functionio_usbendpoint_unsuspend>`();
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`read<doxid-functionio_usbendpoint_read>`(
+			void* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`write<doxid-functionio_usbendpoint_write>`(
+			void const* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		long errorcode :target:`wait<doxid-functionio_usbendpoint_wait>`(
+			:ref:`io.UsbEndpointEvents<doxid-typeio_usbendpointevents>` eventMask,
+			void function* handler(io.UsbEndpointEvents triggeredEvents)
+		);
+	
+		bool errorcode :target:`cancelWait<doxid-functionio_usbendpoint_cancelwait>`(long handle);
+	
+		:ref:`io.UsbEndpointEvents<doxid-typeio_usbendpointevents>` :target:`blockingWait<doxid-functionio_usbendpoint_blockingwait>`(
+			:ref:`io.UsbEndpointEvents<doxid-typeio_usbendpointevents>` eventMask,
+			:ref:`uint_t<doxid-typedefuint_t>` timeout = -1
+		);
+	
+		:ref:`io.UsbEndpointEvents<doxid-typeio_usbendpointevents>` async :target:`asyncWait<doxid-functionio_usbendpoint_asyncwait>`(:ref:`io.UsbEndpointEvents<doxid-typeio_usbendpointevents>` eventMask);
+
+		// aliases
+	
+		alias :target:`dispose<doxid-aliasio_usbendpoint_dispose>` = close;
+	};

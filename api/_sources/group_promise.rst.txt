@@ -1,0 +1,35 @@
+.. index:: pair: group; Promise
+.. _doxid-group__promise:
+
+Promise
+=======
+
+.. toctree::
+	:hidden:
+
+	struct_jnc_Promise.rst
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Promise.h>
+	
+	// structs
+
+	struct :ref:`jnc_Promise<doxid-structjnc___promise>`;
+
+	// global functions
+
+	:ref:`jnc_Promise<doxid-structjnc___promise>`*
+	:target:`jnc_createPromise<doxid-group__promise_1gaef56b6fc4db6bfc8ed86ad761cff00be>`(:ref:`jnc_Runtime<doxid-structjnc___runtime>`* runtime);
+
+	void
+	:target:`jnc_Promise_complete<doxid-group__promise_1gae29103f0b2e4940d153d610f43b745bb>`(
+		:ref:`jnc_Promise<doxid-structjnc___promise>`* promise,
+		:ref:`jnc_Variant<doxid-structjnc___variant>` result,
+		:ref:`jnc_DataPtr<doxid-structjnc___data_ptr>` errorPtr
+	);
+

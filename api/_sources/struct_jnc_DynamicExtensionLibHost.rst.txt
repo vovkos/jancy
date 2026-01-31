@@ -1,0 +1,68 @@
+.. index:: pair: struct; jnc_DynamicExtensionLibHost
+.. _doxid-structjnc___dynamic_extension_lib_host:
+
+struct jnc_DynamicExtensionLibHost
+==================================
+
+.. toctree::
+	:hidden:
+
+Opaque structure passed to the dynamic extension library main function.
+
+    Indirectly provides access to runtime and module of the Jancy host(on behalf of which this dynamic extension library is being loaded).
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_ExtensionLib.h>
+	
+	struct jnc_DynamicExtensionLibHost {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___dynamic_extension_lib_host_1a03eb27dedc60ecdc43db35d1df5a0089>`;
+		jnc_ErrorRouter* :target:`m_errorRouter<doxid-structjnc___dynamic_extension_lib_host_1aaed2604b743b4956a7f7f4a9d906a0d3>`;
+		:ref:`jnc_ErrorFuncTable<doxid-structjnc___error_func_table>`* :target:`m_errorFuncTable<doxid-structjnc___dynamic_extension_lib_host_1a127abd6aad78462081d28e2e9d47c710>`;
+		:ref:`jnc_CapabilityFuncTable<doxid-structjnc___capability_func_table>`* :target:`m_capabilityFuncTable<doxid-structjnc___dynamic_extension_lib_host_1abd14e9554d382617301ec9e2731b2603>`;
+		:ref:`jnc_ModuleItemDeclFuncTable<doxid-structjnc___module_item_decl_func_table>`* :target:`m_moduleItemDeclFuncTable<doxid-structjnc___dynamic_extension_lib_host_1a725974cfbb389008db5efd2162570fe2>`;
+		:ref:`jnc_ModuleItemFuncTable<doxid-structjnc___module_item_func_table>`* :target:`m_moduleItemFuncTable<doxid-structjnc___dynamic_extension_lib_host_1adc1594c343a17b0b5224c57d5b0ec8b0>`;
+		:ref:`jnc_AttributeFuncTable<doxid-structjnc___attribute_func_table>`* :target:`m_attributeFuncTable<doxid-structjnc___dynamic_extension_lib_host_1a5c2b9606a2335bb5ea8214f618d762af>`;
+		:ref:`jnc_AttributeBlockFuncTable<doxid-structjnc___attribute_block_func_table>`* :target:`m_attributeBlockFuncTable<doxid-structjnc___dynamic_extension_lib_host_1abf662d233e30e33938bacfacc24e8888>`;
+		:ref:`jnc_NamespaceFuncTable<doxid-structjnc___namespace_func_table>`* :target:`m_namespaceFuncTable<doxid-structjnc___dynamic_extension_lib_host_1a9a8a61c261ae18e892dd19ba2430c84c>`;
+		:ref:`jnc_GlobalNamespaceFuncTable<doxid-structjnc___global_namespace_func_table>`* :target:`m_globalNamespaceFuncTable<doxid-structjnc___dynamic_extension_lib_host_1a3325459591a0795ba660ce1ca2300731>`;
+		:ref:`jnc_VariableFuncTable<doxid-structjnc___variable_func_table>`* :target:`m_variableFuncTable<doxid-structjnc___dynamic_extension_lib_host_1a135f004b9e3220ca055f75d8cb8dd62d>`;
+		:ref:`jnc_FunctionFuncTable<doxid-structjnc___function_func_table>`* :target:`m_functionFuncTable<doxid-structjnc___dynamic_extension_lib_host_1a027a540b52080bc7d3e3691352f478ba>`;
+		:ref:`jnc_FunctionOverloadFuncTable<doxid-structjnc___function_overload_func_table>`* :target:`m_functionOverloadFuncTable<doxid-structjnc___dynamic_extension_lib_host_1a61647714e1ab8fe12498e47f8f117e81>`;
+		:ref:`jnc_PropertyFuncTable<doxid-structjnc___property_func_table>`* :target:`m_propertyFuncTable<doxid-structjnc___dynamic_extension_lib_host_1a6ce7de7cd511d07292cc870c5549a49c>`;
+		:ref:`jnc_TypedefFuncTable<doxid-structjnc___typedef_func_table>`* :target:`m_typedefFuncTable<doxid-structjnc___dynamic_extension_lib_host_1a2d4715323ad4fd94805ad9f2ee261b96>`;
+		:ref:`jnc_TypeFuncTable<doxid-structjnc___type_func_table>`* :target:`m_typeFuncTable<doxid-structjnc___dynamic_extension_lib_host_1aadcd805295d09e0568589e9809eef086>`;
+		:ref:`jnc_NamedTypeFuncTable<doxid-structjnc___named_type_func_table>`* :target:`m_namedTypeFuncTable<doxid-structjnc___dynamic_extension_lib_host_1a3429a55d1da4ea084812472529216f45>`;
+		:ref:`jnc_BaseTypeSlotFuncTable<doxid-structjnc___base_type_slot_func_table>`* :target:`m_baseTypeSlotFuncTable<doxid-structjnc___dynamic_extension_lib_host_1af05a717b9198331e987dd518db0cd72e>`;
+		:ref:`jnc_FieldFuncTable<doxid-structjnc___field_func_table>`* :target:`m_fieldFuncTable<doxid-structjnc___dynamic_extension_lib_host_1abc80e84bd685dcbbc1c31b8d4cc813ac>`;
+		:ref:`jnc_DerivableTypeFuncTable<doxid-structjnc___derivable_type_func_table>`* :target:`m_derivableTypeFuncTable<doxid-structjnc___dynamic_extension_lib_host_1ab5c8812ecec5db03b0c16446e6e6f68f>`;
+		:ref:`jnc_ArrayTypeFuncTable<doxid-structjnc___array_type_func_table>`* :target:`m_arrayTypeFuncTable<doxid-structjnc___dynamic_extension_lib_host_1ac75da67ea1c7d7b6284693de9f2eaa54>`;
+		:ref:`jnc_FunctionArgFuncTable<doxid-structjnc___function_arg_func_table>`* :target:`m_functionArgFuncTable<doxid-structjnc___dynamic_extension_lib_host_1af45c94538ba9f3795ad212c55973b07b>`;
+		:ref:`jnc_FunctionTypeFuncTable<doxid-structjnc___function_type_func_table>`* :target:`m_functionTypeFuncTable<doxid-structjnc___dynamic_extension_lib_host_1aa97120437148370edfe9b2b137aa283c>`;
+		:ref:`jnc_PropertyTypeFuncTable<doxid-structjnc___property_type_func_table>`* :target:`m_propertyTypeFuncTable<doxid-structjnc___dynamic_extension_lib_host_1a735fb0afdfbb27ebb5d8736ea0d571a6>`;
+		:ref:`jnc_EnumConstFuncTable<doxid-structjnc___enum_const_func_table>`* :target:`m_enumConstFuncTable<doxid-structjnc___dynamic_extension_lib_host_1a60993e92094db0efb52082f632a513d0>`;
+		:ref:`jnc_EnumTypeFuncTable<doxid-structjnc___enum_type_func_table>`* :target:`m_enumTypeFuncTable<doxid-structjnc___dynamic_extension_lib_host_1ae54da7b9808d7cbfb4d21bb927e4a3ac>`;
+		:ref:`jnc_StructTypeFuncTable<doxid-structjnc___struct_type_func_table>`* :target:`m_structTypeFuncTable<doxid-structjnc___dynamic_extension_lib_host_1a348dfe8733896b9bf73a90fd1120276f>`;
+		:ref:`jnc_UnionTypeFuncTable<doxid-structjnc___union_type_func_table>`* :target:`m_unionTypeFuncTable<doxid-structjnc___dynamic_extension_lib_host_1aa651b5f9885ef2f6bb8f716f991135a0>`;
+		:ref:`jnc_ClassTypeFuncTable<doxid-structjnc___class_type_func_table>`* :target:`m_classTypeFuncTable<doxid-structjnc___dynamic_extension_lib_host_1aa8c6543d32bc8be9e7fe7cdb02418dad>`;
+		:ref:`jnc_MulticastClassTypeFuncTable<doxid-structjnc___multicast_class_type_func_table>`* :target:`m_multicastClassTypeFuncTable<doxid-structjnc___dynamic_extension_lib_host_1ac6140f4015df8f993e5eb3a99a58c6f0>`;
+		:ref:`jnc_McSnapshotClassTypeFuncTable<doxid-structjnc___mc_snapshot_class_type_func_table>`* :target:`m_mcSnapshotClassTypeFuncTable<doxid-structjnc___dynamic_extension_lib_host_1a43af4b6af32739f8665b89bee998c992>`;
+		:ref:`jnc_DataPtrTypeFuncTable<doxid-structjnc___data_ptr_type_func_table>`* :target:`m_dataPtrTypeFuncTable<doxid-structjnc___dynamic_extension_lib_host_1a99fb4349c6bbe967e24e83faa6fd61c0>`;
+		:ref:`jnc_ClassPtrTypeFuncTable<doxid-structjnc___class_ptr_type_func_table>`* :target:`m_classPtrTypeFuncTable<doxid-structjnc___dynamic_extension_lib_host_1ad2083993061c12dc994271e4fce66fea>`;
+		:ref:`jnc_FunctionPtrTypeFuncTable<doxid-structjnc___function_ptr_type_func_table>`* :target:`m_functionPtrTypeFuncTable<doxid-structjnc___dynamic_extension_lib_host_1ab27fd01852af1efcd87cea74c90d7945>`;
+		:ref:`jnc_PropertyPtrTypeFuncTable<doxid-structjnc___property_ptr_type_func_table>`* :target:`m_propertyPtrTypeFuncTable<doxid-structjnc___dynamic_extension_lib_host_1acf0c541f8161675f4412a972a8c1ee1b>`;
+		:ref:`jnc_VariantFuncTable<doxid-structjnc___variant_func_table>`* :target:`m_variantFuncTable<doxid-structjnc___dynamic_extension_lib_host_1a8b4c0b1c8b3808a3070ade25b343858b>`;
+		:ref:`jnc_StringFuncTable<doxid-structjnc___string_func_table>`* :target:`m_stringFuncTable<doxid-structjnc___dynamic_extension_lib_host_1a21bf4d8bc67d347239d812a5f830c8d8>`;
+		:ref:`jnc_PromiseFuncTable<doxid-structjnc___promise_func_table>`* :target:`m_promiseFuncTable<doxid-structjnc___dynamic_extension_lib_host_1a5f9ed129103fcdd0e6fa128f502a9ca6>`;
+		:ref:`jnc_UnitFuncTable<doxid-structjnc___unit_func_table>`* :target:`m_unitFuncTable<doxid-structjnc___dynamic_extension_lib_host_1aab0db5c2a1a49215581f6c93c79e8c95>`;
+		:ref:`jnc_ModuleFuncTable<doxid-structjnc___module_func_table>`* :target:`m_moduleFuncTable<doxid-structjnc___dynamic_extension_lib_host_1a0f6d209556703366161a1c2bed661cb9>`;
+		:ref:`jnc_RuntimeFuncTable<doxid-structjnc___runtime_func_table>`* :target:`m_runtimeFuncTable<doxid-structjnc___dynamic_extension_lib_host_1a5c2beba12e98d92d6787da8afa55359d>`;
+		:ref:`jnc_GcHeapFuncTable<doxid-structjnc___gc_heap_func_table>`* :target:`m_gcHeapFuncTable<doxid-structjnc___dynamic_extension_lib_host_1a9e10638e7be01d498d0249d7ca6b4cbe>`;
+		:ref:`jnc_StdHashTableFuncTable<doxid-structjnc___std_hash_table_func_table>`* :target:`m_stdHashTableFuncTable<doxid-structjnc___dynamic_extension_lib_host_1ad585fc9cfc320b0c7b0bdea6de4cdcbc>`;
+		:ref:`jnc_StdRbTreeFuncTable<doxid-structjnc___std_rb_tree_func_table>`* :target:`m_stdRbTreeFuncTable<doxid-structjnc___dynamic_extension_lib_host_1ad85478ad0bfa07586f0706898ed1df89>`;
+		:ref:`jnc_StdBufferFuncTable<doxid-structjnc___std_buffer_func_table>`* :target:`m_stdBufferFuncTable<doxid-structjnc___dynamic_extension_lib_host_1ae0a7e9855aa1d890daf55813b1914802>`;
+	};

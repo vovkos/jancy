@@ -1,0 +1,25 @@
+.. index:: pair: struct; jnc_DataPtrTypeFuncTable
+.. _doxid-structjnc___data_ptr_type_func_table:
+
+struct jnc_DataPtrTypeFuncTable
+===============================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_DataPtrTypeFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___data_ptr_type_func_table_1a9e26334b26920141aa9723e7f8a0959e>`;
+		jnc_DataPtrType_GetPtrTypeKindFunc* :target:`m_getPtrTypeKindFunc<doxid-structjnc___data_ptr_type_func_table_1a5aaf7dd81d78c8d9f4ca348be7f23c5d>`;
+		jnc_DataPtrType_GetTargetTypeFunc* :target:`m_getTargetTypeFunc<doxid-structjnc___data_ptr_type_func_table_1a2e9975f63e5fb8b59fc66cdba7d7640d>`;
+		jnc_DataPtrType_GetBitOffsetFunc* :target:`m_getBitOffsetFunc<doxid-structjnc___data_ptr_type_func_table_1a7be26cbbda25cdd83a04258a31390460>`;
+		jnc_DataPtrType_GetBitCountFunc* :target:`m_getBitCountFunc<doxid-structjnc___data_ptr_type_func_table_1ac56d243f5662782ca2de953b1ac72e64>`;
+	};

@@ -1,0 +1,27 @@
+.. index:: pair: group; Call Site
+.. _doxid-group__call-site:
+
+Call Site
+=========
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	// macros
+
+	#define :target:`JNC_BEGIN_CALL_SITE<doxid-group__call-site_1gae5037d846eb3184509c3d1a243cb2400>`(runtime)
+	#define :target:`JNC_BEGIN_CALL_SITE_IMPL<doxid-group__call-site_1gaac077a1c9e0ad6a10d7edc972b8fc0e8>`(runtime)
+	#define :target:`JNC_CALL_SITE_CATCH<doxid-group__call-site_1ga77d26c184021f51bea579414cc909b35>`()
+	#define :target:`JNC_CALL_SITE_FINALLY<doxid-group__call-site_1ga74fd781597a5f07ffb7cfff615cfeebb>`()
+	#define :target:`JNC_END_CALL_SITE<doxid-group__call-site_1ga2859d35d68099292d436b7225d5983a9>`()
+	#define :target:`JNC_END_CALL_SITE_EX<doxid-group__call-site_1gae0b8fa53ceb8bcaade4ed3ced3d1bb4e>`(result)
+	#define :target:`JNC_END_CALL_SITE_IMPL<doxid-group__call-site_1ga6663b46d878ebd69a6ba1009adf8ceac>`()
+	#define :target:`JNC_RESTORE_SJLJ_FRAME<doxid-group__call-site_1ga1a106b2cae05cd66785a66cbe3ec9cc7>`()
+

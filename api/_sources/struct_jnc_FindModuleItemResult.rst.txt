@@ -1,0 +1,22 @@
+.. index:: pair: struct; jnc_FindModuleItemResult
+.. _doxid-structjnc___find_module_item_result:
+
+struct jnc_FindModuleItemResult
+===============================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_FindModuleItemResult {
+		// fields
+	
+		:ref:`bool_t<doxid-group__base-def_1ga812d16e5494522586b3784e55d479912>` :target:`m_result<doxid-structjnc___find_module_item_result_1ae6fcce5c0803d3c1c9d602846d225ddc>`;
+		:ref:`jnc_ModuleItem<doxid-structjnc___module_item>`* :target:`m_item<doxid-structjnc___find_module_item_result_1a28f9135d488256819d255cedae7cb0b2>`;
+	};

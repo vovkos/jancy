@@ -1,0 +1,88 @@
+.. include:: def.rst
+.. index:: pair: struct; std.ListEntry
+.. _doxid-typestd_listentry:
+
+struct std.ListEntry
+====================
+
+.. toctree::
+	:hidden:
+
+Overview
+~~~~~~~~
+
+This struct holds information about a single entry of a doubly linked list. :ref:`More...<details-typestd_listentry>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "std_List.jnc"
+	
+	struct ListEntry {
+		// fields
+	
+		std.ListEntry constif* readonly :ref:`m_next<doxid-fieldstd_listentry_m_next>`;
+		std.ListEntry constif* readonly :ref:`m_prev<doxid-fieldstd_listentry_m_prev>`;
+		typedef long intptr_t readonly :ref:`m_validator<doxid-fieldstd_listentry_m_validator>`;
+		typedef Variant variant_t :ref:`m_data<doxid-fieldstd_listentry_m_data>`;
+	};
+.. _details-typestd_listentry:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This struct holds information about a single entry of a doubly linked list.
+
+
+
+.. rubric:: See also:
+
+`std.List`
+
+Fields
+------
+
+.. index:: pair: variable; m_next
+.. _doxid-fieldstd_listentry_m_next:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	std.ListEntry constif* readonly m_next
+
+Holds a pointer to the next list entry on the list or ``null`` if this
+is the last entry.
+
+.. index:: pair: variable; m_prev
+.. _doxid-fieldstd_listentry_m_prev:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	std.ListEntry constif* readonly m_prev
+
+Holds a pointer to the previous list entry on the list or ``null`` if
+this is the first entry.
+
+.. index:: pair: variable; m_validator
+.. _doxid-fieldstd_listentry_m_validator:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	typedef long intptr_t readonly m_validator
+
+Opaque field used for internal validation of the list entry. Must be
+ignored in user code.
+
+.. index:: pair: variable; m_data
+.. _doxid-fieldstd_listentry_m_data:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	typedef Variant variant_t m_data
+
+Holds the actual ``variant_t`` data value of the list entry.
+

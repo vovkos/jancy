@@ -1,0 +1,50 @@
+.. index:: pair: group; Property Type
+.. _doxid-group__property-type:
+
+Property Type
+=============
+
+.. toctree::
+	:hidden:
+
+	enum_jnc_PropertyPtrTypeKind.rst
+	enum_jnc_PropertyTypeFlag.rst
+	struct_jnc_PropertyType.rst
+
+Overview
+~~~~~~~~
+
+Property type defines a signature of a property and is represented by a tuple of one or more function types. :ref:`More...<details-group__property-type>`
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_PropertyType.h>
+	
+	// enums
+
+	enum :ref:`jnc_PropertyPtrTypeKind<doxid-group__property-type_1ga1e988110a10f1875e9676bd20272e5b9>`;
+	enum :ref:`jnc_PropertyTypeFlag<doxid-group__property-type_1gac0caefa69d169ef5023f0db649d7f808>`;
+
+	// structs
+
+	struct :ref:`jnc_PropertyType<doxid-structjnc___property_type>`;
+
+	// global functions
+
+	const char*
+	:target:`jnc_getPropertyTypeFlagString<doxid-group__property-type_1ga6946002c4b310f77bdbddc5cc3f8b7d1>`(jnc_PropertyTypeFlag flag);
+
+	const char*
+	:target:`jnc_getPropertyPtrTypeKindString<doxid-group__property-type_1ga00aa086f90c87aaade18d3e7e0c748e9>`(jnc_PropertyPtrTypeKind ptrTypeKind);
+
+.. _details-group__property-type:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+Property type defines a signature of a property and is represented by a tuple of one or more function types.
+
+Each property in Jancy has one getter and zero or more setters. Property type has information about function type for each and every accessor(getter or setter) a property of this type provides.
+

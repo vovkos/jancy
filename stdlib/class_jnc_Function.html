@@ -1,0 +1,239 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>class jnc.Function &mdash; Jancy Standard Library Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="class jnc.FunctionArg" href="class_jnc_FunctionArg.html" />
+    <link rel="prev" title="class jnc.Field" href="class_jnc_Field.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy Standard Library Reference
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="group_stdt-operator.html">stdt-operator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_c-typedefs.html">Standard Typedefs</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="group_rtl.html">RTL (Runtime Library)</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="group_rtl-core.html">Core RTL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_rtl-gc.html">Garbage Collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_rtl-async.html">Async-await</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_rtl-regex.html">Regular Expressions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_rtl-dylayout.html">Dynamic Layouts</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="group_rtl-intro.html">Introspection</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="enum_jnc_AccessKind.html">enum jnc.AccessKind</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_jnc_BinOpKind.html">enum jnc.BinOpKind</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_jnc_ClassPtrTypeKind.html">enum jnc.ClassPtrTypeKind</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_jnc_ClassTypeFlags.html">bitflag enum jnc.ClassTypeFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_jnc_ClassTypeKind.html">enum jnc.ClassTypeKind</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_jnc_DataPtrTypeKind.html">enum jnc.DataPtrTypeKind</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_jnc_EnumTypeFlags.html">bitflag enum jnc.EnumTypeFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_jnc_FunctionKind.html">enum jnc.FunctionKind</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_jnc_FunctionKindFlags.html">bitflag enum jnc.FunctionKindFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_jnc_FunctionPtrTypeKind.html">enum jnc.FunctionPtrTypeKind</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_jnc_FunctionTypeFlags.html">bitflag enum jnc.FunctionTypeFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_jnc_ModuleCompileFlags.html">bitflag enum jnc.ModuleCompileFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_jnc_ModuleCompileState.html">enum jnc.ModuleCompileState</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_jnc_ModuleItemFlags.html">bitflag enum jnc.ModuleItemFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_jnc_ModuleItemKind.html">enum jnc.ModuleItemKind</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_jnc_NamespaceKind.html">enum jnc.NamespaceKind</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_jnc_PropertyFlag.html">bitflag enum jnc.PropertyFlag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_jnc_PropertyKind.html">enum jnc.PropertyKind</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_jnc_PropertyPtrTypeKind.html">enum jnc.PropertyPtrTypeKind</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_jnc_PropertyTypeFlags.html">bitflag enum jnc.PropertyTypeFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_jnc_PtrTypeFlags.html">bitflag enum jnc.PtrTypeFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_jnc_StorageKind.html">enum jnc.StorageKind</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_jnc_StructTypeKind.html">enum jnc.StructTypeKind</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_jnc_TypeFlags.html">bitflag enum jnc.TypeFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_jnc_TypeKind.html">enum jnc.TypeKind</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_jnc_TypeKindFlags.html">bitflag enum jnc.TypeKindFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_jnc_UnOpKind.html">enum jnc.UnOpKind</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_Alias.html">class jnc.Alias</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_ArrayType.html">class jnc.ArrayType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_Attribute.html">class jnc.Attribute</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_AttributeBlock.html">class jnc.AttributeBlock</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_BaseTypeSlot.html">class jnc.BaseTypeSlot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_ClassPtrType.html">class jnc.ClassPtrType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_ClassType.html">class jnc.ClassType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_Const.html">class jnc.Const</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_DataPtrType.html">class jnc.DataPtrType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_DerivableType.html">class jnc.DerivableType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_EnumConst.html">class jnc.EnumConst</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_EnumType.html">class jnc.EnumType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_Field.html">class jnc.Field</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">class jnc.Function</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#inherited-members">Inherited Members</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_FunctionArg.html">class jnc.FunctionArg</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_FunctionOverload.html">class jnc.FunctionOverload</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_FunctionPtrType.html">class jnc.FunctionPtrType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_FunctionType.html">class jnc.FunctionType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_GlobalNamespace.html">class jnc.GlobalNamespace</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_MemberBlock.html">class jnc.MemberBlock</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_Module.html">class jnc.Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_ModuleItem.html">class jnc.ModuleItem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_ModuleItemDecl.html">class jnc.ModuleItemDecl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_ModuleItemInitializer.html">class jnc.ModuleItemInitializer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_NamedType.html">class jnc.NamedType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_Namespace.html">class jnc.Namespace</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_Property.html">class jnc.Property</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_PropertyPtrType.html">class jnc.PropertyPtrType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_PropertyType.html">class jnc.PropertyType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_StructType.html">class jnc.StructType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_Type.html">class jnc.Type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_Typedef.html">class jnc.Typedef</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_UnionType.html">class jnc.UnionType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_Unit.html">class jnc.Unit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_Variable.html">class jnc.Variable</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="group_crt.html">C Runtime Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_std.html">General Purpose Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_sys.html">System Facilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_io.html">IO (Input/Output) Library</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="disposable.html">‘disposable’ Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="errorcode.html">‘errorcode’ Functions</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="global.html">Global Namespace</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy Standard Library Reference</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="group_rtl.html">RTL (Runtime Library)</a></li>
+          <li class="breadcrumb-item"><a href="group_rtl-intro.html">Introspection</a></li>
+      <li class="breadcrumb-item active">class jnc.Function</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="class-jnc-function">
+<span id="doxid-typejnc-function"></span><span id="index-0"></span><h1>class jnc.Function</h1>
+<div class="toctree-wrapper compound">
+</div>
+<pre class="highlight doxyrest-overview-code-block literal-block"><span></span><span class="k">class</span> <span class="n">Function</span><span class="o">:</span>
+    <a class="reference internal" href="class_jnc_ModuleItem.html#doxid-typejnc-moduleitem"><span class="std std-ref">jnc.ModuleItem</span></a><span></span><span class="p">,</span>
+    <a class="reference internal" href="class_jnc_ModuleItemDecl.html#doxid-typejnc-moduleitemdecl"><span class="std std-ref">jnc.ModuleItemDecl</span></a><span></span> <span class="p">{</span>
+    <span class="c1">// properties</span>
+
+    <a class="reference internal" href="enum_jnc_FunctionKind.html#doxid-typejnc-functionkind"><span class="std std-ref">jnc.FunctionKind</span></a><span></span> <span class="k">const</span> <span class="k">property</span> <span class="doxyrest-code-target target" id="doxid-propertyjnc-function-m-functionkind"><span></span><span class="n">m_functionKind</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="class_jnc_FunctionType.html#doxid-typejnc-functiontype"><span class="std std-ref">jnc.FunctionType</span></a><span></span><span class="o">*</span> <span class="k">const</span> <span class="k">property</span> <span class="doxyrest-code-target target" id="doxid-propertyjnc-function-m-type"><span></span><span class="n">m_type</span></span><span></span><span class="p">;</span>
+    <span class="k">bool</span> <span class="k">const</span> <span class="k">property</span> <span class="doxyrest-code-target target" id="doxid-propertyjnc-function-m-ismember"><span></span><span class="n">m_isMember</span></span><span></span><span class="p">;</span>
+    <span class="k">void</span> <span class="k">thin</span><span class="o">*</span> <span class="k">const</span> <span class="k">property</span> <span class="doxyrest-code-target target" id="doxid-propertyjnc-function-m-machinecode"><span></span><span class="n">m_machineCode</span></span><span></span><span class="p">;</span>
+
+    <span class="c1">// construction</span>
+
+    <span class="doxyrest-code-target target" id="doxid-functionjnc-function-construct"><span></span><span class="k">construct</span></span><span></span><span class="p">(</span><span class="k">long</span> <span class="n">p</span><span class="p">);</span>
+<span class="p">};</span></pre>
+<section id="inherited-members">
+<h2>Inherited Members</h2>
+<pre class="highlight doxyrest-overview-inherited-code-block literal-block"><span></span><span class="k">public</span><span class="o">:</span>
+    <span class="c1">// properties</span>
+
+    <a class="reference internal" href="class_jnc_Module.html#doxid-typejnc-module"><span class="std std-ref">jnc.Module</span></a><span></span><span class="o">*</span> <span class="k">const</span> <span class="k">property</span> <a class="reference internal" href="class_jnc_ModuleItem.html#doxid-propertyjnc-moduleitem-m-module"><span class="std std-ref">m_module</span></a><span></span><span class="p">;</span>
+    <a class="reference internal" href="enum_jnc_ModuleItemKind.html#doxid-typejnc-moduleitemkind"><span class="std std-ref">jnc.ModuleItemKind</span></a><span></span> <span class="k">const</span> <span class="k">property</span> <a class="reference internal" href="class_jnc_ModuleItem.html#doxid-propertyjnc-moduleitem-m-itemkind"><span class="std std-ref">m_itemKind</span></a><span></span><span class="p">;</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint-t"><span class="std std-ref">uint_t</span></a><span></span> <span class="k">const</span> <span class="k">property</span> <a class="reference internal" href="class_jnc_ModuleItem.html#doxid-propertyjnc-moduleitem-m-flags"><span class="std std-ref">m_flags</span></a><span></span><span class="p">;</span>
+    <a class="reference internal" href="class_jnc_Type.html#doxid-typejnc-type"><span class="std std-ref">jnc.Type</span></a><span></span><span class="o">*</span> <span class="k">const</span> <span class="k">property</span> <a class="reference internal" href="class_jnc_ModuleItem.html#doxid-propertyjnc-moduleitem-m-type"><span class="std std-ref">m_type</span></a><span></span><span class="p">;</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="k">const</span> <span class="k">property</span> <a class="reference internal" href="class_jnc_ModuleItemDecl.html#doxid-propertyjnc-moduleitemdecl-m-name"><span class="std std-ref">m_name</span></a><span></span><span class="p">;</span>
+    <a class="reference internal" href="enum_jnc_StorageKind.html#doxid-typejnc-storagekind"><span class="std std-ref">jnc.StorageKind</span></a><span></span> <span class="k">const</span> <span class="k">property</span> <a class="reference internal" href="class_jnc_ModuleItemDecl.html#doxid-propertyjnc-moduleitemdecl-m-storagekind"><span class="std std-ref">m_storageKind</span></a><span></span><span class="p">;</span>
+    <a class="reference internal" href="enum_jnc_AccessKind.html#doxid-typejnc-accesskind"><span class="std std-ref">jnc.AccessKind</span></a><span></span> <span class="k">const</span> <span class="k">property</span> <a class="reference internal" href="class_jnc_ModuleItemDecl.html#doxid-propertyjnc-moduleitemdecl-m-accesskind"><span class="std std-ref">m_accessKind</span></a><span></span><span class="p">;</span>
+    <a class="reference internal" href="class_jnc_AttributeBlock.html#doxid-typejnc-attributeblock"><span class="std std-ref">jnc.AttributeBlock</span></a><span></span><span class="o">*</span> <span class="k">const</span> <span class="k">property</span> <a class="reference internal" href="class_jnc_ModuleItemDecl.html#doxid-propertyjnc-moduleitemdecl-m-attributeblock"><span class="std std-ref">m_attributeBlock</span></a><span></span><span class="p">;</span>
+    <a class="reference internal" href="class_jnc_Namespace.html#doxid-typejnc-namespace"><span class="std std-ref">jnc.Namespace</span></a><span></span><span class="o">*</span> <span class="k">const</span> <span class="k">property</span> <a class="reference internal" href="class_jnc_ModuleItemDecl.html#doxid-propertyjnc-moduleitemdecl-m-parentnamespace"><span class="std std-ref">m_parentNamespace</span></a><span></span><span class="p">;</span>
+    <a class="reference internal" href="class_jnc_Unit.html#doxid-typejnc-unit"><span class="std std-ref">jnc.Unit</span></a><span></span><span class="o">*</span> <span class="k">const</span> <span class="k">property</span> <a class="reference internal" href="class_jnc_ModuleItemDecl.html#doxid-propertyjnc-moduleitemdecl-m-parentunit"><span class="std std-ref">m_parentUnit</span></a><span></span><span class="p">;</span>
+    <span class="k">int</span> <span class="k">const</span> <span class="k">property</span> <a class="reference internal" href="class_jnc_ModuleItemDecl.html#doxid-propertyjnc-moduleitemdecl-m-line"><span class="std std-ref">m_line</span></a><span></span><span class="p">;</span>
+    <span class="k">int</span> <span class="k">const</span> <span class="k">property</span> <a class="reference internal" href="class_jnc_ModuleItemDecl.html#doxid-propertyjnc-moduleitemdecl-m-col"><span class="std std-ref">m_col</span></a><span></span><span class="p">;</span>
+
+    <span class="c1">// methods</span>
+
+    <a class="reference internal" href="class_jnc_Attribute.html#doxid-typejnc-attribute"><span class="std std-ref">jnc.Attribute</span></a><span></span><span class="o">*</span> <a class="reference internal" href="class_jnc_ModuleItemDecl.html#doxid-functionjnc-moduleitemdecl-findattribute"><span class="std std-ref">findAttribute</span></a><span></span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">name</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefvariant-t"><span class="std std-ref">variant_t</span></a><span></span> <a class="reference internal" href="class_jnc_ModuleItemDecl.html#doxid-functionjnc-moduleitemdecl-findattributevalue"><span class="std std-ref">findAttributeValue</span></a><span></span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">name</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span></pre>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="class_jnc_Field.html" class="btn btn-neutral float-left" title="class jnc.Field" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="class_jnc_FunctionArg.html" class="btn btn-neutral float-right" title="class jnc.FunctionArg" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

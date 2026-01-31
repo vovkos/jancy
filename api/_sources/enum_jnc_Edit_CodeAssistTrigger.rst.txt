@@ -1,0 +1,30 @@
+.. index:: pair: enum; CodeAssistTrigger
+.. _doxid-classjnc_1_1_edit_1a1439593b69df07148aec3e2ff8f78c25:
+
+enum jnc::Edit::CodeAssistTrigger
+=================================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Edit.h>
+
+	enum CodeAssistTrigger {
+	    :target:`QuickInfoTipOnMouseOverIdentifier<doxid-classjnc_1_1_edit_1a1439593b69df07148aec3e2ff8f78c25af8e995608db12ecc9e2c30e8489d1d7b>`      = 0x0001,
+	    :target:`QuickInfoTipOnCursorOverIdentifier<doxid-classjnc_1_1_edit_1a1439593b69df07148aec3e2ff8f78c25a79fc78d5d307b1343c56be592f0a4a87>`     = 0x0002,
+	    :target:`ArgumentTipOnCtrlShiftSpace<doxid-classjnc_1_1_edit_1a1439593b69df07148aec3e2ff8f78c25a9a9dfb594452c068733efd125f9bd066>`            = 0x0004,
+	    :target:`ArgumentTipOnTypeLeftParenthesis<doxid-classjnc_1_1_edit_1a1439593b69df07148aec3e2ff8f78c25aa4e7a59eac4064afaae79b20ad7107fd>`       = 0x0008,
+	    :target:`ArgumentTipOnTypeComma<doxid-classjnc_1_1_edit_1a1439593b69df07148aec3e2ff8f78c25a52c807b4424f17f584ae698e79f1a548>`                 = 0x0010,
+	    :target:`ArgumentTipOnMouseOverLeftParenthesis<doxid-classjnc_1_1_edit_1a1439593b69df07148aec3e2ff8f78c25a75e075282698ec41172d06e0b3d16739>`  = 0x0020,
+	    :target:`ArgumentTipOnCursorOverLeftParenthesis<doxid-classjnc_1_1_edit_1a1439593b69df07148aec3e2ff8f78c25a10e706fc1a4fe44a2f9be49bc1990eb8>` = 0x0040,
+	    :target:`ArgumentTipOnMouseOverComma<doxid-classjnc_1_1_edit_1a1439593b69df07148aec3e2ff8f78c25a2df45d88da6dca21b6333925c95261f0>`            = 0x0080,
+	    :target:`ArgumentTipOnCursorOverComma<doxid-classjnc_1_1_edit_1a1439593b69df07148aec3e2ff8f78c25aad30617f5b9435deb3f2cf173db7d029>`           = 0x0100,
+	    :target:`AutoCompleteOnCtrlSpace<doxid-classjnc_1_1_edit_1a1439593b69df07148aec3e2ff8f78c25a7717faa1d1d39925eedef9390612133f>`                = 0x0200,
+	    :target:`AutoCompleteOnTypeDot<doxid-classjnc_1_1_edit_1a1439593b69df07148aec3e2ff8f78c25a8724e85fae36378606566257f27f1926>`                  = 0x0400,
+	    :target:`AutoCompleteOnTypeIdentifier<doxid-classjnc_1_1_edit_1a1439593b69df07148aec3e2ff8f78c25a777c1a5bbed5a0241d4535e1649bb5b5>`           = 0x0800,
+	    :target:`ImportAutoCompleteOnTypeQuotationMark<doxid-classjnc_1_1_edit_1a1439593b69df07148aec3e2ff8f78c25ad056b2a43d0e6dfdc859077ae2e8cbd0>`  = 0x1000,
+	    :target:`GotoDefinitionOnCtrlClick<doxid-classjnc_1_1_edit_1a1439593b69df07148aec3e2ff8f78c25a627c5b50a86a5a5c0ea9f5c9338a6c2f>`              = 0x2000,
+	};
+

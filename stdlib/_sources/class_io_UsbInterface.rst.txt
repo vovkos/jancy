@@ -1,0 +1,42 @@
+.. include:: def.rst
+.. index:: pair: class; io.UsbInterface
+.. _doxid-typeio_usbinterface:
+
+class io.UsbInterface
+=====================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class UsbInterface {
+		// fields
+	
+		:ref:`io.UsbDevice<doxid-typeio_usbdevice>`* const :target:`m_device<doxid-fieldio_usbinterface_m_device>`;
+		:ref:`io.UsbInterfaceDescriptor<doxid-typeio_usbinterfacedescriptor>` const* const :target:`m_interfaceDescriptor<doxid-fieldio_usbinterface_m_interfacedescriptor>`;
+		bool readonly :target:`m_isClaimed<doxid-fieldio_usbinterface_m_isclaimed>`;
+
+		// construction
+	
+		:target:`construct<doxid-functionio_usbinterface_construct>`();
+		:target:`destruct<doxid-functionio_usbinterface_destruct>`();
+
+		// methods
+	
+		void :target:`release<doxid-functionio_usbinterface_release>`();
+	
+		:ref:`io.UsbEndpoint<doxid-typeio_usbendpoint>`* errorcode :target:`openEndpoint<doxid-functionio_usbinterface_openendpoint>`(
+			:ref:`uint8_t<doxid-typedefuint8_t>` endpointId,
+			bool isSuspended = false
+		);
+
+		// aliases
+	
+		alias :target:`dispose<doxid-aliasio_usbinterface_dispose>` = release;
+	};

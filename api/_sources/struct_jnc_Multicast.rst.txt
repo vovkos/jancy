@@ -1,0 +1,26 @@
+.. index:: pair: struct; jnc_Multicast
+.. _doxid-structjnc___multicast:
+
+struct jnc_Multicast
+====================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_Multicast {
+		// fields
+	
+		:ref:`jnc_IfaceHdr<doxid-structjnc___iface_hdr>` :target:`m_ifaceHdr<doxid-structjnc___multicast_1ac3c0c88bd615ffc1c7cbff702e647ae3>`;
+		intptr_t :target:`m_lock<doxid-structjnc___multicast_1a9b8684005fb181b17902c5df75956e55>`;
+		:ref:`jnc_DataPtr<doxid-structjnc___data_ptr>` :target:`m_ptr<doxid-structjnc___multicast_1ada6cfa691edc4943026821efe48b7a72>`;
+		size_t :target:`m_count<doxid-structjnc___multicast_1ad811c47c656dc4b79ed32c6a24b62e24>`;
+		size_t :target:`m_maxCount<doxid-structjnc___multicast_1abe9cd8b0ffe13c6f1a2b0cfa231c1455>`;
+		void* :target:`m_handleTable<doxid-structjnc___multicast_1a3ac8b599a1f70e2fd52236d28ee4976e>`;
+	};

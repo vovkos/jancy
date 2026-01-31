@@ -1,0 +1,36 @@
+.. include:: def.rst
+.. index:: pair: class; io.SslCertName
+.. _doxid-typeio_sslcertname:
+
+class io.SslCertName
+====================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class SslCertName {
+		// fields
+	
+		typedef unsigned long size_t readonly :target:`m_entryCount<doxid-fieldio_sslcertname_m_entrycount>`;
+
+		// properties
+	
+		:ref:`io.SslCertNameEntry<doxid-typeio_sslcertnameentry>` const* const indexed property :target:`m_entryTable<doxid-propertyio_sslcertname_m_entrytable>`(:ref:`size_t<doxid-typedefsize_t>` i);
+		:ref:`string_t<doxid-typedefstring_t>` const property :target:`m_oneLine<doxid-propertyio_sslcertname_m_oneline>`;
+
+		// construction
+	
+		:target:`construct<doxid-functionio_sslcertname_construct>`();
+		:target:`destruct<doxid-functionio_sslcertname_destruct>`();
+
+		// methods
+	
+		:ref:`io.SslCertNameEntry<doxid-typeio_sslcertnameentry>` const* :target:`findEntry<doxid-functionio_sslcertname_findentry>`(:ref:`io.SslNid<doxid-typeio_sslnid>` nid) const;
+	};

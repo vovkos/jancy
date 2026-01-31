@@ -1,0 +1,409 @@
+.. include:: def.rst
+.. index:: pair: class; io.Pcap
+.. _doxid-typeio_pcap:
+
+class io.Pcap
+=============
+
+.. toctree::
+	:hidden:
+
+	enum_io_Pcap_Defaults.rst
+
+Overview
+~~~~~~~~
+
+This class provides high-level asynchronous interface for the Pcap
+(Packet Capture) library. :ref:`More...<details-typeio_pcap>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "io_pcap.jncx"
+	
+	class Pcap {
+		// enums
+	
+		enum :ref:`Defaults<doxid-typeio_pcap_defaults>`;
+
+		// fields
+	
+		typedef String string_t readonly :ref:`m_filter<doxid-fieldio_pcap_m_filter>`;
+		:ref:`io.PcapEvents<doxid-typeio_pcapevents>` readonly volatile :target:`m_activeEvents<doxid-fieldio_pcap_m_activeevents>`;
+		:ref:`std.Error<doxid-typestd_error>` const* readonly volatile :target:`m_ioError<doxid-fieldio_pcap_m_ioerror>`;
+		bool readonly :ref:`m_isOpen<doxid-fieldio_pcap_m_isopen>`;
+
+		// properties
+	
+		int const property :target:`m_dlt<doxid-propertyio_pcap_m_dlt>`;
+		:ref:`io.PcapLinkType<doxid-typeio_pcaplinktype>` const property :target:`m_linkType<doxid-propertyio_pcap_m_linktype>`;
+		bool autoget property :target:`m_isPromiscious<doxid-propertyio_pcap_m_ispromiscious>`;
+		:ref:`uint_t<doxid-typedefuint_t>` autoget property :target:`m_readTimeout<doxid-propertyio_pcap_m_readtimeout>`;
+		:ref:`size_t<doxid-typedefsize_t>` property :target:`m_snapshotSize<doxid-propertyio_pcap_m_snapshotsize>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_kernelBufferSize<doxid-propertyio_pcap_m_kernelbuffersize>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_readBufferSize<doxid-propertyio_pcap_m_readbuffersize>`;
+
+		// construction
+	
+		:target:`construct<doxid-functionio_pcap_construct>`();
+		:target:`destruct<doxid-functionio_pcap_destruct>`();
+
+		// methods
+	
+		bool errorcode :ref:`openDevice<doxid-functionio_pcap_opendevice>`(:ref:`string_t<doxid-typedefstring_t>` deviceName);
+	
+		bool errorcode :ref:`openLive<doxid-functionio_pcap_openlive>`(
+			:ref:`string_t<doxid-typedefstring_t>` deviceName,
+			:ref:`string_t<doxid-typedefstring_t>` filter = null,
+			:ref:`uint_t<doxid-typedefuint_t>` snapshotSize = Defaults.SnapshotSize,
+			bool isPromiscious = Defaults.IsPromiscious,
+			:ref:`uint_t<doxid-typedefuint_t>` readTimeout = Defaults.ReadTimeout
+		);
+	
+		bool errorcode :ref:`openFile<doxid-functionio_pcap_openfile>`(
+			:ref:`string_t<doxid-typedefstring_t>` fileName,
+			:ref:`string_t<doxid-typedefstring_t>` filter = null
+		);
+	
+		void :ref:`close<doxid-functionio_pcap_close>`();
+		bool errorcode :target:`activate<doxid-functionio_pcap_activate>`(:ref:`string_t<doxid-typedefstring_t>` filter = null);
+	
+		bool errorcode :ref:`setFilter<doxid-functionio_pcap_setfilter>`(
+			:ref:`string_t<doxid-typedefstring_t>` filter,
+			bool isOptimized = true,
+			:ref:`uint32_t<doxid-typedefuint32_t>` netMask = -1
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :ref:`read<doxid-functionio_pcap_read>`(
+			void* p,
+			:ref:`size_t<doxid-typedefsize_t>` size,
+			:ref:`uint64_t<doxid-typedefuint64_t>`* timestamp = null
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :ref:`write<doxid-functionio_pcap_write>`(
+			void const* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		long errorcode :target:`wait<doxid-functionio_pcap_wait>`(
+			:ref:`io.PcapEvents<doxid-typeio_pcapevents>` eventMask,
+			void function* handler(io.PcapEvents triggeredEvents)
+		);
+	
+		bool errorcode :target:`cancelWait<doxid-functionio_pcap_cancelwait>`(long handle);
+	
+		:ref:`io.PcapEvents<doxid-typeio_pcapevents>` :target:`blockingWait<doxid-functionio_pcap_blockingwait>`(
+			:ref:`io.PcapEvents<doxid-typeio_pcapevents>` eventMask,
+			:ref:`uint_t<doxid-typedefuint_t>` timeout = -1
+		);
+	
+		:ref:`io.PcapEvents<doxid-typeio_pcapevents>` async :target:`asyncWait<doxid-functionio_pcap_asyncwait>`(:ref:`io.PcapEvents<doxid-typeio_pcapevents>` eventMask);
+
+		// aliases
+	
+		alias :ref:`dispose<doxid-aliasio_pcap_dispose>` = close;
+	};
+.. _details-typeio_pcap:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This class provides high-level asynchronous interface for the Pcap
+(Packet Capture) library.
+
+Pcap library(called WinPcap on Windows) is de-facto the standard tool for
+capturing and injecting low-level network traffic.
+
+A typical sequence of steps when working with ``io.Pcap`` looks something
+like this:
+
+* Open a live capture using ``openDevice`` or a capture file(\*.pcap) using
+  ``openFile`` method;
+* Assign IO event handler with ``wait`` method. You would probably also
+  want to *schedule* your event handler to be run in particular
+  environment(e.g., in a specific thread) and partially apply some
+  syncrhonization ID to discard late events;
+* When `io.PcapEvents.IncomingData` event is fired, read packet using
+  ``read`` method;
+* If you opened a live capture, you can also inject packets with ``write``
+  method;
+* Close Pcap object when no longer needed with ``close`` method.
+
+Code sample:
+
+.. ref-code-block::
+
+	class MyDialog {
+		// ...
+
+		io.Pcap m_pcap;
+		uint_t m_syncId;
+
+		void startCapture(
+			string_t device,
+			string_t filter = null
+		);
+
+		void close();
+		void waitPcapEvents();
+
+		void onPcapEvent(
+			uint_t syncId,
+			`io.PcapEvents` triggeredEvents
+		);
+	}
+
+	MyDialog.startCapture(
+		string_t device,
+		string_t filter = null
+	) {
+		bool result = try m_pcap.openDevice(device, filter);
+		if (!result) {
+			// handle the error...
+		}
+
+		waitPcapEvents();
+	}
+
+	MyDialog.close() {
+		m_serial.close();
+		m_syncId++; // events past this point will be discarded as 'late'
+	}
+
+	MyDialog.waitPcapEvent() {
+		`io.PcapEvents` eventMask =
+			`io.PcapEvents.IoError` |
+			`io.PcapEvents.IncomingData`;
+
+		m_serial.wait(eventMask, onPcapEvent ~(++m_syncId) @
+			g_mainThreadScheduler);
+	}
+
+	MyDialog.onPcapEvent(
+		uint_t syncId,
+		`io.PcapEvents` triggeredEvents
+	) {
+		if (syncId != m_syncId) // late event
+			return;
+
+		if (triggeredEvents & `io.PcapEvents.IoError`) {
+			string_t errorString = m_pcap.m_ioError.m_description;
+			// ...
+		}
+
+		if (triggeredEvents & `io.PcapEvents.IncomingData`) {
+			char buffer[256];
+			size_t size = m_pcap.read(buffer, sizeof(buffer));
+			// ...
+		}
+
+		waitPcapEvents(); // restart wait
+	}
+
+
+
+.. rubric:: See also:
+
+`io.PcapEvents`
+
+Fields
+------
+
+.. index:: pair: variable; m_filter
+.. _doxid-fieldio_pcap_m_filter:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	typedef String string_t readonly m_filter
+
+Holds currently specified capture filter [#f3]_.
+
+.. index:: pair: variable; m_isOpen
+.. _doxid-fieldio_pcap_m_isopen:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool readonly m_isOpen
+
+Holds the open status for the Pcap object, i.e. ``true`` if opened;
+``false`` otherwise.
+
+Methods
+-------
+
+.. index:: pair: function; openDevice
+.. _doxid-functionio_pcap_opendevice:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool errorcode openDevice(:ref:`string_t<doxid-typedefstring_t>` deviceName)
+
+Opens a network interface for Pcap capture.
+
+Returns ``true`` on success. If live capture on specified device could
+not be opened, function sets the error reported by Pcap and returns
+``false`` [#f1]_.
+
+.. index:: pair: function; openLive
+.. _doxid-functionio_pcap_openlive:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool errorcode openLive(
+		:ref:`string_t<doxid-typedefstring_t>` deviceName,
+		:ref:`string_t<doxid-typedefstring_t>` filter = null,
+		:ref:`uint_t<doxid-typedefuint_t>` snapshotSize = Defaults.SnapshotSize,
+		bool isPromiscious = Defaults.IsPromiscious,
+		:ref:`uint_t<doxid-typedefuint_t>` readTimeout = Defaults.ReadTimeout
+	)
+
+Opens a network interface for Pcap capture.
+
+The function accepts 3 arguments. The first one, ``deviceName``, is
+used to specify the device to start capture on. To obtain a list of
+available devices, use `io.createPcapDeviceDescList` function.
+
+The second one, ``filter``, allows you to specify a capture filter
+[#f3]_ which will be applied to incoming packets -- packets which do
+not pass the filter, will never be signalled via
+`io.PcapEvents.IncomingData` event and could not be read by ``read``
+method.
+
+The third parameter specifies whether to put interface in promiscuous
+mode.
+
+Returns ``true`` on success. If live capture on specified device could
+not be opened, function sets the error reported by Pcap and returns
+``false`` [#f1]_.
+
+.. index:: pair: function; openFile
+.. _doxid-functionio_pcap_openfile:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool errorcode openFile(
+		:ref:`string_t<doxid-typedefstring_t>` fileName,
+		:ref:`string_t<doxid-typedefstring_t>` filter = null
+	)
+
+Opens a previously captured \*.pcap file specified by ``fileName``
+argument.
+
+The second argument, ``filter``, has the same meaning as in
+``openDevice`` method [#f3]_.
+
+Returns ``true`` on success. If capture file could not be opened,
+function sets the error reported by Pcap and returns ``false`` [#f1]_.
+
+.. index:: pair: function; close
+.. _doxid-functionio_pcap_close:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	void close()
+
+Closes a previously opened live capture or a capture file, does nothing
+if Pcap is not opened. This function always succeeds.
+
+Sometimes it may be convenient to use *disposable* pattern to ensure
+timely invokation of ``close`` [#f2]_.
+
+.. index:: pair: function; setFilter
+.. _doxid-functionio_pcap_setfilter:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool errorcode setFilter(
+		:ref:`string_t<doxid-typedefstring_t>` filter,
+		bool isOptimized = true,
+		:ref:`uint32_t<doxid-typedefuint32_t>` netMask = -1
+	)
+
+Allows you to change current capture filter without restarting the
+capture.
+
+Returns ``true`` on success. If capture filter could not be changed,
+function sets the error reported by Pcap and returns ``false`` [#f1]_.
+
+.. index:: pair: function; read
+.. _doxid-functionio_pcap_read:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`size_t<doxid-typedefsize_t>` errorcode read(
+		void* p,
+		:ref:`size_t<doxid-typedefsize_t>` size,
+		:ref:`uint64_t<doxid-typedefuint64_t>`* timestamp = null
+	)
+
+Reads the next packet into the buffer pointed to by ``p`` and ``size``
+bytes long.
+
+Returns the actual amount of bytes read or ``-1`` if error occurs.
+
+If read operation is unsuccessful, function sets the error reported by
+Pcap and returns ``-1`` [#f1]_.
+
+Normally you would call this function from within your event handler for
+``ReadyRead`` event. If this function is called when there are no
+incoming pacets, it blocks until either a packet arrives, or Pcap is
+closed.
+
+.. index:: pair: function; write
+.. _doxid-functionio_pcap_write:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`size_t<doxid-typedefsize_t>` errorcode write(
+		void const* p,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	)
+
+Attempts to inject ``size`` bytes from the buffer pointed to by ``p`` as
+a packet on a currently opened device.
+
+Returns the actual amount of bytes written on success. If write
+operation is unsuccessful, function sets the error reported by Pcap and
+returns ``-1`` [#f1]_.
+
+Aliases
+-------
+
+.. index:: pair: alias; dispose
+.. _doxid-aliasio_pcap_dispose:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	alias dispose = close
+
+Effectively makes ``io.Pcap`` a *disposable* class [#f2]_.
+
+
+---------------------
+
+.. rubric:: Footnotes
+
+.. [#f1]
+
+	|footnote-errorcode|
+
+.. [#f2]
+
+	|footnote-disposable|
+
+.. [#f3]
+
+	For detailed description of the syntax used in Pcap capture filter
+	expressions refer to: http://www.tcpdump.org/manpages/pcap-filter.7.html
+

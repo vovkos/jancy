@@ -1,0 +1,26 @@
+.. index:: pair: struct; jnc_FunctionTypeFuncTable
+.. _doxid-structjnc___function_type_func_table:
+
+struct jnc_FunctionTypeFuncTable
+================================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_FunctionTypeFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___function_type_func_table_1a587d4aa3a7c5af4b04245d9eaac51d91>`;
+		jnc_FunctionType_GetReturnTypeFunc* :target:`m_getReturnTypeFunc<doxid-structjnc___function_type_func_table_1aa415acb967b7c3ec40224f643fec8b6b>`;
+		jnc_FunctionType_GetArgCountFunc* :target:`m_getArgCountFunc<doxid-structjnc___function_type_func_table_1ada3b313cfca2c7d8a442a46d1bc8fa75>`;
+		jnc_FunctionType_GetArgFunc* :target:`m_getArgFunc<doxid-structjnc___function_type_func_table_1a72b7d0f33cee6b14c4d587f3ae7321ab>`;
+		jnc_FunctionType_GetFunctionPtrTypeFunc* :target:`m_getFunctionPtrTypeFunc<doxid-structjnc___function_type_func_table_1acbf06a006285385472dffa5b37f94528>`;
+		jnc_FunctionType_GetShortTypeFunc* :target:`m_getShortTypeFunc<doxid-structjnc___function_type_func_table_1a70a2f5f43ed36a16a2ec44103bad732e>`;
+	};

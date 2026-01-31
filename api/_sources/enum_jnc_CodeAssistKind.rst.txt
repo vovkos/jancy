@@ -1,0 +1,23 @@
+.. index:: pair: enum; jnc_CodeAssistKind
+.. _doxid-jnc___code_assist_8h_1adeaf6caaba16ff9151c02cca091b9854:
+
+enum jnc_CodeAssistKind
+=======================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_CodeAssist.h>
+
+	enum jnc_CodeAssistKind {
+	    :target:`jnc_CodeAssistKind_Undefined<doxid-jnc___code_assist_8h_1adeaf6caaba16ff9151c02cca091b9854abd30c3c10a03a9d0cf6620d379c5df01>`,
+	    :target:`jnc_CodeAssistKind_QuickInfoTip<doxid-jnc___code_assist_8h_1adeaf6caaba16ff9151c02cca091b9854ac4f4b083a9b08f8987624126f6109552>`,
+	    :target:`jnc_CodeAssistKind_ArgumentTip<doxid-jnc___code_assist_8h_1adeaf6caaba16ff9151c02cca091b9854ae58f764fbf40b9415949ef18116420b9>`,
+	    :target:`jnc_CodeAssistKind_AutoComplete<doxid-jnc___code_assist_8h_1adeaf6caaba16ff9151c02cca091b9854ab337b19bf87c8eb4bb749ea4f921ba69>`,
+	    :target:`jnc_CodeAssistKind_ImportAutoComplete<doxid-jnc___code_assist_8h_1adeaf6caaba16ff9151c02cca091b9854a7f21482bfc2718f850aecc30ac49f8a7>`,
+	    :target:`jnc_CodeAssistKind_GotoDefinition<doxid-jnc___code_assist_8h_1adeaf6caaba16ff9151c02cca091b9854a7b02c07b4ea8e5364829d232520152f9>`,
+	    :target:`jnc_CodeAssistKind__Count<doxid-jnc___code_assist_8h_1adeaf6caaba16ff9151c02cca091b9854a815ea2a95cd70cea8a767d2168a771df>`,
+	};
+

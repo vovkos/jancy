@@ -1,0 +1,320 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>class jnc::Edit &mdash; Jancy C API Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="enum jnc::Edit::CodeAssistTrigger" href="enum_jnc_Edit_CodeAssistTrigger.html" />
+    <link rel="prev" title="namespace jnc" href="namespace_jnc.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy C API Reference
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="group_base-def.html">Base Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_error-subsystem.html">Error Subsystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_extension-lib-subsystem.html">Extension Libraries Subsystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_module-subsystem.html">Module Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_runtime-subsystem.html">Runtime Subsystem</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="global.html">Global Namespace</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="namespace_jnc.html">namespace jnc</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">class jnc::Edit</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="enum_jnc_Edit_CodeAssistTrigger.html">enum jnc::Edit::CodeAssistTrigger</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#inherited-members">Inherited Members</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_EditBase.html">class jnc::EditBase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_EditTheme.html">class jnc::EditTheme</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_HighlighterBase.html">class jnc::HighlighterBase</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="enum_jnc_CodeAssistFlag.html">enum jnc_CodeAssistFlag</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enum_jnc_CodeAssistKind.html">enum jnc_CodeAssistKind</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enum_jnc_DynamicLayoutMode.html">enum jnc_DynamicLayoutMode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enum_jnc_DynamicSectionKind.html">enum jnc_DynamicSectionKind</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_ArrayTypeFuncTable.html">struct jnc_ArrayTypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_AttributeBlockFuncTable.html">struct jnc_AttributeBlockFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_AttributeFuncTable.html">struct jnc_AttributeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_BaseTypeSlotFuncTable.html">struct jnc_BaseTypeSlotFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_CapabilityFuncTable.html">struct jnc_CapabilityFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_ClassPtrTypeFuncTable.html">struct jnc_ClassPtrTypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_ClassTypeFuncTable.html">struct jnc_ClassTypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_DataPtrTypeFuncTable.html">struct jnc_DataPtrTypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_DerivableTypeFuncTable.html">struct jnc_DerivableTypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_EnumConstFuncTable.html">struct jnc_EnumConstFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_EnumTypeFuncTable.html">struct jnc_EnumTypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_ErrorFuncTable.html">struct jnc_ErrorFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_FieldFuncTable.html">struct jnc_FieldFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_FunctionArgFuncTable.html">struct jnc_FunctionArgFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_FunctionFuncTable.html">struct jnc_FunctionFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_FunctionOverloadFuncTable.html">struct jnc_FunctionOverloadFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_FunctionPtrTypeFuncTable.html">struct jnc_FunctionPtrTypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_FunctionTypeFuncTable.html">struct jnc_FunctionTypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_GcHeapFuncTable.html">struct jnc_GcHeapFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_GlobalNamespaceFuncTable.html">struct jnc_GlobalNamespaceFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_McSnapshotClassTypeFuncTable.html">struct jnc_McSnapshotClassTypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_ModuleFuncTable.html">struct jnc_ModuleFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_ModuleItemDeclFuncTable.html">struct jnc_ModuleItemDeclFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_ModuleItemFuncTable.html">struct jnc_ModuleItemFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_MulticastClassTypeFuncTable.html">struct jnc_MulticastClassTypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_NamedTypeFuncTable.html">struct jnc_NamedTypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_NamespaceFuncTable.html">struct jnc_NamespaceFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_PromiseFuncTable.html">struct jnc_PromiseFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_PropertyFuncTable.html">struct jnc_PropertyFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_PropertyPtrTypeFuncTable.html">struct jnc_PropertyPtrTypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_PropertyTypeFuncTable.html">struct jnc_PropertyTypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_RuntimeFuncTable.html">struct jnc_RuntimeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_StdBuffer.html">struct jnc_StdBuffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_StdBufferFuncTable.html">struct jnc_StdBufferFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_StdHashTable.html">struct jnc_StdHashTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_StdHashTableFuncTable.html">struct jnc_StdHashTableFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_StdMap.html">struct jnc_StdMap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_StdMapEntry.html">struct jnc_StdMapEntry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_StdRbTree.html">struct jnc_StdRbTree</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_StdRbTreeFuncTable.html">struct jnc_StdRbTreeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_StringFuncTable.html">struct jnc_StringFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_StructTypeFuncTable.html">struct jnc_StructTypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_TypeFuncTable.html">struct jnc_TypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_TypedefFuncTable.html">struct jnc_TypedefFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_UnionTypeFuncTable.html">struct jnc_UnionTypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_UnitFuncTable.html">struct jnc_UnitFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_VariableFuncTable.html">struct jnc_VariableFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_VariantFuncTable.html">struct jnc_VariantFuncTable</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy C API Reference</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="global.html">Global Namespace</a></li>
+          <li class="breadcrumb-item"><a href="namespace_jnc.html">namespace jnc</a></li>
+      <li class="breadcrumb-item active">class jnc::Edit</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="class-jnc-edit">
+<span id="doxid-classjnc-1-1-edit"></span><span id="index-0"></span><h1>class jnc::Edit</h1>
+<div class="toctree-wrapper compound">
+</div>
+<pre class="highlight doxyrest-overview-code-block literal-block"><span></span><span class="k">class</span> <span class="nl">Edit</span><span class="p">:</span> <span class="k">public</span> <a class="reference internal" href="class_jnc_EditBase.html#doxid-classjnc-1-1-edit-base"><span class="std std-ref">jnc::EditBase</span></a><span></span> <span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="c1">// enums</span>
+
+    <span class="k">enum</span> <a class="reference internal" href="enum_jnc_Edit_CodeAssistTrigger.html#doxid-classjnc-1-1-edit-1a1439593b69df07148aec3e2ff8f78c25"><span class="std std-ref">CodeAssistTrigger</span></a><span></span><span class="p">;</span>
+
+    <span class="c1">// properties</span>
+
+    <span class="n">CodeAssistTriggers</span>
+    <span class="doxyrest-code-target target" id="doxid-classjnc-1-1-edit-1aa493d72005102cb9a9afc2eaecf6cca8"><span></span><span class="n">codeAssistTriggers</span></span><span></span><span class="p">;</span>
+
+    <span class="n">QStringList</span>
+    <span class="doxyrest-code-target target" id="doxid-classjnc-1-1-edit-1a892a6662e405df04dea2b684653293b5"><span></span><span class="n">importDirList</span></span><span></span><span class="p">;</span>
+
+    <span class="n">QStringList</span>
+    <span class="doxyrest-code-target target" id="doxid-classjnc-1-1-edit-1a30dc657a2f96b95ae021378f8a30f304"><span></span><span class="n">importList</span></span><span></span><span class="p">;</span>
+
+    <span class="n">QString</span>
+    <span class="doxyrest-code-target target" id="doxid-classjnc-1-1-edit-1a793cfcdc741a4cc46687418f56cdc2e6"><span></span><span class="n">extraSource</span></span><span></span><span class="p">;</span>
+
+    <span class="c1">// construction</span>
+
+    <span class="doxyrest-code-target target" id="doxid-classjnc-1-1-edit-1afc193e11415971e7690e9a395cf24caf"><span></span><span class="n">Edit</span></span><span></span><span class="p">(</span><span class="n">QWidget</span><span class="o">*</span> <span class="n">parent</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="doxyrest-code-target target" id="doxid-classjnc-1-1-edit-1a8eef7504958d7914f32df6c34e7540ef"><span></span><span class="o">~</span><span class="n">Edit</span></span><span></span><span class="p">();</span>
+
+    <span class="c1">// methods</span>
+
+    <span class="n">CodeAssistTriggers</span>
+    <span class="doxyrest-code-target target" id="doxid-classjnc-1-1-edit-1a5fd2c2399b811e89bbda0ea0c89e64a5"><span></span><span class="n">codeAssistTriggers</span></span><span></span><span class="p">();</span>
+
+    <span class="kt">void</span>
+    <span class="doxyrest-code-target target" id="doxid-classjnc-1-1-edit-1a20ea61cefa5fa5a67a714f252b8c5b26"><span></span><span class="n">setCodeAssistTriggers</span></span><span></span><span class="p">(</span><span class="n">CodeAssistTriggers</span> <span class="n">triggers</span><span class="p">);</span>
+
+    <span class="n">QStringList</span>
+    <span class="doxyrest-code-target target" id="doxid-classjnc-1-1-edit-1a41ff8af1136881423b5169e469f619bf"><span></span><span class="n">importDirList</span></span><span></span><span class="p">();</span>
+
+    <span class="kt">void</span>
+    <span class="doxyrest-code-target target" id="doxid-classjnc-1-1-edit-1a9cce2b019c1c9e154ae5c8d75bc71f50"><span></span><span class="n">setImportDirList</span></span><span></span><span class="p">(</span><span class="k">const</span> <span class="n">QStringList</span><span class="o">&amp;</span> <span class="n">dirList</span><span class="p">);</span>
+
+    <span class="n">QStringList</span>
+    <span class="doxyrest-code-target target" id="doxid-classjnc-1-1-edit-1aaa6ad9433bb4783d33e735b8ff1753f0"><span></span><span class="n">importList</span></span><span></span><span class="p">();</span>
+
+    <span class="kt">void</span>
+    <span class="doxyrest-code-target target" id="doxid-classjnc-1-1-edit-1a2d4638d73a3b8dde9580eaa73a63b62f"><span></span><span class="n">setImportList</span></span><span></span><span class="p">(</span><span class="k">const</span> <span class="n">QStringList</span><span class="o">&amp;</span> <span class="n">importList</span><span class="p">);</span>
+
+    <span class="n">QString</span>
+    <span class="doxyrest-code-target target" id="doxid-classjnc-1-1-edit-1afe776ad72b873425c0b266365ed4c485"><span></span><span class="n">extraSource</span></span><span></span><span class="p">();</span>
+
+    <span class="kt">void</span>
+    <span class="doxyrest-code-target target" id="doxid-classjnc-1-1-edit-1a94b1758e539a51373ba1400c874c7dba"><span></span><span class="n">setExtraSource</span></span><span></span><span class="p">(</span><span class="k">const</span> <span class="n">QString</span><span class="o">&amp;</span> <span class="n">source</span><span class="p">);</span>
+<span class="p">};</span></pre>
+<section id="inherited-members">
+<h2>Inherited Members</h2>
+<pre class="highlight doxyrest-overview-inherited-code-block literal-block"><span></span><span class="k">public</span><span class="o">:</span>
+    <span class="c1">// properties</span>
+
+    <span class="n">QString</span>
+    <a class="reference internal" href="class_jnc_EditBase.html#doxid-classjnc-1-1-edit-base-1a33dbba410887876cf05ffa9ee6ec568d"><span class="std std-ref">fileName</span></a><span></span><span class="p">;</span>
+
+    <span class="kt">bool</span>
+    <a class="reference internal" href="class_jnc_EditBase.html#doxid-classjnc-1-1-edit-base-1a0563818e6c291caa0e834300ca60497c"><span class="std std-ref">isReadOnly</span></a><span></span><span class="p">;</span>
+
+    <span class="kt">bool</span>
+    <a class="reference internal" href="class_jnc_EditBase.html#doxid-classjnc-1-1-edit-base-1a6e0cff0e0e2d87ca54743c7ec45ca139"><span class="std std-ref">isLineNumberMarginEnabled</span></a><span></span><span class="p">;</span>
+
+    <span class="kt">int</span>
+    <a class="reference internal" href="class_jnc_EditBase.html#doxid-classjnc-1-1-edit-base-1a07afad5293d429818d2cb2a4ba2aa784"><span class="std std-ref">lineNumberMarginWidth</span></a><span></span><span class="p">;</span>
+
+    <span class="kt">bool</span>
+    <a class="reference internal" href="class_jnc_EditBase.html#doxid-classjnc-1-1-edit-base-1affb22c3147915f181e70a2bf44bbcfd7"><span class="std std-ref">isCurrentLineHighlightingEnabled</span></a><span></span><span class="p">;</span>
+
+    <span class="kt">bool</span>
+    <a class="reference internal" href="class_jnc_EditBase.html#doxid-classjnc-1-1-edit-base-1ae2b0856aaf663ed8e94634422739a109"><span class="std std-ref">isSyntaxHighlightingEnabled</span></a><span></span><span class="p">;</span>
+
+    <span class="kt">int</span>
+    <a class="reference internal" href="class_jnc_EditBase.html#doxid-classjnc-1-1-edit-base-1a3e0266d1b60482620f07f3107181300d"><span class="std std-ref">tabWidth</span></a><span></span><span class="p">;</span>
+
+    <span class="c1">// methods</span>
+
+    <span class="n">QString</span>
+    <a class="reference internal" href="class_jnc_EditBase.html#doxid-classjnc-1-1-edit-base-1a0426077e722b2ae8cee19c4adceacc5f"><span class="std std-ref">fileName</span></a><span></span><span class="p">();</span>
+
+    <span class="kt">void</span>
+    <a class="reference internal" href="class_jnc_EditBase.html#doxid-classjnc-1-1-edit-base-1a54f9e669dbbc8e7a414aa898451dcc1c"><span class="std std-ref">setFileName</span></a><span></span><span class="p">(</span><span class="k">const</span> <span class="n">QString</span><span class="o">&amp;</span> <span class="n">fileName</span><span class="p">);</span>
+
+    <span class="kt">void</span>
+    <a class="reference internal" href="class_jnc_EditBase.html#doxid-classjnc-1-1-edit-base-1af653bec7dbdb7af82c4685143f4947c7"><span class="std std-ref">setReadOnly</span></a><span></span><span class="p">(</span><span class="kt">bool</span> <span class="n">isReadOnly</span><span class="p">);</span>
+
+    <span class="kt">bool</span>
+    <a class="reference internal" href="class_jnc_EditBase.html#doxid-classjnc-1-1-edit-base-1a0106eb210cfa641766eec1f2a069abd4"><span class="std std-ref">isLineNumberMarginEnabled</span></a><span></span><span class="p">();</span>
+
+    <span class="kt">void</span>
+    <a class="reference internal" href="class_jnc_EditBase.html#doxid-classjnc-1-1-edit-base-1ac10be2dbd2bed4ea8ee5272fbdf1fe31"><span class="std std-ref">enableLineNumberMargin</span></a><span></span><span class="p">(</span><span class="kt">bool</span> <span class="n">isEnabled</span><span class="p">);</span>
+
+    <span class="kt">int</span>
+    <a class="reference internal" href="class_jnc_EditBase.html#doxid-classjnc-1-1-edit-base-1a3cf207bd295b9d936e3845d4999edbbc"><span class="std std-ref">lineNumberMarginWidth</span></a><span></span><span class="p">();</span>
+
+    <span class="kt">bool</span>
+    <a class="reference internal" href="class_jnc_EditBase.html#doxid-classjnc-1-1-edit-base-1a224d4d1df595da685de2181d1f19cd35"><span class="std std-ref">isCurrentLineHighlightingEnabled</span></a><span></span><span class="p">();</span>
+
+    <span class="kt">void</span>
+    <a class="reference internal" href="class_jnc_EditBase.html#doxid-classjnc-1-1-edit-base-1a4017c613662577ae0ee7e4f52feb4f3b"><span class="std std-ref">enableCurrentLineHighlighting</span></a><span></span><span class="p">(</span><span class="kt">bool</span> <span class="n">isEnabled</span><span class="p">);</span>
+
+    <span class="kt">bool</span>
+    <a class="reference internal" href="class_jnc_EditBase.html#doxid-classjnc-1-1-edit-base-1aef0cf582a84ab68a88163db424f7d654"><span class="std std-ref">isSyntaxHighlightingEnabled</span></a><span></span><span class="p">();</span>
+
+    <span class="kt">void</span>
+    <a class="reference internal" href="class_jnc_EditBase.html#doxid-classjnc-1-1-edit-base-1ae087c825b495bb5bb0620ed49afff174"><span class="std std-ref">enableSyntaxHighlighting</span></a><span></span><span class="p">(</span><span class="kt">bool</span> <span class="n">isEnabled</span><span class="p">);</span>
+
+    <span class="kt">int</span>
+    <a class="reference internal" href="class_jnc_EditBase.html#doxid-classjnc-1-1-edit-base-1a3e1aeb745ef3c5fb63aa14c593a547e4"><span class="std std-ref">tabWidth</span></a><span></span><span class="p">();</span>
+
+    <span class="kt">void</span>
+    <a class="reference internal" href="class_jnc_EditBase.html#doxid-classjnc-1-1-edit-base-1a2c9bfd39db683f5f2c5e4084506b79db"><span class="std std-ref">setTabWidth</span></a><span></span><span class="p">(</span><span class="kt">int</span> <span class="n">width</span><span class="p">);</span>
+
+    <span class="k">const</span> <a class="reference internal" href="class_jnc_EditTheme.html#doxid-classjnc-1-1-edit-theme"><span class="std std-ref">EditTheme</span></a><span></span><span class="o">*</span>
+    <a class="reference internal" href="class_jnc_EditBase.html#doxid-classjnc-1-1-edit-base-1a70be417f3b4a5a2d409f2a19fa2663cc"><span class="std std-ref">theme</span></a><span></span><span class="p">();</span>
+
+    <span class="kt">void</span>
+    <a class="reference internal" href="class_jnc_EditBase.html#doxid-classjnc-1-1-edit-base-1a213ebf8e370ee423f883d0ebfa365658"><span class="std std-ref">setTheme</span></a><span></span><span class="p">(</span><span class="k">const</span> <a class="reference internal" href="class_jnc_EditTheme.html#doxid-classjnc-1-1-edit-theme"><span class="std std-ref">EditTheme</span></a><span></span><span class="o">*</span> <span class="n">theme</span><span class="p">);</span>
+
+    <span class="kt">void</span>
+    <a class="reference internal" href="class_jnc_EditBase.html#doxid-classjnc-1-1-edit-base-1a4f3acbe6736b9ff557be21afc67b737d"><span class="std std-ref">setTextCursorLineCol</span></a><span></span><span class="p">(</span>
+        <span class="kt">int</span> <span class="n">line</span><span class="p">,</span>
+        <span class="kt">int</span> <span class="n">col</span>
+    <span class="p">);</span>
+
+    <span class="kt">void</span>
+    <a class="reference internal" href="class_jnc_EditBase.html#doxid-classjnc-1-1-edit-base-1a5497850ff33ac57b9ffd0b5c37dc3006"><span class="std std-ref">highlightLineTemp</span></a><span></span><span class="p">(</span>
+        <span class="kt">int</span> <span class="n">line</span><span class="p">,</span>
+        <span class="k">const</span> <span class="n">QColor</span><span class="o">&amp;</span> <span class="n">backColor</span><span class="p">,</span>
+        <span class="k">const</span> <span class="n">QColor</span><span class="o">&amp;</span> <span class="n">textColor</span> <span class="o">=</span> <span class="n">QColor</span><span class="o">::</span><span class="n">Invalid</span>
+    <span class="p">);</span></pre>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="namespace_jnc.html" class="btn btn-neutral float-left" title="namespace jnc" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="enum_jnc_Edit_CodeAssistTrigger.html" class="btn btn-neutral float-right" title="enum jnc::Edit::CodeAssistTrigger" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

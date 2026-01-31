@@ -1,0 +1,138 @@
+.. include:: def.rst
+.. index:: pair: class; io.WebSocket
+.. _doxid-typeio_websocket:
+
+class io.WebSocket
+==================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class WebSocket {
+		// fields
+	
+		:ref:`io.SslState<doxid-typeio_sslstate>`* readonly :target:`m_sslState<doxid-fieldio_websocket_m_sslstate>`;
+		:ref:`io.WebSocketHandshake<doxid-typeio_websockethandshake>` const* readonly :target:`m_handshakeRequest<doxid-fieldio_websocket_m_handshakerequest>`;
+		:ref:`io.WebSocketHandshake<doxid-typeio_websockethandshake>` const* readonly :target:`m_handshakeResponse<doxid-fieldio_websocket_m_handshakeresponse>`;
+		:ref:`io.WebSocketEvents<doxid-typeio_websocketevents>` readonly volatile :target:`m_activeEvents<doxid-fieldio_websocket_m_activeevents>`;
+		:ref:`std.Error<doxid-typestd_error>` const* readonly volatile :target:`m_ioError<doxid-fieldio_websocket_m_ioerror>`;
+		bool readonly :target:`m_isOpen<doxid-fieldio_websocket_m_isopen>`;
+
+		// properties
+	
+		:ref:`io.SocketAddress<doxid-typeio_socketaddress>` const property :target:`m_address<doxid-propertyio_websocket_m_address>`;
+		:ref:`io.SocketAddress<doxid-typeio_socketaddress>` const property :target:`m_peerAddress<doxid-propertyio_websocket_m_peeraddress>`;
+		:ref:`io.WebSocketHandshakeHeaders<doxid-typeio_websockethandshakeheaders>` const* autoget property :target:`m_extraHeaders<doxid-propertyio_websocket_m_extraheaders>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_incomingFrameSizeLimit<doxid-propertyio_websocket_m_incomingframesizelimit>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_incomingMessageSizeLimit<doxid-propertyio_websocket_m_incomingmessagesizelimit>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_outgoingFragmentationThreshold<doxid-propertyio_websocket_m_outgoingfragmentationthreshold>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_readBlockSize<doxid-propertyio_websocket_m_readblocksize>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_readBufferSize<doxid-propertyio_websocket_m_readbuffersize>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_writeBufferSize<doxid-propertyio_websocket_m_writebuffersize>`;
+		:ref:`io.WebSocketOptions<doxid-typeio_websocketoptions>` autoget property :target:`m_options<doxid-propertyio_websocket_m_options>`;
+
+		// construction
+	
+		:target:`construct<doxid-functionio_websocket_construct>`();
+		:target:`destruct<doxid-functionio_websocket_destruct>`();
+
+		// methods
+	
+		bool errorcode :target:`open<doxid-functionio_websocket_open>`(
+			:ref:`io.AddressFamily<doxid-typeio_addressfamily>` family,
+			bool isSecure = false
+		);
+	
+		bool errorcode :target:`open<doxid-functionio_websocket_open_2>`(
+			:ref:`io.SocketAddress<doxid-typeio_socketaddress>` const* address,
+			bool isSecure = false
+		);
+	
+		void :target:`close<doxid-functionio_websocket_close>`();
+	
+		bool errorcode :target:`connect<doxid-functionio_websocket_connect>`(
+			:ref:`io.SocketAddress<doxid-typeio_socketaddress>` const* address,
+			:ref:`string_t<doxid-typedefstring_t>` resource,
+			:ref:`string_t<doxid-typedefstring_t>` host
+		);
+	
+		bool errorcode :target:`listen<doxid-functionio_websocket_listen>`(:ref:`size_t<doxid-typedefsize_t>` backlog = 0);
+	
+		io.WebSocket* errorcode :target:`accept<doxid-functionio_websocket_accept>`(
+			:ref:`io.SocketAddress<doxid-typeio_socketaddress>`* address = null,
+			bool isSuspended = false
+		);
+	
+		void :target:`unsuspend<doxid-functionio_websocket_unsuspend>`();
+	
+		bool errorcode :target:`serverHandshake<doxid-functionio_websocket_serverhandshake>`(
+			:ref:`uint_t<doxid-typedefuint_t>` statusCode,
+			:ref:`string_t<doxid-typedefstring_t>` reasonPhrase
+		);
+	
+		bool errorcode :target:`serverHandshake<doxid-functionio_websocket_serverhandshake_2>`();
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`read<doxid-functionio_websocket_read>`(
+			:ref:`io.WebSocketFrameOpcode<doxid-typeio_websocketframeopcode>`* opcode,
+			void* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`read<doxid-functionio_websocket_read_2>`(
+			void* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`write<doxid-functionio_websocket_write>`(
+			:ref:`io.WebSocketFrameOpcode<doxid-typeio_websocketframeopcode>` opcode,
+			void const* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`writeText<doxid-functionio_websocket_writetext>`(:ref:`string_t<doxid-typedefstring_t>` text);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`writeBinary<doxid-functionio_websocket_writebinary>`(
+			void const* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`writePing<doxid-functionio_websocket_writeping>`(
+			void const* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`writePing<doxid-functionio_websocket_writeping_2>`();
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`writePong<doxid-functionio_websocket_writepong>`(
+			void const* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`writePong<doxid-functionio_websocket_writepong_2>`();
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`writeClose<doxid-functionio_websocket_writeclose>`();
+	
+		long errorcode :target:`wait<doxid-functionio_websocket_wait>`(
+			:ref:`io.WebSocketEvents<doxid-typeio_websocketevents>` eventMask,
+			void function* handler(io.WebSocketEvents triggeredEvents)
+		);
+	
+		bool errorcode :target:`cancelWait<doxid-functionio_websocket_cancelwait>`(long handle);
+	
+		:ref:`io.WebSocketEvents<doxid-typeio_websocketevents>` :target:`blockingWait<doxid-functionio_websocket_blockingwait>`(
+			:ref:`io.WebSocketEvents<doxid-typeio_websocketevents>` eventMask,
+			:ref:`uint_t<doxid-typedefuint_t>` timeout = -1
+		);
+	
+		:ref:`io.WebSocketEvents<doxid-typeio_websocketevents>` async :target:`asyncWait<doxid-functionio_websocket_asyncwait>`(:ref:`io.WebSocketEvents<doxid-typeio_websocketevents>` eventMask);
+
+		// aliases
+	
+		alias :target:`dispose<doxid-aliasio_websocket_dispose>` = close;
+	};

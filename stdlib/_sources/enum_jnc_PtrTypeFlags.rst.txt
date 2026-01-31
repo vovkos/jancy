@@ -1,0 +1,29 @@
+.. include:: def.rst
+.. index:: pair: enum; PtrTypeFlags
+.. _doxid-typejnc_ptrtypeflags:
+
+bitflag enum jnc.PtrTypeFlags
+=============================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum PtrTypeFlags {
+	    :target:`Safe<doxid-enum_memberjnc_ptrtypeflags_safe>`       = 0x00010000,
+	    :target:`Const<doxid-enum_memberjnc_ptrtypeflags_const>`      = 0x00020000,
+	    :target:`MaybeConst<doxid-enum_memberjnc_ptrtypeflags_maybeconst>` = 0x00040000,
+	    :target:`ConstIf<doxid-enum_memberjnc_ptrtypeflags_constif>`    = 0x00080000,
+	    :target:`ReadOnly<doxid-enum_memberjnc_ptrtypeflags_readonly>`   = 0x00100000,
+	    :target:`Volatile<doxid-enum_memberjnc_ptrtypeflags_volatile>`   = 0x00200000,
+	    :target:`Event<doxid-enum_memberjnc_ptrtypeflags_event>`      = 0x00400000,
+	    :target:`DualEvent<doxid-enum_memberjnc_ptrtypeflags_dualevent>`  = 0x00800000,
+	    :target:`Bindable<doxid-enum_memberjnc_ptrtypeflags_bindable>`   = 0x01000000,
+	    :target:`AutoGet<doxid-enum_memberjnc_ptrtypeflags_autoget>`    = 0x02000000,
+	    :target:`BigEndian<doxid-enum_memberjnc_ptrtypeflags_bigendian>`  = 0x04000000,
+	    :target:`BitField<doxid-enum_memberjnc_ptrtypeflags_bitfield>`   = 0x08000000,
+	    :target:`ThinThis<doxid-enum_memberjnc_ptrtypeflags_thinthis>`   = 0x10000000,
+	};
+

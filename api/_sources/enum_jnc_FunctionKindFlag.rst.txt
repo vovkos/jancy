@@ -1,0 +1,19 @@
+.. index:: pair: enum; jnc_FunctionKindFlag
+.. _doxid-group__function_1ga5eda7904134fe6916fe7a43ee1c4798c:
+
+enum jnc_FunctionKindFlag
+=========================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Function.h>
+
+	enum jnc_FunctionKindFlag {
+	    :target:`jnc_FunctionKindFlag_NoStorage<doxid-group__function_1gga5eda7904134fe6916fe7a43ee1c4798ca1bf651896ac71c0fac17efd09944d140>`   = 0x01,
+	    :target:`jnc_FunctionKindFlag_NoOverloads<doxid-group__function_1gga5eda7904134fe6916fe7a43ee1c4798ca92c87e5fd86ad168065a7d5da19991aa>` = 0x02,
+	    :target:`jnc_FunctionKindFlag_NoArgs<doxid-group__function_1gga5eda7904134fe6916fe7a43ee1c4798cacad327adf31337f12094660cbdbe2a44>`      = 0x04,
+	};
+

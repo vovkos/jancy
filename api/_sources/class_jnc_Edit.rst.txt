@@ -1,0 +1,157 @@
+.. index:: pair: class; jnc::Edit
+.. _doxid-classjnc_1_1_edit:
+
+class jnc::Edit
+===============
+
+.. toctree::
+	:hidden:
+
+	enum_jnc_Edit_CodeAssistTrigger.rst
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	class Edit: public :ref:`jnc::EditBase<doxid-classjnc_1_1_edit_base>` {
+	public:
+		// enums
+	
+		enum :ref:`CodeAssistTrigger<doxid-classjnc_1_1_edit_1a1439593b69df07148aec3e2ff8f78c25>`;
+
+		// properties
+	
+		CodeAssistTriggers
+		:target:`codeAssistTriggers<doxid-classjnc_1_1_edit_1aa493d72005102cb9a9afc2eaecf6cca8>`;
+	
+		QStringList
+		:target:`importDirList<doxid-classjnc_1_1_edit_1a892a6662e405df04dea2b684653293b5>`;
+	
+		QStringList
+		:target:`importList<doxid-classjnc_1_1_edit_1a30dc657a2f96b95ae021378f8a30f304>`;
+	
+		QString
+		:target:`extraSource<doxid-classjnc_1_1_edit_1a793cfcdc741a4cc46687418f56cdc2e6>`;
+
+		// construction
+	
+		:target:`Edit<doxid-classjnc_1_1_edit_1afc193e11415971e7690e9a395cf24caf>`(QWidget* parent = NULL);
+		:target:`~Edit<doxid-classjnc_1_1_edit_1a8eef7504958d7914f32df6c34e7540ef>`();
+
+		// methods
+	
+		CodeAssistTriggers
+		:target:`codeAssistTriggers<doxid-classjnc_1_1_edit_1a5fd2c2399b811e89bbda0ea0c89e64a5>`();
+	
+		void
+		:target:`setCodeAssistTriggers<doxid-classjnc_1_1_edit_1a20ea61cefa5fa5a67a714f252b8c5b26>`(CodeAssistTriggers triggers);
+	
+		QStringList
+		:target:`importDirList<doxid-classjnc_1_1_edit_1a41ff8af1136881423b5169e469f619bf>`();
+	
+		void
+		:target:`setImportDirList<doxid-classjnc_1_1_edit_1a9cce2b019c1c9e154ae5c8d75bc71f50>`(const QStringList& dirList);
+	
+		QStringList
+		:target:`importList<doxid-classjnc_1_1_edit_1aaa6ad9433bb4783d33e735b8ff1753f0>`();
+	
+		void
+		:target:`setImportList<doxid-classjnc_1_1_edit_1a2d4638d73a3b8dde9580eaa73a63b62f>`(const QStringList& importList);
+	
+		QString
+		:target:`extraSource<doxid-classjnc_1_1_edit_1afe776ad72b873425c0b266365ed4c485>`();
+	
+		void
+		:target:`setExtraSource<doxid-classjnc_1_1_edit_1a94b1758e539a51373ba1400c874c7dba>`(const QString& source);
+	};
+
+Inherited Members
+-----------------
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-inherited-code-block
+
+	public:
+		// properties
+	
+		QString
+		:ref:`fileName<doxid-classjnc_1_1_edit_base_1a33dbba410887876cf05ffa9ee6ec568d>`;
+	
+		bool
+		:ref:`isReadOnly<doxid-classjnc_1_1_edit_base_1a0563818e6c291caa0e834300ca60497c>`;
+	
+		bool
+		:ref:`isLineNumberMarginEnabled<doxid-classjnc_1_1_edit_base_1a6e0cff0e0e2d87ca54743c7ec45ca139>`;
+	
+		int
+		:ref:`lineNumberMarginWidth<doxid-classjnc_1_1_edit_base_1a07afad5293d429818d2cb2a4ba2aa784>`;
+	
+		bool
+		:ref:`isCurrentLineHighlightingEnabled<doxid-classjnc_1_1_edit_base_1affb22c3147915f181e70a2bf44bbcfd7>`;
+	
+		bool
+		:ref:`isSyntaxHighlightingEnabled<doxid-classjnc_1_1_edit_base_1ae2b0856aaf663ed8e94634422739a109>`;
+	
+		int
+		:ref:`tabWidth<doxid-classjnc_1_1_edit_base_1a3e0266d1b60482620f07f3107181300d>`;
+
+		// methods
+	
+		QString
+		:ref:`fileName<doxid-classjnc_1_1_edit_base_1a0426077e722b2ae8cee19c4adceacc5f>`();
+	
+		void
+		:ref:`setFileName<doxid-classjnc_1_1_edit_base_1a54f9e669dbbc8e7a414aa898451dcc1c>`(const QString& fileName);
+	
+		void
+		:ref:`setReadOnly<doxid-classjnc_1_1_edit_base_1af653bec7dbdb7af82c4685143f4947c7>`(bool isReadOnly);
+	
+		bool
+		:ref:`isLineNumberMarginEnabled<doxid-classjnc_1_1_edit_base_1a0106eb210cfa641766eec1f2a069abd4>`();
+	
+		void
+		:ref:`enableLineNumberMargin<doxid-classjnc_1_1_edit_base_1ac10be2dbd2bed4ea8ee5272fbdf1fe31>`(bool isEnabled);
+	
+		int
+		:ref:`lineNumberMarginWidth<doxid-classjnc_1_1_edit_base_1a3cf207bd295b9d936e3845d4999edbbc>`();
+	
+		bool
+		:ref:`isCurrentLineHighlightingEnabled<doxid-classjnc_1_1_edit_base_1a224d4d1df595da685de2181d1f19cd35>`();
+	
+		void
+		:ref:`enableCurrentLineHighlighting<doxid-classjnc_1_1_edit_base_1a4017c613662577ae0ee7e4f52feb4f3b>`(bool isEnabled);
+	
+		bool
+		:ref:`isSyntaxHighlightingEnabled<doxid-classjnc_1_1_edit_base_1aef0cf582a84ab68a88163db424f7d654>`();
+	
+		void
+		:ref:`enableSyntaxHighlighting<doxid-classjnc_1_1_edit_base_1ae087c825b495bb5bb0620ed49afff174>`(bool isEnabled);
+	
+		int
+		:ref:`tabWidth<doxid-classjnc_1_1_edit_base_1a3e1aeb745ef3c5fb63aa14c593a547e4>`();
+	
+		void
+		:ref:`setTabWidth<doxid-classjnc_1_1_edit_base_1a2c9bfd39db683f5f2c5e4084506b79db>`(int width);
+	
+		const :ref:`EditTheme<doxid-classjnc_1_1_edit_theme>`*
+		:ref:`theme<doxid-classjnc_1_1_edit_base_1a70be417f3b4a5a2d409f2a19fa2663cc>`();
+	
+		void
+		:ref:`setTheme<doxid-classjnc_1_1_edit_base_1a213ebf8e370ee423f883d0ebfa365658>`(const :ref:`EditTheme<doxid-classjnc_1_1_edit_theme>`* theme);
+	
+		void
+		:ref:`setTextCursorLineCol<doxid-classjnc_1_1_edit_base_1a4f3acbe6736b9ff557be21afc67b737d>`(
+			int line,
+			int col
+		);
+	
+		void
+		:ref:`highlightLineTemp<doxid-classjnc_1_1_edit_base_1a5497850ff33ac57b9ffd0b5c37dc3006>`(
+			int line,
+			const QColor& backColor,
+			const QColor& textColor = QColor::Invalid
+		);
+

@@ -1,0 +1,17 @@
+.. include:: def.rst
+.. index:: pair: enum; UsbMonOptions
+.. _doxid-typeio_usbmonoptions:
+
+bitflag enum io.UsbMonOptions
+=============================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum UsbMonOptions {
+	    :target:`CompletedTransfersOnly<doxid-enum_memberio_usbmonoptions_completedtransfersonly>`,
+	};
+

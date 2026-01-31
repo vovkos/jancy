@@ -1,0 +1,114 @@
+.. include:: def.rst
+.. index:: pair: class; sys.Event
+.. _doxid-typesys_event:
+
+class sys.Event
+===============
+
+.. toctree::
+	:hidden:
+
+Overview
+~~~~~~~~
+
+This class provides standard means of synchronization between
+threads. :ref:`More...<details-typesys_event>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "sys_Event.jnc"
+	
+	class Event {
+		// construction
+	
+		:target:`construct<doxid-functionsys_event_construct>`();
+		:target:`destruct<doxid-functionsys_event_destruct>`();
+
+		// methods
+	
+		void :ref:`signal<doxid-functionsys_event_signal>`();
+		void :ref:`reset<doxid-functionsys_event_reset>`();
+		bool :ref:`wait<doxid-functionsys_event_wait>`(:ref:`uint_t<doxid-typedefuint_t>` timeout = -1);
+	};
+.. _details-typesys_event:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This class provides standard means of synchronization between
+threads.
+
+``sys.Event`` can be in one of the following two states: *idle* or
+*signalled*. One or more threads can wait until the event becomes signalled
+by invoking ``wait`` method. When some other thread signals the event by
+invoking ``signal`` method, the first thread in the queue of waiting threads
+wakes up, ``wait`` call finishes, and the event goes back to *idle* state.
+
+Code sample::
+
+	import "sys_Event.jnc"
+
+	sys.Event g_event;
+
+	thread1() {
+		// ...
+
+		g_event.wait(); // thread sleeps here until event is signalled
+
+		// continue...
+	}
+
+	thread2() {
+		// ...
+
+		g_event.signal(); // thread1 wakes up and continues;
+		                   // g_event goes back to non-signalled state
+	}
+
+
+
+.. rubric:: See also:
+
+`sys.NotificationEvent`, `sys.Lock`, `sys.Thread`
+
+Methods
+-------
+
+.. index:: pair: function; signal
+.. _doxid-functionsys_event_signal:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	void signal()
+
+Sets event to *signalled* state. When the first waiting thread in the
+queue wakes up, the event goes back to *idle* state.
+
+.. index:: pair: function; reset
+.. _doxid-functionsys_event_reset:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	void reset()
+
+Forcefully returns event to *idle* state.
+
+.. index:: pair: function; wait
+.. _doxid-functionsys_event_wait:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool wait(:ref:`uint_t<doxid-typedefuint_t>` timeout = -1)
+
+Waits until event goes to *signalled* state. When it happens, ``wait``
+returns ``true`` and the event goes back to *idle* state.
+
+If ``timeout`` parameter is not ``-1`` then it's a wait with a
+*time limit*. If the event does not get signalled until timeout expires,
+``wait`` return ``false``. Timeout is expressed in *milliseconds*.
+

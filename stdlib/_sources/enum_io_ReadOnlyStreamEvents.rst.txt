@@ -1,0 +1,69 @@
+.. include:: def.rst
+.. index:: pair: enum; ReadOnlyStreamEvents
+.. _doxid-typeio_readonlystreamevents:
+
+bitflag enum io.ReadOnlyStreamEvents
+====================================
+
+Overview
+~~~~~~~~
+
+This enumeration contains codes of standard events that might
+happen on a buffered stream object. The set of *active* events is accessible
+via the ``m_activeEvents`` field. :ref:`More...<details-typeio_readonlystreamevents>`
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum ReadOnlyStreamEvents {
+	    :ref:`IoError<doxid-enum_memberio_readonlystreamevents_ioerror>`,
+	    :ref:`IncomingData<doxid-enum_memberio_readonlystreamevents_incomingdata>`,
+	    :ref:`ReadBufferFull<doxid-enum_memberio_readonlystreamevents_readbufferfull>`,
+	};
+
+.. _details-typeio_readonlystreamevents:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This enumeration contains codes of standard events that might
+happen on a buffered stream object. The set of *active* events is accessible
+via the ``m_activeEvents`` field.
+
+Enum Values
+-----------
+
+.. index:: pair: enumvalue; IoError
+.. _doxid-enum_memberio_readonlystreamevents_ioerror:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	IoError
+
+An IO error occured on the tream; detailed information about the
+error is available at ``m_ioError`` property.
+
+.. index:: pair: enumvalue; IncomingData
+.. _doxid-enum_memberio_readonlystreamevents_incomingdata:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	IncomingData
+
+More data is available on the tream; this data could be fetched
+with ``read`` method.
+
+.. index:: pair: enumvalue; ReadBufferFull
+.. _doxid-enum_memberio_readonlystreamevents_readbufferfull:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	ReadBufferFull
+
+The stream receive buffer is full; upcoming data may be dropped
+(depending on the underlying device represented by the file).
+

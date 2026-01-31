@@ -1,0 +1,18 @@
+.. index:: pair: enum; jnc_ModuleRequireFlag
+.. _doxid-group__module_1gaaca813bf86f068af3b558649b318ad29:
+
+enum jnc_ModuleRequireFlag
+==========================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Module.h>
+
+	enum jnc_ModuleRequireFlag {
+	    :target:`jnc_ModuleRequireFlag_Essential<doxid-group__module_1ggaaca813bf86f068af3b558649b318ad29a7ef83ab2e917960b3473c2efdc6e8c99>` = 0x01,
+	    :target:`jnc_ModuleRequireFlag_Traverse<doxid-group__module_1ggaaca813bf86f068af3b558649b318ad29a18c3b83f7038e879ef600dbca5fe96b8>`  = 0x02,
+	};
+

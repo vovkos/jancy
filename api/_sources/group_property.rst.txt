@@ -1,0 +1,42 @@
+.. index:: pair: group; Property
+.. _doxid-group__property:
+
+Property
+========
+
+.. toctree::
+	:hidden:
+
+	enum_jnc_PropertyFlag.rst
+	enum_jnc_PropertyKind.rst
+	struct_jnc_Property.rst
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Property.h>
+	
+	// enums
+
+	enum :ref:`jnc_PropertyFlag<doxid-group__property_1gad1c70cf3d3d86c79bf60c84d6d77f1be>`;
+	enum :ref:`jnc_PropertyKind<doxid-group__property_1ga9e48e6800590d366750ecd02814626fb>`;
+
+	// structs
+
+	struct :ref:`jnc_Property<doxid-structjnc___property>`;
+
+	// global functions
+
+	static
+	:ref:`jnc_PropertyType<doxid-structjnc___property_type>`*
+	:target:`jnc_Property_getType<doxid-group__property_1ga94fdc5dd0349a77bbb7c83944b73a3f9>`(:ref:`jnc_Property<doxid-structjnc___property>`* prop);
+
+	:ref:`jnc_Function<doxid-structjnc___function>`*
+	:target:`jnc_Property_getGetter<doxid-group__property_1ga28f1f109b9381bcd7b7760ad0699e419>`(:ref:`jnc_Property<doxid-structjnc___property>`* prop);
+
+	:ref:`jnc_OverloadableFunction<doxid-unionjnc___overloadable_function>`
+	:target:`jnc_Property_getSetter<doxid-group__property_1ga365588a38f4efd8aae620b64efd83f92>`(:ref:`jnc_Property<doxid-structjnc___property>`* prop);
+

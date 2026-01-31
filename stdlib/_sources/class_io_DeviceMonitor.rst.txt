@@ -1,0 +1,70 @@
+.. include:: def.rst
+.. index:: pair: class; io.DeviceMonitor
+.. _doxid-typeio_devicemonitor:
+
+class io.DeviceMonitor
+======================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class DeviceMonitor {
+		// fields
+	
+		bool readonly :target:`m_isConnected<doxid-fieldio_devicemonitor_m_isconnected>`;
+		typedef String string_t readonly :target:`m_deviceName<doxid-fieldio_devicemonitor_m_devicename>`;
+		typedef io.ReadOnlyStreamEvents io.DeviceMonitorEvents readonly volatile :target:`m_activeEvents<doxid-fieldio_devicemonitor_m_activeevents>`;
+		:ref:`std.Error<doxid-typestd_error>` const* readonly volatile :target:`m_ioError<doxid-fieldio_devicemonitor_m_ioerror>`;
+		bool readonly :target:`m_isOpen<doxid-fieldio_devicemonitor_m_isopen>`;
+
+		// properties
+	
+		:ref:`uint_t<doxid-typedefuint_t>` autoget property :target:`m_readParallelism<doxid-propertyio_devicemonitor_m_readparallelism>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_readBlockSize<doxid-propertyio_devicemonitor_m_readblocksize>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_readBufferSize<doxid-propertyio_devicemonitor_m_readbuffersize>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_pendingNotifySizeLimit<doxid-propertyio_devicemonitor_m_pendingnotifysizelimit>`;
+		bool autoget property :target:`m_isEnabled<doxid-propertyio_devicemonitor_m_isenabled>`;
+		:ref:`string_t<doxid-typedefstring_t>` autoget property :target:`m_fileNameFilter<doxid-propertyio_devicemonitor_m_filenamefilter>`;
+
+		// construction
+	
+		:target:`construct<doxid-functionio_devicemonitor_construct>`();
+		:target:`destruct<doxid-functionio_devicemonitor_destruct>`();
+
+		// methods
+	
+		bool errorcode :target:`open<doxid-functionio_devicemonitor_open>`();
+		bool errorcode :target:`connect<doxid-functionio_devicemonitor_connect>`(:ref:`string_t<doxid-typedefstring_t>` deviceName);
+		void :target:`close<doxid-functionio_devicemonitor_close>`();
+	
+		void :target:`setIoctlDescTable<doxid-functionio_devicemonitor_setioctldesctable>`(
+			:ref:`io.psx.DeviceMonitorIoctlDesc<doxid-typeio_psx_devicemonitorioctldesc>` const* ioctlDesc,
+			:ref:`size_t<doxid-typedefsize_t>` count
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`read<doxid-functionio_devicemonitor_read>`(
+			void* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		long errorcode :target:`wait<doxid-functionio_devicemonitor_wait>`(
+			:ref:`io.DeviceMonitorEvents<doxid-typedefio_devicemonitorevents>` eventMask,
+			void function* handler(io.DeviceMonitorEvents triggeredEvents)
+		);
+	
+		bool errorcode :target:`cancelWait<doxid-functionio_devicemonitor_cancelwait>`(long handle);
+	
+		:ref:`io.DeviceMonitorEvents<doxid-typedefio_devicemonitorevents>` :target:`blockingWait<doxid-functionio_devicemonitor_blockingwait>`(
+			:ref:`io.DeviceMonitorEvents<doxid-typedefio_devicemonitorevents>` eventMask,
+			:ref:`uint_t<doxid-typedefuint_t>` timeout = -1
+		);
+	
+		:ref:`io.DeviceMonitorEvents<doxid-typedefio_devicemonitorevents>` async :target:`asyncWait<doxid-functionio_devicemonitor_asyncwait>`(:ref:`io.DeviceMonitorEvents<doxid-typedefio_devicemonitorevents>` eventMask);
+	};

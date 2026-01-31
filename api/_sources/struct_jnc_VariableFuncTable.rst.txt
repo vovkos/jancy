@@ -1,0 +1,24 @@
+.. index:: pair: struct; jnc_VariableFuncTable
+.. _doxid-structjnc___variable_func_table:
+
+struct jnc_VariableFuncTable
+============================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_VariableFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___variable_func_table_1a36387b7d8264880e9a574ee9aa74b301>`;
+		jnc_Variable_GetPtrTypeFlagsFunc* :target:`m_getPtrTypeFlagsFunc<doxid-structjnc___variable_func_table_1a5fba0088df0995fa8a58c47ed95ba495>`;
+		jnc_Variable_HasInitializerFunc* :target:`m_hasInitializerFunc<doxid-structjnc___variable_func_table_1a5267c7c59657b8c690f8c7893b2d3583>`;
+		jnc_Variable_GetInitializerStringFunc* :target:`m_getInitializerStringFunc<doxid-structjnc___variable_func_table_1a1fe3e1065a16d4798676b88dcd7f98dd>`;
+	};

@@ -1,0 +1,191 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>paths.cmake &mdash; Jancy Build Guide</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/axl-pygments.css?v=e88e5af2" />
+      <link rel="stylesheet" type="text/css" href="_static/axl-sphinx_rtd_theme.css?v=2cffecd5" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="CMake Configuration Step" href="configure-cmake.html" />
+    <link rel="prev" title="Configuring" href="configure.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy Build Guide
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="prerequisites.html">Prerequisites</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="configure.html">Configuring</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">paths.cmake</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configure-cmake.html">CMake Configuration Step</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="build.html">Building</a></li>
+<li class="toctree-l1"><a class="reference internal" href="samples.html">Samples</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy Build Guide</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="configure.html">Configuring</a></li>
+      <li class="breadcrumb-item active">paths.cmake</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="paths-cmake">
+<h1>paths.cmake</h1>
+<p><p>Jancy build system uses <code class="docutils literal notranslate"><span class="pre">paths.cmake</span></code> file as the main reference when it needs to find a certain tool or library. When a path is not specified, a fallback attempt to find it using <code class="docutils literal notranslate"><span class="pre">find_package</span></code> will be made.</p>
+<p>This allows for out-of-the-box <em>default</em> build and at the same time provides a <em>fine-grained</em> control over locations of dependencies. Here in Tibbo, we have multiple versions of tools and libraries installed on the single build machine and at the same time, we are always in full control over which tool or library is going to be used when building a particular project.</p>
+<p><code class="docutils literal notranslate"><span class="pre">paths.cmake</span></code> files are <strong>cascading</strong>. It means, you can place one <em>anywhere</em> above the current directory and it will be found and used. From there you can chain-include the next <code class="docutils literal notranslate"><span class="pre">paths.cmake</span></code> and so on. This way you can specify some default locations for <em>all</em> your projects but still be able to override the paths for sub-projects.</p>
+<p>Being machine-specific <code class="docutils literal notranslate"><span class="pre">paths.cmake</span></code> files are added to <code class="docutils literal notranslate"><span class="pre">.gitignore</span></code> and are never tracked in Git. Therefore, you need to write <code class="docutils literal notranslate"><span class="pre">paths.cmake</span></code> file as the very first step of the configuration process. So, what should be inside?</p>
+<p>To answer this question, you need to check <code class="docutils literal notranslate"><span class="pre">dependencies.cmake</span></code> file. Inside this file, a variable called <code class="docutils literal notranslate"><span class="pre">AXL_PATH_LIST</span></code> contains all the paths that will be used during the build:</p>
+</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>LUA_INC_DIR<span class="w">         </span><span class="c1"># path to Lua C include directory</span>
+LUA_LIB_DIR<span class="w">         </span><span class="c1"># path to Lua library directory</span>
+LUA_LIB_NAME<span class="w">        </span><span class="c1"># name of Lua library (lua/lua51/lua52/lua53)</span>
+LLVM_INC_DIR<span class="w">        </span><span class="c1"># path to LLVM include directory (list is OK)</span>
+LLVM_LIB_DIR<span class="w">        </span><span class="c1"># path to LLVM library directory</span>
+LLVM_CMAKE_DIR<span class="w">      </span><span class="c1"># path to LLVM CMake module directory</span>
+PCAP_INC_DIR<span class="w">        </span><span class="c1"># (optional) path to Pcap include directory</span>
+PCAP_LIB_DIR<span class="w">        </span><span class="c1"># (optional) path to Pcap library directory</span>
+LIBSSH2_INC_DIR<span class="w">     </span><span class="c1"># (optional) path to LibSSH2 include directory</span>
+LIBSSH2_LIB_DIR<span class="w">     </span><span class="c1"># (optional) path to LibSSH2 library directory</span>
+OPENSSL_INC_DIR<span class="w">     </span><span class="c1"># (optional) path to OpenSSL include directory</span>
+OPENSSL_LIB_DIR<span class="w">     </span><span class="c1"># (optional) path to OpenSSL library directory</span>
+QT_CMAKE_DIR<span class="w">        </span><span class="c1"># (optional) path to QT CMake module directory</span>
+QT_DLL_DIR<span class="w">          </span><span class="c1"># (optional) path to QT dynamic library directory (Windows only)</span>
+RAGEL_EXE<span class="w">           </span><span class="c1"># path to Ragel executable</span>
+7Z_EXE<span class="w">              </span><span class="c1"># path to 7-Zip executable</span>
+DOXYGEN_EXE<span class="w">         </span><span class="c1"># (optional) path to Doxygen executable</span>
+DOXYREST_CMAKE_DIR<span class="w">  </span><span class="c1"># (optional) path to Doxyrest CMake module directory</span>
+SPHINX_BUILD_EXE<span class="w">    </span><span class="c1"># (optional) path to Sphinx compiler executable sphinx-build</span>
+PDFLATEX_EXE<span class="w">        </span><span class="c1"># (optional) path to Latex-to-PDF compiler</span>
+</pre></div>
+</div>
+<p><p>Some dependencies may be auto-detected – on Unix systems installed libraries and tools will likely be found automatically. On Windows Jancy build system will automatically find <em>tool executables</em> if they are added to <code class="docutils literal notranslate"><span class="pre">PATH</span></code> (via <code class="docutils literal notranslate"><span class="pre">where</span></code> command).</p>
+<p>But even when auto-detection works out-of-the-box, you can always use <code class="docutils literal notranslate"><span class="pre">paths.cmake</span></code> to <em>fine-tune</em> the location of a specific tool/library. I personally prefer to always specify all the paths explicitly.</p>
+</p>
+<p>You <em>do</em> need to specify LLVM paths (unless you build and install LLVM 3.4.2 and not the newer versions available in repositories).</p>
+<p>On Windows, you will also need to specify paths to the required libraries – they are unlikely to be found automatically.</p>
+<p class="rubric">Sample paths.cmake on Linux:</p>
+<div class="highlight-cmake notranslate"><div class="highlight"><pre><span></span><span class="nb">set</span><span class="p">(</span><span class="s">LLVM_VERSION</span><span class="w"> </span><span class="s">3.4.2</span><span class="p">)</span>
+
+<span class="nb">set</span><span class="p">(</span><span class="s">LLVM_INC_DIR</span><span class="w">  </span><span class="s">/home/vladimir/Develop/llvm/llvm-</span><span class="o">${</span><span class="nv">LLVM_VERSION</span><span class="o">}</span><span class="s">/include</span><span class="p">)</span>
+
+<span class="nb">if</span><span class="p">(</span><span class="s2">&quot;${TARGET_CPU}&quot;</span><span class="w"> </span><span class="s">STREQUAL</span><span class="w"> </span><span class="s2">&quot;amd64&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="nb">set</span><span class="p">(</span><span class="s">LLVM_CMAKE_DIR</span><span class="w">  </span><span class="s">/home/vladimir/Develop/llvm/llvm-</span><span class="o">${</span><span class="nv">LLVM_VERSION</span><span class="o">}</span><span class="s">/build/make-amd64/</span><span class="o">${</span><span class="nv">CONFIGURATION</span><span class="o">}</span><span class="s">/share/llvm/cmake</span><span class="p">)</span>
+<span class="w">        </span><span class="nb">set</span><span class="p">(</span><span class="s">LLVM_INC_DIR</span><span class="w">    </span><span class="o">${</span><span class="nv">LLVM_INC_DIR</span><span class="o">}</span><span class="w"> </span><span class="s">/home/vladimir/Develop/llvm/llvm-</span><span class="o">${</span><span class="nv">LLVM_VERSION</span><span class="o">}</span><span class="s">/build/make-amd64/</span><span class="o">${</span><span class="nv">CONFIGURATION</span><span class="o">}</span><span class="s">/include</span><span class="p">)</span>
+<span class="w">        </span><span class="nb">set</span><span class="p">(</span><span class="s">LLVM_LIB_DIR</span><span class="w">    </span><span class="s">/home/vladimir/Develop/llvm/llvm-</span><span class="o">${</span><span class="nv">LLVM_VERSION</span><span class="o">}</span><span class="s">/build/make-amd64/</span><span class="o">${</span><span class="nv">CONFIGURATION</span><span class="o">}</span><span class="s">/lib</span><span class="p">)</span>
+<span class="nb">else</span><span class="p">()</span>
+<span class="w">        </span><span class="nb">set</span><span class="p">(</span><span class="s">LLVM_CMAKE_DIR</span><span class="w">  </span><span class="s">/home/vladimir/Develop/llvm/llvm-</span><span class="o">${</span><span class="nv">LLVM_VERSION</span><span class="o">}</span><span class="s">/build/make-x86/</span><span class="o">${</span><span class="nv">CONFIGURATION</span><span class="o">}</span><span class="s">/share/llvm/cmake</span><span class="p">)</span>
+<span class="w">        </span><span class="nb">set</span><span class="p">(</span><span class="s">LLVM_INC_DIR</span><span class="w">    </span><span class="o">${</span><span class="nv">LLVM_INC_DIR</span><span class="o">}</span><span class="w"> </span><span class="s">/home/vladimir/Develop/llvm/llvm-</span><span class="o">${</span><span class="nv">LLVM_VERSION</span><span class="o">}</span><span class="s">/build/make-x86/</span><span class="o">${</span><span class="nv">CONFIGURATION</span><span class="o">}</span><span class="s">/include</span><span class="p">)</span>
+<span class="w">        </span><span class="nb">set</span><span class="p">(</span><span class="s">LLVM_LIB_DIR</span><span class="w">    </span><span class="s">/home/vladimir/Develop/llvm/llvm-</span><span class="o">${</span><span class="nv">LLVM_VERSION</span><span class="o">}</span><span class="s">/build/make-x86/</span><span class="o">${</span><span class="nv">CONFIGURATION</span><span class="o">}</span><span class="s">/lib</span><span class="p">)</span>
+<span class="nb">endif</span><span class="p">()</span>
+</pre></div>
+</div>
+<p class="rubric">Sample paths.cmake on Windows:</p>
+<div class="highlight-cmake notranslate"><div class="highlight"><pre><span></span><span class="nb">set</span><span class="p">(</span><span class="s">LUA_VERSION</span><span class="w">   </span><span class="s">5.2.1</span><span class="p">)</span>
+<span class="nb">set</span><span class="p">(</span><span class="s">LUA_LIB_NAME</span><span class="w">  </span><span class="s">lua52</span><span class="p">)</span>
+<span class="nb">set</span><span class="p">(</span><span class="s">LLVM_VERSION</span><span class="w">  </span><span class="s">3.4.2</span><span class="p">)</span>
+<span class="nb">set</span><span class="p">(</span><span class="s">RAGEL_VERSION</span><span class="w"> </span><span class="s">6.7</span><span class="p">)</span>
+
+<span class="nb">set</span><span class="p">(</span><span class="s">7Z_EXE</span><span class="w">       </span><span class="s2">&quot;c:/Program Files/7-Zip/7z.exe&quot;</span><span class="p">)</span>
+<span class="nb">set</span><span class="p">(</span><span class="s">PERL_EXE</span><span class="w">     </span><span class="s">c:/Develop/ActivePerl/bin/perl.exe</span><span class="p">)</span>
+<span class="nb">set</span><span class="p">(</span><span class="s">RAGEL_EXE</span><span class="w">    </span><span class="s">c:/Develop/ragel/ragel-</span><span class="o">${</span><span class="nv">RAGEL_VERSION</span><span class="o">}</span><span class="s">/ragel.exe</span><span class="p">)</span>
+<span class="nb">set</span><span class="p">(</span><span class="s">LUA_INC_DIR</span><span class="w">  </span><span class="s">c:/Develop/lua/lua-</span><span class="o">${</span><span class="nv">LUA_VERSION</span><span class="o">}</span><span class="s">/include</span><span class="p">)</span>
+<span class="nb">set</span><span class="p">(</span><span class="s">LLVM_INC_DIR</span><span class="w"> </span><span class="s">c:/Develop/llvm/llvm-</span><span class="o">${</span><span class="nv">LLVM_VERSION</span><span class="o">}</span><span class="s">/include</span><span class="p">)</span>
+
+<span class="nb">if</span><span class="p">(</span><span class="s2">&quot;${TARGET_CPU}&quot;</span><span class="w"> </span><span class="s">STREQUAL</span><span class="w"> </span><span class="s2">&quot;amd64&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="nb">set</span><span class="p">(</span><span class="s">LUA_LIB_DIR</span><span class="w">    </span><span class="s">c:/Develop/lua/lua-</span><span class="o">${</span><span class="nv">LUA_VERSION</span><span class="o">}</span><span class="s">/lib/amd64/</span><span class="o">${</span><span class="nv">CONFIGURATION</span><span class="o">}</span><span class="p">)</span>
+<span class="w">        </span><span class="nb">set</span><span class="p">(</span><span class="s">LLVM_INC_DIR</span><span class="w">   </span><span class="o">${</span><span class="nv">LLVM_INC_DIR</span><span class="o">}</span><span class="w"> </span><span class="s">c:/Develop/llvm/llvm-</span><span class="o">${</span><span class="nv">LLVM_VERSION</span><span class="o">}</span><span class="s">/build/msvc10-amd64/include</span><span class="p">)</span>
+<span class="w">        </span><span class="nb">set</span><span class="p">(</span><span class="s">LLVM_LIB_DIR</span><span class="w">   </span><span class="s">c:/Develop/llvm/llvm-</span><span class="o">${</span><span class="nv">LLVM_VERSION</span><span class="o">}</span><span class="s">/build/msvc10-amd64/lib/</span><span class="o">${</span><span class="nv">CONFIGURATION</span><span class="o">}</span><span class="p">)</span>
+<span class="w">        </span><span class="nb">set</span><span class="p">(</span><span class="s">LLVM_CMAKE_DIR</span><span class="w"> </span><span class="s">c:/Develop/llvm/llvm-</span><span class="o">${</span><span class="nv">LLVM_VERSION</span><span class="o">}</span><span class="s">/build/msvc10-amd64/share/llvm/cmake</span><span class="p">)</span>
+<span class="nb">else</span><span class="p">()</span>
+<span class="w">        </span><span class="nb">set</span><span class="p">(</span><span class="s">LUA_LIB_DIR</span><span class="w">    </span><span class="s">c:/Develop/lua/lua-</span><span class="o">${</span><span class="nv">LUA_VERSION</span><span class="o">}</span><span class="s">/lib/x86/</span><span class="o">${</span><span class="nv">CONFIGURATION</span><span class="o">}</span><span class="p">)</span>
+<span class="w">        </span><span class="nb">set</span><span class="p">(</span><span class="s">LLVM_INC_DIR</span><span class="w">   </span><span class="o">${</span><span class="nv">LLVM_INC_DIR</span><span class="o">}</span><span class="w"> </span><span class="s">c:/Develop/llvm/llvm-</span><span class="o">${</span><span class="nv">LLVM_VERSION</span><span class="o">}</span><span class="s">/build/msvc10/include</span><span class="p">)</span>
+<span class="w">        </span><span class="nb">set</span><span class="p">(</span><span class="s">LLVM_LIB_DIR</span><span class="w">   </span><span class="s">c:/Develop/llvm/llvm-</span><span class="o">${</span><span class="nv">LLVM_VERSION</span><span class="o">}</span><span class="s">/build/msvc10/lib/</span><span class="o">${</span><span class="nv">CONFIGURATION</span><span class="o">}</span><span class="p">)</span>
+<span class="w">        </span><span class="nb">set</span><span class="p">(</span><span class="s">LLVM_CMAKE_DIR</span><span class="w"> </span><span class="s">c:/Develop/llvm/llvm-</span><span class="o">${</span><span class="nv">LLVM_VERSION</span><span class="o">}</span><span class="s">/build/msvc10/share/llvm/cmake</span><span class="p">)</span>
+<span class="nb">endif</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="configure.html" class="btn btn-neutral float-left" title="Configuring" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="configure-cmake.html" class="btn btn-neutral float-right" title="CMake Configuration Step" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

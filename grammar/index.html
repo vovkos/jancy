@@ -1,0 +1,1082 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jancy Grammar Reference &mdash; Jancy Grammar Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=179ab080"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            Jancy Grammar Reference
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Jancy Grammar Reference</a><ul>
+<li><a class="reference internal" href="#grammar-listing">Grammar Listing</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">Jancy Grammar Reference</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Jancy Grammar Reference</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="jancy-grammar-reference">
+<h1>Jancy Grammar Reference</h1>
+<p>The present page provides the <strong>full Jancy grammar</strong> for reference purposes.</p>
+<p>This listing is <strong>auto-generated</strong> from <code class="docutils literal notranslate"><span class="pre">.llk</span></code> files by <a class="reference external" href="http://github.com/vovkos/graco">Graco</a> parser generator, and is basically the <strong>very same</strong> grammar being used by the Jancy compiler. All the actions, rule attributes and rule arguments removed for readability.</p>
+<p>Non-terminals are named using lower-case C-style naming convention (e.g. <code class="docutils literal notranslate"><span class="pre">global_declaration</span></code>); character terminals are denoted as C <code class="docutils literal notranslate"><span class="pre">char</span></code> literals (e.g. <code class="docutils literal notranslate"><span class="pre">';'</span></code>); non-char terminals have names starting with <code class="docutils literal notranslate"><span class="pre">TokenKind_</span></code> prefix (e.g. <code class="docutils literal notranslate"><span class="pre">TokenKind_Identifier</span></code>).</p>
+<section id="grammar-listing">
+<h2>Grammar Listing</h2>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>compilation_unit
+	::=	(import_declaration | global_declaration)*
+
+compilation_unit_sync
+	::=	TokenKind_Import
+	|	global_declaration_sync
+
+import_declaration
+	::=	TokenKind_Import TokenKind_Literal
+
+global_declaration
+	::=	common_declaration
+	|	namespace_declaration
+	|	extension_declaration
+	|	global_item_declaration
+	|	&#39;;&#39;
+
+global_declaration_sync
+	::=	common_declaration_sync
+	|	declaration_specifier_sync
+	|	special_void_method_declarator_sync
+	|	TokenKind_Namespace
+	|	TokenKind_Extension
+	|	&#39;;&#39;
+
+qualified_name
+	::=	(TokenKind_BaseType | TokenKind_Identifier) (&#39;.&#39; TokenKind_Identifier | &#39;&lt;&#39; template_inst_type_name_list &#39;&gt;&#39;)*
+
+template_inst_type_name_list
+	::=	type_name (&#39;,&#39; type_name_or_empty)*
+	|	&#39;,&#39; type_name_or_empty (&#39;,&#39; type_name_or_empty)*
+	|	epsilon
+
+qualified_name_rslv
+	::=	(TokenKind_BaseType | TokenKind_Identifier) (&#39;.&#39; TokenKind_Identifier | template_instantiate_operator_pass1_rslv)*
+
+template_instantiate_operator_pass1_rslv
+	::=	&#39;&lt;&#39; template_instantiate_operator_pass1_rslv_item* &#39;&gt;&#39;
+
+qualified_name_pass1
+	::=	qualified_name_pass1_atom (&#39;.&#39; qualified_name_pass1_atom)*
+
+qualified_name_pass1_atom
+	::=	TokenKind_BaseType
+	|	TokenKind_Identifier template_instantiate_operator_pass1?
+
+template_instantiate_operator_pass1
+	::=	&#39;&lt;&#39; template_instantiate_operator_pass1_item* &#39;&gt;&#39;
+
+qualified_name_save
+	::=	qualified_name_pass1
+
+qualified_name_list
+	::=	qualified_name_pass1 (&#39;,&#39; qualified_name_pass1)*
+
+qualified_type_name_rslv
+	::=	qualified_name_rslv (&#39;,&#39; | &#39;;&#39; | &#39;=&#39; | &#39;(&#39; | &#39;[&#39; | &#39;{&#39; | TokenKind_Body)?
+	|	qualified_name_pass1
+
+qualified_type_name
+	::=	qualified_name_pass1
+	|	qualified_name
+
+type_name_rslv
+	::=	type_specifier_sync
+	|	type_modifier_sync
+	|	qualified_type_name_rslv
+
+type_specifier_sync
+	::=	TokenKind_Void
+	|	TokenKind_Class
+	|	TokenKind_AnyData
+	|	TokenKind_Bool
+	|	TokenKind_Int
+	|	TokenKind_IntPtr
+	|	TokenKind_Char
+	|	TokenKind_Short
+	|	TokenKind_Long
+	|	TokenKind_Float
+	|	TokenKind_Double
+
+type_modifier_sync
+	::=	TokenKind_Unsigned
+	|	TokenKind_BigEndian
+	|	TokenKind_Const
+	|	TokenKind_MaybeConst
+	|	TokenKind_ConstIf
+	|	TokenKind_ReadOnly
+	|	TokenKind_Volatile
+	|	TokenKind_Weak
+	|	TokenKind_Thin
+	|	TokenKind_Safe
+	|	TokenKind_Unsafe
+	|	TokenKind_Cdecl
+	|	TokenKind_Stdcall
+	|	TokenKind_Thiscall
+	|	TokenKind_Jnccall
+	|	TokenKind_Array
+	|	TokenKind_Function
+	|	TokenKind_Property
+	|	TokenKind_Bindable
+	|	TokenKind_AutoGet
+	|	TokenKind_Indexed
+	|	TokenKind_Multicast
+	|	TokenKind_Event
+	|	TokenKind_Reactor
+	|	TokenKind_ErrorCode
+	|	TokenKind_Async
+
+type_name
+	::=	type_name_impl
+
+type_name_impl
+	::=	type_name_declarator
+
+type_name_or_empty
+	::=	type_name_impl
+	|	epsilon
+
+type_name_no_suffix
+	::=	declaration_specifier_list declarator_prefix*
+
+declaration_specifier_list
+	::=	declaration_specifier+
+
+declarator_prefix
+	::=	&#39;*&#39; type_modifier*
+
+type_name_declarator
+	::=	declaration_specifier_list declarator_prefix* declarator_suffix*
+
+declarator_suffix
+	::=	array_suffix
+	|	function_suffix
+	|	this_modifier_suffix
+	|	bitfield_suffix
+
+type_name_list
+	::=	type_name (&#39;,&#39; type_name)*
+
+template_type_name_list
+	::=	type_name_declarator (&#39;,&#39; type_name_declarator)*
+
+template_inst_type_name_list_save
+	::=	template_inst_type_name_list
+
+doxy_comment
+	::=	TokenKind_DoxyComment1
+	|	TokenKind_DoxyComment2
+	|	TokenKind_DoxyComment3
+	|	TokenKind_DoxyComment4
+
+common_declaration
+	::=	using_declaration
+	|	pragma_declaration
+	|	named_type_specifier
+	|	attribute_block
+
+using_declaration
+	::=	TokenKind_Using using_namespace_kind? qualified_name_list &#39;;&#39;
+
+pragma_declaration
+	::=	TokenKind_Pragma &#39;(&#39; TokenKind_Identifier (&#39;,&#39; (constant_integer_expr | TokenKind_Default) | ) &#39;)&#39;
+
+named_type_specifier
+	::=	enum_specifier
+	|	struct_specifier
+	|	union_specifier
+	|	class_specifier
+	|	opaque_class_specifier
+	|	library_specifier
+
+attribute_block
+	::=	&#39;[&#39; attribute_declarator (&#39;,&#39; attribute_declarator)* &#39;]&#39;
+
+common_declaration_sync
+	::=	TokenKind_Using
+	|	TokenKind_Pragma
+	|	named_type_specifier_sync
+	|	&#39;[&#39;
+
+named_type_specifier_sync
+	::=	TokenKind_Enum
+	|	TokenKind_BitFlagEnum
+	|	TokenKind_Struct
+	|	TokenKind_Union
+	|	TokenKind_Class
+	|	TokenKind_OpaqueClass
+	|	TokenKind_DynamicLib
+
+namespace_declaration
+	::=	TokenKind_Namespace qualified_name_pass1 TokenKind_Body
+
+extension_declaration
+	::=	TokenKind_Extension TokenKind_Identifier &#39;:&#39; type_name TokenKind_Body
+
+global_item_declaration
+	::=	normal_item_declaration
+	|	special_void_method_declarator
+	|	declarator_list
+
+declaration_specifier_sync
+	::=	storage_specifier_sync
+	|	access_specifier_sync
+	|	type_specifier_sync
+	|	type_modifier_sync
+
+special_void_method_declarator_sync
+	::=	TokenKind_Construct
+	|	TokenKind_StaticConstruct
+	|	TokenKind_Destruct
+	|	TokenKind_Set
+	|	TokenKind_Operator
+
+member_block_declaration
+	::=	common_declaration
+	|	friend_declaration
+	|	access_declaration
+	|	member_item_declaration
+	|	&#39;;&#39;
+
+friend_declaration
+	::=	TokenKind_Friend qualified_name_list &#39;;&#39;
+
+access_declaration
+	::=	access_specifier &#39;:&#39;
+
+member_item_declaration
+	::=	normal_item_declaration
+	|	special_void_method_declarator
+
+member_block_declaration_sync
+	::=	common_declaration_sync
+	|	declaration_specifier_sync
+	|	special_void_method_declarator_sync
+	|	TokenKind_Friend
+	|	TokenKind_Public
+	|	TokenKind_Protected
+	|	&#39;;&#39;
+
+local_declaration
+	::=	common_declaration
+	|	local_item_declaration
+	|	statement
+	|	catch_label
+	|	finally_label
+	|	nested_scope_label
+
+local_item_declaration
+	::=	normal_item_declaration
+
+statement
+	::=	compound_stmt
+	|	if_stmt
+	|	switch_stmt
+	|	regex_switch_stmt
+	|	while_stmt
+	|	do_stmt
+	|	for_stmt
+	|	break_stmt
+	|	continue_stmt
+	|	return_stmt
+	|	once_stmt
+	|	try_stmt
+	|	throw_stmt
+	|	unsafe_stmt
+	|	assert_stmt
+	|	dynamic_layout_stmt
+	|	dynamic_group_stmt
+	|	onevent_stmt
+	|	reactive_expression &#39;;&#39;
+	|	&#39;;&#39;
+
+catch_label
+	::=	TokenKind_Catch &#39;:&#39;
+
+finally_label
+	::=	TokenKind_Finally &#39;:&#39;
+
+nested_scope_label
+	::=	TokenKind_NestedScope &#39;:&#39;
+
+local_branch_declaration
+	::=	attribute_block? (statement | local_item_declaration)
+
+local_declaration_sync
+	::=	common_declaration_sync
+	|	declaration_specifier_sync
+	|	statement_sync
+	|	TokenKind_Catch
+	|	TokenKind_Finally
+	|	TokenKind_NestedScope
+
+statement_sync
+	::=	TokenKind_If
+	|	TokenKind_Switch
+	|	TokenKind_While
+	|	TokenKind_Do
+	|	TokenKind_For
+	|	TokenKind_Break
+	|	TokenKind_Continue
+	|	TokenKind_Return
+	|	TokenKind_Once
+	|	TokenKind_Try
+	|	TokenKind_Throw
+	|	TokenKind_Unsafe
+	|	TokenKind_Assert
+	|	TokenKind_DynamicLayout
+	|	TokenKind_OnEvent
+	|	&#39;;&#39;
+	|	&#39;{&#39;
+
+global_declaration_list
+	::=	global_declaration*
+
+member_block_declaration_list
+	::=	member_block_declaration*
+
+local_declaration_list
+	::=	local_declaration*
+
+using_namespace_kind
+	::=	TokenKind_Namespace
+	|	TokenKind_Extension
+
+access_specifier
+	::=	TokenKind_Public
+	|	TokenKind_Protected
+
+constant_integer_expr
+	::=	expression
+
+normal_item_declaration
+	::=	declaration_specifier_list declarator_list
+
+special_void_method_declarator
+	::=	special_void_method_declarator_qualifier function_suffix this_modifier_suffix* special_void_method_declarator_terminator
+
+qualified_special_void_method_declaration_rslv
+	::=	(TokenKind_Identifier &#39;.&#39;)* special_void_method_declarator_sync
+
+declarator_list
+	::=	declarator declarator_list_terminator
+
+attribute_declarator
+	::=	TokenKind_Identifier (&#39;=&#39; expression_pass1)?
+	|	&#39;@&#39; qualified_name_pass1
+	|	epsilon
+
+expression_pass1
+	::=	expression_pass1_item+
+
+declaration_specifier
+	::=	storage_specifier
+	|	access_specifier
+	|	type_specifier
+	|	type_modifier
+
+storage_specifier
+	::=	TokenKind_Typedef
+	|	TokenKind_Alias
+	|	TokenKind_Static
+	|	TokenKind_ThreadLocal
+	|	TokenKind_Abstract
+	|	TokenKind_Virtual
+	|	TokenKind_Override
+	|	TokenKind_Mutable
+	|	TokenKind_Disposable
+	|	TokenKind_DynamicField
+
+type_specifier
+	::=	TokenKind_Void
+	|	TokenKind_Class
+	|	TokenKind_AnyData
+	|	TokenKind_Bool
+	|	TokenKind_Int
+	|	TokenKind_IntPtr
+	|	TokenKind_Char
+	|	TokenKind_Short
+	|	TokenKind_Long
+	|	TokenKind_Float
+	|	TokenKind_Double
+	|	property_template_specifier
+	|	qualified_type_name
+
+type_modifier
+	::=	TokenKind_Unsigned
+	|	TokenKind_BigEndian
+	|	TokenKind_Const
+	|	TokenKind_MaybeConst
+	|	TokenKind_ConstIf
+	|	TokenKind_ReadOnly
+	|	TokenKind_Volatile
+	|	TokenKind_Weak
+	|	TokenKind_Thin
+	|	TokenKind_Safe
+	|	TokenKind_Unsafe
+	|	TokenKind_Cdecl
+	|	TokenKind_Stdcall
+	|	TokenKind_Thiscall
+	|	TokenKind_Jnccall
+	|	TokenKind_Array
+	|	TokenKind_Function
+	|	TokenKind_Property
+	|	TokenKind_Bindable
+	|	TokenKind_AutoGet
+	|	TokenKind_Indexed
+	|	TokenKind_Multicast
+	|	TokenKind_Event
+	|	TokenKind_Reactor
+	|	TokenKind_ErrorCode
+	|	TokenKind_Async
+
+storage_specifier_sync
+	::=	TokenKind_Typedef
+	|	TokenKind_Alias
+	|	TokenKind_Static
+	|	TokenKind_ThreadLocal
+	|	TokenKind_Abstract
+	|	TokenKind_Virtual
+	|	TokenKind_Override
+	|	TokenKind_Mutable
+	|	TokenKind_Disposable
+	|	TokenKind_DynamicField
+
+access_specifier_sync
+	::=	TokenKind_Public
+	|	TokenKind_Protected
+
+type_specifier_modifier_list
+	::=	type_specifier_modifier+
+
+type_specifier_modifier
+	::=	type_specifier
+	|	type_modifier
+
+property_template_specifier
+	::=	TokenKind_Property &#39;{&#39; member_block_declaration_list &#39;}&#39;
+
+declarator
+	::=	declarator_prefix* declarator_name declarator_suffix* declarator_constructor?
+
+declarator_list_terminator
+	::=	declarator_w_curly_initializer
+	|	declarator_wo_curly_initializer
+	|	TokenKind_Body
+
+declarator_name
+	::=	declarator_qualifier (&#39;.&#39; declarator_qualifier)*
+
+declarator_constructor
+	::=	TokenKind_Construct? arg_list_pass1
+
+special_void_method_declarator_qualifier
+	::=	TokenKind_Construct
+	|	TokenKind_StaticConstruct
+	|	TokenKind_Destruct
+	|	TokenKind_Set
+	|	TokenKind_Operator operator_declarator_qualifier
+	|	TokenKind_PostfixOperator postfix_operator_declarator_qualifier
+
+function_suffix
+	::=	&#39;(&#39; function_formal_argument_list? &#39;)&#39;
+
+this_modifier_suffix
+	::=	TokenKind_Const
+	|	TokenKind_MaybeConst
+	|	TokenKind_Thin
+
+special_void_method_declarator_terminator
+	::=	&#39;;&#39;
+	|	TokenKind_Body
+
+declarator_w_curly_initializer
+	::=	&#39;=&#39; curly_initializer_pass1 (&#39;,&#39; declarator_list)?
+
+declarator_wo_curly_initializer
+	::=	(&#39;=&#39; expression_pass1)? (&#39;,&#39; declarator_list | &#39;;&#39;)
+
+curly_initializer_pass1
+	::=	TokenKind_Body
+	|	curly_initializer_pass1_impl
+
+declarator_qualifier
+	::=	TokenKind_Identifier template_decl_suffix?
+	|	TokenKind_Get
+	|	special_void_method_declarator_qualifier
+
+template_decl_suffix
+	::=	&#39;&lt;&#39; template_arg (&#39;,&#39; template_arg)* &#39;&gt;&#39;
+
+operator_declarator_qualifier
+	::=	operator_name
+	|	type_name_no_suffix
+	|	&#39;(&#39; &#39;)&#39;
+	|	TokenKind_Ellipsis
+	|	TokenKind_Cdecl TokenKind_Ellipsis
+	|	TokenKind_BindingOf
+
+postfix_operator_declarator_qualifier
+	::=	TokenKind_Inc
+	|	TokenKind_Dec
+
+operator_name
+	::=	&#39;~&#39;
+	|	&#39;!&#39;
+	|	TokenKind_Inc
+	|	TokenKind_Dec
+	|	TokenKind_Ptr
+	|	&#39;+&#39;
+	|	&#39;-&#39;
+	|	&#39;*&#39;
+	|	&#39;/&#39;
+	|	&#39;%&#39;
+	|	TokenKind_Shl
+	|	TokenKind_Shr
+	|	&#39;&amp;&#39;
+	|	&#39;^&#39;
+	|	&#39;|&#39;
+	|	TokenKind_Eq
+	|	TokenKind_Ne
+	|	&#39;&lt;&#39;
+	|	TokenKind_Le
+	|	&#39;&gt;&#39;
+	|	TokenKind_Ge
+	|	&#39;=&#39;
+	|	TokenKind_RefAssign
+	|	TokenKind_AddAssign
+	|	TokenKind_SubAssign
+	|	TokenKind_MulAssign
+	|	TokenKind_DivAssign
+	|	TokenKind_ModAssign
+	|	TokenKind_ShlAssign
+	|	TokenKind_ShrAssign
+	|	TokenKind_AndAssign
+	|	TokenKind_XorAssign
+	|	TokenKind_OrAssign
+	|	TokenKind_AtAssign
+	|	TokenKind_LogAnd
+	|	TokenKind_LogOr
+	|	&#39;[&#39; &#39;]&#39;
+	|	&#39;@&#39;
+
+array_suffix
+	::=	&#39;[&#39; &#39;]&#39;
+	|	&#39;[&#39; expression_pass1 &#39;]&#39;
+
+function_suffix_rslv
+	::=	&#39;(&#39; &#39;)&#39;
+	|	&#39;(&#39; TokenKind_Ellipsis
+	|	&#39;(&#39; type_name_rslv
+
+bitfield_suffix
+	::=	&#39;:&#39; TokenKind_Integer
+
+template_arg
+	::=	TokenKind_Identifier (&#39;=&#39; type_name_declarator)?
+
+function_formal_argument_list
+	::=	function_formal_argument (&#39;,&#39; function_formal_argument)*
+
+function_formal_argument
+	::=	declaration_specifier_list declarator_prefix* declarator_name? declarator_suffix* (&#39;=&#39; expression_pass1)?
+	|	TokenKind_Ellipsis
+
+arg_list_pass1
+	::=	arg_list_pass1_impl
+
+enum_specifier
+	::=	(TokenKind_Enum | TokenKind_BitFlagEnum) TokenKind_Identifier? (&#39;:&#39; type_name)? (&#39;{&#39; enum_const_list &#39;}&#39; | TokenKind_Body)
+
+struct_specifier
+	::=	TokenKind_Struct (TokenKind_Identifier? (&#39;:&#39; type_name_list)? derivable_type_member_block | TokenKind_Identifier template_decl_suffix (&#39;:&#39; template_type_name_list)? declaration_body_pass1)
+
+union_specifier
+	::=	TokenKind_Union TokenKind_Identifier? (derivable_type_member_block | TokenKind_Identifier template_decl_suffix declaration_body_pass1)
+
+class_specifier
+	::=	TokenKind_Class TokenKind_Identifier ((&#39;:&#39; type_name_list)? derivable_type_member_block | template_decl_suffix (&#39;:&#39; template_type_name_list)? declaration_body_pass1)
+
+opaque_class_specifier
+	::=	TokenKind_OpaqueClass TokenKind_Identifier (&#39;:&#39; type_name_list)? derivable_type_member_block
+
+library_specifier
+	::=	TokenKind_DynamicLib TokenKind_Identifier (&#39;{&#39; member_block_declaration_list &#39;}&#39; | TokenKind_Body)
+
+enum_const_list
+	::=	enum_const (&#39;,&#39; enum_const)*
+
+enum_const
+	::=	attribute_block? TokenKind_Identifier (&#39;=&#39; expression_pass1)?
+	|	epsilon
+
+enum_const_sync
+	::=	&#39;,&#39;
+	|	&#39;}&#39;
+
+derivable_type_member_block
+	::=	&#39;{&#39; member_block_declaration_list &#39;}&#39;
+	|	TokenKind_Body
+
+declaration_body_pass1
+	::=	TokenKind_Body
+	|	compound_stmt_pass1
+
+compound_stmt
+	::=	&#39;{&#39; local_declaration_list &#39;}&#39;
+
+constructor_compound_stmt
+	::=	&#39;{&#39; btm_construct_stmt* local_declaration_list &#39;}&#39;
+
+btm_construct_stmt_rslv
+	::=	TokenKind_BaseType &#39;.&#39; TokenKind_Construct
+	|	(TokenKind_Identifier &#39;.&#39;)+
+	|	&#39;;&#39;
+
+btm_construct_stmt
+	::=	TokenKind_BaseType &#39;.&#39; TokenKind_Construct &#39;(&#39; expression_or_empty_list &#39;)&#39;
+	|	btm_construct_name &#39;(&#39; expression_or_empty_list &#39;)&#39;
+	|	&#39;;&#39;
+
+expression_or_empty_list
+	::=	expression (&#39;,&#39; expression_or_empty)*
+	|	&#39;,&#39; expression_or_empty (&#39;,&#39; expression_or_empty)*
+	|	epsilon
+
+btm_construct_name
+	::=	(TokenKind_Identifier &#39;.&#39;)+
+
+if_stmt
+	::=	TokenKind_If &#39;(&#39; reactive_expression &#39;)&#39; local_branch_declaration (TokenKind_Else local_branch_declaration)?
+
+switch_stmt
+	::=	TokenKind_Switch &#39;(&#39; reactive_expression &#39;)&#39; &#39;{&#39; switch_block_stmt_list &#39;}&#39;
+
+regex_switch_stmt_rslv
+	::=	TokenKind_Switch &#39;(&#39; expression &#39;,&#39;?
+
+regex_switch_stmt
+	::=	TokenKind_Switch &#39;(&#39; reactive_expression (&#39;,&#39; reactive_expression)? &#39;)&#39; &#39;{&#39; regex_switch_block_stmt_list &#39;}&#39;
+
+while_stmt
+	::=	TokenKind_While &#39;(&#39; expression &#39;)&#39; local_branch_declaration
+
+do_stmt
+	::=	TokenKind_Do local_branch_declaration TokenKind_While &#39;(&#39; expression &#39;)&#39;
+
+for_stmt
+	::=	TokenKind_For &#39;(&#39; (local_item_declaration | expression_or_empty_list &#39;;&#39;) for_stmt_condition &#39;;&#39; expression_list? &#39;)&#39; local_branch_declaration
+
+break_stmt
+	::=	TokenKind_Break &#39;;&#39;
+
+continue_stmt
+	::=	TokenKind_Continue &#39;;&#39;
+
+return_stmt
+	::=	TokenKind_Return expression? &#39;;&#39;
+
+once_stmt
+	::=	storage_specifier? TokenKind_Once statement
+
+try_stmt
+	::=	TokenKind_Try &#39;{&#39; local_declaration_list &#39;}&#39;
+
+throw_stmt
+	::=	TokenKind_Throw expression? &#39;;&#39;
+
+unsafe_stmt
+	::=	TokenKind_Unsafe &#39;{&#39; local_declaration_list &#39;}&#39;
+
+assert_stmt
+	::=	TokenKind_Assert &#39;(&#39; expression_pass1 (&#39;,&#39; TokenKind_Literal)? &#39;)&#39; &#39;;&#39;
+
+dynamic_layout_stmt
+	::=	TokenKind_DynamicLayout &#39;(&#39; expression &#39;)&#39; &#39;{&#39; local_declaration_list &#39;}&#39;
+
+dynamic_group_stmt
+	::=	TokenKind_DynamicField TokenKind_Identifier? &#39;{&#39; local_declaration_list &#39;}&#39;
+
+onevent_stmt
+	::=	TokenKind_OnEvent event_name function_suffix declaration_body_pass1
+
+reactive_expression
+	::=	conditional_expr
+
+switch_stmt_sync
+	::=	local_declaration_sync
+	|	TokenKind_Case
+	|	TokenKind_Default
+
+switch_block_stmt_list
+	::=	switch_block_stmt*
+
+switch_block_stmt
+	::=	TokenKind_Case constant_integer_expr &#39;:&#39;
+	|	TokenKind_Default &#39;:&#39;
+	|	local_declaration
+
+expression
+	::=	conditional_expr
+
+regex_switch_block_stmt_list
+	::=	regex_switch_block_stmt*
+
+regex_switch_block_stmt
+	::=	TokenKind_Case regex_switch_case_literal &#39;:&#39;
+	|	TokenKind_Default &#39;:&#39;
+	|	local_declaration
+
+regex_switch_case_literal
+	::=	literal
+
+literal
+	::=	literal_atom+
+
+for_stmt_condition
+	::=	expression
+	|	epsilon
+
+expression_list
+	::=	expression (&#39;,&#39; expression)*
+
+event_name
+	::=	&#39;(&#39; expression_list &#39;)&#39;
+	|	TokenKind_BindingOf &#39;(&#39; expression &#39;)&#39;
+	|	any+
+
+compound_stmt_pass1
+	::=	&#39;{&#39; statement_pass1* &#39;}&#39;
+
+statement_pass1
+	::=	compound_stmt_pass1
+	|	TokenKind_Catch
+	|	TokenKind_Finally
+	|	TokenKind_NestedScope
+	|	TokenKind_Case
+	|	TokenKind_Default
+	|	any
+
+expression_pass1_item
+	::=	&#39;{&#39; expression_pass1_item* &#39;}&#39;
+	|	&#39;[&#39; expression_pass1_item* &#39;]&#39;
+	|	&#39;(&#39; expression_pass1_item* &#39;)&#39;
+	|	template_instantiate_operator_pass1
+	|	any
+
+template_instantiate_operator_pass1_rslv_item
+	::=	qualified_name_rslv
+	|	type_specifier_sync
+	|	type_modifier_sync
+	|	template_instantiate_operator_pass1_rslv
+	|	&#39;*&#39;
+	|	&#39;,&#39;
+
+template_instantiate_operator_pass1_item
+	::=	template_instantiate_operator_pass1
+	|	any
+
+arg_list_pass1_impl
+	::=	&#39;(&#39; arg_list_pass1_item* &#39;)&#39;
+
+arg_list_pass1_item
+	::=	arg_list_pass1_impl
+	|	any
+
+curly_initializer_pass1_impl
+	::=	&#39;{&#39; curly_initializer_pass1_item* &#39;}&#39;
+
+curly_initializer_pass1_item
+	::=	curly_initializer_pass1_impl
+	|	any
+
+expression_save
+	::=	expression
+
+expression_or_empty_list_save
+	::=	expression_or_empty_list
+
+conditional_expr
+	::=	logical_or_expr (&#39;?&#39; conditional_expr &#39;:&#39; conditional_expr)?
+
+expression_0
+	::=	conditional_expr
+
+expression_or_empty
+	::=	conditional_expr
+	|	epsilon
+
+constant_expr
+	::=	conditional_expr
+
+logical_or_expr
+	::=	logical_and_expr (TokenKind_LogOr logical_and_expr)*
+
+logical_and_expr
+	::=	inclusive_or_expr (TokenKind_LogAnd inclusive_or_expr)*
+
+inclusive_or_expr
+	::=	exclusive_or_expr (&#39;|&#39; exclusive_or_expr)*
+
+exclusive_or_expr
+	::=	and_expr (&#39;^&#39; and_expr)*
+
+and_expr
+	::=	equality_expr (&#39;&amp;&#39; equality_expr)*
+
+equality_expr
+	::=	relational_expr (equality_operator relational_expr)*
+
+relational_expr
+	::=	shift_expr (relational_operator shift_expr)*
+
+equality_operator
+	::=	TokenKind_Eq
+	|	TokenKind_Ne
+	|	TokenKind_Match
+	|	TokenKind_NotMatch
+
+shift_expr
+	::=	additive_expr (shift_operator additive_expr)*
+
+relational_operator
+	::=	&#39;&lt;&#39;
+	|	&#39;&gt;&#39;
+	|	TokenKind_Le
+	|	TokenKind_Ge
+
+additive_expr
+	::=	multiplicative_expr (additive_operator multiplicative_expr)*
+
+shift_operator
+	::=	TokenKind_Shl
+	|	TokenKind_Shr
+
+multiplicative_expr
+	::=	at_expr (multiplicative_operator at_expr)*
+
+additive_operator
+	::=	&#39;+&#39;
+	|	&#39;-&#39;
+
+at_expr
+	::=	assignment_expr (&#39;@&#39; assignment_expr)*
+
+multiplicative_operator
+	::=	&#39;*&#39;
+	|	&#39;/&#39;
+	|	&#39;%&#39;
+
+assignment_expr
+	::=	unary_expr assignment_operator_expr?
+
+unary_expr
+	::=	postfix_expr
+	|	unary_operator_expr
+
+assignment_operator_expr
+	::=	assignment_operator conditional_expr
+	|	&#39;=&#39; curly_initializer
+
+assignment_operator
+	::=	&#39;=&#39;
+	|	TokenKind_RefAssign
+	|	TokenKind_AddAssign
+	|	TokenKind_SubAssign
+	|	TokenKind_MulAssign
+	|	TokenKind_DivAssign
+	|	TokenKind_ModAssign
+	|	TokenKind_ShlAssign
+	|	TokenKind_ShrAssign
+	|	TokenKind_AndAssign
+	|	TokenKind_XorAssign
+	|	TokenKind_OrAssign
+
+curly_initializer
+	::=	&#39;{&#39; curly_initializer_item (&#39;,&#39; curly_initializer_item)* &#39;}&#39;
+
+postfix_expr
+	::=	primary_expr postfix_operator*
+
+unary_operator_expr
+	::=	&#39;+&#39; unary_expr
+	|	&#39;-&#39; unary_expr
+	|	&#39;~&#39; unary_expr
+	|	&#39;&amp;&#39; unary_expr
+	|	&#39;*&#39; unary_expr
+	|	&#39;!&#39; unary_expr
+	|	TokenKind_Inc unary_expr
+	|	TokenKind_Dec unary_expr
+	|	TokenKind_Await unary_expr
+	|	&#39;(&#39; type_name &#39;)&#39; unary_expr
+	|	TokenKind_DynamicCast &#39;(&#39; type_name &#39;)&#39; unary_expr
+	|	TokenKind_New new_operator_type new_operator_curly_initializer?
+	|	try_operator
+
+new_operator_type
+	::=	type_name_impl
+	|	qualified_type_name TokenKind_Construct? &#39;(&#39; expression_or_empty_list &#39;)&#39;
+
+new_operator_curly_initializer
+	::=	curly_initializer
+
+try_operator
+	::=	TokenKind_Try unary_expr
+
+primary_expr
+	::=	&#39;(&#39; conditional_expr &#39;)&#39;
+	|	literal
+	|	TokenKind_BaseType
+	|	TokenKind_Identifier
+	|	TokenKind_This
+	|	TokenKind_Integer
+	|	TokenKind_Fp
+	|	TokenKind_True
+	|	TokenKind_False
+	|	TokenKind_Null
+	|	TokenKind_ReGroup
+	|	TokenKind_SizeOf &#39;(&#39; type_name_or_expr &#39;)&#39;
+	|	TokenKind_CountOf &#39;(&#39; type_name_or_expr &#39;)&#39;
+	|	TokenKind_TypeOf &#39;(&#39; type_name_or_expr &#39;)&#39;
+	|	TokenKind_DeclOf &#39;(&#39; type_name_or_expr &#39;)&#39;
+	|	TokenKind_OffsetOf &#39;(&#39; expression_0 &#39;)&#39;
+	|	TokenKind_BindingOf &#39;(&#39; conditional_expr &#39;)&#39;
+	|	TokenKind_DynamicSizeOf &#39;(&#39; expression &#39;)&#39;
+	|	TokenKind_DynamicCountOf &#39;(&#39; expression &#39;)&#39;
+	|	TokenKind_DynamicTypeOf &#39;(&#39; expression &#39;)&#39;
+	|	TokenKind_DynamicOffsetOf &#39;(&#39; expression &#39;)&#39;
+
+postfix_operator
+	::=	&#39;(&#39; expression_or_empty_list &#39;)&#39;
+	|	&#39;~&#39; &#39;(&#39; expression_or_empty_list &#39;)&#39;
+	|	&#39;[&#39; expression_or_empty &#39;]&#39;
+	|	TokenKind_Inc
+	|	TokenKind_Dec
+	|	&#39;.&#39; member_operator
+	|	TokenKind_Ptr member_operator
+	|	&#39;&lt;&#39; template_inst_type_name_list &#39;&gt;&#39;
+
+member_operator
+	::=	TokenKind_Identifier
+	|	TokenKind_BaseType
+	|	TokenKind_Get
+	|	TokenKind_Set
+
+type_name_or_expr
+	::=	type_name
+	|	expression_0
+
+literal_atom
+	::=	TokenKind_Literal
+	|	TokenKind_BinLiteral
+	|	TokenKind_FmtMlEnd
+	|	TokenKind_FmtLiteral expression TokenKind_FmtSpecifier?
+	|	TokenKind_FmtLiteral TokenKind_FmtIndex
+	|	TokenKind_FmtLiteral TokenKind_FmtSpecifier
+
+curly_initializer_item
+	::=	curly_initializer_named_item
+	|	curly_initializer_indexed_item
+	|	epsilon
+
+curly_initializer_named_item
+	::=	TokenKind_Identifier &#39;=&#39; (curly_initializer | expression)
+
+curly_initializer_indexed_item
+	::=	expression
+	|	curly_initializer
+
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2016-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

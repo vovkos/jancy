@@ -1,0 +1,19 @@
+.. index:: pair: enum; jnc_GcShadowStackFrameMapOp
+.. _doxid-group__gc-heap_1ga0ece1ff7201734551cf59258f10ad02b:
+
+enum jnc_GcShadowStackFrameMapOp
+================================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_GcHeap.h>
+
+	enum jnc_GcShadowStackFrameMapOp {
+	    :target:`jnc_GcShadowStackFrameMapOp_Open<doxid-group__gc-heap_1gga0ece1ff7201734551cf59258f10ad02bace5a3c4bc88eff146d892b463d04eb49>`,
+	    :target:`jnc_GcShadowStackFrameMapOp_Close<doxid-group__gc-heap_1gga0ece1ff7201734551cf59258f10ad02ba060d31bf83dc205f29ec5d611f56915a>`,
+	    :target:`jnc_GcShadowStackFrameMapOp_Restore<doxid-group__gc-heap_1gga0ece1ff7201734551cf59258f10ad02baf0ed1a573e0d600bfbabd3aa3c6432cb>`,
+	};
+

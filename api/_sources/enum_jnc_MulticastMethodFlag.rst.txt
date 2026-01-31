@@ -1,0 +1,17 @@
+.. index:: pair: enum; jnc_MulticastMethodFlag
+.. _doxid-group__class-type_1ga2b11f523d0ef5e51265e3180bbeab5f5:
+
+enum jnc_MulticastMethodFlag
+============================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_ClassType.h>
+
+	enum jnc_MulticastMethodFlag {
+	    :target:`jnc_MulticastMethodFlag_InaccessibleViaEventPtr<doxid-group__class-type_1gga2b11f523d0ef5e51265e3180bbeab5f5ae750496281e70e8dd4436868fbfc1726>` = 0x010000,
+	};
+

@@ -1,0 +1,69 @@
+.. include:: def.rst
+.. index:: pair: class; std.Buffer
+.. _doxid-typestd_buffer:
+
+class std.Buffer
+================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "std_Buffer.jnc"
+	
+	class Buffer {
+		// fields
+	
+		char constif* readonly :target:`m_p<doxid-fieldstd_buffer_m_p>`;
+		typedef unsigned long size_t readonly :target:`m_size<doxid-fieldstd_buffer_m_size>`;
+		typedef unsigned long size_t readonly :target:`m_maxSize<doxid-fieldstd_buffer_m_maxsize>`;
+
+		// methods
+	
+		void :target:`clear<doxid-functionstd_buffer_clear>`();
+		char* :target:`detach<doxid-functionstd_buffer_detach>`();
+		bool errorcode :target:`setSize<doxid-functionstd_buffer_setsize>`(:ref:`size_t<doxid-typedefsize_t>` size);
+		bool errorcode :target:`reserve<doxid-functionstd_buffer_reserve>`(:ref:`size_t<doxid-typedefsize_t>` size);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`copy<doxid-functionstd_buffer_copy>`(
+			void const* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`copy<doxid-functionstd_buffer_copy_2>`(:ref:`string_t<doxid-typedefstring_t>` string);
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`copy<doxid-functionstd_buffer_copy_3>`(char c);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`append<doxid-functionstd_buffer_append>`(
+			void const* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`append<doxid-functionstd_buffer_append_2>`(:ref:`string_t<doxid-typedefstring_t>` string);
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`append<doxid-functionstd_buffer_append_3>`(char c);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`insert<doxid-functionstd_buffer_insert>`(
+			:ref:`size_t<doxid-typedefsize_t>` offset,
+			void const* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`insert<doxid-functionstd_buffer_insert_2>`(
+			:ref:`size_t<doxid-typedefsize_t>` offset,
+			:ref:`string_t<doxid-typedefstring_t>` string
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`insert<doxid-functionstd_buffer_insert_3>`(
+			:ref:`size_t<doxid-typedefsize_t>` offset,
+			char c
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`remove<doxid-functionstd_buffer_remove>`(
+			:ref:`size_t<doxid-typedefsize_t>` offset,
+			:ref:`size_t<doxid-typedefsize_t>` size = 1
+		);
+	};

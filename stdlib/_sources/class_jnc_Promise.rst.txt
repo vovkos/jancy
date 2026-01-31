@@ -1,0 +1,42 @@
+.. include:: def.rst
+.. index:: pair: class; jnc.Promise
+.. _doxid-typejnc_promise:
+
+class jnc.Promise
+=================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class Promise {
+		// fields
+	
+		typedef Variant variant_t readonly :target:`m_result<doxid-fieldjnc_promise_m_result>`;
+		:ref:`std.Error<doxid-typestd_error>` const* readonly :target:`m_error<doxid-fieldjnc_promise_m_error>`;
+
+		// properties
+	
+		bool const property :target:`m_isCompleted<doxid-propertyjnc_promise_m_iscompleted>`;
+
+		// construction
+	
+		:target:`construct<doxid-functionjnc_promise_construct>`();
+		:target:`destruct<doxid-functionjnc_promise_destruct>`();
+
+		// methods
+	
+		void async :target:`asyncSetScheduler<doxid-functionjnc_promise_asyncsetscheduler>`(:ref:`jnc.Scheduler<doxid-typejnc_scheduler>`* scheduler);
+		long errorcode :target:`wait<doxid-functionjnc_promise_wait>`(void function* handler());
+		long errorcode :target:`wait<doxid-functionjnc_promise_wait_2>`(void function* handler(std.Error const* error));
+		long errorcode :target:`wait<doxid-functionjnc_promise_wait_3>`(void function* handler(variant_t result, std.Error const* error));
+		bool errorcode :target:`cancelWait<doxid-functionjnc_promise_cancelwait>`(long handle);
+		:ref:`variant_t<doxid-typedefvariant_t>` :target:`blockingWait<doxid-functionjnc_promise_blockingwait>`();
+		:ref:`variant_t<doxid-typedefvariant_t>` async :target:`asyncWait<doxid-functionjnc_promise_asyncwait>`();
+	};

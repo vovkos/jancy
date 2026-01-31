@@ -1,0 +1,241 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compatibility with C &mdash; Jancy Language Manual</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Deterministic Resource Release" href="disposable.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy Language Manual
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="language.html">Jancy Language</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Compatibility with C</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#source-compatibility">Source Compatibility</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy Language Manual</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Compatibility with C</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="compatibility-with-c">
+<h1>Compatibility with C</h1>
+<p>After the proper declarations in the Jancy scripts and in the host C/C++ application it becomes possible to <strong>directly pass data</strong> through arguments and return values without the need to explicitly push and pop the stack of the virtual machine or pack data into variant-like containers.</p>
+<p>The following types are supported:</p>
+<ul class="simple">
+<li><p>All primitive C/C++ types (also integer types with inverted byte order, a.k.a. <strong>bigendians</strong>)</p></li>
+<li><p>Structs (with arbitrary pack factor)</p></li>
+<li><p>Unions</p></li>
+<li><p>Bit fields (both in structs and unions)</p></li>
+<li><p>Arrays</p></li>
+<li><p>C/C++ data and function pointers</p></li>
+</ul>
+<p>The following calling conventions are supported:</p>
+<ul class="simple">
+<li><p>cdecl (Microsoft/gcc)</p></li>
+<li><p>stdcall (Microsoft/gcc)</p></li>
+<li><p>Microsoft x64</p></li>
+<li><p>System V</p></li>
+</ul>
+<p>The above brings <strong>simplicity and effectiveness</strong> to the application-script interaction.</p>
+<p>Consider the following example of mapping Jancy declarations to C++ implementation:</p>
+<div class="highlight-jnc notranslate"><div class="highlight"><pre><span></span><span class="k">opaque</span> <span class="k">class</span> <span class="n">Socket</span> <span class="p">{</span>
+    <span class="n">SocketAddress</span> <span class="k">const</span> <span class="k">property</span> <span class="n">m_address</span><span class="p">;</span>
+    <span class="n">SocketAddress</span> <span class="k">const</span> <span class="k">property</span> <span class="n">m_peerAddress</span><span class="p">;</span>
+
+    <span class="k">bool</span> <span class="k">readonly</span> <span class="n">m_isOpen</span><span class="p">;</span>
+    <span class="n">uint_t</span> <span class="n">m_syncId</span><span class="p">;</span>
+    <span class="k">event</span> <span class="n">m_onSocketEvent</span> <span class="p">(</span><span class="n">SocketEventParams</span> <span class="k">const</span><span class="o">*</span> <span class="n">params</span><span class="p">);</span>
+    <span class="c1">// ...</span>
+
+    <span class="k">bool</span> <span class="k">errorcode</span> <span class="n">open</span><span class="p">(</span>
+        <span class="n">Protocol</span> <span class="n">protocol</span><span class="p">,</span>
+        <span class="n">SocketAddress</span> <span class="k">const</span><span class="o">*</span> <span class="n">address</span> <span class="o">=</span> <span class="k">null</span>
+    <span class="p">);</span>
+
+    <span class="k">void</span> <span class="n">close</span><span class="p">();</span>
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The implementation in C++ would look something like:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nl">Socket</span><span class="p">:</span> <span class="k">public</span> <span class="n">jnc</span><span class="o">::</span><span class="n">IfaceHdr</span> <span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="c1">// these fields are directly accessed from Jancy</span>
+    <span class="kt">bool</span> <span class="n">m_isOpen</span><span class="p">;</span>
+    <span class="n">uint_t</span> <span class="n">m_syncId</span><span class="p">;</span>
+    <span class="n">ClassBox</span> <span class="o">&lt;</span><span class="n">Multicast</span><span class="o">&gt;</span> <span class="n">m_onSocketEvent</span><span class="p">;</span>
+    <span class="c1">// ...</span>
+
+<span class="k">protected</span><span class="o">:</span>
+    <span class="c1">// these fields are not accessible from Jancy</span>
+    <span class="n">sys</span><span class="o">::</span><span class="n">Lock</span> <span class="n">m_ioLock</span><span class="p">;</span>
+    <span class="k">volatile</span> <span class="n">uint_t</span> <span class="n">m_ioFlags</span><span class="p">;</span>
+    <span class="n">IoThread</span> <span class="n">m_ioThread</span><span class="p">;</span>
+    <span class="c1">// ...</span>
+
+<span class="k">public</span><span class="o">:</span>
+    <span class="c1">// these methods are directly called from Jancy</span>
+
+    <span class="n">sockaddr</span>
+    <span class="n">AXL_CDECL</span>
+    <span class="n">getAddress</span><span class="p">();</span>
+
+    <span class="n">sockaddr</span>
+    <span class="n">AXL_CDECL</span>
+    <span class="nf">getPeerAddress</span><span class="p">();</span>
+
+    <span class="kt">bool</span>
+    <span class="n">AXL_CDECL</span>
+    <span class="nf">open</span><span class="p">(</span>
+        <span class="kt">int</span> <span class="n">protocol</span><span class="p">,</span>
+        <span class="n">jnc</span><span class="o">::</span><span class="n">DataPtr</span> <span class="n">addressPtr</span>
+    <span class="p">);</span>
+
+    <span class="kt">void</span>
+    <span class="n">AXL_CDECL</span>
+    <span class="nf">close</span><span class="p">();</span>
+
+    <span class="c1">// ...</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>C++ implementation must be <strong>mapped</strong> to Jancy names so Jancy knows where to find particular methods:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">JNC_DEFINE_OPAQUE_CLASS_TYPE</span> <span class="p">(</span>
+    <span class="n">Socket</span><span class="p">,</span>
+    <span class="s">&quot;io.Socket&quot;</span><span class="p">,</span>
+    <span class="n">g_ioLibGuid</span><span class="p">,</span>
+    <span class="n">IoLibCacheSlot_Socket</span><span class="p">,</span>
+    <span class="n">Socket</span><span class="p">,</span>
+    <span class="nb">NULL</span>
+    <span class="p">)</span>
+
+<span class="c1">// function map table for the Socket type</span>
+
+<span class="n">JNC_BEGIN_TYPE_FUNCTION_MAP</span><span class="p">(</span><span class="n">Socket</span><span class="p">)</span>
+    <span class="n">JNC_MAP_CONSTRUCTOR</span><span class="p">(</span><span class="o">&amp;</span><span class="n">jnc</span><span class="o">::</span><span class="n">construct</span><span class="o">&lt;</span><span class="n">Socket</span><span class="o">&gt;</span><span class="p">)</span>
+    <span class="n">JNC_MAP_DESTRUCTOR</span><span class="p">(</span><span class="o">&amp;</span><span class="n">jnc</span><span class="o">::</span><span class="n">destruct</span><span class="o">&lt;</span><span class="n">Socket</span><span class="o">&gt;</span><span class="p">)</span>
+    <span class="n">JNC_MAP_CONST_PROPERTY</span><span class="p">(</span><span class="s">&quot;m_address&quot;</span><span class="p">,</span>      <span class="o">&amp;</span><span class="n">Socket</span><span class="o">::</span><span class="n">getAddress</span><span class="p">)</span>
+    <span class="n">JNC_MAP_CONST_PROPERTY</span><span class="p">(</span><span class="s">&quot;m_peerAddress&quot;</span><span class="p">,</span>  <span class="o">&amp;</span><span class="n">Socket</span><span class="o">::</span><span class="n">getPeerAddress</span><span class="p">)</span>
+    <span class="c1">// ...</span>
+<span class="n">JNC_END_TYPE_FUNCTION_MAP</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>That’s it. Now Jancy can call C++ methods directly.</p>
+<section id="source-compatibility">
+<h2>Source Compatibility</h2>
+<p>The compatibility between Jancy and C doesn’t end at ABI-level. High level of source compatibility between the two languages means that you can often times simply <strong>copy-paste</strong> C algorithms, definitions of communication protocol headers, etc.</p>
+<p>C is the de-facto standard of system programming. It’s possible to find C definition for virtually any algorithm or protocol in existence. Let, say, you need to use some protocol headers from Jancy. Simply copy-paste the C declarations and often times it will compile without even touching a thing! It is, however, recommended to <em>make adjustments</em> – just so you can make use of Jancy features such as <strong>derived enums</strong> or <strong>bigendians</strong>:</p>
+<div class="highlight-jnc notranslate"><div class="highlight"><pre><span></span><span class="k">enum</span> <span class="n">IpProtocol</span><span class="o">:</span> <span class="n">uint8_t</span> <span class="p">{</span>
+    <span class="n">Icmp</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">Tcp</span>  <span class="o">=</span> <span class="mi">6</span><span class="p">,</span>
+    <span class="n">Udp</span>  <span class="o">=</span> <span class="mi">17</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">struct</span> <span class="n">IpHdr</span> <span class="p">{</span>
+    <span class="n">uint8_t</span> <span class="n">m_headerLength</span> <span class="o">:</span> <span class="mi">4</span><span class="p">;</span>
+    <span class="n">uint8_t</span> <span class="n">m_version</span>      <span class="o">:</span> <span class="mi">4</span><span class="p">;</span>
+    <span class="n">uint8_t</span> <span class="n">m_typeOfService</span><span class="p">;</span>
+    <span class="k">bigendian</span> <span class="n">uint16_t</span> <span class="n">m_totalLength</span><span class="p">;</span>
+    <span class="n">uint16_t</span> <span class="n">m_identification</span><span class="p">;</span>
+    <span class="n">uint16_t</span> <span class="n">m_flags</span><span class="p">;</span>
+    <span class="n">uint8_t</span> <span class="n">m_timeToLive</span><span class="p">;</span>
+    <span class="n">IpProtocol</span> <span class="n">m_protocol</span><span class="p">;</span>
+    <span class="k">bigendian</span> <span class="n">uint16_t</span> <span class="n">m_headerChecksum</span><span class="p">;</span>
+    <span class="n">uint32_t</span> <span class="n">m_srcAddress</span><span class="p">;</span>
+    <span class="n">uint32_t</span> <span class="n">m_dstAddress</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="disposable.html" class="btn btn-neutral float-left" title="Deterministic Resource Release" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

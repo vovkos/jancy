@@ -1,0 +1,263 @@
+.. include:: def.rst
+.. index:: pair: class; io.File
+.. _doxid-typeio_file:
+
+class io.File
+=============
+
+.. toctree::
+	:hidden:
+
+Overview
+~~~~~~~~
+
+This class provides a standard synchronous interface for reading from
+and writing to files or devices. :ref:`More...<details-typeio_file>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "io_base.jncx"
+	import "io_File.jnc"
+	
+	class File {
+		// fields
+	
+		bool readonly :ref:`m_isOpen<doxid-fieldio_file_m_isopen>`;
+
+		// properties
+	
+		:ref:`uintptr_t<doxid-typedefuintptr_t>` const property :target:`m_osHandle<doxid-propertyio_file_m_oshandle>`;
+		:ref:`io.FileKind<doxid-typeio_filekind>` const property :target:`m_kind<doxid-propertyio_file_m_kind>`;
+		:ref:`uint64_t<doxid-typedefuint64_t>` const property :ref:`m_size<doxid-propertyio_file_m_size>`;
+		:ref:`uint64_t<doxid-typedefuint64_t>` property :ref:`m_position<doxid-propertyio_file_m_position>`;
+
+		// construction
+	
+		:target:`construct<doxid-functionio_file_construct>`();
+		:target:`destruct<doxid-functionio_file_destruct>`();
+
+		// methods
+	
+		bool errorcode :ref:`open<doxid-functionio_file_open>`(
+			:ref:`string_t<doxid-typedefstring_t>` name,
+			:ref:`io.FileOpenFlags<doxid-typeio_fileopenflags>` flags = 0
+		);
+	
+		void :ref:`close<doxid-functionio_file_close>`();
+		bool errorcode :target:`setSize<doxid-functionio_file_setsize>`(:ref:`uint64_t<doxid-typedefuint64_t>` size);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :ref:`read<doxid-functionio_file_read>`(
+			void* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :ref:`write<doxid-functionio_file_write>`(
+			void const* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		bool errorcode :target:`flush<doxid-functionio_file_flush>`();
+
+		// aliases
+	
+		alias :ref:`dispose<doxid-aliasio_file_dispose>` = close;
+	};
+.. _details-typeio_file:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This class provides a standard synchronous interface for reading from
+and writing to files or devices.
+
+All the methods of this class are mapped directly to underlying Operating
+System API(not to the C-runtime library). A typical sequence of steps when
+working with a file usually looks like this:
+
+* Open a file with ``open`` method;
+* Read from the file using ``read`` method;
+* Write to the file using ``write`` method;
+* Close the file with ``close`` method.
+
+It's recommended to use disposable pattern when working with local file
+variables. Whether or not to use exception semantics or a traditional error
+code depends on what deems to be more convenient in each particular case.
+
+.. rubric:: Sample code:
+
+.. ref-code-block::
+
+	void foo(void const* data) {
+		disposable io.File file;
+		file.open("data.txt");
+		file.write(data, dynamic sizeof(data));
+		// ...
+
+	catch:
+		// handle the error
+	} // file will be closed no matter how we leave the function
+
+
+
+.. rubric:: See also:
+
+`io.FileStream`, `io.MappedFile`
+
+Fields
+------
+
+.. index:: pair: variable; m_isOpen
+.. _doxid-fieldio_file_m_isopen:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool readonly m_isOpen
+
+Holds the open status for the file, i.e. ``true`` if opened; ``false``
+otherwise.
+
+Properties
+----------
+
+.. index:: pair: property; m_size
+.. _doxid-propertyio_file_m_size:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`uint64_t<doxid-typedefuint64_t>` const property m_size
+
+This property is used for getting and setting file size.
+
+Reading from this property returns current size of the file; writing to
+it sets new size [#f3]_.
+
+.. index:: pair: property; m_position
+.. _doxid-propertyio_file_m_position:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`uint64_t<doxid-typedefuint64_t>` property m_position
+
+This property is used for getting and setting [#f3]_ current file
+position, i.e. the offset at which file contents will be accessed by
+``read`` and ``write`` methods.
+
+Accessing this property for sequential devices(which do not support
+access at random-offset) likely results in exception being thrown
+(unless the underlying OS silently ignores position read/write and does
+not return any IO error).
+
+Methods
+-------
+
+.. index:: pair: function; open
+.. _doxid-functionio_file_open:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool errorcode open(
+		:ref:`string_t<doxid-typedefstring_t>` name,
+		:ref:`io.FileOpenFlags<doxid-typeio_fileopenflags>` flags = 0
+	)
+
+Opens or creates a file or device.
+
+The function accepts two arguments. The first one, ``name`` specifies
+the name of the file/device. The second one, ``flags``, can be used to
+specify open options. Check `io.FileOpenFlags` for the complete list of
+options.
+
+Returns ``true`` on success. If file or device could not be opened, IO
+error supplied by operating system is set and then the function returns
+``false`` [#f1]_.
+
+.. index:: pair: function; close
+.. _doxid-functionio_file_close:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	void close()
+
+Closes a previously opened file, does nothing if the file is not opened.
+This function always succeeds.
+
+Sometimes it may be convenient to use *disposable* pattern to ensure
+timely invokation of ``close`` [#f2]_.
+
+.. index:: pair: function; read
+.. _doxid-functionio_file_read:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`size_t<doxid-typedefsize_t>` errorcode read(
+		void* p,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	)
+
+Attempts to read up to ``size`` bytes from file into the buffer pointed
+to by ``p``.
+
+Returns the actual amount of bytes read or ``-1`` if error occurs.
+
+If read operation is unsuccessful, IO error supplied by the operating
+system is set and then the function returns ``-1`` [#f1]_.
+
+If this function is called when there is no incoming data on the opened
+device, it blocks until either the data arrives, or the file is closed.
+
+.. index:: pair: function; write
+.. _doxid-functionio_file_write:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`size_t<doxid-typedefsize_t>` errorcode write(
+		void const* p,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	)
+
+Attempts to write ``size`` bytes from the buffer pointed to by ``p``
+into the file.
+
+Returns the actual amount of bytes written on success. If write
+operation is unsuccessful, IO error supplied by the operating system is
+set and then the function returns ``-1`` [#f1]_.
+
+Aliases
+-------
+
+.. index:: pair: alias; dispose
+.. _doxid-aliasio_file_dispose:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	alias dispose = close
+
+Effectively makes ``io.File`` a *disposable* class [#f2]_.
+
+
+---------------------
+
+.. rubric:: Footnotes
+
+.. [#f3]
+
+	|footnote-set-property-fail|
+
+.. [#f1]
+
+	|footnote-errorcode|
+
+.. [#f2]
+
+	|footnote-disposable|
+

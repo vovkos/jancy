@@ -1,0 +1,37 @@
+.. include:: def.rst
+.. index:: pair: group; WebSockets
+.. _doxid-group_io_websock:
+
+WebSockets
+==========
+
+.. toctree::
+	:hidden:
+
+	enum_io_WebSocketEvents.rst
+	enum_io_WebSocketFrameOpcode.rst
+	enum_io_WebSocketOptions.rst
+	class_io_WebSocket.rst
+	class_io_WebSocketHandshake.rst
+	class_io_WebSocketHandshakeHeaders.rst
+
+This section describes types and facilities for programming WebSockets communications.
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "io_websocket.jncx"
+	
+	// enums
+
+	bitflag enum :ref:`io.WebSocketEvents<doxid-typeio_websocketevents>`;
+	enum :ref:`io.WebSocketFrameOpcode<doxid-typeio_websocketframeopcode>`;
+	bitflag enum :ref:`io.WebSocketOptions<doxid-typeio_websocketoptions>`;
+
+	// classes
+
+	class :ref:`io.WebSocket<doxid-typeio_websocket>`;
+	class :ref:`io.WebSocketHandshake<doxid-typeio_websockethandshake>`;
+	class :ref:`io.WebSocketHandshakeHeaders<doxid-typeio_websockethandshakeheaders>`;
+

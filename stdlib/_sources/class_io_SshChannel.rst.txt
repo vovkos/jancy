@@ -1,0 +1,484 @@
+.. include:: def.rst
+.. index:: pair: class; io.SshChannel
+.. _doxid-typeio_sshchannel:
+
+class io.SshChannel
+===================
+
+.. toctree::
+	:hidden:
+
+Overview
+~~~~~~~~
+
+This class provides high-level asynchronous interface for client-side
+SSH connections. :ref:`More...<details-typeio_sshchannel>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "io_ssh.jncx"
+	
+	class SshChannel {
+		// fields
+	
+		:ref:`io.SshEvents<doxid-typeio_sshevents>` readonly volatile :target:`m_activeEvents<doxid-fieldio_sshchannel_m_activeevents>`;
+		:ref:`std.Error<doxid-typestd_error>` const* readonly volatile :target:`m_ioError<doxid-fieldio_sshchannel_m_ioerror>`;
+		bool readonly :ref:`m_isOpen<doxid-fieldio_sshchannel_m_isopen>`;
+
+		// properties
+	
+		:ref:`io.SocketAddress<doxid-typeio_socketaddress>` const property :ref:`m_address<doxid-propertyio_sshchannel_m_address>`;
+		:ref:`io.SocketAddress<doxid-typeio_socketaddress>` const property :ref:`m_peerAddress<doxid-propertyio_sshchannel_m_peeraddress>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_readBlockSize<doxid-propertyio_sshchannel_m_readblocksize>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_readBufferSize<doxid-propertyio_sshchannel_m_readbuffersize>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_writeBufferSize<doxid-propertyio_sshchannel_m_writebuffersize>`;
+		:ref:`io.SocketOptions<doxid-typeio_socketoptions>` autoget property :target:`m_options<doxid-propertyio_sshchannel_m_options>`;
+
+		// construction
+	
+		:target:`construct<doxid-functionio_sshchannel_construct>`();
+		:target:`destruct<doxid-functionio_sshchannel_destruct>`();
+
+		// methods
+	
+		bool errorcode :ref:`open<doxid-functionio_sshchannel_open>`(:ref:`io.AddressFamily<doxid-typeio_addressfamily>` family);
+		bool errorcode :ref:`open<doxid-functionio_sshchannel_open_2>`(:ref:`io.SocketAddress<doxid-typeio_socketaddress>` const* address);
+		void :ref:`close<doxid-functionio_sshchannel_close>`();
+	
+		bool errorcode :ref:`connect<doxid-functionio_sshchannel_connect>`(
+			:ref:`io.SocketAddress<doxid-typeio_socketaddress>` const* address,
+			:ref:`string_t<doxid-typedefstring_t>` userName,
+			:ref:`string_t<doxid-typedefstring_t>` password,
+			:ref:`string_t<doxid-typedefstring_t>` channelType = "session",
+			:ref:`string_t<doxid-typedefstring_t>` processType = "shell",
+			:ref:`string_t<doxid-typedefstring_t>` ptyType = "xterm",
+			:ref:`uint_t<doxid-typedefuint_t>` ptyWidth = 80,
+			:ref:`uint_t<doxid-typedefuint_t>` ptyHeight = 24
+		);
+	
+		bool errorcode :target:`connect<doxid-functionio_sshchannel_connect_2>`(:ref:`io.SshConnectParams<doxid-typeio_sshconnectparams>` const* params);
+	
+		bool errorcode :ref:`authenticate<doxid-functionio_sshchannel_authenticate>`(
+			:ref:`string_t<doxid-typedefstring_t>` userName,
+			:ref:`string_t<doxid-typedefstring_t>` password
+		);
+	
+		bool errorcode :target:`authenticate<doxid-functionio_sshchannel_authenticate_2>`(
+			:ref:`string_t<doxid-typedefstring_t>` userName,
+			:ref:`string_t<doxid-typedefstring_t>` privateKeyFileName,
+			:ref:`string_t<doxid-typedefstring_t>` passphrase
+		);
+	
+		bool errorcode :target:`authenticate<doxid-functionio_sshchannel_authenticate_3>`(
+			:ref:`string_t<doxid-typedefstring_t>` userName,
+			void const* privateKey,
+			:ref:`size_t<doxid-typedefsize_t>` privateKeySize,
+			:ref:`string_t<doxid-typedefstring_t>` passphrase
+		);
+	
+		bool errorcode :ref:`resizePty<doxid-functionio_sshchannel_resizepty>`(
+			:ref:`uint_t<doxid-typedefuint_t>` width,
+			:ref:`uint_t<doxid-typedefuint_t>` height
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :ref:`read<doxid-functionio_sshchannel_read>`(
+			void* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :ref:`write<doxid-functionio_sshchannel_write>`(
+			void const* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		long errorcode :target:`wait<doxid-functionio_sshchannel_wait>`(
+			:ref:`io.SshEvents<doxid-typeio_sshevents>` eventMask,
+			void function* handler(io.SshEvents triggeredEvents)
+		);
+	
+		bool errorcode :target:`cancelWait<doxid-functionio_sshchannel_cancelwait>`(long handle);
+	
+		:ref:`io.SshEvents<doxid-typeio_sshevents>` :target:`blockingWait<doxid-functionio_sshchannel_blockingwait>`(
+			:ref:`io.SshEvents<doxid-typeio_sshevents>` eventMask,
+			:ref:`uint_t<doxid-typedefuint_t>` timeout = -1
+		);
+	
+		:ref:`io.SshEvents<doxid-typeio_sshevents>` async :target:`asyncWait<doxid-functionio_sshchannel_asyncwait>`(:ref:`io.SshEvents<doxid-typeio_sshevents>` eventMask);
+
+		// aliases
+	
+		alias :ref:`dispose<doxid-aliasio_sshchannel_dispose>` = close;
+	};
+.. _details-typeio_sshchannel:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This class provides high-level asynchronous interface for client-side
+SSH connections.
+
+Under the hood ``io.SshChannel`` uses libssh2 library.
+
+A typical sequence of steps when establishing an SSH connection looks like
+this:
+
+* Call ``open`` method to open underlying socket;
+* Call ``connect`` method to initate connection to ``SSH`` server;
+* Assign IO event handler with ``wait`` method. You would probably also
+  want to *schedule* your event handler to be run in particular
+  environment(e.g., in a specific thread) and partially apply some
+  syncrhonization ID to discard late events;
+* If `io.SshEvents.SshAuthenticateError` event is fired, you can
+  re-authenticate using ``authenticate`` method;
+* Wait until `io.SshEvents.SshConnectCompleted` or `io.SshEvents.IoError`
+  event;
+* When `io.SshEvents.IncomingData` event is fired, read from the file using
+  ``read`` method;
+* Write to the file stream using ``write`` method;
+* Suspend writing if the return value of ``write`` is less than requested;
+* Resume writing on `io.SshEvents.WriteBufferReady` event;
+* Close the SSH channel when no longer needed with ``close`` method.
+
+.. rubric:: Sample code:
+
+.. ref-code-block::
+
+	class MyDialog {
+		// ...
+
+		io.SshChannel m_ssh;
+		uint_t m_syncId;
+
+		construct();
+
+		void open(
+			string_t portName,
+			uint_t baudRate
+		);
+
+		void close();
+		void waitSshEvents();
+
+		void onWriteButtonClicked();
+
+		void onSshEvent(
+			uint_t syncId,
+			`io.SshEvents` triggeredEvents
+		);
+	}
+
+	MyDialog.connect(
+		string_t addrString,
+		string_t userName,
+		string_t password
+	) {
+		`io.SocketAddress` sockAddr;
+		sockAddr.parse(addrString);
+
+		m_ssh.open();
+		m_ssh.connect(sockAddr, userName, password);
+
+		waitSshEvents();
+
+	catch:
+		// handle the error...
+	}
+
+	MyDialog.close() {
+		m_serial.close();
+		m_syncId++; // events past this point will be discarded as 'late'
+	}
+
+	MyDialog.waitSshEvent() {
+		`io.SshEvents` eventMask =
+			`io.SshEvents.IoError` |
+			`io.SshEvents.SshAuthenticateError` |
+			`io.SshEvents.IncomingData`;
+
+		if (!(m_ssh.m_activeEvents & `io.SshEvents.SshConnectCompleted`))
+			eventMask |= `io.SshEvents.SshConnectCompleted`;
+
+		m_ssh.wait(eventMask, onPcapEvent ~(++m_syncId) @
+			g_mainThreadScheduler);
+	}
+
+	MyDialog.onWriteButtonClicked() {
+		static char data[] = "a quick brown fox jumps over the lazy dog";
+		m_ssh.write(data, sizeof(data));
+	}
+
+	MyDialog.onSshEvent(
+		uint_t syncId,
+		`io.SshEvents` triggeredEvents
+	) {
+		if (syncId != m_syncId) // late event
+			return;
+
+		if (triggeredEvents & `io.SshEvents.IoError`) {
+			string_t errorString = m_ssh.m_ioError.m_description;
+			// ...
+		}
+
+		if (triggeredEvents & `io.SshEvents.SshAuthenticateError`) {
+			// show some kind of login dialog ...
+			// ...
+			// ... then re-authenticate:
+
+			m_ssh.authenticate(userName, password);
+		}
+
+		if (triggeredEvents & `io.SshEvents.SshConnectCompleted`) {
+			// SSH channel established
+		}
+
+		if (triggeredEvents & `io.SshEvents.IncomingData`) {
+			char buffer[256];
+			size_t size = m_ssh.read(buffer, sizeof(buffer));
+			// ...
+		}
+
+		waitSshEvents(); // restart wait
+	}
+
+
+
+.. rubric:: See also:
+
+`io.SshEvents`, `io.Socket`, `io.SocketAddress`,
+`io.HostNameResolver`
+
+Fields
+------
+
+.. index:: pair: variable; m_isOpen
+.. _doxid-fieldio_sshchannel_m_isopen:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool readonly m_isOpen
+
+Holds the open status for the socket, i.e. ``true`` if opened; ``false``
+otherwise.
+
+Properties
+----------
+
+.. index:: pair: property; m_address
+.. _doxid-propertyio_sshchannel_m_address:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`io.SocketAddress<doxid-typeio_socketaddress>` const property m_address
+
+This property is used for getting the local address assigned to this
+socket. If the address has not been assigned yet, returns empty address.
+
+.. index:: pair: property; m_peerAddress
+.. _doxid-propertyio_sshchannel_m_peeraddress:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`io.SocketAddress<doxid-typeio_socketaddress>` const property m_peerAddress
+
+This property is used for getting the remote address of the peer this
+socket is connected to. If the connection has not been established yet,
+returns empty address.
+
+Methods
+-------
+
+.. index:: pair: function; open
+.. _doxid-functionio_sshchannel_open:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool errorcode open(:ref:`io.AddressFamily<doxid-typeio_addressfamily>` family)
+
+Opens a ``TCP`` socket this connection will use for transport.
+
+Returns ``true`` on success. If a new socket could not be opened, IO
+error supplied by operating system is set and then the function returns
+``false`` [#f1]_.
+
+.. index:: pair: function; open
+.. _doxid-functionio_sshchannel_open_2:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool errorcode open(:ref:`io.SocketAddress<doxid-typeio_socketaddress>` const* address)
+
+Opens a ``TCP`` socket this connection will use for transport.
+
+Returns ``true`` on success. If a new socket could not be opened, IO
+error supplied by operating system is set and then the function returns
+``false`` [#f1]_.
+
+.. index:: pair: function; close
+.. _doxid-functionio_sshchannel_close:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	void close()
+
+Closes ``SSH`` channel and underlying ``TCP`` socket; does nothing if
+connection is not and not being established.
+
+Sometimes it may be convenient to use *disposable* pattern to ensure
+timely invokation of ``close`` [#f2]_.
+
+.. index:: pair: function; connect
+.. _doxid-functionio_sshchannel_connect:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool errorcode connect(
+		:ref:`io.SocketAddress<doxid-typeio_socketaddress>` const* address,
+		:ref:`string_t<doxid-typedefstring_t>` userName,
+		:ref:`string_t<doxid-typedefstring_t>` password,
+		:ref:`string_t<doxid-typedefstring_t>` channelType = "session",
+		:ref:`string_t<doxid-typedefstring_t>` processType = "shell",
+		:ref:`string_t<doxid-typedefstring_t>` ptyType = "xterm",
+		:ref:`uint_t<doxid-typedefuint_t>` ptyWidth = 80,
+		:ref:`uint_t<doxid-typedefuint_t>` ptyHeight = 24
+	)
+
+Initiates a connection request to ``address``.
+
+The meanings of the arguments for this function are as follows:
+
+* ``address`` specifes the remote ``SSH`` server to connect to;
+* ``userName`` and ``password`` specify user credential used to login to
+  this SSH server;
+* ``channelType`` specifies the type of the channel to establish
+  (typically, ``session``; can also be ``direct-tcpip``,
+  ``tcpip-forward``, etc);
+* ``processType`` specifies what kind of process to run on the server
+  side of this ``SSH`` channel(typically, ``shell``; can also be
+  ``exec``, ``subsystem`` etc);
+* ``ptyType`` specifies what type of pseudo terminal kind of process to
+  run on the server side of this ``SSH`` channel(typically, ``xterm``;
+  can also be ``ansi``, ``vanilla`` etc);
+* ``ptyWidth`` and ``ptyHeight`` specify the size of the
+  pseudo-terminal;
+* ``isSync`` specifies whether this is a synchronous connect.
+
+Returns ``true`` on success. If a connection could not be initiated,
+corresponding error is set and then the function returns ``false``
+[#f1]_.
+
+.. index:: pair: function; authenticate
+.. _doxid-functionio_sshchannel_authenticate:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool errorcode authenticate(
+		:ref:`string_t<doxid-typedefstring_t>` userName,
+		:ref:`string_t<doxid-typedefstring_t>` password
+	)
+
+Sends a request to SSH server to re-authenticate on ``AuthError`` event.
+
+Returns ``true`` on success. If re-authenticate request could not be
+sent, returns ``false`` [#f1]_.
+
+.. index:: pair: function; resizePty
+.. _doxid-functionio_sshchannel_resizepty:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool errorcode resizePty(
+		:ref:`uint_t<doxid-typedefuint_t>` width,
+		:ref:`uint_t<doxid-typedefuint_t>` height
+	)
+
+Sends a request to SSH server to resize pseudo-terminal to ``width`` x
+``height``. If ``isSync`` is ``true`` then this method does not return
+until the remote server completes the request.
+
+Returns ``true`` on success. If pseudo-terminal could not be resized,
+error returned by the remote server is set and then the function returns
+``false`` [#f1]_.
+
+.. index:: pair: function; read
+.. _doxid-functionio_sshchannel_read:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`size_t<doxid-typedefsize_t>` errorcode read(
+		void* p,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	)
+
+Attempts to receive up to ``size`` bytes from the SSH socket into the
+buffer pointed to by ``p``.
+
+Returns the actual amount of bytes read on success. If read operation
+is unsuccessful, IO error supplied by the operating system is set and
+then the function returns ``-1`` [#f1]_.
+
+Normally you would call this function from within your event handler
+for ``IncomingData`` event. If this function is called when there is
+no incoming data, it blocks until either the data arrives, or the socket
+is closed.
+
+.. index:: pair: function; write
+.. _doxid-functionio_sshchannel_write:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`size_t<doxid-typedefsize_t>` errorcode write(
+		void const* p,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	)
+
+Attempts to send ``size`` bytes from the buffer pointed to by ``p`` over
+the established SSH channel.
+
+Returns the actual amount of bytes written on success. If write
+operation is unsuccessful, IO error supplied by the operating system is
+set and then the function returns ``-1`` [#f1]_.
+
+If the return value shows *less* bytes than specified by ``size``
+argument, you should suspend further transmission until the file stream
+is ready to accept more data. When this happens, ``WriteBufferReady``
+event is fired and transmission could be resumed.
+
+Aliases
+-------
+
+.. index:: pair: alias; dispose
+.. _doxid-aliasio_sshchannel_dispose:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	alias dispose = close
+
+Effectively makes ``io.SshChannel`` a *disposable* class [#f2]_.
+
+
+---------------------
+
+.. rubric:: Footnotes
+
+.. [#f1]
+
+	|footnote-errorcode|
+
+.. [#f2]
+
+	|footnote-disposable|
+

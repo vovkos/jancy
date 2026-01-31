@@ -1,0 +1,99 @@
+.. index:: pair: struct; jnc_Guid
+.. _doxid-structjnc___guid:
+
+struct jnc_Guid
+===============
+
+.. toctree::
+	:hidden:
+
+Overview
+~~~~~~~~
+
+This struct describes a globally unique identifier(GUID). :ref:`More...<details-structjnc___guid>`
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Def.h>
+	
+	struct jnc_Guid {
+		// fields
+	
+		union {
+			struct 	{
+				uint32_t :ref:`m_data1<doxid-structjnc___guid_1aec4f3165bbae5d72881b0d216e4ff15c>`;
+				uint16_t :ref:`m_data2<doxid-structjnc___guid_1a4ed322965ddf19570b9e4b4fba2440dc>`;
+				uint16_t :ref:`m_data3<doxid-structjnc___guid_1a0ee763d43851c91686c0d6bdd6bcea24>`;
+				uint8_t :ref:`m_data4<doxid-structjnc___guid_1ac373acec1c4c13e7a7e8bde3c482d850>`[8];
+			};
+	
+			struct 	{
+				uint32_t :ref:`m_long1<doxid-structjnc___guid_1a0cdb93e667945e2caf509f55c2ccbda6>`;
+				uint32_t :ref:`m_long2<doxid-structjnc___guid_1af914c4e25b77ab7d44fcee274695c36b>`;
+				uint32_t :ref:`m_long3<doxid-structjnc___guid_1a19195cd41734422db990db0789d935a9>`;
+				uint32_t :ref:`m_long4<doxid-structjnc___guid_1a509381098b5277517f0b3190d6715c4c>`;
+			};
+		};
+	};
+.. _details-structjnc___guid:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This struct describes a globally unique identifier(GUID).
+
+GUIDs are 128-bit values often used as permanent labels which uniquely identify some sort of information. Creation of GUIDs does not require any significant central coordination.
+
+In practice any two generated GUIDs could be assumed to be distinct -- even though neither of GUID generation algorithms could strictly guarantee uniqueness of generated identifiers. The probability of collision is too low and can be neglected in most practical applications.
+
+In Jancy API GUIDs are used to identify extension libraries -- each extension library has its own unique ID.
+
+This struct directly maps to ``struct UUID`` as defined in WinAPI.
+
+For more details about globally unique identifiers refer to: https://en.wikipedia.org/wiki/Globally_unique_identifier
+
+Fields
+------
+
+.. index:: pair: variable; m_data1
+.. _doxid-structjnc___guid_1aec4f3165bbae5d72881b0d216e4ff15c:
+.. index:: pair: variable; m_data2
+.. _doxid-structjnc___guid_1a4ed322965ddf19570b9e4b4fba2440dc:
+.. index:: pair: variable; m_data3
+.. _doxid-structjnc___guid_1a0ee763d43851c91686c0d6bdd6bcea24:
+.. index:: pair: variable; m_data4
+.. _doxid-structjnc___guid_1ac373acec1c4c13e7a7e8bde3c482d850:
+
+.. ref-code-block:: cpp
+	:class: doxyrest-title-code-block
+
+	uint32_t m_data1
+	uint16_t m_data2
+	uint16_t m_data3
+	uint8_t m_data4 [8]
+
+The *classic* representation of a ``GUID`` mirroring the definition in WinAPI.
+
+.. index:: pair: variable; m_long1
+.. _doxid-structjnc___guid_1a0cdb93e667945e2caf509f55c2ccbda6:
+.. index:: pair: variable; m_long2
+.. _doxid-structjnc___guid_1af914c4e25b77ab7d44fcee274695c36b:
+.. index:: pair: variable; m_long3
+.. _doxid-structjnc___guid_1a19195cd41734422db990db0789d935a9:
+.. index:: pair: variable; m_long4
+.. _doxid-structjnc___guid_1a509381098b5277517f0b3190d6715c4c:
+.. index:: pair: variable; @1
+.. _doxid-structjnc___guid_1ae6b6bc45806bdc35ebe550328d05823e:
+
+.. ref-code-block:: cpp
+	:class: doxyrest-title-code-block
+
+	uint32_t m_long1
+	uint32_t m_long2
+	uint32_t m_long3
+	uint32_t m_long4
+
+An *alternative* representation of a ``GUID`` as four 32-bit integers.
+

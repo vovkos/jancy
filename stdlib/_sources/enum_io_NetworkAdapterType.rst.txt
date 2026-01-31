@@ -1,0 +1,145 @@
+.. include:: def.rst
+.. index:: pair: enum; NetworkAdapterType
+.. _doxid-typeio_networkadaptertype:
+
+enum io.NetworkAdapterType
+==========================
+
+Overview
+~~~~~~~~
+
+This enumeration specifies available types of the network adapter. :ref:`More...<details-typeio_networkadaptertype>`
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum NetworkAdapterType {
+	    :ref:`Unknown<doxid-enum_memberio_networkadaptertype_unknown>`   = 0,
+	    :ref:`Loopback<doxid-enum_memberio_networkadaptertype_loopback>`,
+	    :ref:`Ethernet<doxid-enum_memberio_networkadaptertype_ethernet>`,
+	    :ref:`Wireless<doxid-enum_memberio_networkadaptertype_wireless>`,
+	    :ref:`Ppp<doxid-enum_memberio_networkadaptertype_ppp>`,
+	    :ref:`TokenRing<doxid-enum_memberio_networkadaptertype_tokenring>`,
+	    :ref:`Slip<doxid-enum_memberio_networkadaptertype_slip>`,
+	    :ref:`Tunnel<doxid-enum_memberio_networkadaptertype_tunnel>`,
+	    :ref:`_Count<doxid-enum_memberio_networkadaptertype__count>`,
+	};
+
+.. _details-typeio_networkadaptertype:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This enumeration specifies available types of the network adapter.
+
+When enumerating available network adapter you first call
+`io.enumerateNetworkAdapters`, then iterate through the resulting list
+of `io.NetworkAdapterDesc` structures, each contains its type information
+`io.NetworkAdapterDesc.m_type` field.
+
+Enum Values
+-----------
+
+.. index:: pair: enumvalue; Unknown
+.. _doxid-enum_memberio_networkadaptertype_unknown:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Unknown
+
+Denotes uninitialized value (or undetected type of the network adapter)
+
+.. index:: pair: enumvalue; Loopback
+.. _doxid-enum_memberio_networkadaptertype_loopback:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Loopback
+
+Software loopback network interface.
+
+.. index:: pair: enumvalue; Ethernet
+.. _doxid-enum_memberio_networkadaptertype_ethernet:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Ethernet
+
+Ethernet network interface.
+
+.. index:: pair: enumvalue; Wireless
+.. _doxid-enum_memberio_networkadaptertype_wireless:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Wireless
+
+``IEEE 802.11`` wireless network interface.
+
+.. index:: pair: enumvalue; Ppp
+.. _doxid-enum_memberio_networkadaptertype_ppp:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Ppp
+
+``PPP`` (point-to-point) network interface.
+
+.. index:: pair: enumvalue; TokenRing
+.. _doxid-enum_memberio_networkadaptertype_tokenring:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	TokenRing
+
+Token ring network interface.
+
+.. index:: pair: enumvalue; Slip
+.. _doxid-enum_memberio_networkadaptertype_slip:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Slip
+
+``SLIP`` (serial-line-internet-protocol) network interface.
+
+.. index:: pair: enumvalue; Tunnel
+.. _doxid-enum_memberio_networkadaptertype_tunnel:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Tunnel
+
+Tunnel type encapsulation network interface.
+
+.. index:: pair: enumvalue; _Count
+.. _doxid-enum_memberio_networkadaptertype__count:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	_Count
+
+Not really a type of interface; rather, this is a convenience constant
+denoting the total count  of adapter types. Should you need a table
+indexed by adapter type, you could write something like::
+
+	string_t getNetworkAdapterTypeString(io.NetworkAdapterType type) {
+		static string_t stringTable[io.NetworkAdapterType._Count] = {
+			"<unknown>",
+			"loopback",
+			// ...
+		}
+
+		return stringTable[type];
+	}
+

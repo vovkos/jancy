@@ -1,0 +1,33 @@
+.. include:: def.rst
+.. index:: pair: struct; io.HidDeviceDesc
+.. _doxid-typeio_hiddevicedesc:
+
+struct io.HidDeviceDesc
+=======================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct HidDeviceDesc {
+		// fields
+	
+		io.HidDeviceDesc const* :target:`m_next<doxid-fieldio_hiddevicedesc_m_next>`;
+		typedef String string_t :target:`m_path<doxid-fieldio_hiddevicedesc_m_path>`;
+		typedef String string_t :target:`m_manufacturer<doxid-fieldio_hiddevicedesc_m_manufacturer>`;
+		typedef String string_t :target:`m_product<doxid-fieldio_hiddevicedesc_m_product>`;
+		typedef String string_t :target:`m_serialNumber<doxid-fieldio_hiddevicedesc_m_serialnumber>`;
+		typedef unsigned short uint16_t :target:`m_vendorId<doxid-fieldio_hiddevicedesc_m_vendorid>`;
+		typedef unsigned short uint16_t :target:`m_productId<doxid-fieldio_hiddevicedesc_m_productid>`;
+		typedef unsigned short uint16_t :target:`m_usagePage<doxid-fieldio_hiddevicedesc_m_usagepage>`;
+		typedef unsigned short uint16_t :target:`m_usage<doxid-fieldio_hiddevicedesc_m_usage>`;
+		typedef unsigned short uint16_t :target:`m_releaseNumber<doxid-fieldio_hiddevicedesc_m_releasenumber>`;
+		typedef unsigned char uint8_t :target:`m_interfaceId<doxid-fieldio_hiddevicedesc_m_interfaceid>`;
+		:ref:`io.HidBusType<doxid-typeio_hidbustype>` :target:`m_busType<doxid-fieldio_hiddevicedesc_m_bustype>`;
+	};

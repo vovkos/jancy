@@ -1,0 +1,496 @@
+.. include:: def.rst
+.. index:: pair: class; io.Socket
+.. _doxid-typeio_socket:
+
+class io.Socket
+===============
+
+.. toctree::
+	:hidden:
+
+Overview
+~~~~~~~~
+
+This class provides high-level asynchronous interface for accessing
+all kinds of sockets. :ref:`More...<details-typeio_socket>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "io_base.jncx"
+	import "io_Socket.jnc"
+	
+	class Socket {
+		// fields
+	
+		:ref:`io.SocketEvents<doxid-typeio_socketevents>` readonly volatile :target:`m_activeEvents<doxid-fieldio_socket_m_activeevents>`;
+		:ref:`std.Error<doxid-typestd_error>` const* readonly volatile :target:`m_ioError<doxid-fieldio_socket_m_ioerror>`;
+		bool readonly :ref:`m_isOpen<doxid-fieldio_socket_m_isopen>`;
+
+		// properties
+	
+		:ref:`io.SocketAddress<doxid-typeio_socketaddress>` const property :ref:`m_address<doxid-propertyio_socket_m_address>`;
+		:ref:`io.SocketAddress<doxid-typeio_socketaddress>` const property :ref:`m_peerAddress<doxid-propertyio_socket_m_peeraddress>`;
+		:ref:`uint_t<doxid-typedefuint_t>` autoget property :target:`m_readParallelism<doxid-propertyio_socket_m_readparallelism>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_readBlockSize<doxid-propertyio_socket_m_readblocksize>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_readBufferSize<doxid-propertyio_socket_m_readbuffersize>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_writeBufferSize<doxid-propertyio_socket_m_writebuffersize>`;
+		:ref:`io.SocketOptions<doxid-typeio_socketoptions>` autoget property :target:`m_options<doxid-propertyio_socket_m_options>`;
+		:ref:`uintptr_t<doxid-typedefuintptr_t>` const property :target:`m_osHandle<doxid-propertyio_socket_m_oshandle>`;
+
+		// construction
+	
+		:target:`construct<doxid-functionio_socket_construct>`();
+		:target:`destruct<doxid-functionio_socket_destruct>`();
+
+		// methods
+	
+		bool errorcode :ref:`open<doxid-functionio_socket_open>`(
+			:ref:`io.AddressFamily<doxid-typeio_addressfamily>` family,
+			:ref:`io.Protocol<doxid-typeio_protocol>` protocol
+		);
+	
+		bool errorcode :ref:`open<doxid-functionio_socket_open_2>`(
+			:ref:`io.Protocol<doxid-typeio_protocol>` protocol,
+			:ref:`io.SocketAddress<doxid-typeio_socketaddress>` const* address
+		);
+	
+		bool errorcode :ref:`open<doxid-functionio_socket_open_3>`(:ref:`io.Protocol<doxid-typeio_protocol>` protocol);
+		void :ref:`close<doxid-functionio_socket_close>`();
+		bool errorcode :ref:`connect<doxid-functionio_socket_connect>`(:ref:`io.SocketAddress<doxid-typeio_socketaddress>` const* address);
+		bool errorcode :ref:`listen<doxid-functionio_socket_listen>`(:ref:`size_t<doxid-typedefsize_t>` backlog = 0);
+	
+		io.Socket* errorcode :ref:`accept<doxid-functionio_socket_accept>`(
+			:ref:`io.SocketAddress<doxid-typeio_socketaddress>`* address = null,
+			bool isSuspended = false
+		);
+	
+		void :ref:`unsuspend<doxid-functionio_socket_unsuspend>`();
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`read<doxid-functionio_socket_read>`(
+			void* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :ref:`write<doxid-functionio_socket_write>`(
+			void const* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :ref:`readDatagram<doxid-functionio_socket_readdatagram>`(
+			void* p,
+			:ref:`size_t<doxid-typedefsize_t>` size,
+			:ref:`io.SocketAddress<doxid-typeio_socketaddress>`* address
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :ref:`writeDatagram<doxid-functionio_socket_writedatagram>`(
+			void const* p,
+			:ref:`size_t<doxid-typedefsize_t>` size,
+			:ref:`io.SocketAddress<doxid-typeio_socketaddress>` const* address
+		);
+	
+		long errorcode :target:`wait<doxid-functionio_socket_wait>`(
+			:ref:`io.SocketEvents<doxid-typeio_socketevents>` eventMask,
+			void function* handler(io.SocketEvents triggeredEvents)
+		);
+	
+		bool errorcode :target:`cancelWait<doxid-functionio_socket_cancelwait>`(long handle);
+	
+		:ref:`io.SocketEvents<doxid-typeio_socketevents>` :target:`blockingWait<doxid-functionio_socket_blockingwait>`(
+			:ref:`io.SocketEvents<doxid-typeio_socketevents>` eventMask,
+			:ref:`uint_t<doxid-typedefuint_t>` timeout = -1
+		);
+	
+		:ref:`io.SocketEvents<doxid-typeio_socketevents>` async :target:`asyncWait<doxid-functionio_socket_asyncwait>`(:ref:`io.SocketEvents<doxid-typeio_socketevents>` eventMask);
+
+		// aliases
+	
+		alias :ref:`dispose<doxid-aliasio_socket_dispose>` = close;
+	};
+.. _details-typeio_socket:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This class provides high-level asynchronous interface for accessing
+all kinds of sockets.
+
+Sockets represent endpoints of network communications. Sockets are
+subdivided into two large subclassess: **datagram-oriented** and
+**connection-oriented**. Furthermore, connection-riented sockets can operate
+in one of the two modes: **client** and **server**. And even though these
+interfaces don't share that many commonalities, it so historically happened
+that they are usually blended into a single *socket API*.
+
+Jancy follows this traditional approach.
+
+Sample code(client connection-oriented TCP socket):
+
+.. ref-code-block::
+
+	class MyDialog {
+		// ...
+
+		io.Socket m_socket;
+		uint_t m_syncId;
+
+		void connect(string_t addrString);
+		void close();
+		void waitSocketEvents();
+
+		void onWriteButtonClicked();
+
+		void onSocketEvent(
+			uint_t syncId,
+			`io.SocketEvents` triggeredEvents
+		);
+	}
+
+	MyDialog.connect(string_t addrString) {
+		`io.SocketAddress` sockAddr;
+		sockAddr.parse(addrString);
+		m_socket.open(`io.Protocol.Tcp`);
+		m_socket.connect(sockAddr);
+		waitSocketEvents();
+
+	catch:
+		// handle the error...
+	}
+
+	MyDialog.close() {
+		m_socket.close();
+		m_syncId++; // events past this point will be discarded as 'late'
+	}
+
+	MyDialog.waitSocketEvent() {
+		`io.SocketEvents` eventMask =
+			`io.SocketEvents.IoError` |
+			`io.SocketEvents.IncomingData`;
+
+		if (!(m_socket.m_activeEvents & `io.SocketEvents.TcpConnected`))
+			eventMask |= `io.SocketEvents.TcpConnected`;
+
+		m_socket.wait(eventMask, onSocketEvent ~(++m_syncId) @
+			g_mainThreadScheduler);
+	}
+
+	MyDialog.onWriteButtonClicked() {
+		static char data[] = "a quick brown fox jumps over the lazy dog";
+		m_socket.write(data, sizeof(data));
+	}
+
+	MyDialog.onSocketEvent(
+		uint_t syncId,
+		`io.SocketEvents` triggeredEvents
+	) {
+		if (syncId != m_syncId) // late event
+			return;
+
+		if (triggeredEvents & `io.SocketEvents.IoError`) {
+			string_t errorString = m_socket.m_ioError.m_description;
+			// ...
+		}
+
+		if (triggeredEvents & `io.SocketEvents.TcpConnected`) {
+			// TCP connection established
+		}
+
+		if (triggeredEvents & `io.SocketEvents.IncomingData`) {
+			char buffer[256];
+			size_t size = m_socket.read(buffer, sizeof(buffer));
+			// ...
+		}
+
+		waitSocketEvents(); // restart wait
+	}
+
+
+
+.. rubric:: See also:
+
+`io.SocketEvents`, `io.SocketAddress`
+
+Fields
+------
+
+.. index:: pair: variable; m_isOpen
+.. _doxid-fieldio_socket_m_isopen:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool readonly m_isOpen
+
+Holds the open status for the socket, i.e. ``true`` if opened; ``false``
+otherwise.
+
+Properties
+----------
+
+.. index:: pair: property; m_address
+.. _doxid-propertyio_socket_m_address:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`io.SocketAddress<doxid-typeio_socketaddress>` const property m_address
+
+This property is used for getting the local address assigned to this
+socket. If the address has not been assigned yet, returns empty address.
+
+.. index:: pair: property; m_peerAddress
+.. _doxid-propertyio_socket_m_peeraddress:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`io.SocketAddress<doxid-typeio_socketaddress>` const property m_peerAddress
+
+This property is used for getting the remote address of the peer this
+socket is connected to. If the connection has not been established yet,
+returns empty address.
+
+Methods
+-------
+
+.. index:: pair: function; open
+.. _doxid-functionio_socket_open:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool errorcode open(
+		:ref:`io.AddressFamily<doxid-typeio_addressfamily>` family,
+		:ref:`io.Protocol<doxid-typeio_protocol>` protocol
+	)
+
+Opens a new unbound socket.
+
+The function accepts three arguments. The first one, ``family``,
+specifies the address family of the new socket(``IP4`` vs ``IP6``). The
+second argument, ``protocol``, specifies the protocol of the new socket
+(datagram-oriented ``UDP`` vs connection-oriented ``TCP``). The third
+and final argument, ``flags`` can be used to specify additional open
+options.
+
+Returns ``true`` on success. If a new socket could not be opened, IO
+error supplied by operating system is set and then the function returns
+``false`` [#f1]_.
+
+.. index:: pair: function; open
+.. _doxid-functionio_socket_open_2:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool errorcode open(
+		:ref:`io.Protocol<doxid-typeio_protocol>` protocol,
+		:ref:`io.SocketAddress<doxid-typeio_socketaddress>` const* address
+	)
+
+Opens a new socket and binds it to the specified local address.
+
+The function accepts three arguments. The first one, ``protocol``,
+specifies the protocol of the new socket(datagram-oriented ``UDP``
+vs connection-oriented ``TCP``). The second argument, ``address``,
+specifies the local address to bind the new socket to. The third and
+final argument, ``flags`` can be used to specify additional open
+options.
+
+Returns ``true`` on success. If a new socket could not be opened, IO
+error supplied by operating system is set and then the function returns
+``false`` [#f1]_.
+
+.. index:: pair: function; open
+.. _doxid-functionio_socket_open_3:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool errorcode open(:ref:`io.Protocol<doxid-typeio_protocol>` protocol)
+
+Opens a new unbound socket.
+
+The function is equivalent to the very first overload of ``open`` method
+with ``family`` argument set to `io.AddressFamily.Ip4`.
+
+.. index:: pair: function; close
+.. _doxid-functionio_socket_close:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	void close()
+
+Closes a previously opened socket, does nothing if the file is not
+opened. This function always succeeds.
+
+Sometimes it may be convenient to use *disposable* pattern to ensure
+timely invokation of ``close`` [#f2]_.
+
+.. index:: pair: function; connect
+.. _doxid-functionio_socket_connect:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool errorcode connect(:ref:`io.SocketAddress<doxid-typeio_socketaddress>` const* address)
+
+Initiates a connection request to ``address``. This function is only
+valid for ``TCP`` sockets.
+
+This method initiates a connection request and returns immediatly.
+After connection request completes, an event `io.SocketEvents.TcpConnected`
+(on success) or `io.SocketEvents.IoError` (on failure) gets fired.
+
+Returns ``true`` on success. If a connection could not be established,
+IO error supplied by operating system is set and then the function
+returns ``false`` [#f1]_.
+
+.. index:: pair: function; listen
+.. _doxid-functionio_socket_listen:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool errorcode listen(:ref:`size_t<doxid-typedefsize_t>` backlog = 0)
+
+Places a server socket into ``listen`` state. This function is only
+valid for ``TCP`` sockets.
+
+The only argument of the method, ``backlog``, specifies the maximum
+length of the queue of *pending* client-side connections, i.e.
+connections which has not been accepted via ``accept`` method yet.
+
+Returns ``true`` on success. If the socket could not be placed into
+``listen`` state, IO error supplied by operating system is set and then
+the function returns ``false`` [#f1]_.
+
+.. index:: pair: function; accept
+.. _doxid-functionio_socket_accept:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	io.Socket* errorcode accept(
+		:ref:`io.SocketAddress<doxid-typeio_socketaddress>`* address = null,
+		bool isSuspended = false
+	)
+
+Accepts a client connection and returns a resulting ``io.Socket`` object
+to communicate with this particular client. To terminate a client
+connection, issue ``close`` method on the client file stream object.
+
+If method fails, ``null`` value is returned [#f1]_.
+
+.. index:: pair: function; unsuspend
+.. _doxid-functionio_socket_unsuspend:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	void unsuspend()
+
+Accepted sockets may initially be suspended (so that the user has a
+chance to configure reading options such as ``m_readBlockSize``)
+
+Call ``unsuspend`` to awaken the accepted socket after it has been
+configured.
+
+.. index:: pair: function; write
+.. _doxid-functionio_socket_write:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`size_t<doxid-typedefsize_t>` errorcode write(
+		void const* p,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	)
+
+Attempts to send ``size`` bytes from the buffer pointed to by ``p`` over
+the connected socket.
+
+Returns the actual amount of bytes written on success. If write operation
+is unsuccessful, IO error supplied by the operating system is set and
+then the function returns ``-1`` [#f1]_.
+
+If the return value shows *less* bytes than specified by ``size``
+argument, you should suspend further transmission until the file stream
+is ready to accept more data. When this happens, ``WriteBufferReady``
+event is fired and transmission could be resumed.
+
+.. index:: pair: function; readDatagram
+.. _doxid-functionio_socket_readdatagram:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`size_t<doxid-typedefsize_t>` errorcode readDatagram(
+		void* p,
+		:ref:`size_t<doxid-typedefsize_t>` size,
+		:ref:`io.SocketAddress<doxid-typeio_socketaddress>`* address
+	)
+
+Attempts to read up to ``size`` bytes from the socket into the buffer
+pointed to by ``p``; stores the address of the sender into the
+``address``.
+
+Returns the actual amount of bytes read on success. If read operation is
+unsuccessful, IO error supplied by the operating system is set and then
+the function returns ``-1`` [#f1]_.
+
+Normally you would call this function from within your event handler for
+``IncomingData`` event.
+
+.. index:: pair: function; writeDatagram
+.. _doxid-functionio_socket_writedatagram:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`size_t<doxid-typedefsize_t>` errorcode writeDatagram(
+		void const* p,
+		:ref:`size_t<doxid-typedefsize_t>` size,
+		:ref:`io.SocketAddress<doxid-typeio_socketaddress>` const* address
+	)
+
+Attempts to send ``size`` bytes from the buffer pointed to by ``p`` to
+the remote node pointed to by ``address``.
+
+Returns the actual amount of bytes written on success. If write
+operation is unsuccessful, IO error supplied by the operating system is
+set and then the function returns ``-1`` [#f1]_.
+
+If the return value shows *less* bytes than specified by ``size``
+argument, you should suspend further transmission until the file stream
+is ready to accept more data. When this happens, ``WriteBufferReady``
+event is fired and transmission could be resumed.
+
+Aliases
+-------
+
+.. index:: pair: alias; dispose
+.. _doxid-aliasio_socket_dispose:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	alias dispose = close
+
+Effectively makes ``io.Socket`` a *disposable* class [#f2]_.
+
+
+---------------------
+
+.. rubric:: Footnotes
+
+.. [#f1]
+
+	|footnote-errorcode|
+
+.. [#f2]
+
+	|footnote-disposable|
+

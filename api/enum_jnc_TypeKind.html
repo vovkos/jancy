@@ -1,0 +1,214 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>enum jnc_TypeKind &mdash; Jancy C API Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="enum jnc_TypeKindFlag" href="enum_jnc_TypeKindFlag.html" />
+    <link rel="prev" title="enum jnc_TypeFlag" href="enum_jnc_TypeFlag.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy C API Reference
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="group_base-def.html">Base Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_error-subsystem.html">Error Subsystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_extension-lib-subsystem.html">Extension Libraries Subsystem</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="group_module-subsystem.html">Module Components</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="group_attribute-block.html">Attribute Block</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_function.html">Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_module.html">Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_module-item.html">Module Item</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_module-item-decl.html">Module Item Declaration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_namespace.html">Namespace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_operators.html">Operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_property.html">Property</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="group_type-subsystem.html">Type Subsystem</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="group_array-type.html">Array Type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="group_class-type.html">Class Type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="group_derivable-type.html">Derivable Type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="group_enum-type.html">Enum Type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="group_function-type.html">Function Type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="group_property-type.html">Property Type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="group_struct-type.html">Struct Type</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="group_type.html">Type</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="enum_jnc_DataPtrTypeKind.html">enum jnc_DataPtrTypeKind</a></li>
+<li class="toctree-l4"><a class="reference internal" href="enum_jnc_ImportTypeFlag.html">enum jnc_ImportTypeFlag</a></li>
+<li class="toctree-l4"><a class="reference internal" href="enum_jnc_PtrTypeFlag.html">enum jnc_PtrTypeFlag</a></li>
+<li class="toctree-l4"><a class="reference internal" href="enum_jnc_StdType.html">enum jnc_StdType</a></li>
+<li class="toctree-l4"><a class="reference internal" href="enum_jnc_TypeFlag.html">enum jnc_TypeFlag</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">enum jnc_TypeKind</a></li>
+<li class="toctree-l4"><a class="reference internal" href="enum_jnc_TypeKindFlag.html">enum jnc_TypeKindFlag</a></li>
+<li class="toctree-l4"><a class="reference internal" href="enum_jnc_TypeStringKind.html">enum jnc_TypeStringKind</a></li>
+<li class="toctree-l4"><a class="reference internal" href="struct_jnc_Type.html">struct jnc_Type</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="group_union-type.html">Union Type</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="group_unit.html">Unit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_variable.html">Variable</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="group_runtime-subsystem.html">Runtime Subsystem</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="global.html">Global Namespace</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy C API Reference</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="group_module-subsystem.html">Module Components</a></li>
+          <li class="breadcrumb-item"><a href="group_type-subsystem.html">Type Subsystem</a></li>
+          <li class="breadcrumb-item"><a href="group_type.html">Type</a></li>
+      <li class="breadcrumb-item active">enum jnc_TypeKind</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="enum-jnc-typekind">
+<span id="doxid-group-type-1ga6b7e694f112a1053b0c69a4e0141319c"></span><span id="index-0"></span><h1>enum jnc_TypeKind</h1>
+<pre class="highlight doxyrest-overview-code-block literal-block"><span></span><span class="cp">#include</span> <span class="cpf">&lt;jnc_Type.h&gt;</span>
+
+<span class="k">enum</span> <span class="n">jnc_TypeKind</span> <span class="p">{</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca1b12c07e3d57151f3440841a0cea0885"><span></span><span class="n">jnc_TypeKind_Void</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319caa68fd6bfd8e2478fd2cbe46ff99c8aad"><span></span><span class="n">jnc_TypeKind_Variant</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca0baa8567ddd7b317c8eccbf4d4503d37"><span></span><span class="n">jnc_TypeKind_String</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca6bfdac3b0484af1eabf1c201a8b1f3e8"><span></span><span class="n">jnc_TypeKind_Bool</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca1f91311e5d22dccac00f6fedaef9ad61"><span></span><span class="n">jnc_TypeKind_Int8</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca7ca7e0fcbdbbe5c3d3fb9044195e8c27"><span></span><span class="n">jnc_TypeKind_Int8_u</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca38dad49414cf08ef32378990b1b68a8b"><span></span><span class="n">jnc_TypeKind_Int16</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca6e34bbbeacc2e0f0730080f762973d24"><span></span><span class="n">jnc_TypeKind_Int16_u</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319caa8a65c0b428f9ee5dfccd518c2b4ba0f"><span></span><span class="n">jnc_TypeKind_Int32</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca3ab06ac57d30e6e03ba210e0b55fa51a"><span></span><span class="n">jnc_TypeKind_Int32_u</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca242ca56291fd045be2f61e170029d005"><span></span><span class="n">jnc_TypeKind_Int64</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca2e0baeff8147c39ed38df8ee46024c7b"><span></span><span class="n">jnc_TypeKind_Int64_u</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319cabc07a1b539407f6a3af7a064d82a1de5"><span></span><span class="n">jnc_TypeKind_Float</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca62f18622a2a37c1c5b5c4b9a4eef1937"><span></span><span class="n">jnc_TypeKind_Double</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319caee22657408cdad11603c4dd04e29f0f9"><span></span><span class="n">jnc_TypeKind_Array</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319caf1ae00c81dc45034c9c028c9fa50c500"><span></span><span class="n">jnc_TypeKind_Enum</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca666d712521c280972ff571a528df1a70"><span></span><span class="n">jnc_TypeKind_Struct</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca7d1baa084e797e60d01179d87b50dbfb"><span></span><span class="n">jnc_TypeKind_Union</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca31040bce7e1b3f97e2c8fc1e9a569bbe"><span></span><span class="n">jnc_TypeKind_Class</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca00b382fe1d4d5cfe6e7adc1d8314abc2"><span></span><span class="n">jnc_TypeKind_Function</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca98e6951b5e0b260300fae5b2aeeb6426"><span></span><span class="n">jnc_TypeKind_Property</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319cac89e6671f0b4e8ab078942d5feb734bc"><span></span><span class="n">jnc_TypeKind_DataPtr</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca81bf24f61824fa60232344f4f97d1e8f"><span></span><span class="n">jnc_TypeKind_DataRef</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca7f093beb8c920fdc9267eeb415f64c04"><span></span><span class="n">jnc_TypeKind_ClassPtr</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca5f5cbccb7e9872178eae46bfacdf2b9a"><span></span><span class="n">jnc_TypeKind_ClassRef</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca9513b6bc6a6d9e860376950dca69d62e"><span></span><span class="n">jnc_TypeKind_FunctionPtr</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca4c5a8d2501e48e66fa3883714063a01e"><span></span><span class="n">jnc_TypeKind_FunctionRef</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca0a53d339584dc6f4d0e401bc844838c7"><span></span><span class="n">jnc_TypeKind_PropertyPtr</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca9d325489054ad0e755896433cbe9e3e3"><span></span><span class="n">jnc_TypeKind_PropertyRef</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca847157cba94efd86241b1c9ebf97d21b"><span></span><span class="n">jnc_TypeKind_ImportTypeName</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca4674e3bca7f892c7938452ccc71adf37"><span></span><span class="n">jnc_TypeKind_ImportPtr</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca04911a4518e959649e4d5d61fd8aced4"><span></span><span class="n">jnc_TypeKind_ImportIntMod</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319cac791d4265eee5c4de61317d9e33f82c6"><span></span><span class="n">jnc_TypeKind_TemplateArg</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319cac6c0e867ea0aca732e3622ffc67b9184"><span></span><span class="n">jnc_TypeKind_TemplateTypeName</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319cadd51fd92f6c881045786ed6a5f8c6c50"><span></span><span class="n">jnc_TypeKind_TemplatePtr</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca1085ec5f389a275f8a65c4f68358fbcf"><span></span><span class="n">jnc_TypeKind_TemplateIntMod</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca669df8c231c9e683c80c6ab044644e09"><span></span><span class="n">jnc_TypeKind_TemplateDecl</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca367207982c7bca3ab65a661051ec9db5"><span></span><span class="n">jnc_TypeKind_TypedefShadow</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca61c1ed23974d0d51bc0c28b67600ad76"><span></span><span class="n">jnc_TypeKind__Count</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca51f2b8490de8c1d9e987241eeac821ef"><span></span><span class="n">jnc_TypeKind__PrimitiveTypeCount</span></span><span></span> <span class="o">=</span> <span class="n">jnc_TypeKind_Double</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca7832ecd8b5fd6fdea879c7f856f28f03"><span></span><span class="n">jnc_TypeKind_IntPtr</span></span><span></span>              <span class="o">=</span> <span class="n">jnc_TypeKind_Int32</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319caa940183a4a0e53ac8c15a40bdfef860a"><span></span><span class="n">jnc_TypeKind_IntPtr_u</span></span><span></span>            <span class="o">=</span> <span class="n">jnc_TypeKind_Int32_u</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca1d15e519af9a7d493ee949ee8a5f701c"><span></span><span class="n">jnc_TypeKind_SizeT</span></span><span></span>               <span class="o">=</span> <span class="n">jnc_TypeKind_IntPtr_u</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca4b858383af303451e7750d77af236bf7"><span></span><span class="n">jnc_TypeKind_Int</span></span><span></span>                 <span class="o">=</span> <span class="n">jnc_TypeKind_Int32</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319cad09b4ef637605fe178f7c673c1538e26"><span></span><span class="n">jnc_TypeKind_Int_u</span></span><span></span>               <span class="o">=</span> <span class="n">jnc_TypeKind_Int32_u</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca7b51288bd1edeab9c909902cdc918f76"><span></span><span class="n">jnc_TypeKind_Char</span></span><span></span>                <span class="o">=</span> <span class="n">jnc_TypeKind_Int8</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca34e2df507d872c476899727ed6e4f617"><span></span><span class="n">jnc_TypeKind_Char_u</span></span><span></span>              <span class="o">=</span> <span class="n">jnc_TypeKind_Int8_u</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319caba37bd0a076a8d808878d4efc9e3f2b2"><span></span><span class="n">jnc_TypeKind_Byte</span></span><span></span>                <span class="o">=</span> <span class="n">jnc_TypeKind_Int8_u</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319cabc4576375de986bc48d54091f4558e12"><span></span><span class="n">jnc_TypeKind_Short</span></span><span></span>               <span class="o">=</span> <span class="n">jnc_TypeKind_Int16</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319cabfd8cd78c17099feedde01fd335aad38"><span></span><span class="n">jnc_TypeKind_Short_u</span></span><span></span>             <span class="o">=</span> <span class="n">jnc_TypeKind_Int16_u</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca6f4f4f68f3e89f9b87ed0304b25aad53"><span></span><span class="n">jnc_TypeKind_Word</span></span><span></span>                <span class="o">=</span> <span class="n">jnc_TypeKind_Int16_u</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319cac25b7b2474322f44a4b764c31e3eea4b"><span></span><span class="n">jnc_TypeKind_Long</span></span><span></span>                <span class="o">=</span> <span class="n">jnc_TypeKind_Int64</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319ca8248ed7f755363e7613f413a9b51f2da"><span></span><span class="n">jnc_TypeKind_Long_u</span></span><span></span>              <span class="o">=</span> <span class="n">jnc_TypeKind_Int64_u</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319cad790968148f857fe3f78f07528d2f828"><span></span><span class="n">jnc_TypeKind_DWord</span></span><span></span>               <span class="o">=</span> <span class="n">jnc_TypeKind_Int32_u</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-type-1gga6b7e694f112a1053b0c69a4e0141319cae75f6f0519e3c38e85e91a48bdc55cbd"><span></span><span class="n">jnc_TypeKind_QWord</span></span><span></span>               <span class="o">=</span> <span class="n">jnc_TypeKind_Int64_u</span><span class="p">,</span>
+<span class="p">};</span></pre>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="enum_jnc_TypeFlag.html" class="btn btn-neutral float-left" title="enum jnc_TypeFlag" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="enum_jnc_TypeKindFlag.html" class="btn btn-neutral float-right" title="enum jnc_TypeKindFlag" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

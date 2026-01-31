@@ -1,0 +1,358 @@
+.. index:: pair: group; Extension Libraries Subsystem
+.. _doxid-group__extension-lib-subsystem:
+
+Extension Libraries Subsystem
+=============================
+
+.. toctree::
+	:hidden:
+
+	struct_jnc_DynamicExtensionLibHost.rst
+	struct_jnc_ExtensionLib.rst
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	// typedefs
+
+	typedef void :target:`jnc_ExtensionLib_AddSourcesFunc<doxid-group__extension-lib-subsystem_1ga4ad19adb099657ecdd5b1ed0e41276bf>`(jnc_Module *module);
+	typedef void :target:`jnc_ExtensionLib_AddOpaqueClassTypeInfosFunc<doxid-group__extension-lib-subsystem_1gafa73430570b92e7c5e06596426d167d5>`(jnc_Module *module);
+	typedef :ref:`bool_t<doxid-group__base-def_1ga812d16e5494522586b3784e55d479912>` :target:`jnc_ExtensionLib_MapAddressesFunc<doxid-group__extension-lib-subsystem_1gabbbf568aff9851d2e838bf2b8b98b727>`(jnc_Module *module);
+	typedef void :target:`jnc_ExtensionLib_UpdateCapabilitiesFunc<doxid-group__extension-lib-subsystem_1gab233ad6bfe5d8e11607d6515c5269987>`();
+	typedef :ref:`jnc_ExtensionLib<doxid-structjnc___extension_lib>`* :target:`jnc_DynamicExtensionLibMainFunc<doxid-group__extension-lib-subsystem_1ga1d1ab692379a7aa9455b4bae50ee5ff0>`(jnc_DynamicExtensionLibHost *host);
+	typedef :ref:`bool_t<doxid-group__base-def_1ga812d16e5494522586b3784e55d479912>` :target:`jnc_DynamicExtensionLibUnloadFunc<doxid-group__extension-lib-subsystem_1ga3a634ea7f49b0e4aced708fb1b71d8e5>`();
+
+	typedef size_t :target:`jnc_StdLib_StdInputFunc<doxid-group__extension-lib-subsystem_1ga3f6bf9050f31583be4b1c8a03a025c4d>`(
+		void *p,
+		size_t size
+		);
+
+	typedef size_t :target:`jnc_StdLib_StdOutputFunc<doxid-group__extension-lib-subsystem_1ga9b4d3ff942c7213c222be9d83f2246b3>`(
+		const void *p,
+		size_t size
+		);
+
+	// structs
+
+	struct :ref:`jnc_DynamicExtensionLibHost<doxid-structjnc___dynamic_extension_lib_host>`;
+	struct :ref:`jnc_ExtensionLib<doxid-structjnc___extension_lib>`;
+
+	// global variables
+
+	:ref:`JNC_SELECT_ANY<doxid-group__base-def_1gadf3ff658e277ca8ea2878349758bfdf5>` char :target:`jnc_g_dynamicExtensionLibMainFuncName<doxid-group__extension-lib-subsystem_1gae5c57fa82d7981dd79eb67925a239fa8>`[] = "jncDynamicExtensionLibMain";
+	:ref:`JNC_SELECT_ANY<doxid-group__base-def_1gadf3ff658e277ca8ea2878349758bfdf5>` char :target:`jnc_g_dynamicExtensionLibUnloadFuncName<doxid-group__extension-lib-subsystem_1gacbef1615849acf35488143fb80f05449>`[] = "jncDynamicExtensionLibUnload";
+
+	// global functions
+
+	:ref:`jnc_ExtensionLib<doxid-structjnc___extension_lib>`*
+	:target:`jnc_CoreLib_getLib<doxid-group__extension-lib-subsystem_1ga3b0c37f4704d5a89ee7a12c1fd46267b>`();
+
+	:ref:`jnc_ExtensionLib<doxid-structjnc___extension_lib>`*
+	:target:`jnc_IntrospectionLib_getLib<doxid-group__extension-lib-subsystem_1gaf9707d2066a7940cda9ca03b24779ecd>`();
+
+	:ref:`jnc_ExtensionLib<doxid-structjnc___extension_lib>`*
+	:target:`jnc_StdLib_getLib<doxid-group__extension-lib-subsystem_1gaafeddc092fa07501257c4e8cd6bc0188>`();
+
+	:ref:`jnc_ExtensionLib<doxid-structjnc___extension_lib>`*
+	:target:`jnc_SysLib_getLib<doxid-group__extension-lib-subsystem_1ga05b847a1f656867b62d6c295e9f7c5be>`();
+
+	void
+	:target:`jnc_StdLib_setStdIo<doxid-group__extension-lib-subsystem_1ga674e0edc96645e9c17c34496c4c77e95>`(
+		jnc_StdLib_StdInputFunc* getsFunc,
+		jnc_StdLib_StdOutputFunc* printOutFunc,
+		jnc_StdLib_StdOutputFunc* printErrFunc
+	);
+
+	// macros
+
+	#define :target:`JNC_BEGIN_CLASS_TYPE_VTABLE<doxid-group__extension-lib-subsystem_1ga5d5037047076a89d11afcc12af75fc3a>`(TypePrefix)
+	#define :target:`JNC_BEGIN_LIB_FUNCTION_MAP<doxid-group__extension-lib-subsystem_1ga50deb573e948bfb09717c3d294fca483>`(LibPrefix)
+	#define :target:`JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE<doxid-group__extension-lib-subsystem_1gaac46fbbdd85e48a226b40ea7d35c9367>`(LibPrefix)
+	#define :target:`JNC_BEGIN_LIB_SOURCE_FILE_TABLE<doxid-group__extension-lib-subsystem_1ga7bdca8f41eec719e1d84090181a49e09>`(LibPrefix)
+	#define :target:`JNC_BEGIN_OPAQUE_CLASS_REQUIRE_TABLE<doxid-group__extension-lib-subsystem_1gaab4b41e3b88f58f91ef63e60ac8cc647>`(TypePrefix)
+	#define :target:`JNC_BEGIN_TYPE_FUNCTION_MAP<doxid-group__extension-lib-subsystem_1ga5e63d0160b2bb4bfd584840d2fab5a3b>`(TypePrefix)
+	#define :target:`JNC_CLASS_TYPE_VTABLE_ENTRY<doxid-group__extension-lib-subsystem_1gaba0ab2885dc50a2af9e1c9e5ca84616f>`(function)
+	#define :target:`JNC_DECLARE_CLASS_TYPE<doxid-group__extension-lib-subsystem_1ga5759ed872ddb836b880940d9cbc97ede>`(TypePrefix)
+	#define :target:`JNC_DECLARE_CLASS_TYPE_STATIC_METHODS<doxid-group__extension-lib-subsystem_1ga0a973b71241eaed9cab83b2ba2babe47>`(TypePrefix)
+	#define :target:`JNC_DECLARE_LIB<doxid-group__extension-lib-subsystem_1ga740e09fa66277eab8cf92fcfb8e24f2c>`(LibPrefix)
+	#define :target:`JNC_DECLARE_OPAQUE_CLASS_TYPE<doxid-group__extension-lib-subsystem_1ga224a0ec24282b0c34da6339ba581575d>`(TypePrefix)
+	#define :target:`JNC_DECLARE_OPAQUE_CLASS_TYPE_STATIC_METHODS<doxid-group__extension-lib-subsystem_1ga3753797909af7b72734fae951c1810d8>`(TypePrefix)
+	#define :target:`JNC_DECLARE_TYPE<doxid-group__extension-lib-subsystem_1gaf26dac3859b0dfc3f9884d789c1b0f1a>`(TypePrefix)
+
+	#define :target:`JNC_DECLARE_TYPE_EX<doxid-group__extension-lib-subsystem_1gaa8fd221359f2f5fe79b5a5bccc0bd88a>`( \
+		TypePrefix, \
+		JncType \
+	)
+
+	#define :target:`JNC_DECLARE_TYPE_STATIC_METHODS<doxid-group__extension-lib-subsystem_1gad8e899ceb35be62df55d9c29c3764b15>`(TypePrefix)
+
+	#define :target:`JNC_DECLARE_TYPE_STATIC_METHODS_EX<doxid-group__extension-lib-subsystem_1ga27dc425dbaab39bca8de030c5cce0583>`( \
+		TypePrefix, \
+		JncType \
+	)
+
+	#define :target:`JNC_DEFINE_CLASS_TYPE<doxid-group__extension-lib-subsystem_1gae93a63eedf699f79f8663fd38ff11301>`( \
+		TypePrefix, \
+		qualifiedName, \
+		libGuid, \
+		cacheSlot \
+	)
+
+	#define :target:`JNC_DEFINE_LIB<doxid-group__extension-lib-subsystem_1ga57889b0806d83bdaeaf6a4bd4be3448b>`( \
+		LibPrefix, \
+		libGuid, \
+		libName, \
+		libDescription \
+	)
+
+	#define :target:`JNC_DEFINE_LIB_EX<doxid-group__extension-lib-subsystem_1ga6cd96e94df66a5cbf784a0d4041fa605>`( \
+		LibPrefix, \
+		libGuid, \
+		libName, \
+		libDescription, \
+		updateCapabilities \
+	)
+
+	#define :target:`JNC_DEFINE_OPAQUE_CLASS_TYPE<doxid-group__extension-lib-subsystem_1gabc351adca24d76b207d1fa8c00307a71>`( \
+		TypePrefix, \
+		qualifiedName, \
+		libGuid, \
+		cacheSlot, \
+		Type, \
+		markOpaqueGcRootsFunc \
+	)
+
+	#define :target:`JNC_DEFINE_OPAQUE_CLASS_TYPE_EX<doxid-group__extension-lib-subsystem_1gafcb7e3b5d2b0485e63b78f906d474f4c>`( \
+		TypePrefix, \
+		qualifiedName, \
+		libGuid, \
+		cacheSlot, \
+		Type, \
+		markOpaqueGcRootsFunc, \
+		requireOpaqueItemsFunc, \
+		isNonCreatable \
+	)
+
+	#define :target:`JNC_DEFINE_OPAQUE_CLASS_TYPE_NC<doxid-group__extension-lib-subsystem_1ga424d14cf6115259b1e386a0dbd12ced6>`( \
+		TypePrefix, \
+		qualifiedName, \
+		libGuid, \
+		cacheSlot, \
+		Type, \
+		markOpaqueGcRootsFunc \
+	)
+
+	#define :target:`JNC_DEFINE_OPAQUE_CLASS_TYPE_REQ<doxid-group__extension-lib-subsystem_1ga333d901ea8204e384262649f552fa4d3>`( \
+		TypePrefix, \
+		qualifiedName, \
+		libGuid, \
+		cacheSlot, \
+		Type, \
+		markOpaqueGcRootsFunc \
+	)
+
+	#define :target:`JNC_DEFINE_TYPE<doxid-group__extension-lib-subsystem_1gac7e00e8d2d8329ba8fd27a0ac390169b>`( \
+		TypePrefix, \
+		qualifiedName, \
+		libGuid, \
+		cacheSlot \
+	)
+
+	#define :target:`JNC_DEFINE_TYPE_EX<doxid-group__extension-lib-subsystem_1ga8d3c6a037a6a85988a8165894dae7683>`( \
+		TypePrefix, \
+		JncType, \
+		qualifiedName, \
+		libGuid, \
+		cacheSlot \
+	)
+
+	#define :target:`JNC_END_CLASS_TYPE_VTABLE<doxid-group__extension-lib-subsystem_1ga0f80b910af6c2acd534df4b068e3c5d9>`()
+	#define :target:`JNC_END_LIB_FUNCTION_MAP<doxid-group__extension-lib-subsystem_1gaf68308a29396fcb3953dbb519bc5a55e>`()
+	#define :target:`JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE<doxid-group__extension-lib-subsystem_1ga15b3bfa0ea864e72aafff68a9518ebcb>`()
+	#define :target:`JNC_END_LIB_SOURCE_FILE_TABLE<doxid-group__extension-lib-subsystem_1ga513a24048c72a4f46cf3877c765c6def>`()
+	#define :target:`JNC_END_OPAQUE_CLASS_REQUIRE_TABLE<doxid-group__extension-lib-subsystem_1ga5059122591bdeea960ab2a43d88b3153>`()
+	#define :target:`JNC_END_TYPE_FUNCTION_MAP<doxid-group__extension-lib-subsystem_1gabe406df8a890a9a6bf86379ca4ed6f3c>`()
+
+	#define :target:`JNC_FIND_ITEM_IMPL<doxid-group__extension-lib-subsystem_1ga8707672984204c7804852364cde042f3>`( \
+		name, \
+		findMethod, \
+		itemKind, \
+		ItemType, \
+		item \
+	)
+
+	#define :target:`JNC_LIB_IMPORT<doxid-group__extension-lib-subsystem_1ga03f03966083da77f1e277efb92557f52>`(fileName)
+	#define :target:`JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY<doxid-group__extension-lib-subsystem_1gaf4468a6f758c3274ffd659462486baf8>`(TypePrefix)
+
+	#define :target:`JNC_LIB_REQUIRE<doxid-group__extension-lib-subsystem_1gac91b3ba766185c8306175b034a8d0450>`( \
+		itemKind, \
+		name \
+	)
+
+	#define :target:`JNC_LIB_REQUIRE_EX<doxid-group__extension-lib-subsystem_1gafbf8947ccc70693493e1e96008aa9361>`( \
+		itemKind, \
+		name, \
+		flags \
+	)
+
+	#define :target:`JNC_LIB_REQUIRE_TYPE<doxid-group__extension-lib-subsystem_1ga0a5533ee9b4b55cb0b1247b671ec940d>`( \
+		typeKind, \
+		name \
+	)
+
+	#define :target:`JNC_LIB_REQUIRE_TYPE_EX<doxid-group__extension-lib-subsystem_1ga8bd5211bc44d45d71bb3097242b62b91>`( \
+		typeKind, \
+		name, \
+		flags \
+	)
+
+	#define :target:`JNC_LIB_SOURCE_FILE<doxid-group__extension-lib-subsystem_1gaba675035f50a00295b36578ea7359428>`( \
+		fileName, \
+		sourceVar \
+	)
+
+	#define :target:`JNC_MAP_AUTOGET_PROPERTY<doxid-group__extension-lib-subsystem_1ga964c7a10fb49c7de6905a855f91a467b>`( \
+		name, \
+		setter \
+	)
+
+	#define :target:`JNC_MAP_AUTOGET_PROPERTY_IMPL<doxid-group__extension-lib-subsystem_1ga5c86842c40908b7abe2ce183d6aa6af8>`( \
+		name, \
+		findMethod, \
+		setter \
+	)
+
+	#define :target:`JNC_MAP_AUTOGET_PROPERTY_Q<doxid-group__extension-lib-subsystem_1ga9a6283090365b1b0a015f2125ec05517>`( \
+		name, \
+		setter \
+	)
+
+	#define :target:`JNC_MAP_BINARY_OPERATOR<doxid-group__extension-lib-subsystem_1ga53bd126f353c6bd5425adc54e73e666b>`( \
+		opKind, \
+		p \
+	)
+
+	#define :target:`JNC_MAP_CALL_OPERATOR<doxid-group__extension-lib-subsystem_1ga8358d27125c23c04f507b81aa8f99c06>`(p)
+
+	#define :target:`JNC_MAP_CAST_OPERATOR<doxid-group__extension-lib-subsystem_1ga86abe62fc580b3f8d4849f43e0bb65c2>`( \
+		i, \
+		p \
+	)
+
+	#define :target:`JNC_MAP_CONSTRUCTOR<doxid-group__extension-lib-subsystem_1ga419cd2e480c7a95a38c88642a71660db>`(p)
+
+	#define :target:`JNC_MAP_CONST_PROPERTY<doxid-group__extension-lib-subsystem_1gae85afacf72953f29217f5d5084b9a366>`( \
+		name, \
+		getter \
+	)
+
+	#define :target:`JNC_MAP_CONST_PROPERTY_IMPL<doxid-group__extension-lib-subsystem_1ga498ea98d3e20e47e1775b3ef9cc88c11>`( \
+		name, \
+		findMethod, \
+		getter \
+	)
+
+	#define :target:`JNC_MAP_CONST_PROPERTY_Q<doxid-group__extension-lib-subsystem_1ga4bba56bed08043bfa73b0459495c9de2>`( \
+		name, \
+		getter \
+	)
+
+	#define :target:`JNC_MAP_DESTRUCTOR<doxid-group__extension-lib-subsystem_1gae06ea1437d6f6d1728ce7c16f87efbbc>`(p)
+
+	#define :target:`JNC_MAP_FUNCTION<doxid-group__extension-lib-subsystem_1gae30db15f9cd7b099844c11860f79d73f>`( \
+		name, \
+		p \
+	)
+
+	#define :target:`JNC_MAP_FUNCTION_IMPL<doxid-group__extension-lib-subsystem_1ga45365dfb7b5380376804d8dcd0d2f193>`( \
+		function, \
+		p \
+	)
+
+	#define :target:`JNC_MAP_FUNCTION_Q<doxid-group__extension-lib-subsystem_1ga7a50bca6a153242199f44023ba04681e>`( \
+		name, \
+		p \
+	)
+
+	#define :target:`JNC_MAP_OVERLOAD<doxid-group__extension-lib-subsystem_1ga0be2275bdeed2462f524eeb373d935ff>`(p)
+
+	#define :target:`JNC_MAP_OVERLOADABLE_FUNCTION<doxid-group__extension-lib-subsystem_1gac82f2be0dcdc52ab41ba0bbc5ea5a787>`( \
+		item, \
+		p \
+	)
+
+	#define :target:`JNC_MAP_PROPERTY<doxid-group__extension-lib-subsystem_1ga4e036af1ffa257b33f74ef9c53752287>`( \
+		name, \
+		getter, \
+		setter \
+	)
+
+	#define :target:`JNC_MAP_PROPERTY_GETTER<doxid-group__extension-lib-subsystem_1ga13a6f71412e26598e0c4911110739343>`( \
+		prop, \
+		p \
+	)
+
+	#define :target:`JNC_MAP_PROPERTY_IMPL<doxid-group__extension-lib-subsystem_1ga297aae552fb385499b122624db690a1d>`( \
+		name, \
+		findMethod, \
+		getter, \
+		setter \
+	)
+
+	#define :target:`JNC_MAP_PROPERTY_Q<doxid-group__extension-lib-subsystem_1ga81e60461cb75e3e143bc7ba20a841577>`( \
+		name, \
+		getter, \
+		setter \
+	)
+
+	#define :target:`JNC_MAP_PROPERTY_SETTER<doxid-group__extension-lib-subsystem_1gaacc4285c5139480f39791a9d02f441f2>`( \
+		prop, \
+		p \
+	)
+
+	#define :target:`JNC_MAP_TYPE<doxid-group__extension-lib-subsystem_1gafe908ba66083eb9d87ddbe59ce98ef5a>`(TypePrefix)
+
+	#define :target:`JNC_MAP_TYPE_IMPL<doxid-group__extension-lib-subsystem_1ga9fcc9e7223a435d97b5a27d4e560cdd6>`( \
+		TypePrefix, \
+		isRequired \
+	)
+
+	#define :target:`JNC_MAP_TYPE_REQ<doxid-group__extension-lib-subsystem_1ga947376ca07aa09c38d931ca4f1cf1707>`(TypePrefix)
+
+	#define :target:`JNC_MAP_UNARY_OPERATOR<doxid-group__extension-lib-subsystem_1ga631f9326b0d2affc30e542a0d673eafa>`( \
+		opKind, \
+		p \
+	)
+
+	#define :target:`JNC_MAP_VARIABLE<doxid-group__extension-lib-subsystem_1ga46b7dd183e1785ce216ee2e3aea775f1>`( \
+		name, \
+		p \
+	)
+
+	#define :target:`JNC_MAP_VARIABLE_IMPL<doxid-group__extension-lib-subsystem_1gaf66ff41d45db2c4b9b817e9c16b2c135>`( \
+		name, \
+		findMethod, \
+		p \
+	)
+
+	#define :target:`JNC_MAP_VARIABLE_Q<doxid-group__extension-lib-subsystem_1ga26ca96908ffac2e49e5ec5cf23d944f6>`( \
+		name, \
+		p \
+	)
+
+	#define :target:`JNC_OPAQUE_CLASS_REQUIRE<doxid-group__extension-lib-subsystem_1ga0c102f4884acac23a88a4ca6b7dd68fe>`( \
+		itemKind, \
+		name \
+	)
+
+	#define :target:`JNC_OPAQUE_CLASS_REQUIRE_TYPE<doxid-group__extension-lib-subsystem_1ga4ffff442cbf59c8d8c361c855a64aee1>`( \
+		typeKind, \
+		name \
+	)
+
+	#define :target:`jnc_pvoid_cast<doxid-group__extension-lib-subsystem_1ga01d21dd392b4cce70722740eeffa76b0>`(x)
+

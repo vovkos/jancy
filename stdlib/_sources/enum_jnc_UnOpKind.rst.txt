@@ -1,0 +1,29 @@
+.. include:: def.rst
+.. index:: pair: enum; UnOpKind
+.. _doxid-typejnc_unopkind:
+
+enum jnc.UnOpKind
+=================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum UnOpKind {
+	    :target:`Undefined<doxid-enum_memberjnc_unopkind_undefined>` = 0,
+	    :target:`Plus<doxid-enum_memberjnc_unopkind_plus>`,
+	    :target:`Minus<doxid-enum_memberjnc_unopkind_minus>`,
+	    :target:`BwNot<doxid-enum_memberjnc_unopkind_bwnot>`,
+	    :target:`Indir<doxid-enum_memberjnc_unopkind_indir>`,
+	    :target:`Addr<doxid-enum_memberjnc_unopkind_addr>`,
+	    :target:`LogNot<doxid-enum_memberjnc_unopkind_lognot>`,
+	    :target:`PreInc<doxid-enum_memberjnc_unopkind_preinc>`,
+	    :target:`PreDec<doxid-enum_memberjnc_unopkind_predec>`,
+	    :target:`PostInc<doxid-enum_memberjnc_unopkind_postinc>`,
+	    :target:`PostDec<doxid-enum_memberjnc_unopkind_postdec>`,
+	    :target:`Ptr<doxid-enum_memberjnc_unopkind_ptr>`,
+	    :target:`_Count<doxid-enum_memberjnc_unopkind__count>`,
+	};
+

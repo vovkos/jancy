@@ -1,0 +1,20 @@
+.. include:: def.rst
+.. index:: pair: enum; DataPtrTypeKind
+.. _doxid-typejnc_dataptrtypekind:
+
+enum jnc.DataPtrTypeKind
+========================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum DataPtrTypeKind {
+	    :target:`Normal<doxid-enum_memberjnc_dataptrtypekind_normal>` = 0,
+	    :target:`Lean<doxid-enum_memberjnc_dataptrtypekind_lean>`,
+	    :target:`Thin<doxid-enum_memberjnc_dataptrtypekind_thin>`,
+	    :target:`_Count<doxid-enum_memberjnc_dataptrtypekind__count>`,
+	};
+

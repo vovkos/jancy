@@ -1,0 +1,31 @@
+.. index:: pair: group; Unit
+.. _doxid-group__unit:
+
+Unit
+====
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Unit.h>
+	
+	// global functions
+
+	:ref:`jnc_ExtensionLib<doxid-structjnc___extension_lib>`*
+	:target:`jnc_Unit_getLib<doxid-group__unit_1ga12f8781878e86f206f71194ca713a224>`(jnc_Unit* unit);
+
+	const char*
+	:target:`jnc_Unit_getFilePath<doxid-group__unit_1ga5ff498050f72c9fde2841cf4b23a0e08>`(jnc_Unit* unit);
+
+	const char*
+	:target:`jnc_Unit_getFileName<doxid-group__unit_1ga2d3bae6d830fb139cc75e37455d0d1ba>`(jnc_Unit* unit);
+
+	const char*
+	:target:`jnc_Unit_getDir<doxid-group__unit_1gaf7b08144e7e29ea0d3b258922b5ff361>`(jnc_Unit* unit);
+

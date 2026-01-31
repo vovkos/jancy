@@ -1,0 +1,32 @@
+.. index:: pair: group; Type Subsystem
+.. _doxid-group__type-subsystem:
+
+Type Subsystem
+==============
+
+.. toctree::
+	:hidden:
+
+	group_array-type.rst
+	group_class-type.rst
+	group_derivable-type.rst
+	group_enum-type.rst
+	group_function-type.rst
+	group_property-type.rst
+	group_struct-type.rst
+	group_type.rst
+	group_union-type.rst
+
+This section describes facilities used for accessing the Jancy type system.
+
+|	:ref:`Array Type<doxid-group__array-type>`
+|	:ref:`Class Type<doxid-group__class-type>`
+|	:ref:`Derivable Type<doxid-group__derivable-type>`
+|	:ref:`Enum Type<doxid-group__enum-type>`
+|	:ref:`Function Type<doxid-group__function-type>`
+|	:ref:`Property Type<doxid-group__property-type>`
+|	:ref:`Struct Type<doxid-group__struct-type>`
+|	:ref:`Type<doxid-group__type>`
+|	:ref:`Union Type<doxid-group__union-type>`
+
+

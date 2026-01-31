@@ -1,0 +1,20 @@
+.. include:: def.rst
+.. index:: pair: enum; PropertyPtrTypeKind
+.. _doxid-typejnc_propertyptrtypekind:
+
+enum jnc.PropertyPtrTypeKind
+============================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum PropertyPtrTypeKind {
+	    :target:`Normal<doxid-enum_memberjnc_propertyptrtypekind_normal>` = 0,
+	    :target:`Weak<doxid-enum_memberjnc_propertyptrtypekind_weak>`,
+	    :target:`Thin<doxid-enum_memberjnc_propertyptrtypekind_thin>`,
+	    :target:`_Count<doxid-enum_memberjnc_propertyptrtypekind__count>`,
+	};
+

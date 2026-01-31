@@ -1,0 +1,29 @@
+.. include:: def.rst
+.. index:: pair: enum; ModuleCompileFlags
+.. _doxid-typejnc_modulecompileflags:
+
+bitflag enum jnc.ModuleCompileFlags
+===================================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum ModuleCompileFlags {
+	    :target:`DebugInfo<doxid-enum_memberjnc_modulecompileflags_debuginfo>`                     = 0x00000001,
+	    :target:`McJit<doxid-enum_memberjnc_modulecompileflags_mcjit>`                         = 0x00000002,
+	    :target:`SimpleGcSafePoint<doxid-enum_memberjnc_modulecompileflags_simplegcsafepoint>`             = 0x00000004,
+	    :target:`GcSafePointInPrologue<doxid-enum_memberjnc_modulecompileflags_gcsafepointinprologue>`         = 0x00000010,
+	    :target:`GcSafePointInInternalPrologue<doxid-enum_memberjnc_modulecompileflags_gcsafepointininternalprologue>` = 0x00000020,
+	    :target:`Documentation<doxid-enum_memberjnc_modulecompileflags_documentation>`                 = 0x00000200,
+	    :target:`IgnoreOpaqueClassTypeInfo<doxid-enum_memberjnc_modulecompileflags_ignoreopaqueclasstypeinfo>`     = 0x00000400,
+	    :target:`KeepTypedefShadow<doxid-enum_memberjnc_modulecompileflags_keeptypedefshadow>`             = 0x00000800,
+	    :target:`StdLibDoc<doxid-enum_memberjnc_modulecompileflags_stdlibdoc>`                     = 0x00001000,
+	    :target:`DisableDoxyComment1<doxid-enum_memberjnc_modulecompileflags_disabledoxycomment1>`           = 0x00002000,
+	    :target:`DisableDoxyComment2<doxid-enum_memberjnc_modulecompileflags_disabledoxycomment2>`           = 0x00004000,
+	    :target:`DisableDoxyComment3<doxid-enum_memberjnc_modulecompileflags_disabledoxycomment3>`           = 0x00008000,
+	    :target:`DisableDoxyComment4<doxid-enum_memberjnc_modulecompileflags_disabledoxycomment4>`           = 0x00010000,
+	};
+

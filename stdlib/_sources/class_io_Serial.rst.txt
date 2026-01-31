@@ -1,0 +1,472 @@
+.. include:: def.rst
+.. index:: pair: class; io.Serial
+.. _doxid-typeio_serial:
+
+class io.Serial
+===============
+
+.. toctree::
+	:hidden:
+
+Overview
+~~~~~~~~
+
+This class provides high-level asynchronous interface for accessing
+hardware or virtual serial ports. :ref:`More...<details-typeio_serial>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "io_base.jncx"
+	import "io_Serial.jnc"
+	
+	class Serial {
+		// fields
+	
+		:ref:`io.SerialEvents<doxid-typeio_serialevents>` readonly volatile :target:`m_activeEvents<doxid-fieldio_serial_m_activeevents>`;
+		:ref:`std.Error<doxid-typestd_error>` const* readonly volatile :target:`m_ioError<doxid-fieldio_serial_m_ioerror>`;
+		bool readonly :ref:`m_isOpen<doxid-fieldio_serial_m_isopen>`;
+
+		// properties
+	
+		:ref:`uint_t<doxid-typedefuint_t>` autoget property :ref:`m_baudRate<doxid-propertyio_serial_m_baudrate>`;
+		:ref:`io.SerialFlowControl<doxid-typeio_serialflowcontrol>` autoget property :ref:`m_flowControl<doxid-propertyio_serial_m_flowcontrol>`;
+		:ref:`uint_t<doxid-typedefuint_t>` autoget property :ref:`m_dataBits<doxid-propertyio_serial_m_databits>`;
+		:ref:`io.SerialStopBits<doxid-typeio_serialstopbits>` autoget property :ref:`m_stopBits<doxid-propertyio_serial_m_stopbits>`;
+		:ref:`io.SerialParity<doxid-typeio_serialparity>` autoget property :ref:`m_parity<doxid-propertyio_serial_m_parity>`;
+		:ref:`io.SerialStatusLines<doxid-typeio_serialstatuslines>` const property :ref:`m_statusLines<doxid-propertyio_serial_m_statuslines>`;
+		bool autoget property :ref:`m_dtr<doxid-propertyio_serial_m_dtr>`;
+		bool autoget property :ref:`m_rts<doxid-propertyio_serial_m_rts>`;
+		bool autoget property :ref:`m_breakCondition<doxid-propertyio_serial_m_breakcondition>`;
+		:ref:`uint_t<doxid-typedefuint_t>` autoget property :target:`m_updateInterval<doxid-propertyio_serial_m_updateinterval>`;
+		:ref:`uint_t<doxid-typedefuint_t>` autoget property :target:`m_readInterval<doxid-propertyio_serial_m_readinterval>`;
+		:ref:`uint_t<doxid-typedefuint_t>` autoget property :target:`m_readParallelism<doxid-propertyio_serial_m_readparallelism>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_readBlockSize<doxid-propertyio_serial_m_readblocksize>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_readBufferSize<doxid-propertyio_serial_m_readbuffersize>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_writeBufferSize<doxid-propertyio_serial_m_writebuffersize>`;
+		:ref:`io.SerialOptions<doxid-typeio_serialoptions>` autoget property :target:`m_options<doxid-propertyio_serial_m_options>`;
+		:ref:`uintptr_t<doxid-typedefuintptr_t>` const property :target:`m_osHandle<doxid-propertyio_serial_m_oshandle>`;
+
+		// construction
+	
+		:target:`construct<doxid-functionio_serial_construct>`();
+		:target:`destruct<doxid-functionio_serial_destruct>`();
+
+		// methods
+	
+		bool errorcode :ref:`open<doxid-functionio_serial_open>`(:ref:`string_t<doxid-typedefstring_t>` name);
+		void :ref:`close<doxid-functionio_serial_close>`();
+	
+		bool errorcode :target:`setupDevice<doxid-functionio_serial_setupdevice>`(
+			:ref:`uint_t<doxid-typedefuint_t>` baudRate,
+			:ref:`uint_t<doxid-typedefuint_t>` dataBits = 8,
+			:ref:`io.SerialStopBits<doxid-typeio_serialstopbits>` stopBits = SerialStopBits._1,
+			:ref:`io.SerialParity<doxid-typeio_serialparity>` parity = SerialParity.None,
+			:ref:`io.SerialFlowControl<doxid-typeio_serialflowcontrol>` flowControl = SerialFlowControl.None,
+			:ref:`uint_t<doxid-typedefuint_t>` readInterval = 0,
+			bool dtr = false,
+			bool rts = false
+		);
+	
+		:ref:`io.SerialLineErrors<doxid-typeio_seriallineerrors>` :target:`clearLineErrors<doxid-functionio_serial_clearlineerrors>`();
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :ref:`read<doxid-functionio_serial_read>`(
+			void* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :ref:`write<doxid-functionio_serial_write>`(
+			void const* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		long errorcode :target:`wait<doxid-functionio_serial_wait>`(
+			:ref:`io.SerialEvents<doxid-typeio_serialevents>` eventMask,
+			void function* handler(io.SerialEvents triggeredEvents)
+		);
+	
+		bool errorcode :target:`cancelWait<doxid-functionio_serial_cancelwait>`(long handle);
+	
+		:ref:`io.SerialEvents<doxid-typeio_serialevents>` :target:`blockingWait<doxid-functionio_serial_blockingwait>`(
+			:ref:`io.SerialEvents<doxid-typeio_serialevents>` eventMask,
+			:ref:`uint_t<doxid-typedefuint_t>` timeout = -1
+		);
+	
+		:ref:`io.SerialEvents<doxid-typeio_serialevents>` async :target:`asyncWait<doxid-functionio_serial_asyncwait>`(:ref:`io.SerialEvents<doxid-typeio_serialevents>` eventMask);
+
+		// aliases
+	
+		alias :ref:`dispose<doxid-aliasio_serial_dispose>` = close;
+	};
+.. _details-typeio_serial:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This class provides high-level asynchronous interface for accessing
+hardware or virtual serial ports.
+
+Serial ports are represented as *files* in most operating systems, so
+working with serial port looks pretty much the same as working with any
+other file stream. However, besides ``read`` and ``write`` operations serial
+port files also expose a set of serial-specific properties such as baud
+rate, status and control lines and so on.
+
+A typical sequence of steps when working with a serial port usually looks
+like this:
+
+* Open a serial port with ``open`` method;
+* Assign IO event handler with ``wait`` method. You would probably also
+  want to *schedule* your event handler to be run in particular
+  environment(e.g., in a specific thread) and partially apply some
+  syncrhonization ID to discard late events;
+* Configure serial port settings(``m_baudRate``, ``m_dataBits`` etc)
+* When `io.SerialEvents.IncomingData` event is fired, read from the serial
+  port using ``read`` method;
+* Write to the serial port stream using ``write`` method;
+* Suspend writing if the return value of ``write`` is less than requested;
+* Resume writing on `io.SerialEvents.WriteBufferReady` event;
+* Close the serial port when no longer needed with ``close`` method.
+
+.. rubric:: Sample code:
+
+.. ref-code-block::
+
+	class MyDialog {
+		// ...
+
+		io.Serial m_serial;
+		uint_t m_syncId;
+
+		void open(
+			string_t portName,
+			uint_t baudRate
+		);
+
+		void close();
+		void waitSerialEvents();
+
+		void onWriteButtonClicked();
+
+		void onSerialEvent(
+			uint_t syncId,
+			`io.SerialEvents` triggeredEvents
+		);
+	}
+
+	MyDialog.open(
+		string_t portName,
+		uint_t baudRate
+	) {
+		m_serial.open(portName);
+		m_serial.m_baudRate = baudRate;
+		m_serial.m_dataBits = 8;
+		m_serial.m_stopBits = `io.SerialStopBits._1`;
+		// ...
+
+		waitSerialEvents();
+
+	catch:
+		// handle the error...
+	}
+
+	MyDialog.close() {
+		m_serial.close();
+		m_syncId++; // events past this point will be discarded as 'late'
+	}
+
+	MyDialog.waitSerialEvent() {
+		`io.SerialEvents` eventMask =
+			`io.SerialEvents.IoError` |
+			`io.SerialEvents.IncomingData`;
+
+		m_serial.wait(eventMask, onSerialEvent ~(++m_syncId) @
+			g_mainThreadScheduler);
+	}
+
+	MyDialog.onWriteButtonClicked() {
+		static char data[] = "a quick brown fox jumps over the lazy dog";
+		m_serial.write(data, sizeof(data));
+	}
+
+	MyDialog.onSerialEvent(
+		uint_t syncId,
+		`io.SerialEvents` triggeredEvents
+	) {
+		if (syncId != m_syncId) // late event
+			return;
+
+		if (triggeredEvents & `io.SerialEvents.IoError`) {
+			string_t errorString = m_fileStream.m_ioError.m_description;
+			// ...
+		}
+
+		if (triggeredEvents & `io.SerialEvents.IncomingData`) {
+			char buffer[256];
+			size_t size = m_fileStream.read(buffer, sizeof(buffer));
+			// ...
+		}
+
+		waitSerialEvents(); // restart wait
+	}
+
+
+
+.. rubric:: See also:
+
+`io.SerialEvents`, `io.File`, `io.FileStream`
+
+Fields
+------
+
+.. index:: pair: variable; m_isOpen
+.. _doxid-fieldio_serial_m_isopen:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool readonly m_isOpen
+
+Holds the open status for serial port, i.e. ``true`` if opened;
+``false`` otherwise.
+
+Properties
+----------
+
+.. index:: pair: property; m_baudRate
+.. _doxid-propertyio_serial_m_baudrate:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`uint_t<doxid-typedefuint_t>` autoget property m_baudRate
+
+This property is used for getting and setting [#f4]_ baud rate, i.e. the
+number of signal changes per second, which directly affects the speed of
+data transmission.
+
+Different hardware serial ports may or may not support some particular
+baud rates. Unfortunately, there is no reliable cross-platform method of
+building a list of supported baud rates, so the only way is to probe.
+
+.. index:: pair: property; m_flowControl
+.. _doxid-propertyio_serial_m_flowcontrol:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`io.SerialFlowControl<doxid-typeio_serialflowcontrol>` autoget property m_flowControl
+
+This property is used for getting and setting [#f4]_ flow control, i.e.
+the protocol of attempted prevention of data loss during serial
+transmission which may happen when transmission side sends data faster
+than the receiving side is able to process it.
+
+See `io.SerialFlowControl` enumeration for the list of valid values.
+
+.. index:: pair: property; m_dataBits
+.. _doxid-propertyio_serial_m_databits:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`uint_t<doxid-typedefuint_t>` autoget property m_dataBits
+
+This property is used for getting and setting [#f4]_ byte size, i.e. the
+number of bits in each character transmitted over the serial line. Valid
+values range from ``5`` to ``8``; normally ``8`` data bits are used.
+
+.. index:: pair: property; m_stopBits
+.. _doxid-propertyio_serial_m_stopbits:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`io.SerialStopBits<doxid-typeio_serialstopbits>` autoget property m_stopBits
+
+This property is used for getting and setting [#f4]_ the number of
+serial stop bits, i.e. auxillary(non-data) bits sent at the end of each
+character to re-synchronize the receiver; normally 1 stop bit is used
+(designated by `io.SerialStopBits._1`)
+
+See `io.SerialStopBits` enumeration for the list of valid values.
+
+.. index:: pair: property; m_parity
+.. _doxid-propertyio_serial_m_parity:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`io.SerialParity<doxid-typeio_serialparity>` autoget property m_parity
+
+This property is used for getting and setting [#f4]_ serial parity
+control, i.e. the protocol of attempted error detection during serial
+transmission. The idea is to send an extra *parity* bit so that the
+total number of one's including data bits *and* this parity bit is
+always *odd* or always *even*.
+
+This, however, is a rather weak error detection method; usually it's
+much better to employ other checksums/hash checks after the data has
+been transmitted.
+
+See `io.SerialParity` for the list of valid values.
+
+.. index:: pair: property; m_statusLines
+.. _doxid-propertyio_serial_m_statuslines:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`io.SerialStatusLines<doxid-typeio_serialstatuslines>` const property m_statusLines
+
+This property is used for getting the values of serial status lines
+(``DSR``, ``CTS``, ``DCD``, ``RING``).
+
+The returned value is a combination of `io.SerialStatusLines`
+enumeration members, showing which status lines are high(or ``0`` if
+all are low).
+
+.. index:: pair: property; m_dtr
+.. _doxid-propertyio_serial_m_dtr:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool autoget property m_dtr
+
+This property is used for getting and setting [#f4]_ ``DTR``
+(data-terminal-ready) serial control line.
+
+.. index:: pair: property; m_rts
+.. _doxid-propertyio_serial_m_rts:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool autoget property m_rts
+
+This property is used for getting and setting [#f4]_ ``RTS``
+(ready-to-send) serial control line.
+
+.. index:: pair: property; m_breakCondition
+.. _doxid-propertyio_serial_m_breakcondition:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool autoget property m_breakCondition
+
+This property is used for getting and setting [#f4]_ ``RTS``
+(ready-to-send) serial control line.
+
+Methods
+-------
+
+.. index:: pair: function; open
+.. _doxid-functionio_serial_open:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool errorcode open(:ref:`string_t<doxid-typedefstring_t>` name)
+
+Opens a serial port.
+
+The function accepts a single ``name`` argument, which specifies the
+name of the serial port device.
+
+Returns ``true`` on success. If serial port could not be opened, IO
+error supplied by operating system is set and then the function
+returns ``false`` [#f1]_.
+
+.. index:: pair: function; close
+.. _doxid-functionio_serial_close:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	void close()
+
+Closes a previously opened serial port, does nothing if the port is
+not opened. This function always succeeds.
+
+Sometimes it may be convenient to use *disposable* pattern to ensure
+timely invokation of ``close`` [#f2]_.
+
+.. index:: pair: function; read
+.. _doxid-functionio_serial_read:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`size_t<doxid-typedefsize_t>` errorcode read(
+		void* p,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	)
+
+Attempts to read up to ``size`` bytes from the serial port into the
+buffer pointed to by ``p``.
+
+Returns the actual amount of bytes read on success. If read operation
+is unsuccessful, IO error supplied by the operating system is set and
+then the function returns ``-1`` [#f1]_.
+
+Normally you would call this function from within your event handler for
+``IncomingData`` event. If this function is called when there is no
+incoming data, it blocks until either the data arrives, or the serial
+port is closed.
+
+.. index:: pair: function; write
+.. _doxid-functionio_serial_write:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`size_t<doxid-typedefsize_t>` errorcode write(
+		void const* p,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	)
+
+Attempts to write ``size`` bytes from the buffer pointed to by ``p``
+to the serial port.
+
+Returns the actual amount of bytes written on success. If write
+operation is unsuccessful, IO error supplied by the operating system is
+set and then the function returns ``-1`` [#f1]_.
+
+If the return value shows *less* bytes than specified by ``size``
+argument, you should suspend further transmission until the file stream
+is ready to accept more data. When this happens, ``WriteBufferReady``
+event is fired and transmission could be resumed.
+
+Aliases
+-------
+
+.. index:: pair: alias; dispose
+.. _doxid-aliasio_serial_dispose:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	alias dispose = close
+
+Effectively makes ``io.Serial`` a *disposable* class [#f2]_.
+
+
+---------------------
+
+.. rubric:: Footnotes
+
+.. [#f4]
+
+	|footnote-set-property-fail|
+
+.. [#f1]
+
+	|footnote-errorcode|
+
+.. [#f2]
+
+	|footnote-disposable|
+

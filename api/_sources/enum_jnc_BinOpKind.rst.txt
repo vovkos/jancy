@@ -1,0 +1,54 @@
+.. index:: pair: enum; jnc_BinOpKind
+.. _doxid-group__operators_1ga67d0ce0c5d9543240203773042ee075d:
+
+enum jnc_BinOpKind
+==================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_OpKind.h>
+
+	enum jnc_BinOpKind {
+	    :target:`jnc_BinOpKind_Undefined<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075dad0e488a44d2ecd913725a25451e7a1dc>`      = 0,
+	    :target:`jnc_BinOpKind_Add<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075da6125d218b7c41dffe722bf1f830abe46>`,
+	    :target:`jnc_BinOpKind_Sub<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075daa23afb3ecd811fd0b439e377df03f8ba>`,
+	    :target:`jnc_BinOpKind_Mul<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075da40fa67c94bf9b3b0af4581246cbcfe2d>`,
+	    :target:`jnc_BinOpKind_Div<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075da5502fae8631ada99847b62a8c9caa613>`,
+	    :target:`jnc_BinOpKind_Mod<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075da4dbdb5eebabe9e4dc720b6954b94f973>`,
+	    :target:`jnc_BinOpKind_Shl<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075da7e5117852eacaf3dca07c0998e08c07e>`,
+	    :target:`jnc_BinOpKind_Shr<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075da5cb3654a02a3bbe46dec696b0f478911>`,
+	    :target:`jnc_BinOpKind_BwAnd<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075da16238829564f991cc7259b12af72d209>`,
+	    :target:`jnc_BinOpKind_BwXor<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075da6b532283cb4832a51d19c464b0e402fe>`,
+	    :target:`jnc_BinOpKind_BwOr<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075dad8d20e0fec45eece9180ebf284d2ef19>`,
+	    :target:`jnc_BinOpKind_At<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075da8ac3988a31f059f461f380cb29bd0afa>`,
+	    :target:`jnc_BinOpKind_Eq<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075da69cd486ef30553c80a3128a29ee006e2>`,
+	    :target:`jnc_BinOpKind_Ne<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075daeaf34c92ae9331d9f8566d2700d6957c>`,
+	    :target:`jnc_BinOpKind_Lt<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075daf4e61f4e668b5adbd9c3eb8755602919>`,
+	    :target:`jnc_BinOpKind_Le<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075da3c09f2c9bdc40b7113b8c838f2d61b40>`,
+	    :target:`jnc_BinOpKind_Gt<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075da4bf0dfce0de6b708ae9ed03e78ee7b61>`,
+	    :target:`jnc_BinOpKind_Ge<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075da9e10383ed718045b4707005f2401fed7>`,
+	    :target:`jnc_BinOpKind_Match<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075da9102dffecee2601a28b0d55ce78c3f88>`,
+	    :target:`jnc_BinOpKind_NotMatch<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075da31bb3a555cdc5ac81c7f41e4a17a9088>`,
+	    :target:`jnc_BinOpKind_Idx<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075dab49642f0bca1db5868c169f7161a6d48>`,
+	    :target:`jnc_BinOpKind_LogAnd<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075da2f15857712c26f7c215de82315acd3e4>`,
+	    :target:`jnc_BinOpKind_LogOr<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075dad26309832247652815f3c36b17600386>`,
+	    :target:`jnc_BinOpKind_Assign<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075dae4c8679a155f72523abba467b7d21bd8>`,
+	    :target:`jnc_BinOpKind_RefAssign<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075da33570578176224f1976e1a19bf045096>`,
+	    :target:`jnc_BinOpKind_AddAssign<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075dae9ba13885549f27d7ca2a4bfb1e13520>`,
+	    :target:`jnc_BinOpKind_SubAssign<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075da2c64f09ae06fdfa4e56ef7b6e5e138b4>`,
+	    :target:`jnc_BinOpKind_MulAssign<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075da30a778973b74e7ce80fdf787a8dab3d3>`,
+	    :target:`jnc_BinOpKind_DivAssign<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075dae95153434c112e613a1458638056eb23>`,
+	    :target:`jnc_BinOpKind_ModAssign<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075dae6376ec7b0a08a1805fc7e22c0c78541>`,
+	    :target:`jnc_BinOpKind_ShlAssign<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075da8a97b60eda82f9eadaf8e95a025a20ab>`,
+	    :target:`jnc_BinOpKind_ShrAssign<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075daed6c668cf431bc9b64200c9f78200df5>`,
+	    :target:`jnc_BinOpKind_AndAssign<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075da299d9dd18f1b55e1e4dd976f0525e5d3>`,
+	    :target:`jnc_BinOpKind_XorAssign<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075da64c3f92dd25f9a5bf5f3011760749fda>`,
+	    :target:`jnc_BinOpKind_OrAssign<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075da14897dd8de4c20bbd07e1cf45a01db73>`,
+	    :target:`jnc_BinOpKind_AtAssign<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075da453d43293810fd7c4a89d20a87b77fa8>`,
+	    :target:`jnc_BinOpKind__Count<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075da2bf2b1fddce61d9ec7f8dc0de9126f2e>`,
+	    :target:`jnc_BinOpKind__OpAssignDelta<doxid-group__operators_1gga67d0ce0c5d9543240203773042ee075da343138b26520ab82afb48cd95bbd5543>` = jnc_BinOpKind_AddAssign - jnc_BinOpKind_Add,
+	};
+

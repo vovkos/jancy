@@ -1,0 +1,263 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>namespace jnc &mdash; Jancy Standard Library Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="namespace std" href="namespace_std.html" />
+    <link rel="prev" title="namespace io.win" href="namespace_io_win.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy Standard Library Reference
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="group_stdt-operator.html">stdt-operator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_c-typedefs.html">Standard Typedefs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_rtl.html">RTL (Runtime Library)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_crt.html">C Runtime Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_std.html">General Purpose Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_sys.html">System Facilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_io.html">IO (Input/Output) Library</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="disposable.html">‘disposable’ Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="errorcode.html">‘errorcode’ Functions</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="global.html">Global Namespace</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="namespace_io.html">namespace io</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">namespace jnc</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="namespace_std.html">namespace std</a></li>
+<li class="toctree-l2"><a class="reference internal" href="namespace_stdt.html">namespace stdt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="namespace_sys.html">namespace sys</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy Standard Library Reference</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="global.html">Global Namespace</a></li>
+      <li class="breadcrumb-item active">namespace jnc</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="namespace-jnc">
+<span id="doxid-namespace-jnc"></span><span id="index-0"></span><h1>namespace jnc</h1>
+<div class="toctree-wrapper compound">
+</div>
+<pre class="highlight doxyrest-overview-code-block literal-block"><span></span><span class="k">namespace</span> <span class="n">jnc</span> <span class="p">{</span>
+
+<span class="c1">// enums</span>
+
+<span class="k">enum</span> <span class="p">{</span>
+    <span class="doxyrest-code-target target" id="doxid-enum-memberjncunnamed-73-regexeofchar"><span></span><span class="n">RegexEofChar</span></span><span></span> <span class="o">=</span> <span class="mi">256</span><span class="p">,</span>
+<span class="p">};</span>
+
+<span class="k">enum</span> <a class="reference internal" href="enum_jnc_AccessKind.html#doxid-typejnc-accesskind"><span class="std std-ref">AccessKind</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_jnc_BinOpKind.html#doxid-typejnc-binopkind"><span class="std std-ref">BinOpKind</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_jnc_ClassPtrTypeKind.html#doxid-typejnc-classptrtypekind"><span class="std std-ref">ClassPtrTypeKind</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_jnc_ClassTypeFlags.html#doxid-typejnc-classtypeflags"><span class="std std-ref">ClassTypeFlags</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_jnc_ClassTypeKind.html#doxid-typejnc-classtypekind"><span class="std std-ref">ClassTypeKind</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_jnc_DataPtrTypeKind.html#doxid-typejnc-dataptrtypekind"><span class="std std-ref">DataPtrTypeKind</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_jnc_DynamicLayoutMode.html#doxid-typejnc-dynamiclayoutmode"><span class="std std-ref">DynamicLayoutMode</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_jnc_DynamicSectionKind.html#doxid-typejnc-dynamicsectionkind"><span class="std std-ref">DynamicSectionKind</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_jnc_EnumTypeFlags.html#doxid-typejnc-enumtypeflags"><span class="std std-ref">EnumTypeFlags</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_jnc_FunctionKind.html#doxid-typejnc-functionkind"><span class="std std-ref">FunctionKind</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_jnc_FunctionKindFlags.html#doxid-typejnc-functionkindflags"><span class="std std-ref">FunctionKindFlags</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_jnc_FunctionPtrTypeKind.html#doxid-typejnc-functionptrtypekind"><span class="std std-ref">FunctionPtrTypeKind</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_jnc_FunctionTypeFlags.html#doxid-typejnc-functiontypeflags"><span class="std std-ref">FunctionTypeFlags</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_jnc_ModuleCompileFlags.html#doxid-typejnc-modulecompileflags"><span class="std std-ref">ModuleCompileFlags</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_jnc_ModuleCompileState.html#doxid-typejnc-modulecompilestate"><span class="std std-ref">ModuleCompileState</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_jnc_ModuleItemFlags.html#doxid-typejnc-moduleitemflags"><span class="std std-ref">ModuleItemFlags</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_jnc_ModuleItemKind.html#doxid-typejnc-moduleitemkind"><span class="std std-ref">ModuleItemKind</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_jnc_NamespaceKind.html#doxid-typejnc-namespacekind"><span class="std std-ref">NamespaceKind</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_jnc_PropertyFlag.html#doxid-typejnc-propertyflag"><span class="std std-ref">PropertyFlag</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_jnc_PropertyKind.html#doxid-typejnc-propertykind"><span class="std std-ref">PropertyKind</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_jnc_PropertyPtrTypeKind.html#doxid-typejnc-propertyptrtypekind"><span class="std std-ref">PropertyPtrTypeKind</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_jnc_PropertyTypeFlags.html#doxid-typejnc-propertytypeflags"><span class="std std-ref">PropertyTypeFlags</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_jnc_PtrTypeFlags.html#doxid-typejnc-ptrtypeflags"><span class="std std-ref">PtrTypeFlags</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_jnc_RegexExecFlags.html#doxid-typejnc-regexexecflags"><span class="std std-ref">RegexExecFlags</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_jnc_RegexExecResult.html#doxid-typejnc-regexexecresult"><span class="std std-ref">RegexExecResult</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_jnc_RegexFlags.html#doxid-typejnc-regexflags"><span class="std std-ref">RegexFlags</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_jnc_RegexKind.html#doxid-typejnc-regexkind"><span class="std std-ref">RegexKind</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_jnc_StorageKind.html#doxid-typejnc-storagekind"><span class="std std-ref">StorageKind</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_jnc_StructTypeKind.html#doxid-typejnc-structtypekind"><span class="std std-ref">StructTypeKind</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_jnc_TypeFlags.html#doxid-typejnc-typeflags"><span class="std std-ref">TypeFlags</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_jnc_TypeKind.html#doxid-typejnc-typekind"><span class="std std-ref">TypeKind</span></a><span></span><span class="p">;</span>
+<span class="k">bitflag</span> <span class="k">enum</span> <a class="reference internal" href="enum_jnc_TypeKindFlags.html#doxid-typejnc-typekindflags"><span class="std std-ref">TypeKindFlags</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_jnc_UnOpKind.html#doxid-typejnc-unopkind"><span class="std std-ref">UnOpKind</span></a><span></span><span class="p">;</span>
+
+<span class="c1">// structs</span>
+
+<span class="k">struct</span> <a class="reference internal" href="struct_jnc_GcStats.html#doxid-typejnc-gcstats"><span class="std std-ref">GcStats</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_jnc_GcTriggers.html#doxid-typejnc-gctriggers"><span class="std std-ref">GcTriggers</span></a><span></span><span class="p">;</span>
+
+<span class="c1">// classes</span>
+
+<span class="k">class</span> <a class="reference internal" href="class_jnc_Alias.html#doxid-typejnc-alias"><span class="std std-ref">Alias</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_ArrayType.html#doxid-typejnc-arraytype"><span class="std std-ref">ArrayType</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_Attribute.html#doxid-typejnc-attribute"><span class="std std-ref">Attribute</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_AttributeBlock.html#doxid-typejnc-attributeblock"><span class="std std-ref">AttributeBlock</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_BaseTypeSlot.html#doxid-typejnc-basetypeslot"><span class="std std-ref">BaseTypeSlot</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_ClassPtrType.html#doxid-typejnc-classptrtype"><span class="std std-ref">ClassPtrType</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_ClassType.html#doxid-typejnc-classtype"><span class="std std-ref">ClassType</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_Const.html#doxid-typejnc-const"><span class="std std-ref">Const</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_DataPtrType.html#doxid-typejnc-dataptrtype"><span class="std std-ref">DataPtrType</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_DerivableType.html#doxid-typejnc-derivabletype"><span class="std std-ref">DerivableType</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_DynamicLayout.html#doxid-typejnc-dynamiclayout"><span class="std std-ref">DynamicLayout</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_DynamicLib.html#doxid-typejnc-dynamiclib"><span class="std std-ref">DynamicLib</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_DynamicSection.html#doxid-typejnc-dynamicsection"><span class="std std-ref">DynamicSection</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_DynamicSectionGroup.html#doxid-typejnc-dynamicsectiongroup"><span class="std std-ref">DynamicSectionGroup</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_EnumConst.html#doxid-typejnc-enumconst"><span class="std std-ref">EnumConst</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_EnumType.html#doxid-typejnc-enumtype"><span class="std std-ref">EnumType</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_Field.html#doxid-typejnc-field"><span class="std std-ref">Field</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_Function.html#doxid-typejnc-function"><span class="std std-ref">Function</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_FunctionArg.html#doxid-typejnc-functionarg"><span class="std std-ref">FunctionArg</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_FunctionOverload.html#doxid-typejnc-functionoverload"><span class="std std-ref">FunctionOverload</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_FunctionPtrType.html#doxid-typejnc-functionptrtype"><span class="std std-ref">FunctionPtrType</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_FunctionType.html#doxid-typejnc-functiontype"><span class="std std-ref">FunctionType</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_GlobalNamespace.html#doxid-typejnc-globalnamespace"><span class="std std-ref">GlobalNamespace</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_MemberBlock.html#doxid-typejnc-memberblock"><span class="std std-ref">MemberBlock</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_Module.html#doxid-typejnc-module"><span class="std std-ref">Module</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_ModuleItem.html#doxid-typejnc-moduleitem"><span class="std std-ref">ModuleItem</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_ModuleItemDecl.html#doxid-typejnc-moduleitemdecl"><span class="std std-ref">ModuleItemDecl</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_ModuleItemInitializer.html#doxid-typejnc-moduleiteminitializer"><span class="std std-ref">ModuleItemInitializer</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_NamedType.html#doxid-typejnc-namedtype"><span class="std std-ref">NamedType</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_Namespace.html#doxid-typejnc-namespace"><span class="std std-ref">Namespace</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_Promise.html#doxid-typejnc-promise"><span class="std std-ref">Promise</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_Promisifier.html#doxid-typejnc-promisifier"><span class="std std-ref">Promisifier</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_Property.html#doxid-typejnc-property"><span class="std std-ref">Property</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_PropertyPtrType.html#doxid-typejnc-propertyptrtype"><span class="std std-ref">PropertyPtrType</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_PropertyType.html#doxid-typejnc-propertytype"><span class="std std-ref">PropertyType</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_Regex.html#doxid-typejnc-regex"><span class="std std-ref">Regex</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_RegexCapture.html#doxid-typejnc-regexcapture"><span class="std std-ref">RegexCapture</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_RegexMatch.html#doxid-typejnc-regexmatch"><span class="std std-ref">RegexMatch</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_RegexState.html#doxid-typejnc-regexstate"><span class="std std-ref">RegexState</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_Scheduler.html#doxid-typejnc-scheduler"><span class="std std-ref">Scheduler</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_StructType.html#doxid-typejnc-structtype"><span class="std std-ref">StructType</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_Type.html#doxid-typejnc-type"><span class="std std-ref">Type</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_Typedef.html#doxid-typejnc-typedef"><span class="std std-ref">Typedef</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_UnionType.html#doxid-typejnc-uniontype"><span class="std std-ref">UnionType</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_Unit.html#doxid-typejnc-unit"><span class="std std-ref">Unit</span></a><span></span><span class="p">;</span>
+<span class="k">class</span> <a class="reference internal" href="class_jnc_Variable.html#doxid-typejnc-variable"><span class="std std-ref">Variable</span></a><span></span><span class="p">;</span>
+
+<span class="c1">// properties</span>
+
+<a class="reference internal" href="struct_jnc_GcTriggers.html#doxid-typejnc-gctriggers"><span class="std std-ref">jnc.GcTriggers</span></a><span></span> <span class="k">property</span> <span class="doxyrest-code-target target" id="doxid-propertyjnc-g-gctriggers"><span></span><span class="n">g_gcTriggers</span></span><span></span><span class="p">;</span>
+
+<span class="c1">// global functions</span>
+
+<span class="k">void</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-functionjnc-createdataptr"><span></span><span class="n">createDataPtr</span></span><span></span><span class="p">(</span>
+    <span class="k">void</span> <span class="k">thin</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">length</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="p">);</span>
+
+<span class="k">void</span> <span class="k">const</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-functionjnc-createdataptr-2"><span></span><span class="n">createDataPtr</span></span><span></span><span class="p">(</span>
+    <span class="k">void</span> <span class="k">const</span> <span class="k">thin</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">length</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="p">);</span>
+
+<span class="k">void</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-functionjnc-limitdataptr"><span></span><span class="n">limitDataPtr</span></span><span></span><span class="p">(</span>
+    <span class="k">void</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">length</span>
+<span class="p">);</span>
+
+<span class="k">void</span> <span class="k">const</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-functionjnc-limitdataptr-2"><span></span><span class="n">limitDataPtr</span></span><span></span><span class="p">(</span>
+    <span class="k">void</span> <span class="k">const</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">length</span>
+<span class="p">);</span>
+
+<a class="reference internal" href="group_c-typedefs.html#doxid-typedefintptr-t"><span class="std std-ref">intptr_t</span></a><span></span> <span class="doxyrest-code-target target" id="doxid-functionjnc-getdataptrleftradius"><span></span><span class="n">getDataPtrLeftRadius</span></span><span></span><span class="p">(</span><span class="k">void</span> <span class="k">const</span><span class="o">*</span> <span class="n">p</span><span class="p">);</span>
+<a class="reference internal" href="group_c-typedefs.html#doxid-typedefintptr-t"><span class="std std-ref">intptr_t</span></a><span></span> <span class="doxyrest-code-target target" id="doxid-functionjnc-getdataptrrightradius"><span></span><span class="n">getDataPtrRightRadius</span></span><span></span><span class="p">(</span><span class="k">void</span> <span class="k">const</span><span class="o">*</span> <span class="n">p</span><span class="p">);</span>
+<a class="reference internal" href="struct_jnc_GcStats.html#doxid-typejnc-gcstats"><span class="std std-ref">jnc.GcStats</span></a><span></span> <span class="doxyrest-code-target target" id="doxid-functionjnc-getgcstats"><span></span><span class="n">getGcStats</span></span><span></span><span class="p">();</span>
+<span class="k">void</span> <a class="reference internal" href="group_rtl-gc.html#doxid-functionjnc-collectgarbage"><span class="std std-ref">collectGarbage</span></a><span></span><span class="p">();</span>
+
+<span class="p">}</span> <span class="c1">// namespace jnc</span></pre>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="namespace_io_win.html" class="btn btn-neutral float-left" title="namespace io.win" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="namespace_std.html" class="btn btn-neutral float-right" title="namespace std" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

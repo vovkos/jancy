@@ -1,0 +1,92 @@
+.. include:: def.rst
+.. index:: pair: enum; SocketEvents
+.. _doxid-typeio_socketevents:
+
+bitflag enum io.SocketEvents
+============================
+
+Overview
+~~~~~~~~
+
+This enumeration contains codes of all possible events that might
+happen on `io.Socket` object. The set of *active* events is accessible
+via `io.Socket.m_activeEvents`. :ref:`More...<details-typeio_socketevents>`
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum SocketEvents: :ref:`io.StreamEvents<doxid-typeio_streamevents>` {
+	    :ref:`IncomingConnection<doxid-enum_memberio_socketevents_incomingconnection>`,
+	    :ref:`TcpConnected<doxid-enum_memberio_socketevents_tcpconnected>`,
+	    :ref:`TcpDisconnected<doxid-enum_memberio_socketevents_tcpdisconnected>`,
+	    :ref:`TcpReset<doxid-enum_memberio_socketevents_tcpreset>`,
+	};
+
+.. _details-typeio_socketevents:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This enumeration contains codes of all possible events that might
+happen on `io.Socket` object. The set of *active* events is accessible
+via `io.Socket.m_activeEvents`.
+
+
+
+.. rubric:: See also:
+
+`io.Socket`
+
+Enum Values
+-----------
+
+.. index:: pair: enumvalue; IncomingConnection
+.. _doxid-enum_memberio_socketevents_incomingconnection:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	IncomingConnection
+
+New incoming client connection is pending on the listening server
+socket. The new client can be accepted using the ``accept`` method
+(to reject the connection you still have to accept it first, and then
+close it)
+
+.. index:: pair: enumvalue; TcpConnected
+.. _doxid-enum_memberio_socketevents_tcpconnected:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	TcpConnected
+
+TCP connection established.
+
+.. index:: pair: enumvalue; TcpDisconnected
+.. _doxid-enum_memberio_socketevents_tcpdisconnected:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	TcpDisconnected
+
+TCP connection has been terminated by the remote node. If the remote node
+used ``TCP`` reset, then `io.SocketEvents.TcpReset` will be set at the same
+time. Note that if connection was terminated by the local node (using
+``close``), the ``TcpDisconnected`` event is **not fired**.
+
+.. index:: pair: enumvalue; TcpReset
+.. _doxid-enum_memberio_socketevents_tcpreset:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	TcpReset
+
+Connection has been abruptly reset by the remote node. Whenever this
+event is set, `io.SocketEvents.TcpDisconnected` is also set. Note that if
+connection was terminated by the local node(using `io.Socket.close`),
+``Disconnect`` event is **not** fired.
+

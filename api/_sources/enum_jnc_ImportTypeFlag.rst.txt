@@ -1,0 +1,17 @@
+.. index:: pair: enum; jnc_ImportTypeFlag
+.. _doxid-group__type_1gadb828020006db527cb20417aa02669a1:
+
+enum jnc_ImportTypeFlag
+=======================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Type.h>
+
+	enum jnc_ImportTypeFlag {
+	    :target:`jnc_ImportTypeFlag_InResolve<doxid-group__type_1ggadb828020006db527cb20417aa02669a1ae8da8780c11853a9476c65dd9dcc18c7>` = 0x010000,
+	};
+

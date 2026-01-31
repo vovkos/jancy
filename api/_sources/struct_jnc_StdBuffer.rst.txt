@@ -1,0 +1,24 @@
+.. index:: pair: struct; jnc_StdBuffer
+.. _doxid-structjnc___std_buffer:
+
+struct jnc_StdBuffer
+====================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_StdBuffer {
+		// fields
+	
+		:ref:`jnc_IfaceHdr<doxid-structjnc___iface_hdr>` :target:`m_ifaceHdr<doxid-structjnc___std_buffer_1a1cb11f3a63be00332fc250d5636931af>`;
+		:ref:`jnc_DataPtr<doxid-structjnc___data_ptr>` :target:`m_ptr<doxid-structjnc___std_buffer_1a3b17084c494a908cff32c17b7c3b2030>`;
+		size_t :target:`m_size<doxid-structjnc___std_buffer_1a2e49b38f1f804ab8c65bbe5ae20c3b3e>`;
+		size_t :target:`m_maxSize<doxid-structjnc___std_buffer_1a727c060cb39084670f1546ffe3e95dda>`;
+	};

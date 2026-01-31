@@ -1,0 +1,22 @@
+.. index:: pair: struct; jnc_GcSizeTriggers
+.. _doxid-structjnc___gc_size_triggers:
+
+struct jnc_GcSizeTriggers
+=========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_GcSizeTriggers {
+		// fields
+	
+		size_t :target:`m_allocSizeTrigger<doxid-structjnc___gc_size_triggers_1a1f2ecca55aa4ce9acf1cc76290525c9b>`;
+		size_t :target:`m_periodSizeTrigger<doxid-structjnc___gc_size_triggers_1aade8ba372617ca0e6791b4a6f52ef5e7>`;
+	};

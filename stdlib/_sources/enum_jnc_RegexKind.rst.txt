@@ -1,0 +1,19 @@
+.. include:: def.rst
+.. index:: pair: enum; RegexKind
+.. _doxid-typejnc_regexkind:
+
+enum jnc.RegexKind
+==================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum RegexKind {
+	    :target:`Undefined<doxid-enum_memberjnc_regexkind_undefined>`,
+	    :target:`Single<doxid-enum_memberjnc_regexkind_single>`,
+	    :target:`Switch<doxid-enum_memberjnc_regexkind_switch>`,
+	};
+

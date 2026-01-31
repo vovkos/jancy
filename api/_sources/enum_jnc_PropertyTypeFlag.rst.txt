@@ -1,0 +1,19 @@
+.. index:: pair: enum; jnc_PropertyTypeFlag
+.. _doxid-group__property-type_1gac0caefa69d169ef5023f0db649d7f808:
+
+enum jnc_PropertyTypeFlag
+=========================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_PropertyType.h>
+
+	enum jnc_PropertyTypeFlag {
+	    :target:`jnc_PropertyTypeFlag_Const<doxid-group__property-type_1ggac0caefa69d169ef5023f0db649d7f808aa5eb3cd406f022da152157fbecf735b9>`    = 0x010000,
+	    :target:`jnc_PropertyTypeFlag_Bindable<doxid-group__property-type_1ggac0caefa69d169ef5023f0db649d7f808a65bc08b545a879effeb2938a147fc63e>` = 0x020000,
+	    :target:`jnc_PropertyTypeFlag__All<doxid-group__property-type_1ggac0caefa69d169ef5023f0db649d7f808a0f97622f9b380e470c2a60354825fba2>`     = 0x030000,
+	};
+

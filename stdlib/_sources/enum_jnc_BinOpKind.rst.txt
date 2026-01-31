@@ -1,0 +1,52 @@
+.. include:: def.rst
+.. index:: pair: enum; BinOpKind
+.. _doxid-typejnc_binopkind:
+
+enum jnc.BinOpKind
+==================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum BinOpKind {
+	    :target:`Undefined<doxid-enum_memberjnc_binopkind_undefined>`      = 0,
+	    :target:`Add<doxid-enum_memberjnc_binopkind_add>`,
+	    :target:`Sub<doxid-enum_memberjnc_binopkind_sub>`,
+	    :target:`Mul<doxid-enum_memberjnc_binopkind_mul>`,
+	    :target:`Div<doxid-enum_memberjnc_binopkind_div>`,
+	    :target:`Mod<doxid-enum_memberjnc_binopkind_mod>`,
+	    :target:`Shl<doxid-enum_memberjnc_binopkind_shl>`,
+	    :target:`Shr<doxid-enum_memberjnc_binopkind_shr>`,
+	    :target:`BwAnd<doxid-enum_memberjnc_binopkind_bwand>`,
+	    :target:`BwXor<doxid-enum_memberjnc_binopkind_bwxor>`,
+	    :target:`BwOr<doxid-enum_memberjnc_binopkind_bwor>`,
+	    :target:`At<doxid-enum_memberjnc_binopkind_at>`,
+	    :target:`Eq<doxid-enum_memberjnc_binopkind_eq>`,
+	    :target:`Ne<doxid-enum_memberjnc_binopkind_ne>`,
+	    :target:`Lt<doxid-enum_memberjnc_binopkind_lt>`,
+	    :target:`Le<doxid-enum_memberjnc_binopkind_le>`,
+	    :target:`Gt<doxid-enum_memberjnc_binopkind_gt>`,
+	    :target:`Ge<doxid-enum_memberjnc_binopkind_ge>`,
+	    :target:`Idx<doxid-enum_memberjnc_binopkind_idx>`,
+	    :target:`LogAnd<doxid-enum_memberjnc_binopkind_logand>`,
+	    :target:`LogOr<doxid-enum_memberjnc_binopkind_logor>`,
+	    :target:`Assign<doxid-enum_memberjnc_binopkind_assign>`,
+	    :target:`RefAssign<doxid-enum_memberjnc_binopkind_refassign>`,
+	    :target:`AddAssign<doxid-enum_memberjnc_binopkind_addassign>`,
+	    :target:`SubAssign<doxid-enum_memberjnc_binopkind_subassign>`,
+	    :target:`MulAssign<doxid-enum_memberjnc_binopkind_mulassign>`,
+	    :target:`DivAssign<doxid-enum_memberjnc_binopkind_divassign>`,
+	    :target:`ModAssign<doxid-enum_memberjnc_binopkind_modassign>`,
+	    :target:`ShlAssign<doxid-enum_memberjnc_binopkind_shlassign>`,
+	    :target:`ShrAssign<doxid-enum_memberjnc_binopkind_shrassign>`,
+	    :target:`AndAssign<doxid-enum_memberjnc_binopkind_andassign>`,
+	    :target:`XorAssign<doxid-enum_memberjnc_binopkind_xorassign>`,
+	    :target:`OrAssign<doxid-enum_memberjnc_binopkind_orassign>`,
+	    :target:`AtAssign<doxid-enum_memberjnc_binopkind_atassign>`,
+	    :target:`_Count<doxid-enum_memberjnc_binopkind__count>`,
+	    :target:`_OpAssignDelta<doxid-enum_memberjnc_binopkind__opassigndelta>` = AddAssign - Add,
+	};
+

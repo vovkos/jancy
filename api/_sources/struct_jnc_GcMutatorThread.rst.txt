@@ -1,0 +1,29 @@
+.. index:: pair: struct; jnc_GcMutatorThread
+.. _doxid-structjnc___gc_mutator_thread:
+
+struct jnc_GcMutatorThread
+==========================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_GcMutatorThread {
+		// fields
+	
+		:ref:`jnc_ListLink<doxid-structjnc___list_link>` :target:`m_link<doxid-structjnc___gc_mutator_thread_1a03551192925af0c2c850c3b8bdfa9eec>`;
+		uint64_t :target:`m_threadId<doxid-structjnc___gc_mutator_thread_1ae40d9f159ce9e572c5ddba5cc5c4acf0>`;
+		:ref:`bool_t<doxid-group__base-def_1ga812d16e5494522586b3784e55d479912>` :target:`m_isSafePoint<doxid-structjnc___gc_mutator_thread_1a771aa02394685ea8f60cb4ad08431ae6>`;
+		size_t :target:`m_waitRegionLevel<doxid-structjnc___gc_mutator_thread_1a9f85c126b8ebaf1652850abea1b18570>`;
+		size_t :target:`m_noCollectRegionLevel<doxid-structjnc___gc_mutator_thread_1a59ec5a53d6ce6a85a88041872b2528c5>`;
+		:ref:`jnc_DataPtrValidator<doxid-structjnc___data_ptr_validator>`* :target:`m_dataPtrValidatorPoolBegin<doxid-structjnc___gc_mutator_thread_1af8401411f3a76a5abf74dc430ae80ef8>`;
+		:ref:`jnc_DataPtrValidator<doxid-structjnc___data_ptr_validator>`* :target:`m_dataPtrValidatorPoolEnd<doxid-structjnc___gc_mutator_thread_1a70104e1e8dd689a827311f56b8e5bcb9>`;
+		:ref:`jnc_DetachedDataBox<doxid-structjnc___detached_data_box>`* :target:`m_foreignDataBoxPoolBegin<doxid-structjnc___gc_mutator_thread_1acda77e8655376fc9eb4eeef5155f21df>`;
+		:ref:`jnc_DetachedDataBox<doxid-structjnc___detached_data_box>`* :target:`m_foreignDataBoxPoolEnd<doxid-structjnc___gc_mutator_thread_1aa5d7a52baf93b7e3d8813efa36218b27>`;
+	};

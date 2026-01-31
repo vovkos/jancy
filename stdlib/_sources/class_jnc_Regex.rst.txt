@@ -1,0 +1,112 @@
+.. include:: def.rst
+.. index:: pair: class; jnc.Regex
+.. _doxid-typejnc_regex:
+
+class jnc.Regex
+===============
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class Regex {
+		// fields
+	
+		:ref:`jnc.RegexKind<doxid-typejnc_regexkind>` readonly :target:`m_regexKind<doxid-fieldjnc_regex_m_regexkind>`;
+		:ref:`jnc.RegexFlags<doxid-typejnc_regexflags>` readonly :target:`m_flags<doxid-fieldjnc_regex_m_flags>`;
+		typedef unsigned long size_t readonly :target:`m_captureCount<doxid-fieldjnc_regex_m_capturecount>`;
+		typedef unsigned long size_t readonly :target:`m_switchCaseCount<doxid-fieldjnc_regex_m_switchcasecount>`;
+
+		// properties
+	
+		:ref:`string_t<doxid-typedefstring_t>` const property :target:`m_pattern<doxid-propertyjnc_regex_m_pattern>`;
+		:ref:`string_t<doxid-typedefstring_t>` const indexed property :target:`m_switchCasePattern<doxid-propertyjnc_regex_m_switchcasepattern>`(:ref:`uint_t<doxid-typedefuint_t>` id);
+		:ref:`size_t<doxid-typedefsize_t>` const indexed property :target:`m_switchCaseCaptureCount<doxid-propertyjnc_regex_m_switchcasecapturecount>`(:ref:`uint_t<doxid-typedefuint_t>` id);
+
+		// construction
+	
+		:target:`construct<doxid-functionjnc_regex_construct>`();
+		:target:`construct<doxid-functionjnc_regex_construct_2>`(:ref:`string_t<doxid-typedefstring_t>` pattern);
+	
+		:target:`construct<doxid-functionjnc_regex_construct_3>`(
+			:ref:`jnc.RegexFlags<doxid-typejnc_regexflags>` flags,
+			:ref:`string_t<doxid-typedefstring_t>` pattern
+		);
+		:target:`destruct<doxid-functionjnc_regex_destruct>`();
+
+		// methods
+	
+		void :target:`clear<doxid-functionjnc_regex_clear>`();
+	
+		bool errorcode :target:`compile<doxid-functionjnc_regex_compile>`(
+			:ref:`string_t<doxid-typedefstring_t>` source,
+			:ref:`jnc.RegexFlags<doxid-typejnc_regexflags>` flags = 0
+		);
+	
+		void :target:`createSwitch<doxid-functionjnc_regex_createswitch>`(:ref:`jnc.RegexFlags<doxid-typejnc_regexflags>` flags = 0);
+		:ref:`uint_t<doxid-typedefuint_t>` errorcode :target:`compileSwitchCase<doxid-functionjnc_regex_compileswitchcase>`(:ref:`string_t<doxid-typedefstring_t>` source);
+		bool errorcode :target:`finalizeSwitch<doxid-functionjnc_regex_finalizeswitch>`();
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`load<doxid-functionjnc_regex_load>`(
+			void const* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`save<doxid-functionjnc_regex_save>`(:ref:`std.Buffer<doxid-typestd_buffer>`* buffer);
+		:ref:`std.Buffer<doxid-typestd_buffer>`* errorcode :target:`save<doxid-functionjnc_regex_save_2>`();
+	
+		:ref:`jnc.RegexExecResult<doxid-typejnc_regexexecresult>` :target:`exec<doxid-functionjnc_regex_exec>`(
+			:ref:`jnc.RegexState<doxid-typejnc_regexstate>`* state,
+			:ref:`string_t<doxid-typedefstring_t>` chunk
+		) const;
+	
+		:ref:`jnc.RegexMatch<doxid-typejnc_regexmatch>` const* :target:`exec<doxid-functionjnc_regex_exec_2>`(
+			:ref:`string_t<doxid-typedefstring_t>` text,
+			:ref:`jnc.RegexExecFlags<doxid-typejnc_regexexecflags>` flags = 0
+		) const;
+	
+		:ref:`jnc.RegexExecResult<doxid-typejnc_regexexecresult>` :target:`execEof<doxid-functionjnc_regex_execeof>`(
+			:ref:`jnc.RegexState<doxid-typejnc_regexstate>`* state,
+			:ref:`string_t<doxid-typedefstring_t>` lastChunk,
+			int eofChar = RegexEofChar
+		) const;
+	
+		:ref:`jnc.RegexExecResult<doxid-typejnc_regexexecresult>` :target:`execEof<doxid-functionjnc_regex_execeof_2>`(
+			:ref:`jnc.RegexState<doxid-typejnc_regexstate>`* state,
+			int eofChar = RegexEofChar
+		) const;
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`captureSubmatches<doxid-functionjnc_regex_capturesubmatches>`(
+			:ref:`uint64_t<doxid-typedefuint64_t>` matchOffset,
+			:ref:`string_t<doxid-typedefstring_t>` matchText,
+			:ref:`jnc.RegexCapture<doxid-typejnc_regexcapture>`* submatchArray,
+			:ref:`size_t<doxid-typedefsize_t>` count
+		) const;
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`captureSubmatches<doxid-functionjnc_regex_capturesubmatches_2>`(
+			:ref:`jnc.RegexCapture<doxid-typejnc_regexcapture>` const* match,
+			:ref:`jnc.RegexCapture<doxid-typejnc_regexcapture>`* submatchArray,
+			:ref:`size_t<doxid-typedefsize_t>` count
+		) const;
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`captureSwitchCaseSubmatches<doxid-functionjnc_regex_captureswitchcasesubmatches>`(
+			:ref:`uint_t<doxid-typedefuint_t>` switchCaseId,
+			:ref:`uint64_t<doxid-typedefuint64_t>` matchOffset,
+			:ref:`string_t<doxid-typedefstring_t>` matchText,
+			:ref:`jnc.RegexCapture<doxid-typejnc_regexcapture>`* submatchArray,
+			:ref:`size_t<doxid-typedefsize_t>` count
+		) const;
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`captureSwitchCaseSubmatches<doxid-functionjnc_regex_captureswitchcasesubmatches_2>`(
+			:ref:`uint_t<doxid-typedefuint_t>` switchCaseId,
+			:ref:`jnc.RegexCapture<doxid-typejnc_regexcapture>` const* match,
+			:ref:`jnc.RegexCapture<doxid-typejnc_regexcapture>`* submatchArray,
+			:ref:`size_t<doxid-typedefsize_t>` count
+		) const;
+	};

@@ -1,0 +1,23 @@
+.. index:: pair: struct; jnc_McSnapshot
+.. _doxid-structjnc___mc_snapshot:
+
+struct jnc_McSnapshot
+=====================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_McSnapshot {
+		// fields
+	
+		:ref:`jnc_IfaceHdr<doxid-structjnc___iface_hdr>` :target:`m_ifaceHdr<doxid-structjnc___mc_snapshot_1a3ebbb7ac9f3c1ce0c531deb7fc9cacd9>`;
+		:ref:`jnc_DataPtr<doxid-structjnc___data_ptr>` :target:`m_ptr<doxid-structjnc___mc_snapshot_1a1b40bc1a2acf466056be741b167f7ffe>`;
+		size_t :target:`m_count<doxid-structjnc___mc_snapshot_1a301c40dba4e00c1f376c66b2a1b6aa2f>`;
+	};

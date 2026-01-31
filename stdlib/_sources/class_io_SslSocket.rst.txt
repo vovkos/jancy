@@ -1,0 +1,128 @@
+.. include:: def.rst
+.. index:: pair: class; io.SslSocket
+.. _doxid-typeio_sslsocket:
+
+class io.SslSocket
+==================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class SslSocket: :ref:`io.SslState<doxid-typeio_sslstate>` {
+		// fields
+	
+		:ref:`io.SslSocketEvents<doxid-typeio_sslsocketevents>` readonly volatile :target:`m_activeEvents<doxid-fieldio_sslsocket_m_activeevents>`;
+		:ref:`std.Error<doxid-typestd_error>` const* readonly volatile :target:`m_ioError<doxid-fieldio_sslsocket_m_ioerror>`;
+		bool readonly :target:`m_isOpen<doxid-fieldio_sslsocket_m_isopen>`;
+
+		// properties
+	
+		:ref:`io.SocketAddress<doxid-typeio_socketaddress>` const property :target:`m_address<doxid-propertyio_sslsocket_m_address>`;
+		:ref:`io.SocketAddress<doxid-typeio_socketaddress>` const property :target:`m_peerAddress<doxid-propertyio_sslsocket_m_peeraddress>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_readBlockSize<doxid-propertyio_sslsocket_m_readblocksize>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_readBufferSize<doxid-propertyio_sslsocket_m_readbuffersize>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_writeBufferSize<doxid-propertyio_sslsocket_m_writebuffersize>`;
+		:ref:`io.SocketOptions<doxid-typeio_socketoptions>` autoget property :target:`m_options<doxid-propertyio_sslsocket_m_options>`;
+		:ref:`string_t<doxid-typedefstring_t>` property :target:`m_hostname<doxid-propertyio_sslsocket_m_hostname>`;
+
+		// construction
+	
+		:target:`construct<doxid-functionio_sslsocket_construct>`();
+		:target:`destruct<doxid-functionio_sslsocket_destruct>`();
+
+		// methods
+	
+		bool errorcode :target:`open<doxid-functionio_sslsocket_open>`(:ref:`io.AddressFamily<doxid-typeio_addressfamily>` family);
+		bool errorcode :target:`open<doxid-functionio_sslsocket_open_2>`(:ref:`io.SocketAddress<doxid-typeio_socketaddress>` const* address);
+		void :target:`close<doxid-functionio_sslsocket_close>`();
+		bool errorcode :target:`connect<doxid-functionio_sslsocket_connect>`(:ref:`io.SocketAddress<doxid-typeio_socketaddress>` const* address);
+		bool errorcode :target:`listen<doxid-functionio_sslsocket_listen>`(:ref:`size_t<doxid-typedefsize_t>` backlog = 0);
+	
+		io.SslSocket* errorcode :target:`accept<doxid-functionio_sslsocket_accept>`(
+			:ref:`io.SocketAddress<doxid-typeio_socketaddress>`* address = null,
+			bool isSuspended = false
+		);
+	
+		void :target:`unsuspend<doxid-functionio_sslsocket_unsuspend>`();
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`read<doxid-functionio_sslsocket_read>`(
+			void* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`write<doxid-functionio_sslsocket_write>`(
+			void const* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		long errorcode :target:`wait<doxid-functionio_sslsocket_wait>`(
+			:ref:`io.SslSocketEvents<doxid-typeio_sslsocketevents>` eventMask,
+			void function* handler(io.SslSocketEvents triggeredEvents)
+		);
+	
+		bool errorcode :target:`cancelWait<doxid-functionio_sslsocket_cancelwait>`(long handle);
+	
+		:ref:`io.SslSocketEvents<doxid-typeio_sslsocketevents>` :target:`blockingWait<doxid-functionio_sslsocket_blockingwait>`(
+			:ref:`io.SslSocketEvents<doxid-typeio_sslsocketevents>` eventMask,
+			:ref:`uint_t<doxid-typedefuint_t>` timeout = -1
+		);
+	
+		:ref:`io.SslSocketEvents<doxid-typeio_sslsocketevents>` async :target:`asyncWait<doxid-functionio_sslsocket_asyncwait>`(:ref:`io.SslSocketEvents<doxid-typeio_sslsocketevents>` eventMask);
+
+		// aliases
+	
+		alias :target:`dispose<doxid-aliasio_sslsocket_dispose>` = close;
+	};
+
+Inherited Members
+-----------------
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-inherited-code-block
+
+	public:
+		// properties
+	
+		:ref:`size_t<doxid-typedefsize_t>` const property :ref:`m_availableCipherCount<doxid-propertyio_sslstate_m_availableciphercount>`;
+		:ref:`io.SslCipher<doxid-typeio_sslcipher>`* const indexed property :ref:`m_availableCipherSet<doxid-propertyio_sslstate_m_availablecipherset>`(:ref:`size_t<doxid-typedefsize_t>` i);
+		:ref:`io.SslCipher<doxid-typeio_sslcipher>`* const property :ref:`m_currentCipher<doxid-propertyio_sslstate_m_currentcipher>`;
+		:ref:`size_t<doxid-typedefsize_t>` const property :ref:`m_peerCertificateChainLength<doxid-propertyio_sslstate_m_peercertificatechainlength>`;
+		:ref:`io.SslCertificate<doxid-typeio_sslcertificate>` const* const indexed property :ref:`m_peerCertificateChain<doxid-propertyio_sslstate_m_peercertificatechain>`(:ref:`size_t<doxid-typedefsize_t>` i);
+		:ref:`io.SslCertificate<doxid-typeio_sslcertificate>` const* const property :ref:`m_peerCertificate<doxid-propertyio_sslstate_m_peercertificate>`;
+		int property :ref:`m_securityLevel<doxid-propertyio_sslstate_m_securitylevel>`;
+		:ref:`io.SslVerifyMode<doxid-typeio_sslverifymode>` property :ref:`m_verifyMode<doxid-propertyio_sslstate_m_verifymode>`;
+		:ref:`size_t<doxid-typedefsize_t>` property :ref:`m_verifyDepth<doxid-propertyio_sslstate_m_verifydepth>`;
+		:ref:`string_t<doxid-typedefstring_t>` const property :ref:`m_stateString<doxid-propertyio_sslstate_m_statestring>`;
+		:ref:`string_t<doxid-typedefstring_t>` const property :ref:`m_stateStringLong<doxid-propertyio_sslstate_m_statestringlong>`;
+
+		// events
+	
+		event :ref:`m_onStateChanged<doxid-fieldio_sslstate_m_onstatechanged>`(
+			:ref:`io.SslStateFlags<doxid-typeio_sslstateflags>` flags,
+			int alertInfo
+		);
+
+		// methods
+	
+		bool errorcode :ref:`enableCiphers<doxid-functionio_sslstate_enableciphers>`(:ref:`string_t<doxid-typedefstring_t>` ciphers);
+		bool errorcode :ref:`setEphemeralDhParams<doxid-functionio_sslstate_setephemeraldhparams>`(:ref:`string_t<doxid-typedefstring_t>` pem);
+		bool errorcode :ref:`loadEphemeralDhParams<doxid-functionio_sslstate_loadephemeraldhparams>`(:ref:`string_t<doxid-typedefstring_t>` fileName);
+		bool errorcode :ref:`setEphemeralDhStdParams<doxid-functionio_sslstate_setephemeraldhstdparams>`(:ref:`io.SslStdDh<doxid-typeio_sslstddh>` dh = SslStdDh.Dh1024x160);
+		bool errorcode :ref:`setEphemeralEcdhCurve<doxid-functionio_sslstate_setephemeralecdhcurve>`(:ref:`string_t<doxid-typedefstring_t>` curveName = "secp112r1");
+		bool errorcode :ref:`loadCertificate<doxid-functionio_sslstate_loadcertificate>`(:ref:`string_t<doxid-typedefstring_t>` fileName);
+		bool errorcode :ref:`loadPrivateKey<doxid-functionio_sslstate_loadprivatekey>`(:ref:`string_t<doxid-typedefstring_t>` fileName);
+	
+		bool errorcode :ref:`loadVerifyLocations<doxid-functionio_sslstate_loadverifylocations>`(
+			:ref:`string_t<doxid-typedefstring_t>` caFileName,
+			:ref:`string_t<doxid-typedefstring_t>` caDir = null
+		);
+	
+		bool errorcode :ref:`shutdown<doxid-functionio_sslstate_shutdown>`();
+

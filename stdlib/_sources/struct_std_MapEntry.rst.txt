@@ -1,0 +1,26 @@
+.. include:: def.rst
+.. index:: pair: struct; std.MapEntry
+.. _doxid-typestd_mapentry:
+
+struct std.MapEntry
+===================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "std_MapEntry.jnc"
+	
+	struct MapEntry {
+		// fields
+	
+		std.MapEntry constif* readonly :target:`m_next<doxid-fieldstd_mapentry_m_next>`;
+		std.MapEntry constif* readonly :target:`m_prev<doxid-fieldstd_mapentry_m_prev>`;
+		typedef Variant variant_t const :target:`m_key<doxid-fieldstd_mapentry_m_key>`;
+		typedef Variant variant_t :target:`m_value<doxid-fieldstd_mapentry_m_value>`;
+	};

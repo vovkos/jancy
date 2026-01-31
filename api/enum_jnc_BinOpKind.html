@@ -1,0 +1,178 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>enum jnc_BinOpKind &mdash; Jancy C API Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="enum jnc_UnOpKind" href="enum_jnc_UnOpKind.html" />
+    <link rel="prev" title="Operators" href="group_operators.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy C API Reference
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="group_base-def.html">Base Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_error-subsystem.html">Error Subsystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_extension-lib-subsystem.html">Extension Libraries Subsystem</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="group_module-subsystem.html">Module Components</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="group_attribute-block.html">Attribute Block</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_function.html">Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_module.html">Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_module-item.html">Module Item</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_module-item-decl.html">Module Item Declaration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_namespace.html">Namespace</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="group_operators.html">Operators</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">enum jnc_BinOpKind</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_jnc_UnOpKind.html">enum jnc_UnOpKind</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="group_property.html">Property</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_type-subsystem.html">Type Subsystem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_unit.html">Unit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_variable.html">Variable</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="group_runtime-subsystem.html">Runtime Subsystem</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="global.html">Global Namespace</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy C API Reference</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="group_module-subsystem.html">Module Components</a></li>
+          <li class="breadcrumb-item"><a href="group_operators.html">Operators</a></li>
+      <li class="breadcrumb-item active">enum jnc_BinOpKind</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="enum-jnc-binopkind">
+<span id="doxid-group-operators-1ga67d0ce0c5d9543240203773042ee075d"></span><span id="index-0"></span><h1>enum jnc_BinOpKind</h1>
+<pre class="highlight doxyrest-overview-code-block literal-block"><span></span><span class="cp">#include</span> <span class="cpf">&lt;jnc_OpKind.h&gt;</span>
+
+<span class="k">enum</span> <span class="n">jnc_BinOpKind</span> <span class="p">{</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075dad0e488a44d2ecd913725a25451e7a1dc"><span></span><span class="n">jnc_BinOpKind_Undefined</span></span><span></span>      <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075da6125d218b7c41dffe722bf1f830abe46"><span></span><span class="n">jnc_BinOpKind_Add</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075daa23afb3ecd811fd0b439e377df03f8ba"><span></span><span class="n">jnc_BinOpKind_Sub</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075da40fa67c94bf9b3b0af4581246cbcfe2d"><span></span><span class="n">jnc_BinOpKind_Mul</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075da5502fae8631ada99847b62a8c9caa613"><span></span><span class="n">jnc_BinOpKind_Div</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075da4dbdb5eebabe9e4dc720b6954b94f973"><span></span><span class="n">jnc_BinOpKind_Mod</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075da7e5117852eacaf3dca07c0998e08c07e"><span></span><span class="n">jnc_BinOpKind_Shl</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075da5cb3654a02a3bbe46dec696b0f478911"><span></span><span class="n">jnc_BinOpKind_Shr</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075da16238829564f991cc7259b12af72d209"><span></span><span class="n">jnc_BinOpKind_BwAnd</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075da6b532283cb4832a51d19c464b0e402fe"><span></span><span class="n">jnc_BinOpKind_BwXor</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075dad8d20e0fec45eece9180ebf284d2ef19"><span></span><span class="n">jnc_BinOpKind_BwOr</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075da8ac3988a31f059f461f380cb29bd0afa"><span></span><span class="n">jnc_BinOpKind_At</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075da69cd486ef30553c80a3128a29ee006e2"><span></span><span class="n">jnc_BinOpKind_Eq</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075daeaf34c92ae9331d9f8566d2700d6957c"><span></span><span class="n">jnc_BinOpKind_Ne</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075daf4e61f4e668b5adbd9c3eb8755602919"><span></span><span class="n">jnc_BinOpKind_Lt</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075da3c09f2c9bdc40b7113b8c838f2d61b40"><span></span><span class="n">jnc_BinOpKind_Le</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075da4bf0dfce0de6b708ae9ed03e78ee7b61"><span></span><span class="n">jnc_BinOpKind_Gt</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075da9e10383ed718045b4707005f2401fed7"><span></span><span class="n">jnc_BinOpKind_Ge</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075da9102dffecee2601a28b0d55ce78c3f88"><span></span><span class="n">jnc_BinOpKind_Match</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075da31bb3a555cdc5ac81c7f41e4a17a9088"><span></span><span class="n">jnc_BinOpKind_NotMatch</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075dab49642f0bca1db5868c169f7161a6d48"><span></span><span class="n">jnc_BinOpKind_Idx</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075da2f15857712c26f7c215de82315acd3e4"><span></span><span class="n">jnc_BinOpKind_LogAnd</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075dad26309832247652815f3c36b17600386"><span></span><span class="n">jnc_BinOpKind_LogOr</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075dae4c8679a155f72523abba467b7d21bd8"><span></span><span class="n">jnc_BinOpKind_Assign</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075da33570578176224f1976e1a19bf045096"><span></span><span class="n">jnc_BinOpKind_RefAssign</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075dae9ba13885549f27d7ca2a4bfb1e13520"><span></span><span class="n">jnc_BinOpKind_AddAssign</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075da2c64f09ae06fdfa4e56ef7b6e5e138b4"><span></span><span class="n">jnc_BinOpKind_SubAssign</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075da30a778973b74e7ce80fdf787a8dab3d3"><span></span><span class="n">jnc_BinOpKind_MulAssign</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075dae95153434c112e613a1458638056eb23"><span></span><span class="n">jnc_BinOpKind_DivAssign</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075dae6376ec7b0a08a1805fc7e22c0c78541"><span></span><span class="n">jnc_BinOpKind_ModAssign</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075da8a97b60eda82f9eadaf8e95a025a20ab"><span></span><span class="n">jnc_BinOpKind_ShlAssign</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075daed6c668cf431bc9b64200c9f78200df5"><span></span><span class="n">jnc_BinOpKind_ShrAssign</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075da299d9dd18f1b55e1e4dd976f0525e5d3"><span></span><span class="n">jnc_BinOpKind_AndAssign</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075da64c3f92dd25f9a5bf5f3011760749fda"><span></span><span class="n">jnc_BinOpKind_XorAssign</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075da14897dd8de4c20bbd07e1cf45a01db73"><span></span><span class="n">jnc_BinOpKind_OrAssign</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075da453d43293810fd7c4a89d20a87b77fa8"><span></span><span class="n">jnc_BinOpKind_AtAssign</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075da2bf2b1fddce61d9ec7f8dc0de9126f2e"><span></span><span class="n">jnc_BinOpKind__Count</span></span><span></span><span class="p">,</span>
+    <span class="doxyrest-code-target target" id="doxid-group-operators-1gga67d0ce0c5d9543240203773042ee075da343138b26520ab82afb48cd95bbd5543"><span></span><span class="n">jnc_BinOpKind__OpAssignDelta</span></span><span></span> <span class="o">=</span> <span class="n">jnc_BinOpKind_AddAssign</span> <span class="o">-</span> <span class="n">jnc_BinOpKind_Add</span><span class="p">,</span>
+<span class="p">};</span></pre>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="group_operators.html" class="btn btn-neutral float-left" title="Operators" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="enum_jnc_UnOpKind.html" class="btn btn-neutral float-right" title="enum jnc_UnOpKind" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

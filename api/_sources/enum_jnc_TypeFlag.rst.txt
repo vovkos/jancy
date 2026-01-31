@@ -1,0 +1,30 @@
+.. index:: pair: enum; jnc_TypeFlag
+.. _doxid-group__type_1ga0b9154297f9dcb9c0de015199ad34d9e:
+
+enum jnc_TypeFlag
+=================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Type.h>
+
+	enum jnc_TypeFlag {
+	    :target:`jnc_TypeFlag_SignatureReady<doxid-group__type_1gga0b9154297f9dcb9c0de015199ad34d9eac2dbbdecb854a5aeb853e734e3b5a6a3>` = 0x0010,
+	    :target:`jnc_TypeFlag_SignatureFinal<doxid-group__type_1gga0b9154297f9dcb9c0de015199ad34d9eab584ee28840d50313c09dc335ad63890>` = 0x0020,
+	    :target:`jnc_TypeFlag_SignatureMask<doxid-group__type_1gga0b9154297f9dcb9c0de015199ad34d9ea90300e4b82c09834588f6d682a0a712f>`  = 0x0030,
+	    :target:`jnc_TypeFlag_InCalcLayout<doxid-group__type_1gga0b9154297f9dcb9c0de015199ad34d9ea7496c15ac8097e66c8d9ec48ab320bc1>`   = 0x0040,
+	    :target:`jnc_TypeFlag_LayoutReady<doxid-group__type_1gga0b9154297f9dcb9c0de015199ad34d9eabf83e158bcadcbec86a22b91e9c3344e>`    = 0x0080,
+	    :target:`jnc_TypeFlag_Pod<doxid-group__type_1gga0b9154297f9dcb9c0de015199ad34d9ea8657bad3c10cede8d873f50a3bc33b08>`            = 0x0100,
+	    :target:`jnc_TypeFlag_GcRoot<doxid-group__type_1gga0b9154297f9dcb9c0de015199ad34d9ea6093d190cbea9d7cf42c198b8306864b>`         = 0x0200,
+	    :target:`jnc_TypeFlag_StructRet<doxid-group__type_1gga0b9154297f9dcb9c0de015199ad34d9eaf256e5435b2e8e6b653d26172f48f934>`      = 0x0400,
+	    :target:`jnc_TypeFlag_NoStack<doxid-group__type_1gga0b9154297f9dcb9c0de015199ad34d9ea9017e5525ee74c7985a98062fc3901c8>`        = 0x1000,
+	    :target:`jnc_TypeFlag_NoImports<doxid-group__type_1gga0b9154297f9dcb9c0de015199ad34d9ea53e984f6343edffa58b5415b50874279>`      = 0x2000,
+	    :target:`jnc_TypeFlag_Import<doxid-group__type_1gga0b9154297f9dcb9c0de015199ad34d9ea73167d9e43754855148eeceb948644e4>`         = 0x0008,
+	    :target:`jnc_TypeFlag_Dual<doxid-group__type_1gga0b9154297f9dcb9c0de015199ad34d9ea5b13ed6d4326ce7ae2ddc0e27dd9c22f>`           = 0x4000,
+	    :target:`jnc_TypeFlag_MaybeConst<doxid-group__type_1gga0b9154297f9dcb9c0de015199ad34d9ea672e07b63a400eb9c334f490f521f2f8>`     = 0x8000,
+	    :target:`jnc_TypeFlag_PropagateMask<doxid-group__type_1gga0b9154297f9dcb9c0de015199ad34d9ea8c7775e19c6174fb5322d20547fad46d>`  = 0xc008,
+	};
+

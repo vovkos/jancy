@@ -1,0 +1,191 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>struct jnc_VariantFuncTable &mdash; Jancy C API Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="struct jnc_VariableFuncTable" href="struct_jnc_VariableFuncTable.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy C API Reference
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="group_base-def.html">Base Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_error-subsystem.html">Error Subsystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_extension-lib-subsystem.html">Extension Libraries Subsystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_module-subsystem.html">Module Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_runtime-subsystem.html">Runtime Subsystem</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="global.html">Global Namespace</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="namespace_jnc.html">namespace jnc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enum_jnc_CodeAssistFlag.html">enum jnc_CodeAssistFlag</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enum_jnc_CodeAssistKind.html">enum jnc_CodeAssistKind</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enum_jnc_DynamicLayoutMode.html">enum jnc_DynamicLayoutMode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enum_jnc_DynamicSectionKind.html">enum jnc_DynamicSectionKind</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_ArrayTypeFuncTable.html">struct jnc_ArrayTypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_AttributeBlockFuncTable.html">struct jnc_AttributeBlockFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_AttributeFuncTable.html">struct jnc_AttributeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_BaseTypeSlotFuncTable.html">struct jnc_BaseTypeSlotFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_CapabilityFuncTable.html">struct jnc_CapabilityFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_ClassPtrTypeFuncTable.html">struct jnc_ClassPtrTypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_ClassTypeFuncTable.html">struct jnc_ClassTypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_DataPtrTypeFuncTable.html">struct jnc_DataPtrTypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_DerivableTypeFuncTable.html">struct jnc_DerivableTypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_EnumConstFuncTable.html">struct jnc_EnumConstFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_EnumTypeFuncTable.html">struct jnc_EnumTypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_ErrorFuncTable.html">struct jnc_ErrorFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_FieldFuncTable.html">struct jnc_FieldFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_FunctionArgFuncTable.html">struct jnc_FunctionArgFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_FunctionFuncTable.html">struct jnc_FunctionFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_FunctionOverloadFuncTable.html">struct jnc_FunctionOverloadFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_FunctionPtrTypeFuncTable.html">struct jnc_FunctionPtrTypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_FunctionTypeFuncTable.html">struct jnc_FunctionTypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_GcHeapFuncTable.html">struct jnc_GcHeapFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_GlobalNamespaceFuncTable.html">struct jnc_GlobalNamespaceFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_McSnapshotClassTypeFuncTable.html">struct jnc_McSnapshotClassTypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_ModuleFuncTable.html">struct jnc_ModuleFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_ModuleItemDeclFuncTable.html">struct jnc_ModuleItemDeclFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_ModuleItemFuncTable.html">struct jnc_ModuleItemFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_MulticastClassTypeFuncTable.html">struct jnc_MulticastClassTypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_NamedTypeFuncTable.html">struct jnc_NamedTypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_NamespaceFuncTable.html">struct jnc_NamespaceFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_PromiseFuncTable.html">struct jnc_PromiseFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_PropertyFuncTable.html">struct jnc_PropertyFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_PropertyPtrTypeFuncTable.html">struct jnc_PropertyPtrTypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_PropertyTypeFuncTable.html">struct jnc_PropertyTypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_RuntimeFuncTable.html">struct jnc_RuntimeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_StdBuffer.html">struct jnc_StdBuffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_StdBufferFuncTable.html">struct jnc_StdBufferFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_StdHashTable.html">struct jnc_StdHashTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_StdHashTableFuncTable.html">struct jnc_StdHashTableFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_StdMap.html">struct jnc_StdMap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_StdMapEntry.html">struct jnc_StdMapEntry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_StdRbTree.html">struct jnc_StdRbTree</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_StdRbTreeFuncTable.html">struct jnc_StdRbTreeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_StringFuncTable.html">struct jnc_StringFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_StructTypeFuncTable.html">struct jnc_StructTypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_TypeFuncTable.html">struct jnc_TypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_TypedefFuncTable.html">struct jnc_TypedefFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_UnionTypeFuncTable.html">struct jnc_UnionTypeFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_UnitFuncTable.html">struct jnc_UnitFuncTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_VariableFuncTable.html">struct jnc_VariableFuncTable</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">struct jnc_VariantFuncTable</a><ul class="simple">
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy C API Reference</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="global.html">Global Namespace</a></li>
+      <li class="breadcrumb-item active">struct jnc_VariantFuncTable</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="struct-jnc-variantfunctable">
+<span id="doxid-structjnc-variant-func-table"></span><span id="index-0"></span><h1>struct jnc_VariantFuncTable</h1>
+<div class="toctree-wrapper compound">
+</div>
+<pre class="highlight doxyrest-overview-code-block literal-block"><span></span><span class="k">struct</span> <span class="n">jnc_VariantFuncTable</span> <span class="p">{</span>
+    <span class="c1">// fields</span>
+
+    <span class="kt">size_t</span> <span class="doxyrest-code-target target" id="doxid-structjnc-variant-func-table-1a74815468fae901b081cd0d6da8a492a9"><span></span><span class="n">m_size</span></span><span></span><span class="p">;</span>
+    <span class="n">jnc_Variant_CreateFunc</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-variant-func-table-1ad989dcb4056d5dc4f667d92f4707e0fd"><span></span><span class="n">m_createFunc</span></span><span></span><span class="p">;</span>
+    <span class="n">jnc_Variant_CastFunc</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-variant-func-table-1abc349d9ed79f4075786a74708bd23add"><span></span><span class="n">m_castFunc</span></span><span></span><span class="p">;</span>
+    <span class="n">jnc_Variant_UnaryOperatorFunc</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-variant-func-table-1ae5c65e516f35347313a6a9b05249de77"><span></span><span class="n">m_unaryOperatorFunc</span></span><span></span><span class="p">;</span>
+    <span class="n">jnc_Variant_BinaryOperatorFunc</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-variant-func-table-1a9689c1a4f35d2069858cd0d70987c058"><span></span><span class="n">m_binaryOperatorFunc</span></span><span></span><span class="p">;</span>
+    <span class="n">jnc_Variant_RelationalOperatorFunc</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-variant-func-table-1a74d2cc832d53101affe04c737be0c631"><span></span><span class="n">m_relationalOperatorFunc</span></span><span></span><span class="p">;</span>
+    <span class="n">jnc_Variant_GetMemberFunc</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-variant-func-table-1a8a7169cd47aa1efadb021ce0cc910ae9"><span></span><span class="n">m_getMemberFunc</span></span><span></span><span class="p">;</span>
+    <span class="n">jnc_Variant_SetMemberFunc</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-variant-func-table-1ac6cd776736fcdeeec732690eeff74559"><span></span><span class="n">m_setMemberFunc</span></span><span></span><span class="p">;</span>
+    <span class="n">jnc_Variant_GetElementFunc</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-variant-func-table-1a6c0cb18cb3a31a7cfefeaadb2dea7d27"><span></span><span class="n">m_getElementFunc</span></span><span></span><span class="p">;</span>
+    <span class="n">jnc_Variant_SetElementFunc</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-variant-func-table-1a838dcbefdfbcd66faee024c3e77e2746"><span></span><span class="n">m_setElementFunc</span></span><span></span><span class="p">;</span>
+    <span class="n">jnc_Variant_HashFunc</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-variant-func-table-1ab82d774a31fa4a12332cc759c17735f9"><span></span><span class="n">m_hashFunc</span></span><span></span><span class="p">;</span>
+    <span class="n">jnc_Variant_FormatFunc</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-variant-func-table-1a66fd177788dca407be98ca100fbeef10"><span></span><span class="n">m_formatFunc</span></span><span></span><span class="p">;</span>
+<span class="p">};</span></pre>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="struct_jnc_VariableFuncTable.html" class="btn btn-neutral float-left" title="struct jnc_VariableFuncTable" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,20 @@
+.. index:: pair: enum; jnc_ModuleCompileState
+.. _doxid-group__module_1gaa95d75e4c684b9e0dbfc78d2c6c3cc05:
+
+enum jnc_ModuleCompileState
+===========================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Module.h>
+
+	enum jnc_ModuleCompileState {
+	    :target:`jnc_ModuleCompileState_Idle<doxid-group__module_1ggaa95d75e4c684b9e0dbfc78d2c6c3cc05a219d396c52af737a73b045ed92b849cb>`,
+	    :target:`jnc_ModuleCompileState_Parsed<doxid-group__module_1ggaa95d75e4c684b9e0dbfc78d2c6c3cc05a794ff49a94ae91f681142f29d2181cce>`,
+	    :target:`jnc_ModuleCompileState_Compiled<doxid-group__module_1ggaa95d75e4c684b9e0dbfc78d2c6c3cc05af3e2fe91d2d68634cc821a7a39b13891>`,
+	    :target:`jnc_ModuleCompileState_Jitted<doxid-group__module_1ggaa95d75e4c684b9e0dbfc78d2c6c3cc05ad5e4de3253297696cec10604eac5083c>`,
+	};
+

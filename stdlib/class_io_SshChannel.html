@@ -1,0 +1,500 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>class io.SshChannel &mdash; Jancy Standard Library Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="WebSockets" href="group_io-websock.html" />
+    <link rel="prev" title="struct io.SshConnectParams" href="struct_io_SshConnectParams.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy Standard Library Reference
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="group_stdt-operator.html">stdt-operator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_c-typedefs.html">Standard Typedefs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_rtl.html">RTL (Runtime Library)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_crt.html">C Runtime Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_std.html">General Purpose Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_sys.html">System Facilities</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="group_io.html">IO (Input/Output) Library</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="group_io-file.html">Generic File IO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-socket.html">Socket Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-serial.html">Serial Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-network-adapter.html">Network Adapter Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-ssl.html">SSL Communications</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="group_io-ssh.html">SSH Communications</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="enum_io_SshEvents.html">bitflag enum io.SshEvents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="struct_io_SshConnectParams.html">struct io.SshConnectParams</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">class io.SshChannel</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#detailed-documentation">Detailed Documentation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-websock.html">WebSockets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-pcap.html">Pcap (Packet Capturing Library)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-usb.html">USB Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-usbmon.html">USB Monitoring</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-hid.html">HID Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-devmon.html">Device Monitoring</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="disposable.html">‘disposable’ Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="errorcode.html">‘errorcode’ Functions</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="global.html">Global Namespace</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy Standard Library Reference</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="group_io.html">IO (Input/Output) Library</a></li>
+          <li class="breadcrumb-item"><a href="group_io-ssh.html">SSH Communications</a></li>
+      <li class="breadcrumb-item active">class io.SshChannel</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="class-io-sshchannel">
+<span id="doxid-typeio-sshchannel"></span><span id="index-0"></span><h1>class io.SshChannel</h1>
+<div class="toctree-wrapper compound">
+</div>
+<section id="overview">
+<h2>Overview</h2>
+<p>This class provides high-level asynchronous interface for client-side
+SSH connections. <a class="reference internal" href="#details-typeio-sshchannel"><span class="std std-ref">More…</span></a></p>
+<pre class="highlight doxyrest-overview-code-block literal-block"><span></span><span class="k">import</span> <span class="s">&quot;io_ssh.jncx&quot;</span>
+
+<span class="k">class</span> <span class="n">SshChannel</span> <span class="p">{</span>
+    <span class="c1">// fields</span>
+
+    <a class="reference internal" href="enum_io_SshEvents.html#doxid-typeio-sshevents"><span class="std std-ref">io.SshEvents</span></a><span></span> <span class="k">readonly</span> <span class="k">volatile</span> <span class="doxyrest-code-target target" id="doxid-fieldio-sshchannel-m-activeevents"><span></span><span class="n">m_activeEvents</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_std_Error.html#doxid-typestd-error"><span class="std std-ref">std.Error</span></a><span></span> <span class="k">const</span><span class="o">*</span> <span class="k">readonly</span> <span class="k">volatile</span> <span class="doxyrest-code-target target" id="doxid-fieldio-sshchannel-m-ioerror"><span></span><span class="n">m_ioError</span></span><span></span><span class="p">;</span>
+    <span class="k">bool</span> <span class="k">readonly</span> <a class="reference internal" href="#doxid-fieldio-sshchannel-m-isopen"><span class="std std-ref">m_isOpen</span></a><span></span><span class="p">;</span>
+
+    <span class="c1">// properties</span>
+
+    <a class="reference internal" href="union_io_SocketAddress.html#doxid-typeio-socketaddress"><span class="std std-ref">io.SocketAddress</span></a><span></span> <span class="k">const</span> <span class="k">property</span> <a class="reference internal" href="#doxid-propertyio-sshchannel-m-address"><span class="std std-ref">m_address</span></a><span></span><span class="p">;</span>
+    <a class="reference internal" href="union_io_SocketAddress.html#doxid-typeio-socketaddress"><span class="std std-ref">io.SocketAddress</span></a><span></span> <span class="k">const</span> <span class="k">property</span> <a class="reference internal" href="#doxid-propertyio-sshchannel-m-peeraddress"><span class="std std-ref">m_peerAddress</span></a><span></span><span class="p">;</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="k">autoget</span> <span class="k">property</span> <span class="doxyrest-code-target target" id="doxid-propertyio-sshchannel-m-readblocksize"><span></span><span class="n">m_readBlockSize</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="k">autoget</span> <span class="k">property</span> <span class="doxyrest-code-target target" id="doxid-propertyio-sshchannel-m-readbuffersize"><span></span><span class="n">m_readBufferSize</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="k">autoget</span> <span class="k">property</span> <span class="doxyrest-code-target target" id="doxid-propertyio-sshchannel-m-writebuffersize"><span></span><span class="n">m_writeBufferSize</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="enum_io_SocketOptions.html#doxid-typeio-socketoptions"><span class="std std-ref">io.SocketOptions</span></a><span></span> <span class="k">autoget</span> <span class="k">property</span> <span class="doxyrest-code-target target" id="doxid-propertyio-sshchannel-m-options"><span></span><span class="n">m_options</span></span><span></span><span class="p">;</span>
+
+    <span class="c1">// construction</span>
+
+    <span class="doxyrest-code-target target" id="doxid-functionio-sshchannel-construct"><span></span><span class="k">construct</span></span><span></span><span class="p">();</span>
+    <span class="doxyrest-code-target target" id="doxid-functionio-sshchannel-destruct"><span></span><span class="k">destruct</span></span><span></span><span class="p">();</span>
+
+    <span class="c1">// methods</span>
+
+    <span class="k">bool</span> <span class="k">errorcode</span> <a class="reference internal" href="#doxid-functionio-sshchannel-open"><span class="std std-ref">open</span></a><span></span><span class="p">(</span><a class="reference internal" href="enum_io_AddressFamily.html#doxid-typeio-addressfamily"><span class="std std-ref">io.AddressFamily</span></a><span></span> <span class="n">family</span><span class="p">);</span>
+    <span class="k">bool</span> <span class="k">errorcode</span> <a class="reference internal" href="#doxid-functionio-sshchannel-open-2"><span class="std std-ref">open</span></a><span></span><span class="p">(</span><a class="reference internal" href="union_io_SocketAddress.html#doxid-typeio-socketaddress"><span class="std std-ref">io.SocketAddress</span></a><span></span> <span class="k">const</span><span class="o">*</span> <span class="n">address</span><span class="p">);</span>
+    <span class="k">void</span> <a class="reference internal" href="#doxid-functionio-sshchannel-close"><span class="std std-ref">close</span></a><span></span><span class="p">();</span>
+
+    <span class="k">bool</span> <span class="k">errorcode</span> <a class="reference internal" href="#doxid-functionio-sshchannel-connect"><span class="std std-ref">connect</span></a><span></span><span class="p">(</span>
+        <a class="reference internal" href="union_io_SocketAddress.html#doxid-typeio-socketaddress"><span class="std std-ref">io.SocketAddress</span></a><span></span> <span class="k">const</span><span class="o">*</span> <span class="n">address</span><span class="p">,</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">userName</span><span class="p">,</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">password</span><span class="p">,</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">channelType</span> <span class="o">=</span> <span class="s">&quot;session&quot;</span><span class="p">,</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">processType</span> <span class="o">=</span> <span class="s">&quot;shell&quot;</span><span class="p">,</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">ptyType</span> <span class="o">=</span> <span class="s">&quot;xterm&quot;</span><span class="p">,</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint-t"><span class="std std-ref">uint_t</span></a><span></span> <span class="n">ptyWidth</span> <span class="o">=</span> <span class="mi">80</span><span class="p">,</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint-t"><span class="std std-ref">uint_t</span></a><span></span> <span class="n">ptyHeight</span> <span class="o">=</span> <span class="mi">24</span>
+    <span class="p">);</span>
+
+    <span class="k">bool</span> <span class="k">errorcode</span> <span class="doxyrest-code-target target" id="doxid-functionio-sshchannel-connect-2"><span></span><span class="n">connect</span></span><span></span><span class="p">(</span><a class="reference internal" href="struct_io_SshConnectParams.html#doxid-typeio-sshconnectparams"><span class="std std-ref">io.SshConnectParams</span></a><span></span> <span class="k">const</span><span class="o">*</span> <span class="n">params</span><span class="p">);</span>
+
+    <span class="k">bool</span> <span class="k">errorcode</span> <a class="reference internal" href="#doxid-functionio-sshchannel-authenticate"><span class="std std-ref">authenticate</span></a><span></span><span class="p">(</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">userName</span><span class="p">,</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">password</span>
+    <span class="p">);</span>
+
+    <span class="k">bool</span> <span class="k">errorcode</span> <span class="doxyrest-code-target target" id="doxid-functionio-sshchannel-authenticate-2"><span></span><span class="n">authenticate</span></span><span></span><span class="p">(</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">userName</span><span class="p">,</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">privateKeyFileName</span><span class="p">,</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">passphrase</span>
+    <span class="p">);</span>
+
+    <span class="k">bool</span> <span class="k">errorcode</span> <span class="doxyrest-code-target target" id="doxid-functionio-sshchannel-authenticate-3"><span></span><span class="n">authenticate</span></span><span></span><span class="p">(</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">userName</span><span class="p">,</span>
+        <span class="k">void</span> <span class="k">const</span><span class="o">*</span> <span class="n">privateKey</span><span class="p">,</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">privateKeySize</span><span class="p">,</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">passphrase</span>
+    <span class="p">);</span>
+
+    <span class="k">bool</span> <span class="k">errorcode</span> <a class="reference internal" href="#doxid-functionio-sshchannel-resizepty"><span class="std std-ref">resizePty</span></a><span></span><span class="p">(</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint-t"><span class="std std-ref">uint_t</span></a><span></span> <span class="n">width</span><span class="p">,</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint-t"><span class="std std-ref">uint_t</span></a><span></span> <span class="n">height</span>
+    <span class="p">);</span>
+
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="k">errorcode</span> <a class="reference internal" href="#doxid-functionio-sshchannel-read"><span class="std std-ref">read</span></a><span></span><span class="p">(</span>
+        <span class="k">void</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">size</span>
+    <span class="p">);</span>
+
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="k">errorcode</span> <a class="reference internal" href="#doxid-functionio-sshchannel-write"><span class="std std-ref">write</span></a><span></span><span class="p">(</span>
+        <span class="k">void</span> <span class="k">const</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">size</span>
+    <span class="p">);</span>
+
+    <span class="k">long</span> <span class="k">errorcode</span> <span class="doxyrest-code-target target" id="doxid-functionio-sshchannel-wait"><span></span><span class="n">wait</span></span><span></span><span class="p">(</span>
+        <a class="reference internal" href="enum_io_SshEvents.html#doxid-typeio-sshevents"><span class="std std-ref">io.SshEvents</span></a><span></span> <span class="n">eventMask</span><span class="p">,</span>
+        <span class="k">void</span> <span class="k">function</span><span class="o">*</span> <span class="n">handler</span><span class="p">(</span><span class="n">io</span><span class="p">.</span><span class="n">SshEvents</span> <span class="n">triggeredEvents</span><span class="p">)</span>
+    <span class="p">);</span>
+
+    <span class="k">bool</span> <span class="k">errorcode</span> <span class="doxyrest-code-target target" id="doxid-functionio-sshchannel-cancelwait"><span></span><span class="n">cancelWait</span></span><span></span><span class="p">(</span><span class="k">long</span> <span class="n">handle</span><span class="p">);</span>
+
+    <a class="reference internal" href="enum_io_SshEvents.html#doxid-typeio-sshevents"><span class="std std-ref">io.SshEvents</span></a><span></span> <span class="doxyrest-code-target target" id="doxid-functionio-sshchannel-blockingwait"><span></span><span class="n">blockingWait</span></span><span></span><span class="p">(</span>
+        <a class="reference internal" href="enum_io_SshEvents.html#doxid-typeio-sshevents"><span class="std std-ref">io.SshEvents</span></a><span></span> <span class="n">eventMask</span><span class="p">,</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint-t"><span class="std std-ref">uint_t</span></a><span></span> <span class="n">timeout</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="p">);</span>
+
+    <a class="reference internal" href="enum_io_SshEvents.html#doxid-typeio-sshevents"><span class="std std-ref">io.SshEvents</span></a><span></span> <span class="k">async</span> <span class="doxyrest-code-target target" id="doxid-functionio-sshchannel-asyncwait"><span></span><span class="n">asyncWait</span></span><span></span><span class="p">(</span><a class="reference internal" href="enum_io_SshEvents.html#doxid-typeio-sshevents"><span class="std std-ref">io.SshEvents</span></a><span></span> <span class="n">eventMask</span><span class="p">);</span>
+
+    <span class="c1">// aliases</span>
+
+    <span class="k">alias</span> <a class="reference internal" href="#doxid-aliasio-sshchannel-dispose"><span class="std std-ref">dispose</span></a><span></span> <span class="o">=</span> <span class="n">close</span><span class="p">;</span>
+<span class="p">};</span></pre>
+</section>
+<section id="detailed-documentation">
+<span id="details-typeio-sshchannel"></span><h2>Detailed Documentation</h2>
+<p>This class provides high-level asynchronous interface for client-side
+SSH connections.</p>
+<p>Under the hood <code class="docutils literal notranslate"><span class="pre">io.SshChannel</span></code> uses libssh2 library.</p>
+<p>A typical sequence of steps when establishing an SSH connection looks like
+this:</p>
+<ul class="simple">
+<li><p>Call <code class="docutils literal notranslate"><span class="pre">open</span></code> method to open underlying socket;</p></li>
+<li><p>Call <code class="docutils literal notranslate"><span class="pre">connect</span></code> method to initate connection to <code class="docutils literal notranslate"><span class="pre">SSH</span></code> server;</p></li>
+<li><p>Assign IO event handler with <code class="docutils literal notranslate"><span class="pre">wait</span></code> method. You would probably also
+want to <em>schedule</em> your event handler to be run in particular
+environment(e.g., in a specific thread) and partially apply some
+syncrhonization ID to discard late events;</p></li>
+<li><p>If <code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="enum_io_SshEvents.html#doxid-enum-memberio-sshevents-sshauthenticateerror"><span class="std std-ref"><span class="pre">io.SshEvents.SshAuthenticateError</span></span></a></code> event is fired, you can
+re-authenticate using <code class="docutils literal notranslate"><span class="pre">authenticate</span></code> method;</p></li>
+<li><p>Wait until <code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="enum_io_SshEvents.html#doxid-enum-memberio-sshevents-sshconnectcompleted"><span class="std std-ref"><span class="pre">io.SshEvents.SshConnectCompleted</span></span></a></code> or <code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="enum_io_ReadOnlyStreamEvents.html#doxid-enum-memberio-readonlystreamevents-ioerror"><span class="std std-ref"><span class="pre">io.SshEvents.IoError</span></span></a></code>
+event;</p></li>
+<li><p>When <code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="enum_io_ReadOnlyStreamEvents.html#doxid-enum-memberio-readonlystreamevents-incomingdata"><span class="std std-ref"><span class="pre">io.SshEvents.IncomingData</span></span></a></code> event is fired, read from the file using
+<code class="docutils literal notranslate"><span class="pre">read</span></code> method;</p></li>
+<li><p>Write to the file stream using <code class="docutils literal notranslate"><span class="pre">write</span></code> method;</p></li>
+<li><p>Suspend writing if the return value of <code class="docutils literal notranslate"><span class="pre">write</span></code> is less than requested;</p></li>
+<li><p>Resume writing on <code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="enum_io_StreamEvents.html#doxid-enum-memberio-streamevents-writebufferready"><span class="std std-ref"><span class="pre">io.SshEvents.WriteBufferReady</span></span></a></code> event;</p></li>
+<li><p>Close the SSH channel when no longer needed with <code class="docutils literal notranslate"><span class="pre">close</span></code> method.</p></li>
+</ul>
+<p class="rubric">Sample code:</p>
+<pre class="highlight literal-block"><span></span><span class="k">class</span> <span class="n">MyDialog</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+
+    <span class="n">io</span><span class="p">.</span><span class="n">SshChannel</span> <span class="n">m_ssh</span><span class="p">;</span>
+    <span class="n">uint_t</span> <span class="n">m_syncId</span><span class="p">;</span>
+
+    <span class="k">construct</span><span class="p">();</span>
+
+    <span class="k">void</span> <span class="n">open</span><span class="p">(</span>
+        <span class="n">string_t</span> <span class="n">portName</span><span class="p">,</span>
+        <span class="n">uint_t</span> <span class="n">baudRate</span>
+    <span class="p">);</span>
+
+    <span class="k">void</span> <span class="n">close</span><span class="p">();</span>
+    <span class="k">void</span> <span class="n">waitSshEvents</span><span class="p">();</span>
+
+    <span class="k">void</span> <span class="n">onWriteButtonClicked</span><span class="p">();</span>
+
+    <span class="k">void</span> <span class="n">onSshEvent</span><span class="p">(</span>
+        <span class="n">uint_t</span> <span class="n">syncId</span><span class="p">,</span>
+        <a class="reference internal" href="enum_io_SshEvents.html#doxid-typeio-sshevents"><span class="std std-ref">io.SshEvents</span></a><span></span> <span class="n">triggeredEvents</span>
+    <span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">MyDialog</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span>
+    <span class="n">string_t</span> <span class="n">addrString</span><span class="p">,</span>
+    <span class="n">string_t</span> <span class="n">userName</span><span class="p">,</span>
+    <span class="n">string_t</span> <span class="n">password</span>
+<span class="p">)</span> <span class="p">{</span>
+    <a class="reference internal" href="union_io_SocketAddress.html#doxid-typeio-socketaddress"><span class="std std-ref">io.SocketAddress</span></a><span></span> <span class="n">sockAddr</span><span class="p">;</span>
+    <span class="n">sockAddr</span><span class="p">.</span><span class="n">parse</span><span class="p">(</span><span class="n">addrString</span><span class="p">);</span>
+
+    <span class="n">m_ssh</span><span class="p">.</span><span class="n">open</span><span class="p">();</span>
+    <span class="n">m_ssh</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="n">sockAddr</span><span class="p">,</span> <span class="n">userName</span><span class="p">,</span> <span class="n">password</span><span class="p">);</span>
+
+    <span class="n">waitSshEvents</span><span class="p">();</span>
+
+<span class="k">catch</span><span class="o">:</span>
+    <span class="c1">// handle the error...</span>
+<span class="p">}</span>
+
+<span class="n">MyDialog</span><span class="p">.</span><span class="n">close</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">m_serial</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
+    <span class="n">m_syncId</span><span class="o">++</span><span class="p">;</span> <span class="c1">// events past this point will be discarded as &#39;late&#39;</span>
+<span class="p">}</span>
+
+<span class="n">MyDialog</span><span class="p">.</span><span class="n">waitSshEvent</span><span class="p">()</span> <span class="p">{</span>
+    <a class="reference internal" href="enum_io_SshEvents.html#doxid-typeio-sshevents"><span class="std std-ref">io.SshEvents</span></a><span></span> <span class="n">eventMask</span> <span class="o">=</span>
+        <a class="reference internal" href="enum_io_ReadOnlyStreamEvents.html#doxid-enum-memberio-readonlystreamevents-ioerror"><span class="std std-ref">io.SshEvents.IoError</span></a><span></span> <span class="o">|</span>
+        <a class="reference internal" href="enum_io_SshEvents.html#doxid-enum-memberio-sshevents-sshauthenticateerror"><span class="std std-ref">io.SshEvents.SshAuthenticateError</span></a><span></span> <span class="o">|</span>
+        <a class="reference internal" href="enum_io_ReadOnlyStreamEvents.html#doxid-enum-memberio-readonlystreamevents-incomingdata"><span class="std std-ref">io.SshEvents.IncomingData</span></a><span></span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">m_ssh</span><span class="p">.</span><span class="n">m_activeEvents</span> <span class="o">&amp;</span> <a class="reference internal" href="enum_io_SshEvents.html#doxid-enum-memberio-sshevents-sshconnectcompleted"><span class="std std-ref">io.SshEvents.SshConnectCompleted</span></a><span></span><span class="p">))</span>
+        <span class="n">eventMask</span> <span class="o">|=</span> <a class="reference internal" href="enum_io_SshEvents.html#doxid-enum-memberio-sshevents-sshconnectcompleted"><span class="std std-ref">io.SshEvents.SshConnectCompleted</span></a><span></span><span class="p">;</span>
+
+    <span class="n">m_ssh</span><span class="p">.</span><span class="n">wait</span><span class="p">(</span><span class="n">eventMask</span><span class="p">,</span> <span class="n">onPcapEvent</span> <span class="o">~</span><span class="p">(</span><span class="o">++</span><span class="n">m_syncId</span><span class="p">)</span> <span class="o">@</span>
+        <span class="n">g_mainThreadScheduler</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">MyDialog</span><span class="p">.</span><span class="n">onWriteButtonClicked</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">static</span> <span class="k">char</span> <span class="n">data</span><span class="p">[]</span> <span class="o">=</span> <span class="s">&quot;a quick brown fox jumps over the lazy dog&quot;</span><span class="p">;</span>
+    <span class="n">m_ssh</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">data</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="n">MyDialog</span><span class="p">.</span><span class="n">onSshEvent</span><span class="p">(</span>
+    <span class="n">uint_t</span> <span class="n">syncId</span><span class="p">,</span>
+    <a class="reference internal" href="enum_io_SshEvents.html#doxid-typeio-sshevents"><span class="std std-ref">io.SshEvents</span></a><span></span> <span class="n">triggeredEvents</span>
+<span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">syncId</span> <span class="o">!=</span> <span class="n">m_syncId</span><span class="p">)</span> <span class="c1">// late event</span>
+        <span class="k">return</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">triggeredEvents</span> <span class="o">&amp;</span> <a class="reference internal" href="enum_io_ReadOnlyStreamEvents.html#doxid-enum-memberio-readonlystreamevents-ioerror"><span class="std std-ref">io.SshEvents.IoError</span></a><span></span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">string_t</span> <span class="n">errorString</span> <span class="o">=</span> <span class="n">m_ssh</span><span class="p">.</span><span class="n">m_ioError</span><span class="p">.</span><span class="n">m_description</span><span class="p">;</span>
+        <span class="c1">// ...</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">triggeredEvents</span> <span class="o">&amp;</span> <a class="reference internal" href="enum_io_SshEvents.html#doxid-enum-memberio-sshevents-sshauthenticateerror"><span class="std std-ref">io.SshEvents.SshAuthenticateError</span></a><span></span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// show some kind of login dialog ...</span>
+        <span class="c1">// ...</span>
+        <span class="c1">// ... then re-authenticate:</span>
+
+        <span class="n">m_ssh</span><span class="p">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">userName</span><span class="p">,</span> <span class="n">password</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">triggeredEvents</span> <span class="o">&amp;</span> <a class="reference internal" href="enum_io_SshEvents.html#doxid-enum-memberio-sshevents-sshconnectcompleted"><span class="std std-ref">io.SshEvents.SshConnectCompleted</span></a><span></span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// SSH channel established</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">triggeredEvents</span> <span class="o">&amp;</span> <a class="reference internal" href="enum_io_ReadOnlyStreamEvents.html#doxid-enum-memberio-readonlystreamevents-incomingdata"><span class="std std-ref">io.SshEvents.IncomingData</span></a><span></span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">char</span> <span class="n">buffer</span><span class="p">[</span><span class="mi">256</span><span class="p">];</span>
+        <span class="n">size_t</span> <span class="n">size</span> <span class="o">=</span> <span class="n">m_ssh</span><span class="p">.</span><span class="n">read</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">));</span>
+        <span class="c1">// ...</span>
+    <span class="p">}</span>
+
+    <span class="n">waitSshEvents</span><span class="p">();</span> <span class="c1">// restart wait</span>
+<span class="p">}</span></pre>
+<p class="rubric">See also:</p>
+<p><code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="enum_io_SshEvents.html#doxid-typeio-sshevents"><span class="std std-ref"><span class="pre">io.SshEvents</span></span></a></code>, <code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="class_io_Socket.html#doxid-typeio-socket"><span class="std std-ref"><span class="pre">io.Socket</span></span></a></code>, <code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="union_io_SocketAddress.html#doxid-typeio-socketaddress"><span class="std std-ref"><span class="pre">io.SocketAddress</span></span></a></code>,
+<code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="class_io_HostNameResolver.html#doxid-typeio-hostnameresolver"><span class="std std-ref"><span class="pre">io.HostNameResolver</span></span></a></code></p>
+<section id="fields">
+<h3>Fields</h3>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-fieldio-sshchannel-m-isopen"><span id="index-1"></span><span></span><span class="k">bool</span> <span class="k">readonly</span> <span class="n">m_isOpen</span></pre>
+<p>Holds the open status for the socket, i.e. <code class="docutils literal notranslate"><span class="pre">true</span></code> if opened; <code class="docutils literal notranslate"><span class="pre">false</span></code>
+otherwise.</p>
+</section>
+<section id="properties">
+<h3>Properties</h3>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-propertyio-sshchannel-m-address"><span id="index-2"></span><a class="reference internal" href="union_io_SocketAddress.html#doxid-typeio-socketaddress"><span class="std std-ref">io.SocketAddress</span></a><span></span> <span class="k">const</span> <span class="k">property</span> <span class="n">m_address</span></pre>
+<p>This property is used for getting the local address assigned to this
+socket. If the address has not been assigned yet, returns empty address.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-propertyio-sshchannel-m-peeraddress"><span id="index-3"></span><a class="reference internal" href="union_io_SocketAddress.html#doxid-typeio-socketaddress"><span class="std std-ref">io.SocketAddress</span></a><span></span> <span class="k">const</span> <span class="k">property</span> <span class="n">m_peerAddress</span></pre>
+<p>This property is used for getting the remote address of the peer this
+socket is connected to. If the connection has not been established yet,
+returns empty address.</p>
+</section>
+<section id="methods">
+<h3>Methods</h3>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionio-sshchannel-open"><span id="index-4"></span><span></span><span class="k">bool</span> <span class="k">errorcode</span> <span class="n">open</span><span class="p">(</span><a class="reference internal" href="enum_io_AddressFamily.html#doxid-typeio-addressfamily"><span class="std std-ref">io.AddressFamily</span></a><span></span> <span class="n">family</span><span class="p">)</span></pre>
+<p>Opens a <code class="docutils literal notranslate"><span class="pre">TCP</span></code> socket this connection will use for transport.</p>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">true</span></code> on success. If a new socket could not be opened, IO
+error supplied by operating system is set and then the function returns
+<code class="docutils literal notranslate"><span class="pre">false</span></code> <a class="footnote-reference superscript" href="#f1" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionio-sshchannel-open-2"><span id="index-5"></span><span></span><span class="k">bool</span> <span class="k">errorcode</span> <span class="n">open</span><span class="p">(</span><a class="reference internal" href="union_io_SocketAddress.html#doxid-typeio-socketaddress"><span class="std std-ref">io.SocketAddress</span></a><span></span> <span class="k">const</span><span class="o">*</span> <span class="n">address</span><span class="p">)</span></pre>
+<p>Opens a <code class="docutils literal notranslate"><span class="pre">TCP</span></code> socket this connection will use for transport.</p>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">true</span></code> on success. If a new socket could not be opened, IO
+error supplied by operating system is set and then the function returns
+<code class="docutils literal notranslate"><span class="pre">false</span></code> <a class="footnote-reference superscript" href="#f1" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionio-sshchannel-close"><span id="index-6"></span><span></span><span class="k">void</span> <span class="n">close</span><span class="p">()</span></pre>
+<p>Closes <code class="docutils literal notranslate"><span class="pre">SSH</span></code> channel and underlying <code class="docutils literal notranslate"><span class="pre">TCP</span></code> socket; does nothing if
+connection is not and not being established.</p>
+<p>Sometimes it may be convenient to use <em>disposable</em> pattern to ensure
+timely invokation of <code class="docutils literal notranslate"><span class="pre">close</span></code> <a class="footnote-reference superscript" href="#f2" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionio-sshchannel-connect"><span id="index-7"></span><span></span><span class="k">bool</span> <span class="k">errorcode</span> <span class="n">connect</span><span class="p">(</span>
+    <a class="reference internal" href="union_io_SocketAddress.html#doxid-typeio-socketaddress"><span class="std std-ref">io.SocketAddress</span></a><span></span> <span class="k">const</span><span class="o">*</span> <span class="n">address</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">userName</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">password</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">channelType</span> <span class="o">=</span> <span class="s">&quot;session&quot;</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">processType</span> <span class="o">=</span> <span class="s">&quot;shell&quot;</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">ptyType</span> <span class="o">=</span> <span class="s">&quot;xterm&quot;</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint-t"><span class="std std-ref">uint_t</span></a><span></span> <span class="n">ptyWidth</span> <span class="o">=</span> <span class="mi">80</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint-t"><span class="std std-ref">uint_t</span></a><span></span> <span class="n">ptyHeight</span> <span class="o">=</span> <span class="mi">24</span>
+<span class="p">)</span></pre>
+<p>Initiates a connection request to <code class="docutils literal notranslate"><span class="pre">address</span></code>.</p>
+<p>The meanings of the arguments for this function are as follows:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">address</span></code> specifes the remote <code class="docutils literal notranslate"><span class="pre">SSH</span></code> server to connect to;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">userName</span></code> and <code class="docutils literal notranslate"><span class="pre">password</span></code> specify user credential used to login to
+this SSH server;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">channelType</span></code> specifies the type of the channel to establish
+(typically, <code class="docutils literal notranslate"><span class="pre">session</span></code>; can also be <code class="docutils literal notranslate"><span class="pre">direct-tcpip</span></code>,
+<code class="docutils literal notranslate"><span class="pre">tcpip-forward</span></code>, etc);</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">processType</span></code> specifies what kind of process to run on the server
+side of this <code class="docutils literal notranslate"><span class="pre">SSH</span></code> channel(typically, <code class="docutils literal notranslate"><span class="pre">shell</span></code>; can also be
+<code class="docutils literal notranslate"><span class="pre">exec</span></code>, <code class="docutils literal notranslate"><span class="pre">subsystem</span></code> etc);</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ptyType</span></code> specifies what type of pseudo terminal kind of process to
+run on the server side of this <code class="docutils literal notranslate"><span class="pre">SSH</span></code> channel(typically, <code class="docutils literal notranslate"><span class="pre">xterm</span></code>;
+can also be <code class="docutils literal notranslate"><span class="pre">ansi</span></code>, <code class="docutils literal notranslate"><span class="pre">vanilla</span></code> etc);</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ptyWidth</span></code> and <code class="docutils literal notranslate"><span class="pre">ptyHeight</span></code> specify the size of the
+pseudo-terminal;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">isSync</span></code> specifies whether this is a synchronous connect.</p></li>
+</ul>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">true</span></code> on success. If a connection could not be initiated,
+corresponding error is set and then the function returns <code class="docutils literal notranslate"><span class="pre">false</span></code>
+<a class="footnote-reference superscript" href="#f1" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionio-sshchannel-authenticate"><span id="index-8"></span><span></span><span class="k">bool</span> <span class="k">errorcode</span> <span class="n">authenticate</span><span class="p">(</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">userName</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">password</span>
+<span class="p">)</span></pre>
+<p>Sends a request to SSH server to re-authenticate on <code class="docutils literal notranslate"><span class="pre">AuthError</span></code> event.</p>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">true</span></code> on success. If re-authenticate request could not be
+sent, returns <code class="docutils literal notranslate"><span class="pre">false</span></code> <a class="footnote-reference superscript" href="#f1" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionio-sshchannel-resizepty"><span id="index-9"></span><span></span><span class="k">bool</span> <span class="k">errorcode</span> <span class="n">resizePty</span><span class="p">(</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint-t"><span class="std std-ref">uint_t</span></a><span></span> <span class="n">width</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint-t"><span class="std std-ref">uint_t</span></a><span></span> <span class="n">height</span>
+<span class="p">)</span></pre>
+<p>Sends a request to SSH server to resize pseudo-terminal to <code class="docutils literal notranslate"><span class="pre">width</span></code> x
+<code class="docutils literal notranslate"><span class="pre">height</span></code>. If <code class="docutils literal notranslate"><span class="pre">isSync</span></code> is <code class="docutils literal notranslate"><span class="pre">true</span></code> then this method does not return
+until the remote server completes the request.</p>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">true</span></code> on success. If pseudo-terminal could not be resized,
+error returned by the remote server is set and then the function returns
+<code class="docutils literal notranslate"><span class="pre">false</span></code> <a class="footnote-reference superscript" href="#f1" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionio-sshchannel-read"><span id="index-10"></span><a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="k">errorcode</span> <span class="n">read</span><span class="p">(</span>
+    <span class="k">void</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">size</span>
+<span class="p">)</span></pre>
+<p>Attempts to receive up to <code class="docutils literal notranslate"><span class="pre">size</span></code> bytes from the SSH socket into the
+buffer pointed to by <code class="docutils literal notranslate"><span class="pre">p</span></code>.</p>
+<p>Returns the actual amount of bytes read on success. If read operation
+is unsuccessful, IO error supplied by the operating system is set and
+then the function returns <code class="docutils literal notranslate"><span class="pre">-1</span></code> <a class="footnote-reference superscript" href="#f1" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<p>Normally you would call this function from within your event handler
+for <code class="docutils literal notranslate"><span class="pre">IncomingData</span></code> event. If this function is called when there is
+no incoming data, it blocks until either the data arrives, or the socket
+is closed.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionio-sshchannel-write"><span id="index-11"></span><a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="k">errorcode</span> <span class="n">write</span><span class="p">(</span>
+    <span class="k">void</span> <span class="k">const</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">size</span>
+<span class="p">)</span></pre>
+<p>Attempts to send <code class="docutils literal notranslate"><span class="pre">size</span></code> bytes from the buffer pointed to by <code class="docutils literal notranslate"><span class="pre">p</span></code> over
+the established SSH channel.</p>
+<p>Returns the actual amount of bytes written on success. If write
+operation is unsuccessful, IO error supplied by the operating system is
+set and then the function returns <code class="docutils literal notranslate"><span class="pre">-1</span></code> <a class="footnote-reference superscript" href="#f1" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<p>If the return value shows <em>less</em> bytes than specified by <code class="docutils literal notranslate"><span class="pre">size</span></code>
+argument, you should suspend further transmission until the file stream
+is ready to accept more data. When this happens, <code class="docutils literal notranslate"><span class="pre">WriteBufferReady</span></code>
+event is fired and transmission could be resumed.</p>
+</section>
+<section id="aliases">
+<h3>Aliases</h3>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-aliasio-sshchannel-dispose"><span id="index-12"></span><span></span><span class="k">alias</span> <span class="n">dispose</span> <span class="o">=</span> <span class="n">close</span></pre>
+<p>Effectively makes <code class="docutils literal notranslate"><span class="pre">io.SshChannel</span></code> a <em>disposable</em> class <a class="footnote-reference superscript" href="#f2" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
+<hr class="docutils" />
+<p class="rubric">Footnotes</p>
+<aside class="footnote-list superscript">
+<aside class="footnote superscript" id="f1" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>You can use exception semantics to handle the erroneous return values of <code class="docutils literal notranslate"><span class="pre">errorcode</span></code> functions. For more details refer to <a class="reference internal" href="errorcode.html#errorcode"><span class="std std-ref">‘errorcode’ Functions</span></a>.</p>
+</aside>
+<aside class="footnote superscript" id="f2" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>You can ensure timely release of resources by using <em>disposable</em> pattern. For more details refer to <a class="reference internal" href="disposable.html#disposable"><span class="std std-ref">‘disposable’ Variables</span></a>.</p>
+</aside>
+</aside>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="struct_io_SshConnectParams.html" class="btn btn-neutral float-left" title="struct io.SshConnectParams" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="group_io-websock.html" class="btn btn-neutral float-right" title="WebSockets" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

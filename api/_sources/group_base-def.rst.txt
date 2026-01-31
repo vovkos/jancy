@@ -1,0 +1,323 @@
+.. index:: pair: group; Base Definitions
+.. _doxid-group__base-def:
+
+Base Definitions
+================
+
+.. toctree::
+	:hidden:
+
+	struct_jnc_Guid.rst
+	struct_jnc_ListLink.rst
+
+Overview
+~~~~~~~~
+
+This section describes base global definitions of Jancy C API. :ref:`More...<details-group__base-def>`
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Def.h>
+	
+	// typedefs
+
+	typedef int :ref:`bool_t<doxid-group__base-def_1ga812d16e5494522586b3784e55d479912>`;
+	typedef unsigned int :ref:`uint_t<doxid-group__base-def_1ga12a1e9b3ce141648783a82445d02b58d>`;
+	typedef unsigned char :ref:`uchar_t<doxid-group__base-def_1ga124ea0f8f4a23a0a286b5582137f0b8d>`;
+	typedef unsigned short :ref:`ushort_t<doxid-group__base-def_1gad32f74eab70f4b87dac7fa0c0508ce29>`;
+	typedef unsigned long :ref:`ulong_t<doxid-group__base-def_1ga95c0f4cc152cbacf72a7d70d7077dc96>`;
+	typedef uint8_t :ref:`byte_t<doxid-group__base-def_1ga0661d7d1353e0bca70c64563f635b034>`;
+	typedef uint16_t :ref:`word_t<doxid-group__base-def_1gac0285e32cda95936805a40a03834a079>`;
+	typedef uint32_t :ref:`dword_t<doxid-group__base-def_1gabea8065ed82cda6a2a31592be9cd96b2>`;
+	typedef uint64_t :ref:`qword_t<doxid-group__base-def_1ga7c6e07c0e75050634483ce87e1d4c6cb>`;
+
+	// structs
+
+	struct :ref:`jnc_Guid<doxid-structjnc___guid>`;
+	struct :ref:`jnc_ListLink<doxid-structjnc___list_link>`;
+
+	// global functions
+
+	void
+	:target:`jnc_initialize<doxid-group__base-def_1gabd8e4643c6002f5e816c289528a048fa>`(const char* reserved);
+
+	// macros
+
+	#define :ref:`JNC_ASSERT<doxid-group__base-def_1ga41365cfdb4186feb5a764b46778350e2>`
+
+	#define :ref:`JNC_DEFINE_GUID<doxid-group__base-def_1ga8a752107254f22b1eb36cb6803614ad3>`( \
+		n, \
+		l, \
+		s1, \
+		s2, \
+		b1, \
+		b2, \
+		b3, \
+		b4, \
+		b5, \
+		b6, \
+		b7, \
+		b8 \
+	)
+
+	#define :ref:`JNC_EXTERN_C<doxid-group__base-def_1gab7044681e7d6ed8e8597d1f1724a91e6>`
+	#define :ref:`JNC_INLINE<doxid-group__base-def_1gaa9dd2b82597fa1f7584a58c2ccb52346>`
+	#define :target:`JNC_PTR_BITS<doxid-group__base-def_1ga09b7be7064265680ef9968c3a0daf056>`
+	#define :ref:`JNC_PTR_SIZE<doxid-group__base-def_1gac72eb674125d6c29d46168896e22231e>`
+	#define :ref:`JNC_SELECT_ANY<doxid-group__base-def_1gadf3ff658e277ca8ea2878349758bfdf5>`
+	#define :ref:`_JNC_CPP_CLANG<doxid-group__base-def_1gac3e5dd1212165d07c21cf8e42c8f2f8e>`
+	#define :ref:`_JNC_CPP_GCC<doxid-group__base-def_1gae8d48fecbd4d71ae875687a81e628207>`
+	#define :ref:`_JNC_CPP_MSC<doxid-group__base-def_1ga4941936ab80e0651d377a8fac045b79b>`
+	#define :ref:`_JNC_CPU_AMD64<doxid-group__base-def_1ga00e7d26c19d5920b1649857b7bb4270e>`
+	#define :ref:`_JNC_CPU_X86<doxid-group__base-def_1ga3f36421faf3aa1f104d2c76d9468c00d>`
+	#define :ref:`_JNC_DEBUG<doxid-group__base-def_1ga29e50e6ee100ceefe3c221705d859fc7>`
+	#define :ref:`_JNC_OS_BSD<doxid-group__base-def_1gae812e575bdb2f0b5d3372adfae0c47af>`
+	#define :ref:`_JNC_OS_DARWIN<doxid-group__base-def_1gae2856681f4f608def5aeabe626ed7521>`
+	#define :ref:`_JNC_OS_LINUX<doxid-group__base-def_1gaab0f9e52f49016ad573e91a6b0912495>`
+	#define :ref:`_JNC_OS_POSIX<doxid-group__base-def_1gaad9543e0a8c46c2ea8c91d88c7b648df>`
+	#define :ref:`_JNC_OS_SOLARIS<doxid-group__base-def_1gae45670a576265b583297d9e8367308bf>`
+	#define :ref:`_JNC_OS_WIN<doxid-group__base-def_1ga9d37c94fd927cf617495e3b0809fc768>`
+	#define :target:`__STDC_CONSTANT_MACROS<doxid-group__base-def_1ga786132414c30f947907be33a4c28125a>`
+	#define :target:`__STDC_LIMIT_MACROS<doxid-group__base-def_1gaeb7e7a856ab7a794b05b6b63ef36ea3e>`
+
+.. _details-group__base-def:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This section describes base global definitions of Jancy C API.
+
+Typedefs
+--------
+
+.. index:: pair: typedef; bool_t
+.. _doxid-group__base-def_1ga812d16e5494522586b3784e55d479912:
+.. index:: pair: typedef; uint_t
+.. _doxid-group__base-def_1ga12a1e9b3ce141648783a82445d02b58d:
+.. index:: pair: typedef; uchar_t
+.. _doxid-group__base-def_1ga124ea0f8f4a23a0a286b5582137f0b8d:
+.. index:: pair: typedef; ushort_t
+.. _doxid-group__base-def_1gad32f74eab70f4b87dac7fa0c0508ce29:
+.. index:: pair: typedef; ulong_t
+.. _doxid-group__base-def_1ga95c0f4cc152cbacf72a7d70d7077dc96:
+.. index:: pair: typedef; byte_t
+.. _doxid-group__base-def_1ga0661d7d1353e0bca70c64563f635b034:
+.. index:: pair: typedef; word_t
+.. _doxid-group__base-def_1gac0285e32cda95936805a40a03834a079:
+.. index:: pair: typedef; dword_t
+.. _doxid-group__base-def_1gabea8065ed82cda6a2a31592be9cd96b2:
+.. index:: pair: typedef; qword_t
+.. _doxid-group__base-def_1ga7c6e07c0e75050634483ce87e1d4c6cb:
+
+.. ref-code-block:: cpp
+	:class: doxyrest-title-code-block
+
+	typedef int bool_t
+	typedef unsigned int uint_t
+	typedef unsigned char uchar_t
+	typedef unsigned short ushort_t
+	typedef unsigned long ulong_t
+	typedef uint8_t byte_t
+	typedef uint16_t word_t
+	typedef uint32_t dword_t
+	typedef uint64_t qword_t
+
+Common integer type aliases in addition to the ones defined in ``<stdint.h>``, i.e. ``int8_t``, ``uint8_t``, ``int16_t``, ``uint16_t``, ``int32_t``, ``uint32_t``, ``int64_t``, ``uint64_t``, ``intptr_t``, ``uintptr_t``.
+
+``bool_t`` aliases to ``int`` and is used to denote boolean values.
+
+``uchar_t`` and ``byte_t`` alias to unsigned integer type with width of 8 bits.
+
+``ushort_t`` and ``word_t`` alias to unsigned integer type with width of 16 bits.
+
+``uint_t``, ``ulong_t`` and ``dword_t`` alias to unsigned integer type with width of 32 bits.
+
+``qword_t`` aliases to unsigned integer type with width of 64 bits.
+
+Macros
+------
+
+.. index:: pair: define; JNC_ASSERT
+.. _doxid-group__base-def_1ga41365cfdb4186feb5a764b46778350e2:
+
+.. ref-code-block:: cpp
+	:class: doxyrest-title-code-block
+
+	#define JNC_ASSERT
+
+On ``Debug`` builds, this macro causes an **assertion check**: it calculates the value of its argument, and if it is ``false``, then a corresponding message is displayed and a program is terminated.
+
+The exact way of displaying an assertion message and its format is platform dependent, but it always includes the location of failing ``JNC_ASSERT`` macro and the actual expression which caused it to fail.
+
+.. rubric:: Sample:
+
+.. code-block:: none
+
+    test_cpp: /home/user/test_cpp/main.cpp:100: int main(int, char**): Assertion `line < lineCount' failed.
+
+On ``Release`` builds, this macro does nothing(expands to an empty sequence).
+
+.. index:: pair: define; JNC_DEFINE_GUID
+.. _doxid-group__base-def_1ga8a752107254f22b1eb36cb6803614ad3:
+
+.. ref-code-block:: cpp
+	:class: doxyrest-title-code-block
+
+	#define JNC_DEFINE_GUID( \
+		n, \
+		l, \
+		s1, \
+		s2, \
+		b1, \
+		b2, \
+		b3, \
+		b4, \
+		b5, \
+		b6, \
+		b7, \
+		b8 \
+	)
+
+A cross-platform equivalent of the Win32 ``DEFINE_GUID`` macro.
+
+This macro is used to define a constant holding the **GUID** (Globally Unique Identifier).
+
+To generate a new GUID use any online GUID-creation tool and select the ``DEFINE_GUID`` format; then replace ``DEFINE_GUID`` with ``JNC_DEFINE_GUID``.
+
+.. rubric:: Sample:
+
+.. code-block:: cpp
+
+    // {384498AC-90AF-4634-B083-2A9B02D62680}
+
+    JNC_DEFINE_GUID(
+        g_testLibGuid,
+        0x384498ac, 0x90af, 0x4634, 0xb0, 0x83, 0x2a, 0x9b, 0x2, 0xd6, 0x26, 0x80
+    );
+
+.. index:: pair: define; JNC_EXTERN_C
+.. _doxid-group__base-def_1gab7044681e7d6ed8e8597d1f1724a91e6:
+
+.. ref-code-block:: cpp
+	:class: doxyrest-title-code-block
+
+	#define JNC_EXTERN_C
+
+Set to ``extern "C"`` if C/C++ compiler is compiling C++ code; undefined in pure C code.
+
+.. index:: pair: define; JNC_INLINE
+.. _doxid-group__base-def_1gaa9dd2b82597fa1f7584a58c2ccb52346:
+
+.. ref-code-block:: cpp
+	:class: doxyrest-title-code-block
+
+	#define JNC_INLINE
+
+A compiler-independent macro used to declare an **inline** function.
+
+.. index:: pair: define; JNC_PTR_SIZE
+.. _doxid-group__base-def_1gac72eb674125d6c29d46168896e22231e:
+
+.. ref-code-block:: cpp
+	:class: doxyrest-title-code-block
+
+	#define JNC_PTR_SIZE
+
+Size of data/code pointer on the current processor architecture.
+
+``JNC_PTR_SIZE`` equals ``4`` on ``JNC_CPU_X86``; equals ``8`` on ``JNC_CPU_AMD64``.
+
+``JNC_PTR_BITS`` equals ``32`` on ``JNC_CPU_X86``; equals ``64`` on ``JNC_CPU_AMD64``.
+
+.. index:: pair: define; JNC_SELECT_ANY
+.. _doxid-group__base-def_1gadf3ff658e277ca8ea2878349758bfdf5:
+
+.. ref-code-block:: cpp
+	:class: doxyrest-title-code-block
+
+	#define JNC_SELECT_ANY
+
+A compiler-independent macro used to define a (variable/constant) data inside a ``.h`` header file.
+
+.. index:: pair: define; _JNC_CPP_MSC
+.. _doxid-group__base-def_1ga4941936ab80e0651d377a8fac045b79b:
+.. index:: pair: define; _JNC_CPP_GCC
+.. _doxid-group__base-def_1gae8d48fecbd4d71ae875687a81e628207:
+.. index:: pair: define; _JNC_CPP_CLANG
+.. _doxid-group__base-def_1gac3e5dd1212165d07c21cf8e42c8f2f8e:
+
+.. ref-code-block:: cpp
+	:class: doxyrest-title-code-block
+
+	#define _JNC_CPP_MSC
+	#define _JNC_CPP_GCC
+	#define _JNC_CPP_CLANG
+
+``_JNC_CPP_MSC`` is set to ``1`` if the C/C++ compiler is **Microsoft Visual C/C++**; undefined otherwise.
+
+``_JNC_CPP_GCC`` is set to ``1`` if the C/C++ compiler is **GCC** (GNU C/C++); undefined otherwise.
+
+``_JNC_CPP_CLANG`` is set to ``1`` if the C/C++ compiler is **Clang** (LLVM/Clang); undefined otherwise.
+
+.. index:: pair: define; _JNC_CPU_X86
+.. _doxid-group__base-def_1ga3f36421faf3aa1f104d2c76d9468c00d:
+.. index:: pair: define; _JNC_CPU_AMD64
+.. _doxid-group__base-def_1ga00e7d26c19d5920b1649857b7bb4270e:
+
+.. ref-code-block:: cpp
+	:class: doxyrest-title-code-block
+
+	#define _JNC_CPU_X86
+	#define _JNC_CPU_AMD64
+
+``_JNC_CPU_X86`` is set to ``1`` if the processor architecture is **32-bit Intel x86**; undefined otherwise.
+
+``_JNC_CPU_AMD64`` is set to ``1`` if the processor architecture is **64-bit AMD64** (x64/Intel x86_64); undefined otherwise.
+
+.. index:: pair: define; _JNC_DEBUG
+.. _doxid-group__base-def_1ga29e50e6ee100ceefe3c221705d859fc7:
+
+.. ref-code-block:: cpp
+	:class: doxyrest-title-code-block
+
+	#define _JNC_DEBUG
+
+Set to ``1`` if the build configuration is ``Debug``; undefined otherwise.
+
+.. index:: pair: define; _JNC_OS_WIN
+.. _doxid-group__base-def_1ga9d37c94fd927cf617495e3b0809fc768:
+.. index:: pair: define; _JNC_OS_POSIX
+.. _doxid-group__base-def_1gaad9543e0a8c46c2ea8c91d88c7b648df:
+.. index:: pair: define; _JNC_OS_LINUX
+.. _doxid-group__base-def_1gaab0f9e52f49016ad573e91a6b0912495:
+.. index:: pair: define; _JNC_OS_SOLARIS
+.. _doxid-group__base-def_1gae45670a576265b583297d9e8367308bf:
+.. index:: pair: define; _JNC_OS_BSD
+.. _doxid-group__base-def_1gae812e575bdb2f0b5d3372adfae0c47af:
+.. index:: pair: define; _JNC_OS_DARWIN
+.. _doxid-group__base-def_1gae2856681f4f608def5aeabe626ed7521:
+
+.. ref-code-block:: cpp
+	:class: doxyrest-title-code-block
+
+	#define _JNC_OS_WIN
+	#define _JNC_OS_POSIX
+	#define _JNC_OS_LINUX
+	#define _JNC_OS_SOLARIS
+	#define _JNC_OS_BSD
+	#define _JNC_OS_DARWIN
+
+``_JNC_OS_WIN``  is set to ``1`` if the target operating system is **Microsoft Windows**; undefined otherwise.
+
+``_JNC_OS_POSIX`` is set to ``1`` if the target operating system is **POSIX**-compliant (Linux/Mac OS X/BSD/etc); undefined otherwise.
+
+``_JNC_OS_LINUX``  is set to ``1`` if the target operating system is **Linux**; undefined otherwise. On Linux systems ``_JNC_OS_POSIX`` is also set to ``1``.
+
+``_JNC_OS_SOLARIS`` is set to ``1`` if the target operating system is **Oracle Solaris**; undefined otherwise. On Solaris systems ``_JNC_OS_POSIX`` is also set to ``1``.
+
+``_JNC_OS_BSD`` is set to ``1`` if the target operating system is **BSD**-family (OpenBSD/FreeBSD/Mac OS X etc); undefined otherwise. On BSD systems ``_JNC_OS_POSIX`` is also set to ``1``.
+
+``_JNC_OS_DARWIN`` is set to ``1`` if the target operating system is **Apple Darwin** (Mac OS X/iOS/etc); undefined otherwise. On Darwin systems ``_JNC_OS_POSIX`` and ``_JNC_OS_BSD`` are also set to ``1``.
+

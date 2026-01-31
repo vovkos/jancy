@@ -1,0 +1,461 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Extension Libraries Subsystem &mdash; Jancy C API Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="struct jnc_DynamicExtensionLibHost" href="struct_jnc_DynamicExtensionLibHost.html" />
+    <link rel="prev" title="struct jnc_Error" href="struct_jnc_Error.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy C API Reference
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="group_base-def.html">Base Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_error-subsystem.html">Error Subsystem</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Extension Libraries Subsystem</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_DynamicExtensionLibHost.html">struct jnc_DynamicExtensionLibHost</a></li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_ExtensionLib.html">struct jnc_ExtensionLib</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="group_module-subsystem.html">Module Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_runtime-subsystem.html">Runtime Subsystem</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="global.html">Global Namespace</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy C API Reference</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Extension Libraries Subsystem</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="extension-libraries-subsystem">
+<span id="doxid-group-extension-lib-subsystem"></span><span id="index-0"></span><h1>Extension Libraries Subsystem</h1>
+<div class="toctree-wrapper compound">
+</div>
+<pre class="highlight doxyrest-overview-code-block literal-block"><span></span><span class="c1">// typedefs</span>
+
+<span class="k">typedef</span> <span class="kt">void</span> <span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga4ad19adb099657ecdd5b1ed0e41276bf"><span></span><span class="n">jnc_ExtensionLib_AddSourcesFunc</span></span><span></span><span class="p">(</span><span class="n">jnc_Module</span> <span class="o">*</span><span class="n">module</span><span class="p">);</span>
+<span class="k">typedef</span> <span class="kt">void</span> <span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1gafa73430570b92e7c5e06596426d167d5"><span></span><span class="n">jnc_ExtensionLib_AddOpaqueClassTypeInfosFunc</span></span><span></span><span class="p">(</span><span class="n">jnc_Module</span> <span class="o">*</span><span class="n">module</span><span class="p">);</span>
+<span class="k">typedef</span> <a class="reference internal" href="group_base-def.html#doxid-group-base-def-1ga812d16e5494522586b3784e55d479912"><span class="std std-ref">bool_t</span></a><span></span> <span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1gabbbf568aff9851d2e838bf2b8b98b727"><span></span><span class="n">jnc_ExtensionLib_MapAddressesFunc</span></span><span></span><span class="p">(</span><span class="n">jnc_Module</span> <span class="o">*</span><span class="n">module</span><span class="p">);</span>
+<span class="k">typedef</span> <span class="kt">void</span> <span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1gab233ad6bfe5d8e11607d6515c5269987"><span></span><span class="n">jnc_ExtensionLib_UpdateCapabilitiesFunc</span></span><span></span><span class="p">();</span>
+<span class="k">typedef</span> <a class="reference internal" href="struct_jnc_ExtensionLib.html#doxid-structjnc-extension-lib"><span class="std std-ref">jnc_ExtensionLib</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga1d1ab692379a7aa9455b4bae50ee5ff0"><span></span><span class="n">jnc_DynamicExtensionLibMainFunc</span></span><span></span><span class="p">(</span><span class="n">jnc_DynamicExtensionLibHost</span> <span class="o">*</span><span class="n">host</span><span class="p">);</span>
+<span class="k">typedef</span> <a class="reference internal" href="group_base-def.html#doxid-group-base-def-1ga812d16e5494522586b3784e55d479912"><span class="std std-ref">bool_t</span></a><span></span> <span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga3a634ea7f49b0e4aced708fb1b71d8e5"><span></span><span class="n">jnc_DynamicExtensionLibUnloadFunc</span></span><span></span><span class="p">();</span>
+
+<span class="k">typedef</span> <span class="kt">size_t</span> <span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga3f6bf9050f31583be4b1c8a03a025c4d"><span></span><span class="n">jnc_StdLib_StdInputFunc</span></span><span></span><span class="p">(</span>
+    <span class="kt">void</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span>
+    <span class="kt">size_t</span> <span class="n">size</span>
+    <span class="p">);</span>
+
+<span class="k">typedef</span> <span class="kt">size_t</span> <span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga9b4d3ff942c7213c222be9d83f2246b3"><span></span><span class="n">jnc_StdLib_StdOutputFunc</span></span><span></span><span class="p">(</span>
+    <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span>
+    <span class="kt">size_t</span> <span class="n">size</span>
+    <span class="p">);</span>
+
+<span class="c1">// structs</span>
+
+<span class="k">struct</span> <a class="reference internal" href="struct_jnc_DynamicExtensionLibHost.html#doxid-structjnc-dynamic-extension-lib-host"><span class="std std-ref">jnc_DynamicExtensionLibHost</span></a><span></span><span class="p">;</span>
+<span class="k">struct</span> <a class="reference internal" href="struct_jnc_ExtensionLib.html#doxid-structjnc-extension-lib"><span class="std std-ref">jnc_ExtensionLib</span></a><span></span><span class="p">;</span>
+
+<span class="c1">// global variables</span>
+
+<a class="reference internal" href="group_base-def.html#doxid-group-base-def-1gadf3ff658e277ca8ea2878349758bfdf5"><span class="std std-ref">JNC_SELECT_ANY</span></a><span></span> <span class="kt">char</span> <span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1gae5c57fa82d7981dd79eb67925a239fa8"><span></span><span class="n">jnc_g_dynamicExtensionLibMainFuncName</span></span><span></span><span class="p">[]</span> <span class="o">=</span> <span class="s">&quot;jncDynamicExtensionLibMain&quot;</span><span class="p">;</span>
+<a class="reference internal" href="group_base-def.html#doxid-group-base-def-1gadf3ff658e277ca8ea2878349758bfdf5"><span class="std std-ref">JNC_SELECT_ANY</span></a><span></span> <span class="kt">char</span> <span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1gacbef1615849acf35488143fb80f05449"><span></span><span class="n">jnc_g_dynamicExtensionLibUnloadFuncName</span></span><span></span><span class="p">[]</span> <span class="o">=</span> <span class="s">&quot;jncDynamicExtensionLibUnload&quot;</span><span class="p">;</span>
+
+<span class="c1">// global functions</span>
+
+<a class="reference internal" href="struct_jnc_ExtensionLib.html#doxid-structjnc-extension-lib"><span class="std std-ref">jnc_ExtensionLib</span></a><span></span><span class="o">*</span>
+<span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga3b0c37f4704d5a89ee7a12c1fd46267b"><span></span><span class="n">jnc_CoreLib_getLib</span></span><span></span><span class="p">();</span>
+
+<a class="reference internal" href="struct_jnc_ExtensionLib.html#doxid-structjnc-extension-lib"><span class="std std-ref">jnc_ExtensionLib</span></a><span></span><span class="o">*</span>
+<span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1gaf9707d2066a7940cda9ca03b24779ecd"><span></span><span class="n">jnc_IntrospectionLib_getLib</span></span><span></span><span class="p">();</span>
+
+<a class="reference internal" href="struct_jnc_ExtensionLib.html#doxid-structjnc-extension-lib"><span class="std std-ref">jnc_ExtensionLib</span></a><span></span><span class="o">*</span>
+<span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1gaafeddc092fa07501257c4e8cd6bc0188"><span></span><span class="n">jnc_StdLib_getLib</span></span><span></span><span class="p">();</span>
+
+<a class="reference internal" href="struct_jnc_ExtensionLib.html#doxid-structjnc-extension-lib"><span class="std std-ref">jnc_ExtensionLib</span></a><span></span><span class="o">*</span>
+<span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga05b847a1f656867b62d6c295e9f7c5be"><span></span><span class="n">jnc_SysLib_getLib</span></span><span></span><span class="p">();</span>
+
+<span class="kt">void</span>
+<span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga674e0edc96645e9c17c34496c4c77e95"><span></span><span class="n">jnc_StdLib_setStdIo</span></span><span></span><span class="p">(</span>
+    <span class="n">jnc_StdLib_StdInputFunc</span><span class="o">*</span> <span class="n">getsFunc</span><span class="p">,</span>
+    <span class="n">jnc_StdLib_StdOutputFunc</span><span class="o">*</span> <span class="n">printOutFunc</span><span class="p">,</span>
+    <span class="n">jnc_StdLib_StdOutputFunc</span><span class="o">*</span> <span class="n">printErrFunc</span>
+<span class="p">);</span>
+
+<span class="c1">// macros</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga5d5037047076a89d11afcc12af75fc3a"><span></span><span class="n">JNC_BEGIN_CLASS_TYPE_VTABLE</span></span><span></span><span class="p">(</span><span class="n">TypePrefix</span><span class="p">)</span>
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga50deb573e948bfb09717c3d294fca483"><span></span><span class="n">JNC_BEGIN_LIB_FUNCTION_MAP</span></span><span></span><span class="p">(</span><span class="n">LibPrefix</span><span class="p">)</span>
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1gaac46fbbdd85e48a226b40ea7d35c9367"><span></span><span class="n">JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE</span></span><span></span><span class="p">(</span><span class="n">LibPrefix</span><span class="p">)</span>
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga7bdca8f41eec719e1d84090181a49e09"><span></span><span class="n">JNC_BEGIN_LIB_SOURCE_FILE_TABLE</span></span><span></span><span class="p">(</span><span class="n">LibPrefix</span><span class="p">)</span>
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1gaab4b41e3b88f58f91ef63e60ac8cc647"><span></span><span class="n">JNC_BEGIN_OPAQUE_CLASS_REQUIRE_TABLE</span></span><span></span><span class="p">(</span><span class="n">TypePrefix</span><span class="p">)</span>
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga5e63d0160b2bb4bfd584840d2fab5a3b"><span></span><span class="n">JNC_BEGIN_TYPE_FUNCTION_MAP</span></span><span></span><span class="p">(</span><span class="n">TypePrefix</span><span class="p">)</span>
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1gaba0ab2885dc50a2af9e1c9e5ca84616f"><span></span><span class="n">JNC_CLASS_TYPE_VTABLE_ENTRY</span></span><span></span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga5759ed872ddb836b880940d9cbc97ede"><span></span><span class="n">JNC_DECLARE_CLASS_TYPE</span></span><span></span><span class="p">(</span><span class="n">TypePrefix</span><span class="p">)</span>
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga0a973b71241eaed9cab83b2ba2babe47"><span></span><span class="n">JNC_DECLARE_CLASS_TYPE_STATIC_METHODS</span></span><span></span><span class="p">(</span><span class="n">TypePrefix</span><span class="p">)</span>
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga740e09fa66277eab8cf92fcfb8e24f2c"><span></span><span class="n">JNC_DECLARE_LIB</span></span><span></span><span class="p">(</span><span class="n">LibPrefix</span><span class="p">)</span>
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga224a0ec24282b0c34da6339ba581575d"><span></span><span class="n">JNC_DECLARE_OPAQUE_CLASS_TYPE</span></span><span></span><span class="p">(</span><span class="n">TypePrefix</span><span class="p">)</span>
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga3753797909af7b72734fae951c1810d8"><span></span><span class="n">JNC_DECLARE_OPAQUE_CLASS_TYPE_STATIC_METHODS</span></span><span></span><span class="p">(</span><span class="n">TypePrefix</span><span class="p">)</span>
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1gaf26dac3859b0dfc3f9884d789c1b0f1a"><span></span><span class="n">JNC_DECLARE_TYPE</span></span><span></span><span class="p">(</span><span class="n">TypePrefix</span><span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1gaa8fd221359f2f5fe79b5a5bccc0bd88a"><span></span><span class="n">JNC_DECLARE_TYPE_EX</span></span><span></span><span class="p">(</span> \
+    <span class="n">TypePrefix</span><span class="p">,</span> \
+    <span class="n">JncType</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1gad8e899ceb35be62df55d9c29c3764b15"><span></span><span class="n">JNC_DECLARE_TYPE_STATIC_METHODS</span></span><span></span><span class="p">(</span><span class="n">TypePrefix</span><span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga27dc425dbaab39bca8de030c5cce0583"><span></span><span class="n">JNC_DECLARE_TYPE_STATIC_METHODS_EX</span></span><span></span><span class="p">(</span> \
+    <span class="n">TypePrefix</span><span class="p">,</span> \
+    <span class="n">JncType</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1gae93a63eedf699f79f8663fd38ff11301"><span></span><span class="n">JNC_DEFINE_CLASS_TYPE</span></span><span></span><span class="p">(</span> \
+    <span class="n">TypePrefix</span><span class="p">,</span> \
+    <span class="n">qualifiedName</span><span class="p">,</span> \
+    <span class="n">libGuid</span><span class="p">,</span> \
+    <span class="n">cacheSlot</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga57889b0806d83bdaeaf6a4bd4be3448b"><span></span><span class="n">JNC_DEFINE_LIB</span></span><span></span><span class="p">(</span> \
+    <span class="n">LibPrefix</span><span class="p">,</span> \
+    <span class="n">libGuid</span><span class="p">,</span> \
+    <span class="n">libName</span><span class="p">,</span> \
+    <span class="n">libDescription</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga6cd96e94df66a5cbf784a0d4041fa605"><span></span><span class="n">JNC_DEFINE_LIB_EX</span></span><span></span><span class="p">(</span> \
+    <span class="n">LibPrefix</span><span class="p">,</span> \
+    <span class="n">libGuid</span><span class="p">,</span> \
+    <span class="n">libName</span><span class="p">,</span> \
+    <span class="n">libDescription</span><span class="p">,</span> \
+    <span class="n">updateCapabilities</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1gabc351adca24d76b207d1fa8c00307a71"><span></span><span class="n">JNC_DEFINE_OPAQUE_CLASS_TYPE</span></span><span></span><span class="p">(</span> \
+    <span class="n">TypePrefix</span><span class="p">,</span> \
+    <span class="n">qualifiedName</span><span class="p">,</span> \
+    <span class="n">libGuid</span><span class="p">,</span> \
+    <span class="n">cacheSlot</span><span class="p">,</span> \
+    <span class="n">Type</span><span class="p">,</span> \
+    <span class="n">markOpaqueGcRootsFunc</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1gafcb7e3b5d2b0485e63b78f906d474f4c"><span></span><span class="n">JNC_DEFINE_OPAQUE_CLASS_TYPE_EX</span></span><span></span><span class="p">(</span> \
+    <span class="n">TypePrefix</span><span class="p">,</span> \
+    <span class="n">qualifiedName</span><span class="p">,</span> \
+    <span class="n">libGuid</span><span class="p">,</span> \
+    <span class="n">cacheSlot</span><span class="p">,</span> \
+    <span class="n">Type</span><span class="p">,</span> \
+    <span class="n">markOpaqueGcRootsFunc</span><span class="p">,</span> \
+    <span class="n">requireOpaqueItemsFunc</span><span class="p">,</span> \
+    <span class="n">isNonCreatable</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga424d14cf6115259b1e386a0dbd12ced6"><span></span><span class="n">JNC_DEFINE_OPAQUE_CLASS_TYPE_NC</span></span><span></span><span class="p">(</span> \
+    <span class="n">TypePrefix</span><span class="p">,</span> \
+    <span class="n">qualifiedName</span><span class="p">,</span> \
+    <span class="n">libGuid</span><span class="p">,</span> \
+    <span class="n">cacheSlot</span><span class="p">,</span> \
+    <span class="n">Type</span><span class="p">,</span> \
+    <span class="n">markOpaqueGcRootsFunc</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga333d901ea8204e384262649f552fa4d3"><span></span><span class="n">JNC_DEFINE_OPAQUE_CLASS_TYPE_REQ</span></span><span></span><span class="p">(</span> \
+    <span class="n">TypePrefix</span><span class="p">,</span> \
+    <span class="n">qualifiedName</span><span class="p">,</span> \
+    <span class="n">libGuid</span><span class="p">,</span> \
+    <span class="n">cacheSlot</span><span class="p">,</span> \
+    <span class="n">Type</span><span class="p">,</span> \
+    <span class="n">markOpaqueGcRootsFunc</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1gac7e00e8d2d8329ba8fd27a0ac390169b"><span></span><span class="n">JNC_DEFINE_TYPE</span></span><span></span><span class="p">(</span> \
+    <span class="n">TypePrefix</span><span class="p">,</span> \
+    <span class="n">qualifiedName</span><span class="p">,</span> \
+    <span class="n">libGuid</span><span class="p">,</span> \
+    <span class="n">cacheSlot</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga8d3c6a037a6a85988a8165894dae7683"><span></span><span class="n">JNC_DEFINE_TYPE_EX</span></span><span></span><span class="p">(</span> \
+    <span class="n">TypePrefix</span><span class="p">,</span> \
+    <span class="n">JncType</span><span class="p">,</span> \
+    <span class="n">qualifiedName</span><span class="p">,</span> \
+    <span class="n">libGuid</span><span class="p">,</span> \
+    <span class="n">cacheSlot</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga0f80b910af6c2acd534df4b068e3c5d9"><span></span><span class="n">JNC_END_CLASS_TYPE_VTABLE</span></span><span></span><span class="p">()</span>
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1gaf68308a29396fcb3953dbb519bc5a55e"><span></span><span class="n">JNC_END_LIB_FUNCTION_MAP</span></span><span></span><span class="p">()</span>
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga15b3bfa0ea864e72aafff68a9518ebcb"><span></span><span class="n">JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE</span></span><span></span><span class="p">()</span>
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga513a24048c72a4f46cf3877c765c6def"><span></span><span class="n">JNC_END_LIB_SOURCE_FILE_TABLE</span></span><span></span><span class="p">()</span>
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga5059122591bdeea960ab2a43d88b3153"><span></span><span class="n">JNC_END_OPAQUE_CLASS_REQUIRE_TABLE</span></span><span></span><span class="p">()</span>
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1gabe406df8a890a9a6bf86379ca4ed6f3c"><span></span><span class="n">JNC_END_TYPE_FUNCTION_MAP</span></span><span></span><span class="p">()</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga8707672984204c7804852364cde042f3"><span></span><span class="n">JNC_FIND_ITEM_IMPL</span></span><span></span><span class="p">(</span> \
+    <span class="n">name</span><span class="p">,</span> \
+    <span class="n">findMethod</span><span class="p">,</span> \
+    <span class="n">itemKind</span><span class="p">,</span> \
+    <span class="n">ItemType</span><span class="p">,</span> \
+    <span class="n">item</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga03f03966083da77f1e277efb92557f52"><span></span><span class="n">JNC_LIB_IMPORT</span></span><span></span><span class="p">(</span><span class="n">fileName</span><span class="p">)</span>
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1gaf4468a6f758c3274ffd659462486baf8"><span></span><span class="n">JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY</span></span><span></span><span class="p">(</span><span class="n">TypePrefix</span><span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1gac91b3ba766185c8306175b034a8d0450"><span></span><span class="n">JNC_LIB_REQUIRE</span></span><span></span><span class="p">(</span> \
+    <span class="n">itemKind</span><span class="p">,</span> \
+    <span class="n">name</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1gafbf8947ccc70693493e1e96008aa9361"><span></span><span class="n">JNC_LIB_REQUIRE_EX</span></span><span></span><span class="p">(</span> \
+    <span class="n">itemKind</span><span class="p">,</span> \
+    <span class="n">name</span><span class="p">,</span> \
+    <span class="n">flags</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga0a5533ee9b4b55cb0b1247b671ec940d"><span></span><span class="n">JNC_LIB_REQUIRE_TYPE</span></span><span></span><span class="p">(</span> \
+    <span class="n">typeKind</span><span class="p">,</span> \
+    <span class="n">name</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga8bd5211bc44d45d71bb3097242b62b91"><span></span><span class="n">JNC_LIB_REQUIRE_TYPE_EX</span></span><span></span><span class="p">(</span> \
+    <span class="n">typeKind</span><span class="p">,</span> \
+    <span class="n">name</span><span class="p">,</span> \
+    <span class="n">flags</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1gaba675035f50a00295b36578ea7359428"><span></span><span class="n">JNC_LIB_SOURCE_FILE</span></span><span></span><span class="p">(</span> \
+    <span class="n">fileName</span><span class="p">,</span> \
+    <span class="n">sourceVar</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga964c7a10fb49c7de6905a855f91a467b"><span></span><span class="n">JNC_MAP_AUTOGET_PROPERTY</span></span><span></span><span class="p">(</span> \
+    <span class="n">name</span><span class="p">,</span> \
+    <span class="n">setter</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga5c86842c40908b7abe2ce183d6aa6af8"><span></span><span class="n">JNC_MAP_AUTOGET_PROPERTY_IMPL</span></span><span></span><span class="p">(</span> \
+    <span class="n">name</span><span class="p">,</span> \
+    <span class="n">findMethod</span><span class="p">,</span> \
+    <span class="n">setter</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga9a6283090365b1b0a015f2125ec05517"><span></span><span class="n">JNC_MAP_AUTOGET_PROPERTY_Q</span></span><span></span><span class="p">(</span> \
+    <span class="n">name</span><span class="p">,</span> \
+    <span class="n">setter</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga53bd126f353c6bd5425adc54e73e666b"><span></span><span class="n">JNC_MAP_BINARY_OPERATOR</span></span><span></span><span class="p">(</span> \
+    <span class="n">opKind</span><span class="p">,</span> \
+    <span class="n">p</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga8358d27125c23c04f507b81aa8f99c06"><span></span><span class="n">JNC_MAP_CALL_OPERATOR</span></span><span></span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga86abe62fc580b3f8d4849f43e0bb65c2"><span></span><span class="n">JNC_MAP_CAST_OPERATOR</span></span><span></span><span class="p">(</span> \
+    <span class="n">i</span><span class="p">,</span> \
+    <span class="n">p</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga419cd2e480c7a95a38c88642a71660db"><span></span><span class="n">JNC_MAP_CONSTRUCTOR</span></span><span></span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1gae85afacf72953f29217f5d5084b9a366"><span></span><span class="n">JNC_MAP_CONST_PROPERTY</span></span><span></span><span class="p">(</span> \
+    <span class="n">name</span><span class="p">,</span> \
+    <span class="n">getter</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga498ea98d3e20e47e1775b3ef9cc88c11"><span></span><span class="n">JNC_MAP_CONST_PROPERTY_IMPL</span></span><span></span><span class="p">(</span> \
+    <span class="n">name</span><span class="p">,</span> \
+    <span class="n">findMethod</span><span class="p">,</span> \
+    <span class="n">getter</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga4bba56bed08043bfa73b0459495c9de2"><span></span><span class="n">JNC_MAP_CONST_PROPERTY_Q</span></span><span></span><span class="p">(</span> \
+    <span class="n">name</span><span class="p">,</span> \
+    <span class="n">getter</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1gae06ea1437d6f6d1728ce7c16f87efbbc"><span></span><span class="n">JNC_MAP_DESTRUCTOR</span></span><span></span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1gae30db15f9cd7b099844c11860f79d73f"><span></span><span class="n">JNC_MAP_FUNCTION</span></span><span></span><span class="p">(</span> \
+    <span class="n">name</span><span class="p">,</span> \
+    <span class="n">p</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga45365dfb7b5380376804d8dcd0d2f193"><span></span><span class="n">JNC_MAP_FUNCTION_IMPL</span></span><span></span><span class="p">(</span> \
+    <span class="n">function</span><span class="p">,</span> \
+    <span class="n">p</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga7a50bca6a153242199f44023ba04681e"><span></span><span class="n">JNC_MAP_FUNCTION_Q</span></span><span></span><span class="p">(</span> \
+    <span class="n">name</span><span class="p">,</span> \
+    <span class="n">p</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga0be2275bdeed2462f524eeb373d935ff"><span></span><span class="n">JNC_MAP_OVERLOAD</span></span><span></span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1gac82f2be0dcdc52ab41ba0bbc5ea5a787"><span></span><span class="n">JNC_MAP_OVERLOADABLE_FUNCTION</span></span><span></span><span class="p">(</span> \
+    <span class="n">item</span><span class="p">,</span> \
+    <span class="n">p</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga4e036af1ffa257b33f74ef9c53752287"><span></span><span class="n">JNC_MAP_PROPERTY</span></span><span></span><span class="p">(</span> \
+    <span class="n">name</span><span class="p">,</span> \
+    <span class="n">getter</span><span class="p">,</span> \
+    <span class="n">setter</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga13a6f71412e26598e0c4911110739343"><span></span><span class="n">JNC_MAP_PROPERTY_GETTER</span></span><span></span><span class="p">(</span> \
+    <span class="n">prop</span><span class="p">,</span> \
+    <span class="n">p</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga297aae552fb385499b122624db690a1d"><span></span><span class="n">JNC_MAP_PROPERTY_IMPL</span></span><span></span><span class="p">(</span> \
+    <span class="n">name</span><span class="p">,</span> \
+    <span class="n">findMethod</span><span class="p">,</span> \
+    <span class="n">getter</span><span class="p">,</span> \
+    <span class="n">setter</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga81e60461cb75e3e143bc7ba20a841577"><span></span><span class="n">JNC_MAP_PROPERTY_Q</span></span><span></span><span class="p">(</span> \
+    <span class="n">name</span><span class="p">,</span> \
+    <span class="n">getter</span><span class="p">,</span> \
+    <span class="n">setter</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1gaacc4285c5139480f39791a9d02f441f2"><span></span><span class="n">JNC_MAP_PROPERTY_SETTER</span></span><span></span><span class="p">(</span> \
+    <span class="n">prop</span><span class="p">,</span> \
+    <span class="n">p</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1gafe908ba66083eb9d87ddbe59ce98ef5a"><span></span><span class="n">JNC_MAP_TYPE</span></span><span></span><span class="p">(</span><span class="n">TypePrefix</span><span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga9fcc9e7223a435d97b5a27d4e560cdd6"><span></span><span class="n">JNC_MAP_TYPE_IMPL</span></span><span></span><span class="p">(</span> \
+    <span class="n">TypePrefix</span><span class="p">,</span> \
+    <span class="n">isRequired</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga947376ca07aa09c38d931ca4f1cf1707"><span></span><span class="n">JNC_MAP_TYPE_REQ</span></span><span></span><span class="p">(</span><span class="n">TypePrefix</span><span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga631f9326b0d2affc30e542a0d673eafa"><span></span><span class="n">JNC_MAP_UNARY_OPERATOR</span></span><span></span><span class="p">(</span> \
+    <span class="n">opKind</span><span class="p">,</span> \
+    <span class="n">p</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga46b7dd183e1785ce216ee2e3aea775f1"><span></span><span class="n">JNC_MAP_VARIABLE</span></span><span></span><span class="p">(</span> \
+    <span class="n">name</span><span class="p">,</span> \
+    <span class="n">p</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1gaf66ff41d45db2c4b9b817e9c16b2c135"><span></span><span class="n">JNC_MAP_VARIABLE_IMPL</span></span><span></span><span class="p">(</span> \
+    <span class="n">name</span><span class="p">,</span> \
+    <span class="n">findMethod</span><span class="p">,</span> \
+    <span class="n">p</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga26ca96908ffac2e49e5ec5cf23d944f6"><span></span><span class="n">JNC_MAP_VARIABLE_Q</span></span><span></span><span class="p">(</span> \
+    <span class="n">name</span><span class="p">,</span> \
+    <span class="n">p</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga0c102f4884acac23a88a4ca6b7dd68fe"><span></span><span class="n">JNC_OPAQUE_CLASS_REQUIRE</span></span><span></span><span class="p">(</span> \
+    <span class="n">itemKind</span><span class="p">,</span> \
+    <span class="n">name</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga4ffff442cbf59c8d8c361c855a64aee1"><span></span><span class="n">JNC_OPAQUE_CLASS_REQUIRE_TYPE</span></span><span></span><span class="p">(</span> \
+    <span class="n">typeKind</span><span class="p">,</span> \
+    <span class="n">name</span> \
+<span class="p">)</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-extension-lib-subsystem-1ga01d21dd392b4cce70722740eeffa76b0"><span></span><span class="n">jnc_pvoid_cast</span></span><span></span><span class="p">(</span><span class="n">x</span><span class="p">)</span></pre>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="struct_jnc_Error.html" class="btn btn-neutral float-left" title="struct jnc_Error" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="struct_jnc_DynamicExtensionLibHost.html" class="btn btn-neutral float-right" title="struct jnc_DynamicExtensionLibHost" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,175 @@
+.. include:: def.rst
+.. index:: pair: enum; FileOpenFlags
+.. _doxid-typeio_fileopenflags:
+
+bitflag enum io.FileOpenFlags
+=============================
+
+Overview
+~~~~~~~~
+
+This enumeration specifies available options for opening `io.File`,
+`io.FileStream` or `io.MappedFile`. :ref:`More...<details-typeio_fileopenflags>`
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum FileOpenFlags {
+	    :ref:`ReadOnly<doxid-enum_memberio_fileopenflags_readonly>`,
+	    :ref:`WriteOnly<doxid-enum_memberio_fileopenflags_writeonly>`,
+	    :ref:`OpenExisting<doxid-enum_memberio_fileopenflags_openexisting>`,
+	    :ref:`Exclusive<doxid-enum_memberio_fileopenflags_exclusive>`,
+	    :ref:`ShareWrite<doxid-enum_memberio_fileopenflags_sharewrite>`,
+	    :ref:`DeleteOnClose<doxid-enum_memberio_fileopenflags_deleteonclose>`,
+	    :ref:`Unlink<doxid-enum_memberio_fileopenflags_unlink>`,
+	    :ref:`Clear<doxid-enum_memberio_fileopenflags_clear>`,
+	    :ref:`Asynchronous<doxid-enum_memberio_fileopenflags_asynchronous>`,
+	    :ref:`WriteAttributes<doxid-enum_memberio_fileopenflags_writeattributes>`,
+	};
+
+.. _details-typeio_fileopenflags:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This enumeration specifies available options for opening `io.File`,
+`io.FileStream` or `io.MappedFile`.
+
+When opening files or devices with ``open`` method, the second argument
+``flags`` can be used to adjust options.
+
+
+
+.. rubric:: See also:
+
+`io.File`, `io.FileStream`, `io.MappedFile`
+
+Enum Values
+-----------
+
+.. index:: pair: enumvalue; ReadOnly
+.. _doxid-enum_memberio_fileopenflags_readonly:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	ReadOnly
+
+File or device should be opened in read-only mode. When file is opened
+in read-only mode, trying to perform modifying operations such as
+calling ``write`` method or changing the file size via ``m_size``
+property will fail with ``access violation`` system error.
+
+.. index:: pair: enumvalue; WriteOnly
+.. _doxid-enum_memberio_fileopenflags_writeonly:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	WriteOnly
+
+File or device should be opened in write-only mode. When file is opened
+in read-only mode, calling ``read`` method fail with the
+``access violation`` system error.
+
+Note that certain files and devices could *only* be opened in write-only
+mode(e.g., client mailslot files on Windows)
+
+.. index:: pair: enumvalue; OpenExisting
+.. _doxid-enum_memberio_fileopenflags_openexisting:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	OpenExisting
+
+Do not try to create a file if it does not exist.
+
+If file specified by ``name`` argument to ``open`` method does not
+exist, ``open`` method should fail rather than try to create a new
+empty file with such a name(which would be the default option).
+
+.. index:: pair: enumvalue; Exclusive
+.. _doxid-enum_memberio_fileopenflags_exclusive:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Exclusive
+
+Open a file or device in exclusive mode. If another thread or process
+simultaneously tries to open the same file -- no matter if it specifies
+read-write, read-only or write-only modes -- it will fail with the
+``access violation`` system error.
+
+.. index:: pair: enumvalue; ShareWrite
+.. _doxid-enum_memberio_fileopenflags_sharewrite:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	ShareWrite
+
+Allow multiple threads or processes to open the same file for writing.
+This overrides the default behaviour -- normally, only one write-access
+handle to the file is allowed at the same time(subsequent attempts to
+open the file for writing will fail with the ``access violation`` system
+error)
+
+.. index:: pair: enumvalue; DeleteOnClose
+.. _doxid-enum_memberio_fileopenflags_deleteonclose:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	DeleteOnClose
+
+File should be deleted as soon as the last handle to it is being closed.
+
+Windows only. Maps to ``FILE_FLAG_DELETE_ON_CLOSE``.
+
+.. index:: pair: enumvalue; Unlink
+.. _doxid-enum_memberio_fileopenflags_unlink:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Unlink
+
+File should be ``unlink``-ed immediately afer creation.
+
+POSIX only.
+
+.. index:: pair: enumvalue; Clear
+.. _doxid-enum_memberio_fileopenflags_clear:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Clear
+
+File should be cleared immediately afer creation.
+
+.. index:: pair: enumvalue; Asynchronous
+.. _doxid-enum_memberio_fileopenflags_asynchronous:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Asynchronous
+
+File is opened in asynchronous mode.
+
+Maps to ``FILE_FLAG_OVERLAPPED`` on Windows, ``O_NONBLOCK`` on POSIX.
+
+.. index:: pair: enumvalue; WriteAttributes
+.. _doxid-enum_memberio_fileopenflags_writeattributes:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	WriteAttributes
+
+Windows only. Requests special ``FILE_WRITE_ATTRIBUTES`` access.
+

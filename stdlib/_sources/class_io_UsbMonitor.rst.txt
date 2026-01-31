@@ -1,0 +1,65 @@
+.. include:: def.rst
+.. index:: pair: class; io.UsbMonitor
+.. _doxid-typeio_usbmonitor:
+
+class io.UsbMonitor
+===================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	class UsbMonitor {
+		// fields
+	
+		typedef io.ReadOnlyStreamEvents io.UsbMonEvents readonly volatile :target:`m_activeEvents<doxid-fieldio_usbmonitor_m_activeevents>`;
+		:ref:`std.Error<doxid-typestd_error>` const* readonly volatile :target:`m_ioError<doxid-fieldio_usbmonitor_m_ioerror>`;
+		bool readonly :target:`m_isOpen<doxid-fieldio_usbmonitor_m_isopen>`;
+
+		// properties
+	
+		:ref:`uint_t<doxid-typedefuint_t>` autoget property :target:`m_addressFilter<doxid-propertyio_usbmonitor_m_addressfilter>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_kernelBufferSize<doxid-propertyio_usbmonitor_m_kernelbuffersize>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_readBlockSize<doxid-propertyio_usbmonitor_m_readblocksize>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_readBufferSize<doxid-propertyio_usbmonitor_m_readbuffersize>`;
+		:ref:`io.UsbMonOptions<doxid-typeio_usbmonoptions>` autoget property :target:`m_options<doxid-propertyio_usbmonitor_m_options>`;
+
+		// construction
+	
+		:target:`construct<doxid-functionio_usbmonitor_construct>`();
+		:target:`destruct<doxid-functionio_usbmonitor_destruct>`();
+
+		// methods
+	
+		bool errorcode :target:`open<doxid-functionio_usbmonitor_open>`(
+			:ref:`string_t<doxid-typedefstring_t>` captureDeviceName,
+			:ref:`size_t<doxid-typedefsize_t>` snapshotSize = 0
+		);
+	
+		void :target:`close<doxid-functionio_usbmonitor_close>`();
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :target:`read<doxid-functionio_usbmonitor_read>`(
+			void* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		long errorcode :target:`wait<doxid-functionio_usbmonitor_wait>`(
+			:ref:`io.UsbMonEvents<doxid-typedefio_usbmonevents>` eventMask,
+			void function* handler(io.UsbMonEvents triggeredEvents)
+		);
+	
+		bool errorcode :target:`cancelWait<doxid-functionio_usbmonitor_cancelwait>`(long handle);
+	
+		:ref:`io.UsbMonEvents<doxid-typedefio_usbmonevents>` :target:`blockingWait<doxid-functionio_usbmonitor_blockingwait>`(
+			:ref:`io.UsbMonEvents<doxid-typedefio_usbmonevents>` eventMask,
+			:ref:`uint_t<doxid-typedefuint_t>` timeout = -1
+		);
+	
+		:ref:`io.UsbMonEvents<doxid-typedefio_usbmonevents>` async :target:`asyncWait<doxid-functionio_usbmonitor_asyncwait>`(:ref:`io.UsbMonEvents<doxid-typedefio_usbmonevents>` eventMask);
+	};

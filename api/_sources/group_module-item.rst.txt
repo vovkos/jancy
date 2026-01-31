@@ -1,0 +1,68 @@
+.. index:: pair: group; Module Item
+.. _doxid-group__module-item:
+
+Module Item
+===========
+
+.. toctree::
+	:hidden:
+
+	enum_jnc_ModuleItemFlag.rst
+	enum_jnc_ModuleItemKind.rst
+	enum_jnc_ModuleItemStringKind.rst
+	struct_jnc_FindModuleItemResult.rst
+	struct_jnc_ModuleItem.rst
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_ModuleItem.h>
+	
+	// enums
+
+	enum :ref:`jnc_ModuleItemFlag<doxid-group__module-item_1gaf19927f3431c5d3bd0b1c994920aa1b1>`;
+	enum :ref:`jnc_ModuleItemKind<doxid-group__module-item_1ga2e8240593c7faef6f863202967d80ae0>`;
+	enum :ref:`jnc_ModuleItemStringKind<doxid-group__module-item_1ga12f62d821b2bc3a009cea679f73cb562>`;
+
+	// structs
+
+	struct :ref:`jnc_FindModuleItemResult<doxid-structjnc___find_module_item_result>`;
+	struct :ref:`jnc_ModuleItem<doxid-structjnc___module_item>`;
+
+	// global variables
+
+	:ref:`JNC_SELECT_ANY<doxid-group__base-def_1gadf3ff658e277ca8ea2878349758bfdf5>` :ref:`jnc_FindModuleItemResult<doxid-structjnc___find_module_item_result>` :target:`jnc_g_errorFindModuleItemResult<doxid-group__module-item_1gac5a72b58828da47ab62abbe1defac01a>` = { 0, NULL };
+	:ref:`JNC_SELECT_ANY<doxid-group__base-def_1gadf3ff658e277ca8ea2878349758bfdf5>` :ref:`jnc_FindModuleItemResult<doxid-structjnc___find_module_item_result>` :target:`jnc_g_nullFindModuleItemResult<doxid-group__module-item_1gaf876f74a4828cb264265195ac3a65514>` = { 1, NULL };
+
+	// global functions
+
+	const char*
+	:target:`jnc_getModuleItemKindString<doxid-group__module-item_1gae03ae47aa8137bde4c2ebc1abe02e99f>`(jnc_ModuleItemKind itemKind);
+
+	:ref:`jnc_Module<doxid-structjnc___module>`*
+	:target:`jnc_ModuleItem_getModule<doxid-group__module-item_1gaeb9ad71dbaa3e7f7fee3453b6e6ac032>`(:ref:`jnc_ModuleItem<doxid-structjnc___module_item>`* item);
+
+	jnc_ModuleItemKind
+	:target:`jnc_ModuleItem_getItemKind<doxid-group__module-item_1ga530e82ef99bb76c608d11d6d076dcaa8>`(:ref:`jnc_ModuleItem<doxid-structjnc___module_item>`* item);
+
+	uint_t
+	:target:`jnc_ModuleItem_getFlags<doxid-group__module-item_1ga4ced0557bbfa26ca2fec442ad5af6e56>`(:ref:`jnc_ModuleItem<doxid-structjnc___module_item>`* item);
+
+	:ref:`jnc_ModuleItemDecl<doxid-structjnc___module_item_decl>`*
+	:target:`jnc_ModuleItem_getDecl<doxid-group__module-item_1ga3c9d29c65b819e2343b43dbdbed1953f>`(:ref:`jnc_ModuleItem<doxid-structjnc___module_item>`* item);
+
+	:ref:`jnc_Namespace<doxid-structjnc___namespace>`*
+	:target:`jnc_ModuleItem_getNamespace<doxid-group__module-item_1ga2be6b31cac5b7c43e920c937b8b206f2>`(:ref:`jnc_ModuleItem<doxid-structjnc___module_item>`* item);
+
+	:ref:`jnc_Type<doxid-structjnc___type>`*
+	:target:`jnc_ModuleItem_getType<doxid-group__module-item_1ga78daca1f395cc6b5fde87e1132594090>`(:ref:`jnc_ModuleItem<doxid-structjnc___module_item>`* item);
+
+	const char*
+	:target:`jnc_ModuleItem_getItemString<doxid-group__module-item_1ga123a0de0ff86e745886c03dccd3294bf>`(
+		:ref:`jnc_ModuleItem<doxid-structjnc___module_item>`* item,
+		size_t index
+	);
+

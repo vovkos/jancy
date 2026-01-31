@@ -1,0 +1,21 @@
+.. index:: pair: enum; jnc_StdNamespace
+.. _doxid-group__namespace_1ga296be6d4f681b1fb9aa59e5e03346f61:
+
+enum jnc_StdNamespace
+=====================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_Namespace.h>
+
+	enum jnc_StdNamespace {
+	    :target:`jnc_StdNamespace_Global<doxid-group__namespace_1gga296be6d4f681b1fb9aa59e5e03346f61a9db787171429ee1251ab34bc2263c0e9>`,
+	    :target:`jnc_StdNamespace_Jnc<doxid-group__namespace_1gga296be6d4f681b1fb9aa59e5e03346f61ae3d41b551d61df517930c87c719a1da9>`,
+	    :target:`jnc_StdNamespace_Std<doxid-group__namespace_1gga296be6d4f681b1fb9aa59e5e03346f61a92327371ebf9e5e39718df895312f1af>`,
+	    :target:`jnc_StdNamespace_Internal<doxid-group__namespace_1gga296be6d4f681b1fb9aa59e5e03346f61ab4098f211f908a0f85848e2d90145f80>`,
+	    :target:`jnc_StdNamespace__Count<doxid-group__namespace_1gga296be6d4f681b1fb9aa59e5e03346f61a5fca0309317155cf0443c7edb816d846>`,
+	};
+

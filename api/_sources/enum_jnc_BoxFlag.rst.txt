@@ -1,0 +1,27 @@
+.. index:: pair: enum; jnc_BoxFlag
+.. _doxid-group__runtime-structs_1ga7688aba6ff22cec33210cec8cbf1bf7f:
+
+enum jnc_BoxFlag
+================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_RuntimeStructs.h>
+
+	enum jnc_BoxFlag {
+	    :target:`jnc_BoxFlag_WeakMark<doxid-group__runtime-structs_1gga7688aba6ff22cec33210cec8cbf1bf7fa4bc36267c691125a55b603ab96edbb31>`        = 0x0001,
+	    :target:`jnc_BoxFlag_ClosureWeakMark<doxid-group__runtime-structs_1gga7688aba6ff22cec33210cec8cbf1bf7fa30fed74c207534bec0e8b700e4af22c9>` = 0x0002,
+	    :target:`jnc_BoxFlag_DataMark<doxid-group__runtime-structs_1gga7688aba6ff22cec33210cec8cbf1bf7fa7c68fe36cfdb13a57c81decf264b8e38>`        = 0x0004,
+	    :target:`jnc_BoxFlag_ClassMark<doxid-group__runtime-structs_1gga7688aba6ff22cec33210cec8cbf1bf7fa555aead81dd931bad55f686d11aef801>`       = 0x0008,
+	    :target:`jnc_BoxFlag_Destructed<doxid-group__runtime-structs_1gga7688aba6ff22cec33210cec8cbf1bf7fae704d1ab5efd26466bd075e5bd4267e6>`      = 0x0010,
+	    :target:`jnc_BoxFlag_Static<doxid-group__runtime-structs_1gga7688aba6ff22cec33210cec8cbf1bf7fae5ccf1ec5c39bff2b876c62934310de2>`          = 0x0020,
+	    :target:`jnc_BoxFlag_DynamicArray<doxid-group__runtime-structs_1gga7688aba6ff22cec33210cec8cbf1bf7fad8d53d49b49324e3fd5813c7e3e6f0ad>`    = 0x0040,
+	    :target:`jnc_BoxFlag_Detached<doxid-group__runtime-structs_1gga7688aba6ff22cec33210cec8cbf1bf7fa1480fd00b75026c95a44f862ac5a247c>`        = 0x0080,
+	    :target:`jnc_BoxFlag_CallSiteLocal<doxid-group__runtime-structs_1gga7688aba6ff22cec33210cec8cbf1bf7fa4366d40d879bb357f6c13756ec0c4523>`   = 0x0100,
+	    :target:`jnc_BoxFlag_Invalid<doxid-group__runtime-structs_1gga7688aba6ff22cec33210cec8cbf1bf7fa702f9dbab354a3cc4455df22050f766f>`         = 0x0200,
+	    :target:`jnc_BoxFlag_MarkMask<doxid-group__runtime-structs_1gga7688aba6ff22cec33210cec8cbf1bf7fa753c581dc65e666706809005d98e48d3>`        = 0x000f,
+	};
+

@@ -1,0 +1,280 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>class jnc.DynamicLib &mdash; Jancy Standard Library Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="class jnc.Scheduler" href="class_jnc_Scheduler.html" />
+    <link rel="prev" title="Core RTL" href="group_rtl-core.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy Standard Library Reference
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="group_stdt-operator.html">stdt-operator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_c-typedefs.html">Standard Typedefs</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="group_rtl.html">RTL (Runtime Library)</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="group_rtl-core.html">Core RTL</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">class jnc.DynamicLib</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#detailed-documentation">Detailed Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="class_jnc_Scheduler.html">class jnc.Scheduler</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="group_rtl-gc.html">Garbage Collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_rtl-async.html">Async-await</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_rtl-regex.html">Regular Expressions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_rtl-dylayout.html">Dynamic Layouts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_rtl-intro.html">Introspection</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="group_crt.html">C Runtime Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_std.html">General Purpose Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_sys.html">System Facilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_io.html">IO (Input/Output) Library</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="disposable.html">‘disposable’ Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="errorcode.html">‘errorcode’ Functions</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="global.html">Global Namespace</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy Standard Library Reference</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="group_rtl.html">RTL (Runtime Library)</a></li>
+          <li class="breadcrumb-item"><a href="group_rtl-core.html">Core RTL</a></li>
+      <li class="breadcrumb-item active">class jnc.DynamicLib</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="class-jnc-dynamiclib">
+<span id="doxid-typejnc-dynamiclib"></span><span id="index-0"></span><h1>class jnc.DynamicLib</h1>
+<div class="toctree-wrapper compound">
+</div>
+<section id="overview">
+<h2>Overview</h2>
+<p>This class provides direct access to functions in <em>dynamic libraries</em>
+(also known as <em>shared libraries</em>). <a class="reference internal" href="#details-typejnc-dynamiclib"><span class="std std-ref">More…</span></a></p>
+<pre class="highlight doxyrest-overview-code-block literal-block"><span></span><span class="k">class</span> <span class="n">DynamicLib</span> <span class="p">{</span>
+    <span class="c1">// fields</span>
+
+    <span class="k">void</span> <span class="k">thin</span><span class="o">*</span> <span class="k">readonly</span> <a class="reference internal" href="#doxid-fieldjnc-dynamiclib-m-handle"><span class="std std-ref">m_handle</span></a><span></span><span class="p">;</span>
+
+    <span class="c1">// properties</span>
+
+    <span class="k">bool</span> <span class="k">const</span> <span class="k">property</span> <a class="reference internal" href="#doxid-propertyjnc-dynamiclib-m-isopen"><span class="std std-ref">m_isOpen</span></a><span></span><span class="p">;</span>
+
+    <span class="c1">// construction</span>
+
+    <span class="doxyrest-code-target target" id="doxid-functionjnc-dynamiclib-destruct"><span></span><span class="k">destruct</span></span><span></span><span class="p">();</span>
+
+    <span class="c1">// methods</span>
+
+    <span class="k">bool</span> <span class="k">errorcode</span> <a class="reference internal" href="#doxid-functionjnc-dynamiclib-open"><span class="std std-ref">open</span></a><span></span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">fileName</span><span class="p">);</span>
+    <span class="k">void</span> <a class="reference internal" href="#doxid-functionjnc-dynamiclib-close"><span class="std std-ref">close</span></a><span></span><span class="p">();</span>
+    <span class="k">void</span> <span class="k">thin</span><span class="o">*</span> <span class="k">errorcode</span> <a class="reference internal" href="#doxid-functionjnc-dynamiclib-getfunction"><span class="std std-ref">getFunction</span></a><span></span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">name</span><span class="p">);</span>
+
+    <span class="c1">// aliases</span>
+
+    <span class="k">alias</span> <a class="reference internal" href="#doxid-aliasjnc-dynamiclib-dispose"><span class="std std-ref">dispose</span></a><span></span> <span class="o">=</span> <span class="n">close</span><span class="p">;</span>
+<span class="p">};</span></pre>
+</section>
+<section id="detailed-documentation">
+<span id="details-typejnc-dynamiclib"></span><h2>Detailed Documentation</h2>
+<p>This class provides direct access to functions in <em>dynamic libraries</em>
+(also known as <em>shared libraries</em>).</p>
+<p>You can use <code class="docutils literal notranslate"><span class="pre">jnc.DynamicLib</span></code> in one of the two ways.</p>
+<p>One way is to explicitly load a dynamic library by file name, resolve
+function names to pointers, (unsafely)cast these pointers to appropriate
+function pointer types, and then call these function pointers:</p>
+<pre class="highlight literal-block"><span></span><span class="k">void</span> <span class="n">foo</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">jnc</span><span class="p">.</span><span class="n">DynamicLib</span> <span class="n">lib</span><span class="p">;</span>
+    <span class="n">lib</span><span class="p">.</span><span class="n">open</span><span class="p">(</span><span class="s">&quot;libname&quot;</span><span class="p">);</span> <span class="c1">// load library</span>
+    <span class="k">void</span> <span class="k">thin</span><span class="o">*</span> <span class="n">p</span> <span class="o">=</span> <span class="n">lib</span><span class="p">.</span><span class="n">getFunction</span><span class="p">(</span><span class="s">&quot;foo&quot;</span><span class="p">);</span> <span class="c1">// resolve function by name</span>
+
+    <span class="k">typedef</span> <span class="k">void</span> <span class="k">stdcall</span> <span class="n">FooFunc</span><span class="p">(</span><span class="k">int</span><span class="p">);</span> <span class="c1">// specify function type</span>
+
+    <span class="k">unsafe</span> <span class="p">{</span>
+        <span class="n">FooFunc</span> <span class="k">thin</span><span class="o">*</span> <span class="n">foo</span> <span class="o">=</span> <span class="p">(</span><span class="n">FooFunc</span> <span class="k">thin</span><span class="o">*</span><span class="p">)</span><span class="n">p</span><span class="p">;</span> <span class="c1">// cast to the proper type</span>
+    <span class="p">}</span>
+
+    <span class="n">foo</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span> <span class="c1">// call this function</span>
+
+<span class="k">catch</span><span class="o">:</span>
+    <span class="c1">// handle error...</span>
+<span class="p">}</span></pre>
+<p>Alternatively, you can declare a pseudo-interface using <code class="docutils literal notranslate"><span class="pre">dylib</span></code>
+keyword, and then simply call methods of this interface. Eventually it
+will result in the same sequence of steps, and even the base implementation
+class will be the same, <code class="docutils literal notranslate"><span class="pre">jnc.DynamicLib</span></code>. But all the above steps will be
+done behind the scene – Jancy compiler will generate necessary calls
+automatically. Moreover, once the resolve completes, the result is cached,
+so the next time you call the same functions, cached pointer will be used
+and no repetitive resolve-by-name is going to happen.</p>
+<p>Needless to say, this is the preferred approach:</p>
+<pre class="highlight literal-block"><span></span><span class="k">dylib</span> <span class="n">MyLib</span> <span class="p">{</span> <span class="c1">// will use jnc.DynamicLib behind the scene</span>
+    <span class="k">void</span> <span class="k">stdcall</span> <span class="n">foo</span><span class="p">(</span><span class="k">int</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">void</span> <span class="n">foo</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">MyLib</span> <span class="n">myLib</span><span class="p">;</span>
+    <span class="n">myLib</span><span class="p">.</span><span class="n">open</span><span class="p">(</span><span class="s">&quot;libname&quot;</span><span class="p">);</span> <span class="c1">// load library</span>
+    <span class="n">myLib</span><span class="p">.</span><span class="n">lib</span><span class="p">.</span><span class="n">foo</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span> <span class="c1">// resolve, cache and call</span>
+
+<span class="k">catch</span><span class="o">:</span>
+    <span class="c1">// handle error...</span>
+<span class="p">}</span></pre>
+<p>Please note that when accessing functions from the dynamic library(<code class="docutils literal notranslate"><span class="pre">foo</span></code>
+in the example above), you need to prefix it with <code class="docutils literal notranslate"><span class="pre">lib.</span></code> qualifier – this
+design was chosen to avoid conflicts between library functions and
+<code class="docutils literal notranslate"><span class="pre">jnc.DynamicLib</span></code> members.</p>
+<section id="fields">
+<h3>Fields</h3>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-fieldjnc-dynamiclib-m-handle"><span id="index-1"></span><span></span><span class="k">void</span> <span class="k">thin</span><span class="o">*</span> <span class="k">readonly</span> <span class="n">m_handle</span></pre>
+<p>This field holds the native handle of the dynamic library(<code class="docutils literal notranslate"><span class="pre">HMODULE</span></code>
+returned by  <code class="docutils literal notranslate"><span class="pre">LoadLibraryW</span></code> on Windows, <code class="docutils literal notranslate"><span class="pre">void*</span></code> returned by
+<code class="docutils literal notranslate"><span class="pre">dlopen</span></code> on POSIX)</p>
+<p>Usually, you should ignore this field – unless you plan to do some
+platform-dependent low-level magic.</p>
+</section>
+<section id="properties">
+<h3>Properties</h3>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-propertyjnc-dynamiclib-m-isopen"><span id="index-2"></span><span></span><span class="k">bool</span> <span class="k">const</span> <span class="k">property</span> <span class="n">m_isOpen</span></pre>
+<p>Holds the open status for the dynamic library, i.e. <code class="docutils literal notranslate"><span class="pre">true</span></code> if opened;
+<code class="docutils literal notranslate"><span class="pre">false</span></code> otherwise.</p>
+</section>
+<section id="methods">
+<h3>Methods</h3>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionjnc-dynamiclib-open"><span id="index-3"></span><span></span><span class="k">bool</span> <span class="k">errorcode</span> <span class="n">open</span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">fileName</span><span class="p">)</span></pre>
+<p>Opens (loads) a dynamic library.</p>
+<p>The function accepts a single <code class="docutils literal notranslate"><span class="pre">fileName</span></code> argument, which specifies the
+name of the library-containing file.</p>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">true</span></code> on success. If the dynamic library could not be loaded,
+IO error supplied by the dynamic loader of the operating system is set
+and then the function returns <code class="docutils literal notranslate"><span class="pre">false</span></code> <a class="footnote-reference superscript" href="#f1" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionjnc-dynamiclib-close"><span id="index-4"></span><span></span><span class="k">void</span> <span class="n">close</span><span class="p">()</span></pre>
+<p>Closes (releases) a previously loaded dynamic library, does nothing if
+no library is loaded. This function always succeeds.</p>
+<p>Sometimes it may be convenient to use <em>disposable</em> pattern to ensure
+timely invokation of <code class="docutils literal notranslate"><span class="pre">close</span></code> <a class="footnote-reference superscript" href="#f2" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionjnc-dynamiclib-getfunction"><span id="index-5"></span><span></span><span class="k">void</span> <span class="k">thin</span><span class="o">*</span> <span class="k">errorcode</span> <span class="n">getFunction</span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">name</span><span class="p">)</span></pre>
+<p>Resolves a function name in the previously loaded dynamic library.</p>
+<p>The function accepts a single <code class="docutils literal notranslate"><span class="pre">name</span></code> argument, which specifies the
+name of the function. Note that if this is a <code class="docutils literal notranslate"><span class="pre">C++</span></code> function, name
+should be properly <em>mangled</em>. On the other hand, <code class="docutils literal notranslate"><span class="pre">C</span></code> functions do
+not have to be prefixed with underscore character <code class="docutils literal notranslate"><span class="pre">_</span></code>.</p>
+<p>Returns abstract pointer(<code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">thin*</span></code>), which then has to be cast
+to a <code class="docutils literal notranslate"><span class="pre">thin</span></code> function pointer of the proper type(e.g., <code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">thin</span>
+<span class="pre">function*</span> <span class="pre">(int)</span></code>.</p>
+<p>If the function name could not be resolved, IO error supplied by the
+dynamic loader of the operating system is set and then the function
+returns <code class="docutils literal notranslate"><span class="pre">null</span></code> <a class="footnote-reference superscript" href="#f1" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+</section>
+<section id="aliases">
+<h3>Aliases</h3>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-aliasjnc-dynamiclib-dispose"><span id="index-6"></span><span></span><span class="k">alias</span> <span class="n">dispose</span> <span class="o">=</span> <span class="n">close</span></pre>
+<p>Effectively makes <code class="docutils literal notranslate"><span class="pre">jnc.DynamicLib</span></code> a <em>disposable</em> class <a class="footnote-reference superscript" href="#f2" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
+<hr class="docutils" />
+<p class="rubric">Footnotes</p>
+<aside class="footnote-list superscript">
+<aside class="footnote superscript" id="f1" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>You can use exception semantics to handle the erroneous return values of <code class="docutils literal notranslate"><span class="pre">errorcode</span></code> functions. For more details refer to <a class="reference internal" href="errorcode.html#errorcode"><span class="std std-ref">‘errorcode’ Functions</span></a>.</p>
+</aside>
+<aside class="footnote superscript" id="f2" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>You can ensure timely release of resources by using <em>disposable</em> pattern. For more details refer to <a class="reference internal" href="disposable.html#disposable"><span class="std std-ref">‘disposable’ Variables</span></a>.</p>
+</aside>
+</aside>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="group_rtl-core.html" class="btn btn-neutral float-left" title="Core RTL" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="class_jnc_Scheduler.html" class="btn btn-neutral float-right" title="class jnc.Scheduler" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

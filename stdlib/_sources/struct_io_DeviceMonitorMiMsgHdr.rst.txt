@@ -1,0 +1,23 @@
+.. include:: def.rst
+.. index:: pair: struct; io.DeviceMonitorMiMsgHdr
+.. _doxid-typeio_devicemonitormimsghdr:
+
+struct io.DeviceMonitorMiMsgHdr
+===============================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	struct DeviceMonitorMiMsgHdr {
+		// fields
+	
+		typedef unsigned int uint32_t :target:`m_code<doxid-fieldio_devicemonitormimsghdr_m_code>`;
+		typedef unsigned int uint32_t :target:`m_paramSize<doxid-fieldio_devicemonitormimsghdr_m_paramsize>`;
+	};

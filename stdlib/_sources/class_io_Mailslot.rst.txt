@@ -1,0 +1,262 @@
+.. include:: def.rst
+.. index:: pair: class; io.Mailslot
+.. _doxid-typeio_mailslot:
+
+class io.Mailslot
+=================
+
+.. toctree::
+	:hidden:
+
+Overview
+~~~~~~~~
+
+This class provides high-level asynchronous streaming interface for
+the *server* side of Windows mailslots which are used, for example, in SMB
+(Server Message Blocks) protocol and Windows Computer Browser service. :ref:`More...<details-typeio_mailslot>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "io_base.jncx"
+	import "io_Mailslot.jnc"
+	
+	class Mailslot {
+		// fields
+	
+		typedef io.ReadOnlyStreamEvents io.MailslotEvents readonly volatile :target:`m_activeEvents<doxid-fieldio_mailslot_m_activeevents>`;
+		:ref:`std.Error<doxid-typestd_error>` const* readonly volatile :target:`m_ioError<doxid-fieldio_mailslot_m_ioerror>`;
+		bool readonly :ref:`m_isOpen<doxid-fieldio_mailslot_m_isopen>`;
+
+		// properties
+	
+		:ref:`uint_t<doxid-typedefuint_t>` autoget property :target:`m_readParallelism<doxid-propertyio_mailslot_m_readparallelism>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_readBlockSize<doxid-propertyio_mailslot_m_readblocksize>`;
+		:ref:`size_t<doxid-typedefsize_t>` autoget property :target:`m_readBufferSize<doxid-propertyio_mailslot_m_readbuffersize>`;
+		:ref:`io.MailslotOptions<doxid-typedefio_mailslotoptions>` autoget property :target:`m_options<doxid-propertyio_mailslot_m_options>`;
+		:ref:`uintptr_t<doxid-typedefuintptr_t>` const property :target:`m_osHandle<doxid-propertyio_mailslot_m_oshandle>`;
+
+		// construction
+	
+		:target:`construct<doxid-functionio_mailslot_construct>`();
+		:target:`destruct<doxid-functionio_mailslot_destruct>`();
+
+		// methods
+	
+		bool errorcode :ref:`open<doxid-functionio_mailslot_open>`(:ref:`string_t<doxid-typedefstring_t>` name);
+		void :ref:`close<doxid-functionio_mailslot_close>`();
+	
+		:ref:`size_t<doxid-typedefsize_t>` errorcode :ref:`read<doxid-functionio_mailslot_read>`(
+			void* p,
+			:ref:`size_t<doxid-typedefsize_t>` size
+		);
+	
+		long errorcode :target:`wait<doxid-functionio_mailslot_wait>`(
+			:ref:`io.MailslotEvents<doxid-typedefio_mailslotevents>` eventMask,
+			void function* handler(io.MailslotEvents triggeredEvents)
+		);
+	
+		bool errorcode :target:`cancelWait<doxid-functionio_mailslot_cancelwait>`(long handle);
+	
+		:ref:`io.MailslotEvents<doxid-typedefio_mailslotevents>` :target:`blockingWait<doxid-functionio_mailslot_blockingwait>`(
+			:ref:`io.MailslotEvents<doxid-typedefio_mailslotevents>` eventMask,
+			:ref:`uint_t<doxid-typedefuint_t>` timeout = -1
+		);
+	
+		:ref:`io.MailslotEvents<doxid-typedefio_mailslotevents>` async :target:`asyncWait<doxid-functionio_mailslot_asyncwait>`(:ref:`io.MailslotEvents<doxid-typedefio_mailslotevents>` eventMask);
+
+		// aliases
+	
+		alias :ref:`dispose<doxid-aliasio_mailslot_dispose>` = close;
+	};
+.. _details-typeio_mailslot:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This class provides high-level asynchronous streaming interface for
+the *server* side of Windows mailslots which are used, for example, in SMB
+(Server Message Blocks) protocol and Windows Computer Browser service.
+
+For working from the *client* side of a mailslot, please use `io.File` or
+`io.FileStream`.
+
+A typical sequence of steps when working with a mailslot looks something
+like this:
+
+* Open a mailslot with ``open`` method;
+* Assign IO event handler with ``wait`` method. You  would probably also
+  want to *schedule* your event handler to be run in particular
+  environment(e.g., in a specific thread) and partially apply some
+  syncrhonization ID to discard late events;
+* When `io.MailslotEvents.IncomingData <io.ReadOnlyStreamEvents.IncomingData>`
+  event is fired, read from the mailslot using ``read`` method;
+* Close the mailslot when no longer needed with ``close`` method.
+
+.. rubric:: Sample code:
+
+.. ref-code-block::
+
+	class MyDialog {
+		// ...
+
+		io.Mailslot m_mailslot;
+		uint_t m_syncId;
+
+		void open(string_t fileName);
+		void close();
+		void waitMailslotEvents();
+
+		void onMailslotEvent(
+			uint_t syncId,
+			`io.MailslotEvents` triggeredEvents
+		);
+	}
+
+	MyDialog.open(string_t fileName) {
+		bool result = try m_mailslot.open(fileName);
+		if (!result) {
+			string_t errorString = std.getLastError().m_description;
+			// ...
+		}
+
+		waitMailslotEvents();
+	}
+
+	MyDialog.close() {
+		m_mailslot.close();
+		m_syncId++; // events past this point will be discarded as 'late'
+	}
+
+	MyDialog.waitMailslotEvent() {
+		`io.MailslotEvents` eventMask =
+			`io.MailslotEvents.IoError <io.ReadOnlyStreamEvents.IoError>` |
+			`io.MailslotEvents.IncomingData <io.ReadOnlyStreamEvents.IoError>`;
+
+		m_mailslot.wait(eventMask, onMailslotEvent ~(++m_syncId) @
+			g_mainThreadScheduler);
+	}
+
+	MyDialog.onMailslotEvent(
+		uint_t syncId,
+		`io.FileStreamEvents` triggeredEvents
+	) {
+		if (syncId != m_syncId) // late event
+			return;
+
+		if (triggeredEvents & `io.MailslotEvents.IoError <io.ReadOnlyStreamEvents.IoError>`) {
+			string_t errorString = m_mailslot.m_ioError.m_description;
+			// ...
+		}
+
+		if (triggeredEvents & `io.MailslotEvents.IncomingData <io.ReadOnlyStreamEvents.IoError>`) {
+			char buffer[256];
+			size_t size = m_mailslot.read(buffer, sizeof(buffer));
+			// ...
+		}
+
+		waitMailslotEvents(); // restart wait
+	}
+
+
+
+.. rubric:: See also:
+
+`io.MailslotEvents`, `io.File`, `io.FileStream`
+
+Fields
+------
+
+.. index:: pair: variable; m_isOpen
+.. _doxid-fieldio_mailslot_m_isopen:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool readonly m_isOpen
+
+Holds the open status for the mailslot, i.e. ``true`` if opened;
+``false`` otherwise.
+
+Methods
+-------
+
+.. index:: pair: function; open
+.. _doxid-functionio_mailslot_open:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool errorcode open(:ref:`string_t<doxid-typedefstring_t>` name)
+
+Opens or creates a mailslot.
+
+The function accepts a single argument, ``name``, which is used to
+specify the name of the mailslot.
+
+Returns ``true`` on success. If the mailslot could not be opened, IO
+error supplied by operating system is set and then the function returns
+``false`` [#f1]_.
+
+.. index:: pair: function; close
+.. _doxid-functionio_mailslot_close:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	void close()
+
+Closes a previously opened mailslot, does nothing if the mailslot is not
+opened. This function always succeeds.
+
+Sometimes it may be convenient to use *disposable* pattern to ensure
+timely invokation of ``close`` [#f2]_.
+
+.. index:: pair: function; read
+.. _doxid-functionio_mailslot_read:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`size_t<doxid-typedefsize_t>` errorcode read(
+		void* p,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	)
+
+Attempts to read up to ``size`` bytes from the mailslot into the buffer
+pointed to by ``p``.
+
+Returns the actual amount of bytes read or ``-1`` if error occurs [#f1]_.
+
+Normally you would call this function from within your event handler for
+``IncomingData`` event. If this function is called when there is no
+incoming data, it blocks until either the data arrives, or the mailslot
+is closed.
+
+Aliases
+-------
+
+.. index:: pair: alias; dispose
+.. _doxid-aliasio_mailslot_dispose:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	alias dispose = close
+
+Effectively makes ``io.Mailslot`` a *disposable* class [#f2]_.
+
+
+---------------------
+
+.. rubric:: Footnotes
+
+.. [#f1]
+
+	|footnote-errorcode|
+
+.. [#f2]
+
+	|footnote-disposable|
+

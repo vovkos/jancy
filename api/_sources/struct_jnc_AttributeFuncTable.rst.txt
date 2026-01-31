@@ -1,0 +1,21 @@
+.. index:: pair: struct; jnc_AttributeFuncTable
+.. _doxid-structjnc___attribute_func_table:
+
+struct jnc_AttributeFuncTable
+=============================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_AttributeFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___attribute_func_table_1ad23d3ea5fea9b0a59e6264dd9476006c>`;
+	};

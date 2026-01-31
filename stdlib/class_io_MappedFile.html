@@ -1,0 +1,342 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>class io.MappedFile &mdash; Jancy Standard Library Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="class io.NamedPipe" href="class_io_NamedPipe.html" />
+    <link rel="prev" title="class io.Mailslot" href="class_io_Mailslot.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy Standard Library Reference
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="group_stdt-operator.html">stdt-operator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_c-typedefs.html">Standard Typedefs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_rtl.html">RTL (Runtime Library)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_crt.html">C Runtime Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_std.html">General Purpose Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_sys.html">System Facilities</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="group_io.html">IO (Input/Output) Library</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="group_io-file.html">Generic File IO</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="enum_io_ChildProcessEvents.html">bitflag enum io.ChildProcessEvents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_ChildProcessStartFlags.html">bitflag enum io.ChildProcessStartFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_FileKind.html">enum io.FileKind</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_FileOpenFlags.html">bitflag enum io.FileOpenFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_FileStreamEvents.html">bitflag enum io.FileStreamEvents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_FileStreamOptions.html">bitflag enum io.FileStreamOptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_NamedPipeEvents.html">bitflag enum io.NamedPipeEvents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_ReadOnlyStreamEvents.html">bitflag enum io.ReadOnlyStreamEvents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_ReadOnlyStreamOptions.html">bitflag enum io.ReadOnlyStreamOptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_StreamEvents.html">bitflag enum io.StreamEvents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_StreamOptions.html">bitflag enum io.StreamOptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="struct_io_PtySize.html">struct io.PtySize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_io_ChildProcess.html">class io.ChildProcess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_io_File.html">class io.File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_io_FileStream.html">class io.FileStream</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_io_Mailslot.html">class io.Mailslot</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">class io.MappedFile</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#detailed-documentation">Detailed Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="class_io_NamedPipe.html">class io.NamedPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="group_io-file.html#overview">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="group_io-file.html#detailed-documentation">Detailed Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-socket.html">Socket Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-serial.html">Serial Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-network-adapter.html">Network Adapter Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-ssl.html">SSL Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-ssh.html">SSH Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-websock.html">WebSockets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-pcap.html">Pcap (Packet Capturing Library)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-usb.html">USB Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-usbmon.html">USB Monitoring</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-hid.html">HID Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-devmon.html">Device Monitoring</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="disposable.html">‘disposable’ Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="errorcode.html">‘errorcode’ Functions</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="global.html">Global Namespace</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy Standard Library Reference</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="group_io.html">IO (Input/Output) Library</a></li>
+          <li class="breadcrumb-item"><a href="group_io-file.html">Generic File IO</a></li>
+      <li class="breadcrumb-item active">class io.MappedFile</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="class-io-mappedfile">
+<span id="doxid-typeio-mappedfile"></span><span id="index-0"></span><h1>class io.MappedFile</h1>
+<div class="toctree-wrapper compound">
+</div>
+<section id="overview">
+<h2>Overview</h2>
+<p>This class provides high level mapped access to the contents of
+regular disk files. <a class="reference internal" href="#details-typeio-mappedfile"><span class="std std-ref">More…</span></a></p>
+<pre class="highlight doxyrest-overview-code-block literal-block"><span></span><span class="k">import</span> <span class="s">&quot;io_base.jncx&quot;</span>
+<span class="k">import</span> <span class="s">&quot;io_MappedFile.jnc&quot;</span>
+
+<span class="k">class</span> <span class="n">MappedFile</span> <span class="p">{</span>
+    <span class="c1">// fields</span>
+
+    <span class="k">bool</span> <span class="k">readonly</span> <a class="reference internal" href="#doxid-fieldio-mappedfile-m-isopen"><span class="std std-ref">m_isOpen</span></a><span></span><span class="p">;</span>
+
+    <span class="c1">// properties</span>
+
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="k">autoget</span> <span class="k">property</span> <a class="reference internal" href="#doxid-propertyio-mappedfile-m-dynamicviewlimit"><span class="std std-ref">m_dynamicViewLimit</span></a><span></span><span class="p">;</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint64-t"><span class="std std-ref">uint64_t</span></a><span></span> <span class="k">const</span> <span class="k">property</span> <a class="reference internal" href="#doxid-propertyio-mappedfile-m-size"><span class="std std-ref">m_size</span></a><span></span><span class="p">;</span>
+
+    <span class="c1">// construction</span>
+
+    <span class="doxyrest-code-target target" id="doxid-functionio-mappedfile-construct"><span></span><span class="k">construct</span></span><span></span><span class="p">();</span>
+    <span class="doxyrest-code-target target" id="doxid-functionio-mappedfile-destruct"><span></span><span class="k">destruct</span></span><span></span><span class="p">();</span>
+
+    <span class="c1">// methods</span>
+
+    <span class="k">bool</span> <span class="k">errorcode</span> <a class="reference internal" href="#doxid-functionio-mappedfile-open"><span class="std std-ref">open</span></a><span></span><span class="p">(</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">name</span><span class="p">,</span>
+        <a class="reference internal" href="enum_io_FileOpenFlags.html#doxid-typeio-fileopenflags"><span class="std std-ref">io.FileOpenFlags</span></a><span></span> <span class="n">flags</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="p">);</span>
+
+    <span class="k">void</span> <a class="reference internal" href="#doxid-functionio-mappedfile-close"><span class="std std-ref">close</span></a><span></span><span class="p">();</span>
+    <span class="k">bool</span> <span class="k">errorcode</span> <span class="doxyrest-code-target target" id="doxid-functionio-mappedfile-setsize"><span></span><span class="n">setSize</span></span><span></span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint64-t"><span class="std std-ref">uint64_t</span></a><span></span> <span class="n">size</span><span class="p">);</span>
+
+    <span class="k">void</span><span class="o">*</span> <span class="k">errorcode</span> <a class="reference internal" href="#doxid-functionio-mappedfile-view"><span class="std std-ref">view</span></a><span></span><span class="p">(</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint64-t"><span class="std std-ref">uint64_t</span></a><span></span> <span class="n">offset</span><span class="p">,</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">size</span><span class="p">,</span>
+        <span class="k">bool</span> <span class="n">isPermanent</span> <span class="o">=</span> <span class="k">false</span>
+    <span class="p">);</span>
+
+    <span class="k">void</span> <span class="doxyrest-code-target target" id="doxid-functionio-mappedfile-unmapallviews"><span></span><span class="n">unmapAllViews</span></span><span></span><span class="p">();</span>
+
+    <span class="c1">// aliases</span>
+
+    <span class="k">alias</span> <a class="reference internal" href="#doxid-aliasio-mappedfile-dispose"><span class="std std-ref">dispose</span></a><span></span> <span class="o">=</span> <span class="n">close</span><span class="p">;</span>
+<span class="p">};</span></pre>
+</section>
+<section id="detailed-documentation">
+<span id="details-typeio-mappedfile"></span><h2>Detailed Documentation</h2>
+<p>This class provides high level mapped access to the contents of
+regular disk files.</p>
+<p>From the programmer’s point of view, <code class="docutils literal notranslate"><span class="pre">io.MappedFile</span></code> exposes the most
+natural interface imaginable. You just tell: I want to access a region of
+the file at <em>this</em> offset, and of <em>this</em> length. And you get a pointer to
+this region(or <code class="docutils literal notranslate"><span class="pre">null</span></code> if this could not be done). That’s it! Actual
+mapping operations, aligning offsets and maintaining a database of
+previously mapped views is happening behind the stage.</p>
+<p>Views provided by <code class="docutils literal notranslate"><span class="pre">io.MappedFile</span></code> can be <em>permanent</em> or <em>dynamic</em>.
+A pointer to a permanent view, as the name suggests, remains valid <em>all the
+time</em> while the file is open. Pointers to <em>dynamic</em> views, on the other
+hand, do expire. You can only access <code class="docutils literal notranslate"><span class="pre">m_dynamicViewLimit</span></code> views at the
+same time. Expiration queue is organized in FIFO(first-in-first-out)
+manner, but it is readjusted each time user requests access to the region
+with <code class="docutils literal notranslate"><span class="pre">view</span></code> method(last accessed view is moved to the tail of the
+expiration queue).</p>
+<p class="rubric">Sample code:</p>
+<pre class="highlight literal-block"><span></span><span class="k">struct</span> <span class="n">Hdr</span> <span class="p">{</span>
+    <span class="n">uint32_t</span> <span class="n">m_signature</span><span class="p">;</span>
+    <span class="n">uint32_t</span> <span class="n">m_version</span><span class="p">;</span>
+    <span class="n">uint32_t</span> <span class="n">m_sectionCount</span><span class="p">;</span>
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+
+<span class="k">struct</span> <span class="n">SectionDesc</span> <span class="p">{</span>
+    <span class="n">uint64_t</span> <span class="n">m_offset</span><span class="p">;</span>
+    <span class="n">uint64_t</span> <span class="n">m_size</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">void</span> <span class="n">foo</span><span class="p">(</span><span class="n">string_t</span> <span class="n">fileName</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">disposable</span> <span class="n">io</span><span class="p">.</span><span class="n">MappedFile</span> <span class="n">file</span><span class="p">;</span>
+    <span class="n">file</span><span class="p">.</span><span class="n">open</span><span class="p">(</span><span class="n">fileName</span><span class="p">,</span> <a class="reference internal" href="enum_io_FileOpenFlags.html#doxid-enum-memberio-fileopenflags-readonly"><span class="std std-ref">io.FileOpenFlags.ReadOnly</span></a><span></span><span class="p">);</span>
+
+    <span class="c1">// permanent view of header</span>
+    <span class="n">Hdr</span> <span class="k">const</span><span class="o">*</span> <span class="n">hdr</span> <span class="o">=</span> <span class="n">file</span><span class="p">.</span><span class="n">view</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">Hdr</span><span class="p">),</span> <span class="k">true</span><span class="p">);</span>
+
+    <span class="n">size_t</span> <span class="n">offset</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">Hdr</span><span class="p">);</span>
+    <span class="k">for</span> <span class="p">(</span>
+        <span class="n">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="n">i</span> <span class="o">&lt;</span> <span class="n">hdr</span><span class="p">.</span><span class="n">m_sectionCount</span><span class="p">;</span>
+        <span class="n">i</span><span class="o">++</span><span class="p">,</span> <span class="n">offset</span> <span class="o">+=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">SectionDesc</span><span class="p">)</span>
+    <span class="p">)</span> <span class="p">{</span>
+        <span class="n">SectionDesc</span> <span class="k">const</span><span class="o">*</span> <span class="n">sectionDesc</span> <span class="o">=</span> <span class="n">file</span><span class="p">.</span><span class="n">view</span><span class="p">(</span>
+            <span class="n">offset</span><span class="p">,</span>
+            <span class="k">sizeof</span><span class="p">(</span><span class="n">SectionDesc</span><span class="p">)</span>
+        <span class="p">);</span>
+
+        <span class="k">void</span> <span class="k">const</span><span class="o">*</span> <span class="n">section</span> <span class="o">=</span> <span class="n">file</span><span class="p">.</span><span class="n">view</span><span class="p">(</span>
+            <span class="n">sectionDesc</span><span class="p">.</span><span class="n">m_offset</span><span class="p">,</span>
+            <span class="n">sectionDesc</span><span class="p">.</span><span class="n">m_size</span>
+        <span class="p">);</span>
+        <span class="c1">// ...</span>
+    <span class="p">}</span>
+
+<span class="k">catch</span><span class="o">:</span>
+    <span class="c1">// handle error</span>
+<span class="p">}</span></pre>
+<p class="rubric">See also:</p>
+<p><code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="class_io_File.html#doxid-typeio-file"><span class="std std-ref"><span class="pre">io.File</span></span></a></code></p>
+<section id="fields">
+<h3>Fields</h3>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-fieldio-mappedfile-m-isopen"><span id="index-1"></span><span></span><span class="k">bool</span> <span class="k">readonly</span> <span class="n">m_isOpen</span></pre>
+<p>Holds the open status for the mapped file, i.e. <code class="docutils literal notranslate"><span class="pre">true</span></code> if opened;
+<code class="docutils literal notranslate"><span class="pre">false</span></code> otherwise.</p>
+</section>
+<section id="properties">
+<h3>Properties</h3>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-propertyio-mappedfile-m-dynamicviewlimit"><span id="index-2"></span><a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="k">autoget</span> <span class="k">property</span> <span class="n">m_dynamicViewLimit</span></pre>
+<p>Holds the maximum amount of <em>dynamic</em> views maintained in
+<code class="docutils literal notranslate"><span class="pre">io.MappedFile</span></code> internal database. Once dynamic view limit is
+exhausted, the dynamic view which has not been accessed <em>the longest</em>,
+is unmapped and released.</p>
+<p>The required amount of dynamic view limit, of course, depends on the
+particular algorithm used to access regions of the file – i.e. how many
+regions you need to access simultaneously.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-propertyio-mappedfile-m-size"><span id="index-3"></span><a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint64-t"><span class="std std-ref">uint64_t</span></a><span></span> <span class="k">const</span> <span class="k">property</span> <span class="n">m_size</span></pre>
+<p>This property is used for getting and setting file size.</p>
+<p>Reading from this property returns current size of the file; writing to
+it sets new size. If setting new size fails, IO error supplied by
+operating system is set; then dynamic exception is thrown.</p>
+</section>
+<section id="methods">
+<h3>Methods</h3>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionio-mappedfile-open"><span id="index-4"></span><span></span><span class="k">bool</span> <span class="k">errorcode</span> <span class="n">open</span><span class="p">(</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">name</span><span class="p">,</span>
+    <a class="reference internal" href="enum_io_FileOpenFlags.html#doxid-typeio-fileopenflags"><span class="std std-ref">io.FileOpenFlags</span></a><span></span> <span class="n">flags</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="p">)</span></pre>
+<p>Opens or creates a file, but no mappings are created.</p>
+<p>The function accepts two arguments. The first one, <code class="docutils literal notranslate"><span class="pre">name</span></code> specifies
+the name of the file/device. The second one, <code class="docutils literal notranslate"><span class="pre">flags</span></code>, can be used to
+specify open options. Check <code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="enum_io_FileOpenFlags.html#doxid-typeio-fileopenflags"><span class="std std-ref"><span class="pre">io.FileOpenFlags</span></span></a></code> for the complete list of
+options.</p>
+<p>If file could not be opened, IO error supplied by operating system is
+set and then the function returns <code class="docutils literal notranslate"><span class="pre">false</span></code> <a class="footnote-reference superscript" href="#f1" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionio-mappedfile-close"><span id="index-5"></span><span></span><span class="k">void</span> <span class="n">close</span><span class="p">()</span></pre>
+<p>Closes a previously opened file, does nothing if the file is not opened.
+This function always succeeds.</p>
+<p>Sometimes it may be convenient to use <em>disposable</em> pattern to ensure
+timely invokation of <code class="docutils literal notranslate"><span class="pre">close</span></code> <a class="footnote-reference superscript" href="#f2" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionio-mappedfile-view"><span id="index-6"></span><span></span><span class="k">void</span><span class="o">*</span> <span class="k">errorcode</span> <span class="n">view</span><span class="p">(</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint64-t"><span class="std std-ref">uint64_t</span></a><span></span> <span class="n">offset</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">size</span><span class="p">,</span>
+    <span class="k">bool</span> <span class="n">isPermanent</span> <span class="o">=</span> <span class="k">false</span>
+<span class="p">)</span></pre>
+<p>Provides access to the region of the file at <code class="docutils literal notranslate"><span class="pre">offset</span></code> and <code class="docutils literal notranslate"><span class="pre">size</span></code>
+bytes long. The final, third argument is used to specify whether the
+requested view should be <em>permanent</em> or <em>dynamic</em>.</p>
+<p>Returns a pointer to the requested region, or <code class="docutils literal notranslate"><span class="pre">null</span></code> if mapping
+operation failed <a class="footnote-reference superscript" href="#f1" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+</section>
+<section id="aliases">
+<h3>Aliases</h3>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-aliasio-mappedfile-dispose"><span id="index-7"></span><span></span><span class="k">alias</span> <span class="n">dispose</span> <span class="o">=</span> <span class="n">close</span></pre>
+<p>Effectively makes <code class="docutils literal notranslate"><span class="pre">io.MappedFile</span></code> a <em>disposable</em> class <a class="footnote-reference superscript" href="#f2" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
+<hr class="docutils" />
+<p class="rubric">Footnotes</p>
+<aside class="footnote-list superscript">
+<aside class="footnote superscript" id="f1" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>You can use exception semantics to handle the erroneous return values of <code class="docutils literal notranslate"><span class="pre">errorcode</span></code> functions. For more details refer to <a class="reference internal" href="errorcode.html#errorcode"><span class="std std-ref">‘errorcode’ Functions</span></a>.</p>
+</aside>
+<aside class="footnote superscript" id="f2" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>You can ensure timely release of resources by using <em>disposable</em> pattern. For more details refer to <a class="reference internal" href="disposable.html#disposable"><span class="std std-ref">‘disposable’ Variables</span></a>.</p>
+</aside>
+</aside>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="class_io_Mailslot.html" class="btn btn-neutral float-left" title="class io.Mailslot" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="class_io_NamedPipe.html" class="btn btn-neutral float-right" title="class io.NamedPipe" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

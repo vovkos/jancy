@@ -1,0 +1,18 @@
+.. include:: def.rst
+.. index:: pair: enum; HidDeviceOptions
+.. _doxid-typeio_hiddeviceoptions:
+
+bitflag enum io.HidDeviceOptions
+================================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum HidDeviceOptions: :ref:`io.StreamOptions<doxid-typeio_streamoptions>` {
+	    :target:`NonBlocking<doxid-enum_memberio_hiddeviceoptions_nonblocking>`,
+	    :target:`NoReadThread<doxid-enum_memberio_hiddeviceoptions_noreadthread>`,
+	};
+

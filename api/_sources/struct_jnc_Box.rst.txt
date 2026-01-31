@@ -1,0 +1,23 @@
+.. index:: pair: struct; jnc_Box
+.. _doxid-structjnc___box:
+
+struct jnc_Box
+==============
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_Box {
+		// fields
+	
+		:ref:`jnc_Type<doxid-structjnc___type>`* :target:`m_type<doxid-structjnc___box_1aeb44261a370a1152a4a789a4145a9669>`;
+		uintptr_t :target:`m_flags<doxid-structjnc___box_1ac72a53c0db9b9764be67ef9ddb64878d>`: 10;
+		uintptr_t :target:`m_rootOffset<doxid-structjnc___box_1ab3ebd6d56690c55688ce55650cbb7253>`: 22;
+	};

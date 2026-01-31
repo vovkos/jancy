@@ -1,0 +1,470 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>class io.Serial &mdash; Jancy Standard Library Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Network Adapter Management" href="group_io-network-adapter.html" />
+    <link rel="prev" title="struct io.SerialPortDesc" href="struct_io_SerialPortDesc.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy Standard Library Reference
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="group_stdt-operator.html">stdt-operator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_c-typedefs.html">Standard Typedefs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_rtl.html">RTL (Runtime Library)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_crt.html">C Runtime Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_std.html">General Purpose Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_sys.html">System Facilities</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="group_io.html">IO (Input/Output) Library</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="group_io-file.html">Generic File IO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-socket.html">Socket Communications</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="group_io-serial.html">Serial Communications</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="enum_io_SerialEvents.html">bitflag enum io.SerialEvents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_SerialFlowControl.html">enum io.SerialFlowControl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_SerialLineErrors.html">bitflag enum io.SerialLineErrors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_SerialOptions.html">bitflag enum io.SerialOptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_SerialParity.html">enum io.SerialParity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_SerialPortDescFlags.html">bitflag enum io.SerialPortDescFlags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_SerialStatusLines.html">bitflag enum io.SerialStatusLines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_SerialStopBits.html">enum io.SerialStopBits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="struct_io_SerialPortDesc.html">struct io.SerialPortDesc</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">class io.Serial</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#detailed-documentation">Detailed Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="group_io-serial.html#overview">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="group_io-serial.html#detailed-documentation">Detailed Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-network-adapter.html">Network Adapter Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-ssl.html">SSL Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-ssh.html">SSH Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-websock.html">WebSockets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-pcap.html">Pcap (Packet Capturing Library)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-usb.html">USB Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-usbmon.html">USB Monitoring</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-hid.html">HID Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-devmon.html">Device Monitoring</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="disposable.html">‘disposable’ Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="errorcode.html">‘errorcode’ Functions</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="global.html">Global Namespace</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy Standard Library Reference</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="group_io.html">IO (Input/Output) Library</a></li>
+          <li class="breadcrumb-item"><a href="group_io-serial.html">Serial Communications</a></li>
+      <li class="breadcrumb-item active">class io.Serial</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="class-io-serial">
+<span id="doxid-typeio-serial"></span><span id="index-0"></span><h1>class io.Serial</h1>
+<div class="toctree-wrapper compound">
+</div>
+<section id="overview">
+<h2>Overview</h2>
+<p>This class provides high-level asynchronous interface for accessing
+hardware or virtual serial ports. <a class="reference internal" href="#details-typeio-serial"><span class="std std-ref">More…</span></a></p>
+<pre class="highlight doxyrest-overview-code-block literal-block"><span></span><span class="k">import</span> <span class="s">&quot;io_base.jncx&quot;</span>
+<span class="k">import</span> <span class="s">&quot;io_Serial.jnc&quot;</span>
+
+<span class="k">class</span> <span class="n">Serial</span> <span class="p">{</span>
+    <span class="c1">// fields</span>
+
+    <a class="reference internal" href="enum_io_SerialEvents.html#doxid-typeio-serialevents"><span class="std std-ref">io.SerialEvents</span></a><span></span> <span class="k">readonly</span> <span class="k">volatile</span> <span class="doxyrest-code-target target" id="doxid-fieldio-serial-m-activeevents"><span></span><span class="n">m_activeEvents</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_std_Error.html#doxid-typestd-error"><span class="std std-ref">std.Error</span></a><span></span> <span class="k">const</span><span class="o">*</span> <span class="k">readonly</span> <span class="k">volatile</span> <span class="doxyrest-code-target target" id="doxid-fieldio-serial-m-ioerror"><span></span><span class="n">m_ioError</span></span><span></span><span class="p">;</span>
+    <span class="k">bool</span> <span class="k">readonly</span> <a class="reference internal" href="#doxid-fieldio-serial-m-isopen"><span class="std std-ref">m_isOpen</span></a><span></span><span class="p">;</span>
+
+    <span class="c1">// properties</span>
+
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint-t"><span class="std std-ref">uint_t</span></a><span></span> <span class="k">autoget</span> <span class="k">property</span> <a class="reference internal" href="#doxid-propertyio-serial-m-baudrate"><span class="std std-ref">m_baudRate</span></a><span></span><span class="p">;</span>
+    <a class="reference internal" href="enum_io_SerialFlowControl.html#doxid-typeio-serialflowcontrol"><span class="std std-ref">io.SerialFlowControl</span></a><span></span> <span class="k">autoget</span> <span class="k">property</span> <a class="reference internal" href="#doxid-propertyio-serial-m-flowcontrol"><span class="std std-ref">m_flowControl</span></a><span></span><span class="p">;</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint-t"><span class="std std-ref">uint_t</span></a><span></span> <span class="k">autoget</span> <span class="k">property</span> <a class="reference internal" href="#doxid-propertyio-serial-m-databits"><span class="std std-ref">m_dataBits</span></a><span></span><span class="p">;</span>
+    <a class="reference internal" href="enum_io_SerialStopBits.html#doxid-typeio-serialstopbits"><span class="std std-ref">io.SerialStopBits</span></a><span></span> <span class="k">autoget</span> <span class="k">property</span> <a class="reference internal" href="#doxid-propertyio-serial-m-stopbits"><span class="std std-ref">m_stopBits</span></a><span></span><span class="p">;</span>
+    <a class="reference internal" href="enum_io_SerialParity.html#doxid-typeio-serialparity"><span class="std std-ref">io.SerialParity</span></a><span></span> <span class="k">autoget</span> <span class="k">property</span> <a class="reference internal" href="#doxid-propertyio-serial-m-parity"><span class="std std-ref">m_parity</span></a><span></span><span class="p">;</span>
+    <a class="reference internal" href="enum_io_SerialStatusLines.html#doxid-typeio-serialstatuslines"><span class="std std-ref">io.SerialStatusLines</span></a><span></span> <span class="k">const</span> <span class="k">property</span> <a class="reference internal" href="#doxid-propertyio-serial-m-statuslines"><span class="std std-ref">m_statusLines</span></a><span></span><span class="p">;</span>
+    <span class="k">bool</span> <span class="k">autoget</span> <span class="k">property</span> <a class="reference internal" href="#doxid-propertyio-serial-m-dtr"><span class="std std-ref">m_dtr</span></a><span></span><span class="p">;</span>
+    <span class="k">bool</span> <span class="k">autoget</span> <span class="k">property</span> <a class="reference internal" href="#doxid-propertyio-serial-m-rts"><span class="std std-ref">m_rts</span></a><span></span><span class="p">;</span>
+    <span class="k">bool</span> <span class="k">autoget</span> <span class="k">property</span> <a class="reference internal" href="#doxid-propertyio-serial-m-breakcondition"><span class="std std-ref">m_breakCondition</span></a><span></span><span class="p">;</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint-t"><span class="std std-ref">uint_t</span></a><span></span> <span class="k">autoget</span> <span class="k">property</span> <span class="doxyrest-code-target target" id="doxid-propertyio-serial-m-updateinterval"><span></span><span class="n">m_updateInterval</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint-t"><span class="std std-ref">uint_t</span></a><span></span> <span class="k">autoget</span> <span class="k">property</span> <span class="doxyrest-code-target target" id="doxid-propertyio-serial-m-readinterval"><span></span><span class="n">m_readInterval</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint-t"><span class="std std-ref">uint_t</span></a><span></span> <span class="k">autoget</span> <span class="k">property</span> <span class="doxyrest-code-target target" id="doxid-propertyio-serial-m-readparallelism"><span></span><span class="n">m_readParallelism</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="k">autoget</span> <span class="k">property</span> <span class="doxyrest-code-target target" id="doxid-propertyio-serial-m-readblocksize"><span></span><span class="n">m_readBlockSize</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="k">autoget</span> <span class="k">property</span> <span class="doxyrest-code-target target" id="doxid-propertyio-serial-m-readbuffersize"><span></span><span class="n">m_readBufferSize</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="k">autoget</span> <span class="k">property</span> <span class="doxyrest-code-target target" id="doxid-propertyio-serial-m-writebuffersize"><span></span><span class="n">m_writeBufferSize</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="enum_io_SerialOptions.html#doxid-typeio-serialoptions"><span class="std std-ref">io.SerialOptions</span></a><span></span> <span class="k">autoget</span> <span class="k">property</span> <span class="doxyrest-code-target target" id="doxid-propertyio-serial-m-options"><span></span><span class="n">m_options</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuintptr-t"><span class="std std-ref">uintptr_t</span></a><span></span> <span class="k">const</span> <span class="k">property</span> <span class="doxyrest-code-target target" id="doxid-propertyio-serial-m-oshandle"><span></span><span class="n">m_osHandle</span></span><span></span><span class="p">;</span>
+
+    <span class="c1">// construction</span>
+
+    <span class="doxyrest-code-target target" id="doxid-functionio-serial-construct"><span></span><span class="k">construct</span></span><span></span><span class="p">();</span>
+    <span class="doxyrest-code-target target" id="doxid-functionio-serial-destruct"><span></span><span class="k">destruct</span></span><span></span><span class="p">();</span>
+
+    <span class="c1">// methods</span>
+
+    <span class="k">bool</span> <span class="k">errorcode</span> <a class="reference internal" href="#doxid-functionio-serial-open"><span class="std std-ref">open</span></a><span></span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">name</span><span class="p">);</span>
+    <span class="k">void</span> <a class="reference internal" href="#doxid-functionio-serial-close"><span class="std std-ref">close</span></a><span></span><span class="p">();</span>
+
+    <span class="k">bool</span> <span class="k">errorcode</span> <span class="doxyrest-code-target target" id="doxid-functionio-serial-setupdevice"><span></span><span class="n">setupDevice</span></span><span></span><span class="p">(</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint-t"><span class="std std-ref">uint_t</span></a><span></span> <span class="n">baudRate</span><span class="p">,</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint-t"><span class="std std-ref">uint_t</span></a><span></span> <span class="n">dataBits</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span>
+        <a class="reference internal" href="enum_io_SerialStopBits.html#doxid-typeio-serialstopbits"><span class="std std-ref">io.SerialStopBits</span></a><span></span> <span class="n">stopBits</span> <span class="o">=</span> <span class="n">SerialStopBits</span><span class="p">.</span><span class="n">_1</span><span class="p">,</span>
+        <a class="reference internal" href="enum_io_SerialParity.html#doxid-typeio-serialparity"><span class="std std-ref">io.SerialParity</span></a><span></span> <span class="n">parity</span> <span class="o">=</span> <span class="n">SerialParity</span><span class="p">.</span><span class="n">None</span><span class="p">,</span>
+        <a class="reference internal" href="enum_io_SerialFlowControl.html#doxid-typeio-serialflowcontrol"><span class="std std-ref">io.SerialFlowControl</span></a><span></span> <span class="n">flowControl</span> <span class="o">=</span> <span class="n">SerialFlowControl</span><span class="p">.</span><span class="n">None</span><span class="p">,</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint-t"><span class="std std-ref">uint_t</span></a><span></span> <span class="n">readInterval</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="k">bool</span> <span class="n">dtr</span> <span class="o">=</span> <span class="k">false</span><span class="p">,</span>
+        <span class="k">bool</span> <span class="n">rts</span> <span class="o">=</span> <span class="k">false</span>
+    <span class="p">);</span>
+
+    <a class="reference internal" href="enum_io_SerialLineErrors.html#doxid-typeio-seriallineerrors"><span class="std std-ref">io.SerialLineErrors</span></a><span></span> <span class="doxyrest-code-target target" id="doxid-functionio-serial-clearlineerrors"><span></span><span class="n">clearLineErrors</span></span><span></span><span class="p">();</span>
+
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="k">errorcode</span> <a class="reference internal" href="#doxid-functionio-serial-read"><span class="std std-ref">read</span></a><span></span><span class="p">(</span>
+        <span class="k">void</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">size</span>
+    <span class="p">);</span>
+
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="k">errorcode</span> <a class="reference internal" href="#doxid-functionio-serial-write"><span class="std std-ref">write</span></a><span></span><span class="p">(</span>
+        <span class="k">void</span> <span class="k">const</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">size</span>
+    <span class="p">);</span>
+
+    <span class="k">long</span> <span class="k">errorcode</span> <span class="doxyrest-code-target target" id="doxid-functionio-serial-wait"><span></span><span class="n">wait</span></span><span></span><span class="p">(</span>
+        <a class="reference internal" href="enum_io_SerialEvents.html#doxid-typeio-serialevents"><span class="std std-ref">io.SerialEvents</span></a><span></span> <span class="n">eventMask</span><span class="p">,</span>
+        <span class="k">void</span> <span class="k">function</span><span class="o">*</span> <span class="n">handler</span><span class="p">(</span><span class="n">io</span><span class="p">.</span><span class="n">SerialEvents</span> <span class="n">triggeredEvents</span><span class="p">)</span>
+    <span class="p">);</span>
+
+    <span class="k">bool</span> <span class="k">errorcode</span> <span class="doxyrest-code-target target" id="doxid-functionio-serial-cancelwait"><span></span><span class="n">cancelWait</span></span><span></span><span class="p">(</span><span class="k">long</span> <span class="n">handle</span><span class="p">);</span>
+
+    <a class="reference internal" href="enum_io_SerialEvents.html#doxid-typeio-serialevents"><span class="std std-ref">io.SerialEvents</span></a><span></span> <span class="doxyrest-code-target target" id="doxid-functionio-serial-blockingwait"><span></span><span class="n">blockingWait</span></span><span></span><span class="p">(</span>
+        <a class="reference internal" href="enum_io_SerialEvents.html#doxid-typeio-serialevents"><span class="std std-ref">io.SerialEvents</span></a><span></span> <span class="n">eventMask</span><span class="p">,</span>
+        <a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint-t"><span class="std std-ref">uint_t</span></a><span></span> <span class="n">timeout</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="p">);</span>
+
+    <a class="reference internal" href="enum_io_SerialEvents.html#doxid-typeio-serialevents"><span class="std std-ref">io.SerialEvents</span></a><span></span> <span class="k">async</span> <span class="doxyrest-code-target target" id="doxid-functionio-serial-asyncwait"><span></span><span class="n">asyncWait</span></span><span></span><span class="p">(</span><a class="reference internal" href="enum_io_SerialEvents.html#doxid-typeio-serialevents"><span class="std std-ref">io.SerialEvents</span></a><span></span> <span class="n">eventMask</span><span class="p">);</span>
+
+    <span class="c1">// aliases</span>
+
+    <span class="k">alias</span> <a class="reference internal" href="#doxid-aliasio-serial-dispose"><span class="std std-ref">dispose</span></a><span></span> <span class="o">=</span> <span class="n">close</span><span class="p">;</span>
+<span class="p">};</span></pre>
+</section>
+<section id="detailed-documentation">
+<span id="details-typeio-serial"></span><h2>Detailed Documentation</h2>
+<p>This class provides high-level asynchronous interface for accessing
+hardware or virtual serial ports.</p>
+<p>Serial ports are represented as <em>files</em> in most operating systems, so
+working with serial port looks pretty much the same as working with any
+other file stream. However, besides <code class="docutils literal notranslate"><span class="pre">read</span></code> and <code class="docutils literal notranslate"><span class="pre">write</span></code> operations serial
+port files also expose a set of serial-specific properties such as baud
+rate, status and control lines and so on.</p>
+<p>A typical sequence of steps when working with a serial port usually looks
+like this:</p>
+<ul class="simple">
+<li><p>Open a serial port with <code class="docutils literal notranslate"><span class="pre">open</span></code> method;</p></li>
+<li><p>Assign IO event handler with <code class="docutils literal notranslate"><span class="pre">wait</span></code> method. You would probably also
+want to <em>schedule</em> your event handler to be run in particular
+environment(e.g., in a specific thread) and partially apply some
+syncrhonization ID to discard late events;</p></li>
+<li><p>Configure serial port settings(<code class="docutils literal notranslate"><span class="pre">m_baudRate</span></code>, <code class="docutils literal notranslate"><span class="pre">m_dataBits</span></code> etc)</p></li>
+<li><p>When <code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="enum_io_ReadOnlyStreamEvents.html#doxid-enum-memberio-readonlystreamevents-incomingdata"><span class="std std-ref"><span class="pre">io.SerialEvents.IncomingData</span></span></a></code> event is fired, read from the serial
+port using <code class="docutils literal notranslate"><span class="pre">read</span></code> method;</p></li>
+<li><p>Write to the serial port stream using <code class="docutils literal notranslate"><span class="pre">write</span></code> method;</p></li>
+<li><p>Suspend writing if the return value of <code class="docutils literal notranslate"><span class="pre">write</span></code> is less than requested;</p></li>
+<li><p>Resume writing on <code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="enum_io_StreamEvents.html#doxid-enum-memberio-streamevents-writebufferready"><span class="std std-ref"><span class="pre">io.SerialEvents.WriteBufferReady</span></span></a></code> event;</p></li>
+<li><p>Close the serial port when no longer needed with <code class="docutils literal notranslate"><span class="pre">close</span></code> method.</p></li>
+</ul>
+<p class="rubric">Sample code:</p>
+<pre class="highlight literal-block"><span></span><span class="k">class</span> <span class="n">MyDialog</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+
+    <span class="n">io</span><span class="p">.</span><span class="n">Serial</span> <span class="n">m_serial</span><span class="p">;</span>
+    <span class="n">uint_t</span> <span class="n">m_syncId</span><span class="p">;</span>
+
+    <span class="k">void</span> <span class="n">open</span><span class="p">(</span>
+        <span class="n">string_t</span> <span class="n">portName</span><span class="p">,</span>
+        <span class="n">uint_t</span> <span class="n">baudRate</span>
+    <span class="p">);</span>
+
+    <span class="k">void</span> <span class="n">close</span><span class="p">();</span>
+    <span class="k">void</span> <span class="n">waitSerialEvents</span><span class="p">();</span>
+
+    <span class="k">void</span> <span class="n">onWriteButtonClicked</span><span class="p">();</span>
+
+    <span class="k">void</span> <span class="n">onSerialEvent</span><span class="p">(</span>
+        <span class="n">uint_t</span> <span class="n">syncId</span><span class="p">,</span>
+        <a class="reference internal" href="enum_io_SerialEvents.html#doxid-typeio-serialevents"><span class="std std-ref">io.SerialEvents</span></a><span></span> <span class="n">triggeredEvents</span>
+    <span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">MyDialog</span><span class="p">.</span><span class="n">open</span><span class="p">(</span>
+    <span class="n">string_t</span> <span class="n">portName</span><span class="p">,</span>
+    <span class="n">uint_t</span> <span class="n">baudRate</span>
+<span class="p">)</span> <span class="p">{</span>
+    <span class="n">m_serial</span><span class="p">.</span><span class="n">open</span><span class="p">(</span><span class="n">portName</span><span class="p">);</span>
+    <span class="n">m_serial</span><span class="p">.</span><span class="n">m_baudRate</span> <span class="o">=</span> <span class="n">baudRate</span><span class="p">;</span>
+    <span class="n">m_serial</span><span class="p">.</span><span class="n">m_dataBits</span> <span class="o">=</span> <span class="mi">8</span><span class="p">;</span>
+    <span class="n">m_serial</span><span class="p">.</span><span class="n">m_stopBits</span> <span class="o">=</span> <a class="reference internal" href="enum_io_SerialStopBits.html#doxid-enum-memberio-serialstopbits-1"><span class="std std-ref">io.SerialStopBits._1</span></a><span></span><span class="p">;</span>
+    <span class="c1">// ...</span>
+
+    <span class="n">waitSerialEvents</span><span class="p">();</span>
+
+<span class="k">catch</span><span class="o">:</span>
+    <span class="c1">// handle the error...</span>
+<span class="p">}</span>
+
+<span class="n">MyDialog</span><span class="p">.</span><span class="n">close</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">m_serial</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
+    <span class="n">m_syncId</span><span class="o">++</span><span class="p">;</span> <span class="c1">// events past this point will be discarded as &#39;late&#39;</span>
+<span class="p">}</span>
+
+<span class="n">MyDialog</span><span class="p">.</span><span class="n">waitSerialEvent</span><span class="p">()</span> <span class="p">{</span>
+    <a class="reference internal" href="enum_io_SerialEvents.html#doxid-typeio-serialevents"><span class="std std-ref">io.SerialEvents</span></a><span></span> <span class="n">eventMask</span> <span class="o">=</span>
+        <a class="reference internal" href="enum_io_ReadOnlyStreamEvents.html#doxid-enum-memberio-readonlystreamevents-ioerror"><span class="std std-ref">io.SerialEvents.IoError</span></a><span></span> <span class="o">|</span>
+        <a class="reference internal" href="enum_io_ReadOnlyStreamEvents.html#doxid-enum-memberio-readonlystreamevents-incomingdata"><span class="std std-ref">io.SerialEvents.IncomingData</span></a><span></span><span class="p">;</span>
+
+    <span class="n">m_serial</span><span class="p">.</span><span class="n">wait</span><span class="p">(</span><span class="n">eventMask</span><span class="p">,</span> <span class="n">onSerialEvent</span> <span class="o">~</span><span class="p">(</span><span class="o">++</span><span class="n">m_syncId</span><span class="p">)</span> <span class="o">@</span>
+        <span class="n">g_mainThreadScheduler</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">MyDialog</span><span class="p">.</span><span class="n">onWriteButtonClicked</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">static</span> <span class="k">char</span> <span class="n">data</span><span class="p">[]</span> <span class="o">=</span> <span class="s">&quot;a quick brown fox jumps over the lazy dog&quot;</span><span class="p">;</span>
+    <span class="n">m_serial</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">data</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="n">MyDialog</span><span class="p">.</span><span class="n">onSerialEvent</span><span class="p">(</span>
+    <span class="n">uint_t</span> <span class="n">syncId</span><span class="p">,</span>
+    <a class="reference internal" href="enum_io_SerialEvents.html#doxid-typeio-serialevents"><span class="std std-ref">io.SerialEvents</span></a><span></span> <span class="n">triggeredEvents</span>
+<span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">syncId</span> <span class="o">!=</span> <span class="n">m_syncId</span><span class="p">)</span> <span class="c1">// late event</span>
+        <span class="k">return</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">triggeredEvents</span> <span class="o">&amp;</span> <a class="reference internal" href="enum_io_ReadOnlyStreamEvents.html#doxid-enum-memberio-readonlystreamevents-ioerror"><span class="std std-ref">io.SerialEvents.IoError</span></a><span></span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">string_t</span> <span class="n">errorString</span> <span class="o">=</span> <span class="n">m_fileStream</span><span class="p">.</span><span class="n">m_ioError</span><span class="p">.</span><span class="n">m_description</span><span class="p">;</span>
+        <span class="c1">// ...</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">triggeredEvents</span> <span class="o">&amp;</span> <a class="reference internal" href="enum_io_ReadOnlyStreamEvents.html#doxid-enum-memberio-readonlystreamevents-incomingdata"><span class="std std-ref">io.SerialEvents.IncomingData</span></a><span></span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">char</span> <span class="n">buffer</span><span class="p">[</span><span class="mi">256</span><span class="p">];</span>
+        <span class="n">size_t</span> <span class="n">size</span> <span class="o">=</span> <span class="n">m_fileStream</span><span class="p">.</span><span class="n">read</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">));</span>
+        <span class="c1">// ...</span>
+    <span class="p">}</span>
+
+    <span class="n">waitSerialEvents</span><span class="p">();</span> <span class="c1">// restart wait</span>
+<span class="p">}</span></pre>
+<p class="rubric">See also:</p>
+<p><code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="enum_io_SerialEvents.html#doxid-typeio-serialevents"><span class="std std-ref"><span class="pre">io.SerialEvents</span></span></a></code>, <code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="class_io_File.html#doxid-typeio-file"><span class="std std-ref"><span class="pre">io.File</span></span></a></code>, <code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="class_io_FileStream.html#doxid-typeio-filestream"><span class="std std-ref"><span class="pre">io.FileStream</span></span></a></code></p>
+<section id="fields">
+<h3>Fields</h3>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-fieldio-serial-m-isopen"><span id="index-1"></span><span></span><span class="k">bool</span> <span class="k">readonly</span> <span class="n">m_isOpen</span></pre>
+<p>Holds the open status for serial port, i.e. <code class="docutils literal notranslate"><span class="pre">true</span></code> if opened;
+<code class="docutils literal notranslate"><span class="pre">false</span></code> otherwise.</p>
+</section>
+<section id="properties">
+<h3>Properties</h3>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-propertyio-serial-m-baudrate"><span id="index-2"></span><a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint-t"><span class="std std-ref">uint_t</span></a><span></span> <span class="k">autoget</span> <span class="k">property</span> <span class="n">m_baudRate</span></pre>
+<p>This property is used for getting and setting <a class="footnote-reference superscript" href="#f4" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> baud rate, i.e. the
+number of signal changes per second, which directly affects the speed of
+data transmission.</p>
+<p>Different hardware serial ports may or may not support some particular
+baud rates. Unfortunately, there is no reliable cross-platform method of
+building a list of supported baud rates, so the only way is to probe.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-propertyio-serial-m-flowcontrol"><span id="index-3"></span><a class="reference internal" href="enum_io_SerialFlowControl.html#doxid-typeio-serialflowcontrol"><span class="std std-ref">io.SerialFlowControl</span></a><span></span> <span class="k">autoget</span> <span class="k">property</span> <span class="n">m_flowControl</span></pre>
+<p>This property is used for getting and setting <a class="footnote-reference superscript" href="#f4" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> flow control, i.e.
+the protocol of attempted prevention of data loss during serial
+transmission which may happen when transmission side sends data faster
+than the receiving side is able to process it.</p>
+<p>See <code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="enum_io_SerialFlowControl.html#doxid-typeio-serialflowcontrol"><span class="std std-ref"><span class="pre">io.SerialFlowControl</span></span></a></code> enumeration for the list of valid values.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-propertyio-serial-m-databits"><span id="index-4"></span><a class="reference internal" href="group_c-typedefs.html#doxid-typedefuint-t"><span class="std std-ref">uint_t</span></a><span></span> <span class="k">autoget</span> <span class="k">property</span> <span class="n">m_dataBits</span></pre>
+<p>This property is used for getting and setting <a class="footnote-reference superscript" href="#f4" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> byte size, i.e. the
+number of bits in each character transmitted over the serial line. Valid
+values range from <code class="docutils literal notranslate"><span class="pre">5</span></code> to <code class="docutils literal notranslate"><span class="pre">8</span></code>; normally <code class="docutils literal notranslate"><span class="pre">8</span></code> data bits are used.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-propertyio-serial-m-stopbits"><span id="index-5"></span><a class="reference internal" href="enum_io_SerialStopBits.html#doxid-typeio-serialstopbits"><span class="std std-ref">io.SerialStopBits</span></a><span></span> <span class="k">autoget</span> <span class="k">property</span> <span class="n">m_stopBits</span></pre>
+<p>This property is used for getting and setting <a class="footnote-reference superscript" href="#f4" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> the number of
+serial stop bits, i.e. auxillary(non-data) bits sent at the end of each
+character to re-synchronize the receiver; normally 1 stop bit is used
+(designated by <code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="enum_io_SerialStopBits.html#doxid-enum-memberio-serialstopbits-1"><span class="std std-ref"><span class="pre">io.SerialStopBits._1</span></span></a></code>)</p>
+<p>See <code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="enum_io_SerialStopBits.html#doxid-typeio-serialstopbits"><span class="std std-ref"><span class="pre">io.SerialStopBits</span></span></a></code> enumeration for the list of valid values.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-propertyio-serial-m-parity"><span id="index-6"></span><a class="reference internal" href="enum_io_SerialParity.html#doxid-typeio-serialparity"><span class="std std-ref">io.SerialParity</span></a><span></span> <span class="k">autoget</span> <span class="k">property</span> <span class="n">m_parity</span></pre>
+<p>This property is used for getting and setting <a class="footnote-reference superscript" href="#f4" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> serial parity
+control, i.e. the protocol of attempted error detection during serial
+transmission. The idea is to send an extra <em>parity</em> bit so that the
+total number of one’s including data bits <em>and</em> this parity bit is
+always <em>odd</em> or always <em>even</em>.</p>
+<p>This, however, is a rather weak error detection method; usually it’s
+much better to employ other checksums/hash checks after the data has
+been transmitted.</p>
+<p>See <code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="enum_io_SerialParity.html#doxid-typeio-serialparity"><span class="std std-ref"><span class="pre">io.SerialParity</span></span></a></code> for the list of valid values.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-propertyio-serial-m-statuslines"><span id="index-7"></span><a class="reference internal" href="enum_io_SerialStatusLines.html#doxid-typeio-serialstatuslines"><span class="std std-ref">io.SerialStatusLines</span></a><span></span> <span class="k">const</span> <span class="k">property</span> <span class="n">m_statusLines</span></pre>
+<p>This property is used for getting the values of serial status lines
+(<code class="docutils literal notranslate"><span class="pre">DSR</span></code>, <code class="docutils literal notranslate"><span class="pre">CTS</span></code>, <code class="docutils literal notranslate"><span class="pre">DCD</span></code>, <code class="docutils literal notranslate"><span class="pre">RING</span></code>).</p>
+<p>The returned value is a combination of <code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="enum_io_SerialStatusLines.html#doxid-typeio-serialstatuslines"><span class="std std-ref"><span class="pre">io.SerialStatusLines</span></span></a></code>
+enumeration members, showing which status lines are high(or <code class="docutils literal notranslate"><span class="pre">0</span></code> if
+all are low).</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-propertyio-serial-m-dtr"><span id="index-8"></span><span></span><span class="k">bool</span> <span class="k">autoget</span> <span class="k">property</span> <span class="n">m_dtr</span></pre>
+<p>This property is used for getting and setting <a class="footnote-reference superscript" href="#f4" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> <code class="docutils literal notranslate"><span class="pre">DTR</span></code>
+(data-terminal-ready) serial control line.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-propertyio-serial-m-rts"><span id="index-9"></span><span></span><span class="k">bool</span> <span class="k">autoget</span> <span class="k">property</span> <span class="n">m_rts</span></pre>
+<p>This property is used for getting and setting <a class="footnote-reference superscript" href="#f4" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> <code class="docutils literal notranslate"><span class="pre">RTS</span></code>
+(ready-to-send) serial control line.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-propertyio-serial-m-breakcondition"><span id="index-10"></span><span></span><span class="k">bool</span> <span class="k">autoget</span> <span class="k">property</span> <span class="n">m_breakCondition</span></pre>
+<p>This property is used for getting and setting <a class="footnote-reference superscript" href="#f4" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> <code class="docutils literal notranslate"><span class="pre">RTS</span></code>
+(ready-to-send) serial control line.</p>
+</section>
+<section id="methods">
+<h3>Methods</h3>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionio-serial-open"><span id="index-11"></span><span></span><span class="k">bool</span> <span class="k">errorcode</span> <span class="n">open</span><span class="p">(</span><a class="reference internal" href="group_c-typedefs.html#doxid-typedefstring-t"><span class="std std-ref">string_t</span></a><span></span> <span class="n">name</span><span class="p">)</span></pre>
+<p>Opens a serial port.</p>
+<p>The function accepts a single <code class="docutils literal notranslate"><span class="pre">name</span></code> argument, which specifies the
+name of the serial port device.</p>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">true</span></code> on success. If serial port could not be opened, IO
+error supplied by operating system is set and then the function
+returns <code class="docutils literal notranslate"><span class="pre">false</span></code> <a class="footnote-reference superscript" href="#f1" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionio-serial-close"><span id="index-12"></span><span></span><span class="k">void</span> <span class="n">close</span><span class="p">()</span></pre>
+<p>Closes a previously opened serial port, does nothing if the port is
+not opened. This function always succeeds.</p>
+<p>Sometimes it may be convenient to use <em>disposable</em> pattern to ensure
+timely invokation of <code class="docutils literal notranslate"><span class="pre">close</span></code> <a class="footnote-reference superscript" href="#f2" id="id10" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionio-serial-read"><span id="index-13"></span><a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="k">errorcode</span> <span class="n">read</span><span class="p">(</span>
+    <span class="k">void</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">size</span>
+<span class="p">)</span></pre>
+<p>Attempts to read up to <code class="docutils literal notranslate"><span class="pre">size</span></code> bytes from the serial port into the
+buffer pointed to by <code class="docutils literal notranslate"><span class="pre">p</span></code>.</p>
+<p>Returns the actual amount of bytes read on success. If read operation
+is unsuccessful, IO error supplied by the operating system is set and
+then the function returns <code class="docutils literal notranslate"><span class="pre">-1</span></code> <a class="footnote-reference superscript" href="#f1" id="id11" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
+<p>Normally you would call this function from within your event handler for
+<code class="docutils literal notranslate"><span class="pre">IncomingData</span></code> event. If this function is called when there is no
+incoming data, it blocks until either the data arrives, or the serial
+port is closed.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-functionio-serial-write"><span id="index-14"></span><a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="k">errorcode</span> <span class="n">write</span><span class="p">(</span>
+    <span class="k">void</span> <span class="k">const</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <a class="reference internal" href="group_c-typedefs.html#doxid-typedefsize-t"><span class="std std-ref">size_t</span></a><span></span> <span class="n">size</span>
+<span class="p">)</span></pre>
+<p>Attempts to write <code class="docutils literal notranslate"><span class="pre">size</span></code> bytes from the buffer pointed to by <code class="docutils literal notranslate"><span class="pre">p</span></code>
+to the serial port.</p>
+<p>Returns the actual amount of bytes written on success. If write
+operation is unsuccessful, IO error supplied by the operating system is
+set and then the function returns <code class="docutils literal notranslate"><span class="pre">-1</span></code> <a class="footnote-reference superscript" href="#f1" id="id12" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
+<p>If the return value shows <em>less</em> bytes than specified by <code class="docutils literal notranslate"><span class="pre">size</span></code>
+argument, you should suspend further transmission until the file stream
+is ready to accept more data. When this happens, <code class="docutils literal notranslate"><span class="pre">WriteBufferReady</span></code>
+event is fired and transmission could be resumed.</p>
+</section>
+<section id="aliases">
+<h3>Aliases</h3>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-aliasio-serial-dispose"><span id="index-15"></span><span></span><span class="k">alias</span> <span class="n">dispose</span> <span class="o">=</span> <span class="n">close</span></pre>
+<p>Effectively makes <code class="docutils literal notranslate"><span class="pre">io.Serial</span></code> a <em>disposable</em> class <a class="footnote-reference superscript" href="#f2" id="id13" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>.</p>
+<hr class="docutils" />
+<p class="rubric">Footnotes</p>
+<aside class="footnote-list superscript">
+<aside class="footnote superscript" id="f4" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>If setting this property fails, the actual IO error reported by the operating system is recorded; then exception is thrown.</p>
+</aside>
+<aside class="footnote superscript" id="f1" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>You can use exception semantics to handle the erroneous return values of <code class="docutils literal notranslate"><span class="pre">errorcode</span></code> functions. For more details refer to <a class="reference internal" href="errorcode.html#errorcode"><span class="std std-ref">‘errorcode’ Functions</span></a>.</p>
+</aside>
+<aside class="footnote superscript" id="f2" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></span>
+<p>You can ensure timely release of resources by using <em>disposable</em> pattern. For more details refer to <a class="reference internal" href="disposable.html#disposable"><span class="std std-ref">‘disposable’ Variables</span></a>.</p>
+</aside>
+</aside>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="struct_io_SerialPortDesc.html" class="btn btn-neutral float-left" title="struct io.SerialPortDesc" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="group_io-network-adapter.html" class="btn btn-neutral float-right" title="Network Adapter Management" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

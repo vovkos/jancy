@@ -1,0 +1,18 @@
+.. include:: def.rst
+.. index:: pair: enum; SerialOptions
+.. _doxid-typeio_serialoptions:
+
+bitflag enum io.SerialOptions
+=============================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum SerialOptions: :ref:`io.StreamOptions<doxid-typeio_streamoptions>` {
+	    :target:`WinReadCheckComstat<doxid-enum_memberio_serialoptions_winreadcheckcomstat>`,
+	    :target:`WinReadWaitFirstChar<doxid-enum_memberio_serialoptions_winreadwaitfirstchar>`,
+	};
+

@@ -1,0 +1,181 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>struct jnc_DynamicExtensionLibHost &mdash; Jancy C API Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="struct jnc_ExtensionLib" href="struct_jnc_ExtensionLib.html" />
+    <link rel="prev" title="Extension Libraries Subsystem" href="group_extension-lib-subsystem.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy C API Reference
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="group_base-def.html">Base Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_error-subsystem.html">Error Subsystem</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="group_extension-lib-subsystem.html">Extension Libraries Subsystem</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">struct jnc_DynamicExtensionLibHost</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_ExtensionLib.html">struct jnc_ExtensionLib</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="group_module-subsystem.html">Module Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_runtime-subsystem.html">Runtime Subsystem</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="global.html">Global Namespace</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy C API Reference</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="group_extension-lib-subsystem.html">Extension Libraries Subsystem</a></li>
+      <li class="breadcrumb-item active">struct jnc_DynamicExtensionLibHost</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="struct-jnc-dynamicextensionlibhost">
+<span id="doxid-structjnc-dynamic-extension-lib-host"></span><span id="index-0"></span><h1>struct jnc_DynamicExtensionLibHost</h1>
+<div class="toctree-wrapper compound">
+</div>
+<p>Opaque structure passed to the dynamic extension library main function.</p>
+<blockquote>
+<div><p>Indirectly provides access to runtime and module of the Jancy host(on behalf of which this dynamic extension library is being loaded).</p>
+</div></blockquote>
+<pre class="highlight doxyrest-overview-code-block literal-block"><span></span><span class="cp">#include</span> <span class="cpf">&lt;jnc_ExtensionLib.h&gt;</span>
+
+<span class="k">struct</span> <span class="n">jnc_DynamicExtensionLibHost</span> <span class="p">{</span>
+    <span class="c1">// fields</span>
+
+    <span class="kt">size_t</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1a03eb27dedc60ecdc43db35d1df5a0089"><span></span><span class="n">m_size</span></span><span></span><span class="p">;</span>
+    <span class="n">jnc_ErrorRouter</span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1aaed2604b743b4956a7f7f4a9d906a0d3"><span></span><span class="n">m_errorRouter</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_ErrorFuncTable.html#doxid-structjnc-error-func-table"><span class="std std-ref">jnc_ErrorFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1a127abd6aad78462081d28e2e9d47c710"><span></span><span class="n">m_errorFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_CapabilityFuncTable.html#doxid-structjnc-capability-func-table"><span class="std std-ref">jnc_CapabilityFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1abd14e9554d382617301ec9e2731b2603"><span></span><span class="n">m_capabilityFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_ModuleItemDeclFuncTable.html#doxid-structjnc-module-item-decl-func-table"><span class="std std-ref">jnc_ModuleItemDeclFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1a725974cfbb389008db5efd2162570fe2"><span></span><span class="n">m_moduleItemDeclFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_ModuleItemFuncTable.html#doxid-structjnc-module-item-func-table"><span class="std std-ref">jnc_ModuleItemFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1adc1594c343a17b0b5224c57d5b0ec8b0"><span></span><span class="n">m_moduleItemFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_AttributeFuncTable.html#doxid-structjnc-attribute-func-table"><span class="std std-ref">jnc_AttributeFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1a5c2b9606a2335bb5ea8214f618d762af"><span></span><span class="n">m_attributeFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_AttributeBlockFuncTable.html#doxid-structjnc-attribute-block-func-table"><span class="std std-ref">jnc_AttributeBlockFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1abf662d233e30e33938bacfacc24e8888"><span></span><span class="n">m_attributeBlockFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_NamespaceFuncTable.html#doxid-structjnc-namespace-func-table"><span class="std std-ref">jnc_NamespaceFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1a9a8a61c261ae18e892dd19ba2430c84c"><span></span><span class="n">m_namespaceFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_GlobalNamespaceFuncTable.html#doxid-structjnc-global-namespace-func-table"><span class="std std-ref">jnc_GlobalNamespaceFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1a3325459591a0795ba660ce1ca2300731"><span></span><span class="n">m_globalNamespaceFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_VariableFuncTable.html#doxid-structjnc-variable-func-table"><span class="std std-ref">jnc_VariableFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1a135f004b9e3220ca055f75d8cb8dd62d"><span></span><span class="n">m_variableFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_FunctionFuncTable.html#doxid-structjnc-function-func-table"><span class="std std-ref">jnc_FunctionFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1a027a540b52080bc7d3e3691352f478ba"><span></span><span class="n">m_functionFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_FunctionOverloadFuncTable.html#doxid-structjnc-function-overload-func-table"><span class="std std-ref">jnc_FunctionOverloadFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1a61647714e1ab8fe12498e47f8f117e81"><span></span><span class="n">m_functionOverloadFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_PropertyFuncTable.html#doxid-structjnc-property-func-table"><span class="std std-ref">jnc_PropertyFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1a6ce7de7cd511d07292cc870c5549a49c"><span></span><span class="n">m_propertyFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_TypedefFuncTable.html#doxid-structjnc-typedef-func-table"><span class="std std-ref">jnc_TypedefFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1a2d4715323ad4fd94805ad9f2ee261b96"><span></span><span class="n">m_typedefFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_TypeFuncTable.html#doxid-structjnc-type-func-table"><span class="std std-ref">jnc_TypeFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1aadcd805295d09e0568589e9809eef086"><span></span><span class="n">m_typeFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_NamedTypeFuncTable.html#doxid-structjnc-named-type-func-table"><span class="std std-ref">jnc_NamedTypeFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1a3429a55d1da4ea084812472529216f45"><span></span><span class="n">m_namedTypeFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_BaseTypeSlotFuncTable.html#doxid-structjnc-base-type-slot-func-table"><span class="std std-ref">jnc_BaseTypeSlotFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1af05a717b9198331e987dd518db0cd72e"><span></span><span class="n">m_baseTypeSlotFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_FieldFuncTable.html#doxid-structjnc-field-func-table"><span class="std std-ref">jnc_FieldFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1abc80e84bd685dcbbc1c31b8d4cc813ac"><span></span><span class="n">m_fieldFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_DerivableTypeFuncTable.html#doxid-structjnc-derivable-type-func-table"><span class="std std-ref">jnc_DerivableTypeFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1ab5c8812ecec5db03b0c16446e6e6f68f"><span></span><span class="n">m_derivableTypeFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_ArrayTypeFuncTable.html#doxid-structjnc-array-type-func-table"><span class="std std-ref">jnc_ArrayTypeFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1ac75da67ea1c7d7b6284693de9f2eaa54"><span></span><span class="n">m_arrayTypeFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_FunctionArgFuncTable.html#doxid-structjnc-function-arg-func-table"><span class="std std-ref">jnc_FunctionArgFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1af45c94538ba9f3795ad212c55973b07b"><span></span><span class="n">m_functionArgFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_FunctionTypeFuncTable.html#doxid-structjnc-function-type-func-table"><span class="std std-ref">jnc_FunctionTypeFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1aa97120437148370edfe9b2b137aa283c"><span></span><span class="n">m_functionTypeFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_PropertyTypeFuncTable.html#doxid-structjnc-property-type-func-table"><span class="std std-ref">jnc_PropertyTypeFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1a735fb0afdfbb27ebb5d8736ea0d571a6"><span></span><span class="n">m_propertyTypeFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_EnumConstFuncTable.html#doxid-structjnc-enum-const-func-table"><span class="std std-ref">jnc_EnumConstFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1a60993e92094db0efb52082f632a513d0"><span></span><span class="n">m_enumConstFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_EnumTypeFuncTable.html#doxid-structjnc-enum-type-func-table"><span class="std std-ref">jnc_EnumTypeFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1ae54da7b9808d7cbfb4d21bb927e4a3ac"><span></span><span class="n">m_enumTypeFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_StructTypeFuncTable.html#doxid-structjnc-struct-type-func-table"><span class="std std-ref">jnc_StructTypeFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1a348dfe8733896b9bf73a90fd1120276f"><span></span><span class="n">m_structTypeFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_UnionTypeFuncTable.html#doxid-structjnc-union-type-func-table"><span class="std std-ref">jnc_UnionTypeFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1aa651b5f9885ef2f6bb8f716f991135a0"><span></span><span class="n">m_unionTypeFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_ClassTypeFuncTable.html#doxid-structjnc-class-type-func-table"><span class="std std-ref">jnc_ClassTypeFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1aa8c6543d32bc8be9e7fe7cdb02418dad"><span></span><span class="n">m_classTypeFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_MulticastClassTypeFuncTable.html#doxid-structjnc-multicast-class-type-func-table"><span class="std std-ref">jnc_MulticastClassTypeFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1ac6140f4015df8f993e5eb3a99a58c6f0"><span></span><span class="n">m_multicastClassTypeFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_McSnapshotClassTypeFuncTable.html#doxid-structjnc-mc-snapshot-class-type-func-table"><span class="std std-ref">jnc_McSnapshotClassTypeFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1a43af4b6af32739f8665b89bee998c992"><span></span><span class="n">m_mcSnapshotClassTypeFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_DataPtrTypeFuncTable.html#doxid-structjnc-data-ptr-type-func-table"><span class="std std-ref">jnc_DataPtrTypeFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1a99fb4349c6bbe967e24e83faa6fd61c0"><span></span><span class="n">m_dataPtrTypeFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_ClassPtrTypeFuncTable.html#doxid-structjnc-class-ptr-type-func-table"><span class="std std-ref">jnc_ClassPtrTypeFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1ad2083993061c12dc994271e4fce66fea"><span></span><span class="n">m_classPtrTypeFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_FunctionPtrTypeFuncTable.html#doxid-structjnc-function-ptr-type-func-table"><span class="std std-ref">jnc_FunctionPtrTypeFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1ab27fd01852af1efcd87cea74c90d7945"><span></span><span class="n">m_functionPtrTypeFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_PropertyPtrTypeFuncTable.html#doxid-structjnc-property-ptr-type-func-table"><span class="std std-ref">jnc_PropertyPtrTypeFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1acf0c541f8161675f4412a972a8c1ee1b"><span></span><span class="n">m_propertyPtrTypeFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_VariantFuncTable.html#doxid-structjnc-variant-func-table"><span class="std std-ref">jnc_VariantFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1a8b4c0b1c8b3808a3070ade25b343858b"><span></span><span class="n">m_variantFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_StringFuncTable.html#doxid-structjnc-string-func-table"><span class="std std-ref">jnc_StringFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1a21bf4d8bc67d347239d812a5f830c8d8"><span></span><span class="n">m_stringFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_PromiseFuncTable.html#doxid-structjnc-promise-func-table"><span class="std std-ref">jnc_PromiseFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1a5f9ed129103fcdd0e6fa128f502a9ca6"><span></span><span class="n">m_promiseFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_UnitFuncTable.html#doxid-structjnc-unit-func-table"><span class="std std-ref">jnc_UnitFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1aab0db5c2a1a49215581f6c93c79e8c95"><span></span><span class="n">m_unitFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_ModuleFuncTable.html#doxid-structjnc-module-func-table"><span class="std std-ref">jnc_ModuleFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1a0f6d209556703366161a1c2bed661cb9"><span></span><span class="n">m_moduleFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_RuntimeFuncTable.html#doxid-structjnc-runtime-func-table"><span class="std std-ref">jnc_RuntimeFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1a5c2beba12e98d92d6787da8afa55359d"><span></span><span class="n">m_runtimeFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_GcHeapFuncTable.html#doxid-structjnc-gc-heap-func-table"><span class="std std-ref">jnc_GcHeapFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1a9e10638e7be01d498d0249d7ca6b4cbe"><span></span><span class="n">m_gcHeapFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_StdHashTableFuncTable.html#doxid-structjnc-std-hash-table-func-table"><span class="std std-ref">jnc_StdHashTableFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1ad585fc9cfc320b0c7b0bdea6de4cdcbc"><span></span><span class="n">m_stdHashTableFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_StdRbTreeFuncTable.html#doxid-structjnc-std-rb-tree-func-table"><span class="std std-ref">jnc_StdRbTreeFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1ad85478ad0bfa07586f0706898ed1df89"><span></span><span class="n">m_stdRbTreeFuncTable</span></span><span></span><span class="p">;</span>
+    <a class="reference internal" href="struct_jnc_StdBufferFuncTable.html#doxid-structjnc-std-buffer-func-table"><span class="std std-ref">jnc_StdBufferFuncTable</span></a><span></span><span class="o">*</span> <span class="doxyrest-code-target target" id="doxid-structjnc-dynamic-extension-lib-host-1ae0a7e9855aa1d890daf55813b1914802"><span></span><span class="n">m_stdBufferFuncTable</span></span><span></span><span class="p">;</span>
+<span class="p">};</span></pre>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="group_extension-lib-subsystem.html" class="btn btn-neutral float-left" title="Extension Libraries Subsystem" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="struct_jnc_ExtensionLib.html" class="btn btn-neutral float-right" title="struct jnc_ExtensionLib" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

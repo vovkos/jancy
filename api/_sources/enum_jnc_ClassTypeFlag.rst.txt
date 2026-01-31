@@ -1,0 +1,22 @@
+.. index:: pair: enum; jnc_ClassTypeFlag
+.. _doxid-group__class-type_1ga3849b3418662f7b9eacbb3462d37234f:
+
+enum jnc_ClassTypeFlag
+======================
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	#include <jnc_ClassType.h>
+
+	enum jnc_ClassTypeFlag {
+	    :target:`jnc_ClassTypeFlag_HasAbstractMethods<doxid-group__class-type_1gga3849b3418662f7b9eacbb3462d37234fa85e6af3938fc85a873a9e2c4bbe9d414>` = 0x010000,
+	    :target:`jnc_ClassTypeFlag_Closure<doxid-group__class-type_1gga3849b3418662f7b9eacbb3462d37234fab8b13d0e1399f44bc1fae7cdaa6cfd3d>`            = 0x020000,
+	    :target:`jnc_ClassTypeFlag_Opaque<doxid-group__class-type_1gga3849b3418662f7b9eacbb3462d37234fabd577744d27177cf1c2d5bebbb9d8b3b>`             = 0x040000,
+	    :target:`jnc_ClassTypeFlag_OpaqueNonCreatable<doxid-group__class-type_1gga3849b3418662f7b9eacbb3462d37234fa8c338d4b655d8ee043e7d3a76519b77b>` = 0x080000,
+	    :target:`jnc_ClassTypeFlag_Creatable<doxid-group__class-type_1gga3849b3418662f7b9eacbb3462d37234fa3698c76bb975cfecadc026224c4f70e4>`          = 0x100000,
+	    :target:`jnc_ClassTypeFlag__All<doxid-group__class-type_1gga3849b3418662f7b9eacbb3462d37234fac0d8762fdedf736b490409a10fcaee6c>`               = 0x1f0000,
+	};
+

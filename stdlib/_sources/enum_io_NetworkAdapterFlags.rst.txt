@@ -1,0 +1,107 @@
+.. include:: def.rst
+.. index:: pair: enum; NetworkAdapterFlags
+.. _doxid-typeio_networkadapterflags:
+
+bitflag enum io.NetworkAdapterFlags
+===================================
+
+Overview
+~~~~~~~~
+
+This enumeration specifies flag properties of the network adapter. :ref:`More...<details-typeio_networkadapterflags>`
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum NetworkAdapterFlags {
+	    :ref:`Dhcp<doxid-enum_memberio_networkadapterflags_dhcp>`,
+	    :ref:`Ddns<doxid-enum_memberio_networkadapterflags_ddns>`,
+	    :ref:`Broadcast<doxid-enum_memberio_networkadapterflags_broadcast>`,
+	    :ref:`Multicast<doxid-enum_memberio_networkadapterflags_multicast>`,
+	    :ref:`Ip4<doxid-enum_memberio_networkadapterflags_ip4>`,
+	    :ref:`Ip6<doxid-enum_memberio_networkadapterflags_ip6>`,
+	};
+
+.. _details-typeio_networkadapterflags:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This enumeration specifies flag properties of the network adapter.
+
+When enumerating available network adapter you first call
+`io.enumerateNetworkAdapters`, then iterate through the resulting list
+of `io.NetworkAdapterDesc` structures, each contains a set of flag
+properties in `io.NetworkAdapterDesc.m_flags` field.
+
+
+
+.. rubric:: See also:
+
+`io.enumerateNetworkAdapters`, `io.NetworkAdapterDesc`
+
+Enum Values
+-----------
+
+.. index:: pair: enumvalue; Dhcp
+.. _doxid-enum_memberio_networkadapterflags_dhcp:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Dhcp
+
+``DHCP`` (Dynamic Host Configuration Protocol) is enabled on this
+adapter.
+
+.. index:: pair: enumvalue; Ddns
+.. _doxid-enum_memberio_networkadapterflags_ddns:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Ddns
+
+``DDNS`` (Dynamic DNS) is enabled on this adapter.
+
+.. index:: pair: enumvalue; Broadcast
+.. _doxid-enum_memberio_networkadapterflags_broadcast:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Broadcast
+
+This adapter supports broadcast.
+
+.. index:: pair: enumvalue; Multicast
+.. _doxid-enum_memberio_networkadapterflags_multicast:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Multicast
+
+This adapter supports multicast.
+
+.. index:: pair: enumvalue; Ip4
+.. _doxid-enum_memberio_networkadapterflags_ip4:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Ip4
+
+``IPv4`` is enabled on this adapter.
+
+.. index:: pair: enumvalue; Ip6
+.. _doxid-enum_memberio_networkadapterflags_ip6:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Ip6
+
+``IPv6`` is enabled on this adapter.
+

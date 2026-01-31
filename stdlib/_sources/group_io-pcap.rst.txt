@@ -1,0 +1,81 @@
+.. include:: def.rst
+.. index:: pair: group; Pcap (Packet Capturing Library)
+.. _doxid-group_io_pcap:
+
+Pcap (Packet Capturing Library)
+===============================
+
+.. toctree::
+	:hidden:
+
+	enum_io_PcapEvents.rst
+	enum_io_PcapLinkType.rst
+	struct_io_PcapAddress.rst
+	struct_io_PcapDeviceDesc.rst
+	class_io_Pcap.rst
+	class_io_PcapFilter.rst
+
+Overview
+~~~~~~~~
+
+This section describes types and facilities used when programming Pcap (Packet Capturing Library) :ref:`More...<details-group_io_pcap>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	import "io_pcap.jncx"
+	
+	// enums
+
+	bitflag enum :ref:`io.PcapEvents<doxid-typeio_pcapevents>`;
+	enum :ref:`io.PcapLinkType<doxid-typeio_pcaplinktype>`;
+
+	// structs
+
+	struct :ref:`io.PcapAddress<doxid-typeio_pcapaddress>`;
+	struct :ref:`io.PcapDeviceDesc<doxid-typeio_pcapdevicedesc>`;
+
+	// classes
+
+	class :ref:`io.Pcap<doxid-typeio_pcap>`;
+	class :ref:`io.PcapFilter<doxid-typeio_pcapfilter>`;
+
+	// global functions
+
+	:ref:`io.PcapDeviceDesc<doxid-typeio_pcapdevicedesc>` const* :ref:`io.createPcapDeviceDescList<doxid-functionio_createpcapdevicedesclist>`(:ref:`size_t<doxid-typedefsize_t>`* count = null);
+
+.. _details-group_io_pcap:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This section describes types and facilities used when programming Pcap (Packet Capturing Library)
+
+Global Functions
+----------------
+
+.. index:: pair: function; createPcapDeviceDescList
+.. _doxid-functionio_createpcapdevicedesclist:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`io.PcapDeviceDesc<doxid-typeio_pcapdevicedesc>` const* io.createPcapDeviceDescList(:ref:`size_t<doxid-typedefsize_t>`* count = null)
+
+Enumerates all available devices Pcap can start a live capture session on.
+
+``count`` argument can be used to obtain the total number of devices in the
+resulting list.
+
+Returns a pointer to the very first `io.PcapDeviceDesc` in the resulting
+list. You can walk through the list by inspecting `io.PcapDeviceDesc.m_next`
+field:
+
+.. ref-code-block::
+
+	`io.PcapDeviceDesc` const* deviceDesc = io.createPcapDeviceDescList();
+	for (; deviceDesc; deviceDesc = deviceDesc.m_next) {
+		// add device to the combo box...
+	}
+

@@ -1,0 +1,28 @@
+.. index:: pair: struct; jnc_ModuleItemFuncTable
+.. _doxid-structjnc___module_item_func_table:
+
+struct jnc_ModuleItemFuncTable
+==============================
+
+.. toctree::
+	:hidden:
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	struct jnc_ModuleItemFuncTable {
+		// fields
+	
+		size_t :target:`m_size<doxid-structjnc___module_item_func_table_1aea09ea273f52c1cb948fdd89ef2111b0>`;
+		jnc_ModuleItem_GetModuleFunc* :target:`m_getModuleFunc<doxid-structjnc___module_item_func_table_1aa5e4249f8e9708b4c0483decf7cfbd20>`;
+		jnc_ModuleItem_GetItemKindFunc* :target:`m_getItemKindFunc<doxid-structjnc___module_item_func_table_1ae9966a9c77a34a0dff5f194cae297c43>`;
+		jnc_ModuleItem_GetFlagsFunc* :target:`m_getFlagsFunc<doxid-structjnc___module_item_func_table_1a8ed342b4f2878ffcabf9acaaa3ed790d>`;
+		jnc_ModuleItem_GetDeclFunc* :target:`m_getDeclFunc<doxid-structjnc___module_item_func_table_1a2e6a2d261b1214bc2b906f984784eced>`;
+		jnc_ModuleItem_GetNamespaceFunc* :target:`m_getNamespaceFunc<doxid-structjnc___module_item_func_table_1a9f6b293249050072b1c39a8f63266d03>`;
+		jnc_ModuleItem_GetTypeFunc* :target:`m_getTypeFunc<doxid-structjnc___module_item_func_table_1ad75487c152616c11f30702048d698127>`;
+		jnc_ModuleItem_GetItemStringFunc* :target:`m_getItemStringFunc<doxid-structjnc___module_item_func_table_1a14e70fdf668124f2cd7afcaf9e21942e>`;
+	};

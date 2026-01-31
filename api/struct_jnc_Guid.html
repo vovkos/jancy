@@ -1,0 +1,180 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>struct jnc_Guid &mdash; Jancy C API Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="struct jnc_ListLink" href="struct_jnc_ListLink.html" />
+    <link rel="prev" title="Base Definitions" href="group_base-def.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy C API Reference
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="group_base-def.html">Base Definitions</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">struct jnc_Guid</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#detailed-documentation">Detailed Documentation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#fields">Fields</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="struct_jnc_ListLink.html">struct jnc_ListLink</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_base-def.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_base-def.html#detailed-documentation">Detailed Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="group_error-subsystem.html">Error Subsystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_extension-lib-subsystem.html">Extension Libraries Subsystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_module-subsystem.html">Module Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_runtime-subsystem.html">Runtime Subsystem</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="global.html">Global Namespace</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy C API Reference</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="group_base-def.html">Base Definitions</a></li>
+      <li class="breadcrumb-item active">struct jnc_Guid</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="struct-jnc-guid">
+<span id="doxid-structjnc-guid"></span><span id="index-0"></span><h1>struct jnc_Guid</h1>
+<div class="toctree-wrapper compound">
+</div>
+<section id="overview">
+<h2>Overview</h2>
+<p>This struct describes a globally unique identifier(GUID). <a class="reference internal" href="#details-structjnc-guid"><span class="std std-ref">More…</span></a></p>
+<pre class="highlight doxyrest-overview-code-block literal-block"><span></span><span class="cp">#include</span> <span class="cpf">&lt;jnc_Def.h&gt;</span>
+
+<span class="k">struct</span> <span class="n">jnc_Guid</span> <span class="p">{</span>
+    <span class="c1">// fields</span>
+
+    <span class="k">union</span> <span class="p">{</span>
+        <span class="k">struct</span>  <span class="p">{</span>
+            <span class="kt">uint32_t</span> <a class="reference internal" href="#doxid-structjnc-guid-1aec4f3165bbae5d72881b0d216e4ff15c"><span class="std std-ref">m_data1</span></a><span></span><span class="p">;</span>
+            <span class="kt">uint16_t</span> <a class="reference internal" href="#doxid-structjnc-guid-1a4ed322965ddf19570b9e4b4fba2440dc"><span class="std std-ref">m_data2</span></a><span></span><span class="p">;</span>
+            <span class="kt">uint16_t</span> <a class="reference internal" href="#doxid-structjnc-guid-1a0ee763d43851c91686c0d6bdd6bcea24"><span class="std std-ref">m_data3</span></a><span></span><span class="p">;</span>
+            <span class="kt">uint8_t</span> <a class="reference internal" href="#doxid-structjnc-guid-1ac373acec1c4c13e7a7e8bde3c482d850"><span class="std std-ref">m_data4</span></a><span></span><span class="p">[</span><span class="mi">8</span><span class="p">];</span>
+        <span class="p">};</span>
+
+        <span class="k">struct</span>  <span class="p">{</span>
+            <span class="kt">uint32_t</span> <a class="reference internal" href="#doxid-structjnc-guid-1a0cdb93e667945e2caf509f55c2ccbda6"><span class="std std-ref">m_long1</span></a><span></span><span class="p">;</span>
+            <span class="kt">uint32_t</span> <a class="reference internal" href="#doxid-structjnc-guid-1af914c4e25b77ab7d44fcee274695c36b"><span class="std std-ref">m_long2</span></a><span></span><span class="p">;</span>
+            <span class="kt">uint32_t</span> <a class="reference internal" href="#doxid-structjnc-guid-1a19195cd41734422db990db0789d935a9"><span class="std std-ref">m_long3</span></a><span></span><span class="p">;</span>
+            <span class="kt">uint32_t</span> <a class="reference internal" href="#doxid-structjnc-guid-1a509381098b5277517f0b3190d6715c4c"><span class="std std-ref">m_long4</span></a><span></span><span class="p">;</span>
+        <span class="p">};</span>
+    <span class="p">};</span>
+<span class="p">};</span></pre>
+</section>
+<section id="detailed-documentation">
+<span id="details-structjnc-guid"></span><h2>Detailed Documentation</h2>
+<p>This struct describes a globally unique identifier(GUID).</p>
+<p>GUIDs are 128-bit values often used as permanent labels which uniquely identify some sort of information. Creation of GUIDs does not require any significant central coordination.</p>
+<p>In practice any two generated GUIDs could be assumed to be distinct – even though neither of GUID generation algorithms could strictly guarantee uniqueness of generated identifiers. The probability of collision is too low and can be neglected in most practical applications.</p>
+<p>In Jancy API GUIDs are used to identify extension libraries – each extension library has its own unique ID.</p>
+<p>This struct directly maps to <code class="docutils literal notranslate"><span class="pre">struct</span> <span class="pre">UUID</span></code> as defined in WinAPI.</p>
+<p>For more details about globally unique identifiers refer to: <a class="reference external" href="https://en.wikipedia.org/wiki/Globally_unique_identifier">https://en.wikipedia.org/wiki/Globally_unique_identifier</a></p>
+<section id="fields">
+<h3>Fields</h3>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-structjnc-guid-1ac373acec1c4c13e7a7e8bde3c482d850"><span id="index-4"></span><span id="doxid-structjnc-guid-1a0ee763d43851c91686c0d6bdd6bcea24"></span><span id="index-3"></span><span id="doxid-structjnc-guid-1a4ed322965ddf19570b9e4b4fba2440dc"></span><span id="index-2"></span><span id="doxid-structjnc-guid-1aec4f3165bbae5d72881b0d216e4ff15c"></span><span id="index-1"></span><span></span><span class="kt">uint32_t</span> <span class="n">m_data1</span>
+<span class="kt">uint16_t</span> <span class="n">m_data2</span>
+<span class="kt">uint16_t</span> <span class="n">m_data3</span>
+<span class="kt">uint8_t</span> <span class="n">m_data4</span> <span class="p">[</span><span class="mi">8</span><span class="p">]</span></pre>
+<p>The <em>classic</em> representation of a <code class="docutils literal notranslate"><span class="pre">GUID</span></code> mirroring the definition in WinAPI.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-structjnc-guid-1ae6b6bc45806bdc35ebe550328d05823e"><span id="index-9"></span><span id="doxid-structjnc-guid-1a509381098b5277517f0b3190d6715c4c"></span><span id="index-8"></span><span id="doxid-structjnc-guid-1a19195cd41734422db990db0789d935a9"></span><span id="index-7"></span><span id="doxid-structjnc-guid-1af914c4e25b77ab7d44fcee274695c36b"></span><span id="index-6"></span><span id="doxid-structjnc-guid-1a0cdb93e667945e2caf509f55c2ccbda6"></span><span id="index-5"></span><span></span><span class="kt">uint32_t</span> <span class="n">m_long1</span>
+<span class="kt">uint32_t</span> <span class="n">m_long2</span>
+<span class="kt">uint32_t</span> <span class="n">m_long3</span>
+<span class="kt">uint32_t</span> <span class="n">m_long4</span></pre>
+<p>An <em>alternative</em> representation of a <code class="docutils literal notranslate"><span class="pre">GUID</span></code> as four 32-bit integers.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="group_base-def.html" class="btn btn-neutral float-left" title="Base Definitions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="struct_jnc_ListLink.html" class="btn btn-neutral float-right" title="struct jnc_ListLink" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

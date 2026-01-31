@@ -1,0 +1,206 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bitflag enum io.SocketOptions &mdash; Jancy Standard Library Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="struct io.SocketAddress_ip4" href="struct_io_SocketAddress_ip4.html" />
+    <link rel="prev" title="bitflag enum io.SocketEvents" href="enum_io_SocketEvents.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy Standard Library Reference
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="group_stdt-operator.html">stdt-operator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_c-typedefs.html">Standard Typedefs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_rtl.html">RTL (Runtime Library)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_crt.html">C Runtime Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_std.html">General Purpose Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_sys.html">System Facilities</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="group_io.html">IO (Input/Output) Library</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="group_io-file.html">Generic File IO</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="group_io-socket.html">Socket Communications</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="enum_io_AddressFamily.html">enum io.AddressFamily</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_HostNameResolverEvents.html">bitflag enum io.HostNameResolverEvents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_Protocol.html">enum io.Protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_io_SocketEvents.html">bitflag enum io.SocketEvents</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">bitflag enum io.SocketOptions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#detailed-documentation">Detailed Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="struct_io_SocketAddress_ip4.html">struct io.SocketAddress_ip4</a></li>
+<li class="toctree-l3"><a class="reference internal" href="struct_io_SocketAddress_ip6.html">struct io.SocketAddress_ip6</a></li>
+<li class="toctree-l3"><a class="reference internal" href="union_io_Address_ip4.html">union io.Address_ip4</a></li>
+<li class="toctree-l3"><a class="reference internal" href="union_io_Address_ip6.html">union io.Address_ip6</a></li>
+<li class="toctree-l3"><a class="reference internal" href="union_io_SocketAddress.html">union io.SocketAddress</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_io_HostNameResolver.html">class io.HostNameResolver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="class_io_Socket.html">class io.Socket</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-serial.html">Serial Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-network-adapter.html">Network Adapter Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-ssl.html">SSL Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-ssh.html">SSH Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-websock.html">WebSockets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-pcap.html">Pcap (Packet Capturing Library)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-usb.html">USB Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-usbmon.html">USB Monitoring</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-hid.html">HID Communications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_io-devmon.html">Device Monitoring</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="disposable.html">‘disposable’ Variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="errorcode.html">‘errorcode’ Functions</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="global.html">Global Namespace</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy Standard Library Reference</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="group_io.html">IO (Input/Output) Library</a></li>
+          <li class="breadcrumb-item"><a href="group_io-socket.html">Socket Communications</a></li>
+      <li class="breadcrumb-item active">bitflag enum io.SocketOptions</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="bitflag-enum-io-socketoptions">
+<span id="doxid-typeio-socketoptions"></span><span id="index-0"></span><h1>bitflag enum io.SocketOptions</h1>
+<section id="overview">
+<h2>Overview</h2>
+<p>This enum lists all possible IO flags applicable to <code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="class_io_Socket.html#doxid-typeio-socket"><span class="std std-ref"><span class="pre">io.Socket</span></span></a></code>
+class. <a class="reference internal" href="#details-typeio-socketoptions"><span class="std std-ref">More…</span></a></p>
+<pre class="highlight doxyrest-overview-code-block literal-block"><span></span><span class="k">bitflag</span> <span class="k">enum</span> <span class="n">SocketOptions</span><span class="o">:</span> <a class="reference internal" href="enum_io_StreamOptions.html#doxid-typeio-streamoptions"><span class="std std-ref">io.StreamOptions</span></a><span></span> <span class="p">{</span>
+    <a class="reference internal" href="#doxid-enum-memberio-socketoptions-reuseaddress"><span class="std std-ref">ReuseAddress</span></a><span></span><span class="p">,</span>
+    <a class="reference internal" href="#doxid-enum-memberio-socketoptions-tcpkeepalive"><span class="std std-ref">TcpKeepAlive</span></a><span></span><span class="p">,</span>
+    <a class="reference internal" href="#doxid-enum-memberio-socketoptions-tcpnagle"><span class="std std-ref">TcpNagle</span></a><span></span><span class="p">,</span>
+    <a class="reference internal" href="#doxid-enum-memberio-socketoptions-tcpreset"><span class="std std-ref">TcpReset</span></a><span></span><span class="p">,</span>
+    <a class="reference internal" href="#doxid-enum-memberio-socketoptions-udpbroadcast"><span class="std std-ref">UdpBroadcast</span></a><span></span><span class="p">,</span>
+    <a class="reference internal" href="#doxid-enum-memberio-socketoptions-rawhdrincluded"><span class="std std-ref">RawHdrIncluded</span></a><span></span><span class="p">,</span>
+<span class="p">};</span></pre>
+</section>
+<section id="detailed-documentation">
+<span id="details-typeio-socketoptions"></span><h2>Detailed Documentation</h2>
+<p>This enum lists all possible IO flags applicable to <code class="doxyrest-cref docutils literal notranslate"><a class="reference internal" href="class_io_Socket.html#doxid-typeio-socket"><span class="std std-ref"><span class="pre">io.Socket</span></span></a></code>
+class.</p>
+<section id="enum-values">
+<h3>Enum Values</h3>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-enum-memberio-socketoptions-reuseaddress"><span id="index-1"></span><span></span><span class="n">ReuseAddress</span></pre>
+<p>Allow forcibly binding multiple sockets to the same local address
+(unless there’s an active listening a socket  already bound to the same
+address). Internally maps to <code class="docutils literal notranslate"><span class="pre">SO_REUSEADDR</span></code> socket option.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-enum-memberio-socketoptions-tcpkeepalive"><span id="index-2"></span><span></span><span class="n">TcpKeepAlive</span></pre>
+<p>Translates to SO_KEEPALIVE socket option.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-enum-memberio-socketoptions-tcpnagle"><span id="index-3"></span><span></span><span class="n">TcpNagle</span></pre>
+<p>This option is used for turning the Nagle algorithm <em>ON</em> or <em>OFF</em> for
+<code class="docutils literal notranslate"><span class="pre">TCP</span></code> sockets. When this property is set to <code class="docutils literal notranslate"><span class="pre">true</span></code>, the socket
+attempts to delay the transmission of TCP data segments in order to
+reduce the overall number of transmitted packets.</p>
+<p>For detailed description of Nagle algorithm refer to:
+<a class="reference external" href="http://en.wikipedia.org/wiki/Nagle's_algorithm">http://en.wikipedia.org/wiki/Nagle’s_algorithm</a></p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-enum-memberio-socketoptions-tcpreset"><span id="index-4"></span><span></span><span class="n">TcpReset</span></pre>
+<p>This option is used for setting the disconnect type for <code class="docutils literal notranslate"><span class="pre">TCP</span></code> sockets
+– whether it should be <strong>graceful</strong> (via <code class="docutils literal notranslate"><span class="pre">FIN</span></code> sequence) or <strong>reset</strong>
+(via <code class="docutils literal notranslate"><span class="pre">RST</span></code> packet).</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-enum-memberio-socketoptions-udpbroadcast"><span id="index-5"></span><span></span><span class="n">UdpBroadcast</span></pre>
+<p>This option is used for allowing the <em>broadcast</em> transmission over
+datagram-oriented protocols(such as <code class="docutils literal notranslate"><span class="pre">UDP</span></code>). When this option is set,
+the socket is allowed to send broadcast packets into the network.</p>
+<pre class="highlight doxyrest-title-code-block literal-block" id="doxid-enum-memberio-socketoptions-rawhdrincluded"><span id="index-6"></span><span></span><span class="n">RawHdrIncluded</span></pre>
+<p>This option is used for setting the <code class="docutils literal notranslate"><span class="pre">IP_HDRINCL</span></code> flag for <code class="docutils literal notranslate"><span class="pre">RAW</span></code>
+sockets. When this property is set to <code class="docutils literal notranslate"><span class="pre">true</span></code>, the application must
+provide <code class="docutils literal notranslate"><span class="pre">IP</span></code> header together with the rest of the packet(however,
+the kernel may still overwrite certain fields, such as <code class="docutils literal notranslate"><span class="pre">checksum</span></code>).</p>
+<p>For detailed description of raw sockets refer to:
+<a class="reference external" href="http://man7.org/linux/man-pages/man7/raw.7.html">http://man7.org/linux/man-pages/man7/raw.7.html</a></p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="enum_io_SocketEvents.html" class="btn btn-neutral float-left" title="bitflag enum io.SocketEvents" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="struct_io_SocketAddress_ip4.html" class="btn btn-neutral float-right" title="struct io.SocketAddress_ip4" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

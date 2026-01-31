@@ -1,0 +1,189 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Module Item Declaration &mdash; Jancy C API Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="enum jnc_AccessKind" href="enum_jnc_AccessKind.html" />
+    <link rel="prev" title="struct jnc_ModuleItem" href="struct_jnc_ModuleItem.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy C API Reference
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="group_base-def.html">Base Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_error-subsystem.html">Error Subsystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_extension-lib-subsystem.html">Extension Libraries Subsystem</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="group_module-subsystem.html">Module Components</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="group_attribute-block.html">Attribute Block</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_function.html">Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_module.html">Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_module-item.html">Module Item</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Module Item Declaration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="enum_jnc_AccessKind.html">enum jnc_AccessKind</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enum_jnc_StorageKind.html">enum jnc_StorageKind</a></li>
+<li class="toctree-l3"><a class="reference internal" href="struct_jnc_ModuleItemDecl.html">struct jnc_ModuleItemDecl</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="group_namespace.html">Namespace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_operators.html">Operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_property.html">Property</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_type-subsystem.html">Type Subsystem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_unit.html">Unit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_variable.html">Variable</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="group_runtime-subsystem.html">Runtime Subsystem</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="global.html">Global Namespace</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy C API Reference</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="group_module-subsystem.html">Module Components</a></li>
+      <li class="breadcrumb-item active">Module Item Declaration</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-item-declaration">
+<span id="doxid-group-module-item-decl"></span><span id="index-0"></span><h1>Module Item Declaration</h1>
+<div class="toctree-wrapper compound">
+</div>
+<pre class="highlight doxyrest-overview-code-block literal-block"><span></span><span class="cp">#include</span> <span class="cpf">&lt;jnc_ModuleItem.h&gt;</span>
+
+<span class="c1">// enums</span>
+
+<span class="k">enum</span> <a class="reference internal" href="enum_jnc_AccessKind.html#doxid-group-module-item-decl-1gae37cf1474eba0491668ea2a32453731b"><span class="std std-ref">jnc_AccessKind</span></a><span></span><span class="p">;</span>
+<span class="k">enum</span> <a class="reference internal" href="enum_jnc_StorageKind.html#doxid-group-module-item-decl-1ga17754d5a085a1de491f093eaba57214c"><span class="std std-ref">jnc_StorageKind</span></a><span></span><span class="p">;</span>
+
+<span class="c1">// structs</span>
+
+<span class="k">struct</span> <a class="reference internal" href="struct_jnc_ModuleItemDecl.html#doxid-structjnc-module-item-decl"><span class="std std-ref">jnc_ModuleItemDecl</span></a><span></span><span class="p">;</span>
+
+<span class="c1">// global functions</span>
+
+<span class="k">const</span> <span class="kt">char</span><span class="o">*</span>
+<span class="doxyrest-code-target target" id="doxid-group-module-item-decl-1ga6858a9616adc36b9319358e2ba62f58b"><span></span><span class="n">jnc_getStorageKindString</span></span><span></span><span class="p">(</span><span class="n">jnc_StorageKind</span> <span class="n">storageKind</span><span class="p">);</span>
+
+<span class="k">const</span> <span class="kt">char</span><span class="o">*</span>
+<span class="doxyrest-code-target target" id="doxid-group-module-item-decl-1gabeb1568b0a7b1073af096e5a54213de6"><span></span><span class="n">jnc_getAccessKindString</span></span><span></span><span class="p">(</span><span class="n">jnc_AccessKind</span> <span class="n">accessKind</span><span class="p">);</span>
+
+<span class="k">const</span> <span class="kt">char</span><span class="o">*</span>
+<span class="doxyrest-code-target target" id="doxid-group-module-item-decl-1ga6c4c008e4f87bf985e46bb36d2ebd2fb"><span></span><span class="n">jnc_ModuleItemDecl_getName</span></span><span></span><span class="p">(</span><a class="reference internal" href="struct_jnc_ModuleItemDecl.html#doxid-structjnc-module-item-decl"><span class="std std-ref">jnc_ModuleItemDecl</span></a><span></span><span class="o">*</span> <span class="n">decl</span><span class="p">);</span>
+
+<span class="n">jnc_StorageKind</span>
+<span class="doxyrest-code-target target" id="doxid-group-module-item-decl-1ga1ed0b5a79f687c02c91b98ac95c6e961"><span></span><span class="n">jnc_ModuleItemDecl_getStorageKind</span></span><span></span><span class="p">(</span><a class="reference internal" href="struct_jnc_ModuleItemDecl.html#doxid-structjnc-module-item-decl"><span class="std std-ref">jnc_ModuleItemDecl</span></a><span></span><span class="o">*</span> <span class="n">decl</span><span class="p">);</span>
+
+<span class="n">jnc_AccessKind</span>
+<span class="doxyrest-code-target target" id="doxid-group-module-item-decl-1gab35dbcf1e634e4acc0ce0d8d8b45c2fd"><span></span><span class="n">jnc_ModuleItemDecl_getAccessKind</span></span><span></span><span class="p">(</span><a class="reference internal" href="struct_jnc_ModuleItemDecl.html#doxid-structjnc-module-item-decl"><span class="std std-ref">jnc_ModuleItemDecl</span></a><span></span><span class="o">*</span> <span class="n">decl</span><span class="p">);</span>
+
+<span class="n">jnc_AttributeBlock</span><span class="o">*</span>
+<span class="doxyrest-code-target target" id="doxid-group-module-item-decl-1ga918ec3b2f7afc5424831ccf9c4b3ebf3"><span></span><span class="n">jnc_ModuleItemDecl_getAttributeBlock</span></span><span></span><span class="p">(</span><a class="reference internal" href="struct_jnc_ModuleItemDecl.html#doxid-structjnc-module-item-decl"><span class="std std-ref">jnc_ModuleItemDecl</span></a><span></span><span class="o">*</span> <span class="n">decl</span><span class="p">);</span>
+
+<span class="n">jnc_Attribute</span><span class="o">*</span>
+<span class="doxyrest-code-target target" id="doxid-group-module-item-decl-1ga86bd7d28ad702393061a1eff44cb6bb4"><span></span><span class="n">jnc_ModuleItemDecl_findAttribute</span></span><span></span><span class="p">(</span>
+    <a class="reference internal" href="struct_jnc_ModuleItemDecl.html#doxid-structjnc-module-item-decl"><span class="std std-ref">jnc_ModuleItemDecl</span></a><span></span><span class="o">*</span> <span class="n">decl</span><span class="p">,</span>
+    <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">name</span>
+<span class="p">);</span>
+
+<span class="n">jnc_Unit</span><span class="o">*</span>
+<span class="doxyrest-code-target target" id="doxid-group-module-item-decl-1ga700dcfb47bedbd0ed84313043888b665"><span></span><span class="n">jnc_ModuleItemDecl_getParentUnit</span></span><span></span><span class="p">(</span><a class="reference internal" href="struct_jnc_ModuleItemDecl.html#doxid-structjnc-module-item-decl"><span class="std std-ref">jnc_ModuleItemDecl</span></a><span></span><span class="o">*</span> <span class="n">decl</span><span class="p">);</span>
+
+<a class="reference internal" href="struct_jnc_Namespace.html#doxid-structjnc-namespace"><span class="std std-ref">jnc_Namespace</span></a><span></span><span class="o">*</span>
+<span class="doxyrest-code-target target" id="doxid-group-module-item-decl-1ga0c821a9b8e34061811328bcbe57cfdb9"><span></span><span class="n">jnc_ModuleItemDecl_getParentNamespace</span></span><span></span><span class="p">(</span><a class="reference internal" href="struct_jnc_ModuleItemDecl.html#doxid-structjnc-module-item-decl"><span class="std std-ref">jnc_ModuleItemDecl</span></a><span></span><span class="o">*</span> <span class="n">decl</span><span class="p">);</span>
+
+<a class="reference internal" href="struct_jnc_ModuleItem.html#doxid-structjnc-module-item"><span class="std std-ref">jnc_ModuleItem</span></a><span></span><span class="o">*</span>
+<span class="doxyrest-code-target target" id="doxid-group-module-item-decl-1gae845b90108dc9d51b08f5f7576e6ef20"><span></span><span class="n">jnc_ModuleItemDecl_getDeclItem</span></span><span></span><span class="p">(</span><a class="reference internal" href="struct_jnc_ModuleItemDecl.html#doxid-structjnc-module-item-decl"><span class="std std-ref">jnc_ModuleItemDecl</span></a><span></span><span class="o">*</span> <span class="n">decl</span><span class="p">);</span>
+
+<span class="kt">int</span>
+<span class="doxyrest-code-target target" id="doxid-group-module-item-decl-1ga1e8f48dae77e4396d7e327e42d9a9961"><span></span><span class="n">jnc_ModuleItemDecl_getLine</span></span><span></span><span class="p">(</span><a class="reference internal" href="struct_jnc_ModuleItemDecl.html#doxid-structjnc-module-item-decl"><span class="std std-ref">jnc_ModuleItemDecl</span></a><span></span><span class="o">*</span> <span class="n">decl</span><span class="p">);</span>
+
+<span class="kt">int</span>
+<span class="doxyrest-code-target target" id="doxid-group-module-item-decl-1ga61507052f7b99d617af9f3d1fd9add3e"><span></span><span class="n">jnc_ModuleItemDecl_getCol</span></span><span></span><span class="p">(</span><a class="reference internal" href="struct_jnc_ModuleItemDecl.html#doxid-structjnc-module-item-decl"><span class="std std-ref">jnc_ModuleItemDecl</span></a><span></span><span class="o">*</span> <span class="n">decl</span><span class="p">);</span></pre>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="struct_jnc_ModuleItem.html" class="btn btn-neutral float-left" title="struct jnc_ModuleItem" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="enum_jnc_AccessKind.html" class="btn btn-neutral float-right" title="enum jnc_AccessKind" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

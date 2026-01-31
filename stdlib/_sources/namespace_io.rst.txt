@@ -1,0 +1,255 @@
+.. include:: def.rst
+.. index:: pair: namespace; io
+.. _doxid-namespace_io:
+
+namespace io
+============
+
+.. toctree::
+	:hidden:
+
+	namespace_io_lnx.rst
+	namespace_io_psx.rst
+	namespace_io_win.rst
+
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	namespace io {
+
+	// namespaces
+
+	namespace :ref:`io.HidUsagePageEnumStrings<doxid-namespace_io_hidusagepageenumstrings>`;
+	namespace :ref:`io.lnx<doxid-namespace_io_lnx>`;
+	namespace :ref:`io.psx<doxid-namespace_io_psx>`;
+	namespace :ref:`io.win<doxid-namespace_io_win>`;
+
+	// typedefs
+
+	typedef :ref:`io.StreamOptions<doxid-typeio_streamoptions>` :target:`ChildProcessOptions<doxid-typedefio_childprocessoptions>`;
+	typedef :ref:`io.ReadOnlyStreamOptions<doxid-typeio_readonlystreamoptions>` :target:`MailslotOptions<doxid-typedefio_mailslotoptions>`;
+	typedef :ref:`io.ReadOnlyStreamEvents<doxid-typeio_readonlystreamevents>` :target:`MailslotEvents<doxid-typedefio_mailslotevents>`;
+	typedef :ref:`io.StreamOptions<doxid-typeio_streamoptions>` :target:`UsbEndpointOptions<doxid-typedefio_usbendpointoptions>`;
+	typedef :ref:`io.ReadOnlyStreamEvents<doxid-typeio_readonlystreamevents>` :target:`UsbMonEvents<doxid-typedefio_usbmonevents>`;
+	typedef :ref:`io.StreamEvents<doxid-typeio_streamevents>` :target:`HidDeviceEvents<doxid-typedefio_hiddeviceevents>`;
+	typedef :ref:`io.ReadOnlyStreamEvents<doxid-typeio_readonlystreamevents>` :target:`DeviceMonitorEvents<doxid-typedefio_devicemonitorevents>`;
+
+	// enums
+
+	enum {
+	    :target:`DeviceMonitorNotifyHdrSignature<doxid-enum_memberiounnamed-85_devicemonitornotifyhdrsignature>` = 'nomt',
+	};
+
+	enum :ref:`AddressFamily<doxid-typeio_addressfamily>`;
+	bitflag enum :ref:`ChildProcessEvents<doxid-typeio_childprocessevents>`;
+	bitflag enum :ref:`ChildProcessStartFlags<doxid-typeio_childprocessstartflags>`;
+	enum :ref:`DeviceMonitorMiMsgCode<doxid-typeio_devicemonitormimsgcode>`;
+	bitflag enum :ref:`DeviceMonitorMiStartFlags<doxid-typeio_devicemonitormistartflags>`;
+	bitflag enum :ref:`DeviceMonitorNotifyFlags<doxid-typeio_devicemonitornotifyflags>`;
+	enum :ref:`FileKind<doxid-typeio_filekind>`;
+	bitflag enum :ref:`FileOpenFlags<doxid-typeio_fileopenflags>`;
+	bitflag enum :ref:`FileStreamEvents<doxid-typeio_filestreamevents>`;
+	bitflag enum :ref:`FileStreamOptions<doxid-typeio_filestreamoptions>`;
+	enum :ref:`HidBusType<doxid-typeio_hidbustype>`;
+	bitflag enum :ref:`HidDeviceOptions<doxid-typeio_hiddeviceoptions>`;
+	enum :ref:`HidRdCollectionKind<doxid-typeio_hidrdcollectionkind>`;
+	bitflag enum :ref:`HidRdFlags<doxid-typeio_hidrdflags>`;
+	enum :ref:`HidRdItemId<doxid-typeio_hidrditemid>`;
+	bitflag enum :ref:`HidRdItemMask<doxid-typeio_hidrditemmask>`;
+	enum :ref:`HidRdUnit<doxid-typeio_hidrdunit>`;
+	enum :ref:`HidRdUnitNibbleRole<doxid-typeio_hidrdunitnibblerole>`;
+	enum :ref:`HidRdUnitSystem<doxid-typeio_hidrdunitsystem>`;
+	bitflag enum :ref:`HidRdValueFlags<doxid-typeio_hidrdvalueflags>`;
+	enum :ref:`HidReportType<doxid-typeio_hidreporttype>`;
+	bitflag enum :ref:`HostNameResolverEvents<doxid-typeio_hostnameresolverevents>`;
+	bitflag enum :ref:`NamedPipeEvents<doxid-typeio_namedpipeevents>`;
+	bitflag enum :ref:`NetworkAdapterFlags<doxid-typeio_networkadapterflags>`;
+	enum :ref:`NetworkAdapterType<doxid-typeio_networkadaptertype>`;
+	bitflag enum :ref:`PcapEvents<doxid-typeio_pcapevents>`;
+	enum :ref:`PcapLinkType<doxid-typeio_pcaplinktype>`;
+	enum :ref:`Protocol<doxid-typeio_protocol>`;
+	bitflag enum :ref:`ReadOnlyStreamEvents<doxid-typeio_readonlystreamevents>`;
+	bitflag enum :ref:`ReadOnlyStreamOptions<doxid-typeio_readonlystreamoptions>`;
+	bitflag enum :ref:`SerialEvents<doxid-typeio_serialevents>`;
+	enum :ref:`SerialFlowControl<doxid-typeio_serialflowcontrol>`;
+	bitflag enum :ref:`SerialLineErrors<doxid-typeio_seriallineerrors>`;
+	bitflag enum :ref:`SerialOptions<doxid-typeio_serialoptions>`;
+	enum :ref:`SerialParity<doxid-typeio_serialparity>`;
+	bitflag enum :ref:`SerialPortDescFlags<doxid-typeio_serialportdescflags>`;
+	bitflag enum :ref:`SerialStatusLines<doxid-typeio_serialstatuslines>`;
+	enum :ref:`SerialStopBits<doxid-typeio_serialstopbits>`;
+	bitflag enum :ref:`SocketEvents<doxid-typeio_socketevents>`;
+	bitflag enum :ref:`SocketOptions<doxid-typeio_socketoptions>`;
+	bitflag enum :ref:`SshEvents<doxid-typeio_sshevents>`;
+	enum :ref:`SslCertFormat<doxid-typeio_sslcertformat>`;
+	enum :ref:`SslNid<doxid-typeio_sslnid>`;
+	bitflag enum :ref:`SslSocketEvents<doxid-typeio_sslsocketevents>`;
+	bitflag enum :ref:`SslStateFlags<doxid-typeio_sslstateflags>`;
+	enum :ref:`SslStdDh<doxid-typeio_sslstddh>`;
+	bitflag enum :ref:`SslVerifyMode<doxid-typeio_sslverifymode>`;
+	bitflag enum :ref:`StreamEvents<doxid-typeio_streamevents>`;
+	bitflag enum :ref:`StreamOptions<doxid-typeio_streamoptions>`;
+	enum :ref:`UsbClass<doxid-typeio_usbclass>`;
+	enum :ref:`UsbControlDirection<doxid-typeio_usbcontroldirection>`;
+	enum :ref:`UsbControlRecipient<doxid-typeio_usbcontrolrecipient>`;
+	enum :ref:`UsbControlStdRequest<doxid-typeio_usbcontrolstdrequest>`;
+	enum :ref:`UsbControlType<doxid-typeio_usbcontroltype>`;
+	bitflag enum :ref:`UsbDeviceStringId<doxid-typeio_usbdevicestringid>`;
+	bitflag enum :ref:`UsbEndpointEvents<doxid-typeio_usbendpointevents>`;
+	bitflag enum :ref:`UsbEnumFlags<doxid-typeio_usbenumflags>`;
+	enum :ref:`UsbIsoSyncType<doxid-typeio_usbisosynctype>`;
+	enum :ref:`UsbIsoUsage<doxid-typeio_usbisousage>`;
+	bitflag enum :ref:`UsbMonEnumFlags<doxid-typeio_usbmonenumflags>`;
+	bitflag enum :ref:`UsbMonOptions<doxid-typeio_usbmonoptions>`;
+	bitflag enum :ref:`UsbMonTransferFlags<doxid-typeio_usbmontransferflags>`;
+	enum :ref:`UsbSpeed<doxid-typeio_usbspeed>`;
+	enum :ref:`UsbTransferType<doxid-typeio_usbtransfertype>`;
+	bitflag enum :ref:`WebSocketEvents<doxid-typeio_websocketevents>`;
+	enum :ref:`WebSocketFrameOpcode<doxid-typeio_websocketframeopcode>`;
+	bitflag enum :ref:`WebSocketOptions<doxid-typeio_websocketoptions>`;
+
+	// structs
+
+	struct :ref:`DeviceMonitorMiMsgHdr<doxid-typeio_devicemonitormimsghdr>`;
+	struct :ref:`DeviceMonitorMiStartParams<doxid-typeio_devicemonitormistartparams>`;
+	struct :ref:`DeviceMonitorNotifyHdr<doxid-typeio_devicemonitornotifyhdr>`;
+	struct :ref:`HidDeviceDesc<doxid-typeio_hiddevicedesc>`;
+	struct :ref:`HidMonDeviceDesc<doxid-typeio_hidmondevicedesc>`;
+	struct :ref:`NetworkAdapterAddress<doxid-typeio_networkadapteraddress>`;
+	struct :ref:`NetworkAdapterDesc<doxid-typeio_networkadapterdesc>`;
+	struct :ref:`PcapAddress<doxid-typeio_pcapaddress>`;
+	struct :ref:`PcapDeviceDesc<doxid-typeio_pcapdevicedesc>`;
+	struct :ref:`PtySize<doxid-typeio_ptysize>`;
+	struct :ref:`SerialPortDesc<doxid-typeio_serialportdesc>`;
+	struct :ref:`SocketAddress_ip4<doxid-typeio_socketaddress_ip4>`;
+	struct :ref:`SocketAddress_ip6<doxid-typeio_socketaddress_ip6>`;
+	struct :ref:`SshConnectParams<doxid-typeio_sshconnectparams>`;
+	struct :ref:`SslCertNameEntry<doxid-typeio_sslcertnameentry>`;
+	struct :ref:`UsbConfigurationDescriptor<doxid-typeio_usbconfigurationdescriptor>`;
+	struct :ref:`UsbControlRequestType<doxid-typeio_usbcontrolrequesttype>`;
+	struct :ref:`UsbControlSetup<doxid-typeio_usbcontrolsetup>`;
+	struct :ref:`UsbDeviceDescriptor<doxid-typeio_usbdevicedescriptor>`;
+	struct :ref:`UsbDeviceEntry<doxid-typeio_usbdeviceentry>`;
+	struct :ref:`UsbDeviceStrings<doxid-typeio_usbdevicestrings>`;
+	struct :ref:`UsbEndpointDescriptor<doxid-typeio_usbendpointdescriptor>`;
+	struct :ref:`UsbInterfaceDescriptor<doxid-typeio_usbinterfacedescriptor>`;
+	struct :ref:`UsbIsoHdr<doxid-typeio_usbisohdr>`;
+	struct :ref:`UsbIsoPacket<doxid-typeio_usbisopacket>`;
+	struct :ref:`UsbMonDeviceDesc<doxid-typeio_usbmondevicedesc>`;
+	struct :ref:`UsbMonDeviceDescBase<doxid-typeio_usbmondevicedescbase>`;
+	struct :ref:`UsbMonTransferHdr<doxid-typeio_usbmontransferhdr>`;
+
+	// unions
+
+	union :ref:`Address_ip4<doxid-typeio_address_ip4>`;
+	union :ref:`Address_ip6<doxid-typeio_address_ip6>`;
+	union :ref:`SocketAddress<doxid-typeio_socketaddress>`;
+
+	// classes
+
+	class :ref:`ChildProcess<doxid-typeio_childprocess>`;
+	class :ref:`DeviceMonitor<doxid-typeio_devicemonitor>`;
+	class :ref:`File<doxid-typeio_file>`;
+	class :ref:`FileStream<doxid-typeio_filestream>`;
+	class :ref:`HidDb<doxid-typeio_hiddb>`;
+	class :ref:`HidDevice<doxid-typeio_hiddevice>`;
+	class :ref:`HidRd<doxid-typeio_hidrd>`;
+	class :ref:`HidRdCollection<doxid-typeio_hidrdcollection>`;
+	class :ref:`HidReport<doxid-typeio_hidreport>`;
+	class :ref:`HidReportField<doxid-typeio_hidreportfield>`;
+	class :ref:`HidStandaloneReport<doxid-typeio_hidstandalonereport>`;
+	class :ref:`HidUsagePage<doxid-typeio_hidusagepage>`;
+	class :ref:`HostNameResolver<doxid-typeio_hostnameresolver>`;
+	class :ref:`Mailslot<doxid-typeio_mailslot>`;
+	class :ref:`MappedFile<doxid-typeio_mappedfile>`;
+	class :ref:`NamedPipe<doxid-typeio_namedpipe>`;
+	class :ref:`Pcap<doxid-typeio_pcap>`;
+	class :ref:`PcapFilter<doxid-typeio_pcapfilter>`;
+	class :ref:`Serial<doxid-typeio_serial>`;
+	class :ref:`Socket<doxid-typeio_socket>`;
+	class :ref:`SshChannel<doxid-typeio_sshchannel>`;
+	class :ref:`SslCertName<doxid-typeio_sslcertname>`;
+	class :ref:`SslCertificate<doxid-typeio_sslcertificate>`;
+	class :ref:`SslCipher<doxid-typeio_sslcipher>`;
+	class :ref:`SslSocket<doxid-typeio_sslsocket>`;
+	class :ref:`SslState<doxid-typeio_sslstate>`;
+	class :ref:`UsbDevice<doxid-typeio_usbdevice>`;
+	class :ref:`UsbEndpoint<doxid-typeio_usbendpoint>`;
+	class :ref:`UsbInterface<doxid-typeio_usbinterface>`;
+	class :ref:`UsbMonitor<doxid-typeio_usbmonitor>`;
+	class :ref:`WebSocket<doxid-typeio_websocket>`;
+	class :ref:`WebSocketHandshake<doxid-typeio_websockethandshake>`;
+	class :ref:`WebSocketHandshakeHeaders<doxid-typeio_websockethandshakeheaders>`;
+
+	// global functions
+
+	:ref:`io.NetworkAdapterDesc<doxid-typeio_networkadapterdesc>` const* :ref:`enumerateNetworkAdapters<doxid-functionio_enumeratenetworkadapters>`(
+		:ref:`size_t<doxid-typedefsize_t>`* adapterCount = null,
+		:ref:`size_t<doxid-typedefsize_t>`* addressCount = null
+	);
+
+	:ref:`io.SerialPortDesc<doxid-typeio_serialportdesc>` const* :ref:`enumerateSerialPorts<doxid-functionio_enumerateserialports>`(
+		:ref:`io.SerialPortDescFlags<doxid-typeio_serialportdescflags>` flags,
+		:ref:`size_t<doxid-typedefsize_t>`* count = null
+	);
+
+	:ref:`io.SerialPortDesc<doxid-typeio_serialportdesc>` const* :ref:`enumerateSerialPorts<doxid-functionio_enumerateserialports_2>`(:ref:`size_t<doxid-typedefsize_t>`* count = null);
+	:ref:`string_t<doxid-typedefstring_t>` :ref:`getFileStreamKindString<doxid-functionio_getfilestreamkindstring>`(:ref:`io.FileKind<doxid-typeio_filekind>` kind);
+	:ref:`string_t<doxid-typedefstring_t>` :target:`getSymbolicLinkTarget<doxid-functionio_getsymboliclinktarget>`(:ref:`string_t<doxid-typedefstring_t>` name);
+	:ref:`string_t<doxid-typedefstring_t>` :target:`getHomeDir<doxid-functionio_gethomedir>`();
+	:ref:`string_t<doxid-typedefstring_t>` :target:`getTempDir<doxid-functionio_gettempdir>`();
+
+	:ref:`string_t<doxid-typedefstring_t>` :target:`createTempFile<doxid-functionio_createtempfile>`(
+		:ref:`string_t<doxid-typedefstring_t>` dir = null,
+		:ref:`string_t<doxid-typedefstring_t>` prefix = null
+	);
+
+	bool errorcode :target:`renameFile<doxid-functionio_renamefile>`(
+		:ref:`string_t<doxid-typedefstring_t>` srcFileName,
+		:ref:`string_t<doxid-typedefstring_t>` dstFileName
+	);
+
+	bool errorcode :target:`deleteFile<doxid-functionio_deletefile>`(:ref:`string_t<doxid-typedefstring_t>` fileName);
+	:ref:`string_t<doxid-typedefstring_t>` :target:`getSslNidShortName<doxid-functionio_getsslnidshortname>`(:ref:`io.SslNid<doxid-typeio_sslnid>` nid);
+	:ref:`string_t<doxid-typedefstring_t>` :target:`getSslNidLongName<doxid-functionio_getsslnidlongname>`(:ref:`io.SslNid<doxid-typeio_sslnid>` nid);
+	:ref:`io.PcapDeviceDesc<doxid-typeio_pcapdevicedesc>` const* :ref:`createPcapDeviceDescList<doxid-functionio_createpcapdevicedesclist>`(:ref:`size_t<doxid-typedefsize_t>`* count = null);
+
+	:ref:`io.UsbDeviceEntry<doxid-typeio_usbdeviceentry>` const* :target:`enumerateUsbDevices<doxid-functionio_enumerateusbdevices>`(
+		:ref:`io.UsbEnumFlags<doxid-typeio_usbenumflags>` flags,
+		:ref:`size_t<doxid-typedefsize_t>`* count = null
+	);
+
+	:ref:`io.UsbDeviceEntry<doxid-typeio_usbdeviceentry>` const* :target:`enumerateUsbDevices<doxid-functionio_enumerateusbdevices_2>`(:ref:`size_t<doxid-typedefsize_t>`* count = null);
+	:ref:`io.UsbDevice<doxid-typeio_usbdevice>`* const* :target:`enumerateUsbDevicesNoDesc<doxid-functionio_enumerateusbdevicesnodesc>`(:ref:`size_t<doxid-typedefsize_t>`* count = null);
+
+	:ref:`io.UsbDevice<doxid-typeio_usbdevice>`* errorcode :target:`openUsbDevice<doxid-functionio_openusbdevice>`(
+		:ref:`uint_t<doxid-typedefuint_t>` vendorId,
+		:ref:`uint_t<doxid-typedefuint_t>` productId
+	);
+
+	bool :target:`detectUsbMon<doxid-functionio_detectusbmon>`();
+
+	:ref:`io.UsbMonDeviceDesc<doxid-typeio_usbmondevicedesc>` const* :target:`enumerateUsbMonDevices<doxid-functionio_enumerateusbmondevices>`(
+		:ref:`io.UsbMonEnumFlags<doxid-typeio_usbmonenumflags>` flags,
+		:ref:`size_t<doxid-typedefsize_t>`* count = null
+	);
+
+	:ref:`io.UsbMonDeviceDesc<doxid-typeio_usbmondevicedesc>` const* :target:`enumerateUsbMonDevices<doxid-functionio_enumerateusbmondevices_2>`(:ref:`size_t<doxid-typedefsize_t>`* count = null);
+	:ref:`io.HidDeviceDesc<doxid-typeio_hiddevicedesc>` const* :target:`enumerateHidDevices<doxid-functionio_enumeratehiddevices>`(:ref:`size_t<doxid-typedefsize_t>`* count = null);
+	:ref:`io.HidMonDeviceDesc<doxid-typeio_hidmondevicedesc>` const* :target:`enumerateHidMonDevices<doxid-functionio_enumeratehidmondevices>`(:ref:`size_t<doxid-typedefsize_t>`* count = null);
+	bool :target:`isHidRdItemSigned<doxid-functionio_ishidrditemsigned>`(:ref:`io.HidRdItemId<doxid-typeio_hidrditemid>` id);
+
+	:ref:`io.HidRdUnit<doxid-typeio_hidrdunit>` :target:`getHidRdUnit<doxid-functionio_gethidrdunit>`(
+		:ref:`io.HidRdUnitNibbleRole<doxid-typeio_hidrdunitnibblerole>` role,
+		:ref:`io.HidRdUnitSystem<doxid-typeio_hidrdunitsystem>` system
+	);
+
+	int :target:`getHidRdUnitExponent<doxid-functionio_gethidrdunitexponent>`(:ref:`uint_t<doxid-typedefuint_t>` nibble);
+	:ref:`string_t<doxid-typedefstring_t>` :target:`getHidRdComplexUnitString<doxid-functionio_gethidrdcomplexunitstring>`(:ref:`uint32_t<doxid-typedefuint32_t>` unit);
+	bool :target:`detectDeviceMonitor<doxid-functionio_detectdevicemonitor>`();
+
+	} // namespace io

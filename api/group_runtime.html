@@ -1,0 +1,309 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Runtime &mdash; Jancy C API Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-pygments.css?v=ff3f4257" />
+      <link rel="stylesheet" type="text/css" href="_static/doxyrest-sphinx_rtd_theme.css?v=b6ca47bd" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=51b770b3"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/target-highlight.js?v=df7d332b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="struct jnc_Runtime" href="struct_jnc_Runtime.html" />
+    <link rel="prev" title="struct jnc_GcStats" href="struct_jnc_GcStats.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Jancy C API Reference
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="group_base-def.html">Base Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_error-subsystem.html">Error Subsystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_extension-lib-subsystem.html">Extension Libraries Subsystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group_module-subsystem.html">Module Components</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="group_runtime-subsystem.html">Runtime Subsystem</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="group_call-site.html">Call Site</a></li>
+<li class="toctree-l2"><a class="reference internal" href="group_gc-heap.html">Garbage-Collected Heap</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Runtime</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="struct_jnc_Runtime.html">struct jnc_Runtime</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="group_runtime-structs.html">Runtime Structures</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="global.html">Global Namespace</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Jancy C API Reference</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="group_runtime-subsystem.html">Runtime Subsystem</a></li>
+      <li class="breadcrumb-item active">Runtime</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="runtime">
+<span id="doxid-group-runtime"></span><span id="index-0"></span><h1>Runtime</h1>
+<div class="toctree-wrapper compound">
+</div>
+<pre class="highlight doxyrest-overview-code-block literal-block"><span></span><span class="cp">#include</span> <span class="cpf">&lt;jnc_Runtime.h&gt;</span>
+
+<span class="c1">// structs</span>
+
+<span class="k">struct</span> <a class="reference internal" href="struct_jnc_Runtime.html#doxid-structjnc-runtime"><span class="std std-ref">jnc_Runtime</span></a><span></span><span class="p">;</span>
+
+<span class="c1">// global functions</span>
+
+<a class="reference internal" href="struct_jnc_Runtime.html#doxid-structjnc-runtime"><span class="std std-ref">jnc_Runtime</span></a><span></span><span class="o">*</span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1gaa573d568bfc739061ac75179b3a84014"><span></span><span class="n">jnc_Runtime_create</span></span><span></span><span class="p">();</span>
+
+<span class="kt">void</span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1gae2964da65d670e8dd05d0de8c9579648"><span></span><span class="n">jnc_Runtime_destroy</span></span><span></span><span class="p">(</span><a class="reference internal" href="struct_jnc_Runtime.html#doxid-structjnc-runtime"><span class="std std-ref">jnc_Runtime</span></a><span></span><span class="o">*</span> <span class="n">runtime</span><span class="p">);</span>
+
+<a class="reference internal" href="struct_jnc_Module.html#doxid-structjnc-module"><span class="std std-ref">jnc_Module</span></a><span></span><span class="o">*</span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1ga04976018377953bfde06c28a80210527"><span></span><span class="n">jnc_Runtime_getModule</span></span><span></span><span class="p">(</span><a class="reference internal" href="struct_jnc_Runtime.html#doxid-structjnc-runtime"><span class="std std-ref">jnc_Runtime</span></a><span></span><span class="o">*</span> <span class="n">runtime</span><span class="p">);</span>
+
+<a class="reference internal" href="struct_jnc_GcHeap.html#doxid-structjnc-gc-heap"><span class="std std-ref">jnc_GcHeap</span></a><span></span><span class="o">*</span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1ga21b3b4b1a0e521d19520b2a5ca973893"><span></span><span class="n">jnc_Runtime_getGcHeap</span></span><span></span><span class="p">(</span><a class="reference internal" href="struct_jnc_Runtime.html#doxid-structjnc-runtime"><span class="std std-ref">jnc_Runtime</span></a><span></span><span class="o">*</span> <span class="n">runtime</span><span class="p">);</span>
+
+<a class="reference internal" href="group_base-def.html#doxid-group-base-def-1ga812d16e5494522586b3784e55d479912"><span class="std std-ref">bool_t</span></a><span></span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1gacba6e5643838f8557a442be4a4fd6a0f"><span></span><span class="n">jnc_Runtime_isAborted</span></span><span></span><span class="p">(</span><a class="reference internal" href="struct_jnc_Runtime.html#doxid-structjnc-runtime"><span class="std std-ref">jnc_Runtime</span></a><span></span><span class="o">*</span> <span class="n">runtime</span><span class="p">);</span>
+
+<a class="reference internal" href="group_base-def.html#doxid-group-base-def-1ga812d16e5494522586b3784e55d479912"><span class="std std-ref">bool_t</span></a><span></span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1gaf8bb0794fdf5f14e8cb8d76b363a1a48"><span></span><span class="n">jnc_Runtime_startup</span></span><span></span><span class="p">(</span>
+    <a class="reference internal" href="struct_jnc_Runtime.html#doxid-structjnc-runtime"><span class="std std-ref">jnc_Runtime</span></a><span></span><span class="o">*</span> <span class="n">runtime</span><span class="p">,</span>
+    <a class="reference internal" href="struct_jnc_Module.html#doxid-structjnc-module"><span class="std std-ref">jnc_Module</span></a><span></span><span class="o">*</span> <span class="n">module</span>
+<span class="p">);</span>
+
+<span class="kt">void</span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1ga95be1ad86ed7c757fd16fa3675c20573"><span></span><span class="n">jnc_Runtime_shutdown</span></span><span></span><span class="p">(</span><a class="reference internal" href="struct_jnc_Runtime.html#doxid-structjnc-runtime"><span class="std std-ref">jnc_Runtime</span></a><span></span><span class="o">*</span> <span class="n">runtime</span><span class="p">);</span>
+
+<span class="kt">void</span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1gab621e44b468907b806616219d9624bc4"><span></span><span class="n">jnc_Runtime_abort</span></span><span></span><span class="p">(</span><a class="reference internal" href="struct_jnc_Runtime.html#doxid-structjnc-runtime"><span class="std std-ref">jnc_Runtime</span></a><span></span><span class="o">*</span> <span class="n">runtime</span><span class="p">);</span>
+
+<span class="kt">void</span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1ga8b1a4cf5befca576e4d460cb30a61577"><span></span><span class="n">jnc_Runtime_initializeCallSite</span></span><span></span><span class="p">(</span>
+    <a class="reference internal" href="struct_jnc_Runtime.html#doxid-structjnc-runtime"><span class="std std-ref">jnc_Runtime</span></a><span></span><span class="o">*</span> <span class="n">runtime</span><span class="p">,</span>
+    <a class="reference internal" href="struct_jnc_CallSite.html#doxid-structjnc-call-site"><span class="std std-ref">jnc_CallSite</span></a><span></span><span class="o">*</span> <span class="n">callSite</span>
+<span class="p">);</span>
+
+<span class="kt">void</span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1ga7468ec07901990de07f774772358da07"><span></span><span class="n">jnc_Runtime_uninitializeCallSite</span></span><span></span><span class="p">(</span>
+    <a class="reference internal" href="struct_jnc_Runtime.html#doxid-structjnc-runtime"><span class="std std-ref">jnc_Runtime</span></a><span></span><span class="o">*</span> <span class="n">runtime</span><span class="p">,</span>
+    <a class="reference internal" href="struct_jnc_CallSite.html#doxid-structjnc-call-site"><span class="std std-ref">jnc_CallSite</span></a><span></span><span class="o">*</span> <span class="n">callSite</span>
+<span class="p">);</span>
+
+<a class="reference internal" href="struct_jnc_SjljFrame.html#doxid-structjnc-sjlj-frame"><span class="std std-ref">jnc_SjljFrame</span></a><span></span><span class="o">*</span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1ga7669b971f43c899793fa7bdf7bee7d90"><span></span><span class="n">jnc_Runtime_setSjljFrame</span></span><span></span><span class="p">(</span>
+    <a class="reference internal" href="struct_jnc_Runtime.html#doxid-structjnc-runtime"><span class="std std-ref">jnc_Runtime</span></a><span></span><span class="o">*</span> <span class="n">runtime</span><span class="p">,</span>
+    <a class="reference internal" href="struct_jnc_SjljFrame.html#doxid-structjnc-sjlj-frame"><span class="std std-ref">jnc_SjljFrame</span></a><span></span><span class="o">*</span> <span class="n">frame</span>
+<span class="p">);</span>
+
+<span class="kt">void</span><span class="o">*</span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1gaa4f72b12ab2dfddff7376cbf35ec3473"><span></span><span class="n">jnc_Runtime_getUserData</span></span><span></span><span class="p">(</span><a class="reference internal" href="struct_jnc_Runtime.html#doxid-structjnc-runtime"><span class="std std-ref">jnc_Runtime</span></a><span></span><span class="o">*</span> <span class="n">runtime</span><span class="p">);</span>
+
+<span class="kt">void</span><span class="o">*</span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1ga2227d55b95f623fb1684c34d2d6da94b"><span></span><span class="n">jnc_Runtime_setUserData</span></span><span></span><span class="p">(</span>
+    <a class="reference internal" href="struct_jnc_Runtime.html#doxid-structjnc-runtime"><span class="std std-ref">jnc_Runtime</span></a><span></span><span class="o">*</span> <span class="n">runtime</span><span class="p">,</span>
+    <span class="kt">void</span><span class="o">*</span> <span class="n">data</span>
+<span class="p">);</span>
+
+<a class="reference internal" href="struct_jnc_Runtime.html#doxid-structjnc-runtime"><span class="std std-ref">jnc_Runtime</span></a><span></span><span class="o">*</span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1ga83055c9348705edfca257643f2aa5a89"><span></span><span class="n">jnc_getCurrentThreadRuntime</span></span><span></span><span class="p">();</span>
+
+<span class="k">static</span>
+<a class="reference internal" href="struct_jnc_GcHeap.html#doxid-structjnc-gc-heap"><span class="std std-ref">jnc_GcHeap</span></a><span></span><span class="o">*</span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1ga112dc37e2b5732b6634c1b763f8affcf"><span></span><span class="n">jnc_getCurrentThreadGcHeap</span></span><span></span><span class="p">();</span>
+
+<a class="reference internal" href="struct_jnc_Tls.html#doxid-structjnc-tls"><span class="std std-ref">jnc_Tls</span></a><span></span><span class="o">*</span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1gaa6e828da6424d3c49f7c0e264182e51e"><span></span><span class="n">jnc_getCurrentThreadTls</span></span><span></span><span class="p">();</span>
+
+<span class="kt">void</span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1ga634422c3ba46b3ecf685432861aca372"><span></span><span class="n">jnc_dynamicThrow</span></span><span></span><span class="p">();</span>
+
+<span class="kt">void</span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1ga053b43a239ddb732dea0640ea32f4bcb"><span></span><span class="n">jnc_saveSignalInfo</span></span><span></span><span class="p">(</span><a class="reference internal" href="struct_jnc_SjljFrame.html#doxid-structjnc-sjlj-frame"><span class="std std-ref">jnc_SjljFrame</span></a><span></span><span class="o">*</span> <span class="n">sjljFrame</span><span class="p">);</span>
+
+<span class="kt">void</span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1ga612ab47340947dd96811708c605613af"><span></span><span class="n">jnc_primeClass</span></span><span></span><span class="p">(</span>
+    <a class="reference internal" href="struct_jnc_Box.html#doxid-structjnc-box"><span class="std std-ref">jnc_Box</span></a><span></span><span class="o">*</span> <span class="n">box</span><span class="p">,</span>
+    <a class="reference internal" href="struct_jnc_Box.html#doxid-structjnc-box"><span class="std std-ref">jnc_Box</span></a><span></span><span class="o">*</span> <span class="n">root</span><span class="p">,</span>
+    <a class="reference internal" href="struct_jnc_ClassType.html#doxid-structjnc-class-type"><span class="std std-ref">jnc_ClassType</span></a><span></span><span class="o">*</span> <span class="n">type</span><span class="p">,</span>
+    <span class="k">const</span> <span class="kt">void</span><span class="o">*</span> <span class="n">vtable</span>
+<span class="p">);</span>
+
+<a class="reference internal" href="struct_jnc_IfaceHdr.html#doxid-structjnc-iface-hdr"><span class="std std-ref">jnc_IfaceHdr</span></a><span></span><span class="o">*</span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1ga2a88a6ae781a4e760e4c1b61ed99050d"><span></span><span class="n">jnc_strengthenClassPtr</span></span><span></span><span class="p">(</span><a class="reference internal" href="struct_jnc_IfaceHdr.html#doxid-structjnc-iface-hdr"><span class="std std-ref">jnc_IfaceHdr</span></a><span></span><span class="o">*</span> <span class="n">iface</span><span class="p">);</span>
+
+<span class="kt">size_t</span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1gaff16761976ccb92071634edefec513b7"><span></span><span class="n">jnc_strLen</span></span><span></span><span class="p">(</span><a class="reference internal" href="struct_jnc_DataPtr.html#doxid-structjnc-data-ptr"><span class="std std-ref">jnc_DataPtr</span></a><span></span> <span class="n">ptr</span><span class="p">);</span>
+
+<a class="reference internal" href="struct_jnc_DataPtr.html#doxid-structjnc-data-ptr"><span class="std std-ref">jnc_DataPtr</span></a><span></span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1ga33129b2f310226ef9aa07e669dcc59b2"><span></span><span class="n">jnc_strDup</span></span><span></span><span class="p">(</span>
+    <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <span class="kt">size_t</span> <span class="n">length</span>
+<span class="p">);</span>
+
+<a class="reference internal" href="struct_jnc_DataPtr.html#doxid-structjnc-data-ptr"><span class="std std-ref">jnc_DataPtr</span></a><span></span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1ga69c3c047e9ed8b5d1d10786bb948be3b"><span></span><span class="n">jnc_strDup_w</span></span><span></span><span class="p">(</span>
+    <span class="k">const</span> <span class="kt">wchar_t</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <span class="kt">size_t</span> <span class="n">length</span>
+<span class="p">);</span>
+
+<a class="reference internal" href="struct_jnc_DataPtr.html#doxid-structjnc-data-ptr"><span class="std std-ref">jnc_DataPtr</span></a><span></span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1ga5dc1ed2d1c8b7ccff054dca84ff878e3"><span></span><span class="n">jnc_strDup_utf16</span></span><span></span><span class="p">(</span>
+    <span class="k">const</span> <span class="n">utf16_t</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <span class="kt">size_t</span> <span class="n">length</span>
+<span class="p">);</span>
+
+<a class="reference internal" href="struct_jnc_String.html#doxid-structjnc-string"><span class="std std-ref">jnc_String</span></a><span></span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1gaf4c312f5c55d1fb0580f75725b39b6e7"><span></span><span class="n">jnc_allocateString</span></span><span></span><span class="p">(</span>
+    <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <span class="kt">size_t</span> <span class="n">length</span>
+<span class="p">);</span>
+
+<a class="reference internal" href="struct_jnc_String.html#doxid-structjnc-string"><span class="std std-ref">jnc_String</span></a><span></span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1ga50771080fec1a57187aa53a3d95c94d5"><span></span><span class="n">jnc_allocateString_w</span></span><span></span><span class="p">(</span>
+    <span class="k">const</span> <span class="kt">wchar_t</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <span class="kt">size_t</span> <span class="n">length</span>
+<span class="p">);</span>
+
+<a class="reference internal" href="struct_jnc_String.html#doxid-structjnc-string"><span class="std std-ref">jnc_String</span></a><span></span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1gaef7ceb08e31b42b154fb469fd3af500f"><span></span><span class="n">jnc_allocateString_utf16</span></span><span></span><span class="p">(</span>
+    <span class="k">const</span> <span class="n">utf16_t</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <span class="kt">size_t</span> <span class="n">length</span>
+<span class="p">);</span>
+
+<a class="reference internal" href="struct_jnc_DataPtr.html#doxid-structjnc-data-ptr"><span class="std std-ref">jnc_DataPtr</span></a><span></span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1gadac5db17fb3ee37ee6f9b781bbd73c32"><span></span><span class="n">jnc_memDup</span></span><span></span><span class="p">(</span>
+    <span class="k">const</span> <span class="kt">void</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <span class="kt">size_t</span> <span class="n">size</span>
+<span class="p">);</span>
+
+<span class="k">static</span>
+<span class="kt">intptr_t</span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1ga771e81233d0b81e6a1a89875f4c78d6c"><span></span><span class="n">jnc_getDataPtrLeftRadius</span></span><span></span><span class="p">(</span><a class="reference internal" href="struct_jnc_DataPtr.html#doxid-structjnc-data-ptr"><span class="std std-ref">jnc_DataPtr</span></a><span></span> <span class="n">ptr</span><span class="p">);</span>
+
+<span class="k">static</span>
+<span class="kt">intptr_t</span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1gae12cbed317ea12da7d6a0c4e08e8eea7"><span></span><span class="n">jnc_getDataPtrRightRadius</span></span><span></span><span class="p">(</span><a class="reference internal" href="struct_jnc_DataPtr.html#doxid-structjnc-data-ptr"><span class="std std-ref">jnc_DataPtr</span></a><span></span> <span class="n">ptr</span><span class="p">);</span>
+
+<a class="reference internal" href="struct_jnc_DataPtr.html#doxid-structjnc-data-ptr"><span class="std std-ref">jnc_DataPtr</span></a><span></span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1ga58cd290131bf64c664d9b08c20004f08"><span></span><span class="n">jnc_limitDataPtr</span></span><span></span><span class="p">(</span>
+    <a class="reference internal" href="struct_jnc_DataPtr.html#doxid-structjnc-data-ptr"><span class="std std-ref">jnc_DataPtr</span></a><span></span> <span class="n">ptr</span><span class="p">,</span>
+    <span class="kt">size_t</span> <span class="n">length</span>
+<span class="p">);</span>
+
+<a class="reference internal" href="struct_jnc_DataPtrValidator.html#doxid-structjnc-data-ptr-validator"><span class="std std-ref">jnc_DataPtrValidator</span></a><span></span><span class="o">*</span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1gac05cdc05917c4e11c451171405dc393c"><span></span><span class="n">jnc_createDataPtrValidator</span></span><span></span><span class="p">(</span>
+    <a class="reference internal" href="struct_jnc_Box.html#doxid-structjnc-box"><span class="std std-ref">jnc_Box</span></a><span></span><span class="o">*</span> <span class="n">box</span><span class="p">,</span>
+    <span class="k">const</span> <span class="kt">void</span><span class="o">*</span> <span class="n">rangeBegin</span><span class="p">,</span>
+    <span class="kt">size_t</span> <span class="n">rangeLength</span>
+<span class="p">);</span>
+
+<a class="reference internal" href="struct_jnc_DataPtr.html#doxid-structjnc-data-ptr"><span class="std std-ref">jnc_DataPtr</span></a><span></span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1ga329f8b608861db5d003329e657478878"><span></span><span class="n">jnc_createForeignBufferPtr</span></span><span></span><span class="p">(</span>
+    <span class="k">const</span> <span class="kt">void</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <span class="kt">size_t</span> <span class="n">size</span><span class="p">,</span>
+    <a class="reference internal" href="group_base-def.html#doxid-group-base-def-1ga812d16e5494522586b3784e55d479912"><span class="std std-ref">bool_t</span></a><span></span> <span class="n">isCallSiteLocal</span>
+<span class="p">);</span>
+
+<a class="reference internal" href="struct_jnc_String.html#doxid-structjnc-string"><span class="std std-ref">jnc_String</span></a><span></span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1gaa533b052f4a3153e70d29ebcc56a875b"><span></span><span class="n">jnc_createForeignString</span></span><span></span><span class="p">(</span>
+    <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <span class="kt">size_t</span> <span class="n">length</span><span class="p">,</span>
+    <a class="reference internal" href="group_base-def.html#doxid-group-base-def-1ga812d16e5494522586b3784e55d479912"><span class="std std-ref">bool_t</span></a><span></span> <span class="n">isCallSiteLocal</span>
+<span class="p">);</span>
+
+<a class="reference internal" href="struct_jnc_String.html#doxid-structjnc-string"><span class="std std-ref">jnc_String</span></a><span></span>
+<span class="doxyrest-code-target target" id="doxid-group-runtime-1ga28edb5babbc3756178a6a2f9344086bc"><span></span><span class="n">jnc_createForeignString_sz</span></span><span></span><span class="p">(</span>
+    <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span>
+    <span class="kt">size_t</span> <span class="n">length</span><span class="p">,</span>
+    <a class="reference internal" href="group_base-def.html#doxid-group-base-def-1ga812d16e5494522586b3784e55d479912"><span class="std std-ref">bool_t</span></a><span></span> <span class="n">isCallSiteLocal</span>
+<span class="p">);</span>
+
+<span class="c1">// macros</span>
+
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-runtime-1ga09ff3ea01681d718a779f6019371a1c9"><span></span><span class="n">jnc_longJmp</span></span><span></span>
+<span class="cp">#define </span><span class="doxyrest-code-target target" id="doxid-group-runtime-1ga07caf2860855e65a8cc10a12d6644a40"><span></span><span class="n">jnc_setJmp</span></span></pre>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="struct_jnc_GcStats.html" class="btn btn-neutral float-left" title="struct jnc_GcStats" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="struct_jnc_Runtime.html" class="btn btn-neutral float-right" title="struct jnc_Runtime" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012-2026, Tibbo Technology Inc.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,19 @@
+.. include:: def.rst
+.. index:: pair: enum; RegexExecFlags
+.. _doxid-typejnc_regexexecflags:
+
+bitflag enum jnc.RegexExecFlags
+===============================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum RegexExecFlags {
+	    :target:`Anchored<doxid-enum_memberjnc_regexexecflags_anchored>`      = 0x01,
+	    :target:`FullMatch<doxid-enum_memberjnc_regexexecflags_fullmatch>`     = 0x02,
+	    :target:`EndOffsetOnly<doxid-enum_memberjnc_regexexecflags_endoffsetonly>` = 0x04,
+	};
+

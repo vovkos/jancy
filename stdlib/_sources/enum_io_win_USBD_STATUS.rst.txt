@@ -1,0 +1,78 @@
+.. include:: def.rst
+.. index:: pair: enum; USBD_STATUS
+.. _doxid-typeio_win_usbd_status:
+
+enum io.win.USBD_STATUS
+=======================
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum USBD_STATUS {
+	    :target:`USBD_STATUS_SUCCESS<doxid-enum_memberio_win_usbd_status_usbd_status_success>`                          = 0x00000000,
+	    :target:`USBD_STATUS_PORT_OPERATION_PENDING<doxid-enum_memberio_win_usbd_status_usbd_status_port_operation_pending>`           = 0x00000001,
+	    :target:`USBD_STATUS_PENDING<doxid-enum_memberio_win_usbd_status_usbd_status_pending>`                          = 0x40000000,
+	    :target:`USBD_STATUS_CRC<doxid-enum_memberio_win_usbd_status_usbd_status_crc>`                              = 0xC0000001,
+	    :target:`USBD_STATUS_BTSTUFF<doxid-enum_memberio_win_usbd_status_usbd_status_btstuff>`                          = 0xC0000002,
+	    :target:`USBD_STATUS_DATA_TOGGLE_MISMATCH<doxid-enum_memberio_win_usbd_status_usbd_status_data_toggle_mismatch>`             = 0xC0000003,
+	    :target:`USBD_STATUS_STALL_PID<doxid-enum_memberio_win_usbd_status_usbd_status_stall_pid>`                        = 0xC0000004,
+	    :target:`USBD_STATUS_DEV_NOT_RESPONDING<doxid-enum_memberio_win_usbd_status_usbd_status_dev_not_responding>`               = 0xC0000005,
+	    :target:`USBD_STATUS_PID_CHECK_FAILURE<doxid-enum_memberio_win_usbd_status_usbd_status_pid_check_failure>`                = 0xC0000006,
+	    :target:`USBD_STATUS_UNEXPECTED_PID<doxid-enum_memberio_win_usbd_status_usbd_status_unexpected_pid>`                   = 0xC0000007,
+	    :target:`USBD_STATUS_DATA_OVERRUN<doxid-enum_memberio_win_usbd_status_usbd_status_data_overrun>`                     = 0xC0000008,
+	    :target:`USBD_STATUS_DATA_UNDERRUN<doxid-enum_memberio_win_usbd_status_usbd_status_data_underrun>`                    = 0xC0000009,
+	    :target:`USBD_STATUS_RESERVED1<doxid-enum_memberio_win_usbd_status_usbd_status_reserved1>`                        = 0xC000000A,
+	    :target:`USBD_STATUS_RESERVED2<doxid-enum_memberio_win_usbd_status_usbd_status_reserved2>`                        = 0xC000000B,
+	    :target:`USBD_STATUS_BUFFER_OVERRUN<doxid-enum_memberio_win_usbd_status_usbd_status_buffer_overrun>`                   = 0xC000000C,
+	    :target:`USBD_STATUS_BUFFER_UNDERRUN<doxid-enum_memberio_win_usbd_status_usbd_status_buffer_underrun>`                  = 0xC000000D,
+	    :target:`USBD_STATUS_NOT_ACCESSED<doxid-enum_memberio_win_usbd_status_usbd_status_not_accessed>`                     = 0xC000000F,
+	    :target:`USBD_STATUS_FIFO<doxid-enum_memberio_win_usbd_status_usbd_status_fifo>`                             = 0xC0000010,
+	    :target:`USBD_STATUS_XACT_ERROR<doxid-enum_memberio_win_usbd_status_usbd_status_xact_error>`                       = 0xC0000011,
+	    :target:`USBD_STATUS_BABBLE_DETECTED<doxid-enum_memberio_win_usbd_status_usbd_status_babble_detected>`                  = 0xC0000012,
+	    :target:`USBD_STATUS_DATA_BUFFER_ERROR<doxid-enum_memberio_win_usbd_status_usbd_status_data_buffer_error>`                = 0xC0000013,
+	    :target:`USBD_STATUS_NO_PING_RESPONSE<doxid-enum_memberio_win_usbd_status_usbd_status_no_ping_response>`                 = 0xC0000014,
+	    :target:`USBD_STATUS_INVALID_STREAM_TYPE<doxid-enum_memberio_win_usbd_status_usbd_status_invalid_stream_type>`              = 0xC0000015,
+	    :target:`USBD_STATUS_INVALID_STREAM_ID<doxid-enum_memberio_win_usbd_status_usbd_status_invalid_stream_id>`                = 0xC0000016,
+	    :target:`USBD_STATUS_ENDPOINT_HALTED<doxid-enum_memberio_win_usbd_status_usbd_status_endpoint_halted>`                  = 0xC0000030,
+	    :target:`USBD_STATUS_INVALID_URB_FUNCTION<doxid-enum_memberio_win_usbd_status_usbd_status_invalid_urb_function>`             = 0x80000200,
+	    :target:`USBD_STATUS_INVALID_PARAMETER<doxid-enum_memberio_win_usbd_status_usbd_status_invalid_parameter>`                = 0x80000300,
+	    :target:`USBD_STATUS_ERROR_BUSY<doxid-enum_memberio_win_usbd_status_usbd_status_error_busy>`                       = 0x80000400,
+	    :target:`USBD_STATUS_INVALID_PIPE_HANDLE<doxid-enum_memberio_win_usbd_status_usbd_status_invalid_pipe_handle>`              = 0x80000600,
+	    :target:`USBD_STATUS_NO_BANDWIDTH<doxid-enum_memberio_win_usbd_status_usbd_status_no_bandwidth>`                     = 0x80000700,
+	    :target:`USBD_STATUS_INTERNAL_HC_ERROR<doxid-enum_memberio_win_usbd_status_usbd_status_internal_hc_error>`                = 0x80000800,
+	    :target:`USBD_STATUS_ERROR_SHORT_TRANSFER<doxid-enum_memberio_win_usbd_status_usbd_status_error_short_transfer>`             = 0x80000900,
+	    :target:`USBD_STATUS_BAD_START_FRAME<doxid-enum_memberio_win_usbd_status_usbd_status_bad_start_frame>`                  = 0xC0000A00,
+	    :target:`USBD_STATUS_ISOCH_REQUEST_FAILED<doxid-enum_memberio_win_usbd_status_usbd_status_isoch_request_failed>`             = 0xC0000B00,
+	    :target:`USBD_STATUS_FRAME_CONTROL_OWNED<doxid-enum_memberio_win_usbd_status_usbd_status_frame_control_owned>`              = 0xC0000C00,
+	    :target:`USBD_STATUS_FRAME_CONTROL_NOT_OWNED<doxid-enum_memberio_win_usbd_status_usbd_status_frame_control_not_owned>`          = 0xC0000D00,
+	    :target:`USBD_STATUS_NOT_SUPPORTED<doxid-enum_memberio_win_usbd_status_usbd_status_not_supported>`                    = 0xC0000E00,
+	    :target:`USBD_STATUS_INAVLID_CONFIGURATION_DESCRIPTOR<doxid-enum_memberio_win_usbd_status_usbd_status_inavlid_configuration_descriptor>` = 0xC0000F00,
+	    :target:`USBD_STATUS_INSUFFICIENT_RESOURCES<doxid-enum_memberio_win_usbd_status_usbd_status_insufficient_resources>`           = 0xC0001000,
+	    :target:`USBD_STATUS_SET_CONFIG_FAILED<doxid-enum_memberio_win_usbd_status_usbd_status_set_config_failed>`                = 0xC0002000,
+	    :target:`USBD_STATUS_BUFFER_TOO_SMALL<doxid-enum_memberio_win_usbd_status_usbd_status_buffer_too_small>`                 = 0xC0003000,
+	    :target:`USBD_STATUS_INTERFACE_NOT_FOUND<doxid-enum_memberio_win_usbd_status_usbd_status_interface_not_found>`              = 0xC0004000,
+	    :target:`USBD_STATUS_INAVLID_PIPE_FLAGS<doxid-enum_memberio_win_usbd_status_usbd_status_inavlid_pipe_flags>`               = 0xC0005000,
+	    :target:`USBD_STATUS_TIMEOUT<doxid-enum_memberio_win_usbd_status_usbd_status_timeout>`                          = 0xC0006000,
+	    :target:`USBD_STATUS_DEVICE_GONE<doxid-enum_memberio_win_usbd_status_usbd_status_device_gone>`                      = 0xC0007000,
+	    :target:`USBD_STATUS_STATUS_NOT_MAPPED<doxid-enum_memberio_win_usbd_status_usbd_status_status_not_mapped>`                = 0xC0008000,
+	    :target:`USBD_STATUS_HUB_INTERNAL_ERROR<doxid-enum_memberio_win_usbd_status_usbd_status_hub_internal_error>`               = 0xC0009000,
+	    :target:`USBD_STATUS_CANCELED<doxid-enum_memberio_win_usbd_status_usbd_status_canceled>`                         = 0xC0010000,
+	    :target:`USBD_STATUS_ISO_NOT_ACCESSED_BY_HW<doxid-enum_memberio_win_usbd_status_usbd_status_iso_not_accessed_by_hw>`           = 0xC0020000,
+	    :target:`USBD_STATUS_ISO_TD_ERROR<doxid-enum_memberio_win_usbd_status_usbd_status_iso_td_error>`                     = 0xC0030000,
+	    :target:`USBD_STATUS_ISO_NA_LATE_USBPORT<doxid-enum_memberio_win_usbd_status_usbd_status_iso_na_late_usbport>`              = 0xC0040000,
+	    :target:`USBD_STATUS_ISO_NOT_ACCESSED_LATE<doxid-enum_memberio_win_usbd_status_usbd_status_iso_not_accessed_late>`            = 0xC0050000,
+	    :target:`USBD_STATUS_BAD_DESCRIPTOR<doxid-enum_memberio_win_usbd_status_usbd_status_bad_descriptor>`                   = 0xC0100000,
+	    :target:`USBD_STATUS_BAD_DESCRIPTOR_BLEN<doxid-enum_memberio_win_usbd_status_usbd_status_bad_descriptor_blen>`              = 0xC0100001,
+	    :target:`USBD_STATUS_BAD_DESCRIPTOR_TYPE<doxid-enum_memberio_win_usbd_status_usbd_status_bad_descriptor_type>`              = 0xC0100002,
+	    :target:`USBD_STATUS_BAD_INTERFACE_DESCRIPTOR<doxid-enum_memberio_win_usbd_status_usbd_status_bad_interface_descriptor>`         = 0xC0100003,
+	    :target:`USBD_STATUS_BAD_ENDPOINT_DESCRIPTOR<doxid-enum_memberio_win_usbd_status_usbd_status_bad_endpoint_descriptor>`          = 0xC0100004,
+	    :target:`USBD_STATUS_BAD_INTERFACE_ASSOC_DESCRIPTOR<doxid-enum_memberio_win_usbd_status_usbd_status_bad_interface_assoc_descriptor>`   = 0xC0100005,
+	    :target:`USBD_STATUS_BAD_CONFIG_DESC_LENGTH<doxid-enum_memberio_win_usbd_status_usbd_status_bad_config_desc_length>`           = 0xC0100006,
+	    :target:`USBD_STATUS_BAD_NUMBER_OF_INTERFACES<doxid-enum_memberio_win_usbd_status_usbd_status_bad_number_of_interfaces>`         = 0xC0100007,
+	    :target:`USBD_STATUS_BAD_NUMBER_OF_ENDPOINTS<doxid-enum_memberio_win_usbd_status_usbd_status_bad_number_of_endpoints>`          = 0xC0100008,
+	    :target:`USBD_STATUS_BAD_ENDPOINT_ADDRESS<doxid-enum_memberio_win_usbd_status_usbd_status_bad_endpoint_address>`             = 0xC0100009,
+	};
+

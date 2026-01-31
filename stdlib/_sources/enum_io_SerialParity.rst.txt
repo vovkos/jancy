@@ -1,0 +1,106 @@
+.. include:: def.rst
+.. index:: pair: enum; SerialParity
+.. _doxid-typeio_serialparity:
+
+enum io.SerialParity
+====================
+
+Overview
+~~~~~~~~
+
+This enumeration specifies all possible values for the serial parity
+bit setting. :ref:`More...<details-typeio_serialparity>`
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	enum SerialParity {
+	    :ref:`None<doxid-enum_memberio_serialparity_none>`,
+	    :ref:`Odd<doxid-enum_memberio_serialparity_odd>`,
+	    :ref:`Even<doxid-enum_memberio_serialparity_even>`,
+	    :ref:`Mark<doxid-enum_memberio_serialparity_mark>`,
+	    :ref:`Space<doxid-enum_memberio_serialparity_space>`,
+	};
+
+.. _details-typeio_serialparity:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This enumeration specifies all possible values for the serial parity
+bit setting.
+
+Serial parity bit is an extra bit transmitted alongside the data so that the
+total number of one's including data bits *and* this parity bit is always
+*odd* or always *even*.
+
+This is a rather weak error detection method as it does not detect data
+corruption if an *even* number of bits are altered. Usually it's much more
+reliable to employ other checksums/hash checks after the data has been
+transmitted.
+
+To adjust the parity protocol, modify `io.Serial.m_parity` property at any
+time(both pre-open and post-open modifications are supported).
+
+
+
+.. rubric:: See also:
+
+`io.Serial`
+
+Enum Values
+-----------
+
+.. index:: pair: enumvalue; None
+.. _doxid-enum_memberio_serialparity_none:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	None
+
+No parity bit is sent alongside the data.
+
+.. index:: pair: enumvalue; Odd
+.. _doxid-enum_memberio_serialparity_odd:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Odd
+
+A parity bit is sent; **odd** parity check is used(total number of
+ones including data and parity bit should be *odd*).
+
+.. index:: pair: enumvalue; Even
+.. _doxid-enum_memberio_serialparity_even:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Even
+
+A parity bit is sent; **even** parity check is used(total number of
+ones including data and parity bit should be *odd*).
+
+.. index:: pair: enumvalue; Mark
+.. _doxid-enum_memberio_serialparity_mark:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Mark
+
+A parity bit is sent; parity bit should always be set to ``1``.
+
+.. index:: pair: enumvalue; Space
+.. _doxid-enum_memberio_serialparity_space:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	Space
+
+A parity bit is sent; parity bit should always be set to ``0``.
+

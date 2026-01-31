@@ -1,0 +1,864 @@
+.. include:: def.rst
+.. index:: pair: group; C Runtime Functions
+.. _doxid-group_crt:
+
+C Runtime Functions
+===================
+
+.. toctree::
+	:hidden:
+
+Overview
+~~~~~~~~
+
+This section contains C runtime functions available from Jancy. :ref:`More...<details-group_crt>`
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	// global functions
+
+	bool :target:`isspace<doxid-functionisspace>`(:ref:`utf32_t<doxid-typedefutf32_t>` c);
+	bool :target:`isprint<doxid-functionisprint>`(:ref:`utf32_t<doxid-typedefutf32_t>` c);
+	bool :target:`ispunct<doxid-functionispunct>`(:ref:`utf32_t<doxid-typedefutf32_t>` c);
+	bool :target:`isalpha<doxid-functionisalpha>`(:ref:`utf32_t<doxid-typedefutf32_t>` c);
+	bool :target:`isalnum<doxid-functionisalnum>`(:ref:`utf32_t<doxid-typedefutf32_t>` c);
+	bool :target:`isdigit<doxid-functionisdigit>`(:ref:`utf32_t<doxid-typedefutf32_t>` c);
+	bool :target:`isupper<doxid-functionisupper>`(:ref:`utf32_t<doxid-typedefutf32_t>` c);
+	bool :target:`islower<doxid-functionislower>`(:ref:`utf32_t<doxid-typedefutf32_t>` c);
+	:ref:`size_t<doxid-typedefsize_t>` :ref:`strlen<doxid-functionstrlen>`(char const* p);
+
+	int :ref:`strcmp<doxid-functionstrcmp>`(
+		char const* p1,
+		char const* p2
+	);
+
+	int :target:`strncmp<doxid-functionstrncmp>`(
+		char const* p1,
+		char const* p2,
+		:ref:`size_t<doxid-typedefsize_t>` length
+	);
+
+	int :ref:`stricmp<doxid-functionstricmp>`(
+		char const* p1,
+		char const* p2
+	);
+
+	int :target:`strnicmp<doxid-functionstrnicmp>`(
+		char const* p1,
+		char const* p2,
+		:ref:`size_t<doxid-typedefsize_t>` length
+	);
+
+	bool :ref:`streq<doxid-functionstreq>`(
+		char const* p1,
+		char const* p2
+	);
+
+	bool :target:`strneq<doxid-functionstrneq>`(
+		char const* p1,
+		char const* p2,
+		:ref:`size_t<doxid-typedefsize_t>` length
+	);
+
+	bool :ref:`strieq<doxid-functionstrieq>`(
+		char const* p1,
+		char const* p2
+	);
+
+	bool :target:`strnieq<doxid-functionstrnieq>`(
+		char const* p1,
+		char const* p2,
+		:ref:`size_t<doxid-typedefsize_t>` length
+	);
+
+	char const* :target:`strchr<doxid-functionstrchr>`(
+		char const* p,
+		char c
+	);
+
+	char* :target:`strchr<doxid-functionstrchr_2>`(
+		char* p,
+		char c
+	);
+
+	char const* :target:`strrchr<doxid-functionstrrchr>`(
+		char const* p,
+		char c
+	);
+
+	char* :target:`strrchr<doxid-functionstrrchr_2>`(
+		char* p,
+		char c
+	);
+
+	char const* :target:`strichr<doxid-functionstrichr>`(
+		char const* p,
+		char c
+	);
+
+	char* :target:`strichr<doxid-functionstrichr_2>`(
+		char* p,
+		char c
+	);
+
+	char const* :target:`strpbrk<doxid-functionstrpbrk>`(
+		char const* p1,
+		char const* p2
+	);
+
+	char* :target:`strpbrk<doxid-functionstrpbrk_2>`(
+		char* p1,
+		char const* p2
+	);
+
+	char const* :ref:`strstr<doxid-functionstrstr>`(
+		char const* p1,
+		char const* p2
+	);
+
+	char* :target:`strstr<doxid-functionstrstr_2>`(
+		char* p1,
+		char const* p2
+	);
+
+	char const* :target:`stristr<doxid-functionstristr>`(
+		char const* p1,
+		char const* p2
+	);
+
+	char* :target:`stristr<doxid-functionstristr_2>`(
+		char* p1,
+		char const* p2
+	);
+
+	void :ref:`strcpy<doxid-functionstrcpy>`(
+		char* dst,
+		char const* src
+	);
+
+	char* :ref:`strcat<doxid-functionstrcat>`(
+		char const* p1,
+		char const* p2
+	);
+
+	char* :ref:`strdup<doxid-functionstrdup>`(
+		char const* p,
+		:ref:`size_t<doxid-typedefsize_t>` length = -1
+	);
+
+	:ref:`size_t<doxid-typedefsize_t>` :ref:`strdjb2<doxid-functionstrdjb2>`(char const* p);
+	:ref:`size_t<doxid-typedefsize_t>` :ref:`stridjb2<doxid-functionstridjb2>`(char const* p);
+
+	int :ref:`memcmp<doxid-functionmemcmp>`(
+		void const* p1,
+		void const* p2,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	);
+
+	void const* :ref:`memchr<doxid-functionmemchr>`(
+		void const* p,
+		int c,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	);
+
+	void* :target:`memchr<doxid-functionmemchr_2>`(
+		void* p,
+		int c,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	);
+
+	void const* :ref:`memmem<doxid-functionmemmem>`(
+		void const* p1,
+		:ref:`size_t<doxid-typedefsize_t>` size1,
+		void const* p2,
+		:ref:`size_t<doxid-typedefsize_t>` size2
+	);
+
+	void* :target:`memmem<doxid-functionmemmem_2>`(
+		void* p1,
+		:ref:`size_t<doxid-typedefsize_t>` size1,
+		void const* p2,
+		:ref:`size_t<doxid-typedefsize_t>` size2
+	);
+
+	void :ref:`memcpy<doxid-functionmemcpy>`(
+		void* dst,
+		void const* src,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	);
+
+	void unsafe :target:`memcpy_u<doxid-functionmemcpy_u>`(
+		void thin* dst,
+		void const thin* src,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	);
+
+	void :ref:`memmove<doxid-functionmemmove>`(
+		void* dst,
+		void const* src,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	);
+
+	void unsafe :target:`memmove_u<doxid-functionmemmove_u>`(
+		void thin* dst,
+		void const thin* src,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	);
+
+	void :ref:`memset<doxid-functionmemset>`(
+		void* p,
+		int c,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	);
+
+	void unsafe :target:`memset_u<doxid-functionmemset_u>`(
+		void thin* p,
+		int c,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	);
+
+	void* :ref:`memcat<doxid-functionmemcat>`(
+		void const* p1,
+		:ref:`size_t<doxid-typedefsize_t>` size1,
+		void const* p2,
+		:ref:`size_t<doxid-typedefsize_t>` size2
+	);
+
+	void* :ref:`memdup<doxid-functionmemdup>`(
+		void const* p,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	);
+
+	:ref:`size_t<doxid-typedefsize_t>` :ref:`memdjb2<doxid-functionmemdjb2>`(
+		void const* p,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	);
+
+	int :ref:`rand<doxid-functionrand>`();
+	:ref:`uint32_t<doxid-typedefuint32_t>` :ref:`toupper<doxid-functiontoupper>`(:ref:`uint32_t<doxid-typedefuint32_t>` c);
+	:ref:`uint32_t<doxid-typedefuint32_t>` :ref:`tolower<doxid-functiontolower>`(:ref:`uint32_t<doxid-typedefuint32_t>` c);
+	int :ref:`atoi<doxid-functionatoi>`(:ref:`string_t<doxid-typedefstring_t>` s);
+	long :ref:`atol<doxid-functionatol>`(:ref:`string_t<doxid-typedefstring_t>` s);
+	float :ref:`atof<doxid-functionatof>`(:ref:`string_t<doxid-typedefstring_t>` s);
+	double :ref:`atod<doxid-functionatod>`(:ref:`string_t<doxid-typedefstring_t>` s);
+
+	long :ref:`strtol<doxid-functionstrtol>`(
+		:ref:`string_t<doxid-typedefstring_t>` s,
+		:ref:`size_t<doxid-typedefsize_t>`* length = null,
+		int radix = 0
+	);
+
+	long :ref:`strtol<doxid-functionstrtol_2>`(
+		char const* p,
+		char const** end = null,
+		int radix = 0
+	);
+
+	:ref:`ulong_t<doxid-typedefulong_t>` :ref:`strtoul<doxid-functionstrtoul>`(
+		:ref:`string_t<doxid-typedefstring_t>` s,
+		:ref:`size_t<doxid-typedefsize_t>`* length = null,
+		int radix = 0
+	);
+
+	:ref:`ulong_t<doxid-typedefulong_t>` :ref:`strtoul<doxid-functionstrtoul_2>`(
+		char const* p,
+		char const** end = null,
+		int radix = 0
+	);
+
+	float :ref:`strtof<doxid-functionstrtof>`(
+		:ref:`string_t<doxid-typedefstring_t>` s,
+		:ref:`size_t<doxid-typedefsize_t>`* length = null,
+		int radix = 0
+	);
+
+	float :ref:`strtof<doxid-functionstrtof_2>`(
+		char const* p,
+		char const** end = null,
+		int radix = 0
+	);
+
+	double :ref:`strtod<doxid-functionstrtod>`(
+		:ref:`string_t<doxid-typedefstring_t>` s,
+		:ref:`size_t<doxid-typedefsize_t>`* length = null,
+		int radix = 0
+	);
+
+	double :ref:`strtod<doxid-functionstrtod_2>`(
+		char const* p,
+		char const** end = null,
+		int radix = 0
+	);
+
+	char* :ref:`gets<doxid-functiongets>`();
+	:ref:`size_t<doxid-typedefsize_t>` :ref:`print<doxid-functionprint>`(char const* text);
+	:ref:`size_t<doxid-typedefsize_t>` :target:`print_u<doxid-functionprint_u>`(char const thin* text);
+	:ref:`size_t<doxid-typedefsize_t>` :ref:`perror<doxid-functionperror>`(char const* text);
+
+	:ref:`intptr_t<doxid-typedefintptr_t>` cdecl :ref:`printf<doxid-functionprintf>`(
+		char const thin* fmtSpecifier,
+		...
+	);
+
+.. _details-group_crt:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+This section contains C runtime functions available from Jancy.
+
+The purpose of these functions is to create a familiar environment for C/C++
+programmers and make it easier to switch between Jancy and C/C++.
+
+Global Functions
+----------------
+
+.. index:: pair: function; strlen
+.. _doxid-functionstrlen:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`size_t<doxid-typedefsize_t>` strlen(char const* p)
+
+Calculates and returns the length of the string pointed to by ``p``
+argument. The length of the string is defined as the number of bytes between
+the beginning of the string ``p`` and the very first ``0`` byte [#f1]_.
+
+Returns ``0`` if ``p == null``.
+
+.. index:: pair: function; strcmp
+.. _doxid-functionstrcmp:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	int strcmp(
+		char const* p1,
+		char const* p2
+	)
+
+Performs a case-sensitive lexicographic comparison of two null-terminated
+strings pointed to by ``p1`` and ``p2`` [#f1]_.
+
+Returns ``0`` if null-terminated strings pointed to by ``p1`` and ``p2``
+are equal.
+
+Returns ``-1`` if ``p1`` appears before ``p2`` in lexographical order.
+
+Returns ``1`` if ``p1`` appears after ``p2`` in lexographical order.
+
+.. index:: pair: function; stricmp
+.. _doxid-functionstricmp:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	int stricmp(
+		char const* p1,
+		char const* p2
+	)
+
+Performs a case-insensitive lexicographic comparison of two null-terminated
+strings pointed to by ``p1`` and ``p2`` [#f1]_.
+
+Returns ``0`` if null-terminated strings pointed to by ``p1`` and ``p2`` are
+equal.
+
+Returns ``-1`` if ``p1`` appears before ``p2`` in lexographical order.
+
+Returns ``1`` if ``p1`` appears after ``p2`` in lexographical order.
+
+.. index:: pair: function; streq
+.. _doxid-functionstreq:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool streq(
+		char const* p1,
+		char const* p2
+	)
+
+Performs a case-sensitive lexicographic comparison of two null-terminated
+strings pointed to by ``p1`` and ``p2`` [#f1]_.
+
+Returns ``true`` if null-terminated strings pointed to by ``p1`` and ``p2``
+are equal and ``false`` otherwise.
+
+.. index:: pair: function; strieq
+.. _doxid-functionstrieq:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	bool strieq(
+		char const* p1,
+		char const* p2
+	)
+
+Performs a case-insensitive lexicographic comparison of two null-terminated
+strings pointed to by ``p1`` and ``p2`` [#f1]_.
+
+Returns ``true`` if null-terminated strings pointed to by ``p1`` and ``p2``
+are equal and ``false`` otherwise.
+
+.. index:: pair: function; strstr
+.. _doxid-functionstrstr:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	char const* strstr(
+		char const* p1,
+		char const* p2
+	)
+
+Finds the first occurance of null-terminated substring ''p2'' within
+null-terminated string pointed to by ``p1`` [#f1]_.
+
+Returns a pointer to the first occurrence of substring ``p2`` in ``p1``.
+
+Returns ``null`` if substring ``p2`` is not found.
+
+Uses Boyer-Moore algorithm for substring search.
+
+.. index:: pair: function; strcpy
+.. _doxid-functionstrcpy:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	void strcpy(
+		char* dst,
+		char const* src
+	)
+
+Copies null-terminated string ``src`` to the buffer pointed to by ``dst``.
+
+.. index:: pair: function; strcat
+.. _doxid-functionstrcat:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	char* strcat(
+		char const* p1,
+		char const* p2
+	)
+
+Creates a new string as a concatenation of two null-terminated strings
+pointed to by ``p1`` and ``p2`` [#f1]_.
+
+Returns a pointer to the result string.
+
+.. index:: pair: function; strdup
+.. _doxid-functionstrdup:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	char* strdup(
+		char const* p,
+		:ref:`size_t<doxid-typedefsize_t>` length = -1
+	)
+
+Creates a duplicate of null-terminated string pointed to by ``p`` [#f1]_.
+
+Returns a pointer to the result string.
+
+.. index:: pair: function; strdjb2
+.. _doxid-functionstrdjb2:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`size_t<doxid-typedefsize_t>` strdjb2(char const* p)
+
+Calculates a DJB2 hash of null-terminated string ``p``.
+
+.. index:: pair: function; stridjb2
+.. _doxid-functionstridjb2:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`size_t<doxid-typedefsize_t>` stridjb2(char const* p)
+
+Calculates a case-insensitive DJB2 hash of null-terminated string ``p``.
+
+Equivalent of calling `strdjb2` on a string, each character of which was
+converted to lower-case via `tolower`.
+
+.. index:: pair: function; memcmp
+.. _doxid-functionmemcmp:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	int memcmp(
+		void const* p1,
+		void const* p2,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	)
+
+Performs a case-sensitive lexicographic comparison of two memory blocks
+``p1:size1`` and ``p2:size2`` [#f2]_.
+
+Returns ``0`` if null-terminated strings pointed to by ``p1`` and ``p2`` are
+equal.
+
+Returns ``-1`` if ``p1:size1`` appears before ``p2:size2`` in lexographical
+order.
+
+Returns ``1`` if ``p1:size1`` appears after ``p2:size2`` in lexographical
+order.
+
+.. index:: pair: function; memchr
+.. _doxid-functionmemchr:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	void const* memchr(
+		void const* p,
+		int c,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	)
+
+Finds the first occurance of char ``c`` within memory block ``p:size``
+[#f2]_.
+
+Returns a pointer to the first occurrence of ``c`` in ``p:size``.
+
+Returns ``null`` if ``c`` is not found.
+
+.. index:: pair: function; memmem
+.. _doxid-functionmemmem:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	void const* memmem(
+		void const* p1,
+		:ref:`size_t<doxid-typedefsize_t>` size1,
+		void const* p2,
+		:ref:`size_t<doxid-typedefsize_t>` size2
+	)
+
+Finds the first occurance of memory block ``p2:size2`` within memory block
+``p1:size1`` [#f2]_.
+
+Returns a pointer to the first occurrence of block ``p2:size2`` in
+``p1:size1``.
+
+Returns ``null`` if block ``p2:size2`` is not found.
+
+Uses Boyer-Moore algorithm for memory block search.
+
+.. index:: pair: function; memcpy
+.. _doxid-functionmemcpy:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	void memcpy(
+		void* dst,
+		void const* src,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	)
+
+Copies memory block ``src:size`` [#f2]_ to the buffer pointed to by ``dst``.
+
+.. index:: pair: function; memmove
+.. _doxid-functionmemmove:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	void memmove(
+		void* dst,
+		void const* src,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	)
+
+Moves memory block ``src:size`` [#f2]_ to the(possibly overlapping) buffer
+pointed to by ``dst``.
+
+.. index:: pair: function; memset
+.. _doxid-functionmemset:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	void memset(
+		void* p,
+		int c,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	)
+
+Copies character ``c`` to each of the first ``size`` bytes of memory block
+pointed to by ``p``.
+
+.. index:: pair: function; memcat
+.. _doxid-functionmemcat:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	void* memcat(
+		void const* p1,
+		:ref:`size_t<doxid-typedefsize_t>` size1,
+		void const* p2,
+		:ref:`size_t<doxid-typedefsize_t>` size2
+	)
+
+Creates a new memory block as a concatenation of two memory blocks
+``p1:size1`` and ``p2:size2`` [#f2]_.
+
+Returns a pointer to the result memory block.
+
+.. index:: pair: function; memdup
+.. _doxid-functionmemdup:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	void* memdup(
+		void const* p,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	)
+
+Creates a duplicate of memory block ``p:size`` [#f2]_.
+
+Returns a pointer to the result memory block.
+
+.. index:: pair: function; memdjb2
+.. _doxid-functionmemdjb2:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`size_t<doxid-typedefsize_t>` memdjb2(
+		void const* p,
+		:ref:`size_t<doxid-typedefsize_t>` size
+	)
+
+Calculates a DJB2 hash of memory block ``p:size`` [#f2]_.
+
+.. index:: pair: function; rand
+.. _doxid-functionrand:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	int rand()
+
+Returns a pseudo-random integral value between ``0`` and
+implementation-defined ``RAND_MAX`` (typically, ``32767``)
+
+Maps directly to standard C function ``rand``.
+
+.. index:: pair: function; toupper
+.. _doxid-functiontoupper:
+.. index:: pair: function; tolower
+.. _doxid-functiontolower:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`uint32_t<doxid-typedefuint32_t>` toupper(:ref:`uint32_t<doxid-typedefuint32_t>` c)
+	:ref:`uint32_t<doxid-typedefuint32_t>` tolower(:ref:`uint32_t<doxid-typedefuint32_t>` c)
+
+Converts Unicode codepoint ``c`` to upper or lower case.
+
+Returns the resulting Unicode codepoint.
+
+.. index:: pair: function; atoi
+.. _doxid-functionatoi:
+.. index:: pair: function; atol
+.. _doxid-functionatol:
+.. index:: pair: function; atof
+.. _doxid-functionatof:
+.. index:: pair: function; atod
+.. _doxid-functionatod:
+.. index:: pair: function; strtol
+.. _doxid-functionstrtol:
+.. index:: pair: function; strtol
+.. _doxid-functionstrtol_2:
+.. index:: pair: function; strtoul
+.. _doxid-functionstrtoul:
+.. index:: pair: function; strtoul
+.. _doxid-functionstrtoul_2:
+.. index:: pair: function; strtof
+.. _doxid-functionstrtof:
+.. index:: pair: function; strtof
+.. _doxid-functionstrtof_2:
+.. index:: pair: function; strtod
+.. _doxid-functionstrtod:
+.. index:: pair: function; strtod
+.. _doxid-functionstrtod_2:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	int atoi(:ref:`string_t<doxid-typedefstring_t>` s)
+	long atol(:ref:`string_t<doxid-typedefstring_t>` s)
+	float atof(:ref:`string_t<doxid-typedefstring_t>` s)
+	double atod(:ref:`string_t<doxid-typedefstring_t>` s)
+
+	long strtol(
+		:ref:`string_t<doxid-typedefstring_t>` s,
+		:ref:`size_t<doxid-typedefsize_t>`* length = null,
+		int radix = 0
+	)
+
+	long strtol(
+		char const* p,
+		char const** end = null,
+		int radix = 0
+	)
+
+	:ref:`ulong_t<doxid-typedefulong_t>` strtoul(
+		:ref:`string_t<doxid-typedefstring_t>` s,
+		:ref:`size_t<doxid-typedefsize_t>`* length = null,
+		int radix = 0
+	)
+
+	:ref:`ulong_t<doxid-typedefulong_t>` strtoul(
+		char const* p,
+		char const** end = null,
+		int radix = 0
+	)
+
+	float strtof(
+		:ref:`string_t<doxid-typedefstring_t>` s,
+		:ref:`size_t<doxid-typedefsize_t>`* length = null,
+		int radix = 0
+	)
+
+	float strtof(
+		char const* p,
+		char const** end = null,
+		int radix = 0
+	)
+
+	double strtod(
+		:ref:`string_t<doxid-typedefstring_t>` s,
+		:ref:`size_t<doxid-typedefsize_t>`* length = null,
+		int radix = 0
+	)
+
+	double strtod(
+		char const* p,
+		char const** end = null,
+		int radix = 0
+	)
+
+Parses a string representation of an integer.
+
+Discards any whitespace characters until the first non-whitespace character
+is found, then takes as many characters as possible to form a valid integer
+number representation and converts them to an integer value.
+
+Returns result integer value or ``0`` if string does not contain a valid
+representation of an integer.
+
+The ``strtol`` and ``strtoul`` functions set the pointer referenced by
+``end`` to the character past the last character interpreted. If ``end`` is
+``null``, it is ignored.
+
+Returns ``0`` if ``p == null``.
+
+.. index:: pair: function; gets
+.. _doxid-functiongets:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	char* gets()
+
+Reads a line from the standard input stream.
+
+Returns the resulting string, or a ``null`` if an error occurs.
+
+Length of the string can be discovered using `strlen` or, better, with
+``dynamic sizeof``::
+
+	char* s = gets();
+	size_t length = dynamic sizeof(s) - 1;
+
+.. index:: pair: function; print
+.. _doxid-functionprint:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`size_t<doxid-typedefsize_t>` print(char const* text)
+
+Prints text to the standard output stream.
+
+Returns the number of characters printed, or a ``-1`` if an error occurs.
+
+.. index:: pair: function; perror
+.. _doxid-functionperror:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`size_t<doxid-typedefsize_t>` perror(char const* text)
+
+Prints error message to the standard error stream.
+
+Unlike its standard C library counterpart, does not follow the message with
+``: <errno decription>``. If you need the last error description, inject it
+using formatting literals and the ``$!`` placeholder.
+
+Returns the number of characters printed, or a ``-1`` if an error occurs.
+
+.. index:: pair: function; printf
+.. _doxid-functionprintf:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	:ref:`intptr_t<doxid-typedefintptr_t>` cdecl printf(
+		char const thin* fmtSpecifier,
+		...
+	)
+
+Prints formatted output to the standard output stream [#f3]_.
+
+Returns the number of characters printed, or a ``-1`` if an error occurs.
+
+For detailed description of format specifier ``fmtSpecifier`` please refer
+to: http://www.cplusplus.com/reference/cstdio/printf/
+
+
+---------------------
+
+.. rubric:: Footnotes
+
+.. [#f1]
+
+	If null-terminating ``0`` byte is not discovered withing the allowed
+	range of string pointer, Jancy string functions behave just like if
+	``0`` was found at the very next byte after the end of allowed range.
+	In other words, it is always assumed that ``0`` could be found at the
+	location ``p + dynamic sizeof(p)`` -- even if the actual byte at this
+	location isn't really ``0``.
+
+.. [#f2]
+
+	The notation ``p:size`` here means: memory block pointed to by ``p`` and
+	of ``size`` bytes long.
+
+.. [#f3]
+
+	Note that this function uses ``C`` vararg calling convention(and
+	actually maps directly to libc ``snprintf``). As such, it is
+	**not safe**. It is recommended to use formatting literals instead.
+

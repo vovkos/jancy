@@ -1,0 +1,42 @@
+.. include:: def.rst
+.. index:: pair: enum; UsbEndpointEvents
+.. _doxid-typeio_usbendpointevents:
+
+bitflag enum io.UsbEndpointEvents
+=================================
+
+Overview
+~~~~~~~~
+
+
+
+.. ref-code-block:: jancy
+	:class: doxyrest-overview-code-block
+
+	
+	bitflag enum UsbEndpointEvents: :ref:`io.StreamEvents<doxid-typeio_streamevents>` {
+	    :ref:`WriteCompleted<doxid-enum_memberio_usbendpointevents_writecompleted>`,
+	};
+
+.. _details-typeio_usbendpointevents:
+
+Detailed Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+Enum Values
+-----------
+
+.. index:: pair: enumvalue; WriteCompleted
+.. _doxid-enum_memberio_usbendpointevents_writecompleted:
+
+.. ref-code-block:: jancy
+	:class: doxyrest-title-code-block
+
+	WriteCompleted
+
+OUT-endpoint has no active or pending USB transfers. Useful when you
+need to wait for all outbound transfers to complete before closing an
+endpoint.
+

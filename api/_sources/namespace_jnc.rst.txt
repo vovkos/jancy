@@ -1,0 +1,39 @@
+.. index:: pair: namespace; jnc
+.. _doxid-namespacejnc:
+
+namespace jnc
+=============
+
+.. toctree::
+	:hidden:
+
+	class_jnc_Edit.rst
+	class_jnc_EditBase.rst
+	class_jnc_EditTheme.rst
+	class_jnc_HighlighterBase.rst
+
+
+
+
+.. ref-code-block:: cpp
+	:class: doxyrest-overview-code-block
+
+	
+	namespace jnc {
+
+	// classes
+
+	class :ref:`Edit<doxid-classjnc_1_1_edit>`;
+	class :ref:`EditBase<doxid-classjnc_1_1_edit_base>`;
+	class :ref:`EditTheme<doxid-classjnc_1_1_edit_theme>`;
+	class :ref:`HighlighterBase<doxid-classjnc_1_1_highlighter_base>`;
+
+	// global functions
+
+	AXL_SELECT_ANY :ref:`EditTheme<doxid-classjnc_1_1_edit_theme>`
+	:target:`g_defaultLightTheme<doxid-jnc___edit_theme_8h_1a742ad1b018d9a343c9a9e56045c00bc8>`(EditTheme::InitLight);
+
+	AXL_SELECT_ANY :ref:`EditTheme<doxid-classjnc_1_1_edit_theme>`
+	:target:`g_defaultDarkTheme<doxid-jnc___edit_theme_8h_1a93ac6ad152df30e686383703e09c92b1>`(EditTheme::InitDark);
+
+	} // namespace jnc
