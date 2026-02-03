@@ -72,6 +72,12 @@ public slots:
 protected:
 	virtual HighlighterBase* createSyntaxHighlighter();
 
+	virtual void autoIndent(
+		QTextCursor* cursor,
+		const QString& baseIndent,
+		const QString& tailWord
+	);
+
 	virtual void keyPressEvent(QKeyEvent* e);
 	virtual void enterEvent(QEvent* e);
 	virtual void mousePressEvent(QMouseEvent* e);

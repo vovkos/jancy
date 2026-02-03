@@ -110,6 +110,41 @@ Edit::createSyntaxHighlighter() {
 }
 
 void
+Edit::autoIndent(
+	QTextCursor* cursor,
+	const QString& baseIndent,
+	const QString& tailWord
+) {
+	if (tailWord == '{') {
+		QChar next = getCursorNextChar(*cursor);
+		cursor->insertText(QChar('\n'));
+		cursor->insertText(baseIndent);
+		cursor->insertText(QChar('\t'));
+		int finalPosition = cursor->position();
+
+		if (next == '}') {
+			cursor->insertText(QChar('\n'));
+			cursor->insertText(baseIndent);
+		}
+
+		cursor->setPosition(finalPosition);
+	} else {
+		QTextCursor solCursor = *cursor;
+		solCursor.movePosition(QTextCursor::StartOfLine);
+		solCursor.movePosition(QTextCursor::NextWord);
+		solCursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+		QString keyword = solCursor.selectedText();
+
+		cursor->insertText(QChar('\n'));
+		cursor->insertText(baseIndent);
+
+		static const QRegExp indentKeywordRegExp("^(if|else|while|do|for)$");
+		if (indentKeywordRegExp.exactMatch(keyword))
+			cursor->insertText(QChar('\t'));
+	}
+}
+
+void
 Edit::keyPressEvent(QKeyEvent* e) {
 	Q_D(Edit);
 
@@ -121,13 +156,13 @@ Edit::keyPressEvent(QKeyEvent* e) {
 		switch (key) {
 		case Qt::Key_Escape:
 			d->hideCodeAssist();
-			QPlainTextEdit::keyPressEvent(e);
+			EditBase::keyPressEvent(e);
 			break;
 
 		case Qt::Key_Up:
 		case Qt::Key_Down:
 			if (!d->isCodeTipVisible() || !d->m_codeTip->isFunctionTypeOverload())
-				QPlainTextEdit::keyPressEvent(e);
+				EditBase::keyPressEvent(e);
 			else if (key == Qt::Key_Up)
 				d->m_codeTip->prevFunctionTypeOverload();
 			else
@@ -147,7 +182,7 @@ Edit::keyPressEvent(QKeyEvent* e) {
 			if (ch.isPrint())
 				d->keyPressPrintChar(e);
 			else
-				QPlainTextEdit::keyPressEvent(e);
+				EditBase::keyPressEvent(e);
 		}
 	else
 		switch (key) {
@@ -171,7 +206,7 @@ Edit::keyPressEvent(QKeyEvent* e) {
 
 		default:
 			if (!ch.isPrint() || ch.isLetterOrNumber() || ch == '_') {
-				QPlainTextEdit::keyPressEvent(e);
+				EditBase::keyPressEvent(e);
 				break;
 			}
 
@@ -186,14 +221,14 @@ Edit::mousePressEvent(QMouseEvent* e) {
 
 	// check for triggers first
 
-	QPlainTextEdit::mousePressEvent(e);
+	EditBase::mousePressEvent(e);
 }
 
 void
 Edit::mouseMoveEvent(QMouseEvent* e) {
 	Q_D(Edit);
 
-	QPlainTextEdit::mouseMoveEvent(e);
+	EditBase::mouseMoveEvent(e);
 
 	if (!d->isCompleterVisible() &&
 		(d->m_codeAssistTriggers & QuickInfoTipOnMouseOverIdentifier))
@@ -204,7 +239,7 @@ void
 Edit::enterEvent(QEvent* e) {
 	Q_D(Edit);
 
-	QPlainTextEdit::enterEvent(e);
+	EditBase::enterEvent(e);
 
 	if (!d->isCompleterVisible() &&
 		d->m_lastCodeAssistKind == CodeAssistKind_QuickInfoTip &&
@@ -213,7 +248,6 @@ Edit::enterEvent(QEvent* e) {
 		d->requestQuickInfoTip(EditPrivate::CodeAssistDelay_QuickInfoTip, pos);
 	}
 }
-
 
 //..............................................................................
 

@@ -98,7 +98,7 @@ isCursorOnIndent(const QTextCursor& cursor0) {
 
 	cursor.setPosition(position, QTextCursor::KeepAnchor);
 	QString selection = cursor.selectedText();
-	return !selection.isEmpty() && selection.at(0).isSpace() && selection.trimmed().isEmpty();
+	return !selection.isEmpty() && selection.trimmed().isEmpty();
 }
 
 bool

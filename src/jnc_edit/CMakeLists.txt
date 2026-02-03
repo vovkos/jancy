@@ -28,13 +28,13 @@ set(
 	${JANCY_ROOT_DIR}/include/jnc_EditBase.h
 	${JANCY_ROOT_DIR}/include/jnc_Edit.h
 	${JANCY_ROOT_DIR}/include/jnc_CodeAssist.h
+	${JANCY_ROOT_DIR}/include/jnc_CursorUtils.h
 	jnc_Highlighter.h
 	jnc_EditBase_p.h
 	jnc_Edit_p.h
 	jnc_LineNumberMargin.h
 	jnc_CodeAssistThread.h
 	jnc_CodeTip.h
-	jnc_CursorUtils.h
 )
 
 set(

@@ -304,6 +304,16 @@ EditBase::setReadOnly(bool isReadOnly) {
 }
 
 void
+EditBase::autoIndent(
+	QTextCursor* cursor,
+	const QString& baseIndent,
+	const QString& tailWord
+) {
+	cursor->insertText(QChar('\n'));
+	cursor->insertText(baseIndent);
+}
+
+void
 EditBase::changeEvent(QEvent* e) {
 	Q_D(EditBase);
 
@@ -749,41 +759,55 @@ EditBasePrivate::keyPressEnter(QKeyEvent* e) {
 	Q_Q(EditBase);
 
 	QTextCursor cursor = q->textCursor();
-	if (cursor.hasSelection())
-		cursor.setPosition(cursor.selectionStart());
+	cursor.beginEditBlock();
+	cursor.removeSelectedText();
 
-	int position = cursor.position();
-	cursor.movePosition(QTextCursor::StartOfLine);
-	if (!isCursorOnIndent(cursor)) {
-		q->QPlainTextEdit::keyPressEvent(e);
+	int position0 = cursor.position();
+	QTextCursor solCursor = cursor;
+	solCursor.movePosition(QTextCursor::StartOfLine);
+	int solPosition = solCursor.position();
+	bool isSol = position0 == solPosition;
+	if (isSol) {
+		cursor.insertText(QChar('\n')); // shortcut -- no auto-indent needed
+		cursor.endEditBlock();
+		q->setTextCursor(cursor);
 		return;
 	}
 
-	bool isSol = cursor.position() == position;
-	cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
-	QString indent = cursor.selectedText();
+	QString baseIndent;
+	if (isCursorOnIndent(solCursor)) {
+		solCursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
+		if (position0 <= solCursor.position()) { // another shortcut
+			int delta = position0 - solPosition;
+			cursor.setPosition(solPosition);
+			cursor.insertText(QChar('\n'));
+			cursor.setPosition(cursor.position() + delta);
+			cursor.endEditBlock();
+			q->setTextCursor(cursor);
+			return;
+		}
 
-	cursor = q->textCursor();
-	cursor.beginEditBlock();
-	cursor.insertText(QChar('\n'));
-
-	if (isCursorOnIndent(cursor))
-		cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor); // select new "random" indent
-
-	cursor.insertText(indent); // insert proper indent
-
-	if (isSol) {
-		cursor.movePosition(QTextCursor::StartOfLine);
-		q->setTextCursor(cursor);
+		baseIndent = solCursor.selectedText();
 	}
 
-	cursor.movePosition(QTextCursor::Up);
-	cursor.movePosition(QTextCursor::EndOfLine);
 	cursor.movePosition(QTextCursor::PreviousWord);
-	cursor.movePosition(QTextCursor::EndOfWord);
-	cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
-	cursor.removeSelectedText();
+	cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+	int eolPosition = cursor.position();
+	if (eolPosition > position0) // do not overshoot
+		cursor.setPosition(position0, QTextCursor::KeepAnchor);
+
+	QString tailWord = cursor.selectedText();
+	cursor.clearSelection();
+
+	if (eolPosition < position0) { // trim trailing whitespace
+		cursor.setPosition(eolPosition);
+		cursor.setPosition(position0, QTextCursor::KeepAnchor);
+		cursor.removeSelectedText();
+	}
+
+	q->autoIndent(&cursor, baseIndent, tailWord);
 	cursor.endEditBlock();
+	q->setTextCursor(cursor);
 }
 
 void
