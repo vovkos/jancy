@@ -115,14 +115,14 @@ Edit::autoIndent(
 	const QString& baseIndent,
 	const QString& tailWord
 ) {
-	if (tailWord == '{') {
+	if (tailWord == QChar('{')) {
 		QChar next = getCursorNextChar(*cursor);
 		cursor->insertText(QChar('\n'));
 		cursor->insertText(baseIndent);
 		cursor->insertText(QChar('\t'));
 		int finalPosition = cursor->position();
 
-		if (next == '}') {
+		if (next == QChar('}')) {
 			cursor->insertText(QChar('\n'));
 			cursor->insertText(baseIndent);
 		}
