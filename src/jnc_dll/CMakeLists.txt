@@ -148,7 +148,7 @@ set_target_properties(
 		OUTPUT_NAME ${JANCY_DLL_NAME}
 		VERSION ${JANCY_VERSION_MAJOR}.${JANCY_VERSION_MINOR}.${JANCY_VERSION_REVISION}
 		SOVERSION ${JANCY_VERSION_MAJOR}.${JANCY_VERSION_MINOR}
-	)
+)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
