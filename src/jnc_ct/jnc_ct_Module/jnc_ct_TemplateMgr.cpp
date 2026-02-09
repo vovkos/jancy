@@ -336,23 +336,21 @@ Template::createItemString(size_t index) {
 		break;
 
 	case ModuleItemStringKind_Synopsis: {
-		if (m_derivableTypeKind != TypeKind_Void)
-			return
-				sl::String(derivableTypeKindStringTable[m_derivableTypeKind - TypeKind_Struct]) +
-				' ' +
-				getItemName();
-
-		Type* deductionType = ensureDeductionType();
-		if (!deductionType) {
-			sl::String string = m_storageKind == StorageKind_Typedef ?
-				"typedef " :
-				"template ";
-
+		sl::String string;
+		if (m_derivableTypeKind != TypeKind_Void) {
+			string = derivableTypeKindStringTable[m_derivableTypeKind - TypeKind_Struct];
+			string += ' ';
 			string += getItemName();
 			return string;
 		}
 
-		sl::String string;
+		Type* deductionType = ensureDeductionType();
+		if (!deductionType) {
+			string = m_storageKind == StorageKind_Typedef ? "typedef " : "template ";
+			string += getItemName();
+			return string;
+		}
+
 		if (m_storageKind == StorageKind_Typedef)
 			string = "typedef ";
 
