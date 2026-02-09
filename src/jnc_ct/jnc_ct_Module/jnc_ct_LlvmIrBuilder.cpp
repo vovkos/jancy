@@ -421,10 +421,10 @@ LlvmIrBuilder::createClosurePropertyPtr(
 //..............................................................................
 
 sl::String
-getLlvmInstructionString(llvm::Instruction* llvmInst) {
+getLlvmValueString(llvm::Value* llvmValue) {
 	std::string bufferString;
 	llvm::raw_string_ostream stream(bufferString);
-	llvmInst->print(stream);
+	llvmValue->print(stream);
 	stream.flush();
 	sl::String resultString(bufferString.c_str(), bufferString.length());
 	resultString.trimLeft(); // remove indent

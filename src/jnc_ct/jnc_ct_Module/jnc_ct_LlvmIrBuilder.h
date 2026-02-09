@@ -1346,7 +1346,7 @@ public:
 //..............................................................................
 
 sl::String
-getLlvmInstructionString(llvm::Instruction* llvmInst);
+getLlvmValueString(llvm::Value* llvmValue);
 
 //..............................................................................
 

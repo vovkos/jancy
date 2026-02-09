@@ -151,15 +151,15 @@ AsyncRegionMgr::preserveCrossRegionValue(
 
 		JNC_TRACE_ASYNC_REGION_VALUE(
 			"Re-using preserved cross-async-region value: %s\n",
-			getLlvmInstructionString(llvmAlloca).sz()
+			getLlvmValueString(llvmAlloca).sz()
 		);
 	} else {
 		llvmAlloca = llvmAllocaIrBuilder->CreateAlloca(llvmOpInst->getType());
 
 		JNC_TRACE_ASYNC_REGION_VALUE(
 			"Preseving cross-async-region value: %s\n  into: %s\n",
-			getLlvmInstructionString(llvmOpInst).sz(),
-			getLlvmInstructionString(llvmAlloca).sz()
+			getLlvmValueString(llvmOpInst).sz(),
+			getLlvmValueString(llvmAlloca).sz()
 		);
 
 		llvm::Instruction* llvmNextInst = llvmOpInst->getNextNode();
