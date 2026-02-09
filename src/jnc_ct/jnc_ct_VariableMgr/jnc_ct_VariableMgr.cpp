@@ -680,6 +680,9 @@ VariableMgr::getRegexMatchVariable() {
 	if (scope->m_regexMatchVariable)
 		return scope->m_regexMatchVariable;
 
+	// regexMatch doesnt have to be a GC root -- it's just a convenient shortcut to
+	// RegexState.m_match, and RegexState lives for the duration of the current scope
+
 	ClassType* matchType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_RegexMatch);
 	ClassPtrType* ptrType = matchType->getClassPtrType(ClassPtrTypeKind_Normal, PtrTypeFlag_Const);
 	Variable* variable = createSimpleStackVariable("regexMatch", ptrType);
