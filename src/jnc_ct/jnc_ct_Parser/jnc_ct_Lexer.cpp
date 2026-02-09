@@ -597,8 +597,12 @@ Lexer::onRightCurlyBrace() {
 	if (!(m_flags & LexerFlag_Parse))
 		return onRightBrace('}');
 
-	ASSERT(m_bodyToken == m_tokenList.getTail().p() && m_curlyBraceLevel);
+	if (!m_curlyBraceLevel) { // unbalanced closing curly brace
+		createToken('}');
+		return false;
+	}
 
+	ASSERT(m_bodyToken == m_tokenList.getTail().p());
 	if (--m_curlyBraceLevel)
 		return false;
 
