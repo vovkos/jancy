@@ -304,6 +304,12 @@ jnc_ModuleItem_getItemString(
 	size_t index
 );
 
+JNC_INLINE
+const char*
+jnc_ModuleItem_getItemName(jnc_ModuleItem* item) {
+	return jnc_ModuleItem_getItemString(item, jnc_ModuleItemStringKind_QualifiedName);
+}
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
@@ -342,6 +348,11 @@ struct jnc_ModuleItem {
 	const char*
 	getItemString(size_t index = jnc_ModuleItemStringKind_Synopsis) {
 		return jnc_ModuleItem_getItemString(this, index);
+	}
+
+	const char*
+	getItemName() {
+		return jnc_ModuleItem_getItemName(this);
 	}
 };
 
