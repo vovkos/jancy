@@ -83,7 +83,7 @@ getPtrTypeFlagString(PtrTypeFlag flag) {
 		"safe",       // PtrTypeFlag_Safe       = 0x00010000
 		"const",      // PtrTypeFlag_Const      = 0x00020000
 		"const?",     // PtrTypeFlag_MaybeConst = 0x00040000
-		"constif",    // PtrTypeFlag_ConstIf    = 0x00080000
+		"autoconst",  // PtrTypeFlag_AutoConst    = 0x00080000
 		"readonly",   // PtrTypeFlag_ReadOnly   = 0x00100000
 		"volatile",   // PtrTypeFlag_Volatile   = 0x00200000
 		"event",      // PtrTypeFlag_Event      = 0x00400000
@@ -132,7 +132,7 @@ getPtrTypeFlagSignature(PtrTypeFlag flag) {
 		"s",  // PtrTypeFlag_Safe       = 0x00010000
 		"c",  // PtrTypeFlag_Const      = 0x00020000
 		"m",  // PtrTypeFlag_MaybeConst = 0x00040000
-		"i",  // PtrTypeFlag_ConstIf    = 0x00080000
+		"i",  // PtrTypeFlag_AutoConst  = 0x00080000
 		"r",  // PtrTypeFlag_ReadOnly   = 0x00100000
 		"v",  // PtrTypeFlag_Volatile   = 0x00200000
 		"e",  // PtrTypeFlag_Event      = 0x00400000
@@ -189,8 +189,8 @@ getPtrTypeFlagsFromModifiers(uint_t modifiers) {
 		flags |= PtrTypeFlag_Const;
 	else if (modifiers & TypeModifier_MaybeConst)
 		flags |= PtrTypeFlag_MaybeConst;
-	else if (modifiers & TypeModifier_ConstIf)
-		flags |= PtrTypeFlag_ConstIf;
+	else if (modifiers & TypeModifier_AutoConst)
+		flags |= PtrTypeFlag_AutoConst;
 	else if (modifiers & TypeModifier_ReadOnly)
 		flags |= PtrTypeFlag_ReadOnly;
 
@@ -705,9 +705,9 @@ NamedType::createItemString(size_t index) {
 	switch (index) {
 	case TypeStringKind_Prefix: {
 		if (!m_templateInstance)
-			return createQualifiedNameImpl(m_module);
+			return createQualifiedNameImpl();
 
-		sl::String string = createQualifiedNameImpl(m_module);
+		sl::String string = createQualifiedNameImpl();
 		m_templateInstance->appendArgString(&string);
 		return string;
 		}

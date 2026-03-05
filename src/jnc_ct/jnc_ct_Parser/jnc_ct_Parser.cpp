@@ -1983,6 +1983,9 @@ Parser::declareData(
 		switch (namespaceKind) {
 		case NamespaceKind_Scope:
 			type = type->getActualTypeIfImport(); // get rid of imports at this stage
+			if (!type)
+				return false;
+
 			storageKind = (type->getFlags() & TypeFlag_NoStack) ? StorageKind_Heap : StorageKind_Stack;
 			break;
 

@@ -28,7 +28,7 @@ enum TypeModifier {
 	TypeModifier_BigEndian  = 0x00000002,
 	TypeModifier_Const      = 0x00000004,
 	TypeModifier_MaybeConst = 0x00000008,
-	TypeModifier_ConstIf    = 0x00000010,
+	TypeModifier_AutoConst  = 0x00000010,
 	TypeModifier_ReadOnly   = 0x00000020,
 	TypeModifier_Volatile   = 0x00000040,
 	TypeModifier_Weak       = 0x00000080,
@@ -88,7 +88,7 @@ enum TypeModifierMaskKind {
 		TypeModifier_Safe |
 		TypeModifier_Const |
 		TypeModifier_MaybeConst |
-		TypeModifier_ConstIf |
+		TypeModifier_AutoConst |
 		TypeModifier_ReadOnly |
 		TypeModifier_Volatile |
 		TypeModifier_Thin,
@@ -97,7 +97,7 @@ enum TypeModifierMaskKind {
 		TypeModifier_Safe |
 		TypeModifier_Const |
 		TypeModifier_MaybeConst |
-		TypeModifier_ConstIf |
+		TypeModifier_AutoConst |
 		TypeModifier_ReadOnly |
 		TypeModifier_Volatile |
 		TypeModifier_Event |
@@ -134,7 +134,7 @@ enum TypeModifierMaskKind {
 	TypeModifierMaskKind_Const =
 		TypeModifier_Const |
 		TypeModifier_MaybeConst |
-		TypeModifier_ConstIf |
+		TypeModifier_AutoConst |
 		TypeModifier_ReadOnly |
 		TypeModifier_Event,
 
@@ -143,7 +143,7 @@ enum TypeModifierMaskKind {
 		TypeModifierMaskKind_TypeKind,
 
 	TypeModifierMaskKind_Dual =
-		TypeModifier_ConstIf |
+		TypeModifier_AutoConst |
 		TypeModifier_ReadOnly |
 		TypeModifier_Event,
 };

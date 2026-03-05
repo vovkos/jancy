@@ -47,6 +47,7 @@ DerivableType::findCastOperator(
 Function*
 DerivableType::findCopyConstructor() {
 	ASSERT(m_constructor);
+
 	if (m_constructor->getItemKind() == ModuleItemKind_Function) {
 		Function* ctor = m_constructor.getFunction();
 		return isCopyContructor(ctor) ? ctor : NULL;
@@ -285,6 +286,39 @@ DerivableType::addProperty(Property* prop) {
 	}
 
 	m_propertyArray.append(prop);
+	return true;
+}
+
+bool
+DerivableType::isLayoutIdentical(Type* type0) {
+	ASSERT(m_flags & TypeFlag_LayoutReady);
+
+	DerivableType* type = (DerivableType*)type0;
+	if (m_typeKind != type->m_typeKind)
+		return false;
+
+	// base types first...
+
+	if (m_baseTypeArray.getCount() != type->m_baseTypeArray.getCount())
+		return false;
+
+	sl::Iterator<BaseTypeSlot> slotIt = m_baseTypeList.getHead();
+	sl::Iterator<BaseTypeSlot> slotIt2 = type->m_baseTypeList.getHead();
+	for (; slotIt; slotIt++, slotIt2++)
+		if (!slotIt->m_type->isLayoutIdentical(slotIt2->m_type))
+			return false;
+
+	// ...then fields
+
+	size_t fieldCount = m_fieldArray.getCount();
+	if (fieldCount != type->m_fieldArray.getCount())
+		return false;
+
+	for (size_t i = 0; i < fieldCount; i++)
+		if (!m_fieldArray[i]->m_type->isLayoutIdentical(type->m_fieldArray[i]->m_type))
+			return false;
+
+	// the rest doesn't matter
 	return true;
 }
 

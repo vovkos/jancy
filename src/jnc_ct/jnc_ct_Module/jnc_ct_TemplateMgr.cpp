@@ -11,381 +11,17 @@
 
 #include "pch.h"
 #include "jnc_ct_TemplateMgr.h"
-#include "jnc_ct_DeclTypeCalc.h"
-#include "jnc_ct_UnionType.h"
 #include "jnc_ct_Module.h"
-#include "jnc_ct_ParseContext.h"
-#include "jnc_ct_Parser.llk.h"
 
 namespace jnc {
 namespace ct {
 
 //..............................................................................
 
-size_t
-TemplateInstance::appendArgLinkId(sl::String* string) const {
-	*string += '<';
-
-	size_t argCount = m_argArray.getCount();
-	for (size_t i = 0; i < argCount; i++)
-		*string += m_argArray[i]->getSignature();
-
-	*string += '>';
-	return string->getLength();
-}
-
-size_t
-TemplateInstance::appendArgString(sl::String* string) const {
-	*string += '<';
-
-	*string += m_argArray[0]->getTypeString();
-	size_t argCount = m_argArray.getCount();
-	for (size_t i = 1; i < argCount; i++) {
-		*string += ", ";
-		*string += m_argArray[i]->getTypeString();
-	}
-
-	*string += '>';
-	return string->getLength();
-}
-
-//..............................................................................
-
-ModuleItem*
-Template::instantiate(const sl::ConstBoxList<Value>& argList) {
-	char buffer[256];
-	sl::Array<Type*> argArray(rc::BufKind_Stack, buffer, sizeof(buffer));
-	argArray.setCount(argList.getCount());
-	sl::Array<Type*>::Rwi rwi = argArray.rwi();
-	sl::ConstBoxIterator<Value> it = argList.getHead();
-	for (size_t i = 0; it; i++, it++) {
-		Type* type = it->getType();
-		rwi[i] = type;
-	}
-
-	return instantiate(argArray);
-}
-
-ModuleItem*
-Template::instantiate(const sl::ArrayRef<Type*>& argArray0) {
-	size_t argCount = m_argArray.getCount();
-	size_t actualArgCount = argArray0.getCount();
-	if (actualArgCount > argCount) {
-		err::setFormatStringError("too many template arguments for '%s'", getItemName().sz());
-		return NULL;
-	}
-
-	if (actualArgCount == argCount && argArray0.find(NULL) == -1) {
-		openTemplateInstNamespace(argArray0);
-		ModuleItem* item = instantiateImpl(argArray0);
-		m_module->m_namespaceMgr.closeTemplateInstNamespace();
-		return item;
-	}
-
-	char buffer[256];
-	sl::Array<Type*> argArray(rc::BufKind_Stack, buffer, sizeof(buffer));
-	argArray.setCountZeroConstruct(argCount);
-	memcpy(argArray.p(), argArray0, actualArgCount * sizeof(Type*));
-
-	openTemplateInstNamespace(argArray);
-	ModuleItem* item = setDefaultArgs(&argArray) ? instantiateImpl(argArray) : NULL;
-	m_module->m_namespaceMgr.closeTemplateInstNamespace();
-	return item;
-}
-
-TemplateNamespace*
-Template::openTemplateInstNamespace(const sl::ArrayRef<Type*>& argArray) const {
-	TemplateNamespace* nspace = m_module->m_namespaceMgr.openTemplateInstNamespace(*this);
-
-	size_t count = argArray.getCount();
-	for (size_t i = 0; i < count; i++) {
-		Type* type = argArray[i];
-		if (type) {
-			bool result = nspace->addItem(m_argArray[i]->getName(), type);
-			ASSERT(result); // should have been checked in parser
-		}
-	}
-
-	return nspace;
-}
-
-bool
-Template::setDefaultArgs(sl::Array<Type*>* argArray) {
-	TemplateNamespace* nspace = (TemplateNamespace*)m_module->m_namespaceMgr.getCurrentNamespace();
-	ASSERT(nspace->getNamespaceKind() == NamespaceKind_TemplateInstantiation);
-
-	size_t count = argArray->getCount();
-	sl::Array<Type*>::Rwi rwi = argArray->rwi();
-	for (size_t i = 0; i < count; i++) {
-		if (rwi[i])
-			continue;
-
-		TemplateDeclType* defaultType = m_argArray[i]->getDefaultType();
-		if (!defaultType) {
-			err::setFormatStringError(
-				"argument '%s' of template '%s' has no default type",
-				m_argArray[i]->getName().sz(),
-				getItemName().sz()
-			);
-
-			return false;
-		}
-
-		Type* type = defaultType->instantiate(*argArray);
-		if (!type)
-			return false;
-
-		rwi[i] = type;
-		bool result = nspace->addItem(m_argArray[i]->getName(), type);
-		ASSERT(result); // should have been checked in parser
-	}
-
-	return true;
-}
-
-ModuleItem*
-Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
-	size_t argCount = argArray.getCount();
-	ASSERT(argCount == m_argArray.getCount());
-
-	sl::String signature;
-	for (size_t i = 0; i < argCount; i++)
-		signature += argArray[i]->getSignature();
-
-	sl::StringHashTableIterator<TemplateInstance> mapIt = m_instanceMap.visit(signature);
-	TemplateInstance* instance = &mapIt->m_value;
-	instance->m_template = this;
-	instance->m_argArray = argArray;
-
-	if (instance->m_item)
-		return instance->m_item;
-
-	if (m_declType) {
-		Type* type = m_declType->instantiate(argArray);
-		if (!type)
-			return NULL;
-
-		if (m_storageKind == StorageKind_Typedef) {
-			Typedef* tdef = m_module->m_typeMgr.createTypedef(m_name, type);
-			copyDecl(tdef);
-			instance->m_item = tdef;
-		} else {
-			if (type->getTypeKind() != TypeKind_Function) {
-				err::setFormatStringError("cannot instantiate template '%s' (not a function)", getItemName().sz());
-				return NULL;
-			}
-
-			Function* function = m_module->m_functionMgr.createFunction((FunctionType*)type);
-			function->m_templateInstance = &mapIt->m_value;
-			copyDecl(function);
-			instance->m_item = function;
-		}
-	} else {
-		DerivableType* type;
-		switch (m_derivableTypeKind) {
-		case TypeKind_Struct:
-			type = m_module->m_typeMgr.createStructType(m_name, m_pragmaConfig->m_fieldAlignment);
-			break;
-
-		case TypeKind_Union:
-			type = m_module->m_typeMgr.createUnionType(m_name, m_pragmaConfig->m_fieldAlignment);
-			break;
-
-		case TypeKind_Class:
-			type = m_module->m_typeMgr.createClassType(m_name, m_pragmaConfig->m_fieldAlignment);
-			break;
-
-		default:
-			ASSERT(false);
-			return NULL;
-		}
-
-		TemplateNamespace* nspace = (TemplateNamespace*)m_module->m_namespaceMgr.getCurrentNamespace();
-		ASSERT(nspace->getNamespaceKind() == NamespaceKind_TemplateInstantiation);
-
-		// prepare decl info, link, and make it findable right away
-		copyDecl(type);
-		instance->m_item = type;
-		type->m_templateInstance = instance;
-		nspace->m_instanceType = type;
-
-		for (size_t i = 0; i < argCount; i++) {
-			const sl::StringRef& name = m_argArray[i]->getName();
-			Typedef* tdef = m_module->m_typeMgr.createTypedef(name, argArray[i]);
-			bool result = type->addItem(tdef);
-			ASSERT(result); // should have been checked in parser
-		}
-
-		size_t baseCount = m_baseTypeArray.getCount();
-		for (size_t i = 0; i < baseCount; i++) {
-			Type* baseType = m_baseTypeArray[i]->instantiate(argArray);
-			bool result = baseType && type->addBaseType(baseType);
-			if (!result)
-				return NULL;
-		}
-
-		size_t orphanCount = m_orphanArray.getCount();
-		for (size_t i = 0; i < orphanCount; i++) {
-			Orphan* orphan = m_module->m_namespaceMgr.cloneOrphan(m_orphanArray[i]);
-			orphan->addTemplateInstantiation(argArray);
-			type->addOrphan(orphan);
-		}
-	}
-
-	return instance->m_item;
-}
-
-ModuleItem*
-Template::instantiate(
-	const ModuleItemContext& context,
-	const sl::List<Token>& argArrayTokenList
-) {
-	sl::List<Token> tokenList;
-	cloneTokenList(&tokenList, argArrayTokenList);
-
-	ParseContext parseContext(ParseContextKind_TypeName, m_module, context);
-	Parser parser(m_module, m_pragmaConfig, Parser::Mode_Compile);
-	bool result = parser.parseTokenList(SymbolKind_template_inst_type_name_list_save, &tokenList);
-	return result ? instantiate(parser.getLastTypeArray()) : NULL;
-}
-
-Type*
-Template::ensureDeductionType() const {
-	Type* deductionType = m_declType->getDeductionType();
-	if (deductionType)
-		return deductionType;
-
-	openTemplateInstNamespace(*(sl::Array<Type*>*)&m_argArray);
-	deductionType = m_declType->createDeductionType();
-	m_module->m_namespaceMgr.closeTemplateInstNamespace();
-	return deductionType;
-}
-
-bool
-Template::deduceArgs(
-	sl::Array<Type*>* templateArgArray,
-	const sl::ConstBoxList<Value>& argTypeList,
-	const sl::ConstBoxList<Value>& argValueList
-) const {
-	Type* deductionType = ensureDeductionType();
-	if (!deductionType)
-		return false;
-
-	if (deductionType->getTypeKind() != TypeKind_Function) {
-		err::setFormatStringError("cannot deduce arguments of template '%s' (not a function)", getItemName().sz());
-		return false;
-	}
-
-	FunctionType* functionType = (FunctionType*)deductionType;
-	const sl::Array<FunctionArg*>& functionArgArray = functionType->getArgArray();
-	size_t functionArgCount = functionArgArray.getCount();
-	if (functionArgCount != argValueList.getCount()) {
-		err::setFormatStringError("'%s' does not take %d arguments", getItemName().sz(), argValueList.getCount());
-		return false;
-	}
-
-	size_t templateArgCount = m_argArray.getCount();
-	templateArgArray->setCountZeroConstruct(templateArgCount);
-
-	if (!argTypeList.isEmpty()) {
-		sl::Array<Type*>::Rwi rwi = templateArgArray->rwi();
-		sl::ConstBoxIterator<Value> it = argTypeList.getHead();
-		for (size_t i = 0; i < templateArgCount && it; i++, it++) {
-			Type* type = it->getType();
-			if (type)
-				rwi[i] = type;
-		}
-	}
-
-	bool result = true;
-	sl::ConstBoxIterator<Value> it = argValueList.getHead();
-	for (size_t i = 0; i < functionArgCount; i++, it++) {
-		Value argTypeValue;
-
-		result =
-			m_module->m_operatorMgr.prepareOperandType(*it, &argTypeValue) &&
-			functionArgArray[i]->getType()->deduceTemplateArgs(templateArgArray, argTypeValue.getType()) &&
-			result;
-	}
-
-	for (size_t i = 0; i < templateArgCount; i++) {
-		if (!(*templateArgArray)[i]) {
-			err::setFormatStringError(
-				"cannot deduce argument '%s' of template '%s'",
-				m_argArray[i]->getName().sz(),
-				getItemName().sz()
-			);
-
-			return false;
-		}
-	}
-
-	return result;
-}
-
-sl::StringRef
-Template::createItemString(size_t index) {
-	static const sl::StringRef derivableTypeKindStringTable[] = {
-		"struct",          // TypeKind_Struct,
-		"union",           // TypeKind_Union,
-		"class",           // TypeKind_Class,
-	};
-
-	switch (index) {
-	case ModuleItemStringKind_QualifiedName:
-		break;
-
-	case ModuleItemStringKind_Synopsis: {
-		sl::String string;
-		if (m_derivableTypeKind != TypeKind_Void) {
-			string = derivableTypeKindStringTable[m_derivableTypeKind - TypeKind_Struct];
-			string += ' ';
-			string += getItemName();
-			return string;
-		}
-
-		Type* deductionType = ensureDeductionType();
-		if (!deductionType) {
-			string = m_storageKind == StorageKind_Typedef ? "typedef " : "template ";
-			string += getItemName();
-			return string;
-		}
-
-		if (m_storageKind == StorageKind_Typedef)
-			string = "typedef ";
-
-		string += deductionType->getTypeStringPrefix();
-		string += ' ';
-		string += getItemName();
-		string += deductionType->getTypeStringSuffix();
-		return string;
-		}
-
-	default:
-		return sl::StringRef();
-	}
-
-	sl::String string = createQualifiedNameImpl(m_module);
-	string += '<';
-
-	size_t count = m_argArray.getCount();
-	ASSERT(count);
-
-	string += m_argArray[0]->getName();
-	for (size_t i = 1; i < count; i++) {
-		string += ", ";
-		string += m_argArray[i]->getName();
-	}
-
-	string += '>';
-	return string;
-}
-
-//..............................................................................
-
 TemplateMgr::TemplateMgr() {
 	m_module = Module::getCurrentConstructedModule();
 	ASSERT(m_module);
+	m_autoConstTemplate = NULL;
 }
 
 Template*
@@ -416,6 +52,26 @@ TemplateMgr::createTemplate(
 	templ->m_argArray = argArray;
 	templ->m_baseTypeArray = baseTypeArray;
 	m_templateList.insertTail(templ);
+	return templ;
+}
+
+Template*
+TemplateMgr::createAutoConstTemplate() {
+	ASSERT(!m_autoConstTemplate);
+
+	TemplateArgType* argArray[] = {
+		m_module->m_typeMgr.createTemplateArgType("T", 0), // non-const type
+		m_module->m_typeMgr.createTemplateArgType("C", 1)  // const type
+	};
+
+	Template* templ = new Template;
+	templ->m_module = m_module;
+	templ->m_parentNamespace = m_module->m_namespaceMgr.getStdNamespace(StdNamespace_Jnc);
+	templ->m_name = "AutoConst";
+	templ->m_argArray.copy(argArray, countof(argArray));
+	templ->m_flags |= TemplateFlag_AutoConst;
+	m_templateList.insertTail(templ);
+	m_autoConstTemplate = templ;
 	return templ;
 }
 

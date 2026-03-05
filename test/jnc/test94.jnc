@@ -1,5 +1,5 @@
 struct MapEntry {
-	MapEntry constif* m_next;
+	MapEntry autoconst* m_next;
 	variant_t m_value;
 }
 

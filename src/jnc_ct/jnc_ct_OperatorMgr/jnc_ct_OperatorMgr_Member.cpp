@@ -12,6 +12,7 @@
 #include "pch.h"
 #include "jnc_ct_OperatorMgr.h"
 #include "jnc_ct_ReactorClassType.h"
+#include "jnc_ct_AutoConstType.h"
 #include "jnc_ct_UnionType.h"
 #include "jnc_ct_DynamicLibNamespace.h"
 #include "jnc_ct_Module.h"
@@ -103,6 +104,9 @@ OperatorMgr::memberOperator(
 		if (!result)
 			return false;
 	}
+
+	if (type->getTypeKind() == TypeKind_AutoConst)
+		type = ((AutoConstType*)type)->getConstType();
 
 	TypeKind typeKind = type->getTypeKind();
 	switch (typeKind) {
@@ -291,7 +295,7 @@ OperatorMgr::foldDualType(
 
 	Type* opType = opValue.getType();
 	uint_t ptrFlags = (opType->getTypeKindFlags() & (TypeKindFlag_DataPtr | TypeKindFlag_ClassPtr)) ?
-		opType->getFlags() & (PtrTypeFlag_Const | PtrTypeFlag_MaybeConst | PtrTypeFlag_ConstIf) :
+		opType->getFlags() & (PtrTypeFlag_Const | PtrTypeFlag_MaybeConst | PtrTypeFlag_AutoConst) :
 		0;
 
 	Type* resultType = m_module->m_typeMgr.foldDualType(resultValue->getType(), isAlien, ptrFlags);

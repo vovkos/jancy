@@ -21,8 +21,8 @@ namespace stdt {
 struct ListEntry<T> {
 	friend List;
 
-	T constif* readonly m_next;
-	T constif* readonly m_prev;
+	T autoconst* readonly m_next;
+	T autoconst* readonly m_prev;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -32,8 +32,8 @@ class List<T, I = Iterator<T> > {
 	typedef I Iterator;
 	typedef I.ConstIterator ConstIterator;
 
-	T constif* readonly m_head;
-	T constif* readonly m_tail;
+	T autoconst* readonly m_head;
+	T autoconst* readonly m_tail;
 	size_t readonly m_count;
 
 	void clear();

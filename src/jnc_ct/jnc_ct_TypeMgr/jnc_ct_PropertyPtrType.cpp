@@ -123,6 +123,16 @@ PropertyPtrType::markGcRoots(
 }
 
 bool
+PropertyPtrType::calcLayout() {
+	bool result = m_targetType->ensureLayout();
+	if (!result)
+		return false;
+
+	m_flags |= m_targetType->getFlags() & TypeFlag_Dual;
+	return true;
+}
+
+bool
 PropertyPtrType::deduceTemplateArgs(
 	sl::Array<Type*>* templateArgTypeArray,
 	Type* referenceType

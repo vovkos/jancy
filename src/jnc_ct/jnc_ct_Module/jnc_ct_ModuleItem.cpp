@@ -61,6 +61,28 @@ ModuleItemInitializer::getInitializerString_xml() const {
 //..............................................................................
 
 sl::StringRef
+ModuleItemPos::createQualifiedName(const sl::StringRef& name) const {
+	sl::StringRef parentName = m_parentNamespace ?
+		m_parentNamespace->getDeclItem()->getItemString(ModuleItemStringKind_QualifiedName) :
+		sl::StringRef();
+
+	if (parentName.isEmpty() || parentName[0] == '!') // internal name
+		return !name.isEmpty() ? name :	"(unnamed)";
+
+	sl::String string = parentName;
+	if (name.isEmpty())
+		string += ".(unnamed)";
+	else {
+		string += '.';
+		string += name;
+	}
+
+	return string;
+}
+
+//..............................................................................
+
+sl::StringRef
 ModuleItemDecl::createLinkIdImpl(Module* module) const {
 	sl::StringRef parentLinkId;
 	if (m_parentNamespace)
@@ -84,7 +106,7 @@ ModuleItemDecl::createLinkIdImpl(Module* module) const {
 }
 
 sl::StringRef
-ModuleItemDecl::createQualifiedNameImpl(Module* module) const {
+ModuleItemDecl::createQualifiedNameImpl() const {
 	sl::StringRef parentName = m_parentNamespace ?
 		m_parentNamespace->getDeclItem()->getItemString(ModuleItemStringKind_QualifiedName) :
 		sl::StringRef();
@@ -110,6 +132,8 @@ ModuleItemDecl::createSynopsisImpl(
 	uint_t ptrTypeFlags
 ) const {
 	type = type->getActualTypeIfImport();
+	if (!type)
+		return "(import-resolve-error)";
 
 	sl::String synopsis;
 	synopsis = type->getTypeStringPrefix();

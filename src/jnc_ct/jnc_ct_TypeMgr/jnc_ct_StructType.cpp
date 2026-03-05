@@ -183,8 +183,14 @@ StructType::calcLayoutTo(Field* targetField) {
 		)
 			createDefaultMethod<DefaultConstructor>(m_constructorThinThisFlag);
 
-		if (m_constructor && !findCopyConstructor())
-			createDefaultCopyConstructor();
+		if (m_constructor) {
+			result = m_constructor.ensureNoImports();
+			if (!result)
+				return false;
+
+			if (!findCopyConstructor())
+				createDefaultCopyConstructor();
+		}
 	} else if (
 		m_structTypeKind == StructTypeKind_IfaceStruct &&
 		(((ClassType*)m_parentNamespace)->getFlags() & ClassTypeFlag_Opaque) &&

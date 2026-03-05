@@ -273,8 +273,8 @@ DeclTypeCalc::getDataPtrTypeFlags() {
 		flags |= PtrTypeFlag_Const;
 	else if (m_typeModifiers & TypeModifier_MaybeConst)
 		flags |= PtrTypeFlag_MaybeConst;
-	else if (m_typeModifiers & TypeModifier_ConstIf)
-		flags |= PtrTypeFlag_ConstIf;
+	else if (m_typeModifiers & TypeModifier_AutoConst)
+		flags |= PtrTypeFlag_AutoConst;
 	else if (m_typeModifiers & TypeModifier_ReadOnly)
 		flags |= PtrTypeFlag_ReadOnly;
 
@@ -296,7 +296,7 @@ DeclTypeCalc::getDataPtrTypeFlags() {
 	m_typeModifiers &= ~(
 		TypeModifier_Const |
 		TypeModifier_MaybeConst |
-		TypeModifier_ConstIf |
+		TypeModifier_AutoConst |
 		TypeModifier_ReadOnly |
 		TypeModifier_BigEndian |
 		TypeModifier_Volatile |

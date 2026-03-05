@@ -300,7 +300,7 @@ FunctionType::createSignature(
 
 	uint_t returnTypeFlags = returnType->getFlags();
 	uint_t signatureFlags = returnTypeFlags & TypeFlag_SignatureFinal;
-	uint_t propagageFlags = returnTypeFlags;
+	uint_t importFlags = returnTypeFlags;
 
 	size_t length = string->getLength();
 	*string += '(';
@@ -308,7 +308,7 @@ FunctionType::createSignature(
 	for (size_t i = 0; i < argCount; i++) {
 		uint_t argTypeFlags = appendFunctionArgSignature(string, argArray[i]);
 		signatureFlags &= argTypeFlags;
-		propagageFlags |= argTypeFlags;
+		importFlags |= argTypeFlags;
 	}
 
 	if (flags & FunctionTypeFlag_VarArg)
@@ -320,7 +320,7 @@ FunctionType::createSignature(
 	return
 		signatureFlags |
 		TypeFlag_SignatureReady |
-		(propagageFlags & TypeFlag_PropagateMask);
+		(importFlags & TypeFlag_Import);
 }
 
 //..............................................................................

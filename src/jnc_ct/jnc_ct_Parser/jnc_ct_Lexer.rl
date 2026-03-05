@@ -213,8 +213,9 @@ main := |*
 'bigendian'      { createToken(TokenKind_BigEndian); };
 'const'          { createToken(TokenKind_Const); };
 'const' ws* '?'  { createToken(TokenKind_MaybeConst); };
-'constif'        { createToken(TokenKind_ConstIf); };
-'cmut'           { createToken(TokenKind_ConstIf); }; # for legacy code support
+'cmut'           | # legacy code support
+'constif'        | # legacy code support
+'autoconst'      { createToken(TokenKind_AutoConst); };
 'readonly'       { createToken(TokenKind_ReadOnly); };
 'volatile'       { createToken(TokenKind_Volatile); };
 'weak'           { createToken(TokenKind_Weak); };

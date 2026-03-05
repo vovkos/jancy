@@ -109,6 +109,16 @@ public:
 		uint_t ptrFlags
 	);
 
+	virtual
+	bool
+	isLayoutIdentical(Type* type0) {
+		DataPtrType* type = (DataPtrType*)type0;
+		return
+			type->getTypeKind() == TypeKind_DataPtr &&
+			m_ptrTypeKind == type->m_ptrTypeKind &&
+			m_targetType->isLayoutIdentical(type->m_targetType);
+	}
+
 protected:
 	virtual
 	bool
@@ -161,7 +171,7 @@ DataPtrType::DataPtrType() {
 //..............................................................................
 
 struct DataPtrTypeTuple: sl::ListLink {
-	DataPtrType* m_ptrTypeArray[2][3][5][2][2]; // ref x kind x const/const?/constif/readonly x volatile x safe
+	DataPtrType* m_ptrTypeArray[2][3][5][2][2]; // ref x kind x const/const?/autoconst/readonly x volatile x safe
 	DataPtrTypeTuple* m_bigEndianTuple; // same for PtrTypeFlag_BigEndian
 };
 

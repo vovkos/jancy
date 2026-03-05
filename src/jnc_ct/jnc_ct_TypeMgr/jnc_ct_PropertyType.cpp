@@ -34,7 +34,7 @@ PropertyType::createSignature(
 	*string += getterType->getSignature();
 
 	uint_t signatureFlags = getterType->getFlags() & TypeFlag_SignatureFinal;
-	uint_t propagageFlags = getterType->getFlags();
+	uint_t importFlags = getterType->getFlags();
 
 	size_t overloadCount = setterType.getOverloadCount();
 	for (size_t i = 0; i < overloadCount; i++) {
@@ -42,13 +42,13 @@ PropertyType::createSignature(
 		*string += overloadType->getSignature();
 		uint_t overloadTypeFlags = overloadType->getFlags();
 		signatureFlags &= overloadTypeFlags;
-		propagageFlags |= overloadTypeFlags;
+		importFlags |= overloadTypeFlags;
 	}
 
 	return
 		signatureFlags |
 		TypeFlag_SignatureReady |
-		(propagageFlags & TypeFlag_PropagateMask);
+		(importFlags & TypeFlag_Import);
 }
 
 sl::StringRef
@@ -112,6 +112,26 @@ PropertyType::createItemString(size_t index) {
 	default:
 		return Type::createItemString(index);
 	}
+}
+
+bool
+PropertyType::calcLayout() {
+	bool result =
+		m_getterType->ensureLayout() &&
+		(m_setterType.isEmpty() || m_setterType.ensureLayout());
+
+	if (!result)
+		return false;
+
+	uint_t dualFlags = m_getterType->getFlags();
+	size_t count = m_setterType.getOverloadCount();
+	for (size_t i = 0; i < count; i++) {
+		FunctionType* overloadType = (FunctionType*)m_setterType.getOverload(i);
+		dualFlags |= m_getterType->getFlags();
+	}
+
+	m_flags |= dualFlags & TypeFlag_Dual;
+	return true;
 }
 
 Type*

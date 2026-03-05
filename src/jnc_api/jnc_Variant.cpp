@@ -17,6 +17,7 @@
 #elif defined(_JNC_CORE)
 #	include "jnc_ct_Module.h"
 #	include "jnc_ct_ArrayType.h"
+#	include "jnc_ct_AutoConstType.h"
 #	include "jnc_rt_Runtime.h"
 #endif
 
@@ -682,9 +683,16 @@ format_dataPtr(
 	return formatStringImpl(string, fmtSpecifier, c, length);
 }
 
-static
 size_t
 format_dataRef(
+	sl::String* string,
+	const char* fmtSpecifier,
+	const void* p,
+	jnc::Type* type
+);
+
+size_t
+format_autoConst(
 	sl::String* string,
 	const char* fmtSpecifier,
 	const void* p,
@@ -762,6 +770,7 @@ g_formatFuncTable[jnc_TypeKind__Count] = {
 	format_default,                     // TypeKind_TemplateIntMod
 	format_default,                     // TypeKind_TemplateDecl
 	format_default,                     // TypeKind_TypedefShadow
+	format_autoConst,                   // TypeKind_AutoConst
 };
 
 static
@@ -772,8 +781,25 @@ format_dataRef(
 	const void* p,
 	jnc::Type* type
 ) {
+	ASSERT(type->getTypeKind() == jnc::TypeKind_DataRef);
 	type = ((jnc::DataPtrType*)type)->getTargetType();
 	p = *(void**)p;
+
+	jnc::TypeKind typeKind = type->getTypeKind();
+	ASSERT((size_t)typeKind < jnc::TypeKind__Count);
+	return g_formatFuncTable[typeKind](string, fmtSpecifier, p, type);
+}
+
+static
+size_t
+format_autoConst(
+	sl::String* string,
+	const char* fmtSpecifier,
+	const void* p,
+	jnc::Type* type
+) {
+	ASSERT(type->getTypeKind() == jnc::TypeKind_AutoConst);
+	type = ((jnc::ct::AutoConstType*)type)->getConstType();
 
 	jnc::TypeKind typeKind = type->getTypeKind();
 	ASSERT((size_t)typeKind < jnc::TypeKind__Count);

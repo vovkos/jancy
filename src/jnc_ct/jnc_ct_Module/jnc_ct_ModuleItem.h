@@ -136,6 +136,9 @@ public:
 	ensureSrcPosError() const {
 		lex::ensureSrcPosError(m_parentUnit->getFilePath(), m_pos);
 	}
+
+	sl::StringRef
+	createQualifiedName(const sl::StringRef& name) const;
 };
 
 //..............................................................................
@@ -232,7 +235,7 @@ protected:
 	) const;
 
 	sl::StringRef
-	createQualifiedNameImpl(Module* module) const;
+	createQualifiedNameImpl() const;
 
 	sl::StringRef
 	createSynopsisImpl(ModuleItem* item) const;
@@ -633,7 +636,7 @@ ModuleItemDecl::createItemStringImpl(
 ) const{
 	switch (index) {
 	case ModuleItemStringKind_QualifiedName:
-		return createQualifiedNameImpl(item->getModule());
+		return createQualifiedNameImpl();
 	case ModuleItemStringKind_Synopsis:
 		return createSynopsisImpl(item);
 	default:
@@ -651,7 +654,7 @@ ModuleItemDecl::createItemStringImpl(
 ) const{
 	switch (index) {
 	case ModuleItemStringKind_QualifiedName:
-		return createQualifiedNameImpl(item->getModule());
+		return createQualifiedNameImpl();
 	case ModuleItemStringKind_Synopsis:
 		return createSynopsisImpl(item, type, ptrTypeFlags);
 	default:

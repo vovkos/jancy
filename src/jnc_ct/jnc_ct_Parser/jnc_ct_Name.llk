@@ -257,12 +257,12 @@ nullable
 template_inst_type_name_list
 	:	type_name
 			{
-				$.m_typeArray.append($1.m_type->getActualTypeIfImport());
+				return appendActualTypeIfImport(&$.m_typeArray, $1.m_type);
 			}
 		(
 			',' type_name_or_empty $t2
 				{
-					$.m_typeArray.append($t2.m_type ? $t2.m_type->getActualTypeIfImport() : NULL);
+					return appendActualTypeIfImport(&$.m_typeArray, $t2.m_type);
 				}
 		)*
 	|		{
@@ -271,7 +271,7 @@ template_inst_type_name_list
 		(
 			',' type_name_or_empty $t2
 				{
-					$.m_typeArray.append($t2.m_type ? $t2.m_type->getActualTypeIfImport() : NULL);
+					return appendActualTypeIfImport(&$.m_typeArray, $t2.m_type);
 				}
 		)+
 	|	epsilon

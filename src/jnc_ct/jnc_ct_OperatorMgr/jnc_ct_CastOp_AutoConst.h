@@ -9,29 +9,40 @@
 //
 //..............................................................................
 
-namespace std {
+#pragma once
 
-//! \addtogroup std-container
-//! @{
+#include "jnc_ct_CastOp.h"
 
-//..............................................................................
-
-//! \import std_MapEntry.jnc
-
-struct MapEntry {
-	MapEntry autoconst* readonly m_next;
-	MapEntry autoconst* readonly m_prev;
-
-	variant_t const m_key;
-	variant_t m_value;
-
-protected:
-	intptr_t const m_map;
-	intptr_t const m_it;
-}
+namespace jnc {
+namespace ct {
 
 //..............................................................................
 
-//! @}
+// cast to autoconst type pair
 
-} // namespace std
+class Cast_AutoConst: public CastOperator {
+public:
+	Cast_AutoConst() {
+		m_opFlags = OpFlag_KeepAutoConst;
+	}
+
+	virtual
+	CastKind
+	getCastKind(
+		const Value& opValue,
+		Type* type
+	);
+
+	virtual
+	bool
+	cast(
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
+	);
+};
+
+//..............................................................................
+
+} // namespace ct
+} // namespace jnc

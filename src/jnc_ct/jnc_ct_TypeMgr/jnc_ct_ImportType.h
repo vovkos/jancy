@@ -20,6 +20,12 @@ namespace ct {
 
 //..............................................................................
 
+enum ImportTypeFlag {
+	ImportTypeFlag_InResolve = 0x010000, // detect import recursion loops
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 class ImportType: public Type {
 	friend class TypeMgr;
 

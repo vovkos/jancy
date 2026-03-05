@@ -189,6 +189,8 @@ jnc_getTypeKindFlags(jnc_TypeKind typeKind) {
 
 		jnc_TypeKindFlag_ErrorCode,     // jnc_TypeKind_TypedefShadow
 		// ^ don't fail due to non-error-code during doc-generation & code-assist
+
+		0,                              // jnc_TypeKind_AutoConst
 	};
 
 	return typeKind < jnc_TypeKind__Count ? flagTable[typeKind] : 0;

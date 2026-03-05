@@ -29,30 +29,30 @@ getConstCastKind(
 			CastKind_ImplicitCrossConst, // 1 - const
 			CastKind_ImplicitCrossConst, // 2 - const?
 			CastKind_None,               // 3 - invalid
-			CastKind_ImplicitCrossConst, // 4 - constif
+			CastKind_ImplicitCrossConst, // 4 - autoconst
 		},
 		{	// 1 - const
 			CastKind_None,               // 0 - mutable
 			CastKind_Implicit,           // 1 - const
 			CastKind_Implicit,           // 2 - const?
 			CastKind_None,               // 3 - invalid
-			CastKind_None,               // 4 - constif
+			CastKind_None,               // 4 - autoconst
 		},
 		{	// 2 - const?
 			CastKind_None,               // 0 - mutable
 			CastKind_Implicit,           // 1 - const
 			CastKind_Implicit,           // 2 - const?
 			CastKind_None,               // 3 - invalid
-			CastKind_Implicit,           // 4 - constif
+			CastKind_Implicit,           // 4 - autoconst
 		},
 		{	// 3 - invalid
 		},
-		{	// 4 - constif
+		{	// 4 - autoconst
 			CastKind_None,               // 0 - mutable
 			CastKind_Implicit,           // 1 - const
 			CastKind_Implicit,           // 2 - const?
 			CastKind_None,               // 3 - invalid
-			CastKind_Implicit,           // 4 - constif
+			CastKind_Implicit,           // 4 - autoconst
 		},
 	};
 
@@ -226,12 +226,8 @@ Cast_Copy::constCast(
 	Type* type,
 	void* dst
 ) {
-	size_t srcSize = opValue.getType()->getSize();
-	size_t dstSize = type->getSize();
-
-	ASSERT(srcSize == dstSize);
-
-	memcpy(dst, opValue.getConstData(), dstSize);
+	ASSERT(opValue.getType()->getSize() == type->getSize());
+	memcpy(dst, opValue.getConstData(), type->getSize());
 	return true;
 }
 

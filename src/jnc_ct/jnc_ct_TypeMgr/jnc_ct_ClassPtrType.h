@@ -151,7 +151,7 @@ ClassPtrType::ClassPtrType() {
 //..............................................................................
 
 struct ClassPtrTypeTuple: sl::ListLink {
-	ClassPtrType* m_ptrTypeArray[2][2][6][2][2]; // ref x kind x const/const?/constif/readonly/event x volatile x checked
+	ClassPtrType* m_ptrTypeArray[2][2][6][2][2]; // ref x kind x const/const?/autoconst/readonly/event x volatile x checked
 };
 
 //..............................................................................

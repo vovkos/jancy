@@ -288,6 +288,7 @@ getType(ct::Type* type) {
 		StdType_Type,              // TypeKind_TemplateIntMod,
 		StdType_Type,              // TypeKind_TemplateDecl,
 		StdType_Type,              // TypeKind_TypedefShadow,
+		StdType_Type,              // TypeKind_AutoConst,
 	};
 
 	TypeKind typeKind = type->getTypeKind();

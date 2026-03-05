@@ -12,7 +12,6 @@
 #include "pch.h"
 #include "jnc_ct_TypeMgr.h"
 #include "jnc_ct_Module.h"
-#include "jnc_ct_DeclTypeCalc.h"
 #include "jnc_ct_ArrayType.h"
 #include "jnc_ct_EnumType.h"
 #include "jnc_ct_UnionType.h"
@@ -28,20 +27,13 @@
 #include "jnc_ct_MulticastClassType.h"
 #include "jnc_ct_McSnapshotClassType.h"
 #include "jnc_ct_TemplateType.h"
+#include "jnc_ct_AutoConstType.h"
 #include "jnc_ct_Parser.llk.h"
 #include "jnc_Variant.h"
 #include "jnc_String.h"
 
 namespace jnc {
 namespace ct {
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-inline
-NamedType*
-TypeMgr::parseStdType(StdType stdType) {
-	return parseStdType(stdType, m_module->m_unitMgr.getCoreLibUnit());
-}
 
 //..............................................................................
 
@@ -648,10 +640,12 @@ TypeMgr::createUserFunctionType(
 	ASSERT(callConv && returnType);
 	ASSERT(!(flags & ~FunctionTypeFlag__All));
 
-	flags |= returnType->getFlags() & TypeFlag_PropagateMask;
+	uint_t importFlags = returnType->getFlags();
 	size_t argCount = argArray.getCount();
 	for (size_t i = 0; i < argCount; i++)
-		flags |= argArray[i]->getType()->getFlags() & TypeFlag_PropagateMask;
+		importFlags |= argArray[i]->getType()->getFlags();
+
+	flags |= importFlags & TypeFlag_Import;
 
 	FunctionType* type = new FunctionType;
 	type->m_module = m_module;
@@ -1207,6 +1201,9 @@ TypeMgr::getDataPtrType(
 		return (DataPtrType*)it->m_value;
 	}
 
+	uint_t targetTypeFlags = targetType->getFlags();
+	flags |= targetTypeFlags & (TypeFlag_SignatureMask | TypeFlag_Import | TypeFlag_Dual);
+
 	DataPtrType* type = new DataPtrType;
 	type->m_module = m_module;
 	type->m_typeKind = typeKind;
@@ -1216,11 +1213,11 @@ TypeMgr::getDataPtrType(
 	type->m_bitOffset = bitOffset;
 	type->m_bitCount = bitCount;
 	type->m_signature = signature;
-	type->m_flags = flags | targetType->getFlags() & (TypeFlag_SignatureMask | TypeFlag_PropagateMask);
+	type->m_flags = flags;
 
 	if (targetType->getTypeKindFlags() & TypeKindFlag_Import)
 		((ImportType*)targetType)->addFixup(&type->m_targetType);
-	else
+	else if (!(targetTypeFlags & TypeFlag_Import))
 		type->m_flags |= TypeFlag_LayoutReady;
 
 	m_typeList.insertTail(type);
@@ -1242,14 +1239,15 @@ TypeMgr::getDataPtrType(
 	ASSERT(typeKind != TypeKind_DataRef || targetType->m_typeKind != TypeKind_DataRef); // double reference
 	ASSERT(!(flags & ~PtrTypeFlag__All));
 
-	flags |= targetType->getFlags() & TypeFlag_PropagateMask;
+	uint_t targetTypeFlags = targetType->getFlags();
+	flags |= targetTypeFlags & (TypeFlag_Import | TypeFlag_Dual);
 
 	if (ptrTypeKind == DataPtrTypeKind_Normal)
 		flags |= TypeFlag_GcRoot | TypeFlag_StructRet;
 
 	DataPtrTypeTuple* tuple = getDataPtrTypeTuple(targetType, flags);
 
-	// ref x ptrkind x const/const?/constif/readonly x volatile x safe
+	// ref x ptrkind x const/const?/autoconst/readonly x volatile x safe
 
 	size_t i1 = typeKind == TypeKind_DataRef;
 	size_t i2 = ptrTypeKind;
@@ -1259,17 +1257,17 @@ TypeMgr::getDataPtrType(
 
 	if (flags & PtrTypeFlag_Const) {
 		i3 = 1;
-		flags &= ~(PtrTypeFlag_MaybeConst | PtrTypeFlag_ConstIf | PtrTypeFlag_ReadOnly);
+		flags &= ~(PtrTypeFlag_MaybeConst | PtrTypeFlag_AutoConst | PtrTypeFlag_ReadOnly);
 	} else if (flags & PtrTypeFlag_MaybeConst) {
 		i3 = 2;
-		flags &= ~(PtrTypeFlag_ConstIf | PtrTypeFlag_ReadOnly);
-	} else if (flags & PtrTypeFlag_ConstIf) {
+		flags &= ~(PtrTypeFlag_AutoConst | PtrTypeFlag_ReadOnly);
+	} else if (flags & PtrTypeFlag_AutoConst) {
 		i3 = 3;
 		flags &= ~(PtrTypeFlag_Const | PtrTypeFlag_MaybeConst | PtrTypeFlag_ReadOnly);
 		flags |= TypeFlag_Dual;
 	} else if (flags & PtrTypeFlag_ReadOnly) {
 		i3 = 4;
-		flags &= ~(PtrTypeFlag_Const | PtrTypeFlag_MaybeConst | PtrTypeFlag_ConstIf);
+		flags &= ~(PtrTypeFlag_Const | PtrTypeFlag_MaybeConst | PtrTypeFlag_AutoConst);
 		flags |= TypeFlag_Dual;
 	} else
 		i3 = 0;
@@ -1287,7 +1285,7 @@ TypeMgr::getDataPtrType(
 
 	if (targetType->getTypeKindFlags() & TypeKindFlag_Import)
 		((ImportType*)targetType)->addFixup(&type->m_targetType);
-	else
+	else if (!(targetTypeFlags & TypeFlag_Import))
 		type->m_flags |= TypeFlag_LayoutReady;
 
 	m_typeList.insertTail(type);
@@ -1304,11 +1302,9 @@ TypeMgr::getClassPtrType(
 ) {
 	ASSERT((size_t)ptrTypeKind < ClassPtrTypeKind__Count);
 	ASSERT(!(flags & ~PtrTypeFlag__All));
+	ASSERT(!(targetType->getFlags() & TypeFlag_Dual));
 
-	flags |=
-		(targetType->getFlags() & TypeFlag_PropagateMask) |
-		TypeFlag_LayoutReady |
-		TypeFlag_GcRoot;
+	flags |= TypeFlag_GcRoot | TypeFlag_LayoutReady;
 
 	ClassPtrTypeTuple* tuple;
 
@@ -1329,21 +1325,21 @@ TypeMgr::getClassPtrType(
 
 	if (flags & PtrTypeFlag_Const) {
 		i3 = 1;
-		flags &= ~(PtrTypeFlag_MaybeConst | PtrTypeFlag_ConstIf | PtrTypeFlag_ReadOnly | PtrTypeFlag_DualEvent);
+		flags &= ~(PtrTypeFlag_MaybeConst | PtrTypeFlag_AutoConst | PtrTypeFlag_ReadOnly | PtrTypeFlag_DualEvent);
 	} else if (flags & PtrTypeFlag_MaybeConst) {
 		i3 = 2;
-		flags &= ~(PtrTypeFlag_Const | PtrTypeFlag_ConstIf | PtrTypeFlag_ReadOnly | PtrTypeFlag_DualEvent);
-	} else if (flags & PtrTypeFlag_ConstIf) {
+		flags &= ~(PtrTypeFlag_Const | PtrTypeFlag_AutoConst | PtrTypeFlag_ReadOnly | PtrTypeFlag_DualEvent);
+	} else if (flags & PtrTypeFlag_AutoConst) {
 		i3 = 3;
 		flags &= ~(PtrTypeFlag_Const | PtrTypeFlag_MaybeConst | PtrTypeFlag_ReadOnly | PtrTypeFlag_DualEvent);
 		flags |= TypeFlag_Dual;
 	} else if (flags & PtrTypeFlag_ReadOnly) {
 		i3 = 4;
-		flags &= ~(PtrTypeFlag_Const | PtrTypeFlag_MaybeConst | PtrTypeFlag_ConstIf | PtrTypeFlag_DualEvent);
+		flags &= ~(PtrTypeFlag_Const | PtrTypeFlag_MaybeConst | PtrTypeFlag_AutoConst | PtrTypeFlag_DualEvent);
 		flags |= TypeFlag_Dual;
 	} else if (flags & PtrTypeFlag_DualEvent) {
 		i3 = 5;
-		flags &= ~(PtrTypeFlag_Const | PtrTypeFlag_MaybeConst | PtrTypeFlag_ConstIf | PtrTypeFlag_ReadOnly);
+		flags &= ~(PtrTypeFlag_Const | PtrTypeFlag_MaybeConst | PtrTypeFlag_AutoConst | PtrTypeFlag_ReadOnly);
 		flags |= TypeFlag_Dual;
 	} else
 		i3 = 0;
@@ -1374,13 +1370,10 @@ TypeMgr::getFunctionPtrType(
 	ASSERT((size_t)ptrTypeKind < FunctionPtrTypeKind__Count);
 	ASSERT(!(flags & ~PtrTypeFlag__All));
 
-	flags |= functionType->getFlags() & TypeFlag_PropagateMask;
+	flags |= functionType->getFlags() & (TypeFlag_Import | TypeFlag_Dual | TypeFlag_LayoutReady);
 
 	if (ptrTypeKind != FunctionPtrTypeKind_Thin)
-		flags |=
-			TypeFlag_GcRoot |
-			TypeFlag_StructRet |
-			(functionType->getFlags() & TypeFlag_LayoutReady);
+		flags |= TypeFlag_GcRoot | TypeFlag_StructRet;
 
 	if (functionType->m_flags & FunctionTypeFlag_Unsafe)
 		flags &= ~PtrTypeFlag_Safe;
@@ -1420,9 +1413,7 @@ TypeMgr::getPropertyPtrType(
 	ASSERT((size_t)ptrTypeKind < PropertyPtrTypeKind__Count);
 	ASSERT(!(flags & ~PtrTypeFlag__All));
 
-	flags |=
-		(propertyType->getFlags() & TypeFlag_PropagateMask) |
-		TypeFlag_LayoutReady;
+	flags |= propertyType->getFlags() & (TypeFlag_Import | TypeFlag_Dual | TypeFlag_LayoutReady);
 
 	if (ptrTypeKind != PropertyPtrTypeKind_Thin)
 		flags |= TypeFlag_GcRoot | TypeFlag_StructRet;
@@ -1593,6 +1584,30 @@ TypeMgr::createTemplateDeclType(Declarator* declarator) {
 	return type;
 }
 
+AutoConstType*
+TypeMgr::createAutoConstType(
+	Type* originalType,
+	Type* constType,
+	uint_t flags
+) {
+	ASSERT(!(flags & ~(TypeFlag_Dual)));
+
+	AutoConstType* type = new AutoConstType;
+	type->m_module = m_module;
+	type->m_originalType = originalType;
+	type->m_constType = constType;
+	type->m_flags = flags;
+	m_typeList.insertTail(type);
+
+	if (originalType->getTypeKindFlags() & TypeKindFlag_Import)
+		((ImportType*)originalType)->addFixup(&type->m_originalType);
+
+	if (constType->getTypeKindFlags() & TypeKindFlag_Import)
+		((ImportType*)constType)->addFixup(&type->m_constType);
+
+	return type;
+}
+
 Type*
 TypeMgr::foldDualType(
 	Type* type,
@@ -1600,7 +1615,7 @@ TypeMgr::foldDualType(
 	uint_t ptrFlags
 ) {
 	ASSERT(type->getFlags() & TypeFlag_Dual);
-	ASSERT(!(ptrFlags & ~(PtrTypeFlag_Const | PtrTypeFlag_MaybeConst | PtrTypeFlag_ConstIf)));
+	ASSERT(!(ptrFlags & ~(PtrTypeFlag_Const | PtrTypeFlag_MaybeConst | PtrTypeFlag_AutoConst)));
 
 	size_t ptrFlagIdx = getConstPtrFlagIdx(ptrFlags);
 	ASSERT(ptrFlagIdx < countof(DualTypeTuple::m_typeArray[0]));
@@ -1612,7 +1627,6 @@ TypeMgr::foldDualType(
 		tuple->m_typeArray[isAlien][ptrFlagIdx] = foldedType;
 	}
 
-	// could still be folded (e.g., inside a const? method constif* -> constif*)
 	return foldedType;
 }
 
@@ -1869,6 +1883,12 @@ TypeMgr::setupStdTypedef(
 	tdef->m_module = m_module;
 	tdef->m_name = name;
 	tdef->m_type = &m_primitiveTypeArray[typeKind];
+}
+
+inline
+NamedType*
+TypeMgr::parseStdType(StdType stdType) {
+	return parseStdType(stdType, m_module->m_unitMgr.getCoreLibUnit());
 }
 
 NamedType*

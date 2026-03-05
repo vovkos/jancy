@@ -102,17 +102,17 @@ ClassPtrType::calcFoldedDualType(
 	uint_t ptrFlags
 ) {
 	ASSERT(m_flags & TypeFlag_Dual);
-	uint_t flags = m_flags & PtrTypeFlag__All & ~(PtrTypeFlag_ReadOnly | PtrTypeFlag_ConstIf | PtrTypeFlag_DualEvent);
+	uint_t flags = m_flags & PtrTypeFlag__All & ~(PtrTypeFlag_ReadOnly | PtrTypeFlag_AutoConst | PtrTypeFlag_DualEvent);
 
 	if (isAlien) {
 		if (m_flags & PtrTypeFlag_ReadOnly)
 			flags |= PtrTypeFlag_Const;
-		else if (m_flags & PtrTypeFlag_ConstIf)
+		else if (m_flags & PtrTypeFlag_AutoConst)
 			flags |= ptrFlags;
 
 		if (m_flags & PtrTypeFlag_DualEvent)
 			flags |= PtrTypeFlag_Event;
-	} else if (m_flags & PtrTypeFlag_ConstIf)
+	} else if (m_flags & PtrTypeFlag_AutoConst)
 		flags |= ptrFlags;
 
 	return m_targetType->getClassPtrType(m_typeKind, m_ptrTypeKind, flags);

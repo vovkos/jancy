@@ -22,6 +22,7 @@ set(
 	include/jnc_ct_AsyncSequencerFunction.h
 	include/jnc_ct_AttributeBlock.h
 	include/jnc_ct_AttributeMgr.h
+	include/jnc_ct_AutoConstType.h
 	include/jnc_ct_BasicBlock.h
 	include/jnc_ct_BinOp.h
 	include/jnc_ct_BinOp_Arithmetic.h
@@ -37,6 +38,7 @@ set(
 	include/jnc_ct_CapabilityMgr.h
 	include/jnc_ct_CastOp.h
 	include/jnc_ct_CastOp_Array.h
+	include/jnc_ct_CastOp_AutoConst.h
 	include/jnc_ct_CastOp_Bool.h
 	include/jnc_ct_CastOp_ClassPtr.h
 	include/jnc_ct_CastOp_DataPtr.h
@@ -117,14 +119,16 @@ set(
 	include/jnc_ct_StdNamespace.h
 	include/jnc_ct_StdType.h
 	include/jnc_ct_StructType.h
-	include/jnc_ct_TemplateType.h
+	include/jnc_ct_Template.h
 	include/jnc_ct_TemplateMgr.h
+	include/jnc_ct_TemplateType.h
 	include/jnc_ct_ThunkFunction.h
 	include/jnc_ct_ThunkProperty.h
 	include/jnc_ct_Type.h
 	include/jnc_ct_TypeMgr.h
 	include/jnc_ct_TypeName.h
 	include/jnc_ct_UnionType.h
+	include/jnc_ct_Unit.h
 	include/jnc_ct_UnitMgr.h
 	include/jnc_ct_UnOp.h
 	include/jnc_ct_UnOp_Arithmetic.h
@@ -353,6 +357,7 @@ set(
 	jnc_ct_OperatorMgr/jnc_ct_BinOp_Match.h
 	jnc_ct_OperatorMgr/jnc_ct_CastOp.h
 	jnc_ct_OperatorMgr/jnc_ct_CastOp_Array.h
+	jnc_ct_OperatorMgr/jnc_ct_CastOp_AutoConst.h
 	jnc_ct_OperatorMgr/jnc_ct_CastOp_Bool.h
 	jnc_ct_OperatorMgr/jnc_ct_CastOp_ClassPtr.h
 	jnc_ct_OperatorMgr/jnc_ct_CastOp_DataPtr.h
@@ -383,6 +388,7 @@ set(
 	jnc_ct_OperatorMgr/jnc_ct_BinOp_Match.cpp
 	jnc_ct_OperatorMgr/jnc_ct_CastOp.cpp
 	jnc_ct_OperatorMgr/jnc_ct_CastOp_Array.cpp
+	jnc_ct_OperatorMgr/jnc_ct_CastOp_AutoConst.cpp
 	jnc_ct_OperatorMgr/jnc_ct_CastOp_Bool.cpp
 	jnc_ct_OperatorMgr/jnc_ct_CastOp_ClassPtr.cpp
 	jnc_ct_OperatorMgr/jnc_ct_CastOp_DataPtr.cpp
@@ -427,6 +433,7 @@ source_group(
 set(
 	TYPEMGR_H_LIST
 	jnc_ct_TypeMgr/jnc_ct_ArrayType.h
+	jnc_ct_TypeMgr/jnc_ct_AutoConstType.h
 	jnc_ct_TypeMgr/jnc_ct_ClassPtrType.h
 	jnc_ct_TypeMgr/jnc_ct_ClassType.h
 	jnc_ct_TypeMgr/jnc_ct_ClosureClassType.h
@@ -459,6 +466,7 @@ set(
 set(
 	TYPEMGR_CPP_LIST
 	jnc_ct_TypeMgr/jnc_ct_ArrayType.cpp
+	jnc_ct_TypeMgr/jnc_ct_AutoConstType.cpp
 	jnc_ct_TypeMgr/jnc_ct_ClassPtrType.cpp
 	jnc_ct_TypeMgr/jnc_ct_ClassType.cpp
 	jnc_ct_TypeMgr/jnc_ct_ClosureClassType.cpp
@@ -569,7 +577,9 @@ set(
 	jnc_ct_Module/jnc_ct_ModuleItem.h
 	jnc_ct_Module/jnc_ct_Pragma.h
 	jnc_ct_Module/jnc_ct_PragmaMgr.h
+	jnc_ct_Module/jnc_ct_Template.h
 	jnc_ct_Module/jnc_ct_TemplateMgr.h
+	jnc_ct_Module/jnc_ct_Unit.h
 	jnc_ct_Module/jnc_ct_UnitMgr.h
 )
 
@@ -589,6 +599,7 @@ set(
 	jnc_ct_Module/jnc_ct_Module.cpp
 	jnc_ct_Module/jnc_ct_ModuleItem.cpp
 	jnc_ct_Module/jnc_ct_PragmaMgr.cpp
+	jnc_ct_Module/jnc_ct_Template.cpp
 	jnc_ct_Module/jnc_ct_TemplateMgr.cpp
 	jnc_ct_Module/jnc_ct_UnitMgr.cpp
 )

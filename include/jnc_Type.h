@@ -115,6 +115,10 @@ enum jnc_TypeKind {
 
 	jnc_TypeKind_TypedefShadow,       // T
 
+	// autoconst type pair (folds to one or the other depending on PtrTypeFlag_Const)
+
+	jnc_TypeKind_AutoConst,           // Z
+
 	// meta
 
 	jnc_TypeKind__Count,
@@ -196,14 +200,6 @@ enum jnc_TypeFlag {
 	jnc_TypeFlag_NoImports      = 0x2000, // all imports resolved (when generating documentation)
 	jnc_TypeFlag_Import         = 0x0008, // contains imports (supersedes TypeFlag_NoImports)
 	jnc_TypeFlag_Dual           = 0x4000, // should be folded in member operator
-	jnc_TypeFlag_MaybeConst     = 0x8000, // const? anchor (only one const? argument allowed)
-	jnc_TypeFlag_PropagateMask  = 0xc008, // derived types should propagate these flags
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-enum jnc_ImportTypeFlag {
-	jnc_ImportTypeFlag_InResolve = 0x010000, // detect import recursion loops
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -212,7 +208,7 @@ enum jnc_PtrTypeFlag {
 	jnc_PtrTypeFlag_Safe       = 0x00010000, // all ptr
 	jnc_PtrTypeFlag_Const      = 0x00020000, // class, data ptr
 	jnc_PtrTypeFlag_MaybeConst = 0x00040000, // class, data ptr
-	jnc_PtrTypeFlag_ConstIf    = 0x00080000, // class & data ptr (dual)
+	jnc_PtrTypeFlag_AutoConst  = 0x00080000, // class & data ptr (dual)
 	jnc_PtrTypeFlag_ReadOnly   = 0x00100000, // class & data ptr (dual)
 	jnc_PtrTypeFlag_Volatile   = 0x00200000, // class & data ptr
 	jnc_PtrTypeFlag_Event      = 0x00400000, // multicast-class only
@@ -685,6 +681,7 @@ const TypeKind
 	TypeKind_TemplateIntMod      = jnc_TypeKind_TemplateIntMod,
 	TypeKind_TemplateDecl        = jnc_TypeKind_TemplateDecl,
 	TypeKind_TypedefShadow       = jnc_TypeKind_TypedefShadow,
+	TypeKind_AutoConst           = jnc_TypeKind_AutoConst,
 	TypeKind__Count              = jnc_TypeKind__Count,
 	TypeKind__PrimitiveTypeCount = jnc_TypeKind__PrimitiveTypeCount,
 	TypeKind_IntPtr              = jnc_TypeKind_IntPtr,
@@ -752,16 +749,7 @@ const TypeFlag
 	TypeFlag_NoStack        = jnc_TypeFlag_NoStack,
 	TypeFlag_NoImports      = jnc_TypeFlag_NoImports,
 	TypeFlag_Import         = jnc_TypeFlag_Import,
-	TypeFlag_Dual           = jnc_TypeFlag_Dual,
-	TypeFlag_MaybeConst     = jnc_TypeFlag_MaybeConst,
-	TypeFlag_PropagateMask  = jnc_TypeFlag_PropagateMask;
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-typedef jnc_ImportTypeFlag ImportTypeFlag;
-
-const ImportTypeFlag
-	ImportTypeFlag_InResolve = jnc_ImportTypeFlag_InResolve;
+	TypeFlag_Dual           = jnc_TypeFlag_Dual;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -771,7 +759,7 @@ const PtrTypeFlag
 	PtrTypeFlag_Safe       = jnc_PtrTypeFlag_Safe,
 	PtrTypeFlag_Const      = jnc_PtrTypeFlag_Const,
 	PtrTypeFlag_MaybeConst = jnc_PtrTypeFlag_MaybeConst,
-	PtrTypeFlag_ConstIf    = jnc_PtrTypeFlag_ConstIf,
+	PtrTypeFlag_AutoConst  = jnc_PtrTypeFlag_AutoConst,
 	PtrTypeFlag_ReadOnly   = jnc_PtrTypeFlag_ReadOnly,
 	PtrTypeFlag_Volatile   = jnc_PtrTypeFlag_Volatile,
 	PtrTypeFlag_Event      = jnc_PtrTypeFlag_Event,

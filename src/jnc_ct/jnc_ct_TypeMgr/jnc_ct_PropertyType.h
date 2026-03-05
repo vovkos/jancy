@@ -172,11 +172,7 @@ protected:
 
 	virtual
 	bool
-	calcLayout() {
-		return
-			m_getterType->ensureLayout() &&
-			(m_setterType.isEmpty() || m_setterType.ensureLayout());
-	}
+	calcLayout();
 
 	virtual
 	Type*

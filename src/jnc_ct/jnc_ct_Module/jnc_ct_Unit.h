@@ -11,56 +11,65 @@
 
 #pragma once
 
-#include "jnc_ct_Template.h"
+#include "jnc_Unit.h"
 
 namespace jnc {
 namespace ct {
 
 //..............................................................................
 
-class TemplateMgr {
+class Unit: public sl::ListLink {
+	friend class UnitMgr;
+
 protected:
 	Module* m_module;
-	sl::List<Template> m_templateList;
-	Template* m_autoConstTemplate;
+
+	ExtensionLib* m_lib;
+	sl::String m_filePath;
+	sl::String m_fileName;
+	sl::String m_dir;
+
+	llvm::DIFile_vn m_llvmDiFile;
 
 public:
-	TemplateMgr();
+	Unit() {
+		m_module = NULL;
+		m_lib = NULL;
+	}
+
+	inline
+	bool
+	isRootUnit();
 
 	Module*
-	getModule() {
+	getModule() const {
 		return m_module;
 	}
 
-	void
-	clear() {
-		m_templateList.clear();
-		m_autoConstTemplate = NULL;
+	ExtensionLib*
+	getLib() const {
+		return m_lib;
 	}
 
-	Template*
-	createTemplate(
-		const sl::StringRef& name,
-		TemplateDeclType* declType
-	);
-
-	Template*
-	createTemplate(
-		TypeKind typeKind,
-		const sl::StringRef& name,
-		const sl::ArrayRef<TemplateArgType*>& argArray,
-		const sl::ArrayRef<TemplateDeclType*>& baseTypeArray
-	);
-
-
-	Template*
-	getAutoConstTemplate() {
-		return m_autoConstTemplate ? m_autoConstTemplate : createAutoConstTemplate();
+	const sl::String&
+	getFilePath() const {
+		return m_filePath;
 	}
 
-protected:
-	Template*
-	createAutoConstTemplate();
+	const sl::String&
+	getFileName() const {
+		return m_fileName;
+	}
+
+	const sl::String&
+	getDir() const {
+		return m_dir;
+	}
+
+	llvm::DIFile_vn
+	getLlvmDiFile() const {
+		return m_llvmDiFile;
+	}
 };
 
 //..............................................................................

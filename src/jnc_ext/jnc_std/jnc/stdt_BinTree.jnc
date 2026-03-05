@@ -24,9 +24,9 @@ struct BinTreeNodeBase<T, K, V, P>: MapEntryBase<T, K, V> {
 
 	typedef P Param;
 
-	T constif* readonly m_parent;
-	T constif* readonly m_left;
-	T constif* readonly m_right;
+	T autoconst* readonly m_parent;
+	T autoconst* readonly m_left;
+	T autoconst* readonly m_right;
 	P readonly m_param;
 
 	construct(K key) thin { // no default by intention (must derive from Base)
@@ -50,8 +50,7 @@ public:
 	}
 
 	void takeOver(BinTreeBase* src);
-
-	T constif* find(Key key) const?;
+	AutoConstIterator find(Key key) const?;
 
 protected:
 	static T* getLeftmostChild(T* p);
@@ -87,8 +86,8 @@ void BinTreeBase<T, C>.takeOver(BinTreeBase* src) {
 	src.m_root = null;
 }
 
-T constif* BinTreeBase<T, C>.find(Key key) const? {
-	T constif* p = m_root;
+T autoconst* BinTreeBase<T, C>.find(Key key) const? {
+	T autoconst* p = m_root;
 	while (p) {
 		int cmp = m_cmp(key, p.m_key);
 		if (cmp == 0)

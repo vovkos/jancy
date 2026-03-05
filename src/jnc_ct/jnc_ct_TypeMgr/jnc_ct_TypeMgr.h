@@ -54,6 +54,7 @@ class TemplateTypeName;
 class TemplatePtrType;
 class TemplateIntModType;
 class TemplateDeclType;
+class AutoConstType;
 
 struct DataPtrTypeTuple;
 struct ClassPtrTypeTuple;
@@ -712,6 +713,13 @@ public:
 	TemplateDeclType*
 	createTemplateDeclType(Declarator* declarator);
 
+	AutoConstType*
+	createAutoConstType(
+		Type* originalType,
+		Type* constType,
+		uint_t flags
+	);
+
 	Type*
 	foldDualType(
 		Type* type,
@@ -941,7 +949,7 @@ TypeMgr::getModType(
 	}
 
 	flags |=
-		(baseType->m_flags & TypeFlag_PropagateMask) |
+		(baseType->m_flags & TypeFlag_Import) |
 		TypeFlag_SignatureReady;
 
 	T* type = new T;

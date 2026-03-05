@@ -236,6 +236,8 @@ TemplateDeclType::instantiate(const sl::ArrayRef<Type*>& argArray) {
 
 	default:
 		baseType = baseType->getActualTypeIfImport();
+		if (!baseType)
+			return NULL;
 	}
 
 	DeclTypeCalc typeCalc;

@@ -28,6 +28,7 @@
 #include "jnc_ct_CastOp_Bool.h"
 #include "jnc_ct_CastOp_Int.h"
 #include "jnc_ct_CastOp_Fp.h"
+#include "jnc_ct_CastOp_AutoConst.h"
 #include "jnc_ct_CastOp_Variant.h"
 #include "jnc_ct_CastOp_String.h"
 #include "jnc_ct_CastOp_Array.h"
@@ -175,6 +176,7 @@ protected:
 	Cast_Fp m_cast_Fp;
 	Cast_Variant m_cast_Variant;
 	Cast_FromVariant m_cast_FromVariant;
+	Cast_AutoConst m_cast_AutoConst;
 	Cast_String m_cast_String;
 	Cast_Array m_cast_Array;
 	Cast_Enum m_cast_Enum;
@@ -1516,7 +1518,13 @@ protected:
 	);
 
 	bool
-	prepareOperandType_typedef(
+	prepareOperand_typedef(
+		Value* value,
+		uint_t opFlags
+	);
+
+	bool
+	prepareOperand_autoConst(
 		Value* value,
 		uint_t opFlags
 	);
@@ -1613,12 +1621,6 @@ protected:
 
 	bool
 	prepareOperand_classRef(
-		Value* value,
-		uint_t opFlags
-	);
-
-	bool
-	prepareOperandType_functionRef(
 		Value* value,
 		uint_t opFlags
 	);

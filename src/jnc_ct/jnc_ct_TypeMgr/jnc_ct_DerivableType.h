@@ -346,6 +346,10 @@ public:
 		return findDirectChildItemTraverse(name, coord, flags, 0);
 	}
 
+	virtual
+	bool
+	isLayoutIdentical(Type* type);
+
 protected:
 	virtual
 	bool

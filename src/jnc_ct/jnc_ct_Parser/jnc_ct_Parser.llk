@@ -844,6 +844,22 @@ protected:
 		)
 			m_module->m_codeAssistMgr.prepareExpressionFallback(expression);
 	}
+
+	static
+	bool
+	appendActualTypeIfImport(
+		sl::Array<Type*>* typeArray,
+		Type* type
+	) {
+		if (type) {
+			type = type->getActualTypeIfImport();
+			if (!type)
+				return false;
+		}
+
+		typeArray->append(type);
+		return true;
+	}
 }
 
 //..............................................................................

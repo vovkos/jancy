@@ -52,14 +52,11 @@ DataPtrType::createSignature(
 
 bool
 DataPtrType::calcLayout() {
-	if (!(m_targetType->getTypeKindFlags() & TypeKindFlag_Import)) // already fixed up!
-		return true;
-
-	bool result = ((ImportType*)m_targetType)->ensureResolved();
+	bool result = m_targetType->ensureNoImports(); // only resolve imports (calc layout could cause loops)
 	if (!result)
 		return false;
 
-	ASSERT(!(m_targetType->getTypeKindFlags() & TypeKindFlag_Import)); // should have been fixed up in resolve
+	m_flags |= m_targetType->getFlags() & TypeFlag_Dual;
 	return true;
 }
 
@@ -136,11 +133,11 @@ DataPtrType::calcFoldedDualType(
 	ASSERT(m_flags & TypeFlag_Dual);
 
 	Type* targetType = m_targetType->getActualTypeIfDual(isAlien, ptrFlags);
-	uint_t flags = m_flags & PtrTypeFlag__All & ~(PtrTypeFlag_ReadOnly | PtrTypeFlag_ConstIf);
+	uint_t flags = m_flags & PtrTypeFlag__All & ~(PtrTypeFlag_ReadOnly | PtrTypeFlag_AutoConst);
 
 	if ((m_flags & PtrTypeFlag_ReadOnly) && isAlien)
 		flags |= PtrTypeFlag_Const;
-	else if (m_flags & PtrTypeFlag_ConstIf)
+	else if (m_flags & PtrTypeFlag_AutoConst)
 		flags |= ptrFlags;
 
 	return targetType->getDataPtrType(m_typeKind, m_ptrTypeKind, flags);

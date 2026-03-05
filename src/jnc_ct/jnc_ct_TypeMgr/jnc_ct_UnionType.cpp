@@ -95,7 +95,11 @@ UnionType::calcLayout() {
 				m_fieldInitializeArray.append(field);
 	}
 
-	ASSERT(largestFieldType);
+	if (!largestFieldType) {
+		err::setFormatStringError("empty union '%s'", getItemName().sz());
+		pushSrcPosError();
+		return false;
+	}
 
 	m_structType->createField(largestFieldType);
 	m_structType->m_alignment = AXL_MIN(largestAlignment, m_structType->m_fieldAlignment);
@@ -125,8 +129,14 @@ UnionType::calcLayout() {
 	)
 		createDefaultMethod<DefaultConstructor>(m_constructorThinThisFlag);
 
-	if (m_constructor && !findCopyConstructor())
-		createDefaultCopyConstructor();
+	if (m_constructor) {
+		result = m_constructor.ensureNoImports();
+		if (!result)
+			return false;
+
+		if (!findCopyConstructor())
+			createDefaultCopyConstructor();
+	}
 
 	m_size = m_structType->getSize();
 	m_alignment = m_structType->getAlignment();

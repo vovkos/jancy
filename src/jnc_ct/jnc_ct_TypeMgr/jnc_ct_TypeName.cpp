@@ -65,7 +65,7 @@ TypeName::lookupTypeImpl(
 	}
 
 	if (!findResult.m_item) {
-		err::setFormatStringError("unresolved type '%s'", m_name.getFullName().sz());
+		err::setFormatStringError("unresolved type '%s'", createQualifiedName(m_name.getFullName()).sz());
 		pushSrcPosError();
 		return NULL;
 	}

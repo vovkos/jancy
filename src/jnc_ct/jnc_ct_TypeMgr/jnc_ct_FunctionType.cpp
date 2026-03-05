@@ -161,6 +161,8 @@ FunctionType::calcLayout() {
 	if (!result)
 		return false;
 
+	m_flags |= m_returnType->getFlags() & TypeFlag_Dual;
+
 	if (m_flags & FunctionTypeFlag_Async) {
 		result = m_asyncReturnType->ensureLayout();
 		if (!result)
@@ -174,9 +176,12 @@ FunctionType::calcLayout() {
 
 	size_t count = m_argArray.getCount();
 	for (size_t i = 0; i < count; i++) {
-		result = m_argArray[i]->getType()->ensureLayout();
+		Type* argType = m_argArray[i]->getType();
+		result = argType->ensureLayout();
 		if (!result)
 			return false;
+
+		m_flags |= argType->getFlags() & TypeFlag_Dual;
 	}
 
 	return m_shortType == this || m_shortType->ensureLayout();

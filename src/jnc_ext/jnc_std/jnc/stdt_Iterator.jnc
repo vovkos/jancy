@@ -54,20 +54,11 @@ struct IteratorBase<P> {
 	}
 }
 
-//..............................................................................
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct IteratorImpl<M, C>: M {
-	typedef ConstIteratorImpl<M, C> ConstIterator;
-
-	construct() thin {}
-
-	construct(EntryPtr p) thin {
-		m_p = p;
-	}
-}
-
-struct ConstIteratorImpl<M, C>: C {
-	typedef IteratorImpl<M, C> Iterator;
+struct IteratorImpl<B, M, C>: B {
+	typedef IteratorImpl<M, M, C> Iterator;
+	typedef IteratorImpl<C, M, C> ConstIterator;
 
 	construct() thin {}
 
@@ -84,10 +75,12 @@ struct ConstIteratorImpl<M, C>: C {
 
 typedef IteratorImpl<
 	IteratorBase<T*>,
+	IteratorBase<T*>,
 	IteratorBase<T const*>
 > Iterator<T>;
 
-typedef ConstIteratorImpl<
+typedef IteratorImpl<
+	IteratorBase<T const*>,
 	IteratorBase<T*>,
 	IteratorBase<T const*>
 > ConstIterator<T>;

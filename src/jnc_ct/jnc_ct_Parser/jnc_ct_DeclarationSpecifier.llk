@@ -273,9 +273,9 @@ type_modifier
 			{
 				$.m_typeModifier = TypeModifier_MaybeConst;
 			}
-	|	TokenKind_ConstIf
+	|	TokenKind_AutoConst
 			{
-				$.m_typeModifier = TypeModifier_ConstIf;
+				$.m_typeModifier = TypeModifier_AutoConst;
 			}
 	|	TokenKind_ReadOnly
 			{
@@ -368,7 +368,7 @@ type_modifier_sync
 	|	TokenKind_BigEndian
 	|	TokenKind_Const
 	|	TokenKind_MaybeConst
-	|	TokenKind_ConstIf
+	|	TokenKind_AutoConst
 	|	TokenKind_ReadOnly
 	|	TokenKind_Volatile
 	|	TokenKind_Weak

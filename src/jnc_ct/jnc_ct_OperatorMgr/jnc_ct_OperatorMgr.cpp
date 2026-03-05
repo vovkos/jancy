@@ -13,9 +13,8 @@
 #include "jnc_ct_OperatorMgr.h"
 #include "jnc_ct_Module.h"
 #include "jnc_ct_ArrayType.h"
-#include "jnc_ct_ReactorClassType.h"
+#include "jnc_ct_AutoConstType.h"
 #include "jnc_ct_LeanDataPtrValidator.h"
-#include "jnc_rtl_DynamicLayout.h"
 
 namespace jnc {
 namespace ct {
@@ -152,6 +151,7 @@ OperatorMgr::OperatorMgr() {
 	m_castOperatorTable[TypeKind_PropertyPtr]   = &m_cast_PropertyPtr;
 	m_castOperatorTable[TypeKind_PropertyRef]   = &m_cast_PropertyRef;
 	m_castOperatorTable[TypeKind_TypedefShadow] = &m_cast_Typedef;
+	m_castOperatorTable[TypeKind_AutoConst]     = &m_cast_AutoConst;
 
 	m_unsafeEnterCount = 0;
 #if (_JNC_DYLAYOUT_FINALIZE_STRUCT_SECTIONS_ON_CALLS)
@@ -1200,11 +1200,29 @@ OperatorMgr::prepareOperand_nop(
 }
 
 bool
-OperatorMgr::prepareOperandType_typedef(
+OperatorMgr::prepareOperand_typedef(
 	Value* value,
 	uint_t opFlags
 ) {
 	value->overrideType(((TypedefShadowType*)value->getType())->getTypedef()->getType());
+	return true;
+}
+
+bool
+OperatorMgr::prepareOperand_autoConst(
+	Value* value,
+	uint_t opFlags
+) {
+	if (opFlags & OpFlag_KeepAutoConst)
+		return true;
+
+	AutoConstType* type = (AutoConstType*)value->getType();
+	if (type->getFlags() & TypeFlag_Dual) {
+		value->overrideType(type->getConstType());
+		return true;
+	}
+
+	*value = m_module->m_variableMgr.createMutableAutoConstVariable(*value);
 	return true;
 }
 
@@ -1559,7 +1577,8 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandTypeFuncTable[TypeK
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_TemplatePtr
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_TemplateIntMod
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_TemplateDecl
-	&OperatorMgr::prepareOperandType_typedef,     // TypeKind_TypedefShadow
+	&OperatorMgr::prepareOperand_typedef,         // TypeKind_TypedefShadow
+	&OperatorMgr::prepareOperand_autoConst,       // TypeKind_AutoConst
 };
 
 OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable[TypeKind__Count] = {
@@ -1601,6 +1620,7 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable[TypeKind_
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_TemplateIntMod
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_TemplateDecl
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_TypedefShadow
+	&OperatorMgr::prepareOperand_autoConst,   // TypeKind_AutoConst
 };
 
 OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandTypeFuncTable_dataRef[TypeKind__Count] = {
@@ -1642,6 +1662,7 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandTypeFuncTable_dataR
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_TemplateIntMod
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_TemplateDecl
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_TypedefShadow
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_AutoConst
 };
 
 OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable_dataRef[TypeKind__Count] = {
@@ -1683,6 +1704,7 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable_dataRef[T
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_TemplateIntMod
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_TemplateDecl
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_TypedefShadow
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_AutoConst
 };
 
 bool

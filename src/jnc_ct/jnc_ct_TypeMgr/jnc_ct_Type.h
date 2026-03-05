@@ -119,7 +119,7 @@ getLlvmTypeString(llvm::Type* llvmType);
 //..............................................................................
 
 struct DualTypeTuple: sl::ListLink {
-	Type* m_typeArray[2][5]; // alien-friend x container-const/const?/constif
+	Type* m_typeArray[2][5]; // alien-friend x container-const/const?/autoconst
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -340,6 +340,12 @@ public:
 		Type* referenceType
 	) {
 		return true; // scalar types deduce nothing
+	}
+
+	virtual
+	bool
+	isLayoutIdentical(Type* type) {
+		return m_typeKind == type->m_typeKind && m_llvmType == type->m_llvmType; // simple fallback
 	}
 
 protected:
@@ -590,7 +596,7 @@ uint_t
 getConstPtrFlagIdx(uint_t ptrFlags) {
 	// PtrTypeFlag_Const      = 0x00020000, // class, data ptr
 	// PtrTypeFlag_MaybeConst = 0x00040000, // class, data ptr
-	// PtrTypeFlag_ConstIf    = 0x00080000, // class & data ptr (dual)
+	// PtrTypeFlag_AutoConst    = 0x00080000, // class & data ptr (dual)
 
 	return (ptrFlags >> 17) & 7;
 } // returns 0 .. 4 (3 unused)

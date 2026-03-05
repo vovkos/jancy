@@ -233,7 +233,8 @@ NamespaceMgr::addStdItems() {
 		jncNspace->addItem("ModuleCompileFlags", introImport) &&
 		jncNspace->addItem("ModuleCompileState", introImport) &&
 		jncNspace->addItem("Module", introImport) &&
-		jncNspace->addItem("Unit", introImport);
+		jncNspace->addItem("Unit", introImport) &&
+		jncNspace->addItem("AutoConst", m_module->m_templateMgr.getAutoConstTemplate());
 
 	ASSERT(result);
 }

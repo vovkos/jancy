@@ -138,7 +138,7 @@ bitflag enum PtrTypeFlags {
 	Safe       = 0x00010000, // all ptr
 	Const      = 0x00020000, // class, data ptr, function
 	MaybeConst = 0x00040000, // class, data ptr, function
-	ConstIf    = 0x00080000, // class & data ptr (dual)
+	AutoConst  = 0x00080000, // class & data ptr (dual)
 	ReadOnly   = 0x00100000, // class & data ptr (dual)
 	Volatile   = 0x00200000, // class & data ptr
 	Event      = 0x00400000, // multicast-class only

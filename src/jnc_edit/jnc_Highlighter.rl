@@ -71,8 +71,9 @@ main := |*
 	'unsigned'        |
 	'bigendian'       |
 	'const'           |
-	'constif'         |
-	'cmut'            |
+	'cmut'            | # legacy code support
+	'constif'         | # legacy code support
+	'autoconst'       |
 	'readonly'        |
 	'volatile'        |
 	'safe'            |
