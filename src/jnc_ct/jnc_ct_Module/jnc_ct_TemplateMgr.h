@@ -52,7 +52,6 @@ public:
 		const sl::ArrayRef<TemplateDeclType*>& baseTypeArray
 	);
 
-
 	Template*
 	getAutoConstTemplate() {
 		return m_autoConstTemplate ? m_autoConstTemplate : createAutoConstTemplate();

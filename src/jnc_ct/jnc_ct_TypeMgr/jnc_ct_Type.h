@@ -262,6 +262,9 @@ public:
 	getActualTypeIfImport();
 
 	Type*
+	getActualTypeIfAutoConst();
+
+	Type*
 	getActualTypeIfDual(
 		bool isAlien,
 		uint_t ptrFlags
@@ -343,9 +346,10 @@ public:
 	}
 
 	virtual
-	bool
-	isLayoutIdentical(Type* type) {
-		return m_typeKind == type->m_typeKind && m_llvmType == type->m_llvmType; // simple fallback
+	Type*
+	mergeAutoConstTypes(Type* constType) {
+		ASSERT((m_flags & TypeFlag_LayoutReady) && (constType->getFlags() & TypeFlag_LayoutReady));
+		return isEqual(constType) ? this : NULL;
 	}
 
 protected:
@@ -596,7 +600,7 @@ uint_t
 getConstPtrFlagIdx(uint_t ptrFlags) {
 	// PtrTypeFlag_Const      = 0x00020000, // class, data ptr
 	// PtrTypeFlag_MaybeConst = 0x00040000, // class, data ptr
-	// PtrTypeFlag_AutoConst    = 0x00080000, // class & data ptr (dual)
+	// PtrTypeFlag_AutoConst  = 0x00080000, // class & data ptr (dual)
 
 	return (ptrFlags >> 17) & 7;
 } // returns 0 .. 4 (3 unused)

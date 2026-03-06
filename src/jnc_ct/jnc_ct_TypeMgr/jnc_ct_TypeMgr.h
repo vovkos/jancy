@@ -714,10 +714,10 @@ public:
 	createTemplateDeclType(Declarator* declarator);
 
 	AutoConstType*
-	createAutoConstType(
+	getAutoConstType(
 		Type* originalType,
 		Type* constType,
-		uint_t flags
+		uint_t flags = 0
 	);
 
 	Type*

@@ -276,6 +276,7 @@ getType(ct::Type* type) {
 		StdType_FunctionPtrType,   // TypeKind_FunctionRef
 		StdType_PropertyPtrType,   // TypeKind_PropertyPtr
 		StdType_PropertyPtrType,   // TypeKind_PropertyRef
+		StdType_Type,              // TypeKind_AutoConst,
 
 		// shouldn't happen at runtime
 
@@ -288,7 +289,6 @@ getType(ct::Type* type) {
 		StdType_Type,              // TypeKind_TemplateIntMod,
 		StdType_Type,              // TypeKind_TemplateDecl,
 		StdType_Type,              // TypeKind_TypedefShadow,
-		StdType_Type,              // TypeKind_AutoConst,
 	};
 
 	TypeKind typeKind = type->getTypeKind();

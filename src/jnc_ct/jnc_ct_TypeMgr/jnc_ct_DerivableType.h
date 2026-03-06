@@ -347,8 +347,8 @@ public:
 	}
 
 	virtual
-	bool
-	isLayoutIdentical(Type* type);
+	Type*
+	mergeAutoConstTypes(Type* constType);
 
 protected:
 	virtual

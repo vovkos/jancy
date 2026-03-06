@@ -85,6 +85,11 @@ typedef IteratorImpl<
 	IteratorBase<T const*>
 > ConstIterator<T>;
 
+typedef jnc.AutoConst<
+	Iterator<T>,
+	ConstIterator<T>
+> AutoConstIterator<T>;
+
 //..............................................................................
 
 //! @}

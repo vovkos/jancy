@@ -83,7 +83,7 @@ getPtrTypeFlagString(PtrTypeFlag flag) {
 		"safe",       // PtrTypeFlag_Safe       = 0x00010000
 		"const",      // PtrTypeFlag_Const      = 0x00020000
 		"const?",     // PtrTypeFlag_MaybeConst = 0x00040000
-		"autoconst",  // PtrTypeFlag_AutoConst    = 0x00080000
+		"autoconst",  // PtrTypeFlag_AutoConst  = 0x00080000
 		"readonly",   // PtrTypeFlag_ReadOnly   = 0x00100000
 		"volatile",   // PtrTypeFlag_Volatile   = 0x00200000
 		"event",      // PtrTypeFlag_Event      = 0x00400000

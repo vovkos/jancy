@@ -72,6 +72,10 @@ public:
 		rt::GcHeap* gcHeap
 	);
 
+	virtual
+	Type*
+	mergeAutoConstTypes(Type* constType);
+
 protected:
 	virtual
 	bool

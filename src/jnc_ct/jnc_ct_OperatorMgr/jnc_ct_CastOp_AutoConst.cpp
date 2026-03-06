@@ -43,7 +43,7 @@ Cast_AutoConst::cast(
 	if (!result)
 		return false;
 
-	resultValue->overrideType(opValue, type);
+	resultValue->overrideType(type);
 	return true;
 }
 

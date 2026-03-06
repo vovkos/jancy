@@ -138,6 +138,17 @@ ArrayType::markGcRoots(
 	gcHeap->addRootArray(p, m_elementType, m_elementCount);
 }
 
+Type*
+ArrayType::mergeAutoConstTypes(Type* constType0) {
+	ASSERT((m_flags & TypeFlag_LayoutReady) && (constType0->getFlags() & TypeFlag_LayoutReady));
+	ArrayType* constType = (ArrayType*)constType0;
+	if (constType->getTypeKind() != TypeKind_Array || m_elementCount != constType->m_elementCount)
+		return NULL;
+
+	Type* elementType = m_elementType->mergeAutoConstTypes(constType->m_elementType);
+	return elementType ? m_module->m_typeMgr.getArrayType(elementType, m_elementCount) : NULL;
+}
+
 void
 ArrayType::prepareLlvmDiType() {
 	m_llvmDiType = m_module->m_llvmDiBuilder.createArrayType(this);

@@ -97,6 +97,10 @@ enum jnc_TypeKind {
 	jnc_TypeKind_PropertyPtr,         // P
 	jnc_TypeKind_PropertyRef,         // R
 
+	// autoconst type pair (folds to one or the other depending on PtrConstKind)
+
+	jnc_TypeKind_AutoConst,           // Z
+
 	// import types (pseudo-types -- will be resolved and replaced)
 
 	jnc_TypeKind_ImportTypeName,      // IN
@@ -114,10 +118,6 @@ enum jnc_TypeKind {
 	// when generating documentation, we want to keep typedef shadow in declarations
 
 	jnc_TypeKind_TypedefShadow,       // T
-
-	// autoconst type pair (folds to one or the other depending on PtrTypeFlag_Const)
-
-	jnc_TypeKind_AutoConst,           // Z
 
 	// meta
 
@@ -219,6 +219,16 @@ enum jnc_PtrTypeFlag {
 	jnc_PtrTypeFlag_BitField   = 0x08000000, // data ptr only
 	jnc_PtrTypeFlag_ThinThis   = 0x10000000, // 'this' arg only
 	jnc_PtrTypeFlag__All       = 0x1fff0000,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum jnc_PtrConstKind {
+	jnc_PtrConstKind_Mutable = 0,
+	jnc_PtrConstKind_Const,
+	jnc_PtrConstKind_MaybeConst,
+	jnc_PtrConstKind_AutoConst,
+	jnc_PtrConstKind_AutoConstExtern,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -672,6 +682,7 @@ const TypeKind
 	TypeKind_FunctionRef         = jnc_TypeKind_FunctionRef,
 	TypeKind_PropertyPtr         = jnc_TypeKind_PropertyPtr,
 	TypeKind_PropertyRef         = jnc_TypeKind_PropertyRef,
+	TypeKind_AutoConst           = jnc_TypeKind_AutoConst,
 	TypeKind_ImportTypeName      = jnc_TypeKind_ImportTypeName,
 	TypeKind_ImportPtr           = jnc_TypeKind_ImportPtr,
 	TypeKind_ImportIntMod        = jnc_TypeKind_ImportIntMod,
@@ -681,7 +692,6 @@ const TypeKind
 	TypeKind_TemplateIntMod      = jnc_TypeKind_TemplateIntMod,
 	TypeKind_TemplateDecl        = jnc_TypeKind_TemplateDecl,
 	TypeKind_TypedefShadow       = jnc_TypeKind_TypedefShadow,
-	TypeKind_AutoConst           = jnc_TypeKind_AutoConst,
 	TypeKind__Count              = jnc_TypeKind__Count,
 	TypeKind__PrimitiveTypeCount = jnc_TypeKind__PrimitiveTypeCount,
 	TypeKind_IntPtr              = jnc_TypeKind_IntPtr,

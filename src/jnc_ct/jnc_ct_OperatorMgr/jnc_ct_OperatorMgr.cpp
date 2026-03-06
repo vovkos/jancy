@@ -581,17 +581,17 @@ OperatorMgr::findCastOperator(
 	CastKind* castKind
 ) {
 	Type* opType = opValue.getType();
-	uint_t opTypeKindFlags = opType->getTypeKindFlags();
-	if (opTypeKindFlags & TypeKindFlag_ClassPtr)
+	if (opType->getTypeKindFlags() & TypeKindFlag_ClassPtr)
 		return (((ClassPtrType*)opType)->getTargetType())->findCastOperator(type, castKind);
 
-	if (opTypeKindFlags & TypeKindFlag_DataPtr) {
-		Type* targetType = ((DataPtrType*)opType)->getTargetType();
+	if (opType->getTypeKindFlags() & TypeKindFlag_DataPtr) {
+		Type* targetType = ((DataPtrType*)opType)->getTargetType()->getActualTypeIfAutoConst();
 		if (targetType->getTypeKindFlags() & TypeKindFlag_Derivable)
 			return ((DerivableType*)targetType)->findCastOperator(type, castKind);
 	}
 
-	if (!(opTypeKindFlags & TypeKindFlag_Derivable))
+	opType = opType->getActualTypeIfAutoConst();
+	if (!(opType->getTypeKindFlags() & TypeKindFlag_Derivable))
 		return NULL;
 
 	Function* castOperator = ((DerivableType*)opType)->findCastOperator(type, castKind);
@@ -1569,6 +1569,7 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandTypeFuncTable[TypeK
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_FunctionRef
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_PropertyPtr
 	&OperatorMgr::prepareOperandType_propertyRef, // TypeKind_PropertyRef
+	&OperatorMgr::prepareOperand_autoConst,       // TypeKind_AutoConst
 	&OperatorMgr::prepareOperand_import,          // TypeKind_ImportTypeName
 	&OperatorMgr::prepareOperand_import,          // TypeKind_ImportPtr
 	&OperatorMgr::prepareOperand_import,          // TypeKind_ImportIntMod
@@ -1578,7 +1579,6 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandTypeFuncTable[TypeK
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_TemplateIntMod
 	&OperatorMgr::prepareOperand_nop,             // TypeKind_TemplateDecl
 	&OperatorMgr::prepareOperand_typedef,         // TypeKind_TypedefShadow
-	&OperatorMgr::prepareOperand_autoConst,       // TypeKind_AutoConst
 };
 
 OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable[TypeKind__Count] = {
@@ -1611,6 +1611,7 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable[TypeKind_
 	&OperatorMgr::prepareOperand_functionRef, // TypeKind_FunctionRef
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_PropertyPtr
 	&OperatorMgr::prepareOperand_propertyRef, // TypeKind_PropertyRef
+	&OperatorMgr::prepareOperand_autoConst,   // TypeKind_AutoConst
 	&OperatorMgr::prepareOperand_import,      // TypeKind_ImportTypeName
 	&OperatorMgr::prepareOperand_import,      // TypeKind_ImportPtr
 	&OperatorMgr::prepareOperand_import,      // TypeKind_ImportIntMod
@@ -1620,7 +1621,6 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable[TypeKind_
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_TemplateIntMod
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_TemplateDecl
 	&OperatorMgr::prepareOperand_nop,         // TypeKind_TypedefShadow
-	&OperatorMgr::prepareOperand_autoConst,   // TypeKind_AutoConst
 };
 
 OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandTypeFuncTable_dataRef[TypeKind__Count] = {
@@ -1653,6 +1653,7 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandTypeFuncTable_dataR
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_FunctionRef
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_PropertyPtr
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_PropertyRef
+	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_AutoConst
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_ImportTypeName
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_ImportPtr
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_ImportIntMod
@@ -1662,7 +1663,6 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandTypeFuncTable_dataR
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_TemplateIntMod
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_TemplateDecl
 	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_TypedefShadow
-	&OperatorMgr::prepareOperandType_dataRef_default,   // TypeKind_AutoConst
 };
 
 OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable_dataRef[TypeKind__Count] = {
@@ -1695,6 +1695,7 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable_dataRef[T
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_FunctionRef
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_PropertyPtr
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_PropertyRef
+	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_AutoConst
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_ImportTypeName
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_ImportPtr
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_ImportIntMod
@@ -1704,7 +1705,6 @@ OperatorMgr::PrepareOperandFunc OperatorMgr::m_prepareOperandFuncTable_dataRef[T
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_TemplateIntMod
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_TemplateDecl
 	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_TypedefShadow
-	&OperatorMgr::prepareOperand_dataRef_default,   // TypeKind_AutoConst
 };
 
 bool

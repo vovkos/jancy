@@ -450,7 +450,7 @@ Cast_DataPtr_Base::getCastKind(
 
 	bool isSrcPod = (srcDataType->getFlags() & TypeFlag_Pod) != 0;
 	bool isDstPod = (dstDataType->getFlags() & TypeFlag_Pod) != 0;
-	bool isDstConst = (dstType->getFlags() & (PtrTypeFlag_Const | PtrTypeFlag_MaybeConst)) != 0;
+	bool isDstConst = (dstType->getFlags() & PtrTypeFlag_Const) != 0;
 	bool isDstDerivable = (dstDataType->getTypeKindFlags() & TypeKindFlag_Derivable) != 0;
 
 	bool canCastToPod =
@@ -510,7 +510,7 @@ Cast_DataPtr_Base::getOffset(
 
 	bool isSrcPod = (srcDataType->getFlags() & TypeFlag_Pod) != 0;
 	bool isDstPod = (dstDataType->getFlags() & TypeFlag_Pod) != 0;
-	bool isDstConst = (dstType->getFlags() & (PtrTypeFlag_Const | PtrTypeFlag_MaybeConst)) != 0;
+	bool isDstConst = (dstType->getFlags() & PtrTypeFlag_Const) != 0;
 	bool isDstDerivable = (dstDataType->getTypeKindFlags() & TypeKindFlag_Derivable) != 0;
 
 	bool canCastToPod =
@@ -837,7 +837,7 @@ Cast_DataPtr::getCastOperator(
 		return &m_fromPropertyPtr;
 
 	default:
-		if ((dstPtrType->getFlags() & (PtrTypeFlag_Const | PtrTypeFlag_MaybeConst)) &&
+		if ((dstPtrType->getFlags() & PtrTypeFlag_Const) &&
 			(srcType->getTypeKindFlags() & TypeKindFlag_Derivable)
 		) {
 			Type* targetType = dstPtrType->getTargetType();

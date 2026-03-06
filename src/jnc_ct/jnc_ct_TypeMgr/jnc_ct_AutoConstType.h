@@ -24,6 +24,7 @@ class AutoConstType: public Type {
 protected:
 	Type* m_originalType;
 	Type* m_constType;
+	Type* m_mergedType;
 
 public:
 	AutoConstType();
@@ -38,6 +39,11 @@ public:
 		return m_constType;
 	}
 
+	Type*
+	getMergedType() {
+		return m_mergedType;
+	}
+
 	virtual
 	void
 	markGcRoots(
@@ -47,6 +53,15 @@ public:
 		m_constType->markGcRoots(p, gcHeap);
 	}
 
+	static
+	uint_t
+	createSignature(
+		sl::String* signature,
+		Type* originalType,
+		Type* constType,
+		uint_t flags
+	);
+
 protected:
 	virtual
 	sl::StringRef
@@ -54,10 +69,7 @@ protected:
 
 	virtual
 	void
-	prepareSignature() {
-		m_signature = ((m_flags & TypeFlag_Dual) ? "ZA" : "ZM") + m_originalType->getSignature() + m_constType->getSignature();
-		m_flags |= m_originalType->getFlags() & m_constType->getFlags() & TypeFlag_SignatureMask;
-	}
+	prepareSignature();
 
 	virtual
 	void
@@ -90,6 +102,21 @@ AutoConstType::AutoConstType() {
 	m_typeKind = TypeKind_AutoConst;
 	m_originalType = NULL;
 	m_constType = NULL;
+	m_mergedType = NULL;
+}
+
+//..............................................................................
+
+inline
+Type*
+Type::getActualTypeIfAutoConst() {
+	if (m_typeKind != TypeKind_AutoConst)
+		return this;
+
+	AutoConstType* autoConstType = (AutoConstType*)this;
+	return (m_flags & TypeFlag_Dual) ?
+		autoConstType->getConstType() :
+		autoConstType->getOriginalType();
 }
 
 //..............................................................................

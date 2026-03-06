@@ -33,8 +33,9 @@ PropertyType::createSignature(
 
 	*string += getterType->getSignature();
 
-	uint_t signatureFlags = getterType->getFlags() & TypeFlag_SignatureFinal;
-	uint_t importFlags = getterType->getFlags();
+	uint_t getterTypeFlags = getterType->getFlags();
+	uint_t signatureFlags = getterTypeFlags & TypeFlag_SignatureFinal;
+	uint_t importFlags = getterTypeFlags;
 
 	size_t overloadCount = setterType.getOverloadCount();
 	for (size_t i = 0; i < overloadCount; i++) {

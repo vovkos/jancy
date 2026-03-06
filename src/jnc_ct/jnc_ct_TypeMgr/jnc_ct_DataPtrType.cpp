@@ -143,6 +143,21 @@ DataPtrType::calcFoldedDualType(
 	return targetType->getDataPtrType(m_typeKind, m_ptrTypeKind, flags);
 }
 
+Type*
+DataPtrType::mergeAutoConstTypes(Type* constType0) {
+	ASSERT((m_flags & TypeFlag_LayoutReady) && (constType0->getFlags() & TypeFlag_LayoutReady));
+	DataPtrType* constType = (DataPtrType*)constType0;
+	if (constType->getTypeKind() != TypeKind_DataPtr || m_ptrTypeKind != constType->m_ptrTypeKind)
+		return NULL;
+
+	Type* targetType = m_targetType->mergeAutoConstTypes(constType->m_targetType);
+	if (!targetType)
+		return NULL;
+
+	AXL_TODO("deduce & apply PtrConstKind")
+	return this;
+}
+
 sl::StringRef
 DataPtrType::getTargetValueString(
 	const void* p,

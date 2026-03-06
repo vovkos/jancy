@@ -176,7 +176,7 @@ Template::instantiateImpl(const sl::ArrayRef<Type*>& argArray) {
 
 	if (m_flags & TemplateFlag_AutoConst) {
 		ASSERT(argArray.getCount() == 2);
-		instance->m_item = m_module->m_typeMgr.createAutoConstType(argArray[0], argArray[1], TypeFlag_Dual);
+		instance->m_item = m_module->m_typeMgr.getAutoConstType(argArray[0], argArray[1], TypeFlag_Dual);
 	} else if (m_declType) {
 		Type* type = m_declType->instantiate(argArray);
 		if (!type)
@@ -328,11 +328,11 @@ Template::deduceArgs(
 
 sl::StringRef
 Template::createItemString(size_t index) {
-	static const sl::StringRef derivableTypeKindStringTable[] = {
-		"struct",          // TypeKind_Struct,
-		"union",           // TypeKind_Union,
-		"class",           // TypeKind_Class,
-	};
+		static const sl::StringRef derivableTypeKindPrefixTable[] = {
+			"struct ",          // TypeKind_Struct,
+			"union ",           // TypeKind_Union,
+			"class ",           // TypeKind_Class,
+		};
 
 	switch (index) {
 	case ModuleItemStringKind_QualifiedName:
@@ -340,9 +340,11 @@ Template::createItemString(size_t index) {
 
 	case ModuleItemStringKind_Synopsis: {
 		sl::String string;
+		if (m_flags & TemplateFlag_AutoConst)
+			return getItemName();
+
 		if (m_derivableTypeKind != TypeKind_Void) {
-			string = derivableTypeKindStringTable[m_derivableTypeKind - TypeKind_Struct];
-			string += ' ';
+			string = derivableTypeKindPrefixTable[m_derivableTypeKind - TypeKind_Struct];
 			string += getItemName();
 			return string;
 		}

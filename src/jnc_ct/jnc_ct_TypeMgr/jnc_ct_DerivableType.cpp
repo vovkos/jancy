@@ -289,37 +289,42 @@ DerivableType::addProperty(Property* prop) {
 	return true;
 }
 
-bool
-DerivableType::isLayoutIdentical(Type* type0) {
-	ASSERT(m_flags & TypeFlag_LayoutReady);
+Type*
+DerivableType::mergeAutoConstTypes(Type* constType0) {
+	ASSERT((m_flags & TypeFlag_LayoutReady) && (constType0->getFlags() & TypeFlag_LayoutReady));
 
-	DerivableType* type = (DerivableType*)type0;
+	DerivableType* type = (DerivableType*)constType0;
 	if (m_typeKind != type->m_typeKind)
-		return false;
+		return NULL;
 
+	size_t fieldCount = m_fieldArray.getCount();
+	if (fieldCount != type->m_fieldArray.getCount() ||
+		m_baseTypeArray.getCount() != type->m_baseTypeArray.getCount()
+	)
+		return NULL;
+
+	AXL_TODO("ensure identical layout and merge autoconst derivables")
+
+	/*
 	// base types first...
-
-	if (m_baseTypeArray.getCount() != type->m_baseTypeArray.getCount())
-		return false;
 
 	sl::Iterator<BaseTypeSlot> slotIt = m_baseTypeList.getHead();
 	sl::Iterator<BaseTypeSlot> slotIt2 = type->m_baseTypeList.getHead();
 	for (; slotIt; slotIt++, slotIt2++)
 		if (!slotIt->m_type->isLayoutIdentical(slotIt2->m_type))
-			return false;
+			return NULL;
 
 	// ...then fields
-
-	size_t fieldCount = m_fieldArray.getCount();
-	if (fieldCount != type->m_fieldArray.getCount())
-		return false;
 
 	for (size_t i = 0; i < fieldCount; i++)
 		if (!m_fieldArray[i]->m_type->isLayoutIdentical(type->m_fieldArray[i]->m_type))
 			return false;
 
 	// the rest doesn't matter
-	return true;
+	*/
+
+	AXL_TODO("deduce & apply PtrConstKind")
+	return this;
 }
 
 bool

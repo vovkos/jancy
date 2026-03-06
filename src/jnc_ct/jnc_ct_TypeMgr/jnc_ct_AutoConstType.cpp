@@ -44,6 +44,37 @@ AutoConstType::createItemString(size_t index) {
 	return string;
 }
 
+uint_t
+AutoConstType::createSignature(
+	sl::String* signature,
+	Type* originalType,
+	Type* constType,
+	uint_t flags
+) {
+	uint_t originalTypeFlags = originalType->getFlags();
+	uint_t constTypeFlags = constType->getFlags();
+
+	*signature = ((flags & TypeFlag_Dual) ? "ZA" : "ZM") + originalType->getSignature() + constType->getSignature();
+	return
+		(originalTypeFlags & constTypeFlags & TypeFlag_SignatureFinal) |
+		TypeFlag_SignatureReady |
+		((originalTypeFlags | constTypeFlags) & TypeFlag_Import);
+}
+
+void
+AutoConstType::prepareSignature() {
+	sl::String signature;
+	uint_t flags = createSignature(
+		&signature,
+		m_originalType,
+		m_constType,
+		m_flags
+	);
+
+	m_signature = signature;
+	m_flags |= flags & TypeFlag_SignatureMask;
+}
+
 bool
 AutoConstType::calcLayout() {
 	bool result =
@@ -53,13 +84,18 @@ AutoConstType::calcLayout() {
 	if (!result)
 		return false;
 
-	if (!m_originalType->isLayoutIdentical(m_constType)) {
-		err::setError("jnc.AutoConst<T, C> arguments must have identical data layouts");
+	if (!(m_originalType->getTypeKindFlags() & TypeKindFlag_Nullable)) {
+		err::setError("jnc.AutoConst<T, C> arguments must be value types");
 		return NULL;
 	}
 
-	if (!(m_originalType->getTypeKindFlags() & TypeKindFlag_Nullable)) {
-		err::setError("jnc.AutoConst<T, C> arguments must be value types");
+	m_mergedType = m_originalType->mergeAutoConstTypes(m_constType);
+	if (!m_mergedType) {
+		err::setFormatStringError(
+			"incompatible jnc.AutoConst<T, C> arguments: '%s' vs '%s'",
+			m_originalType->getTypeString().sz(),
+			m_constType->getTypeString().sz()
+		);
 		return NULL;
 	}
 
@@ -86,7 +122,7 @@ AutoConstType::calcFoldedDualType(
 
 	return (ptrFlags & (PtrTypeFlag_Const | PtrTypeFlag_MaybeConst)) ?
 		m_constType :
-		m_module->m_typeMgr.createAutoConstType(m_originalType, m_constType, 0);
+		m_module->m_typeMgr.getAutoConstType(m_originalType, m_constType, 0);
 }
 
 //..............................................................................

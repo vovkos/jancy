@@ -174,6 +174,21 @@ FunctionPtrType::deduceTemplateArgs(
 	);
 }
 
+Type*
+FunctionPtrType::mergeAutoConstTypes(Type* constType0) {
+	ASSERT((m_flags & TypeFlag_LayoutReady) && (constType0->getFlags() & TypeFlag_LayoutReady));
+	FunctionPtrType* constType = (FunctionPtrType*)constType0;
+	if (constType->getTypeKind() != TypeKind_FunctionPtr || m_ptrTypeKind != constType->m_ptrTypeKind)
+		return NULL;
+
+	FunctionType* targetType = (FunctionType*)m_targetType->mergeAutoConstTypes(constType->m_targetType);
+	if (!targetType)
+		return NULL;
+
+	ASSERT(targetType->getTypeKind() == TypeKind_Function);
+	return m_module->m_typeMgr.getFunctionPtrType(targetType, m_typeKind, m_ptrTypeKind, m_flags);
+}
+
 //..............................................................................
 
 } // namespace ct

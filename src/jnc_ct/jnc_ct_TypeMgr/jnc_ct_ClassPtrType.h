@@ -110,6 +110,10 @@ public:
 		uint_t ptrFlags
 	);
 
+	virtual
+	Type*
+	mergeAutoConstTypes(Type* constType);
+
 protected:
 	virtual
 	void

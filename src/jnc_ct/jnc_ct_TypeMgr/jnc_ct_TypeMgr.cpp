@@ -1585,17 +1585,26 @@ TypeMgr::createTemplateDeclType(Declarator* declarator) {
 }
 
 AutoConstType*
-TypeMgr::createAutoConstType(
+TypeMgr::getAutoConstType(
 	Type* originalType,
 	Type* constType,
 	uint_t flags
 ) {
 	ASSERT(!(flags & ~(TypeFlag_Dual)));
 
+	sl::String signature;
+	flags |= AutoConstType::createSignature(&signature, originalType, constType, flags);
+	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
+	if (it->m_value) {
+		ASSERT(it->m_value->m_signature == signature);
+		return (AutoConstType*)it->m_value;
+	}
+
 	AutoConstType* type = new AutoConstType;
 	type->m_module = m_module;
 	type->m_originalType = originalType;
 	type->m_constType = constType;
+	type->m_signature = signature;
 	type->m_flags = flags;
 	m_typeList.insertTail(type);
 

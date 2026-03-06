@@ -109,14 +109,8 @@ public:
 	);
 
 	virtual
-	bool
-	isLayoutIdentical(Type* type0) {
-		FunctionPtrType* type = (FunctionPtrType*)type0;
-		return
-			type->getTypeKind() == TypeKind_FunctionPtr &&
-			m_ptrTypeKind == type->m_ptrTypeKind &&
-			m_targetType->isLayoutIdentical(type->m_targetType);
-	}
+	Type*
+	mergeAutoConstTypes(Type* constType);
 
 protected:
 	virtual

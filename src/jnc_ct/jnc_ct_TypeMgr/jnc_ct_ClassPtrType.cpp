@@ -118,6 +118,20 @@ ClassPtrType::calcFoldedDualType(
 	return m_targetType->getClassPtrType(m_typeKind, m_ptrTypeKind, flags);
 }
 
+Type*
+ClassPtrType::mergeAutoConstTypes(Type* constType0) {
+	ASSERT((m_flags & TypeFlag_LayoutReady) && (constType0->getFlags() & TypeFlag_LayoutReady));
+	ClassPtrType* constType = (ClassPtrType*)constType0;
+	if (constType->getTypeKind() != TypeKind_ClassPtr ||
+		m_ptrTypeKind != constType->m_ptrTypeKind ||
+		!m_targetType->isEqual(constType->m_targetType)
+	)
+		return NULL;
+
+	AXL_TODO("deduce & apply PtrConstKind")
+	return this;
+}
+
 bool
 ClassPtrType::deduceTemplateArgs(
 	sl::Array<Type*>* templateArgTypeArray,

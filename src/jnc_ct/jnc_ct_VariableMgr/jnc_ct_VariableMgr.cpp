@@ -638,7 +638,10 @@ VariableMgr::createMutableAutoConstVariable(const Value& value) {
 	Type* constType = autoConstType->getConstType();
 	Variable* variable = createSimpleStackVariable("mutableAutoConst", originalType);
 
-	if (m_module->hasCodeGen() && (originalType->getFlags() & TypeFlag_GcRoot))
+	if (!m_module->hasCodeGen())
+		return variable;
+
+	if (originalType->getFlags() & TypeFlag_GcRoot)
 		m_module->m_gcShadowStackMgr.markGcRoot(variable, originalType);
 
 	Value ptrValue;

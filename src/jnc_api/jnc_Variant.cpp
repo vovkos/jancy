@@ -761,6 +761,7 @@ g_formatFuncTable[jnc_TypeKind__Count] = {
 	format_ptr,                         // TypeKind_FunctionRef
 	format_ptr,                         // TypeKind_PropertyPtr
 	format_ptr,                         // TypeKind_PropertyRef
+	format_autoConst,                   // TypeKind_AutoConst
 	format_default,                     // TypeKind_ImportTypeName
 	format_default,                     // TypeKind_ImportPtr
 	format_default,                     // TypeKind_ImportIntMod
@@ -770,7 +771,6 @@ g_formatFuncTable[jnc_TypeKind__Count] = {
 	format_default,                     // TypeKind_TemplateIntMod
 	format_default,                     // TypeKind_TemplateDecl
 	format_default,                     // TypeKind_TypedefShadow
-	format_autoConst,                   // TypeKind_AutoConst
 };
 
 static
