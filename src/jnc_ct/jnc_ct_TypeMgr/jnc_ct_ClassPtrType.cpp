@@ -102,7 +102,7 @@ ClassPtrType::calcFoldedDualType(
 	uint_t ptrFlags
 ) {
 	ASSERT(m_flags & TypeFlag_Dual);
-	uint_t flags = m_flags & PtrTypeFlag__All & ~(PtrTypeFlag_ReadOnly | PtrTypeFlag_AutoConst | PtrTypeFlag_DualEvent);
+	uint_t flags = m_flags & PtrTypeFlag__All & ~(PtrTypeFlag_ReadOnly | PtrTypeFlag_AutoConst | PtrTypeFlag_EventX);
 
 	if (isAlien) {
 		if (m_flags & PtrTypeFlag_ReadOnly)
@@ -110,7 +110,7 @@ ClassPtrType::calcFoldedDualType(
 		else if (m_flags & PtrTypeFlag_AutoConst)
 			flags |= ptrFlags;
 
-		if (m_flags & PtrTypeFlag_DualEvent)
+		if (m_flags & PtrTypeFlag_EventX)
 			flags |= PtrTypeFlag_Event;
 	} else if (m_flags & PtrTypeFlag_AutoConst)
 		flags |= ptrFlags;

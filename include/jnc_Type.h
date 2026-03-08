@@ -202,40 +202,70 @@ enum jnc_TypeFlag {
 	jnc_TypeFlag_Dual           = 0x4000, // should be folded in member operator
 };
 
+typedef enum jnc_TypeFlag jnc_TypeFlag;
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum jnc_PtrTypeFlag {
-	jnc_PtrTypeFlag_Safe       = 0x00010000, // all ptr
-	jnc_PtrTypeFlag_Const      = 0x00020000, // class, data ptr
-	jnc_PtrTypeFlag_MaybeConst = 0x00040000, // class, data ptr
-	jnc_PtrTypeFlag_AutoConst  = 0x00080000, // class & data ptr (dual)
-	jnc_PtrTypeFlag_ReadOnly   = 0x00100000, // class & data ptr (dual)
-	jnc_PtrTypeFlag_Volatile   = 0x00200000, // class & data ptr
-	jnc_PtrTypeFlag_Event      = 0x00400000, // multicast-class only
-	jnc_PtrTypeFlag_DualEvent  = 0x00800000, // multicast-class only
-	jnc_PtrTypeFlag_Bindable   = 0x01000000, // multicast-class only
-	jnc_PtrTypeFlag_AutoGet    = 0x02000000, // data ptr only
-	jnc_PtrTypeFlag_BigEndian  = 0x04000000, // data ptr only
-	jnc_PtrTypeFlag_BitField   = 0x08000000, // data ptr only
-	jnc_PtrTypeFlag_ThinThis   = 0x10000000, // 'this' arg only
-	jnc_PtrTypeFlag__All       = 0x1fff0000,
+	jnc_PtrTypeFlag_PtrKind_0      = 0x00010000,
+	jnc_PtrTypeFlag_PtrKind_1      = 0x00020000,
+	jnc_PtrTypeFlag__PtrKindBit    = 16,
+	jnc_PtrTypeFlag__PtrKindMask   = 0x00030000,
+	jnc_PtrTypeFlag_ConstKind_0    = 0x00040000, // class & data ptr
+	jnc_PtrTypeFlag_ConstKind_1    = 0x00080000, // class & data ptr
+	jnc_PtrTypeFlag_ConstKind_2    = 0x00100000, // class & data ptr
+	jnc_PtrTypeFlag__ConstKindBit  = 18,
+	jnc_PtrTypeFlag__ConstKindMask = 0x001c0000, // class & data ptr
+	jnc_PtrTypeFlag_Volatile       = 0x00200000, // class & data ptr
+	jnc_PtrTypeFlag_Safe           = 0x00400000, // all ptr
+	jnc_PtrTypeFlag_Event          = 0x00800000, // multicast-class only
+	jnc_PtrTypeFlag_EventX         = 0x01000000, // multicast-class only (internal, dual)
+	jnc_PtrTypeFlag_Bindable       = 0x02000000, // multicast-class only
+	jnc_PtrTypeFlag_AutoGet        = 0x04000000, // data ptr only
+	jnc_PtrTypeFlag_BigEndian      = 0x08000000, // data ptr only
+	jnc_PtrTypeFlag_BitField       = 0x10000000, // data ptr only
+	jnc_PtrTypeFlag_ThinThis       = 0x20000000, // 'this' arg only
+	jnc_PtrTypeFlag__All           = 0x2fff0000,
 };
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-enum jnc_PtrConstKind {
-	jnc_PtrConstKind_Mutable = 0,
-	jnc_PtrConstKind_Const,
-	jnc_PtrConstKind_MaybeConst,
-	jnc_PtrConstKind_AutoConst,
-	jnc_PtrConstKind_AutoConstExtern,
-};
+typedef enum jnc_PtrTypeFlag jnc_PtrTypeFlag;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
 const char*
 jnc_getPtrTypeFlagString_v(uint_t flags);
+
+JNC_INLINE
+uint_t
+jnc_getPtrKindFromFlags(uint_t flags) {
+	return (flags & jnc_PtrTypeFlag__PtrKindMask) >> jnc_PtrTypeFlag__PtrKindBit;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum jnc_ConstKind {
+	jnc_ConstKind_None  = 0,    // non-const, i.e. mutable (default)
+	jnc_ConstKind_Const,
+	jnc_ConstKind_ReadOnly,     // dual
+	jnc_ConstKind_MaybeConst,
+	jnc_ConstKind_AutoConst,    // dual
+	jnc_ConstKind_AutoConstX,   // internal, non-dual
+};
+
+typedef enum jnc_ConstKind jnc_ConstKind;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_EXTERN_C
+const char*
+jnc_getConstKindString_v(jnc_ConstKind constKind);
+
+JNC_INLINE
+jnc_ConstKind
+jnc_getConstKindFromFlags(uint_t flags) {
+	return (jnc_ConstKind)((flags & jnc_PtrTypeFlag__ConstKindMask) >> jnc_PtrTypeFlag__ConstKindBit);
+}
 
 //..............................................................................
 
@@ -360,7 +390,7 @@ typedef enum jnc_StdType jnc_StdType;
 
 enum jnc_DataPtrTypeKind {
 	jnc_DataPtrTypeKind_Normal = 0,
-	jnc_DataPtrTypeKind_Lean,
+	jnc_DataPtrTypeKind_Lean   = jnc_PtrTypeFlag_PtrKind_0,
 	jnc_DataPtrTypeKind_Thin,
 	jnc_DataPtrTypeKind__Count,
 };
@@ -766,20 +796,37 @@ const TypeFlag
 typedef jnc_PtrTypeFlag PtrTypeFlag;
 
 const PtrTypeFlag
-	PtrTypeFlag_Safe       = jnc_PtrTypeFlag_Safe,
-	PtrTypeFlag_Const      = jnc_PtrTypeFlag_Const,
-	PtrTypeFlag_MaybeConst = jnc_PtrTypeFlag_MaybeConst,
-	PtrTypeFlag_AutoConst  = jnc_PtrTypeFlag_AutoConst,
-	PtrTypeFlag_ReadOnly   = jnc_PtrTypeFlag_ReadOnly,
-	PtrTypeFlag_Volatile   = jnc_PtrTypeFlag_Volatile,
-	PtrTypeFlag_Event      = jnc_PtrTypeFlag_Event,
-	PtrTypeFlag_DualEvent  = jnc_PtrTypeFlag_DualEvent,
-	PtrTypeFlag_Bindable   = jnc_PtrTypeFlag_Bindable,
-	PtrTypeFlag_AutoGet    = jnc_PtrTypeFlag_AutoGet,
-	PtrTypeFlag_BigEndian  = jnc_PtrTypeFlag_BigEndian,
-	PtrTypeFlag_BitField   = jnc_PtrTypeFlag_BitField,
-	PtrTypeFlag_ThinThis   = jnc_PtrTypeFlag_ThinThis,
-	PtrTypeFlag__All       = jnc_PtrTypeFlag__All;
+	PtrTypeFlag_PtrKind_0      = jnc_PtrTypeFlag_PtrKind_0,
+	PtrTypeFlag_PtrKind_1      = jnc_PtrTypeFlag_PtrKind_1,
+	PtrTypeFlag__PtrKindBit    = jnc_PtrTypeFlag__PtrKindBit,
+	PtrTypeFlag__PtrKindMask   = jnc_PtrTypeFlag__PtrKindMask,
+	PtrTypeFlag_ConstKind_0    = jnc_PtrTypeFlag_ConstKind_0,
+	PtrTypeFlag_ConstKind_1    = jnc_PtrTypeFlag_ConstKind_1,
+	PtrTypeFlag_ConstKind_2    = jnc_PtrTypeFlag_ConstKind_2,
+	PtrTypeFlag__ConstKindBit  = jnc_PtrTypeFlag__ConstKindBit,
+	PtrTypeFlag__ConstKindMask = jnc_PtrTypeFlag__ConstKindMask,
+	PtrTypeFlag_Volatile       = jnc_PtrTypeFlag_Volatile,
+	PtrTypeFlag_Safe           = jnc_PtrTypeFlag_Safe,
+	PtrTypeFlag_Event          = jnc_PtrTypeFlag_Event,
+	PtrTypeFlag_EventX         = jnc_PtrTypeFlag_EventX,
+	PtrTypeFlag_Bindable       = jnc_PtrTypeFlag_Bindable,
+	PtrTypeFlag_AutoGet        = jnc_PtrTypeFlag_AutoGet,
+	PtrTypeFlag_BigEndian      = jnc_PtrTypeFlag_BigEndian,
+	PtrTypeFlag_BitField       = jnc_PtrTypeFlag_BitField,
+	PtrTypeFlag_ThinThis       = jnc_PtrTypeFlag_ThinThis,
+	PtrTypeFlag__All           = jnc_PtrTypeFlag__All;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+typedef jnc_ConstKind ConstKind;
+
+const ConstKind
+	ConstKind_None       = jnc_ConstKind_None,
+	ConstKind_Const      = jnc_ConstKind_Const,
+	ConstKind_ReadOnly   = jnc_ConstKind_ReadOnly,
+	ConstKind_MaybeConst = jnc_ConstKind_MaybeConst,
+	ConstKind_AutoConst  = jnc_ConstKind_AutoConst,
+	ConstKind_AutoConstX = jnc_ConstKind_AutoConstX;
 
 //..............................................................................
 

@@ -284,8 +284,8 @@ DeclTypeCalc::getDataPtrTypeFlags() {
 	if (m_typeModifiers & TypeModifier_Volatile)
 		flags |= PtrTypeFlag_Volatile;
 
-	if (m_typeModifiers & TypeModifier_Event) // convert 'event' to 'dualevent'
-		flags |= PtrTypeFlag_DualEvent;
+	if (m_typeModifiers & TypeModifier_Event) // convert 'event' to 'eventx'
+		flags |= PtrTypeFlag_EventX;
 
 	if (m_typeModifiers & TypeModifier_Bindable)
 		flags |= PtrTypeFlag_Bindable;

@@ -683,6 +683,7 @@ format_dataPtr(
 	return formatStringImpl(string, fmtSpecifier, c, length);
 }
 
+static
 size_t
 format_dataRef(
 	sl::String* string,
@@ -691,6 +692,7 @@ format_dataRef(
 	jnc::Type* type
 );
 
+static
 size_t
 format_autoConst(
 	sl::String* string,

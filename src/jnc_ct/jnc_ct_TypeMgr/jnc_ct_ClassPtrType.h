@@ -33,6 +33,9 @@ public:
 		return m_ptrTypeKind;
 	}
 
+	ConstKind
+	getConstKind();
+
 	ClassType*
 	getTargetType() {
 		return m_targetType;

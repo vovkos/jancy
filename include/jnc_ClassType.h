@@ -86,6 +86,12 @@ JNC_EXTERN_C
 const char*
 jnc_getClassPtrTypeKindString(jnc_ClassPtrTypeKind ptrTypeKind);
 
+JNC_INLINE
+jnc_FunctionPtrTypeKind
+jnc_FunctionPtrTypeKindFromFlags(uint_t flags) {
+	return (jnc_FunctionPtrTypeKind)((flags & jnc_PtrTypeFlag__PtrKindMask) >> jnc_PtrTypeFlag__PtrKindBit);
+}
+
 //..............................................................................
 
 JNC_EXTERN_C

@@ -1308,11 +1308,13 @@ TypeMgr::getClassPtrType(
 
 	ClassPtrTypeTuple* tuple;
 
-	if (flags & (PtrTypeFlag_Event | PtrTypeFlag_DualEvent)) {
+	if (flags & (PtrTypeFlag_Event | PtrTypeFlag_EventX)) {
 		ASSERT(targetType->getClassTypeKind() == ClassTypeKind_Multicast);
 		tuple = getEventClassPtrTypeTuple((MulticastClassType*)targetType);
 	} else {
-		tuple = getClassPtrTypeTuple(targetType);
+		tuple = getClassPtrTypeTuple(targetType);= 5;
+		flags &= ~(PtrTypeFlag_Const | PtrTypeFlag_MaybeConst | PtrTypeFlag_AutoConst | PtrTypeFlag_ReadOnly);
+		flags |= TypeFlag_Dual;
 	}
 
 	// ref x ptrkind x const x volatile x checked
@@ -1325,19 +1327,19 @@ TypeMgr::getClassPtrType(
 
 	if (flags & PtrTypeFlag_Const) {
 		i3 = 1;
-		flags &= ~(PtrTypeFlag_MaybeConst | PtrTypeFlag_AutoConst | PtrTypeFlag_ReadOnly | PtrTypeFlag_DualEvent);
+		flags &= ~(PtrTypeFlag_MaybeConst | PtrTypeFlag_AutoConst | PtrTypeFlag_ReadOnly | PtrTypeFlag_EventX);
 	} else if (flags & PtrTypeFlag_MaybeConst) {
 		i3 = 2;
-		flags &= ~(PtrTypeFlag_Const | PtrTypeFlag_AutoConst | PtrTypeFlag_ReadOnly | PtrTypeFlag_DualEvent);
+		flags &= ~(PtrTypeFlag_Const | PtrTypeFlag_AutoConst | PtrTypeFlag_ReadOnly | PtrTypeFlag_EventX);
 	} else if (flags & PtrTypeFlag_AutoConst) {
 		i3 = 3;
-		flags &= ~(PtrTypeFlag_Const | PtrTypeFlag_MaybeConst | PtrTypeFlag_ReadOnly | PtrTypeFlag_DualEvent);
+		flags &= ~(PtrTypeFlag_Const | PtrTypeFlag_MaybeConst | PtrTypeFlag_ReadOnly | PtrTypeFlag_EventX);
 		flags |= TypeFlag_Dual;
 	} else if (flags & PtrTypeFlag_ReadOnly) {
 		i3 = 4;
-		flags &= ~(PtrTypeFlag_Const | PtrTypeFlag_MaybeConst | PtrTypeFlag_AutoConst | PtrTypeFlag_DualEvent);
+		flags &= ~(PtrTypeFlag_Const | PtrTypeFlag_MaybeConst | PtrTypeFlag_AutoConst | PtrTypeFlag_EventX);
 		flags |= TypeFlag_Dual;
-	} else if (flags & PtrTypeFlag_DualEvent) {
+	} else if (flags & PtrTypeFlag_EventX) {
 		i3 = 5;
 		flags &= ~(PtrTypeFlag_Const | PtrTypeFlag_MaybeConst | PtrTypeFlag_AutoConst | PtrTypeFlag_ReadOnly);
 		flags |= TypeFlag_Dual;

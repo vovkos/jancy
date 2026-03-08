@@ -72,6 +72,12 @@ JNC_EXTERN_C
 const char*
 jnc_getPropertyPtrTypeKindString(jnc_PropertyPtrTypeKind ptrTypeKind);
 
+JNC_INLINE
+jnc_PropertyPtrTypeKind
+jnc_getPropertyPtrTypeKindFromFlags(uint_t flags) {
+	return (jnc_PropertyPtrTypeKind)jnc_getPtrKindFromFlags(flags);
+}
+
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #ifdef __cplusplus

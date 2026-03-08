@@ -87,7 +87,7 @@ getPtrTypeFlagString(PtrTypeFlag flag) {
 		"readonly",   // PtrTypeFlag_ReadOnly   = 0x00100000
 		"volatile",   // PtrTypeFlag_Volatile   = 0x00200000
 		"event",      // PtrTypeFlag_Event      = 0x00400000
-		"dualevent",  // PtrTypeFlag_DualEvent  = 0x00800000
+		"event-x",    // PtrTypeFlag_EventX     = 0x00800000
 		"bindable",   // PtrTypeFlag_Bindable   = 0x01000000
 		"autoget",    // PtrTypeFlag_AutoGet    = 0x02000000
 		"bigendian",  // PtrTypeFlag_BigEndian  = 0x04000000
@@ -136,7 +136,7 @@ getPtrTypeFlagSignature(PtrTypeFlag flag) {
 		"r",  // PtrTypeFlag_ReadOnly   = 0x00100000
 		"v",  // PtrTypeFlag_Volatile   = 0x00200000
 		"e",  // PtrTypeFlag_Event      = 0x00400000
-		"d",  // PtrTypeFlag_DualEvent  = 0x00800000
+		"d",  // PtrTypeFlag_EventX     = 0x00800000
 		"b",  // PtrTypeFlag_Bindable   = 0x01000000
 		"a",  // PtrTypeFlag_AutoGet    = 0x02000000
 		"n",  // PtrTypeFlag_BigEndian  = 0x04000000
